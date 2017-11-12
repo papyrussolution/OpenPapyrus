@@ -32,7 +32,7 @@ struct xmlBuf {
 	xmlChar * contentIO;    /* in IO mode we may have a different base */
 	size_t use;             /* The buffer size used */
 	size_t size;            /* The buffer size */
-	xmlBufferPtr buffer;    /* wrapper for an old buffer */
+	xmlBuffer * buffer;    /* wrapper for an old buffer */
 	int error;              /* an error code if a failure occured */
 };
 
@@ -442,7 +442,7 @@ static size_t FASTCALL xmlBufGrowInternal(xmlBuf * pBuf, size_t len)
 int FASTCALL xmlBufGrow(xmlBuf * buf, int len)
 {
 	size_t ret;
-	if((buf == NULL) || (len < 0))
+	if(!buf || (len < 0))
         return -1;
 	else if(len == 0)
 		return 0;
@@ -1071,7 +1071,7 @@ xmlBuf * FASTCALL xmlBufFromBuffer(xmlBuffer * buffer)
  */
 xmlBuffer * FASTCALL xmlBufBackToBuffer(xmlBuf * buf)
 {
-	xmlBufferPtr ret;
+	xmlBuffer * ret;
 	if(!buf || buf->error)
 		return NULL;
 	CHECK_COMPAT(buf)

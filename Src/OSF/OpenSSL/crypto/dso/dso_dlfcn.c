@@ -27,7 +27,7 @@
 #   define __EXTENSIONS__
 #  endif
 #  include <dlfcn.h>
-#  define HAVE_DLINFO 1
+#define HAVE_DLINFO 1
 #  if defined(_AIX) || defined(__CYGWIN__) || \
 	defined(__SCO_VERSION__) || defined(_SCO_ELF) || \
 	(defined(__osf__) && !defined(RTLD_NEXT))     || \
@@ -38,7 +38,7 @@
 # endif
 
 /* Part of the hack in "dlfcn_load" ... */
-# define DSO_MAX_TRANSLATED_SIZE 256
+#define DSO_MAX_TRANSLATED_SIZE 256
 
 static int dlfcn_load(DSO * dso);
 static int dlfcn_unload(DSO * dso);
@@ -87,7 +87,7 @@ DSO_METHOD * DSO_METHOD_openssl(void)
 #   endif
 #  endif
 # else
-#  define DLOPEN_FLAG RTLD_NOW  /* Hope this works everywhere else */
+#define DLOPEN_FLAG RTLD_NOW  /* Hope this works everywhere else */
 # endif
 
 /*
@@ -302,7 +302,7 @@ typedef struct Dl_info {
 #  else
 typedef struct Dl_info Dl_info;
 #  endif
-#  define _RLD_DLADDR             14
+#define _RLD_DLADDR             14
 
 static int dladdr(void * address, Dl_info * dl)
 {

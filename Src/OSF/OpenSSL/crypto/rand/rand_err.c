@@ -14,8 +14,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_RAND, func, 0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_RAND, 0, reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_RAND, func, 0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_RAND, 0, reason)
 
 static ERR_STRING_DATA RAND_str_functs[] = {
 	{ERR_FUNC(RAND_F_RAND_BYTES), "RAND_bytes"},

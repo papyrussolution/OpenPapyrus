@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "internal/o_str.h"
 
 int OPENSSL_memcmp(const void * v1, const void * v2, size_t n)
 {

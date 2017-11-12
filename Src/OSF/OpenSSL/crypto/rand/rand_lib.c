@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "internal/rand.h"
 #ifdef OPENSSL_FIPS
 	#include <openssl/fips.h>
 	#include <openssl/fips_rand.h>
@@ -68,7 +67,6 @@ int RAND_set_rand_engine(ENGINE * engine)
 	funct_ref = engine;
 	return 1;
 }
-
 #endif
 
 void rand_cleanup_int(void)
@@ -96,27 +94,19 @@ void RAND_add(const void * buf, int num, double entropy)
 int RAND_bytes(uchar * buf, int num)
 {
 	const RAND_METHOD * meth = RAND_get_rand_method();
-	if(meth && meth->bytes)
-		return meth->bytes(buf, num);
-	return (-1);
+	return (meth && meth->bytes) ? meth->bytes(buf, num) : -1;
 }
 
 #if OPENSSL_API_COMPAT < 0x10100000L
 int RAND_pseudo_bytes(uchar * buf, int num)
 {
 	const RAND_METHOD * meth = RAND_get_rand_method();
-	if(meth && meth->pseudorand)
-		return meth->pseudorand(buf, num);
-	return (-1);
+	return (meth && meth->pseudorand) ? meth->pseudorand(buf, num) : -1;
 }
-
 #endif
 
 int RAND_status(void)
 {
 	const RAND_METHOD * meth = RAND_get_rand_method();
-	if(meth && meth->status)
-		return meth->status();
-	return 0;
+	return (meth && meth->status) ? meth->status() : 0;
 }
-

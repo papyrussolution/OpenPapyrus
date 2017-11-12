@@ -9,7 +9,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "bn_lcl.h"
-//#include <openssl/opensslconf.h>
 
 /* This stuff appears to be completely unused, so is deprecated */
 #if OPENSSL_API_COMPAT < 0x00908000L

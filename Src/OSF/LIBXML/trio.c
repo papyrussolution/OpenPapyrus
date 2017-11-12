@@ -408,10 +408,10 @@ enum {
 #define FORMAT_PARAMETER 7
 #define FORMAT_GROUP     8
 #if TRIO_GNU
-# define FORMAT_ERRNO    9
+#define FORMAT_ERRNO    9
 #endif
 #if TRIO_EXTENSION
-# define FORMAT_USER_DEFINED 10
+#define FORMAT_USER_DEFINED 10
 #endif
 
 /* Character constants */
@@ -485,22 +485,22 @@ enum {
 #define SPECIFIER_UNGROUP ']'
 #define SPECIFIER_COUNT 'n'
 #if TRIO_UNIX98
-# define SPECIFIER_CHAR_UPPER 'C'
-# define SPECIFIER_STRING_UPPER 'S'
+#define SPECIFIER_CHAR_UPPER 'C'
+#define SPECIFIER_STRING_UPPER 'S'
 #endif
 #if TRIO_C99
-# define SPECIFIER_HEXFLOAT 'a'
-# define SPECIFIER_HEXFLOAT_UPPER 'A'
+#define SPECIFIER_HEXFLOAT 'a'
+#define SPECIFIER_HEXFLOAT_UPPER 'A'
 #endif
 #if TRIO_GNU
-# define SPECIFIER_ERRNO 'm'
+#define SPECIFIER_ERRNO 'm'
 #endif
 #if TRIO_EXTENSION
-# define SPECIFIER_BINARY 'b'
-# define SPECIFIER_BINARY_UPPER 'B'
-# define SPECIFIER_USER_DEFINED_BEGIN '<'
-# define SPECIFIER_USER_DEFINED_END '>'
-# define SPECIFIER_USER_DEFINED_SEPARATOR ':'
+#define SPECIFIER_BINARY 'b'
+#define SPECIFIER_BINARY_UPPER 'B'
+#define SPECIFIER_USER_DEFINED_BEGIN '<'
+#define SPECIFIER_USER_DEFINED_END '>'
+#define SPECIFIER_USER_DEFINED_SEPARATOR ':'
 #endif
 
 /*
@@ -604,30 +604,30 @@ enum {
 #define QUALIFIER_STAR '*'
 #define QUALIFIER_CIRCUMFLEX '^' /* For scanlists */
 #if TRIO_C99
-# define QUALIFIER_SIZE_T 'z'
-# define QUALIFIER_PTRDIFF_T 't'
-# define QUALIFIER_INTMAX_T 'j'
+#define QUALIFIER_SIZE_T 'z'
+#define QUALIFIER_PTRDIFF_T 't'
+#define QUALIFIER_INTMAX_T 'j'
 #endif
 #if TRIO_BSD || TRIO_GNU
-# define QUALIFIER_QUAD 'q'
+#define QUALIFIER_QUAD 'q'
 #endif
 #if TRIO_GNU
-# define QUALIFIER_SIZE_T_UPPER 'Z'
+#define QUALIFIER_SIZE_T_UPPER 'Z'
 #endif
 #if TRIO_MISC
-# define QUALIFIER_WIDECHAR 'w'
+#define QUALIFIER_WIDECHAR 'w'
 #endif
 #if TRIO_MICROSOFT
-# define QUALIFIER_FIXED_SIZE 'I'
+#define QUALIFIER_FIXED_SIZE 'I'
 #endif
 #if TRIO_EXTENSION
-# define QUALIFIER_QUOTE '\''
-# define QUALIFIER_STICKY '!'
-# define QUALIFIER_VARSIZE '&' /* This should remain undocumented */
-# define QUALIFIER_PARAM '@' /* Experimental */
-# define QUALIFIER_COLON ':' /* For scanlists */
-# define QUALIFIER_EQUAL '=' /* For scanlists */
-# define QUALIFIER_ROUNDING_UPPER 'R'
+#define QUALIFIER_QUOTE '\''
+#define QUALIFIER_STICKY '!'
+#define QUALIFIER_VARSIZE '&' /* This should remain undocumented */
+#define QUALIFIER_PARAM '@' /* Experimental */
+#define QUALIFIER_COLON ':' /* For scanlists */
+#define QUALIFIER_EQUAL '=' /* For scanlists */
+#define QUALIFIER_ROUNDING_UPPER 'R'
 #endif
 
 /*************************************************************************
@@ -788,8 +788,8 @@ static trio_userdef_t * internalUserDef = NULL;
  ************************************************************************/
 
 #if defined(TRIO_MINIMAL)
-# define TRIO_STRING_PUBLIC static
-# include "triostr.c"
+#define TRIO_STRING_PUBLIC static
+#include "triostr.c"
 #endif /* defined(TRIO_MINIMAL) */
 
 /*************************************************************************
@@ -5023,7 +5023,7 @@ TRIO_PRIVATE void TrioInStreamString(trio_class_t * self, int * intPointer)
  ************************************************************************/
 
 #if defined(TRIO_DOCUMENTATION)
-# include "doc/doc_scanf.h"
+#include "doc/doc_scanf.h"
 #endif
 /** @addtogroup Scanf
     @{

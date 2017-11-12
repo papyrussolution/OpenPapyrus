@@ -376,7 +376,7 @@ static void xmlCtxtDumpDtdNode(xmlDebugCtxt * ctxt, xmlDtdPtr dtd)
 static void xmlCtxtDumpAttrDecl(xmlDebugCtxt * ctxt, xmlAttribute * attr)
 {
 	xmlCtxtDumpSpaces(ctxt);
-	if(attr == NULL) {
+	if(!attr) {
 		if(!ctxt->check)
 			fprintf(ctxt->output, "Attribute declaration is NULL\n");
 		return;
@@ -490,7 +490,7 @@ static void xmlCtxtDumpElemDecl(xmlDebugCtxt * ctxt, xmlElementPtr elem)
 	}
 }
 
-static void xmlCtxtDumpEntityDecl(xmlDebugCtxt * ctxt, xmlEntityPtr ent)
+static void xmlCtxtDumpEntityDecl(xmlDebugCtxt * ctxt, xmlEntity * ent)
 {
 	xmlCtxtDumpSpaces(ctxt);
 	if(ent == NULL) {
@@ -579,7 +579,7 @@ static void xmlCtxtDumpNamespaceList(xmlDebugCtxt * ctxt, xmlNs * ns)
 	}
 }
 
-static void xmlCtxtDumpEntity(xmlDebugCtxt * ctxt, xmlEntityPtr ent)
+static void xmlCtxtDumpEntity(xmlDebugCtxt * ctxt, xmlEntity * ent)
 {
 	xmlCtxtDumpSpaces(ctxt);
 	if(ent == NULL) {
@@ -629,7 +629,7 @@ static void xmlCtxtDumpEntity(xmlDebugCtxt * ctxt, xmlEntityPtr ent)
 static void xmlCtxtDumpAttr(xmlDebugCtxt * ctxt, xmlAttrPtr attr)
 {
 	xmlCtxtDumpSpaces(ctxt);
-	if(attr == NULL) {
+	if(!attr) {
 		if(!ctxt->check)
 			fprintf(ctxt->output, "Attr is NULL");
 	}
@@ -789,7 +789,7 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 				xmlCtxtDumpAttrDecl(ctxt, (xmlAttribute *)P_Node);
 				return;
 			case XML_ENTITY_DECL:
-				xmlCtxtDumpEntityDecl(ctxt, (xmlEntityPtr)P_Node);
+				xmlCtxtDumpEntityDecl(ctxt, (xmlEntity *)P_Node);
 				return;
 			case XML_NAMESPACE_DECL:
 				xmlCtxtDumpNamespace(ctxt, (xmlNs *)P_Node);
@@ -834,7 +834,7 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 			}
 		}
 		else {
-			xmlEntityPtr ent = xmlGetDocEntity(P_Node->doc, P_Node->name);
+			xmlEntity * ent = xmlGetDocEntity(P_Node->doc, P_Node->name);
 			if(ent)
 				xmlCtxtDumpEntity(ctxt, ent);
 		}
@@ -980,7 +980,7 @@ static void xmlCtxtDumpDocument(xmlDebugCtxt * ctxt, xmlDocPtr doc)
 	}
 }
 
-static void xmlCtxtDumpEntityCallback(xmlEntityPtr cur, xmlDebugCtxt * ctxt)
+static void xmlCtxtDumpEntityCallback(xmlEntity * cur, xmlDebugCtxt * ctxt)
 {
 	if(!ctxt->check) {
 		if(!cur)

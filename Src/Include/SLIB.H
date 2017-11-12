@@ -6811,6 +6811,8 @@ private:
 #define STCHUNK_STATUS_HOLIDAY -1000
 
 struct STimeChunkAssoc {
+	SLAPI  STimeChunkAssoc();
+
 	STimeChunk Chunk;
 	long   Id;
 	long   Status;
@@ -6821,12 +6823,12 @@ struct STimeChunkAssoc {
 //
 class STimeChunkAssocArray : public STimeChunkArray {
 public:
-	STimeChunkAssocArray(long id);
-	int    Add(long chunkId, const STimeChunk * pChunk, int checkForFree);
-	int    Add(long chunkId, long status, const STimeChunk * pChunk, int checkForFree);
-	int    Remove(long chunkId);
-	int    Get(long chunkId, uint * pPos, STimeChunkAssoc *) const;
-	int    GetStatus(long chunkId, long * pStatus) const;
+	SLAPI  STimeChunkAssocArray(long id);
+	int    SLAPI Add(long chunkId, const STimeChunk * pChunk, int checkForFree);
+	int    SLAPI Add(long chunkId, long status, const STimeChunk * pChunk, int checkForFree);
+	int    SLAPI Remove(long chunkId);
+	int    SLAPI Get(long chunkId, uint * pPos, STimeChunkAssoc *) const;
+	int    SLAPI GetStatus(long chunkId, long * pStatus) const;
 
 	long   Id;
 };

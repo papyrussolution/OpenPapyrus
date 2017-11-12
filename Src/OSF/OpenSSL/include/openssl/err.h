@@ -8,7 +8,7 @@
  */
 
 #ifndef HEADER_ERR_H
-# define HEADER_ERR_H
+#define HEADER_ERR_H
 
 #include <openssl/e_os2.h>
 #ifndef OPENSSL_NO_STDIO
@@ -51,51 +51,51 @@ typedef struct err_state_st {
 } ERR_STATE;
 
 /* library */
-# define ERR_LIB_NONE            1
-# define ERR_LIB_SYS             2
-# define ERR_LIB_BN              3
-# define ERR_LIB_RSA             4
-# define ERR_LIB_DH              5
-# define ERR_LIB_EVP             6
-# define ERR_LIB_BUF             7
-# define ERR_LIB_OBJ             8
-# define ERR_LIB_PEM             9
-# define ERR_LIB_DSA             10
-# define ERR_LIB_X509            11
+#define ERR_LIB_NONE            1
+#define ERR_LIB_SYS             2
+#define ERR_LIB_BN              3
+#define ERR_LIB_RSA             4
+#define ERR_LIB_DH              5
+#define ERR_LIB_EVP             6
+#define ERR_LIB_BUF             7
+#define ERR_LIB_OBJ             8
+#define ERR_LIB_PEM             9
+#define ERR_LIB_DSA             10
+#define ERR_LIB_X509            11
 /* #define ERR_LIB_METH         12 */
-# define ERR_LIB_ASN1            13
-# define ERR_LIB_CONF            14
-# define ERR_LIB_CRYPTO          15
-# define ERR_LIB_EC              16
-# define ERR_LIB_SSL             20
+#define ERR_LIB_ASN1            13
+#define ERR_LIB_CONF            14
+#define ERR_LIB_CRYPTO          15
+#define ERR_LIB_EC              16
+#define ERR_LIB_SSL             20
 /* #define ERR_LIB_SSL23        21 */
 /* #define ERR_LIB_SSL2         22 */
 /* #define ERR_LIB_SSL3         23 */
 /* #define ERR_LIB_RSAREF       30 */
 /* #define ERR_LIB_PROXY        31 */
-# define ERR_LIB_BIO             32
-# define ERR_LIB_PKCS7           33
-# define ERR_LIB_X509V3          34
-# define ERR_LIB_PKCS12          35
-# define ERR_LIB_RAND            36
-# define ERR_LIB_DSO             37
-# define ERR_LIB_ENGINE          38
-# define ERR_LIB_OCSP            39
-# define ERR_LIB_UI              40
-# define ERR_LIB_COMP            41
-# define ERR_LIB_ECDSA           42
-# define ERR_LIB_ECDH            43
-# define ERR_LIB_STORE           44
-# define ERR_LIB_FIPS            45
-# define ERR_LIB_CMS             46
-# define ERR_LIB_TS              47
-# define ERR_LIB_HMAC            48
-/* # define ERR_LIB_JPAKE       49 */
-# define ERR_LIB_CT              50
-# define ERR_LIB_ASYNC           51
-# define ERR_LIB_KDF             52
+#define ERR_LIB_BIO             32
+#define ERR_LIB_PKCS7           33
+#define ERR_LIB_X509V3          34
+#define ERR_LIB_PKCS12          35
+#define ERR_LIB_RAND            36
+#define ERR_LIB_DSO             37
+#define ERR_LIB_ENGINE          38
+#define ERR_LIB_OCSP            39
+#define ERR_LIB_UI              40
+#define ERR_LIB_COMP            41
+#define ERR_LIB_ECDSA           42
+#define ERR_LIB_ECDH            43
+#define ERR_LIB_STORE           44
+#define ERR_LIB_FIPS            45
+#define ERR_LIB_CMS             46
+#define ERR_LIB_TS              47
+#define ERR_LIB_HMAC            48
+/* #define ERR_LIB_JPAKE       49 */
+#define ERR_LIB_CT              50
+#define ERR_LIB_ASYNC           51
+#define ERR_LIB_KDF             52
 
-# define ERR_LIB_USER            128
+#define ERR_LIB_USER            128
 
 // @sobolev {
 #define OSSL_LIB_ERR_AS_FUNC 

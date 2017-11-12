@@ -67,13 +67,13 @@ typedef xmlEntitiesTable * xmlEntitiesTablePtr;
 	XMLPUBFUN void XMLCALL xmlInitializePredefinedEntities();
 #endif /* LIBXML_LEGACY_ENABLED */
 
-XMLPUBFUN xmlEntityPtr XMLCALL xmlNewEntity(xmlDocPtr doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content);
-XMLPUBFUN xmlEntityPtr XMLCALL xmlAddDocEntity(xmlDocPtr doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content);
-XMLPUBFUN xmlEntityPtr XMLCALL xmlAddDtdEntity(xmlDocPtr doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content);
-XMLPUBFUN xmlEntityPtr XMLCALL xmlGetPredefinedEntity(const xmlChar * name);
+XMLPUBFUN xmlEntity * XMLCALL xmlNewEntity(xmlDocPtr doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content);
+XMLPUBFUN xmlEntity * XMLCALL xmlAddDocEntity(xmlDocPtr doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content);
+XMLPUBFUN xmlEntity * XMLCALL xmlAddDtdEntity(xmlDocPtr doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content);
+XMLPUBFUN xmlEntity * /*XMLCALL*/FASTCALL  xmlGetPredefinedEntity(const xmlChar * name);
 XMLPUBFUN xmlEntity * /*XMLCALL*/FASTCALL xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name);
-XMLPUBFUN xmlEntityPtr XMLCALL xmlGetDtdEntity(xmlDocPtr doc, const xmlChar * name);
-XMLPUBFUN xmlEntityPtr XMLCALL xmlGetParameterEntity(xmlDocPtr doc, const xmlChar * name);
+XMLPUBFUN xmlEntity * XMLCALL xmlGetDtdEntity(xmlDocPtr doc, const xmlChar * name);
+XMLPUBFUN xmlEntity * XMLCALL xmlGetParameterEntity(xmlDocPtr doc, const xmlChar * name);
 #ifdef LIBXML_LEGACY_ENABLED
 XMLPUBFUN const xmlChar * XMLCALL xmlEncodeEntities(xmlDocPtr doc, const xmlChar * input);
 #endif /* LIBXML_LEGACY_ENABLED */
@@ -85,8 +85,8 @@ XMLPUBFUN xmlEntitiesTablePtr XMLCALL xmlCopyEntitiesTable(xmlEntitiesTablePtr t
 #endif /* LIBXML_TREE_ENABLED */
 XMLPUBFUN void XMLCALL  xmlFreeEntitiesTable(xmlEntitiesTablePtr table);
 #ifdef LIBXML_OUTPUT_ENABLED
-XMLPUBFUN void XMLCALL  xmlDumpEntitiesTable(xmlBufferPtr buf, xmlEntitiesTablePtr table);
-XMLPUBFUN void XMLCALL  xmlDumpEntityDecl(xmlBufferPtr buf, xmlEntityPtr ent);
+XMLPUBFUN void XMLCALL  xmlDumpEntitiesTable(xmlBuffer * buf, xmlEntitiesTablePtr table);
+XMLPUBFUN void XMLCALL  xmlDumpEntityDecl(xmlBuffer * buf, xmlEntity * ent);
 #endif /* LIBXML_OUTPUT_ENABLED */
 #ifdef LIBXML_LEGACY_ENABLED
 XMLPUBFUN void XMLCALL  xmlCleanupPredefinedEntities();

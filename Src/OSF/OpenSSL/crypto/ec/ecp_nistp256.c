@@ -112,7 +112,7 @@ static const felem_bytearray nistp256_curve_params[5] = {
  * values are used as intermediate values before multiplication.
  */
 
-# define NLIMBS 4
+#define NLIMBS 4
 
 typedef uint128_t limb;
 typedef limb felem[NLIMBS];
@@ -257,9 +257,9 @@ static void longfelem_scalar(longfelem out, const u64 scalar)
 	out[7] *= scalar;
 }
 
-# define two105m41m9 (((limb)1) << 105) - (((limb)1) << 41) - (((limb)1) << 9)
-# define two105 (((limb)1) << 105)
-# define two105m41p9 (((limb)1) << 105) - (((limb)1) << 41) + (((limb)1) << 9)
+#define two105m41m9 (((limb)1) << 105) - (((limb)1) << 41) - (((limb)1) << 9)
+#define two105 (((limb)1) << 105)
+#define two105m41p9 (((limb)1) << 105) - (((limb)1) << 41) + (((limb)1) << 9)
 
 /* zero105 is 0 mod p */
 static const felem zero105 =
@@ -302,9 +302,9 @@ static void felem_diff(felem out, const felem in)
 	out[3] -= in[3];
 }
 
-# define two107m43m11 (((limb)1) << 107) - (((limb)1) << 43) - (((limb)1) << 11)
-# define two107 (((limb)1) << 107)
-# define two107m43p11 (((limb)1) << 107) - (((limb)1) << 43) + (((limb)1) << 11)
+#define two107m43m11 (((limb)1) << 107) - (((limb)1) << 43) - (((limb)1) << 11)
+#define two107 (((limb)1) << 107)
+#define two107m43p11 (((limb)1) << 107) - (((limb)1) << 43) + (((limb)1) << 11)
 
 /* zero107 is 0 mod p */
 static const felem zero107 =
@@ -373,10 +373,10 @@ static void longfelem_diff(longfelem out, const longfelem in)
 	out[7] -= in[7];
 }
 
-# define two64m0 (((limb)1) << 64) - 1
-# define two110p32m0 (((limb)1) << 110) + (((limb)1) << 32) - 1
-# define two64m46 (((limb)1) << 64) - (((limb)1) << 46)
-# define two64m32 (((limb)1) << 64) - (((limb)1) << 32)
+#define two64m0 (((limb)1) << 64) - 1
+#define two110p32m0 (((limb)1) << 110) + (((limb)1) << 32) - 1
+#define two64m46 (((limb)1) << 64) - (((limb)1) << 46)
+#define two64m32 (((limb)1) << 64) - (((limb)1) << 32)
 
 /* zero110 is 0 mod p */
 static const felem zero110 = { two64m0, two110p32m0, two64m46, two64m32 };
@@ -724,9 +724,9 @@ static void felem_small_mul(longfelem out, const smallfelem small1,
 	smallfelem_mul(out, small1, small2);
 }
 
-# define two100m36m4 (((limb)1) << 100) - (((limb)1) << 36) - (((limb)1) << 4)
-# define two100 (((limb)1) << 100)
-# define two100m36p4 (((limb)1) << 100) - (((limb)1) << 36) + (((limb)1) << 4)
+#define two100m36m4 (((limb)1) << 100) - (((limb)1) << 36) - (((limb)1) << 4)
+#define two100 (((limb)1) << 100)
+#define two100m36p4 (((limb)1) << 100) - (((limb)1) << 36) + (((limb)1) << 4)
 /* zero100 is 0 mod p */
 static const felem zero100 =
 { two100m36m4, two100, two100m36p4, two100m36p4 };

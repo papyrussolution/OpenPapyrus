@@ -8,10 +8,7 @@
  */
 
 #ifndef HEADER_BN_INT_H
-# define HEADER_BN_INT_H
-
-# include <openssl/bn.h>
-# include <limits.h>
+#define HEADER_BN_INT_H
 
 #ifdef  __cplusplus
 extern "C" {
@@ -19,9 +16,7 @@ extern "C" {
 
 BIGNUM *bn_wexpand(BIGNUM *a, int words);
 BIGNUM *bn_expand2(BIGNUM *a, int words);
-
 void bn_correct_top(BIGNUM *a);
-
 /*
  * Determine the modified width-(w+1) Non-Adjacent Form (wNAF) of 'scalar'.
  * This is an array r[] of values that are either zero or odd with an
@@ -31,30 +26,22 @@ void bn_correct_top(BIGNUM *a);
  * non-zero digit.
  */
 signed char *bn_compute_wNAF(const BIGNUM *scalar, int w, size_t *ret_len);
-
 int bn_get_top(const BIGNUM *a);
-
 void bn_set_top(BIGNUM *a, int top);
-
 int bn_get_dmax(const BIGNUM *a);
-
 /* Set all words to zero */
 void bn_set_all_zero(BIGNUM *a);
-
 /*
  * Copy the internal BIGNUM words into out which holds size elements (and size
  * must be bigger than top)
  */
 int bn_copy_words(BN_ULONG *out, const BIGNUM *in, int size);
-
 BN_ULONG *bn_get_words(const BIGNUM *a);
-
 /*
  * Set the internal data words in a to point to words which contains size
  * elements. The BN_FLG_STATIC_DATA flag is set
  */
 void bn_set_static_words(BIGNUM *a, BN_ULONG *words, int size);
-
 /*
  * Copy words into the BIGNUM |a|, reallocating space as necessary.
  * The negative flag of |a| is not modified.
@@ -65,18 +52,14 @@ void bn_set_static_words(BIGNUM *a, BN_ULONG *words, int size);
  * function so we simply trust callers not to pass negative values.
  */
 int bn_set_words(BIGNUM *a, BN_ULONG *words, int num_words);
-
 size_t bn_sizeof_BIGNUM(void);
-
 /*
  * Return element el from an array of BIGNUMs starting at base (required
  * because callers do not know the size of BIGNUM at compilation time)
  */
 BIGNUM *bn_array_el(BIGNUM *base, int el);
 
-
 #ifdef  __cplusplus
 }
 #endif
-
 #endif

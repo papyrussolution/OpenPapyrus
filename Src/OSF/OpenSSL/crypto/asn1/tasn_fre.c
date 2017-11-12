@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1.h>
-//#include <openssl/asn1t.h>
 #include "asn1_locl.h"
 
 static void asn1_item_embed_free(ASN1_VALUE ** pval, const ASN1_ITEM * it, int embed);

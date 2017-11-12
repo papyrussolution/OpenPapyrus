@@ -9,10 +9,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #ifndef OPENSSL_NO_BF
-//#include <openssl/evp.h>
-//#include <openssl/objects.h>
-//#include <openssl/blowfish.h>
-//#include <internal/evp_int.h>
 
 static int bf_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc);
 

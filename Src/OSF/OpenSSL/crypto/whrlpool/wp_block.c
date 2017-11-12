@@ -73,7 +73,7 @@ typedef ulong long u64;
 
 #undef SMALL_REGISTER_BANK
 #if defined(__i386) || defined(__i386__) || defined(_M_IX86)
-# define SMALL_REGISTER_BANK
+#define SMALL_REGISTER_BANK
 # if defined(WHIRLPOOL_ASM)
 #  ifndef OPENSSL_SMALL_FOOTPRINT
 /*
@@ -82,7 +82,7 @@ typedef ulong long u64;
  */
 #   define OPENSSL_SMALL_FOOTPRINT
 #  endif
-#  define GO_FOR_MMX(ctx,inp,num)     do {                    \
+#define GO_FOR_MMX(ctx,inp,num)     do {                    \
         extern ulong OPENSSL_ia32cap_P[];               \
         void whirlpool_block_mmx(void *,const void *,size_t);   \
         if (!(OPENSSL_ia32cap_P[0] & (1<<23)))  break;          \
@@ -135,7 +135,7 @@ typedef ulong long u64;
 #  endif
 # endif
 # if defined(ROTATE) && !defined(STRICT_ALIGNMENT)
-#  define STRICT_ALIGNMENT      /* ensure smallest table size */
+#define STRICT_ALIGNMENT      /* ensure smallest table size */
 # endif
 #endif
 
@@ -164,19 +164,19 @@ typedef ulong long u64;
  */
 #ifdef STRICT_ALIGNMENT
 # if defined(ROTATE)
-#  define N   1
-#  define LL(c0,c1,c2,c3,c4,c5,c6,c7) c0,c1,c2,c3,c4,c5,c6,c7
-#  define C0(K,i)     (Cx.q[K.c[(i)*8+0]])
-#  define C1(K,i)     ROTATE(Cx.q[K.c[(i)*8+1]],8)
-#  define C2(K,i)     ROTATE(Cx.q[K.c[(i)*8+2]],16)
-#  define C3(K,i)     ROTATE(Cx.q[K.c[(i)*8+3]],24)
-#  define C4(K,i)     ROTATE(Cx.q[K.c[(i)*8+4]],32)
-#  define C5(K,i)     ROTATE(Cx.q[K.c[(i)*8+5]],40)
-#  define C6(K,i)     ROTATE(Cx.q[K.c[(i)*8+6]],48)
-#  define C7(K,i)     ROTATE(Cx.q[K.c[(i)*8+7]],56)
+#define N   1
+#define LL(c0,c1,c2,c3,c4,c5,c6,c7) c0,c1,c2,c3,c4,c5,c6,c7
+#define C0(K,i)     (Cx.q[K.c[(i)*8+0]])
+#define C1(K,i)     ROTATE(Cx.q[K.c[(i)*8+1]],8)
+#define C2(K,i)     ROTATE(Cx.q[K.c[(i)*8+2]],16)
+#define C3(K,i)     ROTATE(Cx.q[K.c[(i)*8+3]],24)
+#define C4(K,i)     ROTATE(Cx.q[K.c[(i)*8+4]],32)
+#define C5(K,i)     ROTATE(Cx.q[K.c[(i)*8+5]],40)
+#define C6(K,i)     ROTATE(Cx.q[K.c[(i)*8+6]],48)
+#define C7(K,i)     ROTATE(Cx.q[K.c[(i)*8+7]],56)
 # else
-#  define N   8
-#  define LL(c0,c1,c2,c3,c4,c5,c6,c7) c0,c1,c2,c3,c4,c5,c6,c7, \
+#define N   8
+#define LL(c0,c1,c2,c3,c4,c5,c6,c7) c0,c1,c2,c3,c4,c5,c6,c7, \
                                         c7,c0,c1,c2,c3,c4,c5,c6, \
                                         c6,c7,c0,c1,c2,c3,c4,c5, \
                                         c5,c6,c7,c0,c1,c2,c3,c4, \
@@ -184,27 +184,27 @@ typedef ulong long u64;
                                         c3,c4,c5,c6,c7,c0,c1,c2, \
                                         c2,c3,c4,c5,c6,c7,c0,c1, \
                                         c1,c2,c3,c4,c5,c6,c7,c0
-#  define C0(K,i)     (Cx.q[0+8*K.c[(i)*8+0]])
-#  define C1(K,i)     (Cx.q[1+8*K.c[(i)*8+1]])
-#  define C2(K,i)     (Cx.q[2+8*K.c[(i)*8+2]])
-#  define C3(K,i)     (Cx.q[3+8*K.c[(i)*8+3]])
-#  define C4(K,i)     (Cx.q[4+8*K.c[(i)*8+4]])
-#  define C5(K,i)     (Cx.q[5+8*K.c[(i)*8+5]])
-#  define C6(K,i)     (Cx.q[6+8*K.c[(i)*8+6]])
-#  define C7(K,i)     (Cx.q[7+8*K.c[(i)*8+7]])
+#define C0(K,i)     (Cx.q[0+8*K.c[(i)*8+0]])
+#define C1(K,i)     (Cx.q[1+8*K.c[(i)*8+1]])
+#define C2(K,i)     (Cx.q[2+8*K.c[(i)*8+2]])
+#define C3(K,i)     (Cx.q[3+8*K.c[(i)*8+3]])
+#define C4(K,i)     (Cx.q[4+8*K.c[(i)*8+4]])
+#define C5(K,i)     (Cx.q[5+8*K.c[(i)*8+5]])
+#define C6(K,i)     (Cx.q[6+8*K.c[(i)*8+6]])
+#define C7(K,i)     (Cx.q[7+8*K.c[(i)*8+7]])
 # endif
 #else
-# define N     2
-# define LL(c0,c1,c2,c3,c4,c5,c6,c7)   c0,c1,c2,c3,c4,c5,c6,c7, \
+#define N     2
+#define LL(c0,c1,c2,c3,c4,c5,c6,c7)   c0,c1,c2,c3,c4,c5,c6,c7, \
                                         c0,c1,c2,c3,c4,c5,c6,c7
-# define C0(K,i)       (((u64*)(Cx.c+0))[2*K.c[(i)*8+0]])
-# define C1(K,i)       (((u64*)(Cx.c+7))[2*K.c[(i)*8+1]])
-# define C2(K,i)       (((u64*)(Cx.c+6))[2*K.c[(i)*8+2]])
-# define C3(K,i)       (((u64*)(Cx.c+5))[2*K.c[(i)*8+3]])
-# define C4(K,i)       (((u64*)(Cx.c+4))[2*K.c[(i)*8+4]])
-# define C5(K,i)       (((u64*)(Cx.c+3))[2*K.c[(i)*8+5]])
-# define C6(K,i)       (((u64*)(Cx.c+2))[2*K.c[(i)*8+6]])
-# define C7(K,i)       (((u64*)(Cx.c+1))[2*K.c[(i)*8+7]])
+#define C0(K,i)       (((u64*)(Cx.c+0))[2*K.c[(i)*8+0]])
+#define C1(K,i)       (((u64*)(Cx.c+7))[2*K.c[(i)*8+1]])
+#define C2(K,i)       (((u64*)(Cx.c+6))[2*K.c[(i)*8+2]])
+#define C3(K,i)       (((u64*)(Cx.c+5))[2*K.c[(i)*8+3]])
+#define C4(K,i)       (((u64*)(Cx.c+4))[2*K.c[(i)*8+4]])
+#define C5(K,i)       (((u64*)(Cx.c+3))[2*K.c[(i)*8+5]])
+#define C6(K,i)       (((u64*)(Cx.c+2))[2*K.c[(i)*8+6]])
+#define C7(K,i)       (((u64*)(Cx.c+1))[2*K.c[(i)*8+7]])
 #endif
 
 static const

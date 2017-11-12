@@ -8,17 +8,11 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <internal/conf.h>
-//#include <openssl/x509.h>
-//#include <openssl/asn1.h>
-//#include <openssl/engine.h>
-
 /*
  * This is the automatic configuration loader: it is called automatically by
  * OpenSSL when any of a number of standard initialisation functions are
  * called, unless this is overridden by calling OPENSSL_no_config()
  */
-
 static int openssl_configured = 0;
 
 #if OPENSSL_API_COMPAT < 0x10100000L

@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/bn.h>
-//#include <openssl/rsa.h>
-//#include <openssl/objects.h>
 
 int RSA_padding_add_X931(uchar * to, int tlen, const uchar * from, int flen)
 {

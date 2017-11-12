@@ -182,7 +182,7 @@ static ngx_int_t ngx_ssl_stapling_file(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_ssl
 		goto failed;
 	}
 	buf = (u_char *)ngx_alloc(len, ssl->log);
-	if(buf == NULL) {
+	if(!buf) {
 		goto failed;
 	}
 	p = buf;

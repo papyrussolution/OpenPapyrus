@@ -9,13 +9,12 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509v3.h>
 
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_X509V3, func, 0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_X509V3, 0, reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_X509V3, func, 0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_X509V3, 0, reason)
 
 static ERR_STRING_DATA X509V3_str_functs[] = {
 	{ERR_FUNC(X509V3_F_A2I_GENERAL_NAME), "a2i_GENERAL_NAME"},

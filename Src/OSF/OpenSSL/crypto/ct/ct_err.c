@@ -14,8 +14,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_CT, func, 0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_CT, 0, reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_CT, func, 0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_CT, 0, reason)
 
 static ERR_STRING_DATA CT_str_functs[] = {
 	{ERR_FUNC(CT_F_CTLOG_NEW), "CTLOG_new"},

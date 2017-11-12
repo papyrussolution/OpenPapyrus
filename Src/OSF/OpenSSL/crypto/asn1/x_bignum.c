@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1t.h>
-//#include <openssl/bn.h>
 /*
  * Custom primitive type for BIGNUM handling. This reads in an ASN1_INTEGER
  * as a BIGNUM directly. Currently it ignores the sign which isn't a problem

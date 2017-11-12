@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <internal/evp_int.h>
 #include "evp_locl.h"
 /*
  * BIO_put and BIO_get both add to the digest, BIO_gets returns the digest

@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1t.h>
-//#include <openssl/objects.h>
 #include "ec_lcl.h"
 
 int EC_GROUP_get_basis_type(const EC_GROUP * group)

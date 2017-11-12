@@ -15,13 +15,11 @@
  * SIXTY_FOUR_BIT in its own environment since it doesn't re-run our
  * Configure script and needs to support both 32-bit and 64-bit.
  */
-# include <openssl/opensslconf.h>
-
-# if !defined(OPENSSL_SYS_UEFI)
-// @sobolev #include "internal/bn_conf.h"
-# endif
-
-# include "internal/bn_int.h"
+//#include <openssl/opensslconf.h>
+#if !defined(OPENSSL_SYS_UEFI)
+	// @sobolev #include "internal/bn_conf.h"
+#endif
+//#include "internal/bn_int.h"
 
 #ifdef  __cplusplus
 extern "C" {

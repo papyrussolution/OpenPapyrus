@@ -35,10 +35,6 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include "ssl_locl.h"
-//#include <openssl/evp.h>
-#include <openssl/md5.h>
 
 static int ssl3_generate_key_block(SSL * s, uchar * km, int num)
 {

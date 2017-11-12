@@ -14,8 +14,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_TS,func,0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_TS,0,reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_TS,func,0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_TS,0,reason)
 
 static ERR_STRING_DATA TS_str_functs[] = {
     {ERR_FUNC(TS_F_DEF_SERIAL_CB), "def_serial_cb"},

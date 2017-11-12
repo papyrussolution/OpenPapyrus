@@ -39,7 +39,7 @@ struct xmlSAXHandler;
 typedef xmlSAXHandler * xmlSAXHandlerPtr;
 //typedef struct _xmlEntity xmlEntity;
 struct xmlEntity;
-typedef xmlEntity * xmlEntityPtr;
+//typedef xmlEntity * xmlEntityPtr;
 
 //#include <libxml/xmlversion.h>
 
@@ -83,15 +83,15 @@ typedef enum {
  * is being deprecated, use API with xmlBuf instead
  */
 //typedef struct _xmlBuffer xmlBuffer;
-struct xmlBuffer;
-typedef xmlBuffer * xmlBufferPtr;
+//struct xmlBuffer;
+//typedef xmlBuffer * xmlBufferPtr;
 
 struct xmlBuffer {
-	xmlChar * content;      /* The buffer content UTF8 */
-	uint   use;       /* The buffer size used */
-	uint   size;      /* The buffer size */
-	xmlBufferAllocationScheme alloc; /* The realloc method */
-	xmlChar * contentIO;    /* in IO mode we may have a different base */
+	xmlChar * content; // The buffer content UTF8 
+	uint   use;       // The buffer size used 
+	uint   size;      // The buffer size 
+	xmlBufferAllocationScheme alloc; // The realloc method 
+	xmlChar * contentIO; // in IO mode we may have a different base 
 };
 /**
  * xmlBuf:
@@ -274,24 +274,24 @@ typedef enum {
  * An XML Element content as stored after parsing an element definition
  * in a DTD.
  */
-typedef struct _xmlElementContent xmlElementContent;
-typedef xmlElementContent * xmlElementContentPtr;
+//typedef struct _xmlElementContent xmlElementContent;
 
-struct _xmlElementContent {
+struct xmlElementContent {
 	xmlElementContentType type;     /* PCDATA, ELEMENT, SEQ or OR */
 	xmlElementContentOccur ocur;    /* ONCE, OPT, MULT or PLUS */
-	const xmlChar             * name; /* Element name */
-	struct _xmlElementContent * c1; /* first child */
-	struct _xmlElementContent * c2; /* second child */
-	struct _xmlElementContent * parent; /* parent */
-	const xmlChar             * prefix; /* Namespace prefix */
+	const xmlChar * name; /* Element name */
+	xmlElementContent * c1; /* first child */
+	xmlElementContent * c2; /* second child */
+	xmlElementContent * parent; /* parent */
+	const xmlChar * prefix; /* Namespace prefix */
 };
+
+typedef xmlElementContent * xmlElementContentPtr;
 /**
  * xmlElementTypeVal:
  *
  * The different possibilities for an element content type.
  */
-
 typedef enum {
 	XML_ELEMENT_TYPE_UNDEFINED = 0,
 	XML_ELEMENT_TYPE_EMPTY = 1,
@@ -312,10 +312,8 @@ extern "C" {
  *
  * An XML Element declaration from a DTD.
  */
-typedef struct _xmlElement xmlElement;
-typedef xmlElement * xmlElementPtr;
-
-struct _xmlElement {
+//typedef struct _xmlElement xmlElement;
+struct xmlElement {
 	void * _private;      /* application data */
 	xmlElementType type;            /* XML_ELEMENT_DECL, must be second ! */
 	const xmlChar * name;  /* Element name */
@@ -335,6 +333,8 @@ struct _xmlElement {
 	void              * contModel;
 #endif
 };
+
+typedef xmlElement * xmlElementPtr;
 /**
  * XML_LOCAL_NAMESPACE:
  *
@@ -356,7 +356,7 @@ typedef xmlElementType xmlNsType;
 struct xmlNs;
 //typedef xmlNs * xmlNsPtr;
 
-struct /*_xmlNs*/xmlNs {
+struct xmlNs {
 	xmlNs * next;  /* next Ns link for this node  */
 	xmlNsType type;         /* global or local */
 	const xmlChar * href;   /* URL for the namespace */
@@ -398,23 +398,23 @@ typedef xmlDtd * xmlDtdPtr;
  *
  * An attribute on an XML node.
  */
-typedef struct _xmlAttr xmlAttr;
-typedef xmlAttr * xmlAttrPtr;
-
-struct _xmlAttr {
-	void           * _private; /* application data */
+//typedef struct _xmlAttr xmlAttr;
+struct xmlAttr {
+	void * _private; /* application data */
 	xmlElementType type;    /* XML_ATTRIBUTE_NODE, must be second ! */
 	const xmlChar   * name; /* the name of the property */
 	xmlNode * children; /* the value of the property */
 	xmlNode * last; /* NULL */
 	xmlNode * parent; /* child->parent link */
-	struct _xmlAttr * next; /* next sibling link  */
-	struct _xmlAttr * prev; /* previous sibling link  */
+	xmlAttr * next; /* next sibling link  */
+	xmlAttr * prev; /* previous sibling link  */
 	xmlDoc  * doc;  /* the containing document */
 	xmlNs * ns;   /* pointer to the associated namespace */
 	xmlAttributeType atype; /* the attribute type if validating */
 	void * psvi; /* for type/PSVI informations */
 };
+
+typedef xmlAttr * xmlAttrPtr;
 /**
  * xmlID:
  *
@@ -456,7 +456,7 @@ struct _xmlRef {
 struct xmlNode {
 	void * _private; // application data 
 	xmlElementType type; // type number, must be second ! 
-	const xmlChar   * name; /* the name of the node, or the entity */
+	const xmlChar * name; /* the name of the node, or the entity */
 	xmlNode * children; /* parent->childs link */
 	xmlNode * last; /* last child link */
 	xmlNode * parent; /* child->parent link */
@@ -466,7 +466,7 @@ struct xmlNode {
 	// End of common part 
 	xmlNs   * ns;   /* pointer to the associated namespace */
 	xmlChar * content; /* the content */
-	struct _xmlAttr * properties; /* properties list */
+	xmlAttr * properties; /* properties list */
 	xmlNs * nsDef; /* namespace definitions on this node */
 	void  * psvi; /* for type/PSVI informations */
 	ushort line;    /* line number */
@@ -584,11 +584,9 @@ struct _xmlDOMWrapCtxt {
 #ifndef xmlRootNode
     #define xmlRootNode children
 #endif
-
 /*
  * Variables.
  */
-
 /*
  * Some helper functions
  */
@@ -610,22 +608,22 @@ XMLPUBFUN const xmlChar * XMLCALL xmlSplitQName3(const xmlChar * name, int * len
  */
 XMLPUBFUN void XMLCALL xmlSetBufferAllocationScheme(xmlBufferAllocationScheme scheme);
 XMLPUBFUN xmlBufferAllocationScheme XMLCALL xmlGetBufferAllocationScheme();
-XMLPUBFUN xmlBufferPtr XMLCALL xmlBufferCreate();
-XMLPUBFUN xmlBufferPtr XMLCALL xmlBufferCreateSize(size_t size);
-XMLPUBFUN xmlBufferPtr XMLCALL xmlBufferCreateStatic(void * mem, size_t size);
-XMLPUBFUN int XMLCALL xmlBufferResize(xmlBufferPtr buf, uint size);
+XMLPUBFUN xmlBuffer * XMLCALL xmlBufferCreate();
+XMLPUBFUN xmlBuffer * XMLCALL xmlBufferCreateSize(size_t size);
+XMLPUBFUN xmlBuffer * XMLCALL xmlBufferCreateStatic(void * mem, size_t size);
+XMLPUBFUN int XMLCALL xmlBufferResize(xmlBuffer * buf, uint size);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlBufferFree(xmlBuffer * pBuf);
-XMLPUBFUN int XMLCALL xmlBufferDump(FILE * file, xmlBufferPtr buf);
-XMLPUBFUN int XMLCALL xmlBufferAdd(xmlBufferPtr buf, const xmlChar * str, int len);
-XMLPUBFUN int XMLCALL xmlBufferAddHead(xmlBufferPtr buf, const xmlChar * str, int len);
+XMLPUBFUN int XMLCALL xmlBufferDump(FILE * file, xmlBuffer * buf);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlBufferAdd(xmlBuffer * buf, const xmlChar * str, int len);
+XMLPUBFUN int XMLCALL xmlBufferAddHead(xmlBuffer * buf, const xmlChar * str, int len);
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlBufferCat(xmlBuffer * pBuf, const xmlChar * pStr);
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlBufferCCat(xmlBuffer * pBuf, const char * pStr);
-XMLPUBFUN int XMLCALL xmlBufferShrink(xmlBufferPtr buf, uint len);
-XMLPUBFUN int XMLCALL xmlBufferGrow(xmlBufferPtr buf, uint len);
-XMLPUBFUN void XMLCALL xmlBufferEmpty(xmlBufferPtr buf);
+XMLPUBFUN int XMLCALL xmlBufferShrink(xmlBuffer * buf, uint len);
+XMLPUBFUN int XMLCALL xmlBufferGrow(xmlBuffer * buf, uint len);
+XMLPUBFUN void XMLCALL xmlBufferEmpty(xmlBuffer * buf);
 XMLPUBFUN const xmlChar* XMLCALL xmlBufferContent(const xmlBuffer * buf);
-XMLPUBFUN xmlChar* XMLCALL xmlBufferDetach(xmlBufferPtr buf);
-XMLPUBFUN void XMLCALL xmlBufferSetAllocationScheme(xmlBufferPtr buf, xmlBufferAllocationScheme scheme);
+XMLPUBFUN xmlChar* XMLCALL xmlBufferDetach(xmlBuffer * buf);
+XMLPUBFUN void XMLCALL xmlBufferSetAllocationScheme(xmlBuffer * buf, xmlBufferAllocationScheme scheme);
 XMLPUBFUN int XMLCALL xmlBufferLength(const xmlBuffer * buf);
 /*
  * Creating/freeing new structures.
@@ -765,7 +763,7 @@ XMLPUBFUN void XMLCALL xmlNodeSetContentLen(xmlNode * cur, const xmlChar * conte
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlNodeAddContent(xmlNode * cur, const xmlChar * content);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlNodeAddContentLen(xmlNode * cur, const xmlChar * content, int len);
 XMLPUBFUN xmlChar * /*XMLCALL*/FASTCALL xmlNodeGetContent(const xmlNode * cur);
-XMLPUBFUN int XMLCALL xmlNodeBufGetContent(xmlBufferPtr buffer, const xmlNode * cur);
+XMLPUBFUN int XMLCALL xmlNodeBufGetContent(xmlBuffer * buffer, const xmlNode * cur);
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlBufGetNodeContent(xmlBuf * buf, const xmlNode * cur);
 XMLPUBFUN xmlChar * XMLCALL xmlNodeGetLang(const xmlNode * cur);
 XMLPUBFUN int XMLCALL xmlNodeGetSpacePreserve(const xmlNode * cur);
@@ -788,21 +786,18 @@ XMLPUBFUN int XMLCALL xmlUnsetProp(xmlNode * P_Node, const xmlChar * name);
 /*
  * Internal, don't use.
  */
-XMLPUBFUN void XMLCALL xmlBufferWriteCHAR(xmlBufferPtr buf, const xmlChar * string);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlBufferWriteCHAR(xmlBuffer * buf, const xmlChar * string);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlBufferWriteChar(xmlBuffer * pBuf, const char * pString);
-XMLPUBFUN void XMLCALL xmlBufferWriteQuotedString(xmlBufferPtr buf, const xmlChar * string);
-
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlBufferWriteQuotedString(xmlBuffer * buf, const xmlChar * string);
 #ifdef LIBXML_OUTPUT_ENABLED
-XMLPUBFUN void xmlAttrSerializeTxtContent(xmlBufferPtr buf, xmlDocPtr doc, xmlAttrPtr attr, const xmlChar * string);
+	XMLPUBFUN void xmlAttrSerializeTxtContent(xmlBuffer * buf, xmlDocPtr doc, xmlAttrPtr attr, const xmlChar * string);
 #endif /* LIBXML_OUTPUT_ENABLED */
-
 #ifdef LIBXML_TREE_ENABLED
-/*
- * Namespace handling.
- */
-XMLPUBFUN int XMLCALL xmlReconciliateNs(xmlDocPtr doc, xmlNode * tree);
+	/*
+	 * Namespace handling.
+	 */
+	XMLPUBFUN int XMLCALL xmlReconciliateNs(xmlDocPtr doc, xmlNode * tree);
 #endif
-
 #ifdef LIBXML_OUTPUT_ENABLED
 /*
  * Saving.
@@ -817,7 +812,7 @@ XMLPUBFUN void XMLCALL xmlElemDump(FILE * f, xmlDocPtr doc, xmlNode * cur);
 XMLPUBFUN int XMLCALL xmlSaveFile(const char * filename, xmlDocPtr cur);
 XMLPUBFUN int XMLCALL xmlSaveFormatFile(const char * filename, xmlDocPtr cur, int format);
 XMLPUBFUN size_t XMLCALL xmlBufNodeDump(xmlBufPtr buf, xmlDocPtr doc, xmlNode * cur, int level, int format);
-XMLPUBFUN int XMLCALL xmlNodeDump(xmlBufferPtr buf, xmlDocPtr doc, xmlNode * cur, int level, int format);
+XMLPUBFUN int XMLCALL xmlNodeDump(xmlBuffer * buf, xmlDocPtr doc, xmlNode * cur, int level, int format);
 XMLPUBFUN int XMLCALL xmlSaveFileTo(xmlOutputBufferPtr buf, xmlDocPtr cur, const char * encoding);
 XMLPUBFUN int XMLCALL xmlSaveFormatFileTo(xmlOutputBufferPtr buf, xmlDocPtr cur, const char * encoding, int format);
 XMLPUBFUN void XMLCALL xmlNodeDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNode * cur, int level, int format, const char * encoding);

@@ -14,8 +14,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "internal/cryptlib_int.h"
-//#include <openssl/safestack.h>
 
 #if defined(__i386)   || defined(__i386__)   || defined(_M_IX86) ||	defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64)
 
@@ -23,7 +21,7 @@ extern uint OPENSSL_ia32cap_P[4];
 
 # if defined(OPENSSL_CPUID_OBJ) && !defined(OPENSSL_NO_ASM) && !defined(I386_ONLY)
 #include <stdio.h>
-#  define OPENSSL_CPUID_SETUP
+#define OPENSSL_CPUID_SETUP
 typedef uint64_t IA32CAP;
 void OPENSSL_cpuid_setup(void)
 {
@@ -85,8 +83,8 @@ void OPENSSL_cpuid_setup(void)
 #endif
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-# include <tchar.h>
-# include <signal.h>
+#include <tchar.h>
+#include <signal.h>
 # ifdef __WATCOMC__
 #  if defined(_UNICODE) || defined(__UNICODE__)
 #   define _vsntprintf _vsnwprintf
@@ -95,7 +93,7 @@ void OPENSSL_cpuid_setup(void)
 #  endif
 # endif
 # ifdef _MSC_VER
-#  define alloca _alloca
+#define alloca _alloca
 # endif
 
 # if defined(_WIN32_WINNT) && _WIN32_WINNT>=0x0333

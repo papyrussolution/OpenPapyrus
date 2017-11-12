@@ -266,8 +266,8 @@ size_t CRYPTO_nistcts128_decrypt(const uchar * in, uchar * out, size_t len, cons
 }
 
 #if defined(SELFTEST)
-# include <stdio.h>
-# include <openssl/aes.h>
+#include <stdio.h>
+#include <openssl/aes.h>
 
 /* test vectors from RFC 3962 */
 static const uchar test_key[16] = "chicken teriyaki";

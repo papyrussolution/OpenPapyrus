@@ -8,29 +8,20 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/bn.h>
-//#include <openssl/rsa.h>
-//#include <openssl/evp.h>
-//#include <openssl/rand.h>
-#include <openssl/sha.h>
 #include "rsa_locl.h"
 
 static const uchar zeroes[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 #if defined(_MSC_VER) && defined(_ARM_)
-# pragma optimize("g", off)
+	#pragma optimize("g", off)
 #endif
 
-int RSA_verify_PKCS1_PSS(RSA * rsa, const uchar * mHash,
-    const EVP_MD * Hash, const uchar * EM,
-    int sLen)
+int RSA_verify_PKCS1_PSS(RSA * rsa, const uchar * mHash, const EVP_MD * Hash, const uchar * EM, int sLen)
 {
 	return RSA_verify_PKCS1_PSS_mgf1(rsa, mHash, Hash, NULL, EM, sLen);
 }
 
-int RSA_verify_PKCS1_PSS_mgf1(RSA * rsa, const uchar * mHash,
-    const EVP_MD * Hash, const EVP_MD * mgf1Hash,
-    const uchar * EM, int sLen)
+int RSA_verify_PKCS1_PSS_mgf1(RSA * rsa, const uchar * mHash, const EVP_MD * Hash, const EVP_MD * mgf1Hash, const uchar * EM, int sLen)
 {
 	int i;
 	int ret = 0;

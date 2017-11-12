@@ -358,7 +358,7 @@
  *   #define PNG_RELEASE_BUILD=0 Turns it off
  */
 #ifndef PNG_RELEASE_BUILD
-#  define PNG_RELEASE_BUILD (PNG_LIBPNG_BUILD_BASE_TYPE >= PNG_LIBPNG_BUILD_RC)
+#define PNG_RELEASE_BUILD (PNG_LIBPNG_BUILD_BASE_TYPE >= PNG_LIBPNG_BUILD_RC)
 #endif
 
 /* SECURITY and SAFETY:
@@ -417,15 +417,15 @@
  * const is not cast away.
  */
 #ifdef __cplusplus
-#  define png_voidcast(type, value) static_cast<type>(value)
-#  define png_constcast(type, value) const_cast<type>(value)
-#  define png_aligncast(type, value) static_cast<type>(static_cast<void*>(value))
-#  define png_aligncastconst(type, value) static_cast<type>(static_cast<const void*>(value))
+#define png_voidcast(type, value) static_cast<type>(value)
+#define png_constcast(type, value) const_cast<type>(value)
+#define png_aligncast(type, value) static_cast<type>(static_cast<void*>(value))
+#define png_aligncastconst(type, value) static_cast<type>(static_cast<const void*>(value))
 #else
-#  define png_voidcast(type, value) (value)
-#  define png_constcast(type, value) ((type)(value))
-#  define png_aligncast(type, value) ((void*)(value))
-#  define png_aligncastconst(type, value) ((const void*)(value))
+#define png_voidcast(type, value) (value)
+#define png_constcast(type, value) ((type)(value))
+#define png_aligncast(type, value) ((void*)(value))
+#define png_aligncastconst(type, value) ((const void*)(value))
 #endif /* __cplusplus */
 
 /* Some fixed point APIs are still required even if not exported because
@@ -510,7 +510,7 @@
  * multiple of the data type size.  Override in a compiler specific fashion
  * if necessary by inserting tests here:
  */
-#  define PNG_ALIGN_TYPE PNG_ALIGN_SIZE
+#define PNG_ALIGN_TYPE PNG_ALIGN_SIZE
 #endif
 
 #if PNG_ALIGN_TYPE == PNG_ALIGN_SIZE
@@ -520,7 +520,7 @@
  * is good for performance.  Do not do this unless you have tested the result
  * and understand it.
  */
-#  define png_alignof(type) (sizeof(type))
+#define png_alignof(type) (sizeof(type))
 #else
 #  if PNG_ALIGN_TYPE == PNG_ALIGN_OFFSET
 #     define png_alignof(type) offsetof(struct {char c; type t; }, t)
@@ -1454,8 +1454,8 @@ PNG_INTERNAL_FUNCTION(void, png_app_error, (png_const_structrp png_ptr, const ch
  * recovery from the error.
  */
 #else
-#  define png_app_warning(pp, s) png_warning(pp, s)
-#  define png_app_error(pp, s) png_error(pp, s)
+#define png_app_warning(pp, s) png_warning(pp, s)
+#define png_app_error(pp, s) png_error(pp, s)
 #endif
 
 PNG_INTERNAL_FUNCTION(void, png_chunk_report, (png_const_structrp png_ptr, const char * message, int error), PNG_EMPTY);

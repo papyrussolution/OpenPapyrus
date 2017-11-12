@@ -15,14 +15,11 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <internal/cryptlib_int.h>
 
 #undef _FORTIFY_SOURCE
 
 // This must be the first #include file 
 #include "async_locl.h"
-//#include <openssl/err.h>
-//#include <string.h>
 
 #define ASYNC_JOB_RUNNING   0
 #define ASYNC_JOB_PAUSING   1

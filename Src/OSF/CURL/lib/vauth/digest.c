@@ -25,10 +25,7 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #if !defined(CURL_DISABLE_CRYPTO_AUTH)
-//#include "vauth/vauth.h"
-#include "vauth/digest.h"
 #include "curl_printf.h"
-//#include "rand.h"
 #include "memdebug.h"
 
 #if !defined(USE_WINDOWS_SSPI)

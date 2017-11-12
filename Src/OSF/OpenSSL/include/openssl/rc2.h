@@ -8,9 +8,9 @@
  */
 
 #ifndef HEADER_RC2_H
-# define HEADER_RC2_H
+#define HEADER_RC2_H
 
-# include <openssl/opensslconf.h>
+#include <openssl/opensslconf.h>
 
 # ifndef OPENSSL_NO_RC2
 # ifdef  __cplusplus
@@ -19,11 +19,11 @@ extern "C" {
 
 typedef uint RC2_INT;
 
-# define RC2_ENCRYPT     1
-# define RC2_DECRYPT     0
+#define RC2_ENCRYPT     1
+#define RC2_DECRYPT     0
 
-# define RC2_BLOCK       8
-# define RC2_KEY_LENGTH  16
+#define RC2_BLOCK       8
+#define RC2_KEY_LENGTH  16
 
 typedef struct rc2_key_st {
     RC2_INT data[64];

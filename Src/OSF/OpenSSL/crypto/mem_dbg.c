@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "internal/thread_once.h"
-//#include "internal/bio.h"
-//#include <openssl/lhash.h>
 #ifndef OPENSSL_NO_CRYPTO_MDEBUG_BACKTRACE
 	#include <execinfo.h>
 #endif

@@ -8,14 +8,13 @@
  */
 
 #ifndef HEADER_CONSTANT_TIME_LOCL_H
-# define HEADER_CONSTANT_TIME_LOCL_H
+#define HEADER_CONSTANT_TIME_LOCL_H
 
-# include <openssl/e_os2.h>              /* For 'ossl_inline' */
+#include <openssl/e_os2.h>              /* For 'ossl_inline' */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /*-
  * The boolean methods return a bitmask of all ones (0xff...f) for true
  * and 0 for false. This is useful for choosing a value based on the result

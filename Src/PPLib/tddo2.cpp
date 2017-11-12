@@ -4,7 +4,12 @@
 #include <pp.h>
 #pragma hdrstop
 
+SLAPI TddoProcessBlock::TddoProcessBlock() : P_Rtm(0)
+{
+}
+
 #ifndef USE_TDDO_2 // {
+
 int SLAPI TestTddo2() // @stub
 {
 	return -1;
@@ -166,12 +171,6 @@ void Tddo::Meta::Clear()
 	Tok = tNone;
 	Text.Z();
 	Param.Z();
-}
-
-Tddo::ProcessBlock::ProcessBlock()
-{
-	P_Rtm = 0;
-	MEMSZERO(F);
 }
 
 Tddo::Result::Result()
@@ -432,7 +431,7 @@ int SLAPI Tddo::Process(const char * pDataName, const char * pBuf, DlRtm::Export
 	LineNo = 1;
 	if(!RVALUEPTR(ExtParamList, pExtParamList))
 		ExtParamList.clear();
-	ProcessBlock pblk;
+	TddoProcessBlock pblk;
 	pblk.SrcDataName = pDataName;
 	pblk.P_Rtm = 0;
 	pblk.F.ID = rEp.P_F ? rEp.P_F->ID : 0;
@@ -569,7 +568,7 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 					}
 				}
 				if(s > 0)
-					for(j = 0; j < 3; j++)
+					for(j = 0; j < 3; j++) {
 						if(s == (j+1)) {
 							//
 							// “ак как неоднозначность может встретитьс€ на менее
@@ -586,6 +585,7 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 								break;
 							}
 						}
+					}
 			}
 			if(s_[0] >= 0 || s_[1] >= 0 || s_[2] >= 0) {
 				rf.ScopeID = p_scope->ID;
@@ -1020,7 +1020,7 @@ int FASTCALL Tddo::ScanMeta(Meta & rM)
 	return ok;
 }
 
-int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, const DlScope * pScope, int skipOutput)
+int SLAPI Tddo::Helper_Process(TddoProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, const DlScope * pScope, int skipOutput)
 {
 	int    ok = 1;
 	uint   prev_scan_stack_pos = 0;
@@ -1075,7 +1075,7 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 						break;
 					case tStart:
 						{
-							ProcessBlock pblk;
+							TddoProcessBlock pblk;
 							THROW(P_Ctx);
 							const DlScope * p_scope = P_Ctx->GetScopeByName_Const(DlScope::kExpData, meta.Text);
 							THROW_PP_S(p_scope, PPERR_TDDO_UNDEFDATANAME, meta.Text);
@@ -1330,7 +1330,7 @@ public:
 	SLAPI ~TddoContentGraph();
 	int    SLAPI SetSourceName(const char * pSrcName);
 	int    SLAPI Parse(const char * pSrc);
-	int    SLAPI Execute(SString & rBuf);
+	int    SLAPI Execute(const char * pDataName, DlRtm::ExportParam & rEp, const StringSet * pExtParamList, SBuffer & rOut);
 
 	int    SLAPI Helper_Parse(uint parentChunkP, int isBranch, int stopEvent);
 	int    SLAPI Helper_RecognizeExprToken(long flags, SString & rText);
@@ -1379,6 +1379,10 @@ private:
 			SLAPI  Stack();
 			int    SLAPI IsSingleOp() const;
 			int    FASTCALL Push(const Stack & rS);
+			const  TddoContentGraph::ExprSet::Item & Get(uint p) const
+			{
+				return *(const TddoContentGraph::ExprSet::Item *)at(p);
+			}
 		};
 		class Expression {
 		public:
@@ -1408,7 +1412,11 @@ private:
 	private:
 		static int FASTCALL CmpOpPrior(int op1, int op2);
 		int    SLAPI Helper_Parse(uint untilToken, TddoContentGraph::ExprSet::Stack & rStack);
-		int    SLAPI ArrangeLocalExprList(const TSCollection <Stack> & rExprList, Stack & rStack);
+		//
+		// Descr: –анжирует список выражений rExprList в пор€дке приоритета операций. 
+		//   –езультирующий стек rStack содержит готовое выражение, где все операции исполн€ютс€ в правильном пор€дке.
+		//
+		int    SLAPI ArrangeLocalExprList(const TSCollection <Stack> & rExprList, Stack & rStack); // @recursion
 
 		TddoContentGraph & R_G;
 		TSCollection <Expression> EL;
@@ -1492,8 +1500,8 @@ private:
 		return ok;
 	}
 
-	int    SLAPI ResolveExpression(ExprSet::Expression & rExpr, LocalScope & rLs, ExprResult & rResult);
-	int    SLAPI Helper_Execute(uint chunkP, LocalScope & rLs, SString & rBuf);
+	int    SLAPI ResolveExpression(const ExprSet::Expression & rExpr, uint & rExprPointer, TddoProcessBlock & rBlk, ExprResult & rResult);
+	int    SLAPI Helper_Execute(uint chunkP, TddoProcessBlock & rBlk, SString & rBuf);
 
 	TSVector <ChunkInner> L; 
 	// Ѕлок по индексу 0 всегда стартовый (фиктивный блок)
@@ -1509,7 +1517,7 @@ private:
 	DlContext * P_Ctx;
 };
 
-int SLAPI TddoContentGraph::Helper_Execute(uint chunkP, LocalScope & rLs, SString & rBuf)
+int SLAPI TddoContentGraph::Helper_Execute(uint chunkP, TddoProcessBlock & rBlk, SString & rBuf)
 {
 	int    ok = 1;
 	int    done = 0;
@@ -1553,12 +1561,13 @@ int SLAPI TddoContentGraph::Helper_Execute(uint chunkP, LocalScope & rLs, SStrin
 					const ExprSet::Expression * p_expr = ES.Get(r_chunk.ExprP);
 					if(p_expr) {
 						ExprResult result;
-						ExprSet::Expression expr(*p_expr);
-						ResolveExpression(expr, rLs, result);
+						uint ep = 0;
+						ResolveExpression(*p_expr, ep, rBlk, result);
 					}
 					else {
 						; // @error
 					}
+					cp = r_chunk.NextP;
 				}
 				break;
 			case kStop:
@@ -1656,31 +1665,45 @@ uint SLAPI TddoContentGraph::LocalScope::SetVar(const char * pName, const STypEx
 	return ok;
 }
 
-int SLAPI TddoContentGraph::Execute(SString & rBuf)
+int SLAPI TddoContentGraph::Execute(const char * pDataName, DlRtm::ExportParam & rEp, const StringSet * pExtParamList, SBuffer & rOut)
 {
+	int    ok = 1;
 	LocalScope local_scope;
-	return Helper_Execute(0, local_scope, rBuf);
+	SString temp_buf;
+
+	const char * p_data_name = NZOR(pDataName, "HttpPreprocessBase");
+	TddoProcessBlock pblk;
+
+	const DlScope * p_scope = 0;
+	THROW_PP_S(p_scope = P_Ctx->GetScopeByName_Const(DlScope::kExpData, p_data_name), PPERR_TDDO_UNDEFDATANAME, p_data_name);
+	pblk.P_Rtm = P_Ctx->GetRtm(p_scope->GetId());
+	pblk.P_Rtm->P_Ep = &rEp;
+	THROW(pblk.P_Rtm->InitData(pblk.F, BIN(pblk.Ep.Flags & DlRtm::ExportParam::fIsView)));
+	pblk.SrcDataName = p_data_name;
+	pblk.Ep.P_F = &pblk.F;
+	//THROW(Helper_Process(pblk, rOut, meta, pblk.P_Rtm->GetData(), skip)); // @recursion
+
+	THROW(Helper_Execute(0, pblk/*local_scope*/, temp_buf))
+	CATCHZOK
+	return ok;
 }
 
-int SLAPI TddoContentGraph::ResolveExpression(ExprSet::Expression & rExpr, LocalScope & rLs, ExprResult & rResult)
+int SLAPI TddoContentGraph::ResolveExpression(const ExprSet::Expression & rExpr, uint & rExprPointer, TddoProcessBlock & rBlk, ExprResult & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
-	ExprSet::Item item(0);
-	rExpr.ES.pop(item);
-	switch(item.K) {
+	const ExprSet::Item & r_item = rExpr.ES.Get(rExprPointer++);
+	switch(r_item.K) {
 		case ExprSet::kOp:
-			if(item.Op == _ASSIGN_) {
-				assert(item.ArgCount == 2);
-				ExprSet::Item arg1(0);
-				rExpr.ES.pop(arg1);
-				if(arg1.K == ExprSet::kVar) {
-					GetS(item.SymbP, temp_buf);
+			if(r_item.Op == _ASSIGN_) {
+				assert(r_item.ArgCount == 2);
+				const ExprSet::Item & r_arg1 = rExpr.ES.Get(rExprPointer++);
+				if(r_arg1.K == ExprSet::kVar) {
+					GetS(r_arg1.SymbP, temp_buf);
 					if(temp_buf.NotEmpty()) {
-						ExprSet::Item & r_arg2 = rExpr.ES.peek();
 						ExprResult local_result;
-						THROW(ResolveExpression(rExpr, rLs, local_result));
-						THROW(rLs.SetVar(temp_buf, local_result.T, local_result.P_Buf));
+						THROW(ResolveExpression(rExpr, rExprPointer, rBlk, local_result)); // @recursion
+						//THROW(rLs.SetVar(temp_buf, local_result.T, local_result.P_Buf));
 					}
 					else {
 						; // @error
@@ -1690,20 +1713,69 @@ int SLAPI TddoContentGraph::ResolveExpression(ExprSet::Expression & rExpr, Local
 					; // @error
 				}
 			}
+			else {
+				if(r_item.ArgCount == 2) {
+					ExprResult local_result1, local_result2;
+					THROW(ResolveExpression(rExpr, rExprPointer, rBlk, local_result1)); // @recursion
+					THROW(ResolveExpression(rExpr, rExprPointer, rBlk, local_result2)); // @recursion
+					switch(r_item.Op) {
+						case _AND___:
+							break;
+						case _LE_:
+							break;
+						case _GE_:
+							break;
+						case _EQ_:
+							break;
+						case _NE_:
+							break;
+						case _OR___:
+							break;
+						case _DOT_:
+							break;
+						case _NOT___:
+							break;
+						case _MULT_:
+							break;
+						case _DIVIDE_:
+							break;
+						case _MODULO_:
+							break;
+						case _PLUS_:
+							break;
+						case _MINUS_:
+							break;
+						case _GT_:
+							break;
+						case _LT_:
+							break;
+						default:
+							// @error
+							break;
+					}
+				}
+				else if(r_item.ArgCount == 1) {
+					if(r_item.Op == _NOT___) {
+					}
+					else {
+						; // @error
+					}
+				}
+			}
 			break;
 		case ExprSet::kFunc:
 			break;
 		case ExprSet::kNumber:
-			if(((double)(long)item.R) == item.R) {
-				int32 v = (long)item.R;
+			if(((double)(long)r_item.R) == r_item.R) {
+				int32 v = (long)r_item.R;
 				rResult.T.Init();
 				rResult.T.Typ = MKSTYPE(S_INT, sizeof(v));
 				assert(rResult.T.GetBinSize() == sizeof(v));
 				rResult.Alloc(sizeof(v));
 				memcpy(rResult.P_Buf, &v, sizeof(v));
 			}
-			else if(((double)(int64)item.R) == item.R) {
-				int64 v = (int64)item.R;
+			else if(((double)(int64)r_item.R) == r_item.R) {
+				int64 v = (int64)r_item.R;
 				rResult.T.Init();
 				rResult.T.Typ = MKSTYPE(S_INT, sizeof(v));
 				assert(rResult.T.GetBinSize() == sizeof(v));
@@ -1711,7 +1783,7 @@ int SLAPI TddoContentGraph::ResolveExpression(ExprSet::Expression & rExpr, Local
 				memcpy(rResult.P_Buf, &v, sizeof(v));
 			}
 			else {
-				double v = item.R;
+				double v = r_item.R;
 				rResult.T.Init();
 				rResult.T.Typ = MKSTYPE(S_FLOAT, sizeof(v));
 				assert(rResult.T.GetBinSize() == sizeof(v));
@@ -1721,7 +1793,7 @@ int SLAPI TddoContentGraph::ResolveExpression(ExprSet::Expression & rExpr, Local
 			break;
 		case ExprSet::kString:
 			{
-				GetS(item.SymbP, temp_buf);
+				GetS(r_item.SymbP, temp_buf);
 				const size_t s = temp_buf.Len() + 1;
 				rResult.T.Init();
 				rResult.T.Typ = MKSTYPE(S_ZSTRING, s);
@@ -1732,12 +1804,14 @@ int SLAPI TddoContentGraph::ResolveExpression(ExprSet::Expression & rExpr, Local
 			break;
 		case ExprSet::kVar:
 			{
-				GetS(item.SymbP, temp_buf);
+				GetS(r_item.SymbP, temp_buf);
+				/*
 				if(rLs.GetVar(temp_buf, rResult)) {
 				}
 				else {
 					; // «десь надо попытатьс€ вз€ть переменную из контекста DL600
 				}
+				*/
 			}
 			break;
 		case ExprSet::kFormalArg:
@@ -2117,15 +2191,15 @@ void SLAPI TddoContentGraph::ExprSet::DebugOutput(uint exprPos, SString & rBuf) 
 			}
 			rBuf.CatChar(':');
 			for(uint i = 0; i < p_expr->ES.getPointer(); i++) {
-				const Item * p_item = (const Item *)p_expr->ES.at(i);
+				const Item & r_item = p_expr->ES.Get(i);
 				rBuf.Space();
-				switch(p_item->K) {
+				switch(r_item.K) {
 					case kOp: 
 						rBuf.Cat("op");
 						{
 							int    _f = 0;
 							for(uint j = 0; !_f && j < SIZEOFARRAY(Tddo2_OpInfoList); j++) {
-								if(Tddo2_OpInfoList[j].Op == p_item->Op) {
+								if(Tddo2_OpInfoList[j].Op == r_item.Op) {
 									rBuf.CatChar('[').Cat(Tddo2_OpInfoList[j].P_Sym).CatChar(']');
 									_f = 1;
 								}
@@ -2133,31 +2207,31 @@ void SLAPI TddoContentGraph::ExprSet::DebugOutput(uint exprPos, SString & rBuf) 
 							if(!_f)
 								rBuf.CatChar('[').Cat("UNKN").CatChar(']');
 						}
-						rBuf.CatParStr(p_item->ArgCount); 
+						rBuf.CatParStr(r_item.ArgCount); 
 						break;
 					case kFunc: 
 						rBuf.Cat("func");
-						R_G.GetS(p_item->SymbP, temp_buf);
+						R_G.GetS(r_item.SymbP, temp_buf);
 						rBuf.CatChar('[').Cat(temp_buf).CatChar(']');
-						rBuf.CatParStr(p_item->ArgCount);
+						rBuf.CatParStr(r_item.ArgCount);
 						break;
 					case kString: 
 						rBuf.Cat("string"); 
-						R_G.GetS(p_item->SymbP, temp_buf);
+						R_G.GetS(r_item.SymbP, temp_buf);
 						rBuf.CatChar('[').Cat(temp_buf).CatChar(']');
 						break;
 					case kNumber: 
 						rBuf.Cat("number"); 
-						rBuf.CatChar('[').Cat(p_item->R, MKSFMTD(0, 9, NMBF_NOTRAILZ)).CatChar(']');
+						rBuf.CatChar('[').Cat(r_item.R, MKSFMTD(0, 9, NMBF_NOTRAILZ)).CatChar(']');
 						break;
 					case kVar: 
 						rBuf.Cat("var"); 
-						R_G.GetS(p_item->SymbP, temp_buf);
+						R_G.GetS(r_item.SymbP, temp_buf);
 						rBuf.CatChar('[').Cat(temp_buf).CatChar(']');
 						break;
 					case kFormalArg: 
 						rBuf.Cat("formalarg"); 
-						R_G.GetS(p_item->SymbP, temp_buf);
+						R_G.GetS(r_item.SymbP, temp_buf);
 						rBuf.CatChar('[').Cat(temp_buf).CatChar(']');
 						break;
 					default: 
@@ -2233,12 +2307,10 @@ int SLAPI TddoContentGraph::Helper_Parse(uint parentChunkP, int isBranch, int st
 		{
 			if(Kind) {
 				uint   _p = pG->AddBlock(Kind, ExprP, Text);
-				if(IsBranch) {
+				if(IsBranch)
 					pG->L.at(P).BranchP = _p;
-				}
-				else {
+				else
 					pG->L.at(P).NextP = _p;
-				}
 				P = _p;
 				IsBranch = 0;
 				Kind = 0;
@@ -2932,8 +3004,14 @@ int SLAPI TestTddo2()
 		tcg.Output(temp_buf);
 		debug_file.WriteLine(temp_buf);
 		//
-		tcg.Execute(temp_buf.Z());
-		out_file.WriteLine(temp_buf);
+		{
+			SBuffer result_buf;
+			{
+				DlRtm::ExportParam ep;
+				tcg.Execute(0, ep, 0, result_buf);
+			}
+			out_file.WriteLine((const char *)result_buf.GetBuf(result_buf.GetRdOffs()));
+		}
 	}
 #if 0 // {
 	for(uint i = 0; i < id_list.getCount(); i++) {

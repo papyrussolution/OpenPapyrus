@@ -1647,9 +1647,8 @@ int CALDATE::SetDayOfWeek(int dayOfWeek)
 //
 //
 //
-SLAPI STimeChunk::STimeChunk()
+SLAPI STimeChunk::STimeChunk() : Start(ZERODATETIME), Finish(ZERODATETIME)
 {
-	THISZERO();
 }
 
 SLAPI STimeChunk::STimeChunk(const LDATETIME & rStart, const LDATETIME & rFinish)

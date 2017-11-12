@@ -12,16 +12,11 @@
 #include <slib.h>
 
 #define OPENSSL_NO_DYNAMIC_ENGINE // @sobolev
-
-//#include <stdlib.h>
-//#include <string.h>
-//#include <assert.h>
+#define USE_SOCKETS
+#include "e_os.h"
 //
 // BIO_LCL {
 //
-#define USE_SOCKETS
-#include "e_os.h"
-
 /* BEGIN BIO_ADDRINFO/BIO_ADDR stuff. */
 
 #ifndef OPENSSL_NO_SOCK
@@ -93,7 +88,6 @@ union bio_addr_st {
 
 /* END BIO_ADDRINFO/BIO_ADDR stuff. */
 
-//#include "internal/cryptlib.h"
 #include <internal/bio.h>
 
 typedef struct bio_f_buffer_ctx_struct {
@@ -143,15 +137,14 @@ struct bio_st {
 	#ifdef OPENSSL_SYS_VMS
 		typedef uint socklen_t;
 	#endif
+	extern CRYPTO_RWLOCK * bio_lookup_lock;
 
-extern CRYPTO_RWLOCK *bio_lookup_lock;
-
-int BIO_ADDR_make(BIO_ADDR *ap, const struct sockaddr *sa);
-const struct sockaddr *BIO_ADDR_sockaddr(const BIO_ADDR *ap);
-struct sockaddr *BIO_ADDR_sockaddr_noconst(BIO_ADDR *ap);
-socklen_t BIO_ADDR_sockaddr_size(const BIO_ADDR *ap);
-socklen_t BIO_ADDRINFO_sockaddr_size(const BIO_ADDRINFO *bai);
-const struct sockaddr *BIO_ADDRINFO_sockaddr(const BIO_ADDRINFO *bai);
+	int BIO_ADDR_make(BIO_ADDR *ap, const struct sockaddr *sa);
+	const struct sockaddr *BIO_ADDR_sockaddr(const BIO_ADDR *ap);
+	struct sockaddr *BIO_ADDR_sockaddr_noconst(BIO_ADDR *ap);
+	socklen_t BIO_ADDR_sockaddr_size(const BIO_ADDR *ap);
+	socklen_t BIO_ADDRINFO_sockaddr_size(const BIO_ADDRINFO *bai);
+	const struct sockaddr *BIO_ADDRINFO_sockaddr(const BIO_ADDRINFO *bai);
 #endif
 
 extern CRYPTO_RWLOCK *bio_type_lock;
@@ -159,39 +152,37 @@ extern CRYPTO_RWLOCK *bio_type_lock;
 void bio_sock_cleanup_int(void);
 
 #if BIO_FLAGS_UPLINK==0
-/* Shortcut UPLINK calls on most platforms... */
-# define UP_stdin        stdin
-# define UP_stdout       stdout
-# define UP_stderr       stderr
-# define UP_fprintf      fprintf
-# define UP_fgets(mp_str,mp_sz,mp_stream)       fgets((mp_str),(mp_sz),(FILE *)(mp_stream))
-# define UP_fread(mp_ptr,mp_sz,mp_n,mp_stream)  fread((mp_ptr),(mp_sz),(mp_n),(FILE *)(mp_stream))
-# define UP_fwrite(mp_ptr,mp_sz,mp_n,mp_stream) fwrite((mp_ptr),(mp_sz),(mp_n),(FILE *)(mp_stream))
-# undef  UP_fsetmod
-# define UP_feof         feof
-# define UP_fclose(mp_stream) fclose((FILE *)(mp_stream))
-
-# define UP_fopen        fopen
-# define UP_fseek(mp_stream,mp_offs,mp_org)  fseek((FILE *)mp_stream,mp_offs,mp_org)
-# define UP_ftell(mp_stream)  ftell((FILE *)(mp_stream))
-# define UP_fflush(mp_stream) fflush((FILE *)(mp_stream))
-# define UP_ferror       ferror
-#ifdef _WIN32
-	#define UP_fileno       _fileno
-	#define UP_open         _open
-	#define UP_read         _read
-	#define UP_write        _write
-	#define UP_lseek        _lseek
-	#define UP_close        _close
-#else
-	#define UP_fileno       fileno
-	#define UP_open         open
-	#define UP_read         read
-	#define UP_write        write
-	#define UP_lseek        lseek
-	#define UP_close        close
-#endif
-
+	/* Shortcut UPLINK calls on most platforms... */
+	#define UP_stdin        stdin
+	#define UP_stdout       stdout
+	#define UP_stderr       stderr
+	#define UP_fprintf      fprintf
+	#define UP_fgets(mp_str,mp_sz,mp_stream)       fgets((mp_str),(mp_sz),(FILE *)(mp_stream))
+	#define UP_fread(mp_ptr,mp_sz,mp_n,mp_stream)  fread((mp_ptr),(mp_sz),(mp_n),(FILE *)(mp_stream))
+	#define UP_fwrite(mp_ptr,mp_sz,mp_n,mp_stream) fwrite((mp_ptr),(mp_sz),(mp_n),(FILE *)(mp_stream))
+	#undef  UP_fsetmod
+	#define UP_feof         feof
+	#define UP_fclose(mp_stream) fclose((FILE *)(mp_stream))
+	#define UP_fopen        fopen
+	#define UP_fseek(mp_stream,mp_offs,mp_org)  fseek((FILE *)mp_stream,mp_offs,mp_org)
+	#define UP_ftell(mp_stream)  ftell((FILE *)(mp_stream))
+	#define UP_fflush(mp_stream) fflush((FILE *)(mp_stream))
+	#define UP_ferror       ferror
+	#ifdef _WIN32
+		#define UP_fileno       _fileno
+		#define UP_open         _open
+		#define UP_read         _read
+		#define UP_write        _write
+		#define UP_lseek        _lseek
+		#define UP_close        _close
+	#else
+		#define UP_fileno       fileno
+		#define UP_open         open
+		#define UP_read         read
+		#define UP_write        write
+		#define UP_lseek        lseek
+		#define UP_close        close
+	#endif
 #endif
 //
 // } BIO_LCL
@@ -211,7 +202,10 @@ void bio_sock_cleanup_int(void);
 #include <openssl/err.h>
 #include <openssl/asn1.h>
 #include <openssl/asn1t.h>
+#include <openssl/md2.h>
+#include <openssl/md4.h>
 #include <openssl/md5.h>
+#include <openssl/sha.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <openssl/x509_vfy.h>
@@ -219,6 +213,7 @@ void bio_sock_cleanup_int(void);
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 #include <openssl/dsa.h>
+#include <openssl/des.h>
 #include <openssl/ec.h>
 #include <openssl/cast.h>
 #include <openssl/blowfish.h>
@@ -230,6 +225,8 @@ void bio_sock_cleanup_int(void);
 #include <openssl/comp.h>
 #include <openssl/stack.h>
 #include <openssl/safestack.h>
+#include <openssl/ui.h>
+#include <openssl/ocsp.h>
 #include <internal/engine.h>
 #include <internal/thread_once.h>
 #include <internal/x509_int.h>
@@ -247,6 +244,8 @@ void bio_sock_cleanup_int(void);
 #include <internal/numbers.h>
 #include <internal/chacha.h>
 #include <internal/dane.h>
+#include <internal/o_str.h>
+#include <internal/bn_int.h>
 
 #ifdef  __cplusplus
 extern "C" {
@@ -257,7 +256,6 @@ typedef struct ex_callback_st EX_CALLBACK;
 DEFINE_STACK_OF(EX_CALLBACK)
 
 typedef struct app_mem_info_st APP_INFO;
-
 typedef struct mem_st MEM;
 DEFINE_LHASH_OF(MEM);
 
@@ -287,7 +285,6 @@ extern uint OPENSSL_ia32cap_P[];
 void OPENSSL_showfatal(const char *fmta, ...);
 extern int OPENSSL_NONPIC_relocated;
 void crypto_cleanup_all_ex_data_int(void);
-
 int openssl_strerror_r(int errnum, char *buf, size_t buflen);
 #if !defined(OPENSSL_NO_STDIO)
 	FILE *openssl_fopen(const char *filename, const char *mode);
@@ -314,21 +311,13 @@ extern CRYPTO_RWLOCK *global_engine_lock;
  * before and after reference count, and the file:line-number pair. The
  * "engine_ref_debug" statements must come *after* the change.
  */
-# ifdef ENGINE_REF_COUNT_DEBUG
-
-#  define engine_ref_debug(e, isfunct, diff) \
-        fprintf(stderr, "engine: %08x %s from %d to %d (%s:%d)\n", \
-                (uint)(e), (isfunct ? "funct" : "struct"), \
-                ((isfunct) ? ((e)->funct_ref - (diff)) : ((e)->struct_ref - (diff))), \
-                ((isfunct) ? (e)->funct_ref : (e)->struct_ref), \
-                (OPENSSL_FILE), (OPENSSL_LINE))
-
-# else
-
-#  define engine_ref_debug(e, isfunct, diff)
-
-# endif
-
+#ifdef ENGINE_REF_COUNT_DEBUG
+	#define engine_ref_debug(e, isfunct, diff) fprintf(stderr, "engine: %08x %s from %d to %d (%s:%d)\n", \
+			(uint)(e), (isfunct ? "funct" : "struct"), ((isfunct) ? ((e)->funct_ref - (diff)) : ((e)->struct_ref - (diff))), \
+			((isfunct) ? (e)->funct_ref : (e)->struct_ref), (OPENSSL_FILE), (OPENSSL_LINE))
+#else
+	#define engine_ref_debug(e, isfunct, diff)
+#endif
 /*
  * Any code that will need cleanup operations should use these functions to
  * register callbacks. engine_cleanup_int() will call all registered
@@ -345,7 +334,6 @@ void engine_cleanup_add_last(ENGINE_CLEANUP_CB *cb);
 
 /* We need stacks of ENGINEs for use in eng_table.c */
 DEFINE_STACK_OF(ENGINE)
-
 /*
  * If this symbol is defined then engine_table_select(), the function that is
  * used by RSA, DSA (etc) code to select registered ENGINEs, cache defaults
@@ -353,7 +341,6 @@ DEFINE_STACK_OF(ENGINE)
  * stderr.
  */
 /* #define ENGINE_TABLE_DEBUG */
-
 /*
  * This represents an implementation table. Dependent code should instantiate
  * it as a (ENGINE_TABLE *) pointer value set initially to NULL.
@@ -362,16 +349,14 @@ typedef struct st_engine_table ENGINE_TABLE;
 int engine_table_register(ENGINE_TABLE **table, ENGINE_CLEANUP_CB *cleanup, ENGINE *e, const int *nids, int num_nids, int setdefault);
 void engine_table_unregister(ENGINE_TABLE **table, ENGINE *e);
 void engine_table_cleanup(ENGINE_TABLE **table);
-# ifndef ENGINE_TABLE_DEBUG
-ENGINE *engine_table_select(ENGINE_TABLE **table, int nid);
-# else
-ENGINE *engine_table_select_tmp(ENGINE_TABLE **table, int nid, const char *f,
-                                int l);
-#  define engine_table_select(t,n) engine_table_select_tmp(t,n,OPENSSL_FILE,OPENSSL_LINE)
-# endif
+#ifndef ENGINE_TABLE_DEBUG
+	ENGINE *engine_table_select(ENGINE_TABLE **table, int nid);
+#else
+	ENGINE *engine_table_select_tmp(ENGINE_TABLE **table, int nid, const char *f, int l);
+	#define engine_table_select(t,n) engine_table_select_tmp(t,n,OPENSSL_FILE,OPENSSL_LINE)
+#endif
 typedef void (engine_table_doall_cb) (int nid, STACK_OF(ENGINE) *sk, ENGINE *def, void *arg);
 void engine_table_doall(ENGINE_TABLE *table, engine_table_doall_cb *cb, void *arg);
-
 /*
  * Internal versions of API functions that have control over locking. These
  * are used between C files when functionality needs to be shared but the
@@ -390,12 +375,9 @@ void engine_set_all_null(ENGINE *e);
  * NB: Bitwise OR-able values for the "flags" variable in ENGINE are now
  * exposed in engine.h.
  */
-
 /* Free up dynamically allocated public key methods associated with ENGINE */
-
 void engine_pkey_meths_free(ENGINE *e);
 void engine_pkey_asn1_meths_free(ENGINE *e);
-
 /* Once initialisation function */
 extern CRYPTO_ONCE engine_lock_init;
 DECLARE_RUN_ONCE(do_engine_lock_init)

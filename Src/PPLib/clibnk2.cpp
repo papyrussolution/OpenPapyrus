@@ -156,7 +156,7 @@ int SLAPI GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpPara
 // ¬ид операции идентифицируетс€ по таблице статей, к которой относитс€ контрагент операции
 // и по знаку суммы операции.
 //
-struct BankStmntAssocItem {  // @persistent @store(PropertyTbl)[as item of array]
+struct BankStmntAssocItem {  // @persistent @store(PropertyTbl)[as item of array] @flat
 	PPID   AccSheetID;       //
 	int16  Sign;             // -1, 1, 0 (undefined)
 	int16  AddedTag;         // ƒополнительный тег дл€ установки соотвестви€ вида операции
@@ -553,17 +553,17 @@ static int IsOurINN(const char * pINN)
 }
 
 // static
-int SLAPI ClientBankImportDef::ReadAssocList(SArray * pList)
+int SLAPI ClientBankImportDef::ReadAssocList(SVector * pList)
 {
-	struct BankStmntAssocItem_Pre578 { // @persistent @store(PropertyTbl)[as item of array]
+	struct BankStmntAssocItem_Pre578 { // @persistent @store(PropertyTbl)[as item of array] @flat
 		PPID   AccSheetID;       //
 		int16  Sign;             // -1, 1, 0 (undefined)
 		PPID   OpID;             //
 	};
 	int    ok = -1, r;
 	Reference * p_ref = PPRef;
-	SArray prev_list(sizeof(BankStmntAssocItem_Pre578));
-	SArray temp_list(sizeof(BankStmntAssocItem));
+	SVector prev_list(sizeof(BankStmntAssocItem_Pre578)); // @v9.8.8 SArray-->SVector
+	SVector temp_list(sizeof(BankStmntAssocItem)); // @v9.8.8 SArray-->SVector
 	THROW(r = p_ref->GetPropArray(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CLIBNKASSCCFG2, &temp_list));
 	if(r > 0) {
 		THROW_SL(pList->copy(temp_list));
@@ -592,7 +592,7 @@ int SLAPI ClientBankImportDef::ReadAssocList(SArray * pList)
 }
 
 // static
-int SLAPI ClientBankImportDef::WriteAssocList(const SArray * pList, int use_ta)
+int SLAPI ClientBankImportDef::WriteAssocList(const SVector * pList, int use_ta) // @v9.8.8 SArray-->SVector
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -623,7 +623,7 @@ int SLAPI ClientBankImportDef::ImportAll()
 	PPObjPerson psn_obj;
 	PPObjAccSheet acc_sheet_obj;
 	PPObjOprKind op_obj;
-	SArray cfg(sizeof(BankStmntAssocItem));
+	SVector cfg(sizeof(BankStmntAssocItem));
 	BankStmntItem item, our_item;
 	PPLogger logger;
 	PPWait(1);
@@ -1204,7 +1204,7 @@ int SetupCliBnkAssocDialog::setupList()
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
 	SString temp_buf;
-	SArray cfg(sizeof(BankStmntAssocItem));
+	SVector cfg(sizeof(BankStmntAssocItem)); // @v9.8.8 SArray-->SVector
 	BankStmntAssocItem * p_assoc_item;
 	THROW(ClientBankImportDef::ReadAssocList(&cfg));
 	for(i = 0; cfg.enumItems(&i, (void **)&p_assoc_item);) {
@@ -1233,7 +1233,7 @@ int SetupCliBnkAssocDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = 1;
 	*pPos = *pID = 0;
-	SArray cfg(sizeof(BankStmntAssocItem));
+	SVector cfg(sizeof(BankStmntAssocItem));
 	BankStmntAssocItem assoc_item;
 	THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_INS, 0));
 	MEMSZERO(assoc_item);
@@ -1252,7 +1252,7 @@ int SetupCliBnkAssocDialog::addItem(long * pPos, long * pID)
 int SetupCliBnkAssocDialog::editItem(long pos, long id)
 {
 	int    ok = 1;
-	SArray cfg(sizeof(BankStmntAssocItem));
+	SVector cfg(sizeof(BankStmntAssocItem));
 	BankStmntAssocItem * p_assoc_item;
 	THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_MOD, 0));
 	THROW(ClientBankImportDef::ReadAssocList(&cfg));
@@ -1272,7 +1272,7 @@ int SetupCliBnkAssocDialog::editItem(long pos, long id)
 int SetupCliBnkAssocDialog::delItem(long pos, long id)
 {
 	int    ok = 1;
-	SArray cfg(sizeof(BankStmntAssocItem));
+	SVector cfg(sizeof(BankStmntAssocItem));
 	THROW(CheckCfgRights(PPCFGOBJ_CLIBNKAS, PPR_DEL, 0));
 	THROW(ClientBankImportDef::ReadAssocList(&cfg));
 	if(pos < (long)cfg.getCount()) {

@@ -9,15 +9,12 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include <openssl/err.h>
-#include "internal/dso.h"
 
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_DSO,func,0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_DSO,0,reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_DSO,func,0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_DSO,0,reason)
 
 static ERR_STRING_DATA DSO_str_functs[] = {
     {ERR_FUNC(DSO_F_DLFCN_BIND_FUNC), "dlfcn_bind_func"},

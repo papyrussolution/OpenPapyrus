@@ -146,7 +146,7 @@ size_t EC_POINT_point2buf(const EC_GROUP * group, const EC_POINT * point,
 	if(len == 0)
 		return 0;
 	buf = (uchar*)OPENSSL_malloc(len);
-	if(buf == NULL)
+	if(!buf)
 		return 0;
 	len = EC_POINT_point2oct(group, point, form, buf, len, ctx);
 	if(len == 0) {

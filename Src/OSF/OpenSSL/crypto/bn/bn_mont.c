@@ -114,7 +114,7 @@ static int BN_from_montgomery_word(BIGNUM * ret, BIGNUM * r, BN_MONT_CTX * mont)
 	rp = ret->d;
 	ap = &(r->d[nl]);
 
-# define BRANCH_FREE 1
+#define BRANCH_FREE 1
 # if BRANCH_FREE
 	{
 		BN_ULONG * nrp;

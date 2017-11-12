@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/lhash.h>
-#include "internal/bn_int.h"
 #include "rsa_locl.h"
 
 static const RSA_METHOD * default_RSA_meth = NULL;

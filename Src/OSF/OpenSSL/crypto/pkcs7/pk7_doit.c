@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/rand.h>
-//#include <openssl/x509.h>
-//#include <openssl/x509v3.h>
 
 static int add_attribute(STACK_OF(X509_ATTRIBUTE) ** sk, int nid, int atrtype, void * value);
 static ASN1_TYPE * get_attribute(STACK_OF(X509_ATTRIBUTE) * sk, int nid);
@@ -1118,7 +1115,7 @@ new_attrib:
 			if(OBJ_obj2nid(X509_ATTRIBUTE_get0_object(attr)) == nid) {
 				X509_ATTRIBUTE_free(attr);
 				attr = X509_ATTRIBUTE_create(nid, atrtype, value);
-				if(attr == NULL)
+				if(!attr)
 					return 0;
 				if(!sk_X509_ATTRIBUTE_set(*sk, i, attr)) {
 					X509_ATTRIBUTE_free(attr);

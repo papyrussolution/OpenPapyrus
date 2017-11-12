@@ -8,12 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/conf.h>
-//#include <openssl/x509.h>
-//#include <openssl/x509v3.h>
-
-/* Algorithm configuration module. */
-
+//
+// Algorithm configuration module
+//
 static int alg_module_init(CONF_IMODULE * md, const CONF * cnf)
 {
 	int i;

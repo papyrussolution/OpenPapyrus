@@ -8,13 +8,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/rand.h>
-//#include "internal/asn1_int.h"
-//#include <internal/evp_int.h>
-//#include "internal/x509_int.h"
 
-/* Extract a private key from a PKCS8 structure */
+// Extract a private key from a PKCS8 structure 
 
 EVP_PKEY * EVP_PKCS82PKEY(const PKCS8_PRIV_KEY_INFO * p8)
 {

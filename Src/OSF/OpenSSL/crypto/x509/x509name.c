@@ -8,12 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/stack.h>
-//#include <openssl/asn1.h>
-//#include <openssl/objects.h>
-//#include <openssl/evp.h>
-//#include <openssl/x509.h>
-//#include "internal/x509_int.h"
 
 int X509_NAME_get_text_by_NID(X509_NAME * name, int nid, char * buf, int len)
 {

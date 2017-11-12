@@ -10,7 +10,7 @@
 #pragma hdrstop
 //#include <openssl/bio.h>
 //#include <openssl/err.h>
-#include <openssl/ocsp.h>
+//#include <openssl/ocsp.h>
 #include "ocsp_lcl.h"
 //#include "internal/cryptlib.h"
 //#include <openssl/pem.h>

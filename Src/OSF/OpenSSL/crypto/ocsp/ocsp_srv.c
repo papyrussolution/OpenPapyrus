@@ -8,18 +8,12 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/objects.h>
-//#include <openssl/x509.h>
-//#include <openssl/pem.h>
-//#include <openssl/x509v3.h>
-#include <openssl/ocsp.h>
+//#include <openssl/ocsp.h>
 #include "ocsp_lcl.h"
-
 /*
  * Utility functions related to sending OCSP responses and extracting
  * relevant information from the request.
  */
-
 int OCSP_request_onereq_count(OCSP_REQUEST * req)
 {
 	return sk_OCSP_ONEREQ_num(req->tbsRequest.requestList);
@@ -40,14 +34,10 @@ int OCSP_id_get0_info(ASN1_OCTET_STRING ** piNameHash, ASN1_OBJECT ** pmd,
 {
 	if(!cid)
 		return 0;
-	if(pmd)
-		*pmd = cid->hashAlgorithm.algorithm;
-	if(piNameHash)
-		*piNameHash = &cid->issuerNameHash;
-	if(pikeyHash)
-		*pikeyHash = &cid->issuerKeyHash;
-	if(pserial)
-		*pserial = &cid->serialNumber;
+	ASSIGN_PTR(pmd, cid->hashAlgorithm.algorithm);
+	ASSIGN_PTR(piNameHash, &cid->issuerNameHash);
+	ASSIGN_PTR(pikeyHash, &cid->issuerKeyHash);
+	ASSIGN_PTR(pserial, &cid->serialNumber);
 	return 1;
 }
 
@@ -112,17 +102,14 @@ OCSP_SINGLERESP * OCSP_basic_add1_status(OCSP_BASICRESP * rsp, OCSP_CERTID * cid
 				    goto err;
 		    }
 		    break;
-
 		case V_OCSP_CERTSTATUS_GOOD:
 		    if((cs->value.good = ASN1_NULL_new()) == NULL)
 			    goto err;
 		    break;
-
 		case V_OCSP_CERTSTATUS_UNKNOWN:
 		    if((cs->value.unknown = ASN1_NULL_new()) == NULL)
 			    goto err;
 		    break;
-
 		default:
 		    goto err;
 	}
@@ -138,29 +125,22 @@ err:
 
 int OCSP_basic_add1_cert(OCSP_BASICRESP * resp, X509 * cert)
 {
-	if(resp->certs == NULL
-	    && (resp->certs = sk_X509_new_null()) == NULL)
+	if(resp->certs == NULL && (resp->certs = sk_X509_new_null()) == NULL)
 		return 0;
-
 	if(!sk_X509_push(resp->certs, cert))
 		return 0;
 	X509_up_ref(cert);
 	return 1;
 }
 
-int OCSP_basic_sign(OCSP_BASICRESP * brsp,
-    X509 * signer, EVP_PKEY * key, const EVP_MD * dgst,
-    STACK_OF(X509) * certs, ulong flags)
+int OCSP_basic_sign(OCSP_BASICRESP * brsp, X509 * signer, EVP_PKEY * key, const EVP_MD * dgst, STACK_OF(X509) * certs, ulong flags)
 {
 	int i;
 	OCSP_RESPID * rid;
-
 	if(!X509_check_private_key(signer, key)) {
-		OCSPerr(OCSP_F_OCSP_BASIC_SIGN,
-		    OCSP_R_PRIVATE_KEY_DOES_NOT_MATCH_CERTIFICATE);
+		OCSPerr(OCSP_F_OCSP_BASIC_SIGN, OCSP_R_PRIVATE_KEY_DOES_NOT_MATCH_CERTIFICATE);
 		goto err;
 	}
-
 	if(!(flags & OCSP_NOCERTS)) {
 		if(!OCSP_basic_add1_cert(brsp, signer))
 			goto err;
@@ -170,7 +150,6 @@ int OCSP_basic_sign(OCSP_BASICRESP * brsp,
 				goto err;
 		}
 	}
-
 	rid = &brsp->tbsResponseData.responderId;
 	if(flags & OCSP_RESPID_KEY) {
 		if(!OCSP_RESPID_set_by_key(rid, signer))
@@ -179,19 +158,14 @@ int OCSP_basic_sign(OCSP_BASICRESP * brsp,
 	else if(!OCSP_RESPID_set_by_name(rid, signer)) {
 		goto err;
 	}
-
-	if(!(flags & OCSP_NOTIME) &&
-	    !X509_gmtime_adj(brsp->tbsResponseData.producedAt, 0))
+	if(!(flags & OCSP_NOTIME) && !X509_gmtime_adj(brsp->tbsResponseData.producedAt, 0))
 		goto err;
-
 	/*
 	 * Right now, I think that not doing double hashing is the right thing.
 	 * -- Richard Levitte
 	 */
-
 	if(!OCSP_BASICRESP_sign(brsp, key, dgst, 0))
 		goto err;
-
 	return 1;
 err:
 	return 0;
@@ -201,9 +175,7 @@ int OCSP_RESPID_set_by_name(OCSP_RESPID * respid, X509 * cert)
 {
 	if(!X509_NAME_set(&respid->value.byName, X509_get_subject_name(cert)))
 		return 0;
-
 	respid->type = V_OCSP_RESPID_NAME;
-
 	return 1;
 }
 
@@ -211,23 +183,18 @@ int OCSP_RESPID_set_by_key(OCSP_RESPID * respid, X509 * cert)
 {
 	ASN1_OCTET_STRING * byKey = NULL;
 	uchar md[SHA_DIGEST_LENGTH];
-
 	/* RFC2560 requires SHA1 */
 	if(!X509_pubkey_digest(cert, EVP_sha1(), md, NULL))
 		return 0;
-
 	byKey = ASN1_OCTET_STRING_new();
 	if(byKey == NULL)
 		return 0;
-
 	if(!(ASN1_OCTET_STRING_set(byKey, md, SHA_DIGEST_LENGTH))) {
 		ASN1_OCTET_STRING_free(byKey);
 		return 0;
 	}
-
 	respid->type = V_OCSP_RESPID_KEY;
 	respid->value.byKey = byKey;
-
 	return 1;
 }
 
@@ -235,26 +202,17 @@ int OCSP_RESPID_match(OCSP_RESPID * respid, X509 * cert)
 {
 	if(respid->type == V_OCSP_RESPID_KEY) {
 		uchar md[SHA_DIGEST_LENGTH];
-
 		if(respid->value.byKey == NULL)
 			return 0;
-
 		/* RFC2560 requires SHA1 */
 		if(!X509_pubkey_digest(cert, EVP_sha1(), md, NULL))
 			return 0;
-
-		return (ASN1_STRING_length(respid->value.byKey) == SHA_DIGEST_LENGTH)
-		       && (memcmp(ASN1_STRING_get0_data(respid->value.byKey), md,
-			    SHA_DIGEST_LENGTH) == 0);
+		return (ASN1_STRING_length(respid->value.byKey) == SHA_DIGEST_LENGTH) && (memcmp(ASN1_STRING_get0_data(respid->value.byKey), md, SHA_DIGEST_LENGTH) == 0);
 	}
 	else if(respid->type == V_OCSP_RESPID_NAME) {
 		if(respid->value.byName == NULL)
 			return 0;
-
-		return X509_NAME_cmp(respid->value.byName,
-		    X509_get_subject_name(cert)) == 0;
+		return X509_NAME_cmp(respid->value.byName, X509_get_subject_name(cert)) == 0;
 	}
-
 	return 0;
 }
-

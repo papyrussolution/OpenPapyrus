@@ -1655,7 +1655,7 @@ static force_inline __m128i create_mask_16_128(uint16_t mask)
 
 /* Work around a code generation bug in Sun Studio 12. */
 #if defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590)
-# define create_mask_2x32_128(mask0, mask1)				\
+#define create_mask_2x32_128(mask0, mask1)				\
 	(_mm_set_epi32((mask0), (mask1), (mask0), (mask1)))
 #else
 static force_inline __m128i create_mask_2x32_128(uint32_t mask0,
@@ -4048,7 +4048,7 @@ FAST_NEAREST_MAINLOOP_COMMON(sse2_8888_n_8888_normal_OVER, scaled_nearest_scanli
 
 /***********************************************************************************/
 
-# define BILINEAR_DECLARE_VARIABLES						\
+#define BILINEAR_DECLARE_VARIABLES						\
 	const __m128i xmm_wt = _mm_set_epi16(wt, wt, wt, wt, wt, wt, wt, wt);	   \
 	const __m128i xmm_wb = _mm_set_epi16(wb, wb, wb, wb, wb, wb, wb, wb);	   \
 	const __m128i xmm_addc = _mm_set_epi16(0, 1, 0, 1, 0, 1, 0, 1);		   \
@@ -4096,7 +4096,7 @@ FAST_NEAREST_MAINLOOP_COMMON(sse2_8888_n_8888_normal_OVER, scaled_nearest_scanli
 
 #else /************************************************************************/
 
-# define BILINEAR_DECLARE_VARIABLES						\
+#define BILINEAR_DECLARE_VARIABLES						\
 	const __m128i xmm_wt = _mm_set_epi16(wt, wt, wt, wt, wt, wt, wt, wt);	   \
 	const __m128i xmm_wb = _mm_set_epi16(wb, wb, wb, wb, wb, wb, wb, wb);	   \
 	const __m128i xmm_addc = _mm_set_epi16(0, 1, 0, 1, 0, 1, 0, 1);		   \

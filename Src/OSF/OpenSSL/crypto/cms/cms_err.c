@@ -14,8 +14,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_CMS, func, 0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_CMS, 0, reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_CMS, func, 0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_CMS, 0, reason)
 
 static ERR_STRING_DATA CMS_str_functs[] = {
 	{ERR_FUNC(CMS_F_CHECK_CONTENT), "check_content"},

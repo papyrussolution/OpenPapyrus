@@ -13,9 +13,9 @@
 #if defined(BSWAP4) && defined(STRICT_ALIGNMENT)
 /* redefine, because alignment is ensured */
 # undef  GETU32
-# define GETU32(p)       BSWAP4(*(const u32*)(p))
+#define GETU32(p)       BSWAP4(*(const u32*)(p))
 # undef  PUTU32
-# define PUTU32(p, v)     *(u32*)(p) = BSWAP4(v)
+#define PUTU32(p, v)     *(u32*)(p) = BSWAP4(v)
 #endif
 
 #define PACK(s)         ((size_t)(s)<<(sizeof(size_t)*8-16))
@@ -209,7 +209,7 @@ static void gcm_gmult_8bit(u64 Xi[2], const u128 Htable[256])
 	}
 }
 
-# define GCM_MUL(ctx, Xi)   gcm_gmult_8bit(ctx->Xi.u, ctx->Htable)
+#define GCM_MUL(ctx, Xi)   gcm_gmult_8bit(ctx->Xi.u, ctx->Htable)
 
 #elif   TABLE_BITS==4
 
@@ -554,15 +554,15 @@ void gcm_ghash_4bit(u64 Xi[2], const u128 Htable[16], const u8 * inp,
     size_t len);
 # endif
 
-# define GCM_MUL(ctx, Xi)   gcm_gmult_4bit(ctx->Xi.u, ctx->Htable)
+#define GCM_MUL(ctx, Xi)   gcm_gmult_4bit(ctx->Xi.u, ctx->Htable)
 # if defined(GHASH_ASM) || !defined(OPENSSL_SMALL_FOOTPRINT)
-#  define GHASH(ctx, in, len) gcm_ghash_4bit((ctx)->Xi.u, (ctx)->Htable, in, len)
+#define GHASH(ctx, in, len) gcm_ghash_4bit((ctx)->Xi.u, (ctx)->Htable, in, len)
 /*
  * GHASH_CHUNK is "stride parameter" missioned to mitigate cache trashing
  * effect. In other words idea is to hash data while it's still in L1 cache
  * after encryption pass...
  */
-#  define GHASH_CHUNK       (3*1024)
+#define GHASH_CHUNK       (3*1024)
 # endif
 
 #else                           /* TABLE_BITS */
@@ -631,7 +631,7 @@ static void gcm_gmult_1bit(u64 Xi[2], const u64 H[2])
 	}
 }
 
-# define GCM_MUL(ctx, Xi)   gcm_gmult_1bit(ctx->Xi.u, ctx->H.u)
+#define GCM_MUL(ctx, Xi)   gcm_gmult_1bit(ctx->Xi.u, ctx->H.u)
 
 #endif
 
@@ -688,8 +688,8 @@ void gcm_ghash_v8(u64 Xi[2], const u128 Htable[16], const u8 * inp,
 #  endif
 # elif defined(__sparc__) || defined(__sparc)
 #  include "sparc_arch.h"
-#  define GHASH_ASM_SPARC
-#  define GCM_FUNCREF_4BIT
+#define GHASH_ASM_SPARC
+#define GCM_FUNCREF_4BIT
 extern uint OPENSSL_sparcv9cap_P[];
 void gcm_init_vis3(u128 Htable[16], const u64 Xi[2]);
 void gcm_gmult_vis3(u64 Xi[2], const u128 Htable[16]);
@@ -697,8 +697,8 @@ void gcm_ghash_vis3(u64 Xi[2], const u128 Htable[16], const u8 * inp,
     size_t len);
 # elif defined(OPENSSL_CPUID_OBJ) && (defined(__powerpc__) || defined(__ppc__) || defined(_ARCH_PPC))
 #  include "ppc_arch.h"
-#  define GHASH_ASM_PPC
-#  define GCM_FUNCREF_4BIT
+#define GHASH_ASM_PPC
+#define GCM_FUNCREF_4BIT
 void gcm_init_p8(u128 Htable[16], const u64 Xi[2]);
 void gcm_gmult_p8(u64 Xi[2], const u128 Htable[16]);
 void gcm_ghash_p8(u64 Xi[2], const u128 Htable[16], const u8 * inp,
@@ -708,10 +708,10 @@ void gcm_ghash_p8(u64 Xi[2], const u128 Htable[16], const u8 * inp,
 
 #ifdef GCM_FUNCREF_4BIT
 # undef  GCM_MUL
-# define GCM_MUL(ctx, Xi)        (*gcm_gmult_p)(ctx->Xi.u, ctx->Htable)
+#define GCM_MUL(ctx, Xi)        (*gcm_gmult_p)(ctx->Xi.u, ctx->Htable)
 # ifdef GHASH
 #  undef  GHASH
-#  define GHASH(ctx, in, len)     (*gcm_ghash_p)(ctx->Xi.u, ctx->Htable, in, len)
+#define GHASH(ctx, in, len)     (*gcm_ghash_p)(ctx->Xi.u, ctx->Htable, in, len)
 # endif
 #endif
 
@@ -746,9 +746,9 @@ void CRYPTO_gcm128_init(GCM128_CONTEXT * ctx, void * key, block128_f block)
 	gcm_init_8bit(ctx->Htable, ctx->H.u);
 #elif   TABLE_BITS==4
 # if    defined(GHASH)
-#  define CTX__GHASH(f) (ctx->ghash = (f))
+#define CTX__GHASH(f) (ctx->ghash = (f))
 # else
-#  define CTX__GHASH(f) (ctx->ghash = NULL)
+#define CTX__GHASH(f) (ctx->ghash = NULL)
 # endif
 # if    defined(GHASH_ASM_X86_OR_64)
 #  if   !defined(GHASH_ASM_X86) || defined(OPENSSL_IA32_SSE2)
@@ -1677,8 +1677,8 @@ void CRYPTO_gcm128_release(GCM128_CONTEXT * ctx)
 }
 
 #if defined(SELFTEST)
-# include <stdio.h>
-# include <openssl/aes.h>
+#include <stdio.h>
+#include <openssl/aes.h>
 
 /* Test Case 1 */
 static const u8 K1[16], * P1 = NULL, * A1 = NULL, IV1[12], * C1 = NULL;
@@ -1688,9 +1688,9 @@ static const u8 T1[] = {
 };
 
 /* Test Case 2 */
-# define K2 K1
-# define A2 A1
-# define IV2 IV1
+#define K2 K1
+#define A2 A1
+#define IV2 IV1
 static const u8 P2[16];
 static const u8 C2[] = {
 	0x03, 0x88, 0xda, 0xce, 0x60, 0xb6, 0xa3, 0x92,
@@ -1703,7 +1703,7 @@ static const u8 T2[] = {
 };
 
 /* Test Case 3 */
-# define A3 A2
+#define A3 A2
 static const u8 K3[] = {
 	0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c,
 	0x6d, 0x6a, 0x8f, 0x94, 0x67, 0x30, 0x83, 0x08
@@ -1742,8 +1742,8 @@ static const u8 T3[] = {
 };
 
 /* Test Case 4 */
-# define K4 K3
-# define IV4 IV3
+#define K4 K3
+#define IV4 IV3
 static const u8 P4[] = {
 	0xd9, 0x31, 0x32, 0x25, 0xf8, 0x84, 0x06, 0xe5,
 	0xa5, 0x59, 0x09, 0xc5, 0xaf, 0xf5, 0x26, 0x9a,
@@ -1778,9 +1778,9 @@ static const u8 T4[] = {
 };
 
 /* Test Case 5 */
-# define K5 K4
-# define P5 P4
-# define A5 A4
+#define K5 K4
+#define P5 P4
+#define A5 A4
 static const u8 IV5[] = {
 	0xca, 0xfe, 0xba, 0xbe, 0xfa, 0xce, 0xdb, 0xad
 };
@@ -1802,9 +1802,9 @@ static const u8 T5[] = {
 };
 
 /* Test Case 6 */
-# define K6 K5
-# define P6 P5
-# define A6 A5
+#define K6 K5
+#define P6 P5
+#define A6 A5
 static const u8 IV6[] = {
 	0x93, 0x13, 0x22, 0x5d, 0xf8, 0x84, 0x06, 0xe5,
 	0x55, 0x90, 0x9c, 0x5a, 0xff, 0x52, 0x69, 0xaa,
@@ -1840,9 +1840,9 @@ static const u8 T7[] = {
 };
 
 /* Test Case 8 */
-# define K8 K7
-# define IV8 IV7
-# define A8 A7
+#define K8 K7
+#define IV8 IV7
+#define A8 A7
 static const u8 P8[16];
 static const u8 C8[] = {
 	0x98, 0xe7, 0x24, 0x7c, 0x07, 0xf0, 0xfe, 0x41,
@@ -1855,7 +1855,7 @@ static const u8 T8[] = {
 };
 
 /* Test Case 9 */
-# define A9 A8
+#define A9 A8
 static const u8 K9[] = {
 	0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c,
 	0x6d, 0x6a, 0x8f, 0x94, 0x67, 0x30, 0x83, 0x08,
@@ -1895,8 +1895,8 @@ static const u8 T9[] = {
 };
 
 /* Test Case 10 */
-# define K10 K9
-# define IV10 IV9
+#define K10 K9
+#define IV10 IV9
 static const u8 P10[] = {
 	0xd9, 0x31, 0x32, 0x25, 0xf8, 0x84, 0x06, 0xe5,
 	0xa5, 0x59, 0x09, 0xc5, 0xaf, 0xf5, 0x26, 0x9a,
@@ -1931,9 +1931,9 @@ static const u8 T10[] = {
 };
 
 /* Test Case 11 */
-# define K11 K10
-# define P11 P10
-# define A11 A10
+#define K11 K10
+#define P11 P10
+#define A11 A10
 static const u8 IV11[] = { 0xca, 0xfe, 0xba, 0xbe, 0xfa, 0xce, 0xdb, 0xad };
 
 static const u8 C11[] = {
@@ -1953,9 +1953,9 @@ static const u8 T11[] = {
 };
 
 /* Test Case 12 */
-# define K12 K11
-# define P12 P11
-# define A12 A11
+#define K12 K11
+#define P12 P11
+#define A12 A11
 static const u8 IV12[] = {
 	0x93, 0x13, 0x22, 0x5d, 0xf8, 0x84, 0x06, 0xe5,
 	0x55, 0x90, 0x9c, 0x5a, 0xff, 0x52, 0x69, 0xaa,
@@ -1991,8 +1991,8 @@ static const u8 T13[] = {
 };
 
 /* Test Case 14 */
-# define K14 K13
-# define A14 A13
+#define K14 K13
+#define A14 A13
 static const u8 P14[16], IV14[12];
 static const u8 C14[] = {
 	0xce, 0xa7, 0x40, 0x3d, 0x4d, 0x60, 0x6b, 0x6e,
@@ -2005,7 +2005,7 @@ static const u8 T14[] = {
 };
 
 /* Test Case 15 */
-# define A15 A14
+#define A15 A14
 static const u8 K15[] = {
 	0xfe, 0xff, 0xe9, 0x92, 0x86, 0x65, 0x73, 0x1c,
 	0x6d, 0x6a, 0x8f, 0x94, 0x67, 0x30, 0x83, 0x08,
@@ -2046,8 +2046,8 @@ static const u8 T15[] = {
 };
 
 /* Test Case 16 */
-# define K16 K15
-# define IV16 IV15
+#define K16 K15
+#define IV16 IV15
 static const u8 P16[] = {
 	0xd9, 0x31, 0x32, 0x25, 0xf8, 0x84, 0x06, 0xe5,
 	0xa5, 0x59, 0x09, 0xc5, 0xaf, 0xf5, 0x26, 0x9a,
@@ -2082,9 +2082,9 @@ static const u8 T16[] = {
 };
 
 /* Test Case 17 */
-# define K17 K16
-# define P17 P16
-# define A17 A16
+#define K17 K16
+#define P17 P16
+#define A17 A16
 static const u8 IV17[] = { 0xca, 0xfe, 0xba, 0xbe, 0xfa, 0xce, 0xdb, 0xad };
 
 static const u8 C17[] = {
@@ -2104,9 +2104,9 @@ static const u8 T17[] = {
 };
 
 /* Test Case 18 */
-# define K18 K17
-# define P18 P17
-# define A18 A17
+#define K18 K17
+#define P18 P17
+#define A18 A17
 static const u8 IV18[] = {
 	0x93, 0x13, 0x22, 0x5d, 0xf8, 0x84, 0x06, 0xe5,
 	0x55, 0x90, 0x9c, 0x5a, 0xff, 0x52, 0x69, 0xaa,
@@ -2135,10 +2135,10 @@ static const u8 T18[] = {
 };
 
 /* Test Case 19 */
-# define K19 K1
-# define P19 P1
-# define IV19 IV1
-# define C19 C1
+#define K19 K1
+#define P19 P1
+#define IV19 IV1
+#define C19 C1
 static const u8 A19[] = {
 	0xd9, 0x31, 0x32, 0x25, 0xf8, 0x84, 0x06, 0xe5,
 	0xa5, 0x59, 0x09, 0xc5, 0xaf, 0xf5, 0x26, 0x9a,
@@ -2164,8 +2164,8 @@ static const u8 T19[] = {
 };
 
 /* Test Case 20 */
-# define K20 K1
-# define A20 A1
+#define K20 K1
+#define A20 A1
 /* this results in 0xff in counter LSB */
 static const u8 IV20[64] = { 0xff, 0xff, 0xff, 0xff };
 
@@ -2214,7 +2214,7 @@ static const u8 T20[] = {
 	0xb0, 0x26, 0xa9, 0xed, 0x3f, 0xe1, 0xe8, 0x5f
 };
 
-# define TEST_CASE(n)    do {					 \
+#define TEST_CASE(n)    do {					 \
 		u8 out[sizeof(P ## n)];					  \
 		AES_set_encrypt_key(K ## n, sizeof(K ## n)*8, &key);	      \
 		CRYPTO_gcm128_init(&ctx, &key, (block128_f)AES_encrypt);  \

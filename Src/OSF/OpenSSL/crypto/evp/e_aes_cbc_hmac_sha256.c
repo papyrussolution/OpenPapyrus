@@ -8,17 +8,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/opensslconf.h>
-//#include <stdio.h>
-//#include <string.h>
-//#include <openssl/evp.h>
-//#include <openssl/objects.h>
-//#include <openssl/aes.h>
-//#include <openssl/sha.h>
-//#include <openssl/rand.h>
-#include "modes_lcl.h"
 #include "internal/constant_time_locl.h"
-#include "internal/evp_int.h"
+#include "modes_lcl.h"
 
 typedef struct {
 	AES_KEY ks;
@@ -30,14 +21,14 @@ typedef struct {
 	} aux;
 } EVP_AES_HMAC_SHA256;
 
-# define NO_PAYLOAD_LENGTH       ((size_t)-1)
+#define NO_PAYLOAD_LENGTH       ((size_t)-1)
 
 #if     defined(AES_ASM) &&     ( \
 	defined(__x86_64)       || defined(__x86_64__)  || \
 	defined(_M_AMD64)       || defined(_M_X64)      )
 
 extern uint OPENSSL_ia32cap_P[];
-# define AESNI_CAPABLE   (1<<(57-32))
+#define AESNI_CAPABLE   (1<<(57-32))
 
 int aesni_set_encrypt_key(const uchar * userKey, int bits,
     AES_KEY * key);
@@ -53,7 +44,7 @@ int aesni_cbc_sha256_enc(const void * inp, void * out, size_t blocks,
     const AES_KEY * key, uchar iv[16],
     SHA256_CTX * ctx, const void * in0);
 
-# define data(ctx) ((EVP_AES_HMAC_SHA256*)EVP_CIPHER_CTX_get_cipher_data(ctx))
+#define data(ctx) ((EVP_AES_HMAC_SHA256*)EVP_CIPHER_CTX_get_cipher_data(ctx))
 
 static int aesni_cbc_hmac_sha256_init_key(EVP_CIPHER_CTX * ctx,
     const uchar * inkey,
@@ -72,10 +63,10 @@ static int aesni_cbc_hmac_sha256_init_key(EVP_CIPHER_CTX * ctx,
 	return ret < 0 ? 0 : 1;
 }
 
-# define STITCHED_CALL
+#define STITCHED_CALL
 
 # if !defined(STITCHED_CALL)
-#  define aes_off 0
+#define aes_off 0
 # endif
 
 void sha256_block_data_order(void * c, const void * p, size_t len);
@@ -109,7 +100,7 @@ static void sha256_update(SHA256_CTX * c, const void * data, size_t len)
 # ifdef SHA256_Update
 #  undef SHA256_Update
 # endif
-# define SHA256_Update sha256_update
+#define SHA256_Update sha256_update
 
 # if !defined(OPENSSL_NO_MULTIBLOCK)
 
@@ -234,7 +225,7 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA256 * key,
 	/* hash 13-byte headers and first 64-13 bytes of inputs */
 	sha256_multi_block(ctx, edges, n4x);
 	/* hash bulk inputs */
-#  define MAXCHUNKSIZE    2048
+#define MAXCHUNKSIZE    2048
 #  if     MAXCHUNKSIZE%64
 #   error  "MAXCHUNKSIZE is not divisible by 64"
 #  elif   MAXCHUNKSIZE

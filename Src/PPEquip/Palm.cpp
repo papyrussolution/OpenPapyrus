@@ -2511,7 +2511,7 @@ private:
 	int    SLAPI Helper_CloseWriter();
 
 	xmlTextWriter * P_Writer;
-	xmlBufferPtr P_Buffer;
+	xmlBuffer * P_Buffer;
 };
 
 #define PALM_FIRST_QUOTFLD 13

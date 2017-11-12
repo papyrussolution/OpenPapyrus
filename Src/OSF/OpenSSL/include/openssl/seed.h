@@ -33,13 +33,13 @@
  */
 
 #ifndef HEADER_SEED_H
-# define HEADER_SEED_H
+#define HEADER_SEED_H
 
-# include <openssl/opensslconf.h>
+#include <openssl/opensslconf.h>
 
 # ifndef OPENSSL_NO_SEED
-# include <openssl/e_os2.h>
-# include <openssl/crypto.h>
+#include <openssl/e_os2.h>
+#include <openssl/crypto.h>
 
 #ifdef  __cplusplus
 extern "C" {
@@ -56,8 +56,8 @@ extern "C" {
 #  include <sys/types.h>
 # endif
 
-# define SEED_BLOCK_SIZE 16
-# define SEED_KEY_LENGTH 16
+#define SEED_BLOCK_SIZE 16
+#define SEED_KEY_LENGTH 16
 
 typedef struct seed_key_st {
 # ifdef SEED_LONG

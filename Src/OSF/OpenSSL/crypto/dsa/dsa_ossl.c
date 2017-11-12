@@ -10,10 +10,7 @@
 /* Original version from Steven Schoch <schoch@sheba.arc.nasa.gov> */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/bn.h>
-#include <openssl/sha.h>
 #include "dsa_locl.h"
-//#include <openssl/asn1.h>
 
 static DSA_SIG * dsa_do_sign(const uchar * dgst, int dlen, DSA * dsa);
 static int dsa_sign_setup_no_digest(DSA * dsa, BN_CTX * ctx_in, BIGNUM ** kinvp, BIGNUM ** rp);

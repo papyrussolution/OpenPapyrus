@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/x509v3.h>
 #include "pcy_int.h"
 
 /* accessor functions */
@@ -18,23 +16,19 @@
 
 int X509_policy_tree_level_count(const X509_POLICY_TREE * tree)
 {
-	if(!tree)
-		return 0;
-	return tree->nlevel;
+	return tree ? tree->nlevel : 0;
 }
 
 X509_POLICY_LEVEL * X509_policy_tree_get0_level(const X509_POLICY_TREE * tree, int i)
 {
 	if(!tree || (i < 0) || (i >= tree->nlevel))
 		return NULL;
-	return tree->levels + i;
+	return (tree->levels + i);
 }
 
 STACK_OF(X509_POLICY_NODE) *X509_policy_tree_get0_policies(const X509_POLICY_TREE *tree)
 {
-	if(!tree)
-		return NULL;
-	return tree->auth_policies;
+	return tree ? tree->auth_policies : 0;
 }
 
 STACK_OF(X509_POLICY_NODE) *X509_policy_tree_get0_user_policies(const X509_POLICY_TREE *tree)
@@ -79,24 +73,15 @@ X509_POLICY_NODE * X509_policy_level_get0_node(X509_POLICY_LEVEL * level, int i)
 
 const ASN1_OBJECT * X509_policy_node_get0_policy(const X509_POLICY_NODE * node)
 {
-	if(!node)
-		return NULL;
-	return node->data->valid_policy;
+	return node ? node->data->valid_policy : 0;
 }
 
-STACK_OF(POLICYQUALINFO) *X509_policy_node_get0_qualifiers(const
-    X509_POLICY_NODE
-    *node)
+STACK_OF(POLICYQUALINFO) *X509_policy_node_get0_qualifiers(const X509_POLICY_NODE *node)
 {
-	if(!node)
-		return NULL;
-	return node->data->qualifier_set;
+	return node ? node->data->qualifier_set : 0;
 }
 
 const X509_POLICY_NODE * X509_policy_node_get0_parent(const X509_POLICY_NODE * node)
 {
-	if(!node)
-		return NULL;
-	return node->parent;
+	return node ? node->parent : 0;
 }
-

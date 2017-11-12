@@ -10,7 +10,6 @@
 /* X509 v3 extension utilities */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509v3.h>
 
 /* Extension printing routines */
 static int unknown_ext_print(BIO * out, const uchar * ext, int extlen, ulong flag, int indent, int supported);

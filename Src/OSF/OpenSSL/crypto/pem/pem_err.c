@@ -14,8 +14,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_PEM, func, 0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_PEM, 0, reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_PEM, func, 0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_PEM, 0, reason)
 
 static ERR_STRING_DATA PEM_str_functs[] = {
 	{ERR_FUNC(PEM_F_B2I_DSS), "b2i_dss"},

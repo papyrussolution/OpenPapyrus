@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "internal/bn_int.h"
-//#include <internal/evp_int.h>
 
 int EVP_PKEY_paramgen_init(EVP_PKEY_CTX * ctx)
 {

@@ -79,7 +79,7 @@ IUnknown * FASTCALL GetPPObjIStrAssocList(SCoClass * pCls, PPObject * pObj, long
 	return p;
 }
 
-IUnknown * GetIStrAssocList(SCoClass * pCls, StrAssocArray * pList, int delList = 1)
+static IUnknown * FASTCALL GetIStrAssocList(SCoClass * pCls, StrAssocArray * pList, int delList = 1)
 {
 	IUnknown * p = 0;
 	if(pList && pCls && pCls->CreateInnerInstance("StrAssocList", "IStrAssocList", (void**)&p)) {
@@ -96,7 +96,7 @@ IUnknown * GetIStrAssocList(SCoClass * pCls, StrAssocArray * pList, int delList 
 	return p;
 }
 
-IUnknown * GetIPapyrusAmountList(SCoClass * pCls, AmtList * pList, int delList = 1)
+static IUnknown * FASTCALL GetIPapyrusAmountList(SCoClass * pCls, AmtList * pList, int delList = 1)
 {
 	IUnknown * p = 0;
 	if(pList && pCls && pCls->CreateInnerInstance("PPAmountList", "IPapyrusAmountList", (void**)&p)) {
@@ -111,7 +111,7 @@ IUnknown * GetIPapyrusAmountList(SCoClass * pCls, AmtList * pList, int delList =
 	return p;
 }
 
-IUnknown * GetILotList(SCoClass * pCls, SArray * pList, int delList = 1)
+static IUnknown * FASTCALL GetILotList(SCoClass * pCls, SVector * pList, int delList = 1) // @v9.8.8 SArray-->SVector
 {
 	IUnknown * p = 0;
 	if(pList && pCls && pCls->CreateInnerInstance("PPLotList", "ILotList", (void**)&p)) {
@@ -271,7 +271,7 @@ SString & DL6ICLS_PapyrusTextAnalyzer::ReplaceString(SString & inputText)
 		if(!p_obj->ReplaceString(inputText, RetStrBuf))
 			AppError = 1;
 		/*
-		RetStrBuf = 0;
+		RetStrBuf.Z();
 		if(p_obj->Inited) {
 			inputText.Strip().ToLower().Transf(CTRANSF_INNER_TO_OUTER);
 			p_obj->A.Reset(0);
@@ -476,7 +476,7 @@ SString & DL6ICLS_StrAssocList::GetTextById(int32 id)
 		RetStrBuf = p_data->Search(id, &pos) ? p_data->at(pos).Txt : (const char *)0;
 	}
 	else {
-		RetStrBuf = 0;
+		RetStrBuf.Z();
 		AppError = 1;
 	}
 	return RetStrBuf;
@@ -641,7 +641,7 @@ int32 DL6ICLS_PPSFile::ReadLine(SString * pBuf)
 		}
 	}
 	else {
-		RetStrBuf = 0;
+		RetStrBuf.Z();
 		AppError = 1;
 	}
 	return ok;
@@ -661,7 +661,7 @@ int32 DL6ICLS_PPSFile::CalcSize(long * pLoWord, long * pHiWord)
 		}
 	}
 	else {
-		RetStrBuf = 0;
+		RetStrBuf.Z();
 		AppError  = 1;
 	}
 	return ok;
@@ -830,9 +830,8 @@ int32 DL6ICLS_PPDbfRecord::PutDate(int32 fldN, LDATE val)
 SString & DL6ICLS_PPDbfRecord::GetString(int32 fldN)
 {
 	DbfRecord * p_rec = (DbfRecord*)ExtraPtr;
-	RetStrBuf = 0;
-	if(p_rec)
-		p_rec->get(fldN, RetStrBuf);
+	RetStrBuf.Z();
+	CALLPTRMEMB(p_rec, get(fldN, RetStrBuf));
 	return RetStrBuf;
 }
 
@@ -873,7 +872,7 @@ LDATE DL6ICLS_PPDbfRecord::GetDate(int32 fldN)
 SString & DL6ICLS_PPDbfRecord::GetFieldName(uint32 fldN)
 {
 	DbfRecord * p_rec = (DbfRecord*)ExtraPtr;
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	if(p_rec) {
 		char buf[128];
 		memzero(buf, sizeof(buf));
@@ -929,7 +928,7 @@ int32 DL6ICLS_PPDbfTable::IsOpened()
 SString & DL6ICLS_PPDbfTable::GetName()
 {
 	DbfTable * p_tbl = (DbfTable*)ExtraPtr;
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	if(p_tbl)
 		RetStrBuf.CopyFrom(p_tbl->getName());
 	return RetStrBuf;
@@ -938,7 +937,7 @@ SString & DL6ICLS_PPDbfTable::GetName()
 SString & DL6ICLS_PPDbfTable::GetFieldName(uint32 fldN)
 {
 	DbfTable * p_tbl = (DbfTable*)ExtraPtr;
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	if(p_tbl) {
 		char buf[128];
 		memzero(buf, sizeof(buf));
@@ -1426,7 +1425,7 @@ SString & DL6ICLS_PPUtil::GetObjectName(PpyObjectIdent objType, long objID)
 	}
 	::GetObjectName(ppy_objtyp, objID, RetStrBuf);
 	CATCH
-		RetStrBuf = 0;
+		RetStrBuf.Z();
 		AppError = 1;
 	ENDCATCH
 	return RetStrBuf;
@@ -1454,7 +1453,7 @@ int32 DL6ICLS_PPUtil::IsFileExists(SString & rFileName)
 
 SString & DL6ICLS_PPUtil::ReadPPIniParamS(PpyIniSection section, SString & rParam)
 {
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	THROW(IfcImpCheckDictionary());
 	{
 		PPIniFile ini_file;
@@ -1462,14 +1461,14 @@ SString & DL6ICLS_PPUtil::ReadPPIniParamS(PpyIniSection section, SString & rPara
 	}
 	CATCH
 		AppError  = 1;
-		RetStrBuf = 0;
+		RetStrBuf.Z();
 	ENDCATCH
 	return RetStrBuf;
 }
 
 SString & DL6ICLS_PPUtil::ReadPPIniParam(PpyIniSection section, PpyIniParam param)
 {
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	THROW(IfcImpCheckDictionary());
 	{
 		long   inner_param = 0;
@@ -1488,14 +1487,14 @@ SString & DL6ICLS_PPUtil::ReadPPIniParam(PpyIniSection section, PpyIniParam para
 	}
 	CATCH
 		AppError  = 1;
-		RetStrBuf = 0;
+		RetStrBuf.Z();
 	ENDCATCH
 	return RetStrBuf;
 }
 
 SString & DL6ICLS_PPUtil::EncodeString(SString & rSrc, SString & rEncodeStr, int32 decode)
 {
-	return (RetStrBuf = 0).EncodeString(rSrc, rEncodeStr, (int)decode);
+	return RetStrBuf.Z().EncodeString(rSrc, rEncodeStr, (int)decode);
 }
 
 int32 DL6ICLS_PPUtil::GetNativeCountry()
@@ -1510,7 +1509,7 @@ SString & DL6ICLS_PPUtil::MakeGUID()
 {
 	S_GUID guid;
 	guid.Generate();
-	guid.ToStr(S_GUID::fmtIDL, RetStrBuf = 0);
+	guid.ToStr(S_GUID::fmtIDL, RetStrBuf.Z());
 	return RetStrBuf;
 }
 
@@ -2236,7 +2235,7 @@ double DL6ICLS_PPDL200Resolver::Resolve(SString & rExpression)
 
 SString & DL6ICLS_PPDL200Resolver::ResolveName(SString & rMetaVar)
 {
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	DL2_Resolver * p_prcssr = (DL2_Resolver *)ExtraPtr;
 	if(SetAppError(BIN(p_prcssr)))
 		p_prcssr->ResolveName(rMetaVar, RetStrBuf);
@@ -2662,7 +2661,7 @@ SString & DL6ICLS_PPObjAccSheet::GetName(int32 id)
 			ideqvalstr(id, RetStrBuf);
 	}
 	else {
-		RetStrBuf = 0;
+		RetStrBuf.Z();
 		AppError = 1;
 	}
 	return RetStrBuf;
@@ -3341,7 +3340,7 @@ SString & DL6ICLS_PPObjCurrency::GetName(int32 id)
 	if(p_obj)
 		p_obj->GetName(id, &RetStrBuf);
 	else
-		RetStrBuf = 0;
+		RetStrBuf.Z();
 	return RetStrBuf;
 }
 
@@ -3515,7 +3514,7 @@ SString & DL6ICLS_PPObjGoodsClass::GetName(int32 id)
 	if(p_obj)
 		p_obj->GetName(id, &RetStrBuf);
 	else
-		RetStrBuf = 0;
+		RetStrBuf.Z();
 	return RetStrBuf;
 }
 
@@ -3909,21 +3908,21 @@ int32 DL6ICLS_PPObjGoods::SearchByArCode(long arID, SString & rBCode, SPpyO_Good
 
 SString & DL6ICLS_PPObjGoods::GetSingleBarcode(int32 goodsID)
 {
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	((PPObjGoods *)ExtraPtr)->GetSingleBarcode(goodsID, RetStrBuf);
 	return RetStrBuf;
 }
 
 SString & DL6ICLS_PPObjGoods::GetArCode(int32 goodsID, int32 arID)
 {
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	((PPObjGoods *)ExtraPtr)->P_Tbl->GetArCode(arID, goodsID, RetStrBuf, 0);
 	return RetStrBuf;
 }
 
 SString & DL6ICLS_PPObjGoods::GetArCodeWQtty(int32 goodsID, int32 arID, int32 * pPack)
 {
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	((PPObjGoods *)ExtraPtr)->P_Tbl->GetArCode(arID, goodsID, RetStrBuf, pPack);
 	return RetStrBuf;
 }
@@ -4096,7 +4095,7 @@ int32 DL6ICLS_PPObjGoods::SetVad(int32 goodsID, SPpyO_Goods * pGRec)
 
 SString & DL6ICLS_PPObjGoods::ProcessName(SString & orgName, int32 flags)
 {
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	PPObjGoods * p_obj = (PPObjGoods*)ExtraPtr;
 	if(p_obj) {
 		PPObjGoods::ProcessNameBlock blk;
@@ -4300,7 +4299,7 @@ int32 DL6ICLS_PPLocAddrStruc::Recognize(SString & addr)
 
 SString & DL6ICLS_PPLocAddrStruc::Get(PpyLocAddrPart partId)
 {
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	PPLocAddrStruc * p_las = (PPLocAddrStruc *)ExtraPtr;
 	if(p_las)
 		p_las->Get(partId, RetStrBuf);
@@ -4416,7 +4415,7 @@ SString & DL6ICLS_PPObjLocation::GetAddress(int32 locID)
 {
 	//PPObjLocation * p_obj = (PPObjLocation *)ExtraPtr;
 	PPObjPerson * p_obj = (PPObjPerson *)ExtraPtr;
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	AppError = 0;
 	if(p_obj) {
 		/* @v9.5.5
@@ -4450,7 +4449,7 @@ SString & DL6ICLS_PPObjLocation::GetDlvrAddrExtFld(int32 locID, int32 extFldID)
 	LocationTbl::Rec loc_rec;
 	//PPObjLocation * p_obj = (PPObjLocation *)ExtraPtr;
 	PPObjPerson * p_obj = (PPObjPerson *)ExtraPtr;
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	MEMSZERO(loc_rec);
 	if(p_obj->LocObj.Search(locID, &loc_rec) > 0) {
 		if(LocationCore::GetExField(&loc_rec, extFldID, RetStrBuf) == 0)
@@ -4942,7 +4941,7 @@ SString & DL6ICLS_PPObjPerson::FormatRegister(int32 personID, int32 regTypeID)
 
 SString & DL6ICLS_PPObjPerson::GetRegNumber(int32 personID, int32 regTypeID)
 {
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
 	if(p_e && p_e->P_Obj)
 		p_e->P_Obj->GetRegNumber(personID, regTypeID, RetStrBuf);
@@ -4953,7 +4952,7 @@ SString & DL6ICLS_PPObjPerson::GetRegNumber(int32 personID, int32 regTypeID)
 
 SString & DL6ICLS_PPObjPerson::GetRegNumberD(int32 personID, LDATE actualDate, int32 regTypeID)
 {
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	InnerExtraObjPerson * p_e = (InnerExtraObjPerson*)ExtraPtr;
 	if(p_e && p_e->P_Obj)
 		p_e->P_Obj->GetRegNumber(personID, regTypeID, actualDate, RetStrBuf);
@@ -4976,7 +4975,7 @@ int32 DL6ICLS_PPObjPerson::IsTagAssigned(int32 personID, int32 tagID)
 
 SString & DL6ICLS_PPObjPerson::FormatTag(int32 personID, int32 tagID)
 {
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	ObjTagList list;
 	if(PPRef->Ot.GetList(PPOBJ_PERSON, personID, &list)) {
 		const ObjTagItem * p_item = list.GetItem(tagID);
@@ -6330,7 +6329,7 @@ int SLAPI MakeLotQuery(ReceiptCore & rRcpt, LotQueryBlock & rBlk, int lcr, ulong
 	return ok;
 }
 
-int SLAPI SelectLcrLots(ReceiptCore & rRcpt, const PPIDArray & rIdList, const UintHashTable & rLcrList, SArray & rList, ObjIdListFilt & rLocList, LDATE dt)
+int SLAPI SelectLcrLots(ReceiptCore & rRcpt, const PPIDArray & rIdList, const UintHashTable & rLcrList, SVector & rList, ObjIdListFilt & rLocList, LDATE dt) // @v9.8.8 SArray-->SVector
 {
 	int    ok = 1;
 	const uint id_count = rIdList.getCount();
@@ -6361,7 +6360,7 @@ ILotList * DL6ICLS_PPObjBill::GetCurLotList(LDATE lowDt, LDATE uppDt, int32 good
 	UintHashTable lcr_lot_list;
 	RAssocArray lcr_rest_list;
 	SString msg_buf;
-	SArray lot_list(sizeof(ReceiptTbl::Rec));
+	SVector lot_list(sizeof(ReceiptTbl::Rec)); // @v9.8.8 SArray-->SVector
 	ObjIdListFilt loc_list;
 	{
 		StrAssocArray * p_loc_list = (StrAssocArray *)SCoClass::GetExtraPtrByInterface(pLocList);
@@ -6749,7 +6748,7 @@ int32 DL6ICLS_PPObjRegister::SearchByName(SString & text, int32 kind, int32 extr
 SString & DL6ICLS_PPObjRegister::GetName(int32 id)
 {
 	AppError = 1;
-	return (RetStrBuf = 0);
+	return RetStrBuf.Z();
 }
 
 IStrAssocList* DL6ICLS_PPObjRegister::GetSelector(int32 extraParam)
@@ -6881,7 +6880,7 @@ int32 DL6ICLS_PPObjPersonRelType::SearchByName(SString & text, int32 kind, int32
 SString & DL6ICLS_PPObjPersonRelType::GetName(int32 id)
 {
 	int    ok = 0;
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	IMPL_PPIFC_EXTPTRVAR(PPObjPersonRelType);
 	if(p_ext) {
 		PPPersonRelTypePacket inner_pack;
@@ -7106,7 +7105,7 @@ int32 DL6ICLS_PPObjPrjTask::SearchByName(SString & text, int32 kind, int32 extra
 SString & DL6ICLS_PPObjPrjTask::GetName(int32 id)
 {
 	AppError = 1;
-	return (RetStrBuf = 0);
+	return RetStrBuf.Z();
 }
 
 IStrAssocList* DL6ICLS_PPObjPrjTask::GetSelector(int32 extraParam)
@@ -7239,7 +7238,7 @@ SString & DL6ICLS_PPObjProject::GetName(int32 id)
 {
 	int    ok = 0;
 	PPObjProject * p_obj = (PPObjProject *)ExtraPtr;
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	if(p_obj)
 		ok = p_obj->GetFullName(id, RetStrBuf);
 	return RetStrBuf;
@@ -7350,7 +7349,7 @@ int32 DL6ICLS_PPObjBrand::SearchByName(SString & text, int32 kind, int32 extraPa
 SString & DL6ICLS_PPObjBrand::GetName(int32 id)
 {
 	AppError = 1;
-	return (RetStrBuf = 0);
+	return RetStrBuf.Z();
 }
 
 IStrAssocList* DL6ICLS_PPObjBrand::GetSelector(int32 extraParam)
@@ -7442,7 +7441,7 @@ int32 DL6ICLS_PPObjQCert::SearchByName(SString & text, int32 kind, int32 extraPa
 SString & DL6ICLS_PPObjQCert::GetName(int32 id)
 {
 	AppError = 1;
-	return (RetStrBuf = 0);
+	return RetStrBuf.Z();
 }
 
 IStrAssocList* DL6ICLS_PPObjQCert::GetSelector(int32 extraParam)
@@ -8188,7 +8187,7 @@ int32 DL6ICLS_PrcssrAlcReport::GetWkrRegister(long wkr, int32 psnID, int32 locID
 SString & DL6ICLS_PrcssrAlcReport::GetWkrRegisterNumber(long wkr, int32 psnID, int32 locID, LDATE actualDate)
 {
 	int    ok = 0;
-	RetStrBuf = 0;
+	RetStrBuf.Z();
 	PrcssrAlcReport * p_prc = (PrcssrAlcReport *)ExtraPtr;
 	if(p_prc) {
 		RegisterTbl::Rec reg_rec;
@@ -10443,7 +10442,7 @@ int32 DL6ICLS_PPObjDebtDim::SearchByName(SString & text, int32 kind, int32 extra
 SString & DL6ICLS_PPObjDebtDim::GetName(int32 id)
 {
 	AppError = 1;
-	return (RetStrBuf = 0);
+	return RetStrBuf.Z();
 }
 
 IStrAssocList* DL6ICLS_PPObjDebtDim::GetSelector(int32 extraParam)
@@ -10966,7 +10965,7 @@ SString & DL6ICLS_PPObjSCardSeries::GetName(int32 id)
 			ideqvalstr(id, RetStrBuf);
 	}
 	else {
-		RetStrBuf = 0;
+		RetStrBuf.Z();
 		AppError = 1;
 	}
 	return RetStrBuf;
@@ -11058,7 +11057,7 @@ SString & DL6ICLS_PPObjSCard::GetName(int32 id)
 			ideqvalstr(id, RetStrBuf);
 	}
 	else {
-		RetStrBuf = 0;
+		RetStrBuf.Z();
 		AppError = 1;
 	}
 	return RetStrBuf;
@@ -11126,4 +11125,3 @@ int32 DL6ICLS_PPObjSCard::SetFreezingPeriod(int32 id, SDateRange* pDateRange, in
 {
 	return FuncNotSupported();
 }
-

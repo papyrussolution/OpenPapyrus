@@ -22,10 +22,10 @@
 #if defined(OPENSSL_SYS_WINCE)
 #elif defined(OPENSSL_SYS_WIN32)
 #elif defined(OPENSSL_SYS_VMS)
-# include <opcdef.h>
-# include <descrip.h>
-# include <lib$routines.h>
-# include <starlet.h>
+#include <opcdef.h>
+#include <descrip.h>
+#include <lib$routines.h>
+#include <starlet.h>
 /* Some compiler options may mask the declaration of "_malloc32". */
 # if __INITIAL_POINTER_SIZE && defined _ANSI_C_SOURCE
 #  if __INITIAL_POINTER_SIZE == 64
@@ -37,9 +37,9 @@ void * _malloc32(__size_t);
 # endif                         /* __INITIAL_POINTER_SIZE && defined
                                  * _ANSI_C_SOURCE */
 #elif defined(OPENSSL_SYS_NETWARE)
-# define NO_SYSLOG
+#define NO_SYSLOG
 #elif (!defined(MSDOS) || defined(WATT32)) && !defined(OPENSSL_SYS_VXWORKS) && !defined(NO_SYSLOG)
-# include <syslog.h>
+#include <syslog.h>
 #endif
 
 #include <openssl/buffer.h>
@@ -48,28 +48,28 @@ void * _malloc32(__size_t);
 #ifndef NO_SYSLOG
 
 # if defined(OPENSSL_SYS_WIN32)
-#  define LOG_EMERG       0
-#  define LOG_ALERT       1
-#  define LOG_CRIT        2
-#  define LOG_ERR         3
-#  define LOG_WARNING     4
-#  define LOG_NOTICE      5
-#  define LOG_INFO        6
-#  define LOG_DEBUG       7
+#define LOG_EMERG       0
+#define LOG_ALERT       1
+#define LOG_CRIT        2
+#define LOG_ERR         3
+#define LOG_WARNING     4
+#define LOG_NOTICE      5
+#define LOG_INFO        6
+#define LOG_DEBUG       7
 
-#  define LOG_DAEMON      (3<<3)
+#define LOG_DAEMON      (3<<3)
 # elif defined(OPENSSL_SYS_VMS)
 /* On VMS, we don't really care about these, but we need them to compile */
-#  define LOG_EMERG       0
-#  define LOG_ALERT       1
-#  define LOG_CRIT        2
-#  define LOG_ERR         3
-#  define LOG_WARNING     4
-#  define LOG_NOTICE      5
-#  define LOG_INFO        6
-#  define LOG_DEBUG       7
+#define LOG_EMERG       0
+#define LOG_ALERT       1
+#define LOG_CRIT        2
+#define LOG_ERR         3
+#define LOG_WARNING     4
+#define LOG_NOTICE      5
+#define LOG_INFO        6
+#define LOG_DEBUG       7
 
-#  define LOG_DAEMON      OPC$M_NM_NTWORK
+#define LOG_DAEMON      OPC$M_NM_NTWORK
 # endif
 
 static int slg_write(BIO * h, const char * buf, int num);

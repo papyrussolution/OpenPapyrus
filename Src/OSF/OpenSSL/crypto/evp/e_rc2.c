@@ -11,7 +11,6 @@
 
 #ifndef OPENSSL_NO_RC2
 
-//#include <internal/evp_int.h>
 #include <openssl/rc2.h>
 
 static int rc2_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
@@ -27,7 +26,7 @@ typedef struct {
 	RC2_KEY ks;             /* key schedule */
 } EVP_RC2_KEY;
 
-# define data(ctx)       EVP_C_DATA(EVP_RC2_KEY, ctx)
+#define data(ctx)       EVP_C_DATA(EVP_RC2_KEY, ctx)
 
 IMPLEMENT_BLOCK_CIPHER(rc2, ks, RC2, EVP_RC2_KEY, NID_rc2,
     8,
@@ -36,9 +35,9 @@ IMPLEMENT_BLOCK_CIPHER(rc2, ks, RC2, EVP_RC2_KEY, NID_rc2,
     rc2_init_key, NULL,
     rc2_set_asn1_type_and_iv, rc2_get_asn1_type_and_iv,
     rc2_ctrl)
-# define RC2_40_MAGIC    0xa0
-# define RC2_64_MAGIC    0x78
-# define RC2_128_MAGIC   0x3a
+#define RC2_40_MAGIC    0xa0
+#define RC2_64_MAGIC    0x78
+#define RC2_128_MAGIC   0x3a
 static const EVP_CIPHER r2_64_cbc_cipher = {
 	NID_rc2_64_cbc,
 	8, 8 /* 64 bit */, 8,

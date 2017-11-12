@@ -8,20 +8,17 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/conf.h>
-//#include <openssl/x509.h>
-//#include <openssl/asn1.h>
-//#include <openssl/engine.h>
-
-/* Load all OpenSSL builtin modules */
-
+//
+// Load all OpenSSL builtin modules 
+//
 void OPENSSL_load_builtin_modules(void)
 {
-    // Add builtin modules here 
-    ASN1_add_oid_module();
-    ASN1_add_stable_module();
+	// Add builtin modules here
+	ASN1_add_oid_module();
+	ASN1_add_stable_module();
 #ifndef OPENSSL_NO_ENGINE
-    ENGINE_add_conf_module();
+	ENGINE_add_conf_module();
 #endif
-    EVP_add_alg_module();
+	EVP_add_alg_module();
 }
+

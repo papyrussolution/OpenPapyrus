@@ -211,9 +211,9 @@ size_t CRYPTO_secure_actual_size(void * ptr)
 
 #define ONE ((size_t)1)
 
-# define TESTBIT(t, b)  (t[(b) >> 3] &  (ONE << ((b) & 7)))
-# define SETBIT(t, b)   (t[(b) >> 3] |= (ONE << ((b) & 7)))
-# define CLEARBIT(t, b) (t[(b) >> 3] &= (0xFF & ~(ONE << ((b) & 7))))
+#define TESTBIT(t, b)  (t[(b) >> 3] &  (ONE << ((b) & 7)))
+#define SETBIT(t, b)   (t[(b) >> 3] |= (ONE << ((b) & 7)))
+#define CLEARBIT(t, b) (t[(b) >> 3] &= (0xFF & ~(ONE << ((b) & 7))))
 
 #define WITHIN_ARENA(p)	\
 	((char*)(p) >= sh.arena && (char*)(p) < &sh.arena[sh.arena_size])

@@ -8,17 +8,11 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/pem.h>
-//#include <openssl/dh.h>
-//#include "internal/asn1_int.h"
 #include <openssl/pkcs12.h>
-//#include <internal/evp_int.h>
 
 int pem_check_suffix(const char * pem_str, const char * suffix);
 
-EVP_PKEY * PEM_read_bio_PrivateKey(BIO * bp, EVP_PKEY ** x, pem_password_cb * cb,
-    void * u)
+EVP_PKEY * PEM_read_bio_PrivateKey(BIO * bp, EVP_PKEY ** x, pem_password_cb * cb, void * u)
 {
 	char * nm = NULL;
 	const uchar * p = NULL;

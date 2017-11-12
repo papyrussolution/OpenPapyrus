@@ -390,7 +390,7 @@ static ngx_int_t ngx_http_gzip_filter_buffer(ngx_http_gzip_ctx_t * ctx, ngx_chai
 		}
 		if(ctx->buffering && size) {
 			buf = ngx_create_temp_buf(r->pool, size);
-			if(buf == NULL) {
+			if(!buf) {
 				return NGX_ERROR;
 			}
 			buf->last = ngx_cpymem(buf->pos, b->pos, size);

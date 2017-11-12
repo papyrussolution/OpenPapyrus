@@ -14,8 +14,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_PKCS12,func,0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_PKCS12,0,reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_PKCS12,func,0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_PKCS12,0,reason)
 
 static ERR_STRING_DATA PKCS12_str_functs[] = {
     {ERR_FUNC(PKCS12_F_PKCS12_CREATE), "PKCS12_create"},

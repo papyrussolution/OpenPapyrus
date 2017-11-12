@@ -12,10 +12,7 @@
 	#error "CT disabled"
 #endif
 #include <openssl/ct.h>
-//#include <openssl/err.h>
-//#include <openssl/evp.h>
 #include <openssl/tls1.h>
-//#include <openssl/x509.h>
 
 #include "ct_locl.h"
 
@@ -26,7 +23,6 @@ SCT * SCT_new(void)
 		CTerr(CT_F_SCT_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-
 	sct->entry_type = CT_LOG_ENTRY_TYPE_NOT_SET;
 	sct->version = SCT_VERSION_NOT_SET;
 	return sct;
@@ -355,9 +351,7 @@ int SCT_validate(SCT * sct, const CT_POLICY_EVAL_CTX * ctx)
 	if(SCT_CTX_set1_cert(sctx, ctx->cert, NULL) != 1)
 		sct->validation_status = SCT_VALIDATION_STATUS_UNVERIFIED;
 	else
-		sct->validation_status = SCT_CTX_verify(sctx, sct) == 1 ?
-		    SCT_VALIDATION_STATUS_VALID : SCT_VALIDATION_STATUS_INVALID;
-
+		sct->validation_status = SCT_CTX_verify(sctx, sct) == 1 ? SCT_VALIDATION_STATUS_VALID : SCT_VALIDATION_STATUS_INVALID;
 end:
 	is_sct_valid = sct->validation_status == SCT_VALIDATION_STATUS_VALID;
 err:
@@ -372,21 +366,15 @@ int SCT_LIST_validate(const STACK_OF(SCT) * scts, CT_POLICY_EVAL_CTX * ctx)
 {
 	int are_scts_valid = 1;
 	int sct_count = scts != NULL ? sk_SCT_num(scts) : 0;
-	int i;
-
-	for(i = 0; i < sct_count; ++i) {
+	for(int i = 0; i < sct_count; ++i) {
 		int is_sct_valid = -1;
 		SCT * sct = sk_SCT_value(scts, i);
-
-		if(sct == NULL)
-			continue;
-
-		is_sct_valid = SCT_validate(sct, ctx);
-		if(is_sct_valid < 0)
-			return is_sct_valid;
-		are_scts_valid &= is_sct_valid;
+		if(sct) {
+			is_sct_valid = SCT_validate(sct, ctx);
+			if(is_sct_valid < 0)
+				return is_sct_valid;
+			are_scts_valid &= is_sct_valid;
+		}
 	}
-
 	return are_scts_valid;
 }
-

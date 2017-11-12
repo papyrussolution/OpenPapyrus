@@ -24,13 +24,6 @@
 #pragma hdrstop
 #if defined(USE_WINDOWS_SSPI) && defined(USE_NTLM)
 
-//#include <curl/curl.h>
-//#include "vauth/vauth.h"
-//#include "urldata.h"
-//#include "curl_base64.h"
-//#include "warnless.h"
-//#include "curl_multibyte.h"
-//#include "sendf.h"
 /* The last #include files should be: */
 //#include "curl_memory.h"
 #include "memdebug.h"

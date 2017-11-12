@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/rand.h>
-//#include <openssl/rsa.h>
-//#include <openssl/x509.h>
 
 int EVP_SealInit(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * type,
     uchar ** ek, int * ekl, uchar * iv,

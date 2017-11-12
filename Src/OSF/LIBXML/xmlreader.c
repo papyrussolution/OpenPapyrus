@@ -225,7 +225,7 @@ static int xmlTextReaderRemoveID(xmlDocPtr doc, xmlAttrPtr attr)
 	xmlChar * ID;
 	if(!doc) 
 		return -1;
-	if(attr == NULL) 
+	if(!attr) 
 		return -1;
 	table = (xmlIDTable *)doc->ids;
 	if(table == NULL)
@@ -1056,7 +1056,7 @@ static int FASTCALL xmlTextReaderDoExpand(xmlTextReader * reader)
  */
 static xmlChar * xmlTextReaderCollectSiblings(xmlNode * P_Node)
 {
-	xmlBufferPtr buffer;
+	xmlBuffer * buffer;
 	xmlChar * ret;
 	if(!P_Node || (P_Node->type == XML_NAMESPACE_DECL))
 		return 0;

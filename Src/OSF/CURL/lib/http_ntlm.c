@@ -34,13 +34,8 @@
 
 #define DEBUG_ME 0
 
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "strcase.h"
 #include "http_ntlm.h"
 #include "curl_ntlm_wb.h"
-//#include "vauth/vauth.h"
-//#include "url.h"
 
 #if defined(USE_NSS)
 	#include "vtls/nssg.h"
@@ -53,9 +48,9 @@
 #include "memdebug.h"
 
 #if DEBUG_ME
-# define DEBUG_OUT(x) x
+#define DEBUG_OUT(x) x
 #else
-# define DEBUG_OUT(x) Curl_nop_stmt
+#define DEBUG_OUT(x) Curl_nop_stmt
 #endif
 
 CURLcode Curl_input_ntlm(struct connectdata * conn,

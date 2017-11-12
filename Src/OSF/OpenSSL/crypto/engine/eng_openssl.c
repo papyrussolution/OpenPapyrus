@@ -14,13 +14,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/pem.h>
-//#include <openssl/rand.h>
-//#include <openssl/rsa.h>
-//#include <openssl/dsa.h>
-#include <openssl/dh.h>
-#include <openssl/hmac.h>
-//#include <openssl/x509v3.h>
+//#include <openssl/dh.h>
+//#include <openssl/hmac.h>
 /*
  * This testing gunk is implemented (and explained) lower down. It also
  * assumes the application explicitly calls "ENGINE_load_openssl()" because
@@ -166,13 +161,13 @@ IMPLEMENT_DYNAMIC_BIND_FN(bind_fn)
  *        the "init_key" handler is called.
  *    TEST_ENG_OPENSSL_RC4_P_CIPHER - ditto for the "cipher" handler.
  */
-# include <openssl/rc4.h>
-# define TEST_RC4_KEY_SIZE               16
+#include <openssl/rc4.h>
+#define TEST_RC4_KEY_SIZE               16
 typedef struct {
 	uchar key[TEST_RC4_KEY_SIZE];
 	RC4_KEY ks;
 } TEST_RC4_KEY;
-# define test(ctx) ((TEST_RC4_KEY*)EVP_CIPHER_CTX_get_cipher_data(ctx))
+#define test(ctx) ((TEST_RC4_KEY*)EVP_CIPHER_CTX_get_cipher_data(ctx))
 static int test_rc4_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
     const uchar * iv, int enc)
 {
@@ -292,8 +287,7 @@ static int openssl_ciphers(ENGINE * e, const EVP_CIPHER ** cipher,
 #endif
 
 #ifdef TEST_ENG_OPENSSL_SHA
-/* Much the same sort of comment as for TEST_ENG_OPENSSL_RC4 */
-# include <openssl/sha.h>
+// Much the same sort of comment as for TEST_ENG_OPENSSL_RC4 
 
 static int test_sha1_init(EVP_MD_CTX * ctx)
 {
@@ -365,8 +359,7 @@ static int test_digest_nids(const int ** nids)
 	return pos;
 }
 
-static int openssl_digests(ENGINE * e, const EVP_MD ** digest,
-    const int ** nids, int nid)
+static int openssl_digests(ENGINE * e, const EVP_MD ** digest, const int ** nids, int nid)
 {
 	if(!digest) {
 		/* We are returning a list of supported nids */
@@ -395,8 +388,7 @@ static EVP_PKEY * openssl_load_privkey(ENGINE * eng, const char * key_id,
 {
 	BIO * in;
 	EVP_PKEY * key;
-	fprintf(stderr, "(TEST_ENG_OPENSSL_PKEY)Loading Private key %s\n",
-	    key_id);
+	fprintf(stderr, "(TEST_ENG_OPENSSL_PKEY)Loading Private key %s\n", key_id);
 	in = BIO_new_file(key_id, "r");
 	if(!in)
 		return NULL;

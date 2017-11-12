@@ -8,17 +8,11 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/pem.h>
-//#include <openssl/x509v3.h>
-#include <openssl/ocsp.h>
 #include "ocsp_lcl.h"
-
 /*
  * Utility functions related to sending OCSP requests and extracting relevant
  * information from the response.
  */
-
 /*
  * Add an OCSP_CERTID to an OCSP request. Return new OCSP_ONEREQ pointer:
  * useful if we want to add extensions.

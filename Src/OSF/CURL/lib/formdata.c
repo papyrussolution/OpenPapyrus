@@ -29,13 +29,6 @@
 #if defined(HAVE_LIBGEN_H) && defined(HAVE_BASENAME)
 	#include <libgen.h>
 #endif
-//#include "urldata.h" /* for struct Curl_easy */
-//#include "formdata.h"
-//#include "vtls/vtls.h"
-//#include "strcase.h"
-//#include "sendf.h"
-//#include "strdup.h"
-//#include "rand.h"
 // The last 3 #include files should be in this order
 #include "curl_printf.h"
 //#include "curl_memory.h"
@@ -1278,7 +1271,7 @@ int Curl_FormInit(struct Form * form, struct FormData * formdata)
 }
 
 #ifndef __VMS
-# define fopen_read fopen
+#define fopen_read fopen
 #else
 /*
  * vmsfopenread
@@ -1288,7 +1281,7 @@ int Curl_FormInit(struct Form * form, struct FormData * formdata)
  * record format of the file.
  *
  */
-# define fopen_read vmsfopenread
+#define fopen_read vmsfopenread
 static FILE * vmsfopenread(const char * file, const char * mode)
 {
 	struct_stat statbuf;

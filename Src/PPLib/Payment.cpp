@@ -7,7 +7,7 @@
 struct _PaymentEntry {
 	LDATE  Date;           // Дата документа
 	char   Code[24];       // Номер документа
-	char   StatusName[48]; // 
+	char   StatusName[48]; //
 	char   OpName[48];     // Наименование вида операции
 	double Amount;         // Сумма документа
 	double Payment;        // Сумма учтенная как оплата
@@ -1077,12 +1077,35 @@ int CfmReckoningDialog::setDTS(CfmReckoningParam * pCRP)
 {
 	SString obj_name;
 	Data = *pCRP;
-	GetArticleName(pCRP->ArticleID, obj_name);
-	setCtrlString(CTL_CFM_RECKONING_OBJ, obj_name);
-	setCtrlData(CTL_CFM_RECKONING_DEBT, &pCRP->TotalDebt);
-	setCtrlData(CTL_CFM_RECKONING_AMT,  &pCRP->PaymAmount);
-	setStaticText(CTL_CFM_RECKONING_CURSYM, GetCurSymbText(pCRP->CurID, obj_name));
-	disableCtrls(1, CTL_CFM_RECKONING_OBJ, CTL_CFM_RECKONING_DEBT, CTL_CFM_RECKONING_AMT, 0);
+
+	SString info_buf;
+	SString fmt_buf;
+	SString debt_buf, amt_buf;
+	SString temp_buf;
+	GetArticleName(Data.ArticleID, obj_name);
+	debt_buf.Z().Cat(Data.TotalDebt, MKSFMTD(0, 2, 0));
+	amt_buf.Z().Cat(Data.PaymAmount, MKSFMTD(0, 2, 0));
+	GetCurSymbText(Data.CurID, temp_buf);
+	if(Data.DebtOrPaym) {
+		//@cfmrcknparam_info_reverse                "По контрагенту '@zstr' существуют документы на сумму @zstr, позволяющие зачесть заданный документ, долг по которому составляет @zstr"
+		PPLoadString("cfmrcknparam_info_reverse", fmt_buf);
+		PPFormat(fmt_buf, &info_buf, obj_name.cptr(), debt_buf.cptr(), amt_buf.cptr(), temp_buf.cptr());
+	}
+	else {
+		//@cfmrcknparam_info_direct                 "По контрагенту '@zstr' существуют неоплаченные документы на сумму @zstr. Заданный документ позволяет зачесть сумму @zstr"
+		PPLoadString("cfmrcknparam_info_direct", fmt_buf);
+		PPFormat(fmt_buf, &info_buf, obj_name.cptr(), debt_buf.cptr(), amt_buf.cptr(), temp_buf.cptr());
+	}
+	setStaticText(CTL_CFM_RECKONING_INFO, info_buf);
+
+	PPGetSubStr(PPTXT_FONTFACE, PPFONT_MSSANSSERIF, temp_buf);
+	SetCtrlFont(CTL_CFM_RECKONING_INFO, temp_buf, 16);
+
+	//setCtrlString(CTL_CFM_RECKONING_OBJ, obj_name);
+	//setCtrlData(CTL_CFM_RECKONING_DEBT, &pCRP->TotalDebt);
+	//setCtrlData(CTL_CFM_RECKONING_AMT,  &pCRP->PaymAmount);
+	//setStaticText(CTL_CFM_RECKONING_CURSYM, GetCurSymbText(pCRP->CurID, obj_name));
+	//disableCtrls(1, CTL_CFM_RECKONING_OBJ, CTL_CFM_RECKONING_DEBT, CTL_CFM_RECKONING_AMT, 0);
 	setupDate();
 	updateList();
 	return 1;
@@ -1154,13 +1177,13 @@ static int SLAPI ConfirmReckoning(PPObjBill * pBObj, CfmReckoningParam * pCRP)
 
 static int SLAPI SortBillListByDate(PPIDArray * pList, PPObjBill * pBObj)
 {
-	struct _i {
+	struct _i { // @flat
 		LDATE dt;
 		PPID  id;
 	} item;
 	int    ok = 1;
 	uint   i;
-	SArray temp_list(sizeof(item));
+	SVector temp_list(sizeof(item));
 	for(i = 0; i < pList->getCount(); i++) {
 		BillTbl::Rec bill_rec;
 		if(pBObj->Search(pList->get(i), &bill_rec) > 0) {
@@ -1225,22 +1248,13 @@ int SLAPI PPObjBill::Helper_Reckon(PPID billID, ReckonOpArList * pOpList, CfmRec
 	return ok;
 }
 
-CfmReckoningParam::CfmReckoningParam()
+SLAPI CfmReckoningParam::CfmReckoningParam() : P_BillList(0), DebtOrPaym(0), DateOption(RECKON_DATE_PAYM),
+	ArticleID(0), CurID(0), TotalDebt(0.0), PaymAmount(0.0), BillDt(ZERODATE), Dt(ZERODATE), ForceBillID(0), SelectedBillID(0)
 {
-	DebtOrPaym = 0;
-	DateOption = RECKON_DATE_PAYM;
-	ArticleID  = 0;
-	CurID      = 0;
-	TotalDebt  = 0.0;
-	PaymAmount = 0.0;
-	BillDt     = ZERODATE;
-	Dt         = ZERODATE;
-	ForceBillID = 0;
-	SelectedBillID = 0;
-	P_BillList = 0;
+
 }
 
-int SLAPI CfmReckoningParam::Init(int debtOrPaym, BillTbl::Rec * pRec, double debt, double paym, PPIDArray * pBillList)
+void SLAPI CfmReckoningParam::Init(int debtOrPaym, BillTbl::Rec * pRec, double debt, double paym, PPIDArray * pBillList)
 {
 	DebtOrPaym = debtOrPaym;
 	DateOption = RECKON_DATE_PAYM;
@@ -1254,7 +1268,6 @@ int SLAPI CfmReckoningParam::Init(int debtOrPaym, BillTbl::Rec * pRec, double de
 	SelectedBillID = 0;
 	ResultBillList.clear();
 	P_BillList = pBillList;
-	return 1;
 }
 
 static int SLAPI SelectAltObject(PPID * pArID)
@@ -2299,4 +2312,4 @@ void PaymentBrowser::print()
 		else
 			PPError();
 }
-#endif // } 0 @v9.7.10 @obsolete 
+#endif // } 0 @v9.7.10 @obsolete

@@ -8,23 +8,17 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#define USE_SOCKETS
-//#include "bio_lcl.h"
-//#include "internal/cryptlib.h"
-
 #ifndef OPENSSL_NO_SOCK
 
-//#include <openssl/bio.h>
-
-# ifdef WATT32
-/* Watt-32 uses same names */
-#  undef sock_write
-#  undef sock_read
-#  undef sock_puts
-#  define sock_write SockWrite
-#  define sock_read  SockRead
-#  define sock_puts  SockPuts
-# endif
+#ifdef WATT32
+	/* Watt-32 uses same names */
+	#undef sock_write
+	#undef sock_read
+	#undef sock_puts
+	#define sock_write SockWrite
+	#define sock_read  SockRead
+	#define sock_puts  SockPuts
+#endif
 
 static int sock_write(BIO * h, const char * buf, int num);
 static int sock_read(BIO * h, char * buf, int size);

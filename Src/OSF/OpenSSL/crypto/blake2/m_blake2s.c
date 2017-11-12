@@ -17,7 +17,6 @@
 #pragma hdrstop
 
 #ifndef OPENSSL_NO_BLAKE2
-//#include <internal/evp_int.h>
 #include "blake2_locl.h"
 
 static int init(EVP_MD_CTX * ctx)

@@ -8,16 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/stack.h>
-//#include <openssl/buffer.h>
-//#include <openssl/asn1.h>
-//#include <openssl/evp.h>
-//#include <openssl/x509.h>
-//#include "internal/x509_int.h"
-#include <openssl/ocsp.h>
-//#include <openssl/rsa.h>
-//#include <openssl/dsa.h>
-//#include <openssl/x509v3.h>
+//#include <openssl/ocsp.h>
 
 int X509_verify(X509 * a, EVP_PKEY * r)
 {

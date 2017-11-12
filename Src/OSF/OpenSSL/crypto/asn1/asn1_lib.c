@@ -8,11 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1.h>
 #include "asn1_locl.h"
 
-static int asn1_get_length(const uchar ** pp, int * inf, long * rl,
-    long max);
+static int asn1_get_length(const uchar ** pp, int * inf, long * rl, long max);
 static void asn1_put_length(uchar ** pp, int length);
 
 static int _asn1_check_infinite_end(const uchar ** p, long len)

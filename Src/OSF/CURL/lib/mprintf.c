@@ -72,7 +72,7 @@
 	(defined(_WIN32_WCE)) || \
 	(defined(__MINGW32__)) || \
 	(defined(_MSC_VER) && (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64))
-#  define MP_HAVE_INT_EXTENSIONS
+#define MP_HAVE_INT_EXTENSIONS
 #endif
 
 /*
@@ -80,11 +80,11 @@
  */
 
 #ifdef HAVE_LONG_LONG_TYPE
-#  define mp_intmax_t LONG_LONG_TYPE
-#  define mp_uintmax_t unsigned LONG_LONG_TYPE
+#define mp_intmax_t LONG_LONG_TYPE
+#define mp_uintmax_t unsigned LONG_LONG_TYPE
 #else
-#  define mp_intmax_t long
-#  define mp_uintmax_t ulong
+#define mp_intmax_t long
+#define mp_uintmax_t ulong
 #endif
 
 #define BUFFSIZE 326 /* buffer for long-to-str and float-to-str calcs, should

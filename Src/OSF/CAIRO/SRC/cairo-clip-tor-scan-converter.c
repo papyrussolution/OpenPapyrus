@@ -116,7 +116,7 @@ struct cell_list;
  * if GRID_X/Y inside glitter-paths.c is larger than
  * 1<<GLITTER_INPUT_BITS. */
 #ifndef GLITTER_INPUT_BITS
-#  define GLITTER_INPUT_BITS 8
+#define GLITTER_INPUT_BITS 8
 #endif
 #define GLITTER_INPUT_SCALE (1<<GLITTER_INPUT_BITS)
 typedef int glitter_input_scaled_t;

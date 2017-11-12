@@ -117,7 +117,7 @@ static int xmlCheckDTD = 1;
  *
  * Returns A pointer to the entity structure or NULL if not found.
  */
-static xmlEntityPtr xmlGetEntityFromDtd(const xmlDtd * dtd, const xmlChar * name)
+static xmlEntity * xmlGetEntityFromDtd(const xmlDtd * dtd, const xmlChar * name)
 {
 	xmlEntitiesTable * table;
 	if(dtd && dtd->entities) {
@@ -127,7 +127,6 @@ static xmlEntityPtr xmlGetEntityFromDtd(const xmlDtd * dtd, const xmlChar * name
 	}
 	return 0;
 }
-
 /**
  * xmlGetParameterEntityFromDtd:
  * @dtd:  A pointer to the DTD to search
@@ -138,7 +137,7 @@ static xmlEntityPtr xmlGetEntityFromDtd(const xmlDtd * dtd, const xmlChar * name
  *
  * Returns A pointer to the entity structure or NULL if not found.
  */
-static xmlEntityPtr xmlGetParameterEntityFromDtd(const xmlDtd * dtd, const xmlChar * name)
+static xmlEntity * xmlGetParameterEntityFromDtd(const xmlDtd * dtd, const xmlChar * name)
 {
 	if(dtd && dtd->pentities) {
 		xmlEntitiesTable * table = (xmlEntitiesTablePtr)dtd->pentities;
@@ -4705,7 +4704,7 @@ xmlChar * xmlNodeGetBase(const xmlDoc * doc, const xmlNode * cur)
  *
  * Returns 0 in case of success and -1 in case of error.
  */
-int xmlNodeBufGetContent(xmlBufferPtr buffer, const xmlNode * cur)
+int xmlNodeBufGetContent(xmlBuffer * buffer, const xmlNode * cur)
 {
 	xmlBufPtr buf;
 	int ret;
@@ -6181,9 +6180,9 @@ int xmlTextConcat(xmlNode * P_Node, const xmlChar * content, int len)
  * routine to create an XML buffer.
  * returns the new structure.
  */
-xmlBufferPtr xmlBufferCreate()
+xmlBuffer * xmlBufferCreate()
 {
-	xmlBufferPtr ret = (xmlBufferPtr)SAlloc::M(sizeof(xmlBuffer));
+	xmlBuffer * ret = (xmlBuffer *)SAlloc::M(sizeof(xmlBuffer));
 	if(!ret) {
 		xmlTreeErrMemory("creating buffer");
 	}
@@ -6212,9 +6211,9 @@ xmlBufferPtr xmlBufferCreate()
  * routine to create an XML buffer.
  * returns the new structure.
  */
-xmlBufferPtr xmlBufferCreateSize(size_t size)
+xmlBuffer * xmlBufferCreateSize(size_t size)
 {
-	xmlBufferPtr ret = (xmlBufferPtr)SAlloc::M(sizeof(xmlBuffer));
+	xmlBuffer * ret = (xmlBuffer *)SAlloc::M(sizeof(xmlBuffer));
 	if(!ret) {
 		xmlTreeErrMemory("creating buffer");
 	}
@@ -6248,7 +6247,7 @@ xmlBufferPtr xmlBufferCreateSize(size_t size)
  *
  * Returns the previous string contained by the buffer.
  */
-xmlChar * xmlBufferDetach(xmlBufferPtr buf)
+xmlChar * xmlBufferDetach(xmlBuffer * buf)
 {
 	xmlChar * ret = 0;
 	if(buf && buf->alloc != XML_BUFFER_ALLOC_IMMUTABLE) {
@@ -6270,12 +6269,12 @@ xmlChar * xmlBufferDetach(xmlBufferPtr buf)
  *
  * returns the new structure.
  */
-xmlBufferPtr xmlBufferCreateStatic(void * mem, size_t size)
+xmlBuffer * xmlBufferCreateStatic(void * mem, size_t size)
 {
-	xmlBufferPtr ret;
+	xmlBuffer * ret;
 	if((mem == NULL) || (size == 0))
 		return 0;
-	ret = (xmlBufferPtr)SAlloc::M(sizeof(xmlBuffer));
+	ret = (xmlBuffer *)SAlloc::M(sizeof(xmlBuffer));
 	if(!ret) {
 		xmlTreeErrMemory("creating buffer");
 		return 0;
@@ -6294,7 +6293,7 @@ xmlBufferPtr xmlBufferCreateStatic(void * mem, size_t size)
  *
  * Sets the allocation scheme for this buffer
  */
-void xmlBufferSetAllocationScheme(xmlBufferPtr buf, xmlBufferAllocationScheme scheme)
+void xmlBufferSetAllocationScheme(xmlBuffer * buf, xmlBufferAllocationScheme scheme)
 {
 	if(!buf) {
 #ifdef DEBUG_BUFFER
@@ -6327,7 +6326,7 @@ void FASTCALL xmlBufferFree(xmlBuffer * pBuf)
  *
  * empty a buffer.
  */
-void xmlBufferEmpty(xmlBufferPtr buf)
+void xmlBufferEmpty(xmlBuffer * buf)
 {
 	if(buf && buf->content) {
 		buf->use = 0;
@@ -6354,7 +6353,7 @@ void xmlBufferEmpty(xmlBufferPtr buf)
  *
  * Returns the number of #xmlChar removed, or -1 in case of failure.
  */
-int xmlBufferShrink(xmlBufferPtr buf, uint len)
+int xmlBufferShrink(xmlBuffer * buf, uint len)
 {
 	if(!buf)
 		return -1;
@@ -6401,7 +6400,7 @@ int xmlBufferShrink(xmlBufferPtr buf, uint len)
  *
  * Returns the new available space or -1 in case of error
  */
-int xmlBufferGrow(xmlBufferPtr buf, uint len)
+int xmlBufferGrow(xmlBuffer * buf, uint len)
 {
 	int size;
 	xmlChar * newbuf;
@@ -6444,7 +6443,6 @@ int xmlBufferGrow(xmlBufferPtr buf, uint len)
 	buf->size = size;
 	return(buf->size - buf->use);
 }
-
 /**
  * xmlBufferDump:
  * @file:  the file output
@@ -6453,7 +6451,7 @@ int xmlBufferGrow(xmlBufferPtr buf, uint len)
  * Dumps an XML buffer to  a FILE *.
  * Returns the number of #xmlChar written
  */
-int xmlBufferDump(FILE * file, xmlBufferPtr buf) 
+int xmlBufferDump(FILE * file, xmlBuffer * buf) 
 {
 	int ret;
 	if(!buf) {
@@ -6506,7 +6504,7 @@ int xmlBufferLength(const xmlBuffer * buf)
  *
  * Returns  0 in case of problems, 1 otherwise
  */
-int xmlBufferResize(xmlBufferPtr buf, uint size)
+int xmlBufferResize(xmlBuffer * buf, uint size)
 {
 	uint newSize;
 	xmlChar* rebuf = NULL;
@@ -6614,7 +6612,7 @@ int xmlBufferResize(xmlBufferPtr buf, uint size)
  * Returns 0 successful, a positive error code number otherwise
  *         and -1 in case of internal or API error.
  */
-int xmlBufferAdd(xmlBufferPtr buf, const xmlChar * str, int len)
+int FASTCALL xmlBufferAdd(xmlBuffer * buf, const xmlChar * str, int len)
 {
 	uint needSize;
 	if(!str || !buf) {
@@ -6661,7 +6659,7 @@ int xmlBufferAdd(xmlBufferPtr buf, const xmlChar * str, int len)
  * Returns 0 successful, a positive error code number otherwise
  *         and -1 in case of internal or API error.
  */
-int xmlBufferAddHead(xmlBufferPtr buf, const xmlChar * str, int len)
+int xmlBufferAddHead(xmlBuffer * buf, const xmlChar * str, int len)
 {
 	uint needSize;
 	if(!buf)
@@ -6770,7 +6768,7 @@ int FASTCALL xmlBufferCCat(xmlBuffer * pBuf, const char * pStr)
  * routine which manages and grows an output buffer. This one adds
  * xmlChars at the end of the buffer.
  */
-void xmlBufferWriteCHAR(xmlBufferPtr buf, const xmlChar * string) 
+void FASTCALL xmlBufferWriteCHAR(xmlBuffer * buf, const xmlChar * string) 
 {
 	if(buf && buf->alloc != XML_BUFFER_ALLOC_IMMUTABLE) 
 		xmlBufferCat(buf, string);
@@ -6797,7 +6795,7 @@ void FASTCALL xmlBufferWriteChar(xmlBuffer * pBuf, const char * pString)
  * a quoted or double quoted #xmlChar string, checking first if it holds
  * quote or double-quotes internally
  */
-void xmlBufferWriteQuotedString(xmlBufferPtr buf, const xmlChar * string) 
+void FASTCALL xmlBufferWriteQuotedString(xmlBuffer * buf, const xmlChar * string) 
 {
 	const xmlChar * cur, * base;
 	if(buf && buf->alloc != XML_BUFFER_ALLOC_IMMUTABLE) {
@@ -8741,7 +8739,7 @@ static int xmlDOMWrapAdoptAttr(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlA
 {
 	xmlNode * cur;
 	int adoptStr = 1;
-	if((attr == NULL) || (destDoc == NULL))
+	if(!attr || (destDoc == NULL))
 		return -1;
 	attr->doc = destDoc;
 	if(attr->ns) {

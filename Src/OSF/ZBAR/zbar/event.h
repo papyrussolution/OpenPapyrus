@@ -32,7 +32,7 @@
 
 #if defined(_WIN32)
 
-# include <windows.h>
+#include <windows.h>
 
 typedef HANDLE zbar_event_t;
 

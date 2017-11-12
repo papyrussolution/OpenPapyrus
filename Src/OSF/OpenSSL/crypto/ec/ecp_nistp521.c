@@ -132,7 +132,7 @@ static const felem_bytearray nistp521_curve_params[5] = {
  * A field element with 64-bit limbs is an 'felem'. One with 128-bit limbs is a
  * 'largefelem' */
 
-# define NLIMBS 9
+#define NLIMBS 9
 
 typedef uint64_t limb;
 typedef limb felem[NLIMBS];

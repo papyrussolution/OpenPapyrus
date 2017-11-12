@@ -16,8 +16,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_ASYNC, func, 0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_ASYNC, 0, reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_ASYNC, func, 0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_ASYNC, 0, reason)
 
 static ERR_STRING_DATA ASYNC_str_functs[] = {
 	{ERR_FUNC(ASYNC_F_ASYNC_CTX_NEW), "async_ctx_new"},

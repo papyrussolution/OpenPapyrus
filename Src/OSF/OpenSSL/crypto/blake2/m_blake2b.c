@@ -16,9 +16,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #ifndef OPENSSL_NO_BLAKE2
-//#include <openssl/evp.h>
-//#include <openssl/objects.h>
-//#include <internal/evp_int.h>
 #include "blake2_locl.h"
 
 static int init(EVP_MD_CTX * ctx)

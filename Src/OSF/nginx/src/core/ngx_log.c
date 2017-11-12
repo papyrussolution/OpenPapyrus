@@ -411,7 +411,7 @@ char * ngx_log_set_log(ngx_conf_t * cf, ngx_log_t ** head)
 			return NGX_CONF_ERROR;
 		}
 		buf = (ngx_log_memory_buf_t *)ngx_pcalloc(cf->pool, sizeof(ngx_log_memory_buf_t));
-		if(buf == NULL) {
+		if(!buf) {
 			return NGX_CONF_ERROR;
 		}
 		buf->start = (u_char *)ngx_pnalloc(cf->pool, size);

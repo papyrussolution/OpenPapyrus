@@ -8,9 +8,9 @@
  */
 
 #ifndef HEADER_O_STR_H
-# define HEADER_O_STR_H
+#define HEADER_O_STR_H
 
-# include <stddef.h>            /* to get size_t */
+#include <stddef.h>            /* to get size_t */
 
 int OPENSSL_memcmp(const void *p1, const void *p2, size_t n);
 

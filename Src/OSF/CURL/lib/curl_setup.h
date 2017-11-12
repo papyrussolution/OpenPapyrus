@@ -336,7 +336,7 @@
 #    define stat(fname,stp)            _stat(fname, stp)
 #    define struct_stat                struct _stat
 #  endif
-#  define LSEEK_ERROR                (long)-1
+#define LSEEK_ERROR                (long)-1
 #endif
 #ifndef struct_stat
 	#define struct_stat struct stat
@@ -721,6 +721,22 @@
 #include "inet_ntop.h"
 #include "rand.h"
 #include "vauth/vauth.h"
+//
+//#include "vauth/digest.h"
+//
+#if !defined(CURL_DISABLE_CRYPTO_AUTH)
+	#define DIGEST_MAX_VALUE_LENGTH           256
+	#define DIGEST_MAX_CONTENT_LENGTH         1024
+
+	enum {
+		CURLDIGESTALGO_MD5,
+		CURLDIGESTALGO_MD5SESS
+	};
+	//
+	// This is used to extract the realm from a challenge message 
+	//
+	bool Curl_auth_digest_get_pair(const char * str, char * value, char * content, const char ** endptr);
+#endif
 //
 //#include "parsedate.h"
 //

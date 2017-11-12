@@ -9,10 +9,6 @@
 #include "ssl_locl.h"
 #pragma hdrstop
 #include "internal/constant_time_locl.h"
-//#include "ssl_locl.h"
-#include <openssl/md5.h>
-#include <openssl/sha.h>
-
 /*
  * MAX_HASH_BIT_COUNT_BYTES is the maximum number of bytes in the hash's
  * length field. (SHA-384/512 have 128-bit length.)
@@ -25,17 +21,11 @@
  * supported by TLS.)
  */
 #define MAX_HASH_BLOCK_SIZE 128
-
 /*
  * u32toLE serialises an unsigned, 32-bit number (n) as four bytes at (p) in
  * little-endian order. The value of p is advanced by four.
  */
-#define u32toLE(n, p) \
-	(*((p)++) = (uchar)(n),	\
-	    *((p)++) = (uchar)(n>>8), \
-	    *((p)++) = (uchar)(n>>16), \
-	    *((p)++) = (uchar)(n>>24))
-
+#define u32toLE(n, p) (*((p)++) = (uchar)(n), *((p)++) = (uchar)(n>>8), *((p)++) = (uchar)(n>>16), *((p)++) = (uchar)(n>>24))
 /*
  * These functions serialize the state of a hash and thus perform the
  * standard "final" operation without adding the padding and length that such

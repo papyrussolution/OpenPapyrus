@@ -8,7 +8,7 @@
  */
 
 #ifndef HEADER_SAFESTACK_H
-# define HEADER_SAFESTACK_H
+#define HEADER_SAFESTACK_H
 
 #include <openssl/stack.h>
 #include <openssl/e_os2.h>
@@ -17,9 +17,9 @@
 extern "C" {
 #endif
 
-# define STACK_OF(type) struct stack_st_##type
+#define STACK_OF(type) struct stack_st_##type
 
-# define SKM_DEFINE_STACK_OF(t1, t2, t3) \
+#define SKM_DEFINE_STACK_OF(t1, t2, t3) \
     STACK_OF(t1); \
     typedef int (*sk_##t1##_compfunc)(const t3 * const *a, const t3 *const *b); \
     typedef void (*sk_##t1##_freefunc)(t3 *a); \
@@ -118,11 +118,11 @@ extern "C" {
         return (sk_##t1##_compfunc)OPENSSL_sk_set_cmp_func((OPENSSL_STACK *)sk, (OPENSSL_sk_compfunc)compare); \
     }
 
-# define DEFINE_SPECIAL_STACK_OF(t1, t2) SKM_DEFINE_STACK_OF(t1, t2, t2)
-# define DEFINE_STACK_OF(t) SKM_DEFINE_STACK_OF(t, t, t)
-# define DEFINE_SPECIAL_STACK_OF_CONST(t1, t2) \
+#define DEFINE_SPECIAL_STACK_OF(t1, t2) SKM_DEFINE_STACK_OF(t1, t2, t2)
+#define DEFINE_STACK_OF(t) SKM_DEFINE_STACK_OF(t, t, t)
+#define DEFINE_SPECIAL_STACK_OF_CONST(t1, t2) \
             SKM_DEFINE_STACK_OF(t1, const t2, t2)
-# define DEFINE_STACK_OF_CONST(t) SKM_DEFINE_STACK_OF(t, const t, t)
+#define DEFINE_STACK_OF_CONST(t) SKM_DEFINE_STACK_OF(t, const t, t)
 
 /*-
  * Strings are special: normally an lhash entry will point to a single

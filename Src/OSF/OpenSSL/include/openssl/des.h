@@ -8,21 +8,21 @@
  */
 
 #ifndef HEADER_DES_H
-# define HEADER_DES_H
+#define HEADER_DES_H
 
-# include <openssl/opensslconf.h>
+#include <openssl/opensslconf.h>
 
 # ifndef OPENSSL_NO_DES
 # ifdef  __cplusplus
 extern "C" {
 # endif
-# include <openssl/e_os2.h>
+#include <openssl/e_os2.h>
 
 typedef uint DES_LONG;
 
 # ifdef OPENSSL_BUILD_SHLIBCRYPTO
 #  undef OPENSSL_EXTERN
-#  define OPENSSL_EXTERN OPENSSL_EXPORT
+#define OPENSSL_EXTERN OPENSSL_EXPORT
 # endif
 
 typedef uchar DES_cblock[8];
@@ -42,29 +42,29 @@ typedef struct DES_ks {
     } ks[16];
 } DES_key_schedule;
 
-# define DES_KEY_SZ      (sizeof(DES_cblock))
-# define DES_SCHEDULE_SZ (sizeof(DES_key_schedule))
+#define DES_KEY_SZ      (sizeof(DES_cblock))
+#define DES_SCHEDULE_SZ (sizeof(DES_key_schedule))
 
-# define DES_ENCRYPT     1
-# define DES_DECRYPT     0
+#define DES_ENCRYPT     1
+#define DES_DECRYPT     0
 
-# define DES_CBC_MODE    0
-# define DES_PCBC_MODE   1
+#define DES_CBC_MODE    0
+#define DES_PCBC_MODE   1
 
-# define DES_ecb2_encrypt(i,o,k1,k2,e) \
+#define DES_ecb2_encrypt(i,o,k1,k2,e) \
         DES_ecb3_encrypt((i),(o),(k1),(k2),(k1),(e))
 
-# define DES_ede2_cbc_encrypt(i,o,l,k1,k2,iv,e) \
+#define DES_ede2_cbc_encrypt(i,o,l,k1,k2,iv,e) \
         DES_ede3_cbc_encrypt((i),(o),(l),(k1),(k2),(k1),(iv),(e))
 
-# define DES_ede2_cfb64_encrypt(i,o,l,k1,k2,iv,n,e) \
+#define DES_ede2_cfb64_encrypt(i,o,l,k1,k2,iv,n,e) \
         DES_ede3_cfb64_encrypt((i),(o),(l),(k1),(k2),(k1),(iv),(n),(e))
 
-# define DES_ede2_ofb64_encrypt(i,o,l,k1,k2,iv,n) \
+#define DES_ede2_ofb64_encrypt(i,o,l,k1,k2,iv,n) \
         DES_ede3_ofb64_encrypt((i),(o),(l),(k1),(k2),(k1),(iv),(n))
 
 OPENSSL_DECLARE_GLOBAL(int, DES_check_key); /* defaults to false */
-# define DES_check_key OPENSSL_GLOBAL_REF(DES_check_key)
+#define DES_check_key OPENSSL_GLOBAL_REF(DES_check_key)
 
 const char *DES_options(void);
 void DES_ecb3_encrypt(const_DES_cblock *input, DES_cblock *output,
@@ -164,7 +164,7 @@ void DES_ofb64_encrypt(const uchar *in, uchar *out,
                        long length, DES_key_schedule *schedule,
                        DES_cblock *ivec, int *num);
 
-# define DES_fixup_key_parity DES_set_odd_parity
+#define DES_fixup_key_parity DES_set_odd_parity
 
 # ifdef  __cplusplus
 }

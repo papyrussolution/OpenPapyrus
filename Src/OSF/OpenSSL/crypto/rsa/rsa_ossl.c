@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "internal/bn_int.h"
 #include "rsa_locl.h"
 
 #ifndef RSA_NULL

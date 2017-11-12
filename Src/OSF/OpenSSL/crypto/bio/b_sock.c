@@ -10,17 +10,17 @@
 #pragma hdrstop
 //#include "bio_lcl.h"
 #if defined(NETWARE_CLIB)
-# include <sys/ioctl.h>
+#include <sys/ioctl.h>
 NETDB_DEFINE_CONTEXT
 #endif
 #ifndef OPENSSL_NO_SOCK
-# define SOCKET_PROTOCOL IPPROTO_TCP
+#define SOCKET_PROTOCOL IPPROTO_TCP
 # ifdef SO_MAXCONN
-#  define MAX_LISTEN  SO_MAXCONN
+#define MAX_LISTEN  SO_MAXCONN
 # elif defined(SOMAXCONN)
-#  define MAX_LISTEN  SOMAXCONN
+#define MAX_LISTEN  SOMAXCONN
 # else
-#  define MAX_LISTEN  32
+#define MAX_LISTEN  32
 # endif
 # if defined(OPENSSL_SYS_WINDOWS)
 static int wsa_init_done = 0;

@@ -13,14 +13,14 @@
 #ifdef OPENSSL_SYS_VMS
 
 # pragma message disable DOLLARID
-# include <errno.h>
-# include <rms.h>
-# include <lib$routines.h>
-# include <libfisdef.h>
-# include <stsdef.h>
-# include <descrip.h>
-# include <starlet.h>
-# include "../vms_rms.h"
+#include <errno.h>
+#include <rms.h>
+#include <lib$routines.h>
+#include <libfisdef.h>
+#include <stsdef.h>
+#include <descrip.h>
+#include <starlet.h>
+#include "../vms_rms.h"
 
 /* Some compiler options may mask the declaration of "_malloc32". */
 # if __INITIAL_POINTER_SIZE && defined _ANSI_C_SOURCE
@@ -92,11 +92,11 @@ static int vms_load(DSO * dso)
 
 /* Ensure 32-bit pointer for "p", and appropriate malloc() function. */
 # if __INITIAL_POINTER_SIZE == 64
-#  define DSO_MALLOC _malloc32
+#define DSO_MALLOC _malloc32
 #  pragma pointer_size save
 #  pragma pointer_size 32
 # else                          /* __INITIAL_POINTER_SIZE == 64 */
-#  define DSO_MALLOC OPENSSL_malloc
+#define DSO_MALLOC OPENSSL_malloc
 # endif                         /* __INITIAL_POINTER_SIZE == 64 [else] */
 
 	DSO_VMS_INTERNAL * p = NULL;
@@ -279,14 +279,14 @@ void vms_bind_sym(DSO * dso, const char * symname, void ** sym)
 
 /* Arrange 32-bit pointer to (copied) string storage, if needed. */
 # if __INITIAL_POINTER_SIZE == 64
-#  define SYMNAME symname_32p
+#define SYMNAME symname_32p
 #  pragma pointer_size save
 #  pragma pointer_size 32
 	char * symname_32p;
 #  pragma pointer_size restore
 	char symname_32[NAMX_MAXRSS + 1];
 # else                          /* __INITIAL_POINTER_SIZE == 64 */
-#  define SYMNAME ((char*)symname)
+#define SYMNAME ((char*)symname)
 # endif                         /* __INITIAL_POINTER_SIZE == 64 [else] */
 
 	*sym = NULL;
@@ -379,8 +379,8 @@ static char * vms_merger(DSO * dso, const char * filespec1,
 
 /* Arrange 32-bit pointer to (copied) string storage, if needed. */
 # if __INITIAL_POINTER_SIZE == 64
-#  define FILESPEC1 filespec1_32p;
-#  define FILESPEC2 filespec2_32p;
+#define FILESPEC1 filespec1_32p;
+#define FILESPEC2 filespec2_32p;
 #  pragma pointer_size save
 #  pragma pointer_size 32
 	char * filespec1_32p;
@@ -389,8 +389,8 @@ static char * vms_merger(DSO * dso, const char * filespec1,
 	char filespec1_32[NAMX_MAXRSS + 1];
 	char filespec2_32[NAMX_MAXRSS + 1];
 # else                          /* __INITIAL_POINTER_SIZE == 64 */
-#  define FILESPEC1 ((char*)filespec1)
-#  define FILESPEC2 ((char*)filespec2)
+#define FILESPEC1 ((char*)filespec1)
+#define FILESPEC2 ((char*)filespec2)
 # endif                         /* __INITIAL_POINTER_SIZE == 64 [else] */
 
 	if(!filespec1)

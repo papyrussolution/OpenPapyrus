@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include "internal/asn1_int.h"
-//#include <internal/evp_int.h>
 
 int i2d_PrivateKey(EVP_PKEY * a, uchar ** pp)
 {

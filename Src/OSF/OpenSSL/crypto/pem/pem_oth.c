@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/pem.h>
 
 /* Handle 'other' PEMs: not private keys */
 

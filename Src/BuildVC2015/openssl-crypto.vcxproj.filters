@@ -861,6 +861,12 @@
     <ClInclude Include="..\Osf\OpenSSL\include\openssl\x509v3.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\cryptlib.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\cryptlib_int.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">

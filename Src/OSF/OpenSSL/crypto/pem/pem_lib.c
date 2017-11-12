@@ -8,12 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/rand.h>
-//#include <openssl/x509.h>
-//#include <openssl/pem.h>
-//#include "internal/asn1_int.h"
-#include <openssl/pkcs12.h>
-#include <openssl/des.h>
 
 #define MIN_LENGTH      4
 
@@ -29,7 +23,6 @@ int PEM_def_callback(char * buf, int num, int w, void * key)
 	int i, j;
 	const char * prompt;
 #endif
-
 	if(key) {
 		i = strlen((const char*)key);
 		i = (i > num) ? num : i;

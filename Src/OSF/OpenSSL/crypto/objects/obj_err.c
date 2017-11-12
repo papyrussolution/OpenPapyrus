@@ -13,8 +13,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_OBJ,func,0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_OBJ,0,reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_OBJ,func,0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_OBJ,0,reason)
 
 static ERR_STRING_DATA OBJ_str_functs[] = {
     {ERR_FUNC(OBJ_F_OBJ_ADD_OBJECT), "OBJ_add_object"},

@@ -8,25 +8,9 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <openssl/objects.h>
-#include <openssl/evp.h>
-#include <openssl/hmac.h>
-#include <openssl/ocsp.h>
-#include <openssl/conf.h>
-#include <openssl/x509v3.h>
-#include <openssl/dh.h>
-//#include <openssl/bn.h>
-//#include "ssl_locl.h"
-#include <openssl/ct.h>
 
-#define CHECKLEN(curr, val, limit) \
-	(((curr) >= (limit)) || (size_t)((limit) - (curr)) < (size_t)(val))
-
-static int tls_decrypt_ticket(SSL * s, const uchar * tick, int ticklen,
-    const uchar * sess_id, int sesslen,
-    SSL_SESSION ** psess);
+#define CHECKLEN(curr, val, limit) (((curr) >= (limit)) || (size_t)((limit) - (curr)) < (size_t)(val))
+static int tls_decrypt_ticket(SSL * s, const uchar * tick, int ticklen, const uchar * sess_id, int sesslen, SSL_SESSION ** psess);
 static int ssl_check_clienthello_tlsext_early(SSL * s);
 static int ssl_check_serverhello_tlsext(SSL * s);
 
@@ -215,11 +199,9 @@ int tls1_ec_nid2curve_id(int nid)
  * parsed form instead. (However, this would affect binary compatibility
  * so cannot happen in the 1.0.x series.)
  */
-static int tls1_get_curvelist(SSL * s, int sess,
-    const uchar ** pcurves, size_t * num_curves)
+static int tls1_get_curvelist(SSL * s, int sess, const uchar ** pcurves, size_t * num_curves)
 {
 	size_t pcurveslen = 0;
-
 	if(sess) {
 		*pcurves = s->session->tlsext_ellipticcurvelist;
 		pcurveslen = s->session->tlsext_ellipticcurvelist_length;
@@ -231,12 +213,10 @@ static int tls1_get_curvelist(SSL * s, int sess,
 			    *pcurves = suiteb_curves;
 			    pcurveslen = sizeof(suiteb_curves);
 			    break;
-
 			case SSL_CERT_FLAG_SUITEB_128_LOS_ONLY:
 			    *pcurves = suiteb_curves;
 			    pcurveslen = 2;
 			    break;
-
 			case SSL_CERT_FLAG_SUITEB_192_LOS:
 			    *pcurves = suiteb_curves + 2;
 			    pcurveslen = 2;
@@ -411,7 +391,7 @@ int tls1_set_curves(uchar ** pext, size_t * pextlen,
 	return 1;
 }
 
-# define MAX_CURVELIST   28
+#define MAX_CURVELIST   28
 
 typedef struct {
 	size_t nidcnt;
@@ -676,21 +656,21 @@ static int tls1_check_cert_param(SSL * s, X509 * x, int set_ee_md)
  */
 
 #ifdef OPENSSL_NO_RSA
-# define tlsext_sigalg_rsa(md)  /* */
+#define tlsext_sigalg_rsa(md)  /* */
 #else
-# define tlsext_sigalg_rsa(md) md, TLSEXT_signature_rsa,
+#define tlsext_sigalg_rsa(md) md, TLSEXT_signature_rsa,
 #endif
 
 #ifdef OPENSSL_NO_DSA
-# define tlsext_sigalg_dsa(md)  /* */
+#define tlsext_sigalg_dsa(md)  /* */
 #else
-# define tlsext_sigalg_dsa(md) md, TLSEXT_signature_dsa,
+#define tlsext_sigalg_dsa(md) md, TLSEXT_signature_dsa,
 #endif
 
 #ifdef OPENSSL_NO_EC
-# define tlsext_sigalg_ecdsa(md) /* */
+#define tlsext_sigalg_ecdsa(md) /* */
 #else
-# define tlsext_sigalg_ecdsa(md) md, TLSEXT_signature_ecdsa,
+#define tlsext_sigalg_ecdsa(md) md, TLSEXT_signature_ecdsa,
 #endif
 
 #define tlsext_sigalg(md) \

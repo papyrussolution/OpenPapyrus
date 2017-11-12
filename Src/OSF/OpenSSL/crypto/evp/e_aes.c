@@ -8,16 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/opensslconf.h>
-//#include <openssl/crypto.h>
-//#include <openssl/evp.h>
-//#include <openssl/err.h>
-//#include <string.h>
-//#include <assert.h>
-//#include <openssl/aes.h>
-//#include <internal/evp_int.h>
 #include "modes_lcl.h"
-//#include <openssl/rand.h>
 #include "evp_locl.h"
 
 typedef struct {
@@ -127,19 +118,19 @@ void AES_xts_decrypt(const char * inp, char * out, size_t len, const AES_KEY * k
 #endif
 
 #if defined(OPENSSL_CPUID_OBJ) && (defined(__powerpc__) || defined(__ppc__) || defined(_ARCH_PPC))
-# include "ppc_arch.h"
+#include "ppc_arch.h"
 # ifdef VPAES_ASM
-#  define VPAES_CAPABLE (OPENSSL_ppccap_P & PPC_ALTIVEC)
+#define VPAES_CAPABLE (OPENSSL_ppccap_P & PPC_ALTIVEC)
 # endif
-# define HWAES_CAPABLE  (OPENSSL_ppccap_P & PPC_CRYPTO207)
-# define HWAES_set_encrypt_key aes_p8_set_encrypt_key
-# define HWAES_set_decrypt_key aes_p8_set_decrypt_key
-# define HWAES_encrypt aes_p8_encrypt
-# define HWAES_decrypt aes_p8_decrypt
-# define HWAES_cbc_encrypt aes_p8_cbc_encrypt
-# define HWAES_ctr32_encrypt_blocks aes_p8_ctr32_encrypt_blocks
-# define HWAES_xts_encrypt aes_p8_xts_encrypt
-# define HWAES_xts_decrypt aes_p8_xts_decrypt
+#define HWAES_CAPABLE  (OPENSSL_ppccap_P & PPC_CRYPTO207)
+#define HWAES_set_encrypt_key aes_p8_set_encrypt_key
+#define HWAES_set_decrypt_key aes_p8_set_decrypt_key
+#define HWAES_encrypt aes_p8_encrypt
+#define HWAES_decrypt aes_p8_decrypt
+#define HWAES_cbc_encrypt aes_p8_cbc_encrypt
+#define HWAES_ctr32_encrypt_blocks aes_p8_ctr32_encrypt_blocks
+#define HWAES_xts_encrypt aes_p8_xts_encrypt
+#define HWAES_xts_decrypt aes_p8_xts_decrypt
 #endif
 
 #if defined(AES_ASM) && !defined(I386_ONLY) &&      (  \
@@ -270,7 +261,7 @@ static int aesni_gcm_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uch
 	return 1;
 }
 
-# define aesni_gcm_cipher aes_gcm_cipher
+#define aesni_gcm_cipher aes_gcm_cipher
 static int aesni_gcm_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t len);
 
 static int aesni_xts_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc)
@@ -375,12 +366,12 @@ static int aesni_ocb_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uch
 	return 1;
 }
 
-#  define aesni_ocb_cipher aes_ocb_cipher
+#define aesni_ocb_cipher aes_ocb_cipher
 static int aesni_ocb_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
     const uchar * in, size_t len);
 # endif                        /* OPENSSL_NO_OCB */
 
-# define BLOCK_CIPHER_generic(nid, keylen, blocksize, ivlen, nmode, mode, MODE, flags) \
+#define BLOCK_CIPHER_generic(nid, keylen, blocksize, ivlen, nmode, mode, MODE, flags) \
 	static const EVP_CIPHER aesni_ ## keylen ## _ ## mode = { \
 		nid ## _ ## keylen ## _ ## nmode, blocksize, keylen/8, ivlen, \
 		flags|EVP_CIPH_ ## MODE ## _MODE,   \
@@ -400,7 +391,7 @@ static int aesni_ocb_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 		NULL, NULL, NULL, NULL }; \
 	const EVP_CIPHER * EVP_aes_ ## keylen ## _ ## mode(void) { return AESNI_CAPABLE ? &aesni_ ## keylen ## _ ## mode : &aes_ ## keylen ## _ ## mode; }
 
-# define BLOCK_CIPHER_custom(nid, keylen, blocksize, ivlen, mode, MODE, flags) \
+#define BLOCK_CIPHER_custom(nid, keylen, blocksize, ivlen, mode, MODE, flags) \
 	static const EVP_CIPHER aesni_ ## keylen ## _ ## mode = { \
 		nid ## _ ## keylen ## _ ## mode, blocksize, \
 		(EVP_CIPH_ ## MODE ## _MODE==EVP_CIPH_XTS_MODE ? 2 : 1)*keylen/8, ivlen, \
@@ -423,22 +414,22 @@ static int aesni_ocb_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 
 #elif   defined(AES_ASM) && (defined(__sparc) || defined(__sparc__))
 
-# include "sparc_arch.h"
+#include "sparc_arch.h"
 
 extern uint OPENSSL_sparcv9cap_P[];
 
 /*
  * Initial Fujitsu SPARC64 X support
  */
-# define HWAES_CAPABLE           (OPENSSL_sparcv9cap_P[0] & SPARCV9_FJAESX)
-# define HWAES_set_encrypt_key aes_fx_set_encrypt_key
-# define HWAES_set_decrypt_key aes_fx_set_decrypt_key
-# define HWAES_encrypt aes_fx_encrypt
-# define HWAES_decrypt aes_fx_decrypt
-# define HWAES_cbc_encrypt aes_fx_cbc_encrypt
-# define HWAES_ctr32_encrypt_blocks aes_fx_ctr32_encrypt_blocks
+#define HWAES_CAPABLE           (OPENSSL_sparcv9cap_P[0] & SPARCV9_FJAESX)
+#define HWAES_set_encrypt_key aes_fx_set_encrypt_key
+#define HWAES_set_decrypt_key aes_fx_set_decrypt_key
+#define HWAES_encrypt aes_fx_encrypt
+#define HWAES_decrypt aes_fx_decrypt
+#define HWAES_cbc_encrypt aes_fx_cbc_encrypt
+#define HWAES_ctr32_encrypt_blocks aes_fx_ctr32_encrypt_blocks
 
-# define SPARC_AES_CAPABLE       (OPENSSL_sparcv9cap_P[1] & CFR_AES)
+#define SPARC_AES_CAPABLE       (OPENSSL_sparcv9cap_P[1] & CFR_AES)
 
 void aes_t4_set_encrypt_key(const uchar * key, int bits, AES_KEY * ks);
 void aes_t4_set_decrypt_key(const uchar * key, int bits, AES_KEY * ks);
@@ -698,7 +689,7 @@ static int aes_t4_ccm_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in
 	static int aes_t4_ocb_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t len);
 #endif // OPENSSL_NO_OCB 
 
-# define BLOCK_CIPHER_generic(nid, keylen, blocksize, ivlen, nmode, mode, MODE, flags) \
+#define BLOCK_CIPHER_generic(nid, keylen, blocksize, ivlen, nmode, mode, MODE, flags) \
 	static const EVP_CIPHER aes_t4_ ## keylen ## _ ## mode = { \
 		nid ## _ ## keylen ## _ ## nmode, blocksize, keylen/8, ivlen, \
 		flags|EVP_CIPH_ ## MODE ## _MODE,   \
@@ -718,7 +709,7 @@ static int aes_t4_ccm_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in
 		NULL, NULL, NULL, NULL }; \
 	const EVP_CIPHER * EVP_aes_ ## keylen ## _ ## mode(void) { return SPARC_AES_CAPABLE ? &aes_t4_ ## keylen ## _ ## mode : &aes_ ## keylen ## _ ## mode; }
 
-# define BLOCK_CIPHER_custom(nid, keylen, blocksize, ivlen, mode, MODE, flags) \
+#define BLOCK_CIPHER_custom(nid, keylen, blocksize, ivlen, mode, MODE, flags) \
 	static const EVP_CIPHER aes_t4_ ## keylen ## _ ## mode = { \
 		nid ## _ ## keylen ## _ ## mode, blocksize, \
 		(EVP_CIPH_ ## MODE ## _MODE==EVP_CIPH_XTS_MODE ? 2 : 1)*keylen/8, ivlen, \
@@ -741,13 +732,13 @@ static int aes_t4_ccm_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in
 
 #else
 
-# define BLOCK_CIPHER_generic(nid, keylen, blocksize, ivlen, nmode, mode, MODE, flags) \
+#define BLOCK_CIPHER_generic(nid, keylen, blocksize, ivlen, nmode, mode, MODE, flags) \
 	static const EVP_CIPHER aes_ ## keylen ## _ ## mode = {	nid ## _ ## keylen ## _ ## nmode, blocksize, keylen/8, ivlen, \
 		flags|EVP_CIPH_ ## MODE ## _MODE, aes_init_key, aes_ ## mode ## _cipher, NULL, \
 		sizeof(EVP_AES_KEY), NULL, NULL, NULL, NULL }; \
 	const EVP_CIPHER * EVP_aes_ ## keylen ## _ ## mode(void) { return &aes_ ## keylen ## _ ## mode; }
 
-# define BLOCK_CIPHER_custom(nid, keylen, blocksize, ivlen, mode, MODE, flags) \
+#define BLOCK_CIPHER_custom(nid, keylen, blocksize, ivlen, mode, MODE, flags) \
 	static const EVP_CIPHER aes_ ## keylen ## _ ## mode = {	\
 		nid ## _ ## keylen ## _ ## mode, blocksize, \
 		(EVP_CIPH_ ## MODE ## _MODE==EVP_CIPH_XTS_MODE ? 2 : 1)*keylen/8, ivlen, \

@@ -48,19 +48,8 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include "../ssl_locl.h"
 #include "statem_locl.h"
 #include "internal/constant_time_locl.h"
-//#include <openssl/buffer.h>
-//#include <openssl/rand.h>
-//#include <openssl/objects.h>
-//#include <openssl/evp.h>
-#include <openssl/hmac.h>
-#include <openssl/x509.h>
-#include <openssl/dh.h>
-#include <openssl/bn.h>
-#include <openssl/md5.h>
 
 static STACK_OF(SSL_CIPHER) *ssl_bytes_to_cipher_list(SSL *s,
     PACKET *cipher_suites,

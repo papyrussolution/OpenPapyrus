@@ -44,27 +44,27 @@
 
 #if (defined(__unix__) || defined(unix)) && !defined(USG) && \
 	(defined(OpenBSD) || defined(__FreeBSD__))
-# include <sys/param.h>
+#include <sys/param.h>
 # if (OpenBSD >= 200112) || ((__FreeBSD_version >= 470101 && __FreeBSD_version < 500000) || __FreeBSD_version >= 500041)
-#  define HAVE_CRYPTODEV
+#define HAVE_CRYPTODEV
 # endif
 # if (OpenBSD >= 200110)
-#  define HAVE_SYSLOG_R
+#define HAVE_SYSLOG_R
 # endif
 #endif
 
 #include <sys/types.h>
 #ifdef HAVE_CRYPTODEV
-# include <crypto/cryptodev.h>
-# include <sys/ioctl.h>
-# include <errno.h>
-# include <stdio.h>
-# include <unistd.h>
-# include <fcntl.h>
-# include <stdarg.h>
-# include <syslog.h>
-# include <errno.h>
-# include <string.h>
+#include <crypto/cryptodev.h>
+#include <sys/ioctl.h>
+#include <errno.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdarg.h>
+#include <syslog.h>
+#include <errno.h>
+#include <string.h>
 #endif
 #include <openssl/dh.h>
 //#include <openssl/dsa.h>

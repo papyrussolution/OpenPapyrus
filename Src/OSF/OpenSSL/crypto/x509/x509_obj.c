@@ -8,11 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/lhash.h>
-//#include <openssl/objects.h>
-//#include <openssl/x509.h>
-//#include "internal/x509_int.h"
-
 /*
  * Limit to ensure we don't overflow: much greater than
  * anything encountered in practice.

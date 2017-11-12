@@ -431,7 +431,7 @@ xmlParserInputPtr xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, con
  *
  * Returns the xmlEntityPtr if found.
  */
-xmlEntityPtr xmlSAX2GetEntity(void * ctx, const xmlChar * name)
+xmlEntity * xmlSAX2GetEntity(void * ctx, const xmlChar * name)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlEntity * ret = NULL;
@@ -502,7 +502,7 @@ xmlEntityPtr xmlSAX2GetEntity(void * ctx, const xmlChar * name)
  *
  * Returns the xmlEntityPtr if found.
  */
-xmlEntityPtr xmlSAX2GetParameterEntity(void * ctx, const xmlChar * name)
+xmlEntity * xmlSAX2GetParameterEntity(void * ctx, const xmlChar * name)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlEntity * ret = 0;

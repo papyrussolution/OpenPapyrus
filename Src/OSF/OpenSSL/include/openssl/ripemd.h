@@ -8,22 +8,22 @@
  */
 
 #ifndef HEADER_RIPEMD_H
-# define HEADER_RIPEMD_H
+#define HEADER_RIPEMD_H
 
-# include <openssl/opensslconf.h>
+#include <openssl/opensslconf.h>
 
 #ifndef OPENSSL_NO_RMD160
-# include <openssl/e_os2.h>
-# include <stddef.h>
+#include <openssl/e_os2.h>
+#include <stddef.h>
 # ifdef  __cplusplus
 extern "C" {
 # endif
 
-# define RIPEMD160_LONG uint
+#define RIPEMD160_LONG uint
 
-# define RIPEMD160_CBLOCK        64
-# define RIPEMD160_LBLOCK        (RIPEMD160_CBLOCK/4)
-# define RIPEMD160_DIGEST_LENGTH 20
+#define RIPEMD160_CBLOCK        64
+#define RIPEMD160_LBLOCK        (RIPEMD160_CBLOCK/4)
+#define RIPEMD160_DIGEST_LENGTH 20
 
 typedef struct RIPEMD160state_st {
     RIPEMD160_LONG A, B, C, D, E;

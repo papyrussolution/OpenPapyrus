@@ -1021,7 +1021,7 @@ static int xmlFileFlush(void * context)
  */
 static int xmlBufferWrite(void * context, const char * buffer, int len)
 {
-	int ret = xmlBufferAdd((xmlBufferPtr)context, (const xmlChar*)buffer, len);
+	int ret = xmlBufferAdd((xmlBuffer *)context, (const xmlChar*)buffer, len);
 	return (ret == 0) ? len : -1;
 }
 
@@ -2621,11 +2621,10 @@ xmlOutputBufferPtr xmlOutputBufferCreateFile(FILE * file, xmlCharEncodingHandler
  *
  * Returns the new parser output or NULL
  */
-xmlOutputBufferPtr xmlOutputBufferCreateBuffer(xmlBufferPtr buffer, xmlCharEncodingHandlerPtr encoder)
+xmlOutputBufferPtr xmlOutputBufferCreateBuffer(xmlBuffer * buffer, xmlCharEncodingHandlerPtr encoder)
 {
 	return buffer ? xmlOutputBufferCreateIO((xmlOutputWriteCallback)xmlBufferWrite, 0, buffer, encoder) : 0;
 }
-
 /**
  * xmlOutputBufferGetContent:
  * @out:  an xmlOutputBufferPtr

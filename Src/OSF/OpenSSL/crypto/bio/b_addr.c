@@ -33,7 +33,7 @@ static const char * ossl_hstrerror(int herr)
 	return "unknown error";
 }
 
-# define hstrerror(e) ossl_hstrerror(e)
+#define hstrerror(e) ossl_hstrerror(e)
 #endif
 
 CRYPTO_RWLOCK * bio_lookup_lock;

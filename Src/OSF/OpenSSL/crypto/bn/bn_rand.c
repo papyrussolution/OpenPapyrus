@@ -9,15 +9,12 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "bn_lcl.h"
-//#include <openssl/rand.h>
-#include <openssl/sha.h>
 
 static int bnrand(int pseudorand, BIGNUM * rnd, int bits, int top, int bottom)
 {
 	uchar * buf = NULL;
 	int ret = 0, bit, bytes, mask;
 	time_t tim;
-
 	if(bits == 0) {
 		if(top != BN_RAND_TOP_ANY || bottom != BN_RAND_BOTTOM_ANY)
 			goto toosmall;

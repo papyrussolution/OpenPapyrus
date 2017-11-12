@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
 
 int X509_STORE_set_default_paths(X509_STORE * ctx)
 {

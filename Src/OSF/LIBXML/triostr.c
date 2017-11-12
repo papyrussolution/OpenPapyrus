@@ -110,7 +110,7 @@ static TRIO_CONST char rcsid[] = "@(#)$Id$";
  */
 
 #if defined(TRIO_DOCUMENTATION)
-# include "doc/doc_static.h"
+#include "doc/doc_static.h"
 #endif
 /** @addtogroup StaticStrings
     @{
@@ -986,7 +986,7 @@ TRIO_STRING_PUBLIC int trio_upper(char * target)
  */
 
 #if defined(TRIO_DOCUMENTATION)
-# include "doc/doc_dynamic.h"
+#include "doc/doc_dynamic.h"
 #endif
 /** @addtogroup DynamicStrings
     @{

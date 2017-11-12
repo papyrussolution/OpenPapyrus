@@ -9,10 +9,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #ifndef OPENSSL_NO_CHACHA
-//#include <openssl/evp.h>
-//#include <openssl/objects.h>
-//#include <internal/evp_int.h>
-//#include <internal/chacha.h>
 #include "evp_locl.h"
 
 typedef struct {
@@ -151,9 +147,9 @@ typedef struct {
 	size_t tls_payload_length;
 } EVP_CHACHA_AEAD_CTX;
 
-#  define NO_TLS_PAYLOAD_LENGTH ((size_t)-1)
-#  define aead_data(ctx)        ((EVP_CHACHA_AEAD_CTX*)(ctx)->cipher_data)
-#  define POLY1305_ctx(actx)    ((POLY1305*)(actx + 1))
+#define NO_TLS_PAYLOAD_LENGTH ((size_t)-1)
+#define aead_data(ctx)        ((EVP_CHACHA_AEAD_CTX*)(ctx)->cipher_data)
+#define POLY1305_ctx(actx)    ((POLY1305*)(actx + 1))
 
 static int chacha20_poly1305_init_key(EVP_CIPHER_CTX * ctx,
     const uchar * inkey,

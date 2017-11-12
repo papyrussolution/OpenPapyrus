@@ -94,7 +94,7 @@ static ngx_int_t ngx_conf_add_dump(ngx_conf_t * cf, ngx_str_t * filename)
 	}
 	size = ngx_file_size(&cf->conf_file->file.info);
 	buf = ngx_create_temp_buf(cf->cycle->pool, (size_t)size);
-	if(buf == NULL) {
+	if(!buf) {
 		return NGX_ERROR;
 	}
 	cd->name.data = p;

@@ -383,7 +383,7 @@
  */
 
 #ifdef PNG_USER_PRIVATEBUILD /* From pnglibconf.h */
-#  define PNG_LIBPNG_BUILD_TYPE \
+#define PNG_LIBPNG_BUILD_TYPE \
        (PNG_LIBPNG_BUILD_BASE_TYPE | PNG_LIBPNG_BUILD_PRIVATE)
 #else
 #  ifdef PNG_LIBPNG_SPECIALBUILD
@@ -963,10 +963,10 @@ PNG_EXPORT(7, void, png_set_compression_buffer_size, (png_structrp png_ptr,
  */
 PNG_EXPORT(8, jmp_buf*, png_set_longjmp_fn, (png_structrp png_ptr,
     png_longjmp_ptr longjmp_fn, size_t jmp_buf_size));
-#  define png_jmpbuf(png_ptr) \
+#define png_jmpbuf(png_ptr) \
       (*png_set_longjmp_fn((png_ptr), longjmp, (sizeof (jmp_buf))))
 #else
-#  define png_jmpbuf(png_ptr) \
+#define png_jmpbuf(png_ptr) \
       (LIBPNG_WAS_COMPILED_WITH__PNG_NO_SETJMP)
 #endif
 /* This function should be used by libpng applications in place of
@@ -1259,8 +1259,8 @@ PNG_EXPORT(38, void, png_set_invert_alpha, (png_structrp png_ptr));
 PNG_EXPORT(39, void, png_set_filler, (png_structrp png_ptr, uint32 filler,
     int flags));
 /* The values of the PNG_FILLER_ defines should NOT be changed */
-#  define PNG_FILLER_BEFORE 0
-#  define PNG_FILLER_AFTER 1
+#define PNG_FILLER_BEFORE 0
+#define PNG_FILLER_AFTER 1
 /* Add an alpha byte to 8-bit or 16-bit Gray or 24-bit or 48-bit RGB images. */
 PNG_EXPORT(40, void, png_set_add_alpha, (png_structrp png_ptr,
     uint32 filler, int flags));
@@ -1318,10 +1318,10 @@ PNG_FIXED_EXPORT(215, void, png_set_background_fixed, (png_structrp png_ptr,
     int need_expand, png_fixed_point background_gamma))
 #endif
 #ifdef PNG_READ_BACKGROUND_SUPPORTED
-#  define PNG_BACKGROUND_GAMMA_UNKNOWN 0
-#  define PNG_BACKGROUND_GAMMA_SCREEN  1
-#  define PNG_BACKGROUND_GAMMA_FILE    2
-#  define PNG_BACKGROUND_GAMMA_UNIQUE  3
+#define PNG_BACKGROUND_GAMMA_UNKNOWN 0
+#define PNG_BACKGROUND_GAMMA_SCREEN  1
+#define PNG_BACKGROUND_GAMMA_FILE    2
+#define PNG_BACKGROUND_GAMMA_UNIQUE  3
 #endif
 
 #ifdef PNG_READ_SCALE_16_TO_8_SUPPORTED
@@ -1765,8 +1765,8 @@ PNG_EXPORTA(103, void, png_chunk_error, (png_const_structrp png_ptr, const char 
 #else
 /* Fatal error in PNG image of libpng - can't continue */
 PNG_EXPORTA(104, void, png_err, (png_const_structrp png_ptr), PNG_NORETURN);
-#  define png_error(s1,s2) png_err(s1)
-#  define png_chunk_error(s1,s2) png_err(s1)
+#define png_error(s1,s2) png_err(s1)
+#define png_chunk_error(s1,s2) png_err(s1)
 #endif
 
 #ifdef PNG_WARNINGS_SUPPORTED
@@ -1775,8 +1775,8 @@ PNG_EXPORT(105, void, png_warning, (png_const_structrp png_ptr, const char * war
 /* Non-fatal error in libpng, chunk name is prepended to message. */
 PNG_EXPORT(106, void, png_chunk_warning, (png_const_structrp png_ptr, const char * warning_message));
 #else
-#  define png_warning(s1,s2) ((void)(s1))
-#  define png_chunk_warning(s1,s2) ((void)(s1))
+#define png_warning(s1,s2) ((void)(s1))
+#define png_chunk_warning(s1,s2) ((void)(s1))
 #endif
 
 #ifdef PNG_BENIGN_ERRORS_SUPPORTED
@@ -2326,15 +2326,15 @@ PNG_EXPORT(216, uint32, png_get_io_chunk_type,
     (png_const_structrp png_ptr));
 
 /* The flags returned by png_get_io_state() are the following: */
-#  define PNG_IO_NONE        0x0000   /* no I/O at this moment */
-#  define PNG_IO_READING     0x0001   /* currently reading */
-#  define PNG_IO_WRITING     0x0002   /* currently writing */
-#  define PNG_IO_SIGNATURE   0x0010   /* currently at the file signature */
-#  define PNG_IO_CHUNK_HDR   0x0020   /* currently at the chunk header */
-#  define PNG_IO_CHUNK_DATA  0x0040   /* currently at the chunk data */
-#  define PNG_IO_CHUNK_CRC   0x0080   /* currently at the chunk crc */
-#  define PNG_IO_MASK_OP     0x000f   /* current operation: reading/writing */
-#  define PNG_IO_MASK_LOC    0x00f0   /* current location: sig/hdr/data/crc */
+#define PNG_IO_NONE        0x0000   /* no I/O at this moment */
+#define PNG_IO_READING     0x0001   /* currently reading */
+#define PNG_IO_WRITING     0x0002   /* currently writing */
+#define PNG_IO_SIGNATURE   0x0010   /* currently at the file signature */
+#define PNG_IO_CHUNK_HDR   0x0020   /* currently at the chunk header */
+#define PNG_IO_CHUNK_DATA  0x0040   /* currently at the chunk data */
+#define PNG_IO_CHUNK_CRC   0x0080   /* currently at the chunk crc */
+#define PNG_IO_MASK_OP     0x000f   /* current operation: reading/writing */
+#define PNG_IO_MASK_LOC    0x00f0   /* current location: sig/hdr/data/crc */
 #endif /* IO_STATE */
 
 /* Interlace support.  The following macros are always defined so that if
@@ -2427,13 +2427,13 @@ PNG_EXPORT(216, uint32, png_get_io_chunk_type,
 
 #else  /* Standard method using integer division */
 
-#  define png_composite(composite, fg, alpha, bg)                        \
+#define png_composite(composite, fg, alpha, bg)                        \
      (composite) =                                                       \
          (uint8)(0xff & (((png_uint_16)(fg) * (png_uint_16)(alpha) +  \
          (png_uint_16)(bg) * (png_uint_16)(255 - (png_uint_16)(alpha)) + \
          127) / 255))
 
-#  define png_composite_16(composite, fg, alpha, bg)                         \
+#define png_composite_16(composite, fg, alpha, bg)                         \
      (composite) =                                                           \
          (png_uint_16)(0xffff & (((uint32)(fg) * (uint32)(alpha) + \
          (uint32)(bg)*(uint32)(65535 - (uint32)(alpha)) +     \
@@ -2472,7 +2472,7 @@ PNG_EXPORT(207, void, png_save_uint_16, (png_bytep buf, unsigned int i));
  * The png_get_int_32() routine assumes we are using two's complement
  * format for negative values, which is almost certainly true.
  */
-#  define PNG_get_uint_32(buf) \
+#define PNG_get_uint_32(buf) \
      (((uint32)(*(buf)) << 24) + \
       ((uint32)(*((buf) + 1)) << 16) + \
       ((uint32)(*((buf) + 2)) << 8) + \
@@ -2481,12 +2481,12 @@ PNG_EXPORT(207, void, png_save_uint_16, (png_bytep buf, unsigned int i));
    /* From libpng-1.4.0 until 1.4.4, the png_get_uint_16 macro (but not the
     * function) incorrectly returned a value of type uint32.
     */
-#  define PNG_get_uint_16(buf) \
+#define PNG_get_uint_16(buf) \
      ((png_uint_16) \
       (((unsigned int)(*(buf)) << 8) + \
        ((unsigned int)(*((buf) + 1)))))
 
-#  define PNG_get_int_32(buf) \
+#define PNG_get_int_32(buf) \
      ((png_int_32)((*(buf) & 0x80) \
       ? -((png_int_32)(((png_get_uint_32(buf)^0xffffffffU)+1U)&0x7fffffffU)) \
       : (png_int_32)png_get_uint_32(buf)))
@@ -2589,8 +2589,8 @@ typedef struct
     * The upper 30 bits of this value are reserved, the low two bits contain
     * a value as follows:
     */
-#  define PNG_IMAGE_WARNING 1
-#  define PNG_IMAGE_ERROR 2
+#define PNG_IMAGE_WARNING 1
+#define PNG_IMAGE_ERROR 2
    /*
     * The result is a two-bit code such that a value more than 1 indicates
     * a failure in the API just called:
@@ -2600,7 +2600,7 @@ typedef struct
     *    2 - error
     *    3 - error preceded by warning
     */
-#  define PNG_IMAGE_FAILED(png_cntrl) ((((png_cntrl).warning_or_error)&0x03)>1)
+#define PNG_IMAGE_FAILED(png_cntrl) ((((png_cntrl).warning_or_error)&0x03)>1)
 
    uint32  warning_or_error;
 
@@ -2681,11 +2681,11 @@ typedef struct
 #define PNG_FORMAT_FLAG_COLORMAP 0x08U /* image data is color-mapped */
 
 #ifdef PNG_FORMAT_BGR_SUPPORTED
-#  define PNG_FORMAT_FLAG_BGR    0x10U /* BGR colors, else order is RGB */
+#define PNG_FORMAT_FLAG_BGR    0x10U /* BGR colors, else order is RGB */
 #endif
 
 #ifdef PNG_FORMAT_AFIRST_SUPPORTED
-#  define PNG_FORMAT_FLAG_AFIRST 0x20U /* alpha channel comes first */
+#define PNG_FORMAT_FLAG_AFIRST 0x20U /* alpha channel comes first */
 #endif
 
 /* Commonly used formats have predefined macros.
@@ -3036,7 +3036,7 @@ PNG_EXPORT(245, int, png_image_write_to_memory, (png_imagep image, void *memory,
     * bigger numbers than the actual in-memory image size.
     */
 #ifndef PNG_ZLIB_MAX_SIZE
-#  define PNG_ZLIB_MAX_SIZE(b) ((b)+(((b)+7U)>>3)+(((b)+63U)>>6)+11U)
+#define PNG_ZLIB_MAX_SIZE(b) ((b)+(((b)+7U)>>3)+(((b)+63U)>>6)+11U)
    /* An upper bound on the number of compressed bytes given 'b' uncompressed
     * bytes.  This is based on deflateBounds() in zlib; different
     * implementations of zlib compression may conceivably produce more data so
@@ -3098,7 +3098,7 @@ PNG_EXPORT(245, int, png_image_write_to_memory, (png_imagep image, void *memory,
  */
 #ifdef PNG_SET_OPTION_SUPPORTED
 #ifdef PNG_ARM_NEON_API_SUPPORTED
-#  define PNG_ARM_NEON   0 /* HARDWARE: ARM Neon SIMD instructions supported */
+#define PNG_ARM_NEON   0 /* HARDWARE: ARM Neon SIMD instructions supported */
 #endif
 #define PNG_MAXIMUM_INFLATE_WINDOW 2 /* SOFTWARE: force maximum window */
 #define PNG_SKIP_sRGB_CHECK_PROFILE 4 /* SOFTWARE: Check ICC profile for sRGB */

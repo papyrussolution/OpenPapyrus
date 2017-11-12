@@ -8,12 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1t.h>
-//#include <openssl/pem.h>
-//#include <openssl/x509v3.h>
-//#include <openssl/cms.h>
-//#include <openssl/bio.h>
-//#include <openssl/comp.h>
 #include "cms_lcl.h"
 
 #ifdef ZLIB

@@ -8,13 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/bn.h>
-//#include <openssl/x509.h>
-//#include <openssl/rsa.h>
-//#include <openssl/dsa.h>
-//#include <openssl/dh.h>
-//#include "internal/asn1_int.h"
-//#include <internal/evp_int.h>
 
 static void EVP_PKEY_free_it(EVP_PKEY * x);
 

@@ -16,8 +16,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_DSA, func, 0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_DSA, 0, reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_DSA, func, 0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_DSA, 0, reason)
 
 static ERR_STRING_DATA DSA_str_functs[] = {
 	{ERR_FUNC(DSA_F_DSAPARAMS_PRINT), "DSAparams_print"},

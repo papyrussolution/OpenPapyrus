@@ -9,13 +9,12 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/ui.h>
 
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_UI,func,0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_UI,0,reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_UI,func,0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_UI,0,reason)
 
 static ERR_STRING_DATA UI_str_functs[] = {
     {ERR_FUNC(UI_F_CLOSE_CONSOLE), "close_console"},

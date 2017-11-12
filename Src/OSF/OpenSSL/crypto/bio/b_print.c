@@ -24,19 +24,19 @@
  */
 
 #ifdef HAVE_LONG_DOUBLE
-# define LDOUBLE long double
+#define LDOUBLE long double
 #else
-# define LDOUBLE double
+#define LDOUBLE double
 #endif
 
 #ifdef HAVE_LONG_LONG
 # if defined(_WIN32) && !defined(__GNUC__)
-#  define LLONG __int64
+#define LLONG __int64
 # else
-#  define LLONG long long
+#define LLONG long long
 # endif
 #else
-# define LLONG long
+#define LLONG long
 #endif
 
 static int fmtstr(char **, char **, size_t *, size_t *, const char *, int, int, int);

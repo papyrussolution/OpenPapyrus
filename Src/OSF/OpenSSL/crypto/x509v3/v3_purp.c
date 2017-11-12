@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "internal/numbers.h"
-//#include <openssl/x509v3.h>
-//#include <openssl/x509_vfy.h>
-//#include "internal/x509_int.h"
 
 static void x509v3_cache_extensions(X509 * x);
 
@@ -30,25 +26,15 @@ static int xp_cmp(const X509_PURPOSE * const * a, const X509_PURPOSE * const * b
 static void xptable_free(X509_PURPOSE * p);
 
 static X509_PURPOSE xstandard[] = {
-	{X509_PURPOSE_SSL_CLIENT, X509_TRUST_SSL_CLIENT, 0,
-	 check_purpose_ssl_client, "SSL client", "sslclient", NULL},
-	{X509_PURPOSE_SSL_SERVER, X509_TRUST_SSL_SERVER, 0,
-	 check_purpose_ssl_server, "SSL server", "sslserver", NULL},
-	{X509_PURPOSE_NS_SSL_SERVER, X509_TRUST_SSL_SERVER, 0,
-	 check_purpose_ns_ssl_server, "Netscape SSL server", "nssslserver", NULL},
-	{X509_PURPOSE_SMIME_SIGN, X509_TRUST_EMAIL, 0, check_purpose_smime_sign,
-	 "S/MIME signing", "smimesign", NULL},
-	{X509_PURPOSE_SMIME_ENCRYPT, X509_TRUST_EMAIL, 0,
-	 check_purpose_smime_encrypt, "S/MIME encryption", "smimeencrypt", NULL},
-	{X509_PURPOSE_CRL_SIGN, X509_TRUST_COMPAT, 0, check_purpose_crl_sign,
-	 "CRL signing", "crlsign", NULL},
-	{X509_PURPOSE_ANY, X509_TRUST_DEFAULT, 0, no_check, "Any Purpose", "any",
-	 NULL},
-	{X509_PURPOSE_OCSP_HELPER, X509_TRUST_COMPAT, 0, ocsp_helper,
-	 "OCSP helper", "ocsphelper", NULL},
-	{X509_PURPOSE_TIMESTAMP_SIGN, X509_TRUST_TSA, 0,
-	 check_purpose_timestamp_sign, "Time Stamp signing", "timestampsign",
-	 NULL},
+	{X509_PURPOSE_SSL_CLIENT, X509_TRUST_SSL_CLIENT, 0, check_purpose_ssl_client, "SSL client", "sslclient", NULL},
+	{X509_PURPOSE_SSL_SERVER, X509_TRUST_SSL_SERVER, 0, check_purpose_ssl_server, "SSL server", "sslserver", NULL},
+	{X509_PURPOSE_NS_SSL_SERVER, X509_TRUST_SSL_SERVER, 0, check_purpose_ns_ssl_server, "Netscape SSL server", "nssslserver", NULL},
+	{X509_PURPOSE_SMIME_SIGN, X509_TRUST_EMAIL, 0, check_purpose_smime_sign, "S/MIME signing", "smimesign", NULL},
+	{X509_PURPOSE_SMIME_ENCRYPT, X509_TRUST_EMAIL, 0, check_purpose_smime_encrypt, "S/MIME encryption", "smimeencrypt", NULL},
+	{X509_PURPOSE_CRL_SIGN, X509_TRUST_COMPAT, 0, check_purpose_crl_sign, "CRL signing", "crlsign", NULL},
+	{X509_PURPOSE_ANY, X509_TRUST_DEFAULT, 0, no_check, "Any Purpose", "any", NULL},
+	{X509_PURPOSE_OCSP_HELPER, X509_TRUST_COMPAT, 0, ocsp_helper, "OCSP helper", "ocsphelper", NULL},
+	{X509_PURPOSE_TIMESTAMP_SIGN, X509_TRUST_TSA, 0, check_purpose_timestamp_sign, "Time Stamp signing", "timestampsign", NULL},
 };
 
 #define X509_PURPOSE_COUNT OSSL_NELEM(xstandard)

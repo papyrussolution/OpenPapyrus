@@ -9,7 +9,6 @@
 
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "internal/numbers.h"
 
 static int asn1_d2i_read_bio(BIO * in, BUF_MEM ** pb);
 

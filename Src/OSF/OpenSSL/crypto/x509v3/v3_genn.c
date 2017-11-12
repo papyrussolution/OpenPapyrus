@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1t.h>
-//#include <openssl/x509v3.h>
 
 ASN1_SEQUENCE(OTHERNAME) = {
 	ASN1_SIMPLE(OTHERNAME, type_id, ASN1_OBJECT),

@@ -7537,7 +7537,7 @@ xmlExpNodePtr xmlExpParse(xmlExpCtxtPtr ctxt, const char * expr)
 	return ret;
 }
 
-static void xmlExpDumpInt(xmlBufferPtr buf, xmlExpNodePtr expr, int glob)
+static void xmlExpDumpInt(xmlBuffer * buf, xmlExpNodePtr expr, int glob)
 {
 	xmlExpNodePtr c;
 	if(expr == NULL)
@@ -7620,7 +7620,7 @@ static void xmlExpDumpInt(xmlBufferPtr buf, xmlExpNodePtr expr, int glob)
  *
  * Serialize the expression as compiled to the buffer
  */
-void xmlExpDump(xmlBufferPtr buf, xmlExpNodePtr expr)
+void xmlExpDump(xmlBuffer * buf, xmlExpNodePtr expr)
 {
 	if(buf && expr)
 		xmlExpDumpInt(buf, expr, 0);

@@ -1760,15 +1760,12 @@ void TY_(CleanWord2000) (TidyDocImpl* doc, Node *node)
 	/* used to a list from a sequence of bulletted p's */
 	Lexer* lexer = doc->lexer;
 	Node* list = NULL;
-
 	while(node) {
 		/* get rid of Word's xmlns attributes */
 		if(nodeIsHTML(node) ) {
 			/* check that it's a Word 2000 document */
-			if(!TY_(GetAttrByName) (node, "xmlns:o") &&
-			    !cfgBool(doc, TidyMakeBare) )
+			if(!TY_(GetAttrByName) (node, "xmlns:o") && !cfgBool(doc, TidyMakeBare) )
 				return;
-
 			TY_(FreeAttrs) (doc, node);
 		}
 

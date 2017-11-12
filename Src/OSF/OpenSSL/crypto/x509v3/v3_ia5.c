@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1.h>
-//#include <openssl/x509v3.h>
 #include "ext_dat.h"
 
 const X509V3_EXT_METHOD v3_ns_ia5_list[8] = {

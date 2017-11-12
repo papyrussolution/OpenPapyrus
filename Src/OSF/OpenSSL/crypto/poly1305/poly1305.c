@@ -105,7 +105,7 @@ static void poly1305_blocks(void * ctx, const uchar * inp, size_t len, u32 padbi
 /*
  * Type-agnostic "rip-off" from constant_time_locl.h
  */
-# define CONSTANT_TIME_CARRY(a, b) ( \
+#define CONSTANT_TIME_CARRY(a, b) ( \
 	    (a ^ ((a ^ b) | ((a - b) ^ b))) >> (sizeof(a) * 8 - 1) \
 	    )
 
@@ -476,8 +476,8 @@ void Poly1305_Init(POLY1305 * ctx, const uchar key[32])
  * This "eclipses" poly1305_blocks and poly1305_emit, but it's
  * conscious choice imposed by -Wshadow compiler warnings.
  */
-# define poly1305_blocks (*poly1305_blocks_p)
-# define poly1305_emit   (*poly1305_emit_p)
+#define poly1305_blocks (*poly1305_blocks_p)
+#define poly1305_emit   (*poly1305_emit_p)
 #endif
 
 void Poly1305_Update(POLY1305 * ctx, const uchar * inp, size_t len)

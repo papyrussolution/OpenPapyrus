@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <internal/cryptlib_int.h>
-//#include <internal/thread_once.h>
 
 static void err_load_strings(int lib, ERR_STRING_DATA * str);
 
@@ -148,8 +146,8 @@ static ERR_STRING_DATA * int_err_get_item(const ERR_STRING_DATA * d)
 }
 
 #ifndef OPENSSL_NO_ERR
-# define NUM_SYS_STR_REASONS 127
-# define LEN_SYS_STR_REASON 32
+#define NUM_SYS_STR_REASONS 127
+#define LEN_SYS_STR_REASON 32
 
 static ERR_STRING_DATA SYS_str_reasons[NUM_SYS_STR_REASONS + 1];
 /*

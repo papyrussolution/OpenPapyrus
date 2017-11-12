@@ -129,7 +129,7 @@ struct cell_list;
  * if GRID_X/Y inside glitter-paths.c is larger than
  * 1<<GLITTER_INPUT_BITS. */
 #ifndef GLITTER_INPUT_BITS
-#  define GLITTER_INPUT_BITS 8
+#define GLITTER_INPUT_BITS 8
 #endif
 #define GLITTER_INPUT_SCALE (1<<GLITTER_INPUT_BITS)
 typedef int glitter_input_scaled_t;
@@ -142,7 +142,7 @@ typedef enum {
 #endif
 
 #ifndef I
-# define I /*static*/
+#define I /*static*/
 #endif
 
 /* Opaque type for scan converting. */
@@ -185,18 +185,18 @@ typedef int grid_scaled_y_t;
  *  You can either define GRID_X/Y_BITS to get a power-of-two scale
  *  or define GRID_X/Y separately. */
 #if !defined(GRID_X) && !defined(GRID_X_BITS)
-#  define GRID_X_BITS 8
+#define GRID_X_BITS 8
 #endif
 #if !defined(GRID_Y) && !defined(GRID_Y_BITS)
-#  define GRID_Y 15
+#define GRID_Y 15
 #endif
 
 /* Use GRID_X/Y_BITS to define GRID_X/Y if they're available. */
 #ifdef GRID_X_BITS
-#  define GRID_X (1 << GRID_X_BITS)
+#define GRID_X (1 << GRID_X_BITS)
 #endif
 #ifdef GRID_Y_BITS
-#  define GRID_Y (1 << GRID_Y_BITS)
+#define GRID_Y (1 << GRID_Y_BITS)
 #endif
 
 /* The GRID_X_TO_INT_FRAC macro splits a grid scaled coordinate into
@@ -204,10 +204,10 @@ typedef int grid_scaled_y_t;
 #if defined(GRID_X_TO_INT_FRAC)
 /* do nothing */
 #elif defined(GRID_X_BITS)
-#  define GRID_X_TO_INT_FRAC(x, i, f) \
+#define GRID_X_TO_INT_FRAC(x, i, f) \
 	_GRID_TO_INT_FRAC_shift(x, i, f, GRID_X_BITS)
 #else
-#  define GRID_X_TO_INT_FRAC(x, i, f) \
+#define GRID_X_TO_INT_FRAC(x, i, f) \
 	_GRID_TO_INT_FRAC_general(x, i, f, GRID_X)
 #endif
 
@@ -234,21 +234,21 @@ typedef int grid_scaled_y_t;
 
 /* GRID_AREA_TO_ALPHA(area): map [0,GRID_XY] to [0,255]. */
 #if GRID_XY == 510
-#  define GRID_AREA_TO_ALPHA(c)   (((c)+1) >> 1)
+#define GRID_AREA_TO_ALPHA(c)   (((c)+1) >> 1)
 #elif GRID_XY == 255
-#  define  GRID_AREA_TO_ALPHA(c)  (c)
+#define  GRID_AREA_TO_ALPHA(c)  (c)
 #elif GRID_XY == 64
-#  define  GRID_AREA_TO_ALPHA(c)  (((c) << 2) | -(((c) & 0x40) >> 6))
+#define  GRID_AREA_TO_ALPHA(c)  (((c) << 2) | -(((c) & 0x40) >> 6))
 #elif GRID_XY == 128
-#  define  GRID_AREA_TO_ALPHA(c)  ((((c) << 1) | -((c) >> 7)) & 255)
+#define  GRID_AREA_TO_ALPHA(c)  ((((c) << 1) | -((c) >> 7)) & 255)
 #elif GRID_XY == 256
-#  define  GRID_AREA_TO_ALPHA(c)  (((c) | -((c) >> 8)) & 255)
+#define  GRID_AREA_TO_ALPHA(c)  (((c) | -((c) >> 8)) & 255)
 #elif GRID_XY == 15
-#  define  GRID_AREA_TO_ALPHA(c)  (((c) << 4) + (c))
+#define  GRID_AREA_TO_ALPHA(c)  (((c) << 4) + (c))
 #elif GRID_XY == 2*256*15
-#  define  GRID_AREA_TO_ALPHA(c)  (((c) + ((c)<<4) + 256) >> 9)
+#define  GRID_AREA_TO_ALPHA(c)  (((c) + ((c)<<4) + 256) >> 9)
 #else
-#  define  GRID_AREA_TO_ALPHA(c)  (((c)*255 + GRID_XY/2) / GRID_XY)
+#define  GRID_AREA_TO_ALPHA(c)  (((c)*255 + GRID_XY/2) / GRID_XY)
 #endif
 
 #define UNROLL3(x) x x x

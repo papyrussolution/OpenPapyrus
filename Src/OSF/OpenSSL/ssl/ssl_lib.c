@@ -40,18 +40,6 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <assert.h>
-//#include <stdio.h>
-//#include "ssl_locl.h"
-//#include <openssl/objects.h>
-#include <openssl/lhash.h>
-#include <openssl/x509v3.h>
-//#include <openssl/rand.h>
-#include <openssl/ocsp.h>
-#include <openssl/dh.h>
-//#include <openssl/engine.h>
-#include <openssl/async.h>
-#include <openssl/ct.h>
 
 const char SSL_version_str[] = OPENSSL_VERSION_TEXT;
 
@@ -2224,8 +2212,8 @@ SSL_CTX * SSL_CTX_new(const SSL_METHOD * meth)
 #endif
 #ifndef OPENSSL_NO_ENGINE
 # ifdef OPENSSL_SSL_CLIENT_ENGINE_AUTO
-#  define eng_strx(x)     # x
-#  define eng_str(x)      eng_strx(x)
+#define eng_strx(x)     # x
+#define eng_str(x)      eng_strx(x)
 	/* Use specific client engine automatically... ignore errors */
 	{
 		ENGINE * eng;

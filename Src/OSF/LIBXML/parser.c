@@ -81,7 +81,7 @@ static xmlParserCtxtPtr xmlCreateEntityParserCtxtInternal(const xmlChar * URL, c
  * boundary feature. It can be disabled with the XML_PARSE_HUGE
  * parser option.
  */
-static int xmlParserEntityCheck(xmlParserCtxt * ctxt, size_t size, xmlEntityPtr ent, size_t replacement)
+static int xmlParserEntityCheck(xmlParserCtxt * ctxt, size_t size, xmlEntity * ent, size_t replacement)
 {
 	size_t consumed = 0;
 	if(!ctxt || (ctxt->options & XML_PARSE_HUGE))
@@ -199,15 +199,15 @@ static const char * xmlW3CPIs[] = {
 };
 
 /* DEPR void xmlParserHandleReference(xmlParserCtxt * ctxt); */
-static xmlEntityPtr xmlParseStringPEReference(xmlParserCtxt * ctxt, const xmlChar ** str);
+static xmlEntity * xmlParseStringPEReference(xmlParserCtxt * ctxt, const xmlChar ** str);
 static xmlParserErrors xmlParseExternalEntityPrivate(xmlDocPtr doc, xmlParserCtxtPtr oldctxt,
     xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * URL, const xmlChar * ID, xmlNode ** list);
 static int xmlCtxtUseOptionsInternal(xmlParserCtxt * ctxt, int options, const char * encoding);
 #ifdef LIBXML_LEGACY_ENABLED
-static void xmlAddEntityReference(xmlEntityPtr ent, xmlNode * firstNode, xmlNode * lastNode);
+static void xmlAddEntityReference(xmlEntity * ent, xmlNode * firstNode, xmlNode * lastNode);
 #endif /* LIBXML_LEGACY_ENABLED */
 static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxtPtr oldctxt, const xmlChar * string, void * user_data, xmlNode ** lst);
-static int xmlLoadEntityContent(xmlParserCtxt * ctxt, xmlEntityPtr entity);
+static int xmlLoadEntityContent(xmlParserCtxt * ctxt, xmlEntity * entity);
 
 /************************************************************************
 *									*
@@ -767,7 +767,7 @@ int xmlHasFeature(xmlFeature feature)
  *
  * Do the SAX2 detection and specific intialization
  */
-/* @sobolev static*/ void xmlDetectSAX2(xmlParserCtxt * pCtxt)
+/* @sobolev static*/ void FASTCALL xmlDetectSAX2(xmlParserCtxt * pCtxt)
 {
 	if(pCtxt) {
 	#ifdef LIBXML_SAX1_ENABLED
@@ -784,14 +784,14 @@ int xmlHasFeature(xmlFeature feature)
 	}
 }
 
-typedef struct _xmlDefAttrs xmlDefAttrs;
-typedef xmlDefAttrs * xmlDefAttrsPtr;
-struct _xmlDefAttrs {
-	int nbAttrs;    /* number of defaulted attributes on that element */
-	int maxAttrs;   /* the size of the array */
-	const xmlChar * values[5]; /* array of localname/prefix/values/external */
+//typedef struct _xmlDefAttrs xmlDefAttrs;
+struct xmlDefAttrs {
+	int    nbAttrs;    /* number of defaulted attributes on that element */
+	int    maxAttrs;   /* the size of the array */
+	const  xmlChar * values[5]; /* array of localname/prefix/values/external */
 };
 
+typedef xmlDefAttrs * xmlDefAttrsPtr;
 /**
  * xmlAttrNormalizeSpace:
  * @src: the source string
@@ -809,7 +809,7 @@ struct _xmlDefAttrs {
  * Returns a pointer to the normalized value (dst) or NULL if no conversion
  *         is needed.
  */
-static xmlChar * xmlAttrNormalizeSpace(const xmlChar * src, xmlChar * dst)
+static xmlChar * FASTCALL xmlAttrNormalizeSpace(const xmlChar * src, xmlChar * dst)
 {
 	if(!src || !dst)
 		return 0;
@@ -831,7 +831,6 @@ static xmlChar * xmlAttrNormalizeSpace(const xmlChar * src, xmlChar * dst)
 		return (dst == src) ? 0 : dst;
 	}
 }
-
 /**
  * xmlAttrNormalizeSpace2:
  * @src: the source string
@@ -887,7 +886,6 @@ static const xmlChar * xmlAttrNormalizeSpace2(xmlParserCtxt * ctxt, xmlChar * sr
 	}
 	return 0;
 }
-
 /**
  * xmlAddDefAttrs:
  * @ctxt:  an XML parser context
@@ -954,7 +952,6 @@ static void xmlAddDefAttrs(xmlParserCtxt * ctxt, const xmlChar * fullname, const
 			goto mem_error;
 		}
 	}
-
 	/*
 	 * Split the element name into prefix:localname , the string found
 	 * are within the DTD and hen not associated to namespace names.
@@ -970,22 +967,18 @@ static void xmlAddDefAttrs(xmlParserCtxt * ctxt, const xmlChar * fullname, const
 	}
 	defaults->values[5 * defaults->nbAttrs] = name;
 	defaults->values[5 * defaults->nbAttrs + 1] = prefix;
-	/* intern the string and precompute the end */
+	// intern the string and precompute the end 
 	len = sstrlen(value);
 	value = xmlDictLookup(ctxt->dict, value, len);
 	defaults->values[5 * defaults->nbAttrs + 2] = value;
 	defaults->values[5 * defaults->nbAttrs + 3] = value + len;
-	if(ctxt->external)
-		defaults->values[5 * defaults->nbAttrs + 4] = BAD_CAST "external";
-	else
-		defaults->values[5 * defaults->nbAttrs + 4] = NULL;
+	defaults->values[5 * defaults->nbAttrs + 4] = ctxt->external ? (BAD_CAST "external") : 0;
 	defaults->nbAttrs++;
 	return;
 mem_error:
 	xmlErrMemory(ctxt, 0);
 	return;
 }
-
 /**
  * xmlAddSpecialAttr:
  * @ctxt:  an XML parser context
@@ -1010,7 +1003,6 @@ mem_error:
 	xmlErrMemory(ctxt, 0);
 	return;
 }
-
 /**
  * xmlCleanSpecialAttrCallback:
  *
@@ -1024,7 +1016,6 @@ static void xmlCleanSpecialAttrCallback(void * payload, void * data,
 		xmlHashRemoveEntry2(ctxt->attsSpecial, fullname, fullattr, 0);
 	}
 }
-
 /**
  * xmlCleanSpecialAttr:
  * @ctxt:  an XML parser context
@@ -1033,7 +1024,7 @@ static void xmlCleanSpecialAttrCallback(void * payload, void * data,
  * CDATA as they are not special. This call should be done when finishing
  * to parse the DTD and before starting to parse the document root.
  */
-static void xmlCleanSpecialAttr(xmlParserCtxt * ctxt)
+static void FASTCALL xmlCleanSpecialAttr(xmlParserCtxt * ctxt)
 {
 	if(ctxt->attsSpecial) {
 		xmlHashScanFull(ctxt->attsSpecial, xmlCleanSpecialAttrCallback, ctxt);
@@ -1043,7 +1034,6 @@ static void xmlCleanSpecialAttr(xmlParserCtxt * ctxt)
 		}
 	}
 }
-
 /**
  * xmlCheckLanguageID:
  * @lang:  pointer to the string value
@@ -1104,11 +1094,12 @@ static void xmlCleanSpecialAttr(xmlParserCtxt * ctxt)
  **/
 int xmlCheckLanguageID(const xmlChar * lang)
 {
-	const xmlChar * cur = lang, * nxt;
+	const xmlChar * cur = lang;
+	const xmlChar * nxt;
 	if(!cur)
 		return 0;
-	if(((cur[0] == 'i') && (cur[1] == '-')) || ((cur[0] == 'I') && (cur[1] == '-')) ||
-	    ((cur[0] == 'x') && (cur[1] == '-')) || ((cur[0] == 'X') && (cur[1] == '-'))) {
+	// @sobolev if(((cur[0] == 'i') && (cur[1] == '-')) || ((cur[0] == 'I') && (cur[1] == '-')) || ((cur[0] == 'x') && (cur[1] == '-')) || ((cur[0] == 'X') && (cur[1] == '-'))) {
+	if(oneof4(cur[0], 'i', 'I', 'x', 'X') && cur[1] == '-') { // @sobolev 
 		/*
 		 * Still allow IANA code and user code which were coming
 		 * from the previous version of the XML-1.0 specification
@@ -1206,7 +1197,6 @@ variant:
 		return 0;
 	/* extensions and private use subtags not checked */
 	return 1;
-
 region_m49:
 	if(((nxt[1] >= '0') && (nxt[1] <= '9')) && ((nxt[2] >= '0') && (nxt[2] <= '9'))) {
 		nxt += 3;
@@ -2019,7 +2009,7 @@ static void deallocblankswrapper(xmlChar * str)
 	SAlloc::F(str);
 }
 
-static xmlParserInputPtr xmlNewBlanksWrapperInputStream(xmlParserCtxt * ctxt, xmlEntityPtr entity)
+static xmlParserInputPtr xmlNewBlanksWrapperInputStream(xmlParserCtxt * ctxt, xmlEntity * entity)
 {
 	xmlParserInput * input = 0;
 	if(!entity) {
@@ -6644,7 +6634,7 @@ void xmlParseReference(xmlParserCtxt * ctxt)
  *
  * Returns the xmlEntityPtr if found, or NULL otherwise.
  */
-xmlEntityPtr xmlParseEntityRef(xmlParserCtxt * ctxt)
+xmlEntity * xmlParseEntityRef(xmlParserCtxt * ctxt)
 {
 	const xmlChar * name;
 	xmlEntity * ent = NULL;
@@ -7047,10 +7037,10 @@ void xmlParsePEReference(xmlParserCtxt * ctxt)
  *
  * Returns 0 in case of success and -1 in case of failure
  */
-static int xmlLoadEntityContent(xmlParserCtxt * ctxt, xmlEntityPtr entity)
+static int xmlLoadEntityContent(xmlParserCtxt * ctxt, xmlEntity * entity)
 {
 	xmlParserInputPtr input;
-	xmlBufferPtr buf;
+	xmlBuffer * buf;
 	int l, c;
 	int count = 0;
 	if(!ctxt || !entity || ((entity->etype != XML_EXTERNAL_PARAMETER_ENTITY) && (entity->etype != XML_EXTERNAL_GENERAL_PARSED_ENTITY)) || entity->content) {
@@ -7147,7 +7137,7 @@ static int xmlLoadEntityContent(xmlParserCtxt * ctxt, xmlEntityPtr entity)
  * Returns the string of the entity content.
  *         str is updated to the current value of the index
  */
-static xmlEntityPtr xmlParseStringPEReference(xmlParserCtxt * ctxt, const xmlChar ** str)
+static xmlEntity * xmlParseStringPEReference(xmlParserCtxt * ctxt, const xmlChar ** str)
 {
 	const xmlChar * ptr;
 	xmlChar cur;
@@ -12838,11 +12828,11 @@ int xmlSAXUserParseMemory(xmlSAXHandlerPtr sax, void * user_data, const char * b
 	if(!ctxt)
 		ret = -1;
 	else {
-		if(ctxt->sax != (xmlSAXHandlerPtr) &xmlDefaultSAXHandler)
+		if(ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
 			SAlloc::F(ctxt->sax);
 		ctxt->sax = sax;
 		xmlDetectSAX2(ctxt);
-		if(user_data != NULL)
+		if(user_data)
 			ctxt->userData = user_data;
 		xmlParseDocument(ctxt);
 		ret = ctxt->wellFormed ? 0 : (ctxt->errNo ? ctxt->errNo : -1);
@@ -12946,7 +12936,7 @@ static xmlEntityReferenceFunc xmlEntityRefFunc = NULL;
  *
  * Notify of a reference to an entity of type XML_EXTERNAL_GENERAL_PARSED_ENTITY
  */
-static void xmlAddEntityReference(xmlEntityPtr ent, xmlNode * firstNode, xmlNode * lastNode)
+static void xmlAddEntityReference(xmlEntity * ent, xmlNode * firstNode, xmlNode * lastNode)
 {
 	if(xmlEntityRefFunc)
 		(*xmlEntityRefFunc)(ent, firstNode, lastNode);
@@ -13358,8 +13348,7 @@ static int xmlCtxtUseOptionsInternal(xmlParserCtxt * ctxt, int options, const ch
 	if(options & XML_PARSE_HUGE) {
 		ctxt->options |= XML_PARSE_HUGE;
 		options -= XML_PARSE_HUGE;
-		if(ctxt->dict != NULL)
-			xmlDictSetLimit(ctxt->dict, 0);
+		xmlDictSetLimit(ctxt->dict, 0);
 	}
 	if(options & XML_PARSE_OLDSAX) {
 		ctxt->options |= XML_PARSE_OLDSAX;
@@ -13402,7 +13391,7 @@ int xmlCtxtUseOptions(xmlParserCtxt * ctxt, int options)
  *
  * Returns the resulting document tree or NULL
  */
-static xmlDoc * xmlDoRead(xmlParserCtxt * ctxt, const char * URL, const char * encoding, int options, int reuse)
+static xmlDoc * FASTCALL xmlDoRead(xmlParserCtxt * ctxt, const char * URL, const char * encoding, int options, int reuse)
 {
 	xmlDoc * ret = 0;
 	if(ctxt) {

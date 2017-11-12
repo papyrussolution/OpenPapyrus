@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/aes.h>
-//#include <openssl/modes.h>
 
 void AES_ofb128_encrypt(const uchar * in, uchar * out, size_t length, const AES_KEY * key, uchar * ivec, int * num)
 {

@@ -10,8 +10,6 @@
 #pragma hdrstop
 #include <openssl/hmac.h>
 #include <openssl/kdf.h>
-//#include <openssl/evp.h>
-//#include <internal/evp_int.h>
 
 #define HKDF_MAXBUF 1024
 

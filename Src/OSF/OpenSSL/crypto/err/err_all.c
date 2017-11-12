@@ -8,36 +8,12 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "internal/err_int.h"
-//#include <openssl/asn1.h>
-//#include <openssl/bn.h>
-//#include <openssl/ec.h>
-//#include <openssl/buffer.h>
-//#include <openssl/bio.h>
-//#include <openssl/comp.h>
-//#include <openssl/rsa.h>
-//#include <openssl/dh.h>
-//#include <openssl/dsa.h>
-//#include <openssl/evp.h>
-//#include <openssl/objects.h>
-//#include <openssl/pem2.h>
-//#include <openssl/x509.h>
-//#include <openssl/x509v3.h>
-//#include <openssl/conf.h>
 #include <openssl/pkcs12.h>
-//#include <openssl/rand.h>
-//#include "internal/dso.h"
-//#include <openssl/engine.h>
-#include <openssl/ui.h>
-#include <openssl/ocsp.h>
-//#include <openssl/err.h>
 #ifdef OPENSSL_FIPS
 	#include <openssl/fips.h>
 #endif
 #include <openssl/ts.h>
-//#include <openssl/cms.h>
-#include <openssl/ct.h>
-//#include <openssl/async.h>
+//#include <openssl/ct.h>
 #include <openssl/kdf.h>
 
 int err_load_crypto_strings_int(void)

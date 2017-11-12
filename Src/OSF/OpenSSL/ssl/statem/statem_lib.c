@@ -14,16 +14,7 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <limits.h>
-//#include <string.h>
-//#include <stdio.h>
-//#include "../ssl_locl.h"
 #include "statem_locl.h"
-//#include <openssl/buffer.h>
-//#include <openssl/objects.h>
-//#include <openssl/evp.h>
-#include <openssl/x509.h>
-
 /*
  * send s->init_buf in records of type 'type' (SSL3_RT_HANDSHAKE or
  * SSL3_RT_CHANGE_CIPHER_SPEC)

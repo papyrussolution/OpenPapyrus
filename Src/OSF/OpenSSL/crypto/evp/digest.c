@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/objects.h>
-//#include <openssl/evp.h>
-//#include <openssl/engine.h>
-//#include <internal/evp_int.h>
 #include "evp_locl.h"
 
 /* This call frees resources associated with the context */
@@ -19,11 +15,10 @@ int EVP_MD_CTX_reset(EVP_MD_CTX * ctx)
 {
 	if(!ctx)
 		return 1;
-
-	/*
-	 * Don't assume ctx->md_data was cleaned in EVP_Digest_Final, because
-	 * sometimes only copies of the context are ever finalised.
-	 */
+	// 
+	// Don't assume ctx->md_data was cleaned in EVP_Digest_Final, because
+	// sometimes only copies of the context are ever finalised.
+	// 
 	if(ctx->digest && ctx->digest->cleanup && !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_CLEANED))
 		ctx->digest->cleanup(ctx);
 	if(ctx->digest && ctx->digest->ctx_size && ctx->md_data && !EVP_MD_CTX_test_flags(ctx, EVP_MD_CTX_FLAG_REUSE)) {

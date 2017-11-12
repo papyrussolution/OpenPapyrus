@@ -1148,24 +1148,22 @@ void FASTCALL xmlFreeInputStream(xmlParserInput * input)
 xmlParserInputPtr xmlNewInputStream(xmlParserCtxt * ctxt)
 {
 	xmlParserInputPtr input = (xmlParserInputPtr)SAlloc::M(sizeof(xmlParserInput));
-	if(input == NULL) {
+	if(!input)
 		xmlErrMemory(ctxt,  "couldn't allocate a new input stream\n");
-		return 0;
+	else {
+		memzero(input, sizeof(xmlParserInput));
+		input->line = 1;
+		input->col = 1;
+		input->standalone = -1;
+		/*
+		 * If the context is NULL the id cannot be initialized, but that
+		 * should not happen while parsing which is the situation where the id is actually needed.
+		 */
+		if(ctxt)
+			input->id = ctxt->input_id++;
 	}
-	memzero(input, sizeof(xmlParserInput));
-	input->line = 1;
-	input->col = 1;
-	input->standalone = -1;
-	/*
-	 * If the context is NULL the id cannot be initialized, but that
-	 * should not happen while parsing which is the situation where
-	 * the id is actually needed.
-	 */
-	if(ctxt)
-		input->id = ctxt->input_id++;
-	return(input);
+	return input;
 }
-
 /**
  * xmlNewIOInputStream:
  * @ctxt:  an XML parser context
@@ -1179,24 +1177,21 @@ xmlParserInputPtr xmlNewInputStream(xmlParserCtxt * ctxt)
  */
 xmlParserInputPtr xmlNewIOInputStream(xmlParserCtxt * ctxt, xmlParserInputBufferPtr input, xmlCharEncoding enc)
 {
-	xmlParserInputPtr inputStream;
-	if(input == NULL)
-		return 0;
-	if(xmlParserDebugEntities)
-		xmlGenericError(0, "new input from I/O\n");
-	inputStream = xmlNewInputStream(ctxt);
-	if(inputStream == NULL) {
-		return 0;
+	xmlParserInputPtr inputStream = 0;
+	if(input) {
+		if(xmlParserDebugEntities)
+			xmlGenericError(0, "new input from I/O\n");
+		inputStream = xmlNewInputStream(ctxt);
+		if(inputStream) {
+			inputStream->filename = NULL;
+			inputStream->buf = input;
+			xmlBufResetInput(inputStream->buf->buffer, inputStream);
+			if(enc != XML_CHAR_ENCODING_NONE)
+				xmlSwitchEncoding(ctxt, enc);
+		}
 	}
-	inputStream->filename = NULL;
-	inputStream->buf = input;
-	xmlBufResetInput(inputStream->buf->buffer, inputStream);
-	if(enc != XML_CHAR_ENCODING_NONE) {
-		xmlSwitchEncoding(ctxt, enc);
-	}
-	return(inputStream);
+	return inputStream;
 }
-
 /**
  * xmlNewEntityInputStream:
  * @ctxt:  an XML parser context
@@ -1206,7 +1201,7 @@ xmlParserInputPtr xmlNewIOInputStream(xmlParserCtxt * ctxt, xmlParserInputBuffer
  *
  * Returns the new input stream or NULL
  */
-xmlParserInputPtr xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntityPtr entity)
+xmlParserInputPtr xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntity * entity)
 {
 	xmlParserInputPtr input = 0;
 	if(entity == NULL) {
@@ -1217,28 +1212,18 @@ xmlParserInputPtr xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntityPtr ent
 			xmlGenericError(0, "new input from entity: %s\n", entity->name);
 		if(entity->content == NULL) {
 			switch(entity->etype) {
-				case XML_EXTERNAL_GENERAL_UNPARSED_ENTITY:
-					xmlErrInternal(ctxt, "Cannot parse entity %s\n", entity->name);
-					break;
+				case XML_EXTERNAL_GENERAL_UNPARSED_ENTITY: xmlErrInternal(ctxt, "Cannot parse entity %s\n", entity->name); break;
 				case XML_EXTERNAL_GENERAL_PARSED_ENTITY:
-				case XML_EXTERNAL_PARAMETER_ENTITY:
-					return(xmlLoadExternalEntity((char*)entity->URI, (char*)entity->ExternalID, ctxt));
-				case XML_INTERNAL_GENERAL_ENTITY:
-					xmlErrInternal(ctxt, "Internal entity %s without content !\n", entity->name);
-					break;
-				case XML_INTERNAL_PARAMETER_ENTITY:
-					xmlErrInternal(ctxt, "Internal parameter entity %s without content !\n", entity->name);
-					break;
-				case XML_INTERNAL_PREDEFINED_ENTITY:
-					xmlErrInternal(ctxt, "Predefined entity %s without content !\n", entity->name);
-					break;
+				case XML_EXTERNAL_PARAMETER_ENTITY: return xmlLoadExternalEntity((char*)entity->URI, (char*)entity->ExternalID, ctxt);
+				case XML_INTERNAL_GENERAL_ENTITY: xmlErrInternal(ctxt, "Internal entity %s without content !\n", entity->name); break;
+				case XML_INTERNAL_PARAMETER_ENTITY: xmlErrInternal(ctxt, "Internal parameter entity %s without content !\n", entity->name); break;
+				case XML_INTERNAL_PREDEFINED_ENTITY: xmlErrInternal(ctxt, "Predefined entity %s without content !\n", entity->name); break;
 			}
 		}
 		else {
 			input = xmlNewInputStream(ctxt);
 			if(input) {
-				if(entity->URI)
-					input->filename = (char *)sstrdup(entity->URI);
+				input->filename = (char *)sstrdup(entity->URI);
 				input->base = entity->content;
 				input->cur = entity->content;
 				input->length = entity->length;
@@ -1248,7 +1233,6 @@ xmlParserInputPtr xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntityPtr ent
 	}
 	return input;
 }
-
 /**
  * xmlNewStringInputStream:
  * @ctxt:  an XML parser context
@@ -1267,9 +1251,8 @@ xmlParserInputPtr xmlNewStringInputStream(xmlParserCtxt * ctxt, const xmlChar * 
 		if(xmlParserDebugEntities)
 			xmlGenericError(0, "new fixed input: %.30s\n", buffer);
 		input = xmlNewInputStream(ctxt);
-		if(input == NULL) {
+		if(!input)
 			xmlErrMemory(ctxt,  "couldn't allocate a new input stream\n");
-		}
 		else {
 			input->base = buffer;
 			input->cur = buffer;
@@ -1279,7 +1262,6 @@ xmlParserInputPtr xmlNewStringInputStream(xmlParserCtxt * ctxt, const xmlChar * 
 	}
 	return input;
 }
-
 /**
  * xmlNewInputFromFile:
  * @ctxt:  an XML parser context
@@ -1317,8 +1299,7 @@ xmlParserInputPtr xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filenam
 					SAlloc::F((char*)URI);
 					inputStream->directory = directory;
 					xmlBufResetInput(inputStream->buf->buffer, inputStream);
-					if(!ctxt->directory && directory)
-						ctxt->directory = sstrdup(directory);
+					SETIFZ(ctxt->directory, sstrdup(directory));
 				}
 			}
 		}
@@ -1340,7 +1321,6 @@ xmlParserInputPtr xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filenam
  *
  * Returns 0 in case of success and -1 in case of error
  */
-
 int xmlInitParserCtxt(xmlParserCtxt * ctxt)
 {
 	if(!ctxt) {
@@ -1507,7 +1487,6 @@ int xmlInitParserCtxt(xmlParserCtxt * ctxt)
 	xmlInitNodeInfoSeq(&ctxt->node_seq);
 	return 0;
 }
-
 /**
  * xmlFreeParserCtxt:
  * @ctxt:  an XML parser context
@@ -1515,8 +1494,7 @@ int xmlInitParserCtxt(xmlParserCtxt * ctxt)
  * Free all the memory used by a parser context. However the parsed
  * document in ctxt->myDoc is not freed.
  */
-
-void xmlFreeParserCtxt(xmlParserCtxt * ctxt)
+void FASTCALL xmlFreeParserCtxt(xmlParserCtxt * ctxt)
 {
 	xmlParserInput * input;
 	if(ctxt) {

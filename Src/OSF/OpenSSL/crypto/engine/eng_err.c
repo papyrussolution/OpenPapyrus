@@ -14,8 +14,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_ENGINE,func,0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_ENGINE,0,reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_ENGINE,func,0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_ENGINE,0,reason)
 
 static ERR_STRING_DATA ENGINE_str_functs[] = {
     {ERR_FUNC(ENGINE_F_DYNAMIC_CTRL), "dynamic_ctrl"},

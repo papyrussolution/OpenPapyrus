@@ -708,7 +708,7 @@ int FASTCALL RemoveByID(DBTable * tbl, PPID id, int use_ta)
 	return ok;
 }
 
-int SLAPI IncDateKey(DBTable * tbl, int idx, LDATE date, long * pOprNo)
+int FASTCALL IncDateKey(DBTable * tbl, int idx, LDATE date, long * pOprNo)
 {
 	int    ok = 1;
 	struct {
@@ -1364,7 +1364,7 @@ DBFCreateFld * SLAPI LoadDBFStruct(uint rezID, uint * pNumFlds)
 	return p_flds;
 }
 
-int SLAPI LoadSdRecord(uint rezID, SdRecord * pRec, int headerOnly /*=0*/)
+int FASTCALL LoadSdRecord(uint rezID, SdRecord * pRec, int headerOnly /*=0*/)
 {
 	int    ok = 1;
 	PROFILE_START

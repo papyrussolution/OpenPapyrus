@@ -264,7 +264,7 @@ SOAP_FMAC3 void SOAP_FMAC4 soap_copy_SOAP_ENV__Fault(struct soap *soap, int st, 
 	*(struct SOAP_ENV__Fault*)p = *(struct SOAP_ENV__Fault*)q;
 }
 
-SOAP_FMAC3 void SOAP_FMAC4 soap_serializeheader(struct soap * soap)
+SOAP_FMAC3 void /*SOAP_FMAC4*/FASTCALL soap_serializeheader(struct soap * soap)
 {
 	if(soap->header)
 		soap_serialize_SOAP_ENV__Header(soap, soap->header);
@@ -297,7 +297,7 @@ SOAP_FMAC3 void SOAP_FMAC4 soap_header(struct soap * soap)
 	}
 }
 
-SOAP_FMAC3 void SOAP_FMAC4 soap_fault(struct soap * soap)
+SOAP_FMAC3 void /*SOAP_FMAC4*/FASTCALL soap_fault(struct soap * soap)
 {
 	if(!soap->fault) {
 		soap->fault = soap_new_SOAP_ENV__Fault(soap, -1);

@@ -8,9 +8,9 @@
  */
 
 #ifndef HEADER_BUFFER_H
-# define HEADER_BUFFER_H
+#define HEADER_BUFFER_H
 
-# include <openssl/ossl_typ.h>
+#include <openssl/ossl_typ.h>
 # ifndef HEADER_CRYPTO_H
 #  include <openssl/crypto.h>
 # endif
@@ -20,7 +20,7 @@
 extern "C" {
 #endif
 
-# include <stddef.h>
+#include <stddef.h>
 
 # if !defined(NO_SYS_TYPES_H)
 #  include <sys/types.h>
@@ -30,12 +30,12 @@ extern "C" {
  * These names are outdated as of OpenSSL 1.1; a future release
  * will move them to be deprecated.
  */
-# define BUF_strdup(s) OPENSSL_strdup(s)
-# define BUF_strndup(s, size) OPENSSL_strndup(s, size)
-# define BUF_memdup(data, size) OPENSSL_memdup(data, size)
-# define BUF_strlcpy(dst, src, size)  OPENSSL_strlcpy(dst, src, size)
-# define BUF_strlcat(dst, src, size) OPENSSL_strlcat(dst, src, size)
-# define BUF_strnlen(str, maxlen) OPENSSL_strnlen(str, maxlen)
+#define BUF_strdup(s) OPENSSL_strdup(s)
+#define BUF_strndup(s, size) OPENSSL_strndup(s, size)
+#define BUF_memdup(data, size) OPENSSL_memdup(data, size)
+#define BUF_strlcpy(dst, src, size)  OPENSSL_strlcpy(dst, src, size)
+#define BUF_strlcat(dst, src, size) OPENSSL_strlcat(dst, src, size)
+#define BUF_strnlen(str, maxlen) OPENSSL_strnlen(str, maxlen)
 
 struct buf_mem_st {
     size_t length;              /* current number of bytes */
@@ -44,7 +44,7 @@ struct buf_mem_st {
     unsigned long flags;
 };
 
-# define BUF_MEM_FLAG_SECURE  0x01
+#define BUF_MEM_FLAG_SECURE  0x01
 
 BUF_MEM *BUF_MEM_new(void);
 BUF_MEM *BUF_MEM_new_ex(unsigned long flags);
@@ -64,9 +64,9 @@ int ERR_load_BUF_strings(void);
 /* Error codes for the BUF functions. */
 
 /* Function codes. */
-# define BUF_F_BUF_MEM_GROW                               100
-# define BUF_F_BUF_MEM_GROW_CLEAN                         105
-# define BUF_F_BUF_MEM_NEW                                101
+#define BUF_F_BUF_MEM_GROW                               100
+#define BUF_F_BUF_MEM_GROW_CLEAN                         105
+#define BUF_F_BUF_MEM_NEW                                101
 
 /* Reason codes. */
 

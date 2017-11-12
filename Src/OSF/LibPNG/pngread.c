@@ -1005,11 +1005,11 @@ void PNGAPI png_read_png(png_structrp png_ptr, png_inforp info_ptr, int transfor
 /* Arguments to png_image_finish_read: */
 
 /* Encoding of PNG data (used by the color-map code) */
-#  define P_NOTSET  0 /* File encoding not yet known */
-#  define P_sRGB    1 /* 8-bit encoded to sRGB gamma */
-#  define P_LINEAR  2 /* 16-bit linear: not encoded, NOT pre-multiplied! */
-#  define P_FILE    3 /* 8-bit encoded to file gamma, not sRGB or linear */
-#  define P_LINEAR8 4 /* 8-bit linear: only from a file value */
+#define P_NOTSET  0 /* File encoding not yet known */
+#define P_sRGB    1 /* 8-bit encoded to sRGB gamma */
+#define P_LINEAR  2 /* 16-bit linear: not encoded, NOT pre-multiplied! */
+#define P_FILE    3 /* 8-bit encoded to file gamma, not sRGB or linear */
+#define P_LINEAR8 4 /* 8-bit linear: only from a file value */
 
 /* Color-map processing: after libpng has run on the PNG image further
  * processing may be needed to convert the data to color-map indices.
@@ -1314,9 +1314,9 @@ static void png_image_skip_unused_chunks(png_structrp png_ptr)
 	}
 }
 
-#  define PNG_SKIP_CHUNKS(p) png_image_skip_unused_chunks(p)
+#define PNG_SKIP_CHUNKS(p) png_image_skip_unused_chunks(p)
 #else
-#  define PNG_SKIP_CHUNKS(p) ((void)0)
+#define PNG_SKIP_CHUNKS(p) ((void)0)
 #endif /* HANDLE_AS_UNKNOWN */
 
 /* The following macro gives the exact rounded answer for all values in the

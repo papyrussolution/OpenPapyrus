@@ -271,16 +271,16 @@ static void nist_cp_bn(BN_ULONG *dst, const BN_ULONG *src, int top)
 }
 
 #if BN_BITS2 == 64
-# define bn_cp_64(to, n, from, m)        (to)[n] = (m>=0)?((from)[m]):0;
-# define bn_64_set_0(to, n)              (to)[n] = (BN_ULONG)0;
+#define bn_cp_64(to, n, from, m)        (to)[n] = (m>=0)?((from)[m]):0;
+#define bn_64_set_0(to, n)              (to)[n] = (BN_ULONG)0;
 /*
  * two following macros are implemented under assumption that they
  * are called in a sequence with *ascending* n, i.e. as they are...
  */
-# define bn_cp_32_naked(to, n, from, m)  (((n)&1)?(to[(n)/2]|=((m)&1)?(from[(m)/2]&BN_MASK2h):(from[(m)/2]<<32))\
+#define bn_cp_32_naked(to, n, from, m)  (((n)&1)?(to[(n)/2]|=((m)&1)?(from[(m)/2]&BN_MASK2h):(from[(m)/2]<<32))\
                                                 :(to[(n)/2] =((m)&1)?(from[(m)/2]>>32):(from[(m)/2]&BN_MASK2l)))
-# define bn_32_set_0(to, n)              (((n)&1)?(to[(n)/2]&=BN_MASK2l):(to[(n)/2]=0));
-# define bn_cp_32(to,n,from,m)           ((m)>=0)?bn_cp_32_naked(to,n,from,m):bn_32_set_0(to,n)
+#define bn_32_set_0(to, n)              (((n)&1)?(to[(n)/2]&=BN_MASK2l):(to[(n)/2]=0));
+#define bn_cp_32(to,n,from,m)           ((m)>=0)?bn_cp_32_naked(to,n,from,m):bn_32_set_0(to,n)
 # if defined(L_ENDIAN)
 #  if defined(__arch64__)
 #   define NIST_INT64 long
@@ -289,22 +289,22 @@ static void nist_cp_bn(BN_ULONG *dst, const BN_ULONG *src, int top)
 #  endif
 # endif
 #else
-# define bn_cp_64(to, n, from, m) \
+#define bn_cp_64(to, n, from, m) \
         { \
         bn_cp_32(to, (n)*2, from, (m)*2); \
         bn_cp_32(to, (n)*2+1, from, (m)*2+1); \
         }
-# define bn_64_set_0(to, n) \
+#define bn_64_set_0(to, n) \
         { \
         bn_32_set_0(to, (n)*2); \
         bn_32_set_0(to, (n)*2+1); \
         }
-# define bn_cp_32(to, n, from, m)        (to)[n] = (m>=0)?((from)[m]):0;
-# define bn_32_set_0(to, n)              (to)[n] = (BN_ULONG)0;
+#define bn_cp_32(to, n, from, m)        (to)[n] = (m>=0)?((from)[m]):0;
+#define bn_32_set_0(to, n)              (to)[n] = (BN_ULONG)0;
 # if defined(_WIN32) && !defined(__GNUC__)
-#  define NIST_INT64 __int64
+#define NIST_INT64 __int64
 # elif defined(BN_LLONG)
-#  define NIST_INT64 long long
+#define NIST_INT64 long long
 # endif
 #endif                          /* BN_BITS2 != 64 */
 

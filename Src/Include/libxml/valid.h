@@ -140,8 +140,8 @@ XMLPUBFUN xmlNotationTablePtr XMLCALL xmlCopyNotationTable(xmlNotationTablePtr t
 #endif /* LIBXML_TREE_ENABLED */
 XMLPUBFUN void XMLCALL xmlFreeNotationTable(xmlNotationTablePtr table);
 #ifdef LIBXML_OUTPUT_ENABLED
-XMLPUBFUN void XMLCALL xmlDumpNotationDecl(xmlBufferPtr buf, xmlNotation * nota);
-XMLPUBFUN void XMLCALL xmlDumpNotationTable(xmlBufferPtr buf, xmlNotationTablePtr table);
+XMLPUBFUN void XMLCALL xmlDumpNotationDecl(xmlBuffer * buf, xmlNotation * nota);
+XMLPUBFUN void XMLCALL xmlDumpNotationTable(xmlBuffer * buf, xmlNotationTablePtr table);
 #endif /* LIBXML_OUTPUT_ENABLED */
 
 /* Element Content */
@@ -167,8 +167,8 @@ XMLPUBFUN xmlElementTablePtr XMLCALL xmlCopyElementTable(xmlElementTablePtr tabl
 #endif /* LIBXML_TREE_ENABLED */
 XMLPUBFUN void XMLCALL xmlFreeElementTable(xmlElementTablePtr table);
 #ifdef LIBXML_OUTPUT_ENABLED
-XMLPUBFUN void XMLCALL xmlDumpElementTable(xmlBufferPtr buf, xmlElementTablePtr table);
-XMLPUBFUN void XMLCALL xmlDumpElementDecl(xmlBufferPtr buf, xmlElementPtr elem);
+XMLPUBFUN void XMLCALL xmlDumpElementTable(xmlBuffer * buf, xmlElementTablePtr table);
+XMLPUBFUN void XMLCALL xmlDumpElementDecl(xmlBuffer * buf, xmlElementPtr elem);
 #endif /* LIBXML_OUTPUT_ENABLED */
 
 /* Enumeration */
@@ -186,8 +186,8 @@ XMLPUBFUN xmlAttributeTablePtr XMLCALL xmlCopyAttributeTable(xmlAttributeTablePt
 #endif /* LIBXML_TREE_ENABLED */
 XMLPUBFUN void XMLCALL xmlFreeAttributeTable(xmlAttributeTablePtr table);
 #ifdef LIBXML_OUTPUT_ENABLED
-XMLPUBFUN void XMLCALL xmlDumpAttributeTable(xmlBufferPtr buf, xmlAttributeTablePtr table);
-XMLPUBFUN void XMLCALL xmlDumpAttributeDecl(xmlBufferPtr buf, xmlAttribute * attr);
+XMLPUBFUN void XMLCALL xmlDumpAttributeTable(xmlBuffer * buf, xmlAttributeTablePtr table);
+XMLPUBFUN void XMLCALL xmlDumpAttributeDecl(xmlBuffer * buf, xmlAttribute * attr);
 #endif /* LIBXML_OUTPUT_ENABLED */
 
 /* IDs */

@@ -8,20 +8,16 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#define USE_SOCKETS
-//#include "ssl_locl.h"
 
 int ssl3_do_change_cipher_spec(SSL * s)
 {
 	int i;
 	const char * sender;
 	int slen;
-
 	if(s->server)
 		i = SSL3_CHANGE_CIPHER_SERVER_READ;
 	else
 		i = SSL3_CHANGE_CIPHER_CLIENT_READ;
-
 	if(s->s3->tmp.key_block == NULL) {
 		if(s->session == NULL || s->session->master_key_length == 0) {
 			/* might happen if dtls1_read_bytes() calls this */

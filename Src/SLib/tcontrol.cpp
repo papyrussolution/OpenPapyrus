@@ -356,8 +356,8 @@ TInputLine::InputStat::InputStat()
 void TInputLine::InputStat::Reset()
 {
 	Last = 0;
-	TmSum = 0.0f;
-	TmSqSum = 0.0f;
+	TmSum = 0.0;
+	TmSqSum = 0.0;
 }
 
 void TInputLine::InputStat::CheckIn()
@@ -365,8 +365,8 @@ void TInputLine::InputStat::CheckIn()
 	clock_t c = clock();
 	if(!Last) {
 		Last = c;
-		TmSum = 0.0f;
-		TmSqSum = 0.0f;
+		TmSum = 0.0;
+		TmSqSum = 0.0;
 	}
 	else {
 		clock_t diff = (c - Last);
@@ -1482,10 +1482,7 @@ int TCluster::getDataAssoc(long * pVal)
 		for(int i = 0; i < 16; i++) {
 			long temp_val = 0;
 			if(ValAssoc.Search(i, &temp_val, 0))
-				if(v & (1 << i))
-					val |= temp_val;
-				else
-					val &= ~temp_val;
+				SETFLAG(val, temp_val, (v & (1 << i)));
 		}
 		*pVal = val;
 		ok = 1;

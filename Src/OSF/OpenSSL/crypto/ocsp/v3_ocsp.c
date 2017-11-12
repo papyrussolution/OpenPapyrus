@@ -6,13 +6,10 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-# include "internal/cryptlib.h"
+#include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/conf.h>
-//#include <openssl/asn1.h>
-#include <openssl/ocsp.h>
+//#include <openssl/ocsp.h>
 #include "ocsp_lcl.h"
-//#include <openssl/x509v3.h>
 #include "../x509v3/ext_dat.h"
 
 /*

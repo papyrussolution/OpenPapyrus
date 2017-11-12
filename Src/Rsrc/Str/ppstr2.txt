@@ -4672,6 +4672,9 @@ PPTXT_PREDEFIMPEXPBILLFMT         "1,Nalog.ru Счет-фактура (ON_SFAKT)
 PPTXT_NALOGRU_WORKSWERETRANSFERED "Результаты работ переданы (услуги оказаны)"
 PPTXT_NALOGRU_SHIPPINGBILL        "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)"
 PPTXT_NALOGRU_UPDOPCONTENT        "Товары переданы и услуги оказаны в полном объеме"
+
+PPTXT_ARMASSUPD_UPD               "Изменена статья аналитического учета '@zstr'"
+PPTXT_ARMASSUPD_UPD_CRAGT         "Изменена статья аналитического учета '@zstr' (создано соглашение)"
 //
 // LastText
 
@@ -10082,6 +10085,16 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsfilt_lotperiod                      "Период поступления товаров"
 @goodsfilt_suppl                          "@{supplier}"
 
+@armassupdparam                           "Обработка выборки статей"
+@armassupdparam_warn                      "@{attention} Эта операция реализует необратимые действия над справочником статей. Подумайте дважды прежде, чем нажмете кнопку [OK]"
+@armassupdparam_action                    ""
+@armassupdparam_aupdateall                "Изменить параметры выборки"
+@armassupdparam_aremoveall                "Удалить всю выборку"
+@armassupdparam_flags                     ""
+@armassupdparam_fcreatagt                 "Создавать соглашение, если нет"
+@armassupdparam_payperiod                 "Срок оплаты, дней"
+@armassupdparam_deliveryperiod            "Срок доставки, дней"
+
 @goodsmoveparam                           "Обработка выборки товаров"
 @goodsmoveparam_warn                      "@{attention} Эта операция реализует необратимые действия над справочником товаров. Подумайте дважды прежде, чем нажмете кнопку [OK]"
 @goodsmoveparam_action                    "Действие"
@@ -11136,6 +11149,28 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @resetdbchain_info                        "@{attention} После снятия стяжки база данных станет уязвима для взлома. \
 Здесь необходимо ввести пароль, который был указан при установке стяжки. Если в тот раз пароль указан не был, то операция неосуществима!"
 
+@cfmrcknparam                             ""
+@cfmrcknparam_dateoption                  "Дата зачета"
+@cfmrcknparam_dateoption_curr             "Текущая дата"
+@cfmrcknparam_dateoption_paym             "Платежный документ"
+@cfmrcknparam_dateoption_debt             "Долговой документ"
+@cfmrcknparam_dateoption_user             "Произвольная"
+@cfmrcknparam_article                     ""
+@cfmrcknparam_currency                    ""
+@cfmrcknparam_totaldebt                   ""
+@cfmrcknparam_paymamount                  ""
+@cfmrcknparam_billdate                    ""
+@cfmrcknparam_date                        ""
+@cfmrcknparam_forcebill                   ""
+@cfmrcknparam_selectedbill                ""
+@cfmrcknparam_resultbilllist              ""
+@cfmrcknparam_query                       "Зачесть документы?"
+@cfmrcknparam_sel_selected                "Выбранный"
+@cfmrcknparam_sel_all                     "Все документы"
+@cfmrcknparam_sel_cancel                  "Не зачитывать"
+@cfmrcknparam_info_direct                 "По контрагенту '@zstr' существуют неоплаченные документы на сумму @zstr. Заданный документ позволяет зачесть сумму @zstr @zstr"
+@cfmrcknparam_info_reverse                "По контрагенту '@zstr' существуют документы на сумму @zstr, позволяющие зачесть заданный документ, долг по которому составляет @zstr @zstr"
+
 [121]
 1   "Вход"
 2	"@{session}"
@@ -11596,4 +11631,6 @@ PPHSC_RU_CONTRACTDATE          "ДатаДоговора"
 PPHSC_RU_PERIOD                "Период"
 PPHSC_RU_CONTOFOP              "СодОпер"
 PPHSC_RU_ABSENCE               "Отсутствует"
+PPHSC_RU_STATECONTRID          "ИдГосКон"
+PPHSC_RU_DOP                   "ДОП" // nalog.ru "документ об отгрузке товаров"
 #!}

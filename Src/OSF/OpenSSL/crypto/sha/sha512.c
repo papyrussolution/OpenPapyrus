@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/opensslconf.h>
-//#include <openssl/crypto.h>
-//#include <openssl/opensslv.h>
-//#include <openssl/sha.h>
 /*-
  * IMPLEMENTATION NOTES.
  *
@@ -53,7 +49,7 @@
 	defined(__s390__) || defined(__s390x__) || \
 	defined(__aarch64__) ||	\
 	defined(SHA512_ASM)
-# define SHA512_BLOCK_CAN_MANAGE_UNALIGNED_DATA
+#define SHA512_BLOCK_CAN_MANAGE_UNALIGNED_DATA
 #endif
 
 int SHA384_Init(SHA512_CTX * c)
@@ -390,18 +386,18 @@ static SHA_LONG64 __fastcall __pull64be(const void * x)
 #  endif
 # endif
 # ifndef PULL64
-#  define B(x, j)    (((SHA_LONG64)(*(((const uchar*)(&x))+j)))<<((7-j)*8))
-#  define PULL64(x) (B(x, 0)|B(x, 1)|B(x, 2)|B(x, 3)|B(x, 4)|B(x, 5)|B(x, 6)|B(x, 7))
+#define B(x, j)    (((SHA_LONG64)(*(((const uchar*)(&x))+j)))<<((7-j)*8))
+#define PULL64(x) (B(x, 0)|B(x, 1)|B(x, 2)|B(x, 3)|B(x, 4)|B(x, 5)|B(x, 6)|B(x, 7))
 # endif
 # ifndef ROTR
-#  define ROTR(x, s)       (((x)>>s) | (x)<<(64-s))
+#define ROTR(x, s)       (((x)>>s) | (x)<<(64-s))
 # endif
-# define Sigma0(x)       (ROTR((x), 28) ^ ROTR((x), 34) ^ ROTR((x), 39))
-# define Sigma1(x)       (ROTR((x), 14) ^ ROTR((x), 18) ^ ROTR((x), 41))
-# define sigma0(x)       (ROTR((x), 1)  ^ ROTR((x), 8)  ^ ((x)>>7))
-# define sigma1(x)       (ROTR((x), 19) ^ ROTR((x), 61) ^ ((x)>>6))
-# define Ch(x, y, z)       (((x) & (y)) ^ ((~(x)) & (z)))
-# define Maj(x, y, z)      (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
+#define Sigma0(x)       (ROTR((x), 28) ^ ROTR((x), 34) ^ ROTR((x), 39))
+#define Sigma1(x)       (ROTR((x), 14) ^ ROTR((x), 18) ^ ROTR((x), 41))
+#define sigma0(x)       (ROTR((x), 1)  ^ ROTR((x), 8)  ^ ((x)>>7))
+#define sigma1(x)       (ROTR((x), 19) ^ ROTR((x), 61) ^ ((x)>>6))
+#define Ch(x, y, z)       (((x) & (y)) ^ ((~(x)) & (z)))
+#define Maj(x, y, z)      (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
 # if defined(__i386) || defined(__i386__) || defined(_M_IX86)
 /*
  * This code should give better results on 32-bit CPU with less than
@@ -535,11 +531,11 @@ static void sha512_block_data_order(SHA512_CTX * ctx, const void * in,
 }
 
 # else
-#  define ROUND_00_15(i, a, b, c, d, e, f, g, h)          do {	  \
+#define ROUND_00_15(i, a, b, c, d, e, f, g, h)          do {	  \
 		T1 += h + Sigma1(e) + Ch(e, f, g) + K512[i];	  \
 		h = Sigma0(a) + Maj(a, b, c);			  \
 		d += T1;        h += T1;                } while(0)
-#  define ROUND_16_80(i, j, a, b, c, d, e, f, g, h, X)      do {    \
+#define ROUND_16_80(i, j, a, b, c, d, e, f, g, h, X)      do {    \
 		s0 = X[(j+1)&0x0f];     s0 = sigma0(s0);	\
 		s1 = X[(j+14)&0x0f];    s1 = sigma1(s1);	\
 		T1 = X[(j)&0x0f] += s0 + s1 + X[(j+9)&0x0f];	\

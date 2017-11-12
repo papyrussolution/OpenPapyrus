@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "eng_int.h"
-//#include "internal/dso.h"
-//#include <openssl/crypto.h>
 /*
  * Shared libraries implementing ENGINEs for use by the "dynamic" ENGINE
  * loader should implement the hook-up functions with the following
@@ -20,8 +17,7 @@
 /* Our ENGINE handlers */
 static int dynamic_init(ENGINE * e);
 static int dynamic_finish(ENGINE * e);
-static int dynamic_ctrl(ENGINE * e, int cmd, long i, void * p,
-    void (* f)(void));
+static int dynamic_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void));
 /* Predeclare our context type */
 typedef struct st_dynamic_data_ctx dynamic_data_ctx;
 /* The implementation for the important control command */

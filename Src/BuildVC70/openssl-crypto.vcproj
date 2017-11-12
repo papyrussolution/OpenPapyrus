@@ -1092,42 +1092,6 @@
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\engines\e_capi.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions="HEADER_OCSP_H"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions="HEADER_OCSP_H"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions="HEADER_OCSP_H"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="MtDllRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions="HEADER_OCSP_H"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerDebug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions="HEADER_OCSP_H"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="ServerRelease|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions="HEADER_OCSP_H"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_cast.c">
@@ -2319,10 +2283,10 @@
 				RelativePath="..\Osf\OpenSSL\crypto\include\internal\async.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL\include\openssl\bio.h">
+				RelativePath="..\Osf\OpenSSL\include\internal\bio.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL\include\internal\bio.h">
+				RelativePath="..\Osf\OpenSSL\include\openssl\bio.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\include\openssl\bn.h">

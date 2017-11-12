@@ -40,7 +40,7 @@
  */
 
 #ifndef O_DIR_H
-# define O_DIR_H
+#define O_DIR_H
 
 #ifdef __cplusplus
 extern "C" {

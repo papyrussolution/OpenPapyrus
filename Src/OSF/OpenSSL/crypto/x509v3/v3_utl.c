@@ -11,10 +11,6 @@
 
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/conf.h>
-//#include <openssl/x509v3.h>
-//#include "internal/x509_int.h"
-//#include <openssl/bn.h>
 #include "ext_dat.h"
 
 static char * strip_spaces(char * name);

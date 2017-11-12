@@ -106,6 +106,7 @@ enum DlOperator {
 #define DL6FI_REF       205 // @v7.1.10
 #define DL6FI_LAST      999
 
+class SetScopeBlk; // @Muxa
 class DlScope;
 class DlContext;
 class DlRtm;
@@ -1126,8 +1127,8 @@ struct PPFilt {
 };
 
 struct PView {
-	PView(long id);
-	PView(void * ptr);
+	explicit PView(long id);
+	explicit PView(void * ptr);
 
 	long   ID;
 	void * Ptr;
@@ -1138,8 +1139,6 @@ struct FormatSpec {
 	short  prec;
 	long   flags;
 };
-
-class SetScopeBlk; // @Muxa
 
 class DlRtm {
 public:

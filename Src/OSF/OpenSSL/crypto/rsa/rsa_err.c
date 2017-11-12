@@ -14,8 +14,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_RSA, func, 0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_RSA, 0, reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_RSA, func, 0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_RSA, 0, reason)
 
 static ERR_STRING_DATA RSA_str_functs[] = {
 	{ERR_FUNC(RSA_F_CHECK_PADDING_MD), "check_padding_md"},

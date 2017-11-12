@@ -9,21 +9,12 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "bn_lcl.h"
-//#include <openssl/pem.h>
-#include "internal/dso.h"
-//#include <internal/evp_int.h> // @sobolev
-//#include <openssl/engine.h>
-#include <openssl/ui.h>
-//#include <openssl/rand.h>
 #ifndef OPENSSL_NO_RSA
-//#include <openssl/rsa.h>
 	#include "rsa_locl.h" // @sobolev
 #endif
 #ifndef OPENSSL_NO_DH
-	#include <openssl/dh.h>
 	#include "dh_locl.h" // @sobolev
 #endif
-#include <openssl/bn.h>
 
 #ifndef OPENSSL_NO_HW
 # ifndef OPENSSL_NO_HW_CHIL
@@ -43,7 +34,7 @@
 #   include "vendor_defns/hwcryptohook.h"
 #  endif
 
-#  define HWCRHK_LIB_NAME "CHIL engine"
+#define HWCRHK_LIB_NAME "CHIL engine"
 #  include "e_chil_err.c"
 
 static CRYPTO_RWLOCK * chil_lock;
@@ -108,11 +99,11 @@ static int hwcrhk_get_pass(const char * prompt_info,
 static void hwcrhk_log_message(void * logstr, const char * message);
 
 /* The definitions for control commands specific to this engine */
-#  define HWCRHK_CMD_SO_PATH              ENGINE_CMD_BASE
-#  define HWCRHK_CMD_FORK_CHECK           (ENGINE_CMD_BASE + 1)
-#  define HWCRHK_CMD_THREAD_LOCKING       (ENGINE_CMD_BASE + 2)
-#  define HWCRHK_CMD_SET_USER_INTERFACE   (ENGINE_CMD_BASE + 3)
-#  define HWCRHK_CMD_SET_CALLBACK_DATA    (ENGINE_CMD_BASE + 4)
+#define HWCRHK_CMD_SO_PATH              ENGINE_CMD_BASE
+#define HWCRHK_CMD_FORK_CHECK           (ENGINE_CMD_BASE + 1)
+#define HWCRHK_CMD_THREAD_LOCKING       (ENGINE_CMD_BASE + 2)
+#define HWCRHK_CMD_SET_USER_INTERFACE   (ENGINE_CMD_BASE + 3)
+#define HWCRHK_CMD_SET_CALLBACK_DATA    (ENGINE_CMD_BASE + 4)
 static const ENGINE_CMD_DEFN hwcrhk_cmd_defns[] = {
 	{HWCRHK_CMD_SO_PATH,
 	 "SO_PATH",
@@ -225,9 +216,9 @@ struct HWCryptoHook_CallerContextValue {
  * The MPI structure in HWCryptoHook is pretty compatible with OpenSSL
  * BIGNUM's, so lets define a couple of conversion macros
  */
-#  define BN2MPI(mp, bn) \
+#define BN2MPI(mp, bn) \
 	{mp.size = bn->top * sizeof(BN_ULONG); mp.buf = (uchar*)bn->d; }
-#  define MPI2BN(bn, mp) \
+#define MPI2BN(bn, mp) \
 	{mp.size = bn->dmax * sizeof(BN_ULONG); mp.buf = (uchar*)bn->d; }
 
 static BIO * logstream = NULL;

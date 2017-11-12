@@ -37,21 +37,20 @@
 
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "internal/bn_int.h"
 #include "ec_lcl.h"
 
 #if BN_BITS2 != 64
-# define TOBN(hi, lo)    lo, hi
+#define TOBN(hi, lo)    lo, hi
 #else
-# define TOBN(hi, lo)    ((BN_ULONG)hi<<32|lo)
+#define TOBN(hi, lo)    ((BN_ULONG)hi<<32|lo)
 #endif
 
 #if defined(__GNUC__)
-# define ALIGN32        __attribute((aligned(32)))
+#define ALIGN32        __attribute((aligned(32)))
 #elif defined(_MSC_VER)
-# define ALIGN32        __declspec(align(32))
+#define ALIGN32        __declspec(align(32))
 #else
-# define ALIGN32
+#define ALIGN32
 #endif
 
 #define ALIGNPTR(p, N)   ((uchar*)p+N-(size_t)p%N)

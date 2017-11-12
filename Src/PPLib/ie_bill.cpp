@@ -5070,7 +5070,7 @@ int WriteBill_NalogRu2_DP_REZRUISP(const PPBillPacket & rBp, SString & rFileName
                             g.WriteParticipant("Заказчик",  ObjectToPerson(rBp.Rec.Object));
 							SXml::WNode n_44(g.P_X, "Основание");
 							if(rBp.BTagL.GetItemStr(PPTAG_BILL_STATECONTRACTID, temp_buf) > 0)
-								SXml::WNode n_45(g.P_X, "ИдГосКон", g.EncText(temp_buf));
+								SXml::WNode n_45(g.P_X, g.GetToken(PPHSC_RU_STATECONTRID), g.EncText(temp_buf));
 							SXml::WNode n_46(g.P_X, "ВидОперации", g.EncText(temp_buf = op_rec.Name));
 							{
 								SXml::WNode n_47(g.P_X, "ОписРабот"); // [1..]
@@ -5339,7 +5339,8 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 			// СЧФДОП - счет-фактура, применяемый при расчетах по налогу на добавленную стоимость, и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг);
 			// ДОП - документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг).
 			// Под отгрузкой товаров понимается в том числе  передача (поставка, отпуск) товара (груза)
-			d.N.PutAttrib(g.GetToken(PPHSC_RU_FUNCTION), "ДОП");
+			temp_buf = g.GetToken(PPHSC_RU_DOP);
+			d.N.PutAttrib(g.GetToken(PPHSC_RU_FUNCTION), temp_buf);
 			// Наименование документа по факту хозяйственной жизни
 			// При Функция=СЧФ не формируется.
 			// При Функция=СЧФДОП или Функция=ДОП ПоФактХЖ=Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)
@@ -5418,7 +5419,7 @@ int WriteBill_NalogRu2_UPD(const PPBillPacket & rBp, SString & rFileName)
 				{
 					SXml::WNode n(g.P_X, "ДопСвФХЖ1");
 					if(rBp.BTagL.GetItemStr(PPTAG_BILL_STATECONTRACTID, temp_buf) > 0)
-						n.PutAttrib("ИдГосКон", temp_buf);
+						n.PutAttrib(g.GetToken(PPHSC_RU_STATECONTRID), temp_buf);
 					n.PutAttrib("НаимОКВ", "Российский рубль");
 				}
 				{

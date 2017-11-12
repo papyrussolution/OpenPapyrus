@@ -668,12 +668,9 @@ static u_char * ngx_http_v2_state_read_data(ngx_http_v2_connection_t * h2c, u_ch
 		size = h2c->state.length;
 		stream->in_closed = h2c->state.flags & NGX_HTTP_V2_END_STREAM_FLAG;
 	}
-
 	r = stream->request;
-
 	if(r->request_body) {
 		rc = ngx_http_v2_process_request_body(r, pos, size, stream->in_closed);
-
 		if(rc != NGX_OK) {
 			stream->skip_data = 1;
 			ngx_http_finalize_request(r, rc);
@@ -681,10 +678,10 @@ static u_char * ngx_http_v2_state_read_data(ngx_http_v2_connection_t * h2c, u_ch
 	}
 	else if(size) {
 		buf = stream->preread;
-		if(buf == NULL) {
+		if(!buf) {
 			h2scf = (ngx_http_v2_srv_conf_t *)ngx_http_get_module_srv_conf(r, ngx_http_v2_module);
 			buf = ngx_create_temp_buf(r->pool, h2scf->preread_size);
-			if(buf == NULL) {
+			if(!buf) {
 				return ngx_http_v2_connection_error(h2c, NGX_HTTP_V2_INTERNAL_ERROR);
 			}
 			stream->preread = buf;
@@ -1789,7 +1786,7 @@ static ngx_int_t ngx_http_v2_send_settings(ngx_http_v2_connection_t * h2c)
 	}
 	len = NGX_HTTP_V2_SETTINGS_PARAM_SIZE * 3;
 	buf = ngx_create_temp_buf(h2c->pool, NGX_HTTP_V2_FRAME_HEADER_SIZE + len);
-	if(buf == NULL) {
+	if(!buf) {
 		return NGX_ERROR;
 	}
 	buf->last_buf = 1;
@@ -1895,7 +1892,7 @@ static ngx_http_v2_out_frame_t * ngx_http_v2_get_frame(ngx_http_v2_connection_t 
 			return NULL;
 		}
 		buf = ngx_create_temp_buf(pool, NGX_HTTP_V2_FRAME_BUFFER_SIZE);
-		if(buf == NULL) {
+		if(!buf) {
 			return NULL;
 		}
 		buf->last_buf = 1;
@@ -2409,7 +2406,7 @@ static ngx_int_t ngx_http_v2_construct_cookie_header(ngx_http_request_t * r)
 	} while(++i != cookies->nelts);
 	len -= 2;
 	buf = (u_char*)ngx_pnalloc(r->pool, len + 1);
-	if(buf == NULL) {
+	if(!buf) {
 		ngx_http_v2_close_stream(r->stream, NGX_HTTP_INTERNAL_SERVER_ERROR);
 		return NGX_ERROR;
 	}

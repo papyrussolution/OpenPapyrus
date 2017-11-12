@@ -16,7 +16,7 @@
 #pragma hdrstop
 
 #ifndef HEADER_BSS_FILE_C
-# define HEADER_BSS_FILE_C
+#define HEADER_BSS_FILE_C
 
 # if defined(__linux) || defined(__sun) || defined(__hpux)
 /*

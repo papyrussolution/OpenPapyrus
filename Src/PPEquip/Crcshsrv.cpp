@@ -144,10 +144,10 @@ private:
 		filTypChkXml
 	};
 	virtual int SLAPI IsReadyForExport();
-	int    SLAPI ImportZRepList(SArray * pZRepList, int isLocalFiles);
-	int    SLAPI ConvertWareList(SArray * pZRepList, const char *);
-	int    SLAPI ConvertWareListV10(SArray * pZRepList, const char * pPath, const char *);
-	int    SLAPI ConvertCheckHeads(SArray * pZRepList, const char *);
+	int    SLAPI ImportZRepList(SVector * pZRepList, int isLocalFiles);
+	int    SLAPI ConvertWareList(const SVector * pZRepList, const char *);
+	int    SLAPI ConvertWareListV10(const SVector * pZRepList, const char * pPath, const char *);
+	int    SLAPI ConvertCheckHeads(SVector * pZRepList, const char *);
 	int    SLAPI ConvertCheckRows(const char *);
 	int    SLAPI GetSeparatedFileSet(int filTyp);
 	int    SLAPI CreateSCardPaymTbl();
@@ -1462,19 +1462,19 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 	PPAsyncCashNode cn_data;
 	AsyncCashGoodsInfo gi;
 	AsyncCashGoodsGroupInfo grp_info;
-	struct _GroupEntry {
+	struct _GroupEntry { // @flat
 		PPID   GrpID[5];
 		char   GrpName[64];
 		long   DivN;
 		uint   Level;
 	};
-	SArray  grp_list(sizeof(_GroupEntry));
-	struct _SalesGrpEntry {
+	SVector grp_list(sizeof(_GroupEntry)); // @v9.8.8 SArray-->SVector
+	struct _SalesGrpEntry { // @flat
 		PPID   GrpID;
 		char   GrpName[64];
 		char   Code[24];    // @v8.8.0 [16]-->[24]
 	};
-	SArray sales_grp_list(sizeof(_SalesGrpEntry));
+	SVector sales_grp_list(sizeof(_SalesGrpEntry)); // @v9.8.8 SArray-->SVector
 	PPObjGoods goods_obj;
 	PPObjGoodsGroup ggobj;
 	PrcssrAlcReport::GoodsItem agi;
@@ -2016,19 +2016,19 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		PPAsyncCashNode    cn_data;
 		AsyncCashGoodsInfo gi;
 		AsyncCashGoodsGroupInfo grp_info;
-		struct _GroupEntry {
+		struct _GroupEntry { // @flat
 			PPID   GrpID[5];
 			char   GrpName[64];
 			long   DivN;
 			uint   Level;
 		};
-		SArray  grp_list(sizeof(_GroupEntry));
-		struct _SalesGrpEntry {
+		SVector grp_list(sizeof(_GroupEntry)); // @v9.8.8 SArray-->SVector
+		struct _SalesGrpEntry { // @flat
 			PPID   GrpID;
 			char   GrpName[64];
 			char   Code[24];    // @v8.8.0 [16]-->[24]
 		};
-		SArray  sales_grp_list(sizeof(_SalesGrpEntry));
+		SVector sales_grp_list(sizeof(_SalesGrpEntry)); // @v9.8.8 SArray-->SVector
 		PPObjGoodsGroup ggobj;
 		//
 		// Список ассоциаций {Серия карты; Вид котировки} => Key - серия карты, Val - вид котировки
@@ -2957,7 +2957,7 @@ static int SLAPI GetCrCshSrvDateTime(const char * pDttmBuf, long chk, LDATETIME 
 	return 1;
 }
 
-struct ZRep { // Size = 36
+struct ZRep { // @flat
 	long   CashCode;
 	long   ZRepCode;
 	LDATETIME Start;
@@ -3498,7 +3498,7 @@ IMPL_CMPFUNC(AcceptedCheck_, i1, i2)
 		return 0;
 }
 
-int SLAPI ACS_CRCSHSRV::ConvertWareListV10(SArray * pZRepList, const char * pPath, const char * pWaitMsg)
+int SLAPI ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char * pPath, const char * pWaitMsg)
 {
 	int    ok = 1;
 	SString msg_buf;
@@ -3660,7 +3660,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareListV10(SArray * pZRepList, const char * pPat
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::ConvertWareList(SArray * pZRepList, const char * pWaitMsg)
+int SLAPI ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * pWaitMsg)
 {
 	int    ok = 1;
 	SString msg_buf;
@@ -3894,7 +3894,7 @@ int SLAPI ACS_CRCSHSRV::ConvertWareList(SArray * pZRepList, const char * pWaitMs
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::ConvertCheckHeads(SArray * pZRepList, const char * pWaitMsg)
+int SLAPI ACS_CRCSHSRV::ConvertCheckHeads(SVector * pZRepList, const char * pWaitMsg)
 {
 	int     ok = 1;
 	SString file_name, save_file_name;
@@ -4323,7 +4323,7 @@ int SLAPI XmlZRepReader::Next(ZRep * pItem)
 	return ok;
 }
 
-int SLAPI ACS_CRCSHSRV::ImportZRepList(SArray * pZRepList, int isLocalFiles)
+int SLAPI ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
 {
 	int    ok = -1, r = 1;
 	LDATE  oper_date, end = ChkRepPeriod.upp;
@@ -4411,7 +4411,7 @@ int SLAPI ACS_CRCSHSRV::ImportZRepList(SArray * pZRepList, int isLocalFiles)
 				int    fldn_z_chklast  = 0;
 				int    fldn_z_status   = 0;
 				//
-				Backup("zrep", PathRpt[filTypZRep]); //@v7.7.9 AHTOXA
+				Backup("zrep", PathRpt[filTypZRep]);
 				THROW_MEM(p_dbftz = new DbfTable(PathRpt[filTypZRep]));
 				THROW_PP_S(p_dbftz->isOpened(), PPERR_DBFOPFAULT, PathRpt[filTypZRep]);
 				p_dbftz->getFieldNumber("cashnmb",   &fldn_z_cash);
@@ -4515,7 +4515,7 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 	SString wait_msg_tmpl, wait_msg;
 	SString query_buf;
 	LDATE  oper_date, end = ChkRepPeriod.upp;
-	SArray zrep_list(sizeof(ZRep));
+	SVector zrep_list(sizeof(ZRep)); // @v9.8.8 SArray-->SVector
 
 	SETIFZ(end, plusdate(LConfig.OperDate, 2));
 	PPLoadText(PPTXT_IMPORTCHECKS, wait_msg_tmpl);

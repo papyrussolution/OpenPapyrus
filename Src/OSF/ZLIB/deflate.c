@@ -1325,7 +1325,7 @@ static void check_match(deflate_state * s, IPos start, IPos match, int length)
 }
 
 #else
-#  define check_match(s, start, match, length)
+#define check_match(s, start, match, length)
 #endif /* ZLIB_DEBUG */
 
 /* ===========================================================================

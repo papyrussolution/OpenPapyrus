@@ -8,7 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-
+//
+// @sobolev @v9.8.8: из макроопределений в опци€х компил€ции удалено HEADER_OCSP_H
+//
 #ifdef _WIN32
 	#ifndef _WIN32_WINNT
 		#define _WIN32_WINNT 0x0400
@@ -42,14 +44,11 @@
 		*/
 		#if defined(CERT_KEY_PROV_INFO_PROP_ID) && defined(CERT_STORE_PROV_SYSTEM_A) && defined(CERT_STORE_READONLY_FLAG)
 			#define __COMPILE_CAPIENG
-		#endif                        /* CERT_KEY_PROV_INFO_PROP_ID */
-	#endif                         /* OPENSSL_NO_CAPIENG */
-#endif                          /* _WIN32 */
-
+		#endif
+	#endif
+#endif
 #ifdef __COMPILE_CAPIENG
-
-# undef X509_EXTENSIONS
-
+#undef X509_EXTENSIONS
 /* Definitions which may be missing from earlier version of headers */
 #ifndef CERT_STORE_OPEN_EXISTING_FLAG
 	#define CERT_STORE_OPEN_EXISTING_FLAG                   0x00004000
@@ -82,9 +81,6 @@
 	#define PROV_RSA_AES 24
 #endif
 
-//#include <openssl/engine.h>
-//#include <openssl/pem.h>
-//#include <openssl/x509v3.h>
 #include "e_capi_err.h"
 #include "e_capi_err.c"
 
@@ -104,25 +100,16 @@ static int capi_list_containers(CAPI_CTX * ctx, BIO * out);
 int capi_list_certs(CAPI_CTX * ctx, BIO * out, char * storename);
 void capi_free_key(CAPI_KEY * key);
 
-static PCCERT_CONTEXT capi_find_cert(CAPI_CTX * ctx, const char * id,
-    HCERTSTORE hstore);
-
+static PCCERT_CONTEXT capi_find_cert(CAPI_CTX * ctx, const char * id, HCERTSTORE hstore);
 CAPI_KEY * capi_find_key(CAPI_CTX * ctx, const char * id);
-
-static EVP_PKEY * capi_load_privkey(ENGINE * eng, const char * key_id,
-    UI_METHOD * ui_method, void * callback_data);
-static int capi_rsa_sign(int dtype, const uchar * m,
-    uint m_len, uchar * sigret,
-    uint * siglen, const RSA * rsa);
-static int capi_rsa_priv_enc(int flen, const uchar * from,
-    uchar * to, RSA * rsa, int padding);
-static int capi_rsa_priv_dec(int flen, const uchar * from,
-    uchar * to, RSA * rsa, int padding);
+static EVP_PKEY * capi_load_privkey(ENGINE * eng, const char * key_id, UI_METHOD * ui_method, void * callback_data);
+static int capi_rsa_sign(int dtype, const uchar * m, uint m_len, uchar * sigret, uint * siglen, const RSA * rsa);
+static int capi_rsa_priv_enc(int flen, const uchar * from, uchar * to, RSA * rsa, int padding);
+static int capi_rsa_priv_dec(int flen, const uchar * from, uchar * to, RSA * rsa, int padding);
 static int capi_rsa_free(RSA * rsa);
 
 # ifndef OPENSSL_NO_DSA
-static DSA_SIG * capi_dsa_do_sign(const uchar * digest, int dlen,
-    DSA * dsa);
+static DSA_SIG * capi_dsa_do_sign(const uchar * digest, int dlen, DSA * dsa);
 static int capi_dsa_free(DSA * dsa);
 # endif
 
@@ -186,20 +173,20 @@ static void capi_ctx_free(CAPI_CTX * ctx);
 static int capi_ctx_set_provname(CAPI_CTX * ctx, LPSTR pname, DWORD type, int check);
 static int capi_ctx_set_provname_idx(CAPI_CTX * ctx, int idx);
 
-# define CAPI_CMD_LIST_CERTS             ENGINE_CMD_BASE
-# define CAPI_CMD_LOOKUP_CERT            (ENGINE_CMD_BASE + 1)
-# define CAPI_CMD_DEBUG_LEVEL            (ENGINE_CMD_BASE + 2)
-# define CAPI_CMD_DEBUG_FILE             (ENGINE_CMD_BASE + 3)
-# define CAPI_CMD_KEYTYPE                (ENGINE_CMD_BASE + 4)
-# define CAPI_CMD_LIST_CSPS              (ENGINE_CMD_BASE + 5)
-# define CAPI_CMD_SET_CSP_IDX            (ENGINE_CMD_BASE + 6)
-# define CAPI_CMD_SET_CSP_NAME           (ENGINE_CMD_BASE + 7)
-# define CAPI_CMD_SET_CSP_TYPE           (ENGINE_CMD_BASE + 8)
-# define CAPI_CMD_LIST_CONTAINERS        (ENGINE_CMD_BASE + 9)
-# define CAPI_CMD_LIST_OPTIONS           (ENGINE_CMD_BASE + 10)
-# define CAPI_CMD_LOOKUP_METHOD          (ENGINE_CMD_BASE + 11)
-# define CAPI_CMD_STORE_NAME             (ENGINE_CMD_BASE + 12)
-# define CAPI_CMD_STORE_FLAGS            (ENGINE_CMD_BASE + 13)
+#define CAPI_CMD_LIST_CERTS             ENGINE_CMD_BASE
+#define CAPI_CMD_LOOKUP_CERT            (ENGINE_CMD_BASE + 1)
+#define CAPI_CMD_DEBUG_LEVEL            (ENGINE_CMD_BASE + 2)
+#define CAPI_CMD_DEBUG_FILE             (ENGINE_CMD_BASE + 3)
+#define CAPI_CMD_KEYTYPE                (ENGINE_CMD_BASE + 4)
+#define CAPI_CMD_LIST_CSPS              (ENGINE_CMD_BASE + 5)
+#define CAPI_CMD_SET_CSP_IDX            (ENGINE_CMD_BASE + 6)
+#define CAPI_CMD_SET_CSP_NAME           (ENGINE_CMD_BASE + 7)
+#define CAPI_CMD_SET_CSP_TYPE           (ENGINE_CMD_BASE + 8)
+#define CAPI_CMD_LIST_CONTAINERS        (ENGINE_CMD_BASE + 9)
+#define CAPI_CMD_LIST_OPTIONS           (ENGINE_CMD_BASE + 10)
+#define CAPI_CMD_LOOKUP_METHOD          (ENGINE_CMD_BASE + 11)
+#define CAPI_CMD_STORE_NAME             (ENGINE_CMD_BASE + 12)
+#define CAPI_CMD_STORE_FLAGS            (ENGINE_CMD_BASE + 13)
 
 static const ENGINE_CMD_DEFN capi_cmd_defns[] = {
 	{CAPI_CMD_LIST_CERTS,
@@ -1743,9 +1730,9 @@ static int cert_select_simple(ENGINE * e, SSL * ssl, STACK_OF(X509) * certs)
 #   define CRYPTUI_SELECT_INTENDEDUSE_COLUMN                0x000000004
 #  endif
 
-#  define dlg_title L"OpenSSL Application SSL Client Certificate Selection"
-#  define dlg_prompt L"Select a certificate to use for authentication"
-#  define dlg_columns      CRYPTUI_SELECT_LOCATION_COLUMN \
+#define dlg_title L"OpenSSL Application SSL Client Certificate Selection"
+#define dlg_prompt L"Select a certificate to use for authentication"
+#define dlg_columns      CRYPTUI_SELECT_LOCATION_COLUMN \
 	|CRYPTUI_SELECT_INTENDEDUSE_COLUMN
 
 static int cert_select_dialog(ENGINE * e, SSL * ssl, STACK_OF(X509) * certs)

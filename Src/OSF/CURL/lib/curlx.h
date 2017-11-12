@@ -85,16 +85,16 @@
 # undef aprintf
 # undef vaprintf
 
-# define printf curlx_mprintf
-# define fprintf curlx_mfprintf
-# define sprintf curlx_msprintf
-# define snprintf curlx_msnprintf
-# define vprintf curlx_mvprintf
-# define vfprintf curlx_mvfprintf
-# define vsprintf curlx_mvsprintf
-# define vsnprintf curlx_mvsnprintf
-# define aprintf curlx_maprintf
-# define vaprintf curlx_mvaprintf
+#define printf curlx_mprintf
+#define fprintf curlx_mfprintf
+#define sprintf curlx_msprintf
+#define snprintf curlx_msnprintf
+#define vprintf curlx_mvprintf
+#define vfprintf curlx_mvfprintf
+#define vsprintf curlx_mvsprintf
+#define vsnprintf curlx_mvsnprintf
+#define aprintf curlx_maprintf
+#define vaprintf curlx_mvaprintf
 #endif /* ENABLE_CURLX_PRINTF */
 
 #endif /* HEADER_CURL_CURLX_H */

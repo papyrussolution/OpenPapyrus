@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/ui.h>
 #include "ui_locl.h"
 
 static const UI_METHOD * default_UI_meth = NULL;

@@ -82,6 +82,9 @@
     <ClInclude Include="..\OSF\OpenSSL\ssl\tls1.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\ssl\ssl_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">

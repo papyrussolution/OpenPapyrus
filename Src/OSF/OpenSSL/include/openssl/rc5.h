@@ -8,30 +8,30 @@
  */
 
 #ifndef HEADER_RC5_H
-# define HEADER_RC5_H
+#define HEADER_RC5_H
 
-# include <openssl/opensslconf.h>
+#include <openssl/opensslconf.h>
 
 # ifndef OPENSSL_NO_RC5
 # ifdef  __cplusplus
 extern "C" {
 # endif
 
-# define RC5_ENCRYPT     1
-# define RC5_DECRYPT     0
+#define RC5_ENCRYPT     1
+#define RC5_DECRYPT     0
 
-# define RC5_32_INT uint
+#define RC5_32_INT uint
 
-# define RC5_32_BLOCK            8
-# define RC5_32_KEY_LENGTH       16/* This is a default, max is 255 */
+#define RC5_32_BLOCK            8
+#define RC5_32_KEY_LENGTH       16/* This is a default, max is 255 */
 
 /*
  * This are the only values supported.  Tweak the code if you want more The
  * most supported modes will be RC5-32/12/16 RC5-32/16/8
  */
-# define RC5_8_ROUNDS    8
-# define RC5_12_ROUNDS   12
-# define RC5_16_ROUNDS   16
+#define RC5_8_ROUNDS    8
+#define RC5_12_ROUNDS   12
+#define RC5_16_ROUNDS   16
 
 typedef struct rc5_key_st {
     /* Number of rounds */

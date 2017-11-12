@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1.h>
-#include <openssl/ocsp.h>
 
 /* Stateful OCSP request code, supporting non-blocking I/O */
 

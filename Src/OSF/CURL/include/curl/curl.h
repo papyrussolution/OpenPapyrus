@@ -106,7 +106,7 @@ typedef void CURLSH;
  */
 
 #ifdef CURL_STATICLIB
-#  define CURL_EXTERN
+#define CURL_EXTERN
 #elif defined(WIN32) || defined(_WIN32) || defined(__SYMBIAN32__)
 #  if defined(BUILDING_LIBCURL)
 #    define CURL_EXTERN  __declspec(dllexport)
@@ -114,9 +114,9 @@ typedef void CURLSH;
 #    define CURL_EXTERN  __declspec(dllimport)
 #  endif
 #elif defined(BUILDING_LIBCURL) && defined(CURL_HIDDEN_SYMBOLS)
-#  define CURL_EXTERN CURL_EXTERN_SYMBOL
+#define CURL_EXTERN CURL_EXTERN_SYMBOL
 #else
-#  define CURL_EXTERN
+#define CURL_EXTERN
 #endif
 
 #ifndef curl_socket_typedef

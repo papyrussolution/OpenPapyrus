@@ -163,12 +163,6 @@ void Tddo::Meta::Clear()
 	Param.Z();
 }
 
-Tddo::ProcessBlock::ProcessBlock()
-{
-	P_Rtm = 0;
-	MEMSZERO(F);
-}
-
 Tddo::Result::Result()
 {
 	RefType = 0;
@@ -572,7 +566,7 @@ int SLAPI Tddo::Process(const char * pDataName, const char * pBuf, DlRtm::Export
 	LineNo = 1;
 	if(!RVALUEPTR(ExtParamList, pExtParamList))
 		ExtParamList.clear();
-	ProcessBlock pblk;
+	TddoProcessBlock pblk;
 	pblk.SrcDataName = pDataName;
 	pblk.P_Rtm = 0;
 	pblk.F.ID = rEp.P_F ? rEp.P_F->ID : 0;
@@ -880,7 +874,7 @@ int SLAPI Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int
 	return ok;
 }
 
-int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, const DlScope * pScope, int skipOutput)
+int SLAPI Tddo::Helper_Process(TddoProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, const DlScope * pScope, int skipOutput)
 {
 	int    ok = 1;
 	uint   prev_scan_stack_pos = 0;
@@ -935,7 +929,7 @@ int SLAPI Tddo::Helper_Process(ProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta
 						break;
 					case tStart:
 						{
-							ProcessBlock pblk;
+							TddoProcessBlock pblk;
 							THROW(P_Ctx);
 							const DlScope * p_scope = P_Ctx->GetScopeByName_Const(DlScope::kExpData, meta.Text);
 							THROW_PP_S(p_scope, PPERR_TDDO_UNDEFDATANAME, meta.Text);

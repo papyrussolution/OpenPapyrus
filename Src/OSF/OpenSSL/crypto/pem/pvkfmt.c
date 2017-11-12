@@ -13,17 +13,10 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/pem.h>
-//#include <openssl/rand.h>
-//#include <openssl/bn.h>
 #if !defined(OPENSSL_NO_RSA) && !defined(OPENSSL_NO_DSA)
-//#include <openssl/dsa.h>
-//#include <openssl/rsa.h>
 /*
- * Utility function: read a DWORD (4 byte unsigned integer) in little endian
- * format
+ * Utility function: read a DWORD (4 byte unsigned integer) in little endian format
  */
-
 static uint read_ledword(const uchar ** in)
 {
 	const uchar * p = *in;
@@ -52,30 +45,30 @@ static int read_lebn(const uchar ** in, uint nbyte, BIGNUM ** r)
 
 /* Convert private key blob to EVP_PKEY: RSA and DSA keys supported */
 
-# define MS_PUBLICKEYBLOB        0x6
-# define MS_PRIVATEKEYBLOB       0x7
-# define MS_RSA1MAGIC            0x31415352L
-# define MS_RSA2MAGIC            0x32415352L
-# define MS_DSS1MAGIC            0x31535344L
-# define MS_DSS2MAGIC            0x32535344L
+#define MS_PUBLICKEYBLOB        0x6
+#define MS_PRIVATEKEYBLOB       0x7
+#define MS_RSA1MAGIC            0x31415352L
+#define MS_RSA2MAGIC            0x32415352L
+#define MS_DSS1MAGIC            0x31535344L
+#define MS_DSS2MAGIC            0x32535344L
 
-# define MS_KEYALG_RSA_KEYX      0xa400
-# define MS_KEYALG_DSS_SIGN      0x2200
+#define MS_KEYALG_RSA_KEYX      0xa400
+#define MS_KEYALG_DSS_SIGN      0x2200
 
-# define MS_KEYTYPE_KEYX         0x1
-# define MS_KEYTYPE_SIGN         0x2
+#define MS_KEYTYPE_KEYX         0x1
+#define MS_KEYTYPE_SIGN         0x2
 
 /* Maximum length of a blob after header */
-# define BLOB_MAX_LENGTH          102400
+#define BLOB_MAX_LENGTH          102400
 
 /* The PVK file magic number: seems to spell out "bobsfile", who is Bob? */
-# define MS_PVKMAGIC             0xb0b5f11eL
+#define MS_PVKMAGIC             0xb0b5f11eL
 /* Salt length for PVK files */
-# define PVK_SALTLEN             0x10
+#define PVK_SALTLEN             0x10
 /* Maximum length in PVK header */
-# define PVK_MAX_KEYLEN          102400
+#define PVK_MAX_KEYLEN          102400
 /* Maximum salt length */
-# define PVK_MAX_SALTLEN         10240
+#define PVK_MAX_SALTLEN         10240
 
 static EVP_PKEY * b2i_rsa(const uchar ** in,
     uint bitlen, int ispub);

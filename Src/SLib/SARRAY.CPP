@@ -3619,12 +3619,15 @@ int SLAPI STimeChunkArray::GetBounds(STimeChunk * pBounds, int update) const
 //
 //
 //
-STimeChunkAssocArray::STimeChunkAssocArray(long id) : STimeChunkArray(sizeof(STimeChunkAssoc))
+SLAPI STimeChunkAssoc::STimeChunkAssoc() : Id(0), Status(0)
 {
-	Id = id;
 }
 
-int STimeChunkAssocArray::Get(long chunkId, uint * pPos, STimeChunkAssoc * pItem) const
+SLAPI STimeChunkAssocArray::STimeChunkAssocArray(long id) : STimeChunkArray(sizeof(STimeChunkAssoc)), Id(id)
+{
+}
+
+int SLAPI STimeChunkAssocArray::Get(long chunkId, uint * pPos, STimeChunkAssoc * pItem) const
 {
 	uint   pos = 0;
 	if(lsearch(&chunkId, &pos, CMPF_LONG, offsetof(STimeChunkAssoc, Id))) {
@@ -3636,12 +3639,12 @@ int STimeChunkAssocArray::Get(long chunkId, uint * pPos, STimeChunkAssoc * pItem
 		return 0;
 }
 
-int STimeChunkAssocArray::Add(long chunkId, const STimeChunk * pChunk, int checkForFree)
+int SLAPI STimeChunkAssocArray::Add(long chunkId, const STimeChunk * pChunk, int checkForFree)
 {
 	return Add(chunkId, 0, pChunk, checkForFree);
 }
 
-int STimeChunkAssocArray::Add(long chunkId, long status, const STimeChunk * pChunk, int checkForFree)
+int SLAPI STimeChunkAssocArray::Add(long chunkId, long status, const STimeChunk * pChunk, int checkForFree)
 {
 	STimeChunkAssoc item;
 	MEMSZERO(item);
@@ -3651,7 +3654,7 @@ int STimeChunkAssocArray::Add(long chunkId, long status, const STimeChunk * pChu
 	return insert(&item);
 }
 
-int STimeChunkAssocArray::Remove(long chunkId)
+int SLAPI STimeChunkAssocArray::Remove(long chunkId)
 {
 	uint   pos = 0;
 	if(lsearch(&chunkId, &pos, CMPF_LONG, offsetof(STimeChunkAssoc, Id))) {

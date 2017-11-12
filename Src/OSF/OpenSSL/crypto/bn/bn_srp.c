@@ -25,7 +25,7 @@
 #   define bn_pack4(a1, a2, a3, a4) ((a1 ## ULL<<48)|(a2 ## ULL<<32)|(a3 ## ULL<<16)|a4 ## ULL)
 #  endif
 # elif (BN_BYTES == 4)
-#  define bn_pack4(a1, a2, a3, a4)  ((a3 ## UL<<16)|a4 ## UL), ((a1 ## UL<<16)|a2 ## UL)
+#define bn_pack4(a1, a2, a3, a4)  ((a3 ## UL<<16)|a4 ## UL), ((a1 ## UL<<16)|a2 ## UL)
 # else
 #  error "unsupported BN_BYTES"
 # endif

@@ -207,24 +207,26 @@ void SLAPI PPArticlePacket::Init()
 
 int SLAPI PPArticlePacket::SetClientAgreement(const PPClientAgreement * pAgt, int ignoreEmpty)
 {
+	int    ok = 1;
 	ZDELETE(P_CliAgt);
 	if(pAgt && (!ignoreEmpty || !pAgt->IsEmpty())) {
 		P_CliAgt = new PPClientAgreement(*pAgt);
 		if(!P_CliAgt)
-			return PPSetErrorNoMem();
+			ok = PPSetErrorNoMem();
 	}
-	return 1;
+	return ok;
 }
 
 int SLAPI PPArticlePacket::SetSupplAgreement(const PPSupplAgreement * pAgt, int ignoreEmpty)
 {
+	int    ok = 1;
 	ZDELETE(P_SupplAgt);
 	if(pAgt && (!ignoreEmpty || !pAgt->IsEmpty())) {
 		P_SupplAgt = new PPSupplAgreement(*pAgt);
 		if(!P_SupplAgt)
-			return PPSetErrorNoMem();
+			ok = PPSetErrorNoMem();
 	}
-	return 1;
+	return ok;
 }
 
 const LAssocArray * SLAPI PPArticlePacket::GetAliasSubst() const
@@ -234,15 +236,16 @@ const LAssocArray * SLAPI PPArticlePacket::GetAliasSubst() const
 
 int SLAPI PPArticlePacket::EnumAliasSubst(uint * pPos, PPID * pAliasID, PPID * pAccID) const
 {
+	int    ok = 0;
 	if(P_AliasSubst) {
 		LAssoc * p_item;
 		if(P_AliasSubst->enumItems(pPos, (void **)&p_item)) {
 			ASSIGN_PTR(pAliasID, p_item->Key);
 			ASSIGN_PTR(pAccID, p_item->Val);
-			return 1;
+			ok = 1;
 		}
 	}
-	return 0;
+	return ok;
 }
 
 int SLAPI PPArticlePacket::AddAliasSubst(PPID accAliasID, PPID accID)
@@ -277,9 +280,8 @@ int SLAPI PPArticlePacket::RemoveAliasSubst(PPID accAliasID)
 //
 //
 struct ArticleDlgData : public PPArticlePacket {
-	SLAPI  ArticleDlgData() : PPArticlePacket()
+	SLAPI  ArticleDlgData() : PPArticlePacket(), Options(0)
 	{
-		Options = 0;
 	}
 	enum {
 		fDisableName     = 0x0001,

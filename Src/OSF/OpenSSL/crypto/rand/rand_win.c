@@ -8,31 +8,30 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/rand.h>
 #include "rand_lcl.h"
 
 #if defined(OPENSSL_SYS_WINDOWS) || defined(OPENSSL_SYS_WIN32)
-# include <windows.h>
-/* On Windows 7 or higher use BCrypt instead of the legacy CryptoAPI */
-# if defined(_MSC_VER) && defined(_WIN32_WINNT) && _WIN32_WINNT>=0x0601
-#  define RAND_WINDOWS_USE_BCRYPT
-# endif
 
-# ifdef RAND_WINDOWS_USE_BCRYPT
-#  include <bcrypt.h>
-#  pragma comment(lib, "bcrypt.lib")
-#  ifndef STATUS_SUCCESS
-#   define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
-#  endif
-# else
-#  include <wincrypt.h>
-/*
- * Intel hardware RNG CSP -- available from
- * http://developer.intel.com/design/security/rng/redist_license.htm
- */
-#  define PROV_INTEL_SEC 22
-#  define INTEL_DEF_PROV L"Intel Hardware Cryptographic Service Provider"
-# endif
+#include <windows.h>
+// On Windows 7 or higher use BCrypt instead of the legacy CryptoAPI 
+#if defined(_MSC_VER) && defined(_WIN32_WINNT) && _WIN32_WINNT>=0x0601
+	#define RAND_WINDOWS_USE_BCRYPT
+#endif
+#ifdef RAND_WINDOWS_USE_BCRYPT
+	#include <bcrypt.h>
+	#pragma comment(lib, "bcrypt.lib")
+	#ifndef STATUS_SUCCESS
+		#define STATUS_SUCCESS ((NTSTATUS)0x00000000L)
+	#endif
+#else
+	#include <wincrypt.h>
+	/*
+		* Intel hardware RNG CSP -- available from
+		* http://developer.intel.com/design/security/rng/redist_license.htm
+		*/
+	#define PROV_INTEL_SEC 22
+	#define INTEL_DEF_PROV L"Intel Hardware Cryptographic Service Provider"
+#endif
 
 static void readtimer(void);
 
@@ -113,7 +112,7 @@ static void readtimer(void)
 		}
 	}
 # else
-#  define have_tsc 0
+#define have_tsc 0
 # endif
 	if(have_perfc) {
 		if(QueryPerformanceCounter(&l) == 0)
@@ -126,5 +125,4 @@ static void readtimer(void)
 		RAND_add(&w, sizeof(w), 0);
 	}
 }
-
 #endif

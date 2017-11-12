@@ -8,27 +8,26 @@
  */
 
 #ifndef HEADER_MD4_H
-# define HEADER_MD4_H
+#define HEADER_MD4_H
 
-# include <openssl/opensslconf.h>
+#include <openssl/opensslconf.h>
 
-# ifndef OPENSSL_NO_MD4
-# include <openssl/e_os2.h>
-# include <stddef.h>
-# ifdef  __cplusplus
-extern "C" {
-# endif
-
+#ifndef OPENSSL_NO_MD4
+#include <openssl/e_os2.h>
+#include <stddef.h>
+#ifdef  __cplusplus
+	extern "C" {
+#endif
 /*-
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  * ! MD4_LONG has to be at least 32 bits wide.                     !
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-# define MD4_LONG uint
+#define MD4_LONG uint
 
-# define MD4_CBLOCK      64
-# define MD4_LBLOCK      (MD4_CBLOCK/4)
-# define MD4_DIGEST_LENGTH 16
+#define MD4_CBLOCK      64
+#define MD4_LBLOCK      (MD4_CBLOCK/4)
+#define MD4_DIGEST_LENGTH 16
 
 typedef struct MD4state_st {
     MD4_LONG A, B, C, D;
@@ -43,9 +42,9 @@ int MD4_Final(uchar *md, MD4_CTX *c);
 uchar *MD4(const uchar *d, size_t n, uchar *md);
 void MD4_Transform(MD4_CTX *c, const uchar *b);
 
-# ifdef  __cplusplus
+#ifdef  __cplusplus
 }
-# endif
-# endif
+#endif
+#endif
 
 #endif

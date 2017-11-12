@@ -8,9 +8,9 @@
  */
 
 #ifndef HEADER_E_OS2_H
-# define HEADER_E_OS2_H
+#define HEADER_E_OS2_H
 
-# include <openssl/opensslconf.h>
+#include <openssl/opensslconf.h>
 
 #ifdef  __cplusplus
 extern "C" {
@@ -22,7 +22,7 @@ extern "C" {
  * However, if none is defined, Unix is assumed.
  **/
 
-# define OPENSSL_SYS_UNIX
+#define OPENSSL_SYS_UNIX
 
 /* --------------------- Microsoft operating systems ---------------------- */
 
@@ -46,7 +46,7 @@ extern "C" {
 #  undef OPENSSL_SYS_UNIX
 # elif defined(OPENSSL_SYS_UWIN)
 #  undef OPENSSL_SYS_UNIX
-#  define OPENSSL_SYS_WIN32_UWIN
+#define OPENSSL_SYS_WIN32_UWIN
 # else
 #  if defined(__CYGWIN__) || defined(OPENSSL_SYS_CYGWIN)
 #   undef OPENSSL_SYS_UNIX
@@ -76,7 +76,7 @@ extern "C" {
 /* Anything that tries to look like Microsoft is "Windows" */
 # if defined(OPENSSL_SYS_WIN32) || defined(OPENSSL_SYS_WIN64) || defined(OPENSSL_SYS_WINNT) || defined(OPENSSL_SYS_WINCE)
 #  undef OPENSSL_SYS_UNIX
-#  define OPENSSL_SYS_WINDOWS
+#define OPENSSL_SYS_WINDOWS
 #  ifndef OPENSSL_SYS_MSDOS
 #   define OPENSSL_SYS_MSDOS
 #  endif
@@ -101,7 +101,7 @@ extern "C" {
 #  if !defined(OPENSSL_SYS_VMS)
 #   undef OPENSSL_SYS_UNIX
 #  endif
-#  define OPENSSL_SYS_VMS
+#define OPENSSL_SYS_VMS
 #  if defined(__DECC)
 #   define OPENSSL_SYS_VMS_DECC
 #  elif defined(__DECCXX)
@@ -124,7 +124,7 @@ extern "C" {
 
 /* -------------------------------- VOS ----------------------------------- */
 # if defined(__VOS__) && !defined(OPENSSL_SYS_VOS)
-#  define OPENSSL_SYS_VOS
+#define OPENSSL_SYS_VOS
 #  ifdef __HPPA__
 #   define OPENSSL_SYS_VOS_HPPA
 #  endif
@@ -139,11 +139,11 @@ extern "C" {
 
 /* Specials for I/O an exit */
 # ifdef OPENSSL_SYS_MSDOS
-#  define OPENSSL_UNISTD_IO <io.h>
-#  define OPENSSL_DECLARE_EXIT extern void exit(int);
+#define OPENSSL_UNISTD_IO <io.h>
+#define OPENSSL_DECLARE_EXIT extern void exit(int);
 # else
-#  define OPENSSL_UNISTD_IO OPENSSL_UNISTD
-#  define OPENSSL_DECLARE_EXIT  /* declared in unistd.h */
+#define OPENSSL_UNISTD_IO OPENSSL_UNISTD
+#define OPENSSL_DECLARE_EXIT  /* declared in unistd.h */
 # endif
 
 /*-
@@ -158,7 +158,7 @@ extern "C" {
  *
  * #ifdef SOME_BUILD_FLAG_MACRO
  * # undef OPENSSL_EXTERN
- * # define OPENSSL_EXTERN OPENSSL_EXPORT
+ * #define OPENSSL_EXTERN OPENSSL_EXPORT
  * #endif
  *
  * The default is to have OPENSSL_EXPORT, OPENSSL_EXTERN and OPENSSL_GLOBAL
@@ -166,17 +166,17 @@ extern "C" {
  */
 
 # if defined(OPENSSL_SYS_VMS_NODECC)
-#  define OPENSSL_EXPORT globalref
-#  define OPENSSL_EXTERN globalref
-#  define OPENSSL_GLOBAL globaldef
+#define OPENSSL_EXPORT globalref
+#define OPENSSL_EXTERN globalref
+#define OPENSSL_GLOBAL globaldef
 # elif defined(OPENSSL_SYS_WINDOWS) && defined(OPENSSL_OPT_WINDLL)
-#  define OPENSSL_EXPORT extern __declspec(dllexport)
-#  define OPENSSL_EXTERN extern __declspec(dllimport)
-#  define OPENSSL_GLOBAL
+#define OPENSSL_EXPORT extern __declspec(dllexport)
+#define OPENSSL_EXTERN extern __declspec(dllimport)
+#define OPENSSL_GLOBAL
 # else
-#  define OPENSSL_EXPORT extern
-#  define OPENSSL_EXTERN extern
-#  define OPENSSL_GLOBAL
+#define OPENSSL_EXPORT extern
+#define OPENSSL_EXTERN extern
+#define OPENSSL_GLOBAL
 # endif
 
 /*-
@@ -191,15 +191,15 @@ extern "C" {
  *      #define foobar OPENSSL_GLOBAL_REF(foobar)
  */
 # ifdef OPENSSL_EXPORT_VAR_AS_FUNCTION
-#  define OPENSSL_IMPLEMENT_GLOBAL(type,name,value)                      \
+#define OPENSSL_IMPLEMENT_GLOBAL(type,name,value)                      \
         type *_shadow_##name(void)                                      \
         { static type _hide_##name=value; return &_hide_##name; }
-#  define OPENSSL_DECLARE_GLOBAL(type,name) type *_shadow_##name(void)
-#  define OPENSSL_GLOBAL_REF(name) (*(_shadow_##name()))
+#define OPENSSL_DECLARE_GLOBAL(type,name) type *_shadow_##name(void)
+#define OPENSSL_GLOBAL_REF(name) (*(_shadow_##name()))
 # else
-#  define OPENSSL_IMPLEMENT_GLOBAL(type,name,value) OPENSSL_GLOBAL type _shadow_##name=value;
-#  define OPENSSL_DECLARE_GLOBAL(type,name) OPENSSL_EXPORT type _shadow_##name
-#  define OPENSSL_GLOBAL_REF(name) _shadow_##name
+#define OPENSSL_IMPLEMENT_GLOBAL(type,name,value) OPENSSL_GLOBAL type _shadow_##name=value;
+#define OPENSSL_DECLARE_GLOBAL(type,name) OPENSSL_EXPORT type _shadow_##name
+#define OPENSSL_GLOBAL_REF(name) _shadow_##name
 # endif
 
 # ifdef _WIN32
@@ -213,12 +213,12 @@ extern "C" {
 # endif
 
 # if defined(OPENSSL_SYS_UEFI) && !defined(ssize_t)
-#  define ossl_ssize_t int
-#  define OSSL_SSIZE_MAX INT_MAX
+#define ossl_ssize_t int
+#define OSSL_SSIZE_MAX INT_MAX
 # endif
 
 # ifndef ossl_ssize_t
-#  define ossl_ssize_t ssize_t
+#define ossl_ssize_t ssize_t
 #  if defined(SSIZE_MAX)
 #   define OSSL_SSIZE_MAX SSIZE_MAX
 #  elif defined(_POSIX_SSIZE_MAX)
@@ -227,9 +227,9 @@ extern "C" {
 # endif
 
 # ifdef DEBUG_UNUSED
-#  define __owur __attribute__((__warn_unused_result__))
+#define __owur __attribute__((__warn_unused_result__))
 # else
-#  define __owur
+#define __owur
 # endif
 
 /* Standard integer types */
@@ -242,7 +242,7 @@ typedef INT32 int32_t;
 typedef UINT32 uint32_t;
 typedef INT64 int64_t;
 typedef UINT64 uint64_t;
-#  define PRIu64 "%Lu"
+#define PRIu64 "%Lu"
 # elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || \
      defined(__osf__) || defined(__sgi) || defined(__hpux) || \
      defined(OPENSSL_SYS_VMS) || defined (__OpenBSD__)
@@ -294,15 +294,15 @@ typedef unsigned __int64 uint64_t;
 #   define ossl_inline
 #  endif
 # else
-#  define ossl_inline inline
+#define ossl_inline inline
 # endif
 
 # if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-#  define ossl_noreturn _Noreturn
+#define ossl_noreturn _Noreturn
 # elif defined(__GNUC__) && __GNUC__ >= 2
-#  define ossl_noreturn __attribute__((noreturn))
+#define ossl_noreturn __attribute__((noreturn))
 # else
-#  define ossl_noreturn
+#define ossl_noreturn
 # endif
 
 #ifdef  __cplusplus

@@ -232,7 +232,7 @@ int TY_(DocParseFileWithMappedFile) (TidyDocImpl* doc, ctmbstr filnam)
 #define TY_I64(str) TYDYAPPEND(str, LL)
 #if _MSC_VER < 1300  && !defined(__GNUC__) /* less than msvc++ 7.0 */
 # undef TY_I64
-# define TY_I64(str) TYDYAPPEND(str, i64)
+#define TY_I64(str) TYDYAPPEND(str, i64)
 #endif
 		doc->filetimes.actime = (time_t)( ( actime  - TY_I64(116444736000000000)) / 10000000 );
 		doc->filetimes.modtime = (time_t)( ( modtime - TY_I64(116444736000000000)) / 10000000 );

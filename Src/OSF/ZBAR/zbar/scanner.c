@@ -34,7 +34,7 @@
 
 /* FIXME add runtime config API for these */
 #ifndef ZBAR_SCANNER_THRESH_MIN
-# define ZBAR_SCANNER_THRESH_MIN  4
+#define ZBAR_SCANNER_THRESH_MIN  4
 #endif
 
 #ifndef ZBAR_SCANNER_THRESH_INIT_WEIGHT

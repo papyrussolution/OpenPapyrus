@@ -30,7 +30,7 @@ static FARPROC GetProcAddressA(HMODULE hModule, LPCSTR lpProcName)
 
 #  endif
 #  undef GetProcAddress
-#  define GetProcAddress GetProcAddressA
+#define GetProcAddress GetProcAddressA
 
 static HINSTANCE LoadLibraryA(LPCSTR lpLibFileName)
 {
@@ -58,7 +58,7 @@ static HINSTANCE LoadLibraryA(LPCSTR lpLibFileName)
 # endif
 
 /* Part of the hack in "win32_load" ... */
-# define DSO_MAX_TRANSLATED_SIZE 256
+#define DSO_MAX_TRANSLATED_SIZE 256
 
 static int win32_load(DSO * dso);
 static int win32_unload(DSO * dso);
@@ -505,14 +505,14 @@ static const char * openssl_strnchr(const char * string, int c, size_t len)
 	return NULL;
 }
 
-# include <tlhelp32.h>
+#include <tlhelp32.h>
 # ifdef _WIN32_WCE
-#  define DLLNAME "TOOLHELP.DLL"
+#define DLLNAME "TOOLHELP.DLL"
 # else
 #  ifdef MODULEENTRY32
 #   undef MODULEENTRY32         /* unmask the ASCII version! */
 #  endif
-#  define DLLNAME "KERNEL32.DLL"
+#define DLLNAME "KERNEL32.DLL"
 # endif
 
 typedef HANDLE (WINAPI *CREATETOOLHELP32SNAPSHOT)(DWORD, DWORD);

@@ -1202,9 +1202,9 @@ ngx_chain_t * ngx_ssl_send_chain(ngx_connection_t * c, ngx_chain_t * in, nginx_o
 		limit = NGX_MAX_INT32_VALUE - ngx_pagesize;
 	}
 	buf = c->ssl->buf;
-	if(buf == NULL) {
+	if(!buf) {
 		buf = ngx_create_temp_buf(c->pool, c->ssl->buffer_size);
-		if(buf == NULL) {
+		if(!buf) {
 			return NGX_CHAIN_ERROR;
 		}
 		c->ssl->buf = buf;

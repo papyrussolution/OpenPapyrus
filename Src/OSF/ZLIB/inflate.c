@@ -422,14 +422,14 @@ static int updatewindow(z_streamp strm, const Bytef * end, unsigned copy)
 
 /* check macros for header crc */
 #ifdef GUNZIP
-#  define CRC2(check, word) \
+#define CRC2(check, word) \
 	do { \
 		hbuf[0] = (uchar)(word); \
 		hbuf[1] = (uchar)((word) >> 8);	\
 		check = crc32(check, hbuf, 2); \
 	} while(0)
 
-#  define CRC4(check, word) \
+#define CRC4(check, word) \
 	do { \
 		hbuf[0] = (uchar)(word); \
 		hbuf[1] = (uchar)((word) >> 8);	\

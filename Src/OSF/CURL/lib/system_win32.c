@@ -48,7 +48,7 @@ typedef HMODULE (APIENTRY *LOADLIBRARYEX_FN)(LPCTSTR, HANDLE, DWORD);
 #    define LOADLIBARYEX  "LoadLibraryExW"
 #  endif
 #else
-#  define LOADLIBARYEX    "LoadLibraryExA"
+#define LOADLIBARYEX    "LoadLibraryExA"
 #endif
 
 #endif /* USE_WINDOWS_SSPI || (!CURL_DISABLE_TELNET && USE_WINSOCK) */

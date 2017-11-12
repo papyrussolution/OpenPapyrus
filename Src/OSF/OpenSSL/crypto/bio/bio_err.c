@@ -13,8 +13,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_BIO,func,0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_BIO,0,reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_BIO,func,0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_BIO,0,reason)
 
 static ERR_STRING_DATA BIO_str_functs[] = {
     {ERR_FUNC(BIO_F_ACPT_STATE), "acpt_state"},

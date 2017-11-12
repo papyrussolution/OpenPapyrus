@@ -8,9 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "internal/cryptlib.h"
 #include "bn_lcl.h"
-
 /*
  * Determine the modified width-(w+1) Non-Adjacent Form (wNAF) of 'scalar'.
  * This is an array  r[]  of values that are either zero or odd with an

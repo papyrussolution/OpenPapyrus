@@ -223,7 +223,7 @@ xmlTextWriterPtr xmlNewTextWriterFilename(const char * uri, int compression)
  *
  * Returns the new xmlTextWriterPtr or NULL in case of error
  */
-xmlTextWriterPtr xmlNewTextWriterMemory(xmlBufferPtr buf, int compression ATTRIBUTE_UNUSED)
+xmlTextWriterPtr xmlNewTextWriterMemory(xmlBuffer * buf, int compression ATTRIBUTE_UNUSED)
 {
 	xmlTextWriterPtr ret = 0;
 /*::todo handle compression */

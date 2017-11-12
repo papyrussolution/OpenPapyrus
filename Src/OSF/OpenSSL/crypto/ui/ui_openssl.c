@@ -20,7 +20,7 @@
 
 #if !defined(_POSIX_C_SOURCE) && defined(OPENSSL_SYS_VMS)
 # ifndef _POSIX_C_SOURCE
-#  define _POSIX_C_SOURCE 2
+#define _POSIX_C_SOURCE 2
 # endif
 #endif
 #include <signal.h>
@@ -40,7 +40,7 @@
  */
 # if defined(_POSIX_VERSION)
 
-#  define SIGACTION
+#define SIGACTION
 #  if !defined(TERMIOS) && !defined(TERMIO) && !defined(SGTTY)
 #   define TERMIOS
 #  endif
@@ -53,14 +53,14 @@
 #include "internal/cryptlib.h"
 
 #ifdef OPENSSL_SYS_VMS          /* prototypes for sys$whatever */
-# include <starlet.h>
+#include <starlet.h>
 # ifdef __DECC
 #  pragma message disable DOLLARID
 # endif
 #endif
 
 #ifdef WIN_CONSOLE_BUG
-# include <windows.h>
+#include <windows.h>
 # ifndef OPENSSL_SYS_WINCE
 #  include <wincon.h>
 # endif
@@ -82,7 +82,7 @@
 
 # if defined(_LIBC)
 #  undef  TERMIOS
-#  define TERMIO
+#define TERMIO
 #  undef  SGTTY
 /*
  * We know that VMS, MSDOS, VXWORKS, use entirely other mechanisms.
@@ -90,7 +90,7 @@
 # elif !defined(OPENSSL_SYS_VMS) \
 	&& !defined(OPENSSL_SYS_MSDOS) \
 	&& !defined(OPENSSL_SYS_VXWORKS)
-#  define TERMIOS
+#define TERMIOS
 #  undef  TERMIO
 #  undef  SGTTY
 # endif
@@ -98,42 +98,42 @@
 #endif
 
 #ifdef TERMIOS
-# include <termios.h>
-# define TTY_STRUCT             struct termios
-# define TTY_FLAGS              c_lflag
-# define TTY_get(tty, data)      tcgetattr(tty, data)
-# define TTY_set(tty, data)      tcsetattr(tty, TCSANOW, data)
+#include <termios.h>
+#define TTY_STRUCT             struct termios
+#define TTY_FLAGS              c_lflag
+#define TTY_get(tty, data)      tcgetattr(tty, data)
+#define TTY_set(tty, data)      tcsetattr(tty, TCSANOW, data)
 #endif
 
 #ifdef TERMIO
-# include <termio.h>
-# define TTY_STRUCT             struct termio
-# define TTY_FLAGS              c_lflag
-# define TTY_get(tty, data)      ioctl(tty, TCGETA, data)
-# define TTY_set(tty, data)      ioctl(tty, TCSETA, data)
+#include <termio.h>
+#define TTY_STRUCT             struct termio
+#define TTY_FLAGS              c_lflag
+#define TTY_get(tty, data)      ioctl(tty, TCGETA, data)
+#define TTY_set(tty, data)      ioctl(tty, TCSETA, data)
 #endif
 
 #ifdef SGTTY
-# include <sgtty.h>
-# define TTY_STRUCT             struct sgttyb
-# define TTY_FLAGS              sg_flags
-# define TTY_get(tty, data)      ioctl(tty, TIOCGETP, data)
-# define TTY_set(tty, data)      ioctl(tty, TIOCSETP, data)
+#include <sgtty.h>
+#define TTY_STRUCT             struct sgttyb
+#define TTY_FLAGS              sg_flags
+#define TTY_get(tty, data)      ioctl(tty, TIOCGETP, data)
+#define TTY_set(tty, data)      ioctl(tty, TIOCSETP, data)
 #endif
 
 #if !defined(_LIBC) && !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VMS)
-# include <sys/ioctl.h>
+#include <sys/ioctl.h>
 #endif
 
 #ifdef OPENSSL_SYS_MSDOS
-# include <conio.h>
+#include <conio.h>
 #endif
 
 #ifdef OPENSSL_SYS_VMS
-# include <ssdef.h>
-# include <iodef.h>
-# include <ttdef.h>
-# include <descrip.h>
+#include <ssdef.h>
+#include <iodef.h>
+#include <ttdef.h>
+#include <descrip.h>
 struct IOSB {
 	short iosb$w_value;
 
@@ -144,7 +144,7 @@ struct IOSB {
 #endif
 
 #ifndef NX509_SIG
-# define NX509_SIG 32
+#define NX509_SIG 32
 #endif
 
 /* Define globals.  They are protected by a lock */
@@ -269,7 +269,7 @@ static int read_string(UI * ui, UI_STRING * uis)
 /* Internal functions to read a string without echoing */
 static int read_till_nl(FILE * in)
 {
-# define SIZE 4
+#define SIZE 4
 	char buf[SIZE + 1];
 
 	do {
@@ -405,9 +405,9 @@ static int open_console(UI * ui)
 	}
 #else
 # ifdef OPENSSL_SYS_MSDOS
-#  define DEV_TTY "con"
+#define DEV_TTY "con"
 # else
-#  define DEV_TTY "/dev/tty"
+#define DEV_TTY "/dev/tty"
 # endif
 	if((tty_in = fopen(DEV_TTY, "r")) == NULL)
 		tty_in = stdin;

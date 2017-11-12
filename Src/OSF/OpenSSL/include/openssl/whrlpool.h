@@ -8,20 +8,20 @@
  */
 
 #ifndef HEADER_WHRLPOOL_H
-# define HEADER_WHRLPOOL_H
+#define HEADER_WHRLPOOL_H
 
 #include <openssl/opensslconf.h>
 
 # ifndef OPENSSL_NO_WHIRLPOOL
-# include <openssl/e_os2.h>
-# include <stddef.h>
+#include <openssl/e_os2.h>
+#include <stddef.h>
 # ifdef __cplusplus
 extern "C" {
 # endif
 
-# define WHIRLPOOL_DIGEST_LENGTH (512/8)
-# define WHIRLPOOL_BBLOCK        512
-# define WHIRLPOOL_COUNTER       (256/8)
+#define WHIRLPOOL_DIGEST_LENGTH (512/8)
+#define WHIRLPOOL_BBLOCK        512
+#define WHIRLPOOL_COUNTER       (256/8)
 
 typedef struct {
     union {

@@ -744,7 +744,7 @@ uint16_t _cairo_half_from_float(float f)
 }
 
 #ifndef __BIONIC__
-# include <locale.h>
+#include <locale.h>
 
 const char * cairo_get_locale_decimal_point(void)
 {
@@ -766,10 +766,10 @@ const char * cairo_get_locale_decimal_point(void)
 #define WIN32_LEAN_AND_MEAN
 /* We require Windows 2000 features such as ETO_PDY */
 #if !defined(WINVER) || (WINVER < 0x0600) // @sobolev 0x0500-->0x0600
-# define WINVER 0x0600 // @sobolev 0x0500-->0x0600
+#define WINVER 0x0600 // @sobolev 0x0500-->0x0600
 #endif
 #if !defined(_WIN32_WINNT) || (_WIN32_WINNT < 0x0600) // @sobolev 0x0500-->0x0600
-# define _WIN32_WINNT 0x0600 // @sobolev 0x0500-->0x0600
+#define _WIN32_WINNT 0x0600 // @sobolev 0x0500-->0x0600
 #endif
 
 #include <windows.h>

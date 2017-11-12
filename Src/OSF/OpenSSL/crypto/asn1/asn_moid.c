@@ -8,11 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/crypto.h>
-//#include <openssl/conf.h>
-//#include <openssl/x509.h>
-//#include <internal/asn1_int.h>
-//#include <internal/objects.h>
 
 /* Simple ASN1 OID module: add all objects in a given section */
 

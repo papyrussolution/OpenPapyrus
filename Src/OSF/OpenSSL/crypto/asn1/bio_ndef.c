@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1.h>
-//#include <openssl/asn1t.h>
-//#include <openssl/bio.h>
-//#include <openssl/err.h>
 
 /* Experimental NDEF ASN1 BIO support routines */
 

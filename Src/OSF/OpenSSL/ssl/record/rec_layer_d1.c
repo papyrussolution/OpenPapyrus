@@ -8,12 +8,6 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include <errno.h>
-//#define USE_SOCKETS
-//#include "../ssl_locl.h"
-//#include <openssl/evp.h>
-//#include <openssl/buffer.h>
 #include "record_locl.h"
 
 int DTLS_RECORD_LAYER_new(RECORD_LAYER * rl)

@@ -8,7 +8,7 @@
  */
 
 #ifndef HEADER_CMAC_H
-# define HEADER_CMAC_H
+#define HEADER_CMAC_H
 
 # ifndef OPENSSL_NO_CMAC
 
@@ -16,7 +16,7 @@
 extern "C" {
 #endif
 
-# include <openssl/evp.h>
+#include <openssl/evp.h>
 
 /* Opaque */
 typedef struct CMAC_CTX_st CMAC_CTX;

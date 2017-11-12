@@ -10,8 +10,8 @@
 #ifndef HEADER_X509V3_H
 #define HEADER_X509V3_H
 
-#include <openssl/bio.h>
-#include <openssl/x509.h>
+//#include <openssl/bio.h>
+//#include <openssl/x509.h>
 #include <openssl/conf.h>
 
 #ifdef __cplusplus
@@ -68,8 +68,8 @@ typedef struct X509V3_CONF_METHOD_st {
 
 /* Context specific info */
 struct v3_ext_ctx {
-# define CTX_TEST 0x1
-# define X509V3_CTX_REPLACE 0x2
+#define CTX_TEST 0x1
+#define X509V3_CTX_REPLACE 0x2
 	int flags;
 	X509 * issuer_cert;
 	X509 * subject_cert;
@@ -85,9 +85,9 @@ typedef struct v3_ext_method X509V3_EXT_METHOD;
 DEFINE_STACK_OF(X509V3_EXT_METHOD)
 
 /* ext_flags values */
-# define X509V3_EXT_DYNAMIC      0x1
-# define X509V3_EXT_CTX_DEP      0x2
-# define X509V3_EXT_MULTILINE    0x4
+#define X509V3_EXT_DYNAMIC      0x1
+#define X509V3_EXT_CTX_DEP      0x2
+#define X509V3_EXT_MULTILINE    0x4
 
 typedef BIT_STRING_BITNAME ENUMERATED_NAMES;
 
@@ -112,15 +112,15 @@ typedef struct EDIPartyName_st {
 } EDIPARTYNAME;
 
 typedef struct GENERAL_NAME_st {
-# define GEN_OTHERNAME   0
-# define GEN_EMAIL       1
-# define GEN_DNS         2
-# define GEN_X400        3
-# define GEN_DIRNAME     4
-# define GEN_EDIPARTY    5
-# define GEN_URI         6
-# define GEN_IPADD       7
-# define GEN_RID         8
+#define GEN_OTHERNAME   0
+#define GEN_EMAIL       1
+#define GEN_DNS         2
+#define GEN_X400        3
+#define GEN_DIRNAME     4
+#define GEN_EDIPARTY    5
+#define GEN_URI         6
+#define GEN_IPADD       7
+#define GEN_RID         8
 	int type;
 	union {
 		char * ptr;
@@ -169,19 +169,19 @@ typedef struct DIST_POINT_NAME_st {
 	X509_NAME * dpname;
 } DIST_POINT_NAME;
 /* All existing reasons */
-# define CRLDP_ALL_REASONS       0x807f
+#define CRLDP_ALL_REASONS       0x807f
 
-# define CRL_REASON_NONE                         -1
-# define CRL_REASON_UNSPECIFIED                  0
-# define CRL_REASON_KEY_COMPROMISE               1
-# define CRL_REASON_CA_COMPROMISE                2
-# define CRL_REASON_AFFILIATION_CHANGED          3
-# define CRL_REASON_SUPERSEDED                   4
-# define CRL_REASON_CESSATION_OF_OPERATION       5
-# define CRL_REASON_CERTIFICATE_HOLD             6
-# define CRL_REASON_REMOVE_FROM_CRL              8
-# define CRL_REASON_PRIVILEGE_WITHDRAWN          9
-# define CRL_REASON_AA_COMPROMISE                10
+#define CRL_REASON_NONE                         -1
+#define CRL_REASON_UNSPECIFIED                  0
+#define CRL_REASON_KEY_COMPROMISE               1
+#define CRL_REASON_CA_COMPROMISE                2
+#define CRL_REASON_AFFILIATION_CHANGED          3
+#define CRL_REASON_SUPERSEDED                   4
+#define CRL_REASON_CESSATION_OF_OPERATION       5
+#define CRL_REASON_CERTIFICATE_HOLD             6
+#define CRL_REASON_REMOVE_FROM_CRL              8
+#define CRL_REASON_PRIVILEGE_WITHDRAWN          9
+#define CRL_REASON_AA_COMPROMISE                10
 
 struct DIST_POINT_st {
 	DIST_POINT_NAME * distpoint;
@@ -296,28 +296,28 @@ struct ISSUING_DIST_POINT_st {
 
 /* Values in idp_flags field */
 /* IDP present */
-# define IDP_PRESENT     0x1
+#define IDP_PRESENT     0x1
 /* IDP values inconsistent */
-# define IDP_INVALID     0x2
+#define IDP_INVALID     0x2
 /* onlyuser true */
-# define IDP_ONLYUSER    0x4
+#define IDP_ONLYUSER    0x4
 /* onlyCA true */
-# define IDP_ONLYCA      0x8
+#define IDP_ONLYCA      0x8
 /* onlyattr true */
-# define IDP_ONLYATTR    0x10
+#define IDP_ONLYATTR    0x10
 /* indirectCRL true */
-# define IDP_INDIRECT    0x20
+#define IDP_INDIRECT    0x20
 /* onlysomereasons present */
-# define IDP_REASONS     0x40
+#define IDP_REASONS     0x40
 
-# define X509V3_conf_err(val) ERR_add_error_data(6, "section:", val->section, \
+#define X509V3_conf_err(val) ERR_add_error_data(6, "section:", val->section, \
 	    ",name:", val->name, ",value:", val->value);
 
-# define X509V3_set_ctx_test(ctx) \
+#define X509V3_set_ctx_test(ctx) \
 	X509V3_set_ctx(ctx, NULL, NULL, NULL, NULL, CTX_TEST)
-# define X509V3_set_ctx_nodb(ctx) (ctx)->db = NULL;
+#define X509V3_set_ctx_nodb(ctx) (ctx)->db = NULL;
 
-# define EXT_BITSTRING(nid, table) { nid, 0, ASN1_ITEM_ref(ASN1_BIT_STRING), \
+#define EXT_BITSTRING(nid, table) { nid, 0, ASN1_ITEM_ref(ASN1_BIT_STRING), \
 				     0, 0, 0, 0, \
 				     0, 0, \
 				     (X509V3_EXT_I2V)i2v_ASN1_BIT_STRING, \
@@ -325,68 +325,68 @@ struct ISSUING_DIST_POINT_st {
 				     NULL, NULL, \
 				     table}
 
-# define EXT_IA5STRING(nid) { nid, 0, ASN1_ITEM_ref(ASN1_IA5STRING), \
+#define EXT_IA5STRING(nid) { nid, 0, ASN1_ITEM_ref(ASN1_IA5STRING), \
 			      0, 0, 0, 0, \
 			      (X509V3_EXT_I2S)i2s_ASN1_IA5STRING, \
 			      (X509V3_EXT_S2I)s2i_ASN1_IA5STRING, \
 			      0, 0, 0, 0, \
 			      NULL}
 
-# define EXT_END { -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define EXT_END { -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 /* X509_PURPOSE stuff */
 
-# define EXFLAG_BCONS            0x1
-# define EXFLAG_KUSAGE           0x2
-# define EXFLAG_XKUSAGE          0x4
-# define EXFLAG_NSCERT           0x8
+#define EXFLAG_BCONS            0x1
+#define EXFLAG_KUSAGE           0x2
+#define EXFLAG_XKUSAGE          0x4
+#define EXFLAG_NSCERT           0x8
 
-# define EXFLAG_CA               0x10
+#define EXFLAG_CA               0x10
 /* Really self issued not necessarily self signed */
-# define EXFLAG_SI               0x20
-# define EXFLAG_V1               0x40
-# define EXFLAG_INVALID          0x80
+#define EXFLAG_SI               0x20
+#define EXFLAG_V1               0x40
+#define EXFLAG_INVALID          0x80
 /* EXFLAG_SET is set to indicate that some values have been precomputed */
-# define EXFLAG_SET              0x100
-# define EXFLAG_CRITICAL         0x200
-# define EXFLAG_PROXY            0x400
+#define EXFLAG_SET              0x100
+#define EXFLAG_CRITICAL         0x200
+#define EXFLAG_PROXY            0x400
 
-# define EXFLAG_INVALID_POLICY   0x800
-# define EXFLAG_FRESHEST         0x1000
+#define EXFLAG_INVALID_POLICY   0x800
+#define EXFLAG_FRESHEST         0x1000
 /* Self signed */
-# define EXFLAG_SS               0x2000
+#define EXFLAG_SS               0x2000
 
-# define KU_DIGITAL_SIGNATURE    0x0080
-# define KU_NON_REPUDIATION      0x0040
-# define KU_KEY_ENCIPHERMENT     0x0020
-# define KU_DATA_ENCIPHERMENT    0x0010
-# define KU_KEY_AGREEMENT        0x0008
-# define KU_KEY_CERT_SIGN        0x0004
-# define KU_CRL_SIGN             0x0002
-# define KU_ENCIPHER_ONLY        0x0001
-# define KU_DECIPHER_ONLY        0x8000
+#define KU_DIGITAL_SIGNATURE    0x0080
+#define KU_NON_REPUDIATION      0x0040
+#define KU_KEY_ENCIPHERMENT     0x0020
+#define KU_DATA_ENCIPHERMENT    0x0010
+#define KU_KEY_AGREEMENT        0x0008
+#define KU_KEY_CERT_SIGN        0x0004
+#define KU_CRL_SIGN             0x0002
+#define KU_ENCIPHER_ONLY        0x0001
+#define KU_DECIPHER_ONLY        0x8000
 
-# define NS_SSL_CLIENT           0x80
-# define NS_SSL_SERVER           0x40
-# define NS_SMIME                0x20
-# define NS_OBJSIGN              0x10
-# define NS_SSL_CA               0x04
-# define NS_SMIME_CA             0x02
-# define NS_OBJSIGN_CA           0x01
-# define NS_ANY_CA               (NS_SSL_CA|NS_SMIME_CA|NS_OBJSIGN_CA)
+#define NS_SSL_CLIENT           0x80
+#define NS_SSL_SERVER           0x40
+#define NS_SMIME                0x20
+#define NS_OBJSIGN              0x10
+#define NS_SSL_CA               0x04
+#define NS_SMIME_CA             0x02
+#define NS_OBJSIGN_CA           0x01
+#define NS_ANY_CA               (NS_SSL_CA|NS_SMIME_CA|NS_OBJSIGN_CA)
 
-# define XKU_SSL_SERVER          0x1
-# define XKU_SSL_CLIENT          0x2
-# define XKU_SMIME               0x4
-# define XKU_CODE_SIGN           0x8
-# define XKU_SGC                 0x10
-# define XKU_OCSP_SIGN           0x20
-# define XKU_TIMESTAMP           0x40
-# define XKU_DVCS                0x80
-# define XKU_ANYEKU              0x100
+#define XKU_SSL_SERVER          0x1
+#define XKU_SSL_CLIENT          0x2
+#define XKU_SMIME               0x4
+#define XKU_CODE_SIGN           0x8
+#define XKU_SGC                 0x10
+#define XKU_OCSP_SIGN           0x20
+#define XKU_TIMESTAMP           0x40
+#define XKU_DVCS                0x80
+#define XKU_ANYEKU              0x100
 
-# define X509_PURPOSE_DYNAMIC    0x1
-# define X509_PURPOSE_DYNAMIC_NAME       0x2
+#define X509_PURPOSE_DYNAMIC    0x1
+#define X509_PURPOSE_DYNAMIC_NAME       0x2
 
 typedef struct x509_purpose_st {
 	int purpose;
@@ -399,41 +399,41 @@ typedef struct x509_purpose_st {
 	void * usr_data;
 } X509_PURPOSE;
 
-# define X509_PURPOSE_SSL_CLIENT         1
-# define X509_PURPOSE_SSL_SERVER         2
-# define X509_PURPOSE_NS_SSL_SERVER      3
-# define X509_PURPOSE_SMIME_SIGN         4
-# define X509_PURPOSE_SMIME_ENCRYPT      5
-# define X509_PURPOSE_CRL_SIGN           6
-# define X509_PURPOSE_ANY                7
-# define X509_PURPOSE_OCSP_HELPER        8
-# define X509_PURPOSE_TIMESTAMP_SIGN     9
+#define X509_PURPOSE_SSL_CLIENT         1
+#define X509_PURPOSE_SSL_SERVER         2
+#define X509_PURPOSE_NS_SSL_SERVER      3
+#define X509_PURPOSE_SMIME_SIGN         4
+#define X509_PURPOSE_SMIME_ENCRYPT      5
+#define X509_PURPOSE_CRL_SIGN           6
+#define X509_PURPOSE_ANY                7
+#define X509_PURPOSE_OCSP_HELPER        8
+#define X509_PURPOSE_TIMESTAMP_SIGN     9
 
-# define X509_PURPOSE_MIN                1
-# define X509_PURPOSE_MAX                9
+#define X509_PURPOSE_MIN                1
+#define X509_PURPOSE_MAX                9
 
 /* Flags for X509V3_EXT_print() */
 
-# define X509V3_EXT_UNKNOWN_MASK         (0xfL << 16)
+#define X509V3_EXT_UNKNOWN_MASK         (0xfL << 16)
 /* Return error for unknown extensions */
-# define X509V3_EXT_DEFAULT              0
+#define X509V3_EXT_DEFAULT              0
 /* Print error for unknown extensions */
-# define X509V3_EXT_ERROR_UNKNOWN        (1L << 16)
+#define X509V3_EXT_ERROR_UNKNOWN        (1L << 16)
 /* ASN1 parse unknown extensions */
-# define X509V3_EXT_PARSE_UNKNOWN        (2L << 16)
+#define X509V3_EXT_PARSE_UNKNOWN        (2L << 16)
 /* BIO_dump unknown extensions */
-# define X509V3_EXT_DUMP_UNKNOWN         (3L << 16)
+#define X509V3_EXT_DUMP_UNKNOWN         (3L << 16)
 
 /* Flags for X509V3_add1_i2d */
 
-# define X509V3_ADD_OP_MASK              0xfL
-# define X509V3_ADD_DEFAULT              0L
-# define X509V3_ADD_APPEND               1L
-# define X509V3_ADD_REPLACE              2L
-# define X509V3_ADD_REPLACE_EXISTING     3L
-# define X509V3_ADD_KEEP_EXISTING        4L
-# define X509V3_ADD_DELETE               5L
-# define X509V3_ADD_SILENT               0x10
+#define X509V3_ADD_OP_MASK              0xfL
+#define X509V3_ADD_DEFAULT              0L
+#define X509V3_ADD_APPEND               1L
+#define X509V3_ADD_REPLACE              2L
+#define X509V3_ADD_REPLACE_EXISTING     3L
+#define X509V3_ADD_KEEP_EXISTING        4L
+#define X509V3_ADD_DELETE               5L
+#define X509V3_ADD_SILENT               0x10
 
 DEFINE_STACK_OF(X509_PURPOSE)
 
@@ -621,8 +621,8 @@ int X509V3_add1_i2d(STACK_OF(X509_EXTENSION) **x, int nid, void * value,
 
 #if OPENSSL_API_COMPAT < 0x10100000L
 /* The new declarations are in crypto.h, but the old ones were here. */
-# define hex_to_string OPENSSL_buf2hexstr
-# define string_to_hex OPENSSL_hexstr2buf
+#define hex_to_string OPENSSL_buf2hexstr
+#define string_to_hex OPENSSL_hexstr2buf
 #endif
 
 void X509V3_EXT_val_prn(BIO *out, STACK_OF(CONF_VALUE) *val, int indent,
@@ -673,23 +673,23 @@ STACK_OF(OPENSSL_STRING) *X509_get1_ocsp(X509 *x);
 /*
  * Always check subject name for host match even if subject alt names present
  */
-# define X509_CHECK_FLAG_ALWAYS_CHECK_SUBJECT    0x1
+#define X509_CHECK_FLAG_ALWAYS_CHECK_SUBJECT    0x1
 /* Disable wildcard matching for dnsName fields and common name. */
-# define X509_CHECK_FLAG_NO_WILDCARDS    0x2
+#define X509_CHECK_FLAG_NO_WILDCARDS    0x2
 /* Wildcards must not match a partial label. */
-# define X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS 0x4
+#define X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS 0x4
 /* Allow (non-partial) wildcards to match multiple labels. */
-# define X509_CHECK_FLAG_MULTI_LABEL_WILDCARDS 0x8
+#define X509_CHECK_FLAG_MULTI_LABEL_WILDCARDS 0x8
 /* Constraint verifier subdomain patterns to match a single labels. */
-# define X509_CHECK_FLAG_SINGLE_LABEL_SUBDOMAINS 0x10
+#define X509_CHECK_FLAG_SINGLE_LABEL_SUBDOMAINS 0x10
 /* Never check the subject CN */
-# define X509_CHECK_FLAG_NEVER_CHECK_SUBJECT    0x20
+#define X509_CHECK_FLAG_NEVER_CHECK_SUBJECT    0x20
 /*
  * Match reference identifiers starting with "." to any sub-domain.
  * This is a non-public flag, turned on implicitly when the subject
  * reference identity is a DNS name.
  */
-# define _X509_CHECK_FLAG_DOT_SUBDOMAINS 0x8000
+#define _X509_CHECK_FLAG_DOT_SUBDOMAINS 0x8000
 
 int X509_check_host(X509 * x, const char * chk, size_t chklen,
     uint flags, char ** peername);
@@ -712,8 +712,8 @@ typedef struct ASRange_st {
 	ASN1_INTEGER * min, * max;
 } ASRange;
 
-# define ASIdOrRange_id          0
-# define ASIdOrRange_range       1
+#define ASIdOrRange_id          0
+#define ASIdOrRange_range       1
 
 typedef struct ASIdOrRange_st {
 	int type;
@@ -726,8 +726,8 @@ typedef struct ASIdOrRange_st {
 typedef STACK_OF (ASIdOrRange) ASIdOrRanges;
 DEFINE_STACK_OF(ASIdOrRange)
 
-# define ASIdentifierChoice_inherit              0
-# define ASIdentifierChoice_asIdsOrRanges        1
+#define ASIdentifierChoice_inherit              0
+#define ASIdentifierChoice_asIdsOrRanges        1
 
 typedef struct ASIdentifierChoice_st {
 	int type;
@@ -750,8 +750,8 @@ typedef struct IPAddressRange_st {
 	ASN1_BIT_STRING * min, * max;
 } IPAddressRange;
 
-# define IPAddressOrRange_addressPrefix  0
-# define IPAddressOrRange_addressRange   1
+#define IPAddressOrRange_addressPrefix  0
+#define IPAddressOrRange_addressRange   1
 
 typedef struct IPAddressOrRange_st {
 	int type;
@@ -791,8 +791,8 @@ DECLARE_ASN1_FUNCTIONS(IPAddressFamily)
 /*
  * API tag for elements of the ASIdentifer SEQUENCE.
  */
-# define V3_ASID_ASNUM   0
-# define V3_ASID_RDI     1
+#define V3_ASID_ASNUM   0
+#define V3_ASID_RDI     1
 
 /*
  * AFI values, assigned by IANA.  It'd be nice to make the AFI
@@ -800,8 +800,8 @@ DECLARE_ASN1_FUNCTIONS(IPAddressFamily)
  * that would need to be defined for other address families for it to
  * be worth the trouble.
  */
-# define IANA_AFI_IPV4   1
-# define IANA_AFI_IPV6   2
+#define IANA_AFI_IPV4   1
+#define IANA_AFI_IPV6   2
 
 /*
  * Utilities to construct and extract values from RFC3779 extensions,
@@ -864,133 +864,133 @@ int ERR_load_X509V3_strings(void);
 /* Error codes for the X509V3 functions. */
 
 /* Function codes. */
-# define X509V3_F_A2I_GENERAL_NAME                        164
-# define X509V3_F_ADDR_VALIDATE_PATH_INTERNAL             166
-# define X509V3_F_ASIDENTIFIERCHOICE_CANONIZE             161
-# define X509V3_F_ASIDENTIFIERCHOICE_IS_CANONICAL         162
-# define X509V3_F_COPY_EMAIL                              122
-# define X509V3_F_COPY_ISSUER                             123
-# define X509V3_F_DO_DIRNAME                              144
-# define X509V3_F_DO_EXT_I2D                              135
-# define X509V3_F_DO_EXT_NCONF                            151
-# define X509V3_F_GNAMES_FROM_SECTNAME                    156
-# define X509V3_F_I2S_ASN1_ENUMERATED                     121
-# define X509V3_F_I2S_ASN1_IA5STRING                      149
-# define X509V3_F_I2S_ASN1_INTEGER                        120
-# define X509V3_F_I2V_AUTHORITY_INFO_ACCESS               138
-# define X509V3_F_NOTICE_SECTION                          132
-# define X509V3_F_NREF_NOS                                133
-# define X509V3_F_POLICY_SECTION                          131
-# define X509V3_F_PROCESS_PCI_VALUE                       150
-# define X509V3_F_R2I_CERTPOL                             130
-# define X509V3_F_R2I_PCI                                 155
-# define X509V3_F_S2I_ASN1_IA5STRING                      100
-# define X509V3_F_S2I_ASN1_INTEGER                        108
-# define X509V3_F_S2I_ASN1_OCTET_STRING                   112
-# define X509V3_F_S2I_SKEY_ID                             115
-# define X509V3_F_SET_DIST_POINT_NAME                     158
-# define X509V3_F_SXNET_ADD_ID_ASC                        125
-# define X509V3_F_SXNET_ADD_ID_INTEGER                    126
-# define X509V3_F_SXNET_ADD_ID_ULONG                      127
-# define X509V3_F_SXNET_GET_ID_ASC                        128
-# define X509V3_F_SXNET_GET_ID_ULONG                      129
-# define X509V3_F_V2I_ASIDENTIFIERS                       163
-# define X509V3_F_V2I_ASN1_BIT_STRING                     101
-# define X509V3_F_V2I_AUTHORITY_INFO_ACCESS               139
-# define X509V3_F_V2I_AUTHORITY_KEYID                     119
-# define X509V3_F_V2I_BASIC_CONSTRAINTS                   102
-# define X509V3_F_V2I_CRLD                                134
-# define X509V3_F_V2I_EXTENDED_KEY_USAGE                  103
-# define X509V3_F_V2I_GENERAL_NAMES                       118
-# define X509V3_F_V2I_GENERAL_NAME_EX                     117
-# define X509V3_F_V2I_IDP                                 157
-# define X509V3_F_V2I_IPADDRBLOCKS                        159
-# define X509V3_F_V2I_ISSUER_ALT                          153
-# define X509V3_F_V2I_NAME_CONSTRAINTS                    147
-# define X509V3_F_V2I_POLICY_CONSTRAINTS                  146
-# define X509V3_F_V2I_POLICY_MAPPINGS                     145
-# define X509V3_F_V2I_SUBJECT_ALT                         154
-# define X509V3_F_V2I_TLS_FEATURE                         165
-# define X509V3_F_V3_GENERIC_EXTENSION                    116
-# define X509V3_F_X509V3_ADD1_I2D                         140
-# define X509V3_F_X509V3_ADD_VALUE                        105
-# define X509V3_F_X509V3_EXT_ADD                          104
-# define X509V3_F_X509V3_EXT_ADD_ALIAS                    106
-# define X509V3_F_X509V3_EXT_I2D                          136
-# define X509V3_F_X509V3_EXT_NCONF                        152
-# define X509V3_F_X509V3_GET_SECTION                      142
-# define X509V3_F_X509V3_GET_STRING                       143
-# define X509V3_F_X509V3_GET_VALUE_BOOL                   110
-# define X509V3_F_X509V3_PARSE_LIST                       109
-# define X509V3_F_X509_PURPOSE_ADD                        137
-# define X509V3_F_X509_PURPOSE_SET                        141
+#define X509V3_F_A2I_GENERAL_NAME                        164
+#define X509V3_F_ADDR_VALIDATE_PATH_INTERNAL             166
+#define X509V3_F_ASIDENTIFIERCHOICE_CANONIZE             161
+#define X509V3_F_ASIDENTIFIERCHOICE_IS_CANONICAL         162
+#define X509V3_F_COPY_EMAIL                              122
+#define X509V3_F_COPY_ISSUER                             123
+#define X509V3_F_DO_DIRNAME                              144
+#define X509V3_F_DO_EXT_I2D                              135
+#define X509V3_F_DO_EXT_NCONF                            151
+#define X509V3_F_GNAMES_FROM_SECTNAME                    156
+#define X509V3_F_I2S_ASN1_ENUMERATED                     121
+#define X509V3_F_I2S_ASN1_IA5STRING                      149
+#define X509V3_F_I2S_ASN1_INTEGER                        120
+#define X509V3_F_I2V_AUTHORITY_INFO_ACCESS               138
+#define X509V3_F_NOTICE_SECTION                          132
+#define X509V3_F_NREF_NOS                                133
+#define X509V3_F_POLICY_SECTION                          131
+#define X509V3_F_PROCESS_PCI_VALUE                       150
+#define X509V3_F_R2I_CERTPOL                             130
+#define X509V3_F_R2I_PCI                                 155
+#define X509V3_F_S2I_ASN1_IA5STRING                      100
+#define X509V3_F_S2I_ASN1_INTEGER                        108
+#define X509V3_F_S2I_ASN1_OCTET_STRING                   112
+#define X509V3_F_S2I_SKEY_ID                             115
+#define X509V3_F_SET_DIST_POINT_NAME                     158
+#define X509V3_F_SXNET_ADD_ID_ASC                        125
+#define X509V3_F_SXNET_ADD_ID_INTEGER                    126
+#define X509V3_F_SXNET_ADD_ID_ULONG                      127
+#define X509V3_F_SXNET_GET_ID_ASC                        128
+#define X509V3_F_SXNET_GET_ID_ULONG                      129
+#define X509V3_F_V2I_ASIDENTIFIERS                       163
+#define X509V3_F_V2I_ASN1_BIT_STRING                     101
+#define X509V3_F_V2I_AUTHORITY_INFO_ACCESS               139
+#define X509V3_F_V2I_AUTHORITY_KEYID                     119
+#define X509V3_F_V2I_BASIC_CONSTRAINTS                   102
+#define X509V3_F_V2I_CRLD                                134
+#define X509V3_F_V2I_EXTENDED_KEY_USAGE                  103
+#define X509V3_F_V2I_GENERAL_NAMES                       118
+#define X509V3_F_V2I_GENERAL_NAME_EX                     117
+#define X509V3_F_V2I_IDP                                 157
+#define X509V3_F_V2I_IPADDRBLOCKS                        159
+#define X509V3_F_V2I_ISSUER_ALT                          153
+#define X509V3_F_V2I_NAME_CONSTRAINTS                    147
+#define X509V3_F_V2I_POLICY_CONSTRAINTS                  146
+#define X509V3_F_V2I_POLICY_MAPPINGS                     145
+#define X509V3_F_V2I_SUBJECT_ALT                         154
+#define X509V3_F_V2I_TLS_FEATURE                         165
+#define X509V3_F_V3_GENERIC_EXTENSION                    116
+#define X509V3_F_X509V3_ADD1_I2D                         140
+#define X509V3_F_X509V3_ADD_VALUE                        105
+#define X509V3_F_X509V3_EXT_ADD                          104
+#define X509V3_F_X509V3_EXT_ADD_ALIAS                    106
+#define X509V3_F_X509V3_EXT_I2D                          136
+#define X509V3_F_X509V3_EXT_NCONF                        152
+#define X509V3_F_X509V3_GET_SECTION                      142
+#define X509V3_F_X509V3_GET_STRING                       143
+#define X509V3_F_X509V3_GET_VALUE_BOOL                   110
+#define X509V3_F_X509V3_PARSE_LIST                       109
+#define X509V3_F_X509_PURPOSE_ADD                        137
+#define X509V3_F_X509_PURPOSE_SET                        141
 
 /* Reason codes. */
-# define X509V3_R_BAD_IP_ADDRESS                          118
-# define X509V3_R_BAD_OBJECT                              119
-# define X509V3_R_BN_DEC2BN_ERROR                         100
-# define X509V3_R_BN_TO_ASN1_INTEGER_ERROR                101
-# define X509V3_R_DIRNAME_ERROR                           149
-# define X509V3_R_DISTPOINT_ALREADY_SET                   160
-# define X509V3_R_DUPLICATE_ZONE_ID                       133
-# define X509V3_R_ERROR_CONVERTING_ZONE                   131
-# define X509V3_R_ERROR_CREATING_EXTENSION                144
-# define X509V3_R_ERROR_IN_EXTENSION                      128
-# define X509V3_R_EXPECTED_A_SECTION_NAME                 137
-# define X509V3_R_EXTENSION_EXISTS                        145
-# define X509V3_R_EXTENSION_NAME_ERROR                    115
-# define X509V3_R_EXTENSION_NOT_FOUND                     102
-# define X509V3_R_EXTENSION_SETTING_NOT_SUPPORTED         103
-# define X509V3_R_EXTENSION_VALUE_ERROR                   116
-# define X509V3_R_ILLEGAL_EMPTY_EXTENSION                 151
-# define X509V3_R_INCORRECT_POLICY_SYNTAX_TAG             152
-# define X509V3_R_INVALID_ASNUMBER                        162
-# define X509V3_R_INVALID_ASRANGE                         163
-# define X509V3_R_INVALID_BOOLEAN_STRING                  104
-# define X509V3_R_INVALID_EXTENSION_STRING                105
-# define X509V3_R_INVALID_INHERITANCE                     165
-# define X509V3_R_INVALID_IPADDRESS                       166
-# define X509V3_R_INVALID_MULTIPLE_RDNS                   161
-# define X509V3_R_INVALID_NAME                            106
-# define X509V3_R_INVALID_NULL_ARGUMENT                   107
-# define X509V3_R_INVALID_NULL_NAME                       108
-# define X509V3_R_INVALID_NULL_VALUE                      109
-# define X509V3_R_INVALID_NUMBER                          140
-# define X509V3_R_INVALID_NUMBERS                         141
-# define X509V3_R_INVALID_OBJECT_IDENTIFIER               110
-# define X509V3_R_INVALID_OPTION                          138
-# define X509V3_R_INVALID_POLICY_IDENTIFIER               134
-# define X509V3_R_INVALID_PROXY_POLICY_SETTING            153
-# define X509V3_R_INVALID_PURPOSE                         146
-# define X509V3_R_INVALID_SAFI                            164
-# define X509V3_R_INVALID_SECTION                         135
-# define X509V3_R_INVALID_SYNTAX                          143
-# define X509V3_R_ISSUER_DECODE_ERROR                     126
-# define X509V3_R_MISSING_VALUE                           124
-# define X509V3_R_NEED_ORGANIZATION_AND_NUMBERS           142
-# define X509V3_R_NO_CONFIG_DATABASE                      136
-# define X509V3_R_NO_ISSUER_CERTIFICATE                   121
-# define X509V3_R_NO_ISSUER_DETAILS                       127
-# define X509V3_R_NO_POLICY_IDENTIFIER                    139
-# define X509V3_R_NO_PROXY_CERT_POLICY_LANGUAGE_DEFINED   154
-# define X509V3_R_NO_PUBLIC_KEY                           114
-# define X509V3_R_NO_SUBJECT_DETAILS                      125
-# define X509V3_R_OPERATION_NOT_DEFINED                   148
-# define X509V3_R_OTHERNAME_ERROR                         147
-# define X509V3_R_POLICY_LANGUAGE_ALREADY_DEFINED         155
-# define X509V3_R_POLICY_PATH_LENGTH                      156
-# define X509V3_R_POLICY_PATH_LENGTH_ALREADY_DEFINED      157
-# define X509V3_R_POLICY_WHEN_PROXY_LANGUAGE_REQUIRES_NO_POLICY 159
-# define X509V3_R_SECTION_NOT_FOUND                       150
-# define X509V3_R_UNABLE_TO_GET_ISSUER_DETAILS            122
-# define X509V3_R_UNABLE_TO_GET_ISSUER_KEYID              123
-# define X509V3_R_UNKNOWN_BIT_STRING_ARGUMENT             111
-# define X509V3_R_UNKNOWN_EXTENSION                       129
-# define X509V3_R_UNKNOWN_EXTENSION_NAME                  130
-# define X509V3_R_UNKNOWN_OPTION                          120
-# define X509V3_R_UNSUPPORTED_OPTION                      117
-# define X509V3_R_UNSUPPORTED_TYPE                        167
-# define X509V3_R_USER_TOO_LONG                           132
+#define X509V3_R_BAD_IP_ADDRESS                          118
+#define X509V3_R_BAD_OBJECT                              119
+#define X509V3_R_BN_DEC2BN_ERROR                         100
+#define X509V3_R_BN_TO_ASN1_INTEGER_ERROR                101
+#define X509V3_R_DIRNAME_ERROR                           149
+#define X509V3_R_DISTPOINT_ALREADY_SET                   160
+#define X509V3_R_DUPLICATE_ZONE_ID                       133
+#define X509V3_R_ERROR_CONVERTING_ZONE                   131
+#define X509V3_R_ERROR_CREATING_EXTENSION                144
+#define X509V3_R_ERROR_IN_EXTENSION                      128
+#define X509V3_R_EXPECTED_A_SECTION_NAME                 137
+#define X509V3_R_EXTENSION_EXISTS                        145
+#define X509V3_R_EXTENSION_NAME_ERROR                    115
+#define X509V3_R_EXTENSION_NOT_FOUND                     102
+#define X509V3_R_EXTENSION_SETTING_NOT_SUPPORTED         103
+#define X509V3_R_EXTENSION_VALUE_ERROR                   116
+#define X509V3_R_ILLEGAL_EMPTY_EXTENSION                 151
+#define X509V3_R_INCORRECT_POLICY_SYNTAX_TAG             152
+#define X509V3_R_INVALID_ASNUMBER                        162
+#define X509V3_R_INVALID_ASRANGE                         163
+#define X509V3_R_INVALID_BOOLEAN_STRING                  104
+#define X509V3_R_INVALID_EXTENSION_STRING                105
+#define X509V3_R_INVALID_INHERITANCE                     165
+#define X509V3_R_INVALID_IPADDRESS                       166
+#define X509V3_R_INVALID_MULTIPLE_RDNS                   161
+#define X509V3_R_INVALID_NAME                            106
+#define X509V3_R_INVALID_NULL_ARGUMENT                   107
+#define X509V3_R_INVALID_NULL_NAME                       108
+#define X509V3_R_INVALID_NULL_VALUE                      109
+#define X509V3_R_INVALID_NUMBER                          140
+#define X509V3_R_INVALID_NUMBERS                         141
+#define X509V3_R_INVALID_OBJECT_IDENTIFIER               110
+#define X509V3_R_INVALID_OPTION                          138
+#define X509V3_R_INVALID_POLICY_IDENTIFIER               134
+#define X509V3_R_INVALID_PROXY_POLICY_SETTING            153
+#define X509V3_R_INVALID_PURPOSE                         146
+#define X509V3_R_INVALID_SAFI                            164
+#define X509V3_R_INVALID_SECTION                         135
+#define X509V3_R_INVALID_SYNTAX                          143
+#define X509V3_R_ISSUER_DECODE_ERROR                     126
+#define X509V3_R_MISSING_VALUE                           124
+#define X509V3_R_NEED_ORGANIZATION_AND_NUMBERS           142
+#define X509V3_R_NO_CONFIG_DATABASE                      136
+#define X509V3_R_NO_ISSUER_CERTIFICATE                   121
+#define X509V3_R_NO_ISSUER_DETAILS                       127
+#define X509V3_R_NO_POLICY_IDENTIFIER                    139
+#define X509V3_R_NO_PROXY_CERT_POLICY_LANGUAGE_DEFINED   154
+#define X509V3_R_NO_PUBLIC_KEY                           114
+#define X509V3_R_NO_SUBJECT_DETAILS                      125
+#define X509V3_R_OPERATION_NOT_DEFINED                   148
+#define X509V3_R_OTHERNAME_ERROR                         147
+#define X509V3_R_POLICY_LANGUAGE_ALREADY_DEFINED         155
+#define X509V3_R_POLICY_PATH_LENGTH                      156
+#define X509V3_R_POLICY_PATH_LENGTH_ALREADY_DEFINED      157
+#define X509V3_R_POLICY_WHEN_PROXY_LANGUAGE_REQUIRES_NO_POLICY 159
+#define X509V3_R_SECTION_NOT_FOUND                       150
+#define X509V3_R_UNABLE_TO_GET_ISSUER_DETAILS            122
+#define X509V3_R_UNABLE_TO_GET_ISSUER_KEYID              123
+#define X509V3_R_UNKNOWN_BIT_STRING_ARGUMENT             111
+#define X509V3_R_UNKNOWN_EXTENSION                       129
+#define X509V3_R_UNKNOWN_EXTENSION_NAME                  130
+#define X509V3_R_UNKNOWN_OPTION                          120
+#define X509V3_R_UNSUPPORTED_OPTION                      117
+#define X509V3_R_UNSUPPORTED_TYPE                        167
+#define X509V3_R_USER_TOO_LONG                           132
 
 # ifdef  __cplusplus
 }

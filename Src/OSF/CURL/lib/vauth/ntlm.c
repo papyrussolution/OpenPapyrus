@@ -33,21 +33,11 @@
 
 #define DEBUG_ME 0
 
-//#include "urldata.h"
-//#include "non-ascii.h"
-//#include "sendf.h"
-//#include "curl_base64.h"
 #include "curl_ntlm_core.h"
-//#include "curl_gethostname.h"
-//#include "curl_multibyte.h"
-//#include "warnless.h"
-//#include "rand.h"
-//#include "vtls/vtls.h"
 #ifdef USE_NSS
 	#include "vtls/nssg.h" /* for Curl_nss_force_init() */
 #endif
 #define BUILDING_CURL_NTLM_MSGS_C
-#include "vauth/vauth.h"
 #include "vauth/ntlm.h"
 #include "curl_endian.h"
 #include "curl_printf.h"
@@ -62,7 +52,7 @@
 #define LONGQUARTET(x) ((x) & 0xff), (((x) >> 8) & 0xff), (((x) >> 16) & 0xff), (((x) >> 24) & 0xff)
 
 #if DEBUG_ME
-# define DEBUG_OUT(x) x
+#define DEBUG_OUT(x) x
 static void ntlm_print_flags(FILE * handle, ulong flags)
 {
 	if(flags & NTLMFLAG_NEGOTIATE_UNICODE)

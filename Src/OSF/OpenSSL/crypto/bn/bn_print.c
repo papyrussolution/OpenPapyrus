@@ -68,7 +68,7 @@ char * BN_bn2dec(const BIGNUM * a)
 	bn_data_num = num / BN_DEC_NUM + 1;
 	bn_data = (uint*)OPENSSL_malloc(bn_data_num * sizeof(BN_ULONG));
 	buf = (char*)OPENSSL_malloc(num + 3);
-	if((buf == NULL) || (bn_data == NULL)) {
+	if(!buf || (bn_data == NULL)) {
 		BNerr(BN_F_BN_BN2DEC, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

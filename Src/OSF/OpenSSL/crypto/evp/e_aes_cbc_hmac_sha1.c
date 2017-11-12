@@ -8,13 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/evp.h>
-//#include <openssl/objects.h>
-//#include <openssl/aes.h>
-#include <openssl/sha.h>
-//#include <openssl/rand.h>
 #include "modes_lcl.h"
-//#include <internal/evp_int.h>
 #include "internal/constant_time_locl.h"
 
 typedef struct {
@@ -32,7 +26,7 @@ typedef struct {
 #if defined(AES_ASM) && (defined(__x86_64) || defined(__x86_64__) || defined(_M_AMD64) || defined(_M_X64))
 
 extern uint OPENSSL_ia32cap_P[];
-# define AESNI_CAPABLE   (1<<(57-32))
+#define AESNI_CAPABLE   (1<<(57-32))
 
 int aesni_set_encrypt_key(const uchar * userKey, int bits, AES_KEY * key);
 int aesni_set_decrypt_key(const uchar * userKey, int bits, AES_KEY * key);
@@ -57,11 +51,11 @@ static int aesni_cbc_hmac_sha1_init_key(EVP_CIPHER_CTX * ctx, const uchar * inke
 	return ret < 0 ? 0 : 1;
 }
 
-# define STITCHED_CALL
+#define STITCHED_CALL
 # undef  STITCHED_DECRYPT_CALL
 
 # if !defined(STITCHED_CALL)
-#  define aes_off 0
+#define aes_off 0
 # endif
 
 void sha1_block_data_order(void * c, const void * p, size_t len);
@@ -100,7 +94,7 @@ static void sha1_update(SHA_CTX * c, const void * data, size_t len)
 # ifdef SHA1_Update
 #  undef SHA1_Update
 # endif
-# define SHA1_Update sha1_update
+#define SHA1_Update sha1_update
 
 # if !defined(OPENSSL_NO_MULTIBLOCK)
 
@@ -221,7 +215,7 @@ static size_t tls1_1_multi_block_encrypt(EVP_AES_HMAC_SHA1 * key,
 	/* hash 13-byte headers and first 64-13 bytes of inputs */
 	sha1_multi_block(ctx, edges, n4x);
 	/* hash bulk inputs */
-#  define MAXCHUNKSIZE    2048
+#define MAXCHUNKSIZE    2048
 #  if     MAXCHUNKSIZE%64
 #   error  "MAXCHUNKSIZE is not divisible by 64"
 #  elif   MAXCHUNKSIZE

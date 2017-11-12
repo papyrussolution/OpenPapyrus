@@ -69,7 +69,7 @@
    https://technet.microsoft.com/en-us/library/hh831771%28v=ws.11%29.aspx
  */
 #if defined(_MSC_VER) && (_MSC_VER >= 1800) && !defined(_USING_V110_SDK71_)
-#  define HAS_ALPN 1
+#define HAS_ALPN 1
 #endif
 
 /* Uncomment to force verbose output

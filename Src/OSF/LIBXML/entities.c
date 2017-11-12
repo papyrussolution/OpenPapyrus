@@ -57,11 +57,11 @@ static void FASTCALL xmlEntitiesErr(xmlParserErrors code, const char * msg)
 /*
  * xmlFreeEntity : clean-up an entity record.
  */
-static void FASTCALL xmlFreeEntity(xmlEntityPtr entity)
+static void FASTCALL xmlFreeEntity(xmlEntity * entity)
 {
 	if(entity) {
 		xmlDict * dict = entity->doc ? entity->doc->dict : 0;
-		if(entity->children && (entity->owner == 1) && (entity == (xmlEntityPtr)entity->children->parent))
+		if(entity->children && (entity->owner == 1) && (entity == (xmlEntity *)entity->children->parent))
 			xmlFreeNodeList(entity->children);
 		if(dict) {
 			if(entity->name && !xmlDictOwns(dict, entity->name))
@@ -94,9 +94,9 @@ static void FASTCALL xmlFreeEntity(xmlEntityPtr entity)
  *
  * internal routine doing the entity node strutures allocations
  */
-static xmlEntityPtr xmlCreateEntity(xmlDict * dict, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content) 
+static xmlEntity * xmlCreateEntity(xmlDict * dict, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content) 
 {
-	xmlEntityPtr ret = (xmlEntityPtr)SAlloc::M(sizeof(xmlEntity));
+	xmlEntity * ret = (xmlEntity *)SAlloc::M(sizeof(xmlEntity));
 	if(!ret) {
 		xmlEntitiesErrMemory("xmlCreateEntity: malloc failed");
 		return 0;
@@ -138,7 +138,7 @@ static xmlEntityPtr xmlCreateEntity(xmlDict * dict, const xmlChar * name, int ty
 /*
  * xmlAddEntity : register a new entity for an entities table.
  */
-static xmlEntityPtr xmlAddEntity(xmlDtdPtr dtd, const xmlChar * name, int type,
+static xmlEntity * xmlAddEntity(xmlDtdPtr dtd, const xmlChar * name, int type,
     const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content)
 {
 	xmlEntity * ret = 0;
@@ -187,27 +187,27 @@ static xmlEntityPtr xmlAddEntity(xmlDtdPtr dtd, const xmlChar * name, int type,
  *
  * Returns NULL if not, otherwise the entity
  */
-xmlEntityPtr xmlGetPredefinedEntity(const xmlChar * name) 
+xmlEntity * FASTCALL xmlGetPredefinedEntity(const xmlChar * name) 
 {
 	if(name) {
 		switch(name[0]) {
 			case 'l':
 				if(sstreq(name, "lt"))
-					return(&xmlEntityLt);
+					return &xmlEntityLt;
 				break;
 			case 'g':
 				if(sstreq(name, "gt"))
-					return(&xmlEntityGt);
+					return &xmlEntityGt;
 				break;
 			case 'a':
 				if(sstreq(name, "amp"))
-					return(&xmlEntityAmp);
+					return &xmlEntityAmp;
 				if(sstreq(name, "apos"))
-					return(&xmlEntityApos);
+					return &xmlEntityApos;
 				break;
 			case 'q':
 				if(sstreq(name, "quot"))
-					return(&xmlEntityQuot);
+					return &xmlEntityQuot;
 				break;
 			default:
 				break;
@@ -229,7 +229,7 @@ xmlEntityPtr xmlGetPredefinedEntity(const xmlChar * name)
  *
  * Returns a pointer to the entity or NULL in case of error
  */
-xmlEntityPtr xmlAddDtdEntity(xmlDocPtr doc, const xmlChar * name, int type,
+xmlEntity * xmlAddDtdEntity(xmlDocPtr doc, const xmlChar * name, int type,
     const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content) 
 {
 	xmlEntity * ret;
@@ -275,7 +275,7 @@ xmlEntityPtr xmlAddDtdEntity(xmlDocPtr doc, const xmlChar * name, int type,
  *
  * Returns a pointer to the entity or NULL in case of error
  */
-xmlEntityPtr xmlAddDocEntity(xmlDocPtr doc, const xmlChar * name, int type,
+xmlEntity * xmlAddDocEntity(xmlDocPtr doc, const xmlChar * name, int type,
     const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content) 
 {
 	xmlEntity * ret = 0;
@@ -322,7 +322,7 @@ xmlEntityPtr xmlAddDocEntity(xmlDocPtr doc, const xmlChar * name, int type,
  *
  * Returns a pointer to the entity or NULL in case of error
  */
-xmlEntityPtr xmlNewEntity(xmlDocPtr doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content)
+xmlEntity * xmlNewEntity(xmlDocPtr doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content)
 {
 	if(doc && doc->intSubset) {
 		return xmlAddDocEntity(doc, name, type, ExternalID, SystemID, content);
@@ -361,7 +361,7 @@ static xmlEntity * FASTCALL xmlGetEntityFromTable(xmlEntitiesTable * table, cons
  *
  * Returns A pointer to the entity structure or NULL if not found.
  */
-xmlEntityPtr xmlGetParameterEntity(xmlDocPtr doc, const xmlChar * name)
+xmlEntity * xmlGetParameterEntity(xmlDocPtr doc, const xmlChar * name)
 {
 	xmlEntitiesTablePtr table;
 	xmlEntity * ret;
@@ -390,7 +390,7 @@ xmlEntityPtr xmlGetParameterEntity(xmlDocPtr doc, const xmlChar * name)
  *
  * Returns A pointer to the entity structure or NULL if not found.
  */
-xmlEntityPtr xmlGetDtdEntity(xmlDocPtr doc, const xmlChar * name)
+xmlEntity * xmlGetDtdEntity(xmlDocPtr doc, const xmlChar * name)
 {
 	if(doc && doc->extSubset && doc->extSubset->entities) {
 		xmlEntitiesTablePtr table = (xmlEntitiesTablePtr)doc->extSubset->entities;
@@ -777,7 +777,7 @@ xmlEntitiesTablePtr xmlCreateEntitiesTable() {
  *
  * Deallocate the memory used by an entities in the hash table.
  */
-static void xmlFreeEntityWrapper(xmlEntityPtr entity, const xmlChar * name ATTRIBUTE_UNUSED)
+static void xmlFreeEntityWrapper(xmlEntity * entity, const xmlChar * name ATTRIBUTE_UNUSED)
 {
 	xmlFreeEntity(entity);
 }
@@ -802,7 +802,7 @@ void xmlFreeEntitiesTable(xmlEntitiesTablePtr table)
  *
  * Returns the new xmlEntitiesPtr or NULL in case of error.
  */
-static xmlEntityPtr xmlCopyEntity(xmlEntityPtr ent)
+static xmlEntity * xmlCopyEntity(xmlEntity * ent)
 {
 	xmlEntity * cur = (xmlEntity *)SAlloc::M(sizeof(xmlEntity));
 	if(!cur) {
@@ -846,7 +846,7 @@ xmlEntitiesTablePtr xmlCopyEntitiesTable(xmlEntitiesTablePtr table) {
  * This will dump the quoted string value, taking care of the special
  * treatment required by %
  */
-static void xmlDumpEntityContent(xmlBufferPtr buf, const xmlChar * content) {
+static void xmlDumpEntityContent(xmlBuffer * buf, const xmlChar * content) {
 	if(buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE) return;
 	if(xmlStrchr(content, '%')) {
 		const xmlChar * base, * cur;
@@ -888,7 +888,7 @@ static void xmlDumpEntityContent(xmlBufferPtr buf, const xmlChar * content) {
  *
  * This will dump the content of the entity table as an XML DTD definition
  */
-void xmlDumpEntityDecl(xmlBufferPtr buf, xmlEntityPtr ent) 
+void xmlDumpEntityDecl(xmlBuffer * buf, xmlEntity * ent) 
 {
 	if(buf && ent) {
 		switch(ent->etype) {
@@ -976,7 +976,7 @@ void xmlDumpEntityDecl(xmlBufferPtr buf, xmlEntityPtr ent)
  *
  * When using the hash table scan function, arguments need to be reversed
  */
-static void xmlDumpEntityDeclScan(xmlEntityPtr ent, xmlBufferPtr buf)
+static void xmlDumpEntityDeclScan(xmlEntity * ent, xmlBuffer * buf)
 {
 	xmlDumpEntityDecl(buf, ent);
 }
@@ -987,7 +987,7 @@ static void xmlDumpEntityDeclScan(xmlEntityPtr ent, xmlBufferPtr buf)
  *
  * This will dump the content of the entity table as an XML DTD definition
  */
-void xmlDumpEntitiesTable(xmlBufferPtr buf, xmlEntitiesTablePtr table)
+void xmlDumpEntitiesTable(xmlBuffer * buf, xmlEntitiesTablePtr table)
 {
 	xmlHashScan(table, (xmlHashScanner)xmlDumpEntityDeclScan, buf);
 }

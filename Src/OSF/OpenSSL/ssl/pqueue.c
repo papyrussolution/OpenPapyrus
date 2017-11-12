@@ -8,8 +8,6 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include "ssl_locl.h"
-//#include <openssl/bn.h>
 
 struct pqueue_st {
 	pitem * items;

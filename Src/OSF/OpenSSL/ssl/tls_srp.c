@@ -14,7 +14,7 @@
 //#include "ssl_locl.h"
 
 #ifndef OPENSSL_NO_SRP
-# include <openssl/srp.h>
+#include <openssl/srp.h>
 
 int SSL_CTX_SRP_CTX_free(struct ssl_ctx_st * ctx)
 {
@@ -385,8 +385,8 @@ char * SSL_get_srp_userinfo(SSL * s)
 	return s->srp_ctx.info ? s->srp_ctx.info : s->ctx->srp_ctx.info;
 }
 
-# define tls1_ctx_ctrl ssl3_ctx_ctrl
-# define tls1_ctx_callback_ctrl ssl3_ctx_callback_ctrl
+#define tls1_ctx_ctrl ssl3_ctx_ctrl
+#define tls1_ctx_callback_ctrl ssl3_ctx_callback_ctrl
 
 int SSL_CTX_set_srp_username(SSL_CTX * ctx, char * name)
 {

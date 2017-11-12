@@ -12,8 +12,6 @@
 #if !defined(OPENSSL_NO_RC4) && !defined(OPENSSL_NO_MD5)
 
 #include <openssl/rc4.h>
-#include <openssl/md5.h>
-//#include <internal/evp_int.h>
 
 typedef struct {
 	RC4_KEY ks;
@@ -21,12 +19,12 @@ typedef struct {
 	size_t payload_length;
 } EVP_RC4_HMAC_MD5;
 
-# define NO_PAYLOAD_LENGTH       ((size_t)-1)
+#define NO_PAYLOAD_LENGTH       ((size_t)-1)
 
 void rc4_md5_enc(RC4_KEY * key, const void * in0, void * out,
     MD5_CTX * ctx, const void * inp, size_t blocks);
 
-# define data(ctx) ((EVP_RC4_HMAC_MD5*)EVP_CIPHER_CTX_get_cipher_data(ctx))
+#define data(ctx) ((EVP_RC4_HMAC_MD5*)EVP_CIPHER_CTX_get_cipher_data(ctx))
 
 static int rc4_hmac_md5_init_key(EVP_CIPHER_CTX * ctx,
     const uchar * inkey,
@@ -48,12 +46,12 @@ static int rc4_hmac_md5_init_key(EVP_CIPHER_CTX * ctx,
 # if     defined(RC4_ASM) && defined(MD5_ASM) &&     (	   \
 	defined(__x86_64)       || defined(__x86_64__)  || \
 	defined(_M_AMD64)       || defined(_M_X64)      )
-#  define STITCHED_CALL
+#define STITCHED_CALL
 # endif
 
 # if !defined(STITCHED_CALL)
-#  define rc4_off 0
-#  define md5_off 0
+#define rc4_off 0
+#define md5_off 0
 # endif
 
 static int rc4_hmac_md5_cipher(EVP_CIPHER_CTX * ctx, uchar * out,

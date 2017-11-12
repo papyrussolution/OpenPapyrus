@@ -10,7 +10,6 @@
 /* X509 v3 extension utilities */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509v3.h>
 #include "ext_dat.h"
 
 static STACK_OF(X509V3_EXT_METHOD) *ext_list = NULL;

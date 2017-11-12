@@ -18,10 +18,10 @@ typedef struct {
 	const char * name;
 } ssl_trace_tbl;
 
-# define ssl_trace_str(val, tbl) \
+#define ssl_trace_str(val, tbl) \
 	do_ssl_trace_str(val, tbl, OSSL_NELEM(tbl))
 
-# define ssl_trace_list(bio, indent, msg, msglen, value, table)	\
+#define ssl_trace_list(bio, indent, msg, msglen, value, table)	\
 	do_ssl_trace_list(bio, indent, msg, msglen, value, \
 	    table, OSSL_NELEM(table))
 

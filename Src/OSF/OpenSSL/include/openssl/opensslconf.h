@@ -53,19 +53,19 @@ extern "C" {
 	#define OPENSSL_NO_FUZZ_AFL
 #endif
 #ifndef OPENSSL_NO_FUZZ_LIBFUZZER
-# define OPENSSL_NO_FUZZ_LIBFUZZER
+#define OPENSSL_NO_FUZZ_LIBFUZZER
 #endif
 #ifndef OPENSSL_NO_HEARTBEATS
-# define OPENSSL_NO_HEARTBEATS
+#define OPENSSL_NO_HEARTBEATS
 #endif
 #ifndef OPENSSL_NO_MSAN
-# define OPENSSL_NO_MSAN
+#define OPENSSL_NO_MSAN
 #endif
 #ifndef OPENSSL_NO_SCTP
-# define OPENSSL_NO_SCTP
+#define OPENSSL_NO_SCTP
 #endif
 #ifndef OPENSSL_NO_SSL_TRACE
-# define OPENSSL_NO_SSL_TRACE
+#define OPENSSL_NO_SSL_TRACE
 #endif
 #ifndef OPENSSL_NO_SSL3
 	#define OPENSSL_NO_SSL3
@@ -131,9 +131,9 @@ extern "C" {
 #endif
 
 #if OPENSSL_API_COMPAT < 0x00908000L
-# define DEPRECATEDIN_0_9_8(f)   DECLARE_DEPRECATED(f)
+#define DEPRECATEDIN_0_9_8(f)   DECLARE_DEPRECATED(f)
 #else
-# define DEPRECATEDIN_0_9_8(f)
+#define DEPRECATEDIN_0_9_8(f)
 #endif
 
 // @sobolev #define OPENSSL_CPUID_OBJ
@@ -162,8 +162,6 @@ extern "C" {
 		#define OPENSSLDIR "/usr/local/ssl"
 	#endif
 #endif
-
-
 #ifdef  __cplusplus
 }
 #endif

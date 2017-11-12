@@ -22,10 +22,6 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include <curl/curl.h>
-//#include "vtls/vtls.h"
-//#include "sendf.h"
-//#include "rand.h"
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"
 //#include "curl_memory.h"

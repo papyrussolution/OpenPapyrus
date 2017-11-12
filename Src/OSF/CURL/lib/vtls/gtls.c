@@ -103,7 +103,7 @@ static bool gtls_inited = FALSE;
 #endif
 
 #ifdef HAS_OCSP
-# include <gnutls/ocsp.h>
+#include <gnutls/ocsp.h>
 #endif
 
 /*
@@ -131,9 +131,9 @@ static bool gtls_inited = FALSE;
  */
 
 #if defined(USE_WINSOCK) && !defined(GNUTLS_MAPS_WINSOCK_ERRORS)
-#  define gtls_EINTR  4
-#  define gtls_EIO    5
-#  define gtls_EAGAIN 11
+#define gtls_EINTR  4
+#define gtls_EIO    5
+#define gtls_EAGAIN 11
 static int gtls_mapped_sockerrno(void)
 {
 	switch(SOCKERRNO) {

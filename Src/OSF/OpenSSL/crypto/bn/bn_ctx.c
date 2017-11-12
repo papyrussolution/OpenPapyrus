@@ -9,7 +9,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "bn_lcl.h"
-
 /*-
  * @todo list
  *

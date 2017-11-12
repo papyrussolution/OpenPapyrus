@@ -5,7 +5,7 @@
    Foundation; either version 2.1 of the License, or (at your option) any later
    version.*/
 #if !defined(_qrcode_rs_H)
-# define _qrcode_rs_H (1)
+#define _qrcode_rs_H (1)
 
 /*This is one of 16 irreducible primitive polynomials of degree 8:
     x**8+x**4+x**3+x**2+1.

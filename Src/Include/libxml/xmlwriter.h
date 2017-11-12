@@ -26,7 +26,7 @@ typedef xmlTextWriter * xmlTextWriterPtr;
  */
 XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriter(xmlOutputBufferPtr out);
 XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterFilename(const char * uri, int compression);
-XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterMemory(xmlBufferPtr buf, int compression);
+XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterMemory(xmlBuffer * buf, int compression);
 XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterPushParser(xmlParserCtxt * ctxt, int compression);
 XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterDoc(xmlDocPtr * doc, int compression);
 XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterTree(xmlDocPtr doc, xmlNodePtr P_Node, int compression);

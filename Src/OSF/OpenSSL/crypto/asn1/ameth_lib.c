@@ -55,17 +55,14 @@ void main()
 
 #endif
 
-DECLARE_OBJ_BSEARCH_CMP_FN(const EVP_PKEY_ASN1_METHOD *,
-    const EVP_PKEY_ASN1_METHOD *, ameth);
+DECLARE_OBJ_BSEARCH_CMP_FN(const EVP_PKEY_ASN1_METHOD *, const EVP_PKEY_ASN1_METHOD *, ameth);
 
-static int ameth_cmp(const EVP_PKEY_ASN1_METHOD * const * a,
-    const EVP_PKEY_ASN1_METHOD * const * b)
+static int ameth_cmp(const EVP_PKEY_ASN1_METHOD * const * a, const EVP_PKEY_ASN1_METHOD * const * b)
 {
 	return ((*a)->pkey_id - (*b)->pkey_id);
 }
 
-IMPLEMENT_OBJ_BSEARCH_CMP_FN(const EVP_PKEY_ASN1_METHOD *,
-    const EVP_PKEY_ASN1_METHOD *, ameth);
+IMPLEMENT_OBJ_BSEARCH_CMP_FN(const EVP_PKEY_ASN1_METHOD *, const EVP_PKEY_ASN1_METHOD *, ameth);
 
 int EVP_PKEY_asn1_get_count(void)
 {
@@ -102,17 +99,14 @@ static const EVP_PKEY_ASN1_METHOD * pkey_asn1_find(int type)
 		return NULL;
 	return *ret;
 }
-
 /*
  * Find an implementation of an ASN1 algorithm. If 'pe' is not NULL also
  * search through engines and set *pe to a functional reference to the engine
  * implementing 'type' or NULL if no engine implements it.
  */
-
 const EVP_PKEY_ASN1_METHOD * EVP_PKEY_asn1_find(ENGINE ** pe, int type)
 {
 	const EVP_PKEY_ASN1_METHOD * t;
-
 	for(;; ) {
 		t = pkey_asn1_find(type);
 		if(!t || !(t->pkey_flags & ASN1_PKEY_ALIAS))
@@ -134,8 +128,7 @@ const EVP_PKEY_ASN1_METHOD * EVP_PKEY_asn1_find(ENGINE ** pe, int type)
 	return t;
 }
 
-const EVP_PKEY_ASN1_METHOD * EVP_PKEY_asn1_find_str(ENGINE ** pe,
-    const char * str, int len)
+const EVP_PKEY_ASN1_METHOD * EVP_PKEY_asn1_find_str(ENGINE ** pe, const char * str, int len)
 {
 	int i;
 	const EVP_PKEY_ASN1_METHOD * ameth;
@@ -162,8 +155,7 @@ const EVP_PKEY_ASN1_METHOD * EVP_PKEY_asn1_find_str(ENGINE ** pe,
 		ameth = EVP_PKEY_asn1_get0(i);
 		if(ameth->pkey_flags & ASN1_PKEY_ALIAS)
 			continue;
-		if(((int)strlen(ameth->pem_str) == len)
-		    && (strncasecmp(ameth->pem_str, str, len) == 0))
+		if(((int)strlen(ameth->pem_str) == len) && (strncasecmp(ameth->pem_str, str, len) == 0))
 			return ameth;
 	}
 	return NULL;
@@ -196,23 +188,15 @@ int EVP_PKEY_asn1_add_alias(int to, int from)
 	return 1;
 }
 
-int EVP_PKEY_asn1_get0_info(int * ppkey_id, int * ppkey_base_id,
-    int * ppkey_flags, const char ** pinfo,
-    const char ** ppem_str,
-    const EVP_PKEY_ASN1_METHOD * ameth)
+int EVP_PKEY_asn1_get0_info(int * ppkey_id, int * ppkey_base_id, int * ppkey_flags, const char ** pinfo, const char ** ppem_str, const EVP_PKEY_ASN1_METHOD * ameth)
 {
 	if(!ameth)
 		return 0;
-	if(ppkey_id)
-		*ppkey_id = ameth->pkey_id;
-	if(ppkey_base_id)
-		*ppkey_base_id = ameth->pkey_base_id;
-	if(ppkey_flags)
-		*ppkey_flags = ameth->pkey_flags;
-	if(pinfo)
-		*pinfo = ameth->info;
-	if(ppem_str)
-		*ppem_str = ameth->pem_str;
+	ASSIGN_PTR(ppkey_id, ameth->pkey_id);
+	ASSIGN_PTR(ppkey_base_id, ameth->pkey_base_id);
+	ASSIGN_PTR(ppkey_flags, ameth->pkey_flags);
+	ASSIGN_PTR(pinfo, ameth->info);
+	ASSIGN_PTR(ppem_str, ameth->pem_str);
 	return 1;
 }
 
@@ -221,8 +205,7 @@ const EVP_PKEY_ASN1_METHOD * EVP_PKEY_get0_asn1(const EVP_PKEY * pkey)
 	return pkey->ameth;
 }
 
-EVP_PKEY_ASN1_METHOD * EVP_PKEY_asn1_new(int id, int flags,
-    const char * pem_str, const char * info)
+EVP_PKEY_ASN1_METHOD * EVP_PKEY_asn1_new(int id, int flags, const char * pem_str, const char * info)
 {
 	EVP_PKEY_ASN1_METHOD * ameth = (EVP_PKEY_ASN1_METHOD*)OPENSSL_zalloc(sizeof(*ameth));
 	if(ameth == NULL)
@@ -230,54 +213,43 @@ EVP_PKEY_ASN1_METHOD * EVP_PKEY_asn1_new(int id, int flags,
 	ameth->pkey_id = id;
 	ameth->pkey_base_id = id;
 	ameth->pkey_flags = flags | ASN1_PKEY_DYNAMIC;
-
 	if(info) {
 		ameth->info = OPENSSL_strdup(info);
 		if(!ameth->info)
 			goto err;
 	}
-
 	if(pem_str) {
 		ameth->pem_str = OPENSSL_strdup(pem_str);
 		if(!ameth->pem_str)
 			goto err;
 	}
-
 	return ameth;
-
 err:
 	EVP_PKEY_asn1_free(ameth);
 	return NULL;
 }
 
-void EVP_PKEY_asn1_copy(EVP_PKEY_ASN1_METHOD * dst,
-    const EVP_PKEY_ASN1_METHOD * src)
+void EVP_PKEY_asn1_copy(EVP_PKEY_ASN1_METHOD * dst, const EVP_PKEY_ASN1_METHOD * src)
 {
 	dst->pub_decode = src->pub_decode;
 	dst->pub_encode = src->pub_encode;
 	dst->pub_cmp = src->pub_cmp;
 	dst->pub_print = src->pub_print;
-
 	dst->priv_decode = src->priv_decode;
 	dst->priv_encode = src->priv_encode;
 	dst->priv_print = src->priv_print;
-
 	dst->old_priv_encode = src->old_priv_encode;
 	dst->old_priv_decode = src->old_priv_decode;
-
 	dst->pkey_size = src->pkey_size;
 	dst->pkey_bits = src->pkey_bits;
-
 	dst->param_decode = src->param_decode;
 	dst->param_encode = src->param_encode;
 	dst->param_missing = src->param_missing;
 	dst->param_copy = src->param_copy;
 	dst->param_cmp = src->param_cmp;
 	dst->param_print = src->param_print;
-
 	dst->pkey_free = src->pkey_free;
 	dst->pkey_ctrl = src->pkey_ctrl;
-
 	dst->item_sign = src->item_sign;
 	dst->item_verify = src->item_verify;
 }
@@ -292,15 +264,10 @@ void EVP_PKEY_asn1_free(EVP_PKEY_ASN1_METHOD * ameth)
 }
 
 void EVP_PKEY_asn1_set_public(EVP_PKEY_ASN1_METHOD * ameth,
-    int (* pub_decode)(EVP_PKEY * pk,
-	    X509_PUBKEY * pub),
-    int (* pub_encode)(X509_PUBKEY * pub,
-	    const EVP_PKEY * pk),
-    int (* pub_cmp)(const EVP_PKEY * a,
-	    const EVP_PKEY * b),
-    int (* pub_print)(BIO * out,
-	    const EVP_PKEY * pkey,
-	    int indent, ASN1_PCTX * pctx),
+    int (* pub_decode)(EVP_PKEY * pk, X509_PUBKEY * pub),
+    int (* pub_encode)(X509_PUBKEY * pub, const EVP_PKEY * pk),
+    int (* pub_cmp)(const EVP_PKEY * a, const EVP_PKEY * b),
+    int (* pub_print)(BIO * out, const EVP_PKEY * pkey, int indent, ASN1_PCTX * pctx),
     int (* pkey_size)(const EVP_PKEY * pk),
     int (* pkey_bits)(const EVP_PKEY * pk))
 {
@@ -313,15 +280,9 @@ void EVP_PKEY_asn1_set_public(EVP_PKEY_ASN1_METHOD * ameth,
 }
 
 void EVP_PKEY_asn1_set_private(EVP_PKEY_ASN1_METHOD * ameth,
-    int (* priv_decode)(EVP_PKEY * pk,
-	    const PKCS8_PRIV_KEY_INFO
-	    * p8inf),
-    int (* priv_encode)(PKCS8_PRIV_KEY_INFO * p8,
-	    const EVP_PKEY * pk),
-    int (* priv_print)(BIO * out,
-	    const EVP_PKEY * pkey,
-	    int indent,
-	    ASN1_PCTX * pctx))
+    int (* priv_decode)(EVP_PKEY * pk, const PKCS8_PRIV_KEY_INFO * p8inf),
+    int (* priv_encode)(PKCS8_PRIV_KEY_INFO * p8, const EVP_PKEY * pk),
+    int (* priv_print)(BIO * out, const EVP_PKEY * pkey, int indent, ASN1_PCTX * pctx))
 {
 	ameth->priv_decode = priv_decode;
 	ameth->priv_encode = priv_encode;
@@ -329,19 +290,12 @@ void EVP_PKEY_asn1_set_private(EVP_PKEY_ASN1_METHOD * ameth,
 }
 
 void EVP_PKEY_asn1_set_param(EVP_PKEY_ASN1_METHOD * ameth,
-    int (* param_decode)(EVP_PKEY * pkey,
-	    const uchar ** pder,
-	    int derlen),
-    int (* param_encode)(const EVP_PKEY * pkey,
-	    uchar ** pder),
+    int (* param_decode)(EVP_PKEY * pkey, const uchar ** pder, int derlen),
+    int (* param_encode)(const EVP_PKEY * pkey, uchar ** pder),
     int (* param_missing)(const EVP_PKEY * pk),
-    int (* param_copy)(EVP_PKEY * to,
-	    const EVP_PKEY * from),
-    int (* param_cmp)(const EVP_PKEY * a,
-	    const EVP_PKEY * b),
-    int (* param_print)(BIO * out,
-	    const EVP_PKEY * pkey,
-	    int indent, ASN1_PCTX * pctx))
+    int (* param_copy)(EVP_PKEY * to, const EVP_PKEY * from),
+    int (* param_cmp)(const EVP_PKEY * a, const EVP_PKEY * b),
+    int (* param_print)(BIO * out, const EVP_PKEY * pkey, int indent, ASN1_PCTX * pctx))
 {
 	ameth->param_decode = param_decode;
 	ameth->param_encode = param_encode;
@@ -367,20 +321,9 @@ void EVP_PKEY_asn1_set_security_bits(EVP_PKEY_ASN1_METHOD * ameth, int (* pkey_s
 }
 
 void EVP_PKEY_asn1_set_item(EVP_PKEY_ASN1_METHOD * ameth,
-    int (* item_verify)(EVP_MD_CTX * ctx,
-	    const ASN1_ITEM * it,
-	    void * asn,
-	    X509_ALGOR * a,
-	    ASN1_BIT_STRING * sig,
-	    EVP_PKEY * pkey),
-    int (* item_sign)(EVP_MD_CTX * ctx,
-	    const ASN1_ITEM * it,
-	    void * asn,
-	    X509_ALGOR * alg1,
-	    X509_ALGOR * alg2,
-	    ASN1_BIT_STRING * sig))
+    int (* item_verify)(EVP_MD_CTX * ctx, const ASN1_ITEM * it, void * asn, X509_ALGOR * a, ASN1_BIT_STRING * sig, EVP_PKEY * pkey),
+    int (* item_sign)(EVP_MD_CTX * ctx, const ASN1_ITEM * it, void * asn, X509_ALGOR * alg1, X509_ALGOR * alg2, ASN1_BIT_STRING * sig))
 {
 	ameth->item_sign = item_sign;
 	ameth->item_verify = item_verify;
 }
-

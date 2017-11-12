@@ -15,14 +15,14 @@
  * #define OPENSSL_DEBUG_KEYGEN
  */
 #ifdef OPENSSL_DEBUG_KEYGEN
-# include <openssl/bio.h>
+#include <openssl/bio.h>
 extern BIO * bio_err;
 void h__dump(uchar * p, int len);
 #endif
 
 /* PKCS12 compatible key/IV generation */
 #ifndef min
-# define min(a, b) ((a) < (b) ? (a) : (b))
+#define min(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
 int PKCS12_key_gen_asc(const char * pass, int passlen, uchar * salt,

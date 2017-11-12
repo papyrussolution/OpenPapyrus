@@ -8,14 +8,10 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1.h>
-//#include <openssl/asn1t.h>
 #include "asn1_locl.h"
 
-static int asn1_item_embed_new(ASN1_VALUE ** pval, const ASN1_ITEM * it,
-    int embed);
-static int asn1_primitive_new(ASN1_VALUE ** pval, const ASN1_ITEM * it,
-    int embed);
+static int asn1_item_embed_new(ASN1_VALUE ** pval, const ASN1_ITEM * it, int embed);
+static int asn1_primitive_new(ASN1_VALUE ** pval, const ASN1_ITEM * it, int embed);
 static void asn1_item_clear(ASN1_VALUE ** pval, const ASN1_ITEM * it);
 static int asn1_template_new(ASN1_VALUE ** pval, const ASN1_TEMPLATE * tt);
 static void asn1_template_clear(ASN1_VALUE ** pval, const ASN1_TEMPLATE * tt);

@@ -8,11 +8,6 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#define USE_SOCKETS
-//#include <openssl/objects.h>
-//#include <openssl/rand.h>
-//#include "ssl_locl.h"
 #if defined(OPENSSL_SYS_VMS)
 	#include <sys/timeb.h>
 #elif defined(OPENSSL_SYS_VXWORKS)
@@ -837,12 +832,12 @@ static int dtls1_handshake_write(SSL * s)
 
 #ifndef OPENSSL_NO_HEARTBEATS
 
-# define HEARTBEAT_SIZE(payload, padding) ( \
+#define HEARTBEAT_SIZE(payload, padding) ( \
 	    1 /* heartbeat type */ + \
 	    2 /* heartbeat length */ + \
 	    (payload) + (padding))
 
-# define HEARTBEAT_SIZE_STD(payload) HEARTBEAT_SIZE(payload, 16)
+#define HEARTBEAT_SIZE_STD(payload) HEARTBEAT_SIZE(payload, 16)
 
 int dtls1_process_heartbeat(SSL * s, uchar * p, uint length)
 {

@@ -9,13 +9,8 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <openssl/kdf.h>
-//#include <openssl/evp.h>
-//#include <internal/evp_int.h>
 
-static int tls1_prf_alg(const EVP_MD * md,
-    const uchar * sec, size_t slen,
-    const uchar * seed, size_t seed_len,
-    uchar * out, size_t olen);
+static int tls1_prf_alg(const EVP_MD * md, const uchar * sec, size_t slen, const uchar * seed, size_t seed_len, uchar * out, size_t olen);
 
 #define TLS1_PRF_MAXBUF 1024
 

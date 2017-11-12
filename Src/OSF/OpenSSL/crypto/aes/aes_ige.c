@@ -18,17 +18,17 @@ typedef struct {
 
 /* XXX: probably some better way to do this */
 #if defined(__i386__) || defined(__x86_64__)
-# define UNALIGNED_MEMOPS_ARE_FAST 1
+#define UNALIGNED_MEMOPS_ARE_FAST 1
 #else
-# define UNALIGNED_MEMOPS_ARE_FAST 0
+#define UNALIGNED_MEMOPS_ARE_FAST 0
 #endif
 
 #if UNALIGNED_MEMOPS_ARE_FAST
-# define load_block(d, s)        (d) = *(const aes_block_t*)(s)
-# define store_block(d, s)       *(aes_block_t*)(d) = (s)
+#define load_block(d, s)        (d) = *(const aes_block_t*)(s)
+#define store_block(d, s)       *(aes_block_t*)(d) = (s)
 #else
-# define load_block(d, s)        memcpy((d).data, (s), AES_BLOCK_SIZE)
-# define store_block(d, s)       memcpy((d), (s).data, AES_BLOCK_SIZE)
+#define load_block(d, s)        memcpy((d).data, (s), AES_BLOCK_SIZE)
+#define store_block(d, s)       memcpy((d), (s).data, AES_BLOCK_SIZE)
 #endif
 
 /* N.B. The IV for this mode is _twice_ the block size */

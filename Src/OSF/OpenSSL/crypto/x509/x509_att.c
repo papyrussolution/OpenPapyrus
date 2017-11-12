@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1.h>
-//#include <openssl/objects.h>
-//#include <openssl/x509.h>
-//#include <openssl/x509v3.h>
 #include "x509_lcl.h"
 
 int X509at_get_attr_count(const STACK_OF(X509_ATTRIBUTE) * x)
@@ -153,26 +149,23 @@ X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_NID(X509_ATTRIBUTE ** attr, int nid, i
 X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_OBJ(X509_ATTRIBUTE ** attr, const ASN1_OBJECT * obj, int atrtype, const void * data, int len)
 {
 	X509_ATTRIBUTE * ret;
-	if((attr == NULL) || (*attr == NULL)) {
+	if(!attr || (*attr == NULL)) {
 		if((ret = X509_ATTRIBUTE_new()) == NULL) {
-			X509err(X509_F_X509_ATTRIBUTE_CREATE_BY_OBJ,
-			    ERR_R_MALLOC_FAILURE);
+			X509err(X509_F_X509_ATTRIBUTE_CREATE_BY_OBJ, ERR_R_MALLOC_FAILURE);
 			return NULL;
 		}
 	}
 	else
 		ret = *attr;
-
 	if(!X509_ATTRIBUTE_set1_object(ret, obj))
 		goto err;
 	if(!X509_ATTRIBUTE_set1_data(ret, atrtype, data, len))
 		goto err;
-
-	if((attr != NULL) && (*attr == NULL))
+	if(attr && *attr == NULL)
 		*attr = ret;
 	return ret;
 err:
-	if((attr == NULL) || (ret != *attr))
+	if(!attr || (ret != *attr))
 		X509_ATTRIBUTE_free(ret);
 	return NULL;
 }
@@ -193,7 +186,7 @@ X509_ATTRIBUTE * X509_ATTRIBUTE_create_by_txt(X509_ATTRIBUTE ** attr, const char
 
 int X509_ATTRIBUTE_set1_object(X509_ATTRIBUTE * attr, const ASN1_OBJECT * obj)
 {
-	if((attr == NULL) || (obj == NULL))
+	if(!attr || (obj == NULL))
 		return 0;
 	ASN1_OBJECT_free(attr->object);
 	attr->object = OBJ_dup(obj);

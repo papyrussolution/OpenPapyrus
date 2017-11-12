@@ -35,7 +35,7 @@
 	#ifndef NTDDI_VERSION
 		#define NTDDI_VERSION NTDDI_WIN7
 	#endif
-	#define _CRT_SECURE_NO_WARNINGS 
+	#define _CRT_SECURE_NO_WARNINGS
 #endif
 
 /* Remove comment if clarion date format is needed
@@ -69,12 +69,13 @@
 #define SALLOCATOR       SALLOC_STD
 //
 // @v9.8.1 Если !0, то ведется отладочная трассировка внутренних блокировок.
-// Актуально только для сервера. 
+// Актуально только для сервера.
 //
 #ifdef _PPSERVER
-	#define SLTRACELOCKSTACK 0 // @v9.8.3 С помощью трассировки аномалии идентифицировать пока не удалось. До поры-времени отключаем.
+	#define SLTRACELOCKSTACK 1 // @v9.8.3 С помощью трассировки аномалии идентифицировать пока не удалось. До поры-времени отключаем.
+		// @v9.8.8 Опять включили.
 #else
-	#define SLTRACELOCKSTACK 0 
+	#define SLTRACELOCKSTACK 0
 #endif
 //
 // Descr: Если следующее определение != 0, то весь проект компилируется с включенными

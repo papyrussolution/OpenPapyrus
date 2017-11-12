@@ -14,7 +14,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <internal/bio.h>
 
 /* Must be large enough for biggest tag+length */
 #define DEFAULT_ASN1_BUF_SIZE 20

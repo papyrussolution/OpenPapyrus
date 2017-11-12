@@ -142,12 +142,12 @@
 #  endif /* (PNG_DEBUG > 0) */
 #endif /* PNG_DEBUG */
 #ifndef png_debug
-#  define png_debug(l, m) ((void)0)
+#define png_debug(l, m) ((void)0)
 #endif
 #ifndef png_debug1
-#  define png_debug1(l, m, p1) ((void)0)
+#define png_debug1(l, m, p1) ((void)0)
 #endif
 #ifndef png_debug2
-#  define png_debug2(l, m, p1, p2) ((void)0)
+#define png_debug2(l, m, p1, p2) ((void)0)
 #endif
 #endif /* PNGDEBUG_H */

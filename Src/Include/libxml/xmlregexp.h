@@ -131,7 +131,7 @@ XMLPUBFUN int XMLCALL xmlExpGetStart	(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, co
 XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpStringDerive(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, const xmlChar *str, int len);
 XMLPUBFUN xmlExpNodePtr XMLCALL xmlExpExpDerive	(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, xmlExpNodePtr sub);
 XMLPUBFUN int XMLCALL xmlExpSubsume	(xmlExpCtxtPtr ctxt, xmlExpNodePtr expr, xmlExpNodePtr sub);
-XMLPUBFUN void XMLCALL xmlExpDump	(xmlBufferPtr buf, xmlExpNodePtr expr);
+XMLPUBFUN void XMLCALL xmlExpDump	(xmlBuffer * buf, xmlExpNodePtr expr);
 #endif /* LIBXML_EXPR_ENABLED */
 #ifdef __cplusplus
 }

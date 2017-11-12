@@ -303,7 +303,7 @@ XMLPUBFUN void /*XMLCALL*/FASTCALL __xmlErrEncoding(xmlParserCtxt * ctxt, xmlPar
  * Input Streams.
  */
 XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewStringInputStream(xmlParserCtxt * ctxt, const xmlChar * buffer);
-XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntityPtr entity);
+XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntity * entity);
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlPushInput(xmlParserCtxt * ctxt, xmlParserInput * input);
 XMLPUBFUN xmlChar /*XMLCALL*/FASTCALL xmlPopInput(xmlParserCtxt * ctxt);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeInputStream(xmlParserInput * input);
@@ -343,7 +343,7 @@ XMLPUBFUN int XMLCALL xmlParseElementContentDecl(xmlParserCtxt * ctxt, const xml
 XMLPUBFUN int XMLCALL xmlParseElementDecl(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlParseMarkupDecl(xmlParserCtxt * ctxt);
 XMLPUBFUN int XMLCALL xmlParseCharRef(xmlParserCtxt * ctxt);
-XMLPUBFUN xmlEntityPtr XMLCALL xmlParseEntityRef(xmlParserCtxt * ctxt);
+XMLPUBFUN xmlEntity * XMLCALL xmlParseEntityRef(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlParseReference(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlParsePEReference(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlParseDocTypeDecl(xmlParserCtxt * ctxt);
@@ -440,7 +440,7 @@ XMLPUBFUN htmlParserCtxt * XMLCALL htmlCreateFileParserCtxt(const char * filenam
  * Callback function used when one needs to be able to track back the
  * provenance of a chunk of nodes inherited from an entity replacement.
  */
-typedef void (*xmlEntityReferenceFunc)(xmlEntityPtr ent, xmlNodePtr firstNode, xmlNodePtr lastNode);
+typedef void (*xmlEntityReferenceFunc)(xmlEntity * ent, xmlNodePtr firstNode, xmlNodePtr lastNode);
 XMLPUBFUN void XMLCALL xmlSetEntityReferenceFunc(xmlEntityReferenceFunc func);
 XMLPUBFUN xmlChar * XMLCALL xmlParseQuotedString(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlParseNamespace(xmlParserCtxt * ctxt);
@@ -453,7 +453,7 @@ XMLPUBFUN xmlChar * XMLCALL xmlNamespaceParseQName(xmlParserCtxt * ctxt, xmlChar
  * Entities
  */
 XMLPUBFUN xmlChar * XMLCALL xmlDecodeEntities(xmlParserCtxt * ctxt, int len, int what, xmlChar end, xmlChar end2, xmlChar end3);
-XMLPUBFUN void XMLCALL xmlHandleEntity(xmlParserCtxt * ctxt, xmlEntityPtr entity);
+XMLPUBFUN void XMLCALL xmlHandleEntity(xmlParserCtxt * ctxt, xmlEntity * entity);
 
 #endif /* LIBXML_LEGACY_ENABLED */
 

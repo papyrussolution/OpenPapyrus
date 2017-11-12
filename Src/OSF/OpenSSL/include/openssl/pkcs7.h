@@ -8,14 +8,14 @@
  */
 
 #ifndef HEADER_PKCS7_H
-# define HEADER_PKCS7_H
+#define HEADER_PKCS7_H
 
-# include <openssl/asn1.h>
-# include <openssl/bio.h>
-# include <openssl/e_os2.h>
+#include <openssl/asn1.h>
+#include <openssl/bio.h>
+#include <openssl/e_os2.h>
 
-# include <openssl/symhacks.h>
-# include <openssl/ossl_typ.h>
+#include <openssl/symhacks.h>
+#include <openssl/ossl_typ.h>
 
 #ifdef  __cplusplus
 extern "C" {
@@ -112,9 +112,9 @@ typedef struct pkcs7_st {
      */
     uchar *asn1;
     long length;
-# define PKCS7_S_HEADER  0
-# define PKCS7_S_BODY    1
-# define PKCS7_S_TAIL    2
+#define PKCS7_S_HEADER  0
+#define PKCS7_S_BODY    1
+#define PKCS7_S_TAIL    2
     int state;                  /* used during processing */
     int detached;
     ASN1_OBJECT *type;
@@ -144,61 +144,61 @@ typedef struct pkcs7_st {
 
 DEFINE_STACK_OF(PKCS7)
 
-# define PKCS7_OP_SET_DETACHED_SIGNATURE 1
-# define PKCS7_OP_GET_DETACHED_SIGNATURE 2
+#define PKCS7_OP_SET_DETACHED_SIGNATURE 1
+#define PKCS7_OP_GET_DETACHED_SIGNATURE 2
 
-# define PKCS7_get_signed_attributes(si) ((si)->auth_attr)
-# define PKCS7_get_attributes(si)        ((si)->unauth_attr)
+#define PKCS7_get_signed_attributes(si) ((si)->auth_attr)
+#define PKCS7_get_attributes(si)        ((si)->unauth_attr)
 
-# define PKCS7_type_is_signed(a) (OBJ_obj2nid((a)->type) == NID_pkcs7_signed)
-# define PKCS7_type_is_encrypted(a) (OBJ_obj2nid((a)->type) == NID_pkcs7_encrypted)
-# define PKCS7_type_is_enveloped(a) (OBJ_obj2nid((a)->type) == NID_pkcs7_enveloped)
-# define PKCS7_type_is_signedAndEnveloped(a) \
+#define PKCS7_type_is_signed(a) (OBJ_obj2nid((a)->type) == NID_pkcs7_signed)
+#define PKCS7_type_is_encrypted(a) (OBJ_obj2nid((a)->type) == NID_pkcs7_encrypted)
+#define PKCS7_type_is_enveloped(a) (OBJ_obj2nid((a)->type) == NID_pkcs7_enveloped)
+#define PKCS7_type_is_signedAndEnveloped(a) \
                 (OBJ_obj2nid((a)->type) == NID_pkcs7_signedAndEnveloped)
-# define PKCS7_type_is_data(a)   (OBJ_obj2nid((a)->type) == NID_pkcs7_data)
-# define PKCS7_type_is_digest(a)   (OBJ_obj2nid((a)->type) == NID_pkcs7_digest)
+#define PKCS7_type_is_data(a)   (OBJ_obj2nid((a)->type) == NID_pkcs7_data)
+#define PKCS7_type_is_digest(a)   (OBJ_obj2nid((a)->type) == NID_pkcs7_digest)
 
-# define PKCS7_set_detached(p,v) \
+#define PKCS7_set_detached(p,v) \
                 PKCS7_ctrl(p,PKCS7_OP_SET_DETACHED_SIGNATURE,v,NULL)
-# define PKCS7_get_detached(p) \
+#define PKCS7_get_detached(p) \
                 PKCS7_ctrl(p,PKCS7_OP_GET_DETACHED_SIGNATURE,0,NULL)
 
-# define PKCS7_is_detached(p7) (PKCS7_type_is_signed(p7) && PKCS7_get_detached(p7))
+#define PKCS7_is_detached(p7) (PKCS7_type_is_signed(p7) && PKCS7_get_detached(p7))
 
 /* S/MIME related flags */
 
-# define PKCS7_TEXT              0x1
-# define PKCS7_NOCERTS           0x2
-# define PKCS7_NOSIGS            0x4
-# define PKCS7_NOCHAIN           0x8
-# define PKCS7_NOINTERN          0x10
-# define PKCS7_NOVERIFY          0x20
-# define PKCS7_DETACHED          0x40
-# define PKCS7_BINARY            0x80
-# define PKCS7_NOATTR            0x100
-# define PKCS7_NOSMIMECAP        0x200
-# define PKCS7_NOOLDMIMETYPE     0x400
-# define PKCS7_CRLFEOL           0x800
-# define PKCS7_STREAM            0x1000
-# define PKCS7_NOCRL             0x2000
-# define PKCS7_PARTIAL           0x4000
-# define PKCS7_REUSE_DIGEST      0x8000
-# define PKCS7_NO_DUAL_CONTENT   0x10000
+#define PKCS7_TEXT              0x1
+#define PKCS7_NOCERTS           0x2
+#define PKCS7_NOSIGS            0x4
+#define PKCS7_NOCHAIN           0x8
+#define PKCS7_NOINTERN          0x10
+#define PKCS7_NOVERIFY          0x20
+#define PKCS7_DETACHED          0x40
+#define PKCS7_BINARY            0x80
+#define PKCS7_NOATTR            0x100
+#define PKCS7_NOSMIMECAP        0x200
+#define PKCS7_NOOLDMIMETYPE     0x400
+#define PKCS7_CRLFEOL           0x800
+#define PKCS7_STREAM            0x1000
+#define PKCS7_NOCRL             0x2000
+#define PKCS7_PARTIAL           0x4000
+#define PKCS7_REUSE_DIGEST      0x8000
+#define PKCS7_NO_DUAL_CONTENT   0x10000
 
 /* Flags: for compatibility with older code */
 
-# define SMIME_TEXT      PKCS7_TEXT
-# define SMIME_NOCERTS   PKCS7_NOCERTS
-# define SMIME_NOSIGS    PKCS7_NOSIGS
-# define SMIME_NOCHAIN   PKCS7_NOCHAIN
-# define SMIME_NOINTERN  PKCS7_NOINTERN
-# define SMIME_NOVERIFY  PKCS7_NOVERIFY
-# define SMIME_DETACHED  PKCS7_DETACHED
-# define SMIME_BINARY    PKCS7_BINARY
-# define SMIME_NOATTR    PKCS7_NOATTR
+#define SMIME_TEXT      PKCS7_TEXT
+#define SMIME_NOCERTS   PKCS7_NOCERTS
+#define SMIME_NOSIGS    PKCS7_NOSIGS
+#define SMIME_NOCHAIN   PKCS7_NOCHAIN
+#define SMIME_NOINTERN  PKCS7_NOINTERN
+#define SMIME_NOVERIFY  PKCS7_NOVERIFY
+#define SMIME_DETACHED  PKCS7_DETACHED
+#define SMIME_BINARY    PKCS7_BINARY
+#define SMIME_NOATTR    PKCS7_NOATTR
 
 /* CRLF ASCII canonicalisation */
-# define SMIME_ASCIICRLF         0x80000
+#define SMIME_ASCIICRLF         0x80000
 
 DECLARE_ASN1_FUNCTIONS(PKCS7_ISSUER_AND_SERIAL)
 
@@ -323,80 +323,80 @@ int ERR_load_PKCS7_strings(void);
 /* Error codes for the PKCS7 functions. */
 
 /* Function codes. */
-# define PKCS7_F_DO_PKCS7_SIGNED_ATTRIB                   136
-# define PKCS7_F_PKCS7_ADD0_ATTRIB_SIGNING_TIME           135
-# define PKCS7_F_PKCS7_ADD_ATTRIB_SMIMECAP                118
-# define PKCS7_F_PKCS7_ADD_CERTIFICATE                    100
-# define PKCS7_F_PKCS7_ADD_CRL                            101
-# define PKCS7_F_PKCS7_ADD_RECIPIENT_INFO                 102
-# define PKCS7_F_PKCS7_ADD_SIGNATURE                      131
-# define PKCS7_F_PKCS7_ADD_SIGNER                         103
-# define PKCS7_F_PKCS7_BIO_ADD_DIGEST                     125
-# define PKCS7_F_PKCS7_COPY_EXISTING_DIGEST               138
-# define PKCS7_F_PKCS7_CTRL                               104
-# define PKCS7_F_PKCS7_DATADECODE                         112
-# define PKCS7_F_PKCS7_DATAFINAL                          128
-# define PKCS7_F_PKCS7_DATAINIT                           105
-# define PKCS7_F_PKCS7_DATAVERIFY                         107
-# define PKCS7_F_PKCS7_DECRYPT                            114
-# define PKCS7_F_PKCS7_DECRYPT_RINFO                      133
-# define PKCS7_F_PKCS7_ENCODE_RINFO                       132
-# define PKCS7_F_PKCS7_ENCRYPT                            115
-# define PKCS7_F_PKCS7_FINAL                              134
-# define PKCS7_F_PKCS7_FIND_DIGEST                        127
-# define PKCS7_F_PKCS7_GET0_SIGNERS                       124
-# define PKCS7_F_PKCS7_RECIP_INFO_SET                     130
-# define PKCS7_F_PKCS7_SET_CIPHER                         108
-# define PKCS7_F_PKCS7_SET_CONTENT                        109
-# define PKCS7_F_PKCS7_SET_DIGEST                         126
-# define PKCS7_F_PKCS7_SET_TYPE                           110
-# define PKCS7_F_PKCS7_SIGN                               116
-# define PKCS7_F_PKCS7_SIGNATUREVERIFY                    113
-# define PKCS7_F_PKCS7_SIGNER_INFO_SET                    129
-# define PKCS7_F_PKCS7_SIGNER_INFO_SIGN                   139
-# define PKCS7_F_PKCS7_SIGN_ADD_SIGNER                    137
-# define PKCS7_F_PKCS7_SIMPLE_SMIMECAP                    119
-# define PKCS7_F_PKCS7_VERIFY                             117
+#define PKCS7_F_DO_PKCS7_SIGNED_ATTRIB                   136
+#define PKCS7_F_PKCS7_ADD0_ATTRIB_SIGNING_TIME           135
+#define PKCS7_F_PKCS7_ADD_ATTRIB_SMIMECAP                118
+#define PKCS7_F_PKCS7_ADD_CERTIFICATE                    100
+#define PKCS7_F_PKCS7_ADD_CRL                            101
+#define PKCS7_F_PKCS7_ADD_RECIPIENT_INFO                 102
+#define PKCS7_F_PKCS7_ADD_SIGNATURE                      131
+#define PKCS7_F_PKCS7_ADD_SIGNER                         103
+#define PKCS7_F_PKCS7_BIO_ADD_DIGEST                     125
+#define PKCS7_F_PKCS7_COPY_EXISTING_DIGEST               138
+#define PKCS7_F_PKCS7_CTRL                               104
+#define PKCS7_F_PKCS7_DATADECODE                         112
+#define PKCS7_F_PKCS7_DATAFINAL                          128
+#define PKCS7_F_PKCS7_DATAINIT                           105
+#define PKCS7_F_PKCS7_DATAVERIFY                         107
+#define PKCS7_F_PKCS7_DECRYPT                            114
+#define PKCS7_F_PKCS7_DECRYPT_RINFO                      133
+#define PKCS7_F_PKCS7_ENCODE_RINFO                       132
+#define PKCS7_F_PKCS7_ENCRYPT                            115
+#define PKCS7_F_PKCS7_FINAL                              134
+#define PKCS7_F_PKCS7_FIND_DIGEST                        127
+#define PKCS7_F_PKCS7_GET0_SIGNERS                       124
+#define PKCS7_F_PKCS7_RECIP_INFO_SET                     130
+#define PKCS7_F_PKCS7_SET_CIPHER                         108
+#define PKCS7_F_PKCS7_SET_CONTENT                        109
+#define PKCS7_F_PKCS7_SET_DIGEST                         126
+#define PKCS7_F_PKCS7_SET_TYPE                           110
+#define PKCS7_F_PKCS7_SIGN                               116
+#define PKCS7_F_PKCS7_SIGNATUREVERIFY                    113
+#define PKCS7_F_PKCS7_SIGNER_INFO_SET                    129
+#define PKCS7_F_PKCS7_SIGNER_INFO_SIGN                   139
+#define PKCS7_F_PKCS7_SIGN_ADD_SIGNER                    137
+#define PKCS7_F_PKCS7_SIMPLE_SMIMECAP                    119
+#define PKCS7_F_PKCS7_VERIFY                             117
 
 /* Reason codes. */
-# define PKCS7_R_CERTIFICATE_VERIFY_ERROR                 117
-# define PKCS7_R_CIPHER_HAS_NO_OBJECT_IDENTIFIER          144
-# define PKCS7_R_CIPHER_NOT_INITIALIZED                   116
-# define PKCS7_R_CONTENT_AND_DATA_PRESENT                 118
-# define PKCS7_R_CTRL_ERROR                               152
-# define PKCS7_R_DECRYPT_ERROR                            119
-# define PKCS7_R_DIGEST_FAILURE                           101
-# define PKCS7_R_ENCRYPTION_CTRL_FAILURE                  149
-# define PKCS7_R_ENCRYPTION_NOT_SUPPORTED_FOR_THIS_KEY_TYPE 150
-# define PKCS7_R_ERROR_ADDING_RECIPIENT                   120
-# define PKCS7_R_ERROR_SETTING_CIPHER                     121
-# define PKCS7_R_INVALID_NULL_POINTER                     143
-# define PKCS7_R_INVALID_SIGNED_DATA_TYPE                 155
-# define PKCS7_R_NO_CONTENT                               122
-# define PKCS7_R_NO_DEFAULT_DIGEST                        151
-# define PKCS7_R_NO_MATCHING_DIGEST_TYPE_FOUND            154
-# define PKCS7_R_NO_RECIPIENT_MATCHES_CERTIFICATE         115
-# define PKCS7_R_NO_SIGNATURES_ON_DATA                    123
-# define PKCS7_R_NO_SIGNERS                               142
-# define PKCS7_R_OPERATION_NOT_SUPPORTED_ON_THIS_TYPE     104
-# define PKCS7_R_PKCS7_ADD_SIGNATURE_ERROR                124
-# define PKCS7_R_PKCS7_ADD_SIGNER_ERROR                   153
-# define PKCS7_R_PKCS7_DATASIGN                           145
-# define PKCS7_R_PRIVATE_KEY_DOES_NOT_MATCH_CERTIFICATE   127
-# define PKCS7_R_SIGNATURE_FAILURE                        105
-# define PKCS7_R_SIGNER_CERTIFICATE_NOT_FOUND             128
-# define PKCS7_R_SIGNING_CTRL_FAILURE                     147
-# define PKCS7_R_SIGNING_NOT_SUPPORTED_FOR_THIS_KEY_TYPE  148
-# define PKCS7_R_SMIME_TEXT_ERROR                         129
-# define PKCS7_R_UNABLE_TO_FIND_CERTIFICATE               106
-# define PKCS7_R_UNABLE_TO_FIND_MEM_BIO                   107
-# define PKCS7_R_UNABLE_TO_FIND_MESSAGE_DIGEST            108
-# define PKCS7_R_UNKNOWN_DIGEST_TYPE                      109
-# define PKCS7_R_UNKNOWN_OPERATION                        110
-# define PKCS7_R_UNSUPPORTED_CIPHER_TYPE                  111
-# define PKCS7_R_UNSUPPORTED_CONTENT_TYPE                 112
-# define PKCS7_R_WRONG_CONTENT_TYPE                       113
-# define PKCS7_R_WRONG_PKCS7_TYPE                         114
+#define PKCS7_R_CERTIFICATE_VERIFY_ERROR                 117
+#define PKCS7_R_CIPHER_HAS_NO_OBJECT_IDENTIFIER          144
+#define PKCS7_R_CIPHER_NOT_INITIALIZED                   116
+#define PKCS7_R_CONTENT_AND_DATA_PRESENT                 118
+#define PKCS7_R_CTRL_ERROR                               152
+#define PKCS7_R_DECRYPT_ERROR                            119
+#define PKCS7_R_DIGEST_FAILURE                           101
+#define PKCS7_R_ENCRYPTION_CTRL_FAILURE                  149
+#define PKCS7_R_ENCRYPTION_NOT_SUPPORTED_FOR_THIS_KEY_TYPE 150
+#define PKCS7_R_ERROR_ADDING_RECIPIENT                   120
+#define PKCS7_R_ERROR_SETTING_CIPHER                     121
+#define PKCS7_R_INVALID_NULL_POINTER                     143
+#define PKCS7_R_INVALID_SIGNED_DATA_TYPE                 155
+#define PKCS7_R_NO_CONTENT                               122
+#define PKCS7_R_NO_DEFAULT_DIGEST                        151
+#define PKCS7_R_NO_MATCHING_DIGEST_TYPE_FOUND            154
+#define PKCS7_R_NO_RECIPIENT_MATCHES_CERTIFICATE         115
+#define PKCS7_R_NO_SIGNATURES_ON_DATA                    123
+#define PKCS7_R_NO_SIGNERS                               142
+#define PKCS7_R_OPERATION_NOT_SUPPORTED_ON_THIS_TYPE     104
+#define PKCS7_R_PKCS7_ADD_SIGNATURE_ERROR                124
+#define PKCS7_R_PKCS7_ADD_SIGNER_ERROR                   153
+#define PKCS7_R_PKCS7_DATASIGN                           145
+#define PKCS7_R_PRIVATE_KEY_DOES_NOT_MATCH_CERTIFICATE   127
+#define PKCS7_R_SIGNATURE_FAILURE                        105
+#define PKCS7_R_SIGNER_CERTIFICATE_NOT_FOUND             128
+#define PKCS7_R_SIGNING_CTRL_FAILURE                     147
+#define PKCS7_R_SIGNING_NOT_SUPPORTED_FOR_THIS_KEY_TYPE  148
+#define PKCS7_R_SMIME_TEXT_ERROR                         129
+#define PKCS7_R_UNABLE_TO_FIND_CERTIFICATE               106
+#define PKCS7_R_UNABLE_TO_FIND_MEM_BIO                   107
+#define PKCS7_R_UNABLE_TO_FIND_MESSAGE_DIGEST            108
+#define PKCS7_R_UNKNOWN_DIGEST_TYPE                      109
+#define PKCS7_R_UNKNOWN_OPERATION                        110
+#define PKCS7_R_UNSUPPORTED_CIPHER_TYPE                  111
+#define PKCS7_R_UNSUPPORTED_CONTENT_TYPE                 112
+#define PKCS7_R_WRONG_CONTENT_TYPE                       113
+#define PKCS7_R_WRONG_PKCS7_TYPE                         114
 
 # ifdef  __cplusplus
 }

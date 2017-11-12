@@ -2259,7 +2259,7 @@ BExtQuery & FASTCALL PPViewGoodsRest::MakeLotSelectFldList(BExtQuery & rQ, const
 		rT.Rest, rT.Closed, rT.Expiry, 0L); // @v9.7.11 rT.Expiry
 }
 
-int SLAPI PPViewGoodsRest::SelectLcrLots(const PPIDArray & rIdList, const UintHashTable & rLcrList, SArray & rList)
+int SLAPI PPViewGoodsRest::SelectLcrLots(const PPIDArray & rIdList, const UintHashTable & rLcrList, SVector & rList) // @v9.8.8 SArray-->SVector
 {
 	int    ok = 1;
 	ReceiptCore & r_t = P_BObj->trfr->Rcpt;
@@ -2293,7 +2293,7 @@ int SLAPI PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 	SString msg_buf;
 	if(CConfig.LcrUsage == 2 && (r = P_BObj->trfr->GetLcrList(Filt.Date, &lcr_lot_list, &lcr_rest_list)) > 0) {
 		IterCounter cntr;
-		SArray lot_list(sizeof(ReceiptTbl::Rec), /*128,*/O_ARRAY); // @v8.1.0 def-->(,128)
+		SVector lot_list(sizeof(ReceiptTbl::Rec), O_ARRAY); // @v8.1.0 def-->(,128) // @v9.8.8 SArray-->SVector
 		THROW(r);
 		{
 			const long max_hole = 5;

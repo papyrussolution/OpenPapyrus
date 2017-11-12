@@ -9,22 +9,16 @@
 //
 //
 //
-PPFilt::PPFilt()
+PPFilt::PPFilt() : ID(0), Ptr(0)
 {
-	ID = 0;
-	Ptr = 0;
 }
 
-PView::PView(long id)
+PView::PView(long id) : ID(id), Ptr(0)
 {
-	ID = id;
-	Ptr = 0;
 }
 
-PView::PView(void * ptr)
+PView::PView(void * ptr) : ID(0), Ptr(ptr)
 {
-	ID = 0;
-	Ptr = ptr;
 }
 //
 // Блок доступа к распакованным формулам. При обращении к формуле вызывается функция //
@@ -898,11 +892,8 @@ static int FASTCALL __FillRecBuf(const DlScope * pScope, char * pRecBuf)
 //
 int SLAPI __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName);
 
-SLAPI DlRtm::ExportParam::ExportParam()
+SLAPI DlRtm::ExportParam::ExportParam() : P_F(0), Sort(0), Flags(0)
 {
-	P_F = 0;
-	Sort = 0;
-	Flags = 0;
 }
 
 int SLAPI DlRtm::Export(ExportParam & rParam)

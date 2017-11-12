@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/sha.h>
 
 uchar * SHA1(const uchar * d, size_t n, uchar * md)
 {

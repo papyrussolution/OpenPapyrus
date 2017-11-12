@@ -12,7 +12,7 @@
 #ifdef OPENSSL_SYS_VMS
 # if __CRTL_VER >= 70000000 && \
 	(defined _POSIX_C_SOURCE || !defined _ANSI_C_SOURCE)
-#  define VMS_GMTIME_OK
+#define VMS_GMTIME_OK
 # endif
 # ifndef VMS_GMTIME_OK
 #  include <libdtdef.h>
@@ -27,7 +27,7 @@
  * Needed to pick up the correct definitions and declarations in some of the
  * DEC C Header Files (*.H).
  */
-# define __NEW_STARLET 1
+#define __NEW_STARLET 1
 
 # if (defined(__alpha) || defined(__ia64))
 #  include <iledef.h>

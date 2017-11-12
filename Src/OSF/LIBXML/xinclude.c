@@ -1163,10 +1163,11 @@ struct xmlXIncludeMergeData {
  *
  * Inplements the merge of one entity
  */
-static void xmlXIncludeMergeEntity(xmlEntityPtr ent, xmlXIncludeMergeData * data, xmlChar * name ATTRIBUTE_UNUSED) 
+static void xmlXIncludeMergeEntity(xmlEntity * ent, xmlXIncludeMergeData * data, xmlChar * name ATTRIBUTE_UNUSED) 
 {
-	xmlEntityPtr ret, prev;
-	xmlDocPtr doc;
+	xmlEntity * ret;
+	xmlEntity * prev;
+	xmlDoc * doc;
 	xmlXIncludeCtxtPtr ctxt;
 	if((ent == NULL) || (data == NULL))
 		return;

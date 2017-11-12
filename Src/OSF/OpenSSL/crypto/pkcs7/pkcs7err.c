@@ -14,8 +14,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_PKCS7,func,0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_PKCS7,0,reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_PKCS7,func,0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_PKCS7,0,reason)
 
 static ERR_STRING_DATA PKCS7_str_functs[] = {
     {ERR_FUNC(PKCS7_F_DO_PKCS7_SIGNED_ATTRIB), "do_pkcs7_signed_attrib"},

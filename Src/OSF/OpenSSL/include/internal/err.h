@@ -8,7 +8,7 @@
  */
 
 #ifndef INTERNAL_ERR_H
-# define INTERNAL_ERR_H
+#define INTERNAL_ERR_H
 
 void err_free_strings_int(void);
 

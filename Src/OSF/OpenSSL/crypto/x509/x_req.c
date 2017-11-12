@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include "internal/x509_int.h"
-
 /*-
  * X509_REQ_INFO is handled in an unusual way to get round
  * invalid encodings. Some broken certificate requests don't

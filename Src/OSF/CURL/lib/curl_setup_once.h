@@ -188,9 +188,9 @@ Error Missing_definition_of_macro_sreadfrom
 #endif /* HAVE_RECVFROM */
 
 #ifdef RECVFROM_TYPE_ARG6_IS_VOID
-#  define RECVFROM_ARG6_T int
+#define RECVFROM_ARG6_T int
 #else
-#  define RECVFROM_ARG6_T RECVFROM_TYPE_ARG6
+#define RECVFROM_ARG6_T RECVFROM_TYPE_ARG6
 #endif
 #endif /* if 0 */
 
@@ -260,9 +260,9 @@ typedef enum {
  * there are some in the examples. This will cater for any later
  * code happening to use true and false.
  */
-#  define false bool_false
-#  define true  bool_true
-#  define HAVE_BOOL_T
+#define false bool_false
+#define true  bool_true
+#define HAVE_BOOL_T
 #endif
 
 /*

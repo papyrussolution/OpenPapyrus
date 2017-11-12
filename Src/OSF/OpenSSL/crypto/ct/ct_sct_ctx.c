@@ -12,7 +12,6 @@
 	#error "CT is disabled"
 #endif
 #include <openssl/obj_mac.h>
-//#include <openssl/x509.h>
 #include "ct_locl.h"
 
 SCT_CTX * SCT_CTX_new(void)

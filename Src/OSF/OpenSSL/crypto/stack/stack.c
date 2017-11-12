@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "internal/numbers.h"
-//#include <openssl/stack.h>
 
 struct stack_st {
 	int num;
@@ -22,32 +20,24 @@ struct stack_st {
 #undef MIN_NODES
 #define MIN_NODES       4
 
-#include <errno.h>
-
 OPENSSL_sk_compfunc OPENSSL_sk_set_cmp_func(OPENSSL_STACK * sk, OPENSSL_sk_compfunc c)
 {
 	OPENSSL_sk_compfunc old = sk->comp;
-
 	if(sk->comp != c)
 		sk->sorted = 0;
 	sk->comp = c;
-
 	return old;
 }
 
 OPENSSL_STACK * OPENSSL_sk_dup(const OPENSSL_STACK * sk)
 {
 	OPENSSL_STACK * ret;
-
 	if(sk->num < 0)
 		return NULL;
-
 	if((ret = (OPENSSL_STACK*)OPENSSL_malloc(sizeof(*ret))) == NULL)
 		return NULL;
-
 	/* direct structure assignment */
 	*ret = *sk;
-
 	if((ret->data = (const char**)OPENSSL_malloc(sizeof(*ret->data) * sk->num_alloc)) == NULL)
 		goto err;
 	memcpy((void*)ret->data, sk->data, sizeof(char *) * sk->num); // @badcast
@@ -57,29 +47,22 @@ err:
 	return NULL;
 }
 
-OPENSSL_STACK * OPENSSL_sk_deep_copy(const OPENSSL_STACK * sk,
-    OPENSSL_sk_copyfunc copy_func,
-    OPENSSL_sk_freefunc free_func)
+OPENSSL_STACK * OPENSSL_sk_deep_copy(const OPENSSL_STACK * sk, OPENSSL_sk_copyfunc copy_func, OPENSSL_sk_freefunc free_func)
 {
 	OPENSSL_STACK * ret;
 	int i;
-
 	if(sk->num < 0)
 		return NULL;
-
 	if((ret = (OPENSSL_STACK*)OPENSSL_malloc(sizeof(*ret))) == NULL)
 		return NULL;
-
 	/* direct structure assignment */
 	*ret = *sk;
-
 	ret->num_alloc = sk->num > MIN_NODES ? (size_t)sk->num : MIN_NODES;
 	ret->data = (const char**)OPENSSL_zalloc(sizeof(*ret->data) * ret->num_alloc);
 	if(ret->data == NULL) {
 		OPENSSL_free(ret);
 		return NULL;
 	}
-
 	for(i = 0; i < ret->num; ++i) {
 		if(sk->data[i] == NULL)
 			continue;
@@ -102,7 +85,6 @@ OPENSSL_STACK * OPENSSL_sk_new_null(void)
 OPENSSL_STACK * OPENSSL_sk_new(OPENSSL_sk_compfunc c)
 {
 	OPENSSL_STACK * ret;
-
 	if((ret = (OPENSSL_STACK*)OPENSSL_zalloc(sizeof(*ret))) == NULL)
 		goto err;
 	if((ret->data = (const char**)OPENSSL_zalloc(sizeof(*ret->data) * MIN_NODES)) == NULL)
@@ -125,20 +107,15 @@ int OPENSSL_sk_insert(OPENSSL_STACK * st, const void * data, int loc)
 	if(st->num_alloc <= (size_t)(st->num + 1)) {
 		size_t doub_num_alloc = st->num_alloc * 2;
 		const char ** tmpdata;
-
 		/* Overflow checks */
 		if(doub_num_alloc < st->num_alloc)
 			return 0;
-
 		/* Avoid overflow due to multiplication by sizeof(char *) */
 		if(doub_num_alloc > SIZE_MAX / sizeof(char *))
 			return 0;
-
-		tmpdata = (const char**)OPENSSL_realloc((char*)st->data,
-		    sizeof(char *) * doub_num_alloc);
+		tmpdata = (const char**)OPENSSL_realloc((char*)st->data, sizeof(char *) * doub_num_alloc);
 		if(tmpdata == NULL)
 			return 0;
-
 		st->data = tmpdata;
 		st->num_alloc = doub_num_alloc;
 	}
@@ -156,9 +133,7 @@ int OPENSSL_sk_insert(OPENSSL_STACK * st, const void * data, int loc)
 
 void * OPENSSL_sk_delete_ptr(OPENSSL_STACK * st, const void * p)
 {
-	int i;
-
-	for(i = 0; i < st->num; i++)
+	for(int i = 0; i < st->num; i++)
 		if(st->data[i] == p)
 			return OPENSSL_sk_delete(st, i);
 	return NULL;
@@ -167,10 +142,8 @@ void * OPENSSL_sk_delete_ptr(OPENSSL_STACK * st, const void * p)
 void * OPENSSL_sk_delete(OPENSSL_STACK * st, int loc)
 {
 	const char * ret;
-
 	if(st == NULL || loc < 0 || loc >= st->num)
 		return NULL;
-
 	ret = st->data[loc];
 	if(loc != st->num - 1)
 		memmove((void*)&st->data[loc], &st->data[loc + 1], sizeof(st->data[0]) * (st->num - loc - 1));  // @badcast
@@ -178,15 +151,12 @@ void * OPENSSL_sk_delete(OPENSSL_STACK * st, int loc)
 	return (void*)ret;
 }
 
-static int internal_find(OPENSSL_STACK * st, const void * data,
-    int ret_val_options)
+static int internal_find(OPENSSL_STACK * st, const void * data, int ret_val_options)
 {
 	const void * r;
 	int i;
-
 	if(st == NULL)
 		return -1;
-
 	if(st->comp == NULL) {
 		for(i = 0; i < st->num; i++)
 			if(st->data[i] == data)
@@ -299,4 +269,3 @@ int OPENSSL_sk_is_sorted(const OPENSSL_STACK * st)
 {
 	return st ? st->sorted : 1;
 }
-

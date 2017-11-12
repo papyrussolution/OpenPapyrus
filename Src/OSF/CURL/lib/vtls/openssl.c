@@ -1490,16 +1490,16 @@ static void ssl_tls_trace(int direction, int ssl_ver, int content_type, const vo
 /* ====================================================== */
 
 #ifdef SSL_CTRL_SET_TLSEXT_HOSTNAME
-#  define use_sni(x)  sni = (x)
+#define use_sni(x)  sni = (x)
 #else
-#  define use_sni(x)  Curl_nop_stmt
+#define use_sni(x)  Curl_nop_stmt
 #endif
 
 /* Check for OpenSSL 1.0.2 which has ALPN support. */
 #undef HAS_ALPN
 #if OPENSSL_VERSION_NUMBER >= 0x10002000L \
 	&& !defined(OPENSSL_NO_TLSEXT)
-#  define HAS_ALPN 1
+#define HAS_ALPN 1
 #endif
 
 /* Check for OpenSSL 1.0.1 which has NPN support. */
@@ -1507,7 +1507,7 @@ static void ssl_tls_trace(int direction, int ssl_ver, int content_type, const vo
 #if OPENSSL_VERSION_NUMBER >= 0x10001000L \
 	&& !defined(OPENSSL_NO_TLSEXT) \
 	&& !defined(OPENSSL_NO_NEXTPROTONEG)
-#  define HAS_NPN 1
+#define HAS_NPN 1
 #endif
 
 #ifdef HAS_NPN

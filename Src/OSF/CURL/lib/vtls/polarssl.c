@@ -134,7 +134,7 @@ static void polarssl_debug(void * context, int level, const char * line)
 
 /* ALPN for http2? */
 #ifdef POLARSSL_SSL_ALPN
-#  define HAS_ALPN
+#define HAS_ALPN
 #endif
 
 static Curl_recv polarssl_recv;

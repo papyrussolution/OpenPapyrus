@@ -8,7 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/rand.h>
 #ifdef OPENSSL_SYS_VMS
 	#include <unixio.h>
 #endif
@@ -44,12 +43,12 @@
 #endif
 
 #ifdef _WIN32
-# define stat    _stat
-# define chmod   _chmod
-# define open    _open
-# define fdopen  _fdopen
-# define fstat   _fstat
-# define fileno  _fileno
+#define stat    _stat
+#define chmod   _chmod
+#define open    _open
+#define fdopen  _fdopen
+#define fstat   _fstat
+#define fileno  _fileno
 #endif
 
 #undef BUFSIZE
@@ -79,7 +78,7 @@ typedef char * char_ptr32;
  * As for the buffer parameter, we only use NULL here, so that passes as
  * well...
  */
-#  define setbuf(fp, buf) (setbuf)((__FILE_ptr32)(fp), (char_ptr32)(buf))
+#define setbuf(fp, buf) (setbuf)((__FILE_ptr32)(fp), (char_ptr32)(buf))
 # endif
 
 /*
@@ -88,9 +87,9 @@ typedef char * char_ptr32;
  */
 static __FILE_ptr32(*const vms_fopen) (const char *, const char *, ...) =
     (__FILE_ptr32 (*)(const char *, const char *, ...))fopen;
-# define VMS_OPEN_ATTRS "shr=get,put,upd,del", "ctx=bin,stm", "rfm=stm", "rat=none", "mrs=0"
+#define VMS_OPEN_ATTRS "shr=get,put,upd,del", "ctx=bin,stm", "rfm=stm", "rat=none", "mrs=0"
 
-# define openssl_fopen(fname, mode) vms_fopen((fname), (mode), VMS_OPEN_ATTRS)
+#define openssl_fopen(fname, mode) vms_fopen((fname), (mode), VMS_OPEN_ATTRS)
 #endif
 
 #define RFILE ".rnd"
@@ -204,7 +203,7 @@ int RAND_write_file(const char * file)
 	!defined(OPENSSL_SYS_VMS) && !defined(OPENSSL_SYS_WINDOWS)
 	{
 # ifndef O_BINARY
-#  define O_BINARY 0
+#define O_BINARY 0
 # endif
 		/*
 		 * chmod(..., 0600) is too late to protect the file, permissions

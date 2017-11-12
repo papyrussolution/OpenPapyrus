@@ -48,12 +48,6 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include <openssl/objects.h>
-//#include "ssl_locl.h"
-#include <openssl/md5.h>
-#include <openssl/dh.h>
-#include <openssl/rand.h>
 
 #define SSL3_NUM_CIPHERS        OSSL_NELEM(ssl3_ciphers)
 

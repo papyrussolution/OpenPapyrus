@@ -8,44 +8,18 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1.h>
-//#include <openssl/asn1t.h>
-//#include <openssl/objects.h>
-//#include "internal/numbers.h"
 #include "asn1_locl.h"
 
-static int asn1_item_embed_d2i(ASN1_VALUE ** pval, const uchar ** in,
-    long len, const ASN1_ITEM * it,
-    int tag, int aclass, char opt, ASN1_TLC * ctx);
-
+static int asn1_item_embed_d2i(ASN1_VALUE ** pval, const uchar ** in, long len, const ASN1_ITEM * it, int tag, int aclass, char opt, ASN1_TLC * ctx);
 static int asn1_check_eoc(const uchar ** in, long len);
 static int asn1_find_end(const uchar ** in, long len, char inf);
-
-static int asn1_collect(BUF_MEM * buf, const uchar ** in, long len,
-    char inf, int tag, int aclass, int depth);
-
+static int asn1_collect(BUF_MEM * buf, const uchar ** in, long len, char inf, int tag, int aclass, int depth);
 static int collect_data(BUF_MEM * buf, const uchar ** p, long plen);
-
-static int asn1_check_tlen(long * olen, int * otag, uchar * oclass,
-    char * inf, char * cst,
-    const uchar ** in, long len,
-    int exptag, int expclass, char opt, ASN1_TLC * ctx);
-
-static int asn1_template_ex_d2i(ASN1_VALUE ** pval,
-    const uchar ** in, long len,
-    const ASN1_TEMPLATE * tt, char opt,
-    ASN1_TLC * ctx);
-static int asn1_template_noexp_d2i(ASN1_VALUE ** val,
-    const uchar ** in, long len,
-    const ASN1_TEMPLATE * tt, char opt,
-    ASN1_TLC * ctx);
-static int asn1_d2i_ex_primitive(ASN1_VALUE ** pval,
-    const uchar ** in, long len,
-    const ASN1_ITEM * it,
-    int tag, int aclass, char opt,
-    ASN1_TLC * ctx);
-static int asn1_ex_c2i(ASN1_VALUE ** pval, const uchar * cont, int len,
-    int utype, char * free_cont, const ASN1_ITEM * it);
+static int asn1_check_tlen(long * olen, int * otag, uchar * oclass, char * inf, char * cst, const uchar ** in, long len, int exptag, int expclass, char opt, ASN1_TLC * ctx);
+static int asn1_template_ex_d2i(ASN1_VALUE ** pval, const uchar ** in, long len, const ASN1_TEMPLATE * tt, char opt, ASN1_TLC * ctx);
+static int asn1_template_noexp_d2i(ASN1_VALUE ** val, const uchar ** in, long len, const ASN1_TEMPLATE * tt, char opt, ASN1_TLC * ctx);
+static int asn1_d2i_ex_primitive(ASN1_VALUE ** pval, const uchar ** in, long len, const ASN1_ITEM * it, int tag, int aclass, char opt, ASN1_TLC * ctx);
+static int asn1_ex_c2i(ASN1_VALUE ** pval, const uchar * cont, int len, int utype, char * free_cont, const ASN1_ITEM * it);
 
 /* Table to convert tags to bit values, used for MSTRING type */
 static const ulong tag2bit[32] = {
@@ -92,8 +66,7 @@ ASN1_VALUE * ASN1_item_d2i(ASN1_VALUE ** pval, const uchar ** in, long len, cons
 {
 	ASN1_TLC c;
 	ASN1_VALUE * ptmpval = NULL;
-	if(!pval)
-		pval = &ptmpval;
+	SETIFZ(pval, &ptmpval);
 	asn1_tlc_clear_nc(&c);
 	if(ASN1_item_ex_d2i(pval, in, len, it, -1, 0, 0, &c) > 0)
 		return *pval;
@@ -970,7 +943,7 @@ static int asn1_find_end(const uchar ** in, long len, char inf)
  * recursion is allowed at all. Although zero should be adequate examples
  * exist that require a value of 1. So 5 should be more than enough.
  */
-# define ASN1_MAX_STRING_NEST 5
+#define ASN1_MAX_STRING_NEST 5
 #endif
 
 static int asn1_collect(BUF_MEM * buf, const uchar ** in, long len,

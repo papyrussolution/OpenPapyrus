@@ -12,10 +12,10 @@
  */
 
 #ifndef HEADER_LHASH_H
-# define HEADER_LHASH_H
+#define HEADER_LHASH_H
 
-# include <openssl/e_os2.h>
-# include <openssl/bio.h>
+#include <openssl/e_os2.h>
+#include <openssl/bio.h>
 
 #ifdef  __cplusplus
 extern "C" {
@@ -38,36 +38,36 @@ typedef struct lhash_st OPENSSL_LHASH;
  */
 
 /* First: "hash" functions */
-# define DECLARE_LHASH_HASH_FN(name, o_type) \
+#define DECLARE_LHASH_HASH_FN(name, o_type) \
         ulong name##_LHASH_HASH(const void *);
-# define IMPLEMENT_LHASH_HASH_FN(name, o_type) \
+#define IMPLEMENT_LHASH_HASH_FN(name, o_type) \
         ulong name##_LHASH_HASH(const void *arg) { \
                 const o_type *a = arg; \
                 return name##_hash(a); }
-# define LHASH_HASH_FN(name) name##_LHASH_HASH
+#define LHASH_HASH_FN(name) name##_LHASH_HASH
 
 /* Second: "compare" functions */
-# define DECLARE_LHASH_COMP_FN(name, o_type) \
+#define DECLARE_LHASH_COMP_FN(name, o_type) \
         int name##_LHASH_COMP(const void *, const void *);
-# define IMPLEMENT_LHASH_COMP_FN(name, o_type) \
+#define IMPLEMENT_LHASH_COMP_FN(name, o_type) \
         int name##_LHASH_COMP(const void *arg1, const void *arg2) { \
                 const o_type *a = arg1;             \
                 const o_type *b = arg2; \
                 return name##_cmp(a,b); }
-# define LHASH_COMP_FN(name) name##_LHASH_COMP
+#define LHASH_COMP_FN(name) name##_LHASH_COMP
 
 /* Fourth: "doall_arg" functions */
-# define DECLARE_LHASH_DOALL_ARG_FN(name, o_type, a_type) \
+#define DECLARE_LHASH_DOALL_ARG_FN(name, o_type, a_type) \
         void name##_LHASH_DOALL_ARG(void *, void *);
-# define IMPLEMENT_LHASH_DOALL_ARG_FN(name, o_type, a_type) \
+#define IMPLEMENT_LHASH_DOALL_ARG_FN(name, o_type, a_type) \
         void name##_LHASH_DOALL_ARG(void *arg1, void *arg2) { \
                 o_type *a = arg1; \
                 a_type *b = arg2; \
                 name##_doall_arg(a, b); }
-# define LHASH_DOALL_ARG_FN(name) name##_LHASH_DOALL_ARG
+#define LHASH_DOALL_ARG_FN(name) name##_LHASH_DOALL_ARG
 
 
-# define LH_LOAD_MULT    256
+#define LH_LOAD_MULT    256
 
 int OPENSSL_LH_error(OPENSSL_LHASH *lh);
 OPENSSL_LHASH *OPENSSL_LH_new(OPENSSL_LH_HASHFUNC h, OPENSSL_LH_COMPFUNC c);
@@ -92,33 +92,33 @@ void OPENSSL_LH_node_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
 void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
 
 # if OPENSSL_API_COMPAT < 0x10100000L
-#  define _LHASH OPENSSL_LHASH
-#  define LHASH_NODE OPENSSL_LH_NODE
-#  define lh_error OPENSSL_LH_error
-#  define lh_new OPENSSL_lh_new
-#  define lh_free OPENSSL_LH_free
-#  define lh_insert OPENSSL_LH_insert
-#  define lh_delete OPENSSL_LH_delete
-#  define lh_retrieve OPENSSL_LH_retrieve
-#  define lh_doall OPENSSL_LH_doall
-#  define lh_doall_arg OPENSSL_LH_doall_arg
-#  define lh_strhash OPENSSL_LH_strhash
-#  define lh_num_items OPENSSL_LH_num_items
+#define _LHASH OPENSSL_LHASH
+#define LHASH_NODE OPENSSL_LH_NODE
+#define lh_error OPENSSL_LH_error
+#define lh_new OPENSSL_lh_new
+#define lh_free OPENSSL_LH_free
+#define lh_insert OPENSSL_LH_insert
+#define lh_delete OPENSSL_LH_delete
+#define lh_retrieve OPENSSL_LH_retrieve
+#define lh_doall OPENSSL_LH_doall
+#define lh_doall_arg OPENSSL_LH_doall_arg
+#define lh_strhash OPENSSL_LH_strhash
+#define lh_num_items OPENSSL_LH_num_items
 #  ifndef OPENSSL_NO_STDIO
 #   define lh_stats OPENSSL_LH_stats
 #   define lh_node_stats OPENSSL_LH_node_stats
 #   define lh_node_usage_stats OPENSSL_LH_node_usage_stats
 #  endif
-#  define lh_stats_bio OPENSSL_LH_stats_bio
-#  define lh_node_stats_bio OPENSSL_LH_node_stats_bio
-#  define lh_node_usage_stats_bio OPENSSL_LH_node_usage_stats_bio
+#define lh_stats_bio OPENSSL_LH_stats_bio
+#define lh_node_stats_bio OPENSSL_LH_node_stats_bio
+#define lh_node_usage_stats_bio OPENSSL_LH_node_usage_stats_bio
 # endif
 
 /* Type checking... */
 
-# define LHASH_OF(type) struct lhash_st_##type
+#define LHASH_OF(type) struct lhash_st_##type
 
-# define DEFINE_LHASH_OF(type) \
+#define DEFINE_LHASH_OF(type) \
     LHASH_OF(type) { union lh_##type##_dummy { void* d1; ulong d2; int d3; } dummy; }; \
     static ossl_inline LHASH_OF(type) * lh_##type##_new(ulong (*hfn)(const type *), int (*cfn)(const type *, const type *)) \
     { \

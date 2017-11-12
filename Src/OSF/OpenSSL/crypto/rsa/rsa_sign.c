@@ -8,11 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/bn.h>
-//#include <openssl/rsa.h>
-//#include <openssl/objects.h>
-#include <openssl/x509.h>
-//#include "internal/x509_int.h"
 #include "rsa_locl.h"
 
 /* Size of an SSL signature: MD5+SHA1 */

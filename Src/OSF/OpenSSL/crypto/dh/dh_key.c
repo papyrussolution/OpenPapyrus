@@ -9,13 +9,10 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "dh_locl.h"
-#include "internal/bn_int.h"
 
 static int generate_key(DH * dh);
 static int compute_key(uchar * key, const BIGNUM * pub_key, DH * dh);
-static int dh_bn_mod_exp(const DH * dh, BIGNUM * r,
-    const BIGNUM * a, const BIGNUM * p,
-    const BIGNUM * m, BN_CTX * ctx, BN_MONT_CTX * m_ctx);
+static int dh_bn_mod_exp(const DH * dh, BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx, BN_MONT_CTX * m_ctx);
 static int dh_init(DH * dh);
 static int dh_finish(DH * dh);
 
@@ -115,11 +112,9 @@ static int generate_key(DH * dh)
 
 	{
 		BIGNUM * prk = BN_new();
-
 		if(prk == NULL)
 			goto err;
 		BN_with_flags(prk, priv_key, BN_FLG_CONSTTIME);
-
 		if(!dh->meth->bn_mod_exp(dh, pub_key, dh->g, prk, dh->p, ctx, mont)) {
 			BN_free(prk);
 			goto err;
@@ -134,7 +129,6 @@ static int generate_key(DH * dh)
 err:
 	if(ok != 1)
 		DHerr(DH_F_GENERATE_KEY, ERR_R_BN_LIB);
-
 	if(pub_key != dh->pub_key)
 		BN_free(pub_key);
 	if(priv_key != dh->priv_key)
@@ -208,4 +202,3 @@ static int dh_finish(DH * dh)
 	BN_MONT_CTX_free(dh->method_mont_p);
 	return 1;
 }
-

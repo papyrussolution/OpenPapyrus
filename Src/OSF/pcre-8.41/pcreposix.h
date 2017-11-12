@@ -115,8 +115,8 @@ export settings are needed, and are set in pcreposix.c before including this
 file. */
 
 #if defined(_WIN32) && !defined(PCRE_STATIC) && !defined(PCREPOSIX_EXP_DECL)
-#  define PCREPOSIX_EXP_DECL  extern __declspec(dllimport)
-#  define PCREPOSIX_EXP_DEFN  __declspec(dllimport)
+#define PCREPOSIX_EXP_DECL  extern __declspec(dllimport)
+#define PCREPOSIX_EXP_DEFN  __declspec(dllimport)
 #endif
 
 /* By default, we use the standard "extern" declarations. */

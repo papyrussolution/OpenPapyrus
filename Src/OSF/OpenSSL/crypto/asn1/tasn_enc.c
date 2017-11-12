@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1.h>
-//#include <openssl/asn1t.h>
-//#include "internal/asn1_int.h"
 #include "asn1_locl.h"
 
 static int asn1_i2d_ex_primitive(ASN1_VALUE ** pval, uchar ** out, const ASN1_ITEM * it, int tag, int aclass);

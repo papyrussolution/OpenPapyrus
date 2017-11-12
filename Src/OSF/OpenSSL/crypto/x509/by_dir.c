@@ -8,15 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#ifndef NO_SYS_TYPES_H
-//#include <sys/types.h>
-#endif
 #ifndef OPENSSL_NO_POSIX_IO
 	#include <sys/stat.h>
 #endif
-//#include <openssl/lhash.h>
-//#include <openssl/x509.h>
-//#include "internal/x509_int.h"
 #include "x509_lcl.h"
 
 struct lookup_dir_hashes_st {
@@ -280,7 +274,7 @@ static int get_cert_by_subject(X509_LOOKUP * xl, X509_LOOKUP_TYPE type, X509_NAM
 			}
 #ifndef OPENSSL_NO_POSIX_IO
 # ifdef _WIN32
-#  define stat _stat
+#define stat _stat
 # endif
 			{
 				struct stat st;

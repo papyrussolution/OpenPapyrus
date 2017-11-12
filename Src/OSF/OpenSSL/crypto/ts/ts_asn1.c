@@ -9,7 +9,6 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <openssl/ts.h>
-//#include <openssl/asn1t.h>
 #include "ts_lcl.h"
 
 ASN1_SEQUENCE(TS_MSG_IMPRINT) = {

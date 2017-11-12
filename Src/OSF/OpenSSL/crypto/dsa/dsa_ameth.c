@@ -8,12 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/asn1.h>
-//#include <openssl/bn.h>
-//#include <openssl/cms.h>
-//#include "internal/asn1_int.h"
-//#include <internal/evp_int.h>
 #include "dsa_locl.h"
 
 static int dsa_pub_decode(EVP_PKEY * pkey, X509_PUBKEY * pubkey)

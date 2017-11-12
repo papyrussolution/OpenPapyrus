@@ -4,7 +4,7 @@
    Foundation; either version 2.1 of the License, or (at your option) any later
    version.*/
 #if !defined(_qrdec_H)
-# define _qrdec_H (1)
+#define _qrdec_H (1)
 
 #include <zbar.h>
 

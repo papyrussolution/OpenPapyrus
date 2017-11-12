@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "internal/comp.h"
-//#include "internal/cryptlib_int.h"
-//#include "internal/bio.h"
 #include "comp_lcl.h"
 
 COMP_METHOD * COMP_zlib(void);
@@ -65,7 +62,6 @@ static COMP_METHOD zlib_stateful_method = {
 	#include <windows.h>
 #endif
 #ifdef ZLIB_SHARED
-	#include "internal/dso.h"
 
 /* Function pointers */
 typedef int (*compress_ft)(Bytef * dest, uLongf * destLen, const Bytef * source, uLong sourceLen);
@@ -88,14 +84,14 @@ static zError__ft p_zError = NULL;
 static int zlib_loaded = 0;     /* only attempt to init func pts once */
 static DSO * zlib_dso = NULL;
 
-#  define compress                p_compress
-#  define inflateEnd              p_inflateEnd
-#  define inflate                 p_inflate
-#  define inflateInit_            p_inflateInit_
-#  define deflateEnd              p_deflateEnd
-#  define deflate                 p_deflate
-#  define deflateInit_            p_deflateInit_
-#  define zError                  p_zError
+#define compress                p_compress
+#define inflateEnd              p_inflateEnd
+#define inflate                 p_inflate
+#define inflateInit_            p_inflateInit_
+#define deflateEnd              p_deflateEnd
+#define deflate                 p_deflate
+#define deflateInit_            p_deflateInit_
+#define zError                  p_zError
 # endif                         /* ZLIB_SHARED */
 
 struct zlib_state {
@@ -247,7 +243,7 @@ typedef struct {
 	z_stream zout;          /* Output compression context */
 } BIO_ZLIB_CTX;
 
-# define ZLIB_DEFAULT_BUFSIZE 1024
+#define ZLIB_DEFAULT_BUFSIZE 1024
 
 static int bio_zlib_new(BIO * bi);
 static int bio_zlib_free(BIO * bi);

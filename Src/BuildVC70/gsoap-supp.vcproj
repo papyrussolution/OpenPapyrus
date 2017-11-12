@@ -359,7 +359,7 @@
 				RelativePath="..\Osf\gSOAP\gsoap-slib-supp.cpp">
 			</File>
 			<File
-				RelativePath="..\Osf\gSOAP\stdsoap2.c">
+				RelativePath="..\Osf\gSOAP\stdsoap2.cpp">
 			</File>
 		</Filter>
 		<Filter

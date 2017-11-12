@@ -345,7 +345,7 @@ typedef void (*externalSubsetSAXFunc)(void * ctx, const xmlChar * name, const xm
  *
  * Returns the xmlEntityPtr if found.
  */
-typedef xmlEntityPtr (*getEntitySAXFunc)(void * ctx, const xmlChar * name);
+typedef xmlEntity * (*getEntitySAXFunc)(void * ctx, const xmlChar * name);
 /**
  * getParameterEntitySAXFunc:
  * @ctx:  the user data (XML parser context)
@@ -355,7 +355,7 @@ typedef xmlEntityPtr (*getEntitySAXFunc)(void * ctx, const xmlChar * name);
  *
  * Returns the xmlEntityPtr if found.
  */
-typedef xmlEntityPtr (*getParameterEntitySAXFunc)(void * ctx, const xmlChar * name);
+typedef xmlEntity * (*getParameterEntitySAXFunc)(void * ctx, const xmlChar * name);
 /**
  * entityDeclSAXFunc:
  * @ctx:  the user data (XML parser context)
@@ -793,7 +793,7 @@ XMLPUBFUN int XMLCALL xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx, const xml
 XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlNewParserCtxt();
 XMLPUBFUN int XMLCALL xmlInitParserCtxt(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlClearParserCtxt(xmlParserCtxt * ctxt);
-XMLPUBFUN void XMLCALL xmlFreeParserCtxt(xmlParserCtxt * ctxt);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeParserCtxt(xmlParserCtxt * ctxt);
 #ifdef LIBXML_SAX1_ENABLED
 	XMLPUBFUN void XMLCALL xmlSetupParserForBuffer(xmlParserCtxt * ctxt, const xmlChar* buffer, const char * filename);
 #endif /* LIBXML_SAX1_ENABLED */

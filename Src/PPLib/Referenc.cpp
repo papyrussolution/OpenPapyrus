@@ -1856,7 +1856,7 @@ long SLAPI PPRights::GetDefaultOprFlags()
 	return 0xffffffff; // @v8.3.3 (0xffff & ~PPORF_INHERITED)-->0xffff // @v8.9.3 0xffff-->0xffffffff
 }
 
-int SLAPI GetCommConfig(PPCommConfig * pCfg)
+int FASTCALL GetCommConfig(PPCommConfig * pCfg)
 {
 	int    ok = 1, r = 0;
 	memzero(pCfg, sizeof(*pCfg));
@@ -1890,7 +1890,7 @@ int SLAPI GetCommConfig(PPCommConfig * pCfg)
 	return ok;
 }
 
-int SLAPI SetCommConfig(PPCommConfig * pCfg, int use_ta)
+int FASTCALL SetCommConfig(PPCommConfig * pCfg, int use_ta)
 {
 	return PPRef->PutProp(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_COMMCFG, pCfg, sizeof(*pCfg), use_ta);
 }

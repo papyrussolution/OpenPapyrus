@@ -8,10 +8,7 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <openssl/rand.h>
-//#include "../ssl_locl.h"
 #include "statem_locl.h"
-
 /*
  * This file implements the SSL/TLS/DTLS state machines.
  *
@@ -48,12 +45,9 @@
 
 /* Sub state machine return values */
 typedef enum {
-	/* Something bad happened or NBIO */
-	SUB_STATE_ERROR,
-	/* Sub state finished go to the next sub state */
-	SUB_STATE_FINISHED,
-	/* Sub state finished and handshake was completed */
-	SUB_STATE_END_HANDSHAKE
+	SUB_STATE_ERROR, /* Something bad happened or NBIO */
+	SUB_STATE_FINISHED, /* Sub state finished go to the next sub state */
+	SUB_STATE_END_HANDSHAKE /* Sub state finished and handshake was completed */
 } SUB_STATE_RETURN;
 
 static int state_machine(SSL * s, int server);

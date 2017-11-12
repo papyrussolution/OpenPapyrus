@@ -8,23 +8,17 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/pem.h>
-//#include <openssl/x509v3.h>
-#include <openssl/ocsp.h>
+//#include <openssl/ocsp.h>
 #include "ocsp_lcl.h"
-//#include <openssl/asn1t.h>
 
 /* Convert a certificate and its issuer to an OCSP_CERTID */
 
-OCSP_CERTID * OCSP_cert_to_id(const EVP_MD * dgst, const X509 * subject,
-    const X509 * issuer)
+OCSP_CERTID * OCSP_cert_to_id(const EVP_MD * dgst, const X509 * subject, const X509 * issuer)
 {
 	X509_NAME * iname;
 	const ASN1_INTEGER * serial;
 	ASN1_BIT_STRING * ikey;
-	if(!dgst)
-		dgst = EVP_sha1();
+	SETIFZ(dgst, EVP_sha1());
 	if(subject) {
 		iname = X509_get_issuer_name(subject);
 		serial = X509_get0_serialNumber(subject);

@@ -4739,7 +4739,7 @@ browser PRJPHASE north(100), 2, 1, "Фазы проекта '%s'", OWNER|GRID, 0
 	"@appellation",          1, notype, 0, 20
 	"@code",                 2, notype, 0, 8
 	"@date",                 3, notype, DATF_DMY, 8
-	"Дата\nначала работ",    4, notype, DATF_DMY, 8
+	"@project_begindt",      4, notype, DATF_DMY, 8
 	"Дата\nзавершения",      5, notype, DATF_DMY, 8
 	"Факт дата\nзавершения", 6, notype, DATF_DMY, 8
 	"@status",               7, notype, 0, 6

@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/evp.h>
-//#include <openssl/asn1.h>
-//#include <openssl/x509.h>
 
 X509_INFO * X509_INFO_new(void)
 {

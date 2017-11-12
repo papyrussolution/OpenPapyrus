@@ -4,7 +4,7 @@
    Foundation; either version 2.1 of the License, or (at your option) any later
    version.*/
 #if !defined(_qrcode_binarize_H)
-# define _qrcode_binarize_H (1)
+#define _qrcode_binarize_H (1)
 
 void qr_image_cross_masking_median_filter(uchar *_img,
  int _width,int _height);

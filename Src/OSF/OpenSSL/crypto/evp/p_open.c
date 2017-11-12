@@ -11,8 +11,6 @@
 #ifdef OPENSSL_NO_RSA
 NON_EMPTY_TRANSLATION_UNIT
 #else
-//#include <openssl/x509.h>
-//#include <openssl/rsa.h>
 
 int EVP_OpenInit(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * type,
     const uchar * ek, int ekl, const uchar * iv, EVP_PKEY * priv)

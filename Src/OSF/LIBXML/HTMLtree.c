@@ -367,7 +367,7 @@ static size_t htmlBufNodeDumpFormat(xmlBufPtr buf, xmlDocPtr doc, xmlNodePtr cur
  *
  * Returns the number of byte written or -1 in case of error
  */
-int htmlNodeDump(xmlBufferPtr buf, xmlDocPtr doc, xmlNode * cur) 
+int htmlNodeDump(xmlBuffer * buf, xmlDocPtr doc, xmlNode * cur) 
 {
 	xmlBufPtr buffer;
 	size_t ret;

@@ -854,7 +854,7 @@ xmlHashTable * xmlHashCopy(xmlHashTable * table, xmlHashCopier f)
  * Returns the number of elements in the hash table or
  * -1 in case of error
  */
-int xmlHashSize(xmlHashTable * table)
+int FASTCALL xmlHashSize(xmlHashTable * table)
 {
 	return table ? table->nbElems : -1;
 }

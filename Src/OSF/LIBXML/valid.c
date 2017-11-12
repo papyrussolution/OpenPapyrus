@@ -1012,7 +1012,7 @@ void xmlFreeElementContent(xmlElementContentPtr cur)
  *
  * This will dump the content of the element table as an XML DTD definition
  */
-static void xmlDumpElementContent(xmlBufferPtr buf, xmlElementContentPtr content, int glob) 
+static void xmlDumpElementContent(xmlBuffer * buf, xmlElementContentPtr content, int glob) 
 {
 	if(content) {
 		if(glob) 
@@ -1442,8 +1442,8 @@ xmlElementTablePtr xmlCopyElementTable(xmlElementTablePtr table) {
  * This will dump the content of the element declaration as an XML
  * DTD definition
  */
-void xmlDumpElementDecl(xmlBufferPtr buf, xmlElementPtr elem) {
-	if((buf == NULL) || (elem == NULL))
+void xmlDumpElementDecl(xmlBuffer * buf, xmlElementPtr elem) {
+	if(!buf || (elem == NULL))
 		return;
 	switch(elem->etype) {
 		case XML_ELEMENT_TYPE_EMPTY:
@@ -1499,10 +1499,10 @@ void xmlDumpElementDecl(xmlBufferPtr buf, xmlElementPtr elem) {
  * This routine is used by the hash scan function.  It just reverses
  * the arguments.
  */
-static void xmlDumpElementDeclScan(xmlElementPtr elem, xmlBufferPtr buf) {
+static void xmlDumpElementDeclScan(xmlElementPtr elem, xmlBuffer * buf) 
+{
 	xmlDumpElementDecl(buf, elem);
 }
-
 /**
  * xmlDumpElementTable:
  * @buf:  the XML buffer output
@@ -1510,8 +1510,8 @@ static void xmlDumpElementDeclScan(xmlElementPtr elem, xmlBufferPtr buf) {
  *
  * This will dump the content of the element table as an XML DTD definition
  */
-void xmlDumpElementTable(xmlBufferPtr buf, xmlElementTablePtr table) {
-	if((buf == NULL) || (table == NULL))
+void xmlDumpElementTable(xmlBuffer * buf, xmlElementTablePtr table) {
+	if(!buf || (table == NULL))
 		return;
 	xmlHashScan(table, (xmlHashScanner)xmlDumpElementDeclScan, buf);
 }
@@ -1581,9 +1581,9 @@ xmlEnumeration * xmlCopyEnumeration(xmlEnumeration * cur)
  *
  * This will dump the content of the enumeration
  */
-static void xmlDumpEnumeration(xmlBufferPtr buf, xmlEnumeration * cur) 
+static void xmlDumpEnumeration(xmlBuffer * buf, xmlEnumeration * cur) 
 {
-	if((buf == NULL) || (cur == NULL))
+	if(!buf || (cur == NULL))
 		return;
 	xmlBufferWriteCHAR(buf, cur->name);
 	if(cur->next == NULL)
@@ -1925,9 +1925,9 @@ xmlAttributeTablePtr xmlCopyAttributeTable(xmlAttributeTablePtr table) {
  * This will dump the content of the attribute declaration as an XML
  * DTD definition
  */
-void xmlDumpAttributeDecl(xmlBufferPtr buf, xmlAttribute * attr) 
+void xmlDumpAttributeDecl(xmlBuffer * buf, xmlAttribute * attr) 
 {
-	if((buf == NULL) || (attr == NULL))
+	if(!buf || (attr == NULL))
 		return;
 	xmlBufferWriteChar(buf, "<!ATTLIST ");
 	xmlBufferWriteCHAR(buf, attr->elem);
@@ -2002,7 +2002,7 @@ void xmlDumpAttributeDecl(xmlBufferPtr buf, xmlAttribute * attr)
  *
  * This is used with the hash scan function - just reverses arguments
  */
-static void xmlDumpAttributeDeclScan(xmlAttribute * attr, xmlBufferPtr buf) 
+static void xmlDumpAttributeDeclScan(xmlAttribute * attr, xmlBuffer * buf) 
 {
 	xmlDumpAttributeDecl(buf, attr);
 }
@@ -2013,8 +2013,9 @@ static void xmlDumpAttributeDeclScan(xmlAttribute * attr, xmlBufferPtr buf)
  *
  * This will dump the content of the attribute table as an XML DTD definition
  */
-void xmlDumpAttributeTable(xmlBufferPtr buf, xmlAttributeTablePtr table) {
-	if((buf == NULL) || (table == NULL))
+void xmlDumpAttributeTable(xmlBuffer * buf, xmlAttributeTablePtr table) 
+{
+	if(!buf || (table == NULL))
 		return;
 	xmlHashScan(table, (xmlHashScanner)xmlDumpAttributeDeclScan, buf);
 }
@@ -2161,9 +2162,9 @@ xmlNotationTablePtr xmlCopyNotationTable(xmlNotationTablePtr table) {
  *
  * This will dump the content the notation declaration as an XML DTD definition
  */
-void xmlDumpNotationDecl(xmlBufferPtr buf, xmlNotation * nota) 
+void xmlDumpNotationDecl(xmlBuffer * buf, xmlNotation * nota) 
 {
-	if((buf == NULL) || (nota == NULL))
+	if(!buf || (nota == NULL))
 		return;
 	xmlBufferWriteChar(buf, "<!NOTATION ");
 	xmlBufferWriteCHAR(buf, nota->name);
@@ -2189,7 +2190,7 @@ void xmlDumpNotationDecl(xmlBufferPtr buf, xmlNotation * nota)
  *
  * This is called with the hash scan function, and just reverses args
  */
-static void xmlDumpNotationDeclScan(xmlNotation * nota, xmlBufferPtr buf) 
+static void xmlDumpNotationDeclScan(xmlNotation * nota, xmlBuffer * buf) 
 {
 	xmlDumpNotationDecl(buf, nota);
 }
@@ -2200,7 +2201,7 @@ static void xmlDumpNotationDeclScan(xmlNotation * nota, xmlBufferPtr buf)
  *
  * This will dump the content of the notation table as an XML DTD definition
  */
-void xmlDumpNotationTable(xmlBufferPtr buf, xmlNotationTablePtr table) 
+void xmlDumpNotationTable(xmlBuffer * buf, xmlNotationTablePtr table) 
 {
 	if(buf && table)
 		xmlHashScan(table, (xmlHashScanner)xmlDumpNotationDeclScan, buf);
@@ -2325,7 +2326,7 @@ void xmlFreeIDTable(xmlIDTablePtr table)
  */
 int xmlIsID(xmlDocPtr doc, xmlNode * elem, xmlAttrPtr attr)
 {
-	if((attr == NULL) || (attr->name == NULL))
+	if(!attr || (attr->name == NULL))
 		return 0;
 	if(attr->ns && attr->ns->prefix && (!strcmp((char*)attr->name, "id")) && (!strcmp((char*)attr->ns->prefix, "xml")))
 		return 1;
@@ -2378,7 +2379,7 @@ int xmlRemoveID(xmlDocPtr doc, xmlAttrPtr attr)
 	xmlChar * ID;
 	if(!doc)
 		return -1;
-	if(attr == NULL)
+	if(!attr)
 		return -1;
 	table = (xmlIDTable *)doc->ids;
 	if(table == NULL)
@@ -2659,7 +2660,7 @@ int xmlRemoveRef(xmlDocPtr doc, xmlAttrPtr attr)
 	xmlRemoveMemo target;
 	if(!doc) 
 		return -1;
-	if(attr == NULL) 
+	if(!attr) 
 		return -1;
 	table = (xmlRefTablePtr)doc->refs;
 	if(table == NULL)
@@ -3384,7 +3385,7 @@ static int xmlValidateAttributeValue2(xmlValidCtxtPtr ctxt, xmlDocPtr doc, const
 		case XML_ATTRIBUTE_CDATA:
 		    break;
 		case XML_ATTRIBUTE_ENTITY: {
-		    xmlEntityPtr ent = xmlGetDocEntity(doc, value);
+		    xmlEntity * ent = xmlGetDocEntity(doc, value);
 		    /* yeah it's a bit messy... */
 		    if((ent == NULL) && (doc->standalone == 1)) {
 			    doc->standalone = 0;
@@ -3402,7 +3403,7 @@ static int xmlValidateAttributeValue2(xmlValidCtxtPtr ctxt, xmlDocPtr doc, const
 	    }
 		case XML_ATTRIBUTE_ENTITIES: {
 		    xmlChar * nam = NULL, * cur, save;
-		    xmlEntityPtr ent;
+		    xmlEntity * ent;
 		    xmlChar * dup = sstrdup(value);
 		    if(dup == NULL)
 			    return 0;
@@ -3629,7 +3630,7 @@ int xmlValidateAttributeDecl(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlAttribute *
 	int ret = 1;
 	int val;
 	CHECK_DTD;
-	if(attr == NULL) 
+	if(!attr) 
 		return 1;
 	/* Attribute Default Legal */
 	/* Enumeration */
@@ -3822,7 +3823,7 @@ int xmlValidateOneAttribute(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlNode * elem,
 	CHECK_DTD;
 	if((elem == NULL) || (elem->name == NULL)) 
 		return 0;
-	if((attr == NULL) || (attr->name == NULL)) 
+	if(!attr || (attr->name == NULL)) 
 		return 0;
 	if(elem->ns && elem->ns->prefix) {
 		xmlChar fn[50];
@@ -5699,7 +5700,7 @@ static void xmlValidateRef(xmlRefPtr ref, xmlValidCtxtPtr ctxt,
 	if((ref->attr == NULL) && (ref->name == NULL))
 		return;
 	attr = ref->attr;
-	if(attr == NULL) {
+	if(!attr) {
 		xmlChar * str = NULL, * cur, save;
 		xmlChar * dup = sstrdup(name);
 		if(dup == NULL) {
@@ -5884,7 +5885,7 @@ int xmlValidateDtd(xmlValidCtxtPtr ctxt, xmlDocPtr doc, xmlDtdPtr dtd)
 	return ret;
 }
 
-static void xmlValidateNotationCallback(xmlEntityPtr cur, xmlValidCtxtPtr ctxt, const xmlChar * name ATTRIBUTE_UNUSED) 
+static void xmlValidateNotationCallback(xmlEntity * cur, xmlValidCtxtPtr ctxt, const xmlChar * name ATTRIBUTE_UNUSED) 
 {
 	if(cur) {
 		if(cur->etype == XML_EXTERNAL_GENERAL_UNPARSED_ENTITY) {

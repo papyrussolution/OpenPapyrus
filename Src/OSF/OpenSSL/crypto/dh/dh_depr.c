@@ -15,9 +15,9 @@
 NON_EMPTY_TRANSLATION_UNIT
 #else
 
-//# include <stdio.h>
-//# include "internal/cryptlib.h"
-//# include <openssl/bn.h>
+//#include <stdio.h>
+//#include "internal/cryptlib.h"
+//#include <openssl/bn.h>
 #include <openssl/dh.h>
 
 DH *DH_generate_parameters(int prime_len, int generator,

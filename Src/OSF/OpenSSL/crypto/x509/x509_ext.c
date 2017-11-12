@@ -8,13 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/stack.h>
-//#include <openssl/asn1.h>
-//#include <openssl/objects.h>
-//#include <openssl/evp.h>
-//#include <openssl/x509.h>
-//#include "internal/x509_int.h"
-//#include <openssl/x509v3.h>
 
 int X509_CRL_get_ext_count(const X509_CRL * x)
 {

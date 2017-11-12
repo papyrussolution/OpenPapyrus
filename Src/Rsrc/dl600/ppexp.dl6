@@ -8809,5 +8809,5 @@ data UhttTSessPlaceStatusList {
 //   препроцессинга html-контента.
 //
 data HttpPreprocessBase {
-	long   Dummy;
+	long   __Dummy;
 }

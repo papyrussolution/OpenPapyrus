@@ -8,11 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
 /*
  * Doesn't do anything now: Builtin PBE algorithms in static table.
  */
-
 void PKCS5_PBE_add(void)
 {
 }

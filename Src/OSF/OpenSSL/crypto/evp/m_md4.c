@@ -11,12 +11,6 @@
 
 #ifndef OPENSSL_NO_MD4
 
-//#include <openssl/evp.h>
-//#include <openssl/x509.h>
-#include <openssl/md4.h>
-//#include <openssl/rsa.h>
-//#include <internal/evp_int.h>
-
 static int init(EVP_MD_CTX *ctx)
 {
     return MD4_Init((MD4_CTX *)EVP_MD_CTX_md_data(ctx));

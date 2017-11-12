@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/rsa.h>
-//#include <openssl/x509.h>
 
 int EVP_PKEY_encrypt_old(uchar * ek, const uchar * key, int key_len, EVP_PKEY * pubk)
 {

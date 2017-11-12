@@ -308,7 +308,7 @@ int xmlBufSetInputBaseCur(xmlBufPtr buf, xmlParserInputPtr input, size_t base, s
 //
 //#include "enc.h"
 //
-int xmlCharEncFirstLineInt(xmlCharEncodingHandler *handler, xmlBufferPtr out, xmlBufferPtr in, int len);
+int xmlCharEncFirstLineInt(xmlCharEncodingHandler *handler, xmlBuffer * out, xmlBuffer * in, int len);
 int xmlCharEncFirstLineInput(xmlParserInputBufferPtr input, int len);
 int xmlCharEncInput(xmlParserInputBufferPtr input, int flush);
 int FASTCALL xmlCharEncOutput(xmlOutputBuffer * output, int init);

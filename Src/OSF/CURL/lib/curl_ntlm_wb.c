@@ -52,19 +52,19 @@
 #include "memdebug.h"
 
 #if DEBUG_ME
-# define DEBUG_OUT(x) x
+#define DEBUG_OUT(x) x
 #else
-# define DEBUG_OUT(x) Curl_nop_stmt
+#define DEBUG_OUT(x) Curl_nop_stmt
 #endif
 
 /* Portable 'sclose_nolog' used only in child process instead of 'sclose'
    to avoid fooling the socket leak detector */
 #if defined(HAVE_CLOSESOCKET)
-#  define sclose_nolog(x)  closesocket((x))
+#define sclose_nolog(x)  closesocket((x))
 #elif defined(HAVE_CLOSESOCKET_CAMEL)
-#  define sclose_nolog(x)  CloseSocket((x))
+#define sclose_nolog(x)  CloseSocket((x))
 #else
-#  define sclose_nolog(x)  close((x))
+#define sclose_nolog(x)  close((x))
 #endif
 
 void Curl_ntlm_wb_cleanup(struct connectdata * conn)

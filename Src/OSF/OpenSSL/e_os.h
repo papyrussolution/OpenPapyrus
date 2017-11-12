@@ -89,34 +89,34 @@ extern "C" {
 	#define readsocket(s,b,n)       recv((s),(b),(n),0)
 	#define writesocket(s,b,n)      send((s),(b),(n),0)
 #elif defined(__DJGPP__)
-#  define WATT32
-#  define WATT32_NO_OLDIES
-#  define get_last_socket_error() errno
-#  define clear_socket_error()    errno=0
-#  define closesocket(s)          close_s(s)
-#  define readsocket(s,b,n)       read_s(s,b,n)
-#  define writesocket(s,b,n)      send(s,b,n,0)
+#define WATT32
+#define WATT32_NO_OLDIES
+#define get_last_socket_error() errno
+#define clear_socket_error()    errno=0
+#define closesocket(s)          close_s(s)
+#define readsocket(s,b,n)       read_s(s,b,n)
+#define writesocket(s,b,n)      send(s,b,n,0)
 # elif defined(OPENSSL_SYS_VMS)
-#  define get_last_socket_error() errno
-#  define clear_socket_error()    errno=0
-#  define ioctlsocket(a,b,c)      ioctl(a,b,c)
-#  define closesocket(s)          close(s)
-#  define readsocket(s,b,n)       recv((s),(b),(n),0)
-#  define writesocket(s,b,n)      send((s),(b),(n),0)
+#define get_last_socket_error() errno
+#define clear_socket_error()    errno=0
+#define ioctlsocket(a,b,c)      ioctl(a,b,c)
+#define closesocket(s)          close(s)
+#define readsocket(s,b,n)       recv((s),(b),(n),0)
+#define writesocket(s,b,n)      send((s),(b),(n),0)
 # elif defined(OPENSSL_SYS_VXWORKS)
-#  define get_last_socket_error() errno
-#  define clear_socket_error()    errno=0
-#  define ioctlsocket(a,b,c)          ioctl((a),(b),(int)(c))
-#  define closesocket(s)              close(s)
-#  define readsocket(s,b,n)           read((s),(b),(n))
-#  define writesocket(s,b,n)          write((s),(char *)(b),(n))
+#define get_last_socket_error() errno
+#define clear_socket_error()    errno=0
+#define ioctlsocket(a,b,c)          ioctl((a),(b),(int)(c))
+#define closesocket(s)              close(s)
+#define readsocket(s,b,n)           read((s),(b),(n))
+#define writesocket(s,b,n)          write((s),(char *)(b),(n))
 # else
-#  define get_last_socket_error() errno
-#  define clear_socket_error()    errno=0
-#  define ioctlsocket(a,b,c)      ioctl(a,b,c)
-#  define closesocket(s)          close(s)
-#  define readsocket(s,b,n)       read((s),(b),(n))
-#  define writesocket(s,b,n)      write((s),(b),(n))
+#define get_last_socket_error() errno
+#define clear_socket_error()    errno=0
+#define ioctlsocket(a,b,c)      ioctl(a,b,c)
+#define closesocket(s)          close(s)
+#define readsocket(s,b,n)       read((s),(b),(n))
+#define writesocket(s,b,n)      write((s),(b),(n))
 # endif
 
 #if (defined(WINDOWS) || defined(MSDOS))
@@ -316,174 +316,150 @@ extern "C" {
 		#define EXIT(n)             exit(n)
 	#endif
 #endif
-
-/*************/
-
-# ifdef USE_SOCKETS
-#  ifdef OPENSSL_NO_SOCK
-#  elif defined(WINDOWS) || defined(MSDOS)
-      /* windows world */
-#   if !defined(__DJGPP__)
-#    if defined(_WIN32_WCE) && _WIN32_WCE<410
-#     define getservbyname _masked_declaration_getservbyname
-#    endif
-#    if !defined(IPPROTO_IP)
-         /* winsock[2].h was included already? */
-#     include <winsock.h>
-#    endif
-#    ifdef getservbyname
-#     undef getservbyname
-         /* this is used to be wcecompat/include/winsock_extras.h */
-struct servent *PASCAL getservbyname(const char *, const char *);
-#    endif
-
-#    ifdef _WIN64
-/*
- * Even though sizeof(SOCKET) is 8, it's safe to cast it to int, because
- * the value constitutes an index in per-process table of limited size
- * and not a real pointer. And we also depend on fact that all processors
- * Windows run on happen to be two's-complement, which allows to
- * interchange INVALID_SOCKET and -1.
- */
-#     define socket(d,t,p)   ((int)socket(d,t,p))
-#     define accept(s,f,l)   ((int)accept(s,f,l))
-#    endif
-#   else
-#   endif
-
-#  else
-
-#   ifndef NO_SYS_PARAM_H
-#    include <sys/param.h>
-#   endif
-#   ifdef OPENSSL_SYS_VXWORKS
-#    include <time.h>
-#   endif
-
-#   include <netdb.h>
-#   if defined(OPENSSL_SYS_VMS_NODECC)
-#    include <socket.h>
-#    include <in.h>
-#    include <inet.h>
-#   else
-#    include <sys/socket.h>
-#    ifndef NO_SYS_UN_H
-#     ifdef OPENSSL_SYS_VXWORKS
-#      include <streams/un.h>
-#     else
-#      include <sys/un.h>
-#     endif
-#     ifndef UNIX_PATH_MAX
-#      define UNIX_PATH_MAX sizeof(((struct sockaddr_un *)NULL)->sun_path)
-#     endif
-#    endif
-#    ifdef FILIO_H
-#     include <sys/filio.h> /* FIONBIO in some SVR4, e.g. unixware, solaris */
-#    endif
-#    include <netinet/in.h>
-#    include <arpa/inet.h>
-#    include <netinet/tcp.h>
-#   endif
-
-#   ifdef OPENSSL_SYS_AIX
-#    include <sys/select.h>
-#   endif
-
-#   ifdef __QNX__
-#    include <sys/select.h>
-#   endif
-
-#   ifndef VMS
-#    include <sys/ioctl.h>
-#   else
-        /* ioctl is only in VMS > 7.0 and when socketshr is not used */
-#    if !defined(TCPIP_TYPE_SOCKETSHR) && defined(__VMS_VER) && (__VMS_VER > 70000000)
-#     include <sys/ioctl.h>
-#    endif
-#   endif
-
-#   ifdef VMS
-#    include <unixio.h>
-#    if defined(TCPIP_TYPE_SOCKETSHR)
-#     include <socketshr.h>
-#    endif
-#   endif
-
-#   ifndef INVALID_SOCKET
-#    define INVALID_SOCKET      (-1)
-#   endif                       /* INVALID_SOCKET */
-#  endif
-
-/*
- * Some IPv6 implementations are broken, disable them in known bad versions.
- */
-#  if !defined(OPENSSL_USE_IPV6)
-#   if defined(AF_INET6) && !defined(NETWARE_CLIB)
-#    define OPENSSL_USE_IPV6 1
-#   else
-#    define OPENSSL_USE_IPV6 0
-#   endif
-#  endif
-
-# endif
-
-# ifndef OPENSSL_EXIT
-#  if defined(MONOLITH) && !defined(OPENSSL_C)
-#   define OPENSSL_EXIT(n) return(n)
-#  else
-#   define OPENSSL_EXIT(n) do { EXIT(n); return(n); } while(0)
-#  endif
-# endif
-
-/***********************************************/
-
-# if defined(OPENSSL_SYS_WINDOWS)
-#  define strcasecmp _stricmp
-#  define strncasecmp _strnicmp
-#  if (_MSC_VER >= 1310)
-#   define open _open
-#   define fdopen _fdopen
-#   define close _close
-#   ifndef strdup
-#    define strdup _strdup
-#   endif
-#   define unlink _unlink
-#  endif
-# else
-#  include <strings.h>
-# endif
-
+#ifdef USE_SOCKETS
+	#ifdef OPENSSL_NO_SOCK
+	#elif defined(WINDOWS) || defined(MSDOS)
+		/* windows world */
+		#if !defined(__DJGPP__)
+			#if defined(_WIN32_WCE) && _WIN32_WCE<410
+				#define getservbyname _masked_declaration_getservbyname
+			#endif
+			#if !defined(IPPROTO_IP)
+				/* winsock[2].h was included already? */
+				#include <winsock.h>
+			#endif
+			#ifdef getservbyname
+				#undef getservbyname
+				/* this is used to be wcecompat/include/winsock_extras.h */
+				struct servent *PASCAL getservbyname(const char *, const char *);
+			#endif
+			#ifdef _WIN64
+			/*
+			 * Even though sizeof(SOCKET) is 8, it's safe to cast it to int, because
+			 * the value constitutes an index in per-process table of limited size
+			 * and not a real pointer. And we also depend on fact that all processors
+			 * Windows run on happen to be two's-complement, which allows to
+			 * interchange INVALID_SOCKET and -1.
+			 */
+				#define socket(d,t,p)   ((int)socket(d,t,p))
+				#define accept(s,f,l)   ((int)accept(s,f,l))
+			#endif
+		#else
+		#endif
+	#else
+		#ifndef NO_SYS_PARAM_H
+			#include <sys/param.h>
+		#endif
+		#ifdef OPENSSL_SYS_VXWORKS
+			#include <time.h>
+		#endif
+		#include <netdb.h>
+		#if defined(OPENSSL_SYS_VMS_NODECC)
+			#include <socket.h>
+			#include <in.h>
+			#include <inet.h>
+		#else
+			#include <sys/socket.h>
+			#ifndef NO_SYS_UN_H
+				#ifdef OPENSSL_SYS_VXWORKS
+					#include <streams/un.h>
+				#else
+					#include <sys/un.h>
+				#endif
+				#ifndef UNIX_PATH_MAX
+					#define UNIX_PATH_MAX sizeof(((struct sockaddr_un *)NULL)->sun_path)
+				#endif
+			#endif
+			#ifdef FILIO_H
+				#include <sys/filio.h> /* FIONBIO in some SVR4, e.g. unixware, solaris */
+			#endif
+			#include <netinet/in.h>
+			#include <arpa/inet.h>
+			#include <netinet/tcp.h>
+		#endif
+		#ifdef OPENSSL_SYS_AIX
+			#include <sys/select.h>
+		#endif
+		#ifdef __QNX__
+			#include <sys/select.h>
+		#endif
+		#ifndef VMS
+			#include <sys/ioctl.h>
+		#else
+			/* ioctl is only in VMS > 7.0 and when socketshr is not used */
+			#if !defined(TCPIP_TYPE_SOCKETSHR) && defined(__VMS_VER) && (__VMS_VER > 70000000)
+				#include <sys/ioctl.h>
+			#endif
+		#endif
+		#ifdef VMS
+			#include <unixio.h>
+			#if defined(TCPIP_TYPE_SOCKETSHR)
+				#include <socketshr.h>
+			#endif
+		#endif
+		#ifndef INVALID_SOCKET
+			#define INVALID_SOCKET      (-1)
+		#endif                       /* INVALID_SOCKET */
+	#endif
+	/*
+	 * Some IPv6 implementations are broken, disable them in known bad versions.
+	 */
+	#if !defined(OPENSSL_USE_IPV6)
+		#if defined(AF_INET6) && !defined(NETWARE_CLIB)
+			#define OPENSSL_USE_IPV6 1
+		#else
+			#define OPENSSL_USE_IPV6 0
+		#endif
+	#endif
+#endif
+#ifndef OPENSSL_EXIT
+	#if defined(MONOLITH) && !defined(OPENSSL_C)
+		#define OPENSSL_EXIT(n) return(n)
+	#else
+		#define OPENSSL_EXIT(n) do { EXIT(n); return(n); } while(0)
+	#endif
+#endif
+#if defined(OPENSSL_SYS_WINDOWS)
+	#define strcasecmp _stricmp
+	#define strncasecmp _strnicmp
+	#if (_MSC_VER >= 1310)
+		#define open _open
+		#define fdopen _fdopen
+		#define close _close
+		#ifndef strdup
+			#define strdup _strdup
+		#endif
+		#define unlink _unlink
+	#endif
+#else
+	#include <strings.h>
+#endif
 /* vxworks */
-# if defined(OPENSSL_SYS_VXWORKS)
-#  include <ioLib.h>
-#  include <tickLib.h>
-#  include <sysLib.h>
+#if defined(OPENSSL_SYS_VXWORKS)
+	#include <ioLib.h>
+	#include <tickLib.h>
+	#include <sysLib.h>
 
-#  define TTY_STRUCT int
+	#define TTY_STRUCT int
+	#define sleep(a) taskDelay((a) * sysClkRateGet())
 
-#  define sleep(a) taskDelay((a) * sysClkRateGet())
+	#include <vxWorks.h>
+	#include <sockLib.h>
+	#include <taskLib.h>
 
-#  include <vxWorks.h>
-#  include <sockLib.h>
-#  include <taskLib.h>
-
-#  define getpid taskIdSelf
-
-/*
- * NOTE: these are implemented by helpers in database app! if the database is
- * not linked, we need to implement them elswhere
- */
-struct hostent *gethostbyname(const char *name);
-struct hostent *gethostbyaddr(const char *addr, int length, int type);
-struct servent *getservbyname(const char *name, const char *proto);
-
-# endif
+#define getpid taskIdSelf
+	/*
+	 * NOTE: these are implemented by helpers in database app! if the database is
+	 * not linked, we need to implement them elswhere
+	 */
+	struct hostent *gethostbyname(const char *name);
+	struct hostent *gethostbyaddr(const char *addr, int length, int type);
+	struct servent *getservbyname(const char *name, const char *proto);
+#endif
 /* end vxworks */
-
 #define OSSL_NELEM(x)    (sizeof(x)/sizeof(x[0]))
 
 #ifdef  __cplusplus
 }
 #endif
-
 #endif

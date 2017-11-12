@@ -11,7 +11,7 @@
 #include "modes_lcl.h"
 
 #if !defined(STRICT_ALIGNMENT) && !defined(PEDANTIC)
-# define STRICT_ALIGNMENT 0
+#define STRICT_ALIGNMENT 0
 #endif
 
 void CRYPTO_cbc128_encrypt(const uchar *in, uchar *out,

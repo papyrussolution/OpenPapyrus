@@ -10,23 +10,16 @@
 #pragma hdrstop
 
 #ifndef OPENSSL_NO_SRP
-# include <openssl/sha.h>
-# include <openssl/srp.h>
-//# include <openssl/evp.h>
-//# include <openssl/rand.h>
-# include <openssl/txt_db.h>
+#include <openssl/srp.h>
+#include <openssl/txt_db.h>
 
-# define SRP_RANDOM_SALT_LEN 20
-# define MAX_LEN 2500
+#define SRP_RANDOM_SALT_LEN 20
+#define MAX_LEN 2500
 
-static char b64table[] =
-    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz./";
-
+static char b64table[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz./";
 /*
- * the following two conversion routines have been inspired by code from
- * Stanford
+ * the following two conversion routines have been inspired by code from Stanford
  */
-
 /*
  * Convert a base64 string into raw byte array representation.
  */
@@ -40,7 +33,6 @@ static int t_fromb64(uchar * a, size_t alen, const char * src)
 	size = strlen(src);
 	if(alen > INT_MAX || size > (int)alen)
 		return -1;
-
 	i = 0;
 	while(i < size) {
 		loc = strchr(b64table, src[i]);
@@ -83,7 +75,6 @@ static int t_fromb64(uchar * a, size_t alen, const char * src)
 		a[i++] = a[j++];
 	return i;
 }
-
 /*
  * Convert a raw byte string into a null-terminated base64 ASCII string.
  */
@@ -92,7 +83,6 @@ static char * t_tob64(char * dst, const uchar * src, int size)
 	int c, pos = size % 3;
 	uchar b0 = 0, b1 = 0, b2 = 0, notleading = 0;
 	char * olddst = dst;
-
 	switch(pos) {
 		case 1:
 		    b2 = src[0];
@@ -139,53 +129,48 @@ static char * t_tob64(char * dst, const uchar * src, int size)
 
 void SRP_user_pwd_free(SRP_user_pwd * user_pwd)
 {
-	if(user_pwd == NULL)
-		return;
-	BN_free(user_pwd->s);
-	BN_clear_free(user_pwd->v);
-	OPENSSL_free(user_pwd->id);
-	OPENSSL_free(user_pwd->info);
-	OPENSSL_free(user_pwd);
+	if(user_pwd) {
+		BN_free(user_pwd->s);
+		BN_clear_free(user_pwd->v);
+		OPENSSL_free(user_pwd->id);
+		OPENSSL_free(user_pwd->info);
+		OPENSSL_free(user_pwd);
+	}
 }
 
 static SRP_user_pwd * SRP_user_pwd_new(void)
 {
 	SRP_user_pwd * ret = (SRP_user_pwd*)OPENSSL_malloc(sizeof(*ret));
-	if(!ret)
-		return NULL;
-	ret->N = NULL;
-	ret->g = NULL;
-	ret->s = NULL;
-	ret->v = NULL;
-	ret->id = NULL;
-	ret->info = NULL;
+	if(ret) {
+		ret->N = NULL;
+		ret->g = NULL;
+		ret->s = NULL;
+		ret->v = NULL;
+		ret->id = NULL;
+		ret->info = NULL;
+	}
 	return ret;
 }
 
-static void SRP_user_pwd_set_gN(SRP_user_pwd * vinfo, const BIGNUM * g,
-    const BIGNUM * N)
+static void SRP_user_pwd_set_gN(SRP_user_pwd * vinfo, const BIGNUM * g, const BIGNUM * N)
 {
 	vinfo->N = N;
 	vinfo->g = g;
 }
 
-static int SRP_user_pwd_set_ids(SRP_user_pwd * vinfo, const char * id,
-    const char * info)
+static int SRP_user_pwd_set_ids(SRP_user_pwd * vinfo, const char * id, const char * info)
 {
-	if(id != NULL && NULL == (vinfo->id = OPENSSL_strdup(id)))
+	if(id && NULL == (vinfo->id = OPENSSL_strdup(id)))
 		return 0;
 	return (info == NULL || NULL != (vinfo->info = OPENSSL_strdup(info)));
 }
 
-static int SRP_user_pwd_set_sv(SRP_user_pwd * vinfo, const char * s,
-    const char * v)
+static int SRP_user_pwd_set_sv(SRP_user_pwd * vinfo, const char * s, const char * v)
 {
 	uchar tmp[MAX_LEN];
 	int len;
-
 	vinfo->v = NULL;
 	vinfo->s = NULL;
-
 	len = t_fromb64(tmp, sizeof(tmp), v);
 	if(len < 0)
 		return 0;
@@ -539,11 +524,9 @@ char * SRP_create_verifier(const char * user, const char * pass, char ** salt,
 		g_bn = gN->g;
 		defgNid = gN->id;
 	}
-
 	if(*salt == NULL) {
 		if(RAND_bytes(tmp2, SRP_RANDOM_SALT_LEN) <= 0)
 			goto err;
-
 		s = BN_bin2bn(tmp2, SRP_RANDOM_SALT_LEN, 0);
 	}
 	else {
@@ -551,10 +534,8 @@ char * SRP_create_verifier(const char * user, const char * pass, char ** salt,
 			goto err;
 		s = BN_bin2bn(tmp2, len, 0);
 	}
-
 	if(!SRP_create_verifier_BN(user, pass, &s, &v, N_bn, g_bn))
 		goto err;
-
 	BN_bn2bin(v, tmp);
 	vfsize = BN_num_bytes(v) * 2;
 	if(((vf = (char*)OPENSSL_malloc(vfsize)) == NULL))
@@ -583,7 +564,6 @@ err:
 	BN_clear_free(v);
 	return result;
 }
-
 /*
  * create a verifier (*salt,*verifier,g and N are BIGNUMs). If *salt != NULL
  * then the provided salt will be used. On successful exit *verifier will point
@@ -618,10 +598,8 @@ int SRP_create_verifier_BN(const char * user, const char * pass, BIGNUM ** salt,
 		BN_clear_free(*verifier);
 		goto err;
 	}
-
 	result = 1;
 	*salt = salttmp;
-
 err:
 	if(salt != NULL && *salt != salttmp)
 		BN_clear_free(salttmp);

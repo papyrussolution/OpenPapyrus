@@ -13,36 +13,36 @@
  */
 
 #ifndef HEADER_DSA_H
-# define HEADER_DSA_H
+#define HEADER_DSA_H
 
-# include <openssl/opensslconf.h>
+#include <openssl/opensslconf.h>
 
 # ifndef OPENSSL_NO_DSA
 # ifdef  __cplusplus
 extern "C" {
 # endif
-# include <openssl/e_os2.h>
-# include <openssl/bio.h>
-# include <openssl/crypto.h>
-# include <openssl/ossl_typ.h>
-# include <openssl/opensslconf.h>
-# include <openssl/bn.h>
+#include <openssl/e_os2.h>
+#include <openssl/bio.h>
+#include <openssl/crypto.h>
+#include <openssl/ossl_typ.h>
+#include <openssl/opensslconf.h>
+#include <openssl/bn.h>
 # if OPENSSL_API_COMPAT < 0x10100000L
 #  include <openssl/dh.h>
 # endif
 
 # ifndef OPENSSL_DSA_MAX_MODULUS_BITS
-#  define OPENSSL_DSA_MAX_MODULUS_BITS   10000
+#define OPENSSL_DSA_MAX_MODULUS_BITS   10000
 # endif
 
-# define OPENSSL_DSA_FIPS_MIN_MODULUS_BITS 1024
+#define OPENSSL_DSA_FIPS_MIN_MODULUS_BITS 1024
 
-# define DSA_FLAG_CACHE_MONT_P   0x01
+#define DSA_FLAG_CACHE_MONT_P   0x01
 # if OPENSSL_API_COMPAT < 0x10100000L
 /*
  * Does nothing. Previously this switched off constant time behaviour.
  */
-#  define DSA_FLAG_NO_EXP_CONSTTIME       0x00
+#define DSA_FLAG_NO_EXP_CONSTTIME       0x00
 # endif
 
 /*
@@ -52,7 +52,7 @@ extern "C" {
  * result is compliant.
  */
 
-# define DSA_FLAG_FIPS_METHOD                    0x0400
+#define DSA_FLAG_FIPS_METHOD                    0x0400
 
 /*
  * If this flag is set the operations normally disabled in FIPS mode are
@@ -60,8 +60,8 @@ extern "C" {
  * usage is compliant.
  */
 
-# define DSA_FLAG_NON_FIPS_ALLOW                 0x0400
-# define DSA_FLAG_FIPS_CHECKED                   0x0800
+#define DSA_FLAG_NON_FIPS_ALLOW                 0x0400
+#define DSA_FLAG_FIPS_CHECKED                   0x0800
 
 /* Already defined in ossl_typ.h */
 /* typedef struct dsa_st DSA; */
@@ -69,12 +69,12 @@ extern "C" {
 
 typedef struct DSA_SIG_st DSA_SIG;
 
-# define d2i_DSAparams_fp(fp,x) (DSA *)ASN1_d2i_fp((char *(*)())DSA_new, \
+#define d2i_DSAparams_fp(fp,x) (DSA *)ASN1_d2i_fp((char *(*)())DSA_new, \
                 (char *(*)())d2i_DSAparams,(fp),(uchar **)(x))
-# define i2d_DSAparams_fp(fp,x) ASN1_i2d_fp(i2d_DSAparams,(fp), \
+#define i2d_DSAparams_fp(fp,x) ASN1_i2d_fp(i2d_DSAparams,(fp), \
                 (uchar *)(x))
-# define d2i_DSAparams_bio(bp,x) ASN1_d2i_bio_of(DSA,DSA_new,d2i_DSAparams,bp,x)
-# define i2d_DSAparams_bio(bp,x) ASN1_i2d_bio_of_const(DSA,i2d_DSAparams,bp,x)
+#define d2i_DSAparams_bio(bp,x) ASN1_d2i_bio_of(DSA,DSA_new,d2i_DSAparams,bp,x)
+#define i2d_DSAparams_bio(bp,x) ASN1_i2d_bio_of_const(DSA,i2d_DSAparams,bp,x)
 
 DSA *DSAparams_dup(DSA *x);
 DSA_SIG *DSA_SIG_new(void);
@@ -133,12 +133,12 @@ int DSAparams_print_fp(FILE *fp, const DSA *x);
 int DSA_print_fp(FILE *bp, const DSA *x, int off);
 # endif
 
-# define DSS_prime_checks 50
+#define DSS_prime_checks 50
 /*
  * Primality test according to FIPS PUB 186[-1], Appendix 2.1: 50 rounds of
  * Rabin-Miller
  */
-# define DSA_is_prime(n, callback, cb_arg) BN_is_prime(n, DSS_prime_checks, callback, NULL, cb_arg)
+#define DSA_is_prime(n, callback, cb_arg) BN_is_prime(n, DSS_prime_checks, callback, NULL, cb_arg)
 
 # ifndef OPENSSL_NO_DH
 /*
@@ -148,12 +148,12 @@ int DSA_print_fp(FILE *bp, const DSA *x, int off);
 DH *DSA_dup_DH(const DSA *r);
 # endif
 
-# define EVP_PKEY_CTX_set_dsa_paramgen_bits(ctx, nbits) \
+#define EVP_PKEY_CTX_set_dsa_paramgen_bits(ctx, nbits) \
         EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DSA, EVP_PKEY_OP_PARAMGEN, EVP_PKEY_CTRL_DSA_PARAMGEN_BITS, nbits, NULL)
 
-# define EVP_PKEY_CTRL_DSA_PARAMGEN_BITS         (EVP_PKEY_ALG_CTRL + 1)
-# define EVP_PKEY_CTRL_DSA_PARAMGEN_Q_BITS       (EVP_PKEY_ALG_CTRL + 2)
-# define EVP_PKEY_CTRL_DSA_PARAMGEN_MD           (EVP_PKEY_ALG_CTRL + 3)
+#define EVP_PKEY_CTRL_DSA_PARAMGEN_BITS         (EVP_PKEY_ALG_CTRL + 1)
+#define EVP_PKEY_CTRL_DSA_PARAMGEN_Q_BITS       (EVP_PKEY_ALG_CTRL + 2)
+#define EVP_PKEY_CTRL_DSA_PARAMGEN_MD           (EVP_PKEY_ALG_CTRL + 3)
 
 void DSA_get0_pqg(const DSA *d, const BIGNUM **p, const BIGNUM **q, const BIGNUM **g);
 int DSA_set0_pqg(DSA *d, BIGNUM *p, BIGNUM *q, BIGNUM *g);
@@ -203,42 +203,42 @@ int ERR_load_DSA_strings(void);
 /* Error codes for the DSA functions. */
 
 /* Function codes. */
-# define DSA_F_DSAPARAMS_PRINT                            100
-# define DSA_F_DSAPARAMS_PRINT_FP                         101
-# define DSA_F_DSA_BUILTIN_PARAMGEN                       125
-# define DSA_F_DSA_BUILTIN_PARAMGEN2                      126
-# define DSA_F_DSA_DO_SIGN                                112
-# define DSA_F_DSA_DO_VERIFY                              113
-# define DSA_F_DSA_METH_DUP                               127
-# define DSA_F_DSA_METH_NEW                               128
-# define DSA_F_DSA_METH_SET1_NAME                         129
-# define DSA_F_DSA_NEW_METHOD                             103
-# define DSA_F_DSA_PARAM_DECODE                           119
-# define DSA_F_DSA_PRINT_FP                               105
-# define DSA_F_DSA_PRIV_DECODE                            115
-# define DSA_F_DSA_PRIV_ENCODE                            116
-# define DSA_F_DSA_PUB_DECODE                             117
-# define DSA_F_DSA_PUB_ENCODE                             118
-# define DSA_F_DSA_SIGN                                   106
-# define DSA_F_DSA_SIGN_SETUP                             107
-# define DSA_F_DSA_SIG_NEW                                102
-# define DSA_F_OLD_DSA_PRIV_DECODE                        122
-# define DSA_F_PKEY_DSA_CTRL                              120
-# define DSA_F_PKEY_DSA_KEYGEN                            121
+#define DSA_F_DSAPARAMS_PRINT                            100
+#define DSA_F_DSAPARAMS_PRINT_FP                         101
+#define DSA_F_DSA_BUILTIN_PARAMGEN                       125
+#define DSA_F_DSA_BUILTIN_PARAMGEN2                      126
+#define DSA_F_DSA_DO_SIGN                                112
+#define DSA_F_DSA_DO_VERIFY                              113
+#define DSA_F_DSA_METH_DUP                               127
+#define DSA_F_DSA_METH_NEW                               128
+#define DSA_F_DSA_METH_SET1_NAME                         129
+#define DSA_F_DSA_NEW_METHOD                             103
+#define DSA_F_DSA_PARAM_DECODE                           119
+#define DSA_F_DSA_PRINT_FP                               105
+#define DSA_F_DSA_PRIV_DECODE                            115
+#define DSA_F_DSA_PRIV_ENCODE                            116
+#define DSA_F_DSA_PUB_DECODE                             117
+#define DSA_F_DSA_PUB_ENCODE                             118
+#define DSA_F_DSA_SIGN                                   106
+#define DSA_F_DSA_SIGN_SETUP                             107
+#define DSA_F_DSA_SIG_NEW                                102
+#define DSA_F_OLD_DSA_PRIV_DECODE                        122
+#define DSA_F_PKEY_DSA_CTRL                              120
+#define DSA_F_PKEY_DSA_KEYGEN                            121
 
 /* Reason codes. */
-# define DSA_R_BAD_Q_VALUE                                102
-# define DSA_R_BN_DECODE_ERROR                            108
-# define DSA_R_BN_ERROR                                   109
-# define DSA_R_DECODE_ERROR                               104
-# define DSA_R_INVALID_DIGEST_TYPE                        106
-# define DSA_R_INVALID_PARAMETERS                         112
-# define DSA_R_MISSING_PARAMETERS                         101
-# define DSA_R_MODULUS_TOO_LARGE                          103
-# define DSA_R_NO_PARAMETERS_SET                          107
-# define DSA_R_PARAMETER_ENCODING_ERROR                   105
-# define DSA_R_Q_NOT_PRIME                                113
-# define DSA_R_SEED_LEN_SMALL                             110
+#define DSA_R_BAD_Q_VALUE                                102
+#define DSA_R_BN_DECODE_ERROR                            108
+#define DSA_R_BN_ERROR                                   109
+#define DSA_R_DECODE_ERROR                               104
+#define DSA_R_INVALID_DIGEST_TYPE                        106
+#define DSA_R_INVALID_PARAMETERS                         112
+#define DSA_R_MISSING_PARAMETERS                         101
+#define DSA_R_MODULUS_TOO_LARGE                          103
+#define DSA_R_NO_PARAMETERS_SET                          107
+#define DSA_R_PARAMETER_ENCODING_ERROR                   105
+#define DSA_R_Q_NOT_PRIME                                113
+#define DSA_R_SEED_LEN_SMALL                             110
 
 #  ifdef  __cplusplus
 }

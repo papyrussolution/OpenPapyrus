@@ -2350,7 +2350,7 @@ static void xmlSchemaPCustomAttrErr(xmlSchemaParserCtxtPtr ctxt, xmlParserErrors
 	}
 	else
 		des = *ownerDes;
-	if(attr == NULL) {
+	if(!attr) {
 		xmlSchemaPErrExt(ctxt, NULL, error, NULL, NULL, NULL, "%s, attribute '%s': %s.\n", BAD_CAST des, (const xmlChar*)"Unknown", (const xmlChar*)msg, 0, 0);
 	}
 	else {
@@ -3857,19 +3857,15 @@ static void xmlSchemaDebugDumpIDCTable(FILE * output,
  *
  * Returns the attribute or NULL if not present.
  */
-static xmlAttrPtr xmlSchemaGetPropNode(xmlNode * P_Node, const char * name)
+static xmlAttr * FASTCALL xmlSchemaGetPropNode(xmlNode * P_Node, const char * name)
 {
 	if(P_Node && name) {
-		xmlAttr * prop = P_Node->properties;
-		while(prop) {
-			if((prop->ns == NULL) && sstreq(prop->name, BAD_CAST name))
-				return(prop);
-			prop = prop->next;
-		}
+		for(xmlAttr * prop = P_Node->properties; prop; prop = prop->next)
+			if(!prop->ns && sstreq(prop->name, BAD_CAST name))
+				return prop;
 	}
 	return 0;
 }
-
 /**
  * xmlSchemaGetPropNodeNs:
  * @node: the element node
@@ -3892,7 +3888,7 @@ static xmlAttrPtr xmlSchemaGetPropNodeNs(xmlNode * P_Node, const char * uri, con
 	return 0;
 }
 
-static const xmlChar * xmlSchemaGetNodeContent(xmlSchemaParserCtxtPtr ctxt, xmlNode * P_Node)
+static const xmlChar * FASTCALL xmlSchemaGetNodeContent(xmlSchemaParserCtxtPtr ctxt, xmlNode * P_Node)
 {
 	const xmlChar * ret;
 	xmlChar * val = xmlNodeGetContent(P_Node);
@@ -4942,7 +4938,7 @@ static int xmlSchemaPValAttrQName(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr sche
     xmlNode * ownerElem, const char * name, const xmlChar ** uri, const xmlChar ** local)
 {
 	xmlAttr * attr = xmlSchemaGetPropNode(ownerElem, name);
-	if(attr == NULL) {
+	if(!attr) {
 		*local = NULL;
 		*uri = NULL;
 		return 0;
@@ -4968,7 +4964,7 @@ static int xmlSchemaPValAttrNodeID(xmlSchemaParserCtxtPtr ctxt, xmlAttrPtr attr)
 	int ret;
 	const xmlChar * value;
 
-	if(attr == NULL)
+	if(!attr)
 		return 0;
 	value = xmlSchemaGetNodeContentNoDict((xmlNode *)attr);
 	ret = xmlValidateNCName(value, 1);
@@ -5019,7 +5015,7 @@ static int xmlSchemaPValAttrID(xmlSchemaParserCtxtPtr ctxt, xmlNode * ownerElem,
 {
 	xmlAttr * attr;
 	attr = xmlSchemaGetPropNode(ownerElem, (const char*)name);
-	if(attr == NULL)
+	if(!attr)
 		return 0;
 	return(xmlSchemaPValAttrNodeID(ctxt, attr));
 }
@@ -5038,7 +5034,7 @@ static int xmlGetMaxOccurs(xmlSchemaParserCtxtPtr ctxt, xmlNode * P_Node, int mi
 	const xmlChar * val, * cur;
 	int ret = 0;
 	xmlAttrPtr attr = xmlSchemaGetPropNode(P_Node, "maxOccurs");
-	if(attr == NULL)
+	if(!attr)
 		return (def);
 	val = xmlSchemaGetNodeContent(ctxt, (xmlNode *)attr);
 	if(sstreq(val, "unbounded")) {
@@ -5092,7 +5088,7 @@ static int xmlGetMinOccurs(xmlSchemaParserCtxtPtr ctxt, xmlNode * P_Node, int mi
 	xmlAttr * attr;
 
 	attr = xmlSchemaGetPropNode(P_Node, "minOccurs");
-	if(attr == NULL)
+	if(!attr)
 		return (def);
 	val = xmlSchemaGetNodeContent(ctxt, (xmlNode *)attr);
 	cur = val;
@@ -5331,7 +5327,7 @@ static int xmlSchemaPValAttr(xmlSchemaParserCtxtPtr ctxt, xmlSchemaBasicItem * o
 		return -1;
 	}
 	attr = xmlSchemaGetPropNode(ownerElem, name);
-	if(attr == NULL) {
+	if(!attr) {
 		ASSIGN_PTR(value, 0);
 		return 0;
 	}
@@ -5638,7 +5634,7 @@ static int xmlSchemaParseWildcardNs(xmlSchemaParserCtxtPtr ctxt, xmlSchemaPtr sc
 	 */
 	attr = xmlSchemaGetPropNode(P_Node, "namespace");
 	ns = xmlSchemaGetNodeContent(ctxt, (xmlNode *)attr);
-	if((attr == NULL) || (sstreq(ns, "##any")))
+	if(!attr || (sstreq(ns, "##any")))
 		wildc->any = 1;
 	else if(sstreq(ns, "##other")) {
 		wildc->negNsSet = xmlSchemaNewWildcardNsConstraint(ctxt);
@@ -6093,7 +6089,7 @@ attr_next:
 			    xmlSchemaInstanceNs, 0);
 		}
 		attr = xmlSchemaGetPropNode(P_Node, "name");
-		if(attr == NULL) {
+		if(!attr) {
 			xmlSchemaPMissingAttrErr(pctxt, XML_SCHEMAP_S4S_ATTR_MISSING,
 			    NULL, P_Node, "name", 0);
 			return 0;
@@ -6302,7 +6298,7 @@ static xmlSchemaAttributePtr xmlSchemaParseGlobalAttribute(xmlSchemaParserCtxtPt
 	 * One of ref or name must be present, but not both
 	 */
 	attr = xmlSchemaGetPropNode(P_Node, "name");
-	if(attr == NULL) {
+	if(!attr) {
 		xmlSchemaPMissingAttrErr(pctxt, XML_SCHEMAP_S4S_ATTR_MISSING, NULL, P_Node, "name", 0);
 		return 0;
 	}
@@ -6418,7 +6414,7 @@ static xmlSchemaQNameRefPtr xmlSchemaParseAttributeGroupRef(xmlSchemaParserCtxtP
 	if(!pctxt || !schema || !P_Node)
 		return 0;
 	attr = xmlSchemaGetPropNode(P_Node, "ref");
-	if(attr == NULL) {
+	if(!attr) {
 		xmlSchemaPMissingAttrErr(pctxt, XML_SCHEMAP_S4S_ATTR_MISSING, NULL, P_Node, "ref", 0);
 		return 0;
 	}
@@ -6524,7 +6520,7 @@ static xmlSchemaAttributeGroupPtr xmlSchemaParseAttributeGroupDefinition(xmlSche
 	if(!pctxt || !schema || !P_Node)
 		return 0;
 	attr = xmlSchemaGetPropNode(P_Node, "name");
-	if(attr == NULL) {
+	if(!attr) {
 		xmlSchemaPMissingAttrErr(pctxt,
 		    XML_SCHEMAP_S4S_ATTR_MISSING,
 		    NULL, P_Node, "name", 0);
@@ -6932,7 +6928,7 @@ static xmlSchemaIDCSelectPtr xmlSchemaParseIDCSelectorAndField(xmlSchemaParserCt
 	 * Attribute "xpath" (mandatory).
 	 */
 	attr = xmlSchemaGetPropNode(P_Node, "xpath");
-	if(attr == NULL) {
+	if(!attr) {
 		xmlSchemaPMissingAttrErr(ctxt, XML_SCHEMAP_S4S_ATTR_MISSING, NULL, P_Node, "name", 0);
 	}
 	else {
@@ -6998,7 +6994,7 @@ static xmlSchemaIDCPtr xmlSchemaParseIDC(xmlSchemaParserCtxtPtr ctxt, xmlSchemaP
 	 * Attribute "name" (mandatory).
 	 */
 	attr = xmlSchemaGetPropNode(P_Node, "name");
-	if(attr == NULL) {
+	if(!attr) {
 		xmlSchemaPMissingAttrErr(ctxt, XML_SCHEMAP_S4S_ATTR_MISSING, NULL, P_Node, "name", 0);
 		return 0;
 	}
@@ -7015,7 +7011,7 @@ static xmlSchemaIDCPtr xmlSchemaParseIDC(xmlSchemaParserCtxtPtr ctxt, xmlSchemaP
 		 * Attribute "refer" (mandatory).
 		 */
 		attr = xmlSchemaGetPropNode(P_Node, "refer");
-		if(attr == NULL) {
+		if(!attr) {
 			xmlSchemaPMissingAttrErr(ctxt,
 			    XML_SCHEMAP_S4S_ATTR_MISSING,
 			    NULL, P_Node,
@@ -7276,7 +7272,7 @@ declaration_part:
 			 * Attribute "final".
 			 */
 			attr = xmlSchemaGetPropNode(P_Node, "final");
-			if(attr == NULL) {
+			if(!attr) {
 				if(schema->flags & XML_SCHEMAS_FINAL_DEFAULT_EXTENSION)
 					decl->flags |= XML_SCHEMAS_ELEM_FINAL_EXTENSION;
 				if(schema->flags & XML_SCHEMAS_FINAL_DEFAULT_RESTRICTION)
@@ -7300,7 +7296,7 @@ declaration_part:
 		 * Attribute "block".
 		 */
 		attr = xmlSchemaGetPropNode(P_Node, "block");
-		if(attr == NULL) {
+		if(!attr) {
 			/*
 			 * Apply default "block" values.
 			 */
@@ -7689,7 +7685,7 @@ static xmlSchemaTypePtr xmlSchemaParseSimpleType(xmlSchemaParserCtxtPtr ctxt, xm
 		return 0;
 	if(topLevel) {
 		attr = xmlSchemaGetPropNode(P_Node, "name");
-		if(attr == NULL) {
+		if(!attr) {
 			xmlSchemaPMissingAttrErr(ctxt, XML_SCHEMAP_S4S_ATTR_MISSING, NULL, P_Node, "name", 0);
 			return 0;
 		}
@@ -7788,7 +7784,7 @@ static xmlSchemaTypePtr xmlSchemaParseSimpleType(xmlSchemaParserCtxtPtr ctxt, xm
 		 * Attribute "final".
 		 */
 		attr = xmlSchemaGetPropNode(P_Node, "final");
-		if(attr == NULL) {
+		if(!attr) {
 			if(schema->flags & XML_SCHEMAS_FINAL_DEFAULT_RESTRICTION)
 				type->flags |= XML_SCHEMAS_TYPE_FINAL_RESTRICTION;
 			if(schema->flags & XML_SCHEMAS_FINAL_DEFAULT_LIST)
@@ -7883,7 +7879,7 @@ static xmlSchemaTreeItem * xmlSchemaParseModelGroupDefRef(xmlSchemaParserCtxtPtr
 		return 0;
 
 	attr = xmlSchemaGetPropNode(P_Node, "ref");
-	if(attr == NULL) {
+	if(!attr) {
 		xmlSchemaPMissingAttrErr(ctxt,
 		    XML_SCHEMAP_S4S_ATTR_MISSING,
 		    NULL, P_Node, "ref", 0);
@@ -7971,7 +7967,7 @@ static xmlSchemaModelGroupDefPtr xmlSchemaParseModelGroupDefinition(xmlSchemaPar
 		return 0;
 
 	attr = xmlSchemaGetPropNode(P_Node, "name");
-	if(attr == NULL) {
+	if(!attr) {
 		xmlSchemaPMissingAttrErr(ctxt,
 		    XML_SCHEMAP_S4S_ATTR_MISSING,
 		    NULL, P_Node,
@@ -10131,7 +10127,7 @@ static xmlSchemaTypePtr xmlSchemaParseComplexType(xmlSchemaParserCtxtPtr ctxt, x
 	ctxtType = ctxt->ctxtType;
 	if(topLevel) {
 		attr = xmlSchemaGetPropNode(P_Node, "name");
-		if(attr == NULL) {
+		if(!attr) {
 			xmlSchemaPMissingAttrErr(ctxt, XML_SCHEMAP_S4S_ATTR_MISSING, NULL, P_Node, "name", 0);
 			return 0;
 		}
@@ -20304,7 +20300,7 @@ static int xmlSchemaValidatorPushAttribute(xmlSchemaValidCtxtPtr vctxt, xmlNode 
     const xmlChar * localName, const xmlChar * nsName, int ownedNames, xmlChar * value, int ownedValue)
 {
 	xmlSchemaAttrInfoPtr attr = xmlSchemaGetFreshAttrInfo(vctxt);
-	if(attr == NULL) {
+	if(!attr) {
 		VERROR_INT("xmlSchemaPushAttribute", "calling xmlSchemaGetFreshAttrInfo()");
 		return -1;
 	}
@@ -23975,13 +23971,13 @@ static xmlParserInputPtr resolveEntitySplit(void * ctx, const xmlChar * publicId
 	return (ctxt && ctxt->user_sax && ctxt->user_sax->resolveEntity) ? ctxt->user_sax->resolveEntity(ctxt->user_data, publicId, systemId) : 0;
 }
 
-static xmlEntityPtr getEntitySplit(void * ctx, const xmlChar * name)
+static xmlEntity * getEntitySplit(void * ctx, const xmlChar * name)
 {
 	xmlSchemaSAXPlugPtr ctxt = (xmlSchemaSAXPlugPtr)ctx;
 	return (ctxt && ctxt->user_sax && ctxt->user_sax->getEntity) ? ctxt->user_sax->getEntity(ctxt->user_data, name) : 0;
 }
 
-static xmlEntityPtr getParameterEntitySplit(void * ctx, const xmlChar * name)
+static xmlEntity * getParameterEntitySplit(void * ctx, const xmlChar * name)
 {
 	xmlSchemaSAXPlugPtr ctxt = (xmlSchemaSAXPlugPtr)ctx;
 	return (ctxt && ctxt->user_sax && ctxt->user_sax->getParameterEntity) ? ctxt->user_sax->getParameterEntity(ctxt->user_data, name) : 0;

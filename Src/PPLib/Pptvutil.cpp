@@ -104,7 +104,7 @@ STextBrowser * SLAPI PPFindLastTextBrowser(const char * pFileName)
 	return APPL ? (STextBrowser*)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 3, pFileName) : 0;
 }
 
-void PPViewTextBrowser(const char * pFileName, const char * pTitle, int toolbarId)
+void SLAPI PPViewTextBrowser(const char * pFileName, const char * pTitle, int toolbarId)
 {
 	STextBrowser * p_brw = PPFindLastTextBrowser(pFileName);
 	if(p_brw) {

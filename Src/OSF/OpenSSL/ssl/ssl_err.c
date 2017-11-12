@@ -16,8 +16,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_SSL,func,0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_SSL,0,reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_SSL,func,0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_SSL,0,reason)
 
 static ERR_STRING_DATA SSL_str_functs[] = {
     {ERR_FUNC(SSL_F_CHECK_SUITEB_CIPHER_LIST), "check_suiteb_cipher_list"},

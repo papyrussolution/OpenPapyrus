@@ -23,7 +23,7 @@ extern "C" {
 	void xmlBufDumpNotationTable(xmlBufPtr buf, xmlNotationTablePtr table);
 	void xmlBufDumpElementDecl(xmlBufPtr buf, xmlElementPtr elem);
 	void xmlBufDumpAttributeDecl(xmlBufPtr buf, xmlAttribute * attr);
-	void xmlBufDumpEntityDecl(xmlBufPtr buf, xmlEntityPtr ent);
+	void xmlBufDumpEntityDecl(xmlBufPtr buf, xmlEntity * ent);
 	xmlChar *xmlEncodeAttributeEntities(xmlDocPtr doc, const xmlChar *input);
 #endif
 

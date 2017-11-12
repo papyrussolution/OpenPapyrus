@@ -9,27 +9,21 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #ifdef OPENSSL_NO_SEED
-NON_EMPTY_TRANSLATION_UNIT
+	NON_EMPTY_TRANSLATION_UNIT
 #else
-#include <openssl/seed.h>
-//#include <internal/evp_int.h>
+	#include <openssl/seed.h>
 
-static int seed_init_key(EVP_CIPHER_CTX *ctx, const uchar *key,
-                         const uchar *iv, int enc);
+	static int seed_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc);
 
-typedef struct {
-    SEED_KEY_SCHEDULE ks;
-} EVP_SEED_KEY;
+	typedef struct {
+		SEED_KEY_SCHEDULE ks;
+	} EVP_SEED_KEY;
 
-IMPLEMENT_BLOCK_CIPHER(seed, ks, SEED, EVP_SEED_KEY, NID_seed,
-                       16, 16, 16, 128, EVP_CIPH_FLAG_DEFAULT_ASN1,
-                       seed_init_key, 0, 0, 0, 0)
+	IMPLEMENT_BLOCK_CIPHER(seed, ks, SEED, EVP_SEED_KEY, NID_seed, 16, 16, 16, 128, EVP_CIPH_FLAG_DEFAULT_ASN1, seed_init_key, 0, 0, 0, 0)
 
-static int seed_init_key(EVP_CIPHER_CTX *ctx, const uchar *key,
-                         const uchar *iv, int enc)
-{
-    SEED_set_key(key, &EVP_C_DATA(EVP_SEED_KEY,ctx)->ks);
-    return 1;
-}
-
+	static int seed_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc)
+	{
+		SEED_set_key(key, &EVP_C_DATA(EVP_SEED_KEY, ctx)->ks);
+		return 1;
+	}
 #endif

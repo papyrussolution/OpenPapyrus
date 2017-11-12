@@ -10,8 +10,6 @@
 /* Simple PKCS#7 processing functions */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/x509v3.h>
 
 #define BUFFERSIZE 4096
 

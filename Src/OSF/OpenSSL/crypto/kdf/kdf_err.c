@@ -15,8 +15,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_KDF, func, 0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_KDF, 0, reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_KDF, func, 0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_KDF, 0, reason)
 
 static ERR_STRING_DATA KDF_str_functs[] = {
 	{ERR_FUNC(KDF_F_PKEY_TLS1_PRF_CTRL_STR), "pkey_tls1_prf_ctrl_str"},

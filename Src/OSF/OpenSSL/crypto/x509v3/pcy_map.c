@@ -8,11 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/x509v3.h>
-//#include "internal/x509_int.h"
 #include "pcy_int.h"
-
 /*
  * Set policy mapping entries in cache. Note: this modifies the passed
  * POLICY_MAPPINGS structure

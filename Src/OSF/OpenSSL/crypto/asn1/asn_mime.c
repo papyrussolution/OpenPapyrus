@@ -8,10 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <internal/evp_int.h>
-//#include <internal/bio.h>
 #include "asn1_locl.h"
-
 /*
  * Generalised MIME like utilities for streaming ASN1. Although many have a
  * PKCS7/CMS like flavour others are more general purpose.
@@ -33,18 +30,15 @@ struct mime_header_st {
 	STACK_OF(MIME_PARAM) *params; /* Zero or more parameters */
 };
 
-static int asn1_output_data(BIO * out, BIO * data, ASN1_VALUE * val, int flags,
-    const ASN1_ITEM * it);
+static int asn1_output_data(BIO * out, BIO * data, ASN1_VALUE * val, int flags, const ASN1_ITEM * it);
 static char * strip_ends(char * name);
 static char * strip_start(char * name);
 static char * strip_end(char * name);
 static MIME_HEADER * mime_hdr_new(const char * name, const char * value);
 static int mime_hdr_addparam(MIME_HEADER * mhdr, const char * name, const char * value);
 static STACK_OF(MIME_HEADER) *mime_parse_hdr(BIO *bio);
-static int mime_hdr_cmp(const MIME_HEADER * const * a,
-    const MIME_HEADER * const * b);
-static int mime_param_cmp(const MIME_PARAM * const * a,
-    const MIME_PARAM * const * b);
+static int mime_hdr_cmp(const MIME_HEADER * const * a, const MIME_HEADER * const * b);
+static int mime_param_cmp(const MIME_PARAM * const * a, const MIME_PARAM * const * b);
 static void mime_param_free(MIME_PARAM * param);
 static int mime_bound_check(char * line, int linelen, const char * bound, int blen);
 static int multi_split(BIO * bio, const char * bound, STACK_OF(BIO) ** ret);
@@ -58,8 +52,7 @@ static void mime_hdr_free(MIME_HEADER * hdr);
 
 /* Output an ASN1 structure in BER format streaming if necessary */
 
-int i2d_ASN1_bio_stream(BIO * out, ASN1_VALUE * val, BIO * in, int flags,
-    const ASN1_ITEM * it)
+int i2d_ASN1_bio_stream(BIO * out, ASN1_VALUE * val, BIO * in, int flags, const ASN1_ITEM * it)
 {
 	/* If streaming create stream BIO and copy all content through it */
 	if(flags & SMIME_STREAM) {
@@ -89,8 +82,7 @@ int i2d_ASN1_bio_stream(BIO * out, ASN1_VALUE * val, BIO * in, int flags,
 
 /* Base 64 read and write of ASN1 structure */
 
-static int B64_write_ASN1(BIO * out, ASN1_VALUE * val, BIO * in, int flags,
-    const ASN1_ITEM * it)
+static int B64_write_ASN1(BIO * out, ASN1_VALUE * val, BIO * in, int flags, const ASN1_ITEM * it)
 {
 	BIO * b64;
 	int r;
@@ -943,4 +935,3 @@ static int strip_eol(char * linebuf, int * plen, int flags)
 	*plen = len;
 	return is_eol;
 }
-

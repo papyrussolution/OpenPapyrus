@@ -658,7 +658,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Osf\gSOAP\gsoap-slib-supp.cpp" />
-    <ClCompile Include="..\Osf\gSOAP\stdsoap2.c" />
+    <ClCompile Include="..\OSF\gSOAP\stdsoap2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\stdsoap2.h" />

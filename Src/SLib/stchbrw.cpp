@@ -375,7 +375,6 @@ LRESULT CALLBACK STimeChunkBrowser::WndProc(HWND hWnd, UINT message, WPARAM wPar
 				}
 				else if(/*LOWORD(wParam) == VK_INSERT && 0x8000 & GetKeyState(VK_CONTROL)*/tvk == kbCtrlIns) {
 					p_view = (STimeChunkBrowser *)TView::GetWindowUserData(hWnd);
-					if(p_view)
 					CALLPTRMEMB(p_view, CopyToClipboard());
 				}
 				// @v9.8.7 {
@@ -509,9 +508,8 @@ STimeChunkBrowser::Area & STimeChunkBrowser::Area::Clear()
 	return *this;
 }
 
-STimeChunkBrowser::SRect::SRect() : TRect()
+STimeChunkBrowser::SRect::SRect() : TRect(), RowId(0), DayN(0)
 {
-	THISZERO();
 }
 
 STimeChunkBrowser::SRect & STimeChunkBrowser::SRect::Clear()

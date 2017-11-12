@@ -43,12 +43,12 @@ static void acpt_close_socket(BIO * data);
 static BIO_ACCEPT * BIO_ACCEPT_new(void);
 static void BIO_ACCEPT_free(BIO_ACCEPT * a);
 
-# define ACPT_S_BEFORE                   1
-# define ACPT_S_GET_ADDR                 2
-# define ACPT_S_CREATE_SOCKET            3
-# define ACPT_S_LISTEN                   4
-# define ACPT_S_ACCEPT                   5
-# define ACPT_S_OK                       6
+#define ACPT_S_BEFORE                   1
+#define ACPT_S_GET_ADDR                 2
+#define ACPT_S_CREATE_SOCKET            3
+#define ACPT_S_LISTEN                   4
+#define ACPT_S_ACCEPT                   5
+#define ACPT_S_OK                       6
 
 static const BIO_METHOD methods_acceptp = {
 	BIO_TYPE_ACCEPT,

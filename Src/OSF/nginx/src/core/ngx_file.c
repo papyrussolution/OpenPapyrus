@@ -567,7 +567,7 @@ ngx_int_t ngx_copy_file(u_char * from, u_char * to, ngx_copy_file_t * cf)
 		len = (size_t)size;
 	}
 	buf = (char *)ngx_alloc(len, cf->log);
-	if(buf == NULL) {
+	if(!buf) {
 		goto failed;
 	}
 	nfd = ngx_open_file(to, NGX_FILE_WRONLY, NGX_FILE_CREATE_OR_OPEN, cf->access);

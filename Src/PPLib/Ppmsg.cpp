@@ -100,7 +100,7 @@ const SymbHashTable * FASTCALL PPGetStringHash(int group)
 	return _PPStrStore ? _PPStrStore->GetStringHash(group) : 0;
 }
 
-int SLAPI PPLoadString(int group, int code, SString & s)
+int FASTCALL PPLoadString(int group, int code, SString & s)
 {
 	//
 	// Эта функция @threadsafe поскольку StrStore2::GetString является const-функцией
@@ -119,7 +119,7 @@ int SLAPI PPLoadString(int group, int code, SString & s)
 	return ok;
 }
 
-SString & SLAPI PPLoadStringS(int group, int code, SString & s)
+SString & FASTCALL PPLoadStringS(int group, int code, SString & s)
 {
 	PPLoadString(group, code, s);
 	return s;

@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/conf.h>
-//#include <openssl/asn1.h>
-//#include <openssl/asn1t.h>
-//#include <openssl/x509v3.h>
 #include "ext_dat.h"
 
 /* Support for Thawte strong extranet extension */

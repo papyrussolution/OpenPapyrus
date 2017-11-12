@@ -16,18 +16,17 @@
 #ifdef  __cplusplus
 extern "C" {
 #endif
-
 /*-
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  * ! SHA_LONG has to be at least 32 bits wide.                    !
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
-# define SHA_LONG uint
+#define SHA_LONG uint
 
-# define SHA_LBLOCK      16
-# define SHA_CBLOCK      (SHA_LBLOCK*4) // SHA treats input data as a contiguous array of 32 bit wide big-endian values. 
-# define SHA_LAST_BLOCK  (SHA_CBLOCK-8)
-# define SHA_DIGEST_LENGTH 20
+#define SHA_LBLOCK      16
+#define SHA_CBLOCK      (SHA_LBLOCK*4) // SHA treats input data as a contiguous array of 32 bit wide big-endian values. 
+#define SHA_LAST_BLOCK  (SHA_CBLOCK-8)
+#define SHA_DIGEST_LENGTH 20
 
 typedef struct SHAstate_st {
     SHA_LONG h0, h1, h2, h3, h4;
@@ -61,10 +60,10 @@ int SHA256_Final(uchar *md, SHA256_CTX *c);
 uchar *SHA256(const uchar *d, size_t n, uchar *md);
 void SHA256_Transform(SHA256_CTX *c, const uchar *data);
 
-# define SHA224_DIGEST_LENGTH    28
-# define SHA256_DIGEST_LENGTH    32
-# define SHA384_DIGEST_LENGTH    48
-# define SHA512_DIGEST_LENGTH    64
+#define SHA224_DIGEST_LENGTH    28
+#define SHA256_DIGEST_LENGTH    32
+#define SHA384_DIGEST_LENGTH    48
+#define SHA512_DIGEST_LENGTH    64
 
 /*
  * Unlike 32-bit digest algorithms, SHA-512 *relies* on SHA_LONG64

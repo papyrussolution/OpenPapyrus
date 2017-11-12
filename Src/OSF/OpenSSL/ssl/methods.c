@@ -8,9 +8,6 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include <openssl/objects.h>
-//#include "ssl_locl.h"
 /*-
  * TLS/SSLv3 methods
  */

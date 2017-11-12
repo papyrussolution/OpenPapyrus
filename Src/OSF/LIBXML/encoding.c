@@ -1521,7 +1521,7 @@ static int xmlUconvWrapper(uconv_t * cd, int toUnicode, uchar * out, int * outle
  *     -2 if the transcoding fails (for *in is not valid utf8 string or
  *        the result of transformation can't fit into the encoding we want), or
  */
-int xmlCharEncFirstLineInt(xmlCharEncodingHandler * handler, xmlBufferPtr out, xmlBufferPtr in, int len)
+int xmlCharEncFirstLineInt(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuffer * in, int len)
 {
 	int ret = -2;
 	int written;
@@ -1601,7 +1601,7 @@ int xmlCharEncFirstLineInt(xmlCharEncodingHandler * handler, xmlBufferPtr out, x
  *     -2 if the transcoding fails (for *in is not valid utf8 string or
  *        the result of transformation can't fit into the encoding we want), or
  */
-int xmlCharEncFirstLine(xmlCharEncodingHandler * handler, xmlBufferPtr out, xmlBufferPtr in)
+int xmlCharEncFirstLine(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuffer * in)
 {
 	return xmlCharEncFirstLineInt(handler, out, in, -1);
 }
@@ -1827,7 +1827,7 @@ int xmlCharEncInput(xmlParserInputBufferPtr input, int flush)
  *     -2 if the transcoding fails (for *in is not valid utf8 string or
  *        the result of transformation can't fit into the encoding we want), or
  */
-int xmlCharEncInFunc(xmlCharEncodingHandler * handler, xmlBufferPtr out, xmlBufferPtr in)
+int xmlCharEncInFunc(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuffer * in)
 {
 	int ret = -2;
 	int written;
@@ -1838,7 +1838,6 @@ int xmlCharEncInFunc(xmlCharEncodingHandler * handler, xmlBufferPtr out, xmlBuff
 		return -1;
 	if(!in)
 		return -1;
-
 	toconv = in->use;
 	if(toconv == 0)
 		return 0;
@@ -2115,7 +2114,7 @@ retry:
  *     -2 if the transcoding fails (for *in is not valid utf8 string or
  *        the result of transformation can't fit into the encoding we want), or
  */
-int xmlCharEncOutFunc(xmlCharEncodingHandler * handler, xmlBufferPtr out, xmlBufferPtr in)
+int xmlCharEncOutFunc(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBuffer * in)
 {
 	int ret = -2;
 	int written;

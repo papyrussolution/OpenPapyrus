@@ -9,7 +9,6 @@
 // Adapted from the public domain code by D. Bernstein from SUPERCOP. 
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include "internal/chacha.h"
 
 typedef uint u32;
 typedef uchar u8;
@@ -18,9 +17,9 @@ typedef union {
 	u8 c[64];
 } chacha_buf;
 
-# define ROTATE(v, n) (((v) << (n)) | ((v) >> (32 - (n))))
+#define ROTATE(v, n) (((v) << (n)) | ((v) >> (32 - (n))))
 
-# define U32TO8_LITTLE(p, v) do { \
+#define U32TO8_LITTLE(p, v) do { \
 		(p)[0] = (u8)(v >>  0);	\
 		(p)[1] = (u8)(v >>  8);	\
 		(p)[2] = (u8)(v >> 16);	\
@@ -28,7 +27,7 @@ typedef union {
 } while(0)
 
 /* QUARTERROUND updates a, b, c, d with a ChaCha "quarter" round. */
-# define QUARTERROUND(a, b, c, d) ( \
+#define QUARTERROUND(a, b, c, d) ( \
 	    x[a] += x[b], x[d] = ROTATE((x[d] ^ x[a]), 16), \
 	    x[c] += x[d], x[b] = ROTATE((x[b] ^ x[c]), 12), \
 	    x[a] += x[b], x[d] = ROTATE((x[d] ^ x[a]), 8), \

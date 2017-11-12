@@ -599,7 +599,7 @@ static int rand_status(void)
 	defined(_M_AMD64) || defined (_M_X64)) && defined(OPENSSL_CPUID_OBJ) \
 	&& !defined(OPENSSL_NO_RDRAND)
 
-# define RDRAND_CALLS    4
+#define RDRAND_CALLS    4
 
 size_t OPENSSL_ia32_rdrand(void);
 extern uint OPENSSL_ia32cap_P[];

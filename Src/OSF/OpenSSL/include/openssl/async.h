@@ -10,7 +10,7 @@
 #include <stdlib.h>
 
 #ifndef HEADER_ASYNC_H
-# define HEADER_ASYNC_H
+#define HEADER_ASYNC_H
 
 #if defined(_WIN32)
 # if defined(BASETYPES) || defined(_WINDEF_H)
@@ -79,18 +79,18 @@ int ERR_load_ASYNC_strings(void);
 /* Error codes for the ASYNC functions. */
 
 /* Function codes. */
-# define ASYNC_F_ASYNC_CTX_NEW                            100
-# define ASYNC_F_ASYNC_INIT_THREAD                        101
-# define ASYNC_F_ASYNC_JOB_NEW                            102
-# define ASYNC_F_ASYNC_PAUSE_JOB                          103
-# define ASYNC_F_ASYNC_START_FUNC                         104
-# define ASYNC_F_ASYNC_START_JOB                          105
+#define ASYNC_F_ASYNC_CTX_NEW                            100
+#define ASYNC_F_ASYNC_INIT_THREAD                        101
+#define ASYNC_F_ASYNC_JOB_NEW                            102
+#define ASYNC_F_ASYNC_PAUSE_JOB                          103
+#define ASYNC_F_ASYNC_START_FUNC                         104
+#define ASYNC_F_ASYNC_START_JOB                          105
 
 /* Reason codes. */
-# define ASYNC_R_FAILED_TO_SET_POOL                       101
-# define ASYNC_R_FAILED_TO_SWAP_CONTEXT                   102
-# define ASYNC_R_INIT_FAILED                              105
-# define ASYNC_R_INVALID_POOL_SIZE                        103
+#define ASYNC_R_FAILED_TO_SET_POOL                       101
+#define ASYNC_R_FAILED_TO_SWAP_CONTEXT                   102
+#define ASYNC_R_INIT_FAILED                              105
+#define ASYNC_R_INVALID_POOL_SIZE                        103
 
 # ifdef  __cplusplus
 }

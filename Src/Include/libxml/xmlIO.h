@@ -173,7 +173,7 @@ XMLPUBFUN void XMLCALL xmlRegisterDefaultOutputCallbacks();
 XMLPUBFUN xmlOutputBufferPtr XMLCALL xmlAllocOutputBuffer(xmlCharEncodingHandlerPtr encoder);
 XMLPUBFUN xmlOutputBufferPtr XMLCALL xmlOutputBufferCreateFilename(const char *URI, xmlCharEncodingHandlerPtr encoder, int compression);
 XMLPUBFUN xmlOutputBufferPtr XMLCALL xmlOutputBufferCreateFile(FILE *file, xmlCharEncodingHandlerPtr encoder);
-XMLPUBFUN xmlOutputBufferPtr XMLCALL xmlOutputBufferCreateBuffer(xmlBufferPtr buffer, xmlCharEncodingHandlerPtr encoder);
+XMLPUBFUN xmlOutputBufferPtr XMLCALL xmlOutputBufferCreateBuffer(xmlBuffer * buffer, xmlCharEncodingHandlerPtr encoder);
 XMLPUBFUN xmlOutputBufferPtr XMLCALL xmlOutputBufferCreateFd(int fd, xmlCharEncodingHandlerPtr encoder);
 XMLPUBFUN xmlOutputBufferPtr XMLCALL xmlOutputBufferCreateIO(xmlOutputWriteCallback   iowrite, xmlOutputCloseCallback  ioclose, void *ioctx, xmlCharEncodingHandlerPtr encoder);
 

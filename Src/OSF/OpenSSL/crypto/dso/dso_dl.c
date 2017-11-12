@@ -12,10 +12,10 @@
 
 #ifdef DSO_DL
 
-# include <dl.h>
+#include <dl.h>
 
 /* Part of the hack in "dl_load" ... */
-# define DSO_MAX_TRANSLATED_SIZE 256
+#define DSO_MAX_TRANSLATED_SIZE 256
 
 static int dl_load(DSO * dso);
 static int dl_unload(DSO * dso);

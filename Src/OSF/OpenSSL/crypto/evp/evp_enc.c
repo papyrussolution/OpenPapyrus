@@ -8,12 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <assert.h>
-//#include <openssl/evp.h>
-//#include <openssl/err.h>
-//#include <openssl/rand.h>
-//#include <openssl/engine.h>
-//#include <internal/evp_int.h>
 #include "evp_locl.h"
 
 int EVP_CIPHER_CTX_reset(EVP_CIPHER_CTX * c)
@@ -243,9 +237,9 @@ int EVP_DecryptInit_ex(EVP_CIPHER_CTX * ctx, const EVP_CIPHER * cipher, ENGINE *
  * equality is implemented. To be on the safe side we adhere to
  * PTRDIFF_T even for comparison for equality.
  */
-# define PTRDIFF_T uint64_t
+#define PTRDIFF_T uint64_t
 #else
-# define PTRDIFF_T size_t
+#define PTRDIFF_T size_t
 #endif
 
 int is_partially_overlapping(const void * ptr1, const void * ptr2, int len)

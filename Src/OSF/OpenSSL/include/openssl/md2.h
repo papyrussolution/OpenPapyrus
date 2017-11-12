@@ -8,20 +8,20 @@
  */
 
 #ifndef HEADER_MD2_H
-# define HEADER_MD2_H
+#define HEADER_MD2_H
 
-# include <openssl/opensslconf.h>
+#include <openssl/opensslconf.h>
 
-# ifndef OPENSSL_NO_MD2
-# include <stddef.h>
-# ifdef  __cplusplus
-extern "C" {
+#ifndef OPENSSL_NO_MD2
+#include <stddef.h>
+#ifdef  __cplusplus
+	extern "C" {
 # endif
 
 typedef uchar MD2_INT;
 
-# define MD2_DIGEST_LENGTH       16
-# define MD2_BLOCK               16
+#define MD2_DIGEST_LENGTH       16
+#define MD2_BLOCK               16
 
 typedef struct MD2state_st {
     uint num;
@@ -36,9 +36,9 @@ int MD2_Update(MD2_CTX *c, const uchar *data, size_t len);
 int MD2_Final(uchar *md, MD2_CTX *c);
 uchar *MD2(const uchar *d, size_t n, uchar *md);
 
-# ifdef  __cplusplus
+#ifdef  __cplusplus
 }
-# endif
-# endif
+#endif
+#endif
 
 #endif

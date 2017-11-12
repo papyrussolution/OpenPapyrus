@@ -4,7 +4,7 @@
    Foundation; either version 2.1 of the License, or (at your option) any later
    version.*/
 #if !defined(_qrcode_util_H)
-# define _qrcode_util_H (1)
+#define _qrcode_util_H (1)
 
 #define QR_MAXI(_a,_b)      ((_a)-((_a)-(_b)&-((_b)>(_a))))
 #define QR_MINI(_a,_b)      ((_a)+((_b)-(_a)&-((_b)<(_a))))

@@ -8,37 +8,21 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-/*
- * Parameter generation follows the updated Appendix 2.2 for FIPS PUB 186,
- * also Appendix 2.2 of FIPS PUB 186-1 (i.e. use SHA as defined in FIPS PUB
- * 180-1)
- */
-#define xxxHASH    EVP_sha1()
-
-//#include <openssl/opensslconf.h>
-//#include <stdio.h>
-//#include "internal/cryptlib.h"
-//#include <openssl/evp.h>
-//#include <openssl/bn.h>
-//#include <openssl/rand.h>
-#include <openssl/sha.h>
 #include "dsa_locl.h"
+// 
+// Parameter generation follows the updated Appendix 2.2 for FIPS PUB 186,
+// also Appendix 2.2 of FIPS PUB 186-1 (i.e. use SHA as defined in FIPS PUB 180-1)
+// 
+#define xxxHASH EVP_sha1()
 
-int DSA_generate_parameters_ex(DSA * ret, int bits,
-    const uchar * seed_in, int seed_len,
-    int * counter_ret, ulong * h_ret,
-    BN_GENCB * cb)
+int DSA_generate_parameters_ex(DSA * ret, int bits, const uchar * seed_in, int seed_len, int * counter_ret, ulong * h_ret, BN_GENCB * cb)
 {
 	if(ret->meth->dsa_paramgen)
-		return ret->meth->dsa_paramgen(ret, bits, seed_in, seed_len,
-		    counter_ret, h_ret, cb);
+		return ret->meth->dsa_paramgen(ret, bits, seed_in, seed_len, counter_ret, h_ret, cb);
 	else {
 		const EVP_MD * evpmd = bits >= 2048 ? EVP_sha256() : EVP_sha1();
 		size_t qbits = EVP_MD_size(evpmd) * 8;
-
-		return dsa_builtin_paramgen(ret, bits, qbits, evpmd,
-		    seed_in, seed_len, NULL, counter_ret,
-		    h_ret, cb);
+		return dsa_builtin_paramgen(ret, bits, qbits, evpmd, seed_in, seed_len, NULL, counter_ret, h_ret, cb);
 	}
 }
 
@@ -59,41 +43,27 @@ int dsa_builtin_paramgen(DSA * ret, size_t bits, size_t qbits,
 	int r = 0;
 	BN_CTX * ctx = NULL;
 	uint h = 2;
-
-	if(qsize != SHA_DIGEST_LENGTH && qsize != SHA224_DIGEST_LENGTH &&
-	    qsize != SHA256_DIGEST_LENGTH)
-		/* invalid q size */
-		return 0;
-
-	if(evpmd == NULL)
-		/* use SHA1 as default */
-		evpmd = EVP_sha1();
-
+	if(!oneof3(qsize, SHA_DIGEST_LENGTH, SHA224_DIGEST_LENGTH, SHA256_DIGEST_LENGTH))
+		return 0; // invalid q size 
+	SETIFZ(evpmd, EVP_sha1()); // use SHA1 as default 
 	if(bits < 512)
 		bits = 512;
-
 	bits = (bits + 63) / 64 * 64;
-
 	if(seed_in != NULL) {
 		if(seed_len < (size_t)qsize) {
 			DSAerr(DSA_F_DSA_BUILTIN_PARAMGEN, DSA_R_SEED_LEN_SMALL);
 			return 0;
 		}
-		if(seed_len > (size_t)qsize) {
-			/* Only consume as much seed as is expected. */
-			seed_len = qsize;
+		if(seed_len > (size_t)qsize) { // Only consume as much seed as is expected. 
+			seed_len = qsize; 
 		}
 		memcpy(seed, seed_in, seed_len);
 	}
-
 	if((mont = BN_MONT_CTX_new()) == NULL)
 		goto err;
-
 	if((ctx = BN_CTX_new()) == NULL)
 		goto err;
-
 	BN_CTX_start(ctx);
-
 	r0 = BN_CTX_get(ctx);
 	g = BN_CTX_get(ctx);
 	W = BN_CTX_get(ctx);
@@ -102,13 +72,10 @@ int dsa_builtin_paramgen(DSA * ret, size_t bits, size_t qbits,
 	c = BN_CTX_get(ctx);
 	p = BN_CTX_get(ctx);
 	test = BN_CTX_get(ctx);
-
 	if(test == NULL)
 		goto err;
-
 	if(!BN_lshift(test, BN_value_one(), bits - 1))
 		goto err;
-
 	for(;; ) {
 		for(;; ) {      /* find q */
 			int use_random_seed = (seed_in == NULL);

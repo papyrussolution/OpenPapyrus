@@ -797,7 +797,7 @@ static int xmlC14NPrintAttrs(const xmlAttrPtr attr, xmlC14NCtxPtr ctx)
 {
 	xmlChar * value;
 	xmlChar * buffer;
-	if((attr == NULL) || (ctx == NULL)) {
+	if(!attr || (ctx == NULL)) {
 		xmlC14NErrParam("writing attributes");
 		return 0;
 	}
@@ -922,7 +922,7 @@ static xmlAttrPtr xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttrPtr xml_base_at
 	}
 	/* create and return the new attribute node */
 	attr = xmlNewNsProp(NULL, xml_base_attr->ns, BAD_CAST "base", res);
-	if(attr == NULL) {
+	if(!attr) {
 		SAlloc::F(res);
 		xmlC14NErrInternal("processing xml:base attribute - can't construct attribute");
 		return 0;
@@ -1629,7 +1629,7 @@ int xmlC14NExecute(xmlDocPtr doc, xmlC14NIsVisibleCallback is_visible_callback,
 	xmlC14NCtxPtr ctx;
 	xmlC14NMode c14n_mode = XML_C14N_1_0;
 	int ret;
-	if((buf == NULL) || (doc == NULL)) {
+	if(!buf || (doc == NULL)) {
 		xmlC14NErrParam("executing c14n");
 		return -1;
 	}

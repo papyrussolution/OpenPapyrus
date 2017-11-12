@@ -288,7 +288,7 @@
       valid build target for VS2008. Popular belief is that binaries built with
       VS2008 using Windows SDK versions v6.X and Windows 2000 as a build target
       are functional. */
-#  define VS2008_MIN_TARGET 0x0500
+#define VS2008_MIN_TARGET 0x0500
 
    /* The minimum build target for VS2012 is Vista unless Update 1 is installed
       and the v110_xp toolset is chosen. */
@@ -300,7 +300,7 @@
 
    /* VS2008 default build target is Windows Vista. We override default target
       to be Windows XP. */
-#  define VS2008_DEF_TARGET 0x0501
+#define VS2008_DEF_TARGET 0x0501
 
    /* VS2012 default build target is Windows Vista unless Update 1 is installed
       and the v110_xp toolset is chosen. */

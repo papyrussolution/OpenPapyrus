@@ -35,11 +35,6 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include "ssl_locl.h"
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
 
 typedef struct {
 	long version;

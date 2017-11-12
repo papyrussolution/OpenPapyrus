@@ -126,7 +126,7 @@ XMLPUBFUN void * XMLCALL xmlHashQLookup3(xmlHashTable * table, const xmlChar *na
  * Helpers.
  */
 XMLPUBFUN xmlHashTable * XMLCALL xmlHashCopy(xmlHashTable * table, xmlHashCopier f);
-XMLPUBFUN int XMLCALL xmlHashSize(xmlHashTable * table);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlHashSize(xmlHashTable * table);
 XMLPUBFUN void XMLCALL xmlHashScan(xmlHashTable * table, xmlHashScanner f, void *data);
 XMLPUBFUN void XMLCALL xmlHashScan3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3, xmlHashScanner f, void *data);
 XMLPUBFUN void XMLCALL xmlHashScanFull(xmlHashTable * table, xmlHashScannerFull f, void *data);

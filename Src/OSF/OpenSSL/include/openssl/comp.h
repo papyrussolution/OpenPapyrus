@@ -8,12 +8,12 @@
  */
 
 #ifndef HEADER_COMP_H
-# define HEADER_COMP_H
+#define HEADER_COMP_H
 
-# include <openssl/opensslconf.h>
+#include <openssl/opensslconf.h>
 
 # ifndef OPENSSL_NO_COMP
-# include <openssl/crypto.h>
+#include <openssl/crypto.h>
 # ifdef  __cplusplus
 extern "C" {
 # endif
@@ -49,15 +49,15 @@ int ERR_load_COMP_strings(void);
 /* Error codes for the COMP functions. */
 
 /* Function codes. */
-# define COMP_F_BIO_ZLIB_FLUSH                            99
-# define COMP_F_BIO_ZLIB_NEW                              100
-# define COMP_F_BIO_ZLIB_READ                             101
-# define COMP_F_BIO_ZLIB_WRITE                            102
+#define COMP_F_BIO_ZLIB_FLUSH                            99
+#define COMP_F_BIO_ZLIB_NEW                              100
+#define COMP_F_BIO_ZLIB_READ                             101
+#define COMP_F_BIO_ZLIB_WRITE                            102
 
 /* Reason codes. */
-# define COMP_R_ZLIB_DEFLATE_ERROR                        99
-# define COMP_R_ZLIB_INFLATE_ERROR                        100
-# define COMP_R_ZLIB_NOT_SUPPORTED                        101
+#define COMP_R_ZLIB_DEFLATE_ERROR                        99
+#define COMP_R_ZLIB_INFLATE_ERROR                        100
+#define COMP_R_ZLIB_NOT_SUPPORTED                        101
 
 #  ifdef  __cplusplus
 }

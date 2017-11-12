@@ -103,10 +103,10 @@ static inline int _zbar_thread_is_self (zbar_thread_id_t tid)
 
 #else
 
-# define _zbar_thread_start(...) -1
-# define _zbar_thread_stop(...) 0
-# define _zbar_thread_self(...) 0
-# define _zbar_thread_is_self(...) 1
+#define _zbar_thread_start(...) -1
+#define _zbar_thread_stop(...) 0
+#define _zbar_thread_self(...) 0
+#define _zbar_thread_is_self(...) 1
 
 #endif
 

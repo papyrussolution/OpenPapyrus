@@ -13,7 +13,7 @@
 
 static uchar conv_ascii2bin(uchar a);
 #ifndef CHARSET_EBCDIC
-# define conv_bin2ascii(a)       (data_bin2ascii[(a)&0x3f])
+#define conv_bin2ascii(a)       (data_bin2ascii[(a)&0x3f])
 #else
 /*
  * We assume that PEM encoded files are EBCDIC files (i.e., printable text
@@ -21,7 +21,7 @@ static uchar conv_ascii2bin(uchar a);
  * (text) format again. (No need for conversion in the conv_bin2ascii macro,
  * as the underlying textstring data_bin2ascii[] is already EBCDIC)
  */
-# define conv_bin2ascii(a)       (data_bin2ascii[(a)&0x3f])
+#define conv_bin2ascii(a)       (data_bin2ascii[(a)&0x3f])
 #endif
 
 /*-

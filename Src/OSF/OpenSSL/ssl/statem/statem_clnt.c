@@ -48,24 +48,12 @@
  */
 #include "ssl_locl.h"
 #pragma hdrstop
-//#include <stdio.h>
-//#include "../ssl_locl.h"
 #include "statem_locl.h"
-//#include <openssl/buffer.h>
-//#include <openssl/rand.h>
-//#include <openssl/objects.h>
-//#include <openssl/evp.h>
-#include <openssl/md5.h>
-#include <openssl/dh.h>
-#include <openssl/bn.h>
-//#include <openssl/engine.h>
 
 static ossl_inline int cert_req_allowed(SSL * s);
 static int key_exchange_expected(SSL * s);
 static int ca_dn_cmp(const X509_NAME * const * a, const X509_NAME * const * b);
-static int ssl_cipher_list_to_bytes(SSL * s, STACK_OF(SSL_CIPHER) * sk,
-    uchar * p);
-
+static int ssl_cipher_list_to_bytes(SSL * s, STACK_OF(SSL_CIPHER) * sk, uchar * p);
 /*
  * Is a CertificateRequest message allowed at the moment or not?
  *

@@ -42,7 +42,7 @@ typedef PSecurityFunctionTable (APIENTRY *INITSECURITYINTERFACE_FN)(VOID);
 #    define SECURITYENTRYPOINT "InitSecurityInterfaceW"
 #  endif
 #else
-#  define SECURITYENTRYPOINT "InitSecurityInterfaceA"
+#define SECURITYENTRYPOINT "InitSecurityInterfaceA"
 #endif
 
 HMODULE s_hSecDll = NULL; /* Handle of security.dll or secur32.dll, depending on Windows version */

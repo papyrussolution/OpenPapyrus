@@ -25,7 +25,7 @@
 
 #include <time.h>
 #ifdef HAVE_SYS_TIME_H
-# include <sys/time.h>   /* gettimeofday */
+#include <sys/time.h>   /* gettimeofday */
 #endif
 
 /* platform timer abstraction
@@ -79,7 +79,7 @@ static inline int _zbar_timer_check (zbar_timer_t *timer)
 
 #elif defined(_WIN32)
 
-# include <windows.h>
+#include <windows.h>
 
 typedef DWORD zbar_timer_t;
 

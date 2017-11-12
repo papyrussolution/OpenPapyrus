@@ -159,13 +159,13 @@ typedef uint64_t  uintmax_t;
 
 // 7.18.2.4 Limits of integer types capable of holding object pointers
 #ifdef _WIN64 // [
-#  define INTPTR_MIN   INT64_MIN
-#  define INTPTR_MAX   INT64_MAX
-#  define UINTPTR_MAX  UINT64_MAX
+#define INTPTR_MIN   INT64_MIN
+#define INTPTR_MAX   INT64_MAX
+#define UINTPTR_MAX  UINT64_MAX
 #else // _WIN64 ][
-#  define INTPTR_MIN   INT32_MIN
-#  define INTPTR_MAX   INT32_MAX
-#  define UINTPTR_MAX  UINT32_MAX
+#define INTPTR_MIN   INT32_MIN
+#define INTPTR_MAX   INT32_MAX
+#define UINTPTR_MAX  UINT32_MAX
 #endif // _WIN64 ]
 
 // 7.18.2.5 Limits of greatest-width integer types
@@ -176,11 +176,11 @@ typedef uint64_t  uintmax_t;
 // 7.18.3 Limits of other integer types
 
 #ifdef _WIN64 // [
-#  define PTRDIFF_MIN  _I64_MIN
-#  define PTRDIFF_MAX  _I64_MAX
+#define PTRDIFF_MIN  _I64_MIN
+#define PTRDIFF_MAX  _I64_MAX
 #else  // _WIN64 ][
-#  define PTRDIFF_MIN  _I32_MIN
-#  define PTRDIFF_MAX  _I32_MAX
+#define PTRDIFF_MIN  _I32_MIN
+#define PTRDIFF_MAX  _I32_MAX
 #endif  // _WIN64 ]
 
 #define SIG_ATOMIC_MIN  INT_MIN
@@ -196,10 +196,10 @@ typedef uint64_t  uintmax_t;
 
 // WCHAR_MIN and WCHAR_MAX are also defined in <wchar.h>
 #ifndef WCHAR_MIN // [
-#  define WCHAR_MIN  0
+#define WCHAR_MIN  0
 #endif  // WCHAR_MIN ]
 #ifndef WCHAR_MAX // [
-#  define WCHAR_MAX  _UI16_MAX
+#define WCHAR_MAX  _UI16_MAX
 #endif  // WCHAR_MAX ]
 
 #define WINT_MIN  0

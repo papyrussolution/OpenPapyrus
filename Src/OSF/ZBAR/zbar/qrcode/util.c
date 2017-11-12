@@ -90,7 +90,7 @@ uint qr_ihypot(int _x, int _y)
 }
 
 #if defined(__GNUC__) && defined(HAVE_FEATURES_H)
-# include <features.h>
+#include <features.h>
 # if __GNUC_PREREQ(3, 4)
 #  include <limits.h>
 #  if INT_MAX>=2147483647

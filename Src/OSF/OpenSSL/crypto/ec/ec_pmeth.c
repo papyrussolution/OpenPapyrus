@@ -8,12 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1t.h>
-//#include <openssl/x509.h>
-//#include <openssl/ec.h>
 #include "ec_lcl.h"
-//#include <openssl/evp.h>
-//#include <internal/evp_int.h>
 
 /* EC pkey context structure */
 

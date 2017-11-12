@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-#include <openssl/ui.h>
 
 #ifndef OPENSSL_NO_UI
 /* should be init to zeros. */

@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/x509.h>
-//#include <openssl/asn1.h>
-//#include <openssl/rsa.h>
-//#include <openssl/dsa.h>
 
 /* Print out an SPKI */
 

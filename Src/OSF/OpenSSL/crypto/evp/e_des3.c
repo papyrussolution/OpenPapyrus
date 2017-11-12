@@ -10,12 +10,6 @@
 #pragma hdrstop
 
 #ifndef OPENSSL_NO_DES
-//#include <openssl/evp.h>
-//#include <openssl/objects.h>
-//#include <internal/evp_int.h>
-#include <openssl/des.h>
-#include <openssl/sha.h>
-//#include <openssl/rand.h>
 #include "evp_locl.h"
 
 typedef struct {
@@ -29,9 +23,9 @@ typedef struct {
 		    const DES_key_schedule *, uchar *);
 	} stream;
 } DES_EDE_KEY;
-# define ks1 ks.ks[0]
-# define ks2 ks.ks[1]
-# define ks3 ks.ks[2]
+#define ks1 ks.ks[0]
+#define ks2 ks.ks[1]
+#define ks3 ks.ks[2]
 
 # if defined(AES_ASM) && (defined(__sparc) || defined(__sparc__))
 /* ---------^^^ this is not a typo, just a way to detect that
@@ -40,7 +34,7 @@ typedef struct {
 
 extern uint OPENSSL_sparcv9cap_P[];
 
-#  define SPARC_DES_CAPABLE       (OPENSSL_sparcv9cap_P[1] & CFR_DES)
+#define SPARC_DES_CAPABLE       (OPENSSL_sparcv9cap_P[1] & CFR_DES)
 
 void des_t4_key_expand(const void * key, DES_key_schedule * ks);
 void des_t4_ede3_cbc_encrypt(const void * inp, void * out, size_t len, const DES_key_schedule ks[3], uchar iv[8]);
@@ -158,10 +152,10 @@ static int des_ede3_cfb8_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar *
 
 BLOCK_CIPHER_defs(des_ede, DES_EDE_KEY, NID_des_ede, 8, 16, 8, 64, EVP_CIPH_RAND_KEY | EVP_CIPH_FLAG_DEFAULT_ASN1,
     des_ede_init_key, NULL, NULL, NULL, des3_ctrl)
-# define des_ede3_cfb64_cipher des_ede_cfb64_cipher
-# define des_ede3_ofb_cipher des_ede_ofb_cipher
-# define des_ede3_cbc_cipher des_ede_cbc_cipher
-# define des_ede3_ecb_cipher des_ede_ecb_cipher
+#define des_ede3_cfb64_cipher des_ede_cfb64_cipher
+#define des_ede3_ofb_cipher des_ede_ofb_cipher
+#define des_ede3_cbc_cipher des_ede_cbc_cipher
+#define des_ede3_ecb_cipher des_ede_ecb_cipher
 BLOCK_CIPHER_defs(des_ede3, DES_EDE_KEY, NID_des_ede3, 8, 24, 8, 64,
     EVP_CIPH_RAND_KEY | EVP_CIPH_FLAG_DEFAULT_ASN1, des_ede3_init_key, NULL, NULL, NULL, des3_ctrl)
 BLOCK_CIPHER_def_cfb(des_ede3, DES_EDE_KEY, NID_des_ede3, 24, 8, 1,

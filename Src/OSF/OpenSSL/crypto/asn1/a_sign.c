@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <internal/asn1_int.h>
-//#include <internal/evp_int.h>
 
 #ifndef NO_ASN1_OLD
 

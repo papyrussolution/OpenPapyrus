@@ -11,13 +11,13 @@
 #include "internal/constant_time_locl.h"
 #include "bn_lcl.h"
 #ifdef _WIN32
-# include <malloc.h>
+#include <malloc.h>
 # ifndef alloca
-#  define alloca _alloca
+#define alloca _alloca
 # endif
 #elif defined(__GNUC__)
 # ifndef alloca
-#  define alloca(s) __builtin_alloca((s))
+#define alloca(s) __builtin_alloca((s))
 # endif
 #elif defined(__sun)
 	#include <alloca.h>
@@ -26,9 +26,9 @@
 
 #undef SPARC_T4_MONT
 #if defined(OPENSSL_BN_ASM_MONT) && (defined(__sparc__) || defined(__sparc))
-# include "sparc_arch.h"
+#include "sparc_arch.h"
 extern uint OPENSSL_sparcv9cap_P[];
-# define SPARC_T4_MONT
+#define SPARC_T4_MONT
 #endif
 
 /* maximum precomputation table size for *variable* sliding windows */

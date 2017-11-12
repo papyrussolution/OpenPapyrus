@@ -4545,6 +4545,7 @@
 	#define CTL_CFM_RECKONING_SELBUT     (8 + WINDOWS_ID_BIAS)
 	#define CTL_CFM_RECKONING_ALLBUT     (9 + WINDOWS_ID_BIAS)
 	#define CTLCAL_CFM_RECKONING_DT      (10 + WINDOWS_ID_BIAS) // @alena
+	#define CTL_CFM_RECKONING_INFO       (11 + WINDOWS_ID_BIAS)
 #define DLG_BILLTOTAL2            411 // Итоги по выборке документов
 	#define cmCalcVAT                    101
 	#define CTL_BILLTOTAL2_COUNT         (1 + WINDOWS_ID_BIAS)
@@ -10230,6 +10231,12 @@
 #define DLG_SELLKBKPRICE          1328
 	#define CTL_SELLKBKPRICE_LIST     (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELLKBKPRICE_INFO     (2 + WINDOWS_ID_BIAS)
+#define DLG_ARMASSUPD             1329
+	#define CTL_ARMASSUPD_WHAT        (1 + WINDOWS_ID_BIAS)
+	#define CTL_ARMASSUPD_FLAGS       (2 + WINDOWS_ID_BIAS)
+	#define CTL_ARMASSUPD_PAYPERIOD   (3 + WINDOWS_ID_BIAS)
+	#define CTL_ARMASSUPD_DELIVERY    (4 + WINDOWS_ID_BIAS)
+	#define CTL_ARMASSUPD_ST_WARN     (5 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

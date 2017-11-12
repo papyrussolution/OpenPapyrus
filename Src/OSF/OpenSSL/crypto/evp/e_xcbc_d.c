@@ -11,13 +11,8 @@
 
 #ifndef OPENSSL_NO_DES
 
-//#include <internal/evp_int.h>
-#include <openssl/des.h>
-
-static int desx_cbc_init_key(EVP_CIPHER_CTX *ctx, const uchar *key,
-                             const uchar *iv, int enc);
-static int desx_cbc_cipher(EVP_CIPHER_CTX *ctx, uchar *out,
-                           const uchar *in, size_t inl);
+static int desx_cbc_init_key(EVP_CIPHER_CTX *ctx, const uchar *key, const uchar *iv, int enc);
+static int desx_cbc_cipher(EVP_CIPHER_CTX *ctx, uchar *out, const uchar *in, size_t inl);
 
 typedef struct {
     DES_key_schedule ks;        /* key schedule */
@@ -25,7 +20,7 @@ typedef struct {
     DES_cblock outw;
 } DESX_CBC_KEY;
 
-# define data(ctx) EVP_C_DATA(DESX_CBC_KEY,ctx)
+#define data(ctx) EVP_C_DATA(DESX_CBC_KEY,ctx)
 
 static const EVP_CIPHER d_xcbc_cipher = {
     NID_desx_cbc,

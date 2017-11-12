@@ -40,10 +40,10 @@ void md5_block_data_order(MD5_CTX *c, const void *data_, size_t num)
     /* See comment in crypto/sha/sha_locl.h for details. */
     unsigned MD32_REG_T XX0, XX1, XX2, XX3, XX4, XX5, XX6, XX7,
         XX8, XX9, XX10, XX11, XX12, XX13, XX14, XX15;
-#  define X(i)   XX##i
+#define X(i)   XX##i
 # else
     MD5_LONG XX[MD5_LBLOCK];
-#  define X(i)   XX[i]
+#define X(i)   XX[i]
 # endif
 
     A = c->A;

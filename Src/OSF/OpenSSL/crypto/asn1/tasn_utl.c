@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1.h>
-//#include <openssl/asn1t.h>
 #include "asn1_locl.h"
 
 /* Utility functions for manipulating fields and offsets */

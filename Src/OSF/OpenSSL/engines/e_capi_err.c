@@ -12,10 +12,10 @@
  * made to it will be overwritten when the script next updates this file,
  * only reason strings will be preserved.
  */
-
-#include <stdio.h>
-#include <openssl/err.h>
-#include "e_capi_err.h"
+// @sobolev: files is included by e_capi.c
+//#include <stdio.h>
+//#include <openssl/err.h>
+//#include "e_capi_err.h"
 
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
@@ -60,31 +60,24 @@ static ERR_STRING_DATA CAPI_str_reasons[] = {
     {ERR_REASON(CAPI_R_ENUMCONTAINERS_ERROR), "enumcontainers error"},
     {ERR_REASON(CAPI_R_ERROR_ADDING_CERT), "error adding cert"},
     {ERR_REASON(CAPI_R_ERROR_CREATING_STORE), "error creating store"},
-    {ERR_REASON(CAPI_R_ERROR_GETTING_FRIENDLY_NAME),
-     "error getting friendly name"},
-    {ERR_REASON(CAPI_R_ERROR_GETTING_KEY_PROVIDER_INFO),
-     "error getting key provider info"},
+    {ERR_REASON(CAPI_R_ERROR_GETTING_FRIENDLY_NAME), "error getting friendly name"},
+    {ERR_REASON(CAPI_R_ERROR_GETTING_KEY_PROVIDER_INFO), "error getting key provider info"},
     {ERR_REASON(CAPI_R_ERROR_OPENING_STORE), "error opening store"},
     {ERR_REASON(CAPI_R_ERROR_SIGNING_HASH), "error signing hash"},
     {ERR_REASON(CAPI_R_FILE_OPEN_ERROR), "file open error"},
     {ERR_REASON(CAPI_R_FUNCTION_NOT_SUPPORTED), "function not supported"},
     {ERR_REASON(CAPI_R_GETUSERKEY_ERROR), "getuserkey error"},
     {ERR_REASON(CAPI_R_INVALID_DIGEST_LENGTH), "invalid digest length"},
-    {ERR_REASON(CAPI_R_INVALID_DSA_PUBLIC_KEY_BLOB_MAGIC_NUMBER),
-     "invalid dsa public key blob magic number"},
+    {ERR_REASON(CAPI_R_INVALID_DSA_PUBLIC_KEY_BLOB_MAGIC_NUMBER), "invalid dsa public key blob magic number"},
     {ERR_REASON(CAPI_R_INVALID_LOOKUP_METHOD), "invalid lookup method"},
     {ERR_REASON(CAPI_R_INVALID_PUBLIC_KEY_BLOB), "invalid public key blob"},
-    {ERR_REASON(CAPI_R_INVALID_RSA_PUBLIC_KEY_BLOB_MAGIC_NUMBER),
-     "invalid rsa public key blob magic number"},
+    {ERR_REASON(CAPI_R_INVALID_RSA_PUBLIC_KEY_BLOB_MAGIC_NUMBER), "invalid rsa public key blob magic number"},
     {ERR_REASON(CAPI_R_PUBKEY_EXPORT_ERROR), "pubkey export error"},
-    {ERR_REASON(CAPI_R_PUBKEY_EXPORT_LENGTH_ERROR),
-     "pubkey export length error"},
+    {ERR_REASON(CAPI_R_PUBKEY_EXPORT_LENGTH_ERROR), "pubkey export length error"},
     {ERR_REASON(CAPI_R_UNKNOWN_COMMAND), "unknown command"},
-    {ERR_REASON(CAPI_R_UNSUPPORTED_ALGORITHM_NID),
-     "unsupported algorithm nid"},
+    {ERR_REASON(CAPI_R_UNSUPPORTED_ALGORITHM_NID), "unsupported algorithm nid"},
     {ERR_REASON(CAPI_R_UNSUPPORTED_PADDING), "unsupported padding"},
-    {ERR_REASON(CAPI_R_UNSUPPORTED_PUBLIC_KEY_ALGORITHM),
-     "unsupported public key algorithm"},
+    {ERR_REASON(CAPI_R_UNSUPPORTED_PUBLIC_KEY_ALGORITHM), "unsupported public key algorithm"},
     {ERR_REASON(CAPI_R_WIN32_ERROR), "win32 error"},
     {0, NULL}
 };

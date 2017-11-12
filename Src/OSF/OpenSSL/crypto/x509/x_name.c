@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1t.h>
-//#include <openssl/x509.h>
-//#include "internal/x509_int.h"
-//#include "internal/asn1_int.h"
 #include "x509_lcl.h"
 /*
  * Maximum length of X509_NAME: much larger than anything we should

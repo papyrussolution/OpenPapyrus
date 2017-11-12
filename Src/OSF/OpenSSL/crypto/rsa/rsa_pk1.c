@@ -8,13 +8,9 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/bn.h>
-//#include <openssl/rsa.h>
-//#include <openssl/rand.h>
 #include "internal/constant_time_locl.h"
 
-int RSA_padding_add_PKCS1_type_1(uchar * to, int tlen,
-    const uchar * from, int flen)
+int RSA_padding_add_PKCS1_type_1(uchar * to, int tlen, const uchar * from, int flen)
 {
 	int j;
 	uchar * p;

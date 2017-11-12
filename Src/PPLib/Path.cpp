@@ -436,7 +436,7 @@ SString & FASTCALL PPGetFileName(uint fnameID, SString & rBuf)
 	return rBuf;
 }
 
-SString & SLAPI PPMakeTempFileName(const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
+SString & FASTCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
 {
 	SString path;
 	PPGetPath(PPPATH_TEMP, path);

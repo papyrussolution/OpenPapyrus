@@ -473,7 +473,7 @@ void xmlBufDumpAttributeDecl(xmlBufPtr buf, xmlAttribute * attr)
  *
  * This will dump the content of the entity table as an XML DTD definition
  */
-void xmlBufDumpEntityDecl(xmlBufPtr buf, xmlEntityPtr ent) 
+void xmlBufDumpEntityDecl(xmlBufPtr buf, xmlEntity * ent) 
 {
 	xmlBuffer * buffer = xmlBufferCreate();
 	if(!buffer) {
@@ -564,7 +564,7 @@ static void xmlNsDumpOutput(xmlOutputBufferPtr buf, xmlNs * cur, xmlSaveCtxtPtr 
 			else
 				xmlOutputBufferWrite(buf, 1, " ");
 			// Within the context of an element attributes
-			if(cur->prefix != NULL) {
+			if(cur->prefix) {
 				xmlOutputBufferWrite(buf, 6, "xmlns:");
 				xmlOutputBufferWriteString(buf, (const char*)cur->prefix);
 			}
@@ -575,7 +575,6 @@ static void xmlNsDumpOutput(xmlOutputBufferPtr buf, xmlNs * cur, xmlSaveCtxtPtr 
 		}
 	}
 }
-
 /**
  * xmlNsDumpOutputCtxt
  * @ctxt: the save context
@@ -832,7 +831,7 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNode * cur)
 		else if(cur->type == XML_ATTRIBUTE_DECL)
 			xmlBufDumpAttributeDecl(p_buf->buffer, (xmlAttribute *)cur);
 		else if(cur->type == XML_ENTITY_DECL)
-			xmlBufDumpEntityDecl(p_buf->buffer, (xmlEntityPtr)cur);
+			xmlBufDumpEntityDecl(p_buf->buffer, (xmlEntity *)cur);
 		else if(cur->type == XML_TEXT_NODE) {
 			if(cur->content) {
 				if(cur->name != xmlStringTextNoenc) {
@@ -1329,7 +1328,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNode * cur)
 		return;
 	}
 	if(cur->type == XML_ENTITY_DECL) {
-		xmlBufDumpEntityDecl(buf->buffer, (xmlEntityPtr)cur);
+		xmlBufDumpEntityDecl(buf->buffer, (xmlEntity *)cur);
 		return;
 	}
 	if(cur->type == XML_TEXT_NODE) {
@@ -1666,7 +1665,7 @@ xmlSaveCtxtPtr xmlSaveToFilename(const char * filename, const char * encoding, i
  *
  * Returns a new serialization context or NULL in case of error.
  */
-xmlSaveCtxtPtr xmlSaveToBuffer(xmlBufferPtr buffer, const char * encoding, int options)
+xmlSaveCtxtPtr xmlSaveToBuffer(xmlBuffer * buffer, const char * encoding, int options)
 {
 	xmlSaveCtxt * ret = xmlNewSaveCtxt(encoding, options);
 	if(ret) {
@@ -1693,7 +1692,6 @@ xmlSaveCtxtPtr xmlSaveToBuffer(xmlBufferPtr buffer, const char * encoding, int o
 	}
 	return ret;
 }
-
 /**
  * xmlSaveToIO:
  * @iowrite:  an I/O write function
@@ -1969,7 +1967,7 @@ void xmlBufAttrSerializeTxtContent(xmlBufPtr buf, xmlDocPtr doc, xmlAttrPtr attr
  *
  * Serialize text attribute values to an xml simple buffer
  */
-void xmlAttrSerializeTxtContent(xmlBufferPtr buf, xmlDocPtr doc, xmlAttrPtr attr, const xmlChar * string)
+void xmlAttrSerializeTxtContent(xmlBuffer * buf, xmlDocPtr doc, xmlAttrPtr attr, const xmlChar * string)
 {
 	if(buf && string) {
 		xmlBufPtr buffer = xmlBufFromBuffer(buf);
@@ -1996,7 +1994,7 @@ void xmlAttrSerializeTxtContent(xmlBufferPtr buf, xmlDocPtr doc, xmlAttrPtr attr
  *
  * Returns the number of bytes written to the buffer or -1 in case of error
  */
-int xmlNodeDump(xmlBufferPtr buf, xmlDocPtr doc, xmlNodePtr cur, int level, int format)
+int xmlNodeDump(xmlBuffer * buf, xmlDocPtr doc, xmlNodePtr cur, int level, int format)
 {
 	int ret = -1;
 	if(buf && cur) {

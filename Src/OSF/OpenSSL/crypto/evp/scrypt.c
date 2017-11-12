@@ -8,12 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <stddef.h>
-//#include <stdio.h>
-//#include <string.h>
-//#include <openssl/evp.h>
-//#include <openssl/err.h>
-//#include <internal/numbers.h>
 
 #ifndef OPENSSL_NO_SCRYPT
 
@@ -135,11 +129,11 @@ static void scryptROMix(uchar * B, uint64_t r, uint64_t N, uint32_t * X, uint32_
  * Although we could theoretically allocate SIZE_MAX memory that would leave
  * no memory available for anything else so set limit as half that.
  */
-#  define SCRYPT_MAX_MEM (SIZE_MAX/2)
+#define SCRYPT_MAX_MEM (SIZE_MAX/2)
 # endif
 #else
 /* Default memory limit: 32 MB */
-# define SCRYPT_MAX_MEM  (1024 * 1024 * 32)
+#define SCRYPT_MAX_MEM  (1024 * 1024 * 32)
 #endif
 
 int EVP_PBE_scrypt(const char * pass, size_t passlen, const uchar * salt, size_t saltlen,

@@ -143,9 +143,9 @@ static uint64 smb_swap64(uint64 x)
 
 #endif
 #else
-#  define smb_swap16(x) (x)
-#  define smb_swap32(x) (x)
-#  define smb_swap64(x) (x)
+#define smb_swap16(x) (x)
+#define smb_swap32(x) (x)
+#define smb_swap64(x) (x)
 #endif
 
 /* SMB request state */

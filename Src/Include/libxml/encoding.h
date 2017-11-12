@@ -180,9 +180,9 @@ XMLPUBFUN const char * XMLCALL xmlGetCharEncodingName(xmlCharEncoding enc);
  * Interfaces directly used by the parsers.
  */
 XMLPUBFUN xmlCharEncoding XMLCALL xmlDetectCharEncoding(const uchar *in, int len);
-XMLPUBFUN int XMLCALL xmlCharEncOutFunc(xmlCharEncodingHandler *handler, xmlBufferPtr out, xmlBufferPtr in);
-XMLPUBFUN int XMLCALL xmlCharEncInFunc(xmlCharEncodingHandler *handler, xmlBufferPtr out, xmlBufferPtr in);
-XMLPUBFUN int XMLCALL xmlCharEncFirstLine(xmlCharEncodingHandler *handler, xmlBufferPtr out, xmlBufferPtr in);
+XMLPUBFUN int XMLCALL xmlCharEncOutFunc(xmlCharEncodingHandler *handler, xmlBuffer * out, xmlBuffer * in);
+XMLPUBFUN int XMLCALL xmlCharEncInFunc(xmlCharEncodingHandler *handler, xmlBuffer * out, xmlBuffer * in);
+XMLPUBFUN int XMLCALL xmlCharEncFirstLine(xmlCharEncodingHandler *handler, xmlBuffer * out, xmlBuffer * in);
 XMLPUBFUN int XMLCALL xmlCharEncCloseFunc(xmlCharEncodingHandler *handler);
 
 /*

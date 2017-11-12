@@ -541,6 +541,197 @@ int SLAPI PPViewArticle::EditDebtDimList(PPID arID)
 	return ok;
 }
 
+struct ArMassUpdParam {
+	SLAPI  ArMassUpdParam();
+	enum {
+		aUndef  = 0,
+		aUpdate = 1,
+		aRemoveAll
+	};
+	enum {
+		fCreateAgreement = 0x0001
+	};
+	long   Action;
+	long   Flags;
+	long   PayPeriod;
+	long   DeliveryPeriod;
+};
+
+SLAPI ArMassUpdParam::ArMassUpdParam() : Action(aUpdate), Flags(0), PayPeriod(0), DeliveryPeriod(0)
+{
+}
+
+class ArMassUpdDialog : public TDialog {
+public:
+	ArMassUpdDialog() : TDialog(DLG_ARMASSUPD)
+	{
+	}
+	int    setDTS(const ArMassUpdParam * pData)
+	{
+		int    ok = 1;
+		RVALUEPTR(Data, pData);
+		AddClusterAssocDef(CTL_ARMASSUPD_WHAT, 0, ArMassUpdParam::aUpdate);
+		AddClusterAssocDef(CTL_ARMASSUPD_WHAT, 1, ArMassUpdParam::aRemoveAll);
+		SetClusterData(CTL_ARMASSUPD_WHAT, Data.Action);
+		AddClusterAssoc(CTL_ARMASSUPD_FLAGS, 0, ArMassUpdParam::fCreateAgreement);
+		SetClusterData(CTL_ARMASSUPD_FLAGS, Data.Flags);
+		setCtrlLong(CTL_ARMASSUPD_PAYPERIOD, Data.PayPeriod);
+		setCtrlLong(CTL_ARMASSUPD_DELIVERY, Data.DeliveryPeriod);
+		SetupCtrls();
+		return ok;
+	}
+	int    getDTS(ArMassUpdParam * pData)
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		GetClusterData(CTL_ARMASSUPD_WHAT,  &Data.Action);
+		GetClusterData(CTL_ARMASSUPD_FLAGS, &Data.Flags);
+		if(Data.Action == ArMassUpdParam::aUpdate) {
+			Data.PayPeriod = getCtrlLong(sel = CTL_ARMASSUPD_PAYPERIOD);
+			THROW_PP(Data.PayPeriod >= 0 && Data.PayPeriod <= 20*365, PPERR_USERINPUT);
+			Data.DeliveryPeriod = getCtrlLong(sel = CTL_ARMASSUPD_DELIVERY);
+			THROW_PP(Data.DeliveryPeriod >= 0 && Data.DeliveryPeriod <= 366, PPERR_USERINPUT);
+		}
+		ASSIGN_PTR(pData, Data);
+		CATCH
+			PPErrorByDialog(this, sel);
+		ENDCATCH
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isClusterClk(CTL_ARMASSUPD_WHAT)) {
+			GetClusterData(CTL_ARMASSUPD_WHAT,  &Data.Action);
+			SetupCtrls();
+		}
+	}
+	void    SetupCtrls()
+	{
+		disableCtrl(CTL_ARMASSUPD_FLAGS, (Data.Action == ArMassUpdParam::aRemoveAll));
+		disableCtrl(CTL_ARMASSUPD_PAYPERIOD, (Data.Action == ArMassUpdParam::aRemoveAll));
+		disableCtrl(CTL_ARMASSUPD_DELIVERY,  (Data.Action == ArMassUpdParam::aRemoveAll));
+	}
+	ArMassUpdParam Data;
+};
+
+// @v9.8.8 {
+int SLAPI PPViewArticle::UpdateAll()
+{
+	int    ok = -1;
+	ArMassUpdParam param;
+	PPIDArray id_list;
+	ArticleViewItem item;
+	THROW(ArObj.CheckRights(ARTRT_MULTUPD));
+	for(InitIteration(); NextIteration(&item) > 0;) {
+		id_list.add(item.ID);
+	}
+	id_list.sortAndUndup();
+	const uint cnt = id_list.getCount();
+	if(cnt) {
+		if(PPDialogProcBody<ArMassUpdDialog, ArMassUpdParam>(&param) > 0) {
+			PPLogger logger;
+			SString fmt_buf;
+			SString msg_buf;
+			if(param.Action == ArMassUpdParam::aUpdate) {
+				if(param.PayPeriod > 0 || param.DeliveryPeriod > 0) {
+					THROW(ArObj.CheckRights(PPR_MOD));
+					{
+						PPTransaction tra(1);
+						THROW(tra);
+						for(uint i = 0; i < cnt; i++) {
+							const PPID _id = id_list.get(i);
+							PPArticlePacket pack;
+							if(_id && ArObj.GetPacket(_id, &pack) > 0) {
+								int    do_update = 0;
+								const int agt_kind = PPObjArticle::GetAgreementKind(&pack.Rec);
+								if(agt_kind == 1) { // client agreements
+									if(param.PayPeriod > 0) {
+										if(pack.P_CliAgt) {
+											if(pack.P_CliAgt->DefPayPeriod != param.PayPeriod) {
+												pack.P_CliAgt->DefPayPeriod = (int16)param.PayPeriod;
+												do_update = 1;
+											}
+										}
+										else if(param.Flags & ArMassUpdParam::fCreateAgreement) {
+											PPClientAgreement new_agt;
+											new_agt.DefPayPeriod = (int16)param.PayPeriod;
+											pack.SetClientAgreement(&new_agt, 1);
+											do_update = 2;
+										}
+									}
+								}
+								else if(agt_kind == 2) { // suppl agreements
+									if(pack.P_SupplAgt) {
+										if(pack.P_SupplAgt->DefPayPeriod != param.PayPeriod) {
+											pack.P_SupplAgt->DefPayPeriod = (int16)param.DeliveryPeriod;
+											do_update = 1;
+										}
+										if(pack.P_SupplAgt->DefDlvrTerm != param.DeliveryPeriod) {
+											pack.P_SupplAgt->DefDlvrTerm = (int16)param.DeliveryPeriod;
+											do_update = 1;
+										}
+									}
+									else if(param.Flags & ArMassUpdParam::fCreateAgreement) {
+										PPSupplAgreement new_agt;
+										if(param.PayPeriod > 0)
+											new_agt.DefPayPeriod = (int16)param.PayPeriod;
+										if(param.DeliveryPeriod > 0)
+											new_agt.DefDlvrTerm = (int16)param.DeliveryPeriod;
+										pack.SetSupplAgreement(&new_agt, 1);
+										do_update = 2;
+									}
+								}
+								if(do_update) {
+									PPID   temp_id = _id;
+									if(ArObj.PutPacket(&temp_id, &pack, 0)) {
+										//PPTXT_ARMASSUPD_UPD               "»зменена стать€ аналитического учета '@zstr'"
+										//PPTXT_ARMASSUPD_UPD_CRAGT         "»зменена стать€ аналитического учета '@zstr' (создано соглашение)"
+										if(do_update == 2) {
+											logger.Log(PPFormatT(PPTXT_ARMASSUPD_UPD_CRAGT, &msg_buf, pack.Rec.Name));
+										}
+										else {
+											logger.Log(PPFormatT(PPTXT_ARMASSUPD_UPD, &msg_buf, pack.Rec.Name));
+										}
+										ok = 1;
+									}
+									else
+										logger.LogLastError();
+								}
+							}
+							PPWaitPercent(i+1, cnt);
+						}
+						THROW(tra.Commit());
+					}
+				}
+			}
+			else if(param.Action == ArMassUpdParam::aRemoveAll) {
+				THROW(ArObj.CheckRights(PPR_DEL));
+				{
+					PPTransaction tra(1);
+					THROW(tra);
+					for(uint i = 0; i < cnt; i++) {
+						const PPID _id = id_list.get(i);
+						if(_id) {
+							if(!ArObj.RemoveObjV(_id, 0, 0, 0)) {
+								logger.LogLastError();
+							}
+							else
+								ok = 1;
+						}
+						PPWaitPercent(i+1, cnt);
+					}
+					THROW(tra.Commit());
+				}
+			}
+		}
+	}
+	CATCHZOKPPERR
+	return ok;
+}
+
+#if 0 // @v9.8.8 {
 int SLAPI PPViewArticle::DeleteAll()
 {
 	int    ok = -1;
@@ -576,6 +767,7 @@ int SLAPI PPViewArticle::DeleteAll()
 	CATCHZOKPPERR
 	return ok;
 }
+#endif // } 0 @v9.8.8
 
 int SLAPI PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
@@ -584,7 +776,8 @@ int SLAPI PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 		PPID   id = pHdr ? *(PPID *)pHdr : 0;
 		switch(ppvCmd) {
 			case PPVCMD_DELETEALL:
-				ok = DeleteAll();
+				// @v9.8.8 ok = DeleteAll();
+				ok = UpdateAll(); // @v9.8.8
 				break;
 			case PPVCMD_ADDGROUP:
 				ok = ArObj.EditGrpArticle(&(id = 0), Filt.AccSheetID);

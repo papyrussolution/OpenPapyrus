@@ -36,10 +36,10 @@
 #include "svg.h"
 
 #if 1
-# define ASSERT_POS \
+#define ASSERT_POS \
 	assert(p == data + x + y * (intptr_t)w)
 #else
-# define ASSERT_POS
+#define ASSERT_POS
 #endif
 
 /* FIXME cache setting configurability */
@@ -63,10 +63,10 @@
 #define TEST_CFG(iscn, cfg) (((iscn)->config >> ((cfg) - ZBAR_CFG_POSITION)) & 1)
 
 #ifndef NO_STATS
-# define STAT(x) iscn->stat_ ## x++
+#define STAT(x) iscn->stat_ ## x++
 #else
-# define STAT(...)
-# define dump_stats(...)
+#define STAT(...)
+#define dump_stats(...)
 #endif
 
 #define RECYCLE_BUCKETS     5
@@ -322,8 +322,8 @@ void _zbar_image_scanner_add_sym(zbar_image_scanner_t * iscn, zbar_symbol_t * sy
 #ifdef ENABLE_QRCODE
 extern qr_finder_line * _zbar_decoder_get_qr_finder_line(zbar_decoder_t*);
 
-# define QR_FIXED(v, rnd) ((((v) << 1) + (rnd)) << (QR_FINDER_SUBPREC - 1))
-# define PRINT_FIXED(val, prec)	((val) >> (prec)), (1000 * ((val) & ((1 << (prec)) - 1)) / (1 << (prec)))
+#define QR_FIXED(v, rnd) ((((v) << 1) + (rnd)) << (QR_FINDER_SUBPREC - 1))
+#define PRINT_FIXED(val, prec)	((val) >> (prec)), (1000 * ((val) & ((1 << (prec)) - 1)) / (1 << (prec)))
 
 static /*inline*/ void FASTCALL qr_handler(zbar_image_scanner_t * iscn)
 {

@@ -14,7 +14,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "internal/bn_int.h"
 #include "ec_lcl.h"
 /*
  * This file implements the wNAF-based interleaving multi-exponentiation method

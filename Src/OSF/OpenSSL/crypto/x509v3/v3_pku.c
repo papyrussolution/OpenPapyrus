@@ -8,9 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1.h>
-//#include <openssl/asn1t.h>
-//#include <openssl/x509v3.h>
 #include "ext_dat.h"
 
 static int i2r_PKEY_USAGE_PERIOD(X509V3_EXT_METHOD * method,

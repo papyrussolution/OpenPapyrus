@@ -21,25 +21,16 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/bn.h>
-//#include <openssl/evp.h>
-//#include <openssl/rand.h>
-#include <openssl/sha.h>
 #include "rsa_locl.h"
 #include "internal/constant_time_locl.h"
 
-int RSA_padding_add_PKCS1_OAEP(uchar * to, int tlen,
-    const uchar * from, int flen,
-    const uchar * param, int plen)
+int RSA_padding_add_PKCS1_OAEP(uchar * to, int tlen, const uchar * from, int flen, const uchar * param, int plen)
 {
-	return RSA_padding_add_PKCS1_OAEP_mgf1(to, tlen, from, flen,
-	    param, plen, 0, 0);
+	return RSA_padding_add_PKCS1_OAEP_mgf1(to, tlen, from, flen, param, plen, 0, 0);
 }
 
-int RSA_padding_add_PKCS1_OAEP_mgf1(uchar * to, int tlen,
-    const uchar * from, int flen,
-    const uchar * param, int plen,
-    const EVP_MD * md, const EVP_MD * mgf1md)
+int RSA_padding_add_PKCS1_OAEP_mgf1(uchar * to, int tlen, const uchar * from, int flen,
+    const uchar * param, int plen, const EVP_MD * md, const EVP_MD * mgf1md)
 {
 	int i, emlen = tlen - 1;
 	uchar * db, * seed;
@@ -284,4 +275,3 @@ err:
 	EVP_MD_CTX_free(c);
 	return rv;
 }
-

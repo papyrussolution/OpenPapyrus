@@ -14,8 +14,8 @@
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
 
-# define ERR_FUNC(func) ERR_PACK(ERR_LIB_COMP, func, 0)
-# define ERR_REASON(reason) ERR_PACK(ERR_LIB_COMP, 0, reason)
+#define ERR_FUNC(func) ERR_PACK(ERR_LIB_COMP, func, 0)
+#define ERR_REASON(reason) ERR_PACK(ERR_LIB_COMP, 0, reason)
 
 static ERR_STRING_DATA COMP_str_functs[] = {
 	{ERR_FUNC(COMP_F_BIO_ZLIB_FLUSH), "bio_zlib_flush"},

@@ -8,8 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/evp.h>
-//#include <internal/evp_int.h>
 #include "evp_locl.h"
 
 EVP_CIPHER * EVP_CIPHER_meth_new(int cipher_type, int block_size, int key_len)

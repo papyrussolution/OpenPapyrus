@@ -10,14 +10,6 @@
 #pragma hdrstop
 
 #if !defined(OPENSSL_NO_MD5)
-//#include <openssl/evp.h>
-//#include <openssl/objects.h>
-//#include <openssl/x509.h>
-//#include <openssl/md5.h>
-//#include <openssl/sha.h>
-//#include "internal/cryptlib.h"
-//#include <openssl/rsa.h>
-//#include <internal/evp_int.h>
 
 struct md5_sha1_ctx {
 	MD5_CTX md5;
@@ -27,25 +19,19 @@ struct md5_sha1_ctx {
 static int init(EVP_MD_CTX * ctx)
 {
 	struct md5_sha1_ctx * mctx = (struct md5_sha1_ctx *)EVP_MD_CTX_md_data(ctx);
-	if(!MD5_Init(&mctx->md5))
-		return 0;
-	return SHA1_Init(&mctx->sha1);
+	return MD5_Init(&mctx->md5) ? SHA1_Init(&mctx->sha1) : 0;
 }
 
 static int update(EVP_MD_CTX * ctx, const void * data, size_t count)
 {
 	struct md5_sha1_ctx * mctx = (struct md5_sha1_ctx *)EVP_MD_CTX_md_data(ctx);
-	if(!MD5_Update(&mctx->md5, data, count))
-		return 0;
-	return SHA1_Update(&mctx->sha1, data, count);
+	return MD5_Update(&mctx->md5, data, count) ? SHA1_Update(&mctx->sha1, data, count) : 0;
 }
 
 static int final(EVP_MD_CTX * ctx, uchar * md)
 {
 	struct md5_sha1_ctx * mctx = (struct md5_sha1_ctx *)EVP_MD_CTX_md_data(ctx);
-	if(!MD5_Final(md, &mctx->md5))
-		return 0;
-	return SHA1_Final(md + MD5_DIGEST_LENGTH, &mctx->sha1);
+	return MD5_Final(md, &mctx->md5) ? SHA1_Final(md + MD5_DIGEST_LENGTH, &mctx->sha1) : 0;
 }
 
 static int ctrl(EVP_MD_CTX * ctx, int cmd, int mslen, void * ms)

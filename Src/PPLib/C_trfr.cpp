@@ -966,9 +966,9 @@ int SLAPI Transfer::ProcessLotFault(PPLotFaultArray * pAry, int fault, double ac
 	return pAry ? pAry->AddFault(fault, &data, act, valid) : 1;
 }
 
-class RevalArray : public SArray {
+class RevalArray : public SVector { // @v9.8.8 SArray-->SVector
 public:
-	struct Reval {
+	struct Reval { // @flat
 		LDATE  Dt;
 		long   OprNo;
 		double OldCost;
@@ -976,7 +976,7 @@ public:
 		double NewCost;
 		double NewPrice;
 	};
-	SLAPI  RevalArray(double cost, double price) : SArray(sizeof(Reval))
+	SLAPI  RevalArray(double cost, double price) : SVector(sizeof(Reval))
 	{
 		LotCost  = cost;
 		LotPrice = price;
@@ -2131,7 +2131,7 @@ static int SLAPI CheckLotList(PPIDArray & rLotList, PPIDArray & rAbsLotList, PPL
 	return ok;
 }
 
-struct BadTrfrEntry {
+struct BadTrfrEntry { // @flat
 	long   N;
 	LDATE  Dt;
 	long   OprNo;
@@ -2141,7 +2141,7 @@ struct BadTrfrEntry {
 
 class BadTrfrEntryListDialog : public PPListDialog {
 public:
-	BadTrfrEntryListDialog(SArray * pList) : PPListDialog(DLG_R_TFR_A, CTL_R_TFR_A_LIST)
+	BadTrfrEntryListDialog(SVector * pList) : PPListDialog(DLG_R_TFR_A, CTL_R_TFR_A_LIST) // @v9.8.8 SArray-->SVector
 	{
 		P_List = pList;
 		updateList(-1);
@@ -2159,7 +2159,7 @@ private:
 		return 1;
 	}
 	virtual int delItem(long pos, long id);
-	SArray * P_List;
+	SVector * P_List; // @v9.8.8 SArray-->SVector
 };
 
 int BadTrfrEntryListDialog::delItem(long pos, long id)
@@ -2192,7 +2192,7 @@ int SLAPI RecoverTransfer()
 	TransferTbl::Key1 k1;
 	IterCounter cntr;
 	PPInitIterCounter(cntr, p_trfr);
-	SArray bad_list(sizeof(BadTrfrEntry));
+	SVector bad_list(sizeof(BadTrfrEntry)); // @v9.8.8 SArray-->SVector
 	BExtQuery q(p_trfr, 1);
 	PPWait(1);
 	q.selectAll();

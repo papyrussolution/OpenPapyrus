@@ -8,9 +8,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//# include <openssl/x509.h>
-# include <openssl/hmac.h>
-# include "evp_locl.h"
+#include <openssl/hmac.h>
+#include "evp_locl.h"
 
 /* set this to print out info about the keygen algorithm */
 /* #define OPENSSL_DEBUG_PKCS5V2 */

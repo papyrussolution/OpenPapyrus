@@ -8,10 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/bn.h>
-//#include <openssl/rsa.h>
-//#include <openssl/objects.h>
-#include <openssl/x509.h>
 
 int RSA_sign_ASN1_OCTET_STRING(int type, const uchar * m, uint m_len, uchar * sigret, uint * siglen, RSA * rsa)
 {

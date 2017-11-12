@@ -8,19 +8,19 @@
  */
 
 #ifndef HEADER_MDC2_H
-# define HEADER_MDC2_H
+#define HEADER_MDC2_H
 
-# include <openssl/opensslconf.h>
+#include <openssl/opensslconf.h>
 
 #ifndef OPENSSL_NO_MDC2
-# include <stdlib.h>
-# include <openssl/des.h>
+#include <stdlib.h>
+#include <openssl/des.h>
 # ifdef  __cplusplus
 extern "C" {
 # endif
 
-# define MDC2_BLOCK              8
-# define MDC2_DIGEST_LENGTH      16
+#define MDC2_BLOCK              8
+#define MDC2_DIGEST_LENGTH      16
 
 typedef struct mdc2_ctx_st {
     uint num;

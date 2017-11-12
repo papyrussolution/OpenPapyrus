@@ -8,14 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-//#include <openssl/asn1t.h>
-//#include <openssl/pem.h>
-//#include <openssl/x509v3.h>
-//#include <openssl/cms.h>
-//#include <openssl/rand.h>
-//#include <openssl/aes.h>
 #include "cms_lcl.h"
-//#include "internal/asn1_int.h"
 
 int CMS_RecipientInfo_set0_password(CMS_RecipientInfo * ri, uchar * pass, ossl_ssize_t passlen)
 {
