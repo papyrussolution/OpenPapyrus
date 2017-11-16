@@ -312,7 +312,7 @@ struct i965_stream {
 	uint32_t used;
 	uint32_t committed;
 	uint32_t size;
-	uint8_t * data;
+	uint8 * data;
 	uint32_t serial;
 	int num_pending_relocations;
 	int max_pending_relocations;
@@ -370,17 +370,17 @@ struct i965_device {
 	uint   constants_size;
 	cairo_bool_t have_urb_fences;
 	i965_stream_t batch;
-	uint8_t batch_base[I965_BATCH_SIZE];
+	uint8 batch_base[I965_BATCH_SIZE];
 	struct drm_i915_gem_relocation_entry batch_relocations[2048];
 	i965_stream_t surface;
-	uint8_t surface_base[I965_SURFACE_SIZE];
+	uint8 surface_base[I965_SURFACE_SIZE];
 	struct i965_pending_relocation surface_pending_relocations[1];
 	struct drm_i915_gem_relocation_entry surface_relocations[1024];
 	i965_stream_t general;
-	uint8_t general_base[I965_GENERAL_SIZE];
+	uint8 general_base[I965_GENERAL_SIZE];
 	struct i965_pending_relocation general_pending_relocations[1];
 	i965_stream_t vertex;
-	uint8_t vertex_base[I965_VERTEX_SIZE];
+	uint8 vertex_base[I965_VERTEX_SIZE];
 	struct i965_pending_relocation vertex_pending_relocations[512];
 
 	struct {

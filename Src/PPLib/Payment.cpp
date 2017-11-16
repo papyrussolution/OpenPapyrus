@@ -829,13 +829,14 @@ int SLAPI PPObjBill::GetPayableOpListByReckonOp(const PPReckonOpEx * pRcknData, 
 				GetOpData(opk.LinkOpID, &opk);
 				acc_sheet_id = opk.AccSheetID;
 			}
-			if(acc_sheet_id && opk_flags & OPKF_NEEDPAYMENT)
+			if(acc_sheet_id && opk_flags & OPKF_NEEDPAYMENT) {
 				if(acc_sheet_id != paym_sheet_id) {
 					if(GetAlternateArticle(arID, acc_sheet_id, &article_id) <= 0)
 						continue;
 				}
 				else
 					article_id = arID;
+			}
 			if(article_id) {
 				const  PPID rel_type_id = NZOR(pRcknData->PersonRelTypeID, PPPSNRELTYP_AFFIL);
 				PPIDArray ar_list;

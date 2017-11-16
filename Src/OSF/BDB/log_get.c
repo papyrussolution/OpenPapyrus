@@ -36,7 +36,7 @@ int __log_cursor_pp(DB_ENV * dbenv, DB_LOGC ** logcp, uint32 flags)
 	int ret;
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->lg_handle, "DB_ENV->log_cursor", DB_INIT_LOG);
-	/* Validate arguments. */
+	// Validate arguments
 	if((ret = __db_fchk(env, "DB_ENV->log_cursor", flags, 0)) != 0)
 		return ret;
 	ENV_ENTER(env, ip);
@@ -174,7 +174,7 @@ static int __logc_get_pp(DB_LOGC * logc, DB_LSN * alsn, DBT * dbt, uint32 flags)
 	DB_THREAD_INFO * ip;
 	int ret;
 	ENV * env = logc->env;
-	/* Validate arguments. */
+	// Validate arguments
 	switch(flags) {
 	    case DB_CURRENT:
 	    case DB_FIRST:

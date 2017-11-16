@@ -1274,7 +1274,7 @@ static cairo_status_t _cairo_xlib_surface_add_glyph(cairo_xlib_display_t * displ
 				    *n++ = bswap_32(*d);
 				    d++;
 			    } while(--c);
-			    data = (uint8_t*)new;
+			    data = (uint8*)new;
 		    }
 		    break;
 		default:
@@ -1480,7 +1480,7 @@ static cairo_int_status_t check_composite_glyphs(const cairo_composite_rectangle
 	if(!CAIRO_RENDER_SUPPORTS_OPERATOR(display, extents->op))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
-	/* The glyph coordinates must be representable in an int16_t.
+	/* The glyph coordinates must be representable in an int16.
 	 * When possible, they will be expressed as an offset from the
 	 * previous glyph, otherwise they will be an offset from the
 	 * surface origin. If we can't guarantee this to be possible,

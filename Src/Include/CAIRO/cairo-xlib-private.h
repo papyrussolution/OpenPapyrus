@@ -96,12 +96,12 @@ struct _cairo_xlib_display {
 typedef struct _cairo_xlib_visual_info {
 	cairo_list_t link;
 	VisualID visualid;
-	struct { uint8_t a, r, g, b; } colors[256];
+	struct { uint8 a, r, g, b; } colors[256];
 
-	uint8_t cube_to_pseudocolor[CUBE_SIZE][CUBE_SIZE][CUBE_SIZE];
-	uint8_t field8_to_cube[256];
-	int8_t dither8_to_cube[256];
-	uint8_t gray8_to_pseudocolor[256];
+	uint8 cube_to_pseudocolor[CUBE_SIZE][CUBE_SIZE][CUBE_SIZE];
+	uint8 field8_to_cube[256];
+	int8 dither8_to_cube[256];
+	uint8 gray8_to_pseudocolor[256];
 } cairo_xlib_visual_info_t;
 
 struct _cairo_xlib_screen {
@@ -116,7 +116,7 @@ struct _cairo_xlib_screen {
 	cairo_font_options_t font_options;
 
 	GC gc[GC_CACHE_SIZE];
-	uint8_t gc_depths[GC_CACHE_SIZE];
+	uint8 gc_depths[GC_CACHE_SIZE];
 
 	cairo_list_t visuals;
 };

@@ -2650,7 +2650,7 @@ int SLAPI iSalesPepsi::Init(/*PPID arID*/)
 	Password = 0;
 	int    ok = 1;
 	{
-        Ep.GetExtStrData(Ep.extssRemoveAddr, SvcUrl);
+        Ep.GetExtStrData(Ep.extssRemoteAddr, SvcUrl);
         Ep.GetExtStrData(Ep.extssAccsName, UserName);
         Ep.GetExtStrData(Ep.extssAccsPassw, Password);
 		State |= stEpDefined;
@@ -4476,13 +4476,9 @@ private:
 	PPLogger & R_Logger;
 };
 
-SLAPI SapEfes::SapEfes(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger)
+SLAPI SapEfes::SapEfes(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger),
+	State(0), P_DestroyFunc(0)
 {
-	//P_BObj = BillObj;
-	State = 0;
-	//ArID = 0;
-	P_DestroyFunc = 0;
-	//BillExportPeriod.SetZero();
 	PPGetFilePath(PPPATH_LOG, "sapefes.log", LogFileName);
  	{
 		SString lib_path;
@@ -4511,7 +4507,7 @@ void SLAPI SapEfes::Init()
 	Password = 0;
 	Wareh = 0;
 	{
-        Ep.GetExtStrData(Ep.extssRemoveAddr, SvcUrl);
+        Ep.GetExtStrData(Ep.extssRemoteAddr, SvcUrl);
         Ep.GetExtStrData(Ep.extssAccsName, UserName);
         Ep.GetExtStrData(Ep.extssAccsPassw, Password);
 		Ep.GetExtStrData(Ep.extssClientCode, SalesOrg);

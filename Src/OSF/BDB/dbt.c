@@ -13,6 +13,12 @@ __db_dbt::__db_dbt()
 {
 	THISZERO();
 }
+
+__db_dbt::__db_dbt(uint32 f)
+{
+	THISZERO();
+	flags = f;
+}
 //
 // __dbt_usercopy --
 // Take a copy of the user's data, if a callback is supplied.

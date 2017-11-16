@@ -92,10 +92,10 @@ PIXMAN_BEGIN_DECLS
 #  include <inttypes.h>
 /* VS 2010 (_MSC_VER 1600) has stdint.h */
 #elif defined (_MSC_VER) && _MSC_VER < 1600
-	// @sobolev typedef __int8 int8_t;
-	typedef unsigned __int8 uint8_t;
-	typedef __int16 int16_t;
-	typedef unsigned __int16 uint16_t;
+	// @sobolev typedef __int8 int8;
+	typedef unsigned __int8 uint8;
+	typedef __int16 int16;
+	typedef unsigned __int16 uint16;
 	typedef __int32 int32_t;
 	typedef unsigned __int32 uint32_t;
 	typedef __int64 int64_t;
@@ -149,10 +149,10 @@ typedef struct pixman_vector pixman_vector_t;
 typedef struct pixman_transform pixman_transform_t;
 
 struct pixman_color {
-	uint16_t red;
-	uint16_t green;
-	uint16_t blue;
-	uint16_t alpha;
+	uint16 red;
+	uint16 green;
+	uint16 blue;
+	uint16 alpha;
 };
 
 struct pixman_point_fixed {
@@ -343,12 +343,12 @@ struct pixman_region16_data {
 };
 
 struct pixman_rectangle16 {
-	int16_t x, y;
-	uint16_t width, height;
+	int16 x, y;
+	uint16 width, height;
 };
 
 struct pixman_box16 {
-	int16_t x1, y1, x2, y2;
+	int16 x1, y1, x2, y2;
 };
 
 struct pixman_region16 {
@@ -472,7 +472,7 @@ struct pixman_gradient_stop {
 #define PIXMAN_MAX_INDEXED  256 /* XXX depth must be <= 8 */
 
 #if PIXMAN_MAX_INDEXED <= 256
-typedef uint8_t pixman_index_type;
+typedef uint8 pixman_index_type;
 #endif
 
 struct pixman_indexed {
@@ -496,11 +496,7 @@ struct pixman_indexed {
 #define PIXMAN_FORMAT_B(f)      (((f)      ) & 0x0f)
 #define PIXMAN_FORMAT_RGB(f)    (((f)      ) & 0xfff)
 #define PIXMAN_FORMAT_VIS(f)    (((f)      ) & 0xffff)
-#define PIXMAN_FORMAT_DEPTH(f)  (PIXMAN_FORMAT_A(f) +	\
-	    PIXMAN_FORMAT_R(f) +   \
-	    PIXMAN_FORMAT_G(f) +   \
-	    PIXMAN_FORMAT_B(f))
-
+#define PIXMAN_FORMAT_DEPTH(f)  (PIXMAN_FORMAT_A(f) + PIXMAN_FORMAT_R(f) + PIXMAN_FORMAT_G(f) + PIXMAN_FORMAT_B(f))
 #define PIXMAN_TYPE_OTHER       0
 #define PIXMAN_TYPE_A           1
 #define PIXMAN_TYPE_ARGB        2
@@ -513,11 +509,7 @@ struct pixman_indexed {
 #define PIXMAN_TYPE_RGBA        9
 #define PIXMAN_TYPE_ARGB_SRGB   10
 
-#define PIXMAN_FORMAT_COLOR(f)				\
-	(PIXMAN_FORMAT_TYPE(f) == PIXMAN_TYPE_ARGB ||	\
-	    PIXMAN_FORMAT_TYPE(f) == PIXMAN_TYPE_ABGR ||   \
-	    PIXMAN_FORMAT_TYPE(f) == PIXMAN_TYPE_BGRA ||   \
-	    PIXMAN_FORMAT_TYPE(f) == PIXMAN_TYPE_RGBA)
+#define PIXMAN_FORMAT_COLOR(f) oneof4(PIXMAN_FORMAT_TYPE(f), PIXMAN_TYPE_ARGB, PIXMAN_TYPE_ABGR, PIXMAN_TYPE_BGRA, PIXMAN_TYPE_RGBA)
 
 /* 32bpp formats */
 typedef enum {
@@ -534,18 +526,14 @@ typedef enum {
 	PIXMAN_a2r10g10b10 = PIXMAN_FORMAT(32, PIXMAN_TYPE_ARGB, 2, 10, 10, 10),
 	PIXMAN_x2b10g10r10 = PIXMAN_FORMAT(32, PIXMAN_TYPE_ABGR, 0, 10, 10, 10),
 	PIXMAN_a2b10g10r10 = PIXMAN_FORMAT(32, PIXMAN_TYPE_ABGR, 2, 10, 10, 10),
-
 /* sRGB formats */
 	PIXMAN_a8r8g8b8_sRGB = PIXMAN_FORMAT(32, PIXMAN_TYPE_ARGB_SRGB, 8, 8, 8, 8),
-
 /* 24bpp formats */
 	PIXMAN_r8g8b8 =      PIXMAN_FORMAT(24, PIXMAN_TYPE_ARGB, 0, 8, 8, 8),
 	PIXMAN_b8g8r8 =      PIXMAN_FORMAT(24, PIXMAN_TYPE_ABGR, 0, 8, 8, 8),
-
 /* 16bpp formats */
 	PIXMAN_r5g6b5 =      PIXMAN_FORMAT(16, PIXMAN_TYPE_ARGB, 0, 5, 6, 5),
 	PIXMAN_b5g6r5 =      PIXMAN_FORMAT(16, PIXMAN_TYPE_ABGR, 0, 5, 6, 5),
-
 	PIXMAN_a1r5g5b5 =    PIXMAN_FORMAT(16, PIXMAN_TYPE_ARGB, 1, 5, 5, 5),
 	PIXMAN_x1r5g5b5 =    PIXMAN_FORMAT(16, PIXMAN_TYPE_ARGB, 0, 5, 5, 5),
 	PIXMAN_a1b5g5r5 =    PIXMAN_FORMAT(16, PIXMAN_TYPE_ABGR, 1, 5, 5, 5),
@@ -554,35 +542,27 @@ typedef enum {
 	PIXMAN_x4r4g4b4 =    PIXMAN_FORMAT(16, PIXMAN_TYPE_ARGB, 0, 4, 4, 4),
 	PIXMAN_a4b4g4r4 =    PIXMAN_FORMAT(16, PIXMAN_TYPE_ABGR, 4, 4, 4, 4),
 	PIXMAN_x4b4g4r4 =    PIXMAN_FORMAT(16, PIXMAN_TYPE_ABGR, 0, 4, 4, 4),
-
 /* 8bpp formats */
 	PIXMAN_a8 =          PIXMAN_FORMAT(8, PIXMAN_TYPE_A, 8, 0, 0, 0),
 	PIXMAN_r3g3b2 =      PIXMAN_FORMAT(8, PIXMAN_TYPE_ARGB, 0, 3, 3, 2),
 	PIXMAN_b2g3r3 =      PIXMAN_FORMAT(8, PIXMAN_TYPE_ABGR, 0, 3, 3, 2),
 	PIXMAN_a2r2g2b2 =    PIXMAN_FORMAT(8, PIXMAN_TYPE_ARGB, 2, 2, 2, 2),
 	PIXMAN_a2b2g2r2 =    PIXMAN_FORMAT(8, PIXMAN_TYPE_ABGR, 2, 2, 2, 2),
-
 	PIXMAN_c8 =          PIXMAN_FORMAT(8, PIXMAN_TYPE_COLOR, 0, 0, 0, 0),
 	PIXMAN_g8 =          PIXMAN_FORMAT(8, PIXMAN_TYPE_GRAY, 0, 0, 0, 0),
-
 	PIXMAN_x4a4 =        PIXMAN_FORMAT(8, PIXMAN_TYPE_A, 4, 0, 0, 0),
-
 	PIXMAN_x4c4 =        PIXMAN_FORMAT(8, PIXMAN_TYPE_COLOR, 0, 0, 0, 0),
 	PIXMAN_x4g4 =        PIXMAN_FORMAT(8, PIXMAN_TYPE_GRAY, 0, 0, 0, 0),
-
 /* 4bpp formats */
 	PIXMAN_a4 =          PIXMAN_FORMAT(4, PIXMAN_TYPE_A, 4, 0, 0, 0),
 	PIXMAN_r1g2b1 =      PIXMAN_FORMAT(4, PIXMAN_TYPE_ARGB, 0, 1, 2, 1),
 	PIXMAN_b1g2r1 =      PIXMAN_FORMAT(4, PIXMAN_TYPE_ABGR, 0, 1, 2, 1),
 	PIXMAN_a1r1g1b1 =    PIXMAN_FORMAT(4, PIXMAN_TYPE_ARGB, 1, 1, 1, 1),
 	PIXMAN_a1b1g1r1 =    PIXMAN_FORMAT(4, PIXMAN_TYPE_ABGR, 1, 1, 1, 1),
-
 	PIXMAN_c4 =          PIXMAN_FORMAT(4, PIXMAN_TYPE_COLOR, 0, 0, 0, 0),
 	PIXMAN_g4 =          PIXMAN_FORMAT(4, PIXMAN_TYPE_GRAY, 0, 0, 0, 0),
-
 /* 1bpp formats */
 	PIXMAN_a1 =          PIXMAN_FORMAT(1, PIXMAN_TYPE_A, 1, 0, 0, 0),
-
 	PIXMAN_g1 =          PIXMAN_FORMAT(1, PIXMAN_TYPE_GRAY, 0, 0, 0, 0),
 
 /* YUV formats */
@@ -596,8 +576,7 @@ pixman_bool_t pixman_format_supported_source(pixman_format_code_t format);
 
 /* Constructors */
 pixman_image_t * FASTCALL pixman_image_create_solid_fill(const pixman_color_t * color);
-pixman_image_t * pixman_image_create_linear_gradient(const pixman_point_fixed_t * p1,
-    const pixman_point_fixed_t * p2, const pixman_gradient_stop_t * stops, int n_stops);
+pixman_image_t * pixman_image_create_linear_gradient(const pixman_point_fixed_t * p1, const pixman_point_fixed_t * p2, const pixman_gradient_stop_t * stops, int n_stops);
 pixman_image_t * pixman_image_create_radial_gradient(const pixman_point_fixed_t   * inner,
     const pixman_point_fixed_t * outer, pixman_fixed_t inner_radius, pixman_fixed_t outer_radius, const pixman_gradient_stop_t * stops,
     int n_stops);
@@ -620,7 +599,7 @@ pixman_bool_t pixman_image_set_transform(pixman_image_t * image, const pixman_tr
 void   pixman_image_set_repeat(pixman_image_t * image, pixman_repeat_t repeat);
 pixman_bool_t pixman_image_set_filter(pixman_image_t * image, pixman_filter_t filter, const pixman_fixed_t * filter_params, int n_filter_params);
 void   pixman_image_set_source_clipping(pixman_image_t * image, pixman_bool_t source_clipping);
-void   pixman_image_set_alpha_map(pixman_image_t * image, pixman_image_t * alpha_map, int16_t x, int16_t y);
+void   pixman_image_set_alpha_map(pixman_image_t * image, pixman_image_t * alpha_map, int16 x, int16 y);
 void   pixman_image_set_component_alpha(pixman_image_t * image, pixman_bool_t component_alpha);
 pixman_bool_t pixman_image_get_component_alpha(pixman_image_t * image);
 void   pixman_image_set_accessors(pixman_image_t * image, pixman_read_memory_func_t read_func, pixman_write_memory_func_t write_func);
@@ -668,26 +647,26 @@ pixman_bool_t pixman_compute_composite_region(pixman_region16_t * region,
     pixman_image_t    * src_image,
     pixman_image_t    * mask_image,
     pixman_image_t    * dest_image,
-    int16_t src_x,
-    int16_t src_y,
-    int16_t mask_x,
-    int16_t mask_y,
-    int16_t dest_x,
-    int16_t dest_y,
-    uint16_t width,
-    uint16_t height);
+    int16 src_x,
+    int16 src_y,
+    int16 mask_x,
+    int16 mask_y,
+    int16 dest_x,
+    int16 dest_y,
+    uint16 width,
+    uint16 height);
 void          pixman_image_composite(pixman_op_t op,
     pixman_image_t    * src,
     pixman_image_t    * mask,
     pixman_image_t    * dest,
-    int16_t src_x,
-    int16_t src_y,
-    int16_t mask_x,
-    int16_t mask_y,
-    int16_t dest_x,
-    int16_t dest_y,
-    uint16_t width,
-    uint16_t height);
+    int16 src_x,
+    int16 src_y,
+    int16 mask_x,
+    int16 mask_y,
+    int16 dest_x,
+    int16 dest_y,
+    uint16 width,
+    uint16 height);
 void          pixman_image_composite32(pixman_op_t op,
     pixman_image_t    * src,
     pixman_image_t    * mask,
@@ -790,8 +769,7 @@ typedef struct pixman_triangle pixman_triangle_t;
 
 /*
  * An edge structure.  This represents a single polygon edge
- * and can be quickly stepped across small or large gaps in the
- * sample grid
+ * and can be quickly stepped across small or large gaps in the sample grid
  */
 struct pixman_edge {
 	pixman_fixed_t x;
@@ -847,12 +825,12 @@ void           pixman_rasterize_edges(pixman_image_t            * image,
     pixman_fixed_t t,
     pixman_fixed_t b);
 void           pixman_add_traps(pixman_image_t            * image,
-    int16_t x_off,
-    int16_t y_off,
+    int16 x_off,
+    int16 y_off,
     int ntrap,
     const pixman_trap_t * traps);
 void           pixman_add_trapezoids(pixman_image_t            * image,
-    int16_t x_off,
+    int16 x_off,
     int y_off,
     int ntraps,
     const pixman_trapezoid_t  * traps);

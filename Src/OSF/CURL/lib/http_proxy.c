@@ -23,18 +23,7 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #if !defined(CURL_DISABLE_PROXY) && !defined(CURL_DISABLE_HTTP)
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "http_proxy.h"
-//#include "sendf.h"
-//#include "http.h"
-//#include "url.h"
-//#include "select.h"
-//#include "progress.h"
-//#include "non-ascii.h"
-//#include "connect.h"
 #include "curlx.h"
-//#include "vtls/vtls.h"
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"
 //#include "curl_memory.h"

@@ -87,7 +87,7 @@ void cairo_debug_reset_static_data(void)
 void _cairo_debug_check_image_surface_is_defined(const cairo_surface_t * surface)
 {
 	const cairo_image_surface_t * image = (cairo_image_surface_t*)surface;
-	const uint8_t * bits;
+	const uint8 * bits;
 	int row, width;
 
 	if(!surface)

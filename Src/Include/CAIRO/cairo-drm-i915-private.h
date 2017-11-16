@@ -651,11 +651,11 @@ struct i915_device {
 		size_t gtt_avail_size;
 		size_t est_gtt_size;
 		size_t total_gtt_size;
-		uint16_t fences;
-		uint16_t fences_avail;
-		uint16_t reloc_count;
-		uint16_t exec_count;
-		uint16_t used;
+		uint16 fences;
+		uint16 fences_avail;
+		uint16 reloc_count;
+		uint16 exec_count;
+		uint16 used;
 		struct drm_i915_gem_exec_object2 exec[I915_MAX_RELOCS];
 		struct drm_i915_gem_relocation_entry reloc[I915_MAX_RELOCS];
 	} batch;
@@ -692,7 +692,7 @@ struct i915_device {
 	cairo_list_t image_caches[2];
 	uint32_t batch_header[13];
 	uint32_t batch_base[I915_BATCH_SIZE / sizeof(uint32_t)];
-	uint8_t vbo_base[I915_VBO_SIZE];
+	uint8 vbo_base[I915_VBO_SIZE];
 };
 
 enum {

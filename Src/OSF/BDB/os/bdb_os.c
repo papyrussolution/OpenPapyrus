@@ -157,12 +157,9 @@ int __os_strdup(ENV * env, const char * str, void * storep)
 	return 0;
 }
 /*
- * __os_calloc --
  *	The calloc(3) function for DB.
- *
- * PUBLIC: int __os_calloc __P((ENV *, size_t, size_t, void *));
  */
-int __os_calloc(ENV * env, size_t num, size_t size, void * storep)
+int FASTCALL __os_calloc(ENV * env, size_t num, size_t size, void * storep)
 {
 	int ret;
 	size *= num;
@@ -172,12 +169,9 @@ int __os_calloc(ENV * env, size_t num, size_t size, void * storep)
 	return 0;
 }
 /*
- * __os_malloc --
  *	The SAlloc::M(3) function for DB.
- *
- * PUBLIC: int __os_malloc(ENV *, size_t, void *);
  */
-int __os_malloc(ENV * env, size_t size, void * storep)
+int FASTCALL __os_malloc(ENV * env, size_t size, void * storep)
 {
 	int ret;
 	void * p;
@@ -225,7 +219,7 @@ int __os_malloc(ENV * env, size_t size, void * storep)
  *
  * PUBLIC: int __os_realloc(ENV *, size_t, void *);
  */
-int __os_realloc(ENV * env, size_t size, void * storep)
+int FASTCALL __os_realloc(ENV * env, size_t size, void * storep)
 {
 	int ret;
 	void * p;

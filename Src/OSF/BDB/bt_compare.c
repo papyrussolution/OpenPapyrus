@@ -52,9 +52,8 @@ int __bam_cmp(DBC*dbc, const DBT * dbt, PAGE * h, uint32 indx, int (*func)(DB*, 
 	BINTERNAL * bi;
 	BKEYDATA * bk;
 	BOVERFLOW * bo;
-	DB * dbp;
 	DBT pg_dbt;
-	dbp = dbc->dbp;
+	DB * dbp = dbc->dbp;
 	/*
 	 * Returns:
 	 *	< 0 if dbt is < page record

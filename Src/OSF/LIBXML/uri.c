@@ -1599,6 +1599,17 @@ xmlChar * FASTCALL xmlURIEscapeStr(const xmlChar * str, const xmlChar * list)
 	return ret;
 }
 
+static int FASTCALL _UriNullCheck(const void * p, xmlURI * pUri)
+{
+	//#define NULLCHK(p) if(!p) { xmlURIErrMemory("escaping URI value\n"); xmlFreeURI(uri); return NULL; }
+	if(!p) {
+		xmlURIErrMemory("escaping URI value\n"); 
+		xmlFreeURI(pUri);
+		return 0;
+	}
+	else
+		return 1;
+}
 /**
  * xmlURIEscape:
  * @str:  the string of the URI to escape
@@ -1617,16 +1628,17 @@ xmlChar * FASTCALL xmlURIEscapeStr(const xmlChar * str, const xmlChar * list)
 xmlChar * FASTCALL xmlURIEscape(const xmlChar * str)
 {
 	xmlChar * ret, * segment = NULL;
-	xmlURIPtr uri;
+	xmlURI * uri = 0;
 	int ret2;
-#define NULLCHK(p) if(!p) { xmlURIErrMemory("escaping URI value\n"); xmlFreeURI(uri); return NULL; }
+//#define NULLCHK(p) if(!p) { xmlURIErrMemory("escaping URI value\n"); xmlFreeURI(uri); return NULL; }
+#define NULLCHK(p) if(!_UriNullCheck(p, uri)) return NULL;
 	if(!str)
 		return 0;
 	uri = xmlCreateURI();
 	if(uri) {
-		/*
-		 * Allow escaping errors in the unescaped form
-		 */
+		// 
+		// Allow escaping errors in the unescaped form
+		// 
 		uri->cleanup = 1;
 		ret2 = xmlParseURIReference(uri, (const char*)str);
 		if(ret2) {
@@ -1679,7 +1691,6 @@ xmlChar * FASTCALL xmlURIEscape(const xmlChar * str)
 		ret = xmlStrcat(ret, segment);
 		SAlloc::F(segment);
 	}
-
 	if(uri->query_raw) {
 		ret = xmlStrcat(ret, BAD_CAST "?");
 		ret = xmlStrcat(ret, BAD_CAST uri->query_raw);
@@ -1787,7 +1798,6 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 		val = xmlSaveUri(bas);
 		goto done;
 	}
-
 	/*
 	 * 2) If the path component is empty and the scheme, authority, and
 	 *    query components are undefined, then it is a reference to the

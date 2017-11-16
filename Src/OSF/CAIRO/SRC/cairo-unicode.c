@@ -362,10 +362,10 @@ int FASTCALL _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8)
  **/
 cairo_status_t _cairo_utf8_to_utf16(const char * str,
     int len,
-    uint16_t ** result,
+    uint16 ** result,
     int       * items_written)
 {
-	uint16_t * str16 = NULL;
+	uint16 * str16 = NULL;
 	int n16, i;
 	const uchar * in;
 	const uchar * const ustr = (const uchar*)str;
@@ -384,7 +384,7 @@ cairo_status_t _cairo_utf8_to_utf16(const char * str,
 			return _cairo_error(CAIRO_STATUS_INVALID_STRING);
 		in = UTF8_NEXT_CHAR(in);
 	}
-	str16 = (uint16_t *)_cairo_malloc_ab(n16 + 1, sizeof(uint16_t));
+	str16 = (uint16 *)_cairo_malloc_ab(n16 + 1, sizeof(uint16));
 	if(!str16)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 

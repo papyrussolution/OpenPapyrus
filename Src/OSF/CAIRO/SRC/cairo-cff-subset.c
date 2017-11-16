@@ -100,10 +100,10 @@
 #define MAX_SUBROUTINE_NESTING 10 /* From Type2 Charstring spec */
 
 typedef struct _cff_header {
-	uint8_t major;
-	uint8_t minor;
-	uint8_t header_size;
-	uint8_t offset_size;
+	uint8 major;
+	uint8 minor;
+	uint8 header_size;
+	uint8 offset_size;
 } cff_header_t;
 
 typedef struct _cff_index_element {
@@ -450,12 +450,12 @@ static cairo_status_t FASTCALL cff_index_write(cairo_array_t * index, cairo_arra
 	int num_elem;
 	int i;
 	cff_index_element_t * element;
-	uint16_t count;
+	uint16 count;
 	uchar buf[5];
 	cairo_status_t status;
 
 	num_elem = _cairo_array_num_elements(index);
-	count = cpu_to_be16((uint16_t)num_elem);
+	count = cpu_to_be16((uint16)num_elem);
 	status = _cairo_array_append_multiple(output, &count, 2);
 	if(unlikely(status))
 		return status;
@@ -1301,7 +1301,7 @@ static uchar * type2_decode_integer(uchar * p, int * integer)
 	}
 	else { /* *p == 255 */
 		/* 16.16 fixed-point number. The fraction is ignored. */
-		*integer = (int16_t)((p[1] << 8) | p[2]);
+		*integer = (int16)((p[1] << 8) | p[2]);
 		p += 5;
 	}
 	return p;
@@ -1872,7 +1872,7 @@ FAIL:
 
 static cairo_status_t cairo_cff_font_write_top_dict(cairo_cff_font_t * font)
 {
-	uint16_t count;
+	uint16 count;
 	uchar buf[10];
 	uchar * p;
 	int offset_index;
@@ -1975,7 +1975,7 @@ static cairo_status_t cairo_cff_font_write_fdselect(cairo_cff_font_t  * font)
 	}
 	else {
 		uchar byte;
-		uint16_t word;
+		uint16 word;
 		status = _cairo_array_grow_by(&font->output, 9);
 		if(unlikely(status))
 			return status;
@@ -2059,7 +2059,7 @@ static cairo_status_t cairo_cff_font_write_type1_charset(cairo_cff_font_t  * fon
 	uint i;
 	int ch, sid;
 	cairo_status_t status;
-	uint16_t sid_be16;
+	uint16 sid_be16;
 
 	cairo_cff_font_set_topdict_operator_to_cur_pos(font, CHARSET_OP);
 	status = _cairo_array_append(&font->output, &format);
@@ -2084,7 +2084,7 @@ static cairo_status_t cairo_cff_font_write_type1_charset(cairo_cff_font_t  * fon
 static cairo_status_t cairo_cff_font_write_cid_charset(cairo_cff_font_t  * font)
 {
 	uchar byte;
-	uint16_t word;
+	uint16 word;
 	cairo_status_t status;
 
 	cairo_cff_font_set_topdict_operator_to_cur_pos(font, CHARSET_OP);
@@ -2121,12 +2121,12 @@ static cairo_status_t cairo_cff_font_write_cid_fontdict(cairo_cff_font_t * font)
 	uint offset_array;
 	uchar * offset_array_ptr;
 	int offset_base;
-	uint16_t count;
-	uint8_t offset_size = 4;
+	uint16 count;
+	uint8 offset_size = 4;
 
 	cairo_cff_font_set_topdict_operator_to_cur_pos(font, FDARRAY_OP);
 	count = cpu_to_be16(font->num_subset_fontdicts);
-	status = _cairo_array_append_multiple(&font->output, &count, sizeof(uint16_t));
+	status = _cairo_array_append_multiple(&font->output, &count, sizeof(uint16));
 	if(unlikely(status))
 		return status;
 	status = _cairo_array_append(&font->output, &offset_size);
@@ -2388,7 +2388,7 @@ static cairo_int_status_t cairo_cff_font_create_set_widths(cairo_cff_font_t * fo
 	uint i;
 	tt_hhea_t hhea;
 	int num_hmetrics;
-	uint16_t short_entry;
+	uint16 short_entry;
 	int glyph_index;
 	cairo_int_status_t status;
 
@@ -2402,8 +2402,8 @@ static cairo_int_status_t cairo_cff_font_create_set_widths(cairo_cff_font_t * fo
 
 	for(i = 0; i < font->scaled_font_subset->num_glyphs; i++) {
 		glyph_index = font->scaled_font_subset->glyphs[i];
-		long_entry_size = 2 * sizeof(int16_t);
-		short_entry_size = sizeof(int16_t);
+		long_entry_size = 2 * sizeof(int16);
+		short_entry_size = sizeof(int16);
 		if(glyph_index < num_hmetrics) {
 			status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font,
 			    TT_TAG_hmtx,
@@ -2482,13 +2482,13 @@ static cairo_int_status_t _cairo_cff_font_load_opentype_cff(cairo_cff_font_t  * 
 	if(unlikely(status))
 		return status;
 
-	font->x_min = (int16_t)be16_to_cpu(head.x_min);
-	font->y_min = (int16_t)be16_to_cpu(head.y_min);
-	font->x_max = (int16_t)be16_to_cpu(head.x_max);
-	font->y_max = (int16_t)be16_to_cpu(head.y_max);
-	font->ascent = (int16_t)be16_to_cpu(hhea.ascender);
-	font->descent = (int16_t)be16_to_cpu(hhea.descender);
-	font->units_per_em = (int16_t)be16_to_cpu(head.units_per_em);
+	font->x_min = (int16)be16_to_cpu(head.x_min);
+	font->y_min = (int16)be16_to_cpu(head.y_min);
+	font->x_max = (int16)be16_to_cpu(head.x_max);
+	font->y_max = (int16)be16_to_cpu(head.y_max);
+	font->ascent = (int16)be16_to_cpu(hhea.ascender);
+	font->descent = (int16)be16_to_cpu(hhea.descender);
+	font->units_per_em = (int16)be16_to_cpu(head.units_per_em);
 	if(font->units_per_em == 0)
 		font->units_per_em = 1000;
 

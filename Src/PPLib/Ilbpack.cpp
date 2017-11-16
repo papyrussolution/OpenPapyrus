@@ -3060,11 +3060,12 @@ int SLAPI PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, Obj
 					// локацию-получателя. Пускай раздел, с которого была сделана передача, сам
 					// переносит этот межсклад в такой раздел.
 					//
-					if(IsIntrOp(op_id) == INTRRCPT && CConfig.IntrReceiptOp == op_id)
+					if(IsIntrOp(op_id) == INTRRCPT && CConfig.IntrReceiptOp == op_id) {
 						if(rDestDbDivPack.ResponsibleForLoc(PPObjLocation::ObjToWarehouse(bill_rec.Object), 0)) {
 							msg_id = PPTXT_LOG_NTRANS_BILLINTRRC;
 							ok = -1;
 						}
+					}
 					//
 					// Не следует передавать документы списания инвентаризации, поскольку инвентаризация //
 					// сама передается как документ и подлежит списанию в другом разделе

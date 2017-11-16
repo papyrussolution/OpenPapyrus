@@ -55,7 +55,6 @@ int __db_cursor_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, 
 		return ret;
 	}
 #endif
-
 	TAILQ_FOREACH(dbc, &dbp->free_queue, links)
 	if(dbtype == dbc->dbtype) {
 		TAILQ_REMOVE(&dbp->free_queue, dbc, links);
@@ -68,7 +67,6 @@ int __db_cursor_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, 
 			return ret;
 		allocated = 1;
 		dbc->flags = 0;
-
 		dbc->dbp = dbp;
 		dbc->dbenv = dbp->dbenv;
 		dbc->env = dbp->env;
@@ -85,7 +83,7 @@ int __db_cursor_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, 
 			 * environment handles.
 			 */
 			if(!DB_IS_THREADED(dbp)) {
-				if(env->env_lref == NULL) {
+				if(!env->env_lref) {
 					if((ret = __lock_id(env, NULL, &env->env_lref)) != 0)
 						goto err;
 					envlid = 1;
@@ -102,8 +100,7 @@ int __db_cursor_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, 
 			 * !!!
 			 * Since this is in the one-time cursor allocation
 			 * code, we need to be sure to destroy, not just
-			 * close, all cursors in the secondary when we
-			 * associate.
+			 * close, all cursors in the secondary when we associate.
 			 */
 			if(CDB_LOCKING(env) && F_ISSET(dbp, DB_AM_SECONDARY))
 				memcpy(dbc->lock.fileid, dbp->s_primary->fileid, DB_FILE_ID_LEN);
@@ -133,7 +130,7 @@ int __db_cursor_int(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBTYPE dbtype, 
 				dbc->lock_dbt.data = &dbc->lock;
 			}
 		}
-		/* Init the DBC internal structure. */
+		// Init the DBC internal structure
 #ifdef HAVE_PARTITION
 		if(DB_IS_PARTITIONED(dbp)) {
 			if((ret = __partc_init(dbc)) != 0)

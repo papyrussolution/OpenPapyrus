@@ -1276,7 +1276,7 @@ static inline int multiply_alpha(int alpha, int color)
 	return (temp + (temp >> 8)) >> 8;
 }
 
-static void premultiply_argb(uint8_t   * data,
+static void premultiply_argb(uint8   * data,
     int width,
     int height,
     int stride)
@@ -1288,16 +1288,16 @@ static void premultiply_argb(uint8_t   * data,
 
 		for(i = 0; i < width; i++) {
 			uint32_t p = row[i];
-			uint8_t alpha;
+			uint8 alpha;
 
 			alpha = p >> 24;
 			if(alpha == 0) {
 				row[i] = 0;
 			}
 			else if(alpha != 0xff) {
-				uint8_t r = multiply_alpha(alpha, (p >> 16) & 0xff);
-				uint8_t g = multiply_alpha(alpha, (p >>  8) & 0xff);
-				uint8_t b = multiply_alpha(alpha, (p >>  0) & 0xff);
+				uint8 r = multiply_alpha(alpha, (p >> 16) & 0xff);
+				uint8 g = multiply_alpha(alpha, (p >>  8) & 0xff);
+				uint8 b = multiply_alpha(alpha, (p >>  0) & 0xff);
 				row[i] = (alpha << 24) | (r << 16) | (g << 8) | (b << 0);
 			}
 		}

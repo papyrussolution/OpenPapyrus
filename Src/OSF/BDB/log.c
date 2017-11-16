@@ -11,8 +11,25 @@
 
 static int __log_init(ENV*, DB_LOG *);
 static int __log_recover(DB_LOG *);
+
+void __db_lsn::Clear()
+{
+	file = 0;
+	Offset_ = 0;
+}
+
+int __db_lsn::IsZero() const
+{
+	return (file == 0 && Offset_ == 0);
+}
+
+void __db_lsn::NotLogged()
+{
+	//#define LSN_NOT_LOGGED(LSN)     do { (LSN).file = 0; (LSN).Offset_ = 1; } while (0)
+	file = 0;
+	Offset_ = 1;
+}
 /*
- * __log_open --
  *	Internal version of log_open: only called from ENV->open.
  */
 int __log_open(ENV * env)

@@ -591,7 +591,7 @@ int __dbc_get(DBC * dbc, DBT * key, DBT * data, uint32 flags)
  *
  * PUBLIC: int __dbc_iget __P((DBC *, DBT *, DBT *, uint32));
  */
-int __dbc_iget(DBC * dbc, DBT * key, DBT * data, uint32 flags)
+int FASTCALL __dbc_iget(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 {
 	DB * dbp;
 	DBC * ddbc, * dbc_n, * opd;
@@ -1617,10 +1617,7 @@ int __dbc_put(DBC*dbc, DBT * key, DBT * data, uint32 flags)
 	return __dbc_iput(dbc, key, data, flags);
 }
 /*
- * __dbc_iput --
  *	Implementation of put using a cursor.
- *
- * PUBLIC: int __dbc_iput __P((DBC *, DBT *, DBT *, uint32));
  */
 int __dbc_iput(DBC*dbc, DBT * key, DBT * data, uint32 flags)
 {

@@ -1607,6 +1607,7 @@ struct LDATETIME {
 	LDATETIME & SLAPI SetZero();
 	LDATETIME & SLAPI SetFar();
 	LDATETIME & FASTCALL SetTimeT(time_t t);
+	time_t SLAPI GetTimeT() const;
 	int    SLAPI IsFar() const;
 	//
 	// Decr: Устанавливает дату-время, разбирая строку pText в соответствии с форматами datf и timf.

@@ -115,7 +115,7 @@ XMLPUBFUN int XMLCALL xmlTextReaderSetup(xmlTextReader * reader, xmlParserInputB
 /*
  * Iterators
  */
-XMLPUBFUN int XMLCALL xmlTextReaderRead(xmlTextReader * reader);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlTextReaderRead(xmlTextReader * reader);
 
 #ifdef LIBXML_WRITER_ENABLED
 XMLPUBFUN xmlChar * XMLCALL xmlTextReaderReadInnerXml(xmlTextReader * reader);

@@ -684,8 +684,7 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    break;
 		case CURLOPT_TRANSFERTEXT:
 		    /*
-		     * This option was previously named 'FTPASCII'. Renamed to work with
-		     * more protocols than merely FTP.
+		     * This option was previously named 'FTPASCII'. Renamed to work with more protocols than merely FTP.
 		     *
 		     * Transfer using ASCII (instead of BINARY).
 		     */
@@ -3408,20 +3407,14 @@ static CURLcode findprotocol(struct Curl_easy * data, struct connectdata * conn,
 	   when the protocol specific setup function is called. */
 	for(pp = protocols; (p = *pp) != NULL; pp++) {
 		if(strcasecompare(p->scheme, protostr)) {
-			/* Protocol found in table. Check if allowed */
+			// Protocol found in table. Check if allowed 
 			if(!(data->set.allowed_protocols & p->protocol))
-				/* nope, get out */
-				break;
-
-			/* it is allowed for "normal" request, now do an extra check if this is
-			   the result of a redirect */
+				break; // nope, get out 
+			// it is allowed for "normal" request, now do an extra check if this is the result of a redirect 
 			if(data->state.this_is_a_follow && !(data->set.redir_protocols & p->protocol))
-				/* nope, get out */
-				break;
-			/* Perform setup complement if some. */
-			conn->handler = conn->given = p;
-			/* 'port' and 'remote_port' are set in setup_connection_internals() */
-			return CURLE_OK;
+				break; // nope, get out 
+			conn->handler = conn->given = p; // Perform setup complement if some
+			return CURLE_OK; // 'port' and 'remote_port' are set in setup_connection_internals() 
 		}
 	}
 	/* The protocol was not found in the table, but we don't have to assign it

@@ -33,14 +33,14 @@ PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (armv6, src_8888_8888,
 PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (armv6, src_x888_8888,
                                    uint32_t, 1, uint32_t, 1)
 PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (armv6, src_0565_0565,
-                                   uint16_t, 1, uint16_t, 1)
+                                   uint16, 1, uint16, 1)
 PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (armv6, src_8_8,
-                                   uint8_t, 1, uint8_t, 1)
+                                   uint8, 1, uint8, 1)
 PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (armv6, src_0565_8888,
-                                   uint16_t, 1, uint32_t, 1)
+                                   uint16, 1, uint32_t, 1)
 
 PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (armv6, add_8_8,
-                                   uint8_t, 1, uint8_t, 1)
+                                   uint8, 1, uint8, 1)
 PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (armv6, over_8888_8888,
                                    uint32_t, 1, uint32_t, 1)
 
@@ -48,10 +48,10 @@ PIXMAN_ARM_BIND_FAST_PATH_SRC_N_DST (SKIP_ZERO_MASK, armv6, over_8888_n_8888,
                                      uint32_t, 1, uint32_t, 1)
 
 PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, armv6, over_n_8_8888,
-                                      uint8_t, 1, uint32_t, 1)
+                                      uint8, 1, uint32_t, 1)
 
 PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_DST (armv6, 0565_0565, SRC,
-                                        uint16_t, uint16_t)
+                                        uint16, uint16)
 PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_DST (armv6, 8888_8888, SRC,
                                         uint32_t, uint32_t)
 
@@ -65,16 +65,16 @@ pixman_composite_src_n_8888_asm_armv6 (int32_t   w,
 void
 pixman_composite_src_n_0565_asm_armv6 (int32_t   w,
                                        int32_t   h,
-                                       uint16_t *dst,
+                                       uint16 *dst,
                                        int32_t   dst_stride,
-                                       uint16_t  src);
+                                       uint16  src);
 
 void
 pixman_composite_src_n_8_asm_armv6 (int32_t   w,
                                     int32_t   h,
-                                    uint8_t  *dst,
+                                    uint8  *dst,
                                     int32_t   dst_stride,
-                                    uint8_t  src);
+                                    uint8  src);
 
 static pixman_bool_t
 arm_simd_fill (pixman_implementation_t *imp,
@@ -96,7 +96,7 @@ arm_simd_fill (pixman_implementation_t *imp,
 	pixman_composite_src_n_8_asm_armv6 (
 		width,
 		height,
-		(uint8_t *)(((char *) bits) + y * byte_stride + x),
+		(uint8 *)(((char *) bits) + y * byte_stride + x),
 		byte_stride,
 		_xor & 0xff);
 	return TRUE;
@@ -104,7 +104,7 @@ arm_simd_fill (pixman_implementation_t *imp,
 	pixman_composite_src_n_0565_asm_armv6 (
 		width,
 		height,
-		(uint16_t *)(((char *) bits) + y * byte_stride + x * 2),
+		(uint16 *)(((char *) bits) + y * byte_stride + x * 2),
 		byte_stride / 2,
 		_xor & 0xffff);
 	return TRUE;
@@ -144,17 +144,17 @@ arm_simd_blt (pixman_implementation_t *imp,
     case 8:
         pixman_composite_src_8_8_asm_armv6 (
                 width, height,
-                (uint8_t *)(((char *) dst_bits) +
+                (uint8 *)(((char *) dst_bits) +
                 dest_y * dst_stride * 4 + dest_x * 1), dst_stride * 4,
-                (uint8_t *)(((char *) src_bits) +
+                (uint8 *)(((char *) src_bits) +
                 src_y * src_stride * 4 + src_x * 1), src_stride * 4);
         return TRUE;
     case 16:
 	pixman_composite_src_0565_0565_asm_armv6 (
 		width, height,
-		(uint16_t *)(((char *) dst_bits) +
+		(uint16 *)(((char *) dst_bits) +
 		dest_y * dst_stride * 4 + dest_x * 2), dst_stride * 2,
-		(uint16_t *)(((char *) src_bits) +
+		(uint16 *)(((char *) src_bits) +
 		src_y * src_stride * 4 + src_x * 2), src_stride * 2);
 	return TRUE;
     case 32:

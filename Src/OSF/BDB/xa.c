@@ -355,8 +355,7 @@ static int __db_xa_close(char * xa_info, int rmid, long arg_flags)
 		return XAER_RMFAIL;
 	/*
 	 * If we are calling close without ever having called open, then we
-	 * don't want to do anything, because if we do, our ref counts would
-	 * be all wrong.
+	 * don't want to do anything, because if we do, our ref counts would be all wrong.
 	 */
 	if(ip->dbth_xa_status == TXN_XA_THREAD_NOTA) {
 		ret = XAER_PROTO;
@@ -411,24 +410,23 @@ static int __db_xa_start(XID * xid, int rmid, long arg_flags)
 	if(__db_rmid_to_env(rmid, &env) != 0)
 		return XAER_PROTO;
 	dbenv = env->dbenv;
-	/* Die if the environment is corrupted. */
+	// Die if the environment is corrupted
 	PANIC_CHECK_RET(env, ret);
 	if(ret == DB_RUNRECOVERY)
 		exit(1);
-	/*
-	 * If td comes back NULL, then we know that we don't have a
-	 * transaction yet.
-	 */
+	// 
+	// If td comes back NULL, then we know that we don't have a transaction yet.
+	// 
 	if((ret = __db_xid_to_txn(env, xid, &td)) != 0) {
 		dbenv->err(dbenv, ret, DB_STR("4550", "xa_start: failure mapping xid"));
 		return XAER_RMFAIL;
 	}
-	/*
-	 * This can't block, so we can ignore TMNOWAIT.
-	 *
-	 * Other error conditions: RMERR, OUTSIDE, PROTO, RB*
-	 */
-	if(td != NULL) {
+	// 
+	// This can't block, so we can ignore TMNOWAIT.
+	// 
+	// Other error conditions: RMERR, OUTSIDE, PROTO, RB*
+	// 
+	if(td) {
 		if(td->xa_br_status == TXN_XA_DEADLOCKED)
 			return XA_RBDEADLOCK;
 		if(td->xa_br_status == TXN_XA_ROLLEDBACK)
@@ -438,7 +436,6 @@ static int __db_xa_start(XID * xid, int rmid, long arg_flags)
 		return ret;
 	return XA_OK;
 }
-
 /*
  * __db_xa_end --
  *	Disassociate the current transaction from the current process.

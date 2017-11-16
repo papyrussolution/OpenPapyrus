@@ -946,7 +946,7 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr inp
 	int nbchars;
 	if(handler == NULL)
 		return -1;
-	if(input == NULL)
+	if(!input)
 		return -1;
 	if(input->buf != NULL) {
 		if(input->buf->encoder != NULL) {

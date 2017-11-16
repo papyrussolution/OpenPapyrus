@@ -247,11 +247,11 @@ for $sym (@combined) {
 print qq( $s\n);
 print "};\n\n";
 
-print "static const int16_t ps_standard_encoding_offset[256] = {\n";
+print "static const int16 ps_standard_encoding_offset[256] = {\n";
 print_offsets(@ps_standard_encoding);
 print "};\n";
 
-print "static const int16_t winansi_encoding_offset[256] = {\n";
+print "static const int16 winansi_encoding_offset[256] = {\n";
 print_offsets(@winansi_encoding);
 print "};\n";
 
@@ -296,7 +296,7 @@ static const char glyph_name_symbol[] = {
   "ydieresis\0"
 };
 
-static const int16_t ps_standard_encoding_offset[256] = {
+static const int16 ps_standard_encoding_offset[256] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 1/*space*/, 7/*exclam*/, 14/*quotedbl*/, 23/*numbersign*/,
   34/*dollar*/, 41/*percent*/, 49/*ampersand*/, 59/*quoteright*/,
@@ -333,7 +333,7 @@ static const int16_t ps_standard_encoding_offset[256] = {
   900/*germandbls*/, 0, 0, 0, 0,
 };
 
-static const int16_t winansi_encoding_offset[256] = {
+static const int16 winansi_encoding_offset[256] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 1/*space*/, 7/*exclam*/, 14/*quotedbl*/, 23/*numbersign*/,
   34/*dollar*/, 41/*percent*/, 49/*ampersand*/, 498/*quotesingle*/,

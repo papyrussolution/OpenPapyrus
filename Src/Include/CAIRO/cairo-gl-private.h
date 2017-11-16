@@ -221,7 +221,7 @@ typedef void (*cairo_gl_emit_rect_t)(cairo_gl_context_t * ctx,
 typedef void (*cairo_gl_emit_span_t)(cairo_gl_context_t * ctx,
     GLfloat x1, GLfloat y1,
     GLfloat x2, GLfloat y2,
-    uint8_t alpha);
+    uint8 alpha);
 
 typedef void (*cairo_gl_emit_glyph_t)(cairo_gl_context_t * ctx,
     GLfloat x1, GLfloat y1,

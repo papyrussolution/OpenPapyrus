@@ -1044,9 +1044,7 @@ static CURLcode pop3_regular_transfer(struct connectdata * conn, bool * dophase_
 	// Carry out the perform 
 	result = pop3_perform(conn, &connected, dophase_done);
 	// Perform post DO phase operations if necessary 
-	if(!result && *dophase_done)
-		result = pop3_dophase_done(conn, connected);
-	return result;
+	return (!result && *dophase_done) ? pop3_dophase_done(conn, connected) : result;
 }
 
 static CURLcode pop3_setup_connection(struct connectdata * conn)

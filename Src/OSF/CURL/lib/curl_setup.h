@@ -77,7 +77,6 @@
 /* before this point. As a result of all this we frown inclusion of */
 /* system header files in our config files, avoid this at any cost. */
 /* ================================================================ */
-
 /*
  * AIX 4.3 and newer needs _THREAD_SAFE defined to build
  * proper reentrant code. Others may also need it.
@@ -104,78 +103,72 @@
 		#define _POSIX_PTHREAD_SEMANTICS 1
 	#endif
 #endif
-
 /* ================================================================ */
 /*  If you need to include a system header file for your platform,  */
 /*  please, do it beyond the point further indicated in this file.  */
 /* ================================================================ */
-
 #include <curl/curl.h>
-/*
- * Ensure that no one is using the old SIZEOF_CURL_OFF_T macro
- */
-
+// 
+// Ensure that no one is using the old SIZEOF_CURL_OFF_T macro
+// 
 #ifdef SIZEOF_CURL_OFF_T
 #error "SIZEOF_CURL_OFF_T shall not be defined!"
    Error Compilation_aborted_SIZEOF_CURL_OFF_T_shall_not_be_defined
 #endif
-/*
- * Disable other protocols when http is the only one desired.
- */
+// 
+// Disable other protocols when http is the only one desired.
+// 
 #ifdef HTTP_ONLY
-#  ifndef CURL_DISABLE_TFTP
-#    define CURL_DISABLE_TFTP
-#  endif
-#  ifndef CURL_DISABLE_FTP
-#    define CURL_DISABLE_FTP
-#  endif
-#  ifndef CURL_DISABLE_LDAP
-#    define CURL_DISABLE_LDAP
-#  endif
-#  ifndef CURL_DISABLE_TELNET
-#    define CURL_DISABLE_TELNET
-#  endif
-#  ifndef CURL_DISABLE_DICT
-#    define CURL_DISABLE_DICT
-#  endif
-#  ifndef CURL_DISABLE_FILE
-#    define CURL_DISABLE_FILE
-#  endif
-#  ifndef CURL_DISABLE_RTSP
-#    define CURL_DISABLE_RTSP
-#  endif
-#  ifndef CURL_DISABLE_POP3
-#    define CURL_DISABLE_POP3
-#  endif
-#  ifndef CURL_DISABLE_IMAP
-#    define CURL_DISABLE_IMAP
-#  endif
-#  ifndef CURL_DISABLE_SMTP
-#    define CURL_DISABLE_SMTP
-#  endif
-#  ifndef CURL_DISABLE_RTMP
-#    define CURL_DISABLE_RTMP
-#  endif
-#  ifndef CURL_DISABLE_GOPHER
-#    define CURL_DISABLE_GOPHER
-#  endif
-#  ifndef CURL_DISABLE_SMB
-#    define CURL_DISABLE_SMB
-#  endif
+	#ifndef CURL_DISABLE_TFTP
+		#define CURL_DISABLE_TFTP
+	#endif
+	#ifndef CURL_DISABLE_FTP
+		#define CURL_DISABLE_FTP
+	#endif
+	#ifndef CURL_DISABLE_LDAP
+		#define CURL_DISABLE_LDAP
+	#endif
+	#ifndef CURL_DISABLE_TELNET
+		#define CURL_DISABLE_TELNET
+	#endif
+	#ifndef CURL_DISABLE_DICT
+		#define CURL_DISABLE_DICT
+	#endif
+	#ifndef CURL_DISABLE_FILE
+		#define CURL_DISABLE_FILE
+	#endif
+	#ifndef CURL_DISABLE_RTSP
+		#define CURL_DISABLE_RTSP
+	#endif
+	#ifndef CURL_DISABLE_POP3
+		#define CURL_DISABLE_POP3
+	#endif
+	#ifndef CURL_DISABLE_IMAP
+		#define CURL_DISABLE_IMAP
+	#endif
+	#ifndef CURL_DISABLE_SMTP
+		#define CURL_DISABLE_SMTP
+	#endif
+	#ifndef CURL_DISABLE_RTMP
+		#define CURL_DISABLE_RTMP
+	#endif
+	#ifndef CURL_DISABLE_GOPHER
+		#define CURL_DISABLE_GOPHER
+	#endif
+	#ifndef CURL_DISABLE_SMB
+		#define CURL_DISABLE_SMB
+	#endif
 #endif
-
 /*
  * When http is disabled rtsp is not supported.
  */
 #if defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_RTSP)
 	#define CURL_DISABLE_RTSP
 #endif
-
 /* ================================================================ */
 /* No system header file shall be included in this file before this */
 /* point. The only allowed ones are those included from curlbuild.h */
 /* ================================================================ */
-
 /*
  * OS/400 setup file includes some system headers.
  */
@@ -188,7 +181,6 @@
 #ifdef __VMS
 	#include "setup-vms.h"
 #endif
-
 /*
  * Use getaddrinfo to resolve the IPv4 address literal. If the current network
  * interface doesn’t support IPv4, but supports IPv6, NAT64, and DNS64,
@@ -233,7 +225,6 @@
      typedef wchar_t *(*curl_wcsdup_callback)(const wchar_t *str);
 #  endif
 #endif
-
 /*
  * Define USE_WINSOCK to 2 if we have and use WINSOCK2 API, else
  * define USE_WINSOCK to 1 if we have and use WINSOCK  API, else
@@ -678,22 +669,276 @@
 #include "content_encoding.h"
 #include "if2ip.h"
 #include "non-ascii.h"
-#include "escape.h"
-#include "file.h"
-#include "strtoofft.h"
-#include "select.h"
-#include "url.h"
-#include "progress.h"
+//
+//#include "escape.h"
+//
+// Descr: Escape and unescape URL encoding in strings. The functions return a new allocated string or NULL if an error occurred.  
+//
+CURLcode Curl_urldecode(struct Curl_easy * data, const char * string, size_t length, char ** ostring, size_t * olen, bool reject_crlf);
+//
+//#include "file.h"
+// 
+// FILE unique setup
+// 
+struct FILEPROTO {
+	char * path; // the path we operate on 
+	char * freepath; // pointer to the allocated block we must free, this might differ from the 'path' pointer 
+	int fd; // open file descriptor to read from! 
+};
+
+#ifndef CURL_DISABLE_FILE
+	extern const struct Curl_handler Curl_handler_file;
+#endif
+//
+//#include "strtoofft.h"
+//
+// 
+// Determine which string to integral data type conversion function we use
+// to implement string conversion to our curl_off_t integral data type.
+// 
+// Notice that curl_off_t might be 64 or 32 bit wide, and that it might use
+// an underlying data type which might be 'long', 'int64_t', 'long long' or
+// '__int64' and more remotely other data types.
+// 
+// On systems where the size of curl_off_t is greater than the size of 'long'
+// the conversion function to use is strtoll() if it is available, otherwise,
+// we emulate its functionality with our own clone.
+// 
+// On systems where the size of curl_off_t is smaller or equal than the size
+// of 'long' the conversion function to use is strtol().
+// 
+#if (CURL_SIZEOF_CURL_OFF_T > CURL_SIZEOF_LONG)
+	#ifdef HAVE_STRTOLL
+		#define curlx_strtoofft strtoll
+	#else
+		#if defined(_MSC_VER) && (_MSC_VER >= 1300) && (_INTEGRAL_MAX_BITS >= 64)
+			#if defined(_SAL_VERSION)
+				_Check_return_ _CRTIMP __int64 __cdecl _strtoi64(_In_z_ const char *_String, _Out_opt_ _Deref_post_z_ char **_EndPtr, _In_ int _Radix);
+			#else
+				_CRTIMP __int64 __cdecl _strtoi64(const char *_String, char **_EndPtr, int _Radix);
+			#endif
+				#define curlx_strtoofft _strtoi64
+		#else
+			curl_off_t curlx_strtoll(const char *nptr, char **endptr, int base);
+			#define curlx_strtoofft curlx_strtoll
+			#define NEED_CURL_STRTOLL 1
+		#endif
+	#endif
+#else
+	#define curlx_strtoofft strtol
+#endif
+#if (CURL_SIZEOF_CURL_OFF_T == 4)
+	#define CURL_OFF_T_MAX CURL_OFF_T_C(0x7FFFFFFF)
+#else
+	#define CURL_OFF_T_MAX CURL_OFF_T_C(0x7FFFFFFFFFFFFFFF) // assume CURL_SIZEOF_CURL_OFF_T == 8 
+#endif
+#define CURL_OFF_T_MIN (-CURL_OFF_T_MAX - CURL_OFF_T_C(1))
+//
+//#include "select.h"
+//
+#ifdef HAVE_POLL_H
+	#include <poll.h>
+#elif defined(HAVE_SYS_POLL_H)
+	#include <sys/poll.h>
+#endif
+// 
+// Definition of pollfd struct and constants for platforms lacking them.
+// 
+#if !defined(HAVE_STRUCT_POLLFD) && !defined(HAVE_SYS_POLL_H) && !defined(HAVE_POLL_H)
+	#define POLLIN      0x01
+	#define POLLPRI     0x02
+	#define POLLOUT     0x04
+	#define POLLERR     0x08
+	#define POLLHUP     0x10
+	#define POLLNVAL    0x20
+
+	struct pollfd {
+		curl_socket_t fd;
+		short events;
+		short revents;
+	};
+#endif
+#ifndef POLLRDNORM
+	#define POLLRDNORM POLLIN
+#endif
+#ifndef POLLWRNORM
+	#define POLLWRNORM POLLOUT
+#endif
+#ifndef POLLRDBAND
+	#define POLLRDBAND POLLPRI
+#endif
+// there are three CSELECT defines that are defined in the public header that
+// are exposed to users, but this *IN2 bit is only ever used internally and
+// therefore defined here 
+#define CURL_CSELECT_IN2 (CURL_CSELECT_ERR << 1)
+
+int Curl_socket_check(curl_socket_t readfd, curl_socket_t readfd2, curl_socket_t writefd, time_t timeout_ms);
+
+#define SOCKET_READABLE(x, z) Curl_socket_check(x, CURL_SOCKET_BAD, CURL_SOCKET_BAD, z)
+#define SOCKET_WRITABLE(x, z) Curl_socket_check(CURL_SOCKET_BAD, CURL_SOCKET_BAD, x, z)
+
+int Curl_poll(struct pollfd ufds[], uint nfds, int timeout_ms);
+// 
+// On non-DOS and non-Winsock platforms, when Curl_ack_eintr is set,
+// EINTR condition is honored and function might exit early without
+// awaiting full timeout.  Otherwise EINTR will be ignored and full timeout will elapse. 
+// 
+extern int Curl_ack_eintr;
+
+int Curl_wait_ms(int timeout_ms);
+
+#ifdef TPF
+	int tpf_select_libcurl(int maxfds, fd_set* reads, fd_set* writes, fd_set* excepts, struct timeval* tv);
+#endif
+// 
+// Winsock and TPF sockets are not in range [0..FD_SETSIZE-1], which
+// unfortunately makes it impossible for us to easily check if they're valid
+// 
+#if defined(USE_WINSOCK) || defined(TPF)
+	#define VALID_SOCK(x) 1
+	#define VERIFY_SOCK(x) Curl_nop_stmt
+#else
+	#define VALID_SOCK(s) (((s) >= 0) && ((s) < FD_SETSIZE))
+	#define VERIFY_SOCK(x) do { if(!VALID_SOCK(x)) { SET_SOCKERRNO(EINVAL); return -1; } } WHILE_FALSE
+#endif
+//
+//#include "url.h"
+//
+// Prototypes for library-wide functions provided by url.c
+// 
+CURLcode Curl_init_do(struct Curl_easy *data, struct connectdata *conn);
+CURLcode Curl_open(struct Curl_easy **curl);
+CURLcode Curl_init_userdefined(struct UserDefined *set);
+CURLcode Curl_setopt(struct Curl_easy *data, CURLoption option, va_list arg);
+CURLcode Curl_dupset(struct Curl_easy * dst, struct Curl_easy * src);
+void Curl_freeset(struct Curl_easy * data);
+CURLcode Curl_close(struct Curl_easy *data); /* opposite of curl_open() */
+CURLcode Curl_connect(struct Curl_easy *, struct connectdata **, bool *async, bool *protocol_connect);
+CURLcode FASTCALL Curl_disconnect(struct connectdata *, bool dead_connection);
+CURLcode Curl_protocol_connect(struct connectdata *conn, bool *done);
+CURLcode Curl_protocol_connecting(struct connectdata *conn, bool *done);
+CURLcode Curl_protocol_doing(struct connectdata *conn, bool *done);
+CURLcode Curl_setup_conn(struct connectdata *conn, bool *protocol_done);
+void Curl_free_request_state(struct Curl_easy *data);
+int Curl_protocol_getsock(struct connectdata *conn, curl_socket_t *socks, int numsocks);
+int Curl_doing_getsock(struct connectdata *conn, curl_socket_t *socks, int numsocks);
+bool Curl_isPipeliningEnabled(const struct Curl_easy *handle);
+CURLcode Curl_addHandleToPipeline(struct Curl_easy *handle, struct curl_llist *pipeline);
+int Curl_removeHandleFromPipeline(struct Curl_easy *handle, struct curl_llist *pipeline);
+struct connectdata * Curl_oldest_idle_connection(struct Curl_easy *data);
+// remove the specified connection from all (possible) pipelines and related queues 
+void Curl_getoff_all_pipelines(struct Curl_easy *data, struct connectdata *conn);
+void Curl_close_connections(struct Curl_easy *data);
+
+#define CURL_DEFAULT_PROXY_PORT 1080 /* default proxy port unless specified */
+#define CURL_DEFAULT_HTTPS_PROXY_PORT 443 /* default https proxy port unless specified */
+
+CURLcode Curl_connected_proxy(struct connectdata *conn, int sockindex);
+
+#ifdef CURL_DISABLE_VERBOSE_STRINGS
+	#define Curl_verboseconnect(x)  Curl_nop_stmt
+#else
+	void Curl_verboseconnect(struct connectdata *conn);
+#endif
+#define CONNECT_PROXY_SSL()                 (conn->http_proxy.proxytype == CURLPROXY_HTTPS && !conn->bits.proxy_ssl_connected[sockindex])
+#define CONNECT_FIRSTSOCKET_PROXY_SSL()     (conn->http_proxy.proxytype == CURLPROXY_HTTPS && !conn->bits.proxy_ssl_connected[FIRSTSOCKET])
+#define CONNECT_SECONDARYSOCKET_PROXY_SSL() (conn->http_proxy.proxytype == CURLPROXY_HTTPS &&!conn->bits.proxy_ssl_connected[SECONDARYSOCKET])
+//
+//#include "progress.h"
+//
+typedef enum {
+	TIMER_NONE,
+	TIMER_STARTOP,
+	TIMER_STARTSINGLE,
+	TIMER_NAMELOOKUP,
+	TIMER_CONNECT,
+	TIMER_APPCONNECT,
+	TIMER_PRETRANSFER,
+	TIMER_STARTTRANSFER,
+	TIMER_POSTRANSFER,
+	TIMER_STARTACCEPT,
+	TIMER_REDIRECT,
+	TIMER_LAST /* must be last */
+} timerid;
+
+int Curl_pgrsDone(struct connectdata *);
+void Curl_pgrsStartNow(struct Curl_easy * data);
+void Curl_pgrsSetDownloadSize(struct Curl_easy * data, curl_off_t size);
+void Curl_pgrsSetUploadSize(struct Curl_easy * data, curl_off_t size);
+void Curl_pgrsSetDownloadCounter(struct Curl_easy * data, curl_off_t size);
+void Curl_pgrsSetUploadCounter(struct Curl_easy * data, curl_off_t size);
+int Curl_pgrsUpdate(struct connectdata *);
+void Curl_pgrsResetTimesSizes(struct Curl_easy * data);
+void Curl_pgrsTime(struct Curl_easy * data, timerid timer);
+long Curl_pgrsLimitWaitTime(curl_off_t cursize, curl_off_t startsize, curl_off_t limit, struct timeval start, struct timeval now);
+
+// Don't show progress for sizes smaller than: 
+#define LEAST_SIZE_PROGRESS BUFSIZE
+
+#define PROGRESS_DOWNLOAD (1<<0)
+#define PROGRESS_UPLOAD   (1<<1)
+#define PROGRESS_DOWN_AND_UP (PROGRESS_UPLOAD | PROGRESS_DOWNLOAD)
+
+#define PGRS_SHOW_DL (1<<0)
+#define PGRS_SHOW_UL (1<<1)
+#define PGRS_DONE_DL (1<<2)
+#define PGRS_DONE_UL (1<<3)
+#define PGRS_HIDE    (1<<4)
+#define PGRS_UL_SIZE_KNOWN (1<<5)
+#define PGRS_DL_SIZE_KNOWN (1<<6)
+
+#define PGRS_HEADERS_OUT (1<<7) /* set when the headers have been written */
+//
 #include "pingpong.h"
 #include "curl_sasl.h"
 #include "multiif.h"
 #include "socks.h"
-#include "sockaddr.h"
+//
+//#include "sockaddr.h"
+//
+struct Curl_sockaddr_storage {
+	union {
+		struct sockaddr sa;
+		struct sockaddr_in sa_in;
+#ifdef ENABLE_IPV6
+		struct sockaddr_in6 sa_in6;
+#endif
+#ifdef HAVE_STRUCT_SOCKADDR_STORAGE
+		struct sockaddr_storage sa_stor;
+#else
+		char cbuf[256]; /* this should be big enough to fit a lot */
+#endif
+	} buffer;
+};
+//
 #include "timeval.h"  
-#include "nonblock.h"
+//
+//#include "nonblock.h"
+//
+int curlx_nonblock(curl_socket_t sockfd/* operate on this */, int nonblock/* TRUE or FALSE */);
+//
 #include "connect.h"
-#include "slist.h"
-#include "strdup.h"
+//
+//#include "slist.h"
+// 
+// Curl_slist_duplicate() duplicates a linked list. It always returns the
+// address of the first record of the cloned list or NULL in case of an
+// error (or if the input list was NULL).
+// 
+struct curl_slist *Curl_slist_duplicate(struct curl_slist *inlist);
+//
+// Curl_slist_append_nodup() takes ownership of the given string and appends it to the list.
+//
+struct curl_slist *Curl_slist_append_nodup(struct curl_slist *list, char *data);
+//
+//#include "strdup.h"
+//
+#ifndef HAVE_STRDUP
+	extern char *curlx_strdup(const char *str);
+#endif
+void * Curl_memdup(const void *src, size_t buffer_length);
+void * Curl_saferealloc(void *ptr, size_t size);
+//
 #include "asyn.h"
 #include "hostip.h"
 #include "hash.h"

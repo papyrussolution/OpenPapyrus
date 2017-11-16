@@ -40,7 +40,6 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-output-stream-private.h"
 
 #if CAIRO_HAS_GL_SURFACE // {
 

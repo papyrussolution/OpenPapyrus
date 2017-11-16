@@ -325,6 +325,7 @@
     <ClCompile Include="..\PPLib\sartre_imp.cpp" />
     <ClCompile Include="..\PPLib\ppngx.cpp" />
     <ClCompile Include="..\PPLib\tddo2.cpp" />
+    <ClCompile Include="..\PPLib\vetis.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h">

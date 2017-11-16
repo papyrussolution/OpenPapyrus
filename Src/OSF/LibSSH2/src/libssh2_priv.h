@@ -398,11 +398,11 @@ struct _LIBSSH2_LISTENER {
 	struct list_node node; /* linked list header */
 	LIBSSH2_SESSION * session;
 	char * host;
-	int port;
+	int    port;
 	/* a list of CHANNELs for this listener */
 	struct list_head queue;
-	int queue_size;
-	int queue_maxsize;
+	int    queue_size;
+	int    queue_maxsize;
 	/* State variables used in libssh2_channel_forward_cancel() */
 	libssh2_nonblocking_states chanFwdCncl_state;
 	uchar * chanFwdCncl_data;
@@ -413,12 +413,12 @@ typedef struct _libssh2_endpoint_data {
 	uchar * banner;
 	uchar * kexinit;
 	size_t kexinit_len;
-	const LIBSSH2_CRYPT_METHOD * crypt;
+	const  LIBSSH2_CRYPT_METHOD * crypt;
 	void * crypt_abstract;
-	const struct _LIBSSH2_MAC_METHOD * mac;
+	const  struct _LIBSSH2_MAC_METHOD * mac;
 	uint32_t seqno;
 	void * mac_abstract;
-	const LIBSSH2_COMP_METHOD * comp;
+	const  LIBSSH2_COMP_METHOD * comp;
 	void * comp_abstract;
 	/* Method Preferences -- NULL yields "load order" */
 	char * crypt_prefs;
@@ -431,8 +431,8 @@ typedef struct _libssh2_endpoint_data {
 
 struct transportpacket {
 	/* ------------- for incoming data --------------- */
-	uchar buf[PACKETBUFSIZE];
-	uchar init[5]; /* first 5 bytes of the incoming data stream, still encrypted */
+	uchar  buf[PACKETBUFSIZE];
+	uchar  init[5]; /* first 5 bytes of the incoming data stream, still encrypted */
 	size_t writeidx;    /* at what array index we do the next write into the buffer */
 	size_t readidx;     /* at what array index we do the next read from the buffer */
 	uint32_t packet_length; /* the most recent packet_length as read from the network data */
@@ -442,9 +442,9 @@ struct transportpacket {
 	uchar * payload; /* this is a pointer to a LIBSSH2_ALLOC() area to which we write decrypted data */
 	uchar * wptr; /* write pointer into the payload to where we are currently writing decrypted data */
 	/* ------------- for outgoing data --------------- */
-	uchar outbuf[MAX_SSH_PACKET_LEN]; /* area for the outgoing data */
-	int ototal_num;     /* size of outbuf in number of bytes */
-	const uchar * odata; /* original pointer to the data */
+	uchar  outbuf[MAX_SSH_PACKET_LEN]; /* area for the outgoing data */
+	int    ototal_num;     /* size of outbuf in number of bytes */
+	const  uchar * odata; /* original pointer to the data */
 	size_t olen;        /* original size of the data we stored in outbuf */
 	size_t osent;       /* number of bytes already sent */
 };

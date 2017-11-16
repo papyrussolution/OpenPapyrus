@@ -1099,6 +1099,22 @@ LDATETIME & FASTCALL LDATETIME::SetTimeT(time_t _tm)
 	return *this;
 }
 
+time_t SLAPI LDATETIME::GetTimeT() const
+{
+	if(!*this)
+		return 0;
+	else {
+		struct tm _t;
+		_t.tm_year = d.year();
+		_t.tm_mon = d.month();
+		_t.tm_mday = d.day();
+		_t.tm_hour = t.hour();
+		_t.tm_min = t.minut();
+		_t.tm_sec = t.sec();
+		return (sizeof(time_t) == 8) ? _mktime64(&_t) : mktime(&_t);
+	}
+}
+
 LDATETIME & SLAPI LDATETIME::Set(LDATE _d, LTIME _t)
 {
 	d = _d;

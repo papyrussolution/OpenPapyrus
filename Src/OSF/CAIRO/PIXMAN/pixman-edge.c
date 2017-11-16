@@ -75,15 +75,15 @@
 	(((x) & ~(0xf << SHIFT_4(o))) | (((v) & 0xf) << SHIFT_4(o)))
 
 #define DEFINE_ALPHA(line, x)						\
-	uint8_t   *__ap = (uint8_t*)line + ((x) >> 1);			  \
+	uint8   *__ap = (uint8*)line + ((x) >> 1);			  \
 	int __ao = (x) & 1
 
 #define STEP_ALPHA      ((__ap += __ao), (__ao ^= 1))
 
 #define ADD_ALPHA(a)							\
 	{								    \
-		uint8_t __o = READ(image, __ap);			       \
-		uint8_t __a = (a) + GET_4(__o, __ao);			       \
+		uint8 __o = READ(image, __ap);			       \
+		uint8 __a = (a) + GET_4(__o, __ao);			       \
 		WRITE(image, __ap, PUT_4(__o, __ao, __a | (0 - ((__a) >> 4))));	\
 	}
 
@@ -111,7 +111,7 @@
  * 8 bit alpha
  */
 
-static force_inline uint8_t clip255(int x)
+static force_inline uint8 clip255(int x)
 {
 	return (x > 255) ? 255 : x;
 }
@@ -120,7 +120,7 @@ static force_inline uint8_t clip255(int x)
 	do								    \
 	{								    \
 		int i__ = (length);						\
-		uint8_t * buf__ = (buf);					 \
+		uint8 * buf__ = (buf);					 \
 		int val__ = (val);						\
 									\
 		while(i__--)						       \
@@ -151,7 +151,7 @@ static void rasterize_edges_8(pixman_image_t * image, pixman_edge_t * l, pixman_
 	int width = (image)->bits.width;
 	uint32_t * line = buf + pixman_fixed_to_int(y) * stride;
 	for(;; ) {
-		uint8_t * ap = (uint8_t*)line;
+		uint8 * ap = (uint8*)line;
 		pixman_fixed_t lx, rx;
 		int lxi, rxi;
 		/* clip X */

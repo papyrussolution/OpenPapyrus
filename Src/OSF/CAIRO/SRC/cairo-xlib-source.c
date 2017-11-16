@@ -483,7 +483,7 @@ static cairo_surface_t * color_source(cairo_xlib_surface_t * dst, const cairo_co
 	return source(dst, picture, pixmap);
 }
 
-static cairo_surface_t * alpha_source(cairo_xlib_surface_t * dst, uint8_t alpha)
+static cairo_surface_t * alpha_source(cairo_xlib_surface_t * dst, uint8 alpha)
 {
 	cairo_xlib_display_t * display = dst->display;
 

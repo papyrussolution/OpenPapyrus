@@ -43,7 +43,7 @@ int __lock_vec_pp(DB_ENV * dbenv, uint32 lid, uint32 flags, DB_LOCKREQ * list, i
 	int ret;
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->lk_handle, "DB_ENV->lock_vec", DB_INIT_LOCK);
-	/* Validate arguments. */
+	// Validate arguments
 	if((ret = __db_fchk(env, "DB_ENV->lock_vec", flags, DB_LOCK_NOWAIT)) != 0)
 		return ret;
 	ENV_ENTER(env, ip);
@@ -323,7 +323,7 @@ int __lock_get_pp(DB_ENV * dbenv, uint32 locker, uint32 flags, DBT * obj, db_loc
 	int ret;
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->lk_handle, "DB_ENV->lock_get", DB_INIT_LOCK);
-	/* Validate arguments. */
+	// Validate arguments
 	if((ret = __db_fchk(env, "DB_ENV->lock_get", flags, DB_LOCK_NOWAIT|DB_LOCK_UPGRADE|DB_LOCK_SWITCH)) != 0)
 		return ret;
 	if((ret = __dbt_usercopy(env, obj)) != 0)
@@ -803,7 +803,7 @@ in_abort:
 		if(region->detect != DB_LOCK_NORUN && !no_dd)
 			__lock_detect(env, region->detect, &did_abort);
 		ip = NULL;
-		if(env->thr_hashtab != NULL && (ret = __env_set_state(env, &ip, THREAD_BLOCKED)) != 0) {
+		if(env->thr_hashtab && (ret = __env_set_state(env, &ip, THREAD_BLOCKED)) != 0) {
 			LOCK_SYSTEM_LOCK(lt, region);
 			OBJECT_LOCK_NDX(lt, region, ndx);
 			goto err;
@@ -811,7 +811,7 @@ in_abort:
 		PERFMON2(env, lock, suspend, (DBT *)obj, lock_mode);
 		MUTEX_LOCK(env, newl->mtx_lock);
 		PERFMON2(env, lock, resume, (DBT *)obj, lock_mode);
-		if(ip != NULL)
+		if(ip)
 			ip->dbth_state = THREAD_ACTIVE;
 		LOCK_SYSTEM_LOCK(lt, region);
 		OBJECT_LOCK_NDX(lt, region, ndx);
@@ -851,12 +851,10 @@ expired:
 				 * list.  Since we're upgrading some other lock,
 				 * we've got to remove it here.
 				 */
-				SH_TAILQ_REMOVE(
-					&sh_obj->holders, newl, links, __db_lock);
+				SH_TAILQ_REMOVE(&sh_obj->holders, newl, links, __db_lock);
 				/*
 				 * Ensure the object is not believed to be on
-				 * the object's lists, if we're traversing by
-				 * locker.
+				 * the object's lists, if we're traversing by locker.
 				 */
 				newl->links.stqe_prev = -1;
 				if(newl->mode == DB_LOCK_WAIT)
@@ -891,12 +889,11 @@ err:
 	if(!LF_ISSET(DB_LOCK_UPGRADE|DB_LOCK_SWITCH))
 		LOCK_INIT(*lock);
 done:
-	if(newl != NULL && (t_ret = __lock_freelock(lt, newl, sh_locker, DB_LOCK_FREE|DB_LOCK_UNLINK)) != 0 && ret == 0)
+	if(newl && (t_ret = __lock_freelock(lt, newl, sh_locker, DB_LOCK_FREE|DB_LOCK_UNLINK)) != 0 && ret == 0)
 		ret = t_ret;
 	OBJECT_UNLOCK(lt, region, ndx);
 	return ret;
 }
-
 /*
  * __lock_put_pp --
  *	ENV->lock_put pre/post processing.

@@ -233,9 +233,6 @@
     <ClInclude Include="..\Include\Cairo\cairo-cogl-utils-private.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Cairo\cairo-combsort-inline.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Cairo\cairo-deprecated.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -317,25 +314,13 @@
     <ClInclude Include="..\Include\Cairo\cairo-mempool-private.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Cairo\cairo-mutex-impl-private.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Cairo\cairo-mutex-list-private.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Cairo\cairo-mutex-type-private.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\cairo-os2.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\cairo-os2-private.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Cairo\cairo-output-stream-private.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Cairo\cairo-paginated-private.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\cairo-private.h">
@@ -369,9 +354,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\cairo-skia-private.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Cairo\cairo-spans-compositor-private.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\cairo-svg.h">
@@ -471,6 +453,12 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\Cairo\test-paginated-surface.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CAIRO\PIXMAN\pixman-access.c">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\CAIRO\PIXMAN\pixman-region.c">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

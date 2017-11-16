@@ -38,23 +38,13 @@
 #ifdef HAVE_SYS_PARAM_H
 	#include <sys/param.h>
 #endif
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "transfer.h"
-//#include "sendf.h"
 #include "telnet.h"
-//#include "connect.h"
-//#include "progress.h"
 #include "system_win32.h"
 
 #define  TELOPTS
 #define  TELCMDS
 
 #include "arpa_telnet.h"
-//#include "select.h"
-//#include "strcase.h"
-//#include "warnless.h"
-
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
 //#include "curl_memory.h"

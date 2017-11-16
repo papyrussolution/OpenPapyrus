@@ -87,20 +87,17 @@ static cairo_status_t _lzw_buf_grow(lzw_buf_t * buf)
 	if(buf->status)
 		return buf->status;
 	new_data = NULL;
-	/* check for integer overflow */
+	// check for integer overflow 
 	if(new_size / 2 == buf->data_size)
-		new_data = (uchar *)realloc(buf->data, new_size);
-
+		new_data = (uchar *)SAlloc::R(buf->data, new_size);
 	if(unlikely(new_data == NULL)) {
 		SAlloc::F(buf->data);
 		buf->data_size = 0;
 		buf->status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		return buf->status;
 	}
-
 	buf->data = new_data;
 	buf->data_size = new_size;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -114,7 +111,7 @@ static cairo_status_t _lzw_buf_grow(lzw_buf_t * buf)
  *
  * Sets buf->status to either %CAIRO_STATUS_SUCCESS or %CAIRO_STATUS_NO_MEMORY.
  */
-static void _lzw_buf_store_bits(lzw_buf_t * buf, uint16_t value, int num_bits)
+static void _lzw_buf_store_bits(lzw_buf_t * buf, uint16 value, int num_bits)
 {
 	cairo_status_t status;
 

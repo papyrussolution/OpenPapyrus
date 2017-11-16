@@ -1087,9 +1087,6 @@
 				RelativePath="..\Include\Cairo\cairo-cogl.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\cairo-combsort-inline.h">
-			</File>
-			<File
 				RelativePath="..\Include\Cairo\cairo-deprecated.h">
 			</File>
 			<File
@@ -1168,25 +1165,13 @@
 				RelativePath="..\Include\Cairo\cairo-mempool-private.h">
 			</File>
 			<File
-				RelativePath="..\Include\Cairo\cairo-mutex-impl-private.h">
-			</File>
-			<File
 				RelativePath="..\Include\Cairo\cairo-mutex-list-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\cairo-mutex-type-private.h">
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\cairo-os2-private.h">
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\cairo-os2.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\cairo-output-stream-private.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\cairo-paginated-private.h">
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\cairo-ps-surface-private.h">
@@ -1217,9 +1202,6 @@
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\cairo-skia.h">
-			</File>
-			<File
-				RelativePath="..\Include\Cairo\cairo-spans-compositor-private.h">
 			</File>
 			<File
 				RelativePath="..\Include\Cairo\cairo-svg-surface-private.h">

@@ -64,7 +64,7 @@ static const pixman_iter_info_t general_iters[] =
 
 typedef struct op_info_t op_info_t;
 struct op_info_t {
-	uint8_t src, dst;
+	uint8 src, dst;
 };
 
 #define ITER_IGNORE_BOTH						\
@@ -94,9 +94,9 @@ static const op_info_t op_flags[PIXMAN_N_OPERATORS] =
 static void general_composite_rect(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
-	uint8_t stack_scanline_buffer[3 * SCANLINE_BUFFER_LENGTH];
-	uint8_t * scanline_buffer = (uint8_t*)stack_scanline_buffer;
-	uint8_t * src_buffer, * mask_buffer, * dest_buffer;
+	uint8 stack_scanline_buffer[3 * SCANLINE_BUFFER_LENGTH];
+	uint8 * scanline_buffer = (uint8*)stack_scanline_buffer;
+	uint8 * src_buffer, * mask_buffer, * dest_buffer;
 	pixman_iter_t src_iter;
 	pixman_iter_t mask_iter;
 	pixman_iter_t dest_iter; // !
@@ -115,13 +115,13 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 		Bpp = 16;
 	}
 
-#define ALIGN(addr) ((uint8_t*)((((uintptr_t)(addr)) + 15) & (~15)))
+#define ALIGN(addr) ((uint8*)((((uintptr_t)(addr)) + 15) & (~15)))
 
 	src_buffer = ALIGN(scanline_buffer);
 	mask_buffer = ALIGN(src_buffer + width * Bpp);
 	dest_buffer = ALIGN(mask_buffer + width * Bpp);
 	if(ALIGN(dest_buffer + width * Bpp) > scanline_buffer + sizeof(stack_scanline_buffer)) {
-		scanline_buffer = (uint8_t *)pixman_malloc_ab_plus_c(width, Bpp * 3, 32 * 3);
+		scanline_buffer = (uint8 *)pixman_malloc_ab_plus_c(width, Bpp * 3, 32 * 3);
 		if(!scanline_buffer)
 			return;
 		src_buffer = ALIGN(scanline_buffer);
@@ -166,7 +166,7 @@ static void general_composite_rect(pixman_implementation_t * imp, pixman_composi
 		mask_iter.fini(&mask_iter);
 	if(dest_iter.fini)
 		dest_iter.fini(&dest_iter);
-	if(scanline_buffer != (uint8_t*)stack_scanline_buffer)
+	if(scanline_buffer != (uint8*)stack_scanline_buffer)
 		SAlloc::F(scanline_buffer);
 }
 

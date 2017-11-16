@@ -408,8 +408,8 @@ struct cell {
 	struct cell         * next;
 
 	int x;
-	int16_t uncovered_area;
-	int16_t covered_height;
+	int16 uncovered_area;
+	int16 covered_height;
 };
 
 /* A cell list represents the scan line sparsely as cells ordered by
@@ -1520,7 +1520,7 @@ static glitter_status_t blit_a8(struct cell_list * cells,
 {
 	struct cell * cell = cells->head.next;
 	int prev_x = xmin, last_x = -1;
-	int16_t cover = 0, last_cover = 0;
+	int16 cover = 0, last_cover = 0;
 	unsigned num_spans;
 
 	if(cell == &cells->tail)
@@ -1537,7 +1537,7 @@ static glitter_status_t blit_a8(struct cell_list * cells,
 	num_spans = 0;
 	for(; cell->x < xmax; cell = cell->next) {
 		int x = cell->x;
-		int16_t area;
+		int16 area;
 
 		if(x > prev_x && cover != last_cover) {
 			spans[num_spans].x = prev_x;
@@ -1588,8 +1588,8 @@ static glitter_status_t blit_a1(struct cell_list * cells,
 {
 	struct cell * cell = cells->head.next;
 	int prev_x = xmin, last_x = -1;
-	int16_t cover = 0;
-	uint8_t coverage, last_cover = 0;
+	int16 cover = 0;
+	uint8 coverage, last_cover = 0;
 	unsigned num_spans;
 
 	if(cell == &cells->tail)
@@ -1606,7 +1606,7 @@ static glitter_status_t blit_a1(struct cell_list * cells,
 	num_spans = 0;
 	for(; cell->x < xmax; cell = cell->next) {
 		int x = cell->x;
-		int16_t area;
+		int16 area;
 
 		coverage = GRID_AREA_TO_A1(cover);
 		if(x > prev_x && coverage != last_cover) {

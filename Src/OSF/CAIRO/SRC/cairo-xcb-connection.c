@@ -122,7 +122,7 @@ static cairo_status_t _cairo_xcb_connection_find_visual_formats(cairo_xcb_connec
 }
 
 #if 0
-static xcb_format_t * find_format_for_depth(const xcb_setup_t * setup, uint8_t depth)
+static xcb_format_t * find_format_for_depth(const xcb_setup_t * setup, uint8 depth)
 {
 	xcb_format_t * fmt = xcb_setup_pixmap_formats(setup);
 	xcb_format_t * fmtend = fmt + xcb_setup_pixmap_formats_length(setup);

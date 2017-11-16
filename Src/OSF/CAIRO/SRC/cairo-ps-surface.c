@@ -513,7 +513,7 @@ static cairo_status_t _cairo_ps_surface_emit_truetype_font_subset(cairo_ps_surfa
 static cairo_int_status_t _cairo_ps_emit_imagemask(cairo_image_surface_t * image,
     cairo_output_stream_t * stream)
 {
-	uint8_t * row, * byte;
+	uint8 * row, * byte;
 	int rows, cols;
 
 	/* The only image type supported by Type 3 fonts are 1-bit image
@@ -536,7 +536,7 @@ static cairo_int_status_t _cairo_ps_emit_imagemask(cairo_image_surface_t * image
 	_cairo_output_stream_printf(stream, "   /DataSource {<\n   ");
 	for(row = image->data, rows = image->height; rows; row += image->stride, rows--) {
 		for(byte = row, cols = (image->width + 7) / 8; cols; byte++, cols--) {
-			uint8_t output_byte = (uint8_t)CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(*byte);
+			uint8 output_byte = (uint8)CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(*byte);
 			_cairo_output_stream_printf(stream, "%02x ", output_byte);
 		}
 		_cairo_output_stream_printf(stream, "\n   ");
@@ -2131,7 +2131,7 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 	cairo_image_transparency_t transparency;
 	cairo_bool_t use_mask;
 	uint32_t * pixel32;
-	uint8_t * pixel8;
+	uint8 * pixel8;
 	int bit;
 	cairo_image_color_t color;
 	const char * interpolate;
@@ -2249,7 +2249,7 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 		if(stencil_mask || use_mask) {
 			/* mask row */
 			if(ps_image->format == CAIRO_FORMAT_A1) {
-				pixel8 = (uint8_t*)(ps_image->data + y * ps_image->stride);
+				pixel8 = (uint8*)(ps_image->data + y * ps_image->stride);
 
 				for(x = 0; x < (ps_image->width + 7) / 8; x++, pixel8++) {
 					a = *pixel8;
@@ -2258,7 +2258,7 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 				}
 			}
 			else {
-				pixel8 = (uint8_t*)(ps_image->data + y * ps_image->stride);
+				pixel8 = (uint8*)(ps_image->data + y * ps_image->stride);
 				pixel32 = (uint32_t*)(ps_image->data + y * ps_image->stride);
 				bit = 7;
 				for(x = 0; x < ps_image->width; x++) {

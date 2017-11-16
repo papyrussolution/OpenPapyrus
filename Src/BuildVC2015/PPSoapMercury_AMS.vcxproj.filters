@@ -23,6 +23,12 @@
     <ClCompile Include="..\Soap\Client\Vetis\Ams\stub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\SOAP\CLIENT\ppsoapcaller-vetis.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SOAP\CLIENT\VETIS\AMS\mams14AMSMercuryG2BBindingProxy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Soap\Client\Vetis\Ams\mams14.h">
@@ -35,6 +41,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Soap\Client\Vetis\Ams\mams14Stub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SOAP\CLIENT\VETIS\AMS\mams14AMSMercuryG2BBindingProxy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

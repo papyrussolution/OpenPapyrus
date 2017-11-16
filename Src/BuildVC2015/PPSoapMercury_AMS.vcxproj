@@ -234,6 +234,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\PPLib\ppsoapclient.cpp" />
+    <ClCompile Include="..\SOAP\CLIENT\ppsoapcaller-vetis.cpp" />
+    <ClCompile Include="..\SOAP\CLIENT\VETIS\AMS\mams14AMSMercuryG2BBindingProxy.cpp" />
     <ClCompile Include="..\Soap\Client\Vetis\Ams\mams14ApplicationManagementServiceBindingProxy.cpp" />
     <ClCompile Include="..\Soap\Client\Vetis\Ams\mams14C.cpp" />
     <ClCompile Include="..\Soap\Client\Vetis\Ams\stub.cpp" />
@@ -242,42 +244,42 @@
     <CustomBuild Include="..\Soap\Client\Vetis\Ams\stub-wsdl">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RootDir)%(Directory)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl mercury-g2b.service_v2.0.wsdl 
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pmams14 mams14.h
 cd $(SolutionDir)
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)mams14C.cpp;%(RootDir)%(Directory)mams14AMSMercuryG2BBindingProxy.cpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">cd %(RootDir)%(Directory)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl mercury-g2b.service_v2.0.wsdl 
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pmams14 mams14.h
 cd $(SolutionDir)
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)mams14C.cpp;%(RootDir)%(Directory)mams14AMSMercuryG2BBindingProxy.cpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">cd %(RootDir)%(Directory)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl mercury-g2b.service_v2.0.wsdl 
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pmams14 mams14.h
 cd $(SolutionDir)
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)mams14C.cpp;%(RootDir)%(Directory)mams14AMSMercuryG2BBindingProxy.cpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RootDir)%(Directory)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl mercury-g2b.service_v2.0.wsdl 
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pmams14 mams14.h
 cd $(SolutionDir)
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)mams14C.cpp;%(RootDir)%(Directory)mams14AMSMercuryG2BBindingProxy.cpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">cd %(RootDir)%(Directory)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl mercury-g2b.service_v2.0.wsdl 
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pmams14 mams14.h
 cd $(SolutionDir)
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)mams14C.cpp;%(RootDir)%(Directory)mams14AMSMercuryG2BBindingProxy.cpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">cd %(RootDir)%(Directory)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl mercury-g2b.service_v2.0.wsdl 
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pmams14 mams14.h
 cd $(SolutionDir)
 </Command>
@@ -286,6 +288,7 @@ cd $(SolutionDir)
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Soap\Client\Vetis\Ams\mams14.h" />
+    <ClInclude Include="..\SOAP\CLIENT\VETIS\AMS\mams14AMSMercuryG2BBindingProxy.h" />
     <ClInclude Include="..\Soap\Client\Vetis\Ams\mams14ApplicationManagementServiceBindingProxy.h" />
     <ClInclude Include="..\Soap\Client\Vetis\Ams\mams14H.h" />
     <ClInclude Include="..\Soap\Client\Vetis\Ams\mams14Stub.h" />

@@ -693,7 +693,7 @@ int _cairo_lround(double d)
 /* Convert a 32-bit IEEE single precision floating point number to a
  * 'half' representation (s10.5)
  */
-uint16_t _cairo_half_from_float(float f)
+uint16 _cairo_half_from_float(float f)
 {
 	union {
 		uint32_t ui;

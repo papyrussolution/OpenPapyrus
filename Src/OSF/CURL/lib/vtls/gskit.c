@@ -51,14 +51,8 @@
 #ifndef GSK_TRUE
 	#define GSK_TRUE                                1
 #endif
-//#include <curl/curl.h>
-//#include "urldata.h"
-//#include "sendf.h"
 #include "gskit.h"
 #include "vtls.h"
-//#include "connect.h" /* for the connect timeout */
-//#include "select.h"
-//#include "strcase.h"
 #include "x509asn1.h"
 #include "curl_printf.h"
 //#include "curl_memory.h"

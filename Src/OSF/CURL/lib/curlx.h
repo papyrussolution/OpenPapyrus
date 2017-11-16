@@ -33,10 +33,6 @@
 /* this is still a public header file that provides the curl_mprintf()
    functions while they still are offered publicly. They will be made library-
    private one day */
-
-//#include "strcase.h" // "strcase.h" provides the strcasecompare protos 
-//#include "strtoofft.h" // "strtoofft.h" provides this function: curlx_strtoofft(), returns a curl_off_t number from a given string.
-//#include "timeval.h"
 /*
   "timeval.h" sets up a 'struct timeval' even for platforms that otherwise
   don't have one and has protos for these functions:
@@ -45,9 +41,6 @@
   curlx_tvdiff()
   curlx_tvdiff_secs()
 */
-
-//#include "nonblock.h" // "nonblock.h" provides curlx_nonblock() 
-//#include "warnless.h" // "warnless.h" provides functions: curlx_ultous(), curlx_ultouc(), curlx_uztosi()
 
 /* Now setup curlx_ * names for the functions that are to become curlx_ and
    be removed from a future libcurl official API:

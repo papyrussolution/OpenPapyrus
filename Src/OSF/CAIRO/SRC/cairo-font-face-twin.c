@@ -361,10 +361,10 @@ static cairo_status_t twin_scaled_font_init(cairo_scaled_font_t  * scaled_font, 
 
 typedef struct {
 	int n_snap_x;
-	int8_t snap_x[TWIN_GLYPH_MAX_SNAP_X];
+	int8 snap_x[TWIN_GLYPH_MAX_SNAP_X];
 	double snapped_x[TWIN_GLYPH_MAX_SNAP_X];
 	int n_snap_y;
-	int8_t snap_y[TWIN_GLYPH_MAX_SNAP_Y];
+	int8 snap_y[TWIN_GLYPH_MAX_SNAP_Y];
 	double snapped_y[TWIN_GLYPH_MAX_SNAP_Y];
 } twin_snap_info_t;
 
@@ -404,7 +404,7 @@ static void twin_compute_snap(cairo_t * cr, twin_snap_info_t * info, const signe
 	}
 }
 
-static double twin_snap(int8_t v, int n, int8_t * snap, double * snapped)
+static double twin_snap(int8 v, int n, int8 * snap, double * snapped)
 {
 	if(!n)
 		return F__(v);
@@ -437,9 +437,9 @@ static cairo_status_t twin_scaled_font_render_glyph(cairo_scaled_font_t  * scale
 	double x1, y1, x2, y2, x3, y3;
 	double marginl;
 	twin_snap_info_t info;
-	const int8_t * b;
-	const int8_t * g;
-	int8_t w;
+	const int8 * b;
+	const int8 * g;
+	int8 w;
 	double gw;
 	twin_scaled_properties_t * props = (twin_scaled_properties_t *)cairo_scaled_font_get_user_data(scaled_font, &twin_properties_key);
 	/* Save glyph space, we need it when stroking */

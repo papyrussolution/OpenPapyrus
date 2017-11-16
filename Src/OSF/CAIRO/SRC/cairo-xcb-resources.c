@@ -165,10 +165,9 @@ static void resource_parser_init(struct resource_parser * parser, cairo_xcb_reso
 static cairo_bool_t resource_parser_update(struct resource_parser * parser, const char * data, int length)
 {
 	int bytes_parsed;
-
 	if(parser->bytes_in_buffer + length + 1 > parser->buffer_size) {
 		parser->buffer_size = parser->bytes_in_buffer + length + 1;
-		parser->buffer = realloc(parser->buffer, parser->buffer_size);
+		parser->buffer = SAlloc::R(parser->buffer, parser->buffer_size);
 		if(!parser->buffer) {
 			parser->buffer_size = 0;
 			parser->bytes_in_buffer = 0;

@@ -154,10 +154,10 @@ cairo_uint64_t _cairo_uint64_sub(cairo_uint64_t a, cairo_uint64_t b)
 cairo_uint64_t _cairo_uint32x32_64_mul(uint32_t a, uint32_t b)
 {
 	cairo_uint64_t s;
-	uint16_t al = uint32_lo(a);
-	uint16_t ah = uint32_hi(a);
-	uint16_t bl = uint32_lo(b);
-	uint16_t bh = uint32_hi(b);
+	uint16 al = uint32_lo(a);
+	uint16 ah = uint32_hi(a);
+	uint16 bl = uint32_lo(b);
+	uint16 bh = uint32_hi(b);
 	uint32_t r0 = (uint32_t)al * bl;
 	uint32_t r1 = (uint32_t)al * bh;
 	uint32_t r2 = (uint32_t)ah * bl;

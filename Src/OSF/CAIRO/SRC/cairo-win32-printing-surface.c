@@ -242,7 +242,7 @@ static COLORREF FASTCALL _cairo_win32_printing_surface_flatten_transparency(cair
 	if(!CAIRO_COLOR_IS_OPAQUE(color)) {
 		if(surface->content == CAIRO_CONTENT_COLOR_ALPHA) {
 			/* Blend into white */
-			uint8_t one_minus_alpha = 255 - (color->alpha_short >> 8);
+			uint8 one_minus_alpha = 255 - (color->alpha_short >> 8);
 			red   = (color->red_short   >> 8) + one_minus_alpha;
 			green = (color->green_short >> 8) + one_minus_alpha;
 			blue  = (color->blue_short  >> 8) + one_minus_alpha;

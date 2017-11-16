@@ -57,7 +57,7 @@ static uchar * FASTCALL encode_point(uchar * p, const RPoint * point)
 
 static uchar * FASTCALL encode_color_component(uchar * p, double color)
 {
-	uint16_t c = _cairo_color_double_to_short(color);
+	uint16 c = _cairo_color_double_to_short(color);
 	*p++ = c >> 8;
 	*p++ = c & 0xff;
 	return p;
@@ -171,7 +171,7 @@ static cairo_status_t _cairo_pdf_shading_init(cairo_pdf_shading_t * shading, con
 	 * map to the [0..UINT32_MAX] range and are represented as
 	 * uint32_t values.
 	 *
-	 * Color components are represented as uint16_t (in a 0.16 fixed
+	 * Color components are represented as uint16 (in a 0.16 fixed
 	 * point format, as in the rest of cairo).
 	 */
 	shading->bits_per_coordinate = 32;

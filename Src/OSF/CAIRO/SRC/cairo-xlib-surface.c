@@ -412,7 +412,7 @@ static void _swap_ximage_2bytes(XImage * ximage)
 	char * line = ximage->data;
 
 	for(j = ximage->height; j; j--) {
-		uint16_t * p = (uint16_t*)line;
+		uint16 * p = (uint16*)line;
 		for(i = ximage->width; i; i--) {
 			*p = bswap_16(*p);
 			p++;
@@ -428,9 +428,9 @@ static void _swap_ximage_3bytes(XImage * ximage)
 	char * line = ximage->data;
 
 	for(j = ximage->height; j; j--) {
-		uint8_t * p = (uint8_t*)line;
+		uint8 * p = (uint8*)line;
 		for(i = ximage->width; i; i--) {
-			uint8_t tmp;
+			uint8 tmp;
 			tmp = p[2];
 			p[2] = p[0];
 			p[0] = tmp;
@@ -463,7 +463,7 @@ static void _swap_ximage_nibbles(XImage * ximage)
 	char * line = ximage->data;
 
 	for(j = ximage->height; j; j--) {
-		uint8_t * p = (uint8_t*)line;
+		uint8 * p = (uint8*)line;
 		for(i = (ximage->width + 1) / 2; i; i--) {
 			*p = ((*p >> 4) & 0xf) | ((*p << 4) & ~0xf);
 			p++;
@@ -611,14 +611,14 @@ static inline uint32_t _field_from_8(uint32_t field, int width, int shift)
 }
 
 static inline uint32_t _field_from_8_dither(uint32_t field, int width, int shift,
-    int8_t dither_adjustment)
+    int8 dither_adjustment)
 {
 	return _field_from_8(_adjust_field(field, dither_adjustment>>width), width, shift);
 }
 
 static inline uint32_t _pseudocolor_from_rgb888_dither(cairo_xlib_visual_info_t * visual_info,
     uint32_t r, uint32_t g, uint32_t b,
-    int8_t dither_adjustment)
+    int8 dither_adjustment)
 {
 	if(r == g && g == b) {
 		dither_adjustment /= RAMP_SIZE;
@@ -647,7 +647,7 @@ static inline uint32_t _pseudocolor_to_rgb888(cairo_xlib_visual_info_t * visual_
 
 /* should range from -128 to 127 */
 #define X 16
-static const int8_t dither_pattern[4][4] = {
+static const int8 dither_pattern[4][4] = {
 	{-8*X, +0*X, -6*X, +2*X},
 	{+4*X, -4*X, +6*X, -2*X},
 	{-5*X, +4*X, -7*X, +1*X},
@@ -939,7 +939,7 @@ static cairo_surface_t * _get_image_surface(cairo_xlib_surface_t    * surface,
 		for(y = 0, y_off = y0 % SIZEOFARRAY(dither_pattern);
 		    y < ximage->height;
 		    y++, y_off = (y_off+1) % SIZEOFARRAY(dither_pattern)) {
-			const int8_t * dither_row = dither_pattern[y_off];
+			const int8 * dither_row = dither_pattern[y_off];
 			for(x = 0, x_off = x0 % SIZEOFARRAY(dither_pattern[0]);
 			    x < ximage->width;
 			    x++, x_off = (x_off+1) % SIZEOFARRAY(dither_pattern[0])) {
@@ -1240,7 +1240,7 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t   * surface,
 		for(y = 0, y_off = y0 % SIZEOFARRAY(dither_pattern);
 		    y < ximage.height;
 		    y++, y_off = (y_off+1) % SIZEOFARRAY(dither_pattern)) {
-			const int8_t * dither_row = dither_pattern[y_off];
+			const int8 * dither_row = dither_pattern[y_off];
 
 			for(x = 0, x_off = x0 % SIZEOFARRAY(dither_pattern[0]);
 			    x < ximage.width;
@@ -1249,20 +1249,20 @@ cairo_status_t _cairo_xlib_surface_draw_image(cairo_xlib_surface_t   * surface,
 				int a, r, g, b;
 
 				if(image_masks.bpp == 1)
-					in_pixel = !!(((uint8_t*)row)[x/8] & (1 << (x & 7)));
+					in_pixel = !!(((uint8*)row)[x/8] & (1 << (x & 7)));
 				else if(image_masks.bpp <= 8)
-					in_pixel = ((uint8_t*)row)[x];
+					in_pixel = ((uint8*)row)[x];
 				else if(image_masks.bpp <= 16)
-					in_pixel = ((uint16_t*)row)[x];
+					in_pixel = ((uint16*)row)[x];
 				else if(image_masks.bpp <= 24)
 #ifdef WORDS_BIGENDIAN
-					in_pixel = ((uint8_t*)row)[3 * x] << 16 |
-					    ((uint8_t*)row)[3 * x + 1] << 8  |
-					    ((uint8_t*)row)[3 * x + 2];
+					in_pixel = ((uint8*)row)[3 * x] << 16 |
+					    ((uint8*)row)[3 * x + 1] << 8  |
+					    ((uint8*)row)[3 * x + 2];
 #else
-					in_pixel = ((uint8_t*)row)[3 * x]           |
-					    ((uint8_t*)row)[3 * x + 1] << 8  |
-					    ((uint8_t*)row)[3 * x + 2] << 16;
+					in_pixel = ((uint8*)row)[3 * x]           |
+					    ((uint8*)row)[3 * x + 1] << 8  |
+					    ((uint8*)row)[3 * x + 2] << 16;
 #endif
 				else
 					in_pixel = row[x];

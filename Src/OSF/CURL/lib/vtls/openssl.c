@@ -35,17 +35,8 @@
 
 #ifdef USE_OPENSSL
 
- //#include "urldata.h"
-//#include "sendf.h"
-//#include "formdata.h" /* for the boundary function */
-//#include "url.h" /* for the ssl config check function */
-//#include "inet_pton.h"
 #include "openssl.h"
-//#include "connect.h"
-//#include "slist.h"
-//#include "select.h"
 #include "vtls.h"
-//#include "strcase.h"
 #include "hostcheck.h"
 #include "curl_printf.h"
 

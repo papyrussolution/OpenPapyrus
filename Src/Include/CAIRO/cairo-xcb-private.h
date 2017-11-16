@@ -164,7 +164,7 @@ struct _cairo_xcb_screen {
     xcb_render_sub_pixel_t  subpixel_order;
 
     xcb_gcontext_t gc[GC_CACHE_SIZE];
-    uint8_t gc_depths[GC_CACHE_SIZE];
+    uint8 gc_depths[GC_CACHE_SIZE];
 
     cairo_surface_t *stock_colors[CAIRO_STOCK_NUM_COLORS];
     struct {
@@ -456,10 +456,10 @@ _cairo_xcb_surface_core_fill_boxes (cairo_xcb_surface_t *dst,
 
 cairo_private xcb_pixmap_t
 _cairo_xcb_connection_create_pixmap (cairo_xcb_connection_t *connection,
-				     uint8_t depth,
+				     uint8 depth,
 				     xcb_drawable_t drawable,
-				     uint16_t width,
-				     uint16_t height);
+				     uint16 width,
+				     uint16 height);
 
 cairo_private void
 _cairo_xcb_connection_free_pixmap (cairo_xcb_connection_t *connection,
@@ -486,22 +486,22 @@ _cairo_xcb_connection_copy_area (cairo_xcb_connection_t *connection,
 				 xcb_drawable_t src,
 				 xcb_drawable_t dst,
 				 xcb_gcontext_t gc,
-				 int16_t src_x,
-				 int16_t src_y,
-				 int16_t dst_x,
-				 int16_t dst_y,
-				 uint16_t width,
-				 uint16_t height);
+				 int16 src_x,
+				 int16 src_y,
+				 int16 dst_x,
+				 int16 dst_y,
+				 uint16 width,
+				 uint16 height);
 
 cairo_private void
 _cairo_xcb_connection_put_image (cairo_xcb_connection_t *connection,
 				 xcb_drawable_t dst,
 				 xcb_gcontext_t gc,
-				 uint16_t width,
-				 uint16_t height,
-				 int16_t dst_x,
-				 int16_t dst_y,
-				 uint8_t depth,
+				 uint16 width,
+				 uint16 height,
+				 int16 dst_x,
+				 int16 dst_y,
+				 uint8 depth,
 				 uint32_t length,
 				 void *data);
 
@@ -509,24 +509,24 @@ cairo_private void
 _cairo_xcb_connection_put_subimage (cairo_xcb_connection_t *connection,
 				    xcb_drawable_t dst,
 				    xcb_gcontext_t gc,
-				    int16_t src_x,
-				    int16_t src_y,
-				    uint16_t width,
-				    uint16_t height,
-				    uint16_t cpp,
+				    int16 src_x,
+				    int16 src_y,
+				    uint16 width,
+				    uint16 height,
+				    uint16 cpp,
 				    int stride,
-				    int16_t dst_x,
-				    int16_t dst_y,
-				    uint8_t depth,
+				    int16 dst_x,
+				    int16 dst_y,
+				    uint8 depth,
 				    void *data);
 
 cairo_private xcb_get_image_reply_t *
 _cairo_xcb_connection_get_image (cairo_xcb_connection_t *connection,
 				 xcb_drawable_t src,
-				 int16_t src_x,
-				 int16_t src_y,
-				 uint16_t width,
-				 uint16_t height);
+				 int16 src_x,
+				 int16 src_y,
+				 uint16 width,
+				 uint16 height);
 
 cairo_private void
 _cairo_xcb_connection_poly_fill_rectangle (cairo_xcb_connection_t *connection,
@@ -552,25 +552,25 @@ cairo_private void
 _cairo_xcb_connection_shm_put_image (cairo_xcb_connection_t *connection,
 				     xcb_drawable_t dst,
 				     xcb_gcontext_t gc,
-				     uint16_t total_width,
-				     uint16_t total_height,
-				     int16_t src_x,
-				     int16_t src_y,
-				     uint16_t width,
-				     uint16_t height,
-				     int16_t dst_x,
-				     int16_t dst_y,
-				     uint8_t depth,
+				     uint16 total_width,
+				     uint16 total_height,
+				     int16 src_x,
+				     int16 src_y,
+				     uint16 width,
+				     uint16 height,
+				     int16 dst_x,
+				     int16 dst_y,
+				     uint8 depth,
 				     uint32_t shm,
 				     uint32_t offset);
 
 cairo_private cairo_status_t
 _cairo_xcb_connection_shm_get_image (cairo_xcb_connection_t *connection,
 				     xcb_drawable_t src,
-				     int16_t src_x,
-				     int16_t src_y,
-				     uint16_t width,
-				     uint16_t height,
+				     int16 src_x,
+				     int16 src_y,
+				     uint16 width,
+				     uint16 height,
 				     uint32_t shmseg,
 				     uint32_t offset);
 
@@ -582,15 +582,15 @@ static inline void
 _cairo_xcb_connection_shm_put_image (cairo_xcb_connection_t *connection,
 				     xcb_drawable_t dst,
 				     xcb_gcontext_t gc,
-				     uint16_t total_width,
-				     uint16_t total_height,
-				     int16_t src_x,
-				     int16_t src_y,
-				     uint16_t width,
-				     uint16_t height,
-				     int16_t dst_x,
-				     int16_t dst_y,
-				     uint8_t depth,
+				     uint16 total_width,
+				     uint16 total_height,
+				     int16 src_x,
+				     int16 src_y,
+				     uint16 width,
+				     uint16 height,
+				     int16 dst_x,
+				     int16 dst_y,
+				     uint8 depth,
 				     uint32_t shm,
 				     uint32_t offset)
 {
@@ -615,8 +615,8 @@ _cairo_xcb_connection_render_change_picture (cairo_xcb_connection_t     *connect
 cairo_private void
 _cairo_xcb_connection_render_set_picture_clip_rectangles (cairo_xcb_connection_t      *connection,
 							  xcb_render_picture_t   picture,
-							  int16_t                clip_x_origin,
-							  int16_t                clip_y_origin,
+							  int16                clip_x_origin,
+							  int16                clip_y_origin,
 							  uint32_t               rectangles_len,
 							  xcb_rectangle_t       *rectangles);
 
@@ -626,27 +626,27 @@ _cairo_xcb_connection_render_free_picture (cairo_xcb_connection_t *connection,
 
 cairo_private void
 _cairo_xcb_connection_render_composite (cairo_xcb_connection_t     *connection,
-					uint8_t               op,
+					uint8               op,
 					xcb_render_picture_t  src,
 					xcb_render_picture_t  mask,
 					xcb_render_picture_t  dst,
-					int16_t               src_x,
-					int16_t               src_y,
-					int16_t               mask_x,
-					int16_t               mask_y,
-					int16_t               dst_x,
-					int16_t               dst_y,
-					uint16_t              width,
-					uint16_t              height);
+					int16               src_x,
+					int16               src_y,
+					int16               mask_x,
+					int16               mask_y,
+					int16               dst_x,
+					int16               dst_y,
+					uint16              width,
+					uint16              height);
 
 cairo_private void
 _cairo_xcb_connection_render_trapezoids (cairo_xcb_connection_t *connection,
-					 uint8_t                       op,
+					 uint8                       op,
 					 xcb_render_picture_t          src,
 					 xcb_render_picture_t          dst,
 					 xcb_render_pictformat_t       mask_format,
-					 int16_t                       src_x,
-					 int16_t                       src_y,
+					 int16                       src_x,
+					 int16                       src_y,
 					 uint32_t                      traps_len,
 					 xcb_render_trapezoid_t       *traps);
 
@@ -666,7 +666,7 @@ _cairo_xcb_connection_render_add_glyphs (cairo_xcb_connection_t             *con
 					 uint32_t                     *glyphs_id,
 					 xcb_render_glyphinfo_t       *glyphs,
 					 uint32_t                      data_len,
-					 uint8_t                      *data);
+					 uint8                      *data);
 
 cairo_private void
 _cairo_xcb_connection_render_free_glyphs (cairo_xcb_connection_t         *connection,
@@ -676,43 +676,43 @@ _cairo_xcb_connection_render_free_glyphs (cairo_xcb_connection_t         *connec
 
 cairo_private void
 _cairo_xcb_connection_render_composite_glyphs_8 (cairo_xcb_connection_t        *connection,
-						 uint8_t                  op,
+						 uint8                  op,
 						 xcb_render_picture_t     src,
 						 xcb_render_picture_t     dst,
 						 xcb_render_pictformat_t  mask_format,
 						 xcb_render_glyphset_t    glyphset,
-						 int16_t                  src_x,
-						 int16_t                  src_y,
+						 int16                  src_x,
+						 int16                  src_y,
 						 uint32_t                 glyphcmds_len,
-						 uint8_t                 *glyphcmds);
+						 uint8                 *glyphcmds);
 
 cairo_private void
 _cairo_xcb_connection_render_composite_glyphs_16 (cairo_xcb_connection_t        *connection,
-						  uint8_t                  op,
+						  uint8                  op,
 						  xcb_render_picture_t     src,
 						  xcb_render_picture_t     dst,
 						  xcb_render_pictformat_t  mask_format,
 						  xcb_render_glyphset_t    glyphset,
-						  int16_t                  src_x,
-						  int16_t                  src_y,
+						  int16                  src_x,
+						  int16                  src_y,
 						  uint32_t                 glyphcmds_len,
-						  uint8_t                 *glyphcmds);
+						  uint8                 *glyphcmds);
 
 cairo_private void
 _cairo_xcb_connection_render_composite_glyphs_32 (cairo_xcb_connection_t        *connection,
-						  uint8_t                  op,
+						  uint8                  op,
 						  xcb_render_picture_t     src,
 						  xcb_render_picture_t     dst,
 						  xcb_render_pictformat_t  mask_format,
 						  xcb_render_glyphset_t    glyphset,
-						  int16_t                  src_x,
-						  int16_t                  src_y,
+						  int16                  src_x,
+						  int16                  src_y,
 						  uint32_t                 glyphcmds_len,
-						  uint8_t                 *glyphcmds);
+						  uint8                 *glyphcmds);
 
 cairo_private void
 _cairo_xcb_connection_render_fill_rectangles (cairo_xcb_connection_t      *connection,
-					      uint8_t                op,
+					      uint8                op,
 					      xcb_render_picture_t   dst,
 					      xcb_render_color_t     color,
 					      uint32_t               num_rects,
@@ -726,7 +726,7 @@ _cairo_xcb_connection_render_set_picture_transform (cairo_xcb_connection_t      
 cairo_private void
 _cairo_xcb_connection_render_set_picture_filter (cairo_xcb_connection_t         *connection,
 						 xcb_render_picture_t      picture,
-						 uint16_t                  filter_len,
+						 uint16                  filter_len,
 						 char                     *filter);
 
 cairo_private void

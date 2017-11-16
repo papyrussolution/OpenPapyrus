@@ -215,7 +215,7 @@ struct pixman_iter_t {
 	pixman_iter_fini_t fini;
 	// These fields are scratch data that implementations can use 
 	void * data;
-	uint8_t * bits;
+	uint8 * bits;
 	int stride;
 };
 
@@ -391,7 +391,7 @@ pixman_bool_t _pixman_implementation_blt(pixman_implementation_t * imp, const ui
 pixman_bool_t _pixman_implementation_fill(pixman_implementation_t * imp, uint32_t * bits,
     int stride, int bpp, int x, int y, int width, int height, uint32_t filler);
 void _pixman_implementation_iter_init(pixman_implementation_t * imp, pixman_iter_t * iter, pixman_image_t * image,
-    int x, int y, int width, int height, uint8_t * buffer, iter_flags_t flags, uint32_t image_flags);
+    int x, int y, int width, int height, uint8 * buffer, iter_flags_t flags, uint32_t image_flags);
 
 /* Specific implementations */
 pixman_implementation_t * _pixman_implementation_create_general(void);
@@ -619,7 +619,7 @@ static force_inline void pixman_list_move_to_front(pixman_list_t * list, pixman_
 
 /* Conversion between 8888 and 0565 */
 
-static force_inline uint16_t convert_8888_to_0565(uint32_t s)
+static force_inline uint16 convert_8888_to_0565(uint32_t s)
 {
 	/* The following code can be compiled into just 4 instructions on ARM */
 	uint32_t a, b;
@@ -627,15 +627,15 @@ static force_inline uint16_t convert_8888_to_0565(uint32_t s)
 	b = s & 0xFC00;
 	a |= a >> 5;
 	a |= b >> 5;
-	return (uint16_t)a;
+	return (uint16)a;
 }
 
-static force_inline uint32_t convert_0565_to_0888(uint16_t s)
+static force_inline uint32_t convert_0565_to_0888(uint16 s)
 {
 	return (((((s) << 3) & 0xf8) | (((s) >> 2) & 0x7)) | ((((s) << 5) & 0xfc00) | (((s) >> 1) & 0x300)) | ((((s) << 8) & 0xf80000) | (((s) << 3) & 0x70000)));
 }
 
-static force_inline uint32_t convert_0565_to_8888(uint16_t s)
+static force_inline uint32_t convert_0565_to_8888(uint16 s)
 {
 	return convert_0565_to_0888(s) | 0xff000000;
 }
@@ -652,7 +652,7 @@ static force_inline uint32_t convert_x888_to_8888(uint32_t s)
 	return s | 0xff000000;
 }
 
-static force_inline uint16_t convert_0565_to_0565(uint16_t s)
+static force_inline uint16 convert_0565_to_0565(uint16 s)
 {
 	return s;
 }
@@ -700,8 +700,8 @@ static force_inline uint32_t unorm_to_unorm(uint32_t val, int from_bits, int to_
 	return result;
 }
 
-uint16_t pixman_float_to_unorm(float f, int n_bits);
-float FASTCALL pixman_unorm_to_float(uint16_t u, int n_bits);
+uint16 FASTCALL pixman_float_to_unorm(float f, int n_bits);
+float FASTCALL pixman_unorm_to_float(uint16 u, int n_bits);
 
 /*
  * Various debugging code
@@ -728,7 +728,7 @@ float FASTCALL pixman_unorm_to_float(uint16_t u, int n_bits);
 
 #endif
 
-void _pixman_log_error(const char * function, const char * message);
+void FASTCALL _pixman_log_error(const char * function, const char * message);
 
 #define return_if_fail(expr)						\
 	do { \

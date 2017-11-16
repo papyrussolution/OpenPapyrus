@@ -49,16 +49,8 @@
 #ifdef HAVE_NETDB_H
 	#include <netdb.h>
 #endif
-//#include "urldata.h"
-//#include "curl_base64.h"
-//#include "curl_memory.h"
 #include "curl_sec.h"
-//#include "ftp.h"
-//#include "sendf.h"
-//#include "strcase.h"
-//#include "warnless.h"
-//#include "strdup.h"
-/* The last #include file should be: */
+// The last #include file should be: 
 #include "memdebug.h"
 
 static const struct {

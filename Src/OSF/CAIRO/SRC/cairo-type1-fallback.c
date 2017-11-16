@@ -294,8 +294,8 @@ static cairo_status_t _charstring_close_path(void * closure)
 
 static void charstring_encrypt(cairo_array_t * data)
 {
-	uint16_t c, p;
-	uint16_t r = CAIRO_TYPE1_CHARSTRING_KEY;
+	uint16 c, p;
+	uint16 r = CAIRO_TYPE1_CHARSTRING_KEY;
 	uchar * d = (uchar*)_cairo_array_index(data, 0);
 	uchar * end = d + _cairo_array_num_elements(data);
 	while(d < end) {
@@ -519,7 +519,7 @@ static void cairo_type1_font_write_header(cairo_type1_font_t * font,
 static cairo_status_t cairo_type1_write_stream_encrypted(void * closure, const uchar * data, uint length)
 {
 	const uchar * in, * end;
-	uint16_t c, p;
+	uint16 c, p;
 	static const char hex_digits[/*16*/] = "0123456789abcdef";
 	char digits[3];
 	cairo_type1_font_t * font = (cairo_type1_font_t *)closure;

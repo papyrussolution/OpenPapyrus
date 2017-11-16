@@ -463,7 +463,7 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input,
 	xmlChar * out = NULL;
 	size_t buffer_size = 0;
 	int html = 0;
-	if(input == NULL) 
+	if(!input) 
 		return 0;
 	if(doc)
 		html = (doc->type == XML_HTML_DOCUMENT_NODE);
@@ -686,7 +686,7 @@ xmlChar * xmlEncodeSpecialChars(const xmlDoc * doc ATTRIBUTE_UNUSED, const xmlCh
 	xmlChar * buffer = NULL;
 	xmlChar * out = NULL;
 	size_t buffer_size = 0;
-	if(input == NULL) 
+	if(!input) 
 		return 0;
 	/*
 	 * allocate an translation buffer.

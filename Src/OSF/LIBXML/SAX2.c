@@ -319,7 +319,7 @@ void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
 		 */
 		if(ctxt->sax && ctxt->sax->resolveEntity)
 			input = ctxt->sax->resolveEntity(ctxt->userData, ExternalID, SystemID);
-		if(input == NULL) {
+		if(!input) {
 			return;
 		}
 		xmlNewDtd(ctxt->myDoc, name, ExternalID, SystemID);

@@ -835,7 +835,7 @@ tspec	: store		{ $$.typ = mkint();
 			  sp->node = $$;
 			}
 	;
-type	: VOID		{ $$ = mkvoid(); }
+type	: VOID { $$ = mkvoid(); }
 	| BOOL		{ $$ = mkbool(); }
 	| CHAR		{ $$ = mkchar(); }
 	| WCHAR		{ $$ = mkwchart(); }
@@ -1305,7 +1305,7 @@ store	: AUTO		{ $$ = Sauto; }
 	| EXTERN	{ $$ = Sextern; transient = 1; }
 	| TYPEDEF	{ $$ = Stypedef; }
 	| VIRTUAL	{ $$ = Svirtual; }
-	| CONST		{ $$ = Sconst; }
+	| CONST     { $$ = Sconst; }
 	| FRIEND	{ $$ = Sfriend; }
 	| INLINE	{ $$ = Sinline; }
 	| MUSTUNDERSTAND{ $$ = SmustUnderstand; }

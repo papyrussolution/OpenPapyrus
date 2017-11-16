@@ -114,13 +114,15 @@ int FASTCALL S_GUID::FromStr(const char * pBuf)
 	const  char * p = pBuf;
 	uint   t = 0;
 	char   temp_buf[64];
-	while(*p) {
-		char   c = *p;
-		if((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))
-			temp_buf[t++] = c;
-		if(c == ')' || t > (sizeof(temp_buf)-4))
-			break;
-		p++;
+	if(p) {
+		while(*p) {
+			char   c = *p;
+			if((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))
+				temp_buf[t++] = c;
+			if(c == ')' || t > (sizeof(temp_buf)-4))
+				break;
+			p++;
+		}
 	}
 	if(t == 32) {
 		size_t i;

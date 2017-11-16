@@ -742,7 +742,7 @@ toolbar export GOODS TB_FIRST_TOOLBAR {
 	ADDITEM        : kbIns,       TBBM_INSERT,           "@{add}\tInsert"
 	ADDBYSAMPLE    : kbAltF2,     TBBM_COPYBYSAMPLE,     "@{doaddbysample}\tAlt-F2"
 	DELETEITEM     : kbDel,       TBBM_DELETE,           "@{delete}\tDelete"
-	DELETEALL      : kbCtrlF8,    TBBM_DELETEALL,        "@{doremoveall}/перенос в другую группу\tCtrl-F8"
+	DELETEALL      : kbCtrlF8,    TBBM_DELETEALL,        "@{doupdateall}\tCtrl-F8"
 	UNITEOBJ       : kbCtrlU,     TBBM_UNITE,            "@{unite_goods}\tCtrl-U"
 	separator
 	ADDTOBASKET    : kbCtrlF4,    TBBM_BASKET,           "@{doputtobasket}\tCtrl-F4"
@@ -821,7 +821,7 @@ toolbar export ARTICLE TB_FIRST_TOOLBAR {
 	ADDITEM       : kbIns,    TBBM_INSERT,    "@{add}\tInsert"
 	ADDGROUP      : kbCtrlA,  TBBM_NEWFOLDER, "Создать группирующую папку\tCtrl-A"
 	DELETEITEM    : kbDel,    TBBM_DELETE,    "@{delete}\tDelete"
-	DELETEALL     : kbCtrlF8, TBBM_DELETEALL, "@{doremoveall}\tCtrl-F8"
+	DELETEALL     : kbCtrlF8, TBBM_DELETEALL, "@{doupdateall}\tCtrl-F8"
 	separator
 	EDTILINKOBJ   : kbF2,     TBBM_LINK,      "Связанный объект\tF2"
 	VIEWBILLS     : kbF3,     TBBM_BILLS,     "Документы по статье\tF3"

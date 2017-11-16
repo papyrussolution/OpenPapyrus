@@ -1083,7 +1083,7 @@ cairo_int_status_t _cairo_scaled_font_subset_create_glyph_names(cairo_scaled_fon
 	cairo_string_entry_t key, * entry;
 	char buf[30];
 	char * utf8;
-	uint16_t * utf16;
+	uint16 * utf16;
 	int utf16_len;
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	names = _cairo_hash_table_create(_cairo_string_equal);

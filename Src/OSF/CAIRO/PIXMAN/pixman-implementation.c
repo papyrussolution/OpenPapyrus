@@ -211,7 +211,7 @@ static uint32_t * get_scanline_null(pixman_iter_t * iter, const uint32_t * mask)
 
 void _pixman_implementation_iter_init(pixman_implementation_t * imp,
     pixman_iter_t * iter, pixman_image_t * image,
-    int x, int y, int width, int height, uint8_t * buffer,
+    int x, int y, int width, int height, uint8 * buffer,
     iter_flags_t iter_flags, uint32_t image_flags)
 {
 	pixman_format_code_t format;

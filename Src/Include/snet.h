@@ -48,7 +48,7 @@ public:
 		fmtPort = 0x0004
 	};
 	static ulong SLAPI IPToULong(const char * pIP);
-	static int SLAPI ULongToIP(ulong ip, SString & rIP);
+	static void  SLAPI ULongToIP(ulong ip, SString & rIP);
 	static int SLAPI GetNameByAddr(const char * pIP, SString & aHost);
 
 	SLAPI  InetAddr();

@@ -38,18 +38,13 @@
  */
 #include "libssh2_priv.h"
 #pragma hdrstop
-//#include "misc.h"
-//#include <errno.h>
 #ifdef HAVE_SYS_UN_H
 	#include <sys/un.h>
 #else
-	/* Use the existence of sys/un.h as a test if Unix domain socket is
-	   supported.  winsock*.h define PF_UNIX/AF_UNIX but do not actually
-	   support them. */
+	// Use the existence of sys/un.h as a test if Unix domain socket is
+	// supported.  winsock*.h define PF_UNIX/AF_UNIX but do not actually support them.
 	#undef PF_UNIX
 #endif
-//#include "userauth.h"
-//#include "session.h"
 
 /* Requests from client to agent for protocol 1 key operations */
 #define SSH_AGENTC_REQUEST_RSA_IDENTITIES 1
@@ -110,13 +105,11 @@ typedef struct agent_transaction_ctx {
 } * agent_transaction_ctx_t;
 
 typedef int (*agent_connect_func)(LIBSSH2_AGENT * agent);
-typedef int (*agent_transact_func)(LIBSSH2_AGENT * agent,
-    agent_transaction_ctx_t transctx);
+typedef int (*agent_transact_func)(LIBSSH2_AGENT * agent, agent_transaction_ctx_t transctx);
 typedef int (*agent_disconnect_func)(LIBSSH2_AGENT * agent);
 
 struct agent_publickey {
 	struct list_node node;
-
 	/* this is the struct we expose externally */
 	struct libssh2_agent_publickey external;
 };
@@ -210,14 +203,12 @@ static int agent_transact_unix(LIBSSH2_AGENT * agent, agent_transaction_ctx_t tr
 		}
 		transctx->state = agent_NB_state_response_received;
 	}
-
 	return 0;
 }
 
 static int agent_disconnect_unix(LIBSSH2_AGENT * agent)
 {
-	int ret;
-	ret = close(agent->fd);
+	int ret = close(agent->fd);
 	if(ret != -1)
 		agent->fd = LIBSSH2_INVALID_SOCKET;
 	else
@@ -245,8 +236,7 @@ struct agent_ops agent_ops_unix = {
 
 static int agent_connect_pageant(LIBSSH2_AGENT * agent)
 {
-	HWND hwnd;
-	hwnd = FindWindow("Pageant", "Pageant");
+	HWND hwnd = FindWindow("Pageant", "Pageant");
 	if(!hwnd)
 		return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL, "failed connecting agent");
 	agent->fd = 0;     /* Mark as the connection has been established */
@@ -262,7 +252,6 @@ static int agent_transact_pageant(LIBSSH2_AGENT * agent, agent_transaction_ctx_t
 	uchar * p2;
 	int id;
 	COPYDATASTRUCT cds;
-
 	if(!transctx || 4 + transctx->request_len > PAGEANT_MAX_MSGLEN)
 		return _libssh2_error(agent->session, LIBSSH2_ERROR_INVAL, "illegal input");
 	hwnd = FindWindow("Pageant", "Pageant");
@@ -400,7 +389,6 @@ static int agent_sign(LIBSSH2_SESSION * session, uchar ** sig, size_t * sig_len,
 		goto error;
 	}
 	s += method_len;
-
 	/* Read the signature */
 	len -= 4;
 	if(len < 0) {

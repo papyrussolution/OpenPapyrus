@@ -87,7 +87,7 @@
 
 /* member offsets */
 #define CONTAINER_OF(type, member, data)				\
-	((type*)(((uint8_t*)data) - offsetof(type, member)))
+	((type*)(((uint8*)data) - offsetof(type, member)))
 
 /* TLS */
 #if defined(PIXMAN_NO_TLS)
@@ -172,7 +172,7 @@
 									\
 	static void tls_ ## name ## _destroy_value(void * value)			\
 	{								    \
-		free(value);						       \
+		SAlloc::F(value);						       \
 	}								    \
 	static void tls_ ## name ## _make_key(void)				       \
 	{								    \

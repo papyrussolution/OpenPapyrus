@@ -22,9 +22,6 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include "strdup.h"
-//#include "fileinfo.h"
-//#include "curl_memory.h"
 #include "memdebug.h" // The last #include file should be
 
 struct curl_fileinfo * Curl_fileinfo_alloc(void)

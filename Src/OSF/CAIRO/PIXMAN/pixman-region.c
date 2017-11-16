@@ -194,10 +194,10 @@ static size_t FASTCALL PIXREGION_SZOF(size_t n)
 static region_data_type_t * FASTCALL alloc_data(size_t n)
 {
 	const size_t sz = PIXREGION_SZOF(n);
-	return sz ? (region_data_type_t *)malloc(sz) : 0;
+	return sz ? (region_data_type_t *)SAlloc::M(sz) : 0;
 }
 
-#define FREE_DATA(reg) if((reg)->data && (reg)->data->size) free((reg)->data)
+#define FREE_DATA(reg) if((reg)->data && (reg)->data->size) SAlloc::F((reg)->data)
 
 #define RECTALLOC_BAIL(region, n, bail)					\
 	do { \
@@ -242,7 +242,7 @@ static region_data_type_t * FASTCALL alloc_data(size_t n)
 				new_data = NULL;					\
 			}							    \
 			else { \
-				new_data = (region_data_type_t*)realloc((reg)->data, data_size); \
+				new_data = (region_data_type_t*)SAlloc::R((reg)->data, data_size); \
 			}							    \
 			if(new_data) { \
 				new_data->size = (numRects);				\
@@ -296,7 +296,7 @@ int PREFIX(_print)(region_type_t *rgn)
 	return(num);
 }
 
-PIXMAN_EXPORT void PREFIX(_init) (region_type_t *region)
+PIXMAN_EXPORT void PREFIX(_init)(region_type_t *region)
 {
 	region->extents = *pixman_region_empty_box;
 	region->data = pixman_region_empty_data;
@@ -385,7 +385,7 @@ static pixman_bool_t FASTCALL pixman_rect_alloc(region_type_t * region, int n)
 			data = NULL;
 		}
 		else {
-			data = (region_data_type_t*)realloc(region->data, PIXREGION_SZOF(n));
+			data = (region_data_type_t*)SAlloc::R(region->data, PIXREGION_SZOF(n));
 		}
 		if(!data)
 			return pixman_break(region);
@@ -442,31 +442,28 @@ PIXMAN_EXPORT pixman_bool_t PREFIX(_copy) (region_type_t *dst, region_type_t *sr
  *
  **-----------------------------------------------------------------------
  */
-static inline int pixman_coalesce(region_type_t * region,      /* Region to coalesce		 */
-    int prev_start,                           /* Index of start of previous band */
-    int cur_start)                            /* Index of start of current band  */
+static inline int pixman_coalesce(region_type_t * region /* Region to coalesce */,
+    int prev_start /* Index of start of previous band */, int cur_start/* Index of start of current band */)
 {
 	box_type_t * prev_box;  /* Current box in previous band	     */
 	box_type_t * cur_box;   /* Current box in current band       */
 	int numRects;           /* Number rectangles in both bands   */
 	int y2;                 /* Bottom of current band	     */
-
 	/*
 	 * Figure out how many rectangles are in the band.
 	 */
 	numRects = cur_start - prev_start;
 	critical_if_fail(numRects == region->data->numRects - cur_start);
-
-	if(!numRects) return cur_start;
-
+	if(!numRects) 
+		return cur_start;
 	/*
 	 * The bands may only be coalesced if the bottom of the previous
 	 * matches the top scanline of the current.
 	 */
 	prev_box = PIXREGION_BOX(region, prev_start);
 	cur_box = PIXREGION_BOX(region, cur_start);
-	if(prev_box->y2 != cur_box->y1) return cur_start;
-
+	if(prev_box->y2 != cur_box->y1) 
+		return cur_start;
 	/*
 	 * Make sure the bands have boxes in the same places. This
 	 * assumes that boxes have been added in such a way that they
@@ -497,13 +494,9 @@ static inline int pixman_coalesce(region_type_t * region,      /* Region to coal
 
 /* Quicky macro to avoid trivial reject procedure calls to pixman_coalesce */
 
-#define COALESCE(new_reg, prev_band, cur_band)				\
-	do								    \
-	{								    \
-		if(cur_band - prev_band == new_reg->data->numRects - cur_band) \
-			prev_band = pixman_coalesce(new_reg, prev_band, cur_band); \
-		else								\
-			prev_band = cur_band;					    \
+#define COALESCE(new_reg, prev_band, cur_band) \
+	do { \
+		prev_band = ((cur_band - prev_band) == (new_reg->data->numRects - cur_band)) ? pixman_coalesce(new_reg, prev_band, cur_band) : cur_band; \
 	} while(0)
 
 /*-
@@ -522,8 +515,7 @@ static inline int pixman_coalesce(region_type_t * region,      /* Region to coal
  *
  **-----------------------------------------------------------------------
  */
-static inline pixman_bool_t pixman_region_append_non_o(region_type_t * region,
-    box_type_t * r, box_type_t * r_end, int y1, int y2)
+static inline pixman_bool_t pixman_region_append_non_o(region_type_t * region, box_type_t * r, box_type_t * r_end, int y1, int y2)
 {
 	box_type_t * next_rect;
 	int new_rects = r_end - r;
@@ -542,8 +534,7 @@ static inline pixman_bool_t pixman_region_append_non_o(region_type_t * region,
 }
 
 #define FIND_BAND(r, r_band_end, r_end, ry1)			     \
-	do								 \
-	{								 \
+	do { \
 		ry1 = r->y1;						     \
 		r_band_end = r + 1;					     \
 		while((r_band_end != r_end) && (r_band_end->y1 == ry1)) {   \
@@ -552,14 +543,12 @@ static inline pixman_bool_t pixman_region_append_non_o(region_type_t * region,
 	} while(0)
 
 #define APPEND_REGIONS(new_reg, r, r_end)				\
-	do								    \
-	{								    \
+	do { \
 		int new_rects;							\
 		if((new_rects = r_end - r)) {				       \
 			RECTALLOC_BAIL(new_reg, new_rects, bail);		   \
-			memmove((char*)PIXREGION_TOP(new_reg), (char*)r,	\
-			    new_rects * sizeof(box_type_t));		       \
-			new_reg->data->numRects += new_rects;			    \
+			memmove((char*)PIXREGION_TOP(new_reg), (char*)r, new_rects * sizeof(box_type_t)); \
+			new_reg->data->numRects += new_rects; \
 		}								\
 	} while(0)
 
@@ -665,25 +654,20 @@ static pixman_bool_t pixman_op(region_type_t *  new_reg,               /* Place 
 		old_data = new_reg->data;
 		new_reg->data = pixman_region_empty_data;
 	}
-
 	/* guess at new size */
 	if(numRects > new_size)
 		new_size = numRects;
-
 	new_size <<= 1;
-
 	if(!new_reg->data)
 		new_reg->data = pixman_region_empty_data;
 	else if(new_reg->data->size)
 		new_reg->data->numRects = 0;
-
 	if(new_size > new_reg->data->size) {
 		if(!pixman_rect_alloc(new_reg, new_size)) {
-			free(old_data);
+			SAlloc::F(old_data);
 			return FALSE;
 		}
 	}
-
 	/*
 	 * Initialize ybot.
 	 * In the upcoming loop, ybot and ytop serve different functions depending
@@ -697,9 +681,7 @@ static pixman_bool_t pixman_op(region_type_t *  new_reg,               /* Place 
 	 *	For an overlapping band (where the two regions intersect), ytop clips
 	 * the top of the rectangles of both regions and ybot clips the bottoms.
 	 */
-
 	ybot = MIN(r1->y1, r2->y1);
-
 	/*
 	 * prev_band serves to mark the start of the previous band so rectangles
 	 * can be coalesced into larger rectangles. qv. pixman_coalesce, above.
@@ -823,7 +805,7 @@ static pixman_bool_t pixman_op(region_type_t *  new_reg,               /* Place 
 		/* Append rest of boxes */
 		APPEND_REGIONS(new_reg, r2_band_end, r2_end);
 	}
-	free(old_data);
+	SAlloc::F(old_data);
 	if(!(numRects = new_reg->data->numRects)) {
 		FREE_DATA(new_reg);
 		new_reg->data = pixman_region_empty_data;
@@ -838,7 +820,7 @@ static pixman_bool_t pixman_op(region_type_t *  new_reg,               /* Place 
 	}
 	return TRUE;
 bail:
-	free(old_data);
+	SAlloc::F(old_data);
 	return pixman_break(new_reg);
 }
 /*-
@@ -1409,10 +1391,8 @@ static pixman_bool_t FASTCALL validate(region_type_t * badreg)
 				/* Put box into new band */
 				if(reg->extents.x2 < ri_box->x2)
 					reg->extents.x2 = ri_box->x2;
-
 				if(reg->extents.x1 > box->x1)
 					reg->extents.x1 = box->x1;
-
 				COALESCE(reg, rit->prev_band, rit->cur_band);
 				rit->cur_band = reg->data->numRects;
 				RECTALLOC_BAIL(reg, 1, bail);
@@ -1433,13 +1413,13 @@ static pixman_bool_t FASTCALL validate(region_type_t * badreg)
 			if(data_size / size_ri != sizeof(region_info_t))
 				goto bail;
 			if(ri == stack_regions) {
-				rit = (region_info_t *)malloc(data_size);
+				rit = (region_info_t *)SAlloc::M(data_size);
 				if(!rit)
 					goto bail;
 				memcpy(rit, ri, num_ri * sizeof(region_info_t));
 			}
 			else {
-				rit = (region_info_t*)realloc(ri, data_size);
+				rit = (region_info_t*)SAlloc::R(ri, data_size);
 				if(!rit)
 					goto bail;
 			}
@@ -1508,22 +1488,16 @@ next_rect:;
 		if(!ret)
 			goto bail;
 	}
-
 	*badreg = ri[0].reg;
-
 	if(ri != stack_regions)
-		free(ri);
-
+		SAlloc::F(ri);
 	GOOD(badreg);
 	return ret;
-
 bail:
 	for(i = 0; i < num_ri; i++)
 		FREE_DATA(&ri[i].reg);
-
 	if(ri != stack_regions)
-		free(ri);
-
+		SAlloc::F(ri);
 	return pixman_break(badreg);
 }
 
@@ -2308,11 +2282,10 @@ PIXMAN_EXPORT void PREFIX(_init_from_image) (region_type_t *region, pixman_image
 		region->extents.y1 = PIXREGION_BOXPTR(region)->y1;
 		region->extents.y2 = PIXREGION_END(region)->y2;
 		if(region->data->numRects == 1) {
-			free(region->data);
+			SAlloc::F(region->data);
 			region->data = NULL;
 		}
 	}
-
 error:
 	return;
 }

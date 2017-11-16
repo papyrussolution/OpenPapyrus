@@ -42,7 +42,7 @@ static void FASTCALL combine_mask_ca(uint32_t * src, uint32_t * mask)
 			*(mask) = x;
 		}
 		else {
-			uint16_t xa = x >> A_SHIFT;
+			uint16 xa = x >> A_SHIFT;
 			UN8x4_MUL_UN8x4(x, a);
 			*(src) = x;
 			UN8x4_MUL_UN8(a, xa);
@@ -298,8 +298,8 @@ static void combine_saturate_u(pixman_implementation_t * imp, pixman_op_t op,
 	for(int i = 0; i < width; ++i) {
 		uint32_t s = combine_mask(src, mask, i);
 		uint32_t d = *(dest + i);
-		uint16_t sa = s >> A_SHIFT;
-		uint16_t da = ~d >> A_SHIFT;
+		uint16 sa = s >> A_SHIFT;
+		uint16 da = ~d >> A_SHIFT;
 		if(sa > da) {
 			sa = DIV_UN8(da, sa);
 			UN8x4_MUL_UN8(s, sa);
@@ -412,10 +412,10 @@ static void combine_multiply_ca(pixman_implementation_t * imp,
 		{								\
 			uint32_t s = combine_mask(src, mask, i);		   \
 			uint32_t d = *(dest + i);				    \
-			uint8_t sa = ALPHA_8(s);				   \
-			uint8_t isa = ~sa;					    \
-			uint8_t da = ALPHA_8(d);				   \
-			uint8_t ida = ~da;					    \
+			uint8 sa = ALPHA_8(s);				   \
+			uint8 isa = ~sa;					    \
+			uint8 da = ALPHA_8(d);				   \
+			uint8 ida = ~da;					    \
 			uint32_t result;					    \
 									\
 			result = d;						    \
@@ -441,8 +441,8 @@ static void combine_multiply_ca(pixman_implementation_t * imp,
 			uint32_t m = *(mask + i);				    \
 			uint32_t s = *(src + i);				    \
 			uint32_t d = *(dest + i);				    \
-			uint8_t da = ALPHA_8(d);				   \
-			uint8_t ida = ~da;					    \
+			uint8 da = ALPHA_8(d);				   \
+			uint8 ida = ~da;					    \
 			uint32_t result;					    \
 			combine_mask_ca(&s, &m);				   \
 			result = d;						    \
@@ -809,10 +809,10 @@ PDF_SEPARABLE_BLEND_MODE(exclusion)
 		for(int i = 0; i < width; ++i) { \
 			uint32_t s = combine_mask(src, mask, i);		   \
 			uint32_t d = *(dest + i);				    \
-			uint8_t sa = ALPHA_8(s);				   \
-			uint8_t isa = ~sa;					    \
-			uint8_t da = ALPHA_8(d);				   \
-			uint8_t ida = ~da;					    \
+			uint8 sa = ALPHA_8(s);				   \
+			uint8 isa = ~sa;					    \
+			uint8 da = ALPHA_8(d);				   \
+			uint8 ida = ~da;					    \
 			uint32_t sc[3], dc[3], c[3];				    \
 			uint32_t result = d;						    \
 			UN8x4_MUL_UN8_ADD_UN8x4_MUL_UN8(result, isa, s, ida);	   \
@@ -1053,7 +1053,7 @@ PDF_NON_SEPARABLE_BLEND_MODE(hsl_luminosity)
 //
 // portion covered by a but not b 
 //
-static uint8_t FASTCALL combine_disjoint_out_part(uint8_t a, uint8_t b)
+static uint8 FASTCALL combine_disjoint_out_part(uint8 a, uint8 b)
 {
 	/* min (1, (1-b) / a) */
 
@@ -1065,7 +1065,7 @@ static uint8_t FASTCALL combine_disjoint_out_part(uint8_t a, uint8_t b)
 //
 // portion covered by both a and b 
 //
-static uint8_t FASTCALL combine_disjoint_in_part(uint8_t a, uint8_t b)
+static uint8 FASTCALL combine_disjoint_in_part(uint8 a, uint8 b)
 {
 	/* max (1-(1-b)/a,0) */
 	/*  = - min ((1-b)/a - 1, 0) */
@@ -1079,7 +1079,7 @@ static uint8_t FASTCALL combine_disjoint_in_part(uint8_t a, uint8_t b)
 //
 // portion covered by a but not b 
 //
-static uint8_t FASTCALL combine_conjoint_out_part(uint8_t a, uint8_t b)
+static uint8 FASTCALL combine_conjoint_out_part(uint8 a, uint8 b)
 {
 	/* max (1-b/a,0) */
 	/* = 1-min(b/a,1) */
@@ -1092,7 +1092,7 @@ static uint8_t FASTCALL combine_conjoint_out_part(uint8_t a, uint8_t b)
 }
 
 /* portion covered by both a and b */
-static uint8_t combine_conjoint_in_part(uint8_t a, uint8_t b)
+static uint8 combine_conjoint_in_part(uint8 a, uint8 b)
 {
 	/* min (1,b/a) */
 
@@ -1101,28 +1101,28 @@ static uint8_t combine_conjoint_in_part(uint8_t a, uint8_t b)
 	return DIV_UN8(b, a);  /* b/a */
 }
 
-#define GET_COMP(v, i)   ((uint16_t)(uint8_t)((v) >> i))
+#define GET_COMP(v, i)   ((uint16)(uint8)((v) >> i))
 
 #define ADD(x, y, i, t)							\
 	((t) = GET_COMP(x, i) + GET_COMP(y, i),				  \
-	    (uint32_t)((uint8_t)((t) | (0 - ((t) >> G_SHIFT)))) << (i))
+	    (uint32_t)((uint8)((t) | (0 - ((t) >> G_SHIFT)))) << (i))
 
 #define GENERIC(x, y, i, ax, ay, t, u, v)				\
 	((t) = (MUL_UN8(GET_COMP(y, i), ay, (u)) +			  \
 		    MUL_UN8(GET_COMP(x, i), ax, (v))),			      \
-	    (uint32_t)((uint8_t)((t) |					     \
+	    (uint32_t)((uint8)((t) |					     \
 			    (0 - ((t) >> G_SHIFT)))) << (i))
 
 static void combine_disjoint_general_u(uint32_t * dest, const uint32_t * src,
-    const uint32_t * mask, int width, uint8_t combine)
+    const uint32_t * mask, int width, uint8 combine)
 {
 	for(int i = 0; i < width; ++i) {
 		uint32_t s = combine_mask(src, mask, i);
 		uint32_t d = *(dest + i);
 		uint32_t m, n, o, p;
-		uint16_t Fa, Fb, t, u, v;
-		uint8_t sa = s >> A_SHIFT;
-		uint8_t da = d >> A_SHIFT;
+		uint16 Fa, Fb, t, u, v;
+		uint8 sa = s >> A_SHIFT;
+		uint8 da = d >> A_SHIFT;
 		switch(combine & COMBINE_A) {
 			default:
 			    Fa = 0;
@@ -1165,10 +1165,10 @@ static void combine_disjoint_over_u(pixman_implementation_t * imp,
 {
 	for(int i = 0; i < width; ++i) {
 		uint32_t s = combine_mask(src, mask, i);
-		uint16_t a = s >> A_SHIFT;
+		uint16 a = s >> A_SHIFT;
 		if(s != 0x00) {
 			uint32_t d = *(dest + i);
-			a = combine_disjoint_out_part(d >> A_SHIFT, (uint8_t)a);
+			a = combine_disjoint_out_part(d >> A_SHIFT, (uint8)a);
 			UN8x4_MUL_UN8_ADD_UN8x4(d, a, s);
 			*(dest + i) = d;
 		}
@@ -1233,15 +1233,15 @@ static void combine_conjoint_general_u(uint32_t *      dest,
     const uint32_t * src,
     const uint32_t * mask,
     int width,
-    uint8_t combine)
+    uint8 combine)
 {
 	for(int i = 0; i < width; ++i) {
 		uint32_t s = combine_mask(src, mask, i);
 		uint32_t d = *(dest + i);
 		uint32_t m, n, o, p;
-		uint16_t Fa, Fb, t, u, v;
-		uint8_t sa = s >> A_SHIFT;
-		uint8_t da = d >> A_SHIFT;
+		uint16 Fa, Fb, t, u, v;
+		uint8 sa = s >> A_SHIFT;
+		uint8 da = d >> A_SHIFT;
 		switch(combine & COMBINE_A) {
 			default:
 			    Fa = 0;
@@ -1438,7 +1438,7 @@ static void combine_in_ca(pixman_implementation_t * imp,
 {
 	for(int i = 0; i < width; ++i) {
 		uint32_t d = *(dest + i);
-		uint16_t a = d >> A_SHIFT;
+		uint16 a = d >> A_SHIFT;
 		uint32_t s = 0;
 		if(a) {
 			uint32_t m = *(mask + i);
@@ -1476,7 +1476,7 @@ static void combine_out_ca(pixman_implementation_t * imp, pixman_op_t op,
 {
 	for(int i = 0; i < width; ++i) {
 		uint32_t d = *(dest + i);
-		uint16_t a = ~d >> A_SHIFT;
+		uint16 a = ~d >> A_SHIFT;
 		uint32_t s = 0;
 		if(a) {
 			uint32_t m = *(mask + i);
@@ -1521,7 +1521,7 @@ static void combine_atop_ca(pixman_implementation_t * imp, pixman_op_t op,
 		uint32_t s = *(src + i);
 		uint32_t m = *(mask + i);
 		uint32_t ad;
-		uint16_t as = d >> A_SHIFT;
+		uint16 as = d >> A_SHIFT;
 		combine_mask_ca(&s, &m);
 		ad = ~m;
 		UN8x4_MUL_UN8x4_ADD_UN8x4_MUL_UN8(d, ad, s, as);
@@ -1537,7 +1537,7 @@ static void combine_atop_reverse_ca(pixman_implementation_t * imp, pixman_op_t o
 		uint32_t s = *(src + i);
 		uint32_t m = *(mask + i);
 		uint32_t ad;
-		uint16_t as = ~d >> A_SHIFT;
+		uint16 as = ~d >> A_SHIFT;
 		combine_mask_ca(&s, &m);
 		ad = m;
 		UN8x4_MUL_UN8x4_ADD_UN8x4_MUL_UN8(d, ad, s, as);
@@ -1553,7 +1553,7 @@ static void combine_xor_ca(pixman_implementation_t * imp, pixman_op_t op,
 		uint32_t s = *(src + i);
 		uint32_t m = *(mask + i);
 		uint32_t ad;
-		uint16_t as = ~d >> A_SHIFT;
+		uint16 as = ~d >> A_SHIFT;
 		combine_mask_ca(&s, &m);
 		ad = ~m;
 		UN8x4_MUL_UN8x4_ADD_UN8x4_MUL_UN8(d, ad, s, as);
@@ -1579,8 +1579,8 @@ static void combine_saturate_ca(pixman_implementation_t * imp, pixman_op_t op,
 {
 	for(int i = 0; i < width; ++i) {
 		uint32_t s, d;
-		uint16_t sa, sr, sg, sb, da;
-		uint16_t t, u, v;
+		uint16 sa, sr, sg, sb, da;
+		uint16 t, u, v;
 		uint32_t m, n, o, p;
 		d = *(dest + i);
 		s = *(src + i);
@@ -1620,15 +1620,15 @@ static void combine_disjoint_general_ca(uint32_t *      dest,
     const uint32_t * src,
     const uint32_t * mask,
     int width,
-    uint8_t combine)
+    uint8 combine)
 {
 	for(int i = 0; i < width; ++i) {
 		uint32_t s, d;
 		uint32_t m, n, o, p;
 		uint32_t Fa, Fb;
-		uint16_t t, u, v;
+		uint16 t, u, v;
 		uint32_t sa;
-		uint8_t da;
+		uint8 da;
 		s = *(src + i);
 		m = *(mask + i);
 		d = *(dest + i);
@@ -1640,17 +1640,17 @@ static void combine_disjoint_general_ca(uint32_t *      dest,
 			    Fa = 0;
 			    break;
 			case COMBINE_A_OUT:
-			    m = (uint32_t)combine_disjoint_out_part((uint8_t)(sa >> 0), da);
-			    n = (uint32_t)combine_disjoint_out_part((uint8_t)(sa >> G_SHIFT), da) << G_SHIFT;
-			    o = (uint32_t)combine_disjoint_out_part((uint8_t)(sa >> R_SHIFT), da) << R_SHIFT;
-			    p = (uint32_t)combine_disjoint_out_part((uint8_t)(sa >> A_SHIFT), da) << A_SHIFT;
+			    m = (uint32_t)combine_disjoint_out_part((uint8)(sa >> 0), da);
+			    n = (uint32_t)combine_disjoint_out_part((uint8)(sa >> G_SHIFT), da) << G_SHIFT;
+			    o = (uint32_t)combine_disjoint_out_part((uint8)(sa >> R_SHIFT), da) << R_SHIFT;
+			    p = (uint32_t)combine_disjoint_out_part((uint8)(sa >> A_SHIFT), da) << A_SHIFT;
 			    Fa = m | n | o | p;
 			    break;
 			case COMBINE_A_IN:
-			    m = (uint32_t)combine_disjoint_in_part((uint8_t)(sa >> 0), da);
-			    n = (uint32_t)combine_disjoint_in_part((uint8_t)(sa >> G_SHIFT), da) << G_SHIFT;
-			    o = (uint32_t)combine_disjoint_in_part((uint8_t)(sa >> R_SHIFT), da) << R_SHIFT;
-			    p = (uint32_t)combine_disjoint_in_part((uint8_t)(sa >> A_SHIFT), da) << A_SHIFT;
+			    m = (uint32_t)combine_disjoint_in_part((uint8)(sa >> 0), da);
+			    n = (uint32_t)combine_disjoint_in_part((uint8)(sa >> G_SHIFT), da) << G_SHIFT;
+			    o = (uint32_t)combine_disjoint_in_part((uint8)(sa >> R_SHIFT), da) << R_SHIFT;
+			    p = (uint32_t)combine_disjoint_in_part((uint8)(sa >> A_SHIFT), da) << A_SHIFT;
 			    Fa = m | n | o | p;
 			    break;
 			case COMBINE_A:
@@ -1662,17 +1662,17 @@ static void combine_disjoint_general_ca(uint32_t *      dest,
 			    Fb = 0;
 			    break;
 			case COMBINE_B_OUT:
-			    m = (uint32_t)combine_disjoint_out_part(da, (uint8_t)(sa >> 0));
-			    n = (uint32_t)combine_disjoint_out_part(da, (uint8_t)(sa >> G_SHIFT)) << G_SHIFT;
-			    o = (uint32_t)combine_disjoint_out_part(da, (uint8_t)(sa >> R_SHIFT)) << R_SHIFT;
-			    p = (uint32_t)combine_disjoint_out_part(da, (uint8_t)(sa >> A_SHIFT)) << A_SHIFT;
+			    m = (uint32_t)combine_disjoint_out_part(da, (uint8)(sa >> 0));
+			    n = (uint32_t)combine_disjoint_out_part(da, (uint8)(sa >> G_SHIFT)) << G_SHIFT;
+			    o = (uint32_t)combine_disjoint_out_part(da, (uint8)(sa >> R_SHIFT)) << R_SHIFT;
+			    p = (uint32_t)combine_disjoint_out_part(da, (uint8)(sa >> A_SHIFT)) << A_SHIFT;
 			    Fb = m | n | o | p;
 			    break;
 			case COMBINE_B_IN:
-			    m = (uint32_t)combine_disjoint_in_part(da, (uint8_t)(sa >> 0));
-			    n = (uint32_t)combine_disjoint_in_part(da, (uint8_t)(sa >> G_SHIFT)) << G_SHIFT;
-			    o = (uint32_t)combine_disjoint_in_part(da, (uint8_t)(sa >> R_SHIFT)) << R_SHIFT;
-			    p = (uint32_t)combine_disjoint_in_part(da, (uint8_t)(sa >> A_SHIFT)) << A_SHIFT;
+			    m = (uint32_t)combine_disjoint_in_part(da, (uint8)(sa >> 0));
+			    n = (uint32_t)combine_disjoint_in_part(da, (uint8)(sa >> G_SHIFT)) << G_SHIFT;
+			    o = (uint32_t)combine_disjoint_in_part(da, (uint8)(sa >> R_SHIFT)) << R_SHIFT;
+			    p = (uint32_t)combine_disjoint_in_part(da, (uint8)(sa >> A_SHIFT)) << A_SHIFT;
 			    Fb = m | n | o | p;
 			    break;
 			case COMBINE_B:
@@ -1765,15 +1765,15 @@ static void combine_disjoint_xor_ca(pixman_implementation_t * imp,
 }
 
 static void combine_conjoint_general_ca(uint32_t * dest, const uint32_t * src,
-    const uint32_t * mask, int width, uint8_t combine)
+    const uint32_t * mask, int width, uint8 combine)
 {
 	for(int i = 0; i < width; ++i) {
 		uint32_t s, d;
 		uint32_t m, n, o, p;
 		uint32_t Fa, Fb;
-		uint16_t t, u, v;
+		uint16 t, u, v;
 		uint32_t sa;
-		uint8_t da;
+		uint8 da;
 		s = *(src + i);
 		m = *(mask + i);
 		d = *(dest + i);
@@ -1785,17 +1785,17 @@ static void combine_conjoint_general_ca(uint32_t * dest, const uint32_t * src,
 			    Fa = 0;
 			    break;
 			case COMBINE_A_OUT:
-			    m = (uint32_t)combine_conjoint_out_part((uint8_t)(sa >> 0), da);
-			    n = (uint32_t)combine_conjoint_out_part((uint8_t)(sa >> G_SHIFT), da) << G_SHIFT;
-			    o = (uint32_t)combine_conjoint_out_part((uint8_t)(sa >> R_SHIFT), da) << R_SHIFT;
-			    p = (uint32_t)combine_conjoint_out_part((uint8_t)(sa >> A_SHIFT), da) << A_SHIFT;
+			    m = (uint32_t)combine_conjoint_out_part((uint8)(sa >> 0), da);
+			    n = (uint32_t)combine_conjoint_out_part((uint8)(sa >> G_SHIFT), da) << G_SHIFT;
+			    o = (uint32_t)combine_conjoint_out_part((uint8)(sa >> R_SHIFT), da) << R_SHIFT;
+			    p = (uint32_t)combine_conjoint_out_part((uint8)(sa >> A_SHIFT), da) << A_SHIFT;
 			    Fa = m | n | o | p;
 			    break;
 			case COMBINE_A_IN:
-			    m = (uint32_t)combine_conjoint_in_part((uint8_t)(sa >> 0), da);
-			    n = (uint32_t)combine_conjoint_in_part((uint8_t)(sa >> G_SHIFT), da) << G_SHIFT;
-			    o = (uint32_t)combine_conjoint_in_part((uint8_t)(sa >> R_SHIFT), da) << R_SHIFT;
-			    p = (uint32_t)combine_conjoint_in_part((uint8_t)(sa >> A_SHIFT), da) << A_SHIFT;
+			    m = (uint32_t)combine_conjoint_in_part((uint8)(sa >> 0), da);
+			    n = (uint32_t)combine_conjoint_in_part((uint8)(sa >> G_SHIFT), da) << G_SHIFT;
+			    o = (uint32_t)combine_conjoint_in_part((uint8)(sa >> R_SHIFT), da) << R_SHIFT;
+			    p = (uint32_t)combine_conjoint_in_part((uint8)(sa >> A_SHIFT), da) << A_SHIFT;
 			    Fa = m | n | o | p;
 			    break;
 			case COMBINE_A:
@@ -1807,17 +1807,17 @@ static void combine_conjoint_general_ca(uint32_t * dest, const uint32_t * src,
 			    Fb = 0;
 			    break;
 			case COMBINE_B_OUT:
-			    m = (uint32_t)combine_conjoint_out_part(da, (uint8_t)(sa >> 0));
-			    n = (uint32_t)combine_conjoint_out_part(da, (uint8_t)(sa >> G_SHIFT)) << G_SHIFT;
-			    o = (uint32_t)combine_conjoint_out_part(da, (uint8_t)(sa >> R_SHIFT)) << R_SHIFT;
-			    p = (uint32_t)combine_conjoint_out_part(da, (uint8_t)(sa >> A_SHIFT)) << A_SHIFT;
+			    m = (uint32_t)combine_conjoint_out_part(da, (uint8)(sa >> 0));
+			    n = (uint32_t)combine_conjoint_out_part(da, (uint8)(sa >> G_SHIFT)) << G_SHIFT;
+			    o = (uint32_t)combine_conjoint_out_part(da, (uint8)(sa >> R_SHIFT)) << R_SHIFT;
+			    p = (uint32_t)combine_conjoint_out_part(da, (uint8)(sa >> A_SHIFT)) << A_SHIFT;
 			    Fb = m | n | o | p;
 			    break;
 			case COMBINE_B_IN:
-			    m = (uint32_t)combine_conjoint_in_part(da, (uint8_t)(sa >> 0));
-			    n = (uint32_t)combine_conjoint_in_part(da, (uint8_t)(sa >> G_SHIFT)) << G_SHIFT;
-			    o = (uint32_t)combine_conjoint_in_part(da, (uint8_t)(sa >> R_SHIFT)) << R_SHIFT;
-			    p = (uint32_t)combine_conjoint_in_part(da, (uint8_t)(sa >> A_SHIFT)) << A_SHIFT;
+			    m = (uint32_t)combine_conjoint_in_part(da, (uint8)(sa >> 0));
+			    n = (uint32_t)combine_conjoint_in_part(da, (uint8)(sa >> G_SHIFT)) << G_SHIFT;
+			    o = (uint32_t)combine_conjoint_in_part(da, (uint8)(sa >> R_SHIFT)) << R_SHIFT;
+			    p = (uint32_t)combine_conjoint_in_part(da, (uint8)(sa >> A_SHIFT)) << A_SHIFT;
 			    Fb = m | n | o | p;
 			    break;
 			case COMBINE_B:

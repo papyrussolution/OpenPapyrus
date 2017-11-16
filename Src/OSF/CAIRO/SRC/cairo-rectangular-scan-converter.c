@@ -538,7 +538,7 @@ out:
 static void generate_row(cairo_span_renderer_t * renderer,
     const rectangle_t * r,
     int y, int h,
-    uint16_t coverage)
+    uint16 coverage)
 {
 	cairo_half_open_span_t spans[4];
 	uint num_spans = 0;

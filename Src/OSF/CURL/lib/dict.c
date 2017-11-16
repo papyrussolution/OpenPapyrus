@@ -41,26 +41,14 @@
 #ifdef HAVE_SYS_SELECT_H
 	#include <sys/select.h>
 #endif
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "transfer.h"
-//#include "sendf.h"
-//#include "escape.h"
-//#include "progress.h"
-//#include "dict.h"
-//#include "strcase.h"
-//#include "curl_memory.h"
 #include "memdebug.h" // The last #include file should be
 /*
  * Forward declarations.
  */
-
 static CURLcode dict_do(struct connectdata * conn, bool * done);
-
 /*
  * DICT protocol handler.
  */
-
 const struct Curl_handler Curl_handler_dict = {
 	"DICT",                         /* scheme */
 	ZERO_NULL,                      /* setup_connection */

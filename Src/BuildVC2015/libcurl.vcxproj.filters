@@ -255,12 +255,6 @@
     <ClInclude Include="..\osf\curl\lib\easyif.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\escape.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\file.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\curl\lib\fileinfo.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -348,9 +342,6 @@
     <ClInclude Include="..\osf\curl\lib\non-ascii.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\nonblock.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\curl\lib\vtls\nssg.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -375,9 +366,6 @@
     <ClInclude Include="..\osf\curl\lib\pop3.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\progress.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\curl\lib\rawstr.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -385,9 +373,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\curl\lib\vtls\schannel.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\select.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\curl\lib\sendf.h">
@@ -402,16 +387,10 @@
     <ClInclude Include="..\osf\curl\lib\sigpipe.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\slist.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\curl\lib\smb.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\curl\lib\smtp.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\sockaddr.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\curl\lib\socks.h">
@@ -426,9 +405,6 @@
     <ClInclude Include="..\Osf\Curl\include\curl\stdcheaders.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\strdup.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\curl\lib\strequal.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -436,9 +412,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\curl\lib\strtok.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\strtoofft.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\curl\lib\telnet.h">
@@ -454,9 +427,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\Curl\include\curl\typecheck-gcc.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\url.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\curl\lib\urldata.h">

@@ -2317,7 +2317,7 @@ void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE *
 		return;
 	if(filename == NULL)
 		return;
-	if(input == NULL)
+	if(!input)
 		return;
 	if(!output)
 		output = stdout;

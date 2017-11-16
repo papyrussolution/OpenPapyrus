@@ -31,14 +31,13 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-//#include "cairo-time-private.h"
 
 #if HAVE_CLOCK_GETTIME
-#if defined(CLOCK_MONOTONIC_RAW)
-#define CAIRO_CLOCK CLOCK_MONOTONIC_RAW
-#elif defined(CLOCK_MONOTONIC)
-#define CAIRO_CLOCK CLOCK_MONOTONIC
-#endif
+	#if defined(CLOCK_MONOTONIC_RAW)
+		#define CAIRO_CLOCK CLOCK_MONOTONIC_RAW
+	#elif defined(CLOCK_MONOTONIC)
+		#define CAIRO_CLOCK CLOCK_MONOTONIC
+	#endif
 #endif
 
 #if defined(__APPLE__)
@@ -47,9 +46,7 @@
 static cairo_always_inline double _cairo_time_1s(void)
 {
 	mach_timebase_info_data_t freq;
-
 	mach_timebase_info(&freq);
-
 	return 1000000000. * freq.denom / freq.numer;
 }
 
@@ -65,9 +62,7 @@ cairo_time_t _cairo_time_get(void)
 static cairo_always_inline double _cairo_time_1s(void)
 {
 	ULONG freq;
-
 	DosTmrQueryFreq(&freq);
-
 	return freq;
 }
 
@@ -75,12 +70,9 @@ cairo_time_t _cairo_time_get(void)
 {
 	QWORD t;
 	cairo_int64_t r;
-
 	DosTmrQueryTime(&t);
-
 	r = _cairo_int64_lsl(_cairo_int32_to_int64(t.ulHi), 32);
 	r = _cairo_int64_add(r, _cairo_int32_to_int64(t.ulLo));
-
 	return r;
 }
 
@@ -103,16 +95,14 @@ static cairo_always_inline cairo_time_t _cairo_time_from_large_integer(LARGE_INT
 	r = _cairo_int64_add(r, _cairo_int32_to_int64(t.LowPart));
 	return r;
 }
-
 #else
 static cairo_always_inline cairo_time_t _cairo_time_from_large_integer(LARGE_INTEGER t)
 {
 	return t.QuadPart;
 }
-
 #endif
 
-cairo_time_t _cairo_time_get(void)
+cairo_time_t _cairo_time_get()
 {
 	LARGE_INTEGER t;
 	QueryPerformanceCounter(&t);
@@ -130,15 +120,11 @@ static cairo_always_inline double _cairo_time_1s(void)
 cairo_time_t _cairo_time_get(void)
 {
 	struct timespec t;
-
 	cairo_time_t r;
-
 	clock_gettime(CAIRO_CLOCK, &t);
-
 	r = _cairo_double_to_int64(_cairo_time_1s());
 	r = _cairo_int64_mul(r, _cairo_int32_to_int64(t.tv_sec));
 	r = _cairo_int64_add(r, _cairo_int32_to_int64(t.tv_nsec));
-
 	return r;
 }
 
@@ -153,15 +139,11 @@ static cairo_always_inline double _cairo_time_1s(void)
 cairo_time_t _cairo_time_get(void)
 {
 	struct timeval t;
-
 	cairo_time_t r;
-
 	gettimeofday(&t, 0);
-
 	r = _cairo_double_to_int64(_cairo_time_1s());
 	r = _cairo_int64_mul(r, _cairo_int32_to_int64(t.tv_sec));
 	r = _cairo_int64_add(r, _cairo_int32_to_int64(t.tv_usec));
-
 	return r;
 }
 
@@ -174,7 +156,7 @@ int _cairo_time_cmp(const void * a, const void * b)
 	return _cairo_int64_cmp(*ta, *tb);
 }
 
-static double _cairo_time_ticks_per_sec(void)
+static double _cairo_time_ticks_per_sec()
 {
 	static double ticks = 0;
 	if(unlikely(ticks == 0))
@@ -182,12 +164,11 @@ static double _cairo_time_ticks_per_sec(void)
 	return ticks;
 }
 
-static double _cairo_time_s_per_tick(void)
+static double _cairo_time_s_per_tick()
 {
 	static double s = 0;
 	if(unlikely(s == 0))
 		s = 1. / _cairo_time_ticks_per_sec();
-
 	return s;
 }
 

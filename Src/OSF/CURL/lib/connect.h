@@ -21,14 +21,10 @@
 * KIND, either express or implied.
 *
 ***************************************************************************/
-//#include "curl_setup.h"
-//#include "nonblock.h" /* for curlx_nonblock(), formerly Curl_nonblock() */
-//#include "sockaddr.h"
 
 CURLcode Curl_is_connected(struct connectdata * conn, int sockindex, bool * connected);
 CURLcode Curl_connecthost(struct connectdata * conn, const struct Curl_dns_entry * host);
-/* generic function that returns how much time there's left to run, according
-   to the timeouts set */
+// generic function that returns how much time there's left to run, according to the timeouts set 
 time_t Curl_timeleft(struct Curl_easy * data, struct timeval * nowp, bool duringconnect);
 
 #define DEFAULT_CONNECT_TIMEOUT 300000 /* milliseconds == five minutes */

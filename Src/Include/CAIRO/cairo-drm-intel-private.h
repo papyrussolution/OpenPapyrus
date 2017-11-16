@@ -53,8 +53,8 @@ typedef struct _intel_bo {
 	uint32_t opaque0;
 	uint32_t opaque1;
 	uint32_t full_size;
-	uint16_t stride;
-	uint16_t _stride;
+	uint16 stride;
+	uint16 _stride;
 	uint32_t tiling : 4;
 	uint32_t _tiling : 4;
 	uint32_t purgeable : 1;
@@ -109,10 +109,10 @@ struct _intel_batch {
 	size_t gtt_avail_size;
 	intel_batch_commit_func_t commit;
 	intel_batch_reset_func_t reset;
-	uint16_t exec_count;
-	uint16_t reloc_count;
-	uint16_t used;
-	uint16_t header;
+	uint16 exec_count;
+	uint16 reloc_count;
+	uint16 used;
+	uint16 header;
 	intel_bo_t * target_bo[INTEL_MAX_RELOCS];
 	struct drm_i915_gem_exec_object2 exec[INTEL_MAX_RELOCS];
 	struct drm_i915_gem_relocation_entry reloc[INTEL_MAX_RELOCS];

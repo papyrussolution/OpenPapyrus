@@ -1832,7 +1832,7 @@ int SupplAgtDialog::EditExchangeCfg()
 			}
 			// @v9.2.0 {
 			{
-				Data.GetExtStrData(PPSupplAgreement::ExchangeParam::extssRemoveAddr, temp_buf);
+				Data.GetExtStrData(PPSupplAgreement::ExchangeParam::extssRemoteAddr, temp_buf);
 				setCtrlString(CTL_SUPLEXCHCFG_TADDR, temp_buf);
 				Data.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsName, temp_buf);
 				setCtrlString(CTL_SUPLEXCHCFG_TNAME, temp_buf);
@@ -1886,7 +1886,7 @@ int SupplAgtDialog::EditExchangeCfg()
 			// @v9.2.0 {
 			{
 				getCtrlString(CTL_SUPLEXCHCFG_TADDR, temp_buf.Z());
-				Data.PutExtStrData(PPSupplAgreement::ExchangeParam::extssRemoveAddr, temp_buf);
+				Data.PutExtStrData(PPSupplAgreement::ExchangeParam::extssRemoteAddr, temp_buf);
 				getCtrlString(CTL_SUPLEXCHCFG_TNAME, temp_buf.Z());
 				Data.PutExtStrData(PPSupplAgreement::ExchangeParam::extssAccsName, temp_buf);
 				getCtrlString(CTL_SUPLEXCHCFG_TPW, temp_buf.Z());

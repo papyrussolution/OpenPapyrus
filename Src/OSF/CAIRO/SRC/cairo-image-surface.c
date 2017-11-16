@@ -126,7 +126,7 @@ void _cairo_image_surface_init(cairo_image_surface_t * surface, pixman_image_t *
 	surface->pixman_image = pixman_image;
 	surface->pixman_format = pixman_format;
 	surface->format = _cairo_format_from_pixman_format(pixman_format);
-	surface->data = (uint8_t*)pixman_image_get_data(pixman_image);
+	surface->data = (uint8*)pixman_image_get_data(pixman_image);
 	surface->owns_data = FALSE;
 	surface->transparency = CAIRO_IMAGE_UNKNOWN;
 	surface->color = CAIRO_IMAGE_UNKNOWN_COLOR;
@@ -643,7 +643,7 @@ cairo_image_surface_t * _cairo_image_surface_map_to_image(void * abstract_other,
 {
 	cairo_image_surface_t * other = (cairo_image_surface_t *)abstract_other;
 	cairo_surface_t * surface;
-	uint8_t * data = other->data;
+	uint8 * data = other->data;
 	data += extents->y * other->stride;
 	data += extents->x * PIXMAN_FORMAT_BPP(other->pixman_format)/ 8;
 	surface = _cairo_image_surface_create_with_pixman_format(data,
@@ -903,7 +903,7 @@ cairo_image_transparency_t _cairo_image_analyze_transparency(cairo_image_surface
 		}
 		else if(image->format == CAIRO_FORMAT_A8) {
 			for(y = 0; y < image->height; y++) {
-				uint8_t * alpha = (uint8_t*)(image->data + y * image->stride);
+				uint8 * alpha = (uint8*)(image->data + y * image->stride);
 				for(x = 0; x < image->width; x++, alpha++) {
 					if(*alpha > 0 && *alpha < 255)
 						return (cairo_image_transparency_t)(image->transparency = CAIRO_IMAGE_HAS_ALPHA);

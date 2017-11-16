@@ -30,7 +30,7 @@ ulong SLAPI InetAddr::IPToULong(const char * pIP)
 }
 
 // static
-int SLAPI InetAddr::ULongToIP(ulong ip, SString & rIP)
+void SLAPI InetAddr::ULongToIP(ulong ip, SString & rIP)
 {
 	rIP = 0;
 	for(uint i = 4; i > 0; i--) {
@@ -38,13 +38,10 @@ int SLAPI InetAddr::ULongToIP(ulong ip, SString & rIP)
 		if(i != 1)
 			rIP.Dot();
 	}
-	return 1;
 }
 
-SLAPI InetAddr::InetAddr()
+SLAPI InetAddr::InetAddr() : V4(0), Port(0)
 {
-	V4 = 0;
-	Port = 0;
 }
 
 SLAPI InetAddr::InetAddr(const InetAddr & rS)
@@ -68,7 +65,7 @@ void FASTCALL InetAddr::Copy(const InetAddr & rS)
 InetAddr & SLAPI InetAddr::Clear()
 {
 	V4 = 0;
-	HostName = 0;
+	HostName.Z();
 	Port = 0;
 	return *this;
 }
@@ -137,7 +134,7 @@ int InetAddr::FromStr(const char * pStr)
 	}
 	else {
 		V4 = 0;
-		HostName = 0;
+		HostName.Z();
 		Port = 0;
 		ok = -1;
 	}

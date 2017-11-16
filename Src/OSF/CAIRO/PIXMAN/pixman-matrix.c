@@ -159,7 +159,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_point_31_16(const pixman_transform_
 	pixman_bool_t clampflag = FALSE;
 	int i;
 	int64_t tmp[3][2], divint;
-	uint16_t divfrac;
+	uint16 divfrac;
 	/* input vector values must have no more than 31 bits (including sign)
 	 * in the integer part */
 	assert(v->v[0] <   ((pixman_fixed_48_16_t)1 << (30 + 16)));
@@ -181,7 +181,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_point_31_16(const pixman_transform_
 	 * which is also scaled by 65536 after fixed point multiplication.
 	 */
 	divint  = tmp[2][0] + (tmp[2][1] >> 16);
-	divfrac = (uint16_t)(tmp[2][1] & 0xFFFF);
+	divfrac = (uint16)(tmp[2][1] & 0xFFFF);
 	if(divint == pixman_fixed_1 && divfrac == 0) {
 		/*
 		 * this is a simple affine transformation

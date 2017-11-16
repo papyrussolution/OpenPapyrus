@@ -23,30 +23,17 @@
 #include "curl_setup.h"
 #pragma hdrstop
 #ifndef CURL_DISABLE_GOPHER
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "transfer.h"
-//#include "sendf.h"
-//#include "progress.h"
 #include "gopher.h"
-//#include "select.h"
-//#include "url.h"
-//#include "escape.h"
-//#include "warnless.h"
-//#include "curl_memory.h"
 #include "memdebug.h" /* The last #include file should be: */
 /*
  * Forward declarations.
  */
-
 static CURLcode gopher_do(struct connectdata * conn, bool * done);
-
 /*
  * Gopher protocol handler.
  * This is also a nice simple template to build off for simple
  * connect-command-download protocols.
  */
-
 const struct Curl_handler Curl_handler_gopher = {
 	"GOPHER",                       /* scheme */
 	ZERO_NULL,                      /* setup_connection */

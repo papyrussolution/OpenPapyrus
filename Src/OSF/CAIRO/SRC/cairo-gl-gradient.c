@@ -82,7 +82,7 @@ static int _cairo_gl_gradient_sample_width(uint n_stops,
 	return (width + 7) & -8;
 }
 
-static uint8_t premultiply(double c, double a)
+static uint8 premultiply(double c, double a)
 {
 	int v = c * a * 256;
 	return v - (v >> 8);
@@ -90,7 +90,7 @@ static uint8_t premultiply(double c, double a)
 
 static uint32_t color_stop_to_pixel(const cairo_gradient_stop_t * stop)
 {
-	uint8_t a, r, g, b;
+	uint8 a, r, g, b;
 
 	a = stop->color.alpha_short >> 8;
 	r = premultiply(stop->color.red,   stop->color.alpha);

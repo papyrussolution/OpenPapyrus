@@ -548,7 +548,7 @@ static cairo_surface_t * map_qimage_to_image(QImage * qimg, const CairoIRect * e
 
 	pixman_image_t * pixman_image;
 	pixman_format_code_t pixman_format;
-	uint8_t * data;
+	uint8 * data;
 
 	if(qimg == NULL)
 		return _cairo_surface_create_in_error(CAIRO_STATUS_NO_MEMORY);

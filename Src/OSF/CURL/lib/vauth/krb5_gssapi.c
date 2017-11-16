@@ -325,8 +325,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	   necessary to include it. */
 	outdata = htonl(max_size) | sec_layer;
 	memcpy(message, &outdata, sizeof(outdata));
-	memcpy(message + sizeof(outdata), username_token.value,
-	    username_token.length);
+	memcpy(message + sizeof(outdata), username_token.value, username_token.length);
 	message[messagelen - 1] = '\0';
 
 	/* Free the username token as it is not required anymore */

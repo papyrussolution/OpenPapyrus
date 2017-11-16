@@ -1920,7 +1920,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_smask(cairo_pdf_surface_t  * s
 	char * alpha;
 	ulong alpha_size;
 	uint32_t * pixel32;
-	uint8_t * pixel8;
+	uint8 * pixel8;
 	int i, x, y, bit, a;
 	cairo_image_transparency_t transparency;
 
@@ -1958,7 +1958,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_smask(cairo_pdf_surface_t  * s
 				alpha[i++] = (char)0xff;
 		}
 		else if(image->format == CAIRO_FORMAT_A1) {
-			pixel8 = (uint8_t*)(image->data + y * image->stride);
+			pixel8 = (uint8*)(image->data + y * image->stride);
 
 			for(x = 0; x < (image->width + 7) / 8; x++, pixel8++) {
 				a = *pixel8;
@@ -1967,7 +1967,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_smask(cairo_pdf_surface_t  * s
 			}
 		}
 		else {
-			pixel8 = (uint8_t*)(image->data + y * image->stride);
+			pixel8 = (uint8*)(image->data + y * image->stride);
 			pixel32 = (uint32_t*)(image->data + y * image->stride);
 			bit = 7;
 			for(x = 0; x < image->width; x++) {
@@ -2138,7 +2138,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_image(cairo_pdf_surface_t * su
 			 * appropriately, but my attempts to do that so far have
 			 * failed. */
 			if(image->format == CAIRO_FORMAT_ARGB32) {
-				uint8_t a;
+				uint8 a;
 				a = (*pixel & 0xff000000) >> 24;
 				if(a == 0) {
 					r = g = b = 0;
@@ -4085,7 +4085,7 @@ static cairo_int_status_t _utf8_to_pdf_string(const char * utf8, char ** str_out
 		str[i+2] = 0;
 	}
 	else {
-		uint16_t * utf16 = NULL;
+		uint16 * utf16 = NULL;
 		int utf16_len = 0;
 		status = _cairo_utf8_to_utf16(utf8, -1, &utf16, &utf16_len);
 		if(unlikely(status))
@@ -4107,7 +4107,7 @@ static cairo_int_status_t _utf8_to_pdf_string(const char * utf8, char ** str_out
 
 static cairo_int_status_t _cairo_pdf_surface_emit_unicode_for_glyph(cairo_pdf_surface_t  * surface, const char * utf8)
 {
-	uint16_t * utf16 = NULL;
+	uint16 * utf16 = NULL;
 	int utf16_len = 0;
 	cairo_int_status_t status;
 	int i;
@@ -4766,7 +4766,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_truetype_font_subset(cairo_pdf
 
 static cairo_int_status_t _cairo_pdf_emit_imagemask(cairo_image_surface_t * image, cairo_output_stream_t * stream)
 {
-	uint8_t * byte, output_byte;
+	uint8 * byte, output_byte;
 	int row, col, num_cols;
 	// The only image type supported by Type 3 fonts are 1-bit image masks 
 	assert(image->format == CAIRO_FORMAT_A1);
@@ -4784,7 +4784,7 @@ static cairo_int_status_t _cairo_pdf_emit_imagemask(cairo_image_surface_t * imag
 	for(row = 0; row < image->height; row++) {
 		byte = image->data + row * image->stride;
 		for(col = 0; col < num_cols; col++) {
-			output_byte = (uint8_t)CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(*byte);
+			output_byte = (uint8)CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(*byte);
 			_cairo_output_stream_write(stream, &output_byte, 1);
 			byte++;
 		}

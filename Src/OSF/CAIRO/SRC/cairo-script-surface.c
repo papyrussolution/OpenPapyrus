@@ -908,11 +908,11 @@ static cairo_status_t _emit_script_surface_pattern(cairo_script_surface_t * surf
 static cairo_status_t _write_image_surface(cairo_output_stream_t * output, const cairo_image_surface_t * image)
 {
 	int row;
-	uint8_t row_stack[CAIRO_STACK_BUFFER_SIZE];
-	uint8_t * rowdata;
+	uint8 row_stack[CAIRO_STACK_BUFFER_SIZE];
+	uint8 * rowdata;
 	int stride = image->stride;
 	int width = image->width;
-	uint8_t * data = image->data;
+	uint8 * data = image->data;
 #if WORDS_BIGENDIAN
 	switch(image->format) {
 		case CAIRO_FORMAT_A1:
@@ -957,7 +957,7 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output, const
 	}
 #else
 	if(stride > SIZEOFARRAY(row_stack)) {
-		rowdata = (uint8_t *)SAlloc::M(stride);
+		rowdata = (uint8 *)SAlloc::M(stride);
 		if(unlikely(rowdata == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
@@ -969,7 +969,7 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output, const
 		    for(row = image->height; row--; ) {
 			    int col;
 			    for(col = 0; col < (width + 7)/8; col++)
-				    rowdata[col] = (uint8_t)CAIRO_BITSWAP8(data[col]);
+				    rowdata[col] = (uint8)CAIRO_BITSWAP8(data[col]);
 			    _cairo_output_stream_write(output, rowdata, (width+7)/8);
 			    data += stride;
 		    }
@@ -982,8 +982,8 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output, const
 		    break;
 		case CAIRO_FORMAT_RGB16_565:
 		    for(row = image->height; row--; ) {
-			    uint16_t * src = (uint16_t*)data;
-			    uint16_t * dst = (uint16_t*)rowdata;
+			    uint16 * src = (uint16*)data;
+			    uint16 * dst = (uint16*)rowdata;
 			    int col;
 			    for(col = 0; col < width; col++)
 				    dst[col] = bswap_16(src[col]);
@@ -993,7 +993,7 @@ static cairo_status_t _write_image_surface(cairo_output_stream_t * output, const
 		    break;
 		case CAIRO_FORMAT_RGB24:
 		    for(row = image->height; row--; ) {
-			    uint8_t * src = data;
+			    uint8 * src = data;
 			    int col;
 			    for(col = 0; col < width; col++) {
 				    rowdata[3*col+2] = *src++;
@@ -1035,7 +1035,7 @@ static cairo_int_status_t _emit_png_surface(cairo_script_surface_t * surface,
 	cairo_script_context_t * ctx = to_context(surface);
 	cairo_output_stream_t * base85_stream;
 	cairo_status_t status;
-	const uint8_t * mime_data;
+	const uint8 * mime_data;
 	ulong mime_data_length;
 
 	cairo_surface_get_mime_data(&image->base, CAIRO_MIME_TYPE_PNG,
@@ -1071,7 +1071,7 @@ static cairo_int_status_t _emit_image_surface(cairo_script_surface_t * surface,
 	cairo_output_stream_t * zlib_stream;
 	cairo_int_status_t status, status2;
 	cairo_surface_t * snapshot;
-	const uint8_t * mime_data;
+	const uint8 * mime_data;
 	ulong mime_data_length;
 
 	snapshot = _cairo_surface_has_snapshot(&image->base,
@@ -1864,42 +1864,32 @@ static cairo_status_t _cairo_script_surface_clipper_intersect_clip_path(cairo_su
 		return CAIRO_STATUS_SUCCESS;
 	}
 	/* skip the trivial clip covering the surface extents */
-	if(surface->width >= 0 && surface->height >= 0 &&
-	    _cairo_path_fixed_is_box(path, &box)) {
-		if(box.p1.x <= 0 && box.p1.y <= 0 &&
-		    box.p2.x >= _cairo_fixed_from_double(surface->width) &&
-		    box.p2.y >= _cairo_fixed_from_double(surface->height)) {
+	if(surface->width >= 0 && surface->height >= 0 && _cairo_path_fixed_is_box(path, &box)) {
+		if(box.p1.x <= 0 && box.p1.y <= 0 && box.p2.x >= _cairo_fixed_from_double(surface->width) && box.p2.y >= _cairo_fixed_from_double(surface->height)) {
 			return CAIRO_STATUS_SUCCESS;
 		}
 	}
-
 	status = _emit_identity(surface, &matrix_updated);
 	if(unlikely(status))
 		return status;
-
 	status = _emit_fill_rule(surface, fill_rule);
 	if(unlikely(status))
 		return status;
-
 	if(path->has_curve_to) {
 		status = _emit_tolerance(surface, tolerance, matrix_updated);
 		if(unlikely(status))
 			return status;
 	}
-
 	if(!_cairo_path_fixed_fill_maybe_region(path)) {
 		status = _emit_antialias(surface, antialias);
 		if(unlikely(status))
 			return status;
 	}
-
 	status = _emit_path(surface, path, TRUE);
 	if(unlikely(status))
 		return status;
-
 	_cairo_output_stream_puts(ctx->stream, "clip+\n");
 	surface->cr.has_clip = TRUE;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -2296,14 +2286,14 @@ static cairo_status_t _emit_type42_font(cairo_script_surface_t * surface, cairo_
 	ulong size = 0;
 	uint load_flags;
 	uint32_t len;
-	uint8_t * buf;
+	uint8 * buf;
 	const cairo_scaled_font_backend_t * backend = scaled_font->backend;
 	if(backend->load_truetype_table == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	status = backend->load_truetype_table(scaled_font, 0, 0, NULL, &size);
 	if(unlikely(status))
 		return status;
-	buf = (uint8_t *)SAlloc::M(size);
+	buf = (uint8 *)SAlloc::M(size);
 	if(unlikely(buf == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	status = backend->load_truetype_table(scaled_font, 0, 0, buf, &size);
@@ -2793,11 +2783,11 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 			}
 		}
 		if(base85_stream != NULL) {
-			uint8_t c;
+			uint8 c;
 			if(font_private->has_sfnt)
-				c = (uint8_t)glyphs[n].index;
+				c = (uint8)glyphs[n].index;
 			else
-				c = (uint8_t)(long unsigned)scaled_glyph->dev_private;
+				c = (uint8)(long unsigned)scaled_glyph->dev_private;
 
 			_cairo_output_stream_write(base85_stream, &c, 1);
 		}
@@ -2845,7 +2835,7 @@ static cairo_int_status_t _cairo_script_surface_show_text_glyphs(void * abstract
 			_cairo_output_stream_puts(ctx->stream, "] <~");
 			base85_stream = _cairo_base85_stream_create(ctx->stream);
 			for(n = 0; n < num_clusters; n++) {
-				uint8_t c[2];
+				uint8 c[2];
 				c[0] = clusters[n].num_bytes;
 				c[1] = clusters[n].num_glyphs;
 				_cairo_output_stream_write(base85_stream, c, 2);
@@ -3237,4 +3227,3 @@ cairo_status_t cairo_script_from_recording_surface(cairo_device_t * script, cair
 	cairo_surface_destroy(surface);
 	return status;
 }
-

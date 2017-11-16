@@ -784,6 +784,22 @@
   <ItemGroup>
     <ClCompile Include="..\Osf\Cairo\Pixman\pixman-access-accessors.c" />
     <ClCompile Include="..\Osf\Cairo\Pixman\pixman-access-standalone.c" />
+    <ClInclude Include="..\OSF\CAIRO\PIXMAN\pixman-access.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClCompile Include="..\Osf\Cairo\Pixman\pixman-arm-neon.c" />
     <ClCompile Include="..\Osf\Cairo\Pixman\pixman-arm-simd.c" />
     <ClCompile Include="..\Osf\Cairo\Pixman\pixman-arm.c" />
@@ -808,6 +824,22 @@
     <ClCompile Include="..\Osf\Cairo\Pixman\pixman-noop.c" />
     <ClCompile Include="..\Osf\Cairo\Pixman\pixman-ppc.c" />
     <ClCompile Include="..\Osf\Cairo\Pixman\pixman-radial-gradient.c" />
+    <ClInclude Include="..\OSF\CAIRO\PIXMAN\pixman-region.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClCompile Include="..\Osf\Cairo\Pixman\pixman-region16.c" />
     <ClCompile Include="..\Osf\Cairo\Pixman\pixman-region32.c" />
     <ClCompile Include="..\Osf\Cairo\Pixman\pixman-solid-fill.c" />
@@ -1012,7 +1044,6 @@
     <ClInclude Include="..\Include\Cairo\cairo-cogl-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-cogl-utils-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-cogl.h" />
-    <ClInclude Include="..\Include\Cairo\cairo-combsort-inline.h" />
     <ClInclude Include="..\Include\Cairo\cairo-deprecated.h" />
     <ClInclude Include="..\Include\Cairo\cairo-directfb.h" />
     <ClInclude Include="..\Include\Cairo\cairo-drm-i915-private.h" />
@@ -1039,13 +1070,9 @@
     <ClInclude Include="..\Include\Cairo\cairo-gl-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-gl.h" />
     <ClInclude Include="..\Include\Cairo\cairo-mempool-private.h" />
-    <ClInclude Include="..\Include\Cairo\cairo-mutex-impl-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-mutex-list-private.h" />
-    <ClInclude Include="..\Include\Cairo\cairo-mutex-type-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-os2-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-os2.h" />
-    <ClInclude Include="..\Include\Cairo\cairo-output-stream-private.h" />
-    <ClInclude Include="..\Include\Cairo\cairo-paginated-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-ps-surface-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-ps.h" />
@@ -1057,7 +1084,6 @@
     <ClInclude Include="..\Include\Cairo\cairo-script.h" />
     <ClInclude Include="..\Include\Cairo\cairo-skia-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-skia.h" />
-    <ClInclude Include="..\Include\Cairo\cairo-spans-compositor-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-svg-surface-private.h" />
     <ClInclude Include="..\Include\Cairo\cairo-svg.h" />
     <ClInclude Include="..\Include\Cairo\cairo-tee.h" />

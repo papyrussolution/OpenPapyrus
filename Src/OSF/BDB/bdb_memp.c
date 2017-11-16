@@ -1116,7 +1116,8 @@ no_hp:
 int __memp_fget_pp(DB_MPOOLFILE * dbmfp, db_pgno_t * pgnoaddr, DB_TXN * txnp, uint32 flags, void * addrp)
 {
 	DB_THREAD_INFO * ip;
-	int rep_blocked, ret;
+	int rep_blocked;
+	int ret;
 	ENV * env = dbmfp->env;
 	MPF_ILLEGAL_BEFORE_OPEN(dbmfp, "DB_MPOOLFILE->get");
 	/*
@@ -2099,7 +2100,7 @@ int __memp_fcreate_pp(DB_ENV * dbenv, DB_MPOOLFILE ** retp, uint32 flags)
 	DB_THREAD_INFO * ip;
 	int ret;
 	ENV * env = dbenv->env;
-	/* Validate arguments. */
+	// Validate arguments
 	if((ret = __db_fchk(env, "DB_ENV->memp_fcreate", flags, 0)) != 0)
 		return ret;
 	if(REP_ON(env)) {
@@ -2463,7 +2464,7 @@ int __memp_fopen_pp(DB_MPOOLFILE * dbmfp, const char * path, uint32 flags, int m
 	DB_THREAD_INFO * ip;
 	int ret;
 	ENV * env = dbmfp->env;
-	/* Validate arguments. */
+	// Validate arguments
 	if((ret = __db_fchk(env, "DB_MPOOLFILE->open", flags, DB_CREATE|DB_DIRECT|DB_EXTENT|DB_MULTIVERSION|DB_NOMMAP|DB_ODDFILESIZE|DB_RDONLY|DB_TRUNCATE)) != 0)
 		return ret;
 	/*
@@ -3058,9 +3059,7 @@ int __memp_fclose_pp(DB_MPOOLFILE * dbmfp, uint32 flags)
 	DB_THREAD_INFO * ip;
 	int ret;
 	ENV * env = dbmfp->env;
-	/*
-	 * Validate arguments, but as a handle destructor, we can't fail.
-	 */
+	// Validate arguments, but as a handle destructor, we can't fail.
 	if(flags != 0)
 		__db_ferr(env, "DB_MPOOLFILE->close", 0);
 	ENV_ENTER(env, ip);
@@ -4134,9 +4133,9 @@ int __memp_open(ENV * env, int create_ok)
 	int ret;
 	DB_ENV * dbenv = env->dbenv;
 	roff_t cache_size = 0;
-	/* Calculate the region size and hash bucket count. */
+	// Calculate the region size and hash bucket count. 
 	__memp_region_size(env, &max_size, &htab_buckets);
-	/* Create and initialize the DB_MPOOL structure. */
+	// Create and initialize the DB_MPOOL structure. 
 	if((ret = __os_calloc(env, 1, sizeof(*dbmp), &dbmp)) != 0)
 		return ret;
 	LIST_INIT(&dbmp->dbregq);
@@ -5326,9 +5325,7 @@ int __memp_stat_print(ENV * env, uint32 flags)
 		if(flags == 0 || ret != 0)
 			return ret;
 	}
-	if(LF_ISSET(DB_STAT_ALL|DB_STAT_MEMP_HASH) && (ret = __memp_print_all(env, orig_flags)) != 0)
-		return ret;
-	return 0;
+	return (LF_ISSET(DB_STAT_ALL|DB_STAT_MEMP_HASH) && (ret = __memp_print_all(env, orig_flags)) != 0) ? ret : 0;
 }
 /*
  * __memp_print_stats --
@@ -5338,8 +5335,8 @@ static int __memp_print_stats(ENV * env, uint32 flags)
 {
 	DB_MPOOL_FSTAT ** fsp, ** tfsp;
 	DB_MPOOL_STAT * gsp;
-	int ret;
-	if((ret = __memp_stat(env, &gsp, &fsp, flags)) != 0)
+	int ret = __memp_stat(env, &gsp, &fsp, flags);
+	if(ret != 0)
 		return ret;
 	if(LF_ISSET(DB_STAT_ALL))
 		__db_msg(env, "Default cache region information:");

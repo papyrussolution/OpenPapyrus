@@ -283,10 +283,10 @@
 	    pixman_fixed_t vx,	     \
 	    pixman_fixed_t unit_x,   \
 	    pixman_fixed_t max_vx,   \
-	    const uint8_t *  mask);    \
+	    const uint8 *  mask);    \
 									      \
 	static force_inline void						      \
-	    scaled_nearest_scanline_ ## cputype ## _ ## name ## _ ## op(const uint8_t *  mask,	   \
+	    scaled_nearest_scanline_ ## cputype ## _ ## name ## _ ## op(const uint8 *  mask,	   \
 	    dst_type *       pd,       \
 	    const src_type * ps,       \
 	    int32_t w,	      \
@@ -305,16 +305,16 @@
 									      \
 	FAST_NEAREST_MAINLOOP_COMMON(cputype ## _ ## name ## _cover_ ## op,		     \
 	    scaled_nearest_scanline_ ## cputype ## _ ## name ## _ ## op, \
-	    src_type, uint8_t, dst_type, COVER, TRUE, FALSE) \
+	    src_type, uint8, dst_type, COVER, TRUE, FALSE) \
 	FAST_NEAREST_MAINLOOP_COMMON(cputype ## _ ## name ## _none_ ## op,		     \
 	    scaled_nearest_scanline_ ## cputype ## _ ## name ## _ ## op, \
-	    src_type, uint8_t, dst_type, NONE, TRUE, FALSE) \
+	    src_type, uint8, dst_type, NONE, TRUE, FALSE) \
 	FAST_NEAREST_MAINLOOP_COMMON(cputype ## _ ## name ## _pad_ ## op,		     \
 	    scaled_nearest_scanline_ ## cputype ## _ ## name ## _ ## op, \
-	    src_type, uint8_t, dst_type, PAD, TRUE, FALSE)  \
+	    src_type, uint8, dst_type, PAD, TRUE, FALSE)  \
 	FAST_NEAREST_MAINLOOP_COMMON(cputype ## _ ## name ## _normal_ ## op,		     \
 	    scaled_nearest_scanline_ ## cputype ## _ ## name ## _ ## op, \
-	    src_type, uint8_t, dst_type, NORMAL, TRUE, FALSE)
+	    src_type, uint8, dst_type, NORMAL, TRUE, FALSE)
 
 /* Provide entries for the fast path table */
 #define PIXMAN_ARM_SIMPLE_NEAREST_A8_MASK_FAST_PATH(op, s, d, func)		 \
@@ -377,7 +377,7 @@
 	void									      \
 	pixman_scaled_bilinear_scanline_ ## name ## _ ## op ## _asm_ ## cputype(	       \
 	    dst_type *       dst,	  \
-	    const uint8_t *  mask,	  \
+	    const uint8 *  mask,	  \
 	    const src_type * top,	  \
 	    const src_type * bottom,	  \
 	    int wt,	     \
@@ -389,7 +389,7 @@
 	static force_inline void						      \
 	    scaled_bilinear_scanline_ ## cputype ## _ ## name ## _ ## op(			   \
 	    dst_type *       dst,	  \
-	    const uint8_t *  mask,	  \
+	    const uint8 *  mask,	  \
 	    const src_type * src_top,	  \
 	    const src_type * src_bottom,  \
 	    int32_t w,		 \
@@ -408,19 +408,19 @@
 									      \
 	FAST_BILINEAR_MAINLOOP_COMMON(cputype ## _ ## name ## _cover_ ## op,		     \
 	    scaled_bilinear_scanline_ ## cputype ## _ ## name ## _ ## op,    \
-	    src_type, uint8_t, dst_type, COVER,			   \
+	    src_type, uint8, dst_type, COVER,			   \
 	    FLAG_HAVE_NON_SOLID_MASK)				   \
 	FAST_BILINEAR_MAINLOOP_COMMON(cputype ## _ ## name ## _none_ ## op,		     \
 	    scaled_bilinear_scanline_ ## cputype ## _ ## name ## _ ## op,    \
-	    src_type, uint8_t, dst_type, NONE,			   \
+	    src_type, uint8, dst_type, NONE,			   \
 	    FLAG_HAVE_NON_SOLID_MASK)				   \
 	FAST_BILINEAR_MAINLOOP_COMMON(cputype ## _ ## name ## _pad_ ## op,		     \
 	    scaled_bilinear_scanline_ ## cputype ## _ ## name ## _ ## op,    \
-	    src_type, uint8_t, dst_type, PAD,			   \
+	    src_type, uint8, dst_type, PAD,			   \
 	    FLAG_HAVE_NON_SOLID_MASK)				   \
 	FAST_BILINEAR_MAINLOOP_COMMON(cputype ## _ ## name ## _normal_ ## op,		     \
 	    scaled_bilinear_scanline_ ## cputype ## _ ## name ## _ ## op,    \
-	    src_type, uint8_t, dst_type, NORMAL,		   \
+	    src_type, uint8, dst_type, NORMAL,		   \
 	    FLAG_HAVE_NON_SOLID_MASK)
 
 #endif

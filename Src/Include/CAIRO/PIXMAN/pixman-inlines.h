@@ -296,7 +296,7 @@ static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_wid
 	{												\
 		uint32_t d;									      \
 		src_type_t s1, s2;									\
-		uint8_t a1, a2;									     \
+		uint8 a1, a2;									     \
 		int x1, x2;									 \
 												\
 		if(PIXMAN_OP_ ## OP == PIXMAN_OP_OVER && fully_transparent_src)			       \
@@ -553,7 +553,7 @@ static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_wid
 	    repeat_mode)						      \
 	static force_inline void								    \
 	scanline_func ## scale_func_name ## _wrapper(						       \
-	    const uint8_t    *mask,							\
+	    const uint8    *mask,							\
 	    dst_type_t       *dst,							\
 	    const src_type_t *src,							\
 	    int32_t w,							       \
@@ -565,7 +565,7 @@ static force_inline void pad_repeat_get_scanline_bounds(int32_t source_image_wid
 		scanline_func(dst, src, w, vx, unit_x, max_vx, fully_transparent_src);		       \
 	}											    \
 	FAST_NEAREST_MAINLOOP_INT(scale_func_name, scanline_func ## scale_func_name ## _wrapper,       \
-	    src_type_t, uint8_t, dst_type_t, repeat_mode, FALSE, FALSE)
+	    src_type_t, uint8, dst_type_t, repeat_mode, FALSE, FALSE)
 
 #define FAST_NEAREST_MAINLOOP(scale_func_name, scanline_func, src_type_t, dst_type_t,		\
 	    repeat_mode)						      \

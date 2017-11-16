@@ -63,19 +63,17 @@ void * pixman_malloc_abc(uint a, uint b, uint c)
 		return SAlloc::M(a * b * c);
 }
 
-static force_inline uint16_t float_to_unorm(float f, int n_bits)
+static force_inline uint16 float_to_unorm(float f, int n_bits)
 {
 	uint32_t u;
-	if(f > 1.0)
-		f = 1.0;
-	if(f < 0.0)
-		f = 0.0;
+	SETMIN(f, 1.0);
+	SETMAX(f, 0.0);
 	u = (uint32_t)(f * (1 << n_bits));
 	u -= (u >> n_bits);
 	return u;
 }
 
-static force_inline float unorm_to_float(uint16_t u, int n_bits)
+static force_inline float unorm_to_float(uint16 u, int n_bits)
 {
 	uint32_t m = ((1 << n_bits) - 1);
 	return (u & m) * (1.f / (float)m);
@@ -156,12 +154,12 @@ void pixman_expand_to_float(argb_t * dst, const uint32_t * src, pixman_format_co
 	}
 }
 
-uint16_t pixman_float_to_unorm(float f, int n_bits)
+uint16 FASTCALL pixman_float_to_unorm(float f, int n_bits)
 {
 	return float_to_unorm(f, n_bits);
 }
 
-float FASTCALL pixman_unorm_to_float(uint16_t u, int n_bits)
+float FASTCALL pixman_unorm_to_float(uint16 u, int n_bits)
 {
 	return unorm_to_float(u, n_bits);
 }
@@ -169,10 +167,10 @@ float FASTCALL pixman_unorm_to_float(uint16_t u, int n_bits)
 void pixman_contract_from_float(uint32_t * dst, const argb_t * src, int width)
 {
 	for(int i = 0; i < width; ++i) {
-		uint8_t a = (uint8_t)float_to_unorm(src[i].a, 8);
-		uint8_t r = (uint8_t)float_to_unorm(src[i].r, 8);
-		uint8_t g = (uint8_t)float_to_unorm(src[i].g, 8);
-		uint8_t b = (uint8_t)float_to_unorm(src[i].b, 8);
+		uint8 a = (uint8)float_to_unorm(src[i].a, 8);
+		uint8 r = (uint8)float_to_unorm(src[i].r, 8);
+		uint8 g = (uint8)float_to_unorm(src[i].g, 8);
+		uint8 b = (uint8)float_to_unorm(src[i].b, 8);
 		dst[i] = (a << 24) | (r << 16) | (g << 8) | (b << 0);
 	}
 }
@@ -185,7 +183,7 @@ uint32_t * _pixman_iter_get_scanline_noop(pixman_iter_t * iter, const uint32_t *
 void _pixman_iter_init_bits_stride(pixman_iter_t * iter, const pixman_iter_info_t * info)
 {
 	pixman_image_t * image = iter->image;
-	uint8_t * b = (uint8_t*)image->bits.bits;
+	uint8 * b = (uint8*)image->bits.bits;
 	int s = image->bits.rowstride * 4;
 	iter->bits = b + s * iter->y + iter->x * PIXMAN_FORMAT_BPP(info->format) / 8;
 	iter->stride = s;
@@ -218,11 +216,10 @@ pixman_bool_t pixman_region16_copy_from_region32(pixman_region16_t * dst, pixman
 pixman_bool_t pixman_region32_copy_from_region16(pixman_region32_t * dst, pixman_region16_t * src)
 {
 	int n_boxes, i;
-	pixman_box16_t * boxes16;
 	pixman_box32_t * boxes32;
 	pixman_box32_t tmp_boxes[N_TMP_BOXES];
 	pixman_bool_t retval;
-	boxes16 = pixman_region_rectangles(src, &n_boxes);
+	pixman_box16_t * boxes16 = pixman_region_rectangles(src, &n_boxes);
 	if(n_boxes > N_TMP_BOXES)
 		boxes32 = (pixman_box32_t *)pixman_malloc_ab(n_boxes, sizeof(pixman_box32_t));
 	else
@@ -250,7 +247,7 @@ PIXMAN_EXPORT pixman_implementation_t * _pixman_internal_only_get_implementation
 	return get_implementation();
 }
 
-void _pixman_log_error(const char * function, const char * message)
+void FASTCALL _pixman_log_error(const char * function, const char * message)
 {
 	static int n_messages = 0;
 	if(n_messages < 10) {

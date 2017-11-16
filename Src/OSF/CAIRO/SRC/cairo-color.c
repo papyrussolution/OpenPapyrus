@@ -75,9 +75,9 @@ const cairo_color_t * FASTCALL _cairo_stock_color(cairo_stock_t stock)
  * The conversion is designed to choose the integer i such that
  * i / 65535.0 is as close as possible to the input value.
  */
-uint16_t _cairo_color_double_to_short(double d)
+uint16 _cairo_color_double_to_short(double d)
 {
-	return (uint16_t)(d * 65535.0 + 0.5);
+	return (uint16)(d * 65535.0 + 0.5);
 }
 
 static void FASTCALL _cairo_color_compute_shorts(cairo_color_t * color)

@@ -858,7 +858,7 @@ static cairo_status_t _cairo_xml_emit_type42_font(cairo_xml_t * xml,
 	cairo_status_t status, status2;
 	ulong size;
 	uint32_t len;
-	uint8_t * buf;
+	uint8 * buf;
 
 	backend = scaled_font->backend;
 	if(backend->load_truetype_table == NULL)

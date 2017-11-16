@@ -51,32 +51,14 @@
 
 #ifdef CURLRES_ARES
 
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "hostip.h"
-//#include "hash.h"
-//#include "share.h"
-//#include "strerror.h"
-//#include "url.h"
-//#include "multiif.h"
-//#include "inet_pton.h"
-//#include "connect.h"
-//#include "select.h"
-//#include "progress.h"
-
-#  if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) && \
-	(defined(WIN32) || defined(_WIN32) || defined(__SYMBIAN32__))
-#    define CARES_STATICLIB
-#  endif
-#include <ares.h>
-#include <ares_version.h> /* really old c-ares didn't include this by
-                               itself */
-
-#if ARES_VERSION >= 0x010500
-/* c-ares 1.5.0 or later, the callback proto is modified */
-#define HAVE_CARES_CALLBACK_TIMEOUTS 1
+#if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) && (defined(WIN32) || defined(_WIN32) || defined(__SYMBIAN32__))
+	#define CARES_STATICLIB
 #endif
-
+#include <ares.h>
+#include <ares_version.h> // really old c-ares didn't include this by itself 
+#if ARES_VERSION >= 0x010500
+	#define HAVE_CARES_CALLBACK_TIMEOUTS 1 // c-ares 1.5.0 or later, the callback proto is modified 
+#endif
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"
 #include "memdebug.h"
@@ -101,7 +83,6 @@ int Curl_resolver_global_init(void)
 #endif
 	return CURLE_OK;
 }
-
 /*
  * Curl_resolver_global_cleanup()
  *

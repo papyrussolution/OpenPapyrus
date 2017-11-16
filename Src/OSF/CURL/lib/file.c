@@ -38,18 +38,6 @@
 #ifdef HAVE_SYS_PARAM_H
 	#include <sys/param.h>
 #endif
-//#include "strtoofft.h"
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "progress.h"
-//#include "sendf.h"
-//#include "escape.h"
-//#include "file.h"
-//#include "speedcheck.h"
-//#include "getinfo.h"
-//#include "transfer.h"
-//#include "url.h"
-//#include "warnless.h"
 /* The last 3 #include files should be in this order */
 #include "curl_printf.h"
 //#include "curl_memory.h"

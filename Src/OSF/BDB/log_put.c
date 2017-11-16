@@ -29,7 +29,7 @@ int __log_put_pp(DB_ENV * dbenv, DB_LSN * lsnp, const DBT * udbt, uint32 flags)
 	int ret;
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->lg_handle, "DB_ENV->log_put", DB_INIT_LOG);
-	/* Validate arguments: check for allowed flags. */
+	// Validate arguments: check for allowed flags
 	if((ret = __db_fchk(env, "DB_ENV->log_put", flags, DB_LOG_CHKPNT|DB_LOG_COMMIT| DB_FLUSH|DB_LOG_NOCOPY|DB_LOG_WRNOSYNC)) != 0)
 		return ret;
 	/* DB_LOG_WRNOSYNC and DB_FLUSH are mutually exclusive. */
@@ -1283,7 +1283,7 @@ int __log_put_record_pp(DB_ENV * dbenv, DB * dbp, DB_TXN * txnp, DB_LSN * ret_ls
 	int ret;
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->lg_handle, "DB_ENV->log_put_record", DB_INIT_LOG);
-	/* Validate arguments: check for allowed flags. */
+	// Validate arguments: check for allowed flags
 	if((ret = __db_fchk(env, "DB_ENV->log_put_record", flags, DB_LOG_CHKPNT|DB_LOG_COMMIT|DB_FLUSH|DB_LOG_NOCOPY|DB_LOG_WRNOSYNC)) != 0)
 		return ret;
 	/* DB_LOG_WRNOSYNC and DB_FLUSH are mutually exclusive. */

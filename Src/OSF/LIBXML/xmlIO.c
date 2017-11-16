@@ -2165,7 +2165,7 @@ xmlParserInputBufferPtr xmlAllocParserInputBuffer(xmlCharEncoding enc)
 	else {
 		memzero(ret, (size_t)sizeof(xmlParserInputBuffer));
 		ret->buffer = xmlBufCreateSize(2 * xmlDefaultBufferSize);
-		if(ret->buffer == NULL) {
+		if(!ret->buffer) {
 			SAlloc::F(ret);
 			ret = 0;
 		}
@@ -2201,7 +2201,7 @@ xmlOutputBufferPtr xmlAllocOutputBuffer(xmlCharEncodingHandlerPtr encoder)
 	else {
 		memzero(ret, sizeof(xmlOutputBuffer));
 		ret->buffer = xmlBufCreate();
-		if(ret->buffer == NULL) {
+		if(!ret->buffer) {
 			SAlloc::F(ret);
 			ret = 0;
 		}
@@ -2241,7 +2241,7 @@ xmlOutputBufferPtr xmlAllocOutputBufferInternal(xmlCharEncodingHandlerPtr encode
 	}
 	memzero(ret, (size_t)sizeof(xmlOutputBuffer));
 	ret->buffer = xmlBufCreate();
-	if(ret->buffer == NULL) {
+	if(!ret->buffer) {
 		SAlloc::F(ret);
 		return 0;
 	}
@@ -2728,7 +2728,7 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateStatic(const char * mem, int s
 		else {
 			memzero(ret, (size_t)sizeof(xmlParserInputBuffer));
 			ret->buffer = xmlBufCreateStatic((void*)mem, (size_t)size);
-			if(ret->buffer == NULL) {
+			if(!ret->buffer) {
 				ZFREE(ret);
 			}
 			else {

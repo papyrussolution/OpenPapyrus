@@ -1867,7 +1867,7 @@ static xmlChar * xmlC11NNormalizeString(const xmlChar * input, xmlC14NNormalizat
 	xmlChar * buffer = NULL;
 	xmlChar * out = NULL;
 	int buffer_size = 0;
-	if(input == NULL)
+	if(!input)
 		return 0;
 	/*
 	 * allocate an translation buffer.

@@ -31,72 +31,72 @@
 
 PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_8888_8888, uint32_t, 1, uint32_t, 1)
 PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_x888_8888, uint32_t, 1, uint32_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_0565_0565, uint16_t, 1, uint16_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_0888_0888, uint8_t, 3, uint8_t, 3)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_8888_0565, uint32_t, 1, uint16_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_0565_8888, uint16_t, 1, uint32_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_0888_8888_rev, uint8_t, 3, uint32_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_0888_0565_rev, uint8_t, 3, uint16_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_0565_0565, uint16, 1, uint16, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_0888_0888, uint8, 3, uint8, 3)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_8888_0565, uint32_t, 1, uint16, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_0565_8888, uint16, 1, uint32_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_0888_8888_rev, uint8, 3, uint32_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_0888_0565_rev, uint8, 3, uint16, 1)
 PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_pixbuf_8888, uint32_t, 1, uint32_t, 1)
 PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, src_rpixbuf_8888, uint32_t, 1, uint32_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, add_8_8, uint8_t, 1, uint8_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, add_8_8, uint8, 1, uint8, 1)
 PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, add_8888_8888, uint32_t, 1, uint32_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, over_8888_0565, uint32_t, 1, uint16_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, over_8888_0565, uint32_t, 1, uint16, 1)
 PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, over_8888_8888, uint32_t, 1, uint32_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, out_reverse_8_0565, uint8_t, 1, uint16_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, out_reverse_8_8888, uint8_t, 1, uint32_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_N_DST (SKIP_ZERO_SRC, neon, over_n_0565, uint16_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, out_reverse_8_0565, uint8, 1, uint16, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_DST (neon, out_reverse_8_8888, uint8, 1, uint32_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_N_DST (SKIP_ZERO_SRC, neon, over_n_0565, uint16, 1)
 PIXMAN_ARM_BIND_FAST_PATH_N_DST (SKIP_ZERO_SRC, neon, over_n_8888, uint32_t, 1)
 PIXMAN_ARM_BIND_FAST_PATH_N_DST (SKIP_ZERO_SRC, neon, over_reverse_n_8888, uint32_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_N_DST (0, neon, in_n_8, uint8_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_N_DST (0, neon, in_n_8, uint8, 1)
 
-PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, neon, over_n_8_0565, uint8_t, 1, uint16_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, neon, over_n_8_8888, uint8_t, 1, uint32_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, neon, over_n_8_0565, uint8, 1, uint16, 1)
+PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, neon, over_n_8_8888, uint8, 1, uint32_t, 1)
 PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, neon, over_n_8888_8888_ca, uint32_t, 1, uint32_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, neon, over_n_8888_0565_ca, uint32_t, 1, uint16_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, neon, over_n_8_8, uint8_t, 1, uint8_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, neon, add_n_8_8, uint8_t, 1, uint8_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, neon, add_n_8_8888, uint8_t, 1, uint32_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (0, neon, src_n_8_8888, uint8_t, 1, uint32_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (0, neon, src_n_8_8, uint8_t, 1, uint8_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, neon, over_n_8888_0565_ca, uint32_t, 1, uint16, 1)
+PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, neon, over_n_8_8, uint8, 1, uint8, 1)
+PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, neon, add_n_8_8, uint8, 1, uint8, 1)
+PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (SKIP_ZERO_SRC, neon, add_n_8_8888, uint8, 1, uint32_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (0, neon, src_n_8_8888, uint8, 1, uint32_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_N_MASK_DST (0, neon, src_n_8_8, uint8, 1, uint8, 1)
 
 PIXMAN_ARM_BIND_FAST_PATH_SRC_N_DST (SKIP_ZERO_MASK, neon, over_8888_n_8888, uint32_t, 1, uint32_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_N_DST (SKIP_ZERO_MASK, neon, over_8888_n_0565, uint32_t, 1, uint16_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_N_DST (SKIP_ZERO_MASK, neon, over_0565_n_0565, uint16_t, 1, uint16_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_N_DST (SKIP_ZERO_MASK, neon, over_8888_n_0565, uint32_t, 1, uint16, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_N_DST (SKIP_ZERO_MASK, neon, over_0565_n_0565, uint16, 1, uint16, 1)
 PIXMAN_ARM_BIND_FAST_PATH_SRC_N_DST (SKIP_ZERO_MASK, neon, add_8888_n_8888, uint32_t, 1, uint32_t, 1)
 
-PIXMAN_ARM_BIND_FAST_PATH_SRC_MASK_DST (neon, add_8_8_8, uint8_t, 1, uint8_t, 1, uint8_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_MASK_DST (neon, add_0565_8_0565, uint16_t, 1, uint8_t, 1, uint16_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_MASK_DST (neon, add_8888_8_8888, uint32_t, 1, uint8_t, 1, uint32_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_MASK_DST (neon, add_8_8_8, uint8, 1, uint8, 1, uint8, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_MASK_DST (neon, add_0565_8_0565, uint16, 1, uint8, 1, uint16, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_MASK_DST (neon, add_8888_8_8888, uint32_t, 1, uint8, 1, uint32_t, 1)
 PIXMAN_ARM_BIND_FAST_PATH_SRC_MASK_DST (neon, add_8888_8888_8888, uint32_t, 1, uint32_t, 1, uint32_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_MASK_DST (neon, over_8888_8_8888, uint32_t, 1, uint8_t, 1, uint32_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_MASK_DST (neon, over_8888_8_8888, uint32_t, 1, uint8, 1, uint32_t, 1)
 PIXMAN_ARM_BIND_FAST_PATH_SRC_MASK_DST (neon, over_8888_8888_8888, uint32_t, 1, uint32_t, 1, uint32_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_MASK_DST (neon, over_8888_8_0565, uint32_t, 1, uint8_t, 1, uint16_t, 1)
-PIXMAN_ARM_BIND_FAST_PATH_SRC_MASK_DST (neon, over_0565_8_0565, uint16_t, 1, uint8_t, 1, uint16_t, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_MASK_DST (neon, over_8888_8_0565, uint32_t, 1, uint8, 1, uint16, 1)
+PIXMAN_ARM_BIND_FAST_PATH_SRC_MASK_DST (neon, over_0565_8_0565, uint16, 1, uint8, 1, uint16, 1)
 
 PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_DST (neon, 8888_8888, OVER, uint32_t, uint32_t)
-PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_DST (neon, 8888_0565, OVER, uint32_t, uint16_t)
-PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_DST (neon, 8888_0565, SRC, uint32_t, uint16_t)
-PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_DST (neon, 0565_8888, SRC, uint16_t, uint32_t)
+PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_DST (neon, 8888_0565, OVER, uint32_t, uint16)
+PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_DST (neon, 8888_0565, SRC, uint32_t, uint16)
+PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_DST (neon, 0565_8888, SRC, uint16, uint32_t)
 
-PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_A8_DST (SKIP_ZERO_SRC, neon, 8888_8_0565, OVER, uint32_t, uint16_t)
-PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_A8_DST (SKIP_ZERO_SRC, neon, 0565_8_0565, OVER, uint16_t, uint16_t)
+PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_A8_DST (SKIP_ZERO_SRC, neon, 8888_8_0565, OVER, uint32_t, uint16)
+PIXMAN_ARM_BIND_SCALED_NEAREST_SRC_A8_DST (SKIP_ZERO_SRC, neon, 0565_8_0565, OVER, uint16, uint16)
 
 PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_DST (0, neon, 8888_8888, SRC, uint32_t, uint32_t)
-PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_DST (0, neon, 8888_0565, SRC, uint32_t, uint16_t)
-PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_DST (0, neon, 0565_x888, SRC, uint16_t, uint32_t)
-PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_DST (0, neon, 0565_0565, SRC, uint16_t, uint16_t)
+PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_DST (0, neon, 8888_0565, SRC, uint32_t, uint16)
+PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_DST (0, neon, 0565_x888, SRC, uint16, uint32_t)
+PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_DST (0, neon, 0565_0565, SRC, uint16, uint16)
 PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_DST (SKIP_ZERO_SRC, neon, 8888_8888, OVER, uint32_t, uint32_t)
 PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_DST (SKIP_ZERO_SRC, neon, 8888_8888, ADD, uint32_t, uint32_t)
 PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_A8_DST (0, neon, 8888_8_8888, SRC, uint32_t, uint32_t)
-PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_A8_DST (0, neon, 8888_8_0565, SRC, uint32_t, uint16_t)
-PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_A8_DST (0, neon, 0565_8_x888, SRC, uint16_t, uint32_t)
-PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_A8_DST (0, neon, 0565_8_0565, SRC, uint16_t, uint16_t)
+PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_A8_DST (0, neon, 8888_8_0565, SRC, uint32_t, uint16)
+PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_A8_DST (0, neon, 0565_8_x888, SRC, uint16, uint32_t)
+PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_A8_DST (0, neon, 0565_8_0565, SRC, uint16, uint16)
 PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_A8_DST (SKIP_ZERO_SRC, neon, 8888_8_8888, OVER, uint32_t, uint32_t)
 PIXMAN_ARM_BIND_SCALED_BILINEAR_SRC_A8_DST (SKIP_ZERO_SRC, neon, 8888_8_8888, ADD, uint32_t, uint32_t)
 
-void pixman_composite_src_n_8_asm_neon (int32_t   w, int32_t   h, uint8_t  *dst, int32_t   dst_stride, uint8_t   src);
-void pixman_composite_src_n_0565_asm_neon (int32_t   w, int32_t   h, uint16_t *dst, int32_t   dst_stride, uint16_t  src);
+void pixman_composite_src_n_8_asm_neon (int32_t   w, int32_t   h, uint8  *dst, int32_t   dst_stride, uint8   src);
+void pixman_composite_src_n_0565_asm_neon (int32_t   w, int32_t   h, uint16 *dst, int32_t   dst_stride, uint16  src);
 void pixman_composite_src_n_8888_asm_neon (int32_t   w, int32_t   h, uint32_t *dst, int32_t   dst_stride, uint32_t  src);
 static pixman_bool_t arm_neon_fill (pixman_implementation_t *imp, uint32_t *               bits,
                int                      stride,
@@ -116,7 +116,7 @@ static pixman_bool_t arm_neon_fill (pixman_implementation_t *imp, uint32_t *    
 	pixman_composite_src_n_8_asm_neon (
 		width,
 		height,
-		(uint8_t *)(((char *) bits) + y * byte_stride + x),
+		(uint8 *)(((char *) bits) + y * byte_stride + x),
 		byte_stride,
 		_xor & 0xff);
 	return TRUE;
@@ -124,7 +124,7 @@ static pixman_bool_t arm_neon_fill (pixman_implementation_t *imp, uint32_t *    
 	pixman_composite_src_n_0565_asm_neon (
 		width,
 		height,
-		(uint16_t *)(((char *) bits) + y * byte_stride + x * 2),
+		(uint16 *)(((char *) bits) + y * byte_stride + x * 2),
 		byte_stride / 2,
 		_xor & 0xffff);
 	return TRUE;
@@ -164,9 +164,9 @@ arm_neon_blt (pixman_implementation_t *imp,
     case 16:
 	pixman_composite_src_0565_0565_asm_neon (
 		width, height,
-		(uint16_t *)(((char *) dst_bits) +
+		(uint16 *)(((char *) dst_bits) +
 		dest_y * dst_stride * 4 + dest_x * 2), dst_stride * 2,
-		(uint16_t *)(((char *) src_bits) +
+		(uint16 *)(((char *) src_bits) +
 		src_y * src_stride * 4 + src_x * 2), src_stride * 2);
 	return TRUE;
     case 32:

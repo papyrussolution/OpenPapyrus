@@ -43,60 +43,30 @@
 	#include <in.h>
 	#include <inet.h>
 #endif
-
 #if (defined(NETWARE) && defined(__NOVELL_LIBC__))
-#undef in_addr_t
-#define in_addr_t ulong
+	#undef in_addr_t
+	#define in_addr_t ulong
 #endif
-//#include <curl/curl.h>
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "hostip.h"
-//#include "progress.h"
-//#include "transfer.h"
-//#include "escape.h"
-//#include "http.h" /* for HTTP proxy tunnel stuff */
-//#include "ssh.h"
-//#include "url.h"
-//#include "speedcheck.h"
-//#include "getinfo.h"
-//#include "strdup.h"
-//#include "strcase.h"
-//#include "vtls/vtls.h"
-//#include "connect.h"
-//#include "strerror.h"
-//#include "inet_ntop.h"
-//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
-//#include "strtoofft.h"
-//#include "multiif.h"
-//#include "select.h"
-//#include "warnless.h"
-
-/* The last 3 #include files should be in this order */
+// The last 3 #include files should be in this order 
 #include "curl_printf.h"
 //#include "curl_memory.h"
 #include "memdebug.h"
 
 #ifdef WIN32
-#  undef  PATH_MAX
-#define PATH_MAX MAX_PATH
-#  ifndef R_OK
-#    define R_OK 4
-#  endif
+	#undef  PATH_MAX
+	#define PATH_MAX MAX_PATH
+	#ifndef R_OK
+		#define R_OK 4
+	#endif
 #endif
-
 #ifndef PATH_MAX
-#define PATH_MAX 1024 /* just an extra precaution since there are systems that
-	                 have their definition hidden well */
+	#define PATH_MAX 1024 // just an extra precaution since there are systems that have their definition hidden well 
 #endif
-
 #if LIBSSH2_VERSION_NUM >= 0x010206
-/* libssh2_sftp_statvfs and friends were added in 1.2.6 */
-#define HAS_STATVFS_SUPPORT 1
+	/* libssh2_sftp_statvfs and friends were added in 1.2.6 */
+	#define HAS_STATVFS_SUPPORT 1
 #endif
-
 #define sftp_libssh2_last_error(s) curlx_ultosi(libssh2_sftp_last_error(s))
-
 #define sftp_libssh2_realpath(s, p, t, m) libssh2_sftp_symlink_ex((s), (p), curlx_uztoui(strlen(p)), (t), (m), LIBSSH2_SFTP_REALPATH)
 
 /* Local functions: */
@@ -110,43 +80,21 @@ static CURLcode get_pathname(const char ** cpp, char ** path);
 static CURLcode ssh_connect(struct connectdata * conn, bool * done);
 static CURLcode ssh_multi_statemach(struct connectdata * conn, bool * done);
 static CURLcode ssh_do(struct connectdata * conn, bool * done);
-
-static CURLcode ssh_getworkingpath(struct connectdata * conn,
-    char * homedir,                               /* when SFTP is used */
-    char ** path);
-
-static CURLcode scp_done(struct connectdata * conn,
-    CURLcode, bool premature);
-static CURLcode scp_doing(struct connectdata * conn,
-    bool * dophase_done);
+static CURLcode ssh_getworkingpath(struct connectdata * conn, char * homedir/* when SFTP is used */, char ** path);
+static CURLcode scp_done(struct connectdata * conn, CURLcode, bool premature);
+static CURLcode scp_doing(struct connectdata * conn, bool * dophase_done);
 static CURLcode scp_disconnect(struct connectdata * conn, bool dead_connection);
-
-static CURLcode sftp_done(struct connectdata * conn,
-    CURLcode, bool premature);
-static CURLcode sftp_doing(struct connectdata * conn,
-    bool * dophase_done);
+static CURLcode sftp_done(struct connectdata * conn, CURLcode, bool premature);
+static CURLcode sftp_doing(struct connectdata * conn, bool * dophase_done);
 static CURLcode sftp_disconnect(struct connectdata * conn, bool dead);
-static
-CURLcode sftp_perform(struct connectdata * conn,
-    bool * connected,
-    bool * dophase_done);
-
-static int ssh_getsock(struct connectdata * conn,
-    curl_socket_t * sock,                   /* points to numsocks number
-                                               of sockets */
-    int numsocks);
-
-static int ssh_perform_getsock(const struct connectdata * conn,
-    curl_socket_t * sock,                           /* points to numsocks
-                                                       number of sockets */
-    int numsocks);
+static CURLcode sftp_perform(struct connectdata * conn, bool * connected, bool * dophase_done);
+static int ssh_getsock(struct connectdata * conn, curl_socket_t * sock/* points to numsocks number of sockets */, int numsocks);
+static int ssh_perform_getsock(const struct connectdata * conn, curl_socket_t * sock/* points to numsocks number of sockets */, int numsocks);
 
 static CURLcode ssh_setup_connection(struct connectdata * conn);
-
 /*
  * SCP protocol handler.
  */
-
 const struct Curl_handler Curl_handler_scp = {
 	"SCP",                          /* scheme */
 	ssh_setup_connection,           /* setup_connection */
@@ -164,14 +112,11 @@ const struct Curl_handler Curl_handler_scp = {
 	ZERO_NULL,                      /* readwrite */
 	PORT_SSH,                       /* defport */
 	CURLPROTO_SCP,                  /* protocol */
-	PROTOPT_DIRLOCK | PROTOPT_CLOSEACTION
-	| PROTOPT_NOURLQUERY            /* flags */
+	PROTOPT_DIRLOCK | PROTOPT_CLOSEACTION | PROTOPT_NOURLQUERY            /* flags */
 };
-
 /*
  * SFTP protocol handler.
  */
-
 const struct Curl_handler Curl_handler_sftp = {
 	"SFTP",                         /* scheme */
 	ssh_setup_connection,           /* setup_connection */
@@ -189,18 +134,13 @@ const struct Curl_handler Curl_handler_sftp = {
 	ZERO_NULL,                      /* readwrite */
 	PORT_SSH,                       /* defport */
 	CURLPROTO_SFTP,                 /* protocol */
-	PROTOPT_DIRLOCK | PROTOPT_CLOSEACTION
-	| PROTOPT_NOURLQUERY            /* flags */
+	PROTOPT_DIRLOCK|PROTOPT_CLOSEACTION|PROTOPT_NOURLQUERY /* flags */
 };
 
-static void kbd_callback(const char * name, int name_len, const char * instruction,
-    int instruction_len, int num_prompts,
-    const LIBSSH2_USERAUTH_KBDINT_PROMPT * prompts,
-    LIBSSH2_USERAUTH_KBDINT_RESPONSE * responses,
-    void ** abstract)
+static void kbd_callback(const char * name, int name_len, const char * instruction, int instruction_len, int num_prompts,
+    const LIBSSH2_USERAUTH_KBDINT_PROMPT * prompts, LIBSSH2_USERAUTH_KBDINT_RESPONSE * responses, void ** abstract)
 {
 	struct connectdata * conn = (struct connectdata*)*abstract;
-
 #ifdef CURL_LIBSSH2_DEBUG
 	fprintf(stderr, "name=%s\n", name);
 	fprintf(stderr, "name_len=%d\n", name_len);
@@ -224,32 +164,18 @@ static void kbd_callback(const char * name, int name_len, const char * instructi
 static CURLcode sftp_libssh2_error_to_CURLE(int err)
 {
 	switch(err) {
-		case LIBSSH2_FX_OK:
-		    return CURLE_OK;
-
+		case LIBSSH2_FX_OK: return CURLE_OK;
 		case LIBSSH2_FX_NO_SUCH_FILE:
-		case LIBSSH2_FX_NO_SUCH_PATH:
-		    return CURLE_REMOTE_FILE_NOT_FOUND;
-
+		case LIBSSH2_FX_NO_SUCH_PATH: return CURLE_REMOTE_FILE_NOT_FOUND;
 		case LIBSSH2_FX_PERMISSION_DENIED:
 		case LIBSSH2_FX_WRITE_PROTECT:
-		case LIBSSH2_FX_LOCK_CONFlICT:
-		    return CURLE_REMOTE_ACCESS_DENIED;
-
+		case LIBSSH2_FX_LOCK_CONFlICT: return CURLE_REMOTE_ACCESS_DENIED;
 		case LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM:
-		case LIBSSH2_FX_QUOTA_EXCEEDED:
-		    return CURLE_REMOTE_DISK_FULL;
-
-		case LIBSSH2_FX_FILE_ALREADY_EXISTS:
-		    return CURLE_REMOTE_FILE_EXISTS;
-
-		case LIBSSH2_FX_DIR_NOT_EMPTY:
-		    return CURLE_QUOTE_ERROR;
-
-		default:
-		    break;
+		case LIBSSH2_FX_QUOTA_EXCEEDED: return CURLE_REMOTE_DISK_FULL;
+		case LIBSSH2_FX_FILE_ALREADY_EXISTS: return CURLE_REMOTE_FILE_EXISTS;
+		case LIBSSH2_FX_DIR_NOT_EMPTY: return CURLE_QUOTE_ERROR;
+		default: break;
 	}
-
 	return CURLE_SSH;
 }
 
@@ -257,39 +183,22 @@ static CURLcode libssh2_session_error_to_CURLE(int err)
 {
 	switch(err) {
 		/* Ordered by order of appearance in libssh2.h */
-		case LIBSSH2_ERROR_NONE:
-		    return CURLE_OK;
-
-		case LIBSSH2_ERROR_SOCKET_NONE:
-		    return CURLE_COULDNT_CONNECT;
-
-		case LIBSSH2_ERROR_ALLOC:
-		    return CURLE_OUT_OF_MEMORY;
-
-		case LIBSSH2_ERROR_SOCKET_SEND:
-		    return CURLE_SEND_ERROR;
-
+		case LIBSSH2_ERROR_NONE: return CURLE_OK;
+		case LIBSSH2_ERROR_SOCKET_NONE: return CURLE_COULDNT_CONNECT;
+		case LIBSSH2_ERROR_ALLOC: return CURLE_OUT_OF_MEMORY;
+		case LIBSSH2_ERROR_SOCKET_SEND: return CURLE_SEND_ERROR;
 		case LIBSSH2_ERROR_HOSTKEY_INIT:
 		case LIBSSH2_ERROR_HOSTKEY_SIGN:
 		case LIBSSH2_ERROR_PUBLICKEY_UNRECOGNIZED:
-		case LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED:
-		    return CURLE_PEER_FAILED_VERIFICATION;
-
-		case LIBSSH2_ERROR_PASSWORD_EXPIRED:
-		    return CURLE_LOGIN_DENIED;
-
+		case LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED: return CURLE_PEER_FAILED_VERIFICATION;
+		case LIBSSH2_ERROR_PASSWORD_EXPIRED: return CURLE_LOGIN_DENIED;
 		case LIBSSH2_ERROR_SOCKET_TIMEOUT:
-		case LIBSSH2_ERROR_TIMEOUT:
-		    return CURLE_OPERATION_TIMEDOUT;
-
-		case LIBSSH2_ERROR_EAGAIN:
-		    return CURLE_AGAIN;
+		case LIBSSH2_ERROR_TIMEOUT: return CURLE_OPERATION_TIMEDOUT;
+		case LIBSSH2_ERROR_EAGAIN: return CURLE_AGAIN;
 	}
-
 	/* @todo map some more of the libssh2 errors to the more appropriate CURLcode
 	   error code, and possibly add a few new SSH-related one. We must however
 	   not return or even depend on libssh2 errors in the public libcurl API */
-
 	return CURLE_SSH;
 }
 
@@ -311,7 +220,6 @@ static LIBSSH2_FREE_FUNC(my_libssh2_free)
 	if(ptr) /* ssh2 agent sometimes call free with null ptr */
 		SAlloc::F(ptr);
 }
-
 /*
  * SSH State machine related code
  */
@@ -383,27 +291,20 @@ static void state(struct connectdata * conn, sshstate nowstate)
 	};
 
 	if(sshc->state != nowstate) {
-		infof(conn->data, "SFTP %p state change from %s to %s\n",
-		    (void*)sshc, names[sshc->state], names[nowstate]);
+		infof(conn->data, "SFTP %p state change from %s to %s\n", (void*)sshc, names[sshc->state], names[nowstate]);
 	}
 #endif
-
 	sshc->state = nowstate;
 }
 
 /* figure out the path to work with in this particular request */
-static CURLcode ssh_getworkingpath(struct connectdata * conn,
-    char * homedir,                                /* when SFTP is used */
-    char ** path)                               /* returns the  allocated
-                                                   real path to work with */
+static CURLcode ssh_getworkingpath(struct connectdata * conn, char * homedir/* when SFTP is used */, char ** path/* returns the  allocated real path to work with */)
 {
 	struct Curl_easy * data = conn->data;
 	char * real_path = NULL;
 	char * working_path;
 	size_t working_path_len;
-	CURLcode result =
-	    Curl_urldecode(data, data->state.path, 0, &working_path,
-	    &working_path_len, FALSE);
+	CURLcode result = Curl_urldecode(data, data->state.path, 0, &working_path, &working_path_len, FALSE);
 	if(result)
 		return result;
 
@@ -2778,7 +2679,6 @@ static CURLcode ssh_setup_connection(struct connectdata * conn)
 
 static Curl_recv scp_recv, sftp_recv;
 static Curl_send scp_send, sftp_send;
-
 /*
  * Curl_ssh_connect() gets called from Curl_protocol_connect() to allow us to
  * do protocol-specific actions at connect-time.
@@ -2789,18 +2689,14 @@ static CURLcode ssh_connect(struct connectdata * conn, bool * done)
 	curl_socket_t sock;
 #endif
 	struct ssh_conn * ssh;
-
 	CURLcode result;
 	struct Curl_easy * data = conn->data;
-
 	/* initialize per-handle data if not already */
 	if(!data->req.protop)
 		ssh_setup_connection(conn);
-
 	/* We default to persistent connections. We set this already in this connect
 	   function to make the re-use checks properly be able to check this bit. */
 	connkeep(conn, "SSH default");
-
 	if(conn->handler->protocol & CURLPROTO_SCP) {
 		conn->recv[FIRSTSOCKET] = scp_recv;
 		conn->send[FIRSTSOCKET] = scp_send;
@@ -3037,39 +2933,26 @@ static ssize_t scp_recv(struct connectdata * conn, int sockindex, char * mem, si
  * This is the actual DO function for SFTP. Get a file/directory according to
  * the options previously setup.
  */
-
-static
-CURLcode sftp_perform(struct connectdata * conn,
-    bool * connected,
-    bool * dophase_done)
+static CURLcode sftp_perform(struct connectdata * conn, bool * connected, bool * dophase_done)
 {
 	CURLcode result = CURLE_OK;
-
 	DEBUGF(infof(conn->data, "DO phase starts\n"));
-
 	*dophase_done = FALSE; /* not done yet */
-
 	/* start the first command in the DO phase */
 	state(conn, SSH_SFTP_QUOTE_INIT);
-
 	/* run the state-machine */
 	result = ssh_multi_statemach(conn, dophase_done);
-
 	*connected = conn->bits.tcpconnect[FIRSTSOCKET];
-
 	if(*dophase_done) {
 		DEBUGF(infof(conn->data, "DO phase is complete\n"));
 	}
-
 	return result;
 }
 
 /* called from multi.c while DOing */
-static CURLcode sftp_doing(struct connectdata * conn,
-    bool * dophase_done)
+static CURLcode sftp_doing(struct connectdata * conn, bool * dophase_done)
 {
 	CURLcode result = ssh_multi_statemach(conn, dophase_done);
-
 	if(*dophase_done) {
 		DEBUGF(infof(conn->data, "DO phase is complete\n"));
 	}
@@ -3097,11 +2980,9 @@ static CURLcode sftp_disconnect(struct connectdata * conn, bool dead_connection)
 	return result;
 }
 
-static CURLcode sftp_done(struct connectdata * conn, CURLcode status,
-    bool premature)
+static CURLcode sftp_done(struct connectdata * conn, CURLcode status, bool premature)
 {
 	struct ssh_conn * sshc = &conn->proto.sshc;
-
 	if(!status) {
 		/* Post quote commands are executed after the SFTP_CLOSE state to avoid
 		   errors that could happen due to open file handles during POSTQUOTE

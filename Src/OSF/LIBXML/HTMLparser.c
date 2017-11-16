@@ -1921,7 +1921,7 @@ int htmlEncodeEntities(uchar* out, int * outlen, const uchar* in, int * inlen, i
 static htmlParserInputPtr htmlNewInputStream(htmlParserCtxtPtr ctxt)
 {
 	htmlParserInputPtr input = (xmlParserInputPtr)SAlloc::M(sizeof(htmlParserInput));
-	if(input == NULL) {
+	if(!input) {
 		htmlErrMemory(ctxt, "couldn't allocate a new input stream\n");
 		return NULL;
 	}
@@ -4388,7 +4388,7 @@ htmlParserCtxtPtr htmlCreateMemoryParserCtxt(const char * buffer, int size)
 	if(!buf)
 		return NULL;
 	input = xmlNewInputStream(ctxt);
-	if(input == NULL) {
+	if(!input) {
 		xmlFreeParserCtxt(ctxt);
 		return NULL;
 	}
@@ -5984,7 +5984,7 @@ htmlDocPtr htmlReadFd(int fd, const char * URL, const char * encoding, int optio
 	xmlInitParser();
 	xmlInitParser();
 	input = xmlParserInputBufferCreateFd(fd, XML_CHAR_ENCODING_NONE);
-	if(input == NULL)
+	if(!input)
 		return NULL;
 	ctxt = xmlNewParserCtxt();
 	if(!ctxt) {
@@ -6023,7 +6023,7 @@ htmlDocPtr htmlReadIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose
 		return NULL;
 	xmlInitParser();
 	input = xmlParserInputBufferCreateIO(ioread, ioclose, ioctx, XML_CHAR_ENCODING_NONE);
-	if(input == NULL) {
+	if(!input) {
 		if(ioclose)
 			ioclose(ioctx);
 		return NULL;
@@ -6127,7 +6127,7 @@ htmlDocPtr htmlCtxtReadMemory(htmlParserCtxtPtr ctxt, const char * buffer, int s
 	xmlInitParser();
 	htmlCtxtReset(ctxt);
 	input = xmlParserInputBufferCreateMem(buffer, size, XML_CHAR_ENCODING_NONE);
-	if(input == NULL) {
+	if(!input) {
 		return NULL;
 	}
 	stream = xmlNewIOInputStream(ctxt, input, XML_CHAR_ENCODING_NONE);
@@ -6163,7 +6163,7 @@ htmlDocPtr htmlCtxtReadFd(htmlParserCtxtPtr ctxt, int fd, const char * URL, cons
 	xmlInitParser();
 	htmlCtxtReset(ctxt);
 	input = xmlParserInputBufferCreateFd(fd, XML_CHAR_ENCODING_NONE);
-	if(input == NULL)
+	if(!input)
 		return NULL;
 	stream = xmlNewIOInputStream(ctxt, input, XML_CHAR_ENCODING_NONE);
 	if(stream == NULL) {
@@ -6201,7 +6201,7 @@ htmlDocPtr htmlCtxtReadIO(htmlParserCtxtPtr ctxt, xmlInputReadCallback ioread, x
 	xmlInitParser();
 	htmlCtxtReset(ctxt);
 	input = xmlParserInputBufferCreateIO(ioread, ioclose, ioctx, XML_CHAR_ENCODING_NONE);
-	if(input == NULL) {
+	if(!input) {
 		if(ioclose)
 			ioclose(ioctx);
 		return NULL;

@@ -132,14 +132,16 @@ int __db_check_chksum(ENV * env, void * hdr, DB_CIPHER * db_cipher, uint8 * chks
 	int ret;
 	size_t sum_len;
 	uint32 hash4;
-	uint8 * mac_key, old[DB_MAC_KEY], new_key[DB_MAC_KEY];
+	uint8 * mac_key;
+	uint8  old[DB_MAC_KEY];
+	uint8  new_key[DB_MAC_KEY];
 	/*
 	 * If we are just doing checksumming and not encryption, then checksum
 	 * is 4 bytes.  Otherwise, it is DB_MAC_KEY size.  Check for illegal
 	 * combinations of crypto/non-crypto checksums.
 	 */
 	if(is_hmac == 0) {
-		if(db_cipher != NULL) {
+		if(db_cipher) {
 			__db_errx(env, DB_STR("0195", "Unencrypted checksum with a supplied encryption key"));
 			return EINVAL;
 		}
@@ -170,13 +172,13 @@ retry:
 	if(mac_key == NULL) {
 		/* Just a hash, no MAC */
 		hash4 = __ham_func4(NULL, data, (uint32)data_len);
-		if(hdr != NULL)
+		if(hdr)
 			LOG_HDR_SUM(0, hdr, &hash4);
 		ret = memcmp((uint32 *)chksum, &hash4, sum_len) ? -1 : 0;
 	}
 	else {
 		__db_hmac(mac_key, (uint8 *)data, data_len, new_key);
-		if(hdr != NULL)
+		if(hdr)
 			LOG_HDR_SUM(1, hdr, new_key);
 		ret = memcmp(chksum, new_key, sum_len) ? -1 : 0;
 	}
@@ -186,7 +188,7 @@ retry:
 	 * code.  So, if we have a hdr, and the checksum doesn't
 	 * match, try again without a hdr.
 	 */
-	if(hdr != NULL && ret != 0) {
+	if(hdr && ret != 0) {
 		hdr = NULL;
 		goto retry;
 	}

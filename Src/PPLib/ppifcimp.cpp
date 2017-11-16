@@ -1696,7 +1696,7 @@ int32 DL6ICLS_PPUtil::GetSupplInterchangeConfig(int32 supplID, PpySupplInterchan
 		temp_buf.CopyToOleStr(&pValue->ClientCode);
 		agt.Ep.GetExtStrData(agt.Ep.extssEDIPrvdrSymb, temp_buf);
 		temp_buf.CopyToOleStr(&pValue->EDIPrvdrSymb);
-		agt.Ep.GetExtStrData(agt.Ep.extssRemoveAddr, temp_buf);
+		agt.Ep.GetExtStrData(agt.Ep.extssRemoteAddr, temp_buf);
 		temp_buf.CopyToOleStr(&pValue->RemoveAddr);
 		agt.Ep.GetExtStrData(agt.Ep.extssAccsName, temp_buf);
 		temp_buf.CopyToOleStr(&pValue->AccsName);

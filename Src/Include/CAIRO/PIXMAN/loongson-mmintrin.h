@@ -185,7 +185,7 @@ _mm_packs_pi32 (__m64 __m1, __m64 __m2)
 #define _MM_SHUFFLE(fp3,fp2,fp1,fp0) \
  (((fp3) << 6) | ((fp2) << 4) | ((fp1) << 2) | (fp0))
 extern __inline __m64 __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-_mm_set_pi16 (uint16_t __w3, uint16_t __w2, uint16_t __w1, uint16_t __w0)
+_mm_set_pi16 (uint16 __w3, uint16 __w2, uint16 __w1, uint16 __w0)
 {
 	if (__builtin_constant_p (__w3) &&
 	    __builtin_constant_p (__w2) &&

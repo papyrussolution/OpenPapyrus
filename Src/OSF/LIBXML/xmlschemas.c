@@ -24450,7 +24450,7 @@ int xmlSchemaValidateFile(xmlSchemaValidCtxtPtr ctxt, const char * filename, int
 	if(!ctxt || (filename == NULL))
 		return -1;
 	input = xmlParserInputBufferCreateFilename(filename, XML_CHAR_ENCODING_NONE);
-	if(input == NULL)
+	if(!input)
 		return -1;
 	ret = xmlSchemaValidateStream(ctxt, input, XML_CHAR_ENCODING_NONE, 0, 0);
 	return ret;

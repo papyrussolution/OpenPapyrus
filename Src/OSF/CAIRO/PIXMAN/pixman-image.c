@@ -552,7 +552,7 @@ PIXMAN_EXPORT void pixman_image_set_indexed(pixman_image_t * image, const pixman
 	}
 }
 
-PIXMAN_EXPORT void pixman_image_set_alpha_map(pixman_image_t * image, pixman_image_t * alpha_map, int16_t x, int16_t y)
+PIXMAN_EXPORT void pixman_image_set_alpha_map(pixman_image_t * image, pixman_image_t * alpha_map, int16 x, int16 y)
 {
 	image_common_t * common = (image_common_t*)image;
 	return_if_fail(!alpha_map || alpha_map->type == BITS);
@@ -651,7 +651,7 @@ uint32_t _pixman_image_get_solid(pixman_implementation_t * imp, pixman_image_t *
 		else if(image->bits.format == PIXMAN_x8r8g8b8)
 			result = image->bits.bits[0] | 0xff000000;
 		else if(image->bits.format == PIXMAN_a8)
-			result = (*(uint8_t*)image->bits.bits) << 24;
+			result = (*(uint8*)image->bits.bits) << 24;
 		else
 			goto otherwise;
 	}
@@ -659,7 +659,7 @@ uint32_t _pixman_image_get_solid(pixman_implementation_t * imp, pixman_image_t *
 		pixman_iter_t iter;
 otherwise:
 		_pixman_implementation_iter_init(imp, &iter, image, 0, 0, 1, 1,
-		    (uint8_t*)&result, (iter_flags_t)(ITER_NARROW | ITER_SRC), image->common.flags);
+		    (uint8*)&result, (iter_flags_t)(ITER_NARROW | ITER_SRC), image->common.flags);
 		result = *iter.get_scanline(&iter, 0);
 		if(iter.fini)
 			iter.fini(&iter);

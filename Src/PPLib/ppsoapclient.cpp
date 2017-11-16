@@ -1109,3 +1109,37 @@ SapEfesDebtReportEntry::SapEfesDebtReportEntry() : NativeArID(0), Debt(0.0), Cre
 SapEfesDebtDetailReportEntry::SapEfesDebtDetailReportEntry() : NativeArID(0), BillDate(ZERODATE), PaymDate(ZERODATE), Amount(0.0), Debt(0.0)
 {
 }
+//
+//
+//
+VetisEnterpriseOfficialRegistration::VetisEnterpriseOfficialRegistration() : P_BusinessEntity(0)
+{
+}
+
+VetisEnterpriseOfficialRegistration::~VetisEnterpriseOfficialRegistration()
+{
+	delete P_BusinessEntity;
+}
+
+VetisEnterprise::VetisEnterprise() : P_Owner(0), Type(0)
+{
+}
+
+VetisEnterprise::~VetisEnterprise()
+{
+	delete P_Owner;
+}
+
+VetisUser::VetisUser() : BirthDate(ZERODATE), Flags(0), UnionUser(0), P_Organization(0), P_BusinessEntity(0)
+{
+}
+
+VetisUser::~VetisUser()
+{
+	delete P_Organization;
+	delete P_BusinessEntity;
+}
+
+VetisApplicationBlock::VetisApplicationBlock() : ApplicationStatus(appstUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME)
+{
+}

@@ -59,7 +59,7 @@ void * FASTCALL _cairo_freepool_alloc_from_pool(cairo_freepool_t * freepool)
 	if(unlikely(freepool->nodesize > pool->rem))
 		return _cairo_freepool_alloc_from_new_pool(freepool);
 	else {
-		uint8_t * ptr = pool->data;
+		uint8 * ptr = pool->data;
 		pool->data += freepool->nodesize;
 		pool->rem -= freepool->nodesize;
 		VG(VALGRIND_MAKE_MEM_UNDEFINED(ptr, freepool->nodesize));
@@ -168,7 +168,7 @@ void * _cairo_freepool_alloc_from_new_pool(cairo_freepool_t * freepool)
 	pool->next = freepool->pools;
 	freepool->pools = pool;
 	pool->rem = poolsize - freepool->nodesize;
-	pool->data = (uint8_t*)(pool + 1) + freepool->nodesize;
+	pool->data = (uint8*)(pool + 1) + freepool->nodesize;
 	VG(VALGRIND_MAKE_MEM_NOACCESS(pool->data, pool->rem));
 	return pool + 1;
 }

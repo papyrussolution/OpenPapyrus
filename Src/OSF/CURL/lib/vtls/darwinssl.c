@@ -84,11 +84,6 @@
 #if CURL_BUILD_MAC
 	#include <sys/sysctl.h>
 #endif /* CURL_BUILD_MAC */
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "inet_pton.h"
-//#include "connect.h"
-//#include "select.h"
 #include "vtls.h"
 #include "darwinssl.h"
 #include "curl_printf.h"
@@ -101,11 +96,7 @@
 
 /* The following two functions were ripped from Apple sample code,
  * with some modifications: */
-static OSStatus SocketRead(SSLConnectionRef connection,
-    void * data,                                /* owned by
-                                                 * caller, data
-                                                 * RETURNED */
-    size_t * dataLength)                        /* IN/OUT */
+static OSStatus SocketRead(SSLConnectionRef connection, void * data, /* owned by caller, data RETURNED */ size_t * dataLength/* IN/OUT */)
 {
 	size_t bytesToGo = *dataLength;
 	size_t initLen = bytesToGo;

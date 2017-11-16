@@ -248,7 +248,7 @@ err:
  * __db_cursor --
  *	DB->cursor.
  */
-int __db_cursor(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBC ** dbcp, uint32 flags)
+int FASTCALL __db_cursor(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, DBC ** dbcp, uint32 flags)
 {
 	DBC * dbc;
 	db_lockmode_t mode;
@@ -925,7 +925,7 @@ static int __db_open_arg(DB * dbp, DB_TXN * txn, const char * fname, const char 
 	uint32 ok_flags;
 	int ret;
 	ENV * env = dbp->env;
-	/* Validate arguments. */
+	// Validate arguments
 #undef  OKFLAGS
 #define OKFLAGS (DB_AUTO_COMMIT|DB_CREATE|DB_EXCL|DB_FCNTL_LOCKING|DB_MULTIVERSION|DB_NOMMAP|DB_NO_AUTO_COMMIT|DB_RDONLY|DB_RDWRMASTER|DB_READ_UNCOMMITTED|DB_THREAD|DB_TRUNCATE)
 	if((ret = __db_fchk(env, "DB->open", flags, OKFLAGS)) != 0)

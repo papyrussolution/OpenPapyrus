@@ -143,28 +143,12 @@
 #endif
 //#include "timeval.h"
 #ifdef HAVE_ZLIB_H
-	#include <zlib.h>               /* for content-encoding */
+	#include <zlib.h> // for content-encoding 
 	#ifdef __SYMBIAN32__
-		/* zlib pollutes the namespace with this definition */
+		// zlib pollutes the namespace with this definition 
 		#undef WIN32
 	#endif
 #endif
-//#include <curl/curl.h>
-//#include "http_chunks.h" /* for the structs and enum stuff */
-//#include "hostip.h"
-//#include "hash.h"
-//#include "splay.h"
-//#include "imap.h"
-//#include "pop3.h"
-//#include "smtp.h"
-//#include "ftp.h"
-//#include "file.h"
-//#include "ssh.h"
-//#include "http.h"
-//#include "rtsp.h"
-//#include "smb.h"
-//#include "wildcard.h"
-//#include "multihandle.h"
 #ifdef HAVE_GSSAPI
 	#ifdef HAVE_GSSGNU
 		#include <gss.h>

@@ -38,10 +38,10 @@ static void __attribute__((constructor)) pixman_constructor(void)
 typedef struct operator_info_t operator_info_t;
 
 struct operator_info_t {
-	uint8_t opaque_info[4];
+	uint8 opaque_info[4];
 };
 
-#define PACK(neither, src, dest, both) {{ (uint8_t)PIXMAN_OP_ ## neither, (uint8_t)PIXMAN_OP_ ## src, (uint8_t)PIXMAN_OP_ ## dest, (uint8_t)PIXMAN_OP_ ## both }}
+#define PACK(neither, src, dest, both) {{ (uint8)PIXMAN_OP_ ## neither, (uint8)PIXMAN_OP_ ## src, (uint8)PIXMAN_OP_ ## dest, (uint8)PIXMAN_OP_ ## both }}
 
 static const operator_info_t operator_table[] =
 {
@@ -508,12 +508,10 @@ PIXMAN_EXPORT void pixman_image_composite32(pixman_op_t op,
 	pixman_composite_info_t info;
 	const pixman_box32_t * pbox;
 	int n;
-
 	_pixman_image_validate(src);
 	if(mask)
 		_pixman_image_validate(mask);
 	_pixman_image_validate(dest);
-
 	src_format = src->common.extended_format_code;
 	info.src_flags = src->common.flags;
 
@@ -540,17 +538,11 @@ PIXMAN_EXPORT void pixman_image_composite32(pixman_op_t op,
 		else if(src_format == PIXMAN_x8r8g8b8)
 			src_format = mask_format = PIXMAN_rpixbuf;
 	}
-
 	pixman_region32_init(&region);
-
-	if(!_pixman_compute_composite_region32(
-		    &region, src, mask, dest,
-		    src_x, src_y, mask_x, mask_y, dest_x, dest_y, width, height)) {
+	if(!_pixman_compute_composite_region32(&region, src, mask, dest, src_x, src_y, mask_x, mask_y, dest_x, dest_y, width, height)) {
 		goto out;
 	}
-
 	extents = *pixman_region32_extents(&region);
-
 	extents.x1 -= dest_x - src_x;
 	extents.y1 -= dest_y - src_y;
 	extents.x2 -= dest_x - src_x;
@@ -625,14 +617,14 @@ PIXMAN_EXPORT void pixman_image_composite(pixman_op_t op,
     pixman_image_t * src,
     pixman_image_t * mask,
     pixman_image_t * dest,
-    int16_t src_x,
-    int16_t src_y,
-    int16_t mask_x,
-    int16_t mask_y,
-    int16_t dest_x,
-    int16_t dest_y,
-    uint16_t width,
-    uint16_t height)
+    int16 src_x,
+    int16 src_y,
+    int16 mask_x,
+    int16 mask_y,
+    int16 dest_x,
+    int16 dest_y,
+    uint16 width,
+    uint16 height)
 {
 	pixman_image_composite32(op, src, mask, dest, src_x, src_y, mask_x, mask_y, dest_x, dest_y, width, height);
 }
@@ -952,14 +944,14 @@ PIXMAN_EXPORT pixman_bool_t pixman_compute_composite_region(pixman_region16_t * 
     pixman_image_t *    src_image,
     pixman_image_t *    mask_image,
     pixman_image_t *    dest_image,
-    int16_t src_x,
-    int16_t src_y,
-    int16_t mask_x,
-    int16_t mask_y,
-    int16_t dest_x,
-    int16_t dest_y,
-    uint16_t width,
-    uint16_t height)
+    int16 src_x,
+    int16 src_y,
+    int16 mask_x,
+    int16 mask_y,
+    int16 dest_x,
+    int16 dest_y,
+    uint16 width,
+    uint16 height)
 {
 	pixman_region32_t r32;
 	pixman_bool_t retval;

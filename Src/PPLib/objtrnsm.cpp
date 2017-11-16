@@ -269,8 +269,8 @@ int SLAPI ObjTransmitParam::Read(SBuffer & rBuf, long)
 
 int SLAPI ObjTransmitParam::Write(SBuffer & rBuf, long) const
 {
-	const SArray * p_dbdiv_list = (const SArray*)&DestDBDivList.Get();
-	const SArray * p_obj_list = (const SArray*)&ObjList.Get();
+	const PPIDArray * p_dbdiv_list = &DestDBDivList.Get(); // @v9.8.9 @fix SArray-->PPIDArray
+	const PPIDArray * p_obj_list = &ObjList.Get(); // @v9.8.9 @fix SArray-->PPIDArray
 	if(rBuf.Write(p_dbdiv_list, 0) && rBuf.Write(p_obj_list, 0) && rBuf.Write(Since_) &&
 		rBuf.Write((void*)&UpdProtocol, sizeof(UpdProtocol)) && rBuf.Write(Flags) && rBuf.Write(TrnsmFlags))
 		return 1;
@@ -280,17 +280,14 @@ int SLAPI ObjTransmitParam::Write(SBuffer & rBuf, long) const
 //
 //
 //
-SLAPI ObjReceiveParam::ObjReceiveParam()
+SLAPI ObjReceiveParam::ObjReceiveParam() : Flags(0), P_SyncCmpTbl(0)
 {
-	Flags = 0;
-	P_SyncCmpTbl = 0;
 }
 
-int SLAPI ObjReceiveParam::Init()
+void SLAPI ObjReceiveParam::Init()
 {
 	SenderDbDivList.freeAll();
 	Flags |= (fGetFromOutSrcr | fClearInpBefore);
-	return 1;
 }
 
 int SLAPI ObjReceiveParam::CheckDbDivID(PPID id) const
@@ -316,29 +313,17 @@ int SLAPI ObjReceiveParam::Read(SBuffer & rBuf, long)
 //
 //
 //
-SLAPI ObjTransmContext::ObjTransmContext(PPLogger * pLogger)
+SLAPI ObjTransmContext::ObjTransmContext(PPLogger * pLogger) : State(0), P_Ot(0), P_Btd(0), P_ThisDbDivPack(0), P_SrcDbDivPack(0), P_DestDbDivPack(0),
+	P_Rb(0), P_ForceRestoreObj(0), Flags(0), Extra(0), LastStreamId(-1)
 {
-	State = 0;
 	MEMSZERO(Cfg);
-	P_Ot = 0;
-	P_Btd = 0;
 	TransmitSince.SetZero();
-	P_ThisDbDivPack = 0;
-	P_SrcDbDivPack  = 0;
-	P_DestDbDivPack = 0;
-	Flags = 0;
-	Extra = 0;
-	LastStreamId = -1;
-	P_Rb = 0;
-	P_ForceRestoreObj = 0;
-	P_Logger = 0;
 	if(pLogger) {
 		P_Logger = pLogger;
 		State |= stOuterLogger;
 	}
-	else {
+	else
 		P_Logger = new PPLogger;
-	}
 }
 
 SLAPI ObjTransmContext::~ObjTransmContext()
@@ -539,10 +524,9 @@ PPObject * FASTCALL PPObjectTransmit::_GetObjectPtr(PPID objType)
 	return P_ObjColl ? P_ObjColl->GetObjectPtr(objType) : 0;
 }
 
-int SLAPI PPObjectTransmit::CloseOutPacket()
+void SLAPI PPObjectTransmit::CloseOutPacket()
 {
 	SFile::ZClose(&P_OutStream);
-	return 1;
 }
 
 int SLAPI PPObjectTransmit::SetDestDbDivID(PPID dbDivID)
@@ -715,8 +699,7 @@ int SLAPI PPObjectTransmit::PutSyncCmpToIndex(PPID objType, PPID id)
 	ObjSyncQueueTbl::Key1 k1;
 	THROW_PP(DestDbDivID, PPERR_INVDESTDBDIV);
 	THROW_PP(SyncCmpTransmit, PPERR_PPOS_NSYNCCMPMODE);
-	if(!P_TmpIdxTbl)
-		THROW(P_TmpIdxTbl = CreateTempIndex());
+	THROW(SETIFZ(P_TmpIdxTbl, CreateTempIndex()));
 	MEMSZERO(k1);
 	k1.ObjType = (short)objType;
 	k1.ObjID = id;
@@ -732,8 +715,7 @@ int SLAPI PPObjectTransmit::PutSyncCmpToIndex(PPID objType, PPID id)
 				int    cr_event;
 				LDATETIME modif;
 				ObjSyncQueueTbl::Rec rec;
-				PPID   dest_id = (!comm_id.IsZero() &&
-					SyncTbl.SearchCommon(objType, comm_id, DestDbDivID, &sync_rec) > 0) ? sync_rec.ObjID : 0;
+				PPID   dest_id = (!comm_id.IsZero() && SyncTbl.SearchCommon(objType, comm_id, DestDbDivID, &sync_rec) > 0) ? sync_rec.ObjID : 0;
 				MEMSZERO(rec);
 				rec.DBID    = (short)LConfig.DBDiv;
 				rec.ObjType = (short)objType;
@@ -769,8 +751,7 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 	SString obj_name;
 	THROW_PP(DestDbDivID, PPERR_INVDESTDBDIV);
 	THROW_PP(!SyncCmpTransmit, PPERR_PPOS_NOBJTRANMODE);
-	if(!P_TmpIdxTbl)
-		THROW(P_TmpIdxTbl = CreateTempIndex());
+	THROW(SETIFZ(P_TmpIdxTbl, CreateTempIndex()));
 	{
 		PPIDArray exclude_obj_type_list;
 		exclude_obj_type_list.addzlist(PPOBJ_CONFIG, PPOBJ_SCALE, PPOBJ_BHT, PPOBJ_BCODEPRINTER,
@@ -2790,11 +2771,11 @@ IMPL_HANDLE_EVENT(ObjTranDialog)
 			setupTransmissionEvent(1);
 		else if(TVCMD == cmaLevelDown)
 			setupTransmissionEvent(-1);
-		else if(TVCMD == cmaInsert || TVCMD == cmAddTrnsmObj) {
+		else if(oneof2(TVCMD, cmaInsert, cmAddTrnsmObj)) {
 			if(!addItem(TVCMD == cmaInsert ? 1 : 0))
 				PPError();
 		}
-		else if(TVCMD == cmaDelete || TVCMD == cmDelTrnsmObj) {
+		else if(oneof2(TVCMD, cmaDelete, cmDelTrnsmObj)) {
 			if(!delItem(TVCMD == cmaDelete ? 1 : 0))
 				PPError();
 		}
@@ -2844,7 +2825,7 @@ int ObjTranDialog::setDTS(const ObjTransmitParam * pData)
 		PPID   single_dbdiv_id = 0;
 		PPObjDBDiv dbdiv_obj;
 		PPDBDiv dbdiv_rec;
-		for(PPID div_id = 0; dbdiv_obj.EnumItems(&div_id, &dbdiv_rec) > 0;)
+		for(PPID div_id = 0; dbdiv_obj.EnumItems(&div_id, &dbdiv_rec) > 0;) {
 			if(div_id != LConfig.DBDiv)
 				if(single_dbdiv_id == 0)
 					single_dbdiv_id = div_id;
@@ -2852,6 +2833,7 @@ int ObjTranDialog::setDTS(const ObjTransmitParam * pData)
 					single_dbdiv_id = 0;
 					break;
 				}
+		}
 		Data.DestDBDivList.Add(single_dbdiv_id);
 	}
 	switch(Data.UpdProtocol) {
@@ -2921,9 +2903,8 @@ int SLAPI ObjTransmDialog(uint dlgID, ObjTransmitParam * pParam, long dlgFlags /
 
 class ObjTranDialogExt : public ObjTranDialog {
 public:
-	ObjTranDialogExt(uint dlgID, int viewId, long dlgFlags) : ObjTranDialog(dlgID, dlgFlags)
+	ObjTranDialogExt(uint dlgID, int viewId, long dlgFlags) : ObjTranDialog(dlgID, dlgFlags), P_Filt(0), P_View(0)
 	{
-		P_Filt = 0; P_View = 0;
 		PPView::CreateInstance(viewId, &P_View);
 	}
 	~ObjTranDialogExt()

@@ -366,11 +366,11 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS * hosts,
 			switch(node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) {
 				case LIBSSH2_KNOWNHOST_TYPE_PLAIN:
 				    if(type == LIBSSH2_KNOWNHOST_TYPE_PLAIN)
-					    match = !strcmp(host, node->name);
+					    match = sstreq(host, node->name);
 				    break;
 				case LIBSSH2_KNOWNHOST_TYPE_CUSTOM:
 				    if(type == LIBSSH2_KNOWNHOST_TYPE_CUSTOM)
-					    match = !strcmp(host, node->name);
+					    match = sstreq(host, node->name);
 				    break;
 				case LIBSSH2_KNOWNHOST_TYPE_SHA1:
 				    if(type == LIBSSH2_KNOWNHOST_TYPE_PLAIN) {
@@ -381,10 +381,8 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS * hosts,
 					    uchar hash[SHA_DIGEST_LENGTH];
 					    libssh2_hmac_ctx ctx;
 					    libssh2_hmac_ctx_init(ctx);
-
 					    if(SHA_DIGEST_LENGTH != node->name_len) {
-						    /* the name hash length must be the sha1 size or
-						       we can't match it */
+						    // the name hash length must be the sha1 size or we can't match it 
 						    break;
 					    }
 					    libssh2_hmac_sha1_init(&ctx, (uchar*)node->salt,
@@ -393,7 +391,6 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS * hosts,
 					    strlen(host));
 					    libssh2_hmac_final(ctx, hash);
 					    libssh2_hmac_cleanup(&ctx);
-
 					    if(!memcmp(hash, node->name, SHA_DIGEST_LENGTH))
 						    /* this is a node we're interested in */
 						    match = 1;
@@ -404,31 +401,25 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS * hosts,
 			}
 			if(match) {
 				int host_key_type = typemask & LIBSSH2_KNOWNHOST_KEY_MASK;
-				int known_key_type =
-				    node->typemask & LIBSSH2_KNOWNHOST_KEY_MASK;
+				int known_key_type = node->typemask & LIBSSH2_KNOWNHOST_KEY_MASK;
 				/* match on key type as follows:
 				   - never match on an unknown key type
 				   - if key_type is set to zero, ignore it an match always
 				   - otherwise match when both key types are equal
 				 */
-				if( (host_key_type != LIBSSH2_KNOWNHOST_KEY_UNKNOWN ) &&
-				    ( (host_key_type == 0) ||
-					    (host_key_type == known_key_type) ) ) {
+				if( (host_key_type != LIBSSH2_KNOWNHOST_KEY_UNKNOWN ) && ((host_key_type == 0) || (host_key_type == known_key_type) ) ) {
 					/* host name and key type match, now compare the keys */
-					if(!strcmp(key, node->key)) {
+					if(sstreq(key, node->key)) {
 						/* they match! */
-						if(ext)
-							*ext = knownhost_to_external(node);
+						ASSIGN_PTR(ext, knownhost_to_external(node));
 						badkey = NULL;
 						rc = LIBSSH2_KNOWNHOST_CHECK_MATCH;
 						break;
 					}
 					else {
-						/* remember the first node that had a host match but a
-						   failed key match since we continue our search from
-						   here */
-						if(!badkey)
-							badkey = node;
+						/// remember the first node that had a host match but a
+						// failed key match since we continue our search from here 
+						SETIFZ(badkey, node);
 					}
 				}
 				match = 0; /* don't count this as a match anymore */
@@ -437,17 +428,13 @@ static int knownhost_check(LIBSSH2_KNOWNHOSTS * hosts,
 		}
 		host = hostp;
 	} while(!match && --numcheck);
-
 	if(badkey) {
 		/* key mismatch */
-		if(ext)
-			*ext = knownhost_to_external(badkey);
+		ASSIGN_PTR(ext, knownhost_to_external(badkey));
 		rc = LIBSSH2_KNOWNHOST_CHECK_MISMATCH;
 	}
-
 	if(keyalloc)
 		LIBSSH2_FREE(hosts->session, keyalloc);
-
 	return rc;
 }
 

@@ -22,7 +22,6 @@
 
 #include "curl_setup.h"
 #pragma hdrstop
-//#include "strtoofft.h"
 /*
  * NOTE:
  *

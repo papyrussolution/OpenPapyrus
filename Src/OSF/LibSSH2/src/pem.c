@@ -82,8 +82,7 @@ static int readline_memory(char * line, size_t line_size, const char * filedata,
 
 #define LINE_SIZE 128
 
-int _libssh2_pem_parse(LIBSSH2_SESSION * session, const char * headerbegin, const char * headerend,
-    FILE * fp, uchar ** data, uint * datalen)
+int _libssh2_pem_parse(LIBSSH2_SESSION * session, const char * headerbegin, const char * headerend, FILE * fp, uchar ** data, uint * datalen)
 {
 	char line[LINE_SIZE];
 	char * b64data = NULL;
@@ -94,7 +93,7 @@ int _libssh2_pem_parse(LIBSSH2_SESSION * session, const char * headerbegin, cons
 		if(readline(line, LINE_SIZE, fp)) {
 			return -1;
 		}
-	} while(strcmp(line, headerbegin) != 0);
+	} while(!sstreq(line, headerbegin));
 	*line = '\0';
 	do {
 		if(*line) {
@@ -113,7 +112,7 @@ int _libssh2_pem_parse(LIBSSH2_SESSION * session, const char * headerbegin, cons
 			ret = -1;
 			goto out;
 		}
-	} while(strcmp(line, headerend) != 0);
+	} while(!sstreq(line, headerend));
 	if(!b64data) {
 		return -1;
 	}
@@ -137,18 +136,13 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION * session, const char * headerbegi
 	uint b64datalen = 0;
 	size_t off = 0;
 	int ret;
-
 	do {
 		*line = '\0';
-
 		if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
 			return -1;
 		}
-	}
-	while(strcmp(line, headerbegin) != 0);
-
+	} while(!sstreq(line, headerbegin));
 	*line = '\0';
-
 	do {
 		if(*line) {
 			char * tmp;
@@ -163,25 +157,19 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION * session, const char * headerbegi
 			b64data = tmp;
 			b64datalen += linelen;
 		}
-
 		*line = '\0';
-
 		if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
 			ret = -1;
 			goto out;
 		}
-	} while(strcmp(line, headerend) != 0);
-
+	} while(!sstreq(line, headerend));
 	if(!b64data) {
 		return -1;
 	}
-
-	if(libssh2_base64_decode(session, (char**)data, datalen,
-		    b64data, b64datalen)) {
+	if(libssh2_base64_decode(session, (char**)data, datalen, b64data, b64datalen)) {
 		ret = -1;
 		goto out;
 	}
-
 	ret = 0;
 out:
 	if(b64data) {
@@ -190,17 +178,14 @@ out:
 	return ret;
 }
 
-static int read_asn1_length(const uchar * data,
-    uint datalen, uint * len)
+static int read_asn1_length(const uchar * data, uint datalen, uint * len)
 {
 	uint lenlen;
 	int nextpos;
-
 	if(datalen < 1) {
 		return -1;
 	}
 	*len = data[0];
-
 	if(*len >= 0x80) {
 		lenlen = *len & 0x7F;
 		*len = data[1];
@@ -215,12 +200,10 @@ static int read_asn1_length(const uchar * data,
 	else {
 		lenlen = 0;
 	}
-
 	nextpos = 1 + lenlen;
 	if(lenlen > 2 || 1 + lenlen + *len > datalen) {
 		return -1;
 	}
-
 	return nextpos;
 }
 
@@ -228,60 +211,44 @@ int _libssh2_pem_decode_sequence(uchar ** data, uint * datalen)
 {
 	uint len;
 	int lenlen;
-
 	if(*datalen < 1) {
 		return -1;
 	}
-
 	if((*data)[0] != '\x30') {
 		return -1;
 	}
-
 	(*data)++;
 	(*datalen)--;
-
 	lenlen = read_asn1_length(*data, *datalen, &len);
 	if(lenlen < 0 || lenlen + len != *datalen) {
 		return -1;
 	}
-
 	*data += lenlen;
 	*datalen -= lenlen;
-
 	return 0;
 }
 
-int _libssh2_pem_decode_integer(uchar ** data, uint * datalen,
-    uchar ** i, uint * ilen)
+int _libssh2_pem_decode_integer(uchar ** data, uint * datalen, uchar ** i, uint * ilen)
 {
 	uint len;
 	int lenlen;
-
 	if(*datalen < 1) {
 		return -1;
 	}
-
 	if((*data)[0] != '\x02') {
 		return -1;
 	}
-
 	(*data)++;
 	(*datalen)--;
-
 	lenlen = read_asn1_length(*data, *datalen, &len);
 	if(lenlen < 0 || lenlen + len > *datalen) {
 		return -1;
 	}
-
 	*data += lenlen;
 	*datalen -= lenlen;
-
 	*i = *data;
 	*ilen = len;
-
 	*data += len;
 	*datalen -= len;
-
 	return 0;
 }
-

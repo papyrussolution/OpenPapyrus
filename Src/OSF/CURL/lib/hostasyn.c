@@ -35,14 +35,6 @@
 #include <in.h>
 #include <inet.h>
 #endif
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "hostip.h"
-//#include "hash.h"
-//#include "share.h"
-//#include "strerror.h"
-//#include "url.h"
-//#include "curl_memory.h"
 #include "memdebug.h" // The last #include file should be
 
 /***********************************************************************

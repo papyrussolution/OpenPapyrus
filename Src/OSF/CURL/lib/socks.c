@@ -29,12 +29,6 @@
 #ifdef HAVE_ARPA_INET_H
 	#include <arpa/inet.h>
 #endif
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "select.h"
-//#include "connect.h"
-//#include "timeval.h"
-//#include "socks.h"
 #include "memdebug.h" // The last #include file should be
 /*
  * Helper read-from-socket functions. Does the same as Curl_read() but it

@@ -343,7 +343,7 @@ static void _defer_free_cleanup(pixman_image_t * pixman_image, void * closure)
 	cairo_surface_destroy((cairo_surface_t *)closure);
 }
 
-static uint16_t FASTCALL expand_channel(uint16_t v, uint32_t bits)
+static uint16 FASTCALL expand_channel(uint16 v, uint32_t bits)
 {
 	int offset = 16 - bits;
 	while(offset > 0) {
@@ -365,10 +365,10 @@ static pixman_image_t * FASTCALL _pixel_to_solid(cairo_image_surface_t * image, 
 		    ASSERT_NOT_REACHED;
 		    return NULL;
 		case CAIRO_FORMAT_A1:
-		    pixel = *(uint8_t*)(image->data + y * image->stride + x/8);
+		    pixel = *(uint8*)(image->data + y * image->stride + x/8);
 		    return pixel & (1 << (x&7)) ? _pixman_black_image() : _pixman_transparent_image();
 		case CAIRO_FORMAT_A8:
-		    color.alpha = *(uint8_t*)(image->data + y * image->stride + x);
+		    color.alpha = *(uint8*)(image->data + y * image->stride + x);
 		    color.alpha |= color.alpha << 8;
 		    if(color.alpha == 0)
 			    return _pixman_transparent_image();
@@ -377,7 +377,7 @@ static pixman_image_t * FASTCALL _pixel_to_solid(cairo_image_surface_t * image, 
 		    color.red = color.green = color.blue = 0;
 		    return pixman_image_create_solid_fill(&color);
 		case CAIRO_FORMAT_RGB16_565:
-		    pixel = *(uint16_t*)(image->data + y * image->stride + 2 * x);
+		    pixel = *(uint16*)(image->data + y * image->stride + 2 * x);
 		    if(pixel == 0)
 			    return _pixman_black_image();
 		    if(pixel == 0xffff)

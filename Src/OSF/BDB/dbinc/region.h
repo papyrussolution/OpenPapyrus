@@ -238,10 +238,11 @@ typedef struct __db_region { /* SHARED */
 /*
  * Structure used for tracking allocations in DB_PRIVATE regions. 
  */
-struct __db_region_mem_t;	typedef struct __db_region_mem_t REGION_MEM;
 struct __db_region_mem_t {
-	REGION_MEM *next;
+	/*REGION_MEM*/__db_region_mem_t * next;
 };
+
+typedef struct __db_region_mem_t REGION_MEM;
 
 struct __db_reginfo_t {		/* __env_region_attach IN parameters. */
 	ENV  * env;      // Enclosing environment
@@ -269,7 +270,6 @@ struct __db_reginfo_t {		/* __env_region_attach IN parameters. */
 #define	REGION_TRACKED		0x10	/* Region private memory is tracked. */
 	uint32 flags;
 };
-
 /*
  * R_ADDR	Return a per-process address for a shared region offset.
  * R_OFFSET	Return a shared region offset for a per-process address.
@@ -280,9 +280,12 @@ struct __db_reginfo_t {		/* __env_region_attach IN parameters. */
  * PANIC_ISSET, PANIC_CHECK:
  *	Check to see if the DB environment is dead.
  */
-#define	PANIC_ISSET(env)          ((env) && (env)->reginfo && ((REGENV *)(env)->reginfo->primary)->panic != 0 && !F_ISSET((env)->dbenv, DB_ENV_NOPANIC))
-#define	PANIC_CHECK(env)          if(PANIC_ISSET(env)) return (__env_panic_msg(env));
-#define	PANIC_CHECK_RET(env, ret) if(PANIC_ISSET(env)) ret = (__env_panic_msg(env));
+int FASTCALL _panic_isset(const ENV * pEnv);
+
+//#define PANIC_ISSET(env)          ((env) && (env)->reginfo && ((REGENV *)(env)->reginfo->primary)->panic != 0 && !F_ISSET((env)->dbenv, DB_ENV_NOPANIC))
+#define PANIC_ISSET(env)          _panic_isset(env)
+#define PANIC_CHECK(env)          if(PANIC_ISSET(env)) return (__env_panic_msg(env));
+#define PANIC_CHECK_RET(env, ret) if(PANIC_ISSET(env)) ret = (__env_panic_msg(env));
 
 #if defined(__cplusplus)
 }

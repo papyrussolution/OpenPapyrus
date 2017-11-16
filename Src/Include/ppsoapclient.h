@@ -1064,3 +1064,676 @@ typedef TSCollection <SapEfesLogMsg> * (*EFESSETMTDPRODUCTREPORTSYNC_PROC)(PPSoa
 typedef TSCollection <SapEfesLogMsg> * (*EFESSETMTDOUTLETSREPORTSYNC_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesGoodsReportEntry> * pItems);
 typedef TSCollection <SapEfesLogMsg> * (*EFESSETDEBTSYNC_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesDebtReportEntry> * pItems);
 typedef TSCollection <SapEfesLogMsg> * (*EFESSETDEBTDETAILSYNC_PROC)(PPSoapClientSession & rSess, const SapEfesCallHeader & rH, const TSCollection <SapEfesDebtDetailReportEntry> * pItems);
+//
+//
+//
+struct VetisBusinessEntity;
+
+struct VetisErrorEntry {
+	SString Item;
+	SString Code;
+	SString Qualifier;
+};
+
+struct VetisEntityList {
+	VetisEntityList() : Count(0), Total(0), Offset(0)
+	{
+	}
+	int    Count;
+	int64  Total;
+	int    Offset;
+};
+
+struct VetisGenericEntity {
+	VetisGenericEntity()
+	{
+		Uuid.SetZero();
+	}
+	S_GUID Uuid;
+};
+
+struct VetisEnterpriseActivity : public VetisGenericEntity {
+	SString Name;
+};
+
+struct VetisGenericVersioningEntity : public VetisGenericEntity {
+	VetisGenericVersioningEntity() : VetisGenericEntity(), Flags(0), Status(0), CreateDate(ZERODATETIME), UpdateDate(ZERODATETIME)
+	{
+		Guid.SetZero();
+		Previous.SetZero();
+		Next.SetZero();
+	}
+	S_GUID Guid;
+	enum {
+		fActive = 0x0001,
+		fLast   = 0x0002
+	};
+	long   Flags;
+	int    Status; // VersionStatus
+	LDATETIME CreateDate;
+	LDATETIME UpdateDate;
+	S_GUID Previous;
+	S_GUID Next;
+};
+
+struct VetisNamedGenericVersioningEntity : public VetisGenericVersioningEntity {
+	SString Name;
+};
+
+struct VetisCountry {
+	SString Name;
+	SString FullName;
+	SString EnglishName;
+	SString Code;
+	SString Code3;
+};
+
+struct VetisFederalDistrict {
+	SString FullName;
+	SString ShortName;
+	SString Abbreviation;
+};
+
+struct VetisAddressObjectView {
+	VetisAddressObjectView() : Flags(0)
+	{
+		CountryGUID.SetZero();
+	}
+	SString Name;
+	SString EnglishName;
+	SString View;
+	SString RegionCode;
+	SString Type;
+	S_GUID CountryGUID;
+	enum {
+		fHasStreets = 0x0001
+	};
+	long   Flags;
+};
+
+struct VetisDistrict : public VetisAddressObjectView {
+	VetisDistrict()
+	{
+		RegionGUID.SetZero();
+	}
+	S_GUID RegionGUID;
+};
+
+struct VetisLocality : public VetisAddressObjectView {
+	VetisLocality()
+	{
+		RegionGUID.SetZero();
+		DistrictGUID.SetZero();
+		CityGUID.SetZero();
+	}
+	S_GUID RegionGUID;
+	S_GUID DistrictGUID;
+	S_GUID CityGUID;
+};
+
+struct VetisStreet : public VetisAddressObjectView {
+	VetisStreet()
+	{
+		LocalityGUID.SetZero();
+	}
+	S_GUID LocalityGUID;
+};
+
+struct VetisAddress {
+	VetisCountry Country;
+	VetisFederalDistrict FederalDistrict;
+	VetisAddressObjectView Region;
+	VetisDistrict District;
+	VetisLocality Locality;
+	VetisLocality SubLocality;
+	VetisStreet Street;
+	SString House;
+	SString Building;
+	SString Room;
+	SString PposIndex;
+	SString PostBox;
+	SString AdditionalInfo;
+	SString AddressView;
+	SString EnAddressView;
+};
+
+struct VetisOrganization {
+	SString ID;
+	SString Name;
+	VetisAddress Address;
+};
+
+struct VetisDocument {
+	VetisDocument() : IssueDate(ZERODATE), DocumentType(0)
+	{
+	}
+	SString Name;
+	SString Form;
+	SString IssueSeries;
+	SString IssueNumber;
+	LDATE  IssueDate;
+	int    DocumentType;
+	VetisOrganization Issuer;
+	SString For_; 
+	SString Qualifier; // ?
+};
+
+struct VetisUserAuthority {
+	VetisUserAuthority() : Granted(0)
+	{
+	}
+	SString ID;
+	SString Name;
+	int    Granted; // bool
+};
+
+struct VetisUser {
+	VetisUser();
+	~VetisUser();
+	//class ns7__WorkingAreaList *workingAreaList;	/* optional element of type ns7:WorkingAreaList */
+	SString Login;
+	SString Fio;
+	LDATE  BirthDate;
+	VetisDocument Identity;
+	SString Snils;
+	SString Phone;
+	SString Email;
+	SString WorkEmail;
+	//
+	int    UnionUser;
+	VetisOrganization * P_Organization;
+	VetisBusinessEntity * P_BusinessEntity;
+	//
+	SString Post;
+	enum {
+		fEnabled    = 0x0001,
+		fNonExpired = 0x0002,
+		fNonLocked  = 0x0004
+	};
+	long   Flags;
+	TSCollection <VetisUserAuthority> AuthorityList;
+};
+
+struct VetisEnterpriseOfficialRegistration {
+	VetisEnterpriseOfficialRegistration();
+	~VetisEnterpriseOfficialRegistration();
+
+	SString ID; // GRNType
+	VetisBusinessEntity * P_BusinessEntity;
+	SString Kpp;
+};
+
+struct VetisEnterpriseActivityList : public VetisEntityList {
+	TSCollection <VetisEnterpriseActivity> Activity;
+};
+
+struct VetisEnterprise : public VetisNamedGenericVersioningEntity {
+	VetisEnterprise();
+	~VetisEnterprise();
+	SString EnglishName;
+	int    Type; // EnterpriseType
+	StringSet NumberList; // EnterpriseNumberList
+	VetisAddress Address;
+	VetisEnterpriseActivityList ActivityList;
+	VetisBusinessEntity * P_Owner;
+	TSCollection <VetisEnterpriseOfficialRegistration> OfficialRegistration;
+};
+
+struct VetisBusinessEntity_activityLocation {
+	StringSet GlobalID; // Список GLN
+	VetisEnterprise Enterprise;
+};
+
+struct VetisBusinessEntity : public VetisNamedGenericVersioningEntity {
+	VetisBusinessEntity() : VetisNamedGenericVersioningEntity(), Type(0), IncorporationForm(0)
+	{
+	}
+	int    Type; // BusinessEntityType
+	int    IncorporationForm; // IncorporationForm
+	SString FullName;
+	SString Fio;
+	SString Passport;
+	SString Inn;
+	SString Kpp;
+	SString Ogrn;
+	VetisAddress JuridicalAddress;
+	TSCollection <VetisBusinessEntity_activityLocation> ActivityLocationList;
+};
+
+struct VetisListOptions {
+	VetisListOptions() : Count(0), Offset(0)
+	{
+	}
+	uint   Count;
+	uint   Offset;
+};
+
+struct VetisProduct : public VetisNamedGenericVersioningEntity {
+	VetisProduct() : VetisNamedGenericVersioningEntity(), ProductType(0)
+	{
+	}
+	SString Code;
+	SString EnglishName;
+	int    ProductType; // ProductType
+};
+
+struct VetisSubProduct : public VetisNamedGenericVersioningEntity {
+	VetisSubProduct() : VetisNamedGenericVersioningEntity()
+	{
+		ProductGuid.SetZero();
+	}
+	SString Code;
+	SString EnglishName;
+	S_GUID ProductGuid;
+};
+
+struct VetisUnit : public VetisNamedGenericVersioningEntity {
+	VetisUnit() : VetisNamedGenericVersioningEntity(), Factor(0)
+	{
+		CommonUnitGuid.SetZero();
+	}
+	SString FullName;
+	S_GUID CommonUnitGuid;
+	int   Factor;
+};
+
+struct VetisPackingType : public VetisNamedGenericVersioningEntity {
+	VetisPackingType() : VetisNamedGenericVersioningEntity(), GlobalID(0)
+	{
+	}
+	int    GlobalID; // PackingCodeType
+};
+
+struct VetisPackaging {
+	VetisPackaging() : Quantity(0), Volume(0.0)
+	{
+	}
+	VetisPackingType PackagingType;
+	int    Quantity;
+	double Volume;
+	VetisUnit Unit;
+};
+
+struct VetisProductMarks {
+	VetisProductMarks() : Cls(0)
+	{
+	}
+	SString Item;
+	int   Cls; // ProductMarkingClass
+};
+
+struct VetisPackage {
+	VetisPackage() : Level(0), Quantity(0)
+	{
+	}
+	int    Level; // PackageLevelType
+	VetisPackingType PackingType;
+	int    Quantity;
+	TSCollection <VetisProductMarks> ProductMarks;
+};
+
+struct VetisProductItem : public VetisNamedGenericVersioningEntity {
+	VetisProductItem() : VetisNamedGenericVersioningEntity(), ProductType(0), Flags(0)
+	{
+	}
+	SString GlobalID;
+	SString Code;
+	int    ProductType; // ProductType
+	VetisProduct Product;
+	VetisSubProduct SubProduct;
+	enum {
+		fCorrespondsToGost = 0x0001,
+		fIsPublic = 0x0002
+	};
+	long   Flags;
+	SString Gost;
+	VetisBusinessEntity Producer;
+	VetisBusinessEntity TmOwner;
+	TSCollection <VetisEnterprise> Producing;
+	VetisPackaging Packaging;
+};
+
+struct VetisGoodsDate {
+	VetisGoodsDate() : FirstDate(ZERODATETIME), SecondDate(ZERODATETIME)
+	{
+	}
+	LDATETIME FirstDate;
+	LDATETIME SecondDate;
+	SString InformalDate;
+};
+
+struct VetisProducer {
+	VetisProducer() : Role(0)
+	{
+	}
+	VetisEnterprise Enterprise;
+	int    Role; // EnterpriseRole
+};
+
+struct VetisBatchOrigin {
+	VetisProductItem ProductItem;
+	VetisCountry Country;
+	TSCollection <VetisProducer> Producer;
+};
+
+struct VetisBatch {
+	VetisBatch() : ProductType(0), Volume(0.0), Flags(0), P_Owner(0)
+	{
+	}
+	~VetisBatch()
+	{
+		delete P_Owner;
+	}
+	int    ProductType; // ProductType
+	VetisProduct Product;
+	VetisSubProduct SubProduct;
+	VetisProductItem ProductItem;
+	double Volume;
+	VetisUnit Unit;
+	VetisGoodsDate DateOfProduction;
+	VetisGoodsDate ExpiryDate;
+	StringSet BatchIdList;
+	enum {
+		fPerishable    = 0x0001,
+		fLowGradeCargo = 0x0002
+	};
+	long   Flags;
+	VetisBatchOrigin Origin;
+	TSCollection <VetisPackage> PackageList;
+	VetisBusinessEntity * P_Owner;
+};
+
+struct VetisBusinessMember {
+	VetisBusinessEntity BusinessEntity;
+	VetisEnterprise Enterprise;
+	SString GlobalID;
+};
+
+struct VetisCertifiedBatch {
+	VetisBusinessMember Producer;
+	VetisBatch Batch;
+};
+
+struct VetisTransportNumber {
+	SString ContainerNumber;
+	SString WagonNumber;
+	SString VehicleNumber;
+	SString TrailerNumber;
+	SString ShipName;
+	SString FlightNumber;
+};
+
+struct VetisTransportInfo {
+	VetisTransportInfo() : TransportType(0)
+	{
+	}
+	int    TransportType; // TransportType
+	VetisTransportNumber TransportNumber;
+};
+
+struct VetisLocation {
+	SString Name;
+	SString Address;
+};
+
+struct VetisShipmentRoutePoint : public VetisGenericEntity {
+	VetisShipmentRoutePoint() : UnionShipmentRoutePoint(0), Flags(0), P_Location(0), P_Enterprise(0), P_NextTransport(0)
+	{
+	}
+	~VetisShipmentRoutePoint()
+	{
+		delete P_NextTransport;
+		delete P_Location;
+		delete P_Enterprise;
+	}
+	SString SqnId;
+	//
+	int   UnionShipmentRoutePoint;
+	VetisLocation * P_Location;
+	VetisEnterprise * P_Enterprise;
+	//
+	enum {
+		fTransShipment = 0x0001
+	};
+	long   Flags;
+	VetisTransportInfo * P_NextTransport;
+};
+
+struct VetisCertifiedConsignment {
+	VetisCertifiedConsignment() : TransportStorageType(0)
+	{
+	}
+	VetisBusinessMember Consignor;
+	VetisBusinessMember Consignee;
+	VetisBusinessEntity Broker;
+	VetisTransportInfo TransportInfo;
+	int    TransportStorageType; // TransportationStorageType
+	TSCollection <VetisShipmentRoutePoint> RoutePointList;
+	VetisBatch Batch;
+};
+
+struct VetisPurpose : public VetisNamedGenericVersioningEntity {
+	enum {
+		fForSubstandard = 0x0001
+	};
+	long   Flags;
+};
+
+struct VetisVeterinaryEvent {
+	VetisVeterinaryEvent() : Type(0), ActualDateTime(ZERODATETIME), UnionVeterinaryEvent(0), P_Location(0)
+	{
+	}
+	SString ID;
+	SString Name;
+	int   Type; // VeterinaryEventType
+	LDATETIME ActualDateTime;
+	int   UnionVeterinaryEvent;
+	union {
+		VetisLocation * P_Location;
+		VetisEnterprise * P_Enterprise;
+	};
+	VetisOrganization Operator;
+	TSCollection <VetisDocument> ReferencedDocumentList;
+	SString Notes;
+};
+
+typedef VetisNamedGenericVersioningEntity VetisIndicator;
+typedef VetisNamedGenericVersioningEntity VetisAnimalDisease;
+typedef VetisNamedGenericVersioningEntity VetisResearchMethod;
+
+struct VetisLaboratoryResearchEvent : public VetisVeterinaryEvent {
+	VetisLaboratoryResearchEvent() : VetisVeterinaryEvent(), Union_LaboratoryResearchEvent(0), Result(0)
+	{
+	}
+	StringSet BatchIdList;
+	SString ExpertiseID;
+	int   Union_LaboratoryResearchEvent;
+	VetisNamedGenericVersioningEntity IndOrDis; // VetisIndicator || VetisAnimalDisease
+	VetisResearchMethod Method;
+	int    Result; // ResearchResult
+	SString Conclusion;
+};
+
+struct VetisQuarantineEvent : public VetisVeterinaryEvent {
+	SString Duration;
+};
+
+struct VetisMedicinalDrug {
+	SString ID;
+	SString Name;
+	SString Series;
+	VetisBusinessMember Producer;
+};
+
+struct VetisAnimalMedicationEvent : public VetisVeterinaryEvent {
+	VetisAnimalMedicationEvent() : VetisVeterinaryEvent(), EffectiveBeforeDate(ZERODATETIME)
+	{
+	}
+	VetisAnimalDisease Disease;
+	VetisMedicinalDrug MedicinalDrug;
+	LDATETIME EffectiveBeforeDate;
+};
+
+struct VetisRegionalizationCondition : public VetisGenericVersioningEntity {
+	VetisRegionalizationCondition() : VetisGenericVersioningEntity(), Flags(0)
+	{
+	}
+	SString ReferenceNumber;
+	SString Text;
+	enum {
+		fStrict = 0x0001
+	};
+	long   Flags;
+	TSCollection <VetisAnimalDisease> RelatedDiseaseList;
+};
+
+struct VetisRegionalizationClause {
+	VetisRegionalizationCondition Condition;
+	SString Text;
+};
+
+struct VetisVeterinaryAuthentication {
+	VetisVeterinaryAuthentication() : Flags(0), CargoExpertized(0), AnimalSpentPeriod(0)
+	{
+	}
+	VetisPurpose Purpose;
+	enum {
+		fCargoInspected = 0x0001
+	};
+	long   Flags;
+	int    CargoExpertized; // ResearchResult
+	SString LocationProsperity; 
+	int    AnimalSpentPeriod; // AnimalSpentPeriod
+	SString MonthsSpent;
+	TSCollection <VetisLaboratoryResearchEvent> LaboratoryResearchList;
+	VetisQuarantineEvent Quarantine;
+	TSCollection <VetisAnimalMedicationEvent> ImmunizationList;
+	TSCollection <VetisVeterinaryEvent> VeterinaryEventList;
+	TSCollection <VetisRegionalizationClause> R13nClauseList;
+	SString SpecialMarks;
+};
+
+struct VetisReferencedDocument : public VetisDocument {
+	VetisReferencedDocument() : VetisDocument(), RelationshipType(0)
+	{
+	}
+	int    RelationshipType; // ReferenceType
+};
+
+struct VetisVetDocumentStatusChange {
+	VetisVetDocumentStatusChange() : Status(0), ActualDateTime(ZERODATETIME)
+	{
+	}
+	int    Status; // VetDocumentStatus
+	VetisUser SpecifiedPerson;
+	LDATETIME ActualDateTime;
+	SString Reason;
+};
+
+struct VetisVetDocument : public VetisDocument {
+	VetisVetDocument() : VetisDocument(), VetDForm(0), VetDType(0), VetDStatus(0), Flags(0), LastUpdateDate(ZERODATETIME),
+		UnionVetDocument(0), P_CertifiedBatch(0), P_CertifiedConsignment(0)
+	{
+	}
+	~VetisVetDocument()
+	{
+		delete P_CertifiedBatch;
+		delete P_CertifiedConsignment;
+	}
+	int    VetDForm;   // VetDocumentForm
+	int    VetDType;   // VetDocumentType
+	int    VetDStatus; // VetDocumentStatus
+	enum {
+		fFinalized = 0x0001
+	};
+	long   Flags;
+	LDATETIME LastUpdateDate;
+	//
+	int    UnionVetDocument;
+	VetisCertifiedBatch * P_CertifiedBatch;
+	VetisCertifiedConsignment * P_CertifiedConsignment;
+	//
+	VetisVeterinaryAuthentication Authentication;
+	SString PrecedingVetDocuments;
+	TSCollection <VetisReferencedDocument> ReferencedDocumentList;
+	TSCollection <VetisVetDocumentStatusChange> StatusChangeList;
+};
+
+struct VetisStockEntryEventList {
+	TSCollection <VetisLaboratoryResearchEvent> LaboratoryResearchList;
+	TSCollection <VetisQuarantineEvent> QuarantineList;
+	TSCollection <VetisAnimalMedicationEvent> ImmunizationList;
+	TSCollection <VetisVeterinaryEvent> VeterinaryEventList;
+};
+
+struct VetisStockEntry : public VetisGenericVersioningEntity {
+	SString EntryNumber;
+	VetisBatch Batch;
+	VetisStockEntryEventList VetEventList;
+	TSCollection <VetisVetDocument> VetDocumentList;
+};
+
+struct VetisStockEntrySearchPattern : public VetisStockEntry {
+	VetisStockEntrySearchPattern() : VetisStockEntry(), BlankFilter(0)
+	{
+	}
+	int    BlankFilter; // StockEntryBlankFilter
+};
+
+class VetisApplicationData {
+public:
+	enum {
+		signNone = 0,
+		signGetStockEntryListRequest
+	};
+	explicit VetisApplicationData(int sign)
+	{
+		Sign = sign;
+	}
+	virtual ~VetisApplicationData()
+	{
+	}
+protected:
+	int    Sign;
+	//
+	SString LocalTransactionId;
+	VetisUser Initiator;
+	SString SessionToken;
+};
+
+class VetisGetStockEntryListRequest : public VetisApplicationData {
+public:
+	VetisGetStockEntryListRequest() : VetisApplicationData(signGetStockEntryListRequest)
+	{
+		EnterpriseGuid.SetZero();
+	}
+	VetisListOptions ListOptions;
+	S_GUID EnterpriseGuid;
+	VetisStockEntrySearchPattern SearchPattern;
+};
+
+struct VetisApplicationBlock {
+	VetisApplicationBlock();
+
+	enum {
+		appstUndef     = -1,
+		appstAccepted  = 0,
+		appstInProcess = 1,
+		appstCompleted = 2,
+		appstRejected  = 3
+	};
+	int    ApplicationStatus;
+	SString ServiceId;
+	S_GUID ApplicationId;
+	S_GUID IssuerId;
+	LDATETIME IssueDate;
+	LDATETIME RcvDate;
+	LDATETIME PrdcRsltDate;
+
+	SString Data;
+	SString Result;
+	TSCollection <VetisErrorEntry> ErrList;
+};
+
+typedef VetisApplicationBlock * (* VETIS_SUBMITAPPLICATIONREQUEST_PROC)(PPSoapClientSession & rSess, const char * pApiKey, const VetisApplicationBlock & rBlk);
+typedef VetisApplicationBlock * (* VETIS_RECEIVEAPPLICATIONRESULT_PROC)(PPSoapClientSession & rSess, const char * pApiKey, const S_GUID & rIssuerId, const S_GUID & rApplicationId);

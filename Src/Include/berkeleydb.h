@@ -261,6 +261,7 @@ struct __db_dbt : public __db_dbt_base {
 	// Descr: Обнуляет все компоненты структуры
 	//
 	__db_dbt();
+	__db_dbt(uint32 f);
 };
 
 /*******************************************************
@@ -505,15 +506,10 @@ struct __db_lockreq {
  * to a new log file before the maximum length imposed by an unsigned 4-byte offset is reached.
  */
 struct __db_lsn { // SHARED
-	void   Clear()
-	{
-		file = 0;
-		Offset_ = 0;
-	}
-	int    IsZero() const
-	{
-		return (file == 0 && Offset_ == 0);
-	}
+	void   Clear();
+	int    IsZero() const;
+	void   NotLogged();
+
 	uint32 file;   // File ID
 	uint32 Offset_; // File offset
 };

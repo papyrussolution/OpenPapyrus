@@ -496,36 +496,21 @@ LIBSSH2_API void libssh2_free(LIBSSH2_SESSION * session, void * ptr);
  * NOTE: on success, algs must be deallocated (by calling libssh2_free) when
  * not needed anymore
  */
-LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
-    int method_type,
-    const char*** algs);
+LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session, int method_type, const char*** algs);
 
 /* Session API */
-LIBSSH2_API LIBSSH2_SESSION *
-libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
-    LIBSSH2_FREE_FUNC((*my_free)),
+LIBSSH2_API LIBSSH2_SESSION * libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)), LIBSSH2_FREE_FUNC((*my_free)),
     LIBSSH2_REALLOC_FUNC((*my_realloc)), void * abstract);
 #define libssh2_session_init() libssh2_session_init_ex(NULL, NULL, NULL, NULL)
 
 LIBSSH2_API void ** libssh2_session_abstract(LIBSSH2_SESSION * session);
-
-LIBSSH2_API void * libssh2_session_callback_set(LIBSSH2_SESSION * session,
-    int cbtype, void * callback);
-LIBSSH2_API int libssh2_session_banner_set(LIBSSH2_SESSION * session,
-    const char * banner);
-LIBSSH2_API int libssh2_banner_set(LIBSSH2_SESSION * session,
-    const char * banner);
-
+LIBSSH2_API void * libssh2_session_callback_set(LIBSSH2_SESSION * session, int cbtype, void * callback);
+LIBSSH2_API int libssh2_session_banner_set(LIBSSH2_SESSION * session, const char * banner);
+LIBSSH2_API int libssh2_banner_set(LIBSSH2_SESSION * session, const char * banner);
 LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION * session, int sock);
-LIBSSH2_API int libssh2_session_handshake(LIBSSH2_SESSION * session,
-    libssh2_socket_t sock);
-LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION * session,
-    int reason,
-    const char * description,
-    const char * lang);
-#define libssh2_session_disconnect(session, description) \
-	libssh2_session_disconnect_ex((session), SSH_DISCONNECT_BY_APPLICATION,	\
-	    (description), "")
+LIBSSH2_API int libssh2_session_handshake(LIBSSH2_SESSION * session, libssh2_socket_t sock);
+LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION * session, int reason, const char * description, const char * lang);
+#define libssh2_session_disconnect(session, description) libssh2_session_disconnect_ex((session), SSH_DISCONNECT_BY_APPLICATION, (description), "")
 
 LIBSSH2_API int libssh2_session_free(LIBSSH2_SESSION * session);
 LIBSSH2_API const char * libssh2_hostkey_hash(LIBSSH2_SESSION * session, int hash_type);
@@ -533,7 +518,7 @@ LIBSSH2_API const char * libssh2_session_hostkey(LIBSSH2_SESSION * session, size
 LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type, const char * prefs);
 LIBSSH2_API const char * libssh2_session_methods(LIBSSH2_SESSION * session, int method_type);
 LIBSSH2_API int libssh2_session_last_error(LIBSSH2_SESSION * session, char ** errmsg, int * errmsg_len, int want_buf);
-LIBSSH2_API int libssh2_session_last_errno(LIBSSH2_SESSION * session);
+LIBSSH2_API int FASTCALL libssh2_session_last_errno(LIBSSH2_SESSION * session);
 LIBSSH2_API int libssh2_session_set_last_error(LIBSSH2_SESSION* session, int errcode, const char* errmsg);
 LIBSSH2_API int libssh2_session_block_directions(LIBSSH2_SESSION * session);
 LIBSSH2_API int libssh2_session_flag(LIBSSH2_SESSION * session, int flag, int value);

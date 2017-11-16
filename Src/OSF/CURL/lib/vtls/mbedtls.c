@@ -40,19 +40,12 @@
 #include <mbedtls/ssl.h>
 #include <mbedtls/certs.h>
 #include <mbedtls/x509.h>
-
 #include <mbedtls/error.h>
 #include <mbedtls/entropy.h>
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/sha256.h>
-
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "inet_pton.h"
 #include "mbedtls.h"
 #include "vtls.h"
-//#include "connect.h" /* for the connect timeout */
-//#include "select.h"
 #include "polarssl_threadlock.h"
 
 /* The last 3 #include files should be in this order */

@@ -44,28 +44,9 @@
 #ifdef HAVE_SYS_PARAM_H
 	#include <sys/param.h>
 #endif
-//#include "urldata.h"
-//#include <curl/curl.h>
-//#include "transfer.h"
-//#include "vtls/vtls.h"
-//#include "url.h"
-//#include "getinfo.h"
-//#include "hostip.h"
-//#include "share.h"
-//#include "strdup.h"
-//#include "progress.h"
 #include "easyif.h"
-//#include "select.h"
-//#include "sendf.h" /* for failf function prototype */
-//#include "connect.h" /* for Curl_getconnectinfo */
-//#include "slist.h"
 #include "amigaos.h"
-//#include "non-ascii.h"
-//#include "warnless.h"
-//#include "conncache.h"
-//#include "multiif.h"
 #include "sigpipe.h"
-//#include "ssh.h"
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"
 //#include "curl_memory.h"

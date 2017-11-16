@@ -39,14 +39,8 @@
 #ifdef HAVE_PWD_H
 	#include <pwd.h>
 #endif
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "select.h"
 #include "vauth/ntlm.h"
 #include "curl_ntlm_wb.h"
-//#include "url.h"
-//#include "strerror.h"
-//#include "strdup.h"
 // The last #include files should be in this order 
 #include "curl_printf.h"
 #include "memdebug.h"

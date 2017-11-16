@@ -6721,7 +6721,7 @@ xmlExpNodePtr xmlExpStringDerive(xmlExpCtxtPtr ctxt, xmlExpNodePtr exp, const xm
 	 * copy, otherwise we know it's not an acceptable input
 	 */
 	input = xmlDictExists(ctxt->dict, str, len);
-	if(input == NULL) {
+	if(!input) {
 		return(forbiddenExp);
 	}
 	return(xmlExpStringDeriveInt(ctxt, exp, input));

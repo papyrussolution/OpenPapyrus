@@ -282,10 +282,8 @@ struct __db_threadid {
 	pid_t pid;
 	db_threadid_t tid;
 };
-/*
- * PUBLIC: int __env_set_state __P((ENV *, DB_THREAD_INFO **, DB_THREAD_STATE));
- */
-int __env_set_state(ENV * env, DB_THREAD_INFO ** ipp, DB_THREAD_STATE state)
+
+int FASTCALL __env_set_state(ENV * env, DB_THREAD_INFO ** ipp, DB_THREAD_STATE state)
 {
 	struct __db_threadid id;
 	DB_ENV * dbenv;

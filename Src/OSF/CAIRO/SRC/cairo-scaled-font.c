@@ -532,7 +532,7 @@ static void _cairo_scaled_font_placeholder_wait_for_creation_to_finish(cairo_sca
 
 static uint32_t FASTCALL _hash_matrix_fnv(const cairo_matrix_t * matrix, uint32_t hval)
 {
-	const uint8_t * buffer = (const uint8_t*)matrix;
+	const uint8 * buffer = (const uint8*)matrix;
 	int len = sizeof(cairo_matrix_t);
 	do {
 		hval *= FNV_32_PRIME;
@@ -2019,7 +2019,7 @@ static cairo_status_t _add_unit_rectangle_to_path(cairo_path_fixed_t * path, cai
  **/
 static cairo_status_t _trace_mask_to_path(cairo_image_surface_t * mask, cairo_path_fixed_t * path, double tx, double ty)
 {
-	const uint8_t * row;
+	const uint8 * row;
 	int rows, cols, bytes_per_row;
 	int x, y, bit;
 	double xoff, yoff;
@@ -2036,11 +2036,11 @@ static cairo_status_t _trace_mask_to_path(cairo_image_surface_t * mask, cairo_pa
 	bytes_per_row = (mask->width + 7) / 8;
 	row = mask->data;
 	for(y = 0, rows = mask->height; rows--; row += mask->stride, y++) {
-		const uint8_t * byte_ptr = row;
+		const uint8 * byte_ptr = row;
 		x = 0;
 		py = _cairo_fixed_from_int(y);
 		for(cols = bytes_per_row; cols--; ) {
-			uint8_t byte = *byte_ptr++;
+			uint8 byte = *byte_ptr++;
 			if(byte == 0) {
 				x += 8;
 			}

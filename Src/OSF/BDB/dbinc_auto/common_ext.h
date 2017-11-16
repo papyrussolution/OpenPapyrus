@@ -18,15 +18,15 @@ int __db_decompress_int(const uint8 *, u_int64_t *);
 int __db_decompress_int32(const uint8 *, uint32 *);
 int __db_fchk(ENV *, const char *, uint32, uint32);
 int __db_fcchk(ENV *, const char *, uint32, uint32, uint32);
-int __db_ferr(const ENV *, const char *, int);
+int FASTCALL __db_ferr(const ENV *, const char *, int);
 int __db_fnl(const ENV *, const char *);
-int __db_pgerr(DB *, db_pgno_t, int);
-int __db_pgfmt(ENV *, db_pgno_t);
+int FASTCALL __db_pgerr(DB *, db_pgno_t, int);
+int FASTCALL __db_pgfmt(ENV *, db_pgno_t);
 #ifdef DIAGNOSTIC
 void __db_assert(ENV *, const char *, const char *, int);
 #endif
-int __env_panic_msg(ENV *);
-int __env_panic(ENV *, int);
+int FASTCALL __env_panic_msg(ENV *);
+int FASTCALL __env_panic(ENV *, int);
 char *__db_unknown_error(int);
 void __db_syserr __P((const ENV *, int, const char *, ...)) __attribute__ ((__format__ (__printf__, 3, 4)));
 void __db_err __P((const ENV *, int, const char *, ...)) __attribute__ ((__format__ (__printf__, 3, 4)));

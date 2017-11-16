@@ -24,7 +24,7 @@ size_t __env_thread_size(ENV *, size_t);
 size_t __env_thread_max(ENV *);
 int __env_thread_init(ENV *, int);
 void __env_thread_destroy(ENV *);
-int __env_set_state(ENV *, DB_THREAD_INFO **, DB_THREAD_STATE);
+int FASTCALL __env_set_state(ENV *, DB_THREAD_INFO **, DB_THREAD_STATE);
 char *__env_thread_id_string(DB_ENV *, pid_t, db_threadid_t, char *);
 int __db_file_extend(ENV *, DB_FH *, size_t);
 int __db_file_multi_write(ENV *, const char *);

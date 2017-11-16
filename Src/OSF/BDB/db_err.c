@@ -37,7 +37,7 @@ int __db_fcchk(ENV * env, const char * name, uint32 flags, uint32 flag1, uint32 
  * __db_ferr --
  *	Common flag errors.
  */
-int __db_ferr(const ENV * env, const char * name, int iscombo)
+int FASTCALL __db_ferr(const ENV * env, const char * name, int iscombo)
 {
 	if(iscombo)
 		__db_errx(env, DB_STR_A("0054", "illegal flag combination specified to %s", "%s"), name);
@@ -62,7 +62,7 @@ int __db_fnl(const ENV * env, const char * name)
  *
  * PUBLIC: int __db_pgerr __P((DB *, db_pgno_t, int));
  */
-int __db_pgerr(DB * dbp, db_pgno_t pgno, int errval)
+int FASTCALL __db_pgerr(DB * dbp, db_pgno_t pgno, int errval)
 {
 	/*
 	 * Three things are certain:
@@ -78,7 +78,7 @@ int __db_pgerr(DB * dbp, db_pgno_t pgno, int errval)
  *
  * PUBLIC: int __db_pgfmt __P((ENV *, db_pgno_t));
  */
-int __db_pgfmt(ENV * env, db_pgno_t pgno)
+int FASTCALL __db_pgfmt(ENV * env, db_pgno_t pgno)
 {
 	__db_errx(env, DB_STR_A("0058", "page %lu: illegal page type or format", "%lu"), (ulong)pgno);
 	return __env_panic(env, EINVAL);
@@ -104,19 +104,15 @@ void __db_assert(ENV * env, const char * e, const char * file, int line)
 	}
 }
 #endif
-
 /*
- * __env_panic_msg --
  *	Just report that someone else paniced.
- *
- * PUBLIC: int __env_panic_msg(ENV *);
  */
-int __env_panic_msg(ENV * env)
+int FASTCALL __env_panic_msg(ENV * env)
 {
 	DB_ENV * dbenv = env->dbenv;
 	int ret = DB_RUNRECOVERY;
 	__db_errx(env, DB_STR("0060", "PANIC: fatal region error detected; run recovery"));
-	if(dbenv->db_paniccall)                 /* Deprecated */
+	if(dbenv->db_paniccall) // Deprecated 
 		dbenv->db_paniccall(dbenv, ret);
 	/* Must check for DB_EVENT_REG_PANIC panic first because it is never
 	 * set by itself.  If set, it means panic came from DB_REGISTER code
@@ -135,13 +131,13 @@ int __env_panic_msg(ENV * env)
  *
  * PUBLIC: int __env_panic __P((ENV *, int));
  */
-int __env_panic(ENV * env, int errval)
+int FASTCALL __env_panic(ENV * env, int errval)
 {
 	DB_ENV * dbenv = env->dbenv;
 	if(env) {
 		__env_panic_set(env, 1);
 		__db_err(env, errval, DB_STR("0061", "PANIC"));
-		if(dbenv->db_paniccall)         /* Deprecated */
+		if(dbenv->db_paniccall) // Deprecated 
 			dbenv->db_paniccall(dbenv, errval);
 		/* Must check for DB_EVENT_REG_PANIC first because it is never
 		 * set by itself.  If set, it means panic came from DB_REGISTER
@@ -171,7 +167,6 @@ int __env_panic(ENV * env, int errval)
 	 */
 	return DB_RUNRECOVERY;
 }
-
 /*
  * db_strerror --
  *	ANSI C strerror(3) for DB.

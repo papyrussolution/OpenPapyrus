@@ -1073,7 +1073,7 @@ static cairo_status_t _get_bitmap_surface(FT_Bitmap * bitmap,
 		    }
 #ifndef WORDS_BIGENDIAN
 		    {
-			    uint8_t * d = data;
+			    uint8 * d = data;
 			    int count = stride * height;
 			    while(count--) {
 				    *d = CAIRO_BITSWAP8(*d);

@@ -295,7 +295,7 @@ static time_t FASTCALL my_timegm(struct my_tm * tm)
 	}
 	leap_days = year - (tm->tm_mon <= 1);
 	leap_days = ((leap_days / 4) - (leap_days / 100) + (leap_days / 400) - (1969 / 4) + (1969 / 100) - (1969 / 400));
-	return ((((time_t)(year - 1970) * 365 + leap_days + month_days_cumulative [month] + tm->tm_mday - 1) * 24 + tm->tm_hour) * 60 + tm->tm_min) * 60 + tm->tm_sec;
+	return ((((time_t)(year - 1970) * 365 + leap_days + month_days_cumulative[month] + tm->tm_mday - 1) * 24 + tm->tm_hour) * 60 + tm->tm_min) * 60 + tm->tm_sec;
 }
 /*
  * parsedate()

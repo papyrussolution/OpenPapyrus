@@ -740,7 +740,7 @@ struct brw_sampler_default_border_color {
 };
 
 struct brw_sampler_legacy_border_color {
-    uint8_t color[4];
+    uint8 color[4];
 };
 
 struct brw_sampler_state {

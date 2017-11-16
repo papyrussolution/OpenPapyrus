@@ -847,12 +847,6 @@
 				RelativePath="..\osf\curl\lib\easyif.h">
 			</File>
 			<File
-				RelativePath="..\osf\curl\lib\escape.h">
-			</File>
-			<File
-				RelativePath="..\osf\curl\lib\file.h">
-			</File>
-			<File
 				RelativePath="..\osf\curl\lib\fileinfo.h">
 			</File>
 			<File
@@ -934,9 +928,6 @@
 				RelativePath="..\osf\curl\lib\non-ascii.h">
 			</File>
 			<File
-				RelativePath="..\osf\curl\lib\nonblock.h">
-			</File>
-			<File
 				RelativePath="..\osf\curl\lib\pingpong.h">
 			</File>
 			<File
@@ -946,16 +937,10 @@
 				RelativePath="..\osf\curl\lib\pop3.h">
 			</File>
 			<File
-				RelativePath="..\osf\curl\lib\progress.h">
-			</File>
-			<File
 				RelativePath="..\osf\curl\lib\rawstr.h">
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\rtsp.h">
-			</File>
-			<File
-				RelativePath="..\osf\curl\lib\select.h">
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\sendf.h">
@@ -970,16 +955,10 @@
 				RelativePath="..\osf\curl\lib\sigpipe.h">
 			</File>
 			<File
-				RelativePath="..\osf\curl\lib\slist.h">
-			</File>
-			<File
 				RelativePath="..\osf\curl\lib\smb.h">
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\smtp.h">
-			</File>
-			<File
-				RelativePath="..\osf\curl\lib\sockaddr.h">
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\socks.h">
@@ -994,9 +973,6 @@
 				RelativePath="..\Osf\Curl\include\curl\stdcheaders.h">
 			</File>
 			<File
-				RelativePath="..\osf\curl\lib\strdup.h">
-			</File>
-			<File
 				RelativePath="..\osf\curl\lib\strequal.h">
 			</File>
 			<File
@@ -1004,9 +980,6 @@
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\strtok.h">
-			</File>
-			<File
-				RelativePath="..\osf\curl\lib\strtoofft.h">
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\telnet.h">
@@ -1022,9 +995,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\Curl\include\curl\typecheck-gcc.h">
-			</File>
-			<File
-				RelativePath="..\osf\curl\lib\url.h">
 			</File>
 			<File
 				RelativePath="..\osf\curl\lib\urldata.h">

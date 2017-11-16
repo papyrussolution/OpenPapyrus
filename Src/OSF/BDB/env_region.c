@@ -15,6 +15,12 @@ static int  __env_sys_attach(ENV*, REGINFO*, REGION *);
 static int  __env_sys_detach(ENV*, REGINFO*, int);
 static void __env_des_destroy(ENV*, REGION *);
 static void __env_remove_file(ENV *);
+
+int FASTCALL _panic_isset(const ENV * pEnv)
+{
+	//#define PANIC_ISSET(env) ((env) && (env)->reginfo && ((REGENV *)(env)->reginfo->primary)->panic != 0 && !F_ISSET((env)->dbenv, DB_ENV_NOPANIC))
+	return (pEnv && pEnv->reginfo && ((REGENV *)pEnv->reginfo->primary)->panic != 0 && !F_ISSET(pEnv->dbenv, DB_ENV_NOPANIC));
+}
 //
 // __env_attach
 // Join/create the environment

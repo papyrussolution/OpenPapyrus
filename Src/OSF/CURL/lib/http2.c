@@ -26,16 +26,6 @@
 #include <nghttp2/nghttp2.h>
 //#include "urldata.h"
 #include "http2.h"
-//#include "http.h"
-//#include "sendf.h"
-//#include "curl_base64.h"
-//#include "strcase.h"
-//#include "multiif.h"
-//#include "conncache.h"
-//#include "url.h"
-//#include "connect.h"
-//#include "strtoofft.h"
-//#include "strdup.h"
 // The last #include files should be in this order 
 #include "curl_printf.h"
 #include "memdebug.h"

@@ -159,7 +159,7 @@ static inline double sqlen(RPoint p0, RPoint p1)
 	return delta.x * delta.x + delta.y * delta.y;
 }
 
-static inline int16_t _color_delta_to_shifted_short(int32_t from, int32_t to, int shift)
+static inline int16 _color_delta_to_shifted_short(int32_t from, int32_t to, int shift)
 {
 	int32_t delta = to - from;
 	// We need to round toward zero, because otherwise adding the
@@ -426,7 +426,7 @@ static inline int intersect_interval(double a, double b, double c, double d)
  * nothing.
  */
 static inline void draw_pixel(uchar * data, int width, int height, int stride,
-    int x, int y, uint16_t r, uint16_t g, uint16_t b, uint16_t a)
+    int x, int y, uint16 r, uint16 g, uint16 b, uint16 a)
 {
 	if(likely(0 <= x && 0 <= y && x < width && y < height)) {
 		uint32_t tr, tg, tb, ta;
@@ -471,17 +471,17 @@ static inline void draw_pixel(uchar * data, int width, int height, int stride,
  */
 static inline void rasterize_bezier_curve(uchar * data, int width, int height, int stride,
     int ushift, double dxu[4], double dyu[4],
-    uint16_t r0, uint16_t g0, uint16_t b0, uint16_t a0,
-    uint16_t r3, uint16_t g3, uint16_t b3, uint16_t a3)
+    uint16 r0, uint16 g0, uint16 b0, uint16 a0,
+    uint16 r3, uint16 g3, uint16 b3, uint16 a3)
 {
 	int32_t xu[4], yu[4];
 	int x0, y0, u, usteps = 1 << ushift;
 
-	uint16_t r = r0, g = g0, b = b0, a = a0;
-	int16_t dr = _color_delta_to_shifted_short(r0, r3, ushift);
-	int16_t dg = _color_delta_to_shifted_short(g0, g3, ushift);
-	int16_t db = _color_delta_to_shifted_short(b0, b3, ushift);
-	int16_t da = _color_delta_to_shifted_short(a0, a3, ushift);
+	uint16 r = r0, g = g0, b = b0, a = a0;
+	int16 dr = _color_delta_to_shifted_short(r0, r3, ushift);
+	int16 dg = _color_delta_to_shifted_short(g0, g3, ushift);
+	int16 db = _color_delta_to_shifted_short(b0, b3, ushift);
+	int16 da = _color_delta_to_shifted_short(a0, a3, ushift);
 
 	fd_fixed(dxu, xu);
 	fd_fixed(dyu, yu);

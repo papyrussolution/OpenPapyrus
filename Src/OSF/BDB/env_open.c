@@ -283,7 +283,7 @@ int __env_remove(DB_ENV * dbenv, const char * db_home, uint32 flags)
 	ENV * env = dbenv->env;
 #undef  OKFLAGS
 #define OKFLAGS (DB_FORCE|DB_USE_ENVIRON|DB_USE_ENVIRON_ROOT)
-	/* Validate arguments. */
+	// Validate arguments
 	if((ret = __db_fchk(env, "DB_ENV->remove", flags, OKFLAGS)) != 0)
 		return ret;
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->remove");
@@ -368,10 +368,7 @@ int __env_close_pp(DB_ENV * dbenv, uint32 flags)
 	uint32 flags_orig = 0;
 	ENV  * env = dbenv->env;
 	int    ret = 0;
-	/*
-	 * Validate arguments, but as a DB_ENV handle destructor, we can't
-	 * fail.
-	 */
+	// Validate arguments, but as a DB_ENV handle destructor, we can't fail.
 	if(flags != 0 && flags != DB_FORCESYNC && (t_ret = __db_ferr(env, "DB_ENV->close", 0)) != 0 && ret == 0)
 		ret = t_ret;
 #define DBENV_FORCESYNC         0x00000001
@@ -383,7 +380,7 @@ int __env_close_pp(DB_ENV * dbenv, uint32 flags)
 	 * the important resources.
 	 */
 	if(PANIC_ISSET(env)) {
-		/* clean up from registry file */
+		// clean up from registry file 
 		if(dbenv->registry) {
 			/*
 			 * Temporarily set no panic so we do not trigger the

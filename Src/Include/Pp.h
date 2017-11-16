@@ -8655,7 +8655,7 @@ public:
 		enum {
 			extssClientCode   = 1, // Код данного клиента на сервере поставщика
 			extssEDIPrvdrSymb = 2, // Символ провайдера EDI
-			extssRemoveAddr   = 3, // @v9.2.0 Адрес для обмена данными (это может быть e-mail, url иди каталог)
+			extssRemoteAddr   = 3, // @v9.2.0 Адрес для обмена данными (это может быть e-mail, url иди каталог)
 			extssAccsName     = 4, // @v9.2.0 Имя аккаунат для доступа к обмену данными
 			extssAccsPassw    = 5, // @v9.2.0 Пароль для доступа к обмену данными
 			extssTechSymbol   = 6  // @v9.2.1 Символ технологии обмена
@@ -33652,7 +33652,7 @@ struct ObjTransmitParam {
 
 struct ObjReceiveParam {
 	SLAPI  ObjReceiveParam();
-	int    SLAPI Init();
+	void   SLAPI Init();
 	int    SLAPI CheckDbDivID(PPID id) const;
 	int    SLAPI Write(SBuffer &, long) const;
 	int    SLAPI Read(SBuffer &, long);
@@ -33935,7 +33935,7 @@ private:
 	PPObject * FASTCALL _GetObjectPtr(PPID objType);
 	int    SLAPI OpenInPacket(const char * pFileName, PPObjectTransmit::Header * = 0);
 	int    SLAPI CloseInPacket();
-	int    SLAPI CloseOutPacket();
+	void   SLAPI CloseOutPacket();
 	int    SLAPI MakeTransmitFileName(SString & rFileName, S_GUID * pDbDivUuid);
 	void   SLAPI SetupHeader(uint type, PPID dest, PPObjectTransmit::Header *);
 	int    SLAPI Write(FILE * stream, void *, size_t);

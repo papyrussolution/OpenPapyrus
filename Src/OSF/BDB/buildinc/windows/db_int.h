@@ -388,7 +388,7 @@ typedef struct __db_msgbuf {
  * comes in two flavors because we often want to clear the DBT first.
  */
 #define	DB_SET_DBT(dbt, d, s)  do { (dbt).data = (void *)(d); (dbt).size = (uint32)(s); } while (0)
-#define	DB_INIT_DBT(dbt, d, s) do { memzero(&(dbt), sizeof(dbt)); DB_SET_DBT(dbt, d, s); } while (0)
+#define DB_INIT_DBT(dbt, d, s) do { memzero(&(dbt), sizeof(dbt)); DB_SET_DBT(dbt, d, s); } while (0)
 
 /*******************************************************
  * API return values
@@ -532,9 +532,7 @@ typedef enum {
 	#define	CHECK_THREAD(env) do { if((env)->thr_hashtab != NULL) __env_set_state(env, NULL, THREAD_VERIFY); } while(0)
 	#ifdef HAVE_STATISTICS
 		#define	CHECK_MTX_THREAD(env, mtx) do {					\
-			if(mtx->alloc_id != MTX_MUTEX_REGION &&			\
-				mtx->alloc_id != MTX_ENV_REGION &&				\
-				mtx->alloc_id != MTX_APPLICATION)				\
+			if(mtx->alloc_id != MTX_MUTEX_REGION && mtx->alloc_id != MTX_ENV_REGION && mtx->alloc_id != MTX_APPLICATION) \
 				CHECK_THREAD(env);					\
 		} while (0)
 	#else
@@ -640,19 +638,19 @@ struct __env {
 	 *
 	 * Arguments to DB_ENV->open.
 	 */
-	char	 *db_home;		/* Database home */
+	char * db_home;		/* Database home */
 	uint32 open_flags;		/* Flags */
-	int	  db_mode;		/* Default open permissions */
-	pid_t	pid_cache;		/* Cached process ID */
-	DB_FH	*lockfhp;		/* fcntl(2) locking file handle */
-	DB_LOCKER *env_lref;		/* Locker in non-threaded handles */
-	DB_DISTAB   recover_dtab;	/* Dispatch table for recover funcs */
-	int dir_mode;			/* Intermediate directory perms. */
+	int	   db_mode;		/* Default open permissions */
+	pid_t  pid_cache;		/* Cached process ID */
+	DB_FH * lockfhp;		/* fcntl(2) locking file handle */
+	DB_LOCKER * env_lref;		/* Locker in non-threaded handles */
+	DB_DISTAB recover_dtab;	/* Dispatch table for recover funcs */
+	int    dir_mode;			/* Intermediate directory perms. */
 #define ENV_DEF_DATA_LEN		100
 	uint32 data_len;		/* Data length in __db_prbytes. */
 	/* Thread tracking */
-	uint32	 thr_nbucket;	/* Number of hash buckets */
-	DB_HASHTAB	*thr_hashtab;	/* Hash table of DB_THREAD_INFO */
+	uint32 thr_nbucket;	/* Number of hash buckets */
+	DB_HASHTAB * thr_hashtab;	/* Hash table of DB_THREAD_INFO */
 	/*
 	 * List of open DB handles for this ENV, used for cursor
 	 * adjustment.  Must be protected for multi-threaded support.
@@ -675,22 +673,18 @@ struct __env {
 	DB_MUTEXMGR	*mutex_handle;	/* Mutex handle */
 	DB_REP		*rep_handle;	/* Replication handle */
 	DB_TXNMGR	*tx_handle;	/* Txn handle */
-
 	/*
 	 * XA support.
 	 */
 	int		 xa_rmid;	/* XA Resource Manager ID */
 	int		 xa_ref;	/* XA Reference count */
 	TAILQ_ENTRY(__env) links;	/* XA environments */
-
 	/* Application callback to copy data to/from a custom data source */
 #define	DB_USERCOPY_GETDATA	0x0001
 #define	DB_USERCOPY_SETDATA	0x0002
 	int (*dbt_usercopy)(DBT *, uint32, void *, uint32, uint32);
 	int (*log_verify_wrap)(ENV *, const char *, uint32, const char *, const char *, __time64_t, __time64_t, uint32,  uint32, uint32, uint32, int, int);
-
 	REGINFO	*reginfo;		/* REGINFO structure reference */
-
 #define	DB_TEST_ELECTINIT	 1	/* after __rep_elect_init */
 #define	DB_TEST_ELECTVOTE1	 2	/* after sending VOTE1 */
 #define	DB_TEST_NO_PAGES	 3	/* before sending PAGE */
@@ -742,9 +736,9 @@ struct __env {
  * to this list, but the initial fields are common.
  */
 #define	__DBC_INTERNAL							\
-	DBC	 *opd;			/* Off-page duplicate cursor. */\
-	DBC	 *pdbc;			/* Pointer to parent cursor. */ \
-	void	 *page;			/* Referenced page. */		\
+	DBC	 * opd;			/* Off-page duplicate cursor. */\
+	DBC	 * pdbc;			/* Pointer to parent cursor. */ \
+	void * page;			/* Referenced page. */		\
 	uint32 part;			/* Partition number. */		\
 	db_pgno_t root;			/* Tree root. */		\
 	db_pgno_t pgno;			/* Referenced page number. */	\
@@ -759,17 +753,22 @@ struct __env {
 struct __dbc_internal {
 	__DBC_INTERNAL
 };
-
-/* Actions that __db_master_update can take. */
-typedef enum { MU_REMOVE, MU_RENAME, MU_OPEN, MU_MOVE } mu_action;
+//
+// Actions that __db_master_update can take. 
+//
+typedef enum { 
+	MU_REMOVE, 
+	MU_RENAME, 
+	MU_OPEN, 
+	MU_MOVE 
+} mu_action;
 /*
  * Access-method-common macro for determining whether a cursor
  * has been initialized.
  */
 #ifdef HAVE_PARTITION
 #define	IS_INITIALIZED(dbc)	(DB_IS_PARTITIONED((dbc)->dbp) ?	\
-		((PART_CURSOR *)(dbc)->internal)->sub_cursor != NULL && \
-		((PART_CURSOR *)(dbc)->internal)->sub_cursor->internal->pgno != PGNO_INVALID : (dbc)->internal->pgno != PGNO_INVALID)
+		((PART_CURSOR *)(dbc)->internal)->sub_cursor && ((PART_CURSOR *)(dbc)->internal)->sub_cursor->internal->pgno != PGNO_INVALID : (dbc)->internal->pgno != PGNO_INVALID)
 #else
 #define	IS_INITIALIZED(dbc)	((dbc)->internal->pgno != PGNO_INVALID)
 #endif
@@ -844,7 +843,8 @@ typedef struct __dbpginfo {
 //
 // If logging is turned off, smash the lsn
 //
-#define	LSN_NOT_LOGGED(LSN)     do { (LSN).file = 0; (LSN).Offset_ = 1; } while (0)
+//#define LSN_NOT_LOGGED(LSN)     do { (LSN).file = 0; (LSN).Offset_ = 1; } while (0)
+#define LSN_NOT_LOGGED(LSN)     (LSN).NotLogged()
 #define	IS_NOT_LOGGED_LSN(LSN)  ((LSN).file == 0 && (LSN).Offset_ == 1)
 //
 // LOG_COMPARE -- compare two LSNs.

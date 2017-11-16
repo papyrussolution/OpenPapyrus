@@ -43,36 +43,8 @@
 	#undef in_addr_t
 	#define in_addr_t ulong
 #endif
-//#include <curl/curl.h>
-//#include "urldata.h"
-//#include "sendf.h"
-//#include "if2ip.h"
-//#include "hostip.h"
-//#include "progress.h"
-//#include "transfer.h"
-//#include "escape.h"
-//#include "http.h" /* for HTTP proxy tunnel stuff */
-//#include "socks.h"
-//#include "ftp.h"
-//#include "fileinfo.h"
 #include "ftplistparser.h"
 #include "curl_sec.h"
-//#include "strtoofft.h"
-//#include "strcase.h"
-//#include "vtls/vtls.h"
-//#include "connect.h"
-//#include "strerror.h"
-//#include "inet_ntop.h"
-//#include "inet_pton.h"
-//#include "select.h"
-//#include "sockaddr.h" /* required for Curl_sockaddr_storage */
-//#include "multiif.h"
-//#include "url.h"
-//#include "strcase.h"
-//#include "speedcheck.h"
-//#include "warnless.h"
-//#include "http_proxy.h"
-//#include "non-ascii.h"
 // The last 3 #include files should be in this order 
 #include "curl_printf.h"
 //#include "curl_memory.h"

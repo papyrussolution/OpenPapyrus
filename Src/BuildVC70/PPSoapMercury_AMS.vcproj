@@ -354,7 +354,7 @@
 						Name="VCCustomBuildTool"
 						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
 						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl mercury-g2b.service_v2.0.wsdl 
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pmams14 mams14.h
 cd $(SolutionDir)
 "
@@ -366,7 +366,7 @@ cd $(SolutionDir)
 						Name="VCCustomBuildTool"
 						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
 						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl mercury-g2b.service_v2.0.wsdl 
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pmams14 mams14.h
 cd $(SolutionDir)
 "
@@ -378,7 +378,7 @@ cd $(SolutionDir)
 						Name="VCCustomBuildTool"
 						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
 						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl mercury-g2b.service_v2.0.wsdl 
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pmams14 mams14.h
 cd $(SolutionDir)
 "
@@ -390,7 +390,7 @@ cd $(SolutionDir)
 						Name="VCCustomBuildTool"
 						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
 						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl mercury-g2b.service_v2.0.wsdl 
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pmams14 mams14.h
 cd $(SolutionDir)
 "
@@ -402,7 +402,7 @@ cd $(SolutionDir)
 						Name="VCCustomBuildTool"
 						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
 						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl mercury-g2b.service_v2.0.wsdl 
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pmams14 mams14.h
 cd $(SolutionDir)
 "
@@ -414,7 +414,7 @@ cd $(SolutionDir)
 						Name="VCCustomBuildTool"
 						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
 						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o mams14.h http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl mercury-g2b.service_v2.0.wsdl 
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pmams14 mams14.h
 cd $(SolutionDir)
 "

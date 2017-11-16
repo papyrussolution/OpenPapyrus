@@ -49,7 +49,7 @@ int __lock_detect_pp(DB_ENV * dbenv, uint32 flags, uint32 atype, int * rejectp)
 	int ret;
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->lk_handle, "DB_ENV->lock_detect", DB_INIT_LOCK);
-	/* Validate arguments. */
+	// Validate arguments
 	if((ret = __db_fchk(env, "DB_ENV->lock_detect", flags, 0)) != 0)
 		return ret;
 	switch(atype) {

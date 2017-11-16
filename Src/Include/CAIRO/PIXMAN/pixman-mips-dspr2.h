@@ -42,7 +42,7 @@
 void
 pixman_mips_fast_memcpy (void *dst, void *src, uint32_t n_bytes);
 void
-pixman_fill_buff16_mips (void *dst, uint32_t n_bytes, uint16_t value);
+pixman_fill_buff16_mips (void *dst, uint32_t n_bytes, uint16 value);
 void
 pixman_fill_buff32_mips (void *dst, uint32_t n_bytes, uint32_t value);
 
@@ -296,13 +296,13 @@ void                                                                          \
 pixman_scaled_nearest_scanline_##name##_##op##_asm_mips (                     \
                                                    dst_type *       dst,      \
                                                    const src_type * src,      \
-                                                   const uint8_t *  mask,     \
+                                                   const uint8 *  mask,     \
                                                    int32_t          w,        \
                                                    pixman_fixed_t   vx,       \
                                                    pixman_fixed_t   unit_x);  \
                                                                               \
 static force_inline void                                                      \
-scaled_nearest_scanline_mips_##name##_##op (const uint8_t *  mask,            \
+scaled_nearest_scanline_mips_##name##_##op (const uint8 *  mask,            \
                                             dst_type *       pd,              \
                                             const src_type * ps,              \
                                             int32_t          w,               \
@@ -320,13 +320,13 @@ scaled_nearest_scanline_mips_##name##_##op (const uint8_t *  mask,            \
                                                                               \
 FAST_NEAREST_MAINLOOP_COMMON (mips_##name##_cover_##op,                       \
                               scaled_nearest_scanline_mips_##name##_##op,     \
-                              src_type, uint8_t, dst_type, COVER, TRUE, FALSE)\
+                              src_type, uint8, dst_type, COVER, TRUE, FALSE)\
 FAST_NEAREST_MAINLOOP_COMMON (mips_##name##_none_##op,                        \
                               scaled_nearest_scanline_mips_##name##_##op,     \
-                              src_type, uint8_t, dst_type, NONE, TRUE, FALSE) \
+                              src_type, uint8, dst_type, NONE, TRUE, FALSE) \
 FAST_NEAREST_MAINLOOP_COMMON (mips_##name##_pad_##op,                         \
                               scaled_nearest_scanline_mips_##name##_##op,     \
-                              src_type, uint8_t, dst_type, PAD, TRUE, FALSE)
+                              src_type, uint8, dst_type, PAD, TRUE, FALSE)
 
 /* Provide entries for the fast path table */
 #define PIXMAN_MIPS_SIMPLE_NEAREST_A8_MASK_FAST_PATH(op,s,d,func)             \
@@ -390,7 +390,7 @@ FAST_BILINEAR_MAINLOOP_COMMON (mips_##name##_normal_##op,                    \
 void                                                                          \
 pixman_scaled_bilinear_scanline_##name##_##op##_asm_mips (                    \
                                              dst_type *       dst,            \
-                                             const uint8_t *  mask,           \
+                                             const uint8 *  mask,           \
                                              const src_type * top,            \
                                              const src_type * bottom,         \
                                              int              wt,             \
@@ -401,7 +401,7 @@ pixman_scaled_bilinear_scanline_##name##_##op##_asm_mips (                    \
                                                                               \
 static force_inline void                                                      \
 scaled_bilinear_scanline_mips_##name##_##op (dst_type *       dst,            \
-                                             const uint8_t *  mask,           \
+                                             const uint8 *  mask,           \
                                              const src_type * src_top,        \
                                              const src_type * src_bottom,     \
                                              int32_t          w,              \
@@ -420,19 +420,19 @@ scaled_bilinear_scanline_mips_##name##_##op (dst_type *       dst,            \
                                                                               \
 FAST_BILINEAR_MAINLOOP_COMMON (mips_##name##_cover_##op,                      \
                        scaled_bilinear_scanline_mips_##name##_##op,           \
-                       src_type, uint8_t, dst_type, COVER,                    \
+                       src_type, uint8, dst_type, COVER,                    \
                        FLAG_HAVE_NON_SOLID_MASK)                              \
 FAST_BILINEAR_MAINLOOP_COMMON (mips_##name##_none_##op,                       \
                        scaled_bilinear_scanline_mips_##name##_##op,           \
-                       src_type, uint8_t, dst_type, NONE,                     \
+                       src_type, uint8, dst_type, NONE,                     \
                        FLAG_HAVE_NON_SOLID_MASK)                              \
 FAST_BILINEAR_MAINLOOP_COMMON (mips_##name##_pad_##op,                        \
                        scaled_bilinear_scanline_mips_##name##_##op,           \
-                       src_type, uint8_t, dst_type, PAD,                      \
+                       src_type, uint8, dst_type, PAD,                      \
                        FLAG_HAVE_NON_SOLID_MASK)                              \
 FAST_BILINEAR_MAINLOOP_COMMON (mips_##name##_normal_##op,                     \
                        scaled_bilinear_scanline_mips_##name##_##op,           \
-                       src_type, uint8_t, dst_type, NORMAL,                   \
+                       src_type, uint8, dst_type, NORMAL,                   \
                        FLAG_HAVE_NON_SOLID_MASK)
 
 #endif //PIXMAN_MIPS_DSPR2_H

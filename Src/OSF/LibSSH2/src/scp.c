@@ -37,10 +37,6 @@
  */
 #include "libssh2_priv.h"
 #pragma hdrstop
-//#include <errno.h>
-//#include <stdlib.h>
-//#include "channel.h"
-//#include "session.h"
 
 /* Max. length of a quoted string after libssh2_shell_quotearg() processing */
 #define _libssh2_shell_quotedsize(s)     (3 * strlen(s) + 2)
@@ -742,15 +738,13 @@ LIBSSH2_API LIBSSH2_CHANNEL * libssh2_scp_recv2(LIBSSH2_SESSION * session, const
 	BLOCK_ADJUST_ERRNO(ptr, session, scp_recv(session, path, sb));
 	return ptr;
 }
-
 /*
  * scp_send()
  *
  * Send a file using SCP
  *
  */
-static LIBSSH2_CHANNEL * scp_send(LIBSSH2_SESSION * session, const char * path, int mode,
-    libssh2_int64_t size, time_t mtime, time_t atime)
+static LIBSSH2_CHANNEL * scp_send(LIBSSH2_SESSION * session, const char * path, int mode, libssh2_int64_t size, time_t mtime, time_t atime)
 {
 	int cmd_len;
 	int rc;

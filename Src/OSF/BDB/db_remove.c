@@ -131,7 +131,7 @@ int __db_remove_pp(DB * dbp, const char * name, const char * subdb, uint32 flags
 	 */
 	if(F_ISSET(dbp, DB_AM_OPEN_CALLED))
 		return __db_mi_open(env, "DB->remove", 1);
-	/* Validate arguments. */
+	// Validate arguments
 	if((ret = __db_fchk(env, "DB->remove", flags, DB_NOSYNC)) != 0)
 		return ret;
 	/* Check for consistent transaction usage. */

@@ -361,7 +361,7 @@ static cairo_always_inline struct brw_reg brw_imm_ud(uint32_t ud)
 }
 
 /* Construct ushort immediate register */
-static cairo_always_inline struct brw_reg brw_imm_uw(uint16_t uw)
+static cairo_always_inline struct brw_reg brw_imm_uw(uint16 uw)
 {
 	struct brw_reg imm = brw_imm_reg(BRW_REGISTER_TYPE_UW);
 	imm.dw1.ud = uw | (uw << 16);
@@ -369,7 +369,7 @@ static cairo_always_inline struct brw_reg brw_imm_uw(uint16_t uw)
 }
 
 /* Construct short immediate register */
-static cairo_always_inline struct brw_reg brw_imm_w(int16_t w)
+static cairo_always_inline struct brw_reg brw_imm_w(int16 w)
 {
 	struct brw_reg imm = brw_imm_reg(BRW_REGISTER_TYPE_W);
 	imm.dw1.d = w | (w << 16);

@@ -37,9 +37,6 @@
  */
 #include "libssh2_priv.h"
 #pragma hdrstop
-//#include "libssh2_publickey.h"
-//#include "channel.h"
-//#include "session.h"
 
 #define LIBSSH2_PUBLICKEY_VERSION               2
 
