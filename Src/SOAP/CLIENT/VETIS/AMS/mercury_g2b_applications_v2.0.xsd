@@ -1,0 +1,1358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2"
+           xmlns:merc="http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:bs="http://api.vetrf.ru/schema/cdm/base"
+           xmlns:apl="http://api.vetrf.ru/schema/cdm/application"
+           xmlns:dt="http://api.vetrf.ru/schema/cdm/dictionary/v2"
+           xmlns:vd="http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2"
+           elementFormDefault="qualified" version="2.0-beta">
+
+   <xs:import namespace="http://api.vetrf.ru/schema/cdm/base" schemaLocation="base_v1.1.xsd"/>
+   <xs:import namespace="http://api.vetrf.ru/schema/cdm/application" schemaLocation="application_v1.1.xsd"/>
+   <xs:import namespace="http://api.vetrf.ru/schema/cdm/dictionary/v2" schemaLocation="dictionary_v2.0.xsd"/>
+   <xs:import namespace="http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2" schemaLocation="document_v2.0.xsd"/>
+
+   <xs:element name="processIncomingConsignmentRequest" type="merc:ProcessIncomingConsignmentRequest"/>
+   <xs:element name="processIncomingConsignmentResponse" type="merc:ProcessIncomingConsignmentResponse"/>
+
+   <xs:element name="prepareOutgoingConsignmentRequest" type="merc:PrepareOutgoingConsignmentRequest"/>
+   <xs:element name="prepareOutgoingConsignmentResponse" type="merc:PrepareOutgoingConsignmentResponse"/>
+
+   <xs:element name="registerProductionOperationRequest" type="merc:RegisterProductionOperationRequest"/>
+   <xs:element name="registerProductionOperationResponse" type="merc:RegisterProductionOperationResponse"/>
+
+   <xs:element name="mergeStockEntriesRequest" type="merc:MergeStockEntriesRequest"/>
+   <xs:element name="mergeStockEntriesResponse" type="merc:MergeStockEntriesResponse"/>
+
+   <xs:element name="withdrawVetDocumentRequest" type="merc:WithdrawVetDocumentRequest"/>
+   <xs:element name="withdrawVetDocumentResponse" type="merc:WithdrawVetDocumentResponse"/>
+
+   <xs:element name="modifyBusinessEntityRequest" type="merc:ModifyBusinessEntityRequest"/>
+   <xs:element name="modifyBusinessEntityResponse" type="merc:ModifyBusinessEntityResponse"/>
+
+   <xs:element name="modifyEnterpriseRequest" type="merc:ModifyEnterpriseRequest"/>
+   <xs:element name="modifyEnterpriseResponse" type="merc:ModifyEnterpriseResponse"/>
+
+   <xs:element name="modifyActivityLocationsRequest" type="merc:ModifyActivityLocationsRequest"/>
+   <xs:element name="modifyActivityLocationsResponse" type="merc:ModifyActivityLocationsResponse"/>
+
+   <xs:element name="resolveDiscrepancyRequest" type="merc:ResolveDiscrepancyRequest"/>
+   <xs:element name="resolveDiscrepancyResponse" type="merc:ResolveDiscrepancyResponse"/>
+
+   <xs:element name="modifyProducerStockListRequest" type="merc:ModifyProducerStockListRequest"/>
+   <xs:element name="modifyProducerStockListResponse" type="merc:ModifyProducerStockListResponse"/>
+
+   <xs:element name="getVetDocumentByUuidRequest" type="merc:GetVetDocumentByUuidRequest"/>
+   <xs:element name="getVetDocumentByUuidResponse" type="merc:GetVetDocumentByUuidResponse"/>
+
+   <xs:element name="getVetDocumentListRequest" type="merc:GetVetDocumentListRequest"/>
+   <xs:element name="getVetDocumentListResponse" type="merc:GetVetDocumentListResponse"/>
+
+   <xs:element name="getVetDocumentChangesListRequest" type="merc:GetVetDocumentChangesListRequest"/>
+   <xs:element name="getVetDocumentChangesListResponse" type="merc:GetVetDocumentChangesListResponse"/>
+
+   <xs:element name="getStockEntryByGuidRequest" type="merc:GetStockEntryByGuidRequest"/>
+   <xs:element name="getStockEntryByGuidResponse" type="merc:GetStockEntryByGuidResponse"/>
+
+   <xs:element name="getStockEntryByUuidRequest" type="merc:GetStockEntryByUuidRequest"/>
+   <xs:element name="getStockEntryByUuidResponse" type="merc:GetStockEntryByUuidResponse"/>
+
+   <xs:element name="getStockEntryListRequest" type="merc:GetStockEntryListRequest"/>
+   <xs:element name="getStockEntryListResponse" type="merc:GetStockEntryListResponse"/>
+
+   <xs:element name="getStockEntryChangesListRequest" type="merc:GetStockEntryChangesListRequest"/>
+   <xs:element name="getStockEntryChangesListResponse" type="merc:GetStockEntryChangesListResponse"/>
+
+   <xs:element name="getStockEntryVersionListRequest" type="merc:GetStockEntryVersionListRequest"/>
+   <xs:element name="getStockEntryVersionListResponse" type="merc:GetStockEntryVersionListResponse"/>
+
+   <xs:element name="updateTransportMovementDetailsRequest" type="merc:UpdateTransportMovementDetailsRequest"/>
+   <xs:element name="updateTransportMovementDetailsResponse" type="merc:UpdateTransportMovementDetailsResponse"/>
+
+   <xs:element name="updateVeterinaryEventsRequest" type="merc:UpdateVeterinaryEventsRequest"/>
+   <xs:element name="updateVeterinaryEventsResponse" type="merc:UpdateVeterinaryEventsResponse"/>
+
+   <xs:element name="checkShipmentRegionalizationRequest" type="merc:CheckShipmentRegionalizationRequest"/>
+   <xs:element name="checkShipmentRegionalizationResponse" type="merc:CheckShipmentRegionalizationResponse"/>
+
+   <xs:element name="addBusinessEntityUserRequest" type="merc:AddBusinessEntityUserRequest"/>
+   <xs:element name="addBusinessEntityUserResponse" type="merc:AddBusinessEntityUserResponse"/>
+
+   <xs:element name="getBusinessEntityUserListRequest" type="merc:GetBusinessEntityUserListRequest"/>
+   <xs:element name="getBusinessEntityUserListResponse" type="merc:GetBusinessEntityUserListResponse"/>
+
+   <xs:element name="getBusinessEntityUserRequest" type="merc:GetBusinessEntityUserRequest"/>
+   <xs:element name="getBusinessEntityUserResponse" type="merc:GetBusinessEntityUserResponse"/>
+
+   <xs:element name="updateUserAuthoritiesRequest" type="merc:UpdateUserAuthoritiesRequest"/>
+   <xs:element name="updateUserAuthoritiesResponse" type="merc:UpdateUserAuthoritiesResponse"/>
+
+   <xs:element name="updateUserWorkingAreasRequest" type="merc:UpdateUserWorkingAreasRequest"/>
+   <xs:element name="updateUserWorkingAreasResponse" type="merc:UpdateUserWorkingAreasResponse"/>
+
+   <xs:element name="unbindBusinessEntityUserRequest" type="merc:UnbindBusinessEntityUserRequest"/>
+   <xs:element name="unbindBusinessEntityUserResponse" type="merc:UnbindBusinessEntityUserResponse"/>
+
+   <xs:element name="getAppliedUserAuthorityListRequest" type="merc:GetAppliedUserAuthorityListRequest"/>
+   <xs:element name="getAppliedUserAuthorityListResponse" type="merc:GetAppliedUserAuthorityListResponse"/>
+
+   <!-- Application types -->
+
+   <xs:complexType name="MercuryApplicationRequest">
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationData">
+            <xs:sequence>
+               <xs:element name="localTransactionId" type="bs:Identifier" minOccurs="1" maxOccurs="1"/>
+               <xs:element name="initiator" type="vd:User" minOccurs="1" maxOccurs="1"/>
+               <xs:element name="sessionToken" type="dt:OTPToken" minOccurs="0" maxOccurs="1"/>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="ProcessIncomingConsignmentRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на оформление входящей партии.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element name="delivery" type="vd:Delivery" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Сведения о поставке.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="deliveryFacts" type="vd:DeliveryFactList" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Результаты приёмки.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="discrepancyReport" type="vd:DiscrepancyReport" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Акт о несоответствии.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="returnedDelivery" type="vd:Delivery" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Сведения о возврате продукции.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="ProcessIncomingConsignmentResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на оформление входящей партии.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element name="stockEntry" type="vd:StockEntry" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Сведения о созданных записи(ях) журнала продукции.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="vetDocument" type="vd:VetDocument" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Сведения о ветеринарных сертификатах: погашенном и возвратном.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="PrepareOutgoingConsignmentRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на оформление транспортной партии.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element name="delivery" type="vd:Delivery" minOccurs="1" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Сведения об отгрузке.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="PrepareOutgoingConsignmentResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на оформление транспортной партии.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element name="stockEntry" type="vd:StockEntry" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Сведения о измененных записи(ях) журнала продукции.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="vetDocument" type="vd:VetDocument" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Сведения об оформленном или погашенном ветеринарном сертификате.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="RegisterProductionOperationRequest">
+      <xs:annotation>
+         <xs:documentation>
+            Заявка на оформление производственной партии. Заявка поддерживает оформление "незавершенного" производства.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element name="enterprise" type="dt:Enterprise" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Предприятие, на котором совершается производственная операция.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="productionOperation" type="vd:ProductionOperation" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Производственная транзакция.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="vetDocument" type="vd:VetDocument" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Сведения, необходимые для оформления ветеринарного сертификата.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="RegisterProductionOperationResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на оформление производственной партии.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element name="stockEntryList" type="vd:StockEntryList" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Сведения о созданных и/или измененных записях журнала продукции.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="vetDocument" type="vd:VetDocument" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Сведения об оформленном или погашенном ветеринарном сертификате.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="MergeStockEntriesRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на объединение записей журнала продукции.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element name="enterprise" type="dt:Enterprise" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Предприятие.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="mergeOperation" type="vd:MergeStockEntriesOperation" minOccurs="1"
+                           maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Складская операция (объединение записей журнала продукции).
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="MergeStockEntriesResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на объединение записей журнала продукции.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element name="stockEntryList" type="vd:StockEntryList" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Сведения о созданных и/или измененных версиях записей журнала продукции.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="WithdrawVetDocumentRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на аннулирование ветеринарного сертификата.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element name="vetDocumentId" type="bs:UUID" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор аннулируемого сертификата.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="withdrawReason" type="vd:VetDocumentStatusChangeReason" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Причина аннулирования.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="withdrawDate" type="xs:dateTime" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Дата аннулирования.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="specifiedPerson" type="vd:User" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Ветеринарный врач, ответственный за аннулирование сертификата.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="WithdrawVetDocumentResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на аннулирование ветеринарного сертификата.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element name="vetDocument" type="vd:VetDocument" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Сведения об аннулированном ветеринарном сертификате.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="stockEntry" type="vd:StockEntry" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Сведения об измененных версиях записей журнала продукции.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="ModifyBusinessEntityRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на внесение изменений в реестр ХС.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element name="modificationOperation" type="vd:BEModificationOperation" minOccurs="1"
+                           maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Операция внесения изменений в реестр ХС.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="ModifyBusinessEntityResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на внесение изменений в реестр ХС.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element name="businessEntity" type="dt:BusinessEntity" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Измененные версии записей реестра ХС.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="ModifyEnterpriseRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на внесение изменений в реестр предприятий.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element name="modificationOperation" type="vd:ENTModificationOperation" minOccurs="1"
+                           maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Операция внесения изменений в реестр предприятий.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="ModifyEnterpriseResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на внесение изменений в реестр предприятий.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element name="enterprise" type="dt:Enterprise" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Измененные версии записей реестра предприятий.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="ModifyActivityLocationsRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на изменение списка мест осуществления деятельности хозяйствующего субъекта.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element name="modificationOperation" type="vd:BEActivityLocationsModificationOperation"
+                           minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Операция внесения изменений списка площадок.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="ModifyActivityLocationsResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на изменение списка мест осуществления деятельности хозяйствующим
+            субъектом.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element name="businessEntity" type="dt:BusinessEntity" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Запись хозяйствующего субъекта с указанием текущего списка площадок.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="ResolveDiscrepancyRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на регистрацию несоответствий в записях складского журнала,
+            выявленных в результате инвентаризации.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element name="enterprise" type="dt:Enterprise" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Предприятие.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="inventoryDate" type="xs:dateTime" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Дата инвентаризации/обнаружения несоответствия.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="responsible" type="vd:User" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Ответственный за инвентаризацию.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="stockDiscrepancy" type="vd:StockDiscrepancy" minOccurs="1"
+                           maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Несоответствие в записях складского журнала.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="discrepancyReport" type="vd:DiscrepancyReport" minOccurs="1"
+                           maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Акт о несоответствии.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="ResolveDiscrepancyResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на регистрацию несоответствий в записях складского журнала,
+            выявленных в результате инвентаризации.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element name="stockEntryList" type="vd:StockEntryList" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Сведения о созданных и/или измененных версиях записей журнала продукции.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="ModifyProducerStockListRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на изменение реестра наименований продукции предприятия-производителя.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element name="modificationOperation" type="vd:PSLModificationOperation" minOccurs="1"
+                           maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Операция внесения изменений в реестр наименований продукции
+                        производителя.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="ModifyProducerStockListResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на изменение реестра наименований продукции предприятия-производителя.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element name="productItemList" type="dt:ProductItemList" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Сведения о созданных и/или измененных версиях наименований продукции.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="GetVetDocumentByUuidRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на получение записи вет. сертификата по идентификатору.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="bs:uuid" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор версии, по которому производится поиск.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dt:enterpriseGuid" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор предприятия, по которому производится поиск записи.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   
+   <xs:complexType name="GetVetDocumentByUuidResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на получение записи вет. сертификата по идентификатору.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:vetDocument" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Ветеринарный сертификат.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="GetVetDocumentListRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на получение списка записей ветсертификатов.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="bs:listOptions" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>
+                        Параметры запрашиваемого списка.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="vd:vetDocumentType" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Тип ветсертификата.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="vd:vetDocumentStatus" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Статус ветсертификата.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dt:enterpriseGuid" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор предприятия, по которому производится поиск записей.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="GetVetDocumentListResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на получение списка ветсертификатов.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:vetDocumentList" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Список записей.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="GetVetDocumentChangesListRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на получение списка версий, созданных или измененных за указанный интервал дат.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="bs:listOptions" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>
+                        Параметры запрашиваемого списка.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="bs:updateDateInterval" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>
+                        Интервал времени обновления. В список попадают все записи, дата обновлений которых
+                        попадает в указанный интервал.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dt:enterpriseGuid" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор предприятия, по которому производится поиск записей.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="GetVetDocumentChangesListResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на получение списка измененных ветсертификатов.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:vetDocumentList" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Список записей.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="GetStockEntryByGuidRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на получение записи журнала по глобальному идентификатору.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="bs:guid" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор записи, по которому производится поиск.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dt:enterpriseGuid" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор предприятия, по которому производится поиск записи.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="GetStockEntryByGuidResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на получение записи по идентификатору.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:stockEntry" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Запись журнала продукции.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="GetStockEntryByUuidRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на получение версии записи по идентификатору.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="bs:uuid" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор версии, по которому производится поиск.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dt:enterpriseGuid" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор предприятия, по которому производится поиск записи.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="GetStockEntryByUuidResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на получение версии записи по идентификатору.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:stockEntry" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Запись журнала продукции.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="GetStockEntryChangesListRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на получение списка версий записей журнала, созданных или измененных за указанный
+            интервал дат.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="bs:listOptions" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>
+                        Параметры запрашиваемого списка.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="bs:updateDateInterval" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>
+                        Интервал времени обновления. В список попадают все записи, дата обновлений которых
+                        попадает в
+                        указанный интервал.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dt:enterpriseGuid" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор предприятия, по которому производится поиск записей.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="GetStockEntryChangesListResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на получение списка версий.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:stockEntryList" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Список версий.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="GetStockEntryListRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на получение списка актуальных записей журнала.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="bs:listOptions" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>
+                        Параметры запрашиваемого списка.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dt:enterpriseGuid" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор предприятия, по которому производится поиск записей.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element name="searchPattern" type="vd:StockEntrySearchPattern" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Шаблон поиска записей складского журнала.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+   <xs:complexType name="GetStockEntryListResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на получение списка актуальных записей журнала.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:stockEntryList" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Список записей.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="GetStockEntryVersionListRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на получение всех версий по идентификатору записи журнала.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="bs:listOptions" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>
+                        Параметры запрашиваемого списка.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="bs:guid" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор записи, по которому производится поиск.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dt:enterpriseGuid" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор предприятия, по которому производится поиск записи.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="GetStockEntryVersionListResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на получение списка версий записи журнала.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:stockEntryList" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Список версий записеи.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="UpdateTransportMovementDetailsRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на изменение сведений о транспортных средствах, осуществляющих доставку
+            сертифицированной партии. Поддерживается уполномоченное выполнение.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="vd:deliveryParticipant" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Грузополучатель или грузоотправитель,
+                        осуществляющий изменение параметров маршрута.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="vd:vetDocumentUuid" minOccurs="1" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Идентификатор транспортного вет.сертификата.
+                        Может быть указано более одного сертификата на партии, оформленные строго в одной поставк
+                        в адрес одного получателя.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="vd:shipmentRoute" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Маршрут следования. Указывается список точек перегрузки и сведения о транспорте.
+                        Для точки перегрузки должен быть указан её идентификатор (uuid).
+                        В запросе на изменение могут участвовать только точки маршрута,
+                        для которых установлен флаг transshipment (точка перегрузки).
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="UpdateTransportMovementDetailsResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на получение списка версий записи журнала.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:vetDocument" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Список транспортных ветеринарных сертификатов
+                        с измененными сведениями о транспортных средствах.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="UpdateVeterinaryEventsRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на внесение сведений о ветеринарных мероприятиях с партией продукции таких,
+            как лабораторные исследования, карантинирование, иммунизации и обработки для живых животных.
+            Поддерживается обновление сведений о лабораторных исследованиях, для которых ранее не был указан результат исследования.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element name="enterprise" type="dt:Enterprise" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Предприятие.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="vd:stockEntry" minOccurs="1" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Запись складского журнала, для которой вносятся/обновляются сведения о мероприятиях.
+                        Может быть указано более одной записи складского журнала.
+                        Для каждой записи должен быть указан идентификатор (GUID) и список мероприятий stockEntry/vetEventList.
+                        При обновлении результатов лабораторных исследований у соответствующего stockEntry/vetEventList/laboratoryResearch
+                        должен быть указан идентификатор ID.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="UpdateVeterinaryEventsResponse">
+      <xs:annotation>
+         <xs:documentation>Результат заявки на получение списка версий записи журнала.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:stockEntry" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Список записей складского журнала продукции
+                        с измененными сведениями о ветеринарным мероприятиях.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="CheckShipmentRegionalizationRequest">
+      <xs:annotation>
+         <xs:documentation>Заявка на проверку правил регионализации для определенной категории груза и маршрута следования.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="dt:cargoType" minOccurs="1" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Категория груза, для которой запрашиваются правила перемещения по маршруту.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="vd:shipmentRoute" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Маршрут следования груза. В отличие от маршрута следования,
+                        который указывается в транспортном сертификате и в запросе на оформление исходящей партии,
+                        `shipmentRoute` здесь должен включать точку отправления и точку назначения.
+                        Для каждой точки маршрута обязательно должен быть заполнен адрес:
+                        элементы `shipmentRoute/routePoint/location/address` и `shipmentRoute/routePoint/enterprise/address`.
+                        Только в этом случае проверка правил перемещения (регионализация) даст корректный результат.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="CheckShipmentRegionalizationResponse">
+      <xs:annotation>
+         <xs:documentation>Результат проверки правил регионализации.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:r13nRouteSection" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Описание правил перемещения продукции.
+                        Количество элементов `r13nRouteSection` в ответе соответствует количеству отрезков маршрута.
+                        Атрибут `r13nRouteSection/sqnId` равен номеру отрезка, нумерация начинается с единицы.
+                        Количество элементов `r13nRouteSection/appliedR13nRule` соответствует
+                        количеству категорий груза (элемент `cargoType`) в запросе.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="AddBusinessEntityUserRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на регистрацию/привязку пользователя(ей) хозяйствующего субъекта.
+            Если пользователь с указанным uuid, login, passport или snils уже зарегистрирован и ФИО совпадает,
+            он будет прикреплен к ХС-заявителю (если зарегистрированный пользователь не привязан к ХС-заявителю).
+            Профиль пользователя при этом обновлен не будет.
+            Если ФИО не совпадает или пользователь уже привязан к ХС-заявителю -- пользователь зарегистрирован/привязан не будет.
+            Иначе регистрируется новый пользователь при условии заполнения обязательных сведений.
+            За один запрос можно зарегистрировать/привязать не более N пользователей.
+            Для вновь регистрируемых пользователей и существующих пользователей, для которых выполняется привязка к ХС-заявителю,
+            будут установлены права и зоны ответственности, указанные в запросе.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="vd:user" minOccurs="1" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Сведения о регистрируемом пользователе.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="AddBusinessEntityUserResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на регистрацию/привязку пользователя(ей) хозяйствующего субъекта.
+            Ответ содержит список пользователей, для которых в результате запроса была выполнена регистрация/привязка.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:user" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Сведения о зарегистрированном/привязанном пользователе.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="GetBusinessEntityUserListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка пользователей ХС-заявителя.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="bs:listOptions" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Параметры запрашиваемого списка.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="GetBusinessEntityUserListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на получение списка пользователей ХС.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:userList" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Список пользователей, прикрепленных к ХС.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="GetBusinessEntityUserRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение полных сведений о пользователе ХС-заявителя.
+            Пользователь должен быть привязан к ХС-заявителю, иначе -- ошибка.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="vd:user" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Пользователь, для которого запрашиваются сведения.
+                        Должен быть указан uuid или login.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="GetBusinessEntityUserResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на получение полных сведений о пользователе.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:user" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Запрашиваемые сведения о пользователе.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="UpdateUserAuthoritiesRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на изменение прав доступа пользователя.
+            Роли пользователя и статус его активности изменяются только применительно к ХС-заявителю.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="vd:user" minOccurs="1" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Пользователь, для которого изменяются права доступа.
+                        Должен быть указан `uuid` или `login`.
+                        Изменяются поля:
+                           `enabled` -- активность учетной записи пользователя
+                           `authorityList` -- роли пользователя
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="UpdateUserAuthoritiesResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на изменение прав доступа пользователя.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:user" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Пользователь, для которого были изменены права доступа.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="UpdateUserWorkingAreasRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на изменение зон ответственности пользователя</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="vd:user" minOccurs="1" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Пользователь, для которого изменяются права доступа.
+                        Должен быть указан `uuid` или `login`.
+                        Изменяются поля:
+                        `workingAreaList` -- зоны ответственности пользователя
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="UpdateUserWorkingAreasResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на изменение зон ответственности пользователя.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:user" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Пользователь, для которого были изменены зоны ответственности</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="UnbindBusinessEntityUserRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на удаление пользователя (открепление пользователя от ХС-заявителя)</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="vd:user" minOccurs="1" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Пользователь, которого необходимо удалить.
+                        Должен быть указан `uuid` или `login`.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="UnbindBusinessEntityUserResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на удаление пользователя</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:user" minOccurs="0" maxOccurs="unbounded">
+                  <xs:annotation>
+                     <xs:documentation>Пользователь, который был откреплен от ХС-заявителя.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="GetAppliedUserAuthorityListRequest">
+      <xs:annotation>
+         <xs:documentation>Запрос на получение списка доступных ролей пользователя.
+            В ответ на запрос будет сформирован список ролей в ИС Меркурий для пользователя хозяйствующего субъекта.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="merc:MercuryApplicationRequest">
+            <xs:sequence>
+               <xs:element ref="bs:listOptions" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Параметры запрашиваемого списка.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="GetAppliedUserAuthorityListResponse">
+      <xs:annotation>
+         <xs:documentation>Ответ на получение списка доступных ролей.</xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="apl:ApplicationResultData">
+            <xs:sequence>
+               <xs:element ref="vd:authorityList" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                     <xs:documentation>Список доступных ролей пользователя ХС.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:sequence>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+</xs:schema>
