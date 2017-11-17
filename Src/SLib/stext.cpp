@@ -7,7 +7,7 @@
 #include <tv.h>
 #pragma hdrstop
 #include <wchar.h>
-#include <..\OSF\uchardet\src\uchardet.h>
+#include <uchardet.h>
 
 static const char * p_dow_en_sh[] = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 static const char * p_mon_en_sh[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
@@ -16,17 +16,12 @@ static const char * p_dow_en[] = { "Monday", "Tuesday", "Wednesday", "Thursday",
 //static
 const char * FASTCALL STextConst::Get(int c, uint idx)
 {
-	if(c == cMon_En_Sh) {
-		return (idx >= 0 && idx < SIZEOFARRAY(p_mon_en_sh)) ? p_mon_en_sh[idx] : "";
+	switch(c) {
+		case cMon_En_Sh: return (idx >= 0 && idx < SIZEOFARRAY(p_mon_en_sh)) ? p_mon_en_sh[idx] : "";
+		case cDow_En_Sh: return (idx >= 0 && idx < SIZEOFARRAY(p_dow_en_sh)) ? p_dow_en_sh[idx] : "";
+		case cDow_En: return (idx >= 0 && idx < SIZEOFARRAY(p_dow_en)) ? p_dow_en[idx] : "";
+		default: return "";
 	}
-	else if(c == cDow_En_Sh) {
-		return (idx >= 0 && idx < SIZEOFARRAY(p_dow_en_sh)) ? p_dow_en_sh[idx] : "";
-	}
-	else if(c == cDow_En) {
-		return (idx >= 0 && idx < SIZEOFARRAY(p_dow_en)) ? p_dow_en[idx] : "";
-	}
-	else
-		return "";
 }
 
 //static

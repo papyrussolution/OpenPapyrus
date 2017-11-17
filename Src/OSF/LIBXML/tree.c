@@ -28,7 +28,7 @@ int __xmlRegisterCallbacks = 0;
 *									*
 ************************************************************************/
 
-static xmlNs * xmlNewReconciliedNs(xmlDocPtr doc, xmlNode * tree, xmlNs * ns);
+static xmlNs * xmlNewReconciliedNs(xmlDoc * doc, xmlNode * tree, xmlNs * ns);
 static xmlChar* xmlGetPropNodeValueInternal(const xmlAttr * prop);
 
 /************************************************************************
@@ -743,7 +743,7 @@ void FASTCALL xmlFreeNsList(xmlNs * cur)
  *
  * Returns a pointer to the new DTD structure
  */
-xmlDtdPtr xmlNewDtd(xmlDocPtr doc, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID) 
+xmlDtdPtr xmlNewDtd(xmlDoc * doc, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID) 
 {
 	xmlDtd * cur = 0;
 	if(doc && doc->extSubset) {
@@ -973,7 +973,7 @@ xmlDocPtr xmlNewDoc(const xmlChar * version)
 	/*
 	 * Allocate a new document and fill the fields.
 	 */
-	xmlDoc * cur = (xmlDocPtr)SAlloc::M(sizeof(xmlDoc));
+	xmlDoc * cur = (xmlDoc *)SAlloc::M(sizeof(xmlDoc));
 	if(!cur) {
 		xmlTreeErrMemory("building doc");
 	}
@@ -1432,7 +1432,7 @@ out:
  *
  * Returns a pointer to the string copy, the caller must free it with SAlloc::F().
  */
-xmlChar * xmlNodeListGetString(xmlDocPtr doc, const xmlNode * list, int inLine)
+xmlChar * xmlNodeListGetString(xmlDoc * doc, const xmlNode * list, int inLine)
 {
 	const xmlNode * P_Node = list;
 	xmlChar * ret = NULL;
@@ -1714,7 +1714,7 @@ xmlAttrPtr xmlNewNsPropEatName(xmlNode * P_Node, xmlNs * ns, xmlChar * name, con
  * Create a new property carried by a document.
  * Returns a pointer to the attribute
  */
-xmlAttrPtr xmlNewDocProp(xmlDocPtr doc, const xmlChar * name, const xmlChar * value)
+xmlAttrPtr xmlNewDocProp(xmlDoc * doc, const xmlChar * name, const xmlChar * value)
 {
 	xmlAttr * cur = 0;
 	if(!name) {
@@ -1844,7 +1844,7 @@ int xmlRemoveProp(xmlAttrPtr cur)
  * Creation of a processing instruction element.
  * Returns a pointer to the new node object.
  */
-xmlNode * xmlNewDocPI(xmlDocPtr doc, const xmlChar * name, const xmlChar * content)
+xmlNode * xmlNewDocPI(xmlDoc * doc, const xmlChar * name, const xmlChar * content)
 {
 	xmlNode * cur = 0;
 	if(!name) {
@@ -1976,7 +1976,7 @@ xmlNode * xmlNewNodeEatName(xmlNs * ns, xmlChar * name)
  *
  * Returns a pointer to the new node object.
  */
-xmlNode * xmlNewDocNode(xmlDocPtr doc, xmlNs * ns, const xmlChar * name, const xmlChar * content)
+xmlNode * xmlNewDocNode(xmlDoc * doc, xmlNs * ns, const xmlChar * name, const xmlChar * content)
 {
 	xmlNode * cur = (doc && doc->dict) ? xmlNewNodeEatName(ns, (xmlChar*)xmlDictLookupSL(doc->dict, name)) : xmlNewNode(ns, name);
 	if(cur) {
@@ -2005,7 +2005,7 @@ xmlNode * xmlNewDocNode(xmlDocPtr doc, xmlNs * ns, const xmlChar * name, const x
  *
  * Returns a pointer to the new node object.
  */
-xmlNode * xmlNewDocNodeEatName(xmlDocPtr doc, xmlNs * ns, xmlChar * name, const xmlChar * content)
+xmlNode * xmlNewDocNodeEatName(xmlDoc * doc, xmlNs * ns, xmlChar * name, const xmlChar * content)
 {
 	xmlNode * cur = xmlNewNodeEatName(ns, name);
 	if(cur) {
@@ -2036,7 +2036,7 @@ xmlNode * xmlNewDocNodeEatName(xmlDocPtr doc, xmlNs * ns, xmlChar * name, const 
  *
  * Returns a pointer to the new node object.
  */
-xmlNode * xmlNewDocRawNode(xmlDocPtr doc, xmlNs * ns, const xmlChar * name, const xmlChar * content)
+xmlNode * xmlNewDocRawNode(xmlDoc * doc, xmlNs * ns, const xmlChar * name, const xmlChar * content)
 {
 	xmlNode * cur = xmlNewDocNode(doc, ns, name, 0);
 	if(cur) {
@@ -2177,7 +2177,7 @@ xmlNode * xmlNewTextChild(xmlNode * parent, xmlNs * ns, const xmlChar * name, co
  * Creation of a new character reference node.
  * Returns a pointer to the new node object.
  */
-xmlNode * xmlNewCharRef(xmlDocPtr doc, const xmlChar * name)
+xmlNode * xmlNewCharRef(xmlDoc * doc, const xmlChar * name)
 {
 	xmlNode * cur = 0;
 	if(name) {
@@ -2308,7 +2308,7 @@ xmlNode * xmlNewTextLen(const xmlChar * content, int len)
  * text node pertain to a given document.
  * Returns a pointer to the new node object.
  */
-xmlNode * xmlNewDocTextLen(xmlDocPtr doc, const xmlChar * content, int len) 
+xmlNode * xmlNewDocTextLen(xmlDoc * doc, const xmlChar * content, int len) 
 {
 	xmlNode * cur = xmlNewTextLen(content, len);
 	if(cur) 
@@ -2351,7 +2351,7 @@ xmlNode * xmlNewComment(const xmlChar * content)
  * Creation of a new node containing a CDATA block.
  * Returns a pointer to the new node object.
  */
-xmlNode * xmlNewCDataBlock(xmlDocPtr doc, const xmlChar * content, int len) 
+xmlNode * xmlNewCDataBlock(xmlDoc * doc, const xmlChar * content, int len) 
 {
 	/*
 	 * Allocate a new node and fill the fields.
@@ -2380,7 +2380,7 @@ xmlNode * xmlNewCDataBlock(xmlDocPtr doc, const xmlChar * content, int len)
  * Creation of a new node containing a comment within a document.
  * Returns a pointer to the new node object.
  */
-xmlNode * xmlNewDocComment(xmlDocPtr doc, const xmlChar * content) 
+xmlNode * xmlNewDocComment(xmlDoc * doc, const xmlChar * content) 
 {
 	xmlNode * cur = xmlNewComment(content);
 	if(cur) 
@@ -2395,7 +2395,7 @@ xmlNode * xmlNewDocComment(xmlDocPtr doc, const xmlChar * content)
  *
  * update all nodes under the tree to point to the right document
  */
-void xmlSetTreeDoc(xmlNode * tree, xmlDocPtr doc) 
+void xmlSetTreeDoc(xmlNode * tree, xmlDoc * doc) 
 {
 	if(tree && tree->type != XML_NAMESPACE_DECL) {
 		if(tree->doc != doc) {
@@ -2419,7 +2419,7 @@ void xmlSetTreeDoc(xmlNode * tree, xmlDocPtr doc)
  *
  * update all nodes in the list to point to the right document
  */
-void xmlSetListDoc(xmlNode * list, xmlDocPtr doc) 
+void xmlSetListDoc(xmlNode * list, xmlDoc * doc) 
 {
 	if(list && list->type != XML_NAMESPACE_DECL) {
 		for(xmlNode * cur = list; cur; cur = cur->next) {
@@ -3155,7 +3155,7 @@ void xmlFreeNodeList(xmlNode * cur)
 			(cur->type == XML_DOCB_DOCUMENT_NODE) ||
 	#endif
 			(cur->type == XML_HTML_DOCUMENT_NODE)) {
-			xmlFreeDoc((xmlDocPtr)cur);
+			xmlFreeDoc((xmlDoc *)cur);
 		}
 		else {
 			xmlDict * p_dict = cur->doc ? cur->doc->dict : 0;
@@ -3427,9 +3427,9 @@ xmlNs * xmlCopyNamespaceList(xmlNs * cur)
 	return ret;
 }
 
-static xmlNode * xmlStaticCopyNodeList(xmlNode * P_Node, xmlDocPtr doc, xmlNode * parent);
+static xmlNode * xmlStaticCopyNodeList(xmlNode * P_Node, xmlDoc * doc, xmlNode * parent);
 
-static xmlAttrPtr xmlCopyPropInternal(xmlDocPtr doc, xmlNode * target, xmlAttrPtr cur)
+static xmlAttrPtr xmlCopyPropInternal(xmlDoc * doc, xmlNode * target, xmlAttrPtr cur)
 {
 	xmlAttr * ret;
 	if(!cur)
@@ -3580,7 +3580,7 @@ xmlAttrPtr xmlCopyPropList(xmlNode * target, xmlAttrPtr cur)
  * namespace info, but don't recurse on children.
  */
 
-static xmlNode * xmlStaticCopyNode(xmlNode * P_Node, xmlDocPtr doc, xmlNode * parent, int extended)
+static xmlNode * xmlStaticCopyNode(xmlNode * P_Node, xmlDoc * doc, xmlNode * parent, int extended)
 {
 	xmlNode * ret;
 	if(!P_Node)
@@ -3608,7 +3608,7 @@ static xmlNode * xmlStaticCopyNode(xmlNode * P_Node, xmlDocPtr doc, xmlNode * pa
 		case XML_DOCB_DOCUMENT_NODE:
 #endif
 #ifdef LIBXML_TREE_ENABLED
-		    return((xmlNode *)xmlCopyDoc((xmlDocPtr)P_Node, extended));
+		    return((xmlNode *)xmlCopyDoc((xmlDoc *)P_Node, extended));
 #endif /* LIBXML_TREE_ENABLED */
 		case XML_DOCUMENT_TYPE_NODE:
 		case XML_NOTATION_NODE:
@@ -3723,7 +3723,7 @@ out:
 	return ret;
 }
 
-static xmlNode * xmlStaticCopyNodeList(xmlNode * P_Node, xmlDocPtr doc, xmlNode * parent)
+static xmlNode * xmlStaticCopyNodeList(xmlNode * P_Node, xmlDoc * doc, xmlNode * parent)
 {
 	xmlNode * ret = NULL;
 	xmlNode * p = NULL;
@@ -3797,7 +3797,7 @@ xmlNode * xmlCopyNode(xmlNode * P_Node, int extended)
  *
  * Returns: a new #xmlNodePtr, or NULL in case of error.
  */
-xmlNode * xmlDocCopyNode(xmlNode * P_Node, xmlDocPtr doc, int extended)
+xmlNode * xmlDocCopyNode(xmlNode * P_Node, xmlDoc * doc, int extended)
 {
 	return xmlStaticCopyNode(P_Node, doc, NULL, extended);
 }
@@ -3811,7 +3811,7 @@ xmlNode * xmlDocCopyNode(xmlNode * P_Node, xmlDocPtr doc, int extended)
  *
  * Returns: a new #xmlNodePtr, or NULL in case of error.
  */
-xmlNode * xmlDocCopyNodeList(xmlDocPtr doc, xmlNode * P_Node)
+xmlNode * xmlDocCopyNodeList(xmlDoc * doc, xmlNode * P_Node)
 {
 	return xmlStaticCopyNodeList(P_Node, doc, 0);
 }
@@ -3921,7 +3921,7 @@ xmlDtdPtr xmlCopyDtd(xmlDtdPtr dtd)
  *
  * Returns: a new #xmlDocPtr, or NULL in case of error.
  */
-xmlDocPtr xmlCopyDoc(xmlDocPtr doc, int recursive)
+xmlDocPtr xmlCopyDoc(xmlDoc * doc, int recursive)
 {
 	xmlDocPtr ret;
 	if(!doc) 
@@ -4289,7 +4289,7 @@ xmlNode * FASTCALL xmlDocGetRootElement(const xmlDoc * doc)
  *
  * Returns the old root element if any was found, NULL if root was NULL
  */
-xmlNode * xmlDocSetRootElement(xmlDocPtr doc, xmlNode * root)
+xmlNode * xmlDocSetRootElement(xmlDoc * doc, xmlNode * root)
 {
 	xmlNode * old = NULL;
 	if(!doc) return 0;
@@ -4578,7 +4578,7 @@ void xmlNodeSetBase(xmlNode * cur, const xmlChar* uri)
 		case XML_DOCB_DOCUMENT_NODE:
 #endif
 		case XML_HTML_DOCUMENT_NODE: {
-		    xmlDocPtr doc = (xmlDocPtr)cur;
+		    xmlDocPtr doc = (xmlDoc *)cur;
 		    SAlloc::F((xmlChar*)doc->URL);
 		    if(uri == NULL)
 			    doc->URL = NULL;
@@ -5286,7 +5286,7 @@ static xmlNs * FASTCALL xmlTreeEnsureXMLDecl(xmlDoc * doc)
  *
  * Returns the namespace pointer or NULL.
  */
-xmlNs * xmlSearchNs(xmlDocPtr doc, xmlNode * P_Node, const xmlChar * nameSpace) 
+xmlNs * xmlSearchNs(xmlDoc * doc, xmlNode * P_Node, const xmlChar * nameSpace) 
 {
 	xmlNs * cur = 0;
 	const xmlNode * orig = P_Node;
@@ -5380,7 +5380,7 @@ static int xmlNsInScope(xmlDocPtr doc ATTRIBUTE_UNUSED, xmlNode * P_Node, xmlNod
  * the defined namespace or return NULL otherwise.
  * Returns the namespace pointer or NULL.
  */
-xmlNs * xmlSearchNsByHref(xmlDocPtr doc, xmlNode * P_Node, const xmlChar * href)
+xmlNs * xmlSearchNsByHref(xmlDoc * doc, xmlNode * P_Node, const xmlChar * href)
 {
 	xmlNs * cur;
 	xmlNode * orig = P_Node;
@@ -5464,7 +5464,7 @@ xmlNs * xmlSearchNsByHref(xmlDocPtr doc, xmlNode * P_Node, const xmlChar * href)
  * @tree or on one of its ancestors then a new prefix is generated.
  * Returns the (new) namespace definition or NULL in case of error
  */
-static xmlNs * xmlNewReconciliedNs(xmlDocPtr doc, xmlNode * tree, xmlNs * ns) 
+static xmlNs * xmlNewReconciliedNs(xmlDoc * doc, xmlNode * tree, xmlNs * ns) 
 {
 	xmlNs * def;
 	xmlChar prefix[50];
@@ -5526,7 +5526,7 @@ static xmlNs * xmlNewReconciliedNs(xmlDocPtr doc, xmlNode * tree, xmlNs * ns)
  * on @tree at the top of the given subtree.
  * Returns the number of namespace declarations created or -1 in case of error.
  */
-int xmlReconciliateNs(xmlDocPtr doc, xmlNode * tree) 
+int xmlReconciliateNs(xmlDoc * doc, xmlNode * tree) 
 {
 	xmlNs ** oldNs = NULL;
 	xmlNs ** newNs = NULL;
@@ -6853,7 +6853,7 @@ int xmlGetDocCompressMode(const xmlDoc * doc)
  * set the compression ratio for a document, ZLIB based
  * Correct values: 0 (uncompressed) to 9 (max compression)
  */
-void xmlSetDocCompressMode(xmlDocPtr doc, int mode) 
+void xmlSetDocCompressMode(xmlDoc * doc, int mode) 
 {
 	if(doc) {
 		if(mode < 0) 
@@ -7043,7 +7043,7 @@ static xmlNsMapItemPtr xmlDOMWrapNsMapAddItem(xmlNsMapPtr * nsmap, int position,
  * Returns the aquired ns struct or NULL in case of an API
  *         or internal error.
  */
-static xmlNs * xmlDOMWrapStoreNs(xmlDocPtr doc, const xmlChar * nsName, const xmlChar * prefix)
+static xmlNs * xmlDOMWrapStoreNs(xmlDoc * doc, const xmlChar * nsName, const xmlChar * prefix)
 {
 	if(doc) {
 		xmlNs * ns = xmlTreeEnsureXMLDecl(doc);
@@ -7373,7 +7373,7 @@ internal_error:
  * Returns 1 if a ns-decl was found, 0 if not and -1 on API
  *         and internal errors.
  */
-static int xmlSearchNsByNamespaceStrict(xmlDocPtr doc, xmlNode * P_Node, const xmlChar* nsName, xmlNs ** retNs, int prefixed)
+static int xmlSearchNsByNamespaceStrict(xmlDoc * doc, xmlNode * P_Node, const xmlChar* nsName, xmlNs ** retNs, int prefixed)
 {
 	xmlNode * cur;
 	xmlNode * prev = NULL;
@@ -7448,7 +7448,7 @@ static int xmlSearchNsByNamespaceStrict(xmlDocPtr doc, xmlNode * P_Node, const x
 		else if(oneof2(cur->type, XML_ENTITY_NODE, XML_ENTITY_DECL))
 			return 0;
 		cur = cur->parent;
-	} while(cur && (cur->doc != (xmlDocPtr)cur));
+	} while(cur && (cur->doc != (xmlDoc *)cur));
 	return 0;
 }
 /*
@@ -7464,7 +7464,7 @@ static int xmlSearchNsByNamespaceStrict(xmlDocPtr doc, xmlNode * P_Node, const x
  * Returns 1 if a ns-decl was found, 0 if not and -1 on API
  *         and internal errors.
  */
-static int xmlSearchNsByPrefixStrict(xmlDocPtr doc, xmlNode * P_Node, const xmlChar* prefix, xmlNs ** retNs)
+static int xmlSearchNsByPrefixStrict(xmlDoc * doc, xmlNode * P_Node, const xmlChar* prefix, xmlNs ** retNs)
 {
 	xmlNode * cur;
 	xmlNs * ns;
@@ -7503,7 +7503,7 @@ static int xmlSearchNsByPrefixStrict(xmlDocPtr doc, xmlNode * P_Node, const xmlC
 		else if(oneof2(cur->type, XML_ENTITY_NODE, XML_ENTITY_DECL))
 			return 0;
 		cur = cur->parent;
-	} while(cur && (cur->doc != (xmlDocPtr)cur));
+	} while(cur && (cur->doc != (xmlDoc *)cur));
 	return 0;
 }
 /*
@@ -7521,7 +7521,7 @@ static int xmlSearchNsByPrefixStrict(xmlDocPtr doc, xmlNode * P_Node, const xmlC
  * Returns 1 if a ns-decl was found, 0 if not and -1 on API
  *         and internal errors.
  */
-static xmlNs * xmlDOMWrapNSNormDeclareNsForced(xmlDocPtr doc, xmlNode * elem, const xmlChar * nsName, const xmlChar * prefix, int checkShadow)
+static xmlNs * xmlDOMWrapNSNormDeclareNsForced(xmlDoc * doc, xmlNode * elem, const xmlChar * nsName, const xmlChar * prefix, int checkShadow)
 {
 	xmlNs * ret;
 	char buf[50];
@@ -7590,7 +7590,7 @@ ns_next_prefix:
  *
  * Returns 0 if succeeded, -1 otherwise and on API/internal errors.
  */
-static int xmlDOMWrapNSNormAquireNormalizedNs(xmlDocPtr doc, xmlNode * elem, xmlNs * ns, xmlNs ** retNs, xmlNsMapPtr * nsMap, int depth, int ancestorsOnly, int prefixed)
+static int xmlDOMWrapNSNormAquireNormalizedNs(xmlDoc * doc, xmlNode * elem, xmlNs * ns, xmlNs ** retNs, xmlNsMapPtr * nsMap, int depth, int ancestorsOnly, int prefixed)
 {
 	xmlNsMapItemPtr mi;
 	if(!doc || (ns == NULL) || (retNs == NULL) || (nsMap == NULL))

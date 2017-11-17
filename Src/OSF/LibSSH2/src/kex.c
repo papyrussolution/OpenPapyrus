@@ -404,7 +404,6 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION * session,
 		if(session->local.crypt->init) {
 			uchar * iv = NULL, * secret = NULL;
 			int free_iv = 0, free_secret = 0;
-
 			LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(iv, session->local.crypt->iv_len, "A");
 			if(!iv) {
 				ret = -1;
@@ -606,30 +605,22 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION * session,
 		_libssh2_htonu32(exchange_state->e_packet + 1,
 		    exchange_state->e_packet_len - 5);
 		if(_libssh2_bn_bits(exchange_state->e) % 8) {
-			_libssh2_bn_to_bin(exchange_state->e,
-			    exchange_state->e_packet + 5);
+			_libssh2_bn_to_bin(exchange_state->e, exchange_state->e_packet + 5);
 		}
 		else {
 			exchange_state->e_packet[5] = 0;
-			_libssh2_bn_to_bin(exchange_state->e,
-			    exchange_state->e_packet + 6);
+			_libssh2_bn_to_bin(exchange_state->e, exchange_state->e_packet + 6);
 		}
-
-		_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Sending KEX packet %d",
-		    (int)packet_type_init);
+		_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Sending KEX packet %d", (int)packet_type_init);
 		exchange_state->state = libssh2_NB_state_created;
 	}
-
 	if(exchange_state->state == libssh2_NB_state_created) {
-		rc = _libssh2_transport_send(session, exchange_state->e_packet,
-		    exchange_state->e_packet_len,
-		    NULL, 0);
+		rc = _libssh2_transport_send(session, exchange_state->e_packet, exchange_state->e_packet_len, NULL, 0);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
 			return rc;
 		}
 		else if(rc) {
-			ret = _libssh2_error(session, rc,
-			    "Unable to send KEX init message");
+			ret = _libssh2_error(session, rc, "Unable to send KEX init message");
 			goto clean_exit;
 		}
 		exchange_state->state = libssh2_NB_state_sent;
@@ -641,11 +632,8 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION * session,
 			 * sent by the server.  That guess turned out to be wrong so we
 			 * need to silently ignore it */
 			int burn_type;
-
-			_libssh2_debug(session, LIBSSH2_TRACE_KEX,
-			    "Waiting for badly guessed KEX packet (to be ignored)");
-			burn_type =
-			    _libssh2_packet_burn(session, &exchange_state->burn_state);
+			_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Waiting for badly guessed KEX packet (to be ignored)");
+			burn_type = _libssh2_packet_burn(session, &exchange_state->burn_state);
 			if(burn_type == LIBSSH2_ERROR_EAGAIN) {
 				return burn_type;
 			}
@@ -655,27 +643,18 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION * session,
 				goto clean_exit;
 			}
 			session->burn_optimistic_kexinit = 0;
-
-			_libssh2_debug(session, LIBSSH2_TRACE_KEX,
-			    "Burnt packet of type: %02x",
-			    (uint)burn_type);
+			_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Burnt packet of type: %02x", (uint)burn_type);
 		}
-
 		exchange_state->state = libssh2_NB_state_sent1;
 	}
-
 	if(exchange_state->state == libssh2_NB_state_sent1) {
 		/* Wait for KEX reply */
-		rc = _libssh2_packet_require(session, packet_type_reply,
-		    &exchange_state->s_packet,
-		    &exchange_state->s_packet_len, 0, NULL,
-		    0, &exchange_state->req_state);
+		rc = _libssh2_packet_require(session, packet_type_reply, &exchange_state->s_packet, &exchange_state->s_packet_len, 0, NULL, 0, &exchange_state->req_state);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
 			return rc;
 		}
 		if(rc) {
-			ret = _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
-			    "Timed out waiting for KEX reply");
+			ret = _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT, "Timed out waiting for KEX reply");
 			goto clean_exit;
 		}
 		/* Parse KEXDH_REPLY */
@@ -748,16 +727,12 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION * session,
 		exchange_state->s += 4;
 		exchange_state->f_value = exchange_state->s;
 		exchange_state->s += exchange_state->f_value_len;
-		_libssh2_bn_from_bin(exchange_state->f, exchange_state->f_value_len,
-		    exchange_state->f_value);
-
+		_libssh2_bn_from_bin(exchange_state->f, exchange_state->f_value_len, exchange_state->f_value);
 		exchange_state->h_sig_len = _libssh2_ntohu32(exchange_state->s);
 		exchange_state->s += 4;
 		exchange_state->h_sig = exchange_state->s;
-
 		/* Compute the shared secret */
-		_libssh2_bn_mod_exp(exchange_state->k, exchange_state->f,
-		    exchange_state->x, p, exchange_state->ctx);
+		_libssh2_bn_mod_exp(exchange_state->k, exchange_state->f, exchange_state->x, p, exchange_state->ctx);
 		exchange_state->k_value_len = _libssh2_bn_bytes(exchange_state->k) + 5;
 		if(_libssh2_bn_bits(exchange_state->k) % 8) {
 			/* don't need leading 00 */
@@ -1202,75 +1177,55 @@ static int kex_method_diffie_hellman_group_exchange_sha1_key_exchange(LIBSSH2_SE
 		key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST_OLD;
 		_libssh2_htonu32(key_state->request + 1, LIBSSH2_DH_GEX_OPTGROUP);
 		key_state->request_len = 5;
-		_libssh2_debug(session, LIBSSH2_TRACE_KEX,
-		    "Initiating Diffie-Hellman Group-Exchange (Old Method)");
+		_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Initiating Diffie-Hellman Group-Exchange (Old Method)");
 #endif
-
 		key_state->state = libssh2_NB_state_created;
 	}
 
 	if(key_state->state == libssh2_NB_state_created) {
-		rc = _libssh2_transport_send(session, key_state->request,
-		    key_state->request_len, NULL, 0);
+		rc = _libssh2_transport_send(session, key_state->request, key_state->request_len, NULL, 0);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
 			return rc;
 		}
 		else if(rc) {
-			ret = _libssh2_error(session, rc,
-			    "Unable to send Group Exchange Request");
+			ret = _libssh2_error(session, rc, "Unable to send Group Exchange Request");
 			goto dh_gex_clean_exit;
 		}
-
 		key_state->state = libssh2_NB_state_sent;
 	}
-
 	if(key_state->state == libssh2_NB_state_sent) {
-		rc = _libssh2_packet_require(session, SSH_MSG_KEX_DH_GEX_GROUP,
-		    &key_state->data, &key_state->data_len,
-		    0, NULL, 0, &key_state->req_state);
+		rc = _libssh2_packet_require(session, SSH_MSG_KEX_DH_GEX_GROUP, &key_state->data, &key_state->data_len, 0, NULL, 0, &key_state->req_state);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
 			return rc;
 		}
 		else if(rc) {
-			ret = _libssh2_error(session, rc,
-			    "Timeout waiting for GEX_GROUP reply");
+			ret = _libssh2_error(session, rc, "Timeout waiting for GEX_GROUP reply");
 			goto dh_gex_clean_exit;
 		}
-
 		key_state->state = libssh2_NB_state_sent1;
 	}
-
 	if(key_state->state == libssh2_NB_state_sent1) {
 		uchar * s = key_state->data + 1;
 		p_len = _libssh2_ntohu32(s);
 		s += 4;
 		_libssh2_bn_from_bin(key_state->p, p_len, s);
 		s += p_len;
-
 		g_len = _libssh2_ntohu32(s);
 		s += 4;
 		_libssh2_bn_from_bin(key_state->g, g_len, s);
-
-		ret = diffie_hellman_sha1(session, key_state->g, key_state->p, p_len,
-		    SSH_MSG_KEX_DH_GEX_INIT,
-		    SSH_MSG_KEX_DH_GEX_REPLY,
-		    key_state->data + 1,
-		    key_state->data_len - 1,
-		    &key_state->exchange_state);
+		ret = diffie_hellman_sha1(session, key_state->g, key_state->p, p_len, SSH_MSG_KEX_DH_GEX_INIT, SSH_MSG_KEX_DH_GEX_REPLY,
+		    key_state->data + 1, key_state->data_len - 1, &key_state->exchange_state);
 		if(ret == LIBSSH2_ERROR_EAGAIN) {
 			return ret;
 		}
-
 		LIBSSH2_FREE(session, key_state->data);
 	}
-
 dh_gex_clean_exit:
 	key_state->state = libssh2_NB_state_idle;
 	_libssh2_bn_free(key_state->g);
 	key_state->g = NULL;
 	_libssh2_bn_free(key_state->p);
 	key_state->p = NULL;
-
 	return ret;
 }
 
@@ -1283,7 +1238,6 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(LIBSSH2_
 	ulong p_len, g_len;
 	int ret = 0;
 	int rc;
-
 	if(key_state->state == libssh2_NB_state_idle) {
 		key_state->p = _libssh2_bn_init();
 		key_state->g = _libssh2_bn_init();
@@ -1300,75 +1254,54 @@ static int kex_method_diffie_hellman_group_exchange_sha256_key_exchange(LIBSSH2_
 		key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST_OLD;
 		_libssh2_htonu32(key_state->request + 1, LIBSSH2_DH_GEX_OPTGROUP);
 		key_state->request_len = 5;
-		_libssh2_debug(session, LIBSSH2_TRACE_KEX,
-		    "Initiating Diffie-Hellman Group-Exchange (Old Method SHA256)");
+		_libssh2_debug(session, LIBSSH2_TRACE_KEX, "Initiating Diffie-Hellman Group-Exchange (Old Method SHA256)");
 #endif
-
 		key_state->state = libssh2_NB_state_created;
 	}
-
 	if(key_state->state == libssh2_NB_state_created) {
-		rc = _libssh2_transport_send(session, key_state->request,
-		    key_state->request_len, NULL, 0);
+		rc = _libssh2_transport_send(session, key_state->request, key_state->request_len, NULL, 0);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
 			return rc;
 		}
 		else if(rc) {
-			ret = _libssh2_error(session, rc,
-			    "Unable to send Group Exchange Request SHA256");
+			ret = _libssh2_error(session, rc, "Unable to send Group Exchange Request SHA256");
 			goto dh_gex_clean_exit;
 		}
-
 		key_state->state = libssh2_NB_state_sent;
 	}
-
 	if(key_state->state == libssh2_NB_state_sent) {
-		rc = _libssh2_packet_require(session, SSH_MSG_KEX_DH_GEX_GROUP,
-		    &key_state->data, &key_state->data_len,
-		    0, NULL, 0, &key_state->req_state);
+		rc = _libssh2_packet_require(session, SSH_MSG_KEX_DH_GEX_GROUP, &key_state->data, &key_state->data_len, 0, NULL, 0, &key_state->req_state);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
 			return rc;
 		}
 		else if(rc) {
-			ret = _libssh2_error(session, rc,
-			    "Timeout waiting for GEX_GROUP reply SHA256");
+			ret = _libssh2_error(session, rc, "Timeout waiting for GEX_GROUP reply SHA256");
 			goto dh_gex_clean_exit;
 		}
-
 		key_state->state = libssh2_NB_state_sent1;
 	}
-
 	if(key_state->state == libssh2_NB_state_sent1) {
 		uchar * s = key_state->data + 1;
 		p_len = _libssh2_ntohu32(s);
 		s += 4;
 		_libssh2_bn_from_bin(key_state->p, p_len, s);
 		s += p_len;
-
 		g_len = _libssh2_ntohu32(s);
 		s += 4;
 		_libssh2_bn_from_bin(key_state->g, g_len, s);
-
-		ret = diffie_hellman_sha256(session, key_state->g, key_state->p, p_len,
-		    SSH_MSG_KEX_DH_GEX_INIT,
-		    SSH_MSG_KEX_DH_GEX_REPLY,
-		    key_state->data + 1,
-		    key_state->data_len - 1,
-		    &key_state->exchange_state);
+		ret = diffie_hellman_sha256(session, key_state->g, key_state->p, p_len, SSH_MSG_KEX_DH_GEX_INIT, SSH_MSG_KEX_DH_GEX_REPLY,
+		    key_state->data + 1, key_state->data_len - 1, &key_state->exchange_state);
 		if(ret == LIBSSH2_ERROR_EAGAIN) {
 			return ret;
 		}
-
 		LIBSSH2_FREE(session, key_state->data);
 	}
-
 dh_gex_clean_exit:
 	key_state->state = libssh2_NB_state_idle;
 	_libssh2_bn_free(key_state->g);
 	key_state->g = NULL;
 	_libssh2_bn_free(key_state->p);
 	key_state->p = NULL;
-
 	return ret;
 }
 
@@ -1567,7 +1500,6 @@ static int kexinit(LIBSSH2_SESSION * session)
 		session->kexinit_data = NULL;
 		session->kexinit_data_len = 0;
 	}
-
 	rc = _libssh2_transport_send(session, data, data_len, NULL, 0);
 	if(rc == LIBSSH2_ERROR_EAGAIN) {
 		session->kexinit_data = data;
@@ -1577,19 +1509,12 @@ static int kexinit(LIBSSH2_SESSION * session)
 	else if(rc) {
 		LIBSSH2_FREE(session, data);
 		session->kexinit_state = libssh2_NB_state_idle;
-		return _libssh2_error(session, rc,
-		    "Unable to send KEXINIT packet to remote host");
+		return _libssh2_error(session, rc, "Unable to send KEXINIT packet to remote host");
 	}
-
-	if(session->local.kexinit) {
-		LIBSSH2_FREE(session, session->local.kexinit);
-	}
-
+	LIBSSH2_FREE(session, session->local.kexinit);
 	session->local.kexinit = data;
 	session->local.kexinit_len = data_len;
-
 	session->kexinit_state = libssh2_NB_state_idle;
-
 	return 0;
 }
 
@@ -1597,47 +1522,36 @@ static int kexinit(LIBSSH2_SESSION * session)
  * Kex specific variant of strstr()
  * Needle must be preceed by BOL or ',', and followed by ',' or EOL
  */
-static uchar * kex_agree_instr(uchar * haystack, ulong haystack_len,
-    const uchar * needle, ulong needle_len)
+static uchar * kex_agree_instr(uchar * haystack, ulong haystack_len, const uchar * needle, ulong needle_len)
 {
 	uchar * s;
-
 	/* Haystack too short to bother trying */
 	if(haystack_len < needle_len) {
 		return NULL;
 	}
-
 	/* Needle at start of haystack */
-	if((strncmp((char*)haystack, (char*)needle, needle_len) == 0) &&
-	    (needle_len == haystack_len || haystack[needle_len] == ',')) {
+	if((strncmp((char*)haystack, (char*)needle, needle_len) == 0) && (needle_len == haystack_len || haystack[needle_len] == ',')) {
 		return haystack;
 	}
-
 	s = haystack;
 	/* Search until we run out of comas or we run out of haystack,
 	   whichever comes first */
-	while((s = (uchar*)strchr((char*)s, ','))
-	    && ((haystack_len - (s - haystack)) > needle_len)) {
+	while((s = (uchar*)strchr((char*)s, ',')) && ((haystack_len - (s - haystack)) > needle_len)) {
 		s++;
 		/* Needle at X position */
-		if((strncmp((char*)s, (char*)needle, needle_len) == 0) &&
-		    (((s - haystack) + needle_len) == haystack_len
-			    || s[needle_len] == ',')) {
+		if((strncmp((char*)s, (char*)needle, needle_len) == 0) && (((s - haystack) + needle_len) == haystack_len || s[needle_len] == ',')) {
 			return s;
 		}
 	}
-
 	return NULL;
 }
 
 /* kex_get_method_by_name
  */
-static const LIBSSH2_COMMON_METHOD * kex_get_method_by_name(const char * name, size_t name_len,
-    const LIBSSH2_COMMON_METHOD ** methodlist)
+static const LIBSSH2_COMMON_METHOD * kex_get_method_by_name(const char * name, size_t name_len, const LIBSSH2_COMMON_METHOD ** methodlist)
 {
 	while(*methodlist) {
-		if((strlen((*methodlist)->name) == name_len) &&
-		    (strncmp((*methodlist)->name, name, name_len) == 0)) {
+		if((strlen((*methodlist)->name) == name_len) && (strncmp((*methodlist)->name, name, name_len) == 0)) {
 			return *methodlist;
 		}
 		methodlist++;
@@ -1648,67 +1562,45 @@ static const LIBSSH2_COMMON_METHOD * kex_get_method_by_name(const char * name, s
 /* kex_agree_hostkey
  * Agree on a Hostkey which works with this kex
  */
-static int kex_agree_hostkey(LIBSSH2_SESSION * session,
-    ulong kex_flags,
-    uchar * hostkey, ulong hostkey_len)
+static int kex_agree_hostkey(LIBSSH2_SESSION * session, ulong kex_flags, uchar * hostkey, ulong hostkey_len)
 {
 	const LIBSSH2_HOSTKEY_METHOD ** hostkeyp = libssh2_hostkey_methods();
 	uchar * s;
-
 	if(session->hostkey_prefs) {
 		s = (uchar*)session->hostkey_prefs;
-
 		while(s && *s) {
 			uchar * p = (uchar*)strchr((char*)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char*)s));
 			if(kex_agree_instr(hostkey, hostkey_len, s, method_len)) {
-				const LIBSSH2_HOSTKEY_METHOD * method =
-				    (const LIBSSH2_HOSTKEY_METHOD*)
-				    kex_get_method_by_name((char*)s, method_len,
-				    (const LIBSSH2_COMMON_METHOD**)
-				    hostkeyp);
-
+				const LIBSSH2_HOSTKEY_METHOD * method = (const LIBSSH2_HOSTKEY_METHOD*)kex_get_method_by_name((char*)s, method_len, (const LIBSSH2_COMMON_METHOD**)hostkeyp);
 				if(!method) {
 					/* Invalid method -- Should never be reached */
 					return -1;
 				}
-
 				/* So far so good, but does it suit our purposes? (Encrypting
 				   vs Signing) */
-				if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) ==
-					    0) || (method->encrypt)) {
-					/* Either this hostkey can do encryption or this kex just
-					   doesn't require it */
-					if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY)
-						    == 0) || (method->sig_verify)) {
-						/* Either this hostkey can do signing or this kex just
-						   doesn't require it */
+				if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) || (method->encrypt)) {
+					// Either this hostkey can do encryption or this kex just doesn't require it 
+					if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0) || (method->sig_verify)) {
+						// Either this hostkey can do signing or this kex just doesn't require it 
 						session->hostkey = method;
 						return 0;
 					}
 				}
 			}
-
 			s = p ? p + 1 : NULL;
 		}
 		return -1;
 	}
-
 	while(hostkeyp && (*hostkeyp) && (*hostkeyp)->name) {
-		s = kex_agree_instr(hostkey, hostkey_len,
-		    (uchar*)(*hostkeyp)->name,
-		    strlen((*hostkeyp)->name));
+		s = kex_agree_instr(hostkey, hostkey_len, (uchar*)(*hostkeyp)->name, strlen((*hostkeyp)->name));
 		if(s) {
-			/* So far so good, but does it suit our purposes? (Encrypting vs
-			   Signing) */
+			// So far so good, but does it suit our purposes? (Encrypting vs Signing) 
 			if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) ||
 			    ((*hostkeyp)->encrypt)) {
-				/* Either this hostkey can do encryption or this kex just
-				   doesn't require it */
-				if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) ==
-					    0) || ((*hostkeyp)->sig_verify)) {
-					/* Either this hostkey can do signing or this kex just
-					   doesn't require it */
+				// Either this hostkey can do encryption or this kex just doesn't require it */
+				if(((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0) || ((*hostkeyp)->sig_verify)) {
+					// Either this hostkey can do signing or this kex just doesn't require it 
 					session->hostkey = *hostkeyp;
 					return 0;
 				}
@@ -1716,42 +1608,31 @@ static int kex_agree_hostkey(LIBSSH2_SESSION * session,
 		}
 		hostkeyp++;
 	}
-
 	return -1;
 }
 
 /* kex_agree_kex_hostkey
  * Agree on a Key Exchange method and a hostkey encoding type
  */
-static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, uchar * kex,
-    ulong kex_len, uchar * hostkey,
-    ulong hostkey_len)
+static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, uchar * kex, ulong kex_len, uchar * hostkey, ulong hostkey_len)
 {
 	const LIBSSH2_KEX_METHOD ** kexp = libssh2_kex_methods;
 	uchar * s;
-
 	if(session->kex_prefs) {
 		s = (uchar*)session->kex_prefs;
-
 		while(s && *s) {
 			uchar * q, * p = (uchar*)strchr((char*)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char*)s));
 			if((q = kex_agree_instr(kex, kex_len, s, method_len))) {
-				const LIBSSH2_KEX_METHOD * method = (const LIBSSH2_KEX_METHOD*)
-				    kex_get_method_by_name((char*)s, method_len,
-				    (const LIBSSH2_COMMON_METHOD**)
-				    kexp);
-
+				const LIBSSH2_KEX_METHOD * method = (const LIBSSH2_KEX_METHOD*)kex_get_method_by_name((char*)s, method_len, (const LIBSSH2_COMMON_METHOD**)kexp);
 				if(!method) {
 					/* Invalid method -- Should never be reached */
 					return -1;
 				}
-
 				/* We've agreed on a key exchange method,
 				 * Can we agree on a hostkey that works with this kex?
 				 */
-				if(kex_agree_hostkey(session, method->flags, hostkey,
-					    hostkey_len) == 0) {
+				if(kex_agree_hostkey(session, method->flags, hostkey, hostkey_len) == 0) {
 					session->kex = method;
 					if(session->burn_optimistic_kexinit && (kex == q)) {
 						/* Server sent an optimistic packet,
@@ -1762,22 +1643,17 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, uchar * kex,
 					return 0;
 				}
 			}
-
 			s = p ? p + 1 : NULL;
 		}
 		return -1;
 	}
-
 	while(*kexp && (*kexp)->name) {
-		s = kex_agree_instr(kex, kex_len,
-		    (uchar*)(*kexp)->name,
-		    strlen((*kexp)->name));
+		s = kex_agree_instr(kex, kex_len, (uchar*)(*kexp)->name, strlen((*kexp)->name));
 		if(s) {
 			/* We've agreed on a key exchange method,
 			 * Can we agree on a hostkey that works with this kex?
 			 */
-			if(kex_agree_hostkey(session, (*kexp)->flags, hostkey,
-				    hostkey_len) == 0) {
+			if(kex_agree_hostkey(session, (*kexp)->flags, hostkey, hostkey_len) == 0) {
 				session->kex = *kexp;
 				if(session->burn_optimistic_kexinit && (kex == s)) {
 					/* Server sent an optimistic packet,
@@ -1796,106 +1672,74 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, uchar * kex,
 /* kex_agree_crypt
  * Agree on a cipher algo
  */
-static int kex_agree_crypt(LIBSSH2_SESSION * session,
-    libssh2_endpoint_data * endpoint,
-    uchar * crypt,
-    ulong crypt_len)
+static int kex_agree_crypt(LIBSSH2_SESSION * session, libssh2_endpoint_data * endpoint, uchar * crypt, ulong crypt_len)
 {
 	const LIBSSH2_CRYPT_METHOD ** cryptp = libssh2_crypt_methods();
 	uchar * s;
-
 	(void)session;
-
 	if(endpoint->crypt_prefs) {
 		s = (uchar*)endpoint->crypt_prefs;
-
 		while(s && *s) {
 			uchar * p = (uchar*)strchr((char*)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char*)s));
-
 			if(kex_agree_instr(crypt, crypt_len, s, method_len)) {
-				const LIBSSH2_CRYPT_METHOD * method =
-				    (const LIBSSH2_CRYPT_METHOD*)
-				    kex_get_method_by_name((char*)s, method_len,
-				    (const LIBSSH2_COMMON_METHOD**)
-				    cryptp);
-
+				const LIBSSH2_CRYPT_METHOD * method = (const LIBSSH2_CRYPT_METHOD*)kex_get_method_by_name((char*)s, method_len, (const LIBSSH2_COMMON_METHOD**)cryptp);
 				if(!method) {
 					/* Invalid method -- Should never be reached */
 					return -1;
 				}
-
 				endpoint->crypt = method;
 				return 0;
 			}
-
 			s = p ? p + 1 : NULL;
 		}
 		return -1;
 	}
-
 	while(*cryptp && (*cryptp)->name) {
-		s = kex_agree_instr(crypt, crypt_len,
-		    (uchar*)(*cryptp)->name,
-		    strlen((*cryptp)->name));
+		s = kex_agree_instr(crypt, crypt_len, (uchar*)(*cryptp)->name, strlen((*cryptp)->name));
 		if(s) {
 			endpoint->crypt = *cryptp;
 			return 0;
 		}
 		cryptp++;
 	}
-
 	return -1;
 }
 
 /* kex_agree_mac
  * Agree on a message authentication hash
  */
-static int kex_agree_mac(LIBSSH2_SESSION * session,
-    libssh2_endpoint_data * endpoint, uchar * mac,
-    ulong mac_len)
+static int kex_agree_mac(LIBSSH2_SESSION * session, libssh2_endpoint_data * endpoint, uchar * mac, ulong mac_len)
 {
 	const LIBSSH2_MAC_METHOD ** macp = _libssh2_mac_methods();
 	uchar * s;
 	(void)session;
-
 	if(endpoint->mac_prefs) {
 		s = (uchar*)endpoint->mac_prefs;
-
 		while(s && *s) {
 			uchar * p = (uchar*)strchr((char*)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char*)s));
-
 			if(kex_agree_instr(mac, mac_len, s, method_len)) {
-				const LIBSSH2_MAC_METHOD * method = (const LIBSSH2_MAC_METHOD*)
-				    kex_get_method_by_name((char*)s, method_len,
-				    (const LIBSSH2_COMMON_METHOD**)
-				    macp);
-
+				const LIBSSH2_MAC_METHOD * method = (const LIBSSH2_MAC_METHOD*)kex_get_method_by_name((char*)s, method_len, (const LIBSSH2_COMMON_METHOD**)macp);
 				if(!method) {
 					/* Invalid method -- Should never be reached */
 					return -1;
 				}
-
 				endpoint->mac = method;
 				return 0;
 			}
-
 			s = p ? p + 1 : NULL;
 		}
 		return -1;
 	}
-
 	while(*macp && (*macp)->name) {
-		s = kex_agree_instr(mac, mac_len, (uchar*)(*macp)->name,
-		    strlen((*macp)->name));
+		s = kex_agree_instr(mac, mac_len, (uchar*)(*macp)->name, strlen((*macp)->name));
 		if(s) {
 			endpoint->mac = *macp;
 			return 0;
 		}
 		macp++;
 	}
-
 	return -1;
 }
 
@@ -1907,45 +1751,32 @@ static int kex_agree_comp(LIBSSH2_SESSION * session, libssh2_endpoint_data * end
 	const LIBSSH2_COMP_METHOD ** compp = _libssh2_comp_methods(session);
 	uchar * s;
 	(void)session;
-
 	if(endpoint->comp_prefs) {
 		s = (uchar*)endpoint->comp_prefs;
-
 		while(s && *s) {
 			uchar * p = (uchar*)strchr((char*)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char*)s));
-
 			if(kex_agree_instr(comp, comp_len, s, method_len)) {
-				const LIBSSH2_COMP_METHOD * method =
-				    (const LIBSSH2_COMP_METHOD*)
-				    kex_get_method_by_name((char*)s, method_len,
-				    (const LIBSSH2_COMMON_METHOD**)
-				    compp);
-
+				const LIBSSH2_COMP_METHOD * method = (const LIBSSH2_COMP_METHOD*)kex_get_method_by_name((char*)s, method_len, (const LIBSSH2_COMMON_METHOD**)compp);
 				if(!method) {
 					/* Invalid method -- Should never be reached */
 					return -1;
 				}
-
 				endpoint->comp = method;
 				return 0;
 			}
-
 			s = p ? p + 1 : NULL;
 		}
 		return -1;
 	}
-
 	while(*compp && (*compp)->name) {
-		s = kex_agree_instr(comp, comp_len, (uchar*)(*compp)->name,
-		    strlen((*compp)->name));
+		s = kex_agree_instr(comp, comp_len, (uchar*)(*compp)->name, strlen((*compp)->name));
 		if(s) {
 			endpoint->comp = *compp;
 			return 0;
 		}
 		compp++;
 	}
-
 	return -1;
 }
 
@@ -2298,14 +2129,12 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session, int met
 		    break;
 
 		default:
-		    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-		    "Unknown method type");
+		    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED, "Unknown method type");
 	} /* switch */
 
 	/* weird situation */
 	if(NULL==mlist)
-		return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
-		    "No algorithm found");
+		return _libssh2_error(session, LIBSSH2_ERROR_INVAL, "No algorithm found");
 
 	/*
 	   mlist is looped through twice. The first time to find the number od
@@ -2336,8 +2165,8 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session, int met
 	/* Past this point *algs must be deallocated in case of an error!! */
 
 	/* copy non-NULL pointers only */
-	for(i = 0, j = 0; NULL!=mlist[i] && j<ialg; i++) {
-		if(NULL==mlist[i]->name) {
+	for(i = 0, j = 0; mlist[i] && j<ialg; i++) {
+		if(!mlist[i]->name) {
 			/* maybe a weird situation but if it occurs, do not include NULL
 			   pointers */
 			continue;

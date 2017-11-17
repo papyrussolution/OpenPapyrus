@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147489373
+LastSignatureCode=2147489377
 LastAutoCodeList=1,11025;102,10162;103,10071;110,10000;111,11650;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10077;120,10005;1001,10000;121,10000;122,10000;123,10279;1002,10000;1003,10000;1004,10000;1005,10000;124,10073
 
 [SignatureList]
@@ -3962,6 +3962,7 @@ scardseries_pdis=2147486118
 scardseries_personkind=2147486119
 scardseries_quotkind_s=2147486120
 scardseries_type=2147488771
+scardseries_discountcards=2147489376
 scardseries_scrdsf_bonus=2147486121
 scardseries_scrdsf_bonuser_onbnk=2147486122
 scardseries_scrdsf_credit=2147486123
@@ -3972,10 +3973,13 @@ scardseries_scrdsf_uhttsync=2147486127
 scardseries_scrdsf_usedscntifnquot=2147486128
 scardseries_scrdsf_usequotkindlist=2147486129
 scardseries_scrdsf_transfdiscount=2147487934
+scardseries_scrdsf_passive=2147489374
+scardseries_scrdsf_group=2147489377
 scardseries_symb=2147486130
 scardseries_tag=2147486131
 scardseries_veriftag=2147486503
 scardseries_usagetime=2147487935
+scardseries_parent=2147489375
 secur_crc=2147486132
 secur_id=2147486133
 secur_name=2147486134

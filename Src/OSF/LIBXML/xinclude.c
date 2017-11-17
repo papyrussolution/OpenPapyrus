@@ -73,7 +73,7 @@ struct _xmlXIncludeCtxt {
 	void            * _private; /* application data */
 };
 
-static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNode * tree);
+static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, xmlNode * tree);
 
 /************************************************************************
 *									*
@@ -562,7 +562,7 @@ static int xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNode * cur)
  *
  * The XInclude recursive nature is handled at this point.
  */
-static void xmlXIncludeRecurseDoc(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc,
+static void xmlXIncludeRecurseDoc(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc,
     const xmlURL url ATTRIBUTE_UNUSED) {
 	xmlXIncludeCtxtPtr newctxt;
 	int i;
@@ -1237,7 +1237,7 @@ error:
  *
  * Returns 0 if merge succeeded, -1 if some processing failed
  */
-static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlDocPtr from) 
+static int xmlXIncludeMergeEntities(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, xmlDocPtr from) 
 {
 	xmlNode * cur;
 	xmlDtdPtr target, source;
@@ -2094,7 +2094,7 @@ static int xmlXIncludeTestNode(xmlXIncludeCtxtPtr ctxt, xmlNode * P_Node)
  * Returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
-static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDocPtr doc, xmlNode * tree)
+static int xmlXIncludeDoProcess(xmlXIncludeCtxtPtr ctxt, xmlDoc * doc, xmlNode * tree)
 {
 	xmlNode * cur;
 	int ret = 0;
@@ -2236,7 +2236,7 @@ int xmlXIncludeProcessTreeFlagsData(xmlNode * tree, int flags, void * data)
  * Returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
-int xmlXIncludeProcessFlagsData(xmlDocPtr doc, int flags, void * data)
+int xmlXIncludeProcessFlagsData(xmlDoc * doc, int flags, void * data)
 {
 	xmlNode * tree;
 	if(!doc)
@@ -2256,7 +2256,7 @@ int xmlXIncludeProcessFlagsData(xmlDocPtr doc, int flags, void * data)
  * Returns 0 if no substitution were done, -1 if some processing failed
  *    or the number of substitutions done.
  */
-int xmlXIncludeProcessFlags(xmlDocPtr doc, int flags)
+int xmlXIncludeProcessFlags(xmlDoc * doc, int flags)
 {
 	return xmlXIncludeProcessFlagsData(doc, flags, 0);
 }

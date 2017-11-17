@@ -16,7 +16,7 @@
 
 #include <libxml/xmlversion.h>
 #include <libxml/parser.h>
-#include <libxml/xmlerror.h>
+//#include <libxml/xmlerror.h>
 //#include <libxml/SAX.h>
 //#include <libxml/SAX2.h>
 #include <libxml/xmlmemory.h>
@@ -49,10 +49,9 @@ typedef xmlParserInputBufferPtr(*xmlParserInputBufferCreateFilenameFunc)(const c
  * Signature for the function doing the lookup for a suitable output method
  * corresponding to an URI.
  *
- * Returns the new xmlOutputBufferPtr in case of success or NULL if no
- *         method was found.
+ * Returns the new xmlOutputBufferPtr in case of success or NULL if no method was found.
  */
-typedef xmlOutputBufferPtr (*xmlOutputBufferCreateFilenameFunc) (const char *URI, xmlCharEncodingHandlerPtr encoder, int compression);
+typedef xmlOutputBuffer * (*xmlOutputBufferCreateFilenameFunc) (const char *URI, xmlCharEncodingHandler * encoder, int compression);
 
 XMLPUBFUN xmlParserInputBufferCreateFilenameFunc
 XMLCALL xmlParserInputBufferCreateFilenameDefault (xmlParserInputBufferCreateFilenameFunc func);

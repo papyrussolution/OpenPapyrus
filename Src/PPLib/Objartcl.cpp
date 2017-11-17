@@ -146,7 +146,7 @@ PPArticlePacket & FASTCALL PPArticlePacket::operator = (const PPArticlePacket & 
 int SLAPI PPObjArticle::IsPacketEq(const PPArticlePacket & rS1, const PPArticlePacket & rS2, long options)
 {
 #define CMP_MEMB(m)  if(rS1.Rec.m != rS2.Rec.m) return 0;
-#define CMP_MEMBS(m) if(strcmp(rS1.Rec.m, rS2.Rec.m) != 0) return 0;
+#define CMP_MEMBS(m) if(!sstreq(rS1.Rec.m, rS2.Rec.m)) return 0;
 	CMP_MEMB(ID);
 	CMP_MEMB(AccSheetID);
 	CMP_MEMB(Article);
@@ -294,13 +294,8 @@ struct ArticleDlgData : public PPArticlePacket {
 
 class ArticleAutoAddDialog : public TDialog {
 public:
-	ArticleAutoAddDialog(long _sheetID) : TDialog(DLG_ARTICLEAUTO)
+	ArticleAutoAddDialog(long _sheetID) : TDialog(DLG_ARTICLEAUTO), P_Query(0), P_Buf(0), IsFound(1), Ta(0), Ret(0)
 	{
-		P_Query = 0;
-		P_Buf   = 0;
-		IsFound = 1;
-		Ta    = 0;
-		Ret   = 0;
 		init(_sheetID);
 	}
 	~ArticleAutoAddDialog()
@@ -443,7 +438,8 @@ IMPL_HANDLE_EVENT(ArticleAutoAddDialog)
 				fetch(spNext);
 				break;
 			case cmaAll:
-				while(save() > 0 && fetch(spNext) > 0);
+				while(save() > 0 && fetch(spNext) > 0)
+					;
 				break;
 			default:
 				clear = 0;
@@ -467,9 +463,8 @@ static int SLAPI EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 
 	class SubstAliasDialog : public TDialog {
 	public:
-		SubstAliasDialog(const PPArticlePacket * pPack) : TDialog(DLG_ALSSUBST)
+		SubstAliasDialog(const PPArticlePacket * pPack) : TDialog(DLG_ALSSUBST), P_Pack(pPack)
 		{
-			P_Pack = pPack;
 			addGroup(GRP_ALS, new AcctCtrlGroup(CTL_ALSSUBST_ALS, 0, CTLSEL_ALSSUBST_ALSNAME, 0));
 			addGroup(GRP_ACC, new AcctCtrlGroup(CTL_ALSSUBST_ACC, 0, CTLSEL_ALSSUBST_ACCNAME, 0));
 		}

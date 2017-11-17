@@ -12958,7 +12958,7 @@ public:
 	//
 	int    SLAPI GetListByPerson(PPID personID, PPID seriesID, PPIDArray * pList);
 	int    SLAPI GetListByLoc(PPID locID, PPID seriesID, PPIDArray * pList);
-	int    SLAPI AutoFill(const PPSCardSeries2 * pSerRec, const char * pPattern, int use_ta);
+	int    SLAPI AutoFill(const PPSCardSerPacket & rScsPack, const char * pPattern, int use_ta);
 
 	int    SLAPI SearchOp(PPID cardID, LDATE, LTIME, SCardOpTbl::Rec * pRec);
 	int    SLAPI SearchOpByCheck(PPID checkID, SCardOpTbl::Rec * pRec);
@@ -31225,7 +31225,7 @@ public:
 	// не определено, то использовать скидку, заданную в карте.
 #define SCRDSF_BONUS           0x0004L // @v7.3.7 Бонусные кредитные карты (предполагает установленный флаг SCRDSF_CREDIT)
 #define SCRDSF_UHTTSYNC        0x0008L // @v7.3.7 Карты серии синхронизированы с сервисом Universe-HTT
-#define SCRDSF_USEQUOTKINDLIST 0x0010L // @v7.4.0 @internal С серией связан список серий дисконтных карт.
+#define SCRDSF_USEQUOTKINDLIST 0x0010L // @v7.4.0 @internal С серией связан список видов котировок.
 	// Флаг необходим для игнорирования поля PPSCardSeries2::QuotKindID
 #define SCRDSF_MINQUOTVAL      0x0020L // @v7.4.0 Если с серией карт ассоциирован список видов котировок (более одной),
 	// то применять минимальную цену из котировок, полученных по списку.
@@ -31233,6 +31233,8 @@ public:
 #define SCRDSF_BONUSER_ONBNK   0x0080L // @v8.2.10 SCardSeries::BonusChrgExtRule трактуется как изменение суммы оборота (для расчета начисления) в промилле.
 #define SCRDSF_NEWSCINHF       0x0100L // @v8.8.0
 #define SCRDSF_TRANSFDISCOUNT  0x0200L // @v9.2.8 Карты серии с таким флагом могут передавать значение скидки в новые карты выдельца любой серии (при создании)
+#define SCRDSF_PASSIVE         0x0400L // @v9.8.9 Пассивная серия (не отображается в списках)
+#define SCRDSF_GROUP           0x0800L // @v9.8.9 Серия верхнего уровня
 //
 // Descr: Типы серий карт
 //
@@ -31240,7 +31242,8 @@ enum {
 	scstUnkn = 0,     // Неопределенный тип
 	scstDiscount = 1, // Простые дисконтные карты
 	scstCredit,       // Кредитные карты
-	scstBonus         // Бонусные карты
+	scstBonus,        // Бонусные карты
+	scstGroup         // @v9.8.9 Серия верхнего уровня
 };
 
 struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
@@ -31259,16 +31262,22 @@ struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
 	int16  BonusChrgExtRule;   // @v8.2.10 Дополнительная величина правила изменения начисления бонуса по карте
 	uint8  Reserve2;           // @reserve
 	int8   VerifTag;           // Если 1, то запись верифицирована версией 7.3.7 на предмет правильности установки флагов
+		// @v9.8.9 Если VerifTag == 2, то запись сохранена в версии v9.8.9 или выше.
 	PPID   BonusGrpID;         // Товарная группа, по которой зачитываются бонусы на карты
 	PPID   CrdGoodsGrpID;      // Товарная группа, продажа товаров которой зачитывается как списание по кредитной карте в количественном выражении.
-	char   CodeTempl[20];      // Шаблон номеров карт
+	// @v9.8.9 char   CodeTempl[20];      // Шаблон номеров карт
+	uint8  Reserve3[12];       // @v9.8.9
+	long   QuotKindID_s;       // @v9.8.9 Вид котировки
+	long   PersonKindID;       // @v9.8.9 Вид персоналии, используемый для владельцев карт (по умолчанию - PPPRK_CLIENT)
 	LDATE  Issue;              // Дата выпуска
 	LDATE  Expiry;             // Дата окончания действия //
 	long   PDis;               // Скидка (.01%)
 	double MaxCredit;          // Максимальный кредит (для кредитных карт)
 	long   Flags;              // @flags
-	long   QuotKindID_s;       // Вид котировки
-	long   PersonKindID;       // Вид персоналии, используемый для владельцев карт (по умолчанию - PPPRK_CLIENT)
+	long   Reserve4; // @v9.8.9
+	long   ParentID; // @v9.8.9
+	// @v9.8.9 long   QuotKindID_s;       // Вид котировки
+	// @v9.8.9 long   PersonKindID;       // Вид персоналии, используемый для владельцев карт (по умолчанию - PPPRK_CLIENT)
 };
 
 DECL_REF_REC(PPSCardSeries);
@@ -31355,7 +31364,8 @@ struct PPSCardSerPacket {
 		void   SLAPI Init();
 		int    SLAPI IsEmpty() const;
 		int    FASTCALL IsEqual(const Ext & rS) const;
-		uint8  Reserve[52];
+		char   CodeTempl[32]; // @v9.8.9 (перенесено из заголовочной структуры) Шаблон номеров карт
+		uint8  Reserve[20];   // @v9.8.9 [52]-->[20]
 		LTIME  UsageTmStart;
 		LTIME  UsageTmEnd;
 		long   Reserve2[2];
@@ -31396,6 +31406,17 @@ struct PPSCardConfig {         // @persistent @store(PropertyTbl)
 	long   Reserve2[2];        //
 };
 
+struct SCardSeriesFilt {
+	SLAPI  SCardSeriesFilt();
+	enum {
+		fOnlyGroups   = 0x0001, // Только группы серий
+		fOnlySeries   = 0x0002, // Только терминальные серии
+		fShowPassive  = 0x0004  // Показывать пассивные серии
+	};
+	PPID   ParentID;   // Группа серий
+	long   Flags;      //
+};
+
 class PPObjSCardSeries : public PPObjReference {
 public:
 	static int SLAPI SetSCardsByRule(SCardChargeRule * pSelRule);
@@ -31410,7 +31431,7 @@ public:
 	int    SLAPI Fetch(PPID id, PPSCardSeries * pRec); // @macrow
 	int    SLAPI GetPacket(PPID id, PPSCardSerPacket * pPack);
 	int    SLAPI PutPacket(PPID * pID, PPSCardSerPacket * pPack, int use_ta);
-
+	int    SLAPI CheckForFilt(const SCardSeriesFilt * pFilt, const PPSCardSeries & rRec) const;
 	int    SLAPI GetCodeRange(PPID serID, SString & rLow, SString & rUpp);
 		// @>>SCardCore::GetCodeRange
 private:
@@ -31419,7 +31440,9 @@ private:
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext * pCtx);
 	virtual int SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
 	virtual void * SLAPI CreateObjListWin(uint flags, void * extraPtr);
+	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr);
 	int    SLAPI SerializePacket(int dir, PPSCardSerPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
+	SCardSeriesFilt & SLAPI InitFilt(void * extraPtr, SCardSeriesFilt & rFilt) const;
 
 	PPObjSCard * P_ScObj;
 };
@@ -49976,6 +49999,7 @@ int SLAPI Convert9004(); // @v9.0.4
 int SLAPI Convert9108(); // @v9.1.8
 int SLAPI Convert9214(); // @v9.2.14
 int SLAPI Convert9400(); // @v9.4.0
+int SLAPI ConvertSCardSeries9809(); // @v9.8.9 (objscard.cpp)
 int SLAPI DoChargeSalary();
 int SLAPI DoDebtRate();
 int SLAPI DoBizScore(PPID bzsID);

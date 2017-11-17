@@ -20,8 +20,8 @@
 #ifdef LIBXML_SCHEMAS_ENABLED
 #include <libxml/relaxng.h>
 #include <libxml/xmlschemastypes.h>
-#include <libxml/xmlautomata.h>
-#include <libxml/xmlregexp.h>
+//#include <libxml/xmlautomata.h>
+//#include <libxml/xmlregexp.h>
 #include <libxml/xmlschemastypes.h>
 /*
  * The Relax-NG namespace
@@ -147,7 +147,7 @@ struct _xmlRelaxNGDefine {
 struct _xmlRelaxNG {
 	void * _private;        /* unused by the library for users or bindings */
 	xmlRelaxNGGrammarPtr topgrammar;
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	int idref;              /* requires idref checking */
 	xmlHashTable * defs;   /* define */
 	xmlHashTable * refs;   /* references */
@@ -189,15 +189,12 @@ struct _xmlRelaxNGParserCtxt {
 	xmlRelaxNGDocumentPtr documents; /* all the documents loaded */
 	xmlRelaxNGIncludePtr includes;  /* all the includes loaded */
 	xmlChar * URL;
-	xmlDocPtr document;
-
+	xmlDoc * document;
 	int defNr;              /* number of defines used */
 	int defMax;             /* number of defines aloocated */
 	xmlRelaxNGDefinePtr * defTab;   /* pointer to the allocated definitions */
-
 	const char * buffer;
 	int size;
-
 	/* the document stack */
 	xmlRelaxNGDocumentPtr doc; /* Current parsed external ref */
 	int docNr;              /* Depth of the parsing stack */
@@ -319,7 +316,7 @@ struct _xmlRelaxNGValidCtxt {
 	int nbErrors;           /* number of errors in validation */
 
 	xmlRelaxNGPtr schema;   /* The schema in use */
-	xmlDocPtr doc;          /* the document being validated */
+	xmlDoc * doc;          /* the document being validated */
 	int flags;              /* validation flags */
 	int depth;              /* validation depth */
 	int idref;              /* requires idref checking */
@@ -364,7 +361,7 @@ struct _xmlRelaxNGValidCtxt {
 struct _xmlRelaxNGInclude {
 	xmlRelaxNGIncludePtr next; /* keep a chain of includes */
 	xmlChar * href;         /* the normalized href value */
-	xmlDocPtr doc;          /* the associated XML document */
+	xmlDoc * doc;          /* the associated XML document */
 	xmlRelaxNGDefinePtr content;    /* the definitions */
 	xmlRelaxNGPtr schema;   /* the schema */
 };
@@ -377,7 +374,7 @@ struct _xmlRelaxNGInclude {
 struct _xmlRelaxNGDocument {
 	xmlRelaxNGDocumentPtr next; /* keep a chain of documents */
 	xmlChar * href;         /* the normalized href value */
-	xmlDocPtr doc;          /* the associated XML document */
+	xmlDoc * doc;          /* the associated XML document */
 	xmlRelaxNGDefinePtr content;    /* the definitions */
 	xmlRelaxNGPtr schema;   /* the schema */
 	int externalRef;        /* 1 if an external ref */
@@ -1223,7 +1220,7 @@ int xmlRelaxParserSetFlag(xmlRelaxNGParserCtxtPtr ctxt, int flags)
 *			Document functions				*
 *									*
 ************************************************************************/
-static xmlDocPtr xmlRelaxNGCleanupDoc(xmlRelaxNGParserCtxtPtr ctxt, xmlDocPtr doc);
+static xmlDoc * xmlRelaxNGCleanupDoc(xmlRelaxNGParserCtxtPtr ctxt, xmlDoc * doc);
 /**
  * xmlRelaxNGIncludePush:
  * @ctxt:  the parser context
@@ -5628,7 +5625,7 @@ xmlRelaxNGParserCtxtPtr xmlRelaxNGNewMemParserCtxt(const char * buffer, int size
  *
  * Returns the parser context or NULL in case of error
  */
-xmlRelaxNGParserCtxtPtr xmlRelaxNGNewDocParserCtxt(xmlDocPtr doc)
+xmlRelaxNGParserCtxtPtr xmlRelaxNGNewDocParserCtxt(xmlDoc * doc)
 {
 	xmlRelaxNGParserCtxt * ret = 0;
 	if(doc) {
@@ -6151,7 +6148,7 @@ skip_children:
  *
  * Returns the cleaned up document or NULL in case of error
  */
-static xmlDocPtr xmlRelaxNGCleanupDoc(xmlRelaxNGParserCtxtPtr ctxt, xmlDocPtr doc)
+static xmlDoc * xmlRelaxNGCleanupDoc(xmlRelaxNGParserCtxtPtr ctxt, xmlDoc * doc)
 {
 	/*
 	 * Extract the root
@@ -6179,7 +6176,7 @@ static xmlDocPtr xmlRelaxNGCleanupDoc(xmlRelaxNGParserCtxtPtr ctxt, xmlDocPtr do
 xmlRelaxNGPtr xmlRelaxNGParse(xmlRelaxNGParserCtxtPtr ctxt)
 {
 	xmlRelaxNGPtr ret = NULL;
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	xmlNode * root;
 	xmlRelaxNGInitTypes();
 	if(!ctxt)
@@ -6915,7 +6912,7 @@ static void xmlRelaxNGValidateProgressiveCallback(xmlRegExecCtxtPtr exec ATTRIBU
  * returns 1 if no validation problem was found or 0 if validating the
  *         element requires a full node, and -1 in case of error.
  */
-int xmlRelaxNGValidatePushElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDocPtr doc ATTRIBUTE_UNUSED, xmlNode * elem)
+int xmlRelaxNGValidatePushElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc ATTRIBUTE_UNUSED, xmlNode * elem)
 {
 	int ret = 1;
 	if(!ctxt || (elem == NULL))
@@ -7018,7 +7015,7 @@ int xmlRelaxNGValidatePushCData(xmlRelaxNGValidCtxtPtr ctxt, const xmlChar * dat
  *
  * returns 1 if no validation problem was found or 0 otherwise
  */
-int xmlRelaxNGValidatePopElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDocPtr doc ATTRIBUTE_UNUSED, xmlNode * elem)
+int xmlRelaxNGValidatePopElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc ATTRIBUTE_UNUSED, xmlNode * elem)
 {
 	int ret;
 	xmlRegExecCtxtPtr exec;
@@ -7065,11 +7062,11 @@ int xmlRelaxNGValidatePopElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDocPtr doc ATTR
  *
  * returns 1 if no validation problem was found or -1 in case of error.
  */
-int xmlRelaxNGValidateFullElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDocPtr doc ATTRIBUTE_UNUSED, xmlNode * elem)
+int xmlRelaxNGValidateFullElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc ATTRIBUTE_UNUSED, xmlNode * elem)
 {
 	int ret;
 	xmlRelaxNGValidStatePtr state;
-	if(!ctxt || (ctxt->pdef == NULL) || (elem == NULL))
+	if(!ctxt || !ctxt->pdef || !elem)
 		return -1;
 #ifdef DEBUG_PROGRESSIVE
 	xmlGenericError(0, "FullElem %s\n", elem->name);
@@ -9077,7 +9074,7 @@ static int xmlRelaxNGValidateDefinition(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGD
  *
  * Returns 0 if the validation succeeded or an error code.
  */
-static int xmlRelaxNGValidateDocument(xmlRelaxNGValidCtxtPtr ctxt, xmlDocPtr doc)
+static int xmlRelaxNGValidateDocument(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc)
 {
 	int ret;
 	xmlRelaxNGPtr schema;
@@ -9336,7 +9333,7 @@ int xmlRelaxNGGetValidErrors(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGValidityErro
  * Returns 0 if the document is valid, a positive error code
  *     number otherwise and -1 in case of internal or API error.
  */
-int xmlRelaxNGValidateDoc(xmlRelaxNGValidCtxtPtr ctxt, xmlDocPtr doc)
+int xmlRelaxNGValidateDoc(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc)
 {
 	int ret;
 	if(!ctxt || (doc == NULL))

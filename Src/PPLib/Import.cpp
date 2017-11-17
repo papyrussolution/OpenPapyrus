@@ -258,6 +258,10 @@ int SLAPI PPObjSCard::Import(int use_ta)
 	int fldn_serial     = 0; // Поле наименования серии карты
 	int fldn_turnover   = 0; // Начальный оборот по карте
 
+	PPIDArray psn_list;
+	PPObjPerson psn_obj;
+	PPObjSCardSeries scs_obj;
+
 	PPWait(1);
 	THROW_PP(in_tbl.isOpened(), PPERR_DBFOPFAULT);
 	get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_CODE,       &fldn_code);
@@ -278,21 +282,22 @@ int SLAPI PPObjSCard::Import(int use_ta)
 			long   cc_code = 100000; // Код чека для внесения начальных оборотов по карте.
 			LTIME  cc_time = ZEROTIME;
 			SString temp_buf;
-			PPObjPerson psn_obj;
-			PPObjSCardSeries scs_obj;
-			PPSCardSeries scs_rec;
+			PPSCardSeries scs_rec_;
+			PPSCardSerPacket scs_pack;
 			ini_file.GetInt(sect, PPINIPARAM_SERIESID, &temp_id);
 			ini_file.Get(sect, PPINIPARAM_PERSONCODEREG, temp_buf);
 			PPObjRegisterType::GetByCode(temp_buf.Strip(), &reg_type_id);
-			if(temp_id && scs_obj.Search(temp_id, &scs_rec) > 0) {
-				scser_id = scs_rec.ID;
+			if(temp_id && scs_obj.GetPacket(temp_id, &scs_pack) > 0) {
+				scser_id = scs_pack.Rec.ID;
 			}
-			else if(scs_obj.SearchByName("default", &scser_id, &scs_rec) > 0) {
+			else if(scs_obj.SearchByName("default", &scser_id, &scs_rec_) > 0) {
+				THROW(scs_obj.GetPacket(scs_rec_.ID, &scs_pack) > 0);
 			}
 			else {
-				MEMSZERO(scs_rec);
-				STRNSCPY(scs_rec.Name, "default");
-				THROW(scs_obj.ref->AddItem(PPOBJ_SCARDSERIES, &scser_id, &scs_rec, 0));
+				scs_pack.Init();
+				STRNSCPY(scs_pack.Rec.Name, "default");
+				scser_id = 0;
+				THROW(scs_obj.PutPacket(&scser_id, &scs_pack, 0))
 			}
 			do {
 				if(in_tbl.isDeletedRec() <= 0) {
@@ -322,12 +327,13 @@ int SLAPI PPObjSCard::Import(int use_ta)
 						else {
 							if(rec.get(fldn_serial, temp_buf, 1)) {
 								PPID   s_id = 0;
-								if(scs_obj.SearchByName(temp_buf, &s_id, &scs_rec) > 0) {
+								if(scs_obj.SearchByName(temp_buf, &s_id, &scs_rec_) > 0) {
 								}
 								else {
-									MEMSZERO(scs_rec);
-									STRNSCPY(scs_rec.Name, temp_buf);
-									THROW(scs_obj.ref->AddItem(PPOBJ_SCARDSERIES, &s_id, &scs_rec, 0));
+									scs_pack.Init();
+									STRNSCPY(scs_pack.Rec.Name, temp_buf);
+									s_id = 0;
+									THROW(scs_obj.PutPacket(&s_id, &scs_pack, 0))
 								}
 								if(s_id)
 									sc_rec.SeriesID = s_id;
@@ -335,7 +341,7 @@ int SLAPI PPObjSCard::Import(int use_ta)
 							if(reg_type_id) {
 								rec.get(fldn_personcode, temp_buf);
 								if(temp_buf.NotEmptyS()) {
-									PPIDArray psn_list;
+									psn_list.clear();
 									int64  icode = temp_buf.ToInt64();
 									if(icode) {
 										temp_buf.Z().Cat(icode);
@@ -352,7 +358,6 @@ int SLAPI PPObjSCard::Import(int use_ta)
 							scard_id = k0.ID;
 						}
 						if(scard_id && turnover > 0) {
-							//< CCheckCore > P_CcTbl
 							PPID cc_id = 0;
 							CCheckTbl::Rec cc_rec;
 							MEMSZERO(cc_rec);
@@ -4282,7 +4287,7 @@ FiasImporter::~FiasImporter()
 	delete P_DebugOutput;
 }
 
-int FiasImporter::SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName)
+int FiasImporter::SaxParseFile(xmlSAXHandler *sax, const char * pFileName)
 {
 	int    ret = 0;
 	xmlFreeParserCtxt(P_SaxCtx);
@@ -4291,7 +4296,7 @@ int FiasImporter::SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName)
 	if(!P_SaxCtx)
 		ret = -1;
 	else {
-		if(P_SaxCtx->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
+		if(P_SaxCtx->sax != (xmlSAXHandler *)&xmlDefaultSAXHandler)
 			SAlloc::F(P_SaxCtx->sax);
 		P_SaxCtx->sax = sax;
 		xmlDetectSAX2(P_SaxCtx);
@@ -5328,7 +5333,7 @@ int PrcssrOsm::SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName)
 	if(!P_SaxCtx)
 		ret = -1;
 	else {
-		if(P_SaxCtx->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
+		if(P_SaxCtx->sax != (xmlSAXHandler *)&xmlDefaultSAXHandler)
 			SAlloc::F(P_SaxCtx->sax);
 		P_SaxCtx->sax = sax;
 		xmlDetectSAX2(P_SaxCtx);

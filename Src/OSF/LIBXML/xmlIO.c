@@ -117,7 +117,7 @@ static xmlOutputCallback xmlOutputCallbackTable[MAX_OUTPUT_CALLBACK];
 static int xmlOutputCallbackNr = 0;
 static int xmlOutputCallbackInitialized = 0;
 
-xmlOutputBufferPtr xmlAllocOutputBufferInternal(xmlCharEncodingHandlerPtr encoder);
+xmlOutputBuffer * xmlAllocOutputBufferInternal(xmlCharEncodingHandler * encoder);
 #endif /* LIBXML_OUTPUT_ENABLED */
 
 /************************************************************************
@@ -1638,7 +1638,7 @@ static void xmlFreeHTTPWriteCtxt(xmlIOHTTPWriteCtxtPtr ctxt)
 		else
 #endif
 		{
-			xmlOutputBufferClose((xmlOutputBufferPtr)ctxt->doc_buff);
+			xmlOutputBufferClose((xmlOutputBuffer *)ctxt->doc_buff);
 		}
 	}
 	SAlloc::F(ctxt);
@@ -1785,7 +1785,7 @@ static int xmlIOHTTPWrite(void * context, const char * buffer, int len)
 			len = xmlZMemBuffAppend(ctxt->doc_buff, buffer, len);
 		else
 #endif
-		len = xmlOutputBufferWrite((xmlOutputBufferPtr)ctxt->doc_buff, len, buffer);
+		len = xmlOutputBufferWrite((xmlOutputBuffer *)ctxt->doc_buff, len, buffer);
 		if(len < 0) {
 			xmlChar msg[500];
 			xmlStrPrintf(msg, 500, (const xmlChar*)"xmlIOHTTPWrite:  %s\n%s '%s'.\n",
@@ -1846,7 +1846,7 @@ static int xmlIOHTTPCloseWrite(void * context, const char * http_mthd)
 	{
 		/*  Pull the data out of the memory output buffer  */
 
-		xmlOutputBufferPtr dctxt = (xmlOutputBufferPtr)ctxt->doc_buff;
+		xmlOutputBuffer * dctxt = (xmlOutputBuffer *)ctxt->doc_buff;
 		http_content = (char*)xmlBufContent(dctxt->buffer);
 		content_lgth = xmlBufUse(dctxt->buffer);
 	}
@@ -2192,9 +2192,9 @@ xmlParserInputBufferPtr xmlAllocParserInputBuffer(xmlCharEncoding enc)
  *
  * Returns the new parser output or NULL
  */
-xmlOutputBufferPtr xmlAllocOutputBuffer(xmlCharEncodingHandlerPtr encoder)
+xmlOutputBuffer * xmlAllocOutputBuffer(xmlCharEncodingHandler * encoder)
 {
-	xmlOutputBufferPtr ret = (xmlOutputBufferPtr)SAlloc::M(sizeof(xmlOutputBuffer));
+	xmlOutputBuffer * ret = (xmlOutputBuffer *)SAlloc::M(sizeof(xmlOutputBuffer));
 	if(!ret) {
 		xmlIOErrMemory("creating output buffer");
 	}
@@ -2223,7 +2223,6 @@ xmlOutputBufferPtr xmlAllocOutputBuffer(xmlCharEncodingHandlerPtr encoder)
 	}
 	return ret;
 }
-
 /**
  * xmlAllocOutputBufferInternal:
  * @encoder:  the encoding converter or NULL
@@ -2232,9 +2231,9 @@ xmlOutputBufferPtr xmlAllocOutputBuffer(xmlCharEncodingHandlerPtr encoder)
  *
  * Returns the new parser output or NULL
  */
-xmlOutputBufferPtr xmlAllocOutputBufferInternal(xmlCharEncodingHandlerPtr encoder)
+xmlOutputBuffer * xmlAllocOutputBufferInternal(xmlCharEncodingHandler * encoder)
 {
-	xmlOutputBufferPtr ret = (xmlOutputBufferPtr)SAlloc::M(sizeof(xmlOutputBuffer));
+	xmlOutputBuffer * ret = (xmlOutputBuffer *)SAlloc::M(sizeof(xmlOutputBuffer));
 	if(!ret) {
 		xmlIOErrMemory("creating output buffer");
 		return 0;
@@ -2308,7 +2307,7 @@ void FASTCALL xmlFreeParserInputBuffer(xmlParserInputBuffer * pIn)
  *
  * Returns the number of byte written or -1 in case of error.
  */
-int xmlOutputBufferClose(xmlOutputBufferPtr out)
+int xmlOutputBufferClose(xmlOutputBuffer * out)
 {
 	int written;
 	int err_rc = 0;
@@ -2424,9 +2423,9 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateFilename(const char * URI, xml
 }
 
 #ifdef LIBXML_OUTPUT_ENABLED
-xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncodingHandlerPtr encoder, int compression ATTRIBUTE_UNUSED)
+xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncodingHandler * encoder, int compression ATTRIBUTE_UNUSED)
 {
-	xmlOutputBufferPtr ret;
+	xmlOutputBuffer * ret;
 	xmlURIPtr puri;
 	int i = 0;
 	void * context = NULL;
@@ -2549,7 +2548,7 @@ xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char * URI, xmlCharEncod
  *
  * Returns the new output or NULL
  */
-xmlOutputBufferPtr xmlOutputBufferCreateFilename(const char * URI, xmlCharEncodingHandlerPtr encoder, int compression ATTRIBUTE_UNUSED)
+xmlOutputBuffer * xmlOutputBufferCreateFilename(const char * URI, xmlCharEncodingHandler * encoder, int compression ATTRIBUTE_UNUSED)
 {
 	if((xmlOutputBufferCreateFilenameValue)) {
 		return xmlOutputBufferCreateFilenameValue(URI, encoder, compression);
@@ -2596,9 +2595,9 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateFile(FILE * file, xmlCharEncod
  *
  * Returns the new parser output or NULL
  */
-xmlOutputBufferPtr xmlOutputBufferCreateFile(FILE * file, xmlCharEncodingHandlerPtr encoder)
+xmlOutputBuffer * xmlOutputBufferCreateFile(FILE * file, xmlCharEncodingHandler * encoder)
 {
-	xmlOutputBufferPtr ret = 0;
+	xmlOutputBuffer * ret = 0;
 	if(xmlOutputCallbackInitialized == 0)
 		xmlRegisterDefaultOutputCallbacks();
 	if(file) {
@@ -2621,7 +2620,7 @@ xmlOutputBufferPtr xmlOutputBufferCreateFile(FILE * file, xmlCharEncodingHandler
  *
  * Returns the new parser output or NULL
  */
-xmlOutputBufferPtr xmlOutputBufferCreateBuffer(xmlBuffer * buffer, xmlCharEncodingHandlerPtr encoder)
+xmlOutputBuffer * xmlOutputBufferCreateBuffer(xmlBuffer * buffer, xmlCharEncodingHandler * encoder)
 {
 	return buffer ? xmlOutputBufferCreateIO((xmlOutputWriteCallback)xmlBufferWrite, 0, buffer, encoder) : 0;
 }
@@ -2633,7 +2632,7 @@ xmlOutputBufferPtr xmlOutputBufferCreateBuffer(xmlBuffer * buffer, xmlCharEncodi
  *
  * Returns a pointer to the data or NULL in case of error
  */
-const xmlChar * xmlOutputBufferGetContent(xmlOutputBufferPtr out)
+const xmlChar * xmlOutputBufferGetContent(xmlOutputBuffer * out)
 {
 	return (out && out->buffer) ? xmlBufContent(out->buffer) : 0;
 }
@@ -2645,7 +2644,7 @@ const xmlChar * xmlOutputBufferGetContent(xmlOutputBufferPtr out)
  *
  * Returns 0 in case or error or no data is held, the size otherwise
  */
-size_t xmlOutputBufferGetSize(xmlOutputBufferPtr out)
+size_t xmlOutputBufferGetSize(xmlOutputBuffer * out)
 {
 	return (out && out->buffer) ? xmlBufUse(out->buffer) : 0;
 }
@@ -2755,7 +2754,7 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateStatic(const char * mem, int s
  *
  * Returns the new parser output or NULL
  */
-xmlOutputBufferPtr xmlOutputBufferCreateFd(int fd, xmlCharEncodingHandlerPtr encoder)
+xmlOutputBuffer * xmlOutputBufferCreateFd(int fd, xmlCharEncodingHandler * encoder)
 {
 	xmlOutputBuffer * ret = 0;
 	if(fd >= 0) {
@@ -2810,7 +2809,7 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateIO(xmlInputReadCallback ioread
  *
  * Returns the new parser output or NULL
  */
-xmlOutputBufferPtr xmlOutputBufferCreateIO(xmlOutputWriteCallback iowrite, xmlOutputCloseCallback ioclose, void * ioctx, xmlCharEncodingHandlerPtr encoder)
+xmlOutputBuffer * xmlOutputBufferCreateIO(xmlOutputWriteCallback iowrite, xmlOutputCloseCallback ioclose, void * ioctx, xmlCharEncodingHandler * encoder)
 {
 	xmlOutputBuffer * ret = 0;
 	if(iowrite) {
@@ -3217,7 +3216,7 @@ static int xmlEscapeContent(uchar* out, int * outlen, const xmlChar* in, int * i
  * Returns the number of chars immediately written, or -1
  *         in case of error.
  */
-int xmlOutputBufferWriteEscape(xmlOutputBufferPtr out, const xmlChar * str, xmlCharEncodingOutputFunc escaping)
+int xmlOutputBufferWriteEscape(xmlOutputBuffer * out, const xmlChar * str, xmlCharEncodingOutputFunc escaping)
 {
 	int nbchars = 0; /* number of chars to output to I/O */
 	int ret;     /* return from function call */
@@ -3333,7 +3332,7 @@ done:
  * Returns the number of chars immediately written, or -1
  *         in case of error.
  */
-int FASTCALL xmlOutputBufferWriteString(xmlOutputBufferPtr out, const char * str)
+int FASTCALL xmlOutputBufferWriteString(xmlOutputBuffer * out, const char * str)
 {
 	int    len = -1;
 	if(out && !out->error && str) {
@@ -3351,7 +3350,7 @@ int FASTCALL xmlOutputBufferWriteString(xmlOutputBufferPtr out, const char * str
  *
  * Returns the number of byte written or -1 in case of error.
  */
-int xmlOutputBufferFlush(xmlOutputBufferPtr out)
+int xmlOutputBufferFlush(xmlOutputBuffer * out)
 {
 	int nbchars = 0, ret = 0;
 	if((out == NULL) || (out->error))
@@ -3489,7 +3488,7 @@ xmlParserInputPtr xmlCheckHTTPInput(xmlParserCtxt * ctxt, xmlParserInputPtr ret)
 			if((xmlStrstr(BAD_CAST mime, BAD_CAST "/xml")) || (xmlStrstr(BAD_CAST mime, BAD_CAST "+xml"))) {
 				encoding = xmlNanoHTTPEncoding(ret->buf->context);
 				if(encoding) {
-					xmlCharEncodingHandlerPtr handler = xmlFindCharEncodingHandler(encoding);
+					xmlCharEncodingHandler * handler = xmlFindCharEncodingHandler(encoding);
 					if(handler) {
 						xmlSwitchInputEncoding(ctxt, ret, handler);
 					}

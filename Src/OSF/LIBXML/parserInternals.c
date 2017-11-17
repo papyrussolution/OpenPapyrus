@@ -778,8 +778,8 @@ int FASTCALL xmlCopyChar(int len ATTRIBUTE_UNUSED, xmlChar * out, int val)
 *									*
 ************************************************************************/
 
-static int xmlSwitchToEncodingInt(xmlParserCtxt * ctxt, xmlCharEncodingHandlerPtr handler, int len);
-static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandlerPtr handler, int len);
+static int xmlSwitchToEncodingInt(xmlParserCtxt * ctxt, xmlCharEncodingHandler * handler, int len);
+static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandler * handler, int len);
 /**
  * xmlSwitchEncoding:
  * @ctxt:  the parser context
@@ -941,7 +941,7 @@ int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc)
  *
  * Returns 0 in case of success, -1 otherwise
  */
-static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandlerPtr handler, int len)
+static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandler * handler, int len)
 {
 	int nbchars;
 	if(handler == NULL)
@@ -1057,7 +1057,7 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr inp
  *
  * Returns 0 in case of success, -1 otherwise
  */
-int xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandlerPtr handler)
+int xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandler * handler)
 {
 	return xmlSwitchInputEncodingInt(ctxt, input, handler, -1);
 }
@@ -1075,7 +1075,7 @@ int xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCha
  *
  * Returns 0 in case of success, -1 otherwise
  */
-static int xmlSwitchToEncodingInt(xmlParserCtxt * ctxt, xmlCharEncodingHandlerPtr handler, int len)
+static int xmlSwitchToEncodingInt(xmlParserCtxt * ctxt, xmlCharEncodingHandler * handler, int len)
 {
 	int ret = 0;
 	if(handler) {
@@ -1106,7 +1106,7 @@ static int xmlSwitchToEncodingInt(xmlParserCtxt * ctxt, xmlCharEncodingHandlerPt
  *
  * Returns 0 in case of success, -1 otherwise
  */
-int xmlSwitchToEncoding(xmlParserCtxt * ctxt, xmlCharEncodingHandlerPtr handler)
+int xmlSwitchToEncoding(xmlParserCtxt * ctxt, xmlCharEncodingHandler * handler)
 {
 	return (xmlSwitchToEncodingInt(ctxt, handler, -1));
 }

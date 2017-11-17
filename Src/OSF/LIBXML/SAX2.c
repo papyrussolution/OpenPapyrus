@@ -628,7 +628,7 @@ void xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * full
  *
  * An element definition has been parsed
  */
-void xmlSAX2ElementDecl(void * ctx, const xmlChar * name, int type, xmlElementContentPtr content)
+void xmlSAX2ElementDecl(void * ctx, const xmlChar * name, int type, xmlElementContent * content)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
 	xmlElementPtr elem = NULL;

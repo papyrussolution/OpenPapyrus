@@ -19,17 +19,19 @@
 extern "C" {
 #endif
 
+struct xmlBuffer;
 struct xmlTextWriter;
+struct xmlDoc;
 typedef xmlTextWriter * xmlTextWriterPtr;
 /*
  * Constructors & Destructor
  */
-XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriter(xmlOutputBufferPtr out);
-XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterFilename(const char * uri, int compression);
-XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterMemory(xmlBuffer * buf, int compression);
-XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterPushParser(xmlParserCtxt * ctxt, int compression);
-XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterDoc(xmlDocPtr * doc, int compression);
-XMLPUBFUN xmlTextWriterPtr XMLCALL xmlNewTextWriterTree(xmlDocPtr doc, xmlNodePtr P_Node, int compression);
+XMLPUBFUN xmlTextWriter * XMLCALL xmlNewTextWriter(xmlOutputBuffer * out);
+XMLPUBFUN xmlTextWriter * XMLCALL xmlNewTextWriterFilename(const char * uri, int compression);
+XMLPUBFUN xmlTextWriter * XMLCALL xmlNewTextWriterMemory(xmlBuffer * buf, int compression);
+XMLPUBFUN xmlTextWriter * XMLCALL xmlNewTextWriterPushParser(xmlParserCtxt * ctxt, int compression);
+XMLPUBFUN xmlTextWriter * XMLCALL xmlNewTextWriterDoc(xmlDoc ** doc, int compression);
+XMLPUBFUN xmlTextWriter * XMLCALL xmlNewTextWriterTree(xmlDoc * doc, xmlNodePtr P_Node, int compression);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeTextWriter(xmlTextWriter * pWriter);
 /*
  * Functions

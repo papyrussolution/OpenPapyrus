@@ -53,8 +53,8 @@
 #include <libxml/xmlschemas.h>
 #include <libxml/schemasInternals.h>
 #include <libxml/xmlschemastypes.h>
-#include <libxml/xmlautomata.h>
-#include <libxml/xmlregexp.h>
+//#include <libxml/xmlautomata.h>
+//#include <libxml/xmlregexp.h>
 //#include <libxml/dict.h>
 #ifdef LIBXML_PATTERN_ENABLED
 	#include <libxml/pattern.h>
@@ -23885,7 +23885,7 @@ int xmlSchemaValidateOneElement(xmlSchemaValidCtxtPtr ctxt, xmlNode * elem)
  * Returns 0 if the document is schemas valid, a positive error code
  *     number otherwise and -1 in case of internal or API error.
  */
-int xmlSchemaValidateDoc(xmlSchemaValidCtxtPtr ctxt, xmlDocPtr doc)
+int xmlSchemaValidateDoc(xmlSchemaValidCtxtPtr ctxt, xmlDoc * doc)
 {
 	int    result = -1;
 	if(ctxt && doc) {
@@ -23999,7 +23999,7 @@ static void attributeDeclSplit(void * ctx, const xmlChar * elem, const xmlChar *
 		xmlFreeEnumeration(tree);
 }
 
-static void elementDeclSplit(void * ctx, const xmlChar * name, int type, xmlElementContentPtr content)
+static void elementDeclSplit(void * ctx, const xmlChar * name, int type, xmlElementContent * content)
 {
 	xmlSchemaSAXPlugPtr ctxt = (xmlSchemaSAXPlugPtr)ctx;
 	if(ctxt && ctxt->user_sax && ctxt->user_sax->elementDecl)

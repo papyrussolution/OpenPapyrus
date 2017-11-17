@@ -3002,7 +3002,7 @@ int PPALDD_SCardSerView::InitIteration(PPIterID iterId, int /*sortId*/, long /*r
 {
 	IterProlog(iterId, 1);
 	PPObjSCardSeriesListWindow * p_v = (PPObjSCardSeriesListWindow *)Extra[1].Ptr;
-	return (p_v && p_v->InitIteration()) ? 1 : 0;
+	return BIN(p_v && p_v->InitIteration());
 }
 
 int PPALDD_SCardSerView::NextIteration(PPIterID iterId)
@@ -3012,7 +3012,7 @@ int PPALDD_SCardSerView::NextIteration(PPIterID iterId)
 	PPSCardSeries rec;
 	if(p_v && p_v->NextIteration(&rec) > 0) {
 		STRNSCPY(I.Name, rec.Name);
-		STRNSCPY(I.CodeTempl, rec.CodeTempl);
+		// @v9.8.9 STRNSCPY(I.CodeTempl, rec.CodeTempl);
 		I.QuotKindID = rec.QuotKindID_s;
 		I.PsnKindID  = rec.PersonKindID;
 		I.IssueDate  = rec.Issue;

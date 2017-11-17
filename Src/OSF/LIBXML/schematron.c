@@ -105,7 +105,7 @@ struct _xmlSchematronPattern {
 struct _xmlSchematron {
 	const xmlChar * name;   /* schema name */
 	int preserve;           /* was the document passed by the user */
-	xmlDocPtr doc;          /* pointer to the parsed document */
+	xmlDoc * doc;          /* pointer to the parsed document */
 	int flags;              /* specific to this schematron */
 	void * _private;        /* unused by the library */
 	xmlDict * dict;        /* the dictionnary used internally */
@@ -148,7 +148,7 @@ struct _xmlSchematronValidCtxt {
 struct _xmlSchematronParserCtxt {
 	int type;
 	const xmlChar * URL;
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	int preserve;           /* Whether the doc should be freed  */
 	const char * buffer;
 	int size;
@@ -554,7 +554,7 @@ xmlSchematronParserCtxtPtr xmlSchematronNewMemParserCtxt(const char * buffer, in
  *
  * Returns the parser context or NULL in case of error
  */
-xmlSchematronParserCtxtPtr xmlSchematronNewDocParserCtxt(xmlDocPtr doc)
+xmlSchematronParserCtxtPtr xmlSchematronNewDocParserCtxt(xmlDoc * doc)
 {
 	xmlSchematronParserCtxtPtr ret = 0;
 	if(doc) {
@@ -606,7 +606,7 @@ void xmlSchematronFreeParserCtxt(xmlSchematronParserCtxtPtr ctxt)
  *
  * Add an included document
  */
-static void xmlSchematronPushInclude(xmlSchematronParserCtxtPtr ctxt, xmlDocPtr doc, xmlNode * cur)
+static void xmlSchematronPushInclude(xmlSchematronParserCtxtPtr ctxt, xmlDoc * doc, xmlNode * cur)
 {
 	if(ctxt->includes == NULL) {
 		ctxt->maxIncludes = 10;
@@ -642,12 +642,12 @@ static void xmlSchematronPushInclude(xmlSchematronParserCtxtPtr ctxt, xmlDocPtr 
  */
 static xmlNode * xmlSchematronPopInclude(xmlSchematronParserCtxtPtr ctxt)
 {
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	xmlNode * ret;
 	if(ctxt->nbIncludes <= 0)
 		return 0;
 	ctxt->nbIncludes--;
-	doc = (xmlDocPtr)ctxt->includes[2 * ctxt->nbIncludes + 1];
+	doc = (xmlDoc *)ctxt->includes[2 * ctxt->nbIncludes + 1];
 	ret = ctxt->includes[2 * ctxt->nbIncludes];
 	xmlFreeDoc(doc);
 	if(ret)
@@ -834,7 +834,7 @@ static void xmlSchematronParsePattern(xmlSchematronParserCtxtPtr ctxt, xmlNode *
 static xmlNode * xmlSchematronLoadInclude(xmlSchematronParserCtxtPtr ctxt, xmlNode * cur)
 {
 	xmlNode * ret = NULL;
-	xmlDocPtr doc = NULL;
+	xmlDoc * doc = NULL;
 	xmlChar * href = NULL;
 	xmlChar * base = NULL;
 	xmlChar * URI = NULL;
@@ -888,7 +888,7 @@ done:
 xmlSchematronPtr xmlSchematronParse(xmlSchematronParserCtxtPtr ctxt)
 {
 	xmlSchematronPtr ret = NULL;
-	xmlDocPtr doc;
+	xmlDoc * doc;
 	xmlNode * root;
 	xmlNode * cur;
 	int preserve = 0;
@@ -1335,7 +1335,7 @@ static xmlNode * xmlSchematronNextNode(xmlNode * cur)
  * Returns 1 in case of success, 0 if error and -1 in case of internal error
  */
 static int xmlSchematronRunTest(xmlSchematronValidCtxtPtr ctxt,
-    xmlSchematronTestPtr test, xmlDocPtr instance, xmlNode * cur, xmlSchematronPatternPtr pattern)
+    xmlSchematronTestPtr test, xmlDoc * instance, xmlNode * cur, xmlSchematronPatternPtr pattern)
 {
 	xmlXPathObjectPtr ret;
 	int failed = 0;
@@ -1390,7 +1390,7 @@ static int xmlSchematronRunTest(xmlSchematronValidCtxtPtr ctxt,
  * Returns 0 in case of success, -1 in case of internal error
  *         and an error count otherwise.
  */
-int xmlSchematronValidateDoc(xmlSchematronValidCtxtPtr ctxt, xmlDocPtr instance)
+int xmlSchematronValidateDoc(xmlSchematronValidCtxtPtr ctxt, xmlDoc * instance)
 {
 	xmlNode * cur;
 	xmlNode * root;
@@ -1457,7 +1457,7 @@ int xmlSchematronValidateDoc(xmlSchematronValidCtxtPtr ctxt, xmlDocPtr instance)
 int main()
 {
 	int ret;
-	xmlDocPtr instance;
+	xmlDoc * instance;
 	xmlSchematronValidCtxtPtr vctxt;
 	xmlSchematronPtr schema = NULL;
 	xmlSchematronParserCtxtPtr pctxt = xmlSchematronNewParserCtxt("tst.sct");

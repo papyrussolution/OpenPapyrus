@@ -886,7 +886,7 @@ static void xmlCtxtDumpNodeList(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 		xmlCtxtDumpNode(ctxt, P_Node);
 }
 
-static void xmlCtxtDumpDocHead(xmlDebugCtxt * ctxt, xmlDocPtr doc)
+static void xmlCtxtDumpDocHead(xmlDebugCtxt * ctxt, xmlDoc * doc)
 {
 	if(!doc) {
 		if(!ctxt->check)
@@ -924,7 +924,7 @@ static void xmlCtxtDumpDocHead(xmlDebugCtxt * ctxt, xmlDocPtr doc)
  *
  * Dumps debug information cncerning the document, not recursive
  */
-static void xmlCtxtDumpDocumentHead(xmlDebugCtxt * ctxt, xmlDocPtr doc)
+static void xmlCtxtDumpDocumentHead(xmlDebugCtxt * ctxt, xmlDoc * doc)
 {
 	if(doc) {
 		xmlCtxtDumpDocHead(ctxt, doc);
@@ -964,7 +964,7 @@ static void xmlCtxtDumpDocumentHead(xmlDebugCtxt * ctxt, xmlDocPtr doc)
  *
  * Dumps debug information for the document, it's recursive
  */
-static void xmlCtxtDumpDocument(xmlDebugCtxt * ctxt, xmlDocPtr doc)
+static void xmlCtxtDumpDocument(xmlDebugCtxt * ctxt, xmlDoc * doc)
 {
 	if(!doc) {
 		if(!ctxt->check)
@@ -1014,7 +1014,7 @@ static void xmlCtxtDumpEntityCallback(xmlEntity * cur, xmlDebugCtxt * ctxt)
  *
  * Dumps debug information for all the entities in use by the document
  */
-static void xmlCtxtDumpEntities(xmlDebugCtxt * ctxt, xmlDocPtr doc)
+static void xmlCtxtDumpEntities(xmlDebugCtxt * ctxt, xmlDoc * doc)
 {
 	if(doc) {
 		xmlCtxtDumpDocHead(ctxt, doc);
@@ -1119,7 +1119,7 @@ void xmlDebugDumpAttr(FILE * output, xmlAttrPtr attr, int depth)
  *
  * Dumps debug information for all the entities in use by the document
  */
-void xmlDebugDumpEntities(FILE * output, xmlDocPtr doc)
+void xmlDebugDumpEntities(FILE * output, xmlDoc * doc)
 {
 	if(output) {
 		xmlDebugCtxt ctxt(output);
@@ -1202,7 +1202,7 @@ void xmlDebugDumpNodeList(FILE * output, xmlNode * P_Node, int depth)
  *
  * Dumps debug information cncerning the document, not recursive
  */
-void xmlDebugDumpDocumentHead(FILE * output, xmlDocPtr doc)
+void xmlDebugDumpDocumentHead(FILE * output, xmlDoc * doc)
 {
 	SETIFZ(output, stdout);
 	xmlDebugCtxt ctxt(output);
@@ -1217,7 +1217,7 @@ void xmlDebugDumpDocumentHead(FILE * output, xmlDocPtr doc)
  *
  * Dumps debug information for the document, it's recursive
  */
-void xmlDebugDumpDocument(FILE * output, xmlDocPtr doc)
+void xmlDebugDumpDocument(FILE * output, xmlDoc * doc)
 {
 	SETIFZ(output, stdout);
 	xmlDebugCtxt ctxt(output);
@@ -1255,7 +1255,7 @@ void xmlDebugDumpDTD(FILE * output, xmlDtdPtr dtd)
  *
  * Returns the number of errors found
  */
-int xmlDebugCheckDocument(FILE * output, xmlDocPtr doc)
+int xmlDebugCheckDocument(FILE * output, xmlDoc * doc)
 {
 	SETIFZ(output, stdout);
 	xmlDebugCtxt ctxt(output);
@@ -1294,7 +1294,7 @@ int xmlLsCountNode(xmlNode * P_Node)
 #ifdef LIBXML_DOCB_ENABLED
 		case XML_DOCB_DOCUMENT_NODE:
 #endif
-		    list = ((xmlDocPtr)P_Node)->children;
+		    list = ((xmlDoc *)P_Node)->children;
 		    break;
 		case XML_ATTRIBUTE_NODE:
 		    list = ((xmlAttr *)P_Node)->children;
@@ -1495,7 +1495,7 @@ static void xmlShellPrintNodeCtxt(xmlShellCtxtPtr ctxt, xmlNode * P_Node)
 	if(P_Node) {
 		FILE * fp = ctxt ? ctxt->output : stdout;
 		if(P_Node->type == XML_DOCUMENT_NODE)
-			xmlDocDump(fp, (xmlDocPtr)P_Node);
+			xmlDocDump(fp, (xmlDoc *)P_Node);
 		else if(P_Node->type == XML_ATTRIBUTE_NODE)
 			xmlDebugDumpAttrList(fp, (xmlAttr *)P_Node, 0);
 		else
@@ -1585,7 +1585,7 @@ int xmlShellList(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * P_
 		}
 		else {
 			if((P_Node->type == XML_DOCUMENT_NODE) || (P_Node->type == XML_HTML_DOCUMENT_NODE)) {
-				cur = ((xmlDocPtr)P_Node)->children;
+				cur = ((xmlDoc *)P_Node)->children;
 			}
 			else if(P_Node->type == XML_NAMESPACE_DECL) {
 				xmlLsOneNode(ctxt->output, P_Node);
@@ -1781,7 +1781,7 @@ static int xmlShellGrep(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg, xmlNo
 		 * Browse the full subtree, deep first
 		 */
 		if((P_Node->type == XML_DOCUMENT_NODE) || (P_Node->type == XML_HTML_DOCUMENT_NODE)) {
-			P_Node = ((xmlDocPtr)P_Node)->children;
+			P_Node = ((xmlDoc *)P_Node)->children;
 		}
 		else if((P_Node->children != NULL) && (P_Node->type != XML_ENTITY_REF_NODE)) {
 			/* deep first */
@@ -1831,7 +1831,7 @@ int xmlShellDir(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * arg ATTRIBUTE_UNUS
 		}
 		else {
 			if((P_Node->type == XML_DOCUMENT_NODE) || (P_Node->type == XML_HTML_DOCUMENT_NODE)) {
-				xmlDebugDumpDocumentHead(ctxt->output, (xmlDocPtr)P_Node);
+				xmlDebugDumpDocumentHead(ctxt->output, (xmlDoc *)P_Node);
 			}
 			else if(P_Node->type == XML_ATTRIBUTE_NODE) {
 				xmlDebugDumpAttr(ctxt->output, (xmlAttr *)P_Node, 0);
@@ -1955,14 +1955,14 @@ int xmlShellCat(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * P_N
 			htmlNodeDumpFile(ctxt->output, ctxt->doc, P_Node);
 #else
 		if(node->type == XML_DOCUMENT_NODE)
-			xmlDocDump(ctxt->output, (xmlDocPtr)node);
+			xmlDocDump(ctxt->output, (xmlDoc *)node);
 		else
 			xmlElemDump(ctxt->output, ctxt->doc, node);
 #endif /* LIBXML_HTML_ENABLED */
 	}
 	else {
 		if(P_Node->type == XML_DOCUMENT_NODE)
-			xmlDocDump(ctxt->output, (xmlDocPtr)P_Node);
+			xmlDocDump(ctxt->output, (xmlDoc *)P_Node);
 		else
 			xmlElemDump(ctxt->output, ctxt->doc, P_Node);
 	}
@@ -2216,7 +2216,7 @@ int xmlShellDu(xmlShellCtxtPtr ctxt, char * arg ATTRIBUTE_UNUSED, xmlNode * tree
 		 */
 
 		if((P_Node->type == XML_DOCUMENT_NODE) || (P_Node->type == XML_HTML_DOCUMENT_NODE)) {
-			P_Node = ((xmlDocPtr)P_Node)->children;
+			P_Node = ((xmlDoc *)P_Node)->children;
 		}
 		else if(P_Node->children && (P_Node->type != XML_ENTITY_REF_NODE)) {
 			/* deep first */
@@ -2304,7 +2304,7 @@ int xmlShellPwd(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * buffer, xmlNode * 
  * This allow to load, validate, view, modify and save a document
  * using a environment similar to a UNIX commandline.
  */
-void xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE * output)
+void xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * output)
 {
 	char prompt[500] = "/ > ";
 	char * cmdline = NULL, * cur;

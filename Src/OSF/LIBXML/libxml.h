@@ -94,11 +94,6 @@ int __xmlInitializeDict(void);
 int xmlNop(void);
 #ifdef IN_LIBXML
 // @sobolev {
-//#include <string.h>
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <stdarg.h>
-//#include <limits.h>
 #ifdef HAVE_CTYPE_H
 	#include <ctype.h>
 #endif
@@ -160,15 +155,17 @@ XMLPUBFUN int XMLCALL xmlUTF8Charcmp(const xmlChar * utf1, const xmlChar * utf2)
 #include <libxml/xmlmemory.h>
 #include <libxml/xmlerror.h>
 #include <libxml/hash.h>
+#include <libxml/xmlregexp.h>
 #include <libxml/tree.h>
 //#include <libxml/uri.h>
+#include <libxml/encoding.h>
 #include <libxml/xmlIO.h>
 #include <libxml/list.h>
+#include <libxml/xmlautomata.h>
 #include <libxml/valid.h>
-#include <libxml/parser.h>
-#include <libxml/encoding.h>
-#include <libxml/parserInternals.h>
 #include <libxml/entities.h>
+#include <libxml/parser.h>
+#include <libxml/parserInternals.h>
 #include <libxml/threads.h>
 #include <libxml/SAX.h>
 #include <libxml/SAX2.h>
@@ -251,7 +248,7 @@ struct xmlURI {
 typedef xmlURI * xmlURIPtr;
 // 
 // This function is in tree.h:
-// xmlChar * xmlNodeGetBase(xmlDocPtr doc, xmlNode * cur);
+// xmlChar * xmlNodeGetBase(xmlDoc * doc, xmlNode * cur);
 // 
 XMLPUBFUN xmlURIPtr XMLCALL xmlCreateURI();
 XMLPUBFUN xmlChar * XMLCALL xmlBuildURI(const xmlChar * URI, const xmlChar * base);
@@ -371,7 +368,7 @@ int FASTCALL xmlCharEncOutput(xmlOutputBuffer * output, int init);
 	XMLPUBFUN xmlChar * XMLCALL xmlCatalogResolveURI(const xmlChar * URI);
 	XMLPUBFUN int XMLCALL xmlCatalogAdd(const xmlChar * type, const xmlChar * orig, const xmlChar * replace);
 	XMLPUBFUN int XMLCALL xmlCatalogRemove(const xmlChar * value);
-	XMLPUBFUN xmlDocPtr XMLCALL xmlParseCatalogFile(const char * filename);
+	XMLPUBFUN xmlDoc * XMLCALL xmlParseCatalogFile(const char * filename);
 	XMLPUBFUN int XMLCALL xmlCatalogConvert();
 	// 
 	// Strictly minimal interfaces for per-document catalogs used by the parser.

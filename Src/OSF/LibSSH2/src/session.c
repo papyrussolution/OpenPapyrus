@@ -360,15 +360,13 @@ static int get_socket_nonblocking(int sockfd)
 #if defined(SO_STATE) && defined( __VMS ) && (GETBLOCK == 0)
 
 	/* VMS TCP/IP Services */
-
 	size_t sockstat = 0;
-	int callstat = 0;
 	size_t size = sizeof( int );
-
-	callstat = getsockopt(sockfd, SOL_SOCKET, SO_STATE,
-	    (char*)&sockstat, &size);
-	if(callstat == -1) return(0);
-	if( (sockstat&SS_NBIO) ) return(1);
+	int callstat = getsockopt(sockfd, SOL_SOCKET, SO_STATE, (char*)&sockstat, &size);
+	if(callstat == -1)
+		return(0);
+	if((sockstat&SS_NBIO))
+		return(1);
 	return(0);
 
 #undef GETBLOCK
@@ -419,7 +417,6 @@ LIBSSH2_API int libssh2_banner_set(LIBSSH2_SESSION * session, const char * banne
 {
 	return libssh2_session_banner_set(session, banner);
 }
-
 /*
  * libssh2_session_init_ex
  *
@@ -447,9 +444,9 @@ LIBSSH2_API LIBSSH2_SESSION * libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_al
 	session = (LIBSSH2_SESSION *)local_alloc(sizeof(LIBSSH2_SESSION), &abstract);
 	if(session) {
 		memzero(session, sizeof(LIBSSH2_SESSION));
-		session->alloc = local_alloc;
-		session->free = local_free;
-		session->realloc = local_realloc;
+		//session->alloc = local_alloc;
+		//session->free = local_free;
+		//session->realloc = local_realloc;
 		session->send = _libssh2_send;
 		session->recv = _libssh2_recv;
 		session->abstract = abstract;
@@ -1423,9 +1420,9 @@ LIBSSH2_API int libssh2_session_block_directions(LIBSSH2_SESSION * session)
 LIBSSH2_API const char * libssh2_session_banner_get(LIBSSH2_SESSION * session)
 {
 	/* to avoid a coredump when session is NULL */
-	if(NULL == session)
+	if(!session)
 		return NULL;
-	if(NULL==session->remote.banner)
+	if(!session->remote.banner)
 		return NULL;
 	return (const char*)session->remote.banner;
 }

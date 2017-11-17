@@ -120,6 +120,7 @@
     <ClCompile Include="..\Slib\xtagpars.cpp" />
     <ClCompile Include="..\SLib\suc.cpp" />
     <ClCompile Include="..\SLib\curl-parsedate.cpp" />
+    <ClCompile Include="..\SLib\uchardet.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\fann.h">
@@ -168,6 +169,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\snet.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Include\uchardet.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

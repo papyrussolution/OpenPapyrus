@@ -14,10 +14,10 @@ Demo         = 0
 OpenSource   = 1
 MajorVer     =9
 MinorVer     =8
-Revision     =8
-AssemblyVer=24075
+Revision     =9
+AssemblyVer=24111
 MinMajorVer  =9
-MinMinorVer  =4
-MinRevision  =0
+MinMinorVer  =8
+MinRevision  =9
 
 DefPassword  = 4892cGxI6DDTYX8a

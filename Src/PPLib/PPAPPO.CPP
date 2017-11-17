@@ -441,7 +441,13 @@ int PPApp::processCommand(uint cmd)
 		case cmPckgType:             ShowObjects(PPOBJ_PCKGTYPE, 0);          break;
 		case cmGoodsBasket:          ShowObjects(PPOBJ_GOODSBASKET, 0);	      break;
 		case cmBht:                  ShowObjects(PPOBJ_BHT, 0);               break;
-		case cmSCardSeries:          ShowObjects(PPOBJ_SCARDSERIES, 0);       break;
+		case cmSCardSeries:          
+			{
+				SCardSeriesFilt scs_filt;
+				scs_filt.Flags |= SCardSeriesFilt::fShowPassive;
+				ShowObjects(PPOBJ_SCARDSERIES, &scs_filt); 
+			}
+			break;
 		case cmDraftWrOff:           ShowObjects(PPOBJ_DRAFTWROFF, 0);        break;
 		case cmAssetWrOffGrp:        ShowObjects(PPOBJ_ASSTWROFFGRP, 0);      break;
 		case cmAdvBillKind:          ShowObjects(PPOBJ_ADVBILLKIND, 0);       break;

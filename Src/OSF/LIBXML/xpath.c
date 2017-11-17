@@ -5725,7 +5725,7 @@ static uint xmlXPathNodeValHash(xmlNode * P_Node)
 	if(!P_Node)
 		return 0;
 	if(P_Node->type == XML_DOCUMENT_NODE) {
-		tmp = xmlDocGetRootElement((xmlDocPtr)P_Node);
+		tmp = xmlDocGetRootElement((xmlDoc *)P_Node);
 		if(!tmp)
 			P_Node = P_Node->children;
 		else
@@ -7028,7 +7028,7 @@ xmlNode * xmlXPathNextChild(xmlXPathParserContextPtr ctxt, xmlNode * cur)
 #ifdef LIBXML_DOCB_ENABLED
 			case XML_DOCB_DOCUMENT_NODE:
 #endif
-			    return(((xmlDocPtr)ctxt->context->P_Node)->children);
+			    return(((xmlDoc *)ctxt->context->P_Node)->children);
 			case XML_ELEMENT_DECL:
 			case XML_ATTRIBUTE_DECL:
 			case XML_ENTITY_DECL:
@@ -7085,7 +7085,7 @@ static xmlNode * xmlXPathNextChildElement(xmlXPathParserContextPtr ctxt, xmlNode
 #ifdef LIBXML_DOCB_ENABLED
 			case XML_DOCB_DOCUMENT_NODE:
 #endif
-			    return(xmlDocGetRootElement((xmlDocPtr)cur));
+			    return(xmlDocGetRootElement((xmlDoc *)cur));
 			default:
 			    return 0;
 		}
@@ -7176,7 +7176,7 @@ static xmlNode * xmlXPathNextDescendantOrSelfElemParent(xmlNode * cur, xmlNode *
 				case XML_HTML_DOCUMENT_NODE:
 				    if(cur != start)
 					    return cur;
-				    return(xmlDocGetRootElement((xmlDocPtr)cur));
+				    return(xmlDocGetRootElement((xmlDoc *)cur));
 				default:
 				    break;
 			}
@@ -7905,7 +7905,7 @@ void xmlXPathCountFunction(xmlXPathParserContextPtr ctxt, int nargs)
  *
  * Returns a node-set of selected elements.
  */
-static xmlNodeSetPtr xmlXPathGetElementsByIds(xmlDocPtr doc, const xmlChar * ids)
+static xmlNodeSetPtr xmlXPathGetElementsByIds(xmlDoc * doc, const xmlChar * ids)
 {
 	xmlNodeSetPtr ret;
 	const xmlChar * cur = ids;

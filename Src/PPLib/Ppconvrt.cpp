@@ -3740,7 +3740,7 @@ IMPL_REF2CVT_FUNC(PPBhtTerminal) // {
 }
 
 IMPL_REF2CVT_FUNC(PPSCardSeries) // {
-	STRNSCPY(rRec2.CodeTempl, rRec.CodeTempl);
+	// @v9.8.9 STRNSCPY(rRec2.CodeTempl, rRec.CodeTempl);
 	rRec2.QuotKindID_s = rRec.QuotKindID;
 	REF2CVT_ASSIGN(PersonKindID);
 	REF2CVT_ASSIGN(PDis);
@@ -7099,3 +7099,6 @@ private:
 };
 
 CONVERT_PROC(Convert9400, PPCvtSCard9400);
+//
+//
+//

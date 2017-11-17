@@ -1174,6 +1174,9 @@
 				RelativePath="..\SLib\Twindow.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\uchardet.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\ui.cpp">
 			</File>
 			<File
@@ -3383,6 +3386,9 @@
 			</File>
 			<File
 				RelativePath="..\Include\Tvdefs.h">
+			</File>
+			<File
+				RelativePath="..\Include\uchardet.h">
 			</File>
 			<File
 				RelativePath="..\Slib\xtagpars.cpp">

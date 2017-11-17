@@ -383,62 +383,45 @@ static int hostkey_method_ssh_dss_initPEMFromMemory(LIBSSH2_SESSION * session,
  *
  * Verify signature created by remote
  */
-static int hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION * session,
-    const uchar * sig,
-    size_t sig_len,
-    const uchar * m,
-    size_t m_len, void ** abstract)
+static int hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION * session, const uchar * sig, size_t sig_len, const uchar * m, size_t m_len, void ** abstract)
 {
 	libssh2_dsa_ctx * dsactx = (libssh2_dsa_ctx*)(*abstract);
-
 	/* Skip past keyname_len(4) + keyname(7){"ssh-dss"} + signature_len(4) */
 	sig += 15;
 	sig_len -= 15;
 	if(sig_len != 40) {
-		return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-		    "Invalid DSS signature length");
+		return _libssh2_error(session, LIBSSH2_ERROR_PROTO, "Invalid DSS signature length");
 	}
 	return _libssh2_dsa_sha1_verify(dsactx, sig, m, m_len);
 }
-
 /*
  * hostkey_method_ssh_dss_signv
  *
  * Construct a signature from an array of vectors
  */
-static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION * session,
-    uchar ** signature,
-    size_t * signature_len,
-    int veccount,
-    const struct iovec datavec[],
-    void ** abstract)
+static int hostkey_method_ssh_dss_signv(LIBSSH2_SESSION * session, uchar ** signature, size_t * signature_len,
+    int veccount, const struct iovec datavec[], void ** abstract)
 {
 	libssh2_dsa_ctx * dsactx = (libssh2_dsa_ctx*)(*abstract);
 	uchar hash[SHA_DIGEST_LENGTH];
 	libssh2_sha1_ctx ctx;
 	int i;
-
 	*signature = (uchar *)LIBSSH2_CALLOC(session, 2 * SHA_DIGEST_LENGTH);
 	if(!*signature) {
 		return -1;
 	}
-
 	*signature_len = 2 * SHA_DIGEST_LENGTH;
-
 	libssh2_sha1_init(&ctx);
 	for(i = 0; i < veccount; i++) {
 		libssh2_sha1_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
 	}
 	libssh2_sha1_final(ctx, hash);
-
 	if(_libssh2_dsa_sha1_sign(dsactx, hash, SHA_DIGEST_LENGTH, *signature)) {
 		LIBSSH2_FREE(session, *signature);
 		return -1;
 	}
-
 	return 0;
 }
-
 /*
  * libssh2_hostkey_method_ssh_dss_dtor
  *
@@ -448,11 +431,8 @@ static int hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION * session, void ** abstra
 {
 	libssh2_dsa_ctx * dsactx = (libssh2_dsa_ctx*)(*abstract);
 	(void)session;
-
 	_libssh2_dsa_free(dsactx);
-
 	*abstract = NULL;
-
 	return 0;
 }
 

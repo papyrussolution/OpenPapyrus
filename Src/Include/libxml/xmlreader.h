@@ -12,7 +12,7 @@
 
 #include <libxml/xmlversion.h>
 #include <libxml/tree.h>
-//#include <libxml/xmlIO.h>
+#include <libxml/xmlIO.h>
 #ifdef LIBXML_SCHEMAS_ENABLED
 #include <libxml/relaxng.h>
 #include <libxml/xmlschemas.h>
@@ -189,7 +189,7 @@ XMLPUBFUN xmlNode * XMLCALL xmlTextReaderPreserve(xmlTextReader * reader);
 #ifdef LIBXML_PATTERN_ENABLED
 XMLPUBFUN int XMLCALL xmlTextReaderPreservePattern(xmlTextReader * reader, const xmlChar * pattern, const xmlChar ** namespaces);
 #endif /* LIBXML_PATTERN_ENABLED */
-XMLPUBFUN xmlDocPtr XMLCALL xmlTextReaderCurrentDoc(xmlTextReader * reader);
+XMLPUBFUN xmlDoc * XMLCALL xmlTextReaderCurrentDoc(xmlTextReader * reader);
 XMLPUBFUN xmlNode * XMLCALL xmlTextReaderExpand(xmlTextReader * reader);
 XMLPUBFUN int XMLCALL xmlTextReaderNext(xmlTextReader * reader);
 XMLPUBFUN int XMLCALL xmlTextReaderNextSibling(xmlTextReader * reader);
@@ -220,7 +220,7 @@ XMLPUBFUN xmlTextReaderPtr XMLCALL xmlReaderForMemory(const char * buffer, int s
 XMLPUBFUN xmlTextReaderPtr XMLCALL xmlReaderForFd(int fd, const char * URL, const char * encoding, int options);
 XMLPUBFUN xmlTextReaderPtr XMLCALL xmlReaderForIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose,
     void * ioctx, const char * URL, const char * encoding, int options);
-XMLPUBFUN int XMLCALL xmlReaderNewWalker(xmlTextReader * reader, xmlDocPtr doc);
+XMLPUBFUN int XMLCALL xmlReaderNewWalker(xmlTextReader * reader, xmlDoc * doc);
 XMLPUBFUN int XMLCALL xmlReaderNewDoc(xmlTextReader * reader, const xmlChar * cur, const char * URL, const char * encoding, int options);
 XMLPUBFUN int XMLCALL xmlReaderNewFile(xmlTextReader * reader, const char * filename, const char * encoding, int options);
 XMLPUBFUN int XMLCALL xmlReaderNewMemory(xmlTextReader * reader, const char * buffer, int size, const char * URL,

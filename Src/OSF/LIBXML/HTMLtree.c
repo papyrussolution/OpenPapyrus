@@ -278,7 +278,7 @@ int htmlIsBooleanAttr(const xmlChar * name)
 /*
  * private routine exported from xmlIO.c
  */
-xmlOutputBufferPtr xmlAllocOutputBufferInternal(xmlCharEncodingHandlerPtr encoder);
+xmlOutputBuffer * xmlAllocOutputBufferInternal(xmlCharEncodingHandler * encoder);
 /************************************************************************
 *									*
 *			Output error handlers				*
@@ -333,7 +333,7 @@ static void FASTCALL htmlSaveErr(int code, xmlNodePtr P_Node, const char * extra
  *
  * Returns the number of byte written or -1 in case of error
  */
-static size_t htmlBufNodeDumpFormat(xmlBufPtr buf, xmlDocPtr doc, xmlNodePtr cur, int format) 
+static size_t htmlBufNodeDumpFormat(xmlBufPtr buf, xmlDoc * doc, xmlNodePtr cur, int format) 
 {
 	int ret = -1;
 	if(cur && buf) {
@@ -367,7 +367,7 @@ static size_t htmlBufNodeDumpFormat(xmlBufPtr buf, xmlDocPtr doc, xmlNodePtr cur
  *
  * Returns the number of byte written or -1 in case of error
  */
-int htmlNodeDump(xmlBuffer * buf, xmlDocPtr doc, xmlNode * cur) 
+int htmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNode * cur) 
 {
 	xmlBufPtr buffer;
 	size_t ret;
@@ -395,9 +395,9 @@ int htmlNodeDump(xmlBuffer * buf, xmlDocPtr doc, xmlNode * cur)
  *
  * returns: the number of byte written or -1 in case of failure.
  */
-int htmlNodeDumpFileFormat(FILE * out, xmlDocPtr doc, xmlNodePtr cur, const char * encoding, int format) 
+int htmlNodeDumpFileFormat(FILE * out, xmlDoc * doc, xmlNodePtr cur, const char * encoding, int format) 
 {
-	xmlOutputBufferPtr buf;
+	xmlOutputBuffer * buf;
 	xmlCharEncodingHandler * handler = NULL;
 	int ret;
 	xmlInitParser();
@@ -434,7 +434,7 @@ int htmlNodeDumpFileFormat(FILE * out, xmlDocPtr doc, xmlNodePtr cur, const char
  * Dump an HTML node, recursive behaviour,children are printed too,
  * and formatting returns are added.
  */
-void htmlNodeDumpFile(FILE * out, xmlDocPtr doc, xmlNode * cur) 
+void htmlNodeDumpFile(FILE * out, xmlDoc * doc, xmlNode * cur) 
 {
 	htmlNodeDumpFileFormat(out, doc, cur, NULL, 1);
 }
@@ -448,7 +448,7 @@ void htmlNodeDumpFile(FILE * out, xmlDocPtr doc, xmlNode * cur)
  * Dump an HTML document in memory and return the xmlChar * and it's size.
  * It's up to the caller to free the memory.
  */
-void htmlDocDumpMemoryFormat(xmlDocPtr cur, xmlChar** mem, int * size, int format) 
+void htmlDocDumpMemoryFormat(xmlDoc * cur, xmlChar** mem, int * size, int format) 
 {
 	xmlCharEncodingHandler * handler = NULL;
 	xmlInitParser();
@@ -510,7 +510,7 @@ void htmlDocDumpMemoryFormat(xmlDocPtr cur, xmlChar** mem, int * size, int forma
  * Dump an HTML document in memory and return the xmlChar * and it's size.
  * It's up to the caller to free the memory.
  */
-void htmlDocDumpMemory(xmlDocPtr cur, xmlChar** mem, int * size) 
+void htmlDocDumpMemory(xmlDoc * cur, xmlChar** mem, int * size) 
 {
 	htmlDocDumpMemoryFormat(cur, mem, size, 1);
 }
@@ -521,7 +521,7 @@ void htmlDocDumpMemory(xmlDocPtr cur, xmlChar** mem, int * size)
 *									*
 ************************************************************************/
 
-void xmlNsListDumpOutput(xmlOutputBufferPtr buf, xmlNs * cur);
+void xmlNsListDumpOutput(xmlOutputBuffer * buf, xmlNs * cur);
 /**
  * htmlDtdDumpOutput:
  * @buf:  the HTML buffer output
@@ -532,7 +532,7 @@ void xmlNsListDumpOutput(xmlOutputBufferPtr buf, xmlNs * cur);
  *
  * Dump the HTML document DTD, if any.
  */
-static void htmlDtdDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, const char * encoding ATTRIBUTE_UNUSED) 
+static void htmlDtdDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, const char * encoding ATTRIBUTE_UNUSED) 
 {
 	xmlDtdPtr cur = doc->intSubset;
 	if(!cur) {
@@ -566,7 +566,7 @@ static void htmlDtdDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, const char 
  *
  * Dump an HTML attribute
  */
-static void htmlAttrDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlAttrPtr cur, const char * encoding ATTRIBUTE_UNUSED) 
+static void htmlAttrDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlAttrPtr cur, const char * encoding ATTRIBUTE_UNUSED) 
 {
 	xmlChar * value;
 	/*
@@ -649,7 +649,7 @@ static void htmlAttrDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlAttrPtr
  *
  * Dump a list of HTML attributes
  */
-static void htmlAttrListDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlAttrPtr cur, const char * encoding) 
+static void htmlAttrListDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlAttrPtr cur, const char * encoding) 
 {
 	for(; cur; cur = cur->next)
 		htmlAttrDumpOutput(buf, doc, cur, encoding);
@@ -664,7 +664,7 @@ static void htmlAttrListDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlAtt
  *
  * Dump an HTML node list, recursive behaviour,children are printed too.
  */
-static void htmlNodeListDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNodePtr cur, const char * encoding, int format) 
+static void htmlNodeListDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cur, const char * encoding, int format) 
 {
 	for(; cur; cur = cur->next)
 		htmlNodeDumpFormatOutput(buf, doc, cur, encoding, format);
@@ -680,7 +680,7 @@ static void htmlNodeListDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNod
  *
  * Dump an HTML node, recursive behaviour,children are printed too.
  */
-void htmlNodeDumpFormatOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNodePtr cur, const char * encoding, int format) 
+void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cur, const char * encoding, int format) 
 {
 	xmlInitParser();
 	if(cur && buf) {
@@ -690,7 +690,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNodePtr 
 		if(cur->type == XML_DTD_NODE) {
 		}
 		else if(oneof2(cur->type, XML_HTML_DOCUMENT_NODE, XML_DOCUMENT_NODE))
-			htmlDocContentDumpOutput(buf, (xmlDocPtr)cur, encoding);
+			htmlDocContentDumpOutput(buf, (xmlDoc *)cur, encoding);
 		else if(cur->type == XML_ATTRIBUTE_NODE)
 			htmlAttrDumpOutput(buf, doc, (xmlAttr *)cur, encoding);
 		else if(cur->type == HTML_TEXT_NODE) {
@@ -810,7 +810,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNodePtr 
  * Dump an HTML node, recursive behaviour,children are printed too,
  * and formatting returns/spaces are added.
  */
-void htmlNodeDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNodePtr cur, const char * encoding) 
+void htmlNodeDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cur, const char * encoding) 
 {
 	htmlNodeDumpFormatOutput(buf, doc, cur, encoding, 1);
 }
@@ -823,7 +823,7 @@ void htmlNodeDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr doc, xmlNodePtr cur, c
  *
  * Dump an HTML document.
  */
-void htmlDocContentDumpFormatOutput(xmlOutputBufferPtr buf, xmlDocPtr cur, const char * encoding, int format) 
+void htmlDocContentDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding, int format) 
 {
 	xmlInitParser();
 	if(buf && cur) {
@@ -848,7 +848,7 @@ void htmlDocContentDumpFormatOutput(xmlOutputBufferPtr buf, xmlDocPtr cur, const
  *
  * Dump an HTML document. Formating return/spaces are added.
  */
-void htmlDocContentDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr cur, const char * encoding) 
+void htmlDocContentDumpOutput(xmlOutputBuffer * buf, xmlDoc * cur, const char * encoding) 
 {
 	htmlDocContentDumpFormatOutput(buf, cur, encoding, 1);
 }
@@ -868,9 +868,9 @@ void htmlDocContentDumpOutput(xmlOutputBufferPtr buf, xmlDocPtr cur, const char 
  *
  * returns: the number of byte written or -1 in case of failure.
  */
-int htmlDocDump(FILE * f, xmlDocPtr cur) 
+int htmlDocDump(FILE * f, xmlDoc * cur) 
 {
-	xmlOutputBufferPtr buf;
+	xmlOutputBuffer * buf;
 	xmlCharEncodingHandler * handler = NULL;
 	int ret = -1;
 	xmlInitParser();
@@ -913,9 +913,9 @@ int htmlDocDump(FILE * f, xmlDocPtr cur)
  * used.
  * returns: the number of byte written or -1 in case of failure.
  */
-int htmlSaveFile(const char * filename, xmlDocPtr cur) 
+int htmlSaveFile(const char * filename, xmlDoc * cur) 
 {
-	xmlOutputBufferPtr buf;
+	xmlOutputBuffer * buf;
 	xmlCharEncodingHandler * handler = NULL;
 	const char * encoding;
 	int ret;
@@ -961,9 +961,9 @@ int htmlSaveFile(const char * filename, xmlDocPtr cur)
  *
  * returns: the number of byte written or -1 in case of failure.
  */
-int htmlSaveFileFormat(const char * filename, xmlDocPtr cur, const char * encoding, int format) 
+int htmlSaveFileFormat(const char * filename, xmlDoc * cur, const char * encoding, int format) 
 {
-	xmlOutputBufferPtr buf;
+	xmlOutputBuffer * buf;
 	xmlCharEncodingHandler * handler = NULL;
 	int ret;
 	if(!cur || !filename)
@@ -1011,7 +1011,7 @@ int htmlSaveFileFormat(const char * filename, xmlDocPtr cur, const char * encodi
  *
  * returns: the number of byte written or -1 in case of failure.
  */
-int htmlSaveFileEnc(const char * filename, xmlDocPtr cur, const char * encoding) 
+int htmlSaveFileEnc(const char * filename, xmlDoc * cur, const char * encoding) 
 {
 	return(htmlSaveFileFormat(filename, cur, encoding, 1));
 }

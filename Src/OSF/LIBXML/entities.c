@@ -97,42 +97,40 @@ static void FASTCALL xmlFreeEntity(xmlEntity * entity)
 static xmlEntity * xmlCreateEntity(xmlDict * dict, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content) 
 {
 	xmlEntity * ret = (xmlEntity *)SAlloc::M(sizeof(xmlEntity));
-	if(!ret) {
+	if(!ret)
 		xmlEntitiesErrMemory("xmlCreateEntity: malloc failed");
-		return 0;
-	}
-	memzero(ret, sizeof(xmlEntity));
-	ret->type = XML_ENTITY_DECL;
-	ret->checked = 0;
-	/*
-	 * fill the structure.
-	 */
-	ret->etype = (xmlEntityType)type;
-	if(!dict) {
-		ret->name = sstrdup(name);
-		if(ExternalID)
+	else {
+		memzero(ret, sizeof(xmlEntity));
+		ret->type = XML_ENTITY_DECL;
+		ret->checked = 0;
+		/*
+		 * fill the structure.
+		 */
+		ret->etype = (xmlEntityType)type;
+		if(!dict) {
+			ret->name = sstrdup(name);
 			ret->ExternalID = sstrdup(ExternalID);
-		if(SystemID)
 			ret->SystemID = sstrdup(SystemID);
+		}
+		else {
+			ret->name = xmlDictLookupSL(dict, name);
+			if(ExternalID)
+				ret->ExternalID = xmlDictLookupSL(dict, ExternalID);
+			if(SystemID)
+				ret->SystemID = xmlDictLookupSL(dict, SystemID);
+		}
+		if(content) {
+			ret->length = sstrlen(content);
+			ret->content = (dict && (ret->length < 5)) ? (xmlChar*)xmlDictLookup(dict, content, ret->length) : xmlStrndup(content, ret->length);
+		}
+		else {
+			ret->length = 0;
+			ret->content = NULL;
+		}
+		ret->URI = NULL; // to be computed by the layer knowing the defining entity 
+		ret->orig = NULL;
+		ret->owner = 0;
 	}
-	else {
-		ret->name = xmlDictLookupSL(dict, name);
-		if(ExternalID)
-			ret->ExternalID = xmlDictLookupSL(dict, ExternalID);
-		if(SystemID)
-			ret->SystemID = xmlDictLookupSL(dict, SystemID);
-	}
-	if(content) {
-		ret->length = sstrlen(content);
-		ret->content = (dict && (ret->length < 5)) ? (xmlChar*)xmlDictLookup(dict, content, ret->length) : xmlStrndup(content, ret->length);
-	}
-	else {
-		ret->length = 0;
-		ret->content = NULL;
-	}
-	ret->URI = NULL; // to be computed by the layer knowing the defining entity 
-	ret->orig = NULL;
-	ret->owner = 0;
 	return ret;
 }
 /*
@@ -189,33 +187,19 @@ static xmlEntity * xmlAddEntity(xmlDtdPtr dtd, const xmlChar * name, int type,
  */
 xmlEntity * FASTCALL xmlGetPredefinedEntity(const xmlChar * name) 
 {
-	if(name) {
-		switch(name[0]) {
-			case 'l':
-				if(sstreq(name, "lt"))
-					return &xmlEntityLt;
-				break;
-			case 'g':
-				if(sstreq(name, "gt"))
-					return &xmlEntityGt;
-				break;
-			case 'a':
-				if(sstreq(name, "amp"))
-					return &xmlEntityAmp;
-				if(sstreq(name, "apos"))
-					return &xmlEntityApos;
-				break;
-			case 'q':
-				if(sstreq(name, "quot"))
-					return &xmlEntityQuot;
-				break;
-			default:
-				break;
-		}
-	}
-	return 0;
+	if(sstreq(name, "lt"))
+		return &xmlEntityLt;
+	else if(sstreq(name, "gt"))
+		return &xmlEntityGt;
+	else if(sstreq(name, "amp"))
+		return &xmlEntityAmp;
+	else if(sstreq(name, "apos"))
+		return &xmlEntityApos;
+	else if(sstreq(name, "quot"))
+		return &xmlEntityQuot;
+	else
+		return 0;
 }
-
 /**
  * xmlAddDtdEntity:
  * @doc:  the document
@@ -229,39 +213,35 @@ xmlEntity * FASTCALL xmlGetPredefinedEntity(const xmlChar * name)
  *
  * Returns a pointer to the entity or NULL in case of error
  */
-xmlEntity * xmlAddDtdEntity(xmlDocPtr doc, const xmlChar * name, int type,
+xmlEntity * xmlAddDtdEntity(xmlDoc * doc, const xmlChar * name, int type,
     const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content) 
 {
-	xmlEntity * ret;
-	xmlDtdPtr dtd;
-	if(!doc) {
+	xmlEntity * ret = 0;
+	if(!doc)
 		xmlEntitiesErr(XML_DTD_NO_DOC, "xmlAddDtdEntity: document is NULL");
-		return 0;
-	}
-	if(doc->extSubset == NULL) {
+	else if(doc->extSubset == NULL)
 		xmlEntitiesErr(XML_DTD_NO_DTD, "xmlAddDtdEntity: document without external subset");
-		return 0;
-	}
-	dtd = doc->extSubset;
-	ret = xmlAddEntity(dtd, name, type, ExternalID, SystemID, content);
-	if(!ret) 
-		return 0;
-	/*
-	 * Link it to the DTD
-	 */
-	ret->parent = dtd;
-	ret->doc = dtd->doc;
-	if(dtd->last == NULL) {
-		dtd->children = dtd->last = (xmlNode *)ret;
-	}
 	else {
-		dtd->last->next = (xmlNode *)ret;
-		ret->prev = dtd->last;
-		dtd->last = (xmlNode *)ret;
+		xmlDtd * dtd = doc->extSubset;
+		ret = xmlAddEntity(dtd, name, type, ExternalID, SystemID, content);
+		if(ret) {
+			// 
+			// Link it to the DTD
+			// 
+			ret->parent = dtd;
+			ret->doc = dtd->doc;
+			if(!dtd->last) {
+				dtd->children = dtd->last = (xmlNode *)ret;
+			}
+			else {
+				dtd->last->next = (xmlNode *)ret;
+				ret->prev = dtd->last;
+				dtd->last = (xmlNode *)ret;
+			}
+		}
 	}
 	return ret;
 }
-
 /**
  * xmlAddDocEntity:
  * @doc:  the document
@@ -275,7 +255,7 @@ xmlEntity * xmlAddDtdEntity(xmlDocPtr doc, const xmlChar * name, int type,
  *
  * Returns a pointer to the entity or NULL in case of error
  */
-xmlEntity * xmlAddDocEntity(xmlDocPtr doc, const xmlChar * name, int type,
+xmlEntity * xmlAddDocEntity(xmlDoc * doc, const xmlChar * name, int type,
     const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content) 
 {
 	xmlEntity * ret = 0;
@@ -322,7 +302,7 @@ xmlEntity * xmlAddDocEntity(xmlDocPtr doc, const xmlChar * name, int type,
  *
  * Returns a pointer to the entity or NULL in case of error
  */
-xmlEntity * xmlNewEntity(xmlDocPtr doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content)
+xmlEntity * xmlNewEntity(xmlDoc * doc, const xmlChar * name, int type, const xmlChar * ExternalID, const xmlChar * SystemID, const xmlChar * content)
 {
 	if(doc && doc->intSubset) {
 		return xmlAddDocEntity(doc, name, type, ExternalID, SystemID, content);
@@ -361,7 +341,7 @@ static xmlEntity * FASTCALL xmlGetEntityFromTable(xmlEntitiesTable * table, cons
  *
  * Returns A pointer to the entity structure or NULL if not found.
  */
-xmlEntity * xmlGetParameterEntity(xmlDocPtr doc, const xmlChar * name)
+xmlEntity * xmlGetParameterEntity(xmlDoc * doc, const xmlChar * name)
 {
 	xmlEntitiesTablePtr table;
 	xmlEntity * ret;
@@ -390,7 +370,7 @@ xmlEntity * xmlGetParameterEntity(xmlDocPtr doc, const xmlChar * name)
  *
  * Returns A pointer to the entity structure or NULL if not found.
  */
-xmlEntity * xmlGetDtdEntity(xmlDocPtr doc, const xmlChar * name)
+xmlEntity * xmlGetDtdEntity(xmlDoc * doc, const xmlChar * name)
 {
 	if(doc && doc->extSubset && doc->extSubset->entities) {
 		xmlEntitiesTablePtr table = (xmlEntitiesTablePtr)doc->extSubset->entities;
@@ -456,7 +436,7 @@ xmlEntity * FASTCALL xmlGetDocEntity(const xmlDoc * doc, const xmlChar * name)
  *
  * Returns A newly allocated string with the substitution done.
  */
-static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input, int attr) 
+static xmlChar * xmlEncodeEntitiesInternal(xmlDoc * doc, const xmlChar * input, int attr) 
 {
 	const xmlChar * cur = input;
 	xmlChar * buffer = NULL;
@@ -571,7 +551,8 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input,
 					snprintf(buf, sizeof(buf), "&#%d;", *cur);
 					buf[sizeof(buf) - 1] = 0;
 					ptr = buf;
-					while(*ptr != 0) *out++ = *ptr++;
+					while(*ptr != 0) 
+						*out++ = *ptr++;
 					cur++;
 					continue;
 				}
@@ -606,7 +587,8 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input,
 					snprintf(buf, sizeof(buf), "&#%d;", *cur);
 					buf[sizeof(buf) - 1] = 0;
 					ptr = buf;
-					while(*ptr != 0) *out++ = *ptr++;
+					while(*ptr != 0) 
+						*out++ = *ptr++;
 					cur++;
 					continue;
 				}
@@ -616,7 +598,8 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input,
 				snprintf(buf, sizeof(buf), "&#x%X;", val);
 				buf[sizeof(buf) - 1] = 0;
 				ptr = buf;
-				while(*ptr != 0) *out++ = *ptr++;
+				while(*ptr != 0) 
+					*out++ = *ptr++;
 				cur += l;
 				continue;
 			}
@@ -626,12 +609,13 @@ static xmlChar * xmlEncodeEntitiesInternal(xmlDocPtr doc, const xmlChar * input,
 			snprintf(buf, sizeof(buf), "&#%d;", *cur);
 			buf[sizeof(buf) - 1] = 0;
 			ptr = buf;
-			while(*ptr != 0) *out++ = *ptr++;
+			while(*ptr != 0) 
+				*out++ = *ptr++;
 		}
 		cur++;
 	}
 	*out = 0;
-	return(buffer);
+	return buffer;
 mem_error:
 	xmlEntitiesErrMemory("xmlEncodeEntities: realloc failed");
 	SAlloc::F(buffer);
@@ -649,11 +633,10 @@ mem_error:
  *
  * Returns A newly allocated string with the substitution done.
  */
-xmlChar * xmlEncodeAttributeEntities(xmlDocPtr doc, const xmlChar * input)
+xmlChar * xmlEncodeAttributeEntities(xmlDoc * doc, const xmlChar * input)
 {
 	return xmlEncodeEntitiesInternal(doc, input, 1);
 }
-
 /**
  * xmlEncodeEntitiesReentrant:
  * @doc:  the document containing the string
@@ -666,7 +649,7 @@ xmlChar * xmlEncodeAttributeEntities(xmlDocPtr doc, const xmlChar * input)
  *
  * Returns A newly allocated string with the substitution done.
  */
-xmlChar * xmlEncodeEntitiesReentrant(xmlDocPtr doc, const xmlChar * input)
+xmlChar * xmlEncodeEntitiesReentrant(xmlDoc * doc, const xmlChar * input)
 {
 	return xmlEncodeEntitiesInternal(doc, input, 0);
 }
@@ -766,10 +749,10 @@ mem_error:
  *
  * Returns the xmlEntitiesTablePtr just created or NULL in case of error.
  */
-xmlEntitiesTablePtr xmlCreateEntitiesTable() {
-	return((xmlEntitiesTablePtr)xmlHashCreate(0));
+xmlEntitiesTablePtr xmlCreateEntitiesTable() 
+{
+	return (xmlEntitiesTablePtr)xmlHashCreate(0);
 }
-
 /**
  * xmlFreeEntityWrapper:
  * @entity:  An entity
@@ -781,7 +764,6 @@ static void xmlFreeEntityWrapper(xmlEntity * entity, const xmlChar * name ATTRIB
 {
 	xmlFreeEntity(entity);
 }
-
 /**
  * xmlFreeEntitiesTable:
  * @table:  An entity table
@@ -830,8 +812,9 @@ static xmlEntity * xmlCopyEntity(xmlEntity * ent)
  *
  * Returns the new xmlEntitiesTablePtr or NULL in case of error.
  */
-xmlEntitiesTablePtr xmlCopyEntitiesTable(xmlEntitiesTablePtr table) {
-	return(xmlHashCopy(table, (xmlHashCopier)xmlCopyEntity));
+xmlEntitiesTablePtr xmlCopyEntitiesTable(xmlEntitiesTablePtr table) 
+{
+	return xmlHashCopy(table, (xmlHashCopier)xmlCopyEntity);
 }
 
 #endif /* LIBXML_TREE_ENABLED */
@@ -846,38 +829,39 @@ xmlEntitiesTablePtr xmlCopyEntitiesTable(xmlEntitiesTablePtr table) {
  * This will dump the quoted string value, taking care of the special
  * treatment required by %
  */
-static void xmlDumpEntityContent(xmlBuffer * buf, const xmlChar * content) {
-	if(buf->alloc == XML_BUFFER_ALLOC_IMMUTABLE) return;
-	if(xmlStrchr(content, '%')) {
-		const xmlChar * base, * cur;
-
-		xmlBufferCCat(buf, "\"");
-		base = cur = content;
-		while(*cur != 0) {
-			if(*cur == '"') {
-				if(base != cur)
-					xmlBufferAdd(buf, base, cur - base);
-				xmlBufferAdd(buf, BAD_CAST "&quot;", 6);
-				cur++;
-				base = cur;
+static void xmlDumpEntityContent(xmlBuffer * buf, const xmlChar * content) 
+{
+	if(buf->alloc != XML_BUFFER_ALLOC_IMMUTABLE) {
+		if(xmlStrchr(content, '%')) {
+			const xmlChar * base;
+			const xmlChar * cur;
+			xmlBufferCCat(buf, "\"");
+			base = cur = content;
+			while(*cur != 0) {
+				if(*cur == '"') {
+					if(base != cur)
+						xmlBufferAdd(buf, base, cur - base);
+					xmlBufferAdd(buf, BAD_CAST "&quot;", 6);
+					cur++;
+					base = cur;
+				}
+				else if(*cur == '%') {
+					if(base != cur)
+						xmlBufferAdd(buf, base, cur - base);
+					xmlBufferAdd(buf, BAD_CAST "&#x25;", 6);
+					cur++;
+					base = cur;
+				}
+				else {
+					cur++;
+				}
 			}
-			else if(*cur == '%') {
-				if(base != cur)
-					xmlBufferAdd(buf, base, cur - base);
-				xmlBufferAdd(buf, BAD_CAST "&#x25;", 6);
-				cur++;
-				base = cur;
-			}
-			else {
-				cur++;
-			}
+			if(base != cur)
+				xmlBufferAdd(buf, base, cur - base);
+			xmlBufferCCat(buf, "\"");
 		}
-		if(base != cur)
-			xmlBufferAdd(buf, base, cur - base);
-		xmlBufferCCat(buf, "\"");
-	}
-	else {
-		xmlBufferWriteQuotedString(buf, content);
+		else
+			xmlBufferWriteQuotedString(buf, content);
 	}
 }
 
@@ -930,7 +914,7 @@ void xmlDumpEntityDecl(xmlBuffer * buf, xmlEntity * ent)
 					xmlBufferWriteChar(buf, " SYSTEM ");
 					xmlBufferWriteQuotedString(buf, ent->SystemID);
 				}
-				if(ent->content != NULL) { /* Should be true ! */
+				if(ent->content) { /* Should be true ! */
 					xmlBufferWriteChar(buf, " NDATA ");
 					if(ent->orig)
 						xmlBufferWriteCHAR(buf, ent->orig);

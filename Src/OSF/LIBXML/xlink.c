@@ -100,7 +100,7 @@ void xlinkSetDefaultDetect(xlinkNodeDetectFunc func)
  * Returns the xlinkType of the node (XLINK_TYPE_NONE if there is no
  *         link detected.
  */
-xlinkType xlinkIsLink(xmlDocPtr doc, xmlNodePtr P_Node) 
+xlinkType xlinkIsLink(xmlDoc * doc, xmlNodePtr P_Node) 
 {
 	xmlChar * type = NULL, * role = NULL;
 	xlinkType ret = XLINK_TYPE_NONE;

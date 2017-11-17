@@ -565,29 +565,29 @@ struct SCardCodeTemplate {
 	IntRange R;
 };
 
-int SLAPI SCardCore::AutoFill(const PPSCardSeries * pSerRec, const char * pPattern, int use_ta)
+int SLAPI SCardCore::AutoFill(const PPSCardSerPacket & rScsPack, const char * pPattern, int use_ta)
 {
 	int    ok = -1, r;
 	SCardCodeTemplate templ;
 	SString code;
-	THROW(templ.Parse(NZOR(pPattern, pSerRec->CodeTempl)));
+	THROW(templ.Parse(NZOR(pPattern, rScsPack.Eb.CodeTempl)));
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		for(long n = templ.R.low; templ.Generate(n, code) > 0; n++) {
 			PPWaitMsg(code);
 			THROW(PPCheckUserBreak());
-			THROW(r = SearchCode(pSerRec->ID, code, 0));
+			THROW(r = SearchCode(rScsPack.Rec.ID, code, 0));
 			if(r < 0) {
 				PPID   id = 0;
 				SCardTbl::Rec rec;
 				MEMSZERO(rec);
-				rec.SeriesID = pSerRec->ID;
+				rec.SeriesID = rScsPack.Rec.ID;
 				code.CopyTo(rec.Code, sizeof(rec.Code));
-				rec.PDis      = pSerRec->PDis;
-				rec.MaxCredit = pSerRec->MaxCredit;
-				rec.Dt        = pSerRec->Issue;
-				rec.Expiry    = pSerRec->Expiry;
+				rec.PDis      = rScsPack.Rec.PDis;
+				rec.MaxCredit = rScsPack.Rec.MaxCredit;
+				rec.Dt        = rScsPack.Rec.Issue;
+				rec.Expiry    = rScsPack.Rec.Expiry;
 				rec.Flags    |= SCRDF_INHERITED;
 				THROW(AddObjRecByID(this, PPOBJ_SCARD, &id, &rec, 0));
 				DS.LogAction(PPACN_OBJADD, PPOBJ_SCARD, id, 0, 0);

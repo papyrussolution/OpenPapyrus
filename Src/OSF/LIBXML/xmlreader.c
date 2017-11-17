@@ -218,7 +218,7 @@ static void xmlFreeID(xmlIDPtr id)
  *
  * Returns -1 if the lookup failed and 0 otherwise
  */
-static int xmlTextReaderRemoveID(xmlDocPtr doc, xmlAttrPtr attr)
+static int xmlTextReaderRemoveID(xmlDoc * doc, xmlAttrPtr attr)
 {
 	xmlIDTablePtr table;
 	xmlIDPtr id;
@@ -299,7 +299,7 @@ static void FASTCALL xmlTextReaderFreeNodeList(xmlTextReader * reader, xmlNode *
 		if(cur->type == XML_NAMESPACE_DECL)
 			xmlFreeNsList((xmlNs *)cur);
 		else if(oneof2(cur->type, XML_DOCUMENT_NODE, XML_HTML_DOCUMENT_NODE))
-			xmlFreeDoc((xmlDocPtr)cur);
+			xmlFreeDoc((xmlDoc *)cur);
 		else {
 			xmlDict * dict = (reader && reader->ctxt) ? reader->ctxt->dict : NULL;
 			while(cur) {
@@ -408,7 +408,7 @@ static void xmlTextReaderFreeIDTable(xmlIDTablePtr table)
  *
  * Free up all the structures used by a document, tree included.
  */
-static void xmlTextReaderFreeDoc(xmlTextReader * reader, xmlDocPtr cur)
+static void xmlTextReaderFreeDoc(xmlTextReader * reader, xmlDoc * cur)
 {
 	xmlDtd * extSubset;
 	xmlDtd * intSubset;
@@ -2511,7 +2511,7 @@ int xmlTextReaderReadAttributeValue(xmlTextReader * reader)
  */
 const xmlChar * xmlTextReaderConstEncoding(xmlTextReader * reader) 
 {
-	xmlDocPtr doc = NULL;
+	xmlDoc * doc = NULL;
 	if(!reader)
 		return 0;
 	if(reader->doc)
@@ -3431,7 +3431,7 @@ int xmlTextReaderPreservePattern(xmlTextReader * reader, const xmlChar * pattern
  *
  * Returns the xmlDocPtr or NULL in case of error.
  */
-xmlDocPtr xmlTextReaderCurrentDoc(xmlTextReader * reader)
+xmlDoc * xmlTextReaderCurrentDoc(xmlTextReader * reader)
 {
 	if(!reader)
 		return 0;
@@ -3586,7 +3586,7 @@ static int xmlTextReaderLocator(void * ctx, const char ** file, unsigned long * 
 				ret = -1;
 		}
 		if(file != NULL) {
-			xmlDocPtr doc = reader->P_Node->doc;
+			xmlDoc * doc = reader->P_Node->doc;
 			if(doc && doc->URL)
 				*file = (const char*)doc->URL;
 			else
@@ -3947,7 +3947,7 @@ int xmlTextReaderIsNamespaceDecl(xmlTextReader * reader)
  */
 const xmlChar * xmlTextReaderConstXmlVersion(xmlTextReader * reader) 
 {
-	xmlDocPtr doc = NULL;
+	xmlDoc * doc = NULL;
 	if(!reader)
 		return 0;
 	if(reader->doc)
@@ -3969,7 +3969,7 @@ const xmlChar * xmlTextReaderConstXmlVersion(xmlTextReader * reader)
  */
 int xmlTextReaderStandalone(xmlTextReader * reader) 
 {
-	xmlDocPtr doc = NULL;
+	xmlDoc * doc = NULL;
 	if(!reader)
 		return -1;
 	if(reader->doc)
@@ -4450,7 +4450,7 @@ else {
 		reader->validate = XML_TEXTREADER_VALIDATE_DTD;
 	xmlCtxtUseOptions(reader->ctxt, options);
 	if(encoding) {
-		xmlCharEncodingHandlerPtr hdlr = xmlFindCharEncodingHandler(encoding);
+		xmlCharEncodingHandler * hdlr = xmlFindCharEncodingHandler(encoding);
 		if(hdlr)
 			xmlSwitchToEncoding(reader->ctxt, hdlr);
 	}
@@ -4485,7 +4485,7 @@ long xmlTextReaderByteConsumed(xmlTextReader * reader)
  *
  * Returns the new reader or NULL in case of error.
  */
-xmlTextReaderPtr xmlReaderWalker(xmlDocPtr doc)
+xmlTextReaderPtr xmlReaderWalker(xmlDoc * doc)
 {
 	xmlTextReaderPtr ret;
 	if(!doc)
@@ -4660,7 +4660,7 @@ xmlTextReaderPtr xmlReaderForIO(xmlInputReadCallback ioread, xmlInputCloseCallba
  *
  * Returns 0 in case of success and -1 in case of error
  */
-int xmlReaderNewWalker(xmlTextReader * reader, xmlDocPtr doc)
+int xmlReaderNewWalker(xmlTextReader * reader, xmlDoc * doc)
 {
 	if(!doc || !reader)
 		return -1;

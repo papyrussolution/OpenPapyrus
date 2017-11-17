@@ -220,6 +220,7 @@ int SLAPI PPObjSCard::EditConfig()
 SLAPI PPSCardSeries2::PPSCardSeries2()
 {
 	THISZERO();
+	VerifTag = 2; // @v9.8.9
 }
 
 int FASTCALL PPSCardSeries2::IsEqual(const PPSCardSeries2 & rS) const
@@ -249,18 +250,22 @@ int FASTCALL PPSCardSeries2::IsEqual(const PPSCardSeries2 & rS) const
 		eq = 0;
 	else if(PersonKindID != rS.PersonKindID)
 		eq = 0;
-	else if(strcmp(Name, rS.Name) != 0)
+	else if(ParentID != rS.ParentID) // @v9.8.9
 		eq = 0;
-	else if(strcmp(Symb, rS.Symb) != 0)
+	else if(!sstreq(Name, rS.Name))
 		eq = 0;
-	else if(strcmp(CodeTempl, rS.CodeTempl) != 0)
+	else if(!sstreq(Symb, rS.Symb))
 		eq = 0;
+	/*@v9.8.9 else if(strcmp(CodeTempl, rS.CodeTempl) != 0)
+		eq = 0;*/
 	return eq;
 }
 
 int SLAPI PPSCardSeries2::GetType() const
 {
-	if(Flags & SCRDSF_BONUS)
+	if(Flags & SCRDSF_GROUP)
+		return scstGroup;
+	else if(Flags & SCRDSF_BONUS)
 		return scstBonus;
 	else if(Flags & SCRDSF_CREDIT)
 		return scstCredit;
@@ -273,15 +278,19 @@ int SLAPI PPSCardSeries2::SetType(int type)
 	int    ok = 1;
 	const  long preserve_flags = Flags;
 	if(type == scstDiscount) {
-		Flags &= ~(SCRDSF_CREDIT|SCRDSF_BONUS);
+		Flags &= ~(SCRDSF_CREDIT|SCRDSF_BONUS|SCRDSF_GROUP);
 	}
 	else if(type == scstCredit) {
 		Flags |= SCRDSF_CREDIT;
-		Flags &= ~SCRDSF_BONUS;
+		Flags &= ~(SCRDSF_BONUS|SCRDSF_GROUP);
 	}
 	else if(type == scstBonus) {
-		Flags &= ~SCRDSF_CREDIT;
 		Flags |= SCRDSF_BONUS;
+		Flags &= ~(SCRDSF_CREDIT|SCRDSF_GROUP);
+	}
+	else if(type == scstGroup) {
+		Flags |= SCRDSF_GROUP;
+		Flags &= ~(SCRDSF_CREDIT|SCRDSF_BONUS);
 	}
 	else
 		ok = 0;
@@ -297,7 +306,7 @@ int SLAPI PPSCardSeries2::Verify()
 		//
 		const long preserve_flags = Flags;
 		Flags &= (SCRDSF_CREDIT|SCRDSF_USEDSCNTIFNQUOT);
-		VerifTag = 1;
+		VerifTag = 2; // @v9.8.9 1-->2
 		if(Flags != preserve_flags)
 			ok = 1;
 	}
@@ -471,13 +480,14 @@ void SLAPI PPSCardSerPacket::Ext::Init()
 
 int SLAPI PPSCardSerPacket::Ext::IsEmpty() const
 {
-	return BIN(!UsageTmStart || !UsageTmEnd || !checktime(UsageTmStart) || !checktime(UsageTmEnd));
+	return BIN(!UsageTmStart && !UsageTmEnd &&
+		(!UsageTmStart || !checktime(UsageTmStart)) && (!UsageTmEnd || !checktime(UsageTmEnd)) && !CodeTempl[0]);
 }
 
 int FASTCALL PPSCardSerPacket::Ext::IsEqual(const Ext & rS) const
 {
 	int    yes = 1;
-	if(UsageTmStart != rS.UsageTmStart || UsageTmEnd != rS.UsageTmEnd)
+	if(UsageTmStart != rS.UsageTmStart || UsageTmEnd != rS.UsageTmEnd || strcmp(CodeTempl, rS.CodeTempl) != 0)
 		yes = 0;
 	return yes;
 }
@@ -565,26 +575,22 @@ int SLAPI PPSCardSerPacket::GetDisByRule(double trnovr, TrnovrRngDis & rEntry) c
 
 class SCardRuleDlg : public PPListDialog {
 public:
-	SCardRuleDlg(int ruleType) : PPListDialog(DLG_SCARDRULE, CTL_SCARDRULE_TRNOVRRNG)
+	SCardRuleDlg(int ruleType) : PPListDialog(DLG_SCARDRULE, CTL_SCARDRULE_TRNOVRRNG), RuleType(ruleType)
 	{
 		//IsCCheckRule = isCCheckRule;
 		SmartListBox * p_lb = (SmartListBox *)getCtrlView(CTL_SCARDRULE_TRNOVRRNG);
-		RuleType = ruleType;
 		const char * p_title_symb = 0;
 		if(RuleType == PPSCardSerRule::rultDisc) {
 			p_title_symb = "scardrule_dis";
-			if(p_lb)
-				p_lb->SetupColumns("@lbt_scardrule_dis");
+			CALLPTRMEMB(p_lb, SetupColumns("@lbt_scardrule_dis"));
 		}
 		else if(RuleType == PPSCardSerRule::rultCcAmountDisc) {
 			p_title_symb = "scardrule_ccdis";
-			if(p_lb)
-				p_lb->SetupColumns("@lbt_scardrule_ccdis");
+			CALLPTRMEMB(p_lb, SetupColumns("@lbt_scardrule_ccdis"));
 		}
 		else if(RuleType == PPSCardSerRule::rultBonus) {
 			p_title_symb = "scardrule_bonus";
-			if(p_lb)
-				p_lb->SetupColumns("@lbt_scardrule_bonus");
+			CALLPTRMEMB(p_lb, SetupColumns("@lbt_scardrule_bonus"));
 		}
 		if(p_title_symb) {
 			SString title_buf;
@@ -738,9 +744,13 @@ int SCardRuleDlg::getDTS(PPSCardSerRule * pData)
 	return 1;
 }
 
-SLAPI PPObjSCardSeries::PPObjSCardSeries(void * extraPtr) : PPObjReference(PPOBJ_SCARDSERIES, extraPtr)
+SLAPI SCardSeriesFilt::SCardSeriesFilt() : ParentID(0), Flags(0)
 {
-	P_ScObj = 0;
+}
+
+SLAPI PPObjSCardSeries::PPObjSCardSeries(void * extraPtr) : PPObjReference(PPOBJ_SCARDSERIES, extraPtr), P_ScObj(0)
+{
+	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
 SLAPI PPObjSCardSeries::~PPObjSCardSeries()
@@ -748,12 +758,63 @@ SLAPI PPObjSCardSeries::~PPObjSCardSeries()
 	delete P_ScObj;
 }
 
+SCardSeriesFilt & SLAPI PPObjSCardSeries::InitFilt(void * extraPtr, SCardSeriesFilt & rFilt) const
+{
+	if(extraPtr) {
+		rFilt = *(SCardSeriesFilt *)extraPtr;
+	}
+	else {
+		rFilt.ParentID = 0;
+		rFilt.Flags = 0;
+	}
+	return rFilt;
+}
+
+int SLAPI PPObjSCardSeries::CheckForFilt(const SCardSeriesFilt * pFilt, const PPSCardSeries & rRec) const
+{
+	int    ok = 1;
+	if(pFilt) {
+		if(!(pFilt->Flags & SCardSeriesFilt::fShowPassive) && rRec.Flags & SCRDSF_PASSIVE)
+			ok = 0;
+		else if(pFilt->Flags & SCardSeriesFilt::fOnlyGroups && !(rRec.Flags & SCRDSF_GROUP))
+			ok = 0;
+		else if(pFilt->Flags & SCardSeriesFilt::fOnlySeries && (rRec.Flags & SCRDSF_GROUP))
+			ok = 0;
+		else if(pFilt->ParentID && (rRec.ParentID != pFilt->ParentID && rRec.ID != pFilt->ParentID))
+			ok = 0;
+	}
+	else if(rRec.Flags & SCRDSF_PASSIVE)
+		ok = 0;
+	return ok;
+}
+
+StrAssocArray * SLAPI PPObjSCardSeries::MakeStrAssocList(void * extraPtr)
+{
+	SCardSeriesFilt scs_filt;
+	InitFilt(extraPtr, scs_filt);
+	SString temp_buf;
+	PPSCardSeries rec;
+	StrAssocArray * p_list = new StrAssocArray;
+	THROW_MEM(p_list);
+	for(SEnum en = ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+		if(CheckForFilt(&scs_filt, rec)) {
+			PPID   parent_id = rec.ParentID;
+			THROW_SL(p_list->Add(rec.ID, parent_id, rec.Name));
+		}
+	}
+	p_list->SortByText();
+	CATCH
+		ZDELETE(p_list);
+	ENDCATCH
+	return p_list;
+}
+
 int SLAPI PPObjSCardSeries::GetCodeRange(PPID serID, SString & rLow, SString & rUpp)
 {
-	PPSCardSeries rec;
+	PPSCardSerPacket pack;
 	rLow.Z();
 	rUpp.Z();
-	return (Fetch(serID, &rec) > 0) ? SCardCore::GetCodeRange(rec.CodeTempl, rLow, rUpp) : -1;
+	return (GetPacket(serID, &pack) > 0) ? SCardCore::GetCodeRange(pack.Eb.CodeTempl, rLow, rUpp) : -1;
 }
 
 class Storage_SCardRule {  // @persistent @store(PropertyTbl)
@@ -767,8 +828,7 @@ public:
 		if(p) {
 			memzero(p, s);
 			p->ObjType = PPOBJ_SCARDSERIES;
-			// @v7.3.9 p->Prop = (isCCheckRule) ? SCARDSERIES_CCHECKRULE : SCARDSERIES_RULE2;
-			p->Prop = prop; // @v7.3.9
+			p->Prop = prop;
 			p->Ver = 1;
 			p->TrnovrPeriod = pSrc->TrnovrPeriod;
 			p->ItemSize = item_size;
@@ -820,15 +880,21 @@ struct Storage_SCardSerExt {
 	}
 	Storage_SCardSerExt(const PPSCardSerPacket::Ext & rS)
 	{
+		Set(rS);
+	}
+	void Set(const PPSCardSerPacket::Ext & rS)
+	{
 		THISZERO();
 		Prop = SCARDSERIES_EXT;
 		Ver = 1;
+		STRNSCPY(CodeTempl, rS.CodeTempl); // @v9.8.9
 		UsageTmStart = rS.UsageTmStart;
 		UsageTmEnd = rS.UsageTmEnd;
 	}
 	PPSCardSerPacket::Ext & Get(PPSCardSerPacket::Ext & rS) const
 	{
 		rS.Init();
+		STRNSCPY(rS.CodeTempl, CodeTempl); // @v9.8.9
 		rS.UsageTmStart = UsageTmStart;
 		rS.UsageTmEnd = UsageTmEnd;
 		return rS;
@@ -837,7 +903,8 @@ struct Storage_SCardSerExt {
 	PPID   ObjID;
 	PPID   Prop;
 	long   Ver;            //
-	char   Reserve[52];    //
+	char   CodeTempl[32];  // @v9.8.9 (перенесено из заголовочной структуры) Шаблон номеров карт
+	char   Reserve[20];    // @v9.8.9 [52]-->[20]
 	LTIME  UsageTmStart;   // @v8.7.12
 	LTIME  UsageTmEnd;     // @v8.7.12
 	long   Reserve2[2];    //
@@ -957,6 +1024,7 @@ int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int 
 				if(pattern.IsEqual(*pPack))
 					eq = 1;
 				else {
+					pPack->Rec.VerifTag = 2; // @v9.8.9
 					THROW(rec_updated = EditItem(Obj, *pID ? pPack->Rec.ID : 0, &pPack->Rec, 0));
 					THROW(p_ref->PutProp(Obj, pPack->Rec.ID, SCARDSERIES_RULE, 0, 0)); // Удаляем старую версию правил пересчета карт записи
 					if(pattern.Rec.ID && (pPack->Rec.PDis != pattern.Rec.PDis ||
@@ -967,6 +1035,7 @@ int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int 
 			}
 			else {
 				THROW(CheckRights(PPR_INS));
+				pPack->Rec.VerifTag = 2; // @v9.8.9
 				THROW(EditItem(Obj, 0, &pPack->Rec, 0));
 			}
 			if(!eq) {
@@ -1032,10 +1101,8 @@ int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int 
 	return ok;
 }
 
-SLAPI SCardChargeRule::SCardChargeRule()
+SLAPI SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
 {
-	SerID = 0;
-	Period = 0;
 }
 
 //static
@@ -1096,9 +1163,8 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 {
 	class SCardSeriaDlg : public TDialog {
 	public:
-		SCardSeriaDlg(PPObjSCardSeries * pObj) : TDialog(DLG_SCARDSER)
+		SCardSeriaDlg(PPObjSCardSeries * pObj) : TDialog(DLG_SCARDSER), P_SCSerObj(pObj)
 		{
-			P_SCSerObj = pObj;
 			SetupCalDate(CTLCAL_SCARDSER_DATE,   CTL_SCARDSER_DATE);
 			SetupCalDate(CTLCAL_SCARDSER_EXPIRY, CTL_SCARDSER_EXPIRY);
 		}
@@ -1108,15 +1174,23 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 				Data.Init();
 
 			long   _type = Data.Rec.GetType();
+			// @v9.8.9 {
+			{
+				SCardSeriesFilt scs_filt;
+				scs_filt.Flags = scs_filt.fOnlyGroups;
+				SetupPPObjCombo(this, CTLSEL_SCARDSER_PARENT, PPOBJ_SCARDSERIES, Data.Rec.ParentID, 0, (void *)SCRDSF_GROUP); 
+			}
+			// } @v9.8.9 
 			AddClusterAssocDef(CTL_SCARDSER_TYPE, 0, scstDiscount);
 			AddClusterAssoc(CTL_SCARDSER_TYPE, 1, scstCredit);
 			AddClusterAssoc(CTL_SCARDSER_TYPE, 2, scstBonus);
+			AddClusterAssoc(CTL_SCARDSER_TYPE, 3, scstGroup); // @v9.8.9
 			SetClusterData(CTL_SCARDSER_TYPE, _type);
 			setCtrlData(CTL_SCARDSER_NAME, Data.Rec.Name);
 			setCtrlData(CTL_SCARDSER_SYMB, Data.Rec.Symb);
 			setCtrlData(CTL_SCARDSER_ID,   &Data.Rec.ID);
 			disableCtrl(CTL_SCARDSER_ID,   (!PPMaster || Data.Rec.ID));
-			setCtrlData(CTL_SCARDSER_CODETEMPL, Data.Rec.CodeTempl);
+			setCtrlData(CTL_SCARDSER_CODETEMPL, Data.Eb.CodeTempl); // @v9.8.9 Data.Rec.CodeTempl-->Data.Eb.CodeTempl
 			//
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 0, SCRDSF_USEDSCNTIFNQUOT);
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 1, SCRDSF_MINQUOTVAL);
@@ -1124,6 +1198,7 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 3, SCRDSF_DISABLEADDPAYM);
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 4, SCRDSF_NEWSCINHF);       // @v8.8.0
 			AddClusterAssoc(CTL_SCARDSER_FLAGS, 5, SCRDSF_TRANSFDISCOUNT);  // @v9.2.8
+			AddClusterAssoc(CTL_SCARDSER_FLAGS, 6, SCRDSF_PASSIVE);  // @v9.8.9
 			SetClusterData(CTL_SCARDSER_FLAGS, Data.Rec.Flags);
 			//
 			SetupPPObjCombo(this, CTLSEL_SCARDSER_QUOTKIND, PPOBJ_QUOTKIND, Data.Rec.QuotKindID_s, OLW_CANINSERT, 0);
@@ -1167,8 +1242,9 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			THROW(P_SCSerObj->CheckDupName(Data.Rec.ID, Data.Rec.Name));
 			getCtrlData(sel = CTL_SCARDSER_SYMB, Data.Rec.Symb);
 			THROW(P_SCSerObj->ref->CheckUniqueSymb(PPOBJ_SCARDSERIES, Data.Rec.ID, Data.Rec.Symb, offsetof(PPSCardSeries, Symb)));
+			getCtrlData(CTLSEL_SCARDSER_PARENT, &Data.Rec.ParentID); // @v9.8.9
 			getCtrlData(CTL_SCARDSER_ID,   &Data.Rec.ID);
-			getCtrlData(CTL_SCARDSER_CODETEMPL, Data.Rec.CodeTempl);
+			getCtrlData(CTL_SCARDSER_CODETEMPL, Data.Eb.CodeTempl); // @v9.8.9 Data.Rec.CodeTempl-->Data.Eb.CodeTempl
 			getCtrlData(sel = CTL_SCARDSER_DATE,   &Data.Rec.Issue);
 			THROW_SL(checkdate(Data.Rec.Issue, 1));
 			getCtrlData(sel = CTL_SCARDSER_EXPIRY, &Data.Rec.Expiry);
@@ -1399,6 +1475,7 @@ int SLAPI PPObjSCardSeries::SerializePacket(int dir, PPSCardSerPacket * pPack, S
 	THROW(pPack->CcAmtDisRule.Serialize(dir, rBuf, pSCtx));
 	THROW(pPack->BonusRule.Serialize(dir, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, &pPack->QuotKindList_, rBuf));
+	THROW(pSCtx->SerializeBlock(dir, sizeof(pPack->Eb), &pPack->Eb, rBuf, 1)); // @v9.8.9
 	CATCHZOK
 	return ok;
 }
@@ -1431,14 +1508,11 @@ int SLAPI PPObjSCardSeries::Write(PPObjPack * p, PPID * pID, void * stream, ObjT
 	if(p_pack)
 		if(stream == 0) {
 			p_pack->Rec.ID = *pID;
-			p_pack->UpdFlags |= PPSCardSerPacket::ufDontChgExt; // @v8.7.12
-			// @v7.9.5 THROW(PutPacket(pID, p_pack, 1));
-			// @v7.9.5 {
+			// @v9.8.9 (блок расширения теперь передается) p_pack->UpdFlags |= PPSCardSerPacket::ufDontChgExt; // @v8.7.12
 			if(!PutPacket(pID, p_pack, 1)) {
 				pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTSCARDSER, p_pack->Rec.ID, p_pack->Rec.Name);
 				ok = -1;
 			}
-			// } @v7.9.5
 		}
 		else {
 			SBuffer buffer;
@@ -1459,6 +1533,7 @@ int SLAPI PPObjSCardSeries::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, in
 		THROW(ProcessObjRefInArray(PPOBJ_GOODSGROUP, &p_pack->Rec.CrdGoodsGrpID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_GOODSGROUP, &p_pack->Rec.BonusGrpID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_GOODSGROUP, &p_pack->Rec.BonusChrgGrpID, ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_SCARDSERIES, &p_pack->Rec.ParentID, ary, replace)); // @v9.8.9
 		for(uint i = 0; i < p_pack->QuotKindList_.getCount(); i++) {
 			THROW(ProcessObjRefInArray(PPOBJ_QUOTKIND, &p_pack->QuotKindList_.at(i), ary, replace));
 		}
@@ -1471,9 +1546,8 @@ int SLAPI PPObjSCardSeries::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, in
 //
 //
 //
-SCardSeriesView::SCardSeriesView(PPObjSCardSeries * _ppobj) : ObjViewDialog(DLG_SCSERIESVIEW, _ppobj, 0)
+SCardSeriesView::SCardSeriesView(PPObjSCardSeries * _ppobj) : ObjViewDialog(DLG_SCSERIESVIEW, _ppobj, 0), CurPrnPos(0)
 {
-	CurPrnPos = 0;
 }
 
 void SCardSeriesView::extraProc(long id)
@@ -1526,9 +1600,8 @@ int SLAPI PPObjSCardSeries::Browse(void * extraPtr)
 //
 //
 SLAPI PPObjSCardSeriesListWindow::PPObjSCardSeriesListWindow(PPObject * pObj, uint flags, void * extraPtr) :
-	PPObjListWindow(pObj, flags, extraPtr)
+	PPObjListWindow(pObj, flags, extraPtr), CurIterPos(0)
 {
-	CurIterPos = 0;
 	DefaultCmd = cmaMore;
 	SetToolbar(TOOLBAR_LIST_SCARDSERIES);
 }
@@ -2768,7 +2841,8 @@ int SLAPI PPObjSCard::Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCa
 	int    ok = 1;
 	SString number;
 	PPObjSCardSeries scs_obj;
-	PPSCardSeries scs_rec;
+	//PPSCardSeries scs_rec;
+	PPSCardSerPacket scs_pack;
 	THROW(CheckRights(PPR_INS));
 	{
 		//
@@ -2785,12 +2859,13 @@ int SLAPI PPObjSCard::Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCa
 			}
 			is_def_series = 1;
 		}
-		THROW(scs_obj.Search(seriesID, &scs_rec) > 0);
+		// @v9.8.9 THROW(scs_obj.Search(seriesID, &scs_rec) > 0);
+		THROW(scs_obj.GetPacket(seriesID, &scs_pack) > 0); // @v9.8.9
 		if(flags & cdfCreditCard) {
-			THROW_PP(scs_rec.Flags & SCRDSF_CREDIT, PPERR_CREDITCARDSERNEEDED);
+			THROW_PP(scs_pack.Rec.Flags & SCRDSF_CREDIT, PPERR_CREDITCARDSERNEEDED);
 		}
 		else {
-			THROW_PP(!(scs_rec.Flags & SCRDSF_CREDIT), PPERR_NONCREDITCARDSERNEEDED);
+			THROW_PP(!(scs_pack.Rec.Flags & SCRDSF_CREDIT), PPERR_NONCREDITCARDSERNEEDED);
 		}
 	}
 	{
@@ -2805,8 +2880,8 @@ int SLAPI PPObjSCard::Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCa
 			THROW_PP(r < 0, PPERR_DUPLSCARDFOUND);
 		}
 		else {
-			THROW_PP_S(scs_rec.CodeTempl[0] != 0, PPERR_UNDEFSCSCODETEMPL, scs_rec.Name);
-			THROW_PP_S(P_Tbl->MakeCodeByTemplate(scs_rec.ID, scs_rec.CodeTempl, number) > 0, PPERR_UNABLEMKSCCODEBYTEMPL, scs_rec.CodeTempl);
+			THROW_PP_S(scs_pack.Eb.CodeTempl[0] != 0, PPERR_UNDEFSCSCODETEMPL, scs_pack.Rec.Name);
+			THROW_PP_S(P_Tbl->MakeCodeByTemplate(scs_pack.Rec.ID, scs_pack.Eb.CodeTempl, number) > 0, PPERR_UNABLEMKSCCODEBYTEMPL, scs_pack.Eb.CodeTempl);
 		}
 	}
 	{
@@ -2824,9 +2899,9 @@ int SLAPI PPObjSCard::Create_(PPID * pID, PPID seriesID, PPID ownerID, const SCa
 			pack.Rec.AutoGoodsID = pPatternRec->AutoGoodsID;
 		}
 		else {
-			pack.Rec.PDis      = scs_rec.PDis;
-			pack.Rec.MaxCredit = scs_rec.MaxCredit;
-			pack.Rec.Expiry    = scs_rec.Expiry;
+			pack.Rec.PDis      = scs_pack.Rec.PDis;
+			pack.Rec.MaxCredit = scs_pack.Rec.MaxCredit;
+			pack.Rec.Expiry    = scs_pack.Rec.Expiry;
 			pack.Rec.Flags    |= SCRDF_INHERITED;
 		}
 		THROW(PutPacket(pID, &pack, use_ta));
@@ -2840,15 +2915,18 @@ int SLAPI PPObjSCard::AutoFill(PPID seriesID, int use_ta)
 {
 	int    ok = -1; // sample template: L01(290%09[1..6])^
 	SString pattern;
-	PPSCardSeries ser;
+	//PPSCardSeries ser;
+	PPObjSCardSeries scs_obj;
+	PPSCardSerPacket scs_pack;
 	PPInputStringDialogParam isd_param;
 	THROW(CheckRights(PPR_INS));
-	THROW(SearchObject(PPOBJ_SCARDSERIES, seriesID, &ser) > 0);
-	pattern = ser.CodeTempl;
+	// @v9.8.9 THROW(SearchObject(PPOBJ_SCARDSERIES, seriesID, &ser) > 0);
+	THROW(scs_obj.GetPacket(seriesID, &scs_pack) > 0); // @v9.8.9
+	pattern = scs_pack.Eb.CodeTempl; // @v9.8.9 ser.CodeTempl-->scs_pack.Eb.CodeTempl
 	PPLoadText(PPTXT_SCARDCODETEMPL, isd_param.Title);
 	if(InputStringDialog(&isd_param, pattern) > 0) {
 		PPWait(1);
-		THROW(P_Tbl->AutoFill(&ser, pattern, use_ta));
+		THROW(P_Tbl->AutoFill(scs_pack, pattern, use_ta));
 		PPWait(0);
 		ok = 1;
 	}
@@ -3382,9 +3460,9 @@ int SLAPI PPObjSCard::Helper_Edit(PPID * pID, const AddParam * pParam)
 		}
 		if(pack.Rec.SeriesID && ser_obj.GetPacket(pack.Rec.SeriesID, &scs_pack) > 0) {
 			// @v8.6.10 {
-			if(pack.Rec.Code[0] == 0 && scs_pack.Rec.CodeTempl[0]) {
+			if(pack.Rec.Code[0] == 0 && scs_pack.Eb.CodeTempl) { // @v9.8.9 scs_pack.Rec.CodeTempl[0]-->scs_pack.Eb.CodeTempl
 				SString new_code;
-				if(P_Tbl->MakeCodeByTemplate(scs_pack.Rec.ID, scs_pack.Rec.CodeTempl, new_code) > 0)
+				if(P_Tbl->MakeCodeByTemplate(scs_pack.Rec.ID, scs_pack.Eb.CodeTempl, new_code) > 0) // @v9.8.9 scs_pack.Rec.CodeTempl[0]-->scs_pack.Eb.CodeTempl
 					STRNSCPY(pack.Rec.Code, new_code);
 			}
 			// } @v8.6.10
@@ -3498,18 +3576,20 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 	SString temp_buf;
 	PPID   log_action_id = 0;
 	PPSCardPacket org_pack;
-	PPSCardSeries scs_rec;
+	//PPSCardSeries scs_rec;
+	PPSCardSerPacket scs_pack;
 	SString ext_buffer;
 	if(pPack) {
 		PPObjSCardSeries scs_obj;
 		THROW_PP(pPack->Rec.SeriesID, PPERR_UNDEFSCARDSER);
-		THROW(scs_obj.Fetch(pPack->Rec.SeriesID, &scs_rec) > 0);
+		// @v9.8.9 THROW(scs_obj.Fetch(pPack->Rec.SeriesID, &scs_rec) > 0);
+		THROW(scs_obj.GetPacket(pPack->Rec.SeriesID, &scs_pack) > 0); // @v9.8.9
 		if(*pID != 0) {
 			THROW_PP(pPack->Rec.Code[0], PPERR_UNDEFSCARDCODE);
 		}
 	}
-	else
-		MEMSZERO(scs_rec);
+	/* @v9.8.9 else
+		MEMSZERO(scs_rec);*/
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -3566,13 +3646,13 @@ int SLAPI PPObjSCard::PutPacket(PPID * pID, PPSCardPacket * pPack, int use_ta)
 		}
 		else if(pPack) {
 			//
-			// Добавление пакета
+			// Вставка нового пакета
 			//
 			THROW(CheckRights(PPR_INS));
 			if(pPack->Rec.Code[0] == 0) {
 				SString number;
-				THROW_PP_S(scs_rec.CodeTempl[0] != 0, PPERR_UNDEFSCSCODETEMPL, scs_rec.Name);
-				THROW_PP_S(P_Tbl->MakeCodeByTemplate(scs_rec.ID, scs_rec.CodeTempl, number) > 0, PPERR_UNABLEMKSCCODEBYTEMPL, scs_rec.CodeTempl);
+				THROW_PP_S(scs_pack.Eb.CodeTempl[0] != 0, PPERR_UNDEFSCSCODETEMPL, scs_pack.Rec.Name);
+				THROW_PP_S(P_Tbl->MakeCodeByTemplate(scs_pack.Rec.ID, scs_pack.Eb.CodeTempl, number) > 0, PPERR_UNABLEMKSCCODEBYTEMPL, scs_pack.Eb.CodeTempl);
 				number.CopyTo(pPack->Rec.Code, sizeof(pPack->Rec.Code));
 			}
 			THROW(r = SearchCode(pPack->Rec.SeriesID, pPack->Rec.Code, 0));
@@ -4044,7 +4124,7 @@ int SLAPI SCardSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		StringSet ss("/&");
 		ss.add(rec.Name);
 		ss.add(rec.Symb);
-		ss.add(rec.CodeTempl);
+		// @v9.8.9 ss.add(rec.CodeTempl);
 		ok = PutName(ss.getBuf(), p_cache_rec);
 	}
 	return ok;
@@ -4078,7 +4158,7 @@ void SLAPI SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pD
 	uint   p = 0;
 	ss.get(&p, p_data_rec->Name, sizeof(p_data_rec->Name));
 	ss.get(&p, p_data_rec->Symb, sizeof(p_data_rec->Symb));
-	ss.get(&p, p_data_rec->CodeTempl, sizeof(p_data_rec->CodeTempl));
+	// @v9.8.9 ss.get(&p, p_data_rec->CodeTempl, sizeof(p_data_rec->CodeTempl));
 }
 
 int SLAPI SCardSeriesCache::GetConfig(PPSCardConfig * pCfg, int enforce)
@@ -4317,7 +4397,7 @@ const StrAssocArray * SLAPI SCardCache::GetFullList()
 		if(!err) {
 			#if SLTRACELOCKSTACK
 			SLS.LockPush(SLockStack::ltRW_R, __FILE__, __LINE__);
-			#endif		
+			#endif
 			FclLock.ReadLock_();
 			p_result = &FullCardList;
 		}
@@ -4331,7 +4411,7 @@ int FASTCALL SCardCache::ReleaseFullList(const StrAssocArray * pList)
 		FclLock.Unlock_();
 		#if SLTRACELOCKSTACK
 		SLS.LockPop();
-		#endif		
+		#endif
 	}
 	return 1;
 }
@@ -4789,7 +4869,8 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 			PPID   owner_reg_type_id = 0;
 			PPID   def_series_id = 0;
 			PPIDArray psn_list;
-			PPSCardSeries def_series_rec, scs_rec;
+			PPSCardSeries def_series_rec;
+			PPSCardSeries scs_rec;
 			MEMSZERO(def_series_rec);
 			if(Param.OwnerRegTypeCode.NotEmpty())
 				PPObjRegisterType::GetByCode(Param.OwnerRegTypeCode, &owner_reg_type_id);
@@ -4819,12 +4900,10 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 					sc_pack.Clear();
 					THROW(P_IE->ReadRecord(&sdr_rec, sizeof(sdr_rec)));
 					P_IE->GetParamConst().InrRec.ConvertDataFields(CTRANSF_OUTER_TO_INNER, &sdr_rec);
-					if(sdr_rec.SeriesSymb[0] && ScsObj.SearchBySymb(sdr_rec.SeriesSymb, &temp_id, 0) > 0) {
+					if(sdr_rec.SeriesSymb[0] && ScsObj.SearchBySymb(sdr_rec.SeriesSymb, &temp_id, 0) > 0)
 						scs_id = temp_id;
-					}
-					else if(sdr_rec.SeriesName[0] && ScsObj.SearchByName(sdr_rec.SeriesName, &temp_id, 0) > 0) {
+					else if(sdr_rec.SeriesName[0] && ScsObj.SearchByName(sdr_rec.SeriesName, &temp_id, 0) > 0)
 						scs_id = temp_id;
-					}
 					else
 						scs_id = def_series_id;
 					if(sdr_rec.Code[0]) {
@@ -4842,21 +4921,16 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 								sc_pack.Rec.MaxCredit = sdr_rec.MaxCredit;
 							if(checkdate(sdr_rec.Expiry, 0))
 								sc_pack.Rec.Expiry = sdr_rec.Expiry;
-							if(sdr_rec.ClosedTag[0]) {
-								(temp_buf = sdr_rec.ClosedTag).Strip();
-								(tok_buf = "ДА").Transf(CTRANSF_OUTER_TO_INNER);
-								if(temp_buf.CmpNC("1") == 0 || temp_buf.CmpNC("YES") == 0 || temp_buf.CmpNC(tok_buf) == 0)
-									sc_pack.Rec.Flags |= SCRDF_CLOSED;
-								else
-									sc_pack.Rec.Flags &= ~SCRDF_CLOSED;
-							}
-							else if(sdr_rec.OpenedTag[0]) {
-								(temp_buf = sdr_rec.OpenedTag).Strip();
-								(tok_buf = "ДА").Transf(CTRANSF_OUTER_TO_INNER);
-								if(temp_buf.CmpNC("1") == 0 || temp_buf.CmpNC("YES") == 0 || temp_buf.CmpNC(tok_buf) == 0)
-									sc_pack.Rec.Flags &= ~SCRDF_CLOSED;
-								else
-									sc_pack.Rec.Flags |= SCRDF_CLOSED;
+							{
+								PPLoadString("yes", tok_buf);
+								if(sdr_rec.ClosedTag[0]) {
+									(temp_buf = sdr_rec.ClosedTag).Strip();
+									SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, temp_buf.CmpNC("1") == 0 || temp_buf.CmpNC("YES") == 0 || temp_buf.CmpNC(tok_buf) == 0);
+								}
+								else if(sdr_rec.OpenedTag[0]) {
+									(temp_buf = sdr_rec.OpenedTag).Strip();
+									SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, !((temp_buf.CmpNC("1") == 0 || temp_buf.CmpNC("YES") == 0 || temp_buf.CmpNC(tok_buf) == 0)));
+								}
 							}
 							THROW(ScObj.PutPacket(&sc_id, &sc_pack, 0));
 						}
@@ -4864,27 +4938,22 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 							STRNSCPY(sc_pack.Rec.Code, sdr_rec.Code); // @v9.5.10 @fix
 							if(scs_id)
 								sc_pack.Rec.SeriesID = scs_id;
-							else {
-								MEMSZERO(scs_rec);
-								if(sdr_rec.SeriesSymb[0] || sdr_rec.SeriesName[0]) {
-									if(sdr_rec.SeriesName[0])
-										STRNSCPY(scs_rec.Name, sdr_rec.SeriesName);
-									else
-										STRNSCPY(scs_rec.Name, sdr_rec.SeriesSymb);
-									if(sdr_rec.SeriesSymb[0])
-										STRNSCPY(scs_rec.Symb, sdr_rec.SeriesSymb);
-									if(sdr_rec.CardTypeTag == 1)
-										scs_rec.SetType(scstCredit);
-									else if(sdr_rec.CardTypeTag == 2)
-										scs_rec.SetType(scstBonus);
-									else
-										scs_rec.SetType(scstDiscount);
-									if(checkdate(sdr_rec.IssueDate, 0))
-										scs_rec.Issue = sdr_rec.IssueDate;
-									THROW(ScsObj.ref->AddItem(PPOBJ_SCARDSERIES, &scs_id, &scs_rec, 0));
-								}
-								sc_pack.Rec.SeriesID = scs_id;
+							else if(sdr_rec.SeriesSymb[0] || sdr_rec.SeriesName[0]) {
+								PPSCardSerPacket scs_pack;
+								STRNSCPY(scs_pack.Rec.Name, sdr_rec.SeriesName[0] ? sdr_rec.SeriesName : sdr_rec.SeriesSymb);
+								STRNSCPY(scs_pack.Rec.Symb, sdr_rec.SeriesSymb);
+								if(sdr_rec.CardTypeTag == 1)
+									scs_pack.Rec.SetType(scstCredit);
+								else if(sdr_rec.CardTypeTag == 2)
+									scs_pack.Rec.SetType(scstBonus);
+								else
+									scs_pack.Rec.SetType(scstDiscount);
+								if(checkdate(sdr_rec.IssueDate, 0))
+									scs_pack.Rec.Issue = sdr_rec.IssueDate;
+								THROW(ScsObj.PutPacket(&scs_id, &scs_pack, 0)); // @v9.8.9
+								// @v9.8.9 THROW(ScsObj.ref->AddItem(PPOBJ_SCARDSERIES, &scs_id, &scs_rec, 0));
 							}
+							sc_pack.Rec.SeriesID = scs_id;
 							if(sc_pack.Rec.SeriesID) {
 								if(sc_pack.Rec.SeriesID && ScsObj.Fetch(sc_pack.Rec.SeriesID, &scs_rec) > 0)
 									owner_kind_id = scs_rec.PersonKindID;
@@ -4896,21 +4965,16 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 									sc_pack.Rec.MaxCredit = sdr_rec.MaxCredit;
 								if(checkdate(sdr_rec.Expiry, 0))
 									sc_pack.Rec.Expiry = sdr_rec.Expiry;
-								if(sdr_rec.ClosedTag[0]) {
-									(temp_buf = sdr_rec.ClosedTag).Strip();
-									(tok_buf = "ДА").ToOem();
-									if(temp_buf.CmpNC("1") == 0 || temp_buf.CmpNC("YES") == 0 || temp_buf.CmpNC(tok_buf) == 0)
-										sc_pack.Rec.Flags |= SCRDF_CLOSED;
-									else
-										sc_pack.Rec.Flags &= ~SCRDF_CLOSED;
-								}
-								else if(sdr_rec.OpenedTag[0]) {
-									(temp_buf = sdr_rec.OpenedTag).Strip();
-									(tok_buf = "ДА").ToOem();
-									if(temp_buf.CmpNC("1") == 0 || temp_buf.CmpNC("YES") == 0 || temp_buf.CmpNC(tok_buf) == 0)
-										sc_pack.Rec.Flags &= ~SCRDF_CLOSED;
-									else
-										sc_pack.Rec.Flags |= SCRDF_CLOSED;
+								{
+									PPLoadString("yes", tok_buf);
+									if(sdr_rec.ClosedTag[0]) {
+										(temp_buf = sdr_rec.ClosedTag).Strip();
+										SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, (temp_buf.CmpNC("1") == 0 || temp_buf.CmpNC("YES") == 0 || temp_buf.CmpNC(tok_buf) == 0));
+									}
+									else if(sdr_rec.OpenedTag[0]) {
+										(temp_buf = sdr_rec.OpenedTag).Strip();
+										SETFLAG(sc_pack.Rec.Flags, SCRDF_CLOSED, !(temp_buf.CmpNC("1") == 0 || temp_buf.CmpNC("YES") == 0 || temp_buf.CmpNC(tok_buf) == 0));
+									}
 								}
 								THROW(ScObj.PutPacket(&sc_id, &sc_pack, 0));
 							}
@@ -4931,4 +4995,94 @@ int SLAPI ImportSCard()
 {
 	PPSCardImporter prcssr;
 	return prcssr.Run(0, 1) ? 1 : PPErrorZ();
+}
+//
+//
+//
+int SLAPI ConvertSCardSeries9809()
+{
+	struct SCardSeries_Before9809 {
+		long   Tag;
+		long   ID;
+		char   Name[48];
+		char   Symb[20];
+		PPID   ChargeGoodsID;
+		PPID   BonusChrgGrpID;
+		int16  BonusChrgExtRule;
+		uint8  Reserve2;
+		int8   VerifTag;
+		PPID   BonusGrpID;
+		PPID   CrdGoodsGrpID;
+		char   CodeTempl[20];
+		LDATE  Issue;
+		LDATE  Expiry;
+		long   PDis;
+		double MaxCredit;
+		long   Flags;
+		long   QuotKindID_s;
+		long   PersonKindID;
+	};
+	assert(sizeof(PPSCardSeries2) == sizeof(SCardSeries_Before9809));
+	int    ok = -1;
+	LDATETIME moment;
+	PPIDArray acn_list;
+	acn_list.add(PPACN_EVENTTOKEN);
+	Reference * p_ref = 0;
+    SysJournal * p_sj = new SysJournal;
+    THROW(p_sj);
+    if(p_sj->GetLastObjEvent(PPOBJ_EVENTTOKEN, PPEVTOK_CVTSCS9809, &acn_list, &moment) > 0) {
+    	ok = -1; // Конвертация уже сделана
+    }
+    else {
+		const PPID obj_type = PPOBJ_SCARDSERIES;
+		Reference2Tbl::Key0 k0;
+        PPSCardSeries2 scs_rec;
+		THROW(p_ref = new Reference);
+		MEMSZERO(k0);
+		{
+			PPTransaction tra(1);
+			THROW(tra);
+			k0.ObjType = obj_type;
+			if(p_ref->search(0, &k0, spGt)) do {
+				p_ref->copyBufTo(&scs_rec);
+				if(scs_rec.VerifTag < 2) {
+					const PPID _id = scs_rec.ID;
+					SCardSeries_Before9809 old_rec;
+					char    code_templ[20];
+					memcpy(&old_rec, &scs_rec, sizeof(old_rec));
+					memzero(code_templ, sizeof(code_templ));
+					STRNSCPY(code_templ, old_rec.CodeTempl);
+                    scs_rec.QuotKindID_s = old_rec.QuotKindID_s;
+                    scs_rec.PersonKindID = old_rec.PersonKindID;
+                    scs_rec.ParentID = 0;
+                    scs_rec.Reserve4 = 0;
+
+					const long flags_mask = 0x03ff;
+					scs_rec.Flags &= flags_mask;
+
+                    memzero(scs_rec.Reserve3, sizeof(scs_rec.Reserve3));
+                    scs_rec.VerifTag = 2;
+                    p_ref->copyBufFrom(&scs_rec);
+                    THROW_DB(p_ref->updateRec());
+                    if(code_templ[0]) {
+						PPSCardSerPacket::Ext ext;
+						Storage_SCardSerExt se;
+						int    se_r = 0;
+						THROW(se_r = p_ref->GetProp(obj_type, _id, SCARDSERIES_EXT, &se, sizeof(se)));
+						if(se_r > 0)
+							se.Get(ext);
+                        STRNSCPY(ext.CodeTempl, code_templ);
+                        se.Set(ext);
+						THROW(p_ref->PutProp(obj_type, _id, SCARDSERIES_EXT, &se, sizeof(se), 0));
+                    }
+				}
+			} while(p_ref->search(0, &k0, spNext) && p_ref->data.ObjType == obj_type);
+			THROW(p_sj->LogEvent(PPACN_EVENTTOKEN, PPOBJ_EVENTTOKEN, PPEVTOK_CVTSCS9809, 0, 0));
+			THROW(tra.Commit());
+		}
+    }
+    CATCHZOK
+	delete p_ref;
+	delete p_sj;
+	return ok;
 }

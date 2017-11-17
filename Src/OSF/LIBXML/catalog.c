@@ -447,7 +447,7 @@ static void xmlCatalogDumpEntry(xmlCatalogEntryPtr entry, FILE * out)
  * Serializes a Catalog entry, called by xmlDumpXMLCatalog and recursively
  * for group entries
  */
-static void xmlDumpXMLCatalogNode(xmlCatalogEntryPtr catal, xmlNodePtr catalog, xmlDocPtr doc, xmlNs * ns, xmlCatalogEntryPtr cgroup) 
+static void xmlDumpXMLCatalogNode(xmlCatalogEntryPtr catal, xmlNodePtr catalog, xmlDoc * doc, xmlNs * ns, xmlCatalogEntryPtr cgroup) 
 {
 	xmlNode * P_Node;
 	/*

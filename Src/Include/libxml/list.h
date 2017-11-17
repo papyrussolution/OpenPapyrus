@@ -7,29 +7,27 @@
  *
  * Author: Gary Pennington <Gary.Pennington@uk.sun.com>
  */
-
 #ifndef __XML_LINK_INCLUDE__
 #define __XML_LINK_INCLUDE__
 
-#include <libxml/xmlversion.h>
+//#include <libxml/xmlversion.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct _xmlLink xmlLink;
-typedef xmlLink * xmlLinkPtr;
+struct xmlLink;
+struct xmlList;
 
-typedef struct _xmlList xmlList;
-typedef xmlList * xmlListPtr;
-
+//typedef xmlLink * xmlLinkPtr;
+//typedef xmlList * xmlListPtr;
 /**
  * xmlListDeallocator:
  * @lk:  the data to deallocate
  *
  * Callback function used to free data from a list.
  */
-typedef void (*xmlListDeallocator)(xmlLinkPtr lk);
+typedef void (*xmlListDeallocator)(xmlLink * lk);
 /**
  * xmlListDataCompare:
  * @data0: the first data
@@ -50,37 +48,41 @@ typedef int (*xmlListDataCompare)(const void * data0, const void * data1);
  * Returns 0 to stop walking the list, 1 otherwise.
  */
 typedef int (*xmlListWalker)(const void * data, const void * user);
-
-/* Creation/Deletion */
-XMLPUBFUN xmlListPtr XMLCALL xmlListCreate(xmlListDeallocator deallocator, xmlListDataCompare compare);
+//
+// Creation/Deletion 
+//
+XMLPUBFUN xmlList * XMLCALL xmlListCreate(xmlListDeallocator deallocator, xmlListDataCompare compare);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlListDelete(xmlList * l);
-/* Basic Operators */
+//
+// Basic Operators 
+//
 XMLPUBFUN void * XMLCALL xmlListSearch(xmlList * pList, void * data);
-XMLPUBFUN void * XMLCALL xmlListReverseSearch(xmlListPtr l, void * data);
+XMLPUBFUN void * XMLCALL xmlListReverseSearch(xmlList * l, void * data);
 XMLPUBFUN int XMLCALL xmlListInsert(xmlList * pList, void * data);
-XMLPUBFUN int XMLCALL xmlListAppend(xmlListPtr l, void * data);
-XMLPUBFUN int XMLCALL xmlListRemoveFirst(xmlListPtr l, void * data);
-XMLPUBFUN int XMLCALL xmlListRemoveLast(xmlListPtr l, void * data);
-XMLPUBFUN int XMLCALL xmlListRemoveAll(xmlListPtr l, void * data);
+XMLPUBFUN int XMLCALL xmlListAppend(xmlList * l, void * data);
+XMLPUBFUN int XMLCALL xmlListRemoveFirst(xmlList * l, void * data);
+XMLPUBFUN int XMLCALL xmlListRemoveLast(xmlList * l, void * data);
+XMLPUBFUN int XMLCALL xmlListRemoveAll(xmlList * l, void * data);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlListClear(xmlList * l);
-XMLPUBFUN int /*XMLCALL*/FASTCALL xmlListEmpty(xmlListPtr l);
+XMLPUBFUN int /*XMLCALL*/FASTCALL xmlListEmpty(xmlList * l);
 XMLPUBFUN xmlLink * /*XMLCALL*/FASTCALL xmlListFront(xmlList * l);
-XMLPUBFUN xmlLinkPtr XMLCALL xmlListEnd(xmlListPtr l);
-XMLPUBFUN int XMLCALL xmlListSize(xmlListPtr l);
+XMLPUBFUN xmlLink * XMLCALL xmlListEnd(xmlList * l);
+XMLPUBFUN int XMLCALL xmlListSize(xmlList * l);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlListPopFront(xmlList * l);
-XMLPUBFUN void XMLCALL xmlListPopBack(xmlListPtr l);
+XMLPUBFUN void XMLCALL xmlListPopBack(xmlList * l);
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlListPushFront(xmlList * l, void * data);
-XMLPUBFUN int XMLCALL xmlListPushBack(xmlListPtr l, void * data);
-
-/* Advanced Operators */
-XMLPUBFUN void XMLCALL xmlListReverse(xmlListPtr l);
-XMLPUBFUN void XMLCALL xmlListSort(xmlListPtr l);
-XMLPUBFUN void XMLCALL xmlListWalk(xmlListPtr l, xmlListWalker walker, const void * user);
-XMLPUBFUN void XMLCALL xmlListReverseWalk(xmlListPtr l, xmlListWalker walker, const void * user);
-XMLPUBFUN void XMLCALL xmlListMerge(xmlListPtr l1, xmlListPtr l2);
-XMLPUBFUN xmlListPtr XMLCALL xmlListDup(const xmlListPtr old);
-XMLPUBFUN int XMLCALL xmlListCopy(xmlListPtr cur, const xmlListPtr old);
-/* Link operators */
+XMLPUBFUN int XMLCALL xmlListPushBack(xmlList * l, void * data);
+//
+// Advanced Operators 
+//
+XMLPUBFUN void XMLCALL xmlListReverse(xmlList * l);
+XMLPUBFUN void XMLCALL xmlListSort(xmlList * l);
+XMLPUBFUN void XMLCALL xmlListWalk(xmlList * l, xmlListWalker walker, const void * user);
+XMLPUBFUN void XMLCALL xmlListReverseWalk(xmlList * l, xmlListWalker walker, const void * user);
+XMLPUBFUN void XMLCALL xmlListMerge(xmlList * l1, xmlList * l2);
+XMLPUBFUN xmlList * XMLCALL xmlListDup(const xmlList * old);
+XMLPUBFUN int XMLCALL xmlListCopy(xmlList * cur, const xmlList * old);
+// Link operators 
 XMLPUBFUN void * /*XMLCALL*/FASTCALL xmlLinkGetData(xmlLink * lk);
 
 /* xmlListUnique() */

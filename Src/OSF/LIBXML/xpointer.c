@@ -1175,7 +1175,7 @@ static void xmlXPtrRangeFunction(xmlXPathParserContextPtr ctxt, int nargs);
  *
  * Returns the xmlXPathContext just allocated.
  */
-xmlXPathContextPtr xmlXPtrNewContext(xmlDocPtr doc, xmlNode * here, xmlNode * origin)
+xmlXPathContextPtr xmlXPtrNewContext(xmlDoc * doc, xmlNode * here, xmlNode * origin)
 {
 	xmlXPathContextPtr ret = xmlXPathNewContext(doc);
 	if(ret) {

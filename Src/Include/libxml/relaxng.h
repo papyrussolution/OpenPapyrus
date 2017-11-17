@@ -136,14 +136,14 @@ XMLPUBFUN int XMLCALL xmlRelaxNGGetValidErrors(xmlRelaxNGValidCtxtPtr ctxt, xmlR
 XMLPUBFUN void XMLCALL xmlRelaxNGSetValidStructuredErrors(xmlRelaxNGValidCtxtPtr ctxt, xmlStructuredErrorFunc serror, void * ctx);
 XMLPUBFUN xmlRelaxNGValidCtxtPtr XMLCALL xmlRelaxNGNewValidCtxt(xmlRelaxNGPtr schema);
 XMLPUBFUN void XMLCALL xmlRelaxNGFreeValidCtxt(xmlRelaxNGValidCtxtPtr ctxt);
-XMLPUBFUN int XMLCALL xmlRelaxNGValidateDoc(xmlRelaxNGValidCtxtPtr ctxt, xmlDocPtr doc);
+XMLPUBFUN int XMLCALL xmlRelaxNGValidateDoc(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc);
 /*
  * Interfaces for progressive validation when possible
  */
-XMLPUBFUN int XMLCALL xmlRelaxNGValidatePushElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr elem);
+XMLPUBFUN int XMLCALL xmlRelaxNGValidatePushElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc, xmlNodePtr elem);
 XMLPUBFUN int XMLCALL xmlRelaxNGValidatePushCData(xmlRelaxNGValidCtxtPtr ctxt, const xmlChar * data, int len);
-XMLPUBFUN int XMLCALL xmlRelaxNGValidatePopElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr elem);
-XMLPUBFUN int XMLCALL xmlRelaxNGValidateFullElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDocPtr doc, xmlNodePtr elem);
+XMLPUBFUN int XMLCALL xmlRelaxNGValidatePopElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc, xmlNodePtr elem);
+XMLPUBFUN int XMLCALL xmlRelaxNGValidateFullElement(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc, xmlNodePtr elem);
 
 #ifdef __cplusplus
 }

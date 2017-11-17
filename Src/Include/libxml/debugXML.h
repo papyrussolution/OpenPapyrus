@@ -21,7 +21,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /*
  * The standard Dump routines.
  */
@@ -31,10 +30,10 @@ XMLPUBFUN void XMLCALL xmlDebugDumpAttrList(FILE * output, xmlAttrPtr attr, int 
 XMLPUBFUN void XMLCALL xmlDebugDumpOneNode(FILE * output, xmlNode * P_Node, int depth);
 XMLPUBFUN void XMLCALL xmlDebugDumpNode(FILE * output, xmlNode * P_Node, int depth);
 XMLPUBFUN void XMLCALL xmlDebugDumpNodeList(FILE * output, xmlNode * P_Node, int depth);
-XMLPUBFUN void XMLCALL xmlDebugDumpDocumentHead(FILE * output, xmlDocPtr doc);
-XMLPUBFUN void XMLCALL xmlDebugDumpDocument(FILE * output, xmlDocPtr doc);
+XMLPUBFUN void XMLCALL xmlDebugDumpDocumentHead(FILE * output, xmlDoc * doc);
+XMLPUBFUN void XMLCALL xmlDebugDumpDocument(FILE * output, xmlDoc * doc);
 XMLPUBFUN void XMLCALL xmlDebugDumpDTD(FILE * output, xmlDtdPtr dtd);
-XMLPUBFUN void XMLCALL xmlDebugDumpEntities(FILE * output, xmlDocPtr doc);
+XMLPUBFUN void XMLCALL xmlDebugDumpEntities(FILE * output, xmlDoc * doc);
 
 /****************************************************************
 *								*
@@ -42,7 +41,7 @@ XMLPUBFUN void XMLCALL xmlDebugDumpEntities(FILE * output, xmlDocPtr doc);
 *								*
 ****************************************************************/
 
-XMLPUBFUN int XMLCALL xmlDebugCheckDocument(FILE * output, xmlDocPtr doc);
+XMLPUBFUN int XMLCALL xmlDebugCheckDocument(FILE * output, xmlDoc * doc);
 
 /****************************************************************
 *								*
@@ -125,7 +124,7 @@ XMLPUBFUN int XMLCALL xmlShellPwd(xmlShellCtxtPtr ctxt, char * buffer, xmlNode *
 /*
  * The Shell interface.
  */
-XMLPUBFUN void XMLCALL xmlShell(xmlDocPtr doc, char * filename, xmlShellReadlineFunc input, FILE * output);
+XMLPUBFUN void XMLCALL xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * output);
 
 #endif /* LIBXML_XPATH_ENABLED */
 

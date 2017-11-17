@@ -1751,7 +1751,7 @@ void BrowserWindow::Paint()
 						if(row > 0 && (P_Def->at(cn).Options & BCO_DONTSHOWDUPL)) {
 							char   prev_buf[512];
 							strip(P_Def->getText(P_Def->_topItem() + row - 1, cn, prev_buf));
-							if(!strcmp(buf, prev_buf))
+							if(sstreq(buf, prev_buf))
 								buf[0] = 0;
 						}
 						int    opt = P_Def->at(cn).format;

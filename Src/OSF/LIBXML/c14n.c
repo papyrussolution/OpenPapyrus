@@ -45,7 +45,7 @@ typedef struct _xmlC14NCtx {
 	xmlC14NIsVisibleCallback is_visible_callback;
 	void * user_data;
 	int with_comments;
-	xmlOutputBufferPtr buf;
+	xmlOutputBuffer * buf;
 	xmlC14NPosition pos; /* position in the XML document */
 	int parent_is_doc;
 	xmlC14NVisibleNsStackPtr ns_rendered;
@@ -493,7 +493,7 @@ static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int v
 	xmlNodePtr n;
 	xmlNs * ns;
 	xmlNs * tmp;
-	xmlListPtr list;
+	xmlList * list;
 	int already_rendered;
 	int has_empty_ns = 0;
 	if(!ctx || (cur == NULL) || (cur->type != XML_ELEMENT_NODE)) {
@@ -587,7 +587,7 @@ static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int v
 static int xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
 {
 	xmlNs * ns;
-	xmlListPtr list;
+	xmlList * list;
 	xmlAttr * attr;
 	int already_rendered;
 	int has_empty_ns = 0;
@@ -967,7 +967,7 @@ static xmlAttrPtr xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttrPtr xml_base_at
 static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent_visible)
 {
 	xmlAttr * attr;
-	xmlListPtr list;
+	xmlList * list;
 	xmlAttrPtr attrs_to_delete = NULL;
 	/* special processing for 1.1 spec */
 	xmlAttrPtr xml_base_attr = NULL;
@@ -1538,10 +1538,8 @@ static void xmlC14NFreeCtx(xmlC14NCtxPtr ctx)
  *
  * Returns pointer to newly created object (success) or NULL (fail)
  */
-static xmlC14NCtxPtr xmlC14NNewCtx(xmlDocPtr doc,
-    xmlC14NIsVisibleCallback is_visible_callback, void* user_data,
-    xmlC14NMode mode, xmlChar ** inclusive_ns_prefixes,
-    int with_comments, xmlOutputBufferPtr buf)
+static xmlC14NCtxPtr xmlC14NNewCtx(xmlDoc * doc, xmlC14NIsVisibleCallback is_visible_callback, void* user_data,
+    xmlC14NMode mode, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlOutputBuffer * buf)
 {
 	xmlC14NCtxPtr ctx = NULL;
 	if(!doc || (buf == NULL)) {
@@ -1622,9 +1620,7 @@ static xmlC14NCtxPtr xmlC14NNewCtx(xmlDocPtr doc,
  *
  * Returns non-negative value on success or a negative value on fail
  */
-int xmlC14NExecute(xmlDocPtr doc, xmlC14NIsVisibleCallback is_visible_callback,
-    void* user_data, int mode, xmlChar ** inclusive_ns_prefixes,
-    int with_comments, xmlOutputBufferPtr buf) 
+int xmlC14NExecute(xmlDoc * doc, xmlC14NIsVisibleCallback is_visible_callback, void* user_data, int mode, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlOutputBuffer * buf) 
 {
 	xmlC14NCtxPtr ctx;
 	xmlC14NMode c14n_mode = XML_C14N_1_0;
@@ -1712,12 +1708,10 @@ int xmlC14NExecute(xmlDocPtr doc, xmlC14NIsVisibleCallback is_visible_callback,
  *
  * Returns non-negative value on success or a negative value on fail
  */
-int xmlC14NDocSaveTo(xmlDocPtr doc, xmlNodeSetPtr nodes, int mode, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlOutputBufferPtr buf)
+int xmlC14NDocSaveTo(xmlDoc * doc, xmlNodeSetPtr nodes, int mode, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlOutputBuffer * buf)
 {
-	return(xmlC14NExecute(doc, (xmlC14NIsVisibleCallback)xmlC14NIsNodeInNodeset,
-	    nodes, mode, inclusive_ns_prefixes, with_comments, buf));
+	return xmlC14NExecute(doc, (xmlC14NIsVisibleCallback)xmlC14NIsNodeInNodeset, nodes, mode, inclusive_ns_prefixes, with_comments, buf);
 }
-
 /**
  * xmlC14NDocDumpMemory:
  * @doc:		the XML document for canonization
@@ -1739,10 +1733,10 @@ int xmlC14NDocSaveTo(xmlDocPtr doc, xmlNodeSetPtr nodes, int mode, xmlChar ** in
  *
  * Returns the number of bytes written on success or a negative value on fail
  */
-int xmlC14NDocDumpMemory(xmlDocPtr doc, xmlNodeSetPtr nodes, int mode, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlChar ** doc_txt_ptr)
+int xmlC14NDocDumpMemory(xmlDoc * doc, xmlNodeSetPtr nodes, int mode, xmlChar ** inclusive_ns_prefixes, int with_comments, xmlChar ** doc_txt_ptr)
 {
 	int ret;
-	xmlOutputBufferPtr buf;
+	xmlOutputBuffer * buf;
 	if(doc_txt_ptr == NULL) {
 		xmlC14NErrParam("dumping doc to memory");
 		return -1;
@@ -1800,11 +1794,9 @@ int xmlC14NDocDumpMemory(xmlDocPtr doc, xmlNodeSetPtr nodes, int mode, xmlChar *
  *
  * Returns the number of bytes written success or a negative value on fail
  */
-int xmlC14NDocSave(xmlDocPtr doc, xmlNodeSetPtr nodes,
-    int mode, xmlChar ** inclusive_ns_prefixes,
-    int with_comments, const char * filename, int compression)
+int xmlC14NDocSave(xmlDoc * doc, xmlNodeSetPtr nodes, int mode, xmlChar ** inclusive_ns_prefixes, int with_comments, const char * filename, int compression)
 {
-	xmlOutputBufferPtr buf;
+	xmlOutputBuffer * buf;
 	int ret;
 	if(filename == NULL) {
 		xmlC14NErrParam("saving doc");

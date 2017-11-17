@@ -2,46 +2,39 @@
 #define _DB_STL_COMMON_H
 
 #ifdef DBSTL_DEBUG_LEAK
-#include "vld.h"
+	#include "vld.h"
 #endif
-
 #include <assert.h>
-
 #include "db_cxx.h"
-
+//
 // In release builds, the native assert will be disabled so we
 // can't use it in dbstl in cases where we rely on the expression being
 // evaluated to change the state of the application.
 //
 #if !defined(DEBUG) && !defined(_DEBUG)
-#undef dbstl_assert
-#define dbstl_assert(expression)
+	#undef dbstl_assert
+	#define dbstl_assert(expression)
 #else
-#undef dbstl_assert
-#define dbstl_assert(expression) do {			\
-	if(!(expression)) {				\
-		FailedAssertionException ex(__FILE__, __LINE__, #expression);\
-		throw ex; } } while (0)
+	#undef dbstl_assert
+	#define dbstl_assert(expression) do { if(!(expression)) { FailedAssertionException ex(__FILE__, __LINE__, #expression); throw ex; } } while(0)
 #endif
-
 #if defined( DB_WIN32) || defined(_WIN32)
-#include <windows.h>
-#include <tchar.h>
+	#include <windows.h>
+	#include <tchar.h>
 #else
-#define TCHAR char
-#define _T(e) (e)
-#define _ftprintf fprintf
-#define _snprintf snprintf
-#define _tcschr strchr
-#define _tcscmp strcmp
-#define _tcscpy strcpy
-#define _tcslen strlen
-#define _tgetopt getopt
-#define _tmain main
-#define _tprintf printf
-#define _ttoi atoi
+	#define TCHAR char
+	#define _T(e) (e)
+	#define _ftprintf fprintf
+	#define _snprintf snprintf
+	#define _tcschr strchr
+	#define _tcscmp strcmp
+	#define _tcscpy strcpy
+	#define _tcslen strlen
+	#define _tgetopt getopt
+	#define _tmain main
+	#define _tprintf printf
+	#define _ttoi atoi
 #endif
-
 #undef SIZE_T_MAX
 // The max value for size_t variables, one fourth of 2 powers 32.
 #define SIZE_T_MAX 1073741824
@@ -72,36 +65,32 @@
 
 // Platform specific compiler capability configuration.
 #ifdef WIN32
-#define CLS_SCOPE(clstmpl_name)
+	#define CLS_SCOPE(clstmpl_name)
 #else
-
-// C++ standard: It is not possible to define a full specialized version of
-// a member function of a class template inside the class body. It needs to
-// be defined outside the class template, and must be defined in the namespace
-// scope.
-#define CLS_SCOPE(clstmpl_name) clstmpl_name::
-#define NO_IN_CLASS_FULL_SPECIALIZATION  1
-#define NO_MEMBER_FUNCTION_PARTIAL_SPECIALIZATION 1
+	// C++ standard: It is not possible to define a full specialized version of
+	// a member function of a class template inside the class body. It needs to
+	// be defined outside the class template, and must be defined in the namespace
+	// scope.
+	#define CLS_SCOPE(clstmpl_name) clstmpl_name::
+	#define NO_IN_CLASS_FULL_SPECIALIZATION  1
+	#define NO_MEMBER_FUNCTION_PARTIAL_SPECIALIZATION 1
 #endif
-
 #if HAVE_NAMESPACE
-#define START_NS(nsname) namespace nsname {
-#define END_NS }
+	#define START_NS(nsname) namespace nsname {
+	#define END_NS }
 #else
-#define START_NS(nsname) struct nsname {
-#define END_NS };
+	#define START_NS(nsname) struct nsname {
+	#define END_NS };
 #endif
-
 #if HAVE_EXPLICIT_KEYWORD
-#define EXPLICIT explicit
+	#define EXPLICIT explicit
 #else
-#define EXPLICIT
+	#define EXPLICIT
 #endif
-
 #if HAVE_TYPENAME
-#define Typename typename
+	#define Typename typename
 #else
-#define Typename class
+	#define Typename class
 #endif
 
 //////////////////////////////////////////////////////////////////////////

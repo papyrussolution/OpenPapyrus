@@ -2705,6 +2705,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						THROW(Convert9108()); // @v9.1.8 GoodsDebt
 						THROW(Convert9214()); // @v9.2.14 EgaisProduct
 						THROW(Convert9400()); // @v9.4.0
+						THROW(ConvertSCardSeries9809()); // @v9.8.9
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;

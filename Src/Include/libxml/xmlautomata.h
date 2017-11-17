@@ -15,7 +15,7 @@
 
 #ifdef LIBXML_REGEXP_ENABLED
 #ifdef LIBXML_AUTOMATA_ENABLED
-#include <libxml/xmlregexp.h>
+//#include <libxml/xmlregexp.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,7 +58,7 @@ XMLPUBFUN xmlAutomataStatePtr XMLCALL xmlAutomataNewEpsilon(xmlAutomataPtr am, x
 XMLPUBFUN xmlAutomataStatePtr XMLCALL xmlAutomataNewCountedTrans(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, int counter);
 XMLPUBFUN xmlAutomataStatePtr XMLCALL xmlAutomataNewCounterTrans(xmlAutomataPtr am, xmlAutomataStatePtr from, xmlAutomataStatePtr to, int counter);
 XMLPUBFUN int XMLCALL xmlAutomataNewCounter(xmlAutomataPtr am, int min, int max);
-XMLPUBFUN xmlRegexpPtr XMLCALL xmlAutomataCompile(xmlAutomataPtr am);
+XMLPUBFUN xmlRegexp * XMLCALL xmlAutomataCompile(xmlAutomataPtr am);
 XMLPUBFUN int XMLCALL xmlAutomataIsDeterminist(xmlAutomataPtr am);
 
 #ifdef __cplusplus

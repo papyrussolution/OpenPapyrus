@@ -20,8 +20,8 @@
 #ifdef LIBXML_REGEXP_ENABLED
 
 /* #define DEBUG_ERR */
-#include <libxml/xmlregexp.h>
-#include <libxml/xmlautomata.h>
+//#include <libxml/xmlregexp.h>
+//#include <libxml/xmlautomata.h>
 #include <libxml/xmlunicode.h>
 #ifndef INT_MAX
 	#define INT_MAX 123456789 /* easy to flag and big enough for our needs */
@@ -254,7 +254,7 @@ struct _xmlAutomata {
 	int flags;
 };
 
-struct _xmlRegexp {
+struct xmlRegexp {
 	xmlChar * string;
 	int nbStates;
 	xmlRegStatePtr * states;
@@ -5067,7 +5067,6 @@ void xmlRegexpPrint(FILE * output, xmlRegexpPtr regexp)
 		}
 	}
 }
-
 /**
  * xmlRegexpCompile:
  * @regexp:  a regular expression string
@@ -5078,7 +5077,7 @@ void xmlRegexpPrint(FILE * output, xmlRegexpPtr regexp)
  *
  * Returns the compiled expression or NULL in case of error
  */
-xmlRegexpPtr xmlRegexpCompile(const xmlChar * regexp)
+xmlRegexp * xmlRegexpCompile(const xmlChar * regexp)
 {
 	xmlRegexpPtr ret;
 	xmlRegParserCtxtPtr ctxt = xmlRegNewParserCtxt(regexp);
@@ -5166,7 +5165,7 @@ int xmlRegexpIsDeterminist(xmlRegexpPtr comp)
  * @regexp:  the regexp
  * Free a regexp
  */
-void xmlRegFreeRegexp(xmlRegexpPtr regexp)
+void xmlRegFreeRegexp(xmlRegexp * regexp)
 {
 	if(regexp) {
 		SAlloc::F(regexp->string);
@@ -5842,10 +5841,11 @@ xmlAutomataStatePtr xmlAutomataNewCounterTrans(xmlAutomataPtr am, xmlAutomataSta
  *
  * Returns the compiled regexp or NULL in case of error
  */
-xmlRegexpPtr xmlAutomataCompile(xmlAutomataPtr am)
+xmlRegexp * xmlAutomataCompile(xmlAutomataPtr am)
 {
-	xmlRegexpPtr ret;
-	if((am == NULL) || (am->error != 0)) return 0;
+	xmlRegexp * ret;
+	if((am == NULL) || (am->error != 0)) 
+		return 0;
 	xmlFAEliminateEpsilonTransitions(am);
 	/* xmlFAComputesDeterminism(am); */
 	ret = xmlRegEpxFromParse(am);

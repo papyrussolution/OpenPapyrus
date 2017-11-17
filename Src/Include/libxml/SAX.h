@@ -38,7 +38,7 @@ XMLPUBFUN xmlEntity * XMLCALL getParameterEntity(void *ctx, const xmlChar *name)
 XMLPUBFUN xmlParserInputPtr XMLCALL resolveEntity(void *ctx, const xmlChar *publicId, const xmlChar *systemId);
 XMLPUBFUN void XMLCALL entityDecl(void *ctx, const xmlChar *name, int type, const xmlChar *publicId, const xmlChar *systemId, xmlChar *content);
 XMLPUBFUN void XMLCALL attributeDecl(void *ctx, const xmlChar *elem, const xmlChar *fullname, int type, int def, const xmlChar *defaultValue, xmlEnumeration * tree);
-XMLPUBFUN void XMLCALL elementDecl(void *ctx, const xmlChar *name, int type, xmlElementContentPtr content);
+XMLPUBFUN void XMLCALL elementDecl(void *ctx, const xmlChar *name, int type, xmlElementContent * content);
 XMLPUBFUN void XMLCALL notationDecl(void *ctx, const xmlChar *name, const xmlChar *publicId, const xmlChar *systemId);
 XMLPUBFUN void XMLCALL unparsedEntityDecl(void *ctx, const xmlChar *name, const xmlChar *publicId, const xmlChar *systemId, const xmlChar *notationName);
 XMLPUBFUN void XMLCALL startDocument(void *ctx);

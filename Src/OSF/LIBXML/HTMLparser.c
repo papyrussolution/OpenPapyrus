@@ -2040,7 +2040,7 @@ htmlDocPtr htmlNewDocNoDtD(const xmlChar * URI, const xmlChar * ExternalID)
 	/*
 	 * Allocate a new document and fill the fields.
 	 */
-	xmlDoc * p_cur = (xmlDocPtr)SAlloc::M(sizeof(xmlDoc));
+	xmlDoc * p_cur = (xmlDoc *)SAlloc::M(sizeof(xmlDoc));
 	if(!p_cur) {
 		htmlErrMemory(NULL, "HTML document creation failed\n");
 		return NULL;
@@ -5883,7 +5883,7 @@ static htmlDocPtr htmlDoRead(htmlParserCtxtPtr ctxt, const char * URL, const cha
 	htmlCtxtUseOptions(ctxt, options);
 	ctxt->html = 1;
 	if(encoding) {
-		xmlCharEncodingHandlerPtr hdlr = xmlFindCharEncodingHandler(encoding);
+		xmlCharEncodingHandler * hdlr = xmlFindCharEncodingHandler(encoding);
 		if(hdlr) {
 			xmlSwitchToEncoding(ctxt, hdlr);
 			SAlloc::F((xmlChar*)ctxt->input->encoding);

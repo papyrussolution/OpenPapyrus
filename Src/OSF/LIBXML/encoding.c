@@ -36,8 +36,8 @@ struct _xmlCharEncodingAlias {
 };
 
 /*
-static xmlCharEncodingHandlerPtr xmlUTF16LEHandler = NULL;
-static xmlCharEncodingHandlerPtr xmlUTF16BEHandler = NULL;
+static xmlCharEncodingHandler * xmlUTF16LEHandler = NULL;
+static xmlCharEncodingHandler * xmlUTF16BEHandler = NULL;
 static xmlCharEncodingAliasPtr xmlCharEncodingAliases = NULL;
 static int xmlCharEncodingAliasesNb = 0;
 static int xmlCharEncodingAliasesMax = 0;
@@ -71,13 +71,13 @@ struct LibXmlEncoderBlock {
 	void   InitCharEncodingHandlers();
 	void   CleanupEncodingAliases();
 	void   CleanupCharEncodingHandlers();
-	void   RegisterCharEncodingHandler(xmlCharEncodingHandlerPtr handler);
-	xmlCharEncodingHandlerPtr GetCharEncodingHandler(xmlCharEncoding enc);
-	xmlCharEncodingHandlerPtr FindCharEncodingHandler(const char * pName);
+	void   RegisterCharEncodingHandler(xmlCharEncodingHandler * handler);
+	xmlCharEncodingHandler * GetCharEncodingHandler(xmlCharEncoding enc);
+	xmlCharEncodingHandler * FindCharEncodingHandler(const char * pName);
 	int    CharEncCloseFunc(xmlCharEncodingHandler * handler);
 
-	xmlCharEncodingHandlerPtr xmlUTF16LEHandler;
-	xmlCharEncodingHandlerPtr xmlUTF16BEHandler;
+	xmlCharEncodingHandler * xmlUTF16LEHandler;
+	xmlCharEncodingHandler * xmlUTF16BEHandler;
 	xmlCharEncodingAliasPtr xmlCharEncodingAliases;
 	int xmlCharEncodingAliasesNb;
 	int xmlCharEncodingAliasesMax;
@@ -87,13 +87,13 @@ struct LibXmlEncoderBlock {
 	//
 	// the size should be growable, but it's not a big deal ...
 	//xmlCharEncodingHandlerPtr * handlers;
-	xmlCharEncodingHandlerPtr * PP_Tab;
+	xmlCharEncodingHandler ** PP_Tab;
 	int    nbCharEncodingHandler;
 	//
 	// The default is UTF-8 for XML, that's also the default used for the
 	// parser internals, so the default encoding handler is NULL
 	//
-	xmlCharEncodingHandlerPtr xmlDefaultCharEncodingHandler;
+	xmlCharEncodingHandler * xmlDefaultCharEncodingHandler;
 };
 
 static LibXmlEncoderBlock EncBlk;
@@ -1017,28 +1017,25 @@ void xmlCleanupEncodingAliases()
  */
 const char * xmlGetEncodingAlias(const char * alias)
 {
-	int i;
-	char upper[100];
-	if(alias == NULL)
-		return 0;
-	if(EncBlk.xmlCharEncodingAliases == NULL)
-		return 0;
-	for(i = 0; i < 99; i++) {
-		upper[i] = toupper(alias[i]);
-		if(upper[i] == 0)
-			break;
-	}
-	upper[i] = 0;
-	/*
-	 * Walk down the list looking for a definition of the alias
-	 */
-	for(i = 0; i < EncBlk.xmlCharEncodingAliasesNb; i++) {
-		if(strcmp(EncBlk.xmlCharEncodingAliases[i].alias, upper) == 0)
-			return EncBlk.xmlCharEncodingAliases[i].name;
+	if(alias && EncBlk.xmlCharEncodingAliases) {
+		int i;
+		char upper[100];
+		for(i = 0; i < 99; i++) {
+			upper[i] = toupper(alias[i]);
+			if(upper[i] == 0)
+				break;
+		}
+		upper[i] = 0;
+		// 
+		// Walk down the list looking for a definition of the alias
+		// 
+		for(i = 0; i < EncBlk.xmlCharEncodingAliasesNb; i++) {
+			if(strcmp(EncBlk.xmlCharEncodingAliases[i].alias, upper) == 0)
+				return EncBlk.xmlCharEncodingAliases[i].name;
+		}
 	}
 	return 0;
 }
-
 /**
  * xmlAddEncodingAlias:
  * @name:  the encoding name as parsed, in UTF-8 format (ASCII actually)
@@ -1159,14 +1156,11 @@ xmlCharEncoding xmlParseCharEncoding(const char* name)
 	 */
 	if(sstreq(upper, "UTF-16")) return(XML_CHAR_ENCODING_UTF16LE);
 	if(sstreq(upper, "UTF16")) return(XML_CHAR_ENCODING_UTF16LE);
-
 	if(sstreq(upper, "ISO-10646-UCS-2")) return(XML_CHAR_ENCODING_UCS2);
 	if(sstreq(upper, "UCS-2")) return(XML_CHAR_ENCODING_UCS2);
 	if(sstreq(upper, "UCS2")) return(XML_CHAR_ENCODING_UCS2);
-
 	/*
-	 * NOTE: if we were able to parse this, the endianness of UCS4 is
-	 *       already found and in use
+	 * NOTE: if we were able to parse this, the endianness of UCS4 is already found and in use
 	 */
 	if(sstreq(upper, "ISO-10646-UCS-4")) return(XML_CHAR_ENCODING_UCS4LE);
 	if(sstreq(upper, "UCS-4")) return(XML_CHAR_ENCODING_UCS4LE);
@@ -1197,7 +1191,6 @@ xmlCharEncoding xmlParseCharEncoding(const char* name)
 #endif
 	return(XML_CHAR_ENCODING_ERROR);
 }
-
 /**
  * xmlGetCharEncodingName:
  * @enc:  the encoding
@@ -1208,7 +1201,6 @@ xmlCharEncoding xmlParseCharEncoding(const char* name)
  *
  * Returns the canonical name for the given encoding
  */
-
 const char* xmlGetCharEncodingName(xmlCharEncoding enc)
 {
 	switch(enc) {
@@ -1340,7 +1332,7 @@ void xmlCleanupCharEncodingHandlers()
 //
 // Register the char encoding handler, surprising, isn't it ?
 //
-void xmlRegisterCharEncodingHandler(xmlCharEncodingHandlerPtr handler)
+void xmlRegisterCharEncodingHandler(xmlCharEncodingHandler * handler)
 {
 	EncBlk.RegisterCharEncodingHandler(handler);
 }
@@ -2627,7 +2619,7 @@ void LibXmlEncoderBlock::InitCharEncodingHandlers()
 	}
 }
 
-void LibXmlEncoderBlock::RegisterCharEncodingHandler(xmlCharEncodingHandlerPtr handler)
+void LibXmlEncoderBlock::RegisterCharEncodingHandler(xmlCharEncodingHandler * handler)
 {
 	if(!PP_Tab)
 		InitCharEncodingHandlers();
@@ -2646,7 +2638,7 @@ void LibXmlEncoderBlock::RegisterCharEncodingHandler(xmlCharEncodingHandlerPtr h
 //
 // Returns the handler or NULL if not found
 //
-xmlCharEncodingHandlerPtr LibXmlEncoderBlock::GetCharEncodingHandler(xmlCharEncoding enc)
+xmlCharEncodingHandler * LibXmlEncoderBlock::GetCharEncodingHandler(xmlCharEncoding enc)
 {
 	xmlCharEncodingHandler * handler;
 	if(!PP_Tab)
@@ -2814,15 +2806,15 @@ xmlCharEncodingHandlerPtr LibXmlEncoderBlock::GetCharEncodingHandler(xmlCharEnco
 //
 // Returns the handler or NULL if not found
 //
-xmlCharEncodingHandlerPtr LibXmlEncoderBlock::FindCharEncodingHandler(const char * name)
+xmlCharEncodingHandler * LibXmlEncoderBlock::FindCharEncodingHandler(const char * name)
 {
 	xmlCharEncoding alias;
 #ifdef LIBXML_ICONV_ENABLED
-	xmlCharEncodingHandlerPtr enc;
+	xmlCharEncodingHandler * enc;
 	iconv_t icv_in, icv_out;
 #endif // LIBXML_ICONV_ENABLED
 #ifdef LIBXML_ICU_ENABLED
-	xmlCharEncodingHandlerPtr encu;
+	xmlCharEncodingHandler * encu;
 	uconv_t * ucv_in, * ucv_out;
 #endif // LIBXML_ICU_ENABLED
 	char upper[100];

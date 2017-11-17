@@ -10913,7 +10913,8 @@ static void FillSCardSeriesRec(const PPSCardSeries * pInner, SPpyO_SCardSeries *
 
 	(temp_buf = pInner->Name).CopyToOleStr(&pOuter->Name);
 	(temp_buf = pInner->Symb).CopyToOleStr(&pOuter->Symb);
-	(temp_buf = pInner->CodeTempl).CopyToOleStr(&pOuter->CodeTempl);
+	// @v9.8.9 (temp_buf = pInner->CodeTempl).CopyToOleStr(&pOuter->CodeTempl);
+	temp_buf.Z().CopyToOleStr(&pOuter->CodeTempl); // @v9.8.9 
 #undef FLD
 }
 

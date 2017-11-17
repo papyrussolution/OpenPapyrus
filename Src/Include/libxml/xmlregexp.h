@@ -17,16 +17,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/**
- * xmlRegexpPtr:
- *
- * A libxml regular expression, they can actually be far more complex
- * thank the POSIX regex expressions.
- */
-typedef struct _xmlRegexp xmlRegexp;
+// 
+// Descr: A libxml regular expression, they can actually be far more complex
+//   thank the POSIX regex expressions.
+// 
+struct xmlRegexp;
 typedef xmlRegexp * xmlRegexpPtr;
-
 /**
  * xmlRegExecCtxtPtr:
  *
@@ -47,8 +43,8 @@ extern "C" {
 /*
  * The POSIX like API
  */
-XMLPUBFUN xmlRegexpPtr XMLCALL xmlRegexpCompile(const xmlChar *regexp);
-XMLPUBFUN void XMLCALL xmlRegFreeRegexp(xmlRegexpPtr regexp);
+XMLPUBFUN xmlRegexp * XMLCALL xmlRegexpCompile(const xmlChar *regexp);
+XMLPUBFUN void XMLCALL xmlRegFreeRegexp(xmlRegexp * regexp);
 XMLPUBFUN int XMLCALL xmlRegexpExec(xmlRegexpPtr comp, const xmlChar *value);
 XMLPUBFUN void XMLCALL xmlRegexpPrint(FILE *output, xmlRegexpPtr regexp);
 XMLPUBFUN int XMLCALL xmlRegexpIsDeterminist(xmlRegexpPtr comp);

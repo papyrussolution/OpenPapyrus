@@ -292,8 +292,8 @@ XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlCreateURLParserCtxt(const char * filename,
 XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlCreateMemoryParserCtxt(const char * buffer, int size);
 XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlCreateEntityParserCtxt(const xmlChar * URL, const xmlChar * ID, const xmlChar * base);
 XMLPUBFUN int XMLCALL xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc);
-XMLPUBFUN int XMLCALL xmlSwitchToEncoding(xmlParserCtxt * ctxt, xmlCharEncodingHandlerPtr handler);
-XMLPUBFUN int XMLCALL xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandlerPtr handler);
+XMLPUBFUN int XMLCALL xmlSwitchToEncoding(xmlParserCtxt * ctxt, xmlCharEncodingHandler * handler);
+XMLPUBFUN int XMLCALL xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandler * handler);
 
 #ifdef IN_LIBXML
 /* internal error reporting */
@@ -337,9 +337,9 @@ XMLPUBFUN xmlEnumeration * XMLCALL xmlParseEnumerationType(xmlParserCtxt * ctxt)
 XMLPUBFUN int XMLCALL xmlParseEnumeratedType(xmlParserCtxt * ctxt, xmlEnumeration ** tree);
 XMLPUBFUN int XMLCALL xmlParseAttributeType(xmlParserCtxt * ctxt, xmlEnumeration ** tree);
 XMLPUBFUN void XMLCALL xmlParseAttributeListDecl(xmlParserCtxt * ctxt);
-XMLPUBFUN xmlElementContentPtr XMLCALL xmlParseElementMixedContentDecl(xmlParserCtxt * ctxt, int inputchk);
-XMLPUBFUN xmlElementContentPtr XMLCALL xmlParseElementChildrenContentDecl(xmlParserCtxt * ctxt, int inputchk);
-XMLPUBFUN int XMLCALL xmlParseElementContentDecl(xmlParserCtxt * ctxt, const xmlChar * name, xmlElementContentPtr * result);
+XMLPUBFUN xmlElementContent * XMLCALL xmlParseElementMixedContentDecl(xmlParserCtxt * ctxt, int inputchk);
+XMLPUBFUN xmlElementContent * XMLCALL xmlParseElementChildrenContentDecl(xmlParserCtxt * ctxt, int inputchk);
+XMLPUBFUN int XMLCALL xmlParseElementContentDecl(xmlParserCtxt * ctxt, const xmlChar * name, xmlElementContent ** result);
 XMLPUBFUN int XMLCALL xmlParseElementDecl(xmlParserCtxt * ctxt);
 XMLPUBFUN void XMLCALL xmlParseMarkupDecl(xmlParserCtxt * ctxt);
 XMLPUBFUN int XMLCALL xmlParseCharRef(xmlParserCtxt * ctxt);

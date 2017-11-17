@@ -18,7 +18,7 @@
 
 #ifdef LIBXML_SCHEMAS_ENABLED
 
-#include <libxml/xmlregexp.h>
+//#include <libxml/xmlregexp.h>
 //#include <libxml/hash.h>
 //#include <libxml/dict.h>
 
@@ -627,13 +627,11 @@ struct _xmlSchemaType {
     xmlSchemaTypeLinkPtr memberTypes; /* member-types if a union type. */
     xmlSchemaFacetLinkPtr facetSet; /* All facets (incl. inherited) */
     const xmlChar *refPrefix; /* Deprecated; not used */
-    xmlSchemaTypePtr contentTypeDef; /* Used for the simple content of complex types.
-                                        Could we use @subtypes for this? */
-    xmlRegexpPtr contModel; /* Holds the automaton of the content model */
+    xmlSchemaTypePtr contentTypeDef; // Used for the simple content of complex types. Could we use @subtypes for this? 
+    xmlRegexp * contModel; /* Holds the automaton of the content model */
     const xmlChar *targetNamespace;
-    void *attrUses;
+    void * attrUses;
 };
-
 /*
  * xmlSchemaElement:
  * An element definition.
@@ -821,14 +819,14 @@ struct _xmlSchemaElement {
 struct _xmlSchemaFacet {
     xmlSchemaTypeType type;        /* The kind of type */
     struct _xmlSchemaFacet *next;/* the next type if in a sequence ... */
-    const xmlChar *value; /* The original value */
-    const xmlChar *id; /* Obsolete */
+    const xmlChar * value; /* The original value */
+    const xmlChar * id; /* Obsolete */
     xmlSchemaAnnotPtr annot;
     xmlNode * P_Node;
     int fixed; /* XML_SCHEMAS_FACET_PRESERVE, etc. */
     int whitespace;
     xmlSchemaValPtr val; /* The compiled value */
-    xmlRegexpPtr    regexp; /* The regex for patterns */
+    xmlRegexp * regexp; /* The regex for patterns */
 };
 
 /**

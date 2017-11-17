@@ -2443,11 +2443,12 @@ int SLAPI PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char
 			THROW(EditItem(Obj, 0, &glb_acc, 0));
 			ID = ((ReferenceTbl::Rec*)&glb_acc)->ObjID;
 			if(p_scs_obj) {
-				PPSCardSeries2 scs_rec;
-				if(p_scs_obj->Fetch(cfg.SCardSerID, &scs_rec) > 0 && scs_rec.GetType() == scstCredit && scs_rec.CodeTempl) {
+				PPSCardSerPacket scs_pack; // @v9.8.9 PPSCardSeries2 scs_rec --> PPSCardSerPacket scs_pack
+				//@v9.8.9 if(p_scs_obj->Fetch(cfg.SCardSerID, &scs_rec) > 0 && scs_rec.GetType() == scstCredit && scs_rec.CodeTempl) {
+				if(p_scs_obj->GetPacket(cfg.SCardSerID, &scs_pack) > 0 && scs_pack.Rec.GetType() == scstCredit && scs_pack.Eb.CodeTempl) { // @v9.8.9
 					PPID   sc_id = 0;
 					SString sc_code;
-					THROW(p_sc_obj->Create_(&sc_id, scs_rec.ID, personID, 0, sc_code, PPObjSCard::cdfCreditCard, 0));
+					THROW(p_sc_obj->Create_(&sc_id, scs_pack.Rec.ID, personID, 0, sc_code, PPObjSCard::cdfCreditCard, 0));
 				}
 			}
 			THROW(tra.Commit());

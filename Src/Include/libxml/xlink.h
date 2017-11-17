@@ -145,7 +145,7 @@ XMLPUBFUN void XMLCALL xlinkSetDefaultHandler(xlinkHandlerPtr handler);
 /*
  * Link detection module itself.
  */
-XMLPUBFUN xlinkType XMLCALL xlinkIsLink(xmlDocPtr doc, xmlNode * P_Node);
+XMLPUBFUN xlinkType XMLCALL xlinkIsLink(xmlDoc * doc, xmlNode * P_Node);
 
 #ifdef __cplusplus
 }

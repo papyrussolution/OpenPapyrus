@@ -77,13 +77,13 @@ typedef struct _xmlTextWriterNsStackEntry xmlTextWriterNsStackEntry;
 struct _xmlTextWriterNsStackEntry {
 	xmlChar * prefix;
 	xmlChar * uri;
-	xmlLinkPtr elem;
+	xmlLink * elem;
 };
 
 struct xmlTextWriter {
-	xmlOutputBufferPtr out; /* output buffer */
-	xmlListPtr nodes;       /* element name stack */
-	xmlListPtr nsstack;     /* name spaces stack */
+	xmlOutputBuffer * out; /* output buffer */
+	xmlList * nodes;       /* element name stack */
+	xmlList * nsstack;     /* name spaces stack */
 	int level;
 	int indent;             /* enable indent */
 	int doindent;           /* internal indent flag */
@@ -91,10 +91,10 @@ struct xmlTextWriter {
 	char qchar;             /* character used for quoting attribute values */
 	xmlParserCtxt * ctxt;
 	int no_doc_free;
-	xmlDocPtr doc;
+	xmlDoc * doc;
 };
 
-static void xmlFreeTextWriterStackEntry(xmlLinkPtr lk);
+static void xmlFreeTextWriterStackEntry(xmlLink * lk);
 static int xmlCmpTextWriterStackEntry(const void * data0, const void * data1);
 static int xmlTextWriterOutputNSDecl(xmlTextWriter * writer);
 static void FASTCALL xmlFreeTextWriterNsStackEntry(xmlLink * pLk);
@@ -102,7 +102,7 @@ static int xmlCmpTextWriterNsStackEntry(const void * data0, const void * data1);
 static int xmlTextWriterWriteDocCallback(void * context, const xmlChar * str, int len);
 static int xmlTextWriterCloseDocCallback(void * context);
 static xmlChar * xmlTextWriterVSprintf(const char * format, va_list argptr);
-static int xmlOutputBufferWriteBase64(xmlOutputBufferPtr out, int len, const uchar * data);
+static int xmlOutputBufferWriteBase64(xmlOutputBuffer * out, int len, const uchar * data);
 static void xmlTextWriterStartDocumentCallback(void * ctx);
 static int xmlTextWriterWriteIndent(xmlTextWriter * writer);
 static int xmlTextWriterHandleStateDependencies(xmlTextWriter * writer, xmlTextWriterStackEntry * p);
@@ -114,7 +114,7 @@ static int xmlTextWriterHandleStateDependencies(xmlTextWriter * writer, xmlTextW
  *
  * Handle a writer error
  */
-static void FASTCALL xmlWriterErrMsg(xmlTextWriterPtr ctxt, xmlParserErrors error, const char * msg)
+static void FASTCALL xmlWriterErrMsg(xmlTextWriter * ctxt, xmlParserErrors error, const char * msg)
 {
 	if(ctxt)
 		__xmlRaiseError(0, 0, 0, ctxt->ctxt, NULL, XML_FROM_WRITER, error, XML_ERR_FATAL, 0, 0, 0, 0, 0, 0, 0, "%s", msg);
@@ -130,7 +130,7 @@ static void FASTCALL xmlWriterErrMsg(xmlTextWriterPtr ctxt, xmlParserErrors erro
  *
  * Handle a writer error
  */
-static void xmlWriterErrMsgInt(xmlTextWriterPtr ctxt, xmlParserErrors error, const char * msg, int val)
+static void xmlWriterErrMsgInt(xmlTextWriter * ctxt, xmlParserErrors error, const char * msg, int val)
 {
 	if(ctxt)
 		__xmlRaiseError(0, 0, 0, ctxt->ctxt, NULL, XML_FROM_WRITER, error, XML_ERR_FATAL, 0, 0, 0, 0, 0, val, 0, msg, val);
@@ -147,9 +147,9 @@ static void xmlWriterErrMsgInt(xmlTextWriterPtr ctxt, xmlParserErrors error, con
  *
  * Returns the new xmlTextWriterPtr or NULL in case of error
  */
-xmlTextWriterPtr xmlNewTextWriter(xmlOutputBufferPtr out)
+xmlTextWriter * xmlNewTextWriter(xmlOutputBuffer * out)
 {
-	xmlTextWriterPtr ret = (xmlTextWriterPtr)SAlloc::M(sizeof(xmlTextWriter));
+	xmlTextWriter * ret = (xmlTextWriterPtr)SAlloc::M(sizeof(xmlTextWriter));
 	if(!ret) {
 		xmlWriterErrMsg(NULL, XML_ERR_NO_MEMORY, "xmlNewTextWriter : out of memory!\n");
 		return NULL;
@@ -192,10 +192,10 @@ xmlTextWriterPtr xmlNewTextWriter(xmlOutputBufferPtr out)
  *
  * Returns the new xmlTextWriterPtr or NULL in case of error
  */
-xmlTextWriterPtr xmlNewTextWriterFilename(const char * uri, int compression)
+xmlTextWriter * xmlNewTextWriterFilename(const char * uri, int compression)
 {
-	xmlTextWriterPtr ret = 0;
-	xmlOutputBufferPtr out = xmlOutputBufferCreateFilename(uri, NULL, compression);
+	xmlTextWriter * ret = 0;
+	xmlOutputBuffer * out = xmlOutputBufferCreateFilename(uri, NULL, compression);
 	if(out == NULL) {
 		xmlWriterErrMsg(NULL, XML_IO_EIO, "xmlNewTextWriterFilename : cannot open uri\n");
 	}
@@ -223,11 +223,11 @@ xmlTextWriterPtr xmlNewTextWriterFilename(const char * uri, int compression)
  *
  * Returns the new xmlTextWriterPtr or NULL in case of error
  */
-xmlTextWriterPtr xmlNewTextWriterMemory(xmlBuffer * buf, int compression ATTRIBUTE_UNUSED)
+xmlTextWriter * xmlNewTextWriterMemory(xmlBuffer * buf, int compression ATTRIBUTE_UNUSED)
 {
-	xmlTextWriterPtr ret = 0;
+	xmlTextWriter * ret = 0;
 /*::todo handle compression */
-	xmlOutputBufferPtr out = xmlOutputBufferCreateBuffer(buf, 0);
+	xmlOutputBuffer * out = xmlOutputBufferCreateBuffer(buf, 0);
 	if(out == NULL) {
 		xmlWriterErrMsg(NULL, XML_ERR_NO_MEMORY, "xmlNewTextWriterMemory : out of memory!\n");
 	}
@@ -253,10 +253,10 @@ xmlTextWriterPtr xmlNewTextWriterMemory(xmlBuffer * buf, int compression ATTRIBU
  *
  * Returns the new xmlTextWriterPtr or NULL in case of error
  */
-xmlTextWriterPtr xmlNewTextWriterPushParser(xmlParserCtxt * ctxt, int compression ATTRIBUTE_UNUSED)
+xmlTextWriter * xmlNewTextWriterPushParser(xmlParserCtxt * ctxt, int compression ATTRIBUTE_UNUSED)
 {
-	xmlTextWriterPtr ret;
-	xmlOutputBufferPtr out;
+	xmlTextWriter * ret;
+	xmlOutputBuffer * out;
 	if(!ctxt) {
 		xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewTextWriterPushParser : invalid context!\n");
 		return NULL;
@@ -284,9 +284,9 @@ xmlTextWriterPtr xmlNewTextWriterPushParser(xmlParserCtxt * ctxt, int compressio
  *
  * Returns the new xmlTextWriterPtr or NULL in case of error
  */
-xmlTextWriterPtr xmlNewTextWriterDoc(xmlDocPtr * doc, int compression)
+xmlTextWriter * xmlNewTextWriterDoc(xmlDocPtr * doc, int compression)
 {
-	xmlTextWriterPtr ret;
+	xmlTextWriter * ret;
 	xmlSAXHandler saxHandler;
 	xmlParserCtxt * ctxt;
 	MEMSZERO(saxHandler);
@@ -334,11 +334,11 @@ xmlTextWriterPtr xmlNewTextWriterDoc(xmlDocPtr * doc, int compression)
  * Create a new xmlNewTextWriter structure with @doc as output
  * starting at @node
  *
- * Returns the new xmlTextWriterPtr or NULL in case of error
+ * Returns the new xmlTextWriter * or NULL in case of error
  */
-xmlTextWriterPtr xmlNewTextWriterTree(xmlDocPtr doc, xmlNodePtr P_Node, int compression)
+xmlTextWriter * xmlNewTextWriterTree(xmlDoc * doc, xmlNodePtr P_Node, int compression)
 {
-	xmlTextWriterPtr ret = 0;
+	xmlTextWriter * ret = 0;
 	xmlSAXHandler saxHandler;
 	if(!doc) {
 		xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewTextWriterTree : invalid document tree!\n");
@@ -414,7 +414,7 @@ int xmlTextWriterStartDocument(xmlTextWriter * writer, const char * version, con
 	int    count;
 	int    _cp1251 = 0;
 	xmlLink * lk;
-	xmlCharEncodingHandlerPtr encoder = 0;
+	xmlCharEncodingHandler * encoder = 0;
 	if(!writer || !writer->out) {
 		xmlWriterErrMsg(writer, XML_ERR_INTERNAL_ERROR, "xmlTextWriterStartDocument : invalid writer!\n");
 		CALLEXCEPT();
@@ -802,7 +802,7 @@ int xmlTextWriterStartElement(xmlTextWriter * writer, const xmlChar * name)
 	if(!writer || !name || name[0] == '\0')
 		sum = -1;
 	else {
-		xmlLinkPtr lk = xmlListFront(writer->nodes);
+		xmlLink * lk = xmlListFront(writer->nodes);
 		if(lk != 0) {
 			p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
 			if(p != 0) {
@@ -1282,7 +1282,7 @@ int FASTCALL xmlTextWriterWriteString(xmlTextWriter * writer, const xmlChar * co
  *
  * Returns the bytes written (may be 0 because of buffering) or -1 in case of error
  */
-static int xmlOutputBufferWriteBase64(xmlOutputBufferPtr out, int len, const uchar * data)
+static int xmlOutputBufferWriteBase64(xmlOutputBuffer * out, int len, const uchar * data)
 {
 	static uchar dtable[64] =
 	{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
@@ -1386,7 +1386,7 @@ int xmlTextWriterWriteBase64(xmlTextWriter * writer, const char * data, int star
  * Returns the bytes written (may be 0 because of buffering)
  * or -1 in case of error
  */
-static int xmlOutputBufferWriteBinHex(xmlOutputBufferPtr out, int len, const uchar * data)
+static int xmlOutputBufferWriteBinHex(xmlOutputBuffer * out, int len, const uchar * data)
 {
 	int count;
 	int sum = 0;
@@ -3427,14 +3427,13 @@ int xmlTextWriterFlush(xmlTextWriter * writer)
 /**
  * misc
  */
-
 /**
  * xmlFreeTextWriterStackEntry:
  * @lk:  the xmlLinkPtr
  *
  * Free callback for the xmlList.
  */
-static void xmlFreeTextWriterStackEntry(xmlLinkPtr lk)
+static void xmlFreeTextWriterStackEntry(xmlLink * lk)
 {
 	xmlTextWriterStackEntry * p = (xmlTextWriterStackEntry*)xmlLinkGetData(lk);
 	if(p) {
@@ -3483,7 +3482,7 @@ static int xmlTextWriterOutputNSDecl(xmlTextWriter * writer)
 	while(!xmlListEmpty(writer->nsstack)) {
 		xmlChar * namespaceURI = NULL;
 		xmlChar * prefix = NULL;
-		xmlLinkPtr lk = xmlListFront(writer->nsstack);
+		xmlLink * lk = xmlListFront(writer->nsstack);
 		xmlTextWriterNsStackEntry * np = (xmlTextWriterNsStackEntry*)xmlLinkGetData(lk);
 		if(np != 0) {
 			namespaceURI = sstrdup(np->uri);

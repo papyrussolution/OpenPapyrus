@@ -1220,6 +1220,7 @@
       </BrowseInformation>
     </ClCompile>
     <ClCompile Include="..\SLib\Twindow.cpp" />
+    <ClCompile Include="..\SLib\uchardet.cpp" />
     <ClCompile Include="..\SLib\ui.cpp" />
     <ClCompile Include="..\SLib\uri.cpp" />
     <ClCompile Include="..\SLib\usb.cpp" />
@@ -3661,6 +3662,7 @@
     <ClInclude Include="..\Include\sxml.h" />
     <ClInclude Include="..\Include\tv.h" />
     <ClInclude Include="..\Include\Tvdefs.h" />
+    <ClInclude Include="..\Include\uchardet.h" />
     <ClInclude Include="..\Include\Uri.h" />
   </ItemGroup>
   <ItemGroup>
@@ -6146,11 +6148,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</ExcludedFromBuild>
     </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="libuchardet.vcxproj">
-      <Project>{71299190-2ad8-4d7e-b030-af087ebb64d1}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

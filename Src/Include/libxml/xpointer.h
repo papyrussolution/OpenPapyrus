@@ -62,7 +62,7 @@ XMLPUBFUN void XMLCALL xmlXPtrLocationSetRemove(xmlLocationSetPtr cur, int val);
 /*
  * Functions.
  */
-XMLPUBFUN xmlXPathContextPtr XMLCALL xmlXPtrNewContext(xmlDocPtr doc, xmlNode * here, xmlNode * origin);
+XMLPUBFUN xmlXPathContextPtr XMLCALL xmlXPtrNewContext(xmlDoc * doc, xmlNode * here, xmlNode * origin);
 XMLPUBFUN xmlXPathObjectPtr XMLCALL xmlXPtrEval(const xmlChar * str, xmlXPathContextPtr ctx);
 XMLPUBFUN void XMLCALL xmlXPtrRangeToFunction(xmlXPathParserContextPtr ctxt, int nargs);
 XMLPUBFUN xmlNode * XMLCALL xmlXPtrBuildNodeList(xmlXPathObjectPtr obj);

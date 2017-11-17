@@ -194,8 +194,7 @@ static int agent_transact_unix(LIBSSH2_AGENT * agent, agent_transaction_ctx_t tr
 
 	/* Receive the response body */
 	if(transctx->state == agent_NB_state_response_length_received) {
-		rc = LIBSSH2_RECV_FD(agent->session, agent->fd, transctx->response,
-		    transctx->response_len, 0);
+		rc = LIBSSH2_RECV_FD(agent->session, agent->fd, transctx->response, transctx->response_len, 0);
 		if(rc < 0) {
 			if(rc == -EAGAIN)
 				return LIBSSH2_ERROR_EAGAIN;
@@ -534,9 +533,8 @@ error:
 
 static void agent_free_identities(LIBSSH2_AGENT * agent) 
 {
-	struct agent_publickey * node;
 	struct agent_publickey * next;
-	for(node = (struct agent_publickey *)_libssh2_list_first(&agent->head); node; node = next) {
+	for(struct agent_publickey * node = (struct agent_publickey *)_libssh2_list_first(&agent->head); node; node = next) {
 		next = (struct agent_publickey *)_libssh2_list_next(&node->node);
 		LIBSSH2_FREE(agent->session, node->external.blob);
 		LIBSSH2_FREE(agent->session, node->external.comment);

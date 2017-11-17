@@ -148,7 +148,7 @@ struct xmlCharEncodingHandler {
 #endif /* LIBXML_ICU_ENABLED */
 };
 
-typedef xmlCharEncodingHandler * xmlCharEncodingHandlerPtr;
+//typedef xmlCharEncodingHandler * xmlCharEncodingHandlerPtr;
 
 #ifdef __cplusplus
 }
@@ -162,7 +162,7 @@ extern "C" {
  */
 XMLPUBFUN void XMLCALL xmlInitCharEncodingHandlers();
 XMLPUBFUN void XMLCALL xmlCleanupCharEncodingHandlers();
-XMLPUBFUN void XMLCALL xmlRegisterCharEncodingHandler(xmlCharEncodingHandlerPtr handler);
+XMLPUBFUN void XMLCALL xmlRegisterCharEncodingHandler(xmlCharEncodingHandler * handler);
 XMLPUBFUN xmlCharEncodingHandler * XMLCALL xmlGetCharEncodingHandler(xmlCharEncoding enc);
 XMLPUBFUN xmlCharEncodingHandler * /*XMLCALL*/FASTCALL xmlFindCharEncodingHandler(const char *name);
 XMLPUBFUN xmlCharEncodingHandler * XMLCALL xmlNewCharEncodingHandler(const char *name, xmlCharEncodingInputFunc input, xmlCharEncodingOutputFunc output);

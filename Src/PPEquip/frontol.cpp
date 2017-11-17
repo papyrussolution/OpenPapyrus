@@ -513,7 +513,6 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 				THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 			}
 			//
-			// @v7.4.12 {
 			// Список товаров на удаление.
 			//
 			if(rmv_goods_list.getCount()) {
@@ -523,7 +522,6 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 					fputs(f_str.CR(), p_file);
 				}
 			}
-			// } @v7.4.12
 			//
 			// @v8.2.0 {
 			// Список алкогольных товаров

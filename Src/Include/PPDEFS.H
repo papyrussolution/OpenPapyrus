@@ -876,6 +876,7 @@
 #define PPOBJ_DEBTDIM       64L // @v7.0.0 Размерность расчета долгов по документам
 	#define DBTDIMPRP_AGENTLIST  1L // Список агентов
 #define PPOBJ_EVENTTOKEN    65L // @v7.2.1 Специальный объект, используемый как уникальная метка для событий.
+	#define PPEVTOK_CVTSCS9809   1L // @v9.8.9 Событие конвертации серий персональных карт v9.8.9
 #define PPOBJ_SMSPRVACCOUNT 66L // @v7.2.9 Учетная запись провайдера рассылки SMS
 	//
 	// Extra record of PPOBJ_SMSPRVACCOUNT
@@ -5448,6 +5449,8 @@
 	#define CTL_SCARDSER_BONER           (23 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_BONERVAL        (24 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_USAGETM         (25 + WINDOWS_ID_BIAS)
+	#define CTL_SCARDSER_PARENT          (26 + WINDOWS_ID_BIAS)
+	#define CTLSEL_SCARDSER_PARENT       (27 + WINDOWS_ID_BIAS)
 #define DLG_SCARD                 530 // Персональная карта
 	#define cmNotifyOptions              101
 	#define CTL_SCARD_CODE               (1 + WINDOWS_ID_BIAS)

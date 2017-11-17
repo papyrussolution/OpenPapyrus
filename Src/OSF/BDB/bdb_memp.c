@@ -2912,18 +2912,16 @@ static int __memp_mpf_find(ENV * env, DB_MPOOLFILE * dbmfp, DB_MPOOL_HASH * hp, 
 			continue;
 		/*
 		 * Any remaining DB_MPOOL_NOFILE databases are in-memory
-		 * named databases and need only match other in-memory
-		 * databases with the same name.
+		 * named databases and need only match other in-memory databases with the same name.
 		 */
 		if(FLD_ISSET(dbmfp->config_flags, DB_MPOOL_NOFILE)) {
 			if(!mfp->no_backing_file)
 				continue;
 			if(strcmp(path, (const char *)R_ADDR(dbmp->reginfo, mfp->path_off)))
 				continue;
-			/*
-			 * We matched an in-memory file; grab the fileid if
-			 * it is set in the region, but not in the dbmfp.
-			 */
+			// 
+			// We matched an in-memory file; grab the fileid if it is set in the region, but not in the dbmfp.
+			// 
 			if(!F_ISSET(dbmfp, MP_FILEID_SET))
 				__memp_set_fileid(dbmfp, (uint8 *)R_ADDR(dbmp->reginfo, mfp->fileid_off));
 		}
@@ -2962,7 +2960,7 @@ static int __memp_mpf_find(ENV * env, DB_MPOOLFILE * dbmfp, DB_MPOOL_HASH * hp, 
 		}
 		++mfp->mpf_cnt;
 		MUTEX_UNLOCK(env, mfp->mutex);
-		/* Initialize any fields that are not yet set. */
+		// Initialize any fields that are not yet set. 
 		if(dbmfp->ftype != 0)
 			mfp->ftype = dbmfp->ftype;
 		if(dbmfp->clear_len != DB_CLEARLEN_NOTSET)
@@ -2971,7 +2969,6 @@ static int __memp_mpf_find(ENV * env, DB_MPOOLFILE * dbmfp, DB_MPOOL_HASH * hp, 
 			mfp->lsn_off = dbmfp->lsn_offset;
 		break;
 	}
-
 	*mfpp = mfp;
 	return 0;
 }
@@ -3011,30 +3008,28 @@ static int __memp_mpf_alloc(DB_MPOOL * dbmp, DB_MPOOLFILE * dbmfp, const char * 
 		F_SET(mfp, MP_EXTENT);
 	if(LF_ISSET(DB_TXN_NOT_DURABLE))
 		F_SET(mfp, MP_NOT_DURABLE);
-	/*
-	 * An in-memory database with no name is a temp file.  Named
-	 * in-memory databases get an artificially  bumped reference
-	 * count so they don't disappear on close; they need a remove
-	 * to make them disappear.
-	 */
+	// 
+	// An in-memory database with no name is a temp file.  Named in-memory databases get an artificially  bumped reference
+	// count so they don't disappear on close; they need a remove to make them disappear.
+	// 
 	if(path == NULL)
 		F_SET(mfp, MP_TEMP);
 	else if(FLD_ISSET(dbmfp->config_flags, DB_MPOOL_NOFILE))
 		mfp->mpf_cnt++;
-	/* Copy the file identification string into shared memory. */
+	// Copy the file identification string into shared memory. 
 	if(F_ISSET(dbmfp, MP_FILEID_SET)) {
 		if((ret = __memp_alloc(dbmp, dbmp->reginfo, NULL, DB_FILE_ID_LEN, &mfp->fileid_off, &p)) != 0)
 			goto err;
 		memcpy(p, dbmfp->fileid, DB_FILE_ID_LEN);
 	}
-	/* Copy the file path into shared memory. */
+	// Copy the file path into shared memory.
 	if(path) {
 		if((ret = __memp_alloc(dbmp, dbmp->reginfo, NULL, strlen(path)+1, &mfp->path_off, &p)) != 0)
 			goto err;
 		memcpy(p, path, strlen(path)+1);
 	}
-	/* Copy the page cookie into shared memory. */
-	if(dbmfp->pgcookie == NULL || dbmfp->pgcookie->size == 0) {
+	// Copy the page cookie into shared memory.
+	if(!dbmfp->pgcookie || !dbmfp->pgcookie->size) {
 		mfp->pgcookie_len = 0;
 		mfp->pgcookie_off = 0;
 	}
@@ -3051,7 +3046,6 @@ err:
 	return ret;
 }
 /*
- * memp_fclose_pp --
  *	DB_MPOOLFILE->close pre/post processing.
  */
 int __memp_fclose_pp(DB_MPOOLFILE * dbmfp, uint32 flags)
@@ -3068,7 +3062,6 @@ int __memp_fclose_pp(DB_MPOOLFILE * dbmfp, uint32 flags)
 	return ret;
 }
 /*
- * __memp_fclose --
  *	DB_MPOOLFILE->close.
  */
 int __memp_fclose(DB_MPOOLFILE * dbmfp, uint32 flags)
@@ -3092,7 +3085,6 @@ int __memp_fclose(DB_MPOOLFILE * dbmfp, uint32 flags)
 	if(dbmp == NULL)
 		goto done;
 	MUTEX_LOCK(env, dbmp->mutex);
-
 	DB_ASSERT(env, dbmfp->ref >= 1);
 	if((ref = --dbmfp->ref) == 0 && F_ISSET(dbmfp, MP_OPEN_CALLED))
 		TAILQ_REMOVE(&dbmp->dbmfq, dbmfp, q);
