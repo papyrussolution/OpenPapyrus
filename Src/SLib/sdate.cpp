@@ -62,23 +62,6 @@ int FASTCALL dayspermonth(int month, int year)
 	return dpm;
 }
 
-/*
-Pchar monthNames[NUM_MONTHES] = {
-	"Январь",
-	"Февраль",
-	"Март",
-	"Апрель",
-	"Май",
-	"Июнь",
-	"Июль",
-	"Август",
-	"Сентябрь",
-	"Октябрь",
-	"Ноябрь",
-	"Декабрь"
-};
-*/
-
 const char * monthNames[NUM_MONTHES] = {
 	"Январ[ь|я]",
 	"Феврал[ь|я]",
@@ -122,15 +105,15 @@ static char * SLAPI extractFormFromVarPart(const char * vp, int n /*[1..]*/, cha
 	return b;
 }
 
-static char * SLAPI selectVarPart(const char * word, int n, Pchar buf)
+static char * SLAPI selectVarPart(const char * word, int n, char * pBuf)
 {
 	char   vp[256];
 	char * e = extractVarPart(word, vp);
-	extractFormFromVarPart(vp, n, buf);
+	extractFormFromVarPart(vp, n, pBuf);
 	return e;
 }
 
-static char * getWordForm(const char * pattern, long fmt, char * buf)
+static char * getWordForm(const char * pattern, long fmt, char * pBuf)
 {
 	char   temp[32];
 	char * t = temp;
@@ -150,7 +133,7 @@ static char * getWordForm(const char * pattern, long fmt, char * buf)
 		while(*p)
 			*t++ = *p++;
 	}
-	return strcpy(buf, temp);
+	return strcpy(pBuf, temp);
 }
 
 static char * FASTCALL getMonthText(int mon, long fmt, char * pBuf)
@@ -404,9 +387,9 @@ void SLAPI _encodedate(int day, int mon, int year, void * pBuf, int format)
 	switch(format) {
 #ifndef _WIN32_WCE
 		case DF_DOS:
-			((struct date far*)pBuf)->da_day  = day;
-			((struct date far*)pBuf)->da_mon  = mon;
-			((struct date far*)pBuf)->da_year = year;
+			((struct date *)pBuf)->da_day  = day;
+			((struct date *)pBuf)->da_mon  = mon;
+			((struct date *)pBuf)->da_year = year;
 			break;
 #endif
 		case DF_FAT:
@@ -460,9 +443,9 @@ void SLAPI _decodedate(int * day, int * mon, int * year, const void * pBuf, int 
 			break;
 #ifndef _WIN32_WCE
 		case DF_DOS:
-			*day  = ((struct date far*)pBuf)->da_day;
-			*mon  = ((struct date far*)pBuf)->da_mon;
-			*year = ((struct date far*)pBuf)->da_year;
+			*day  = ((struct date *)pBuf)->da_day;
+			*mon  = ((struct date *)pBuf)->da_mon;
+			*year = ((struct date *)pBuf)->da_year;
 			break;
 #endif
 		case DF_FAT:

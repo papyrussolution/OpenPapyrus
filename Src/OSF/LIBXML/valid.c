@@ -35,7 +35,7 @@ static int xmlValidateAttributeValueInternal(xmlDoc * doc, xmlAttributeType type
 static void FASTCALL xmlVErrMemory(xmlValidCtxtPtr ctxt, const char * extra)
 {
 	xmlGenericErrorFunc channel = NULL;
-	xmlParserCtxtPtr pctxt = NULL;
+	xmlParserCtxt * pctxt = NULL;
 	void * data = NULL;
 	if(ctxt) {
 		channel = ctxt->error;
@@ -44,7 +44,7 @@ static void FASTCALL xmlVErrMemory(xmlValidCtxtPtr ctxt, const char * extra)
 		if(oneof2(ctxt->finishDtd, XML_CTXT_FINISH_DTD_0, XML_CTXT_FINISH_DTD_1)) {
 			long delta = (char*)ctxt - (char*)ctxt->userData;
 			if((delta > 0) && (delta < 250))
-				pctxt = (xmlParserCtxtPtr)ctxt->userData;
+				pctxt = (xmlParserCtxt *)ctxt->userData;
 		}
 	}
 	if(extra)
@@ -63,7 +63,7 @@ static void FASTCALL xmlVErrMemory(xmlValidCtxtPtr ctxt, const char * extra)
 static void xmlErrValid(xmlValidCtxtPtr ctxt, xmlParserErrors error, const char * msg, const char * extra)
 {
 	xmlGenericErrorFunc channel = NULL;
-	xmlParserCtxtPtr pctxt = NULL;
+	xmlParserCtxt * pctxt = NULL;
 	void * data = NULL;
 	if(ctxt) {
 		channel = ctxt->error;
@@ -72,7 +72,7 @@ static void xmlErrValid(xmlValidCtxtPtr ctxt, xmlParserErrors error, const char 
 		if(oneof2(ctxt->finishDtd, XML_CTXT_FINISH_DTD_0, XML_CTXT_FINISH_DTD_1)) {
 			long delta = (char*)ctxt - (char*)ctxt->userData;
 			if((delta > 0) && (delta < 250))
-				pctxt = (xmlParserCtxtPtr)ctxt->userData;
+				pctxt = (xmlParserCtxt *)ctxt->userData;
 		}
 	}
 	if(extra)
@@ -97,7 +97,7 @@ static void xmlErrValidNode(xmlValidCtxtPtr ctxt, xmlNode * P_Node, xmlParserErr
 {
 	xmlStructuredErrorFunc schannel = NULL;
 	xmlGenericErrorFunc channel = NULL;
-	xmlParserCtxtPtr pctxt = NULL;
+	xmlParserCtxt * pctxt = NULL;
 	void * data = NULL;
 	if(ctxt) {
 		channel = ctxt->error;
@@ -106,7 +106,7 @@ static void xmlErrValidNode(xmlValidCtxtPtr ctxt, xmlNode * P_Node, xmlParserErr
 		if((ctxt->finishDtd == XML_CTXT_FINISH_DTD_0) || (ctxt->finishDtd == XML_CTXT_FINISH_DTD_1)) {
 			long delta = (char*)ctxt - (char*)ctxt->userData;
 			if((delta > 0) && (delta < 250))
-				pctxt = (xmlParserCtxtPtr)ctxt->userData;
+				pctxt = (xmlParserCtxt *)ctxt->userData;
 		}
 	}
 	__xmlRaiseError(schannel, channel, data, pctxt, P_Node, XML_FROM_VALID, error, XML_ERR_ERROR, NULL, 0,
@@ -131,7 +131,7 @@ static void xmlErrValidNodeNr(xmlValidCtxtPtr ctxt, xmlNode * P_Node, xmlParserE
 {
 	xmlStructuredErrorFunc schannel = NULL;
 	xmlGenericErrorFunc channel = NULL;
-	xmlParserCtxtPtr pctxt = NULL;
+	xmlParserCtxt * pctxt = NULL;
 	void * data = NULL;
 	if(ctxt) {
 		channel = ctxt->error;
@@ -140,7 +140,7 @@ static void xmlErrValidNodeNr(xmlValidCtxtPtr ctxt, xmlNode * P_Node, xmlParserE
 		if((ctxt->finishDtd == XML_CTXT_FINISH_DTD_0) || (ctxt->finishDtd == XML_CTXT_FINISH_DTD_1)) {
 			long delta = (char*)ctxt - (char*)ctxt->userData;
 			if((delta > 0) && (delta < 250))
-				pctxt = (xmlParserCtxtPtr)ctxt->userData;
+				pctxt = (xmlParserCtxt *)ctxt->userData;
 		}
 	}
 	__xmlRaiseError(schannel, channel, data, pctxt, P_Node, XML_FROM_VALID, error, XML_ERR_ERROR, NULL, 0, (const char*)str1, (const char*)str3, NULL, int2, 0, msg, str1, int2, str3);
@@ -164,7 +164,7 @@ static void xmlErrValidWarning(xmlValidCtxtPtr ctxt,
 {
 	xmlStructuredErrorFunc schannel = NULL;
 	xmlGenericErrorFunc channel = NULL;
-	xmlParserCtxtPtr pctxt = NULL;
+	xmlParserCtxt * pctxt = NULL;
 	void * data = NULL;
 	if(ctxt) {
 		channel = ctxt->warning;
@@ -173,7 +173,7 @@ static void xmlErrValidWarning(xmlValidCtxtPtr ctxt,
 		if((ctxt->finishDtd == XML_CTXT_FINISH_DTD_0) || (ctxt->finishDtd == XML_CTXT_FINISH_DTD_1)) {
 			long delta = (char*)ctxt - (char*)ctxt->userData;
 			if((delta > 0) && (delta < 250))
-				pctxt = (xmlParserCtxtPtr)ctxt->userData;
+				pctxt = (xmlParserCtxt *)ctxt->userData;
 		}
 	}
 	__xmlRaiseError(schannel, channel, data, pctxt, P_Node, XML_FROM_VALID, error, XML_ERR_WARNING, NULL, 0,

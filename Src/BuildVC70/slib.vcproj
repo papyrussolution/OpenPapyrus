@@ -3355,28 +3355,13 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\Include\Sarray.h">
-			</File>
-			<File
-				RelativePath="..\Include\Sbrowser.h">
-			</File>
-			<File
-				RelativePath="..\Include\Schecks.h">
-			</File>
-			<File
 				RelativePath="..\Include\Slconfig.h">
 			</File>
 			<File
 				RelativePath="..\Include\Slib.h">
 			</File>
 			<File
-				RelativePath="..\Include\Smath.h">
-			</File>
-			<File
 				RelativePath="..\Include\StyloConduit.h">
-			</File>
-			<File
-				RelativePath="..\Include\Stype.h">
 			</File>
 			<File
 				RelativePath="..\Include\sxml.h">

@@ -287,10 +287,10 @@ XMLPUBFUN int XMLCALL xmlIsLetter(int c);
 /**
  * Parser context.
  */
-XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlCreateFileParserCtxt(const char * filename);
-XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlCreateURLParserCtxt(const char * filename, int options);
-XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlCreateMemoryParserCtxt(const char * buffer, int size);
-XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlCreateEntityParserCtxt(const xmlChar * URL, const xmlChar * ID, const xmlChar * base);
+XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreateFileParserCtxt(const char * filename);
+XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreateURLParserCtxt(const char * filename, int options);
+XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreateMemoryParserCtxt(const char * buffer, int size);
+XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreateEntityParserCtxt(const xmlChar * URL, const xmlChar * ID, const xmlChar * base);
 XMLPUBFUN int XMLCALL xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc);
 XMLPUBFUN int XMLCALL xmlSwitchToEncoding(xmlParserCtxt * ctxt, xmlCharEncodingHandler * handler);
 XMLPUBFUN int XMLCALL xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandler * handler);

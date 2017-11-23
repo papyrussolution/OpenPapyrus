@@ -208,7 +208,7 @@ static char * SLAPI fexpand(char * rpath)
 	char file[MAXFILE];
 	char ext[MAXEXT];
 	char curdir[MAXDIR];
-	Pchar p = dir;
+	char * p = dir;
 	int flags = fnsplit(rpath, drive, dir, file, ext);
 	if((flags & FNF_DRIVE) == 0) {
 		drive[0] = getdisk() + 'A';

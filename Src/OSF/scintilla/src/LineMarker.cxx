@@ -153,7 +153,7 @@ void LineMarker::Draw(Surface * surface, PRectangle &rcWhole, Font &fontForChara
 	PRectangle rc = rcWhole;
 	rc.top++;
 	rc.bottom--;
-	int minDim = Platform::Minimum(static_cast<int>(rc.Width()), static_cast<int>(rc.Height()));
+	int minDim = smin(static_cast<int>(rc.Width()), static_cast<int>(rc.Height()));
 	minDim--;       // Ensure does not go beyond edge
 	int centreX = static_cast<int>(floor((rc.right + rc.left) / 2.0));
 	int centreY = static_cast<int>(floor((rc.bottom + rc.top) / 2.0));

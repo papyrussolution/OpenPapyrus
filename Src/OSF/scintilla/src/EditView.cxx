@@ -262,13 +262,15 @@ void EditView::AllocateGraphics(const ViewStyle &vsDraw)
 
 static const char * FASTCALL ControlCharacterString(uchar ch)
 {
+	const char * p_result = STextConst::Get(STextConst::cAsciiCtrl, ch);
+	return p_result[0] ? p_result : "BAD";
+	/*
 	const char * reps[] = {
-		"NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL",
-		"BS", "HT", "LF", "VT", "FF", "CR", "SO", "SI",
-		"DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB",
-		"CAN", "EM", "SUB", "ESC", "FS", "GS", "RS", "US"
+		"NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL", "BS",  "HT", "LF",  "VT",  "FF", "CR", "SO", "SI",
+		"DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB", "CAN", "EM", "SUB", "ESC", "FS", "GS", "RS", "US"
 	};
 	return (ch < SIZEOFARRAY(reps)) ? reps[ch] : "BAD";
+	*/
 }
 
 static void DrawTabArrow(Surface * surface, PRectangle rcTab, int ymid, const ViewStyle &vsDraw)
@@ -317,9 +319,7 @@ LineLayout * EditView::RetrieveLineLayout(int lineNumber, const EditModel &model
 	int posLineEnd = model.pdoc->LineStart(lineNumber + 1);
 	PLATFORM_ASSERT(posLineEnd >= posLineStart);
 	int lineCaret = model.pdoc->LineFromPosition(model.sel.MainCaret());
-	return llc.Retrieve(lineNumber, lineCaret,
-	    posLineEnd - posLineStart, model.pdoc->GetStyleClock(),
-	    model.LinesOnScreen() + 1, model.pdoc->LinesTotal());
+	return llc.Retrieve(lineNumber, lineCaret, posLineEnd - posLineStart, model.pdoc->GetStyleClock(), model.LinesOnScreen() + 1, model.pdoc->LinesTotal());
 }
 
 /**
@@ -329,250 +329,228 @@ LineLayout * EditView::RetrieveLineLayout(int lineNumber, const EditModel &model
  */
 void EditView::LayoutLine(const EditModel &model, int line, Surface * surface, const ViewStyle &vstyle, LineLayout * ll, int width)
 {
-	if(!ll)
-		return;
-
-	PLATFORM_ASSERT(line < model.pdoc->LinesTotal());
-	PLATFORM_ASSERT(ll->chars != NULL);
-	int posLineStart = model.pdoc->LineStart(line);
-	int posLineEnd = model.pdoc->LineStart(line + 1);
-	// If the line is very long, limit the treatment to a length that should fit in the viewport
-	if(posLineEnd >(posLineStart + ll->maxLineLength)) {
-		posLineEnd = posLineStart + ll->maxLineLength;
-	}
-	if(ll->validity == LineLayout::llCheckTextAndStyle) {
-		int lineLength = posLineEnd - posLineStart;
-		if(!vstyle.viewEOL) {
-			lineLength = model.pdoc->LineEnd(line) - posLineStart;
+	if(ll) {
+		PLATFORM_ASSERT(line < model.pdoc->LinesTotal());
+		PLATFORM_ASSERT(ll->chars != NULL);
+		int posLineStart = model.pdoc->LineStart(line);
+		int posLineEnd = model.pdoc->LineStart(line + 1);
+		// If the line is very long, limit the treatment to a length that should fit in the viewport
+		if(posLineEnd >(posLineStart + ll->maxLineLength)) {
+			posLineEnd = posLineStart + ll->maxLineLength;
 		}
-		if(lineLength == ll->numCharsInLine) {
-			// See if chars, styles, indicators, are all the same
-			bool allSame = true;
-			// Check base line layout
-			int styleByte = 0;
-			int numCharsInLine = 0;
-			while(numCharsInLine < lineLength) {
-				int charInDoc = numCharsInLine + posLineStart;
-				char chDoc = model.pdoc->CharAt(charInDoc);
-				styleByte = model.pdoc->StyleIndexAt(charInDoc);
-				allSame = allSame &&
-				    (ll->styles[numCharsInLine] == styleByte);
-				if(vstyle.styles[ll->styles[numCharsInLine]].caseForce == Style::caseMixed)
-					allSame = allSame &&
-					    (ll->chars[numCharsInLine] == chDoc);
-				else if(vstyle.styles[ll->styles[numCharsInLine]].caseForce == Style::caseLower)
-					allSame = allSame &&
-					    (ll->chars[numCharsInLine] == MakeLowerCase(chDoc));
-				else if(vstyle.styles[ll->styles[numCharsInLine]].caseForce == Style::caseUpper)
-					allSame = allSame &&
-					    (ll->chars[numCharsInLine] == MakeUpperCase(chDoc));
-				else {    // Style::caseCamel
-					if((model.pdoc->IsASCIIWordByte(ll->chars[numCharsInLine])) &&
-					    ((numCharsInLine == 0) || (!model.pdoc->IsASCIIWordByte(ll->chars[numCharsInLine - 1])))) {
-						allSame = allSame && (ll->chars[numCharsInLine] == MakeUpperCase(chDoc));
-					}
-					else {
+		if(ll->validity == LineLayout::llCheckTextAndStyle) {
+			int lineLength = posLineEnd - posLineStart;
+			if(!vstyle.viewEOL) {
+				lineLength = model.pdoc->LineEnd(line) - posLineStart;
+			}
+			if(lineLength == ll->numCharsInLine) {
+				// See if chars, styles, indicators, are all the same
+				bool allSame = true;
+				// Check base line layout
+				int styleByte = 0;
+				int numCharsInLine = 0;
+				while(numCharsInLine < lineLength) {
+					int charInDoc = numCharsInLine + posLineStart;
+					char chDoc = model.pdoc->CharAt(charInDoc);
+					styleByte = model.pdoc->StyleIndexAt(charInDoc);
+					allSame = allSame && (ll->styles[numCharsInLine] == styleByte);
+					if(vstyle.styles[ll->styles[numCharsInLine]].caseForce == Style::caseMixed)
+						allSame = allSame && (ll->chars[numCharsInLine] == chDoc);
+					else if(vstyle.styles[ll->styles[numCharsInLine]].caseForce == Style::caseLower)
 						allSame = allSame && (ll->chars[numCharsInLine] == MakeLowerCase(chDoc));
+					else if(vstyle.styles[ll->styles[numCharsInLine]].caseForce == Style::caseUpper)
+						allSame = allSame && (ll->chars[numCharsInLine] == MakeUpperCase(chDoc));
+					else {    // Style::caseCamel
+						if((model.pdoc->IsASCIIWordByte(ll->chars[numCharsInLine])) &&
+							((numCharsInLine == 0) || (!model.pdoc->IsASCIIWordByte(ll->chars[numCharsInLine - 1])))) {
+							allSame = allSame && (ll->chars[numCharsInLine] == MakeUpperCase(chDoc));
+						}
+						else {
+							allSame = allSame && (ll->chars[numCharsInLine] == MakeLowerCase(chDoc));
+						}
 					}
+					numCharsInLine++;
 				}
-				numCharsInLine++;
+				allSame = allSame && (ll->styles[numCharsInLine] == styleByte); // For eolFilled
+				ll->validity = allSame ? LineLayout::llPositions : LineLayout::llInvalid;
 			}
-			allSame = allSame && (ll->styles[numCharsInLine] == styleByte); // For eolFilled
-			ll->validity = allSame ? LineLayout::llPositions : LineLayout::llInvalid;
+			else
+				ll->validity = LineLayout::llInvalid;
 		}
-		else
-			ll->validity = LineLayout::llInvalid;
-	}
-	if(ll->validity == LineLayout::llInvalid) {
-		ll->widthLine = LineLayout::wrapWidthInfinite;
-		ll->lines = 1;
-		if(vstyle.edgeState == EDGE_BACKGROUND) {
-			ll->edgeColumn = model.pdoc->FindColumn(line, vstyle.theEdge.column);
-			if(ll->edgeColumn >= posLineStart) {
-				ll->edgeColumn -= posLineStart;
+		if(ll->validity == LineLayout::llInvalid) {
+			ll->widthLine = LineLayout::wrapWidthInfinite;
+			ll->lines = 1;
+			if(vstyle.edgeState == EDGE_BACKGROUND) {
+				ll->edgeColumn = model.pdoc->FindColumn(line, vstyle.theEdge.column);
+				if(ll->edgeColumn >= posLineStart) {
+					ll->edgeColumn -= posLineStart;
+				}
 			}
-		}
-		else {
-			ll->edgeColumn = -1;
-		}
-
-		// Fill base line layout
-		const int lineLength = posLineEnd - posLineStart;
-		model.pdoc->GetCharRange(ll->chars, posLineStart, lineLength);
-		model.pdoc->GetStyleRange(ll->styles, posLineStart, lineLength);
-		int numCharsBeforeEOL = model.pdoc->LineEnd(line) - posLineStart;
-		const int numCharsInLine = (vstyle.viewEOL) ? lineLength : numCharsBeforeEOL;
-		for(int styleInLine = 0; styleInLine < numCharsInLine; styleInLine++) {
-			const uchar styleByte = ll->styles[styleInLine];
-			ll->styles[styleInLine] = styleByte;
-		}
-		const uchar styleByteLast = (lineLength > 0) ? ll->styles[lineLength - 1] : 0;
-		if(vstyle.someStylesForceCase) {
-			for(int charInLine = 0; charInLine<lineLength; charInLine++) {
-				char chDoc = ll->chars[charInLine];
-				if(vstyle.styles[ll->styles[charInLine]].caseForce == Style::caseUpper)
-					ll->chars[charInLine] = static_cast<char>(MakeUpperCase(chDoc));
-				else if(vstyle.styles[ll->styles[charInLine]].caseForce == Style::caseLower)
-					ll->chars[charInLine] = static_cast<char>(MakeLowerCase(chDoc));
-				else if(vstyle.styles[ll->styles[charInLine]].caseForce == Style::caseCamel) {
-					if((model.pdoc->IsASCIIWordByte(ll->chars[charInLine])) &&
-					    ((charInLine == 0) || (!model.pdoc->IsASCIIWordByte(ll->chars[charInLine - 1])))) {
+			else {
+				ll->edgeColumn = -1;
+			}
+			// Fill base line layout
+			const int lineLength = posLineEnd - posLineStart;
+			model.pdoc->GetCharRange(ll->chars, posLineStart, lineLength);
+			model.pdoc->GetStyleRange(ll->styles, posLineStart, lineLength);
+			int numCharsBeforeEOL = model.pdoc->LineEnd(line) - posLineStart;
+			const int numCharsInLine = (vstyle.viewEOL) ? lineLength : numCharsBeforeEOL;
+			for(int styleInLine = 0; styleInLine < numCharsInLine; styleInLine++) {
+				const uchar styleByte = ll->styles[styleInLine];
+				ll->styles[styleInLine] = styleByte;
+			}
+			const uchar styleByteLast = (lineLength > 0) ? ll->styles[lineLength - 1] : 0;
+			if(vstyle.someStylesForceCase) {
+				for(int charInLine = 0; charInLine<lineLength; charInLine++) {
+					char chDoc = ll->chars[charInLine];
+					if(vstyle.styles[ll->styles[charInLine]].caseForce == Style::caseUpper)
 						ll->chars[charInLine] = static_cast<char>(MakeUpperCase(chDoc));
-					}
-					else {
+					else if(vstyle.styles[ll->styles[charInLine]].caseForce == Style::caseLower)
 						ll->chars[charInLine] = static_cast<char>(MakeLowerCase(chDoc));
-					}
-				}
-			}
-		}
-		ll->xHighlightGuide = 0;
-		// Extra element at the end of the line to hold end x position and act as
-		ll->chars[numCharsInLine] = 0;   // Also triggers processing in the loops as this is a control character
-		ll->styles[numCharsInLine] = styleByteLast;     // For eolFilled
-
-		// Layout the line, determining the position of each character,
-		// with an extra element at the end for the end of the line.
-		ll->positions[0] = 0;
-		bool lastSegItalics = false;
-		BreakFinder bfLayout(ll, NULL, Range(0, numCharsInLine), posLineStart, 0, false, model.pdoc, &model.reprs, 0);
-		while(bfLayout.More()) {
-			const BreakFinder::TextSegment ts = bfLayout.Next();
-			std::fill(&ll->positions[ts.start + 1], &ll->positions[ts.end() + 1], 0.0f);
-			if(vstyle.styles[ll->styles[ts.start]].Flags & Style::fVisible) {
-				if(ts.representation) {
-					XYPOSITION representationWidth = vstyle.controlCharWidth;
-					if(ll->chars[ts.start] == '\t') {
-						// Tab is a special case of representation, taking a variable amount of space
-						const XYPOSITION x = ll->positions[ts.start];
-						representationWidth = NextTabstopPos(line, x, vstyle.tabWidth) - ll->positions[ts.start];
-					}
-					else {
-						if(representationWidth <= 0.0) {
-							XYPOSITION positionsRepr[256];  // Should expand when needed
-							posCache.MeasureWidths(surface, vstyle, STYLE_CONTROLCHAR,
-							    ts.representation->stringRep.c_str(), static_cast<uint>(ts.representation->stringRep.length()),
-							    positionsRepr, model.pdoc);
-							representationWidth = positionsRepr[ts.representation->stringRep.length() - 1] + vstyle.ctrlCharPadding;
+					else if(vstyle.styles[ll->styles[charInLine]].caseForce == Style::caseCamel) {
+						if((model.pdoc->IsASCIIWordByte(ll->chars[charInLine])) &&
+							((charInLine == 0) || (!model.pdoc->IsASCIIWordByte(ll->chars[charInLine - 1])))) {
+							ll->chars[charInLine] = static_cast<char>(MakeUpperCase(chDoc));
+						}
+						else {
+							ll->chars[charInLine] = static_cast<char>(MakeLowerCase(chDoc));
 						}
 					}
-					for(int ii = 0; ii < ts.length; ii++)
-						ll->positions[ts.start + 1 + ii] = representationWidth;
 				}
-				else {
-					if((ts.length == 1) && (' ' == ll->chars[ts.start])) {
-						// Over half the segments are single characters and of these about half are space
-						// characters.
-						ll->positions[ts.start + 1] = vstyle.styles[ll->styles[ts.start]].spaceWidth;
+			}
+			ll->xHighlightGuide = 0;
+			// Extra element at the end of the line to hold end x position and act as
+			ll->chars[numCharsInLine] = 0;   // Also triggers processing in the loops as this is a control character
+			ll->styles[numCharsInLine] = styleByteLast;     // For eolFilled
+
+			// Layout the line, determining the position of each character,
+			// with an extra element at the end for the end of the line.
+			ll->positions[0] = 0;
+			bool lastSegItalics = false;
+			BreakFinder bfLayout(ll, NULL, Range(0, numCharsInLine), posLineStart, 0, false, model.pdoc, &model.reprs, 0);
+			while(bfLayout.More()) {
+				const BreakFinder::TextSegment ts = bfLayout.Next();
+				std::fill(&ll->positions[ts.start + 1], &ll->positions[ts.end() + 1], 0.0f);
+				if(vstyle.styles[ll->styles[ts.start]].Flags & Style::fVisible) {
+					if(ts.representation) {
+						XYPOSITION representationWidth = vstyle.controlCharWidth;
+						if(ll->chars[ts.start] == '\t') {
+							// Tab is a special case of representation, taking a variable amount of space
+							const XYPOSITION x = ll->positions[ts.start];
+							representationWidth = NextTabstopPos(line, x, vstyle.tabWidth) - ll->positions[ts.start];
+						}
+						else {
+							if(representationWidth <= 0.0) {
+								XYPOSITION positionsRepr[256];  // Should expand when needed
+								posCache.MeasureWidths(surface, vstyle, STYLE_CONTROLCHAR,
+									ts.representation->stringRep.c_str(), static_cast<uint>(ts.representation->stringRep.length()),
+									positionsRepr, model.pdoc);
+								representationWidth = positionsRepr[ts.representation->stringRep.length() - 1] + vstyle.ctrlCharPadding;
+							}
+						}
+						for(int ii = 0; ii < ts.length; ii++)
+							ll->positions[ts.start + 1 + ii] = representationWidth;
 					}
 					else {
-						posCache.MeasureWidths(surface, vstyle, ll->styles[ts.start], ll->chars + ts.start,
-						    ts.length, ll->positions + ts.start + 1, model.pdoc);
+						if((ts.length == 1) && (' ' == ll->chars[ts.start])) {
+							// Over half the segments are single characters and of these about half are space characters.
+							ll->positions[ts.start + 1] = vstyle.styles[ll->styles[ts.start]].spaceWidth;
+						}
+						else {
+							posCache.MeasureWidths(surface, vstyle, ll->styles[ts.start], ll->chars + ts.start, ts.length, ll->positions + ts.start + 1, model.pdoc);
+						}
 					}
+					lastSegItalics = (!ts.representation) && ((ll->chars[ts.end() - 1] != ' ') && vstyle.styles[ll->styles[ts.start]].italic);
 				}
-				lastSegItalics = (!ts.representation) && ((ll->chars[ts.end() - 1] != ' ') && vstyle.styles[ll->styles[ts.start]].italic);
-			}
-
-			for(int posToIncrease = ts.start + 1; posToIncrease <= ts.end(); posToIncrease++) {
-				ll->positions[posToIncrease] += ll->positions[ts.start];
-			}
-		}
-
-		// Small hack to make lines that end with italics not cut off the edge of the last character
-		if(lastSegItalics) {
-			ll->positions[numCharsInLine] += vstyle.lastSegItalicsOffset;
-		}
-		ll->numCharsInLine = numCharsInLine;
-		ll->numCharsBeforeEOL = numCharsBeforeEOL;
-		ll->validity = LineLayout::llPositions;
-	}
-	// Hard to cope when too narrow, so just assume there is space
-	if(width < 20) {
-		width = 20;
-	}
-	if((ll->validity == LineLayout::llPositions) || (ll->widthLine != width)) {
-		ll->widthLine = width;
-		if(width == LineLayout::wrapWidthInfinite) {
-			ll->lines = 1;
-		}
-		else if(width > ll->positions[ll->numCharsInLine]) {
-			// Simple common case where line does not need wrapping.
-			ll->lines = 1;
-		}
-		else {
-			if(vstyle.wrapVisualFlags & SC_WRAPVISUALFLAG_END) {
-				width -= static_cast<int>(vstyle.aveCharWidth); // take into account the space for end wrap mark
-			}
-			XYPOSITION wrapAddIndent = 0; // This will be added to initial indent of line
-			if(vstyle.wrapIndentMode == SC_WRAPINDENT_INDENT) {
-				wrapAddIndent = model.pdoc->IndentSize() * vstyle.spaceWidth;
-			}
-			else if(vstyle.wrapIndentMode == SC_WRAPINDENT_FIXED) {
-				wrapAddIndent = vstyle.wrapVisualStartIndent * vstyle.aveCharWidth;
-			}
-			ll->wrapIndent = wrapAddIndent;
-			if(vstyle.wrapIndentMode != SC_WRAPINDENT_FIXED)
-				for(int i = 0; i < ll->numCharsInLine; i++) {
-					if(!IsASpaceOrTab(ll->chars[i])) {
-						ll->wrapIndent += ll->positions[i]; // Add line indent
-						break;
-					}
+				for(int posToIncrease = ts.start + 1; posToIncrease <= ts.end(); posToIncrease++) {
+					ll->positions[posToIncrease] += ll->positions[ts.start];
 				}
-			// Check for text width minimum
-			if(ll->wrapIndent > width - static_cast<int>(vstyle.aveCharWidth) * 15)
+			}
+			// Small hack to make lines that end with italics not cut off the edge of the last character
+			if(lastSegItalics) {
+				ll->positions[numCharsInLine] += vstyle.lastSegItalicsOffset;
+			}
+			ll->numCharsInLine = numCharsInLine;
+			ll->numCharsBeforeEOL = numCharsBeforeEOL;
+			ll->validity = LineLayout::llPositions;
+		}
+		// Hard to cope when too narrow, so just assume there is space
+		SETMAX(width, 20);
+		if((ll->validity == LineLayout::llPositions) || (ll->widthLine != width)) {
+			ll->widthLine = width;
+			if(width == LineLayout::wrapWidthInfinite)
+				ll->lines = 1;
+			else if(width > ll->positions[ll->numCharsInLine])
+				ll->lines = 1; // Simple common case where line does not need wrapping.
+			else {
+				if(vstyle.wrapVisualFlags & SC_WRAPVISUALFLAG_END) {
+					width -= static_cast<int>(vstyle.aveCharWidth); // take into account the space for end wrap mark
+				}
+				XYPOSITION wrapAddIndent = 0; // This will be added to initial indent of line
+				if(vstyle.wrapIndentMode == SC_WRAPINDENT_INDENT) {
+					wrapAddIndent = model.pdoc->IndentSize() * vstyle.spaceWidth;
+				}
+				else if(vstyle.wrapIndentMode == SC_WRAPINDENT_FIXED) {
+					wrapAddIndent = vstyle.wrapVisualStartIndent * vstyle.aveCharWidth;
+				}
 				ll->wrapIndent = wrapAddIndent;
-			// Check for wrapIndent minimum
-			if((vstyle.wrapVisualFlags & SC_WRAPVISUALFLAG_START) && (ll->wrapIndent < vstyle.aveCharWidth))
-				ll->wrapIndent = vstyle.aveCharWidth;  // Indent to show start visual
-			ll->lines = 0;
-			// Calculate line start positions based upon width.
-			int lastGoodBreak = 0;
-			int lastLineStart = 0;
-			XYACCUMULATOR startOffset = 0;
-			int p = 0;
-			while(p < ll->numCharsInLine) {
-				if((ll->positions[p + 1] - startOffset) >= width) {
-					if(lastGoodBreak == lastLineStart) {
-						// Try moving to start of last character
-						if(p > 0) {
-							lastGoodBreak = model.pdoc->MovePositionOutsideChar(p + posLineStart, -1)
-							    - posLineStart;
-						}
-						if(lastGoodBreak == lastLineStart) {
-							// Ensure at least one character on line.
-							lastGoodBreak = model.pdoc->MovePositionOutsideChar(
-							    lastGoodBreak + posLineStart + 1,
-							    1)
-							    - posLineStart;
+				if(vstyle.wrapIndentMode != SC_WRAPINDENT_FIXED)
+					for(int i = 0; i < ll->numCharsInLine; i++) {
+						if(!IsASpaceOrTab(ll->chars[i])) {
+							ll->wrapIndent += ll->positions[i]; // Add line indent
+							break;
 						}
 					}
-					lastLineStart = lastGoodBreak;
-					ll->lines++;
-					ll->SetLineStart(ll->lines, lastGoodBreak);
-					startOffset = ll->positions[lastGoodBreak];
-					// take into account the space for start wrap mark and indent
-					startOffset -= ll->wrapIndent;
-					p = lastGoodBreak + 1;
-					continue;
-				}
-				if(p > 0) {
-					if(vstyle.wrapState == eWrapChar) {
-						lastGoodBreak = model.pdoc->MovePositionOutsideChar(p + posLineStart, -1)
-						    - posLineStart;
-						p = model.pdoc->MovePositionOutsideChar(p + 1 + posLineStart, 1) - posLineStart;
+				// Check for text width minimum
+				if(ll->wrapIndent > width - static_cast<int>(vstyle.aveCharWidth) * 15)
+					ll->wrapIndent = wrapAddIndent;
+				// Check for wrapIndent minimum
+				if((vstyle.wrapVisualFlags & SC_WRAPVISUALFLAG_START) && (ll->wrapIndent < vstyle.aveCharWidth))
+					ll->wrapIndent = vstyle.aveCharWidth;  // Indent to show start visual
+				ll->lines = 0;
+				// Calculate line start positions based upon width.
+				int lastGoodBreak = 0;
+				int lastLineStart = 0;
+				XYACCUMULATOR startOffset = 0;
+				int p = 0;
+				while(p < ll->numCharsInLine) {
+					if((ll->positions[p + 1] - startOffset) >= width) {
+						if(lastGoodBreak == lastLineStart) {
+							// Try moving to start of last character
+							if(p > 0) {
+								lastGoodBreak = model.pdoc->MovePositionOutsideChar(p + posLineStart, -1) - posLineStart;
+							}
+							if(lastGoodBreak == lastLineStart) {
+								// Ensure at least one character on line.
+								lastGoodBreak = model.pdoc->MovePositionOutsideChar(lastGoodBreak + posLineStart + 1, 1) - posLineStart;
+							}
+						}
+						lastLineStart = lastGoodBreak;
+						ll->lines++;
+						ll->SetLineStart(ll->lines, lastGoodBreak);
+						startOffset = ll->positions[lastGoodBreak];
+						// take into account the space for start wrap mark and indent
+						startOffset -= ll->wrapIndent;
+						p = lastGoodBreak + 1;
 						continue;
 					}
-					else if((vstyle.wrapState == eWrapWord) && (ll->styles[p] != ll->styles[p - 1])) {
-						lastGoodBreak = p;
+					if(p > 0) {
+						if(vstyle.wrapState == eWrapChar) {
+							lastGoodBreak = model.pdoc->MovePositionOutsideChar(p + posLineStart, -1) - posLineStart;
+							p = model.pdoc->MovePositionOutsideChar(p + 1 + posLineStart, 1) - posLineStart;
+							continue;
+						}
+						else if((vstyle.wrapState == eWrapWord) && (ll->styles[p] != ll->styles[p - 1]))
+							lastGoodBreak = p;
+						else if(IsASpaceOrTab(ll->chars[p - 1]) && !IsASpaceOrTab(ll->chars[p]))
+							lastGoodBreak = p;
 					}
-					else if(IsASpaceOrTab(ll->chars[p - 1]) && !IsASpaceOrTab(ll->chars[p])) {
-						lastGoodBreak = p;
-					}
+					p++;
 				}
-				p++;
+				ll->lines++;
 			}
-			ll->lines++;
+			ll->validity = LineLayout::llLines;
 		}
-		ll->validity = LineLayout::llLines;
 	}
 }
 
@@ -1828,7 +1806,7 @@ void EditView::DrawIndentGuidesOverEmpty(Surface * surface, const EditModel &mod
 		// Find the most recent line with some text
 
 		int lineLastWithText = line;
-		while(lineLastWithText > Platform::Maximum(line - 20, 0) && model.pdoc->IsWhiteLine(lineLastWithText)) {
+		while(lineLastWithText > smax(line - 20, 0) && model.pdoc->IsWhiteLine(lineLastWithText)) {
 			lineLastWithText--;
 		}
 		if(lineLastWithText < line) {
@@ -1843,24 +1821,22 @@ void EditView::DrawIndentGuidesOverEmpty(Surface * surface, const EditModel &mod
 			if(vsDraw.viewIndentationGuides == ivLookForward) {
 				// In viLookForward mode, previous line only used if it is a fold header
 				if(isFoldHeader) {
-					indentSpace = Platform::Maximum(indentSpace, indentLastWithText);
+					indentSpace = smax(indentSpace, indentLastWithText);
 				}
 			}
 			else {          // viLookBoth
-				indentSpace = Platform::Maximum(indentSpace, indentLastWithText);
+				indentSpace = smax(indentSpace, indentLastWithText);
 			}
 		}
 
 		int lineNextWithText = line;
-		while(lineNextWithText <
-		    Platform::Minimum(line + 20, model.pdoc->LinesTotal()) && model.pdoc->IsWhiteLine(lineNextWithText)) {
+		while(lineNextWithText < smin(line + 20, model.pdoc->LinesTotal()) && model.pdoc->IsWhiteLine(lineNextWithText)) {
 			lineNextWithText++;
 		}
 		if(lineNextWithText > line) {
 			xStartText = 100000;    // Don't limit to visible indentation on empty line
 			// This line is empty, so use indentation of first next line with text
-			indentSpace = Platform::Maximum(indentSpace,
-			    model.pdoc->GetLineIndentation(lineNextWithText));
+			indentSpace = smax(indentSpace, model.pdoc->GetLineIndentation(lineNextWithText));
 		}
 
 		for(int indentPos = model.pdoc->IndentSize(); indentPos < indentSpace; indentPos += model.pdoc->IndentSize()) {
@@ -2071,7 +2047,7 @@ void EditView::PaintText(Surface * surfaceWindow, const EditModel &model, PRecta
 						    yposScreen + vsDraw.lineHeight);
 						surfaceWindow->Copy(rcCopyArea, from, *pixmapLine);
 					}
-					lineWidthMaxSeen = Platform::Maximum(lineWidthMaxSeen, static_cast<int>(ll->positions[ll->numCharsInLine]));
+					lineWidthMaxSeen = smax(lineWidthMaxSeen, static_cast<int>(ll->positions[ll->numCharsInLine]));
 					//durCopy += et.Duration(true);
 				}
 				if(/*!bufferedDraw*/!(EditViewFlags & fBufferedDraw)) {
@@ -2160,7 +2136,7 @@ static ColourDesired InvertedLight(ColourDesired orig)
 		r = r * il / l;
 		g = g * il / l;
 		b = b * il / l;
-		return ColourDesired(Platform::Minimum(r, 0xff), Platform::Minimum(g, 0xff), Platform::Minimum(b, 0xff));
+		return ColourDesired(smin(r, 0xff), smin(g, 0xff), smin(b, 0xff));
 	}
 }
 

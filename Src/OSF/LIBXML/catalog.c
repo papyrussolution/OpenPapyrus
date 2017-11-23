@@ -757,7 +757,7 @@ xmlDocPtr xmlParseCatalogFile(const char * filename)
 	char * directory = NULL;
 	xmlParserInputPtr inputStream;
 	xmlParserInputBufferPtr buf;
-	xmlParserCtxtPtr ctxt = xmlNewParserCtxt();
+	xmlParserCtxt * ctxt = xmlNewParserCtxt();
 	if(!ctxt) {
 #ifdef LIBXML_SAX1_ENABLED
 		if(xmlDefaultSAXHandler.error != NULL) {

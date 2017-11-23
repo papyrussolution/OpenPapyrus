@@ -9,11 +9,11 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{papyrus}[2008/05/31 Version 1.00 Papyrus LaTeX Document Class]
 \LoadClass[a4paper,9pt,final]{book}
-\usepackage{cmap} % Делает PDF-файл способным к копированию и поиску
 \usepackage[cp1251]{inputenc}
 \usepackage[TS1, T2A]{fontenc} % Улучшает качество шрифтов при выводе в PDF
 \usepackage[english,russian]{babel}
 \usepackage[pdftex]{graphicx}
+\usepackage{cmap} % Делает PDF-файл способным к копированию и поиску
 \usepackage{wrapfig}
 \usepackage{fancybox}
 \usepackage{longtable}

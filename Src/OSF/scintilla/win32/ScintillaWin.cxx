@@ -34,7 +34,7 @@
 	//#include "ExternalLexer.h"
 #endif
 #include "PlatWin.h"
-#include "HanjaDic.h"
+//#include "HanjaDic.h"
 
 #ifndef SPI_GETWHEELSCROLLLINES
 	#define SPI_GETWHEELSCROLLLINES   104

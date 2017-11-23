@@ -50,49 +50,6 @@ public:
 
 	int    SLAPI GetStockEntryList();
 private:
-	class VetisEntry {
-	public:
-		SLAPI  VetisEntry()
-		{
-		}
-		virtual SLAPI ~VetisEntry()
-		{
-		}
-	protected:
-		virtual int Pack(SXml::WDoc & rDoc)
-		{
-			return -1;
-		}
-		virtual int Unpack(xmlParserCtxt * pParseCtx, const SString & rSrc)
-		{
-			return -1;
-		}
-		SString TempBuf;
-	};
-	class VeListOptions : public VetisEntry {
-	public:
-		VeListOptions() : Count(0), Offset(0)
-		{
-		}
-		// count; offset
-		int    Count;
-		int    Offset;
-	private:
-		virtual int Pack(SXml::WDoc & rDoc)
-		{
-			SXml::WNode n_l(rDoc, "listOptions");
-			n_l.PutInner("count", TempBuf.Z().Cat(Count));
-			if(Offset > 0)
-				n_l.PutInner("offset", TempBuf.Z().Cat(Offset));
-			return 1;
-		}
-		virtual int Unpack(xmlParserCtxt * pParseCtx, const SString & rSrc)
-		{
-			return -1;
-		}
-	};
-
-
 	int    SubmitRequest(const VetisApplicationBlock & rQ, VetisApplicationBlock & rResult);
 	int    ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock & rResult);
 
@@ -100,10 +57,11 @@ private:
 	SString LogFileName;
 	SDynLibrary * P_Lib;
 	void * P_DestroyFunc;
-	Param  P;
+	Param   P;
+	int64   LastLocalTransactionId;
 };
 
-SLAPI PPVetisInterface::PPVetisInterface() : State(0), P_Lib(0), P_DestroyFunc(0)
+SLAPI PPVetisInterface::PPVetisInterface() : State(0), P_Lib(0), P_DestroyFunc(0), LastLocalTransactionId(0)
 {
 	PPGetFilePath(PPPATH_LOG, "vetis.log", LogFileName);
  	{
@@ -140,6 +98,36 @@ int SLAPI PPVetisInterface::SubmitRequest(const VetisApplicationBlock & rQ, Veti
 int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock & rResult)
 {
 	int    ok = 0;
+	return ok;
+}
+
+int SLAPI PPVetisInterface::GetStockEntryList()
+{
+	int    ok = -1;
+	SString temp_buf;
+	SString user, password, api_key;
+	VetisApplicationBlock * p_result = 0;
+	PPSoapClientSession sess;
+	SapEfesCallHeader sech;
+	VETIS_SUBMITAPPLICATIONREQUEST_PROC func = 0;
+	THROW(State & stInited);
+	THROW(P_Lib);
+	THROW_SL(func = (VETIS_SUBMITAPPLICATIONREQUEST_PROC)P_Lib->GetProcAddr("Vetis_SubmitApplicationRequest"));
+	P.GetExtStrData(extssUser, user);
+	P.GetExtStrData(extssPassword, password);
+	P.GetExtStrData(extssApiKey, api_key);
+	sess.Setup(0/*url*/, user, password);
+	{
+		VetisApplicationBlock blk;
+		blk.Func = VetisApplicationBlock::detGetStockEntryListReq;
+		blk.LocalTransactionId = ++LastLocalTransactionId;
+		blk.P_GselReq = new VetisGetStockEntryListRequest;
+		p_result = func(sess, api_key, blk);
+		//THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+		//LogResultMsgList(p_result);
+		//DestroyResult((void **)&p_result);
+	}
+    CATCHZOK
 	return ok;
 }
 

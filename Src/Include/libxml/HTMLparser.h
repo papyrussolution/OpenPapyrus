@@ -20,12 +20,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /*
  * Most of the back-end structures from XML and HTML are shared.
  */
 typedef xmlParserCtxt htmlParserCtxt;
-typedef xmlParserCtxtPtr htmlParserCtxtPtr;
+typedef xmlParserCtxt * htmlParserCtxtPtr;
 typedef xmlParserNodeInfo htmlParserNodeInfo;
 typedef xmlSAXHandler htmlSAXHandler;
 typedef xmlSAXHandlerPtr htmlSAXHandlerPtr;

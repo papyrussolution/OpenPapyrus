@@ -724,7 +724,6 @@ LIBSSH2_API LIBSSH2_CHANNEL * libssh2_scp_recv(LIBSSH2_SESSION * session, const 
 	}
 	return ptr;
 }
-
 /*
  * libssh2_scp_recv2
  *
@@ -738,13 +737,10 @@ LIBSSH2_API LIBSSH2_CHANNEL * libssh2_scp_recv2(LIBSSH2_SESSION * session, const
 	BLOCK_ADJUST_ERRNO(ptr, session, scp_recv(session, path, sb));
 	return ptr;
 }
-/*
- * scp_send()
- *
- * Send a file using SCP
- *
- */
-static LIBSSH2_CHANNEL * scp_send(LIBSSH2_SESSION * session, const char * path, int mode, libssh2_int64_t size, time_t mtime, time_t atime)
+//
+// Send a file using SCP
+//
+static LIBSSH2_CHANNEL * scp_send(LIBSSH2_SESSION * session, const char * path, int mode, int64 size, time_t mtime, time_t atime)
 {
 	int cmd_len;
 	int rc;
@@ -939,8 +935,7 @@ static LIBSSH2_CHANNEL * scp_send(LIBSSH2_SESSION * session, const char * path, 
 			err_len = _libssh2_channel_packet_data_len(session->scpSend_channel, 0);
 			err_msg = (char *)LIBSSH2_ALLOC(session, err_len + 1);
 			if(!err_msg) {
-				_libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-				    "failed to get memory");
+				_libssh2_error(session, LIBSSH2_ERROR_ALLOC, "failed to get memory");
 				goto scp_send_error;
 			}
 			/* Read the remote error message */
@@ -956,55 +951,44 @@ static LIBSSH2_CHANNEL * scp_send(LIBSSH2_SESSION * session, const char * path, 
 	}
 	session->scpSend_state = libssh2_NB_state_idle;
 	return session->scpSend_channel;
-
 scp_send_empty_channel:
-	/* the code only jumps here as a result of a zero read from channel_read()
-	   so we check EOF status to avoid getting stuck in a loop */
+	// the code only jumps here as a result of a zero read from channel_read()
+	// so we check EOF status to avoid getting stuck in a loop 
 	if(libssh2_channel_eof(session->scpSend_channel)) {
-		_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-		    "Unexpected channel close");
+		_libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, "Unexpected channel close");
 	}
 	else
 		return session->scpSend_channel;
-	/* fall-through */
+	// fall-through 
 scp_send_error:
 	tmp_err_code = session->err_code;
 	tmp_err_msg = session->err_msg;
-	while(libssh2_channel_free(session->scpSend_channel) ==
-	    LIBSSH2_ERROR_EAGAIN) ;
+	while(libssh2_channel_free(session->scpSend_channel) == LIBSSH2_ERROR_EAGAIN) 
+		;
 	session->err_code = tmp_err_code;
 	session->err_msg = tmp_err_msg;
 	session->scpSend_channel = NULL;
 	session->scpSend_state = libssh2_NB_state_idle;
 	return NULL;
 }
-
-/*
- * libssh2_scp_send_ex
- *
- * Send a file using SCP. Old API.
- */
-LIBSSH2_API LIBSSH2_CHANNEL * libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char * path, int mode,
-    size_t size, long mtime, long atime)
+//
+// Send a file using SCP. Old API.
+// 
+LIBSSH2_API LIBSSH2_CHANNEL * libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char * path, int mode, size_t size, long mtime, long atime)
 {
 	LIBSSH2_CHANNEL * ptr;
-	BLOCK_ADJUST_ERRNO(ptr, session,
-	    scp_send(session, path, mode, size,
-		    (time_t)mtime, (time_t)atime));
+	BLOCK_ADJUST_ERRNO(ptr, session, scp_send(session, path, mode, size, (time_t)mtime, (time_t)atime));
 	return ptr;
 }
-
 /*
  * libssh2_scp_send64
  *
  * Send a file using SCP
  */
-LIBSSH2_API LIBSSH2_CHANNEL * libssh2_scp_send64(LIBSSH2_SESSION * session, const char * path, int mode,
-    libssh2_int64_t size, time_t mtime, time_t atime)
+LIBSSH2_API LIBSSH2_CHANNEL * libssh2_scp_send64(LIBSSH2_SESSION * session, const char * path, int mode, int64 size, time_t mtime, time_t atime)
 {
 	LIBSSH2_CHANNEL * ptr;
-	BLOCK_ADJUST_ERRNO(ptr, session,
-	    scp_send(session, path, mode, size, mtime, atime));
+	BLOCK_ADJUST_ERRNO(ptr, session, scp_send(session, path, mode, size, mtime, atime));
 	return ptr;
 }
 

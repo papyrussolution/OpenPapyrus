@@ -10,12 +10,8 @@
 #ifndef __XML_AUTOMATA_H__
 #define __XML_AUTOMATA_H__
 
-#include <libxml/xmlversion.h>
-#include <libxml/tree.h>
-
 #ifdef LIBXML_REGEXP_ENABLED
 #ifdef LIBXML_AUTOMATA_ENABLED
-//#include <libxml/xmlregexp.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,15 +22,14 @@ extern "C" {
  *
  * A libxml automata description, It can be compiled into a regexp
  */
-typedef struct _xmlAutomata xmlAutomata;
+struct xmlAutomata;
 typedef xmlAutomata * xmlAutomataPtr;
-
 /**
  * xmlAutomataStatePtr:
  *
  * A state int the automata description,
  */
-typedef struct _xmlAutomataState xmlAutomataState;
+struct xmlAutomataState;
 typedef xmlAutomataState * xmlAutomataStatePtr;
 
 /*

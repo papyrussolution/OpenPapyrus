@@ -91,29 +91,27 @@ typedef struct _LIBSSH2_SFTP_STATVFS        LIBSSH2_SFTP_STATVFS;
 #define LIBSSH2_SFTP_ST_NOSUID              0x00000002
 
 struct _LIBSSH2_SFTP_ATTRIBUTES {
-    /* If flags & ATTR_* bit is set, then the value in this struct will be
-     * meaningful Otherwise it should be ignored
-     */
-    unsigned long flags;
-
-    libssh2_uint64_t filesize;
-    unsigned long uid, gid;
-    unsigned long permissions;
-    unsigned long atime, mtime;
+    // If flags & ATTR_* bit is set, then the value in this struct will be meaningful Otherwise it should be ignored
+    ulong  flags;
+    uint64 filesize;
+    ulong  uid;
+	ulong  gid;
+    ulong  permissions;
+    ulong  atime, mtime;
 };
 
 struct _LIBSSH2_SFTP_STATVFS {
-    libssh2_uint64_t  f_bsize;    /* file system block size */
-    libssh2_uint64_t  f_frsize;   /* fragment size */
-    libssh2_uint64_t  f_blocks;   /* size of fs in f_frsize units */
-    libssh2_uint64_t  f_bfree;    /* # free blocks */
-    libssh2_uint64_t  f_bavail;   /* # free blocks for non-root */
-    libssh2_uint64_t  f_files;    /* # inodes */
-    libssh2_uint64_t  f_ffree;    /* # free inodes */
-    libssh2_uint64_t  f_favail;   /* # free inodes for non-root */
-    libssh2_uint64_t  f_fsid;     /* file system ID */
-    libssh2_uint64_t  f_flag;     /* mount flags */
-    libssh2_uint64_t  f_namemax;  /* maximum filename length */
+    uint64 f_bsize;    /* file system block size */
+    uint64 f_frsize;   /* fragment size */
+    uint64 f_blocks;   /* size of fs in f_frsize units */
+    uint64 f_bfree;    /* # free blocks */
+    uint64 f_bavail;   /* # free blocks for non-root */
+    uint64 f_files;    /* # inodes */
+    uint64 f_ffree;    /* # free inodes */
+    uint64 f_favail;   /* # free inodes for non-root */
+    uint64 f_fsid;     /* file system ID */
+    uint64 f_flag;     /* mount flags */
+    uint64 f_namemax;  /* maximum filename length */
 };
 
 /* SFTP filetypes */
@@ -255,11 +253,11 @@ LIBSSH2_API int libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle);
 
 LIBSSH2_API void libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE *handle, size_t offset);
 LIBSSH2_API void libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle,
-                                     libssh2_uint64_t offset);
+                                     uint64 offset);
 #define libssh2_sftp_rewind(handle) libssh2_sftp_seek64((handle), 0)
 
 LIBSSH2_API size_t libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE *handle);
-LIBSSH2_API libssh2_uint64_t libssh2_sftp_tell64(LIBSSH2_SFTP_HANDLE *handle);
+LIBSSH2_API uint64 libssh2_sftp_tell64(LIBSSH2_SFTP_HANDLE *handle);
 
 LIBSSH2_API int libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,
                                       LIBSSH2_SFTP_ATTRIBUTES *attrs,

@@ -294,18 +294,12 @@ int SLAPI SCardFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	return ok;
 }
 
-PPViewSCard::PreprocessScRecBlock::PreprocessScRecBlock()
+PPViewSCard::PreprocessScRecBlock::PreprocessScRecBlock() : ScID(0), InTurnover(0.0), Turnover(0.0)
 {
-	ScID = 0;
-	InTurnover = 0.0;
-	Turnover = 0.0;
 }
 
-SLAPI PPViewSCard::PPViewSCard() : PPView(&SCObj, &Filt, PPVIEW_SCARD)
+SLAPI PPViewSCard::PPViewSCard() : PPView(&SCObj, &Filt, PPVIEW_SCARD), P_StffObj(0), P_TmpTbl(0), P_TempOrd(0)
 {
-	P_StffObj = 0;
-	P_TmpTbl  = 0;
-	P_TempOrd = 0;
 	DefReportId = REPORT_SCARDLIST;
 }
 
@@ -331,7 +325,8 @@ int SLAPI PPViewSCard::IsTempTblNeeded() const
 {
 	return BIN(!Filt.TrnovrPeriod.IsZero() || Filt.EmployerID || Filt.Number.NotEmpty() ||
 		(Filt.Flags & (SCardFilt::fSinceLastPDisUpdating|SCardFilt::fShowOwnerAddrDetail)) ||
-		(Filt.P_SjF && !Filt.P_SjF->IsEmpty()) || (Filt.P_ExludeOwnerF && !Filt.P_ExludeOwnerF->IsEmpty()));
+		(Filt.P_SjF && !Filt.P_SjF->IsEmpty()) || (Filt.P_ExludeOwnerF && !Filt.P_ExludeOwnerF->IsEmpty()) ||
+		SeriesList.GetCount() > 1);
 }
 
 int SLAPI PPViewSCard::Init_(const PPBaseFilt * pFilt)
@@ -353,6 +348,30 @@ int SLAPI PPViewSCard::Init_(const PPBaseFilt * pFilt)
 	Filt.TurnoverR.Round(2); // @v9.6.6
 	if(Filt.EmployerID)
 		SETIFZ(P_StffObj, new PPObjStaffList);
+	// @v9.8.9 {
+	StrPool.ClearS();
+	{
+		uint   i;
+		PPObjSCardSeries scs_obj;
+		PPIDArray temp_series_list;
+		PPIDArray finish_series_list;
+		temp_series_list.addnz(Filt.SeriesID);
+		for(i = 0; i < Filt.ScsList.GetCount(); i++)
+			temp_series_list.addnz(Filt.ScsList.Get(i));
+		temp_series_list.sortAndUndup();
+		for(i = 0; i < temp_series_list.getCount(); i++) {
+			PPSCardSeries scs_rec;
+			const PPID scs_id = temp_series_list.get(i);
+			scs_obj.GetChildList(scs_id, finish_series_list);
+		}
+		if(finish_series_list.getCount()) {
+			finish_series_list.sortAndUndup();
+			SeriesList.Set(&finish_series_list);
+		}
+		else 
+			SeriesList.Set(0); 
+	}
+	// } @v9.8.9 
 	if(Filt.P_ExludeOwnerF && !Filt.P_ExludeOwnerF->IsEmpty()) {
 		PPIDArray owner_list;
         PPViewSCard temp_view;
@@ -413,7 +432,8 @@ int SLAPI PPViewSCard::CreateTempTable()
 	if(!(Filt.Flags & SCardFilt::fNoTempTable)) {
 		THROW(P_TmpTbl = CreateTempFile <TempSCardTbl> ());
 	}
-	dbq = ppcheckfiltid(dbq, p_c->SeriesID, Filt.SeriesID);
+	// @v9.8.9 dbq = ppcheckfiltid(dbq, p_c->SeriesID, Filt.SeriesID);
+	dbq = ppcheckfiltid(dbq, p_c->SeriesID, SeriesList.GetSingle()); // @v9.8.9
 	dbq = ppcheckfiltid(dbq, p_c->PersonID, Filt.PersonID);
 	dbq = ppcheckfiltid(dbq, p_c->LocID, Filt.LocID); // @v9.4.5
 	dbq = &daterange(p_c->Dt, &Filt.IssuePeriod);
@@ -428,7 +448,7 @@ int SLAPI PPViewSCard::CreateTempTable()
 		if(P_TmpTbl)
 			THROW_MEM(p_bei = new BExtInsert(P_TmpTbl));
 		if(Filt.Number.NotEmpty()) {
-			SCObj.GetListBySubstring(Filt.Number, Filt.SeriesID, &n_list, BIN(Filt.Flags & SCardFilt::fNumberFromBeg));
+			SCObj.GetListBySubstring(Filt.Number, /*Filt.SeriesID*/SeriesList.GetSingle(), &n_list, BIN(Filt.Flags & SCardFilt::fNumberFromBeg));
 			for(uint i = 0; i < n_list.getCount(); i++) {
 				StrAssocArray::Item n_list_item = n_list.at_WithoutParent(i);
 				incl_list.addUnique(n_list_item.Id);
@@ -482,7 +502,7 @@ int SLAPI PPViewSCard::CreateTempTable()
 			}
 			else {
 				idx = 2;
-				k.k2.SeriesID = Filt.SeriesID;
+				k.k2.SeriesID = SeriesList.GetSingle(); //Filt.SeriesID;
 			}
 			THROW_MEM(q = new BExtQuery(p_c, idx));
 			q->selectAll().where(*dbq);
@@ -526,12 +546,17 @@ int SLAPI PPViewSCard::CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecB
 	double in_turnover = 0.0;
 	double turnover = 0.0;
 	const int wo_owner = BIN(Filt.Flags & SCardFilt::fWoOwner);
-	if(Filt.ScsList.IsExists()) {
+	/* @v9.8.9 if(Filt.ScsList.IsExists()) {
 		THROW(Filt.ScsList.CheckID(pRec->SeriesID));
 	}
 	else {
 		THROW(!Filt.SeriesID || pRec->SeriesID == Filt.SeriesID);
+	} */
+	// @v9.8.9 {
+	if(SeriesList.IsExists()) {
+		THROW(SeriesList.CheckID(pRec->SeriesID));
 	}
+	// } @v9.8.9 
 	THROW(!Filt.PersonID || pRec->PersonID == Filt.PersonID);
 	THROW(!Filt.LocID || pRec->LocID == Filt.LocID); // @v9.4.5
 	THROW(Filt.Ft_Closed <= 0 || (pRec->Flags & SCRDF_CLOSED));
@@ -630,35 +655,41 @@ int SLAPI PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCar
 				PPELinkArray ela;
 				PsnObj.P_Tbl->GetELinks(psn_rec.ID, &ela);
 				ela.GetPhones(3, result_buf.Z());
-				result_buf.CopyTo(pDestRec->Phone, sizeof(pDestRec->Phone));
+				//result_buf.CopyTo(pDestRec->Phone, sizeof(pDestRec->Phone));
+				StrPool.AddS(result_buf, &pDestRec->PhoneP); // @v9.8.9
 			}
 			addr_id = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
 			LocationTbl::Rec loc_rec;
 			if(addr_id && PsnObj.LocObj.Search(addr_id, &loc_rec) > 0) {
 				LocationCore::GetAddress(loc_rec, 0, temp_buf);
 				if(temp_buf.NotEmptyS()) {
-					temp_buf.CopyTo(pDestRec->Address, sizeof(pDestRec->Address));
+					//temp_buf.CopyTo(pDestRec->Address, sizeof(pDestRec->Address));
+					StrPool.AddS(temp_buf, &pDestRec->AddressP); // @v9.8.9
 					Las.Recognize(temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
 					if(Las.Get(PPLocAddrStruc::tZip, temp_buf)) {
-						temp_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->ZIP, sizeof(pDestRec->ZIP));
+						temp_buf.Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->ZIP, sizeof(pDestRec->ZIP));
+						StrPool.AddS(result_buf, &pDestRec->ZipP); // @v9.8.9
 					}
 					if(Las.Get(PPLocAddrStruc::tLocalArea, temp_buf)) {
 						result_buf.Z();
 						if(Las.Get(PPLocAddrStruc::tLocalAreaKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
-						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->LocalArea, sizeof(pDestRec->LocalArea));
+						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->LocalArea, sizeof(pDestRec->LocalArea));
+						StrPool.AddS(result_buf, &pDestRec->LocalAreaP); // @v9.8.9
 					}
 					if(Las.Get(PPLocAddrStruc::tCity, temp_buf)) {
 						result_buf.Z();
 						if(Las.Get(PPLocAddrStruc::tCityKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
-						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->City, sizeof(pDestRec->City));
+						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->City, sizeof(pDestRec->City));
+						StrPool.AddS(result_buf, &pDestRec->CityP); // @v9.8.9
 					}
 					if(Las.Get(PPLocAddrStruc::tStreet, temp_buf)) {
 						result_buf.Z();
 						if(Las.Get(PPLocAddrStruc::tStreetKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
-						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->Street, sizeof(pDestRec->Street));
+						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->Street, sizeof(pDestRec->Street));
+						StrPool.AddS(result_buf, &pDestRec->StreetP); // @v9.8.9
 					}
 					if(Las.Get(PPLocAddrStruc::tHouse, temp_buf)) {
 						result_buf.Z();
@@ -671,16 +702,19 @@ int SLAPI PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCar
 								result_buf.Cat(temp_buf2).Space();
 							result_buf.Cat(temp_buf);
 						}
-						result_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->House, sizeof(pDestRec->House));
+						result_buf.Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->House, sizeof(pDestRec->House));
+						StrPool.AddS(result_buf, &pDestRec->HouseP); // @v9.8.9
 					}
 					if(Las.Get(PPLocAddrStruc::tApart, temp_buf)) {
 						result_buf.Z();
 						if(Las.Get(PPLocAddrStruc::tApartKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
-						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->Apart, sizeof(pDestRec->Apart));
+						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->Apart, sizeof(pDestRec->Apart));
+						StrPool.AddS(result_buf, &pDestRec->ApartP); // @v9.8.9
 					}
 					if(Las.Get(PPLocAddrStruc::tAddendum, temp_buf)) {
-						temp_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pDestRec->AddrAddend, sizeof(pDestRec->AddrAddend));
+						temp_buf.Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->AddrAddend, sizeof(pDestRec->AddrAddend));
+						StrPool.AddS(temp_buf, &pDestRec->AddrAddendP); // @v9.8.9
 					}
 				}
 			}
@@ -838,12 +872,12 @@ int SLAPI PPViewSCard::InitIteration()
 			}
 			else {
 				idx = 2;
-				k.k2.SeriesID = Filt.SeriesID;
+				k.k2.SeriesID = SeriesList.GetSingle(); //Filt.SeriesID;
 			}
 			k_ = k;
 			SCardTbl * p_c = SCObj.P_Tbl;
 			P_IterQuery = new BExtQuery(p_c, idx);
-			dbq = ppcheckfiltid(dbq, p_c->SeriesID, Filt.SeriesID);
+			dbq = ppcheckfiltid(dbq, p_c->SeriesID, SeriesList.GetSingle()/*Filt.SeriesID*/);
 			if(Filt.Flags & SCardFilt::fWoOwner)
 				dbq = & (*dbq && p_c->PersonID == 0L);
 			else
@@ -1135,7 +1169,10 @@ int SLAPI PPViewSCard::EditBaseFilt(PPBaseFilt * pBaseFilt)
 }
 
 void * SLAPI PPViewSCard::GetEditExtraParam()
-	{ return (void *)Filt.SeriesID; }
+{ 
+	//return (void *)Filt.SeriesID; 
+	return (void *)SeriesList.GetSingle();
+}
 
 int SLAPI PPViewSCard::DeleteItem(PPID id)
 {
@@ -1190,9 +1227,9 @@ int SLAPI PPViewSCard::DeleteItem(PPID id)
 int SLAPI PPViewSCard::RecalcRests()
 {
 	int    ok = -1;
-	if(Filt.SeriesID) {
+	if(/*Filt.SeriesID*/SeriesList.GetSingle()) {
 		PPWait(1);
-		if(SCObj.CheckRights(PPR_MOD) && SCObj.P_Tbl->RecalcRestsBySeries(Filt.SeriesID, 1))
+		if(SCObj.CheckRights(PPR_MOD) && SCObj.P_Tbl->RecalcRestsBySeries(/*Filt.SeriesID*/SeriesList.GetSingle(), 1))
 			ok = 1;
 		else
 			ok = PPErrorZ();
@@ -1206,7 +1243,7 @@ int SLAPI PPViewSCard::RenameDup(PPIDArray * pIdList)
 	int    ok = -1;
 	uint   replace_trnovr = 1;
 	CALLPTRMEMB(pIdList, freeAll());
-	if(Filt.SeriesID && SelectorDialog(DLG_RENMDUPLSC, CTL_RENMDUPLSC_FLAGS, &replace_trnovr) > 0) {
+	if(/*Filt.SeriesID*/SeriesList.GetSingle() && SelectorDialog(DLG_RENMDUPLSC, CTL_RENMDUPLSC_FLAGS, &replace_trnovr) > 0) {
 		SCardTbl::Key1 k1;
 		LAssocArray dupl_ary;
 		SCardViewItem item;
@@ -1270,7 +1307,7 @@ int SLAPI PPViewSCard::RecalcTurnover()
 {
 	int    ok = -1;
 	if(CONFIRM(PPCFM_RECALCSCARDTRNOVR)) {
-		if(SCObj.IsCreditSeries(Filt.SeriesID)) {
+		if(SCObj.IsCreditSeries(/*Filt.SeriesID*/SeriesList.GetSingle())) {
 			THROW(ok = RecalcRests());
 		}
 		else {
@@ -1340,10 +1377,10 @@ int SLAPI PPViewSCard::ChargeCredit()
 	int    scst = 0;
 	int    uhtt_sync = 0;
 	PPUhttClient * p_uhtt_cli = 0;
-	if(Filt.SeriesID) {
+	if(/*Filt.SeriesID*/SeriesList.GetSingle()) {
 		PPObjSCardSeries scs_obj;
 		PPSCardSeries scs_rec;
-		if(scs_obj.Fetch(Filt.SeriesID, &scs_rec) > 0) {
+		if(scs_obj.Fetch(/*Filt.SeriesID*/SeriesList.GetSingle(), &scs_rec) > 0) {
 			scst = scs_rec.GetType();
 			if(scs_rec.Flags & SCRDSF_UHTTSYNC)
 				uhtt_sync = 1;
@@ -1484,7 +1521,7 @@ int SLAPI PPViewSCard::ChangeDiscount()
 	int    ok = -1;
 	TDialog * dlg = 0;
 	PPSCardSeries ser_rec;
-	if(Filt.SeriesID && SearchObject(PPOBJ_SCARDSERIES, Filt.SeriesID, &ser_rec) > 0) {
+	if(/*Filt.SeriesID*/SeriesList.GetSingle() && SearchObject(PPOBJ_SCARDSERIES, /*Filt.SeriesID*/SeriesList.GetSingle(), &ser_rec) > 0) {
 		int    valid_data = 0;
 		double pct = 0.0;
 		SCardViewItem item;
@@ -1583,7 +1620,7 @@ int SLAPI PPViewSCard::Transmit(PPID /*id*/)
 
 int SLAPI PPViewSCard::OnExecBrowser(PPViewBrowser * pBrw)
 {
-	pBrw->SetupToolbarCombo(PPOBJ_SCARDSERIES, Filt.SeriesID, 0, 0);
+	pBrw->SetupToolbarCombo(PPOBJ_SCARDSERIES, /*Filt.SeriesID*/SeriesList.GetSingle(), 0, 0);
 	return -1;
 }
 
@@ -1674,7 +1711,7 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	SCardTbl * p_c = 0;
 	TempSCardTbl * p_t = 0;
 	TempOrderTbl * p_ot = 0;
-	if(SearchObject(PPOBJ_SCARDSERIES, Filt.SeriesID, &ser_rec) > 0) {
+	if(SearchObject(PPOBJ_SCARDSERIES, /*Filt.SeriesID*/SeriesList.GetSingle(), &ser_rec) > 0) {
 		if(ser_rec.Flags & (SCRDSF_CREDIT|SCRDSF_BONUS))
 			if(Filt.TrnovrPeriod.IsZero())
 				brw_id = BROWSER_SCARDCRD;
@@ -1685,7 +1722,7 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		MEMSZERO(ser_rec);
 	if(Filt.PersonID)
 		GetObjectName(PPOBJ_PERSON, Filt.PersonID, sub_title, 1);
-	if(Filt.SeriesID)
+	if(/*Filt.SeriesID*/SeriesList.GetSingle())
 		sub_title.CatDivIfNotEmpty('-', 1).Cat(ser_rec.Name);
 	if(P_TempOrd) {
 		THROW(CheckTblPtr(p_ot = new TempOrderTbl(P_TempOrd->GetName())));
@@ -1719,6 +1756,7 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			dbe_memo,       // #13 @v9.6.1
 			0L);
 		if(Filt.Flags & SCardFilt::fShowOwnerAddrDetail) {
+			/*
 			q->addField(p_t->Phone);      // #14 @v9.6.1 #12-->#14
 			q->addField(p_t->Address);    // #15 @v9.6.1 #13-->#15
 			q->addField(p_t->ZIP);        // #16 @v9.6.1 #14-->#16
@@ -1728,6 +1766,36 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			q->addField(p_t->House);      // #20 @v9.6.1 #18-->#20
 			q->addField(p_t->Apart);      // #21 @v9.6.1 #19-->#21
 			q->addField(p_t->AddrAddend); // #22 @v9.6.1 #20-->#22
+			*/
+			DBE    dbe_phone__; 
+			DBE    dbe_address;
+			DBE    dbe_zip;
+			DBE    dbe_localarea;
+			DBE    dbe_city;
+			DBE    dbe_street;
+			DBE    dbe_house;
+			DBE    dbe_apart;
+			DBE    dbe_addraddend;
+			{
+				PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone__, p_t->PhoneP, &StrPool);
+				PPDbqFuncPool::InitStrPoolRefFunc(dbe_address, p_t->AddressP, &StrPool);
+				PPDbqFuncPool::InitStrPoolRefFunc(dbe_zip, p_t->ZipP, &StrPool);
+				PPDbqFuncPool::InitStrPoolRefFunc(dbe_localarea, p_t->LocalAreaP, &StrPool);
+				PPDbqFuncPool::InitStrPoolRefFunc(dbe_city, p_t->CityP, &StrPool);
+				PPDbqFuncPool::InitStrPoolRefFunc(dbe_street, p_t->StreetP, &StrPool);
+				PPDbqFuncPool::InitStrPoolRefFunc(dbe_house, p_t->HouseP, &StrPool);
+				PPDbqFuncPool::InitStrPoolRefFunc(dbe_apart, p_t->ApartP, &StrPool);
+				PPDbqFuncPool::InitStrPoolRefFunc(dbe_addraddend, p_t->AddrAddendP, &StrPool);
+				q->addField(dbe_phone__);    //  #14 
+				q->addField(dbe_address);    //  #15
+				q->addField(dbe_zip);        //  #16 
+				q->addField(dbe_localarea);  //  #17 
+				q->addField(dbe_city);       //  #18 
+				q->addField(dbe_street);     //  #19 
+				q->addField(dbe_house);      //  #20 
+				q->addField(dbe_apart);      //  #21 
+				q->addField(dbe_addraddend); //  #22 
+			}
 		}
 		if(p_ot)
 			q->from(p_ot, p_t, 0L);
@@ -1737,7 +1805,7 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			dbq = & (*dbq && p_ot->ID == p_t->ID);
 		q->where(*dbq);
 		if(!p_ot) {
-			if(Filt.SeriesID)
+			if(/*Filt.SeriesID*/SeriesList.GetSingle())
 				q->orderBy(p_t->SeriesID, p_t->Code, 0L);
 			else if(!Filt.PersonID)
 				q->orderBy(p_t->Code, p_t->SeriesID, 0L);
@@ -1776,7 +1844,7 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		else
 			q->from(p_c, 0L);
 
-		dbq = ppcheckfiltid(dbq, p_c->SeriesID, Filt.SeriesID);
+		dbq = ppcheckfiltid(dbq, p_c->SeriesID, /*Filt.SeriesID*/SeriesList.GetSingle());
 		if(Filt.Flags & SCardFilt::fWoOwner)
 			dbq = & (*dbq && p_c->PersonID == 0L);
 		else
@@ -1791,7 +1859,7 @@ DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			dbq = & (*dbq && p_ot->ID == p_c->ID);
 		q->where(*dbq);
 		if(!p_ot) {
-			if(Filt.SeriesID)
+			if(/*Filt.SeriesID*/SeriesList.GetSingle())
 				q->orderBy(p_c->SeriesID, p_c->Code, 0L);
 			else if(!Filt.PersonID && !Filt.LocID)
 				q->orderBy(p_c->Code, p_c->SeriesID, 0L);
@@ -2211,7 +2279,7 @@ int SLAPI PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 		// Перехватываем обработку команды до PPView::ProcessCommand
 		//
 		PPID   id = 0;
-		PPObjSCard::AddParam param(Filt.SeriesID, Filt.PersonID);
+		PPObjSCard::AddParam param(/*Filt.SeriesID*/SeriesList.GetSingle(), Filt.PersonID);
 		// @v9.4.5 {
 		if(!Filt.PersonID && Filt.LocID)
 			param.LocID = Filt.LocID;
@@ -2231,7 +2299,7 @@ int SLAPI PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 					ok = -1;
 					{
 						PPID   id = 0;
-						PPObjSCard::AddParam param(Filt.SeriesID, Filt.PersonID);
+						PPObjSCard::AddParam param(/*Filt.SeriesID*/SeriesList.GetSingle(), Filt.PersonID);
 						if(SCObj.FindAndEdit(&id, &param) > 0)
 							ok = 1;
 					}
@@ -2261,7 +2329,8 @@ int SLAPI PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 					ok = RecalcTurnover();
 					break;
 				case PPVCMD_AUTOFILL:
-					ok = Filt.SeriesID ? SCObj.AutoFill(Filt.SeriesID, 1) : -1;
+					//ok = Filt.SeriesID ? SCObj.AutoFill(Filt.SeriesID, 1) : -1;
+					ok = SeriesList.GetSingle() ? SCObj.AutoFill(SeriesList.GetSingle(), 1) : -1;
 					break;
 				case PPVCMD_DELETEALL:
 					ok = DeleteItem(0);
@@ -2292,7 +2361,8 @@ int SLAPI PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 					ok = -1;
 					{
 						PPID   ser_id = 0;
-						if(pBrw && pBrw->GetToolbarComboData(&ser_id) && Filt.SeriesID != ser_id) {
+						if(pBrw && pBrw->GetToolbarComboData(&ser_id) && /*Filt.SeriesID*/SeriesList.GetSingle() != ser_id) {
+							Filt.ScsList.Set(0); // @v9.8.9
 							Filt.SeriesID = ser_id;
 							ok = ChangeFilt(1, pBrw);
 						}

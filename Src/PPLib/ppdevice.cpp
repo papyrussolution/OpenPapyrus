@@ -1,5 +1,5 @@
 // PPDEVICE.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -171,13 +171,8 @@ int SLAPI PPObjGenericDevice::Edit(PPID * pID, void * extraPtr)
 //
 // @ModuleDef(PPAbstractDevice)
 //
-PPAbstractDevice::ConnectionParam::ConnectionParam()
+PPAbstractDevice::ConnectionParam::ConnectionParam() : DeviceNo(0), NotOwned(0), ReleCount(0), P_Conn(0), GoodsID(0)
 {
-	DeviceNo   = 0;
-	NotOwned   = 0;
-	ReleCount  = 0;
-	P_Conn     = 0;
-	GoodsID    = 0;
 	MEMSZERO(Cpp);
 }
 
@@ -188,11 +183,8 @@ int PPAbstractDevice::ConnectionParam::IsEqualAddr(const ConnectionParam & rPara
 //
 //
 //
-PPAbstractDevice::IdentBlock::IdentBlock()
+PPAbstractDevice::IdentBlock::IdentBlock() : P_Lib(0), IsLibOwner(0), Func(0)
 {
-	P_Lib = 0;
-	IsLibOwner = 0;
-	Func = 0;
 }
 
 PPAbstractDevice::IdentBlock::~IdentBlock()
@@ -271,15 +263,14 @@ int SLAPI PPAbstractDevice::GetDrvIniSectByDvcClass(int dvcClass, int * pReserve
 	return sect_id;
 }
 
-PPAbstractDevice::PPAbstractDevice(const char * pDvcName) : RetBuf(4096)
+PPAbstractDevice::PPAbstractDevice(const char * pDvcName) : RetBuf(4096), State(0)
 {
-	State = 0;
 	GetCapability(&PCpb);
 	if(pDvcName)
 		DvcName = pDvcName;
 	else {
 		DvcName.Space();
-		DvcName = 0; // Гарантия не пустого буфера
+		DvcName.Z(); // Гарантия не пустого буфера
 	}
 }
 
@@ -318,9 +309,9 @@ int SLAPI PPAbstractDevice::ParseRegEntry(const char * pLine, SString & rSymbol,
 {
 	// Shtrih-DPD201=DRV:Shtrih-DPD201 (Петроглиф),dll,ppdrv-cd-Shtrih-DPD201.dll
 
-	rSymbol = 0;
-	rDrvName = 0;
-	rDrvPath = 0;
+	rSymbol.Z();
+	rDrvName.Z();
+	rDrvPath.Z();
 
 	int    ok = 0, r = 2;
 	int    drv_impl = 0;
@@ -357,7 +348,7 @@ int SLAPI PPAbstractDevice::ParseRegEntry(const char * pLine, SString & rSymbol,
 
 int PPAbstractDevice::GetDllName(int dvcClass, long devTypeId, SString & rDllPath)
 {
-	rDllPath = 0;
+	rDllPath.Z();
 
 	int    ok = 1, idx = 0;
 	SString line_buf = ""; // А то ошибка может быть // @vmiller
@@ -388,7 +379,7 @@ int PPAbstractDevice::GetDllName(int dvcClass, long devTypeId, SString & rDllPat
 
 int PPAbstractDevice::GetDllName(int dvcClass, const char * pName, SString & rDllPath)
 {
-	rDllPath = 0;
+	rDllPath.Z();
 
 	int    ok = 1;
 	SString line_buf;
@@ -658,9 +649,8 @@ IMPLEMENT_PPDEVICE_FACTORY(PPDevice_Leader);
 //static
 const size_t PPDevice_Leader::DispLineSize = 16;
 
-PPDevice_Leader::PPDevice_Leader() : PPAbstractDevice("Leader Controller")
+PPDevice_Leader::PPDevice_Leader() : PPAbstractDevice("Leader Controller"), P_Cp(0)
 {
-	P_Cp = 0;
 }
 
 PPDevice_Leader::~PPDevice_Leader()

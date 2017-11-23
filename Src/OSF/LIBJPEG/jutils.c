@@ -47,8 +47,7 @@ const int jpeg_zigzag_order[DCTSIZE2] = {
  * The worst case would be a run-length of 15, which means we need 16
  * fake entries.
  */
-
-const int jpeg_natural_order[DCTSIZE2+16] = {
+const uint8 jpeg_natural_order[DCTSIZE2+16] = { // @sobolev int-->uin8
 	0,  1,  8, 16,  9,  2,  3, 10,
 	17, 24, 32, 25, 18, 11,  4,  5,
 	12, 19, 26, 33, 40, 48, 41, 34,
@@ -61,7 +60,7 @@ const int jpeg_natural_order[DCTSIZE2+16] = {
 	63, 63, 63, 63, 63, 63, 63, 63
 };
 
-const int jpeg_natural_order7[7*7+16] = {
+const uint8 jpeg_natural_order7[7*7+16] = { // @sobolev int-->uin8
 	0,  1,  8, 16,  9,  2,  3, 10,
 	17, 24, 32, 25, 18, 11,  4,  5,
 	12, 19, 26, 33, 40, 48, 41, 34,
@@ -73,7 +72,7 @@ const int jpeg_natural_order7[7*7+16] = {
 	63, 63, 63, 63, 63, 63, 63, 63
 };
 
-const int jpeg_natural_order6[6*6+16] = {
+const uint8 jpeg_natural_order6[6*6+16] = { // @sobolev int-->uin8
 	0,  1,  8, 16,  9,  2,  3, 10,
 	17, 24, 32, 25, 18, 11,  4,  5,
 	12, 19, 26, 33, 40, 41, 34, 27,
@@ -83,7 +82,7 @@ const int jpeg_natural_order6[6*6+16] = {
 	63, 63, 63, 63, 63, 63, 63, 63
 };
 
-const int jpeg_natural_order5[5*5+16] = {
+const uint8 jpeg_natural_order5[5*5+16] = { // @sobolev int-->uin8
 	0,  1,  8, 16,  9,  2,  3, 10,
 	17, 24, 32, 25, 18, 11,  4, 12,
 	19, 26, 33, 34, 27, 20, 28, 35,
@@ -92,38 +91,36 @@ const int jpeg_natural_order5[5*5+16] = {
 	63, 63, 63, 63, 63, 63, 63, 63
 };
 
-const int jpeg_natural_order4[4*4+16] = {
+const uint8 jpeg_natural_order4[4*4+16] = { // @sobolev int-->uin8
 	0,  1,  8, 16,  9,  2,  3, 10,
 	17, 24, 25, 18, 11, 19, 26, 27,
 	63, 63, 63, 63, 63, 63, 63, 63, /* extra entries for safety in decoder */
 	63, 63, 63, 63, 63, 63, 63, 63
 };
 
-const int jpeg_natural_order3[3*3+16] = {
+const uint8 jpeg_natural_order3[3*3+16] = { // @sobolev int-->uin8
 	0,  1,  8, 16,  9,  2, 10, 17,
 	18,
 	63, 63, 63, 63, 63, 63, 63, 63, /* extra entries for safety in decoder */
 	63, 63, 63, 63, 63, 63, 63, 63
 };
 
-const int jpeg_natural_order2[2*2+16] = {
+const uint8 jpeg_natural_order2[2*2+16] = { // @sobolev int-->uin8
 	0,  1,  8,  9,
 	63, 63, 63, 63, 63, 63, 63, 63, /* extra entries for safety in decoder */
 	63, 63, 63, 63, 63, 63, 63, 63
 };
-
 /*
  * Arithmetic utilities
  */
-
-GLOBAL(long) jdiv_round_up(long a, long b)
-/* Compute a/b rounded up to next integer, ie, ceil(a/b) */
-/* Assumes a >= 0, b > 0 */
+GLOBAL(long) FASTCALL jdiv_round_up(long a, long b)
+// Compute a/b rounded up to next integer, ie, ceil(a/b) 
+// Assumes a >= 0, b > 0 
 {
 	return (a + b - 1L) / b;
 }
 
-GLOBAL(long) jround_up(long a, long b)
+GLOBAL(long) FASTCALL jround_up(long a, long b)
 /* Compute a rounded up to next multiple of b, ie, ceil(a/b)*b */
 /* Assumes a >= 0, b > 0 */
 {
@@ -153,9 +150,8 @@ GLOBAL(void) jzero_far(void FAR * target, size_t bytestozero)
 /* Zero out a chunk of FAR memory. */
 /* This might be sample-array data, block-array data, or alloc_large data. */
 {
-	register char FAR * ptr = (char FAR*)target;
-	register size_t count;
-
+	char FAR * ptr = (char FAR*)target;
+	size_t count;
 	for(count = bytestozero; count > 0; count--) {
 		*ptr++ = 0;
 	}
@@ -163,25 +159,22 @@ GLOBAL(void) jzero_far(void FAR * target, size_t bytestozero)
 #endif
 #endif
 
-GLOBAL(void) jcopy_sample_rows(JSAMPARRAY input_array, int source_row,
-    JSAMPARRAY output_array, int dest_row, int num_rows, JDIMENSION num_cols)
+GLOBAL(void) jcopy_sample_rows(JSAMPARRAY input_array, int source_row, JSAMPARRAY output_array, int dest_row, int num_rows, JDIMENSION num_cols)
 /* Copy some rows of samples from one place to another.
  * num_rows rows are copied from input_array[source_row++]
  * to output_array[dest_row++]; these areas may overlap for duplication.
  * The source and destination arrays must be at least as wide as num_cols.
  */
 {
-	register JSAMPROW inptr, outptr;
+	JSAMPROW inptr, outptr;
 #ifdef FMEMCOPY
-	register size_t count = (size_t)(num_cols * SIZEOF(JSAMPLE));
+	size_t count = (size_t)(num_cols * SIZEOF(JSAMPLE));
 #else
 	register JDIMENSION count;
 #endif
-	register int row;
-
+	int row;
 	input_array += source_row;
 	output_array += dest_row;
-
 	for(row = num_rows; row > 0; row--) {
 		inptr = *input_array++;
 		outptr = *output_array++;
@@ -194,16 +187,15 @@ GLOBAL(void) jcopy_sample_rows(JSAMPARRAY input_array, int source_row,
 	}
 }
 
-GLOBAL(void) jcopy_block_row(JBLOCKROW input_row, JBLOCKROW output_row,
-    JDIMENSION num_blocks)
+GLOBAL(void) jcopy_block_row(JBLOCKROW input_row, JBLOCKROW output_row, JDIMENSION num_blocks)
 /* Copy a row of coefficient blocks from one place to another. */
 {
 #ifdef FMEMCOPY
 	FMEMCOPY(output_row, input_row, num_blocks * (DCTSIZE2 * SIZEOF(JCOEF)));
 #else
-	register long count;
-	register JCOEFPTR inptr = (JCOEFPTR)input_row;
-	register JCOEFPTR outptr = (JCOEFPTR)output_row;
+	long count;
+	JCOEFPTR inptr = (JCOEFPTR)input_row;
+	JCOEFPTR outptr = (JCOEFPTR)output_row;
 	for(count = (long)num_blocks * DCTSIZE2; count > 0; count--) {
 		*outptr++ = *inptr++;
 	}

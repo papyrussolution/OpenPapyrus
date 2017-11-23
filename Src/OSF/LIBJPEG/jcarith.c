@@ -414,7 +414,7 @@ METHODDEF(boolean) encode_mcu_DC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data
 METHODDEF(boolean) encode_mcu_AC_first(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
-	const int * natural_order;
+	const uint8 * natural_order; // @sobolev int-->uint8
 	JBLOCKROW block;
 	uchar * st;
 	int tbl, k, ke;
@@ -546,13 +546,12 @@ METHODDEF(boolean) encode_mcu_DC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
-	const int * natural_order;
+	const uint8 * natural_order; // @sobolev int-->uint8
 	JBLOCKROW block;
 	uchar * st;
 	int tbl, k, ke, kex;
 	int v;
-
-	/* Emit restart marker if needed */
+	// Emit restart marker if needed 
 	if(cinfo->restart_interval) {
 		if(entropy->restarts_to_go == 0) {
 			emit_restart(cinfo, entropy->next_restart_num);
@@ -562,14 +561,11 @@ METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 		}
 		entropy->restarts_to_go--;
 	}
-
 	natural_order = cinfo->natural_order;
-
-	/* Encode the MCU data block */
+	// Encode the MCU data block 
 	block = MCU_data[0];
 	tbl = cinfo->cur_comp_info[0]->ac_tbl_no;
-
-	/* Section G.1.3.3: Encoding of AC coefficients */
+	// Section G.1.3.3: Encoding of AC coefficients 
 
 	/* Establish EOB (end-of-block) index */
 	ke = cinfo->Se;
@@ -643,7 +639,7 @@ METHODDEF(boolean) encode_mcu_AC_refine(j_compress_ptr cinfo, JBLOCKROW *MCU_dat
 METHODDEF(boolean) encode_mcu(j_compress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	arith_entropy_ptr entropy = (arith_entropy_ptr)cinfo->entropy;
-	const int * natural_order;
+	const uint8 * natural_order; // @sobolev int-->uint8
 	JBLOCKROW block;
 	uchar * st;
 	int tbl, k, ke;

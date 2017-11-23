@@ -241,7 +241,7 @@ static void initial_setup(j_decompress_ptr cinfo)
 		cinfo->natural_order = jpeg_natural_order;
 		cinfo->lim_Se = DCTSIZE2-1;
 	}
-	else
+	else {
 		switch(cinfo->Se) {
 			case (1*1-1):
 			    cinfo->block_size = 1;
@@ -328,7 +328,7 @@ static void initial_setup(j_decompress_ptr cinfo)
 			    cinfo->Ss, cinfo->Se, cinfo->Ah, cinfo->Al);
 			    break;
 		}
-
+	}
 	/* We initialize DCT_scaled_size and min_DCT_scaled_size to block_size.
 	 * In the full decompressor,
 	 * this will be overridden by jpeg_calc_output_dimensions in jdmaster.c;
@@ -337,41 +337,28 @@ static void initial_setup(j_decompress_ptr cinfo)
 	 */
 	cinfo->min_DCT_h_scaled_size = cinfo->block_size;
 	cinfo->min_DCT_v_scaled_size = cinfo->block_size;
-
 	/* Compute dimensions of components */
 	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components;
 	    ci++, compptr++) {
 		compptr->DCT_h_scaled_size = cinfo->block_size;
 		compptr->DCT_v_scaled_size = cinfo->block_size;
 		/* Size in DCT blocks */
-		compptr->width_in_blocks = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * (long)compptr->h_samp_factor,
-		    (long)(cinfo->max_h_samp_factor * cinfo->block_size));
-		compptr->height_in_blocks = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * (long)compptr->v_samp_factor,
-		    (long)(cinfo->max_v_samp_factor * cinfo->block_size));
+		compptr->width_in_blocks = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * (long)compptr->h_samp_factor, (long)(cinfo->max_h_samp_factor * cinfo->block_size));
+		compptr->height_in_blocks = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * (long)compptr->v_samp_factor, (long)(cinfo->max_v_samp_factor * cinfo->block_size));
 		/* downsampled_width and downsampled_height will also be overridden by
 		 * jdmaster.c if we are doing full decompression.  The transcoder library
 		 * doesn't use these values, but the calling application might.
 		 */
 		/* Size in samples */
-		compptr->downsampled_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * (long)compptr->h_samp_factor,
-		    (long)cinfo->max_h_samp_factor);
-		compptr->downsampled_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * (long)compptr->v_samp_factor,
-		    (long)cinfo->max_v_samp_factor);
+		compptr->downsampled_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * (long)compptr->h_samp_factor, (long)cinfo->max_h_samp_factor);
+		compptr->downsampled_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * (long)compptr->v_samp_factor, (long)cinfo->max_v_samp_factor);
 		/* Mark component needed, until color conversion says otherwise */
 		compptr->component_needed = TRUE;
 		/* Mark no quantization table yet saved for component */
 		compptr->quant_table = NULL;
 	}
-
 	/* Compute number of fully interleaved MCU rows. */
-	cinfo->total_iMCU_rows = (JDIMENSION)
-	    jdiv_round_up((long)cinfo->image_height,
-	    (long)(cinfo->max_v_samp_factor * cinfo->block_size));
-
+	cinfo->total_iMCU_rows = (JDIMENSION)jdiv_round_up((long)cinfo->image_height, (long)(cinfo->max_v_samp_factor * cinfo->block_size));
 	/* Decide whether file contains multiple scans */
 	if(cinfo->comps_in_scan < cinfo->num_components || cinfo->progressive_mode)
 		cinfo->inputctl->has_multiple_scans = TRUE;

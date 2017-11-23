@@ -50,15 +50,12 @@ typedef BOOL (WINAPI *GetMonitorInfoSig)(HMONITOR, LPMONITORINFO);
 
 static CRITICAL_SECTION crPlatformLock;
 static HINSTANCE hinstPlatformRes = 0;
-
 static HMODULE hDLLImage = 0;
 static AlphaBlendSig AlphaBlendFn = 0;
-
 static HMODULE hDLLUser32 = 0;
 static HMONITOR (WINAPI * MonitorFromPointFn)(POINT, DWORD) = 0;
 static HMONITOR (WINAPI * MonitorFromRectFn)(LPCRECT, DWORD) = 0;
 static BOOL (WINAPI * GetMonitorInfoFn)(HMONITOR, LPMONITORINFO) = 0;
-
 static HCURSOR reverseArrowCursor = NULL;
 
 #ifdef SCI_NAMESPACE
@@ -95,11 +92,8 @@ bool LoadD2D()
 {
 	static bool triedLoadingD2D = false;
 	if(!triedLoadingD2D) {
-		typedef HRESULT (WINAPI *D2D1CFSig)(D2D1_FACTORY_TYPE factoryType, REFIID riid,
-		    CONST D2D1_FACTORY_OPTIONS * pFactoryOptions, IUnknown ** factory);
-		typedef HRESULT (WINAPI *DWriteCFSig)(DWRITE_FACTORY_TYPE factoryType, REFIID iid,
-		    IUnknown ** factory);
-
+		typedef HRESULT (WINAPI *D2D1CFSig)(D2D1_FACTORY_TYPE factoryType, REFIID riid, CONST D2D1_FACTORY_OPTIONS * pFactoryOptions, IUnknown ** factory);
+		typedef HRESULT (WINAPI *DWriteCFSig)(DWRITE_FACTORY_TYPE factoryType, REFIID iid, IUnknown ** factory);
 		hDLLD2D = ::LoadLibraryEx(TEXT("D2D1.DLL"), 0, 0x00000800 /*LOAD_LIBRARY_SEARCH_SYSTEM32*/);
 		if(hDLLD2D) {
 			D2D1CFSig fnD2DCF = (D2D1CFSig) ::GetProcAddress(hDLLD2D, "D2D1CreateFactory");
@@ -150,15 +144,13 @@ struct FormatAndMetrics {
 	FLOAT yAscent;
 	FLOAT yDescent;
 	FLOAT yInternalLeading;
-	FormatAndMetrics(HFONT hfont_, int extraFontFlag_, int characterSet_) :
-		technology(SCWIN_TECH_GDI), hfont(hfont_),
+	FormatAndMetrics(HFONT hfont_, int extraFontFlag_, int characterSet_) : technology(SCWIN_TECH_GDI), hfont(hfont_),
 #if defined(USE_D2D)
 		pTextFormat(0),
 #endif
 		extraFontFlag(extraFontFlag_), characterSet(characterSet_), yAscent(2), yDescent(1), yInternalLeading(0)
 	{
 	}
-
 #if defined(USE_D2D)
 	FormatAndMetrics(IDWriteTextFormat * pTextFormat_,
 	    int extraFontFlag_,
@@ -182,8 +174,7 @@ struct FormatAndMetrics {
 		if(hfont)
 			::DeleteObject(hfont);
 #if defined(USE_D2D)
-		if(pTextFormat)
-			pTextFormat->Release();
+		CALLPTRMEMB(pTextFormat, Release());
 		pTextFormat = 0;
 #endif
 		extraFontFlag = 0;
@@ -278,30 +269,29 @@ static int HashFont(const FontParameters &fp)
 }
 
 class FontCached : Font {
-	FontCached * next;
-	int usage;
-	float size;
-	LOGFONTW lf;
-	int technology;
-	int hash;
+public:
+	static FontID FindOrCreate(const FontParameters &fp);
+	static void ReleaseId(FontID fid_);
+private:
 	explicit FontCached(const FontParameters &fp);
 	~FontCached()
 	{
 	}
-
 	bool SameAs(const FontParameters &fp);
 	virtual void Release();
 
 	static FontCached * first;
-public:
-	static FontID FindOrCreate(const FontParameters &fp);
-	static void ReleaseId(FontID fid_);
+	FontCached * next;
+	int    usage;
+	float  size;
+	LOGFONTW lf;
+	int    technology;
+	int    hash;
 };
 
 FontCached * FontCached::first = 0;
 
-FontCached::FontCached(const FontParameters &fp) :
-	next(0), usage(0), size(1.0), hash(0)
+FontCached::FontCached(const FontParameters &fp) : next(0), usage(0), size(1.0), hash(0)
 {
 	SetLogFont(lf, fp.faceName, fp.characterSet, fp.size, fp.weight, fp.italic, fp.extraFontFlag);
 	technology = fp.technology;
@@ -800,7 +790,7 @@ void SurfaceGDI::AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fil
 		int width = static_cast<int>(rc.Width());
 		int height = static_cast<int>(rc.Height());
 		// Ensure not distorted too much by corners when small
-		cornerSize = Platform::Minimum(cornerSize, (Platform::Minimum(width, height) / 2) - 2);
+		cornerSize = smin(cornerSize, (smin(width, height) / 2) - 2);
 		BITMAPINFO bpih = {{sizeof(BITMAPINFOHEADER), width, height, 1, 32, BI_RGB, 0, 0, 0, 0, 0}};
 		void * image = 0;
 		HBITMAP hbmMem = CreateDIBSection(hMemDC, &bpih, DIB_RGB_COLORS, &image, NULL, 0);
@@ -956,7 +946,7 @@ XYPOSITION SurfaceGDI::WidthText(Font &font_, const char * s, int len)
 	SetFont(font_);
 	SIZE sz = {0, 0};
 	if(!unicodeMode) {
-		::GetTextExtentPoint32A(hdc, s, Platform::Minimum(len, maxLenText), &sz);
+		::GetTextExtentPoint32A(hdc, s, smin(len, maxLenText), &sz);
 	}
 	else {
 		const TextWide tbuf(s, len, unicodeMode, codePage);
@@ -1364,10 +1354,10 @@ void SurfaceD2D::LineTo(int x_, int y_)
 		if((xDiff == 0) || (yDiff == 0)) {
 			// Horizontal or vertical lines can be more precisely drawn as a filled rectangle
 			int xEnd = x_ - xDelta;
-			int left = Platform::Minimum(x, xEnd);
+			int left = smin(x, xEnd);
 			int width = abs(x - xEnd) + 1;
 			int yEnd = y_ - yDelta;
-			int top = Platform::Minimum(y, yEnd);
+			int top = smin(y, yEnd);
 			int height = abs(y - yEnd) + 1;
 			D2D1_RECT_F rectangle1 = D2D1::RectF(static_cast<float>(left), static_cast<float>(top),
 			    static_cast<float>(left+width), static_cast<float>(top+height));
@@ -2357,7 +2347,7 @@ PRectangle ListBoxX::GetDesiredRect()
 	SelectFont(hdc, oldFont);
 	::ReleaseDC(lb, hdc);
 
-	int widthDesired = Platform::Maximum(textSize.cx, (len + 1) * tm.tmAveCharWidth);
+	int widthDesired = smax(textSize.cx, (len + 1) * tm.tmAveCharWidth);
 	if(width < widthDesired)
 		width = widthDesired;
 
@@ -2574,8 +2564,7 @@ void ListBoxX::SetList(const char * list, char separator, char typesep)
 	for(size_t i = 0; i < size; i++) {
 		if(words[i] == separator) {
 			words[i] = '\0';
-			if(numword)
-				*numword = '\0';
+			ASSIGN_PTR(numword, '\0');
 			AppendListItem(startword, numword);
 			startword = words + i + 1;
 			numword = NULL;
@@ -2585,11 +2574,9 @@ void ListBoxX::SetList(const char * list, char separator, char typesep)
 		}
 	}
 	if(startword) {
-		if(numword)
-			*numword = '\0';
+		ASSIGN_PTR(numword, '\0');
 		AppendListItem(startword, numword);
 	}
-
 	// Finally populate the listbox itself with the correct number of items
 	int count = lti.Count();
 	::SendMessage(lb, LB_INITSTORAGE, count, 0);
@@ -2631,10 +2618,8 @@ POINT ListBoxX::MinTrackSize() const
 
 POINT ListBoxX::MaxTrackSize() const
 {
-	PRectangle rc = PRectangle::FromInts(0, 0,
-	    Platform::Maximum(MinClientWidth(),
-		    maxCharWidth * maxItemCharacters + static_cast<int>(TextInset.x) * 2 +
-		    TextOffset() + ::GetSystemMetrics(SM_CXVSCROLL)),
+	PRectangle rc = PRectangle::FromInts(0, 0, smax(MinClientWidth(),
+		maxCharWidth * maxItemCharacters + static_cast<int>(TextInset.x) * 2 + TextOffset() + ::GetSystemMetrics(SM_CXVSCROLL)),
 	    ItemHeight() * lti.Count());
 	AdjustWindowRect(&rc);
 	POINT ret = {static_cast<LONG>(rc.Width()), static_cast<LONG>(rc.Height())};
@@ -2648,6 +2633,7 @@ void ListBoxX::SetRedraw(bool on)
 		::InvalidateRect(lb, NULL, TRUE);
 }
 
+/*
 static XYPOSITION XYMinimum(XYPOSITION a, XYPOSITION b)
 {
 	if(a < b)
@@ -2663,6 +2649,7 @@ static XYPOSITION XYMaximum(XYPOSITION a, XYPOSITION b)
 	else
 		return b;
 }
+*/
 
 void ListBoxX::ResizeToCursor()
 {
@@ -2672,7 +2659,6 @@ void ListBoxX::ResizeToCursor()
 	Point pt = Point::FromInts(ptw.x, ptw.y);
 	pt.x += dragOffset.x;
 	pt.y += dragOffset.y;
-
 	switch(resizeHit) {
 		case HTLEFT:
 		    rc.left = pt.x;
@@ -2703,15 +2689,19 @@ void ListBoxX::ResizeToCursor()
 		    rc.right = pt.x;
 		    break;
 	}
-
 	POINT ptMin = MinTrackSize();
 	POINT ptMax = MaxTrackSize();
+	//
 	// We don't allow the left edge to move at present, but just in case
-	rc.left = XYMaximum(XYMinimum(rc.left, rcPreSize.right - ptMin.x), rcPreSize.right - ptMax.x);
-	rc.top = XYMaximum(XYMinimum(rc.top, rcPreSize.bottom - ptMin.y), rcPreSize.bottom - ptMax.y);
-	rc.right = XYMaximum(XYMinimum(rc.right, rcPreSize.left + ptMax.x), rcPreSize.left + ptMin.x);
-	rc.bottom = XYMaximum(XYMinimum(rc.bottom, rcPreSize.top + ptMax.y), rcPreSize.top + ptMin.y);
-
+	//
+	//rc.left = XYMaximum(XYMinimum(rc.left, rcPreSize.right - ptMin.x), rcPreSize.right - ptMax.x);
+	//rc.top = XYMaximum(XYMinimum(rc.top, rcPreSize.bottom - ptMin.y), rcPreSize.bottom - ptMax.y);
+	//rc.right = XYMaximum(XYMinimum(rc.right, rcPreSize.left + ptMax.x), rcPreSize.left + ptMin.x);
+	//rc.bottom = XYMaximum(XYMinimum(rc.bottom, rcPreSize.top + ptMax.y), rcPreSize.top + ptMin.y);
+	rc.left = smax(smin(rc.left, rcPreSize.right - ptMin.x), rcPreSize.right - ptMax.x);
+	rc.top = smax(smin(rc.top, rcPreSize.bottom - ptMin.y), rcPreSize.bottom - ptMax.y);
+	rc.right = smax(smin(rc.right, rcPreSize.left + ptMax.x), rcPreSize.left + ptMin.x);
+	rc.bottom = smax(smin(rc.bottom, rcPreSize.top + ptMax.y), rcPreSize.top + ptMin.y);
 	SetPosition(rc);
 }
 
@@ -2720,7 +2710,6 @@ void ListBoxX::StartResize(WPARAM hitCode)
 	rcPreSize = GetPosition();
 	POINT cursorPos;
 	::GetCursorPos(&cursorPos);
-
 	switch(hitCode) {
 		case HTRIGHT:
 		case HTBOTTOM:
@@ -2728,12 +2717,10 @@ void ListBoxX::StartResize(WPARAM hitCode)
 		    dragOffset.x = rcPreSize.right - cursorPos.x;
 		    dragOffset.y = rcPreSize.bottom - cursorPos.y;
 		    break;
-
 		case HTTOPRIGHT:
 		    dragOffset.x = rcPreSize.right - cursorPos.x;
 		    dragOffset.y = rcPreSize.top - cursorPos.y;
 		    break;
-
 		// Note that the current hit test code prevents the left edge cases ever firing
 		// as we don't want the left edge to be moveable
 		case HTLEFT:
@@ -2746,11 +2733,9 @@ void ListBoxX::StartResize(WPARAM hitCode)
 		    dragOffset.x = rcPreSize.left - cursorPos.x;
 		    dragOffset.y = rcPreSize.bottom - cursorPos.y;
 		    break;
-
 		default:
 		    return;
 	}
-
 	::SetCapture(GetHWND());
 	resizeHit = static_cast<int>(hitCode);
 }
@@ -2759,7 +2744,6 @@ LRESULT ListBoxX::NcHitTest(WPARAM wParam, LPARAM lParam) const
 {
 	Window win = *this;     // Copy HWND to avoid const problems
 	const PRectangle rc = win.GetPosition();
-
 	LRESULT hit = ::DefWindowProc(GetHWND(), WM_NCHITTEST, wParam, lParam);
 	// There is an apparent bug in the DefWindowProc hit test code whereby it will
 	// return HTTOPXXX if the window in question is shorter than the default
@@ -2772,7 +2756,6 @@ LRESULT ListBoxX::NcHitTest(WPARAM wParam, LPARAM lParam) const
 			hit += HTBOTTOM - HTTOP;
 		}
 	}
-
 	// Nerver permit resizing that moves the left edge. Allow movement of top or bottom edge
 	// depending on whether the list is above or below the caret
 	switch(hit) {
@@ -2781,7 +2764,6 @@ LRESULT ListBoxX::NcHitTest(WPARAM wParam, LPARAM lParam) const
 		case HTBOTTOMLEFT:
 		    hit = HTERROR;
 		    break;
-
 		case HTTOP:
 		case HTTOPRIGHT: {
 		    // Valid only if caret below list
@@ -2798,15 +2780,13 @@ LRESULT ListBoxX::NcHitTest(WPARAM wParam, LPARAM lParam) const
 	    }
 	    break;
 	}
-
 	return hit;
 }
 
 void ListBoxX::OnDoubleClick()
 {
-	if(doubleClickAction != NULL) {
+	if(doubleClickAction)
 		doubleClickAction(doubleClickActionData);
-	}
 }
 
 POINT ListBoxX::GetClientExtent() const
@@ -2862,48 +2842,41 @@ LRESULT PASCAL ListBoxX::ControlWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 		switch(uMsg) {
 			case WM_ERASEBKGND:
 			    return TRUE;
-
-			case WM_PAINT: {
-			    PAINTSTRUCT ps;
-			    HDC hDC = ::BeginPaint(hWnd, &ps);
-			    ListBoxX * lbx = static_cast<ListBoxX *>(PointerFromWindow(::GetParent(hWnd)));
-			    if(lbx)
-				    lbx->Paint(hDC);
-			    ::EndPaint(hWnd, &ps);
-		    }
+			case WM_PAINT: 
+				{
+					PAINTSTRUCT ps;
+					HDC hDC = ::BeginPaint(hWnd, &ps);
+					ListBoxX * lbx = static_cast<ListBoxX *>(PointerFromWindow(::GetParent(hWnd)));
+					CALLPTRMEMB(lbx, Paint(hDC));
+					::EndPaint(hWnd, &ps);
+				}
 			    return 0;
-
 			case WM_MOUSEACTIVATE:
 			    // This prevents the view activating when the scrollbar is clicked
 			    return MA_NOACTIVATE;
-
-			case WM_LBUTTONDOWN: {
-			    // We must take control of selection to prevent the ListBox activating
-			    // the popup
-			    LRESULT lResult = ::SendMessage(hWnd, LB_ITEMFROMPOINT, 0, lParam);
-			    int item = LOWORD(lResult);
-			    if(HIWORD(lResult) == 0 && item >= 0) {
-				    ::SendMessage(hWnd, LB_SETCURSEL, item, 0);
-			    }
-		    }
+			case WM_LBUTTONDOWN: 
+				{
+					// We must take control of selection to prevent the ListBox activating
+					// the popup
+					LRESULT lResult = ::SendMessage(hWnd, LB_ITEMFROMPOINT, 0, lParam);
+					int item = LOWORD(lResult);
+					if(HIWORD(lResult) == 0 && item >= 0) {
+						::SendMessage(hWnd, LB_SETCURSEL, item, 0);
+					}
+				}
 			    return 0;
-
 			case WM_LBUTTONUP:
 			    return 0;
-
-			case WM_LBUTTONDBLCLK: {
-			    ListBoxX * lbx = static_cast<ListBoxX *>(PointerFromWindow(::GetParent(hWnd)));
-			    if(lbx) {
-				    lbx->OnDoubleClick();
-			    }
-		    }
+			case WM_LBUTTONDBLCLK: 
+				{
+					ListBoxX * lbx = static_cast<ListBoxX *>(PointerFromWindow(::GetParent(hWnd)));
+					CALLPTRMEMB(lbx, OnDoubleClick());
+				}
 			    return 0;
-
 			case WM_MBUTTONDOWN:
 			    // disable the scroll wheel button click action
 			    return 0;
 		}
-
 		WNDPROC prevWndProc = reinterpret_cast<WNDPROC>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 		if(prevWndProc) {
 			return ::CallWindowProc(prevWndProc, hWnd, uMsg, wParam, lParam);
@@ -2919,24 +2892,17 @@ LRESULT PASCAL ListBoxX::ControlWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 LRESULT ListBoxX::WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
 	switch(iMessage) {
-		case WM_CREATE: {
-		    HINSTANCE hinstanceParent = GetWindowInstance(static_cast<HWND>(parent->GetID()));
-		    // Note that LBS_NOINTEGRALHEIGHT is specified to fix cosmetic issue when resizing the list
-		    // but has useful side effect of speeding up list population significantly
-		    lb = ::CreateWindowEx(
-			    0, TEXT("listbox"), TEXT(""),
-			    WS_CHILD | WS_VSCROLL | WS_VISIBLE |
-			    LBS_OWNERDRAWFIXED | LBS_NODATA | LBS_NOINTEGRALHEIGHT,
-			    0, 0, 150, 80, hWnd,
-			    reinterpret_cast<HMENU>(static_cast<ptrdiff_t>(ctrlID)),
-			    hinstanceParent,
-			    0);
-		    WNDPROC prevWndProc =
-			    reinterpret_cast<WNDPROC>(::SetWindowLongPtr(lb, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(ControlWndProc)));
-		    ::SetWindowLongPtr(lb, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(prevWndProc));
-	    }
-	    break;
-
+		case WM_CREATE: 
+			{
+				HINSTANCE hinstanceParent = GetWindowInstance(static_cast<HWND>(parent->GetID()));
+				// Note that LBS_NOINTEGRALHEIGHT is specified to fix cosmetic issue when resizing the list
+				// but has useful side effect of speeding up list population significantly
+				lb = ::CreateWindowEx(0, TEXT("listbox"), TEXT(""), WS_CHILD|WS_VSCROLL|WS_VISIBLE|LBS_OWNERDRAWFIXED|LBS_NODATA|LBS_NOINTEGRALHEIGHT,
+					0, 0, 150, 80, hWnd, reinterpret_cast<HMENU>(static_cast<ptrdiff_t>(ctrlID)), hinstanceParent, 0);
+				WNDPROC prevWndProc = reinterpret_cast<WNDPROC>(::SetWindowLongPtr(lb, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(ControlWndProc)));
+				::SetWindowLongPtr(lb, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(prevWndProc));
+			}
+			break;
 		case WM_SIZE:
 		    if(lb) {
 			    SetRedraw(false);
@@ -2946,69 +2912,59 @@ LRESULT ListBoxX::WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam
 			    SetRedraw(true);
 		    }
 		    break;
-
-		case WM_PAINT: {
-		    PAINTSTRUCT ps;
-		    ::BeginPaint(hWnd, &ps);
-		    ::EndPaint(hWnd, &ps);
-	    }
-	    break;
-
+		case WM_PAINT: 
+			{
+				PAINTSTRUCT ps;
+				::BeginPaint(hWnd, &ps);
+				::EndPaint(hWnd, &ps);
+			}
+			break;
 		case WM_COMMAND:
 		    // This is not actually needed now - the registered double click action is used
 		    // directly to action a choice from the list.
 		    ::SendMessage(static_cast<HWND>(parent->GetID()), iMessage, wParam, lParam);
 		    break;
-
-		case WM_MEASUREITEM: {
-		    MEASUREITEMSTRUCT * pMeasureItem = reinterpret_cast<MEASUREITEMSTRUCT *>(lParam);
-		    pMeasureItem->itemHeight = static_cast<uint>(ItemHeight());
-	    }
-	    break;
-
+		case WM_MEASUREITEM: 
+			{
+				MEASUREITEMSTRUCT * pMeasureItem = reinterpret_cast<MEASUREITEMSTRUCT *>(lParam);
+				pMeasureItem->itemHeight = static_cast<uint>(ItemHeight());
+			}
+			break;
 		case WM_DRAWITEM:
 		    Draw(reinterpret_cast<DRAWITEMSTRUCT *>(lParam));
 		    break;
-
 		case WM_DESTROY:
 		    lb = 0;
 		    ::SetWindowLong(hWnd, 0, 0);
 		    return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
-
 		case WM_ERASEBKGND:
 		    // To reduce flicker we can elide background erasure since this window is
 		    // completely covered by its child.
 		    return TRUE;
-
-		case WM_GETMINMAXINFO: {
-		    MINMAXINFO * minMax = reinterpret_cast<MINMAXINFO*>(lParam);
-		    minMax->ptMaxTrackSize = MaxTrackSize();
-		    minMax->ptMinTrackSize = MinTrackSize();
-	    }
-	    break;
-
+		case WM_GETMINMAXINFO: 
+			{
+				MINMAXINFO * minMax = reinterpret_cast<MINMAXINFO*>(lParam);
+				minMax->ptMaxTrackSize = MaxTrackSize();
+				minMax->ptMinTrackSize = MinTrackSize();
+			}
+			break;
 		case WM_MOUSEACTIVATE:
 		    return MA_NOACTIVATE;
-
 		case WM_NCHITTEST:
 		    return NcHitTest(wParam, lParam);
-
 		case WM_NCLBUTTONDOWN:
 		    // We have to implement our own window resizing because the DefWindowProc
 		    // implementation insists on activating the resized window
 		    StartResize(wParam);
 		    return 0;
-
-		case WM_MOUSEMOVE: {
+		case WM_MOUSEMOVE:
 		    if(resizeHit == 0) {
 			    return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
 		    }
 		    else {
 			    ResizeToCursor();
 		    }
-	    }
-	    break;
-
+		    break;
 		case WM_LBUTTONUP:
 		case WM_CANCELMODE:
 		    if(resizeHit != 0) {
@@ -3016,7 +2972,6 @@ LRESULT ListBoxX::WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam
 			    ::ReleaseCapture();
 		    }
 		    return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
-
 		case WM_MOUSEWHEEL:
 		    wheelDelta -= static_cast<short>(HIWORD(wParam));
 		    if(abs(wheelDelta) >= WHEEL_DELTA) {
@@ -3030,22 +2985,15 @@ LRESULT ListBoxX::WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam
 			    }
 			    linesToScroll *= (wheelDelta / WHEEL_DELTA);
 			    LRESULT top = ::SendMessage(lb, LB_GETTOPINDEX, 0, 0) + linesToScroll;
-			    if(top < 0) {
-				    top = 0;
-			    }
+				SETMAX(top, 0);
 			    ::SendMessage(lb, LB_SETTOPINDEX, top, 0);
 			    // update wheel delta residue
-			    if(wheelDelta >= 0)
-				    wheelDelta = wheelDelta % WHEEL_DELTA;
-			    else
-				    wheelDelta = -(-wheelDelta % WHEEL_DELTA);
+			    wheelDelta = (wheelDelta >= 0) ? (wheelDelta % WHEEL_DELTA) :  -(-wheelDelta % WHEEL_DELTA);
 		    }
 		    break;
-
 		default:
 		    return ::DefWindowProc(hWnd, iMessage, wParam, lParam);
 	}
-
 	return 0;
 }
 
@@ -3141,7 +3089,6 @@ double ElapsedTime::Duration(bool reset)
 	double result;
 	long endBigBit;
 	long endLittleBit;
-
 	if(usePerformanceCounter) {
 		LARGE_INTEGER lEnd;
 		::QueryPerformanceCounter(&lEnd);
@@ -3182,7 +3129,7 @@ public:
 	// Use GetProcAddress to get a pointer to the relevant function.
 	virtual Function FindFunction(const char * name)
 	{
-		if(h != NULL) {
+		if(h) {
 			// C++ standard doesn't like casts between function pointers and void pointers so use a union
 			union {
 				FARPROC fp;
@@ -3266,8 +3213,7 @@ bool Platform::IsDBCSLeadByte(int codePage, char ch)
 	switch(codePage) {
 		case 932:
 		    // Shift_jis
-		    return ((uch >= 0x81) && (uch <= 0x9F)) ||
-			   ((uch >= 0xE0) && (uch <= 0xEF));
+		    return ((uch >= 0x81) && (uch <= 0x9F)) || ((uch >= 0xE0) && (uch <= 0xEF));
 		case 936:
 		    // GBK
 		    return (uch >= 0x81) && (uch <= 0xFE);
@@ -3279,22 +3225,14 @@ bool Platform::IsDBCSLeadByte(int codePage, char ch)
 		    return (uch >= 0x81) && (uch <= 0xFE);
 		case 1361:
 		    // Korean Johab KS C-5601-1992
-		    return
-			    ((uch >= 0x84) && (uch <= 0xD3)) ||
-			    ((uch >= 0xD8) && (uch <= 0xDE)) ||
-			    ((uch >= 0xE0) && (uch <= 0xF9));
+		    return ((uch >= 0x84) && (uch <= 0xD3)) || ((uch >= 0xD8) && (uch <= 0xDE)) || ((uch >= 0xE0) && (uch <= 0xF9));
 	}
 	return false;
 }
 
 int Platform::DBCSCharLength(int codePage, const char * s)
 {
-	if(oneof5(codePage, 932, 936, 949, 950, 1361)) {
-		return Platform::IsDBCSLeadByte(codePage, s[0]) ? 2 : 1;
-	}
-	else {
-		return 1;
-	}
+	return oneof5(codePage, 932, 936, 949, 950, 1361) ? (Platform::IsDBCSLeadByte(codePage, s[0]) ? 2 : 1) :  1;
 }
 
 int Platform::DBCSCharMaxLength()
@@ -3303,7 +3241,7 @@ int Platform::DBCSCharMaxLength()
 }
 
 // These are utility functions not really tied to a platform
-
+/* @sobolev (replaced with smin and smax respectively)
 int Platform::Minimum(int a, int b)
 {
 	if(a < b)
@@ -3319,7 +3257,7 @@ int Platform::Maximum(int a, int b)
 	else
 		return b;
 }
-
+*/
 //#define TRACE
 
 #ifdef TRACE

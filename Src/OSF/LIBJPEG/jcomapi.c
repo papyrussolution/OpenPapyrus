@@ -25,18 +25,15 @@
 GLOBAL(void) jpeg_abort(j_common_ptr cinfo)
 {
 	int pool;
-
 	/* Do nothing if called on a not-initialized or destroyed JPEG object. */
 	if(cinfo->mem == NULL)
 		return;
-
 	/* Releasing pools in reverse order might help avoid fragmentation
 	 * with some (brain-damaged) SAlloc::M libraries.
 	 */
 	for(pool = JPOOL_NUMPOOLS-1; pool > JPOOL_PERMANENT; pool--) {
 		(*cinfo->mem->free_pool)(cinfo, pool);
 	}
-
 	/* Reset overall state for possible reuse of object */
 	if(cinfo->is_decompressor) {
 		cinfo->global_state = DSTATE_START;

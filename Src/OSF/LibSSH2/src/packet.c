@@ -502,7 +502,7 @@ int _libssh2_packet_add(LIBSSH2_SESSION * session, uchar * data,
 
 			case SSH_MSG_GLOBAL_REQUEST:
 			    if(datalen >= 5) {
-				    uint32_t len = 0;
+				    uint32 len = 0;
 				    uchar want_reply = 0;
 				    len = _libssh2_ntohu32(data + 1);
 				    if(datalen >= (6 + len)) {
@@ -564,7 +564,7 @@ libssh2_packet_add_jump_point5:
 			    }
 #ifdef LIBSSH2DEBUG
 			    {
-				    uint32_t stream_id = 0;
+				    uint32 stream_id = 0;
 				    if(msg == SSH_MSG_CHANNEL_EXTENDED_DATA)
 					    stream_id = _libssh2_ntohu32(data + 5);
 
@@ -702,8 +702,8 @@ libssh2_packet_add_jump_point1:
 
 			case SSH_MSG_CHANNEL_REQUEST:
 			    if(datalen >= 9) {
-				    uint32_t channel = _libssh2_ntohu32(data + 1);
-				    uint32_t len = _libssh2_ntohu32(data + 5);
+				    uint32 channel = _libssh2_ntohu32(data + 1);
+				    uint32 len = _libssh2_ntohu32(data + 5);
 				    uchar want_reply = 1;
 
 				    if(len < (datalen - 10))
@@ -742,7 +742,7 @@ libssh2_packet_add_jump_point1:
 
 					    if(channelp) {
 						    /* set signal name (without SIG prefix) */
-						    uint32_t namelen =
+						    uint32 namelen =
 						    _libssh2_ntohu32(data + 9 + sizeof("exit-signal"));
 						    channelp->exit_signal = (char *)LIBSSH2_ALLOC(session, namelen + 1);
 						    if(!channelp->exit_signal)
@@ -848,7 +848,7 @@ libssh2_packet_add_jump_point3:
 			    if(datalen < 9)
 				    ;
 			    else {
-				    uint32_t bytestoadd = _libssh2_ntohu32(data + 5);
+				    uint32 bytestoadd = _libssh2_ntohu32(data + 5);
 				    channelp =
 				    _libssh2_channel_locate(session,
 				    _libssh2_ntohu32(data + 1));

@@ -53,12 +53,6 @@
 #include <libxml/xmlschemas.h>
 #include <libxml/schemasInternals.h>
 #include <libxml/xmlschemastypes.h>
-//#include <libxml/xmlautomata.h>
-//#include <libxml/xmlregexp.h>
-//#include <libxml/dict.h>
-#ifdef LIBXML_PATTERN_ENABLED
-	#include <libxml/pattern.h>
-#endif
 #ifdef LIBXML_READER_ENABLED
 	#include <libxml/xmlreader.h>
 #endif
@@ -3210,7 +3204,7 @@ static void xmlSchemaFreeIDC(xmlSchemaIDCPtr idcDef)
 		xmlSchemaFreeAnnot(idcDef->annot);
 		/* Selector */
 		if(idcDef->selector) {
-			xmlFreePattern((xmlPatternPtr)idcDef->selector->xpathComp);
+			xmlFreePattern((xmlPattern *)idcDef->selector->xpathComp);
 			SAlloc::F(idcDef->selector);
 		}
 		/* Fields */
@@ -3219,7 +3213,7 @@ static void xmlSchemaFreeIDC(xmlSchemaIDCPtr idcDef)
 			do {
 				prev = cur;
 				cur = cur->next;
-				xmlFreePattern((xmlPatternPtr)prev->xpathComp);
+				xmlFreePattern((xmlPattern *)prev->xpathComp);
 				SAlloc::F(prev);
 			} while(cur);
 		}
@@ -18925,7 +18919,7 @@ static int xmlSchemaIDCAddStateObject(xmlSchemaValidCtxtPtr vctxt, xmlSchemaIDCM
 	/*
 	 * Create a new XPath (pattern) validation context.
 	 */
-	sto->xpathCtxt = (void*)xmlPatternGetStreamCtxt((xmlPatternPtr)sel->xpathComp);
+	sto->xpathCtxt = (void*)xmlPatternGetStreamCtxt((xmlPattern *)sel->xpathComp);
 	if(sto->xpathCtxt == NULL) {
 		VERROR_INT("xmlSchemaIDCAddStateObject", "failed to create an XPath validation context");
 		return -1;
@@ -24343,7 +24337,7 @@ static int xmlSchemaValidateStreamLocator(void * ctx, const char ** file, unsign
 		return -1;
 	ASSIGN_PTR(file, NULL);
 	ASSIGN_PTR(line, 0);
-	ctxt = (xmlParserCtxtPtr)ctx;
+	ctxt = (xmlParserCtxt *)ctx;
 	if(ctxt->input) {
 		ASSIGN_PTR(file, ctxt->input->filename);
 		ASSIGN_PTR(line, ctxt->input->line);
@@ -24463,7 +24457,7 @@ int xmlSchemaValidateFile(xmlSchemaValidCtxtPtr ctxt, const char * filename, int
  *
  * Returns the parser context of the schema validation context or NULL in case of error.
  */
-xmlParserCtxtPtr xmlSchemaValidCtxtGetParserCtxt(xmlSchemaValidCtxtPtr ctxt)
+xmlParserCtxt * xmlSchemaValidCtxtGetParserCtxt(xmlSchemaValidCtxtPtr ctxt)
 {
 	return ctxt ? ctxt->parserCtxt : 0;
 }

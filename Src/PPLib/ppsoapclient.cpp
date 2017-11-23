@@ -1140,6 +1140,12 @@ VetisUser::~VetisUser()
 	delete P_BusinessEntity;
 }
 
-VetisApplicationBlock::VetisApplicationBlock() : ApplicationStatus(appstUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME)
+VetisApplicationBlock::VetisApplicationBlock() : ApplicationStatus(appstUndef), Func(detUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME)
 {
+	P_GselReq = 0;
+}
+
+VetisApplicationBlock::~VetisApplicationBlock()
+{
+	delete P_GselReq;
 }

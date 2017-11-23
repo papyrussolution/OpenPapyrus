@@ -609,6 +609,76 @@ int SLAPI InputDateDialog(const char * pTitle, const char * pInputTitle, LDATE *
 	delete dlg;
 	return ok;
 }
+//
+//
+//
+SLAPI DateAddDialogParam::DateAddDialogParam() : BaseDate(ZERODATE), Period(PRD_MONTH), PeriodCount(1), ResultDate(ZERODATE)
+{
+}
+
+int SLAPI DateAddDialogParam::Recalc()
+{
+	if(!checkdate(BaseDate, 0))
+		BaseDate = getcurdate_();
+	LDATE   td = BaseDate;
+	plusperiod(&td, Period, PeriodCount, 0);
+	ResultDate = td;
+	return (ResultDate != BaseDate) ? 1 : -1;
+}
+
+int SLAPI DateAddDialog(DateAddDialogParam * pData)
+{
+	class __DateAddDialog : public TDialog {
+	public:
+		__DateAddDialog() : TDialog(DLG_DATEADD)
+		{
+		}
+		int    setDTS(const DateAddDialogParam * pData)
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			Data.Recalc();
+			SetupStringCombo(this, CTLSEL_DATEADD_PRD, PPTXT_CYCLELIST, Data.Period);
+			setCtrlLong(CTL_DATEADD_PRDCOUNT, Data.PeriodCount);
+			Update();
+			return ok;
+		}
+		int    getDTS(DateAddDialogParam * pData)
+		{
+			int    ok = 1;
+			Data.Period = getCtrlLong(CTLSEL_DATEADD_PRD);
+			Data.PeriodCount = getCtrlLong(CTL_DATEADD_PRDCOUNT);
+			Data.Recalc();
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCbSelected(CTLSEL_DATEADD_PRD)) {
+				Data.Period = getCtrlLong(CTLSEL_DATEADD_PRD);
+				Update();
+				clearEvent(event);
+			}
+			else if(event.isCmd(cmInputUpdated)) {
+				if(event.isCtlEvent(CTL_DATEADD_PRDCOUNT)) {
+					Data.PeriodCount = getCtrlLong(CTL_DATEADD_PRDCOUNT);
+					Update();
+					clearEvent(event);
+				}
+			}
+		}
+		void   Update()
+		{
+			Data.Recalc();
+			setCtrlDate(CTL_DATEADD_SRC, Data.BaseDate);
+			setCtrlDate(CTL_DATEADD_RESULT, Data.ResultDate);
+		}
+		DateAddDialogParam Data;
+	};
+	DIALOG_PROC_BODY(__DateAddDialog, pData);
+}
 
 int SLAPI DateRangeDialog(const char * pTitle, const char * pInputTitle, DateRange * pPeriod)
 {
@@ -1323,10 +1393,8 @@ int FASTCALL ListToListDialog(ListToListData * pData)
 //
 // WLDialog
 //
-WLDialog::WLDialog(uint rezID, uint _wlCtlID) : TDialog(rezID)
+WLDialog::WLDialog(uint rezID, uint _wlCtlID) : TDialog(rezID), wlCtlID(_wlCtlID), wl(0)
 {
-	wlCtlID = _wlCtlID;
-	wl = 0;
 }
 
 void WLDialog::setWL(int s)
@@ -1414,6 +1482,7 @@ int SLAPI SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long 
 		if((p_cb = (ComboBox*)dlg->getCtrlView(ctlID)) != 0) {
 			int    idx = 0;
 			SString line_buf, item_buf, id_buf, txt_buf;
+			SString symbol, drv_name, drv_path;
 			THROW_MEM(p_list = new StrAssocArray());
 			if(str_id && PPLoadText(str_id, line_buf)) {
 				for(idx = 0; PPGetSubStr(line_buf, idx, item_buf) > 0; idx++) {
@@ -1429,7 +1498,6 @@ int SLAPI SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long 
 				list_count = p_list->getCount();
 			}
 			for(int i = (idx + 1); GetStrFromDrvIni(ini_sect_id, i, list_count, line_buf) > 0; i++) {
-				SString symbol, drv_name, drv_path;
 				int    drv_impl = 0;
 				if(PPAbstractDevice::ParseRegEntry(line_buf, symbol, drv_name, drv_path, &drv_impl)) {
 					THROW_SL(p_list->Add((int)i, drv_name.Transf(CTRANSF_OUTER_TO_INNER)));
@@ -1503,7 +1571,6 @@ int FASTCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char 
 	SString line_buf;
 	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, pAddendumList, initID) : 0;
 }
-
 
 /* @v9.5.0 // id = <string offset> + 1
 int SLAPI SetupStringCombo(TDialog * dlg, uint ctlID, StringSet * pSs, long initID, uint flags)
@@ -1644,7 +1711,6 @@ int SLAPI SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 				p_lw->listBox()->addItem(id, txt_buf);
 			}
 		}
-		// @v7.5.4 {
 		{
 			PPObjectTag2 tag_rec;
 			for(SEnum en = PPRef->Enum(PPOBJ_TAG, 0); en.Next(&tag_rec) > 0;) {
@@ -1654,7 +1720,6 @@ int SLAPI SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 				}
 			}
 		}
-		// } @v7.5.4
 		p_cb->setListWindow(p_lw, initID);
 	}
 	CATCHZOK
@@ -1687,34 +1752,22 @@ int SLAPI SetupSubstSCardCombo(TDialog * pDlg, uint ctlID, SubstGrpSCard sgc)
 //
 //
 //
-CycleCtrlGroup::CycleCtrlGroup(uint ctlSelCycle, uint ctlNumCycles, uint ctlPeriod) : CtrlGroup()
+CycleCtrlGroup::CycleCtrlGroup(uint ctlSelCycle, uint ctlNumCycles, uint ctlPeriod) : CtrlGroup(),
+	InpUpdLock(0), P_PrdDialog(0), CtlSelCycle(ctlSelCycle), CtlPdc(0), CtlNumCycles(ctlNumCycles), CtlPeriod(ctlPeriod)
 {
-	InpUpdLock = 0;
-	P_PrdDialog = 0;
-	CtlSelCycle = ctlSelCycle;
-	CtlPdc = 0;
-	CtlNumCycles = ctlNumCycles;
-	CtlPeriod = ctlPeriod;
+
 }
 
-CycleCtrlGroup::CycleCtrlGroup(uint ctlSelCycle, uint ctlPdc, uint ctlNumCycles, uint ctlPeriod) : CtrlGroup()
+CycleCtrlGroup::CycleCtrlGroup(uint ctlSelCycle, uint ctlPdc, uint ctlNumCycles, uint ctlPeriod) : CtrlGroup(),
+	InpUpdLock(0), P_PrdDialog(0), CtlSelCycle(ctlSelCycle), CtlPdc(ctlPdc), CtlNumCycles(ctlNumCycles), CtlPeriod(ctlPeriod)
 {
-	InpUpdLock = 0;
-	P_PrdDialog = 0;
-	CtlSelCycle = ctlSelCycle;
-	CtlPdc = ctlPdc;
-	CtlNumCycles = ctlNumCycles;
-	CtlPeriod = ctlPeriod;
+
 }
 
-CycleCtrlGroup::CycleCtrlGroup(uint ctlSelCycle, uint ctlNumCycles, TDialog * pPeriodDlg, uint ctlPeriod) : CtrlGroup()
+CycleCtrlGroup::CycleCtrlGroup(uint ctlSelCycle, uint ctlNumCycles, TDialog * pPeriodDlg, uint ctlPeriod) : CtrlGroup(),
+	InpUpdLock(0), P_PrdDialog(pPeriodDlg), CtlSelCycle(ctlSelCycle), CtlPdc(0), CtlNumCycles(ctlNumCycles), CtlPeriod(ctlPeriod)
 {
-	InpUpdLock = 0;
-	P_PrdDialog = pPeriodDlg;
-	CtlSelCycle = ctlSelCycle;
-	CtlPdc = 0;
-	CtlNumCycles = ctlNumCycles;
-	CtlPeriod = ctlPeriod;
+
 }
 
 int CycleCtrlGroup::setupCycleCombo(TDialog * pDlg, int cycleID)

@@ -21,16 +21,12 @@
 
 #define MAGIC   0234
 
-CRegExp::CRegExp()
+CRegExp::CRegExp() : ErrCode(SLERR_RE_UNINIT), P_Program(0)
 {
-	ErrCode = SLERR_RE_UNINIT;
-	P_Program = 0;
 }
 
-CRegExp::CRegExp(const char * s)
+CRegExp::CRegExp(const char * s) : ErrCode(SLERR_RE_UNINIT), P_Program(0)
 {
-	ErrCode = SLERR_RE_UNINIT;
-	P_Program = 0;
 	Compile(s);
 }
 
@@ -349,15 +345,15 @@ char * FASTCALL CRegExp::regatom(int * pFlag)
 		int    flags;
 		*pFlag = WORST; // Tentatively.
 		switch(*P_RegParse++) {
-			case '^': 
-				p_ret = regnode(BOL); 
+			case '^':
+				p_ret = regnode(BOL);
 				break;
-			case '$': 
-				p_ret = regnode(EOL); 
+			case '$':
+				p_ret = regnode(EOL);
 				break;
-			case '.': 
-				p_ret = regnode(ANY); 
-				*pFlag |= HASWIDTH | SIMPLE; 
+			case '.':
+				p_ret = regnode(ANY);
+				*pFlag |= HASWIDTH | SIMPLE;
 				break;
 			case '[':
 				if(*P_RegParse == '^') {
@@ -405,13 +401,13 @@ char * FASTCALL CRegExp::regatom(int * pFlag)
 				break;
 			case '\0':
 			case '|':
-			case ')': 
-				ErrCode = SLERR_RE_INTERNAL; 
+			case ')':
+				ErrCode = SLERR_RE_INTERNAL;
 				break;
 			case '?':
 			case '+':
-			case '*': 
-				ErrCode = SLERR_RE_WCNOTHFOLLOWS; 
+			case '*':
+				ErrCode = SLERR_RE_WCNOTHFOLLOWS;
 				break;
 			case '\\':
 				if(*P_RegParse == '\0')

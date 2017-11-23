@@ -304,19 +304,16 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 	uchar * st;
 	int tbl, sign, k;
 	int v, m;
-	const int * natural_order;
-
+	const uint8 * natural_order; // @sobolev int-->uint8
 	/* Process restart marker if needed */
 	if(cinfo->restart_interval) {
 		if(entropy->restarts_to_go == 0)
 			process_restart(cinfo);
 		entropy->restarts_to_go--;
 	}
-
-	if(entropy->ct == -1) return TRUE;  /* if error do nothing */
-
+	if(entropy->ct == -1) 
+		return TRUE;  /* if error do nothing */
 	natural_order = cinfo->natural_order;
-
 	/* There is always only one block per MCU */
 	block = MCU_data[0];
 	tbl = cinfo->cur_comp_info[0]->ac_tbl_no;
@@ -416,19 +413,16 @@ METHODDEF(boolean) decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 	uchar * st;
 	int tbl, k, kex;
 	int p1, m1;
-	const int * natural_order;
-
+	const uint8 * natural_order; // @sobolev int-->uint8
 	/* Process restart marker if needed */
 	if(cinfo->restart_interval) {
 		if(entropy->restarts_to_go == 0)
 			process_restart(cinfo);
 		entropy->restarts_to_go--;
 	}
-
-	if(entropy->ct == -1) return TRUE;  /* if error do nothing */
-
+	if(entropy->ct == -1) 
+		return TRUE;  /* if error do nothing */
 	natural_order = cinfo->natural_order;
-
 	/* There is always only one block per MCU */
 	block = MCU_data[0];
 	tbl = cinfo->cur_comp_info[0]->ac_tbl_no;
@@ -489,19 +483,16 @@ METHODDEF(boolean) decode_mcu(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 	uchar * st;
 	int blkn, ci, tbl, sign, k;
 	int v, m;
-	const int * natural_order;
-
+	const uint8 * natural_order; // @sobolev int-->uint8
 	/* Process restart marker if needed */
 	if(cinfo->restart_interval) {
 		if(entropy->restarts_to_go == 0)
 			process_restart(cinfo);
 		entropy->restarts_to_go--;
 	}
-
-	if(entropy->ct == -1) return TRUE;  /* if error do nothing */
-
+	if(entropy->ct == -1) 
+		return TRUE;  /* if error do nothing */
 	natural_order = cinfo->natural_order;
-
 	/* Outer loop handles each block in the MCU */
 
 	for(blkn = 0; blkn < cinfo->blocks_in_MCU; blkn++) {

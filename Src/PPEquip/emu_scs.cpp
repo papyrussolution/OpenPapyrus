@@ -336,7 +336,8 @@ int SLAPI SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
 			SlipDocCommonParam sdc_param;
 			if(P_SlipFmt) {
 				int      r = 0;
-				SString  line_buf, format_name = (flags & PRNCHK_RETURN) ? "CCheckRet" : "CCheck";
+				SString  line_buf;
+				const SString  format_name = (flags & PRNCHK_RETURN) ? "CCheckRet" : "CCheck";
 				SlipLineParam sl_param;
 				THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 				if(r > 0) {

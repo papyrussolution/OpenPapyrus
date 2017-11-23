@@ -12,6 +12,10 @@
 static const char * p_dow_en_sh[] = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 static const char * p_mon_en_sh[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 static const char * p_dow_en[] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+static const char * p_asciictrl[] = {
+	"NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL", "BS",  "HT", "LF",  "VT",  "FF", "CR", "SO", "SI",
+	"DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB", "CAN", "EM", "SUB", "ESC", "FS", "GS", "RS", "US"
+};
 
 //static
 const char * FASTCALL STextConst::Get(int c, uint idx)
@@ -20,6 +24,7 @@ const char * FASTCALL STextConst::Get(int c, uint idx)
 		case cMon_En_Sh: return (idx >= 0 && idx < SIZEOFARRAY(p_mon_en_sh)) ? p_mon_en_sh[idx] : "";
 		case cDow_En_Sh: return (idx >= 0 && idx < SIZEOFARRAY(p_dow_en_sh)) ? p_dow_en_sh[idx] : "";
 		case cDow_En: return (idx >= 0 && idx < SIZEOFARRAY(p_dow_en)) ? p_dow_en[idx] : "";
+		case cAsciiCtrl: return (idx >= 0 && idx < SIZEOFARRAY(p_asciictrl)) ? p_asciictrl[idx] : "";
 		default: return "";
 	}
 }
@@ -27,23 +32,28 @@ const char * FASTCALL STextConst::Get(int c, uint idx)
 //static
 int FASTCALL STextConst::GetIdx(int c, const char * pText)
 {
-	if(c == cMon_En_Sh) {
-		for(uint i = 0; i < SIZEOFARRAY(p_mon_en_sh); i++) {
-			if(sstreqi_ascii(pText, p_mon_en_sh[i]))
-				return (int)i;
-		}
-	}
-	else if(c == cDow_En_Sh) {
-		for(uint i = 0; i < SIZEOFARRAY(p_dow_en_sh); i++) {
-			if(sstreqi_ascii(pText, p_dow_en_sh[i]))
-				return (int)i;
-		}
-	}
-	else if(c == cDow_En) {
-		for(uint i = 0; i < SIZEOFARRAY(p_dow_en); i++) {
-			if(sstreqi_ascii(pText, p_dow_en[i]))
-				return (int)i;
-		}
+	uint i = 0;
+	switch(c) {
+		case cMon_En_Sh:
+			for(; i < SIZEOFARRAY(p_mon_en_sh); i++)
+				if(sstreqi_ascii(pText, p_mon_en_sh[i]))
+					return (int)i;
+			break;
+		case cDow_En_Sh:
+			for(; i < SIZEOFARRAY(p_dow_en_sh); i++)
+				if(sstreqi_ascii(pText, p_dow_en_sh[i]))
+					return (int)i;
+			break;
+		case cDow_En:
+			for(; i < SIZEOFARRAY(p_dow_en); i++)
+				if(sstreqi_ascii(pText, p_dow_en[i]))
+					return (int)i;
+			break;
+		case cAsciiCtrl:
+			for(; i < SIZEOFARRAY(p_asciictrl); i++)
+				if(sstreqi_ascii(pText, p_asciictrl[i]))
+					return (int)i;
+			break;
 	}
 	return -1;
 }
@@ -2310,7 +2320,7 @@ char * SLAPI alignstr(char * pStr, size_t wd, int adj)
 }
 
 #if 0 // @v9.5.1 {
-int SLAPI getTextHight(Pchar str, int width)
+int SLAPI getTextHight(char * str, int width)
 {
 	char   ch = *str;
 	int    y, i, pi;

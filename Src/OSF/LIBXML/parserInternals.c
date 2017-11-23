@@ -1560,8 +1560,7 @@ void FASTCALL xmlFreeParserCtxt(xmlParserCtxt * ctxt)
  *
  * Returns the xmlParserCtxtPtr or NULL
  */
-
-xmlParserCtxtPtr xmlNewParserCtxt()
+xmlParserCtxt * xmlNewParserCtxt()
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)SAlloc::M(sizeof(xmlParserCtxt));
 	if(!ctxt) {
@@ -1607,12 +1606,12 @@ void xmlClearParserCtxt(xmlParserCtxt * ctxt)
  *
  * Returns an xmlParserNodeInfo block pointer or NULL
  */
-const xmlParserNodeInfo * xmlParserFindNodeInfo(const xmlParserCtxtPtr ctx, const xmlNode * P_Node)
+const xmlParserNodeInfo * xmlParserFindNodeInfo(const xmlParserCtxt * ctx, const xmlNode * P_Node)
 {
-	unsigned long pos;
+	ulong pos;
 	if(!ctx || !P_Node)
 		return 0;
-	/* Find position where node should be at */
+	// Find position where node should be at 
 	pos = xmlParserFindNodeInfoIndex(&ctx->node_seq, P_Node);
 	if(pos < ctx->node_seq.length && ctx->node_seq.buffer[pos].P_Node == P_Node)
 		return &ctx->node_seq.buffer[pos];
@@ -1658,7 +1657,7 @@ void xmlClearNodeInfoSeq(xmlParserNodeInfoSeqPtr seq)
  *
  * Returns a long indicating the position of the record
  */
-unsigned long xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq, const xmlNode * P_Node)
+ulong xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeq * seq, const xmlNode * P_Node)
 {
 	unsigned long upper, lower, middle;
 	int found = 0;

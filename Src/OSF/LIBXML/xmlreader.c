@@ -28,11 +28,9 @@
 	#include <libxml/xinclude.h>
 #endif
 #ifdef LIBXML_PATTERN_ENABLED
-	#include <libxml/pattern.h>
+	//#include <libxml/pattern.h>
 #endif
-
 #define MAX_ERR_MSG_SIZE 64000
-
 /*
  * The following VA_COPY was coded following an example in
  * the Samba project.  It may not be sufficient for some
@@ -161,7 +159,7 @@ struct xmlTextReader {
 #ifdef LIBXML_PATTERN_ENABLED
 	int    patternNr;                  /* number of preserve patterns */
 	int    patternMax;                 /* max preserve patterns */
-	xmlPatternPtr * patternTab; /* array of preserve patterns */
+	xmlPattern ** patternTab; /* array of preserve patterns */
 #endif
 };
 
@@ -3390,11 +3388,11 @@ int xmlTextReaderPreservePattern(xmlTextReader * reader, const xmlChar * pattern
 {
 	int    result = -1;
 	if(reader && pattern) {
-		xmlPatternPtr comp = xmlPatterncompile(pattern, reader->dict, 0, namespaces);
+		xmlPattern * comp = xmlPatterncompile(pattern, reader->dict, 0, namespaces);
 		if(comp) {
 			if(reader->patternMax <= 0) {
 				reader->patternMax = 4;
-				reader->patternTab = (xmlPatternPtr*)SAlloc::M(reader->patternMax * sizeof(reader->patternTab[0]));
+				reader->patternTab = (xmlPattern **)SAlloc::M(reader->patternMax * sizeof(reader->patternTab[0]));
 				if(reader->patternTab == NULL) {
 					xmlGenericError(0, "xmlMalloc failed !\n");
 					return -1;
@@ -3402,7 +3400,7 @@ int xmlTextReaderPreservePattern(xmlTextReader * reader, const xmlChar * pattern
 			}
 			if(reader->patternNr >= reader->patternMax) {
 				reader->patternMax *= 2;
-				xmlPatternPtr * tmp = (xmlPatternPtr*)SAlloc::R(reader->patternTab, reader->patternMax * sizeof(reader->patternTab[0]));
+				xmlPattern ** tmp = (xmlPattern **)SAlloc::R(reader->patternTab, reader->patternMax * sizeof(reader->patternTab[0]));
 				if(!tmp) {
 					xmlGenericError(0, "xmlRealloc failed !\n");
 					reader->patternMax /= 2;
@@ -4029,7 +4027,7 @@ int xmlTextReaderLocatorLineNumber(xmlTextReaderLocatorPtr locator)
 	int ret = -1;
 	if(locator) {
 		// we know that locator is a xmlParserCtxtPtr 
-		xmlParserCtxtPtr ctx = (xmlParserCtxtPtr)locator;
+		xmlParserCtxt * ctx = (xmlParserCtxt *)locator;
 		if(ctx->P_Node) {
 			ret = xmlGetLineNo(ctx->P_Node);
 		}
@@ -4058,7 +4056,7 @@ xmlChar * xmlTextReaderLocatorBaseURI(xmlTextReaderLocatorPtr locator)
 	xmlChar * ret = NULL;
 	if(locator) {
 		// we know that locator is a xmlParserCtxtPtr 
-		xmlParserCtxtPtr ctx = (xmlParserCtxtPtr)locator;
+		xmlParserCtxt * ctx = (xmlParserCtxt *)locator;
 		if(ctx->P_Node) {
 			ret = xmlNodeGetBase(NULL, ctx->P_Node);
 		}
@@ -4075,7 +4073,7 @@ xmlChar * xmlTextReaderLocatorBaseURI(xmlTextReaderLocatorPtr locator)
 
 static void xmlTextReaderGenericError(void * ctxt, xmlParserSeverities severity, char * str)
 {
-	xmlParserCtxtPtr ctx = (xmlParserCtxtPtr)ctxt;
+	xmlParserCtxt * ctx = (xmlParserCtxt *)ctxt;
 	xmlTextReaderPtr reader = (xmlTextReaderPtr)ctx->_private;
 	if(str) {
 		if(reader->errorFunc)
@@ -4086,7 +4084,7 @@ static void xmlTextReaderGenericError(void * ctxt, xmlParserSeverities severity,
 
 static void xmlTextReaderStructuredError(void * ctxt, xmlErrorPtr error)
 {
-	xmlParserCtxtPtr ctx = (xmlParserCtxtPtr)ctxt;
+	xmlParserCtxt * ctx = (xmlParserCtxt *)ctxt;
 	xmlTextReaderPtr reader = (xmlTextReaderPtr)ctx->_private;
 	if(error && reader->sErrorFunc) {
 		reader->sErrorFunc(reader->errorFuncArg, (xmlErrorPtr)error);

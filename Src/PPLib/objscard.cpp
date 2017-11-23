@@ -1101,6 +1101,40 @@ int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int 
 	return ok;
 }
 
+int SLAPI PPObjSCardSeries::Helper_GetChildList(PPID id, PPIDArray & rList, PPIDArray * pStack)
+{
+	int    ok = 1;
+	PPIDArray inner_stack;
+	PPSCardSeries rec;
+	if(Fetch(id, &rec) > 0) {
+		if(rec.GetType() == scstGroup) {
+			SETIFZ(pStack, &inner_stack);
+			if(pStack->addUnique(id) < 0) {
+				PPSetError(PPERR_SCARDSERIESCYCLE, rec.Name);
+				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER);
+				CALLEXCEPT();
+			}
+			else {
+				PPSCardSeries child_rec;
+				for(SEnum en = ref->Enum(Obj, 0); en.Next(&child_rec) > 0;)
+					if(child_rec.ParentID == id)
+						THROW(Helper_GetChildList(child_rec.ID, rList, pStack)); // @recursion
+			}
+		}
+		else
+			rList.addUnique(id);
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPObjSCardSeries::GetChildList(PPID id, PPIDArray & rList)
+{
+	return Helper_GetChildList(id, rList, 0);
+}
+
 SLAPI SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
 {
 }
@@ -1178,9 +1212,9 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			{
 				SCardSeriesFilt scs_filt;
 				scs_filt.Flags = scs_filt.fOnlyGroups;
-				SetupPPObjCombo(this, CTLSEL_SCARDSER_PARENT, PPOBJ_SCARDSERIES, Data.Rec.ParentID, 0, (void *)SCRDSF_GROUP); 
+				SetupPPObjCombo(this, CTLSEL_SCARDSER_PARENT, PPOBJ_SCARDSERIES, Data.Rec.ParentID, 0, &scs_filt);
 			}
-			// } @v9.8.9 
+			// } @v9.8.9
 			AddClusterAssocDef(CTL_SCARDSER_TYPE, 0, scstDiscount);
 			AddClusterAssoc(CTL_SCARDSER_TYPE, 1, scstCredit);
 			AddClusterAssoc(CTL_SCARDSER_TYPE, 2, scstBonus);
@@ -1205,10 +1239,8 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			SetupQuotKind(0);
 			if(!Data.Rec.PersonKindID) {
 				PPSCardConfig sc_cfg;
-				if(PPObjSCardSeries::FetchConfig(&sc_cfg) > 0 && sc_cfg.PersonKindID)
-					Data.Rec.PersonKindID = sc_cfg.PersonKindID;
-				else
-					Data.Rec.PersonKindID = PPPRK_CLIENT;
+				// @v9.8.9 PPPRK_CLIENT-->GetSellPersonKind()
+				Data.Rec.PersonKindID = (PPObjSCardSeries::FetchConfig(&sc_cfg) > 0 && sc_cfg.PersonKindID) ? sc_cfg.PersonKindID : GetSellPersonKind();
 			}
 			SetupPPObjCombo(this, CTLSEL_SCARDSER_PSNKIND,  PPOBJ_PRSNKIND, Data.Rec.PersonKindID, OLW_CANINSERT|OLW_LOADDEFONOPEN, 0);
 			SetupByType(0);
@@ -1602,6 +1634,11 @@ int SLAPI PPObjSCardSeries::Browse(void * extraPtr)
 SLAPI PPObjSCardSeriesListWindow::PPObjSCardSeriesListWindow(PPObject * pObj, uint flags, void * extraPtr) :
 	PPObjListWindow(pObj, flags, extraPtr), CurIterPos(0)
 {
+	if(pObj) {
+		((PPObjSCardSeries*)pObj)->InitFilt(extraPtr, Filt);
+	}
+	ExtraPtr = &Filt;
+
 	DefaultCmd = cmaMore;
 	SetToolbar(TOOLBAR_LIST_SCARDSERIES);
 }
@@ -2667,12 +2704,10 @@ int SLAPI PPObjSCard::GetTurnover(const SCardTbl::Rec & rRec, int alg, const Dat
 	double dbt = 0.0, crd = 0.0;
 	double bill_dbt = 0.0, bill_crd = 0.0;
 	DateRange period;
-	// @v7.5.7 {
 	PPObjSCardSeries scs_obj;
 	PPSCardSeries scs_rec;
 	MEMSZERO(scs_rec);
 	scs_obj.Fetch(rRec.SeriesID, &scs_rec);
-	// } @v7.5.7
 	PROFILE_START
 	if(alg == gtalgDefault) {
 		if(scs_rec.GetType() == scstCredit) {
@@ -3185,8 +3220,8 @@ int SCardDialog::setDTS(const PPSCardPacket * pData, const PPSCardSerPacket * pS
 	AddClusterAssoc(CTL_SCARD_FLAGS, 1, SCRDF_CLOSED);
 	AddClusterAssoc(CTL_SCARD_FLAGS, 2, SCRDF_CLOSEDSRV);
 	AddClusterAssoc(CTL_SCARD_FLAGS, 3, SCRDF_NOGIFT);
-	AddClusterAssoc(CTL_SCARD_FLAGS, 4, SCRDF_NEEDACTIVATION); // @v7.7.2
-	AddClusterAssoc(CTL_SCARD_FLAGS, 5, SCRDF_AUTOACTIVATION); // @v7.7.2
+	AddClusterAssoc(CTL_SCARD_FLAGS, 4, SCRDF_NEEDACTIVATION);
+	AddClusterAssoc(CTL_SCARD_FLAGS, 5, SCRDF_AUTOACTIVATION);
 	SetClusterData(CTL_SCARD_FLAGS, Data.Rec.Flags);
 	setCtrlDate(CTL_SCARD_DATE,   Data.Rec.Dt);
 	setCtrlDate(CTL_SCARD_EXPIRY, Data.Rec.Expiry);
@@ -4090,9 +4125,10 @@ public:
 		long   QuotKindID_s;
 		long   PersonKindID;
 		long   CrdGoodsGrpID;
-		long   BonusGrpID;    // @v7.3.8
-		long   BonusChrgGrpID; // @v7.3.10
-		long   ChargeGoodsID;  // @v7.6.7
+		long   BonusGrpID;
+		long   BonusChrgGrpID;
+		long   ChargeGoodsID;
+		long   ParentID;         // @v9.8.9
 		int16  BonusChrgExtRule; // @v8.2.10
 		int16  Reserve;          // @v8.2.10
 	};
@@ -4120,6 +4156,7 @@ int SLAPI SCardSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		CPY_FLD(BonusChrgGrpID);
 		CPY_FLD(ChargeGoodsID);
 		CPY_FLD(BonusChrgExtRule); // @v8.2.10
+		CPY_FLD(ParentID); // @v9.8.9
 #undef CPY_FLD
 		StringSet ss("/&");
 		ss.add(rec.Name);
@@ -4150,6 +4187,7 @@ void SLAPI SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pD
 	CPY_FLD(BonusChrgGrpID);
 	CPY_FLD(ChargeGoodsID);
 	CPY_FLD(BonusChrgExtRule); // @v8.2.10
+	CPY_FLD(ParentID); // @v9.8.9
 #undef CPY_FLD
 	char   temp_buf[1024];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));

@@ -366,9 +366,6 @@
     <ClCompile Include="..\OSF\scintilla\src\ContractionState.cxx" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\OSF\scintilla\win32\HanjaDic.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Osf\scintilla\include\ILexer.h">
       <Filter>Header</Filter>
     </ClInclude>

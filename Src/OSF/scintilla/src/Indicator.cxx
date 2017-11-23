@@ -56,7 +56,7 @@ void Indicator::Draw(Surface * surface,
 	}
 	else if(sacDraw.style == INDIC_SQUIGGLEPIXMAP) {
 		PRectangle rcSquiggle = PixelGridAlign(rc);
-		int width = Platform::Minimum(4000, static_cast<int>(rcSquiggle.Width()));
+		int width = smin(4000, static_cast<int>(rcSquiggle.Width()));
 		RGBAImage image(width, 3, 1.0, 0);
 		enum { 
 			alphaFull = 0xff, 
@@ -135,23 +135,20 @@ void Indicator::Draw(Surface * surface,
 		surface->LineTo(static_cast<int>(rc.left), static_cast<int>(rcLine.top) + 1);
 		surface->LineTo(static_cast<int>(rc.left), ymid + 1);
 	}
-	else if(sacDraw.style == INDIC_ROUNDBOX ||
-	    sacDraw.style == INDIC_STRAIGHTBOX ||
-	    sacDraw.style == INDIC_FULLBOX) {
+	else if(sacDraw.style == INDIC_ROUNDBOX || sacDraw.style == INDIC_STRAIGHTBOX || sacDraw.style == INDIC_FULLBOX) {
 		PRectangle rcBox = rcLine;
 		if(sacDraw.style != INDIC_FULLBOX)
 			rcBox.top = rcLine.top + 1;
 		rcBox.left = rc.left;
 		rcBox.right = rc.right;
-		surface->AlphaRectangle(rcBox, (sacDraw.style == INDIC_ROUNDBOX) ? 1 : 0,
-		    sacDraw.fore, fillAlpha, sacDraw.fore, outlineAlpha, 0);
+		surface->AlphaRectangle(rcBox, (sacDraw.style == INDIC_ROUNDBOX) ? 1 : 0, sacDraw.fore, fillAlpha, sacDraw.fore, outlineAlpha, 0);
 	}
 	else if(sacDraw.style == INDIC_DOTBOX) {
 		PRectangle rcBox = PixelGridAlign(rc);
 		rcBox.top = rcLine.top + 1;
 		rcBox.bottom = rcLine.bottom;
 		// Cap width at 4000 to avoid large allocations when mistakes made
-		int width = Platform::Minimum(static_cast<int>(rcBox.Width()), 4000);
+		int width = smin(static_cast<int>(rcBox.Width()), 4000);
 		RGBAImage image(width, static_cast<int>(rcBox.Height()), 1.0, 0);
 		// Draw horizontal lines top and bottom
 		for(int x = 0; x<width; x++) {
@@ -171,7 +168,7 @@ void Indicator::Draw(Surface * surface,
 		int x = static_cast<int>(rc.left);
 		while(x < rc.right) {
 			surface->MoveTo(x, ymid);
-			surface->LineTo(Platform::Minimum(x + 4, static_cast<int>(rc.right)), ymid);
+			surface->LineTo(smin(x + 4, static_cast<int>(rc.right)), ymid);
 			x += 7;
 		}
 	}

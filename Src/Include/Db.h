@@ -5,7 +5,7 @@
 #ifndef __DB_H
 #define __DB_H
 
-#include <stddef.h>
+//#include <stddef.h>
 #include <slib.h>
 #include <sxml.h>
 #include <dboci.h>
@@ -3099,10 +3099,8 @@ extern DbSession DBS;
 //
 #define BTRV BTRCALL
 #if defined(__WIN32__) || defined(_WIN32)
-	typedef int (FAR __stdcall * BtrCallProc)
-		(int OP, char * POS_BLK, char * DATA_BUF, uint16 * DATA_LEN, char * KEY_BUF, int KEY_LEN, int KEY_NUM);
-	typedef int (FAR __stdcall * BtrCallProcID)
-		(int OP, char * POS_BLK, char * DATA_BUF, uint16 * DATA_LEN, char * KEY_BUF, int KEY_LEN, int KEY_NUM, void * pCliID);
+	typedef int (__stdcall * BtrCallProc)(int OP, char * POS_BLK, char * DATA_BUF, uint16 * DATA_LEN, char * KEY_BUF, int KEY_LEN, int KEY_NUM);
+	typedef int (__stdcall * BtrCallProcID)(int OP, char * POS_BLK, char * DATA_BUF, uint16 * DATA_LEN, char * KEY_BUF, int KEY_LEN, int KEY_NUM, void * pCliID);
 
 	extern BtrCallProc   _BtrCall;
 	extern BtrCallProcID _BtrCallID;
@@ -3111,10 +3109,10 @@ extern DbSession DBS;
 	FORCEINLINE int BTRCALL(int OP, char * POS_BLK, char * DATA_BUF, uint16 * DATA_LEN, char * KEY_BUF, int KEY_LEN, int KEY_NUM)
 		{ return _BtrCallID(OP, POS_BLK, DATA_BUF, DATA_LEN, KEY_BUF, KEY_LEN, KEY_NUM, &DBS.GetTLA().ClientID); }
 #elif defined(_Windows)
-	int SLAPI BTRCALL(int,char far*,char far*,uint16 far*,char far*,int,int);
+	int SLAPI BTRCALL(int,char *,char far*,uint16 far*,char far*,int,int);
 #else
-	int SLAPI BTRCALL(int,char far*,char far*,uint16 far*,char far*,int);
-	int SLAPI BTRCALLID(int,char far*,char far*,uint16 far*,char far*,int,char far*);
+	int SLAPI BTRCALL(int, char *, char *, uint16 *, char *, int);
+	int SLAPI BTRCALLID(int,char *,char *, uint16 *, char *, int, char *);
 #endif
 //
 // DBQuery

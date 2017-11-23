@@ -143,15 +143,13 @@ XMLPUBFUN int XMLCALL xmlSchemaGetValidErrors(xmlSchemaValidCtxtPtr ctxt, xmlSch
 XMLPUBFUN int XMLCALL xmlSchemaSetValidOptions(xmlSchemaValidCtxtPtr ctxt, int options);
 XMLPUBFUN void XMLCALL xmlSchemaValidateSetFilename(xmlSchemaValidCtxtPtr vctxt, const char * filename);
 XMLPUBFUN int XMLCALL xmlSchemaValidCtxtGetOptions(xmlSchemaValidCtxtPtr ctxt);
-
 XMLPUBFUN xmlSchemaValidCtxtPtr XMLCALL xmlSchemaNewValidCtxt(xmlSchemaPtr schema);
 XMLPUBFUN void XMLCALL xmlSchemaFreeValidCtxt(xmlSchemaValidCtxtPtr ctxt);
 XMLPUBFUN int XMLCALL xmlSchemaValidateDoc(xmlSchemaValidCtxtPtr ctxt, xmlDocPtr instance);
 XMLPUBFUN int XMLCALL xmlSchemaValidateOneElement(xmlSchemaValidCtxtPtr ctxt, xmlNodePtr elem);
 XMLPUBFUN int XMLCALL xmlSchemaValidateStream(xmlSchemaValidCtxtPtr ctxt, xmlParserInputBufferPtr input, xmlCharEncoding enc, xmlSAXHandlerPtr sax, void * user_data);
 XMLPUBFUN int XMLCALL xmlSchemaValidateFile(xmlSchemaValidCtxtPtr ctxt, const char * filename, int options);
-
-XMLPUBFUN xmlParserCtxtPtr XMLCALL xmlSchemaValidCtxtGetParserCtxt(xmlSchemaValidCtxtPtr ctxt);
+XMLPUBFUN xmlParserCtxt * XMLCALL xmlSchemaValidCtxtGetParserCtxt(xmlSchemaValidCtxtPtr ctxt);
 /*
  * Interface to insert Schemas SAX validation in a SAX stream
  */

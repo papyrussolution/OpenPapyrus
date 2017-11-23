@@ -26,7 +26,7 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#include <libxml/pattern.h>
+//#include <libxml/pattern.h>
 
 #ifdef LIBXML_PATTERN_ENABLED
 
@@ -146,10 +146,10 @@ typedef xmlStepOp * xmlStepOpPtr;
 #define PAT_FROM_ROOT   (1<<8)
 #define PAT_FROM_CUR    (1<<9)
 
-struct _xmlPattern {
+struct xmlPattern {
 	void * data;    /* the associated template */
 	xmlDict * dict;        /* the optional dictionary */
-	struct _xmlPattern * next; /* next pattern if | is used */
+	xmlPattern * next; /* next pattern if | is used */
 	const xmlChar * pattern; /* the pattern */
 	int flags;              /* flags */
 	int nbStep;
@@ -163,7 +163,7 @@ struct xmlPatParserContext {
 	const xmlChar * base;           /* the full expression */
 	int error;                      /* error code */
 	xmlDict * dict;                /* the dictionary if any */
-	xmlPatternPtr comp;             /* the result */
+	xmlPattern * comp;             /* the result */
 	xmlNode * elem;                /* the current node if any */
 	const xmlChar ** namespaces;    /* the namespaces definitions */
 	int nb_namespaces;              /* the number of namespaces */
@@ -185,9 +185,9 @@ typedef xmlPatParserContext * xmlPatParserContextPtr;
  *
  * Returns the newly allocated xmlPatternPtr or NULL in case of error
  */
-static xmlPatternPtr xmlNewPattern()
+static xmlPattern * xmlNewPattern()
 {
-	xmlPatternPtr cur = (xmlPatternPtr)SAlloc::M(sizeof(xmlPattern));
+	xmlPattern * cur = (xmlPattern *)SAlloc::M(sizeof(xmlPattern));
 	if(!cur) {
 		ERROR(0, 0, 0, "xmlNewPattern : malloc failed\n");
 	}
@@ -321,7 +321,7 @@ static void xmlFreePatParserContext(xmlPatParserContextPtr ctxt)
  *
  * Returns -1 in case of failure, 0 otherwise.
  */
-static int xmlPatternAdd(xmlPatParserContextPtr ctxt ATTRIBUTE_UNUSED, xmlPatternPtr comp, xmlPatOp op, xmlChar * value, xmlChar * value2)
+static int xmlPatternAdd(xmlPatParserContextPtr ctxt ATTRIBUTE_UNUSED, xmlPattern * comp, xmlPatOp op, xmlChar * value, xmlChar * value2)
 {
 	if(comp->nbStep >= comp->maxStep) {
 		xmlStepOp * temp = (xmlStepOp *)SAlloc::R(comp->steps, comp->maxStep * 2 * sizeof(xmlStepOp));
@@ -346,7 +346,7 @@ static int xmlPatternAdd(xmlPatParserContextPtr ctxt ATTRIBUTE_UNUSED, xmlPatter
  *
  * reverse the two top steps.
  */
-static void xsltSwapTopPattern(xmlPatternPtr comp)
+static void xsltSwapTopPattern(xmlPattern * comp)
 {
 	int j = comp->nbStep - 1;
 	if(j > 0) {
@@ -374,7 +374,7 @@ static void xsltSwapTopPattern(xmlPatternPtr comp)
  *
  * returns 0 in case of success and -1 in case of error.
  */
-static int xmlReversePattern(xmlPatternPtr comp)
+static int xmlReversePattern(xmlPattern * comp)
 {
 	int i, j;
 	/*
@@ -456,7 +456,7 @@ static int xmlPatPushState(xmlStepStates * states, int step, xmlNode * P_Node)
  *
  * Returns 1 if it matches, 0 if it doesn't and -1 in case of failure
  */
-static int xmlPatMatch(xmlPatternPtr comp, xmlNode * P_Node)
+static int xmlPatMatch(xmlPattern * comp, xmlNode * P_Node)
 {
 	int i;
 	xmlStepOpPtr step;
@@ -1437,7 +1437,7 @@ static int xmlStreamCompAddStep(xmlStreamCompPtr comp, const xmlChar * name, con
  *
  * Returns -1 in case of failure and 0 in case of success.
  */
-static int xmlStreamCompile(xmlPatternPtr comp)
+static int xmlStreamCompile(xmlPattern * comp)
 {
 	xmlStreamCompPtr stream;
 	int i, s = 0, root = 0, flags = 0, prevs = -1;
@@ -2166,9 +2166,10 @@ int xmlStreamWantsAnyNode(xmlStreamCtxtPtr streamCtxt)
  *
  * Returns the compiled form of the pattern or NULL in case of error
  */
-xmlPatternPtr xmlPatterncompile(const xmlChar * pattern, xmlDict * dict, int flags, const xmlChar ** namespaces)
+xmlPattern * xmlPatterncompile(const xmlChar * pattern, xmlDict * dict, int flags, const xmlChar ** namespaces)
 {
-	xmlPatternPtr ret = NULL, cur;
+	xmlPattern * ret = NULL;
+	xmlPattern * cur;
 	xmlPatParserContextPtr ctxt = NULL;
 	const xmlChar * or, * start;
 	xmlChar * tmp = NULL;
@@ -2261,7 +2262,7 @@ error:
  *
  * Returns 1 if it matches, 0 if it doesn't and -1 in case of failure
  */
-int xmlPatternMatch(xmlPatternPtr comp, xmlNode * P_Node)
+int xmlPatternMatch(xmlPattern * comp, xmlNode * P_Node)
 {
 	int ret = 0;
 	if(!comp || !P_Node)
@@ -2285,7 +2286,7 @@ int xmlPatternMatch(xmlPatternPtr comp, xmlNode * P_Node)
  *
  * Returns a pointer to the context or NULL in case of failure
  */
-xmlStreamCtxtPtr xmlPatternGetStreamCtxt(xmlPatternPtr comp)
+xmlStreamCtxtPtr xmlPatternGetStreamCtxt(xmlPattern * comp)
 {
 	xmlStreamCtxtPtr ret = NULL, cur;
 	if((comp == NULL) || (comp->stream == NULL))
@@ -2320,7 +2321,7 @@ failed:
  *
  * Returns 1 if streamable, 0 if not and -1 in case of error.
  */
-int xmlPatternStreamable(xmlPatternPtr comp)
+int xmlPatternStreamable(xmlPattern * comp)
 {
 	if(comp == NULL)
 		return -1;
@@ -2343,7 +2344,7 @@ int xmlPatternStreamable(xmlPatternPtr comp)
  * Returns -2 if no limit (using //), otherwise the depth,
  *         and -1 in case of error
  */
-int xmlPatternMaxDepth(xmlPatternPtr comp)
+int xmlPatternMaxDepth(xmlPattern * comp)
 {
 	int ret = 0, i;
 	if(comp == NULL)
@@ -2360,7 +2361,6 @@ int xmlPatternMaxDepth(xmlPatternPtr comp)
 	}
 	return ret;
 }
-
 /**
  * xmlPatternMinDepth:
  * @comp: the precompiled pattern
@@ -2371,12 +2371,12 @@ int xmlPatternMaxDepth(xmlPatternPtr comp)
  * Returns -1 in case of error otherwise the depth,
  *
  */
-int xmlPatternMinDepth(xmlPatternPtr comp)
+int xmlPatternMinDepth(xmlPattern * comp)
 {
 	int ret = 12345678;
 	if(comp == NULL)
 		return -1;
-	while(comp != NULL) {
+	while(comp) {
 		if(comp->stream == NULL)
 			return -1;
 		if(comp->stream->nbStep < ret)
@@ -2395,7 +2395,7 @@ int xmlPatternMinDepth(xmlPatternPtr comp)
  *
  * Returns 1 if true, 0 if false and -1 in case of error
  */
-int xmlPatternFromRoot(xmlPatternPtr comp)
+int xmlPatternFromRoot(xmlPattern * comp)
 {
 	if(comp == NULL)
 		return -1;

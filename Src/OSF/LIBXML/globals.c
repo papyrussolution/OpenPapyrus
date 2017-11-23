@@ -121,10 +121,6 @@ void xmlCleanupGlobals()
 	xmlStrdupFunc xmlMemStrdup_Removed = (xmlStrdupFunc)xmlStrdup_Removed;
 #endif /* DEBUG_MEMORY_LOCATION || DEBUG_MEMORY */
 
-//#include <libxml/threads.h>
-//#include <libxml/globals.h>
-//#include <libxml/SAX.h>
-
 #undef  docbDefaultSAXHandler
 #undef  htmlDefaultSAXHandler
 #undef  oldXMLWDcompatibility

@@ -2024,6 +2024,7 @@ table TempSCard {
 	//
 	// End SCard fields
 	//
+	/* @v9.8.9
 	string Phone[48];      //
 	string Address[252];   //
 	string ZIP[12];
@@ -2033,6 +2034,18 @@ table TempSCard {
 	string House[48];
 	string Apart[32];
 	string AddrAddend[64];
+	*/
+	// @v9.8.9 {
+	uint   PhoneP;
+	uint   AddressP;
+	uint   ZipP;
+	uint   LocalAreaP;
+	uint   CityP;
+	uint   StreetP;
+	uint   HouseP;
+	uint   ApartP;
+	uint   AddrAddendP;
+	// } @v9.8.9
 index:
 	ID (unique);                  // #0
 	Code, SeriesID (unique mod);  // #1

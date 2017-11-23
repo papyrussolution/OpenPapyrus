@@ -164,9 +164,9 @@ zip_extra_field_t * _zip_ef_new(uint16 id, uint16 size, const uint8 * data, zip_
 
 bool _zip_ef_parse(const uint8 * data, uint16 len, zip_flags_t flags, zip_extra_field_t ** ef_head_p, zip_error_t * error)
 {
-	zip_buffer_t * buffer;
 	zip_extra_field_t * ef2;
-	if((buffer = _zip_buffer_new((uint8*)data, len)) == NULL) {
+	zip_buffer_t * buffer = _zip_buffer_new((uint8*)data, len);
+	if(!buffer) {
 		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
 		return false;
 	}

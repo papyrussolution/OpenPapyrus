@@ -48,26 +48,20 @@ static void add_map_entry(j_decompress_ptr cinfo, int R, int G, int B)
 	JSAMPROW colormap2 = cinfo->colormap[2];
 	int ncolors = cinfo->actual_number_of_colors;
 	int index;
-
 	/* Check for duplicate color. */
 	for(index = 0; index < ncolors; index++) {
-		if(GETJSAMPLE(colormap0[index]) == R &&
-		    GETJSAMPLE(colormap1[index]) == G &&
-		    GETJSAMPLE(colormap2[index]) == B)
+		if(GETJSAMPLE(colormap0[index]) == R && GETJSAMPLE(colormap1[index]) == G && GETJSAMPLE(colormap2[index]) == B)
 			return;  /* color is already in map */
 	}
-
 	/* Check for map overflow. */
 	if(ncolors >= (MAXJSAMPLE+1))
 		ERREXIT1(cinfo, JERR_QUANT_MANY_COLORS, (MAXJSAMPLE+1));
-
 	/* OK, add color to map. */
 	colormap0[ncolors] = (JSAMPLE)R;
 	colormap1[ncolors] = (JSAMPLE)G;
 	colormap2[ncolors] = (JSAMPLE)B;
 	cinfo->actual_number_of_colors++;
 }
-
 /*
  * Extract color map from a GIF file.
  */
@@ -76,35 +70,27 @@ static void read_gif_map(j_decompress_ptr cinfo, FILE * infile)
 	int header[13];
 	int i, colormaplen;
 	int R, G, B;
-
 	/* Initial 'G' has already been read by read_color_map */
 	/* Read the rest of the GIF header and logical screen descriptor */
 	for(i = 1; i < 13; i++) {
 		if((header[i] = getc(infile)) == EOF)
 			ERREXIT(cinfo, JERR_BAD_CMAP_FILE);
 	}
-
 	/* Verify GIF Header */
 	if(header[1] != 'I' || header[2] != 'F')
 		ERREXIT(cinfo, JERR_BAD_CMAP_FILE);
-
 	/* There must be a global color map. */
 	if((header[10] & 0x80) == 0)
 		ERREXIT(cinfo, JERR_BAD_CMAP_FILE);
-
 	/* OK, fetch it. */
 	colormaplen = 2 << (header[10] & 0x07);
-
 	for(i = 0; i < colormaplen; i++) {
 		R = getc(infile);
 		G = getc(infile);
 		B = getc(infile);
 		if(R == EOF || G == EOF || B == EOF)
 			ERREXIT(cinfo, JERR_BAD_CMAP_FILE);
-		add_map_entry(cinfo,
-		    R << (BITS_IN_JSAMPLE-8),
-		    G << (BITS_IN_JSAMPLE-8),
-		    B << (BITS_IN_JSAMPLE-8));
+		add_map_entry(cinfo, R << (BITS_IN_JSAMPLE-8), G << (BITS_IN_JSAMPLE-8), B << (BITS_IN_JSAMPLE-8));
 	}
 }
 
@@ -129,19 +115,16 @@ LOCAL(uint) read_pbm_integer(j_decompress_ptr cinfo, FILE * infile)
 /* Note that on a 16-bit-int machine, only values up to 64k can be read. */
 /* This should not be a problem in practice. */
 {
-	register int ch;
-	register uint val;
-
+	int ch;
+	uint val;
 	/* Skip any leading whitespace */
 	do {
 		ch = pbm_getc(infile);
 		if(ch == EOF)
 			ERREXIT(cinfo, JERR_BAD_CMAP_FILE);
 	} while(ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r');
-
 	if(ch < '0' || ch > '9')
 		ERREXIT(cinfo, JERR_BAD_CMAP_FILE);
-
 	val = ch - '0';
 	while((ch = pbm_getc(infile)) >= '0' && ch <= '9') {
 		val *= 10;
@@ -149,31 +132,24 @@ LOCAL(uint) read_pbm_integer(j_decompress_ptr cinfo, FILE * infile)
 	}
 	return val;
 }
-
 /*
  * Extract color map from a PPM file.
  */
 static void read_ppm_map(j_decompress_ptr cinfo, FILE * infile)
 {
-	int c;
-	uint w, h, maxval, row, col;
+	uint row, col;
 	int R, G, B;
-
 	/* Initial 'P' has already been read by read_color_map */
-	c = getc(infile);       /* save format discriminator for a sec */
-
+	int c = getc(infile);       /* save format discriminator for a sec */
 	/* while we fetch the remaining header info */
-	w = read_pbm_integer(cinfo, infile);
-	h = read_pbm_integer(cinfo, infile);
-	maxval = read_pbm_integer(cinfo, infile);
-
+	uint w = read_pbm_integer(cinfo, infile);
+	uint h = read_pbm_integer(cinfo, infile);
+	uint maxval = read_pbm_integer(cinfo, infile);
 	if(w <= 0 || h <= 0 || maxval <= 0) /* error check */
 		ERREXIT(cinfo, JERR_BAD_CMAP_FILE);
-
 	/* For now, we don't support rescaling from an unusual maxval. */
 	if(maxval != (uint)MAXJSAMPLE)
 		ERREXIT(cinfo, JERR_BAD_CMAP_FILE);
-
 	switch(c) {
 		case '3':       /* it's a text-format PPM file */
 		    for(row = 0; row < h; row++) {
@@ -185,7 +161,6 @@ static void read_ppm_map(j_decompress_ptr cinfo, FILE * infile)
 			    }
 		    }
 		    break;
-
 		case '6':       /* it's a raw-format PPM file */
 		    for(row = 0; row < h; row++) {
 			    for(col = 0; col < w; col++) {

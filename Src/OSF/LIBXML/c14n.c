@@ -15,8 +15,8 @@
 
 #ifdef LIBXML_C14N_ENABLED
 #ifdef LIBXML_OUTPUT_ENABLED
-#include <libxml/xpathInternals.h>
-#include <libxml/c14n.h>
+//#include <libxml/xpathInternals.h>
+//#include <libxml/c14n.h>
 
 /************************************************************************
 *									*

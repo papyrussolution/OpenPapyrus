@@ -22,7 +22,6 @@
 #ifdef HAVE_ZLIB_H
 	#include <zlib.h>
 #endif
-#include <libxml/xlink.h>
 
 #define XLINK_NAMESPACE (BAD_CAST "http://www.w3.org/1999/xlink/namespace/")
 #define XHTML_NAMESPACE (BAD_CAST "http://www.w3.org/1999/xhtml/")
@@ -35,7 +34,6 @@
 
 static xlinkHandlerPtr xlinkDefaultHandler = NULL;
 static xlinkNodeDetectFunc xlinkDefaultDetect = NULL;
-
 /**
  * xlinkGetDefaultHandler:
  *

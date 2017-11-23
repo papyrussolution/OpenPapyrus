@@ -131,10 +131,8 @@ void Editor::SelectionText::FixSelectionForClipboard()
 //
 //
 //
-Editor::WrapPending::WrapPending()
+Editor::WrapPending::WrapPending() : start(lineLarge), end(lineLarge)
 {
-	start = lineLarge;
-	end = lineLarge;
 }
 
 void Editor::WrapPending::Reset()
@@ -151,7 +149,7 @@ void FASTCALL Editor::WrapPending::Wrapped(int line)
 
 bool Editor::WrapPending::NeedsWrap() const
 {
-	return start < end;
+	return (start < end);
 }
 
 bool Editor::WrapPending::AddRange(int lineStart, int lineEnd)
@@ -286,17 +284,28 @@ void Editor::Finalise()
 void Editor::SetRepresentations()
 {
 	reprs.Clear();
+	/* @sobolev
 	// C0 control set
 	const char * reps[] = {
-		"NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL",
-		"BS", "HT", "LF", "VT", "FF", "CR", "SO", "SI",
-		"DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB",
-		"CAN", "EM", "SUB", "ESC", "FS", "GS", "RS", "US"
+		"NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL", "BS",  "HT", "LF",  "VT",  "FF", "CR", "SO", "SI",
+		"DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB", "CAN", "EM", "SUB", "ESC", "FS", "GS", "RS", "US"
 	};
 	for(size_t j = 0; j < SIZEOFARRAY(reps); j++) {
 		char c[2] = { static_cast<char>(j), 0 };
 		reprs.SetRepresentation(c, reps[j]);
 	}
+	*/
+	// @sobolev {
+	{
+		for(size_t j = 0; j < 32; j++) {
+			const char * p_rep = STextConst::Get(STextConst::cAsciiCtrl, j);
+			if(!isempty(p_rep)) {
+				char c[2] = { static_cast<char>(j), 0 };
+				reprs.SetRepresentation(c, p_rep);
+			}
+		}
+	}
+	// } @sobolev 
 	// C1 control set
 	// As well as Unicode mode, ISO-8859-1 should use these
 	if(IsUnicodeMode()) {
@@ -706,16 +715,16 @@ void Editor::InvalidateSelection(SelectionRange newMain, bool invalidateWholeSel
 	if(sel.Count() > 1 || !(sel.RangeMain().anchor == newMain.anchor) || sel.IsRectangular()) {
 		invalidateWholeSelection = true;
 	}
-	int firstAffected = Platform::Minimum(sel.RangeMain().Start().Position(), newMain.Start().Position());
+	int firstAffected = smin(sel.RangeMain().Start().Position(), newMain.Start().Position());
 	// +1 for lastAffected ensures caret repainted
-	int lastAffected = Platform::Maximum(newMain.caret.Position()+1, newMain.anchor.Position());
-	lastAffected = Platform::Maximum(lastAffected, sel.RangeMain().End().Position());
+	int lastAffected = smax(newMain.caret.Position()+1, newMain.anchor.Position());
+	lastAffected = smax(lastAffected, sel.RangeMain().End().Position());
 	if(invalidateWholeSelection) {
 		for(size_t r = 0; r<sel.Count(); r++) {
-			firstAffected = Platform::Minimum(firstAffected, sel.Range(r).caret.Position());
-			firstAffected = Platform::Minimum(firstAffected, sel.Range(r).anchor.Position());
-			lastAffected = Platform::Maximum(lastAffected, sel.Range(r).caret.Position()+1);
-			lastAffected = Platform::Maximum(lastAffected, sel.Range(r).anchor.Position());
+			firstAffected = smin(firstAffected, sel.Range(r).caret.Position());
+			firstAffected = smin(firstAffected, sel.Range(r).anchor.Position());
+			lastAffected = smax(lastAffected, sel.Range(r).caret.Position()+1);
+			lastAffected = smax(lastAffected, sel.Range(r).anchor.Position());
 		}
 	}
 	ContainerNeedsUpdate(SC_UPDATE_SELECTION);
@@ -1172,6 +1181,14 @@ int Editor::DisplayFromPosition(int pos)
 	return view.DisplayFromPosition(surface, *this, pos, vs);
 }
 
+Editor::XYScrollPosition::XYScrollPosition(int xOffset_, int topLine_) : xOffset(xOffset_), topLine(topLine_)
+{
+}
+
+bool Editor::XYScrollPosition::operator == (const XYScrollPosition & other) const
+{
+	return (xOffset == other.xOffset) && (topLine == other.topLine);
+}
 /**
  * Ensure the caret is reasonably visible in context.
  *
@@ -1237,7 +1254,7 @@ Editor::XYScrollPosition Editor::XYScrollToMakeVisible(const SelectionRange &ran
 	if((options & xysVertical) && (pt.y < rcClient.top || ptBottomCaret.y >= rcClient.bottom || (caretYPolicy & CARET_STRICT) != 0)) {
 		const int lineCaret = DisplayFromPosition(range.caret.Position());
 		const int linesOnScreen = LinesOnScreen();
-		const int halfScreen = Platform::Maximum(linesOnScreen - 1, 2) / 2;
+		const int halfScreen = smax(linesOnScreen - 1, 2) / 2;
 		const bool bSlop = (caretYPolicy & CARET_SLOP) != 0;
 		const bool bStrict = (caretYPolicy & CARET_STRICT) != 0;
 		const bool bJump = (caretYPolicy & CARET_JUMPS) != 0;
@@ -1326,7 +1343,7 @@ Editor::XYScrollPosition Editor::XYScrollToMakeVisible(const SelectionRange &ran
 
 	// Horizontal positioning
 	if((options & xysHorizontal) && !Wrapping()) {
-		const int halfScreen = Platform::Maximum(static_cast<int>(rcClient.Width()) - 4, 4) / 2;
+		const int halfScreen = smax(static_cast<int>(rcClient.Width()) - 4, 4) / 2;
 		const bool bSlop = (caretXPolicy & CARET_SLOP) != 0;
 		const bool bStrict = (caretXPolicy & CARET_STRICT) != 0;
 		const bool bJump = (caretXPolicy & CARET_JUMPS) != 0;
@@ -2674,7 +2691,7 @@ void Editor::CheckModificationForWrap(DocModification mh)
 	if(mh.modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)) {
 		view.llc.Invalidate(LineLayout::llCheckTextAndStyle);
 		int lineDoc = pdoc->LineFromPosition(mh.position);
-		int lines = Platform::Maximum(0, mh.linesAdded);
+		int lines = smax(0, mh.linesAdded);
 		if(Wrapping()) {
 			NeedWrapping(lineDoc, lineDoc + lines + 1);
 		}
@@ -4026,8 +4043,8 @@ void Editor::Indent(bool forwards)
 			int anchorPosOnLine = sel.Range(r).anchor.Position() - pdoc->LineStart(lineOfAnchor);
 			int currentPosPosOnLine = caretPosition - pdoc->LineStart(lineCurrentPos);
 			// Multiple lines selected so indent / dedent
-			int lineTopSel = Platform::Minimum(lineOfAnchor, lineCurrentPos);
-			int lineBottomSel = Platform::Maximum(lineOfAnchor, lineCurrentPos);
+			int lineTopSel = smin(lineOfAnchor, lineCurrentPos);
+			int lineBottomSel = smax(lineOfAnchor, lineCurrentPos);
 			if(pdoc->LineStart(lineBottomSel) == sel.Range(r).anchor.Position() || pdoc->LineStart(lineBottomSel) ==
 			    caretPosition)
 				lineBottomSel--;        // If not selecting any characters on a line, do not indent
@@ -6272,11 +6289,11 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    break;
 		case SCI_GETANCHOR: return sel.IsRectangular() ? sel.Rectangular().anchor.Position() : sel.MainAnchor();
 		case SCI_SETSELECTIONSTART:
-		    SetSelection(Platform::Maximum(sel.MainCaret(), static_cast<int>(wParam)), static_cast<int>(wParam));
+		    SetSelection(smax(sel.MainCaret(), static_cast<int>(wParam)), static_cast<int>(wParam));
 		    break;
 		case SCI_GETSELECTIONSTART: return sel.LimitsForRectangularElseMain().start.Position();
 		case SCI_SETSELECTIONEND:
-		    SetSelection(static_cast<int>(wParam), Platform::Minimum(sel.MainAnchor(), static_cast<int>(wParam)));
+		    SetSelection(static_cast<int>(wParam), smin(sel.MainAnchor(), static_cast<int>(wParam)));
 		    break;
 		case SCI_GETSELECTIONEND: return sel.LimitsForRectangularElseMain().end.Position();
 		case SCI_SETEMPTYSELECTION: SetEmptySelection(static_cast<int>(wParam)); break;

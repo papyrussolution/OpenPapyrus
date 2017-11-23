@@ -544,14 +544,9 @@ int SLAPI EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 	return ok ? r : 0;
 }
 
-BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDialog(dlgID, CTL_BILL_LNKFILELIST)
+BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDialog(dlgID, CTL_BILL_LNKFILELIST), P_BObj(BillObj),
+	P_Pack(pPack), CurrDebt(0.0), Flags(0), PaymTerm(-1), PayDateBase(0)
 {
-	P_BObj = BillObj;
-	CurrDebt  = 0.0;
-	P_Pack    = pPack;
-	Flags     = 0;
-	PaymTerm  = -1;
-	PayDateBase = 0;
 	SETFLAG(Flags, fEditMode, isEdit);
 	int    is_cash = BIN(P_Pack->Rec.Flags & BILLF_CASH);
 	Ptb.SetBrush(brushIllPaymDate, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);

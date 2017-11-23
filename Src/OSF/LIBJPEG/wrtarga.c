@@ -40,7 +40,6 @@ Sorry, this code only copes with 8-bit JSAMPLEs.   /* deliberate syntax err */
 
 typedef struct {
 	struct djpeg_dest_struct pub; /* public fields */
-
 	char * iobuffer;        /* physical I/O buffer */
 	JDIMENSION buffer_width; /* width of one row */
 } tga_dest_struct;
@@ -78,27 +77,20 @@ static void write_header(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, int num_c
 			targaheader[16] = 24;
 		}
 	}
-
 	if(JFWRITE(dinfo->output_file, targaheader, 18) != (size_t)18)
 		ERREXIT(cinfo, JERR_FILE_WRITE);
 }
-
 /*
  * Write some pixel data.
  * In this module rows_supplied will always be 1.
  */
-
-METHODDEF(void) put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
-    JDIMENSION rows_supplied)
+METHODDEF(void) put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
 /* used for unquantized full-color output */
 {
 	tga_dest_ptr dest = (tga_dest_ptr)dinfo;
-	register JSAMPROW inptr;
-	register char * outptr;
-	register JDIMENSION col;
-
-	inptr = dest->pub.buffer[0];
-	outptr = dest->iobuffer;
+	JDIMENSION col;
+	JSAMPROW inptr = dest->pub.buffer[0];
+	char * outptr = dest->iobuffer;
 	for(col = cinfo->output_width; col > 0; col--) {
 		outptr[0] = (char)GETJSAMPLE(inptr[2]); /* RGB to BGR order */
 		outptr[1] = (char)GETJSAMPLE(inptr[1]);
@@ -108,15 +100,13 @@ METHODDEF(void) put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
 	(void)JFWRITE(dest->pub.output_file, dest->iobuffer, dest->buffer_width);
 }
 
-METHODDEF(void) put_gray_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
-    JDIMENSION rows_supplied)
+METHODDEF(void) put_gray_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
 /* used for grayscale OR quantized color output */
 {
 	tga_dest_ptr dest = (tga_dest_ptr)dinfo;
-	register JSAMPROW inptr;
-	register char * outptr;
-	register JDIMENSION col;
-
+	JSAMPROW inptr;
+	char * outptr;
+	JDIMENSION col;
 	inptr = dest->pub.buffer[0];
 	outptr = dest->iobuffer;
 	for(col = cinfo->output_width; col > 0; col--) {
@@ -124,21 +114,17 @@ METHODDEF(void) put_gray_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
 	}
 	(void)JFWRITE(dest->pub.output_file, dest->iobuffer, dest->buffer_width);
 }
-
 /*
  * Write some demapped pixel data when color quantization is in effect.
  * For Targa, this is only applied to grayscale data.
  */
-
-METHODDEF(void) put_demapped_gray(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
-    JDIMENSION rows_supplied)
+METHODDEF(void) put_demapped_gray(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied)
 {
 	tga_dest_ptr dest = (tga_dest_ptr)dinfo;
-	register JSAMPROW inptr;
-	register char * outptr;
-	register JSAMPROW color_map0 = cinfo->colormap[0];
-	register JDIMENSION col;
-
+	JSAMPROW inptr;
+	char * outptr;
+	JSAMPROW color_map0 = cinfo->colormap[0];
+	JDIMENSION col;
 	inptr = dest->pub.buffer[0];
 	outptr = dest->iobuffer;
 	for(col = cinfo->output_width; col > 0; col--) {
@@ -146,7 +132,6 @@ METHODDEF(void) put_demapped_gray(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
 	}
 	(void)JFWRITE(dest->pub.output_file, dest->iobuffer, dest->buffer_width);
 }
-
 /*
  * Startup: write the file header.
  */
@@ -208,21 +193,14 @@ GLOBAL(djpeg_dest_ptr) jinit_write_targa(j_decompress_ptr cinfo)
 	tga_dest_ptr dest = (tga_dest_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(tga_dest_struct));
 	dest->pub.start_output = start_output_tga;
 	dest->pub.finish_output = finish_output_tga;
-
 	/* Calculate output image dimensions so we can allocate space */
 	jpeg_calc_output_dimensions(cinfo);
-
 	/* Create I/O buffer.  Note we make this near on a PC. */
 	dest->buffer_width = cinfo->output_width * cinfo->output_components;
-	dest->iobuffer = (char*)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (size_t)(dest->buffer_width * SIZEOF(char)));
-
+	dest->iobuffer = (char*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (size_t)(dest->buffer_width * SIZEOF(char)));
 	/* Create decompressor output buffer. */
-	dest->pub.buffer = (*cinfo->mem->alloc_sarray)
-		    ((j_common_ptr)cinfo, JPOOL_IMAGE, dest->buffer_width, (JDIMENSION)1);
+	dest->pub.buffer = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, dest->buffer_width, (JDIMENSION)1);
 	dest->pub.buffer_height = 1;
-
 	return &dest->pub;
 }
 

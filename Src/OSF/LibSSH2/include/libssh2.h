@@ -118,37 +118,37 @@ extern "C" {
 #endif
 #if (defined(NETWARE) && !defined(__NOVELL_LIBC__))
 	#include <sys/bsdskt.h>
-typedef unsigned char uint8_t;
-typedef unsigned int uint32_t;
+	typedef unsigned char uint8_t_Removed;
+	typedef unsigned int uint32_t_Removed;
 #endif
 #ifdef _MSC_VER
-typedef unsigned char uint8_t;
-typedef unsigned int uint32_t;
-typedef unsigned __int64 libssh2_uint64_t;
-typedef __int64 libssh2_int64_t;
+	//typedef unsigned char uint8_t_Removed;
+	//typedef unsigned int uint32_t_Removed;
+	//typedef unsigned __int64 libssh2_uint64_t_Removed;
+	//typedef __int64 libssh2_int64_t_Removed;
 	#ifndef ssize_t
-typedef SSIZE_T ssize_t;
+		typedef SSIZE_T ssize_t;
 	#endif
 #else
-typedef unsigned long long libssh2_uint64_t;
-typedef long long libssh2_int64_t;
+	typedef unsigned long long libssh2_uint64_t_Removed;
+	typedef long long libssh2_int64_t_Removed;
 #endif
 #ifdef WIN32
-typedef SOCKET libssh2_socket_t;
+	typedef SOCKET libssh2_socket_t;
 	#define LIBSSH2_INVALID_SOCKET INVALID_SOCKET
-#else /* !WIN32 */
-typedef int libssh2_socket_t;
+#else
+	typedef int libssh2_socket_t;
 	#define LIBSSH2_INVALID_SOCKET -1
-#endif /* WIN32 */
+#endif
 /*
  * Determine whether there is small or large file support on windows.
  */
 #if defined(_MSC_VER) && !defined(_WIN32_WCE)
-#  if (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
-#    define LIBSSH2_USE_WIN32_LARGE_FILES
-#  else
-#    define LIBSSH2_USE_WIN32_SMALL_FILES
-#  endif
+	#if (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
+		#define LIBSSH2_USE_WIN32_LARGE_FILES
+	#else
+		#define LIBSSH2_USE_WIN32_SMALL_FILES
+	#endif
 #endif
 #if defined(__MINGW32__) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES)
 	#define LIBSSH2_USE_WIN32_LARGE_FILES
@@ -734,13 +734,8 @@ LIBSSH2_API int libssh2_channel_flush_ex(LIBSSH2_CHANNEL * channel, int streamid
 #define libssh2_channel_flush_stderr(channel) libssh2_channel_flush_ex((channel), SSH_EXTENDED_DATA_STDERR)
 
 LIBSSH2_API int libssh2_channel_get_exit_status(LIBSSH2_CHANNEL* channel);
-LIBSSH2_API int libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL* channel,
-    char ** exitsignal,
-    size_t * exitsignal_len,
-    char ** errmsg,
-    size_t * errmsg_len,
-    char ** langtag,
-    size_t * langtag_len);
+LIBSSH2_API int libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL* channel, char ** exitsignal,
+    size_t * exitsignal_len, char ** errmsg, size_t * errmsg_len, char ** langtag, size_t * langtag_len);
 LIBSSH2_API int libssh2_channel_send_eof(LIBSSH2_CHANNEL * channel);
 LIBSSH2_API int libssh2_channel_eof(LIBSSH2_CHANNEL * channel);
 LIBSSH2_API int libssh2_channel_wait_eof(LIBSSH2_CHANNEL * channel);
@@ -753,7 +748,7 @@ LIBSSH2_API LIBSSH2_CHANNEL * libssh2_scp_recv(LIBSSH2_SESSION * session, const 
 /* Use libssh2_scp_recv2 for large (> 2GB) file support on windows */
 LIBSSH2_API LIBSSH2_CHANNEL * libssh2_scp_recv2(LIBSSH2_SESSION * session, const char * path, libssh2_struct_stat * sb);
 LIBSSH2_API LIBSSH2_CHANNEL * libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char * path, int mode, size_t size, long mtime, long atime);
-LIBSSH2_API LIBSSH2_CHANNEL * libssh2_scp_send64(LIBSSH2_SESSION * session, const char * path, int mode, libssh2_int64_t size, time_t mtime, time_t atime);
+LIBSSH2_API LIBSSH2_CHANNEL * libssh2_scp_send64(LIBSSH2_SESSION * session, const char * path, int mode, int64 size, time_t mtime, time_t atime);
 
 #define libssh2_scp_send(session, path, mode, size) libssh2_scp_send_ex((session), (path), (mode), (size), 0, 0)
 

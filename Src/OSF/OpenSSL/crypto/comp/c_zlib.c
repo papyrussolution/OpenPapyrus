@@ -9,6 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "comp_lcl.h"
+#include <zlib.h>
 
 COMP_METHOD * COMP_zlib(void);
 
@@ -24,8 +25,6 @@ static COMP_METHOD zlib_method_nozlib = {
 #ifndef ZLIB
 	#undef ZLIB_SHARED
 #else
-
-#include <zlib.h>
 
 static int zlib_stateful_init(COMP_CTX * ctx);
 static void zlib_stateful_finish(COMP_CTX * ctx);
@@ -59,7 +58,7 @@ static COMP_METHOD zlib_stateful_method = {
  * and we do not link to a .LIB file when ZLIB_SHARED is set.
  */
 #if defined(OPENSSL_SYS_WINDOWS) || defined(OPENSSL_SYS_WIN32)
-	#include <windows.h>
+	// @sobolev #include <windows.h>
 #endif
 #ifdef ZLIB_SHARED
 
@@ -357,7 +356,6 @@ static int bio_zlib_read(BIO * b, char * out, int outl)
 			if((ret == Z_STREAM_END) || !zin->avail_out)
 				return outl - zin->avail_out;
 		}
-
 		/*
 		 * No data in input buffer try to read some in, if an error then
 		 * return the total data read.
@@ -420,13 +418,10 @@ static int bio_zlib_write(BIO * b, const char * in, int inl)
 			ctx->optr += ret;
 			ctx->ocount -= ret;
 		}
-
 		/* Have we consumed all supplied data? */
 		if(!zout->avail_in)
 			return inl;
-
 		/* Compress some more */
-
 		/* Reset buffer */
 		ctx->optr = ctx->obuf;
 		zout->next_out = ctx->obuf;
@@ -469,9 +464,7 @@ static int bio_zlib_flush(BIO * b)
 		}
 		if(ctx->odone)
 			return 1;
-
 		/* Compress some more */
-
 		/* Reset buffer */
 		ctx->optr = ctx->obuf;
 		zout->next_out = ctx->obuf;
@@ -535,7 +528,6 @@ static long bio_zlib_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    }
 		    ret = 1;
 		    break;
-
 		case BIO_C_DO_STATE_MACHINE:
 		    BIO_clear_retry_flags(b);
 		    ret = BIO_ctrl(next, cmd, num, ptr);

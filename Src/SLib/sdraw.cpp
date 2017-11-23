@@ -14,10 +14,8 @@
 //
 //
 //
-SDrawContext::UC::UC()
+SDrawContext::UC::UC() : Dpi(0.0f), FontSize(0.0f)
 {
-	Dpi.Set(0.0f);
-	FontSize = 0.0f;
 }
 
 int SDrawContext::UC::Describe(int unitId, int dir, int * pCls, double * pToBase, SString * pName) const
@@ -110,11 +108,8 @@ SDrawContext::UC * SDrawContext::GetUnitContext() const
 //
 //
 //
-SViewPort::SViewPort(uint flags) : FRect()
+SViewPort::SViewPort(uint flags) : FRect(), ParX(parMid), ParY(parMid), Flags(fEmpty|flags)
 {
-	ParX = parMid;
-	ParY = parMid;
-	Flags = (fEmpty | flags);
 }
 
 LMatrix2D & SViewPort::GetMatrix(const FRect & rBounds, LMatrix2D & rMtx) const
@@ -268,15 +263,9 @@ SDrawFigure * SDrawFigure::CreateFromFile(const char * pFileName, const char * p
 	return p_fig;
 }
 
-SDrawFigure::SDrawFigure(int kind, const char * pSid)
+SDrawFigure::SDrawFigure(int kind, const char * pSid) : Kind(kind), IdPen(0), IdBrush(0), Flags(0), Sid(pSid), P_Parent(0)
 {
 	assert(CheckKind(kind));
-	Kind = kind;
-	IdPen = 0;
-	IdBrush = 0;
-	Flags = 0;
-	Sid = pSid;
-	P_Parent = 0;
 }
 
 SDrawFigure::~SDrawFigure()
@@ -435,8 +424,8 @@ void SDrawFigure::SetStyle(int identPen, int identBrush, long flags)
 }
 
 int SDrawFigure::GetKind() const
-{ 
-	return Kind; 
+{
+	return Kind;
 }
 
 long SDrawFigure::GetFlags() const
@@ -503,10 +492,8 @@ SDrawFigure * SDrawShape::Dup() const { return DupDrawFigure <SDrawShape> (this)
 //
 //
 //
-SDrawText::SDrawText(const char * pSid) : SDrawFigure(kText, pSid)
+SDrawText::SDrawText(const char * pSid) : SDrawFigure(kText, pSid), IdFont(0), Begin(0.0f)
 {
-	IdFont = 0;
-	Begin = 0.0f;
 }
 
 int SDrawText::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -1183,10 +1170,8 @@ int SDraw::ParseSvgFile(const char * pFileName)
 //
 //
 //
-SImageBuffer::Palette::Palette()
+SImageBuffer::Palette::Palette() : Count(0), P_Buf(0)
 {
-	Count = 0;
-	P_Buf = 0;
 }
 
 SImageBuffer::Palette::~Palette()
@@ -1236,9 +1221,8 @@ const uint32 * SImageBuffer::Palette::GetBufferC() const // really private
 //
 //
 //
-SImageBuffer::PixF::PixF(int s)
+SImageBuffer::PixF::PixF(int s) : S(s)
 {
-	S = s;
 }
 
 int SImageBuffer::PixF::IsValid() const
@@ -1703,10 +1687,8 @@ int SImageBuffer::PixF::GetUniform(const void * pSrc, void * pUniformBuf, uint w
 	return ok;
 }
 
-SImageBuffer::StoreParam::StoreParam(int fmt)
+SImageBuffer::StoreParam::StoreParam(int fmt) : Fmt(fmt), Flags(0)
 {
-	Fmt = fmt;
-	Flags = 0;
 }
 
 SImageBuffer::SImageBuffer()
@@ -2380,7 +2362,7 @@ int SImageBuffer::LoadIco(SFile & rF, uint pageIdx)
 	#include <../osf/libjpeg-turbo/jerror.h>
 #else
 	#include <../osf/libjpeg/cdjpeg.h>
-	#include <../osf/libjpeg/jerror.h>
+	//#include <../osf/libjpeg/jerror.h>
 #endif
 
 int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
@@ -2450,7 +2432,7 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 							THROW(_stride);
 							THROW(Alloc(_stride * di.output_height));
 						}
-						// } @v9.5.6 
+						// } @v9.5.6
 						while(ok && di.output_scanline < di.output_height) {
 							JSAMPROW row_ptr[max_lines];
 							uint    step_count = 1;
@@ -2612,7 +2594,7 @@ int SImageBuffer::LoadPng(SFile & rF)
 					THROW(_stride);
 					THROW(Alloc(_stride * height));
 				}
-				// } @v9.5.6 
+				// } @v9.5.6
 				for(j = 0; j < height; j++) {
 					png_read_rows(p_png, &p_row_buf, 0, 1);
 					THROW(AddLines(p_row_buf, fmt, 1, 0));

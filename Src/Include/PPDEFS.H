@@ -281,6 +281,7 @@
 #define PPPATH_WORKSPACE     20 // @v9.8.2 Путь к каталогу рабочего пространства (туда перенесем все конфигруационные и прочие файлы,
 	// не относящиеся к дистрибутиву, из BIN
 #define PPPATH_TESTROOT      21 // @v9.8.3 (только для отладки) корневой каталог тестовых данных
+#define PPPATH_REPORTDATA    22 // @v9.8.9 [system]PPINIPARAM_REPORTDATAPATH
 // @v9.8.2 (@unused) #define PPPATH_LAST          20L  // Последний из путей
 #define PPPRP_PATHS          20L  //
 #define PPPRP_PRINTER        21L  // Принтер
@@ -1225,7 +1226,7 @@
 	// Теоретически, использоваться может достаточно широко, однако непосредственным поводом для ввода тега
 	// послужила необходимость при передаче в ЕГАИС акта постановки на баланс по пересортице (PPEDIOP_EGAIS_ACTCHARGEON_V2)
 	// передавать ссылку на соответствующий документ потерь (PPEDIOP_EGAIS_ACTWRITEOFF_V2).
-
+#define PPTAG_PERSON_VETISUUID      66L // @v9.8.9  UUID предприятия в системе Меркурий (интерфейс ВЕТИС)
 // @construction(VETIS) {
 #define PPTAG_LOT_VETIS_UUID        00L // @v9.8.7 ВЕТИС-идент входящей (произведенной) партии
 
@@ -6816,6 +6817,7 @@
 	#define CTL_AUSERSLST_USERSCOUNT     (3 + WINDOWS_ID_BIAS)
 	#define CTL_AUSERSLST_UNIQMACS       (4 + WINDOWS_ID_BIAS)
 #define DLG_ALBTRCFG2             720
+	#define cmVetisConfig          101
 	#define CTL_ALBTRCFG_MSRVADDR        (1 + WINDOWS_ID_BIAS) // not used since @v4.2.9
 	#define CTL_ALBTRCFG_LOGIN           (2 + WINDOWS_ID_BIAS) // not used since @v4.2.9
 	#define CTL_ALBTRCFG_OPKINDID        (3 + WINDOWS_ID_BIAS)
@@ -10240,6 +10242,16 @@
 	#define CTL_ARMASSUPD_PAYPERIOD   (3 + WINDOWS_ID_BIAS)
 	#define CTL_ARMASSUPD_DELIVERY    (4 + WINDOWS_ID_BIAS)
 	#define CTL_ARMASSUPD_ST_WARN     (5 + WINDOWS_ID_BIAS)
+#define DLG_DATEADD               1330
+	#define CTL_DATEADD_SRC           (1 + WINDOWS_ID_BIAS)
+	#define CTL_DATEADD_PRD           (2 + WINDOWS_ID_BIAS)
+	#define CTLSEL_DATEADD_PRD        (3 + WINDOWS_ID_BIAS)
+	#define CTL_DATEADD_PRDCOUNT      (4 + WINDOWS_ID_BIAS)
+	#define CTL_DATEADD_RESULT        (5 + WINDOWS_ID_BIAS)
+#define DLG_VETISCFG              1331
+	#define CTL_VETISCFG_USER         (1 + WINDOWS_ID_BIAS)
+	#define CTL_VETISCFG_PASSW        (2 + WINDOWS_ID_BIAS)
+	#define CTL_VETISCFG_APIKEY       (3 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

@@ -268,10 +268,10 @@ ZIP_EXTERN void zip_error_init(zip_error_t *);
 // Descr: Устанавливает состояние ошибки в контекст pErr
 // Returns: -1
 //
-ZIP_EXTERN int  zip_error_set(zip_error_t * pErr, int ze, int se);
+ZIP_EXTERN int  FASTCALL zip_error_set(zip_error_t * pErr, int ze, int se);
 //ZIP_EXTERN const char *zip_error_strerror(zip_error_t *);
 ZIP_EXTERN int zip_error_system_type(const zip_error_t *);
-ZIP_EXTERN int64 zip_error_to_data(const zip_error_t *, void *, uint64);
+ZIP_EXTERN int64 FASTCALL zip_error_to_data(const zip_error_t *, void *, uint64);
 ZIP_EXTERN int zip_fclose(zip_file_t *);
 ZIP_EXTERN zip_t *zip_fdopen(int, int, int *);
 ZIP_EXTERN int64 zip_file_add(zip_t *, const char *, zip_source_t *, zip_flags_t);

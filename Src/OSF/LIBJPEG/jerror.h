@@ -178,7 +178,6 @@ JMESSAGE(JWRN_TOO_MUCH_DATA, "Application transferred too many scanlines")
 /* Zap JMESSAGE macro so that future re-inclusions do nothing by default */
 #undef JMESSAGE
 
-
 #ifndef JERROR_H
 #define JERROR_H
 

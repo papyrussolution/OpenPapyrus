@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/conf.h>
+//#include <openssl/conf.h>
 //#include "eng_int.h"
 
 /* #define ENGINE_CONF_DEBUG */

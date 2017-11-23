@@ -1,5 +1,5 @@
 // SFORMAT.CPP
-// Copyright (c) A.Sobolev 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -30,11 +30,8 @@ static int FASTCALL _AiTab(const void * tbl, int req)
 }
 */
 
-SLAPI SFormatParam::SFormatParam()
+SLAPI SFormatParam::SFormatParam() : Flags(0), FDate(DATF_DMY), FTime(TIMF_HMS), FStr(0), FReal(0)
 {
-	THISZERO();
-	FDate = DATF_DMY;
-	FTime = TIMF_HMS;
 }
 //
 // Common formatting
@@ -327,7 +324,7 @@ char * FASTCALL periodfmt(const DateRange * pPeriod, char * pBuf)
 	return pBuf;
 }
 
-int SLAPI periodfmtex(const DateRange * pPeriod, Pchar pBuf, size_t bufLen)
+int SLAPI periodfmtex(const DateRange * pPeriod, char * pBuf, size_t bufLen)
 {
 	static const char * quart[4] = { "I", "II", "III", "IV" };
 	int  r = -1;

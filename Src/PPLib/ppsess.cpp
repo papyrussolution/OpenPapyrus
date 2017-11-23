@@ -827,9 +827,8 @@ int SLAPI PPThreadLocalArea::ReleasePPViewPtr(int32 id)
 //
 static ACount TlpC(0); // @global @threadsafe
 
-SLAPI  __PPThrLocPtr::__PPThrLocPtr()
+SLAPI  __PPThrLocPtr::__PPThrLocPtr() : Idx(TlpC.Incr())
 {
-	Idx = TlpC.Incr();
 }
 
 int SLAPI __PPThrLocPtr::IsOpened()
@@ -1017,9 +1016,8 @@ int SLAPI PPThreadLocalArea::GetIfcConfigParam(const char * pParam, SString & rV
 	return IfcConfig.Search(pParam, &rValue, 0);
 }
 
-PPThreadLocalArea::PrivateCart::PrivateCart()
+PPThreadLocalArea::PrivateCart::PrivateCart() : P(0)
 {
-	P = 0;
 }
 
 PPThreadLocalArea::PrivateCart::~PrivateCart()
@@ -1966,6 +1964,17 @@ int SLAPI PPSession::Init(long flags, HINSTANCE hInst)
 					Helper_SetPath(PPPATH_WORKSPACE, path);
 				}
 				// } @v9.8.2
+				// @v9.8.9 {
+				{
+					path = (ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_REPORTDATAPATH, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
+					if(!path.NotEmptyS()) {
+						path = (ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_REPORTDATAPATH, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
+						if(!path.NotEmptyS())
+							PPGetPath(PPPATH_TEMP, path);
+					}
+					Helper_SetPath(PPPATH_REPORTDATA, path);
+				}
+				// } @v9.8.9
 				LoadDriveMapping(&ini_file);
 			}
 		}
@@ -2002,31 +2011,10 @@ int SLAPI PPSession::InitThread(const PPThread * pThread)
 	PPThreadLocalArea * p_tla = new PPThreadLocalArea;
 	ENTER_CRITICAL_SECTION
 	TlsSetValue(TlsIdx, p_tla);
-	// @v9.8.2 {
-	static const long common_path_id_list[] = { PPPATH_BIN, PPPATH_LOG, PPPATH_TEMP, PPPATH_SPII, PPPATH_SARTREDB };
+	// @v9.8.9 PPPATH_REPORTDATA
+	static const long common_path_id_list[] = { PPPATH_BIN, PPPATH_LOG, PPPATH_TEMP, PPPATH_SPII, PPPATH_SARTREDB, PPPATH_REPORTDATA };
 	for(uint i = 0; i < SIZEOFARRAY(common_path_id_list); i++)
 		MoveCommonPathOnInitThread(common_path_id_list[i]);
-	// } @v9.8.2
-	/* @v9.8.2
-	SString path;
-	if(CommonPaths.GetPath(PPPATH_BIN, 0, path) > 0) {
-		SetPath(PPPATH_BIN, path, 0, 1);
-	}
-	if(CommonPaths.GetPath(PPPATH_LOG, 0, path) > 0) {
-		SetPath(PPPATH_LOG, path, 0, 1);
-		SLS.SetLogPath(path);
-	}
-	if(CommonPaths.GetPath(PPPATH_TEMP, 0, path) > 0)
-		SetPath(PPPATH_TEMP, path, 0, 1);
-	// @v8.5.10 {
-	if(CommonPaths.GetPath(PPPATH_SPII, 0, path) > 0)
-		SetPath(PPPATH_SPII, path, 0, 1);
-	// } @v8.5.10
-	// @v9.7.8 {
-	if(CommonPaths.GetPath(PPPATH_SARTREDB, 0, path) > 0)
-		SetPath(PPPATH_SARTREDB, path, 0, 1);
-	// } @9.7.8
-	*/
 	LEAVE_CRITICAL_SECTION
 	if(pThread) {
 		p_tla->TId = pThread->GetThreadID();
@@ -2281,8 +2269,8 @@ struct _E {
 IMPL_CMPFUNC(_E, i1, i2)
 {
 	int    r = 0;
-	_E   * p_e1 = (_E*)i1;
-	_E   * p_e2 = (_E*)i2;
+	const _E * p_e1 = (const _E *)i1;
+	const _E * p_e2 = (const _E *)i2;
 	if((r = p_e1->MchnID.Cmp(p_e2->MchnID)) > 0)
 		return 1;
 	else if(r < 0)
@@ -4072,9 +4060,8 @@ SLAPI PPAdviseBlock::PPAdviseBlock()
 	THISZERO();
 }
 
-SLAPI PPAdviseList::PPAdviseList() : SArray(sizeof(PPAdviseBlock), /*16,*/O_ARRAY)
+SLAPI PPAdviseList::PPAdviseList() : SArray(sizeof(PPAdviseBlock), /*16,*/O_ARRAY), LastCookie(0)
 {
-	LastCookie = 0;
 }
 
 uint PPAdviseList::GetCount()
@@ -4512,10 +4499,8 @@ PPAdviseEvent & FASTCALL PPAdviseEvent::operator = (const SysJournalTbl::Rec & r
 
 #define ADVEVQCLISIGN 0x12ABCDEF
 
-PPAdviseEventQueue::Client::Client()
+PPAdviseEventQueue::Client::Client() : Sign(ADVEVQCLISIGN), Marker(0)
 {
-	Sign = ADVEVQCLISIGN;
-	Marker = 0;
 }
 
 PPAdviseEventQueue::Client::~Client()

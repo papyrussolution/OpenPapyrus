@@ -51,9 +51,9 @@
  *
  * Determine the next channel ID we can use at our end
  */
-uint32_t _libssh2_channel_nextid(LIBSSH2_SESSION * session)
+uint32 _libssh2_channel_nextid(LIBSSH2_SESSION * session)
 {
-	uint32_t id = session->next_channel;
+	uint32 id = session->next_channel;
 	LIBSSH2_CHANNEL * channel = (LIBSSH2_CHANNEL *)_libssh2_list_first(&session->channels);
 	while(channel) {
 		if(channel->local.id > id) {
@@ -78,7 +78,7 @@ uint32_t _libssh2_channel_nextid(LIBSSH2_SESSION * session)
  *
  * Locate a channel pointer by number
  */
-LIBSSH2_CHANNEL * _libssh2_channel_locate(LIBSSH2_SESSION * session, uint32_t channel_id)
+LIBSSH2_CHANNEL * _libssh2_channel_locate(LIBSSH2_SESSION * session, uint32 channel_id)
 {
 	LIBSSH2_CHANNEL * channel;
 	LIBSSH2_LISTENER * l;
@@ -102,8 +102,8 @@ LIBSSH2_CHANNEL * _libssh2_channel_locate(LIBSSH2_SESSION * session, uint32_t ch
  *
  * Establish a generic session channel
  */
-LIBSSH2_CHANNEL * _libssh2_channel_open(LIBSSH2_SESSION * session, const char * channel_type, uint32_t channel_type_len,
-    uint32_t window_size, uint32_t packet_size, const uchar * message, size_t message_len)
+LIBSSH2_CHANNEL * _libssh2_channel_open(LIBSSH2_SESSION * session, const char * channel_type, uint32 channel_type_len,
+    uint32 window_size, uint32 packet_size, const uchar * message, size_t message_len)
 {
 	static const uchar reply_codes[3] = {
 		SSH_MSG_CHANNEL_OPEN_CONFIRMATION,
@@ -423,7 +423,6 @@ static LIBSSH2_LISTENER * channel_forward_listen(LIBSSH2_SESSION * session, cons
 	session->fwdLstn_state = libssh2_NB_state_idle;
 	return NULL;
 }
-
 /*
  * libssh2_channel_forward_listen_ex
  *
@@ -432,17 +431,12 @@ static LIBSSH2_LISTENER * channel_forward_listen(LIBSSH2_SESSION * session, cons
 LIBSSH2_API LIBSSH2_LISTENER * libssh2_channel_forward_listen_ex(LIBSSH2_SESSION * session, const char * host,
     int port, int * bound_port, int queue_maxsize)
 {
-	LIBSSH2_LISTENER * ptr;
-
-	if(!session)
-		return NULL;
-
-	BLOCK_ADJUST_ERRNO(ptr, session,
-	    channel_forward_listen(session, host, port, bound_port,
-		    queue_maxsize));
+	LIBSSH2_LISTENER * ptr = 0;
+	if(session) {
+		BLOCK_ADJUST_ERRNO(ptr, session, channel_forward_listen(session, host, port, bound_port, queue_maxsize));
+	}
 	return ptr;
 }
-
 /*
  * _libssh2_channel_forward_cancel
  *
@@ -457,10 +451,8 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER * listener)
 	LIBSSH2_CHANNEL * queued;
 	uchar * packet, * s;
 	size_t host_len = strlen(listener->host);
-	/* 14 = packet_type(1) + request_len(4) + want_replay(1) + host_len(4) +
-	   port(4) */
-	size_t packet_len =
-	    host_len + 14 + sizeof("cancel-tcpip-forward") - 1;
+	// 14 = packet_type(1) + request_len(4) + want_replay(1) + host_len(4) + port(4) 
+	size_t packet_len = host_len + 14 + sizeof("cancel-tcpip-forward") - 1;
 	int rc;
 	int retcode = 0;
 	if(listener->chanFwdCncl_state == libssh2_NB_state_idle) {
@@ -564,16 +556,12 @@ static LIBSSH2_CHANNEL * channel_forward_accept(LIBSSH2_LISTENER * listener)
  */
 LIBSSH2_API LIBSSH2_CHANNEL * libssh2_channel_forward_accept(LIBSSH2_LISTENER * listener)
 {
-	LIBSSH2_CHANNEL * ptr;
-
-	if(!listener)
-		return NULL;
-
-	BLOCK_ADJUST_ERRNO(ptr, listener->session,
-	    channel_forward_accept(listener));
+	LIBSSH2_CHANNEL * ptr = 0;
+	if(listener) {
+		BLOCK_ADJUST_ERRNO(ptr, listener->session, channel_forward_accept(listener));
+	}
 	return ptr;
 }
-
 /*
  * channel_setenv
  *
@@ -1142,7 +1130,7 @@ LIBSSH2_API int libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL * channel, char 
  *
  * Calls _libssh2_error() !
  */
-int _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel, uint32_t adjustment, uchar force, uint * store)
+int _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel, uint32 adjustment, uchar force, uint * store)
 {
 	int rc;
 	ASSIGN_PTR(store, channel->remote.window_size);
@@ -1300,7 +1288,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL * channel, int stream_id,
 	/* expand the receiving window first if it has become too narrow */
 	if( (channel->read_state == libssh2_NB_state_jump1) ||
 	    (channel->remote.window_size < channel->remote.window_size_initial / 4 * 3 + buflen) ) {
-		uint32_t adjustment = channel->remote.window_size_initial + buflen - channel->remote.window_size;
+		uint32 adjustment = channel->remote.window_size_initial + buflen - channel->remote.window_size;
 		if(adjustment < LIBSSH2_CHANNEL_MINADJUST)
 			adjustment = LIBSSH2_CHANNEL_MINADJUST;
 
@@ -1444,7 +1432,7 @@ size_t _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id
 {
 	LIBSSH2_SESSION * session = channel->session;
 	LIBSSH2_PACKET * read_packet;
-	uint32_t read_local_id;
+	uint32 read_local_id;
 	read_packet = (LIBSSH2_PACKET *)_libssh2_list_first(&session->packets);
 	if(read_packet == NULL)
 		return 0;

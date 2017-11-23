@@ -10,7 +10,6 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-//#include <libxml/threads.h>
 #ifdef HAVE_SYS_TYPES_H
 	#include <sys/types.h>
 #endif

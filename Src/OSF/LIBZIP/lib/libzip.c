@@ -233,7 +233,7 @@ void _zip_error_copy(zip_error_t * dst, const zip_error_t * src)
 		*sep = (zip_error_system_type(err) != ZIP_ET_NONE) ? err->sys_err : 0;
 }*/
 
-int zip_error_set(zip_error_t * err, int ze, int se)
+int FASTCALL zip_error_set(zip_error_t * err, int ze, int se)
 {
 	if(err) {
 		err->zip_err = ze;
@@ -247,7 +247,7 @@ void _zip_error_set_from_source(zip_error_t * err, zip_source_t * src)
 	_zip_error_copy(err, zip_source_error(src));
 }
 
-int64 zip_error_to_data(const zip_error_t * error, void * data, uint64 length)
+int64 FASTCALL zip_error_to_data(const zip_error_t * error, void * data, uint64 length)
 {
 	int * e = (int*)data;
 	if(length < sizeof(int)*2) {
@@ -2473,7 +2473,7 @@ zip_string_t * _zip_read_string(zip_buffer_t * buffer, zip_source_t * src, uint1
 	return s;
 }
 
-int _zip_write(zip_t * za, const void * data, uint64 length)
+int FASTCALL _zip_write(zip_t * za, const void * data, uint64 length)
 {
 	int64 n;
 	if((n = zip_source_write(za->src, data, length)) < 0) {
@@ -2530,7 +2530,7 @@ int64 _zip_name_locate(zip_t * za, const char * fname, zip_flags_t flags, zip_er
 uint32 _zip_string_crc32(const zip_string_t * s)
 {
 	uint32 crc = (uint32)crc32(0L, Z_NULL, 0);
-	if(s != NULL)
+	if(s)
 		crc = (uint32)crc32(crc, s->raw, s->length);
 	return crc;
 }
@@ -2545,7 +2545,7 @@ int _zip_string_equal(const zip_string_t * a, const zip_string_t * b)
 	return (memcmp(a->raw, b->raw, a->length) == 0);
 }
 
-void _zip_string_free(zip_string_t * s)
+void FASTCALL _zip_string_free(zip_string_t * s)
 {
 	if(s) {
 		SAlloc::F(s->raw);
@@ -2591,18 +2591,10 @@ zip_string_t * _zip_string_new(const uint8 * raw, uint16 length, zip_flags_t fla
 	if(length == 0)
 		return NULL;
 	switch(flags & ZIP_FL_ENCODING_ALL) {
-		case ZIP_FL_ENC_GUESS:
-		    expected_encoding = ZIP_ENCODING_UNKNOWN;
-		    break;
-		case ZIP_FL_ENC_UTF_8:
-		    expected_encoding = ZIP_ENCODING_UTF8_KNOWN;
-		    break;
-		case ZIP_FL_ENC_CP437:
-		    expected_encoding = ZIP_ENCODING_CP437;
-		    break;
-		default:
-		    zip_error_set(error, SLERR_ZIP_INVAL, 0);
-		    return NULL;
+		case ZIP_FL_ENC_GUESS: expected_encoding = ZIP_ENCODING_UNKNOWN; break;
+		case ZIP_FL_ENC_UTF_8: expected_encoding = ZIP_ENCODING_UTF8_KNOWN; break;
+		case ZIP_FL_ENC_CP437: expected_encoding = ZIP_ENCODING_CP437; break;
+		default: zip_error_set(error, SLERR_ZIP_INVAL, 0); return NULL;
 	}
 	if((s = (zip_string_t*)SAlloc::M(sizeof(*s))) == NULL) {
 		zip_error_set(error, SLERR_ZIP_MEMORY, 0);
@@ -2876,7 +2868,6 @@ void _zip_dirent_init(zip_dirent_t * de)
 	de->changed = 0;
 	de->local_extra_fields_read = 0;
 	de->cloned = 0;
-
 	de->version_madeby = 20 | (ZIP_OPSYS_DEFAULT << 8);
 	de->version_needed = 20; /* 2.0 */
 	de->bitflags = 0;
@@ -3064,7 +3055,6 @@ int64 _zip_dirent_read(zip_dirent_t * zde, zip_source_t * src, zip_buffer_t * bu
 				_zip_buffer_free(buffer);
 			return -1;
 		}
-
 		if(zde->uncomp_size == ZIP_UINT32_MAX)
 			zde->uncomp_size = _zip_buffer_get_64(ef_buffer);
 		else if(local) {
@@ -3182,7 +3172,7 @@ int _zip_dirent_write(zip_t * za, zip_dirent_t * de, zip_flags_t flags)
 	zip_buffer_t * buffer;
 	zip_encoding_type_t name_enc = _zip_guess_encoding(de->filename, ZIP_ENCODING_UNKNOWN);
 	zip_encoding_type_t com_enc = _zip_guess_encoding(de->comment, ZIP_ENCODING_UNKNOWN);
-	if((name_enc == ZIP_ENCODING_UTF8_KNOWN  && com_enc == ZIP_ENCODING_ASCII) ||
+	if((name_enc == ZIP_ENCODING_UTF8_KNOWN && com_enc == ZIP_ENCODING_ASCII) ||
 	    (name_enc == ZIP_ENCODING_ASCII && com_enc == ZIP_ENCODING_UTF8_KNOWN) ||
 	    (name_enc == ZIP_ENCODING_UTF8_KNOWN  && com_enc == ZIP_ENCODING_UTF8_KNOWN))
 		de->bitflags |= ZIP_GPBF_ENCODING_UTF_8;
@@ -3292,10 +3282,7 @@ int _zip_dirent_write(zip_t * za, zip_dirent_t * de, zip_flags_t flags)
 		_zip_buffer_put_16(buffer, (uint16)de->disk_number);
 		_zip_buffer_put_16(buffer, de->int_attrib);
 		_zip_buffer_put_32(buffer, de->ext_attrib);
-		if(de->offset < ZIP_UINT32_MAX)
-			_zip_buffer_put_32(buffer, (uint32)de->offset);
-		else
-			_zip_buffer_put_32(buffer, ZIP_UINT32_MAX);
+		_zip_buffer_put_32(buffer, (de->offset < ZIP_UINT32_MAX) ? (uint32)de->offset : ZIP_UINT32_MAX);
 	}
 	if(!_zip_buffer_ok(buffer)) {
 		zip_error_set(&za->error, SLERR_ZIP_INTERNAL, 0);
@@ -3343,15 +3330,12 @@ static time_t _zip_d2u_time(uint16 dtime, uint16 ddate)
 	memzero(&tm, sizeof(tm));
 	/* let mktime decide if DST is in effect */
 	tm.tm_isdst = -1;
-
 	tm.tm_year = ((ddate>>9)&127) + 1980 - 1900;
 	tm.tm_mon = ((ddate>>5)&15) - 1;
 	tm.tm_mday = ddate&31;
-
 	tm.tm_hour = (dtime>>11)&31;
 	tm.tm_min = (dtime>>5)&63;
 	tm.tm_sec = (dtime<<1)&62;
-
 	return mktime(&tm);
 }
 

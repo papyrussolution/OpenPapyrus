@@ -3308,15 +3308,15 @@ public:
 		int16  PeriodCount;
 		int32  LocID;
 		uint8  Reserve[16]; // raw
-		char   Phone[48];
-		char   Address[252];
-		char   ZIP[12];
-		char   LocalArea[64];
-		char   City[48];
-		char   Street[128];
-		char   House[48];
-		char   Apart[32];
-		char   AddrAddend[64];
+		uint32 PhoneP;
+		uint32 AddressP;
+		uint32 ZipP;
+		uint32 LocalAreaP;
+		uint32 CityP;
+		uint32 StreetP;
+		uint32 HouseP;
+		uint32 ApartP;
+		uint32 AddrAddendP;
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -3348,15 +3348,15 @@ public:
 	DBField PeriodCount;
 	DBField LocID;
 	DBField Reserve;
-	DBField Phone;
-	DBField Address;
-	DBField ZIP;
-	DBField LocalArea;
-	DBField City;
-	DBField Street;
-	DBField House;
-	DBField Apart;
-	DBField AddrAddend;
+	DBField PhoneP;
+	DBField AddressP;
+	DBField ZipP;
+	DBField LocalAreaP;
+	DBField CityP;
+	DBField StreetP;
+	DBField HouseP;
+	DBField ApartP;
+	DBField AddrAddendP;
 	};
 
 	class SCardOpTbl : public DBTable {

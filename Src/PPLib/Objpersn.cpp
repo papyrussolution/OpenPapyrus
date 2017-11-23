@@ -3646,6 +3646,8 @@ private:
 	SString Name_;
 	PPObjPerson PsnObj;
 	PPObjSCard ScObj;
+	
+	DateAddDialogParam ScExpiryPeriodParam;
 };
 
 ShortPersonDialog::ShortPersonDialog(uint dlgId, PPID kindID, PPID scardSerID) : TDialog(dlgId)
@@ -3905,6 +3907,11 @@ IMPL_HANDLE_EVENT(ShortPersonDialog)
 		}
 		else
 			return;
+	}
+	else if(event.isKeyDown(kbF2) && isCurrCtlID(CTL_PERSON_SCEXPIRY)) {
+		if(DateAddDialog(&ScExpiryPeriodParam) > 0 && checkdate(ScExpiryPeriodParam.ResultDate, 0)) {
+			setCtrlDate(CTL_PERSON_SCEXPIRY, ScExpiryPeriodParam.ResultDate);
+		}
 	}
 	else
 		return;

@@ -953,11 +953,9 @@
     <ClInclude Include="..\include\libxml\SAX2.h" />
     <ClInclude Include="..\include\libxml\schemasInternals.h" />
     <ClInclude Include="..\include\libxml\schematron.h" />
-    <ClInclude Include="..\include\libxml\threads.h" />
     <ClInclude Include="..\include\libxml\tree.h" />
     <ClInclude Include="..\include\libxml\valid.h" />
     <ClInclude Include="..\include\libxml\xinclude.h" />
-    <ClInclude Include="..\include\libxml\xlink.h" />
     <ClInclude Include="..\include\libxml\xmlautomata.h" />
     <ClInclude Include="..\include\libxml\xmlerror.h" />
     <ClInclude Include="..\include\libxml\xmlexports.h" />

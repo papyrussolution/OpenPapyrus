@@ -7,6 +7,10 @@
 //
 // @ModuleDef(PPObjGoodsGroup)
 //
+SLAPI GoodsGroupRecoverParam::GoodsGroupRecoverParam() : EgaFolderID(0), Ega(egaNone), Flags(0)
+{
+}
+
 SLAPI PPObjGoodsGroup::PPObjGoodsGroup(void * extraPtr) : PPObjGoods(PPOBJ_GOODSGROUP, extraPtr)
 {
 	Kind = PPGDSK_GROUP;

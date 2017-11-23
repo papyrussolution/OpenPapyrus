@@ -1725,8 +1725,7 @@ int SLAPI CipherProtocol::ReleaseConnection()
 	return ok;
 }
 
-int SLAPI CipherProtocol::SendDataHeadingText(const char * pFileName,
-	uint numRecs, const BhtRecord * pStruc)
+int SLAPI CipherProtocol::SendDataHeadingText(const char * pFileName, uint numRecs, const BhtRecord * pStruc)
 {
 	char   buf[64];
 	size_t p = 0;

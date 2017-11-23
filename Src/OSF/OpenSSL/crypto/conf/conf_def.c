@@ -10,10 +10,10 @@
 /* Part of the code in here was originally in conf.c, which is now removed */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/stack.h>
+//#include <openssl/stack.h>
 //#include <openssl/lhash.h>
-#include <openssl/conf.h>
-#include <openssl/conf_api.h>
+//#include <openssl/conf.h>
+//#include <openssl/conf_api.h>
 #include "conf_def.h"
 //#include <openssl/buffer.h>
 //#include <openssl/err.h>

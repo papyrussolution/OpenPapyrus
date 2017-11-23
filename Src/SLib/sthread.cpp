@@ -22,9 +22,12 @@ void FASTCALL SDelay(uint msec)
 //
 //
 //
-SLAPI SWaitableObject::SWaitableObject()
+SLAPI SWaitableObject::SWaitableObject() : H(0)
 {
-	H = 0;
+}
+
+SLAPI SWaitableObject::SWaitableObject(HANDLE h) : H(h)
+{
 }
 
 SLAPI SWaitableObject::~SWaitableObject()
@@ -320,9 +323,8 @@ SLAPI Sem::Sem(const char * pName, int mode, int initVal)
 	}
 }
 
-SLAPI Sem::Sem(int initVal) : SWaitableObject()
+SLAPI Sem::Sem(int initVal) : SWaitableObject(::CreateSemaphore(0, initVal, MAXLONG, 0))
 {
-	H = ::CreateSemaphore(0, initVal, MAXLONG, 0);
 }
 
 int SLAPI Sem::Release(int count)
@@ -348,9 +350,8 @@ int SLAPI SMutex::Release()
 //
 //
 //
-SLAPI STimer::STimer(const char * pName) : SWaitableObject()
+SLAPI STimer::STimer(const char * pName) : SWaitableObject(CreateWaitableTimer(0, 1, pName))
 {
-	H = CreateWaitableTimer(0, 1, pName);
 }
 
 int SLAPI STimer::Set(const LDATETIME & rDtm, long period)
@@ -379,9 +380,9 @@ int SLAPI STimer::Cancel()
 //
 //
 //
-SLAPI DirChangeNotification::DirChangeNotification(const char * pName, int watchSubtree, long filtFlags)
+SLAPI DirChangeNotification::DirChangeNotification(const char * pName, int watchSubtree, long filtFlags) : 
+	SWaitableObject(FindFirstChangeNotification(pName, watchSubtree, filtFlags))
 {
-	H = FindFirstChangeNotification(pName, watchSubtree, filtFlags);
 }
 
 SLAPI DirChangeNotification::~DirChangeNotification()
@@ -397,9 +398,8 @@ int SLAPI DirChangeNotification::Next()
 //
 //
 //
-SLAPI ReadWriteLock::ReadWriteLock()
+SLAPI ReadWriteLock::ReadWriteLock() : Dr(0), Dw(0), ActiveCount(0)
 {
-	Dr = Dw = ActiveCount = 0;
 }
 
 SLAPI ReadWriteLock::~ReadWriteLock()

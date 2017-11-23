@@ -17,14 +17,9 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-
-/* this is not a core library module, so it doesn't define JPEG_INTERNALS */
-//#include "jinclude.h"
-//#include "jpeglib.h"
-//#include "jerror.h"
-
-/* Expanded data source object for stdio input */
-
+// 
+// Expanded data source object for stdio input 
+// 
 typedef struct {
 	struct jpeg_source_mgr pub; /* public fields */
 	FILE * infile;          /* source stream */

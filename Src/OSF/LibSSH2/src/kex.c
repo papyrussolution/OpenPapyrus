@@ -40,7 +40,7 @@
 #pragma hdrstop
 //#include "transport.h"
 //#include "comp.h"
-#include "mac.h"
+//#include "mac.h"
 
 /* TODO: Switch this to an inline and handle alloc() failures */
 /* Helper macro called from kex_method_diffie_hellman_group1_sha1_key_exchange */

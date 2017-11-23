@@ -194,11 +194,14 @@ void bio_sock_cleanup_int(void);
 	#define BIO_FLAGS_UPLINK 0x8000
 	#include "ms/uplink.h"
 #endif
-#include <openssl/ct.h>
+#include <openssl/ossl_typ.h>
 #include <openssl/crypto.h>
 #include <openssl/buffer.h>
 #include <openssl/rand.h>
 #include <openssl/bio.h>
+#include <openssl/stack.h>
+#include <openssl/safestack.h>
+#include <openssl/lhash.h>
 #include <openssl/err.h>
 #include <openssl/asn1.h>
 #include <openssl/asn1t.h>
@@ -206,14 +209,18 @@ void bio_sock_cleanup_int(void);
 #include <openssl/md4.h>
 #include <openssl/md5.h>
 #include <openssl/sha.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
-#include <openssl/x509_vfy.h>
-#include <openssl/cms.h>
-#include <openssl/pem.h>
+#include <openssl/conf.h>
+#include <openssl/conf_api.h>
 #include <openssl/rsa.h>
 #include <openssl/dsa.h>
 #include <openssl/des.h>
+#include <openssl/dh.h>
+#include <openssl/x509.h>
+#include <openssl/x509v3.h>
+#include <openssl/x509_vfy.h>
+#include <openssl/ct.h>
+#include <openssl/cms.h>
+#include <openssl/pem.h>
 #include <openssl/ec.h>
 #include <openssl/cast.h>
 #include <openssl/blowfish.h>
@@ -223,8 +230,6 @@ void bio_sock_cleanup_int(void);
 #include <openssl/engine.h>
 #include <openssl/async.h>
 #include <openssl/comp.h>
-#include <openssl/stack.h>
-#include <openssl/safestack.h>
 #include <openssl/ui.h>
 #include <openssl/ocsp.h>
 #include <internal/engine.h>
@@ -246,7 +251,18 @@ void bio_sock_cleanup_int(void);
 #include <internal/dane.h>
 #include <internal/o_str.h>
 #include <internal/bn_int.h>
+//
+//#include <internal/poly1305.h>
+//
+#define POLY1305_BLOCK_SIZE 16
 
+typedef struct poly1305_context POLY1305;
+
+size_t Poly1305_ctx_size(void);
+void Poly1305_Init(POLY1305 *ctx, const uchar key[32]);
+void Poly1305_Update(POLY1305 *ctx, const uchar *inp, size_t len);
+void Poly1305_Final(POLY1305 *ctx, uchar mac[16]);
+//
 #ifdef  __cplusplus
 extern "C" {
 #endif

@@ -58,34 +58,24 @@
  * them small.  But if you have memory to burn and access to char or short
  * arrays is very slow on your hardware, you might want to change these.
  */
-
 #if BITS_IN_JSAMPLE == 8
-/* JSAMPLE should be the smallest type that will hold the values 0..255.
- * You can use a signed char by having GETJSAMPLE mask it with 0xFF.
- */
-
-#ifdef HAVE_UNSIGNED_CHAR
-
-typedef uchar JSAMPLE;
-#define GETJSAMPLE(value)  ((int)(value))
-
-#else /* not HAVE_UNSIGNED_CHAR */
-
-typedef char JSAMPLE;
-#ifdef CHAR_IS_UNSIGNED
-#define GETJSAMPLE(value)  ((int) (value))
-#else
-#define GETJSAMPLE(value)  ((int) (value) & 0xFF)
-#endif /* CHAR_IS_UNSIGNED */
-
-#endif /* HAVE_UNSIGNED_CHAR */
-
-#define MAXJSAMPLE	255
-#define CENTERJSAMPLE	128
-
+	/* JSAMPLE should be the smallest type that will hold the values 0..255.
+	 * You can use a signed char by having GETJSAMPLE mask it with 0xFF.
+	 */
+	#ifdef HAVE_UNSIGNED_CHAR
+		typedef uchar JSAMPLE;
+		#define GETJSAMPLE(value)  ((int)(value))
+	#else /* not HAVE_UNSIGNED_CHAR */
+		typedef char JSAMPLE;
+		#ifdef CHAR_IS_UNSIGNED
+			#define GETJSAMPLE(value)  ((int) (value))
+		#else
+			#define GETJSAMPLE(value)  ((int) (value) & 0xFF)
+		#endif /* CHAR_IS_UNSIGNED */
+	#endif /* HAVE_UNSIGNED_CHAR */
+	#define MAXJSAMPLE	255
+	#define CENTERJSAMPLE	128
 #endif /* BITS_IN_JSAMPLE == 8 */
-
-
 #if BITS_IN_JSAMPLE == 9
 /* JSAMPLE should be the smallest type that will hold the values 0..511.
  * On nearly all machines "short" will do nicely.
@@ -129,28 +119,21 @@ typedef short JSAMPLE;
 
 
 #if BITS_IN_JSAMPLE == 12
-/* JSAMPLE should be the smallest type that will hold the values 0..4095.
- * On nearly all machines "short" will do nicely.
- */
-
-typedef short JSAMPLE;
-#define GETJSAMPLE(value)  ((int) (value))
-
-#define MAXJSAMPLE	4095
-#define CENTERJSAMPLE	2048
-
+	/* JSAMPLE should be the smallest type that will hold the values 0..4095.
+	 * On nearly all machines "short" will do nicely.
+	 */
+	typedef short JSAMPLE;
+	#define GETJSAMPLE(value)  ((int) (value))
+	#define MAXJSAMPLE	4095
+	#define CENTERJSAMPLE	2048
 #endif /* BITS_IN_JSAMPLE == 12 */
-
 
 /* Representation of a DCT frequency coefficient.
  * This should be a signed value of at least 16 bits; "short" is usually OK.
  * Again, we allocate large arrays of these, but you can change to int
  * if you have memory to burn and "short" is really slow.
  */
-
 typedef short JCOEF;
-
-
 /* Compressed datastreams are represented as arrays of JOCTET.
  * These must be EXACTLY 8 bits wide, at least once they are written to
  * external storage.  Note that when using the stdio data source/destination
@@ -158,21 +141,16 @@ typedef short JCOEF;
  */
 
 #ifdef HAVE_UNSIGNED_CHAR
-
-typedef uchar JOCTET;
-#define GETJOCTET(value)  (value)
-
+	typedef uchar JOCTET;
+	#define GETJOCTET(value)  (value)
 #else /* not HAVE_UNSIGNED_CHAR */
-
-typedef char JOCTET;
-#ifdef CHAR_IS_UNSIGNED
-#define GETJOCTET(value)  (value)
-#else
-#define GETJOCTET(value)  ((value) & 0xFF)
-#endif /* CHAR_IS_UNSIGNED */
-
+	typedef char JOCTET;
+	#ifdef CHAR_IS_UNSIGNED
+		#define GETJOCTET(value)  (value)
+	#else
+		#define GETJOCTET(value)  ((value) & 0xFF)
+	#endif /* CHAR_IS_UNSIGNED */
 #endif /* HAVE_UNSIGNED_CHAR */
-
 
 /* These typedefs are used for various table entries and so forth.
  * They must be at least as wide as specified; but making them too big

@@ -107,8 +107,7 @@
 /*************************************************************************
  * Constants
  */
-
-static TRIO_CONST char rcsid[] = "@(#)$Id$";
+static const char rcsid[] = "@(#)$Id$";
 
 #if defined(USE_IEEE_754)
 
@@ -126,23 +125,23 @@ static TRIO_CONST char rcsid[] = "@(#)$Id$";
 #define TRIO_DOUBLE_INDEX(x) (((uchar *)&internalEndianMagic)[7-(x)])
 
 #if (defined(__BORLANDC__) && __BORLANDC__ >= 0x0590)
-static TRIO_CONST double internalEndianMagic = 7.949928895127362e-275;
+static const double internalEndianMagic = 7.949928895127362e-275;
 #else
-static TRIO_CONST double internalEndianMagic = 7.949928895127363e-275;
+static const double internalEndianMagic = 7.949928895127363e-275;
 #endif
 
 /* Mask for the exponent */
-static TRIO_CONST uchar ieee_754_exponent_mask[] = { 0x7F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static const uchar ieee_754_exponent_mask[] = { 0x7F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 /* Mask for the mantissa */
-static TRIO_CONST uchar ieee_754_mantissa_mask[] = { 0x00, 0x0F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+static const uchar ieee_754_mantissa_mask[] = { 0x00, 0x0F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 /* Mask for the sign bit */
-static TRIO_CONST uchar ieee_754_sign_mask[] = { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static const uchar ieee_754_sign_mask[] = { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 /* Bit-pattern for negative zero */
-static TRIO_CONST uchar ieee_754_negzero_array[] = { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static const uchar ieee_754_negzero_array[] = { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 /* Bit-pattern for infinity */
-static TRIO_CONST uchar ieee_754_infinity_array[] = { 0x7F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static const uchar ieee_754_infinity_array[] = { 0x7F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 /* Bit-pattern for quiet NaN */
-static TRIO_CONST uchar ieee_754_qnan_array[] = { 0x7F, 0xF8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static const uchar ieee_754_qnan_array[] = { 0x7F, 0xF8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 /*************************************************************************
  * Functions
@@ -151,7 +150,7 @@ static TRIO_CONST uchar ieee_754_qnan_array[] = { 0x7F, 0xF8, 0x00, 0x00, 0x00, 
 /*
  * trio_make_double
  */
-TRIO_PRIVATE double trio_make_double(TRIO_CONST unsigned char * values)
+TRIO_PRIVATE double trio_make_double(const unsigned char * values)
 {
 	TRIO_VOLATILE double result;
 	int i;
@@ -608,7 +607,7 @@ TRIO_PUBLIC int trio_fpclassify(double number)
 #if defined(STANDALONE)
 #include <stdio.h>
 
-static TRIO_CONST char * getClassification(int type)
+static const char * getClassification(int type)
 {
 	switch(type) {
 		case TRIO_FP_INFINITE: return "FP_INFINITE";
@@ -620,7 +619,7 @@ static TRIO_CONST char * getClassification(int type)
 	}
 }
 
-static void print_class(TRIO_CONST char * prefix, double number)
+static void print_class(const char * prefix, double number)
 {
 	printf("%-6s: %s %-15s %g\n", prefix, trio_signbit(number) ? "-" : "+", getClassification(TRIO_FPCLASSIFY(number)), number);
 }
@@ -628,7 +627,7 @@ static void print_class(TRIO_CONST char * prefix, double number)
 int main()
 {
 # if defined(TRIO_PLATFORM_UNIX)
-	void (*signal_handler)TRIO_PROTO((int));
+	void (*signal_handler)(int);
 # endif
 	double my_nan = trio_nan();
 	double my_pinf = trio_pinf();

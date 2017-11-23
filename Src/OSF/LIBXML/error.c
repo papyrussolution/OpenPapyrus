@@ -196,7 +196,7 @@ void xmlParserPrintFileContext(xmlParserInput * input)
  * Report an erro with its context, replace the 4 old error/warning
  * routines.
  */
-static void xmlReportError(xmlErrorPtr err, xmlParserCtxtPtr ctxt, const char * str, xmlGenericErrorFunc channel, void * data)
+static void xmlReportError(xmlErrorPtr err, xmlParserCtxt * ctxt, const char * str, xmlGenericErrorFunc channel, void * data)
 {
 	char * file = NULL;
 	int line = 0;
@@ -349,7 +349,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
     void * nod, int domain, int code, xmlErrorLevel level, const char * file, int line, const char * str1,
     const char * str2, const char * str3, int int1, int col, const char * msg, ...)
 {
-	xmlParserCtxtPtr ctxt = NULL;
+	xmlParserCtxt * ctxt = NULL;
 	xmlNode * P_Node = (xmlNode *)nod;
 	char * str = NULL;
 	xmlParserInputPtr input = NULL;
@@ -360,7 +360,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 	if((xmlGetWarningsDefaultValue == 0) && (level == XML_ERR_WARNING))
 		return;
 	if(oneof6(domain, XML_FROM_PARSER, XML_FROM_HTML, XML_FROM_DTD, XML_FROM_NAMESPACE, XML_FROM_IO, XML_FROM_VALID)) {
-		ctxt = (xmlParserCtxtPtr)ctx;
+		ctxt = (xmlParserCtxt *)ctx;
 		if(!schannel && ctxt && ctxt->sax && (ctxt->sax->initialized == XML_SAX2_MAGIC) && ctxt->sax->serror) {
 			schannel = ctxt->sax->serror;
 			data = ctxt->userData;

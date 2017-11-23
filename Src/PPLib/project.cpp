@@ -2327,7 +2327,6 @@ int SLAPI PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int
 		PrjTaskTbl::Key0 k0;
 		PPIDArray todo_list;
 		DBQ * dbq = 0;
-
 		THROW_MEM(p_q = new BExtQuery(P_Tbl, 0));
 		MEMSZERO(k0);
 		if(todoPerson == TODOPSN_CREATOR)

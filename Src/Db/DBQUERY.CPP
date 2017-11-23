@@ -739,7 +739,7 @@ void FASTCALL DBQuery::fillRecord(char * buf, RECORDNUMBER * pPos)
 
 #define INVALID_DIRECTION_CODE 0
 
-int SLAPI DBQuery::single_fetch(Pchar buf, RECORDNUMBER * pPos, int dir)
+int SLAPI DBQuery::single_fetch(char * buf, RECORDNUMBER * pPos, int dir)
 {
 	if(_search(0, dir)) {
 		fillRecord(buf, pPos);
@@ -771,9 +771,9 @@ int SLAPI DBQuery::fetch(long count, char * pBuf, RECORDNUMBER * pPos, int dir)
 	return (i < count) ? 0 : 1;
 }
 
-int SLAPI DBQuery::fetch(long count, Pchar buf, int dir)
+int SLAPI DBQuery::fetch(long count, char * pBuf, int dir)
 {
-	return fetch(count, buf, 0, dir);
+	return fetch(count, pBuf, 0, dir);
 }
 
 #define BOQ  (P_Frame->state & Frame::Top)

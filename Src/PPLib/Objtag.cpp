@@ -487,7 +487,6 @@ void * SLAPI PPObjTag::CreateObjListWin(uint flags, void * extraPtr)
 			}
 			else
 				ExtraPtr = 0;
-			//
 			DefaultCmd = cmaEdit;
 			SetToolbar(TOOLBAR_LIST_TAG);
 			{

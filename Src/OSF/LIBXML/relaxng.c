@@ -20,9 +20,6 @@
 #ifdef LIBXML_SCHEMAS_ENABLED
 #include <libxml/relaxng.h>
 #include <libxml/xmlschemastypes.h>
-//#include <libxml/xmlautomata.h>
-//#include <libxml/xmlregexp.h>
-#include <libxml/xmlschemastypes.h>
 /*
  * The Relax-NG namespace
  */

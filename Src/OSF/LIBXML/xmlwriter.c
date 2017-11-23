@@ -349,7 +349,7 @@ xmlTextWriter * xmlNewTextWriterTree(xmlDoc * doc, xmlNodePtr P_Node, int compre
 		saxHandler.startDocument = xmlTextWriterStartDocumentCallback;
 		saxHandler.startElement = xmlSAX2StartElement;
 		saxHandler.endElement = xmlSAX2EndElement;
-		xmlParserCtxtPtr ctxt = xmlCreatePushParserCtxt(&saxHandler, NULL, NULL, 0, 0);
+		xmlParserCtxt * ctxt = xmlCreatePushParserCtxt(&saxHandler, NULL, NULL, 0, 0);
 		if(!ctxt) {
 			xmlWriterErrMsg(NULL, XML_ERR_INTERNAL_ERROR, "xmlNewTextWriterDoc : error at xmlCreatePushParserCtxt!\n");
 		}

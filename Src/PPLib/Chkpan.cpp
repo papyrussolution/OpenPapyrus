@@ -135,12 +135,8 @@ private:
 	virtual void FASTCALL freeItem(void *);
 };
 
-SaComplex::SaComplex() : TSArray <SaComplexEntry> ()
+SaComplex::SaComplex() : TSArray <SaComplexEntry> (), GoodsID(0), StrucID(0), Qtty(0.0), Price(0.0)
 {
-	GoodsID = 0;
-	StrucID = 0;
-	Qtty = 0.0;
-	Price = 0.0;
 }
 
 void SaComplex::Init(PPID goodsID, PPID strucID, double qtty)
@@ -1029,7 +1025,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	ExtCashNodeID  = 0;
 	AltRegisterID  = 0; // @v9.6.9
 	{
-		SArray temp_list(sizeof(PPGenCashNode::DivGrpAssc));
+		SVector temp_list(sizeof(PPGenCashNode::DivGrpAssc)); // @v9.8.9 SArray-->SVector
 		if(PPRef->GetPropArray(PPOBJ_CASHNODE, CashNodeID, CNPRP_DIVGRPASSC, &temp_list) > 0 && temp_list.getCount())
 			P_DivGrpList = new SArray(temp_list);
 	}
@@ -1049,7 +1045,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 	SETFLAG(Flags, fLocPrinters, lp_obj.IsPrinter());
 	{
 		// @v9.8.4 {
-		struct RtTabEntry { long Orf; long CsR; int IsOprRt; };
+		struct RtTabEntry { long Orf; long CsR; int8 IsOprRt; };
 		RtTabEntry rt_tab[] = {
 			{ orfReturns,                 CSESSOPRT_RETCHECK,       1 },
 			{ orfEscCheck,                CSESSRT_ESCCHECK,         0 },
@@ -3258,7 +3254,9 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				if(scn.ExtFlags & CASHFX_UHTTORDIMPORT) {
 					PPAlbatrosConfig acfg;
 					PPAlbatrosCfgMngr::Get(&acfg);
-					if(acfg.UhttAccount.NotEmpty() && acfg.Hdr.OpID) {
+					acfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
+					//if(acfg.UhttAccount.NotEmpty() && acfg.Hdr.OpID) {
+					if(temp_buf.NotEmpty() && acfg.Hdr.OpID) {
 						P_UhttImporter = new PPBillImporter;
 					}
 				}
@@ -4156,10 +4154,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 								int    r = 1; // @vmiller
 								paym_blk2.ExclSCardID = CSt.GetID();
 								const double ccpl_total = paym_blk2.CcPl.GetTotal();
-								// @v9.6.9 {
-								if(AltRegisterID)
-									paym_blk2.AltCashReg = 0;
-								// } @v9.6.9
+								paym_blk2.AltCashReg = AltRegisterID ? 0 : -1; // @v9.6.9 // @v9.8.9 expicit 0
 								for(int _again = 1; _again && paym_blk2.EditDialog2() > 0;) {
 									assert(feqeps(paym_blk2.CcPl.GetTotal(), ccpl_total, 0.00001));
 									assert(oneof3(paym_blk2.Kind, cpmCash, cpmBank, cpmIncorpCrd));
@@ -4273,9 +4268,8 @@ int FASTCALL CheckPaneDialog::Barrier(int rmv)
 
 class ComplexDinnerDialog : public PPListDialog {
 public:
-	ComplexDinnerDialog(PPID locID) : PPListDialog(DLG_COMPLDIN, CTL_COMPLDIN_ELEMENTS)
+	ComplexDinnerDialog(PPID locID) : PPListDialog(DLG_COMPLDIN, CTL_COMPLDIN_ELEMENTS), LocID(locID)
 	{
-		LocID = locID;
 		{
 			SmartListBox * p_list = (SmartListBox *)getCtrlView(CTL_COMPLDIN_ALTLIST);
 			if(!SetupStrListBox(p_list))
@@ -4497,13 +4491,8 @@ struct _SelCheck {
 class SelCheckListDialog : public PPListDialog {
 public:
 	struct AddedParam {
-		AddedParam(PPID nodeID, long tableCode, PPID agentID, long rights)
+		AddedParam(PPID nodeID, long tableCode, PPID agentID, long rights) : NodeID(nodeID), TableCode(tableCode), AgentID(agentID), Rights(rights), Flags(0)
 		{
-			NodeID    = nodeID;
-			TableCode = tableCode;
-			AgentID   = agentID;
-			Rights    = rights;
-			Flags     = 0;
 		}
 		enum {
 			fAllowReturns = 0x0001
@@ -8224,7 +8213,7 @@ int CheckPaneDialog::CDispCommand(int cmd, int iVal, double rv1, double rv2)
 //
 int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPrice)
 {
-	rSerial = 0;
+	rSerial.Z();
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
 	SelLotBrowser::Entry * p_sel = 0;
@@ -8388,12 +8377,10 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 									class LbpListDialog : public PPListDialog {
 									public:
 										LbpListDialog(const RealArray & rList, const SString * pInfoText) :
-											PPListDialog(DLG_SELLKBKPRICE, CTL_SELLKBKPRICE_LIST, fOnDblClkOk), R_List(rList)
+											PPListDialog(DLG_SELLKBKPRICE, CTL_SELLKBKPRICE_LIST, fOnDblClkOk), R_List(rList), Id(0)
 										{
-											Id = 0;
-											if(pInfoText) {
+											if(pInfoText)
 												setCtrlString(CTL_SELLKBKPRICE_INFO, *pInfoText);
-											}
 											updateList(0);
 										}
 									protected:
@@ -8510,9 +8497,8 @@ void CheckPaneDialog::SelectGoods__(int mode)
 							clrUnsel
 						};
 
-						CpSelModDialog(SaModif & rList) : PPListDialog(DLG_CPSELMOD, CTL_CPSELMOD_ELEMENTS)
+						CpSelModDialog(SaModif & rList) : PPListDialog(DLG_CPSELMOD, CTL_CPSELMOD_ELEMENTS), List(rList), ListEntryGap(5)
 						{
-							List = rList;
 							setSmartListBoxOption(CTL_CPSELMOD_ELEMENTS, lbtFocNotify);
 							setSmartListBoxOption(CTL_CPSELMOD_ELEMENTS, lbtDblClkNotify);
 							Ptb.SetColor(clrFocus,  RGB(0x20, 0xAC, 0x90));
@@ -8525,7 +8511,6 @@ void CheckPaneDialog::SelectGoods__(int mode)
 								LOGFONT log_font;
 								MEMSZERO(log_font);
 								log_font.lfCharSet = DEFAULT_CHARSET;
-								ListEntryGap = 5;
 								PPGetSubStr(PPTXT_FONTFACE, PPFONT_ARIAL, temp_buf);
 								STRNSCPY(log_font.lfFaceName, temp_buf); // @unicodeproblem
 								log_font.lfHeight = (DEFAULT_TS_FONTSIZE - TSGGROUPSASITEMS_FONTDELTA);
@@ -8873,13 +8858,10 @@ int CheckPaneDialog::AcceptRowDiscount()
 
 class SCardInfoDialog : public PPListDialog {
 public:
-	SCardInfoDialog(int asSelector) : PPListDialog(DLG_SCARDVIEW, CTL_SCARDVIEW_LIST)
+	SCardInfoDialog(int asSelector) : PPListDialog(DLG_SCARDVIEW, CTL_SCARDVIEW_LIST), LocalState(0), SCardID(0), OwnerID(0)
 	{
-		LocalState = 0;
 		if(asSelector)
 			LocalState |= stAsSelector;
-		SCardID = 0;
-		OwnerID = 0;
 		addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_SCARDVIEW_IMAGE, cmAddImage, cmDelImage,
 			PsnObj.CheckRights(PSNRT_UPDIMAGE), ImageBrowseCtrlGroup::fUseExtOpenDlg));
 		selectCtrl(CTL_SCARDVIEW_INPUT);
@@ -9049,9 +9031,9 @@ private:
 		}
 		PPID   Get(uint pos, SString & rPersonName, SString & rCardCode, SString & rCardSerName, LDATE & rExpiry)
 		{
-			rPersonName = 0;
-			rCardCode = 0;
-			rCardSerName = 0;
+			rPersonName.Z();
+			rCardCode.Z();
+			rCardSerName.Z();
 			rExpiry = ZERODATE;
 			if(pos < getCount()) {
 				const SpcListItem & r_item = at(pos);
@@ -12310,14 +12292,8 @@ int SLAPI ViewGoodsInfo(const InfoKioskPaneFilt * pFilt)
 class PrcssrCCheckGenerator {
 public:
 	struct Param {
-		Param()
+		Param() : SCardPeriod(5), P_Pan(0), MaxCc(0), MaxTime(0), LineDelay(100), MaxCheckDelay(5)
 		{
-			SCardPeriod = 5;
-			P_Pan = 0;
-			MaxCc = 0;
-			MaxTime = 0;
-			LineDelay = 100;
-			MaxCheckDelay = 5;
 		}
 		uint   SCardPeriod;      // Ориентировочный период чеков, которые пробиваются с дисконтными картами
 			// Если SCardPeriod = 5, то примерно каждый пятый чек будет пробит по карте.
@@ -12345,14 +12321,8 @@ private:
 	SRng * P_RngCount;  // Генератор количества строк в чеке
 };
 
-PrcssrCCheckGenerator::PrcssrCCheckGenerator()
+PrcssrCCheckGenerator::PrcssrCCheckGenerator() : P_ScList(0), P_RngGoods(0), P_RngSCard(0), P_RngDelay(0), P_RngQtty(0), P_RngCount(0)
 {
-	P_ScList = 0;
-	P_RngGoods = 0;
-	P_RngSCard = 0;
-	P_RngDelay = 0;
-	P_RngQtty = 0;
-	P_RngCount = 0;
 }
 
 PrcssrCCheckGenerator::~PrcssrCCheckGenerator()

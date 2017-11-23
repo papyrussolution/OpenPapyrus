@@ -1693,7 +1693,7 @@ public:
 	virtual ~VetisApplicationData()
 	{
 	}
-protected:
+
 	int    Sign;
 	//
 	SString LocalTransactionId;
@@ -1714,6 +1714,12 @@ public:
 
 struct VetisApplicationBlock {
 	VetisApplicationBlock();
+	~VetisApplicationBlock();
+
+	enum {
+		detUndef = 0,
+		detGetStockEntryListReq = 1
+	};
 
 	enum {
 		appstUndef     = -1,
@@ -1723,16 +1729,21 @@ struct VetisApplicationBlock {
 		appstRejected  = 3
 	};
 	int    ApplicationStatus;
+	int    Func;
+	int64  LocalTransactionId;
 	SString ServiceId;
 	S_GUID ApplicationId;
 	S_GUID IssuerId;
+	S_GUID EnterpriseId;
 	LDATETIME IssueDate;
 	LDATETIME RcvDate;
 	LDATETIME PrdcRsltDate;
 
-	SString Data;
-	SString Result;
+	//SString Data;
+	//SString Result;
 	TSCollection <VetisErrorEntry> ErrList;
+	//
+	VetisGetStockEntryListRequest * P_GselReq;
 };
 
 typedef VetisApplicationBlock * (* VETIS_SUBMITAPPLICATIONREQUEST_PROC)(PPSoapClientSession & rSess, const char * pApiKey, const VetisApplicationBlock & rBlk);

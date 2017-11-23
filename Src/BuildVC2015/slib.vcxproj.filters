@@ -129,22 +129,7 @@
     <ClInclude Include="..\Include\json.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Schecks.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Sbrowser.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Sarray.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\Slib.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Smath.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Stype.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\StyloConduit.h">

@@ -20,7 +20,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GenVer", "GenVer.vcproj", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "slib", "slib.vcproj", "{D507E468-21FC-4209-A5A8-DE1F055866DC}"
 	ProjectSection(ProjectDependencies) = postProject
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1} = {71299190-2AD8-4D7E-B030-AF087EBB64D1}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "db", "db.vcproj", "{B69839D2-66EA-4506-AA8D-9F1287E0DEE7}"
@@ -162,10 +161,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openssl-crypto", "openssl-crypto.vcproj", "{519272D1-6AC2-4B29-BADF-9F9A7AF3383C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C23C2B5B-224B-475D-8AE3-82289A87602C} = {C23C2B5B-224B-475D-8AE3-82289A87602C}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libuchardet", "libuchardet.vcproj", "{71299190-2AD8-4D7E-B030-AF087EBB64D1}"
-	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
 Global
@@ -879,28 +874,6 @@ Global
 		{519272D1-6AC2-4B29-BADF-9F9A7AF3383C}.ServerRelease.Build.0 = ServerRelease|Win32
 		{519272D1-6AC2-4B29-BADF-9F9A7AF3383C}.Universe-HTT.ActiveCfg = ServerRelease|Win32
 		{519272D1-6AC2-4B29-BADF-9F9A7AF3383C}.Universe-HTT.Build.0 = ServerRelease|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Debug.ActiveCfg = Debug|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Debug.Build.0 = Debug|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Debug Multithreaded.ActiveCfg = Debug|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Debug Multithreaded.Build.0 = Debug|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Debug Singlethreaded.ActiveCfg = Debug|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Debug Singlethreaded.Build.0 = Debug|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.MtDllDebug.ActiveCfg = Debug|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.MtDllDebug.Build.0 = Debug|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.MtDllRelease.ActiveCfg = Release|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.MtDllRelease.Build.0 = Release|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Release.ActiveCfg = Release|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Release.Build.0 = Release|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Release Multithreaded.ActiveCfg = Release|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Release Multithreaded.Build.0 = Release|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Release Singlethreaded.ActiveCfg = Release|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Release Singlethreaded.Build.0 = Release|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.ServerDebug.ActiveCfg = Debug|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.ServerDebug.Build.0 = Debug|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.ServerRelease.ActiveCfg = Release|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.ServerRelease.Build.0 = Release|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Universe-HTT.ActiveCfg = Release|Win32
-		{71299190-2AD8-4D7E-B030-AF087EBB64D1}.Universe-HTT.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

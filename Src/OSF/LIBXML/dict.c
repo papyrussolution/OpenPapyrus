@@ -67,9 +67,9 @@
 struct xmlDictEntry {
 	xmlDictEntry * next;
 	const xmlChar * name;
-	uint len;
-	int valid;
-	ulong okey;
+	uint   len;
+	int    valid;
+	ulong  okey;
 };
 
 typedef xmlDictEntry * xmlDictEntryPtr;
@@ -98,25 +98,15 @@ struct xmlDict {
 	int    seed; // used for randomization 
 	size_t limit; // used to impose a limit on size 
 };
-/*
- * A mutex for modifying the reference counter for shared
- * dictionaries.
- */
-static xmlRMutex * xmlDictMutex = NULL;
-/*
- * Whether the dictionary mutex was initialized.
- */
-static int xmlDictInitialized = 0;
+
+static xmlRMutex * xmlDictMutex = NULL; // A mutex for modifying the reference counter for shared dictionaries.
+static int xmlDictInitialized = 0; // Whether the dictionary mutex was initialized.
 
 #ifdef DICT_RANDOMIZATION
-#ifdef HAVE_RAND_R
-/*
- * Internal data for random function, protected by xmlDictMutex
- */
-static uint rand_seed = 0;
+	#ifdef HAVE_RAND_R
+		static uint rand_seed = 0; // Internal data for random function, protected by xmlDictMutex
+	#endif
 #endif
-#endif
-
 /**
  * xmlInitializeDict:
  *
@@ -130,7 +120,6 @@ int xmlInitializeDict()
 {
 	return 0;
 }
-
 /**
  * __xmlInitializeDict:
  *
@@ -180,7 +169,6 @@ int __xmlRandom()
 }
 
 #endif
-
 /**
  * xmlDictCleanup:
  *
@@ -194,7 +182,6 @@ void xmlDictCleanup()
 		xmlDictInitialized = 0;
 	}
 }
-
 /*
  * xmlDictAddString:
  * @dict: the dictionnary
@@ -336,8 +323,7 @@ found_pool:
  * Hash function by "One-at-a-Time Hash" see
  * http://burtleburtle.net/bob/hash/doobs.html
  */
-
-static uint32 xmlDictComputeBigKey(const xmlChar* data, int namelen, int seed)
+static uint32 xmlDictComputeBigKey(const xmlChar * data, int namelen, int seed)
 {
 	uint32 hash = 0;
 	if(namelen > 0 && data) {
@@ -353,7 +339,6 @@ static uint32 xmlDictComputeBigKey(const xmlChar* data, int namelen, int seed)
 	}
 	return hash;
 }
-
 /*
  * xmlDictComputeBigQKey:
  *
@@ -367,9 +352,8 @@ static uint32 xmlDictComputeBigKey(const xmlChar* data, int namelen, int seed)
  */
 static ulong xmlDictComputeBigQKey(const xmlChar * prefix, int plen, const xmlChar * name, int len, int seed)
 {
-	uint32 hash;
 	int i;
-	hash = seed;
+	uint32 hash = seed;
 	for(i = 0; i < plen; i++) {
 		hash += prefix[i];
 		hash += (hash << 10);

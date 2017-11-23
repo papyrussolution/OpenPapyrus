@@ -11,12 +11,42 @@ public:
 	AlbatrosConfigDialog() : TDialog(DLG_ALBTRCFG2)
 	{
 	}
-	int  setDTS(const PPAlbatrosConfig *);
-	int  getDTS(PPAlbatrosConfig *);
+	int    setDTS(const PPAlbatrosConfig *);
+	int    getDTS(PPAlbatrosConfig *);
 private:
 	DECL_HANDLE_EVENT;
+	int    EditVetisConfig();
+
 	PPAlbatrosConfig Data;
 };
+
+int AlbatrosConfigDialog::EditVetisConfig()
+{
+	int    ok = -1;
+	TDialog * dlg = new TDialog(DLG_VETISCFG);
+	if(CheckDialogPtrErr(&dlg)) {
+		SString temp_buf;
+		Data.GetExtStrData(ALBATROSEXSTR_VETISUSER, temp_buf);
+		dlg->setCtrlString(CTL_VETISCFG_USER, temp_buf);
+		Data.GetPassword(ALBATROSEXSTR_VETISPASSW, temp_buf);
+		dlg->setCtrlString(CTL_VETISCFG_PASSW, temp_buf);
+		Data.GetExtStrData(ALBATROSEXSTR_VETISAPIKEY, temp_buf);
+		dlg->setCtrlString(CTL_VETISCFG_APIKEY, temp_buf);
+		while(ok < 0 && ExecView(dlg) == cmOK) {
+			dlg->getCtrlString(CTL_VETISCFG_USER, temp_buf);
+			Data.PutExtStrData(ALBATROSEXSTR_VETISUSER, temp_buf.Strip());
+			dlg->getCtrlString(CTL_VETISCFG_PASSW, temp_buf);
+			Data.SetPassword(ALBATROSEXSTR_VETISPASSW, temp_buf);
+			dlg->getCtrlString(CTL_VETISCFG_APIKEY, temp_buf);
+			Data.PutExtStrData(ALBATROSEXSTR_VETISAPIKEY, temp_buf);
+			ok = 1;
+		}
+	}
+	else
+		ok = 0;
+	delete dlg;
+	return ok;
+}
 
 IMPL_HANDLE_EVENT(AlbatrosConfigDialog)
 {
@@ -27,11 +57,14 @@ IMPL_HANDLE_EVENT(AlbatrosConfigDialog)
 		if(mac_obj.Edit(&mac_id, 0) == cmOK)
 			SetupPPObjCombo(this, CTLSEL_ALBTRCFG_MAILACC, PPOBJ_INTERNETACCOUNT, mac_id, OLW_CANINSERT, (void *)PPObjInternetAccount::filtfMail);
 	}
-	if(event.isCmd(cmEditSmsAcc)) {
+	else if(event.isCmd(cmEditSmsAcc)) {
 		PPObjSmsAccount mac_obj;
 		PPID   mac_id = getCtrlLong(CTLSEL_ALBTRCFG_SMSACC);
 		if(mac_obj.Edit(&mac_id, 0) == cmOK)
 			SetupPPObjCombo(this, CTLSEL_ALBTRCFG_SMSACC, PPOBJ_SMSPRVACCOUNT, mac_id, OLW_CANINSERT, 0);
+	}
+	else if(event.isCmd(cmVetisConfig)) {
+		EditVetisConfig();
 	}
 	else
 		return;
@@ -49,12 +82,16 @@ int AlbatrosConfigDialog::setDTS(const PPAlbatrosConfig * pCfg)
 	SetupOprKindCombo(this, CTLSEL_ALBTRCFG_OPKINDID, Data.Hdr.OpID, 0, &op_type_list, 0);
 	SetupPPObjCombo(this, CTLSEL_ALBTRCFG_MAILACC, PPOBJ_INTERNETACCOUNT, Data.Hdr.MailAccID, OLW_CANINSERT, (void *)PPObjInternetAccount::filtfMail);
 	SetupPPObjCombo(this, CTLSEL_ALBTRCFG_SMSACC, PPOBJ_SMSPRVACCOUNT, Data.Hdr.SmsAccID, OLW_CANINSERT, 0);
-	setCtrlString(CTL_ALBTRCFG_UHTTURN, Data.UhttUrn);
-	setCtrlString(CTL_ALBTRCFG_UHTTURLPFX, Data.UhttUrlPrefix);
-	setCtrlString(CTL_ALBTRCFG_UHTTACCOUNT, Data.UhttAccount);
+	Data.GetExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
+	setCtrlString(CTL_ALBTRCFG_UHTTURN, temp_buf/*Data.UhttUrn*/);
+	Data.GetExtStrData(ALBATROSEXSTR_UHTTURLPFX, temp_buf);
+	setCtrlString(CTL_ALBTRCFG_UHTTURLPFX, temp_buf/*Data.UhttUrlPrefix*/);
+	Data.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
+	setCtrlString(CTL_ALBTRCFG_UHTTACCOUNT, temp_buf/*Data.UhttAccount*/);
 	Data.GetPassword(ALBATROSEXSTR_UHTTPASSW, temp_buf);
 	setCtrlString(CTL_ALBTRCFG_UHTTPASSW, temp_buf);
-	setCtrlString(CTL_ALBTRCFG_EGAISURL, Data.EgaisServerURL); // @v8.8.0
+	Data.GetExtStrData(ALBATROSEXSTR_EGAISSRVURL, temp_buf);
+	setCtrlString(CTL_ALBTRCFG_EGAISURL, temp_buf/*Data.EgaisServerURL*/);
 
 	op_type_list.clear();
 	op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0);
@@ -100,12 +137,16 @@ int AlbatrosConfigDialog::getDTS(PPAlbatrosConfig * pCfg)
 	getCtrlData(CTLSEL_ALBTRCFG_OPKINDID, &Data.Hdr.OpID);
 	getCtrlData(CTLSEL_ALBTRCFG_MAILACC,  &Data.Hdr.MailAccID);
 	getCtrlData(CTLSEL_ALBTRCFG_SMSACC,  &Data.Hdr.SmsAccID);
-	getCtrlString(CTL_ALBTRCFG_UHTTURN, Data.UhttUrn);
-	getCtrlString(CTL_ALBTRCFG_UHTTURLPFX, Data.UhttUrlPrefix);
-	getCtrlString(CTL_ALBTRCFG_UHTTACCOUNT, Data.UhttAccount);
+	getCtrlString(CTL_ALBTRCFG_UHTTURN, temp_buf);
+	Data.PutExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
+	getCtrlString(CTL_ALBTRCFG_UHTTURLPFX, temp_buf/*Data.UhttUrlPrefix*/);
+	Data.PutExtStrData(ALBATROSEXSTR_UHTTURLPFX, temp_buf);
+	getCtrlString(CTL_ALBTRCFG_UHTTACCOUNT, temp_buf/*Data.UhttAccount*/);
+	Data.PutExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
 	getCtrlString(CTL_ALBTRCFG_UHTTPASSW, temp_buf);
 	Data.SetPassword(ALBATROSEXSTR_UHTTPASSW, temp_buf);
-	getCtrlString(CTL_ALBTRCFG_EGAISURL, Data.EgaisServerURL); // @v8.8.0
+	getCtrlString(CTL_ALBTRCFG_EGAISURL, temp_buf/*Data.EgaisServerURL*/); // @v8.8.0
+	Data.PutExtStrData(ALBATROSEXSTR_EGAISSRVURL, temp_buf);
 
 	getCtrlData(CTLSEL_ALBTRCFG_EDIORD, &Data.Hdr.EdiOrderOpID);
 	getCtrlData(CTLSEL_ALBTRCFG_EDIORDSP, &Data.Hdr.EdiOrderSpOpID);
@@ -128,11 +169,22 @@ SLAPI PPAlbatrosConfig::PPAlbatrosConfig()
 PPAlbatrosConfig & SLAPI PPAlbatrosConfig::Clear()
 {
 	MEMSZERO(Hdr);
-	UhttUrn = 0;
-	UhttUrlPrefix = 0;
-	UhttAccount = 0;
-	UhttPassword = 0;
+	ExtString.Z();
+	//UhttUrn = 0;
+	//UhttUrlPrefix = 0;
+	//UhttAccount = 0;
+	//UhttPassword = 0;
 	return *this;
+}
+
+int SLAPI PPAlbatrosConfig::GetExtStrData(int fldID, SString & rBuf) const
+{
+	return PPGetExtStrData(fldID, ExtString, rBuf);
+}
+
+int SLAPI PPAlbatrosConfig::PutExtStrData(int fldID, const char * pStr)
+{
+	return PPPutExtStrData(fldID, ExtString, pStr);
 }
 
 #define UHTT_PW_SIZE 20
@@ -140,59 +192,32 @@ PPAlbatrosConfig & SLAPI PPAlbatrosConfig::Clear()
 int SLAPI PPAlbatrosConfig::SetPassword(int fld, const char * pPassword)
 {
 	int    ok = 1;
-	if(fld == ALBATROSEXSTR_UHTTPASSW) {
-		/*
-		char   temp_pw[UHTT_PW_SIZE], temp_buf[UHTT_PW_SIZE*3+8];
-		STRNSCPY(temp_pw, pPassword);
-		IdeaEncrypt(0, temp_pw, sizeof(temp_pw));
-		size_t i = 0, p = 0;
-		for(; i < UHTT_PW_SIZE; i++) {
-			sprintf(temp_buf+p, "%03u", (uint8)temp_pw[i]);
-			p += 3;
-		}
-		temp_buf[p] = 0;
-		UhttPassword = temp_buf;
-		*/
-		Reference::Helper_EncodeOtherPw(0, pPassword, UHTT_PW_SIZE, UhttPassword);
-	}
-	else {
-		ok = -1;
-	}
-	return ok;
-}
-
-int SLAPI PPAlbatrosConfig::GetPassword(int fld, SString & rPw)
-{
-	rPw = 0;
-
-	int    ok = 1;
-	if(fld == ALBATROSEXSTR_UHTTPASSW) {
-		/*
-		char   temp_pw[UHTT_PW_SIZE], temp_buf[UHTT_PW_SIZE*3+8];
-		UhttPassword.CopyTo(temp_buf, sizeof(temp_buf));
-		if(strlen(temp_buf) == (UHTT_PW_SIZE*3)) {
-			for(size_t i = 0, p = 0; i < UHTT_PW_SIZE; i++) {
-				char   nmb[16];
-				nmb[0] = temp_buf[p];
-				nmb[1] = temp_buf[p+1];
-				nmb[2] = temp_buf[p+2];
-				nmb[3] = 0;
-				temp_pw[i] = atoi(nmb);
-				p += 3;
-			}
-			IdeaDecrypt(0, temp_pw, sizeof(temp_pw));
-		}
-		else
-			temp_pw[0] = 0;
-		rPw = temp_pw;
-		IdeaRandMem(temp_pw, sizeof(temp_pw));
-		*/
-		Reference::Helper_DecodeOtherPw(0, UhttPassword, UHTT_PW_SIZE, rPw);
+	SString temp_buf;
+	if(oneof2(fld, ALBATROSEXSTR_UHTTPASSW, ALBATROSEXSTR_VETISPASSW)) {
+		Reference::Helper_EncodeOtherPw(0, pPassword, UHTT_PW_SIZE, temp_buf/*UhttPassword*/);
+		PutExtStrData(fld, temp_buf);
 	}
 	else
 		ok = -1;
 	return ok;
 }
+
+int SLAPI PPAlbatrosConfig::GetPassword(int fld, SString & rPw)
+{
+	rPw.Z();
+	int    ok = 1;
+	SString temp_buf;
+	if(oneof2(fld, ALBATROSEXSTR_UHTTPASSW, ALBATROSEXSTR_VETISPASSW)) {
+		GetExtStrData(fld, temp_buf);
+		Reference::Helper_DecodeOtherPw(0, temp_buf/*UhttPassword*/, UHTT_PW_SIZE, rPw);
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+static const int16 AlbatrossStrIdList[] = { ALBATROSEXSTR_UHTTURN, ALBATROSEXSTR_UHTTURLPFX, ALBATROSEXSTR_UHTTACC, ALBATROSEXSTR_UHTTPASSW,
+	ALBATROSEXSTR_EGAISSRVURL, ALBATROSEXSTR_VETISUSER, ALBATROSEXSTR_VETISPASSW, ALBATROSEXSTR_VETISAPIKEY };
 
 //static
 int SLAPI PPAlbatrosCfgMngr::Helper_Put(Reference * pRef, PPAlbatrosConfig * pCfg, int use_ta)
@@ -200,15 +225,16 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Put(Reference * pRef, PPAlbatrosConfig * pCf
 	int    ok = 1;
 	size_t p = 0;
 	uint   s = sizeof(pCfg->Hdr);
+	SString temp_buf;
 	SString tail, pw;
 	PPTransaction tra(use_ta);
 	THROW(tra);
-	tail.Space() = 0;
-	PPPutExtStrData(ALBATROSEXSTR_UHTTURN, tail, pCfg->UhttUrn);
-	PPPutExtStrData(ALBATROSEXSTR_UHTTURLPFX, tail, pCfg->UhttUrlPrefix);
-	PPPutExtStrData(ALBATROSEXSTR_UHTTACC, tail, pCfg->UhttAccount);
-	PPPutExtStrData(ALBATROSEXSTR_UHTTPASSW, tail, pCfg->UhttPassword);
-	PPPutExtStrData(ALBATROSEXSTR_EGAISSRVURL, tail, pCfg->EgaisServerURL); // @v8.8.0
+	tail.Space().Z();
+	for(uint i = 0; i < SIZEOFARRAY(AlbatrossStrIdList); i++) {
+		const int str_id = AlbatrossStrIdList[i];
+		pCfg->GetExtStrData(str_id, temp_buf);
+		PPPutExtStrData(str_id, tail, temp_buf);
+	}
 	s += (uint)(tail.Len()+1);
 	{
 		STempBuffer buffer(s);
@@ -236,6 +262,7 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosConfig * pCf
 {
 	int    ok = 1, r;
 	SString tail;
+	SString temp_buf;
 	STempBuffer buffer(2048);
 	pCfg->Clear();
 	if(pRef) {
@@ -248,11 +275,11 @@ int SLAPI PPAlbatrosCfgMngr::Helper_Get(Reference * pRef, PPAlbatrosConfig * pCf
 			}
 			memcpy(&pCfg->Hdr, buffer, sizeof(pCfg->Hdr));
 			tail = ((const char *)buffer)+sizeof(pCfg->Hdr);
-			PPGetExtStrData(ALBATROSEXSTR_UHTTURN, tail, pCfg->UhttUrn);
-			PPGetExtStrData(ALBATROSEXSTR_UHTTURLPFX, tail, pCfg->UhttUrlPrefix);
-			PPGetExtStrData(ALBATROSEXSTR_UHTTACC, tail, pCfg->UhttAccount);
-			PPGetExtStrData(ALBATROSEXSTR_UHTTPASSW, tail, pCfg->UhttPassword);
-			PPGetExtStrData(ALBATROSEXSTR_EGAISSRVURL, tail, pCfg->EgaisServerURL); // @v8.8.0
+			for(uint i = 0; i < SIZEOFARRAY(AlbatrossStrIdList); i++) {
+				const int str_id = AlbatrossStrIdList[i];
+				PPGetExtStrData(str_id, tail, temp_buf);
+				pCfg->PutExtStrData(str_id, temp_buf);
+			}
 		}
 		else {
 			//

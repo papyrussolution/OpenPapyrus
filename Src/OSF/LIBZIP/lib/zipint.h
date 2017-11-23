@@ -533,7 +533,7 @@ zip_source_t *_zip_source_window_new(zip_source_t *src, uint64 start, uint64 len
 zip_source_t *_zip_source_zip_new(zip_t *, zip_t *, uint64, zip_flags_t, uint64, uint64, const char *);
 int    _zip_stat_merge(zip_stat_t *dst, const zip_stat_t *src, zip_error_t *error);
 int    _zip_string_equal(const zip_string_t *, const zip_string_t *);
-void   _zip_string_free(zip_string_t *);
+void   FASTCALL _zip_string_free(zip_string_t *);
 uint32 _zip_string_crc32(const zip_string_t *);
 const uint8 *_zip_string_get(zip_string_t *, uint32 *, zip_flags_t, zip_error_t *);
 uint16 _zip_string_length(const zip_string_t *);
@@ -550,6 +550,6 @@ int    _zip_set_name(zip_t *, uint64, const char *, zip_flags_t);
 void   _zip_u2d_time(time_t, uint16 *, uint16 *);
 int    _zip_unchange(zip_t *, uint64, int);
 void   _zip_unchange_data(zip_entry_t *);
-int    _zip_write(zip_t *za, const void *data, uint64 length);
+int    FASTCALL _zip_write(zip_t *za, const void *data, uint64 length);
 
 #endif /* zipint.h */

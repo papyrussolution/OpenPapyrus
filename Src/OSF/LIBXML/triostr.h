@@ -49,8 +49,8 @@ TRIO_STRING_PUBLIC int trio_equal(const char *first, const char *second);
 TRIO_STRING_PUBLIC int trio_equal_case(const char *first, const char *second);
 TRIO_STRING_PUBLIC int trio_equal_locale(const char *first, const char *second);
 TRIO_STRING_PUBLIC int trio_equal_max(const char *first, size_t max, const char *second);
-TRIO_STRING_PUBLIC TRIO_CONST char *trio_error(int);
-TRIO_STRING_PUBLIC size_t trio_length(const char *string);
+TRIO_STRING_PUBLIC const char * trio_error(int);
+//TRIO_STRING_PUBLIC size_t trio_length_Removed(const char *string);
 TRIO_STRING_PUBLIC double trio_to_double(const char *source, char **endp);
 TRIO_STRING_PUBLIC long trio_to_long(const char *source, char **endp, int base);
 TRIO_STRING_PUBLIC trio_long_double_t trio_to_long_double(const char *source, char **endp);
@@ -80,7 +80,7 @@ TRIO_STRING_PUBLIC int trio_to_upper(int source);
 	TRIO_STRING_PUBLIC unsigned long trio_to_unsigned_long(const char *source, char **endp, int base);
 	TRIO_STRING_PUBLIC char *trio_tokenize(char *string, const char *delimiters);
 	TRIO_STRING_PUBLIC int trio_upper(char *target);
-#endif /* !defined(TRIO_MINIMAL) */
+#endif
 
 /*************************************************************************
  * Dynamic string functions
@@ -130,6 +130,6 @@ TRIO_STRING_PUBLIC trio_string_t *trio_xstring_duplicate(const char *other);
 	TRIO_STRING_PUBLIC int trio_xstring_match(trio_string_t *self, const char *other);
 	TRIO_STRING_PUBLIC int trio_xstring_match_case(trio_string_t *self, const char *other);
 	TRIO_STRING_PUBLIC char *trio_xstring_substring(trio_string_t *self, const char *other);
-#endif /* !defined(TRIO_MINIMAL) */
+#endif
 
 #endif /* TRIO_TRIOSTR_H */

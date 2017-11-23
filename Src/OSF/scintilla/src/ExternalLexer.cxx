@@ -15,33 +15,26 @@ using namespace Scintilla;
 #endif
 
 LexerManager * LexerManager::theInstance = NULL;
-
-//------------------------------------------
 //
 // ExternalLexerModule
 //
-//------------------------------------------
+ExternalLexerModule::ExternalLexerModule(int language_, LexerFunction fnLexer_, const char *languageName_, LexerFunction fnFolder_) :
+	LexerModule(language_, fnLexer_, 0, fnFolder_), fneFactory(0), name(languageName_)
+{
+	languageName = name.c_str();
+}
 
 void ExternalLexerModule::SetExternal(GetLexerFactoryFunction fFactory, int index)
 {
 	fneFactory = fFactory;
 	fnFactory = fFactory(index);
 }
-
-//------------------------------------------
 //
 // LexerLibrary
 //
-//------------------------------------------
-
-LexerLibrary::LexerLibrary(const char * ModuleName)
+LexerLibrary::LexerLibrary(const char * ModuleName) : first(0), last(0), lib(DynamicLibrary::Load(ModuleName))
 {
-	// Initialise some members...
-	first = NULL;
-	last = NULL;
-	// Load the DLL
-	lib = DynamicLibrary::Load(ModuleName);
-	if(lib->IsValid()) {
+	if(lib && lib->IsValid()) {
 		m_sModuleName = ModuleName;
 		//Cannot use reinterpret_cast because: ANSI C++ forbids casting between pointers to functions and objects
 		GetLexerCountFn GetLexerCount = (GetLexerCountFn)(sptr_t)lib->FindFunction("GetLexerCount");
@@ -62,7 +55,7 @@ LexerLibrary::LexerLibrary(const char * ModuleName)
 				lm = new LexerMinder;
 				lm->self = lex;
 				lm->next = NULL;
-				if(first != NULL) {
+				if(first) {
 					last->next = lm;
 					last = lm;
 				}
@@ -88,23 +81,17 @@ LexerLibrary::~LexerLibrary()
 void LexerLibrary::Release()
 {
 	LexerMinder * lmNext;
-	LexerMinder * lm = first;
-	while(lm) {
+	for(LexerMinder * lm = first; lm; lm = lmNext) {
 		lmNext = lm->next;
 		delete lm->self;
 		delete lm;
-		lm = lmNext;
 	}
 	first = NULL;
 	last = NULL;
 }
-
-//------------------------------------------
 //
 // LexerManager
 //
-//------------------------------------------
-
 /// Return the single LexerManager instance...
 LexerManager * LexerManager::GetInstance()
 {
@@ -119,10 +106,8 @@ void LexerManager::DeleteInstance()
 }
 
 /// protected constructor - this is a singleton...
-LexerManager::LexerManager()
+LexerManager::LexerManager() : first(0), last(0)
 {
-	first = NULL;
-	last = NULL;
 }
 
 LexerManager::~LexerManager()
@@ -142,7 +127,7 @@ void LexerManager::LoadLexerLibrary(const char * module)
 			return;
 	}
 	LexerLibrary * lib = new LexerLibrary(module);
-	if(NULL != first) {
+	if(first) {
 		last->next = lib;
 		last = lib;
 	}
@@ -154,25 +139,19 @@ void LexerManager::LoadLexerLibrary(const char * module)
 
 void LexerManager::Clear()
 {
-	if(NULL != first) {
-		LexerLibrary * cur = first;
+	if(first) {
 		LexerLibrary * next;
-		while(cur) {
+		for(LexerLibrary * cur = first; cur; cur = next) {
 			next = cur->next;
 			delete cur;
-			cur = next;
 		}
 		first = NULL;
 		last = NULL;
 	}
 }
-
-//------------------------------------------
 //
 // LexerManager
 //
-//------------------------------------------
-
 LMMinder::~LMMinder()
 {
 	LexerManager::DeleteInstance();

@@ -10,41 +10,35 @@
  * Most applications using the library need only include this file,
  * and perhaps jerror.h if they want to know the exact error codes.
  */
-
 #ifndef JPEGLIB_H
 #define JPEGLIB_H
-
 /*
  * First we include the configuration files that record how this
  * installation of the JPEG library is set up.  jconfig.h can be
  * generated automatically for many systems.  jmorecfg.h contains
  * manual configuration options that most people need not worry about.
  */
-
 #ifndef JCONFIG_INCLUDED        /* in case jinclude.h already did */
-#include "jconfig.h"            /* widely used configuration options */
+	#include "jconfig.h"            /* widely used configuration options */
 #endif
 #include "jmorecfg.h"           /* seldom changed options */
-
 #ifdef __cplusplus
-#ifndef DONT_USE_EXTERN_C
-extern "C" {
+	#ifndef DONT_USE_EXTERN_C
+		extern "C" {
+	#endif
 #endif
-#endif
-
-/* Version IDs for the JPEG library.
- * Might be useful for tests like "#if JPEG_LIB_VERSION >= 90".
- */
-
+// 
+// Version IDs for the JPEG library.
+// Might be useful for tests like "#if JPEG_LIB_VERSION >= 90".
+// 
 #define JPEG_LIB_VERSION        90      /* Compatibility version 9.0 */
 #define JPEG_LIB_VERSION_MAJOR  9
 #define JPEG_LIB_VERSION_MINOR  2
-
-/* Various constants determining the sizes of things.
- * All of these are specified by the JPEG standard,
- * so don't change them if you want to be compatible.
- */
-
+// 
+// Various constants determining the sizes of things.
+// All of these are specified by the JPEG standard,
+// so don't change them if you want to be compatible.
+// 
 #define DCTSIZE             8   /* The basic DCT block is 8x8 coefficients */
 #define DCTSIZE2            64  /* DCTSIZE squared; # of elements in a block */
 #define NUM_QUANT_TBLS      4   /* Quantization tables are numbered 0..3 */
@@ -63,16 +57,14 @@ extern "C" {
 #ifndef D_MAX_BLOCKS_IN_MCU
 #define D_MAX_BLOCKS_IN_MCU   10 /* decompressor's limit on blocks per MCU */
 #endif
-
-/* Data structures for images (arrays of samples and of DCT coefficients).
- * On 80x86 machines, the image arrays are too big for near pointers,
- * but the pointer arrays can fit in near memory.
- */
-
+// 
+// Data structures for images (arrays of samples and of DCT coefficients).
+// On 80x86 machines, the image arrays are too big for near pointers,
+// but the pointer arrays can fit in near memory.
+// 
 typedef JSAMPLE FAR * JSAMPROW;  /* ptr to one image row of pixel samples. */
 typedef JSAMPROW * JSAMPARRAY;   /* ptr to some rows (a 2-D sample array) */
 typedef JSAMPARRAY * JSAMPIMAGE; /* a 3-D sample array: top index is color */
-
 typedef JCOEF JBLOCK[DCTSIZE2]; /* one block of coefficients */
 typedef JBLOCK FAR * JBLOCKROW;  /* pointer to one row of coefficient blocks */
 typedef JBLOCKROW * JBLOCKARRAY;         /* a 2-D array of coefficient blocks */
@@ -293,7 +285,8 @@ struct jpeg_compress_struct {
 	 * burnt when new parameters are added.  Also note that there are several
 	 * helper routines to simplify changing parameters.
 	 */
-	uint   scale_num, scale_denom; /* fraction by which to scale image */
+	uint   scale_num; // fraction by which to scale image 
+	uint   scale_denom; 
 	JDIMENSION jpeg_width;  /* scaled JPEG image width */
 	JDIMENSION jpeg_height; /* scaled JPEG image height */
 	/* Dimensions of actual JPEG image that will be written to file,
@@ -389,7 +382,7 @@ struct jpeg_compress_struct {
 	/* i'th block in an MCU */
 	int Ss, Se, Ah, Al;     /* progressive JPEG parameters for scan */
 	int block_size;         /* the basic DCT block size: 1..16 */
-	const int * natural_order; /* natural-order position array */
+	const uint8 * natural_order; /* natural-order position array */ // @sobolev int-->uint8
 	int lim_Se;             /* min( Se, DCTSIZE2-1 ) */
 	/*
 	 * Links to compression subobjects (methods and private variables of modules)
@@ -573,7 +566,7 @@ struct jpeg_decompress_struct {
 	/* These fields are derived from Se of first SOS marker.
 	 */
 	int block_size;         /* the basic DCT block size: 1..16 */
-	const int * natural_order; /* natural-order position array for entropy decode */
+	const uint8 * natural_order; /* natural-order position array for entropy decode */ // @sobolev int-->uint8
 	int lim_Se;             /* min( Se, DCTSIZE2-1 ) for entropy decode */
 	/* This field is shared between entropy decoder and marker parser.
 	 * It is either zero or the code of a JPEG marker that has been
@@ -821,34 +814,31 @@ typedef JMETHOD (boolean, jpeg_marker_parser_method, (j_decompress_ptr cinfo));
 
 // Default error-management setup 
 EXTERN(struct jpeg_error_mgr *) jpeg_std_error(struct jpeg_error_mgr* err);
-
-/* Initialization of JPEG compression objects.
- * jpeg_create_compress() and jpeg_create_decompress() are the exported
- * names that applications should call.  These expand to calls on
- * jpeg_CreateCompress and jpeg_CreateDecompress with additional information
- * passed for version mismatch checking.
- * NB: you must set up the error-manager BEFORE calling jpeg_create_xxx.
- */
+// 
+// Initialization of JPEG compression objects.
+// jpeg_create_compress() and jpeg_create_decompress() are the exported
+// names that applications should call.  These expand to calls on
+// jpeg_CreateCompress and jpeg_CreateDecompress with additional information
+// passed for version mismatch checking.
+// NB: you must set up the error-manager BEFORE calling jpeg_create_xxx.
+// 
 #define jpeg_create_compress(cinfo) jpeg_CreateCompress((cinfo), JPEG_LIB_VERSION, (size_t)sizeof(struct jpeg_compress_struct))
 #define jpeg_create_decompress(cinfo) jpeg_CreateDecompress((cinfo), JPEG_LIB_VERSION, (size_t)sizeof(struct jpeg_decompress_struct))
 extern void jpeg_CreateCompress(j_compress_ptr cinfo, int version, size_t structsize);
 extern void jpeg_CreateDecompress(j_decompress_ptr cinfo, int version, size_t structsize);
-/* Destruction of JPEG compression objects */
+// Destruction of JPEG compression objects 
 extern void jpeg_destroy_compress(j_compress_ptr cinfo);
 extern void jpeg_destroy_decompress(j_decompress_ptr cinfo);
-
-/* Standard data source and destination managers: stdio streams. */
-/* Caller is responsible for opening the file before and closing after. */
+// Standard data source and destination managers: stdio streams. 
+// Caller is responsible for opening the file before and closing after. 
 extern void jpeg_stdio_dest(j_compress_ptr cinfo, FILE * outfile);
 extern void jpeg_stdio_src(j_decompress_ptr cinfo, FILE * infile);
-
-/* Data source and destination managers: memory buffers. */
+// Data source and destination managers: memory buffers. 
 extern void jpeg_mem_dest(j_compress_ptr cinfo, uchar ** outbuffer, ulong * outsize);
 extern void jpeg_mem_src(j_decompress_ptr cinfo, const uchar * inbuffer, ulong insize);
-
-/* Default parameter setup for compression */
+// Default parameter setup for compression 
 extern void jpeg_set_defaults(j_compress_ptr cinfo);
-/* Compression parameter setup aids */
+// Compression parameter setup aids 
 extern void jpeg_set_colorspace(j_compress_ptr cinfo, J_COLOR_SPACE colorspace);
 extern void jpeg_default_colorspace(j_compress_ptr cinfo);
 extern void jpeg_set_quality(j_compress_ptr cinfo, int quality, boolean force_baseline);
@@ -915,53 +905,48 @@ EXTERN(int) jpeg_consume_input(j_decompress_ptr cinfo);
 #define JPEG_ROW_COMPLETED      3 /* Completed one iMCU row */
 #define JPEG_SCAN_COMPLETED     4 /* Completed last iMCU row of a scan */
 
-/* Precalculate output dimensions for current decompression parameters. */
+// Precalculate output dimensions for current decompression parameters. 
 extern void jpeg_core_output_dimensions(j_decompress_ptr cinfo);
 extern void jpeg_calc_output_dimensions(j_decompress_ptr cinfo);
-
-/* Control saving of COM and APPn markers into marker_list. */
+// Control saving of COM and APPn markers into marker_list. 
 extern void jpeg_save_markers(j_decompress_ptr cinfo, int marker_code, uint length_limit);
-
-/* Install a special processing method for COM or APPn markers. */
+// Install a special processing method for COM or APPn markers. 
 extern void jpeg_set_marker_processor(j_decompress_ptr cinfo, int marker_code, jpeg_marker_parser_method routine);
-
-/* Read or write raw DCT coefficients --- useful for lossless transcoding. */
+// Read or write raw DCT coefficients --- useful for lossless transcoding. 
 EXTERN(jvirt_barray_ptr *) jpeg_read_coefficients(j_decompress_ptr cinfo);
 extern void jpeg_write_coefficients(j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays);
 extern void jpeg_copy_critical_parameters(j_decompress_ptr srcinfo, j_compress_ptr dstinfo);
-
-/* If you choose to abort compression or decompression before completing
- * jpeg_finish_(de)compress, then you need to clean up to release memory,
- * temporary files, etc.  You can just call jpeg_destroy_(de)compress
- * if you're done with the JPEG object, but if you want to clean it up and
- * reuse it, call this:
- */
+// 
+// If you choose to abort compression or decompression before completing
+// jpeg_finish_(de)compress, then you need to clean up to release memory,
+// temporary files, etc.  You can just call jpeg_destroy_(de)compress
+// if you're done with the JPEG object, but if you want to clean it up and
+// reuse it, call this:
+// 
 extern void jpeg_abort_compress(j_compress_ptr cinfo);
 extern void jpeg_abort_decompress(j_decompress_ptr cinfo);
-
-/* Generic versions of jpeg_abort and jpeg_destroy that work on either
- * flavor of JPEG object.  These may be more convenient in some places.
- */
+// 
+// Generic versions of jpeg_abort and jpeg_destroy that work on either
+// flavor of JPEG object.  These may be more convenient in some places.
+// 
 extern void jpeg_abort(j_common_ptr cinfo);
 extern void jpeg_destroy(j_common_ptr cinfo);
 
-/* Default restart-marker-resync procedure for use by data source modules */
+// Default restart-marker-resync procedure for use by data source modules 
 EXTERN(boolean) jpeg_resync_to_restart(j_decompress_ptr cinfo, int desired);
-
-/* These marker codes are exported since applications and data source modules
- * are likely to want to use them.
- */
-
+// 
+// These marker codes are exported since applications and data source modules
+// are likely to want to use them.
+// 
 #define JPEG_RST0       0xD0    /* RST0 marker code */
 #define JPEG_EOI        0xD9    /* EOI marker code */
 #define JPEG_APP0       0xE0    /* APP0 marker code */
 #define JPEG_COM        0xFE    /* COM marker code */
-
-/* If we have a brain-damaged compiler that emits warnings (or worse, errors)
- * for structure definitions that are never filled in, keep it quiet by
- * supplying dummy definitions for the various substructures.
- */
-
+// 
+// If we have a brain-damaged compiler that emits warnings (or worse, errors)
+// for structure definitions that are never filled in, keep it quiet by
+// supplying dummy definitions for the various substructures.
+// 
 #ifdef INCOMPLETE_TYPES_BROKEN
 #ifndef JPEG_INTERNALS          /* will be defined in jpegint.h */
 struct jvirt_sarray_control { long dummy; };
@@ -989,17 +974,15 @@ struct jpeg_color_quantizer { long dummy; };
 
 #endif /* JPEG_INTERNALS */
 #endif /* INCOMPLETE_TYPES_BROKEN */
-
-/*
- * The JPEG library modules define JPEG_INTERNALS before including this file.
- * The internal structure declarations are read only when that is true.
- * Applications using the library should not include jpegint.h, but may wish
- * to include jerror.h.
- */
-
+// 
+// The JPEG library modules define JPEG_INTERNALS before including this file.
+// The internal structure declarations are read only when that is true.
+// Applications using the library should not include jpegint.h, but may wish
+// to include jerror.h.
+// 
 #ifdef JPEG_INTERNALS
-#include "jpegint.h"            /* fetch private declarations */
-#include "jerror.h"             /* fetch error codes too */
+	#include "jpegint.h" // fetch private declarations 
+	#include "jerror.h"  //fetch error codes too 
 #endif
 
 #ifdef __cplusplus

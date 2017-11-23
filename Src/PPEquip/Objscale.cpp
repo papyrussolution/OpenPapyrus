@@ -1782,7 +1782,7 @@ public:
 	virtual int  SLAPI SetConnection();
 	virtual int  SLAPI CloseConnection();
 	virtual int  SLAPI SendPLU(const ScalePLU *);
-	virtual void SLAPI GetDefaultSysParams(PPScale * pData) 
+	virtual void SLAPI GetDefaultSysParams(PPScale * pData)
 	{
 	}
 private:
@@ -3167,8 +3167,7 @@ static int SLAPI ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint li
 		lineLen = 25;
 	if(maxLines == 0 || maxLines > 32)
 		maxLines = 4;
-	if(fontSize == 0)
-		fontSize = 0x07;
+	SETIFZ(fontSize, 0x07);
 	uint   j = 0;
 	char   org_goods_name[1024];
 	strip(STRNSCPY(org_goods_name, pSrcName));

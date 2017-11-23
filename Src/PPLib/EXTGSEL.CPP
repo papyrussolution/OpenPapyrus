@@ -1,5 +1,5 @@
 // EXTGSEL.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -87,9 +87,8 @@ int SLAPI PickLotBrowser::SortArray(SArray * pAry, int f)
 	return pAry ? (pAry->sort(PTR_CMPFUNC(PickLotBrowser_Entry_GoodsName)), 1) : 0;
 }
 
-SLAPI PickLotBrowser::PickLotBrowser(SArray * pList) : BrowserWindow(BROWSER_PICKLOT, pList)
+SLAPI PickLotBrowser::PickLotBrowser(SArray * pList) : BrowserWindow(BROWSER_PICKLOT, pList), P_BObj(BillObj)
 {
-	P_BObj = BillObj;
 }
 
 IMPL_HANDLE_EVENT(PickLotBrowser)
@@ -127,11 +126,8 @@ IMPL_HANDLE_EVENT(PickLotBrowser)
 	clearEvent(event);
 }
 
-PickLotParam::PickLotParam(int mode)
+PickLotParam::PickLotParam(int mode) : Mode(mode), LocID(0), Price(0.0)
 {
-	Mode = mode;
-	LocID = 0;
-	Price = 0.0;
 }
 
 int SLAPI PickLot(PickLotParam & rParam, TIDlgInitData * pResult)
@@ -262,18 +258,15 @@ int TIDlgInitData::GetTiSign() const
 #define MAX_GOODS_RECS   50000
 #define MIN_WORDSEL_SYMB 4
 
-ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : TDialog(DLG_EXTGSEL)
+ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : TDialog(DLG_EXTGSEL), P_ObjTkn(0), Flags(0), OpID(_op)
 {
 	const  PPConfig & r_cfg = LConfig;
-	Flags = 0;
-	P_ObjTkn = 0;
 	SETFLAGBYSAMPLE(Flags, fByName, flags);
 	SETFLAGBYSAMPLE(Flags, fExistsOnly, flags);
 	SETFLAGBYSAMPLE(Flags, fForceExhausted, flags);
 	SETFLAGBYSAMPLE(Flags, fHidePassive, flags);
 	SETFLAGBYSAMPLE(Flags, fForcePassive, flags);
 	SETFLAGBYSAMPLE(Flags, fSelectModifMode, flags); // @v8.4.12
-	OpID  = _op;
 	LocID = r_cfg.Location;
 	ArID  = 0;
 	InnerSelectionID = 0;

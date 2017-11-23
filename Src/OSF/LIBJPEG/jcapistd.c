@@ -17,10 +17,6 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-//#define JPEG_INTERNALS
-//#include "jinclude.h"
-//#include "jpeglib.h"
-
 /*
  * Compression initialization.
  * Before calling this, all parameters and a data destination must be set up.
@@ -35,7 +31,6 @@
  * to pass write_all_tables=TRUE; then it will take active thought to do the
  * wrong thing.
  */
-
 GLOBAL(void) jpeg_start_compress(j_compress_ptr cinfo, boolean write_all_tables)
 {
 	if(cinfo->global_state != CSTATE_START)

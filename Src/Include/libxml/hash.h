@@ -22,8 +22,8 @@ extern "C" {
 }
 #endif
 
-#include <libxml/xmlversion.h>
-#include <libxml/parser.h>
+//#include <libxml/xmlversion.h>
+//#include <libxml/parser.h>
 //#include <libxml/dict.h>
 
 #ifdef __cplusplus

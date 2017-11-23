@@ -12,7 +12,7 @@
 //#include <openssl/crypto.h>
 //#include <openssl/err.h>
 //#include <openssl/conf.h>
-#include <openssl/conf_api.h>
+//#include <openssl/conf_api.h>
 //#include <openssl/lhash.h>
 //#include "e_os.h"
 

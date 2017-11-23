@@ -450,7 +450,7 @@ int32 DL6ICLS_StrAssocList::SearchByText(SString & text, STaggedString* pItem)
 	return ok;
 }
 
-IMPL_CMPFUNC(PcharNoCaseLen, i1, i2) { return strnicmp866((Pchar)i1, (char *)i2, strlen((Pchar)i2)); }
+IMPL_CMPFUNC(PcharNoCaseLen, i1, i2) { return strnicmp866((const char *)i1, (const char *)i2, sstrlen((const char *)i2)); }
 
 int32 DL6ICLS_StrAssocList::SearchByTextPattern(SString & rText, STaggedString * pItem)
 {

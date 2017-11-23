@@ -223,71 +223,26 @@ int STestCase::_check_eq(const void * a, const void * b, const char * pA, const 
 int STestCase::_check_eq(uint8 a, uint8 b, const char * pA, const char * pB)
 {
 	return Implement_check_eq((ulong)a, (ulong)b, pA, pB);
-	/*
-	if(a != b) {
-		SString buf;
-		SetInfo(catval((ulong)b, pB, catval((ulong)a, pA, buf).Cat("!=")), 0);
-		return 0;
-	}
-	else
-		return 1;
-	*/
 }
 
 int STestCase::_check_eq(uint a, uint b, const char * pA, const char * pB)
 {
 	return Implement_check_eq((ulong)a, (ulong)b, pA, pB);
-	/*
-	if(a != b) {
-		SString buf;
-		SetInfo(catval((ulong)b, pB, catval((ulong)a, pA, buf).Cat("!=")), 0);
-		return 0;
-	}
-	else
-		return 1;
-	*/
 }
 
 int STestCase::_check_eq(long a, long b, const char * pA, const char * pB)
 {
 	return Implement_check_eq(a, b, pA, pB);
-	/*
-	if(a != b) {
-		SString buf;
-		SetInfo(catval(b, pB, catval(a, pA, buf).Cat("!=")), 0);
-		return 0;
-	}
-	else
-		return 1;
-	*/
 }
 
 int STestCase::_check_eq(ulong a, ulong b, const char * pA, const char * pB)
 {
 	return Implement_check_eq(a, b, pA, pB);
-	/*
-	if(a != b) {
-		SString buf;
-		SetInfo(catval(b, pB, catval(a, pA, buf).Cat("!=")), 0);
-		return 0;
-	}
-	else
-		return 1;
-	*/
 }
 
 int STestCase::_check_eq(int64 a, int64 b, const char * pA, const char * pB)
 {
 	return Implement_check_eq(a, b, pA, pB);
-	/*
-	if(a != b) {
-		SString buf;
-		SetInfo(catval(b, pB, catval(a, pA, buf).Cat("!=")), 0);
-		return 0;
-	}
-	else
-		return 1;
-	*/
 }
 
 int STestCase::_check_eq(uint64 a, uint64 b, const char * pA, const char * pB)
@@ -298,29 +253,11 @@ int STestCase::_check_eq(uint64 a, uint64 b, const char * pA, const char * pB)
 int STestCase::_check_eq(double a, double b, const char * pA, const char * pB)
 {
 	return Implement_check_eq(a, b, pA, pB);
-	/*
-	if(a != b) {
-		SString buf;
-		SetInfo(catval(b, pB, catval(a, pA, buf).Cat("!=")), 0);
-		return 0;
-	}
-	else
-		return 1;
-	*/
 }
 
 int STestCase::_check_eq(float a, float b, const char * pA, const char * pB)
 {
 	return Implement_check_eq(a, b, pA, pB);
-	/*
-	if(a != b) {
-		SString buf;
-		SetInfo(catval(b, pB, catval(a, pA, buf).Cat("!=")), 0);
-		return 0;
-	}
-	else
-		return 1;
-	*/
 }
 
 int STestCase::_check_eq_tolerance(double a, double b, double tol, const char * pA, const char * pB)
@@ -508,9 +445,8 @@ int STestCase::_check_range(float a, float low, float upp, const char * pA, cons
 //
 // STestCase {
 //
-STestCase::STestCase(STestSuite * pSuite)
+STestCase::STestCase(STestSuite * pSuite) : P_Suite(pSuite)
 {
-	P_Suite = pSuite;
 }
 
 STestCase::~STestCase()
@@ -557,10 +493,8 @@ int STestCase::EnumArg(uint * pArgNo, SString & rBuf) const
 	return p_entry->ArgList.get(pArgNo, rBuf);
 }
 
-STestCase::TabEnum::TabEnum(const char * pTabFileName, const char * pTabName)
+STestCase::TabEnum::TabEnum(const char * pTabFileName, const char * pTabName) : RowIdx(0), State(0)
 {
-	RowIdx = 0;
-	State = 0;
 	STabFile tab_file(pTabFileName);
 	if(!tab_file.LoadTab(pTabName, Tab))
 		State |= stError;

@@ -17,9 +17,9 @@
 #include <openssl/bio.h>
 #include <openssl/asn1.h>
 #include <openssl/ossl_typ.h>
-# if OPENSSL_API_COMPAT < 0x10100000L
-#  include <openssl/bn.h>
-# endif
+#if OPENSSL_API_COMPAT < 0x10100000L
+	#include <openssl/bn.h>
+#endif
 
 # ifdef  __cplusplus
 extern "C" {

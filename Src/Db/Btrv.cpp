@@ -1,5 +1,5 @@
 // BTRV.CPP
-// Copyright (c) A. Sobolev 1994-1999, 2001, 2003, 2009, 2010, 2013, 2014, 2016
+// Copyright (c) A. Sobolev 1994-1999, 2001, 2003, 2009, 2010, 2013, 2014, 2016, 2017
 //
 #include <db.h>
 #pragma hdrstop
@@ -8,9 +8,9 @@
 BtrCallProc   _BtrCall;
 BtrCallProcID _BtrCallID;
 
-static int FAR __stdcall _BtrCall_Stub(int, char *, char *, uint16 * pDataBufferLenght, char *, int, int) // @v7.8.5 int16 * pDataBufferLenght-->uint16 * pDataBufferLenght
+static int __stdcall _BtrCall_Stub(int, char *, char *, uint16 * pDataBufferLenght, char *, int, int)
 	{ return BE_BTRNINIT; }
-static int FAR __stdcall _BtrCallID_Stub(int, char *, char *, uint16 * pDataBufferLenght, char *, int, int, void *) // @v7.8.5 int16 * pDataBufferLenght-->uint16 * pDataBufferLenght
+static int __stdcall _BtrCallID_Stub(int, char *, char *, uint16 * pDataBufferLenght, char *, int, int, void *)
 	{ return BE_BTRNINIT; }
 
 static class BtrCallInit {

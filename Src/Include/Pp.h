@@ -6006,7 +6006,10 @@ struct PPAdviseBlock {
 	void * ProcExtPtr; // @v8.5.3 Значение, передаваемое функции Proc при извещении о возникновении события //
 	PPAdviseProc Proc; // Процедура, которая должна быть вызвана в ответ на событие Action с типом объекта ObjType.
 };
-
+//
+// @todo Нужна "lite" версия PPAdviseList без RwL, возвращаемая функцией CreateList. Для того, чтобы обойти
+// неоправданное создание блокировок.
+//
 class PPAdviseList : private SArray {
 public:
 	friend class PPSession;
@@ -13565,7 +13568,7 @@ public:
 		// Заполняется для чека заказа и для чека, связанного с заказом.
 	CCheckExtTbl::Rec Ext; // @transient Расширение записи чека
 	CCheckTbl::Rec Rec;    //
-	SString UhttScHash;    // @transient @v7.4.10 Код доступа к информации о карте, синхронизированной с Universe-HTT
+	SString UhttScHash;    // @transient Код доступа к информации о карте, синхронизированной с Universe-HTT
 private:
 	int    SLAPI PackLineTextExt(SString & rResult) const;
 	int    SLAPI UnpackLineTextExt(const SString & rBuf);
@@ -15094,7 +15097,7 @@ private:
 	ObjTagFilt & SLAPI InitFilt(void * extraPtr, ObjTagFilt & rFilt) const;
 	int    SLAPI Helper_CreateEnumObject(PPObjTagPacket & rPack);
 
-	ObjTagFilt OtFilt; // @#{!PPObject::extra || PPObject::extra == &CurFilt}
+	// @v9.8.9 ObjTagFilt OtFilt; // @#{!PPObject::extra || PPObject::extra == &CurFilt}
 };
 //
 // Descr: Объект данных, представляющий типы системных событий.
@@ -17132,14 +17135,14 @@ public:
 		//char   Port[8];
 		long   DeviceNo;
 		PPID   DeviceID;
-		CommPortParams Cpp;
 		CommPortTimeouts Cpt;
-		SString Address;
-		SString DeviceName;
-		int8   NotOwned;  // Not Owned P_Conn
-		int8   ReleCount; // Кол-во срабатывний реле [0..255], 255 - удерживает аппарат на 6 секунд
+		CommPortParams Cpp; // size=6
+		int8   NotOwned;   // Not Owned P_Conn
+		int8   ReleCount;  // Кол-во срабатывний реле [0..255], 255 - удерживает аппарат на 6 секунд
 		long   GoodsID;
 		long   P_Conn;    // SComPort или TcpSocket
+		SString Address;
+		SString DeviceName;
 	};
 
 	static int SLAPI CreateInstance(const char * pSymb, PPAbstractDevice ** ppDvc);
@@ -18966,7 +18969,7 @@ public:
 	SLAPI ~PPStyloPalmPacket();
 	void   SLAPI destroy();
 	PPStyloPalmPacket & FASTCALL operator = (const PPStyloPalmPacket &);
-	int    SLAPI Setup();
+	void   SLAPI Setup();
 	//
 	// Returns:
 	//   !0 - если P_Path != 0
@@ -18994,10 +18997,10 @@ struct PalmBillItem {
 	double Price;
 };
 
-class PalmBillPacket : private SArray {
+class PalmBillPacket : private SVector { // @v9.8.9 SArray-->SVector
 public:
 	SLAPI  PalmBillPacket();
-	int    SLAPI Init();
+	void   SLAPI Init();
 	uint   SLAPI GetItemsCount() const;
 	int    SLAPI EnumItems(uint * pPos, PalmBillItem *) const;
 	int    SLAPI AddItem(const PalmBillItem *);
@@ -26574,7 +26577,7 @@ public:
 	const  IterCounter & SLAPI GetIterCounter() const;
 	int    SLAPI GetSelectorListItem(long handler, PPUhttStoreSelDescr::Entry & rEntry) const;
 private:
-	int    SLAPI InitInstance(PPIDArray * pDupDynGrpList);
+	void   FASTCALL InitInstance(PPIDArray * pDupDynGrpList);
 	int    SLAPI CreateIterQuery();
 	int    SLAPI Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID, PPIDArray * pList, int doIntersect);
 	int    FASTCALL CheckActual(const Goods2Tbl::Rec & rRec) const;
@@ -26624,12 +26627,7 @@ private:
 // Descr: Параметр функции PPObjGoodsGroup::Recover
 //
 struct GoodsGroupRecoverParam {
-	GoodsGroupRecoverParam()
-	{
-		EgaFolderID = 0;
-		Ega = egaNone;
-		Flags = 0;
-	}
+	SLAPI  GoodsGroupRecoverParam();
 	enum {
 		fCorrect       = 0x0001, // Исправлять ошибки
 		fDelTempAltGrp = 0x0002  // Удалять временные альтернативные группы
@@ -27012,6 +27010,9 @@ private:
 #define ALBATROSEXSTR_UHTTACC     3
 #define ALBATROSEXSTR_UHTTPASSW   4
 #define ALBATROSEXSTR_EGAISSRVURL 5 // @v8.8.0 URL сервера обмена данными с системой ЕГАИС
+#define ALBATROSEXSTR_VETISUSER   6 // @v9.8.9
+#define ALBATROSEXSTR_VETISPASSW  7 // @v9.8.9
+#define ALBATROSEXSTR_VETISAPIKEY 8 // @v9.8.9
 
 struct PPAlbatrosCfgHdr { // @persistent @store(PropertyTbl)
 	enum {
@@ -27051,13 +27052,16 @@ public:
 	PPAlbatrosConfig & SLAPI Clear();
 	int    SLAPI SetPassword(int fld, const char * pPw);
 	int    SLAPI GetPassword(int fld, SString & rPw);
+	int    SLAPI GetExtStrData(int fldID, SString & rBuf) const;
+	int    SLAPI PutExtStrData(int fldID, const char * pStr);
 
 	PPAlbatrosCfgHdr Hdr;
-	SString UhttUrn;
-	SString UhttUrlPrefix;
-	SString UhttAccount;
-	SString UhttPassword;
-	SString EgaisServerURL; // @v8.8.0
+	SString ExtString; // Идентификаторы полей: ALBATROSEXSTR_XXX
+	//SString UhttUrn;
+	//SString UhttUrlPrefix;
+	//SString UhttAccount;
+	//SString UhttPassword;
+	//SString EgaisServerURL; // @v8.8.0
 };
 
 class PPAlbatrosCfgMngr {
@@ -31431,9 +31435,19 @@ public:
 	int    SLAPI Fetch(PPID id, PPSCardSeries * pRec); // @macrow
 	int    SLAPI GetPacket(PPID id, PPSCardSerPacket * pPack);
 	int    SLAPI PutPacket(PPID * pID, PPSCardSerPacket * pPack, int use_ta);
+	SCardSeriesFilt & SLAPI InitFilt(void * extraPtr, SCardSeriesFilt & rFilt) const;
 	int    SLAPI CheckForFilt(const SCardSeriesFilt * pFilt, const PPSCardSeries & rRec) const;
 	int    SLAPI GetCodeRange(PPID serID, SString & rLow, SString & rUpp);
 		// @>>SCardCore::GetCodeRange
+	//
+	// Descr: Возвращает список идентификаторов серий, для которых id является родительской.
+	//   Функция вызывается рекурсивно для всех дочерних серий.
+	//   Если серия id не является группирующей, то она единственная попадает в список. Если же
+	//   она является группирующей, то в список не попадает.
+	//   Функция пытается обнаружить цикличность в дереве зависимостей и, если находит, то
+	//   возвращает 0 с установкой соответствующего кода ошибки.
+	//
+	int    SLAPI GetChildList(PPID id, PPIDArray & rList);
 private:
 	virtual void FASTCALL Destroy(PPObjPack * pPack); // @macrow
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext * pCtx);
@@ -31442,7 +31456,7 @@ private:
 	virtual void * SLAPI CreateObjListWin(uint flags, void * extraPtr);
 	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr);
 	int    SLAPI SerializePacket(int dir, PPSCardSerPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
-	SCardSeriesFilt & SLAPI InitFilt(void * extraPtr, SCardSeriesFilt & rFilt) const;
+	int    SLAPI Helper_GetChildList(PPID id, PPIDArray & rList, PPIDArray * pStack);
 
 	PPObjSCard * P_ScObj;
 };
@@ -39971,7 +39985,6 @@ public:
 	int    SLAPI ReplaceCardInChecks(PPID destCardID);
 	int    SLAPI ChangeFlags();
 	int    SLAPI RenameDup(PPIDArray * pIdList);
-	// @v7.3.12 int    SLAPI CheckForFilt(SCardTbl::Rec * pRec, RAssocArray * pTrnovrList, int calcTrnovr);
 	int    SLAPI PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCardTbl::Rec * pDestRec, RAssocArray * pTrnovrList/*, int calcTrnovr*/); // @v7.3.12
 	int    SLAPI ProcessSelection(SCardSelPrcssrParam * pParam, PPLogger *);
 	const  StrAssocArray & GetList() const
@@ -40006,10 +40019,12 @@ private:
 	PPObjPerson PsnObj;
 	PPObjStaffList * P_StffObj;
 	PPLocAddrStruc Las;
-	StrAssocArray List; // @v7.6.6
+	StrAssocArray List;
 	ObjIdListFilt ExcludeOwnerList; // @v8.4.2
+	ObjIdListFilt SeriesList; // @v9.8.9 эффективный список фильтрующих серий (с учетом группирующих)
 	TempSCardTbl * P_TmpTbl;
 	TempOrderTbl * P_TempOrd;
+	SStrGroup StrPool; // @v9.8.9 Пул строковых полей, на который ссылаются поля в TempSCardTbl
 };
 //
 // Descr: Диалог редактирования параметров для массового изменения персональных карт
@@ -46161,6 +46176,7 @@ private:
 	DECL_HANDLE_EVENT;
 
 	uint   CurIterPos;
+	SCardSeriesFilt Filt;
 };
 //
 //
@@ -49595,6 +49611,18 @@ struct PPInputStringDialogParam {
 int    FASTCALL InputStringDialog(PPInputStringDialogParam * pParam, SString & rBuf);
 int    SLAPI InputDateDialog(const char * pTitle, const char * pInputTitle, LDATE * pDate);
 int    SLAPI DateRangeDialog(const char * pTitle, const char * pInputTitle, DateRange *);
+
+struct DateAddDialogParam {
+	SLAPI  DateAddDialogParam();
+	int    SLAPI Recalc();
+
+	LDATE  BaseDate;
+	long   Period;
+	long   PeriodCount;
+	LDATE  ResultDate;
+};
+
+int    SLAPI DateAddDialog(DateAddDialogParam * pData);
 int    SLAPI InputQttyDialog(const char * pTitle, const char * pInputTitle, double *);
 int    SLAPI InputNumberDialog(const char * pTitle, const char * pInpTitle, double & rValue);
 int    SLAPI BigTextDialog(uint maxLen, const char * pTitle, SString & rText);

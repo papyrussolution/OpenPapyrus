@@ -360,7 +360,7 @@ void xmlXIncludeFreeContext(xmlXIncludeCtxtPtr ctxt)
 static xmlDocPtr xmlXIncludeParseFile(xmlXIncludeCtxtPtr ctxt, const char * URL)
 {
 	xmlDocPtr ret;
-	xmlParserCtxtPtr pctxt;
+	xmlParserCtxt * pctxt;
 	xmlParserInputPtr inputStream;
 	xmlInitParser();
 	pctxt = xmlNewParserCtxt();
@@ -1022,7 +1022,7 @@ static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target,
  * Returns an xmlNode * list or NULL.
  *         the caller has to free the node tree.
  */
-static xmlNode * xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, xmlDocPtr source, xmlXPathObjectPtr obj) 
+static xmlNode * xmlXIncludeCopyXPointer(xmlXIncludeCtxtPtr ctxt, xmlDocPtr target, xmlDocPtr source, xmlXPathObject * obj) 
 {
 	xmlNode * list = NULL;
 	xmlNode * last = NULL;
@@ -1621,7 +1621,7 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	int i;
 	xmlChar * encoding = NULL;
 	xmlCharEncoding enc = (xmlCharEncoding)0;
-	xmlParserCtxtPtr pctxt;
+	xmlParserCtxt * pctxt;
 	xmlParserInputPtr inputStream;
 	int xinclude_multibyte_fallback_used = 0;
 	/*

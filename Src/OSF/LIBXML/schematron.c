@@ -22,9 +22,9 @@
 
 #ifdef LIBXML_SCHEMATRON_ENABLED
 //#include <libxml/xpath.h>
-#include <libxml/xpathInternals.h>
-#include <libxml/pattern.h>
-#include <libxml/schematron.h>
+//#include <libxml/xpathInternals.h>
+//#include <libxml/pattern.h>
+//#include <libxml/schematron.h>
 
 #define SCHEMATRON_PARSE_OPTIONS XML_PARSE_NOENT
 #define SCT_OLD_NS BAD_CAST "http://www.ascc.net/xml/schematron"
@@ -81,7 +81,7 @@ struct _xmlSchematronRule {
 	xmlNode * P_Node;        /* the node in the tree */
 	xmlChar * context;      /* the context evaluation rule */
 	xmlSchematronTestPtr tests; /* the list of tests */
-	xmlPatternPtr pattern;  /* the compiled pattern associated */
+	xmlPattern * pattern;  /* the compiled pattern associated */
 	xmlChar * report;       /* the message to report */
 };
 /**
@@ -323,7 +323,7 @@ static xmlSchematronRulePtr xmlSchematronAddRule(xmlSchematronParserCtxtPtr ctxt
     xmlSchematronPatternPtr pat, xmlNode * P_Node, xmlChar * context, xmlChar * report)
 {
 	xmlSchematronRulePtr ret;
-	xmlPatternPtr pattern;
+	xmlPattern * pattern;
 	if(!ctxt || !schema || !P_Node || !context)
 		return 0;
 	/*
@@ -1031,7 +1031,7 @@ static xmlNode * xmlSchematronGetNode(xmlSchematronValidCtxtPtr ctxt, xmlNode * 
 	if(ctxt && cur && xpath) {
 		ctxt->xctxt->doc = cur->doc;
 		ctxt->xctxt->P_Node = cur;
-		xmlXPathObjectPtr ret = xmlXPathEval(xpath, ctxt->xctxt);
+		xmlXPathObject * ret = xmlXPathEval(xpath, ctxt->xctxt);
 		if(ret) {
 			if((ret->type == XPATH_NODESET) && ret->nodesetval && (ret->nodesetval->nodeNr > 0))
 				P_Node = ret->nodesetval->PP_NodeTab[0];

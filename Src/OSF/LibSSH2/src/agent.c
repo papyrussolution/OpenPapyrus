@@ -163,11 +163,9 @@ static int agent_transact_unix(LIBSSH2_AGENT * agent, agent_transaction_ctx_t tr
 			return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_SEND, "agent send failed");
 		transctx->state = agent_NB_state_request_length_sent;
 	}
-
 	/* Send the request body */
 	if(transctx->state == agent_NB_state_request_length_sent) {
-		rc = LIBSSH2_SEND_FD(agent->session, agent->fd, transctx->request,
-		    transctx->request_len, 0);
+		rc = LIBSSH2_SEND_FD(agent->session, agent->fd, transctx->request, transctx->request_len, 0);
 		if(rc == -EAGAIN)
 			return LIBSSH2_ERROR_EAGAIN;
 		else if(rc < 0)

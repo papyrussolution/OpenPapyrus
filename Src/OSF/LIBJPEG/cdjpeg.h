@@ -17,27 +17,22 @@
 #include "jpeglib.h"
 #include "jerror.h"             /* get library error codes too */
 #include "cderror.h"            /* get application-specific error codes */
-
-/*
- * Object interface for cjpeg's source file decoding modules
- */
-
+// 
+// Object interface for cjpeg's source file decoding modules
+// 
 typedef struct cjpeg_source_struct * cjpeg_source_ptr;
 
 struct cjpeg_source_struct {
 	JMETHOD(void, start_input, (j_compress_ptr cinfo, cjpeg_source_ptr sinfo));
 	JMETHOD(JDIMENSION, get_pixel_rows, (j_compress_ptr cinfo, cjpeg_source_ptr sinfo));
 	JMETHOD(void, finish_input, (j_compress_ptr cinfo, cjpeg_source_ptr sinfo));
-
 	FILE * input_file;
 	JSAMPARRAY buffer;
 	JDIMENSION buffer_height;
 };
-
 /*
  * Object interface for djpeg's output file encoding modules
  */
-
 typedef struct djpeg_dest_struct * djpeg_dest_ptr;
 
 struct djpeg_dest_struct {
@@ -49,10 +44,7 @@ struct djpeg_dest_struct {
 	JMETHOD(void, put_pixel_rows, (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDIMENSION rows_supplied));
 	/* Finish up at the end of the image. */
 	JMETHOD(void, finish_output, (j_decompress_ptr cinfo, djpeg_dest_ptr dinfo));
-
-	/* Target file spec; filled in by djpeg.c after object is created. */
-	FILE * output_file;
-
+	FILE * output_file; /* Target file spec; filled in by djpeg.c after object is created. */
 	/* Output pixel-row buffer.  Created by module init or start_output.
 	 * Width is cinfo->output_width * cinfo->output_components;
 	 * height is buffer_height.
@@ -60,7 +52,6 @@ struct djpeg_dest_struct {
 	JSAMPARRAY buffer;
 	JDIMENSION buffer_height;
 };
-
 /*
  * cjpeg/djpeg may need to perform extra passes to convert to or from
  * the source/destination file format.  The JPEG library does not know

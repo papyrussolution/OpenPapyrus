@@ -374,10 +374,9 @@ int PPObject::ReplaceObjInteractive(PPID objTypeID, PPID srcID /*=0*/)
 {
 	class ReplObjDialog : public TDialog {
 	public:
-		ReplObjDialog(PPID objTypeID) : TDialog(DLG_REPLOBJ)
+		ReplObjDialog(PPID objTypeID) : TDialog(DLG_REPLOBJ), ObjTypeID(objTypeID)
 		{
 			SString buf;
-			ObjTypeID = objTypeID;
 			setSubTitle(GetObjectTitle(ObjTypeID, buf));
 		}
 		int    setDTS(PPID destID, PPID srcID)
@@ -462,12 +461,8 @@ int SLAPI PPObject::IndexPhones()
 	return ok;
 }
 
-SLAPI PPObjPack::PPObjPack()
+SLAPI PPObjPack::PPObjPack() : Data(0), Mod(ZERODATETIME), Priority(PPObjectTransmit::DefaultPriority), Flags(0)
 {
-	Mod.SetZero();
-	Priority = PPObjectTransmit::DefaultPriority;
-	Flags = 0;
-	Data  = 0;
 }
 
 int SLAPI PPObject::CreateReservedObjects(long flags)
@@ -663,15 +658,10 @@ void FASTCALL PPObject::Helper_GetRights(int onStartUp)
 	}
 }
 
-SLAPI PPObject::PPObject(PPID aObj)
+SLAPI PPObject::PPObject(PPID aObj) : Obj(aObj), filt(0), ImplementFlags(0), Rt_(0), ORt_(0)
 {
-	filt = 0;
-	ImplementFlags = 0;
-	if((Obj = aObj) != 0) {
+	if(Obj != 0)
 		Helper_GetRights(1);
-	}
-	else
-		Rt_ = ORt_ = 0;
 }
 
 SLAPI PPObject::~PPObject()
@@ -939,10 +929,8 @@ int SLAPI PPObject::EditSpcRightFlags(uint dlgID, uint flCtlID, uint sflCtlID, u
 {
 	class SpcRightFlagsDlg : public TDialog {
 	public:
-		SpcRightFlagsDlg(uint dlgID, uint flCtlID, uint sflCtlID) : TDialog(dlgID)
+		SpcRightFlagsDlg(uint dlgID, uint flCtlID, uint sflCtlID) : TDialog(dlgID), FLCtlID(flCtlID), SFLCtlID(sflCtlID)
 		{
-			FLCtlID  = flCtlID;
-			SFLCtlID = sflCtlID;
 		}
 		virtual int TransmitData(int dir, void * pData)
 		{
@@ -1146,10 +1134,8 @@ int SLAPI PPGetObjTypeList(PPIDArray * pList, long flags)
 //
 // ObjCollection
 //
-SLAPI ObjCollectionEntry::ObjCollectionEntry()
+SLAPI ObjCollectionEntry::ObjCollectionEntry() : ObjType(0), ObjPtr(0)
 {
-	ObjType = 0;
-	ObjPtr = 0;
 }
 
 SLAPI ObjCollection::ObjCollection() : TSArray <ObjCollectionEntry> (aryDataOwner | aryEachItem)

@@ -620,15 +620,9 @@ int SLAPI PPTooltipMessage(uint options, int msgcode, const char * pAddInfo)
 // Prototype
 void SLAPI AlignWaitDlg(HWND hw = 0);
 
-SLAPI PPThreadLocalArea::WaitBlock::WaitBlock() : IdleTimer(500)
+SLAPI PPThreadLocalArea::WaitBlock::WaitBlock() : State(stValid), PrevView(0), WaitDlg(0), OrgCur(0), hwndPB(0), hwndST(0), PrevPercent(-1),
+	WaitCur(::LoadCursor(TProgram::GetInst(), MAKEINTRESOURCE(IDC_PPYWAIT))), IdleTimer(500)
 {
-	State = stValid;
-	PrevView = 0;
-	WaitDlg = 0;
-	WaitCur = LoadCursor(TProgram::GetInst(), MAKEINTRESOURCE(IDC_PPYWAIT));
-	OrgCur = 0;
-	hwndPB = 0;
-	PrevPercent = -1;
 }
 
 SLAPI PPThreadLocalArea::WaitBlock::~WaitBlock()

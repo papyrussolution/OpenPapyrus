@@ -11,11 +11,11 @@
 #ifndef __XML_SCHEMATRON_H__
 #define __XML_SCHEMATRON_H__
 
-#include <libxml/xmlversion.h>
+//#include <libxml/xmlversion.h>
 
 #ifdef LIBXML_SCHEMATRON_ENABLED
 
-#include <libxml/tree.h>
+//#include <libxml/tree.h>
 
 #ifdef __cplusplus
 extern "C" {

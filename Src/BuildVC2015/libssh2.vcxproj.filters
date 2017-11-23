@@ -85,25 +85,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\osf\libssh2\src\crypto.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Osf\LibSSH2\src\libssh2_config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\libssh2\src\libssh2_priv.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\libssh2\src\mac.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\libssh2\src\mbedtls.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\libssh2\src\session.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\libssh2\src\sftp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\libssh2\src\wincng.h">

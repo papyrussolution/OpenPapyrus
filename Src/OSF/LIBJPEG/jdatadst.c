@@ -17,14 +17,10 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-/* this is not a core library module, so it doesn't define JPEG_INTERNALS */
-//#include "jinclude.h"
-//#include "jpeglib.h"
-//#include "jerror.h"
 
 #ifndef HAVE_STDLIB_H           /* <stdlib.h> should declare SAlloc::M(),free() */
-extern void * malloc(size_t size);
-extern void free(void* ptr);
+	extern void * malloc(size_t size);
+	extern void free(void* ptr);
 #endif
 
 /* Expanded data destination object for stdio output */

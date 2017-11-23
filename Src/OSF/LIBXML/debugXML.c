@@ -14,7 +14,7 @@
 #ifdef LIBXML_DEBUG_ENABLED
 #include <libxml/HTMLtree.h>
 #include <libxml/HTMLparser.h>
-#include <libxml/xpathInternals.h>
+//#include <libxml/xpathInternals.h>
 #ifdef LIBXML_SCHEMAS_ENABLED
 	#include <libxml/relaxng.h>
 #endif

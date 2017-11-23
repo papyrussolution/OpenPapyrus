@@ -390,6 +390,28 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 	if(pPack->GetCount() == 0)
 		ok = -1;
 	else {
+		// @v9.8.9 {
+		int    is_vat_free = 0;
+		PPObjPerson psn_obj;
+		if(NodeID) {
+			PPObjCashNode cn_obj;
+            PPCashNode cn_rec;
+			if(cn_obj.Fetch(NodeID, &cn_rec) > 0 && cn_rec.LocID) {
+				LocationTbl::Rec loc_rec;
+				if(psn_obj.LocObj.Fetch(cn_rec.LocID, &loc_rec) > 0 && loc_rec.Flags & LOCF_VATFREE)
+					is_vat_free = 1;
+			}
+		}
+		if(!is_vat_free) {
+            PPID   main_org_id = 0;
+            GetMainOrgID(&main_org_id);
+            if(main_org_id) {
+				PersonTbl::Rec psn_rec;
+				if(psn_obj.Fetch(main_org_id, &psn_rec) > 0 && psn_rec.Flags & PSNF_NOVATAX)
+					is_vat_free = 1;
+            }
+		}
+		// } @v9.8.9
 		SlipDocCommonParam sdc_param;
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash) + 0.001;
@@ -456,7 +478,12 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, _q));
 						THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, fabs(_p)));
 						THROW(ArrAdd(Arr_In, DVCPARAM_DEPARTMENT, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  sl_param.DivID));
-						THROW(ArrAdd(Arr_In, DVCPARAM_VATRATE, fabs(sl_param.VatRate))); // @v9.7.1
+						if(is_vat_free) {
+							THROW(ArrAdd(Arr_In, DVCPARAM_VATFREE, fabs(sl_param.VatRate))); // @v9.7.1
+						}
+						else {
+							THROW(ArrAdd(Arr_In, DVCPARAM_VATRATE, fabs(sl_param.VatRate))); // @v9.7.1
+						}
 						THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
 						PROFILE_END
 						Flags |= sfOpenCheck;
@@ -574,8 +601,8 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 			if(amt_cash > 0.0) {
 				THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, amt_cash));
 			}
-			// } @v9.7.2 
-			/* @v9.7.2 
+			// } @v9.7.2
+			/* @v9.7.2
 			if(nonfiscal > 0.0) {
 				if(fiscal > 0.0) {
 					if(flags & PRNCHK_BANKING) {
@@ -870,7 +897,7 @@ int	 SLAPI SCS_SYNCCASH::GetDevParam(/*const PPCashNode * pIn,*/ StrAssocArray &
 	GetPort(/*pIn->*/SCn.Port, &val);
 	THROW(ArrAdd(rOut, DVCPARAM_PORT, val));
 	// Логический номер ККМ
-	THROW(ArrAdd(rOut, DVCPARAM_LOGNUM, /*pIn->LogNum*/1)); 
+	THROW(ArrAdd(rOut, DVCPARAM_LOGNUM, /*pIn->LogNum*/1));
     // Флаги
 	THROW(ArrAdd(rOut, DVCPARAM_FLAGS, /*pIn->*/SCn.Flags));
 	// Логотип (пока что путь жестко определен здесь)

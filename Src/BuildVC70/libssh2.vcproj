@@ -711,25 +711,13 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx">
 			<File
-				RelativePath="..\osf\libssh2\src\crypto.h">
-			</File>
-			<File
 				RelativePath="..\Osf\LibSSH2\src\libssh2_config.h">
 			</File>
 			<File
 				RelativePath="..\osf\libssh2\src\libssh2_priv.h">
 			</File>
 			<File
-				RelativePath="..\osf\libssh2\src\mac.h">
-			</File>
-			<File
 				RelativePath="..\osf\libssh2\src\mbedtls.h">
-			</File>
-			<File
-				RelativePath="..\osf\libssh2\src\session.h">
-			</File>
-			<File
-				RelativePath="..\osf\libssh2\src\sftp.h">
 			</File>
 			<File
 				RelativePath="..\osf\libssh2\src\wincng.h">

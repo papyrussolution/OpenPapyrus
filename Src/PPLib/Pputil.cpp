@@ -234,12 +234,8 @@ char * FASTCALL ideqvalstr(long id, char * pBuf, size_t bufLen)
 //
 //
 //
-OptimalAmountDamper::OptimalAmountDamper()
+OptimalAmountDamper::OptimalAmountDamper() : Pos(-1), ExtPos(-1), OptQtty(0.0), MaxPrice(0.0)
 {
-	Pos = -1;
-	ExtPos = -1;
-	OptQtty = 0.0;
-	MaxPrice = 0.0;
 }
 
 int OptimalAmountDamper::GetOptimal(long & rPos, long * pExtPos, double * pOptQtty, double * pMaxPrice) const
@@ -390,17 +386,13 @@ int FASTCALL PPRollbackWork(int * pTa)
 	return 1;
 }
 
-PPTransaction::PPTransaction(PPDbDependTransaction dbDepend, int use_ta)
+PPTransaction::PPTransaction(PPDbDependTransaction dbDepend, int use_ta) : Ta(0), Err(0)
 {
-	Ta = 0;
-	Err = 0;
 	Start(dbDepend, use_ta);
 }
 
-PPTransaction::PPTransaction(int use_ta)
+PPTransaction::PPTransaction(int use_ta) : Ta(0), Err(0)
 {
-	Ta = 0;
-	Err = 0;
 	Start(use_ta);
 }
 
@@ -2860,14 +2852,12 @@ int SLAPI PPUhttClient::TestUi_GetQuotByLoc()
 	return ok;
 }
 
-SLAPI PPUhttClient::PPUhttClient()
+SLAPI PPUhttClient::PPUhttClient() : State(0), P_DestroyFunc(0)
 {
-	State = 0;
-	P_DestroyFunc = 0;
+	SString temp_buf;
  	{
-		SString lib_path;
-		PPGetFilePath(PPPATH_BIN, "PPSoapUhtt.dll", lib_path);
-		P_Lib = new SDynLibrary(lib_path);
+		PPGetFilePath(PPPATH_BIN, "PPSoapUhtt.dll", temp_buf);
+		P_Lib = new SDynLibrary(temp_buf);
 		if(P_Lib && !P_Lib->IsValid()) {
 			ZDELETE(P_Lib);
 		}
@@ -2877,9 +2867,15 @@ SLAPI PPUhttClient::PPUhttClient()
 	}
 	PPAlbatrosConfig cfg;
 	DS.FetchAlbatrosConfig(&cfg);
-	Urn = cfg.UhttUrn.NotEmpty() ? (const char *)cfg.UhttUrn : 0; // "urn:http.service.universehtt.ru";
-	UrlBase = cfg.UhttUrlPrefix.NotEmpty() ? (const char *)cfg.UhttUrlPrefix : 0; //"http://uhtt.ru/UHTTDispatcher/axis/Plugin_UHTT_SOAPService";
-	if(cfg.UhttAccount.NotEmpty())
+	//Urn = cfg.UhttUrn.NotEmpty() ? (const char *)cfg.UhttUrn : 0; // "urn:http.service.universehtt.ru";
+	cfg.GetExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
+	Urn = temp_buf.NotEmpty() ? temp_buf.cptr() : 0; // "urn:http.service.universehtt.ru";
+	//UrlBase = cfg.UhttUrlPrefix.NotEmpty() ? cfg.UhttUrlPrefix.cptr() : 0; //"http://uhtt.ru/UHTTDispatcher/axis/Plugin_UHTT_SOAPService";
+	cfg.GetExtStrData(ALBATROSEXSTR_UHTTURLPFX, temp_buf);
+	UrlBase = temp_buf.NotEmpty() ? temp_buf.cptr() : 0; //"http://uhtt.ru/UHTTDispatcher/axis/Plugin_UHTT_SOAPService";
+	cfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
+	//if(cfg.UhttAccount.NotEmpty())
+	if(temp_buf.NotEmpty())
 		State |= stHasAccount;
 }
 
@@ -2905,7 +2901,7 @@ int SLAPI PPUhttClient::PreprocessResult(const void * pResult, const PPSoapClien
 
 int SLAPI PPUhttClient::Auth()
 {
-	Token = 0;
+	Token.Z();
 	State &= ~stAuth;
 	int    ok = 1;
 	if(P_Lib) {
@@ -2919,7 +2915,8 @@ int SLAPI PPUhttClient::Auth()
 			PPAlbatrosConfig cfg;
 			DS.FetchAlbatrosConfig(&cfg);
 			cfg.GetPassword(ALBATROSEXSTR_UHTTPASSW, pw);
-			SString * p_token = func(sess, cfg.UhttAccount, pw.Transf(CTRANSF_INNER_TO_UTF8));
+			cfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
+			SString * p_token = func(sess, /*cfg.UhttAccount*/temp_buf, pw.Transf(CTRANSF_INNER_TO_UTF8));
 			(pw = 0).Align(64, ALIGN_RIGHT); // Забиваем пароль пробелами
 			if(PreprocessResult(p_token, sess)) {
 				Token = *p_token;

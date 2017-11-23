@@ -345,21 +345,21 @@ extern void jinit_merged_upsampler(j_decompress_ptr cinfo);
 extern void jinit_memory_mgr(j_common_ptr cinfo);
 
 /* Utility routines in jutils.c */
-EXTERN(long) jdiv_round_up(long a, long b);
-EXTERN(long) jround_up(long a, long b);
+EXTERN(long) FASTCALL jdiv_round_up(long a, long b);
+EXTERN(long) FASTCALL jround_up(long a, long b);
 EXTERN(void) jcopy_sample_rows(JSAMPARRAY input_array, int source_row, JSAMPARRAY output_array, int dest_row, int num_rows, JDIMENSION num_cols);
 EXTERN(void) jcopy_block_row(JBLOCKROW input_row, JBLOCKROW output_row, JDIMENSION num_blocks);
 /* Constant tables in jutils.c */
 #if 0                           /* This table is not actually needed in v6a */
 extern const int jpeg_zigzag_order[]; /* natural coef order to zigzag order */
 #endif
-extern const int jpeg_natural_order[]; /* zigzag coef order to natural order */
-extern const int jpeg_natural_order7[]; /* zz to natural order for 7x7 block */
-extern const int jpeg_natural_order6[]; /* zz to natural order for 6x6 block */
-extern const int jpeg_natural_order5[]; /* zz to natural order for 5x5 block */
-extern const int jpeg_natural_order4[]; /* zz to natural order for 4x4 block */
-extern const int jpeg_natural_order3[]; /* zz to natural order for 3x3 block */
-extern const int jpeg_natural_order2[]; /* zz to natural order for 2x2 block */
+extern const uint8 jpeg_natural_order[]; /* zigzag coef order to natural order */ // @sobolev int-->uin8
+extern const uint8 jpeg_natural_order7[]; /* zz to natural order for 7x7 block */ // @sobolev int-->uin8
+extern const uint8 jpeg_natural_order6[]; /* zz to natural order for 6x6 block */ // @sobolev int-->uin8
+extern const uint8 jpeg_natural_order5[]; /* zz to natural order for 5x5 block */ // @sobolev int-->uin8
+extern const uint8 jpeg_natural_order4[]; /* zz to natural order for 4x4 block */ // @sobolev int-->uin8
+extern const uint8 jpeg_natural_order3[]; /* zz to natural order for 3x3 block */ // @sobolev int-->uin8
+extern const uint8 jpeg_natural_order2[]; /* zz to natural order for 2x2 block */ // @sobolev int-->uin8
 
 /* Arithmetic coding probability estimation tables in jaricom.c */
 extern const INT32 jpeg_aritab[];

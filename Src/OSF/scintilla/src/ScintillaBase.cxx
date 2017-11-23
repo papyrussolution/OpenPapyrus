@@ -179,8 +179,7 @@ void ScintillaBase::AutoCompleteInsert(Position startPos, int removeLen, const c
 	else {
 		// SC_MULTIAUTOC_EACH
 		for(size_t r = 0; r<sel.Count(); r++) {
-			if(!RangeContainsProtected(sel.Range(r).Start().Position(),
-				    sel.Range(r).End().Position())) {
+			if(!RangeContainsProtected(sel.Range(r).Start().Position(), sel.Range(r).End().Position())) {
 				int positionInsert = sel.Range(r).Start().Position();
 				positionInsert = RealizeVirtualSpace(positionInsert, sel.Range(r).caret.VirtualSpace());
 				if(positionInsert - removeLen >= 0) {
@@ -202,12 +201,10 @@ void ScintillaBase::AutoCompleteStart(int lenEntered, const char * list)
 {
 	//Platform::DebugPrintf("AutoComplete %s\n", list);
 	ct.CallTipCancel();
-
 	if(ac.GetFlags() & ac.fChooseSingle && (listType == 0)) {
 		if(list && !strchr(list, ac.GetSeparator())) {
 			const char * typeSep = strchr(list, ac.GetTypesep());
-			int lenInsert = typeSep ?
-			    static_cast<int>(typeSep-list) : static_cast<int>(strlen(list));
+			int lenInsert = typeSep ? static_cast<int>(typeSep-list) : static_cast<int>(strlen(list));
 			if(ac.GetFlags() & ac.fIgnoreCase) {
 				// May need to convert the case before invocation, so remove lenEntered characters
 				AutoCompleteInsert(sel.MainCaret() - lenEntered, lenEntered, list, lenInsert);
@@ -220,13 +217,11 @@ void ScintillaBase::AutoCompleteStart(int lenEntered, const char * list)
 		}
 	}
 	ac.Start(wMain, idAutoComplete, sel.MainCaret(), PointMainCaret(), lenEntered, vs.lineHeight, IsUnicodeMode(), technology);
-
 	PRectangle rcClient = GetClientRectangle();
 	Point pt = LocationFromPosition(sel.MainCaret() - lenEntered);
 	PRectangle rcPopupBounds = wMain.GetMonitorRect(pt);
 	if(rcPopupBounds.Height() == 0)
 		rcPopupBounds = rcClient;
-
 	int heightLB = ac.heightLBDefault;
 	int widthLB = ac.widthLBDefault;
 	if(pt.x >= rcClient.right - widthLB) {
@@ -253,7 +248,7 @@ void ScintillaBase::AutoCompleteStart(int lenEntered, const char * list)
 		rcac.top = pt.y + vs.lineHeight;
 	}
 	rcac.right = rcac.left + widthLB;
-	rcac.bottom = static_cast<XYPOSITION>(Platform::Minimum(static_cast<int>(rcac.top) + heightLB, static_cast<int>(rcPopupBounds.bottom)));
+	rcac.bottom = static_cast<XYPOSITION>(smin(static_cast<int>(rcac.top) + heightLB, static_cast<int>(rcPopupBounds.bottom)));
 	ac.lb->SetPositionRelative(rcac, wMain);
 	ac.lb->SetFont(vs.styles[STYLE_DEFAULT].font);
 	uint aveCharWidth = static_cast<uint>(vs.styles[STYLE_DEFAULT].aveCharWidth);
@@ -265,9 +260,9 @@ void ScintillaBase::AutoCompleteStart(int lenEntered, const char * list)
 	// Fiddle the position of the list so it is right next to the target and wide enough for all its strings
 	PRectangle rcList = ac.lb->GetDesiredRect();
 	int heightAlloced = static_cast<int>(rcList.bottom - rcList.top);
-	widthLB = Platform::Maximum(widthLB, static_cast<int>(rcList.right - rcList.left));
+	widthLB = smax(widthLB, static_cast<int>(rcList.right - rcList.left));
 	if(maxListWidth != 0)
-		widthLB = Platform::Minimum(widthLB, aveCharWidth*maxListWidth);
+		widthLB = smin(widthLB, aveCharWidth*maxListWidth);
 	// Make an allowance for large strings in list
 	rcList.left = pt.x - ac.lb->CaretFromEdge();
 	rcList.right = rcList.left + widthLB;

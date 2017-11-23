@@ -1622,35 +1622,13 @@ enum PointEnd {
 //
 //
 class LineLayout {
-private:
-	friend class LineLayoutCache;
-	int * lineStarts;
-	int lenLineStarts;
-	/// Drawing is only performed for @a maxLineLength characters on each line.
-	int lineNumber;
-	bool inCache;
 public:
-	enum { wrapWidthInfinite = 0x7ffffff };
-
-	int maxLineLength;
-	int numCharsInLine;
-	int numCharsBeforeEOL;
-	enum validLevel { llInvalid, llCheckTextAndStyle, llPositions, llLines } validity;
-
-	int xHighlightGuide;
-	bool highlightColumn;
-	bool containsCaret;
-	int edgeColumn;
-	char * chars;
-	uchar * styles;
-	XYPOSITION * positions;
-	char bracePreviousStyles[2];
-	Range hotspot; // Hotspot support
-	// Wrapped line support
-	int widthLine;
-	int lines;
-	XYPOSITION wrapIndent; // In pixels
-
+	enum validLevel { 
+		llInvalid, 
+		llCheckTextAndStyle, 
+		llPositions, 
+		llLines 
+	};
 	explicit LineLayout(int maxLineLength_);
 	virtual ~LineLayout();
 	void   FASTCALL Resize(int maxLineLength_);
@@ -1667,6 +1645,35 @@ public:
 	int    FindPositionFromX(XYPOSITION x, Range range, bool charPosition) const;
 	Point  PointFromPosition(int posInLine, int lineHeight, PointEnd pe) const;
 	int    EndLineStyle() const;
+
+	enum { 
+		wrapWidthInfinite = 0x7ffffff 
+	};
+	validLevel validity;
+	int maxLineLength;
+	int numCharsInLine;
+	int numCharsBeforeEOL;
+
+	int xHighlightGuide;
+	bool highlightColumn;
+	bool containsCaret;
+	int edgeColumn;
+	char * chars;
+	uchar * styles;
+	XYPOSITION * positions;
+	char bracePreviousStyles[2];
+	Range hotspot; // Hotspot support
+	// Wrapped line support
+	int widthLine;
+	int lines;
+	XYPOSITION wrapIndent; // In pixels
+private:
+	friend class LineLayoutCache;
+	int * lineStarts;
+	int lenLineStarts;
+	/// Drawing is only performed for @a maxLineLength characters on each line.
+	int lineNumber;
+	bool inCache;
 };
 //
 // ViewStyle.h
@@ -2526,7 +2533,9 @@ public:
 // 
 class AutoLineLayout {
 public:
-	AutoLineLayout(LineLayoutCache &llc_, LineLayout *ll_) : llc(llc_), ll(ll_) {}
+	AutoLineLayout(LineLayoutCache &llc_, LineLayout *ll_) : llc(llc_), ll(ll_) 
+	{
+	}
 	~AutoLineLayout() 
 	{
 		llc.Dispose(ll);
@@ -2540,15 +2549,16 @@ public:
 	{
 		return ll;
 	}
-	void Set(LineLayout *ll_) 
+	void Set(LineLayout * ll_) 
 	{
 		llc.Dispose(ll);
 		ll = ll_;
 	}
 private:
+	AutoLineLayout & operator = (const AutoLineLayout &);
+
 	LineLayoutCache & llc;
 	LineLayout * ll;
-	AutoLineLayout & operator = (const AutoLineLayout &);
 };
 //
 //
@@ -2645,9 +2655,17 @@ private:
 //
 //
 class Editor : public EditModel, public DocWatcher {
-	// Private so Editor objects can not be copied
-	explicit Editor(const Editor &);
-	Editor & operator = (const Editor &);
+public:
+	friend class AutoSurface;
+	friend class SelectionLineIterator;
+
+	// Public so scintilla_send_message can use it.
+	virtual sptr_t WndProc(uint iMessage, uptr_t wParam, sptr_t lParam);
+	// Public so the COM thunks can access it.
+	bool   IsUnicodeMode() const;
+
+	int    ctrlID;      // Public so scintilla_set_id can use it.
+	int    errorStatus; // Public so COM methods for drag and drop can set it.
 protected: // ScintillaBase subclass needs access to much of Editor
 	// 
 	// Descr: Hold a piece of text selected for copying or dragging, along with 
@@ -3061,15 +3079,11 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	int    DisplayFromPosition(int pos);
 
 	struct XYScrollPosition {
-		int xOffset;
-		int topLine;
-		XYScrollPosition(int xOffset_, int topLine_) : xOffset(xOffset_), topLine(topLine_)
-		{
-		}
-		bool operator== (const XYScrollPosition & other) const
-		{
-			return (xOffset == other.xOffset) && (topLine == other.topLine);
-		}
+		XYScrollPosition(int xOffset_, int topLine_);
+		bool operator == (const XYScrollPosition & other) const;
+
+		int    xOffset;
+		int    topLine;
 	};
 
 	enum XYScrollOptions {
@@ -3095,7 +3109,7 @@ protected: // ScintillaBase subclass needs access to much of Editor
 		wsVisible, 
 		wsIdle
 	};
-	bool WrapLines(enum wrapScope ws);
+	bool   WrapLines(enum wrapScope ws);
 	void   LinesJoin();
 	void   LinesSplit(int pixelWidth);
 	void   PaintSelMargin(Surface * surface, PRectangle &rc);
@@ -3183,83 +3197,76 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	void   Indent(bool forwards);
 	long   FindText(uptr_t wParam, sptr_t lParam);
 	void   SearchAnchor();
-	long SearchText(uint iMessage, uptr_t wParam, sptr_t lParam);
-	long SearchInTarget(const char * text, int length);
-	void GoToLine(int lineNo);
+	long   SearchText(uint iMessage, uptr_t wParam, sptr_t lParam);
+	long   SearchInTarget(const char * text, int length);
+	void   GoToLine(int lineNo);
 	std::string RangeText(int start, int end) const;
-	void CopySelectionRange(SelectionText * ss, bool allowLineCopy = false);
-	void CopyRangeToClipboard(int start, int end);
-	void CopyText(int length, const char * text);
-	void SetDragPosition(SelectionPosition newPos);
-	void DropAt(SelectionPosition position, const char * value, size_t lengthValue, bool moving, bool rectangular);
-	void DropAt(SelectionPosition position, const char * value, bool moving, bool rectangular);
+	void   CopySelectionRange(SelectionText * ss, bool allowLineCopy = false);
+	void   CopyRangeToClipboard(int start, int end);
+	void   CopyText(int length, const char * text);
+	void   SetDragPosition(SelectionPosition newPos);
+	void   DropAt(SelectionPosition position, const char * value, size_t lengthValue, bool moving, bool rectangular);
+	void   DropAt(SelectionPosition position, const char * value, bool moving, bool rectangular);
 	/** PositionInSelection returns true if position in selection. */
-	bool PositionInSelection(int pos);
-	bool PointInSelection(Point pt);
-	bool PointInSelMargin(Point pt) const;
+	bool   PositionInSelection(int pos);
+	bool   PointInSelection(Point pt);
+	bool   PointInSelMargin(Point pt) const;
 	Window::Cursor GetMarginCursor(Point pt) const;
-	void TrimAndSetSelection(int currentPos_, int anchor_);
-	void LineSelection(int lineCurrentPos_, int lineAnchorPos_, bool wholeLine);
-	void WordSelection(int pos);
-	void DwellEnd(bool mouseMoved);
-	void MouseLeave();
-	void ButtonMoveWithModifiers(Point pt, int modifiers);
-	void ButtonMove(Point pt);
-	void ButtonUp(Point pt, uint curTime, bool ctrl);
-	void Tick();
-	bool Idle();
-	void SetFocusState(bool focusState);
-	int PositionAfterArea(PRectangle rcArea) const;
-	void StyleToPositionInView(Position pos);
-	int PositionAfterMaxStyling(int posMax, bool scrolling) const;
-	void StartIdleStyling(bool truncatedLastStyling);
-	void StyleAreaBounded(PRectangle rcArea, bool scrolling);
-	void IdleStyling();
-	bool PaintContainsMargin();
-	void CheckForChangeOutsidePaint(Range r);
-	void SetBraceHighlight(Position pos0, Position pos1, int matchStyle);
-	void SetAnnotationHeights(int start, int end);
-	void SetAnnotationVisible(int visible);
-	int ExpandLine(int line);
-	void SetFoldExpanded(int lineDoc, bool expanded);
-	void FoldLine(int line, int action);
-	void FoldExpand(int line, int action, int level);
-	int ContractedFoldNext(int lineStart) const;
-	void EnsureLineVisible(int lineDoc, bool enforcePolicy);
-	void FoldChanged(int line, int levelNow, int levelPrev);
-	void NeedShown(int pos, int len);
-	void FoldAll(int action);
-	int GetTag(char * tagValue, int tagNumber);
-	int ReplaceTarget(bool replacePatterns, const char * text, int length = -1);
+	void   TrimAndSetSelection(int currentPos_, int anchor_);
+	void   LineSelection(int lineCurrentPos_, int lineAnchorPos_, bool wholeLine);
+	void   WordSelection(int pos);
+	void   DwellEnd(bool mouseMoved);
+	void   MouseLeave();
+	void   ButtonMoveWithModifiers(Point pt, int modifiers);
+	void   ButtonMove(Point pt);
+	void   ButtonUp(Point pt, uint curTime, bool ctrl);
+	void   Tick();
+	bool   Idle();
+	void   SetFocusState(bool focusState);
+	int    PositionAfterArea(PRectangle rcArea) const;
+	void   StyleToPositionInView(Position pos);
+	int    PositionAfterMaxStyling(int posMax, bool scrolling) const;
+	void   StartIdleStyling(bool truncatedLastStyling);
+	void   StyleAreaBounded(PRectangle rcArea, bool scrolling);
+	void   IdleStyling();
+	bool   PaintContainsMargin();
+	void   CheckForChangeOutsidePaint(Range r);
+	void   SetBraceHighlight(Position pos0, Position pos1, int matchStyle);
+	void   SetAnnotationHeights(int start, int end);
+	void   SetAnnotationVisible(int visible);
+	int    ExpandLine(int line);
+	void   SetFoldExpanded(int lineDoc, bool expanded);
+	void   FoldLine(int line, int action);
+	void   FoldExpand(int line, int action, int level);
+	int    ContractedFoldNext(int lineStart) const;
+	void   EnsureLineVisible(int lineDoc, bool enforcePolicy);
+	void   FoldChanged(int line, int levelNow, int levelPrev);
+	void   NeedShown(int pos, int len);
+	void   FoldAll(int action);
+	int    GetTag(char * tagValue, int tagNumber);
+	int    ReplaceTarget(bool replacePatterns, const char * text, int length = -1);
 	bool PositionIsHotspot(int position) const;
 	bool PointIsHotspot(Point pt);
-	void SetHotSpotRange(Point * pt);
+	void   SetHotSpotRange(Point * pt);
 	Range GetHotSpotRange() const;
-	void SetHoverIndicatorPosition(int position);
-	void SetHoverIndicatorPoint(Point pt);
-	int CodePage() const;
-	int WrapCount(int line);
-	void AddStyledText(char * buffer, int appendLength);
+	void   SetHoverIndicatorPosition(int position);
+	void   SetHoverIndicatorPoint(Point pt);
+	int    CodePage() const;
+	int    WrapCount(int line);
+	void   AddStyledText(char * buffer, int appendLength);
 	bool ValidMargin(uptr_t wParam) const;
-	void StyleSetMessage(uint iMessage, uptr_t wParam, sptr_t lParam);
+	void   StyleSetMessage(uint iMessage, uptr_t wParam, sptr_t lParam);
 	sptr_t StyleGetMessage(uint iMessage, uptr_t wParam, sptr_t lParam);
-	void SetSelectionNMessage(uint iMessage, uptr_t wParam, sptr_t lParam);
-public:
-	// Public so the COM thunks can access it.
-	bool   IsUnicodeMode() const;
-	// Public so scintilla_send_message can use it.
-	virtual sptr_t WndProc(uint iMessage, uptr_t wParam, sptr_t lParam);
-	int    ctrlID;      // Public so scintilla_set_id can use it.
-	int    errorStatus; // Public so COM methods for drag and drop can set it.
-	friend class AutoSurface;
-	friend class SelectionLineIterator;
+	void   SetSelectionNMessage(uint iMessage, uptr_t wParam, sptr_t lParam);
+private:
+	// Private so Editor objects can not be copied
+	explicit Editor(const Editor &);
+	Editor & operator = (const Editor &);
 };
 /**
  * A smart pointer class to ensure Surfaces are set up and deleted correctly.
  */
 class AutoSurface {
-private:
-	Surface * surf;
 public:
 	AutoSurface(Editor * ed, int technology = -1);
 	AutoSurface(SurfaceID sid, Editor * ed, int technology = -1);
@@ -3272,6 +3279,8 @@ public:
 	{
 		return surf;
 	}
+private:
+	Surface * surf;
 };
 //
 //
@@ -3357,47 +3366,6 @@ public:
 // for one position instead of over a range of positions.
 //
 template <typename T> class SparseVector {
-private:
-	Partitioning * starts;
-	SplitVector<T> * values;
-	// Private so SparseVector objects can not be copied
-	SparseVector(const SparseVector &);
-	void ClearValue(int partition)
-	{
-		values->SetValueAt(partition, T());
-	}
-	void CommonSetValueAt(int position, T value)
-	{
-		// Do the work of setting the value to allow for specialization of SetValueAt.
-		assert(position < Length());
-		const int partition = starts->PartitionFromPosition(position);
-		const int startPartition = starts->PositionFromPartition(partition);
-		if(value == T()) {
-			// Setting the empty value is equivalent to deleting the position
-			if(position == 0) {
-				ClearValue(partition);
-			}
-			else if(position == startPartition) {
-				// Currently an element at this position, so remove
-				ClearValue(partition);
-				starts->RemovePartition(partition);
-				values->Delete(partition);
-			}
-			// Else element remains empty
-		}
-		else {
-			if(position == startPartition) {
-				// Already a value at this position, so replace
-				ClearValue(partition);
-				values->SetValueAt(partition, value);
-			}
-			else {
-				// Insert a new element
-				starts->InsertPartition(partition + 1, position);
-				values->InsertValue(partition + 1, 1, value);
-			}
-		}
-	}
 public:
 	SparseVector()
 	{
@@ -3458,18 +3426,14 @@ public:
 					values->InsertValue(1, 1, valueCurrent);
 					starts->InsertText(0, insertLength);
 				}
-				else {
+				else
 					starts->InsertText(partition, insertLength);
-				}
 			}
 			else {
-				if(valueCurrent != T()) {
+				if(valueCurrent != T())
 					starts->InsertText(partition - 1, insertLength);
-				}
-				else {
-					// Insert at end of run so do not extend style
+				else // Insert at end of run so do not extend style
 					starts->InsertText(partition, insertLength);
-				}
 			}
 		}
 		else {
@@ -3516,6 +3480,45 @@ public:
 			throw std::runtime_error("SparseVector: Unused style at end changed.");
 		}
 	}
+private:
+	// Private so SparseVector objects can not be copied
+	SparseVector(const SparseVector &);
+	void ClearValue(int partition)
+	{
+		values->SetValueAt(partition, T());
+	}
+	void CommonSetValueAt(int position, T value)
+	{
+		// Do the work of setting the value to allow for specialization of SetValueAt.
+		assert(position < Length());
+		const int partition = starts->PartitionFromPosition(position);
+		const int startPartition = starts->PositionFromPartition(partition);
+		if(value == T()) {
+			// Setting the empty value is equivalent to deleting the position
+			if(position == 0) {
+				ClearValue(partition);
+			}
+			else if(position == startPartition) {
+				// Currently an element at this position, so remove
+				ClearValue(partition);
+				starts->RemovePartition(partition);
+				values->Delete(partition);
+			}
+			// Else element remains empty
+		}
+		else {
+			if(position == startPartition) { // Already a value at this position, so replace
+				ClearValue(partition);
+				values->SetValueAt(partition, value);
+			}
+			else { // Insert a new element
+				starts->InsertPartition(partition + 1, position);
+				values->InsertValue(partition + 1, 1, value);
+			}
+		}
+	}
+	Partitioning * starts;
+	SplitVector<T> * values;
 };
 
 // The specialization for const char * makes copies and deletes them as needed.
@@ -3599,17 +3602,12 @@ typedef LexerFactoryFunction(EXT_LEXER_DECL *GetLexerFactoryFunction)(uint Index
 
 /// Sub-class of LexerModule to use an external lexer.
 class ExternalLexerModule : public LexerModule {
+public:
+	ExternalLexerModule(int language_, LexerFunction fnLexer_, const char *languageName_=0, LexerFunction fnFolder_=0);
+	virtual void SetExternal(GetLexerFactoryFunction fFactory, int index);
 protected:
 	GetLexerFactoryFunction fneFactory;
 	std::string name;
-public:
-	ExternalLexerModule(int language_, LexerFunction fnLexer_, const char *languageName_=0, LexerFunction fnFolder_=0) :
-		LexerModule(language_, fnLexer_, 0, fnFolder_),
-		fneFactory(0), name(languageName_)
-	{
-		languageName = name.c_str();
-	}
-	virtual void SetExternal(GetLexerFactoryFunction fFactory, int index);
 };
 
 /// LexerMinder points to an ExternalLexerModule - so we don't leak them.
@@ -3621,10 +3619,6 @@ public:
 
 /// LexerLibrary exists for every External Lexer DLL, contains LexerMinders.
 class LexerLibrary {
-	DynamicLibrary	*lib;
-	LexerMinder		*first;
-	LexerMinder		*last;
-
 public:
 	explicit LexerLibrary(const char *ModuleName);
 	~LexerLibrary();
@@ -3632,6 +3626,10 @@ public:
 
 	LexerLibrary * next;
 	std::string m_sModuleName;
+private:
+	DynamicLibrary	*lib;
+	LexerMinder		*first;
+	LexerMinder		*last;
 };
 
 /// LexerManager manages external lexers, contains LexerLibrarys.
@@ -3783,8 +3781,6 @@ public:
 //
 template <typename T> class SparseState {
 	struct State {
-		int position;
-		T value;
 		State(int position_, T value_) : position(position_), value(value_) 
 		{
 		}
@@ -3796,6 +3792,8 @@ template <typename T> class SparseState {
 		{
 			return (position == other.position) && (value == other.value);
 		}
+		int    position;
+		T      value;
 	};
 	int positionFirst;
 	typedef std::vector<State> stateVector;
@@ -3881,11 +3879,6 @@ public:
 //#include "SubStyles.h"
 //
 class WordClassifier {
-private:
-	int baseStyle;
-	int firstStyle;
-	int lenStyles;
-	std::map <std::string, int> wordToStyle;
 public:
 	explicit WordClassifier(int baseStyle_);
 	void Allocate(int firstStyle_, int lenStyles_);
@@ -3896,31 +3889,42 @@ public:
 	int ValueFor(const std::string &s) const;
 	bool IncludesStyle(int style) const;
 	void SetIdentifiers(int style, const char * identifiers);
+private:
+	int    baseStyle;
+	int    firstStyle;
+	int    lenStyles;
+	std::map <std::string, int> wordToStyle;
 };
 
 class SubStyles {
-private:
-	int classifications;
-	const char * baseStyles;
-	int styleFirst;
-	int stylesAvailable;
-	int secondaryDistance;
-	int allocated;
-	std::vector <WordClassifier> classifiers;
-
-	int BlockFromBaseStyle(int baseStyle) const;
-	int BlockFromStyle(int style) const;
 public:
 	SubStyles(const char * baseStyles_, int styleFirst_, int stylesAvailable_, int secondaryDistance_);
-	int Allocate(int styleBase, int numberStyles);
-	int Start(int styleBase);
-	int Length(int styleBase);
-	int BaseStyle(int subStyle) const;
-	int DistanceToSecondaryStyles() const;
-	void SetIdentifiers(int style, const char * identifiers);
-	void Free();
-	const WordClassifier &Classifier(int baseStyle) const;
+	int    Allocate(int styleBase, int numberStyles);
+	int    Start(int styleBase);
+	int    Length(int styleBase);
+	int    BaseStyle(int subStyle) const;
+	int    DistanceToSecondaryStyles() const;
+	void   SetIdentifiers(int style, const char * identifiers);
+	void   Free();
+	const  WordClassifier &Classifier(int baseStyle) const;
+private:
+	int    BlockFromBaseStyle(int baseStyle) const;
+	int    BlockFromStyle(int style) const;
+
+	int    classifications;
+	const  char * baseStyles;
+	int    styleFirst;
+	int    stylesAvailable;
+	int    secondaryDistance;
+	int    allocated;
+	std::vector <WordClassifier> classifiers;
 };
+//
+// HanjaDic.h
+//
+namespace HanjaDict {
+	int GetHangulOfHanja(wchar_t *inout);
+}
 
 #ifdef SCI_NAMESPACE
 }

@@ -704,10 +704,16 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
+				RelativePath="..\Osf\Libxml\acconfig.h">
+			</File>
+			<File
 				RelativePath="..\include\libxml\c14n.h">
 			</File>
 			<File
 				RelativePath="..\include\libxml\chvalid.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Libxml\config.h">
 			</File>
 			<File
 				RelativePath="..\include\libxml\debugXML.h">
@@ -717,6 +723,9 @@
 			</File>
 			<File
 				RelativePath="..\include\libxml\DOCBparser.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Libxml\elfgcchack.h">
 			</File>
 			<File
 				RelativePath="..\include\libxml\encoding.h">
@@ -735,6 +744,9 @@
 			</File>
 			<File
 				RelativePath="..\include\libxml\HTMLtree.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Libxml\libxml.h">
 			</File>
 			<File
 				RelativePath="..\include\libxml\list.h">
@@ -758,6 +770,9 @@
 				RelativePath="..\include\libxml\relaxng.h">
 			</File>
 			<File
+				RelativePath="..\Osf\Libxml\save.h">
+			</File>
+			<File
 				RelativePath="..\include\libxml\SAX.h">
 			</File>
 			<File
@@ -770,10 +785,22 @@
 				RelativePath="..\include\libxml\schematron.h">
 			</File>
 			<File
-				RelativePath="..\include\libxml\threads.h">
+				RelativePath="..\Osf\Libxml\timsort.h">
 			</File>
 			<File
 				RelativePath="..\include\libxml\tree.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Libxml\trio.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Libxml\triodef.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Libxml\trionan.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Libxml\triop.h">
 			</File>
 			<File
 				RelativePath="..\Osf\Libxml\triostr.h">
@@ -786,9 +813,6 @@
 			</File>
 			<File
 				RelativePath="..\include\libxml\xinclude.h">
-			</File>
-			<File
-				RelativePath="..\include\libxml\xlink.h">
 			</File>
 			<File
 				RelativePath="..\include\libxml\xmlautomata.h">
@@ -843,6 +867,9 @@
 			</File>
 			<File
 				RelativePath="..\include\libxml\xpointer.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Libxml\xzlib.h">
 			</File>
 		</Filter>
 		<Filter

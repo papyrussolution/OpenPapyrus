@@ -4136,8 +4136,8 @@ int SLAPI ImportCompGS()
 //
 // Import FIAS
 //
-//xmlParserCtxtPtr xmlCreateFileParserCtxt(const char * pFileName); // @prototype
-extern "C" xmlParserCtxtPtr xmlCreateURLParserCtxt(const char * filename, int options);
+//xmlParserCtxt * xmlCreateFileParserCtxt(const char * pFileName); // @prototype
+extern "C" xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options);
 void FASTCALL xmlDetectSAX2(xmlParserCtxt * ctxt); // @prototype
 
 FiasImporter::Param::Param()

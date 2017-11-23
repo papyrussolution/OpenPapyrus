@@ -7,13 +7,11 @@
  *
  * Author: Daniel Veillard
  */
-
-
 #ifndef __DEBUG_MEMORY_ALLOC__
 #define __DEBUG_MEMORY_ALLOC__
 
 //#include <stdio.h>
-#include <libxml/xmlversion.h>
+//#include <libxml/xmlversion.h>
 
 /**
  * DEBUG_MEMORY:
@@ -175,11 +173,5 @@ XMLPUBFUN char * XMLCALL xmlMemStrdupLoc(const char *str, const char *file, int 
 }
 #endif /* __cplusplus */
 
-#ifndef __XML_GLOBALS_H
-	#ifndef __XML_THREADS_H__
-		//#include <libxml/threads.h>
-		//#include <libxml/globals.h>
-	#endif
-#endif
 #endif  /* __DEBUG_MEMORY_ALLOC__ */
 

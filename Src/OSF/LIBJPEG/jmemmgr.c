@@ -253,7 +253,6 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 	odd_bytes = sizeofobject % SIZEOF(ALIGN_TYPE);
 	if(odd_bytes > 0)
 		sizeofobject += SIZEOF(ALIGN_TYPE) - odd_bytes;
-
 	/* See if space is available in any existing pool */
 	if(pool_id < 0 || pool_id >= JPOOL_NUMPOOLS)
 		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id);  /* safety check */
@@ -265,7 +264,6 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 		prev_hdr_ptr = hdr_ptr;
 		hdr_ptr = hdr_ptr->hdr.next;
 	}
-
 	/* Time to make a new pool? */
 	if(hdr_ptr == NULL) {
 		/* min_request is what we need now, slop is what will be leftover */
@@ -296,16 +294,13 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
 		else
 			prev_hdr_ptr->hdr.next = hdr_ptr;
 	}
-
 	/* OK, allocate the object from the current pool */
 	data_ptr = (char*)(hdr_ptr + 1); /* point to first data byte in pool */
 	data_ptr += hdr_ptr->hdr.bytes_used; /* point to place for object */
 	hdr_ptr->hdr.bytes_used += sizeofobject;
 	hdr_ptr->hdr.bytes_left -= sizeofobject;
-
 	return (void*)data_ptr;
 }
-
 /*
  * Allocation of "large" objects.
  *
@@ -319,29 +314,23 @@ METHODDEF(void *) alloc_small(j_common_ptr cinfo, int pool_id, size_t sizeofobje
  * structures.  The routines that create these structures (see below)
  * deliberately bunch rows together to ensure a large request size.
  */
-
 METHODDEF(void FAR *) alloc_large(j_common_ptr cinfo, int pool_id, size_t sizeofobject)
 /* Allocate a "large" object */
 {
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
 	large_pool_ptr hdr_ptr;
 	size_t odd_bytes;
-
 	/* Check for unsatisfiable request (do now to ensure no overflow below) */
 	if(sizeofobject > (size_t)(MAX_ALLOC_CHUNK-SIZEOF(large_pool_hdr)))
 		out_of_memory(cinfo, 3);  /* request exceeds SAlloc::M's ability */
-
 	/* Round up the requested size to a multiple of SIZEOF(ALIGN_TYPE) */
 	odd_bytes = sizeofobject % SIZEOF(ALIGN_TYPE);
 	if(odd_bytes > 0)
 		sizeofobject += SIZEOF(ALIGN_TYPE) - odd_bytes;
-
 	/* Always make a new pool */
 	if(pool_id < 0 || pool_id >= JPOOL_NUMPOOLS)
 		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id);  /* safety check */
-
-	hdr_ptr = (large_pool_ptr)jpeg_get_large(cinfo, sizeofobject +
-	    SIZEOF(large_pool_hdr));
+	hdr_ptr = (large_pool_ptr)jpeg_get_large(cinfo, sizeofobject + SIZEOF(large_pool_hdr));
 	if(hdr_ptr == NULL)
 		out_of_memory(cinfo, 4);  /* jpeg_get_large failed */
 	mem->total_space_allocated += sizeofobject + SIZEOF(large_pool_hdr);
@@ -354,10 +343,8 @@ METHODDEF(void FAR *) alloc_large(j_common_ptr cinfo, int pool_id, size_t sizeof
 	hdr_ptr->hdr.bytes_used = sizeofobject;
 	hdr_ptr->hdr.bytes_left = 0;
 	mem->large_list[pool_id] = hdr_ptr;
-
 	return (void FAR*)(hdr_ptr + 1); /* point to first data byte in pool */
 }
-
 /*
  * Creation of 2-D sample arrays.
  * The pointers are in near heap, the samples themselves in FAR heap.

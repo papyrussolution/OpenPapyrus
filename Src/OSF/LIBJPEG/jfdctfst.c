@@ -33,19 +33,14 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-//#define JPEG_INTERNALS
-//#include "jinclude.h"
-//#include "jpeglib.h"
-#include "jdct.h"               /* Private declarations for DCT subsystem */
+#include "jdct.h" // Private declarations for DCT subsystem 
 
 #ifdef DCT_IFAST_SUPPORTED
-
 /*
  * This module is specialized to the case DCTSIZE = 8.
  */
-
 #if DCTSIZE != 8
-Sorry, this code only copes with 8x8 DCTs.   /* deliberate syntax err */
+	Sorry, this code only copes with 8x8 DCTs.   /* deliberate syntax err */
 #endif
 
 /* Scaling decisions are generally the same as in the LL&M algorithm;

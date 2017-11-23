@@ -14,26 +14,10 @@
 using namespace Scintilla;
 #endif
 
-LineLayout::LineLayout(int maxLineLength_) :
-	lineStarts(0),
-	lenLineStarts(0),
-	lineNumber(-1),
-	inCache(false),
-	maxLineLength(-1),
-	numCharsInLine(0),
-	numCharsBeforeEOL(0),
-	validity(llInvalid),
-	xHighlightGuide(0),
-	highlightColumn(0),
-	containsCaret(false),
-	edgeColumn(0),
-	chars(0),
-	styles(0),
-	positions(0),
-	hotspot(0, 0),
-	widthLine(wrapWidthInfinite),
-	lines(1),
-	wrapIndent(0)
+LineLayout::LineLayout(int maxLineLength_) : lineStarts(0), lenLineStarts(0), lineNumber(-1),
+	inCache(false), maxLineLength(-1), numCharsInLine(0), numCharsBeforeEOL(0), validity(llInvalid),
+	xHighlightGuide(0), highlightColumn(0), containsCaret(false), edgeColumn(0), chars(0),
+	styles(0), positions(0), hotspot(0, 0), widthLine(wrapWidthInfinite), lines(1), wrapIndent(0)
 {
 	bracePreviousStyles[0] = 0;
 	bracePreviousStyles[1] = 0;
@@ -60,20 +44,15 @@ void FASTCALL LineLayout::Resize(int maxLineLength_)
 
 void LineLayout::Free()
 {
-	delete []chars;
-	chars = 0;
-	delete []styles;
-	styles = 0;
-	delete []positions;
-	positions = 0;
-	delete []lineStarts;
-	lineStarts = 0;
+	ZDELETEARRAY(chars);
+	ZDELETEARRAY(styles);
+	ZDELETEARRAY(positions);
+	ZDELETEARRAY(lineStarts);
 }
 
 void FASTCALL LineLayout::Invalidate(validLevel validity_)
 {
-	if(validity > validity_)
-		validity = validity_;
+	SETMIN(validity, validity_);
 }
 
 int FASTCALL LineLayout::LineStart(int line) const
@@ -121,8 +100,7 @@ void LineLayout::SetLineStart(int line, int start)
 	lineStarts[line] = start;
 }
 
-void LineLayout::SetBracesHighlight(Range rangeLine, const Position braces[],
-    char bracesMatchStyle, int xHighlight, bool ignoreStyle)
+void LineLayout::SetBracesHighlight(Range rangeLine, const Position braces[], char bracesMatchStyle, int xHighlight, bool ignoreStyle)
 {
 	if(!ignoreStyle && rangeLine.ContainsCharacter(braces[0])) {
 		int braceOffset = braces[0] - rangeLine.start;
@@ -147,15 +125,13 @@ void LineLayout::RestoreBracesHighlight(Range rangeLine, const Position braces[]
 {
 	if(!ignoreStyle && rangeLine.ContainsCharacter(braces[0])) {
 		int braceOffset = braces[0] - rangeLine.start;
-		if(braceOffset < numCharsInLine) {
+		if(braceOffset < numCharsInLine)
 			styles[braceOffset] = bracePreviousStyles[0];
-		}
 	}
 	if(!ignoreStyle && rangeLine.ContainsCharacter(braces[1])) {
 		int braceOffset = braces[1] - rangeLine.start;
-		if(braceOffset < numCharsInLine) {
+		if(braceOffset < numCharsInLine)
 			styles[braceOffset] = bracePreviousStyles[1];
-		}
 	}
 	xHighlightGuide = 0;
 }
@@ -163,14 +139,12 @@ void LineLayout::RestoreBracesHighlight(Range rangeLine, const Position braces[]
 int LineLayout::FindBefore(XYPOSITION x, int lower, int upper) const
 {
 	do {
-		int middle = (upper + lower + 1) / 2;   // Round high
+		const int middle = (upper + lower + 1) / 2;   // Round high
 		XYPOSITION posMiddle = positions[middle];
-		if(x < posMiddle) {
+		if(x < posMiddle)
 			upper = middle - 1;
-		}
-		else {
+		else
 			lower = middle;
-		}
 	} while(lower < upper);
 	return lower;
 }
@@ -201,7 +175,6 @@ Point LineLayout::PointFromPosition(int posInLine, int lineHeight, PointEnd pe) 
 	if(posInLine > maxLineLength) {
 		pt.x = positions[maxLineLength] - positions[LineStart(lines)];
 	}
-
 	for(int subLine = 0; subLine < lines; subLine++) {
 		const Range rangeSubLine = SubLineRange(subLine);
 		if(posInLine >= rangeSubLine.start) {
@@ -252,15 +225,12 @@ void LineLayoutCache::AllocateForLevel(int linesOnScreen, int linesInDoc)
 {
 	PLATFORM_ASSERT(useCount == 0);
 	size_t lengthForLevel = 0;
-	if(level == llcCaret) {
+	if(level == llcCaret)
 		lengthForLevel = 1;
-	}
-	else if(level == llcPage) {
+	else if(level == llcPage)
 		lengthForLevel = linesOnScreen + 1;
-	}
-	else if(level == llcDocument) {
+	else if(level == llcDocument)
 		lengthForLevel = linesInDoc;
-	}
 	if(lengthForLevel > cache.size()) {
 		Deallocate();
 		Allocate(lengthForLevel);
@@ -288,13 +258,10 @@ void LineLayoutCache::Invalidate(LineLayout::validLevel validity_)
 {
 	if(!cache.empty() && !allInvalidated) {
 		for(size_t i = 0; i < cache.size(); i++) {
-			if(cache[i]) {
-				cache[i]->Invalidate(validity_);
-			}
+			CALLPTRMEMB(cache[i], Invalidate(validity_));
 		}
-		if(validity_ == LineLayout::llInvalid) {
+		if(validity_ == LineLayout::llInvalid)
 			allInvalidated = true;
-		}
 	}
 }
 
@@ -307,8 +274,7 @@ void LineLayoutCache::SetLevel(int level_)
 	}
 }
 
-LineLayout * LineLayoutCache::Retrieve(int lineNumber, int lineCaret, int maxChars, int styleClock_,
-    int linesOnScreen, int linesInDoc)
+LineLayout * LineLayoutCache::Retrieve(int lineNumber, int lineCaret, int maxChars, int styleClock_, int linesOnScreen, int linesInDoc)
 {
 	AllocateForLevel(linesOnScreen, linesInDoc);
 	if(styleClock != styleClock_) {
@@ -318,20 +284,16 @@ LineLayout * LineLayoutCache::Retrieve(int lineNumber, int lineCaret, int maxCha
 	allInvalidated = false;
 	int pos = -1;
 	LineLayout * ret = 0;
-	if(level == llcCaret) {
+	if(level == llcCaret)
 		pos = 0;
-	}
 	else if(level == llcPage) {
-		if(lineNumber == lineCaret) {
+		if(lineNumber == lineCaret)
 			pos = 0;
-		}
-		else if(cache.size() > 1) {
+		else if(cache.size() > 1)
 			pos = 1 + (lineNumber % (cache.size() - 1));
-		}
 	}
-	else if(level == llcDocument) {
+	else if(level == llcDocument)
 		pos = lineNumber;
-	}
 	if(pos >= 0) {
 		PLATFORM_ASSERT(useCount == 0);
 		if(!cache.empty() && (pos < static_cast<int>(cache.size()))) {

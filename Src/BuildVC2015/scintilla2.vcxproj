@@ -881,7 +881,6 @@
     <ClInclude Include="..\Osf\scintilla\include\Scintilla.h" />
     <ClInclude Include="..\Osf\scintilla\include\ScintillaWidget.h" />
     <ClInclude Include="..\OSF\scintilla\src\scintilla-internal.h" />
-    <ClInclude Include="..\OSF\scintilla\win32\HanjaDic.h" />
     <ClInclude Include="..\OSF\scintilla\win32\PlatWin.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

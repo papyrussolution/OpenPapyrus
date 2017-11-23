@@ -14,7 +14,7 @@
 #include "dsa_locl.h"
 //#include <openssl/asn1.h>
 //#include <openssl/engine.h>
-#include <openssl/dh.h>
+//#include <openssl/dh.h>
 
 static const DSA_METHOD * default_DSA_method = NULL;
 

@@ -1161,8 +1161,7 @@ int StaffCalDialog::setupSymbols()
 
 int StaffCalDialog::setDTS(const PPStaffCalPacket * pData)
 {
-	if(pData)
-		Data = *pData;
+	RVALUEPTR(Data, pData);
 	SString temp_buf, obj_name;
 	SetupPPObjCombo(this, CTLSEL_STAFFCAL_PARENT, PPOBJ_STAFFCAL, Data.Rec.LinkCalID, 0, 0);
 	disableCtrl(CTLSEL_STAFFCAL_PARENT, !(Data.Rec.LinkObjType && Data.Rec.LinkObjID));
@@ -1182,12 +1181,12 @@ int StaffCalDialog::setDTS(const PPStaffCalPacket * pData)
 		setCtrlData(CTL_STAFFCAL_SYMB, Data.Rec.Symb);
 	}
 	AddClusterAssoc(CTL_STAFFCAL_FLAGS, 0, PPStaffCal::fInherited);
-	AddClusterAssoc(CTL_STAFFCAL_FLAGS, 1, PPStaffCal::fUseNominalPeriod); // @v6.2.4
-	AddClusterAssoc(CTL_STAFFCAL_FLAGS, 2, PPStaffCal::fDayGap); // @v7.7.12
+	AddClusterAssoc(CTL_STAFFCAL_FLAGS, 1, PPStaffCal::fUseNominalPeriod);
+	AddClusterAssoc(CTL_STAFFCAL_FLAGS, 2, PPStaffCal::fDayGap);
 	SetClusterData(CTL_STAFFCAL_FLAGS, Data.Rec.Flags);
 	DisableClusterItem(CTL_STAFFCAL_FLAGS, 0, !Data.Rec.LinkCalID);
 	DisableClusterItem(CTL_STAFFCAL_FLAGS, 1, Data.Rec.LinkCalID);
-	DisableClusterItem(CTL_STAFFCAL_FLAGS, 2, Data.Rec.LinkCalID); // @v7.7.12
+	DisableClusterItem(CTL_STAFFCAL_FLAGS, 2, Data.Rec.LinkCalID);
 	disableCtrl(CTL_STAFFCAL_ID, Data.Rec.ID);
 	{
 		ColorCtrlGroup::Rec color_rec;

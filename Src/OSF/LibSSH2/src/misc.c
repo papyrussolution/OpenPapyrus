@@ -161,34 +161,34 @@ uint FASTCALL _libssh2_ntohu32(const uchar * buf)
 
 /* _libssh2_ntohu64
  */
-libssh2_uint64_t FASTCALL _libssh2_ntohu64(const uchar * buf)
+uint64 FASTCALL _libssh2_ntohu64(const uchar * buf)
 {
-	ulong msl = ((libssh2_uint64_t)buf[0] << 24) | ((libssh2_uint64_t)buf[1] << 16) | ((libssh2_uint64_t)buf[2] << 8) | (libssh2_uint64_t)buf[3];
-	ulong lsl = ((libssh2_uint64_t)buf[4] << 24) | ((libssh2_uint64_t)buf[5] << 16) | ((libssh2_uint64_t)buf[6] << 8) | (libssh2_uint64_t)buf[7];
-	return ((libssh2_uint64_t)msl <<32) | lsl;
+	ulong msl = ((uint64)buf[0] << 24) | ((uint64)buf[1] << 16) | ((uint64)buf[2] << 8) | (uint64)buf[3];
+	ulong lsl = ((uint64)buf[4] << 24) | ((uint64)buf[5] << 16) | ((uint64)buf[6] << 8) | (uint64)buf[7];
+	return ((uint64)msl <<32) | lsl;
 }
 //
 // _libssh2_htonu32
 //
-void FASTCALL _libssh2_htonu32(uchar * buf, uint32_t value)
+void FASTCALL _libssh2_htonu32(uchar * buf, uint32 value)
 {
-	buf[0] = (value >> 24) & 0xFF;
-	buf[1] = (value >> 16) & 0xFF;
-	buf[2] = (value >> 8) & 0xFF;
-	buf[3] = value & 0xFF;
+	buf[0] = (uchar)((value >> 24) & 0xFF);
+	buf[1] = (uchar)((value >> 16) & 0xFF);
+	buf[2] = (uchar)((value >> 8) & 0xFF);
+	buf[3] = (uchar)(value & 0xFF);
 }
 /* _libssh2_store_u32
  */
-void FASTCALL _libssh2_store_u32(uchar ** buf, uint32_t value)
+void FASTCALL _libssh2_store_u32(uchar ** buf, uint32 value)
 {
 	_libssh2_htonu32(*buf, value);
-	*buf += sizeof(uint32_t);
+	*buf += sizeof(uint32);
 }
 /* _libssh2_store_str
  */
 void FASTCALL _libssh2_store_str(uchar ** buf, const char * str, size_t len)
 {
-	_libssh2_store_u32(buf, (uint32_t)len);
+	_libssh2_store_u32(buf, (uint32)len);
 	if(len) {
 		memcpy(*buf, str, len);
 		*buf += len;

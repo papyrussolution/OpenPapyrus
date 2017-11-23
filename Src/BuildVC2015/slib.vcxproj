@@ -3650,15 +3650,10 @@
     <ClInclude Include="..\Include\fann.h" />
     <ClInclude Include="..\Include\json.h" />
     <ClInclude Include="..\Include\layout-2d.h" />
-    <ClInclude Include="..\Include\Sarray.h" />
-    <ClInclude Include="..\Include\Sbrowser.h" />
-    <ClInclude Include="..\Include\Schecks.h" />
     <ClInclude Include="..\Include\SLCONFIG.H" />
     <ClInclude Include="..\Include\Slib.h" />
-    <ClInclude Include="..\Include\Smath.h" />
     <ClInclude Include="..\Include\snet.h" />
     <ClInclude Include="..\Include\StyloConduit.h" />
-    <ClInclude Include="..\Include\Stype.h" />
     <ClInclude Include="..\Include\sxml.h" />
     <ClInclude Include="..\Include\tv.h" />
     <ClInclude Include="..\Include\Tvdefs.h" />

@@ -1701,7 +1701,9 @@ int SyncCashNodeCfgDialog::setDTS(const PPSyncCashNode * pData)
 		{
 			PPAlbatrosConfig acfg;
 			PPAlbatrosCfgMngr::Get(&acfg);
-			DisableClusterItem(CTL_CASHN_EXTFLAGS, 9, acfg.UhttAccount.Empty());
+			SString temp_buf;
+			acfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
+			DisableClusterItem(CTL_CASHN_EXTFLAGS, 9, /*acfg.UhttAccount.Empty()*/temp_buf.Empty());
 		}
 	}
 	AddClusterAssoc(CTL_CASHN_PASSIVE, 0, CASHFX_PASSIVE);

@@ -1507,8 +1507,8 @@ namespace Scintilla {
 		static int DBCSCharMaxLength();
 
 		// These are utility functions not really tied to a platform
-		static int Minimum(int a, int b);
-		static int Maximum(int a, int b);
+		//static int Minimum(int a, int b);
+		//static int Maximum(int a, int b);
 		// Next three assume 16 bit shorts and 32 bit longs
 		static long LongFromTwoShorts(short a, short b)
 		{

@@ -3553,7 +3553,7 @@ static int xmlNoNetExists(const char * URL)
  *
  * Returns a new allocated URL, or NULL.
  */
-static xmlChar * xmlResolveResourceFromCatalog(const char * URL, const char * ID, xmlParserCtxtPtr ctxt)
+static xmlChar * xmlResolveResourceFromCatalog(const char * URL, const char * ID, xmlParserCtxt * ctxt)
 {
 	xmlChar * resource = NULL;
 	/*
@@ -3597,7 +3597,6 @@ static xmlChar * xmlResolveResourceFromCatalog(const char * URL, const char * ID
 }
 
 #endif
-
 /**
  * xmlDefaultExternalEntityLoader:
  * @URL:  the URL for the entity to load
@@ -3608,7 +3607,7 @@ static xmlChar * xmlResolveResourceFromCatalog(const char * URL, const char * ID
  *
  * Returns a new allocated xmlParserInputPtr, or NULL.
  */
-static xmlParserInputPtr xmlDefaultExternalEntityLoader(const char * URL, const char * ID, xmlParserCtxtPtr ctxt)
+static xmlParserInputPtr xmlDefaultExternalEntityLoader(const char * URL, const char * ID, xmlParserCtxt * ctxt)
 {
 	xmlParserInputPtr ret = NULL;
 #ifdef DEBUG_EXTERNAL_ENTITIES
@@ -3677,7 +3676,7 @@ xmlExternalEntityLoader xmlGetExternalEntityLoader()
  *
  * Returns the xmlParserInputPtr or NULL
  */
-xmlParserInputPtr xmlLoadExternalEntity(const char * URL, const char * ID, xmlParserCtxtPtr ctxt)
+xmlParserInputPtr xmlLoadExternalEntity(const char * URL, const char * ID, xmlParserCtxt * ctxt)
 {
 	if(URL && !xmlNoNetExists(URL)) {
 		xmlParserInputPtr ret = 0;
@@ -3712,7 +3711,7 @@ xmlParserInputPtr xmlLoadExternalEntity(const char * URL, const char * ID, xmlPa
  *
  * Returns a new allocated xmlParserInputPtr, or NULL.
  */
-xmlParserInputPtr xmlNoNetExternalEntityLoader(const char * URL, const char * ID, xmlParserCtxtPtr ctxt)
+xmlParserInputPtr xmlNoNetExternalEntityLoader(const char * URL, const char * ID, xmlParserCtxt * ctxt)
 {
 	xmlParserInputPtr input = NULL;
 	xmlChar * resource = NULL;

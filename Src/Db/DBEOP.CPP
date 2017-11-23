@@ -156,8 +156,8 @@ DBE & __stdcall operator - (double  r,  DBItem & i) { return binary_op(r,  i,  o
 DBE & __stdcall operator * (double  r,  DBItem & i) { return binary_op(r,  i,  op_mult);  }
 DBE & __stdcall operator / (double  r,  DBItem & i) { return binary_op(r,  i,  op_div);   }
 DBE & __stdcall operator % (long    l,  DBItem & i) { return binary_op(l,  i,  op_rem);   }
-DBE & __stdcall operator + (Pchar   s,  DBItem & i) { DBConst c; c.init(s); return binary_op(c, i, op_plus); }
-DBE & __stdcall operator + (DBItem & i,  Pchar   s) { DBConst c; c.init(s); return binary_op(i, c, op_plus); }
+DBE & __stdcall operator + (char  * s,  DBItem & i) { DBConst c; c.init(s); return binary_op(c, i, op_plus); }
+DBE & __stdcall operator + (DBItem & i, char * s)   { DBConst c; c.init(s); return binary_op(i, c, op_plus); }
 DBE & __stdcall operator + (LDATE   d,  DBItem & i) { DBConst c; c.init(d); return binary_op(c, i, op_plus); }
 DBE & __stdcall operator - (LDATE   d,  DBItem & i) { DBConst c; c.init(d); return binary_op(c, i, op_minus); }
 DBE & __stdcall operator - (DBItem & i,  LDATE   d) { DBConst c; c.init(d); return binary_op(i, c, op_minus); }
@@ -495,7 +495,7 @@ DBE_PROC(_enumtoa_iii)
 				RES(p[i]+2);
 				return;
 			}
-		RES((Pchar)&(i = 0));
+		RES((char *)&(i = 0));
 	}
 }
 

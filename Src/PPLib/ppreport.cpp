@@ -984,9 +984,8 @@ int SLAPI PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 
 class Print2Dialog : public TDialog {
 public:
-	Print2Dialog() : TDialog(DLG_PRINT2)
+	Print2Dialog() : TDialog(DLG_PRINT2), EnableEMail(0)
 	{
-		EnableEMail = 0;
 	}
 	int    setDTS(PrnDlgAns * pData)
 	{
@@ -999,8 +998,7 @@ public:
 		P_Data->Selection = 0;
 		{
 			int    silent = 0;
-			SString exp_path;
-			if(LoadExportOptions(P_Data->P_ReportName, 0, &silent, exp_path) > 0)
+			if(LoadExportOptions(P_Data->P_ReportName, 0, &silent, temp_buf.Z()) > 0)
 				EnableEMail = 1;
 		}
 		AddClusterAssoc(CTL_PRINT2_ACTION, 0, PrnDlgAns::aPrint);
@@ -1093,13 +1091,10 @@ private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
-		if(event.isCbSelected(CTLSEL_PRINT2_REPORT))
+		if(event.isCbSelected(CTLSEL_PRINT2_REPORT) || event.isClusterClk(CTL_PRINT2_ACTION)) {
 			SetupReportEntry();
-		else if(event.isClusterClk(CTL_PRINT2_ACTION))
-			SetupReportEntry();
-		else
-			return;
-		clearEvent(event);
+			clearEvent(event);
+		}
 	}
 	void   SetupReportEntry()
 	{
@@ -1124,10 +1119,11 @@ private:
 			setStaticText(CTL_PRINT2_ST_DATANAME, 0);
 		}
 		if(oneof2(P_Data->Dest, PrnDlgAns::aPrepareData, PrnDlgAns::aPrepareDataAndExecCR)) {
-			PPIniFile ini_file;
+			/* @v9.8.9 PPIniFile ini_file;
 			ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_REPORTDATAPATH, path);
 			if(path.Empty())
-				PPGetPath(PPPATH_TEMP, path);
+				PPGetPath(PPPATH_TEMP, path);*/
+			PPGetPath(PPPATH_REPORTDATA, path); // @v9.8.9
 			if(data_name.NotEmpty())
 				path.SetLastSlash().Cat(data_name);
 			disableCtrl(CTL_PRINT2_MAKEDATAPATH, 0);
@@ -2071,9 +2067,13 @@ int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const cha
 	int    ok = -1;
 	SString path, fname;
 	char   cr_path[MAXPATH];
-	PPIniFile ini_file;
 	SvdtStrDlgAns * p_ssda = 0;
-	if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_REPORTDATAPATH, path) > 0 && (CrwError == PE_ERR_ERRORINDATABASEDLL)) {
+	// @v9.8.9 PPIniFile ini_file;
+	// @v9.8.9 if(ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_REPORTDATAPATH, path) > 0 && (CrwError == PE_ERR_ERRORINDATABASEDLL)) {
+	// @v9.8.9 {
+	PPGetPath(PPPATH_REPORTDATA, path); 
+	if(path.NotEmptyS() && CrwError == PE_ERR_ERRORINDATABASEDLL) {
+	// } @v9.8.9
 		path.SetLastSlash().Cat(pDataName);
 		char * p_chr = (char *)pRepFileName;
 		THROW_MEM(p_ssda = new SvdtStrDlgAns);
@@ -2187,10 +2187,11 @@ int SLAPI MakeCRptDataFiles(int verifyAll /*=0*/)
 	if(CheckDialogPtrErr(&dlg)) {
 		SString rpt_name, rpt_path, fname;
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_MKRPTFLS_RPTPATH, CTL_MKRPTFLS_RPTPATH, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
-		PPIniFile ini_file;
+		/* @v9.8.9 PPIniFile ini_file;
 		ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_REPORTDATAPATH, rpt_path);
 		if(rpt_path.Empty())
-			PPGetPath(PPPATH_TEMP, rpt_path);
+			PPGetPath(PPPATH_TEMP, rpt_path); */
+		PPGetPath(PPPATH_REPORTDATA, rpt_path); // @v9.8.9
 		if(verifyAll == 1) {
 			rpt_name = "ALL";
 			dlg->disableCtrl(CTL_MKRPTFLS_RPTNAME, 1);
@@ -2365,11 +2366,9 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				THROW(t.Process(data_name, temp_buf, ep, 0, result));
                 {
                 	size_t sz = result.GetAvailableSize();
-					{
-						SFile f_out(out_file_name, SFile::mWrite);
-						THROW_SL(f_out.IsValid());
-						THROW_SL(f_out.Write(result.GetBuf(), sz));
-					}
+					SFile f_out(out_file_name, SFile::mWrite);
+					THROW_SL(f_out.IsValid());
+					THROW_SL(f_out.Write(result.GetBuf(), sz));
                 }
 			}
 			else if(rpt.PrnDest == PrnDlgAns::aExportXML) {
@@ -2382,6 +2381,22 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 					ep.DestPath = pans.PrepareDataPath;
 				}
 				else {
+					// @v9.8.9 {
+					{
+						//
+						// Для Crystal Reports 10 и выше удаляем каталог подготовки данных (если существует)
+						// ибо почему-то Crystal Reports использует его с приоритетом в некоторых случаях.
+						//
+						PPGetPath(PPPATH_REPORTDATA, temp_buf);
+						if(data_name.NotEmpty())
+							temp_buf.SetLastSlash().Cat(data_name);
+						if(temp_buf.NotEmpty() && isDir(temp_buf)) {
+							const uint16 cr_eng_ver = PEGetVersion(PE_GV_ENGINE);
+							if(HiByte(cr_eng_ver) >= 10)
+								RemoveDir(temp_buf);
+						}
+					}
+					// } @v9.8.9 
 					ep.Flags &= ~DlRtm::ExportParam::fForceDDF;
 				}
 				THROW(p_rtm->Export(ep));

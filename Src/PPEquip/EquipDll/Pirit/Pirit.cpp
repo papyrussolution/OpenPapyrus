@@ -131,12 +131,8 @@ struct Config
 	};
 	struct LogoStruct
 	{
-		LogoStruct() 
+		LogoStruct() : Height(0), Width(0), Size(0), Print(0)
 		{
-			Height = 0;
-			Width = 0;
-			Size = 0;
-			Print = 0;
 		}
 		SString Path;
 		uint Height;
@@ -158,18 +154,8 @@ struct Config
 };
 
 struct CheckStruct {
-	CheckStruct()
+	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Quantity(0.0), Price(0.0), Department(0), Tax(0), PaymCash(0.0), PaymCard(0.0), IncassAmt(0.0)
 	{
-		CheckType = 2;
-		FontSize = 3;
-		CheckNum = 0;
-		Quantity = 0.0;
-		Price = 0.0;
-		Department = 0;
-		Tax = 0;
-		PaymCash = 0.0;
-		PaymCard = 0.0;
-		IncassAmt = 0.0;
 	}
 	void Clear()
 	{
@@ -603,6 +589,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		else if(sstreqi_ascii(cmd, "PRINTFISCAL")) {
 			int   tax_entry_id_result = -1;
 			double _vat_rate = 0.0;
+			int   is_vat_free = 0;
 			SetLastItems(cmd, 0);
 			//LastParams = pInputData;
 			//LastCmd = 0;
@@ -616,26 +603,85 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					Check.Price = param_val.ToReal();
 				else if(s_param == "DEPARTMENT")
 					Check.Department = param_val.ToLong();
-				// @v9.5.7 {
 				else if(s_param == "TEXT") 
 					Check.Text = param_val;
 				else if(s_param == "CODE")
 					Check.Code = param_val;
-				// @v9.7.1 {
-				else if(s_param == "VATRATE") {
+				else if(s_param == "VATRATE") { // @v9.7.1
 					_vat_rate = R2(param_val.ToReal());
-					Check.Tax = 0;
-					tax_entry_id_result = 0;
-					for(uint tidx = 0; tidx < SIZEOFARRAY(DvcTaxArray); tidx++) {
-						if(DvcTaxArray[tidx].Name[0] && feqeps(DvcTaxArray[tidx].Rate, _vat_rate, 1E-5)) {
+				}
+				else if(s_param == "VATFREE") { // @v9.8.9
+					if(param_val.Empty() || param_val.CmpNC("yes") == 0 || param_val.CmpNC("true") == 0 || param_val == "1") 
+						is_vat_free = 1;
+				}
+			}
+			{
+				Check.Tax = 0;
+				if(is_vat_free)
+					_vat_rate = 0.0;
+				tax_entry_id_result = 0;
+				// Освобожденные от НДС продавцы передают признак VATFREE но таблица не предусматривает такого элемента.
+				// По этому, используя эмпирическое правило, считаем, что второй элемент таблицы, имеющий нулевую
+				// ставку относится к VATFREE-продажам.
+				uint   zero_entry_1 = 0; 
+				uint   zero_entry_2 = 0; 
+				for(uint tidx = 0; tidx < SIZEOFARRAY(DvcTaxArray); tidx++) {
+					if(DvcTaxArray[tidx].Name[0]) {
+						const double entry_rate = DvcTaxArray[tidx].Rate;
+						if(entry_rate == 0.0 && _vat_rate == 0.0) {
+							if(!zero_entry_1) {
+								zero_entry_1 = tidx+1;
+								if(!is_vat_free) {
+									Check.Tax = (int)tidx;
+									tax_entry_id_result = tidx+1;
+									break;
+								}
+							}
+							else if(!zero_entry_2) {
+								zero_entry_2 = tidx+1;
+								if(is_vat_free) {
+									Check.Tax = (int)tidx;
+									tax_entry_id_result = tidx+1;
+									break;
+								}
+							}
+						}
+						else if(feqeps(entry_rate, _vat_rate, 1E-5)) {
 							Check.Tax = (int)tidx;
 							tax_entry_id_result = tidx+1;
 							break;
 						}
 					}
 				}
-				// } @v9.7.1 
-				// } @v9.5.7 
+				if(!tax_entry_id_result) {
+					if(is_vat_free && zero_entry_1) {
+						Check.Tax = (int)(zero_entry_1-1);
+						tax_entry_id_result = zero_entry_1;
+					}
+					else {
+						//
+						// Не нашли в таблице того, чего искали: включаем default-вариант, основанный на документации к драйверу
+						//
+						if(_vat_rate == 18.0) {
+							Check.Tax = 0;
+							tax_entry_id_result = 1;
+						}
+						else if(_vat_rate == 10.0) {
+							Check.Tax = 1;
+							tax_entry_id_result = 2;
+						}
+						else if(_vat_rate == 0.0) {
+							if(!is_vat_free) {
+								Check.Tax = 2;
+								tax_entry_id_result = 3;
+							}
+							else {
+								Check.Tax = 3;
+								tax_entry_id_result = 4;
+							}
+						}
+					}
+				}
 			}
 			// @debug {
 			if(LogFileName.NotEmpty()) {

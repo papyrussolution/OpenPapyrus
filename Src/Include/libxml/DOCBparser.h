@@ -26,7 +26,7 @@ extern "C" {
  * Most of the back-end structures from XML and SGML are shared.
  */
 typedef xmlParserCtxt docbParserCtxt;
-typedef xmlParserCtxtPtr docbParserCtxtPtr;
+typedef xmlParserCtxt * docbParserCtxtPtr;
 typedef xmlSAXHandler docbSAXHandler;
 typedef xmlSAXHandlerPtr docbSAXHandlerPtr;
 typedef xmlParserInput docbParserInput;

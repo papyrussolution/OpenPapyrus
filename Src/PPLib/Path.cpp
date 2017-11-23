@@ -313,12 +313,18 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 	// В этом случае не допускаем переписывания уже установленных значений теми, что указаны
 	// в конфигурации.
 	//
-	SString temp_path, log_path, pack_path, spii_path, sartredb_path;
+	SString temp_path;
+	SString log_path;
+	SString pack_path;
+	SString spii_path;
+	SString sartredb_path;
+	SString reportdata_path;
 	GetPath(PPPATH_TEMP, 0, temp_path);
 	GetPath(PPPATH_LOG, 0, log_path);
 	GetPath(PPPATH_PACK, 0, pack_path);
 	GetPath(PPPATH_SPII, 0, spii_path); // @v9.7.8
 	GetPath(PPPATH_SARTREDB, 0, sartredb_path); // @v9.7.8
+	GetPath(PPPATH_REPORTDATA, 0, reportdata_path); // @v9.8.9
 	PathItem * p = 0;
 	THROW(Resize(sz));
 	THROW(r = p_ref->GetConfig(securType, securID, PPPRP_PATHS, P, sz));
@@ -373,10 +379,14 @@ int SLAPI PPPaths::Get(PPID securType, PPID securID)
 		SetPath(PPPATH_PACK, pack_path, 0, 1);
 	// @v9.7.8 {
 	if(spii_path.NotEmptyS())
-		SetPath(PPPATH_SPII, spii_path, 0, 1); 
+		SetPath(PPPATH_SPII, spii_path, 0, 1);
 	if(sartredb_path.NotEmptyS())
-		SetPath(PPPATH_SARTREDB, sartredb_path, 0, 1); 
+		SetPath(PPPATH_SARTREDB, sartredb_path, 0, 1);
 	// } @v9.7.8
+	// @v9.8.9 {
+	if(reportdata_path.NotEmptyS())
+		SetPath(PPPATH_REPORTDATA, reportdata_path, 0, 1);
+	// } @v9.8.9
 	CATCHZOK
 	return ok;
 }

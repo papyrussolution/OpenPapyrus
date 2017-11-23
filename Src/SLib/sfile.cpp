@@ -892,52 +892,52 @@ application:wps application/vnd.ms-works
 // static
 int FASTCALL SFile::WildcardMatch(const char * pPattern, const char * pStr)
 {
-	// 
+	//
 	// Backtrack to previous * on mismatch and retry starting one
 	// character later in the string.  Because * matches all characters
 	// (no exception for /), it can be easily proved that there's never a need to backtrack multiple levels.
-	// 
+	//
 	const char * back_pat = NULL;
 	const char * back_str = pStr; //back_str;
-	// 
+	//
 	// Loop over each token (character or class) in pat, matching
 	// it against the remaining unmatched tail of str.  Return false
 	// on mismatch, or true after matching the trailing nul bytes.
-	// 
+	//
 	for(;;) {
 		uchar c = *pStr++;
 		uchar d = *pPattern++;
 		switch(d) {
-			case '?': // Wildcard: anything but nul 
+			case '?': // Wildcard: anything but nul
 				if(c == '\0')
 					return 0;
 				break;
-			case '*': // Any-length wildcard 
-				if(*pPattern == '\0') // Optimize trailing * case 
+			case '*': // Any-length wildcard
+				if(*pPattern == '\0') // Optimize trailing * case
 					return 1;
 				back_pat = pPattern;
-				back_str = --pStr; // Allow zero-length match 
+				back_str = --pStr; // Allow zero-length match
 				break;
-			case '[': // Character class 
-				{	
+			case '[': // Character class
+				{
 					const  int  inverted = BIN(*pPattern == '!');
 					const  char * p_cls = pPattern + inverted;
 					int    match = 0;
 					uchar  a = *p_cls++;
-					// 
+					//
 					// Iterate over each span in the character class.
 					// A span is either a single character a, or a range a-b.  The first span may begin with ']'.
-					// 
+					//
 					do {
 						uchar b = a;
-						if(a == '\0') // Malformed 
+						if(a == '\0') // Malformed
 							goto literal;
 						if(p_cls[0] == '-' && p_cls[1] != ']') {
 							b = p_cls[1];
 							if(b == '\0')
 								goto literal;
 							p_cls += 2;
-							// Any special action if a > b? 
+							// Any special action if a > b?
 						}
 						match |= (a <= c && c <= b);
 					} while((a = *p_cls++) != ']');
@@ -949,7 +949,7 @@ int FASTCALL SFile::WildcardMatch(const char * pPattern, const char * pStr)
 			case '\\':
 				d = *pPattern++;
 				// @fallthrough
-			default: // Literal character 
+			default: // Literal character
 literal:
 				{
 					if(c == d) {
@@ -970,8 +970,8 @@ literal:
 				}
 backtrack:
 				if(c == '\0' || !back_pat)
-					return 0; // No point continuing 
-				// Try again from last *, one character later in str. 
+					return 0; // No point continuing
+				// Try again from last *, one character later in str.
 				pPattern = back_pat;
 				pStr = ++back_str;
 				break;
@@ -2106,7 +2106,7 @@ int FileFormatRegBase::Helper_Register(int id, int mimeType, const char * pMimeS
 			for(i = 0; i < pos_list.getCount(); i++) {
 				Entry entry;
 				if(Get((uint)pos_list.get(i), entry, entry_ext, entry_sign, entry_mime_type, entry_mime_subtype)) {
-					if(entry_ext == new_ext && entry_sign == new_sign && entry.SignFunc == signFunc && 
+					if(entry_ext == new_ext && entry_sign == new_sign && entry.SignFunc == signFunc &&
 						entry_mime_type == mimeType && entry_mime_subtype == new_mime_subtype) {
 						ok = -1;
 						break;
@@ -2371,7 +2371,7 @@ int SFileFormat::Register(int id, int mimeType, const char * pMimeSubtype, const
 	return ok;
 }
 
-//static 
+//static
 int SFileFormat::IdentifyContentTransferEnc(const char * pCte)
 {
 	int    cte = cteUndef;
@@ -2408,7 +2408,7 @@ static __MimeTypeNameEntry MimeTypeNameList[] = {
 	{ SFileFormat::mtExample, "example" }
 };
 
-//static 
+//static
 int SFileFormat::IdentifyMimeType(const char * pMimeType)
 {
 	int    mt = mtUndef;
@@ -2421,7 +2421,7 @@ int SFileFormat::IdentifyMimeType(const char * pMimeType)
 	return mt;
 }
 
-//static 
+//static
 int SFileFormat::GetMimeTypeName(int mimeType, SString & rBuf)
 {
 	rBuf.Z();
@@ -2700,10 +2700,8 @@ void SLAPI SLldAlphabetAnalyzer::Entry::Clear()
 	P2 = 0.0;
 }
 
-SLAPI SLldAlphabetAnalyzer::SLldAlphabetAnalyzer()
+SLAPI SLldAlphabetAnalyzer::SLldAlphabetAnalyzer() : Count(0), Status(0)
 {
-	Status = 0;
-	Count = 0;
 	for(uint i = 0; i < 256; i++) {
 		Entry entry;
 		Alphabet.insert(&entry);

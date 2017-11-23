@@ -175,22 +175,24 @@ static uint32 _zip_unicode_to_utf8(uint32 codepoint, uint8 * buf)
 		buf[0] = (uint8)(codepoint & 0xff);
 		return 1;
 	}
-	if(codepoint < 0x0800) {
+	else if(codepoint < 0x0800) {
 		buf[0] = (uint8)(UTF_8_LEN_2_MATCH | ((codepoint >> 6) & 0x1f));
 		buf[1] = (uint8)(UTF_8_CONTINUE_MATCH | (codepoint & 0x3f));
 		return 2;
 	}
-	if(codepoint < 0x10000) {
+	else if(codepoint < 0x10000) {
 		buf[0] = (uint8)(UTF_8_LEN_3_MATCH | ((codepoint >> 12) & 0x0f));
 		buf[1] = (uint8)(UTF_8_CONTINUE_MATCH | ((codepoint >> 6) & 0x3f));
 		buf[2] = (uint8)(UTF_8_CONTINUE_MATCH | (codepoint & 0x3f));
 		return 3;
 	}
-	buf[0] = (uint8)(UTF_8_LEN_4_MATCH | ((codepoint >> 18) & 0x07));
-	buf[1] = (uint8)(UTF_8_CONTINUE_MATCH | ((codepoint >> 12) & 0x3f));
-	buf[2] = (uint8)(UTF_8_CONTINUE_MATCH | ((codepoint >> 6) & 0x3f));
-	buf[3] = (uint8)(UTF_8_CONTINUE_MATCH | (codepoint & 0x3f));
-	return 4;
+	else {
+		buf[0] = (uint8)(UTF_8_LEN_4_MATCH | ((codepoint >> 18) & 0x07));
+		buf[1] = (uint8)(UTF_8_CONTINUE_MATCH | ((codepoint >> 12) & 0x3f));
+		buf[2] = (uint8)(UTF_8_CONTINUE_MATCH | ((codepoint >> 6) & 0x3f));
+		buf[3] = (uint8)(UTF_8_CONTINUE_MATCH | (codepoint & 0x3f));
+		return 4;
+	}
 }
 
 uint8 * _zip_cp437_to_utf8(const uint8 * const _cp437buf, uint32 len, uint32 * utf8_lenp, zip_error_t * error)

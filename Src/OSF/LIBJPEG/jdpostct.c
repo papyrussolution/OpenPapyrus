@@ -132,56 +132,38 @@ METHODDEF(void) post_process_prepass(j_decompress_ptr cinfo,
 {
 	my_post_ptr post = (my_post_ptr)cinfo->post;
 	JDIMENSION old_next_row, num_rows;
-
 	/* Reposition virtual buffer if at start of strip. */
 	if(post->next_row == 0) {
-		post->buffer = (*cinfo->mem->access_virt_sarray)
-			    ((j_common_ptr)cinfo, post->whole_image,
-		    post->starting_row, post->strip_height, TRUE);
+		post->buffer = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, post->whole_image, post->starting_row, post->strip_height, TRUE);
 	}
-
 	/* Upsample some data (up to a strip height's worth). */
 	old_next_row = post->next_row;
-	(*cinfo->upsample->upsample)(cinfo,
-	    input_buf, in_row_group_ctr, in_row_groups_avail,
-	    post->buffer, &post->next_row, post->strip_height);
-
+	(*cinfo->upsample->upsample)(cinfo, input_buf, in_row_group_ctr, in_row_groups_avail, post->buffer, &post->next_row, post->strip_height);
 	/* Allow quantizer to scan new data.  No data is emitted, */
 	/* but we advance out_row_ctr so outer loop can tell when we're done. */
 	if(post->next_row > old_next_row) {
 		num_rows = post->next_row - old_next_row;
-		(*cinfo->cquantize->color_quantize)(cinfo, post->buffer + old_next_row,
-		    (JSAMPARRAY)NULL, (int)num_rows);
+		(*cinfo->cquantize->color_quantize)(cinfo, post->buffer + old_next_row, (JSAMPARRAY)NULL, (int)num_rows);
 		*out_row_ctr += num_rows;
 	}
-
 	/* Advance if we filled the strip. */
 	if(post->next_row >= post->strip_height) {
 		post->starting_row += post->strip_height;
 		post->next_row = 0;
 	}
 }
-
 /*
  * Process some data in the second pass of 2-pass quantization.
  */
-
-METHODDEF(void) post_process_2pass(j_decompress_ptr cinfo,
-    JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
-    JDIMENSION in_row_groups_avail,
-    JSAMPARRAY output_buf, JDIMENSION *out_row_ctr,
-    JDIMENSION out_rows_avail)
+METHODDEF(void) post_process_2pass(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
+    JDIMENSION in_row_groups_avail, JSAMPARRAY output_buf, JDIMENSION *out_row_ctr, JDIMENSION out_rows_avail)
 {
 	my_post_ptr post = (my_post_ptr)cinfo->post;
 	JDIMENSION num_rows, max_rows;
-
 	/* Reposition virtual buffer if at start of strip. */
 	if(post->next_row == 0) {
-		post->buffer = (*cinfo->mem->access_virt_sarray)
-			    ((j_common_ptr)cinfo, post->whole_image,
-		    post->starting_row, post->strip_height, FALSE);
+		post->buffer = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, post->whole_image, post->starting_row, post->strip_height, FALSE);
 	}
-
 	/* Determine number of rows to emit. */
 	num_rows = post->strip_height - post->next_row; /* available in strip */
 	max_rows = out_rows_avail - *out_row_ctr; /* available in output area */
@@ -191,13 +173,9 @@ METHODDEF(void) post_process_2pass(j_decompress_ptr cinfo,
 	max_rows = cinfo->output_height - post->starting_row;
 	if(num_rows > max_rows)
 		num_rows = max_rows;
-
 	/* Quantize and emit data. */
-	(*cinfo->cquantize->color_quantize)(cinfo,
-	    post->buffer + post->next_row, output_buf + *out_row_ctr,
-	    (int)num_rows);
+	(*cinfo->cquantize->color_quantize)(cinfo, post->buffer + post->next_row, output_buf + *out_row_ctr, (int)num_rows);
 	*out_row_ctr += num_rows;
-
 	/* Advance if we filled the strip. */
 	post->next_row += num_rows;
 	if(post->next_row >= post->strip_height) {

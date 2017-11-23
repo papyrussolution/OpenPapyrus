@@ -1444,13 +1444,9 @@ const char * GetCalCtrlSignature(int type)
 void FASTCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, uint T)
 {
 	struct CalButtonWndEx {
-		CalButtonWndEx(TDialog * pDlg, uint editCtlId, uint calType, WNDPROC fPrevWndProc)
+		CalButtonWndEx(TDialog * pDlg, uint editCtlId, uint calType, WNDPROC fPrevWndProc) : Dlg(pDlg), EditID(editCtlId), CalType(calType), PrevWndProc(fPrevWndProc)
 		{
 			STRNSCPY(Signature, GetCalCtrlSignature(calType));
-			Dlg = pDlg;
-			EditID = editCtlId;
-			CalType = calType;
-			PrevWndProc = fPrevWndProc;
 		}
 		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{

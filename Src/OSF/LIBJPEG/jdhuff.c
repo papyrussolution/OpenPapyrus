@@ -736,7 +736,7 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 	register int s, k, r;
 	uint EOBRUN;
 	int Se, Al;
-	const int * natural_order;
+	const uint8 * natural_order; // @sobolev int-->uint8
 	JBLOCKROW block;
 	BITREAD_STATE_VARS;
 	d_derived_tbl * tbl;
@@ -754,7 +754,6 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 		Se = cinfo->Se;
 		Al = cinfo->Al;
 		natural_order = cinfo->natural_order;
-
 		/* Load up working state.
 		 * We can avoid loading/saving bitread state if in an EOB run.
 		 */
@@ -866,7 +865,7 @@ METHODDEF(boolean) decode_mcu_AC_refine(j_decompress_ptr cinfo, JBLOCKROW *MCU_d
 	register int s, k, r;
 	uint EOBRUN;
 	int Se, p1, m1;
-	const int * natural_order;
+	const uint8 * natural_order; // @sobolev int-->uint8
 	JBLOCKROW block;
 	JCOEFPTR thiscoef;
 	BITREAD_STATE_VARS;
@@ -1019,7 +1018,7 @@ undoit:
 METHODDEF(boolean) decode_mcu_sub(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
-	const int * natural_order;
+	const uint8 * natural_order; // @sobolev int-->uint8
 	int Se, blkn;
 	BITREAD_STATE_VARS;
 	savable_state state;

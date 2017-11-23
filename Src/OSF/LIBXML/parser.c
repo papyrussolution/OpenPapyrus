@@ -53,7 +53,7 @@
 #endif
 
 static void FASTCALL xmlFatalErr(xmlParserCtxt * ctxt, xmlParserErrors error, const char * info);
-static xmlParserCtxtPtr xmlCreateEntityParserCtxtInternal(const xmlChar * URL, const xmlChar * ID, const xmlChar * base, xmlParserCtxtPtr pctx);
+static xmlParserCtxt * xmlCreateEntityParserCtxtInternal(const xmlChar * URL, const xmlChar * ID, const xmlChar * base, xmlParserCtxt * pctx);
 
 /************************************************************************
 *									*
@@ -200,13 +200,13 @@ static const char * xmlW3CPIs[] = {
 
 /* DEPR void xmlParserHandleReference(xmlParserCtxt * ctxt); */
 static xmlEntity * xmlParseStringPEReference(xmlParserCtxt * ctxt, const xmlChar ** str);
-static xmlParserErrors xmlParseExternalEntityPrivate(xmlDoc * doc, xmlParserCtxtPtr oldctxt,
+static xmlParserErrors xmlParseExternalEntityPrivate(xmlDoc * doc, xmlParserCtxt * oldctxt,
     xmlSAXHandlerPtr sax, void * user_data, int depth, const xmlChar * URL, const xmlChar * ID, xmlNode ** list);
 static int xmlCtxtUseOptionsInternal(xmlParserCtxt * ctxt, int options, const char * encoding);
 #ifdef LIBXML_LEGACY_ENABLED
 static void xmlAddEntityReference(xmlEntity * ent, xmlNode * firstNode, xmlNode * lastNode);
 #endif /* LIBXML_LEGACY_ENABLED */
-static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxtPtr oldctxt, const xmlChar * string, void * user_data, xmlNode ** lst);
+static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldctxt, const xmlChar * string, void * user_data, xmlNode ** lst);
 static int xmlLoadEntityContent(xmlParserCtxt * ctxt, xmlEntity * entity);
 
 /************************************************************************
@@ -10905,7 +10905,7 @@ xmldecl_done:
  * Returns the new parser context or NULL
  */
 
-xmlParserCtxtPtr xmlCreatePushParserCtxt(xmlSAXHandlerPtr sax, void * user_data, const char * chunk, int size, const char * filename)
+xmlParserCtxt * xmlCreatePushParserCtxt(xmlSAXHandlerPtr sax, void * user_data, const char * chunk, int size, const char * filename)
 {
 	xmlParserCtxt * ctxt;
 	xmlParserInputPtr inputStream;
@@ -11032,7 +11032,7 @@ void xmlStopParser(xmlParserCtxt * ctxt)
  *
  * Returns the new parser context or NULL
  */
-xmlParserCtxtPtr xmlCreateIOParserCtxt(xmlSAXHandlerPtr sax, void * user_data, xmlInputReadCallback ioread, xmlInputCloseCallback ioclose,
+xmlParserCtxt * xmlCreateIOParserCtxt(xmlSAXHandlerPtr sax, void * user_data, xmlInputReadCallback ioread, xmlInputCloseCallback ioclose,
     void * ioctx, xmlCharEncoding enc)
 {
 	xmlParserCtxt * ctxt;
@@ -11355,7 +11355,7 @@ xmlDtdPtr xmlParseDTD(const xmlChar * ExternalID, const xmlChar * SystemID)
  *    the parser error code otherwise
  */
 
-int xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx, const xmlChar * URL, const xmlChar * ID, xmlNode ** lst) 
+int xmlParseCtxtExternalEntity(xmlParserCtxt * ctx, const xmlChar * URL, const xmlChar * ID, xmlNode ** lst) 
 {
 	xmlParserCtxt * ctxt;
 	xmlDoc * newDoc;
@@ -11539,7 +11539,7 @@ int xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx, const xmlChar * URL, const 
  *    the parser error code otherwise
  */
 
-static xmlParserErrors xmlParseExternalEntityPrivate(xmlDoc * doc, xmlParserCtxtPtr oldctxt, xmlSAXHandlerPtr sax, 
+static xmlParserErrors xmlParseExternalEntityPrivate(xmlDoc * doc, xmlParserCtxt * oldctxt, xmlSAXHandlerPtr sax, 
 	void * user_data, int depth, const xmlChar * URL, const xmlChar * ID, xmlNode ** list)
 {
 	xmlParserCtxt * ctxt;
@@ -11786,7 +11786,7 @@ int xmlParseBalancedChunkMemory(xmlDoc * doc, xmlSAXHandlerPtr sax, void * user_
  * In case recover is set to 1, the nodelist will not be empty even if
  * the parsed chunk is not well balanced.
  */
-static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxtPtr oldctxt, const xmlChar * string, void * user_data, xmlNode ** lst)
+static xmlParserErrors xmlParseBalancedChunkMemoryInternal(xmlParserCtxt * oldctxt, const xmlChar * string, void * user_data, xmlNode ** lst)
 {
 	xmlParserCtxt * ctxt;
 	xmlDoc * newDoc = NULL;
@@ -12299,7 +12299,7 @@ int xmlParseBalancedChunkMemoryRecover(xmlDoc * doc, xmlSAXHandlerPtr sax,
 xmlDoc * xmlSAXParseEntity(xmlSAXHandlerPtr sax, const char * filename)
 {
 	xmlDoc * ret = 0;
-	xmlParserCtxtPtr ctxt = xmlCreateFileParserCtxt(filename);
+	xmlParserCtxt * ctxt = xmlCreateFileParserCtxt(filename);
 	if(ctxt) {
 		if(sax) {
 			SAlloc::F(ctxt->sax);
@@ -12353,9 +12353,9 @@ xmlDoc * xmlParseEntity(const char * filename)
  *
  * Returns the new parser context or NULL
  */
-static xmlParserCtxtPtr xmlCreateEntityParserCtxtInternal(const xmlChar * URL, const xmlChar * ID, const xmlChar * base, xmlParserCtxtPtr pctx)
+static xmlParserCtxt * xmlCreateEntityParserCtxtInternal(const xmlChar * URL, const xmlChar * ID, const xmlChar * base, xmlParserCtxt * pctx)
 {
-	xmlParserCtxtPtr ctxt = xmlNewParserCtxt();
+	xmlParserCtxt * ctxt = xmlNewParserCtxt();
 	if(ctxt) {
 		xmlParserInputPtr inputStream;
 		char * directory = NULL;
@@ -12407,7 +12407,7 @@ static xmlParserCtxtPtr xmlCreateEntityParserCtxtInternal(const xmlChar * URL, c
  *
  * Returns the new parser context or NULL
  */
-xmlParserCtxtPtr xmlCreateEntityParserCtxt(const xmlChar * URL, const xmlChar * ID, const xmlChar * base)
+xmlParserCtxt * xmlCreateEntityParserCtxt(const xmlChar * URL, const xmlChar * ID, const xmlChar * base)
 {
 	return xmlCreateEntityParserCtxtInternal(URL, ID, base, 0);
 }
@@ -12429,9 +12429,9 @@ xmlParserCtxtPtr xmlCreateEntityParserCtxt(const xmlChar * URL, const xmlChar * 
  *
  * Returns the new parser context or NULL
  */
-xmlParserCtxtPtr xmlCreateURLParserCtxt(const char * filename, int options)
+xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options)
 {
-	xmlParserCtxtPtr ctxt = xmlNewParserCtxt();
+	xmlParserCtxt * ctxt = xmlNewParserCtxt();
 	if(!ctxt) {
 		xmlErrMemory(NULL, "cannot allocate parser context");
 	}
@@ -12467,7 +12467,7 @@ xmlParserCtxtPtr xmlCreateURLParserCtxt(const char * filename, int options)
  *
  * Returns the new parser context or NULL
  */
-xmlParserCtxtPtr xmlCreateFileParserCtxt(const char * filename)
+xmlParserCtxt * xmlCreateFileParserCtxt(const char * filename)
 {
 	return xmlCreateURLParserCtxt(filename, 0);
 }
@@ -12640,7 +12640,7 @@ void xmlSetupParserForBuffer(xmlParserCtxt * ctxt, const xmlChar* buffer, const 
 int xmlSAXUserParseFile(xmlSAXHandlerPtr sax, void * user_data, const char * filename)
 {
 	int ret = 0;
-	xmlParserCtxtPtr ctxt = xmlCreateFileParserCtxt(filename);
+	xmlParserCtxt * ctxt = xmlCreateFileParserCtxt(filename);
 	if(!ctxt)
 		ret = -1;
 	else {
@@ -12680,7 +12680,7 @@ int xmlSAXUserParseFile(xmlSAXHandlerPtr sax, void * user_data, const char * fil
  *
  * Returns the new parser context or NULL
  */
-xmlParserCtxtPtr xmlCreateMemoryParserCtxt(const char * buffer, int size)
+xmlParserCtxt * xmlCreateMemoryParserCtxt(const char * buffer, int size)
 {
 	xmlParserCtxt * ctxt = 0;
 	if(buffer && size > 0) {
@@ -12860,7 +12860,7 @@ int xmlSAXUserParseMemory(xmlSAXHandlerPtr sax, void * user_data, const char * b
  *
  * Returns the new parser context or NULL
  */
-xmlParserCtxtPtr xmlCreateDocParserCtxt(const xmlChar * cur) 
+xmlParserCtxt * xmlCreateDocParserCtxt(const xmlChar * cur) 
 {
 	return cur ? xmlCreateMemoryParserCtxt((const char*)cur, sstrlen(cur)) : 0;
 }
@@ -13451,7 +13451,7 @@ xmlDoc * xmlReadDoc(const xmlChar * cur, const char * URL, const char * encoding
 xmlDoc * xmlReadFile(const char * filename, const char * encoding, int options)
 {
 	xmlInitParser();
-	xmlParserCtxtPtr ctxt = xmlCreateURLParserCtxt(filename, options);
+	xmlParserCtxt * ctxt = xmlCreateURLParserCtxt(filename, options);
 	return xmlDoRead(ctxt, NULL, encoding, options, 0);
 }
 

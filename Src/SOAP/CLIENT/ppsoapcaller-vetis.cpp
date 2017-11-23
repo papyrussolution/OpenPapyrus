@@ -52,11 +52,13 @@ static int GetResult(const ns4__Application * pSrc, VetisApplicationBlock * pRes
 			pResult->RcvDate.SetTimeT(*pSrc->rcvDate);
 		if(pSrc->prdcRsltDate)
 			pResult->PrdcRsltDate.SetTimeT(*pSrc->prdcRsltDate);
+		/*
 		if(pSrc->result)
 			pResult->Result = pSrc->result->__any;
 		if(pSrc->data) {
 			pResult->Data = pSrc->data->__any;
 		}
+		*/
 		if(pSrc->errors && pSrc->errors->__sizeerror) {
 			/*
 			class SOAP_CMAC ns5__BusinessErrorList {
@@ -89,8 +91,48 @@ static int GetResult(const ns4__Application * pSrc, VetisApplicationBlock * pRes
 	return ok;
 }
 
+static void * CreateAppData(const VetisApplicationBlock & rBlk, TSCollection <InParamString> & rPool)
+{
+	void * p_result = 0;
+	SString temp_buf;
+	switch(rBlk.Func) {
+		case VetisApplicationBlock::detGetStockEntryListReq:
+			if(rBlk.P_GselReq) {
+				ns5__GetStockEntryListRequest * p = new ns5__GetStockEntryListRequest;
+				if(p) {
+					p->initiator = new ns7__User;
+					p->initiator->login = GetDynamicParamString((temp_buf = rBlk.P_GselReq->Initiator.Login).Transf(CTRANSF_INNER_TO_UTF8), rPool);
+					p->localTransactionId = GetDynamicParamString(temp_buf.Z().Cat(rBlk.LocalTransactionId), rPool);
+					p->ns6__enterpriseGuid = GetDynamicParamString(temp_buf.Z().Cat(rBlk.EnterpriseId, S_GUID::fmtIDL), rPool);
+					p->ns3__listOptions = new ns3__ListOptions;
+					p->ns3__listOptions->count = GetDynamicParamString(temp_buf.Z().Cat(rBlk.P_GselReq->ListOptions.Count), rPool);
+					p->ns3__listOptions->offset = GetDynamicParamString(temp_buf.Z().Cat(rBlk.P_GselReq->ListOptions.Offset), rPool);
+				}
+				p_result = p;
+			}
+			break;
+	}
+	return p_result;
+}
+
+static void DestroyAppData(const VetisApplicationBlock & rBlk, void * pData)
+{
+	switch(rBlk.Func) {
+		case VetisApplicationBlock::detGetStockEntryListReq:
+			{
+				ns5__GetStockEntryListRequest * p = (ns5__GetStockEntryListRequest *)pData;
+				delete p->ns3__listOptions;
+				delete p->initiator;
+				delete p;
+			}
+			break;
+	}
+}
+
 extern "C" __declspec(dllexport) VetisApplicationBlock * Vetis_SubmitApplicationRequest(PPSoapClientSession & rSess, const char * pApiKey, const VetisApplicationBlock & rBlk)
 {
+	//ns5__GetStockEntryListRequest * p_app_req = 0;
+	void * p_app_req = 0;
 	VetisApplicationBlock * p_result = 0;
 	ApplicationManagementServiceBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
 	TSCollection <InParamString> arg_str_pool;
@@ -100,8 +142,11 @@ extern "C" __declspec(dllexport) VetisApplicationBlock * Vetis_SubmitApplication
 	time_t prdc_date = rBlk.PrdcRsltDate.GetTimeT();
 	_ns1__submitApplicationRequest param;
 	_ns1__submitApplicationResponse resp;
+	gSoapClientInit(&proxi, 0, 0);
+	proxi.userid = GetDynamicParamString((temp_buf = rSess.GetUser()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
+	proxi.passwd = GetDynamicParamString((temp_buf = rSess.GetPassword()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 	THROW(param.ns4__application = new ns4__Application);
-	THROW(param.ns4__application->data = new ns4__ApplicationDataWrapper);
+	//THROW(param.ns4__application->data = new ns4__ApplicationDataWrapper);
 	gSoapClientInit(&proxi, 0, 0);
 	proxi.userid = GetDynamicParamString((temp_buf = rSess.GetUser()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 	proxi.passwd = GetDynamicParamString((temp_buf = rSess.GetPassword()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
@@ -112,7 +157,9 @@ extern "C" __declspec(dllexport) VetisApplicationBlock * Vetis_SubmitApplication
 	param.ns4__application->issueDate = &issue_date;
 	param.ns4__application->rcvDate = &rcv_date;
 	param.ns4__application->prdcRsltDate = &prdc_date;
-	param.ns4__application->data->__any = GetDynamicParamString(rBlk.Data, arg_str_pool);
+	THROW(p_app_req = CreateAppData(rBlk, arg_str_pool));
+	param.ns4__application->data = (ns4__ApplicationDataWrapper *)p_app_req;
+	//param.ns4__application->data->__any = GetDynamicParamString(rBlk.Data, arg_str_pool);
 	THROW(PreprocessCall(proxi, rSess, proxi.submitApplicationRequest(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
 	if(resp.ns4__application) {
 		THROW(p_result = new VetisApplicationBlock);
@@ -122,7 +169,8 @@ extern "C" __declspec(dllexport) VetisApplicationBlock * Vetis_SubmitApplication
 	CATCH
 		ZDELETE(p_result);
 	ENDCATCH
-	delete param.ns4__application->data;
+	DestroyAppData(rBlk, param.ns4__application->data);
+	//delete param.ns4__application->data;
 	delete param.ns4__application;
 	return p_result;
 }
@@ -136,7 +184,6 @@ extern "C" __declspec(dllexport) VetisApplicationBlock * Vetsi_ReceiveApplicatio
 	SString temp_buf;
 	_ns1__receiveApplicationResultRequest param;
 	_ns1__receiveApplicationResultResponse resp;
-
 	gSoapClientInit(&proxi, 0, 0);
 	proxi.userid = GetDynamicParamString((temp_buf = rSess.GetUser()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 	proxi.passwd = GetDynamicParamString((temp_buf = rSess.GetPassword()).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);

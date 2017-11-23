@@ -9,15 +9,8 @@
 //
 //
 //
-SRegExpSet::SRegExpSet()
+SRegExpSet::SRegExpSet() : P_ReQuotedStr(0), P_ReNumber(0), P_ReHex(0), P_ReIdent(0), P_ReDigits(0), P_ReEMail(0), P_ReDate(0)
 {
-	P_ReQuotedStr = 0;
-	P_ReNumber = 0;
-	P_ReHex = 0;
-	P_ReIdent = 0;
-	P_ReDigits = 0;
-	P_ReEMail = 0;
-	P_ReDate = 0;
 }
 
 SRegExpSet::~SRegExpSet()
@@ -6377,10 +6370,8 @@ wchar_t FASTCALL UToLowerCase(wchar_t code)
 //
 // {9}-[*]
 
-SLAPI SNaturalTokenStat::SNaturalTokenStat()
+SLAPI SNaturalTokenStat::SNaturalTokenStat() : Len(0), Seq(0)
 {
-	Len = 0;
-	Seq = 0;
 }
 
 float FASTCALL SNaturalTokenArray::Has(uint32 tok) const

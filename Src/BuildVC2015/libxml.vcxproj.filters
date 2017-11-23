@@ -149,9 +149,6 @@
     <ClInclude Include="..\include\libxml\schematron.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\libxml\threads.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\libxml\tree.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -159,9 +156,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libxml\xinclude.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\libxml\xlink.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\include\libxml\xmlautomata.h">

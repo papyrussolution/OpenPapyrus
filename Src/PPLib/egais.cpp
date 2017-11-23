@@ -6,6 +6,8 @@
 #include <pp.h>
 #pragma hdrstop
 
+static const int16 RowIdentDivider = 27277; // @v9.8.9 10000-->27277
+
 /*
 #define BEDIUS_DESADV_OUT_SENDED            1 // Документ отправлен получателю в виде DESADV
 #define BEDIUS_DESADV_OUT_PROCESSED         2 // Документ, отправленный получателю в виде DESADV, принят EDI-сервером
@@ -1885,7 +1887,8 @@ int SLAPI PPEgaisProcessor::GetURL(PPID locID, SString & rBuf)
 			}
 		}
 		else {
-			rBuf = ACfg.EgaisServerURL;
+			ACfg.GetExtStrData(ALBATROSEXSTR_EGAISSRVURL, rBuf);
+			//rBuf = ACfg.EgaisServerURL;
 			if(rBuf.NotEmptyS())
 				ok = 1;
 		}
@@ -3963,9 +3966,9 @@ int SLAPI PPEgaisProcessor::Read_TTNIformBReg(xmlNode * pFirstNode, Packet * pPa
 						for(xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
 							if(SXml::GetContentByName(p_pos, "Identity", temp_buf)) {
 								if(temp_buf == "0")
-									item.P = 10000;
+									item.P = RowIdentDivider; // @v9.8.9 10000-->RowIdentDivider
 								else
-									item.P = (temp_buf.ToLong() % 10000); // @v9.6.9 (% 10000)
+									item.P = (temp_buf.ToLong() % RowIdentDivider); // @v9.6.9 (% 10000) // @v9.8.9 10000-->RowIdentDivider
 							}
 							else if(SXml::GetContentByName(p_pos, "InformBRegId", temp_buf))
                                 STRNSCPY(item.Ident, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
@@ -4425,9 +4428,9 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 						for(xmlNode * p_pos = p_c->children; p_pos; p_pos = p_pos->next) {
 							if(SXml::GetContentByName(p_pos, "Identity", temp_buf)) {
 								if(temp_buf == "0")
-									ti.RByBill = 10000; // @v9.2.9
+									ti.RByBill = RowIdentDivider; // @v9.2.9 // @v9.8.9 10000-->RowIdentDivider
 								else
-									ti.RByBill = (int16)(temp_buf.ToLong() % 10000); // @v8.8.6 // @v9.6.9 (% 10000)
+									ti.RByBill = (int16)(temp_buf.ToLong() % RowIdentDivider); // @v8.8.6 // @v9.6.9 (% 10000) // @v9.8.9 10000-->RowIdentDivider
 							}
 							else if(SXml::IsName(p_pos, "Product")) {
 								int   rs = 0;

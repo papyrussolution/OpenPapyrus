@@ -5,7 +5,6 @@
  *
  * Author: breese@users.sourceforge.net
  */
-
 #ifndef __XML_LIBXML_H__
 #define __XML_LIBXML_H__
 
@@ -25,22 +24,23 @@
 
 #if defined(macintosh)
 	#include "config-mac.h"
-#elif defined(_WIN32_WCE)
-	// 
-	// Windows CE compatibility definitions and functions
-	// This is needed to compile libxml2 for Windows CE.
-	// At least I tested it with WinCE 5.0 for Emulator and WinCE 4.2/SH4 target
-	// 
-	#include <win32config.h>
-	#include <libxml/xmlversion.h>
 #else
-	// 
-	// Currently supported platforms use either autoconf or
-	// copy to config.h own "preset" configuration file.
-	// As result ifdef HAVE_CONFIG_H is omited here.
-	// 
-	#include "config.h"
 	#include <libxml/xmlversion.h>
+	#if defined(_WIN32_WCE)
+		// 
+		// Windows CE compatibility definitions and functions
+		// This is needed to compile libxml2 for Windows CE.
+		// At least I tested it with WinCE 5.0 for Emulator and WinCE 4.2/SH4 target
+		// 
+		#include <win32config.h>
+	#else
+		// 
+		// Currently supported platforms use either autoconf or
+		// copy to config.h own "preset" configuration file.
+		// As result ifdef HAVE_CONFIG_H is omited here.
+		// 
+		#include "config.h"
+	#endif
 #endif
 #if defined(__Lynx__)
 	#include <stdio.h> /* pull definition of size_t */
@@ -49,7 +49,7 @@
 	int vfprintf(FILE *, const char *, va_list);
 #endif
 #ifndef WITH_TRIO
-	#include <stdio.h>
+	//#include <stdio.h>
 #else
 /**
  * TRIO_REPLACE_STDIO:
@@ -72,15 +72,14 @@ extern int __xmlRegisterCallbacks;
 void __xmlIOErr(int domain, int code, const char *extra);
 void __xmlLoaderErr(void *ctx, const char *msg, const char *filename);
 #ifdef LIBXML_HTML_ENABLED
-	/*
-	* internal function of HTML parser needed for xmlParseInNodeContext
-	* but not part of the API
-	*/
+	// 
+	// internal function of HTML parser needed for xmlParseInNodeContext but not part of the API
+	// 
 	void __htmlParseContent(void *ctx);
 #endif
-/*
- * internal global initialization critical section routines.
- */
+// 
+// internal global initialization critical section routines.
+// 
 void __xmlGlobalInitMutexLock(void);
 void __xmlGlobalInitMutexUnlock(void);
 void __xmlGlobalInitMutexDestroy(void);
@@ -94,18 +93,18 @@ int __xmlInitializeDict(void);
 int xmlNop(void);
 #ifdef IN_LIBXML
 // @sobolev {
-#ifdef HAVE_CTYPE_H
-	#include <ctype.h>
-#endif
-#ifdef HAVE_ERRNO_H
-	#include <errno.h>
-#endif
-#ifdef HAVE_TIME_H
-	#include <time.h>
-#endif
-#if defined(_WIN32) && defined(_MSC_VER)
-	#include <windows.h>
-#endif
+//#ifdef HAVE_CTYPE_H
+	//#include <ctype.h>
+//#endif
+//#ifdef HAVE_ERRNO_H
+	//#include <errno.h>
+//#endif
+//#ifdef HAVE_TIME_H
+	//#include <time.h>
+//#endif
+//#if defined(_WIN32) && defined(_MSC_VER)
+	//#include <windows.h>
+//#endif
 //
 //#include <libxml/xmlstring.h>
 //
@@ -151,7 +150,6 @@ XMLPUBFUN int XMLCALL xmlUTF8Charcmp(const xmlChar * utf1, const xmlChar * utf2)
 #endif
 //
 #include <libxml/globals.h>
-#include <libxml/xmlversion.h>
 #include <libxml/xmlmemory.h>
 #include <libxml/xmlerror.h>
 #include <libxml/hash.h>
@@ -166,12 +164,175 @@ XMLPUBFUN int XMLCALL xmlUTF8Charcmp(const xmlChar * utf1, const xmlChar * utf2)
 #include <libxml/entities.h>
 #include <libxml/parser.h>
 #include <libxml/parserInternals.h>
-#include <libxml/threads.h>
+//
+//#include <libxml/threads.h>
+//
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+struct xmlMutex;  // xmlMutex are a simple mutual exception locks.
+struct xmlRMutex; // xmlRMutex are reentrant mutual exception locks.
+
+XMLPUBFUN xmlMutex * XMLCALL xmlNewMutex();
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlMutexLock(xmlMutex * tok);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlMutexUnlock(xmlMutex * tok);
+XMLPUBFUN void XMLCALL xmlFreeMutex(xmlMutex * tok);
+XMLPUBFUN xmlRMutex * XMLCALL xmlNewRMutex();
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlRMutexLock(xmlRMutex * tok);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlRMutexUnlock(xmlRMutex * tok);
+XMLPUBFUN void XMLCALL xmlFreeRMutex(xmlRMutex * tok);
+// 
+// Library wide APIs.
+// 
+XMLPUBFUN void XMLCALL xmlInitThreads();
+XMLPUBFUN void XMLCALL xmlLockLibrary();
+XMLPUBFUN void XMLCALL xmlUnlockLibrary();
+XMLPUBFUN int XMLCALL xmlGetThreadId();
+XMLPUBFUN int XMLCALL xmlIsMainThread();
+XMLPUBFUN void XMLCALL xmlCleanupThreads();
+XMLPUBFUN xmlGlobalStatePtr XMLCALL xmlGetGlobalState();
+#if defined(HAVE_WIN32_THREADS) && !defined(HAVE_COMPILER_TLS) && defined(LIBXML_STATIC_FOR_DLL)
+	int XMLCALL xmlDllMain(void *hinstDLL, unsigned long fdwReason, void *lpvReserved);
+#endif
+//
+//#include <libxml/xlink.h>
+//
+#ifdef LIBXML_XPTR_ENABLED
+	/**
+	 * Various defines for the various Link properties.
+	 *
+	 * NOTE: the link detection layer will try to resolve QName expansion
+	 *       of namespaces. If "foo" is the prefix for "http://foo.com/"
+	 *       then the link detection layer will expand role="foo:myrole"
+	 *       to "http://foo.com/:myrole".
+	 * NOTE: the link detection layer will expand URI-Refences found on
+	 *       href attributes by using the base mechanism if found.
+	 */
+	typedef xmlChar * xlinkHRef;
+	typedef xmlChar * xlinkRole;
+	typedef xmlChar * xlinkTitle;
+
+	typedef enum {
+		XLINK_TYPE_NONE = 0,
+		XLINK_TYPE_SIMPLE,
+		XLINK_TYPE_EXTENDED,
+		XLINK_TYPE_EXTENDED_SET
+	} xlinkType;
+
+	typedef enum {
+		XLINK_SHOW_NONE = 0,
+		XLINK_SHOW_NEW,
+		XLINK_SHOW_EMBED,
+		XLINK_SHOW_REPLACE
+	} xlinkShow;
+
+	typedef enum {
+		XLINK_ACTUATE_NONE = 0,
+		XLINK_ACTUATE_AUTO,
+		XLINK_ACTUATE_ONREQUEST
+	} xlinkActuate;
+	/**
+	 * xlinkNodeDetectFunc:
+	 * @ctx:  user data pointer
+	 * @node:  the node to check
+	 *
+	 * This is the prototype for the link detection routine.
+	 * It calls the default link detection callbacks upon link detection.
+	 */
+	typedef void (*xlinkNodeDetectFunc)(void * ctx, xmlNode * P_Node);
+	// 
+	// The link detection module interact with the upper layers using
+	// a set of callback registered at parsing time.
+	//
+	/**
+	 * xlinkSimpleLinkFunk:
+	 * @ctx:  user data pointer
+	 * @node:  the node carrying the link
+	 * @href:  the target of the link
+	 * @role:  the role string
+	 * @title:  the link title
+	 *
+	 * This is the prototype for a simple link detection callback.
+	 */
+	typedef void (*xlinkSimpleLinkFunk)(void * ctx, xmlNode * P_Node, const xlinkHRef href, const xlinkRole role, const xlinkTitle title);
+	/**
+	 * xlinkExtendedLinkFunk:
+	 * @ctx:  user data pointer
+	 * @node:  the node carrying the link
+	 * @nbLocators: the number of locators detected on the link
+	 * @hrefs:  pointer to the array of locator hrefs
+	 * @roles:  pointer to the array of locator roles
+	 * @nbArcs: the number of arcs detected on the link
+	 * @from:  pointer to the array of source roles found on the arcs
+	 * @to:  pointer to the array of target roles found on the arcs
+	 * @show:  array of values for the show attributes found on the arcs
+	 * @actuate:  array of values for the actuate attributes found on the arcs
+	 * @nbTitles: the number of titles detected on the link
+	 * @title:  array of titles detected on the link
+	 * @langs:  array of xml:lang values for the titles
+	 *
+	 * This is the prototype for a extended link detection callback.
+	 */
+	typedef void (*xlinkExtendedLinkFunk)(void * ctx, xmlNode * P_Node, int nbLocators, const xlinkHRef * hrefs, const xlinkRole * roles,
+		int nbArcs, const xlinkRole * from, const xlinkRole * to, xlinkShow * show, xlinkActuate * actuate, int nbTitles, const xlinkTitle * titles, const xmlChar ** langs);
+	/**
+	 * xlinkExtendedLinkSetFunk:
+	 * @ctx:  user data pointer
+	 * @node:  the node carrying the link
+	 * @nbLocators: the number of locators detected on the link
+	 * @hrefs:  pointer to the array of locator hrefs
+	 * @roles:  pointer to the array of locator roles
+	 * @nbTitles: the number of titles detected on the link
+	 * @title:  array of titles detected on the link
+	 * @langs:  array of xml:lang values for the titles
+	 *
+	 * This is the prototype for a extended link set detection callback.
+	 */
+	typedef void (*xlinkExtendedLinkSetFunk)(void * ctx, xmlNode * P_Node, int nbLocators, const xlinkHRef * hrefs,
+		const xlinkRole * roles, int nbTitles, const xlinkTitle * titles, const xmlChar ** langs);
+	// 
+	// This is the structure containing a set of Links detection callbacks.
+	// 
+	// There is no default xlink callbacks, if one want to get link
+	// recognition activated, those call backs must be provided before parsing.
+	// 
+	typedef struct _xlinkHandler xlinkHandler;
+	typedef xlinkHandler * xlinkHandlerPtr;
+
+	struct _xlinkHandler {
+		xlinkSimpleLinkFunk simple;
+		xlinkExtendedLinkFunk extended;
+		xlinkExtendedLinkSetFunk set;
+	};
+	// 
+	// The default detection routine, can be overridden, they call the default detection callbacks.
+	// 
+	XMLPUBFUN xlinkNodeDetectFunc XMLCALL xlinkGetDefaultDetect();
+	XMLPUBFUN void XMLCALL xlinkSetDefaultDetect(xlinkNodeDetectFunc func);
+	// 
+	// Routines to set/get the default handlers.
+	// 
+	XMLPUBFUN xlinkHandlerPtr XMLCALL xlinkGetDefaultHandler();
+	XMLPUBFUN void XMLCALL xlinkSetDefaultHandler(xlinkHandlerPtr handler);
+	// 
+	// Link detection module itself.
+	// 
+	XMLPUBFUN xlinkType XMLCALL xlinkIsLink(xmlDoc * doc, xmlNode * P_Node);
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+//
 #include <libxml/SAX.h>
 #include <libxml/SAX2.h>
 #include <libxml/xpath.h>
 #include <libxml/xpointer.h>
 #include <libxml/xpathInternals.h>
+#include <libxml/c14n.h>
+#include <libxml/pattern.h>
+#include <libxml/schematron.h>
 #include <libxml/debugXML.h>
 #include <libxml/chvalid.h>
 

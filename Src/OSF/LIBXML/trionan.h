@@ -50,25 +50,22 @@ TRIO_PUBLIC double trio_nzero();
 /*
  * If number is a NaN return non-zero, otherwise return zero.
  */
-TRIO_PUBLIC int trio_isnan TRIO_PROTO((double number));
+TRIO_PUBLIC int trio_isnan(double number);
 /*
  * If number is positive infinity return 1, if number is negative
  * infinity return -1, otherwise return 0.
  */
-TRIO_PUBLIC int trio_isinf TRIO_PROTO((double number));
+TRIO_PUBLIC int trio_isinf(double number);
 /*
  * If number is finite return non-zero, otherwise return zero.
  */
 #if 0
-	/* Temporary fix - these 2 routines not used in libxml */
-TRIO_PUBLIC int trio_isfinite TRIO_PROTO((double number));
-
-TRIO_PUBLIC int trio_fpclassify TRIO_PROTO((double number));
+	// Temporary fix - these 2 routines not used in libxml 
+	TRIO_PUBLIC int trio_isfinite(double number);
+	TRIO_PUBLIC int trio_fpclassify(double number);
 #endif
-
-TRIO_PUBLIC int trio_signbit TRIO_PROTO((double number));
-
-TRIO_PUBLIC int trio_fpclassify_and_signbit TRIO_PROTO((double number, int *is_negative));
+TRIO_PUBLIC int trio_signbit(double number);
+TRIO_PUBLIC int trio_fpclassify_and_signbit(double number, int *is_negative);
 
 #ifdef __cplusplus
 }

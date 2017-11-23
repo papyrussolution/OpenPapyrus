@@ -31,7 +31,7 @@ struct xmlParserInput;
 typedef xmlParserInput * xmlParserInputPtr;
 //typedef struct _xmlParserCtxt xmlParserCtxt;
 struct xmlParserCtxt;
-typedef xmlParserCtxt * xmlParserCtxtPtr;
+//typedef xmlParserCtxt * xmlParserCtxtPtr;
 //typedef struct _xmlSAXLocator xmlSAXLocator;
 struct xmlSAXLocator;
 typedef xmlSAXLocator * xmlSAXLocatorPtr;
@@ -279,7 +279,6 @@ typedef enum {
 #ifdef __cplusplus
 }
 #endif
-//#include <libxml/xmlregexp.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -378,7 +377,7 @@ typedef xmlDtd * xmlDtdPtr;
 struct xmlAttr {
 	void * _private; /* application data */
 	xmlElementType type;    /* XML_ATTRIBUTE_NODE, must be second ! */
-	const xmlChar   * name; /* the name of the property */
+	const xmlChar * name; /* the name of the property */
 	xmlNode * children; /* the value of the property */
 	xmlNode * last; /* NULL */
 	xmlNode * parent; /* child->parent link */
@@ -391,44 +390,34 @@ struct xmlAttr {
 };
 
 typedef xmlAttr * xmlAttrPtr;
-/**
- * xmlID:
- *
- * An XML ID instance.
- */
-typedef struct _xmlID xmlID;
-typedef xmlID * xmlIDPtr;
-
-struct _xmlID {
-	struct _xmlID * next; /* next ID */
+// 
+// Descr: An XML ID instance.
+// 
+struct xmlID {
+	xmlID * next; /* next ID */
 	const  xmlChar * value; /* The ID name */
 	xmlAttr * attr;        /* The attribute holding it */
 	const xmlChar * name; /* The attribute if attr is not available */
 	int    lineno;             /* The line number if attr is not available */
 	xmlDoc * doc; /* The document holding the ID */
 };
-/**
- * xmlRef:
- *
- * An XML IDREF instance.
- */
-typedef struct _xmlRef xmlRef;
-typedef xmlRef * xmlRefPtr;
 
-struct _xmlRef {
-	struct _xmlRef * next; /* next Ref */
-	const xmlChar  * value; /* The Ref name */
+typedef xmlID * xmlIDPtr;
+// 
+// Descr: An XML IDREF instance.
+// 
+struct xmlRef {
+	xmlRef * next; /* next Ref */
+	const xmlChar * value; /* The Ref name */
 	xmlAttr * attr;        /* The attribute holding it */
 	const xmlChar * name; /* The attribute if attr is not available */
 	int lineno;             /* The line number if attr is not available */
 };
-/**
- * xmlNode:
- *
- * A node in an XML tree.
- */
-//typedef struct _xmlNode xmlNode;
 
+typedef xmlRef * xmlRefPtr;
+// 
+// Descr: A node in an XML tree.
+// 
 struct xmlNode {
 	void * _private; // application data 
 	xmlElementType type; // type number, must be second ! 
@@ -478,13 +467,9 @@ typedef enum {
 	XML_DOC_INTERNAL            = 1<<6, /* built for internal processing */
 	XML_DOC_HTML                = 1<<7 /* parsed or built HTML document */
 } xmlDocProperties;
-/**
- * xmlDoc:
- *
- * An XML document.
- */
-//typedef struct _xmlDoc xmlDoc;
-
+// 
+// Descr: An XML document
+// 
 struct xmlDoc {
 	void * _private; /* application data */
 	xmlElementType type;    /* XML_DOCUMENT_NODE, must be second ! */
@@ -516,9 +501,8 @@ struct xmlDoc {
 
 typedef xmlDoc * xmlDocPtr;
 
-typedef struct _xmlDOMWrapCtxt xmlDOMWrapCtxt;
+struct xmlDOMWrapCtxt;
 typedef xmlDOMWrapCtxt * xmlDOMWrapCtxtPtr;
-
 /**
  * xmlDOMWrapAcquireNsFunction:
  * @ctxt:  a DOM wrapper context
@@ -531,23 +515,18 @@ typedef xmlDOMWrapCtxt * xmlDOMWrapCtxtPtr;
  * Returns an xmlNsPtr or NULL in case of an error.
  */
 typedef xmlNs * (*xmlDOMWrapAcquireNsFunction)(xmlDOMWrapCtxtPtr ctxt, xmlNode * P_Node, const xmlChar * nsName, const xmlChar * nsPrefix);
-/**
- * xmlDOMWrapCtxt:
- *
- * Context for DOM wrapper-operations.
- */
-struct _xmlDOMWrapCtxt {
+// 
+// Descr: Context for DOM wrapper-operations.
+// 
+struct xmlDOMWrapCtxt {
 	void * _private;
 	int type; // The type of this context, just in case we need specialized contexts in the future.
 	void * namespaceMap; // Internal namespace map used for various operations.
 	xmlDOMWrapAcquireNsFunction getNsForNodeFunc; // Use this one to acquire an xmlNsPtr intended for node->ns. (Note that this is not intended for elem->nsDef).
 };
-/**
- * xmlChildrenNode:
- *
- * Macro for compatibility naming layer with libxml1. Maps
- * to "children."
- */
+// 
+// Descr: Macro for compatibility naming layer with libxml1. Maps to "children."
+// 
 #ifndef xmlChildrenNode
     #define xmlChildrenNode children
 #endif

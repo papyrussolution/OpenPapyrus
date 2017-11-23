@@ -50,7 +50,7 @@
 #ifdef HAVE_ALLOCA_H
 	#include <alloca.h>
 #endif
-#include "mac.h"
+//#include "mac.h"
 
 /* libssh2_default_alloc
  */

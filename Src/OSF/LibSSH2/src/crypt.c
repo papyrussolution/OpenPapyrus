@@ -43,8 +43,7 @@
 /* crypt_none_crypt
  * Minimalist cipher: VERY secure *wink*
  */
-static int crypt_none_crypt(LIBSSH2_SESSION * session, uchar * buf,
-    void ** abstract)
+static int crypt_none_crypt(LIBSSH2_SESSION * session, uchar * buf, void ** abstract)
 {
 	/* Do nothing to the data! */
 	return 0;
@@ -89,8 +88,7 @@ static int crypt_init(LIBSSH2_SESSION * session,
 	return 0;
 }
 
-static int crypt_encrypt(LIBSSH2_SESSION * session, uchar * block,
-    size_t blocksize, void ** abstract)
+static int crypt_encrypt(LIBSSH2_SESSION * session, uchar * block, size_t blocksize, void ** abstract)
 {
 	struct crypt_ctx * cctx = *(struct crypt_ctx**)abstract;
 	(void)session;
@@ -226,25 +224,17 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour = {
 	_libssh2_cipher_arcfour
 };
 
-static int crypt_init_arcfour128(LIBSSH2_SESSION * session,
-    const LIBSSH2_CRYPT_METHOD * method,
-    uchar * iv, int * free_iv,
-    uchar * secret, int * free_secret,
-    int encrypt, void ** abstract)
+static int crypt_init_arcfour128(LIBSSH2_SESSION * session, const LIBSSH2_CRYPT_METHOD * method,
+    uchar * iv, int * free_iv, uchar * secret, int * free_secret, int encrypt, void ** abstract)
 {
-	int rc;
-
-	rc = crypt_init(session, method, iv, free_iv, secret, free_secret,
-	    encrypt, abstract);
+	int rc = crypt_init(session, method, iv, free_iv, secret, free_secret, encrypt, abstract);
 	if(rc == 0) {
 		struct crypt_ctx * cctx = *(struct crypt_ctx**)abstract;
 		uchar block[8];
 		size_t discard = 1536;
 		for(; discard; discard -= 8)
-			_libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block,
-			    method->blocksize);
+			_libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block, method->blocksize);
 	}
-
 	return rc;
 }
 
@@ -325,4 +315,3 @@ const LIBSSH2_CRYPT_METHOD ** libssh2_crypt_methods(void)
 {
 	return _libssh2_crypt_methods;
 }
-

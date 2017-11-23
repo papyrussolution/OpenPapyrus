@@ -155,7 +155,7 @@ UHTT = "xxxx:xxxxx"
 MSTR = "xxxx:xxxx"
 */
 
-/* @v5.1.6 Pchar SLAPI replaceExt(Pchar fileName, PCchar newExt, int force)
+/* @v5.1.6 Pchar SLAPI replaceExt(char * fileName, const char * newExt, int force)
 {
 	char drv[MAXDRIVE], dir[MAXPATH], nam[MAXFILE], ext[MAXEXT];
 	fnsplit(fileName, drv, dir, nam, ext);

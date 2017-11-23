@@ -87,7 +87,7 @@ int SLAPI GoodsIterator::GetListByFilt(GoodsFilt * pFilt, StrAssocArray * pList,
 	return ok;
 }
 
-int SLAPI GoodsIterator::InitInstance(PPIDArray * pDupDynGrpList)
+void FASTCALL GoodsIterator::InitInstance(PPIDArray * pDupDynGrpList)
 {
 	P_DupDynGrpList = pDupDynGrpList;
 	P_IterQuery = 0;
@@ -96,7 +96,6 @@ int SLAPI GoodsIterator::InitInstance(PPIDArray * pDupDynGrpList)
 	P_ActualHash = 0;
 	P_UhttsPack = 0;
 	SfClsID = 0;
-	return 1;
 }
 
 SLAPI GoodsIterator::GoodsIterator(const GoodsFilt * f, int aOrder, PPIDArray * pDupDynGrpList /*=0*/)

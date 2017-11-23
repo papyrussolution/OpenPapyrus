@@ -167,16 +167,15 @@ int SLAPI PalmBillQueue::SetIdAssoc(PPID dvcID, PPID outerID, PPID innerID)
 //
 //
 //
-SLAPI PalmBillPacket::PalmBillPacket() : SArray(sizeof(PalmBillItem))
+SLAPI PalmBillPacket::PalmBillPacket() : SVector(sizeof(PalmBillItem)) // @v9.8.9 SArray-->SVector
 {
 	Init();
 }
 
-int SLAPI PalmBillPacket::Init()
+void SLAPI PalmBillPacket::Init()
 {
 	MEMSZERO(Hdr);
 	freeAll();
-	return 1;
 }
 
 uint SLAPI PalmBillPacket::GetItemsCount() const
@@ -187,7 +186,7 @@ uint SLAPI PalmBillPacket::GetItemsCount() const
 int SLAPI PalmBillPacket::EnumItems(uint * pIdx, PalmBillItem * pItem) const
 {
 	PalmBillItem * p_item;
-	if(SArray::enumItems(pIdx, (void**)&p_item) > 0) {
+	if(SVector::enumItems(pIdx, (void**)&p_item) > 0) { // @v9.8.9 SArray-->SVector
 		ASSIGN_PTR(pItem, *p_item);
 		return 1;
 	}
@@ -228,10 +227,8 @@ int FASTCALL PPGeoTrackingMode::operator != (const PPGeoTrackingMode & rS) const
 	return BIN(Mode != rS.Mode || Cycle != rS.Cycle);
 }
 
-SLAPI PPStyloPalmPacket::PPStyloPalmPacket()
+SLAPI PPStyloPalmPacket::PPStyloPalmPacket() : P_Path(0), P_FTPPath(0)
 {
-	P_Path = 0;
-	P_FTPPath = 0;
 	destroy();
 }
 
@@ -263,13 +260,12 @@ PPStyloPalmPacket & FASTCALL PPStyloPalmPacket::operator = (const PPStyloPalmPac
 	return *this;
 }
 
-int SLAPI PPStyloPalmPacket::Setup()
+void SLAPI PPStyloPalmPacket::Setup()
 {
 	if(P_Path && *strip(P_Path) == 0)
 		ZDELETE(P_Path);
 	if(P_FTPPath && *strip(P_FTPPath) == 0)
 		ZDELETE(P_FTPPath);
-	return 1;
 }
 
 int SLAPI PPStyloPalmPacket::MakePath(const char * pSuffix, SString & rBuf) const
@@ -2517,9 +2513,8 @@ private:
 #define PALM_FIRST_QUOTFLD 13
 #define PALM_MAX_QUOT      20
 
-SLAPI AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, const char * pRoot /*=0*/)
+SLAPI AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, const char * pRoot /*=0*/) : P_Buffer(0)
 {
-	P_Buffer = 0;
 	if(!isempty(pPath)) {
 		SFile::Remove(pPath);
 		if(sstreqi_ascii(pPath, ":buffer:")) {
@@ -2530,6 +2525,7 @@ SLAPI AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, cons
 		else
 			P_Writer = xmlNewTextWriterFilename(pPath, 0);
 		if(P_Writer) {
+			SString temp_buf;
 			PPAlbatrosConfig cfg;
 			DS.FetchAlbatrosConfig(&cfg);
 			xmlTextWriterSetIndent(P_Writer, 1);
@@ -2547,19 +2543,21 @@ SLAPI AndroidXmlWriter::AndroidXmlWriter(const char * pPath, Header * pHdr, cons
 				AddAttrib("CreateDt",       pHdr->CreateDtm.d);
 				AddAttrib("CreateTm",       pHdr->CreateDtm.t);
 				AddAttrib("MaxNotSentOrd",  pHdr->MaxNotSentOrd);
-				AddAttrib("UhttUrn",        cfg.UhttUrn);
-				AddAttrib("UhttUrlPrefix",  cfg.UhttUrlPrefix);
-				AddAttrib("UhttAccount",    cfg.UhttAccount);
+				cfg.GetExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
+				AddAttrib("UhttUrn",        /*cfg.UhttUrn*/temp_buf);
+				cfg.GetExtStrData(ALBATROSEXSTR_UHTTURLPFX, temp_buf);
+				AddAttrib("UhttUrlPrefix",  /*cfg.UhttUrlPrefix*/temp_buf);
+				cfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
+				AddAttrib("UhttAccount",    /*cfg.UhttAccount*/temp_buf);
 				AddAttrib("GeoTrackingMode",  pHdr->Gtm.Mode); // @v8.6.8
 				AddAttrib("GeoTrackingCycle", pHdr->Gtm.Cycle); // @v8.6.8
 				AddAttrib("StyloFlags",     pHdr->StyloFlags);  // @v8.6.10
 				AddAttrib("TransfDaysAgo",  pHdr->TransfDaysAgo); // @v9.2.2
 			}
 			{
-				SString password;
-				cfg.GetPassword(ALBATROSEXSTR_UHTTPASSW, password);
-				AddAttrib("UhttPassword", password.cptr());
-				password = 0;
+				cfg.GetPassword(ALBATROSEXSTR_UHTTPASSW, temp_buf);
+				AddAttrib("UhttPassword", temp_buf.cptr());
+				temp_buf.Obfuscate();
 			}
 		}
 	}

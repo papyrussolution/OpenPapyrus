@@ -133,10 +133,10 @@ zip_source_t * _zip_source_file_or_p(const char * fname, FILE * file, uint64 sta
 	else if(fseeko(ctx->f, 0, SEEK_CUR) == 0) {
 		ctx->supports = ZIP_SOURCE_SUPPORTS_SEEKABLE;
 	}
-	if((zs = zip_source_function_create(read_file, ctx, error)) == NULL) {
+	zs = zip_source_function_create(read_file, ctx, error);
+	if(!zs) {
 		SAlloc::F(ctx->fname);
 		SAlloc::F(ctx);
-		return NULL;
 	}
 	return zs;
 }

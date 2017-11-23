@@ -65,8 +65,11 @@ int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, cons
 					{
 						PPAlbatrosConfig acfg;
 						if(PPAlbatrosCfgMngr::Helper_Get(p_ref, &acfg) > 0) {
-							Reference::Helper_DecodeOtherPw(ppb_src.DefPassword, acfg.UhttPassword, /*UHTT_PW_SIZE*/20, temp_buf);
-							Reference::Helper_EncodeOtherPw(ppb_dest.DefPassword, temp_buf, /*UHTT_PW_SIZE*/20, acfg.UhttPassword);
+							SString password;
+							acfg.GetExtStrData(ALBATROSEXSTR_UHTTPASSW, password);
+							Reference::Helper_DecodeOtherPw(ppb_src.DefPassword, password/*acfg.UhttPassword*/, /*UHTT_PW_SIZE*/20, temp_buf);
+							Reference::Helper_EncodeOtherPw(ppb_dest.DefPassword, temp_buf, /*UHTT_PW_SIZE*/20, password/*acfg.UhttPassword*/);
+							acfg.PutExtStrData(ALBATROSEXSTR_UHTTPASSW, password);
 							THROW(PPAlbatrosCfgMngr::Helper_Put(p_ref, &acfg, 0));
 						}
 					}

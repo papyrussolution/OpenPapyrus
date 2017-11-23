@@ -225,11 +225,8 @@ int SLAPI SimpleObjView(PPObject * pObj, void * extraPtr)
 //
 // @ModuleDef(PPObjReference)
 //
-SLAPI PPObjReference::PPObjReference(PPID aObj, /*long extraData*/void * extraPtr) : PPObject(aObj)
+SLAPI PPObjReference::PPObjReference(PPID aObj, /*long extraData*/void * extraPtr) : PPObject(aObj), ExtraPtr(extraPtr), ref(PPRef)
 {
-	//extra = extraData;
-	ExtraPtr = extraPtr;
-	ref = PPRef;
 	ImplementFlags |= implStrAssocMakeList;
 	// @v8.2.3 {
 	if(IS_DYN_OBJTYPE(aObj)) {

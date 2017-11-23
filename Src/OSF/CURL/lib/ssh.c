@@ -379,7 +379,7 @@ static int sshkeycallback(struct Curl_easy * easy,
  * with 32bit size_t.
  */
 #ifdef HAVE_LIBSSH2_SFTP_SEEK64
-#define SFTP_SEEK(x, y) libssh2_sftp_seek64(x, (libssh2_uint64_t)y)
+#define SFTP_SEEK(x, y) libssh2_sftp_seek64(x, (uint64)y)
 #else
 #define SFTP_SEEK(x, y) libssh2_sftp_seek(x, (size_t)y)
 #endif
@@ -392,7 +392,7 @@ static int sshkeycallback(struct Curl_easy * easy,
 #define SCP_SEND(a, b, c, d) libssh2_scp_send_ex(a, b, (int)(c), (size_t)d, 0, 0)
 #else
 #define SCP_SEND(a, b, c, d) libssh2_scp_send64(a, b, (int)(c),		   \
-	    (libssh2_uint64_t)d, 0, 0)
+	    (uint64)d, 0, 0)
 #endif
 
 /*

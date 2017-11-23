@@ -1362,6 +1362,7 @@ PPERR_OBJEXPECTED_GOODSTYPE     "Ожидаемый тип объекта: GOODS
 PPERR_STYLOPALMPARENTNOTGENERIC "Родительский элемент (%s) записи @{brand_styloagent} не является группой"
 PPERR_STYLOPALMLOOP             "Запись @{brand_styloagent} не может иметь в качестве родительского элемента саму себя"
 PPERR_STYLOPALMCYCLE            "Циклическая ссылка на родительский элемент в записи @{brand_styloagent} '%s'"
+PPERR_SCARDSERIESCYCLE          "Циклическая ссылка на родительский элемент в записи серии персональных карт '%s'"
 PPERR_UNDEFCASHNODELOC          "Не определен склад у кассового узла '%s'"
 PPERR_REPLACEMENTID_NOTADDR     "Замещающий ИД локации не является адресом"
 PPERR_CANTREPLACEMAINADDR       "Нельзя объединять адреса, являющийся основным адресом персоналии (%s)"
@@ -3906,7 +3907,7 @@ PPTXT_USAGETM                "Время использования: %s..%s"
 PPTXT_BINDLADINGTOORD_OK     "Привязка отгрузка-заказ (%s)"
 PPTXT_BINDLADINGTOORD_NONE   "Не удалось привязать отгрузку к заказу (%s)"
 PPTXT_BINDLADINGTOORD_ORDNF  "Документ заказа для привязки не найден (%s)"
-PPTXT_SUBSTDATELISTEXT       "5,Час;6,@{weekday};1,@{week};2,@{month};3,Квартал;4,@{year}"
+PPTXT_SUBSTDATELISTEXT       "5,Час;6,@{weekday};1,@{week};2,@{month};3,@{calquarter};4,@{year}"
 PPTXT_SCARD_EXPIRY           "действительна до"
 PPTXT_SCARD_TIMEPERIOD       "время действия"
 PPTXT_SELPERSONBYSCARD       "Выбор персоналии по персональной карте"
@@ -4016,10 +4017,10 @@ PPTXT_MOVARCOD_MOVED         "Код '@zstr' товара '@goods' по стат
 PPTXT_MOVARCOD_EXISTS        "Для товара '@goods' по статье '@article' код существует (@zstr)"
 PPTXT_MOVARCOD_ADDED         "Для товара '@goods' по статье '@article' добавлен код '@zstr'"
 PPTXT_MOVARCOD_NGEN          "Не удается автоматически сгенерировать товарный код по статье. Вероятно, не определен счетчик в конфигурации товаров"
-PPTXT_CYCLELIST              "1,@{day};7,@{week};30,@{month};90,Квартал;180,Полугодие;360,@{year}"
-PPTXT_WEEKS                  "1,I неделя;2,II неделя;3,III неделя;4,IV неделя"
-PPTXT_QUARTS                 "1,I квартал;2,II квартал;3,III квартал;4,IV квартал"
-PPTXT_SEMIYEAR               "1,I полугодие;2,II полугодие"
+PPTXT_CYCLELIST              "1,@{day};7,@{week};30,@{month};90,@{calquarter};180,@{halfyear};360,@{year}"
+PPTXT_WEEKS                  "1,I @{week};2,II @{week};3,III @{week};4,IV @{week}"
+PPTXT_QUARTS                 "1,I @{calquarter};2,II @{calquarter};3,III @{calquarter};4,IV @{calquarter}"
+PPTXT_SEMIYEAR               "1,I @{halfyear};2,II @{halfyear}"
 PPTXT_BUDGSCEN               "Сценарий бюджета"
 PPTXT_SLIPFMT_METAVAR        /!/ "CURDATE;CURTIME;MAINORG;DATE;TIME;BILLNO;CLIENT;AGENT;CASHIER;TABLE;AMOUNTWODIS;AMOUNT;DISCOUNT;ISCREDITSCARD;SCARDREST;SCARDOWNER;SCARDTYPE;SCARD;\
 PCTDIS;WROFFAMOUNT;DEFICIT;GOODSGRP;GOODS;QTTY;PRICEWODIS;PRICE;ITEMDISAMT;ITEMDISPCT;ITEMDIS;ITEMAMTWODIS;ITEMAMT;MEMO;POSNODE;POS;ISRET;\
@@ -4266,7 +4267,7 @@ PPTXT_SUBSTGOODSLIST              "1,Обобщение;2,@{group};3,@{manufactu
 	15,@{supplagent};16,@{warehouse};17,Владелец торговой марки;18,@{vatrate};19,Ставка НДС в ценах поступления;20,Категория алкогольной продукции;\
 	21,@{goodsclass_fusedimw};22,Место хранения, ассоциированное с товаром;23,@{goods_type}"
 PPTXT_SUBSTPERSONLIST             "1,@{city};2,@{region};3,@{country};4,@{category};5,Агент по документу;6,@{freightagent};7,Таблица статей"
-PPTXT_SUBSTDATELIST               "1,@{week};2,@{month};3,Квартал;4,@{year}"
+PPTXT_SUBSTDATELIST               "1,@{week};2,@{month};3,@{calquarter};4,@{year}"
 PPTXT_SUBSTSCARDLIST              "1,@{series};2,@{owner}"
 PPTXT_SCARDISAUTOACTIVATED        "Карта '%s' будет активирована автоматически после проведения чека"
 PPTXT_BILLALREADYHASLINK          "Документ '%s' уже имеет привязку"
@@ -5357,6 +5358,7 @@ DVCPARAM_HEIGHT         "HEIGHT"
 DVCPARAM_LABEL          "LABEL"
 DVCPARAM_CODE           "CODE"
 DVCPARAM_VATRATE        "VATRATE"
+DVCPARAM_VATFREE        "VATFREE"
 
 [120]
 IMPEXPCMD_ORDRSP        "ORDRSP"
@@ -5658,6 +5660,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @month             "Месяц"
 @day               "День"
 @week              "Неделя"
+@calquarter        "Квартал" // Календарный квартал
+@halfyear          "Полугодие"
 @duration          "Продолжительность"
 
 @days              "дней"
@@ -6394,6 +6398,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_statecontractid                     "Ид государственного контракта"
 @rtag_enalogid                            "Ид участника эл документооборота nalog.ru"
 @rtag_complementarybill                   "Формальная ссылка на комплементарный документ"
+@rtag_personvetisuuid                     "ВЕТИС идентификатор предприятия"
 //
 // Текстовые представления view и filter
 //
@@ -7629,6 +7634,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgalbatros_uhttpassword                 "Пароль аккаунта @{brand_uhtt}"
 @cfgalbatros_uhtturlprefix                "Префикс URL сервисов @{brand_uhtt}"
 @cfgalbatros_uhtturn                      "URN сервисов @{brand_uhtt}"
+@cfgalbatros_vetisconfig                  "Конфигурация ВЕТИС" // generic
+@cfgalbatros_vetisuser                    "@{user}"
+@cfgalbatros_vetispassword                "@{password}"
+@cfgalbatros_vetisapikey                  "Ключ API"
+@cfgalbatros_ediparams                    "Параметры EDI" // generic
 
 @cfgalcreport_alcgoodscls                 "Товарный класс алкогольной продукции"
 @cfgalcreport_alcgoodsgrp                 "Группа алкогольных напитков"
@@ -11175,6 +11185,12 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfmrcknparam_sel_cancel                  "Не зачитывать"
 @cfmrcknparam_info_direct                 "По контрагенту '@zstr' существуют неоплаченные документы на сумму @zstr. Заданный документ позволяет зачесть сумму @zstr @zstr"
 @cfmrcknparam_info_reverse                "По контрагенту '@zstr' существуют документы на сумму @zstr, позволяющие зачесть заданный документ, долг по которому составляет @zstr @zstr"
+
+@dateadd                                  "Расчет даты"
+@dateadd_source                           "Исходная дата"
+@dateadd_period                           "Период"
+@dateadd_periodcount                      "Количество периодов"
+@dateadd_result                           "Результат"
 
 [121]
 1   "Вход"

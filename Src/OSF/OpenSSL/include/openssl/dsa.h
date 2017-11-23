@@ -27,24 +27,18 @@ extern "C" {
 #include <openssl/ossl_typ.h>
 #include <openssl/opensslconf.h>
 #include <openssl/bn.h>
-# if OPENSSL_API_COMPAT < 0x10100000L
-#  include <openssl/dh.h>
-# endif
-
-# ifndef OPENSSL_DSA_MAX_MODULUS_BITS
-#define OPENSSL_DSA_MAX_MODULUS_BITS   10000
-# endif
-
+#if OPENSSL_API_COMPAT < 0x10100000L
+	#include <openssl/dh.h>
+#endif
+#ifndef OPENSSL_DSA_MAX_MODULUS_BITS
+	#define OPENSSL_DSA_MAX_MODULUS_BITS   10000
+#endif
 #define OPENSSL_DSA_FIPS_MIN_MODULUS_BITS 1024
-
 #define DSA_FLAG_CACHE_MONT_P   0x01
-# if OPENSSL_API_COMPAT < 0x10100000L
-/*
- * Does nothing. Previously this switched off constant time behaviour.
- */
-#define DSA_FLAG_NO_EXP_CONSTTIME       0x00
-# endif
-
+#if OPENSSL_API_COMPAT < 0x10100000L
+	// Does nothing. Previously this switched off constant time behaviour.
+	#define DSA_FLAG_NO_EXP_CONSTTIME       0x00
+#endif
 /*
  * If this flag is set the DSA method is FIPS compliant and can be used in
  * FIPS mode. This is set in the validated module method. If an application

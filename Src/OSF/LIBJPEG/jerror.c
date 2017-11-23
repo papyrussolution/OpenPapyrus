@@ -21,21 +21,13 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-
 #ifdef USE_WINDOWS_MESSAGEBOX
-#include <windows.h>
+	#include <windows.h>
 #endif
-
-/* this is not a core library module, so it doesn't define JPEG_INTERNALS */
-//#include "jinclude.h"
-//#include "jpeglib.h"
 #include "jversion.h"
-//#include "jerror.h"
-
-#ifndef EXIT_FAILURE            /* define exit() codes if not provided */
-#define EXIT_FAILURE  1
+#ifndef EXIT_FAILURE /* define exit() codes if not provided */
+	#define EXIT_FAILURE  1
 #endif
-
 /*
  * Create the message string table.
  * We do this from the master message list in jerror.h by re-reading

@@ -189,27 +189,21 @@ int CallTip::PaintContents(Surface * surfaceWindow, bool draw)
 		int chunkOffset = static_cast<int>(chunkVal - /*val.c_str()*/Text.cptr());
 		int chunkLength = static_cast<int>(chunkEnd - chunkVal);
 		int chunkEndOffset = chunkOffset + chunkLength;
-		int thisStartHighlight = Platform::Maximum(startHighlight, chunkOffset);
-		thisStartHighlight = Platform::Minimum(thisStartHighlight, chunkEndOffset);
+		int thisStartHighlight = smax(startHighlight, chunkOffset);
+		thisStartHighlight = smin(thisStartHighlight, chunkEndOffset);
 		thisStartHighlight -= chunkOffset;
-		int thisEndHighlight = Platform::Maximum(endHighlight, chunkOffset);
-		thisEndHighlight = Platform::Minimum(thisEndHighlight, chunkEndOffset);
+		int thisEndHighlight = smax(endHighlight, chunkOffset);
+		thisEndHighlight = smin(thisEndHighlight, chunkEndOffset);
 		thisEndHighlight -= chunkOffset;
 		rcClient.top = static_cast<XYPOSITION>(ytext - ascent - 1);
-
 		int x = insetX;     // start each line at this inset
-
-		DrawChunk(surfaceWindow, x, chunkVal, 0, thisStartHighlight,
-		    ytext, rcClient, false, draw);
-		DrawChunk(surfaceWindow, x, chunkVal, thisStartHighlight, thisEndHighlight,
-		    ytext, rcClient, true, draw);
-		DrawChunk(surfaceWindow, x, chunkVal, thisEndHighlight, chunkLength,
-		    ytext, rcClient, false, draw);
-
+		DrawChunk(surfaceWindow, x, chunkVal, 0, thisStartHighlight, ytext, rcClient, false, draw);
+		DrawChunk(surfaceWindow, x, chunkVal, thisStartHighlight, thisEndHighlight, ytext, rcClient, true, draw);
+		DrawChunk(surfaceWindow, x, chunkVal, thisEndHighlight, chunkLength, ytext, rcClient, false, draw);
 		chunkVal = chunkEnd + 1;
 		ytext += lineHeight;
 		rcClient.bottom += lineHeight;
-		maxWidth = Platform::Maximum(maxWidth, x);
+		maxWidth = smax(maxWidth, x);
 	}
 	return maxWidth;
 }

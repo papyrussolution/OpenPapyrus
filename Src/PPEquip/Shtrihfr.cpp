@@ -433,16 +433,10 @@ PPSyncCashSession * SLAPI CM_SHTRIHFRF::SyncInterface()
 
 REGISTER_CMT(SHTRIHFRF,1,0);
 
-SLAPI SCS_SHTRIHFRF::SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port)
+SLAPI SCS_SHTRIHFRF::SCS_SHTRIHFRF(PPID n, char * name, char * port) : PPSyncCashSession(n, name, port),
+	CashierPassword(0), AdmPassword(0), ResCode(RESCODE_NO_ERROR), ErrCode(SYNCPRN_NO_ERROR),
+	DeviceType(devtypeUndef), CheckStrLen(DEF_STRLEN), Flags(0), RibbonParam(0)
 {
-	CashierPassword = 0;
-	AdmPassword     = 0;
-	ResCode         = RESCODE_NO_ERROR;
-	ErrCode         = SYNCPRN_NO_ERROR;
-	DeviceType      = devtypeUndef;
-	CheckStrLen     = DEF_STRLEN;
-	Flags           = 0;
-	RibbonParam     = 0;
 	if(SCn.Flags & CASHF_NOTUSECHECKCUTTER)
 		Flags |= sfNotUseCutter;
 	RefToIntrf++;
