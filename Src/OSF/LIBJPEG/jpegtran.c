@@ -373,22 +373,16 @@ static int parse_switches(j_compress_ptr cinfo, int argc, char ** argv,
 
 	return argn;            /* return index of next arg (file name) */
 }
-
 /*
  * The main program.
  */
-
 int main(int argc, char ** argv)
 {
 	struct jpeg_decompress_struct srcinfo;
-
 	struct jpeg_compress_struct dstinfo;
-
 	struct jpeg_error_mgr jsrcerr, jdsterr;
-
 #ifdef PROGRESS_REPORT
 	struct cdjpeg_progress_mgr progress;
-
 #endif
 	jvirt_barray_ptr * src_coef_arrays;
 	jvirt_barray_ptr * dst_coef_arrays;
@@ -396,17 +390,14 @@ int main(int argc, char ** argv)
 	/* We assume all-in-memory processing and can therefore use only a
 	 * single file pointer for sequential input and output operation.
 	 */
-	FILE * fp;
-
+	FILE * fp = 0;
 	/* On Mac, fetch a command line. */
 #ifdef USE_CCOMMAND
 	argc = ccommand(&argv);
 #endif
-
 	progname = argv[0];
-	if(progname == NULL || progname[0] == 0)
+	if(isempty(progname))
 		progname = "jpegtran";  /* in case C library doesn't provide it */
-
 	/* Initialize the JPEG decompression object with default error handling. */
 	srcinfo.err = jpeg_std_error(&jsrcerr);
 	jpeg_create_decompress(&srcinfo);
@@ -428,25 +419,21 @@ int main(int argc, char ** argv)
 	 * destination JPEG object, so we parse into that and then copy over what
 	 * needs to affects the source too.
 	 */
-
 	file_index = parse_switches(&dstinfo, argc, argv, 0, FALSE);
 	jsrcerr.trace_level = jdsterr.trace_level;
 	srcinfo.mem->max_memory_to_use = dstinfo.mem->max_memory_to_use;
-
 #ifdef TWO_FILE_COMMANDLINE
 	/* Must have either -outfile switch or explicit output file name */
 	if(outfilename == NULL) {
 		if(file_index != argc-2) {
-			fprintf(stderr, "%s: must name one input and one output file\n",
-			    progname);
+			fprintf(stderr, "%s: must name one input and one output file\n", progname);
 			usage();
 		}
 		outfilename = argv[file_index+1];
 	}
 	else {
 		if(file_index != argc-1) {
-			fprintf(stderr, "%s: must name one input and one output file\n",
-			    progname);
+			fprintf(stderr, "%s: must name one input and one output file\n", progname);
 			usage();
 		}
 	}
@@ -494,20 +481,15 @@ int main(int argc, char ** argv)
 		exit(EXIT_FAILURE);
 	}
 #endif
-
 	/* Read source file as DCT coefficients */
 	src_coef_arrays = jpeg_read_coefficients(&srcinfo);
-
 	/* Initialize destination compression parameters from source values */
 	jpeg_copy_critical_parameters(&srcinfo, &dstinfo);
-
 	/* Adjust destination parameters if required by transform options;
 	 * also find out which set of coefficient arrays will hold the output.
 	 */
 #if TRANSFORMS_SUPPORTED
-	dst_coef_arrays = jtransform_adjust_parameters(&srcinfo, &dstinfo,
-	    src_coef_arrays,
-	    &transformoption);
+	dst_coef_arrays = jtransform_adjust_parameters(&srcinfo, &dstinfo, src_coef_arrays, &transformoption);
 #else
 	dst_coef_arrays = src_coef_arrays;
 #endif

@@ -3162,9 +3162,8 @@ int SLAPI PPObjBill::EditBillStatus(PPID billID)
 {
 	class SelBillStatusDialog : public PPListDialog {
 	public:
-		SelBillStatusDialog() : PPListDialog(DLG_SELBILLSTATUS, CTL_SELBILLSTATUS_LIST)
+		SelBillStatusDialog() : PPListDialog(DLG_SELBILLSTATUS, CTL_SELBILLSTATUS_LIST), IsThereStatus(0)
 		{
-			IsThereStatus = 0;
 			//updateList(-1);
 		}
 		int    setDTS(const BillTbl::Rec * pRec)
@@ -3276,9 +3275,8 @@ static int EditPaymPlanItem(const PPBillPacket * pPack, PayPlanTbl::Rec * pData)
 
 class PaymPlanDialog : public PPListDialog {
 public:
-	PaymPlanDialog(const PPBillPacket * pPack) : PPListDialog(DLG_PAYPLAN, CTL_PAYPLAN_LIST)
+	PaymPlanDialog(const PPBillPacket * pPack) : PPListDialog(DLG_PAYPLAN, CTL_PAYPLAN_LIST), P_Pack(pPack)
 	{
-		P_Pack = pPack;
 	}
 	int    setDTS(const PayPlanArray *);
 	int    getDTS(PayPlanArray *);

@@ -175,9 +175,8 @@ static int SLAPI EditHoliday(PPID locID, LDATE * pDt)
 //
 class HolidaysDialog : public PPListDialog {
 public:
-	HolidaysDialog() : PPListDialog(DLG_HOLIDAYS, CTL_HOLIDAYS_LIST)
+	HolidaysDialog() : PPListDialog(DLG_HOLIDAYS, CTL_HOLIDAYS_LIST), P_Driver(0)
 	{
-		P_Driver = 0;
 	}
 	int    setDTS(PPID initLocID, PPHolidays * pDriver)
 	{

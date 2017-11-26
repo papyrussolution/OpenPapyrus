@@ -969,9 +969,8 @@ struct GoodsStrucCopyParam {
 
 class GSDialog : public PPListDialog {
 public:
-	GSDialog() : PPListDialog(DLG_GSTRUC, CTL_GSTRUC_LIST)
+	GSDialog() : PPListDialog(DLG_GSTRUC, CTL_GSTRUC_LIST), NewGoodsGrpID(0)
 	{
-		NewGoodsGrpID = 0;
 		MEMSZERO(GscParam);
 		SetupCalPeriod(CTLCAL_GSTRUC_PERIOD, CTL_GSTRUC_PERIOD);
 		if(P_Box && P_Box->def)

@@ -137,9 +137,6 @@ extern "C" __declspec(dllexport) VetisApplicationBlock * Vetis_SubmitApplication
 	ApplicationManagementServiceBindingProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
 	TSCollection <InParamString> arg_str_pool;
 	SString temp_buf;
-	time_t issue_date = rBlk.IssueDate.GetTimeT();
-	time_t rcv_date = rBlk.RcvDate.GetTimeT();
-	time_t prdc_date = rBlk.PrdcRsltDate.GetTimeT();
 	_ns1__submitApplicationRequest param;
 	_ns1__submitApplicationResponse resp;
 	gSoapClientInit(&proxi, 0, 0);
@@ -154,9 +151,17 @@ extern "C" __declspec(dllexport) VetisApplicationBlock * Vetis_SubmitApplication
 	param.ns4__application->applicationId = GetDynamicParamString(rBlk.ApplicationId.ToStr(S_GUID::fmtIDL, temp_buf), arg_str_pool);
 	param.ns4__application->serviceId = GetDynamicParamString(rBlk.ServiceId, arg_str_pool);
 	param.ns4__application->issuerId = GetDynamicParamString(rBlk.IssuerId.ToStr(S_GUID::fmtIDL, temp_buf), arg_str_pool);
-	param.ns4__application->issueDate = &issue_date;
-	param.ns4__application->rcvDate = &rcv_date;
-	param.ns4__application->prdcRsltDate = &prdc_date;
+	{
+		time_t issue_date = rBlk.IssueDate.GetTimeT();
+		time_t rcv_date = rBlk.RcvDate.GetTimeT();
+		time_t prdc_date = rBlk.PrdcRsltDate.GetTimeT();
+		if(issue_date > 0)
+			param.ns4__application->issueDate = &issue_date;
+		if(rcv_date > 0)
+			param.ns4__application->rcvDate = &rcv_date;
+		if(prdc_date > 0)
+			param.ns4__application->prdcRsltDate = &prdc_date;
+	}
 	THROW(p_app_req = CreateAppData(rBlk, arg_str_pool));
 	param.ns4__application->data = (ns4__ApplicationDataWrapper *)p_app_req;
 	//param.ns4__application->data->__any = GetDynamicParamString(rBlk.Data, arg_str_pool);

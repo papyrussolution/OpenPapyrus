@@ -306,4 +306,4 @@ int xmlIsPubidChar(uint ch)
 }
 
 #define bottom_chvalid
-#include "elfgcchack.h"
+//#include "elfgcchack.h"

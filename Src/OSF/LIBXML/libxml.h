@@ -559,7 +559,7 @@ int FASTCALL xmlCharEncOutput(xmlOutputBuffer * output, int init);
 	#ifdef PIC
 		#ifdef linux
 			#if (__GNUC__ == 3 && __GNUC_MINOR__ >= 3) || (__GNUC__ > 3)
-				#include "elfgcchack.h"
+				//#include "elfgcchack.h"
 			#endif
 		#endif
 	#endif

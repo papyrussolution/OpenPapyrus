@@ -936,4 +936,4 @@ xmlChar * xmlUTF8Strsub(const xmlChar * utf, int start, int len)
 }
 
 #define bottom_xmlstring
-#include "elfgcchack.h"
+//#include "elfgcchack.h"

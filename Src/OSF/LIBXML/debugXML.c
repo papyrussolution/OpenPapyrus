@@ -2043,9 +2043,8 @@ int xmlShellWrite(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node, xmlNo
 {
 	if(!P_Node)
 		return -1;
-	if((filename == NULL) || (filename[0] == 0)) {
+	if(isempty(filename))
 		return -1;
-	}
 #ifdef W_OK
 	if(access((char*)filename, W_OK)) {
 		xmlGenericError(0, "Cannot write to %s\n", filename);
@@ -2100,7 +2099,7 @@ int xmlShellSave(xmlShellCtxtPtr ctxt, char * filename, xmlNode * P_Node ATTRIBU
 {
 	if(!ctxt || (ctxt->doc == NULL))
 		return -1;
-	if((filename == NULL) || (filename[0] == 0))
+	if(isempty(filename))
 		filename = ctxt->filename;
 	if(filename == NULL)
 		return -1;
@@ -2159,13 +2158,11 @@ int xmlShellValidate(xmlShellCtxtPtr ctxt, char * dtd, xmlNode * P_Node ATTRIBUT
 	vctxt.userData = stderr;
 	vctxt.error = (xmlValidityErrorFunc)fprintf;
 	vctxt.warning = (xmlValidityWarningFunc)fprintf;
-
-	if((dtd == NULL) || (dtd[0] == 0)) {
+	if(isempty(dtd))
 		res = xmlValidateDocument(&vctxt, ctxt->doc);
-	}
 	else {
 		xmlDtdPtr subset = xmlParseDTD(NULL, (xmlChar*)dtd);
-		if(subset != NULL) {
+		if(subset) {
 			res = xmlValidateDtd(&vctxt, ctxt->doc, subset);
 			xmlFreeDtd(subset);
 		}
@@ -2546,8 +2543,8 @@ void xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * 
 			xmlShellSetBase(ctxt, arg, ctxt->P_Node, 0);
 #endif
 		}
-		else if((!strcmp(command, "ls")) || (!strcmp(command, "dir"))) {
-			int dir = (!strcmp(command, "dir"));
+		else if(sstreq(command, "ls") || sstreq(command, "dir")) {
+			int dir = sstreq(command, "dir");
 			if(arg[0] == 0) {
 				if(dir)
 					xmlShellDir(ctxt, NULL, ctxt->P_Node, 0);
@@ -2769,5 +2766,5 @@ void xmlShell(xmlDoc * doc, char * filename, xmlShellReadlineFunc input, FILE * 
 
 #endif /* LIBXML_XPATH_ENABLED */
 #define bottom_debugXML
-#include "elfgcchack.h"
+//#include "elfgcchack.h"
 #endif /* LIBXML_DEBUG_ENABLED */

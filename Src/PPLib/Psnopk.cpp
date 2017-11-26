@@ -376,10 +376,8 @@ int SLAPI PPPsnOpKindPacket::CheckExVal()
 //
 //
 //
-PsnOpKindView::PsnOpKindView(PPObjPsnOpKind * pObj) : PPListDialog(DLG_PSNOPKINDVIEW, CTL_OBJVIEW_LIST)
+PsnOpKindView::PsnOpKindView(PPObjPsnOpKind * pObj) : PPListDialog(DLG_PSNOPKINDVIEW, CTL_OBJVIEW_LIST), P_Items(0), IterNo(0)
 {
-	P_Items   = 0;
-	IterNo    = 0;
 	updateList(-1);
 }
 
@@ -1407,10 +1405,8 @@ int PsnOpDialog::editExtraVal()
 //
 class PoVerbListDialog : public PPListDialog {
 public:
-	PoVerbListDialog(PPPsnOpKindPacket * p) : PPListDialog(DLG_POKACTL, CTL_POKACTL_LIST)
+	PoVerbListDialog(PPPsnOpKindPacket * p) : PPListDialog(DLG_POKACTL, CTL_POKACTL_LIST), pack(p), Data(pack->ClauseList)
 	{
-		pack = p;
-		Data = pack->ClauseList;
 		updateList(-1);
 	}
 	int    getDTS(PPPsnOpKindPacket * p)

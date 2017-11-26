@@ -189,13 +189,11 @@ int SLAPI EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, int isDeks
 
 class CommandsDialog : public PPListDialog {
 public:
-	CommandsDialog(PPCommandGroup * pMenus, int isDesktop) : PPListDialog(DLG_LBXSELT, CTL_LBXSEL_LIST)
+	CommandsDialog(PPCommandGroup * pMenus, int isDesktop) : PPListDialog(DLG_LBXSELT, CTL_LBXSEL_LIST), P_Menus(pMenus), IsDesktop(isDesktop)
 	{
 		SString title;
 		PPLoadText(PPTXT_EDITCMDLIST, title);
 		setTitle(title);
-		P_Menus = pMenus;
-		IsDesktop = isDesktop;
 	}
 	int    setDTS(const PPCommandFolder * pData);
 private:
@@ -671,10 +669,9 @@ int SLAPI EditName(SString & rName)
 
 class EditMenusDlg : public PPListDialog {
 public:
-	EditMenusDlg(int isDesktop, long initID) : PPListDialog(DLG_MENULIST, CTL_MENULIST_LIST), IsMaster(PPMaster)
+	EditMenusDlg(int isDesktop, long initID) : PPListDialog(DLG_MENULIST, CTL_MENULIST_LIST), IsMaster(PPMaster), IsDesktop(isDesktop)
 	{
 		SString title;
-		IsDesktop = isDesktop;
 		uint   title_id = 0;
 		if(IsDesktop) {
 			CurDict->GetDbSymb(DbSymb);

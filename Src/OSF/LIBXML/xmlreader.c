@@ -5001,5 +5001,5 @@ int main(int argc, char ** argv)
 #endif
 #endif /* NOT_USED_YET */
 #define bottom_xmlreader
-#include "elfgcchack.h"
+//#include "elfgcchack.h"
 #endif /* LIBXML_READER_ENABLED */

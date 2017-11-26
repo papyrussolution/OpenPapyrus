@@ -160,11 +160,11 @@ int FASTCALL PPWorkbookPacket::IsEqual(const PPWorkbookPacket & rS) const
 	NRECFLD(KeywordDilute);
 	NRECFLD(Dt);
 	NRECFLD(Tm);
-	if(strcmp(Rec.Name, rS.Rec.Name) != 0)
+	if(!sstreq(Rec.Name, rS.Rec.Name))
 		return 0;
-	if(strcmp(Rec.Symb, rS.Rec.Symb) != 0)
+	if(!sstreq(Rec.Symb, rS.Rec.Symb))
 		return 0;
-	if(strcmp(Rec.Version, rS.Rec.Version) != 0) // @v9.3.8
+	if(!sstreq(Rec.Version, rS.Rec.Version)) // @v9.3.8
 		return 0;
 	if(!TagL.IsEqual(rS.TagL))
 		return 0;
@@ -2148,7 +2148,7 @@ int SLAPI PPObjWorkbook::Helper_Import(PPID rootID, const PPObjWorkbook::ImpExpP
 	if(rParam.Flags & rParam.fRecursive) {
 		(wildcard = rBasePath).SetLastSlash().Cat("*.*");
 		for(SDirec direc(wildcard, 1); direc.Next(&de) > 0;) {
-			if(de.Attr & 0x10 && strcmp(de.FileName, ".") != 0 && strcmp(de.FileName, "..") != 0) {
+			if(de.Attr & 0x10 && !sstreq(de.FileName, ".") && !sstreq(de.FileName, "..")) {
 				PPID   root_id = rootID;
 				if(rParam.Flags & rParam.fDirAsFolder && !(rParam.Flags & rParam.fMedia)) {
 					PPWorkbookPacket pack;

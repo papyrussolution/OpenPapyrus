@@ -6216,5 +6216,5 @@ htmlDocPtr htmlCtxtReadIO(htmlParserCtxtPtr ctxt, xmlInputReadCallback ioread, x
 }
 
 #define bottom_HTMLparser
-#include "elfgcchack.h"
+//#include "elfgcchack.h"
 #endif /* LIBXML_HTML_ENABLED */

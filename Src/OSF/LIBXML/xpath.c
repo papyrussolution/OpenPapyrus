@@ -6331,10 +6331,7 @@ static int xmlXPathEqualValuesCommon(xmlXPathParserContextPtr ctxt, xmlXPathObje
 				ret = (arg1->boolval == xmlXPathCastNumberToBoolean(arg2->floatval));
 				break;
 			    case XPATH_STRING:
-				if((arg2->stringval == NULL) || (arg2->stringval[0] == 0))
-					ret = 0;
-				else
-					ret = 1;
+				ret = isempty(arg2->stringval) ? 0 : 1;
 				ret = (arg1->boolval == ret);
 				break;
 			    case XPATH_USERS:
@@ -14144,4 +14141,4 @@ xmlXPathObjectPtr xmlXPathEval(const xmlChar * str, xmlXPathContextPtr ctx)
 
 #endif /* LIBXML_XPATH_ENABLED */
 #define bottom_xpath
-#include "elfgcchack.h"
+//#include "elfgcchack.h"

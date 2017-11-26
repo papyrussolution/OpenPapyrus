@@ -1057,9 +1057,8 @@ int EditClientBankFormatDescription(const char * pIniSection)
 
 class SetupCliBnkFormatsDialog : public PPListDialog {
 public:
-	SetupCliBnkFormatsDialog() : PPListDialog(DLG_CLIBNKFMTLIST, CTL_CLIBNKFMTLIST_LIST)
+	SetupCliBnkFormatsDialog() : PPListDialog(DLG_CLIBNKFMTLIST, CTL_CLIBNKFMTLIST_LIST), BackupExecuted(0)
 	{
-		BackupExecuted = 0;
 		updateList(-1);
 	}
 private:

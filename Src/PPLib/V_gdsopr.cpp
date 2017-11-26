@@ -689,9 +689,8 @@ int GoodsOpAnlzFiltDialog::getDTS(GoodsOpAnalyzeFilt * pFilt)
 
 class GoodsOpAnlzCmpFiltDialog : public PPListDialog {
 public:
-	SLAPI GoodsOpAnlzCmpFiltDialog() : PPListDialog(DLG_GOODSOPRE, CTL_GOODSOPRE_VALLIST)
+	SLAPI GoodsOpAnlzCmpFiltDialog() : PPListDialog(DLG_GOODSOPRE, CTL_GOODSOPRE_VALLIST), PrevID(0)
 	{
-		PrevID = 0;
 		PPLoadText(PPTXT_GOODSOPRADDVALNAMES, Items);
 		SetupCalCtrl(CTLCAL_GOODSOPRE_PERIOD, this, CTL_GOODSOPRE_PERIOD, 1);
 		setSmartListBoxOption(CTL_GOODSOPRE_VALLIST, lbtSelNotify);

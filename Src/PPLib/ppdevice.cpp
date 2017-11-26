@@ -1050,10 +1050,10 @@ SLTEST_R(PPAbstractDevice)
 	in.Add(DVCPARAM_TEXT, "Get error", 1);
 	THROW((r = dvc.RunCmd__(DVCCMD_TEST, in, out)) == -1); // Ошибка выполнения команды (код ошибки записывается в out). На этапе тестирования код равен 1
 	out.Get(0, answer);
-	THROW(answer.CmpNC("1") == 0);
+	THROW(answer == "1");
 	THROW((r = dvc.RunCmd__(DVCCMD_SOMETHING, in, out)) == -1); // Неизвестная команда (код ошибки - 2)
 	out.Get(0, answer);
-	THROW(answer.CmpNC("2") == 0);
+	THROW(answer == "2");
 	in.Clear();
 	THROW(dvc.RunCmd__(DVCCMD_RELEASE, in, out));
 

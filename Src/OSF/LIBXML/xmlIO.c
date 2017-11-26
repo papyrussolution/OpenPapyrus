@@ -3734,4 +3734,4 @@ xmlParserInputPtr xmlNoNetExternalEntityLoader(const char * URL, const char * ID
 }
 
 #define bottom_xmlIO
-#include "elfgcchack.h"
+//#include "elfgcchack.h"

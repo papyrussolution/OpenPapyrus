@@ -910,14 +910,11 @@ int PosPaymentBlock::EditDialog2()
 {
 	class PosPaymentDialog2 : public PPListDialog {
 	public:
-		PosPaymentDialog2() : PPListDialog(DLG_CPPAYM2, CTL_CPPAYM_CCRDLIST), Data(0, 0.0)
+		PosPaymentDialog2() : PPListDialog(DLG_CPPAYM2, CTL_CPPAYM_CCRDLIST), Data(0, 0.0), Lock__(0), EnableBonus(1)
 		{
-			Lock__ = 0;
-			EnableBonus = 1;
 			// @v9.6.5 SetCtrlBitmap(CTL_CPPAYM_IMG_CASH, BM_BYCASH);
 			// @v9.6.5 SetCtrlBitmap(CTL_CPPAYM_IMG_BANK, BM_BANKING);
 			// @v9.6.5 SetCtrlBitmap(CTL_CPPAYM_IMG_SCARD, BM_CRDCARD);
-
 			SString font_face;
 			PPGetSubStr(PPTXT_FONTFACE, PPFONT_IMPACT, font_face);
 			SetCtrlFont(CTL_CPPAYM_CSHAMT, font_face, 26);

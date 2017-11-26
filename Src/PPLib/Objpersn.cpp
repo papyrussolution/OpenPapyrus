@@ -3632,7 +3632,7 @@ private:
 		// последовательности при вводе номера карты: найдена-карта -> не-найдена-карта
 		// В базе данных могут быть карты с номерами разных длин. При наборе номера
 		// программа может неверно идентифицировать номер карты до завершения ввода.
-		// Если при очередном набранном символе карта уже не находится, то серия возвращается 
+		// Если при очередном набранном символе карта уже не находится, то серия возвращается
 		// к значению Preserve_SCardSerID
 	PPID   SCardID;
 	int    PhonePos;
@@ -3646,21 +3646,14 @@ private:
 	SString Name_;
 	PPObjPerson PsnObj;
 	PPObjSCard ScObj;
-	
+
 	DateAddDialogParam ScExpiryPeriodParam;
 };
 
-ShortPersonDialog::ShortPersonDialog(uint dlgId, PPID kindID, PPID scardSerID) : TDialog(dlgId)
+ShortPersonDialog::ShortPersonDialog(uint dlgId, PPID kindID, PPID scardSerID) : TDialog(dlgId),
+	DupID(0), KindID(kindID), SCardSerID(scardSerID), Preserve_SCardSerID(scardSerID),
+	SCardID(0), PhonePos(-1), CodeRegPos(-1), CodeRegTypeID(0), St(0)
 {
-	DupID = 0;
-	KindID = kindID;
-	SCardSerID = scardSerID;
-	Preserve_SCardSerID = scardSerID;
-	SCardID = 0;
-	PhonePos = -1;
-	CodeRegPos = -1;
-	CodeRegTypeID = 0;
-	St = 0;
 	SetupCalDate(CTLCAL_PERSON_DOB, CTL_PERSON_DOB);
 	SetupCalDate(CTLCAL_PERSON_SCEXPIRY, CTL_PERSON_SCEXPIRY);
 	showButton(cmCreateSCard, 0);
@@ -3702,8 +3695,7 @@ int ShortPersonDialog::setDTS(const PPPersonPacket * pData)
 		PPObjPersonKind pk_obj;
 		PPPersonKind pk_rec;
 		if(pk_obj.Fetch(KindID, &pk_rec) > 0) {
-			if(!Data.Kinds.lsearch(KindID))
-				Data.Kinds.add(KindID);
+			Data.Kinds.addUnique(KindID);
 			setStaticText(CTL_PERSON_ST_KINDNAME, pk_rec.Name);
 			{
 				PPObjRegisterType rt_obj;
@@ -3711,15 +3703,13 @@ int ShortPersonDialog::setDTS(const PPPersonPacket * pData)
 				if(pk_rec.CodeRegTypeID && rt_obj.Fetch(pk_rec.CodeRegTypeID, &rt_rec) > 0) {
 					CodeRegTypeID = pk_rec.CodeRegTypeID;
 					setLabelText(CTL_PERSON_SRCHCODE, rt_rec.Name);
-					{
-						uint   p = 0;
-						if(Data.Regs.GetRegister(pk_rec.CodeRegTypeID, &p, 0) > 0) {
-							temp_buf = Data.Regs.at(p-1).Num;
-							CodeRegPos = (int)(p-1);
-						}
-						else
-							temp_buf.Z();
+					uint   p = 0;
+					if(Data.Regs.GetRegister(pk_rec.CodeRegTypeID, &p, 0) > 0) {
+						temp_buf = Data.Regs.at(p-1).Num;
+						CodeRegPos = (int)(p-1);
 					}
+					else
+						temp_buf.Z();
 					setCtrlString(CTL_PERSON_SRCHCODE, temp_buf);
 				}
 			}
@@ -4075,8 +4065,15 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 				PPID   auto_goods_id = 0;
 				if(SCardID)
 					auto_goods_id = sc_rec.AutoGoodsID;
-				// @construction SETIFZ(auto_goods_id, scs_pack.Rec.ChargeGoodsID);
-				// } @v9.8.6	
+				// @v9.8.9 {
+				else if(goods_grp_id) {
+					PPIDArray temp_goods_list;
+					GoodsIterator::GetListByGroup(goods_grp_id, &temp_goods_list);
+					if(temp_goods_list.getCount() == 1)
+						auto_goods_id = temp_goods_list.get(0);
+				}
+				// } @v9.8.9 
+				// } @v9.8.6
 				SetupPPObjCombo(this, CTLSEL_PERSON_SCAG, PPOBJ_GOODS, auto_goods_id, 0, (void *)goods_grp_id);
 			}
 			else
@@ -4302,11 +4299,7 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 		}
 	}
 	info.UpdFlags = rBlk.UpdFlags;
-	if(!dlg_id)
-		if(LConfig.Flags & CFGFLG_STAFFMGMT)
-			dlg_id = DLG_PERSONEXT;
-		else
-			dlg_id = DLG_PERSON;
+	SETIFZ(dlg_id, ((LConfig.Flags & CFGFLG_STAFFMGMT) ? DLG_PERSONEXT : DLG_PERSON));
 	if(short_dlg_kind_id) {
 		THROW(CheckDialogPtr(&(dlg = new ShortPersonDialog(dlg_id, short_dlg_kind_id, rBlk.SCardSeriesID))));
 		{
@@ -4316,8 +4309,8 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 				p_dlg->enableCommand(cmOK, 0);
 			p_dlg->setDTS(&info);
 			while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {
-				PPID   dup_id = p_dlg->GetDupID();
-				const  int rt_mod = CheckRights(PPR_MOD);
+				const  PPID dup_id = p_dlg->GetDupID();
+				const  int  rt_mod = CheckRights(PPR_MOD);
 				if((valid_data = p_dlg->getDTS(&info)) != 0) {
 					PPID   psn_id = info.Rec.ID;
 					THROW((is_new && !dup_id) || (rt_mod || info.GetSCard()));
@@ -4340,7 +4333,7 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 				p_dlg->enableCommand(cmOK, 0);
 			while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {
 				THROW(is_new || CheckRights(PPR_MOD));
-				PPID dup_id = p_dlg->GetDupID();
+				const PPID dup_id = p_dlg->GetDupID();
 				if(dup_id) {
 					valid_data = 1;
 					ASSIGN_PTR(pID, dup_id);
@@ -5291,9 +5284,8 @@ static int EditPersonRel(PersonLink * pData)
 
 class PersonRelListDialog : public PPListDialog {
 public:
-	PersonRelListDialog() : PPListDialog(DLG_PERSONLINKLIST, CTL_PERSONLINKLIST_LIST)
+	PersonRelListDialog() : PPListDialog(DLG_PERSONLINKLIST, CTL_PERSONLINKLIST_LIST), IsReverse(0)
 	{
-		IsReverse = 0;
 	}
 	int    setDTS(const PPPersonPacket *);
 	int    getDTS(PPPersonPacket *);

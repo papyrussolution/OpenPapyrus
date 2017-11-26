@@ -2441,7 +2441,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_NODISCOUNT:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obGoods) {
-					if(RdB.TagValue.Empty() || RdB.TagValue.CmpNC("true") == 0 || RdB.TagValue.CmpNC("yes") || RdB.TagValue.CmpNC("1"))
+					if(RdB.TagValue.Empty() || RdB.TagValue.CmpNC("true") == 0 || RdB.TagValue.CmpNC("yes") == 0 || RdB.TagValue == "1")
 						((GoodsBlock *)p_item)->GoodsFlags |= GF_NODISCOUNT;
 				}
 				break;
@@ -2529,7 +2529,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_PHYSICAL:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obUnit) {
-					if(RdB.TagValue.Empty() || RdB.TagValue.CmpNC("true") == 0 || RdB.TagValue.CmpNC("yes") || RdB.TagValue.CmpNC("1"))
+					if(RdB.TagValue.Empty() || RdB.TagValue.CmpNC("true") == 0 || RdB.TagValue.CmpNC("yes") == 0 || RdB.TagValue == "1")
 						((UnitBlock *)p_item)->UnitFlags |= PPUnit::Physical;
 					else
 						((UnitBlock *)p_item)->UnitFlags &= ~PPUnit::Physical;
@@ -2538,7 +2538,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_DEFAULT:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obUnit) {
-					if(RdB.TagValue.Empty() || RdB.TagValue.CmpNC("true") == 0 || RdB.TagValue.CmpNC("yes") || RdB.TagValue.CmpNC("1"))
+					if(RdB.TagValue.Empty() || RdB.TagValue.CmpNC("true") == 0 || RdB.TagValue.CmpNC("yes") == 0 || RdB.TagValue == "1")
 						((UnitBlock *)p_item)->UnitFlags |= PPUnit::Default;
 					else
 						((UnitBlock *)p_item)->UnitFlags &= ~PPUnit::Default;

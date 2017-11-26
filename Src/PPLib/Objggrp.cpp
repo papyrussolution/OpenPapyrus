@@ -654,13 +654,11 @@ static long FASTCALL GetSelBias(long p)
 //
 //
 //
-GoodsGroupView::GoodsGroupView(PPObjGoodsGroup * _ppobj) : PPListDialog(DLG_GGVIEW, CTL_GGVIEW_LIST)
+GoodsGroupView::GoodsGroupView(PPObjGoodsGroup * _ppobj) : PPListDialog(DLG_GGVIEW, CTL_GGVIEW_LIST), CurIterID(0), P_Iter(0)
 {
 	setupList();
 	setupButtons();
 	Draw_();
-	CurIterID = 0;
-	P_Iter = 0;
 }
 
 GoodsGroupView::~GoodsGroupView()
@@ -2648,9 +2646,8 @@ int SLAPI PPObjSuprWare::GetListByComponent(PPID componentID, PPIDArray & rList)
 //
 class SuprWareListDialog : public PPListDialog {
 public:
-	SuprWareListDialog(PPSuprWarePacket * pCompGdsPack) : PPListDialog(DLG_COMPGDSLST, CTL_COMPGDSLST_LIST)
+	SuprWareListDialog(PPSuprWarePacket * pCompGdsPack) : PPListDialog(DLG_COMPGDSLST, CTL_COMPGDSLST_LIST), P_SuprWarePack(*pCompGdsPack)
 	{
-		P_SuprWarePack = *pCompGdsPack;
 		updateList(-1);
 	}
 private:

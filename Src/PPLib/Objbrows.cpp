@@ -491,10 +491,8 @@ int PPListDialog::sendItem(long, long) { return -1; }
 //
 // ObjRestrictListDialog
 //
-ObjRestrictListDialog::ObjRestrictListDialog(uint dlgID, uint listCtlID) : PPListDialog(dlgID, listCtlID)
+ObjRestrictListDialog::ObjRestrictListDialog(uint dlgID, uint listCtlID) : PPListDialog(dlgID, listCtlID), ObjType(0), P_ORList(0)
 {
-	ObjType = 0;
-	P_ORList = 0;
 	updateList(-1);
 }
 

@@ -322,9 +322,8 @@ void BhtDialog::editGoodsFilt()
 //
 class StyloBhtIIOpInfoDlg : public PPListDialog {
 public:
-	StyloBhtIIOpInfoDlg() : PPListDialog(DLG_SBIIRESTR, CTL_SBIIRESTR_ERRLIST)
+	StyloBhtIIOpInfoDlg() : PPListDialog(DLG_SBIIRESTR, CTL_SBIIRESTR_ERRLIST), PrevID(0)
 	{
-		PrevID = 0;
 		setSmartListBoxOption(CTL_SBIIRESTR_ERRLIST, lbtSelNotify);
 		PPLoadText(PPTXT_SBIIERRORS, ErrList);
 	}

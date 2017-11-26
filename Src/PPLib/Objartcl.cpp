@@ -521,13 +521,9 @@ static int SLAPI EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 
 class ArticleDialog : public PPListDialog {
 public:
-	SLAPI  ArticleDialog(uint rezID, ArticleDlgData * aData) : PPListDialog(rezID, CTL_ARTICLE_ALIASSUBST)
+	SLAPI  ArticleDialog(uint rezID, ArticleDlgData * aData) : PPListDialog(rezID, CTL_ARTICLE_ALIASSUBST), P_Data(aData), AccSheetFounded(0), AgtFlags(0)
 	{
-		P_Data = aData;
-		AccSheetFounded = 0;
-		AgtFlags = 0;
 		PPObjArticle arobj;
-
 		SetEmptyAgreementInd();
 		if(aData->Options & ArticleDlgData::fAssocAccnt) {
 			AcctCtrlGroup::Rec acc_rec;

@@ -679,9 +679,8 @@ int FASTCALL CashierInfo::IsEqual(const CashierInfo & rS) const
 //
 // PPPersonPacket
 //
-SLAPI PPPersonPacket::PPPersonPacket() : PPPerson()
+SLAPI PPPersonPacket::PPPersonPacket() : PPPerson(), P_SCardPack(0)
 {
-	P_SCardPack = 0;
 	destroy();
 }
 

@@ -1714,7 +1714,11 @@ public:
 
 struct VetisApplicationBlock {
 	VetisApplicationBlock();
+	VetisApplicationBlock(const VetisApplicationBlock & rS);
 	~VetisApplicationBlock();
+	VetisApplicationBlock & FASTCALL operator = (const VetisApplicationBlock & rS);
+	void   Clear();
+	int    FASTCALL Copy(const VetisApplicationBlock & rS);
 
 	enum {
 		detUndef = 0,
@@ -1732,6 +1736,7 @@ struct VetisApplicationBlock {
 	int    Func;
 	int64  LocalTransactionId;
 	SString ServiceId;
+	SString User;
 	S_GUID ApplicationId;
 	S_GUID IssuerId;
 	S_GUID EnterpriseId;
@@ -1739,8 +1744,6 @@ struct VetisApplicationBlock {
 	LDATETIME RcvDate;
 	LDATETIME PrdcRsltDate;
 
-	//SString Data;
-	//SString Result;
 	TSCollection <VetisErrorEntry> ErrList;
 	//
 	VetisGetStockEntryListRequest * P_GselReq;

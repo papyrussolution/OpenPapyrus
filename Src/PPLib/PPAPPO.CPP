@@ -29,6 +29,7 @@ int SLAPI TestEGAIS(PPEgaisProcessor::TestParam *); // egais.cpp
 int SLAPI BuildLocalDL600(); // ppbuild.cpp
 int SLAPI TestLogWindow(); // pplog.cpp
 int SLAPI TestTddo2(); // tddo2.cpp
+int SLAPI TestVetis(); // vetis.cpp
 int SLAPI RecoverAbsenceTrfr();
 int SLAPI PPValidateXml();
 //int SLAPI ImportSartre();
@@ -441,11 +442,11 @@ int PPApp::processCommand(uint cmd)
 		case cmPckgType:             ShowObjects(PPOBJ_PCKGTYPE, 0);          break;
 		case cmGoodsBasket:          ShowObjects(PPOBJ_GOODSBASKET, 0);	      break;
 		case cmBht:                  ShowObjects(PPOBJ_BHT, 0);               break;
-		case cmSCardSeries:          
+		case cmSCardSeries:
 			{
 				SCardSeriesFilt scs_filt;
 				scs_filt.Flags |= SCardSeriesFilt::fShowPassive;
-				ShowObjects(PPOBJ_SCARDSERIES, &scs_filt); 
+				ShowObjects(PPOBJ_SCARDSERIES, &scs_filt);
 			}
 			break;
 		case cmDraftWrOff:           ShowObjects(PPOBJ_DRAFTWROFF, 0);        break;
@@ -640,10 +641,10 @@ int PPApp::processCommand(uint cmd)
 		case cmTransmitModifications: PPObjectTransmit::TransmitModificationsByDBDivList(0); break;
 		case cmReceivePackets:       PPObjectTransmit::ReceivePackets(0);  break;
 		case cmReplacePerson:        PPObjPerson::ReplacePerson();      break;
-		case cmReplaceGoods:         
+		case cmReplaceGoods:
 			{
 				PPObjGoods::ExtUniteBlock eub;
-				PPObjGoods::ReplaceGoods(eub);    
+				PPObjGoods::ReplaceGoods(eub);
 			}
 			break;
 		case cmReplaceGoodsTaxGrp:   PPObjGoodsTax::ReplaceGoodsTaxGrp(); break;
@@ -884,6 +885,7 @@ int PPApp::processCommand(uint cmd)
 		case cmTestSearchEmail:         PPObjPerson::TestSearchEmail(); break; // @v8.8.9
 		case cmTestLogWindow:           TestLogWindow(); break; // @v9.7.0
 		case cmTestTddo2:               TestTddo2(); break; // @v9.8.3
+		case cmTestVetis:               TestVetis(); break; // @v9.8.9
 		case cmConvertLatexToHtml:      PPTex2Html(); break; // @v8.1.12
 		case cmConvertVersionToHtml:    PPVer2Html(); break; // @v8.3.12 // @construction
 		// @underconstruction case cmGenerateGoodsBills:   GenerateGoodsBills(); break;

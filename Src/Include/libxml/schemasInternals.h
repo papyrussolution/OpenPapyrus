@@ -125,8 +125,8 @@ typedef enum {
     XML_SCHEMA_CONTENT_ANY
 } xmlSchemaContentType;
 
-typedef struct _xmlSchemaVal xmlSchemaVal;
-typedef xmlSchemaVal *xmlSchemaValPtr;
+struct xmlSchemaVal;
+typedef xmlSchemaVal * xmlSchemaValPtr;
 
 typedef struct _xmlSchemaType xmlSchemaType;
 typedef xmlSchemaType *xmlSchemaTypePtr;

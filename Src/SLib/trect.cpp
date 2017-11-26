@@ -978,20 +978,16 @@ TRect & TRect::Normalize()
 //
 const FPoint ZEROFPOINT;
 
-SLAPI FPoint::FPoint()
+SLAPI FPoint::FPoint() : X(0.0f), Y(0.0f)
 {
-	X = Y = 0.0f;
 }
 
-SLAPI FPoint::FPoint(float xy)
+SLAPI FPoint::FPoint(float xy) : X(xy), Y(xy)
 {
-	X = Y = xy;
 }
 
-SLAPI FPoint::FPoint(float x, float y)
+SLAPI FPoint::FPoint(float x, float y) : X(x), Y(y)
 {
-	X = x;
-	Y = y;
 }
 
 FPoint & FASTCALL FPoint::operator = (const TPoint & p)

@@ -1949,11 +1949,11 @@ int ImportCls::ParseListMBResp(const char * pResp, SString & rPartnerIln, SStrin
 	THROWERR((p_xml_ptr = xmlNewTextReader(p_input, NULL)), IEERR_NULLREADXMLPTR);
 	while(xmlTextReaderRead(p_xml_ptr) && (found != 2)) {
 		p_node = xmlTextReaderCurrentNode(p_xml_ptr);
-		if(p_node && (strcmp((const char *)p_node->name, WEB_ELEMENT_NAME_TRACKID) == 0) && p_node->children) {
+		if(p_node && sstreq(p_node->name, WEB_ELEMENT_NAME_TRACKID) && p_node->children) {
 			rDocId = (const char *)p_node->children->content;
 			found++;
 		}
-		else if(p_node && (strcmp((const char *)p_node->name, WEB_ELEMENT_NAME_PARTNER_ILN) == 0) && p_node->children) {
+		else if(p_node && sstreq(p_node->name, WEB_ELEMENT_NAME_PARTNER_ILN) && p_node->children) {
 			rPartnerIln = (const char *)p_node->children->content;
 			found++;
 		}
@@ -2233,18 +2233,18 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 								else {
 									if(MessageType == PPEDIOP_ORDERRSP) {
 										if(p_node->children) {
-											if(strcmp((const char *)p_node->name, ELEMENT_NAME_ITEMSTATUS) == 0) {
+											if(sstreq(p_node->name, ELEMENT_NAME_ITEMSTATUS)) {
 												// Статус товарной позиции (принят, изменен, не принят)
 											}
-											else if(strcmp((const char *)p_node->name, ELEMENT_NAME_ALLOCDELIVRD) == 0) {
+											else if(sstreq(p_node->name, ELEMENT_NAME_ALLOCDELIVRD)) {
 												// Утвержденное количество товара
 												pBRow->Quantity = atof((const char *)p_node->children->content);
 											}
-											else if(strcmp((const char *)p_node->name, "OrderedUnitPacksize") == 0) {
+											else if(sstreq(p_node->name, "OrderedUnitPacksize")) {
 												// Количество товара в упаковке
 												pBRow->UnitPerPack = atof((const char *)p_node->children->content);
 											}
-											else if(strcmp((const char *)p_node->name, "OrderedUnitGrossPrice") == 0) {
+											else if(sstreq(p_node->name, "OrderedUnitGrossPrice")) {
 												// Цена с НДС
 												pBRow->Cost = atof((const char *)p_node->children->content);
 											}
@@ -2252,22 +2252,22 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 									}
 									else if(MessageType == PPEDIOP_DESADV) {
 										if(p_node->children) {
-											if(strcmp((const char *)p_node->name, ELEMENT_NAME_QTTYDISPATCHED) == 0) {
+											if(sstreq(p_node->name, ELEMENT_NAME_QTTYDISPATCHED)) {
 												// Отгруженное количество
 												pBRow->Quantity = atof((const char *)p_node->children->content);
 											}
-											else if(strcmp((const char *)p_node->name, ELEMENT_NAME_UNITPACKSZ) == 0) {
+											else if(sstreq(p_node->name, ELEMENT_NAME_UNITPACKSZ)) {
 												// Количество товара в упаковке
 												pBRow->UnitPerPack = atof((const char *)p_node->children->content);
 											}
-											else if(strcmp((const char *)p_node->name, ELEMENT_NAME_UNITGROSSPRICE) == 0) {
+											else if(sstreq(p_node->name, ELEMENT_NAME_UNITGROSSPRICE)) {
 												// Цена с НДС
 												pBRow->Cost = atof((const char *)p_node->children->content);
 											}
-											else if(strcmp((const char *)p_node->name, ELEMENT_NAME_ALCOCONTENT) == 0) {
+											else if(sstreq(p_node->name, ELEMENT_NAME_ALCOCONTENT)) {
 												// Содержание алкоголя в %
 											}
-											else if(strcmp((const char *)p_node->name, "Line-Party") == 0) {
+											else if(sstreq(p_node->name, "Line-Party")) {
 												// Читаем инфу о производителе
 												p_node = p_node->children;
 												if(SXml::IsName(p_node, ELEMENT_NAME_PARTYTYPE) && p_node->children) {
@@ -2276,7 +2276,7 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 														while(p_node->next) {
 															p_node = p_node->next;
 															if(p_node->children) {
-																//if((strcmp((const char *)p_node->name, "ILN") == 0) && p_node->children) {
+																//if(sstreq(p_node->name, "ILN") && p_node->children) {
 																//	// GLN производителя
 																//	str = (const char *)p_node->children->content;
 																//}
@@ -2452,23 +2452,23 @@ int ImportCls::ParseAperakResp(const char * pResp)
 							// Запишем GLN покупателя
 							AperakInfo.BuyerGLN = (const char *)p_node->children->content;
 					}
-					else if(p_node && (strcmp((const char *)p_node->name, ELEMENT_NAME_SELLER) == 0) && p_node->children) {
+					else if(p_node && sstreq(p_node->name, ELEMENT_NAME_SELLER) && p_node->children) {
 						p_node = p_node->children;
 						if(SXml::IsName(p_node, "ILN") && p_node->children)
 							// Запишем GLN поставщика
 							AperakInfo.SupplGLN = (const char *)p_node->children->content;
 					}
-					else if(p_node && (strcmp((const char *)p_node->name, "DeliveryPoint") == 0) && p_node->children) {
+					else if(p_node && sstreq(p_node->name, "DeliveryPoint") && p_node->children) {
 						p_node = p_node->children;
 						if(SXml::IsName(p_node, "ILN") && p_node->children)
 							// Запишем GLN точки поставки
 							AperakInfo.AddrGLN = (const char *)p_node->children->content;
 					}
-					else if(p_node && (strcmp((const char *)p_node->name, "LineMessageCode") == 0) && p_node->children) {
+					else if(p_node && sstreq(p_node->name, "LineMessageCode") && p_node->children) {
 						// Запомним код статуса
 						AperakInfo.Code = (const char *)p_node->children->content;
 					}
-					else if(p_node && (strcmp((const char *)p_node->name, ELEMENT_NAME_SYSTEMSGTEXT) == 0) && p_node->children) {
+					else if(p_node && sstreq(p_node->name, ELEMENT_NAME_SYSTEMSGTEXT) && p_node->children) {
 						// Запомним описание статуса
 						AperakInfo.Msg = (const char *)p_node->children->content;
 					}

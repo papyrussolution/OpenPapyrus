@@ -2971,23 +2971,26 @@ int SLAPI PPObjSCard::AutoFill(PPID seriesID, int use_ta)
 
 int SLAPI VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * pCheckCode); // @prototype
 
-#define GRP_SPCDVCINP 1
-#define GRP_LOC       2
+//#define GRP_SPCDVCINP 1
+//#define GRP_LOC       2
 
 class SCardDialog : public TDialog {
 public:
-	SCardDialog(long options = 0) : TDialog(DLG_SCARD)
+	enum {
+		ctlgroupSpcDvcInp = 1,
+		ctlgroupLoc       = 2
+	};
+	SCardDialog(long options = 0) : TDialog(DLG_SCARD), Options(options)
 	{
-		Options = options;
 		SetupCalDate(CTLCAL_SCARD_DATE,   CTL_SCARD_DATE);
 		SetupCalDate(CTLCAL_SCARD_EXPIRY, CTL_SCARD_EXPIRY);
-		addGroup(GRP_SPCDVCINP, new SpecialInputCtrlGroup(CTL_SCARD_CODE, 500));
+		addGroup(ctlgroupSpcDvcInp, new SpecialInputCtrlGroup(CTL_SCARD_CODE, 500));
 		// @v9.4.5 {
 		if(getCtrlView(CTL_SCARD_PHONEINPUT)) {
 			LocationCtrlGroup * p_loc_grp = new LocationCtrlGroup(0, 0, CTL_SCARD_PHONEINPUT, 0, cmAddress, LocationCtrlGroup::fStandaloneByPhone, 0);
 			if(p_loc_grp) {
 				p_loc_grp->SetInfoCtl(CTL_SCARD_ADDRINFO);
-				addGroup(GRP_LOC, p_loc_grp);
+				addGroup(ctlgroupLoc, p_loc_grp);
 			}
 		}
 		// } @v9.4.5
@@ -3031,9 +3034,15 @@ private:
 				}
 			}
 		}
-		else if(event.isCmd(cmNotifyOptions)) {
+		else if(event.isCmd(cmNotifyOptions))
 			EditNotifyOptions();
+		// @v9.8.9 {
+		else if(event.isKeyDown(kbF2) && isCurrCtlID(CTL_SCARD_EXPIRY)) {
+			if(DateAddDialog(&ScExpiryPeriodParam) > 0 && checkdate(ScExpiryPeriodParam.ResultDate, 0)) {
+				setCtrlDate(CTL_SCARD_EXPIRY, ScExpiryPeriodParam.ResultDate);
+			}
 		}
+		// } @v9.8.9 
 		else
 			return;
 		clearEvent(event);
@@ -3072,6 +3081,7 @@ private:
 	}
 
 	long   Options;
+	DateAddDialogParam ScExpiryPeriodParam;
 	PPObjSCard ScObj;
 	PPSCardPacket Data;
 	PPSCardSerPacket ScsPack;
@@ -3197,7 +3207,7 @@ int SCardDialog::setDTS(const PPSCardPacket * pData, const PPSCardSerPacket * pS
 	{
 		LocationCtrlGroup::Rec lcg_rec;
 		lcg_rec.LocList.Add(Data.Rec.LocID);
-		setGroupData(GRP_LOC, &lcg_rec);
+		setGroupData(ctlgroupLoc, &lcg_rec);
 	}
 	// } @v9.4.4
 	SetupSeries(Data.Rec.SeriesID, Data.Rec.PersonID);
@@ -3253,7 +3263,7 @@ int SCardDialog::getDTS(PPSCardPacket * pData)
 	// @v9.4.4 {
 	{
 		LocationCtrlGroup::Rec lcg_rec;
-		getGroupData(GRP_LOC, &lcg_rec);
+		getGroupData(ctlgroupLoc, &lcg_rec);
 		Data.Rec.LocID = lcg_rec.LocList.GetSingle();
 	}
 	// } @v9.4.4

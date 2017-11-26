@@ -15686,7 +15686,7 @@ struct PPGdsCls2 {         // @persistent @store(Reference2Tbl+)
 	static long  FASTCALL EToUseFlag(long e);
 
 	void   SLAPI SetDynGenMask(int fld, int val);
-	int    SLAPI GetDynGenMask(int fld) const;
+	int    FASTCALL GetDynGenMask(int fld) const;
 
 	enum { // @persistent
 		eKind  = 1,
@@ -15743,6 +15743,7 @@ struct PPGdsCls2 {         // @persistent @store(Reference2Tbl+)
 DECL_REF_REC(PPGdsCls);
 
 struct PPGdsClsFormula {
+	SLAPI  PPGdsClsFormula();
 	void   SLAPI Clear();
 	int    FASTCALL PutToBuffer(SString & rBuf) const;
 	int    FASTCALL GetFromBuffer(const char * pBuf);

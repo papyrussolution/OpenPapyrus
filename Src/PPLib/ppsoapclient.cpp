@@ -1140,12 +1140,63 @@ VetisUser::~VetisUser()
 	delete P_BusinessEntity;
 }
 
-VetisApplicationBlock::VetisApplicationBlock() : ApplicationStatus(appstUndef), Func(detUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME)
+VetisApplicationBlock::VetisApplicationBlock() : ApplicationStatus(appstUndef), Func(detUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME),
+	LocalTransactionId(0), P_GselReq(0)
 {
-	P_GselReq = 0;
+}
+
+VetisApplicationBlock::VetisApplicationBlock(const VetisApplicationBlock & rS) : P_GselReq(0)
+{
+	Copy(rS);
 }
 
 VetisApplicationBlock::~VetisApplicationBlock()
 {
 	delete P_GselReq;
+}
+
+VetisApplicationBlock & FASTCALL VetisApplicationBlock::operator = (const VetisApplicationBlock & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+void VetisApplicationBlock::Clear()
+{
+	ApplicationStatus = appstUndef;
+	Func = 0;
+	LocalTransactionId = 0;
+	ServiceId.Z();
+	User.Z();
+	ApplicationId.SetZero();
+	IssuerId.SetZero();
+	EnterpriseId.SetZero();
+	IssueDate.SetZero();
+	RcvDate.SetZero();
+	PrdcRsltDate.SetZero();
+	ErrList.freeAll();
+	ZDELETE(P_GselReq);
+}
+
+int FASTCALL VetisApplicationBlock::Copy(const VetisApplicationBlock & rS)
+{
+	int    ok = 1;
+	ApplicationStatus = rS.ApplicationStatus;
+	Func = rS.Func;
+	LocalTransactionId = rS.LocalTransactionId;
+	ServiceId = rS.ServiceId;
+	User = rS.User;
+	ApplicationId = rS.ApplicationId;
+	IssuerId = rS.IssuerId;
+	EnterpriseId = rS.EnterpriseId;
+	IssueDate = rS.IssueDate;
+	RcvDate = rS.RcvDate;
+	PrdcRsltDate = rS.PrdcRsltDate;
+	TSCollection_Copy(ErrList, rS.ErrList);
+	ZDELETE(P_GselReq);
+	if(rS.P_GselReq) {
+		THROW(P_GselReq = new VetisGetStockEntryListRequest(*rS.P_GselReq));
+	}
+	CATCHZOK
+	return ok;
 }

@@ -2701,9 +2701,8 @@ void DivisionCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 //
 class DivisionView : public PPListDialog {
 public:
-	DivisionView() : PPListDialog(DLG_DIVVIEW, CTL_DIVVIEW_LIST)
+	DivisionView() : PPListDialog(DLG_DIVVIEW, CTL_DIVVIEW_LIST), CurOrgID(0)
 	{
-		CurOrgID = 0;
 		GetMainEmployerID(&CurOrgID);
 		SetupPPObjCombo(this, CTLSEL_DIVVIEW_ORG, PPOBJ_PERSON, CurOrgID, OLW_CANINSERT, (void *)PPPRK_EMPLOYER);
 		updateList(-1);
@@ -5655,14 +5654,14 @@ int PPALDD_UhttLocation::Set(long iterId, int commit)
 			r_blk.Rec.Latitude  = H.Latitude;
 			r_blk.Rec.Longitude = H.Longitude;
 			STRNSCPY(r_blk.Rec.Code, strip(H.Code));
-			if(isempty(r_blk.Rec.Code) || strcmp(r_blk.Rec.Code, "0") == 0)
+			if(isempty(r_blk.Rec.Code) || sstreq(r_blk.Rec.Code, "0"))
 				r_blk.LObj.InitCode(&r_blk.Rec);
 			STRNSCPY(r_blk.Rec.Name, strip(H.Name));
 			LocationCore::SetExField(&r_blk.Rec, LOCEXSTR_ZIP, H.ZIP);
 			LocationCore::SetExField(&r_blk.Rec, LOCEXSTR_PHONE, H.Phone);
 			LocationCore::SetExField(&r_blk.Rec, LOCEXSTR_EMAIL, H.EMail); // @v8.2.3
 			LocationCore::SetExField(&r_blk.Rec, LOCEXSTR_CONTACT, H.Contact);
-			if(H.Address[0] && strcmp(H.Address, "0") != 0) {
+			if(H.Address[0] && !sstreq(H.Address, "0")) {
 				if(r_blk.Rec.Flags & LOCF_MANUALADDR)
 					LocationCore::SetExField(&r_blk.Rec, LOCEXSTR_FULLADDR, H.Address);
 				else
