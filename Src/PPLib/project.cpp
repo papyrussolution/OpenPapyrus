@@ -2073,8 +2073,9 @@ int SLAPI PPObjPrjTask::GetLinkTasks(PPID taskID, PPIDArray * pAry)
 
 class ViewTasksDialog : public PPListDialog {
 public:
-	ViewTasksDialog(StrAssocArray * pData) : PPListDialog(DLG_VIEWTASKS, CTL_VIEWTASKS_LIST), P_Data(pData)
+	ViewTasksDialog(StrAssocArray * pData) : PPListDialog(DLG_VIEWTASKS, CTL_VIEWTASKS_LIST)
 	{
+		P_Data = pData;
 		updateList(-1);
 	}
 private:

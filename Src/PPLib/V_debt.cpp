@@ -13,10 +13,8 @@ double SLAPI PayableBillListItem::MultExtCoef(double val, int zeroIfDivZero /*= 
 	return (Amount != 0.0) ? (val * (ExtAmt / Amount)) : (zeroIfDivZero ? 0.0 : val);
 }
 
-SLAPI PayableBillList::PayableBillList(AmtList * pAmt, AmtList * pPaym)
+SLAPI PayableBillList::PayableBillList(AmtList * pAmt, AmtList * pPaym) : P_Amt(pAmt), P_Paym(pPaym)
 {
-	P_Amt = pAmt;
-	P_Paym = pPaym;
 }
 
 int SLAPI PayableBillList::AddPayableItem(const PayableBillListItem * pItem, long tabID, double paym, int useExtCoef)
@@ -71,15 +69,15 @@ SLAPI DebtTrnovrTotal::DebtTrnovrTotal()
 void SLAPI DebtTrnovrTotal::Init()
 {
 	Count = 0;
-	Debit.freeAll();
-	Credit.freeAll();
-	Debt.freeAll();
+	Debit.clear();
+	Credit.clear();
+	Debt.clear();
 
-	RPaym.freeAll();
-	Reckon.freeAll();
-	RDebt.freeAll();
-	TDebt.freeAll();
-	ExpiryDebt.freeAll(); // @v9.1.8
+	RPaym.clear();
+	Reckon.clear();
+	RDebt.clear();
+	TDebt.clear();
+	ExpiryDebt.clear(); // @v9.1.8
 }
 
 int SLAPI DebtTrnovrTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -196,21 +194,13 @@ int SLAPI DebtTrnovrFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 //
 // PPViewDebtTrnovr
 //
-SLAPI PPViewDebtTrnovr::DebtEntry::DebtEntry(PPID ident)
+SLAPI PPViewDebtTrnovr::DebtEntry::DebtEntry(PPID ident) : ID(ident), _AvgPaym(0.0)
 {
-	ID = ident;
-	_AvgPaym = 0.0;
 }
 
-SLAPI PPViewDebtTrnovr::PPViewDebtTrnovr() : PPView(0, &Filt, PPVIEW_DEBTTRNOVR), UseOmtPaymAmt(BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT))
+SLAPI PPViewDebtTrnovr::PPViewDebtTrnovr() : PPView(0, &Filt, PPVIEW_DEBTTRNOVR), UseOmtPaymAmt(BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT)),
+	P_BObj(BillObj), P_DebtDimAgentList(0), P_TempTbl(0), P_IterBillList(0), IterBillCounter(0), ExpiryDate(ZERODATE), IsDlvrAddrListInited(0)
 {
-	P_BObj = BillObj;
-	P_DebtDimAgentList = 0; // @v9.1.4
-	P_TempTbl = 0;
-	P_IterBillList = 0;
-	IterBillCounter = 0;
-	ExpiryDate = ZERODATE;
-	IsDlvrAddrListInited = 0;
 	ImplementFlags |= implUseServer;
 }
 
@@ -565,9 +555,8 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempSellTrnovr);
 
 class DebtTrnovrCrosstab : public Crosstab {
 public:
-	SLAPI DebtTrnovrCrosstab(PPViewDebtTrnovr * pV) : Crosstab()
+	SLAPI DebtTrnovrCrosstab(PPViewDebtTrnovr * pV) : Crosstab(), P_V(pV)
 	{
-		P_V = pV;
 	}
 	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 	{
@@ -863,15 +852,13 @@ int SLAPI PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-PPViewDebtTrnovr::ProcessBlock::ProcessBlock(const DebtTrnovrFilt & rF) : TSCollection <DebtEntry> (),
-	R_F(rF),
+PPViewDebtTrnovr::ProcessBlock::ProcessBlock(const DebtTrnovrFilt & rF) : TSCollection <DebtEntry> (), R_F(rF), P_Q(0),
 	CurrentDate(NZOR(rF.PaymPeriod.upp, getcurdate_())), // @v9.1.8 LConfig.OperDate-->getcurdate_()
 	DoCheckAddr(BIN(rF.CityID)),
 	ByLinks(BIN(rF.Flags & DebtTrnovrFilt::fNoForwardPaym || !rF.PaymPeriod.IsZero())),
 	ByCost(BIN(rF.Flags & DebtTrnovrFilt::fByCost)),
 	P_PaymPeriod((rF.Flags & DebtTrnovrFilt::fNoForwardPaym && rF.PaymPeriod.IsZero()) ? &rF.Period : &rF.PaymPeriod)
 {
-	P_Q = 0;
 	ResetIter();
 	//
 	PPObjArticle ar_obj;
@@ -1306,12 +1293,12 @@ int SLAPI PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock &
 					LDATE end = Filt.Period.upp;
 					if(!beg) {
 						t->GetFirstDate(op_id, &beg);
-						if(beg == MAXDATE || beg == ZERODATE)
+						if(oneof2(beg, MAXDATE, ZERODATE))
 							beg = getcurdate_();
 					}
 					if(!end) {
 						t->GetLastDate(op_id, &end);
-						if(end == MAXDATE || end == ZERODATE)
+						if(oneof2(end, MAXDATE, ZERODATE))
 							end = getcurdate_();
 					}
 					iter_count += diffdate(end, beg); // Единица не прибавляется из-за особенностей учета итераций (см. ниже)
@@ -1405,16 +1392,13 @@ int SLAPI PPViewDebtTrnovr::InitIteration(IterOrder order)
 {
 	int    ok = 1, idx = 0;
 	char   k[MAXKEYLEN];
-	if(order == OrdByArticleID)
-		idx = 0;
-	else if(order == OrdByArticleName)
-		idx = 1;
-	else if(order == OrdByDebit)
-		idx = 2;
-	else if(order == OrdByDebt)
-		idx = 3;
-	else if(order == OrdByStop)
-		idx = 5;
+	switch(order) {
+		case OrdByArticleID: idx = 0; break;
+		case OrdByArticleName: idx = 1; break;
+		case OrdByDebit: idx = 2; break;
+		case OrdByDebt: idx = 3; break;
+		case OrdByStop: idx = 5; break;
+	}
 	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_IterBillList);
 	IterBillCounter = 0;
@@ -2009,12 +1993,9 @@ int SLAPI PPViewDebtTrnovr::ViewTotal()
 {
 	class ExtDebtTrnovrTotalDialog : public TDialog {
 	public:
-		ExtDebtTrnovrTotalDialog(int kind, const DebtTrnovrTotal * pTotal) :
-			TDialog((kind == 1) ? DLG_DEBTTOTAL01 : DLG_EXTTDEBT)
+		ExtDebtTrnovrTotalDialog(int kind, const DebtTrnovrTotal * pTotal) : TDialog((kind == 1) ? DLG_DEBTTOTAL01 : DLG_EXTTDEBT), Kind(kind), P_Total(pTotal)
 		{
-			Kind = kind;
 			SetupCurrencyCombo(this, CTLSEL_EXTTDEBT_CUR, 0L, 0, 1, 0);
-			P_Total = pTotal;
 			setCtrlLong(CTL_EXTTDEBT_COUNT,   P_Total->Count);
 			UpdatePage(0);
 		}
@@ -2167,14 +2148,20 @@ int SLAPI PPViewDebtTrnovr::Detail(const BrwHdr * pHdr, int mode)
 }
 //
 // what == 0 - show article
-// what == 1 - show person
+// what == 1 - show person by article_id
+// what == 2 - show person by person_id
 //
 int SLAPI PPViewDebtTrnovr::ViewArticleInfo(const BrwHdr * pHdr, int what)
 {
 	int    ok = -1;
 	if(pHdr && pHdr->ArID) {
 		PPID   person_id = 0;
-		if(what == 1 && (person_id = ObjectToPerson(pHdr->ArID)) > 0) {
+		if(what == 2) {
+			person_id = pHdr->ArID;
+			if(PsnObj.Edit(&person_id, 0) == cmOK)
+				ok = 1;
+		}
+		else if(what == 1 && (person_id = ObjectToPerson(pHdr->ArID)) > 0) {
 			if(PsnObj.Edit(&person_id, 0) == cmOK)
 				ok = 1;
 		}
@@ -2249,8 +2236,22 @@ int SLAPI PPViewDebtTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	if(ok == -2) {
 		switch(ppvCmd) {
 			case PPVCMD_VIEWBILLS:   ok = -1; Detail(&hdr, dmDebtOnline); break;
-			case PPVCMD_EDITARTICLE: ok = hdr.ArID ? ViewArticleInfo(&hdr, 0) : -1; break;
-			case PPVCMD_EDITPERSON:  ok = hdr.ArID ? ViewArticleInfo(&hdr, 1) : -1; break;
+			case PPVCMD_EDITARTICLE: 
+				if(Filt.Sgb.S2.Sgp == sgpNone)
+					ok = hdr.ArID ? ViewArticleInfo(&hdr, 0) : -1; 
+				else
+					ok = -1;
+				break;
+			case PPVCMD_EDITPERSON:  
+				if(hdr.ArID) {
+					if(Filt.Sgb.S2.Sgp == sgpNone)
+						ok = ViewArticleInfo(&hdr, 1); 
+					else if(Filt.Sgb.S2.Sgp > sgpFirstRelation)
+						ok = ViewArticleInfo(&hdr, 2); 
+				}
+				else
+					ok = -1;
+				break;
 			case PPVCMD_DEBTCARD:    ok = -1; Detail(&hdr, dmDebtCard); break;
 			case PPVCMD_RECKONBILLS: ok = -1; Detail(&hdr, dmReckon); break;
 			case PPVCMD_MOUSEHOVER:
@@ -2759,26 +2760,10 @@ double SLAPI PPDebtorStat::DebtDimItem::CalcPaymDensity() const
 	return (paym_period > 0) ? (PaymAmount / paym_period) : 0.0;
 }
 
-SLAPI PPDebtorStat::PPDebtorStat(PPID arID)
+SLAPI PPDebtorStat::PPDebtorStat(PPID arID) : ArID(arID), RelArID(0), DelayMean(0.0), DelayVar(0.0), DelayGammaAlpha(0.0), DelayGammaBeta(0.0), DelayGammaTest(0.0),
+	ExpiryMean(0.0), PaymAmount(0.0), PaymDensity(0.0), Limit(0.0), DebtCost(0.0), SigmFactor(0.0), PaymPeriod(0),
+	FirstPaymDate(ZERODATE), LastPaymDate(ZERODATE), LimitTerm(0), Flags(0)
 {
-	ArID = arID;
-	RelArID = 0;
-	DelayMean = 0.0;
-	DelayVar = 0.0;
-	DelayGammaAlpha = 0.0;
-	DelayGammaBeta = 0.0;
-	DelayGammaTest = 0.0;
-	ExpiryMean = 0.0;
-	PaymAmount = 0.0;
-	PaymDensity = 0.0;
-	Limit = 0.0;
-	DebtCost = 0.0;
-	SigmFactor = 0.0;
-	PaymPeriod = 0;
-	FirstPaymDate = ZERODATE; // Дата первого платежа от контрагента
-	LastPaymDate  = ZERODATE; // Дата последнего платежа от контрагента
-	LimitTerm = 0;      // Срок (в днях), на который рассчитан кредитный лимит
-	Flags = 0;
 	memzero(Rating, sizeof(Rating));
 }
 
@@ -2852,9 +2837,8 @@ double SLAPI PPDebtorStat::GetDelayVarRate() const
 	return (DelayMean == 0.0) ? 0.0 : (sqrt(DelayVar) / DelayMean);
 }
 
-SLAPI PPDebtorStatArray::PPDebtorStatArray() : TSCollection <PPDebtorStat>()
+SLAPI PPDebtorStatArray::PPDebtorStatArray() : TSCollection <PPDebtorStat>(), LogRating(0)
 {
-	LogRating = 0;
 }
 
 PPDebtorStat * FASTCALL PPDebtorStatArray::Get(PPID arID)
@@ -3350,9 +3334,8 @@ int SLAPI PrcssrDebtRate::EditParam(Param * pParam)
 {
 	class DebtRateFiltDialog : public TDialog {
 	public:
-		DebtRateFiltDialog(int isThereDebtRateLic) : TDialog(DLG_DEBTRATE)
+		DebtRateFiltDialog(int isThereDebtRateLic) : TDialog(DLG_DEBTRATE), IsThereDebtRateLic(isThereDebtRateLic)
 		{
-			IsThereDebtRateLic = isThereDebtRateLic;
 		}
 		int setDTS(const PrcssrDebtRate::Param * pData)
 		{
@@ -3470,7 +3453,7 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 			else
 				return -1;
 		}
-		int    AddDelay(long delay, long expiry)
+		void   AddDelay(long delay, long expiry)
 		{
 			for(uint j = 0; j < getCount(); j++) {
 				PPDebtorStat * p = at(j);
@@ -3479,16 +3462,13 @@ int SLAPI PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 					p->ExpiryList.add(expiry);
 				}
 			}
-			return 1;
 		}
-		int    AddPayment(PPID debtDimID, LDATE dt, double amt)
+		void   AddPayment(PPID debtDimID, LDATE dt, double amt)
 		{
 			for(uint j = 0; j < getCount(); j++) {
 				PPDebtorStat * p = at(j);
-				if(p)
-					p->AddPayment(debtDimID, dt, amt);
+				CALLPTRMEMB(p, AddPayment(debtDimID, dt, amt));
 			}
-			return 1;
 		}
 	};
 	int    ok = 1;
@@ -4169,10 +4149,8 @@ IMPLEMENT_PPFILT_FACTORY(DebtorStat); SLAPI DebtorStatFilt::DebtorStatFilt() : P
 //
 //
 //
-SLAPI PPViewDebtorStat::PPViewDebtorStat() : PPView(0, &Filt, PPVIEW_DEBTORSTAT)
+SLAPI PPViewDebtorStat::PPViewDebtorStat() : PPView(0, &Filt, PPVIEW_DEBTORSTAT), P_TempTbl(0), LastDate(ZERODATE)
 {
-	P_TempTbl = 0;
-	LastDate = ZERODATE;
 	DefReportId = REPORT_DEBTORSTAT;
 }
 
@@ -4231,8 +4209,7 @@ private:
 
 int SLAPI PPViewDebtorStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
-	return Filt.IsA(pBaseFilt) ?
-		PPDialogProcBody <DebtorStatFiltDialog, DebtorStatFilt> ((DebtorStatFilt *)pBaseFilt) : 0;
+	return Filt.IsA(pBaseFilt) ? PPDialogProcBody <DebtorStatFiltDialog, DebtorStatFilt> ((DebtorStatFilt *)pBaseFilt) : 0;
 }
 
 void SLAPI PPViewDebtorStat::MakeTempRec(long order, const DebtorStatViewItem * pItem, TempOrderTbl::Rec * pRec)

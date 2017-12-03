@@ -19,9 +19,8 @@ public:
 
 template <class T> class PPSoapResultPtr : public PPSoapResultPtrBase {
 public:
-	PPSoapResultPtr(T * p)
+	PPSoapResultPtr(T * p) : Ptr(p)
 	{
-		Ptr = p;
 	}
 	virtual void Destroy()
 	{
@@ -1076,12 +1075,16 @@ struct VetisErrorEntry {
 };
 
 struct VetisEntityList {
-	VetisEntityList() : Count(0), Total(0), Offset(0)
+	VetisEntityList() : Count(0), Total(0), Offset(0), Flags(0)
 	{
 	}
+	enum {
+		fHasMore = 0x0001
+	};
 	int    Count;
 	int64  Total;
 	int    Offset;
+	long   Flags;
 };
 
 struct VetisGenericEntity {
@@ -1190,7 +1193,7 @@ struct VetisAddress {
 	SString House;
 	SString Building;
 	SString Room;
-	SString PposIndex;
+	SString PostIndex;
 	SString PostBox;
 	SString AdditionalInfo;
 	SString AddressView;
@@ -1284,12 +1287,21 @@ struct VetisBusinessEntity_activityLocation {
 	VetisEnterprise Enterprise;
 };
 
+struct VetisIncorporationForm : public VetisGenericEntity {
+	VetisIncorporationForm() : VetisGenericEntity()
+	{
+	}
+	SString Name;
+	SString ShortName;
+	SString Code;
+};
+
 struct VetisBusinessEntity : public VetisNamedGenericVersioningEntity {
-	VetisBusinessEntity() : VetisNamedGenericVersioningEntity(), Type(0), IncorporationForm(0)
+	VetisBusinessEntity() : VetisNamedGenericVersioningEntity(), Type(0)
 	{
 	}
 	int    Type; // BusinessEntityType
-	int    IncorporationForm; // IncorporationForm
+	VetisIncorporationForm IncForm;
 	SString FullName;
 	SString Fio;
 	SString Passport;
@@ -1684,7 +1696,10 @@ class VetisApplicationData {
 public:
 	enum {
 		signNone = 0,
-		signGetStockEntryListRequest
+		signGetStockEntryListRequest,
+		signGetBusinessEntityByGuidRequest,
+		signGetAppliedUserAuthorityListRequest,
+		signGetRussianEnterpriseListRequest
 	};
 	explicit VetisApplicationData(int sign)
 	{
@@ -1712,18 +1727,24 @@ public:
 	VetisStockEntrySearchPattern SearchPattern;
 };
 
+class VetisListOptionsRequest : public VetisApplicationData {
+public:
+	VetisListOptionsRequest(int sign) : VetisApplicationData(sign)
+	{
+	}
+	VetisListOptions ListOptions;
+};
+
+class VetisGetBusinessEntityRequest : public VetisApplicationData {
+public:
+	VetisGetBusinessEntityRequest() : VetisApplicationData(signGetStockEntryListRequest)
+	{
+	}
+};
+
 struct VetisApplicationBlock {
 	VetisApplicationBlock();
-	VetisApplicationBlock(const VetisApplicationBlock & rS);
 	~VetisApplicationBlock();
-	VetisApplicationBlock & FASTCALL operator = (const VetisApplicationBlock & rS);
-	void   Clear();
-	int    FASTCALL Copy(const VetisApplicationBlock & rS);
-
-	enum {
-		detUndef = 0,
-		detGetStockEntryListReq = 1
-	};
 
 	enum {
 		appstUndef     = -1,
@@ -1736,7 +1757,6 @@ struct VetisApplicationBlock {
 	int    Func;
 	int64  LocalTransactionId;
 	SString ServiceId;
-	SString User;
 	S_GUID ApplicationId;
 	S_GUID IssuerId;
 	S_GUID EnterpriseId;
@@ -1744,10 +1764,15 @@ struct VetisApplicationBlock {
 	LDATETIME RcvDate;
 	LDATETIME PrdcRsltDate;
 
+	//SString Data;
+	//SString Result;
 	TSCollection <VetisErrorEntry> ErrList;
 	//
 	VetisGetStockEntryListRequest * P_GselReq;
+	VetisListOptionsRequest * P_LoReq;
+	VetisEnterprise * P_Ent;
 };
 
 typedef VetisApplicationBlock * (* VETIS_SUBMITAPPLICATIONREQUEST_PROC)(PPSoapClientSession & rSess, const char * pApiKey, const VetisApplicationBlock & rBlk);
 typedef VetisApplicationBlock * (* VETIS_RECEIVEAPPLICATIONRESULT_PROC)(PPSoapClientSession & rSess, const char * pApiKey, const S_GUID & rIssuerId, const S_GUID & rApplicationId);
+typedef TSCollection <VetisEnterprise> * (* VETIS_GETRUSSIANENTERPRISELIST_PROC)(PPSoapClientSession & rSess, VetisListOptionsRequest * pListReq, VetisEnterprise * pEntFilt);

@@ -1145,10 +1145,10 @@ IMPL_HANDLE_EVENT(LogListWindow)
 void SLAPI PPLogMsgItem::Clear()
 {
 	Options = 0;
-	FileName = 0;
-	DupFileName = 0;
-	Text = 0;
-	Prefix = 0;
+	FileName.Z();
+	DupFileName.Z();
+	Text.Z();
+	Prefix.Z();
 }
 
 SLAPI PPLogMsgQueue::Stat::Stat()
@@ -1223,16 +1223,12 @@ int FASTCALL PPLogMsgQueue::Pop(PPLogMsgItem & rItem)
 	return ok;
 }
 
-SLAPI PPLogMsgSession::Stat::Stat() : PPLogMsgQueue::Stat()
+SLAPI PPLogMsgSession::Stat::Stat() : PPLogMsgQueue::Stat(), MaxSingleOutputCount(0), OutputCount(0), FalseNonEmptyEvSwitchCount(0)
 {
-	MaxSingleOutputCount = 0;
-	OutputCount = 0;
-	FalseNonEmptyEvSwitchCount = 0;
 }
 
-SLAPI PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThread::kLogger, "Logger Thread", pQueue)
+SLAPI PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThread::kLogger, "Logger Thread", pQueue), P_Queue(pQueue)
 {
-	P_Queue = pQueue;
 }
 
 //virtual

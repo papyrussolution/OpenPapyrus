@@ -323,7 +323,7 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos,
 					levelNext--;
 				}
 			}
-			else{
+			else {
 				if(IsCommentBlockStart(lineCurrent, styler) && !IsCommentBlockEnd(lineCurrent, styler)) {
 					levelNext++;
 				}

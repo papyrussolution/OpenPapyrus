@@ -1835,11 +1835,16 @@ int SLAPI PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 //
 class TagFiltDialog : public PPListDialog {
 public:
-	TagFiltDialog(PPID objType) : PPListDialog(DLG_TAGFLT, CTL_TAGFLT_LIST), ObjType(objType)
+	TagFiltDialog(PPID objType) : PPListDialog(DLG_TAGFLT, CTL_TAGFLT_LIST)
 	{
-		SString temp_buf;
-		GetObjectTitle(ObjType, temp_buf);
-		setCtrlString(CTL_TAGFLT_INFO, temp_buf);
+		ObjType = objType;
+		// @v8.6.11 {
+		{
+			SString temp_buf;
+			GetObjectTitle(ObjType, temp_buf);
+			setCtrlString(CTL_TAGFLT_INFO, temp_buf);
+		}
+		// } @v8.6.11
 	}
 	int    setDTS(const TagFilt * pData);
 	int    getDTS(TagFilt * pData);
@@ -2626,10 +2631,12 @@ public:
 		const PPIDArray * P_AllowedTags;
 		int    UpdateMode;
 	};
-	TagValListDialog(uint dlgId) : PPListDialog(dlgId/*DLG_TAGVALVIEW*/, CTL_TAGVALVIEW_LIST), P_AllowedTags(0), UpdateMode(0)
+	TagValListDialog(uint dlgId) : PPListDialog(dlgId/*DLG_TAGVALVIEW*/, CTL_TAGVALVIEW_LIST)
 	{
 		if(P_Box && P_Box->def)
 			P_Box->def->SetOption(lbtFocNotify, 1);
+		P_AllowedTags = 0;
+		UpdateMode = 0;
 	}
 	int    setDTS(DataBlock * pData)
 	{
@@ -2709,7 +2716,7 @@ int TagValListDialog::setupList()
 	const  ObjTagItem * p_item;
 	for(uint i = 0; (p_item = Data.EnumItems(&i)) != 0;) {
 		ss.clear();
-		buf.Z();
+		buf = 0;
 		if(objtag.Fetch(p_item->TagID, &tag) > 0)
 			buf = tag.Name;
 		else
@@ -2902,11 +2909,14 @@ int ObjTagCache::OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 	return ok;
 }
 
-ObjTagCache::ObjTagCache() : AdvCookie(0), P_Items(0), MaxItems(0), MaxTries(8)
+ObjTagCache::ObjTagCache()
 {
 	Ss.add("$"); // zero index - is empty string
 	size_t init_size = 1024*1024;
 	uint   init_items_count = init_size / sizeof(Entry);
+	AdvCookie = 0;
+	P_Items = 0;
+	MaxItems = 0;
 	MEMSZERO(StatData);
 	size_t i = init_items_count;
 	if(i) {
@@ -2918,6 +2928,7 @@ ObjTagCache::ObjTagCache() : AdvCookie(0), P_Items(0), MaxItems(0), MaxTries(8)
 		} while(--i);
 	}
 	assert(MaxItems);
+	MaxTries = 8;
 	P_Items = (Entry *)SAlloc::C(MaxItems, sizeof(Entry));
 	if(P_Items) {
 		long   cookie = 0;

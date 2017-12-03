@@ -721,16 +721,10 @@ void BillFiltDialog::setupAccSheet(PPID sheet, PPID accSheet2ID)
 //
 //
 //
-SLAPI PPViewBill::PPViewBill() : PPView(0, &Filt, PPVIEW_BILL)
+SLAPI PPViewBill::PPViewBill() : PPView(0, &Filt, PPVIEW_BILL), P_TempTbl(0), P_TempOrd(0), P_BPOX(0), P_Arp(0),
+	P_BObj(BillObj), CtrlX(0), P_IterState(0), LastSelID(0)
 {
-	P_TempTbl = 0;
-	P_TempOrd = 0;
-	P_BPOX = 0;
-	P_Arp = 0;
-	P_BObj = BillObj;
-	CtrlX = 0;
-	P_IterState = 0;
-	LastSelID = 0;
+
 }
 
 SLAPI PPViewBill::~PPViewBill()
@@ -1247,14 +1241,13 @@ int SLAPI PPViewBill::CalcDebtCardInSaldo(double * pSaldo)
 	if(Filt.Period.low != 0) {
 		BillFilt  temp_filt = Filt;
 		BillTotal total;
-		PPViewBill * p_temp_view = new PPViewBill;
+		PPViewBill temp_view;
 		temp_filt.Period.upp = plusdate(temp_filt.Period.low, -1);
 		temp_filt.Period.low = ZERODATE;
 		temp_filt.Flags |= BillFilt::fIgnoreRtPeriod;
-		p_temp_view->Init_(&temp_filt);
-		p_temp_view->CalcTotal(&total);
+		temp_view.Init_(&temp_filt);
+		temp_view.CalcTotal(&total);
 		saldo = total.Debit - total.Credit;
-		delete p_temp_view;
 	}
 	ASSIGN_PTR(pSaldo, saldo);
 	return 1;
@@ -1359,8 +1352,7 @@ int SLAPI PPViewBill::EnumerateDebtCard(BillViewEnumProc proc, long param)
 	return ok;
 }
 
-int SLAPI PPViewBill::Helper_EnumProc(PPID billID, const BillTbl::Rec * pRec,
-	int checkForFilt, BillViewEnumProc proc, long param)
+int SLAPI PPViewBill::Helper_EnumProc(PPID billID, const BillTbl::Rec * pRec, int checkForFilt, BillViewEnumProc proc, long param)
 {
 	int    ok = 1;
 	BillTbl::Rec rec;
@@ -1713,16 +1705,17 @@ int FASTCALL PPViewBill::NextIteration(BillViewItem * pItem)
 		while((r = P_IterQuery->nextIteration()) > 0) {
 			BillTbl::Rec br;
 			Counter.Increment();
-			const PPID id = P_TempTbl ? P_TempTbl->data.BillID : P_TempOrd->data.ID;
+			const TempBillTbl * p_temp_tbl = P_TempTbl;
+			const PPID id = p_temp_tbl ? p_temp_tbl->data.BillID : P_TempOrd->data.ID;
 			if(P_BObj->Search(id, &br) > 0) {
 				_IterC++;
 				if(pItem) {
 					memzero(pItem, sizeof(*pItem));
 					*((BillTbl::Rec*)pItem) = br;
-					if(P_TempTbl) {
-						pItem->Debit  = P_TempTbl->data.Debit;
-						pItem->Credit = P_TempTbl->data.Credit;
-						pItem->Saldo  = P_TempTbl->data.Saldo;
+					if(p_temp_tbl) {
+						pItem->Debit  = p_temp_tbl->data.Debit;
+						pItem->Credit = p_temp_tbl->data.Credit;
+						pItem->Saldo  = p_temp_tbl->data.Saldo;
 					}
 					if(CheckOpFlags(br.OpID, OPKF_NEEDPAYMENT)) {
 						BillTbl::Rec last_paym_rec;
@@ -6524,9 +6517,8 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 // Implementation of PPALDD_GoodsBillDispose
 //
 struct DlGoodsBillDisposeBlock {
-	DlGoodsBillDisposeBlock(void * ptr)
+	DlGoodsBillDisposeBlock(void * ptr) : P_Pack((PPBillPacket *)ptr)
 	{
-		P_Pack = (PPBillPacket *)ptr;
 	}
 	PPBillPacket * P_Pack;
 };

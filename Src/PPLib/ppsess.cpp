@@ -1322,17 +1322,9 @@ int PPSession::SetThreadSock(int32 uniqueSessID, TcpSocket & rSock, PPJobSrvRepl
 	return ok;
 }
 
-SLAPI PPSession::PPSession()
+SLAPI PPSession::PPSession() : Id(1), ExtFlags_(0), P_ObjIdentBlk(0), P_LogQueue(0), P_DbCtx(0), P_AlbatrosCfg(0), P_SrStxSet(0),
+	MaxLogFileSize(32768), State(0), TlsIdx(::TlsAlloc())
 {
-	Id = 1;
-	ExtFlags_ = 0;
-	P_ObjIdentBlk = 0;
-	P_LogQueue = 0; // @v8.9.12
-	TlsIdx = -1L;
-	P_DbCtx = 0;
-	P_AlbatrosCfg = 0;
-	MaxLogFileSize = 32768;
-	TlsIdx = TlsAlloc();
 	InitThread(0);
 }
 
@@ -1343,6 +1335,7 @@ SLAPI PPSession::~PPSession()
 	delete P_ObjIdentBlk;
 	delete P_DbCtx;
 	delete P_AlbatrosCfg;
+	delete P_SrStxSet; // @v9.8.10
 	// Don't destroy P_LogQueue (на объект может ссылаться поток PPLogMsgSession потому удалять его нельзя)
 }
 
@@ -3285,6 +3278,48 @@ int SLAPI PPSession::Unregister()
 	return reg_key.DeleteValue(HKEY_CURRENT_USER, PPRegKeys::Sessions, uuid_buf);
 }
 
+const SrSyntaxRuleSet * SLAPI PPSession::GetSrSyntaxRuleSet()
+{
+	ENTER_CRITICAL_SECTION
+	if(!P_SrStxSet && !(State & stSrStxInvalid)) {
+		SString src_file_name;
+		PPGetFilePath(PPPATH_DD, "syntax.sr", src_file_name);
+		if(fileExists(src_file_name)) {
+			SFile f_in(src_file_name, SFile::mRead);
+			if(f_in.IsValid()) {
+				SString line_buf;
+				SString src_buf;
+				while(f_in.ReadLine(line_buf)) {
+					src_buf.Cat(line_buf);
+				}
+				P_SrStxSet = new SrSyntaxRuleSet;
+				if(P_SrStxSet) {
+					int r = P_SrStxSet->Parse(src_buf);
+					if(r) {
+						SrDatabase * p_srdb = GetTLA().GetSrDatabase();
+						if(!p_srdb || !P_SrStxSet->ResolveSyntaxRules(*p_srdb)) {
+							ZDELETE(P_SrStxSet);
+							State |= stSrStxInvalid;
+						}
+					}
+					else {
+						SString temp_buf;
+						PPGetLastErrorMessage(1, temp_buf);
+						line_buf.Z().Cat(src_file_name).CatParStr(P_SrStxSet->LineNo).CatDiv(':', 2).Cat(temp_buf);
+						PPLogMessage(PPFILNAM_ERR_LOG, line_buf, LOGMSGF_USER|LOGMSGF_TIME);
+						ZDELETE(P_SrStxSet);
+						State |= stSrStxInvalid;
+					}
+				}
+			}
+		}
+		else 
+			State |= stSrStxInvalid;
+	}
+	LEAVE_CRITICAL_SECTION
+	return P_SrStxSet;
+}
+
 int SLAPI PPSession::SetDbCacheDeferredState(long dbPathID, int set)
 {
 	return CMng.SetDeferredState(dbPathID, set);
@@ -4157,9 +4192,8 @@ void SLAPI PPSession::ProcessIdle()
 	}
 }
 
-PPSession::ObjIdentBlock::ObjIdentBlock() /*: SymbList(256, 1)*/
+PPSession::ObjIdentBlock::ObjIdentBlock() /*: SymbList(256, 1)*/ : P_ShT(0)
 {
-	P_ShT = 0;
 	PPIDArray obj_type_list;
 	PPGetObjTypeList(&obj_type_list, gotlfExcludeDyn);
 	SString name_buf;

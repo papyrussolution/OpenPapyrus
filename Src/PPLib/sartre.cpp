@@ -4,10 +4,8 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//#include <db.h>
 #include <sartre.h>
 #include <locale.h>
-//#include <BerkeleyDB.h>
 //
 //
 /*
@@ -20,10 +18,8 @@ int CallbackCompress(long a, long b, const char * c, int stop)
 //
 //
 //
-SrSList::SrSList(int type)
+SrSList::SrSList(int type) : Type(type), Len(0)
 {
-	Type = type;
-	Len = 0;
 	SBaseBuffer::Init();
 	Alloc(32);
 	ASSIGN_PTR(P_Buf, 0);
@@ -525,11 +521,8 @@ int FASTCALL SrWordForm::FromStr(const char * pStr)
 //
 //
 //
-SrFlexiaModel::Item::Item()
+SrFlexiaModel::Item::Item() : AffixID(0), PrefixID(0), WordFormID(0)
 {
-	AffixID = 0;
-	PrefixID = 0;
-	WordFormID = 0;
 }
 
 SrFlexiaModel::SrFlexiaModel() : SrSList(SRGRAMTYP_FLEXIAMODEL)
@@ -677,10 +670,8 @@ int FASTCALL SrFlexiaModel::Add(const SrFlexiaModel::Item & rItem)
 //
 //
 //
-SLAPI SrNGram::SrNGram()
+SLAPI SrNGram::SrNGram() : ID(0), Ver(0)
 {
-	ID = 0;
-	Ver = 0;
 }
 
 static IMPL_CMPCFUNC(SrNGram_ByLength, p1, p2)
@@ -701,10 +692,8 @@ void SLAPI SrNGramCollection::SortByLength()
 //
 //
 //
-SrCPropDecl::SrCPropDecl()
+SrCPropDecl::SrCPropDecl() : PropID(0), SymbID(0)
 {
-	PropID = 0;
-	SymbID = 0;
 	Tail.Init();
 }
 
@@ -727,19 +716,14 @@ int FASTCALL SrCPropDecl::IsEqual(const SrCPropDecl & rS) const
 //
 //
 //
-SrCPropDeclList::Item::Item()
+SrCPropDeclList::Item::Item() : PropID(0), SymbID(0), TailS(0), TailP(0)
 {
-	PropID = 0;
-	SymbID = 0;
-	TailS = 0;
-	TailP = 0;
 }
 
-SrCPropDeclList::SrCPropDeclList()
+SrCPropDeclList::SrCPropDeclList() : PoolP(4)
 {
 	Pool.Init();
 	Pool.Alloc(32);
-	PoolP = 4;
 }
 
 SrCPropDeclList::~SrCPropDeclList()
@@ -929,11 +913,8 @@ int FASTCALL SrCPropDeclList::Merge(const SrCPropDeclList & rS)
 //
 //
 //
-SrConcept::SrConcept()
+SrConcept::SrConcept() : ID(0), SymbID(0), Ver(0)
 {
-	ID = 0;
-	SymbID = 0;
-	Ver = 0;
 }
 
 int FASTCALL SrConcept::IsEqual(const SrConcept & rS) const
@@ -961,16 +942,12 @@ SrConcept & SrConcept::Clear()
 //
 //
 //
-SrCProp::SrCProp()
+SrCProp::SrCProp() : CID(0), PropID(0)
 {
-	CID = 0;
-	PropID = 0;
 }
 
-SrCProp::SrCProp(CONCEPTID cID, CONCEPTID propID)
+SrCProp::SrCProp(CONCEPTID cID, CONCEPTID propID) : CID(cID), PropID(propID)
 {
-	CID = cID;
-	PropID = propID;
 }
 
 int FASTCALL SrCProp::IsEqual(const SrCProp & rS) const
@@ -1203,16 +1180,8 @@ SrWordInfo & SrWordInfo::Clear()
 //
 //
 //
-SLAPI SrWordAssoc::SrWordAssoc()
+SLAPI SrWordAssoc::SrWordAssoc() : ID(0), WordID(0), Flags(0), BaseFormID(0), FlexiaModelID(0), AccentModelID(0), PrefixID(0), AffixModelID(0)
 {
-	ID = 0;
-	WordID = 0;
-	Flags = 0;
-	BaseFormID = 0;
-	FlexiaModelID = 0;
-	AccentModelID = 0;
-	PrefixID = 0;
-	AffixModelID = 0;
 }
 
 SrWordAssoc & SLAPI SrWordAssoc::Normalize()
@@ -1238,12 +1207,8 @@ SString & FASTCALL SrWordAssoc::ToStr(SString & rBuf) const
 //
 //
 //
-SrImportParam::SrImportParam()
+SrImportParam::SrImportParam() : InputKind(0), LangID(0), CpID(0), Flags(0)
 {
-	InputKind = 0;
-	LangID = 0;
-	CpID = 0;
-	Flags = 0;
 }
 
 void SrImportParam::SetField(int fld, const char * pVal)

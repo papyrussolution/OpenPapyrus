@@ -34,43 +34,43 @@
 static int NotConfigured(TIFF*, int);
 
 #ifndef LZW_SUPPORT
-#define TIFFInitLZW NotConfigured
+	#define TIFFInitLZW NotConfigured
 #endif
 #ifndef PACKBITS_SUPPORT
-#define TIFFInitPackBits NotConfigured
+	#define TIFFInitPackBits NotConfigured
 #endif
 #ifndef THUNDER_SUPPORT
-#define TIFFInitThunderScan NotConfigured
+	#define TIFFInitThunderScan NotConfigured
 #endif
 #ifndef NEXT_SUPPORT
-#define TIFFInitNeXT NotConfigured
+	#define TIFFInitNeXT NotConfigured
 #endif
 #ifndef JPEG_SUPPORT
-#define TIFFInitJPEG NotConfigured
+	#define TIFFInitJPEG NotConfigured
 #endif
 #ifndef OJPEG_SUPPORT
-#define TIFFInitOJPEG NotConfigured
+	#define TIFFInitOJPEG NotConfigured
 #endif
 #ifndef CCITT_SUPPORT
-#define TIFFInitCCITTRLE NotConfigured
-#define TIFFInitCCITTRLEW NotConfigured
-#define TIFFInitCCITTFax3 NotConfigured
-#define TIFFInitCCITTFax4 NotConfigured
+	#define TIFFInitCCITTRLE NotConfigured
+	#define TIFFInitCCITTRLEW NotConfigured
+	#define TIFFInitCCITTFax3 NotConfigured
+	#define TIFFInitCCITTFax4 NotConfigured
 #endif
 #ifndef JBIG_SUPPORT
-#define TIFFInitJBIG NotConfigured
+	#define TIFFInitJBIG NotConfigured
 #endif
 #ifndef ZIP_SUPPORT
-#define TIFFInitZIP NotConfigured
+	#define TIFFInitZIP NotConfigured
 #endif
 #ifndef PIXARLOG_SUPPORT
-#define TIFFInitPixarLog NotConfigured
+	#define TIFFInitPixarLog NotConfigured
 #endif
 #ifndef LOGLUV_SUPPORT
-#define TIFFInitSGILog NotConfigured
+	#define TIFFInitSGILog NotConfigured
 #endif
 #ifndef LZMA_SUPPORT
-#define TIFFInitLZMA NotConfigured
+	#define TIFFInitLZMA NotConfigured
 #endif
 
 /*
@@ -102,24 +102,18 @@ TIFFCodec _TIFFBuiltinCODECS[] = {
     { NULL,             0,                      NULL }
 };
 
-static int
-_notConfigured(TIFF* tif)
+static int _notConfigured(TIFF* tif)
 {
-	const TIFFCodec* c = TIFFFindCODEC(tif->tif_dir.td_compression);
-        char compression_code[20];
-        
-        sprintf(compression_code, "%d",tif->tif_dir.td_compression );
-	TIFFErrorExt(tif->tif_clientdata, tif->tif_name,
-                     "%s compression support is not configured", 
-                     c ? c->name : compression_code );
+	const TIFFCodec* c = TIFFFindCODEC(tif->tif_dir.td_compression); 
+	char compression_code[20];
+	sprintf(compression_code, "%d",tif->tif_dir.td_compression );
+	TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "%s compression support is not configured", c ? c->name : compression_code );
 	return (0);
 }
 
-static int
-NotConfigured(TIFF* tif, int scheme)
+static int NotConfigured(TIFF* tif, int scheme)
 {
 	(void) scheme;
-
 	tif->tif_fixuptags = _notConfigured;
 	tif->tif_decodestatus = FALSE;
 	tif->tif_setupdecode = _notConfigured;
@@ -127,23 +121,18 @@ NotConfigured(TIFF* tif, int scheme)
 	tif->tif_setupencode = _notConfigured;
 	return (1);
 }
-
-/************************************************************************/
-/*                       TIFFIsCODECConfigured()                        */
-/************************************************************************/
-
+// 
+// TIFFIsCODECConfigured()
+// 
 /**
  * Check whether we have working codec for the specific coding scheme.
  *
  * @return returns 1 if the codec is configured and working. Otherwise
  * 0 will be returned.
  */
-
-int
-TIFFIsCODECConfigured(uint16 scheme)
+int TIFFIsCODECConfigured(uint16 scheme)
 {
 	const TIFFCodec* codec = TIFFFindCODEC(scheme);
-
 	if(codec == NULL) {
 		return 0;
 	}
@@ -155,7 +144,6 @@ TIFFIsCODECConfigured(uint16 scheme)
 	}
 	return 0;
 }
-
 /*
  * Local Variables:
  * mode: c

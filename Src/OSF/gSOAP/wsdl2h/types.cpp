@@ -54,89 +54,90 @@ static int comment_nest = 0; /* keep track of block comments to avoid nesting */
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-static const char * keywords[] =
-{ "and",
-  "asm",
-  "auto",
-  "bool",
-  "break",
-  "case",
-  "catch",
-  "char",
-  "class",
-  "const",
-  "const_cast",
-  "continue",
-  "default",
-  "delete",
-  "do",
-  "double",
-  "dynamic_cast",
-  "else",
-  "enum",
-  "errno",
-  "explicit",
-  "export",
-  "extern",
-  "false",
-  "FILE",
-  "float",
-  "for",
-  "friend",
-  "goto",
-  "if",
-  "inline",
-  "int",
-  "interface",
-  "long",
-  "LONG64",
-  "max",
-  "min",
-  "mustUnderstand",
-  "mutable",
-  "namespace",
-  "new",
-  "not",
-  "NULL",
-  "operator",
-  "or",
-  "private",
-  "protected",
-  "public",
-  "_QName",
-  "register",
-  "reinterpret_cast",
-  "restrict",
-  "return",
-  "short",
-  "signed",
-  "size_t",
-  "sizeof",
-  "static",
-  "static_cast",
-  "struct",
-  "switch",
-  "template",
-  "this",
-  "throw",
-  "time_t",
-  "true",
-  "typedef",
-  "typeid",
-  "typeof",
-  "typename",
-  "ULONG64",
-  "union",
-  "unsigned",
-  "using",
-  "virtual",
-  "void",
-  "volatile",
-  "wchar_t",
-  "while",
-  "XML",
-  "_XML",
-  "xor", };
+static const char * keywords[] = { 
+	"and",
+	"asm",
+	"auto",
+	"bool",
+	"break",
+	"case",
+	"catch",
+	"char",
+	"class",
+	"const",
+	"const_cast",
+	"continue",
+	"default",
+	"delete",
+	"do",
+	"double",
+	"dynamic_cast",
+	"else",
+	"enum",
+	"errno",
+	"explicit",
+	"export",
+	"extern",
+	"false",
+	"FILE",
+	"float",
+	"for",
+	"friend",
+	"goto",
+	"if",
+	"inline",
+	"int",
+	"interface",
+	"long",
+	"LONG64",
+	"max",
+	"min",
+	"mustUnderstand",
+	"mutable",
+	"namespace",
+	"new",
+	"not",
+	"NULL",
+	"operator",
+	"or",
+	"private",
+	"protected",
+	"public",
+	"_QName",
+	"register",
+	"reinterpret_cast",
+	"restrict",
+	"return",
+	"short",
+	"signed",
+	"size_t",
+	"sizeof",
+	"static",
+	"static_cast",
+	"struct",
+	"switch",
+	"template",
+	"this",
+	"throw",
+	"time_t",
+	"true",
+	"typedef",
+	"typeid",
+	"typeof",
+	"typename",
+	"ULONG64",
+	"union",
+	"unsigned",
+	"using",
+	"virtual",
+	"void",
+	"volatile",
+	"wchar_t",
+	"while",
+	"XML",
+	"_XML",
+	"xor", 
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -220,7 +221,8 @@ int Types::read(const char * file)
 						else
 							modtypemap[s] = estrdup(def);
 					}
-					else {if(*def)
+					else {
+						if(*def)
 						      deftypemap[s] = estrdup(def);
 					      else
 						      deftypemap[s] = "";
@@ -402,7 +404,8 @@ void Types::init()
 		deftypemap["SOAP_ENC__string"] = "";
 		usetypemap["SOAP_ENC__string"] = "char*";
 	}
-	else {deftypemap["SOAP_ENC__string"] = "";
+	else {
+		deftypemap["SOAP_ENC__string"] = "";
 	      usetypemap["SOAP_ENC__string"] = "std::string"; }
 	deftypemap["SOAP_ENC__unsignedByte"] = "typedef unsigned char SOAP_ENC__unsignedByte;";
 	usetypemap["SOAP_ENC__unsignedByte"] = "SOAP_ENC__unsignedByte";
@@ -476,8 +479,7 @@ const char * Types::nsprefix(const char * prefix, const char * URI)
 
 // Find a C name for a QName. If the name has no qualifier, use URI. Suggest prefix for URI
 const char * Types::fname(const char * prefix, const char * URI, const char * qname, SetOfString * reserved,
-	enum Lookup lookup,
-	bool isqname)
+	enum Lookup lookup, bool isqname)
 {
 	char buf[1024], * t;
 	const char * p, * s, * name;
@@ -2834,10 +2836,12 @@ void Types::gen_soap_array(const char * name, const char * t, const char * item,
 			fprintf(stream, arrayformat, "}", item ? aname(NULL, NULL, item) : "");
 			fprintf(stream, ";\n");
 		}
-		else {const char * s = pname(!is_basetype(NULL, NULL, tmp), NULL, NULL, tmp);
+		else {
+			const char * s = pname(!is_basetype(NULL, NULL, tmp), NULL, NULL, tmp);
 		      fprintf(stream, "/// Pointer to array of %s.\n", s);
 		      fprintf(stream, arrayformat, s, item ? aname(NULL, NULL, item) : "");
-		      fprintf(stream, ";\n"); }
+		      fprintf(stream, ";\n"); 
+		}
 		if(*size)
 			fprintf(stream, "/// Size of the multidimensional dynamic array with dimensions=%s\n", size);
 		else
@@ -2850,8 +2854,7 @@ void Types::gen_soap_array(const char * name, const char * t, const char * item,
 	else { // TODO: how to handle generic SOAP array? E.g. as an array of anyType?
 		fprintf(stream, "// TODO: add declarations to handle generic SOAP-ENC:Array (array of anyType)\n");
 	}
-	if(tmp)
-		free(tmp);
+	free(tmp);
 }
 
 void Types::gen_substitutions(const char * URI, const xs__element & element)
@@ -2870,9 +2873,11 @@ void Types::gen_substitutions(const char * URI, const xs__element & element)
 		substitutions = element.elementPtr()->substitutionsPtr();
 		abstract = element.elementPtr()->abstract;
 	}
-	else {name = element.name;
+	else {
+		name = element.name;
 	      substitutions = element.substitutionsPtr();
-	      abstract = element.abstract; }
+	      abstract = element.abstract; 
+	}
 	fprintf(stream, "/// CHOICE OF ELEMENTS FOR <xs:element substitutionGroup=\"%s\"", name);
 	if(element.minOccurs)
 		fprintf(stream, " minOccurs=\"%s\"", element.minOccurs);
@@ -2886,8 +2891,7 @@ void Types::gen_substitutions(const char * URI, const xs__element & element)
 		const char * t = uname(URI);
 		// TODO: could reuse the union instead of generating a new one each time!
 		s = strstr(t, "__union");
-		if(!s)
-			s = "__union";
+		SETIFZ(s, "__union");
 		r = aname(NULL, NULL, name);
 		if(element.maxOccurs && strcmp(element.maxOccurs, "1")) {
 			if(with_union)                                                          { // Generate a wrapper when we need a union within a union
@@ -2907,8 +2911,7 @@ void Types::gen_substitutions(const char * URI, const xs__element & element)
 			fprintf(stream, choiceformat, "int", r);
 			fprintf(stream, " %s", element.minOccurs ? element.minOccurs : "0");
 			fprintf(stream, ";\t///< Union %s selector: set to SOAP_UNION_%s_<fieldname>%s\n", t, t,
-				element.minOccurs && !strcmp(element.minOccurs,
-					"0") ? " or 0" : "");
+				element.minOccurs && !strcmp(element.minOccurs, "0") ? " or 0" : "");
 			fprintf(stream, "/// Union for substitutionGroup=\"%s\"\n", name);
 			fprintf(stream, "    union %s\n    {\n", t);
 		}
@@ -2968,16 +2971,11 @@ const char * Types::format(const char * text)
 	if(!s)
 		return NULL;
 	while(*s && *s != '$') {
-		if(*s == '\\')                         {
-			switch(s[1])                                         {
-			    case 'n':
-				fputc('\n', stream);
-				break;
-			    case 't':
-				fputc('\t', stream);
-				break;
-			    default:
-				fputc(s[1], stream);
+		if(*s == '\\') {
+			switch(s[1]) {
+			    case 'n': fputc('\n', stream); break;
+			    case 't': fputc('\t', stream); break;
+			    default: fputc(s[1], stream);
 			}
 			s++;
 		}
@@ -2988,13 +2986,9 @@ const char * Types::format(const char * text)
 	fputc('\n', stream);
 	return s;
 }
-
-////////////////////////////////////////////////////////////////////////////////
 //
 //	Type map file parsing
 //
-////////////////////////////////////////////////////////////////////////////////
-
 static char * getline(char * s, size_t n, FILE * fd)
 {
 	int c;
@@ -3206,7 +3200,7 @@ static void documentation(const char * text)
 			break;
 		    default:
 			if(*s > 32) {
-				if(flag)              {
+				if(flag) {
 					fputc(' ', stream);
 					flag = false;
 				}
@@ -3217,13 +3211,9 @@ static void documentation(const char * text)
 	}
 	fputc('\n', stream);
 }
-
-////////////////////////////////////////////////////////////////////////////////
 //
 //	Allocation
 //
-////////////////////////////////////////////////////////////////////////////////
-
 void * emalloc(size_t size)
 {
 	void * p = malloc(size);

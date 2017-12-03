@@ -1481,7 +1481,7 @@ int ec_GFp_nistp224_points_mul(const EC_GROUP * group, EC_POINT * r,
 				p = EC_GROUP_get0_generator(group);
 				p_scalar = scalar;
 			}
-			else{
+			else {
 				/* the i^th point */
 				p = points[i];
 				p_scalar = scalars[i];

@@ -23,7 +23,6 @@
  * LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
  * OF THIS SOFTWARE.
  */
-
 /*
  * TIFF Library.
  *
@@ -31,7 +30,6 @@
  */
 #include "tiffiop.h"
 #pragma hdrstop
-#include "tif_predict.h"
 
 #define	PredictorState(tif)	((TIFFPredictorState*) (tif)->tif_data)
 
@@ -436,7 +434,7 @@ fpAcc(TIFF* tif, uint8* cp0, tmsize_t cc)
 		count -= stride;
 	}
 
-	_TIFFmemcpy(tmp, cp0, cc);
+	memcpy(tmp, cp0, cc);
 	cp = (uint8 *) cp0;
 	for (count = 0; count < wc; count++) {
 		uint32 byte;
@@ -666,7 +664,7 @@ fpDiff(TIFF* tif, uint8* cp0, tmsize_t cc)
 	if (!tmp)
 		return 0;
 
-	_TIFFmemcpy(tmp, cp0, cc);
+	memcpy(tmp, cp0, cc);
 	for (count = 0; count < wc; count++) {
 		uint32 byte;
 		for (byte = 0; byte < bps; byte++) {

@@ -22709,7 +22709,8 @@ static int xmlSchemaVPushText(xmlSchemaValidCtxtPtr vctxt, int nodeType, const x
 		}
 		return 0;
 	}
-	if(isempty(value))
+
+	if((value == NULL) || (value[0] == 0))
 		return 0;
 	/*
 	 * Save the value.
@@ -22718,6 +22719,7 @@ static int xmlSchemaVPushText(xmlSchemaValidCtxtPtr vctxt, int nodeType, const x
 	 */
 	if((vctxt->inode->typeDef->contentType == XML_SCHEMA_CONTENT_MIXED) && ((vctxt->inode->decl == NULL) || (vctxt->inode->decl->value == NULL)))
 		return 0;
+
 	if(vctxt->inode->value == NULL) {
 		/*
 		 * Set the value.
@@ -24461,5 +24463,5 @@ xmlParserCtxt * xmlSchemaValidCtxtGetParserCtxt(xmlSchemaValidCtxtPtr ctxt)
 }
 
 #define bottom_xmlschemas
-//#include "elfgcchack.h"
+#include "elfgcchack.h"
 #endif /* LIBXML_SCHEMAS_ENABLED */

@@ -2499,4 +2499,4 @@ int xmlSaveFile(const char * filename, xmlDoc * cur)
 #endif /* LIBXML_OUTPUT_ENABLED */
 
 #define bottom_xmlsave
-//#include "elfgcchack.h"
+#include "elfgcchack.h"

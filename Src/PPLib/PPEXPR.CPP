@@ -16,10 +16,8 @@ void SLAPI ExprEvalContext::FC::Init()
 	RetStr.Z();
 }
 
-SLAPI ExprEvalContext::ExprEvalContext()
+SLAPI ExprEvalContext::ExprEvalContext() : ImplementFlags(0), P_Next(0)
 {
-	ImplementFlags = 0;
-	P_Next = 0;
 }
 
 SLAPI ExprEvalContext::~ExprEvalContext()

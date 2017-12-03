@@ -324,12 +324,10 @@ public:
 	const  BarcodeLabelEntry * SLAPI GetEntry(uint);
 	int    SLAPI AddEntry(BarcodeLabelEntry *);
 	int    SLAPI ParseFormat(const RetailGoodsInfo *, const char * pFileName, const char * pFormatName);
-
-	int    SLAPI SetBarcodeWidth(int narrowPt, int widePt)
+	void   SLAPI SetBarcodeWidth(int narrowPt, int widePt)
 	{
 		BLP.BcNarrowPt = narrowPt;
 		BLP.BcWidePt = widePt;
-		return 1;
 	}
 private:
 	BarcodeFormatToken SLAPI NextToken(char ** ppLine, char * pBuf, size_t buflen);
@@ -352,9 +350,8 @@ private:
 
 class DatamaxLabelPrinter : public BarcodeLabelPrinter {
 public:
-	SLAPI  DatamaxLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack)
+	SLAPI  DatamaxLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack), NumCopies(1)
 	{
-		NumCopies = 1;
 	}
 	virtual int SLAPI StartLabel(const BarcodeLabelParam *, int numCopies);
 	virtual int SLAPI EndLabel();
@@ -365,9 +362,8 @@ private:
 
 class ZebraLabelPrinter : public BarcodeLabelPrinter {
 public:
-	SLAPI  ZebraLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack)
+	SLAPI  ZebraLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack), NumCopies(1)
 	{
-		NumCopies = 1;
 	}
 	virtual int SLAPI StartLabel(const BarcodeLabelParam *, int numCopies);
 	virtual int SLAPI EndLabel();
@@ -380,11 +376,9 @@ private:
 
 class EltronLabelPrinter : public BarcodeLabelPrinter {
 public:
-	SLAPI  EltronLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack)
+	SLAPI  EltronLabelPrinter(const PPBarcodePrinter & rPrnPack) : BarcodeLabelPrinter(rPrnPack),
+		NumCopies(1), BcNarrowPt(0), BcWidePt(0)
 	{
-		NumCopies = 1;
-		BcNarrowPt = 0;
-		BcWidePt = 0;
 	}
 	virtual int SLAPI StartLabel(const BarcodeLabelParam *, int numCopies);
 	virtual int SLAPI EndLabel();
@@ -481,12 +475,10 @@ enum BarcodeVarStr {
 #define FIRSTSUBSTVAR bcvsGoodsName
 #define NUMSUBSTVARS  39 // 24-->33, @v7.2.12 34->36, @v7.5.1 36-->37 @v7.6.10 37-->38 @v8.1.3 38-->39
 
-SLAPI BarcodeLabel::BarcodeLabel() : SArray(sizeof(BarcodeLabelEntry))
+SLAPI BarcodeLabel::BarcodeLabel() : SArray(sizeof(BarcodeLabelEntry)), P_GPack(0), P_GcPack(0)
 {
 	MEMSZERO(BLP);
 	uint   pos = 0;
-	P_GPack = 0;
-	P_GcPack = 0;
 	StrBuf.add("!", &pos);
 }
 
@@ -904,7 +896,7 @@ int SLAPI BarcodeLabel::WrapText(const char * pText, uint maxLen, SString & rHea
 	}
 	else {
 		rHead = pText;
-		rTail = 0;
+		rTail.Z();
 		ok = -1;
 	}
 	return ok;
@@ -1176,13 +1168,8 @@ BarcodeLabelPrinter * SLAPI BarcodeLabelPrinter::CreateInstance(/*PPID printerTy
 
 //#define BLPF_PRINTALL   0x0001L // Печать всей выборки
 
-SLAPI BarcodeLabelPrinter::BarcodeLabelPrintParam::BarcodeLabelPrintParam()
+SLAPI BarcodeLabelPrinter::BarcodeLabelPrintParam::BarcodeLabelPrintParam() : PrinterID(0), NumCopies(0), Pad(0), LocID(0), Flags(0)
 {
-	PrinterID = 0;
-	NumCopies = 0;
-	Pad = 0;
-	LocID = 0;
-	Flags = 0;
 }
 
 static int SLAPI EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintParam * pParam, int isExtDlg)
@@ -1562,9 +1549,7 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill2(const PPBillPacket * pPack, uin
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
-
 	TSCollection <RetailGoodsInfo> rgi_list;
-
 	PPID   cor_loc_id = 0;
 	PPBarcodePrinter rec;
 	BarcodeLabelPrinter * p_prn = 0;
@@ -2424,11 +2409,8 @@ int SLAPI EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 // Implementation of PPALDD_BarcodeLabelList
 //
 struct DlBarcodeLabelListBlock {
-	DlBarcodeLabelListBlock(const void * ptr)
+	DlBarcodeLabelListBlock(const void * ptr) : N(0), ExemplarN(0), P_RgiList((const TSCollection <RetailGoodsInfo> *)ptr)
 	{
-		P_RgiList = (const TSCollection <RetailGoodsInfo> *)ptr;
-		N = 0;
-		ExemplarN = 0;
 	}
 	uint   N; // Текущий номер позиции
 	uint   ExemplarN; // Номер экземпляра для N [0..P_RgiList[N].LabelCount-1]

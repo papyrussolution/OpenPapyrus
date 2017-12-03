@@ -2454,7 +2454,7 @@ browser TRFRGR_GS north(100), 3, 1, "Группировка товарных операций по товару", O
 	"Физ. количество", 10, notype, NMBF_NOTRAILZ, 6.3
 	"ЦП",              11, notype, NMBF_NOZERO,   8.2
 	"ЦР",              12, notype, NMBF_NOZERO,   8.2
-	group "@saldo" {
+	group "Сальдо" {
 		"@qtty",   14, notype, NMBF_NOTRAILZ, 8.3
 		"ЦР",      15, notype, 0,             8.2
 	}
@@ -2502,7 +2502,7 @@ browser TRFRGR_PS north(100), 3, 1, "Группировка товарных операций по контрагент
 	"Физ. количество", 10, notype, NMBF_NOTRAILZ, 6.3
 	"ЦП",              11, notype, NMBF_NOZERO, 8.2
 	"ЦР",              12, notype, NMBF_NOZERO, 8.2
-	group "@saldo" {
+	group "Сальдо" {
 		"@qtty",   14, notype, NMBF_NOTRAILZ, 8.3
 		"ЦР",      15, notype, 0, 8.2
 	}
@@ -6475,7 +6475,6 @@ cmd TestLogWindow         { "@{cmd_testlogwindow}"                         ICON_
 cmd ProcessSartre         { "@{cmd_importsartre}"                          none                   none cmProcessSartre } // @v9.7.8
 cmd BillAutoCreate        { "@{cmd_billautocreate}"                        none                   none cmBillAutoCreate } // @v9.7.10
 cmd TestTDDO2             { "@{cmd_testtddo2}"                             ICON_TEST              none cmTestTddo2 } // @v9.8.3
-cmd TestVetis             { "@{cmd_testvetis}"                             ICON_TEST              none cmTestVetis } // @v9.8.9
 //
 // -------------- Описания серверных задач
 //

@@ -130,7 +130,7 @@ static uint64 _tiffSizeProc(thandle_t fd)
 	fd_as_handle_union_t fdh;
 	fdh.h = fd;
 	if(_TIFF_fstat_f(fdh.fd, &sb)<0)
-		return(0);
+		return 0;
 	else
 		return((uint64)sb.st_size);
 }
@@ -294,11 +294,10 @@ TIFF* TIFFOpenW(const wchar_t* name, const char* mode)
 {
 	memset(p, v, (size_t)c);
 }*/
-
-void _TIFFmemcpy(void* d, const void* s, tmsize_t c)
+/*void _TIFFmemcpy_Removed(void* d, const void* s, tmsize_t c)
 {
 	memcpy(d, s, (size_t)c);
-}
+}*/
 
 int _TIFFmemcmp(const void* p1, const void* p2, tmsize_t c)
 {
@@ -307,7 +306,7 @@ int _TIFFmemcmp(const void* p1, const void* p2, tmsize_t c)
 
 static void unixWarningHandler(const char* module, const char* fmt, va_list ap)
 {
-	if(module != NULL)
+	if(module)
 		fprintf(stderr, "%s: ", module);
 	fprintf(stderr, "Warning, ");
 	vfprintf(stderr, fmt, ap);

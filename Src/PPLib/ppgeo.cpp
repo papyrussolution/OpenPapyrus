@@ -8,23 +8,13 @@
 //
 //
 //
-SLAPI PPOsm::NodeCluster::Put__Param::Put__Param(const Node * pN, uint nodeCount)
+SLAPI PPOsm::NodeCluster::Put__Param::Put__Param(const Node * pN, uint nodeCount) : 
+	P_N(pN), P_NrWayRefs(0), P_NrRelRefs(0), NCount(nodeCount), NrWayRefsCount(0), NrRelRefsCount(0)
 {
-	P_N = pN;
-	P_NrWayRefs = 0;
-	P_NrRelRefs = 0;
-	NCount = nodeCount;
-	NrWayRefsCount = 0;
-	NrRelRefsCount = 0;
 }
 
-SLAPI PPOsm::NodeCluster::Put__Result::Put__Result()
+SLAPI PPOsm::NodeCluster::Put__Result::Put__Result() : ActualCount(0), ActualNrWayCount(0), ActualNrRelCount(0), NrWayShift(0), NrRelShift(0)
 {
-	ActualCount = 0;
-	ActualNrWayCount = 0;
-	ActualNrRelCount = 0;
-	NrWayShift = 0;
-	NrRelShift = 0;
 }
 
 SLAPI PPOsm::NodeCluster::NodeCluster() : SBuffer(32)
@@ -907,9 +897,8 @@ size_t SLAPI PPOsm::WayBuffer::GetSize() const
 //
 //
 //
-SLAPI PPOsm::Tile::Tile()
+SLAPI PPOsm::Tile::Tile() : V(0)
 {
-	V = 0;
 }
 
 SLAPI PPOsm::Tile::Tile(const Tile & rS)
@@ -945,9 +934,8 @@ uint32 SLAPI PPOsm::Tile::GetZValue() const
 //
 //
 //
-SLAPI PPOsm::NPoint::NPoint()
+SLAPI PPOsm::NPoint::NPoint() : ID(0)
 {
-	ID = 0;
 }
 
 int FASTCALL PPOsm::NPoint::IsEqual(const PPOsm::NPoint & rS) const
@@ -1021,9 +1009,8 @@ void SLAPI PPOsm::NodeRefs::Sort()
 	RelRefs.Sort();
 }
 
-SLAPI PPOsm::Way::Way()
+SLAPI PPOsm::Way::Way() : ID(0)
 {
-	ID = 0;
 }
 
 void PPOsm::Way::Clear()
@@ -1053,22 +1040,16 @@ int FASTCALL PPOsm::Way::operator != (const Way & rS) const
 	return BIN(!IsEqual(rS));
 }
 
-SLAPI PPOsm::RelMember::RelMember()
+SLAPI PPOsm::RelMember::RelMember() : RefID(0), TypeSymbID(0), RoleSymbID(0)
 {
-	RefID = 0;
-	TypeSymbID = 0;
-	RoleSymbID = 0;
 }
 
-SLAPI PPOsm::Relation::Relation()
+SLAPI PPOsm::Relation::Relation() : ID(0)
 {
-	ID = 0;
 }
 
-SLAPI PPOsm::Tag::Tag()
+SLAPI PPOsm::Tag::Tag() : KeySymbID(0), ValID(0)
 {
-	KeySymbID = 0;
-	ValID = 0;
 }
 
 //static
@@ -1184,14 +1165,10 @@ int FASTCALL PPOsm::SetNodeClusterStat(NodeCluster & rCluster, TSVector <NodeClu
 	return ok;
 }
 
-SLAPI PPOsm::PPOsm(const char * pDbPath) : Ht(1024*1024, 0), Grid(12)
+SLAPI PPOsm::PPOsm(const char * pDbPath) : Ht(1024*1024, 0), Grid(12), P_SrDb(0), LastSymbID(0), Status(0)
 {
-	P_SrDb = 0;
-	LastSymbID = 0;
-	Status = 0;
-	if(!isempty(pDbPath)) {
+	if(!isempty(pDbPath))
 		OpenDatabase(pDbPath);
-	}
 }
 
 SLAPI PPOsm::~PPOsm()
@@ -1428,7 +1405,6 @@ int  SLAPI GeoTrackingFilt::IsEmpty() const
 //
 SLAPI PPViewGeoTracking::PPViewGeoTracking() : PPView(0, &Filt, PPVIEW_GEOTRACKING)
 {
-
 }
 
 SLAPI PPViewGeoTracking::~PPViewGeoTracking()
@@ -1456,8 +1432,7 @@ int  SLAPI PPViewGeoTracking::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		int    setDTS(const GeoTrackingFilt * pData)
 		{
 			int    ok = 1;
-			if(pData)
-				Data = *pData;
+			RVALUEPTR(Data, pData);
 			SetPeriodInput(this, CTL_GEOTRFILT_PERIOD, &Data.Period);
 			SetupObjListCombo(this, CTLSEL_GEOTRFILT_OBJT, Data.Oi.Obj, &ObjTypeList);
 			SetupObjListCombo(this, CTLSEL_GEOTRFILT_EXTOBJT, Data.ExtOi.Obj, &ExtObjTypeList);
@@ -1469,10 +1444,7 @@ int  SLAPI PPViewGeoTracking::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			int    ok = 1;
 			GetPeriodInput(this, CTL_GEOTRFILT_PERIOD, &Data.Period);
 			Data.Oi.Obj = getCtrlLong(CTLSEL_GEOTRFILT_OBJT);
-			if(Data.Oi.Obj)
-				Data.Oi.Id = getCtrlLong(CTLSEL_GEOTRFILT_OBJ);
-			else
-				Data.Oi.Id = 0;
+			Data.Oi.Id = Data.Oi.Obj ? getCtrlLong(CTLSEL_GEOTRFILT_OBJ) : 0;
 			Data.ExtOi.Obj = getCtrlLong(CTLSEL_GEOTRFILT_EXTOBJT);
 			Data.ExtOi.Id = 0;
 			ASSIGN_PTR(pData, Data);

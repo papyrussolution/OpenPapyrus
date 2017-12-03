@@ -385,10 +385,8 @@ int SLAPI ConvertLandQCertToLotTag()
 //
 //
 //
-PPViewLot::IterData::IterData()
+PPViewLot::IterData::IterData() : P_ByTagList(0), P_ByTagExclList(0)
 {
-	P_ByTagList = 0;
-	P_ByTagExclList = 0;
 }
 
 PPViewLot::IterData::~IterData()
@@ -409,16 +407,10 @@ void PPViewLot::IterData::Reset()
 //
 //
 //
-SLAPI PPViewLot::PPViewLot() : PPView(0, &Filt, PPVIEW_LOT)
+SLAPI PPViewLot::PPViewLot() : PPView(0, &Filt, PPVIEW_LOT), P_BObj(BillObj), State(0), P_Tbl(&P_BObj->trfr->Rcpt),
+	P_TempTbl(0), P_SpoilTbl(0), P_PplBlkBeg(0), P_PplBlkEnd(0)
 {
-	P_BObj = BillObj;
-	State = 0;
 	SETFLAG(State, stAccsCost, P_BObj->CheckRights(BILLRT_ACCSCOST));
-	P_Tbl = & P_BObj->trfr->Rcpt;
-	P_TempTbl = 0;
-	P_SpoilTbl = 0;
-	P_PplBlkBeg = 0;
-	P_PplBlkEnd = 0;
 }
 
 SLAPI PPViewLot::~PPViewLot()

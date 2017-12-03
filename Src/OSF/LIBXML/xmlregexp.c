@@ -7578,5 +7578,5 @@ int xmlExpCtxtNbCons(xmlExpCtxtPtr ctxt)
 
 #endif /* LIBXML_EXPR_ENABLED */
 #define bottom_xmlregexp
-//#include "elfgcchack.h"
+#include "elfgcchack.h"
 #endif /* LIBXML_REGEXP_ENABLED */

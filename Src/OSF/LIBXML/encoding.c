@@ -3914,4 +3914,4 @@ static void xmlRegisterCharEncodingHandlersISO8859x()
 #endif
 
 #define bottom_encoding
-//#include "elfgcchack.h"
+#include "elfgcchack.h"

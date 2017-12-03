@@ -2770,7 +2770,7 @@ nsSBCSGroupProber::nsSBCSGroupProber()
 	if(mProbers[10] && mProbers[11] && mProbers[12]) { // all are not null
 		hebprober->SetModelProbers(mProbers[11], mProbers[12]);
 	}
-	else{ // One or more is null. avoid any Hebrew probing, null them all
+	else { // One or more is null. avoid any Hebrew probing, null them all
 		for(uint32 i = 10; i <= 12; ++i) {
 			delete mProbers[i];
 			mProbers[i] = 0;
@@ -3588,7 +3588,7 @@ nsProbingState nsEUCJPProber::HandleData(const char* aBuf, uint32 aLen)
 				mContextAnalyser.HandleOneChar(mLastChar, charLen);
 				mDistributionAnalyser.HandleOneChar(mLastChar, charLen);
 			}
-			else{
+			else {
 				mContextAnalyser.HandleOneChar(aBuf+i-1, charLen);
 				mDistributionAnalyser.HandleOneChar(aBuf+i-1, charLen);
 			}
@@ -4476,7 +4476,7 @@ void nsMBCSGroupProber::DumpStatus()
 	for(uint32 i = 0; i < NUM_OF_PROBERS; i++) {
 		if(!mIsActive[i])
 			printf("  MBCS inactive: [%s] (confidence is too low).\r\n", ProberName[i]);
-		else{
+		else {
 			cf = mProbers[i]->GetConfidence();
 			printf("  MBCS %1.3f: [%s]\r\n", cf, ProberName[i]);
 		}

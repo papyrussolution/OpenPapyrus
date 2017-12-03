@@ -709,7 +709,7 @@ static int JPEGFixupTags(TIFF* tif)
 		JPEGFixupTagsSubsampling(tif);
 #endif
 
-	return(1);
+	return 1;
 }
 
 #ifdef CHECK_JPEG_YCBCR_SUBSAMPLING
@@ -778,13 +778,13 @@ static int JPEGFixupTagsSubsamplingSec(struct JPEGFixupTagsSubsamplingData* data
 	while(1) {
 		while(1) {
 			if(!JPEGFixupTagsSubsamplingReadByte(data, &m))
-				return(0);
+				return 0;
 			if(m==255)
 				break;
 		}
 		while(1) {
 			if(!JPEGFixupTagsSubsamplingReadByte(data, &m))
-				return(0);
+				return 0;
 			if(m!=255)
 				break;
 		}
@@ -818,9 +818,9 @@ static int JPEGFixupTagsSubsamplingSec(struct JPEGFixupTagsSubsamplingData* data
 		    {
 			    uint16 n;
 			    if(!JPEGFixupTagsSubsamplingReadWord(data, &n))
-				    return(0);
+				    return 0;
 			    if(n<2)
-				    return(0);
+				    return 0;
 			    n -= 2;
 			    if(n>0)
 				    JPEGFixupTagsSubsamplingSkip(data, n);
@@ -840,25 +840,25 @@ static int JPEGFixupTagsSubsamplingSec(struct JPEGFixupTagsSubsamplingData* data
 			    uint8 p;
 			    uint8 ph, pv;
 			    if(!JPEGFixupTagsSubsamplingReadWord(data, &n))
-				    return(0);
+				    return 0;
 			    if(n!=8+data->tif->tif_dir.td_samplesperpixel*3)
-				    return(0);
+				    return 0;
 			    JPEGFixupTagsSubsamplingSkip(data, 7);
 			    if(!JPEGFixupTagsSubsamplingReadByte(data, &p))
-				    return(0);
+				    return 0;
 			    ph = (p>>4);
 			    pv = (p&15);
 			    JPEGFixupTagsSubsamplingSkip(data, 1);
 			    for(o = 1; o<data->tif->tif_dir.td_samplesperpixel; o++) {
 				    JPEGFixupTagsSubsamplingSkip(data, 1);
 				    if(!JPEGFixupTagsSubsamplingReadByte(data, &p))
-					    return(0);
+					    return 0;
 				    if(p!=0x11) {
 					    TIFFWarningExt(
 						    data->tif->tif_clientdata,
 						    module,
 						    "Subsampling values inside JPEG compressed data have no TIFF equivalent, auto-correction of TIFF subsampling values failed");
-					    return(1);
+					    return 1;
 				    }
 				    JPEGFixupTagsSubsamplingSkip(data, 1);
 			    }
@@ -867,7 +867,7 @@ static int JPEGFixupTagsSubsamplingSec(struct JPEGFixupTagsSubsamplingData* data
 					    data->tif->tif_clientdata,
 					    module,
 					    "Subsampling values inside JPEG compressed data have no TIFF equivalent, auto-correction of TIFF subsampling values failed");
-				    return(1);
+				    return 1;
 			    }
 			    if((ph!=data->tif->tif_dir.td_ycbcrsubsampling[0])||(pv!=data->tif->tif_dir.td_ycbcrsubsampling[1])) {
 				    TIFFWarningExt(
@@ -882,9 +882,9 @@ static int JPEGFixupTagsSubsamplingSec(struct JPEGFixupTagsSubsamplingData* data
 				    data->tif->tif_dir.td_ycbcrsubsampling[1] = pv;
 			    }
 		    }
-			    return(1);
+			    return 1;
 			default:
-			    return(0);
+			    return 0;
 		}
 	}
 }
@@ -894,7 +894,7 @@ static int JPEGFixupTagsSubsamplingReadByte(struct JPEGFixupTagsSubsamplingData*
 	if(data->bufferbytesleft==0) {
 		uint32 m;
 		if(data->filebytesleft==0)
-			return(0);
+			return 0;
 		if(!data->filepositioned) {
 			TIFFSeekFile(data->tif, data->fileoffset, SEEK_SET);
 			data->filepositioned = 1;
@@ -904,7 +904,7 @@ static int JPEGFixupTagsSubsamplingReadByte(struct JPEGFixupTagsSubsamplingData*
 			m = (uint32)data->filebytesleft;
 		assert(m<0x80000000UL);
 		if(TIFFReadFile(data->tif, data->buffer, (tmsize_t)m)!=(tmsize_t)m)
-			return(0);
+			return 0;
 		data->buffercurrentbyte = (uint8 *)data->buffer;
 		data->bufferbytesleft = m;
 		data->fileoffset += m;
@@ -913,7 +913,7 @@ static int JPEGFixupTagsSubsamplingReadByte(struct JPEGFixupTagsSubsamplingData*
 	*result = *data->buffercurrentbyte;
 	data->buffercurrentbyte++;
 	data->bufferbytesleft--;
-	return(1);
+	return 1;
 }
 
 static int JPEGFixupTagsSubsamplingReadWord(struct JPEGFixupTagsSubsamplingData* data, uint16* result)
@@ -921,11 +921,11 @@ static int JPEGFixupTagsSubsamplingReadWord(struct JPEGFixupTagsSubsamplingData*
 	uint8 ma;
 	uint8 mb;
 	if(!JPEGFixupTagsSubsamplingReadByte(data, &ma))
-		return(0);
+		return 0;
 	if(!JPEGFixupTagsSubsamplingReadByte(data, &mb))
-		return(0);
+		return 0;
 	*result = (ma<<8)|mb;
-	return(1);
+	return 1;
 }
 
 static void JPEGFixupTagsSubsamplingSkip(struct JPEGFixupTagsSubsamplingData* data, uint16 skiplength)
@@ -934,7 +934,7 @@ static void JPEGFixupTagsSubsamplingSkip(struct JPEGFixupTagsSubsamplingData* da
 		data->buffercurrentbyte += skiplength;
 		data->bufferbytesleft -= skiplength;
 	}
-	else{
+	else {
 		uint16 m;
 		m = (uint16)(skiplength-data->bufferbytesleft);
 		if(m<=data->filebytesleft) {
@@ -943,7 +943,7 @@ static void JPEGFixupTagsSubsamplingSkip(struct JPEGFixupTagsSubsamplingData* da
 			data->filebytesleft -= m;
 			data->filepositioned = 0;
 		}
-		else{
+		else {
 			data->bufferbytesleft = 0;
 			data->filebytesleft = 0;
 		}
@@ -1532,7 +1532,7 @@ static int JPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 						((unsigned char*)buf)[i] = tmpbuf[i] & 0xff;
 					}
 				}
-				else{     /* 12-bit */
+				else {     /* 12-bit */
 					int value_pairs = (sp->cinfo.d.output_width
 					    * sp->cinfo.d.num_components) / 2;
 					int iPair;
@@ -2000,7 +2000,7 @@ static int JPEGEncode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 				out_ptr[1] = ((in_ptr[1] & 0x0f) << 8) | in_ptr[2];
 			}
 		}
-		else{
+		else {
 			bufptr[0] = (JSAMPROW)buf;
 		}
 		if(TIFFjpeg_write_scanlines(sp, bufptr, 1) != 1)
@@ -2126,7 +2126,7 @@ static int JPEGPostEncode(TIFF* tif)
 			    * sizeof(JSAMPLE);
 			for(ypos = sp->scancount * vsamp;
 			    ypos < DCTSIZE * vsamp; ypos++) {
-				_TIFFmemcpy((void*)sp->ds_buffer[ci][ypos],
+				memcpy((void*)sp->ds_buffer[ci][ypos],
 				    (void*)sp->ds_buffer[ci][ypos-1],
 				    row_width);
 			}
@@ -2474,7 +2474,7 @@ int TIFFInitJPEG(TIFF* tif, int scheme)
 		if(sp->jpegtables) {
 			memzero(sp->jpegtables, SIZE_OF_JPEGTABLES);
 		}
-		else{
+		else {
 			TIFFErrorExt(tif->tif_clientdata, "TIFFInitJPEG", "Failed to allocate memory for JPEG tables");
 			return 0;
 		}

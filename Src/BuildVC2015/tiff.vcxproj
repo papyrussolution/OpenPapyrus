@@ -68,6 +68,9 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -105,6 +108,9 @@
       <WarningLevel>Level3</WarningLevel>
       <CompileAs>CompileAsCpp</CompileAs>
       <DebugInformationFormat>None</DebugInformationFormat>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <Midl>
       <AdditionalIncludeDirectories>..\OSF\tiff\libtiff;..\OSF\tiff\__build__\libtiff;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -124,6 +130,10 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\OSF\tiff\libtiff\tiff-pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\OSF\tiff\libtiff\tif_aux.c" />
     <ClCompile Include="..\OSF\tiff\libtiff\tif_close.c" />
     <ClCompile Include="..\OSF\tiff\libtiff\tif_codec.c" />

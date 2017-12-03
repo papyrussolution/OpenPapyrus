@@ -1085,4 +1085,4 @@ size_t xmlDictGetUsage(xmlDict * dict)
 }
 
 #define bottom_dict
-//#include "elfgcchack.h"
+#include "elfgcchack.h"

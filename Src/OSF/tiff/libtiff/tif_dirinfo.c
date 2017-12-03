@@ -325,9 +325,7 @@ const TIFFFieldArray* _TIFFGetExifFields(void)
 void _TIFFSetupFields(TIFF* tif, const TIFFFieldArray* fieldarray)
 {
 	if(tif->tif_fields && tif->tif_nfields > 0) {
-		uint32 i;
-
-		for(i = 0; i < tif->tif_nfields; i++) {
+		for(uint32 i = 0; i < tif->tif_nfields; i++) {
 			TIFFField * fld = tif->tif_fields[i];
 			if(fld->field_bit == FIELD_CUSTOM &&
 			    strncmp("Tag ", fld->field_name, 4) == 0) {
@@ -335,14 +333,12 @@ void _TIFFSetupFields(TIFF* tif, const TIFFFieldArray* fieldarray)
 				SAlloc::F(fld);
 			}
 		}
-
 		SAlloc::F(tif->tif_fields);
 		tif->tif_fields = NULL;
 		tif->tif_nfields = 0;
 	}
 	if(!_TIFFMergeFields(tif, fieldarray->fields, fieldarray->count)) {
-		TIFFErrorExt(tif->tif_clientdata, "_TIFFSetupFields",
-		    "Setting up field info failed");
+		TIFFErrorExt(tif->tif_clientdata, "_TIFFSetupFields", "Setting up field info failed");
 	}
 }
 
@@ -354,8 +350,7 @@ static int tagCompare(const void* a, const void* b)
 	if(ta->field_tag != tb->field_tag)
 		return (int)ta->field_tag - (int)tb->field_tag;
 	else
-		return (ta->field_type == TIFF_ANY) ?
-		       0 : ((int)tb->field_type - (int)ta->field_type);
+		return (ta->field_type == TIFF_ANY) ? 0 : ((int)tb->field_type - (int)ta->field_type);
 }
 
 static int tagNameCompare(const void* a, const void* b)
@@ -363,12 +358,10 @@ static int tagNameCompare(const void* a, const void* b)
 	const TIFFField* ta = *(const TIFFField**)a;
 	const TIFFField* tb = *(const TIFFField**)b;
 	int ret = strcmp(ta->field_name, tb->field_name);
-
 	if(ret)
 		return ret;
 	else
-		return (ta->field_type == TIFF_ANY) ?
-		       0 : ((int)tb->field_type - (int)ta->field_type);
+		return (ta->field_type == TIFF_ANY) ? 0 : ((int)tb->field_type - (int)ta->field_type);
 }
 
 int _TIFFMergeFields(TIFF* tif, const TIFFField info[], uint32 n)
@@ -377,23 +370,15 @@ int _TIFFMergeFields(TIFF* tif, const TIFFField info[], uint32 n)
 	static const char reason[] = "for fields array";
 	/* TIFFField** tp; */
 	uint32 i;
-
 	tif->tif_foundfield = NULL;
-
 	if(tif->tif_fields && tif->tif_nfields > 0) {
-		tif->tif_fields = (TIFFField**)
-		    _TIFFCheckRealloc(tif, tif->tif_fields,
-		    (tif->tif_nfields + n),
-		    sizeof(TIFFField *), reason);
+		tif->tif_fields = (TIFFField**) _TIFFCheckRealloc(tif, tif->tif_fields, (tif->tif_nfields + n), sizeof(TIFFField *), reason);
 	}
 	else {
-		tif->tif_fields = (TIFFField**)
-		    _TIFFCheckMalloc(tif, n, sizeof(TIFFField *),
-		    reason);
+		tif->tif_fields = (TIFFField**)_TIFFCheckMalloc(tif, n, sizeof(TIFFField *), reason);
 	}
 	if(!tif->tif_fields) {
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Failed to allocate fields array");
+		TIFFErrorExt(tif->tif_clientdata, module, "Failed to allocate fields array");
 		return 0;
 	}
 
@@ -408,31 +393,20 @@ int _TIFFMergeFields(TIFF* tif, const TIFFField info[], uint32 n)
 			tif->tif_nfields++;
 		}
 	}
-
 	/* Sort the field info by tag number */
-	qsort(tif->tif_fields, tif->tif_nfields,
-	    sizeof(TIFFField *), tagCompare);
-
+	qsort(tif->tif_fields, tif->tif_nfields, sizeof(TIFFField *), tagCompare);
 	return n;
 }
 
 void _TIFFPrintFieldInfo(TIFF* tif, FILE* fd)
 {
-	uint32 i;
-
 	fprintf(fd, "%s: \n", tif->tif_name);
-	for(i = 0; i < tif->tif_nfields; i++) {
+	for(uint32 i = 0; i < tif->tif_nfields; i++) {
 		const TIFFField* fip = tif->tif_fields[i];
-		fprintf(fd, "field[%2d] %5lu, %2d, %2d, %d, %2d, %5s, %5s, %s\n"
-		    , (int)i
-		    , (unsigned long)fip->field_tag
-		    , fip->field_readcount, fip->field_writecount
-		    , fip->field_type
-		    , fip->field_bit
-		    , fip->field_oktochange ? "TRUE" : "FALSE"
-		    , fip->field_passcount ? "TRUE" : "FALSE"
-		    , fip->field_name
-		    );
+		fprintf(fd, "field[%2d] %5lu, %2d, %2d, %d, %2d, %5s, %5s, %s\n", 
+			(int)i, (unsigned long)fip->field_tag, fip->field_readcount, fip->field_writecount, 
+			fip->field_type, fip->field_bit, fip->field_oktochange ? "TRUE" : "FALSE", 
+			fip->field_passcount ? "TRUE" : "FALSE", fip->field_name);
 	}
 }
 
@@ -441,8 +415,7 @@ void _TIFFPrintFieldInfo(TIFF* tif, FILE* fd)
  */
 int TIFFDataWidth(TIFFDataType type)
 {
-	switch(type)
-	{
+	switch(type) {
 		case 0:  /* nothing */
 		case TIFF_BYTE:
 		case TIFF_ASCII:
@@ -478,8 +451,7 @@ int TIFFDataWidth(TIFFDataType type)
  */
 int _TIFFDataSize(TIFFDataType type)
 {
-	switch(type)
-	{
+	switch(type) {
 		case TIFF_BYTE:
 		case TIFF_SBYTE:
 		case TIFF_ASCII:
@@ -534,24 +506,15 @@ static const TIFFField* _TIFFFindFieldByName(TIFF* tif, const char * field_name,
 	TIFFField key = {0, 0, 0, TIFF_NOTYPE, 0, (TIFFSetGetFieldType)0, (TIFFSetGetFieldType)0, 0, 0, 0, NULL, NULL};
 	TIFFField* pkey = &key;
 	const TIFFField ** ret;
-	if(tif->tif_foundfield
-	    && streq(tif->tif_foundfield->field_name, field_name)
-	    && (dt == TIFF_ANY || dt == tif->tif_foundfield->field_type))
+	if(tif->tif_foundfield && streq(tif->tif_foundfield->field_name, field_name) && (dt == TIFF_ANY || dt == tif->tif_foundfield->field_type))
 		return (tif->tif_foundfield);
-
 	/* If we are invoked with no field information, then just return. */
 	if(!tif->tif_fields)
 		return NULL;
-
 	/* NB: use linear search since list is sorted by key#, not name */
-
 	key.field_name = (char*)field_name;
 	key.field_type = dt;
-
-	ret = (const TIFFField**)
-	    td_lfind(&pkey, tif->tif_fields, &tif->tif_nfields,
-	    sizeof(TIFFField *), tagNameCompare);
-
+	ret = (const TIFFField**)td_lfind(&pkey, tif->tif_fields, &tif->tif_nfields, sizeof(TIFFField *), tagNameCompare);
 	return tif->tif_foundfield = (ret ? *ret : NULL);
 }
 
@@ -559,20 +522,16 @@ const TIFFField* TIFFFieldWithTag(TIFF* tif, uint32 tag)
 {
 	const TIFFField* fip = TIFFFindField(tif, tag, TIFF_ANY);
 	if(!fip) {
-		TIFFErrorExt(tif->tif_clientdata, "TIFFFieldWithTag",
-		    "Internal error, unknown tag 0x%x",
-		    (unsigned int)tag);
+		TIFFErrorExt(tif->tif_clientdata, "TIFFFieldWithTag", "Internal error, unknown tag 0x%x", (unsigned int)tag);
 	}
 	return (fip);
 }
 
 const TIFFField* TIFFFieldWithName(TIFF* tif, const char * field_name)
 {
-	const TIFFField* fip =
-	    _TIFFFindFieldByName(tif, field_name, TIFF_ANY);
+	const TIFFField * fip = _TIFFFindFieldByName(tif, field_name, TIFF_ANY);
 	if(!fip) {
-		TIFFErrorExt(tif->tif_clientdata, "TIFFFieldWithName",
-		    "Internal error, unknown tag %s", field_name);
+		TIFFErrorExt(tif->tif_clientdata, "TIFFFieldWithName", "Internal error, unknown tag %s", field_name);
 	}
 	return (fip);
 }
@@ -636,8 +595,7 @@ TIFFField* _TIFFCreateAnonField(TIFF * tif, uint32 tag, TIFFDataType field_type)
 	fld->field_writecount = TIFF_VARIABLE2;
 	fld->field_type = field_type;
 	fld->reserved = 0;
-	switch(field_type)
-	{
+	switch(field_type) {
 		case TIFF_BYTE:
 		case TIFF_UNDEFINED:
 		    fld->set_field_type = TIFF_SETGET_C32_UINT8;
@@ -723,148 +681,89 @@ static TIFFSetGetFieldType _TIFFSetGetType(TIFFDataType type, short count, unsig
 {
 	if(type == TIFF_ASCII && count == TIFF_VARIABLE && passcount == 0)
 		return TIFF_SETGET_ASCII;
-
 	else if(count == 1 && passcount == 0) {
-		switch(type)
-		{
+		switch(type) {
 			case TIFF_BYTE:
-			case TIFF_UNDEFINED:
-			    return TIFF_SETGET_UINT8;
-			case TIFF_ASCII:
-			    return TIFF_SETGET_ASCII;
-			case TIFF_SHORT:
-			    return TIFF_SETGET_UINT16;
-			case TIFF_LONG:
-			    return TIFF_SETGET_UINT32;
+			case TIFF_UNDEFINED: return TIFF_SETGET_UINT8;
+			case TIFF_ASCII: return TIFF_SETGET_ASCII;
+			case TIFF_SHORT: return TIFF_SETGET_UINT16;
+			case TIFF_LONG: return TIFF_SETGET_UINT32;
 			case TIFF_RATIONAL:
 			case TIFF_SRATIONAL:
-			case TIFF_FLOAT:
-			    return TIFF_SETGET_FLOAT;
-			case TIFF_SBYTE:
-			    return TIFF_SETGET_SINT8;
-			case TIFF_SSHORT:
-			    return TIFF_SETGET_SINT16;
-			case TIFF_SLONG:
-			    return TIFF_SETGET_SINT32;
-			case TIFF_DOUBLE:
-			    return TIFF_SETGET_DOUBLE;
+			case TIFF_FLOAT: return TIFF_SETGET_FLOAT;
+			case TIFF_SBYTE: return TIFF_SETGET_SINT8;
+			case TIFF_SSHORT: return TIFF_SETGET_SINT16;
+			case TIFF_SLONG: return TIFF_SETGET_SINT32;
+			case TIFF_DOUBLE: return TIFF_SETGET_DOUBLE;
 			case TIFF_IFD:
-			case TIFF_IFD8:
-			    return TIFF_SETGET_IFD8;
-			case TIFF_LONG8:
-			    return TIFF_SETGET_UINT64;
-			case TIFF_SLONG8:
-			    return TIFF_SETGET_SINT64;
-			default:
-			    return TIFF_SETGET_UNDEFINED;
+			case TIFF_IFD8: return TIFF_SETGET_IFD8;
+			case TIFF_LONG8: return TIFF_SETGET_UINT64;
+			case TIFF_SLONG8: return TIFF_SETGET_SINT64;
+			default: return TIFF_SETGET_UNDEFINED;
 		}
 	}
-
 	else if(count >= 1 && passcount == 0) {
-		switch(type)
-		{
+		switch(type) {
 			case TIFF_BYTE:
-			case TIFF_UNDEFINED:
-			    return TIFF_SETGET_C0_UINT8;
-			case TIFF_ASCII:
-			    return TIFF_SETGET_C0_ASCII;
-			case TIFF_SHORT:
-			    return TIFF_SETGET_C0_UINT16;
-			case TIFF_LONG:
-			    return TIFF_SETGET_C0_UINT32;
+			case TIFF_UNDEFINED: return TIFF_SETGET_C0_UINT8;
+			case TIFF_ASCII: return TIFF_SETGET_C0_ASCII;
+			case TIFF_SHORT: return TIFF_SETGET_C0_UINT16;
+			case TIFF_LONG: return TIFF_SETGET_C0_UINT32;
 			case TIFF_RATIONAL:
 			case TIFF_SRATIONAL:
-			case TIFF_FLOAT:
-			    return TIFF_SETGET_C0_FLOAT;
-			case TIFF_SBYTE:
-			    return TIFF_SETGET_C0_SINT8;
-			case TIFF_SSHORT:
-			    return TIFF_SETGET_C0_SINT16;
-			case TIFF_SLONG:
-			    return TIFF_SETGET_C0_SINT32;
-			case TIFF_DOUBLE:
-			    return TIFF_SETGET_C0_DOUBLE;
+			case TIFF_FLOAT: return TIFF_SETGET_C0_FLOAT;
+			case TIFF_SBYTE: return TIFF_SETGET_C0_SINT8;
+			case TIFF_SSHORT: return TIFF_SETGET_C0_SINT16;
+			case TIFF_SLONG: return TIFF_SETGET_C0_SINT32;
+			case TIFF_DOUBLE: return TIFF_SETGET_C0_DOUBLE;
 			case TIFF_IFD:
-			case TIFF_IFD8:
-			    return TIFF_SETGET_C0_IFD8;
-			case TIFF_LONG8:
-			    return TIFF_SETGET_C0_UINT64;
-			case TIFF_SLONG8:
-			    return TIFF_SETGET_C0_SINT64;
-			default:
-			    return TIFF_SETGET_UNDEFINED;
+			case TIFF_IFD8: return TIFF_SETGET_C0_IFD8;
+			case TIFF_LONG8: return TIFF_SETGET_C0_UINT64;
+			case TIFF_SLONG8: return TIFF_SETGET_C0_SINT64;
+			default: return TIFF_SETGET_UNDEFINED;
 		}
 	}
 
 	else if(count == TIFF_VARIABLE && passcount == 1) {
-		switch(type)
-		{
+		switch(type) {
 			case TIFF_BYTE:
-			case TIFF_UNDEFINED:
-			    return TIFF_SETGET_C16_UINT8;
-			case TIFF_ASCII:
-			    return TIFF_SETGET_C16_ASCII;
-			case TIFF_SHORT:
-			    return TIFF_SETGET_C16_UINT16;
-			case TIFF_LONG:
-			    return TIFF_SETGET_C16_UINT32;
+			case TIFF_UNDEFINED: return TIFF_SETGET_C16_UINT8;
+			case TIFF_ASCII: return TIFF_SETGET_C16_ASCII;
+			case TIFF_SHORT: return TIFF_SETGET_C16_UINT16;
+			case TIFF_LONG: return TIFF_SETGET_C16_UINT32;
 			case TIFF_RATIONAL:
 			case TIFF_SRATIONAL:
-			case TIFF_FLOAT:
-			    return TIFF_SETGET_C16_FLOAT;
-			case TIFF_SBYTE:
-			    return TIFF_SETGET_C16_SINT8;
-			case TIFF_SSHORT:
-			    return TIFF_SETGET_C16_SINT16;
-			case TIFF_SLONG:
-			    return TIFF_SETGET_C16_SINT32;
-			case TIFF_DOUBLE:
-			    return TIFF_SETGET_C16_DOUBLE;
+			case TIFF_FLOAT: return TIFF_SETGET_C16_FLOAT;
+			case TIFF_SBYTE: return TIFF_SETGET_C16_SINT8;
+			case TIFF_SSHORT: return TIFF_SETGET_C16_SINT16;
+			case TIFF_SLONG: return TIFF_SETGET_C16_SINT32;
+			case TIFF_DOUBLE: return TIFF_SETGET_C16_DOUBLE;
 			case TIFF_IFD:
-			case TIFF_IFD8:
-			    return TIFF_SETGET_C16_IFD8;
-			case TIFF_LONG8:
-			    return TIFF_SETGET_C16_UINT64;
-			case TIFF_SLONG8:
-			    return TIFF_SETGET_C16_SINT64;
-			default:
-			    return TIFF_SETGET_UNDEFINED;
+			case TIFF_IFD8: return TIFF_SETGET_C16_IFD8;
+			case TIFF_LONG8: return TIFF_SETGET_C16_UINT64;
+			case TIFF_SLONG8: return TIFF_SETGET_C16_SINT64;
+			default: return TIFF_SETGET_UNDEFINED;
 		}
 	}
-
 	else if(count == TIFF_VARIABLE2 && passcount == 1) {
-		switch(type)
-		{
+		switch(type) {
 			case TIFF_BYTE:
-			case TIFF_UNDEFINED:
-			    return TIFF_SETGET_C32_UINT8;
-			case TIFF_ASCII:
-			    return TIFF_SETGET_C32_ASCII;
-			case TIFF_SHORT:
-			    return TIFF_SETGET_C32_UINT16;
-			case TIFF_LONG:
-			    return TIFF_SETGET_C32_UINT32;
+			case TIFF_UNDEFINED: return TIFF_SETGET_C32_UINT8;
+			case TIFF_ASCII: return TIFF_SETGET_C32_ASCII;
+			case TIFF_SHORT: return TIFF_SETGET_C32_UINT16;
+			case TIFF_LONG: return TIFF_SETGET_C32_UINT32;
 			case TIFF_RATIONAL:
 			case TIFF_SRATIONAL:
-			case TIFF_FLOAT:
-			    return TIFF_SETGET_C32_FLOAT;
-			case TIFF_SBYTE:
-			    return TIFF_SETGET_C32_SINT8;
-			case TIFF_SSHORT:
-			    return TIFF_SETGET_C32_SINT16;
-			case TIFF_SLONG:
-			    return TIFF_SETGET_C32_SINT32;
-			case TIFF_DOUBLE:
-			    return TIFF_SETGET_C32_DOUBLE;
+			case TIFF_FLOAT: return TIFF_SETGET_C32_FLOAT;
+			case TIFF_SBYTE: return TIFF_SETGET_C32_SINT8;
+			case TIFF_SSHORT: return TIFF_SETGET_C32_SINT16;
+			case TIFF_SLONG: return TIFF_SETGET_C32_SINT32;
+			case TIFF_DOUBLE: return TIFF_SETGET_C32_DOUBLE;
 			case TIFF_IFD:
-			case TIFF_IFD8:
-			    return TIFF_SETGET_C32_IFD8;
-			case TIFF_LONG8:
-			    return TIFF_SETGET_C32_UINT64;
-			case TIFF_SLONG8:
-			    return TIFF_SETGET_C32_SINT64;
-			default:
-			    return TIFF_SETGET_UNDEFINED;
+			case TIFF_IFD8: return TIFF_SETGET_C32_IFD8;
+			case TIFF_LONG8: return TIFF_SETGET_C32_UINT64;
+			case TIFF_SLONG8: return TIFF_SETGET_C32_SINT64;
+			default: return TIFF_SETGET_UNDEFINED;
 		}
 	}
 
@@ -878,37 +777,25 @@ int TIFFMergeFieldInfo(TIFF* tif, const TIFFFieldInfo info[], uint32 n)
 	TIFFField * tp;
 	size_t nfields;
 	uint32 i;
-
 	if(tif->tif_nfieldscompat > 0) {
-		tif->tif_fieldscompat = (TIFFFieldArray*)
-		    _TIFFCheckRealloc(tif, tif->tif_fieldscompat,
-		    tif->tif_nfieldscompat + 1,
-		    sizeof(TIFFFieldArray), reason);
+		tif->tif_fieldscompat = (TIFFFieldArray*)_TIFFCheckRealloc(tif, tif->tif_fieldscompat, tif->tif_nfieldscompat + 1, sizeof(TIFFFieldArray), reason);
 	}
 	else {
-		tif->tif_fieldscompat = (TIFFFieldArray*)
-		    _TIFFCheckMalloc(tif, 1, sizeof(TIFFFieldArray),
-		    reason);
+		tif->tif_fieldscompat = (TIFFFieldArray*)_TIFFCheckMalloc(tif, 1, sizeof(TIFFFieldArray), reason);
 	}
 	if(!tif->tif_fieldscompat) {
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Failed to allocate fields array");
+		TIFFErrorExt(tif->tif_clientdata, module, "Failed to allocate fields array");
 		return -1;
 	}
 	nfields = tif->tif_nfieldscompat++;
-
 	tif->tif_fieldscompat[nfields].type = tfiatOther;
 	tif->tif_fieldscompat[nfields].allocated_size = n;
 	tif->tif_fieldscompat[nfields].count = n;
-	tif->tif_fieldscompat[nfields].fields =
-	    (TIFFField*)_TIFFCheckMalloc(tif, n, sizeof(TIFFField),
-	    reason);
+	tif->tif_fieldscompat[nfields].fields = (TIFFField*)_TIFFCheckMalloc(tif, n, sizeof(TIFFField), reason);
 	if(!tif->tif_fieldscompat[nfields].fields) {
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Failed to allocate fields array");
+		TIFFErrorExt(tif->tif_clientdata, module, "Failed to allocate fields array");
 		return -1;
 	}
-
 	tp = tif->tif_fieldscompat[nfields].fields;
 	for(i = 0; i < n; i++) {
 		tp->field_tag = info[i].field_tag;
@@ -916,14 +803,8 @@ int TIFFMergeFieldInfo(TIFF* tif, const TIFFFieldInfo info[], uint32 n)
 		tp->field_writecount = info[i].field_writecount;
 		tp->field_type = info[i].field_type;
 		tp->reserved = 0;
-		tp->set_field_type =
-		    _TIFFSetGetType(info[i].field_type,
-		    info[i].field_readcount,
-		    info[i].field_passcount);
-		tp->get_field_type =
-		    _TIFFSetGetType(info[i].field_type,
-		    info[i].field_readcount,
-		    info[i].field_passcount);
+		tp->set_field_type = _TIFFSetGetType(info[i].field_type, info[i].field_readcount, info[i].field_passcount);
+		tp->get_field_type = _TIFFSetGetType(info[i].field_type, info[i].field_readcount, info[i].field_passcount);
 		tp->field_bit = info[i].field_bit;
 		tp->field_oktochange = info[i].field_oktochange;
 		tp->field_passcount = info[i].field_passcount;
@@ -931,13 +812,10 @@ int TIFFMergeFieldInfo(TIFF* tif, const TIFFFieldInfo info[], uint32 n)
 		tp->field_subfields = NULL;
 		tp++;
 	}
-
 	if(!_TIFFMergeFields(tif, tif->tif_fieldscompat[nfields].fields, n)) {
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Setting up field info failed");
+		TIFFErrorExt(tif->tif_clientdata, module, "Setting up field info failed");
 		return -1;
 	}
-
 	return 0;
 }
 

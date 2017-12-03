@@ -52,12 +52,9 @@ ngx_module_t ngx_stream_split_clients_module = {
 	NGX_MODULE_V1_PADDING
 };
 
-static ngx_int_t ngx_stream_split_clients_variable(ngx_stream_session_t * s,
-    ngx_stream_variable_value_t * v, uintptr_t data)
+static ngx_int_t ngx_stream_split_clients_variable(ngx_stream_session_t * s, ngx_stream_variable_value_t * v, uintptr_t data)
 {
-	ngx_stream_split_clients_ctx_t * ctx =
-	    (ngx_stream_split_clients_ctx_t*)data;
-
+	ngx_stream_split_clients_ctx_t * ctx = (ngx_stream_split_clients_ctx_t*)data;
 	uint32_t hash;
 	ngx_str_t val;
 	ngx_uint_t i;
@@ -75,7 +72,6 @@ static ngx_int_t ngx_stream_split_clients_variable(ngx_stream_session_t * s,
 			return NGX_OK;
 		}
 	}
-
 	return NGX_OK;
 }
 

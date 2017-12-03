@@ -3412,9 +3412,8 @@ int SLAPI PPViewCCheck::GetPacket(PPID id, CCheckPacket * pPack)
 
 class CCheckInfoDialog : public TDialog {
 public:
-	CCheckInfoDialog() : TDialog(DLG_CCHECKINFO)
+	CCheckInfoDialog() : TDialog(DLG_CCHECKINFO), CanModif(0)
 	{
-		CanModif = 0;
 	}
 	int    setDTS(const CCheckPacket * pData)
 	{

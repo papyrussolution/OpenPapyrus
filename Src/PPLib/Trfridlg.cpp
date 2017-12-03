@@ -2778,9 +2778,11 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 
 SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long flags) :
 	//BrowserWindow(pSerial ? BROWSER_GOODSLOT_SERIAL : BROWSER_GOODSLOT, pAry)
-	BrowserWindow(BROWSER_SELECTLOT, pAry), State(0), Flags(flags)
+	BrowserWindow(BROWSER_SELECTLOT, pAry)
 {
 	//GoodsID = goodsID;
+	State = 0;
+	Flags = flags;
 	PPID   single_goods_id = 0;
 	SString single_serial;
 	SString temp_buf;

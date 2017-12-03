@@ -642,11 +642,12 @@ void SCI_METHOD LexerBaan::Lex(Sci_PositionU startPos, Sci_Position length, int 
 				if(!wordInArray(word, preProcessorTags, 11))
 					// Colorise only preprocessor built in Baan.
 					sc.ChangeState(SCE_BAAN_IDENTIFIER);
-				if(sstreq(word, "#pragma") || sstreq(word, "#include")) {
+				if(strcmp(word, "#pragma") == 0 || strcmp(word, "#include") == 0) {
 					lineHasPreProc = true;
 					lineIgnoreString = true;
 				}
-				else if(sstreq(word, "#define") || sstreq(word, "#undef") || sstreq(word, "#ifdef") || sstreq(word, "#if") || sstreq(word, "#ifndef")) {
+				else if(strcmp(word, "#define") == 0 || strcmp(word, "#undef") == 0 ||
+				    strcmp(word, "#ifdef") == 0 || strcmp(word, "#if") == 0 || strcmp(word, "#ifndef") == 0) {
 					lineHasDefines = true;
 					lineIgnoreString = false;
 				}
@@ -781,7 +782,7 @@ void SCI_METHOD LexerBaan::Fold(Sci_PositionU startPos, Sci_Position length, int
 				if(styleNext != SCE_BAAN_WORD) {
 					word[wordlen] = '\0';
 					wordlen = 0;
-					if(sstreq(word, "for")) {
+					if(strcmp(word, "for") == 0) {
 						Sci_PositionU j = i + 1;
 						while((j < endPos) && IsASpaceOrTab(styler.SafeGetCharAt(j))) {
 							j++;
@@ -791,7 +792,7 @@ void SCI_METHOD LexerBaan::Fold(Sci_PositionU startPos, Sci_Position length, int
 							foldStart = false;
 						}
 					}
-					else if(sstreq(word, "on")) {
+					else if(strcmp(word, "on") == 0) {
 						Sci_PositionU j = i + 1;
 						while((j < endPos) && IsASpaceOrTab(styler.SafeGetCharAt(j))) {
 							j++;
@@ -801,7 +802,7 @@ void SCI_METHOD LexerBaan::Fold(Sci_PositionU startPos, Sci_Position length, int
 							foldStart = false;
 						}
 					}
-					else if(sstreq(word, "select")) {
+					else if(strcmp(word, "select") == 0) {
 						if(foldNextSelect) {
 							// Next Selects are sub-clause till reach of selectCloseTags[] array.
 							foldNextSelect = false;

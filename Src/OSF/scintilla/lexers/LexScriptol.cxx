@@ -77,7 +77,7 @@ static int GetSolStringState(Accessor &styler, Sci_Position i, Sci_Position * ne
 		if(ch == '\'') return SCE_SCRIPTOL_TRIPLE;
 		return SCE_SCRIPTOL_STRING;
 	}
-	else{
+	else {
 		*nextIndex = i + 1;
 		if(ch == '"') return SCE_SCRIPTOL_STRING;
 		else return SCE_SCRIPTOL_STRING;
@@ -196,7 +196,7 @@ static void ColouriseSolDoc(Sci_PositionU startPos, Sci_Position length, int ini
 				}
 			}
 		}
-		else{
+		else {
 			if(state == SCE_SCRIPTOL_COMMENTLINE ||
 			    state == SCE_SCRIPTOL_PERSISTENT ||
 			    state == SCE_SCRIPTOL_CSTYLE) {
@@ -247,7 +247,7 @@ static void ColouriseSolDoc(Sci_PositionU startPos, Sci_Position length, int ini
 		ClassifyWordSol(styler.GetStartSegment(),
 		    lengthDoc-1, keywords, styler, prevWord);
 	}
-	else{
+	else {
 		styler.ColourTo(lengthDoc-1, state);
 	}
 }

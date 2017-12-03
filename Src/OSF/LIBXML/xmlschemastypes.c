@@ -92,9 +92,10 @@ struct _xmlSchemaValBase64 {
 	uint total;
 };
 
-struct xmlSchemaVal {
+struct _xmlSchemaVal {
 	xmlSchemaValType type;
-	xmlSchemaVal * next;
+	struct _xmlSchemaVal * next;
+
 	union {
 		xmlSchemaValDecimal decimal;
 		xmlSchemaValDate date;
@@ -729,7 +730,7 @@ xmlSchemaValPtr xmlSchemaNewStringValue(xmlSchemaValType type, const xmlChar * v
 	xmlSchemaValPtr val;
 	if(type != XML_SCHEMAS_STRING)
 		return 0;
-	val = (xmlSchemaVal *)SAlloc::M(sizeof(xmlSchemaVal));
+	val = (xmlSchemaValPtr)SAlloc::M(sizeof(xmlSchemaVal));
 	if(!val) {
 		return 0;
 	}
@@ -5233,10 +5234,15 @@ int xmlSchemaValidateFacet(xmlSchemaTypePtr base,
  * Returns 0 if the element is schemas valid, a positive error code
  *     number otherwise and -1 in case of internal or API error.
  */
-int xmlSchemaValidateFacetWhtsp(xmlSchemaFacetPtr facet, xmlSchemaWhitespaceValueType fws, xmlSchemaValType valType,
-    const xmlChar * value, xmlSchemaValPtr val, xmlSchemaWhitespaceValueType ws)
+int xmlSchemaValidateFacetWhtsp(xmlSchemaFacetPtr facet,
+    xmlSchemaWhitespaceValueType fws,
+    xmlSchemaValType valType,
+    const xmlChar * value,
+    xmlSchemaValPtr val,
+    xmlSchemaWhitespaceValueType ws)
 {
-	return xmlSchemaValidateFacetInternal(facet, fws, valType, value, val, ws);
+	return(xmlSchemaValidateFacetInternal(facet, fws, valType,
+		    value, val, ws));
 }
 
 #if 0
@@ -5348,18 +5354,18 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 	switch(val->type) {
 		case XML_SCHEMAS_STRING:
 		    if(val->value.str == NULL)
-			    *retValue = sstrdup(BAD_CAST "");
+			    *retValue = BAD_CAST sstrdup(BAD_CAST "");
 		    else
-			    *retValue = sstrdup((const xmlChar*)val->value.str);
+			    *retValue = BAD_CAST sstrdup((const xmlChar*)val->value.str);
 		    break;
 		case XML_SCHEMAS_NORMSTRING:
 		    if(val->value.str == NULL)
-			    *retValue = sstrdup(BAD_CAST "");
+			    *retValue = BAD_CAST sstrdup(BAD_CAST "");
 		    else {
 			    *retValue = xmlSchemaWhiteSpaceReplace(
 			    (const xmlChar*)val->value.str);
 			    if((*retValue) == NULL)
-				    *retValue = sstrdup((const xmlChar*)val->value.str);
+				    *retValue = BAD_CAST sstrdup((const xmlChar*)val->value.str);
 		    }
 		    break;
 		case XML_SCHEMAS_TOKEN:
@@ -5376,16 +5382,16 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 			    return -1;
 		    *retValue = BAD_CAST xmlSchemaCollapseString(BAD_CAST val->value.str);
 		    if(*retValue == NULL)
-			    *retValue = sstrdup((const xmlChar*)val->value.str);
+			    *retValue = BAD_CAST sstrdup((const xmlChar*)val->value.str);
 		    break;
 		case XML_SCHEMAS_QNAME:
 		    /* @todo Unclear in XML Schema 1.0. */
 		    if(val->value.qname.uri == NULL) {
-			    *retValue = sstrdup(BAD_CAST val->value.qname.name);
+			    *retValue = BAD_CAST sstrdup(BAD_CAST val->value.qname.name);
 			    return 0;
 		    }
 		    else {
-			    *retValue = sstrdup(BAD_CAST "{");
+			    *retValue = BAD_CAST sstrdup(BAD_CAST "{");
 			    *retValue = BAD_CAST xmlStrcat((xmlChar*)(*retValue), BAD_CAST val->value.qname.uri);
 			    *retValue = BAD_CAST xmlStrcat((xmlChar*)(*retValue), BAD_CAST "}");
 			    *retValue = BAD_CAST xmlStrcat((xmlChar*)(*retValue), BAD_CAST val->value.qname.uri);
@@ -5504,13 +5510,17 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		    }
 		    break;
 		case XML_SCHEMAS_BOOLEAN:
-		    *retValue = val->value.b ? sstrdup(BAD_CAST "true") : sstrdup(BAD_CAST "false");
+		    if(val->value.b)
+			    *retValue = BAD_CAST sstrdup(BAD_CAST "true");
+		    else
+			    *retValue = BAD_CAST sstrdup(BAD_CAST "false");
 		    break;
 		case XML_SCHEMAS_DURATION: {
 		    char buf[100];
 		    ulong year;
 		    ulong mon, day, hour = 0, min = 0;
 		    double sec = 0, left;
+
 		    /* @todo Unclear in XML Schema 1.0 */
 		    /*
 		     * @todo This results in a normalized output of the value
@@ -5521,6 +5531,7 @@ int xmlSchemaGetCanonValue(xmlSchemaVal * val, xmlChar ** retValue)
 		     */
 		    year = (ulong)FQUOTIENT(labs(val->value.dur.mon), 12);
 		    mon = labs(val->value.dur.mon) - 12 * year;
+
 		    day = (ulong)FQUOTIENT(fabs(val->value.dur.sec), 86400);
 		    left = fabs(val->value.dur.sec) - day * 86400;
 		    if(left > 0) {
@@ -5751,5 +5762,5 @@ xmlSchemaValType xmlSchemaGetValType(xmlSchemaValPtr val)
 }
 
 #define bottom_xmlschemastypes
-//#include "elfgcchack.h"
+#include "elfgcchack.h"
 #endif /* LIBXML_SCHEMAS_ENABLED */

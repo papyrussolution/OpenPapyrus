@@ -479,7 +479,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, fabs(_p)));
 						THROW(ArrAdd(Arr_In, DVCPARAM_DEPARTMENT, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  sl_param.DivID));
 						if(is_vat_free) {
-							THROW(ArrAdd(Arr_In, DVCPARAM_VATFREE, 1)); // @v9.7.1
+							THROW(ArrAdd(Arr_In, DVCPARAM_VATFREE, fabs(sl_param.VatRate))); // @v9.7.1
 						}
 						else {
 							THROW(ArrAdd(Arr_In, DVCPARAM_VATRATE, fabs(sl_param.VatRate))); // @v9.7.1
@@ -807,7 +807,8 @@ int SLAPI SCS_SYNCCASH::PrintReport(int withCleaning)
 			ok = 0;
 		}
 	ENDCATCH
-	Flags &= ~sfOpenCheck;
+	if(Flags & sfOpenCheck)
+		Flags &= ~sfOpenCheck;
 	return ok;
 }
 
@@ -827,15 +828,13 @@ int  SLAPI SCS_SYNCCASH::CheckForRibbonUsing(uint ribbonParam, StrAssocArray & r
 {
 	int    ok = 1;
 	if(ribbonParam) {
-		//if((RibbonParam & SlipLineParam::fRegRegular) != (ribbonParam & SlipLineParam::fRegRegular)) {
-		if(!TESTFLAG(RibbonParam, ribbonParam, SlipLineParam::fRegRegular)) {
+		if((RibbonParam & SlipLineParam::fRegRegular) != (ribbonParam & SlipLineParam::fRegRegular)) {
 			if(ribbonParam & SlipLineParam::fRegRegular) {
                 THROW(ArrAdd(rOut, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
 				SETFLAG(RibbonParam, SlipLineParam::fRegRegular, ribbonParam & SlipLineParam::fRegRegular);
 			}
 		}
-		//if((RibbonParam & SlipLineParam::fRegJournal) != (ribbonParam & SlipLineParam::fRegJournal)) {
-		if(!TESTFLAG(RibbonParam, ribbonParam, SlipLineParam::fRegJournal)) {
+		if((RibbonParam & SlipLineParam::fRegJournal) != (ribbonParam & SlipLineParam::fRegJournal)) {
 			if(ribbonParam & SlipLineParam::fRegJournal) {
 				THROW(ArrAdd(rOut, DVCPARAM_RIBBONPARAM, JOURNALRIBBON));
 				SETFLAG(RibbonParam, SlipLineParam::fRegJournal, ribbonParam & SlipLineParam::fRegJournal);
@@ -890,13 +889,19 @@ int	 SLAPI SCS_SYNCCASH::GetDevParam(/*const PPCashNode * pIn,*/ StrAssocArray &
 	SString str, str1, str2;
 	PPIDArray list;
 	PPSecur sec_rec;
-	THROW(ArrAdd(rOut, DVCPARAM_AUTOCASHNULL, 1)); // Установить автоматическое обнуление наличности
-	THROW(ArrAdd(rOut, DVCPARAM_ID, /*pIn->*/SCn.ID)); // Опредеяем ID ККМ
-	GetPort(/*pIn->*/SCn.Port, &val); // Определяем имя порта и переводим его в число
+	// Установить автоматическое обнуление наличности
+	THROW(ArrAdd(rOut, DVCPARAM_AUTOCASHNULL, 1));
+	// Опредеяем ID ККМ
+	THROW(ArrAdd(rOut, DVCPARAM_ID, /*pIn->*/SCn.ID));
+	// Определяем имя порта и переводим его в число
+	GetPort(/*pIn->*/SCn.Port, &val);
 	THROW(ArrAdd(rOut, DVCPARAM_PORT, val));
-	THROW(ArrAdd(rOut, DVCPARAM_LOGNUM, /*pIn->LogNum*/1)); // Логический номер ККМ
-	THROW(ArrAdd(rOut, DVCPARAM_FLAGS, /*pIn->*/SCn.Flags)); // Флаги
-	THROW(ArrAdd(rOut, DVCPARAM_PRINTLOGO, PrintLogo)) // Логотип (пока что путь жестко определен здесь)
+	// Логический номер ККМ
+	THROW(ArrAdd(rOut, DVCPARAM_LOGNUM, /*pIn->LogNum*/1));
+    // Флаги
+	THROW(ArrAdd(rOut, DVCPARAM_FLAGS, /*pIn->*/SCn.Flags));
+	// Логотип (пока что путь жестко определен здесь)
+	THROW(ArrAdd(rOut, DVCPARAM_PRINTLOGO, PrintLogo))
 	// Пароль сисадмина для Штрих-ФР-Ф
 	ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_SHTRIHFRPASSWORD, str);
 	str.Divide(',', str1, str2);
@@ -908,8 +913,10 @@ int	 SLAPI SCS_SYNCCASH::GetDevParam(/*const PPCashNode * pIn,*/ StrAssocArray &
 			str = sec_rec.Name;
 	}
 	THROW(ArrAdd(rOut, DVCPARAM_CSHRNAME, str));
-	THROW(ArrAdd(rOut, DVCPARAM_ADMINNAME, AdmName.NotEmpty() ? AdmName : str)); // Имя администратора
-	THROW(ArrAdd(rOut, DVCPARAM_SESSIONID, /*pIn->*/SCn.CurSessID)); // Текущая кассовая сесси
+	// Имя администратора
+	THROW(ArrAdd(rOut, DVCPARAM_ADMINNAME, AdmName.NotEmpty() ? AdmName : str));
+	// Текущая кассовая сесси
+	THROW(ArrAdd(rOut, DVCPARAM_SESSIONID, /*pIn->*/SCn.CurSessID));
 	CATCHZOK;
 	return ok;
 
@@ -924,7 +931,7 @@ int SLAPI SCS_SYNCCASH::CheckForSessionOver()
 	THROW(ExecPrintOper(DVCCMD_CHECKSESSOVER, Arr_In, Arr_Out));
 	if(Arr_Out.getCount())
 		Arr_Out.Get(0, buf);
-	if(buf == "1") // Сессия больше 24 часов
+	if(buf.CmpNC("1") == 0) // Сессия больше 24 часов
 		ok = 1;
 	CATCHZOK;
 	return ok;

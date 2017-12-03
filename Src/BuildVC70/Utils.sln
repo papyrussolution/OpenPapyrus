@@ -105,7 +105,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BDB", "BDB.vcproj", "{151F4
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gsoap-soapcpp2", "gsoap-soapcpp2.vcproj", "{7C10DF6B-7F48-4837-808E-4C0561E9D070}"
 	ProjectSection(ProjectDependencies) = postProject
-		{D507E468-21FC-4209-A5A8-DE1F055866DC} = {D507E468-21FC-4209-A5A8-DE1F055866DC}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gsoap-wsdl2h", "gsoap-wsdl2h.vcproj", "{C9E24271-61F5-4464-BF48-01F00FE7B080}"

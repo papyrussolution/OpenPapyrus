@@ -99,7 +99,7 @@ static int JBIGDecode(TIFF* tif, uint8* buffer, tmsize_t size, uint16 s)
 	}
 
 	pImage = jbg_dec_getimage(&decoder, 0);
-	_TIFFmemcpy(buffer, pImage, jbg_dec_getsize(&decoder));
+	memcpy(buffer, pImage, jbg_dec_getsize(&decoder));
 	jbg_dec_free(&decoder);
 	return 1;
 }
@@ -128,7 +128,7 @@ static int JBIGCopyEncodedData(TIFF* tif, unsigned char* pp, size_t cc, uint16 s
 		}
 
 		assert(n > 0);
-		_TIFFmemcpy(tif->tif_rawcp, pp, n);
+		memcpy(tif->tif_rawcp, pp, n);
 		tif->tif_rawcp += n;
 		tif->tif_rawcc += n;
 		pp += n;

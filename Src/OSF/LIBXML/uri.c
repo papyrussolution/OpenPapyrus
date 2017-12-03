@@ -7,6 +7,7 @@
  *
  * daniel@veillard.com
  */
+
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
@@ -54,39 +55,59 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
  *           "U" | "V" | "W" | "X" | "Y" | "Z"
  */
 #define IS_UPALPHA(x) (((x) >= 'A') && ((x) <= 'Z'))
+
 #ifdef IS_DIGIT
-	#undef IS_DIGIT
+#undef IS_DIGIT
 #endif
 /*
  * digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
  */
 #define IS_DIGIT(x) (((x) >= '0') && ((x) <= '9'))
+
 /*
  * alphanum = alpha | digit
  */
+
 #define IS_ALPHANUM(x) (IS_ALPHA(x) || IS_DIGIT(x))
+
 /*
  * mark = "-" | "_" | "." | "!" | "~" | "*" | "'" | "(" | ")"
  */
-#define IS_MARK(x) (((x) == '-') || ((x) == '_') || ((x) == '.') ||	((x) == '!') || ((x) == '~') || ((x) == '*') || ((x) == '\'') || ((x) == '(') || ((x) == ')'))
+
+#define IS_MARK(x) (((x) == '-') || ((x) == '_') || ((x) == '.') ||	\
+	    ((x) == '!') || ((x) == '~') || ((x) == '*') || ((x) == '\'') ||	\
+	    ((x) == '(') || ((x) == ')'))
+
 /*
  * unwise = "{" | "}" | "|" | "\" | "^" | "`"
  */
-#define IS_UNWISE(p) (((*(p) == '{')) || ((*(p) == '}')) || ((*(p) == '|')) || ((*(p) == '\\')) || ((*(p) == '^')) || ((*(p) == '[')) || ((*(p) == ']')) || ((*(p) == '`')))
+
+#define IS_UNWISE(p)							\
+	(((*(p) == '{')) || ((*(p) == '}')) || ((*(p) == '|')) ||	  \
+	    ((*(p) == '\\')) || ((*(p) == '^')) || ((*(p) == '[')) ||	     \
+	    ((*(p) == ']')) || ((*(p) == '`')))
 /*
  * reserved = ";" | "/" | "?" | ":" | "@" | "&" | "=" | "+" | "$" | "," |
  *            "[" | "]"
  */
+
 #define IS_RESERVED(x) (((x) == ';') || ((x) == '/') || ((x) == '?') ||	\
-	((x) == ':') || ((x) == '@') || ((x) == '&') || ((x) == '=') || ((x) == '+') || ((x) == '$') || ((x) == ',') || ((x) == '[') || ((x) == ']'))
+	    ((x) == ':') || ((x) == '@') || ((x) == '&') || ((x) == '=') || \
+	    ((x) == '+') || ((x) == '$') || ((x) == ',') || ((x) == '[') || \
+	    ((x) == ']'))
+
 /*
  * unreserved = alphanum | mark
  */
+
 #define IS_UNRESERVED(x) (IS_ALPHANUM(x) || IS_MARK(x))
+
 /*
  * Skip to next pointer char, handle escaped sequences
  */
+
 #define NEXT(p) ((*p == '%') ? p += 3 : p++)
+
 /*
  * Productions from the spec.
  *
@@ -96,6 +117,7 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
  *
  * path          = [ abs_path | opaque_part ]
  */
+
 #define STRNDUP(s, n) (char*)xmlStrndup((const xmlChar*)(s), (n))
 
 /************************************************************************
@@ -1014,7 +1036,8 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 							goto mem_error;
 						ret = temp;
 					}
-					if(IS_UNRESERVED(*p) || oneof7(*p, ';', ':', '&', '=', '+', '$', ','))
+					if((IS_UNRESERVED(*(p))) || ((*(p) == ';')) || ((*(p) == ':')) ||
+					    ((*(p) == '&')) || ((*(p) == '=')) || ((*(p) == '+')) || ((*(p) == '$')) || ((*(p) == ',')))
 						ret[len++] = *p++;
 					else {
 						int val = *(uchar*)p++;
@@ -1054,7 +1077,7 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 				}
 			}
 		}
-		else if(uri->authority) {
+		else if(uri->authority != NULL) {
 			if(len + 3 >= max) {
 				temp = xmlSaveUriRealloc(ret, &max);
 				if(temp == NULL) 
@@ -1071,7 +1094,10 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 						goto mem_error;
 					ret = temp;
 				}
-				if(IS_UNRESERVED(*p) || oneof8(*p, '$', ',', ';', ':', '@', '&', '=', '+'))
+				if((IS_UNRESERVED(*(p))) ||
+				    ((*(p) == '$')) || ((*(p) == ',')) || ((*(p) == ';')) ||
+				    ((*(p) == ':')) || ((*(p) == '@')) || ((*(p) == '&')) ||
+				    ((*(p) == '=')) || ((*(p) == '+')))
 					ret[len++] = *p++;
 				else {
 					int val = *(uchar*)p++;
@@ -1091,10 +1117,13 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 		}
 		if(uri->path != NULL) {
 			p = uri->path;
-			// 
-			// the colon in file:///d: should not be escaped or Windows accesses fail later.
-			// 
-			if(uri->scheme && (p[0] == '/') && (((p[1] >= 'a') && (p[1] <= 'z')) || ((p[1] >= 'A') && (p[1] <= 'Z'))) && (p[2] == ':') && sstreq(uri->scheme, "file")) {
+			/*
+			 * the colon in file:///d: should not be escaped or
+			 * Windows accesses fail later.
+			 */
+			if(uri->scheme && (p[0] == '/') &&
+			    (((p[1] >= 'a') && (p[1] <= 'z')) || ((p[1] >= 'A') && (p[1] <= 'Z'))) && (p[2] == ':') &&
+			    (sstreq(BAD_CAST uri->scheme, BAD_CAST "file"))) {
 				if((len + 3) >= max) {
 					temp = xmlSaveUriRealloc(ret, &max);
 					if(temp == NULL) 
@@ -1112,7 +1141,10 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 						goto mem_error;
 					ret = temp;
 				}
-				if(IS_UNRESERVED(*p) || oneof8(*p, '/', ';', '@', '&', '=', '+', '$', ','))
+				if((IS_UNRESERVED(*(p))) || ((*(p) == '/')) ||
+				    ((*(p) == ';')) || ((*(p) == '@')) || ((*(p) == '&')) ||
+				    ((*(p) == '=')) || ((*(p) == '+')) || ((*(p) == '$')) ||
+				    ((*(p) == ',')))
 					ret[len++] = *p++;
 				else {
 					int val = *(uchar*)p++;
@@ -1205,6 +1237,7 @@ mem_error:
 	SAlloc::F(ret);
 	return 0;
 }
+
 /**
  * xmlPrintURI:
  * @stream:  a FILE* for the output
@@ -1276,17 +1309,21 @@ int xmlNormalizeURIPath(char * path)
 	char * cur, * out;
 	if(path == NULL)
 		return -1;
-	// Skip all initial "/" chars.  We want to get to the beginning of the first non-empty segment.
+	/* Skip all initial "/" chars.  We want to get to the beginning of the
+	 * first non-empty segment.
+	 */
 	cur = path;
 	while(cur[0] == '/')
 		++cur;
 	if(cur[0] == '\0')
 		return 0;
-	// Keep everything we've seen so far.  
+
+	/* Keep everything we've seen so far.  */
 	out = cur;
-	// 
-	// Analyze each segment in sequence for cases (c) and (d).
-	// 
+
+	/*
+	 * Analyze each segment in sequence for cases (c) and (d).
+	 */
 	while(cur[0] != '\0') {
 		/*
 		 * c) All occurrences of "./", where "." is a complete path segment,
@@ -1299,31 +1336,36 @@ int xmlNormalizeURIPath(char * path)
 				cur++;
 			continue;
 		}
+
 		/*
 		 * d) If the buffer string ends with "." as a complete path segment,
 		 *    that "." is removed.
 		 */
 		if((cur[0] == '.') && (cur[1] == '\0'))
 			break;
-		// Otherwise keep the segment.  
+
+		/* Otherwise keep the segment.  */
 		while(cur[0] != '/') {
 			if(cur[0] == '\0')
 				goto done_cd;
 			(out++)[0] = (cur++)[0];
 		}
-		// nomalize // 
+		/* nomalize // */
 		while((cur[0] == '/') && (cur[1] == '/'))
 			cur++;
+
 		(out++)[0] = (cur++)[0];
 	}
 done_cd:
 	out[0] = '\0';
-	// Reset to the beginning of the first segment for the next sequence.  
+
+	/* Reset to the beginning of the first segment for the next sequence.  */
 	cur = path;
 	while(cur[0] == '/')
 		++cur;
 	if(cur[0] == '\0')
 		return 0;
+
 	/*
 	 * Analyze each segment in sequence for cases (e) and (f).
 	 *
@@ -1347,6 +1389,7 @@ done_cd:
 		/* At the beginning of each iteration of this loop, "cur" points to
 		 * the first character of the segment we want to examine.
 		 */
+
 		/* Find the end of the current segment.  */
 		char * segp = cur;
 		while((segp[0] != '/') && (segp[0] != '\0'))
@@ -1364,24 +1407,27 @@ done_cd:
 			cur = segp;
 			continue;
 		}
+
 		/* If we get here, remove this segment and the next one and back up
 		 * to the previous segment (if there is one), to implement the
 		 * "iteratively" clause.  It's pretty much impossible to back up
 		 * while maintaining two pointers into the buffer, so just compact
 		 * the whole buffer now.
 		 */
+
 		/* If this is the end of the buffer, we're done.  */
 		if(segp[2] == '\0') {
 			cur[0] = '\0';
 			break;
 		}
-		// Valgrind complained, strcpy(cur, segp + 3); 
-		// string will overlap, do not use strcpy 
+		/* Valgrind complained, strcpy(cur, segp + 3); */
+		/* string will overlap, do not use strcpy */
 		tmp = cur;
 		segp += 3;
 		while((*tmp++ = *segp++) != 0)
 			;
-		// If there are no previous segments, then keep going from here. 
+
+		/* If there are no previous segments, then keep going from here.  */
 		segp = cur;
 		while((segp > path) && ((--segp)[0] == '/'))
 			;
@@ -1876,7 +1922,8 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 	}
 	res->path[out] = 0;
 	/*
-	 * b) The reference's path component is appended to the buffer string.
+	 * b) The reference's path component is appended to the buffer
+	 *    string.
 	 */
 	if(ref->path && ref->path[0] != 0) {
 		indx = 0;
@@ -1952,7 +1999,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	xmlURIPtr bas = NULL;
 	xmlChar * bptr, * uptr, * vptr;
 	int remove_path = 0;
-	if(isempty(URI))
+	if((URI == NULL) || (*URI == 0))
 		return NULL;
 	/*
 	 * First parse URI into a standard form
@@ -1968,6 +2015,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	}
 	else
 		ref->path = (char*)sstrdup(URI);
+
 	/*
 	 * Next parse base into the same standard form
 	 */
@@ -1985,14 +2033,16 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	}
 	else
 		bas->path = (char*)sstrdup(base);
+
 	/*
-	 * If the scheme / server on the URI differs from the base, just return the URI
+	 * If the scheme / server on the URI differs from the base,
+	 * just return the URI
 	 */
-	if(ref->scheme && (!bas->scheme || xmlStrcmp((xmlChar*)bas->scheme, (xmlChar*)ref->scheme) || xmlStrcmp((xmlChar*)bas->server, (xmlChar*)ref->server))) {
+	if(ref->scheme && ((bas->scheme == NULL) || (xmlStrcmp((xmlChar*)bas->scheme, (xmlChar*)ref->scheme)) || (xmlStrcmp((xmlChar*)bas->server, (xmlChar*)ref->server)))) {
 		val = sstrdup(URI);
 		goto done;
 	}
-	if(sstreq(bas->path, ref->path)) {
+	if(sstreq((xmlChar*)bas->path, (xmlChar*)ref->path)) {
 		val = sstrdup(BAD_CAST "");
 		goto done;
 	}
@@ -2081,6 +2131,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 			val = xmlURIEscapeStr(uptr, BAD_CAST "/;&=+$,");
 		goto done;
 	}
+
 	/*
 	 * Allocate just enough space for the returned string -
 	 * length of the remainder of the URI, plus enough space
@@ -2103,8 +2154,9 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	/*
 	 * Finish up with the end of the URI
 	 */
-	if(uptr) {
-		if((vptr > val) && (len > 0) && (uptr[0] == '/') && (vptr[-1] == '/')) {
+	if(uptr != NULL) {
+		if((vptr > val) && (len > 0) &&
+		    (uptr[0] == '/') && (vptr[-1] == '/')) {
 			memcpy(vptr, uptr + 1, len - 1);
 			vptr[len - 2] = 0;
 		}
@@ -2168,7 +2220,7 @@ xmlChar * xmlCanonicPath(const xmlChar * path)
 	 * Was added specifically for OpenOffice, those paths can't be converted
 	 * to URIs anyway.
 	 */
-	if(path[0] == '\\' && path[1] == '\\' && path[2] == '?' && path[3] == '\\')
+	if((path[0] == '\\') && (path[1] == '\\') && (path[2] == '?') && (path[3] == '\\') )
 		return sstrdup((const xmlChar*)path);
 #endif
 	// sanitize filename starting with // so it can be used as URI 
@@ -2199,16 +2251,20 @@ xmlChar * xmlCanonicPath(const xmlChar * path)
 			if(!(((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z'))))
 				goto path_processing;
 		}
-		// Escape all except the characters specified in the supplied path 
+
+		/* Escape all except the characters specified in the supplied path */
 		escURI = xmlURIEscapeStr(path, BAD_CAST ":/?_.#&;=");
 		if(escURI != NULL) {
-			uri = xmlParseURI((const char*)escURI); // Try parsing the escaped path 
-			if(uri) { // If successful, return the escaped string 
+			/* Try parsing the escaped path */
+			uri = xmlParseURI((const char*)escURI);
+			/* If successful, return the escaped string */
+			if(uri) {
 				xmlFreeURI(uri);
 				return escURI;
 			}
 		}
 	}
+
 path_processing:
 /* For Windows implementations, replace backslashes with 'forward slashes' */
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -2219,15 +2275,19 @@ path_processing:
 	if(uri == NULL) {       /* Guard against 'out of memory' */
 		return 0;
 	}
+
 	len = sstrlen(path);
 	if((len > 2) && IS_WINDOWS_PATH(path)) {
-		uri->scheme = sstrdup("file"); // make the scheme 'file' 
-		uri->path = (char *)SAlloc::M(len + 2); // allocate space for leading '/' + path + string terminator 
+		/* make the scheme 'file' */
+		uri->scheme = sstrdup("file");
+		/* allocate space for leading '/' + path + string terminator */
+		uri->path = (char *)SAlloc::M(len + 2);
 		if(uri->path == NULL) {
-			xmlFreeURI(uri); // Guard agains 'out of memory' 
+			xmlFreeURI(uri); /* Guard agains 'out of memory' */
 			return 0;
 		}
-		uri->path[0] = '/'; // Put in leading '/' plus path 
+		/* Put in leading '/' plus path */
+		uri->path[0] = '/';
 		p = (xmlChar *)(uri->path + 1);
 		strncpy((char *)p, (const char *)path, len + 1);
 	}
@@ -2257,6 +2317,7 @@ path_processing:
 #endif
 	return ret;
 }
+
 /**
  * xmlPathToURI:
  * @path:  the resource locator in a filesystem notation
@@ -2283,15 +2344,16 @@ xmlChar * xmlPathToURI(const xmlChar * path)
 	if(cal == NULL)
 		return 0;
 #if defined(_WIN32) && !defined(__CYGWIN__)
-	// xmlCanonicPath can return an URI on Windows (is that the intended behaviour?)
-	// If 'cal' is a valid URI allready then we are done here, as continuing would make it invalid. 
+	/* xmlCanonicPath can return an URI on Windows (is that the intended behaviour?)
+	   If 'cal' is a valid URI allready then we are done here, as continuing would make
+	   it invalid. */
 	if((uri = xmlParseURI((const char*)cal)) != NULL) {
 		xmlFreeURI(uri);
 		return cal;
 	}
-	// 'cal' can contain a relative path with backslashes. If that is processed
-	// by xmlSaveURI, they will be escaped and the external entity loader machinery
-	// will fail. So convert them to slashes. Misuse 'ret' for walking. 
+	/* 'cal' can contain a relative path with backslashes. If that is processed
+	   by xmlSaveURI, they will be escaped and the external entity loader machinery
+	   will fail. So convert them to slashes. Misuse 'ret' for walking. */
 	ret = cal;
 	while(*ret != '\0') {
 		if(*ret == '\\')
@@ -2306,5 +2368,5 @@ xmlChar * xmlPathToURI(const xmlChar * path)
 	return ret;
 }
 
-//#define bottom_uri
-//#include "elfgcchack.h"
+#define bottom_uri
+#include "elfgcchack.h"

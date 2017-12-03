@@ -140,7 +140,7 @@ static int GetSendKey(const char * szLine, char * szKey)
 	if(sstreq(szSpecial, "down") || sstreq(szSpecial, "up") || sstreq(szSpecial, "on") || sstreq(szSpecial, "off") || sstreq(szSpecial, "toggle") || nSpecNum == 1) {
 		nFlag = 0;
 	}
-	else{
+	else {
 		nFlag = 1;
 	}
 	return nFlag;  // 1 is bad, 0 is good
@@ -373,7 +373,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 				    if(ni==0) {
 					    ni = 1;
 				    }
-				    else{
+				    else {
 					    ni = 9;
 				    }
 				    break;
@@ -449,12 +449,12 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 				    else if(keywords4.InList(sk)) {
 					    sc.ChangeState(SCE_AU3_SENT);
 				    }
-				    else{
+				    else {
 					    sc.ChangeState(SCE_AU3_STRING);
 				    }
 				    sc.SetState(SCE_AU3_STRING);
 			    }
-			    else{
+			    else {
 				    // check if the start is a valid SendKey start
 				    Sci_Position nPos    = 0;
 				    int nState  = 1;
@@ -606,7 +606,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 			else if(keywords4.InList(sk)) {
 				sc.ChangeState(SCE_AU3_SENT);
 			}
-			else{
+			else {
 				sc.ChangeState(SCE_AU3_STRING);
 			}
 			sc.SetState(SCE_AU3_STRING);

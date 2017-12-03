@@ -25,7 +25,6 @@
  */
 #include "tiffiop.h"
 #pragma hdrstop
-#include "tif_predict.h"
 
 #ifdef LZW_SUPPORT
 /*
@@ -80,7 +79,6 @@
 #else
 #define CSIZE           (MAXCODE(BITS_MAX)+1L)
 #endif
-
 /*
  * State block for each open TIFF file using LZW
  * compression/decompression.  Note that the predictor
@@ -88,13 +86,11 @@
  */
 typedef struct {
 	TIFFPredictorState predict;     /* predictor super class */
-
 	unsigned short nbits;           /* # of bits/code */
 	unsigned short maxcode;         /* maximum code for lzw_nbits */
 	unsigned short free_ent;        /* next free entry in hash table */
 	unsigned long nextdata;         /* next bits of i/o */
 	long nextbits;                  /* # of valid bits in lzw_nextdata */
-
 	int rw_mode;                    /* preserve rw_mode from init */
 } LZWBaseState;
 
@@ -118,7 +114,6 @@ typedef struct {
  */
 typedef struct code_ent {
 	struct code_ent * next;
-
 	unsigned short length;          /* string len, including this token */
 	unsigned char value;            /* data value */
 	unsigned char firstchar;        /* first token of string */
@@ -128,7 +123,6 @@ typedef int (*decodeFunc)(TIFF*, uint8*, tmsize_t, uint16);
 
 typedef struct {
 	LZWBaseState base;
-
 	/* Decoding specific data */
 	long dec_nbitsmask;             /* lzw_nbits 1 bits, right adjusted */
 	long dec_restart;               /* restart count */
@@ -174,9 +168,7 @@ static void cl_hash(LZWCodecState*);
  */
 #define NextCode(_tif, _sp, _bp, _code, _get) {				\
 		if((_sp)->dec_bitsleft < (uint64)nbits) {		       \
-			TIFFWarningExt(_tif->tif_clientdata, module,		\
-			    "LZWDecode: Strip %d not terminated with EOI code",	\
-			    _tif->tif_curstrip);				\
+			TIFFWarningExt(_tif->tif_clientdata, module, "LZWDecode: Strip %d not terminated with EOI code", _tif->tif_curstrip); \
 			_code = CODE_EOI;					\
 		} else {							\
 			_get(_sp, _bp, _code);					  \
@@ -198,29 +190,23 @@ static int LZWSetupDecode(TIFF* tif)
 	static const char module[] = "LZWSetupDecode";
 	LZWCodecState* sp = DecoderState(tif);
 	int code;
-
 	if(sp == NULL) {
-		/*
-		 * Allocate state block so tag methods have storage to record
-		 * values.
-		 */
+		// 
+		// Allocate state block so tag methods have storage to record values.
+		// 
 		tif->tif_data = (uint8*)SAlloc::M(sizeof(LZWCodecState));
 		if(tif->tif_data == NULL) {
 			TIFFErrorExt(tif->tif_clientdata, module, "No space for LZW state block");
 			return (0);
 		}
-
 		DecoderState(tif)->dec_codetab = NULL;
 		DecoderState(tif)->dec_decode = NULL;
-
 		/*
 		 * Setup predictor setup.
 		 */
 		(void)TIFFPredictorInit(tif);
-
 		sp = DecoderState(tif);
 	}
-
 	assert(sp != NULL);
 	if(sp->dec_codetab == NULL) {
 		sp->dec_codetab = (code_t*)SAlloc::M(CSIZE*sizeof(code_t));
@@ -253,7 +239,6 @@ static int LZWPreDecode(TIFF* tif, uint16 s)
 {
 	static const char module[] = "LZWPreDecode";
 	LZWCodecState * sp = DecoderState(tif);
-
 	(void)s;
 	assert(sp != NULL);
 	if(sp->dec_codetab == NULL) {
@@ -261,16 +246,13 @@ static int LZWPreDecode(TIFF* tif, uint16 s)
 		if(sp->dec_codetab == NULL)
 			return (0);
 	}
-
 	/*
 	 * Check for old bit-reversed codes.
 	 */
-	if(tif->tif_rawcc >= 2 &&
-	    tif->tif_rawdata[0] == 0 && (tif->tif_rawdata[1] & 0x1)) {
+	if(tif->tif_rawcc >= 2 && tif->tif_rawdata[0] == 0 && (tif->tif_rawdata[1] & 0x1)) {
 #ifdef LZW_COMPAT
 		if(!sp->dec_decode) {
-			TIFFWarningExt(tif->tif_clientdata, module,
-			    "Old-style LZW codes, convert file");
+			TIFFWarningExt(tif->tif_clientdata, module, "Old-style LZW codes, convert file");
 			/*
 			 * Override default decoding methods with
 			 * ones that deal with the old coding.
@@ -325,7 +307,6 @@ static int LZWPreDecode(TIFF* tif, uint16 s)
 	sp->dec_maxcodep = &sp->dec_codetab[sp->dec_nbitsmask-1];
 	return (1);
 }
-
 /*
  * Decode a "hunk of data".
  */
@@ -342,9 +323,7 @@ static int LZWPreDecode(TIFF* tif, uint16 s)
 
 static void codeLoop(TIFF* tif, const char* module)
 {
-	TIFFErrorExt(tif->tif_clientdata, module,
-	    "Bogus encoding, loop in the code table; scanline %d",
-	    tif->tif_row);
+	TIFFErrorExt(tif->tif_clientdata, module, "Bogus encoding, loop in the code table; scanline %d", tif->tif_row);
 }
 
 static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
@@ -375,7 +354,6 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 	 */
 	if(sp->dec_restart) {
 		long residue;
-
 		codep = sp->dec_codep;
 		residue = codep->length - sp->dec_restart;
 		if(residue > occ) {
@@ -413,7 +391,6 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 		} while(--residue && codep);
 		sp->dec_restart = 0;
 	}
-
 	bp = (unsigned char*)tif->tif_rawcp;
 #ifdef LZW_CHECKEOS
 	sp->dec_bitsleft = (((uint64)tif->tif_rawcc) << 3);
@@ -450,30 +427,21 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 			continue;
 		}
 		codep = sp->dec_codetab + code;
-
 		/*
 		 * Add the new entry to the code table.
 		 */
-		if(free_entp < &sp->dec_codetab[0] ||
-		    free_entp >= &sp->dec_codetab[CSIZE]) {
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Corrupted LZW table at scanline %d",
-			    tif->tif_row);
+		if(free_entp < &sp->dec_codetab[0] || free_entp >= &sp->dec_codetab[CSIZE]) {
+			TIFFErrorExt(tif->tif_clientdata, module, "Corrupted LZW table at scanline %d", tif->tif_row);
 			return (0);
 		}
-
 		free_entp->next = oldcodep;
-		if(free_entp->next < &sp->dec_codetab[0] ||
-		    free_entp->next >= &sp->dec_codetab[CSIZE]) {
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Corrupted LZW table at scanline %d",
-			    tif->tif_row);
+		if(free_entp->next < &sp->dec_codetab[0] || free_entp->next >= &sp->dec_codetab[CSIZE]) {
+			TIFFErrorExt(tif->tif_clientdata, module, "Corrupted LZW table at scanline %d", tif->tif_row);
 			return (0);
 		}
 		free_entp->firstchar = free_entp->next->firstchar;
 		free_entp->length = free_entp->next->length+1;
-		free_entp->value = (codep < free_entp) ?
-		    codep->firstchar : free_entp->firstchar;
+		free_entp->value = (codep < free_entp) ? codep->firstchar : free_entp->firstchar;
 		if(++free_entp > maxcodep) {
 			if(++nbits > BITS_MAX)          /* should not happen */
 				nbits = BITS_MAX;
@@ -483,14 +451,10 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 		oldcodep = codep;
 		if(code >= 256) {
 			/*
-			 * Code maps to a string, copy string
-			 * value to output (written in reverse).
+			 * Code maps to a string, copy string value to output (written in reverse).
 			 */
 			if(codep->length == 0) {
-				TIFFErrorExt(tif->tif_clientdata, module,
-				    "Wrong length of decoded string: "
-				    "data probably corrupted at scanline %d",
-				    tif->tif_row);
+				TIFFErrorExt(tif->tif_clientdata, module, "Wrong length of decoded string: data probably corrupted at scanline %d", tif->tif_row);
 				return (0);
 			}
 			if(codep->length > occ) {
@@ -538,7 +502,6 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 			occ--;
 		}
 	}
-
 	tif->tif_rawcc -= (tmsize_t)( (uint8*)bp - tif->tif_rawcp );
 	tif->tif_rawcp = (uint8*)bp;
 	sp->lzw_nbits = (unsigned short)nbits;
@@ -548,16 +511,11 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 	sp->dec_oldcodep = oldcodep;
 	sp->dec_free_entp = free_entp;
 	sp->dec_maxcodep = maxcodep;
-
 	if(occ > 0) {
 #if defined(__WIN32__) && (defined(_MSC_VER) || defined(__MINGW32__))
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Not enough data at scanline %d (short %I64d bytes)",
-		    tif->tif_row, (unsigned __int64)occ);
+		TIFFErrorExt(tif->tif_clientdata, module, "Not enough data at scanline %d (short %I64d bytes)", tif->tif_row, (unsigned __int64)occ);
 #else
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Not enough data at scanline %d (short %llu bytes)",
-		    tif->tif_row, (unsigned long long)occ);
+		TIFFErrorExt(tif->tif_clientdata, module, "Not enough data at scanline %d (short %llu bytes)", tif->tif_row, (unsigned long long)occ);
 #endif
 		return (0);
 	}
@@ -591,22 +549,18 @@ static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 	int code, nbits;
 	long nextbits, nextdata, nbitsmask;
 	code_t * codep, * free_entp, * maxcodep, * oldcodep;
-
 	(void)s;
 	assert(sp != NULL);
-
 	/*
 	   Fail if value does not fit in long.
 	 */
 	if((tmsize_t)occ != occ0)
 		return (0);
-
 	/*
 	 * Restart interrupted output operation.
 	 */
 	if(sp->dec_restart) {
 		long residue;
-
 		codep = sp->dec_codep;
 		residue = codep->length - sp->dec_restart;
 		if(residue > occ) {
@@ -1161,8 +1115,7 @@ int TIFFInitLZW(TIFF* tif, int scheme)
 	(void)TIFFPredictorInit(tif);
 	return (1);
 bad:
-	TIFFErrorExt(tif->tif_clientdata, module,
-	    "No space for LZW state block");
+	TIFFErrorExt(tif->tif_clientdata, module, "No space for LZW state block");
 	return (0);
 }
 

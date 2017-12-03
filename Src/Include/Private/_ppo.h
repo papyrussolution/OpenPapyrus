@@ -203,7 +203,7 @@ struct PPOpCounter_ {      // @persistent @store(ReferenceTbl+)
 struct PPGdsCls_ {         // @persistent @store(ReferenceTbl+)
 	static int   SLAPI IsEqByDynGenMask(long mask, const GoodsExtTbl::Rec * p1, const GoodsExtTbl::Rec * p2);
 	void   SLAPI SetDynGenMask(int fld, int val);
-	int    FASTCALL GetDynGenMask(int fld) const;
+	int    SLAPI GetDynGenMask(int fld) const;
 
 	enum { // @persistent
 		eKind = 1,

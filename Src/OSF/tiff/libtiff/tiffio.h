@@ -284,12 +284,11 @@ extern TIFFCodec* TIFFGetConfiguredCODECs(void);
 /*
  * Auxiliary functions.
  */
-
-extern void* _TIFFmalloc_Removed(tmsize_t s);
-extern void* _TIFFcalloc_Removed(tmsize_t nmemb, tmsize_t siz);
-extern void* _TIFFrealloc_Removed(void* p, tmsize_t s);
-extern void _TIFFmemset_Removed(void* p, int v, tmsize_t c);
-extern void _TIFFmemcpy(void* d, const void* s, tmsize_t c);
+//extern void* _TIFFmalloc_Removed(tmsize_t s);
+//extern void* _TIFFcalloc_Removed(tmsize_t nmemb, tmsize_t siz);
+//extern void* _TIFFrealloc_Removed(void* p, tmsize_t s);
+//extern void _TIFFmemset_Removed(void* p, int v, tmsize_t c);
+//extern void _TIFFmemcpy_Removed(void* d, const void* s, tmsize_t c);
 extern int _TIFFmemcmp(const void* p1, const void* p2, tmsize_t c);
 //extern void _TIFFfree_Removed(void* p);
 
@@ -469,9 +468,9 @@ extern tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void* data, tmsize_
 extern tmsize_t TIFFWriteRawTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc);  
 extern int TIFFDataWidth(TIFFDataType);    /* table of tag datatype widths */
 extern void TIFFSetWriteOffset(TIFF* tif, toff_t off);
-extern void TIFFSwabShort(uint16*);
-extern void TIFFSwabLong(uint32*);
-extern void TIFFSwabLong8(uint64*);
+extern void FASTCALL TIFFSwabShort(uint16*);
+extern void FASTCALL TIFFSwabLong(uint32*);
+extern void FASTCALL TIFFSwabLong8(uint64*);
 extern void TIFFSwabFloat(float*);
 extern void TIFFSwabDouble(double*);
 extern void TIFFSwabArrayOfShort(uint16* wp, tmsize_t n);

@@ -521,9 +521,13 @@ static int SLAPI EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 
 class ArticleDialog : public PPListDialog {
 public:
-	SLAPI  ArticleDialog(uint rezID, ArticleDlgData * aData) : PPListDialog(rezID, CTL_ARTICLE_ALIASSUBST), P_Data(aData), AccSheetFounded(0), AgtFlags(0)
+	SLAPI  ArticleDialog(uint rezID, ArticleDlgData * aData) : PPListDialog(rezID, CTL_ARTICLE_ALIASSUBST)
 	{
+		P_Data = aData;
+		AccSheetFounded = 0;
+		AgtFlags = 0;
 		PPObjArticle arobj;
+
 		SetEmptyAgreementInd();
 		if(aData->Options & ArticleDlgData::fAssocAccnt) {
 			AcctCtrlGroup::Rec acc_rec;
@@ -1792,13 +1796,11 @@ int SLAPI PPObjArticle::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int re
 		if(ap->P_CliAgt) {
 			THROW(ProcessObjRefInArray(PPOBJ_ARTICLE,  &ap->P_CliAgt->DefAgentID, ary, replace));
 			THROW(ProcessObjRefInArray(PPOBJ_QUOTKIND, &ap->P_CliAgt->DefQuotKindID, ary, replace));
-			THROW(ProcessObjRefInArray(PPOBJ_ARTICLE,  &ap->P_CliAgt->ExtObjectID, ary, replace)); // @v6.0.0
-			// @v7.0.7 {
+			THROW(ProcessObjRefInArray(PPOBJ_ARTICLE,  &ap->P_CliAgt->ExtObjectID, ary, replace));
 			for(uint i = 0; i < ap->P_CliAgt->DebtLimList.getCount(); i++) {
 				PPClientAgreement::DebtLimit & r_item = ap->P_CliAgt->DebtLimList.at(i);
 				THROW(ProcessObjRefInArray(PPOBJ_DEBTDIM,  &r_item.DebtDimID, ary, replace));
 			}
-			// } @v7.0.7
 		}
 		if(ap->P_SupplAgt) {
 			THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &ap->P_SupplAgt->DefAgentID, ary, replace));
@@ -1980,13 +1982,10 @@ int SLAPI PPObjArticle::CheckObject(const ArticleTbl::Rec * pRec, SString * pMsg
 //
 //
 //
-class ArticleCache : public ObjCacheHash { // @v7.8.5
+class ArticleCache : public ObjCacheHash {
 public:
-	SLAPI  ArticleCache() :
-		// @v7.8.5 ObjCache(PPOBJ_ARTICLE, sizeof(Data))
-		ObjCacheHash(PPOBJ_ARTICLE, sizeof(Data), 1024*1024, 4) // @v7.8.5
+	SLAPI  ArticleCache() : ObjCacheHash(PPOBJ_ARTICLE, sizeof(Data), 1024*1024, 4), IsVatFreeListInited(0)
 	{
-		IsVatFreeListInited = 0;
 	}
 	virtual int SLAPI Dirty(PPID id); // @sync_w
 	int    SLAPI IsSupplVatFree(PPID supplID); // @sync_rw
@@ -2470,9 +2469,8 @@ int SLAPI PPObjDebtDim::SerializePacket(int dir, PPDebtDimPacket * pPack, SBuffe
 //
 class DebtDimCache : public ObjCache {
 public:
-	SLAPI DebtDimCache() : ObjCache(PPOBJ_DEBTDIM, sizeof(DebtDimData))
+	SLAPI DebtDimCache() : ObjCache(PPOBJ_DEBTDIM, sizeof(DebtDimData)), P_AgentList(0)
 	{
-		P_AgentList = 0;
 	}
 	SLAPI ~DebtDimCache()
 	{
@@ -2637,5 +2635,3 @@ void PPALDD_Article::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack 
 		_RET_INT = dd_id;
 	}
 }
-
-

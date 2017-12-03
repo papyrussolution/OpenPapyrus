@@ -32,30 +32,33 @@
 #pragma hdrstop
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabShort)
-void TIFFSwabShort(uint16* wp)
+void FASTCALL TIFFSwabShort(uint16* wp)
 {
-	register unsigned char* cp = (unsigned char*)wp;
+	unsigned char* cp = (unsigned char*)wp;
 	unsigned char t;
 	assert(sizeof(uint16)==2);
 	t = cp[1]; cp[1] = cp[0]; cp[0] = t;
 }
-
 #endif
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabLong)
-void TIFFSwabLong(uint32* lp)
+void FASTCALL TIFFSwabLong(uint32 * lp)
 {
-	register unsigned char* cp = (unsigned char*)lp;
+	unsigned char * cp = (unsigned char*)lp;
 	unsigned char t;
 	assert(sizeof(uint32)==4);
-	t = cp[3]; cp[3] = cp[0]; cp[0] = t;
-	t = cp[2]; cp[2] = cp[1]; cp[1] = t;
+	t = cp[3]; 
+	cp[3] = cp[0]; 
+	cp[0] = t;
+	
+	t = cp[2]; 
+	cp[2] = cp[1]; 
+	cp[1] = t;
 }
-
 #endif
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabLong8)
-void TIFFSwabLong8(uint64* lp)
+void FASTCALL TIFFSwabLong8(uint64* lp)
 {
 	unsigned char* cp = (unsigned char*)lp;
 	unsigned char t;
@@ -65,7 +68,6 @@ void TIFFSwabLong8(uint64* lp)
 	t = cp[5]; cp[5] = cp[2]; cp[2] = t;
 	t = cp[4]; cp[4] = cp[3]; cp[3] = t;
 }
-
 #endif
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfShort)
@@ -102,8 +104,8 @@ void TIFFSwabArrayOfTriples(register uint8* tp, tmsize_t n)
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfLong)
 void TIFFSwabArrayOfLong(register uint32* lp, tmsize_t n)
 {
-	register unsigned char * cp;
-	register unsigned char t;
+	unsigned char * cp;
+	unsigned char t;
 	assert(sizeof(uint32)==4);
 	/* XXX unroll loop some */
 	while(n-- > 0) {
@@ -119,8 +121,8 @@ void TIFFSwabArrayOfLong(register uint32* lp, tmsize_t n)
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfLong8)
 void TIFFSwabArrayOfLong8(register uint64* lp, tmsize_t n)
 {
-	register unsigned char * cp;
-	register unsigned char t;
+	unsigned char * cp;
+	unsigned char t;
 	assert(sizeof(uint64)==8);
 	/* XXX unroll loop some */
 	while(n-- > 0) {

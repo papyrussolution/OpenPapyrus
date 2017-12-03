@@ -366,7 +366,7 @@ static int get_socket_nonblocking(int sockfd)
 	if(callstat == -1)
 		return(0);
 	if((sockstat&SS_NBIO))
-		return(1);
+		return 1;
 	return(0);
 
 #undef GETBLOCK

@@ -157,8 +157,9 @@ int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField)
 //
 class SdFieldCorrListDialog : public PPListDialog {
 public:
-	SdFieldCorrListDialog(const SdRecord * pInnerRec) : PPListDialog(DLG_FLDCORRLIST, CTL_FLDCORRLIST_LIST), P_Rec(pInnerRec)
+	SdFieldCorrListDialog(const SdRecord * pInnerRec) : PPListDialog(DLG_FLDCORRLIST, CTL_FLDCORRLIST_LIST)
 	{
+		P_Rec = pInnerRec;
 	}
 	int    setDTS(const SdRecord * pData);
 	int    getDTS(SdRecord * pData);

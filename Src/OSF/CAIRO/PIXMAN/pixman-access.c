@@ -226,7 +226,7 @@ static force_inline uint32_t convert_pixel_from_a8r8g8b8(pixman_image_t * image,
 		pixel = convert_pixel(PIXMAN_a8r8g8b8, PIXMAN_x1r5g5b5, pixel);
 		return image->bits.indexed->ent[pixel & 0x7fff];
 	}
-	else{
+	else {
 		return convert_pixel(PIXMAN_a8r8g8b8, format, pixel);
 	}
 }

@@ -30,7 +30,6 @@
  */
 #include "tiffiop.h"
 #pragma hdrstop
-#include "tif_predict.h"
 
 uint32 _TIFFMultiply32(TIFF* tif, uint32 first, uint32 second, const char* where)
 {
@@ -96,11 +95,11 @@ static int TIFFDefaultTransferFunction(TIFFDirectory* td)
 		tf[1] = (uint16*)SAlloc::M(nbytes);
 		if(tf[1] == NULL)
 			goto bad;
-		_TIFFmemcpy(tf[1], tf[0], nbytes);
+		memcpy(tf[1], tf[0], nbytes);
 		tf[2] = (uint16*)SAlloc::M(nbytes);
 		if(tf[2] == NULL)
 			goto bad;
-		_TIFFmemcpy(tf[2], tf[0], nbytes);
+		memcpy(tf[2], tf[0], nbytes);
 	}
 	return 1;
 bad:
@@ -151,54 +150,32 @@ static int TIFFDefaultRefBlackWhite(TIFFDirectory* td)
 int TIFFVGetFieldDefaulted(TIFF* tif, uint32 tag, va_list ap)
 {
 	TIFFDirectory * td = &tif->tif_dir;
-
 	if(TIFFVGetField(tif, tag, ap))
 		return (1);
 	switch(tag) {
-		case TIFFTAG_SUBFILETYPE:
-		    *va_arg(ap, uint32 *) = td->td_subfiletype;
-		    return (1);
-		case TIFFTAG_BITSPERSAMPLE:
-		    *va_arg(ap, uint16 *) = td->td_bitspersample;
-		    return (1);
-		case TIFFTAG_THRESHHOLDING:
-		    *va_arg(ap, uint16 *) = td->td_threshholding;
-		    return (1);
-		case TIFFTAG_FILLORDER:
-		    *va_arg(ap, uint16 *) = td->td_fillorder;
-		    return (1);
-		case TIFFTAG_ORIENTATION:
-		    *va_arg(ap, uint16 *) = td->td_orientation;
-		    return (1);
-		case TIFFTAG_SAMPLESPERPIXEL:
-		    *va_arg(ap, uint16 *) = td->td_samplesperpixel;
-		    return (1);
-		case TIFFTAG_ROWSPERSTRIP:
-		    *va_arg(ap, uint32 *) = td->td_rowsperstrip;
-		    return (1);
-		case TIFFTAG_MINSAMPLEVALUE:
-		    *va_arg(ap, uint16 *) = td->td_minsamplevalue;
-		    return (1);
-		case TIFFTAG_MAXSAMPLEVALUE:
-		    *va_arg(ap, uint16 *) = td->td_maxsamplevalue;
-		    return (1);
-		case TIFFTAG_PLANARCONFIG:
-		    *va_arg(ap, uint16 *) = td->td_planarconfig;
-		    return (1);
-		case TIFFTAG_RESOLUTIONUNIT:
-		    *va_arg(ap, uint16 *) = td->td_resolutionunit;
-		    return (1);
+		case TIFFTAG_SUBFILETYPE: *va_arg(ap, uint32 *) = td->td_subfiletype; return (1);
+		case TIFFTAG_BITSPERSAMPLE: *va_arg(ap, uint16 *) = td->td_bitspersample; return (1);
+		case TIFFTAG_THRESHHOLDING: *va_arg(ap, uint16 *) = td->td_threshholding; return (1);
+		case TIFFTAG_FILLORDER: *va_arg(ap, uint16 *) = td->td_fillorder; return (1);
+		case TIFFTAG_ORIENTATION: *va_arg(ap, uint16 *) = td->td_orientation; return (1);
+		case TIFFTAG_SAMPLESPERPIXEL: *va_arg(ap, uint16 *) = td->td_samplesperpixel; return (1);
+		case TIFFTAG_ROWSPERSTRIP: *va_arg(ap, uint32 *) = td->td_rowsperstrip; return (1);
+		case TIFFTAG_MINSAMPLEVALUE: *va_arg(ap, uint16 *) = td->td_minsamplevalue; return (1);
+		case TIFFTAG_MAXSAMPLEVALUE: *va_arg(ap, uint16 *) = td->td_maxsamplevalue; return (1);
+		case TIFFTAG_PLANARCONFIG: *va_arg(ap, uint16 *) = td->td_planarconfig; return (1);
+		case TIFFTAG_RESOLUTIONUNIT: *va_arg(ap, uint16 *) = td->td_resolutionunit; return (1);
 		case TIFFTAG_PREDICTOR:
 	    {
 		    TIFFPredictorState* sp = (TIFFPredictorState*)tif->tif_data;
 		    if(sp == NULL) {
-			    TIFFErrorExt(tif->tif_clientdata, tif->tif_name,
-				    "Cannot get \"Predictor\" tag as plugin is not configured");
+			    TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Cannot get \"Predictor\" tag as plugin is not configured");
 			    *va_arg(ap, uint16*) = 0;
 			    return 0;
 		    }
-		    *va_arg(ap, uint16*) = (uint16)sp->predictor;
-		    return 1;
+			else {
+				*va_arg(ap, uint16*) = (uint16)sp->predictor;
+				return 1;
+			}
 	    }
 		case TIFFTAG_DOTRANGE:
 		    *va_arg(ap, uint16 *) = 0;
@@ -215,9 +192,7 @@ int TIFFVGetFieldDefaulted(TIFF* tif, uint32 tag, va_list ap)
 		    *va_arg(ap, uint16 **) = td->td_sampleinfo;
 		    return (1);
 		case TIFFTAG_MATTEING:
-		    *va_arg(ap, uint16 *) =
-		    (td->td_extrasamples == 1 &&
-		    td->td_sampleinfo[0] == EXTRASAMPLE_ASSOCALPHA);
+		    *va_arg(ap, uint16 *) = (td->td_extrasamples == 1 && td->td_sampleinfo[0] == EXTRASAMPLE_ASSOCALPHA);
 		    return (1);
 		case TIFFTAG_TILEDEPTH:
 		    *va_arg(ap, uint32 *) = td->td_tiledepth;
@@ -227,7 +202,7 @@ int TIFFVGetFieldDefaulted(TIFF* tif, uint32 tag, va_list ap)
 		    return (1);
 		case TIFFTAG_SAMPLEFORMAT:
 		    *va_arg(ap, uint16 *) = td->td_sampleformat;
-		    return(1);
+		    return 1;
 		case TIFFTAG_IMAGEDEPTH:
 		    *va_arg(ap, uint32 *) = td->td_imagedepth;
 		    return (1);
@@ -248,7 +223,6 @@ int TIFFVGetFieldDefaulted(TIFF* tif, uint32 tag, va_list ap)
 		case TIFFTAG_WHITEPOINT:
 	    {
 		    static float whitepoint[2];
-
 		    /* TIFF 6.0 specification tells that it is no default
 		       value for the WhitePoint, but AdobePhotoshop TIFF
 		       Technical Note tells that it should be CIE D50. */
@@ -258,8 +232,7 @@ int TIFFVGetFieldDefaulted(TIFF* tif, uint32 tag, va_list ap)
 		    return 1;
 	    }
 		case TIFFTAG_TRANSFERFUNCTION:
-		    if(!td->td_transferfunction[0] &&
-		    !TIFFDefaultTransferFunction(td)) {
+		    if(!td->td_transferfunction[0] && !TIFFDefaultTransferFunction(td)) {
 			    TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "No space for \"TransferFunction\" tag");
 			    return (0);
 		    }
@@ -277,7 +250,6 @@ int TIFFVGetFieldDefaulted(TIFF* tif, uint32 tag, va_list ap)
 	}
 	return 0;
 }
-
 /*
  * Like TIFFGetField, but return any default
  * value if the tag is not present in the directory.
@@ -286,7 +258,6 @@ int TIFFGetFieldDefaulted(TIFF* tif, uint32 tag, ...)
 {
 	int ok;
 	va_list ap;
-
 	va_start(ap, tag);
 	ok =  TIFFVGetFieldDefaulted(tif, tag, ap);
 	va_end(ap);
@@ -299,14 +270,12 @@ struct _Int64Parts {
 
 typedef union {
 	struct _Int64Parts part;
-
 	int64 value;
 } _Int64;
 
 float _TIFFUInt64ToFloat(uint64 ui64)
 {
 	_Int64 i;
-
 	i.value = ui64;
 	if(i.part.high >= 0) {
 		return (float)i.value;

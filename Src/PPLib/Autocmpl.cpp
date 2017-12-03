@@ -78,9 +78,15 @@ int PUGL::BalanceSupplSubstList(TSVector <SupplSubstItem> & rList, double needed
 	return ok;
 }
 
-SLAPI PUGL::PUGL() : SArray(sizeof(PUGI)), OPcug(0), LocID(0), SupplAccSheetForSubstID(0), Dt(ZERODATE), CostByCalc(0), CalcCostPct(0)
+SLAPI PUGL::PUGL() : SArray(sizeof(PUGI))
 {
+	OPcug = 0; //PCUG_CANCEL;
+	LocID = 0;
+	SupplAccSheetForSubstID = 0; // @v9.2.1
+	Dt = ZERODATE;
 	ClearActions();
+	CostByCalc  = 0;
+	CalcCostPct = 0;
 }
 
 PUGL & FASTCALL PUGL::operator = (const PUGL & rS)

@@ -1895,15 +1895,15 @@ int ImportCls::ParseForDocData(Sdr_Bill * pBill)
 						//   Из-за этого предварительно обрезаем строку даты до 8 символов (функция strtodate корректно извлекает
 						//   дату без разделителей только при фиксированном размере строки в 8 символов).
 						//
-						if(str == "137") { // Дата документа
+						if(str.CmpNC("137") == 0) { // Дата документа
 							strtodate(str.Set(p_node->children->content).Trim(8), DATF_YMD|DATF_CENTURY, &pBill->Date);
 							ok = 1;
 						}
-						else if(str == "17" || str == "2") { // Дата доставки (дата исполнения документа)
+						else if(str.CmpNC("17") == 0 || str.CmpNC("2") == 0) { // Дата доставки (дата исполнения документа)
 							strtodate(str.Set(p_node->children->content).Trim(8), DATF_YMD|DATF_CENTURY, &pBill->DueDate);
 							ok = 1;
 						}
-						else if(str == "171") { // Дата заказа
+						else if(str.CmpNC("171") == 0) { // Дата заказа
 							if(!pBill->OrderDate)
 								strtodate(str.Set(p_node->children->content).Trim(8), DATF_YMD|DATF_CENTURY, &pBill->OrderDate);
 							ok = 1;
@@ -2155,15 +2155,15 @@ int ImportCls::ParseForDocData2(Sdr_Bill * pBill)
 						//   Из-за этого предварительно обрезаем строку даты до 8 символов (функция strtodate корректно извлекает
 						//   дату без разделителей только при фиксированном размере строки в 8 символов).
 						//
-						if(str == "137") { // Дата документа
+						if(str.CmpNC("137") == 0) { // Дата документа
 							strtodate(str.Set(p_node->children->content).Trim(8), DATF_YMD|DATF_CENTURY, &pBill->Date);
 							ok = 1;
 						}
-						else if(str == "17" || str == "2") { // Дата доставки (дата исполнения документа)
+						else if(str.CmpNC("17") == 0 || str.CmpNC("2") == 0) { // Дата доставки (дата исполнения документа)
 							strtodate(str.Set(p_node->children->content).Trim(8), DATF_YMD|DATF_CENTURY, &pBill->DueDate);
 							ok = 1;
 						}
-						else if(str == "171") { // Дата заказа
+						else if(str.CmpNC("171") == 0) { // Дата заказа
 							if(!pBill->OrderDate) {
 								strtodate(str.Set(p_node->children->content).Trim(8), DATF_YMD|DATF_CENTURY, &pBill->OrderDate);
 							}

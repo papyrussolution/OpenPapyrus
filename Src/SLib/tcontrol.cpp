@@ -169,10 +169,8 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 const int cmGrabDefault    = 61;
 const int cmReleaseDefault = 62;
 
-TButton::TButton(const TRect& bounds, const char *aTitle, ushort aCommand, ushort aFlags, uint bmpID) : TView(bounds)
+TButton::TButton(const TRect& bounds, const char *aTitle, ushort aCommand, ushort aFlags, uint bmpID) : TView(bounds), flags(aFlags), command(aCommand)
 {
-	flags = aFlags;
-	command = aCommand;
 	SubSign = TV_SUBSIGN_BUTTON;
 	options |= (ofSelectable|ofPreProcess|ofPostProcess);
 	Title = aTitle;
@@ -1988,12 +1986,9 @@ int TImageView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	 return 1;
 }
 
-TImageView::TImageView(const TRect & rBounds, const char * pFigSymb) : TView(rBounds)
+TImageView::TImageView(const TRect & rBounds, const char * pFigSymb) : TView(rBounds), P_Fig(0), P_Image(0), FigSymb(pFigSymb)
 {
 	SubSign = TV_SUBSIGN_IMAGEVIEW; // @v8.3.11
-	P_Fig = 0;
-	P_Image = 0;
-	FigSymb = pFigSymb; // @v9.5.6
 	ReplacedColor.Set(0); // @v9.6.5
 	ReplacedColor.Alpha = 0; // @v9.6.5
 	if(FigSymb.NotEmpty()) {
@@ -2053,20 +2048,12 @@ int TImageView::TransmitData(int dir, void * pData)
 //
 //
 //
-TToolTip::ToolItem::ToolItem()
+TToolTip::ToolItem::ToolItem() : Id(0), H(0), Param(0)
 {
-	Id = 0;
-	H = 0;
-	Param = 0;
-	R.a = 0;
-	R.b = 0;
 }
 
-TToolTip::TToolTip(HWND hParent, uint maxWidthPix)
+TToolTip::TToolTip(HWND hParent, uint maxWidthPix) : H(0), MaxWidthPix(maxWidthPix)
 {
-	H = 0;
-	//Counter = 0;
-	MaxWidthPix = maxWidthPix;
 	if(hParent)
 		Create(hParent);
 }

@@ -151,22 +151,29 @@ static void ColouriseESCRIPTDoc(Sci_PositionU startPos, Sci_Position length, int
 static int classifyFoldPointESCRIPT(const char* s, const char* prevWord)
 {
 	int lev = 0;
-	if(sstreq(prevWord, "end")) 
-		return lev;
-	if((sstreq(prevWord, "else") && sstreq(s, "if")) || sstreq(s, "elseif"))
+	if(strcmp(prevWord, "end") == 0) return lev;
+	if((strcmp(prevWord, "else") == 0 && strcmp(s, "if") == 0) || strcmp(s, "elseif") == 0)
 		return -1;
-	if(sstreq(s, "for") || sstreq(s, "foreach") || sstreq(s, "program") || sstreq(s, "function") || sstreq(s, "while") || sstreq(s, "case") || sstreq(s, "if")) {
+
+	if(strcmp(s, "for") == 0 || strcmp(s, "foreach") == 0
+	    || strcmp(s, "program") == 0 || strcmp(s, "function") == 0
+	    || strcmp(s, "while") == 0 || strcmp(s, "case") == 0
+	    || strcmp(s, "if") == 0) {
 		lev = 1;
 	}
-	else if(sstreq(s, "endfor") || sstreq(s, "endforeach") || sstreq(s, "endprogram") || sstreq(s, "endfunction") || sstreq(s, "endwhile") || sstreq(s, "endcase") || sstreq(s, "endif")) {
+	else if(strcmp(s, "endfor") == 0 || strcmp(s, "endforeach") == 0
+	    || strcmp(s, "endprogram") == 0 || strcmp(s, "endfunction") == 0
+	    || strcmp(s, "endwhile") == 0 || strcmp(s, "endcase") == 0
+	    || strcmp(s, "endif") == 0) {
 		lev = -1;
 	}
+
 	return lev;
 }
 
 static bool FASTCALL IsStreamCommentStyle(int style)
 {
-	return oneof3(style, SCE_ESCRIPT_COMMENT, SCE_ESCRIPT_COMMENTDOC, SCE_ESCRIPT_COMMENTLINE);
+	return style == SCE_ESCRIPT_COMMENT || style == SCE_ESCRIPT_COMMENTDOC || style == SCE_ESCRIPT_COMMENTLINE;
 }
 
 static void FoldESCRIPTDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList *[], Accessor &styler)

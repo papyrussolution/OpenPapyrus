@@ -1,7 +1,7 @@
 // BILVATAX.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2005, 2006, 2007, 2009, 2010, 2015, 2016
-// @codepage windows-1251
-// Расчет НДС по документам, соответствующим заданному запросу
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2005, 2006, 2007, 2009, 2010, 2015, 2016, 2017
+// @codepage UTF-8
+// Р Р°СЃС‡РµС‚ РќР”РЎ РїРѕ РґРѕРєСѓРјРµРЅС‚Р°Рј, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРј Р·Р°РґР°РЅРЅРѕРјСѓ Р·Р°РїСЂРѕСЃСѓ
 //
 #include <pp.h>
 #pragma hdrstop
@@ -117,8 +117,8 @@ int SLAPI BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 	uint   i;
 	PPID   op_type_id = GetOpType(pPack->Rec.OpID);
 	//
-	// Условие (!pPack->GetTCount() && pPack->Rec.Flags & BILLF_BILLF_FIXEDAMOUNTS)
-	// введено для обработки документов консолидирующей передачи из других разделов.
+	// РЈСЃР»РѕРІРёРµ (!pPack->GetTCount() && pPack->Rec.Flags & BILLF_BILLF_FIXEDAMOUNTS)
+	// РІРІРµРґРµРЅРѕ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё РґРѕРєСѓРјРµРЅС‚РѕРІ РєРѕРЅСЃРѕР»РёРґРёСЂСѓСЋС‰РµР№ РїРµСЂРµРґР°С‡Рё РёР· РґСЂСѓРіРёС… СЂР°Р·РґРµР»РѕРІ.
 	//
 	if(oneof2(op_type_id, PPOPT_ACCTURN, PPOPT_PAYMENT) || (!pPack->GetTCount() && pPack->Rec.Flags & BILLF_FIXEDAMOUNTS)) {
 		PPObjAmountType amtt_obj;
@@ -127,7 +127,7 @@ int SLAPI BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 		double amt = pPack->GetBaseAmount();
 		int    num_vat_rates = 0;
 		int    is_there_stax = 0;
-		for(i = 0; pPack->Amounts.enumItems(&i, (void**)&p_ae);)
+		for(i = 0; pPack->Amounts.enumItems(&i, (void**)&p_ae);) {
 			if(p_ae->Amt != 0.0 && amtt_obj.Fetch(p_ae->AmtTypeID, &amtt_rec) > 0)
 				if(amtt_rec.IsTax(GTAX_VAT))
 					num_vat_rates++;
@@ -135,8 +135,9 @@ int SLAPI BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 					amt -= p_ae->Amt;
 					is_there_stax = 1;
 				}
-		if(num_vat_rates)
-			for(i = 0; pPack->Amounts.enumItems(&i, (void**)&p_ae);)
+		}
+		if(num_vat_rates) {
+			for(i = 0; pPack->Amounts.enumItems(&i, (void**)&p_ae);) {
 				if(p_ae->Amt != 0.0 && amtt_obj.Fetch(p_ae->AmtTypeID, &amtt_rec) > 0)
 					if(amtt_rec.IsTax(GTAX_VAT)) {
 						BVATAccm item;
@@ -153,6 +154,8 @@ int SLAPI BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 							return 0;
 						inited = 1;
 					}
+			}
+		}
 	}
 	if(!inited) {
 		PPTransferItem * p_ti;

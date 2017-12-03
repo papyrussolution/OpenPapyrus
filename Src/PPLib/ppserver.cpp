@@ -23,12 +23,8 @@ int FASTCALL PPThread::GetKindText(int kind, SString & rBuf)
 	return PPGetSubStr(PPTXT_PPTHREADKINDTITLES, kind, rBuf);
 }
 
-SLAPI PPThread::PPThread(int kind, const char * pText, void * pInitData) : SlThread(pInitData)
+SLAPI PPThread::PPThread(int kind, const char * pText, void * pInitData) : SlThread(pInitData), Kind(kind), JobID(0), Text(pText), StartMoment(ZERODATETIME)
 {
-	Kind = kind;
-	JobID = 0;
-	Text = pText;
-	StartMoment = ZERODATETIME;
 }
 
 int SLAPI PPThread::GetKind() const
@@ -118,10 +114,8 @@ int SLAPI PPThread::Info::Serialize(int dir, SBuffer & rBuf, SSerializeContext *
 //
 //
 //
-SLAPI PPServerCmd::PPServerCmd() : PPJobSrvCmd()
+SLAPI PPServerCmd::PPServerCmd() : PPJobSrvCmd(), P_SoBlk(0), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN))
 {
-	P_SoBlk = 0;
-	P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
 	Init();
 }
 
@@ -1980,12 +1974,8 @@ SLAPI PPWorkerSession::FTB::~FTB()
 	delete P_F;
 }
 
-SLAPI PPWorkerSession::PPWorkerSession(int threadKind) : PPThread(/*PPThread::kNetSession*/threadKind, 0, 0)
+SLAPI PPWorkerSession::PPWorkerSession(int threadKind) : PPThread(/*PPThread::kNetSession*/threadKind, 0, 0), P_CPosBlk(0), State(0), Counter(0), P_TxtCmdTerminal(0)
 {
-	P_CPosBlk = 0;
-	State = 0;
-	Counter = 0;
-	P_TxtCmdTerminal = 0;
 }
 
 SLAPI PPWorkerSession::~PPWorkerSession()

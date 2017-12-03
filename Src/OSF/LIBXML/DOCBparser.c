@@ -253,5 +253,5 @@ docbDocPtr docbParseFile(const char * filename ATTRIBUTE_UNUSED, const char * en
 }
 
 #define bottom_DOCBparser
-//#include "elfgcchack.h"
+#include "elfgcchack.h"
 #endif /* LIBXML_DOCB_ENABLED */

@@ -195,7 +195,8 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 					    if(reservedWords.InList(cur)) {
 						    style = SCE_ERLANG_KEYWORD;
 					    }
-					    else if(erlangBIFs.InList(cur) && strcmp(cur, "erlang:")) {
+					    else if(erlangBIFs.InList(cur)
+						    && strcmp(cur, "erlang:")) {
 						    style = SCE_ERLANG_BIFS;
 					    }
 					    else if(sc.ch == '(' || '/' == sc.ch) {
@@ -204,6 +205,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 					    else {
 						    style = SCE_ERLANG_ATOM;
 					    }
+
 					    sc.ChangeState(style);
 					    sc.SetState(SCE_ERLANG_DEFAULT);
 					    parse_state = STATE_NULL;
@@ -404,7 +406,7 @@ static void ColouriseErlangDoc(Sci_PositionU startPos, Sci_Position length, int 
 			    } break;
 			}
 		} /* End of : STATE_NULL != parse_state */
-		else{
+		else {
 			switch(sc.state) {
 				case SCE_ERLANG_VARIABLE: {
 				    if(!IsAWordChar(sc.ch))

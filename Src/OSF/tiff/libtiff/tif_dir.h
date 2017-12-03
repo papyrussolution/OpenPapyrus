@@ -171,8 +171,6 @@ typedef struct {
 /*      FIELD_CUSTOM (see tiffio.h)    65 */
 /* end of support for well-known tags; codec-private tags follow */
 #define FIELD_CODEC                    66  /* base of codec-private tags */
-
-
 /*
  * Pseudo-tags don't normally need field bits since they are not written to an
  * output file (by definition). The library also has express logic to always
@@ -181,18 +179,15 @@ typedef struct {
  * or ``unset'' then it can do using internal state flags without polluting
  * the field bit space defined for real tags.
  */
-#define FIELD_PSEUDO			0
-
-#define FIELD_LAST			(32*FIELD_SETLONGS-1)
-
-#define BITn(n)				(((unsigned long)1L)<<((n)&0x1f))
-#define BITFIELDn(tif, n)		((tif)->tif_dir.td_fieldsset[(n)/32])
-#define TIFFFieldSet(tif, field)	(BITFIELDn(tif, field) & BITn(field))
-#define TIFFSetFieldBit(tif, field)	(BITFIELDn(tif, field) |= BITn(field))
-#define TIFFClrFieldBit(tif, field)	(BITFIELDn(tif, field) &= ~BITn(field))
-
-#define FieldSet(fields, f)		(fields[(f)/32] & BITn(f))
-#define ResetFieldBit(fields, f)	(fields[(f)/32] &= ~BITn(f))
+#define FIELD_PSEUDO                0
+#define FIELD_LAST                  (32*FIELD_SETLONGS-1)
+#define BITn(n)                     (((ulong)1L)<<((n)&0x1f))
+#define BITFIELDn(tif, n)           ((tif)->tif_dir.td_fieldsset[(n)/32])
+#define TIFFFieldSet(tif, field)    (BITFIELDn(tif, field) & BITn(field))
+#define TIFFSetFieldBit(tif, field) (BITFIELDn(tif, field) |= BITn(field))
+#define TIFFClrFieldBit(tif, field) (BITFIELDn(tif, field) &= ~BITn(field))
+#define FieldSet(fields, f)         (fields[(f)/32] & BITn(f))
+#define ResetFieldBit(fields, f)    (fields[(f)/32] &= ~BITn(f))
 
 typedef enum {
 	TIFF_SETGET_UNDEFINED = 0,
@@ -292,6 +287,8 @@ extern int _TIFFMergeFields(TIFF*, const TIFFField[], uint32);
 extern const TIFFField* _TIFFFindOrRegisterField(TIFF *, uint32, TIFFDataType);
 extern  TIFFField* _TIFFCreateAnonField(TIFF *, uint32, TIFFDataType);
 extern int _TIFFCheckFieldIsValidForCodec(TIFF *tif, ttag_t tag);
+
+extern float FASTCALL TIFFClampDoubleToFloat(double val);
 
 #if defined(__cplusplus)
 }

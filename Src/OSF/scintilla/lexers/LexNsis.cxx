@@ -104,7 +104,7 @@ static int calculateFoldNsis(Sci_PositionU start, Sci_PositionU end, int foldlev
 		    style != SCE_NSIS_PAGEEX)
 			return foldlevel;
 	}
-	else{
+	else {
 		if(style != SCE_NSIS_FUNCTIONDEF && style != SCE_NSIS_SECTIONDEF &&
 		    style != SCE_NSIS_SUBSECTIONDEF && style != SCE_NSIS_SECTIONGROUP &&
 		    style != SCE_NSIS_PAGEEX)
@@ -138,7 +138,7 @@ static int calculateFoldNsis(Sci_PositionU start, Sci_PositionU end, int foldlev
 		else if(bElse && NsisCmp(s, "!else", bIgnoreCase) == 0)
 			newFoldlevel++;
 	}
-	else{
+	else {
 		if(NsisCmp(s, "Section",
 			    bIgnoreCase) == 0 ||
 		    NsisCmp(s, "SectionGroup",
@@ -347,7 +347,7 @@ static void ColouriseNsisDoc(Sci_PositionU startPos, Sci_Position length, int, W
 					    styler.ColourTo(i-2, state);
 					    styler.ColourTo(i, SCE_NSIS_DEFAULT);
 				    }
-				    else{
+				    else {
 					    styler.ColourTo(i, state);
 					    state = SCE_NSIS_DEFAULT;
 				    }

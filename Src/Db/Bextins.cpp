@@ -8,11 +8,8 @@
 
 const size_t BExtInsert::DefBufSize = (28*1024U);
 
-SLAPI BExtInsert::BExtInsert(DBTable * pTbl, size_t aBufSize) : SdRecordBuffer(NZOR(aBufSize, DefBufSize))
+SLAPI BExtInsert::BExtInsert(DBTable * pTbl, size_t aBufSize) : SdRecordBuffer(NZOR(aBufSize, DefBufSize)), State(stValid), P_Tbl(pTbl), ActualCount(0xffffU)
 {
-	State = stValid;
-	P_Tbl = pTbl;
-	ActualCount = 0xffffU;
 	if(!GetBuf().P_Buf)
 		State &= ~stValid;
 	if(!P_Tbl || !P_Tbl->getRecSize(&FixRecSize)) {

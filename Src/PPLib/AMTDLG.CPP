@@ -1,5 +1,5 @@
 // AMTDLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2014, 2015, 2016
 //
 #include <pp.h>
 #pragma hdrstop
@@ -93,8 +93,10 @@ int SLAPI AmountListDialog(AmtList * pData, PPIDArray * pRestrictList, LDATE cra
 // AmtListDialog implementation
 //
 AmtListDialog::AmtListDialog(uint resID, uint listCtlID, int useCurCol, AmtList * pList,
-	PPIDArray * pRestrictList, const char * pTitle, uint o) : PPListDialog(resID, listCtlID), CRateDate(ZERODATE), UseCurColumn(useCurCol), Options(o)
+	PPIDArray * pRestrictList, const char * pTitle, uint o) : PPListDialog(resID, listCtlID), CRateDate(ZERODATE)
 {
+	Options   = o;
+	UseCurColumn = useCurCol;
 	setTitle(pTitle);
 	Data.copy(*pList);
 	if(pRestrictList) {

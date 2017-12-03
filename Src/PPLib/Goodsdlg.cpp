@@ -781,8 +781,10 @@ static int SLAPI _EditArGoodsCodeItem(ArGoodsCodeTbl::Rec * pRec, int ownCode)
 
 class ArGoodsCodeListDialog : public PPListDialog {
 public:
-	ArGoodsCodeListDialog(PPID goodsID, PPID defArID) : PPListDialog(DLG_ARGCODELIST, CTL_ARGCODELIST_LIST), GoodsID(goodsID), DefArID(defArID)
+	ArGoodsCodeListDialog(PPID goodsID, PPID defArID) : PPListDialog(DLG_ARGCODELIST, CTL_ARGCODELIST_LIST)
 	{
+		GoodsID = goodsID;
+		DefArID = defArID;
 		if(GoodsID) {
 			SString goods_name;
 			GetGoodsName(GoodsID, goods_name);
@@ -1691,8 +1693,9 @@ int SLAPI EditGoodsExTitles(SString & rGoodsExTitles)
 
 class GoodsVadDialog : public PPListDialog {
 public:
-	GoodsVadDialog() : PPListDialog(DLG_GOODSVAD, CTL_GOODSVAD_MINSTOCKLI), MaxExtTextLen(4000), LastPalletTypeID(0)
+	GoodsVadDialog() : PPListDialog(DLG_GOODSVAD, CTL_GOODSVAD_MINSTOCKLI), MaxExtTextLen(4000)
 	{
+		LastPalletTypeID = 0;
 	}
 	int    setDTS(const PPGoodsPacket * pData);
 	int    getDTS(PPGoodsPacket * pData);
@@ -2874,9 +2877,12 @@ int SLAPI PPObjGoods::ReplaceGoods(/*PPID srcID, PPObjGoods::ExtUniteBlock * pEu
 //
 class GoodsAsscDialog : public PPListDialog {
 public:
-	GoodsAsscDialog(PPID goodsID, PPObjGoods * pObj) : PPListDialog(DLG_GDSASSCINFO, CTL_GDSASSCINFO_LIST), GoodsID(goodsID), LastItemId(0), P_GObj(pObj)
+	GoodsAsscDialog(PPID goodsID, PPObjGoods * pObj) : PPListDialog(DLG_GDSASSCINFO, CTL_GDSASSCINFO_LIST)
 	{
 		SString name;
+		GoodsID = goodsID;
+		LastItemId = 0;
+		P_GObj  = pObj;
 		setCtrlData(CTL_GDSASSCINFO_ID, &GoodsID);
 		GetGoodsName(goodsID, name);
 		setCtrlString(CTL_GDSASSCINFO_GOODS, name);
@@ -2900,8 +2906,10 @@ int GoodsAsscDialog::EditPLU(PPID goodsGrpID, long * pPLU)
 {
 	class EditPLUDialog : public TDialog {
 	public:
-		EditPLUDialog(PPID goodsID, PPID goodsGrpID) : TDialog(DLG_EDITPLU), GoodsID(goodsID), GoodsGrpID(goodsGrpID)
+		EditPLUDialog(PPID goodsID, PPID goodsGrpID) : TDialog(DLG_EDITPLU)
 		{
+			GoodsID = goodsID;
+			GoodsGrpID = goodsGrpID;
 		}
 		int    setDTS(const long * pPlu)
 		{
@@ -3085,15 +3093,14 @@ private:
 //
 // диалог дополнительных опций фильтра по товарам
 //
-//#define GRP_LOC       3
+#define GRP_LOC       3
+
 class GoodsFiltAdvDialog : public TDialog {
 public:
-	enum {
-		ctlgroupLoc = 3
-	};
-	GoodsFiltAdvDialog(uint rezID, GoodsFilt * pF, int doDisable) : TDialog(rezID), CtlDisableSuppl(doDisable)
+	GoodsFiltAdvDialog(uint rezID, GoodsFilt * pF, int Disable) : TDialog(rezID)
 	{
-		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GFLTADVOPT_LOC, 0, 0, cmLocList, 0, 0, 0)); // @v9.6.8
+		CtlDisableSuppl = Disable;
+		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_GFLTADVOPT_LOC, 0, 0, cmLocList, 0, 0, 0)); // @v9.6.8
 		setDTS(pF);
 		SetupCalCtrl(CTLCAL_GFLTADVOPT_LOTPERIOD, this, CTL_GFLTADVOPT_LOTPERIOD, 1);
 	}
@@ -3131,7 +3138,7 @@ int GoodsFiltAdvDialog::setDTS(const GoodsFilt * pFilt)
 	// @v9.6.8 {
 	{
 		LocationCtrlGroup::Rec l_rec(&Data.LocList);
-		setGroupData(ctlgroupLoc, &l_rec);
+		setGroupData(GRP_LOC, &l_rec);
 	}
 	// } @v9.6.8 
 	if(CtlDisableSuppl)
@@ -3173,7 +3180,7 @@ int GoodsFiltAdvDialog::getDTS(GoodsFilt * pFilt)
 		// @v9.6.8 {
 		{
 			LocationCtrlGroup::Rec l_rec;
-			getGroupData(ctlgroupLoc, &l_rec);
+			getGroupData(GRP_LOC, &l_rec);
 			Data.LocList = l_rec.LocList;
 		}
 		// } @v9.6.8 

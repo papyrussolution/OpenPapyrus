@@ -1935,7 +1935,9 @@ static void xmlRelaxNGAddValidError(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGValid
 *			Type library hooks				*
 *									*
 ************************************************************************/
-static xmlChar * xmlRelaxNGNormalize(xmlRelaxNGValidCtxtPtr ctxt, const xmlChar * str);
+static xmlChar * xmlRelaxNGNormalize(xmlRelaxNGValidCtxtPtr ctxt,
+    const xmlChar * str);
+
 /**
  * xmlRelaxNGSchemaTypeHave:
  * @data:  data needed for the library
@@ -2002,10 +2004,10 @@ static int xmlRelaxNGSchemaTypeCheck(void * data ATTRIBUTE_UNUSED, const xmlChar
 static int xmlRelaxNGSchemaFacetCheck(void * data ATTRIBUTE_UNUSED,
     const xmlChar * type, const xmlChar * facetname, const xmlChar * val, const xmlChar * strval, void * value)
 {
-	xmlSchemaFacet * facet;
-	xmlSchemaType * typ;
+	xmlSchemaFacetPtr facet;
+	xmlSchemaTypePtr typ;
 	int ret;
-	if(!type || !strval)
+	if((type == NULL) || (strval == NULL))
 		return -1;
 	typ = xmlSchemaGetPredefinedType(type, BAD_CAST "http://www.w3.org/2001/XMLSchema");
 	if(typ == NULL)
@@ -2013,30 +2015,42 @@ static int xmlRelaxNGSchemaFacetCheck(void * data ATTRIBUTE_UNUSED,
 	facet = xmlSchemaNewFacet();
 	if(facet == NULL)
 		return -1;
-	if(sstreq(facetname, "minInclusive"))
+	if(sstreq(facetname, "minInclusive")) {
 		facet->type = XML_SCHEMA_FACET_MININCLUSIVE;
-	else if(sstreq(facetname, "minExclusive"))
+	}
+	else if(sstreq(facetname, "minExclusive")) {
 		facet->type = XML_SCHEMA_FACET_MINEXCLUSIVE;
-	else if(sstreq(facetname, "maxInclusive"))
+	}
+	else if(sstreq(facetname, "maxInclusive")) {
 		facet->type = XML_SCHEMA_FACET_MAXINCLUSIVE;
-	else if(sstreq(facetname, "maxExclusive"))
+	}
+	else if(sstreq(facetname, "maxExclusive")) {
 		facet->type = XML_SCHEMA_FACET_MAXEXCLUSIVE;
-	else if(sstreq(facetname, "totalDigits"))
+	}
+	else if(sstreq(facetname, "totalDigits")) {
 		facet->type = XML_SCHEMA_FACET_TOTALDIGITS;
-	else if(sstreq(facetname, "fractionDigits"))
+	}
+	else if(sstreq(facetname, "fractionDigits")) {
 		facet->type = XML_SCHEMA_FACET_FRACTIONDIGITS;
-	else if(sstreq(facetname, "pattern"))
+	}
+	else if(sstreq(facetname, "pattern")) {
 		facet->type = XML_SCHEMA_FACET_PATTERN;
-	else if(sstreq(facetname, "enumeration"))
+	}
+	else if(sstreq(facetname, "enumeration")) {
 		facet->type = XML_SCHEMA_FACET_ENUMERATION;
-	else if(sstreq(facetname, "whiteSpace"))
+	}
+	else if(sstreq(facetname, "whiteSpace")) {
 		facet->type = XML_SCHEMA_FACET_WHITESPACE;
-	else if(sstreq(facetname, "length"))
+	}
+	else if(sstreq(facetname, "length")) {
 		facet->type = XML_SCHEMA_FACET_LENGTH;
-	else if(sstreq(facetname, "maxLength"))
+	}
+	else if(sstreq(facetname, "maxLength")) {
 		facet->type = XML_SCHEMA_FACET_MAXLENGTH;
-	else if(sstreq(facetname, "minLength"))
+	}
+	else if(sstreq(facetname, "minLength")) {
 		facet->type = XML_SCHEMA_FACET_MINLENGTH;
+	}
 	else {
 		xmlSchemaFreeFacet(facet);
 		return -1;
@@ -2047,7 +2061,7 @@ static int xmlRelaxNGSchemaFacetCheck(void * data ATTRIBUTE_UNUSED,
 		xmlSchemaFreeFacet(facet);
 		return -1;
 	}
-	ret = xmlSchemaValidateFacet(typ, facet, strval, (xmlSchemaVal *)value);
+	ret = xmlSchemaValidateFacet(typ, facet, strval, (xmlSchemaValPtr)value);
 	xmlSchemaFreeFacet(facet);
 	if(ret != 0)
 		return -1;
@@ -2064,7 +2078,7 @@ static int xmlRelaxNGSchemaFacetCheck(void * data ATTRIBUTE_UNUSED,
  */
 static void xmlRelaxNGSchemaFreeValue(void * data ATTRIBUTE_UNUSED, void * value)
 {
-	xmlSchemaFreeValue((xmlSchemaVal *)value);
+	xmlSchemaFreeValue((xmlSchemaValPtr)value);
 }
 
 /**
@@ -2084,14 +2098,13 @@ static int xmlRelaxNGSchemaTypeCompare(void * data ATTRIBUTE_UNUSED, const xmlCh
 {
 	int ret;
 	xmlSchemaTypePtr typ;
-	xmlSchemaVal * res1 = NULL;
-	xmlSchemaVal * res2 = NULL;
-	if(!type || !value1 || !value2)
+	xmlSchemaValPtr res1 = NULL, res2 = NULL;
+	if((type == NULL) || (value1 == NULL) || (value2 == NULL))
 		return -1;
 	typ = xmlSchemaGetPredefinedType(type, BAD_CAST "http://www.w3.org/2001/XMLSchema");
-	if(!typ)
+	if(typ == NULL)
 		return -1;
-	if(!comp1) {
+	if(comp1 == NULL) {
 		ret = xmlSchemaValPredefTypeNode(typ, value1, &res1, ctxt1);
 		if(ret != 0)
 			return -1;
@@ -2099,16 +2112,16 @@ static int xmlRelaxNGSchemaTypeCompare(void * data ATTRIBUTE_UNUSED, const xmlCh
 			return -1;
 	}
 	else {
-		res1 = (xmlSchemaVal *)comp1;
+		res1 = (xmlSchemaValPtr)comp1;
 	}
 	ret = xmlSchemaValPredefTypeNode(typ, value2, &res2, ctxt2);
 	if(ret != 0) {
-		if(res1 != (xmlSchemaVal *)comp1)
+		if(res1 != (xmlSchemaValPtr)comp1)
 			xmlSchemaFreeValue(res1);
 		return -1;
 	}
 	ret = xmlSchemaCompareValues(res1, res2);
-	if(res1 != (xmlSchemaVal *)comp1)
+	if(res1 != (xmlSchemaValPtr)comp1)
 		xmlSchemaFreeValue(res1);
 	xmlSchemaFreeValue(res2);
 	return (ret == -2) ? -1 : ((ret == 0) ? 1 : 0);
@@ -3373,12 +3386,18 @@ static void xmlRelaxNGCheckChoiceDeterminism(xmlRelaxNGParserCtxtPtr ctxt, xmlRe
 							is_triable = -1;
 					}
 					else if(((*tmp)->type == XML_RELAXNG_ELEMENT) && (*tmp)->name) {
-						res = xmlHashAddEntry2(triage, (*tmp)->name, isempty((*tmp)->ns) ? NULL : (*tmp)->ns, (void*)cur);
+						if(((*tmp)->ns == NULL) || ((*tmp)->ns[0] == 0))
+							res = xmlHashAddEntry2(triage, (*tmp)->name, NULL, (void*)cur);
+						else
+							res = xmlHashAddEntry2(triage, (*tmp)->name, (*tmp)->ns, (void*)cur);
 						if(res != 0)
 							is_triable = -1;
 					}
 					else if((*tmp)->type == XML_RELAXNG_ELEMENT) {
-						res = xmlHashAddEntry2(triage, BAD_CAST "#any", isempty((*tmp)->ns) ? NULL : (*tmp)->ns, (void*)cur);
+						if(((*tmp)->ns == NULL) || ((*tmp)->ns[0] == 0))
+							res = xmlHashAddEntry2(triage, BAD_CAST "#any", NULL, (void*)cur);
+						else
+							res = xmlHashAddEntry2(triage, BAD_CAST "#any", (*tmp)->ns, (void*)cur);
 						if(res != 0)
 							is_triable = -1;
 					}
@@ -3578,19 +3597,19 @@ static void xmlRelaxNGComputeInterleaves(xmlRelaxNGDefinePtr def, xmlRelaxNGPars
 			while(*tmp) {
 				if((*tmp)->type == XML_RELAXNG_TEXT) {
 					res = xmlHashAddEntry2(partitions->triage, BAD_CAST "#text", NULL, (void*)(long)(i + 1));
-					if(res)
+					if(res != 0)
 						is_determinist = -1;
 				}
 				else if(((*tmp)->type == XML_RELAXNG_ELEMENT) && (*tmp)->name) {
-					if(isempty((*tmp)->ns))
+					if(((*tmp)->ns == NULL) || ((*tmp)->ns[0] == 0))
 						res = xmlHashAddEntry2(partitions->triage, (*tmp)->name, NULL, (void*)(long)(i + 1));
 					else
 						res = xmlHashAddEntry2(partitions->triage, (*tmp)->name, (*tmp)->ns, (void*)(long)(i + 1));
-					if(res)
+					if(res != 0)
 						is_determinist = -1;
 				}
 				else if((*tmp)->type == XML_RELAXNG_ELEMENT) {
-					if(isempty((*tmp)->ns))
+					if(((*tmp)->ns == NULL) || ((*tmp)->ns[0] == 0))
 						res = xmlHashAddEntry2(partitions->triage, BAD_CAST "#any", NULL, (void*)(long)(i + 1));
 					else
 						res = xmlHashAddEntry2(partitions->triage, BAD_CAST "#any", (*tmp)->ns, (void*)(long)(i + 1));
@@ -9329,5 +9348,5 @@ int xmlRelaxNGValidateDoc(xmlRelaxNGValidCtxtPtr ctxt, xmlDoc * doc)
 }
 
 #define bottom_relaxng
-//#include "elfgcchack.h"
+#include "elfgcchack.h"
 #endif /* LIBXML_SCHEMAS_ENABLED */

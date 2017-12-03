@@ -189,8 +189,13 @@ int PPObjScale::CheckForConnection(const char * pIPAddress, uint timeout, uint a
 
 class PPScaleDevice {
 public:
-	SLAPI  PPScaleDevice(int portNo, const PPScale * pData) : UseBuf(0), PortNo(0), ReadCycleCount(0), ReadCycleDelay(0), H_Port(INVALID_HANDLE_VALUE)
+	SLAPI  PPScaleDevice(int portNo, const PPScale * pData)
 	{
+		UseBuf = 0;
+		PortNo = 0;
+		ReadCycleCount = 0;
+		ReadCycleDelay = 0;
+		H_Port = INVALID_HANDLE_VALUE;
 		if(pData) {
 			if(!(pData->Flags & SCALF_TCPIP) && !oneof2(pData->ScaleTypeID, PPSCLT_CRCSHSRV, PPSCLT_DIGI))
 				InitPort(portNo);
@@ -2819,10 +2824,12 @@ int SLAPI TCPIPMToledo::ExecMTOper(PPID id)
 //
 class CrystalCashServer : public PPScaleDevice {
 public:
-	SLAPI  CrystalCashServer(const PPScale * pData, const char * pExpPaths) : PPScaleDevice(0, pData), P_OutTblScale(0), P_AddStrAry(0)
+	SLAPI  CrystalCashServer(const PPScale * pData, const char * pExpPaths) : PPScaleDevice(0, pData)
 	{
 		ExpPaths = pExpPaths;
+		P_OutTblScale = 0;
 		PPObjGoods::ReadConfig(&GCfg);
+		P_AddStrAry = 0;
 	}
 	SLAPI ~CrystalCashServer()
 	{
@@ -2873,6 +2880,7 @@ int SLAPI CrystalCashServer::SendPLU(const ScalePLU * pScalePLU)
 		int    is_msg = 0;
 		SString head, tail;
 		DbfRecord dbfrS(P_OutTblScale);
+
 		if(pScalePLU->HasAddedMsg()) {
 			is_msg = 1;
 			if(!P_AddStrAry)
@@ -3016,9 +3024,13 @@ int SLAPI WeightTerm::GetData(int * pGdsNo, double * pWeight)
 //
 class DIGI : public PPScaleDevice {
 public:
-	SLAPI  DIGI(const PPScale * pData, const char * pExpPaths) : PPScaleDevice(0, pData), P_ScaleData(0), IntGrpCode(0), SocketHandle(NULL), Connected(0)
+	SLAPI  DIGI(const PPScale * pData, const char * pExpPaths) : PPScaleDevice(0, pData)
 	{
 		ExpPaths = pExpPaths;
+		P_ScaleData = 0;
+		IntGrpCode = 0;
+		SocketHandle = NULL;
+		Connected    = 0;
 	}
 	SLAPI ~DIGI()
 	{
@@ -3035,8 +3047,6 @@ public:
 		}
 	}
 private:
-	int    SLAPI ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lineLen, uint maxLines, SString & rDestName);
-
 	long   IntGrpCode;
 	SString ScalePath;
 	FILE * P_ScaleData;
@@ -3069,15 +3079,17 @@ int SLAPI DIGI::SetConnection()
 		THROW_PP((SocketHandle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) != INVALID_SOCKET, PPERR_SCALE_NOSYNC);
 		memzero(ip, sizeof(ip));
 		THROW(PPObjScale::DecodeIP(Data.Port, ip));
-		sin.sin_family = AF_INET;
-		sin.sin_port   = htons(2000 + (uint16)Data.LogNum);
+		sin.sin_family           = AF_INET;
+		sin.sin_port             = htons(2000 + (uint16)Data.LogNum);
 		sin.sin_addr.S_un.S_addr = inet_addr(ip);
 		memzero(send_timeout, sizeof(send_timeout));
 		memzero(rcv_timeout,  sizeof(rcv_timeout));
 		itoa(Data.Put_Delay, send_timeout, 10);
 		itoa(Data.Get_Delay, rcv_timeout, 10);
-		THROW_PP(setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, (int)strlen(send_timeout)) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP(setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout,  (int)strlen(rcv_timeout)) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP(setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout,
+			(int)strlen(send_timeout)) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP(setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout,
+			(int)strlen(rcv_timeout)) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP(connect(SocketHandle, (sockaddr*)&sin, sizeof(sin)) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		Connected = 1;
 	}
@@ -3093,7 +3105,7 @@ int SLAPI DIGI::SetConnection()
 	return ok;
 }
 
-/*int HexChar2Byte(char c)
+int HexChar2Byte(char c)
 {
 	int v = 0;
 	if(c >= '0' && c <= '9')
@@ -3105,45 +3117,54 @@ int SLAPI DIGI::SetConnection()
 	else
 		v = 0;
 	return v;
-}*/
-static int LongToHexBytesStr(long val, int prec, SString & rBuf)
+}
+
+int LongToHexBytesStr(long val, int prec, SString * pBuf)
 {
-	int    ok = 1;
-	rBuf.Z();
-	SString temp_buf;
-	SString fmt;
-	if(prec)
-		fmt.Printf("%%0%dX", prec * 2);
-	else
-		fmt.Cat("%X");
-	const size_t len = temp_buf.Printf(fmt.cptr(), val).Len();
-	const char * p_buf = temp_buf.cptr();
-	for(uint i = 0; i < len; i += 2) {
-		int    v1 = /*HexChar2Byte*/hex(p_buf[i]);
-		int    v2 = /*HexChar2Byte*/hex(p_buf[i+1]);
-		rBuf.CatCharN(v1 * 16 + v2, 1);
+	int    ok = -1;
+	if(pBuf) {
+		*pBuf = 0;
+		size_t len = 0;
+		SString buf, fmt;
+		if(prec)
+			fmt.Printf("%%0%dX", prec * 2);
+		else
+			fmt.Cat("%X");
+		buf.Printf(fmt.cptr(), val);
+		len = buf.Len();
+		for(uint i = 0; i < len; i += 2) {
+			int    v1 = 0, v2 = 0;
+			const  char * p_buf = buf.cptr();
+			v1 = HexChar2Byte(p_buf[i]);
+			v2 = HexChar2Byte(p_buf[i + 1]);
+			pBuf->CatCharN(v1 * 16 + v2, 1);
+		}
+		ok = 1;
 	}
 	return ok;
 }
 
-int LongToBCDStr(long val, const char * pFmt, SString & rBuf)
+int LongToBCDStr(long val, const char * pFmt, SString * pBuf)
 {
-	rBuf.Z();
-	SString temp_buf;
-	const char * p_buf = temp_buf.Printf(pFmt, val).cptr();
-	for(uint i = 0; i < temp_buf.Len(); i += 2) {
-		int v1 = /*HexChar2Byte*/hex(p_buf[i]);
-		int v2 = /*HexChar2Byte*/hex(p_buf[i + 1]);
-		rBuf.CatCharN(v1 * 16 + v2, 1);
+	*pBuf = 0;
+	SString buf;
+	buf.Printf(pFmt, val);
+	for(uint i = 0; i < buf.Len(); i += 2) {
+		int v1 = 0, v2 = 0;
+		const char * p_buf = (const char*)buf;
+		v1 = HexChar2Byte(p_buf[i]);
+		v2 = HexChar2Byte(p_buf[i + 1]);
+		pBuf->CatCharN(v1 * 16 + v2, 1);
 	}
 	return 1;
 }
 
-int SLAPI DIGI::ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lineLen, uint maxLines, SString & rDestName)
+static int SLAPI ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lineLen, uint maxLines, SString & rDestName)
 {
-	const int line_len_limit = (Data.ProtocolVer == 500) ? 48 : 25;
+	//const  int line_len = 25;
+	//const  int max_lines = 4;
 	if(lineLen == 0 || lineLen > 100)
-		lineLen = line_len_limit;
+		lineLen = 25;
 	if(maxLines == 0 || maxLines > 32)
 		maxLines = 4;
 	SETIFZ(fontSize, 0x07);
@@ -3172,7 +3193,7 @@ int SLAPI DIGI::ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lin
 		for(j = 0; j < name_items_count; j++) {
 			rDestName.CatChar(fontSize); // Размер шрифта
 			long    len = (long)strlen(name_items[j].ptr);
-			LongToHexBytesStr(len, 1, str_len);
+			LongToHexBytesStr(len, 1, &str_len);
 			rDestName.CatChar(str_len.C(0)); // Длина строки без заголовков и терминаторов
 			rDestName.Cat(name_items[j].ptr).CatChar((j < (name_items_count-1)) ? 13 : 12);
 		}
@@ -3180,7 +3201,7 @@ int SLAPI DIGI::ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lin
 	else {
 		rDestName.CatChar(fontSize); // Размер шрифта
 		long   len = (long)strlen(org_goods_name);
-		LongToHexBytesStr(len, 1, str_len);
+		LongToHexBytesStr(len, 1, &str_len);
 		rDestName.CatChar(str_len.C(0)); // Длина строки без заголовков и терминаторов
 		rDestName.Cat(org_goods_name).CatChar(12);
 	}
@@ -3219,13 +3240,11 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		}
 	}
 	else if(Connected) {
-		const int line_len_limit = (Data.ProtocolVer == 500) ? 48 : 25;
-		const int max_added_lines = 8;
-
 		uint   j = 0;
 		size_t size_offs = 0;
 		char   result[16];
 		char   out_rec[4096];
+<<<<<<< HEAD
 		SString kop;
 		SString rub;
 		SString data_len;
@@ -3255,18 +3274,25 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 				if(ext_text_buf.Last() == 13)
 					ext_text_buf.TrimRight().CatChar(12);
 			}
-			// } @v9.8.9 
+			// } @v9.8.9
+=======
+		SString kop, rub, data_len, goods_no, str_len, barcode, s_expiry, grp_no, goods_name, ext_text_buf;
+		SString buf;
+		ConvertDIGI_Text(pScalePLU->GoodsName, 5 /* fontSize */, 25 /* maxLineLen */, 4 /* maxLinesCount */, goods_name); // @v8.6.6 fontSize 7-->5
+		if(pScalePLU->HasAddedMsg()) {
+			ConvertDIGI_Text(pScalePLU->AddMsgBuf, 3 /* fontSize */, Data.MaxAddedLine, 8 /* maxLinesCount */, ext_text_buf);
+>>>>>>> parent of f010b32... Version 9.8.9
 		}
 		double price = R2(pScalePLU->Price);
 		long   fract = R0i(ffrac(price) * 100.0);
 
-		LongToBCDStr(fract, "%02ld", kop);
-		LongToBCDStr((long)price, "%06ld", rub);
-		LongToHexBytesStr((long)goods_name.Len(), 1, str_len);
-		LongToBCDStr((long)pScalePLU->Barcode + 2000000L, "%-014ld", barcode);
-		LongToBCDStr((long)Data.LogNum, "%04ld", grp_no);
-		LongToBCDStr((long)pScalePLU->GoodsNo, "%08ld", goods_no);
-		LongToBCDStr((long)expiry, "%04ld", s_expiry);
+		LongToBCDStr(fract, "%02ld", &kop);
+		LongToBCDStr((long)price, "%06ld", &rub);
+		LongToHexBytesStr((long)goods_name.Len(), 1, &str_len);
+		LongToBCDStr((long)pScalePLU->Barcode + 2000000L, "%-014ld", &barcode);
+		LongToBCDStr((long)Data.LogNum, "%04ld", &grp_no);
+		LongToBCDStr((long)pScalePLU->GoodsNo, "%08ld", &goods_no);
+		LongToBCDStr((long)expiry, "%04ld", &s_expiry);
 
 		memzero(out_rec, sizeof(out_rec));
 		size_t len = 0;
@@ -3350,7 +3376,7 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		//
 		// Теперь, точно зная размер записи, заносим его в буфер по смещению size_offs
 		//
-		LongToHexBytesStr((long)(len - 2), 2, data_len); // -2 - размер заголовка записи
+		LongToHexBytesStr((long)(len - 2), 2, &data_len); // -2 - размер заголовка записи
 		for(j = 0; j < 2; j++)
 			out_rec[size_offs+j] = ((const char*)data_len)[j]; // #8
 

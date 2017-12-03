@@ -10,7 +10,7 @@
 //
 //
 //
-SrGrammarTbl::SrGrammarTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->gramm", 0, 0, 0), pDb)
+SrGrammarTbl::SrGrammarTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->gramm", 0, 0, 0), pDb), SeqID(0)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -21,8 +21,6 @@ SrGrammarTbl::SrGrammarTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("w
 			return 0;
 		}
 	};
-
-	SeqID = 0;
 	new BDbTable(BDbTable::ConfigHash("words.db->gramm_idx01", 0, 0, 0), pDb, new Idx01, this);
 	if(P_Db)
 		THROW(P_Db->CreateSequence("seq_gramm_id", 0, &SeqID));
@@ -151,7 +149,7 @@ public:
 	SrWordGrammarTbl(BDbDatabase * pDb);
 };*/
 
-SrWordTbl::SrWordTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->word", 0, 0, 0), pDb)
+SrWordTbl::SrWordTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->word", 0, 0, 0), pDb), SeqID(0)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -162,8 +160,6 @@ SrWordTbl::SrWordTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.d
 			return 0;
 		}
 	};
-
-	SeqID = 0;
 	new BDbTable(BDbTable::ConfigHash("words.db->word_idx01", 0, 0, 0), pDb, new Idx01, this);
 	if(P_Db)
 		THROW(P_Db->CreateSequence("seq_word_id", 0, &SeqID));
@@ -249,7 +245,7 @@ int SrWordTbl::Search(LEXID id, SString & rBuf)
 //
 //
 //
-SrWordAssocTbl::SrWordAssocTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->wordassoc", 0, 0, 0), pDb)
+SrWordAssocTbl::SrWordAssocTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->wordassoc", 0, 0, 0), pDb), SeqID(0)
 {
 	//
 	// Индекс по идентификатору лексемы. Неуникальный.
@@ -278,8 +274,6 @@ SrWordAssocTbl::SrWordAssocTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHas
 			return 0;
 		}
 	};
-
-	SeqID = 0;
 	THROW_SL(new BDbTable(BDbTable::ConfigHash("words.db->wordassoc_idx01", cfDup, 0, 0), pDb, new Idx01, this));
 	THROW_SL(new BDbTable(BDbTable::ConfigHash("words.db->wordassoc_idx02", 0, 0, 0), pDb, new Idx02, this));
 	if(P_Db)
@@ -400,7 +394,7 @@ int SrWordAssocTbl::SerializeRecBuf(int dir, SrWordAssoc * pWa, SBuffer & rBuf)
 //
 //
 //
-SrNGramTbl::SrNGramTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->ngram", 0, 0, 0), pDb)
+SrNGramTbl::SrNGramTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->ngram", 0, 0, 0), pDb), SeqID(0)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -414,7 +408,6 @@ SrNGramTbl::SrNGramTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words
 			return 0;
 		}
 	};
-	SeqID = 0;
 	new BDbTable(BDbTable::ConfigBTree("words.db->ngram_idx01", 0, 0, 0), pDb, new Idx01, this);
 	if(P_Db)
 		THROW(P_Db->CreateSequence("seq_ngram_id", 0, &SeqID));
@@ -537,7 +530,7 @@ int SrNGramTbl::SearchByPrefix(const SrNGram & rKey, TSVector <NGID> & rList) //
 //
 //
 //
-SrConceptTbl::SrConceptTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("concept.db->concept", 0, 0, 0), pDb)
+SrConceptTbl::SrConceptTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("concept.db->concept", 0, 0, 0), pDb), SeqID(0)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -553,7 +546,6 @@ SrConceptTbl::SrConceptTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("c
 			return (rec.SymbID == 0) ? DB_DONOTINDEX : 0;
 		}
 	};
-	SeqID = 0;
 	new BDbTable(BDbTable::ConfigHash("concept.db->concept_idx01", 0, 0, 0), pDb, new Idx01, this);
 	if(P_Db)
 		THROW(P_Db->CreateSequence("seq_concept_id", 0, &SeqID));
@@ -702,9 +694,7 @@ int FASTCALL SrConceptPropTbl::DecodePrimeKey(const BDbTable::Buffer & rKeyBuf, 
 	return 1;
 }
 
-SrConceptPropTbl::SrConceptPropTbl(SrDatabase & rSr) :
-	BDbTable(BDbTable::ConfigHash("concept.db->conceptprop", 0, 0, 0), rSr.P_Db),
-	R_Sr(rSr)
+SrConceptPropTbl::SrConceptPropTbl(SrDatabase & rSr) : BDbTable(BDbTable::ConfigHash("concept.db->conceptprop", 0, 0, 0), rSr.P_Db), R_Sr(rSr)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -1309,23 +1299,10 @@ int SrDatabase::MakeSpecialWord(int spcTag, const char * pWordUtf8, SString & rB
 	return ok;
 }
 
-SrDatabase::SrDatabase() : WordCache(128*1024, 0)
+SrDatabase::SrDatabase() : WordCache(128*1024, 0), PropInstance(0), PropSubclass(0), PropType(0),
+	P_Db(0), P_WdT(0), P_GrT(0), P_WaT(0), P_CT(0), P_CpT(0), P_NgT(0), P_CNgT(0),
+	P_GnT(0), P_GwT(0), ZeroWordID(0), Flags(0)
 {
-	PropInstance = 0;
-	PropSubclass = 0;
-	PropType = 0;
-	P_Db = 0;
-	P_WdT = 0;
-	P_GrT = 0;
-	P_WaT = 0;
-	P_CT = 0;
-	P_CpT = 0;
-	P_NgT = 0;
-	P_CNgT = 0;
-	P_GnT = 0;
-	P_GwT = 0;
-	ZeroWordID = 0;
-	Flags = 0;
 }
 
 SrDatabase::~SrDatabase()
@@ -1375,9 +1352,9 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 		THROW_S(P_GnT = new SrGeoNodeTbl(P_Db), SLERR_NOMEM);
 		THROW_S(P_GwT = new SrGeoWayTbl(P_Db), SLERR_NOMEM);
 		{
-			CONCEPTID prop_instance = GetReservedConcept(rcInstance);
-			CONCEPTID prop_subclass = GetReservedConcept(rcSubclass);
-			CONCEPTID prop_crtype   = GetReservedConcept(rcType);
+			CONCEPTID prop_instance = ResolveReservedConcept(rcInstance);
+			CONCEPTID prop_subclass = ResolveReservedConcept(rcSubclass);
+			CONCEPTID prop_crtype   = ResolveReservedConcept(rcType);
 			THROW(prop_instance);
 			THROW(prop_subclass);
 			THROW(prop_crtype);
@@ -1551,7 +1528,22 @@ void SrDatabase::Close()
 	ZDELETE(P_Db);
 }
 
-CONCEPTID FASTCALL SrDatabase::GetReservedConcept(int rc)
+CONCEPTID FASTCALL SrDatabase::GetReservedConcept(int rc) const
+{
+	CONCEPTID prop = 0;
+	if(rc == rcInstance) {
+		prop = PropInstance;
+	}
+	else if(rc == rcSubclass) {
+		prop = PropSubclass;
+	}
+	else if(rc == rcType) {
+		prop = PropType;
+	}
+	return prop;
+}
+
+CONCEPTID FASTCALL SrDatabase::ResolveReservedConcept(int rc)
 {
 	CONCEPTID prop = 0;
 	SString temp_buf;

@@ -1437,9 +1437,10 @@ static int EditOrderCalendar(DateRepeating * pData)
 
 class SupplAgtDialog : public PPListDialog {
 public:
-	SupplAgtDialog(PPID supplID) : PPListDialog(supplID ? DLG_SUPPLAGT : DLG_DEFSUPPLAGT, CTL_SUPPLAGT_ORDPL), ArID(supplID)
+	SupplAgtDialog(PPID supplID) : PPListDialog(supplID ? DLG_SUPPLAGT : DLG_DEFSUPPLAGT, CTL_SUPPLAGT_ORDPL)
 		//AgtDialog(supplID ? DLG_SUPPLAGT : DLG_DEFSUPPLAGT)
 	{
+		ArID = supplID;
 		SetupCalDate(CTLCAL_SUPPLAGT_DATE, CTL_SUPPLAGT_DATE);
 		SetupCalDate(CTLCAL_SUPPLAGT_EXPIRY, CTL_SUPPLAGT_EXPIRY);
 		enableCommand(cmOK, ArObj.CheckRights(ARTRT_CLIAGT));

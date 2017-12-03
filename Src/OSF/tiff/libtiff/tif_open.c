@@ -283,7 +283,7 @@ TIFF* TIFFClientOpen(const char* name, const char* mode,
 				TIFFSwabShort(&tif->tif_header.common.tiff_version);
 			tif->tif_header_size = sizeof(TIFFHeaderClassic);
 		}
-		else{
+		else {
 			tif->tif_header.common.tiff_version = TIFF_VERSION_BIG;
 			tif->tif_header.big.tiff_offsetsize = 8;
 			tif->tif_header.big.tiff_unused = 0;
@@ -380,7 +380,7 @@ TIFF* TIFFClientOpen(const char* name, const char* mode,
 			TIFFSwabLong(&tif->tif_header.classic.tiff_diroff);
 		tif->tif_header_size = sizeof(TIFFHeaderClassic);
 	}
-	else{
+	else {
 		if(!ReadOK(tif, ((uint8*)(&tif->tif_header) + sizeof(TIFFHeaderClassic)),
 			    (sizeof(TIFFHeaderBig)-sizeof(TIFFHeaderClassic)))) {
 			TIFFErrorExt(tif->tif_clientdata, name,

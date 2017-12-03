@@ -2172,8 +2172,9 @@ int SLAPI BillTransmDeficit::TurnDeficitDialog(double * pPctAddition)
 {
 	class TDeficitDialog : public PPListDialog {
 	public:
-		TDeficitDialog() : PPListDialog(DLG_TDEFICIT, CTL_TDEFICIT_LIST), PctAddition(0.0)
+		TDeficitDialog() : PPListDialog(DLG_TDEFICIT, CTL_TDEFICIT_LIST)
 		{
+			PctAddition = 0.0;
 			SetupCalDate(CTLCAL_TDEFICIT_DATE, CTL_TDEFICIT_DATE);
 		}
 		int setDTS(TSVector <LocPeriod> & rList, double pctAddition) // @v9.8.6 TSArray-->TSVector

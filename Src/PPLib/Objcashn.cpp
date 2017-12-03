@@ -1063,8 +1063,10 @@ int SLAPI PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 //
 class DivGrpAsscListDialog : public PPListDialog {
 public:
-	DivGrpAsscListDialog() : PPListDialog(DLG_DIVGRPASSC, CTL_DIVGRPASSC_LIST), P_Data(0), PotentialyInvalid(0)
+	DivGrpAsscListDialog() : PPListDialog(DLG_DIVGRPASSC, CTL_DIVGRPASSC_LIST)
 	{
+		P_Data = 0;
+		PotentialyInvalid = 0;
 	}
 	~DivGrpAsscListDialog()
 	{

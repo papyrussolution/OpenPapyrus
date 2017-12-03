@@ -896,12 +896,9 @@ int SdRecord::ConvertDataFields(int cvt, void * pBuf) const
 //
 //
 //
-SLAPI SdRecordBuffer::SdRecordBuffer(size_t maxSize)
+SLAPI SdRecordBuffer::SdRecordBuffer(size_t maxSize) : MaxSize(NZOR(maxSize, 4096)), MaxRecSize(0), Flags(fEqRec)
 {
 	SBaseBuffer::Init();
-	MaxSize = NZOR(maxSize, 4096);
-	MaxRecSize = 0;
-	Flags = fEqRec;
 	if(Alloc(MaxSize)) {
 		*PTR16(P_Buf) = 0; // Обнуляем счетчик записей.
 		Pos = sizeof(uint16);

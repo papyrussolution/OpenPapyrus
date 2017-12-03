@@ -301,8 +301,9 @@ static int SLAPI BarcodeList(BarcodeArray * pCodes, int * pSelection)
 {
 	class SelByBCListDlg : public PPListDialog {
 	public:
-		SelByBCListDlg(BarcodeArray * pBCList) : PPListDialog(DLG_SELBYBCODE, CTL_SELBYBCODE_LIST), P_BCodesList(pBCList)
+		SelByBCListDlg(BarcodeArray * pBCList) : PPListDialog(DLG_SELBYBCODE, CTL_SELBYBCODE_LIST)
 		{
+			P_BCodesList = pBCList;
 			updateList(-1);
 		}
 		int getDTS(int * pSel)
@@ -1327,9 +1328,14 @@ struct QuotListDlgParam {
 
 class QuotListDialog : public PPListDialog {
 public:
-	QuotListDialog(QuotListDlgParam & rParam) : PPListDialog(DLG_QUOTLIST, CTL_QUOTLIST_LIST), QuotKindsAry(*rParam.P_QuotKinds),
-		P_Data(rParam.P_QuotAry), QIdent(*rParam.P_Ident), RightsForUpdate(rParam.RightsForUpdate), LastCost(rParam.LastCost), LastPrice(rParam.LastPrice)
+	QuotListDialog(QuotListDlgParam & rParam) : PPListDialog(DLG_QUOTLIST, CTL_QUOTLIST_LIST)
 	{
+		QuotKindsAry = *rParam.P_QuotKinds;
+		P_Data       = rParam.P_QuotAry;
+		QIdent       = *rParam.P_Ident;
+		RightsForUpdate = rParam.RightsForUpdate;
+		LastCost     = rParam.LastCost;
+		LastPrice    = rParam.LastPrice;
 		enableCommand(cmaEdit,   rParam.RightsForUpdate);
 		enableCommand(cmaDelete, rParam.RightsForUpdate);
 		updateList(-1);

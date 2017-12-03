@@ -11,45 +11,46 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Soap\Client\Vetis\Ams\mams14ApplicationManagementServiceBindingProxy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Soap\Client\Vetis\Ams\mams14C.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\PPLib\ppsoapclient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Soap\Client\Vetis\Ams\stub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\SOAP\CLIENT\ppsoapcaller-vetis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\SOAP\CLIENT\VETIS\AMS\mams14AMSMercuryG2BBindingProxy.cpp">
+    <ClCompile Include="..\SOAP\CLIENT\VETIS\vetisamsAMSMercuryG2BBindingProxy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SOAP\CLIENT\VETIS\vetisamsApplicationManagementServiceBindingProxy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SOAP\CLIENT\VETIS\vetisamsC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SOAP\CLIENT\VETIS\vetisamsEnterpriseServiceBindingProxy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Soap\Client\Vetis\Ams\mams14.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Soap\Client\Vetis\Ams\mams14ApplicationManagementServiceBindingProxy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Soap\Client\Vetis\Ams\mams14H.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Soap\Client\Vetis\Ams\mams14Stub.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SOAP\CLIENT\VETIS\AMS\mams14AMSMercuryG2BBindingProxy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <CustomBuild Include="..\SOAP\CLIENT\VETIS\stub-wsdl" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\Soap\Client\Vetis\Ams\stub-wsdl">
-      <Filter>Source Files</Filter>
-    </CustomBuild>
+    <ClInclude Include="..\SOAP\CLIENT\VETIS\vetisams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SOAP\CLIENT\VETIS\vetisamsAMSMercuryG2BBindingProxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SOAP\CLIENT\VETIS\vetisamsApplicationManagementServiceBindingProxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SOAP\CLIENT\VETIS\vetisamsH.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SOAP\CLIENT\VETIS\vetisamsStub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SOAP\CLIENT\VETIS\vetisamsEnterpriseServiceBindingProxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

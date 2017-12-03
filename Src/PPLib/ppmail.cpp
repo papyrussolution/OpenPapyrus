@@ -545,8 +545,10 @@ private:
 	PPObjPerson PsnObj;
 };
 
-AddrBookDialog::AddrBookDialog(int asSelector) : PPListDialog(DLG_ADDRBOOK, CTL_ADDRBOOK_LIST), Selection(0), AsSelector(asSelector)
+AddrBookDialog::AddrBookDialog(int asSelector) : PPListDialog(DLG_ADDRBOOK, CTL_ADDRBOOK_LIST)
 {
+	Selection = 0;
+	AsSelector = asSelector;
 	if(AsSelector)
 		setButtonText(cmOK, "Select");
 	MEMSZERO(LastIdent);
@@ -556,7 +558,7 @@ AddrBookDialog::AddrBookDialog(int asSelector) : PPListDialog(DLG_ADDRBOOK, CTL_
 int AddrBookDialog::getSelection(PPID * pPersonID, SString & rMailAddr)
 {
 	int    ok = -1;
-	rMailAddr.Z();
+	rMailAddr = 0;
 	if(Selection) {
 		PPELinkArray el_list;
 		StringSet ss(SLBColumnDelim);

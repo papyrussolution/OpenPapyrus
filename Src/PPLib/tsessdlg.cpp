@@ -249,8 +249,9 @@ int PrcTechCtrlGroup::getData(TDialog * pDlg, void * pData)
 //
 class PrcFreeListDialog : public PPListDialog {
 public:
-	PrcFreeListDialog() : PPListDialog(DLG_PRCFREELIST, CTL_PRCFREELIST_LIST), Capacity(0)
+	PrcFreeListDialog() : PPListDialog(DLG_PRCFREELIST, CTL_PRCFREELIST_LIST)
 	{
+		Capacity = 0;
 	}
 	int    setDTS(const PrcBusyArray * pBusyList, double capacity);
 	int    getSelectedPeriod(LDATETIME * pStart, LDATETIME * pFinish);

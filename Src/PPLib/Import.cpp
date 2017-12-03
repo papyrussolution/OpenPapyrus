@@ -2,7 +2,7 @@
 // Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
-// Функции импорта справочников из DBF-файла
+// Функции импорта справочников
 //
 #include <pp.h>
 #pragma hdrstop
@@ -3154,13 +3154,11 @@ int PrcssrPersonImport::Init(const Param * pParam)
 int SLAPI PrcssrPersonImport::ResolveAddr(AddrEntry & rEntry, LocationTbl::Rec & rAddr)
 {
 	int    ok = -1;
-	SString temp_buf;
 	rEntry.Code.Strip();
 	rEntry.ZIP.Strip();
 	rEntry.Addr.Strip();
 	MEMSZERO(rAddr);
-
-	temp_buf = rEntry.CityName;
+	SString temp_buf = rEntry.CityName;
 	if(temp_buf.NotEmptyS()) {
 		temp_buf.ShiftLeftChr('г').Strip().ShiftLeftChr('.').Strip();
 		THROW(WObj.AddSimple(&rAddr.CityID, WORLDOBJ_CITY, temp_buf, 0, 0));
@@ -3976,9 +3974,8 @@ int SLAPI ImportSR25()
 //
 class SuprWareDB {
 public:
-	SuprWareDB(const char * pFileName)
+	SuprWareDB(const char * pFileName) : FileName(pFileName)
 	{
-		FileName = pFileName;
 	}
 	int    InitIteration(const char * pFileName = 0);
 	int    NextIteration(SString & rName, TSArray <PPComps> & rArr);
@@ -3994,7 +3991,7 @@ private:
 
 int SuprWareDB::InitIteration(const char * pFileName)
 {
-	int ok = pFileName ? File.Open(pFileName, SFile::mRead) : File.Open(FileName, SFile::mRead);
+	int    ok = pFileName ? File.Open(pFileName, SFile::mRead) : File.Open(FileName, SFile::mRead);
 	if(ok) {
 		ulong  line_count = 0;
 		SString line_buf;
@@ -4140,9 +4137,8 @@ int SLAPI ImportCompGS()
 extern "C" xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options);
 void FASTCALL xmlDetectSAX2(xmlParserCtxt * ctxt); // @prototype
 
-FiasImporter::Param::Param()
+FiasImporter::Param::Param() : Flags(0)
 {
-	Flags = 0;
 }
 
 int SLAPI FiasImporter::Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
@@ -4268,17 +4264,11 @@ void FiasImporter::Scb_EndElement(void * ptr, const xmlChar * pName)
 	CALLTYPEPTRMEMB(FiasImporter, ptr, EndElement((const char *)pName));
 }
 
-FiasImporter::FiasImporter() : Tra(0), TextCache(4 * 1024 * 1024)
+FiasImporter::FiasImporter() : Tra(0), TextCache(4 * 1024 * 1024),
+	P_Sdr(0), P_DebugOutput(0), InputObject(0), RawRecN(0), P_SaxCtx(0), State(0), CurPsPos(-1)
 {
-	P_Sdr = 0;
-	P_DebugOutput = 0;
-	InputObject = 0;
 	//Path = pPath;
-	RawRecN = 0;
-	P_SaxCtx = 0;
-	State = 0;
 	//Flags = 0;
-	CurPsPos = -1;
 }
 
 FiasImporter::~FiasImporter()
@@ -5138,9 +5128,8 @@ uint64 SLAPI PrcssrOsm::StatBlock::GetWsSize() const
 	return result;
 }
 
-SLAPI PrcssrOsm::RoadStone::RoadStone()
+SLAPI PrcssrOsm::RoadStone::RoadStone() : Phase(phaseUnkn)
 {
-	Phase = phaseUnkn;
 }
 
 int SLAPI PrcssrOsm::RoadStone::Serialize(int dir, SBuffer & rBuffer, SSerializeContext * pSCtx)
@@ -5198,24 +5187,12 @@ void SLAPI PrcssrOsm::CommonAttrSet::Reset()
 	User = 0;
 }
 
-SLAPI PrcssrOsm::PrcssrOsm(const char * pDbPath) : O(pDbPath), GgtFinder(O.GetGrid())
+SLAPI PrcssrOsm::PrcssrOsm(const char * pDbPath) : O(pDbPath), GgtFinder(O.GetGrid()),
+	P_SaxCtx(0), State(0), P_RoadStoneStat(0), P_LatOutF(0), P_LonOutF(0),
+	P_NodeToWayAssocOutF(0), P_NodeToWayAssocInF(0), P_TagOutF(0), P_TagNodeOutF(0),
+	P_TagWayOutF(0), P_TagRelOutF(0), P_SizeOutF(0), P_TestNodeBinF(0), P_TestNodeF(0),
+	P_Ufp(0), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN))
 {
-	P_SaxCtx = 0;
-	State = 0;
-	P_RoadStoneStat = 0;
-	P_LatOutF = 0;
-	P_LonOutF = 0;
-	P_NodeToWayAssocOutF = 0;
-	P_NodeToWayAssocInF = 0;
-	P_TagOutF = 0;
-	P_TagNodeOutF = 0;
-	P_TagWayOutF = 0;
-	P_TagRelOutF = 0;
-	P_SizeOutF = 0;
-	P_TestNodeBinF = 0;
-	P_TestNodeF = 0;
-	P_Ufp = 0;
-	P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
 	Reset();
 }
 
@@ -5596,7 +5573,7 @@ int PrcssrOsm::StartElement(const char * pName, const char ** ppAttrList)
 
 int SLAPI PrcssrOsm::GetPhaseSymb(long phase, SString & rSymb) const
 {
-	rSymb = 0;
+	rSymb.Z();
 	int    ok = 1;
 	switch(phase) {
 		case phasePreprocess: rSymb = "preprocess"; break;
@@ -6093,7 +6070,7 @@ IMPL_CMPCFUNC(STRUTF8NOCASE, p1, p2)
 	return si;
 }
 //
-// Descr: Построение пропорциональной гео-координатной решетки 
+// Descr: Построение пропорциональной гео-координатной решетки
 //
 int SLAPI PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint uppDim, TSCollection <SGeoGridTab> & rGridList)
 {

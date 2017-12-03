@@ -17,12 +17,9 @@ AccturnFilt & FASTCALL AccturnFilt::operator=(const AccturnFilt & s)
 	return *this;
 }
 
-SLAPI PPViewAccturn::PPViewAccturn() : PPView(0, &Filt, PPVIEW_ACCTURN)
+SLAPI PPViewAccturn::PPViewAccturn() : PPView(0, &Filt, PPVIEW_ACCTURN),
+	P_BObj(BillObj), P_ATC(P_BObj->atobj->P_Tbl), P_TmpAGTbl(0), P_TmpBillTbl(0)
 {
-	P_BObj = BillObj;
-	P_ATC  = P_BObj->atobj->P_Tbl;
-	P_TmpAGTbl = 0;
-	P_TmpBillTbl = 0;
 }
 
 SLAPI PPViewAccturn::~PPViewAccturn()
@@ -187,9 +184,8 @@ int SLAPI PPViewAccturn::CreateGrouping()
 {
 	class AccturnGroupingCache {
 	public:
-		AccturnGroupingCache()
+		AccturnGroupingCache() : LastNameIdx(0)
 		{
-			LastNameIdx = 0;
 		}
 		int Add(LDATE dt, PPID dbtAccID, const Acct & rDa, PPID crdAccID, const Acct & rCa, PPID curID, double amt)
 		{

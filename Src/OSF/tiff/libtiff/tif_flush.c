@@ -59,7 +59,7 @@ int TIFFFlush(TIFF* tif)
 				return 1;
 			}
 		}
-		else{
+		else {
 			if(TIFFGetField(tif, TIFFTAG_STRIPOFFSETS, &offsets)
 			    && TIFFGetField(tif, TIFFTAG_STRIPBYTECOUNTS, &sizes)
 			    && _TIFFRewriteField(tif, TIFFTAG_STRIPOFFSETS, TIFF_LONG8,

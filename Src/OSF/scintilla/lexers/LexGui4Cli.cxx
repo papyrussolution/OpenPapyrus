@@ -161,7 +161,7 @@ static void ColouriseGui4CliDoc(Sci_PositionU startPos, Sci_Position length, int
 					    quotestart = 0;
 				    }
 			    }
-			    else{   styler.ColourTo(sc.currentPos - 1, sc.state);
+			    else {   styler.ColourTo(sc.currentPos - 1, sc.state);
 				    sc.ChangeState(SCE_GC_STRING);
 				    quotestart = sc.ch; }
 			    break;

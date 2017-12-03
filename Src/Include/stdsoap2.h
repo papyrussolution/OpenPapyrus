@@ -53,6 +53,7 @@
 
 #define GSOAP_VERSION 20808
 #define SOAP_DEBUG // @sobolev
+#define WITH_ZLIB
 #include <slib.h> // @v9.8.8
 
 #ifdef WITH_SOAPDEFS_H
@@ -110,25 +111,21 @@
    #define VXWORKS
   #endif
  #endif
-
  #ifdef _WIN32
   #ifndef WIN32
    #define WIN32
   #endif
  #endif
-
  #ifdef _WIN32_WCE
   #ifndef UNDER_CE
    #define UNDER_CE _WIN32_WCE
   #endif
  #endif
-
  #ifdef UNDER_CE
   #ifndef WIN32
    #define WIN32
   #endif
  #endif
-
  #ifdef __BORLANDC__
   #ifdef __WIN32__
    #ifndef WIN32
@@ -136,42 +133,35 @@
    #endif
   #endif
  #endif
-
  #ifdef __CYGWIN__
   #ifndef CYGWIN
    #define CYGWIN
   #endif
  #endif
-
  #ifdef __SYMBIAN32__
   #define SYMBIAN
   #undef WIN32
  #endif
-
  #if defined(__palmos__) || defined(PALM_GCC) || defined(__PALMOS_TRAPS__)
   #ifndef PALM
    #define PALM
   #endif
  #endif
-
  #if defined(__hpux)
   #ifndef HP_UX
    #define HP_UX
   #endif
  #endif
-
  #if defined(__digital__) && defined(__unix__)
   #ifndef TRU64
    #define TRU64
   #endif
  #endif
-
  #ifdef __MVS__
   #ifndef OS390
    #define OS390
   #endif
  #endif
-
  #ifdef HAVE_CONFIG_H
   #include "config.h"
   #if defined(WITH_OPENSSL)
@@ -522,18 +512,15 @@
  #if defined(WIN32) || defined(HP_UX) || defined(_AIX41) || defined(_AIX43) || defined(VXWORKS)
   #define WITH_NOEMPTYSTRUCT
  #endif
-
  #ifdef WITH_PURE_VIRTUAL
   #define SOAP_PURE_VIRTUAL = 0
  #else
   #define SOAP_PURE_VIRTUAL
  #endif
-
  #ifdef HP_UX
   #undef HAVE_STRTOLL
   #undef HAVE_STRTOULL
  #endif
-
 /* older OpenVMS TCP/IP stacks cannot handle 65536 bytes */
  #ifdef __VMS
   #ifndef SOAP_BUFLEN
@@ -768,29 +755,24 @@ extern int h_errno;
    #endif
   #endif
  #endif
-
  #ifdef WITH_GZIP
   #ifndef WITH_ZLIB
    #define WITH_ZLIB
   #endif
  #endif
-
- #ifdef WITH_CASEINSENSITIVETAGS
-  #define SOAP_STRCMP soap_tag_cmp      /* case insensitve XML element/attribute names */
- #else
-  #define SOAP_STRCMP strcmp            /* case sensitive XML element/attribute names */
- #endif
-
- #ifdef WITH_ZLIB
-  #include <zlib.h>
- #endif
-
- #ifndef WITH_NOSTDLIB
-  #ifndef PALM
-   #include <math.h>    /* for isnan() */
-  #endif
- #endif
-
+#ifdef WITH_CASEINSENSITIVETAGS
+	#define SOAP_STRCMP soap_tag_cmp      /* case insensitve XML element/attribute names */
+#else
+	#define SOAP_STRCMP strcmp            /* case sensitive XML element/attribute names */
+#endif
+#ifdef WITH_ZLIB
+	#include <zlib\zlib.h>
+#endif
+#ifndef WITH_NOSTDLIB
+	#ifndef PALM
+		#include <math.h>    /* for isnan() */
+	#endif
+#endif
 /* #define DEBUG */ /* Uncomment to debug sending (in file SENT.log) receiving (in file RECV.log) and messages (in file
   TEST.log) */
 

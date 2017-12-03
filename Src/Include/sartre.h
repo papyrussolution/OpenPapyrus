@@ -729,7 +729,8 @@ public:
 	//
 	// Descr: Возвращает реальный идентификатор зарезервированной концепции с квази-идентификатором rc.
 	//
-	CONCEPTID FASTCALL GetReservedConcept(int rc);
+	CONCEPTID FASTCALL ResolveReservedConcept(int rc);
+	CONCEPTID FASTCALL GetReservedConcept(int rc) const;
 	//
 	// Descr: Набор функций, устанавливающий свойство propID для концепции cID.
 	//   Значение свойства определяется последним параметром.
@@ -879,6 +880,14 @@ private:
 	SymbHashTable WordCache;
 };
 //
+// Descr: Специализированный токенайзер для извлечения текста по правилам
+//
+class SrSyntaxRuleTokenizer : public STokenizer {
+public:
+	SLAPI  SrSyntaxRuleTokenizer();
+	int    SLAPI ProcessString(const char *pResource, const SString & rTextUtf8, uint * pIdxFirst, uint * pIdxCount);
+};
+//
 // Descr: Набор правил для синтаксического анализа текста
 //
 class SrSyntaxRuleSet : public SStrGroup {
@@ -936,6 +945,10 @@ public:
 	//
 	const  Rule * FASTCALL GetRule(uint pos) const;
 	//
+	// Descr: Возвращает имя правила по индексу pos [0..]
+	//
+	int    SLAPI GetRuleName(uint pos, SString & rBuf) const;
+	//
 	// Descr: Ищет правило с именем pNameUtf8. Если находит, то возвращает указатель
 	//   на этого правила.
 	// Returns:
@@ -951,28 +964,50 @@ public:
 	int    SLAPI ExprItemTextToStr(const ExprItem & rI, SString & rBuf) const;
 
 	int    SLAPI ResolveSyntaxRules(SrDatabase & rDb);
-	int    SLAPI __ProcessText(SrDatabase & rDb, const char * pResource, const SString & rTextUtf8, const char * pOutFileName) const;
 	//
 	// Descr: Структура, идентифицирующая точку распознавания текстовой конструкции.
 	//
-	struct MatchEntry {
+	struct MatchEntry { // @flat
+		SLAPI  MatchEntry(uint textIdxStart, uint textIdxEnd, const SrSyntaxRuleSet::Rule * pRule, uint stkP);
+
 		uint   TextIdxStart;
 		uint   TextIdxEnd;
-		const  SrSyntaxRuleSet::Rule * P_Rule;
+		const  SrSyntaxRuleSet::Rule * P_Rule; // @notowned
 		uint   StackP; 
+		CONCEPTID ConceptId;
 	};
+	//
+	// Descr: Общий результат положительного распознавания конструкции
+	//
+	struct Result {
+		uint   RuleIdx;   // Инекс правила, которому соответствует распознанная конструкция
+		uint   TIdxFirst; // Индекс в токенайзере, с которого начинается распознанная конструкция
+		uint   TIdxNext;  // Индекс в токенайзере, следующий за последним символом распознанной конструкции
+		TSVector <MatchEntry> MatchList; 
+	};
+
+	int    SLAPI ProcessText(SrDatabase & rDb, SrSyntaxRuleTokenizer & rT, uint tidxFirst, uint tidxCount, TSCollection <Result> & rResultList) const;
+	int    SLAPI __ProcessText2(SrDatabase & rDb, const char * pResource, const SString & rTextUtf8, const char * pOutFileName) const;
+
+	int    SLAPI MatchListToStr(const TSVector <MatchEntry> & rML, const STokenizer & rT, SString & rBuf) const;
+
 	class ResolveRuleBlock {
 	public:
-		ResolveRuleBlock(SrDatabase & rDb, const STokenizer & rT, const SrSyntaxRuleSet::Rule * pRule);
-		int    SLAPI MatchListToStr(const STokenizer & rT, const SrSyntaxRuleSet & rSet, SString & rBuf) const;
+		SLAPI  ResolveRuleBlock(SrDatabase & rDb, const STokenizer & rT, const SrSyntaxRuleSet::Rule * pRule);
+		//int    SLAPI MatchListToStr(const STokenizer & rT, const SrSyntaxRuleSet & rSet, SString & rBuf) const;
 		void   FASTCALL GetTextItemWithAdvance(uint & rTIdx);
 		void   FASTCALL SetupRule(const SrSyntaxRuleSet::Rule * pRule);
 		void   SLAPI PushInnerState();
 		int    FASTCALL PopInnerState(int dontRestoreTextIdx);
 
-		int    SLAPI PutMatchEntryOnSuccess(uint txtIdxStart, uint txtIdxEnd);
+		int    SLAPI PutMatchEntryOnSuccess(uint txtIdxStart, uint txtIdxEnd, CONCEPTID conceptId);
 		uint   SLAPI GetMatchListPreservedP();
 		void   FASTCALL TrimMatchListOnFailure(uint preservedP);
+
+		const TSVector <MatchEntry> & GetMatchList() const
+		{
+			return MatchList;
+		}
 
 		const  SrSyntaxRuleSet::Rule * P_Rule;
 		const  STokenizer & R_T;

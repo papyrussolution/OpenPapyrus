@@ -5,6 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 #include <charry.h>
+#include <sartre.h>
 
 #if 0 // {
 
@@ -166,13 +167,22 @@ VCard::Rec::Rec()
 
 void VCard::Rec::Init()
 {
-	Name = 0; Org = 0; WorkAddr = 0; HomeAddr = 0; BirthDay = ZERODATE; WorkPhone = 0;
-	HomePhone = 0; MobilePhone = 0; WorkFax = 0; HomeFax = 0; Email1 = 0; Email2 = 0;
+	Name.Z(); 
+	Org.Z(); 
+	WorkAddr.Z(); 
+	HomeAddr.Z(); 
+	BirthDay = ZERODATE; 
+	WorkPhone.Z();
+	HomePhone.Z(); 
+	MobilePhone.Z(); 
+	WorkFax.Z();
+	HomeFax.Z(); 
+	Email1.Z(); 
+	Email2.Z();
 }
 
-SLAPI VCard::VCard(const char * pFileName, int forExport)
+SLAPI VCard::VCard(const char * pFileName, int forExport) : P_Stream(0)
 {
-	P_Stream = 0;
 	PPLoadText(PPTXT_VCARD_PROPERTIES,    Properties);
 	PPLoadText(PPTXT_VCARD_PROPATTRIBUTE, PropAttrib);
 	Open(pFileName, forExport);
@@ -3165,17 +3175,14 @@ int SLAPI PPObjPerson::GetAddrID(PPID id, PPID dlvrAddrID, int option, PPID * pA
 //
 //
 //
-SLAPI PPObjPerson::SubstParam::SubstParam()
+SLAPI PPObjPerson::SubstParam::SubstParam() : Sgp(sgpNone), Flags(0)
 {
-	Sgp = sgpNone;
-	Flags = 0;
 }
 
-int SLAPI PPObjPerson::SubstParam::Init(SubstGrpPerson sgp)
+void SLAPI PPObjPerson::SubstParam::Init(SubstGrpPerson sgp)
 {
 	Sgp = sgp;
 	Flags = 0;
-	return 1;
 }
 
 int SLAPI PPObjPerson::SubstParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -3220,7 +3227,7 @@ int SLAPI PPObjPerson::Subst(PPID srcID, PPID dlvrLocID, SubstParam * pParam, lo
 						loc_id = dlvrLocID;
 					if(loc_id == 0)
 						loc_id = (pParam->Flags & SubstParam::fSubstPersonRAddr && psn_rec.RLoc) ? psn_rec.RLoc : psn_rec.MainLoc;
-					if(LocObj.Search(loc_id, &loc_rec) > 0)
+					if(LocObj.Search(loc_id, &loc_rec) > 0) {
 						if(pParam->Sgp == sgpCity)
 							dest_id = loc_rec.CityID;
 						else if(pParam->Sgp == sgpCountry) {
@@ -3231,6 +3238,7 @@ int SLAPI PPObjPerson::Subst(PPID srcID, PPID dlvrLocID, SubstParam * pParam, lo
 							if(pParam->WObj.Fetch(loc_rec.CityID, &w_rec) > 0)
 								dest_id = w_rec.ParentID;
 						}
+					}
 				}
 				else if(pParam->Sgp == sgpCategory)
 					dest_id = psn_rec.CatID;
@@ -3427,10 +3435,8 @@ int AddrListDialog::delItem(long pos, long /*id*/)
 
 class PersonDialog : public TDialog {
 public:
-	PersonDialog(int dlgID) : TDialog(dlgID)
+	PersonDialog(int dlgID) : TDialog(dlgID), DupID(0), IsCashier(0)
 	{
-		DupID = 0;
-		IsCashier = 0;
 		if(!PsnObj.RegObj.CheckRights(PPR_READ))
 			enableCommand(cmPersonReg, 0);
 		if(!PsnObj.RegObj.CheckRights(PPR_READ)) // @v9.0.4 BaObj-->RegObj
@@ -3441,6 +3447,9 @@ public:
 			enableCommand(cmCashierRights, 0);
 		addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_PERSON_IMAGE,
 			cmAddImage, cmDelImage, PsnObj.CheckRights(PSNRT_UPDIMAGE), ImageBrowseCtrlGroup::fUseExtOpenDlg));
+		Ptb.SetBrush(brushHumanName,    SPaintObj::bsSolid, LightenColor(GetColorRef(SClrYellow), 0.8f), 0);
+		Ptb.SetBrush(brushHumanNameFem, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrRed), 0.8f), 0);
+		Ptb.SetBrush(brushHumanNameMus, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrBlue), 0.8f), 0);
 	}
 	int    setDTS(const PPPersonPacket * pData)
 	{
@@ -3449,7 +3458,6 @@ public:
 		SString temp_buf;
 		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_PERSON_KIND);
 		LocationFilt loc_flt(LOCTYP_DIVISION);
-
 		IsCashier = BIN(Data.CshrInfo.Flags & CIF_CASHIER);
 		if(Data.Rec.ID) {
 			PrevKindList = Data.Kinds;
@@ -3592,6 +3600,12 @@ private:
 		showCtrl(CTL_PERSON_CSHRRIGHTS,   IsCashier);
 		showCtrl(CTL_PERSON_SELANALOGBUT, Data.Rec.ID == 0);
 	}
+	enum {
+		dummyFirst = 1,
+		brushHumanName,
+		brushHumanNameFem,
+		brushHumanNameMus,
+	};
 	ListBoxDef * createKindListDef();
 	PPPersonPacket Data;
 	SString Name_;
@@ -3601,6 +3615,7 @@ private:
 	PPID   DupID;             //
 	int    IsCashier;
 	PPIDArray PrevKindList;   // Список видов, которым принадлежала персоанлия до редактирования //
+	SPaintToolBox Ptb;
 };
 //
 //
@@ -3632,7 +3647,7 @@ private:
 		// последовательности при вводе номера карты: найдена-карта -> не-найдена-карта
 		// В базе данных могут быть карты с номерами разных длин. При наборе номера
 		// программа может неверно идентифицировать номер карты до завершения ввода.
-		// Если при очередном набранном символе карта уже не находится, то серия возвращается
+		// Если при очередном набранном символе карта уже не находится, то серия возвращается 
 		// к значению Preserve_SCardSerID
 	PPID   SCardID;
 	int    PhonePos;
@@ -3646,14 +3661,21 @@ private:
 	SString Name_;
 	PPObjPerson PsnObj;
 	PPObjSCard ScObj;
-
+	
 	DateAddDialogParam ScExpiryPeriodParam;
 };
 
-ShortPersonDialog::ShortPersonDialog(uint dlgId, PPID kindID, PPID scardSerID) : TDialog(dlgId),
-	DupID(0), KindID(kindID), SCardSerID(scardSerID), Preserve_SCardSerID(scardSerID),
-	SCardID(0), PhonePos(-1), CodeRegPos(-1), CodeRegTypeID(0), St(0)
+ShortPersonDialog::ShortPersonDialog(uint dlgId, PPID kindID, PPID scardSerID) : TDialog(dlgId)
 {
+	DupID = 0;
+	KindID = kindID;
+	SCardSerID = scardSerID;
+	Preserve_SCardSerID = scardSerID;
+	SCardID = 0;
+	PhonePos = -1;
+	CodeRegPos = -1;
+	CodeRegTypeID = 0;
+	St = 0;
 	SetupCalDate(CTLCAL_PERSON_DOB, CTL_PERSON_DOB);
 	SetupCalDate(CTLCAL_PERSON_SCEXPIRY, CTL_PERSON_SCEXPIRY);
 	showButton(cmCreateSCard, 0);
@@ -3695,7 +3717,8 @@ int ShortPersonDialog::setDTS(const PPPersonPacket * pData)
 		PPObjPersonKind pk_obj;
 		PPPersonKind pk_rec;
 		if(pk_obj.Fetch(KindID, &pk_rec) > 0) {
-			Data.Kinds.addUnique(KindID);
+			if(!Data.Kinds.lsearch(KindID))
+				Data.Kinds.add(KindID);
 			setStaticText(CTL_PERSON_ST_KINDNAME, pk_rec.Name);
 			{
 				PPObjRegisterType rt_obj;
@@ -3703,13 +3726,15 @@ int ShortPersonDialog::setDTS(const PPPersonPacket * pData)
 				if(pk_rec.CodeRegTypeID && rt_obj.Fetch(pk_rec.CodeRegTypeID, &rt_rec) > 0) {
 					CodeRegTypeID = pk_rec.CodeRegTypeID;
 					setLabelText(CTL_PERSON_SRCHCODE, rt_rec.Name);
-					uint   p = 0;
-					if(Data.Regs.GetRegister(pk_rec.CodeRegTypeID, &p, 0) > 0) {
-						temp_buf = Data.Regs.at(p-1).Num;
-						CodeRegPos = (int)(p-1);
+					{
+						uint   p = 0;
+						if(Data.Regs.GetRegister(pk_rec.CodeRegTypeID, &p, 0) > 0) {
+							temp_buf = Data.Regs.at(p-1).Num;
+							CodeRegPos = (int)(p-1);
+						}
+						else
+							temp_buf.Z();
 					}
-					else
-						temp_buf.Z();
 					setCtrlString(CTL_PERSON_SRCHCODE, temp_buf);
 				}
 			}
@@ -4065,15 +4090,8 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 				PPID   auto_goods_id = 0;
 				if(SCardID)
 					auto_goods_id = sc_rec.AutoGoodsID;
-				// @v9.8.9 {
-				else if(goods_grp_id) {
-					PPIDArray temp_goods_list;
-					GoodsIterator::GetListByGroup(goods_grp_id, &temp_goods_list);
-					if(temp_goods_list.getCount() == 1)
-						auto_goods_id = temp_goods_list.get(0);
-				}
-				// } @v9.8.9 
-				// } @v9.8.6
+				// @construction SETIFZ(auto_goods_id, scs_pack.Rec.ChargeGoodsID);
+				// } @v9.8.6	
 				SetupPPObjCombo(this, CTLSEL_PERSON_SCAG, PPOBJ_GOODS, auto_goods_id, 0, (void *)goods_grp_id);
 			}
 			else
@@ -4299,7 +4317,11 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 		}
 	}
 	info.UpdFlags = rBlk.UpdFlags;
-	SETIFZ(dlg_id, ((LConfig.Flags & CFGFLG_STAFFMGMT) ? DLG_PERSONEXT : DLG_PERSON));
+	if(!dlg_id)
+		if(LConfig.Flags & CFGFLG_STAFFMGMT)
+			dlg_id = DLG_PERSONEXT;
+		else
+			dlg_id = DLG_PERSON;
 	if(short_dlg_kind_id) {
 		THROW(CheckDialogPtr(&(dlg = new ShortPersonDialog(dlg_id, short_dlg_kind_id, rBlk.SCardSeriesID))));
 		{
@@ -4309,8 +4331,8 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 				p_dlg->enableCommand(cmOK, 0);
 			p_dlg->setDTS(&info);
 			while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {
-				const  PPID dup_id = p_dlg->GetDupID();
-				const  int  rt_mod = CheckRights(PPR_MOD);
+				PPID   dup_id = p_dlg->GetDupID();
+				const  int rt_mod = CheckRights(PPR_MOD);
 				if((valid_data = p_dlg->getDTS(&info)) != 0) {
 					PPID   psn_id = info.Rec.ID;
 					THROW((is_new && !dup_id) || (rt_mod || info.GetSCard()));
@@ -4333,7 +4355,7 @@ int SLAPI PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 				p_dlg->enableCommand(cmOK, 0);
 			while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {
 				THROW(is_new || CheckRights(PPR_MOD));
-				const PPID dup_id = p_dlg->GetDupID();
+				PPID dup_id = p_dlg->GetDupID();
 				if(dup_id) {
 					valid_data = 1;
 					ASSIGN_PTR(pID, dup_id);
@@ -4384,10 +4406,8 @@ ListBoxDef * PersonDialog::createKindListDef()
 //
 //
 //
-PsnSelAnalogDialog::PsnSelAnalogDialog(PPObjPerson * pPsnObj) : TDialog(DLG_PSNSELANALOG)
+PsnSelAnalogDialog::PsnSelAnalogDialog(PPObjPerson * pPsnObj) : TDialog(DLG_PSNSELANALOG), P_PsnObj(pPsnObj), Selection(0)
 {
-	P_PsnObj = pPsnObj;
-	Selection = 0;
 	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_PSNSELANALOG_LIST);
 	if(!SetupStrListBox(p_list))
 		PPError();
@@ -4402,10 +4422,9 @@ void PsnSelAnalogDialog::setSrchString(const char * pStr)
 		setupList();
 }
 
-int PsnSelAnalogDialog::getResult(PPID * pID)
+void PsnSelAnalogDialog::getResult(PPID * pID)
 {
 	ASSIGN_PTR(pID, Selection);
-	return 1;
 }
 
 int PsnSelAnalogDialog::setupList()
@@ -4471,6 +4490,153 @@ IMPL_HANDLE_EVENT(PersonDialog)
 	TDialog::handleEvent(event);
 	if(TVCOMMAND) {
 		switch(TVCMD) {
+			case cmCtlColor:
+				{
+					TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+					int   color_ident = 0;
+					if(p_dc && getCtrlHandle(CTL_PERSON_NAME) == p_dc->H_Ctl) {
+						SString name;
+						getCtrlString(CTL_PERSON_NAME, name);
+						if(name.NotEmptyS()) {
+							const SrSyntaxRuleSet * p_rs = DS.GetSrSyntaxRuleSet();
+							if(p_rs) {
+								SrDatabase * p_srdb = DS.GetTLA().GetSrDatabase();
+								if(p_srdb) {
+									TSCollection <SrSyntaxRuleSet::Result> result_list;
+									SrCPropList cpl;
+									//
+									CONCEPTID parent_fname_cid = 0;
+									CONCEPTID parent_sname_cid = 0;
+									CONCEPTID parent_pname_cid = 0;
+									CONCEPTID gender_cid = 0;
+									CONCEPTID gender_fem_cid = 0;
+									CONCEPTID gender_mas_cid = 0;
+									const CONCEPTID prop_subclass = p_srdb->GetReservedConcept(p_srdb->rcSubclass);
+									if(prop_subclass) {
+										p_srdb->SearchConcept("hum_fname", &parent_fname_cid);
+										p_srdb->SearchConcept("hum_sname", &parent_sname_cid);
+										p_srdb->SearchConcept("hum_pname", &parent_pname_cid);
+										p_srdb->SearchConcept("gender", &gender_cid);
+										p_srdb->SearchConcept("gender_mas", &gender_mas_cid);
+										p_srdb->SearchConcept("gender_fem", &gender_fem_cid);
+									}
+									const int test_gender_concept = BIN(gender_cid && gender_fem_cid && gender_mas_cid);
+									//
+									SrSyntaxRuleTokenizer t;
+									uint   idx_first = 0;
+									uint   idx_count = 0;
+									STokenizer::Item item_;
+									name.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
+									t.ProcessString("", name, &idx_first, &idx_count);
+									if(p_rs->ProcessText(*p_srdb, t, idx_first, idx_count, result_list) > 0) {
+										SString rule_name;
+										SString temp_buf;
+										for(uint residx = 0; residx < result_list.getCount(); residx++) {
+											const SrSyntaxRuleSet::Result * p_result = result_list.at(residx);
+											if(p_result) {
+												const SrSyntaxRuleSet::Rule * p_rule = p_rs->GetRule(p_result->RuleIdx);
+												p_rs->GetRuleName(p_result->RuleIdx, rule_name);
+												if(rule_name == "formeo" || rule_name == "entkind") {
+													color_ident = 0;
+													break;
+												}
+												else if(rule_name == "humname") {
+													long nam_components = 0; // 0x01 - firstname, 0x02 - patronymic, 0x04 - lastname
+													long gender_fem_components = 0;
+													long gender_mus_components = 0;
+													SrCProp cp, cp_gender;
+													for(uint j = 0; j < p_result->MatchList.getCount(); j++) {
+														const SrSyntaxRuleSet::MatchEntry & r_me = p_result->MatchList.at(j);
+														if(r_me.P_Rule && r_me.StackP < r_me.P_Rule->ES.getCount()) {
+															const SrSyntaxRuleSet::ExprItem * p_ei = (const SrSyntaxRuleSet::ExprItem *)r_me.P_Rule->ES.at(r_me.StackP);
+															switch(p_ei ? p_ei->K : 0) {
+																case SrSyntaxRuleSet::kLiteral:
+																case SrSyntaxRuleSet::kConcept:
+																case SrSyntaxRuleSet::kMorph:
+																	break;
+																case SrSyntaxRuleSet::kRule:
+																	p_rs->GetS(p_ei->SymbP, temp_buf);
+																	temp_buf.Strip();
+																	if(temp_buf == "humname_s") {
+																		nam_components |= 0x04;
+																		if(r_me.ConceptId && test_gender_concept && parent_sname_cid) {
+																			const CONCEPTID _c = r_me.ConceptId;
+																			if(p_srdb->GetConceptPropList(_c, cpl) > 0 && cpl.Get(_c, prop_subclass, cp)) {
+																				CONCEPTID _val = 0;
+																				if(cp.Get(_val) && _val == parent_sname_cid) {
+																					if(cpl.Get(_c, gender_cid, cp_gender) && cp_gender.Get(_val)) {
+																						if(_val == gender_mas_cid)
+																							gender_mus_components |= 0x04;
+																						else if(_val == gender_fem_cid)
+																							gender_fem_components |= 0x04;
+																					}
+																				}
+																			}
+																		}
+																	}
+																	else if(temp_buf == "humname_f") {
+																		nam_components |= 0x01;
+																		if(r_me.ConceptId && test_gender_concept && parent_fname_cid) {
+																			const CONCEPTID _c = r_me.ConceptId;
+																			if(p_srdb->GetConceptPropList(_c, cpl) > 0 && cpl.Get(_c, prop_subclass, cp)) {
+																				CONCEPTID _val = 0;
+																				if(cp.Get(_val) && _val == parent_fname_cid) {
+																					if(cpl.Get(_c, gender_cid, cp_gender) && cp_gender.Get(_val)) {
+																						if(_val == gender_mas_cid)
+																							gender_mus_components |= 0x01;
+																						else if(_val == gender_fem_cid)
+																							gender_fem_components |= 0x01;
+																					}
+																				}
+																			}
+																		}
+																	}
+																	else if(temp_buf == "humname_p") {
+																		nam_components |= 0x02;
+																		if(r_me.ConceptId && test_gender_concept && parent_pname_cid) {
+																			const CONCEPTID _c = r_me.ConceptId;
+																			if(p_srdb->GetConceptPropList(_c, cpl) > 0 && cpl.Get(_c, prop_subclass, cp)) {
+																				CONCEPTID _val = 0;
+																				if(cp.Get(_val) && _val == parent_pname_cid) {
+																					if(cpl.Get(_c, gender_cid, cp_gender) && cp_gender.Get(_val)) {
+																						if(_val == gender_mas_cid)
+																							gender_mus_components |= 0x02;
+																						else if(_val == gender_fem_cid)
+																							gender_fem_components |= 0x02;
+																					}
+																				}
+																			}
+																		}
+																	}
+																	break;
+															}
+														}
+													}
+													if(nam_components & 0x04) {
+														color_ident = brushHumanName;
+														if(gender_fem_components && !gender_mus_components)
+															color_ident = brushHumanNameFem;
+														else if(gender_mus_components && !gender_fem_components)
+															color_ident = brushHumanNameMus;
+														else
+															color_ident = brushHumanName;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					if(color_ident) {
+						::SetBkMode(p_dc->H_DC, TRANSPARENT);
+						p_dc->H_Br = (HBRUSH)Ptb.Get(color_ident);
+					}
+					else
+						return;
+				}
+				break;
 			case cmSelectAnalog:
 				if(!Data.Rec.ID) {
 					PPID   analog_id = 0;
@@ -4546,7 +4712,7 @@ IMPL_HANDLE_EVENT(PersonDialog)
 
 					class CashierRightsDialog : public TDialog {
 					public:
-						CashierRightsDialog() : TDialog(DLG_CSHRRTS)
+						CashierRightsDialog() : TDialog(DLG_CSHRRTS), OnlyView(0)
 						{
 							PPObjSecur obj_secur(PPOBJ_USR, 0);
 							if(!obj_secur.CheckRights(PPR_MOD)) {
@@ -4556,8 +4722,6 @@ IMPL_HANDLE_EVENT(PersonDialog)
 								disableCtrl(CTL_CSHRRTS_RPTRIGHTS, 1);
 								OnlyView = 1;
 							}
-							else
-								OnlyView = 0;
 						}
 						~CashierRightsDialog()
 						{
@@ -5284,8 +5448,9 @@ static int EditPersonRel(PersonLink * pData)
 
 class PersonRelListDialog : public PPListDialog {
 public:
-	PersonRelListDialog() : PPListDialog(DLG_PERSONLINKLIST, CTL_PERSONLINKLIST_LIST), IsReverse(0)
+	PersonRelListDialog() : PPListDialog(DLG_PERSONLINKLIST, CTL_PERSONLINKLIST_LIST)
 	{
+		IsReverse = 0;
 	}
 	int    setDTS(const PPPersonPacket *);
 	int    getDTS(PPPersonPacket *);
@@ -5398,8 +5563,8 @@ int PersonRelListDialog::delItem(long pos, long id)
 
 int PersonRelListDialog::editItem(long pos, long id)
 {
-	int ok = -1;
-	const LAssocArray * p_rel_list = IsReverse ? &Reverse : &Data.GetRelList();
+	int    ok = -1;
+	const  LAssocArray * p_rel_list = IsReverse ? &Reverse : &Data.GetRelList();
 	if(p_rel_list && pos >= 0 && pos < (long)p_rel_list->getCount()) {
 		int r = 0;
 		PPID psn_id = p_rel_list->at(pos).Key;
@@ -6041,12 +6206,8 @@ int FASTCALL GetPersonName(PPID id, SString & rBuf)
 //
 //
 //
-SLAPI PPNewContragentDetectionBlock::PPNewContragentDetectionBlock()
+SLAPI PPNewContragentDetectionBlock::PPNewContragentDetectionBlock() : P_PeObj(0), P_ArObj(0), P_ScObj(0), State(0)
 {
-	P_PeObj = 0;
-	P_ArObj = 0;
-	P_ScObj = 0;
-	State = 0;
 	PPObjPerson::ReadConfig(&PsnCfg);
 }
 

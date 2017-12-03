@@ -1,5 +1,5 @@
 // ACS_1.CPP
-// Copyright (c) A.Sobolev 1997-2001, 2007, 2008, 2009, 2010, 2016
+// Copyright (c) A.Sobolev 1997-2001, 2007, 2008, 2009, 2010, 2016, 2017
 //
 // Поддержка кассовых аппаратов Електроника-92-Аквариус и ЭКР-4110
 //
@@ -8,12 +8,8 @@
 //
 //
 //
-SLAPI CS_1::CS_1(PPID n) : PPAsyncCashSession(n)
+SLAPI CS_1::CS_1(PPID n) : PPAsyncCashSession(n), Valid(1), P_Entries(0), NumEntries(0), FilesPerSet(0)
 {
-	Valid       = 1;
-	P_Entries   = 0;
-	NumEntries  = 0;
-	FilesPerSet = 0;
 }
 
 SLAPI CS_1::~CS_1()

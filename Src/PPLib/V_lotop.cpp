@@ -11,10 +11,8 @@ IMPLEMENT_PPFILT_FACTORY(LotOp); SLAPI LotOpFilt::LotOpFilt() : PPBaseFilt(PPFIL
 	Init(1, 0);
 }
 
-SLAPI PPViewLotOp::PPViewLotOp() : PPView(0, &Filt, PPVIEW_LOTOP)
+SLAPI PPViewLotOp::PPViewLotOp() : PPView(0, &Filt, PPVIEW_LOTOP), P_BObj(BillObj), State(0)
 {
-	P_BObj = BillObj;
-	State = 0;
 	SETFLAG(State, stAccsCost, P_BObj->CheckRights(BILLRT_ACCSCOST));
 	DefReportId = REPORT_LOTOPS;
 }

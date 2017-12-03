@@ -403,7 +403,7 @@ static void FoldMySQLDoc(Sci_PositionU startPos, Sci_Position length, int initSt
 				    else if(!endFound)    {
 					    if(MatchIgnoreCase(styler, i, "begin"))
 						    levelNext++;
-					    else{
+					    else {
 						    if(!foldOnlyBegin) {
 							    bool whileFound = MatchIgnoreCase(styler, i, "while");
 							    bool loopFound = MatchIgnoreCase(styler, i, "loop");
@@ -412,7 +412,7 @@ static void FoldMySQLDoc(Sci_PositionU startPos, Sci_Position length, int initSt
 
 							    if(whileFound || loopFound || repeatFound || caseFound)
 								    levelNext++;
-							    else{
+							    else {
 								    // IF alone does not increase the fold level as it is also used in
 								    // non-block'ed
 								    // code like DROP PROCEDURE blah IF EXISTS.
@@ -421,12 +421,12 @@ static void FoldMySQLDoc(Sci_PositionU startPos, Sci_Position length, int initSt
 								    if(MatchIgnoreCase(styler, i, "then")) {
 									    if(!elseIfPending && !whenPending)
 										    levelNext++;
-									    else{
+									    else {
 										    elseIfPending = false;
 										    whenPending = false;
 									    }
 								    }
-								    else{
+								    else {
 									    // Neither of if/then/while/loop/repeat/case, so check for
 									    // sub parts of IF and CASE.
 									    if(MatchIgnoreCase(styler, i, "elseif"))

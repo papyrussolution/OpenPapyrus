@@ -224,24 +224,15 @@ int GoodsRestTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 //
 #define DEFAULT_GROUPRESTCALCTHRESHOLD 100
 
-SLAPI PPViewGoodsRest::PPViewGoodsRest() : PPView(0, &Filt, PPVIEW_GOODSREST)
+SLAPI PPViewGoodsRest::PPViewGoodsRest() : PPView(0, &Filt, PPVIEW_GOODSREST),
+	P_GGIter(0), P_Tbl(0), P_BObj(BillObj), P_Predictor(0), P_TempOrd(0), P_OpGrpngFilt(0), Flags(0),
+	ScalePrefixID(0), SellOpID(0), LastCacheCounter(0), GroupCalcThreshold(CConfig.GRestCalcThreshold)
 {
 	DefReportId = REPORT_GOODSREST;
-	P_GGIter = 0;
-	P_Tbl = 0;
-	P_BObj = BillObj;
-	P_Predictor = 0;
-	P_TempOrd   = 0;
-	Flags = 0;
 	SETFLAG(Flags, fAccsCost, P_BObj->CheckRights(BILLRT_ACCSCOST));
-	ScalePrefixID = 0;
-	SellOpID = 0;
-	LastCacheCounter = 0;
-	GroupCalcThreshold = CConfig.GRestCalcThreshold;
 	if(GroupCalcThreshold <= 0 || GroupCalcThreshold > 1000)
 		GroupCalcThreshold = DEFAULT_GROUPRESTCALCTHRESHOLD;
 	ImplementFlags |= implUseServer;
-	P_OpGrpngFilt = 0;
 }
 
 SLAPI PPViewGoodsRest::~PPViewGoodsRest()
@@ -1870,11 +1861,8 @@ int SLAPI PPViewGoodsRest::ProcessGroup(const PPIDArray * pGrpGoodsList)
 	return ok;
 }
 
-PPViewGoodsRest::ProcessLotBlock::ProcessLotBlock(int forceUseLotRest)
+PPViewGoodsRest::ProcessLotBlock::ProcessLotBlock(int forceUseLotRest) : ForceUseLotRest(BIN(forceUseLotRest)), P_GrpGoodsList(0), P_LpCache(0)
 {
-	ForceUseLotRest = BIN(forceUseLotRest);
-	P_GrpGoodsList = 0;
-	P_LpCache = 0;
 }
 
 PPViewGoodsRest::ProcessLotBlock::~ProcessLotBlock()
@@ -2112,12 +2100,8 @@ int SLAPI PPViewGoodsRest::Helper_ProcessLot(ProcessLotBlock & rBlk, ReceiptTbl:
 
 IMPL_CMPFUNC(ReceiptTbl_DtOprNo, i1, i2) { RET_CMPCASCADE2((const ReceiptTbl::Rec *)i1, (const ReceiptTbl::Rec *)i2, Dt, OprNo); }
 
-PPViewGoodsRest::LotQueryBlock::LotQueryBlock()
+PPViewGoodsRest::LotQueryBlock::LotQueryBlock() : Idx(-1), SpMode(-1), Reverse(0), P_Q(0)
 {
-	Idx = -1;
-	SpMode = -1;
-	Reverse = 0;
-	P_Q = 0;
 	memzero(Key, sizeof(Key));
 }
 
@@ -2452,9 +2436,8 @@ public:
 		long   NzMtxCount;
 		double RelNzToMtx;
 	};
-	SLAPI  GoodsRestCrosstab(PPViewGoodsRest * pV) : Crosstab()
+	SLAPI  GoodsRestCrosstab(PPViewGoodsRest * pV) : Crosstab(), P_V(pV)
 	{
-		P_V = pV;
 	}
 	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 	{
@@ -2866,8 +2849,7 @@ int SLAPI PPViewGoodsRest::InitIterQuery(PPID grpID)
 
 int SLAPI PPViewGoodsRest::InitGroupNamesList()
 {
-	IterGrpName = 0;
-
+	IterGrpName.Z();
 	PPID   init_parent_id = 0;
 	Goods2Tbl::Rec grp_rec;
 	if(Filt.GoodsGrpID && GObj.Fetch(Filt.GoodsGrpID, &grp_rec) > 0) {
@@ -2896,7 +2878,7 @@ int SLAPI PPViewGoodsRest::InitIteration(IterOrder ord)
 {
 	int    ok = 1;
 	IterIdx = 0;
-	IterGrpName = 0;
+	IterGrpName.Z();
 	ZDELETE(P_GGIter);
 	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempOrd);
@@ -4530,4 +4512,3 @@ void PPALDD_GoodsRestTotal::Destroy()
 	Extra[0].Ptr = 0;
 	Extra[1].Ptr = 0;
 }
-

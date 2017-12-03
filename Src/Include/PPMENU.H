@@ -508,6 +508,5 @@
 #define cmBillAutoCreate               613 // @v9.7.10 Автоматическое создание документов (попытка объедининить разрозненные процедуры)
 #define cmValidateXml                  614 // @v9.8.3 Проверка соответствия xml-файла xsd-схеме
 #define cmTestTddo2                    615 // @v9.8.3 Тестирование технологии TDDO-II
-#define cmTestVetis                    616 // @v9.8.9 Тестирование интерфейса ВЕТИС
 
 #endif /* __PPMENU_H */

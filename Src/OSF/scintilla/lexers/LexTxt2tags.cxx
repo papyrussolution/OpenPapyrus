@@ -225,7 +225,7 @@ static void ColorizeTxt2tagsDoc(Sci_PositionU startPos, Sci_Position length, int
 					precharCount = 0;
 					sc.SetState(SCE_TXT2TAGS_PRECHAR);
 				}
-				else{
+				else {
 					sc.SetState(SCE_TXT2TAGS_HEADER1);
 					sc.Forward();
 				}
@@ -271,7 +271,7 @@ static void ColorizeTxt2tagsDoc(Sci_PositionU startPos, Sci_Position length, int
 					//     sc.SetState(SCE_TXT2TAGS_PRECHAR);
 					//	}
 				}
-				else{
+				else {
 					sc.SetState(SCE_TXT2TAGS_HEADER1);
 					sc.Forward();
 				}

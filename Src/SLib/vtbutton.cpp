@@ -13,20 +13,14 @@ int SLAPI showInputLineCalc(TDialog *, uint);
 
 #pragma warn -par
 
-VirtButtonWndEx::VirtButtonWndEx(const char * pSignature)
+VirtButtonWndEx::VirtButtonWndEx(const char * pSignature) : P_Dlg(0), FieldCtrlId(0), ButtonCtrlId(0), PrevWndProc(0), HBmp(0)
 {
 	STRNSCPY(Signature, pSignature);
-	P_Dlg = 0;
-	FieldCtrlId = 0;
-	ButtonCtrlId = 0;
-	PrevWndProc = 0;
-	HBmp = 0;
 }
 
 TCalcInputLine::TCalcInputLine(uint inputId, uint buttonId, TRect & bounds, TYPEID aType, long fmt) :
-	TInputLine(bounds, aType, fmt), Vbwe("papyruscalculator")
+	TInputLine(bounds, aType, fmt), Vbwe("papyruscalculator"), VirtButtonId(inputId)
 {
-	VirtButtonId = inputId;
 	Vbwe.ButtonCtrlId = buttonId;
 }
 
@@ -119,10 +113,8 @@ private:
 #define ILC_EQVAL       (CTL_INLNCALC_EQV - CTL_INLNCALC_CLEAR)
 #define ILC_INVERSE     (CTL_INLNCALC_INVERSE - CTL_INLNCALC_CLEAR)
 
-InputLineCalc::InputLineCalc(uint dlgID, TDialog *pParentDlg, uint fieldCtlId) : TDialog(dlgID)
+InputLineCalc::InputLineCalc(uint dlgID, TDialog *pParentDlg, uint fieldCtlId) : TDialog(dlgID), P_ParentDlg(pParentDlg), CtlId(fieldCtlId)
 {
-	P_ParentDlg = pParentDlg;
-	CtlId = fieldCtlId;
 	NumSym[0] = '0';
 	NumSym[abs(CTL_INLNCALC_1 - CTL_INLNCALC_0)] = '1';
 	NumSym[abs(CTL_INLNCALC_2 - CTL_INLNCALC_0)] = '2';

@@ -141,6 +141,9 @@
     <ClCompile Include="..\OSF\tiff\libtiff\tif_zip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\OSF\tiff\libtiff\tiff-pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\OSF\tiff\libtiff\libtiff.def">

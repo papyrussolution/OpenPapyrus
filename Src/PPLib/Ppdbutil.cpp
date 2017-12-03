@@ -1231,10 +1231,11 @@ IMPL_HANDLE_EVENT(DBMaintenanceDialog)
 //
 class ChangeDBListDialog : public PPListDialog {
 public:
-	ChangeDBListDialog() : PPListDialog(DLG_DBLIST, CTL_DBLIST_DB), F(0, 0, 0, 1), Modified(0)
+	ChangeDBListDialog() : PPListDialog(DLG_DBLIST, CTL_DBLIST_DB), F(0, 0, 0, 1)
 	{
 		Dbes.ReadFromProfile(&F, 0, 1);
 		updateList(-1);
+		Modified = 0;
 	}
 private:
 	DECL_HANDLE_EVENT
@@ -2132,8 +2133,9 @@ static int SLAPI _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 		else if(all_ok == 0) {
 			class RcvrInfoDlg : public PPListDialog {
 			public:
-				RcvrInfoDlg(const SArray * pData) : PPListDialog(DLG_RCVRRES, CTL_RCVRRES_LIST), P_Data(pData)
+				RcvrInfoDlg(const SArray * pData) : PPListDialog(DLG_RCVRRES, CTL_RCVRRES_LIST)
 				{
+					P_Data = pData;
 					updateList(-1);
 				}
 			private:

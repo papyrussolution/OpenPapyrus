@@ -8256,7 +8256,7 @@ skip_default_ns:
 					xmlNsErr(ctxt, XML_NS_ERR_XML_NAMESPACE, "reuse of the xmlns namespace name is forbidden\n", NULL, 0, 0);
 					goto skip_ns;
 				}
-				if(isempty(URL)) {
+				if(!URL || URL[0] == 0) {
 					xmlNsErr(ctxt, XML_NS_ERR_XML_NAMESPACE, "xmlns:%s: Empty XML namespace is not allowed\n", attname, 0, 0);
 					goto skip_ns;
 				}
@@ -13729,4 +13729,4 @@ xmlDoc * xmlCtxtReadIO(xmlParserCtxt * ctxt, xmlInputReadCallback ioread,
 }
 
 #define bottom_parser
-//#include "elfgcchack.h"
+#include "elfgcchack.h"

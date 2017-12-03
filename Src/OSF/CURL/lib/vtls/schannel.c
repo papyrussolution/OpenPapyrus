@@ -330,7 +330,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 		InitSecBuffer(&inbuf, SECBUFFER_APPLICATION_PROTOCOLS, alpn_buffer, cur);
 		InitSecBufferDesc(&inbuf_desc, &inbuf, 1);
 	}
-	else{
+	else {
 		InitSecBuffer(&inbuf, SECBUFFER_EMPTY, NULL, 0);
 		InitSecBufferDesc(&inbuf_desc, &inbuf, 1);
 	}
@@ -1028,7 +1028,7 @@ static ssize_t schannel_send(struct connectdata * conn, int sockindex,
 	else if(sspi_status == SEC_E_INSUFFICIENT_MEMORY) {
 		*err = CURLE_OUT_OF_MEMORY;
 	}
-	else{
+	else {
 		*err = CURLE_SEND_ERROR;
 	}
 
@@ -1621,7 +1621,7 @@ static CURLcode verify_certificate(struct connectdata * conn, int sockindex)
 				if(!cert_hostname) {
 					result = CURLE_OUT_OF_MEMORY;
 				}
-				else{
+				else {
 					int match_result;
 
 					match_result = Curl_cert_hostcheck(cert_hostname, conn->host.name);
@@ -1633,7 +1633,7 @@ static CURLcode verify_certificate(struct connectdata * conn, int sockindex)
 						    cert_hostname);
 						result = CURLE_OK;
 					}
-					else{
+					else {
 						failf(data,
 						    "schannel: connection hostname (%s) "
 						    "does not match certificate name (%s)",

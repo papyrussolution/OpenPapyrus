@@ -153,31 +153,20 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 		// ARG(pRegAry INOUT): @#{vptr0} Список регистров, которому принадлежит редактируемый
 		//   (создаваемый) регистр
 		//
-		RegisterDialog(uint rezID, const RegisterArray * pRegAry) : TDialog(rezID)
+		RegisterDialog(uint rezID, const RegisterArray * pRegAry) : TDialog(rezID), P_RegAry(pRegAry), P_PsnPack(0), P_LocPack(0)
 		{
-			P_RegAry = pRegAry;
-			P_PsnPack = 0;
-			P_LocPack = 0;
 			Init();
 		}
-		RegisterDialog(uint rezID, const PPPersonPacket * pPsnPack) : TDialog(rezID)
+		RegisterDialog(uint rezID, const PPPersonPacket * pPsnPack) : TDialog(rezID), P_RegAry(0), P_PsnPack(pPsnPack), P_LocPack(0)
 		{
-			P_RegAry = 0;
-			P_LocPack = 0;
-			P_PsnPack = pPsnPack;
-			if(P_PsnPack) {
+			if(P_PsnPack)
 				P_RegAry = &P_PsnPack->Regs;
-			}
 			Init();
 		}
-		RegisterDialog(uint rezID, const PPLocationPacket * pLocPack) : TDialog(rezID)
+		RegisterDialog(uint rezID, const PPLocationPacket * pLocPack) : TDialog(rezID), P_RegAry(0), P_PsnPack(0), P_LocPack(pLocPack)
 		{
-			P_RegAry = 0;
-			P_PsnPack = 0;
-			P_LocPack = pLocPack;
-			if(P_LocPack) {
+			if(P_LocPack)
 				P_RegAry = &P_LocPack->Regs;
-			}
 			Init();
 		}
 		int    setDTS(const RegisterTbl::Rec * pRec)
@@ -513,9 +502,11 @@ int SLAPI PPObjRegister::Edit(PPID * pID, void * extraPtr /*personID*/)
 
 class RegisterListDialog : public PPListDialog {
 public:
-	RegisterListDialog(PPPersonPacket * pPsnPack, PPID eventID) : PPListDialog(DLG_REGLST, CTL_REGLST_LIST),
-		P_PsnPack(0), P_LocPack(0), P_Data(&StubData)
+	RegisterListDialog(PPPersonPacket * pPsnPack, PPID eventID) : PPListDialog(DLG_REGLST, CTL_REGLST_LIST)
 	{
+		P_PsnPack = 0;
+		P_LocPack = 0;
+		P_Data = &StubData;
 		if(pPsnPack) {
 			P_PsnPack = pPsnPack;
 			P_Data = &pPsnPack->Regs;
@@ -531,9 +522,11 @@ public:
 		EventID  = eventID;
 		updateList(-1);
 	}
-	RegisterListDialog(PPLocationPacket * pLocPack) : PPListDialog(DLG_REGLST, CTL_REGLST_LIST),
-		P_PsnPack(0), P_LocPack(0), P_Data(&StubData)
+	RegisterListDialog(PPLocationPacket * pLocPack) : PPListDialog(DLG_REGLST, CTL_REGLST_LIST)
 	{
+		P_PsnPack = 0;
+		P_LocPack = 0;
+		P_Data = &StubData;
 		if(pLocPack) {
 			Oid.Set(PPOBJ_LOCATION, pLocPack->ID);
 			P_LocPack = pLocPack;
@@ -778,8 +771,10 @@ int SLAPI PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 //
 class BankAccountListDialog : public PPListDialog {
 public:
-	BankAccountListDialog(PPPersonPacket * pPsnPack) : PPListDialog(DLG_BACCLST, CTL_BACCLST_LIST), P_PsnPack(0), P_Data(&StubData)
+	BankAccountListDialog(PPPersonPacket * pPsnPack) : PPListDialog(DLG_BACCLST, CTL_BACCLST_LIST)
 	{
+		P_PsnPack = 0;
+		P_Data = &StubData;
 		if(pPsnPack) {
 			P_PsnPack = pPsnPack;
 			P_Data = &pPsnPack->Regs;

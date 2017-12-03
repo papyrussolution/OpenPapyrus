@@ -107,10 +107,8 @@ int SLAPI XMLWriteSpecSymbEntities(void * pWriter)
 //
 //
 //
-SXml::WDoc::WDoc(xmlTextWriter * pWriter, SCodepage cp)
+SXml::WDoc::WDoc(xmlTextWriter * pWriter, SCodepage cp) : State(0), Lx(pWriter)
 {
-	State = 0;
-	Lx = pWriter;
 	if(Lx) {
 		SString temp_buf;
 		if(cp < 0)
@@ -304,7 +302,7 @@ int SLAPI SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & r
     return ok;
 }
 
-//static 
+//static
 void __cdecl SXmlValidationMessageList::SchemaValidityError(void * pCtx, const char * pMsg, ...)
 {
 	SXmlValidationMessageList * p_this = (SXmlValidationMessageList *)pCtx;
@@ -317,7 +315,7 @@ void __cdecl SXmlValidationMessageList::SchemaValidityError(void * pCtx, const c
 	}
 }
 
-//static 
+//static
 void __cdecl SXmlValidationMessageList::SchemaValidityWarning(void * pCtx, const char * pMsg, ...)
 {
 	SXmlValidationMessageList * p_this = (SXmlValidationMessageList *)pCtx;
@@ -330,7 +328,7 @@ void __cdecl SXmlValidationMessageList::SchemaValidityWarning(void * pCtx, const
 	}
 }
 
-SLAPI SXmlValidationMessageList::SXmlValidationMessageList() 
+SLAPI SXmlValidationMessageList::SXmlValidationMessageList()
 {
 }
 

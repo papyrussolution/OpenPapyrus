@@ -1,12 +1,12 @@
 // BITMBROW.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
+// @codepage UTF-8
 //
-// Модуль, отвечающий за броузер строк товарных документов.
+// РњРѕРґСѓР»СЊ, РѕС‚РІРµС‡Р°СЋС‰РёР№ Р·Р° Р±СЂРѕСѓР·РµСЂ СЃС‚СЂРѕРє С‚РѕРІР°СЂРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ.
 //
-// Один из наиболее запутанных модулей. Основная сложность в том, что здесь одним махом реализован
-// как собственно броузер для просмотра и редактирования документов, так и броузер, работающий в качестве
-// селектора строк для добавления строк в документ по связанному документу (возвраты, продажа по заказу).
+// РћРґРёРЅ РёР· РЅР°РёР±РѕР»РµРµ Р·Р°РїСѓС‚Р°РЅРЅС‹С… РјРѕРґСѓР»РµР№. РћСЃРЅРѕРІРЅР°СЏ СЃР»РѕР¶РЅРѕСЃС‚СЊ РІ С‚РѕРј, С‡С‚Рѕ Р·РґРµСЃСЊ РѕРґРЅРёРј РјР°С…РѕРј СЂРµР°Р»РёР·РѕРІР°РЅ
+// РєР°Рє СЃРѕР±СЃС‚РІРµРЅРЅРѕ Р±СЂРѕСѓР·РµСЂ РґР»СЏ РїСЂРѕСЃРјРѕС‚СЂР° Рё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РґРѕРєСѓРјРµРЅС‚РѕРІ, С‚Р°Рє Рё Р±СЂРѕСѓР·РµСЂ, СЂР°Р±РѕС‚Р°СЋС‰РёР№ РІ РєР°С‡РµСЃС‚РІРµ
+// СЃРµР»РµРєС‚РѕСЂР° СЃС‚СЂРѕРє РґР»СЏ РґРѕР±Р°РІР»РµРЅРёСЏ СЃС‚СЂРѕРє РІ РґРѕРєСѓРјРµРЅС‚ РїРѕ СЃРІСЏР·Р°РЅРЅРѕРјСѓ РґРѕРєСѓРјРµРЅС‚Сѓ (РІРѕР·РІСЂР°С‚С‹, РїСЂРѕРґР°Р¶Р° РїРѕ Р·Р°РєР°Р·Сѓ).
 //
 #include <pp.h>
 #pragma hdrstop
@@ -34,7 +34,7 @@ public:
 		double OldPrice;
 		double ExtCost;
 		double PckgCount;
-		double OrderQtty; // @v9.1.1 Заказанное количество, соответсвтующее данному документу отгрузки
+		double OrderQtty; // @v9.1.1 Р—Р°РєР°Р·Р°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ, СЃРѕРѕС‚РІРµС‚СЃРІС‚СѓСЋС‰РµРµ РґР°РЅРЅРѕРјСѓ РґРѕРєСѓРјРµРЅС‚Сѓ РѕС‚РіСЂСѓР·РєРё
 	};
 	BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket *, PPBillPacket * pMainPack = 0,
 		int pckgPos = -1, int asSelector = 0, int editMode = 0);
@@ -70,7 +70,7 @@ public:
 		return BIN(P_LinkPack);
 	}
 	//
-	// Descr: Возвращает количество из связанного документа, соответствующее строке rTi документа P_Pack
+	// Descr: Р’РѕР·РІСЂР°С‰Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ РёР· СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРµ СЃС‚СЂРѕРєРµ rTi РґРѕРєСѓРјРµРЅС‚Р° P_Pack
 	//
 	double FASTCALL GetLinkQtty(const PPTransferItem & rTi) const;
 	double FASTCALL GetOrderedQtty(const PPTransferItem & rTi) const;
@@ -78,12 +78,12 @@ private:
 	DECL_HANDLE_EVENT;
 	void   addItem(int fromOrder = 0, TIDlgInitData * = 0, int sign = 0);
 	//
-	// Descr: реализует расширенное добавление строки в товарный документ.
+	// Descr: СЂРµР°Р»РёР·СѓРµС‚ СЂР°СЃС€РёСЂРµРЅРЅРѕРµ РґРѕР±Р°РІР»РµРЅРёРµ СЃС‚СЂРѕРєРё РІ С‚РѕРІР°СЂРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚.
 	// ARG(mode IN):
-	//   0 - вызывается диалог выбора группы и товара
-	//   1 - вызывается диалог, предлагающий пользователю ввести строку, которая содержится в
-	//       наименовании товара, а после этого появляется диалог со списком товаров, содержащих
-	//       введенную пользователем строку.
+	//   0 - РІС‹Р·С‹РІР°РµС‚СЃСЏ РґРёР°Р»РѕРі РІС‹Р±РѕСЂР° РіСЂСѓРїРїС‹ Рё С‚РѕРІР°СЂР°
+	//   1 - РІС‹Р·С‹РІР°РµС‚СЃСЏ РґРёР°Р»РѕРі, РїСЂРµРґР»Р°РіР°СЋС‰РёР№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ РІРІРµСЃС‚Рё СЃС‚СЂРѕРєСѓ, РєРѕС‚РѕСЂР°СЏ СЃРѕРґРµСЂР¶РёС‚СЃСЏ РІ
+	//       РЅР°РёРјРµРЅРѕРІР°РЅРёРё С‚РѕРІР°СЂР°, Р° РїРѕСЃР»Рµ СЌС‚РѕРіРѕ РїРѕСЏРІР»СЏРµС‚СЃСЏ РґРёР°Р»РѕРі СЃРѕ СЃРїРёСЃРєРѕРј С‚РѕРІР°СЂРѕРІ, СЃРѕРґРµСЂР¶Р°С‰РёС…
+	//       РІРІРµРґРµРЅРЅСѓСЋ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј СЃС‚СЂРѕРєСѓ.
 	//
 	void   addItemExt(int mode = 0);
 	void   addItemBySerial();
@@ -100,7 +100,7 @@ private:
 	int    ConvertBillToBasket();
 	int    getMinMaxQtty(uint itemPos, double * pMinQtty, double * pMaxQtty);
 	int    subtractRetsFromLinkPack();
-	// Ненулевой параметр только при вызове из конструктора
+	// РќРµРЅСѓР»РµРІРѕР№ РїР°СЂР°РјРµС‚СЂ С‚РѕР»СЊРєРѕ РїСЂРё РІС‹Р·РѕРІРµ РёР· РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР°
 	SArray * MakeList(PPBillPacket * = 0, int pckgPos = -1);
 	int    ConvertSupplRetLink(PPID locID);
 	int    checkForward(PPTransferItem *, LDATE, int reverse);
@@ -115,18 +115,18 @@ private:
 	long   FASTCALL CalcPriceDevItem(long pos);
 	int    SLAPI GetPriceRestrictions(int itemPos, const PPTransferItem & rTi, RealRange * pRange);
 	int    SLAPI UpdatePriceDevList(long pos, int op);
-	int    SLAPI CheckRows(); // Проверяет список строк документа. Если есть проблемы, то они добавляются в список ProblemsList, который отображается при наведении на соотвествующую строку (колонка 1)
+	int    SLAPI CheckRows(); // РџСЂРѕРІРµСЂСЏРµС‚ СЃРїРёСЃРѕРє СЃС‚СЂРѕРє РґРѕРєСѓРјРµРЅС‚Р°. Р•СЃР»Рё РµСЃС‚СЊ РїСЂРѕР±Р»РµРјС‹, С‚Рѕ РѕРЅРё РґРѕР±Р°РІР»СЏСЋС‚СЃСЏ РІ СЃРїРёСЃРѕРє ProblemsList, РєРѕС‚РѕСЂС‹Р№ РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ РїСЂРё РЅР°РІРµРґРµРЅРёРё РЅР° СЃРѕРѕС‚РІРµСЃС‚РІСѓСЋС‰СѓСЋ СЃС‚СЂРѕРєСѓ (РєРѕР»РѕРЅРєР° 1)
 
 	PPObjBill * P_BObj;
 	Transfer  * P_T;
 	PPObjGoods GObj;
 
 	enum {
-		stOrderSelector    = 0x0002, // Броузер используется как селектор из заказа
-		stAltView          = 0x0004, // Альтернативный просмотр строк товарного документа
-		stExpndOnReturn    = 0x0008, // Флаг устанавливается при расходном возврате
-		stUseLinkSelection = 0x0010, // При выборе товара всегда обращаться к строкам связанного документа
-		stShowLinkQtty     = 0x0020, // Показывать количество из связанного документа
+		stOrderSelector    = 0x0002, // Р‘СЂРѕСѓР·РµСЂ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РєР°Рє СЃРµР»РµРєС‚РѕСЂ РёР· Р·Р°РєР°Р·Р°
+		stAltView          = 0x0004, // РђР»СЊС‚РµСЂРЅР°С‚РёРІРЅС‹Р№ РїСЂРѕСЃРјРѕС‚СЂ СЃС‚СЂРѕРє С‚РѕРІР°СЂРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+		stExpndOnReturn    = 0x0008, // Р¤Р»Р°Рі СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РїСЂРё СЂР°СЃС…РѕРґРЅРѕРј РІРѕР·РІСЂР°С‚Рµ
+		stUseLinkSelection = 0x0010, // РџСЂРё РІС‹Р±РѕСЂРµ С‚РѕРІР°СЂР° РІСЃРµРіРґР° РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє СЃС‚СЂРѕРєР°Рј СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
+		stShowLinkQtty     = 0x0020, // РџРѕРєР°Р·С‹РІР°С‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ РёР· СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 		stCtrlX            = 0x0040,
 		stAccsCost         = 0x0080, // @*BillItemBrowser::BillItemBrowser
 		stActivateNewRow   = 0x0100, // If !0 && !EditMode then execute() calls addItem()
@@ -142,22 +142,22 @@ private:
 	PPID   NewGoodsGrpID;
 	TotalData Total;
 	//
-	// Переменные, используемые для вывода ячеек броузера
+	// РџРµСЂРµРјРµРЅРЅС‹Рµ, РёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ РґР»СЏ РІС‹РІРѕРґР° СЏС‡РµРµРє Р±СЂРѕСѓР·РµСЂР°
 	// BillItemBrowser::GetDataForBrowser
 	//
 	int    CurLine;
 	Goods2Tbl::Rec ClGoodsRec;
 	LongArray PriceDevList;
-	RAssocArray OrdQttyList; // Список величин заказанного количества, сопоставленных с соответствующими лотами заказов
-		// используется для ускорения выборки
-	StrAssocArray ProblemsList; // Список проблем каждой из строк документа
+	RAssocArray OrdQttyList; // РЎРїРёСЃРѕРє РІРµР»РёС‡РёРЅ Р·Р°РєР°Р·Р°РЅРЅРѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР°, СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРЅС‹С… СЃ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРјРё Р»РѕС‚Р°РјРё Р·Р°РєР°Р·РѕРІ
+		// РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ СѓСЃРєРѕСЂРµРЅРёСЏ РІС‹Р±РѕСЂРєРё
+	StrAssocArray ProblemsList; // РЎРїРёСЃРѕРє РїСЂРѕР±Р»РµРј РєР°Р¶РґРѕР№ РёР· СЃС‚СЂРѕРє РґРѕРєСѓРјРµРЅС‚Р°
 	SpecSeriesCore * P_SpcCore;
 	PPID   AlcoGoodsClsID;
 };
 
 #define BROWSER_ID(nam) BROWSER_##nam##2
 
-enum { // Параметр функции BillItemBrowser::update
+enum { // РџР°СЂР°РјРµС‚СЂ С„СѓРЅРєС†РёРё BillItemBrowser::update
 	pos_top = -1,
 	pos_cur = -2,
 	pos_bottom = -3
@@ -175,39 +175,32 @@ struct BillGoodsBrwItem {
 		fOrdRestInited = 0x0004,
 		fSerialBad     = 0x0008,
 		fSerialOk      = 0x0010,
-		fQuotProblem   = 0x0020, // @v8.2.0 Строки имеет проблемную котировку, выявленную при расценке или назначении цен по котировкам
-		fCodeWarn      = 0x0040  // @v8.8.10 Строка имеет товар с проблемой в штрихкоде
+		fQuotProblem   = 0x0020, // @v8.2.0 РЎС‚СЂРѕРєРё РёРјРµРµС‚ РїСЂРѕР±Р»РµРјРЅСѓСЋ РєРѕС‚РёСЂРѕРІРєСѓ, РІС‹СЏРІР»РµРЅРЅСѓСЋ РїСЂРё СЂР°СЃС†РµРЅРєРµ РёР»Рё РЅР°Р·РЅР°С‡РµРЅРёРё С†РµРЅ РїРѕ РєРѕС‚РёСЂРѕРІРєР°Рј
+		fCodeWarn      = 0x0040  // @v8.8.10 РЎС‚СЂРѕРєР° РёРјРµРµС‚ С‚РѕРІР°СЂ СЃ РїСЂРѕР±Р»РµРјРѕР№ РІ С€С‚СЂРёС…РєРѕРґРµ
 	};
 	long   Pos;
 	uint   CodePos;
-	double Rest;        // Остаток заказанного товара (определяется в контексте связанного товарного документа) //
-	double OrderRest;   // Не отгруженное по заказу количество товара                                           //
-	double LinkQtty;    // Количество товара в связанном документе
-	double VatRate;     // Ставка НДС
-	double VatSum;      // Сумма НДС
+	double Rest;        // РћСЃС‚Р°С‚РѕРє Р·Р°РєР°Р·Р°РЅРЅРѕРіРѕ С‚РѕРІР°СЂР° (РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РІ РєРѕРЅС‚РµРєСЃС‚Рµ СЃРІСЏР·Р°РЅРЅРѕРіРѕ С‚РѕРІР°СЂРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°) //
+	double OrderRest;   // РќРµ РѕС‚РіСЂСѓР¶РµРЅРЅРѕРµ РїРѕ Р·Р°РєР°Р·Сѓ РєРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР°                                           //
+	double LinkQtty;    // РљРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР° РІ СЃРІСЏР·Р°РЅРЅРѕРј РґРѕРєСѓРјРµРЅС‚Рµ
+	double VatRate;     // РЎС‚Р°РІРєР° РќР”РЎ
+	double VatSum;      // РЎСѓРјРјР° РќР”РЎ
 	double UnitPerPack; //
 	uint16 Flags;       //
 	int16  RByBill;     //
 };
 
-class BillGoodsBrwItemArray : public SArray {
+class BillGoodsBrwItemArray : public SArray, public SStrGroup {
 public:
-	BillGoodsBrwItemArray() : SArray(sizeof(BillGoodsBrwItem))
+	BillGoodsBrwItemArray() : SArray(sizeof(BillGoodsBrwItem)), P_Item(0), HasUpp(0)
 	{
-		P_Item = 0;
-		CodeList.add("$"); // zero pos is invalid
-		HasUpp = 0;
 	}
-	int    SetRest(long itemPos, double val)
+	void   SetRest(long itemPos, double val)
 	{
-		int    ok = 1;
 		if(GetItemByPos(itemPos)) {
 			P_Item->Rest = val;
 			P_Item->Flags |= BillGoodsBrwItem::fRestInited;
 		}
-		else
-			ok = 0;
-		return ok;
 	}
 	int    GetRest(long itemPos, double * pVal)
 	{
@@ -222,16 +215,12 @@ public:
 			ok = 0;
 		return ok;
 	}
-	int    SetOrderRest(long itemPos, double val)
+	void   SetOrderRest(long itemPos, double val)
 	{
-		int    ok = 1;
 		if(GetItemByPos(itemPos)) {
 			P_Item->OrderRest = val;
 			P_Item->Flags |= BillGoodsBrwItem::fOrdRestInited;
 		}
-		else
-			ok = 0;
-		return ok;
 	}
 	int    GetOrderRest(long itemPos, double * pVal)
 	{
@@ -250,13 +239,7 @@ public:
 	{
 		int    ok = 1;
 		if(GetItemByPos(itemPos)) {
-			if(pCode && *pCode) {
-				uint  code_pos = 0;
-				CodeList.add(pCode, &code_pos);
-				P_Item->CodePos = code_pos;
-			}
-			else
-				P_Item->CodePos = 0;
+			SStrGroup::AddS(pCode, &P_Item->CodePos);
 			P_Item->Flags |= BillGoodsBrwItem::fHasCode;
 		}
 		else
@@ -268,10 +251,7 @@ public:
 		int    ok = 0;
 		if(GetItemByPos(itemPos))
 			if(P_Item->Flags & BillGoodsBrwItem::fHasCode) {
-				if(P_Item->CodePos)
-					CodeList.get(P_Item->CodePos, rBuf);
-				else
-					rBuf.Z();
+				SStrGroup::GetS(P_Item->CodePos, rBuf);
 				ok = 1;
 			}
 			else
@@ -289,8 +269,7 @@ public:
 			ok = 0;
 		return ok;
 	}
-
-	int    HasUpp; // По крайней мере одна строка имеет не нулевую емкость упаковки
+	int    HasUpp; // РџРѕ РєСЂР°Р№РЅРµР№ РјРµСЂРµ РѕРґРЅР° СЃС‚СЂРѕРєР° РёРјРµРµС‚ РЅРµ РЅСѓР»РµРІСѓСЋ РµРјРєРѕСЃС‚СЊ СѓРїР°РєРѕРІРєРё
 private:
 	int    FASTCALL GetItemByPos(long itemPos)
 	{
@@ -298,8 +277,8 @@ private:
 		P_Item = lsearch(&itemPos, &pos, CMPF_LONG) ? (BillGoodsBrwItem *)at(pos) : 0;
 		return BIN(P_Item);
 	}
-	StringSet CodeList;
-	BillGoodsBrwItem * P_Item; // Временный указатель
+	//StringSet CodeList;
+	BillGoodsBrwItem * P_Item; // Р’СЂРµРјРµРЅРЅС‹Р№ СѓРєР°Р·Р°С‚РµР»СЊ
 	LAssocArray CodeStatusList;
 };
 
@@ -372,10 +351,10 @@ static int test_lot(ReceiptTbl::Rec * pLotRec, void * extraPtr)
 	return (pLotRec->LocID == loc_id && !pLotRec->Closed);
 }
 //
-// Эта функция конвертирует товарные строки пакета P_LinkPack таким образом,
-// чтобы товар, оприходованный от поставщика на одну локацию, можно было
-// вернуть с локации loc, на которой он (товар) оказался в результате
-// межскладских перемещений.
+// Р­С‚Р° С„СѓРЅРєС†РёСЏ РєРѕРЅРІРµСЂС‚РёСЂСѓРµС‚ С‚РѕРІР°СЂРЅС‹Рµ СЃС‚СЂРѕРєРё РїР°РєРµС‚Р° P_LinkPack С‚Р°РєРёРј РѕР±СЂР°Р·РѕРј,
+// С‡С‚РѕР±С‹ С‚РѕРІР°СЂ, РѕРїСЂРёС…РѕРґРѕРІР°РЅРЅС‹Р№ РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР° РЅР° РѕРґРЅСѓ Р»РѕРєР°С†РёСЋ, РјРѕР¶РЅРѕ Р±С‹Р»Рѕ
+// РІРµСЂРЅСѓС‚СЊ СЃ Р»РѕРєР°С†РёРё loc, РЅР° РєРѕС‚РѕСЂРѕР№ РѕРЅ (С‚РѕРІР°СЂ) РѕРєР°Р·Р°Р»СЃСЏ РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ
+// РјРµР¶СЃРєР»Р°РґСЃРєРёС… РїРµСЂРµРјРµС‰РµРЅРёР№.
 //
 int BillItemBrowser::ConvertSupplRetLink(PPID locID)
 {
@@ -428,16 +407,9 @@ int BillItemBrowser::subtractRetsFromLinkPack()
 	return ok;
 }
 
-SLAPI BillItemBrowser::ColumnPosBlock::ColumnPosBlock()
+SLAPI BillItemBrowser::ColumnPosBlock::ColumnPosBlock() : 
+	QttyPos(-2), CostPos(-2), PricePos(-2), SerialPos(-2), QuotInfoPos(-2), CodePos(-2), LinkQttyPos(-2), OrdQttyPos(-2)
 {
-	QttyPos = -2;
-	CostPos = -2;
-	PricePos = -2;
-	SerialPos = -2;
-	QuotInfoPos = -2;
-	CodePos = -2;
-	LinkQttyPos = -2;
-	OrdQttyPos = -2;
 }
 
 int SLAPI BillItemBrowser::ColumnPosBlock::IsEmpty() const
@@ -753,20 +725,12 @@ int SLAPI BillItemBrowser::CheckRows()
 }
 
 BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p,
-	PPBillPacket * pMainPack /* Продажа по ордеру */, int pckgPos, int asSelector, int editMode) :
+	PPBillPacket * pMainPack /* РџСЂРѕРґР°Р¶Р° РїРѕ РѕСЂРґРµСЂСѓ */, int pckgPos, int asSelector, int editMode) :
 	AsSelector(asSelector), EditMode(editMode), /*ExpndOnReturn(0), */
-	BrowserWindow(rezID, (/*OrderSelector = ((P_LinkPack = pMainPack) != 0),*/ (SArray *)0))
+	BrowserWindow(rezID, (/*OrderSelector = ((P_LinkPack = pMainPack) != 0),*/ (SArray *)0)),
+	P_BObj(pBObj), P_T(P_BObj->trfr), P_SpcCore(0), P_Pack(p), P_Pckg(0), State(0), OrderBillID(0),
+	NewGoodsGrpID(0), CurLine(-1000), P_LinkPack(pMainPack)
 {
-	P_BObj      = pBObj;
-	P_T         = P_BObj->trfr;
-	P_SpcCore   = 0;
-	P_Pack      = p;
-	P_Pckg      = 0;
-	State       = 0;
-	OrderBillID = 0;
-	NewGoodsGrpID = 0;
-	CurLine = -1000;
-	P_LinkPack = pMainPack;
 	SETFLAG(State, stOrderSelector, P_LinkPack);
 	SETFLAG(State, stAccsCost, P_BObj->CheckRights(BILLRT_ACCSCOST));
 	SETFLAG(State, stAltView, rezID == BROWSER_ID(GOODSITEM_ALTVIEW));
@@ -853,7 +817,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 							THROW(P_Pack->BoundsByLot(p_link_ti->LotID, 0, -1, &rest, 0));
 							if(rest != 0.0) {
 								//
-								// В случае возврата поставщику цены устанавливаем с учетом переоценки
+								// Р’ СЃР»СѓС‡Р°Рµ РІРѕР·РІСЂР°С‚Р° РїРѕСЃС‚Р°РІС‰РёРєСѓ С†РµРЅС‹ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЃ СѓС‡РµС‚РѕРј РїРµСЂРµРѕС†РµРЅРєРё
 								//
 								if(P_LinkPack->OpTypeID == PPOPT_GOODSRECEIPT) {
 									THROW(P_T->GetLotPrices(&rr, P_Pack->Rec.Dt));
@@ -887,8 +851,8 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 	else if(!(State & stOrderSelector)) {
 		P_LinkPack = 0;
 		//
-		// Загружаем пакет связанного документа для того, чтобы показать
-		// количество товара в связанном документе отдельной колонкой
+		// Р—Р°РіСЂСѓР¶Р°РµРј РїР°РєРµС‚ СЃРІСЏР·Р°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РїРѕРєР°Р·Р°С‚СЊ
+		// РєРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР° РІ СЃРІСЏР·Р°РЅРЅРѕРј РґРѕРєСѓРјРµРЅС‚Рµ РѕС‚РґРµР»СЊРЅРѕР№ РєРѕР»РѕРЅРєРѕР№
 		//
 		if(P_Pack->Rec.LinkBillID) {
 			BillTbl::Rec link_rec;
@@ -991,10 +955,10 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 				Total.PhQtty += __q * phuperu;
 		}
 		Total.Qtty  += __q;
-		Total.Price += R2(p_ti->Price * __q); // (см. комментарии ниже)
+		Total.Price += R2(p_ti->Price * __q); // (СЃРј. РєРѕРјРјРµРЅС‚Р°СЂРёРё РЅРёР¶Рµ)
 		if(State & stAccsCost) {
-			Total.Cost += R2(p_ti->Cost * __q); // CalcAmount использует такое же округление, следовательно,
-				// если здесь нет округления, то возникнет разница между номинальной суммой и этим значением)
+			Total.Cost += R2(p_ti->Cost * __q); // CalcAmount РёСЃРїРѕР»СЊР·СѓРµС‚ С‚Р°РєРѕРµ Р¶Рµ РѕРєСЂСѓРіР»РµРЅРёРµ, СЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ,
+				// РµСЃР»Рё Р·РґРµСЃСЊ РЅРµС‚ РѕРєСЂСѓРіР»РµРЅРёСЏ, С‚Рѕ РІРѕР·РЅРёРєРЅРµС‚ СЂР°Р·РЅРёС†Р° РјРµР¶РґСѓ РЅРѕРјРёРЅР°Р»СЊРЅРѕР№ СЃСѓРјРјРѕР№ Рё СЌС‚РёРј Р·РЅР°С‡РµРЅРёРµРј)
 			Total.ExtCost += R2(p_ti->ExtCost * __q);
 		}
 		if(p_ti->Flags & PPTFR_REVAL) {
@@ -1145,39 +1109,39 @@ int SLAPI BillItemBrowser::CalcShippedQtty(BillGoodsBrwItem * pItem, BillGoodsBr
 }
 
 //
-// Порядок следования полей броузера товарных строк документа:
-//  0 - Номер строки (в порядке, в котором строки расположены в документе 1..) *
-//  1 - Наименование товара                            *
-//  2 - Количество                                     *
-//  3 - Цена поступления //                            *
-//  4 - Цена реализации  //                            *
-//  5 - Скидка                                         *
-//  6 - Сумма по строке                                *
-//  7 - Физическое количество                          *
-//  8 - Старая цена поступления (для переоценки)       *
-//  9 - Старая цена реализации (для переоценки)        *
-// 10 - Валютная цена                                  *
-// 11 - Валютная сумма                                 *
-// 12 - Налоговая группа                               *
-// 13 - Ставка НДС                                     *
-// 14 - Сумма НДС                                      *
-// 15 - Срок годности                                  *
-// 16 - Штрихкод (серийный номер или артикул)          *
-// 17 - Признак "Цена поступления без НДС"             *
-// 18 - Признак "Цена реализации без налогов"          *
-// 19 - Отгружено по заказу                            *
-// 20 - Остаток                                        *
-// 21 - Масса брутто (на все количество)
-// 22 - Объем (на все количество)
-// 23 - Связанное количество                           *
-// 24 - Остаток по заказу
-// 25 - Распределенная себестоимость (ExtCost)
-// 26 - Складская ячейка
-// 27 - Штрихкод       (поле 16 показывает ЛИБО штрихкод, ЛИБО серию в зависимости от настройки)
-// 28 - Серийный номер (поле 16 показывает ЛИБО штрихкод, ЛИБО серию в зависимости от настройки)
-// 29 - Количество в упаковках
-// 30 - Информация об установленной котировке @v8.2.0
-// 31 - Заказанное количество (для документов отгрузки) @v9.1.1
+// РџРѕСЂСЏРґРѕРє СЃР»РµРґРѕРІР°РЅРёСЏ РїРѕР»РµР№ Р±СЂРѕСѓР·РµСЂР° С‚РѕРІР°СЂРЅС‹С… СЃС‚СЂРѕРє РґРѕРєСѓРјРµРЅС‚Р°:
+//  0 - РќРѕРјРµСЂ СЃС‚СЂРѕРєРё (РІ РїРѕСЂСЏРґРєРµ, РІ РєРѕС‚РѕСЂРѕРј СЃС‚СЂРѕРєРё СЂР°СЃРїРѕР»РѕР¶РµРЅС‹ РІ РґРѕРєСѓРјРµРЅС‚Рµ 1..) *
+//  1 - РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР°                            *
+//  2 - РљРѕР»РёС‡РµСЃС‚РІРѕ                                     *
+//  3 - Р¦РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //                            *
+//  4 - Р¦РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё  //                            *
+//  5 - РЎРєРёРґРєР°                                         *
+//  6 - РЎСѓРјРјР° РїРѕ СЃС‚СЂРѕРєРµ                                *
+//  7 - Р¤РёР·РёС‡РµСЃРєРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ                          *
+//  8 - РЎС‚Р°СЂР°СЏ С†РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ (РґР»СЏ РїРµСЂРµРѕС†РµРЅРєРё)       *
+//  9 - РЎС‚Р°СЂР°СЏ С†РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё (РґР»СЏ РїРµСЂРµРѕС†РµРЅРєРё)        *
+// 10 - Р’Р°Р»СЋС‚РЅР°СЏ С†РµРЅР°                                  *
+// 11 - Р’Р°Р»СЋС‚РЅР°СЏ СЃСѓРјРјР°                                 *
+// 12 - РќР°Р»РѕРіРѕРІР°СЏ РіСЂСѓРїРїР°                               *
+// 13 - РЎС‚Р°РІРєР° РќР”РЎ                                     *
+// 14 - РЎСѓРјРјР° РќР”РЎ                                      *
+// 15 - РЎСЂРѕРє РіРѕРґРЅРѕСЃС‚Рё                                  *
+// 16 - РЁС‚СЂРёС…РєРѕРґ (СЃРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ РёР»Рё Р°СЂС‚РёРєСѓР»)          *
+// 17 - РџСЂРёР·РЅР°Рє "Р¦РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ Р±РµР· РќР”РЎ"             *
+// 18 - РџСЂРёР·РЅР°Рє "Р¦РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё Р±РµР· РЅР°Р»РѕРіРѕРІ"          *
+// 19 - РћС‚РіСЂСѓР¶РµРЅРѕ РїРѕ Р·Р°РєР°Р·Сѓ                            *
+// 20 - РћСЃС‚Р°С‚РѕРє                                        *
+// 21 - РњР°СЃСЃР° Р±СЂСѓС‚С‚Рѕ (РЅР° РІСЃРµ РєРѕР»РёС‡РµСЃС‚РІРѕ)
+// 22 - РћР±СЉРµРј (РЅР° РІСЃРµ РєРѕР»РёС‡РµСЃС‚РІРѕ)
+// 23 - РЎРІСЏР·Р°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ                           *
+// 24 - РћСЃС‚Р°С‚РѕРє РїРѕ Р·Р°РєР°Р·Сѓ
+// 25 - Р Р°СЃРїСЂРµРґРµР»РµРЅРЅР°СЏ СЃРµР±РµСЃС‚РѕРёРјРѕСЃС‚СЊ (ExtCost)
+// 26 - РЎРєР»Р°РґСЃРєР°СЏ СЏС‡РµР№РєР°
+// 27 - РЁС‚СЂРёС…РєРѕРґ       (РїРѕР»Рµ 16 РїРѕРєР°Р·С‹РІР°РµС‚ Р›РР‘Рћ С€С‚СЂРёС…РєРѕРґ, Р›РР‘Рћ СЃРµСЂРёСЋ РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РЅР°СЃС‚СЂРѕР№РєРё)
+// 28 - РЎРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ (РїРѕР»Рµ 16 РїРѕРєР°Р·С‹РІР°РµС‚ Р›РР‘Рћ С€С‚СЂРёС…РєРѕРґ, Р›РР‘Рћ СЃРµСЂРёСЋ РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РЅР°СЃС‚СЂРѕР№РєРё)
+// 29 - РљРѕР»РёС‡РµСЃС‚РІРѕ РІ СѓРїР°РєРѕРІРєР°С…
+// 30 - РРЅС„РѕСЂРјР°С†РёСЏ РѕР± СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕР№ РєРѕС‚РёСЂРѕРІРєРµ @v8.2.0
+// 31 - Р—Р°РєР°Р·Р°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ (РґР»СЏ РґРѕРєСѓРјРµРЅС‚РѕРІ РѕС‚РіСЂСѓР·РєРё) @v9.1.1
 //
 
 int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
@@ -1208,7 +1172,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			}
 			double real_val = 0.0;
 			switch(pBlk->ColumnN) {
-				case 0: // Номер строки
+				case 0: // РќРѕРјРµСЂ СЃС‚СЂРѕРєРё
 					if(is_total)
 						ok = 0;
 					// @v8.0.3 {
@@ -1218,13 +1182,13 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					else
 						pBlk->Set((int32)(p_item->Pos+1));
 					break;
-				case 1: // Наименование товара
+				case 1: // РќР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР°
 					if(is_total)
 						pBlk->Set(Total.Text);
 					else
 						pBlk->Set(ClGoodsRec.Name);
 					break;
-				case 2: // Количество по строке
+				case 2: // РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕ СЃС‚СЂРѕРєРµ
 					if(is_total)
 						pBlk->Set(Total.Qtty);
 					else if(p_ti->IsCorrectionExp())
@@ -1232,26 +1196,26 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					else
 						pBlk->Set(p_ti->SQtty(P_Pack->Rec.OpID));
 					break;
-				case 3: // Учетная цена поступления по строке (на одну единицу)
+				case 3: // РЈС‡РµС‚РЅР°СЏ С†РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ РїРѕ СЃС‚СЂРѕРєРµ (РЅР° РѕРґРЅСѓ РµРґРёРЅРёС†Сѓ)
 					if(State & stAccsCost)
 						pBlk->Set(is_total ? Total.Cost : p_ti->Cost);
 					else
 						ok = 0;
 					break;
-				case 4: // Учетная цена реализации по строке (на одну единицу)
+				case 4: // РЈС‡РµС‚РЅР°СЏ С†РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё РїРѕ СЃС‚СЂРѕРєРµ (РЅР° РѕРґРЅСѓ РµРґРёРЅРёС†Сѓ)
 					pBlk->Set(is_total ? Total.Price : p_ti->Price);
 					break;
-				case 5: // Скидка по строке (на одну единицу)
+				case 5: // РЎРєРёРґРєР° РїРѕ СЃС‚СЂРѕРєРµ (РЅР° РѕРґРЅСѓ РµРґРёРЅРёС†Сѓ)
 					pBlk->Set(is_total ? Total.Discount : p_ti->Discount);
 					break;
-				case 6: // Сумма по строке
+				case 6: // РЎСѓРјРјР° РїРѕ СЃС‚СЂРѕРєРµ
 					if(is_total)
 						real_val = Total.Amount;
 					else
 						real_val = p_ti->CurID ? p_ti->CalcCurAmount() : p_ti->CalcAmount(!(State & stAccsCost));
 					pBlk->Set(real_val);
 					break;
-				case 7: // Физическое количество
+				case 7: // Р¤РёР·РёС‡РµСЃРєРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ
 					if(is_total)
 						real_val = Total.PhQtty;
 					else if(p_ti->Flags & PPTFR_INDEPPHQTTY)
@@ -1260,13 +1224,13 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						real_val *= p_ti->SQtty(P_Pack->Rec.OpID);
 					pBlk->Set(real_val);
 					break;
-				case 8:  // Старая цена поступления (для переоценки) //
+				case 8:  // РЎС‚Р°СЂР°СЏ С†РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ (РґР»СЏ РїРµСЂРµРѕС†РµРЅРєРё) //
 					if(p_ti->Flags & PPTFR_REVAL)
 						pBlk->Set(p_ti->Quantity_);
 					else
 						ok = 0;
 					break;
-				case 9:  // Старая цена реализации (для переоценки)  //
+				case 9:  // РЎС‚Р°СЂР°СЏ С†РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё (РґР»СЏ РїРµСЂРµРѕС†РµРЅРєРё)  //
 					if(is_total)
 						pBlk->Set(Total.OldPrice);
 					else if(p_ti->Flags & PPTFR_REVAL) {
@@ -1279,7 +1243,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					else
 						ok = 0;
 					break;
-				case 10: // Валютная цена
+				case 10: // Р’Р°Р»СЋС‚РЅР°СЏ С†РµРЅР°
 					if(is_total)
 						ok = 0;
 					else {
@@ -1288,14 +1252,14 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						pBlk->Set(real_val);
 					}
 					break;
-				case 11: // Валютная сумма
+				case 11: // Р’Р°Р»СЋС‚РЅР°СЏ СЃСѓРјРјР°
 					if(is_total)
 						real_val = Total.CurAmount;
 					else if(!(p_ti->Flags & PPTFR_REVAL) && p_ti->CurID)
 						real_val = p_ti->CurPrice * p_ti->SQtty(P_Pack->Rec.OpID);
 					pBlk->Set(real_val);
 					break;
-				case 12: // Налоговая группа
+				case 12: // РќР°Р»РѕРіРѕРІР°СЏ РіСЂСѓРїРїР°
 					if(is_total)
 						ok = 0;
 					else {
@@ -1303,7 +1267,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						pBlk->TempBuf.CopyTo((char *)pBlk->P_DestData, stsize(pBlk->TypeID));
 					}
 					break;
-				case 13: // Ставка НДС
+				case 13: // РЎС‚Р°РІРєР° РќР”РЎ
 					if(!is_total && p_list) {
 						int    r = p_list->GetVat(p_item->Pos, &real_val, 0);
 						if(r > 0)
@@ -1314,7 +1278,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					else
 						ok = 0;
 					break;
-				case 14: // Сумма НДС
+				case 14: // РЎСѓРјРјР° РќР”РЎ
 					if(is_total)
 						pBlk->Set(Total.VatSum);
 					else if(p_list) {
@@ -1327,13 +1291,13 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					else
 						ok = 0;
 					break;
-				case 15: // Срок годности
+				case 15: // РЎСЂРѕРє РіРѕРґРЅРѕСЃС‚Рё
 					if(!is_total)
 						pBlk->Set(p_ti->Expiry);
 					else
 						ok = 0;
 					break;
-				case 16: // Штрихкод или серийный номер или артикул
+				case 16: // РЁС‚СЂРёС…РєРѕРґ РёР»Рё СЃРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ РёР»Рё Р°СЂС‚РёРєСѓР»
 					if(!is_total && p_list) {
 						if(P_BObj->Cfg.Flags & BCF_SHOWBARCODESINGBLINES) {
 							if(p_list->GetCode(p_item->Pos, pBlk->TempBuf) < 0) {
@@ -1367,7 +1331,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					else
 						ok = 0;
 					break;
-				case 19: // Отгружено по заказу
+				case 19: // РћС‚РіСЂСѓР¶РµРЅРѕ РїРѕ Р·Р°РєР°Р·Сѓ
 					if(is_total)
 						pBlk->Set(Total.ShippedQtty);
 					else {
@@ -1375,7 +1339,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						pBlk->Set(real_val);
 					}
 					break;
-				case 20: // Остаток
+				case 20: // РћСЃС‚Р°С‚РѕРє
 					if(is_total)
 						ok = 0;
 					else {
@@ -1393,7 +1357,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						pBlk->Set(real_val);
 					}
 					break;
-				case 23: // Связанное количество
+				case 23: // РЎРІСЏР·Р°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ
 					if(!is_total) {
 						real_val = GetLinkQtty(*p_ti);
 						pBlk->Set(real_val);
@@ -1401,7 +1365,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					else
 						pBlk->Set(Total.LinkQtty);
 					break;
-				case 24: // Остаток по заказу
+				case 24: // РћСЃС‚Р°С‚РѕРє РїРѕ Р·Р°РєР°Р·Сѓ
 					if(is_total)
 						pBlk->Set(Total.OrderRest);
 					else {
@@ -1410,13 +1374,13 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						pBlk->Set(real_val);
 					}
 					break;
-				case 25: // Распределенная себестоимость
+				case 25: // Р Р°СЃРїСЂРµРґРµР»РµРЅРЅР°СЏ СЃРµР±РµСЃС‚РѕРёРјРѕСЃС‚СЊ
 					if(is_total)
 						pBlk->Set(Total.ExtCost);
 					else
 						pBlk->Set(p_ti->ExtCost);
 					break;
-				case 26: // Складская ячейка
+				case 26: // РЎРєР»Р°РґСЃРєР°СЏ СЏС‡РµР№РєР°
 					if(is_total)
 						pBlk->SetZero();
 					else {
@@ -1424,7 +1388,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						pBlk->Set(temp_buf);
 					}
 					break;
-				case 27: // Штрихкод
+				case 27: // РЁС‚СЂРёС…РєРѕРґ
 					if(is_total)
 						pBlk->SetZero();
 					else {
@@ -1432,7 +1396,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						pBlk->Set(temp_buf);
 					}
 					break;
-				case 28: // Серийный номер
+				case 28: // РЎРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ
 					if(is_total)
 						pBlk->SetZero();
 					else {
@@ -1453,7 +1417,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					else
 						pBlk->SetZero();
 					break;
-				case 30: // Информация об установленной котировке
+				case 30: // РРЅС„РѕСЂРјР°С†РёСЏ РѕР± СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕР№ РєРѕС‚РёСЂРѕРІРєРµ
 					if(is_total)
 						pBlk->SetZero();
 					else {
@@ -1471,7 +1435,7 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 							pBlk->SetZero();
 					}
 					break;
-				case 31: // Заказанное количество (для документов отгрузки)
+				case 31: // Р—Р°РєР°Р·Р°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ (РґР»СЏ РґРѕРєСѓРјРµРЅС‚РѕРІ РѕС‚РіСЂСѓР·РєРё)
 					if(is_total) {
 						pBlk->Set(Total.OrderQtty);
 					}
@@ -1493,9 +1457,8 @@ double FASTCALL BillItemBrowser::GetLinkQtty(const PPTransferItem & rTi) const
 	double result = 0.0;
 	if(P_LinkPack) {
 		const PPID goods_id = labs(rTi.GoodsID);
-		for(uint pos = 0; P_LinkPack->SearchGoods(goods_id, &pos); pos++) {
+		for(uint pos = 0; P_LinkPack->SearchGoods(goods_id, &pos); pos++)
 			result += fabs(P_LinkPack->ConstTI(pos).Qtty());
-		}
 	}
 	return result;
 }
@@ -1550,7 +1513,7 @@ void BillItemBrowser::update(int pos)
 					}
 				}
 				else {
-					/* @v9.2.5 Опасная операция - может повлечь вылет сеанса - надо доработать removeColumn
+					/* @v9.2.5 РћРїР°СЃРЅР°СЏ РѕРїРµСЂР°С†РёСЏ - РјРѕР¶РµС‚ РїРѕРІР»РµС‡СЊ РІС‹Р»РµС‚ СЃРµР°РЅСЃР° - РЅР°РґРѕ РґРѕСЂР°Р±РѕС‚Р°С‚СЊ removeColumn
 					if(ext_cost_col >= 0) {
 						view->removeColumn(ext_cost_col);
 					}
@@ -1568,7 +1531,7 @@ void BillItemBrowser::update(int pos)
 					}
 				}
 				else {
-					/* @v9.2.5 Опасная операция - может повлечь вылет сеанса - надо доработать removeColumn
+					/* @v9.2.5 РћРїР°СЃРЅР°СЏ РѕРїРµСЂР°С†РёСЏ - РјРѕР¶РµС‚ РїРѕРІР»РµС‡СЊ РІС‹Р»РµС‚ СЃРµР°РЅСЃР° - РЅР°РґРѕ РґРѕСЂР°Р±РѕС‚Р°С‚СЊ removeColumn
 					if(ordqtty_col >= 0) {
 						view->removeColumn(ordqtty_col);
 					}
@@ -1582,7 +1545,7 @@ void BillItemBrowser::update(int pos)
 					}
 				}
 				else {
-					/* @v9.2.5 Опасная операция - может повлечь вылет сеанса - надо доработать removeColumn
+					/* @v9.2.5 РћРїР°СЃРЅР°СЏ РѕРїРµСЂР°С†РёСЏ - РјРѕР¶РµС‚ РїРѕРІР»РµС‡СЊ РІС‹Р»РµС‚ СЃРµР°РЅСЃР° - РЅР°РґРѕ РґРѕСЂР°Р±РѕС‚Р°С‚СЊ removeColumn
 					if(setup_quot_info_col >= 0) {
 						view->removeColumn(setup_quot_info_col);
 					}
@@ -1657,7 +1620,7 @@ int BillItemBrowser::_moveItem(int srcRowIdx)
 int BillItemBrowser::_moveItem2(int srcRowIdx)
 {
 	int    ok = 1;
-	// Признак корректировки расходного документа
+	// РџСЂРёР·РЅР°Рє РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРё СЂР°СЃС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°
 	const  int is_exp_correction = BIN(P_Pack->OpTypeID == PPOPT_CORRECTION && P_LinkPack->OpTypeID == PPOPT_GOODSEXPEND);
 	uint   i = 0;
 	int    s = 0;
@@ -1711,12 +1674,12 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 					new_ti.QuotPrice = fabs(org_qtty);
 				}
 				else {
-					// @todo Здесь надо как-то отреагировать (в лог что-то написать или что-то в этом роде)
+					// @todo Р—РґРµСЃСЊ РЅР°РґРѕ РєР°Рє-С‚Рѕ РѕС‚СЂРµР°РіРёСЂРѕРІР°С‚СЊ (РІ Р»РѕРі С‡С‚Рѕ-С‚Рѕ РЅР°РїРёСЃР°С‚СЊ РёР»Рё С‡С‚Рѕ-С‚Рѕ РІ СЌС‚РѕРј СЂРѕРґРµ)
 				}
 			}
 			// @v9.5.9 new_ti.TFlags |= PPTransferItem::tfForceNew;
 		}
-		new_ti.TFlags |= PPTransferItem::tfForceNew; // @v9.5.9 // Так как в вызове PPTransferItem::Init парам zeroRByBill == 0, данный флаг должен быть безусловно
+		new_ti.TFlags |= PPTransferItem::tfForceNew; // @v9.5.9 // РўР°Рє РєР°Рє РІ РІС‹Р·РѕРІРµ PPTransferItem::Init РїР°СЂР°Рј zeroRByBill == 0, РґР°РЅРЅС‹Р№ С„Р»Р°Рі РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±РµР·СѓСЃР»РѕРІРЅРѕ
 		// } @v9.4.3
 		if(r_ti.LotID && P_T->Rcpt.Search(r_ti.LotID, &rr) > 0 && P_T->GetLotPrices(&rr, P_Pack->Rec.Dt)) {
 			new_ti.Cost = R5(rr.Cost);
@@ -1745,7 +1708,7 @@ int BillItemBrowser::addItemByOrder(PPBillPacket * pOrderPack, int line)
 		PPID     loc_id = P_Pack->Rec.LocID;
 		DateIter diter;
 		double   rest, qtty;
-		double   reserve = 0.0; // Количество, занятое резервирующими заказами
+		double   reserve = 0.0; // РљРѕР»РёС‡РµСЃС‚РІРѕ, Р·Р°РЅСЏС‚РѕРµ СЂРµР·РµСЂРІРёСЂСѓСЋС‰РёРјРё Р·Р°РєР°Р·Р°РјРё
 		PPTransferItem ti, * tmp_sti = 0;
 		PPTransferItem * p_ord_item = & pOrderPack->TI(line);
 		PPID     goods_id = labs(p_ord_item->GoodsID);
@@ -1757,9 +1720,9 @@ int BillItemBrowser::addItemByOrder(PPBillPacket * pOrderPack, int line)
 			uint   i;
 			//
 			// @v7.0.0 {
-			// Если данная отгрузка осуществляется по резервирующему заказу, то
-			// не проверяем наличие других резервирующих заказов на этот товар:
-			// действует правило "кто первый встал - того и сапоги".
+			// Р•СЃР»Рё РґР°РЅРЅР°СЏ РѕС‚РіСЂСѓР·РєР° РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РїРѕ СЂРµР·РµСЂРІРёСЂСѓСЋС‰РµРјСѓ Р·Р°РєР°Р·Сѓ, С‚Рѕ
+			// РЅРµ РїСЂРѕРІРµСЂСЏРµРј РЅР°Р»РёС‡РёРµ РґСЂСѓРіРёС… СЂРµР·РµСЂРІРёСЂСѓСЋС‰РёС… Р·Р°РєР°Р·РѕРІ РЅР° СЌС‚РѕС‚ С‚РѕРІР°СЂ:
+			// РґРµР№СЃС‚РІСѓРµС‚ РїСЂР°РІРёР»Рѕ "РєС‚Рѕ РїРµСЂРІС‹Р№ РІСЃС‚Р°Р» - С‚РѕРіРѕ Рё СЃР°РїРѕРіРё".
 			//
 			int    i_am_reserve_order = 0;
 			{
@@ -1770,9 +1733,9 @@ int BillItemBrowser::addItemByOrder(PPBillPacket * pOrderPack, int line)
 			if(!i_am_reserve_order) {
 			// } @v7.0.0
 				//
-				// Уменьшаем отгружаемое количество на величину зарезервированного
-				// товара (резервирующий заказ не принадлежит данному контрагенту и
-				// не является собственно заказом, по которому осуществляется данная отгрузка.
+				// РЈРјРµРЅСЊС€Р°РµРј РѕС‚РіСЂСѓР¶Р°РµРјРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РЅР° РІРµР»РёС‡РёРЅСѓ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅРѕРіРѕ
+				// С‚РѕРІР°СЂР° (СЂРµР·РµСЂРІРёСЂСѓСЋС‰РёР№ Р·Р°РєР°Р· РЅРµ РїСЂРёРЅР°РґР»РµР¶РёС‚ РґР°РЅРЅРѕРјСѓ РєРѕРЅС‚СЂР°РіРµРЅС‚Сѓ Рё
+				// РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃРѕР±СЃС‚РІРµРЅРЅРѕ Р·Р°РєР°Р·РѕРј, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РґР°РЅРЅР°СЏ РѕС‚РіСЂСѓР·РєР°.
 				//
 				P_T->Rcpt.GetListOfOpenedLots(-1, -goods_id, loc_id, MAXDATE, &lot_list);
 				for(i = 0; i < lot_list.getCount(); i++) {
@@ -1791,7 +1754,7 @@ int BillItemBrowser::addItemByOrder(PPBillPacket * pOrderPack, int line)
 				THROW(P_Pack->BoundsByLot(r_lot_rec.ID, 0, -1, &rest, 0));
 				if(reserve > 0.0) {
 					//
-					// Снижаем доступный остаток на величину резерва.
+					// РЎРЅРёР¶Р°РµРј РґРѕСЃС‚СѓРїРЅС‹Р№ РѕСЃС‚Р°С‚РѕРє РЅР° РІРµР»РёС‡РёРЅСѓ СЂРµР·РµСЂРІР°.
 					//
 					const double decr = MIN(rest, reserve);
 					rest -= decr;
@@ -1831,8 +1794,8 @@ int BillItemBrowser::addItemByOrder(PPBillPacket * pOrderPack, int line)
 					ti.Flags   |= PPTFR_ONORDER;
 					ti.Quantity_ = rest;
 					//
-					// После двух следующих строк индекс j правильно указывает
-					// позицию строки теневого документа, которой соответствует наша новая строка
+					// РџРѕСЃР»Рµ РґРІСѓС… СЃР»РµРґСѓСЋС‰РёС… СЃС‚СЂРѕРє РёРЅРґРµРєСЃ j РїСЂР°РІРёР»СЊРЅРѕ СѓРєР°Р·С‹РІР°РµС‚
+					// РїРѕР·РёС†РёСЋ СЃС‚СЂРѕРєРё С‚РµРЅРµРІРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°, РєРѕС‚РѕСЂРѕР№ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РЅР°С€Р° РЅРѕРІР°СЏ СЃС‚СЂРѕРєР°
 					//
 					if(!P_Pack->SearchShLot(ti.OrdLotID, &(j = 0))) // @ordlotid
 						THROW(P_Pack->AddShadowItem(p_ord_item, &j));
@@ -1993,7 +1956,7 @@ void BillItemBrowser::addItem(int fromOrder, TIDlgInitData * pInitData, int sign
 		}
 	}
 	//
-	// Возврат товара
+	// Р’РѕР·РІСЂР°С‚ С‚РѕРІР°СЂР°
 	//
 	else if(State & stUseLinkSelection && P_LinkPack) {
 		uint   res_id = (LConfig.Flags & CFGFLG_SHOWPHQTTY) ? BROWSER_ID(GOODSITEMPH_W) : BROWSER_ID(GOODSITEM_W);
@@ -2239,7 +2202,7 @@ void BillItemBrowser::editItem()
 			while(!valid_data && EditTransferItem(P_Pack, (int) c, &tidi, 0) == cmOK) {
 				valid_data = 1;
 				//
-				// Проверка на то, чтобы возврат не превышал взятое количество
+				// РџСЂРѕРІРµСЂРєР° РЅР° С‚Рѕ, С‡С‚РѕР±С‹ РІРѕР·РІСЂР°С‚ РЅРµ РїСЂРµРІС‹С€Р°Р» РІР·СЏС‚РѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ
 				//
 				if(P_Pack->OpTypeID == PPOPT_GOODSRETURN && P_LinkPack) {
 					double expend = 0.0;
@@ -2271,9 +2234,9 @@ void BillItemBrowser::editItem()
 			}
 		}
 		//
-		// Если окно работает как селектор и является модальным,
-		// то переменной AsSelector присваиваем номер выбранного
-		// элемента и закрываем окно.
+		// Р•СЃР»Рё РѕРєРЅРѕ СЂР°Р±РѕС‚Р°РµС‚ РєР°Рє СЃРµР»РµРєС‚РѕСЂ Рё СЏРІР»СЏРµС‚СЃСЏ РјРѕРґР°Р»СЊРЅС‹Рј,
+		// С‚Рѕ РїРµСЂРµРјРµРЅРЅРѕР№ AsSelector РїСЂРёСЃРІР°РёРІР°РµРј РЅРѕРјРµСЂ РІС‹Р±СЂР°РЅРЅРѕРіРѕ
+		// СЌР»РµРјРµРЅС‚Р° Рё Р·Р°РєСЂС‹РІР°РµРј РѕРєРЅРѕ.
 		//
 		else if(IsInState(sfModal)) {
 			AsSelector = c;
@@ -2307,7 +2270,7 @@ void BillItemBrowser::delItem()
 		int16  cur_view_pos = (int16)view->getDef()->_curItem();
 		if(c >= 0 && (!(LConfig.Flags & CFGFLG_CONFGBROWRMV) || CONFIRM(PPCFM_DELETE))) {
 			//
-			// Проверяем, можно ли будет провести документ с заявленным удалением
+			// РџСЂРѕРІРµСЂСЏРµРј, РјРѕР¶РЅРѕ Р»Рё Р±СѓРґРµС‚ РїСЂРѕРІРµСЃС‚Рё РґРѕРєСѓРјРµРЅС‚ СЃ Р·Р°СЏРІР»РµРЅРЅС‹Рј СѓРґР°Р»РµРЅРёРµРј
 			//
 			PPTransferItem * p_ti = &P_Pack->TI((uint)c);
 			double qtty = fabs(p_ti->Quantity_);
@@ -2324,15 +2287,15 @@ void BillItemBrowser::delItem()
 					THROW(checkForward(p_ti, P_Pack->Rec.Dt, 0));
 				}
 				//
-				// Если документ передачи по межскладу, то проверяем лот,
-				// созданный зеркальной проводкой.
+				// Р•СЃР»Рё РґРѕРєСѓРјРµРЅС‚ РїРµСЂРµРґР°С‡Рё РїРѕ РјРµР¶СЃРєР»Р°РґСѓ, С‚Рѕ РїСЂРѕРІРµСЂСЏРµРј Р»РѕС‚,
+				// СЃРѕР·РґР°РЅРЅС‹Р№ Р·РµСЂРєР°Р»СЊРЅРѕР№ РїСЂРѕРІРѕРґРєРѕР№.
 				//
 				else if(IsIntrExpndOp(P_Pack->Rec.OpID)) {
 					THROW(checkForward(p_ti, P_Pack->Rec.Dt, 1));
 				}
 			}
 			//
-			// Если есть связанный документ то отмечаем в нем удаление
+			// Р•СЃР»Рё РµСЃС‚СЊ СЃРІСЏР·Р°РЅРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚ С‚Рѕ РѕС‚РјРµС‡Р°РµРј РІ РЅРµРј СѓРґР°Р»РµРЅРёРµ
 			//
 			if(P_LinkPack) {
 				goods_id = p_ti->GoodsID;
@@ -2347,8 +2310,8 @@ void BillItemBrowser::delItem()
 					}
 			}
 			//
-			// Если удаляемая строка имеет теневую строку, на которую не ссылается //
-			// больше ни одна строка, то теневую строку удаляем
+			// Р•СЃР»Рё СѓРґР°Р»СЏРµРјР°СЏ СЃС‚СЂРѕРєР° РёРјРµРµС‚ С‚РµРЅРµРІСѓСЋ СЃС‚СЂРѕРєСѓ, РЅР° РєРѕС‚РѕСЂСѓСЋ РЅРµ СЃСЃС‹Р»Р°РµС‚СЃСЏ //
+			// Р±РѕР»СЊС€Рµ РЅРё РѕРґРЅР° СЃС‚СЂРѕРєР°, С‚Рѕ С‚РµРЅРµРІСѓСЋ СЃС‚СЂРѕРєСѓ СѓРґР°Р»СЏРµРј
 			//
 			p_ti = &P_Pack->TI((uint)c);
 			id = (p_ti->Flags & PPTFR_ONORDER && P_Pack->P_ShLots) ? p_ti->OrdLotID : 0; // @ordlotid
@@ -2459,7 +2422,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 		if(event.isCmd(cmExecute)) {
 			if((State & stActivateNewRow) && !EditMode)
 				addItem();
-			// Далее управление передается базовому классу
+			// Р”Р°Р»РµРµ СѓРїСЂР°РІР»РµРЅРёРµ РїРµСЂРµРґР°РµС‚СЃСЏ Р±Р°Р·РѕРІРѕРјСѓ РєР»Р°СЃСЃСѓ
 		}
 		BrowserWindow::handleEvent(event);
 		if(TVCOMMAND && EditMode < 2) {
@@ -2503,7 +2466,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 					if(AsSelector && IsInState(sfModal)) {
 						AsSelector = -1;
 						endModal(cmOK);
-						return; // После endModal не следует обращаться к this
+						return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 					}
 					break;
 				case kbF2:
@@ -2585,7 +2548,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
                         EVENT_BARRIER(addItemBySerial());
 					}
 					break;
-				case kbF5: // Подбор товара по цене
+				case kbF5: // РџРѕРґР±РѕСЂ С‚РѕРІР°СЂР° РїРѕ С†РµРЅРµ
 					if(EditMode < 2) {
                         EVENT_BARRIER(addItemExt(2));
 					}
@@ -2871,8 +2834,8 @@ int BillItemBrowser::isAllGoodsInPckg(PPID goodsID)
 {
 	int    all_lots_in_pckg = 0;
 	//
-	// Проверка на то, чтобы хотя бы один лот товара был не в пакете
-	// Если весь товар в пакетах, то предлагаем выбрать пакет
+	// РџСЂРѕРІРµСЂРєР° РЅР° С‚Рѕ, С‡С‚РѕР±С‹ С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ Р»РѕС‚ С‚РѕРІР°СЂР° Р±С‹Р» РЅРµ РІ РїР°РєРµС‚Рµ
+	// Р•СЃР»Рё РІРµСЃСЊ С‚РѕРІР°СЂ РІ РїР°РєРµС‚Р°С…, С‚Рѕ РїСЂРµРґР»Р°РіР°РµРј РІС‹Р±СЂР°С‚СЊ РїР°РєРµС‚
 	//
 	if(goodsID && (CConfig.Flags & CCFLG_USEGOODSPCKG) && !oneof2(P_Pack->OpTypeID, PPOPT_GOODSORDER, PPOPT_GOODSRECEIPT)) {
 		LotArray lot_list;
@@ -3214,11 +3177,8 @@ int SLAPI PPObjBill::AddPckgToBillPacket(PPID pckgID, PPBillPacket * pPack)
 class CompleteBrowser : public BrowserWindow {
 public:
 	CompleteBrowser(PPObjBill * pBObj, const CompleteArray * s, int asSelector) :
-		AsSelector(asSelector), BrowserWindow(BROWSER_COMPLETE, (SArray *)0), Data(*s)
+		AsSelector(asSelector), BrowserWindow(BROWSER_COMPLETE, (SArray *)0), Data(*s), P_BObj(pBObj), CmplAryPos(0), SelectedPos(-1)
 	{
-		P_BObj = pBObj;
-		CmplAryPos  =  0;
-		SelectedPos = -1;
 		AryBrowserDef * p_def = (AryBrowserDef *)view->getDef();
 		if(p_def) {
 			p_def->setArray(0, 0, 1);
@@ -3330,7 +3290,7 @@ IMPL_HANDLE_EVENT(CompleteBrowser)
 			if(IsInState(sfModal)) {
 				SelectedPos = (int)view->getDef()->_curItem();
 				endModal(cmOK);
-				return; // После endModal не следует обращаться к this
+				return; // РџРѕСЃР»Рµ endModal РЅРµ СЃР»РµРґСѓРµС‚ РѕР±СЂР°С‰Р°С‚СЊСЃСЏ Рє this
 			}
 		}
 		else {

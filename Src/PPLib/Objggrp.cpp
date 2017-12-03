@@ -654,11 +654,13 @@ static long FASTCALL GetSelBias(long p)
 //
 //
 //
-GoodsGroupView::GoodsGroupView(PPObjGoodsGroup * _ppobj) : PPListDialog(DLG_GGVIEW, CTL_GGVIEW_LIST), CurIterID(0), P_Iter(0)
+GoodsGroupView::GoodsGroupView(PPObjGoodsGroup * _ppobj) : PPListDialog(DLG_GGVIEW, CTL_GGVIEW_LIST)
 {
 	setupList();
 	setupButtons();
 	Draw_();
+	CurIterID = 0;
+	P_Iter = 0;
 }
 
 GoodsGroupView::~GoodsGroupView()
@@ -1180,11 +1182,8 @@ int SLAPI PPObjPckgType::CodeByTemplate(const char * pTempl, long counter, char 
 //
 // @ModuleDef(PPObjTransport)
 //
-SLAPI PPTransportConfig::PPTransportConfig()
+SLAPI PPTransportConfig::PPTransportConfig() : Flags(0), OwnerKindID(0), CaptainKindID(0)
 {
-	Flags = 0;
-	OwnerKindID = 0;
-	CaptainKindID = 0;
 }
 
 int FASTCALL PPTransportConfig::operator == (const PPTransportConfig & rS) const
@@ -1508,10 +1507,9 @@ int SLAPI PPObjTransport::Browse(void * extraPtr)
 
 class TransportDialog : public TDialog {
 public:
-	TransportDialog(uint dlgID) : TDialog(dlgID)
+	TransportDialog(uint dlgID) : TDialog(dlgID), LockAutoName(0)
 	{
 		PPObjTransport::ReadConfig(&Cfg);
-		LockAutoName = 0;
 	}
 	int    setDTS(const PPTransport * pData)
 	{
@@ -2646,8 +2644,9 @@ int SLAPI PPObjSuprWare::GetListByComponent(PPID componentID, PPIDArray & rList)
 //
 class SuprWareListDialog : public PPListDialog {
 public:
-	SuprWareListDialog(PPSuprWarePacket * pCompGdsPack) : PPListDialog(DLG_COMPGDSLST, CTL_COMPGDSLST_LIST), P_SuprWarePack(*pCompGdsPack)
+	SuprWareListDialog(PPSuprWarePacket * pCompGdsPack) : PPListDialog(DLG_COMPGDSLST, CTL_COMPGDSLST_LIST)
 	{
+		P_SuprWarePack = *pCompGdsPack;
 		updateList(-1);
 	}
 private:

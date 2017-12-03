@@ -1889,7 +1889,7 @@
 	#define CTL_BACCLST_NAME             (2 + WINDOWS_ID_BIAS) // StaticText имя персоналии
 //                                 35 // Occupied
 //                                 36 // Occupied
-#define DLG_PASSWORD               39 // Ввод пароля //
+#define DLG_PASSWORD               39 // Ввод парол
 	#define CTL_PASSWORD_FIRST           (1 + WINDOWS_ID_BIAS)
 	#define CTL_PASSWORD_SECOND          (2 + WINDOWS_ID_BIAS)
 	#define CTL_PASSWORD_IMG             (3 + WINDOWS_ID_BIAS)
@@ -8896,7 +8896,6 @@
 	#define cmSelectByOwner            102
 	#define cmSCardMovCrd              103
 	#define cmEditPerson               104
-	#define cmCharge                   105
 	#define CTL_SCARDVIEW_LIST         (1 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDVIEW_INPUT        (2 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDVIEW_IMAGE        (3 + WINDOWS_ID_BIAS)

@@ -1424,7 +1424,6 @@
 #define PPCMD_PROCESSSARTRE               1328
 #define PPCMD_BILLAUTOCREATE              1329
 #define PPCMD_TESTTDDO2                   1330
-#define PPCMD_TESTVETIS                   1331
 //
 // PPJOB definitions
 //

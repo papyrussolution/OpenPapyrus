@@ -9,7 +9,7 @@
 static int ReadAncodeDescrLine_Ru(const char * pLine, SString & rAncode, SrWordForm & rForm)
 {
 	int    ok = 1;
-	rAncode = 0;
+	rAncode.Z();
 
 	SString line_buf;
 	const char * p = pLine;
@@ -1219,13 +1219,8 @@ SrConceptParser::Operator * SrConceptParser::Operator::FindParent()
 //
 //
 //
-SrConceptParser::SrConceptParser(SrDatabase & rDb) : R_Db(rDb)
+SrConceptParser::SrConceptParser(SrDatabase & rDb) : R_Db(rDb), LineNo(0), ReH_BrDescr(0), ReH_Concept(0), ReH_SubclsOf(0), ReH_ExprOf(0)
 {
-	LineNo = 0;
-	ReH_BrDescr = 0;
-	ReH_Concept = 0;
-	ReH_SubclsOf = 0;
-	ReH_ExprOf = 0;
 	Scan.RegisterRe("^\\[.*\\]", &ReH_BrDescr);
 	Scan.RegisterRe("^\\:[_a-zA-Z][_0-9a-zA-Z]*", &ReH_Concept);
 	Scan.RegisterRe("^\\:\\:[_a-zA-Z][_0-9a-zA-Z]*", &ReH_SubclsOf);
@@ -1333,8 +1328,7 @@ int FASTCALL SrConceptParser::_GetTypeByToken(int token) const
 
 int FASTCALL SrConceptParser::_GetToken(SString & rExtBuf)
 {
-	rExtBuf = 0;
-
+	rExtBuf.Z();
 	int    tok = 0;
 	char   c = Scan[0];
 	switch(c) {
@@ -2084,6 +2078,19 @@ public:
 	{
 		return Helper_GetItem(p, rItem);
 	}
+	int    GetGender(uint p) const
+	{
+		return (p < L.getCount()) ? L.at(p).Gender : 0;
+	}
+	int    SetGender(uint p, int gender)
+	{
+		if(p < L.getCount()) {
+			L.at(p).Gender = gender;
+			return 1;
+		}
+		else
+			return 0;
+	}
 	int    AddItem(Entry & rItem)
 	{
 		int    ok = 1;
@@ -2134,7 +2141,6 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 {
 	int    ok = 1;
 	const  uint max_items_per_tx = 256;
-	const  char * p_parent_concept = 0;
 	BDbTransaction * p_ta = 0;
 	SString temp_buf;
 	SString msg_buf;
@@ -2142,6 +2148,7 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 	SString line_buf;
 	SStringU uname, uname_prev;
 	int   lang_id = RecognizeLinguaSymb(pLinguaSymb, 1);
+	const  char * p_parent_concept = 0;
 	if(properNameType == SRPROPN_PERSONNAME)
 		p_parent_concept = "hum_fname";
 	else if(properNameType == SRPROPN_FAMILYNAME)
@@ -2210,9 +2217,38 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 				list.Sort();
 				{
 					uint   items_per_tx = 0;
-					SStringU this_name_u;
-					SStringU next_name_u;
-					int    coupled_gender = 0;
+					//int    coupled_gender = 0;
+					if(specialProcessing) {
+						//
+						// Специальная обработка файла русских фамилий.
+						// Так как в исходном файле пол фамилии часто не указан, то полагаемся на 
+						// правило, что если идут одна за другой две почти одинаковых фамилии, отличающиеся
+						// только тем, что у второй на конце русская 'а', то первая фамилия мужская, вторая - женская.
+						// Например: 
+						//   Иванов
+						//   Иванова
+						//
+						SStringU this_name_u;
+						SStringU prev_name_u;
+						uint   prev_name_pos = 0;
+						for(uint i = 0; i < list.GetCount(); i++) {
+							if(list.GetItem(i, entry)) {
+								this_name_u.CopyFromUtf8(entry.Name);
+								if(prev_name_u.Len() && this_name_u.CmpPrefix(prev_name_u) == 0) {
+									if((prev_name_u.Len()+1) == this_name_u.Len()) {
+										if(this_name_u.Last() == L'а') { // русская 'а' unicode
+											if(!list.GetGender(prev_name_pos))
+												list.SetGender(prev_name_pos, SRGENDER_MASCULINE);
+											if(!entry.Gender)
+												list.SetGender(i, SRGENDER_FEMININE);
+										}
+									}
+								}
+								prev_name_u = this_name_u;
+								prev_name_pos = i;
+							}
+						}
+					}
 					THROW_MEM(p_ta = new BDbTransaction(rDb, 1));
 					THROW_DB(*p_ta);
 					for(uint i = 0; i < list.GetCount(); i++) {
@@ -2621,9 +2657,8 @@ int SLAPI PrcssrSartre::TestSearchWords()
 	int    ok = 1;
 	SString line_buf, temp_buf;
 	TSVector <SrWordInfo> info_list; // @v9.8.4 TSArray-->TSVector
-	SrDatabase db;
-	THROW(db.Open(0, 0)); // @todo Режим открытия
-	{
+	SrDatabase * p_db = DS.GetTLA().GetSrDatabase();
+	if(p_db) {
 		PPGetFilePath(PPPATH_OUT, "Sartr_TestSearchWords.txt", temp_buf);
 		SFile out_file(temp_buf, SFile::mWrite);
 		{
@@ -2675,9 +2710,9 @@ int SLAPI PrcssrSartre::TestSearchWords()
 				temp_buf = p_words[i];
 				temp_buf.ToUtf8();
 				info_list.clear();
-				if(db.GetWordInfo(temp_buf, 0, info_list) > 0) {
+				if(p_db->GetWordInfo(temp_buf, 0, info_list) > 0) {
 					for(uint j = 0; j < info_list.getCount(); j++) {
-						db.WordInfoToStr(info_list.at(j), temp_buf);
+						p_db->WordInfoToStr(info_list.at(j), temp_buf);
 						temp_buf.Utf8ToChar();
 						(line_buf = p_words[i]).Cat("\t-->\t").Cat(temp_buf).CR();
 						out_file.WriteLine(line_buf);
@@ -2697,9 +2732,9 @@ int SLAPI PrcssrSartre::TestSearchWords()
 			info_list.clear();
 			wf.SetTag(SRWG_CASE, SRCASE_DATIVE);
 			wf.SetTag(SRWG_COUNT, SRCNT_PLURAL);
-			if(db.Transform_(temp_buf, wf, info_list) > 0) {
+			if(p_db->Transform_(temp_buf, wf, info_list) > 0) {
 				for(uint j = 0; j < info_list.getCount(); j++) {
-					db.WordInfoToStr(info_list.at(j), temp_buf);
+					p_db->WordInfoToStr(info_list.at(j), temp_buf);
 					temp_buf.Utf8ToChar();
 					(line_buf = p_word).Cat("\t-->\t").Cat(temp_buf).CR();
 					out_file.WriteLine(line_buf);
@@ -2707,7 +2742,6 @@ int SLAPI PrcssrSartre::TestSearchWords()
 			}
 		}
 	}
-	CATCHZOK
 	return ok;
 }
 
@@ -2715,9 +2749,8 @@ int PrcssrSartre::TestConcept()
 {
 	int    ok = 1;
 	SString line_buf, temp_buf, symb;
-	SrDatabase db;
-	THROW(db.Open(0, 0)); // @todo Режим открытия
-	{
+	SrDatabase * p_db = DS.GetTLA().GetSrDatabase();
+	if(p_db) {
 		const char * p_words[] = {
 			"zoheret",
 			"адавье",
@@ -2759,27 +2792,27 @@ int PrcssrSartre::TestConcept()
 				temp_buf.ToUtf8();
 				LEXID word_id = 0;
 				//if(db.SearchWord(temp_buf, &word_id) > 0)
-				if(db.FetchWord(temp_buf, &word_id) > 0)
+				if(p_db->FetchWord(temp_buf, &word_id) > 0)
 					ng.add(word_id);
 				else
 					unkn_word = 1;
 			}
 			if(!unkn_word) {
 				NGID  ng_id = 0;
-				if(db.SearchNGram(ng, &ng_id) > 0) {
+				if(p_db->SearchNGram(ng, &ng_id) > 0) {
 					Int64Array clist, hlist;
-					if(db.GetNgConceptList(ng_id, 0, clist) > 0) {
+					if(p_db->GetNgConceptList(ng_id, 0, clist) > 0) {
 						for(uint j = 0; j < clist.getCount(); j++) {
 							CONCEPTID cid = clist.get(j);
 							SrCPropList cpl;
 							SrCProp cp;
-							db.GetConceptSymb(cid, symb);
+							p_db->GetConceptSymb(cid, symb);
 							line_buf.Tab().Cat((temp_buf = symb).Utf8ToChar());
 							line_buf.CatChar('(');
-							if(db.GetConceptPropList(cid, cpl) > 0) {
+							if(p_db->GetConceptPropList(cid, cpl) > 0) {
 								for(uint k = 0; k < cpl.GetCount(); k++) {
 									if(cpl.GetByPos(k, cp)) {
-										db.FormatProp(cp, 0, temp_buf);
+										p_db->FormatProp(cp, 0, temp_buf);
 										if(k)
 											line_buf.CatDiv(',', 2);
 										line_buf.Cat(temp_buf);
@@ -2787,11 +2820,11 @@ int PrcssrSartre::TestConcept()
 								}
 							}
 							line_buf.CatChar(')');
-							if(db.GetConceptHier(cid, hlist) > 0 && hlist.getCount()) {
+							if(p_db->GetConceptHier(cid, hlist) > 0 && hlist.getCount()) {
 								line_buf.Space().CatDiv(':', 2);
 								for(uint k = 0; k < hlist.getCount(); k++) {
 									CONCEPTID hcid = hlist.get(k);
-									db.GetConceptSymb(hcid, symb);
+									p_db->GetConceptSymb(hcid, symb);
 									if(k)
 										line_buf.CatDiv(',', 2);
 									line_buf.Cat((temp_buf = symb).Utf8ToChar());
@@ -2806,7 +2839,6 @@ int PrcssrSartre::TestConcept()
 			out_file.WriteLine(line_buf);
 		}
 	}
-	CATCHZOK
 	return ok;
 }
 
@@ -3242,6 +3274,10 @@ int main(int argc, char * argv[])
 
 #endif // } 0
 
+SLAPI SrSyntaxRuleSet::MatchEntry::MatchEntry(uint textIdxStart, uint textIdxEnd, const SrSyntaxRuleSet::Rule * pRule, uint stkP) :
+	TextIdxStart(textIdxStart), TextIdxEnd(textIdxEnd), P_Rule(pRule), StackP(stkP), ConceptId(0)
+{
+}
 
 //
 // Syntax rule
@@ -3255,13 +3291,41 @@ int main(int argc, char * argv[])
 	morph_symb_list ::= EMPTY | MORPH_SYMB morph_symb_list
 */
 SrSyntaxRuleSet::ResolveRuleBlock::ResolveRuleBlock(SrDatabase & rDb, const STokenizer & rT, const SrSyntaxRuleSet::Rule * pRule) :
-	R_Db(rDb), R_T(rT)
+	R_Db(rDb), R_T(rT), TextIdx(0)
 {
 	SetupRule(pRule);
-	TextIdx = 0;
 }
 
-int SLAPI SrSyntaxRuleSet::ResolveRuleBlock::MatchListToStr(const STokenizer & rT, const SrSyntaxRuleSet & rSet, SString & rBuf) const
+int SLAPI SrSyntaxRuleSet::MatchListToStr(const TSVector <MatchEntry> & rML, const STokenizer & rT, SString & rBuf) const
+{
+	STokenizer::Item titem;
+	for(uint i = 0; i < rML.getCount(); i++) {
+		const MatchEntry & r_entry = rML.at(i);
+		if(i)
+			rBuf.Space();
+		if(r_entry.P_Rule) {
+			if(r_entry.StackP < r_entry.P_Rule->ES.getCount()) {
+				ExprItemTextToStr(*(ExprItem *)r_entry.P_Rule->ES.at(r_entry.StackP), rBuf);
+			}
+			else
+				rBuf.Cat("invalid_stack_item").CatParStr(r_entry.StackP);
+		}
+		else
+			rBuf.Cat("zero_rule");
+		rBuf.CatChar('(');
+		for(uint j = r_entry.TextIdxStart; j <= r_entry.TextIdxEnd; j++) {
+			if(rT.Get(j, titem))
+				rBuf.Cat(titem.Text);
+			else
+				rBuf.Cat("???");
+		}
+		rBuf.CatChar(')');
+	}
+	return 1;
+}
+
+
+/*int SLAPI SrSyntaxRuleSet::ResolveRuleBlock::MatchListToStr(const STokenizer & rT, const SrSyntaxRuleSet & rSet, SString & rBuf) const
 {
 	STokenizer::Item titem;
 	for(uint i = 0; i < MatchList.getCount(); i++) {
@@ -3287,7 +3351,7 @@ int SLAPI SrSyntaxRuleSet::ResolveRuleBlock::MatchListToStr(const STokenizer & r
 		rBuf.CatChar(')');
 	}
 	return 1;
-}
+}*/
 
 void FASTCALL SrSyntaxRuleSet::ResolveRuleBlock::GetTextItemWithAdvance(uint & rTIdx)
 {
@@ -3295,13 +3359,10 @@ void FASTCALL SrSyntaxRuleSet::ResolveRuleBlock::GetTextItemWithAdvance(uint & r
 		rTIdx++;
 }
 
-int SLAPI SrSyntaxRuleSet::ResolveRuleBlock::PutMatchEntryOnSuccess(uint txtIdxStart, uint txtIdxEnd)
+int SLAPI SrSyntaxRuleSet::ResolveRuleBlock::PutMatchEntryOnSuccess(uint txtIdxStart, uint txtIdxEnd, CONCEPTID conceptId)
 {
-	MatchEntry entry;
-	entry.TextIdxStart = txtIdxStart;
-	entry.TextIdxEnd = txtIdxEnd;
-	entry.P_Rule = P_Rule;
-	entry.StackP = StackP;
+	MatchEntry entry(txtIdxStart, txtIdxEnd, P_Rule, StackP);
+	entry.ConceptId = conceptId;
 	return MatchList.insert(&entry) ? 1 : PPSetErrorSLib();
 }
 
@@ -3365,10 +3426,8 @@ int FASTCALL SrSyntaxRuleSet::ExprStack::Push(const ExprStack & rS)
     return ok;
 }
 
-SLAPI SrSyntaxRuleSet::Rule::Rule()
+SLAPI SrSyntaxRuleSet::Rule::Rule() : Flags(0), NameP(0)
 {
-	Flags = 0;
-	NameP = 0;
 }
 
 int SLAPI SrSyntaxRuleSet::ExprItemTextToStr(const ExprItem & rI, SString & rBuf) const
@@ -3463,9 +3522,8 @@ int SLAPI SrSyntaxRuleSet::RuleToStr(const Rule * pR, SString & rBuf) const
 	return ok;
 }
 
-SLAPI SrSyntaxRuleSet::SrSyntaxRuleSet() : SStrGroup()
+SLAPI SrSyntaxRuleSet::SrSyntaxRuleSet() : SStrGroup(), LineNo(0)
 {
-	LineNo = 0;
 }
 
 SLAPI SrSyntaxRuleSet::~SrSyntaxRuleSet()
@@ -3480,6 +3538,18 @@ uint SLAPI SrSyntaxRuleSet::GetRuleCount() const
 const SrSyntaxRuleSet::Rule * FASTCALL SrSyntaxRuleSet::GetRule(uint pos) const
 {
 	return (pos < RL.getCount()) ? RL.at(pos) : 0;
+}
+
+int SLAPI SrSyntaxRuleSet::GetRuleName(uint pos, SString & rBuf) const
+{
+	rBuf.Z();
+	int    ok = 0;
+	if(pos < RL.getCount()) {
+		const Rule * p_rule = RL.at(pos);
+		if(p_rule)
+			ok = GetS(p_rule->NameP, rBuf);
+	}
+	return ok;
 }
 
 const SrSyntaxRuleSet::Rule * FASTCALL SrSyntaxRuleSet::SearchRuleByName(const char * pNameUtf8) const
@@ -3504,10 +3574,12 @@ void FASTCALL SrSyntaxRuleSet::SkipComment(SStrScan & rScan)
 		if(rScan.Search("\x0D\x0A")) {
 			rScan.IncrLen();
 			rScan.Incr(2);
+			LineNo++;
 		}
 		else if(rScan.Search("\n")) {
 			rScan.IncrLen();
-			rScan.Incr(2);
+			rScan.Incr(1);
+			LineNo++;
 		}
     }
 }
@@ -3517,6 +3589,7 @@ void FASTCALL SrSyntaxRuleSet::ScanSkip(SStrScan & rScan)
 	uint   line_count = 0;
 	rScan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsNewLine, &line_count);
 	LineNo += line_count;
+	SkipComment(rScan);
 }
 
 int FASTCALL SrSyntaxRuleSet::IsOperand(SStrScan & rScan)
@@ -3864,8 +3937,20 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 					if(ok > 0) {
 						rB.PopInnerState(1 /* dont't restore text idx */); // При успешном разрешении восстанавливать индекс текста не надо - это наш результат.
 						assert(rB.TextIdx > 0);
+						CONCEPTID inh_concept_id = 0;
+						for(uint i = preserve_match_p; i < rB.GetMatchList().getCount(); i++) {
+							const MatchEntry & r_me = rB.GetMatchList().at(i);
+							if(r_me.ConceptId) {
+								if(!inh_concept_id)
+									inh_concept_id = r_me.ConceptId;
+								else {
+									inh_concept_id = 0; // Неоднозначность - не наследуем концепцию
+									break;
+								}
+							}
+						}
 						rB.TrimMatchListOnFailure(preserve_match_p);
-						rB.PutMatchEntryOnSuccess(preserve_tidx, rB.TextIdx-1);
+						rB.PutMatchEntryOnSuccess(preserve_tidx, rB.TextIdx-1, inh_concept_id);
 					}
 					else {
 						rB.PopInnerState(0 /* dont't restore text idx */);
@@ -3880,7 +3965,7 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 				uint   tidx = rB.TextIdx;
 				rB.GetTextItemWithAdvance(tidx);
 				if(rB.TItemBuf.Text == rB.TempBuf) {
-					rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx);
+					rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, 0);
 					rB.TextIdx = tidx+1;
 					ok = 1;
 				}
@@ -3892,9 +3977,9 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 					uint   tidx = rB.TextIdx;
 					rB.GetTextItemWithAdvance(tidx);
 					if(rB.TItemBuf.Token == STokenizer::tokWord) {
-						SrWordForm * p_wf = WfList.at((uint)(p_sti->RSymb-1));
+						const SrWordForm * p_wf = WfList.at((uint)(p_sti->RSymb-1));
 						if(rB.R_Db.IsWordInForm(rB.TItemBuf.Text, *p_wf) > 0) {
-							rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx);
+							rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, 0);
 							rB.TextIdx = tidx+1;
 							ok = 1;
 						}
@@ -3911,67 +3996,64 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 					TSVector <NGID> ng_list; // @v9.8.4 TSArray-->TSVect
 					Int64Array concept_list; // Список концепций, соответствующих отдельной N-грамме
 					Int64Array concept_hier_list; // Иерархия отдельной концепции
+					LEXID  word_id = 0;
 					rB.GetTextItemWithAdvance(tidx);
-					if(rB.TItemBuf.Token == STokenizer::tokWord) {
-						LEXID word_id = 0;
-						if(rB.R_Db.FetchWord(rB.TItemBuf.Text, &word_id) > 0) {
-							sng.WordIdList.add(word_id);
-							if(rB.R_Db.P_NgT->SearchByPrefix(sng, ng_list) > 0) {
-								SrNGramCollection sng_list;
-								for(uint i = 0; i < ng_list.getCount(); i++) {
-									NGID   ng_id = ng_list.at(i);
-									uint   ng_pos = 0;
-									SrNGram * p_ng = sng_list.CreateNewItem(&ng_pos);
-									THROW_SL(p_ng);
-									THROW(rB.R_Db.P_NgT->Search(ng_id, p_ng) > 0); // Не может такого быть, что этой n-граммы не было (мы только что ее нашли)
-								}
-								sng_list.SortByLength();
-								uint   _c = sng_list.getCount();
-								if(_c) do {
-									SrNGram * p_ng = sng_list.at(--_c);
-									THROW(p_ng->WordIdList.get(0) == word_id);
-									int    is_match = 1;
-									const  uint preserve_tidx = tidx;
-									for(uint j = 1 /*! 0-й элемент уже проверен*/; is_match && j < p_ng->WordIdList.getCount(); j++) {
-										const LEXID ng_word_id = p_ng->WordIdList.get(j);
-										if(rB.R_T.Get(++tidx, rB.TItemBuf)) {
-											if(rB.TItemBuf.Token == STokenizer::tokWord) {
-												LEXID next_word_id = 0;
-												if(rB.R_Db.FetchWord(rB.TItemBuf.Text, &next_word_id) > 0 && next_word_id == ng_word_id) {
-													; // ok
-												}
-												else
-													is_match = 0; // break loop
-											}
-											else if(rB.TItemBuf.Token == STokenizer::tokDelim) {
-												if(rB.TItemBuf.Text == " ")
-													continue;
-												else
-													is_match = 0; // break loop
-											}
-										}
-									}
-									if(is_match) {
-										rB.R_Db.GetNgConceptList(p_ng->ID, 0, concept_list);
-										if(concept_list.lsearch(p_sti->RSymb)) {
-											rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx);
-											rB.TextIdx = tidx+1;
-											ok = 1;
-										}
-										else {
-											for(uint cidx = 0; ok < 0 && cidx < concept_list.getCount(); cidx++) {
-												const CONCEPTID cid = concept_list.get(cidx);
-												rB.R_Db.GetConceptHier(cid, concept_hier_list);
-												if(concept_hier_list.lsearch(p_sti->RSymb)) {
-													rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx);
-													rB.TextIdx = tidx+1;
-													ok = 1;
-												}
-											}
-										}
-									}
-								} while(ok < 0 && _c);
+					if(rB.TItemBuf.Token == STokenizer::tokWord && rB.R_Db.FetchWord(rB.TItemBuf.Text, &word_id) > 0) {
+						sng.WordIdList.add(word_id);
+						if(rB.R_Db.P_NgT->SearchByPrefix(sng, ng_list) > 0) {
+							SrNGramCollection sng_list;
+							for(uint i = 0; i < ng_list.getCount(); i++) {
+								SrNGram * p_ng = sng_list.CreateNewItem();
+								THROW_SL(p_ng);
+								THROW(rB.R_Db.P_NgT->Search(ng_list.at(i), p_ng) > 0); // Не может такого быть, что этой n-граммы не было (мы только что ее нашли)
 							}
+							sng_list.SortByLength();
+							uint   _c = sng_list.getCount();
+							if(_c) do {
+								SrNGram * p_ng = sng_list.at(--_c);
+								THROW(p_ng->WordIdList.get(0) == word_id);
+								int    is_match = 1;
+								const  uint preserve_tidx = tidx;
+								for(uint j = 1 /*! 0-й элемент уже проверен*/; is_match && j < p_ng->WordIdList.getCount(); j++) {
+									const LEXID ng_word_id = p_ng->WordIdList.get(j);
+									if(rB.R_T.Get(++tidx, rB.TItemBuf)) {
+										if(rB.TItemBuf.Token == STokenizer::tokWord) {
+											LEXID next_word_id = 0;
+											if(rB.R_Db.FetchWord(rB.TItemBuf.Text, &next_word_id) > 0 && next_word_id == ng_word_id) {
+												; // ok
+											}
+											else
+												is_match = 0; // break loop
+										}
+										else if(rB.TItemBuf.Token == STokenizer::tokDelim) {
+											if(rB.TItemBuf.Text == " ")
+												continue;
+											else
+												is_match = 0; // break loop
+										}
+									}
+								}
+								if(is_match) {
+									rB.R_Db.GetNgConceptList(p_ng->ID, 0, concept_list);
+									uint   cpos = 0;
+									if(concept_list.lsearch(p_sti->RSymb, &cpos)) {
+										rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, concept_list.get(cpos));
+										rB.TextIdx = tidx+1;
+										ok = 1;
+									}
+									else {
+										for(uint cidx = 0; ok < 0 && cidx < concept_list.getCount(); cidx++) {
+											const CONCEPTID cid = concept_list.get(cidx);
+											rB.R_Db.GetConceptHier(cid, concept_hier_list);
+											if(concept_hier_list.lsearch(p_sti->RSymb)) {
+												rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, cid);
+												rB.TextIdx = tidx+1;
+												ok = 1;
+											}
+										}
+									}
+								}
+							} while(ok < 0 && _c);
 						}
 					}
 				}
@@ -3985,20 +4067,56 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 	}
 	return ok;
 }
+//
+//
+//
+SLAPI SrSyntaxRuleTokenizer::SrSyntaxRuleTokenizer() : STokenizer(Param(STokenizer::fDivAlNum|STokenizer::fEachDelim, cpUTF8, " \t\n\r(){}[]<>,.:;-\\/&$#@!?*^\"+=%"))
+{
+}
 
+int SLAPI SrSyntaxRuleTokenizer::ProcessString(const char *pResource, const SString & rTextUtf8, uint * pIdxFirst, uint * pIdxCount)
+{
+	return RunSString(pResource, 0, rTextUtf8, pIdxFirst, pIdxCount);
+}
+//
+//
+//
+int SLAPI SrSyntaxRuleSet::ProcessText(SrDatabase & rDb, SrSyntaxRuleTokenizer & rT, uint tidxFirst, uint tidxCount, TSCollection <Result> & rResultList) const
+{
+	int    ok = -1;
+	rResultList.freeAll();
+	if(tidxCount) {
+		uint   tidx = tidxFirst; // text index
+		const SrSyntaxRuleSet::Rule * p_rule = 0;
+		const uint rcount = GetRuleCount();
+		for(uint tidx = 0; tidx < tidxCount;) {
+			uint next_tidx_max = tidx+1;
+			for(uint ridx = 0; ridx < rcount; ridx++) {
+				p_rule = GetRule(ridx);
+				if(p_rule && !(p_rule->Flags & SrSyntaxRuleSet::Rule::fNonTerminal)) {
+					uint   stack_p = p_rule->ES.getPointer();
+					SrSyntaxRuleSet::ResolveRuleBlock blk(rDb, rT, p_rule);
+					blk.TextIdx = tidx;
+					int r = __ResolveExprRule(blk, 0);
+					if(r > 0) {
+						Result * p_result_item = rResultList.CreateNewItem();
+						p_result_item->RuleIdx = ridx;
+						p_result_item->TIdxFirst = tidx;
+						p_result_item->TIdxNext = blk.TextIdx;
+						p_result_item->MatchList = blk.GetMatchList();
 
-class SrSyntaxRuleTokenizer : public STokenizer {
-public:
-	SLAPI  SrSyntaxRuleTokenizer() : STokenizer(Param(STokenizer::fDivAlNum|STokenizer::fEachDelim, cpUTF8, " \t\n\r(){}[]<>,.:;-\\/&$#@!?*^\"+=%"))
-	{
+						SETMAX(next_tidx_max, blk.TextIdx);
+						ok = 1;
+					}
+				}
+			}
+			tidx = next_tidx_max;
+		}
 	}
-	int    SLAPI ProcessString(const char *pResource, const SString & rTextUtf8, uint * pIdxFirst, uint * pIdxCount)
-	{
-		return RunSString(pResource, 0, rTextUtf8, pIdxFirst, pIdxCount);
-	}
-};
+	return ok;
+}
 
-int SrSyntaxRuleSet::__ProcessText(SrDatabase & rDb, const char * pResource, const SString & rTextUtf8, const char * pOutFileName) const
+int SLAPI SrSyntaxRuleSet::__ProcessText2(SrDatabase & rDb, const char * pResource, const SString & rTextUtf8, const char * pOutFileName) const
 {
 	int    ok = 1;
 	SFile * p_f_out = 0;
@@ -4010,7 +4128,7 @@ int SrSyntaxRuleSet::__ProcessText(SrDatabase & rDb, const char * pResource, con
 	STokenizer::Item item_;
 	t.ProcessString(pResource, rTextUtf8, &idx_first, &idx_count);
 	if(idx_count) {
-		uint   tidx = idx_first; // text index
+		//
 		const SrSyntaxRuleSet::Rule * p_rule = 0;
 		if(pOutFileName) {
 			THROW_MEM(p_f_out = new SFile(pOutFileName, SFile::mWrite));
@@ -4018,39 +4136,29 @@ int SrSyntaxRuleSet::__ProcessText(SrDatabase & rDb, const char * pResource, con
 				ZDELETE(p_f_out);
 			}
 		}
-		for(uint tidx = 0; tidx < idx_count;) {
-			uint next_tidx_max = tidx+1;
-			if(p_f_out) {
-				t.Get(tidx, item_);
-				line_buf.Z().Cat(item_.Text).CR();
-				p_f_out->WriteLine(line_buf);
-			}
-			for(uint ridx = 0; ridx < GetRuleCount(); ridx++) {
-				p_rule = GetRule(ridx);
-				if(p_rule && !(p_rule->Flags & SrSyntaxRuleSet::Rule::fNonTerminal)) {
-					uint   stack_p = p_rule->ES.getPointer();
-					SrSyntaxRuleSet::ResolveRuleBlock blk(rDb, t, p_rule);
-					blk.TextIdx = tidx;
-					int r = __ResolveExprRule(blk, 0);
-					if(r > 0) {
-						if(p_f_out) {
-							line_buf.Z();
-							for(uint i = tidx; i < blk.TextIdx; i++) {
-								t.Get(i, item_);
-								line_buf.Cat(item_.Text);
-							}
-							GetS(p_rule->NameP, temp_buf);
-							line_buf.CatDiv(':', 1).Cat(temp_buf).CR();
-							p_f_out->WriteLine(line_buf);
-							//
-							blk.MatchListToStr(t, *this, line_buf.Z());
-							p_f_out->WriteLine(line_buf.CR());
+		//
+		TSCollection <Result> result_list;
+		if(ProcessText(rDb, t, idx_first, idx_count, result_list) > 0) {
+			for(uint residx = 0; residx < result_list.getCount(); residx++) {
+				const Result * p_result = result_list.at(residx);
+				if(p_result) {
+					p_rule = GetRule(p_result->RuleIdx);
+					if(p_f_out) {
+						line_buf.Z();
+						for(uint i = p_result->TIdxFirst; i < p_result->TIdxNext; i++) {
+							t.Get(i, item_);
+							line_buf.Cat(item_.Text);
 						}
-						SETMAX(next_tidx_max, blk.TextIdx);
+						GetS(p_rule->NameP, temp_buf);
+						line_buf.CatDiv(':', 1).Cat(temp_buf).CR();
+						p_f_out->WriteLine(line_buf);
+						//
+						//blk.MatchListToStr(t, *this, line_buf.Z());
+						MatchListToStr(p_result->MatchList, t, line_buf.Z());
+						p_f_out->WriteLine(line_buf.CR());
 					}
 				}
 			}
-			tidx = next_tidx_max;
 		}
 	}
 	CATCHZOK
@@ -4067,7 +4175,7 @@ int SLAPI PrcssrSartre::TestSyntax()
 	SString line_buf;
 	SString src_buf;
 	SString temp_buf;
-	(src_file_name = P.SrcPath).SetLastSlash().Cat("syntax-test.txt");
+	(src_file_name = P.SrcPath).SetLastSlash().Cat(/*"syntax-test.txt"*/"syntax.sr");
 	SFile f_in(src_file_name, SFile::mRead);
 	THROW_SL(f_in.IsValid());
 	while(f_in.ReadLine(line_buf)) {
@@ -4095,20 +4203,19 @@ int SLAPI PrcssrSartre::TestSyntax()
 				}
 			}
 			{
-				SrDatabase db;
-				THROW(db.Open(0, 0)); // @todo Режим открытия
-				{
+				SrDatabase * p_db = DS.GetTLA().GetSrDatabase();
+				if(p_db) {
 					(src_file_name = P.SrcPath).SetLastSlash().Cat("syntax-test-text.txt");
 					SFile f_text(src_file_name, SFile::mRead);
-					src_buf = 0;
+					src_buf.Z();
 					while(f_text.ReadLine(line_buf)) {
 						src_buf.Cat(line_buf);
 					}
 					src_buf.Utf8ToLower();
-					THROW(srs.ResolveSyntaxRules(db));
+					THROW(srs.ResolveSyntaxRules(*p_db));
 					{
 						(src_file_name = P.SrcPath).SetLastSlash().Cat("syntax-test-text.out");
-						srs.__ProcessText(db, "test-text", src_buf, src_file_name);
+						srs.__ProcessText2(*p_db, "test-text", src_buf, src_file_name);
 					}
 				}
 			}

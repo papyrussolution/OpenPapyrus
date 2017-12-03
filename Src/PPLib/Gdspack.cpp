@@ -6,8 +6,11 @@
 //
 // PPGoodsPacket
 //
-SLAPI PPGoodsPacket::PPGoodsPacket() : P_Filt(0), P_Quots(0), P_Gled(0)
+SLAPI PPGoodsPacket::PPGoodsPacket()
 {
+	P_Filt = 0;
+	P_Quots = 0;
+	P_Gled = 0;
 	destroy();
 }
 
@@ -38,7 +41,7 @@ PPGoodsPacket & FASTCALL PPGoodsPacket::operator = (const PPGoodsPacket & src)
 {
 	destroy();
 	UpdFlags = src.UpdFlags;
-	ClsDimZeroFlags = src.ClsDimZeroFlags;
+	ClsDimZeroFlags = src.ClsDimZeroFlags; // @v7.7.2
 	Rec = src.Rec;
 	ExtRec = src.ExtRec;
 	Stock = src.Stock;
@@ -55,7 +58,7 @@ PPGoodsPacket & FASTCALL PPGoodsPacket::operator = (const PPGoodsPacket & src)
 		P_Gled = new GoodsLotExtData(*src.P_Gled);
 	LinkFiles = src.LinkFiles;
 	TagL = src.TagL;
-	GenericList = src.GenericList;
+	GenericList = src.GenericList; // @v7.7.12
 	return *this;
 }
 
@@ -118,13 +121,14 @@ int SLAPI PPGoodsPacket::GetArCode(PPID arID, SString & rCode) const
 		ok = 1;
 	}
 	else
-		rCode.Z();
+		rCode = 0;
 	return ok;
 }
 
 int SLAPI PPGoodsPacket::IsExtRecEmpty() const
 {
-	return (ExtRec.KindID || ExtRec.GradeID || ExtRec.AddObjID || ExtRec.AddObj2ID || ExtRec.X || ExtRec.Y || ExtRec.Z || ExtRec.W) ? 0 : 1;
+	return (ExtRec.KindID || ExtRec.GradeID || ExtRec.AddObjID || ExtRec.AddObj2ID ||
+		ExtRec.X || ExtRec.Y || ExtRec.Z || ExtRec.W) ? 0 : 1;
 }
 
 // static
@@ -379,7 +383,7 @@ void SLAPI PPGdsCls::SetDynGenMask(int fld, int val)
 	DynGenMask |= (1 << (fld-1));
 }
 
-int FASTCALL PPGdsCls::GetDynGenMask(int fld) const
+int  SLAPI PPGdsCls::GetDynGenMask(int fld) const
 {
 	return (DynGenMask & (1 << (fld-1))) ? 1 : 0;
 }
@@ -432,12 +436,12 @@ PPGdsClsPacket & FASTCALL PPGdsClsPacket::operator = (const PPGdsClsPacket & s)
 void SLAPI PPGdsClsPacket::Init()
 {
 	MEMSZERO(Rec);
-	NameConv.Z();
-	AbbrConv.Z();
-	PhUPerU_Formula.Z();
-	TaxMult_Formula.Z();
-	Package_Formula.Z();
-	LotDimQtty_Formula.Z();
+	NameConv = 0;
+	AbbrConv = 0;
+	PhUPerU_Formula = 0;
+	TaxMult_Formula = 0;
+	Package_Formula = 0;
+	LotDimQtty_Formula = 0;
 	PropKind.Init();
 	PropGrade.Init();
 	PropAdd.Init();
@@ -608,11 +612,21 @@ int SLAPI PPGdsClsPacket::RealToExtDim(double realVal, int dim, GoodsExtTbl::Rec
 {
 	int    ok = 1;
 	switch(dim) {
-		case PPGdsCls::eX: rExtRec.X = (long)(realVal * fpow10i(DimX.Scale)); break;
-		case PPGdsCls::eY: rExtRec.Y = (long)(realVal * fpow10i(DimY.Scale)); break;
-		case PPGdsCls::eZ: rExtRec.Z = (long)(realVal * fpow10i(DimZ.Scale)); break;
-		case PPGdsCls::eW: rExtRec.W = (long)(realVal * fpow10i(DimW.Scale)); break;
-		default: ok = 0; break;
+		case PPGdsCls::eX:
+			rExtRec.X = (long)(realVal * fpow10i(DimX.Scale));
+			break;
+		case PPGdsCls::eY:
+			rExtRec.Y = (long)(realVal * fpow10i(DimY.Scale));
+			break;
+		case PPGdsCls::eZ:
+			rExtRec.Z = (long)(realVal * fpow10i(DimZ.Scale));
+			break;
+		case PPGdsCls::eW:
+			rExtRec.W = (long)(realVal * fpow10i(DimW.Scale));
+			break;
+		default:
+			ok = 0;
+			break;
 	}
 	return ok;
 }
@@ -715,7 +729,8 @@ int SLAPI PPGdsClsPacket::CheckForSgg(long sym, SubstGrpGoods sgg) const
 	return r;
 }
 
-int SLAPI PPGdsClsPacket::GetNameByTemplate(PPGoodsPacket * pPack, const char * pTemplate, char * pBuf, size_t bufLen, SubstGrpGoods sgg) const
+int SLAPI PPGdsClsPacket::GetNameByTemplate(PPGoodsPacket * pPack, const char * pTemplate,
+	char * pBuf, size_t bufLen, SubstGrpGoods sgg) const
 {
 	int    ok = 1;
 	SString buf, temp_buf;
@@ -865,8 +880,10 @@ int SLAPI PPGdsClsPacket::PropNameToID(int prop, const char * pName, PPID * pID,
 		obj_type = PropGrade.ItemsListID;
 	else if(prop == PPGdsCls::eAdd)
 		obj_type = PropAdd.ItemsListID;
+	// @v7.4.7 {
 	else if(prop == PPGdsCls::eAdd2)
 		obj_type = PropAdd2.ItemsListID;
+	// } @v7.4.7
 	if(obj_type && IS_REF_OBJTYPE(obj_type)) {
 		PPID   id = 0;
 		Reference * p_ref = PPRef;

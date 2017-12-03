@@ -1029,18 +1029,13 @@ int SLAPI PPObjGoodsClass::Fetch(PPID id, PPGdsClsPacket * pRec)
 //
 //
 //
-SLAPI PPGdsClsFormula::PPGdsClsFormula() : Flags(0)
-{
-}
-
 void SLAPI PPGdsClsFormula::Clear()
 {
-	Flags = 0;
-	Name.Z();
-	Formula.Z();
-	Var1Name.Z();
-	Var2Name.Z();
-	Var3Name.Z();
+	Name = 0;
+	Formula = 0;
+	Var1Name = 0;
+	Var2Name = 0;
+	Var3Name = 0;
 }
 
 int FASTCALL PPGdsClsFormula::PutToBuffer(SString & rBuf) const
@@ -1160,8 +1155,9 @@ static int SLAPI EditGcFormula(PPGdsClsFormula * pForm)
 
 class GdsClsFormListDialog : public PPListDialog {
 public:
-	GdsClsFormListDialog(PPGdsClsPacket * pData) : PPListDialog(DLG_GDSCLSFORMLIST, CTL_GDSCLSFORMLIST_LIST), P_Data(pData)
+	GdsClsFormListDialog(PPGdsClsPacket * pData) : PPListDialog(DLG_GDSCLSFORMLIST, CTL_GDSCLSFORMLIST_LIST)
 	{
+		P_Data = pData;
 		updateList(-1);
 	}
 private:

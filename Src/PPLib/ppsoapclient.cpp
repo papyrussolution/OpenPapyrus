@@ -44,10 +44,9 @@ int FASTCALL PPSoapDestroyResultPtr(void * p)
 	return ok;
 }
 
-PPSoapClientSession::PPSoapClientSession()
+PPSoapClientSession::PPSoapClientSession() : ErrCode(0)
 {
 	Url[0] = 0;
-	ErrCode = 0;
 	ErrMsg[0] = 0;
 }
 
@@ -169,11 +168,8 @@ char * FASTCALL GetDynamicParamString(LDATETIME dtval, long dfmt, long tfmt, TSC
 //
 //
 //
-UhttStatus::UhttStatus()
+UhttStatus::UhttStatus() : Code(0), Index(-1), Id(-1)
 {
-	Code = 0;
-	Index = -1;
-	Id = -1;
 }
 //
 //
@@ -580,17 +576,8 @@ SString & FASTCALL UhttLocationPacket::GetCode(SString & rBuf) const
 //
 //
 //
-UhttSCardPacket::UhttSCardPacket()
+UhttSCardPacket::UhttSCardPacket() : ID(0), SeriesID(0), OwnerID(0), PDis(0.0), Overdraft(0.0), Debit(0.0), Credit(0.0), Rest(0.0), Flags(0)
 {
-	ID = 0;
-	SeriesID = 0;
-	OwnerID = 0;
-	PDis = 0.0;
-	Overdraft = 0.0;
-	Debit = 0.0;
-	Credit = 0.0;
-	Rest = 0.0;
-	Flags = 0;
 }
 
 void FASTCALL UhttSCardPacket::SetCode(const char * pCode)
@@ -600,51 +587,26 @@ void FASTCALL UhttSCardPacket::SetCode(const char * pCode)
 //
 //
 //
-UhttCheckPacket::UhttCheckPacket()
+UhttCheckPacket::UhttCheckPacket() : PosNodeID(0), LocID(0), SCardID(0), Amount(0), Discount(0), Flags(0)
 {
-	PosNodeID = 0;
-	LocID = 0;
-	SCardID = 0;
-	Amount = 0;
-	Discount = 0;
-	Flags = 0;
 }
 //
 //
 //
-UhttQuotFilter::UhttQuotFilter()
+UhttQuotFilter::UhttQuotFilter() : GoodsID(0), GroupID(0), BrandID(0), SellerID(0), LocationID(0), BuyerID(0), AndFlags(0), NotFlags(0)
 {
-	GoodsID = 0;
-	GroupID = 0;
-	BrandID = 0;
-	SellerID = 0;
-	LocationID = 0;
-	BuyerID = 0;
-	AndFlags = 0;
-	NotFlags = 0;
 }
 //
 //
 //
-UhttQuotPacket::UhttQuotPacket()
+UhttQuotPacket::UhttQuotPacket() : GoodsID(0), SellerID(0), LocID(0), BuyerID(0), CurrID(0), MinQtty(0.0), Value(0.0), Flags(0)
 {
-	GoodsID = 0;
-	SellerID = 0;
-	LocID = 0;
-	BuyerID = 0;
-	CurrID = 0;
-	MinQtty = 0.0;
-	Value = 0.0;
-	Flags = 0;
 }
 //
 //
 //
-UhttPersonPacket::UhttPersonPacket()
+UhttPersonPacket::UhttPersonPacket() : ID(0), StatusID(0), CategoryID(0)
 {
-	ID = 0;
-	StatusID = 0;
-	CategoryID = 0;
 }
 
 UhttPersonPacket & UhttPersonPacket::operator = (const UhttPersonPacket & rS)
@@ -677,16 +639,8 @@ UhttPersonPacket::AddressP::AddressP() : UhttLocationPacket(), Kind(0)
 //
 //
 //
-UhttBillPacket::UhttBillPacket()
+UhttBillPacket::UhttBillPacket() : ID(0), LocID(0), ArID(0), DlvrLocID(0), CurrID(0), AgentID(0), StatusID(0), Flags(0)
 {
-	ID = 0;
-	LocID = 0;
-	ArID = 0;
-	DlvrLocID = 0;
-	CurrID = 0;
-	AgentID = 0;
-	StatusID = 0;
-	Flags = 0;
 	Uuid.SetZero();
 }
 //
@@ -722,17 +676,8 @@ UhttDCFileVersionInfo::UhttDCFileVersionInfo() : ID(0), Revision(0), Ts(0), Size
 //
 //
 //
-UhttWorkbookItemPacket::UhttWorkbookItemPacket()
+UhttWorkbookItemPacket::UhttWorkbookItemPacket() : ID(0), Type(0), ParentID(0), LinkID(0), CssID(0), Rank(0), Flags(0), KeywordCount(0), KeywordDilute(0)
 {
-	ID = 0;
-	Type = 0;
-	ParentID = 0;
-	LinkID = 0;
-	CssID = 0;
-	Rank = 0;
-	Flags = 0;
-	KeywordCount = 0;
-	KeywordDilute = 0;
 }
 
 UhttWorkbookItemPacket & FASTCALL UhttWorkbookItemPacket::operator = (const UhttWorkbookItemPacket & rS)
@@ -800,17 +745,8 @@ void FASTCALL UhttPrcPlaceDescription::SetDescr(const char * pText)
 //
 //
 //
-UhttProcessorPacket::UhttProcessorPacket()
+UhttProcessorPacket::UhttProcessorPacket() : ID(0), ParentID(0), Kind(0), Flags(0), LocID(0), LinkObjType(0), LinkObjID(0), CipPersonKindID(0), CipMax(0)
 {
-	ID = 0;
-	ParentID = 0;
-	Kind = 0;
-	Flags = 0;
-	LocID = 0;
-	LinkObjType = 0;
-	LinkObjID = 0;
-	CipPersonKindID = 0;
-	CipMax = 0;
 }
 
 UhttProcessorPacket & FASTCALL UhttProcessorPacket::operator = (const UhttProcessorPacket & rS)
@@ -845,36 +781,14 @@ void FASTCALL UhttProcessorPacket::SetSymb(const char * pSymb)
 //
 //
 //
-UhttTSessLine::UhttTSessLine()
+UhttTSessLine::UhttTSessLine() : TSessID(0), OprNo(0), GoodsID(0), LotID(0), UserID(0), Sign(0), Flags(0), Qtty(0.0), WtQtty(0.0), Price(0.0), Discount(0.0)
 {
-    TSessID = 0;
-    OprNo = 0;
-    GoodsID = 0;
-    LotID = 0;
-    UserID = 0;
-    Sign = 0;
-    Flags = 0;
-    Qtty = 0.0;
-    WtQtty = 0.0;
-    Price = 0.0;
-    Discount = 0.0;
 }
 //
 //
 //
-UhttCipPacket::UhttCipPacket()
+UhttCipPacket::UhttCipPacket() : ID(0), Kind(0), PrmrID(0), PersonID(0), Num(0), RegCount(0), CiCount(0), Flags(0), Amount(0.0), CCheckID(0), SCardID(0)
 {
-	ID = 0;
-	Kind = 0;
-	PrmrID = 0;
-	PersonID = 0;
-	Num = 0;
-	RegCount = 0;
-	CiCount = 0;
-	Flags = 0;
-	Amount = 0.0;
-	CCheckID = 0;
-	SCardID = 0;
 }
 
 void FASTCALL UhttCipPacket::SetMemo(const char * pText)
@@ -1074,18 +988,13 @@ iSalesBillAmountEntry::iSalesBillAmountEntry()
 	THISZERO();
 }
 
-iSalesBillPacket::iSalesBillPacket()
+iSalesBillPacket::iSalesBillPacket() : NativeID(0), DocType(0), ExtDocType(0), Status(0), DueDate(ZERODATE)
 {
-	NativeID = 0;
-	DocType = 0;
-	ExtDocType = 0;
-	Status = 0;
 	Dtm.SetZero();
 	IncDtm.SetZero();
 	ExtDtm.SetZero();
 	CreationDtm.SetZero();
 	LastUpdDtm.SetZero();
-	DueDate = ZERODATE;
 }
 //
 //
@@ -1140,20 +1049,22 @@ VetisUser::~VetisUser()
 	delete P_BusinessEntity;
 }
 
-VetisApplicationBlock::VetisApplicationBlock() : ApplicationStatus(appstUndef), Func(detUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME),
-	LocalTransactionId(0), P_GselReq(0)
+<<<<<<< HEAD
+VetisApplicationBlock::VetisApplicationBlock() : ApplicationStatus(appstUndef), Func(VetisApplicationData::signNone), 
+	IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME), LocalTransactionId(0), P_GselReq(0), P_LoReq(0)
+=======
+VetisApplicationBlock::VetisApplicationBlock() : ApplicationStatus(appstUndef), Func(detUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME)
+>>>>>>> parent of f010b32... Version 9.8.9
 {
-}
-
-VetisApplicationBlock::VetisApplicationBlock(const VetisApplicationBlock & rS) : P_GselReq(0)
-{
-	Copy(rS);
+	P_GselReq = 0;
 }
 
 VetisApplicationBlock::~VetisApplicationBlock()
 {
 	delete P_GselReq;
+	delete P_LoReq;
 }
+<<<<<<< HEAD
 
 VetisApplicationBlock & FASTCALL VetisApplicationBlock::operator = (const VetisApplicationBlock & rS)
 {
@@ -1176,6 +1087,7 @@ void VetisApplicationBlock::Clear()
 	PrdcRsltDate.SetZero();
 	ErrList.freeAll();
 	ZDELETE(P_GselReq);
+	ZDELETE(P_LoReq);
 }
 
 int FASTCALL VetisApplicationBlock::Copy(const VetisApplicationBlock & rS)
@@ -1194,9 +1106,15 @@ int FASTCALL VetisApplicationBlock::Copy(const VetisApplicationBlock & rS)
 	PrdcRsltDate = rS.PrdcRsltDate;
 	TSCollection_Copy(ErrList, rS.ErrList);
 	ZDELETE(P_GselReq);
+	ZDELETE(P_LoReq);
 	if(rS.P_GselReq) {
 		THROW(P_GselReq = new VetisGetStockEntryListRequest(*rS.P_GselReq));
+	}
+	if(rS.P_LoReq) {
+		THROW(P_LoReq = new VetisListOptionsRequest(*rS.P_LoReq));
 	}
 	CATCHZOK
 	return ok;
 }
+=======
+>>>>>>> parent of f010b32... Version 9.8.9

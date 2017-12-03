@@ -264,7 +264,7 @@ static int PackBitsDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 				    "Terminating PackBitsDecode due to lack of data.");
 				break;
 			}
-			_TIFFmemcpy(op, bp, ++n);
+			memcpy(op, bp, ++n);
 			op += n; occ -= n;
 			bp += n; cc -= n;
 		}

@@ -2551,6 +2551,7 @@ int SLAPI DoConstructionTest()
 		//PPBarcode::RecognizeImage("D:/Papyrus/ppy/out/460622403878.png", bc_list);
 	}
 	{
+		/*
 		SString map_pool_file_name;
 		SString map_transl_file_name;
 		PPGetFilePath(PPPATH_OUT, "SCodepageMapPool.txt", map_pool_file_name);
@@ -2570,6 +2571,7 @@ int SLAPI DoConstructionTest()
 			ub2.Read("d:/papyrus/__temp__/ub.bin");
 			ub2.Cpmp.Test(&ub2.Ut, map_pool_file_name, map_transl_file_name);
 		}
+		*/
 	}
 	//TestSArchive();
 	//TestLargeVlrInputOutput();

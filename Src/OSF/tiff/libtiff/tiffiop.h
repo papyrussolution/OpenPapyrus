@@ -416,3 +416,4 @@ extern TIFFCodec _TIFFBuiltinCODECS[];
  * fill-column: 78
  * End:
  */
+#include "tif_predict.h"

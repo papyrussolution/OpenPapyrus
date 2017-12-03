@@ -159,7 +159,7 @@ static void ColouriseEclDoc(Sci_PositionU startPos, Sci_Position length, int ini
 				    else if(keywords5.InList(s)) {
 					    sc.ChangeState(SCE_ECL_WORD5);
 				    }
-				    else{       //Data types are of from KEYWORD##
+				    else {       //Data types are of from KEYWORD##
 					    int i = static_cast<int>(strlen(s)) - 1;
 					    while(i >= 0 && (isdec(s[i]) || s[i] == '_'))
 						    --i;

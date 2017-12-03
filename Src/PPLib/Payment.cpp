@@ -156,13 +156,10 @@ IMPLEMENT_PPFILT_FACTORY(LinkedBill); SLAPI LinkedBillFilt::LinkedBillFilt() : P
 	Init(1, 0);
 }
 
-SLAPI PPViewLinkedBill::PPViewLinkedBill() : PPView(0, &Filt, PPVIEW_LINKEDBILL)
+SLAPI PPViewLinkedBill::PPViewLinkedBill() : PPView(0, &Filt, PPVIEW_LINKEDBILL), P_BObj(BillObj), PrevPaym(0.0), PrevKind(-1)
 {
 	ImplementFlags |= implBrowseArray;
 	MEMSZERO(Rec);
-	PrevPaym = 0.0;
-	PrevKind = -1;
-	P_BObj = BillObj;
 }
 
 SLAPI PPViewLinkedBill::~PPViewLinkedBill()

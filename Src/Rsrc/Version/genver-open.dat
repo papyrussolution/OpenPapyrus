@@ -15,7 +15,11 @@ OpenSource   = 1
 MajorVer     =9
 MinorVer     =8
 Revision     =9
-AssemblyVer=24192
+<<<<<<< HEAD
+AssemblyVer=24219
+=======
+AssemblyVer=24165
+>>>>>>> parent of f010b32... Version 9.8.9
 MinMajorVer  =9
 MinMinorVer  =8
 MinRevision  =9

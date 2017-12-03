@@ -6,7 +6,7 @@
 //
 //
 //
-struct LocValEntry {
+struct LocValEntry { // @flat
 	LocValEntry(PPID locID, LDATE lastOpDate, double rest)
 	{
 		THISZERO();
@@ -27,7 +27,7 @@ struct LocValEntry {
 	int16  Reserve;      // @alignment
 };
 
-class LocValList : public SArray {
+class LocValList : public SVector { // @v9.8.10 SArray-->SVector
 public:
 	SLAPI  LocValList();
 	int    SLAPI Setup(LDATE startDate, const GoodsRestParam *);
@@ -42,7 +42,7 @@ private:
 	LDATE  StartDate;
 };
 
-SLAPI LocValList::LocValList() : SArray(sizeof(LocValEntry), /*32,*/O_ARRAY)
+SLAPI LocValList::LocValList() : SVector(sizeof(LocValEntry)) // @v9.8.10 SArray-->SVector
 {
 }
 
@@ -522,11 +522,8 @@ int SLAPI PrcssrPrediction::EditPredictCfg()
 	return ok;
 }
 
-SLAPI PrcssrPrediction::PrcssrPrediction() : Predictor()
+SLAPI PrcssrPrediction::PrcssrPrediction() : Predictor(), P_BObj(BillObj), P_IterQuery(0), MaxTime(0)
 {
-	P_BObj = BillObj;
-	P_IterQuery = 0;
-	MaxTime = 0;
 	if(!Cfg.StartDate)
 		P_BObj->P_Tbl->GetFirstDate(Cfg.OpID, &Cfg.StartDate);
 }
@@ -1493,14 +1490,12 @@ static IMPL_CMPFUNC(__HI, i1, i2) { RET_CMPCASCADE2((const __HI*)i1, (const __HI
 
 class __HolidayArray : public TSVector <__HI> { // @v9.8.4 TSArray-->TSVector
 public:
-	SLAPI  __HolidayArray(const PredictSalesCore & rT, const DateRange & rPeriod) : TSVector <__HI>(), T(rT)
+	SLAPI  __HolidayArray(const PredictSalesCore & rT, const DateRange & rPeriod) : TSVector <__HI>(), T(rT), Period(rPeriod)
 	{
-		//setDelta(32);
-		Period = rPeriod;
 	}
 	int    SLAPI Is(int16 locIdx, LDATE dt);
 private:
-	DateRange Period;
+	const DateRange Period;
 	const PredictSalesCore & T;
 	BitArray LocIdxList;
 };

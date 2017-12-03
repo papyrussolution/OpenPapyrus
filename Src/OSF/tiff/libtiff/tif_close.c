@@ -41,7 +41,6 @@
  *
  * @param tif A TIFF pointer.
  */
-
 void TIFFCleanup(TIFF* tif)
 {
 	/*
@@ -65,7 +64,6 @@ void TIFFCleanup(TIFF* tif)
 		SAlloc::F(tif->tif_rawdata);
 	if(isMapped(tif))
 		TIFFUnmapFileContents(tif, tif->tif_base, (toff_t)tif->tif_size);
-
 	/*
 	 * Clean up custom fields.
 	 */
@@ -90,11 +88,9 @@ void TIFFCleanup(TIFF* tif)
 	}
 	SAlloc::F(tif);
 }
-
-/************************************************************************/
-/*                            TIFFClose()                               */
-/************************************************************************/
-
+// 
+// TIFFClose()
+// 
 /**
  * Close a previously opened TIFF file.
  *
@@ -109,7 +105,6 @@ void TIFFClose(TIFF* tif)
 {
 	TIFFCloseProc closeproc = tif->tif_closeproc;
 	thandle_t fd = tif->tif_clientdata;
-
 	TIFFCleanup(tif);
 	(void)(*closeproc)(fd);
 }

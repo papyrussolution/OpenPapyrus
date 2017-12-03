@@ -4018,6 +4018,20 @@ int FASTCALL SStringU::Cmp(const SStringU & rS) const
 		return wcscmp(P_Buf, rS.P_Buf);
 }
 
+int FASTCALL SStringU::CmpPrefix(const wchar_t * pS) const
+{
+	const size_t len = sstrlen(pS);
+	if(len && Len() >= len)
+		return wcsncmp(P_Buf, pS, len);
+	else
+		return -1;
+}
+
+wchar_t SLAPI SStringU::Last() const
+{
+	return (L > 1) ? P_Buf[L-2] : 0;
+}
+
 int FASTCALL SStringU::HasChr(wchar_t c) const
 {
 	if(c == 0)

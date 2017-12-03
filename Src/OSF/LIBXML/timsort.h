@@ -355,7 +355,7 @@ static void TIM_SORT_MERGE(SORT_TYPE * dst, const TIM_SORT_RUN_T * stack, const 
 		}
 	}
 	/* right merge */
-	else{
+	else {
 		memcpy(storage, &dst[curr + A], (size_t)(B * sizeof(SORT_TYPE)));
 		i = B - 1;
 		j = curr + A - 1;

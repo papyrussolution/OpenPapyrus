@@ -143,8 +143,7 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 		    break;
 		case PHOTOMETRIC_RGB:
 		    if(colorchannels < 3) {
-			    sprintf(emsg, "Sorry, can not handle RGB image with %s=%d",
-			    "Color channels", colorchannels);
+			    sprintf(emsg, "Sorry, can not handle RGB image with %s=%d", "Color channels", colorchannels);
 			    return (0);
 		    }
 		    break;
@@ -153,23 +152,18 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 		    uint16 inkset;
 		    TIFFGetFieldDefaulted(tif, TIFFTAG_INKSET, &inkset);
 		    if(inkset != INKSET_CMYK) {
-			    sprintf(emsg,
-				    "Sorry, can not handle separated image with %s=%d",
-				    "InkSet", inkset);
+			    sprintf(emsg, "Sorry, can not handle separated image with %s=%d", "InkSet", inkset);
 			    return 0;
 		    }
 		    if(td->td_samplesperpixel < 4) {
-			    sprintf(emsg,
-				    "Sorry, can not handle separated image with %s=%d",
-				    "Samples/pixel", td->td_samplesperpixel);
+			    sprintf(emsg, "Sorry, can not handle separated image with %s=%d", "Samples/pixel", td->td_samplesperpixel);
 			    return 0;
 		    }
 		    break;
 	    }
 		case PHOTOMETRIC_LOGL:
 		    if(td->td_compression != COMPRESSION_SGILOG) {
-			    sprintf(emsg, "Sorry, LogL data must have %s=%d",
-			    "Compression", COMPRESSION_SGILOG);
+			    sprintf(emsg, "Sorry, LogL data must have %s=%d", "Compression", COMPRESSION_SGILOG);
 			    return (0);
 		    }
 		    break;
@@ -213,40 +207,17 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 
 void TIFFRGBAImageEnd(TIFFRGBAImage* img)
 {
-	if(img->Map) {
-		SAlloc::F(img->Map);
-		img->Map = NULL;
-	}
-	if(img->BWmap) {
-		SAlloc::F(img->BWmap);
-		img->BWmap = NULL;
-	}
-	if(img->PALmap) {
-		SAlloc::F(img->PALmap);
-		img->PALmap = NULL;
-	}
-	if(img->ycbcr) {
-		SAlloc::F(img->ycbcr);
-		img->ycbcr = NULL;
-	}
-	if(img->cielab) {
-		SAlloc::F(img->cielab);
-		img->cielab = NULL;
-	}
-	if(img->UaToAa) {
-		SAlloc::F(img->UaToAa);
-		img->UaToAa = NULL;
-	}
-	if(img->Bitdepth16To8) {
-		SAlloc::F(img->Bitdepth16To8);
-		img->Bitdepth16To8 = NULL;
-	}
-
+	ZFREE(img->Map);
+	ZFREE(img->BWmap);
+	ZFREE(img->PALmap);
+	ZFREE(img->ycbcr);
+	ZFREE(img->cielab);
+	ZFREE(img->UaToAa);
+	ZFREE(img->Bitdepth16To8);
 	if(img->redcmap) {
-		SAlloc::F(img->redcmap);
-		SAlloc::F(img->greencmap);
-		SAlloc::F(img->bluecmap);
-		img->redcmap = img->greencmap = img->bluecmap = NULL;
+		ZFREE(img->redcmap);
+		ZFREE(img->greencmap);
+		ZFREE(img->bluecmap);
 	}
 }
 
@@ -254,10 +225,7 @@ static int isCCITTCompression(TIFF* tif)
 {
 	uint16 compress;
 	TIFFGetField(tif, TIFFTAG_COMPRESSION, &compress);
-	return (compress == COMPRESSION_CCITTFAX3 ||
-	    compress == COMPRESSION_CCITTFAX4 ||
-	    compress == COMPRESSION_CCITTRLE ||
-	    compress == COMPRESSION_CCITTRLEW);
+	return (compress == COMPRESSION_CCITTFAX3 || compress == COMPRESSION_CCITTFAX4 || compress == COMPRESSION_CCITTRLE || compress == COMPRESSION_CCITTRLEW);
 }
 
 int TIFFRGBAImageBegin(TIFFRGBAImage* img, TIFF* tif, int stop, char emsg[1024])
@@ -369,9 +337,9 @@ int TIFFRGBAImageBegin(TIFFRGBAImage* img, TIFF* tif, int stop, char emsg[1024])
 			    goto fail_return;
 		    }
 
-		    _TIFFmemcpy(img->redcmap, red_orig, n_color * 2);
-		    _TIFFmemcpy(img->greencmap, green_orig, n_color * 2);
-		    _TIFFmemcpy(img->bluecmap, blue_orig, n_color * 2);
+		    memcpy(img->redcmap, red_orig, n_color * 2);
+		    memcpy(img->greencmap, green_orig, n_color * 2);
+		    memcpy(img->bluecmap, blue_orig, n_color * 2);
 
 		/* fall through... */
 		case PHOTOMETRIC_MINISWHITE:
@@ -803,7 +771,7 @@ static int gtTileSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h
 					p2 = p1 = p0;
 					pa = (alpha ? (p0+3*tilesize) : NULL);
 				}
-				else{
+				else {
 					p1 = p0 + tilesize;
 					p2 = p1 + tilesize;
 					pa = (alpha ? (p2+tilesize) : NULL);
@@ -1043,7 +1011,7 @@ static int gtStripSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 
 				p2 = p1 = p0;
 				pa = (alpha ? (p0+3*stripsize) : NULL);
 			}
-			else{
+			else {
 				p1 = p0 + stripsize;
 				p2 = p1 + stripsize;
 				pa = (alpha ? (p2+stripsize) : NULL);
@@ -2228,89 +2196,59 @@ static int isInRefBlackWhiteRange(float f)
 static int initYCbCrConversion(TIFFRGBAImage* img)
 {
 	static const char module[] = "initYCbCrConversion";
-
 	float * luma, * refBlackWhite;
-
 	if(img->ycbcr == NULL) {
-		img->ycbcr = (TIFFYCbCrToRGB*)SAlloc::M(
-		    TIFFroundup_32(sizeof(TIFFYCbCrToRGB), sizeof(long))
-		    + 4*256*sizeof(TIFFRGBValue)
-		    + 2*256*sizeof(int)
-		    + 3*256*sizeof(int32)
-		    );
+		img->ycbcr = (TIFFYCbCrToRGB*)SAlloc::M(TIFFroundup_32(sizeof(TIFFYCbCrToRGB), sizeof(long)) + 4*256*sizeof(TIFFRGBValue) + 2*256*sizeof(int) + 3*256*sizeof(int32));
 		if(img->ycbcr == NULL) {
-			TIFFErrorExt(img->tif->tif_clientdata, module,
-			    "No space for YCbCr->RGB conversion state");
+			TIFFErrorExt(img->tif->tif_clientdata, module, "No space for YCbCr->RGB conversion state");
 			return (0);
 		}
 	}
-
 	TIFFGetFieldDefaulted(img->tif, TIFFTAG_YCBCRCOEFFICIENTS, &luma);
-	TIFFGetFieldDefaulted(img->tif, TIFFTAG_REFERENCEBLACKWHITE,
-	    &refBlackWhite);
-
+	TIFFGetFieldDefaulted(img->tif, TIFFTAG_REFERENCEBLACKWHITE, &refBlackWhite);
 	/* Do some validation to avoid later issues. Detect NaN for now */
 	/* and also if lumaGreen is zero since we divide by it later */
-	if(luma[0] != luma[0] ||
-	    luma[1] != luma[1] ||
-	    luma[1] == 0.0 ||
-	    luma[2] != luma[2]) {
-		TIFFErrorExt(img->tif->tif_clientdata, module,
-		    "Invalid values for YCbCrCoefficients tag");
+	if(luma[0] != luma[0] || luma[1] != luma[1] || luma[1] == 0.0 || luma[2] != luma[2]) {
+		TIFFErrorExt(img->tif->tif_clientdata, module, "Invalid values for YCbCrCoefficients tag");
 		return (0);
 	}
-
-	if(!isInRefBlackWhiteRange(refBlackWhite[0]) ||
-	    !isInRefBlackWhiteRange(refBlackWhite[1]) ||
-	    !isInRefBlackWhiteRange(refBlackWhite[2]) ||
-	    !isInRefBlackWhiteRange(refBlackWhite[3]) ||
-	    !isInRefBlackWhiteRange(refBlackWhite[4]) ||
-	    !isInRefBlackWhiteRange(refBlackWhite[5]) ) {
-		TIFFErrorExt(img->tif->tif_clientdata, module,
-		    "Invalid values for ReferenceBlackWhite tag");
+	if(!isInRefBlackWhiteRange(refBlackWhite[0]) || !isInRefBlackWhiteRange(refBlackWhite[1]) ||
+	    !isInRefBlackWhiteRange(refBlackWhite[2]) || !isInRefBlackWhiteRange(refBlackWhite[3]) ||
+	    !isInRefBlackWhiteRange(refBlackWhite[4]) || !isInRefBlackWhiteRange(refBlackWhite[5]) ) {
+		TIFFErrorExt(img->tif->tif_clientdata, module, "Invalid values for ReferenceBlackWhite tag");
 		return (0);
 	}
 
 	if(TIFFYCbCrToRGBInit(img->ycbcr, luma, refBlackWhite) < 0)
-		return(0);
+		return 0;
 	return (1);
 }
 
 static tileContigRoutine initCIELabConversion(TIFFRGBAImage* img)
 {
 	static const char module[] = "initCIELabConversion";
-
 	float   * whitePoint;
 	float refWhite[3];
-
 	TIFFGetFieldDefaulted(img->tif, TIFFTAG_WHITEPOINT, &whitePoint);
 	if(whitePoint[1] == 0.0f) {
-		TIFFErrorExt(img->tif->tif_clientdata, module,
-		    "Invalid value for WhitePoint tag.");
+		TIFFErrorExt(img->tif->tif_clientdata, module, "Invalid value for WhitePoint tag.");
 		return NULL;
 	}
-
 	if(!img->cielab) {
-		img->cielab = (TIFFCIELabToRGB*)
-		    SAlloc::M(sizeof(TIFFCIELabToRGB));
+		img->cielab = (TIFFCIELabToRGB*)SAlloc::M(sizeof(TIFFCIELabToRGB));
 		if(!img->cielab) {
-			TIFFErrorExt(img->tif->tif_clientdata, module,
-			    "No space for CIE L*a*b*->RGB conversion state.");
+			TIFFErrorExt(img->tif->tif_clientdata, module, "No space for CIE L*a*b*->RGB conversion state.");
 			return NULL;
 		}
 	}
-
 	refWhite[1] = 100.0F;
 	refWhite[0] = whitePoint[0] / whitePoint[1] * refWhite[1];
-	refWhite[2] = (1.0F - whitePoint[0] - whitePoint[1])
-	    / whitePoint[1] * refWhite[1];
+	refWhite[2] = (1.0F - whitePoint[0] - whitePoint[1]) / whitePoint[1] * refWhite[1];
 	if(TIFFCIELabToRGBInit(img->cielab, &display_sRGB, refWhite) < 0) {
-		TIFFErrorExt(img->tif->tif_clientdata, module,
-		    "Failed to initialize CIE L*a*b*->RGB conversion state.");
+		TIFFErrorExt(img->tif->tif_clientdata, module, "Failed to initialize CIE L*a*b*->RGB conversion state.");
 		SAlloc::F(img->cielab);
 		return NULL;
 	}
-
 	return putcontig8bitCIELab;
 }
 
@@ -2381,18 +2319,14 @@ static int makebwmap(TIFFRGBAImage* img)
  */
 static int setupMap(TIFFRGBAImage* img)
 {
-	int32 x, range;
-
-	range = (int32)((1L<<img->bitspersample)-1);
-
+	int32 x;
+	int32 range = (int32)((1L<<img->bitspersample)-1);
 	/* treat 16 bit the same as eight bit */
 	if(img->bitspersample == 16)
 		range = (int32)255;
-
 	img->Map = (TIFFRGBValue*)SAlloc::M((range+1) * sizeof(TIFFRGBValue));
 	if(img->Map == NULL) {
-		TIFFErrorExt(img->tif->tif_clientdata, TIFFFileName(img->tif),
-		    "No space for photometric conversion table");
+		TIFFErrorExt(img->tif->tif_clientdata, TIFFFileName(img->tif), "No space for photometric conversion table");
 		return (0);
 	}
 	if(img->photometric == PHOTOMETRIC_MINISWHITE) {
@@ -2403,9 +2337,7 @@ static int setupMap(TIFFRGBAImage* img)
 		for(x = 0; x <= range; x++)
 			img->Map[x] = (TIFFRGBValue)((x * 255) / range);
 	}
-	if(img->bitspersample <= 16 &&
-	    (img->photometric == PHOTOMETRIC_MINISBLACK ||
-		    img->photometric == PHOTOMETRIC_MINISWHITE)) {
+	if(img->bitspersample <= 16 && (img->photometric == PHOTOMETRIC_MINISBLACK || img->photometric == PHOTOMETRIC_MINISWHITE)) {
 		/*
 		 * Use photometric mapping table to construct
 		 * unpacking tables for samples <= 8 bits.
@@ -2419,26 +2351,24 @@ static int setupMap(TIFFRGBAImage* img)
 	return (1);
 }
 
-static int checkcmap(TIFFRGBAImage* img)
+static int FASTCALL checkcmap(TIFFRGBAImage* img)
 {
 	uint16* r = img->redcmap;
 	uint16* g = img->greencmap;
 	uint16* b = img->bluecmap;
 	long n = 1L<<img->bitspersample;
-
 	while(n-- > 0)
 		if(*r++ >= 256 || *g++ >= 256 || *b++ >= 256)
 			return (16);
 	return (8);
 }
 
-static void cvtcmap(TIFFRGBAImage* img)
+static void FASTCALL cvtcmap(TIFFRGBAImage* img)
 {
 	uint16* r = img->redcmap;
 	uint16* g = img->greencmap;
 	uint16* b = img->bluecmap;
 	long i;
-
 	for(i = (1L<<img->bitspersample)-1; i >= 0; i--) {
 #define CVT(x)          ((uint16)((x)>>8))
 		r[i] = CVT(r[i]);
@@ -2464,9 +2394,7 @@ static int makecmap(TIFFRGBAImage* img)
 	uint16* b = img->bluecmap;
 	uint32 * p;
 	int i;
-
-	img->PALmap = (uint32**)SAlloc::M(
-	    256*sizeof(uint32 *)+(256*nsamples*sizeof(uint32)));
+	img->PALmap = (uint32**)SAlloc::M(256*sizeof(uint32 *)+(256*nsamples*sizeof(uint32)));
 	if(img->PALmap == NULL) {
 		TIFFErrorExt(img->tif->tif_clientdata, TIFFFileName(img->tif), "No space for Palette mapping table");
 		return (0);
@@ -2710,7 +2638,7 @@ static int PickSeparateCase(TIFFRGBAImage* img)
 					if(BuildMapBitdepth16To8(img) && BuildMapUaToAa(img))
 						img->put.separate = putRGBUAseparate16bittile;
 				}
-				else{
+				else {
 					if(BuildMapBitdepth16To8(img))
 						img->put.separate = putRGBseparate16bittile;
 				}
@@ -2750,14 +2678,14 @@ static int BuildMapUaToAa(TIFFRGBAImage* img)
 	img->UaToAa = (uint8*)SAlloc::M(65536);
 	if(img->UaToAa==NULL) {
 		TIFFErrorExt(img->tif->tif_clientdata, module, "Out of memory");
-		return(0);
+		return 0;
 	}
 	m = img->UaToAa;
 	for(na = 0; na<256; na++) {
 		for(nv = 0; nv<256; nv++)
 			*m++ = (uint8)((nv*na+127)/255);
 	}
-	return(1);
+	return 1;
 }
 
 static int BuildMapBitdepth16To8(TIFFRGBAImage* img)
@@ -2769,12 +2697,12 @@ static int BuildMapBitdepth16To8(TIFFRGBAImage* img)
 	img->Bitdepth16To8 = (uint8 *)SAlloc::M(65536);
 	if(img->Bitdepth16To8==NULL) {
 		TIFFErrorExt(img->tif->tif_clientdata, module, "Out of memory");
-		return(0);
+		return 0;
 	}
 	m = img->Bitdepth16To8;
 	for(n = 0; n<65536; n++)
 		*m++ = (uint8)((n+128)/257);
-	return(1);
+	return 1;
 }
 
 /*

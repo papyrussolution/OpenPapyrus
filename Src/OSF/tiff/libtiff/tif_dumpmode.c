@@ -57,7 +57,7 @@ static int DumpModeEncode(TIFF* tif, uint8* pp, tmsize_t cc, uint16 s)
 		 * data buffer to avoid extra copy.
 		 */
 		if(tif->tif_rawcp != pp)
-			_TIFFmemcpy(tif->tif_rawcp, pp, n);
+			memcpy(tif->tif_rawcp, pp, n);
 		tif->tif_rawcp += n;
 		tif->tif_rawcc += n;
 		pp += n;
@@ -78,17 +78,11 @@ static int DumpModeDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 	(void)s;
 	if(tif->tif_rawcc < cc) {
 #if defined(__WIN32__) && (defined(_MSC_VER) || defined(__MINGW32__))
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Not enough data for scanline %lu, expected a request for at most %I64d bytes, got a request for %I64d bytes",
-		    (unsigned long)tif->tif_row,
-		    (signed __int64)tif->tif_rawcc,
-		    (signed __int64)cc);
+		TIFFErrorExt(tif->tif_clientdata, module, "Not enough data for scanline %lu, expected a request for at most %I64d bytes, got a request for %I64d bytes",
+		    (unsigned long)tif->tif_row, (signed __int64)tif->tif_rawcc, (signed __int64)cc);
 #else
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Not enough data for scanline %lu, expected a request for at most %lld bytes, got a request for %lld bytes",
-		    (unsigned long)tif->tif_row,
-		    (signed long long)tif->tif_rawcc,
-		    (signed long long)cc);
+		TIFFErrorExt(tif->tif_clientdata, module, "Not enough data for scanline %lu, expected a request for at most %lld bytes, got a request for %lld bytes",
+		    (unsigned long)tif->tif_row, (signed long long)tif->tif_rawcc, (signed long long)cc);
 #endif
 		return (0);
 	}
@@ -97,7 +91,7 @@ static int DumpModeDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 	 * data buffer to avoid extra copy.
 	 */
 	if(tif->tif_rawcp != buf)
-		_TIFFmemcpy(buf, tif->tif_rawcp, cc);
+		memcpy(buf, tif->tif_rawcp, cc);
 	tif->tif_rawcp += cc;
 	tif->tif_rawcc -= cc;
 	return (1);

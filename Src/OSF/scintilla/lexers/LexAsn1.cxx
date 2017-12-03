@@ -133,7 +133,7 @@ asn1_default:
 					    if(isAsn1Number(sc.ch))
 						    // The trap number is highlighted
 						    sc.SetState(SCE_ASN1_OID);
-					    else{
+					    else {
 						    // The number ends here: go back to main loop
 						    sc.SetState(SCE_ASN1_DEFAULT);
 						    break;

@@ -944,6 +944,7 @@ xmlSchematronPtr xmlSchematronParse(xmlSchematronParserCtxtPtr ctxt)
 	if(!ret)
 		goto exit;
 	ctxt->schema = ret;
+
 	/*
 	 * scan the schema elements
 	 */
@@ -961,19 +962,21 @@ xmlSchematronPtr xmlSchematronParse(xmlSchematronParserCtxtPtr ctxt)
 	while(IS_SCHEMATRON(cur, "ns")) {
 		xmlChar * prefix = xmlGetNoNsProp(cur, BAD_CAST "prefix");
 		xmlChar * uri = xmlGetNoNsProp(cur, BAD_CAST "uri");
-		if(isempty(uri)) {
+		if((uri == NULL) || (uri[0] == 0)) {
 			xmlSchematronPErr(ctxt, cur, XML_SCHEMAP_NOROOT, "ns element has no uri", 0, 0);
 		}
-		if(isempty(prefix)) {
+		if((prefix == NULL) || (prefix[0] == 0)) {
 			xmlSchematronPErr(ctxt, cur, XML_SCHEMAP_NOROOT, "ns element has no prefix", 0, 0);
 		}
-		if(prefix && uri) {
+		if((prefix) && (uri)) {
 			xmlXPathRegisterNs(ctxt->xctxt, prefix, uri);
 			xmlSchematronAddNamespace(ctxt, prefix, uri);
 			ret->nbNs++;
 		}
-		SAlloc::F(uri);
-		SAlloc::F(prefix);
+		if(uri)
+			SAlloc::F(uri);
+		if(prefix)
+			SAlloc::F(prefix);
 		cur = cur->next;
 		NEXT_SCHEMATRON(cur);
 	}
@@ -1357,7 +1360,7 @@ static int xmlSchematronRunTest(xmlSchematronValidCtxtPtr ctxt,
 				    failed = 1;
 			    break;
 			case XPATH_STRING:
-			    if(isempty(ret->stringval))
+			    if((ret->stringval == NULL) || (ret->stringval[0] == 0))
 				    failed = 1;
 			    break;
 			case XPATH_UNDEFINED:
@@ -1491,5 +1494,5 @@ int main()
 
 #endif
 #define bottom_schematron
-//#include "elfgcchack.h"
+#include "elfgcchack.h"
 #endif /* LIBXML_SCHEMATRON_ENABLED */

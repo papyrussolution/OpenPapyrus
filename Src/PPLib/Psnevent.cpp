@@ -1471,8 +1471,10 @@ int SLAPI PsnEventDialog::GetParam(PPID pokID, Param * pParam)
 	return ok;
 }
 
-PsnEventDialog::PsnEventDialog(Param * pParam, PPObjPersonEvent * pPeObj) : PPListDialog(DLG_PSNEVNT, CTL_PSNEVNT_TAGLIST), P_PeObj(pPeObj), P(*pParam)
+PsnEventDialog::PsnEventDialog(Param * pParam, PPObjPersonEvent * pPeObj) : PPListDialog(DLG_PSNEVNT, CTL_PSNEVNT_TAGLIST)
 {
+	P_PeObj = pPeObj;
+	P = *pParam;
 	setTitle(P.DlgTitle);
 	SetupCalDate(CTLCAL_PSNEVNT_DATE, CTL_PSNEVNT_DATE);
 	addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_PSNEVNT_IMAGE,

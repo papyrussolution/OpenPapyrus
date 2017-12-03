@@ -3286,5 +3286,5 @@ const xmlChar * xmlCatalogGetPublic(const xmlChar * pubID)
 }
 
 #define bottom_catalog
-//#include "elfgcchack.h"
+#include "elfgcchack.h"
 #endif /* LIBXML_CATALOG_ENABLED */

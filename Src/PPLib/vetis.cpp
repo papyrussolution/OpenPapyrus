@@ -41,67 +41,32 @@ public:
 		{
 			IssuerUUID.SetZero();
 		}
-		void   Clear()
-		{
-			SetBuffer(0);
-			IssuerUUID.SetZero();
-		}
 		S_GUID IssuerUUID;
 	};
 	SLAPI  PPVetisInterface();
 	SLAPI ~PPVetisInterface();
 	int    SLAPI Init(const Param & rP);
+	int    SLAPI TestCall();
 
 	int    SLAPI GetStockEntryList();
+<<<<<<< HEAD
+	int    SLAPI GetAppliedUserAuthorityList();
+	int    SLAPI GetRussianEnterpriseListRequest(TSCollection <VetisEnterprise> & rResult);
 
 	static int SLAPI SetupParam(Param & rP);
+=======
+>>>>>>> parent of f010b32... Version 9.8.9
 private:
-	int    SubmitRequest(int appFuncId, const void * pAppData, VetisApplicationBlock & rResult);
+	int    SubmitRequest(const VetisApplicationBlock & rQ, VetisApplicationBlock & rResult);
 	int    ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock & rResult);
-	int    SLAPI PrepareAppReqData(VetisApplicationBlock & rBlk, const void * pAppData);
-	int    SLAPI PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
-	void   FASTCALL DestroyResult(void ** ppResult);
 
 	long   State;
 	SString LogFileName;
-	SString LastMsg;
 	SDynLibrary * P_Lib;
 	void * P_DestroyFunc;
 	Param   P;
 	int64   LastLocalTransactionId;
 };
-
-//static 
-int SLAPI PPVetisInterface::SetupParam(Param & rP)
-{
-	rP.Clear();
-
-	int    ok = 1;
-	Reference * p_ref = PPRef;
-	PPID   main_org_id = 0;
-	SString temp_buf;
-	PPAlbatrosConfig acfg;
-	THROW(PPAlbatrosCfgMngr::Get(&acfg) > 0);
-	GetMainOrgID(&main_org_id);
-	acfg.GetExtStrData(ALBATROSEXSTR_VETISUSER, temp_buf);
-	THROW(temp_buf.NotEmptyS()); // @error
-	rP.PutExtStrData(extssUser, temp_buf);
-	acfg.GetPassword(ALBATROSEXSTR_VETISPASSW, temp_buf);
-	THROW(temp_buf.NotEmptyS()); // @error
-	rP.PutExtStrData(extssPassword, temp_buf);
-	acfg.GetExtStrData(ALBATROSEXSTR_VETISAPIKEY, temp_buf);
-	THROW(temp_buf.NotEmptyS()); // @error
-	rP.PutExtStrData(extssApiKey, temp_buf);
-	{
-		ObjTagItem tag_item;
-		if(p_ref->Ot.GetTag(PPOBJ_PERSON, main_org_id, PPTAG_PERSON_VETISUUID, &tag_item) > 0) {
-			tag_item.GetGuid(&rP.IssuerUUID);
-		}
-		THROW(!rP.IssuerUUID.IsZero()); // @error
-	}
-	CATCHZOK
-	return ok;
-}
 
 SLAPI PPVetisInterface::PPVetisInterface() : State(0), P_Lib(0), P_DestroyFunc(0), LastLocalTransactionId(0)
 {
@@ -128,43 +93,57 @@ int SLAPI PPVetisInterface::Init(const Param & rP)
 {
 	int    ok = 1;
 	P = rP;
-	State |= stInited;
 	return ok;
 }
 
-int SLAPI PPVetisInterface::PreprocessResult(const void * pResult, const PPSoapClientSession & rSess)
-{
-	LastMsg = rSess.GetMsg();
-    return BIN(pResult);
-}
-
-void FASTCALL PPVetisInterface::DestroyResult(void ** ppResult)
-{
-	if(P_DestroyFunc) {
-		((UHTT_DESTROYRESULT)P_DestroyFunc)(*ppResult);
-		*ppResult = 0;
-	}
-}
-
-int SLAPI PPVetisInterface::PrepareAppReqData(VetisApplicationBlock & rBlk, const void * pAppData)
+int SLAPI PPVetisInterface::SubmitRequest(const VetisApplicationBlock & rQ, VetisApplicationBlock & rResult)
 {
 	int    ok = 0;
-	if(rBlk.Func == VetisApplicationBlock::detGetStockEntryListReq) {
+	return ok;
+}
+
+int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock & rResult)
+{
+	int    ok = 0;
+<<<<<<< HEAD
+	if(rBlk.Func == VetisApplicationData::signGetStockEntryListRequest) {
 		rBlk.P_GselReq = new VetisGetStockEntryListRequest;
 		rBlk.P_GselReq->Initiator.Login = rBlk.User;
-		rBlk.P_GselReq->ListOptions.Count = 50;
+		rBlk.P_GselReq->ListOptions.Count = 20;
+		ok = 1;
+	}
+	else if(rBlk.Func == VetisApplicationData::signGetAppliedUserAuthorityListRequest) {
+		rBlk.P_LoReq = new VetisListOptionsRequest(rBlk.Func);
+		rBlk.P_LoReq->Initiator.Login = rBlk.User;
+		rBlk.P_LoReq->ListOptions.Count = 20;
+		ok = 1;
+	}
+	else if(rBlk.Func == VetisApplicationData::signGetRussianEnterpriseListRequest) {
+		rBlk.P_LoReq = new VetisListOptionsRequest(rBlk.Func);
+		rBlk.P_LoReq->Initiator.Login = rBlk.User;
+		rBlk.P_LoReq->ListOptions.Count = 20;
 		ok = 1;
 	}
 	return ok;
 }
 
+//static const char * P_VetisSoapUrl = "https://api.vetrf.ru/platform/services/ApplicationManagementService"; // product
+static const char * P_VetisSoapUrl = "https://api2.vetrf.ru:8002/platform/services/ApplicationManagementService"; // test
+
 int SLAPI PPVetisInterface::SubmitRequest(int appFuncId, const void * pAppData, VetisApplicationBlock & rResult)
+=======
+	return ok;
+}
+
+int SLAPI PPVetisInterface::GetStockEntryList()
+>>>>>>> parent of f010b32... Version 9.8.9
 {
 	int    ok = -1;
 	SString temp_buf;
 	SString user, password, api_key;
-	VetisApplicationBlock * p_result = 0; 
+	VetisApplicationBlock * p_result = 0;
 	PPSoapClientSession sess;
+	SapEfesCallHeader sech;
 	VETIS_SUBMITAPPLICATIONREQUEST_PROC func = 0;
 	THROW(State & stInited);
 	THROW(P_Lib);
@@ -172,31 +151,37 @@ int SLAPI PPVetisInterface::SubmitRequest(int appFuncId, const void * pAppData, 
 	P.GetExtStrData(extssUser, user);
 	P.GetExtStrData(extssPassword, password);
 	P.GetExtStrData(extssApiKey, api_key);
-	sess.Setup(0/*url*/, user, password);
+	sess.Setup(P_VetisSoapUrl, user, password);
 	{
 		VetisApplicationBlock blk;
+<<<<<<< HEAD
 		blk.User = user;
 		blk.Func = appFuncId; //VetisApplicationBlock::detGetStockEntryListReq;
-		blk.ServiceId = "mercury-g2b.service:2.0";
+		if(appFuncId == VetisApplicationData::signGetRussianEnterpriseListRequest)
+			blk.ServiceId = "EnterpriseService";
+		else
+			blk.ServiceId = "mercury-g2b.service"; // "mercury-g2b.service:2.0";
 		blk.IssuerId = P.IssuerUUID;
 		blk.IssueDate = getcurdatetime_();
 		blk.ApplicationId.Generate();
+=======
+		blk.Func = VetisApplicationBlock::detGetStockEntryListReq;
+>>>>>>> parent of f010b32... Version 9.8.9
 		blk.LocalTransactionId = ++LastLocalTransactionId;
-		THROW(PrepareAppReqData(blk, pAppData));
+		blk.P_GselReq = new VetisGetStockEntryListRequest;
 		p_result = func(sess, api_key, blk);
-		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
-		rResult = *p_result;
+		//THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 		//LogResultMsgList(p_result);
-		DestroyResult((void **)&p_result);
-		ok = 1;
+		//DestroyResult((void **)&p_result);
 	}
     CATCHZOK
 	return ok;
 }
 
-int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock & rResult)
+int SLAPI PPVetisInterface::TestCall()
 {
 	int    ok = -1;
+<<<<<<< HEAD
 	SString user, password, api_key;
 	VetisApplicationBlock * p_result = 0; 
 	PPSoapClientSession sess;
@@ -207,7 +192,7 @@ int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicatio
 	P.GetExtStrData(extssUser, user);
 	P.GetExtStrData(extssPassword, password);
 	P.GetExtStrData(extssApiKey, api_key);
-	sess.Setup(0/*url*/, user, password);
+	sess.Setup(P_VetisSoapUrl, user, password);
 	{
 		//VetisApplicationBlock * Vetsi_ReceiveApplicationResult(PPSoapClientSession & rSess, const char * pApiKey, const S_GUID & rIssuerId, const S_GUID & rApplicationId)
 		p_result = func(sess, api_key, P.IssuerUUID, rAppId);
@@ -221,14 +206,52 @@ int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicatio
 	return ok;
 }
 
+int SLAPI PPVetisInterface::GetRussianEnterpriseListRequest(TSCollection <VetisEnterprise> & rResult)
+{
+	int    ok = -1;
+	SString user, password, api_key;
+	TSCollection <VetisEnterprise> * p_result = 0; 
+	PPSoapClientSession sess;
+	VETIS_GETRUSSIANENTERPRISELIST_PROC func = 0;
+	THROW(State & stInited);
+	THROW(P_Lib);
+	THROW_SL(func = (VETIS_GETRUSSIANENTERPRISELIST_PROC)P_Lib->GetProcAddr("Vetis_GetRussianEnterpriseList"));
+	P.GetExtStrData(extssUser, user);
+	P.GetExtStrData(extssPassword, password);
+	sess.Setup(/*P_VetisSoapUrl*/0, user, password);
+	{
+		p_result = func(sess, 0, 0);
+		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+		TSCollection_Copy(rResult, *p_result);
+		DestroyResult((void **)&p_result);
+		ok = 1;
+	}
+    CATCHZOK
+	return ok;
+}
+
+int SLAPI PPVetisInterface::GetAppliedUserAuthorityList()
+{
+	int    ok = 1;
+	VetisApplicationBlock submit_result;
+	VetisApplicationBlock receive_result;
+	THROW(SubmitRequest(VetisApplicationData::signGetAppliedUserAuthorityListRequest, 0, submit_result));
+	if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
+		SDelay(1000);
+		THROW(ReceiveResult(submit_result.ApplicationId, receive_result));
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI PPVetisInterface::GetStockEntryList()
 {
 	int    ok = 1;
 	VetisApplicationBlock submit_result;
 	VetisApplicationBlock receive_result;
-	THROW(SubmitRequest(VetisApplicationBlock::detGetStockEntryListReq, 0, submit_result));
+	THROW(SubmitRequest(VetisApplicationData::signGetStockEntryListRequest, 0, submit_result));
 	if(submit_result.ApplicationStatus == VetisApplicationBlock::appstAccepted) {
-		SDelay(200);
+		SDelay(1000);
 		THROW(ReceiveResult(submit_result.ApplicationId, receive_result));
 	}
 	CATCHZOK
@@ -238,15 +261,25 @@ int SLAPI PPVetisInterface::GetStockEntryList()
 int SLAPI TestVetis()
 {
 	int    ok = 1;
+
+	TSCollection <VetisEnterprise> ent_list;
+
 	PPVetisInterface::Param param;
 	THROW(PPVetisInterface::SetupParam(param));
 	{
 		PPVetisInterface ifc;
 		THROW(ifc.Init(param));
-		THROW(ifc.GetStockEntryList());
+		//THROW(ifc.GetStockEntryList());
+		//THROW(ifc.GetAppliedUserAuthorityList());
+		THROW(ifc.GetRussianEnterpriseListRequest(ent_list));
 	}
 	CATCHZOK
 	return ok;
 }
 
 
+=======
+	return ok;
+}
+
+>>>>>>> parent of f010b32... Version 9.8.9

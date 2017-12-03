@@ -1082,13 +1082,18 @@ struct PatternToPenConverter {
 			    join = Qt::BevelJoin;
 			    break;
 		}
+
 		mPen = QPen(mBrushConverter, style->line_width, Qt::SolidLine, cap, join);
 		mPen.setMiterLimit(style->miter_limit);
+
 		if(style->dash && style->num_dashes) {
 			Qt::PenStyle pstyle = Qt::NoPen;
+
 			if(style->num_dashes == 2) {
-				if((style->dash[0] == style->line_width && style->dash[1] == style->line_width && style->line_width <= 2.0) ||
-				    (style->dash[0] == 0.0 && style->dash[1] == style->line_width * 2 && cap == Qt::RoundCap)) {
+				if((style->dash[0] == style->line_width &&
+					    style->dash[1] == style->line_width && style->line_width <= 2.0) ||
+				    (style->dash[0] == 0.0 &&
+					    style->dash[1] == style->line_width * 2 && cap == Qt::RoundCap)) {
 					pstyle = Qt::DotLine;
 				}
 				else if(style->dash[0] == style->line_width * DASH_LENGTH &&

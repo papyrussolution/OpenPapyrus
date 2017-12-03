@@ -13,16 +13,12 @@
 //
 //
 //
-ObjCache::MultTextBlock::MultTextBlock() : Ss("/&")
+SLAPI ObjCache::MultTextBlock::MultTextBlock() : Ss("/&"), RdMode(0), CurPos(0)
 {
-	RdMode = 0;
-	CurPos = 0;
 }
 
-ObjCache::MultTextBlock::MultTextBlock(const ObjCache * pCache, const ObjCacheEntry * pEntry) : Ss("/&")
+SLAPI ObjCache::MultTextBlock::MultTextBlock(const ObjCache * pCache, const ObjCacheEntry * pEntry) : Ss("/&"), RdMode(1), CurPos(0)
 {
-	RdMode = 1;
-	CurPos = 0;
 	char   temp_buf[4096];
 	pCache->GetName(pEntry, temp_buf, sizeof(temp_buf));
 	Ss.setBuf(temp_buf, strlen(temp_buf)+1);
@@ -101,34 +97,18 @@ int SLAPI ObjCache::ExtTextBlock::Implement_Get(PPID id, SString & rBuf, void * 
 //
 //
 //
-SLAPI ObjCache::ObjCache(PPID objType, size_t entrySize, long flags)
+SLAPI ObjCache::ObjCache(PPID objType, size_t entrySize, long flags) : ObjType(objType), EntrySize(entrySize), UnusedNameSpace(0), Flags(flags), LastPackNamesClock(0)
 {
-	ObjType   = objType;
-	EntrySize = entrySize;
-	UnusedNameSpace = 0;
 	P_Ary = (flags & fOwnerArray) ? 0 : new SArray(EntrySize, /*128,*/ O_ARRAY); // @v8.1.6 1-->128
 	PPLoadText(PPTXT_STATLOG_OBJCACHE, StatLogMsg);
 	MEMSZERO(StatData);
-	Flags = flags;
 	Ss.add("$"); // zero index - is empty string
-	LastPackNamesClock = 0;
 }
 
 SLAPI ObjCache::~ObjCache()
 {
 	delete P_Ary;
 }
-
-PPID SLAPI ObjCache::GetObjType() const
-{
-	return ObjType;
-}
-
-size_t SLAPI ObjCache::GetEntrySize() const
-{
-	return EntrySize;
-}
-
 /*
 int SLAPI ObjCache::LogStat() const
 {
@@ -439,10 +419,9 @@ int SLAPI ObjCache::GetStat(ObjCacheStat * pStat)
 //
 //
 //
-ObjCache::RefSymbArray::RefSymbArray(PPID objType) : StrAssocArray(), ObjType(objType)
+SLAPI ObjCache::RefSymbArray::RefSymbArray(PPID objType) : StrAssocArray(), ObjType(objType), Inited(0)
 {
 	assert(ObjType > 0 && ObjType < 1000);
-	Inited = 0;
 }
 
 void FASTCALL ObjCache::RefSymbArray::Dirty(PPID id) // @sync_w

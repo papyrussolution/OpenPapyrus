@@ -717,7 +717,7 @@ static int TIFFAppendToStrip(TIFF* tif, uint32 strip, uint8* data, tmsize_t cc)
 				return (0);
 			}
 		}
-		else{
+		else {
 			/*
 			 * Seek to end of file, and set that as our location to
 			 * write this strip.

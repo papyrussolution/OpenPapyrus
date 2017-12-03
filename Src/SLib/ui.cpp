@@ -42,8 +42,8 @@ int UiItemKind::Init(int kind)
 	int    ok = 1;
 	Id = 0;
 	P_Cls = 0;
-	Symb = 0;
-	Text = 0;
+	Symb.Z();
+	Text.Z();
 	const char * p_text_sign = 0;
 	switch(kind) {
 		case kUnkn:

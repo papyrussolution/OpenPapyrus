@@ -23,7 +23,6 @@
  * LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
  * OF THIS SOFTWARE.
  */
-
 /*
  * TIFF Library
  *
@@ -65,15 +64,10 @@ int _TIFFNoTileEncode(TIFF* tif, uint8* pp, tmsize_t cc, uint16 s)
 static int TIFFNoDecode(TIFF* tif, const char* method)
 {
 	const TIFFCodec* c = TIFFFindCODEC(tif->tif_dir.td_compression);
-
 	if(c)
-		TIFFErrorExt(tif->tif_clientdata, tif->tif_name,
-		    "%s %s decoding is not implemented",
-		    c->name, method);
+		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "%s %s decoding is not implemented", c->name, method);
 	else
-		TIFFErrorExt(tif->tif_clientdata, tif->tif_name,
-		    "Compression scheme %u %s decoding is not implemented",
-		    tif->tif_dir.td_compression, method);
+		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Compression scheme %u %s decoding is not implemented", tif->tif_dir.td_compression, method);
 	return (0);
 }
 
@@ -104,8 +98,7 @@ int _TIFFNoTileDecode(TIFF* tif, uint8* pp, tmsize_t cc, uint16 s)
 int _TIFFNoSeek(TIFF* tif, uint32 off)
 {
 	(void)off;
-	TIFFErrorExt(tif->tif_clientdata, tif->tif_name,
-	    "Compression algorithm does not support random access");
+	TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Compression algorithm does not support random access");
 	return (0);
 }
 
@@ -115,11 +108,14 @@ int _TIFFNoPreCode(TIFF* tif, uint16 s)
 	return (1);
 }
 
-static int _TIFFtrue(TIFF* tif) {
-	(void)tif; return (1);
+static int _TIFFtrue(TIFF* tif) 
+{
+	(void)tif; 
+	return (1);
 }
 
-static void _TIFFvoid(TIFF* tif) {
+static void _TIFFvoid(TIFF* tif) 
+{
 	(void)tif;
 }
 
@@ -177,7 +173,6 @@ const TIFFCodec* TIFFFindCODEC(uint16 scheme)
 {
 	const TIFFCodec* c;
 	codec_t* cd;
-
 	for(cd = registeredCODECS; cd; cd = cd->next)
 		if(cd->info->scheme == scheme)
 			return ((const TIFFCodec*)cd->info);
@@ -189,13 +184,10 @@ const TIFFCodec* TIFFFindCODEC(uint16 scheme)
 
 TIFFCodec* TIFFRegisterCODEC(uint16 scheme, const char* name, TIFFInitMethod init)
 {
-	codec_t* cd = (codec_t*)
-	    SAlloc::M((tmsize_t)(sizeof(codec_t) + sizeof(TIFFCodec) + strlen(name)+1));
-
-	if(cd != NULL) {
+	codec_t* cd = (codec_t*)SAlloc::M((tmsize_t)(sizeof(codec_t) + sizeof(TIFFCodec) + strlen(name)+1));
+	if(cd) {
 		cd->info = (TIFFCodec*)((uint8*)cd + sizeof(codec_t));
-		cd->info->name = (char*)
-		    ((uint8*)cd->info + sizeof(TIFFCodec));
+		cd->info->name = (char*)((uint8*)cd->info + sizeof(TIFFCodec));
 		strcpy(cd->info->name, name);
 		cd->info->scheme = scheme;
 		cd->info->init = init;
@@ -233,7 +225,6 @@ void TIFFUnRegisterCODEC(TIFFCodec* c)
  * @return returns array of TIFFCodec records (the last record should be NULL)
  * or NULL if function failed.
  */
-
 TIFFCodec* TIFFGetConfiguredCODECs()
 {
 	int i = 1;
@@ -241,32 +232,28 @@ TIFFCodec* TIFFGetConfiguredCODECs()
 	const TIFFCodec* c;
 	TIFFCodec* codecs = NULL;
 	TIFFCodec* new_codecs;
-
 	for(cd = registeredCODECS; cd; cd = cd->next) {
-		new_codecs = (TIFFCodec*)
-		    SAlloc::R(codecs, i * sizeof(TIFFCodec));
+		new_codecs = (TIFFCodec*)SAlloc::R(codecs, i * sizeof(TIFFCodec));
 		if(!new_codecs) {
 			SAlloc::F(codecs);
 			return NULL;
 		}
 		codecs = new_codecs;
-		_TIFFmemcpy(codecs + i - 1, cd, sizeof(TIFFCodec));
+		memcpy(codecs + i - 1, cd, sizeof(TIFFCodec));
 		i++;
 	}
 	for(c = _TIFFBuiltinCODECS; c->name; c++) {
 		if(TIFFIsCODECConfigured(c->scheme)) {
-			new_codecs = (TIFFCodec*)
-			    SAlloc::R(codecs, i * sizeof(TIFFCodec));
+			new_codecs = (TIFFCodec*)SAlloc::R(codecs, i * sizeof(TIFFCodec));
 			if(!new_codecs) {
 				SAlloc::F(codecs);
 				return NULL;
 			}
 			codecs = new_codecs;
-			_TIFFmemcpy(codecs + i - 1, (const void*)c, sizeof(TIFFCodec));
+			memcpy(codecs + i - 1, (const void*)c, sizeof(TIFFCodec));
 			i++;
 		}
 	}
-
 	new_codecs = (TIFFCodec*)SAlloc::R(codecs, i * sizeof(TIFFCodec));
 	if(!new_codecs) {
 		SAlloc::F(codecs);

@@ -1,5 +1,6 @@
 /*
- * elfgcchack.h: hack by Arjan van de Ven <arjanv@redhat.com> to speed up the code when using gcc for call within the library.
+ * elfgcchack.h: hack by Arjan van de Ven <arjanv@redhat.com> to speed
+ *               up the code when using gcc for call within the library.
  *
  * Based on the analysis http://people.redhat.com/drepper/dsohowto.pdf
  * from Ulrich drepper. Rewritten to be generated from the XML description

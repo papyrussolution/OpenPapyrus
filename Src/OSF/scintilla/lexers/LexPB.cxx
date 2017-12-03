@@ -104,11 +104,11 @@ static void ColourisePBDoc(Sci_PositionU startPos, Sci_Position length, int init
 								    sc.SetState(SCE_B_DEFAULT);
 							    }
 						    }
-						    else{
+						    else {
 							    sc.SetState(SCE_B_DEFAULT);
 						    }
 					    }
-					    else{
+					    else {
 						    sc.ChangeState(SCE_B_IDENTIFIER);
 						    sc.SetState(SCE_B_DEFAULT);
 					    }

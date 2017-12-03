@@ -120,7 +120,7 @@ int SLAPI PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 				//
 				(tmp_sub_dir = _temp_path).Cat("oimg????.*");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
-					if(!(sde.Attr & 0x10) && !sstreq(sde.FileName, ".") && !sstreq(sde.FileName, "..")) {
+					if(!(sde.Attr & 0x10) && strcmp(sde.FileName, ".") != 0 && strcmp(sde.FileName, "..") != 0) {
 						if(diffdatetimesec(ct, sde.WriteTime) > (3600*24*3))
 							etc_to_rmv_files.add((tmp_path = _temp_path).Cat(sde.FileName));
 					}
@@ -133,7 +133,7 @@ int SLAPI PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 				(tmp_dir = _temp_path).Cat("img").SetLastSlash();
 				(tmp_sub_dir = tmp_dir).Cat("pst?????.*");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
-					if(!(sde.Attr & 0x10) && !sstreq(sde.FileName, ".") && !sstreq(sde.FileName, "..")) {
+					if(!(sde.Attr & 0x10) && strcmp(sde.FileName, ".") != 0 && strcmp(sde.FileName, "..") != 0) {
 						if(diffdatetimesec(ct, sde.WriteTime) > (3600*24*3))
 							etc_to_rmv_files.add((tmp_path = tmp_dir).Cat(sde.FileName));
 					}
@@ -145,7 +145,7 @@ int SLAPI PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 				//
 				(tmp_sub_dir = _temp_path).Cat("*.xml");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
-					if(!(sde.Attr & 0x10) && !sstreq(sde.FileName, ".") && !sstreq(sde.FileName, "..")) {
+					if(!(sde.Attr & 0x10) && strcmp(sde.FileName, ".") != 0 && strcmp(sde.FileName, "..") != 0) {
 						if(diffdatetimesec(ct, sde.WriteTime) > (3600*24*3))
 							etc_to_rmv_files.add((tmp_path = _temp_path).Cat(sde.FileName));
 					}
@@ -157,7 +157,7 @@ int SLAPI PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 				//
 				(tmp_sub_dir = _temp_path).Cat("wb*.*");
 				for(SDirec sd(tmp_sub_dir, 0); sd.Next(&sde) > 0;) {
-					if(!(sde.Attr & 0x10) && !sstreq(sde.FileName, ".") && !sstreq(sde.FileName, "..")) {
+					if(!(sde.Attr & 0x10) && strcmp(sde.FileName, ".") != 0 && strcmp(sde.FileName, "..") != 0) {
 						if(diffdatetimesec(ct, sde.WriteTime) > (3600*24*3))
 							etc_to_rmv_files.add((tmp_path = _temp_path).Cat(sde.FileName));
 					}

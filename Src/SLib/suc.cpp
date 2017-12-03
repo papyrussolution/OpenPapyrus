@@ -12,12 +12,15 @@ SLAPI SUnicodeTable::Item32::Item32()
 	THISZERO();
 }
 
-SLAPI SUnicodeTable::UPair::UPair(uint32 key, uint32 val) : K(key), V(val)
+SLAPI SUnicodeTable::UPair::UPair(uint32 key, uint32 val)
 {
+	K = key;
+	V = val;
 }
 
-SLAPI SUnicodeTable::SUnicodeTable() : LastIdx(0)
+SLAPI SUnicodeTable::SUnicodeTable()
 {
+	LastIdx = 0;
 }
 
 int SLAPI SUnicodeTable::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
@@ -954,9 +957,10 @@ IMPL_CMPCFUNC(CPMCPENTRYUREF, p1, p2)
 	return CMPSIGN(p_list[r1].U2, p_list[r2].U2);
 }
 
-SLAPI SCodepageMapPool::MapEntry::MapEntry() : U2(0)
+SLAPI SCodepageMapPool::MapEntry::MapEntry()
 {
 	PTR32(B)[0] = 0;
+	U2 = 0;
 }
 
 int FASTCALL SCodepageMapPool::MapEntry::operator == (const MapEntry & rS) const
@@ -1308,6 +1312,7 @@ int SLAPI SCodepageMapPool::CpMap::MakeUIndex(LongArray & rIdx) const
 	for(uint i = 0; i < MapCount; i++) {
 		THROW(rIdx.add((long)i));
 	}
+	//rIdx.SArray::sort(PTR_CMPCFUNC(CPMCPENTRYUREF), (void *)P_Map); // @badcast
 	rIdx.SVector::sort(PTR_CMPCFUNC(CPMCPENTRYUREF), (void *)P_Map); // @badcast
 	CATCHZOK
 	return ok;
@@ -1335,6 +1340,34 @@ const SCodepageMapPool::MapEntry * FASTCALL SCodepageMapPool::CpMap::SearchU(wch
 	}
 	else
 		return SearchU(u);
+}
+
+int SLAPI SCodepageMapPool::CpMap::TranslateToB(const wchar_t * pSrc, size_t srcLen, SString & rBuf) const
+{
+	int    ok = 0;
+	LongArray uidx;
+	MakeUIndex(uidx);
+	for(uint i = 0; i < srcLen; i++) {
+        const MapEntry * p_entry = SearchU(pSrc[i], &uidx);
+        if(p_entry) {
+			if(p_entry->B[0]) {
+				rBuf.CatChar(p_entry->B[0]);
+				if(p_entry->B[1]) {
+					rBuf.CatChar(p_entry->B[1]);
+					if(p_entry->B[2]) {
+						rBuf.CatChar(p_entry->B[2]);
+						if(p_entry->B[3]) {
+							rBuf.CatChar(p_entry->B[3]);
+						}
+					}
+				}
+			}
+        }
+        else {
+			rBuf.CatChar('?');
+        }
+	}
+    return ok;
 }
 
 int FASTCALL SCodepageMapPool::CpMap::Helper_BSearchB(uint32 b4, wchar_t * pU) const
@@ -1558,18 +1591,14 @@ void SCodepageMapPool::CMapTranslIndexTest::Reset()
 
 IMPL_CMPCFUNC(CMapTranslEntry, p1, p2) { RET_CMPCASCADE4((const SCodepageMapPool::CMapTranslEntry *)p1, (const SCodepageMapPool::CMapTranslEntry *)p2, S[0], S[1], S[2], S[3]); }
 
-SLAPI SCodepageMapPool::CMapTranslEntry::CMapTranslEntry()
-{
-	THISZERO();
-}
-
 void SCodepageMapPool::CMapTranslIndexTest::Sort()
 {
 	sort(PTR_CMPCFUNC(CMapTranslEntry));
 }
 
-SLAPI SCodepageMapPool::TranslIndex::TranslIndex() : P_Tab(0)
+SLAPI SCodepageMapPool::TranslIndex::TranslIndex()
 {
+	P_Tab = 0;
 	Reset();
 }
 
@@ -1674,7 +1703,8 @@ int SLAPI SCodepageMapPool::TranslIndex::Setup(const SCodepageMapPool::CMapTrans
                 uint8 * t = PTR8(P_Tab)+tab_ptr;
                 switch(rIdx.MaxSLen) {
                     case 2:
-                        *PTR16(t) = *PTR16(r_tcm_entry.S);
+                        t[0] = r_tcm_entry.S[0];
+                        t[1] = r_tcm_entry.S[1];
                         break;
 					case 3:
                         t[0] = r_tcm_entry.S[0];
@@ -1800,13 +1830,30 @@ const uint8 * FASTCALL SCodepageMapPool::TranslIndex::Search(const uint8 * pSrc)
 									cmp = CMPSIGN(p[0], p_prev[0]);
 									break;
 								case 2:
-									CMPARRAY2(cmp, p, p_prev);
+									cmp = CMPSIGN(p[0], p_prev[0]);
+									if(cmp == 0) {
+										cmp = CMPSIGN(p[1], p_prev[1]);
+									}
 									break;
 								case 3:
-									CMPARRAY3(cmp, p, p_prev);
+									cmp = CMPSIGN(p[0], p_prev[0]);
+									if(cmp == 0) {
+										cmp = CMPSIGN(p[1], p_prev[1]);
+										if(cmp == 0) {
+											cmp = CMPSIGN(p[2], p_prev[2]);
+										}
+									}
 									break;
 								case 4:
-									CMPARRAY4(cmp, p, p_prev);
+									cmp = CMPSIGN(p[0], p_prev[0]);
+									if(cmp == 0) {
+										cmp = CMPSIGN(p[1], p_prev[1]);
+										if(cmp == 0) {
+											cmp = CMPSIGN(p[2], p_prev[2]);
+											if(cmp == 0)
+												cmp = CMPSIGN(p[3], p_prev[3]);
+										}
+									}
 									break;
 							}
 							assert(cmp > 0);
@@ -1825,17 +1872,34 @@ const uint8 * FASTCALL SCodepageMapPool::TranslIndex::Search(const uint8 * pSrc)
 								cmp = +1;
 							break;
 						case 2:
-							CMPARRAY2(cmp, p, pSrc);
-							if(cmp == 0 && SL > src_len && p[2])
-								cmp = +1;
+							cmp = CMPSIGN(p[0], pSrc[0]);
+							if(cmp == 0) {
+								cmp = CMPSIGN(p[1], pSrc[1]);
+								if(cmp == 0 && SL > src_len && p[2])
+									cmp = +1;
+							}
 							break;
 						case 3:
-							CMPARRAY3(cmp, p, pSrc);
-							if(cmp == 0 && SL > src_len && p[3])
-								cmp = +1;
+							cmp = CMPSIGN(p[0], pSrc[0]);
+							if(cmp == 0) {
+								cmp = CMPSIGN(p[1], pSrc[1]);
+								if(cmp == 0) {
+									cmp = CMPSIGN(p[2], pSrc[2]);
+									if(cmp == 0 && SL > src_len && p[3])
+										cmp = +1;
+								}
+							}
 							break;
 						case 4:
-							CMPARRAY4(cmp, p, pSrc);
+							cmp = CMPSIGN(p[0], pSrc[0]);
+							if(cmp == 0) {
+								cmp = CMPSIGN(p[1], pSrc[1]);
+								if(cmp == 0) {
+									cmp = CMPSIGN(p[2], pSrc[2]);
+									if(cmp == 0)
+										cmp = CMPSIGN(p[3], pSrc[3]);
+								}
+							}
 							break;
 					}
 					if(cmp < 0)
@@ -1865,6 +1929,12 @@ int SLAPI SCodepageMapPool::Helper_MakeTranslIndex(const CpMap & rFrom, const Cp
 	int    ok = 1;
 	LongArray to_idx;
 	rTo.MakeUIndex(to_idx);
+	/*
+    if(rFrom.MbMl == 1) {
+        if(rTo.MbMl == 1) {
+        }
+    }
+    */
 	for(uint i = 0; i < rFrom.MapCount; i++) {
 		const wchar_t u = rFrom.P_Map[i].U2;
 		const  MapEntry * p_to_entry = rTo.SearchU(u, &to_idx);
@@ -1904,7 +1974,7 @@ int SLAPI SCodepageMapPool::Helper_MakeTranslIndex(const CpMap & rFrom, const Cp
 		rFinalIdx.Flags |= TranslIndex::fIdentical;
 	}
 	else if(rIdx.getCount() == 0) {
-		rFinalIdx.Flags |= TranslIndex::fEmpty;
+		rFinalIdx.Flags |= TranslIndex::fIdentical;
 	}
 	else {
 		rIdx.Sort();
@@ -2334,6 +2404,11 @@ int SLAPI SCodepageMapPool::Test(const SUnicodeTable * pUt, const char * pMapPoo
 					assert(test_ustr.Len() == org_ustr.Len());
 					assert(test_ustr.IsEqual(org_ustr));
 					THROW(test_ustr.IsEqual(org_ustr));
+					//
+					map.TranslateToB(test_ustr, test_ustr.Len(), test_cstr.Z());
+					assert(test_cstr.Len() == org_cstr.Len());
+					assert(test_cstr.IsEqual(org_cstr));
+					THROW(test_cstr.IsEqual(org_cstr));
 					//
 					map.TranslateToB2(test_ustr, test_ustr.Len(), test_cstr.Z());
 					assert(test_cstr.Len() == org_cstr.Len());

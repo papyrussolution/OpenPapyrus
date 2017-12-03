@@ -1197,9 +1197,7 @@ int SLAPI BillCore::Helper_CalcPayment(PPID id, PPID curID, const PPCycleArray *
 	PROFILE_START
 	while((r = EnumLinks(id, &di, BLNK_PAYMRETN|BLNK_CHARGEPAYM)) > 0) {
 		if(data.CurID == curID) {
-			int    no_paym = 0;
-			if(data.StatusID && bs_obj.Fetch(data.StatusID, &bs_rec) > 0 && bs_rec.Flags & BILSTF_LOCK_PAYMENT)
-				no_paym = 1;
+			const int no_paym = BIN(data.StatusID && bs_obj.Fetch(data.StatusID, &bs_rec) > 0 && bs_rec.Flags & BILSTF_LOCK_PAYMENT);
 			if(!no_paym) {
 				id_list.add(data.ID);
 				p = BR2(data.Amount);

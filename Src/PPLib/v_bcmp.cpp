@@ -20,11 +20,8 @@ GoodsBillCmpFilt & FASTCALL GoodsBillCmpFilt::operator = (const GoodsBillCmpFilt
 	return *this;
 }
 
-SLAPI PPViewGoodsBillCmp::PPViewGoodsBillCmp() : PPView(0, &Filt, PPVIEW_GOODSBILLCMP)
+SLAPI PPViewGoodsBillCmp::PPViewGoodsBillCmp() : PPView(0, &Filt, PPVIEW_GOODSBILLCMP), P_TempTbl(0), P_BObj(BillObj), IterIdx(1)
 {
-	P_TempTbl = 0;
-	P_BObj = BillObj;
-	IterIdx = 1;
 	DefReportId = REPORT_GOODSBILLCMP;
 }
 

@@ -1,5 +1,5 @@
 // GCT.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016
 // @codepage windows-1251
 // Построение перекрестной отчетности по товарным операциям
 //
@@ -23,8 +23,10 @@
 class GoodsTrnovrBrowser : public BrowserWindow {
 public:
 	GoodsTrnovrBrowser(uint rezID, SArray * a, PPViewGoodsTrnovr *pView, GCTFilt * f, int dataOwner) :
-		BrowserWindow(rezID, a), P_View(pView), IsDataOwner(dataOwner)
+		BrowserWindow(rezID, a)
 	{
+		P_View = pView;
+		IsDataOwner = dataOwner;
 		// @v8.9.12 TMPALTGRP_SETOWNER(GoodsTrnovr, (long)this)
 		// @v8.9.12 {
 		const GoodsTrnovrFilt * p_filt = P_View ? ((PPViewGoodsTrnovr *)P_View)->GetFilt() : 0;
@@ -97,8 +99,9 @@ IMPL_HANDLE_EVENT(GoodsTrnovrBrowser)
 //
 // @ModuleDef(PPViewGoodsTrnovr)
 //
-SLAPI PPViewGoodsTrnovr::PPViewGoodsTrnovr() : P_Items(0)
+SLAPI PPViewGoodsTrnovr::PPViewGoodsTrnovr()
 {
+	P_Items = 0;
 }
 
 SLAPI PPViewGoodsTrnovr::~PPViewGoodsTrnovr()
@@ -106,25 +109,22 @@ SLAPI PPViewGoodsTrnovr::~PPViewGoodsTrnovr()
 	delete P_Items;
 }
 
-const GoodsTrnovrFilt * SLAPI PPViewGoodsTrnovr::GetFilt() const
+const  GoodsTrnovrFilt * SLAPI PPViewGoodsTrnovr::GetFilt() const
 {
 	return &Filt;
 }
 
 int SLAPI PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 {
-	//#define GRP_GOODSFILT 1
-	//#define GRP_LOC       2
+	#define GRP_GOODSFILT 1
+	#define GRP_LOC       2
 	class GCTFiltDialog : public WLDialog {
 	public:
-		enum {
-			ctlgroupGoodsFilt = 1,
-			ctlgroupLoc       = 2
-		};
-		GCTFiltDialog(uint dlgID, int forceGoods) : WLDialog(dlgID, CTL_GTO_LABEL), ForceGoodsSelection(forceGoods)
+		GCTFiltDialog(uint dlgID, int forceGoods) : WLDialog(dlgID, CTL_GTO_LABEL)
 		{
-			addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(CTLSEL_GTO_GOODS, CTLSEL_GTO_GGRP, cmGoodsFilt));
-			addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GTO_LOC, 0, 0, cmLocList, 0, 0, 0));
+			ForceGoodsSelection = forceGoods;
+			addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(CTLSEL_GTO_GOODS, CTLSEL_GTO_GGRP, cmGoodsFilt));
+			addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_GTO_LOC, 0, 0, cmLocList, 0, 0, 0));
 			SetupCalCtrl(CTLCAL_GTO_PERIOD, this, CTL_GTO_PERIOD, 1);
 		}
 		int   setDTS(const GCTFilt * lf)
@@ -134,7 +134,7 @@ int SLAPI PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 			SetPeriodInput(this, CTL_GTO_PERIOD, &data.Period);
 			{
 				LocationCtrlGroup::Rec l_rec(&data.LocList);
-				setGroupData(ctlgroupLoc, &l_rec);
+				setGroupData(GRP_LOC, &l_rec);
 			}
 			SetupArCombo(this, CTLSEL_GTO_SUPPL, data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 			types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
@@ -143,7 +143,7 @@ int SLAPI PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 			GoodsFiltCtrlGroup::Rec gf_rec(data.GoodsGrpID, data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
 			if(ForceGoodsSelection)
 				gf_rec.Flags |= GoodsCtrlGroup::disableEmptyGoods;
-			setGroupData(ctlgroupGoodsFilt, &gf_rec);
+			setGroupData(GRP_GOODSFILT, &gf_rec);
 			setWL((data.Flags & OPG_LABELONLY) ? 1 : 0);
 			AddClusterAssocDef(CTL_GTO_ORDER, 0, GCTFilt::ordByDate);
 			AddClusterAssoc(CTL_GTO_ORDER, 1, GCTFilt::ordByGoods);
@@ -161,14 +161,14 @@ int SLAPI PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 			GoodsFiltCtrlGroup::Rec gf_rec;
 			// AHTOXA {
 			LocationCtrlGroup::Rec l_rec;
-			getGroupData(ctlgroupLoc, &l_rec);
+			getGroupData(GRP_LOC, &l_rec);
 			data.LocList = l_rec.LocList;
 			// } AHTOXA
 			THROW(GetPeriodInput(this, sel = CTL_GTO_PERIOD, &data.Period));
 			THROW(AdjustPeriodToRights(data.Period, 1));
 			getCtrlData(CTLSEL_GTO_SUPPL, &data.SupplID);
 			getCtrlData(CTLSEL_GTO_OPR,   &data.OpID);
-			THROW(getGroupData(sel = ctlgroupGoodsFilt, &gf_rec));
+			THROW(getGroupData(sel = GRP_GOODSFILT, &gf_rec));
 			data.GoodsGrpID = gf_rec.GoodsGrpID;
 			data.GoodsID    = gf_rec.GoodsID;
 			SETFLAG(data.Flags, OPG_LABELONLY, getWL());

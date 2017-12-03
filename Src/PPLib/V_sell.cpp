@@ -25,9 +25,8 @@ void SLAPI PredictSalesFilt::SetGoodsList(const PPIDArray * pList, const char * 
 //
 // PPViewPredictSales
 //
-SLAPI PPViewPredictSales::PPViewPredictSales() : PPView(0, &Filt, PPVIEW_PREDICTSALES)
+SLAPI PPViewPredictSales::PPViewPredictSales() : PPView(0, &Filt, PPVIEW_PREDICTSALES), P_TempTbl(0)
 {
-	P_TempTbl = 0;
 	DefReportId = REPORT_PSALESVIEW;
 }
 
@@ -164,7 +163,7 @@ int FASTCALL PPViewPredictSales::NextIteration(PredictSalesViewItem *pItem)
 
 void SLAPI PPViewPredictSales::FormatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 {
-	// @todo use PPView::Helper_FormatCycle 
+	// @todo use PPView::Helper_FormatCycle
 	if(Filt.Cycle)
 		CycleList.formatCycle(dt, pBuf, bufLen);
 	else

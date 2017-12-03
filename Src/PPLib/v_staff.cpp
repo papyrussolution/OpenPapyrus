@@ -884,9 +884,10 @@ int PutAmountList(PPID realDivID, DivType divt, StaffAmtList * pAmtList)
 
 class FastEditSumByDivDlg : public PPListDialog {
 public:
-	FastEditSumByDivDlg() : PPListDialog(DLG_EDDIVSUM, CTL_EDDIVSUM_SUM), CurDivID(TOP_ID)
+	FastEditSumByDivDlg() : PPListDialog(DLG_EDDIVSUM, CTL_EDDIVSUM_SUM)
 	{
 		SetupDivList();
+		CurDivID = TOP_ID;
 		updateList(-1);
 	}
 private:
@@ -1211,7 +1212,7 @@ int FastEditSumByDivDlg::setupList()
 //
 class FastEditDivBySumDlg : public PPListDialog {
 public:
-	FastEditDivBySumDlg() : PPListDialog(DLG_VIEWSUMDIV, CTL_VIEWSUMDIV_DIV), CurAmtID(0)
+	FastEditDivBySumDlg() : PPListDialog(DLG_VIEWSUMDIV, CTL_VIEWSUMDIV_DIV)
 	{
 		SetupSumList();
 		updateList(-1);
@@ -1229,7 +1230,7 @@ private:
 	int PutDivEntryToList(PPID objType, PPID objID, StrAssocArray * pDivList);
 	int PutDivListByAmt(PPID objType, PPID propID, PPID amtID, StrAssocArray * pList);
 
-	PPID   CurAmtID;
+	PPID CurAmtID;
 	PPObjStaffList  ObjStaffL;
 	PPObjStaffCal   ObjStaffCal;
 	PPObjPerson     ObjPsn;
@@ -1261,8 +1262,8 @@ IMPL_HANDLE_EVENT(FastEditDivBySumDlg)
 
 int FastEditDivBySumDlg::PutDivEntryToList(PPID objType, PPID objID, StrAssocArray * pDivList)
 {
-	int    ok = -1;
-	PPID   div_id = 0;
+	int ok = -1;
+	PPID div_id = 0;
 	SString name;
 	THROW_INVARG(pDivList);
 	if(objType == PPOBJ_PERSON)
@@ -1281,6 +1282,7 @@ int FastEditDivBySumDlg::PutDivEntryToList(PPID objType, PPID objID, StrAssocArr
 	if(div_id != 0) {
 		SString type;
 		StringSet ss(SLBColumnDelim);
+
 		if(!name.Len())
 			GetObjectName(objType, objID, name);
 		GetObjectTitle(objType, type);
@@ -1318,8 +1320,10 @@ int FastEditDivBySumDlg::PutDivListByAmt(PPID objType, PPID propID, PPID amtID, 
 StrAssocArray * FastEditDivBySumDlg::MakeDivList(PPID amtID)
 {
 	SString buf;
+	StrAssocArray * p_ret_list = 0;
 	StrAssocArray * p_cal_list = 0;
-	StrAssocArray * p_ret_list = new StrAssocArray;
+
+	p_ret_list = new StrAssocArray;
 	if(amtID < AMOUNTTYPE_OFFS) {
 		StaffCalFilt sc_flt;
 		sc_flt.CalList.Add(amtID);
@@ -1358,6 +1362,7 @@ StrAssocArray * FastEditDivBySumDlg::MakeSumList()
 	StrAssocArray * p_ret_list      = 0;
 	StrAssocArray * p_staffcal_list = 0;
 	PPAmountType amtt_rec;
+
 	THROW_MEM(p_ret_list = new StrAssocArray);
 	if(ObjAmtT.CheckRights(PPR_READ)) {
 		for(PPID amt_id = 0; ObjAmtT.EnumItems(&amt_id, &amtt_rec) > 0;)

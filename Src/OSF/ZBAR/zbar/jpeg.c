@@ -126,17 +126,16 @@ struct jpeg_decompress_struct * _zbar_jpeg_decomp_create(void)
 
 void _zbar_jpeg_decomp_destroy(struct jpeg_decompress_struct * cinfo)
 {
-	if(cinfo) {
-		ZFREE(cinfo->err);
-		ZFREE(cinfo->src);
-		// FIXME can this error? 
-		jpeg_destroy_decompress(cinfo);
-		SAlloc::F(cinfo);
-	}
+	ZFREE(cinfo->err);
+	ZFREE(cinfo->src);
+	// FIXME can this error? 
+	jpeg_destroy_decompress(cinfo);
+	SAlloc::F(cinfo);
 }
 
 /* invoke libjpeg to decompress JPEG format to luminance plane */
-void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfmt, const zbar_image_t * src, const zbar_format_def_t * srcfmt)
+void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfmt,
+    const zbar_image_t * src, const zbar_format_def_t * srcfmt)
 {
 	/* create decompressor, or use cached video stream decompressor */
 	errenv_t * jerr = NULL;
@@ -149,16 +148,20 @@ void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfm
 	}
 	if(!cinfo)
 		goto error;
+
 	jerr = (errenv_t*)cinfo->err;
 	jerr->valid = 1;
 	if(setjmp(jerr->env)) {
 		/* FIXME TBD save error to src->src->err */
 		(*cinfo->err->output_message)((j_common_ptr)cinfo);
-		SAlloc::F((void*)dst->P_Data);
-		dst->P_Data = NULL;
+		if(dst->P_Data) {
+			SAlloc::F((void*)dst->P_Data);
+			dst->P_Data = NULL;
+		}
 		dst->datalen = 0;
 		goto error;
 	}
+
 	/* setup input image */
 	if(!cinfo->src) {
 		cinfo->src = (jpeg_source_mgr *)SAlloc::C(1, sizeof(zbar_src_mgr_t));
@@ -171,16 +174,21 @@ void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfm
 	cinfo->src->next_input_byte = NULL;
 	cinfo->src->bytes_in_buffer = 0;
 	((zbar_src_mgr_t*)cinfo->src)->img = src;
+
 	int rc = jpeg_read_header(cinfo, TRUE);
 	zprintf(30, "header: %s\n", (rc == 2) ? "tables-only" : "normal");
+
 	/* supporting color with jpeg became...complicated,
 	 * so we skip that for now
 	 */
 	cinfo->out_color_space = JCS_GRAYSCALE;
+
 	/* FIXME set scaling based on dst->{width,height}
 	 * then pass bigger buffer...
 	 */
+
 	jpeg_start_decompress(cinfo);
+
 	/* adjust dst image parameters to match(?) decompressor */
 	if(dst->width < cinfo->output_width) {
 		dst->width = cinfo->output_width;
@@ -192,8 +200,13 @@ void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfm
 		if(dst->crop_y + dst->crop_h > dst->height)
 			dst->crop_h = dst->height - dst->crop_y;
 	}
-	ulong datalen = (cinfo->output_width * cinfo->output_height * cinfo->out_color_components);
-	zprintf(24, "dst=%dx%d %lx src=%dx%d %lx dct=%x\n", dst->width, dst->height, dst->datalen, src->width, src->height, src->datalen, cinfo->dct_method);
+	ulong datalen = (cinfo->output_width *
+	    cinfo->output_height *
+	    cinfo->out_color_components);
+
+	zprintf(24, "dst=%dx%d %lx src=%dx%d %lx dct=%x\n",
+	    dst->width, dst->height, dst->datalen,
+	    src->width, src->height, src->datalen, cinfo->dct_method);
 	if(!dst->P_Data) {
 		dst->datalen = datalen;
 		dst->P_Data = SAlloc::M(dst->datalen);
@@ -210,8 +223,10 @@ void _zbar_convert_jpeg_to_y(zbar_image_t * dst, const zbar_format_def_t * dstfm
 		jpeg_read_scanlines(cinfo, line, 1);
 		/* FIXME pad out to dst->width */
 	}
+
 	/* FIXME always do this? */
 	jpeg_finish_decompress(cinfo);
+
 error:
 	if(jerr)
 		jerr->valid = 0;

@@ -31,6 +31,9 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
 				AssemblerListingLocation=""
 				ObjectFile="$(IntDir)"
 				ProgramDataBaseFileName="$(IntDir)"
@@ -93,6 +96,9 @@
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
 				AssemblerListingLocation=""
 				ObjectFile="$(IntDir)"
 				ProgramDataBaseFileName="$(IntDir)"
@@ -274,6 +280,21 @@
 			</File>
 			<File
 				RelativePath="..\OSF\tiff\libtiff\tif_zip.c">
+			</File>
+			<File
+				RelativePath="..\Osf\tiff\libtiff\tiff-pch.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter

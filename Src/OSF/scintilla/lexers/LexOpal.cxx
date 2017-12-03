@@ -41,7 +41,7 @@ inline bool HandleString(Sci_PositionU & cur, Sci_PositionU one_too_much, Access
 			styler.StartSegment(cur);
 			return true;
 		}
-		else{
+		else {
 			if(even_backslash_count) {
 				if(ch == '"') {
 					styler.ColourTo(cur, SCE_OPAL_STRING);
@@ -49,7 +49,7 @@ inline bool HandleString(Sci_PositionU & cur, Sci_PositionU one_too_much, Access
 					if(cur >= one_too_much) {
 						return false; // STOP
 					}
-					else{
+					else {
 						styler.StartSegment(cur);
 						return true;
 					}
@@ -58,7 +58,7 @@ inline bool HandleString(Sci_PositionU & cur, Sci_PositionU one_too_much, Access
 					even_backslash_count = false;
 				}
 			}
-			else{
+			else {
 				even_backslash_count = true;
 			}
 		}
@@ -103,7 +103,7 @@ inline bool HandleCommentBlock(Sci_PositionU & cur, Sci_PositionU one_too_much, 
 				if(cur >= one_too_much) {
 					return false; // STOP
 				}
-				else{
+				else {
 					styler.StartSegment(cur);
 					return true;
 				}
@@ -172,7 +172,7 @@ inline bool HandleCommentLine(Sci_PositionU & cur, Sci_PositionU one_too_much, A
 			styler.StartSegment(cur);
 			return true;
 		}
-		else{
+		else {
 			if(ch == '\015') {
 				fifteen_found = true;
 			}
@@ -274,7 +274,7 @@ inline bool HandleWord(Sci_PositionU & cur, Sci_PositionU one_too_much, Accessor
 		if(cur >= one_too_much) {
 			return false; // STOP
 		}
-		else{
+		else {
 			styler.StartSegment(cur);
 			return true;
 		}
@@ -285,7 +285,7 @@ inline bool HandleWord(Sci_PositionU & cur, Sci_PositionU one_too_much, Accessor
 		if(cur >= one_too_much) {
 			return false; // STOP
 		}
-		else{
+		else {
 			styler.StartSegment(cur);
 			return true;
 		}
@@ -296,19 +296,19 @@ inline bool HandleWord(Sci_PositionU & cur, Sci_PositionU one_too_much, Accessor
 		if(cur >= one_too_much) {
 			return false; // STOP
 		}
-		else{
+		else {
 			styler.StartSegment(cur);
 			return true;
 		}
 	}
-	else{ // Unknown keyword
+	else { // Unknown keyword
 		delete [] ide;
 
 		styler.ColourTo(cur - 1, SCE_OPAL_DEFAULT);
 		if(cur >= one_too_much) {
 			return false; // STOP
 		}
-		else{
+		else {
 			styler.StartSegment(cur);
 			return true;
 		}
@@ -322,7 +322,7 @@ inline bool HandleSkip(Sci_PositionU & cur, Sci_PositionU one_too_much, Accessor
 	if(cur >= one_too_much) {
 		return false; // STOP
 	}
-	else{
+	else {
 		styler.StartSegment(cur);
 		return true;
 	}
@@ -417,7 +417,7 @@ static void ColouriseOpalDoc(Sci_PositionU startPos, Sci_Position length, int in
 					}
 
 					// Skip
-					else{
+					else {
 						if(!HandleSkip(cur, one_too_much, styler) ) return;
 					}
 				}

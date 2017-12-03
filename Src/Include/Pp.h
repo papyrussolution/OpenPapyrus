@@ -318,6 +318,7 @@ class  BhtTSess;
 //class  VQuotCache;
 class  ExtGoodsSelDialog;
 struct StyloBhtIIConfig;
+class  SrSyntaxRuleSet;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -4339,7 +4340,7 @@ struct GoodsStockExt {     // @persistent(DBX) @size=28+2*sizeof(SArray)
 		uint32 Reserve;
 	};
 	SLAPI  GoodsStockExt();
-	int    SLAPI Init();
+	void   SLAPI Init();
 	GoodsStockExt & FASTCALL operator = (const GoodsStockExt & rSrc);
 	int    FASTCALL IsEqual(const GoodsStockExt & rS) const;
 	int    SLAPI IsEmpty() const;
@@ -6107,8 +6108,14 @@ public:
 	//   чем какой-либо иной механизм.
 	//
 	int    SLAPI GetBySrchFunc(const void * pKey, CompFunc f, void * pDataRec); // @sync_r
-	PPID   SLAPI GetObjType() const;
-	size_t SLAPI GetEntrySize() const;
+	PPID   SLAPI GetObjType() const
+	{
+		return ObjType;
+	}
+	size_t SLAPI GetEntrySize() const
+	{
+		return EntrySize;
+	}
 	int    SLAPI GetStat(ObjCacheStat *);
 protected:
 	//
@@ -6175,8 +6182,8 @@ protected:
 	public:
 		friend class ObjCache;
 
-		MultTextBlock();
-		MultTextBlock(const ObjCache * pCache, const ObjCacheEntry * pEntry);
+		SLAPI  MultTextBlock();
+		SLAPI  MultTextBlock(const ObjCache * pCache, const ObjCacheEntry * pEntry);
 		int    FASTCALL Add(const char *);
 		int    FASTCALL Get(char * pBuf, size_t bufLen);
 		int    FASTCALL Get(SString & rBuf);
@@ -6207,7 +6214,7 @@ protected:
 	//
 	class RefSymbArray : public StrAssocArray {
 	public:
-		RefSymbArray(PPID objType);
+		SLAPI  RefSymbArray(PPID objType);
 		void   FASTCALL Dirty(PPID id); // @sync_w
 		int    SLAPI FetchBySymb(const char * pSymb, PPID * pID);
 	private:
@@ -6782,6 +6789,8 @@ public:
 	int    SLAPI Unregister();
 	int    SLAPI GetRegisteredSess(const S_GUID & rUuid, PPSession::RegSessData * pData);
 	//
+	const  SrSyntaxRuleSet * SLAPI GetSrSyntaxRuleSet(); // @cs @v9.8.10
+	//
 	//
 	//
 	struct LoggerIntermediateBlock {
@@ -6807,9 +6816,8 @@ private:
 	void   FASTCALL MoveCommonPathOnInitThread(long pathID);
 
 	struct ObjIdentBlock {
-		ObjIdentBlock();
+		SLAPI  ObjIdentBlock();
 		StrAssocArray TitleList;
-		//SymbHashTable SymbList;
 		const SymbHashTable * P_ShT;
 	};
 
@@ -6825,6 +6833,12 @@ private:
 	ObjIdentBlock * P_ObjIdentBlk;
 	PPLogMsgQueue * P_LogQueue;
 	//
+	enum {
+		stSrStxInvalid = 0x0001 // Флаг, сигнализирующий о том, что при первой попытке инициализировать
+			// экземпляр P_SrStxSet выяснилось, что либо нет соответствующего файла, либо он инвалиден.
+			// Соответственно, последующие попытки будут автоматом возвращать 0.
+	};
+	long   State;
 	long   ExtFlags_;      // ECF_XXX
 	SMtLock ExtFlagsLck;   // @v8.0.3 Блокировка доступа к ExtFlags
 	//
@@ -6832,7 +6846,9 @@ private:
 	PPAdviseList AdvList;  // Подписка на извещения о событиях.
 	DlContext * P_DbCtx;   // Контекст структуры базы данных. Контекст глобальный (не привязан к потокам)
 	PPAlbatrosConfig * P_AlbatrosCfg; // Кэшированная конфигурация глобального обмена
-		// Единственная точка прямого доступа к этому указателю - FetchAlbatrosConfig().
+		// Единственная точка прямого доступа к этому указателю - FetchAlbatrosConfig()
+	SrSyntaxRuleSet * P_SrStxSet; // @v9.8.10 Глобально доступный скомпилированный набор синтаксических правил
+		// Единственная точка прямого доступа к этому указателю - PPSession::GetSrSyntaxRuleSet()
 	Profile GPrf;          // @v8.0.3 Глобальный профайлер для всей сессии. Кроме него в каждом потоке
 		// есть собственный профайлер PPThreadLocalArea::Prf
 
@@ -15686,7 +15702,7 @@ struct PPGdsCls2 {         // @persistent @store(Reference2Tbl+)
 	static long  FASTCALL EToUseFlag(long e);
 
 	void   SLAPI SetDynGenMask(int fld, int val);
-	int    FASTCALL GetDynGenMask(int fld) const;
+	int    SLAPI GetDynGenMask(int fld) const;
 
 	enum { // @persistent
 		eKind  = 1,
@@ -15743,7 +15759,6 @@ struct PPGdsCls2 {         // @persistent @store(Reference2Tbl+)
 DECL_REF_REC(PPGdsCls);
 
 struct PPGdsClsFormula {
-	SLAPI  PPGdsClsFormula();
 	void   SLAPI Clear();
 	int    FASTCALL PutToBuffer(SString & rBuf) const;
 	int    FASTCALL GetFromBuffer(const char * pBuf);
@@ -23033,7 +23048,7 @@ public:
 	//
 	struct SubstParam {
 		SLAPI  SubstParam();
-		int    SLAPI Init(SubstGrpPerson sgp);
+		void   SLAPI Init(SubstGrpPerson sgp);
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 		enum {
 			fSubstDlvrAddr    = 0x0001, // Подставлять адрес доставки
@@ -25404,8 +25419,8 @@ private:
 // Структуры, необходимые для агрегированной подстановки свойств товаров
 // вместо самих товаров в отчетности
 //
-struct GoodsSubstItem {
-	GoodsSubstItem();
+struct GoodsSubstItem { // @flat
+	SLAPI  GoodsSubstItem();
 
 	long   ID;
 	long   ClsID;
@@ -25415,16 +25430,15 @@ struct GoodsSubstItem {
 			long   Par2;
 			long   Par3;
 		} L;
-		double RVal;         // @v7.5.4
+		double RVal;
 	} U;
 	union {
-		uint   StrP;          // @v7.5.4 Позиция строки в GoodsSubstList::StrPool
-		const  char * P_Text; // @v7.5.4 При добавлении элемента - указатель на текст, который сохраняется в
-			// GoodsSubstList::StrPool в позиции StrP.
+		uint   StrP;          // Позиция строки в GoodsSubstList::StrPool
+		const  char * P_Text; // При добавлении элемента - указатель на текст, который сохраняется в GoodsSubstList::StrPool в позиции StrP.
 	};
 };
 
-class GoodsSubstList {
+class GoodsSubstList : public SStrGroup { // @v9.8.10 SStrGroup (всесто члена StrPool)
 public:
 	struct AssocItem {
 		PPID   SrcGoodsID;
@@ -25466,9 +25480,11 @@ public:
 	PPID   SLAPI SubstLocAssoc(PPID goodsID);
 	int    SLAPI GetLocAssocText(PPID substID, SString & rBuf) const;
 
+	const char * FASTCALL GetTextPtr(uint pos) const;
+
 	int    SaveAssoc;
 private:
-	TSArray <GoodsSubstItem> List;
+	TSVector <GoodsSubstItem> List; // @v9.8.10 TSArray-->TSVector
 	struct InnerAssocItem {
 		SLAPI  InnerAssocItem(PPID substID);
 		uint   SLAPI SearchAssoc(const GoodsSubstList::AssocItem & rPattern) const;
@@ -25486,7 +25502,7 @@ private:
 	PrcssrAlcReport * P_Arp;
 	GoodsToObjAssoc * P_Goa;
 public:
-	StringSet StrPool; // @really private
+	// @v9.8.10 StringSet StrPool; // @really private
 };
 //
 // Некоторые существенные признаки группы товаров, которые иногда
@@ -25973,7 +25989,7 @@ public:
 	//
 	int    SLAPI SearchByCodeExt(GoodsCodeSrchBlock * pBlk);
 	int    SLAPI CheckBarcodeList(const PPGoodsPacket * pPack);
-	int    SLAPI GenGroupCode(int numDigits, SString & rBuf);
+	void   SLAPI GenGroupCode(int numDigits, SString & rBuf);
 	//
 	// Descr: Утилитная функция, используемая в диалогах.
 	//   Предлагает выбрать шаблон штрихкода для генерации кода.
@@ -26231,11 +26247,11 @@ public:
 	//   Вызовы функции с противоположными значениями параметра withOrWithout
 	//   в общем случае не являются взаимно обратимыми
 	//
-	int    SLAPI AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID, LDATE lotDate,
+	void   SLAPI AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID, LDATE lotDate,
 		double qtty, double * pCost /* In, Out */, int withOrWithout, int vatFreeSuppl = -1);
-	int    SLAPI CalcCostVat(PPID lotTaxGrpID, PPID goodsTaxGrpID, LDATE lotDate,
+	void   SLAPI CalcCostVat(PPID lotTaxGrpID, PPID goodsTaxGrpID, LDATE lotDate,
 		double qtty, double cost, double * pVatSum, int withOrWithout, int vatFreeSuppl = -1, int roundPrec = 2);
-	int    SLAPI AdjPriceToTaxes(PPID taxGrpID, double taxFactor, double * pPrice, int exclSTax);
+	void   SLAPI AdjPriceToTaxes(PPID taxGrpID, double taxFactor, double * pPrice, int exclSTax);
 	//
 	// Descr: определяет является ли товар id1 совместимым с товаром id2 по единицам измерения.
 	//   Если да, то возвращается значение > 0, а по указателю pRatio (если pRatio != 0)
@@ -26370,7 +26386,7 @@ private:
 		// @<<PPObjGoods::AcceptPacket
 	int    SLAPI Helper_ImportHier(PPIniFile *, DbfTable *, PPID defUnitID, HierArray * pHierList);
 		// @<<PPObjGoods::Import
-	int    SLAPI Helper_AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID, LDATE lotDate,
+	void   SLAPI Helper_AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID, LDATE lotDate,
 		double qtty, double * pCost /* In, Out */, double * pVatSum, int withOrWithout, int vatFreeSuppl, int roundPrec);
 	int    SLAPI Unite(PPID destID, PPID srcID); // @<<PPObjGoods::HandleMsg
 	int    SLAPI Helper_EditGoodsStruc(PPID goodsID, int isDynGen); // @<<PPObjGoods::EditGoodsStruc
@@ -34728,10 +34744,8 @@ public:
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 
 	struct PoolInsertionParam {
-		PoolInsertionParam()
+		PoolInsertionParam() : Verb(2), AddedBillKind(bbtGoodsBills)
 		{
-			Verb = 2;
-			AddedBillKind = bbtGoodsBills;
 		}
 		long   Verb;   // 1 - Insert New, 2 - Insert By Filt
 		BrowseBillsType AddedBillKind;
@@ -45843,8 +45857,6 @@ public:
 	SString SrcPath;         // @anchor
 };
 
-class SrSyntaxRuleSet;
-
 class PrcssrSartre {
 public:
 	SLAPI  PrcssrSartre(const char * pDbPath);
@@ -47881,7 +47893,7 @@ class PsnSelAnalogDialog : public TDialog {
 public:
 	PsnSelAnalogDialog(PPObjPerson * pPsnObj);
 	void   setSrchString(const char * pStr);
-	int    getResult(PPID * pID);
+	void   getResult(PPID * pID);
 private:
 	DECL_HANDLE_EVENT;
 	int    setupList();

@@ -940,7 +940,7 @@ static int ipv6_from_asc(uchar * v6, const char * in)
 			if((v6stat.zero_pos != 0) && (v6stat.zero_pos != v6stat.total))
 				return 0;
 		}
-		else{
+		else {
 			/* Can only have one zero if *not* start or end */
 			if((v6stat.zero_pos == 0) || (v6stat.zero_pos == v6stat.total))
 				return 0;

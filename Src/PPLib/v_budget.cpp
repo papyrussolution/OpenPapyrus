@@ -708,9 +708,12 @@ int BudgetItemDialog::getDTS(BudgetItemTbl::Rec * pData)
 
 class BudgetItemsDialog : public PPListDialog {
 public:
-	BudgetItemsDialog(PPID initID, PPObjBudget * pObj) : PPListDialog(DLG_BUDGITEMS, CTL_BUDGITEM_LIST),
-		InitID(initID), PrevAcctID(0), PrevKind(0), P_Obj(pObj)
+	BudgetItemsDialog(PPID initID, PPObjBudget * pObj) : PPListDialog(DLG_BUDGITEMS, CTL_BUDGITEM_LIST)
 	{
+		InitID     = initID;
+		PrevAcctID = 0;
+		PrevKind   = 0;
+		P_Obj = pObj;
 	}
 	int setDTS(const BudgetItemsList * pData);
 	int getDTS(BudgetItemsList * pData);

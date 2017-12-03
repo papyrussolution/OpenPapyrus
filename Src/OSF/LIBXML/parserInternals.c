@@ -807,9 +807,11 @@ int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc)
 		case XML_CHAR_ENCODING_UTF8:
 		    /* default encoding, no conversion should be needed */
 		    ctxt->charset = XML_CHAR_ENCODING_UTF8;
+
 		    /*
 		     * Errata on XML-1.0 June 20 2001
-		     * Specific handling of the Byte Order Mark for UTF-8
+		     * Specific handling of the Byte Order Mark for
+		     * UTF-8
 		     */
 		    if(ctxt->input && (ctxt->input->cur[0] == 0xEF) && (ctxt->input->cur[1] == 0xBB) && (ctxt->input->cur[2] == 0xBF)) {
 			    ctxt->input->cur += 3;
@@ -985,10 +987,10 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr inp
 			 * Specific handling of the Byte Order Mark for
 			 * UTF-16
 			 */
-			if(handler->name && (sstreq(handler->name, "UTF-16LE") || sstreq(handler->name, "UTF-16")) && (input->cur[0] == 0xFF) && (input->cur[1] == 0xFE)) {
+			if(handler->name && (!strcmp(handler->name, "UTF-16LE") || !strcmp(handler->name, "UTF-16")) && (input->cur[0] == 0xFF) && (input->cur[1] == 0xFE)) {
 				input->cur += 2;
 			}
-			if(handler->name && sstreq(handler->name, "UTF-16BE") && (input->cur[0] == 0xFE) && (input->cur[1] == 0xFF)) {
+			if(handler->name && (!strcmp(handler->name, "UTF-16BE")) && (input->cur[0] == 0xFE) && (input->cur[1] == 0xFF)) {
 				input->cur += 2;
 			}
 			/*
@@ -996,7 +998,7 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr inp
 			 * Specific handling of the Byte Order Mark for
 			 * UTF-8
 			 */
-			if(handler->name && sstreq(handler->name, "UTF-8") && (input->cur[0] == 0xEF) && (input->cur[1] == 0xBB) && (input->cur[2] == 0xBF)) {
+			if(handler->name && (!strcmp(handler->name, "UTF-8")) && (input->cur[0] == 0xEF) && (input->cur[1] == 0xBB) && (input->cur[2] == 0xBF)) {
 				input->cur += 3;
 			}
 			/*
@@ -1816,4 +1818,4 @@ int xmlKeepBlanksDefault(int val)
 }
 
 #define bottom_parserInternals
-//#include "elfgcchack.h"
+#include "elfgcchack.h"

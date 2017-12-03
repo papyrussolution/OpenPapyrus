@@ -216,8 +216,11 @@ int SLAPI EditJobItem(PPJobMngr * pMngr, PPJobPool * pJobPool, PPJob * pData)
 //
 class JobPoolDialog : public PPListDialog {
 public:
-	JobPoolDialog(PPJobMngr * pMngr, PPJobPool * pData) : PPListDialog(DLG_JOBPOOL, CTL_JOBPOOL_LIST), P_Mngr(pMngr), P_Data(pData), ForAllDb(0)
+	JobPoolDialog(PPJobMngr * pMngr, PPJobPool * pData) : PPListDialog(DLG_JOBPOOL, CTL_JOBPOOL_LIST)
 	{
+		P_Mngr = pMngr;
+		P_Data = pData;
+		ForAllDb = 0;
 		updateList(-1);
 	}
 private:

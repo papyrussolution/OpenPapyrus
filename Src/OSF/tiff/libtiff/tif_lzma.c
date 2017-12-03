@@ -35,8 +35,6 @@
  *
  * The codec is derived from ZLIB codec (tif_zip.c).
  */
-
-#include "tif_predict.h"
 #include "lzma.h"
 /*
  * State block for each open TIFF file using LZMA2 compression/decompression.
