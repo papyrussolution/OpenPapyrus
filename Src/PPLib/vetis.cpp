@@ -3,6 +3,7 @@
 // @codepage UTF-8
 // Модуль для взаимодействия с системой Меркурий (интерфейс ВЕТИС)
 //
+//
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
@@ -24,12 +25,16 @@ public:
 		{
 			IssuerUUID.SetZero();
 		}
+		void   Clear()
+		{
+			SetBuffer(0);
+			IssuerUUID.SetZero();
+		}
 		S_GUID IssuerUUID;
 	};
 	SLAPI  PPVetisInterface();
 	SLAPI ~PPVetisInterface();
 	int    SLAPI Init(const Param & rP);
-	int    SLAPI TestCall();
 
 	int    SLAPI GetStockEntryList();
 	//
@@ -113,19 +118,53 @@ public:
 	int    SLAPI GetProductItemList(uint offs, uint count, TSCollection <VetisProductItem> & rResult);
 
 	static int SLAPI SetupParam(Param & rP);
-=======
->>>>>>> parent of f010b32... Version 9.8.9
 private:
-	int    SubmitRequest(const VetisApplicationBlock & rQ, VetisApplicationBlock & rResult);
+	int    SubmitRequest(int appFuncId, const void * pAppData, VetisApplicationBlock & rResult);
 	int    ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock & rResult);
+	int    SLAPI PrepareAppReqData(VetisApplicationBlock & rBlk, const void * pAppData);
+	int    SLAPI PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
+	void   FASTCALL DestroyResult(void ** ppResult);
 
 	long   State;
 	SString LogFileName;
+	SString LastMsg;
 	SDynLibrary * P_Lib;
 	void * P_DestroyFunc;
 	Param   P;
 	int64   LastLocalTransactionId;
 };
+
+//static 
+int SLAPI PPVetisInterface::SetupParam(Param & rP)
+{
+	rP.Clear();
+
+	int    ok = 1;
+	Reference * p_ref = PPRef;
+	PPID   main_org_id = 0;
+	SString temp_buf;
+	PPAlbatrosConfig acfg;
+	THROW(PPAlbatrosCfgMngr::Get(&acfg) > 0);
+	GetMainOrgID(&main_org_id);
+	acfg.GetExtStrData(ALBATROSEXSTR_VETISUSER, temp_buf);
+	THROW(temp_buf.NotEmptyS()); // @error
+	rP.PutExtStrData(extssUser, temp_buf);
+	acfg.GetPassword(ALBATROSEXSTR_VETISPASSW, temp_buf);
+	THROW(temp_buf.NotEmptyS()); // @error
+	rP.PutExtStrData(extssPassword, temp_buf);
+	acfg.GetExtStrData(ALBATROSEXSTR_VETISAPIKEY, temp_buf);
+	THROW(temp_buf.NotEmptyS()); // @error
+	rP.PutExtStrData(extssApiKey, temp_buf);
+	{
+		ObjTagItem tag_item;
+		if(p_ref->Ot.GetTag(PPOBJ_PERSON, main_org_id, PPTAG_PERSON_VETISUUID, &tag_item) > 0) {
+			tag_item.GetGuid(&rP.IssuerUUID);
+		}
+		THROW(!rP.IssuerUUID.IsZero()); // @error
+	}
+	CATCHZOK
+	return ok;
+}
 
 SLAPI PPVetisInterface::PPVetisInterface() : State(0), P_Lib(0), P_DestroyFunc(0), LastLocalTransactionId(0)
 {
@@ -152,19 +191,27 @@ int SLAPI PPVetisInterface::Init(const Param & rP)
 {
 	int    ok = 1;
 	P = rP;
+	State |= stInited;
 	return ok;
 }
 
-int SLAPI PPVetisInterface::SubmitRequest(const VetisApplicationBlock & rQ, VetisApplicationBlock & rResult)
+int SLAPI PPVetisInterface::PreprocessResult(const void * pResult, const PPSoapClientSession & rSess)
 {
-	int    ok = 0;
-	return ok;
+	LastMsg = rSess.GetMsg();
+    return BIN(pResult);
 }
 
-int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock & rResult)
+void FASTCALL PPVetisInterface::DestroyResult(void ** ppResult)
+{
+	if(P_DestroyFunc) {
+		((UHTT_DESTROYRESULT)P_DestroyFunc)(*ppResult);
+		*ppResult = 0;
+	}
+}
+
+int SLAPI PPVetisInterface::PrepareAppReqData(VetisApplicationBlock & rBlk, const void * pAppData)
 {
 	int    ok = 0;
-<<<<<<< HEAD
 	if(rBlk.Func == VetisApplicationData::signGetStockEntryListRequest) {
 		rBlk.P_GselReq = new VetisGetStockEntryListRequest;
 		rBlk.P_GselReq->Initiator.Login = rBlk.User;
@@ -184,19 +231,12 @@ int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicatio
 static const char * P_VetisSoapUrl = "https://api2.vetrf.ru:8002/platform/services/ApplicationManagementService"; // test
 
 int SLAPI PPVetisInterface::SubmitRequest(int appFuncId, const void * pAppData, VetisApplicationBlock & rResult)
-=======
-	return ok;
-}
-
-int SLAPI PPVetisInterface::GetStockEntryList()
->>>>>>> parent of f010b32... Version 9.8.9
 {
 	int    ok = -1;
 	SString temp_buf;
 	SString user, password, api_key;
-	VetisApplicationBlock * p_result = 0;
+	VetisApplicationBlock * p_result = 0; 
 	PPSoapClientSession sess;
-	SapEfesCallHeader sech;
 	VETIS_SUBMITAPPLICATIONREQUEST_PROC func = 0;
 	THROW(State & stInited);
 	THROW(P_Lib);
@@ -207,31 +247,28 @@ int SLAPI PPVetisInterface::GetStockEntryList()
 	sess.Setup(P_VetisSoapUrl, user, password);
 	{
 		VetisApplicationBlock blk;
-<<<<<<< HEAD
 		blk.User = user;
 		blk.Func = appFuncId; //VetisApplicationBlock::detGetStockEntryListReq;
 		blk.ServiceId = "mercury-g2b.service:2.0"; // "mercury-g2b.service:2.0";
 		blk.IssuerId = P.IssuerUUID;
 		blk.IssueDate = getcurdatetime_();
 		blk.ApplicationId.Generate();
-=======
-		blk.Func = VetisApplicationBlock::detGetStockEntryListReq;
->>>>>>> parent of f010b32... Version 9.8.9
 		blk.LocalTransactionId = ++LastLocalTransactionId;
-		blk.P_GselReq = new VetisGetStockEntryListRequest;
+		THROW(PrepareAppReqData(blk, pAppData));
 		p_result = func(sess, api_key, blk);
-		//THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+		rResult = *p_result;
 		//LogResultMsgList(p_result);
-		//DestroyResult((void **)&p_result);
+		DestroyResult((void **)&p_result);
+		ok = 1;
 	}
     CATCHZOK
 	return ok;
 }
 
-int SLAPI PPVetisInterface::TestCall()
+int SLAPI PPVetisInterface::ReceiveResult(const S_GUID & rAppId, VetisApplicationBlock & rResult)
 {
 	int    ok = -1;
-<<<<<<< HEAD
 	SString user, password, api_key;
 	VetisApplicationBlock * p_result = 0; 
 	PPSoapClientSession sess;
@@ -388,8 +425,3 @@ int SLAPI TestVetis()
 }
 
 
-=======
-	return ok;
-}
-
->>>>>>> parent of f010b32... Version 9.8.9
