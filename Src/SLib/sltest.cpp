@@ -478,13 +478,12 @@ int STestCase::Run(const char *)
 	return -1;
 }
 
-int STestCase::SetInfo(const char * pMsg, int currentStatus)
+void STestCase::SetInfo(const char * pMsg, int currentStatus)
 {
 	if(P_Suite && pMsg)
 		P_Suite->PutCaseInfo(pMsg);
 	if(currentStatus >= 0)
 		CurrentStatus = currentStatus;
-	return 1;
 }
 
 int STestCase::EnumArg(uint * pArgNo, SString & rBuf) const
@@ -534,20 +533,16 @@ SEnumImp * STestCase::EnumTab(const char * pTabName)
 //
 // }
 //
-STestSuite::Entry::Entry() : BmrList(sizeof(Benchmark))
+STestSuite::Entry::Entry() : BmrList(sizeof(Benchmark)), MaxCount(0), SuccCount(0), FailCount(0), Timing(0)
 {
-	MaxCount = SuccCount = FailCount = 0;
 	MEMSZERO(HeapBefore);
 	MEMSZERO(HeapAfter);
-	Timing = 0;
 }
 //
 //
 //
-STestSuite::STestSuite()
+STestSuite::STestSuite() : CurIdx(0), P_List(new TSCollection <Entry>)
 {
-	P_List = new TSCollection <Entry>;
-	CurIdx = 0;
 }
 
 STestSuite::~STestSuite()

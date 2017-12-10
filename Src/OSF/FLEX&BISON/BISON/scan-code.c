@@ -1,5 +1,6 @@
-// @sobolev #line 2 "scan-code.c"
-// @sobolev #line 4 "scan-code.c"
+#line 2 "src/scan-code.c"
+
+#line 4 "src/scan-code.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -35,9 +36,9 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 5
-#define YY_FLEX_SUBMINOR_VERSION 35
+#define YY_FLEX_SUBMINOR_VERSION 37
 #if YY_FLEX_SUBMINOR_VERSION > 0
- #define FLEX_BETA
+#define FLEX_BETA
 #endif
 
 /* %if-c++-only */
@@ -55,13 +56,12 @@
 
 /* begin standard C headers. */
 /* %if-c-only */
+#include "system.h"
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
 /* %endif */
-
-#include "system.h"
 
 /* %if-tables-serialization */
 /* %endif */
@@ -71,27 +71,27 @@
 /* flex integer type definitions */
 
 #ifndef FLEXINT_H
- #define FLEXINT_H
+#define FLEXINT_H
 
 /* C99 systems have <inttypes.h>. Non-C99 systems may or may not. */
 
- #if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 
 /* C99 says to define __STDC_LIMIT_MACROS before including stdint.h,
  * if you want the limit (max/min) macros for int types.
  */
-  #ifndef __STDC_LIMIT_MACROS
-   #define __STDC_LIMIT_MACROS 1
-  #endif
+#ifndef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS 1
+#endif
 
-  #include <inttypes.h>
+#include <inttypes.h>
 typedef int8_t flex_int8_t;
 typedef uint8_t flex_uint8_t;
 typedef int16_t flex_int16_t;
 typedef uint16_t flex_uint16_t;
 typedef int32_t flex_int32_t;
 typedef uint32_t flex_uint32_t;
- #else
+#else
 typedef signed char flex_int8_t;
 typedef short int flex_int16_t;
 typedef int flex_int32_t;
@@ -100,35 +100,35 @@ typedef unsigned short int flex_uint16_t;
 typedef unsigned int flex_uint32_t;
 
 /* Limits of integral types. */
-  #ifndef INT8_MIN
-   #define INT8_MIN               (-128)
-  #endif
-  #ifndef INT16_MIN
-   #define INT16_MIN              (-32767-1)
-  #endif
-  #ifndef INT32_MIN
-   #define INT32_MIN              (-2147483647-1)
-  #endif
-  #ifndef INT8_MAX
-   #define INT8_MAX               (127)
-  #endif
-  #ifndef INT16_MAX
-   #define INT16_MAX              (32767)
-  #endif
-  #ifndef INT32_MAX
-   #define INT32_MAX              (2147483647)
-  #endif
-  #ifndef UINT8_MAX
-   #define UINT8_MAX              (255U)
-  #endif
-  #ifndef UINT16_MAX
-   #define UINT16_MAX             (65535U)
-  #endif
-  #ifndef UINT32_MAX
-   #define UINT32_MAX             (4294967295U)
-  #endif
+#ifndef INT8_MIN
+#define INT8_MIN               (-128)
+#endif
+#ifndef INT16_MIN
+#define INT16_MIN              (-32767-1)
+#endif
+#ifndef INT32_MIN
+#define INT32_MIN              (-2147483647-1)
+#endif
+#ifndef INT8_MAX
+#define INT8_MAX               (127)
+#endif
+#ifndef INT16_MAX
+#define INT16_MAX              (32767)
+#endif
+#ifndef INT32_MAX
+#define INT32_MAX              (2147483647)
+#endif
+#ifndef UINT8_MAX
+#define UINT8_MAX              (255U)
+#endif
+#ifndef UINT16_MAX
+#define UINT16_MAX             (65535U)
+#endif
+#ifndef UINT32_MAX
+#define UINT32_MAX             (4294967295U)
+#endif
 
- #endif /* ! C99 */
+#endif /* ! C99 */
 
 #endif /* ! FLEXINT_H */
 
@@ -140,22 +140,22 @@ typedef unsigned int flex_uint32_t;
 #ifdef __cplusplus
 
 /* The "const" storage-class-modifier is valid. */
- #define YY_USE_CONST
+#define YY_USE_CONST
 
 #else   /* ! __cplusplus */
 
 /* C99 requires __STDC__ to be defined as 1. */
- #if defined (__STDC__)
+#if defined (__STDC__)
 
-  #define YY_USE_CONST
+#define YY_USE_CONST
 
- #endif /* defined (__STDC__) */
+#endif  /* defined (__STDC__) */
 #endif  /* ! __cplusplus */
 
 #ifdef YY_USE_CONST
- #define yyconst const
+#define yyconst const
 #else
- #define yyconst
+#define yyconst
 #endif
 
 /* %not-for-header */
@@ -185,47 +185,44 @@ typedef unsigned int flex_uint32_t;
  * but we do it the disgusting crufty way forced on us by the ()-less
  * definition of BEGIN.
  */
-#define BEGIN (yy_start) = 1+2*
+#define BEGIN (yy_start) = 1 + 2 *
 
 /* Translate the current start state into a value that can be later handed
  * to BEGIN to return to the state.  The YYSTATE alias is for lex
  * compatibility.
  */
-#define YY_START (((yy_start)-1)/2)
+#define YY_START (((yy_start) - 1) / 2)
 #define YYSTATE YY_START
 
 /* Action number for EOF rule of a given start state. */
-#define YY_STATE_EOF(state) (YY_END_OF_BUFFER+state+1)
+#define YY_STATE_EOF(state) (YY_END_OF_BUFFER + state + 1)
 
 /* Special action meaning "start processing a new file". */
-#define YY_NEW_FILE code_restart(code_in )
+#define YY_NEW_FILE code_restart(code_in)
 
 #define YY_END_OF_BUFFER_CHAR 0
 
 /* Size of default input buffer. */
 #ifndef YY_BUF_SIZE
- #ifdef __ia64__
-/* On IA-64, the buffer size is 16k, not 8k.
- * Moreover, YY_BUF_SIZE is 2*YY_READ_BUF_SIZE in the general case.
- * Ditto for the __ia64__ case accordingly.
- */
-  #define YY_BUF_SIZE 32768
- #else
-  #define YY_BUF_SIZE 16384
- #endif /* __ia64__ */
+#define YY_BUF_SIZE 16384
 #endif
 
 /* The state buf must be large enough to hold one state per character in the main buffer.
  */
-#define YY_STATE_BUF_SIZE   ((YY_BUF_SIZE+2)*sizeof(yy_state_type))
+#define YY_STATE_BUF_SIZE   ((YY_BUF_SIZE + 2) * sizeof(yy_state_type))
 
 #ifndef YY_TYPEDEF_YY_BUFFER_STATE
- #define YY_TYPEDEF_YY_BUFFER_STATE
+#define YY_TYPEDEF_YY_BUFFER_STATE
 typedef struct yy_buffer_state * YY_BUFFER_STATE;
 #endif
 
+#ifndef YY_TYPEDEF_YY_SIZE_T
+#define YY_TYPEDEF_YY_SIZE_T
+typedef size_t yy_size_t;
+#endif
+
 /* %if-not-reentrant */
-extern int code_leng;
+extern yy_size_t code_leng;
 /* %endif */
 
 /* %if-c-only */
@@ -238,28 +235,26 @@ extern FILE * code_in, * code_out;
 #define EOB_ACT_END_OF_FILE 1
 #define EOB_ACT_LAST_MATCH 2
 
-#define YY_LESS_LINENO(n)
+    #define YY_LESS_LINENO(n)
 
 /* Return all but the first "n" matched characters back to the input stream. */
-#define yyless(n) do { \
+#define yyless(n) \
+	do \
+	{ \
 		/* Undo effects of setting up code_text. */ \
 		int yyless_macro_arg = (n); \
 		YY_LESS_LINENO(yyless_macro_arg); \
 		*yy_cp = (yy_hold_char); \
 		YY_RESTORE_YY_MORE_OFFSET \
-			(yy_c_buf_p) = yy_cp = yy_bp+yyless_macro_arg-YY_MORE_ADJ; \
+			(yy_c_buf_p) = yy_cp = yy_bp + yyless_macro_arg - YY_MORE_ADJ; \
 		YY_DO_BEFORE_ACTION; /* set up code_text again */ \
-	} while(0)
+	} \
+	while(0)
 
-#define unput(c) yyunput(c, (yytext_ptr) )
-
-#ifndef YY_TYPEDEF_YY_SIZE_T
- #define YY_TYPEDEF_YY_SIZE_T
-typedef size_t yy_size_t;
-#endif
+#define unput(c) yyunput(c, (yytext_ptr)  )
 
 #ifndef YY_STRUCT_YY_BUFFER_STATE
- #define YY_STRUCT_YY_BUFFER_STATE
+#define YY_STRUCT_YY_BUFFER_STATE
 struct yy_buffer_state {
 /* %if-c-only */
 	FILE * yy_input_file;
@@ -279,7 +274,7 @@ struct yy_buffer_state {
 	/* Number of characters read into yy_ch_buf, not including EOB
 	 * characters.
 	 */
-	int yy_n_chars;
+	yy_size_t yy_n_chars;
 
 	/* Whether we "own" the buffer - i.e., we know we created it,
 	 * and can realloc() it to grow it, and should free() it to
@@ -310,8 +305,8 @@ struct yy_buffer_state {
 
 	int yy_buffer_status;
 
- #define YY_BUFFER_NEW 0
- #define YY_BUFFER_NORMAL 1
+#define YY_BUFFER_NEW 0
+#define YY_BUFFER_NORMAL 1
 	/* When an EOF's been seen but there's still some text to process
 	 * then we mark the buffer as YY_EOF_PENDING, to indicate that we
 	 * shouldn't try reading from the input source any more.  We might
@@ -322,9 +317,9 @@ struct yy_buffer_state {
 	 * (via code_restart()), so that the user can continue scanning by
 	 * just pointing code_in at a new input file.
 	 */
- #define YY_BUFFER_EOF_PENDING 2
-
+#define YY_BUFFER_EOF_PENDING 2
 };
+
 #endif /* !YY_STRUCT_YY_BUFFER_STATE */
 
 /* %if-c-only Standard (non-C++) definition */
@@ -347,9 +342,9 @@ static YY_BUFFER_STATE * yy_buffer_stack = 0; /**< Stack as an array. */
  *
  * Returns the top of the stack, or NULL.
  */
-#define YY_CURRENT_BUFFER ((yy_buffer_stack) \
-                            ? (yy_buffer_stack)[(yy_buffer_stack_top)] \
-			    : NULL)
+#define YY_CURRENT_BUFFER ( (yy_buffer_stack) \
+	    ? (yy_buffer_stack)[(yy_buffer_stack_top)] \
+	    : NULL)
 
 /* Same as previous macro, but useful when we know that the buffer stack is not
  * NULL or when we need an lvalue. For internal use only.
@@ -363,11 +358,11 @@ static YY_BUFFER_STATE * yy_buffer_stack = 0; /**< Stack as an array. */
 
 /* yy_hold_char holds the character lost when code_text is formed. */
 static char yy_hold_char;
-static int yy_n_chars;          /* number of characters read into yy_ch_buf */
-int code_leng;
+static yy_size_t yy_n_chars;            /* number of characters read into yy_ch_buf */
+yy_size_t code_leng;
 
 /* Points to current character in buffer. */
-static char * yy_c_buf_p = (char *)0;
+static char * yy_c_buf_p = (char*)0;
 static int yy_init = 0;         /* whether we need to initialize */
 static int yy_start = 0;        /* start state number */
 
@@ -379,29 +374,29 @@ static int yy_did_buffer_switch_on_eof;
 
 /* %endif */
 
-void code_restart(FILE * input_file );
-void code__switch_to_buffer(YY_BUFFER_STATE new_buffer );
-YY_BUFFER_STATE code__create_buffer(FILE * file, int size );
-void code__delete_buffer(YY_BUFFER_STATE b );
-void code__flush_buffer(YY_BUFFER_STATE b );
-void code_push_buffer_state(YY_BUFFER_STATE new_buffer );
+void code_restart(FILE * input_file);
+void code__switch_to_buffer(YY_BUFFER_STATE new_buffer);
+YY_BUFFER_STATE code__create_buffer(FILE * file, int size);
+void code__delete_buffer(YY_BUFFER_STATE b);
+void code__flush_buffer(YY_BUFFER_STATE b);
+void code_push_buffer_state(YY_BUFFER_STATE new_buffer);
 void code_pop_buffer_state(void);
 
 static void code_ensure_buffer_stack(void);
 static void code__load_buffer_state(void);
-static void code__init_buffer(YY_BUFFER_STATE b, FILE * file );
+static void code__init_buffer(YY_BUFFER_STATE b, FILE * file);
 
 #define YY_FLUSH_BUFFER code__flush_buffer(YY_CURRENT_BUFFER)
 
-YY_BUFFER_STATE code__scan_buffer(char * base, yy_size_t size );
-YY_BUFFER_STATE code__scan_string(yyconst char * yy_str );
-YY_BUFFER_STATE code__scan_bytes(yyconst char * bytes, int len );
+YY_BUFFER_STATE code__scan_buffer(char * base, yy_size_t size);
+YY_BUFFER_STATE code__scan_string(yyconst char * yy_str);
+YY_BUFFER_STATE code__scan_bytes(yyconst char * bytes, yy_size_t len);
 
 /* %endif */
 
-void * code_alloc(yy_size_t );
-void * code_realloc(void *, yy_size_t );
-void code_free(void * );
+void * code_alloc(yy_size_t);
+void * code_realloc(void *, yy_size_t);
+void code_free(void *);
 
 #define yy_new_buffer code__create_buffer
 
@@ -410,7 +405,7 @@ void code_free(void * );
 		if(!YY_CURRENT_BUFFER) { \
 			code_ensure_buffer_stack(); \
 			YY_CURRENT_BUFFER_LVALUE =    \
-			        code__create_buffer(code_in, YY_BUF_SIZE); \
+			    code__create_buffer(code_in, YY_BUF_SIZE); \
 		} \
 		YY_CURRENT_BUFFER_LVALUE->yy_is_interactive = is_interactive; \
 	}
@@ -420,7 +415,7 @@ void code_free(void * );
 		if(!YY_CURRENT_BUFFER) { \
 			code_ensure_buffer_stack(); \
 			YY_CURRENT_BUFFER_LVALUE =    \
-			        code__create_buffer(code_in, YY_BUF_SIZE); \
+			    code__create_buffer(code_in, YY_BUF_SIZE); \
 		} \
 		YY_CURRENT_BUFFER_LVALUE->yy_at_bol = at_bol; \
 	}
@@ -430,14 +425,14 @@ void code_free(void * );
 /* %% [1.0] code_text/code_in/code_out/yy_state_type/code_lineno etc. def's & init go here */
 /* Begin user sect3 */
 
-#define code_wrap(n) 1
+#define code_wrap() 1
 #define YY_SKIP_YYWRAP
 
 #define FLEX_DEBUG
 
 typedef unsigned char YY_CHAR;
 
-FILE * code_in = (FILE *)0, * code_out = (FILE *)0;
+FILE * code_in = (FILE*)0, * code_out = (FILE*)0;
 
 typedef int yy_state_type;
 
@@ -451,9 +446,9 @@ extern char * code_text;
 /* %if-c-only Standard (non-C++) definition */
 
 static yy_state_type yy_get_previous_state(void);
-static yy_state_type yy_try_NUL_trans(yy_state_type current_state );
+static yy_state_type yy_try_NUL_trans(yy_state_type current_state);
 static int yy_get_next_buffer(void);
-static void yy_fatal_error(yyconst char msg[] );
+static void yy_fatal_error(yyconst char msg[]);
 
 /* %endif */
 
@@ -461,52 +456,52 @@ static void yy_fatal_error(yyconst char msg[] );
  * corresponding action - sets up code_text.
  */
 #define YY_DO_BEFORE_ACTION \
-        (yytext_ptr) = yy_bp; \
+	(yytext_ptr) = yy_bp; \
 /* %% [2.0] code to fiddle code_text and code_leng for yymore() goes here \ */ \
-        code_leng = (size_t)(yy_cp-yy_bp); \
-        (yy_hold_char) = *yy_cp; \
-        *yy_cp = '\0'; \
+	code_leng = (size_t)(yy_cp - yy_bp); \
+	(yy_hold_char) = *yy_cp; \
+	*yy_cp = '\0'; \
 /* %% [3.0] code to copy yytext_ptr to code_text[] goes here, if %array \ */ \
-        (yy_c_buf_p) = yy_cp;
+	(yy_c_buf_p) = yy_cp;
 
 /* %% [4.0] data tables for the DFA and the user's section 1 definitions go here */
-#define YY_NUM_RULES 34
-#define YY_END_OF_BUFFER 35
+#define YY_NUM_RULES 18
+#define YY_END_OF_BUFFER 19
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info {
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 };
-static yyconst flex_int16_t yy_accept[101] =
+
+static yyconst flex_int16_t yy_accept[91] =
 {   0,
     0,    0,    0,    0,    3,    3,    4,    4,    4,    4,
-    21,   21,    0,    0,   35,   33,   29,   30,   31,   32,
-    33,    2,   33,    6,   33,    5,   26,   23,   22,   22,
-    8,   20,   13,    7,   26,   17,   14,   25,   25,   15,
-    26,   16,   18,   19,    8,   29,    7,   33,   30,    1,
-    0,    0,    3,    4,    4,    4,    4,   11,    0,   11,
-    11,    0,    0,    9,   10,    0,   12,    0,   12,   12,
-    0,   25,   25,    0,   21,   27,   28,    0,    0,    0,
-    0,    0,    0,    0,   11,    0,    0,    0,    0,   12,
-    0,   25,    0,    0,    0,    0,   25,   25,   24,    0};
+    0,    0,    0,    0,   19,   17,   16,   17,    2,   17,
+    6,   17,    5,    8,   11,    7,   17,   11,   11,   11,
+    1,    0,    0,    3,    4,    4,    4,    4,   12,    0,
+    12,   12,    0,    0,    9,   10,    0,   13,    0,   13,
+    13,    0,   14,    0,   15,    0,    0,    0,    0,    0,
+    0,    0,   12,    0,    0,    0,    0,    0,   13,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,   12,    0,
+    12,   12,    0,   14,   12,   12,    0,    0,    0,    0};
 
 static yyconst flex_int32_t yy_ec[256] =
 {   0,
     1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
-    4,    2,    5,    1,    1,    1,    1,    1,    1,    1,
+    2,    2,    1,    1,    1,    1,    1,    1,    1,    1,
     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-    1,    2,    1,    6,    7,    8,    1,    1,    9,    1,
-    1,   10,    1,    1,   11,   12,   13,   14,   14,   14,
-    14,   14,   14,   14,   14,   14,   14,    1,   15,   16,
-    1,   17,    1,   18,   19,   20,   20,   20,   20,   21,
-    20,   20,   22,   20,   20,   23,   20,   20,   20,   20,
-    20,   20,   20,   20,   20,   20,   20,   20,   24,   20,
-    25,   26,   27,    1,   20,    1,   20,   20,   20,   20,
+    1,    2,    1,    4,    1,    5,    1,    1,    6,    1,
+    1,    7,    1,    1,    8,    9,   10,   11,   11,   11,
+    11,   11,   11,   11,   11,   11,   11,    1,    1,   12,
+    1,   13,    1,   14,    9,    9,    9,    9,    9,    9,
+    9,    9,    9,    9,    9,    9,    9,    9,    9,    9,
+    9,    9,    9,    9,    9,    9,    9,    9,    9,    9,
+    15,   16,   17,    1,    9,    1,    9,    9,    9,    9,
 
-    20,   20,   20,   20,   20,   20,   20,   20,   20,   20,
-    20,   20,   20,   20,   20,   20,   20,   20,   20,   20,
-    20,   20,   28,    1,   29,    1,    1,    1,    1,    1,
+    9,    9,    9,    9,    9,    9,    9,    9,    9,    9,
+    9,    9,    9,    9,    9,    9,    9,    9,    9,    9,
+    9,    9,    1,    1,    1,    1,    1,    1,    1,    1,
     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -522,107 +517,84 @@ static yyconst flex_int32_t yy_ec[256] =
     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
     1,    1,    1,    1,    1};
 
-static yyconst flex_int32_t yy_meta[31] =
+static yyconst flex_int32_t yy_meta[19] =
 {   0,
-    1,    1,    2,    1,    1,    1,    1,    3,    1,    1,
-    4,    5,    1,    6,    1,    1,    2,    1,    7,    7,
-    7,    7,    7,    7,    3,    1,    8,    1,    1,    2};
+    1,    1,    2,    1,    1,    1,    1,    3,    3,    1,
+    3,    1,    2,    1,    1,    1,    1,    2};
 
-static yyconst flex_int16_t yy_base[112] =
+static yyconst flex_int16_t yy_base[97] =
 {   0,
-    0,    1,   21,   41,   66,    0,    4,    8,   12,   14,
-    93,    0,  121,    0,  233,  234,  234,  234,  234,  234,
-    7,  234,    0,  234,   39,  234,  234,  234,  234,  234,
-    234,  234,  140,  234,   34,  234,   42,    0,  208,  234,
-    33,  234,  234,  234,  234,  223,  234,   44,  222,  234,
-    59,   69,  192,  234,   73,  185,   76,  234,  189,    0,
-    156,    0,    0,  234,  234,   79,  234,  155,    0,  143,
-    0,    0,  132,   83,  124,  234,  234,   86,   19,  129,
-    133,  138,  141,  123,    0,  129,  111,  164,  145,    0,
-    101,  106,  170,   48,   31,   28,   30,    1,    0,  234,
+    0,   13,  121,  120,    0,    3,    4,    5,    6,    7,
+    27,    0,   20,   21,  125,  178,  178,   26,  178,    8,
+    178,   41,  178,  178,   53,  178,   62,   74,   33,  119,
+    178,   37,   44,  105,  178,   46,  101,   48,  178,   99,
+    0,   96,   98,   91,  178,  178,   50,  178,   87,    0,
+    86,   87,  178,   76,  178,   52,   50,   68,   71,   73,
+    78,   74,    0,   16,   78,   84,   85,    0,    0,   94,
+    86,   96,   55,  107,    0,    0,   58,  118,  100,  124,
+    130,  136,  142,  106,   46,    0,  148,   43,    0,  178,
+    165,  168,    4,  171,    1,  174};
 
-    174,  182,  188,  190,  194,  201,  205,  209,  212,  216,
-    221};
-
-static yyconst flex_int16_t yy_def[112] =
+static yyconst flex_int16_t yy_def[97] =
 {   0,
-    101,  101,  101,  101,  101,    5,    5,    5,    5,    5,
-    100,   11,    5,   13,  100,  100,  100,  100,  100,  100,
-    100,  100,  100,  100,  102,  100,  100,  100,  100,  100,
-    100,  100,  100,  100,  100,  100,  103,  104,  104,  100,
-    100,  100,  100,  100,  100,  100,  100,  100,  100,  100,
-    100,  100,  100,  100,  100,  100,  100,  100,  100,  105,
-    100,  106,  107,  100,  100,  100,  100,  100,  108,  100,
-    109,  104,  104,  100,  100,  100,  100,  100,  100,  100,
-    100,  100,  100,  102,  105,  106,  110,  100,  100,  108,
-    111,  104,  100,   33,  110,  111,  104,  104,  104,    0,
+    91,   91,    2,    2,    2,    2,    2,    2,    2,    2,
+    2,   11,   11,   11,   90,   90,   90,   90,   90,   90,
+    90,   92,   90,   90,   90,   90,   90,   90,   90,   90,
+    90,   90,   90,   90,   90,   90,   90,   90,   90,   90,
+    93,   90,   94,   90,   90,   90,   90,   90,   90,   95,
+    90,   90,   90,   96,   90,   90,   90,   90,   90,   90,
+    90,   92,   93,   94,   94,   90,   90,   27,   95,   90,
+    96,   96,   25,   94,   66,   70,   90,   96,   94,   94,
+    94,   94,   94,   96,   81,   81,   81,   87,   87,    0,
+    90,   90,   90,   90,   90,   90};
 
-    100,  100,  100,  100,  100,  100,  100,  100,  100,  100,
-    100};
-
-static yyconst flex_int16_t yy_nxt[265] =
+static yyconst flex_int16_t yy_nxt[197] =
 {   0,
-    100,   52,   53,   52,  100,  100,   16,   17,   17,   24,
-    16,  100,  100,   24,   16,  100,   16,   18,   18,   50,
-    26,  100,   26,   99,   19,   19,   20,   20,   17,   25,
-    21,   50,   51,   25,   74,   75,   74,   25,   18,   25,
-    55,   56,   55,   64,   51,   19,   65,   20,   17,   67,
-    21,   98,   68,   64,   67,   70,   65,   58,   18,   66,
-    78,   79,   78,  100,   57,   19,   71,   20,   22,   66,
-    52,   53,   52,   17,   81,   56,   81,   83,   84,   83,
-    88,   89,   88,   18,   74,   75,   74,   78,   79,   78,
-    19,   23,   20,   27,   28,   29,   27,   30,   31,   32,
+    90,   90,   19,   69,   17,   19,   63,   21,   21,   33,
+    34,   23,   23,   17,   17,   20,   17,   17,   20,   22,
+    22,   22,   22,   65,   29,   29,   17,   17,   73,   17,
+    24,   25,   26,   30,   30,   31,   27,   53,   56,   57,
+    28,   32,   36,   37,   54,   33,   34,   59,   37,   61,
+    62,   67,   68,   56,   57,   74,   38,   39,   74,   31,
+    40,   41,   53,   42,   43,   32,   90,   44,   45,   33,
+    34,   46,   59,   37,   59,   37,   90,   47,   48,   61,
+    62,   49,   50,   72,   51,   65,   67,   68,   52,   38,
+    74,   75,   75,   72,   75,   70,   51,   51,   77,   66,
 
-    33,   34,   27,   27,   27,   35,   27,   36,   27,   27,
-    37,   38,   38,   38,   38,   38,   39,   40,   41,   42,
-    43,   44,   27,   16,   97,  100,   45,   67,   46,   47,
-    52,   53,   52,   48,   81,   56,   81,   58,   49,   81,
-    56,   81,   83,   84,   83,   94,   16,   58,   57,   93,
-    59,   60,   92,   61,   64,   62,   70,   65,   60,   60,
-    60,   60,   60,   60,   63,   88,   89,   88,   70,   61,
-    66,   74,   75,   74,   16,   16,   16,   16,   16,   16,
-    16,   16,   54,   54,   54,   54,   54,   54,   54,   54,
-    69,   69,   69,   69,   69,   72,   72,   85,   85,   85,
+    39,   76,   76,   72,   76,   65,   42,   65,   78,   42,
+    48,   79,   73,   72,   80,   81,   60,   82,   77,   73,
+    58,   83,   84,   55,   90,   72,   18,   18,   90,   90,
+    77,   65,   90,   90,   82,   90,   74,   85,   86,   90,
+    86,   90,   73,   65,   90,   90,   82,   90,   73,   65,
+    87,   90,   90,   90,   73,   88,   89,   90,   89,   90,
+    90,   90,   90,   90,   79,   16,   16,   16,   35,   35,
+    35,   64,   90,   64,   71,   90,   71,   15,   90,   90,
+    90,   90,   90,   90,   90,   90,   90,   90,   90,   90,
+    90,   90,   90,   90,   90,   90};
 
-    85,   86,   61,   86,   86,   86,   86,   86,   86,   87,
-    82,   87,   90,   90,   90,   90,   91,   80,   91,   95,
-    95,   95,   95,   95,   96,   96,   96,   96,   96,   77,
-    76,   73,  100,   15,  100,  100,  100,  100,  100,  100,
-    100,  100,  100,  100,  100,  100,  100,  100,  100,  100,
-    100,  100,  100,  100,  100,  100,  100,  100,  100,  100,
-    100,  100,  100,  100};
-
-static yyconst flex_int16_t yy_chk[265] =
+static yyconst flex_int16_t yy_chk[197] =
 {   0,
-    0,   23,   23,   23,    0,    0,    7,    1,    2,    7,
-    8,    0,    0,    8,    9,    0,   10,    1,    2,   21,
-    9,    0,   10,   98,    1,    2,    1,    2,    3,    7,
-    3,   79,   21,    8,   41,   41,   41,    9,    3,   10,
-    25,   25,   25,   35,   79,    3,   35,    3,    4,   37,
-    4,   97,   37,   48,   96,   37,   48,   95,    4,   35,
-    51,   51,   51,   94,   25,    4,   37,    4,    5,   48,
-    52,   52,   52,    5,   55,   55,   55,   57,   57,   57,
-    66,   66,   66,    5,   74,   74,   74,   78,   78,   78,
-    5,    5,    5,   11,   11,   11,   11,   11,   11,   11,
+    0,    0,    5,   95,    1,    6,   93,    7,    8,   20,
+    20,    9,   10,    1,    1,    5,    1,    2,    6,    7,
+    8,    9,   10,   64,   13,   14,    2,    2,   64,    2,
+    11,   11,   11,   13,   14,   18,   11,   29,   32,   32,
+    11,   18,   22,   22,   29,   33,   33,   36,   36,   38,
+    38,   47,   47,   56,   56,   88,   22,   25,   85,   57,
+    25,   25,   77,   25,   25,   57,   73,   25,   27,   58,
+    58,   27,   59,   59,   60,   60,   62,   27,   28,   61,
+    61,   28,   28,   54,   28,   65,   67,   67,   28,   62,
+    65,   66,   66,   71,   66,   52,   51,   49,   71,   44,
 
-    11,   11,   11,   11,   11,   11,   11,   11,   11,   11,
-    11,   11,   11,   11,   11,   11,   11,   11,   11,   11,
-    11,   11,   11,   13,   92,   84,   13,   91,   13,   13,
-    80,   80,   80,   13,   81,   81,   81,   87,   13,   82,
-    82,   82,   83,   83,   83,   86,   13,   33,   84,   75,
-    33,   33,   73,   33,   89,   33,   70,   89,   33,   33,
-    33,   33,   33,   33,   33,   88,   88,   88,   68,   61,
-    89,   93,   93,   93,  101,  101,  101,  101,  101,  101,
-    101,  101,  102,  102,  102,  102,  102,  102,  102,  102,
-    103,  103,  103,  103,  103,  104,  104,  105,  105,  105,
-
-    105,  106,   59,  106,  106,  106,  106,  106,  106,  107,
-    56,  107,  108,  108,  108,  108,  109,   53,  109,  110,
-    110,  110,  110,  110,  111,  111,  111,  111,  111,   49,
-    46,   39,   15,  100,  100,  100,  100,  100,  100,  100,
-    100,  100,  100,  100,  100,  100,  100,  100,  100,  100,
-    100,  100,  100,  100,  100,  100,  100,  100,  100,  100,
-    100,  100,  100,  100};
+    66,   70,   70,   72,   70,   43,   42,   79,   72,   40,
+    70,   74,   79,   84,   74,   74,   37,   74,   84,   74,
+    34,   74,   78,   30,   15,   78,    4,    3,    0,    0,
+    78,   80,    0,    0,   80,    0,   80,   81,   81,    0,
+    81,    0,   81,   82,    0,    0,   82,    0,   82,   83,
+    83,    0,    0,    0,   83,   87,   87,    0,   87,    0,
+    0,    0,    0,    0,   87,   91,   91,   91,   92,   92,
+    92,   94,    0,   94,   96,    0,   96,   90,   90,   90,
+    90,   90,   90,   90,   90,   90,   90,   90,   90,   90,
+    90,   90,   90,   90,   90,   90};
 
 static yy_state_type yy_last_accepting_state;
 static char * yy_last_accepting_cpos;
@@ -630,12 +602,10 @@ static char * yy_last_accepting_cpos;
 extern int code__flex_debug;
 int code__flex_debug = 1;
 
-static yyconst flex_int16_t yy_rule_linenum[34] =
+static yyconst flex_int16_t yy_rule_linenum[18] =
 {   0,
-    125,  135,  136,  146,  151,  156,  161,  166,  171,  175,
-    183,  191,  199,  204,  209,  213,  218,  219,  220,  243,
-    245,  246,  247,  251,  259,  261,  266,  270,  283,  284,
-    285,  286,  293};
+    114,  124,  125,  135,  140,  145,  151,  152,  153,  154,
+    156,  164,  170,  180,  188,  198,  201};
 
 /* The intent behind this definition is that it'll catch
  * any uses of REJECT which flex missed.
@@ -645,10 +615,10 @@ static yyconst flex_int16_t yy_rule_linenum[34] =
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char * code_text;
-// @sobolev #line 1 "scan-code.l"
+#line 1 "../../src/scan-code.l"
 /* Bison Action Scanner                             -*- C -*-
 
-   Copyright (C) 2006-2011 Free Software Foundation, Inc.
+   Copyright (C) 2006-2013 Free Software Foundation, Inc.
 
    This file is part of Bison, the GNU Compiler Compiler.
 
@@ -665,20 +635,21 @@ char * code_text;
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #define YY_NO_INPUT 1
-// @sobolev #line 24 "scan-code.l"
+#line 24 "../../src/scan-code.l"
 /* Work around a bug in flex 2.5.31.  See Debian bug 333231
    <http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=333231>.  */
 #undef code_wrap
 #define code_wrap() 1
 
 #define FLEX_PREFIX(Id) code_ ## Id
-#include "flex-scanner.h"
+#include <flex-scanner.h>
 
-#include "complain.h"
-#include "reader.h"
-#include "getargs.h"
-#include "scan-code.h"
-#include "symlist.h"
+#include <complain.h>
+#include <reader.h>
+#include <getargs.h>
+#include <muscle-tab.h>
+#include <scan-code.h>
+#include <symlist.h>
 
 #include <c-ctype.h>
 #include <get-errno.h>
@@ -686,19 +657,20 @@ char * code_text;
 
 /* The current calling start condition: SC_RULE_ACTION or
    SC_SYMBOL_ACTION. */
-#define YY_DECL static char * code_lex(code_props*self, int sc_context)
+# define YY_DECL static char * code_lex(code_props *self, int sc_context)
 YY_DECL;
 
 #define YY_USER_ACTION  location_compute(loc, &loc->end, code_text, code_leng);
 
-static void handle_action_dollar(symbol_list * rule, char * cp, location dollar_loc);
-static void handle_action_at(symbol_list * rule, char * cp, location at_loc);
+static char * fetch_type_name(char * cp, char const ** type_name, BFLocation dollar_loc);
+static void handle_action_dollar(symbol_list * rule, char * cp, BFLocation dollar_loc);
+static void handle_action_at(symbol_list * rule, char * cp, BFLocation at_loc);
 
 /* A string to be pushed to obstack after dollar/at has been handled. */
 static char * ref_tail_fields;
 
-static location the_location;
-static location * loc = &the_location;
+static BFLocation the_location;
+static BFLocation * loc = &the_location;
 
 /* A string representing the most recent translation.  */
 static char * last_string;
@@ -715,13 +687,14 @@ static bool untyped_var_seen;
 
 /* POSIX says that a tag must be both an id and a C union member, but
    historically almost any character is allowed in a tag.  We disallow
-   NUL and newline, as this simplifies our implementation.  */
+   NUL and newline, as this simplifies our implementation.  We allow
+   "->" as a means to dereference a pointer.  */
 /* Zero or more instances of backslash-newline.  Following GCC, allow
    white space between the backslash and the newline.  */
 /* C style identifier. Must start with letter. Will be used for
    named symbol references. Shall be kept synchronized with
    scan-gram.l "letter" and "id". */
-// @sobolev #line 739 "scan-code.c"
+#line 713 "src/scan-code.c"
 
 #define INITIAL 0
 #define SC_COMMENT 1
@@ -744,7 +717,7 @@ static bool untyped_var_seen;
 #endif
 
 #ifndef YY_EXTRA_TYPE
- #define YY_EXTRA_TYPE void *
+#define YY_EXTRA_TYPE void *
 #endif
 
 /* %if-c-only Reentrant structure and macros (non-C++). */
@@ -765,27 +738,27 @@ int code_lex_destroy(void);
 
 int code_get_debug(void);
 
-void code_set_debug(int debug_flag );
+void code_set_debug(int debug_flag);
 
 YY_EXTRA_TYPE code_get_extra(void);
 
-void code_set_extra(YY_EXTRA_TYPE user_defined );
+void code_set_extra(YY_EXTRA_TYPE user_defined);
 
 FILE * code_get_in(void);
 
-void code_set_in(FILE * in_str );
+void code_set_in(FILE * in_str);
 
 FILE * code_get_out(void);
 
-void code_set_out(FILE * out_str );
+void code_set_out(FILE * out_str);
 
-int code_get_leng(void);
+yy_size_t code_get_leng(void);
 
 char * code_get_text(void);
 
 int code_get_lineno(void);
 
-void code_set_lineno(int line_number );
+void code_set_lineno(int line_number);
 
 /* %if-bison-bridge */
 /* %endif */
@@ -795,11 +768,11 @@ void code_set_lineno(int line_number );
  */
 
 #ifndef YY_SKIP_YYWRAP
- #ifdef __cplusplus
+#ifdef __cplusplus
 extern "C" int code_wrap(void);
- #else
+#else
 extern int code_wrap(void);
- #endif
+#endif
 #endif
 
 /* %not-for-header */
@@ -820,11 +793,11 @@ static int yy_flex_strlen(yyconst char *);
 /* %if-c-only Standard (non-C++) definition */
 /* %not-for-header */
 
- #ifdef __cplusplus
+#ifdef __cplusplus
 static int yyinput(void);
- #else
+#else
 static int input(void);
- #endif
+#endif
 /* %ok-for-header */
 
 /* %endif */
@@ -836,12 +809,7 @@ static int input(void);
 
 /* Amount of stuff to slurp up with each read. */
 #ifndef YY_READ_BUF_SIZE
- #ifdef __ia64__
-/* On IA-64, the buffer size is 16k, not 8k */
-  #define YY_READ_BUF_SIZE 16384
- #else
-  #define YY_READ_BUF_SIZE 8192
- #endif /* __ia64__ */
+#define YY_READ_BUF_SIZE 8192
 #endif
 
 /* Copy whatever the last rule matched to the standard output. */
@@ -850,7 +818,7 @@ static int input(void);
 /* This used to be an fputs(), but since the string might contain NUL's,
  * we now use fwrite().
  */
- #define ECHO do { if(fwrite(code_text, code_leng, 1, code_out)) {} } while(0)
+#define ECHO do { if(fwrite(code_text, code_leng, 1, code_out)) {} } while(0)
 /* %endif */
 /* %if-c++-only C++ definition */
 /* %endif */
@@ -860,9 +828,9 @@ static int input(void);
  * is returned in "result".
  */
 #ifndef YY_INPUT
- #define YY_INPUT(buf, result, max_size) \
-/* %% [5.0] fread()/read() definition of YY_INPUT goes here unless we're doing C++ \ */ \
-        if(YY_CURRENT_BUFFER_LVALUE->yy_is_interactive) \
+#define YY_INPUT(buf, result, max_size)	\
+/* %% [5.0] fread()/read() definition of YY_INPUT goes here unless we're doing C++ \ */	\
+	if(YY_CURRENT_BUFFER_LVALUE->yy_is_interactive)	\
 	{ \
 		int c = '*'; \
 		size_t n; \
@@ -871,18 +839,18 @@ static int input(void);
 			buf[n] = (char)c; \
 		if(c == '\n') \
 			buf[n++] = (char)c; \
-		if(c == EOF && ferror(code_in)) \
-			YY_FATAL_ERROR("input in flex scanner failed"); \
+		if(c == EOF && ferror(code_in) ) \
+			YY_FATAL_ERROR("input in flex scanner failed");	\
 		result = n; \
 	} \
-        else \
+	else \
 	{ \
 		errno = 0; \
-		while((result = fread(buf, 1, max_size, code_in))==0 && ferror(code_in)) \
+		while( (result = fread(buf, 1, max_size, code_in))==0 && ferror(code_in)) \
 		{ \
 			if(errno != EINTR) \
 			{ \
-				YY_FATAL_ERROR("input in flex scanner failed"); \
+				YY_FATAL_ERROR("input in flex scanner failed");	\
 				break; \
 			} \
 			errno = 0; \
@@ -900,18 +868,18 @@ static int input(void);
  * some compilers to complain about unreachable statements.
  */
 #ifndef yyterminate
- #define yyterminate() return YY_NULL
+#define yyterminate() return YY_NULL
 #endif
 
 /* Number of entries by which start-condition stack grows. */
 #ifndef YY_START_STACK_INCR
- #define YY_START_STACK_INCR 25
+#define YY_START_STACK_INCR 25
 #endif
 
 /* Report a fatal error. */
 #ifndef YY_FATAL_ERROR
 /* %if-c-only */
- #define YY_FATAL_ERROR(msg) yy_fatal_error(msg)
+#define YY_FATAL_ERROR(msg) yy_fatal_error(msg)
 /* %endif */
 /* %if-c++-only */
 /* %endif */
@@ -934,12 +902,12 @@ static int input(void);
  * easily add parameters.
  */
 #ifndef YY_DECL
- #define YY_DECL_IS_OURS 1
+#define YY_DECL_IS_OURS 1
 /* %if-c-only Standard (non-C++) definition */
 
 extern int code_lex(void);
 
- #define YY_DECL int code_lex(void)
+#define YY_DECL int code_lex(void)
 /* %endif */
 /* %if-c++-only C++ definition */
 /* %endif */
@@ -949,17 +917,17 @@ extern int code_lex(void);
  * have been set up.
  */
 #ifndef YY_USER_ACTION
- #define YY_USER_ACTION
+#define YY_USER_ACTION
 #endif
 
 /* Code executed at the end of each rule. */
 #ifndef YY_BREAK
- #define YY_BREAK break;
+#define YY_BREAK break;
 #endif
 
 /* %% [6.0] YY_RULE_SETUP definition goes here */
 #define YY_RULE_SETUP \
-        YY_USER_ACTION
+	YY_USER_ACTION
 
 /* %not-for-header */
 
@@ -972,64 +940,55 @@ register char * yy_cp, * yy_bp;
 register int yy_act;
 
 /* %% [7.0] user's declarations go here */
-// @sobolev #line 91 "scan-code.l"
-
-/* Nesting level of the current code in braces.  */
-int braces_level = 0;
-
-/* Whether a semicolon is probably needed.
-   The heuristic is that a semicolon is not needed after `{', `}', `;',
-   or a C preprocessor directive, and that whitespaces and comments
-   do not affect this flag.
-   Note that `{' does not need a semicolon because of `{}'.
-   A semicolon may be needed before a cpp direcive, but don't bother.  */
-bool need_semicolon = false;
-
-/* Whether in a C preprocessor directive.  Don't use a start condition
-   for this because, at the end of strings and comments, we still need
-   to know whether we're in a directive.  */
-bool in_cpp = false;
+#line 96 "../../src/scan-code.l"
 
 /* This scanner is special: it is invoked only once, henceforth
    is expected to return only once.  This initialization is
    therefore done once per action to translate. */
-aver(sc_context == SC_SYMBOL_ACTION ||
-	sc_context == SC_RULE_ACTION ||
-	sc_context == INITIAL);
+aver(sc_context == SC_SYMBOL_ACTION
+	    || sc_context == SC_RULE_ACTION
+	    || sc_context == INITIAL);
 BEGIN sc_context;
 
 /*------------------------------------------------------------.
-| Scanning a C comment.  The initial `/ *' is already eaten.  |
+| Scanning a C comment.  The initial '/ *' is already eaten.  |
    `------------------------------------------------------------*/
 
-// @sobolev #line 1023 "scan-code.c"
-if(!(yy_init)) {
+#line 976 "src/scan-code.c"
+
+if(!(yy_init) ) {
 	(yy_init) = 1;
 
 #ifdef YY_USER_INIT
 	YY_USER_INIT;
 #endif
-	if(!(yy_start))
+
+	if(!(yy_start) )
 		(yy_start) = 1;         /* first start state */
+
 	if(!code_in)
 /* %if-c-only */
 		code_in = stdin;
 /* %endif */
 /* %if-c++-only */
 /* %endif */
+
 	if(!code_out)
 /* %if-c-only */
 		code_out = stdout;
 /* %endif */
 /* %if-c++-only */
 /* %endif */
+
 	if(!YY_CURRENT_BUFFER) {
 		code_ensure_buffer_stack();
 		YY_CURRENT_BUFFER_LVALUE =
-		        code__create_buffer(code_in, YY_BUF_SIZE);
+			    code__create_buffer(code_in, YY_BUF_SIZE);
 	}
+
 	code__load_buffer_state();
 }
+
 while(1) {                      /* loops until end-of-file is reached */
 /* %% [8.0] yymore()-related code goes here */
 	yy_cp = (yy_c_buf_p);
@@ -1051,14 +1010,15 @@ yy_match:
 			(yy_last_accepting_state) = yy_current_state;
 			(yy_last_accepting_cpos) = yy_cp;
 		}
-		while(yy_chk[yy_base[yy_current_state]+yy_c] != yy_current_state) {
+		while(yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state) {
 			yy_current_state = (int)yy_def[yy_current_state];
-			if(yy_current_state >= 101)
+			if(yy_current_state >= 91)
 				yy_c = yy_meta[(unsigned int)yy_c];
 		}
-		yy_current_state = yy_nxt[yy_base[yy_current_state]+(unsigned int)yy_c];
+		yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int)yy_c];
 		++yy_cp;
-	} while(yy_current_state != 100);
+	}
+	while(yy_current_state != 90);
 	yy_cp = (yy_last_accepting_cpos);
 	yy_current_state = (yy_last_accepting_state);
 
@@ -1071,329 +1031,194 @@ yy_find_action:
 /* %% [11.0] code for code_lineno update goes here */
 
 do_action:      /* This label is used only to access EOF actions. */
+
 /* %% [12.0] debug code goes here */
 	if(code__flex_debug) {
 		if(yy_act == 0)
 			fprintf(stderr, "--scanner backing up\n");
-		else if(yy_act < 34)
-			fprintf(stderr, "--accepting rule at line %ld (\"%s\")\n", (long)yy_rule_linenum[yy_act], code_text);
-		else if(yy_act == 34)
-			fprintf(stderr, "--accepting default rule (\"%s\")\n", code_text);
-		else if(yy_act == 35)
+		else if(yy_act < 18)
+			fprintf(stderr, "--accepting rule at line %ld (\"%s\")\n",
+				    (long)yy_rule_linenum[yy_act], code_text);
+		else if(yy_act == 18)
+			fprintf(stderr, "--accepting default rule (\"%s\")\n",
+				    code_text);
+		else if(yy_act == 19)
 			fprintf(stderr, "--(end of buffer or a NUL)\n");
 		else
 			fprintf(stderr, "--EOF (start condition %d)\n", YY_START);
 	}
-	switch(yy_act) { /* beginning of action switch */
-/* %% [13.0] actions go here */
-	    case 0:             /* must back up */
-		/* undo the effects of YY_DO_BEFORE_ACTION */
-		*yy_cp = (yy_hold_char);
-		yy_cp = (yy_last_accepting_cpos);
-		yy_current_state = (yy_last_accepting_state);
-		goto yy_find_action;
 
-	    case 1:
+	switch(yy_act)
+	{ /* beginning of action switch */
+/* %% [13.0] actions go here */
+		case 0:         /* must back up */
+		    /* undo the effects of YY_DO_BEFORE_ACTION */
+		    *yy_cp = (yy_hold_char);
+		    yy_cp = (yy_last_accepting_cpos);
+		    yy_current_state = (yy_last_accepting_state);
+		    goto yy_find_action;
+
+		case 1:
 /* rule 1 can match eol */
-		YY_RULE_SETUP
-// @sobolev #line 125 "scan-code.l"
-		STRING_GROW; BEGIN sc_context;
-		YY_BREAK
+		    YY_RULE_SETUP
+#line 114 "../../src/scan-code.l"
+		    STRING_GROW; BEGIN sc_context;
+		    YY_BREAK
 
 /*--------------------------------------------------------------.
-| Scanning a line comment.  The initial `//' is already eaten.  |
+| Scanning a line comment.  The initial '//' is already eaten.  |
    `--------------------------------------------------------------*/
 
-	    case 2:
+		case 2:
 /* rule 2 can match eol */
-		YY_RULE_SETUP
-// @sobolev #line 135 "scan-code.l"
-		STRING_GROW; BEGIN sc_context;
-		YY_BREAK
-	    case 3:
+		    YY_RULE_SETUP
+#line 124 "../../src/scan-code.l"
+		    STRING_GROW; BEGIN sc_context;
+		    YY_BREAK
+		case 3:
 /* rule 3 can match eol */
-		YY_RULE_SETUP
-// @sobolev #line 136 "scan-code.l"
-		STRING_GROW;
-		YY_BREAK
+		    YY_RULE_SETUP
+#line 125 "../../src/scan-code.l"
+		    STRING_GROW;
+		    YY_BREAK
 
 /*--------------------------------------------.
 | Scanning user-code characters and strings.  |
    `--------------------------------------------*/
 
-	    case 4:
+		case 4:
 /* rule 4 can match eol */
-		YY_RULE_SETUP
-// @sobolev #line 146 "scan-code.l"
-		STRING_GROW;
-		YY_BREAK
+		    YY_RULE_SETUP
+#line 135 "../../src/scan-code.l"
+		    STRING_GROW;
+		    YY_BREAK
 
-	    case 5:
-		YY_RULE_SETUP
-// @sobolev #line 151 "scan-code.l"
-		STRING_GROW; BEGIN sc_context;
-		YY_BREAK
+		case 5:
+		    YY_RULE_SETUP
+#line 140 "../../src/scan-code.l"
+		    STRING_GROW; BEGIN sc_context;
+		    YY_BREAK
 
-	    case 6:
-		YY_RULE_SETUP
-// @sobolev #line 156 "scan-code.l"
-		STRING_GROW; BEGIN sc_context;
-		YY_BREAK
+		case 6:
+		    YY_RULE_SETUP
+#line 145 "../../src/scan-code.l"
+		    STRING_GROW; BEGIN sc_context;
+		    YY_BREAK
 
-	    case 7:
-		YY_RULE_SETUP
-// @sobolev #line 161 "scan-code.l"
-		{
-			STRING_GROW;
-			BEGIN SC_CHARACTER;
-			need_semicolon = true;
-		}
-		YY_BREAK
-	    case 8:
-		YY_RULE_SETUP
-// @sobolev #line 166 "scan-code.l"
-		{
-			STRING_GROW;
-			BEGIN SC_STRING;
-			need_semicolon = true;
-		}
-		YY_BREAK
-	    case 9:
+		case 7:
+		    YY_RULE_SETUP
+#line 151 "../../src/scan-code.l"
+		    STRING_GROW; BEGIN SC_CHARACTER;
+		    YY_BREAK
+		case 8:
+		    YY_RULE_SETUP
+#line 152 "../../src/scan-code.l"
+		    STRING_GROW; BEGIN SC_STRING;
+		    YY_BREAK
+		case 9:
 /* rule 9 can match eol */
-		YY_RULE_SETUP
-#line 171 "scan-code.l"
-		{
-			STRING_GROW;
-			BEGIN SC_COMMENT;
-		}
-		YY_BREAK
-	    case 10:
+		    YY_RULE_SETUP
+#line 153 "../../src/scan-code.l"
+		    STRING_GROW; BEGIN SC_COMMENT;
+		    YY_BREAK
+		case 10:
 /* rule 10 can match eol */
-		YY_RULE_SETUP
-#line 175 "scan-code.l"
-		{
-			STRING_GROW;
-			BEGIN SC_LINE_COMMENT;
-		}
-		YY_BREAK
+		    YY_RULE_SETUP
+#line 154 "../../src/scan-code.l"
+		    STRING_GROW; BEGIN SC_LINE_COMMENT;
+		    YY_BREAK
+		case 11:
+		    YY_RULE_SETUP
+#line 156 "../../src/scan-code.l"
+		    {
+			    complain(loc, Wother, _("stray '%s'"), code_text);
+			    obstack_escape(&obstack_for_string, code_text);
+		    }
+		    YY_BREAK
 
-	    case 11:
-		YY_RULE_SETUP
-#line 183 "scan-code.l"
-		{
-			ref_tail_fields = 0;
-			handle_action_dollar(self->rule, code_text, *loc);
-			if(ref_tail_fields) {
-				obstack_sgrow(&obstack_for_string, ref_tail_fields);
-			}
-			need_semicolon = true;
-		}
-		YY_BREAK
-	    case 12:
-		YY_RULE_SETUP
-#line 191 "scan-code.l"
-		{
-			ref_tail_fields = 0;
-			handle_action_at(self->rule, code_text, *loc);
-			if(ref_tail_fields) {
-				obstack_sgrow(&obstack_for_string, ref_tail_fields);
-			}
-			need_semicolon = true;
-		}
-		YY_BREAK
-	    case 13:
-		YY_RULE_SETUP
-#line 199 "scan-code.l"
-		{
-			warn_at(*loc, _("stray `$'"));
-			obstack_sgrow(&obstack_for_string, "$][");
-			need_semicolon = true;
-		}
-		YY_BREAK
-	    case 14:
-		YY_RULE_SETUP
-#line 204 "scan-code.l"
-		{
-			warn_at(*loc, _("stray `@'"));
-			obstack_sgrow(&obstack_for_string, "@@");
-			need_semicolon = true;
-		}
-		YY_BREAK
-	    case 15:
-		YY_RULE_SETUP
-#line 209 "scan-code.l"
-		{
-			obstack_sgrow(&obstack_for_string, "@{");
-			need_semicolon = true;
-		}
-		YY_BREAK
-	    case 16:
-		YY_RULE_SETUP
-#line 213 "scan-code.l"
-		{
-			obstack_sgrow(&obstack_for_string, "@}");
-			need_semicolon = true;
-		}
-		YY_BREAK
-	    case 17:
-		YY_RULE_SETUP
-#line 218 "scan-code.l"
-		STRING_GROW;                 need_semicolon = false;
-		YY_BREAK
-	    case 18:
-		YY_RULE_SETUP
-#line 219 "scan-code.l"
-		STRING_GROW; ++braces_level; need_semicolon = false;
-		YY_BREAK
-	    case 19:
-		YY_RULE_SETUP
-#line 220 "scan-code.l"
-		{
-			bool outer_brace = --braces_level == 0;
-			/* As an undocumented Bison extension, append `;' before the last
-			   brace in braced code, so that the user code can omit trailing
-			   `;'.  But do not append `;' if emulating Yacc, since Yacc does
-			   not append one.  */
-			if(outer_brace && !yacc_flag && language_prio == default_prio &&
-			   skeleton_prio == default_prio && need_semicolon && !in_cpp) {
-				warn_at(*loc, _("a `;' might be needed at the end of action code"));
-				warn_at(*loc, _("future versions of Bison will not add the `;'"));
-				obstack_1grow(&obstack_for_string, ';');
-			}
-			STRING_GROW;
-			need_semicolon = false;
-		}
-		YY_BREAK
-/* Preprocessing directives should only be recognized at the beginning
-     of lines, allowing whitespace including comments, but in C/C++,
-     `#' can only be the start of preprocessor directives or within
-     `#define' directives anyway, so don't bother with begin of line.  */
-	    case 20:
-		YY_RULE_SETUP
-#line 243 "scan-code.l"
-		STRING_GROW; in_cpp = true;
-		YY_BREAK
-	    case 21:
-/* rule 21 can match eol */
-		YY_RULE_SETUP
-#line 245 "scan-code.l"
-		STRING_GROW;
-		YY_BREAK
-	    case 22:
-/* rule 22 can match eol */
-		YY_RULE_SETUP
-#line 246 "scan-code.l"
-		STRING_GROW; if(in_cpp) in_cpp = need_semicolon = false;
-		YY_BREAK
-	    case 23:
-		YY_RULE_SETUP
-#line 247 "scan-code.l"
-		STRING_GROW;
-		YY_BREAK
-/* YYFAIL is undocumented and was formally deprecated in Bison
-     2.4.2.  */
-	    case 24:
-		YY_RULE_SETUP
-#line 251 "scan-code.l"
-		{
-			STRING_GROW; need_semicolon = true;
-			warn_at(*loc, _("use of YYFAIL, which is deprecated and will be"
-					" removed"));
-		}
-		YY_BREAK
-/* The sole purpose of this is to make sure identifiers that merely
-     contain YYFAIL don't produce the above warning.  */
-	    case 25:
-		YY_RULE_SETUP
-#line 259 "scan-code.l"
-		STRING_GROW; need_semicolon = true;
-		YY_BREAK
-	    case 26:
-		YY_RULE_SETUP
-#line 261 "scan-code.l"
-		STRING_GROW; need_semicolon = true;
-		YY_BREAK
+		case 12:
+		    YY_RULE_SETUP
+#line 164 "../../src/scan-code.l"
+		    {
+			    ref_tail_fields = NULL;
+			    handle_action_dollar(self->rule, code_text, *loc);
+			    if(ref_tail_fields)
+				    obstack_sgrow(&obstack_for_string, ref_tail_fields);
+		    }
+		    YY_BREAK
+		case 13:
+		    YY_RULE_SETUP
+#line 170 "../../src/scan-code.l"
+		    {
+			    ref_tail_fields = NULL;
+			    handle_action_at(self->rule, code_text, *loc);
+			    if(ref_tail_fields)
+				    obstack_sgrow(&obstack_for_string, ref_tail_fields);
+		    }
+		    YY_BREAK
 
-	    case 27:
-		YY_RULE_SETUP
-#line 266 "scan-code.l"
-		{
-			obstack_sgrow(&obstack_for_string, "]b4_dollar_dollar[");
-			self->is_value_used = true;
-		}
-		YY_BREAK
-	    case 28:
-		YY_RULE_SETUP
-#line 270 "scan-code.l"
-		{
-			obstack_sgrow(&obstack_for_string, "]b4_at_dollar[");
-			locations_flag = true;
-		}
-		YY_BREAK
+		case 14:
+		    YY_RULE_SETUP
+#line 180 "../../src/scan-code.l"
+		    {
+			    const char * type_name = NULL;
+			    fetch_type_name(code_text + 1, &type_name, *loc)[-1] = 0;
+			    obstack_sgrow(&obstack_for_string, "]b4_dollar_dollar(");
+			    obstack_quote(&obstack_for_string, type_name);
+			    obstack_sgrow(&obstack_for_string, ")[");
+			    self->is_value_used = true;
+		    }
+		    YY_BREAK
+		case 15:
+		    YY_RULE_SETUP
+#line 188 "../../src/scan-code.l"
+		    {
+			    obstack_sgrow(&obstack_for_string, "]b4_at_dollar[");
+			    muscle_percent_define_ensure("locations", the_location, true);
+		    }
+		    YY_BREAK
 
-/*-----------------------------------------.
-| Escape M4 quoting characters in C code.  |
-   `-----------------------------------------*/
-
-	    case 29:
-		YY_RULE_SETUP
-#line 283 "scan-code.l"
-		obstack_sgrow(& obstack_for_string, "$][");
-		YY_BREAK
-	    case 30:
-		YY_RULE_SETUP
-#line 284 "scan-code.l"
-		obstack_sgrow(& obstack_for_string, "@@");
-		YY_BREAK
-	    case 31:
-		YY_RULE_SETUP
-#line 285 "scan-code.l"
-		obstack_sgrow(& obstack_for_string, "@{");
-		YY_BREAK
-	    case 32:
-		YY_RULE_SETUP
-#line 286 "scan-code.l"
-		obstack_sgrow(& obstack_for_string, "@}");
-		YY_BREAK
-
-/*-----------------------------------------------------.
-| By default, grow the string obstack with the input.  |
-   `-----------------------------------------------------*/
-	    case 33:
-/* rule 33 can match eol */
-		YY_RULE_SETUP
-#line 293 "scan-code.l"
-		STRING_GROW;
-		YY_BREAK
+/* Escape M4 quoting characters in C code.  */
+		case 16:
+		    YY_RULE_SETUP
+#line 198 "../../src/scan-code.l"
+		    obstack_escape(&obstack_for_string, code_text);
+		    YY_BREAK
+/* By default, grow the string obstack with the input.  */
+		case 17:
+/* rule 17 can match eol */
+		    YY_RULE_SETUP
+#line 201 "../../src/scan-code.l"
+		    STRING_GROW;
+		    YY_BREAK
 /* End of processing. */
-	    case YY_STATE_EOF(INITIAL):
-	    case YY_STATE_EOF(SC_COMMENT):
-	    case YY_STATE_EOF(SC_LINE_COMMENT):
-	    case YY_STATE_EOF(SC_STRING):
-	    case YY_STATE_EOF(SC_CHARACTER):
-	    case YY_STATE_EOF(SC_RULE_ACTION):
-	    case YY_STATE_EOF(SC_SYMBOL_ACTION):
-#line 296 "scan-code.l"
-		{
-			STRING_FINISH;
-			return last_string;
-		}
-		YY_BREAK
-	    case 34:
-		YY_RULE_SETUP
-#line 301 "scan-code.l"
-		YY_FATAL_ERROR("flex scanner jammed");
-		YY_BREAK
-#line 1439 "scan-code.c"
+		case YY_STATE_EOF(INITIAL):
+		case YY_STATE_EOF(SC_COMMENT):
+		case YY_STATE_EOF(SC_LINE_COMMENT):
+		case YY_STATE_EOF(SC_STRING):
+		case YY_STATE_EOF(SC_CHARACTER):
+		case YY_STATE_EOF(SC_RULE_ACTION):
+		case YY_STATE_EOF(SC_SYMBOL_ACTION):
+#line 204 "../../src/scan-code.l"
+		    STRING_FINISH; return last_string;
+		    YY_BREAK
 
-	    case YY_END_OF_BUFFER:
+		case 18:
+		    YY_RULE_SETUP
+#line 207 "../../src/scan-code.l"
+		    YY_FATAL_ERROR("flex scanner jammed");
+		    YY_BREAK
+#line 1250 "src/scan-code.c"
+
+		case YY_END_OF_BUFFER:
 	    {
 		    /* Amount of text matched not including the EOB char. */
-		    int yy_amount_of_matched_text = (int)(yy_cp-(yytext_ptr))-1;
+		    int yy_amount_of_matched_text = (int)(yy_cp - (yytext_ptr)) - 1;
 
 		    /* Undo the effects of YY_DO_BEFORE_ACTION. */
 		    *yy_cp = (yy_hold_char);
 		    YY_RESTORE_YY_MORE_OFFSET
+
 		    if(YY_CURRENT_BUFFER_LVALUE->yy_buffer_status == YY_BUFFER_NEW) {
 			    /* We're scanning a new file or input source.  It's
 			     * possible that this happened because the user
@@ -1408,6 +1233,7 @@ do_action:      /* This label is used only to access EOF actions. */
 			    YY_CURRENT_BUFFER_LVALUE->yy_input_file = code_in;
 			    YY_CURRENT_BUFFER_LVALUE->yy_buffer_status = YY_BUFFER_NORMAL;
 		    }
+
 		    /* Note that here we test for yy_c_buf_p "<=" to the position
 		     * of the first EOB in the buffer, since yy_c_buf_p will
 		     * already have been incremented past the NUL character
@@ -1415,10 +1241,11 @@ do_action:      /* This label is used only to access EOF actions. */
 		     * end-of-buffer state).  Contrast this with the test
 		     * in input().
 		     */
-		    if((yy_c_buf_p) <= &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars)]) { /* This was really a NUL. */
+		    if( (yy_c_buf_p) <= &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars)]) { /* This was really a NUL.
+					                                                        */
 			    yy_state_type yy_next_state;
 
-			    (yy_c_buf_p) = (yytext_ptr)+yy_amount_of_matched_text;
+			    (yy_c_buf_p) = (yytext_ptr) + yy_amount_of_matched_text;
 
 			    yy_current_state = yy_get_previous_state();
 
@@ -1433,7 +1260,8 @@ do_action:      /* This label is used only to access EOF actions. */
 
 			    yy_next_state = yy_try_NUL_trans(yy_current_state);
 
-			    yy_bp = (yytext_ptr)+YY_MORE_ADJ;
+			    yy_bp = (yytext_ptr) + YY_MORE_ADJ;
+
 			    if(yy_next_state) {
 				    /* Consume the NUL. */
 				    yy_cp = ++(yy_c_buf_p);
@@ -1449,11 +1277,13 @@ do_action:      /* This label is used only to access EOF actions. */
 			    }
 		    }
 
-		    else switch(yy_get_next_buffer()) {
-				case EOB_ACT_END_OF_FILE:
+		    else switch(yy_get_next_buffer() )
+			    {
+				    case EOB_ACT_END_OF_FILE:
 				{
 					(yy_did_buffer_switch_on_eof) = 0;
-					if(code_wrap()) {
+
+					if(code_wrap() ) {
 						/* Note: because we've taken care in
 						 * yy_get_next_buffer() to have set up
 						 * code_text, we can now set up
@@ -1463,45 +1293,45 @@ do_action:      /* This label is used only to access EOF actions. */
 						 * YY_NULL, it'll still work - another
 						 * YY_NULL will get returned.
 						 */
-						(yy_c_buf_p) = (yytext_ptr)+YY_MORE_ADJ;
+						(yy_c_buf_p) = (yytext_ptr) + YY_MORE_ADJ;
 
 						yy_act = YY_STATE_EOF(YY_START);
 						goto do_action;
 					}
 
 					else {
-						if(!(yy_did_buffer_switch_on_eof))
+						if(!(yy_did_buffer_switch_on_eof) )
 							YY_NEW_FILE;
 					}
 					break;
 				}
 
-				case EOB_ACT_CONTINUE_SCAN:
-				    (yy_c_buf_p) =
-				            (yytext_ptr)+yy_amount_of_matched_text;
+				    case EOB_ACT_CONTINUE_SCAN:
+					(yy_c_buf_p) =
+						    (yytext_ptr) + yy_amount_of_matched_text;
 
-				    yy_current_state = yy_get_previous_state();
+					yy_current_state = yy_get_previous_state();
 
-				    yy_cp = (yy_c_buf_p);
-				    yy_bp = (yytext_ptr)+YY_MORE_ADJ;
-				    goto yy_match;
+					yy_cp = (yy_c_buf_p);
+					yy_bp = (yytext_ptr) + YY_MORE_ADJ;
+					goto yy_match;
 
-				case EOB_ACT_LAST_MATCH:
-				    (yy_c_buf_p) =
-				            &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars)];
+				    case EOB_ACT_LAST_MATCH:
+					(yy_c_buf_p) =
+						    &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars)];
 
-				    yy_current_state = yy_get_previous_state();
+					yy_current_state = yy_get_previous_state();
 
-				    yy_cp = (yy_c_buf_p);
-				    yy_bp = (yytext_ptr)+YY_MORE_ADJ;
-				    goto yy_find_action;
+					yy_cp = (yy_c_buf_p);
+					yy_bp = (yytext_ptr) + YY_MORE_ADJ;
+					goto yy_find_action;
 			    }
 		    break;
 	    }
 
-	    default:
-		YY_FATAL_ERROR(
-			"fatal flex scanner internal error--no action found");
+		default:
+		    YY_FATAL_ERROR(
+			    "fatal flex scanner internal error--no action found");
 	} /* end of action switch */
 }                 /* end of scanning one token */
 } /* end of code_lex */
@@ -1531,11 +1361,13 @@ static int yy_get_next_buffer(void)
 	register char * source = (yytext_ptr);
 	register int number_to_move, i;
 	int ret_val;
-	if((yy_c_buf_p) > &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars)+1])
+
+	if( (yy_c_buf_p) > &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars) + 1])
 		YY_FATAL_ERROR(
-			"fatal flex scanner internal error--end of buffer missed");
+		    "fatal flex scanner internal error--end of buffer missed");
+
 	if(YY_CURRENT_BUFFER_LVALUE->yy_fill_buffer == 0) { /* Don't try to fill the buffer, so this is an EOF. */
-		if((yy_c_buf_p)-(yytext_ptr)-YY_MORE_ADJ == 1) {
+		if( (yy_c_buf_p) - (yytext_ptr) - YY_MORE_ADJ == 1) {
 			/* We matched a single character, the EOB, so
 			 * treat this as a final EOF.
 			 */
@@ -1549,13 +1381,15 @@ static int yy_get_next_buffer(void)
 			return EOB_ACT_LAST_MATCH;
 		}
 	}
+
 	/* Try to read more data. */
 
 	/* First move last chars to start of buffer. */
-	number_to_move = (int)((yy_c_buf_p)-(yytext_ptr))-1;
+	number_to_move = (int)((yy_c_buf_p) - (yytext_ptr)) - 1;
 
 	for(i = 0; i < number_to_move; ++i)
 		*(dest++) = *(source++);
+
 	if(YY_CURRENT_BUFFER_LVALUE->yy_buffer_status == YY_BUFFER_EOF_PENDING)
 		/* don't do the read, it's not guaranteed to return an EOF,
 		 * just force an EOF
@@ -1563,72 +1397,79 @@ static int yy_get_next_buffer(void)
 		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = (yy_n_chars) = 0;
 
 	else {
-		int num_to_read =
-		        YY_CURRENT_BUFFER_LVALUE->yy_buf_size-number_to_move-1;
+		yy_size_t num_to_read =
+		    YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
 		while(num_to_read <= 0) { /* Not enough room in the buffer - grow it. */
-
-			/* just a shorter name for the current buffer */
-			YY_BUFFER_STATE b = YY_CURRENT_BUFFER;
+			                 /* just a shorter name for the current buffer */
+			YY_BUFFER_STATE b = YY_CURRENT_BUFFER_LVALUE;
 
 			int yy_c_buf_p_offset =
-			        (int)((yy_c_buf_p)-b->yy_ch_buf);
+			    (int)((yy_c_buf_p) - b->yy_ch_buf);
+
 			if(b->yy_is_our_buffer) {
-				int new_size = b->yy_buf_size*2;
+				yy_size_t new_size = b->yy_buf_size * 2;
+
 				if(new_size <= 0)
-					b->yy_buf_size += b->yy_buf_size/8;
+					b->yy_buf_size += b->yy_buf_size / 8;
 				else
 					b->yy_buf_size *= 2;
-				b->yy_ch_buf = (char *)
-				               /* Include room in for 2 EOB chars. */
-				               code_realloc((void *)b->yy_ch_buf, b->yy_buf_size+2 );
+
+				b->yy_ch_buf = (char*)
+				    /* Include room in for 2 EOB chars. */
+				    code_realloc((void*)b->yy_ch_buf, b->yy_buf_size + 2);
 			}
 			else
 				/* Can't grow it, we don't own it. */
 				b->yy_ch_buf = 0;
+
 			if(!b->yy_ch_buf)
 				YY_FATAL_ERROR(
-					"fatal error - scanner input buffer overflow");
+				    "fatal error - scanner input buffer overflow");
+
 			(yy_c_buf_p) = &b->yy_ch_buf[yy_c_buf_p_offset];
 
-			num_to_read = YY_CURRENT_BUFFER_LVALUE->yy_buf_size-
-			              number_to_move-1;
-
+			num_to_read = YY_CURRENT_BUFFER_LVALUE->yy_buf_size -
+			    number_to_move - 1;
 		}
+
 		if(num_to_read > YY_READ_BUF_SIZE)
 			num_to_read = YY_READ_BUF_SIZE;
+
 		/* Read in more data. */
-		YY_INPUT((&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move]),
-			(yy_n_chars), (size_t)num_to_read);
+		YY_INPUT( (&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move]),
+		    (yy_n_chars), num_to_read);
 
 		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = (yy_n_chars);
 	}
-	if((yy_n_chars) == 0) {
+
+	if( (yy_n_chars) == 0) {
 		if(number_to_move == YY_MORE_ADJ) {
 			ret_val = EOB_ACT_END_OF_FILE;
-			code_restart(code_in );
+			code_restart(code_in);
 		}
 
 		else {
 			ret_val = EOB_ACT_LAST_MATCH;
 			YY_CURRENT_BUFFER_LVALUE->yy_buffer_status =
-			        YY_BUFFER_EOF_PENDING;
+			    YY_BUFFER_EOF_PENDING;
 		}
 	}
 
 	else
 		ret_val = EOB_ACT_CONTINUE_SCAN;
-	if((yy_size_t)((yy_n_chars)+number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
+
+	if((yy_size_t)((yy_n_chars) + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
 		/* Extend the array by 50%, plus the number we really need. */
-		yy_size_t new_size = (yy_n_chars)+number_to_move+((yy_n_chars)>>1);
-		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *)code_realloc((void *)YY_CURRENT_BUFFER_LVALUE->yy_ch_buf,
-			new_size );
+		yy_size_t new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
+		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char*)code_realloc((void*)YY_CURRENT_BUFFER_LVALUE->yy_ch_buf, new_size);
 		if(!YY_CURRENT_BUFFER_LVALUE->yy_ch_buf)
 			YY_FATAL_ERROR("out of dynamic memory in yy_get_next_buffer()");
 	}
+
 	(yy_n_chars) += number_to_move;
 	YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars)] = YY_END_OF_BUFFER_CHAR;
-	YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars)+1] = YY_END_OF_BUFFER_CHAR;
+	YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars) + 1] = YY_END_OF_BUFFER_CHAR;
 
 	(yytext_ptr) = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[0];
 
@@ -1651,27 +1492,28 @@ static yy_state_type yy_get_previous_state(void)
 /* %% [15.0] code to get the start state into yy_current_state goes here */
 	yy_current_state = (yy_start);
 
-	for(yy_cp = (yytext_ptr)+YY_MORE_ADJ; yy_cp < (yy_c_buf_p); ++yy_cp) {
+	for(yy_cp = (yytext_ptr) + YY_MORE_ADJ; yy_cp < (yy_c_buf_p); ++yy_cp) {
 /* %% [16.0] code to find the next state goes here */
-		register YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI(*yy_cp)] : 30);
+		register YY_CHAR yy_c = (*yy_cp ? yy_ec[YY_SC_TO_UI(*yy_cp)] : 18);
 		if(yy_accept[yy_current_state]) {
 			(yy_last_accepting_state) = yy_current_state;
 			(yy_last_accepting_cpos) = yy_cp;
 		}
-		while(yy_chk[yy_base[yy_current_state]+yy_c] != yy_current_state) {
+		while(yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state) {
 			yy_current_state = (int)yy_def[yy_current_state];
-			if(yy_current_state >= 101)
+			if(yy_current_state >= 91)
 				yy_c = yy_meta[(unsigned int)yy_c];
 		}
-		yy_current_state = yy_nxt[yy_base[yy_current_state]+(unsigned int)yy_c];
+		yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int)yy_c];
 	}
+
 	return yy_current_state;
 }
 
 /* yy_try_NUL_trans - try to make a transition on the NUL character
  *
  * synopsis
- *	next_state = yy_try_NUL_trans(current_state);
+ *	next_state = yy_try_NUL_trans( current_state );
  */
 /* %if-c-only */
 static yy_state_type yy_try_NUL_trans(yy_state_type yy_current_state)
@@ -1683,18 +1525,18 @@ static yy_state_type yy_try_NUL_trans(yy_state_type yy_current_state)
 	/* %% [17.0] code to find the next state, and perhaps do backing up, goes here */
 	register char * yy_cp = (yy_c_buf_p);
 
-	register YY_CHAR yy_c = 30;
+	register YY_CHAR yy_c = 18;
 	if(yy_accept[yy_current_state]) {
 		(yy_last_accepting_state) = yy_current_state;
 		(yy_last_accepting_cpos) = yy_cp;
 	}
-	while(yy_chk[yy_base[yy_current_state]+yy_c] != yy_current_state) {
+	while(yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state) {
 		yy_current_state = (int)yy_def[yy_current_state];
-		if(yy_current_state >= 101)
+		if(yy_current_state >= 91)
 			yy_c = yy_meta[(unsigned int)yy_c];
 	}
-	yy_current_state = yy_nxt[yy_base[yy_current_state]+(unsigned int)yy_c];
-	yy_is_jam = (yy_current_state == 100);
+	yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int)yy_c];
+	yy_is_jam = (yy_current_state == 90);
 
 	return yy_is_jam ? 0 : yy_current_state;
 }
@@ -1705,11 +1547,11 @@ static yy_state_type yy_try_NUL_trans(yy_state_type yy_current_state)
 
 /* %if-c-only */
 #ifndef YY_NO_INPUT
- #ifdef __cplusplus
+#ifdef __cplusplus
 static int yyinput(void)
- #else
+#else
 static int input(void)
- #endif
+#endif
 
 /* %endif */
 /* %if-c++-only */
@@ -1718,56 +1560,60 @@ static int input(void)
 	int c;
 
 	*(yy_c_buf_p) = (yy_hold_char);
+
 	if(*(yy_c_buf_p) == YY_END_OF_BUFFER_CHAR) {
 		/* yy_c_buf_p now points to the character we want to return.
 		 * If this occurs *before* the EOB characters, then it's a
 		 * valid NUL; if not, then we've hit the end of the buffer.
 		 */
-		if((yy_c_buf_p) < &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars)])
+		if( (yy_c_buf_p) < &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[(yy_n_chars)])
 			/* This was really a NUL. */
 			*(yy_c_buf_p) = '\0';
 
 		else {    /* need more input */
-			int offset = (yy_c_buf_p)-(yytext_ptr);
+			yy_size_t offset = (yy_c_buf_p) - (yytext_ptr);
 			++(yy_c_buf_p);
 
-			switch(yy_get_next_buffer()) {
-			    case EOB_ACT_LAST_MATCH:
-				/* This happens because yy_g_n_b()
-				 * sees that we've accumulated a
-				 * token and flags that we need to
-				 * try matching the token before
-				 * proceeding.  But for input(),
-				 * there's no matching to consider.
-				 * So convert the EOB_ACT_LAST_MATCH
-				 * to EOB_ACT_END_OF_FILE.
-				 */
+			switch(yy_get_next_buffer() )
+			{
+				case EOB_ACT_LAST_MATCH:
+				    /* This happens because yy_g_n_b()
+				     * sees that we've accumulated a
+				     * token and flags that we need to
+				     * try matching the token before
+				     * proceeding.  But for input(),
+				     * there's no matching to consider.
+				     * So convert the EOB_ACT_LAST_MATCH
+				     * to EOB_ACT_END_OF_FILE.
+				     */
 
-				/* Reset buffer status. */
-				code_restart(code_in);
+				    /* Reset buffer status. */
+				    code_restart(code_in);
 
-			    /*FALLTHROUGH*/
+				/*FALLTHROUGH*/
 
-			    case EOB_ACT_END_OF_FILE:
+				case EOB_ACT_END_OF_FILE:
 			    {
-				    if(code_wrap())
+				    if(code_wrap() )
 					    return EOF;
-				    if(!(yy_did_buffer_switch_on_eof))
+
+				    if(!(yy_did_buffer_switch_on_eof) )
 					    YY_NEW_FILE;
- #ifdef __cplusplus
+#ifdef __cplusplus
 				    return yyinput();
- #else
+#else
 				    return input();
- #endif
+#endif
 			    }
 
-			    case EOB_ACT_CONTINUE_SCAN:
-				(yy_c_buf_p) = (yytext_ptr)+offset;
-				break;
+				case EOB_ACT_CONTINUE_SCAN:
+				    (yy_c_buf_p) = (yytext_ptr) + offset;
+				    break;
 			}
 		}
 	}
-	c = *(unsigned char *)(yy_c_buf_p);     /* cast for 8-bit char's */
+
+	c = *(unsigned char*)(yy_c_buf_p);      /* cast for 8-bit char's */
 	*(yy_c_buf_p) = '\0';   /* preserve code_text */
 	(yy_hold_char) = *++(yy_c_buf_p);
 
@@ -1794,8 +1640,9 @@ void code_restart(FILE * input_file)
 	if(!YY_CURRENT_BUFFER) {
 		code_ensure_buffer_stack();
 		YY_CURRENT_BUFFER_LVALUE =
-		        code__create_buffer(code_in, YY_BUF_SIZE);
+		    code__create_buffer(code_in, YY_BUF_SIZE);
 	}
+
 	code__init_buffer(YY_CURRENT_BUFFER, input_file);
 	code__load_buffer_state();
 }
@@ -1810,7 +1657,6 @@ void code__switch_to_buffer(YY_BUFFER_STATE new_buffer)
 /* %if-c++-only */
 /* %endif */
 {
-
 	/* TODO. We should be able to replace this entire function body
 	 * with
 	 *		code_pop_buffer_state();
@@ -1819,12 +1665,14 @@ void code__switch_to_buffer(YY_BUFFER_STATE new_buffer)
 	code_ensure_buffer_stack();
 	if(YY_CURRENT_BUFFER == new_buffer)
 		return;
+
 	if(YY_CURRENT_BUFFER) {
 		/* Flush out information for old buffer. */
 		*(yy_c_buf_p) = (yy_hold_char);
 		YY_CURRENT_BUFFER_LVALUE->yy_buf_pos = (yy_c_buf_p);
 		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = (yy_n_chars);
 	}
+
 	YY_CURRENT_BUFFER_LVALUE = new_buffer;
 	code__load_buffer_state();
 
@@ -1862,17 +1710,19 @@ YY_BUFFER_STATE code__create_buffer(FILE * file, int size)
 {
 	YY_BUFFER_STATE b;
 
-	b = (YY_BUFFER_STATE)code_alloc(sizeof(struct yy_buffer_state) );
+	b = (YY_BUFFER_STATE)code_alloc(sizeof( struct yy_buffer_state )  );
 	if(!b)
 		YY_FATAL_ERROR("out of dynamic memory in code__create_buffer()");
+
 	b->yy_buf_size = size;
 
 	/* yy_ch_buf has to be 2 characters longer than the size given because
 	 * we need to put in 2 end-of-buffer characters.
 	 */
-	b->yy_ch_buf = (char *)code_alloc(b->yy_buf_size+2 );
+	b->yy_ch_buf = (char*)code_alloc(b->yy_buf_size + 2);
 	if(!b->yy_ch_buf)
 		YY_FATAL_ERROR("out of dynamic memory in code__create_buffer()");
+
 	b->yy_is_our_buffer = 1;
 
 	code__init_buffer(b, file);
@@ -1892,19 +1742,15 @@ void code__delete_buffer(YY_BUFFER_STATE b)
 {
 	if(!b)
 		return;
+
 	if(b == YY_CURRENT_BUFFER)    /* Not sure if we should pop here. */
 		YY_CURRENT_BUFFER_LVALUE = (YY_BUFFER_STATE)0;
+
 	if(b->yy_is_our_buffer)
-		code_free((void *)b->yy_ch_buf );
-	code_free((void *)b );
+		code_free((void*)b->yy_ch_buf);
+
+	code_free((void*)b);
 }
-
-/* %if-c-only */
-
-/* %endif */
-
-/* %if-c++-only */
-/* %endif */
 
 /* Initializes or reinitializes a buffer.
  * This function is sometimes called more than once on the same buffer,
@@ -1923,6 +1769,7 @@ static void code__init_buffer(YY_BUFFER_STATE b, FILE * file)
 
 	b->yy_input_file = file;
 	b->yy_fill_buffer = 1;
+
 	/* If b is the current buffer, then code__init_buffer was _probably_
 	 * called from code_restart() or through yy_get_next_buffer.
 	 * In that case, we don't want to reset the lineno or column.
@@ -1931,6 +1778,7 @@ static void code__init_buffer(YY_BUFFER_STATE b, FILE * file)
 		b->yy_bs_lineno = 1;
 		b->yy_bs_column = 0;
 	}
+
 /* %if-c-only */
 
 	b->yy_is_interactive = 0;
@@ -1953,6 +1801,7 @@ void code__flush_buffer(YY_BUFFER_STATE b)
 {
 	if(!b)
 		return;
+
 	b->yy_n_chars = 0;
 
 	/* We always need two end-of-buffer characters.  The first causes
@@ -1966,6 +1815,7 @@ void code__flush_buffer(YY_BUFFER_STATE b)
 
 	b->yy_at_bol = 1;
 	b->yy_buffer_status = YY_BUFFER_NEW;
+
 	if(b == YY_CURRENT_BUFFER)
 		code__load_buffer_state();
 }
@@ -1985,7 +1835,9 @@ void code_push_buffer_state(YY_BUFFER_STATE new_buffer)
 {
 	if(new_buffer == NULL)
 		return;
+
 	code_ensure_buffer_stack();
+
 	/* This block is copied from code__switch_to_buffer. */
 	if(YY_CURRENT_BUFFER) {
 		/* Flush out information for old buffer. */
@@ -1993,6 +1845,7 @@ void code_push_buffer_state(YY_BUFFER_STATE new_buffer)
 		YY_CURRENT_BUFFER_LVALUE->yy_buf_pos = (yy_c_buf_p);
 		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = (yy_n_chars);
 	}
+
 	/* Only push if top exists. Otherwise, replace top. */
 	if(YY_CURRENT_BUFFER)
 		(yy_buffer_stack_top)++;
@@ -2018,10 +1871,12 @@ void code_pop_buffer_state(void)
 {
 	if(!YY_CURRENT_BUFFER)
 		return;
+
 	code__delete_buffer(YY_CURRENT_BUFFER);
 	YY_CURRENT_BUFFER_LVALUE = NULL;
 	if((yy_buffer_stack_top) > 0)
 		--(yy_buffer_stack_top);
+
 	if(YY_CURRENT_BUFFER) {
 		code__load_buffer_state();
 		(yy_did_buffer_switch_on_eof) = 1;
@@ -2040,39 +1895,44 @@ static void code_ensure_buffer_stack(void)
 /* %if-c++-only */
 /* %endif */
 {
-	int num_to_alloc;
-	if(!(yy_buffer_stack)) {
+	yy_size_t num_to_alloc;
 
+	if(!(yy_buffer_stack)) {
 		/* First allocation is just for 2 elements, since we don't know if this
 		 * scanner will even need a stack. We use 2 instead of 1 to avoid an
 		 * immediate realloc on the next call.
 		 */
 		num_to_alloc = 1;
-		(yy_buffer_stack) = (struct yy_buffer_state **)code_alloc
-			                    (num_to_alloc*sizeof(struct yy_buffer_state *)
-		                           );
-		if(!(yy_buffer_stack))
+		(yy_buffer_stack) = (struct yy_buffer_state**)code_alloc
+			    (num_to_alloc * sizeof(struct yy_buffer_state*)
+			    );
+
+		if(!(yy_buffer_stack) )
 			YY_FATAL_ERROR("out of dynamic memory in code_ensure_buffer_stack()");
-		memset((yy_buffer_stack), 0, num_to_alloc*sizeof(struct yy_buffer_state *));
+
+		memset((yy_buffer_stack), 0, num_to_alloc * sizeof(struct yy_buffer_state*));
 
 		(yy_buffer_stack_max) = num_to_alloc;
 		(yy_buffer_stack_top) = 0;
 		return;
 	}
-	if((yy_buffer_stack_top) >= ((yy_buffer_stack_max))-1) {
 
+	if((yy_buffer_stack_top) >= ((yy_buffer_stack_max)) - 1) {
 		/* Increase the buffer to prepare for a possible push. */
 		int grow_size = 8 /* arbitrary grow size */;
 
-		num_to_alloc = (yy_buffer_stack_max)+grow_size;
-		(yy_buffer_stack) = (struct yy_buffer_state **)code_realloc
-			                    ((yy_buffer_stack),
-			                    num_to_alloc*sizeof(struct yy_buffer_state *)
-		                           );
-		if(!(yy_buffer_stack))
+		num_to_alloc = (yy_buffer_stack_max) + grow_size;
+		(yy_buffer_stack) = (struct yy_buffer_state**)code_realloc
+			    ((yy_buffer_stack),
+		    num_to_alloc * sizeof(struct yy_buffer_state*)
+			    );
+
+		if(!(yy_buffer_stack) )
 			YY_FATAL_ERROR("out of dynamic memory in code_ensure_buffer_stack()");
+
 		/* zero only the new slots.*/
-		memset((yy_buffer_stack)+(yy_buffer_stack_max), 0, grow_size*sizeof(struct yy_buffer_state *));
+		memset((yy_buffer_stack) + (yy_buffer_stack_max), 0, grow_size * sizeof(struct yy_buffer_state*));
+
 		(yy_buffer_stack_max) = num_to_alloc;
 	}
 }
@@ -2089,15 +1949,18 @@ static void code_ensure_buffer_stack(void)
 YY_BUFFER_STATE code__scan_buffer(char * base, yy_size_t size)
 {
 	YY_BUFFER_STATE b;
+
 	if(size < 2 ||
-	   base[size-2] != YY_END_OF_BUFFER_CHAR ||
-	   base[size-1] != YY_END_OF_BUFFER_CHAR)
+	    base[size-2] != YY_END_OF_BUFFER_CHAR ||
+	    base[size-1] != YY_END_OF_BUFFER_CHAR)
 		/* They forgot to leave room for the EOB's. */
 		return 0;
-	b = (YY_BUFFER_STATE)code_alloc(sizeof(struct yy_buffer_state) );
+
+	b = (YY_BUFFER_STATE)code_alloc(sizeof( struct yy_buffer_state )  );
 	if(!b)
 		YY_FATAL_ERROR("out of dynamic memory in code__scan_buffer()");
-	b->yy_buf_size = size-2;        /* "- 2" to take care of EOB's */
+
+	b->yy_buf_size = size - 2;      /* "- 2" to take care of EOB's */
 	b->yy_buf_pos = b->yy_ch_buf = base;
 	b->yy_is_our_buffer = 0;
 	b->yy_input_file = 0;
@@ -2107,7 +1970,7 @@ YY_BUFFER_STATE code__scan_buffer(char * base, yy_size_t size)
 	b->yy_fill_buffer = 0;
 	b->yy_buffer_status = YY_BUFFER_NEW;
 
-	code__switch_to_buffer(b );
+	code__switch_to_buffer(b);
 
 	return b;
 }
@@ -2125,8 +1988,7 @@ YY_BUFFER_STATE code__scan_buffer(char * base, yy_size_t size)
  */
 YY_BUFFER_STATE code__scan_string(yyconst char * yystr)
 {
-
-	return code__scan_bytes(yystr, strlen(yystr));
+	return code__scan_bytes(yystr, strlen(yystr) );
 }
 
 /* %endif */
@@ -2139,7 +2001,7 @@ YY_BUFFER_STATE code__scan_string(yyconst char * yystr)
  *
  * @return the newly allocated buffer state object.
  */
-YY_BUFFER_STATE code__scan_bytes(yyconst char * yybytes, int _yybytes_len)
+YY_BUFFER_STATE code__scan_bytes(yyconst char * yybytes, yy_size_t _yybytes_len)
 {
 	YY_BUFFER_STATE b;
 	char * buf;
@@ -2147,17 +2009,20 @@ YY_BUFFER_STATE code__scan_bytes(yyconst char * yybytes, int _yybytes_len)
 	int i;
 
 	/* Get memory for full buffer, including space for trailing EOB's. */
-	n = _yybytes_len+2;
-	buf = (char *)code_alloc(n );
+	n = _yybytes_len + 2;
+	buf = (char*)code_alloc(n);
 	if(!buf)
 		YY_FATAL_ERROR("out of dynamic memory in code__scan_bytes()");
+
 	for(i = 0; i < _yybytes_len; ++i)
 		buf[i] = yybytes[i];
+
 	buf[_yybytes_len] = buf[_yybytes_len+1] = YY_END_OF_BUFFER_CHAR;
 
 	b = code__scan_buffer(buf, n);
 	if(!b)
 		YY_FATAL_ERROR("bad buffer in code__scan_bytes()");
+
 	/* It's okay to grow etc. this buffer, and we should throw it
 	 * away when we're done.
 	 */
@@ -2169,11 +2034,11 @@ YY_BUFFER_STATE code__scan_bytes(yyconst char * yybytes, int _yybytes_len)
 /* %endif */
 
 #ifndef YY_EXIT_FAILURE
- #define YY_EXIT_FAILURE 2
+#define YY_EXIT_FAILURE 2
 #endif
 
 /* %if-c-only */
-static void yy_fatal_error(yyconst char * msg)
+static void yy_fatal_error(yyconst char* msg)
 {
 	(void)fprintf(stderr, "%s\n", msg);
 	exit(YY_EXIT_FAILURE);
@@ -2187,18 +2052,18 @@ static void yy_fatal_error(yyconst char * msg)
 
 #undef yyless
 #define yyless(n) \
-        do \
+	do \
 	{ \
 		/* Undo effects of setting up code_text. */ \
 		int yyless_macro_arg = (n); \
 		YY_LESS_LINENO(yyless_macro_arg); \
 		code_text[code_leng] = (yy_hold_char); \
-		(yy_c_buf_p) = code_text+yyless_macro_arg; \
-		(yy_hold_char) = *(yy_c_buf_p); \
+		(yy_c_buf_p) = code_text + yyless_macro_arg; \
+		(yy_hold_char) = *(yy_c_buf_p);	\
 		*(yy_c_buf_p) = '\0'; \
 		code_leng = yyless_macro_arg; \
 	} \
-        while(0)
+	while(0)
 
 /* Accessor  methods (get/set functions) to struct members. */
 
@@ -2211,7 +2076,6 @@ static void yy_fatal_error(yyconst char * msg)
  */
 int code_get_lineno(void)
 {
-
 	return code_lineno;
 }
 
@@ -2234,7 +2098,7 @@ FILE * code_get_out(void)
 /** Get the length of the current token.
  *
  */
-int code_get_leng(void)
+yy_size_t code_get_leng(void)
 {
 	return code_leng;
 }
@@ -2257,7 +2121,6 @@ char * code_get_text(void)
  */
 void code_set_lineno(int line_number)
 {
-
 	code_lineno = line_number;
 }
 
@@ -2267,12 +2130,12 @@ void code_set_lineno(int line_number)
  *
  * @see code__switch_to_buffer
  */
-void code_set_in(FILE * in_str)
+void code_set_in(FILE *  in_str)
 {
 	code_in = in_str;
 }
 
-void code_set_out(FILE * out_str)
+void code_set_out(FILE *  out_str)
 {
 	code_out = out_str;
 }
@@ -2304,7 +2167,7 @@ static int yy_init_globals(void)
 	(yy_buffer_stack) = 0;
 	(yy_buffer_stack_top) = 0;
 	(yy_buffer_stack_max) = 0;
-	(yy_c_buf_p) = (char *)0;
+	(yy_c_buf_p) = (char*)0;
 	(yy_init) = 0;
 	(yy_start) = 0;
 
@@ -2313,8 +2176,8 @@ static int yy_init_globals(void)
 	code_in = stdin;
 	code_out = stdout;
 #else
-	code_in = (FILE *)0;
-	code_out = (FILE *)0;
+	code_in = (FILE*)0;
+	code_out = (FILE*)0;
 #endif
 
 	/* For future reference: Set errno on error, since we are called by
@@ -2329,15 +2192,15 @@ static int yy_init_globals(void)
 /* code_lex_destroy is for both reentrant and non-reentrant scanners. */
 int code_lex_destroy(void)
 {
-
 	/* Pop the buffer stack, destroying each element. */
 	while(YY_CURRENT_BUFFER) {
-		code__delete_buffer(YY_CURRENT_BUFFER );
+		code__delete_buffer(YY_CURRENT_BUFFER);
 		YY_CURRENT_BUFFER_LVALUE = NULL;
 		code_pop_buffer_state();
 	}
+
 	/* Destroy the stack itself. */
-	code_free((yy_buffer_stack));
+	code_free((yy_buffer_stack) );
 	(yy_buffer_stack) = NULL;
 
 	/* Reset the globals. This is important in a non-reentrant scanner so the next time
@@ -2356,7 +2219,7 @@ int code_lex_destroy(void)
  */
 
 #ifndef yytext_ptr
-static void yy_flex_strncpy(char * s1, yyconst char * s2, int n)
+static void yy_flex_strncpy(char* s1, yyconst char * s2, int n)
 {
 	register int i;
 	for(i = 0; i < n; ++i)
@@ -2371,6 +2234,7 @@ static int yy_flex_strlen(yyconst char * s)
 	register int n;
 	for(n = 0; s[n]; ++n)
 		;
+
 	return n;
 }
 
@@ -2378,7 +2242,7 @@ static int yy_flex_strlen(yyconst char * s)
 
 void * code_alloc(yy_size_t size)
 {
-	return (void *)malloc(size);
+	return (void*)malloc(size);
 }
 
 void * code_realloc(void * ptr, yy_size_t size)
@@ -2390,12 +2254,12 @@ void * code_realloc(void * ptr, yy_size_t size)
 	 * any pointer type to void*, and deal with argument conversions
 	 * as though doing an assignment.
 	 */
-	return (void *)realloc((char *)ptr, size);
+	return (void*)realloc( (char*)ptr, size);
 }
 
 void code_free(void * ptr)
 {
-	free((char *)ptr);    /* see code_realloc() for (char *) cast */
+	free( (char*)ptr);      /* see code_realloc() for (char *) cast */
 }
 
 /* %if-tables-serialization definitions */
@@ -2405,14 +2269,14 @@ void code_free(void * ptr)
 
 /* %ok-for-header */
 
-#line 301 "scan-code.l"
+#line 207 "../../src/scan-code.l"
 
-static bool is_dot_or_dash(char ch)
+static inline bool is_dot_or_dash(char ch)
 {
 	return ch == '.' || ch == '-';
 }
 
-static bool contains_dot_or_dash(const char * p)
+static inline bool contains_dot_or_dash(const char* p)
 {
 	for(; *p; ++p)
 		if(is_dot_or_dash(*p))
@@ -2424,14 +2288,11 @@ static bool contains_dot_or_dash(const char * p)
 typedef struct {
 	/* Index in symbol list. */
 	unsigned symbol_index;
-
 	/* Matched symbol id and loc. */
 	uniqstr id;
-	location loc;
-
+	BFLocation loc;
 	/* Hiding named reference. */
-	named_ref * hidden_by;
-
+	named_ref* hidden_by;
 	/* Error flags. May contain zero (no errors) or
 	   a combination of VARIANT_* values. */
 	unsigned err;
@@ -2439,17 +2300,17 @@ typedef struct {
 
 /* Set when the variant refers to a symbol hidden
    by an explicit symbol reference. */
-#define VARIANT_HIDDEN (1<<0)
+#define VARIANT_HIDDEN (1 << 0)
 
 /* Set when the variant refers to a symbol containing
    dots or dashes. Will require explicit bracketing. */
-#define VARIANT_BAD_BRACKETING (1<<1)
+#define VARIANT_BAD_BRACKETING (1 << 1)
 
 /* Set when the variant refers to a symbol which is
    not visible from current midrule. */
-#define VARIANT_NOT_VISIBLE_FROM_MIDRULE (1<<2)
+#define VARIANT_NOT_VISIBLE_FROM_MIDRULE (1 << 2)
 
-static variant * variant_table = 0;
+static variant * variant_table = NULL;
 static unsigned variant_table_size = 0;
 static unsigned variant_count = 0;
 
@@ -2458,17 +2319,17 @@ static variant * variant_table_grow(void)
 	++variant_count;
 	if(variant_count > variant_table_size) {
 		while(variant_count > variant_table_size)
-			variant_table_size = 2*variant_table_size+3;
+			variant_table_size = 2 * variant_table_size + 3;
 		variant_table = xnrealloc(variant_table, variant_table_size,
-			sizeof *variant_table);
+		    sizeof *variant_table);
 	}
-	return &variant_table[variant_count-1];
+	return &variant_table[variant_count - 1];
 }
 
 static void variant_table_free(void)
 {
 	free(variant_table);
-	variant_table = 0;
+	variant_table = NULL;
 	variant_table_size = variant_count = 0;
 }
 
@@ -2479,20 +2340,20 @@ static char * find_prefix_end(const char * prefix, char * begin, char * end)
 	for(; *prefix && ptr != end; ++prefix, ++ptr)
 		if(*prefix != *ptr)
 			return 0;
+
 	if(*prefix)
 		return 0;
+
 	return ptr;
 }
 
-static variant * variant_add(uniqstr id, location id_loc, unsigned symbol_index,
-	char * cp, char * cp_end, bool explicit_bracketing)
+static variant * variant_add(uniqstr id, BFLocation id_loc, unsigned symbol_index, char * cp, char * cp_end, bool explicit_bracketing)
 {
 	char * prefix_end;
-
 	prefix_end = find_prefix_end(id, cp, cp_end);
 	if(prefix_end &&
-	   (prefix_end == cp_end ||
-	    (!explicit_bracketing && is_dot_or_dash(*prefix_end)))) {
+	    (prefix_end == cp_end ||
+		    (!explicit_bracketing && is_dot_or_dash(*prefix_end)))) {
 		variant * r = variant_table_grow();
 		r->symbol_index = symbol_index;
 		r->id = id;
@@ -2515,65 +2376,57 @@ static const char * get_at_spec(unsigned symbol_index)
 	return at_buf;
 }
 
-static void show_sub_messages(const char * cp, bool explicit_bracketing,
-	int midrule_rhs_index, char dollar_or_at,
-	bool is_warning, unsigned indent)
+static void show_sub_message(warnings warning, const char* cp, bool explicit_bracketing, int midrule_rhs_index, char dollar_or_at,
+    unsigned indent, const variant * var)
+{
+	const char * at_spec = get_at_spec(var->symbol_index);
+
+	if(var->err == 0)
+		complain_indent(&var->loc, warning, &indent,
+		    _("refers to: %c%s at %s"), dollar_or_at,
+		    var->id, at_spec);
+	else{
+		static struct obstack msg_buf;
+
+		const char * tail = explicit_bracketing ? "" : cp + strlen(var->id);
+		const char * id = var->hidden_by ? var->hidden_by->id : var->id;
+		BFLocation id_loc = var->hidden_by ? var->hidden_by->loc : var->loc;
+		/* Create the explanation message. */
+		obstack_init(&msg_buf);
+		obstack_printf(&msg_buf, _("possibly meant: %c"), dollar_or_at);
+		if(contains_dot_or_dash(id))
+			obstack_printf(&msg_buf, "[%s]", id);
+		else
+			obstack_sgrow(&msg_buf, id);
+		obstack_sgrow(&msg_buf, tail);
+
+		if(var->err & VARIANT_HIDDEN) {
+			obstack_printf(&msg_buf, _(", hiding %c"), dollar_or_at);
+			if(contains_dot_or_dash(var->id))
+				obstack_printf(&msg_buf, "[%s]", var->id);
+			else
+				obstack_sgrow(&msg_buf, var->id);
+			obstack_sgrow(&msg_buf, tail);
+		}
+
+		obstack_printf(&msg_buf, _(" at %s"), at_spec);
+
+		if(var->err & VARIANT_NOT_VISIBLE_FROM_MIDRULE)
+			obstack_printf(&msg_buf,
+			    _(", cannot be accessed from mid-rule action at $%d"),
+			    midrule_rhs_index);
+
+		complain_indent(&id_loc, warning, &indent, "%s",
+		    obstack_finish0(&msg_buf));
+		obstack_free(&msg_buf, 0);
+	}
+}
+
+static void show_sub_messages(warnings warning, const char* cp, bool explicit_bracketing, int midrule_rhs_index, char dollar_or_at, unsigned indent)
 {
 	unsigned i;
-
-	for(i = 0; i < variant_count; ++i) {
-		const variant * var = &variant_table[i];
-		const char * at_spec = get_at_spec(var->symbol_index);
-		if(var->err == 0) {
-			if(is_warning)
-				warn_at_indent(var->loc, &indent, _("refers to: %c%s at %s"),
-					dollar_or_at, var->id, at_spec);
-			else
-				complain_at_indent(var->loc, &indent, _("refers to: %c%s at %s"),
-					dollar_or_at, var->id, at_spec);
-		}
-		else {
-			static struct obstack msg_buf;
-			const char * tail = explicit_bracketing ? "" :
-			                    cp+strlen(var->id);
-			const char * id = var->hidden_by ? var->hidden_by->id :
-			                  var->id;
-			location id_loc = var->hidden_by ? var->hidden_by->loc :
-			                  var->loc;
-
-			/* Create the explanation message. */
-			obstack_init(&msg_buf);
-
-			obstack_fgrow1(&msg_buf, _("possibly meant: %c"), dollar_or_at);
-			if(contains_dot_or_dash(id))
-				obstack_fgrow1(&msg_buf, "[%s]", id);
-			else
-				obstack_sgrow(&msg_buf, id);
-			obstack_sgrow(&msg_buf, tail);
-			if(var->err&VARIANT_HIDDEN) {
-				obstack_fgrow1(&msg_buf, _(", hiding %c"), dollar_or_at);
-				if(contains_dot_or_dash(var->id))
-					obstack_fgrow1(&msg_buf, "[%s]", var->id);
-				else
-					obstack_sgrow(&msg_buf, var->id);
-				obstack_sgrow(&msg_buf, tail);
-			}
-			obstack_fgrow1(&msg_buf, _(" at %s"), at_spec);
-			if(var->err&VARIANT_NOT_VISIBLE_FROM_MIDRULE) {
-				const char * format =
-				        _(", cannot be accessed from mid-rule action at $%d");
-				obstack_fgrow1(&msg_buf, format, midrule_rhs_index);
-			}
-			obstack_1grow(&msg_buf, '\0');
-			if(is_warning)
-				warn_at_indent(id_loc, &indent, "%s",
-					(char *)obstack_finish(&msg_buf));
-			else
-				complain_at_indent(id_loc, &indent, "%s",
-					(char *)obstack_finish(&msg_buf));
-			obstack_free(&msg_buf, 0);
-		}
-	}
+	for(i = 0; i < variant_count; ++i)
+		show_sub_message((warnings)(warning | silent), cp, explicit_bracketing, midrule_rhs_index, dollar_or_at, indent, &variant_table[i]);
 }
 
 /* Returned from "parse_ref" when the reference
@@ -2582,17 +2435,14 @@ static void show_sub_messages(const char * cp, bool explicit_bracketing,
 
 /* Returned from "parse_ref" when the reference
    points to LHS ($$) of the current rule or midrule. */
-#define LHS_REF (INT_MIN+1)
-
-/* Sub-messages indent. */
-#define SUB_INDENT (4)
+#define LHS_REF (INT_MIN + 1)
 
 /* Parse named or positional reference. In case of positional
    references, can return negative values for $-n "deep" stack
    accesses. */
 static long int parse_ref(char * cp, symbol_list * rule, int rule_length,
-	int midrule_rhs_index, char * text, location text_loc,
-	char dollar_or_at)
+    int midrule_rhs_index, char * text, BFLocation text_loc,
+    char dollar_or_at)
 {
 	symbol_list * l;
 	char * cp_end;
@@ -2600,30 +2450,32 @@ static long int parse_ref(char * cp, symbol_list * rule, int rule_length,
 	unsigned i;
 	unsigned valid_variants = 0;
 	unsigned valid_variant_index = 0;
+
 	if('$' == *cp)
 		return LHS_REF;
-	if(c_isdigit(*cp) || (*cp == '-' && c_isdigit(*(cp+1)))) {
+
+	if(c_isdigit(*cp) || (*cp == '-' && c_isdigit(*(cp + 1)))) {
 		long int num = strtol(cp, &cp, 10);
-		if(1-INT_MAX+rule_length <= num && num <= rule_length)
+		if(1 - INT_MAX + rule_length <= num && num <= rule_length)
 			return num;
-		else {
-			complain_at(text_loc, _("integer out of range: %s"),
-				quote(text));
+		else{
+			complain(&text_loc, complaint, _("integer out of range: %s"),
+			    quote(text));
 			return INVALID_REF;
 		}
 	}
+
 	if('[' == *cp) {
 		/* Ignore the brackets. */
 		char * p;
 		for(p = ++cp; *p != ']'; ++p)
 			continue;
 		cp_end = p;
-
 		explicit_bracketing = true;
 	}
 	else {
 		/* Take all characters of the name. */
-		char * p;
+		char* p;
 		for(p = cp; *p; ++p)
 			if(is_dot_or_dash(*p)) {
 				ref_tail_fields = p;
@@ -2635,6 +2487,7 @@ static long int parse_ref(char * cp, symbol_list * rule, int rule_length,
 
 		explicit_bracketing = false;
 	}
+
 	/* Add all relevant variants. */
 	{
 		unsigned symbol_index;
@@ -2642,15 +2495,17 @@ static long int parse_ref(char * cp, symbol_list * rule, int rule_length,
 		for(symbol_index = 0, l = rule; !symbol_list_null(l);
 		    ++symbol_index, l = l->next) {
 			variant * var;
-			if(l->content_type != SYMLIST_SYMBOL)
+			if(l->content_type != symbol_list::SYMLIST_SYMBOL)
 				continue;
+
 			var = variant_add(l->content.sym->tag, l->sym_loc,
-				symbol_index, cp, cp_end, explicit_bracketing);
+			    symbol_index, cp, cp_end, explicit_bracketing);
 			if(var && l->named_ref)
 				var->hidden_by = l->named_ref;
+
 			if(l->named_ref)
 				variant_add(l->named_ref->id, l->named_ref->loc,
-					symbol_index, cp, cp_end, explicit_bracketing);
+				    symbol_index, cp, cp_end, explicit_bracketing);
 		}
 	}
 
@@ -2658,84 +2513,91 @@ static long int parse_ref(char * cp, symbol_list * rule, int rule_length,
 	for(i = 0; i < variant_count; ++i) {
 		variant * var = &variant_table[i];
 		unsigned symbol_index = var->symbol_index;
+
 		/* Check visibility from mid-rule actions. */
-		if(midrule_rhs_index != 0 &&
-		   (symbol_index == 0 || midrule_rhs_index < symbol_index))
+		if(midrule_rhs_index != 0
+		    && (symbol_index == 0 || midrule_rhs_index < symbol_index))
 			var->err |= VARIANT_NOT_VISIBLE_FROM_MIDRULE;
+
 		/* Check correct bracketing. */
 		if(!explicit_bracketing && contains_dot_or_dash(var->id))
 			var->err |= VARIANT_BAD_BRACKETING;
+
 		/* Check using of hidden symbols. */
 		if(var->hidden_by)
 			var->err |= VARIANT_HIDDEN;
+
 		if(!var->err) {
 			valid_variant_index = i;
 			++valid_variants;
 		}
 	}
-	switch(valid_variants) {
-	    case 0:
+
+	switch(valid_variants)
+	{
+		case 0:
 	    {
 		    unsigned len = (explicit_bracketing || !ref_tail_fields) ?
-		                   cp_end-cp : ref_tail_fields-cp;
+			    cp_end - cp : ref_tail_fields - cp;
 		    unsigned indent = 0;
 
-		    complain_at_indent(text_loc, &indent, _("invalid reference: %s"),
-			    quote(text));
+		    complain_indent(&text_loc, complaint, &indent,
+			    _("invalid reference: %s"), quote(text));
 		    indent += SUB_INDENT;
 		    if(len == 0) {
-			    const char * format = NULL;
-			    location sym_loc = text_loc;
+			    BFLocation sym_loc = text_loc;
 			    sym_loc.start.column += 1;
 			    sym_loc.end = sym_loc.start;
-			    format =
-			            _("syntax error after `%c', expecting integer, letter,"
-					    " `_', `[', or `$'");
-			    complain_at_indent(sym_loc, &indent, format, dollar_or_at);
+			    complain_indent(&sym_loc, complaint, &indent,
+				    _("syntax error after '%c', expecting integer, "
+					    "letter, '_', '[', or '$'"),
+				    dollar_or_at);
 		    }
-		    else if(midrule_rhs_index) {
-			    const char * format =
-			            _("symbol not found in production before $%d: %.*s");
-			    complain_at_indent(rule->location, &indent, format,
+		    else if(midrule_rhs_index)
+			    complain_indent(&rule->location, complaint, &indent,
+				    _("symbol not found in production before $%d: "
+					    "%.*s"),
 				    midrule_rhs_index, len, cp);
-		    }
-		    else {
-			    const char * format =
-			            _("symbol not found in production: %.*s");
-			    complain_at_indent(rule->location, &indent, format,
+		    else
+			    complain_indent(&rule->location, complaint, &indent,
+				    _("symbol not found in production: %.*s"),
 				    len, cp);
-		    }
+
 		    if(variant_count > 0)
-			    show_sub_messages(cp, explicit_bracketing, midrule_rhs_index,
-				    dollar_or_at, false, indent);
+			    show_sub_messages(complaint,
+				    cp, explicit_bracketing, midrule_rhs_index,
+				    dollar_or_at, indent);
 		    return INVALID_REF;
 	    }
-	    case 1:
+		case 1:
 	    {
 		    unsigned indent = 0;
 		    if(variant_count > 1) {
-			    warn_at_indent(text_loc, &indent, _("misleading reference: %s"),
-				    quote(text));
-			    show_sub_messages(cp, explicit_bracketing, midrule_rhs_index,
-				    dollar_or_at, true, indent+SUB_INDENT);
+			    complain_indent(&text_loc, Wother, &indent,
+				    _("misleading reference: %s"), quote(text));
+			    show_sub_messages(Wother,
+				    cp, explicit_bracketing, midrule_rhs_index,
+				    dollar_or_at, indent + SUB_INDENT);
 		    }
 		    {
 			    unsigned symbol_index =
-			            variant_table[valid_variant_index].symbol_index;
+				    variant_table[valid_variant_index].symbol_index;
 			    return (symbol_index == midrule_rhs_index) ? LHS_REF : symbol_index;
 		    }
 	    }
-	    case 2:
-	    default:
+		case 2:
+		default:
 	    {
 		    unsigned indent = 0;
-		    complain_at_indent(text_loc, &indent, _("ambiguous reference: %s"),
-			    quote(text));
-		    show_sub_messages(cp, explicit_bracketing, midrule_rhs_index,
-			    dollar_or_at, false, indent+SUB_INDENT);
+		    complain_indent(&text_loc, complaint, &indent,
+			    _("ambiguous reference: %s"), quote(text));
+		    show_sub_messages(complaint,
+			    cp, explicit_bracketing, midrule_rhs_index,
+			    dollar_or_at, indent + SUB_INDENT);
 		    return INVALID_REF;
 	    }
 	}
+
 	/* Not reachable. */
 	return INVALID_REF;
 }
@@ -2745,134 +2607,160 @@ static long int parse_ref(char * cp, symbol_list * rule, int rule_length,
    semantic actions of this grammar. */
 int max_left_semantic_context = 0;
 
+/* If CP points to a typename (i.e., <.*?>), set TYPE_NAME to its
+   beginning (i.e., after the opening "<", and return the pointer
+   immediately after it.  */
+
+static char * fetch_type_name(char * cp, char const ** type_name, BFLocation dollar_loc)
+{
+	if(*cp == '<') {
+		*type_name = ++cp;
+		/* Series of non-'>' or "->".  */
+		while(*cp != '>' || cp[-1] == '-')
+			++cp;
+
+		/* The '>' symbol will be later replaced by '\0'. Original
+		   'text' is needed for error messages. */
+		++cp;
+		if(untyped_var_seen)
+			complain(&dollar_loc, complaint,
+			    _("explicit type given in untyped grammar"));
+		tag_seen = true;
+	}
+	return cp;
+}
+
 /*------------------------------------------------------------------.
-| TEXT is pointing to a wannabee semantic value (i.e., a `$').      |
+| TEXT is pointing to a wannabee semantic value (i.e., a '$').      |
 |                                                                   |
 | Possible inputs: $[<TYPENAME>]($|integer)                         |
 |                                                                   |
 | Output to OBSTACK_FOR_STRING a reference to this semantic value.  |
    `------------------------------------------------------------------*/
 
-static void handle_action_dollar(symbol_list * rule, char * text, location dollar_loc)
+static void handle_action_dollar(symbol_list * rule, char * text, BFLocation dollar_loc)
 {
 	char const * type_name = NULL;
-	char * cp = text+1;
-	char * gt_ptr = 0;
+	char * cp = text + 1;
 	symbol_list * effective_rule;
 	int effective_rule_length;
 	int n;
+
 	if(rule->midrule_parent_rule) {
 		effective_rule = rule->midrule_parent_rule;
-		effective_rule_length = rule->midrule_parent_rhs_index-1;
+		effective_rule_length = rule->midrule_parent_rhs_index - 1;
 	}
-	else {
+	else{
 		effective_rule = rule;
 		effective_rule_length = symbol_list_length(rule->next);
 	}
+
 	/* Get the type name if explicit. */
-	if(*cp == '<') {
-		type_name = ++cp;
-		while(*cp != '>')
-			++cp;
-		/* The '>' symbol will be later replaced by '\0'. Original
-		   'text' is needed for error messages. */
-		gt_ptr = cp;
-		++cp;
-		if(untyped_var_seen)
-			complain_at(dollar_loc, _("explicit type given in untyped grammar"));
-		tag_seen = true;
-	}
+	cp = fetch_type_name(cp, &type_name, dollar_loc);
+
 	n = parse_ref(cp, effective_rule, effective_rule_length,
-		rule->midrule_parent_rhs_index, text, dollar_loc, '$');
-	if(gt_ptr)
-		*gt_ptr = '\0';
-	switch(n) {
-	    case INVALID_REF:
-		break;
+	    rule->midrule_parent_rhs_index, text, dollar_loc, '$');
 
-	    case LHS_REF:
-		if(!type_name)
-			type_name = symbol_list_n_type_name_get(rule, dollar_loc, 0);
-		if(!type_name) {
-			if(union_seen|tag_seen) {
-				if(rule->midrule_parent_rule)
-					complain_at(dollar_loc,
-						_("$$ for the midrule at $%d of `%s'"
-							" has no declared type"),
-						rule->midrule_parent_rhs_index,
-						effective_rule->content.sym->tag);
-				else
-					complain_at(dollar_loc, _("$$ of `%s' has no declared type"),
-						rule->content.sym->tag);
-			}
-			else
-				untyped_var_seen = true;
-			type_name = "";
-		}
-		obstack_fgrow1(&obstack_for_string,
-			"]b4_lhs_value([%s])[", type_name);
-		rule->action_props.is_value_used = true;
-		break;
+	/* End type_name. */
+	if(type_name)
+		cp[-1] = '\0';
 
-	    default:
-		if(max_left_semantic_context < 1-n)
-			max_left_semantic_context = 1-n;
-		if(!type_name && 0 < n)
-			type_name =
-			        symbol_list_n_type_name_get(effective_rule, dollar_loc, n);
-		if(!type_name) {
-			if(union_seen|tag_seen)
-				complain_at(dollar_loc, _("$%s of `%s' has no declared type"),
-					cp, effective_rule->content.sym->tag);
-			else
-				untyped_var_seen = true;
-			type_name = "";
-		}
-		obstack_fgrow3(&obstack_for_string,
-			"]b4_rhs_value(%d, %d, [%s])[",
-			effective_rule_length, n, type_name);
-		if(n > 0)
-			symbol_list_n_get(effective_rule, n)->action_props.is_value_used =
-			        true;
-		break;
+	switch(n)
+	{
+		case INVALID_REF:
+		    break;
+
+		case LHS_REF:
+		    if(!type_name)
+			    type_name = symbol_list_n_type_name_get(rule, 0);
+
+		    if(!type_name) {
+			    if(union_seen | tag_seen) {
+				    if(rule->midrule_parent_rule)
+					    complain(&dollar_loc, complaint,
+					    _("$$ for the midrule at $%d of %s"
+						    " has no declared type"),
+					    rule->midrule_parent_rhs_index,
+					    quote(effective_rule->content.sym->tag));
+				    else
+					    complain(&dollar_loc, complaint,
+					    _("$$ of %s has no declared type"),
+					    quote(rule->content.sym->tag));
+			    }
+			    else
+				    untyped_var_seen = true;
+		    }
+
+		    obstack_sgrow(&obstack_for_string, "]b4_lhs_value(");
+		    obstack_quote(&obstack_for_string, type_name);
+		    obstack_sgrow(&obstack_for_string, ")[");
+		    rule->action_props.is_value_used = true;
+		    break;
+
+		default:
+		    if(max_left_semantic_context < 1 - n)
+			    max_left_semantic_context = 1 - n;
+		    if(!type_name && 0 < n)
+			    type_name =
+			    symbol_list_n_type_name_get(effective_rule, n);
+		    if(!type_name) {
+			    if(union_seen | tag_seen)
+				    complain(&dollar_loc, complaint,
+				    _("$%s of %s has no declared type"), cp,
+				    quote(effective_rule->content.sym->tag));
+			    else
+				    untyped_var_seen = true;
+		    }
+
+		    obstack_printf(&obstack_for_string,
+		    "]b4_rhs_value(%d, %d, ", effective_rule_length, n);
+		    obstack_quote(&obstack_for_string, type_name);
+		    obstack_sgrow(&obstack_for_string, ")[");
+		    if(n > 0)
+			    symbol_list_n_get(effective_rule, n)->action_props.is_value_used =
+			    true;
+		    break;
 	}
 }
 
 /*------------------------------------------------------.
-| TEXT is a location token (i.e., a `@...').  Output to |
+| TEXT is a location token (i.e., a '@...').  Output to |
 | OBSTACK_FOR_STRING a reference to this location.      |
    `------------------------------------------------------*/
 
-static void handle_action_at(symbol_list * rule, char * text, location at_loc)
+static void handle_action_at(symbol_list * rule, char * text, BFLocation at_loc)
 {
-	char * cp = text+1;
+	char * cp = text + 1;
 	symbol_list * effective_rule;
 	int effective_rule_length;
 	int n;
+
 	if(rule->midrule_parent_rule) {
 		effective_rule = rule->midrule_parent_rule;
-		effective_rule_length = rule->midrule_parent_rhs_index-1;
+		effective_rule_length = rule->midrule_parent_rhs_index - 1;
 	}
-	else {
+	else{
 		effective_rule = rule;
 		effective_rule_length = symbol_list_length(rule->next);
 	}
-	locations_flag = true;
+
+	muscle_percent_define_ensure("locations", at_loc, true);
 
 	n = parse_ref(cp, effective_rule, effective_rule_length,
-		rule->midrule_parent_rhs_index, text, at_loc, '@');
-	switch(n) {
-	    case INVALID_REF:
-		break;
+	    rule->midrule_parent_rhs_index, text, at_loc, '@');
+	switch(n)
+	{
+		case INVALID_REF:
+		    break;
 
-	    case LHS_REF:
-		obstack_sgrow(&obstack_for_string, "]b4_lhs_location[");
-		break;
+		case LHS_REF:
+		    obstack_sgrow(&obstack_for_string, "]b4_lhs_location[");
+		    break;
 
-	    default:
-		obstack_fgrow2(&obstack_for_string, "]b4_rhs_location(%d, %d)[",
-			effective_rule_length, n);
-		break;
+		default:
+		    obstack_printf(&obstack_for_string, "]b4_rhs_location(%d, %d)[",
+		    effective_rule_length, n);
+		    break;
 	}
 }
 
@@ -2892,6 +2780,7 @@ static char const * translate_action(code_props * self, int sc_context)
 		code__flex_debug = 0;
 		initialized = true;
 	}
+
 	loc->start = loc->end = self->location.start;
 	code__switch_to_buffer(code__scan_string(self->code));
 	res = code_lex(self, sc_context);
@@ -2909,56 +2798,49 @@ void code_props_none_init(code_props * self)
 	*self = code_props_none;
 }
 
-code_props const code_props_none = CODE_PROPS_NONE_INIT;
+code_props code_props_none = CODE_PROPS_NONE_INIT;
 
-void code_props_plain_init(code_props * self, char const * code,
-	location code_loc)
+void code_props_plain_init(code_props * self, char const * code, BFLocation code_loc)
 {
-	self->kind = CODE_PROPS_PLAIN;
+	code_props_none_init(self);
+	self->kind = code_props::CODE_PROPS_PLAIN;
 	self->code = code;
 	self->location = code_loc;
-	self->is_value_used = false;
-	self->rule = NULL;
-	self->named_ref = NULL;
 }
 
-void code_props_symbol_action_init(code_props * self, char const * code,
-	location code_loc)
+void code_props_symbol_action_init(code_props * self, char const * code, BFLocation code_loc)
 {
-	self->kind = CODE_PROPS_SYMBOL_ACTION;
+	code_props_none_init(self);
+	self->kind = code_props::CODE_PROPS_SYMBOL_ACTION;
 	self->code = code;
 	self->location = code_loc;
-	self->is_value_used = false;
-	self->rule = NULL;
-	self->named_ref = NULL;
 }
 
-void code_props_rule_action_init(code_props * self, char const * code,
-	location code_loc, symbol_list * rule,
-	named_ref * name)
+void code_props_rule_action_init(code_props * self, char const * code, BFLocation code_loc, symbol_list * rule, named_ref * name, bool is_predicate)
 {
-	self->kind = CODE_PROPS_RULE_ACTION;
+	code_props_none_init(self);
+	self->kind = code_props::CODE_PROPS_RULE_ACTION;
 	self->code = code;
 	self->location = code_loc;
-	self->is_value_used = false;
 	self->rule = rule;
 	self->named_ref = name;
+	self->is_predicate = is_predicate;
 }
 
 void code_props_translate_code(code_props * self)
 {
 	switch(self->kind) {
-	    case CODE_PROPS_NONE:
-		break;
-	    case CODE_PROPS_PLAIN:
-		self->code = translate_action(self, INITIAL);
-		break;
-	    case CODE_PROPS_SYMBOL_ACTION:
-		self->code = translate_action(self, SC_SYMBOL_ACTION);
-		break;
-	    case CODE_PROPS_RULE_ACTION:
-		self->code = translate_action(self, SC_RULE_ACTION);
-		break;
+		case code_props::CODE_PROPS_NONE:
+		    break;
+		case code_props::CODE_PROPS_PLAIN:
+		    self->code = translate_action(self, INITIAL);
+		    break;
+		case code_props::CODE_PROPS_SYMBOL_ACTION:
+		    self->code = translate_action(self, SC_SYMBOL_ACTION);
+		    break;
+		case code_props::CODE_PROPS_RULE_ACTION:
+		    self->code = translate_action(self, SC_RULE_ACTION);
+		    break;
 	}
 }
 
@@ -2971,6 +2853,7 @@ void code_scanner_free(void)
 {
 	obstack_free(&obstack_for_string, 0);
 	variant_table_free();
+
 	/* Reclaim Flex's buffers.  */
 	code_lex_destroy();
 }

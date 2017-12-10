@@ -130,15 +130,12 @@ static int GeoPosFromStr(const char * pStr, double & rLat, double & rLon)
 	return ok;
 }
 
-SGeoPosLL::SGeoPosLL()
+SGeoPosLL::SGeoPosLL() : Lat(0.0), Lon(0.0)
 {
-	Lat = Lon = 0.0;
 }
 
-SGeoPosLL::SGeoPosLL(double lat, double lon)
+SGeoPosLL::SGeoPosLL(double lat, double lon) : Lat(lat), Lon(lon)
 {
-	Lat = lat;
-	Lon = lon;
 }
 
 int FASTCALL SGeoPosLL::operator == (const SGeoPosLL & s) const
@@ -192,16 +189,12 @@ int FASTCALL SGeoPosLL::FromStr(const char * pStr)
 //
 static const double IntGeoCoordScale = 10000000.0;
 
-SGeoPosLL_Int::SGeoPosLL_Int()
+SGeoPosLL_Int::SGeoPosLL_Int() : Lat(0), Lon(0)
 {
-	Lat = 0;
-	Lon = 0;
 }
 
-SGeoPosLL_Int::SGeoPosLL_Int(const SGeoPosLL_Int & rS)
+SGeoPosLL_Int::SGeoPosLL_Int(const SGeoPosLL_Int & rS) : Lat(rS.Lat), Lon(rS.Lon)
 {
-	Lat = rS.Lat;
-	Lon = rS.Lon;
 }
 
 SGeoPosLL_Int::SGeoPosLL_Int(const SGeoPosLL & rS)
@@ -329,10 +322,8 @@ int FASTCALL SGeoPosLL_Int::FromStr(const char * pStr)
 //
 //
 //
-SLAPI  SGeoGridTab::Finder::Finder(const SGeoGridTab & rTab) : R_Tab(rTab)
+SLAPI  SGeoGridTab::Finder::Finder(const SGeoGridTab & rTab) : R_Tab(rTab), LastPosLat(0), LastPosLon(0)
 {
-	LastPosLat = 0;
-	LastPosLon = 0;
 }
 
 uint FASTCALL SGeoGridTab::Finder::GetIdxLat(long c)
@@ -403,12 +394,9 @@ uint64 FASTCALL SGeoGridTab::Finder::GetZIdx64(const SGeoPosLL_Int & rC)
 	return SZIndex2::Combine((uint32)idx_lat, (uint32)idx_lon);
 }
 //
-SLAPI SGeoGridTab::SGeoGridTab(uint dim)
+SLAPI SGeoGridTab::SGeoGridTab(uint dim) : Dim(dim), SrcCountLat(0), SrcCountLon(0)
 {
 	assert(dim >= 4 && dim <= 32);
-	Dim = dim;
-	SrcCountLat = 0;
-	SrcCountLon = 0;
 }
 
 int FASTCALL SGeoGridTab::IsEqual(const SGeoGridTab & rS) const

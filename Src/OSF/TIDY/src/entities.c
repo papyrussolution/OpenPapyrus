@@ -19,17 +19,13 @@
 #include "entities.h"
 #include "tmbstr.h"
 
-struct _entity;
-
-typedef struct _entity entity;
-
-struct _entity {
+struct Entity {
 	ctmbstr name;
 	uint versions;
 	uint code;
 };
 
-static const entity entities[] =
+static const Entity entities[] =
 {
 	/*
 	** Markup pre-defined character entities
@@ -267,7 +263,6 @@ static const entity entities[] =
 	{ "clubs",    VERS_FROM40,  9827 },
 	{ "hearts",   VERS_FROM40,  9829 },
 	{ "diams",    VERS_FROM40,  9830 },
-
 	/*
 	** Extended Entities defined in HTML 4: Special (less Markup at top)
 	*/
@@ -308,11 +303,10 @@ static const entity entities[] =
 ** speed that hash doesn't improve things without > 500
 ** items in list.
 */
-static const entity* entitiesLookup(ctmbstr s)
+static const Entity * entitiesLookup(ctmbstr s)
 {
-	tmbchar ch = (tmbchar)( s ? *s : 0 );
-	const entity * np;
-	for(np = entities; ch && np && np->name; ++np)
+	tmbchar ch = (tmbchar)DEREFPTRORZ(s);
+	for(const Entity * np = entities; ch && np && np->name; ++np)
 		if(ch == *np->name && TY_(tmbstrcmp) (s, np->name) == 0)
 			return np;
 	return NULL;
@@ -353,28 +347,25 @@ uint EntityCode(ctmbstr name, uint versions)
 
 bool TY_(EntityInfo) (ctmbstr name, bool isXml, uint* code, uint* versions)
 {
-	const entity* np;
+	const Entity * np;
 	assert(name && name[0] == '&');
 	assert(code != NULL);
 	assert(versions != NULL);
-
 	/* numeric entitity: name = "&#" followed by number */
 	if(name[1] == '#') {
 		uint c = 0; /* zero on missing/bad number */
-
 		/* 'x' prefix denotes hexadecimal number format */
 		if(name[2] == 'x' || (!isXml && name[2] == 'X') )
 			sscanf(name+3, "%x", &c);
 		else
 			sscanf(name+2, "%u", &c);
-
 		*code = c;
 		*versions = VERS_ALL;
 		return true;
 	}
 
 	/* Named entity: name ="&" followed by a name */
-	if(NULL != (np = entitiesLookup(name+1)) ) {
+	if((np = entitiesLookup(name+1)) != 0) {
 		*code = np->code;
 		*versions = np->versions;
 		return true;
@@ -388,9 +379,7 @@ bool TY_(EntityInfo) (ctmbstr name, bool isXml, uint* code, uint* versions)
 ctmbstr TY_(EntityName) (uint ch, uint versions)
 {
 	ctmbstr entnam = NULL;
-	const entity * ep;
-
-	for(ep = entities; ep->name != NULL; ++ep) {
+	for(const Entity * ep = entities; ep->name != NULL; ++ep) {
 		if(ep->code == ch) {
 			if(ep->versions & versions)
 				entnam = ep->name;
@@ -399,7 +388,6 @@ ctmbstr TY_(EntityName) (uint ch, uint versions)
 	}
 	return entnam;
 }
-
 /*
  * local variables:
  * mode: c

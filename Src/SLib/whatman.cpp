@@ -1624,26 +1624,21 @@ int TWhatman::CalcRule(double ptPerInch, Rule & rRule) const
 //
 //
 //
-TWhatmanToolArray::Param::Param()
+TWhatmanToolArray::Param::Param() : Flags(0)
 {
-	Flags = 0;
 	PicSize = 32;
 }
 
-TWhatmanToolArray::Item::Item(const TWhatmanToolArray * pOwner)
+TWhatmanToolArray::Item::Item(const TWhatmanToolArray * pOwner) : Id(0), Flags(0), P_Owner(pOwner), ExtSize(0)
 {
-	Id = 0;
 	FigSize.Set(16, 16);
 	PicSize.Set(16, 16);
-	Flags = 0;
-	P_Owner = pOwner;
-	ExtSize = 0;
 	memzero(ExtData, sizeof(ExtData));
 }
 
-TWhatmanToolArray::TWhatmanToolArray() : SVector(sizeof(TWhatmanToolArray::Entry)) // @v9.8.5 SArray-->SVector
+TWhatmanToolArray::TWhatmanToolArray() : SVector(sizeof(TWhatmanToolArray::Entry)), SrcFileVer(0) // @v9.8.5 SArray-->SVector
+	// @v9.1.9 В метод Init инициализацию SrcFileVer вставлять нельзя - он вызывается после чтения файла
 {
-	SrcFileVer = 0; // @v9.1.9 В метод Init эту инициализацию вставлять нельзя - он вызывается после чтения файла
 	Init();
 }
 

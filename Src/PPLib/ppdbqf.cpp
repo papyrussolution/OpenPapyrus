@@ -1378,7 +1378,7 @@ static void SLAPI dbqf_logfilename_i(int option, DBConst *result, DBConst *param
 static void SLAPI dbqf_counter_i(int option, DBConst *result, DBConst *params)
 {
 	long * ptr = (long *)params[0].lval;
-	long   val = (ptr ? *ptr : 0) + 1;
+	long   val = DEREFPTRORZ(ptr) + 1;
 	result->init(val);
 	ASSIGN_PTR(ptr, val);
 }

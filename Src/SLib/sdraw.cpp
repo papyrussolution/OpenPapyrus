@@ -73,16 +73,12 @@ uint SDrawContext::CalcScreenFontSizePt(uint pt)
 	return s;
 }
 
-SDrawContext::SDrawContext(cairo_t * pCr)
+SDrawContext::SDrawContext(cairo_t * pCr) : S(dsysCairo), P(pCr)
 {
-	S = dsysCairo;
-	P = pCr;
 }
 
-SDrawContext::SDrawContext(HDC hDc)
+SDrawContext::SDrawContext(HDC hDc) : S(dsysWinGdi), P((void *)hDc)
 {
-	S = dsysWinGdi;
-	P = (void *)hDc;
 }
 
 SDrawContext::operator cairo_t * () const
@@ -1055,16 +1051,14 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 	return ok;
 }
 
-SDraw::SDraw() : SDrawGroup(0)
+SDraw::SDraw() : SDrawGroup(0), P_Tb(0)
 {
 	Flags |= fDraw;
-	P_Tb = 0;
 }
 
-SDraw::SDraw(const char * pSid) : SDrawGroup(pSid)
+SDraw::SDraw(const char * pSid) : SDrawGroup(pSid), P_Tb(0)
 {
 	Flags |= fDraw;
-	P_Tb = 0;
 }
 
 SDraw::SDraw(const char * pSid, SPaintToolBox * pOuterTb) : SDrawGroup(pSid)

@@ -20,19 +20,16 @@
    Modified by Akim Demaille <demaille@inf.enst.fr> */
 
 #ifndef ARGMATCH_H_
-# define ARGMATCH_H_ 1
+#define ARGMATCH_H_ 1
+#include <stddef.h>
+#include "verify.h"
 
-# include <stddef.h>
-
-# include "verify.h"
-
-# define ARRAY_CARDINALITY(Array) (sizeof (Array) / sizeof *(Array))
+#define ARRAY_CARDINALITY(Array) (sizeof (Array) / sizeof *(Array))
 
 /* Assert there are as many real arguments as there are values
    (argument list ends with a NULL guard).  */
 
-# define ARGMATCH_VERIFY(Arglist, Vallist) \
-    verify (ARRAY_CARDINALITY (Arglist) == ARRAY_CARDINALITY (Vallist) + 1)
+#define ARGMATCH_VERIFY(Arglist, Vallist) verify(ARRAY_CARDINALITY(Arglist) == ARRAY_CARDINALITY(Vallist) + 1)
 
 /* Return the index of the element of ARGLIST (NULL terminated) that
    matches with ARG.  If VALLIST is not NULL, then use it to resolve

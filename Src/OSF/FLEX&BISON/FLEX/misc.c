@@ -30,26 +30,8 @@
 /*  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED */
 /*  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR */
 /*  PURPOSE. */
-
 #include "flexdef.h"
 #include "tables.h"
-
-// @sobolev {
-#if !defined(_TRUNCATE)
-	#define _TRUNCATE ((size_t)-1)
-#endif
-// } @sobolev 
-
-int snprintf(char * str, size_t size, const char * format, ...)
-{
-	size_t count;
-	va_list ap;
-	va_start(ap, format);
-	count = _vscprintf(format, ap);
-	_vsnprintf_s(str, size, _TRUNCATE, format, ap);
-	va_end(ap);
-	return count;
-}
 
 #define CMD_IF_TABLES_SER    "%if-tables-serialization"
 #define CMD_TABLES_YYDMAP    "%tables-yydmap"
@@ -71,18 +53,21 @@ int snprintf(char * str, size_t size, const char * format, ...)
 struct sko_state {
 	bool dc; /**< do_copy */
 };
+
 static struct sko_state * sko_stack = 0;
 static int sko_len = 0, sko_sz = 0;
 static void sko_push(bool dc)
 {
 	if(!sko_stack) {
 		sko_sz = 1;
-		sko_stack = (struct sko_state *)flex_alloc(sizeof(struct sko_state)*sko_sz);
+		sko_stack = (sko_state *)malloc(sizeof(struct sko_state) * (size_t)sko_sz);
+		if(!sko_stack)
+			flexfatal(_("allocation of sko_stack failed"));
 		sko_len = 0;
 	}
 	if(sko_len >= sko_sz) {
 		sko_sz *= 2;
-		sko_stack = (struct sko_state *)flex_realloc(sko_stack, sizeof(struct sko_state)*sko_sz);
+		sko_stack = (sko_state *)realloc(sko_stack, sizeof(struct sko_state) * (size_t)sko_sz);
 	}
 	/* initialize to zero and push */
 	sko_stack[sko_len].dc = dc;
@@ -97,7 +82,7 @@ static void sko_peek(bool * dc)
 		*dc = sko_stack[sko_len-1].dc;
 }
 
-static void sko_pop(bool * dc)
+static void sko_pop(bool* dc)
 {
 	sko_peek(dc);
 	sko_len--;
@@ -109,52 +94,39 @@ static void sko_pop(bool * dc)
 void action_define(const char * defname, int value)
 {
 	char buf[MAXLINE];
-	char * cpy;
-	if((int)strlen(defname) > MAXLINE/2) {
-		format_pinpoint_message(_("name \"%s\" ridiculously long"), defname);
+	char   * cpy;
+
+	if((int)strlen(defname) > MAXLINE / 2) {
+		format_pinpoint_message(_
+			    ("name \"%s\" ridiculously long"),
+		    defname);
 		return;
 	}
+
 	snprintf(buf, sizeof(buf), "#define %s %d\n", defname, value);
 	add_action(buf);
 
 	/* track #defines so we can undef them when we're done. */
-	cpy = copy_string(defname);
+	cpy = xstrdup(defname);
 	buf_append(&defs_buf, &cpy, 1);
-}
-
-/** Append "m4_define([[defname]],[[value]])m4_dnl\n" to the running buffer.
- *  @param defname The macro name.
- *  @param value The macro value, can be NULL, which is the same as the empty string.
- */
-void action_m4_define(const char * defname, const char * value)
-{
-	char buf[MAXLINE];
-
-	flexfatal("DO NOT USE THIS FUNCTION!");
-	if((int)strlen(defname) > MAXLINE/2) {
-		format_pinpoint_message(_("name \"%s\" ridiculously long"), defname);
-		return;
-	}
-	snprintf(buf, sizeof(buf), "m4_define([[%s]],[[%s]])m4_dnl\n", defname, value ? value : "");
-	add_action(buf);
 }
 
 /* Append "new_text" to the running buffer. */
 void add_action(const char * new_text)
 {
-	int len = strlen(new_text);
-	while(len+action_index >= action_size-10 /* slop */) {
-		int new_size = action_size*2;
+	int len = (int)strlen(new_text);
+
+	while(len + action_index >= action_size - 10 /* slop */) {
+		int new_size = action_size * 2;
+
 		if(new_size <= 0)
 			/* Increase just a little, to try to avoid overflow
 			 * on 16-bit machines.
 			 */
-			action_size += action_size/8;
+			action_size += action_size / 8;
 		else
 			action_size = new_size;
-		action_array =
-		        reallocate_character_array(action_array,
-				action_size);
+		action_array = (char *)reallocate_character_array(action_array, action_size);
 	}
 	strcpy(&action_array[action_index], new_text);
 	action_index += len;
@@ -164,19 +136,28 @@ void add_action(const char * new_text)
 
 void * allocate_array(int size, size_t element_size)
 {
-	size_t num_bytes = element_size*size;
-	register void * mem = flex_alloc(num_bytes);
+	void * mem;
+#if HAVE_REALLOCARRAY
+	/* reallocarray has built-in overflow detection */
+	mem = reallocarray(NULL, (size_t)size, element_size);
+#else
+	size_t num_bytes = (size_t)size * element_size;
+	mem = (size && SIZE_MAX / (size_t)size < element_size) ? NULL :
+	    malloc(num_bytes);
+#endif
 	if(!mem)
-		flexfatal(_("memory allocation failed in allocate_array()"));
+		flexfatal(_
+			    ("memory allocation failed in allocate_array()"));
+
 	return mem;
 }
 
 /* all_lower - true if a string is all lower-case */
 
-int all_lower(register char * str)
+int all_lower(char * str)
 {
 	while(*str) {
-		if(!isascii((Char)*str) || !islower(*str))
+		if(!isascii((unsigned char)*str) || !islower((unsigned char)*str))
 			return 0;
 		++str;
 	}
@@ -185,41 +166,22 @@ int all_lower(register char * str)
 
 /* all_upper - true if a string is all upper-case */
 
-int all_upper(register char * str)
+int all_upper(char * str)
 {
 	while(*str) {
-		if(!isascii((Char)*str) || !isupper(*str))
+		if(!isascii((unsigned char)*str) || !isupper((unsigned char)*str))
 			return 0;
 		++str;
 	}
+
 	return 1;
 }
 
-/* bubble - bubble sort an integer array in increasing order
- *
- * synopsis
- *   int v[n], n;
- *   void bubble( v, n );
- *
- * description
- *   sorts the first n elements of array v and replaces them in
- *   increasing order.
- *
- * passed
- *   v - the array to be sorted
- *   n - the number of elements of 'v' to be sorted
- */
+/* intcmp - compares two integers for use by qsort. */
 
-void bubble(int v[], int n)
+int intcmp(const void * a, const void * b)
 {
-	register int i, j, k;
-	for(i = n; i > 1; --i)
-		for(j = 1; j < i; ++j)
-			if(v[j] > v[j+1]) {     /* compare */
-				k = v[j];       /* exchange */
-				v[j] = v[j+1];
-				v[j+1] = k;
-			}
+	return *(const int*)a - *(const int*)b;
 }
 
 /* check_char - checks a character to make sure it's within the range
@@ -230,105 +192,55 @@ void bubble(int v[], int n)
 void check_char(int c)
 {
 	if(c >= CSIZE)
-		lerrsf(_("bad character '%s' detected in check_char()"), readable_form(c));
+		lerr(_("bad character '%s' detected in check_char()"),
+		    readable_form(c));
+
 	if(c >= csize)
-		lerrsf(_("scanner requires -8 flag to use the character %s"), readable_form(c));
+		lerr(_
+			    ("scanner requires -8 flag to use the character %s"),
+		    readable_form(c));
 }
 
 /* clower - replace upper-case letter to lower-case */
 
-Char clower(register int c)
+unsigned char clower(int c)
 {
-	return (Char)((isascii(c) && isupper(c)) ? tolower(c) : c);
+	return (unsigned char)((isascii(c) && isupper(c)) ? tolower(c) : c);
 }
 
-/* copy_string - returns a dynamically allocated copy of a string */
+/*
+   char *xstrdup(const char *s)
+   {
+        char *s2;
 
-char * copy_string(register const char * str)
-{
-	register const char * c1;
-	register char * c2;
-	char * copy;
-	unsigned int size;
+        if ((s2 = strdup(s)) == NULL)
+                flexfatal (_("memory allocation failure in xstrdup()"));
 
-	/* find length */
-	for(c1 = str; *c1; ++c1) ;
-	size = (c1-str+1)*sizeof(char);
-
-	copy = (char *)flex_alloc(size);
-	if(copy == NULL)
-		flexfatal(_("dynamic memory failure in copy_string()"));
-	for(c2 = copy; (*c2++ = *str++) != 0; ) ;
-	return copy;
-}
-
-/* copy_unsigned_string -
- *    returns a dynamically allocated copy of a (potentially) unsigned string
+        return s2;
+   }
  */
 
-Char * copy_unsigned_string(register Char * str)
+/* cclcmp - compares two characters for use by qsort with '\0' sorting last. */
+
+int cclcmp(const void * a, const void * b)
 {
-	register Char * c;
-	Char * copy;
-	/* find length */
-	for(c = str; *c; ++c) ;
-	copy = allocate_Character_array(c-str+1);
-
-	for(c = copy; (*c++ = *str++) != 0; ) ;
-	return copy;
-}
-
-/* cshell - shell sort a character array in increasing order
- *
- * synopsis
- *
- *   Char v[n];
- *   int n, special_case_0;
- *   cshell( v, n, special_case_0 );
- *
- * description
- *   Does a shell sort of the first n elements of array v.
- *   If special_case_0 is true, then any element equal to 0
- *   is instead assumed to have infinite weight.
- *
- * passed
- *   v - array to be sorted
- *   n - number of elements of v to be sorted
- */
-
-void cshell(Char v[], int n, int special_case_0)
-{
-	int gap, i, j, jg;
-	Char k;
-	for(gap = n/2; gap > 0; gap = gap/2)
-		for(i = gap; i < n; ++i)
-			for(j = i-gap; j >= 0; j = j-gap) {
-				jg = j+gap;
-				if(special_case_0) {
-					if(v[jg] == 0)
-						break;
-
-					else if(v[j] != 0 &&
-					        v[j] <= v[jg])
-						break;
-				}
-
-				else if(v[j] <= v[jg])
-					break;
-				k = v[j];
-				v[j] = v[jg];
-				v[jg] = k;
-			}
+	if(!*(const unsigned char*)a)
+		return 1;
+	else if(!*(const unsigned char*)b)
+		return -1;
+	else
+		return *(const unsigned char*)a - *(const unsigned char*)b;
 }
 
 /* dataend - finish up a block of data declarations */
 
-void dataend()
+void dataend(void)
 {
 	/* short circuit any output */
 	if(gentables) {
 		if(datapos > 0)
 			dataflush();
+
 		/* add terminator for initialization; { for vi */
 		outn("    } ;\n");
 	}
@@ -338,12 +250,14 @@ void dataend()
 
 /* dataflush - flush generated data statements */
 
-void dataflush()
+void dataflush(void)
 {
 	/* short circuit any output */
 	if(!gentables)
 		return;
+
 	outc('\n');
+
 	if(++dataline >= NUMDATALINES) {
 		/* Put out a blank line so that the table is grouped into
 		 * large blocks that enable the user to find elements easily.
@@ -351,6 +265,7 @@ void dataflush()
 		outc('\n');
 		dataline = 0;
 	}
+
 	/* Reset the number of characters written on the current line. */
 	datapos = 0;
 }
@@ -368,36 +283,34 @@ void flexerror(const char * msg)
 void flexfatal(const char * msg)
 {
 	fprintf(stderr, _("%s: fatal internal error, %s\n"),
-		program_name, msg);
-	/*FLEX_EXIT (1);*/
-	flexend(1);
+	    program_name, msg);
+	FLEX_EXIT(1);
 }
 
-/* htoi - convert a hexadecimal digit string to an integer value */
+/* lerr - report an error message */
 
-int htoi(Char str[])
-{
-	unsigned int result;
-	(void)sscanf((char *)str, "%x", &result);
-	return result;
-}
-
-/* lerrif - report an error message formatted with one integer argument */
-
-void lerrif(const char * msg, int arg)
+void lerr(const char * msg, ...)
 {
 	char errmsg[MAXLINE];
-	snprintf(errmsg, sizeof(errmsg), msg, arg);
+	va_list args;
+
+	va_start(args, msg);
+	vsnprintf(errmsg, sizeof(errmsg), msg, args);
+	va_end(args);
 	flexerror(errmsg);
 }
 
-/* lerrsf - report an error message formatted with one string argument */
+/* lerr_fatal - as lerr, but call flexfatal */
 
-void lerrsf(const char * msg, const char arg[])
+void lerr_fatal(const char * msg, ...)
 {
 	char errmsg[MAXLINE];
-	snprintf(errmsg, sizeof(errmsg), msg, arg);
-	flexerror(errmsg);
+	va_list args;
+	va_start(args, msg);
+
+	vsnprintf(errmsg, sizeof(errmsg), msg, args);
+	va_end(args);
+	flexfatal(errmsg);
 }
 
 /* line_directive_out - spit out a "#line" statement */
@@ -405,30 +318,36 @@ void lerrsf(const char * msg, const char arg[])
 void line_directive_out(FILE * output_file, int do_infile)
 {
 	char directive[MAXLINE], filename[MAXLINE];
-	char * s1, * s2, * s3;
-	static const char * line_fmt = "#line %d \"%s\"\n";
+	char   * s1, * s2, * s3;
+	static const char line_fmt[] = "#line %d \"%s\"\n";
+
 	if(!gen_line_dirs)
 		return;
+
 	s1 = do_infile ? infilename : "M4_YY_OUTFILE_NAME";
+
 	if(do_infile && !s1)
 		s1 = "<stdin>";
+
 	s2 = filename;
-	s3 = &filename[sizeof(filename)-2];
+	s3 = &filename[sizeof(filename) - 2];
+
 	while(s2 < s3 && *s1) {
-		if(*s1 == '\\')
-			/* Escape the '\' */
+		if(*s1 == '\\' || *s1 == '"')
+			/* Escape the '\' or '"' */
 			*s2++ = '\\';
+
 		*s2++ = *s1++;
 	}
+
 	*s2 = '\0';
+
 	if(do_infile)
 		snprintf(directive, sizeof(directive), line_fmt, linenum, filename);
 	else {
-		if(output_file == stdout)
-			/* Account for the line directive itself. */
-			++out_linenum;
-		snprintf(directive, sizeof(directive), line_fmt, out_linenum, filename);
+		snprintf(directive, sizeof(directive), line_fmt, 0, filename);
 	}
+
 	/* If output_file is nil then we should put the directive in
 	 * the accumulated actions.
 	 */
@@ -443,7 +362,7 @@ void line_directive_out(FILE * output_file, int do_infile)
  *               representing where the user's section 1 definitions end
  *		 and the prolog begins
  */
-void mark_defs1()
+void mark_defs1(void)
 {
 	defs1_offset = 0;
 	action_array[action_index++] = '\0';
@@ -454,7 +373,7 @@ void mark_defs1()
 /* mark_prolog - mark the current position in the action array as
  *               representing the end of the action prolog
  */
-void mark_prolog()
+void mark_prolog(void)
 {
 	action_array[action_index++] = '\0';
 	action_offset = action_index;
@@ -470,16 +389,19 @@ void mk2data(int value)
 	/* short circuit any output */
 	if(!gentables)
 		return;
+
 	if(datapos >= NUMDATAITEMS) {
 		outc(',');
 		dataflush();
 	}
+
 	if(datapos == 0)
 		/* Indent. */
 		out("    ");
 
 	else
 		outc(',');
+
 	++datapos;
 
 	out_dec("%5d", value);
@@ -495,15 +417,18 @@ void mkdata(int value)
 	/* short circuit any output */
 	if(!gentables)
 		return;
+
 	if(datapos >= NUMDATAITEMS) {
 		outc(',');
 		dataflush();
 	}
+
 	if(datapos == 0)
 		/* Indent. */
 		out("    ");
 	else
 		outc(',');
+
 	++datapos;
 
 	out_dec("%5d", value);
@@ -514,96 +439,77 @@ void mkdata(int value)
 int myctoi(const char * array)
 {
 	int val = 0;
+
 	(void)sscanf(array, "%d", &val);
+
 	return val;
 }
 
 /* myesc - return character corresponding to escape sequence */
 
-Char myesc(Char array[])
+unsigned char myesc(unsigned char array[])
 {
-	Char c, esc_char;
+	unsigned char c, esc_char;
+
 	switch(array[1]) {
-	    case 'b':
-		return '\b';
-	    case 'f':
-		return '\f';
-	    case 'n':
-		return '\n';
-	    case 'r':
-		return '\r';
-	    case 't':
-		return '\t';
-
-#if defined (__STDC__)
-	    case 'a':
-		return '\a';
-	    case 'v':
-		return '\v';
-#else
-	    case 'a':
-		return '\007';
-	    case 'v':
-		return '\013';
-#endif
-
-	    case '0':
-	    case '1':
-	    case '2':
-	    case '3':
-	    case '4':
-	    case '5':
-	    case '6':
-	    case '7':
+		case 'b':
+		    return '\b';
+		case 'f':
+		    return '\f';
+		case 'n':
+		    return '\n';
+		case 'r':
+		    return '\r';
+		case 't':
+		    return '\t';
+		case 'a':
+		    return '\a';
+		case 'v':
+		    return '\v';
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
 	    {                   /* \<octal> */
 		    int sptr = 1;
 
-		    while(isascii(array[sptr]) &&
-		          isdigit(array[sptr]))
-			    /* Don't increment inside loop control
-			     * because if isdigit() is a macro it might
-			     * expand into multiple increments ...
-			     */
+		    while(sptr <= 3 &&
+			    array[sptr] >= '0' && array[sptr] <= '7') {
 			    ++sptr;
+		    }
+
 		    c = array[sptr];
 		    array[sptr] = '\0';
 
-		    esc_char = otoi(array+1);
+		    esc_char = (unsigned char)strtoul((const char *)(array + 1), NULL, 8);
 
 		    array[sptr] = c;
 
 		    return esc_char;
 	    }
-
-	    case 'x':
+		case 'x':
 	    {                   /* \x<hex> */
 		    int sptr = 2;
-
-		    while(isascii(array[sptr]) &&
-		          isxdigit((char)array[sptr]))
+		    while(sptr <= 3 && isxdigit(array[sptr])) {
 			    /* Don't increment inside loop control
-			     * because if isdigit() is a macro it might
+			     * because if isxdigit() is a macro it might
 			     * expand into multiple increments ...
 			     */
 			    ++sptr;
+		    }
 		    c = array[sptr];
 		    array[sptr] = '\0';
-		    esc_char = htoi(array+2);
+		    esc_char = (unsigned char)strtoul((const char *)(array + 2), NULL, 16);
 		    array[sptr] = c;
 		    return esc_char;
 	    }
-	    default:
-		return array[1];
+		default:
+		    return array[1];
 	}
-}
-
-/* otoi - convert an octal digit string to an integer value */
-
-int otoi(Char str[])
-{
-	unsigned int result;
-	(void)sscanf((char *)str, "%o", &result);
-	return result;
 }
 
 /* out - various flavors of outputing a (possibly formatted) string for the
@@ -613,79 +519,54 @@ int otoi(Char str[])
 void out(const char * str)
 {
 	fputs(str, stdout);
-	out_line_count(str);
 }
 
 void out_dec(const char * fmt, int n)
 {
 	fprintf(stdout, fmt, n);
-	out_line_count(fmt);
 }
 
 void out_dec2(const char * fmt, int n1, int n2)
 {
 	fprintf(stdout, fmt, n1, n2);
-	out_line_count(fmt);
 }
 
 void out_hex(const char * fmt, unsigned int x)
 {
 	fprintf(stdout, fmt, x);
-	out_line_count(fmt);
-}
-
-void out_line_count(const char * str)
-{
-	register int i;
-	for(i = 0; str[i]; ++i)
-		if(str[i] == '\n')
-			++out_linenum;
 }
 
 void out_str(const char * fmt, const char str[])
 {
 	fprintf(stdout, fmt, str);
-	out_line_count(fmt);
-	out_line_count(str);
 }
 
 void out_str3(const char * fmt, const char s1[], const char s2[], const char s3[])
 {
 	fprintf(stdout, fmt, s1, s2, s3);
-	out_line_count(fmt);
-	out_line_count(s1);
-	out_line_count(s2);
-	out_line_count(s3);
 }
 
 void out_str_dec(const char * fmt, const char str[], int n)
 {
 	fprintf(stdout, fmt, str, n);
-	out_line_count(fmt);
-	out_line_count(str);
 }
 
 void outc(int c)
 {
 	fputc(c, stdout);
-	if(c == '\n')
-		++out_linenum;
 }
 
 void outn(const char * str)
 {
 	fputs(str, stdout);
 	fputc('\n', stdout);
-	out_line_count(str);
-	++out_linenum;
 }
 
 /** Print "m4_define( [[def]], [[val]])m4_dnl\n".
  * @param def The m4 symbol to define.
  * @param val The definition; may be NULL.
- * @return buf
  */
-void out_m4_define(const char * def, const char * val)
+void out_m4_define(const char* def, const char* val)
 {
 	const char * fmt = "m4_define( [[%s]], [[%s]])m4_dnl\n";
 	fprintf(stdout, fmt, def, val ? val : "");
@@ -696,32 +577,32 @@ void out_m4_define(const char * def, const char * val)
  * The returned string is in static storage.
  */
 
-char * readable_form(register int c)
+char   * readable_form(int c)
 {
-	static char rform[10];
+	static char rform[20];
+
 	if((c >= 0 && c < 32) || c >= 127) {
 		switch(c) {
-		    case '\b':
-			return "\\b";
-		    case '\f':
-			return "\\f";
-		    case '\n':
-			return "\\n";
-		    case '\r':
-			return "\\r";
-		    case '\t':
-			return "\\t";
-
-#if defined (__STDC__)
-		    case '\a':
-			return "\\a";
-		    case '\v':
-			return "\\v";
-#endif
-
-		    default:
-			snprintf(rform, sizeof(rform), "\\%.3o", (unsigned int)c);
-			return rform;
+			case '\b':
+			    return "\\b";
+			case '\f':
+			    return "\\f";
+			case '\n':
+			    return "\\n";
+			case '\r':
+			    return "\\r";
+			case '\t':
+			    return "\\t";
+			case '\a':
+			    return "\\a";
+			case '\v':
+			    return "\\v";
+			default:
+			    if(trace_hex)
+				    snprintf(rform, sizeof(rform), "\\x%.2x", (unsigned int)c);
+			    else
+				    snprintf(rform, sizeof(rform), "\\%.3o", (unsigned int)c);
+			    return rform;
 		}
 	}
 
@@ -729,20 +610,29 @@ char * readable_form(register int c)
 		return "' '";
 
 	else {
-		rform[0] = c;
+		rform[0] = (char)c;
 		rform[1] = '\0';
+
 		return rform;
 	}
 }
 
 /* reallocate_array - increase the size of a dynamic array */
 
-void * reallocate_array(void * array, int size, size_t element_size)
+void   * reallocate_array(void * array, int size, size_t element_size)
 {
-	size_t num_bytes = element_size*size;
-	register void * new_array = flex_realloc(array, num_bytes);
+	void * new_array;
+#if HAVE_REALLOCARRAY
+	/* reallocarray has built-in overflow detection */
+	new_array = reallocarray(array, (size_t)size, element_size);
+#else
+	size_t num_bytes = (size_t)size * element_size;
+	new_array = (size && SIZE_MAX / (size_t)size < element_size) ? NULL :
+	    realloc(array, num_bytes);
+#endif
 	if(!new_array)
 		flexfatal(_("attempt to increase array size failed"));
+
 	return new_array;
 }
 
@@ -752,11 +642,12 @@ void * reallocate_array(void * array, int size, size_t element_size)
  *    Copies skelfile or skel array to stdout until a line beginning with
  *    "%%" or EOF is found.
  */
-void skelout()
+void skelout(void)
 {
 	char buf_storage[MAXLINE];
-	char * buf = buf_storage;
+	char   * buf = buf_storage;
 	bool do_copy = true;
+
 	/* "reset" the state by clearing the buffer and pushing a '1' */
 	if(sko_len > 0)
 		sko_peek(&do_copy);
@@ -767,25 +658,28 @@ void skelout()
 	 * one, or from the skel[] array.
 	 */
 	while(skelfile ?
-	      (fgets(buf, MAXLINE, skelfile) != NULL) :
-	      ((buf = (char *)skel[skel_ind++]) != 0)) {
+	    (fgets(buf, MAXLINE, skelfile) != NULL) :
+	    ((buf = (char*)skel[skel_ind++]) != 0)) {
 		if(skelfile)
 			chomp(buf);
+
 		/* copy from skel array */
 		if(buf[0] == '%') {     /* control line */
 			/* print the control line as a comment. */
 			if(ddebug && buf[1] != '#') {
-				if(buf[strlen(buf)-1] == '\\')
+				if(buf[strlen(buf) - 1] == '\\')
 					out_str("/* %s */\\\n", buf);
 				else
 					out_str("/* %s */\n", buf);
 			}
+
 			/* We've been accused of using cryptic markers in the skel.
 			 * So we'll use emacs-style-hyphenated-commands.
 			 * We might consider a hash if this if-else-if-else
 			 * chain gets too large.
 			 */
 #define cmd_match(s) (strncmp(buf, (s), strlen(s))==0)
+
 			if(buf[1] == '%') {
 				/* %% is a break point for skelout() */
 				return;
@@ -795,14 +689,14 @@ void skelout()
 				if(ddebug) {
 					out_str("/*(state = (%s) */", do_copy ? "true" : "false");
 				}
-				out_str("%s\n", buf[strlen(buf)-1] =='\\' ? "\\" : "");
+				out_str("%s\n", buf[strlen(buf) - 1] =='\\' ? "\\" : "");
 			}
 			else if(cmd_match(CMD_POP)) {
 				sko_pop(&do_copy);
 				if(ddebug) {
 					out_str("/*(state = (%s) */", do_copy ? "true" : "false");
 				}
-				out_str("%s\n", buf[strlen(buf)-1] =='\\' ? "\\" : "");
+				out_str("%s\n", buf[strlen(buf) - 1] =='\\' ? "\\" : "");
 			}
 			else if(cmd_match(CMD_IF_REENTRANT)) {
 				sko_push(do_copy);
@@ -828,11 +722,11 @@ void skelout()
 			}
 			else if(cmd_match(CMD_TABLES_YYDMAP)) {
 				if(tablesext && yydmap_buf.elts)
-					outn((char *)(yydmap_buf.elts));
+					outn((char*)(yydmap_buf.elts));
 			}
 			else if(cmd_match(CMD_DEFINE_YYTABLES)) {
 				out_str("#define YYTABLES_NAME \"%s\"\n",
-					tablesname ? tablesname : "yytables");
+				    tablesname ? tablesname : "yytables");
 			}
 			else if(cmd_match(CMD_IF_CPP_ONLY)) {
 				/* only for C++ */
@@ -857,9 +751,6 @@ void skelout()
 				/* %e end linkage-only code. */
 				OUT_END_CODE();
 			}
-			else if(buf[1] == '#') {
-				/* %# a comment in the skel. ignore. */
-			}
 			else {
 				flexfatal(_("bad line in skeleton file"));
 			}
@@ -881,56 +772,49 @@ void transition_struct_out(int element_v, int element_n)
 	/* short circuit any output */
 	if(!gentables)
 		return;
+
 	out_dec2(" {%4d,%4d },", element_v, element_n);
 
 	datapos += TRANS_STRUCT_PRINT_LENGTH;
-	if(datapos >= 79-TRANS_STRUCT_PRINT_LENGTH) {
+
+	if(datapos >= 79 - TRANS_STRUCT_PRINT_LENGTH) {
 		outc('\n');
-		if(++dataline%10 == 0)
+
+		if(++dataline % 10 == 0)
 			outc('\n');
+
 		datapos = 0;
 	}
 }
 
 /* The following is only needed when building flex's parser using certain
  * broken versions of bison.
+ *
+ * XXX: this is should go soon
  */
 void * yy_flex_xmalloc(int size)
 {
-	void * result = flex_alloc((size_t)size);
+	void   * result = malloc((size_t)size);
 	if(!result)
 		flexfatal(_("memory allocation failed in yy_flex_xmalloc()"));
 	return result;
 }
 
-/* zero_out - set a region of memory to 0
- *
- * Sets region_ptr[0] through region_ptr[size_in_bytes - 1] to zero.
- */
-
-void zero_out(char * region_ptr, size_t size_in_bytes)
-{
-	register char * rp = region_ptr;
-	register char * rp_end = region_ptr+size_in_bytes;
-	while(rp < rp_end)
-		*rp++ = 0;
-}
-
 /* Remove all '\n' and '\r' characters, if any, from the end of str.
  * str can be any null-terminated string, or NULL.
  * returns str. */
-char * chomp(char * str)
+/* char * chomp(char * str)
 {
-	char * p = str;
-	if(!str || !*str)       /* s is null or empty string */
+	char   * p = str;
+	if(!str || !*str) // s is null or empty string 
 		return str;
-	/* find end of string minus one */
+	// find end of string minus one 
 	while(*p)
 		++p;
 	--p;
-
-	/* eat newlines */
+	// eat newlines 
 	while(p >= str && (*p == '\r' || *p == '\n'))
 		*p-- = 0;
 	return str;
-}
+}*/
+

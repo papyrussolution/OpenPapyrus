@@ -6,10 +6,8 @@
 //
 // PPObjBrowser
 //
-PPObjBrowser::PPObjBrowser(uint rezID, DBQuery * q, PPObject * pObj, uint _flags, long _extra) : BrowserWindow(rezID, q)
+PPObjBrowser::PPObjBrowser(uint rezID, DBQuery * q, PPObject * pObj, uint _flags, void * extraPtr) : BrowserWindow(rezID, q), flags(_flags), ExtraPtr(extraPtr)
 {
-	flags = _flags;
-	extra = _extra;
 	SetPPObjPtr(pObj);
 }
 
@@ -44,20 +42,20 @@ IMPL_HANDLE_EVENT(PPObjBrowser)
 	if(TVCOMMAND) {
 		switch(TVCMD) {
 			case cmaInsert:
-				if((flags & OLW_CANINSERT) && ppobj->Edit(&(id = 0), (void *)extra) == cmOK)
+				if((flags & OLW_CANINSERT) && ppobj->Edit(&(id = 0), ExtraPtr) == cmOK)
 					updateView();
 				clearEvent(event);
 				break;
 			case cmaEdit:
 				if(flags & OLW_CANEDIT) {
-					if((id = currID()) != 0 && ppobj->Edit(&id, (void *)extra) == cmOK)
+					if((id = currID()) != 0 && ppobj->Edit(&id, ExtraPtr) == cmOK)
 						updateView();
 					clearEvent(event);
 				}
 				break;
 			case cmaDelete:
 				if(flags & OLW_CANDELETE) {
-					if((id = currID()) != 0 && ppobj->RemoveObjV(id, 0, PPObject::rmv_default, (void *)extra) > 0)
+					if((id = currID()) != 0 && ppobj->RemoveObjV(id, 0, PPObject::rmv_default, ExtraPtr) > 0)
 						updateView();
 					clearEvent(event);
 				}
@@ -299,10 +297,8 @@ int PPObjListWindow::Transmit(PPID)
 //
 // PPListDialog
 //
-SLAPI PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialog(rezID)
+SLAPI PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialog(rezID), ctlList(aCtlList), Options(0)
 {
-	ctlList = aCtlList;
-	Options = 0;
 	if(flags & fOnDblClkOk)
 		Options |= oOnDblClkOk;
 	if(getCtrlView(STDCTL_OKBUTTON))

@@ -332,7 +332,7 @@ int BankingOrderDialog::setupPerson(int payerOrRcvr, PPID personID, PPID * pBnkA
 		person_ctl = CTLSEL_BNKPAYM_RCVR;
 		bacc_ctl   = CTLSEL_BNKPAYM_RCVRACC;
 	}
-	PPID   bacc_id = pBnkAcctID ? *pBnkAcctID : 0L;
+	PPID   bacc_id = DEREFPTRORZ(pBnkAcctID);
 	PsnObj.GetSingleBnkAcct(personID, 0, &bacc_id, 0);
 	setCtrlData(person_ctl, &personID);
 	// @v9.0.4 SetupPPObjCombo(this, bacc_ctl, PPOBJ_BACCT, bacc_id, OLW_CANINSERT, (void *)personID);

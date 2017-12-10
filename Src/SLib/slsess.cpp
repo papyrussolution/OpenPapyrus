@@ -672,9 +672,8 @@ int SLAPI SlSession::IsThereDragndropObj(void ** ppObj)
 	return type;
 }
 
-SLAPI SGlobalSecureConfig::SGlobalSecureConfig()
+SLAPI SGlobalSecureConfig::SGlobalSecureConfig() : Flags(0)
 {
-	Flags = 0;
 }
 
 int SLAPI SGlobalSecureConfig::IsEmpty() const

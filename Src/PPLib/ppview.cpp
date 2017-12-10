@@ -81,7 +81,7 @@ int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** pp
 {
 	int    ok = 1;
 	PPView * p_v = 0;
-	int32  srv_inst_id = pSrvInstId ? *pSrvInstId : 0;
+	int32  srv_inst_id = DEREFPTRORZ(pSrvInstId);
 	PPThreadLocalArea & tla = DS.GetTLA();
 	if(srv_inst_id) {
 		p_v = tla.GetPPViewPtr(srv_inst_id);
@@ -421,12 +421,9 @@ IMPL_INVARIANT_C(PPBaseFilt)
 //static
 const char * PPBaseFilt::P_TextSignature = "#TFD";
 
-SLAPI PPBaseFilt::PPBaseFilt(long signature, long capability, int32 ver) : BranchList(sizeof(Branch))
+SLAPI PPBaseFilt::PPBaseFilt(long signature, long capability, int32 ver) : BranchList(sizeof(Branch)),
+	Signature(signature), Capability(capability), Ver(ver), FlatOffs(0), FlatSize(0)
 {
-	Signature = signature;
-	Capability = capability;
-	Ver = ver;
-	FlatOffs = FlatSize = 0;
 }
 
 SLAPI PPBaseFilt::~PPBaseFilt()
@@ -435,8 +432,7 @@ SLAPI PPBaseFilt::~PPBaseFilt()
 		const Branch * p_b = (Branch *)BranchList.at(i);
 		if(p_b->Type == Branch::tBaseFiltPtr) {
 			PPBaseFilt ** pp_filt = (PPBaseFilt**)(((const uint8 *)this) + p_b->Offs);
-			if(*pp_filt)
-				ZDELETE(*pp_filt);
+			ZDELETEFAST(*pp_filt);
 		}
 	}
 	Signature = 0; // @v6.0.9 Очищаем сигнатуру для того, чтобы можно было идентифицировать
@@ -463,15 +459,15 @@ int SLAPI PPBaseFilt::PutObjMembListToBuf(PPID objType, const ObjIdListFilt * pL
 	int    ok = -1;
 	if(pList && !pList->IsEmpty()) {
 		const PPIDArray & r_list = pList->Get();
-		uint count = r_list.getCount();
-		if(count) {
+		const uint _count = r_list.getCount();
+		if(_count) {
 			SString buf, obj_name;
-			for(uint i = 0; i < count; i++) {
+			for(uint i = 0; i < _count; i++) {
 				PPID obj_id = r_list.at(i);
-				obj_name = 0;
+				obj_name.Z();
 				if(obj_id && GetObjectName(objType, obj_id, obj_name) > 0)
 					buf.Cat(obj_name);
-				if(i != count-1)
+				if(i != _count-1)
 					buf.Comma();
 			}
 			PutMembToBuf((const char*)buf, pMembName, rBuf);
@@ -879,7 +875,8 @@ int SLAPI PPBaseFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 
 int SLAPI PPBaseFilt::Read(SBuffer & rBuf, long extraParam)
 {
-	uint16 flat_offs = FlatOffs, flat_size = FlatSize;
+	const uint16 flat_offs = FlatOffs;
+	const uint16 flat_size = FlatSize;
 	int    ok = 1;
 	//
 	// В случае ошибки считывания необходимо будет восстановить оригинальные значения Ver, Signature и Capability
@@ -1136,20 +1133,9 @@ int SLAPI PPBaseFilt::IsEmpty() const
 //
 #define SIGN_PPVIEW 0x099A099BUL
 
-SLAPI PPView::PPView(PPObject * pObj, PPBaseFilt * pBaseFilt, int viewId) : P_Obj(pObj)
+SLAPI PPView::PPView(PPObject * pObj, PPBaseFilt * pBaseFilt, int viewId) : P_Obj(pObj), Sign(SIGN_PPVIEW), ExecFlags(0), ServerInstId(0), 
+	ViewId(viewId), BaseState(0), ExtToolbarId(0), P_IterQuery(0), P_Ct(0), P_F(pBaseFilt), ImplementFlags(0), DefReportId(0), P_LastUpdatedObjects(0)
 {
-	Sign = SIGN_PPVIEW;
-	ExecFlags = 0;
-	ServerInstId = 0;
-	ViewId = viewId;
-	BaseState = 0;
-	ExtToolbarId = 0;
-	P_IterQuery = 0;
-	P_Ct = 0;
-	P_F = pBaseFilt;
-	ImplementFlags = 0;
-	DefReportId = 0;
-	P_LastUpdatedObjects = 0;
 	if(ViewId) {
 		Rc rc;
 		if(PPView::LoadResource(0, ViewId, rc)) {
@@ -1283,10 +1269,7 @@ int SLAPI PPView::Destroy(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 	int    ok = 1;
 	int32  inst_id = 0;
 	THROW_SL(rCmd.Read(inst_id));
-	PPView * p_v = DS.GetTLA().GetPPViewPtr(inst_id);
-	if(p_v) {
-		delete p_v;
-	}
+	delete DS.GetTLA().GetPPViewPtr(inst_id);
 	rReply.SetAck();
 	CATCHZOK
 	return ok;
@@ -1856,25 +1839,15 @@ int SLAPI PPView::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pC
 //
 //
 //
-PPViewBrowser::PPViewBrowser(uint brwId, DBQuery * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ), RefreshTimer(0)
+PPViewBrowser::PPViewBrowser(uint brwId, DBQuery * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ), RefreshTimer(0),
+	P_View(pV), IsDataOwner(dataOwner), P_ComboBox(0), P_InputLine(0), H_ComboFont(0), KBF10(0)
 {
-	P_View = pV;
-	IsDataOwner = dataOwner;
-	P_ComboBox  = 0;
-	P_InputLine = 0;
-	H_ComboFont = 0; // @v9.0.6 @fix
-	KBF10 = 0;
 	Advise();
 }
 
-PPViewBrowser::PPViewBrowser(uint brwId, SArray * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ), RefreshTimer(0)
+PPViewBrowser::PPViewBrowser(uint brwId, SArray * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ), RefreshTimer(0),
+	P_View(pV), IsDataOwner(dataOwner), P_ComboBox(0), P_InputLine(0), H_ComboFont(0), KBF10(0)
 {
-	P_View = pV;
-	IsDataOwner = dataOwner;
-	KBF10 = 0;
-	P_ComboBox = 0;
-	P_InputLine = 0;
-	H_ComboFont = 0;
 	Advise();
 }
 
@@ -2128,8 +2101,7 @@ int PPViewBrowser::Export()
 
 int PPViewBrowser::GetToolbarComboData(PPID * pID)
 {
-	if(P_ComboBox)
-		P_ComboBox->TransmitData(-1, pID);
+	CALLPTRMEMB(P_ComboBox, TransmitData(-1, pID));
 	return 1;
 }
 

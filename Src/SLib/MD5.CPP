@@ -64,7 +64,6 @@ void S_MD5::reverse_u32(uint8 * buf, int n_u32)
 S_MD5::S_MD5()
 {
 	m_buf[0] = 0x01020304;
-
 	/*
 	 * Little endian = { 4, 3, 2, 1 }
 	 * Big endian    = { 1, 2, 3, 4 }
@@ -72,7 +71,6 @@ S_MD5::S_MD5()
 	 *
 	 * The MD5 stuff is written for little endian.
 	 */
-
 	m_need_byteswap = *(uint8 *)m_buf != 4;
 	m_big_endian    = *(uint8 *)m_buf == 1;
 }

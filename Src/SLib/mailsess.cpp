@@ -35,11 +35,8 @@ MailSession::MailSession(SOCKET s, struct sockaddr_in r)
 	clisock = s;
 }
 
-MailSession::MailSession(const char * dest, int port, int timeout)
+MailSession::MailSession(const char * dest, int port, int timeout) : P_Buf(0), BufSize(0), RealBufSize(0), Timeout(DEF_TIMEOUT)
 {
-	P_Buf = 0;
-	BufSize = RealBufSize = 0;
-	Timeout = DEF_TIMEOUT;
 	if(timeout)
 		Timeout = timeout;
 	HOSTENT * p_host = gethostbyname(dest);
@@ -249,10 +246,8 @@ int MailSession::getLine(SString & rBuf)
 //
 //
 //
-SLAPI SMailClient::SMailClient()
+SLAPI SMailClient::SMailClient() : State(0), P_Pop3AuthSession(0)
 {
-	State = 0;
-	P_Pop3AuthSession = 0;
 }
 
 SLAPI SMailClient::~SMailClient()

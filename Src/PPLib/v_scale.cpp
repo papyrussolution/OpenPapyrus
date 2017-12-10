@@ -20,10 +20,9 @@ ScaleFilt & FASTCALL ScaleFilt::operator = (const ScaleFilt & s)
 	return *this;
 }
 
-PPViewScale::PPViewScale() : PPView(&ObjScale, &Filt, PPVIEW_SCALE)
+PPViewScale::PPViewScale() : PPView(&ObjScale, &Filt, PPVIEW_SCALE), P_TempTbl(0)
 {
 	ImplementFlags |= PPView::implDontEditNullFilter;
-	P_TempTbl = 0;
 	PPLoadText(PPTXT_SCLT, ScaleTypeNames);
 }
 

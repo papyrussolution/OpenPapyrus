@@ -35,9 +35,8 @@ PriceAnlzFilt & FASTCALL PriceAnlzFilt::operator = (const PriceAnlzFilt & s)
 //
 //
 //
-SLAPI PPViewPriceAnlz::PPViewPriceAnlz() : PPView(0, &Filt)
+SLAPI PPViewPriceAnlz::PPViewPriceAnlz() : PPView(0, &Filt), P_TempTbl(0)
 {
-	P_TempTbl = 0;
 	DefReportId = REPORT_PRICEANLZ;
 }
 
@@ -378,9 +377,8 @@ int SLAPI PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 	{
 		class PriceAnlzCrosstab : public Crosstab {
 		public:
-			SLAPI PriceAnlzCrosstab(PPViewPriceAnlz * pV) : Crosstab()
+			SLAPI PriceAnlzCrosstab(PPViewPriceAnlz * pV) : Crosstab(), P_V(pV)
 			{
-				P_V = pV;
 			}
 			virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 			{

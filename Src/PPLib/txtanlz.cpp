@@ -2450,7 +2450,7 @@ int SLAPI PrcssrObjText::Run()
 				c++;
 				(text_buf = goods_rec.Name).ToLower().Transf(CTRANSF_INNER_TO_OUTER);
 				Ta.Reset(0);
-				oi.Set(PPOBJ_GOODS, goods_rec.ID).ToStr(0, resource_buf);
+				oi.Set(PPOBJ_GOODS, goods_rec.ID).ToStr(resource_buf);
 				THROW(r = Ta.ProcessString(*P_Rpl, resource_buf, text_buf, result_buf, &fb, 0/*&outf*/));
 				if(LogF.IsValid()) {
 					(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
@@ -2500,7 +2500,7 @@ int SLAPI PrcssrObjText::Run()
 					PPID psn_id = id_list.get(i);
 					if(psn_obj.Search(psn_id, &psn_rec) > 0){
 						(text_buf = psn_rec.Name).ToLower().Transf(CTRANSF_INNER_TO_OUTER);
-						oi.Set(PPOBJ_PERSON, psn_id).ToStr(0, resource_buf);
+						oi.Set(PPOBJ_PERSON, psn_id).ToStr(resource_buf);
 						THROW(r = Ta.ProcessString(*P_Rpl, resource_buf, text_buf, result_buf, &fb, 0));
 						if(LogF.IsValid()) {
 							(temp_buf = psn_item.Name).Transf(CTRANSF_INNER_TO_OUTER);

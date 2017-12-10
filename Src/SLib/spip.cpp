@@ -1,5 +1,5 @@
 // SPIP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016, 2017
 // Program Interface Paradigm
 //
 #include <slib.h>
@@ -40,70 +40,81 @@ void S_GUID::SetZero()
 	memzero(Data, sizeof(Data));
 }
 
-static char * format_uuid_part(const uint8 * pData, size_t numBytes, char * pBuf)
+static char * format_uuid_part(const uint8 * pData, size_t numBytes, int useLower, char * pBuf)
 {
-	if(numBytes == 2)
-		sprintf(pBuf, "%04X", *(uint16*)pData);
-	else if(numBytes == 4)
-		sprintf(pBuf, "%08X", *(uint32*)pData);
-	else if(numBytes == 1)
-		sprintf(pBuf, "%02X", *pData);
+	if(useLower)
+		switch(numBytes) {
+			case 2: sprintf(pBuf, "%04x", *(uint16*)pData); break;
+			case 4: sprintf(pBuf, "%08x", *(uint32*)pData); break;
+			case 1: sprintf(pBuf, "%02x", *pData); break;
+		}
+	else
+		switch(numBytes) {
+			case 2:	sprintf(pBuf, "%04X", *(uint16*)pData); break;
+			case 4: sprintf(pBuf, "%08X", *(uint32*)pData); break;
+			case 1: sprintf(pBuf, "%02X", *pData); break;
+		}
 	return pBuf;
 }
 
-SString & S_GUID::ToStr(long fmt, SString & rBuf) const
+SString & S_GUID::ToStr(long fmt__, SString & rBuf) const
 {
 	char   temp_buf[64];
 	uint   i;
+	const  int use_lower = BIN(fmt__ & fmtLower);
 	const uint8 * p_data = (const uint8 *)Data;
 	rBuf.Z();
-	if(fmt == fmtIDL) {
-		rBuf.Cat(format_uuid_part(p_data, 4, temp_buf)).CatChar('-');
-		p_data += 4;
-		rBuf.Cat(format_uuid_part(p_data, 2, temp_buf)).CatChar('-');
-		p_data += 2;
-		rBuf.Cat(format_uuid_part(p_data, 2, temp_buf)).CatChar('-');
-		p_data += 2;
-		for(i = 0; i < 2; i++) {
-			rBuf.Cat(format_uuid_part(p_data, 1, temp_buf));
-			p_data++;
-		}
-		rBuf.CatChar('-');
-		for(i = 0; i < 6; i++) {
-			rBuf.Cat(format_uuid_part(p_data, 1, temp_buf));
-			p_data++;
-		}
-	}
-	else if(fmt == fmtPlain) {
-		rBuf.Cat(format_uuid_part(p_data, 4, temp_buf));
-		p_data += 4;
-		rBuf.Cat(format_uuid_part(p_data, 2, temp_buf));
-		p_data += 2;
-		rBuf.Cat(format_uuid_part(p_data, 2, temp_buf));
-		p_data += 2;
-		for(i = 0; i < 2; i++) {
-			rBuf.Cat(format_uuid_part(p_data, 1, temp_buf));
-			p_data++;
-		}
-		for(i = 0; i < 6; i++) {
-			rBuf.Cat(format_uuid_part(p_data, 1, temp_buf));
-			p_data++;
-		}
-	}
-	else if(fmt == fmtC) {
-		const char * ox = "0x";
-		rBuf.Cat(ox).Cat(format_uuid_part(p_data, 4, temp_buf)).Comma();
-		p_data += 4;
-		rBuf.Cat(ox).Cat(format_uuid_part(p_data, 2, temp_buf)).Comma();
-		p_data += 2;
-		rBuf.Cat(ox).Cat(format_uuid_part(p_data, 2, temp_buf)).Comma();
-		p_data += 2;
-		for(uint i = 0; i < 8; i++) {
-			rBuf.Cat(ox).Cat(format_uuid_part(p_data, 1, temp_buf));
-			if(i < 7)
-				rBuf.Comma();
-			p_data++;
-		}
+	switch(fmt__ & ~fmtLower) {
+		case fmtIDL:
+			rBuf.Cat(format_uuid_part(p_data, 4, use_lower, temp_buf)).CatChar('-');
+			p_data += 4;
+			rBuf.Cat(format_uuid_part(p_data, 2, use_lower, temp_buf)).CatChar('-');
+			p_data += 2;
+			rBuf.Cat(format_uuid_part(p_data, 2, use_lower, temp_buf)).CatChar('-');
+			p_data += 2;
+			for(i = 0; i < 2; i++) {
+				rBuf.Cat(format_uuid_part(p_data, 1, use_lower, temp_buf));
+				p_data++;
+			}
+			rBuf.CatChar('-');
+			for(i = 0; i < 6; i++) {
+				rBuf.Cat(format_uuid_part(p_data, 1, use_lower, temp_buf));
+				p_data++;
+			}
+			break;
+		case fmtPlain:
+			rBuf.Cat(format_uuid_part(p_data, 4, use_lower, temp_buf));
+			p_data += 4;
+			rBuf.Cat(format_uuid_part(p_data, 2, use_lower, temp_buf));
+			p_data += 2;
+			rBuf.Cat(format_uuid_part(p_data, 2, use_lower, temp_buf));
+			p_data += 2;
+			for(i = 0; i < 2; i++) {
+				rBuf.Cat(format_uuid_part(p_data, 1, use_lower, temp_buf));
+				p_data++;
+			}
+			for(i = 0; i < 6; i++) {
+				rBuf.Cat(format_uuid_part(p_data, 1, use_lower, temp_buf));
+				p_data++;
+			}
+			break;
+		case fmtC:
+			{
+				const char * ox = "0x";
+				rBuf.Cat(ox).Cat(format_uuid_part(p_data, 4, use_lower, temp_buf)).Comma();
+				p_data += 4;
+				rBuf.Cat(ox).Cat(format_uuid_part(p_data, 2, use_lower, temp_buf)).Comma();
+				p_data += 2;
+				rBuf.Cat(ox).Cat(format_uuid_part(p_data, 2, use_lower, temp_buf)).Comma();
+				p_data += 2;
+				for(uint i = 0; i < 8; i++) {
+					rBuf.Cat(ox).Cat(format_uuid_part(p_data, 1, use_lower, temp_buf));
+					if(i < 7)
+						rBuf.Comma();
+					p_data++;
+				}
+			}
+			break;
 	}
 	return rBuf;
 }

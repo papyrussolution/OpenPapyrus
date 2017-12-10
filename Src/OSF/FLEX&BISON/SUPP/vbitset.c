@@ -84,19 +84,16 @@ static bitset_bindex vbitset_resize(bitset src, bitset_bindex n_bits)
 		memset(VBITSET_WORDS(src) + oldsize, 0, (newsize - oldsize) * sizeof(bitset_word));
 		VBITSET_SIZE(src) = newsize;
 	}
-	else{
+	else {
 		/* The bitset needs to shrink.  There's no point deallocating
 		   the memory unless it is shrinking by a reasonable amount.  */
 		if((oldsize - newsize) >= oldsize / 2) {
 			VBITSET_WORDS(src) = (bitset_word *)realloc(VBITSET_WORDS(src), newsize * sizeof(bitset_word));
 			VBITSET_ASIZE(src) = newsize;
 		}
-
 		/* Need to prune any excess bits.  FIXME.  */
-
 		VBITSET_SIZE(src) = newsize;
 	}
-
 	BITSET_NBITS_(src) = n_bits;
 	return n_bits;
 }
@@ -110,18 +107,20 @@ static void vbitset_set(bitset dst, bitset_bindex bitno)
 	   bit larger than the current size but smaller than the allocated
 	   size.  */
 	vbitset_resize(dst, bitno);
-	dst->b.cdata[windex - dst->b.cindex] |= (bitset_word)1 << (bitno % BITSET_WORD_BITS);
+
+	dst->b.cdata[windex - dst->b.cindex] |=
+	    (bitset_word)1 << (bitno % BITSET_WORD_BITS);
 }
 
 /* Reset bit BITNO in bitset DST.  */
-static void vbitset_reset(bitset dst ATTRIBUTE_UNUSED, bitset_bindex bitno ATTRIBUTE_UNUSED)
+static void vbitset_reset(bitset dst, bitset_bindex bitno)
 {
 	/* We must be accessing outside the cache so the bit is
 	   zero anyway.  */
 }
 
 /* Test bit BITNO in bitset SRC.  */
-static bool vbitset_test(bitset src ATTRIBUTE_UNUSED, bitset_bindex bitno ATTRIBUTE_UNUSED)
+static bool vbitset_test(bitset src, bitset_bindex bitno)
 {
 	/* We must be accessing outside the cache so the bit is
 	   zero anyway.  */
@@ -272,7 +271,8 @@ static bitset_bindex vbitset_list(bitset src, bitset_bindex * list, bitset_binde
 /* Ensure that any unused bits within the last word are clear.  */
 static void vbitset_unused_clear(bitset dst)
 {
-	unsigned int last_bit = BITSET_SIZE_(dst) % BITSET_WORD_BITS;
+	unsigned int last_bit;
+	last_bit = BITSET_SIZE_(dst) % BITSET_WORD_BITS;
 	if(last_bit)
 		VBITSET_WORDS(dst)[VBITSET_SIZE(dst) - 1] &= ((bitset_word)1 << last_bit) - 1;
 }
@@ -280,7 +280,8 @@ static void vbitset_unused_clear(bitset dst)
 static void vbitset_ones(bitset dst)
 {
 	bitset_word * dstp = VBITSET_WORDS(dst);
-	unsigned int bytes = sizeof(bitset_word) * VBITSET_SIZE(dst);
+	unsigned int bytes;
+	bytes = sizeof(bitset_word) * VBITSET_SIZE(dst);
 	memset(dstp, -1, bytes);
 	vbitset_unused_clear(dst);
 }
@@ -468,17 +469,21 @@ static bool vbitset_and_cmp(bitset dst, bitset src1, bitset src2)
 			*dstp = tmp;
 		}
 	}
+
 	if(ssize2 > ssize1) {
 		src1p = src2p;
 		ssize1 = ssize2;
 	}
+
 	for(; i < ssize1; i++, dstp++) {
 		if(*dstp != 0) {
 			changed = 1;
 			*dstp = 0;
 		}
 	}
+
 	memset(dstp, 0, sizeof(bitset_word) * (dsize - ssize1));
+
 	return changed;
 }
 
@@ -963,7 +968,7 @@ struct bitset_vtable vbitset_vtable = {
 	BITSET_VARRAY
 };
 
-size_t vbitset_bytes(bitset_bindex n_bits ATTRIBUTE_UNUSED)
+size_t vbitset_bytes(bitset_bindex n_bits)
 {
 	return sizeof(bitset_union::vbitset_struct);
 }

@@ -23,60 +23,63 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+#ifndef SIZE_MAX
+    #ifdef _WIN64
+        #define SIZE_MAX _UI64_MAX
+    #else
+        #define SIZE_MAX UINT_MAX
+    #endif
+#endif
+
 #ifdef UINT64_MAX
 /* Given an unsigned 64-bit argument X, return the value corresponding
    to rotating the bits N steps to the left.  N must be between 1 and
    63 inclusive. */
-static uint64_t
-rotl64 (uint64_t x, int n)
+static uint64_t rotl64(uint64_t x, int n)
 {
-  return ((x << n) | (x >> (64 - n))) & UINT64_MAX;
+	return ((x << n) | (x >> (64 - n))) & UINT64_MAX;
 }
 
 /* Given an unsigned 64-bit argument X, return the value corresponding
    to rotating the bits N steps to the right.  N must be between 1 to
    63 inclusive.*/
-static uint64_t
-rotr64 (uint64_t x, int n)
+static uint64_t rotr64(uint64_t x, int n)
 {
-  return ((x >> n) | (x << (64 - n))) & UINT64_MAX;
+	return ((x >> n) | (x << (64 - n))) & UINT64_MAX;
 }
+
 #endif
 
 /* Given an unsigned 32-bit argument X, return the value corresponding
    to rotating the bits N steps to the left.  N must be between 1 and
    31 inclusive. */
-static uint32_t
-rotl32 (uint32_t x, int n)
+static uint32_t rotl32(uint32_t x, int n)
 {
-  return ((x << n) | (x >> (32 - n))) & UINT32_MAX;
+	return ((x << n) | (x >> (32 - n))) & 0xffffffffU;
 }
 
 /* Given an unsigned 32-bit argument X, return the value corresponding
    to rotating the bits N steps to the right.  N must be between 1 to
    31 inclusive.*/
-static uint32_t
-rotr32 (uint32_t x, int n)
+static uint32_t rotr32(uint32_t x, int n)
 {
-  return ((x >> n) | (x << (32 - n))) & UINT32_MAX;
+	return ((x >> n) | (x << (32 - n))) & 0xffffffffU;
 }
 
 /* Given a size_t argument X, return the value corresponding
    to rotating the bits N steps to the left.  N must be between 1 and
    (CHAR_BIT * sizeof (size_t) - 1) inclusive.  */
-static size_t
-rotl_sz (size_t x, int n)
+static size_t rotl_sz(size_t x, int n)
 {
-  return ((x << n) | (x >> ((CHAR_BIT * sizeof x) - n))) & SIZE_MAX;
+	return ((x << n) | (x >> ((CHAR_BIT * sizeof x) - n))) & SIZE_MAX;
 }
 
 /* Given a size_t argument X, return the value corresponding
    to rotating the bits N steps to the right.  N must be between 1 to
    (CHAR_BIT * sizeof (size_t) - 1) inclusive.  */
-static size_t
-rotr_sz (size_t x, int n)
+static size_t rotr_sz(size_t x, int n)
 {
-  return ((x >> n) | (x << ((CHAR_BIT * sizeof x) - n))) & SIZE_MAX;
+	return ((x >> n) | (x << ((CHAR_BIT * sizeof x) - n))) & SIZE_MAX;
 }
 
 /* Given an unsigned 16-bit argument X, return the value corresponding
@@ -84,10 +87,9 @@ rotr_sz (size_t x, int n)
    15 inclusive, but on most relevant targets N can also be 0 and 16
    because 'int' is at least 32 bits and the arguments must widen
    before shifting. */
-static uint16_t
-rotl16 (uint16_t x, int n)
+static uint16_t rotl16(uint16_t x, int n)
 {
-  return ((x << n) | (x >> (16 - n))) & UINT16_MAX;
+	return ((x << n) | (x >> (16 - n))) & 0xffffU;
 }
 
 /* Given an unsigned 16-bit argument X, return the value corresponding
@@ -95,10 +97,9 @@ rotl16 (uint16_t x, int n)
    inclusive, but on most relevant targets N can also be 0 and 16
    because 'int' is at least 32 bits and the arguments must widen
    before shifting. */
-static uint16_t
-rotr16 (uint16_t x, int n)
+static uint16_t rotr16(uint16_t x, int n)
 {
-  return ((x >> n) | (x << (16 - n))) & UINT16_MAX;
+	return ((x >> n) | (x << (16 - n))) & 0xffffU;
 }
 
 /* Given an unsigned 8-bit argument X, return the value corresponding
@@ -106,10 +107,9 @@ rotr16 (uint16_t x, int n)
    inclusive, but on most relevant targets N can also be 0 and 8
    because 'int' is at least 32 bits and the arguments must widen
    before shifting. */
-static uint8_t
-rotl8 (uint8_t x, int n)
+static uint8_t rotl8(uint8_t x, int n)
 {
-  return ((x << n) | (x >> (8 - n))) & UINT8_MAX;
+	return ((x << n) | (x >> (8 - n))) & 0xffU;
 }
 
 /* Given an unsigned 8-bit argument X, return the value corresponding
@@ -117,10 +117,9 @@ rotl8 (uint8_t x, int n)
    inclusive, but on most relevant targets N can also be 0 and 8
    because 'int' is at least 32 bits and the arguments must widen
    before shifting. */
-static uint8_t
-rotr8 (uint8_t x, int n)
+static uint8_t rotr8(uint8_t x, int n)
 {
-  return ((x >> n) | (x << (8 - n))) & UINT8_MAX;
+	return ((x >> n) | (x << (8 - n))) & 0xffU;
 }
 
 #endif /* _GL_BITROTATE_H */

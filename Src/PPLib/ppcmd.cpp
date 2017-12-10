@@ -2934,8 +2934,8 @@ IMPLEMENT_CMD_HDL_FACTORY(UNIFYGOODSPRICE);
 //
 //
 //
-int SLAPI WriteParam(SBuffer & rBuf, const void * pParam, size_t paramSize); // @prototype(ppjob.cpp)
-int SLAPI ReadParam(SBuffer & rBuf, void * pParam, size_t paramSize);  // @prototype(ppjob.cpp)
+int SLAPI FASTCALL WriteParam(SBuffer & rBuf, const void * pParam, size_t paramSize); // @prototype(ppjob.cpp)
+int SLAPI FASTCALL ReadParam(SBuffer & rBuf, void * pParam, size_t paramSize);  // @prototype(ppjob.cpp)
 
 class CMD_HDL_CLS(TESTPREDICTSALESTBL) : public PPCommandHandler {
 public:

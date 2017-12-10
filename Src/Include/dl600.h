@@ -19,8 +19,8 @@ enum DlOperator {
 	dlopEq          = '8',
 	dlopNeq         = '9',
 	dlopConvert     = 'B',
-	dlopAdd         = 'H',
-	dlopSub         = 'G',
+	dlopAdd         = 'H', // +
+	dlopSub         = 'G', // -
 	dlopMul         = 'D',
 	dlopDiv         = 'K',
 	dlopMod         = 'L', // %
@@ -39,7 +39,7 @@ enum DlOperator {
 	dlopUnaryMinus  = '-',  // not msvs
 	dlopDot         = '.',  // not msvs
 	dlopQuest       = '?',  // not msvs
-	dlopObjRef      = '>'   // @v7.1.10 not msvs
+	dlopObjRef      = '>'   // not msvs
 };
 
 #define MANGLE_OP_CON  '0' // 'zero' constructor
@@ -432,9 +432,9 @@ public:
 	int    FASTCALL IsChildOf(const DlScope * pOwner) const;
 	int    SLAPI EnumChilds(uint * pIdx, DlScope ** ppScope) const;
 	int    SLAPI EnumInheritance(uint * pIdx, const DlScope ** ppScope) const;
-	int    SLAPI SetupTitle(uint kind, const char * pName);
+	void   SLAPI SetupTitle(uint kind, const char * pName);
 	int    SLAPI IsPrototype() const;
-	int    SLAPI ResetPrototypeFlag();
+	void   SLAPI ResetPrototypeFlag();
 	int    SLAPI GetQualif(DLSYMBID id, const char * pDiv, int inverse, SString & rBuf) const;
 
 	int    SLAPI SetDeclList(const StringSet * pSet);
@@ -472,7 +472,7 @@ public:
 	// Descr: Устанавливает атрибут Attr. Атрибут представлен флагом и, возможно, дополнительным
 	//   значением. Функция является аддитивной и, в общем случае, не коммутативной.
 	//
-	int    FASTCALL SetAttrib(const Attr &);
+	void   FASTCALL SetAttrib(const Attr &);
 	int    SLAPI GetAttrib(uint attrFlag /* DlScope::sfXXX */, Attr * pAttr) const;
 	//
 	// Descr: Добавляет константу, соответствующую идентификатору id в структуру ConstList.
@@ -873,7 +873,11 @@ public:
 	int    SLAPI AddConst(uint32 data, CtmExprConst * pResult);
 	int    SLAPI AddConst(int32 data, CtmExprConst * pResult);
 	int    SLAPI AddConst(int8 data, CtmExprConst * pResult);
+	int    SLAPI AddConst(int64 data, CtmExprConst * pResult);
+	int    SLAPI AddConst(int16 data, CtmExprConst * pResult);
+	int    SLAPI AddConst(float data, CtmExprConst * pResult);
 	int    SLAPI AddConst(double data, CtmExprConst * pResult);
+
 	int    SLAPI AddConst(LDATE data, CtmExprConst * pResult);
 	int    SLAPI AddConst(LTIME data, CtmExprConst * pResult);
 
@@ -1065,7 +1069,7 @@ private:
 	DLSYMBID CurScopeID; // Compile-time Область видимости, которая является текущий во время компиляции
 	DlMacro * P_M; // Compile-time
 	CtmFunc F_Dot; // Compile-time Функция '.' (что бы не тратить каждый раз время на ее определение)
-	CtmFunc F_Ref; // @v7.1.10 Compile-time Функция '@()' (что бы не тратить каждый раз время на ее определение)
+	CtmFunc F_Ref; // Compile-time Функция '@()' (что бы не тратить каждый раз время на ее определение)
 	SString InFileName;
 	SString CDeclFileName;
 	SString CImplFileName;
@@ -1167,6 +1171,10 @@ public:
 	virtual int  Set(long iterId, int commit);
 	virtual void Destroy(); // @v9.6.4 int-->void
 	virtual void EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS);
+	DlContext * GetContext() const
+	{
+		return P_Ctx;
+	}
 	const  DlScope * GetData() const
 	{
 		return P_Data;

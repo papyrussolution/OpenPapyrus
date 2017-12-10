@@ -968,7 +968,7 @@ int SLAPI SelectBillImpExpCfgs(PPBillImpExpParam * pBillParam, PPBillImpExpParam
 				PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_ACCTURN, PPOPT_GOODSORDER, 0L);
 			PPID   init_op_id = (pOpID && *pOpID) ? *pOpID : param.ImpOpID;
 			SetupOprKindCombo(p_dlg, CTLSEL_IEBILLSEL_OP, init_op_id, 0, &op_types, 0);
-			SetupPPObjCombo(p_dlg, CTLSEL_IEBILLSEL_LOC, PPOBJ_LOCATION, pLocID ? *pLocID : 0, 0, 0);
+			SetupPPObjCombo(p_dlg, CTLSEL_IEBILLSEL_LOC, PPOBJ_LOCATION, DEREFPTRORZ(pLocID), 0, 0);
 		}
 		else
 			p_dlg->disableCtrls(1, CTLSEL_IEBILLSEL_OP, CTLSEL_IEBILLSEL_LOC, 0L);

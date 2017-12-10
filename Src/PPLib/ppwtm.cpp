@@ -105,9 +105,8 @@ protected:
 
 IMPLEMENT_WTMOBJ_FACTORY(DrawFigure, "@wtmo_drawfigure");
 
-WhatmanObjectDrawFigure::WhatmanObjectDrawFigure(SDrawFigure * pFig) : TWhatmanObject("DrawFigure")
+WhatmanObjectDrawFigure::WhatmanObjectDrawFigure(SDrawFigure * pFig) : TWhatmanObject("DrawFigure"), P_Fig(pFig)
 {
-	P_Fig = pFig;
 	Options |= (oMovable | oResizable | oMultSelectable);
 	if(P_Fig) {
 		FPoint sz = P_Fig->GetSize();
@@ -116,9 +115,8 @@ WhatmanObjectDrawFigure::WhatmanObjectDrawFigure(SDrawFigure * pFig) : TWhatmanO
 	}
 }
 
-WhatmanObjectDrawFigure::WhatmanObjectDrawFigure(const char * pSymb) : TWhatmanObject(pSymb)
+WhatmanObjectDrawFigure::WhatmanObjectDrawFigure(const char * pSymb) : TWhatmanObject(pSymb), P_Fig(0)
 {
-	P_Fig = 0;
 	Options |= (oMovable | oResizable);
 }
 
@@ -252,11 +250,10 @@ private:
 
 IMPLEMENT_WTMOBJ_FACTORY(Background, "@wtmo_background");
 
-WhatmanObjectBackground::WhatmanObjectBackground() : WhatmanObjectDrawFigure("Background")
+WhatmanObjectBackground::WhatmanObjectBackground() : WhatmanObjectDrawFigure("Background"), BkgOptions(bkgoFull)
 {
 	Options &= ~(oMovable | oResizable);
 	Options |= oBackground;
-	BkgOptions = bkgoFull;
 }
 
 int FASTCALL WhatmanObjectBackground::Copy(const WhatmanObjectBackground & rS)
@@ -514,14 +511,11 @@ private:
 
 IMPLEMENT_WTMOBJ_FACTORY(Processor, "@wtmo_processor");
 
-WhatmanObjectProcessor::WhatmanObjectProcessor() : WhatmanObjectDrawFigure("Processor"), Tmr(30000)
+WhatmanObjectProcessor::WhatmanObjectProcessor() : WhatmanObjectDrawFigure("Processor"), Tmr(30000), PrcID(0), BusyStatus(0), AdvCookie(0)
 {
 	Options |= oSelectable;
-	PrcID = 0;
 	MEMSZERO(PrcRec);
-	BusyStatus = 0;
 	BusyDtm.SetZero();
-	AdvCookie = 0;
 	TextParam tp;
 	tp.Side = SIDE_BOTTOM;
 	tp.AlongSize = -1.0f;
@@ -977,17 +971,14 @@ int WhatmanObjectCafeTable::RefreshBusyStatus(int force)
 
 IMPLEMENT_WTMOBJ_FACTORY(CafeTable, "@wtmo_cafetable");
 
-WhatmanObjectCafeTable::WhatmanObjectCafeTable() : WhatmanObjectDrawFigure("CafeTable"), Tmr(30000)
+WhatmanObjectCafeTable::WhatmanObjectCafeTable() : WhatmanObjectDrawFigure("CafeTable"), Tmr(30000), TableNo(0), AdvCookie(0), P_Cto(0)
 {
 	Options |= oSelectable;
-	TableNo = 0;
-	AdvCookie = 0;
 	TextParam tp;
 	tp.Side = SIDE_BOTTOM;
 	tp.AlongSize = -1.0f;
 	tp.AcrossSize = 32.0f;
 	SetTextOptions(&tp);
-	P_Cto = 0;
 	//
 	PPAdviseBlock adv_blk;
 	adv_blk.Kind = PPAdviseBlock::evQuartz;
@@ -1161,11 +1152,9 @@ int WhatmanObjectCafeTable::HandleCommand(int cmd, void * pExt)
 //
 //
 PPWhatmanWindow::ToolObject::ToolObject(const char * pToolSymb, const TWhatmanToolArray * pTools, const TRect & rBounds) :
-	TWhatmanObject("Tool")
+	TWhatmanObject("Tool"), ToolSymb(pToolSymb), P_Tools(pTools)
 {
 	Options |= TWhatmanObject::oDraggable;
-	ToolSymb = pToolSymb;
-	P_Tools = pTools;
 	SetBounds(rBounds);
 	TextParam tp;
 	tp.Side = SIDE_BOTTOM;
@@ -1216,9 +1205,8 @@ int PPWhatmanWindow::ToolObject::GetTextLayout(STextLayout & rTlo, int options) 
 	return ok;
 }
 
-PPWhatmanWindow::ResizeState::ResizeState()
+PPWhatmanWindow::ResizeState::ResizeState() : P_MovedObjCopy(0)
 {
-	P_MovedObjCopy = 0;
 	Reset();
 }
 
@@ -2530,6 +2518,7 @@ int SLAPI ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt);
 void SLAPI TestSArchive();
 int  SLAPI TestLargeVlrInputOutput();
 void SLAPI Test_MailMsg_ReadFromFile();
+void SLAPI Test_MakeEmailMessage();
 int SLAPI PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, SUnicodeBlock & rBlk);
 
 int SLAPI DoConstructionTest()
@@ -2537,6 +2526,7 @@ int SLAPI DoConstructionTest()
 	int    ok = -1;
 #ifndef NDEBUG
 	//Test_MailMsg_ReadFromFile();
+	Test_MakeEmailMessage();
 #endif
 	//PPWhatmanWindow::Launch("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm");
 	//PPWhatmanWindow::Edit("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm", "D:/PAPYRUS/Src/PPTEST/DATA/test02.wta");
@@ -2550,6 +2540,7 @@ int SLAPI DoConstructionTest()
 		//PPBarcode::RecognizeImage("D:/Papyrus/ppy/out/040-69911566-57N00001CPQ0LN0GLBP1O9R30603031000007FB116511C6E341B4AB38FB95E24B46D.png", bc_list);
 		//PPBarcode::RecognizeImage("D:/Papyrus/ppy/out/460622403878.png", bc_list);
 	}
+	/*
 	{
 		/*
 		SString map_pool_file_name;
@@ -2573,6 +2564,7 @@ int SLAPI DoConstructionTest()
 		}
 		*/
 	}
+	*/
 	//TestSArchive();
 	//TestLargeVlrInputOutput();
 	return ok;

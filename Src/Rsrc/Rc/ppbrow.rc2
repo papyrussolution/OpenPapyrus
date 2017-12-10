@@ -7161,7 +7161,7 @@ record SupplBillLine {
 	SaleChannel       zstring(8)          "Канал поставки";
 	CRMOrderNumber    zstring(16)         "Номер заказа";
 	CRMOrderDate      date                "Дата заказа";
-	DocumentTypeId    zstring(32)         "Тип документа";
+	DocumentTypeId    zstring(32)         "@{typeofdocument}";
 	DocumentNumber    zstring(16)         "@{billno}";
 	DocumentDate      date                "@{billdate}";
     SrcCRMDbId        zstring(36)         "Ид базы данных-источника";
@@ -7742,7 +7742,7 @@ record BaltikaSaldoDoc {
 record BaltikaBillItemAttrs {
 	DocumentDate      date                "@{billdate}";
 	DocumentNumber    zstring(16)         "@{billno}";
-	DocumentTypeId    zstring(32)         "Тип документа";
+	DocumentTypeId    zstring(32)         "@{typeofdocument}";
 	WareId            zstring(24)         "@{goodscode}";
 	PartNumber        zstring(64)         "Номер партии";
     ProductionDate    date                "Дата изготовления";
@@ -7756,7 +7756,7 @@ record DllImpExpReceipt {
 }
 
 record DllImpObjStatus {
-	DocStatus	long		"Статус документа";
+	DocStatus	long		"@{bill_status}";
 }
 
 record TestRec {

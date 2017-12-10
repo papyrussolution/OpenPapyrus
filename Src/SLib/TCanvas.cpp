@@ -2698,7 +2698,7 @@ int STextLayout::EnumGroups(uint * pI, RenderGroup * pGroup)
 		pGroup->BrushId = 0;
 	}
 	const uint sgc = SgList.getCount();
-	uint i = pI ? *pI : 0;
+	uint i = DEREFPTRORZ(pI);
 	if(i < sgc) {
 		if(pGroup) {
 			StyleGroup & r_sg = SgList.at(i);
@@ -2941,13 +2941,10 @@ const SPaintObj::Gradient::Stop * SPaintObj::Gradient::GetStop(uint idx) const
 //
 //
 //
-SParaDescr::SParaDescr()
+SParaDescr::SParaDescr() : StartIndent(0), Spacing(0), Flags(0)
 {
 	LuIndent = 0;
 	RlIndent = 0;
-	StartIndent = 0;
-	Spacing = 0;
-	Flags = 0;
 	memzero(Reserve, sizeof(Reserve));
 }
 
@@ -2996,12 +2993,8 @@ int SPaintObj::Para::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 //
 const float SPaintObj::DefaultMiterLimit = 4.0f;
 
-SPaintObj::SPaintObj(int id)
+SPaintObj::SPaintObj(int id) : Id(id), T(0), F(0), H(0)
 {
-	Id = id;
-	T = 0;
-	F = 0;
-	H = 0;
 }
 
 SPaintObj::~SPaintObj()
@@ -3849,8 +3842,7 @@ int SPaintObj::CreateCursor(uint cursorId)
 //
 #define INIT_DYN_IDENT 100000
 
-SPaintToolBox::SPaintToolBox() : TSArray <SPaintObj> (aryDataOwner|aryEachItem), Hash(128, 1),
-	GlyphList(sizeof(GlyphEntry))
+SPaintToolBox::SPaintToolBox() : TSArray <SPaintObj> (aryDataOwner|aryEachItem), Hash(128, 1), GlyphList(sizeof(GlyphEntry))
 {
 	Init();
 }

@@ -2254,8 +2254,8 @@ int SLAPI CCheckCore::Helper_TurnSCardPayment(CCheckPacket * pPack, long flags, 
 	int    ok = 1;
 	int    uhtt_err = 0;
 	uint   i;
-	double ufp_factor = pUfpFactor ? *pUfpFactor : 0;
-	double ufp_factor_uhtt = pUfpFactorUhtt ? *pUfpFactorUhtt : 0.0;
+	double ufp_factor = DEREFPTRORZ(pUfpFactor);
+	double ufp_factor_uhtt = DEREFPTRORZ(pUfpFactorUhtt);
 	PPObjGoods * p_goods_obj = 0;
 	PPUhttClient * p_uhtt_cli = 0;
 	const  uint org_plc = pPack->AL().getCount();
@@ -4875,7 +4875,7 @@ int SLAPI CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pM
 int SLAPI CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPID locID, PPID * pBillID, int use_ta)
 {
 	int    ok = -1;
-	PPID   bill_id = pBillID ? *pBillID : 0;
+	PPID   bill_id = DEREFPTRORZ(pBillID);
 	if(EqCfg.OpOnTempSess) {
 		PPObjBill * p_bobj = BillObj;
 		BillTbl::Rec bill_rec;

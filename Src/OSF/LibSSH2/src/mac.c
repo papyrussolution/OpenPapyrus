@@ -42,10 +42,8 @@
 /* mac_none_MAC
  * Minimalist MAC: No MAC
  */
-static int mac_none_MAC(LIBSSH2_SESSION * session, uchar * buf,
-    uint32 seqno, const uchar * packet,
-    uint32 packet_len, const uchar * addtl,
-    uint32 addtl_len, void ** abstract)
+static int mac_none_MAC(LIBSSH2_SESSION * session, uchar * buf, uint32 seqno, const uchar * packet,
+    uint32 packet_len, const uchar * addtl, uint32 addtl_len, void ** abstract)
 {
 	return 0;
 }
@@ -63,13 +61,11 @@ static LIBSSH2_MAC_METHOD mac_method_none = {
 /* mac_method_common_init
  * Initialize simple mac methods
  */
-static int mac_method_common_init(LIBSSH2_SESSION * session, uchar * key,
-    int * free_key, void ** abstract)
+static int mac_method_common_init(LIBSSH2_SESSION * session, uchar * key, int * free_key, void ** abstract)
 {
 	*abstract = key;
 	*free_key = 0;
 	(void)session;
-
 	return 0;
 }
 
@@ -100,9 +96,7 @@ static int mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION * session,
 	libssh2_hmac_ctx ctx;
 	uchar seqno_buf[4];
 	(void)session;
-
 	_libssh2_htonu32(seqno_buf, seqno);
-
 	libssh2_hmac_ctx_init(ctx);
 	libssh2_hmac_sha512_init(&ctx, *abstract, 64);
 	libssh2_hmac_update(ctx, seqno_buf, 4);
@@ -130,12 +124,8 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_512 = {
 /* mac_method_hmac_sha256_hash
  * Calculate hash using full sha256 value
  */
-static int mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION * session,
-    uchar * buf, uint32 seqno,
-    const uchar * packet,
-    uint32 packet_len,
-    const uchar * addtl,
-    uint32 addtl_len, void ** abstract)
+static int mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION * session, uchar * buf, uint32 seqno,
+    const uchar * packet, uint32 packet_len, const uchar * addtl, uint32 addtl_len, void ** abstract)
 {
 	libssh2_hmac_ctx ctx;
 	uchar seqno_buf[4];
@@ -150,7 +140,6 @@ static int mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION * session,
 	}
 	libssh2_hmac_final(ctx, buf);
 	libssh2_hmac_cleanup(&ctx);
-
 	return 0;
 }
 
@@ -167,12 +156,8 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_256 = {
 /* mac_method_hmac_sha1_hash
  * Calculate hash using full sha1 value
  */
-static int mac_method_hmac_sha1_hash(LIBSSH2_SESSION * session,
-    uchar * buf, uint32 seqno,
-    const uchar * packet,
-    uint32 packet_len,
-    const uchar * addtl,
-    uint32 addtl_len, void ** abstract)
+static int mac_method_hmac_sha1_hash(LIBSSH2_SESSION * session, uchar * buf, uint32 seqno,
+    const uchar * packet, uint32 packet_len, const uchar * addtl, uint32 addtl_len, void ** abstract)
 {
 	libssh2_hmac_ctx ctx;
 	uchar seqno_buf[4];

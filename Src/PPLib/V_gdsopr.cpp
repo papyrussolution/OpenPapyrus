@@ -2087,9 +2087,8 @@ public:
 		long   NzMtxCount;
 		double RelNzToMtx;
 	};
-	SLAPI  GoodsOpAnlzCrosstab(PPViewGoodsOpAnalyze * pV) : Crosstab()
+	SLAPI  GoodsOpAnlzCrosstab(PPViewGoodsOpAnalyze * pV) : Crosstab(), P_V(pV)
 	{
-		P_V = pV;
 	}
 	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 	{

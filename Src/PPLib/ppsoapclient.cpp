@@ -1021,6 +1021,39 @@ SapEfesDebtDetailReportEntry::SapEfesDebtDetailReportEntry() : NativeArID(0), Bi
 //
 //
 //
+VetisEntityList::VetisEntityList() : Count(0), Total(0), Offset(0), Flags(0)
+{
+}
+
+VetisGenericEntity::VetisGenericEntity()
+{
+	Uuid.SetZero();
+}
+
+VetisGenericVersioningEntity::VetisGenericVersioningEntity() : VetisGenericEntity(), Flags(0), Status(0), CreateDate(ZERODATETIME), UpdateDate(ZERODATETIME)
+{
+	Guid.SetZero();
+	Previous.SetZero();
+	Next.SetZero();
+}
+
+VetisAddressObjectView::VetisAddressObjectView() : Flags(0)
+{
+	CountryGUID.SetZero();
+}
+
+VetisDistrict::VetisDistrict() : VetisAddressObjectView()
+{
+	RegionGUID.SetZero();
+}
+
+VetisLocality::VetisLocality() : VetisAddressObjectView()
+{
+	RegionGUID.SetZero();
+	DistrictGUID.SetZero();
+	CityGUID.SetZero();
+}
+
 VetisEnterpriseOfficialRegistration::VetisEnterpriseOfficialRegistration() : P_BusinessEntity(0)
 {
 }
@@ -1030,6 +1063,18 @@ VetisEnterpriseOfficialRegistration::~VetisEnterpriseOfficialRegistration()
 	delete P_BusinessEntity;
 }
 
+VetisEnterpriseOfficialRegistration & FASTCALL VetisEnterpriseOfficialRegistration::operator = (const VetisEnterpriseOfficialRegistration & rS)
+{
+	ID = rS.ID;
+	Kpp = rS.Kpp;
+	ZDELETE(P_BusinessEntity);
+	if(rS.P_BusinessEntity) {
+		P_BusinessEntity = new VetisBusinessEntity;
+		ASSIGN_PTR(P_BusinessEntity, *rS.P_BusinessEntity);
+	}
+	return *this;
+}
+
 VetisEnterprise::VetisEnterprise() : P_Owner(0), Type(0)
 {
 }
@@ -1037,6 +1082,36 @@ VetisEnterprise::VetisEnterprise() : P_Owner(0), Type(0)
 VetisEnterprise::~VetisEnterprise()
 {
 	delete P_Owner;
+}
+
+VetisEnterprise & FASTCALL VetisEnterprise::operator = (const VetisEnterprise & rS)
+{
+	VetisNamedGenericVersioningEntity::operator = (rS);
+	EnglishName = rS.EnglishName;
+	Type = rS.Type;
+	NumberList = rS.NumberList;
+	Address = rS.Address;
+	ActivityList = rS.ActivityList;
+	ZDELETE(P_Owner);
+	if(rS.P_Owner) {
+		P_Owner = new VetisBusinessEntity;
+		ASSIGN_PTR(P_Owner, *rS.P_Owner);
+	}
+	TSCollection_Copy(OfficialRegistration, rS.OfficialRegistration);
+	return *this;
+}
+
+VetisStreet::VetisStreet() : VetisAddressObjectView()
+{
+	LocalityGUID.SetZero();
+}
+
+VetisDocument::VetisDocument() : IssueDate(ZERODATE), DocumentType(0)
+{
+}
+
+VetisUserAuthority::VetisUserAuthority() : Granted(0)
+{
 }
 
 VetisUser::VetisUser() : BirthDate(ZERODATE), Flags(0), UnionUser(0), P_Organization(0), P_BusinessEntity(0)
@@ -1049,7 +1124,33 @@ VetisUser::~VetisUser()
 	delete P_BusinessEntity;
 }
 
-<<<<<<< HEAD
+VetisUser & FASTCALL VetisUser::operator = (const VetisUser & rS)
+{
+	Login = rS.Login;
+	Fio = rS.Fio;
+	BirthDate = rS.BirthDate;
+	Identity = rS.Identity; // !
+	Snils = rS.Snils;
+	Phone = rS.Phone;
+	Email = rS.Email;
+	WorkEmail = rS.WorkEmail;
+	UnionUser = rS.UnionUser;
+	Post = rS.Post;
+	Flags = rS.Flags;
+	TSCollection_Copy(AuthorityList, rS.AuthorityList);
+	ZDELETE(P_Organization);
+	ZDELETE(P_BusinessEntity);
+	if(rS.P_Organization) {
+		P_Organization = new VetisOrganization;
+		ASSIGN_PTR(P_Organization, *rS.P_Organization);
+	}
+	if(rS.P_BusinessEntity) {
+		P_BusinessEntity = new VetisBusinessEntity;
+		ASSIGN_PTR(P_BusinessEntity, *rS.P_BusinessEntity);
+	}
+	return *this;
+}
+
 VetisApplicationBlock::VetisApplicationBlock() : ApplicationStatus(appstUndef), Func(VetisApplicationData::signNone), 
 	IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME), LocalTransactionId(0), P_GselReq(0), P_LoReq(0)
 =======

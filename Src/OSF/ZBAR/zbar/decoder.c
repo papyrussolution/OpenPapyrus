@@ -40,10 +40,8 @@ zbar_decoder_t * zbar_decoder_create()
 	/* initialize default configs */
 #ifdef ENABLE_EAN
 	dcode->ean.enable = 1;
-	dcode->ean.ean13_config = ((1 << ZBAR_CFG_ENABLE) |
-	    (1 << ZBAR_CFG_EMIT_CHECK));
-	dcode->ean.ean8_config = ((1 << ZBAR_CFG_ENABLE) |
-	    (1 << ZBAR_CFG_EMIT_CHECK));
+	dcode->ean.ean13_config = ((1 << ZBAR_CFG_ENABLE) | (1 << ZBAR_CFG_EMIT_CHECK));
+	dcode->ean.ean8_config = ((1 << ZBAR_CFG_ENABLE) | (1 << ZBAR_CFG_EMIT_CHECK));
 	dcode->ean.upca_config = 1 << ZBAR_CFG_EMIT_CHECK;
 	dcode->ean.upce_config = 1 << ZBAR_CFG_EMIT_CHECK;
 	dcode->ean.isbn10_config = 1 << ZBAR_CFG_EMIT_CHECK;
@@ -316,7 +314,7 @@ static inline const uint* decoder_get_configp(const zbar_decoder_t * dcode, zbar
 uint zbar_decoder_get_configs(const zbar_decoder_t * dcode, zbar_symbol_type_t sym)
 {
 	const uint * config = decoder_get_configp(dcode, sym);
-	return config ? *config : 0;
+	return DEREFPTRORZ(config);
 }
 
 static inline int decoder_set_config_bool(zbar_decoder_t * dcode, zbar_symbol_type_t sym, zbar_config_t cfg, int val)

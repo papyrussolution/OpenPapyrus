@@ -1,6 +1,6 @@
 /* Named symbol references for Bison
 
-   Copyright (C) 2009-2011 Free Software Foundation, Inc.
+   Copyright (C) 2009-2015 Free Software Foundation, Inc.
 
    This file is part of Bison, the GNU Compiler Compiler.
 
@@ -20,27 +20,26 @@
 #ifndef NAMED_REF_H_
 # define NAMED_REF_H_
 
-#include "location.h"
-#include "uniqstr.h"
+# include "location.h"
+# include "uniqstr.h"
 
 /* Named reference object. Keeps information about
    a symbolic name of a symbol in a rule. */
-typedef struct named_ref
-{
-  /* Symbolic named given by user. */
-  uniqstr id;
+typedef struct named_ref {
+	/* Symbolic named given by user. */
+	uniqstr id;
 
-  /* Location of the symbolic name. Not including brackets. */
-  location loc;
+	/* Location of the symbolic name. Not including brackets. */
+	BFLocation loc;
 } named_ref;
 
 /* Allocate a named reference object. */
-named_ref *named_ref_new (uniqstr id, location loc);
+named_ref * named_ref_new(uniqstr id, BFLocation loc);
 
 /* Allocate and return a copy.  */
-named_ref *named_ref_copy (const named_ref *r);
+named_ref * named_ref_copy(const named_ref * r);
 
 /* Free a named reference object. */
-void named_ref_free (named_ref *r);
+void named_ref_free(named_ref * r);
 
 #endif /* !NAMED_REF_H_ */

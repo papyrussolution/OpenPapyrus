@@ -824,7 +824,7 @@ void SLAPI CommLP15::PutLong(long s_data)
 
 static void FillMsgBuf_CAS(const char * pMsg, uint lineLen, uchar * pDataBuf, uint * pIdx)
 {
-	uint p = pIdx ? *pIdx : 0;
+	uint p = DEREFPTRORZ(pIdx);
 	const size_t msg_len = strlen(pMsg);
 	uint i = 0;
 	while(i < msg_len && i < lineLen) {
@@ -5283,7 +5283,7 @@ int SLAPI ScalePrepDialog(uint rezID, PPID * pScaleID, long * pFlags)
 	int    r  = -1;
 	ScalePrepData data;
 	data.ScaleID = *pScaleID;
-	data.Flags = pFlags ? *pFlags : 0;
+	data.Flags = DEREFPTRORZ(pFlags);
 	ScalePrepDlg * dlg = 0;
 	if(CheckDialogPtrErr(&(dlg = new ScalePrepDlg(rezID)))) {
 		dlg->setDTS(&data);

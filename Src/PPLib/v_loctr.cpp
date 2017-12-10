@@ -18,16 +18,10 @@ IMPLEMENT_PPFILT_FACTORY(LocTransf); SLAPI LocTransfFilt::LocTransfFilt() : PPBa
 //
 //
 PalletCtrlGroup::PalletCtrlGroup(uint ctlselPalletType, uint ctlPallet, uint ctlPalletCount,
-	uint ctlPckg, uint ctlPckgCount, uint ctlQtty, uint ctlselGoods)
+	uint ctlPckg, uint ctlPckgCount, uint ctlQtty, uint ctlselGoods) :
+	State(0), CtlselPalletType(ctlselPalletType), CtlPallet(ctlPallet), CtlPalletCount(ctlPalletCount),
+	CtlPckg(ctlPckg), CtlPckgCount(ctlPckgCount), CtlQtty(ctlQtty), CtlselGoods(ctlselGoods)
 {
-	State = 0;
-	CtlselPalletType = ctlselPalletType;
-	CtlPallet = ctlPallet;
-	CtlPalletCount = ctlPalletCount;
-	CtlPckg = ctlPckg;
-	CtlPckgCount = ctlPckgCount;
-	CtlQtty = ctlQtty;
-	CtlselGoods = ctlselGoods;
 	MEMSZERO(Data);
 }
 
@@ -147,11 +141,8 @@ public:
 		grpGoods,
 		grpPallet
 	};
-	LocTransfDialog(const PPBillPacket * pPack) : TDialog(DLG_LOCTRANSF)
+	LocTransfDialog(const PPBillPacket * pPack) : TDialog(DLG_LOCTRANSF), State(0), P_Pack(pPack), WarehouseID(pPack ? pPack->Rec.LocID : 0)
 	{
-		State = 0;
-		P_Pack = pPack;
-		WarehouseID = P_Pack ? P_Pack->Rec.LocID : 0;
 		addGroup(grpLoc, new LocationCtrlGroup(CTLSEL_LOCTRANSF_LOC, CTL_LOCTRANSF_LOCCODE, 0, 0, 0, LocationCtrlGroup::fWarehouseCell, 0));
 		addGroup(grpGoods, new GoodsCtrlGroup(CTLSEL_LOCTRANSF_GGRP, CTLSEL_LOCTRANSF_GOODS));
 		addGroup(grpPallet, new PalletCtrlGroup(CTLSEL_LOCTRANSF_PLTTYPE, CTL_LOCTRANSF_PLT, CTL_LOCTRANSF_PLTC,
@@ -340,9 +331,8 @@ int SLAPI EditLocTransf(const PPBillPacket * pPack, LocTransfTbl::Rec * pData)
 //
 int PPViewLocTransf::DynCheckCellParent = 0;
 
-SLAPI PPViewLocTransf::PPViewLocTransf() : PPView(0, &Filt, PPVIEW_LOCTRANSF)
+SLAPI PPViewLocTransf::PPViewLocTransf() : PPView(0, &Filt, PPVIEW_LOCTRANSF), P_TempTbl(0)
 {
-	P_TempTbl = 0;
 }
 
 SLAPI PPViewLocTransf::~PPViewLocTransf()

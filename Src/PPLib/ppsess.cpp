@@ -194,8 +194,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 			MemHeapTracer mht;
 			MemHeapTracer::Stat mht_stat;
 			if(mht.CalcStat(&mht_stat)) {
-				(sbuf = 0).
-					Cat(mht_stat.UsedBlockCount).CatDiv('-', 1).
+				sbuf.Z().Cat(mht_stat.UsedBlockCount).CatDiv('-', 1).
 					Cat(mht_stat.UsedSize).CatDiv('-', 1).
 					Cat(mht_stat.UnusedBlockCount).CatDiv('-', 1).
 					Cat(mht_stat.UnusedSize).CatDiv(';', 2).
@@ -379,9 +378,8 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	#else
 		#define UPD_STATUS_PERIOD 5
 	#endif
-		IdleCmdUpdateStatusWin() : IdleCommand(UPD_STATUS_PERIOD)
+		IdleCmdUpdateStatusWin() : IdleCommand(UPD_STATUS_PERIOD), OnLogon(1)
 		{
-			OnLogon = 1;
 		}
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
 		{
@@ -392,9 +390,8 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	};
 	class IdleCmdQuitSession : public IdleCommand {
 	public:
-		IdleCmdQuitSession() : IdleCommand(10)
+		IdleCmdQuitSession() : IdleCommand(10), Timer(-1)
 		{
-			Timer = -1;
 		}
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
 		{
@@ -438,10 +435,8 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	};
 	class IdleCmdUpdateObjList : public IdleCommand, private PPAdviseEventQueue::Client {
 	public:
-		IdleCmdUpdateObjList(long refreshPeriod, PPID objTypeID, PPID notifyID) : IdleCommand(refreshPeriod)
+		IdleCmdUpdateObjList(long refreshPeriod, PPID objTypeID, PPID notifyID) : IdleCommand(refreshPeriod), ObjTypeID(objTypeID), NotifyID(notifyID)
 		{
-			ObjTypeID = objTypeID;
-			NotifyID = notifyID;
 		}
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
 		{
@@ -507,9 +502,8 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	};
 	class IdleCmdUpdateTSessList : public IdleCommand, private PPAdviseEventQueue::Client {
 	public:
-		IdleCmdUpdateTSessList(long refreshPeriod, PPID notifyID) : IdleCommand(refreshPeriod)
+		IdleCmdUpdateTSessList(long refreshPeriod, PPID notifyID) : IdleCommand(refreshPeriod), NotifyID(notifyID)
 		{
-			NotifyID = notifyID;
 		}
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
 		{
@@ -692,10 +686,8 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 #endif // } USE_ADVEVQUEUE==2
 	class IdleCmdUpdateLogsMon : public IdleCommand {
 	public:
-		IdleCmdUpdateLogsMon(long refreshPeriod, PPID objTypeID, PPID notifyID) : IdleCommand(refreshPeriod)
+		IdleCmdUpdateLogsMon(long refreshPeriod, PPID objTypeID, PPID notifyID) : IdleCommand(refreshPeriod), ObjTypeID(objTypeID), NotifyID(notifyID)
 		{
-			ObjTypeID = objTypeID;
-			NotifyID = notifyID;
 		}
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
 		{
@@ -732,9 +724,8 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	};
 	class IdleCmdQuartz : public IdleCommand {
 	public:
-		IdleCmdQuartz(PPID notifyID) : IdleCommand(1)
+		IdleCmdQuartz(PPID notifyID) : IdleCommand(1), NotifyID(notifyID)
 		{
-			NotifyID = notifyID;
 		}
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
 		{
@@ -3004,10 +2995,8 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			else {
 				class PPDbDispatchSession : public PPThread {
 				public:
-					SLAPI PPDbDispatchSession(long dbPathID, const char * pDbSymb) : PPThread(PPThread::kDbDispatcher, pDbSymb, 0)
+					SLAPI PPDbDispatchSession(long dbPathID, const char * pDbSymb) : PPThread(PPThread::kDbDispatcher, pDbSymb, 0), DbPathID(dbPathID), DbSymb(pDbSymb)
 					{
-						DbPathID = dbPathID;
-						DbSymb = pDbSymb;
 					}
 				private:
 					virtual void Run()
@@ -3073,11 +3062,8 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						class PPAdviseEventCollectorSjSession : public PPThread {
 						public:
 							SLAPI PPAdviseEventCollectorSjSession(const DbLoginBlock & rLB, long cycleMs) :
-								PPThread(PPThread::kEventCollector, 0, 0)
+								PPThread(PPThread::kEventCollector, 0, 0), CycleMs((cycleMs > 0) ? cycleMs : 29989), LB(rLB), P_Sj(0)
 							{
-								CycleMs = (cycleMs > 0) ? cycleMs : 29989;
-								LB = rLB;
-								P_Sj = 0;
 							}
 						private:
 							virtual void SLAPI Shutdown()
@@ -3967,10 +3953,8 @@ SEnumImp * PPSession::EnumRFileInfo()
 {
 	class PPRFileEnum : public SEnumImp {
 	public:
-		PPRFileEnum()
+		PPRFileEnum() : P_Rez(P_SlRez), DwPos(0)
 		{
-			P_Rez = P_SlRez;
-			DwPos = 0;
 		}
 		virtual int Next(void * pRec)
 		{
@@ -4114,7 +4098,7 @@ uint PPAdviseList::GetCount()
 int FASTCALL PPAdviseList::Enum(uint * pI, PPAdviseBlock * pBlk) const
 {
 	int    ok = 0;
-	uint   i = pI ? *pI : 0;
+	uint   i = DEREFPTRORZ(pI);
 	if(i < getCount()) {
 		ASSIGN_PTR(pBlk, *(PPAdviseBlock *)at(i));
 		++i;
@@ -4563,20 +4547,12 @@ int PPAdviseEventQueue::Client::Register(long dbPathID, PPAdviseEventQueue * pQu
 	return ok;
 }
 
-PPAdviseEventQueue::Stat::Stat()
+PPAdviseEventQueue::Stat::Stat() : LivingTime(0), StartClock(0), Push_Count(0), Get_Count(0), GetDecline_Count(0), MaxLength(0)
 {
-	LivingTime = 0;
-	StartClock = 0;
-	Push_Count = 0;
-	Get_Count = 0;
-	GetDecline_Count = 0;
-	MaxLength = 0;
 }
 
-SLAPI PPAdviseEventQueue::PPAdviseEventQueue() : TSVector <PPAdviseEvent> (), CliList(/*DEFCOLLECTDELTA,*/(aryDataOwner|aryPtrContainer))
+SLAPI PPAdviseEventQueue::PPAdviseEventQueue() : TSVector <PPAdviseEvent> (), CliList(/*DEFCOLLECTDELTA,*/(aryDataOwner|aryPtrContainer)), LastIdent(0)
 {
-	LastIdent = 0;
-	//
 	S.StartClock = clock();
 }
 

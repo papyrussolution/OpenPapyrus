@@ -308,6 +308,12 @@ int32 DL6ICLS_LongList::GetCount()
 	return p_data ? (int32)p_data->getCount() : RaiseAppError();
 }
 
+void DL6ICLS_LongList::Clear()
+{
+	LongArray * p_data = (LongArray *)ExtraPtr;
+	CALLPTRMEMB(p_data, clear());
+}
+
 int32 DL6ICLS_LongList::Get(int32 idx)
 {
 	LongArray * p_data = (LongArray *)ExtraPtr;
@@ -1311,6 +1317,42 @@ SString & DL6ICLS_PPUtil::DateRangeToStr(LDATE low, LDATE upp)
 	char   temp_buf[64];
 	RetStrBuf = periodfmt(&period, temp_buf);
 	return RetStrBuf;
+}
+
+LDATE DL6ICLS_PPUtil::StrToDate(SString & str, PpyDateFormat fmt)
+{
+	long   local_fmt = fmt;
+    return strtodate_(str, fmt);
+}
+
+ILongList * DL6ICLS_PPUtil::SearchObjectsByTagStr(PpyObjectIdent objType, int32 tagID, SString & pattern)
+{
+	IUnknown * p = 0;
+	LongArray * p_id_list = 0;
+	ObjTagCore & r_tc = PPRef->Ot;
+	THROW(CreateInnerInstance("LongList", "ILongList", (void **)&p));
+	THROW(p_id_list = (LongArray *)SCoClass::GetExtraPtrByInterface(p));
+	PPRef->Ot.SearchObjectsByStr(objType, tagID, pattern, p_id_list);
+	CATCH
+		ReleaseUnknObj(&p);
+		AppError = 1;
+	ENDCATCH
+	return (ILongList*)p;
+}
+
+ILongList * DL6ICLS_PPUtil::SearchObjectsByTagStrExactly(PpyObjectIdent objType, int32 tagID, SString & pattern)
+{
+	IUnknown * p = 0;
+	LongArray * p_id_list = 0;
+	ObjTagCore & r_tc = PPRef->Ot;
+	THROW(CreateInnerInstance("LongList", "ILongList", (void **)&p));
+	THROW(p_id_list = (LongArray *)SCoClass::GetExtraPtrByInterface(p));
+	PPRef->Ot.SearchObjectsByStrExactly(objType, tagID, pattern, p_id_list);
+	CATCH
+		ReleaseUnknObj(&p);
+		AppError = 1;
+	ENDCATCH
+	return (ILongList*)p;
 }
 
 SString & DL6ICLS_PPUtil::ToChar(SString & rBuf)
@@ -4565,7 +4607,7 @@ int InnerExtraObjPerson::EnumRel(PPID id, PPID relTypeID, int reverse, PPID * pR
 {
 	int    ok = -1;
 	uint   i;
-	PPID   rel_id = pRelPersonID ? *pRelPersonID : 0;
+	PPID   rel_id = DEREFPTRORZ(pRelPersonID);
 	for(i = 0; i < RelList.getCount(); i++) {
 		RelEntry * p_entry = RelList.at(i);
 		if(p_entry->ID == id && p_entry->RelTypeID == relTypeID && p_entry->Reverse == reverse) {
@@ -6181,19 +6223,14 @@ static BExtQuery & FASTCALL MakeLotSelectFldList(BExtQuery & rQ, const ReceiptTb
 }
 
 struct LotQueryBlock {
-	LotQueryBlock()
+	LotQueryBlock() : Idx(-1), SpMode(-1), Reverse(0), P_Q(0)
 	{
-		Idx = -1;
-		SpMode = -1;
-		Reverse = 0;
-		P_Q = 0;
 		memzero(Key, sizeof(Key));
 	}
 	~LotQueryBlock()
 	{
 		BExtQuery::ZDelete(&P_Q);
 	}
-
 	int   Idx;
 	int   SpMode;
 	int   Reverse;
@@ -10914,7 +10951,7 @@ static void FillSCardSeriesRec(const PPSCardSeries * pInner, SPpyO_SCardSeries *
 	(temp_buf = pInner->Name).CopyToOleStr(&pOuter->Name);
 	(temp_buf = pInner->Symb).CopyToOleStr(&pOuter->Symb);
 	// @v9.8.9 (temp_buf = pInner->CodeTempl).CopyToOleStr(&pOuter->CodeTempl);
-	temp_buf.Z().CopyToOleStr(&pOuter->CodeTempl); // @v9.8.9 
+	temp_buf.Z().CopyToOleStr(&pOuter->CodeTempl); // @v9.8.9
 #undef FLD
 }
 

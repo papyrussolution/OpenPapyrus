@@ -1,6 +1,6 @@
 /* IELR's inadequacy list.
 
-   Copyright (C) 2009-2011 Free Software Foundation, Inc.
+   Copyright (C) 2009-2015 Free Software Foundation, Inc.
 
    This file is part of Bison, the GNU Compiler Compiler.
 
@@ -25,55 +25,50 @@
 ContributionIndex const ContributionIndex__none = -1;
 ContributionIndex const ContributionIndex__error_action = -2;
 
-InadequacyList *
-InadequacyList__new_conflict (state *manifesting_state, symbol *token,
-                              bitset actions,
-                              InadequacyListNodeCount *node_count)
+InadequacyList * InadequacyList__new_conflict(state * manifesting_state, symbol * token,
+    bitset actions,
+    InadequacyListNodeCount * node_count)
 {
-  InadequacyList *result = xmalloc (sizeof *result);
-  result->id = (*node_count)++;
-  aver (*node_count != 0);
-  result->next = NULL;
-  result->manifestingState = manifesting_state;
-  result->contributionCount = bitset_count (actions);
-  result->inadequacy.conflict.token = token;
-  result->inadequacy.conflict.actions = actions;
-  return result;
+	InadequacyList * result = (InadequacyList *)xmalloc(sizeof *result);
+	result->id = (*node_count)++;
+	aver(*node_count != 0);
+	result->next = NULL;
+	result->manifestingState = manifesting_state;
+	result->contributionCount = bitset_count(actions);
+	result->inadequacy.conflict.token = token;
+	result->inadequacy.conflict.actions = actions;
+	return result;
 }
 
-void
-InadequacyList__delete (InadequacyList *self)
+void InadequacyList__delete(InadequacyList * self)
 {
-  while (self)
-    {
-      InadequacyList *node = self;
-      self = self->next;
-      bitset_free (node->inadequacy.conflict.actions);
-      free (node);
-    }
+	while(self) {
+		InadequacyList * node = self;
+		self = self->next;
+		bitset_free(node->inadequacy.conflict.actions);
+		free(node);
+	}
 }
 
-ContributionIndex
-InadequacyList__getShiftContributionIndex (InadequacyList const *self)
+ContributionIndex InadequacyList__getShiftContributionIndex(InadequacyList const * self)
 {
-  if (!bitset_test (self->inadequacy.conflict.actions,
-                    self->manifestingState->reductions->num))
-    return ContributionIndex__none;
-  return self->contributionCount - 1;
+	if(!bitset_test(self->inadequacy.conflict.actions,
+		    self->manifestingState->reductions->num))
+		return ContributionIndex__none;
+	return self->contributionCount - 1;
 }
 
-symbol *
-InadequacyList__getContributionToken (InadequacyList const *self,
-                                      ContributionIndex i)
+symbol * InadequacyList__getContributionToken(InadequacyList const * self,
+    ContributionIndex i)
 {
-  aver (0 <= i && i < self->contributionCount);
-  return self->inadequacy.conflict.token;
+	aver(0 <= i && i < self->contributionCount); (void)i;
+	return self->inadequacy.conflict.token;
 }
 
-void
-InadequacyList__prependTo (InadequacyList *self, InadequacyList **list)
+void InadequacyList__prependTo(InadequacyList * self, InadequacyList ** list)
 {
-  InadequacyList *head_old = *list;
-  *list = self;
-  self->next = head_old;
+	InadequacyList * head_old = *list;
+	*list = self;
+	self->next = head_old;
 }
+

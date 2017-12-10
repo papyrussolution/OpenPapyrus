@@ -47,8 +47,6 @@ int PPHandlePrintError(int)
 	int    reply = 0;
 	TDialog * dlg = new TDialog(DLG_PRNERR);
 	if(CheckDialogPtrErr(&dlg)) {
-		//char   text[64];
-		//text[0] = '\003';
 		SString text;
 		if(PPLoadString(PPERR_SLIB, SLibError, text)) {
 			text.Insert(0, "\003");
@@ -62,9 +60,8 @@ int PPHandlePrintError(int)
 //
 // PPApp
 //
-PPApp::PPApp(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle) : TProgram(hInst, pAppSymb, pAppTitle)
+PPApp::PPApp(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle) : TProgram(hInst, pAppSymb, pAppTitle), LocalState(0)
 {
-	LocalState = 0;
 	SPrinter::HandlePrintError = PPHandlePrintError;
 	STextBrowser::RegWindowClass(hInst); // @v9.1.3
 	InitUiToolBox(); // @v9.5.6
@@ -1006,20 +1003,16 @@ int SLAPI PPLoginDialog(int * protect, SString & rUserName, char * pPassw,
 {
 	class LoginDialog : public TDialog {
 	public:
-		LoginDialog(int rezID, int sysAccLogin, PPDbEntrySet2 * pDbes) : TDialog(rezID)
+		LoginDialog(int rezID, int sysAccLogin, PPDbEntrySet2 * pDbes) : TDialog(rezID), SystemAccountLogin(sysAccLogin), P_Dbes(pDbes)
 		{
 			HelpCtx = HELP_DLG_LOGIN;
-			SystemAccountLogin = sysAccLogin;
-			P_Dbes = pDbes;
-			{
-				SString temp_buf;
-				uint   mj, mn, rv;
-				PPVersionInfo vi = DS.GetVersionInfo();
-				vi.GetVersion(&mj, &mn, &rv);
-				PPLoadString("version", temp_buf);
-				temp_buf.Space().CatDotTriplet(mj, mn, rv).Space().CatChar('(').Cat(vi.GetAssemblyN()).CatChar(')');
-				setStaticText(CTL_LOGIN_ST_INFO, temp_buf);
-			}
+			SString temp_buf;
+			uint   mj, mn, rv;
+			PPVersionInfo vi = DS.GetVersionInfo();
+			vi.GetVersion(&mj, &mn, &rv);
+			PPLoadString("version", temp_buf);
+			temp_buf.Space().CatDotTriplet(mj, mn, rv).Space().CatChar('(').Cat(vi.GetAssemblyN()).CatChar(')');
+			setStaticText(CTL_LOGIN_ST_INFO, temp_buf);
 		}
 		int    CheckSystemAccount(int getDBEntryFromDlg)
 		{
@@ -1855,12 +1848,10 @@ void PPApp::login(int processCmdLine)
 					PPObjectTransmit::TransmitBillsByDBDivList(0);
 				{
 					PPID   _id  = 0;
-					if(GetStartUpOption(cmdlSelfBuild, arg_buf)) {
+					if(GetStartUpOption(cmdlSelfBuild, arg_buf))
 						SelfBuild();
-					}
 					else if(GetStartUpOption(cmdlCash, arg_buf)) {
-						// @v9.0.2 SCharToOem(buf); // @v8.5.5
-						arg_buf.Transf(CTRANSF_OUTER_TO_INNER); // @v9.0.2
+						arg_buf.Transf(CTRANSF_OUTER_TO_INNER);
 						if(GetCashNodeIDByName(&_id, arg_buf))
 							ViewCashBills(_id);
 						else

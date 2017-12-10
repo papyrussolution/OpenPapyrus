@@ -1,6 +1,6 @@
 /* Associativity information.
 
-   Copyright (C) 2002, 2005-2006, 2009-2011 Free Software Foundation,
+   Copyright (C) 2002, 2005-2006, 2008-2015 Free Software Foundation,
    Inc.
 
    This file is part of Bison, the GNU Compiler Compiler.
@@ -20,9 +20,7 @@
 
 #include <config.h>
 #include "system.h"
-
 #include "assoc.h"
-
 
 const char *
 assoc_to_string (assoc a)
@@ -43,5 +41,8 @@ assoc_to_string (assoc a)
 
     case non_assoc:
       return "%nonassoc";
+
+    case precedence_assoc:
+      return "%precedence";
     }
 }

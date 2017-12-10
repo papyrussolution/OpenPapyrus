@@ -121,9 +121,7 @@ int SLAPI decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen
 		}
 	}
 	ASSIGN_PTR(pOutLen, len);
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 //

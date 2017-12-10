@@ -8887,7 +8887,7 @@ public:
 	}
 	int    setDTS(const PPID * pData)
 	{
-		return SetupCard(pData ? *pData : 0);
+		return SetupCard(DEREFPTRORZ(pData));
 	}
 	int    getDTS(PPID * pData)
 	{

@@ -44,11 +44,11 @@ class SOAP_CMAC ApplicationManagementServiceBindingProxy : public soap
 #endif
 
 	/// Web service operation 'submitApplicationRequest' (returns error code or SOAP_OK)
-	virtual	int submitApplicationRequest(_ns1__submitApplicationRequest *ns1__submitApplicationRequest, _ns1__submitApplicationResponse *ns1__submitApplicationResponse) { return submitApplicationRequest(NULL, NULL, ns1__submitApplicationRequest, ns1__submitApplicationResponse); }
-	virtual	int submitApplicationRequest(const char *endpoint, const char *soap_action, _ns1__submitApplicationRequest *ns1__submitApplicationRequest, _ns1__submitApplicationResponse *ns1__submitApplicationResponse);
+	virtual	int submitApplicationRequest(_ws__submitApplicationRequest *ws__submitApplicationRequest, _ws__submitApplicationResponse *ws__submitApplicationResponse) { return submitApplicationRequest(NULL, NULL, ws__submitApplicationRequest, ws__submitApplicationResponse); }
+	virtual	int submitApplicationRequest(const char *endpoint, const char *soap_action, _ws__submitApplicationRequest *ws__submitApplicationRequest, _ws__submitApplicationResponse *ws__submitApplicationResponse);
 
 	/// Web service operation 'receiveApplicationResult' (returns error code or SOAP_OK)
-	virtual	int receiveApplicationResult(_ns1__receiveApplicationResultRequest *ns1__receiveApplicationResultRequest, _ns1__receiveApplicationResultResponse *ns1__receiveApplicationResultResponse) { return receiveApplicationResult(NULL, NULL, ns1__receiveApplicationResultRequest, ns1__receiveApplicationResultResponse); }
-	virtual	int receiveApplicationResult(const char *endpoint, const char *soap_action, _ns1__receiveApplicationResultRequest *ns1__receiveApplicationResultRequest, _ns1__receiveApplicationResultResponse *ns1__receiveApplicationResultResponse);
+	virtual	int receiveApplicationResult(_ws__receiveApplicationResultRequest *ws__receiveApplicationResultRequest, _ws__receiveApplicationResultResponse *ws__receiveApplicationResultResponse) { return receiveApplicationResult(NULL, NULL, ws__receiveApplicationResultRequest, ws__receiveApplicationResultResponse); }
+	virtual	int receiveApplicationResult(const char *endpoint, const char *soap_action, _ws__receiveApplicationResultRequest *ws__receiveApplicationResultRequest, _ws__receiveApplicationResultResponse *ws__receiveApplicationResultResponse);
 };
 #endif

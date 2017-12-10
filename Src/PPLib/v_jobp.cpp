@@ -1,5 +1,5 @@
 // V_JOBP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 //
 // Редактирование списка процессорных задач
 //
@@ -10,11 +10,10 @@
 //
 class JobItemDialog : public TDialog {
 public:
-	JobItemDialog(PPJobMngr * pMngr, PPJobPool * pJobPool) : TDialog(DLG_JOBITEM)
+	JobItemDialog(PPJobMngr * pMngr, PPJobPool * pJobPool) : TDialog(DLG_JOBITEM), P_Mngr(pMngr), P_JobPool(pJobPool)
 	{
-		P_Mngr = pMngr;
+		
 		P_Mngr->GetResourceList(0, &CmdSymbList);
-		P_JobPool = pJobPool;
 		if(P_JobPool) {
 			PPJob job;
 			for(PPID id = 0; P_JobPool->Enum(&id, &job) > 0;)
@@ -197,10 +196,7 @@ int JobItemDialog::CheckRecursion(const PPJob * pData)
 		do {
 			THROW_PP(job_list.lsearch(p_job->ID) <= 0, PPERR_JOBITEMLOOP);
 			THROW_SL(job_list.add(p_job->ID));
-			if(p_job->NextJobID)
-				p_job = P_JobPool->GetJob(p_job->NextJobID);
-			else
-				p_job = 0;
+			p_job = p_job->NextJobID ? P_JobPool->GetJob(p_job->NextJobID) : 0;
 		} while(p_job);
 	}
 	CATCHZOK
@@ -406,11 +402,9 @@ IMPLEMENT_PPFILT_FACTORY(Job); SLAPI JobFilt::JobFilt() : PPBaseFilt(PPFILT_JOB,
 	Init(1, 0);
 }
 
-SLAPI PPViewJob::PPViewJob() : PPView(0, &Filt, PPVIEW_JOB)
+SLAPI PPViewJob::PPViewJob() : PPView(0, &Filt, PPVIEW_JOB), IsChanged(0), P_Pool(0)
 {
 	ImplementFlags |= (implBrowseArray|implDontEditNullFilter);
-	IsChanged = 0;
-	P_Pool    = 0;
 	LoadPool();
 }
 
@@ -455,10 +449,8 @@ int SLAPI PPViewJob::SavePool()
 
 class JobFiltDialog : public TDialog {
 public:
-	JobFiltDialog(PPJobMngr * pMngr, PPJobPool * pJobPool) : TDialog(DLG_JOBFILT)
+	JobFiltDialog(PPJobMngr * pMngr, PPJobPool * pJobPool) : TDialog(DLG_JOBFILT), P_Mngr(pMngr), P_Pool(pJobPool)
 	{
-		P_Mngr = pMngr;
-		P_Pool = pJobPool;
 		P_Mngr->GetResourceList(0, &CmdSymbList);
 	}
 	int setDTS(const JobFilt * pData)

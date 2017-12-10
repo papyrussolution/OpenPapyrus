@@ -119,13 +119,8 @@ int DoCompress(const char * pSrc, const char * pDest, int64 * pFileSize, int com
 //
 // Bit I/O
 //
-LZAriBit::LZAriBit(FILE * pInFile, FILE * pOutFile, int compress)
+LZAriBit::LZAriBit(FILE * pInFile, FILE * pOutFile, int compress) : CodeSize(0), Mask(compress ? 128 : 0), Buffer(0), P_InFile(pInFile), P_OutFile(pOutFile)
 {
-	CodeSize = 0;
-	Mask = compress ? 128 : 0;
-	Buffer = 0;
-	P_InFile = pInFile;
-	P_OutFile = pOutFile;
 }
 
 int FASTCALL LZAriBit::PutBit(int bit)  /* Output one bit (bit = 0,1) */
@@ -170,14 +165,8 @@ int LZAriBit::GetBit()  /* Get one bit (0 or 1) */
 //
 // LZSS with multiple binary trees
 //
-LZAriTree::LZAriTree()
+LZAriTree::LZAriTree() : P_TextBuf(0), P_LSon(0), P_RSon(0), P_Dad(0), MatchPosition(0), MatchLength(0)
 {
-	P_TextBuf = 0;
-	P_LSon    = 0;
-	P_RSon    = 0;
-	P_Dad     = 0;
-	MatchPosition = 0; // @v9.8.4 @fix init
-	MatchLength = 0;   // @v9.8.4 @fix init
 }
 
 LZAriTree::~LZAriTree()
@@ -334,25 +323,9 @@ int LZAriTree::DeleteNode(int p)  /* Delete node p from tree */
 //
 // Arithmetic Compression
 //
-LZAri::LZAri()
+LZAri::LZAri() : TextSize(0), Low(0), High(Q4), Value(0), Shifts(0), P_SymFreq(0), P_SymCum(0), P_PositionCum(0), 
+	P_CharToSym(0), P_SymToChar(0), P_Bit(0), P_Tree(0), P_Header(0), P_Src(0), P_Dest(0), P_InFile(0), P_OutFile(0)
 {
-	TextSize      = 0;
-	Low           = 0;
-	High          = Q4;
-	Value         = 0;
-	Shifts        = 0;
-	P_SymFreq     = 0;
-	P_SymCum      = 0;
-	P_PositionCum = 0;
-	P_CharToSym   = 0;
-	P_SymToChar   = 0;
-	P_Bit         = 0;
-	P_Tree        = 0;
-	P_Header      = 0;
-	P_Src         = 0;
-	P_Dest        = 0;
-	P_InFile      = 0;
-	P_OutFile     = 0;
 }
 
 LZAri::~LZAri()

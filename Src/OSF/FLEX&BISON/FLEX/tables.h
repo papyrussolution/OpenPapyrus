@@ -35,20 +35,13 @@
 #ifndef TABLES_H
 #define TABLES_H
 
-#ifdef __cplusplus
-/* *INDENT-OFF* */
-extern  "C" {
-/* *INDENT-ON* */
-#endif
-
 /* Tables serialization API declarations. */
 #include "tables_shared.h"
+
 struct yytbl_writer {
 	FILE   *out;
-	flex_uint32_t total_written;
-			    /**< bytes written so far */
-	fpos_t  th_ssize_pos;
-			    /**< position of th_ssize */
+	int total_written; /**< bytes written so far */
+	fpos_t  th_ssize_pos; /**< position of th_ssize */
 };
 
 /* These are used by main.c, gen.c, etc.
@@ -64,22 +57,14 @@ extern char *tablesfilename, *tablesname;
 extern struct yytbl_writer tableswr;
 
 int     yytbl_writer_init (struct yytbl_writer *, FILE *);
-int     yytbl_hdr_init (struct yytbl_hdr *th, const char *version_str,
-			const char *name);
+int     yytbl_hdr_init (struct yytbl_hdr *th, const char *version_str, const char *name);
 int     yytbl_data_init (struct yytbl_data *tbl, enum yytbl_id id);
 int     yytbl_data_destroy (struct yytbl_data *td);
-int     yytbl_hdr_fwrite (struct yytbl_writer *wr,
-			  const struct yytbl_hdr *th);
+int     yytbl_hdr_fwrite (struct yytbl_writer *wr, const struct yytbl_hdr *th);
 int     yytbl_data_fwrite (struct yytbl_writer *wr, struct yytbl_data *td);
 void    yytbl_data_compress (struct yytbl_data *tbl);
 struct yytbl_data *mkftbl (void);
 
-
-#ifdef __cplusplus
-/* *INDENT-OFF* */
-}
-/* *INDENT-ON* */
-#endif
 #endif
 
 /* vim:set expandtab cindent tabstop=4 softtabstop=4 shiftwidth=4 textwidth=0: */

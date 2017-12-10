@@ -54,17 +54,17 @@ void ApplicationManagementServiceBindingProxy::ApplicationManagementServiceBindi
 	{"SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/", "http://www.w3.org/*/soap-encoding", NULL},
 	{"xsi", "http://www.w3.org/2001/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance", NULL},
 	{"xsd", "http://www.w3.org/2001/XMLSchema", "http://www.w3.org/*/XMLSchema", NULL},
-	{"ns4", "http://api.vetrf.ru/schema/cdm/application", NULL, NULL},
-	{"ns3", "http://api.vetrf.ru/schema/cdm/base", NULL, NULL},
-	{"ns6", "http://api.vetrf.ru/schema/cdm/dictionary/v2", NULL, NULL},
-	{"ns7", "http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2", NULL, NULL},
+	{"app", "http://api.vetrf.ru/schema/cdm/application", NULL, NULL},
+	{"base", "http://api.vetrf.ru/schema/cdm/base", NULL, NULL},
+	{"ent", "http://api.vetrf.ru/schema/cdm/dictionary/v2", NULL, NULL},
+	{"vd", "http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2", NULL, NULL},
+	{"ns1", "http://api.vetrf.ru/schema/cdm/registry/enterprise/service/v2", NULL, NULL},
 	{"ns2", "http://api.vetrf.ru/schema/cdm/base/ws-definitions", NULL, NULL},
-	{"ns10", "http://api.vetrf.ru/schema/cdm/application/service", NULL, NULL},
-	{"ns1", "http://api.vetrf.ru/schema/cdm/application/ws-definitions", NULL, NULL},
-	{"ns11", "http://api.vetrf.ru/schema/cdm/mercury/g2b/service/v2", NULL, NULL},
-	{"ns5", "http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2", NULL, NULL},
-	{"ns9", "http://api.vetrf.ru/schema/cdm/registry/enterprise/service/v2", NULL, NULL},
 	{"ns8", "http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2", NULL, NULL},
+	{"ns3", "http://api.vetrf.ru/schema/cdm/application/service", NULL, NULL},
+	{"ws", "http://api.vetrf.ru/schema/cdm/application/ws-definitions", NULL, NULL},
+	{"ns4", "http://api.vetrf.ru/schema/cdm/mercury/g2b/service/v2", NULL, NULL},
+	{"merc", "http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2", NULL, NULL},
 	{NULL, NULL, NULL, NULL}
 };
 	soap_set_namespaces(this, namespaces);
@@ -138,25 +138,25 @@ char *ApplicationManagementServiceBindingProxy::soap_sprint_fault(char *buf, siz
 }
 #endif
 
-int ApplicationManagementServiceBindingProxy::submitApplicationRequest(const char *endpoint, const char *soap_action, _ns1__submitApplicationRequest *ns1__submitApplicationRequest, _ns1__submitApplicationResponse *ns1__submitApplicationResponse)
+int ApplicationManagementServiceBindingProxy::submitApplicationRequest(const char *endpoint, const char *soap_action, _ws__submitApplicationRequest *ws__submitApplicationRequest, _ws__submitApplicationResponse *ws__submitApplicationResponse)
 {
 	struct soap *soap = this;
-	struct __ns10__submitApplicationRequest soap_tmp___ns10__submitApplicationRequest;
+	struct __ns3__submitApplicationRequest soap_tmp___ns3__submitApplicationRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "submitApplicationRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns10__submitApplicationRequest.ns1__submitApplicationRequest = ns1__submitApplicationRequest;
+	soap_tmp___ns3__submitApplicationRequest.ws__submitApplicationRequest = ws__submitApplicationRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns10__submitApplicationRequest(soap, &soap_tmp___ns10__submitApplicationRequest);
+	soap_serialize___ns3__submitApplicationRequest(soap, &soap_tmp___ns3__submitApplicationRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns10__submitApplicationRequest(soap, &soap_tmp___ns10__submitApplicationRequest, "-ns10:submitApplicationRequest", NULL)
+		 || soap_put___ns3__submitApplicationRequest(soap, &soap_tmp___ns3__submitApplicationRequest, "-ns3:submitApplicationRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -167,20 +167,20 @@ int ApplicationManagementServiceBindingProxy::submitApplicationRequest(const cha
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns10__submitApplicationRequest(soap, &soap_tmp___ns10__submitApplicationRequest, "-ns10:submitApplicationRequest", NULL)
+	 || soap_put___ns3__submitApplicationRequest(soap, &soap_tmp___ns3__submitApplicationRequest, "-ns3:submitApplicationRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns1__submitApplicationResponse)
+	if(!ws__submitApplicationResponse)
 		return soap_closesock(soap);
-	ns1__submitApplicationResponse->soap_default(soap);
+	ws__submitApplicationResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns1__submitApplicationResponse->soap_get(soap, "ns1:submitApplicationResponse", "");
+	ws__submitApplicationResponse->soap_get(soap, "ws:submitApplicationResponse", "");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -190,25 +190,25 @@ int ApplicationManagementServiceBindingProxy::submitApplicationRequest(const cha
 	return soap_closesock(soap);
 }
 
-int ApplicationManagementServiceBindingProxy::receiveApplicationResult(const char *endpoint, const char *soap_action, _ns1__receiveApplicationResultRequest *ns1__receiveApplicationResultRequest, _ns1__receiveApplicationResultResponse *ns1__receiveApplicationResultResponse)
+int ApplicationManagementServiceBindingProxy::receiveApplicationResult(const char *endpoint, const char *soap_action, _ws__receiveApplicationResultRequest *ws__receiveApplicationResultRequest, _ws__receiveApplicationResultResponse *ws__receiveApplicationResultResponse)
 {
 	struct soap *soap = this;
-	struct __ns10__receiveApplicationResult soap_tmp___ns10__receiveApplicationResult;
+	struct __ns3__receiveApplicationResult soap_tmp___ns3__receiveApplicationResult;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "receiveApplicationResult");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns10__receiveApplicationResult.ns1__receiveApplicationResultRequest = ns1__receiveApplicationResultRequest;
+	soap_tmp___ns3__receiveApplicationResult.ws__receiveApplicationResultRequest = ws__receiveApplicationResultRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns10__receiveApplicationResult(soap, &soap_tmp___ns10__receiveApplicationResult);
+	soap_serialize___ns3__receiveApplicationResult(soap, &soap_tmp___ns3__receiveApplicationResult);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns10__receiveApplicationResult(soap, &soap_tmp___ns10__receiveApplicationResult, "-ns10:receiveApplicationResult", NULL)
+		 || soap_put___ns3__receiveApplicationResult(soap, &soap_tmp___ns3__receiveApplicationResult, "-ns3:receiveApplicationResult", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -219,20 +219,20 @@ int ApplicationManagementServiceBindingProxy::receiveApplicationResult(const cha
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns10__receiveApplicationResult(soap, &soap_tmp___ns10__receiveApplicationResult, "-ns10:receiveApplicationResult", NULL)
+	 || soap_put___ns3__receiveApplicationResult(soap, &soap_tmp___ns3__receiveApplicationResult, "-ns3:receiveApplicationResult", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns1__receiveApplicationResultResponse)
+	if(!ws__receiveApplicationResultResponse)
 		return soap_closesock(soap);
-	ns1__receiveApplicationResultResponse->soap_default(soap);
+	ws__receiveApplicationResultResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns1__receiveApplicationResultResponse->soap_get(soap, "ns1:receiveApplicationResultResponse", "");
+	ws__receiveApplicationResultResponse->soap_get(soap, "ws:receiveApplicationResultResponse", "");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)

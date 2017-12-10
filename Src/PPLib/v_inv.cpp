@@ -778,12 +778,8 @@ int FASTCALL QuantityCtrlGroup::Rec::operator == (const Rec & rS) const
 		feqeps(PackTail, rS.PackTail, epsilon) && feqeps(Qtty, rS.Qtty, epsilon));
 }
 
-QuantityCtrlGroup::QuantityCtrlGroup(uint ctlUpp, uint ctlPacks, uint ctlQtty) : CtrlGroup()
+QuantityCtrlGroup::QuantityCtrlGroup(uint ctlUpp, uint ctlPacks, uint ctlQtty) : CtrlGroup(), CtlUpp(ctlUpp), CtlPacks(ctlPacks), CtlQtty(ctlQtty), LockUpdByInput(0)
 {
-	CtlUpp = ctlUpp;
-	CtlPacks = ctlPacks;
-	CtlQtty = ctlQtty;
-	LockUpdByInput = 0;
 }
 
 void QuantityCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)

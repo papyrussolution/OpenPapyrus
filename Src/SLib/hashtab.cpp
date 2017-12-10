@@ -7,7 +7,7 @@
 
 uint32 FASTCALL DJBHash(const void * pData, size_t len);     // @prototype
 
-HashTableBase::HashTableBase(size_t sz)
+HashTableBase::HashTableBase(size_t sz) : P_Tab(0), Flags(0), AddCount(0), CollCount(0), MaxTail(0)
 {
 	size_t i = NZOR(sz, 1024);
 	if(i) do {
@@ -17,11 +17,6 @@ HashTableBase::HashTableBase(size_t sz)
 		}
 	} while(--i);
 	Size = sz;
-	P_Tab = 0;
-	Flags = 0;
-	AddCount  = 0;
-	CollCount = 0;
-	MaxTail   = 0;
 }
 
 HashTableBase::~HashTableBase()

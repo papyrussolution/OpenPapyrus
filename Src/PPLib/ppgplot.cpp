@@ -3,7 +3,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <process.h>
 
 PPGpStyle::PPGpStyle()
 {
@@ -109,13 +108,9 @@ int PPGpStyle::ToStr(SString & rBuf) const
 //
 //
 //
-PPGpPlotItem::PPGpPlotItem(const char * pSrc, const char * pTitle, int plotStyle)
+PPGpPlotItem::PPGpPlotItem(const char * pSrc, const char * pTitle, int plotStyle) : Flags(0), DataSrc(pSrc), Title(pTitle), S(plotStyle)
 {
-	Flags = 0;
-	DataSrc = pSrc;
 	Flags |= fDataFile;
-	Title = pTitle;
-	S = plotStyle;
 }
 
 int PPGpPlotItem::AddDataIndex(int idx)
@@ -215,10 +210,9 @@ int PPGpPlotItem::ToStr(SString & rBuf) const
 //
 //
 //
-PPGpTicsList::PPGpTicsList(int type)
+PPGpTicsList::PPGpTicsList(int type) : T(type)
 {
 	assert(oneof2(type, 0, 1));
-	T = type;
 }
 
 int PPGpTicsList::Add(double val, const char * pText, int level)
@@ -280,22 +274,18 @@ int PPGpTicsList::ToStr(SString & rBuf) const
 //
 //
 //
-Generator_GnuPlot::StyleFont::StyleFont()
+Generator_GnuPlot::StyleFont::StyleFont() : Size(0)
 {
-	Size = 0;
 }
 
-Generator_GnuPlot::StyleTics::StyleTics()
+Generator_GnuPlot::StyleTics::StyleTics() : Flags(0), Rotate(0)
 {
-	Flags = 0;
-	Rotate = 0;
 }
 //
 //
 //
-Generator_GnuPlot::PlotParam::PlotParam()
+Generator_GnuPlot::PlotParam::PlotParam() : Flags(0)
 {
-	Flags = 0;
 }
 
 Generator_GnuPlot::Generator_GnuPlot(const char * pFileName) : SFile()

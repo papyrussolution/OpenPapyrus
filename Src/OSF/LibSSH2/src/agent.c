@@ -236,8 +236,10 @@ static int agent_connect_pageant(LIBSSH2_AGENT * agent)
 	HWND hwnd = FindWindow("Pageant", "Pageant");
 	if(!hwnd)
 		return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL, "failed connecting agent");
-	agent->fd = 0;     /* Mark as the connection has been established */
-	return LIBSSH2_ERROR_NONE;
+	else {
+		agent->fd = 0;     /* Mark as the connection has been established */
+		return LIBSSH2_ERROR_NONE;
+	}
 }
 
 static int agent_transact_pageant(LIBSSH2_AGENT * agent, agent_transaction_ctx_t transctx)
@@ -449,7 +451,6 @@ static int agent_list_identities(LIBSSH2_AGENT * agent)
 		goto error;
 	}
 	s++;
-
 	/* Read the length of identities */
 	len -= 4;
 	if(len < 0) {
@@ -458,7 +459,6 @@ static int agent_list_identities(LIBSSH2_AGENT * agent)
 	}
 	num_identities = _libssh2_ntohu32(s);
 	s += 4;
-
 	while(num_identities--) {
 		struct agent_publickey * identity;
 		ssize_t comment_len;
@@ -475,7 +475,6 @@ static int agent_list_identities(LIBSSH2_AGENT * agent)
 		}
 		identity->external.blob_len = _libssh2_ntohu32(s);
 		s += 4;
-
 		/* Read the blob */
 		len -= identity->external.blob_len;
 		if(len < 0) {
@@ -491,7 +490,6 @@ static int agent_list_identities(LIBSSH2_AGENT * agent)
 		}
 		memcpy(identity->external.blob, s, identity->external.blob_len);
 		s += identity->external.blob_len;
-
 		/* Read the length of the comment */
 		len -= 4;
 		if(len < 0) {
@@ -502,7 +500,6 @@ static int agent_list_identities(LIBSSH2_AGENT * agent)
 		}
 		comment_len = _libssh2_ntohu32(s);
 		s += 4;
-
 		/* Read the comment */
 		len -= comment_len;
 		if(len < 0) {
@@ -551,13 +548,10 @@ static void agent_free_identities(LIBSSH2_AGENT * agent)
 static struct libssh2_agent_publickey * agent_publickey_to_external(struct agent_publickey * node)
 {
 	struct libssh2_agent_publickey * ext = &node->external;
-
 	ext->magic = AGENT_PUBLICKEY_MAGIC;
 	ext->node = node;
-
 	return ext;
 }
-
 /*
  * libssh2_agent_init
  *
@@ -567,13 +561,13 @@ static struct libssh2_agent_publickey * agent_publickey_to_external(struct agent
 LIBSSH2_API LIBSSH2_AGENT * libssh2_agent_init(LIBSSH2_SESSION * session)
 {
 	LIBSSH2_AGENT * agent = (LIBSSH2_AGENT *)LIBSSH2_CALLOC(session, sizeof *agent);
-	if(!agent) {
+	if(!agent)
 		_libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate space for agent connection");
-		return NULL;
+	else {
+		agent->fd = LIBSSH2_INVALID_SOCKET;
+		agent->session = session;
+		_libssh2_list_init(&agent->head);
 	}
-	agent->fd = LIBSSH2_INVALID_SOCKET;
-	agent->session = session;
-	_libssh2_list_init(&agent->head);
 	return agent;
 }
 /*
@@ -585,8 +579,8 @@ LIBSSH2_API LIBSSH2_AGENT * libssh2_agent_init(LIBSSH2_SESSION * session)
  */
 LIBSSH2_API int libssh2_agent_connect(LIBSSH2_AGENT * agent)
 {
-	int i, rc = -1;
-	for(i = 0; supported_backends[i].name; i++) {
+	int rc = -1;
+	for(int i = 0; supported_backends[i].name; i++) {
 		agent->ops = supported_backends[i].ops;
 		rc = (agent->ops->connect)(agent);
 		if(!rc)
@@ -594,7 +588,6 @@ LIBSSH2_API int libssh2_agent_connect(LIBSSH2_AGENT * agent)
 	}
 	return rc;
 }
-
 /*
  * libssh2_agent_list_identities()
  *
@@ -605,11 +598,10 @@ LIBSSH2_API int libssh2_agent_connect(LIBSSH2_AGENT * agent)
 LIBSSH2_API int libssh2_agent_list_identities(LIBSSH2_AGENT * agent)
 {
 	memzero(&agent->transctx, sizeof agent->transctx);
-	/* Abondon the last fetched identities */
+	// Abondon the last fetched identities 
 	agent_free_identities(agent);
 	return agent_list_identities(agent);
 }
-
 /*
  * libssh2_agent_get_identity()
  *
@@ -627,20 +619,18 @@ LIBSSH2_API int libssh2_agent_get_identity(LIBSSH2_AGENT * agent,
 {
 	struct agent_publickey * node;
 	if(oprev && oprev->node) {
-		/* we have a starting point */
+		// we have a starting point 
 		struct agent_publickey * prev = (struct agent_publickey *)oprev->node;
-		/* get the next node in the list */
+		// get the next node in the list 
 		node = (struct agent_publickey *)_libssh2_list_next(&prev->node);
 	}
 	else
 		node = (struct agent_publickey *)_libssh2_list_first(&agent->head);
-	if(!node)
-		/* no (more) node */
+	if(!node) // no (more) node 
 		return 1;
 	*ext = agent_publickey_to_external(node);
 	return 0;
 }
-
 /*
  * libssh2_agent_userauth()
  *
@@ -670,9 +660,7 @@ LIBSSH2_API int libssh2_agent_userauth(LIBSSH2_AGENT * agent, const char * usern
  */
 LIBSSH2_API int libssh2_agent_disconnect(LIBSSH2_AGENT * agent)
 {
-	if(agent->ops && agent->fd != LIBSSH2_INVALID_SOCKET)
-		return agent->ops->disconnect(agent);
-	return 0;
+	return (agent->ops && agent->fd != LIBSSH2_INVALID_SOCKET) ? agent->ops->disconnect(agent) : 0;
 }
 
 /*

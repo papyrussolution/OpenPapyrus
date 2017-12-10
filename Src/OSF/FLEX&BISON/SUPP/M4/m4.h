@@ -16,7 +16,7 @@
 
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 /* We use <config.h> instead of "config.h" so that a compilation
    using -I. -I$srcdir will use ./config.h rather than $srcdir/config.h
@@ -56,9 +56,9 @@
 
 /* Canonicalize UNIX recognition macros.  */
 #if defined unix || defined __unix || defined __unix__ \
-  || defined _POSIX_VERSION || defined _POSIX2_VERSION \
-  || defined __NetBSD__ || defined __OpenBSD__ \
-  || defined __APPLE__ || defined __APPLE_CC__
+	|| defined _POSIX_VERSION || defined _POSIX2_VERSION \
+	|| defined __NetBSD__ || defined __OpenBSD__ \
+	|| defined __APPLE__ || defined __APPLE_CC__
 # define UNIX 1
 #endif
 
@@ -81,15 +81,15 @@
 
 /* No-op, for future gettext compatibility.  */
 #define _(ARG) ARG
-
+
 /* Various declarations.  */
 
-struct string
-  {
-    char *string;               /* characters of the string */
-    size_t length;              /* length of the string */
-  };
-typedef struct string STRING;
+struct FBString {
+	char * string;          /* characters of the string */
+	size_t length;          /* length of the string */
+};
+
+typedef struct FBString STRING;
 
 /* Memory allocation.  */
 #define obstack_chunk_alloc     xmalloc
@@ -116,11 +116,11 @@ typedef unsigned int bool_bitfield;
 # define M4_GNUC_ATTRIBUTE(args)
 #endif  /* __GNUC__ */
 
-#define M4_GNUC_UNUSED          M4_GNUC_ATTRIBUTE ((__unused__))
-#define M4_GNUC_PRINTF(fmt, arg)                        \
-  M4_GNUC_ATTRIBUTE ((__format__ (__printf__, fmt, arg)))
-#define M4_GNUC_NORETURN        M4_GNUC_ATTRIBUTE ((__noreturn__))
-
+#define M4_GNUC_UNUSED          M4_GNUC_ATTRIBUTE((__unused__))
+#define M4_GNUC_PRINTF(fmt, arg)			\
+	M4_GNUC_ATTRIBUTE((__format__(__printf__, fmt, arg)))
+#define M4_GNUC_NORETURN        M4_GNUC_ATTRIBUTE((__noreturn__))
+
 /* File: m4.c  --- global definitions.  */
 
 /* Option flags.  */
@@ -134,24 +134,23 @@ extern int suppress_warnings;           /* -Q */
 extern int warning_status;              /* -E */
 extern int nesting_limit;               /* -L */
 #ifdef ENABLE_CHANGEWORD
-extern const char *user_word_regexp;    /* -W */
+extern const char * user_word_regexp;    /* -W */
 #endif
 
 /* Error handling.  */
 extern int retcode;
-extern const char *program_name;
+extern const char * program_name;
 
-void m4_error (int, int, const char *, ...) M4_GNUC_PRINTF(3, 4);
-void m4_error_at_line (int, int, const char *, int,
-                       const char *, ...) M4_GNUC_PRINTF(5, 6);
+void m4_error(int, int, const char *, ...) M4_GNUC_PRINTF(3, 4);
+void m4_error_at_line(int, int, const char *, int,
+    const char *, ...) M4_GNUC_PRINTF(5, 6);
 
 #define M4ERROR(Arglist) (m4_error Arglist)
 #define M4ERROR_AT_LINE(Arglist) (m4_error_at_line Arglist)
 
-
 /* File: debug.c  --- debugging and tracing function.  */
 
-extern FILE *debug;
+extern FILE * _debug;
 
 /* The value of debug_level is a bitmask of the following.  */
 
@@ -181,107 +180,106 @@ extern FILE *debug;
 /* default flags -- equiv: aeq */
 #define DEBUG_TRACE_DEFAULT 7
 
-#define DEBUG_PRINT1(Fmt, Arg1) \
-  do                                                            \
-    {                                                           \
-      if (debug != NULL)                                        \
-        xfprintf (debug, Fmt, Arg1);                            \
-    }                                                           \
-  while (0)
+#define DEBUG_PRINT1(Fmt, Arg1)	\
+	do							      \
+	{							    \
+		if(_debug != NULL)					  \
+			xfprintf(_debug, Fmt, Arg1);				\
+	}							    \
+	while(0)
 
 #define DEBUG_PRINT3(Fmt, Arg1, Arg2, Arg3) \
-  do                                                            \
-    {                                                           \
-      if (debug != NULL)                                        \
-        xfprintf (debug, Fmt, Arg1, Arg2, Arg3);                \
-    }                                                           \
-  while (0)
+	do							      \
+	{							    \
+		if(_debug != NULL)					  \
+			xfprintf(_debug, Fmt, Arg1, Arg2, Arg3);		\
+	}							    \
+	while(0)
 
 #define DEBUG_MESSAGE(Fmt) \
-  do                                                            \
-    {                                                           \
-      if (debug != NULL)                                        \
-        {                                                       \
-          debug_message_prefix ();                              \
-          xfprintf (debug, Fmt);                                \
-          putc ('\n', debug);                                   \
-        }                                                       \
-    }                                                           \
-  while (0)
+	do							      \
+	{							    \
+		if(_debug != NULL)					  \
+		{							\
+			debug_message_prefix();				     \
+			xfprintf(_debug, Fmt);				      \
+			putc('\n', _debug);				      \
+		}							\
+	}							    \
+	while(0)
 
 #define DEBUG_MESSAGE1(Fmt, Arg1) \
-  do                                                            \
-    {                                                           \
-      if (debug != NULL)                                        \
-        {                                                       \
-          debug_message_prefix ();                              \
-          xfprintf (debug, Fmt, Arg1);                          \
-          putc ('\n', debug);                                   \
-        }                                                       \
-    }                                                           \
-  while (0)
+	do							      \
+	{							    \
+		if(_debug != NULL)					  \
+		{							\
+			debug_message_prefix();				     \
+			xfprintf(_debug, Fmt, Arg1);			      \
+			putc('\n', _debug);				      \
+		}							\
+	}							    \
+	while(0)
 
-#define DEBUG_MESSAGE2(Fmt, Arg1, Arg2) \
-  do                                                            \
-    {                                                           \
-      if (debug != NULL)                                        \
-        {                                                       \
-          debug_message_prefix ();                              \
-          xfprintf (debug, Fmt, Arg1, Arg2);                    \
-          putc ('\n', debug);                                   \
-        }                                                       \
-    }                                                           \
-  while (0)
+#define DEBUG_MESSAGE2(Fmt, Arg1, Arg2)	\
+	do							      \
+	{							    \
+		if(_debug != NULL)					  \
+		{							\
+			debug_message_prefix();				     \
+			xfprintf(_debug, Fmt, Arg1, Arg2);		      \
+			putc('\n', _debug);				      \
+		}							\
+	}							    \
+	while(0)
 
-void debug_init (void);
-int debug_decode (const char *);
-void debug_flush_files (void);
-bool debug_set_output (const char *);
-void debug_message_prefix (void);
+void debug_init(void);
+int debug_decode(const char *);
+void debug_flush_files(void);
+bool debug_set_output(const char *);
+void debug_message_prefix(void);
 
-void trace_prepre (const char *, int);
-void trace_pre (const char *, int, int, token_data **);
-void trace_post (const char *, int, int, const char *);
-
+void trace_prepre(const char *, int);
+void trace_pre(const char *, int, int, token_data **);
+void trace_post(const char *, int, int, const char *);
+
 /* File: input.c  --- lexical definitions.  */
 
 /* Various different token types.  */
-enum token_type
-{
-  TOKEN_EOF,                    /* end of file */
-  TOKEN_STRING,                 /* a quoted string or comment */
-  TOKEN_WORD,                   /* an identifier */
-  TOKEN_OPEN,                   /* ( */
-  TOKEN_COMMA,                  /* , */
-  TOKEN_CLOSE,                  /* ) */
-  TOKEN_SIMPLE,                 /* any other single character */
-  TOKEN_MACDEF                  /* a macro's definition (see "defn") */
+enum token_type {
+	TOKEN_EOF,              /* end of file */
+	TOKEN_STRING,           /* a quoted string or comment */
+	TOKEN_WORD,             /* an identifier */
+	TOKEN_OPEN,             /* ( */
+	TOKEN_COMMA,            /* , */
+	TOKEN_CLOSE,            /* ) */
+	TOKEN_SIMPLE,           /* any other single character */
+	TOKEN_MACDEF            /* a macro's definition (see "defn") */
 };
 
 /* The data for a token, a macro argument, and a macro definition.  */
-enum token_data_type
-{
-  TOKEN_VOID,
-  TOKEN_TEXT,
-  TOKEN_FUNC
+enum token_data_type {
+	TOKEN_VOID,
+	TOKEN_TEXT,
+	TOKEN_FUNC
 };
 
-struct token_data
-{
-  enum token_data_type type;
-  union
-    {
-      struct
-        {
-          char *text;
+struct token_data {
+	enum token_data_type type;
+
+	union {
+		struct {
+			char * text;
 #ifdef ENABLE_CHANGEWORD
-          char *original_text;
+			char * original_text;
 #endif
-        }
-      u_t;
-      builtin_func *func;
-    }
-  u;
+		}
+
+		u_t;
+
+		builtin_func * func;
+	}
+
+	u;
 };
 
 #define TOKEN_DATA_TYPE(Td)             ((Td)->type)
@@ -294,21 +292,21 @@ struct token_data
 typedef enum token_type token_type;
 typedef enum token_data_type token_data_type;
 
-void input_init (void);
-token_type peek_token (void);
-token_type next_token (token_data *, int *);
-void skip_line (void);
+void input_init(void);
+token_type peek_token(void);
+token_type next_token(token_data *, int *);
+void skip_line(void);
 
 /* push back input */
-void push_file (FILE *, const char *, bool);
-void push_macro (builtin_func *);
-struct obstack *push_string_init (void);
-const char *push_string_finish (void);
-void push_wrapup (const char *);
-bool pop_wrapup (void);
+void push_file(FILE *, const char *, bool);
+void push_macro(builtin_func *);
+struct obstack * push_string_init(void);
+const char * push_string_finish(void);
+void push_wrapup(const char *);
+bool pop_wrapup(void);
 
 /* current input file, and line */
-extern const char *current_file;
+extern const char * current_file;
 extern int current_line;
 
 /* left and right quote, begin and end comment */
@@ -320,50 +318,49 @@ extern STRING lquote, rquote;
 #define DEF_BCOMM "#"
 #define DEF_ECOMM "\n"
 
-void set_quotes (const char *, const char *);
-void set_comment (const char *, const char *);
+void set_quotes(const char *, const char *);
+void set_comment(const char *, const char *);
 #ifdef ENABLE_CHANGEWORD
-void set_word_regexp (const char *);
+void set_word_regexp(const char *);
 #endif
-
+
 /* File: output.c --- output functions.  */
 extern int current_diversion;
 extern int output_current_line;
 
-void output_init (FILE* out);
-void output_exit (void);
-void output_text (const char *, int);
-void shipout_text (struct obstack *, const char *, int, int);
-void make_diversion (int);
-void insert_diversion (int);
-void insert_file (FILE *);
-void freeze_diversions (FILE *);
-
+void output_init(FILE* out);
+void output_exit(void);
+void output_text(const char *, int);
+void shipout_text(struct obstack *, const char *, int, int);
+void make_diversion(int);
+void insert_diversion(int);
+void insert_file(FILE *);
+void freeze_diversions(FILE *);
+
 /* File symtab.c  --- symbol table definitions.  */
 
 /* Operation modes for lookup_symbol ().  */
-enum symbol_lookup
-{
-  SYMBOL_LOOKUP,
-  SYMBOL_INSERT,
-  SYMBOL_DELETE,
-  SYMBOL_PUSHDEF,
-  SYMBOL_POPDEF
+enum symbol_lookup {
+	SYMBOL_LOOKUP,
+	SYMBOL_INSERT,
+	SYMBOL_DELETE,
+	SYMBOL_PUSHDEF,
+	SYMBOL_POPDEF
 };
 
 /* Symbol table entry.  */
-struct symbol
-{
-  struct symbol *next;
-  bool_bitfield traced : 1;
-  bool_bitfield shadowed : 1;
-  bool_bitfield macro_args : 1;
-  bool_bitfield blind_no_args : 1;
-  bool_bitfield deleted : 1;
-  int pending_expansions;
+struct symbol {
+	struct symbol * next;
 
-  char *name;
-  token_data data;
+	bool_bitfield traced : 1;
+	bool_bitfield shadowed : 1;
+	bool_bitfield macro_args : 1;
+	bool_bitfield blind_no_args : 1;
+	bool_bitfield deleted : 1;
+	int pending_expansions;
+
+	char * name;
+	token_data data;
 };
 
 #define SYMBOL_NEXT(S)          ((S)->next)
@@ -374,9 +371,9 @@ struct symbol
 #define SYMBOL_DELETED(S)       ((S)->deleted)
 #define SYMBOL_PENDING_EXPANSIONS(S) ((S)->pending_expansions)
 #define SYMBOL_NAME(S)          ((S)->name)
-#define SYMBOL_TYPE(S)          (TOKEN_DATA_TYPE (&(S)->data))
-#define SYMBOL_TEXT(S)          (TOKEN_DATA_TEXT (&(S)->data))
-#define SYMBOL_FUNC(S)          (TOKEN_DATA_FUNC (&(S)->data))
+#define SYMBOL_TYPE(S)          (TOKEN_DATA_TYPE(&(S)->data))
+#define SYMBOL_TEXT(S)          (TOKEN_DATA_TEXT(&(S)->data))
+#define SYMBOL_FUNC(S)          (TOKEN_DATA_FUNC(&(S)->data))
 
 typedef enum symbol_lookup symbol_lookup;
 typedef struct symbol symbol;
@@ -384,39 +381,38 @@ typedef void hack_symbol (symbol *, void *);
 
 #define HASHMAX 509             /* default, overridden by -Hsize */
 
-extern symbol **symtab;
+extern symbol ** symtab;
 
-void free_symbol (symbol *sym);
-void symtab_init (void);
-symbol *lookup_symbol (const char *, symbol_lookup);
-void hack_all_symbols (hack_symbol *, void *);
-
+void free_symbol(symbol * sym);
+void symtab_init(void);
+symbol * lookup_symbol(const char *, symbol_lookup);
+void hack_all_symbols(hack_symbol *, void *);
+
 /* File: macro.c  --- macro expansion.  */
 
-void expand_input (void);
-void call_macro (symbol *, int, token_data **, struct obstack *);
-
+void expand_input(void);
+void call_macro(symbol *, int, token_data **, struct obstack *);
+
 /* File: builtin.c  --- builtins.  */
 
-struct builtin
-{
-  const char *name;
-  bool_bitfield gnu_extension : 1;
-  bool_bitfield groks_macro_args : 1;
-  bool_bitfield blind_if_no_args : 1;
-  builtin_func *func;
+struct builtin {
+	const char * name;
+	bool_bitfield gnu_extension : 1;
+	bool_bitfield groks_macro_args : 1;
+	bool_bitfield blind_if_no_args : 1;
+	builtin_func * func;
 };
 
-struct predefined
-{
-  const char *unix_name;
-  const char *gnu_name;
-  const char *func;
+struct predefined {
+	const char * unix_name;
+	const char * gnu_name;
+	const char * func;
 };
 
 typedef struct builtin builtin;
 typedef struct predefined predefined;
 struct re_pattern_buffer;
+
 struct re_registers;
 
 /* The default sequence detects multi-digit parameters (obsolete after
@@ -424,40 +420,40 @@ struct re_registers;
    syntax (new in 2.0).  */
 #define DEFAULT_MACRO_SEQUENCE "\\$\\({[^}]*}\\|[0-9][0-9]+\\)"
 
-void builtin_init (void);
-void define_builtin (const char *, const builtin *, symbol_lookup);
-void set_macro_sequence (const char *);
-void free_macro_sequence (void);
-void define_user_macro (const char *, const char *, symbol_lookup);
-void undivert_all (void);
-void expand_user_macro (struct obstack *, symbol *, int, token_data **);
-void m4_placeholder (struct obstack *, int, token_data **);
-void init_pattern_buffer (struct re_pattern_buffer *, struct re_registers *);
-const char *ntoa (int32_t, int);
+void builtin_init(void);
+void define_builtin(const char *, const builtin *, symbol_lookup);
+void set_macro_sequence(const char *);
+void free_macro_sequence(void);
+void define_user_macro(const char *, const char *, symbol_lookup);
+void undivert_all(void);
+void expand_user_macro(struct obstack *, symbol *, int, token_data **);
+void m4_placeholder(struct obstack *, int, token_data **);
+void init_pattern_buffer(struct re_pattern_buffer *, struct re_registers *);
+const char * ntoa(int32_t, int);
 
-const builtin *find_builtin_by_addr (builtin_func *);
-const builtin *find_builtin_by_name (const char *);
-
+const builtin * find_builtin_by_addr(builtin_func *);
+const builtin * find_builtin_by_name(const char *);
+
 /* File: path.c  --- path search for include files.  */
 
-void include_init (void);
-void include_env_init (void);
-void add_include_directory (const char *);
-FILE *m4_path_search (const char *, char **);
-
+void include_init(void);
+void include_env_init(void);
+void add_include_directory(const char *);
+FILE * m4_path_search(const char *, char **);
+
 /* File: eval.c  --- expression evaluation.  */
 
-bool evaluate (const char *, int32_t *);
-
+bool evaluate(const char *, int32_t *);
+
 /* File: format.c  --- printf like formatting.  */
 
-void expand_format (struct obstack *, int, token_data **);
-
+void expand_format(struct obstack *, int, token_data **);
+
 /* File: freeze.c --- frozen state files.  */
 
-void produce_frozen_state (const char *);
-void reload_frozen_state (const char *);
-
+void produce_frozen_state(const char *);
+void reload_frozen_state(const char *);
+
 /* Debugging the memory allocator.  */
 
 #ifdef WITH_DMALLOC
@@ -480,10 +476,13 @@ void reload_frozen_state (const char *);
    a bit safer than casting to unsigned char, since it catches some type
    errors that the cast doesn't.  */
 #if HAVE_INLINE
-static inline unsigned char to_uchar (char ch) { return ch; }
+static inline unsigned char to_uchar(char ch) {
+	return ch;
+}
+
 #else
-# define to_uchar(C) ((unsigned char) (C))
+# define to_uchar(C) ((unsigned char)(C))
 #endif
 
 /* Avoid negative logic when comparing two strings.  */
-#define STREQ(a, b) (strcmp (a, b) == 0)
+#define STREQ(a, b) (strcmp(a, b) == 0)

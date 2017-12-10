@@ -274,9 +274,8 @@ int SLAPI PPViewPaymPlan::Init_(const PPBaseFilt * pFilt)
 	{
 		class PaymPlanCrosstab : public Crosstab {
 		public:
-			SLAPI  PaymPlanCrosstab(PPViewPaymPlan * pV) : Crosstab()
+			SLAPI  PaymPlanCrosstab(PPViewPaymPlan * pV) : Crosstab(), P_V(pV)
 			{
-				P_V = pV;
 			}
 			virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 			{

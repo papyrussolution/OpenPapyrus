@@ -1143,10 +1143,8 @@ int SLAPI PPObjLocation::SearchName(PPID locTyp, PPID parentID, const char * pNa
 
 class LocationView : public ObjViewDialog {
 public:
-	LocationView(PPObjLocation * pObj, void * extraPtr) : ObjViewDialog(DLG_LOCVIEW, pObj, extraPtr)
+	LocationView(PPObjLocation * pObj, void * extraPtr) : ObjViewDialog(DLG_LOCVIEW, pObj, extraPtr), IsWareplaceView(0), ParentID(0)
 	{
-		IsWareplaceView = 0;
-		ParentID = 0;
 		SString fmt_buf, par_name, title_;
 		if(extraPtr) {
 			const LocationFilt * p_filt = (const LocationFilt *)extraPtr;
@@ -1520,10 +1518,8 @@ int SLAPI EditDlvrAddrExtFields(LocationTbl::Rec * pData)
 
 class LocationDialog : public TDialog {
 public:
-	LocationDialog(uint rezID, long locTyp, long edflags) : TDialog(rezID)
+	LocationDialog(uint rezID, long locTyp, long edflags) : TDialog(rezID), EdFlags(edflags), LocTyp(locTyp)
 	{
-		EdFlags = edflags;
-		LocTyp = locTyp;
 		LocationCore::GetTypeDescription(LocTyp, &Ltd);
 		setTitle(Ltd.Name);
 		enableCommand(cmExtFields, BIN(locTyp == LOCTYP_ADDRESS));
@@ -1718,12 +1714,10 @@ int LocationDialog::setDTS(const PPLocationPacket * pData)
 		LocationCore::GetExField(&Data, LOCEXSTR_FULLADDR, temp_buf);
 		setCtrlString(CTL_LOCATION_FULLADDR, temp_buf);
 		SetGeoCoord();
-		// @v7.6.2 {
 		LocationCore::GetExField(&Data, LOCEXSTR_PHONE, temp_buf);
 		setCtrlString(CTL_LOCATION_PHONE, temp_buf);
 		LocationCore::GetExField(&Data, LOCEXSTR_CONTACT, temp_buf);
 		setCtrlString(CTL_LOCATION_CONTACT, temp_buf);
-		// } @v7.6.2
 		// @v8.3.6 {
 		LocationCore::GetExField(&Data, LOCEXSTR_EMAIL, temp_buf);
 		setCtrlString(CTL_LOCATION_EMAIL, temp_buf);
@@ -2611,22 +2605,15 @@ int SLAPI PPObjLocation::MakeReserved(long flags)
 //
 // DivisionCtrlGroup
 //
-SLAPI DivisionCtrlGroup::Rec::Rec(PPID orgID, PPID divID, PPID staffID, PPID postID)
+SLAPI DivisionCtrlGroup::Rec::Rec(PPID orgID, PPID divID, PPID staffID, PPID postID) :
+	OrgID(orgID), DivID(divID), StaffID(staffID), PostID(postID)
 {
-	OrgID = orgID;
-	DivID = divID;
-	StaffID = staffID;
-	PostID = postID;
 }
 
 DivisionCtrlGroup::DivisionCtrlGroup(uint _ctlsel_org, uint _ctlsel_div, uint _ctlsel_staff, uint _ctlsel_post) :
-	CtrlGroup(), DivF(LOCTYP_DIVISION)
+	CtrlGroup(), DivF(LOCTYP_DIVISION), CtlselOrg(_ctlsel_org), CtlselDiv(_ctlsel_div), CtlselStaff(_ctlsel_staff),
+	CtlselPost(_ctlsel_post), flags(0)
 {
-	CtlselOrg = _ctlsel_org;
-	CtlselDiv = _ctlsel_div;
-	CtlselStaff = _ctlsel_staff;
-	CtlselPost = _ctlsel_post;
-	flags      = 0;
 	MEMSZERO(Data);
 }
 
@@ -2811,12 +2798,9 @@ int SLAPI PPObjLocation::ViewDivision()
 //
 class LocationCache : public ObjCacheHash {
 public:
-	SLAPI  LocationCache() :
-		ObjCacheHash(PPOBJ_LOCATION, sizeof(LocationData), 1024*1024, 4),
-		WhObjList(sizeof(WHObjEntry)),
-		FullEaList(BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR))
+	SLAPI LocationCache() : ObjCacheHash(PPOBJ_LOCATION, sizeof(LocationData), 1024*1024, 4),
+		WhObjList(sizeof(WHObjEntry)), FullEaList(BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR)), IsWhObjTabInited(0)
 	{
-		IsWhObjTabInited = 0;
 		LoadWarehouseTab();
 		MEMSZERO(Cfg);
 	}
@@ -2941,7 +2925,7 @@ const StrAssocArray * SLAPI LocationCache::GetFullEaList()
 		if(!err) {
 			#if SLTRACELOCKSTACK
 			SLS.LockPush(SLockStack::ltRW_R, __FILE__, __LINE__);
-			#endif		
+			#endif
 			FealLock.ReadLock_();
 			p_result = &FullEaList;
 		}
@@ -2955,7 +2939,7 @@ int LocationCache::ReleaseFullEaList(const StrAssocArray * pList)
 		FealLock.Unlock_();
 		#if SLTRACELOCKSTACK
 		SLS.LockPop();
-		#endif		
+		#endif
 	}
 	return 1;
 }
@@ -4046,12 +4030,8 @@ static AddrItemDescr Aidl[] = {
 	{ 71, "á",        AddrItemDescr::fOptSfx, PPLocAddrStruc::tStreet, 55 },
 };
 
-PPLocAddrStruc::AddrTok::AddrTok()
+PPLocAddrStruc::AddrTok::AddrTok() : T(0), P(0), Flags(0), P_SplitL(0)
 {
-	T = 0;
-	P = 0;
-	Flags = 0;
-	P_SplitL = 0;
 }
 
 PPLocAddrStruc::AddrTok::~AddrTok()
@@ -4094,11 +4074,8 @@ PPLocAddrStruc::DetectBlock & PPLocAddrStruc::DetectBlock::Init(int entityType, 
 	return *this;
 }
 
-SLAPI PPLocAddrStruc::_MatchEntry::_MatchEntry(uint p1, uint p2, int reverse)
+SLAPI PPLocAddrStruc::_MatchEntry::_MatchEntry(uint p1, uint p2, int reverse) : P1(p1), P2(p2), Reverse(reverse)
 {
-	P1 = p1;
-	P2 = p2;
-	Reverse = reverse;
 }
 
 SLAPI PPLocAddrStruc::_MatchEntry::_MatchEntry(const _MatchEntry & rS)
@@ -5859,7 +5836,7 @@ int PPALDD_UhttStore::Set(long iterId, int commit)
 int PPFiasReference::IdentifyShortDescription(const char * pText, int * pLevel, SString * pFullText)
 {
 	int    ok = 0;
-	int    level = pLevel ? *pLevel : 0;
+	int    level = DEREFPTRORZ(pLevel);
 	ASSIGN_PTR(pFullText, 0);
 	SString temp_buf;
 	(temp_buf = pText).Transf(CTRANSF_INNER_TO_OUTER);
@@ -6089,7 +6066,7 @@ int SLAPI PPFiasReference::GetRandomHouse(long extValue, PPID terminalObjID, PPI
 int SLAPI PPFiasReference::GetRandomAddress(long extValue, PPID cityID, PPID * pStreetID, PPID * pHouseID)
 {
 	int    ok = -1;
-	PPID   street_id = pStreetID ? *pStreetID : 0;
+	PPID   street_id = DEREFPTRORZ(pStreetID);
 	PPID   house_id = 0;
     if(cityID) {
         if(!street_id) {

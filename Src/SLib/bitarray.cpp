@@ -6,18 +6,16 @@
 #include <tv.h>
 #pragma hdrstop
 
-SLAPI BitArray::BitArray()
+SLAPI BitArray::BitArray() : Count(0)
 {
 	Size = 64;
 	P_Buf = (char *)SAlloc::M(Size);
 	resetbitstring(P_Buf, Size);
-	Count = 0;
 }
 
-SLAPI BitArray::BitArray(const BitArray & s)
+SLAPI BitArray::BitArray(const BitArray & s) : Count(0)
 {
 	SBaseBuffer::Init();
-	Count = 0;
 	Copy(s);
 }
 

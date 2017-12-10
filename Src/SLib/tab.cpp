@@ -187,7 +187,7 @@ int SLAPI STab::GetRow(uint pos, Row & rRow) const
 
 int SLAPI STab::Find(uint columnPos, const char * pKey, uint * pRowPos) const
 {
-	uint   row_pos = pRowPos ? *pRowPos : 0;
+	uint   row_pos = DEREFPTRORZ(pRowPos);
 	Row    row;
 	SString temp_buf;
 	for(uint i = row_pos; i < Data.getCount(); i++) {
@@ -202,7 +202,7 @@ int SLAPI STab::Find(uint columnPos, const char * pKey, uint * pRowPos) const
 
 int SLAPI STab::Find(uint columnPos, double key, uint * pRowPos) const
 {
-	uint   row_pos = pRowPos ? *pRowPos : 0;
+	uint   row_pos = DEREFPTRORZ(pRowPos);
 	Row    row;
 	SString temp_buf;
 	for(uint i = row_pos; i < Data.getCount(); i++) {
@@ -217,7 +217,7 @@ int SLAPI STab::Find(uint columnPos, double key, uint * pRowPos) const
 
 int SLAPI STab::Find(uint columnPos, long key, uint * pRowPos) const
 {
-	uint   row_pos = pRowPos ? *pRowPos : 0;
+	uint   row_pos = DEREFPTRORZ(pRowPos);
 	Row    row;
 	SString temp_buf;
 	for(uint i = row_pos; i < Data.getCount(); i++) {

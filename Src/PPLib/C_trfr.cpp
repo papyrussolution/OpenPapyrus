@@ -1,13 +1,13 @@
 // C_TRFR.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
-// @codepage windows-1251
-// Процедуры корректировки товарных проводок
+// @codepage UTF-8
+// РџСЂРѕС†РµРґСѓСЂС‹ РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєРё С‚РѕРІР°СЂРЅС‹С… РїСЂРѕРІРѕРґРѕРє
 //
 #include <pp.h>
 #pragma hdrstop
 //
-// Descr: Корректировка ошибок в лотах и товарных строках, возникших из-за ошибок объединения документов
-//   внутреннего перемещения.
+// Descr: РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РѕС€РёР±РѕРє РІ Р»РѕС‚Р°С… Рё С‚РѕРІР°СЂРЅС‹С… СЃС‚СЂРѕРєР°С…, РІРѕР·РЅРёРєС€РёС… РёР·-Р·Р° РѕС€РёР±РѕРє РѕР±СЉРµРґРёРЅРµРЅРёСЏ РґРѕРєСѓРјРµРЅС‚РѕРІ
+//   РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ РїРµСЂРµРјРµС‰РµРЅРёСЏ.
 //
 int SLAPI Transfer::CorrectIntrUnite()
 {
@@ -38,19 +38,19 @@ int SLAPI Transfer::CorrectIntrUnite()
 					Rcpt.copyBufTo(&lot_rec);
 					DateIter di; // PPFormat
 					int    corrected = 0;
-					// Обнаружен порожденный лот с висячей ссылкой на документ: @date @goods @real
+					// РћР±РЅР°СЂСѓР¶РµРЅ РїРѕСЂРѕР¶РґРµРЅРЅС‹Р№ Р»РѕС‚ СЃ РІРёСЃСЏС‡РµР№ СЃСЃС‹Р»РєРѕР№ РЅР° РґРѕРєСѓРјРµРЅС‚: @date @goods @real
 					PPFormatT(PPTXT_CORINTRUN_DETECTEDLOT, &msg_buf, lot_rec.Dt, lot_rec.GoodsID, lot_rec.Quantity);
 					logger.Log(msg_buf);
 					//
 					THROW_DB(q.getRecPosition(&rcpt_pos));
 					if(EnumByLot(lot_id, &di, &trfr_rec) > 0 && trfr_rec.Flags & PPTFR_RECEIPT && trfr_rec.BillID == bill_id && trfr_rec.Reverse == 1) {
-						// PPTXT_CORINTRUN_DETECTEDTRFR    "Найдена запись Transfer, сгенерировшая лот: @date @goods @real"
+						// PPTXT_CORINTRUN_DETECTEDTRFR    "РќР°Р№РґРµРЅР° Р·Р°РїРёСЃСЊ Transfer, СЃРіРµРЅРµСЂРёСЂРѕРІС€Р°СЏ Р»РѕС‚: @date @goods @real"
 						PPFormatT(PPTXT_CORINTRUN_DETECTEDTRFR, &msg_buf, trfr_rec.Dt, trfr_rec.GoodsID, trfr_rec.Quantity);
 						logger.Log(msg_buf);
 						//
 						THROW_DB(getPosition(&trfr_pos));
 						if(Rcpt.Search(prev_lot_id, &prev_lot_rec) > 0) {
-							// PPTXT_CORINTRUN_PREVLOTFOUND    "Найден родительский лот: @date @goods @bill"
+							// PPTXT_CORINTRUN_PREVLOTFOUND    "РќР°Р№РґРµРЅ СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ Р»РѕС‚: @date @goods @bill"
 							PPFormatT(PPTXT_CORINTRUN_PREVLOTFOUND, &msg_buf, prev_lot_rec.Dt, prev_lot_rec.GoodsID, prev_lot_rec.BillID);
 							logger.Log(msg_buf);
 							//
@@ -62,7 +62,7 @@ int SLAPI Transfer::CorrectIntrUnite()
 										THROW(r2);
 										if(r2 < 0) {
 											//
-											// Нашли оригинальную запись, к которой должна быть привязана trfr_rec
+											// РќР°С€Р»Рё РѕСЂРёРіРёРЅР°Р»СЊРЅСѓСЋ Р·Р°РїРёСЃСЊ, Рє РєРѕС‚РѕСЂРѕР№ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РїСЂРёРІСЏР·Р°РЅР° trfr_rec
 											//
 											THROW_DB(getDirectForUpdate(0, 0, trfr_pos));
 											copyBufTo(&trfr_rec);
@@ -77,7 +77,7 @@ int SLAPI Transfer::CorrectIntrUnite()
 											lot_rec.Quantity = fabs(org_trfr_rec.Quantity);
 											THROW_DB(Rcpt.updateRecBuf(&lot_rec)); // @sfu
 											//
-											// PPTXT_CORINTRUN_CORRECTED       "Ошибка исправлена"
+											// PPTXT_CORINTRUN_CORRECTED       "РћС€РёР±РєР° РёСЃРїСЂР°РІР»РµРЅР°"
 											logger.Log(PPLoadTextS(PPTXT_CORINTRUN_CORRECTED, fmt_buf));
 											//
 											corrected = 1;
@@ -85,24 +85,24 @@ int SLAPI Transfer::CorrectIntrUnite()
 									}
 								}
 								else {
-									// PPTXT_CORINTRUN_ERRBILLNFOUND   "Попутная ошибка: не найден документ id=@int для операции по лоту"
+									// PPTXT_CORINTRUN_ERRBILLNFOUND   "РџРѕРїСѓС‚РЅР°СЏ РѕС€РёР±РєР°: РЅРµ РЅР°Р№РґРµРЅ РґРѕРєСѓРјРµРЅС‚ id=@int РґР»СЏ РѕРїРµСЂР°С†РёРё РїРѕ Р»РѕС‚Сѓ"
 									PPFormatT(PPTXT_CORINTRUN_ERRBILLNFOUND, &msg_buf, org_trfr_rec.BillID);
 									logger.Log(msg_buf);
 								}
 							}
 						}
 						else {
-							// PPTXT_CORINTRUN_ERRPARLOTNFOUND "Не найден родительский лот id=@int"
+							// PPTXT_CORINTRUN_ERRPARLOTNFOUND "РќРµ РЅР°Р№РґРµРЅ СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ Р»РѕС‚ id=@int"
 							PPFormatT(PPTXT_CORINTRUN_ERRPARLOTNFOUND, &msg_buf, prev_lot_id);
 							logger.Log(msg_buf);
 						}
 					}
 					else {
-						// PPTXT_CORINTRUN_ERRTRFRNFOUND   "Не найдена запись Transfer, сгегерировшая лот"
+						// PPTXT_CORINTRUN_ERRTRFRNFOUND   "РќРµ РЅР°Р№РґРµРЅР° Р·Р°РїРёСЃСЊ Transfer, СЃРіРµРіРµСЂРёСЂРѕРІС€Р°СЏ Р»РѕС‚"
 						logger.Log(PPLoadTextS(PPTXT_CORINTRUN_ERRTRFRNFOUND, fmt_buf));
 					}
 					if(!corrected) {
-						// PPTXT_CORINTRUN_NOTCORRECTED    "Ошибка НЕ исправлена"
+						// PPTXT_CORINTRUN_NOTCORRECTED    "РћС€РёР±РєР° РќР• РёСЃРїСЂР°РІР»РµРЅР°"
 						logger.Log(PPLoadTextS(PPTXT_CORINTRUN_NOTCORRECTED, fmt_buf));
 						//
 					}
@@ -182,10 +182,10 @@ int SLAPI Transfer::CorrectReverse()
 			if(search(0, &k0, spEq)) {
 				int    err = 0;
 				//
-				// PPTXT_TRFRREVERR_INVBILL     "Несоответствие документа, владеющего зеркальной строкой Transfer {@bill; @int} (@bill)"
-				// PPTXT_TRFRREVERR_INVQTTY     "Несоответствие количества в зеркальной строке Transfer {@bill; @int} (@real # @real)"
-				// PPTXT_TRFRREVERR_INVCOST     "Несоответствие цены поступления в зеркальной строке Transfer {@bill; @int} (@real # @real)"
-				// PPTXT_TRFRREVERR_INVPRICE    "Несоответствие чистой цены реализации в зеркальной строке Transfer {@bill; @int} (@real # @real)"
+				// PPTXT_TRFRREVERR_INVBILL     "РќРµСЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РґРѕРєСѓРјРµРЅС‚Р°, РІР»Р°РґРµСЋС‰РµРіРѕ Р·РµСЂРєР°Р»СЊРЅРѕР№ СЃС‚СЂРѕРєРѕР№ Transfer {@bill; @int} (@bill)"
+				// PPTXT_TRFRREVERR_INVQTTY     "РќРµСЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РєРѕР»РёС‡РµСЃС‚РІР° РІ Р·РµСЂРєР°Р»СЊРЅРѕР№ СЃС‚СЂРѕРєРµ Transfer {@bill; @int} (@real # @real)"
+				// PPTXT_TRFRREVERR_INVCOST     "РќРµСЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ С†РµРЅС‹ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ РІ Р·РµСЂРєР°Р»СЊРЅРѕР№ СЃС‚СЂРѕРєРµ Transfer {@bill; @int} (@real # @real)"
+				// PPTXT_TRFRREVERR_INVPRICE    "РќРµСЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ С‡РёСЃС‚РѕР№ С†РµРЅС‹ СЂРµР°Р»РёР·Р°С†РёРё РІ Р·РµСЂРєР°Р»СЊРЅРѕР№ СЃС‚СЂРѕРєРµ Transfer {@bill; @int} (@real # @real)"
 				//
 				if(data.BillID != rec.BillID) {
 					logger.Log(PPFormatT(PPTXT_TRFRREVERR_INVBILL, &msg_buf, rec.BillID, rec.RByBill, data.BillID));
@@ -220,7 +220,7 @@ int SLAPI Transfer::CorrectReverse()
 				}
 			}
 			else if(BTRNFOUND) {
-				// PPTXT_TRFRREVERR_LOSTREC  "Висячая зеркальная строка Transfer {@bill; @int; @goods}"
+				// PPTXT_TRFRREVERR_LOSTREC  "Р’РёСЃСЏС‡Р°СЏ Р·РµСЂРєР°Р»СЊРЅР°СЏ СЃС‚СЂРѕРєР° Transfer {@bill; @int; @goods}"
 				logger.Log(PPFormatT(PPTXT_TRFRREVERR_LOSTREC, &msg_buf, rec.BillID, rec.RByBill, rec.GoodsID));
 				if(param.Flags & Param::fRecover) {
 					if(!RemoveItem(rec.BillID, 1, rec.RByBill, 0))
@@ -304,7 +304,7 @@ int SLAPI RecoverAbsenceLots()
 					force_lot_id = ti.LotID;
 					ti.LotID = 0;
 					if(p_bobj->Search(rec.BillID, &bill_rec) > 0) {
-						// Отсутствующий лот {@goods - @loc - @int @bill}
+						// РћС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёР№ Р»РѕС‚ {@goods - @loc - @int @bill}
 						logger.Log(PPFormatS(PPMSG_ERROR, PPERR_ABSLOTS, &log_buf, ti.GoodsID, ti.LocID, ti.BillID, ti.BillID));
 						if(correct) {
 							if(!trfr->data.Reverse)
@@ -442,7 +442,7 @@ int SLAPI Transfer::CorrectCurRest(PPID goodsID, const PPIDArray * pLocList, PPL
 			k.GoodsID = p.GoodsID;
 			k.LocID   = p.LocID;
 			const double rest = R6(p.Total.Rest);
-			int   empty = 0; // Признак того, что при нулевом остатке на складе нет ни одного лота
+			int   empty = 0; // РџСЂРёР·РЅР°Рє С‚РѕРіРѕ, С‡С‚Рѕ РїСЂРё РЅСѓР»РµРІРѕРј РѕСЃС‚Р°С‚РєРµ РЅР° СЃРєР»Р°РґРµ РЅРµС‚ РЅРё РѕРґРЅРѕРіРѕ Р»РѕС‚Р°
 			if(rest == 0.0) {
 				ReceiptTbl::Rec lot_rec;
 				int r = Rcpt.GetLastLot(p.GoodsID, p.LocID, MAXDATE, &lot_rec);
@@ -511,7 +511,7 @@ int SLAPI Transfer::CorrectCurRest(const char * pLogName, int correct)
 	SString log_msg, fmt_buf;
 	Goods2Tbl::Rec goods_rec;
 	PPObjLocation loc_obj;
-	PPIDArray wh_list; // Список идентификаторов складов
+	PPIDArray wh_list; // РЎРїРёСЃРѕРє РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ СЃРєР»Р°РґРѕРІ
 	loc_obj.GetWarehouseList(&wh_list);
 	PPLogger logger;
 	PPWait(1);
@@ -727,15 +727,13 @@ int SLAPI CorrectZeroQCertRefs()
 //
 //
 //
-SLAPI PPLotFaultArray::PPLotFaultArray(PPID lotID, PPLogger & rLogger) : SArray(sizeof(PPLotFault))
+SLAPI PPLotFaultArray::PPLotFaultArray(PPID lotID, PPLogger & rLogger) : SVector(sizeof(PPLotFault)), LotID(lotID), P_Logger(&rLogger) // @v9.8.10 SArray-->SVector
 {
-	LotID = lotID;
-	P_Logger = &rLogger;
 }
 
 PPLotFault & FASTCALL PPLotFaultArray::at(uint p) const
 {
-	return *(PPLotFault*)SArray::at(p);
+	return *(PPLotFault*)SVector::at(p); // @v9.8.10 SArray-->SVector
 }
 
 int SLAPI PPLotFaultArray::AddFault(int fault, const ReceiptTbl::Rec * pRec, PPID childID, PPID parentID)
@@ -855,12 +853,12 @@ SString & SLAPI PPLotFaultArray::Message(uint p, SString & rBuf)
 			case PPLotFault::PrevLotGoods: msg_id = PPERR_ELOT_PREVLOTGOODS; break;
 			case PPLotFault::PrevLotLoc:   msg_id = PPERR_ELOT_PREVLOTLOC;   break;
 			case PPLotFault::PrevLotFlagsCWoVat: msg_id = PPERR_ELOT_PREVLOTFLAGSCWOVAT;  break;
-			case PPLotFault::LcrInvRest: msg_id = PPERR_ELOT_LCRINVREST; break; // Неверный остаток в записи таблицы остатков по лотам
-			case PPLotFault::LcrAbsence: msg_id = PPERR_ELOT_LCRABSENCE; break; // Отсутствует запись в таблице остатков по лотам
-			case PPLotFault::LcrWaste:   msg_id = PPERR_ELOT_LCRWASTE;   break; // Лишняя запись в таблице остатков по лотам
-			case PPLotFault::LcrDb:      msg_id = PPERR_ELOT_LCRDB;      break; // Ошибка извлечения записи из таблицы остатков по лотам
-			case PPLotFault::NonUniqSerial: msg_id = PPERR_ELOT_NONUNIQSERIAL; break; // @v7.3.0
-			case PPLotFault::OrdOpOnSimpleLot: msg_id = PPERR_ELOT_ORDOPONSIMPLELOT; break; // @v7.5.3
+			case PPLotFault::LcrInvRest: msg_id = PPERR_ELOT_LCRINVREST; break; // РќРµРІРµСЂРЅС‹Р№ РѕСЃС‚Р°С‚РѕРє РІ Р·Р°РїРёСЃРё С‚Р°Р±Р»РёС†С‹ РѕСЃС‚Р°С‚РєРѕРІ РїРѕ Р»РѕС‚Р°Рј
+			case PPLotFault::LcrAbsence: msg_id = PPERR_ELOT_LCRABSENCE; break; // РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ Р·Р°РїРёСЃСЊ РІ С‚Р°Р±Р»РёС†Рµ РѕСЃС‚Р°С‚РєРѕРІ РїРѕ Р»РѕС‚Р°Рј
+			case PPLotFault::LcrWaste:   msg_id = PPERR_ELOT_LCRWASTE;   break; // Р›РёС€РЅСЏСЏ Р·Р°РїРёСЃСЊ РІ С‚Р°Р±Р»РёС†Рµ РѕСЃС‚Р°С‚РєРѕРІ РїРѕ Р»РѕС‚Р°Рј
+			case PPLotFault::LcrDb:      msg_id = PPERR_ELOT_LCRDB;      break; // РћС€РёР±РєР° РёР·РІР»РµС‡РµРЅРёСЏ Р·Р°РїРёСЃРё РёР· С‚Р°Р±Р»РёС†С‹ РѕСЃС‚Р°С‚РєРѕРІ РїРѕ Р»РѕС‚Р°Рј
+			case PPLotFault::NonUniqSerial: msg_id = PPERR_ELOT_NONUNIQSERIAL; break;
+			case PPLotFault::OrdOpOnSimpleLot: msg_id = PPERR_ELOT_ORDOPONSIMPLELOT; break;
 			case PPLotFault::NegativeRest: msg_id = PPERR_ELOT_NEGATIVEREST; break; // @v8.0.9
 			case PPLotFault::InadqIndepPhFlagOn: msg_id = PPERR_ELOT_INADQINDEPPHFLAGON; break; // @v8.3.9
 			case PPLotFault::InadqIndepPhFlagOff: msg_id = PPERR_ELOT_INADQINDEPPHFLAGON; break; // @v8.3.9
@@ -976,10 +974,8 @@ public:
 		double NewCost;
 		double NewPrice;
 	};
-	SLAPI  RevalArray(double cost, double price) : SVector(sizeof(Reval))
+	SLAPI  RevalArray(double cost, double price) : SVector(sizeof(Reval)), LotCost(cost), LotPrice(price)
 	{
-		LotCost  = cost;
-		LotPrice = price;
 	}
 	int    SLAPI Add(TransferTbl::Rec * pRec, int first);
 	int    SLAPI Shift();
@@ -1054,7 +1050,7 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 		PPObjBill * p_bobj = BillObj;
 		Reference * p_ref = PPRef;
 		ReceiptTbl::Rec rec;
-		Goods2Tbl::Rec goods_rec; // Запись товара, к которому привязан лот
+		Goods2Tbl::Rec goods_rec; // Р—Р°РїРёСЃСЊ С‚РѕРІР°СЂР°, Рє РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРІСЏР·Р°РЅ Р»РѕС‚
 		SString serial_buf;
 		SString egais_code;
 		PPObjGoods goods_obj;
@@ -1103,7 +1099,7 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 		else {
 			pAry->AddFault(PPLotFault::RefGoodsZero, &rec, 0, 0);
 		}
-		if(rec.BillID) { // Если не котировка и не специальный лот
+		if(rec.BillID) { // Р•СЃР»Рё РЅРµ РєРѕС‚РёСЂРѕРІРєР° Рё РЅРµ СЃРїРµС†РёР°Р»СЊРЅС‹Р№ Р»РѕС‚
 			if(flags & TLRF_REPAIRPACK && rec.UnitPerPack <= 0.0) {
 				pAry->AddFault(PPLotFault::NoPack, &rec, 0, 0);
 			}
@@ -1117,7 +1113,7 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 					ProcessLotFault(pAry, PPLotFault::RefPrevEqID, 0, 0);
 				if(pAry) {
 					//
-					// Проверка на циклическую ссылку и плохие связи
+					// РџСЂРѕРІРµСЂРєР° РЅР° С†РёРєР»РёС‡РµСЃРєСѓСЋ СЃСЃС‹Р»РєСѓ Рё РїР»РѕС…РёРµ СЃРІСЏР·Рё
 					//
 					PPID   org_lot_id = rec.ID;
 					PPIDArray looked;
@@ -1151,7 +1147,7 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 					}
 				}
 			}
-			if(rec.GoodsID < 0) { // Заказ
+			if(rec.GoodsID < 0) { // Р—Р°РєР°Р·
 				BillTbl::Rec bill_rec;
 				if(p_bobj->Search(rec.BillID, &bill_rec) > 0) {
 					if(CheckOpFlags(bill_rec.OpID, OPKF_ORDRESERVE)) {
@@ -1169,13 +1165,11 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 				ProcessLotFault(pAry, PPLotFault::NegativeRest, 0, 0);
 			}
 			// } @v8.0.9
-			// @v7.3.0 {
 			if(flags & TLRF_CHECKUNIQSERIAL) {
 				p_bobj->GetSerialNumberByLot(rec.ID, serial_buf, 0);
 				if(p_bobj->AdjustSerialForUniq(rec.GoodsID, rec.ID, 1, serial_buf) > 0)
 					ProcessLotFault(pAry, PPLotFault::NonUniqSerial, 0, 0);
 			}
-			// } @v7.3.0
 			// @v8.9.0 {
 			if(rec.Flags & LOTF_PRICEWOTAXES && !(goods_rec.Flags & GF_PRICEWOTAXES)) {
 				ProcessLotFault(pAry, PPLotFault::InadqLotWoTaxFlagOn, 0, 0);
@@ -1189,7 +1183,7 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 				LDATE  last_dt = ZERODATE;
 				LcrBlock lcr(LcrBlock::opTest, P_LcrT, 0);
 				RevalArray reval_list(R5(rec.Cost), R5(rec.Price));
-				DBRowIdArray rcpt_pos_list; // Список операций, имеющих флаг PPTFR_RECEIPT
+				DBRowIdArray rcpt_pos_list; // РЎРїРёСЃРѕРє РѕРїРµСЂР°С†РёР№, РёРјРµСЋС‰РёС… С„Р»Р°Рі PPTFR_RECEIPT
 				lcr.InitLot(lotID);
 				BExtQuery q(this, 2);
 				q.selectAll().where(LotID == lotID);
@@ -1284,7 +1278,6 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 					op_count = 0;
 					for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
 						if(!(data.Flags & PPTFR_REVAL)) {
-							// @v7.5.3 {
 							if(op_count) {
 								if(data.Flags & PPTFR_ORDER) {
 									BillTbl::Rec bill_rec;
@@ -1293,7 +1286,6 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 									}
 								}
 							}
-							// } @v7.5.3
 							double cost, price;
 							double op_cost  = TR5(data.Cost);
 							double op_price = TR5(data.Price);
@@ -1312,8 +1304,8 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 										RevalArray::Reval * p_rai = (RevalArray::Reval *)reval_list.at(reval_idx);
 										if(p_rai) {
 											//
-											// Для правильной инициализации ошибки необходимо извлечь
-											// как текущую ошибочную запись переоценки
+											// Р”Р»СЏ РїСЂР°РІРёР»СЊРЅРѕР№ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РѕС€РёР±РєРё РЅРµРѕР±С…РѕРґРёРјРѕ РёР·РІР»РµС‡СЊ
+											// РєР°Рє С‚РµРєСѓС‰СѓСЋ РѕС€РёР±РѕС‡РЅСѓСЋ Р·Р°РїРёСЃСЊ РїРµСЂРµРѕС†РµРЅРєРё
 											//
 											TransferTbl::Key1 k1;
 											MEMSZERO(k1);
@@ -1342,8 +1334,8 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 										RevalArray::Reval * p_rai = (RevalArray::Reval *)reval_list.at(reval_idx);
 										if(p_rai) {
 											//
-											// Для правильной инициализации ошибки необходимо извлечь
-											// как текущую ошибочную запись переоценки
+											// Р”Р»СЏ РїСЂР°РІРёР»СЊРЅРѕР№ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РѕС€РёР±РєРё РЅРµРѕР±С…РѕРґРёРјРѕ РёР·РІР»РµС‡СЊ
+											// РєР°Рє С‚РµРєСѓС‰СѓСЋ РѕС€РёР±РѕС‡РЅСѓСЋ Р·Р°РїРёСЃСЊ РїРµСЂРµРѕС†РµРЅРєРё
 											//
 											TransferTbl::Key1 k1;
 											MEMSZERO(k1);
@@ -1532,7 +1524,7 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 				}
 			}
 			// } @v9.3.12
-			if(lot_rec.GoodsID < 0) { // Заказ
+			if(lot_rec.GoodsID < 0) { // Р—Р°РєР°Р·
 				BillTbl::Rec bill_rec;
 				if(p_bobj->Search(lot_rec.BillID, &bill_rec) > 0) {
 					if(CheckOpFlags(bill_rec.OpID, OPKF_ORDRESERVE)) {
@@ -1559,8 +1551,8 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 				err_lot = 1;
 			}
 			// } @v8.9.0
-			if(lot_rec.BillID) { // Если не котировка
-				DBRowIdArray rcpt_pos_list; // Список операций, имеющих флаг PPTFR_RECEIPT
+			if(lot_rec.BillID) { // Р•СЃР»Рё РЅРµ РєРѕС‚РёСЂРѕРІРєР°
+				DBRowIdArray rcpt_pos_list; // РЎРїРёСЃРѕРє РѕРїРµСЂР°С†РёР№, РёРјРµСЋС‰РёС… С„Р»Р°Рі PPTFR_RECEIPT
 				long   oprno = 0;
 				long   count = 0;
 				double rest    = 0.0;
@@ -1600,7 +1592,6 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 							err_lot = 1;
 						}
 					}
-					// @v7.5.4 {
 					if(pFaultList->_HasOpFault(PPLotFault::OrdOpOnSimpleLot, dt, oprno, &fp)) {
 						PPTransferItem ti;
 						ti.SetupByRec(&data);
@@ -1613,8 +1604,7 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 						data.Flags |= PPTFR_ORDER;
 						err_op = 1;
 					}
-					else { // При такой ошибке не следует пытаться исправить другие ошибки
-					// } @v7.5.4
+					else { // РџСЂРё С‚Р°РєРѕР№ РѕС€РёР±РєРµ РЅРµ СЃР»РµРґСѓРµС‚ РїС‹С‚Р°С‚СЊСЃСЏ РёСЃРїСЂР°РІРёС‚СЊ РґСЂСѓРіРёРµ РѕС€РёР±РєРё
 						// @v8.5.7 {
 						if(pFaultList->HasFault(PPLotFault::NonSingleRcptOp, 0, 0) && rcpt_pos_list.getCount() > 1) {
 							if(data.Flags & PPTFR_RECEIPT) {
@@ -1648,7 +1638,7 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 									err_op = 1;
 								}
 							}
-							/* установливать флаг не следует - много сложных последствий
+							/* СѓСЃС‚Р°РЅРѕРІР»РёРІР°С‚СЊ С„Р»Р°Рі РЅРµ СЃР»РµРґСѓРµС‚ - РјРЅРѕРіРѕ СЃР»РѕР¶РЅС‹С… РїРѕСЃР»РµРґСЃС‚РІРёР№
 							else if(pFaultList->HasFault(PPLotFault::InadqIndepPhFlagOn, 0, 0)) {
 							}
 							*/
@@ -1670,14 +1660,12 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 									err_op = 1;
 									err_price = 1;
 								}
-								// @v7.1.8 {
 								if(pFaultList->_HasOpFault(PPLotFault::RevalOldCost, dt, oprno, &fp)) {
 									assert(data.Flags & PPTFR_REVAL);
 									data.Cost = TR5(pFaultList->at(fp).ValidVal);
 									err_op = 1;
 									err_price = 1;
 								}
-								// } @v7.1.8
 							}
 							if(flags & TLRF_REPAIRPRICE) {
 								if(pFaultList->HasPriceOpFault(dt, oprno, &fp)) {
@@ -1689,14 +1677,12 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 									err_op    = 1;
 									err_price = 1;
 								}
-								// @v7.1.8 {
 								if(pFaultList->_HasOpFault(PPLotFault::RevalOldPrice, dt, oprno, &fp)) {
 									assert(data.Flags & PPTFR_REVAL);
 									data.Price = TR5(pFaultList->at(fp).ValidVal);
 									err_op = 1;
 									err_price = 1;
 								}
-								// } @v7.1.8
 							}
 						}
 						if(data.Flags & PPTFR_COSTWOVAT && !(lot_rec.Flags & LOTF_COSTWOVAT)) {
@@ -1872,7 +1858,7 @@ int SLAPI CorrectIntrReverse(PPID billID)
 				ti->Flags   &= ~PPTFR_UNITEINTR;
 				INVERSEFLAG(ti->Flags, PPTFR_RECEIPT);
 				//
-				// Откладываем обработку ошибки в AddItem до восстановления значений ti
+				// РћС‚РєР»Р°РґС‹РІР°РµРј РѕР±СЂР°Р±РѕС‚РєСѓ РѕС€РёР±РєРё РІ AddItem РґРѕ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ Р·РЅР°С‡РµРЅРёР№ ti
 				//
 				r = trfr->AddItem(ti, 0);
 				INVERSEFLAG(ti->Flags, PPTFR_RECEIPT);
@@ -2022,7 +2008,7 @@ int SLAPI PrcssrAbsentGoods::ProcessGoods(PPID goodsID, PPID lotID, PPID billID,
 		}
 		else if(P_BObj->Search(billID, &bill_rec) > 0)
 			PPObjBill::MakeCodeString(&bill_rec, 0, bill_buf);
-		//"Отсутствует товар ID=%ld (лот ID=%ld Bill=%s N=%s q=%lf c=%.2lf p=%.2lf)"
+		//"РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚ С‚РѕРІР°СЂ ID=%ld (Р»РѕС‚ ID=%ld Bill=%s N=%s q=%lf c=%.2lf p=%.2lf)"
 		log_buf.Printf(fmt_buf, goodsID, lotID, bill_buf.cptr(), bill_rec.Code, lot_rec.Quantity, R5(lot_rec.Cost), R5(lot_rec.Price));
 		rLogger.Log(log_buf);
 		if(P.Flags & Param::fCorrectErrors) {
@@ -2264,8 +2250,8 @@ int SLAPI RecoverTransfer()
 					if(is_first_op) {
 						if(rec.Flags & PPTFR_RECEIPT) {
 							//
-							// Первая операция по лоту должна генерировать лот - следует
-							// использовать процедуру восстановления отсутствующих лотов.
+							// РџРµСЂРІР°СЏ РѕРїРµСЂР°С†РёСЏ РїРѕ Р»РѕС‚Сѓ РґРѕР»Р¶РЅР° РіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ Р»РѕС‚ - СЃР»РµРґСѓРµС‚
+							// РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РїСЂРѕС†РµРґСѓСЂСѓ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ РѕС‚СЃСѓС‚СЃС‚РІСѓСЋС‰РёС… Р»РѕС‚РѕРІ.
 							//
 							qtty = 0;
 							loc_id = 0;
@@ -2397,7 +2383,7 @@ int SLAPI PrcssrAbsenceAccounts::EditParam(Param * pParam)
 
 int SLAPI PrcssrAbsenceAccounts::Run()
 {
-	// @todo Протестировать обязательно!
+	// @todo РџСЂРѕС‚РµСЃС‚РёСЂРѕРІР°С‚СЊ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ!
 	int    ok = 1;
 	AcctRelTbl::Key0 k;
 	SString fmt_buf, rcvrd_word;
@@ -2714,7 +2700,7 @@ int SLAPI PrcssrReceiptPacking::Run()
 	SArray tsesln_lot_list(sizeof(TSessLineLotKey));
 	PPWait(1);
 	//
-	// Сканируем таблицу Receipt на предмет окон идентификаторов
+	// РЎРєР°РЅРёСЂСѓРµРј С‚Р°Р±Р»РёС†Сѓ Receipt РЅР° РїСЂРµРґРјРµС‚ РѕРєРѕРЅ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ
 	//
 	{
 		PPLoadText(PPTXT_LOTPACK_SCAN, msg_buf);
@@ -2736,8 +2722,8 @@ int SLAPI PrcssrReceiptPacking::Run()
 		}
 	}
 	//
-	// Поле OrdLotID в таблице CpTransfer не проиндексировано - сканируем таблицу и создаем список
-	// ссылок на лоты в ней.
+	// РџРѕР»Рµ OrdLotID РІ С‚Р°Р±Р»РёС†Рµ CpTransfer РЅРµ РїСЂРѕРёРЅРґРµРєСЃРёСЂРѕРІР°РЅРѕ - СЃРєР°РЅРёСЂСѓРµРј С‚Р°Р±Р»РёС†Сѓ Рё СЃРѕР·РґР°РµРј СЃРїРёСЃРѕРє
+	// СЃСЃС‹Р»РѕРє РЅР° Р»РѕС‚С‹ РІ РЅРµР№.
 	//
 	if(p_cptrfr_t) {
 		CpTransfTbl::Key0 k0;
@@ -2754,8 +2740,8 @@ int SLAPI PrcssrReceiptPacking::Run()
 		cp_transf_lot_list.sort(CMPF_LONG);
 	}
 	//
-	// Поле LotID в таблице TSessLine не проиндексировано - сканируем таблицу и создаем список
-	// ссылок на лоты в ней.
+	// РџРѕР»Рµ LotID РІ С‚Р°Р±Р»РёС†Рµ TSessLine РЅРµ РїСЂРѕРёРЅРґРµРєСЃРёСЂРѕРІР°РЅРѕ - СЃРєР°РЅРёСЂСѓРµРј С‚Р°Р±Р»РёС†Сѓ Рё СЃРѕР·РґР°РµРј СЃРїРёСЃРѕРє
+	// СЃСЃС‹Р»РѕРє РЅР° Р»РѕС‚С‹ РІ РЅРµР№.
 	//
 	{
 		TSessLineTbl::Key0 k0;
@@ -2794,16 +2780,16 @@ int SLAPI PrcssrReceiptPacking::Run()
 			PPID   new_id = 0;
 			ReceiptTbl::Rec rec, new_rec;
 			//
-			// Скопировали буфер данных из найденной записи
+			// РЎРєРѕРїРёСЂРѕРІР°Р»Рё Р±СѓС„РµСЂ РґР°РЅРЅС‹С… РёР· РЅР°Р№РґРµРЅРЅРѕР№ Р·Р°РїРёСЃРё
 			//
  			r_lot_t.copyBufTo(&rec);
 			r_lot_t.copyBufTo(&new_rec);
 			//
-			// Сразу удаляем запись - иначе вставка новой записи не состоится из-за дублирования индексов
+			// РЎСЂР°Р·Сѓ СѓРґР°Р»СЏРµРј Р·Р°РїРёСЃСЊ - РёРЅР°С‡Рµ РІСЃС‚Р°РІРєР° РЅРѕРІРѕР№ Р·Р°РїРёСЃРё РЅРµ СЃРѕСЃС‚РѕРёС‚СЃСЏ РёР·-Р·Р° РґСѓР±Р»РёСЂРѕРІР°РЅРёСЏ РёРЅРґРµРєСЃРѕРІ
 			//
 			THROW_DB(r_lot_t.deleteRec()); // @sfu
 			//
-			// Подменяем идентификатор и вставляем запись назад
+			// РџРѕРґРјРµРЅСЏРµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Рё РІСЃС‚Р°РІР»СЏРµРј Р·Р°РїРёСЃСЊ РЅР°Р·Р°Рґ
 			//
 			new_rec.ID = (long)free_tab_iter;
 			r_lot_t.copyBufFrom(&new_rec);

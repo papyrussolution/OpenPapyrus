@@ -130,8 +130,7 @@ static void ngx_mail_smtp_resolve_name_handler(ngx_resolver_ctx_t * ctx)
 	ngx_mail_session_t  * s = (ngx_mail_session_t*)ctx->data;
 	ngx_connection_t  * c = s->connection;
 	if(ctx->state) {
-		ngx_log_error(NGX_LOG_ERR, c->log, 0, "\"%V\" could not be resolved (%i: %s)",
-		    &ctx->name, ctx->state, ngx_resolver_strerror(ctx->state));
+		ngx_log_error(NGX_LOG_ERR, c->log, 0, "\"%V\" could not be resolved (%i: %s)", &ctx->name, ctx->state, ngx_resolver_strerror(ctx->state));
 		if(ctx->state == NGX_RESOLVE_NXDOMAIN) {
 			s->host = smtp_unavailable;
 		}

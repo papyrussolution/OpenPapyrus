@@ -8,10 +8,8 @@
 // @v9.1.12 #include <ppdefs.h>
 // @v9.1.12 #include <crpe.h>
 
-ShortcutsWindow::ShortcutsWindow()
+ShortcutsWindow::ShortcutsWindow() : Hwnd(0), HwndTT(0)
 {
-	Hwnd   = 0;
-	HwndTT = 0;
 }
 
 ShortcutsWindow::~ShortcutsWindow()

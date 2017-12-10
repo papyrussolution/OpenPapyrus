@@ -5,18 +5,11 @@
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
-
-class LMatrix;
 //
 //
 //
-SLAPI LMatrix::LMatrix()
+SLAPI LMatrix::LMatrix() : P_Name(0), NumRows(0), NumCols(0), Flags(0), P_Vals(0)
 {
-	P_Name = 0;
-	NumRows = 0;
-	NumCols = 0;
-	Flags = 0;
-	P_Vals = 0;
 }
 
 SLAPI LMatrix::~LMatrix()
@@ -181,11 +174,8 @@ int FASTCALL LMatrix::operator -= (const LMatrix & s)
 //
 //
 //
-SLAPI LVect::LVect()
+SLAPI LVect::LVect() : Dim(0), P_Vals(0), P_Name(0)
 {
-	Dim = 0;
-	P_Vals = 0;
-	P_Name = 0; // @v9.8.4 @fix
 }
 
 SLAPI LVect::~LVect()

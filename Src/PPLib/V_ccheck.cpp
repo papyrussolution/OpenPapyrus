@@ -184,9 +184,8 @@ SLAPI PPViewCCheck::~PPViewCCheck()
 
 class CCheckCrosstab : public Crosstab {
 public:
-	SLAPI  CCheckCrosstab(PPViewCCheck * pV) : Crosstab()
+	SLAPI  CCheckCrosstab(PPViewCCheck * pV) : Crosstab(), P_V(pV)
 	{
-		P_V = pV;
 	}
 	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 	{

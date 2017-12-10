@@ -18,20 +18,13 @@ IMPL_CMPFUNC(SDirEntry_Time, i1, i2)
 	return 0;
 }
 
-SLAPI SDirec::SDirec()
+SLAPI SDirec::SDirec() : InitFlag(0), lPosData(-1), vPosData(0), PosDataSize(0)
 {
-	InitFlag = 0;
 	memzero(InitPath, sizeof(InitPath));
-	lPosData = -1;
-	vPosData = 0;
-	PosDataSize = 0;
 }
 
-SLAPI SDirec::SDirec(const char * pPath, int enumDir)
+SLAPI SDirec::SDirec(const char * pPath, int enumDir) : InitFlag(0), lPosData(-1), vPosData(0)
 {
-	InitFlag = 0;
-	lPosData = -1;
-	vPosData = 0;
 	Init(pPath, enumDir);
 }
 

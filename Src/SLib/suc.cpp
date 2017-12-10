@@ -1009,7 +1009,7 @@ int SLAPI SCodepageMapPool::ParseCpName(const SString & rName, int * pSis, SStri
 int SLAPI SCodepageMapPool::ParseSymbols(SString & rU, const SString & rMb, MapEntry & rEntry, uint8 * pMbMl) const
 {
 	int    ok = -1;
-	uint8  mbml = pMbMl ? *pMbMl : 0;
+	uint8  mbml = DEREFPTRORZ(pMbMl);
 	const size_t u_len = rU.Len();
 	const size_t b_len = rMb.Len();
 	assert(oneof4(b_len, 2, 5, 8, 11));

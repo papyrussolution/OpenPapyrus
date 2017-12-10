@@ -28,16 +28,16 @@
 #include <stdio.h>
 
 #if USE_UNLOCKED_IO
- #include "unlocked-io.h"
+# include "unlocked-io.h"
 #endif
 
 /* Attributes used to select a bitset implementation.  */
 enum bitset_attr {BITSET_FIXED = 1,    /* Bitset size fixed.  */
-	          BITSET_VARIABLE = 2, /* Bitset size variable.  */
-	          BITSET_DENSE = 4,    /* Bitset dense.  */
-	          BITSET_SPARSE = 8,   /* Bitset sparse.  */
-	          BITSET_FRUGAL = 16,  /* Prefer most compact.  */
-	          BITSET_GREEDY = 32}; /* Prefer fastest at memory expense.  */
+		  BITSET_VARIABLE = 2, /* Bitset size variable.  */
+		  BITSET_DENSE = 4,    /* Bitset dense.  */
+		  BITSET_SPARSE = 8,   /* Bitset sparse.  */
+		  BITSET_FRUGAL = 16,  /* Prefer most compact.  */
+		  BITSET_GREEDY = 32}; /* Prefer fastest at memory expense.  */
 
 typedef unsigned int bitset_attrs;
 
@@ -46,37 +46,30 @@ typedef unsigned int bitset_attrs;
    visible for the inline bit set/test functions, and for delegation
    to the proper implementation.  */
 union bitset_union {
-	/* This must be the first member of every other structure that is a
-	   member of this union.  */
+	// This must be the first member of every other structure that is a member of this union.  
 	struct bbitset_struct b;        /* Base bitset data.  */
-
 	struct abitset_struct {
 		struct bbitset_struct b;
 		bitset_word words[1];   /* The array of bits.  */
 	} a;
-
 	struct ebitset_struct {
 		struct bbitset_struct b;
 		bitset_windex size;     /* Number of elements.  */
 		struct ebitset_elt_struct ** elts; /* Expanding array of ptrs to elts.  */
 	} e;
-
 	struct lbitset_struct {
 		struct bbitset_struct b;
 		struct lbitset_elt_struct * head; /* First element in linked list.  */
 		struct lbitset_elt_struct * tail; /* Last element in linked list.  */
 	} l;
-
 	struct bitset_stats_struct {
 		struct bbitset_struct b;
 		bitset bset;
 	} s;
-
 	struct vbitset_struct {
 		struct bbitset_struct b;
 		bitset_windex size;     /* Allocated size of array.  */
 	} v;
-
 };
 
 /* The contents of this structure should be considered private.
@@ -107,7 +100,7 @@ extern void bitset_free(bitset);
 /* Create a bitset of desired type and size using an obstack.  The
    bitset is zeroed.  */
 extern bitset bitset_obstack_alloc(struct obstack * bobstack,
-                                   bitset_bindex, enum bitset_type);
+    bitset_bindex, enum bitset_type);
 
 /* Free bitset allocated on obstack.  */
 extern void bitset_obstack_free(bitset);
@@ -124,10 +117,11 @@ extern const char * bitset_type_name_get(bitset);
 /* Set bit BITNO in bitset BSET.  */
 static void bitset_set(bitset bset, bitset_bindex bitno)
 {
-	bitset_windex windex = bitno/BITSET_WORD_BITS;
-	bitset_windex offset = windex-bset->b.cindex;
+	bitset_windex windex = bitno / BITSET_WORD_BITS;
+	bitset_windex offset = windex - bset->b.cindex;
+
 	if(offset < bset->b.csize)
-		bset->b.cdata[offset] |= ((bitset_word)1<<(bitno%BITSET_WORD_BITS));
+		bset->b.cdata[offset] |= ((bitset_word)1 << (bitno % BITSET_WORD_BITS));
 	else
 		BITSET_SET_(bset, bitno);
 }
@@ -135,10 +129,11 @@ static void bitset_set(bitset bset, bitset_bindex bitno)
 /* Reset bit BITNO in bitset BSET.  */
 static void bitset_reset(bitset bset, bitset_bindex bitno)
 {
-	bitset_windex windex = bitno/BITSET_WORD_BITS;
-	bitset_windex offset = windex-bset->b.cindex;
+	bitset_windex windex = bitno / BITSET_WORD_BITS;
+	bitset_windex offset = windex - bset->b.cindex;
+
 	if(offset < bset->b.csize)
-		bset->b.cdata[offset] &= ~((bitset_word)1<<(bitno%BITSET_WORD_BITS));
+		bset->b.cdata[offset] &= ~((bitset_word)1 << (bitno % BITSET_WORD_BITS));
 	else
 		BITSET_RESET_(bset, bitno);
 }
@@ -146,10 +141,11 @@ static void bitset_reset(bitset bset, bitset_bindex bitno)
 /* Test bit BITNO in bitset BSET.  */
 static bool bitset_test(bitset bset, bitset_bindex bitno)
 {
-	bitset_windex windex = bitno/BITSET_WORD_BITS;
-	bitset_windex offset = windex-bset->b.cindex;
+	bitset_windex windex = bitno / BITSET_WORD_BITS;
+	bitset_windex offset = windex - bset->b.cindex;
+
 	if(offset < bset->b.csize)
-		return (bool)((bset->b.cdata[offset]>>(bitno%BITSET_WORD_BITS))&1);
+		return (bset->b.cdata[offset] >> (bitno % BITSET_WORD_BITS)) & 1;
 	else
 		return BITSET_TEST_(bset, bitno);
 }
@@ -216,38 +212,47 @@ extern void bitset_resize(bitset, bitset_bindex);
 
 /* DST = (SRC1 & SRC2) | SRC3.  */
 #define bitset_and_or(DST, SRC1, SRC2, SRC3) \
-        BITSET_AND_OR_(DST, SRC1, SRC2, SRC3)
+	BITSET_AND_OR_(DST, SRC1, SRC2, SRC3)
 
 /* DST = (SRC1 & SRC2) | SRC3.  Return non-zero if
    DST != (SRC1 & SRC2) | SRC3.  */
-#define bitset_and_or_cmp(DST, SRC1, SRC2, SRC3) BITSET_AND_OR_CMP_(DST, SRC1, SRC2, SRC3)
+#define bitset_and_or_cmp(DST, SRC1, SRC2, SRC3) \
+	BITSET_AND_OR_CMP_(DST, SRC1, SRC2, SRC3)
+
 /* DST = (SRC1 & ~SRC2) | SRC3.  */
-#define bitset_andn_or(DST, SRC1, SRC2, SRC3) BITSET_ANDN_OR_(DST, SRC1, SRC2, SRC3)
-/* DST = (SRC1 & ~SRC2) | SRC3.  Return non-zero if DST != (SRC1 & ~SRC2) | SRC3.  */
-#define bitset_andn_or_cmp(DST, SRC1, SRC2, SRC3) BITSET_ANDN_OR_CMP_(DST, SRC1, SRC2, SRC3)
+#define bitset_andn_or(DST, SRC1, SRC2, SRC3) \
+	BITSET_ANDN_OR_(DST, SRC1, SRC2, SRC3)
+
+/* DST = (SRC1 & ~SRC2) | SRC3.  Return non-zero if
+   DST != (SRC1 & ~SRC2) | SRC3.  */
+#define bitset_andn_or_cmp(DST, SRC1, SRC2, SRC3) \
+	BITSET_ANDN_OR_CMP_(DST, SRC1, SRC2, SRC3)
+
 /* DST = (SRC1 | SRC2) & SRC3.  */
-#define bitset_or_and(DST, SRC1, SRC2, SRC3) BITSET_OR_AND_(DST, SRC1, SRC2, SRC3)
-/* DST = (SRC1 | SRC2) & SRC3.  Return non-zero if DST != (SRC1 | SRC2) & SRC3.  */
-#define bitset_or_and_cmp(DST, SRC1, SRC2, SRC3) BITSET_OR_AND_CMP_(DST, SRC1, SRC2, SRC3)
-/* 
-	Find list of up to NUM bits set in BSET starting from and including
+#define bitset_or_and(DST, SRC1, SRC2, SRC3) \
+	BITSET_OR_AND_(DST, SRC1, SRC2, SRC3)
+
+/* DST = (SRC1 | SRC2) & SRC3.  Return non-zero if
+   DST != (SRC1 | SRC2) & SRC3.  */
+#define bitset_or_and_cmp(DST, SRC1, SRC2, SRC3) \
+	BITSET_OR_AND_CMP_(DST, SRC1, SRC2, SRC3)
+
+/* Find list of up to NUM bits set in BSET starting from and including
    *NEXT.  Return with actual number of bits found and with *NEXT
-   indicating where search stopped.  
-*/
-#define bitset_list(BSET, LIST, NUM, NEXT) BITSET_LIST_(BSET, LIST, NUM, NEXT)
-/* 
-	Find reverse list of up to NUM bits set in BSET starting from and
-	including NEXT.  Return with actual number of bits found and with
-	*NEXT indicating where search stopped.  
-*/
-#define bitset_list_reverse(BSET, LIST, NUM, NEXT) BITSET_LIST_REVERSE_(BSET, LIST, NUM, NEXT)
-/* 
-	Return true if both bitsets are of the same type and size.  
-*/
+   indicating where search stopped.  */
+#define bitset_list(BSET, LIST, NUM, NEXT) \
+	BITSET_LIST_(BSET, LIST, NUM, NEXT)
+
+/* Find reverse list of up to NUM bits set in BSET starting from and
+   including NEXT.  Return with actual number of bits found and with
+ *NEXT indicating where search stopped.  */
+#define bitset_list_reverse(BSET, LIST, NUM, NEXT) \
+	BITSET_LIST_REVERSE_(BSET, LIST, NUM, NEXT)
+
+/* Return true if both bitsets are of the same type and size.  */
 extern bool bitset_compatible_p(bitset bset1, bitset bset2);
-/* 
-	Find next set bit from the given bit index.  
-*/
+
+/* Find next set bit from the given bit index.  */
 extern bitset_bindex bitset_next(bitset, bitset_bindex);
 
 /* Find previous set bit from the given bit index.  */
@@ -263,7 +268,7 @@ extern bitset_bindex bitset_last(bitset);
 extern bool bitset_only_set_p(bitset, bitset_bindex);
 
 /* Dump bitset.  */
-extern void bitset_dump(FILE*, bitset);
+extern void bitset_dump(FILE *, bitset);
 
 /* Loop over all elements of BSET, starting with MIN, setting INDEX
    to the index of each set bit.  For example, the following will print
@@ -277,10 +282,14 @@ extern void bitset_dump(FILE*, bitset);
       printf ("%lu ", (unsigned long int) i);
    };
  */
-#define BITSET_FOR_EACH(ITER, BSET, INDEX, MIN)                               \
-	for(ITER.next = (MIN), ITER.num = BITSET_LIST_SIZE; (ITER.num == BITSET_LIST_SIZE) \
-		&& (ITER.num = bitset_list(BSET, ITER.list, BITSET_LIST_SIZE, &ITER.next)); )  \
-		for(ITER.i = 0; ITER.i < ITER.num && ((INDEX) = ITER.list[ITER.i], 1); ITER.i++)
+#define BITSET_FOR_EACH(ITER, BSET, INDEX, MIN)				      \
+	for(ITER.next = (MIN), ITER.num = BITSET_LIST_SIZE;			   \
+	    (ITER.num == BITSET_LIST_SIZE)					   \
+	    && (ITER.num = bitset_list(BSET, ITER.list,				  \
+			    BITSET_LIST_SIZE, &ITER.next)); )		\
+		for(ITER.i = 0;								 \
+		    ITER.i < ITER.num && ((INDEX) = ITER.list[ITER.i], 1);		 \
+		    ITER.i++)
 
 /* Loop over all elements of BSET, in reverse order starting with
    MIN, setting INDEX to the index of each set bit.  For example, the
@@ -294,13 +303,13 @@ extern void bitset_dump(FILE*, bitset);
       printf ("%lu ", (unsigned long int) i);
    };
  */
-#define BITSET_FOR_EACH_REVERSE(ITER, BSET, INDEX, MIN)                       \
-        for(ITER.next = (MIN), ITER.num = BITSET_LIST_SIZE;                        \
-            (ITER.num == BITSET_LIST_SIZE)                                         \
-            && (ITER.num = bitset_list_reverse(BSET, ITER.list,                   \
-			BITSET_LIST_SIZE, &ITER.next)); )   \
-		for(ITER.i = 0;                                                          \
-		    ITER.i < ITER.num && ((INDEX) = ITER.list[ITER.i], 1);               \
+#define BITSET_FOR_EACH_REVERSE(ITER, BSET, INDEX, MIN)			      \
+	for(ITER.next = (MIN), ITER.num = BITSET_LIST_SIZE;			   \
+	    (ITER.num == BITSET_LIST_SIZE)					   \
+	    && (ITER.num = bitset_list_reverse(BSET, ITER.list,			  \
+			    BITSET_LIST_SIZE, &ITER.next)); )	\
+		for(ITER.i = 0;								 \
+		    ITER.i < ITER.num && ((INDEX) = ITER.list[ITER.i], 1);		 \
 		    ITER.i++)
 
 /* Define set operations in terms of logical operations.  */
@@ -320,9 +329,9 @@ extern void bitset_dump(FILE*, bitset);
 
 /* Union of difference.  */
 #define bitset_diff_union(DST, SRC1, SRC2, SRC3) \
-        bitset_andn_or(DST, SRC1, SRC2, SRC3)
+	bitset_andn_or(DST, SRC1, SRC2, SRC3)
 #define bitset_diff_union_cmp(DST, SRC1, SRC2, SRC3) \
-        bitset_andn_or_cmp(DST, SRC1, SRC2, SRC3)
+	bitset_andn_or_cmp(DST, SRC1, SRC2, SRC3)
 
 /* Release any memory tied up with bitsets.  */
 extern void bitset_release_memory(void);

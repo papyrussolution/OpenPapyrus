@@ -153,9 +153,8 @@ void SLAPI Tddo::SetInputFileName(const char * pFileName)
 	InputFileName = pFileName;
 }
 
-Tddo::Meta::Meta()
+Tddo::Meta::Meta() : Tok(tNone)
 {
-	Tok = tNone;
 }
 
 Tddo::Meta & FASTCALL Tddo::Meta::operator = (const Meta & rS)
@@ -173,10 +172,8 @@ void Tddo::Meta::Clear()
 	Param.Z();
 }
 
-Tddo::Result::Result()
+Tddo::Result::Result() : RefType(0), RefID(0)
 {
-	RefType = 0;
-	RefID = 0;
 }
 
 Tddo::Result & Tddo::Result::Clear()
@@ -348,21 +345,21 @@ int SLAPI Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 		_COp cop;
 		rScan.Skip();
 		if(rScan.Is(">="))
-			cop.Set(_GE_, 2);
+			cop.Set(dlopGe, 2);
 		else if(rScan.Is("<="))
-			cop.Set(_LE_, 2);
+			cop.Set(dlopLe, 2);
 		else if(rScan.Is("=="))
-			cop.Set(_EQ_, 2);
+			cop.Set(dlopEq, 2);
 		else if(rScan.Is("!="))
-			cop.Set(_NE_, 2);
+			cop.Set(dlopNeq, 2);
 		else if(rScan.Is("<>"))
-			cop.Set(_NE_, 2);
+			cop.Set(dlopNeq, 2);
 		else if(rScan.Is('>'))
-			cop.Set(_GT_, 1);
+			cop.Set(dlopGt, 1);
 		else if(rScan.Is('<'))
-			cop.Set(_LT_, 1);
+			cop.Set(dlopLt, 1);
 		else if(rScan.Is('='))
-			cop.Set(_EQ_, 1);
+			cop.Set(dlopEq, 1);
 		if(cop.Op != _NONE_) {
 			int    done = 0;
 			int    _r = 0;
@@ -376,12 +373,12 @@ int SLAPI Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 				if(et_scan.GetNumber(temp_buf)) {
 					double a2 = temp_buf.ToReal();
 					switch(cop.Op) {
-						case _GT_: _r = (a1 > a2); break;
-						case _LT_: _r = (a1 < a2); break;
-						case _GE_: _r = (a1 >= a2); break;
-						case _LE_: _r = (a1 <= a2); break;
-						case _EQ_: _r = (a1 == a2); break;
-						case _NE_: _r = (a1 != a2); break;
+						case dlopGt: _r = (a1 > a2); break;
+						case dlopLt: _r = (a1 < a2); break;
+						case dlopGe: _r = (a1 >= a2); break;
+						case dlopLe: _r = (a1 <= a2); break;
+						case dlopEq: _r = (a1 == a2); break;
+						case dlopNeq: _r = (a1 != a2); break;
 					}
 					done = 1;
 				}
@@ -389,12 +386,12 @@ int SLAPI Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 			if(!done) {
 				const int sc = rR.S.CmpNC(temp_buf);
 				switch(cop.Op) {
-					case _GT_: _r = (sc > 0); break;
-					case _LT_: _r = (sc < 0); break;
-					case _GE_: _r = (sc >= 0); break;
-					case _LE_: _r = (sc <= 0); break;
-					case _EQ_: _r = (sc == 0); break;
-					case _NE_: _r = (sc != 0); break;
+					case dlopGt: _r = (sc > 0); break;
+					case dlopLt: _r = (sc < 0); break;
+					case dlopGe: _r = (sc >= 0); break;
+					case dlopLe: _r = (sc <= 0); break;
+					case dlopEq: _r = (sc == 0); break;
+					case dlopNeq: _r = (sc != 0); break;
 				}
 			}
 			rR.Clear().S.Cat(BIN(_r));
@@ -844,36 +841,36 @@ int SLAPI Tddo::ExtractText(const char * pFileName, const char * pTextIdent, int
 		else if(Scan.Is("==")) {
 			Scan.Incr(2);
 			rText.Z().Cat("==");
-			t = tOperator+_EQ_;
+			t = tOperator+dlopEq;
 		}
 		else if(Scan.Is("!=") || Scan.Is("<>")) {
 			Scan.Incr(2);
 			rText.Z().Cat("!=");
-			t = tOperator+_NE_;
+			t = tOperator+dlopNeq;
 		}
 		else if(Scan.Is(">=")) {
 			Scan.Incr(2);
 			rText.Z().Cat(">=");
-			t = tOperator+_GE_;
+			t = tOperator+dlopGe;
 		}
 		else if(Scan.Is("<=")) {
 			Scan.Incr(2);
 			rText.Z().Cat("<=");
-			t = tOperator+_LE_;
+			t = tOperator+dlopLe;
 		}
 		else if(oneof9(c, '+', '-', '*', '/', '%', '<', '>', '=', '.')) {
 			Scan.Incr();
 			rText.Z().CatChar(c);
 			switch(c) {
-				case '+': t = tOperator + _PLUS_; break;
-				case '-': t = tOperator + _MINUS_; break;
-				case '*': t = tOperator + _MULT_; break;
-				case '/': t = tOperator + _DIVIDE_; break;
-				case '%': t = tOperator + _MODULO_; break;
-				case '<': t = tOperator + _LT_; break;
-				case '>': t = tOperator + _GT_; break;
-				case '=': t = tOperator + _ASSIGN_; break;
-				case '.': t = tOperator + _DOT_; break;
+				case '+': t = tOperator + dlopAdd; break;
+				case '-': t = tOperator + dlopSub; break;
+				case '*': t = tOperator + dlopMul; break;
+				case '/': t = tOperator + dlopDiv; break;
+				case '%': t = tOperator + dlopMod; break;
+				case '<': t = tOperator + dlopLt; break;
+				case '>': t = tOperator + dlopGt; break;
+				case '=': t = tOperator + dlopAssignment; break;
+				case '.': t = tOperator + dlopDot; break;
 			}
 			assert(t > tOperator);
 		}
@@ -1007,7 +1004,6 @@ int SLAPI Tddo::Helper_RecognizeMetaKeyword()
 int FASTCALL Tddo::ScanMeta(Meta & rM)
 {
 	rM.Clear();
-
 	int    ok = 1;
 	const  char fc = Scan[0];
 	if(fc != '#' && fc != '$') { // Так как все мета-символы начинаются с # или $ оптимизируем функцию предварительной проверкой.
@@ -1280,25 +1276,25 @@ struct Tddo2_OpInfo {
 static const Tddo2_OpInfo Tddo2_OpInfoList[] = {
 	// Список отсортирован по длине текста символа чтобы не допустить перекрытия
 	// распознавания более длинных команд более короткими (например < вместо <=)
-	{ _AND___,  7, 2, 0, "and" },
-	{ _LE_,     5, 2, 0, "<=" },
-	{ _GE_,     5, 2, 0, ">=" },
-	{ _EQ_,     6, 2, 0, "==" },
-	{ _NE_,     6, 2, 0, "!=" }, 
-	{ _NE_,     6, 2, 0, "<>" },
-	{ _AND___,  7, 2, 0, "&&" }, 
-	{ _OR___,   8, 2, 0, "||" }, 
-	{ _OR___,   8, 2, 0, "or" },
-	{ _DOT_,    1, 2, 0, "."  },
-	{ _NOT___,  2, 1, 0, "!"  },
-	{ _MULT_,   3, 2, 0, "*"  },
-	{ _DIVIDE_, 3, 2, 0, "/"  },
-	{ _MODULO_, 3, 2, 0, "%"  },
-	{ _PLUS_,   4, 2, 0, "+"  },
-	{ _MINUS_,  4, 2, 0, "-"  },
-	{ _GT_,     5, 2, 0, ">"  },
-	{ _LT_,     5, 2, 0, "<"  },
-	{ _ASSIGN_, 9, 2, 0, "="  }
+	{ dlopAnd,  7, 2, 0, "and" },
+	{ dlopLe,     5, 2, 0, "<=" },
+	{ dlopGe,     5, 2, 0, ">=" },
+	{ dlopEq,     6, 2, 0, "==" },
+	{ dlopNeq,     6, 2, 0, "!=" }, 
+	{ dlopNeq,     6, 2, 0, "<>" },
+	{ dlopAnd,  7, 2, 0, "&&" }, 
+	{ dlopOr,   8, 2, 0, "||" }, 
+	{ dlopOr,   8, 2, 0, "or" },
+	{ dlopDot,    1, 2, 0, "."  },
+	{ dlopNot,  2, 1, 0, "!"  },
+	{ dlopMul,   3, 2, 0, "*"  },
+	{ dlopDiv, 3, 2, 0, "/"  },
+	{ dlopMod, 3, 2, 0, "%"  },
+	{ dlopAdd,   4, 2, 0, "+"  },
+	{ dlopSub,  4, 2, 0, "-"  },
+	{ dlopGt,     5, 2, 0, ">"  },
+	{ dlopLt,     5, 2, 0, "<"  },
+	{ dlopAssignment, 9, 2, 0, "="  }
 };
 
 class TddoContentGraph : public SStrGroup {
@@ -1364,6 +1360,7 @@ private:
 		};
 		struct Item {
 			SLAPI  Item(uint16 k);
+			TYPEID GetNumberType() const;
 
 			uint16 K;
 			uint16 ArgCount; // Количество аргументов (для oneof(K, kOp, kFunc))
@@ -1387,10 +1384,8 @@ private:
 		class Expression {
 		public:
 			SLAPI  Expression();
-			SLAPI  Expression(const Expression & rS) : ES(rS.ES)
+			SLAPI  Expression(const Expression & rS) : ES(rS.ES), Next(rS.Next), Flags(rS.Flags)
 			{
-				Next = rS.Next;
-				Flags = rS.Flags;
 			}
 
 			uint   Next;  // Позиция следующего выражения списка (например, для цепочки аргументов функции или макроса)
@@ -1500,6 +1495,7 @@ private:
 		return ok;
 	}
 
+	int    SLAPI ConvertExpression(TddoProcessBlock & rBlk, const ExprSet::Expression & rExpr, uint & rExprPointer, CtmExpr & rResult);
 	int    SLAPI ResolveExpression(const ExprSet::Expression & rExpr, uint & rExprPointer, TddoProcessBlock & rBlk, ExprResult & rResult);
 	int    SLAPI Helper_Execute(uint chunkP, TddoProcessBlock & rBlk, SString & rBuf);
 
@@ -1688,14 +1684,108 @@ int SLAPI TddoContentGraph::Execute(const char * pDataName, DlRtm::ExportParam &
 	return ok;
 }
 
+int SLAPI TddoContentGraph::ConvertExpression(TddoProcessBlock & rBlk, const ExprSet::Expression & rExpr, uint & rExprPointer, CtmExpr & rResult)
+{
+	int    ok = 1;
+	SString temp_buf;
+	const  ExprSet::Item & r_item = rExpr.ES.Get(rExprPointer++);
+	switch(r_item.K) {
+		case ExprSet::kOp: 
+			{
+				rResult.Init(CtmExpr::kOp);
+				rResult.U.Op = r_item.Op;
+				for(uint argi = 0; argi < r_item.ArgCount; argi++) {
+					CtmExpr arg_expr;
+					THROW(ConvertExpression(rBlk, rExpr, rExprPointer, arg_expr));
+					rResult.AddArg(arg_expr);
+				}
+			}
+			break;
+		case ExprSet::kFunc:
+			{
+				GetS(r_item.SymbP, temp_buf);
+				rResult.Init(CtmExpr::kFuncName);
+				rResult.U.S = newStr(temp_buf);
+				for(uint argi = 0; argi < r_item.ArgCount; argi++) {
+					CtmExpr arg_expr;
+					THROW(ConvertExpression(rBlk, rExpr, rExprPointer, arg_expr));
+					rResult.AddArg(arg_expr);
+				}
+			}
+			break;
+		case ExprSet::kVar:
+			GetS(r_item.SymbP, temp_buf);
+			assert(temp_buf.NotEmpty());
+			rResult.InitVar(temp_buf);
+			break;
+		case ExprSet::kString: 
+			{
+				DlContext * p_ctx = rBlk.P_Rtm->GetContext();
+				DlScope * p_scope = p_ctx->GetCurScope();
+				CtmExprConst c;
+				GetS(r_item.SymbP, temp_buf);
+				THROW(p_ctx->AddConst(temp_buf, &c));
+				rResult.Init(c);
+			}
+			break;
+		case ExprSet::kNumber:
+			{
+				const TYPEID nt = r_item.GetNumberType();
+				const size_t s = GETSSIZE(nt);
+				int   invt = 0;
+				DlContext * p_ctx = rBlk.P_Rtm->GetContext();
+				DlScope * p_scope = p_ctx->GetCurScope();
+				CtmExprConst c;
+				if(GETSTYPE(nt) == S_INT) {
+					if(s == 2) {
+						THROW(p_ctx->AddConst((int16)r_item.R, &c));
+					}
+					else if(s == 4) {
+						THROW(p_ctx->AddConst((int32)r_item.R, &c));
+					}
+					else if(s == 8) {
+						THROW(p_ctx->AddConst((int64)r_item.R, &c));
+					}
+					else
+						invt = 1;
+				}
+				else if(GETSTYPE(nt) == S_FLOAT) {
+					if(s == 4) {
+						THROW(p_ctx->AddConst((float)r_item.R, &c));
+					}
+					else if(s == 8) {
+						THROW(p_ctx->AddConst(r_item.R, &c));
+					}
+					else
+						invt = 1;
+				}
+				else
+					invt = 1;
+				assert(!invt);
+				THROW(!invt);
+				rResult.Init(c);
+			}
+			break;
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI TddoContentGraph::ResolveExpression(const ExprSet::Expression & rExpr, uint & rExprPointer, TddoProcessBlock & rBlk, ExprResult & rResult)
 {
 	int    ok = 1;
 	SString temp_buf;
+
+	// test {
+	uint cvt_expr_ptr = rExprPointer;
+	CtmExpr ctm_expr;
+	ok = ConvertExpression(rBlk, rExpr, cvt_expr_ptr, ctm_expr);
+	// } test
+
 	const ExprSet::Item & r_item = rExpr.ES.Get(rExprPointer++);
 	switch(r_item.K) {
 		case ExprSet::kOp:
-			if(r_item.Op == _ASSIGN_) {
+			if(r_item.Op == dlopAssignment) {
 				assert(r_item.ArgCount == 2);
 				const ExprSet::Item & r_arg1 = rExpr.ES.Get(rExprPointer++);
 				if(r_arg1.K == ExprSet::kVar) {
@@ -1719,35 +1809,35 @@ int SLAPI TddoContentGraph::ResolveExpression(const ExprSet::Expression & rExpr,
 					THROW(ResolveExpression(rExpr, rExprPointer, rBlk, local_result1)); // @recursion
 					THROW(ResolveExpression(rExpr, rExprPointer, rBlk, local_result2)); // @recursion
 					switch(r_item.Op) {
-						case _AND___:
+						case dlopAnd:
 							break;
-						case _LE_:
+						case dlopLe:
 							break;
-						case _GE_:
+						case dlopGe:
 							break;
-						case _EQ_:
+						case dlopEq:
 							break;
-						case _NE_:
+						case dlopNeq:
 							break;
-						case _OR___:
+						case dlopOr:
 							break;
-						case _DOT_:
+						case dlopDot:
 							break;
-						case _NOT___:
+						case dlopNot:
 							break;
-						case _MULT_:
+						case dlopMul:
 							break;
-						case _DIVIDE_:
+						case dlopDiv:
 							break;
-						case _MODULO_:
+						case dlopMod:
 							break;
-						case _PLUS_:
+						case dlopAdd:
 							break;
-						case _MINUS_:
+						case dlopSub:
 							break;
-						case _GT_:
+						case dlopGt:
 							break;
-						case _LT_:
+						case dlopLt:
 							break;
 						default:
 							// @error
@@ -1755,7 +1845,7 @@ int SLAPI TddoContentGraph::ResolveExpression(const ExprSet::Expression & rExpr,
 					}
 				}
 				else if(r_item.ArgCount == 1) {
-					if(r_item.Op == _NOT___) {
+					if(r_item.Op == dlopNot) {
 					}
 					else {
 						; // @error
@@ -1766,29 +1856,56 @@ int SLAPI TddoContentGraph::ResolveExpression(const ExprSet::Expression & rExpr,
 		case ExprSet::kFunc:
 			break;
 		case ExprSet::kNumber:
-			if(((double)(long)r_item.R) == r_item.R) {
-				int32 v = (long)r_item.R;
+			{
+				TYPEID nt = r_item.GetNumberType();
+				const size_t s = GETSSIZE(nt);
 				rResult.T.Init();
-				rResult.T.Typ = MKSTYPE(S_INT, sizeof(v));
-				assert(rResult.T.GetBinSize() == sizeof(v));
-				rResult.Alloc(sizeof(v));
-				memcpy(rResult.P_Buf, &v, sizeof(v));
-			}
-			else if(((double)(int64)r_item.R) == r_item.R) {
-				int64 v = (int64)r_item.R;
-				rResult.T.Init();
-				rResult.T.Typ = MKSTYPE(S_INT, sizeof(v));
-				assert(rResult.T.GetBinSize() == sizeof(v));
-				rResult.Alloc(sizeof(v));
-				memcpy(rResult.P_Buf, &v, sizeof(v));
-			}
-			else {
-				double v = r_item.R;
-				rResult.T.Init();
-				rResult.T.Typ = MKSTYPE(S_FLOAT, sizeof(v));
-				assert(rResult.T.GetBinSize() == sizeof(v));
-				rResult.Alloc(sizeof(v));
-				memcpy(rResult.P_Buf, &v, sizeof(v));
+				rResult.T.Typ = nt;
+				int   invt = 0;
+				if(GETSTYPE(s) == S_INT) {
+					if(s == 2) {
+						int16 v = (int16)r_item.R;
+						assert(rResult.T.GetBinSize() == sizeof(v));
+						rResult.Alloc(sizeof(v));
+						memcpy(rResult.P_Buf, &v, sizeof(v));
+					}
+					else if(s == 4) {
+						int32 v = (int32)r_item.R;
+						assert(rResult.T.GetBinSize() == sizeof(v));
+						rResult.Alloc(sizeof(v));
+						memcpy(rResult.P_Buf, &v, sizeof(v));
+					}
+					else if(s == 8) {
+						int64 v = (int64)r_item.R;
+						assert(rResult.T.GetBinSize() == sizeof(v));
+						rResult.Alloc(sizeof(v));
+						memcpy(rResult.P_Buf, &v, sizeof(v));
+					}
+					else
+						invt = 1;
+				}
+				else if(GETSTYPE(s) == S_FLOAT) {
+					if(s == 4) {
+						float v = (float)r_item.R;
+						assert(rResult.T.GetBinSize() == sizeof(v));
+						rResult.Alloc(sizeof(v));
+						memcpy(rResult.P_Buf, &v, sizeof(v));
+					}
+					else if(s == 8) {
+						double v = r_item.R;
+						assert(rResult.T.GetBinSize() == sizeof(v));
+						rResult.Alloc(sizeof(v));
+						memcpy(rResult.P_Buf, &v, sizeof(v));
+					}
+					else
+						invt = 1;
+				}
+				else
+					invt = 1;
+				if(invt) {
+					rResult.T.Init();
+					// @error
+				}
 			}
 			break;
 		case ExprSet::kString:
@@ -1823,6 +1940,24 @@ int SLAPI TddoContentGraph::ResolveExpression(const ExprSet::Expression & rExpr,
 
 SLAPI TddoContentGraph::ExprSet::Item::Item(uint16 k) : K(k), ArgCount(0), Stub(0)
 {
+}
+
+TYPEID TddoContentGraph::ExprSet::Item::GetNumberType() const
+{
+	TYPEID typ = 0;
+	if(K == ExprSet::kNumber) {
+		if(((double)(int16)R) == R)
+			typ = MKSTYPE(S_INT, sizeof(int16));
+		else if(((double)(int32)R) == R)
+			typ = MKSTYPE(S_INT, sizeof(int32));
+		else if(((double)(int64)R) == R)
+			typ = MKSTYPE(S_INT, sizeof(int64));
+		else if(((double)(float)R) == R)
+			typ = MKSTYPE(S_FLOAT, sizeof(float));
+		else
+			typ = MKSTYPE(S_FLOAT, sizeof(double));
+	}
+	return typ;
 }
 
 SLAPI TddoContentGraph::ExprSet::Stack::Stack()
@@ -2036,7 +2171,7 @@ int SLAPI TddoContentGraph::ExprSet::Helper_Parse(uint untilToken, TddoContentGr
 						if(r > Tddo::tOperator) {
 							Item ei(kOp);
 							ei.Op = (r - Tddo::tOperator);
-							if(ei.Op == _NOT___)
+							if(ei.Op == dlopNot)
 								ei.ArgCount = 1;
 							else
 								ei.ArgCount = 2;
@@ -2096,7 +2231,7 @@ int SLAPI TddoContentGraph::ExprSet::ArrangeLocalExprList(const TSCollection <St
 			if(_oc == 1) {
 				const int  op = op_list.at(0).Val;
 				const uint op_pos = op_list.at(0).Key;
-				if(op == _NOT___) {
+				if(op == dlopNot) {
 					if(op_pos == 0 && _c == 2) {
 						rStack.Push(*rExprList.at(op_pos));
 						rStack.Push(*rExprList.at(op_pos+1));
@@ -2125,7 +2260,7 @@ int SLAPI TddoContentGraph::ExprSet::ArrangeLocalExprList(const TSCollection <St
 					if(cr <= 0) {
 						TSCollection <Stack> inner_expr_list;
 						uint   ii;
-						if(op == _NOT___) {
+						if(op == dlopNot) {
 							if(op_pos < (_c-1)) {
 								for(ii = 0; ii < op_pos; ii++) {
 									Stack * p_new_stk = inner_expr_list.CreateNewItem();
@@ -2251,10 +2386,9 @@ void SLAPI TddoContentGraph::ExprSet::DebugOutput(uint exprPos, SString & rBuf) 
 		rBuf.Cat("invalid-expression-pos").CatChar('[').Cat(exprPos).CatChar(']');
 }
 
-SLAPI TddoContentGraph::TddoContentGraph(/*Tddo & rT*/) : /*R_T(rT),*/ ES(*this)
+SLAPI TddoContentGraph::TddoContentGraph(/*Tddo & rT*/) : /*R_T(rT),*/ ES(*this), 
+	P_ShT(PPGetStringHash(PPSTR_HASHTOKEN)), P_Ctx(DS.GetInterfaceContext(PPSession::ctxtExportData))
 {
-	P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
-	P_Ctx = DS.GetInterfaceContext(PPSession::ctxtExportData);
 }
 
 SLAPI TddoContentGraph::~TddoContentGraph()

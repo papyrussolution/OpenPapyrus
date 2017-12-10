@@ -119,9 +119,8 @@ SEnumImp::~SEnumImp()
 {
 }
 
-SEnum::SEnum(SEnumImp * pE)
+SEnum::SEnum(SEnumImp * pE) : P_E(pE)
 {
-	P_E = pE;
 }
 
 SEnum & FASTCALL SEnum::operator = (SEnumImp * pE)

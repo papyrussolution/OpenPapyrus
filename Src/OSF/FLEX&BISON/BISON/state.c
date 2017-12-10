@@ -1,6 +1,6 @@
 /* Type definitions for the finite state machine for Bison.
 
-   Copyright (C) 2001-2007, 2009-2011 Free Software Foundation, Inc.
+   Copyright (C) 2001-2007, 2009-2015 Free Software Foundation, Inc.
 
    This file is part of Bison, the GNU Compiler Compiler.
 
@@ -37,8 +37,8 @@
 
 static transitions * transitions_new(int num, state ** the_states)
 {
-	size_t states_size = num*sizeof *the_states;
-	transitions * res = xmalloc(offsetof(transitions, states)+states_size);
+	size_t states_size = num * sizeof *the_states;
+	transitions * res = (transitions *)xmalloc(offsetof(transitions, states) + states_size);
 	res->num = num;
 	memcpy(res->states, the_states, states_size);
 	return res;
@@ -69,8 +69,8 @@ state * transitions_to(transitions * shifts, symbol_number sym)
 
 errs * errs_new(int num, symbol ** tokens)
 {
-	size_t symbols_size = num*sizeof *tokens;
-	errs * res = xmalloc(offsetof(errs, symbols)+symbols_size);
+	size_t symbols_size = num * sizeof *tokens;
+	errs * res = (errs *)xmalloc(offsetof(errs, symbols) + symbols_size);
 	res->num = num;
 	memcpy(res->symbols, tokens, symbols_size);
 	return res;
@@ -86,8 +86,8 @@ errs * errs_new(int num, symbol ** tokens)
 
 static reductions * reductions_new(int num, rule ** reds)
 {
-	size_t rules_size = num*sizeof *reds;
-	reductions * res = xmalloc(offsetof(reductions, rules)+rules_size);
+	size_t rules_size = num * sizeof *reds;
+	reductions * res = (reductions *)xmalloc(offsetof(reductions, rules) + rules_size);
 	res->num = num;
 	res->lookahead_tokens = NULL;
 	memcpy(res->rules, reds, rules_size);
@@ -108,15 +108,12 @@ state * final_state = NULL;
 | it in the state hash table.                                       |
    `------------------------------------------------------------------*/
 
-state * state_new(symbol_number accessing_symbol,
-	size_t nitems, item_number * core)
+state * state_new(symbol_number accessing_symbol, size_t nitems, item_number * core)
 {
 	state * res;
-	size_t items_size = nitems*sizeof *core;
-
+	size_t items_size = nitems * sizeof *core;
 	aver(nstates < STATE_NUMBER_MAXIMUM);
-
-	res = xmalloc(offsetof(state, items)+items_size);
+	res = (state *)xmalloc(offsetof(state, items) + items_size);
 	res->number = nstates++;
 	res->accessing_symbol = accessing_symbol;
 	res->transitions = NULL;
@@ -126,37 +123,29 @@ state * state_new(symbol_number accessing_symbol,
 	res->consistent = 0;
 	res->solved_conflicts = NULL;
 	res->solved_conflicts_xml = NULL;
-
 	res->nitems = nitems;
 	memcpy(res->items, core, items_size);
-
 	state_hash_insert(res);
-
 	return res;
 }
 
 state * state_new_isocore(state const * s)
 {
 	state * res;
-	size_t items_size = s->nitems*sizeof *s->items;
-
+	size_t items_size = s->nitems * sizeof *s->items;
 	aver(nstates < STATE_NUMBER_MAXIMUM);
-
-	res = xmalloc(offsetof(state, items)+items_size);
+	res = (state *)xmalloc(offsetof(state, items) + items_size);
 	res->number = nstates++;
 	res->accessing_symbol = s->accessing_symbol;
-	res->transitions =
-	        transitions_new(s->transitions->num, s->transitions->states);
+	res->transitions = transitions_new(s->transitions->num, s->transitions->states);
 	res->reductions = reductions_new(s->reductions->num, s->reductions->rules);
 	res->errs = NULL;
 	res->state_list = NULL;
 	res->consistent = s->consistent;
 	res->solved_conflicts = NULL;
 	res->solved_conflicts_xml = NULL;
-
 	res->nitems = s->nitems;
 	memcpy(res->items, s->items, items_size);
-
 	return res;
 }
 
@@ -222,10 +211,11 @@ void state_rule_lookahead_tokens_print(state * s, rule * r, FILE * out)
 	/* Find the reduction we are handling.  */
 	reductions * reds = s->reductions;
 	int red = state_reduction_find(s, r);
+
 	/* Print them if there are.  */
 	if(reds->lookahead_tokens && red != -1) {
 		bitset_iterator biter;
-		size_t k; // @sobolev int-->size_t
+		int k;
 		char const * sep = "";
 		fprintf(out, "  [");
 		BITSET_FOR_EACH(biter, reds->lookahead_tokens[red], k, 0)
@@ -237,19 +227,22 @@ void state_rule_lookahead_tokens_print(state * s, rule * r, FILE * out)
 	}
 }
 
-void state_rule_lookahead_tokens_print_xml(state * s, rule * r, FILE * out, int level)
+void state_rule_lookahead_tokens_print_xml(state * s, rule * r,
+    FILE * out, int level)
 {
 	/* Find the reduction we are handling.  */
 	reductions * reds = s->reductions;
 	int red = state_reduction_find(s, r);
+
 	/* Print them if there are.  */
 	if(reds->lookahead_tokens && red != -1) {
 		bitset_iterator biter;
-		size_t k; // @sobolev int-->size_t
+		int k;
 		xml_puts(out, level, "<lookaheads>");
 		BITSET_FOR_EACH(biter, reds->lookahead_tokens[red], k, 0)
 		{
-			xml_printf(out, level+1, "<symbol>%s</symbol>", xml_escape(symbols[k]->tag));
+			xml_printf(out, level + 1, "<symbol>%s</symbol>",
+			    xml_escape(symbols[k]->tag));
 		}
 		xml_puts(out, level, "</lookaheads>");
 	}
@@ -265,7 +258,7 @@ void state_rule_lookahead_tokens_print_xml(state * s, rule * r, FILE * out, int 
 static struct hash_table * state_table = NULL;
 
 /* Two states are equal if they have the same core items.  */
-static bool state_compare(state const * s1, state const * s2)
+static inline bool state_compare(state const * s1, state const * s2)
 {
 	size_t i;
 	if(s1->nitems != s2->nitems)
@@ -278,22 +271,22 @@ static bool state_compare(state const * s1, state const * s2)
 
 static bool state_comparator(void const * s1, void const * s2)
 {
-	return state_compare(s1, s2);
+	return state_compare((const state *)s1, (const state *)s2);
 }
 
-static size_t state_hash(state const * s, size_t tablesize)
+static inline size_t state_hash(state const * s, size_t tablesize)
 {
 	/* Add up the state's item numbers to get a hash key.  */
 	size_t key = 0;
 	size_t i;
 	for(i = 0; i < s->nitems; ++i)
 		key += s->items[i];
-	return key%tablesize;
+	return key % tablesize;
 }
 
 static size_t state_hasher(void const * s, size_t tablesize)
 {
-	return state_hash(s, tablesize);
+	return state_hash((const state *)s, tablesize);
 }
 
 /*-------------------------------.
@@ -303,10 +296,10 @@ static size_t state_hasher(void const * s, size_t tablesize)
 void state_hash_new(void)
 {
 	state_table = hash_initialize(HT_INITIAL_CAPACITY,
-		NULL,
-		state_hasher,
-		state_comparator,
-		NULL);
+	    NULL,
+	    state_hasher,
+	    state_comparator,
+	    NULL);
 }
 
 /*---------------------------------------------.
@@ -335,13 +328,12 @@ void state_hash_insert(state * s)
 
 state * state_hash_lookup(size_t nitems, item_number * core)
 {
-	size_t items_size = nitems*sizeof *core;
-	state * probe = xmalloc(offsetof(state, items)+items_size);
+	size_t items_size = nitems * sizeof *core;
+	state * probe = (state *)xmalloc(offsetof(state, items) + items_size);
 	state * entry;
-
 	probe->nitems = nitems;
 	memcpy(probe->items, core, items_size);
-	entry = hash_lookup(state_table, probe);
+	entry = (state *)hash_lookup(state_table, probe);
 	free(probe);
 	return entry;
 }
@@ -376,7 +368,7 @@ void state_remove_unreachable_states(state_number old_to_new[])
 				states[nstates_reachable]->number = nstates_reachable;
 				old_to_new[i] = nstates_reachable++;
 			}
-			else {
+			else{
 				state_free(states[i]);
 				old_to_new[i] = nstates;
 			}

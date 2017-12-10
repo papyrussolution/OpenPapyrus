@@ -1,5 +1,5 @@
 // V_PSNREL.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2009, 2010, 2016
+// Copyright (c) A.Starodub 2006, 2007, 2009, 2010, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -21,12 +21,9 @@ PersonRelFilt & FASTCALL PersonRelFilt::operator = (const PersonRelFilt & s)
 	return *this;
 }
 
-SLAPI PPViewPersonRel::PPViewPersonRel() : PPView(0, &Filt, PPVIEW_PERSONREL)
+SLAPI PPViewPersonRel::PPViewPersonRel() : PPView(0, &Filt, PPVIEW_PERSONREL), P_TempTbl(0), P_TempOrd(0)
 {
-	P_TempTbl = 0;
-	P_TempOrd = 0;
 	DefReportId = REPORT_PSNRELLIST;
-	PersonList.Set(0);
 }
 
 SLAPI PPViewPersonRel::~PPViewPersonRel()
@@ -511,8 +508,7 @@ int SLAPI PPViewPersonRel::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	if(ok > 0 && oneof4(ppvCmd, PPVCMD_ADDITEM, PPVCMD_ADDREVERSEITEM, PPVCMD_DELETEITEM, PPVCMD_EDITITEM)) {
 		scnd_list.sort();
 		UpdateTempTable(prmr_id, &scnd_list, rel, reverse);
-		if(pBrw)
-			pBrw->Update();
+		CALLPTRMEMB(pBrw, Update());
 	}
 	return ok;
 }

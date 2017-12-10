@@ -437,10 +437,8 @@ static void SLAPI idea_ecb(IDEAkey Z, uint16 * inbuf, uint16 * outbuf)
 #endif	/* HIGHFIRST */
 }
 
-SLAPI IDEACFB::IDEACFB()
+SLAPI IDEACFB::IDEACFB() : iv_idea(0), cfb_dc_idea(0)
 {
-	iv_idea = 0;
-	cfb_dc_idea = 0;
 }
 //
 // IDEACFB::IDEACFB [initcfb] - Initializes the IDEA key schedule tables via key,

@@ -288,9 +288,8 @@ int SLAPI RecalcBillTurns(int checkAmounts)
 	return ok;
 }
 
-SLAPI PrcssrAbsentBill::PrcssrAbsentBill()
+SLAPI PrcssrAbsentBill::PrcssrAbsentBill() : P_BObj(BillObj)
 {
-	P_BObj = BillObj;
 	MEMSZERO(P);
 }
 
@@ -300,8 +299,7 @@ SLAPI PrcssrAbsentBill::~PrcssrAbsentBill()
 
 int SLAPI PrcssrAbsentBill::InitParam(Param * pParam)
 {
-	if(pParam)
-		pParam->Period.SetZero();
+	CALLPTRMEMB(pParam, Period.SetZero());
 	return 1;
 }
 

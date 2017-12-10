@@ -1670,7 +1670,7 @@ struct PPObjID { // @flat
 	//
 	// GOODS(1204)
 	//
-	int    SLAPI ToStr(int format, SString & rBuf) const;
+	SString & FASTCALL ToStr(SString & rBuf) const;
 	int    FASTCALL FromStr(const char * pStr);
 
 	PPID   Obj;
@@ -10266,7 +10266,7 @@ public:
 	// Note: Ни в коем случае не используйте эту функцию, она предназначена только для аварийного
 	//   восстановления пакета после ошибки в проведении.
 	//
-	int    SLAPI SetLots(const PPTrfrArray & rS);
+	void   SLAPI SetLots(const PPTrfrArray & rS);
 	int    FASTCALL SearchTI(int rByBill, uint * pPos) const;
 	int    SLAPI UsesDistribCost() const;
 	//
@@ -11360,7 +11360,7 @@ struct UhttGoodsRestVal {
 //
 //
 //
-struct PPLotFault {
+struct PPLotFault { // @flat
 	enum {
 		Ok = 0,
 		// Первая операция по лоту (создание лота)
@@ -11733,7 +11733,7 @@ private:
 	int ParseTSAResponse(const char * pResponse, StTspResponse & rResponseFmtd);
 };
 
-class PPLotFaultArray : public SArray {
+class PPLotFaultArray : public SVector { // @v9.8.10 SArray-->SVector
 public:
 	SLAPI  PPLotFaultArray(PPID lotID, PPLogger & rLogger);
 	int    SLAPI AddFault(int fault, const TransferTbl::Rec *, double act, double valid);
@@ -21867,8 +21867,7 @@ public:
     int    SLAPI GetRandomHouse(long extValue, PPID terminalObjID, PPID * pHouseID);
     int    SLAPI GetRandomAddress(long extValue, PPID cityID, PPID * pStreetID, PPID * pHouseID);
 
-    //TextRefCore TrT;
-    FiasObjCore FT;
+	FiasObjCore FT;
 private:
 	friend class FiasAddrCache;
 
@@ -33904,8 +33903,8 @@ public:
 		StringSet NameList;
 	};
 
-	static long DefaultPriority;
-	static long DependedPriority;
+	static const long DefaultPriority;
+	static const long DependedPriority;
 	static int FASTCALL ReadConfig(PPDBXchgConfig *);
 	static int SLAPI EditConfig();
 	static int SLAPI IncrementCharryOutCounter();
@@ -39706,7 +39705,9 @@ struct GoodsOpAnalyzeFilt : public PPBaseFilt {
 
 struct GoodsOpAnalyzeViewItem {
 	struct CmVal {
-		CmVal() { Val = Cm = 0.0; }
+		CmVal() : Val(0.0), Cm(0.0)
+		{
+		}
 		operator double() const { return Val; }
 		double FASTCALL operator = (double val) { Val = val; return Val; }
 		void   SetCm(double cm) { Cm = cm; }
@@ -43100,9 +43101,8 @@ public:
 		void   FASTCALL Init(int q);
 	};
 	struct QueryProcessBlock {
-		SLAPI  QueryProcessBlock()
+		SLAPI  QueryProcessBlock() : PosNodeID(0)
 		{
-			PosNodeID = 0;
 		}
 		PPID   PosNodeID;
 		RouteBlock R;
@@ -43926,6 +43926,7 @@ private:
 	int    SLAPI Helper_FinalizeNewPack(PPEgaisProcessor::Packet ** ppNewPack, uint srcReplyPos, TSCollection <PPEgaisProcessor::Packet> * pPackList);
 	int    SLAPI Helper_CollectRefs(void * pCtx, TSCollection <PPEgaisProcessor::Reply> & rReplyList, RefCollection & rRefC);
 	int    SLAPI Helper_AcceptBillPacket(Packet * pPack, TSCollection <PPEgaisProcessor::Packet> * pPackList, uint packIdx);
+	int    SLAPI Helper_AcceptTtnRefB(Packet * pPack, TSCollection <PPEgaisProcessor::Packet> * pPackList, uint packIdx, LongArray & rSkipPackIdxList);
 	int    SLAPI Helper_AreArticlesEq(PPID ar1ID, PPID ar2ID);
 	int    SLAPI Helper_CreateTransferToShop(const PPBillPacket * pCurrentRestPack);
 	int    SLAPI Helper_CreateWriteOffShop(const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod);
@@ -44510,13 +44511,13 @@ private:
 class BillTotalBlock {
 public:
 	SLAPI  BillTotalBlock(BillTotalData * pData, PPID opID, PPID goodsTypeID, int outAmtType, long flags);
-	int    FASTCALL Add(PPTransferItem *);
-	int    SLAPI AddPckg(const PPTransferItem *);
-	int    FASTCALL Add(const PPAdvBillItem *);
-	int    SLAPI Finish(const PPBillPacket * pPack);
+	void   FASTCALL Add(PPTransferItem *);
+	void   SLAPI AddPckg(const PPTransferItem *);
+	void   FASTCALL Add(const PPAdvBillItem *);
+	void   SLAPI Finish(const PPBillPacket * pPack);
 private:
-	int    SLAPI SetupStdAmount(PPID stdAmtID, PPID altAmtID, double stdAmount, double altAmount, long replaceStdAmount, int in_out);
-	int    SLAPI SetupStdAmount(PPID stdAmtID, double stdAmount, int in_out);
+	void   SLAPI SetupStdAmount(PPID stdAmtID, PPID altAmtID, double stdAmount, double altAmount, long replaceStdAmount, int in_out);
+	void   SLAPI SetupStdAmount(PPID stdAmtID, double stdAmount, int in_out);
 	enum {
 		stSelling            = 0x0001,
 		stAllGoodsUnlim      = 0x0002,
@@ -46062,7 +46063,7 @@ private:
 
 class PPObjBrowser : public BrowserWindow {
 public:
-	PPObjBrowser(uint rezID, DBQuery * q, PPObject * _ppobj, uint _flags, long _extra);
+	PPObjBrowser(uint rezID, DBQuery * q, PPObject * _ppobj, uint _flags, void * extraPtr);
 protected:
 	DECL_HANDLE_EVENT;
 	PPID   currID();
@@ -46070,7 +46071,7 @@ protected:
 	void   SetPPObjPtr(PPObject *);
 
 	uint   flags;
-	long   extra;
+	void * ExtraPtr;
 	PPObject * ppobj;
 };
 
@@ -46258,7 +46259,7 @@ public:
 			// Проекция флага sacfNonEmptyExchageParam
 	};
 	ArticleCtrlGroup(uint ctlselAcs, uint ctlselOp, uint ctlselAr, uint cmEditList, long accSheetID, long flags = 0);
-	int    SetAccSheet(long accSheetID);
+	void   SetAccSheet(long accSheetID);
 	virtual int setData(TDialog *, void *); // (ArticleCtrlGroup::Rec*)
 	virtual int getData(TDialog *, void *); // (ArticleCtrlGroup::Rec*)
 private:
@@ -46434,9 +46435,9 @@ private:
 	int    Setup(TDialog * pDlg, int onInit);
 
 	Rec    Data;
-	uint   CtlselSCardSer;
-	uint   CtlSCard;
-	uint   CmSCSerList;
+	const  uint CtlselSCardSer;
+	const  uint CtlSCard;
+	const  uint CmSCSerList;
 };
 
 class FiasAddressCtrlGroup : public CtrlGroup {
@@ -46455,8 +46456,8 @@ private:
 	virtual void handleEvent(TDialog *, TEvent &);
 	int    Setup(TDialog * pDlg, int event);
 	Rec    Data;
-	uint   CtlEdit;
-	uint   CtlInfo;
+	const  uint CtlEdit;
+	const  uint CtlInfo;
 
 	PPFiasReference Fr;
 };
@@ -46763,8 +46764,8 @@ public:
 private:
 	virtual void handleEvent(TDialog *, TEvent &);
 	Rec    Data;
-	uint   Ctlsel;
-	uint   CmEditList;
+	const uint Ctlsel;
+	const uint CmEditList;
 };
 
 class QuotKindCtrlGroup : public CtrlGroup {
@@ -46779,8 +46780,8 @@ public:
 private:
 	virtual void handleEvent(TDialog *, TEvent &);
 	Rec    Data;
-	uint   Ctlsel;
-	uint   CmEditList;
+	const uint Ctlsel;
+	const uint CmEditList;
 };
 
 class StaffCalCtrlGroup : public CtrlGroup {
@@ -46795,8 +46796,8 @@ public:
 private:
 	virtual void handleEvent(TDialog *, TEvent &);
 	Rec    Data;
-	uint   Ctlsel;
-	uint   CmEditList;
+	const  uint Ctlsel;
+	const  uint CmEditList;
 };
 
 class PersonOpCtrlGroup : public CtrlGroup {
@@ -47272,8 +47273,8 @@ private:
 	LTIME  Data;
 	ushort Cmd;
 	uint16 Reserve; // @alignment
-	uint   Ctl;
-	uint   CtlSel;
+	const  uint Ctl;
+	const  uint CtlSel;
 };
 //
 //

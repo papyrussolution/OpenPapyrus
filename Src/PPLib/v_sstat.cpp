@@ -504,9 +504,8 @@ int SLAPI PPViewSStat::Init_(const PPBaseFilt * pBaseFilt)
 		{
 			class SStatCrosstab : public Crosstab {
 			public:
-				SLAPI  SStatCrosstab(PPViewSStat * pV) : Crosstab()
+				SLAPI  SStatCrosstab(PPViewSStat * pV) : Crosstab(), P_V(pV)
 				{
-					P_V = pV;
 				}
 				virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 				{

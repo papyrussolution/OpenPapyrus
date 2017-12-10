@@ -265,11 +265,8 @@ int SLAPI PPObjWorld::GetNativeCountry(PPID * pID)
 	return ok;
 }
 
-PPObjWorld::SelFilt::SelFilt()
+PPObjWorld::SelFilt::SelFilt() : KindFlags(0), ParentID(0), CountryID(0)
 {
-	KindFlags = 0;
-	ParentID = 0;
-	CountryID = 0;
 }
 
 class PPObjWorldListWindow : public PPObjListWindow {

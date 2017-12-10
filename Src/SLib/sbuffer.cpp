@@ -810,13 +810,9 @@ struct SscDbtItem {
 	BNFieldList Fields;
 };
 
-SLAPI SSerializeContext::SSerializeContext() : SymbTbl(2048, 1), TempDataBuf(0)
+SLAPI SSerializeContext::SSerializeContext() : SymbTbl(2048, 1), TempDataBuf(0), LastSymbId(0), SuppDate(ZERODATE), State(0), Flags(0)
 {
 	P_DbtDescrList = new TSCollection <SscDbtItem>;
-	LastSymbId = 0;
-	SuppDate = ZERODATE;
-	State = 0;
-	Flags = 0;
 }
 
 SLAPI SSerializeContext::~SSerializeContext()
@@ -1286,10 +1282,8 @@ int SLAPI SSerializeContext::SerializeBlock(int dir, uint32 size, void * pData, 
 //
 //
 //
-SLAPI  SSerializer::SSerializer(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) : R_Buf(rBuf)
+SLAPI  SSerializer::SSerializer(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) : R_Buf(rBuf), Dir(dir), P_SCtx(pSCtx)
 {
-	Dir = dir;
-	P_SCtx = pSCtx;
 }
 
 int    SLAPI SSerializer::Serialize(TYPEID typ, void * pData, uint8 * pInd)
@@ -1424,9 +1418,8 @@ int    SLAPI SSerializer::SerializeBlock(uint32 size, void * pData, int skipMiss
 //
 //
 //
-SLAPI SBufferPipe::SBufferPipe(size_t initSize, long flags) : SBuffer(initSize, flags)
+SLAPI SBufferPipe::SBufferPipe(size_t initSize, long flags) : SBuffer(initSize, flags), Status(0)
 {
-	Status = 0;
 }
 
 int FASTCALL SBufferPipe::Put(const void * pSrc, size_t srcLen)

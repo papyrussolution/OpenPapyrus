@@ -378,12 +378,6 @@
 #define CALLPTRMEMB(ptr, memb)          if(ptr) ptr->memb;
 #define CALLTYPEPTRMEMB(typ, ptr, memb) if(ptr) ((typ *)ptr)->memb;
 
-// @v8.7.2 #ifdef __cplusplus
-	// @v8.7.2 #define SREFDEF(typ)     typedef typ SFAR & R ## typ
-	// @v8.7.2 #define SREF(typ)        R ## typ
-	// @v8.7.2 #define SCLASSDEF(typ)   class SLCLASS typ;  SPTRDEF(typ); SREFDEF(typ);
-	// @v8.7.2 #define SSTRUCTDEF(typ)  struct SLCLASS typ; SPTRDEF(typ); SREFDEF(typ);
-// @v8.7.2 #endif
 #ifdef DECL_INTX
 	typedef signed char    int8;
 	typedef signed short   int16;
@@ -410,8 +404,6 @@ typedef unsigned long       RECORDNUMBER;
 typedef unsigned char       xmlChar; // Определение из libxml и для libxml (libxml now includes slib.h)
 
 // @v9.1.12 enum Boolean { False, True };
-
-// @v8.7.2 #ifdef __cplusplus // {
 
 class  SBuffer;
 class  SString;
@@ -1543,7 +1535,8 @@ struct S_GUID {    // @persistent @size=16
 	enum {
 		fmtIDL = 0,
 		fmtC = 1,
-		fmtPlain     // "плоский" формат. то есть, без ограничителей и разделителей в 16-ричном формате
+		fmtPlain,    // "плоский" формат. то есть, без ограничителей и разделителей в 16-ричном формате
+		fmtLower = 0x8000 // Флаг, предписывающий использовать буквы [a-f] в строчном регистре
 	};
 	int    FASTCALL operator == (const S_GUID &) const;
 	int    FASTCALL operator != (const S_GUID &) const;
@@ -2003,11 +1996,55 @@ private:
 	uint32 Delay;
 	LDATETIME  Last;
 };
+//
+// @construction
+// Descr: Универсальное представление времени, обеспечивающее хранение любых временных
+//   отметок с любой точностью.
+//
+class SUniTime {
+public:
 
-// @v8.7.2 #endif // } __cplusplus
+	SUniTime();
 
+	int    Set(uint day, uint mon, uint year, uint hr, uint mn, uint s, uint mks);
+
+	int    To(LDATE & rD) const;
+	int    To(LDATETIME & rD) const;
+	int    To(time_t & rD) const;
+
+	int    From(const LDATE & rD);
+	int    From(const LDATETIME & rD);
+	int    From(const time_t & rD);
+
+	enum {
+        indMksSince1900 = 0,
+        indMSec,
+        indSec,
+        indMin,
+        indHr,
+        indDay,
+        indMon,
+		indQuart,
+		indSmYr,
+		indYr,
+		indDYr,
+		indSmCent,
+		indCent,
+		indMillennium,
+		indMillionYr
+	};
+	//
+	// Самый старший байт D[7] - индикатор, определяющий разрешение представления и,
+	// возможно, часовой пояс (для indMksSince1900).
+	//
+    uint8  D[8];
+};
+//
+//
+//
 #define ASSIGN_PTR(ptr,val)   if(ptr) *(ptr) = (val);
 #define RVALUEPTR(val,ptr)    ((ptr)?((val = *(ptr)), 1) : 0)
+#define DEREFPTRORZ(ptr)      ((ptr)?(*(ptr)):0)
 #define PTR8(p)               ((uint8*)(p))
 #define PTR8C(p)              ((const uint8*)(p))
 #define PTR16(p)              ((uint16*)(p))
@@ -3436,6 +3473,18 @@ public:
 	//   0  - не удалось сосканировать ни одного символа.
 	//
 	int    SLAPI GetWord(size_t * pPos, SString & rBuf) const;
+	//
+	// Descr: Разбивает строку this на отдельные фрагменты, разделенные одним из символов,
+	//   перечисленных в строке pDelimChrSet. Результирующие фрагменты заносятся в
+	//   набор строк (StringSet) rResult.
+	//   Если pDelimChrSet == 0, то применяется набор разделителей по умолчанию " \t\n\r".
+	//   Несколько разделителей идущих подряд считаются за один.
+	//   Функция не очищает rResult перед тем как начнет туда вставлять новые элементы.
+	// Returns:
+	//   2 - в строке this встречен как минимум один разделитель
+	//   1 - в строке this не было встречено ни одного разделителя - она полностью внесена в rResult
+	//  -1 - строка this пуста - в rResult ничего не добавлено
+	//
 	int    SLAPI Tokenize(const char * pDelimChrSet, StringSet & rResult) const;
 	//
 	// Descr: Ищет в строке this подстроку, установленную в качестве образца в блок pBlk.
@@ -8254,6 +8303,7 @@ public:
 	static int GetMimeTypeName(int mimeType, SString & rBuf);
 	static int GetMime(int id, SString & rMime);
 	static int GetExt(int id, SString & rExt);
+	static int GetContentTransferEncName(int cte, SString & rBuf);
 
 	SFileFormat();
 	SFileFormat(int f);
@@ -9212,15 +9262,24 @@ private:
 #define SNTOK_SOFTWAREVER   21 // 9.9.9
 #define SNTOK_COLORHEX      22 // #hhhhhh
 
-#define SNTOKSEQ_DEC        1 // 0-9
-#define SNTOKSEQ_HEX        2 // A-F||a-f
-#define SNTOKSEQ_LATUPR     3 // A-Z
-#define SNTOKSEQ_LATLWR     4 // a-z
-#define SNTOKSEQ_DECLAT     5 // 0-9||A-F||a-f
-#define SNTOKSEQ_ASCII      6 // 1-127
-#define SNTOKSEQ_UTF8       7
-#define SNTOKSEQ_1251       8
-#define SNTOKSEQ_866        9
+#define SNTOKSEQ_DEC        0x00000001 // 0-9
+#define SNTOKSEQ_LATLWR     0x00000002 // a-z
+#define SNTOKSEQ_LATUPR     0x00000004 // A-Z
+#define SNTOKSEQ_LAT        0x00000008 // A-Z||a-z
+#define SNTOKSEQ_HEX        0x00000010 // 0-9||A-F||a-f
+#define SNTOKSEQ_ASCII      0x00000020 // 1-127
+#define SNTOKSEQ_UTF8       0x00000040 // Вся последовательность состоит из валидных UTF-8 символов
+#define SNTOKSEQ_1251       0x00000080 // Вся последовательность состоит из символов, соответствующих кодировке cp1251
+#define SNTOKSEQ_866        0x00000100 // Вся последовательность состоит из символов, соответствующих кодировке cp866
+#define SNTOKSEQ_DECLAT     0x00000200 // 0-9||A-F||a-f
+#define SNTOKSEQ_HEXHYPHEN  0X00000400 // ТОЛЬКО HEX && -
+#define SNTOKSEQ_DECHYPHEN  0X00000800 // ТОЛЬКО DEC && -
+#define SNTOKSEQ_HEXCOLON   0X00001000 // ТОЛЬКО HEX && :
+#define SNTOKSEQ_DECCOLON   0X00002000 // ТОЛЬКО DEC && :
+#define SNTOKSEQ_HEXDOT     0X00001000 // ТОЛЬКО HEX && .
+#define SNTOKSEQ_DECDOT     0X00002000 // ТОЛЬКО DEC && .
+#define SNTOKSEQ_DECSLASH   0X00004000 // ТОЛЬКО DEC && /
+#define SNTOKSEQ_LEADSHARP  0X00008000 // Лидирующий символ # (если этот символ встречается только в начале строки, то он не отключает остальные флаги.
 
 struct SNaturalTokenStat {
 	SLAPI  SNaturalTokenStat();
@@ -13544,7 +13603,7 @@ public:
 	//
 	virtual int Run(const char * pBenchmark);
 	int    EnumArg(uint * pArgNo, SString &) const;
-	int    SetInfo(const char *, int currentStatus = -1);
+	void   SetInfo(const char *, int currentStatus = -1);
 	int    _check_nz(int result, const char * pV);
 	int    _check_z(int result, const char * pV);
 	int    _check_eq(const void * a, const void * b, const char * pA, const char * pB);

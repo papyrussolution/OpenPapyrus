@@ -44,115 +44,115 @@ class SOAP_CMAC AMSMercuryG2BBindingProxy : public soap
 #endif
 
 	/// Web service operation 'processIncomingConsignmentRequest' (returns error code or SOAP_OK)
-	virtual	int processIncomingConsignmentRequest(ns5__ProcessIncomingConsignmentRequest *ns5__processIncomingConsignmentRequest, ns5__ProcessIncomingConsignmentResponse *ns5__processIncomingConsignmentResponse) { return processIncomingConsignmentRequest(NULL, NULL, ns5__processIncomingConsignmentRequest, ns5__processIncomingConsignmentResponse); }
-	virtual	int processIncomingConsignmentRequest(const char *endpoint, const char *soap_action, ns5__ProcessIncomingConsignmentRequest *ns5__processIncomingConsignmentRequest, ns5__ProcessIncomingConsignmentResponse *ns5__processIncomingConsignmentResponse);
+	virtual	int processIncomingConsignmentRequest(merc__ProcessIncomingConsignmentRequest *merc__processIncomingConsignmentRequest, merc__ProcessIncomingConsignmentResponse *merc__processIncomingConsignmentResponse) { return processIncomingConsignmentRequest(NULL, NULL, merc__processIncomingConsignmentRequest, merc__processIncomingConsignmentResponse); }
+	virtual	int processIncomingConsignmentRequest(const char *endpoint, const char *soap_action, merc__ProcessIncomingConsignmentRequest *merc__processIncomingConsignmentRequest, merc__ProcessIncomingConsignmentResponse *merc__processIncomingConsignmentResponse);
 
 	/// Web service operation 'prepareOutgoingConsignmentRequest' (returns error code or SOAP_OK)
-	virtual	int prepareOutgoingConsignmentRequest(ns5__PrepareOutgoingConsignmentRequest *ns5__prepareOutgoingConsignmentRequest, ns5__PrepareOutgoingConsignmentResponse *ns5__prepareOutgoingConsignmentResponse) { return prepareOutgoingConsignmentRequest(NULL, NULL, ns5__prepareOutgoingConsignmentRequest, ns5__prepareOutgoingConsignmentResponse); }
-	virtual	int prepareOutgoingConsignmentRequest(const char *endpoint, const char *soap_action, ns5__PrepareOutgoingConsignmentRequest *ns5__prepareOutgoingConsignmentRequest, ns5__PrepareOutgoingConsignmentResponse *ns5__prepareOutgoingConsignmentResponse);
+	virtual	int prepareOutgoingConsignmentRequest(merc__PrepareOutgoingConsignmentRequest *merc__prepareOutgoingConsignmentRequest, merc__PrepareOutgoingConsignmentResponse *merc__prepareOutgoingConsignmentResponse) { return prepareOutgoingConsignmentRequest(NULL, NULL, merc__prepareOutgoingConsignmentRequest, merc__prepareOutgoingConsignmentResponse); }
+	virtual	int prepareOutgoingConsignmentRequest(const char *endpoint, const char *soap_action, merc__PrepareOutgoingConsignmentRequest *merc__prepareOutgoingConsignmentRequest, merc__PrepareOutgoingConsignmentResponse *merc__prepareOutgoingConsignmentResponse);
 
 	/// Web service operation 'registerProductionOperationRequest' (returns error code or SOAP_OK)
-	virtual	int registerProductionOperationRequest(ns5__RegisterProductionOperationRequest *ns5__registerProductionOperationRequest, ns5__RegisterProductionOperationResponse *ns5__registerProductionOperationResponse) { return registerProductionOperationRequest(NULL, NULL, ns5__registerProductionOperationRequest, ns5__registerProductionOperationResponse); }
-	virtual	int registerProductionOperationRequest(const char *endpoint, const char *soap_action, ns5__RegisterProductionOperationRequest *ns5__registerProductionOperationRequest, ns5__RegisterProductionOperationResponse *ns5__registerProductionOperationResponse);
+	virtual	int registerProductionOperationRequest(merc__RegisterProductionOperationRequest *merc__registerProductionOperationRequest, merc__RegisterProductionOperationResponse *merc__registerProductionOperationResponse) { return registerProductionOperationRequest(NULL, NULL, merc__registerProductionOperationRequest, merc__registerProductionOperationResponse); }
+	virtual	int registerProductionOperationRequest(const char *endpoint, const char *soap_action, merc__RegisterProductionOperationRequest *merc__registerProductionOperationRequest, merc__RegisterProductionOperationResponse *merc__registerProductionOperationResponse);
 
 	/// Web service operation 'mergeStockEntriesRequest' (returns error code or SOAP_OK)
-	virtual	int mergeStockEntriesRequest(ns5__MergeStockEntriesRequest *ns5__mergeStockEntriesRequest, ns5__MergeStockEntriesResponse *ns5__mergeStockEntriesResponse) { return mergeStockEntriesRequest(NULL, NULL, ns5__mergeStockEntriesRequest, ns5__mergeStockEntriesResponse); }
-	virtual	int mergeStockEntriesRequest(const char *endpoint, const char *soap_action, ns5__MergeStockEntriesRequest *ns5__mergeStockEntriesRequest, ns5__MergeStockEntriesResponse *ns5__mergeStockEntriesResponse);
+	virtual	int mergeStockEntriesRequest(merc__MergeStockEntriesRequest *merc__mergeStockEntriesRequest, merc__MergeStockEntriesResponse *merc__mergeStockEntriesResponse) { return mergeStockEntriesRequest(NULL, NULL, merc__mergeStockEntriesRequest, merc__mergeStockEntriesResponse); }
+	virtual	int mergeStockEntriesRequest(const char *endpoint, const char *soap_action, merc__MergeStockEntriesRequest *merc__mergeStockEntriesRequest, merc__MergeStockEntriesResponse *merc__mergeStockEntriesResponse);
 
 	/// Web service operation 'withdrawVetDocumentRequest' (returns error code or SOAP_OK)
-	virtual	int withdrawVetDocumentRequest(ns5__WithdrawVetDocumentRequest *ns5__withdrawVetDocumentRequest, ns5__WithdrawVetDocumentResponse *ns5__withdrawVetDocumentResponse) { return withdrawVetDocumentRequest(NULL, NULL, ns5__withdrawVetDocumentRequest, ns5__withdrawVetDocumentResponse); }
-	virtual	int withdrawVetDocumentRequest(const char *endpoint, const char *soap_action, ns5__WithdrawVetDocumentRequest *ns5__withdrawVetDocumentRequest, ns5__WithdrawVetDocumentResponse *ns5__withdrawVetDocumentResponse);
+	virtual	int withdrawVetDocumentRequest(merc__WithdrawVetDocumentRequest *merc__withdrawVetDocumentRequest, merc__WithdrawVetDocumentResponse *merc__withdrawVetDocumentResponse) { return withdrawVetDocumentRequest(NULL, NULL, merc__withdrawVetDocumentRequest, merc__withdrawVetDocumentResponse); }
+	virtual	int withdrawVetDocumentRequest(const char *endpoint, const char *soap_action, merc__WithdrawVetDocumentRequest *merc__withdrawVetDocumentRequest, merc__WithdrawVetDocumentResponse *merc__withdrawVetDocumentResponse);
 
 	/// Web service operation 'modifyBusinessEntityRequest' (returns error code or SOAP_OK)
-	virtual	int modifyBusinessEntityRequest(ns5__ModifyBusinessEntityRequest *ns5__modifyBusinessEntityRequest, ns5__ModifyBusinessEntityResponse *ns5__modifyBusinessEntityResponse) { return modifyBusinessEntityRequest(NULL, NULL, ns5__modifyBusinessEntityRequest, ns5__modifyBusinessEntityResponse); }
-	virtual	int modifyBusinessEntityRequest(const char *endpoint, const char *soap_action, ns5__ModifyBusinessEntityRequest *ns5__modifyBusinessEntityRequest, ns5__ModifyBusinessEntityResponse *ns5__modifyBusinessEntityResponse);
+	virtual	int modifyBusinessEntityRequest(merc__ModifyBusinessEntityRequest *merc__modifyBusinessEntityRequest, merc__ModifyBusinessEntityResponse *merc__modifyBusinessEntityResponse) { return modifyBusinessEntityRequest(NULL, NULL, merc__modifyBusinessEntityRequest, merc__modifyBusinessEntityResponse); }
+	virtual	int modifyBusinessEntityRequest(const char *endpoint, const char *soap_action, merc__ModifyBusinessEntityRequest *merc__modifyBusinessEntityRequest, merc__ModifyBusinessEntityResponse *merc__modifyBusinessEntityResponse);
 
 	/// Web service operation 'modifyEnterpriseRequest' (returns error code or SOAP_OK)
-	virtual	int modifyEnterpriseRequest(ns5__ModifyEnterpriseRequest *ns5__modifyEnterpriseRequest, ns5__ModifyEnterpriseResponse *ns5__modifyEnterpriseResponse) { return modifyEnterpriseRequest(NULL, NULL, ns5__modifyEnterpriseRequest, ns5__modifyEnterpriseResponse); }
-	virtual	int modifyEnterpriseRequest(const char *endpoint, const char *soap_action, ns5__ModifyEnterpriseRequest *ns5__modifyEnterpriseRequest, ns5__ModifyEnterpriseResponse *ns5__modifyEnterpriseResponse);
+	virtual	int modifyEnterpriseRequest(merc__ModifyEnterpriseRequest *merc__modifyEnterpriseRequest, merc__ModifyEnterpriseResponse *merc__modifyEnterpriseResponse) { return modifyEnterpriseRequest(NULL, NULL, merc__modifyEnterpriseRequest, merc__modifyEnterpriseResponse); }
+	virtual	int modifyEnterpriseRequest(const char *endpoint, const char *soap_action, merc__ModifyEnterpriseRequest *merc__modifyEnterpriseRequest, merc__ModifyEnterpriseResponse *merc__modifyEnterpriseResponse);
 
 	/// Web service operation 'modifyActivityLocationsRequest' (returns error code or SOAP_OK)
-	virtual	int modifyActivityLocationsRequest(ns5__ModifyActivityLocationsRequest *ns5__modifyActivityLocationsRequest, ns5__ModifyActivityLocationsResponse *ns5__modifyActivityLocationsResponse) { return modifyActivityLocationsRequest(NULL, NULL, ns5__modifyActivityLocationsRequest, ns5__modifyActivityLocationsResponse); }
-	virtual	int modifyActivityLocationsRequest(const char *endpoint, const char *soap_action, ns5__ModifyActivityLocationsRequest *ns5__modifyActivityLocationsRequest, ns5__ModifyActivityLocationsResponse *ns5__modifyActivityLocationsResponse);
+	virtual	int modifyActivityLocationsRequest(merc__ModifyActivityLocationsRequest *merc__modifyActivityLocationsRequest, merc__ModifyActivityLocationsResponse *merc__modifyActivityLocationsResponse) { return modifyActivityLocationsRequest(NULL, NULL, merc__modifyActivityLocationsRequest, merc__modifyActivityLocationsResponse); }
+	virtual	int modifyActivityLocationsRequest(const char *endpoint, const char *soap_action, merc__ModifyActivityLocationsRequest *merc__modifyActivityLocationsRequest, merc__ModifyActivityLocationsResponse *merc__modifyActivityLocationsResponse);
 
 	/// Web service operation 'resolveDiscrepancyRequest' (returns error code or SOAP_OK)
-	virtual	int resolveDiscrepancyRequest(ns5__ResolveDiscrepancyRequest *ns5__resolveDiscrepancyRequest, ns5__ResolveDiscrepancyResponse *ns5__resolveDiscrepancyResponse) { return resolveDiscrepancyRequest(NULL, NULL, ns5__resolveDiscrepancyRequest, ns5__resolveDiscrepancyResponse); }
-	virtual	int resolveDiscrepancyRequest(const char *endpoint, const char *soap_action, ns5__ResolveDiscrepancyRequest *ns5__resolveDiscrepancyRequest, ns5__ResolveDiscrepancyResponse *ns5__resolveDiscrepancyResponse);
+	virtual	int resolveDiscrepancyRequest(merc__ResolveDiscrepancyRequest *merc__resolveDiscrepancyRequest, merc__ResolveDiscrepancyResponse *merc__resolveDiscrepancyResponse) { return resolveDiscrepancyRequest(NULL, NULL, merc__resolveDiscrepancyRequest, merc__resolveDiscrepancyResponse); }
+	virtual	int resolveDiscrepancyRequest(const char *endpoint, const char *soap_action, merc__ResolveDiscrepancyRequest *merc__resolveDiscrepancyRequest, merc__ResolveDiscrepancyResponse *merc__resolveDiscrepancyResponse);
 
 	/// Web service operation 'modifyProducerStockListRequest' (returns error code or SOAP_OK)
-	virtual	int modifyProducerStockListRequest(ns5__ModifyProducerStockListRequest *ns5__modifyProducerStockListRequest, ns5__ModifyProducerStockListResponse *ns5__modifyProducerStockListResponse) { return modifyProducerStockListRequest(NULL, NULL, ns5__modifyProducerStockListRequest, ns5__modifyProducerStockListResponse); }
-	virtual	int modifyProducerStockListRequest(const char *endpoint, const char *soap_action, ns5__ModifyProducerStockListRequest *ns5__modifyProducerStockListRequest, ns5__ModifyProducerStockListResponse *ns5__modifyProducerStockListResponse);
+	virtual	int modifyProducerStockListRequest(merc__ModifyProducerStockListRequest *merc__modifyProducerStockListRequest, merc__ModifyProducerStockListResponse *merc__modifyProducerStockListResponse) { return modifyProducerStockListRequest(NULL, NULL, merc__modifyProducerStockListRequest, merc__modifyProducerStockListResponse); }
+	virtual	int modifyProducerStockListRequest(const char *endpoint, const char *soap_action, merc__ModifyProducerStockListRequest *merc__modifyProducerStockListRequest, merc__ModifyProducerStockListResponse *merc__modifyProducerStockListResponse);
 
 	/// Web service operation 'getVetDocumentByUuidRequest' (returns error code or SOAP_OK)
-	virtual	int getVetDocumentByUuidRequest(ns5__GetVetDocumentByUuidRequest *ns5__getVetDocumentByUuidRequest, ns5__GetVetDocumentByUuidResponse *ns5__getVetDocumentByUuidResponse) { return getVetDocumentByUuidRequest(NULL, NULL, ns5__getVetDocumentByUuidRequest, ns5__getVetDocumentByUuidResponse); }
-	virtual	int getVetDocumentByUuidRequest(const char *endpoint, const char *soap_action, ns5__GetVetDocumentByUuidRequest *ns5__getVetDocumentByUuidRequest, ns5__GetVetDocumentByUuidResponse *ns5__getVetDocumentByUuidResponse);
+	virtual	int getVetDocumentByUuidRequest(merc__GetVetDocumentByUuidRequest *merc__getVetDocumentByUuidRequest, merc__GetVetDocumentByUuidResponse *merc__getVetDocumentByUuidResponse) { return getVetDocumentByUuidRequest(NULL, NULL, merc__getVetDocumentByUuidRequest, merc__getVetDocumentByUuidResponse); }
+	virtual	int getVetDocumentByUuidRequest(const char *endpoint, const char *soap_action, merc__GetVetDocumentByUuidRequest *merc__getVetDocumentByUuidRequest, merc__GetVetDocumentByUuidResponse *merc__getVetDocumentByUuidResponse);
 
 	/// Web service operation 'getVetDocumentListRequest' (returns error code or SOAP_OK)
-	virtual	int getVetDocumentListRequest(ns5__GetVetDocumentListRequest *ns5__getVetDocumentListRequest, ns5__GetVetDocumentListResponse *ns5__getVetDocumentListResponse) { return getVetDocumentListRequest(NULL, NULL, ns5__getVetDocumentListRequest, ns5__getVetDocumentListResponse); }
-	virtual	int getVetDocumentListRequest(const char *endpoint, const char *soap_action, ns5__GetVetDocumentListRequest *ns5__getVetDocumentListRequest, ns5__GetVetDocumentListResponse *ns5__getVetDocumentListResponse);
+	virtual	int getVetDocumentListRequest(merc__GetVetDocumentListRequest *merc__getVetDocumentListRequest, merc__GetVetDocumentListResponse *merc__getVetDocumentListResponse) { return getVetDocumentListRequest(NULL, NULL, merc__getVetDocumentListRequest, merc__getVetDocumentListResponse); }
+	virtual	int getVetDocumentListRequest(const char *endpoint, const char *soap_action, merc__GetVetDocumentListRequest *merc__getVetDocumentListRequest, merc__GetVetDocumentListResponse *merc__getVetDocumentListResponse);
 
 	/// Web service operation 'getVetDocumentChangesListRequest' (returns error code or SOAP_OK)
-	virtual	int getVetDocumentChangesListRequest(ns5__GetVetDocumentChangesListRequest *ns5__getVetDocumentChangesListRequest, ns5__GetVetDocumentChangesListResponse *ns5__getVetDocumentChangesListResponse) { return getVetDocumentChangesListRequest(NULL, NULL, ns5__getVetDocumentChangesListRequest, ns5__getVetDocumentChangesListResponse); }
-	virtual	int getVetDocumentChangesListRequest(const char *endpoint, const char *soap_action, ns5__GetVetDocumentChangesListRequest *ns5__getVetDocumentChangesListRequest, ns5__GetVetDocumentChangesListResponse *ns5__getVetDocumentChangesListResponse);
+	virtual	int getVetDocumentChangesListRequest(merc__GetVetDocumentChangesListRequest *merc__getVetDocumentChangesListRequest, merc__GetVetDocumentChangesListResponse *merc__getVetDocumentChangesListResponse) { return getVetDocumentChangesListRequest(NULL, NULL, merc__getVetDocumentChangesListRequest, merc__getVetDocumentChangesListResponse); }
+	virtual	int getVetDocumentChangesListRequest(const char *endpoint, const char *soap_action, merc__GetVetDocumentChangesListRequest *merc__getVetDocumentChangesListRequest, merc__GetVetDocumentChangesListResponse *merc__getVetDocumentChangesListResponse);
 
 	/// Web service operation 'getStockEntryByGuidRequest' (returns error code or SOAP_OK)
-	virtual	int getStockEntryByGuidRequest(ns5__GetStockEntryByGuidRequest *ns5__getStockEntryByGuidRequest, ns5__GetStockEntryByGuidResponse *ns5__getStockEntryByGuidResponse) { return getStockEntryByGuidRequest(NULL, NULL, ns5__getStockEntryByGuidRequest, ns5__getStockEntryByGuidResponse); }
-	virtual	int getStockEntryByGuidRequest(const char *endpoint, const char *soap_action, ns5__GetStockEntryByGuidRequest *ns5__getStockEntryByGuidRequest, ns5__GetStockEntryByGuidResponse *ns5__getStockEntryByGuidResponse);
+	virtual	int getStockEntryByGuidRequest(merc__GetStockEntryByGuidRequest *merc__getStockEntryByGuidRequest, merc__GetStockEntryByGuidResponse *merc__getStockEntryByGuidResponse) { return getStockEntryByGuidRequest(NULL, NULL, merc__getStockEntryByGuidRequest, merc__getStockEntryByGuidResponse); }
+	virtual	int getStockEntryByGuidRequest(const char *endpoint, const char *soap_action, merc__GetStockEntryByGuidRequest *merc__getStockEntryByGuidRequest, merc__GetStockEntryByGuidResponse *merc__getStockEntryByGuidResponse);
 
 	/// Web service operation 'getStockEntryByUuidRequest' (returns error code or SOAP_OK)
-	virtual	int getStockEntryByUuidRequest(ns5__GetStockEntryByUuidRequest *ns5__getStockEntryByUuidRequest, ns5__GetStockEntryByUuidResponse *ns5__getStockEntryByUuidResponse) { return getStockEntryByUuidRequest(NULL, NULL, ns5__getStockEntryByUuidRequest, ns5__getStockEntryByUuidResponse); }
-	virtual	int getStockEntryByUuidRequest(const char *endpoint, const char *soap_action, ns5__GetStockEntryByUuidRequest *ns5__getStockEntryByUuidRequest, ns5__GetStockEntryByUuidResponse *ns5__getStockEntryByUuidResponse);
+	virtual	int getStockEntryByUuidRequest(merc__GetStockEntryByUuidRequest *merc__getStockEntryByUuidRequest, merc__GetStockEntryByUuidResponse *merc__getStockEntryByUuidResponse) { return getStockEntryByUuidRequest(NULL, NULL, merc__getStockEntryByUuidRequest, merc__getStockEntryByUuidResponse); }
+	virtual	int getStockEntryByUuidRequest(const char *endpoint, const char *soap_action, merc__GetStockEntryByUuidRequest *merc__getStockEntryByUuidRequest, merc__GetStockEntryByUuidResponse *merc__getStockEntryByUuidResponse);
 
 	/// Web service operation 'getStockEntryListRequest' (returns error code or SOAP_OK)
-	virtual	int getStockEntryListRequest(ns5__GetStockEntryListRequest *ns5__getStockEntryListRequest, ns5__GetStockEntryListResponse *ns5__getStockEntryListResponse) { return getStockEntryListRequest(NULL, NULL, ns5__getStockEntryListRequest, ns5__getStockEntryListResponse); }
-	virtual	int getStockEntryListRequest(const char *endpoint, const char *soap_action, ns5__GetStockEntryListRequest *ns5__getStockEntryListRequest, ns5__GetStockEntryListResponse *ns5__getStockEntryListResponse);
+	virtual	int getStockEntryListRequest(merc__GetStockEntryListRequest *merc__getStockEntryListRequest, merc__GetStockEntryListResponse *merc__getStockEntryListResponse) { return getStockEntryListRequest(NULL, NULL, merc__getStockEntryListRequest, merc__getStockEntryListResponse); }
+	virtual	int getStockEntryListRequest(const char *endpoint, const char *soap_action, merc__GetStockEntryListRequest *merc__getStockEntryListRequest, merc__GetStockEntryListResponse *merc__getStockEntryListResponse);
 
 	/// Web service operation 'getStockEntryChangesListRequest' (returns error code or SOAP_OK)
-	virtual	int getStockEntryChangesListRequest(ns5__GetStockEntryChangesListRequest *ns5__getStockEntryChangesListRequest, ns5__GetStockEntryChangesListResponse *ns5__getStockEntryChangesListResponse) { return getStockEntryChangesListRequest(NULL, NULL, ns5__getStockEntryChangesListRequest, ns5__getStockEntryChangesListResponse); }
-	virtual	int getStockEntryChangesListRequest(const char *endpoint, const char *soap_action, ns5__GetStockEntryChangesListRequest *ns5__getStockEntryChangesListRequest, ns5__GetStockEntryChangesListResponse *ns5__getStockEntryChangesListResponse);
+	virtual	int getStockEntryChangesListRequest(merc__GetStockEntryChangesListRequest *merc__getStockEntryChangesListRequest, merc__GetStockEntryChangesListResponse *merc__getStockEntryChangesListResponse) { return getStockEntryChangesListRequest(NULL, NULL, merc__getStockEntryChangesListRequest, merc__getStockEntryChangesListResponse); }
+	virtual	int getStockEntryChangesListRequest(const char *endpoint, const char *soap_action, merc__GetStockEntryChangesListRequest *merc__getStockEntryChangesListRequest, merc__GetStockEntryChangesListResponse *merc__getStockEntryChangesListResponse);
 
 	/// Web service operation 'getStockEntryVersionListRequest' (returns error code or SOAP_OK)
-	virtual	int getStockEntryVersionListRequest(ns5__GetStockEntryVersionListRequest *ns5__getStockEntryVersionListRequest, ns5__GetStockEntryVersionListResponse *ns5__getStockEntryVersionListResponse) { return getStockEntryVersionListRequest(NULL, NULL, ns5__getStockEntryVersionListRequest, ns5__getStockEntryVersionListResponse); }
-	virtual	int getStockEntryVersionListRequest(const char *endpoint, const char *soap_action, ns5__GetStockEntryVersionListRequest *ns5__getStockEntryVersionListRequest, ns5__GetStockEntryVersionListResponse *ns5__getStockEntryVersionListResponse);
+	virtual	int getStockEntryVersionListRequest(merc__GetStockEntryVersionListRequest *merc__getStockEntryVersionListRequest, merc__GetStockEntryVersionListResponse *merc__getStockEntryVersionListResponse) { return getStockEntryVersionListRequest(NULL, NULL, merc__getStockEntryVersionListRequest, merc__getStockEntryVersionListResponse); }
+	virtual	int getStockEntryVersionListRequest(const char *endpoint, const char *soap_action, merc__GetStockEntryVersionListRequest *merc__getStockEntryVersionListRequest, merc__GetStockEntryVersionListResponse *merc__getStockEntryVersionListResponse);
 
 	/// Web service operation 'updateTransportMovementDetailsRequest' (returns error code or SOAP_OK)
-	virtual	int updateTransportMovementDetailsRequest(ns5__UpdateTransportMovementDetailsRequest *ns5__updateTransportMovementDetailsRequest, ns5__UpdateTransportMovementDetailsResponse *ns5__updateTransportMovementDetailsResponse) { return updateTransportMovementDetailsRequest(NULL, NULL, ns5__updateTransportMovementDetailsRequest, ns5__updateTransportMovementDetailsResponse); }
-	virtual	int updateTransportMovementDetailsRequest(const char *endpoint, const char *soap_action, ns5__UpdateTransportMovementDetailsRequest *ns5__updateTransportMovementDetailsRequest, ns5__UpdateTransportMovementDetailsResponse *ns5__updateTransportMovementDetailsResponse);
+	virtual	int updateTransportMovementDetailsRequest(merc__UpdateTransportMovementDetailsRequest *merc__updateTransportMovementDetailsRequest, merc__UpdateTransportMovementDetailsResponse *merc__updateTransportMovementDetailsResponse) { return updateTransportMovementDetailsRequest(NULL, NULL, merc__updateTransportMovementDetailsRequest, merc__updateTransportMovementDetailsResponse); }
+	virtual	int updateTransportMovementDetailsRequest(const char *endpoint, const char *soap_action, merc__UpdateTransportMovementDetailsRequest *merc__updateTransportMovementDetailsRequest, merc__UpdateTransportMovementDetailsResponse *merc__updateTransportMovementDetailsResponse);
 
 	/// Web service operation 'updateVeterinaryEventsRequest' (returns error code or SOAP_OK)
-	virtual	int updateVeterinaryEventsRequest(ns5__UpdateVeterinaryEventsRequest *ns5__updateVeterinaryEventsRequest, ns5__UpdateVeterinaryEventsResponse *ns5__updateVeterinaryEventsResponse) { return updateVeterinaryEventsRequest(NULL, NULL, ns5__updateVeterinaryEventsRequest, ns5__updateVeterinaryEventsResponse); }
-	virtual	int updateVeterinaryEventsRequest(const char *endpoint, const char *soap_action, ns5__UpdateVeterinaryEventsRequest *ns5__updateVeterinaryEventsRequest, ns5__UpdateVeterinaryEventsResponse *ns5__updateVeterinaryEventsResponse);
+	virtual	int updateVeterinaryEventsRequest(merc__UpdateVeterinaryEventsRequest *merc__updateVeterinaryEventsRequest, merc__UpdateVeterinaryEventsResponse *merc__updateVeterinaryEventsResponse) { return updateVeterinaryEventsRequest(NULL, NULL, merc__updateVeterinaryEventsRequest, merc__updateVeterinaryEventsResponse); }
+	virtual	int updateVeterinaryEventsRequest(const char *endpoint, const char *soap_action, merc__UpdateVeterinaryEventsRequest *merc__updateVeterinaryEventsRequest, merc__UpdateVeterinaryEventsResponse *merc__updateVeterinaryEventsResponse);
 
 	/// Web service operation 'checkShipmentRegionalizationRequest' (returns error code or SOAP_OK)
-	virtual	int checkShipmentRegionalizationRequest(ns5__CheckShipmentRegionalizationRequest *ns5__checkShipmentRegionalizationRequest, ns5__CheckShipmentRegionalizationResponse *ns5__checkShipmentRegionalizationResponse) { return checkShipmentRegionalizationRequest(NULL, NULL, ns5__checkShipmentRegionalizationRequest, ns5__checkShipmentRegionalizationResponse); }
-	virtual	int checkShipmentRegionalizationRequest(const char *endpoint, const char *soap_action, ns5__CheckShipmentRegionalizationRequest *ns5__checkShipmentRegionalizationRequest, ns5__CheckShipmentRegionalizationResponse *ns5__checkShipmentRegionalizationResponse);
+	virtual	int checkShipmentRegionalizationRequest(merc__CheckShipmentRegionalizationRequest *merc__checkShipmentRegionalizationRequest, merc__CheckShipmentRegionalizationResponse *merc__checkShipmentRegionalizationResponse) { return checkShipmentRegionalizationRequest(NULL, NULL, merc__checkShipmentRegionalizationRequest, merc__checkShipmentRegionalizationResponse); }
+	virtual	int checkShipmentRegionalizationRequest(const char *endpoint, const char *soap_action, merc__CheckShipmentRegionalizationRequest *merc__checkShipmentRegionalizationRequest, merc__CheckShipmentRegionalizationResponse *merc__checkShipmentRegionalizationResponse);
 
 	/// Web service operation 'addBusinessEntityUserRequest' (returns error code or SOAP_OK)
-	virtual	int addBusinessEntityUserRequest(ns5__AddBusinessEntityUserRequest *ns5__addBusinessEntityUserRequest, ns5__AddBusinessEntityUserResponse *ns5__addBusinessEntityUserResponse) { return addBusinessEntityUserRequest(NULL, NULL, ns5__addBusinessEntityUserRequest, ns5__addBusinessEntityUserResponse); }
-	virtual	int addBusinessEntityUserRequest(const char *endpoint, const char *soap_action, ns5__AddBusinessEntityUserRequest *ns5__addBusinessEntityUserRequest, ns5__AddBusinessEntityUserResponse *ns5__addBusinessEntityUserResponse);
+	virtual	int addBusinessEntityUserRequest(merc__AddBusinessEntityUserRequest *merc__addBusinessEntityUserRequest, merc__AddBusinessEntityUserResponse *merc__addBusinessEntityUserResponse) { return addBusinessEntityUserRequest(NULL, NULL, merc__addBusinessEntityUserRequest, merc__addBusinessEntityUserResponse); }
+	virtual	int addBusinessEntityUserRequest(const char *endpoint, const char *soap_action, merc__AddBusinessEntityUserRequest *merc__addBusinessEntityUserRequest, merc__AddBusinessEntityUserResponse *merc__addBusinessEntityUserResponse);
 
 	/// Web service operation 'getBusinessEntityUserListRequest' (returns error code or SOAP_OK)
-	virtual	int getBusinessEntityUserListRequest(ns5__GetBusinessEntityUserListRequest *ns5__getBusinessEntityUserListRequest, ns5__GetBusinessEntityUserListResponse *ns5__getBusinessEntityUserListResponse) { return getBusinessEntityUserListRequest(NULL, NULL, ns5__getBusinessEntityUserListRequest, ns5__getBusinessEntityUserListResponse); }
-	virtual	int getBusinessEntityUserListRequest(const char *endpoint, const char *soap_action, ns5__GetBusinessEntityUserListRequest *ns5__getBusinessEntityUserListRequest, ns5__GetBusinessEntityUserListResponse *ns5__getBusinessEntityUserListResponse);
+	virtual	int getBusinessEntityUserListRequest(merc__GetBusinessEntityUserListRequest *merc__getBusinessEntityUserListRequest, merc__GetBusinessEntityUserListResponse *merc__getBusinessEntityUserListResponse) { return getBusinessEntityUserListRequest(NULL, NULL, merc__getBusinessEntityUserListRequest, merc__getBusinessEntityUserListResponse); }
+	virtual	int getBusinessEntityUserListRequest(const char *endpoint, const char *soap_action, merc__GetBusinessEntityUserListRequest *merc__getBusinessEntityUserListRequest, merc__GetBusinessEntityUserListResponse *merc__getBusinessEntityUserListResponse);
 
 	/// Web service operation 'getBusinessEntityUserRequest' (returns error code or SOAP_OK)
-	virtual	int getBusinessEntityUserRequest(ns5__GetBusinessEntityUserRequest *ns5__getBusinessEntityUserRequest, ns5__GetBusinessEntityUserResponse *ns5__getBusinessEntityUserResponse) { return getBusinessEntityUserRequest(NULL, NULL, ns5__getBusinessEntityUserRequest, ns5__getBusinessEntityUserResponse); }
-	virtual	int getBusinessEntityUserRequest(const char *endpoint, const char *soap_action, ns5__GetBusinessEntityUserRequest *ns5__getBusinessEntityUserRequest, ns5__GetBusinessEntityUserResponse *ns5__getBusinessEntityUserResponse);
+	virtual	int getBusinessEntityUserRequest(merc__GetBusinessEntityUserRequest *merc__getBusinessEntityUserRequest, merc__GetBusinessEntityUserResponse *merc__getBusinessEntityUserResponse) { return getBusinessEntityUserRequest(NULL, NULL, merc__getBusinessEntityUserRequest, merc__getBusinessEntityUserResponse); }
+	virtual	int getBusinessEntityUserRequest(const char *endpoint, const char *soap_action, merc__GetBusinessEntityUserRequest *merc__getBusinessEntityUserRequest, merc__GetBusinessEntityUserResponse *merc__getBusinessEntityUserResponse);
 
 	/// Web service operation 'updateUserAuthoritiesRequest' (returns error code or SOAP_OK)
-	virtual	int updateUserAuthoritiesRequest(ns5__UpdateUserAuthoritiesRequest *ns5__updateUserAuthoritiesRequest, ns5__UpdateUserAuthoritiesResponse *ns5__updateUserAuthoritiesResponse) { return updateUserAuthoritiesRequest(NULL, NULL, ns5__updateUserAuthoritiesRequest, ns5__updateUserAuthoritiesResponse); }
-	virtual	int updateUserAuthoritiesRequest(const char *endpoint, const char *soap_action, ns5__UpdateUserAuthoritiesRequest *ns5__updateUserAuthoritiesRequest, ns5__UpdateUserAuthoritiesResponse *ns5__updateUserAuthoritiesResponse);
+	virtual	int updateUserAuthoritiesRequest(merc__UpdateUserAuthoritiesRequest *merc__updateUserAuthoritiesRequest, merc__UpdateUserAuthoritiesResponse *merc__updateUserAuthoritiesResponse) { return updateUserAuthoritiesRequest(NULL, NULL, merc__updateUserAuthoritiesRequest, merc__updateUserAuthoritiesResponse); }
+	virtual	int updateUserAuthoritiesRequest(const char *endpoint, const char *soap_action, merc__UpdateUserAuthoritiesRequest *merc__updateUserAuthoritiesRequest, merc__UpdateUserAuthoritiesResponse *merc__updateUserAuthoritiesResponse);
 
 	/// Web service operation 'updateUserWorkingAreasRequest' (returns error code or SOAP_OK)
-	virtual	int updateUserWorkingAreasRequest(ns5__UpdateUserWorkingAreasRequest *ns5__updateUserWorkingAreasRequest, ns5__UpdateUserWorkingAreasResponse *ns5__updateUserWorkingAreasResponse) { return updateUserWorkingAreasRequest(NULL, NULL, ns5__updateUserWorkingAreasRequest, ns5__updateUserWorkingAreasResponse); }
-	virtual	int updateUserWorkingAreasRequest(const char *endpoint, const char *soap_action, ns5__UpdateUserWorkingAreasRequest *ns5__updateUserWorkingAreasRequest, ns5__UpdateUserWorkingAreasResponse *ns5__updateUserWorkingAreasResponse);
+	virtual	int updateUserWorkingAreasRequest(merc__UpdateUserWorkingAreasRequest *merc__updateUserWorkingAreasRequest, merc__UpdateUserWorkingAreasResponse *merc__updateUserWorkingAreasResponse) { return updateUserWorkingAreasRequest(NULL, NULL, merc__updateUserWorkingAreasRequest, merc__updateUserWorkingAreasResponse); }
+	virtual	int updateUserWorkingAreasRequest(const char *endpoint, const char *soap_action, merc__UpdateUserWorkingAreasRequest *merc__updateUserWorkingAreasRequest, merc__UpdateUserWorkingAreasResponse *merc__updateUserWorkingAreasResponse);
 
 	/// Web service operation 'unbindBusinessEntityUserRequest' (returns error code or SOAP_OK)
-	virtual	int unbindBusinessEntityUserRequest(ns5__UnbindBusinessEntityUserRequest *ns5__unbindBusinessEntityUserRequest, ns5__UnbindBusinessEntityUserResponse *ns5__unbindBusinessEntityUserResponse) { return unbindBusinessEntityUserRequest(NULL, NULL, ns5__unbindBusinessEntityUserRequest, ns5__unbindBusinessEntityUserResponse); }
-	virtual	int unbindBusinessEntityUserRequest(const char *endpoint, const char *soap_action, ns5__UnbindBusinessEntityUserRequest *ns5__unbindBusinessEntityUserRequest, ns5__UnbindBusinessEntityUserResponse *ns5__unbindBusinessEntityUserResponse);
+	virtual	int unbindBusinessEntityUserRequest(merc__UnbindBusinessEntityUserRequest *merc__unbindBusinessEntityUserRequest, merc__UnbindBusinessEntityUserResponse *merc__unbindBusinessEntityUserResponse) { return unbindBusinessEntityUserRequest(NULL, NULL, merc__unbindBusinessEntityUserRequest, merc__unbindBusinessEntityUserResponse); }
+	virtual	int unbindBusinessEntityUserRequest(const char *endpoint, const char *soap_action, merc__UnbindBusinessEntityUserRequest *merc__unbindBusinessEntityUserRequest, merc__UnbindBusinessEntityUserResponse *merc__unbindBusinessEntityUserResponse);
 
 	/// Web service operation 'getAppliedUserAuthorityListRequest' (returns error code or SOAP_OK)
-	virtual	int getAppliedUserAuthorityListRequest(ns5__GetAppliedUserAuthorityListRequest *ns5__getAppliedUserAuthorityListRequest, ns5__GetAppliedUserAuthorityListResponse *ns5__getAppliedUserAuthorityListResponse) { return getAppliedUserAuthorityListRequest(NULL, NULL, ns5__getAppliedUserAuthorityListRequest, ns5__getAppliedUserAuthorityListResponse); }
-	virtual	int getAppliedUserAuthorityListRequest(const char *endpoint, const char *soap_action, ns5__GetAppliedUserAuthorityListRequest *ns5__getAppliedUserAuthorityListRequest, ns5__GetAppliedUserAuthorityListResponse *ns5__getAppliedUserAuthorityListResponse);
+	virtual	int getAppliedUserAuthorityListRequest(merc__GetAppliedUserAuthorityListRequest *merc__getAppliedUserAuthorityListRequest, merc__GetAppliedUserAuthorityListResponse *merc__getAppliedUserAuthorityListResponse) { return getAppliedUserAuthorityListRequest(NULL, NULL, merc__getAppliedUserAuthorityListRequest, merc__getAppliedUserAuthorityListResponse); }
+	virtual	int getAppliedUserAuthorityListRequest(const char *endpoint, const char *soap_action, merc__GetAppliedUserAuthorityListRequest *merc__getAppliedUserAuthorityListRequest, merc__GetAppliedUserAuthorityListResponse *merc__getAppliedUserAuthorityListResponse);
 };
 #endif

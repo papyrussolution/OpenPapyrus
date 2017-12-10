@@ -6,10 +6,8 @@
 #pragma hdrstop
 #include <..\osf\libzip\lib\zip.h>
 
-SLAPI SArchive::SArchive()
+SLAPI SArchive::SArchive() : Type(0), H(0)
 {
-	Type = 0;
-	H = 0;
 }
 
 SLAPI SArchive::~SArchive()

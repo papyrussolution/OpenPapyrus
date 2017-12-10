@@ -15,10 +15,10 @@ void SLAPI TrfrAnlzViewItem::Clear()
 {
 	//THISZERO();
 	memzero(this, offsetof(TrfrAnlzViewItem, BillCode_));
-	BillCode_ = 0;
-	DtText_ = 0;
-	GoodsText_ = 0;
-	PersonText_ = 0;
+	BillCode_.Z();
+	DtText_.Z();
+	GoodsText_.Z();
+	PersonText_.Z();
 }
 //
 //
@@ -56,8 +56,7 @@ int SLAPI TrfrAnlzFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 		public:
 			SLAPI  TrfrAnlzFilt_v2() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 2)
 			{
-				SetFlatChunk(offsetof(TrfrAnlzFilt_v2, ReserveStart),
-					offsetof(TrfrAnlzFilt_v2, BillList)-offsetof(TrfrAnlzFilt_v2, ReserveStart));
+				SetFlatChunk(offsetof(TrfrAnlzFilt_v2, ReserveStart), offsetof(TrfrAnlzFilt_v2, BillList)-offsetof(TrfrAnlzFilt_v2, ReserveStart));
 				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt_v2, BillList));
 				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt_v2, RcptBillList));
 				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt_v2, LocList));
@@ -202,6 +201,7 @@ int SLAPI TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
 // virtual
 int SLAPI TrfrAnlzFilt::Describe(long flags, SString & rBuf) const
 {
+	SString temp_buf;
 	PutMembToBuf(&Period,     STRINGIZING(Period), rBuf);
 	PutMembToBuf(&LotsPeriod, STRINGIZING(LotsPeriod), rBuf);
 
@@ -213,44 +213,46 @@ int SLAPI TrfrAnlzFilt::Describe(long flags, SString & rBuf) const
 	PutObjMembToBuf(PPOBJ_PRSNCATEGORY, PsnCatID,   STRINGIZING(PsnCatID),   rBuf);
 	PutObjMembToBuf(PPOBJ_LOCATION,     DlvrAddrID, STRINGIZING(DlvrAddrID), rBuf);
 	{
-		SString buf;
 		if(CtKind == ctNone)
-			buf = STRINGIZING(ctNone);
+			temp_buf = STRINGIZING(ctNone);
 		else if(CtKind == ctDate)
-			buf = STRINGIZING(ctDate);
+			temp_buf = STRINGIZING(ctDate);
 		else if(CtKind == ctCntragent)
-			buf = STRINGIZING(ctCntragent);
+			temp_buf = STRINGIZING(ctCntragent);
 		else if(CtKind == ctLocation)
-			buf = STRINGIZING(ctLocation);
-		PutMembToBuf((const char*)buf, STRINGIZING(CtKind), rBuf);
+			temp_buf = STRINGIZING(ctLocation);
+		else
+			temp_buf.Z();
+		PutMembToBuf(temp_buf.cptr(), STRINGIZING(CtKind), rBuf);
 	}
 	{
-		SString buf;
 		if(InitOrd == PPViewTrfrAnlz::OrdByDefault)
-			buf = STRINGIZING(OrdByDefault);
+			temp_buf = STRINGIZING(OrdByDefault);
 		else if(InitOrd == PPViewTrfrAnlz::OrdByDate)
-			buf = STRINGIZING(OrdByDate);
+			temp_buf = STRINGIZING(OrdByDate);
 		else if(InitOrd == PPViewTrfrAnlz::OrdByGoods)
-			buf = STRINGIZING(OrdByGoods);
+			temp_buf = STRINGIZING(OrdByGoods);
 		else if(InitOrd == PPViewTrfrAnlz::OrdByArticle)
-			buf = STRINGIZING(OrdByArticle);
-	 	PutMembToBuf((const char*)buf, STRINGIZING(InitOrd), rBuf);
+			temp_buf = STRINGIZING(OrdByArticle);
+		else
+			temp_buf.Z();
+	 	PutMembToBuf(temp_buf.cptr(), STRINGIZING(InitOrd), rBuf);
 	}
 	{
-		SString buf;
 		switch(Grp) {
-			case gNone:                    buf = STRINGIZING(gNong); break;
-			case gGoods:                   buf = STRINGIZING(gGoods); break;
-			case gCntragent:               buf = STRINGIZING(gCntragent); break;
-			case gCntragentDate:           buf = STRINGIZING(gCntragentDate); break;
-			case gGoodsCntragent:          buf = STRINGIZING(gGoodsCntragent); break;
-			case gGoodsCntragentDate:      buf = STRINGIZING(gGoodsCntragentDate); break;
-			case gGoodsBill:               buf = STRINGIZING(gGoodsBill); break;
-			case gDateCntragentAgentGoods: buf = STRINGIZING(gDateCntragentAgentGoods); break;
-			case gGoodsDate:               buf = STRINGIZING(gGoodsDate); break;
-			case gBillCntragent:           buf = STRINGIZING(gBillCntragent); break;
+			case gNone:                    temp_buf = STRINGIZING(gNong); break;
+			case gGoods:                   temp_buf = STRINGIZING(gGoods); break;
+			case gCntragent:               temp_buf = STRINGIZING(gCntragent); break;
+			case gCntragentDate:           temp_buf = STRINGIZING(gCntragentDate); break;
+			case gGoodsCntragent:          temp_buf = STRINGIZING(gGoodsCntragent); break;
+			case gGoodsCntragentDate:      temp_buf = STRINGIZING(gGoodsCntragentDate); break;
+			case gGoodsBill:               temp_buf = STRINGIZING(gGoodsBill); break;
+			case gDateCntragentAgentGoods: temp_buf = STRINGIZING(gDateCntragentAgentGoods); break;
+			case gGoodsDate:               temp_buf = STRINGIZING(gGoodsDate); break;
+			case gBillCntragent:           temp_buf = STRINGIZING(gBillCntragent); break;
+			default: temp_buf.Z();
 		}
-		PutMembToBuf((const char*)buf, STRINGIZING(Grp), rBuf);
+		PutMembToBuf(temp_buf.cptr(), STRINGIZING(Grp), rBuf);
 	}
 	{
 		long id = 1;

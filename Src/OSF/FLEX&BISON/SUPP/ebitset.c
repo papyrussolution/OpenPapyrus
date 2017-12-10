@@ -138,24 +138,20 @@ static bitset_bindex ebitset_resize(bitset src, bitset_bindex n_bits)
 				size = newsize;
 			else
 				size = newsize + newsize / 4;
-			EBITSET_ELTS(src) = (ebitset_elt_struct **)realloc(EBITSET_ELTS(src), size * sizeof(ebitset_elt *));
+			EBITSET_ELTS(src) = (ebitset_elt **)realloc(EBITSET_ELTS(src), size * sizeof(ebitset_elt *));
 			EBITSET_ASIZE(src) = size;
 		}
-
-		memset(EBITSET_ELTS(src) + oldsize, 0,
-		    (newsize - oldsize) * sizeof(ebitset_elt *));
+		memset(EBITSET_ELTS(src) + oldsize, 0, (newsize - oldsize) * sizeof(ebitset_elt *));
 	}
 	else{
 		/* The bitset needs to shrink.  There's no point deallocating
 		   the memory unless it is shrinking by a reasonable amount.  */
 		if((oldsize - newsize) >= oldsize / 2) {
-			EBITSET_ELTS(src) = (ebitset_elt_struct **)realloc(EBITSET_ELTS(src), newsize * sizeof(ebitset_elt *));
+			EBITSET_ELTS(src) = (ebitset_elt **)realloc(EBITSET_ELTS(src), newsize * sizeof(ebitset_elt *));
 			EBITSET_ASIZE(src) = newsize;
 		}
-
 		/* Need to prune any excess bits.  FIXME.  */
 	}
-
 	BITSET_NBITS_(src) = n_bits;
 	return n_bits;
 }
@@ -164,7 +160,6 @@ static bitset_bindex ebitset_resize(bitset src, bitset_bindex n_bits)
 static ebitset_elt * ebitset_elt_alloc(void)
 {
 	ebitset_elt * elt;
-
 	if(ebitset_free_list != 0) {
 		elt = ebitset_free_list;
 		ebitset_free_list = EBITSET_NEXT(elt);

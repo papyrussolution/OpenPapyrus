@@ -38,28 +38,32 @@ const char * const bitset_type_names[] = BITSET_TYPE_NAMES;
 size_t bitset_bytes(enum bitset_type type, bitset_bindex n_bits)
 {
 	size_t bytes;
+
 	if(bitset_stats_enabled)
 		return bitset_stats_bytes();
-	switch(type) {
-	    default:
-		abort();
 
-	    case BITSET_ARRAY:
-		bytes = abitset_bytes(n_bits);
-		break;
+	switch(type)
+	{
+		default:
+		    abort();
 
-	    case BITSET_LIST:
-		bytes = lbitset_bytes(n_bits);
-		break;
+		case BITSET_ARRAY:
+		    bytes = abitset_bytes(n_bits);
+		    break;
 
-	    case BITSET_TABLE:
-		bytes = ebitset_bytes(n_bits);
-		break;
+		case BITSET_LIST:
+		    bytes = lbitset_bytes(n_bits);
+		    break;
 
-	    case BITSET_VARRAY:
-		bytes = vbitset_bytes(n_bits);
-		break;
+		case BITSET_TABLE:
+		    bytes = ebitset_bytes(n_bits);
+		    break;
+
+		case BITSET_VARRAY:
+		    bytes = vbitset_bytes(n_bits);
+		    break;
 	}
+
 	return bytes;
 }
 
@@ -68,45 +72,52 @@ bitset bitset_init(bitset bset, bitset_bindex n_bits, enum bitset_type type)
 {
 	if(bitset_stats_enabled)
 		return bitset_stats_init(bset, n_bits, type);
-	switch(type) {
-	    default:
-		abort();
 
-	    case BITSET_ARRAY:
-		return abitset_init(bset, n_bits);
+	switch(type)
+	{
+		default:
+		    abort();
 
-	    case BITSET_LIST:
-		return lbitset_init(bset, n_bits);
+		case BITSET_ARRAY:
+		    return abitset_init(bset, n_bits);
 
-	    case BITSET_TABLE:
-		return ebitset_init(bset, n_bits);
+		case BITSET_LIST:
+		    return lbitset_init(bset, n_bits);
 
-	    case BITSET_VARRAY:
-		return vbitset_init(bset, n_bits);
+		case BITSET_TABLE:
+		    return ebitset_init(bset, n_bits);
+
+		case BITSET_VARRAY:
+		    return vbitset_init(bset, n_bits);
 	}
 }
 
 /* Select a bitset type for a set of N_BITS and with attribute hints
    specified by ATTR.  For variable size bitsets, N_BITS is only a
    hint and may be zero.  */
-enum bitset_type bitset_type_choose(bitset_bindex n_bits ATTRIBUTE_UNUSED, unsigned int attr)
-{
+enum bitset_type bitset_type_choose(bitset_bindex n_bits ATTRIBUTE_UNUSED, unsigned int attr)                 {
 	/* Check attributes.  */
-	if(attr&BITSET_FIXED && attr&BITSET_VARIABLE)
+	if(attr & BITSET_FIXED && attr & BITSET_VARIABLE)
 		abort();
-	if(attr&BITSET_SPARSE && attr&BITSET_DENSE)
+	if(attr & BITSET_SPARSE && attr & BITSET_DENSE)
 		abort();
+
 	/* Choose the type of bitset.  Note that sometimes we will be asked
 	   for a zero length fixed size bitset.  */
+
 	/* If no attributes selected, choose a good compromise.  */
 	if(!attr)
 		return BITSET_VARRAY;
-	if(attr&BITSET_SPARSE)
+
+	if(attr & BITSET_SPARSE)
 		return BITSET_LIST;
-	if(attr&BITSET_FIXED)
+
+	if(attr & BITSET_FIXED)
 		return BITSET_ARRAY;
-	if(attr&BITSET_GREEDY)
+
+	if(attr & BITSET_GREEDY)
 		return BITSET_TABLE;
+
 	return BITSET_VARRAY;
 }
 
@@ -115,23 +126,21 @@ bitset bitset_alloc(bitset_bindex n_bits, enum bitset_type type)
 {
 	size_t bytes;
 	bitset bset;
-
 	bytes = bitset_bytes(type, n_bits);
-
-	bset = xcalloc(1, bytes);
-
+	bset = (bitset)xcalloc(1, bytes);
 	/* The cache is disabled until some elements are allocated.  If we
 	   have variable length arrays, then we may need to allocate a dummy
 	   element.  */
-
 	return bitset_init(bset, n_bits, type);
 }
 
 /* Create a bitset of N_BITS of type TYPE.  */
 bitset bitset_obstack_alloc(struct obstack * bobstack, bitset_bindex n_bits, enum bitset_type type)
 {
-	size_t bytes = bitset_bytes(type, n_bits);
-	bitset bset = obstack_alloc(bobstack, bytes);
+	size_t bytes;
+	bitset bset;
+	bytes = bitset_bytes(type, n_bits);
+	bset = (bitset)obstack_alloc(bobstack, bytes);
 	memset(bset, 0, bytes);
 	return bitset_init(bset, n_bits, type);
 }
@@ -158,11 +167,9 @@ void bitset_obstack_free(bitset bset)
 }
 
 /* Return bitset type.  */
-enum bitset_type bitset_type_get(bitset bset)
+enum bitset_type bitset_type_get(bitset bset)                 
 {
-	enum bitset_type type;
-
-	type = BITSET_TYPE_(bset);
+	enum bitset_type type = BITSET_TYPE_(bset);
 	if(type != BITSET_STATS)
 		return type;
 	return bitset_stats_type_get(bset);
@@ -171,10 +178,7 @@ enum bitset_type bitset_type_get(bitset bset)
 /* Return name of bitset type.  */
 const char * bitset_type_name_get(bitset bset)
 {
-	enum bitset_type type;
-
-	type = bitset_type_get(bset);
-
+	enum bitset_type type = bitset_type_get(bset);
 	return bitset_type_names[type];
 }
 
@@ -201,6 +205,7 @@ bitset_bindex bitset_prev(bitset src, bitset_bindex bitno)
 {
 	bitset_bindex val;
 	bitset_bindex next = bitno;
+
 	if(!bitset_list_reverse(src, &val, 1, &next))
 		return BITSET_BINDEX_MAX;
 	return val;
@@ -223,6 +228,7 @@ bool bitset_only_set_p(bitset src, bitset_bindex bitno)
 {
 	bitset_bindex val[2];
 	bitset_bindex next = 0;
+
 	if(bitset_list(src, val, 2, &next) != 1)
 		return false;
 	return val[0] == bitno;
@@ -234,9 +240,11 @@ static void bitset_print(FILE * file, bitset bset, bool verbose)
 	unsigned int pos;
 	bitset_bindex i;
 	bitset_iterator iter;
+
 	if(verbose)
 		fprintf(file, "n_bits = %lu, set = {",
-			(unsigned long int)bitset_size(bset));
+		    (unsigned long int)bitset_size(bset));
+
 	pos = 30;
 	BITSET_FOR_EACH(iter, bset, i, 0)
 	{
@@ -244,9 +252,11 @@ static void bitset_print(FILE * file, bitset bset, bool verbose)
 			fprintf(file, "\n");
 			pos = 0;
 		}
+
 		fprintf(file, "%lu ", (unsigned long int)i);
-		pos += 1+(i >= 10)+(i >= 100);
+		pos += 1 + (i >= 10) + (i >= 100);
 	};
+
 	if(verbose)
 		fprintf(file, "}\n");
 }
@@ -273,7 +283,7 @@ bool bitset_toggle_(bitset bset, bitset_bindex bitno)
 		bitset_reset(bset, bitno);
 		return false;
 	}
-	else {
+	else{
 		bitset_set(bset, bitno);
 		return true;
 	}
@@ -301,6 +311,7 @@ bitset_bindex bitset_count_(bitset src)
 	for(count = 0; (num = bitset_list(src, list, BITSET_LIST_SIZE, &next));
 	    count += num)
 		continue;
+
 	return count;
 }
 
@@ -326,7 +337,7 @@ bool bitset_copy_(bitset dst, bitset src)
 /* This is a fallback for implementations that do not support
    four operand operations.  */
 static bool bitset_op4_cmp(bitset dst, bitset src1, bitset src2, bitset src3,
-	enum bitset_ops op)
+    enum bitset_ops op)
 {
 	bool changed = false;
 	bool stats_enabled_save;
@@ -338,25 +349,27 @@ static bool bitset_op4_cmp(bitset dst, bitset src1, bitset src2, bitset src3,
 	tmp = bitset_alloc(0, bitset_type_get(dst));
 	bitset_stats_enabled = stats_enabled_save;
 
-	switch(op) {
-	    default:
-		abort();
+	switch(op)
+	{
+		default:
+		    abort();
 
-	    case BITSET_OP_OR_AND:
-		bitset_or(tmp, src1, src2);
-		changed = bitset_and_cmp(dst, src3, tmp);
-		break;
+		case BITSET_OP_OR_AND:
+		    bitset_or(tmp, src1, src2);
+		    changed = bitset_and_cmp(dst, src3, tmp);
+		    break;
 
-	    case BITSET_OP_AND_OR:
-		bitset_and(tmp, src1, src2);
-		changed = bitset_or_cmp(dst, src3, tmp);
-		break;
+		case BITSET_OP_AND_OR:
+		    bitset_and(tmp, src1, src2);
+		    changed = bitset_or_cmp(dst, src3, tmp);
+		    break;
 
-	    case BITSET_OP_ANDN_OR:
-		bitset_andn(tmp, src1, src2);
-		changed = bitset_or_cmp(dst, src3, tmp);
-		break;
+		case BITSET_OP_ANDN_OR:
+		    bitset_andn(tmp, src1, src2);
+		    changed = bitset_or_cmp(dst, src3, tmp);
+		    break;
 	}
+
 	bitset_free(tmp);
 	return changed;
 }

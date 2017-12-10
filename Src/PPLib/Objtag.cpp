@@ -2789,7 +2789,7 @@ int SLAPI EditObjTagValUpdateList(ObjTagList * pList, const PPIDArray * pAllowed
 	TagValListDialog::DataBlock blk;
 	blk.List = *pList;
 	blk.P_AllowedTags = pAllowedTags;
-	blk.UpdateMode = pUpdateMode ? *pUpdateMode : 0;
+	blk.UpdateMode = DEREFPTRORZ(pUpdateMode);
 	TagValListDialog * dlg = new TagValListDialog(DLG_TAGVALUPD);
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(&blk);

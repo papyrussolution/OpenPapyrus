@@ -384,12 +384,8 @@ PPBaseFilt * FASTCALL PPBillAutoCreateParam::GetInnerFilt(int a) const
 	}
 }
 
-SLAPI PrcssrBillAutoCreate::PrcssrBillAutoCreate()
+SLAPI PrcssrBillAutoCreate::PrcssrBillAutoCreate() : P_TaV(0), P_SsV(0), P_CcV(0), P_CsV(0)
 {
-    P_TaV = 0;
-    P_SsV = 0;
-    P_CcV = 0;
-    P_CsV = 0;
 }
 
 SLAPI PrcssrBillAutoCreate::~PrcssrBillAutoCreate()

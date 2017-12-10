@@ -1,6 +1,6 @@
 /* Locations for Bison
 
-   Copyright (C) 2002, 2004-2011 Free Software Foundation, Inc.
+   Copyright (C) 2002, 2004-2015 Free Software Foundation, Inc.
 
    This file is part of Bison, the GNU Compiler Compiler.
 
@@ -20,101 +20,99 @@
 #ifndef LOCATION_H_
 # define LOCATION_H_
 
+# include <stdbool.h>
+# include <stdio.h>
+# include <string.h> /* strcmp */
+
 # include "uniqstr.h"
-#include "stdbool.h"
+#include <config.h>
 
 /* A boundary between two characters.  */
-typedef struct
-{
-  /* The name of the file that contains the boundary.  */
-  uniqstr file;
+typedef struct {
+	/* The name of the file that contains the boundary.  */
+	uniqstr file;
+	/* If nonnegative, the (origin-1) line that contains the boundary.
+	   If this is INT_MAX, the line number has overflowed.
 
-  /* If nonnegative, the (origin-1) line that contains the boundary.
-     If this is INT_MAX, the line number has overflowed.
+	   Meaningless and not displayed if negative.
+	 */
+	int line;
+	/* If nonnegative, the (origin-1) column just after the boundary.
+	   This is neither a byte count, nor a character count; it is a
+	   column count.  If this is INT_MAX, the column number has
+	   overflowed.
 
-     Meaningless and not displayed if negative.
-  */
-  int line;
-
-  /* If nonnegative, the (origin-1) column just after the boundary.
-     This is neither a byte count, nor a character count; it is a
-     column count.  If this is INT_MAX, the column number has
-     overflowed.
-
-     Meaningless and not displayed if negative.
-  */
-  int column;
-
+	   Meaningless and not displayed if negative.
+	 */
+	int column;
 } boundary;
 
 /* Set the position of \a a. */
-static  void
-boundary_set (boundary *b, const char *f, int l, int c)
+static inline void boundary_set(boundary * b, const char * f, int l, int c)
 {
-  b->file = f;
-  b->line = l;
-  b->column = c;
+	b->file = f;
+	b->line = l;
+	b->column = c;
 }
 
 /* Return -1, 0, 1, depending whether a is before, equal, or
    after b.  */
-static  int
-boundary_cmp (boundary a, boundary b)
+static inline int boundary_cmp(boundary a, boundary b)
 {
-  int res = strcmp (a.file, b.file);
-  if (!res)
-    res = a.line - b.line;
-  if (!res)
-    res = a.column - b.column;
-  return res;
+	int res = strcmp(a.file, b.file);
+	if(!res)
+		res = a.line - b.line;
+	if(!res)
+		res = a.column - b.column;
+	return res;
 }
 
 /* Return nonzero if A and B are equal boundaries.  */
-static  bool
-equal_boundaries (boundary a, boundary b)
+static inline bool equal_boundaries(boundary a, boundary b)
 {
-  return (a.column == b.column
-	  && a.line == b.line
-	  && UNIQSTR_EQ (a.file, b.file));
+	return (a.column == b.column && a.line == b.line && UNIQSTR_EQ(a.file, b.file));
 }
 
 /* A location, that is, a region of source code.  */
-typedef struct
-{
-  /* Boundary just before the location starts.  */
-  boundary start;
+typedef struct {
+	/* Boundary just before the location starts.  */
+	boundary start;
+	/* Boundary just after the location ends.  */
+	boundary end;
+} BFLocation;
 
-  /* Boundary just after the location ends.  */
-  boundary end;
+#define GRAM_LTYPE BFLocation
 
-} location;
-
-#define YYLTYPE location
-
-#define EMPTY_LOCATION_INIT {{NULL, 0, 0}, {NULL, 0, 0}}
-extern location const empty_location;
+# define EMPTY_LOCATION_INIT {{NULL, 0, 0}, {NULL, 0, 0}}
+extern BFLocation const empty_location;
 
 /* Set *LOC and adjust scanner cursor to account for token TOKEN of
    size SIZE.  */
-void location_compute (location *loc,
-		       boundary *cur, char const *token, size_t size);
+void location_compute(BFLocation * loc, boundary * cur, char const * token, size_t size);
 
-/* Print location to file. Return number of actually printed
-   characters.  */
-unsigned location_print (FILE *out, location loc);
+/* Print location to file.
+   Return number of actually printed characters.
+   Warning: uses quotearg's slot 3. */
+unsigned location_print(BFLocation loc, FILE * out);
+
+/* Free any allocated ressources and close any open file handles that are
+   left-over by the usage of location_caret.  */
+void cleanup_caret(void);
+
+/* Output to OUT the line and caret corresponding to location LOC.  */
+void location_caret(BFLocation loc, FILE * out);
 
 /* Return -1, 0, 1, depending whether a is before, equal, or
    after b.  */
-static  int
-location_cmp (location a, location b)
+static inline int location_cmp(BFLocation a, BFLocation b)
 {
-  int res = boundary_cmp (a.start, b.start);
-  if (!res)
-    res = boundary_cmp (a.end, b.end);
-  return res;
+	int res = boundary_cmp(a.start, b.start);
+	if(!res)
+		res = boundary_cmp(a.end, b.end);
+	return res;
 }
 
-/* LOC_STR must be formatted as `file:line.column', it will be modified.  */
-void boundary_set_from_string (boundary *bound, char *loc_str);
+/* LOC_STR must be formatted as 'file:line.column', it will be modified.  */
+void boundary_set_from_string(boundary * bound, char * loc_str);
 
 #endif /* ! defined LOCATION_H_ */

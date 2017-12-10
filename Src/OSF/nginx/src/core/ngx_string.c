@@ -1374,11 +1374,10 @@ uintptr_t FASTCALL ngx_escape_json(u_char * dst, u_char * src, size_t size)
 
 void ngx_str_rbtree_insert_value(ngx_rbtree_node_t * temp, ngx_rbtree_node_t * node, ngx_rbtree_node_t * sentinel)
 {
-	ngx_str_node_t * n, * t;
 	ngx_rbtree_node_t  ** p;
 	for(;; ) {
-		n = (ngx_str_node_t*)node;
-		t = (ngx_str_node_t*)temp;
+		ngx_str_node_t * n = (ngx_str_node_t*)node;
+		ngx_str_node_t * t = (ngx_str_node_t*)temp;
 		if(node->key != temp->key) {
 			p = (node->key < temp->key) ? &temp->left : &temp->right;
 		}

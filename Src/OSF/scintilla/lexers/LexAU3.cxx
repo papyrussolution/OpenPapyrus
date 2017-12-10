@@ -173,10 +173,7 @@ static bool IsContinuationLine(Sci_PositionU szLine, Accessor &styler)
 
 //
 // syntax highlighting logic
-static void ColouriseAU3Doc(Sci_PositionU startPos,
-    Sci_Position length, int initStyle,
-    WordList * keywordlists[],
-    Accessor &styler)
+static void ColouriseAU3Doc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
 {
 	WordList &keywords = *keywordlists[0];
 	WordList &keywords2 = *keywordlists[1];
@@ -191,8 +188,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 	Sci_Position s_startPos = startPos;
 	// When not inside a Block comment: find First line without _
 	if(!(initStyle==SCE_AU3_COMMENTBLOCK)) {
-		while((lineCurrent > 0 && IsContinuationLine(lineCurrent, styler)) ||
-		    (lineCurrent > 1 && IsContinuationLine(lineCurrent-1, styler))) {
+		while((lineCurrent > 0 && IsContinuationLine(lineCurrent, styler)) || (lineCurrent > 1 && IsContinuationLine(lineCurrent-1, styler))) {
 			lineCurrent--;
 			startPos = styler.LineStart(lineCurrent); // get start position
 			initStyle =  0;                           // reset the start style to 0
@@ -203,13 +199,10 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 	styler.StartAt(startPos);
 
 	StyleContext sc(startPos, length, initStyle, styler);
-	char si;     // string indicator "=1 '=2
-	char ni;     // Numeric indicator error=9 normal=0 normal+dec=1 hex=2 Enot=3
-	char ci;     // comment indicator 0=not linecomment(;)
 	char s_save[100] = "";
-	si = 0;
-	ni = 0;
-	ci = 0;
+	char si = 0; // string indicator "=1 '=2
+	char ni = 0; // Numeric indicator error=9 normal=0 normal+dec=1 hex=2 Enot=3
+	char ci = 0; // comment indicator 0=not linecomment(;)
 	//$$$
 	for(; sc.More(); sc.Forward()) {
 		char s[100];
@@ -265,14 +258,11 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 			    break;
 		    }
 			case SCE_AU3_COMMENT:
-		    {
 			    if(sc.atLineEnd) {
 				    sc.SetState(SCE_AU3_DEFAULT);
 			    }
 			    break;
-		    }
 			case SCE_AU3_OPERATOR:
-		    {
 			    // check if its a COMobject
 			    if(sc.chPrev == '.' && IsAWordChar(sc.ch)) {
 				    sc.SetState(SCE_AU3_COMOBJ);
@@ -281,9 +271,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 				    sc.SetState(SCE_AU3_DEFAULT);
 			    }
 			    break;
-		    }
 			case SCE_AU3_SPECIAL:
-		    {
 			    if(sc.ch == ';') {
 				    sc.SetState(SCE_AU3_COMMENT);
 			    }
@@ -291,9 +279,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 				    sc.SetState(SCE_AU3_DEFAULT);
 			    }
 			    break;
-		    }
 			case SCE_AU3_KEYWORD:
-		    {
 			    if(!(IsAWordChar(sc.ch) || (sc.ch == '-' && (sstreq(s, "#comments") || sstreq(s, "#include"))))) {
 				    if(!IsTypeCharacter(sc.ch)) {
 					    if(sstreq(s, "#cs") || sstreq(s, "#comments-start")) {
@@ -346,7 +332,6 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 				    sc.SetState(SCE_AU3_DEFAULT);
 			    }
 			    break;
-		    }
 			case SCE_AU3_NUMBER:
 		    {
 			    // Numeric indicator error=9 normal=0 normal+dec=1 hex=2 E-not=3
@@ -388,7 +373,6 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 			    break;
 		    }
 			case SCE_AU3_VARIABLE:
-		    {
 			    // Check if its a COMObject
 			    if(sc.ch == '.' && !IsADigit(sc.chNext)) {
 				    sc.SetState(SCE_AU3_OPERATOR);
@@ -397,16 +381,12 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 				    sc.SetState(SCE_AU3_DEFAULT);
 			    }
 			    break;
-		    }
 			case SCE_AU3_COMOBJ:
-		    {
 			    if(!(IsAWordChar(sc.ch))) {
 				    sc.SetState(SCE_AU3_DEFAULT);
 			    }
 			    break;
-		    }
 			case SCE_AU3_STRING:
-		    {
 			    // check for " to end a double qouted string or
 			    // check for ' to end a single qouted string
 			    if((si == 1 && sc.ch == '\"') || (si == 2 && sc.ch == '\'') || (si == 3 && sc.ch == '>')) {
@@ -428,8 +408,6 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 				    sc.SetState(SCE_AU3_SENT);
 			    }
 			    break;
-		    }
-
 			case SCE_AU3_SENT:
 		    {
 			    // Send key string ended
@@ -504,25 +482,19 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 		// Determine if a new state should be entered:
 
 		if(sc.state == SCE_AU3_DEFAULT) {
-			if(sc.ch == ';') {
+			if(sc.ch == ';')
 				sc.SetState(SCE_AU3_COMMENT);
-			}
-			else if(sc.ch == '#') {
+			else if(sc.ch == '#')
 				sc.SetState(SCE_AU3_KEYWORD);
-			}
-			else if(sc.ch == '$') {
+			else if(sc.ch == '$')
 				sc.SetState(SCE_AU3_VARIABLE);
-			}
-			else if(sc.ch == '.' && !IsADigit(sc.chNext)) {
+			else if(sc.ch == '.' && !IsADigit(sc.chNext))
 				sc.SetState(SCE_AU3_OPERATOR);
-			}
-			else if(sc.ch == '@') {
+			else if(sc.ch == '@')
 				sc.SetState(SCE_AU3_KEYWORD);
-			}
 			//else if (sc.ch == '_') {sc.SetState(SCE_AU3_KEYWORD);}
-			else if(sc.ch == '<' && si==3) {
-				sc.SetState(SCE_AU3_STRING);
-			}                                                   // string after #include
+			else if(sc.ch == '<' && si==3)
+				sc.SetState(SCE_AU3_STRING); // string after #include
 			else if(sc.ch == '\"') {
 				sc.SetState(SCE_AU3_STRING);
 				si = 1;
@@ -535,15 +507,12 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 				sc.SetState(SCE_AU3_NUMBER);
 				ni = 0;
 			}
-			else if(IsAWordStart(sc.ch)) {
+			else if(IsAWordStart(sc.ch))
 				sc.SetState(SCE_AU3_KEYWORD);
-			}
-			else if(IsAOperator(static_cast<char>(sc.ch))) {
+			else if(IsAOperator(static_cast<char>(sc.ch)))
 				sc.SetState(SCE_AU3_OPERATOR);
-			}
-			else if(sc.atLineEnd) {
+			else if(sc.atLineEnd)
 				sc.SetState(SCE_AU3_DEFAULT);
-			}
 		}
 	}  //for (; sc.More(); sc.Forward())
 
@@ -595,20 +564,16 @@ static void ColouriseAU3Doc(Sci_PositionU startPos,
 			char sk[100];
 			// split {111 222} and return {111} and check if 222 is valid.
 			// if return code = 1 then invalid 222 so must be string
-			if(GetSendKey(s_save, sk)) {
+			if(GetSendKey(s_save, sk))
 				sc.ChangeState(SCE_AU3_STRING);
-			}
 			// if single char between {?} then its ok as sendkey for a single character
-			else if(strlen(sk) == 3) {
+			else if(strlen(sk) == 3)
 				sc.ChangeState(SCE_AU3_SENT);
-			}
 			// if sendkey {111} is in table then ok as sendkey
-			else if(keywords4.InList(sk)) {
+			else if(keywords4.InList(sk))
 				sc.ChangeState(SCE_AU3_SENT);
-			}
-			else {
+			else
 				sc.ChangeState(SCE_AU3_STRING);
-			}
 			sc.SetState(SCE_AU3_STRING);
 		}
 		// check if next portion is again a sendkey
@@ -807,16 +772,11 @@ static void FoldAU3Doc(Sci_PositionU startPos, Sci_Position length, int, WordLis
 					levelNext++;
 				}
 				// fold till the last line for normal comment lines
-				else if(IsStreamCommentStyle(stylePrev)
-				    && !(styleNext == SCE_AU3_COMMENT)
-				    && stylePrev == SCE_AU3_COMMENT
-				    && style == SCE_AU3_COMMENT) {
+				else if(IsStreamCommentStyle(stylePrev) && !(styleNext == SCE_AU3_COMMENT) && stylePrev == SCE_AU3_COMMENT && style == SCE_AU3_COMMENT) {
 					levelNext--;
 				}
 				// fold till the one but last line for Blockcomment lines
-				else if(IsStreamCommentStyle(stylePrev)
-				    && !(styleNext == SCE_AU3_COMMENTBLOCK)
-				    && style == SCE_AU3_COMMENTBLOCK) {
+				else if(IsStreamCommentStyle(stylePrev) && !(styleNext == SCE_AU3_COMMENTBLOCK) && style == SCE_AU3_COMMENTBLOCK) {
 					levelNext--;
 					levelCurrent--;
 				}

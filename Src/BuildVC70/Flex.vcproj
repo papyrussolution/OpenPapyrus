@@ -19,21 +19,23 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\include;..\osf\flex&amp;bison\flex"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;YY_NO_UNISTD_H;__STDC__"
 				StringPooling="TRUE"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				EnableFunctionLevelLinking="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="4"
-				CompileAs="0"/>
+				DebugInformationFormat="3"
+				CompileAs="2"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -75,19 +77,24 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\include;..\osf\flex&amp;bison\flex"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;YY_NO_UNISTD_H;__STDC__"
 				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
 				EnableFunctionLevelLinking="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="3"
-				CompileAs="0"/>
+				DebugInformationFormat="0"
+				CompileAs="2"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -149,6 +156,12 @@
 				RelativePath="..\Osf\Flex&amp;bison\Flex\gen.c">
 			</File>
 			<File
+				RelativePath="..\Osf\Flex&amp;bison\Flex\libmain.c">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Flex\libyywrap.c">
+			</File>
+			<File
 				RelativePath="..\Osf\Flex&amp;bison\Flex\main.c">
 			</File>
 			<File
@@ -165,9 +178,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\Flex&amp;bison\Flex\regex.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Flex&amp;bison\Flex\regex1.c">
 			</File>
 			<File
 				RelativePath="..\Osf\Flex&amp;bison\Flex\scan.c">
@@ -201,6 +211,36 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Flex\flexdef.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Flex\flexint.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Flex\FlexLexer.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Flex\gettext.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Flex\options.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Flex\parse.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Flex\regex.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Flex\scanopt.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Flex\tables.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Flex\tables_shared.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

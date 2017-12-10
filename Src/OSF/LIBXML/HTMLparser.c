@@ -487,9 +487,11 @@ static int htmlSkipBlankChars(xmlParserCtxt * ctxt)
 		}
 		else {
 			if(*(ctxt->input->cur) == '\n') {
-				ctxt->input->line++; ctxt->input->col = 1;
+				ctxt->input->line++; 
+				ctxt->input->col = 1;
 			}
-			else ctxt->input->col++;
+			else 
+				ctxt->input->col++;
 			ctxt->input->cur++;
 			ctxt->nbChars++;
 			if(*ctxt->input->cur == 0)
@@ -525,13 +527,11 @@ static int htmlSkipBlankChars(xmlParserCtxt * ctxt)
 #define NB_FONTSTYLE 8
 #define PHRASE "em", "strong", "dfn", "code", "samp", "kbd", "var", "cite", "abbr", "acronym"
 #define NB_PHRASE 10
-#define SPECIAL "a", "img", "applet", "embed", "object", "font", "basefont", "br", "script", "map", "q", "sub", "sup", "span", "bdo", \
-	"iframe"
+#define SPECIAL "a", "img", "applet", "embed", "object", "font", "basefont", "br", "script", "map", "q", "sub", "sup", "span", "bdo", "iframe"
 #define NB_SPECIAL 16
 #define INLINE FONTSTYLE, PHRASE, SPECIAL, FORMCTRL
 #define NB_INLINE NB_PCDATA + NB_FONTSTYLE + NB_PHRASE + NB_SPECIAL + NB_FORMCTRL
-#define BLOCK HEADING, LIST, "pre", "p", "dl", "div", "center", "noscript", "noframes", "blockquote", "form", "isindex", "hr", "table",	\
-	"fieldset", "address"
+#define BLOCK HEADING, LIST, "pre", "p", "dl", "div", "center", "noscript", "noframes", "blockquote", "form", "isindex", "hr", "table",	"fieldset", "address"
 #define NB_BLOCK NB_HEADING + NB_LIST + 14
 #define FORMCTRL "input", "select", "textarea", "label", "button"
 #define NB_FORMCTRL 5
@@ -575,9 +575,7 @@ static const char* const core_attrs[] = { COREATTRS, NULL };
 static const char* const i18n_attrs[] = { I18N, NULL };
 
 /* Other declarations that should go inline ... */
-static const char* const a_attrs[] = { ATTRS, "charset", "type", "name",
-				       "href", "hreflang", "rel", "rev", "accesskey", "shape", "coords",
-				       "tabindex", "onfocus", "onblur", NULL };
+static const char* const a_attrs[] = { ATTRS, "charset", "type", "name", "href", "hreflang", "rel", "rev", "accesskey", "shape", "coords", "tabindex", "onfocus", "onblur", NULL };
 static const char* const target_attr[] = { "target", NULL };
 static const char* const rows_cols_attr[] = { "rows", "cols", NULL };
 static const char* const alt_attr[] = { "alt", NULL };
@@ -587,20 +585,14 @@ static const char* const clear_attrs[] = { "clear", NULL };
 static const char* const inline_p[] = { INLINE, "p", NULL };
 
 static const char* const flow_param[] = { FLOW, "param", NULL };
-static const char* const applet_attrs[] = { COREATTRS, "codebase",
-					    "archive", "alt", "name", "height", "width", "align",
-					    "hspace", "vspace", NULL };
-static const char* const area_attrs[] = { "shape", "coords", "href", "nohref",
-					  "tabindex", "accesskey", "onfocus", "onblur", NULL };
-static const char* const basefont_attrs[] =
-{ "id", "size", "color", "face", NULL };
+static const char* const applet_attrs[] = { COREATTRS, "codebase", "archive", "alt", "name", "height", "width", "align", "hspace", "vspace", NULL };
+static const char* const area_attrs[] = { "shape", "coords", "href", "nohref", "tabindex", "accesskey", "onfocus", "onblur", NULL };
+static const char* const basefont_attrs[] = { "id", "size", "color", "face", NULL };
 static const char* const quote_attrs[] = { ATTRS, "cite", NULL };
 static const char* const body_contents[] = { FLOW, "ins", "del", NULL };
 static const char* const body_attrs[] = { ATTRS, "onload", "onunload", NULL };
-static const char* const body_depr[] = { "background", "bgcolor", "text",
-					 "link", "vlink", "alink", NULL };
-static const char* const button_attrs[] = { ATTRS, "name", "value", "type",
-					    "disabled", "tabindex", "accesskey", "onfocus", "onblur", NULL };
+static const char* const body_depr[] = { "background", "bgcolor", "text", "link", "vlink", "alink", NULL };
+static const char* const button_attrs[] = { ATTRS, "name", "value", "type", "disabled", "tabindex", "accesskey", "onfocus", "onblur", NULL };
 
 static const char* const col_attrs[] = { ATTRS, "span", "width", CELLHALIGN, CELLVALIGN, NULL };
 static const char* const col_elt[] = { "col", NULL };
@@ -658,24 +650,20 @@ static const char* const optgroup_attrs[] = { ATTRS, "disabled", NULL };
 static const char* const option_attrs[] = { ATTRS, "disabled", "label", "selected", "value", NULL };
 static const char* const param_attrs[] = { "id", "value", "valuetype", "type", NULL };
 static const char* const width_attr[] = { "width", NULL };
-static const char* const pre_content[] =
-{ PHRASE, "tt", "i", "b", "u", "s", "strike", "a", "br", "script", "map", "q", "span", "bdo", "iframe", NULL };
+static const char* const pre_content[] = { PHRASE, "tt", "i", "b", "u", "s", "strike", "a", "br", "script", "map", "q", "span", "bdo", "iframe", NULL };
 static const char* const script_attrs[] = { "charset", "src", "defer", "event", "for", NULL };
 static const char* const language_attr[] = { "language", NULL };
 static const char* const select_content[] = { "optgroup", "option", NULL };
-static const char* const select_attrs[] =
-{ ATTRS, "name", "size", "multiple", "disabled", "tabindex", "onfocus", "onblur", "onchange", NULL };
+static const char* const select_attrs[] = { ATTRS, "name", "size", "multiple", "disabled", "tabindex", "onfocus", "onblur", "onchange", NULL };
 static const char* const style_attrs[] = { I18N, "media", "title", NULL };
-static const char* const table_attrs[] =
-{ ATTRS, "summary", "width", "border", "frame", "rules", "cellspacing", "cellpadding", "datapagesize", NULL };
+static const char* const table_attrs[] = { ATTRS, "summary", "width", "border", "frame", "rules", "cellspacing", "cellpadding", "datapagesize", NULL };
 static const char* const table_depr[] = { "align", "bgcolor", NULL };
 static const char* const table_contents[] = { "caption", "col", "colgroup", "thead", "tfoot", "tbody", "tr", NULL};
 static const char* const tr_elt[] = { "tr", NULL };
 static const char* const talign_attrs[] = { ATTRS, CELLHALIGN, CELLVALIGN, NULL};
 static const char* const th_td_depr[] = { "nowrap", "bgcolor", "width", "height", NULL };
 static const char* const th_td_attr[] = { ATTRS, "abbr", "axis", "headers", "scope", "rowspan", "colspan", CELLHALIGN, CELLVALIGN, NULL };
-static const char* const textarea_attrs[] =
-{ ATTRS, "name", "disabled", "readonly", "tabindex", "accesskey", "onfocus", "onblur", "onselect", "onchange", NULL };
+static const char* const textarea_attrs[] = { ATTRS, "name", "disabled", "readonly", "tabindex", "accesskey", "onfocus", "onblur", "onselect", "onchange", NULL };
 static const char* const tr_contents[] = { "th", "td", NULL };
 static const char* const bgcolor_attr[] = { "bgcolor", NULL };
 static const char* const li_elt[] = { "li", NULL };
@@ -730,102 +718,54 @@ static const htmlElemDesc
 	{ "head",       1, 1, 0, 0, 0, 0, 0, "document head ", DECL head_contents, NULL, DECL head_attrs, NULL, NULL},
 	{ "hr",         0, 2, 2, 1, 0, 0, 0, "horizontal rule ", EMPTY, NULL, DECL html_attrs, DECL hr_depr, NULL},
 	{ "html",       1, 1, 0, 0, 0, 0, 0, "document root element ", DECL html_content, NULL, DECL i18n_attrs, DECL version_attr, NULL},
-	{ "i",          0, 3, 0, 0, 0, 0, 1, "italic text style",
-	  DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
-	{ "iframe",     0, 0, 0, 0, 0, 1, 2, "inline subwindow ",
-	  DECL html_flow, NULL, NULL, DECL iframe_attrs, NULL},
-	{ "img",        0, 2, 2, 1, 0, 0, 1, "embedded image ",
-	  EMPTY, NULL, DECL img_attrs, DECL align_attr, DECL src_alt_attrs},
-	{ "input",      0, 2, 2, 1, 0, 0, 1, "form control ",
-	  EMPTY, NULL, DECL input_attrs, DECL align_attr, NULL},
-	{ "ins",        0, 0, 0, 0, 0, 0, 2, "inserted text",
-	  DECL html_flow, NULL, DECL edit_attrs, NULL, NULL},
-	{ "isindex",    0, 2, 2, 1, 1, 1, 0, "single line prompt ",
-	  EMPTY, NULL, NULL, DECL prompt_attrs, NULL},
-	{ "kbd",        0, 0, 0, 0, 0, 0, 1, "text to be entered by the user",
-	  DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
-	{ "label",      0, 0, 0, 0, 0, 0, 1, "form field label text ",
-	  DECL html_inline MODIFIER, NULL, DECL label_attrs, NULL, NULL},
-	{ "legend",     0, 0, 0, 0, 0, 0, 0, "fieldset legend ",
-	  DECL html_inline, NULL, DECL legend_attrs, DECL align_attr, NULL},
-	{ "li",         0, 1, 1, 0, 0, 0, 0, "list item ",
-	  DECL html_flow, NULL, DECL html_attrs, NULL, NULL},
-	{ "link",       0, 2, 2, 1, 0, 0, 0, "a media-independent link ",
-	  EMPTY, NULL, DECL link_attrs, DECL target_attr, NULL},
-	{ "map",        0, 0, 0, 0, 0, 0, 2, "client-side image map ",
-	  DECL map_contents, NULL, DECL html_attrs, NULL, DECL name_attr},
-	{ "menu",       0, 0, 0, 0, 1, 1, 0, "menu list ",
-	  DECL blockli_elt, NULL, NULL, DECL compact_attrs, NULL},
-	{ "meta",       0, 2, 2, 1, 0, 0, 0, "generic metainformation ",
-	  EMPTY, NULL, DECL meta_attrs, NULL, DECL content_attr},
-	{ "noframes",   0, 0, 0, 0, 0, 2, 0, "alternate content container for non frame-based rendering ",
-	  DECL noframes_content, "body", DECL html_attrs, NULL, NULL},
-	{ "noscript",   0, 0, 0, 0, 0, 0, 0, "alternate content container for non script-based rendering ",
-	  DECL html_flow, "div", DECL html_attrs, NULL, NULL},
-	{ "object",     0, 0, 0, 0, 0, 0, 2, "generic embedded object ",
-	  DECL object_contents, "div", DECL object_attrs, DECL object_depr, NULL},
-	{ "ol",         0, 0, 0, 0, 0, 0, 0, "ordered list ",
-	  DECL li_elt, "li", DECL html_attrs, DECL ol_attrs, NULL},
-	{ "optgroup",   0, 0, 0, 0, 0, 0, 0, "option group ",
-	  DECL option_elt, "option", DECL optgroup_attrs, NULL, DECL label_attr},
-	{ "option",     0, 1, 0, 0, 0, 0, 0, "selectable choice ",
-	  DECL html_pcdata, NULL, DECL option_attrs, NULL, NULL},
-	{ "p",          0, 1, 0, 0, 0, 0, 0, "paragraph ",
-	  DECL html_inline, NULL, DECL html_attrs, DECL align_attr, NULL},
-	{ "param",      0, 2, 2, 1, 0, 0, 0, "named property value ",
-	  EMPTY, NULL, DECL param_attrs, NULL, DECL name_attr},
-	{ "pre",        0, 0, 0, 0, 0, 0, 0, "preformatted text ",
-	  DECL pre_content, NULL, DECL html_attrs, DECL width_attr, NULL},
-	{ "q",          0, 0, 0, 0, 0, 0, 1, "short inline quotation ",
-	  DECL html_inline, NULL, DECL quote_attrs, NULL, NULL},
-	{ "s",          0, 3, 0, 0, 1, 1, 1, "strike-through text style",
-	  DECL html_inline, NULL, NULL, DECL html_attrs, NULL},
-	{ "samp",       0, 0, 0, 0, 0, 0, 1, "sample program output, scripts, etc.",
-	  DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
-	{ "script",     0, 0, 0, 0, 0, 0, 2, "script statements ",
-	  DECL html_cdata, NULL, DECL script_attrs, DECL language_attr, DECL type_attr},
-	{ "select",     0, 0, 0, 0, 0, 0, 1, "option selector ",
-	  DECL select_content, NULL, DECL select_attrs, NULL, NULL},
-	{ "small",      0, 3, 0, 0, 0, 0, 1, "small text style",
-	  DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
-	{ "span",       0, 0, 0, 0, 0, 0, 1, "generic language/style container ",
-	  DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
-	{ "strike",     0, 3, 0, 0, 1, 1, 1, "strike-through text",
-	  DECL html_inline, NULL, NULL, DECL html_attrs, NULL},
-	{ "strong",     0, 3, 0, 0, 0, 0, 1, "strong emphasis",
-	  DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
-	{ "style",      0, 0, 0, 0, 0, 0, 0, "style info ",
-	  DECL html_cdata, NULL, DECL style_attrs, NULL, DECL type_attr},
-	{ "sub",        0, 3, 0, 0, 0, 0, 1, "subscript",
-	  DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
-	{ "sup",        0, 3, 0, 0, 0, 0, 1, "superscript ",
-	  DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
-	{ "table",      0, 0, 0, 0, 0, 0, 0, "",
-	  DECL table_contents, "tr", DECL table_attrs, DECL table_depr, NULL},
-	{ "tbody",      1, 0, 0, 0, 0, 0, 0, "table body ",
-	  DECL tr_elt, "tr", DECL talign_attrs, NULL, NULL},
-	{ "td",         0, 0, 0, 0, 0, 0, 0, "table data cell",
-	  DECL html_flow, NULL, DECL th_td_attr, DECL th_td_depr, NULL},
-	{ "textarea",   0, 0, 0, 0, 0, 0, 1, "multi-line text field ",
-	  DECL html_pcdata, NULL, DECL textarea_attrs, NULL, DECL rows_cols_attr},
-	{ "tfoot",      0, 1, 0, 0, 0, 0, 0, "table footer ",
-	  DECL tr_elt, "tr", DECL talign_attrs, NULL, NULL},
-	{ "th",         0, 1, 0, 0, 0, 0, 0, "table header cell",
-	  DECL html_flow, NULL, DECL th_td_attr, DECL th_td_depr, NULL},
-	{ "thead",      0, 1, 0, 0, 0, 0, 0, "table header ",
-	  DECL tr_elt, "tr", DECL talign_attrs, NULL, NULL},
-	{ "title",      0, 0, 0, 0, 0, 0, 0, "document title ",
-	  DECL html_pcdata, NULL, DECL i18n_attrs, NULL, NULL},
-	{ "tr",         0, 0, 0, 0, 0, 0, 0, "table row ",
-	  DECL tr_contents, "td", DECL talign_attrs, DECL bgcolor_attr, NULL},
-	{ "tt",         0, 3, 0, 0, 0, 0, 1, "teletype or monospaced text style",
-	  DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
-	{ "u",          0, 3, 0, 0, 1, 1, 1, "underlined text style",
-	  DECL html_inline, NULL, NULL, DECL html_attrs, NULL},
-	{ "ul",         0, 0, 0, 0, 0, 0, 0, "unordered list ",
-	  DECL li_elt, "li", DECL html_attrs, DECL ul_depr, NULL},
-	{ "var",        0, 0, 0, 0, 0, 0, 1, "instance of a variable or program argument",
-	  DECL html_inline, NULL, DECL html_attrs, NULL, NULL}
+	{ "i",          0, 3, 0, 0, 0, 0, 1, "italic text style", DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
+	{ "iframe",     0, 0, 0, 0, 0, 1, 2, "inline subwindow ", DECL html_flow, NULL, NULL, DECL iframe_attrs, NULL},
+	{ "img",        0, 2, 2, 1, 0, 0, 1, "embedded image ", EMPTY, NULL, DECL img_attrs, DECL align_attr, DECL src_alt_attrs},
+	{ "input",      0, 2, 2, 1, 0, 0, 1, "form control ", EMPTY, NULL, DECL input_attrs, DECL align_attr, NULL},
+	{ "ins",        0, 0, 0, 0, 0, 0, 2, "inserted text", DECL html_flow, NULL, DECL edit_attrs, NULL, NULL},
+	{ "isindex",    0, 2, 2, 1, 1, 1, 0, "single line prompt ", EMPTY, NULL, NULL, DECL prompt_attrs, NULL},
+	{ "kbd",        0, 0, 0, 0, 0, 0, 1, "text to be entered by the user", DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
+	{ "label",      0, 0, 0, 0, 0, 0, 1, "form field label text ", DECL html_inline MODIFIER, NULL, DECL label_attrs, NULL, NULL},
+	{ "legend",     0, 0, 0, 0, 0, 0, 0, "fieldset legend ", DECL html_inline, NULL, DECL legend_attrs, DECL align_attr, NULL},
+	{ "li",         0, 1, 1, 0, 0, 0, 0, "list item ", DECL html_flow, NULL, DECL html_attrs, NULL, NULL},
+	{ "link",       0, 2, 2, 1, 0, 0, 0, "a media-independent link ", EMPTY, NULL, DECL link_attrs, DECL target_attr, NULL},
+	{ "map",        0, 0, 0, 0, 0, 0, 2, "client-side image map ", DECL map_contents, NULL, DECL html_attrs, NULL, DECL name_attr},
+	{ "menu",       0, 0, 0, 0, 1, 1, 0, "menu list ", DECL blockli_elt, NULL, NULL, DECL compact_attrs, NULL},
+	{ "meta",       0, 2, 2, 1, 0, 0, 0, "generic metainformation ", EMPTY, NULL, DECL meta_attrs, NULL, DECL content_attr},
+	{ "noframes",   0, 0, 0, 0, 0, 2, 0, "alternate content container for non frame-based rendering ", DECL noframes_content, "body", DECL html_attrs, NULL, NULL},
+	{ "noscript",   0, 0, 0, 0, 0, 0, 0, "alternate content container for non script-based rendering ", DECL html_flow, "div", DECL html_attrs, NULL, NULL},
+	{ "object",     0, 0, 0, 0, 0, 0, 2, "generic embedded object ", DECL object_contents, "div", DECL object_attrs, DECL object_depr, NULL},
+	{ "ol",         0, 0, 0, 0, 0, 0, 0, "ordered list ", DECL li_elt, "li", DECL html_attrs, DECL ol_attrs, NULL},
+	{ "optgroup",   0, 0, 0, 0, 0, 0, 0, "option group ", DECL option_elt, "option", DECL optgroup_attrs, NULL, DECL label_attr},
+	{ "option",     0, 1, 0, 0, 0, 0, 0, "selectable choice ", DECL html_pcdata, NULL, DECL option_attrs, NULL, NULL},
+	{ "p",          0, 1, 0, 0, 0, 0, 0, "paragraph ", DECL html_inline, NULL, DECL html_attrs, DECL align_attr, NULL},
+	{ "param",      0, 2, 2, 1, 0, 0, 0, "named property value ", EMPTY, NULL, DECL param_attrs, NULL, DECL name_attr},
+	{ "pre",        0, 0, 0, 0, 0, 0, 0, "preformatted text ", DECL pre_content, NULL, DECL html_attrs, DECL width_attr, NULL},
+	{ "q",          0, 0, 0, 0, 0, 0, 1, "short inline quotation ", DECL html_inline, NULL, DECL quote_attrs, NULL, NULL},
+	{ "s",          0, 3, 0, 0, 1, 1, 1, "strike-through text style", DECL html_inline, NULL, NULL, DECL html_attrs, NULL},
+	{ "samp",       0, 0, 0, 0, 0, 0, 1, "sample program output, scripts, etc.", DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
+	{ "script",     0, 0, 0, 0, 0, 0, 2, "script statements ", DECL html_cdata, NULL, DECL script_attrs, DECL language_attr, DECL type_attr},
+	{ "select",     0, 0, 0, 0, 0, 0, 1, "option selector ", DECL select_content, NULL, DECL select_attrs, NULL, NULL},
+	{ "small",      0, 3, 0, 0, 0, 0, 1, "small text style", DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
+	{ "span",       0, 0, 0, 0, 0, 0, 1, "generic language/style container ", DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
+	{ "strike",     0, 3, 0, 0, 1, 1, 1, "strike-through text", DECL html_inline, NULL, NULL, DECL html_attrs, NULL},
+	{ "strong",     0, 3, 0, 0, 0, 0, 1, "strong emphasis", DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
+	{ "style",      0, 0, 0, 0, 0, 0, 0, "style info ", DECL html_cdata, NULL, DECL style_attrs, NULL, DECL type_attr},
+	{ "sub",        0, 3, 0, 0, 0, 0, 1, "subscript", DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
+	{ "sup",        0, 3, 0, 0, 0, 0, 1, "superscript ", DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
+	{ "table",      0, 0, 0, 0, 0, 0, 0, "", DECL table_contents, "tr", DECL table_attrs, DECL table_depr, NULL},
+	{ "tbody",      1, 0, 0, 0, 0, 0, 0, "table body ", DECL tr_elt, "tr", DECL talign_attrs, NULL, NULL},
+	{ "td",         0, 0, 0, 0, 0, 0, 0, "table data cell", DECL html_flow, NULL, DECL th_td_attr, DECL th_td_depr, NULL},
+	{ "textarea",   0, 0, 0, 0, 0, 0, 1, "multi-line text field ", DECL html_pcdata, NULL, DECL textarea_attrs, NULL, DECL rows_cols_attr},
+	{ "tfoot",      0, 1, 0, 0, 0, 0, 0, "table footer ", DECL tr_elt, "tr", DECL talign_attrs, NULL, NULL},
+	{ "th",         0, 1, 0, 0, 0, 0, 0, "table header cell", DECL html_flow, NULL, DECL th_td_attr, DECL th_td_depr, NULL},
+	{ "thead",      0, 1, 0, 0, 0, 0, 0, "table header ", DECL tr_elt, "tr", DECL talign_attrs, NULL, NULL},
+	{ "title",      0, 0, 0, 0, 0, 0, 0, "document title ", DECL html_pcdata, NULL, DECL i18n_attrs, NULL, NULL},
+	{ "tr",         0, 0, 0, 0, 0, 0, 0, "table row ", DECL tr_contents, "td", DECL talign_attrs, DECL bgcolor_attr, NULL},
+	{ "tt",         0, 3, 0, 0, 0, 0, 1, "teletype or monospaced text style", DECL html_inline, NULL, DECL html_attrs, NULL, NULL},
+	{ "u",          0, 3, 0, 0, 1, 1, 1, "underlined text style", DECL html_inline, NULL, NULL, DECL html_attrs, NULL},
+	{ "ul",         0, 0, 0, 0, 0, 0, 0, "unordered list ", DECL li_elt, "li", DECL html_attrs, DECL ul_depr, NULL},
+	{ "var",        0, 0, 0, 0, 0, 0, 1, "instance of a variable or program argument", DECL html_inline, NULL, DECL html_attrs, NULL, NULL}
 };
 
 /*
@@ -1225,12 +1165,9 @@ int htmlIsAutoClosed(htmlDocPtr doc, htmlNodePtr elem)
 	if(elem == NULL) 
 		return 1;
 	else {
-		htmlNodePtr child = elem->children;
-		while(child != NULL) {
+		for(htmlNodePtr child = elem->children; child; child = child->next)
 			if(htmlAutoCloseTag(doc, elem->name, child)) 
 				return 1;
-			child = child->next;
-		}
 		return 0;
 	}
 }
@@ -1291,7 +1228,7 @@ static void htmlCheckImplied(htmlParserCtxtPtr ctxt, const xmlChar * newtag)
  * Returns 1 if a paragraph has been inserted, 0 if not and -1
  *         in case of error.
  */
-static int htmlCheckParagraph(htmlParserCtxtPtr ctxt) 
+static int FASTCALL htmlCheckParagraph(htmlParserCtxtPtr ctxt) 
 {
 	if(!ctxt)
 		return -1;
@@ -1868,22 +1805,19 @@ int htmlEncodeEntities(uchar* out, int * outlen, const uchar* in, int * inlen, i
 		}
 
 		/* assertion: c is a single UTF-4 value */
-		if((c < 0x80) && (c != (uint)quoteChar) &&
-		    (c != '&') && (c != '<') && (c != '>')) {
+		if((c < 0x80) && (c != (uint)quoteChar) && (c != '&') && (c != '<') && (c != '>')) {
 			if(out >= outend)
 				break;
 			*out++ = c;
 		}
 		else {
-			const htmlEntityDesc * ent;
 			const char * cp;
 			char nbuf[16];
 			int len;
-
 			/*
 			 * Try to lookup a predefined HTML entity for it
 			 */
-			ent = htmlEntityValueLookup(c);
+			const htmlEntityDesc * ent = htmlEntityValueLookup(c);
 			if(ent == NULL) {
 				snprintf(nbuf, sizeof(nbuf), "#%u", c);
 				cp = nbuf;
@@ -1904,13 +1838,9 @@ int htmlEncodeEntities(uchar* out, int * outlen, const uchar* in, int * inlen, i
 	*inlen = processed - instart;
 	return 0;
 }
-
-/************************************************************************
-*									*
-*		Commodity functions to handle streams			*
-*									*
-************************************************************************/
-
+// 
+// Commodity functions to handle streams
+// 
 /**
  * htmlNewInputStream:
  * @ctxt:  an HTML parser context
@@ -1940,12 +1870,9 @@ static htmlParserInputPtr htmlNewInputStream(htmlParserCtxtPtr ctxt)
 	input->length = 0;
 	return(input);
 }
-
-/************************************************************************
-*									*
-*		Commodity functions, cleanup needed ?			*
-*									*
-************************************************************************/
+// 
+// Commodity functions, cleanup needed ?
+// 
 /**
  * areBlanks:
  * @ctxt:  an HTML parser context
@@ -2046,7 +1973,6 @@ htmlDocPtr htmlNewDocNoDtD(const xmlChar * URI, const xmlChar * ExternalID)
 		return NULL;
 	}
 	memzero(p_cur, sizeof(xmlDoc));
-
 	p_cur->type = XML_HTML_DOCUMENT_NODE;
 	p_cur->version = NULL;
 	p_cur->intSubset = NULL;
@@ -2079,7 +2005,7 @@ htmlDocPtr htmlNewDocNoDtD(const xmlChar * URI, const xmlChar * ExternalID)
  */
 htmlDocPtr htmlNewDoc(const xmlChar * URI, const xmlChar * ExternalID) 
 {
-	if((URI == NULL) && (ExternalID == NULL))
+	if(!URI && !ExternalID)
 		return htmlNewDocNoDtD(BAD_CAST "http://www.w3.org/TR/REC-html40/loose.dtd", BAD_CAST "-//W3C//DTD HTML 4.0 Transitional//EN");
 	return htmlNewDocNoDtD(URI, ExternalID);
 }
@@ -3562,76 +3488,80 @@ static int htmlParseEndTag(htmlParserCtxtPtr ctxt)
  */
 static void htmlParseReference(htmlParserCtxtPtr ctxt) 
 {
-	const htmlEntityDesc * ent;
 	xmlChar out[6];
-	const xmlChar * name;
-	if(CUR != '&') 
-		return;
-	if(NXT(1) == '#') {
-		int bits, i = 0;
-		uint c = htmlParseCharRef(ctxt);
-		if(c == 0)
-			return;
-		if(c <    0x80) {
-			out[i++] = c;                bits = -6;
-		}
-		else if(c <   0x800) {
-			out[i++] = ((c >>  6) & 0x1F) | 0xC0;  bits =  0;
-		}
-		else if(c < 0x10000) {
-			out[i++] = ((c >> 12) & 0x0F) | 0xE0;  bits =  6;
-		}
-		else {                  
-			out[i++] = ((c >> 18) & 0x07) | 0xF0;  bits = 12; 
-		}
-		for(; bits >= 0; bits -= 6) {
-			out[i++] = ((c >> bits) & 0x3F) | 0x80;
-		}
-		out[i] = 0;
-
-		htmlCheckParagraph(ctxt);
-		if(ctxt->sax && ctxt->sax->characters)
-			ctxt->sax->characters(ctxt->userData, out, i);
-	}
-	else {
-		ent = htmlParseEntityRef(ctxt, &name);
-		if(!name) {
-			htmlCheckParagraph(ctxt);
-			if(ctxt->sax && ctxt->sax->characters)
-				ctxt->sax->characters(ctxt->userData, BAD_CAST "&", 1);
-			return;
-		}
-		if((ent == NULL) || !(ent->value > 0)) {
-			htmlCheckParagraph(ctxt);
-			if(ctxt->sax && ctxt->sax->characters) {
-				ctxt->sax->characters(ctxt->userData, BAD_CAST "&", 1);
-				ctxt->sax->characters(ctxt->userData, name, sstrlen(name));
-				// ctxt->sax->characters(ctxt->userData, BAD_CAST ";", 1); 
+	if(CUR == '&') {
+		if(NXT(1) == '#') {
+			int bits, i = 0;
+			uint c = htmlParseCharRef(ctxt);
+			if(c) {
+				if(c < 0x80) {
+					out[i++] = c;                
+					bits = -6;
+				}
+				else if(c < 0x800) {
+					out[i++] = ((c >>  6) & 0x1F) | 0xC0;  
+					bits =  0;
+				}
+				else if(c < 0x10000) {
+					out[i++] = ((c >> 12) & 0x0F) | 0xE0;  
+					bits =  6;
+				}
+				else {                  
+					out[i++] = ((c >> 18) & 0x07) | 0xF0;  
+					bits = 12; 
+				}
+				for(; bits >= 0; bits -= 6) {
+					out[i++] = ((c >> bits) & 0x3F) | 0x80;
+				}
+				out[i] = 0;
+				htmlCheckParagraph(ctxt);
+				if(ctxt->sax && ctxt->sax->characters)
+					ctxt->sax->characters(ctxt->userData, out, i);
 			}
 		}
 		else {
-			int bits, i = 0;
-			uint c = ent->value;
-			if(c <    0x80) {
-				out[i++] = c;
-				bits = -6;
+			const xmlChar * name = 0;
+			const htmlEntityDesc * ent = htmlParseEntityRef(ctxt, &name);
+			if(!name) {
+				htmlCheckParagraph(ctxt);
+				if(ctxt->sax && ctxt->sax->characters)
+					ctxt->sax->characters(ctxt->userData, BAD_CAST "&", 1);
 			}
-			else if(c <   0x800) {
-				out[i++] = ((c >>  6) & 0x1F) | 0xC0;  bits =  0;
-			}
-			else if(c < 0x10000) {
-				out[i++] = ((c >> 12) & 0x0F) | 0xE0;  bits =  6;
+			else if(!ent || !(ent->value > 0)) {
+				htmlCheckParagraph(ctxt);
+				if(ctxt->sax && ctxt->sax->characters) {
+					ctxt->sax->characters(ctxt->userData, BAD_CAST "&", 1);
+					ctxt->sax->characters(ctxt->userData, name, sstrlen(name));
+					// ctxt->sax->characters(ctxt->userData, BAD_CAST ";", 1); 
+				}
 			}
 			else {
-				out[i++] = ((c >> 18) & 0x07) | 0xF0;  bits = 12;
+				int bits, i = 0;
+				uint c = ent->value;
+				if(c <    0x80) {
+					out[i++] = c;
+					bits = -6;
+				}
+				else if(c <   0x800) {
+					out[i++] = ((c >>  6) & 0x1F) | 0xC0;  
+					bits =  0;
+				}
+				else if(c < 0x10000) {
+					out[i++] = ((c >> 12) & 0x0F) | 0xE0;  
+					bits =  6;
+				}
+				else {
+					out[i++] = ((c >> 18) & 0x07) | 0xF0;  
+					bits = 12;
+				}
+				for(; bits >= 0; bits -= 6) {
+					out[i++] = ((c >> bits) & 0x3F) | 0x80;
+				}
+				out[i] = 0;
+				htmlCheckParagraph(ctxt);
+				if(ctxt->sax && ctxt->sax->characters)
+					ctxt->sax->characters(ctxt->userData, out, i);
 			}
-			for(; bits >= 0; bits -= 6) {
-				out[i++] = ((c >> bits) & 0x3F) | 0x80;
-			}
-			out[i] = 0;
-			htmlCheckParagraph(ctxt);
-			if(ctxt->sax && ctxt->sax->characters)
-				ctxt->sax->characters(ctxt->userData, out, i);
 		}
 	}
 }
@@ -3642,7 +3572,6 @@ static void htmlParseReference(htmlParserCtxtPtr ctxt)
  * Parse a content: comment, sub-element, reference or text.
  * Kept for compatibility with old code
  */
-
 static void htmlParseContent(htmlParserCtxtPtr ctxt)
 {
 	const xmlChar * name;
@@ -3673,7 +3602,7 @@ static void htmlParseContent(htmlParserCtxtPtr ctxt)
 				SAlloc::F(currentNode);
 				return;
 			}
-			if(ctxt->name != NULL) {
+			if(ctxt->name) {
 				if(htmlCheckAutoClose(name, ctxt->name) == 1) {
 					htmlAutoClose(ctxt, name);
 					continue;
@@ -3877,7 +3806,7 @@ static void htmlParserFinishElementParsing(htmlParserCtxtPtr ctxt)
 	/*
 	 * Capture end position and add node
 	 */
-	if(ctxt->P_Node != NULL && ctxt->record_info) {
+	if(ctxt->P_Node && ctxt->record_info) {
 		ctxt->nodeInfo->end_pos = ctxt->input->consumed + (CUR_PTR - ctxt->input->base);
 		ctxt->nodeInfo->end_line = ctxt->input->line;
 		ctxt->nodeInfo->P_Node = ctxt->P_Node;
@@ -3888,7 +3817,6 @@ static void htmlParserFinishElementParsing(htmlParserCtxtPtr ctxt)
 		htmlAutoCloseOnEnd(ctxt);
 	}
 }
-
 /**
  * htmlParseElementInternal:
  * @ctxt:  an HTML parser context
@@ -3899,7 +3827,6 @@ static void htmlParserFinishElementParsing(htmlParserCtxtPtr ctxt)
  *
  * [41] Attribute ::= Name Eq AttValue
  */
-
 static void htmlParseElementInternal(htmlParserCtxtPtr ctxt)
 {
 	const xmlChar * name;
@@ -3941,7 +3868,6 @@ static void htmlParseElementInternal(htmlParserCtxtPtr ctxt)
 		htmlnamePop(ctxt);
 		return;
 	}
-
 	if(CUR == '>') {
 		NEXT;
 	}
@@ -3962,7 +3888,7 @@ static void htmlParseElementInternal(htmlParserCtxtPtr ctxt)
 	/*
 	 * Check for an Empty Element from DTD definition
 	 */
-	if((info != NULL) && (info->empty)) {
+	if(info && info->empty) {
 		if(ctxt->sax && ctxt->sax->endElement)
 			ctxt->sax->endElement(ctxt->userData, name);
 		htmlnamePop(ctxt);
@@ -4071,9 +3997,8 @@ static void htmlParseContentInternal(htmlParserCtxtPtr ctxt)
 			 * Fourth case : a reference. If if has not been resolved,
 			 *    parsing returns it's Name, create the node
 			 */
-			else if(CUR == '&') {
+			else if(CUR == '&')
 				htmlParseReference(ctxt);
-			}
 			/*
 			 * Fifth case : end of the resource
 			 */
@@ -4084,13 +4009,11 @@ static void htmlParseContentInternal(htmlParserCtxtPtr ctxt)
 			/*
 			 * Last case, text. Note that References are handled directly.
 			 */
-			else {
+			else
 				htmlParseCharData(ctxt);
-			}
 			if(cons == ctxt->nbChars) {
-				if(ctxt->P_Node != NULL) {
+				if(ctxt->P_Node)
 					htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "detected an error in element content\n", 0, 0);
-				}
 				break;
 			}
 		}
@@ -4098,7 +4021,6 @@ static void htmlParseContentInternal(htmlParserCtxtPtr ctxt)
 	}
 	SAlloc::F(currentNode);
 }
-
 /**
  * htmlParseContent:
  * @ctxt:  an HTML parser context
@@ -4106,13 +4028,11 @@ static void htmlParseContentInternal(htmlParserCtxtPtr ctxt)
  * Parse a content: comment, sub-element, reference or text.
  * This is the entry point when called from parser.c
  */
-
 void __htmlParseContent(void * ctxt)
 {
 	if(ctxt)
 		htmlParseContentInternal((htmlParserCtxtPtr)ctxt);
 }
-
 /**
  * htmlParseDocument:
  * @ctxt:  an HTML parser context
@@ -4123,7 +4043,6 @@ void __htmlParseContent(void * ctxt)
  * Returns 0, -1 in case of error. the parser context is augmented
  *                as a result of the parsing.
  */
-
 int htmlParseDocument(htmlParserCtxtPtr ctxt)
 {
 	xmlChar start[4];
@@ -4154,9 +4073,8 @@ int htmlParseDocument(htmlParserCtxtPtr ctxt)
 		start[2] = NXT(2);
 		start[3] = NXT(3);
 		enc = xmlDetectCharEncoding(&start[0], 4);
-		if(enc != XML_CHAR_ENCODING_NONE) {
+		if(enc != XML_CHAR_ENCODING_NONE)
 			xmlSwitchEncoding(ctxt, enc);
-		}
 	}
 	/*
 	 * Wipe out everything which is before the first '<'
@@ -4167,7 +4085,6 @@ int htmlParseDocument(htmlParserCtxtPtr ctxt)
 	}
 	if(ctxt->sax && (ctxt->sax->startDocument) && (!ctxt->disableSAX))
 		ctxt->sax->startDocument(ctxt->userData);
-
 	/*
 	 * Parse possible comments and PIs before any content
 	 */
@@ -4184,7 +4101,6 @@ int htmlParseDocument(htmlParserCtxtPtr ctxt)
 		htmlParseDocTypeDecl(ctxt);
 	}
 	SKIP_BLANKS;
-
 	/*
 	 * Parse possible comments and PIs before any content
 	 */
@@ -4209,18 +4125,14 @@ int htmlParseDocument(htmlParserCtxtPtr ctxt)
 		ctxt->sax->endDocument(ctxt->userData);
 	if((!(ctxt->options & HTML_PARSE_NODEFDTD)) && ctxt->myDoc) {
 		dtd = xmlGetIntSubset(ctxt->myDoc);
-		if(dtd == NULL)
+		if(!dtd)
 			ctxt->myDoc->intSubset = xmlCreateIntSubset(ctxt->myDoc, BAD_CAST "html", BAD_CAST "-//W3C//DTD HTML 4.0 Transitional//EN", BAD_CAST "http://www.w3.org/TR/REC-html40/loose.dtd");
 	}
 	return ctxt->wellFormed ? 0 : -1;
 }
-
-/************************************************************************
-*									*
-*			Parser contexts handling			*
-*									*
-************************************************************************/
-
+// 
+// Parser contexts handling
+// 
 /**
  * htmlInitParserCtxt:
  * @ctxt:  an HTML parser context
@@ -4954,9 +4866,8 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			     * Lookup the info for that element.
 			     */
 			    info = htmlTagLookup(name);
-			    if(info == NULL) {
+			    if(!info)
 				    htmlParseErr(ctxt, XML_HTML_UNKNOWN_TAG, "Tag %s invalid\n", name, 0);
-			    }
 			    /*
 			     * Check for an Empty Element labeled the XML/SGML way
 			     */
@@ -5079,11 +4990,8 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 				    /*
 				     * Sometimes DOCTYPE arrives in the middle of the document
 				     */
-				    if((cur == '<') && (next == '!') &&
-					    (UPP(2) == 'D') && (UPP(3) == 'O') &&
-					    (UPP(4) == 'C') && (UPP(5) == 'T') &&
-					    (UPP(6) == 'Y') && (UPP(7) == 'P') &&
-					    (UPP(8) == 'E')) {
+				    if((cur == '<') && (next == '!') && (UPP(2) == 'D') && (UPP(3) == 'O') &&
+					    (UPP(4) == 'C') && (UPP(5) == 'T') && (UPP(6) == 'Y') && (UPP(7) == 'P') && (UPP(8) == 'E')) {
 					    if((!terminate) && (htmlParseLookupSequence(ctxt, '>', 0, 0, 0, 1) < 0))
 						    goto done;
 					    htmlParseErr(ctxt, XML_HTML_STRUCURE_ERROR, "Misplaced DOCTYPE declaration\n", BAD_CAST "DOCTYPE", 0);
@@ -5164,16 +5072,10 @@ static int htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate)
 			case XML_PARSER_END_TAG:
 			    if(avail < 2)
 				    goto done;
-			    if((!terminate) &&
-			    (htmlParseLookupSequence(ctxt, '>', 0, 0, 0, 1) < 0))
+			    if((!terminate) && (htmlParseLookupSequence(ctxt, '>', 0, 0, 0, 1) < 0))
 				    goto done;
 			    htmlParseEndTag(ctxt);
-			    if(ctxt->nameNr == 0) {
-				    ctxt->instate = XML_PARSER_EPILOG;
-			    }
-			    else {
-				    ctxt->instate = XML_PARSER_CONTENT;
-			    }
+			    ctxt->instate = (ctxt->nameNr == 0) ? XML_PARSER_EPILOG : XML_PARSER_CONTENT;
 			    ctxt->CheckIndex = 0;
 #ifdef DEBUG_PUSH
 			    xmlGenericError(0, "HPP: entering CONTENT\n");
@@ -5321,24 +5223,24 @@ int htmlParseChunk(htmlParserCtxtPtr ctxt, const char * chunk, int size, int ter
 #endif
 	}
 	else if(ctxt->instate != XML_PARSER_EOF) {
-		if(ctxt->input && ctxt->input->buf != NULL) {
+		if(ctxt->input && ctxt->input->buf) {
 			xmlParserInputBufferPtr in = ctxt->input->buf;
-			if((in->encoder != NULL) && (in->buffer != NULL) && (in->raw != NULL)) {
-				int nbchars;
+			if(in->encoder && in->buffer && in->raw) {
 				size_t base = xmlBufGetInputBase(in->buffer, ctxt->input);
 				size_t current = ctxt->input->cur - ctxt->input->base;
-				nbchars = xmlCharEncInput(in, terminate);
+				int nbchars = xmlCharEncInput(in, terminate);
 				if(nbchars < 0) {
 					htmlParseErr(ctxt, XML_ERR_INVALID_ENCODING, "encoder error\n", 0, 0);
-					return(XML_ERR_INVALID_ENCODING);
+					return XML_ERR_INVALID_ENCODING;
 				}
-				xmlBufSetInputBaseCur(in->buffer, ctxt->input, base, current);
+				else
+					xmlBufSetInputBaseCur(in->buffer, ctxt->input, base, current);
 			}
 		}
 	}
 	htmlParseTryOrFinish(ctxt, terminate);
 	if(terminate) {
-		if((ctxt->instate != XML_PARSER_EOF) && (ctxt->instate != XML_PARSER_EPILOG) && (ctxt->instate != XML_PARSER_MISC)) {
+		if(!oneof3(ctxt->instate, XML_PARSER_EOF, XML_PARSER_EPILOG, XML_PARSER_MISC)) {
 			ctxt->errNo = XML_ERR_DOCUMENT_END;
 			ctxt->wellFormed = 0;
 		}
@@ -5372,8 +5274,7 @@ int htmlParseChunk(htmlParserCtxtPtr ctxt, const char * chunk, int size, int ter
  *
  * Returns the new parser context or NULL
  */
-htmlParserCtxtPtr htmlCreatePushParserCtxt(htmlSAXHandlerPtr sax, void * user_data,
-    const char * chunk, int size, const char * filename, xmlCharEncoding enc)
+htmlParserCtxtPtr htmlCreatePushParserCtxt(htmlSAXHandlerPtr sax, void * user_data, const char * chunk, int size, const char * filename, xmlCharEncoding enc)
 {
 	htmlParserCtxt * ctxt = 0;
 	htmlParserInput * p_input_stream;
@@ -5397,7 +5298,7 @@ htmlParserCtxtPtr htmlCreatePushParserCtxt(htmlSAXHandlerPtr sax, void * user_da
 					return NULL;
 				}
 				memcpy(ctxt->sax, sax, sizeof(htmlSAXHandler));
-				if(user_data != NULL)
+				if(user_data)
 					ctxt->userData = user_data;
 			}
 			ctxt->directory = filename ? xmlParserGetDirectory(filename) : 0;
@@ -5499,7 +5400,6 @@ htmlParserCtxtPtr htmlCreateFileParserCtxt(const char * filename, const char * e
 	htmlParserInputPtr inputStream;
 	char * canonicFilename;
 	/* htmlCharEncoding enc; */
-	xmlChar * content;
 	xmlChar * content_line = (xmlChar*)"charset=";
 	if(filename == NULL)
 		return NULL;
@@ -5510,7 +5410,7 @@ htmlParserCtxtPtr htmlCreateFileParserCtxt(const char * filename, const char * e
 	canonicFilename = (char*)xmlCanonicPath((const xmlChar*)filename);
 	if(canonicFilename == NULL) {
 #ifdef LIBXML_SAX1_ENABLED
-		if(xmlDefaultSAXHandler.error != NULL) {
+		if(xmlDefaultSAXHandler.error) {
 			xmlDefaultSAXHandler.error(NULL, "out of memory\n");
 		}
 #endif
@@ -5528,7 +5428,7 @@ htmlParserCtxtPtr htmlCreateFileParserCtxt(const char * filename, const char * e
 	if(encoding) {
 		size_t l = strlen(encoding);
 		if(l < 1000) {
-			content = (xmlChar *)SAlloc::M(sstrlen(content_line) + l + 1);
+			xmlChar * content = (xmlChar *)SAlloc::M(sstrlen(content_line) + l + 1);
 			if(content) {
 				strcpy((char*)content, (char*)content_line);
 				strcat((char*)content, (char*)encoding);
@@ -5590,12 +5490,10 @@ htmlDocPtr htmlSAXParseFile(const char * filename, const char * encoding, htmlSA
  *
  * Returns the resulting document tree
  */
-
 htmlDocPtr htmlParseFile(const char * filename, const char * encoding)
 {
 	return htmlSAXParseFile(filename, encoding, 0, 0);
 }
-
 /**
  * htmlHandleOmittedElem:
  * @val:  int 0 or 1
@@ -5604,14 +5502,12 @@ htmlDocPtr htmlParseFile(const char * filename, const char * encoding)
  *
  * Returns the last value for 0 for no handling, 1 for auto insertion.
  */
-
 int htmlHandleOmittedElem(int val)
 {
 	int old = htmlOmittedDefaultValue;
 	htmlOmittedDefaultValue = val;
 	return old;
 }
-
 /**
  * htmlElementAllowedHere:
  * @parent: HTML parent element
@@ -5646,9 +5542,10 @@ htmlStatus htmlElementStatusHere(const htmlElemDesc* parent, const htmlElemDesc*
 {
 	if(!parent || !elt)
 		return HTML_INVALID;
-	if(!htmlElementAllowedHere(parent, (const xmlChar*)elt->name) )
+	else if(!htmlElementAllowedHere(parent, (const xmlChar*)elt->name) )
 		return HTML_INVALID;
-	return ( elt->dtd == 0 ) ? HTML_VALID : HTML_DEPRECATED;
+	else
+		return (elt->dtd == 0) ? HTML_VALID : HTML_DEPRECATED;
 }
 /**
  * htmlAttrAllowed:
@@ -5739,7 +5636,7 @@ void htmlCtxtReset(htmlParserCtxtPtr ctxt)
 		ctxt->inputNr = 0;
 		ctxt->input = NULL;
 		ctxt->spaceNr = 0;
-		if(ctxt->spaceTab != NULL) {
+		if(ctxt->spaceTab) {
 			ctxt->spaceTab[0] = -1;
 			ctxt->space = &ctxt->spaceTab[0];
 		}
@@ -5877,7 +5774,7 @@ int htmlCtxtUseOptions(htmlParserCtxtPtr ctxt, int options)
  *
  * Returns the resulting document tree or NULL
  */
-static htmlDocPtr htmlDoRead(htmlParserCtxtPtr ctxt, const char * URL, const char * encoding, int options, int reuse)
+static htmlDocPtr FASTCALL htmlDoRead(htmlParserCtxtPtr ctxt, const char * URL, const char * encoding, int options, int reuse)
 {
 	htmlDocPtr ret;
 	htmlCtxtUseOptions(ctxt, options);
@@ -5958,9 +5855,9 @@ htmlDocPtr htmlReadMemory(const char * buffer, int size, const char * URL, const
 	if(!ctxt)
 		return NULL;
 	htmlDefaultSAXHandlerInit();
-	if(ctxt->sax != NULL)
+	if(ctxt->sax)
 		memcpy(ctxt->sax, &htmlDefaultSAXHandler, sizeof(xmlSAXHandlerV1));
-	return (htmlDoRead(ctxt, URL, encoding, options, 0));
+	return htmlDoRead(ctxt, URL, encoding, options, 0);
 }
 
 /**
@@ -5998,7 +5895,7 @@ htmlDocPtr htmlReadFd(int fd, const char * URL, const char * encoding, int optio
 		return NULL;
 	}
 	inputPush(ctxt, stream);
-	return (htmlDoRead(ctxt, URL, encoding, options, 0));
+	return htmlDoRead(ctxt, URL, encoding, options, 0);
 }
 
 /**
@@ -6040,7 +5937,7 @@ htmlDocPtr htmlReadIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose
 		return NULL;
 	}
 	inputPush(ctxt, stream);
-	return (htmlDoRead(ctxt, URL, encoding, options, 0));
+	return htmlDoRead(ctxt, URL, encoding, options, 0);
 }
 
 /**
@@ -6059,9 +5956,7 @@ htmlDocPtr htmlReadIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose
 htmlDocPtr htmlCtxtReadDoc(htmlParserCtxtPtr ctxt, const xmlChar * cur, const char * URL, const char * encoding, int options)
 {
 	xmlParserInputPtr stream;
-	if(!cur)
-		return NULL;
-	if(!ctxt)
+	if(!cur || !ctxt)
 		return NULL;
 	xmlInitParser();
 	htmlCtxtReset(ctxt);
@@ -6070,7 +5965,7 @@ htmlDocPtr htmlCtxtReadDoc(htmlParserCtxtPtr ctxt, const xmlChar * cur, const ch
 		return NULL;
 	}
 	inputPush(ctxt, stream);
-	return (htmlDoRead(ctxt, URL, encoding, options, 1));
+	return htmlDoRead(ctxt, URL, encoding, options, 1);
 }
 
 /**
@@ -6088,18 +5983,15 @@ htmlDocPtr htmlCtxtReadDoc(htmlParserCtxtPtr ctxt, const xmlChar * cur, const ch
 htmlDocPtr htmlCtxtReadFile(htmlParserCtxtPtr ctxt, const char * filename, const char * encoding, int options)
 {
 	xmlParserInputPtr stream;
-	if(filename == NULL)
-		return NULL;
-	if(!ctxt)
+	if(!filename || !ctxt)
 		return NULL;
 	xmlInitParser();
 	htmlCtxtReset(ctxt);
 	stream = xmlLoadExternalEntity(filename, NULL, ctxt);
-	if(stream == NULL) {
+	if(stream == NULL)
 		return NULL;
-	}
 	inputPush(ctxt, stream);
-	return (htmlDoRead(ctxt, NULL, encoding, options, 1));
+	return htmlDoRead(ctxt, NULL, encoding, options, 1);
 }
 
 /**
@@ -6120,9 +6012,7 @@ htmlDocPtr htmlCtxtReadMemory(htmlParserCtxtPtr ctxt, const char * buffer, int s
 {
 	xmlParserInputBufferPtr input;
 	xmlParserInputPtr stream;
-	if(!ctxt)
-		return NULL;
-	if(!buffer)
+	if(!ctxt || !buffer)
 		return NULL;
 	xmlInitParser();
 	htmlCtxtReset(ctxt);
@@ -6136,7 +6026,7 @@ htmlDocPtr htmlCtxtReadMemory(htmlParserCtxtPtr ctxt, const char * buffer, int s
 		return NULL;
 	}
 	inputPush(ctxt, stream);
-	return (htmlDoRead(ctxt, URL, encoding, options, 1));
+	return htmlDoRead(ctxt, URL, encoding, options, 1);
 }
 
 /**
@@ -6156,9 +6046,7 @@ htmlDocPtr htmlCtxtReadFd(htmlParserCtxtPtr ctxt, int fd, const char * URL, cons
 {
 	xmlParserInputBufferPtr input;
 	xmlParserInputPtr stream;
-	if(fd < 0)
-		return NULL;
-	if(!ctxt)
+	if(fd < 0 || !ctxt)
 		return NULL;
 	xmlInitParser();
 	htmlCtxtReset(ctxt);
@@ -6171,7 +6059,7 @@ htmlDocPtr htmlCtxtReadFd(htmlParserCtxtPtr ctxt, int fd, const char * URL, cons
 		return NULL;
 	}
 	inputPush(ctxt, stream);
-	return (htmlDoRead(ctxt, URL, encoding, options, 1));
+	return htmlDoRead(ctxt, URL, encoding, options, 1);
 }
 
 /**
@@ -6194,9 +6082,7 @@ htmlDocPtr htmlCtxtReadIO(htmlParserCtxtPtr ctxt, xmlInputReadCallback ioread, x
 {
 	xmlParserInputBufferPtr input;
 	xmlParserInputPtr stream;
-	if(ioread == NULL)
-		return NULL;
-	if(!ctxt)
+	if(!ioread || !ctxt)
 		return NULL;
 	xmlInitParser();
 	htmlCtxtReset(ctxt);
@@ -6212,7 +6098,7 @@ htmlDocPtr htmlCtxtReadIO(htmlParserCtxtPtr ctxt, xmlInputReadCallback ioread, x
 		return NULL;
 	}
 	inputPush(ctxt, stream);
-	return (htmlDoRead(ctxt, URL, encoding, options, 1));
+	return htmlDoRead(ctxt, URL, encoding, options, 1);
 }
 
 #define bottom_HTMLparser

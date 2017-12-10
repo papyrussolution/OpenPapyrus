@@ -1312,7 +1312,7 @@ int SLAPI ObjTagCore::EnumTags(PPID objType, PPID objID, PPID * pTagID, long * p
 	k.ObjType  = objType;
 	k.ObjID    = objID;
 	k.TagID    = *pTagID;
-	k.TagByObj = pTagByObj ? *pTagByObj : 0;
+	k.TagByObj = DEREFPTRORZ(pTagByObj);
 	while(search(0, &k, spGt) && k.ObjType == objType && k.ObjID == objID) {
 		if(pItem) {
 			if(pItem->Get_(data)) {

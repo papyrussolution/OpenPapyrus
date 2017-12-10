@@ -71,14 +71,11 @@ static cairo_status_t _cairo_base64_stream_write(cairo_output_stream_t * base, c
 		dst[1] = base64_table[(src[0] & 0x03) << 4 | src[1] >> 4];
 		dst[2] = base64_table[(src[1] & 0x0f) << 2 | src[2] >> 6];
 		dst[3] = base64_table[src[2] & 0xfc >> 2];
-		/* Special case for the last missing bits */
+		// Special case for the last missing bits 
 		switch(stream->trailing) {
-			case 2:
-			    dst[2] = '=';
-			case 1:
-			    dst[3] = '=';
-			default:
-			    break;
+			case 2: dst[2] = '=';
+			case 1: dst[3] = '=';
+			default: break;
 		}
 		_cairo_output_stream_write(stream->output, dst, 4);
 	} while(length >= 3);
@@ -104,18 +101,21 @@ static cairo_status_t _cairo_base64_stream_close(cairo_output_stream_t * base)
 
 cairo_output_stream_t * _cairo_base64_stream_create(cairo_output_stream_t * output)
 {
-	cairo_base64_stream_t * stream;
 	if(output->status)
 		return _cairo_output_stream_create_in_error(output->status);
-	stream = (cairo_base64_stream_t *)SAlloc::M(sizeof(cairo_base64_stream_t));
-	if(unlikely(stream == NULL)) {
-		_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
-		return (cairo_output_stream_t*)&_cairo_output_stream_nil;
+	else {
+		cairo_base64_stream_t * stream = (cairo_base64_stream_t *)SAlloc::M(sizeof(cairo_base64_stream_t));
+		if(unlikely(stream == NULL)) {
+			_cairo_error_throw(CAIRO_STATUS_NO_MEMORY);
+			return (cairo_output_stream_t*)&_cairo_output_stream_nil;
+		}
+		else {
+			_cairo_output_stream_init(&stream->base, _cairo_base64_stream_write, NULL, _cairo_base64_stream_close);
+			stream->output = output;
+			stream->in_mem = 0;
+			stream->trailing = 0;
+			return &stream->base;
+		}
 	}
-	_cairo_output_stream_init(&stream->base, _cairo_base64_stream_write, NULL, _cairo_base64_stream_close);
-	stream->output = output;
-	stream->in_mem = 0;
-	stream->trailing = 0;
-	return &stream->base;
 }
 

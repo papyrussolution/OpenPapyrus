@@ -47,9 +47,8 @@ int SLAPI PKZip(const char * pSrcPath, const char * pDestPath, const char * pZip
 	return ok;
 }
 
-SLAPI ExecVDosParam::ExecVDosParam()
+SLAPI ExecVDosParam::ExecVDosParam() : Flags(0)
 {
-	Flags = 0;
 }
 
 int SLAPI ExecVDos(ExecVDosParam & rParam)

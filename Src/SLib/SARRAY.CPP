@@ -12,14 +12,8 @@
 #define _USERPTR_C(ptr)  ((flags&aryPtrContainer)?(*(const void **)(ptr)):(ptr))
 #define _INTRPTR(ptr)    ((flags&aryPtrContainer)?&(ptr):(ptr))
 
-SLAPI SVectorBase::SVectorBase(uint itemSize, /*uint aDelta,*/ uint o) : isize(itemSize)
+SLAPI SVectorBase::SVectorBase(uint itemSize, /*uint aDelta,*/ uint o) : isize(itemSize), flags(o), data(0), count(0), pointer(0), Limit(0)
 {
-	//delta = aDelta;
-	flags = o;
-	data  = 0;
-	count = 0;
-	pointer = 0;
-	Limit = 0;
 }
 
 SLAPI SVectorBase::~SVectorBase()
@@ -69,7 +63,7 @@ static uint FASTCALL SnapUpCount(uint newCount, uint itemSize)
 	size_t s = newCount * itemSize;
 	uint   result = newCount;
 	// Если запрашивается первый элемент, то на один и распределяем пространство (один элемент в массиве очень популярное значение)
-	if(result > 1) { 
+	if(result > 1) {
 		if(s < low_limit_bytes)
 			result = (low_limit_bytes / itemSize);
 		else {
@@ -278,11 +272,6 @@ void SLAPI SVectorBase::setLimit(uint aLimit)
 {
 	Limit = aLimit;
 }
-
-/*void SLAPI SVectorBase::setDelta(uint aDelta)
-{
-	delta = aDelta;
-}*/
 
 uint FASTCALL SVectorBase::setPointer(uint p)
 {
@@ -928,9 +917,8 @@ int SLAPI SVector::freeLast()
 
 void SLAPI SVector::freeAll()
 {
-	if(data) {
+	if(data) //@speedcritical
 		ZFREE(data);
-	}
 	count = 0;
 	pointer = 0;
 	Limit = 0;
@@ -1026,31 +1014,29 @@ int SLAPI SVector::Read(SFile & rFile, long)
 //
 //
 //
-SLAPI SArray::SArray(uint itemSize, /*uint aDelta,*/ uint o) : SVectorBase(itemSize, /*aDelta,*/ o)
+SLAPI SArray::SArray(uint itemSize, uint o) : SVectorBase(itemSize, o)
 {
 }
 
-SLAPI SArray::SArray(uint itemSize) : SVectorBase(itemSize, /*8,*/ O_ARRAY)
+SLAPI SArray::SArray(uint itemSize) : SVectorBase(itemSize, O_ARRAY)
 {
 }
 
-SLAPI SArray::SArray(void * pData, uint itemSize, uint aCount, uint o) : SVectorBase(itemSize, /*1,*/ o)
+SLAPI SArray::SArray(void * pData, uint itemSize, uint aCount, uint o) :
+	SVectorBase(itemSize, o)
 {
 	count = aCount;
 	Limit = aCount;
 	data = (uint8 *)pData;
 }
 
-SLAPI SArray::SArray(const SArray & rS) : SVectorBase(rS.isize, /*rS.delta,*/ rS.flags)
+SLAPI SArray::SArray(const SArray & rS) : SVectorBase(rS.isize, rS.flags)
 {
-	data = 0;
 	copy(rS);
 }
 
-SLAPI SArray::SArray(const SVector & rS) : SVectorBase(rS.getItemSize(), /*8,*/ rS.getFlags())
+SLAPI SArray::SArray(const SVector & rS) : SVectorBase(rS.getItemSize(), rS.getFlags())
 {
-	data = 0;
-	//copy(rS);
 	SVectorBase::CopyS(rS);
 }
 
@@ -1256,11 +1242,11 @@ int SLAPI SArray::Read(SFile & rFile, long)
 //
 //
 //
-SLAPI SCollection::SCollection() : SArray(sizeof(void *), /*aDelta,*/ O_COLLECTION)
+SLAPI SCollection::SCollection() : SArray(sizeof(void *), O_COLLECTION)
 {
 }
 
-SLAPI SCollection::SCollection(/*uint aDelta,*/ uint o) : SArray(sizeof(void *), /*aDelta,*/ o)
+SLAPI SCollection::SCollection(uint o) : SArray(sizeof(void *), o)
 {
 }
 
@@ -2526,7 +2512,7 @@ int SLAPI StrAssocArray::SearchByText(const char * pTxt, CompFunc fcmp, uint * p
 	if(pTxt) {
 		const  char * p_pool = Pool.getBuf();
 		if(p_pool) {
-			uint   last_pos = pPos ? *pPos : 0;
+			uint   last_pos = DEREFPTRORZ(pPos);
 			for(uint i = last_pos; i < Assoc.getCount(); i++) {
 				uint   str_offs = (uint)Assoc.at(i).Val;
 				if(str_offs && p_pool[str_offs] && fcmp(p_pool+str_offs, pTxt, 0) == 0) {
@@ -3672,9 +3658,8 @@ static int FASTCALL Subst(const void * i1, const void * i2, void * pExtraData)
 	return stcomp((TYPEID)pExtraData, i1, i2);
 }
 
-SLAPI STypArray::STypArray(TYPEID aType, /*uint aDelta,*/ uint o) : SArray(stsize(aType), /*aDelta,*/ o)
+SLAPI STypArray::STypArray(TYPEID aType, uint o) : SArray(stsize(aType), o), type(aType)
 {
-	type = aType;
 }
 
 /* @v9.0.5
@@ -3716,24 +3701,12 @@ void SLAPI STypArray::sort()
 //
 // STree
 //
-STree::Iter::Iter()
+STree::Iter::Iter() : ParentP(0), CurrP(0), CurrDataP(0), NextP(0), Flags(fFirstIter), P_Data(0)
 {
-	ParentP = 0;
-	CurrP = 0;
-	CurrDataP = 0;
-	NextP = 0;
-	Flags = fFirstIter;
-	P_Data = 0;
 }
 
-STree::Iter::Iter(uint32 parentP)
+STree::Iter::Iter(uint32 parentP) : ParentP(parentP), CurrP(0), CurrDataP(0), NextP(0), Flags(fFirstIter | fOnlyParent),  P_Data(0)
 {
-	ParentP = parentP;
-	CurrP = 0;
-	CurrDataP = 0;
-	NextP = 0;
-	Flags = (fFirstIter | fOnlyParent);
-	P_Data = 0;
 }
 
 void * STree::Iter::GetData() const

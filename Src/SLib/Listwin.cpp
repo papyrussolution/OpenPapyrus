@@ -8,11 +8,9 @@
 
 static TRect _DefLwRect(0, 0, 80, 25); // @v8.8.2 60-->80
 
-ListWindow::ListWindow(ListBoxDef * pDef, const char * pTitle, int aNum) : TDialog(_DefLwRect, pTitle)
+ListWindow::ListWindow(ListBoxDef * pDef, const char * pTitle, int aNum) : TDialog(_DefLwRect, pTitle), PrepareSearchLetter(0), TbId(0)
 {
-	PrepareSearchLetter = 0;
 	//@v9.8.0 IsLargeListBox      = 0;
-	TbId = 0;
 	P_Lb = new ListWindowSmartListBox(TRect(0, 0, 11, 11), pDef);
 	setDef(pDef);
 	TButton * b = new TButton(TRect(0, 0, 20, 20), "OK", cmOK, bfDefault);
@@ -20,13 +18,8 @@ ListWindow::ListWindow(ListBoxDef * pDef, const char * pTitle, int aNum) : TDial
 	TbId = 0;
 }
 
-ListWindow::ListWindow() : TDialog(_DefLwRect, 0)
+ListWindow::ListWindow() : TDialog(_DefLwRect, 0), def(0), PrepareSearchLetter(0), P_Lb(0), TbId(0)
 {
-	def = 0; // @v9.8.4 @fix
-	PrepareSearchLetter = 0;
-	//@v9.8.0 IsLargeListBox      = 0;
-	P_Lb = 0;
-	TbId = 0;
 }
 
 void ListWindow::setCompFunc(CompFunc f)
@@ -453,11 +446,8 @@ StrAssocArray * WordSel_ExtraBlock::GetList(const char * pText)
 }
 
 
-WordSelector::WordSelector(WordSel_ExtraBlock * pBlk)
+WordSelector::WordSelector(WordSel_ExtraBlock * pBlk) : IsActive(0), IsVisible(0), P_Blk(pBlk)
 {
-	IsActive  = 0;
-	IsVisible = 0;
-	P_Blk = pBlk;
 	def = new StrAssocListBoxDef(new StrAssocArray(), lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtOwnerDraw);
 	P_Lb = (WordSelectorSmartListBox*)new WordSelectorSmartListBox(TRect(0, 0, 11, 11), def);
 	P_Lb->SetOwnerDrawState();

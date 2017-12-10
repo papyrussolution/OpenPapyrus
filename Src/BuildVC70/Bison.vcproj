@@ -22,9 +22,9 @@
 				AdditionalIncludeDirectories="..\include;..\osf\flex&amp;bison\bison;..\osf\flex&amp;bison\supp;..\osf\flex&amp;bison\supp\m4"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				StringPooling="TRUE"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
@@ -32,10 +32,11 @@
 				DefaultCharIsUnsigned="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"
-				CompileAs="0"/>
+				DebugInformationFormat="3"
+				CompileAs="2"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -77,10 +78,13 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="0"
 				AdditionalIncludeDirectories="..\include;..\osf\flex&amp;bison\bison;..\osf\flex&amp;bison\supp;..\osf\flex&amp;bison\supp\m4"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
@@ -88,10 +92,11 @@
 				DefaultCharIsUnsigned="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="0"
+				ProgramDataBaseFileName="$(IntDir)/"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"
-				CompileAs="0"/>
+				DebugInformationFormat="0"
+				CompileAs="2"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -247,6 +252,120 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\AnnotationList.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\assoc.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\closure.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\complain.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\config.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\conflicts.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\derives.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\files.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\flex-scanner.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\getargs.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\gram.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\graphviz.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\ielr.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\InadequacyList.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\lalr.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\location.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\LR0.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\muscle-tab.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\named-ref.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\nullable.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\output.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\parse-gram.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\print-xml.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\print.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\print_graph.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\reader.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\reduce.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\relation.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\Sbitset.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\scan-code.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\scan-gram.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\scan-skel.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\state.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\symlist.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\symtab.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\system.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\tables.h">
+			</File>
+			<File
+				RelativePath="..\Osf\Flex&amp;bison\Bison\uniqstr.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

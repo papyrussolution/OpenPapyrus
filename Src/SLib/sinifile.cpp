@@ -130,9 +130,8 @@ int SLAPI SIniFileBuffer::ClearSect(const char * pSectName)
 //
 // SIniSectBuffer
 //
-SLAPI SIniSectBuffer::SIniSectBuffer(const char * pName) : TSCollection <StringSet> ()
+SLAPI SIniSectBuffer::SIniSectBuffer(const char * pName) : TSCollection <StringSet> (), Name(pName)
 {
-	Name = pName;
 }
 
 StringSet * SLAPI SIniSectBuffer::SearchParam(const char * pParam, uint * pPos) const
@@ -239,10 +238,8 @@ int SLAPI SIniSectBuffer::ShiftParam(uint pos, int up) // (up != 0) - вверх, (up
 //
 //
 //
-SLAPI SIniFile::SIniFile(const char * pFileName, int fcreate, int winCoding, int useIniBuf)
+SLAPI SIniFile::SIniFile(const char * pFileName, int fcreate, int winCoding, int useIniBuf) : P_IniBuf(0), Flags(0)
 {
-	P_IniBuf = 0;
-	Flags = 0;
 	Init(pFileName, fcreate, winCoding, useIniBuf);
 }
 

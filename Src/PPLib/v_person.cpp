@@ -358,9 +358,8 @@ int SLAPI PPViewPerson::Init_(const PPBaseFilt * pFilt)
 		{
 			class PersonTagsCrosstab : public Crosstab {
 			public:
-				SLAPI  PersonTagsCrosstab(PPViewPerson * pV) : Crosstab()
+				SLAPI  PersonTagsCrosstab(PPViewPerson * pV) : Crosstab(), P_V(pV)
 				{
-					P_V = pV;
 				}
 				virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 				{

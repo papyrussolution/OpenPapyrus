@@ -13,8 +13,21 @@
 
 #define JOB_FACTORY_PRFX JFF_
 
-int SLAPI WriteParam(SBuffer & rBuf, const void * pParam, size_t paramSize);
-int SLAPI ReadParam(SBuffer & rBuf, void * pParam, size_t paramSize);
+int FASTCALL WriteParam(SBuffer & rBuf, const void * pParam, size_t paramSize)
+{
+	return rBuf.Write(pParam, paramSize) ? 1 : PPSetErrorSLib();
+}
+
+int FASTCALL ReadParam(SBuffer & rBuf, void * pParam, size_t paramSize)
+{
+	int    ok = -1;
+	if(rBuf.GetAvailableSize())
+		if(rBuf.Read(pParam, paramSize))
+			ok = 1;
+		else
+			ok = PPSetErrorSLib();
+	return ok;
+}
 //
 //
 PPJobHandler * SLAPI PPJobMngr::CreateInstance(PPID jobID, const PPJobDescr * pDescr)
@@ -51,16 +64,13 @@ int SLAPI PPJobMngr::EditJobParam(PPID jobID, SBuffer * pParam)
 //
 //
 //
-SLAPI PPJobMngr::PPJobMngr()
+SLAPI PPJobMngr::PPJobMngr() : LckH(0), LastId(0), P_F(0)
 {
 	SString name;
 	long   PP  = 0x00005050L; // "PP"
 	long   EXT = 0x00534552L; // "RES"
 	P_Rez = new TVRez(makeExecPathFileName((const char*)&PP, (const char*)&EXT, name), 1);
 	LastLoading.SetZero();
-	LckH = 0;
-	LastId = 0;
-	P_F = 0;
 	PPGetFilePath(PPPATH_BIN, PPFILNAM_JOBPOOL, FilePath);
 }
 
@@ -353,17 +363,11 @@ int FASTCALL PPJobDescr::Read(SBuffer & rBuf)
 //
 //
 //
-SLAPI PPJob::PPJob()
+SLAPI PPJob::PPJob() : ID(0), Flags(0), EstimatedTime(0), NextJobID(0), EmailAccID(0), ScheduleBeforeTime(ZEROTIME)
 {
-	ID = 0;
 	MEMSZERO(Dtr);
-	Flags = 0;
-	EstimatedTime = 0;
 	LastRunningTime.SetZero();
 	Ver = 1; // @v9.2.3 0-->1
-	NextJobID = 0;
-	EmailAccID = 0; // @v9.2.3
-	ScheduleBeforeTime = ZEROTIME; // @v9.2.11
 	memzero(Symb, sizeof(Symb));
 	memzero(Reserve, sizeof(Reserve));
 }
@@ -448,11 +452,8 @@ int FASTCALL PPJob::Read(SBuffer & rBuf)
 //
 //
 //
-SLAPI PPJobPool::PPJobPool(PPJobMngr * pMngr, const char * pDbSymb, int readOnly) : TSCollection <PPJob> ()
+SLAPI PPJobPool::PPJobPool(PPJobMngr * pMngr, const char * pDbSymb, int readOnly) : TSCollection <PPJob> (), P_Mngr(pMngr), DbSymb(pDbSymb), Flags(0)
 {
-	P_Mngr = pMngr;
-	DbSymb = pDbSymb;
-	Flags = 0;
 	SETFLAG(Flags, fReadOnly, readOnly);
 }
 
@@ -463,10 +464,7 @@ const SString & SLAPI PPJobPool::GetDbSymb() const
 
 int FASTCALL PPJobPool::IsJobSuited(const PPJob * pJob) const
 {
-	if(DbSymb.Empty() || DbSymb.CmpNC(pJob->DbSymb) == 0)
-		return 1;
-	else
-		return PPSetError(PPERR_JOBSTRNGFORPOOL);
+	return (DbSymb.Empty() || DbSymb.CmpNC(pJob->DbSymb) == 0) ? 1 : PPSetError(PPERR_JOBSTRNGFORPOOL);
 }
 
 uint SLAPI PPJobPool::GetCount() const
@@ -709,22 +707,6 @@ IMPLEMENT_JOB_HDL_FACTORY(MAINTAINPRJTASK);
 //
 //
 //
-int SLAPI WriteParam(SBuffer & rBuf, const void * pParam, size_t paramSize)
-{
-	return rBuf.Write(pParam, paramSize) ? 1 : PPSetErrorSLib();
-}
-
-int SLAPI ReadParam(SBuffer & rBuf, void * pParam, size_t paramSize)
-{
-	int    ok = -1;
-	if(rBuf.GetAvailableSize())
-		if(rBuf.Read(pParam, paramSize))
-			ok = 1;
-		else
-			ok = PPSetErrorSLib();
-	return ok;
-}
-
 class PPBackupParam {
 public:
 	SLAPI PPBackupParam()
@@ -1451,11 +1433,8 @@ public:
 
 #define SIGNATURE_LAUNCHAPPPARAM 0x4c484150L // 'LHAP'
 
-SLAPI LaunchAppParam::LaunchAppParam()
+SLAPI LaunchAppParam::LaunchAppParam() : Signature(SIGNATURE_LAUNCHAPPPARAM), Ver(0), Flags(0)
 {
-	Signature = SIGNATURE_LAUNCHAPPPARAM;
-	Ver = 0;
-	Flags = 0;
 	memzero(Reserve, sizeof(Reserve));
 }
 
@@ -1776,18 +1755,6 @@ public:
 	}
 	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
 	{
-		/*
-		int    ok = -1;
-		SupplExpFilt filt;
-		const size_t sav_offs = pParam->GetRdOffs();
-		filt.Read(*pParam, 0);
-		if(EditSupplExpFilt(&filt, 0) > 0) {
-			ok = BIN(filt.Write(pParam->Clear(), 0));
-		}
-		else
-			pParam->SetRdOffs(sav_offs);
-		return ok;
-		*/
 		int    ok = -1;
 		if(pParam) {
 			PrcssrSupplInterchange prc;
@@ -1807,15 +1774,6 @@ public:
 	}
 	virtual int SLAPI Run(SBuffer * pParam, void * extraPtr)
 	{
-		/*
-		int    ok = 1;
-		SupplExpFilt filt;
-		THROW(filt.Read(*pParam, 0));
-		filt.Period.Actualize(ZERODATE);
-		THROW(DoSupplInterchange(&filt));
-		CATCHZOK
-		return ok;
-		*/
 		int    ok = 1;
 		if(pParam) {
 			SupplInterchangeFilt filt;

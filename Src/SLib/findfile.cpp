@@ -1,18 +1,13 @@
 // FINDFILE.CPP
-// Copyright (c) A.Sobolev 2005, 2010, 2016
+// Copyright (c) A.Sobolev 2005, 2010, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
 
-SLAPI SFindFile::SFindFile(const char * pPath /* =0 */, const char * pFileName /* =0 */)
+SLAPI SFindFile::SFindFile(const char * pPath /* =0 */, const char * pFileName /* =0 */) :
+	P_Path(pPath), P_FileName(pFileName), P_SubStr(0), Flags(0), DirCount(0), FileCount(0)
 {
-	P_Path = pPath;
-	P_FileName = pFileName;
-	P_SubStr = 0;
-	Flags = 0;
-	DirCount = 0;
-	FileCount = 0;
 }
 
 int SLAPI SFindFile::CallbackProc(const char * pPath, SDirEntry * pEntry)

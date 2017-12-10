@@ -958,7 +958,7 @@ int SLAPI PPViewOpGrouping::InitBillList(PPID opID)
 int SLAPI PPViewOpGrouping::EnumBillList(uint * pPos, OpGroupingViewItem * pItem)
 {
 	int    ok = -1;
-	uint   pos = pPos ? *pPos : 0;
+	uint   pos = DEREFPTRORZ(pPos);
 	OpGroupingViewItem  item;
 	MEMSZERO(item);
 	if(Filt.GoodsGrpID || Filt.GoodsID) {

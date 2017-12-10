@@ -5356,6 +5356,11 @@ int SLAPI PPViewBill::Transmit(PPID id, int transmitKind)
 	return ok;
 }
 
+/*void LogObjToTransmit(PPID objType, PPID objID, const char * pName)
+{
+	SString msg_buf;
+}*/
+
 // static
 int SLAPI PPViewBill::TransmitByFilt(const BillFilt * pFilt, const ObjTransmitParam * pParam)
 {
@@ -5374,8 +5379,9 @@ int SLAPI PPViewBill::TransmitByFilt(const BillFilt * pFilt, const ObjTransmitPa
 		const PPIDArray & rary = param.DestDBDivList.Get();
 		PPObjIDArray objid_ary;
 		THROW(view.Init_(&filt));
-		for(view.InitIteration(OrdByDefault); view.NextIteration(&item) > 0; PPWaitPercent(view.GetCounter()))
+		for(view.InitIteration(OrdByDefault); view.NextIteration(&item) > 0; PPWaitPercent(view.GetCounter())) {
 			objid_ary.Add(PPOBJ_BILL, item.ID);
+		}
 		THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 		ok = 1;
 	}

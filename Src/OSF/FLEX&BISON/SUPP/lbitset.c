@@ -1207,14 +1207,18 @@ void debug_lbitset(bitset bset)
 {
 	lbitset_elt * elt;
 	unsigned int i;
+
 	if(!bset)
 		return;
+
 	for(elt = LBITSET_HEAD(bset); elt; elt = elt->next) {
 		fprintf(stderr, "Elt %lu\n", (unsigned long int)elt->index);
 		for(i = 0; i < LBITSET_ELT_WORDS; i++) {
 			unsigned int j;
 			bitset_word word;
+
 			word = elt->words[i];
+
 			fprintf(stderr, "  Word %u:", i);
 			for(j = 0; j < LBITSET_WORD_BITS; j++)
 				if((word & ((bitset_word)1 << j)))

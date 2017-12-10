@@ -679,38 +679,10 @@ struct SMailMessage : SStrGroup {
 		fPpyCharry = 0x0008, // Объекты Charry
 		fFrontol   = 0x0010  // Файл с данными с кассового модуля Фронтол
 	};
-	SLAPI  SMailMessage();
-	SLAPI ~SMailMessage();
-	void   SLAPI Init();
-	int    SLAPI IsPpyData() const;
-	SString & SLAPI MakeBoundaryCode(SString & rBuf) const;
-	//
-	// Parameters:
-	//     start: 0 - pure boundary, 1 - start boundary, 2 - finish boundary
-	// Returns:
-	//     pBuf - on success, 0 - on error
-	//
-	SString & SLAPI GetBoundary(int start, SString & rBuf) const;
-	int    SLAPI AttachFile(const char *);
-	int    SLAPI EnumAttach(uint *, SString & rFileName, SString & rFullPath);
-	int    SLAPI SetField(int fldId, const char *);
-	int    FASTCALL IsField(int fldId) const;
-	SString & SLAPI GetField(int fldId, SString & rBuf) const;
-	int    SLAPI CmpField(int fldId, const char * pStr, size_t len = 0) const;
-	//
-	// Descr: Определяет, является ли адрес pEmail адресом отправителя сообщения.
-	//   Сравнение осуществляется строго по формальному адресу с исключением описательной части.
-	//   Например IsFrom("nemo@gmail.com") даст положительный результат на адрес "Капитан Немо <nemo@gmail.com>"
-	//
-	int    SLAPI IsFrom(const char * pEmail) const;
-	int    SLAPI IsSubj(const char * pSubj, int substr) const;
-
-	int    SLAPI PutToFile(SFile & rF);
-	int    SLAPI ReadFromFile(SFile & rF);
-
-	int    SLAPI DebugOutput(SString & rBuf) const;
-
 	struct ContentDispositionBlock {
+		static int FASTCALL GetTypeName(int t, SString & rBuf);
+		static int FASTCALL IdentifyType(const char * pTypeName);
+
 		SLAPI  ContentDispositionBlock();
 		void   SLAPI Destroy();
 
@@ -733,7 +705,7 @@ struct SMailMessage : SStrGroup {
 			tInfoPackage, // info-package
 			tRecordingSession // recording-session
 		};
-		int    Type;
+		int    Type; // ContentDispositionBlock::tXXX
 		uint   NameP;
 		uint   FileNameP;
 		uint64 Size;
@@ -760,14 +732,65 @@ struct SMailMessage : SStrGroup {
 		ContentTypeBlock Ct;
 		ContentDispositionBlock Cd;
 		int    ContentTransfEnc; // SFileFormat::cteXXX Content-Transfer-Encoding:
+		uint   ContentIdP;    // "Content-ID" 
+		uint   ContentDescrP; // "Content-Description"
 		uint   LineNo_Start;  // @debug
 		uint   LineNo_Finish; // @debug
+		uint   OuterFileNameP;
 		Boundary * P_Parent;  // @notowned
 		SBuffer Data;
 		TSCollection <Boundary> Children;
 	private:
 		const SMailMessage::Boundary * FASTCALL Helper_GetAttachmentByIndex(int & rIdx /*0..*/) const;
 	};
+	SLAPI  SMailMessage();
+	SLAPI ~SMailMessage();
+	void   SLAPI Init();
+	int    SLAPI IsPpyData() const;
+	SString & SLAPI MakeBoundaryCode(SString & rBuf) const;
+	//
+	// Parameters:
+	//     start: 0 - pure boundary, 1 - start boundary, 2 - finish boundary
+	// Returns:
+	//     pBuf - on success, 0 - on error
+	//
+	SString & SLAPI GetBoundary(int start, SString & rBuf) const;
+	
+	int    SLAPI AttachFile(const char * pFilePath);
+	//
+	// Descr: Вставляет в письмо inline-содержание. Содержание вставляется как внутренняя область
+	//   Boundary pB. Если pB == 0, то как внутренняя область Boundary верхнего уровня.
+	// Returns:
+	//   0 - ошибка
+	//   !0 - указатель на добавленную Boundary
+	//
+	Boundary * SLAPI AttachContent(Boundary * pB, int format, SCodepageIdent cp, const void * pData, size_t dataSize);
+	//
+	// Descr: Вставляет в письмо прикрепленный файл. Файл вставляется как внутренняя область
+	//   Boundary pB. Если pB == 0, то как внутренняя область Boundary верхнего уровня.
+	// Returns:
+	//   0 - ошибка
+	//   !0 - указатель на добавленную Boundary
+	//
+	Boundary * SLAPI AttachFile(Boundary * pB, int format, const char * pFilePath);
+
+	int    SLAPI EnumAttach(uint *, SString & rFileName, SString & rFullPath);
+	int    SLAPI SetField(int fldId, const char *);
+	int    FASTCALL IsField(int fldId) const;
+	SString & SLAPI GetField(int fldId, SString & rBuf) const;
+	int    SLAPI CmpField(int fldId, const char * pStr, size_t len = 0) const;
+	//
+	// Descr: Определяет, является ли адрес pEmail адресом отправителя сообщения.
+	//   Сравнение осуществляется строго по формальному адресу с исключением описательной части.
+	//   Например IsFrom("nemo@gmail.com") даст положительный результат на адрес "Капитан Немо <nemo@gmail.com>"
+	//
+	int    SLAPI IsFrom(const char * pEmail) const;
+	int    SLAPI IsSubj(const char * pSubj, int substr) const;
+
+	int    SLAPI PutToFile(SFile & rF);
+	int    SLAPI ReadFromFile(SFile & rF);
+
+	int    SLAPI DebugOutput(SString & rBuf) const;
 
 	uint   SLAPI GetAttachmentCount() const;
 	int    SLAPI SaveAttachmentTo(uint attIdx, const char * pDestPath, SString * pResultFileName) const;
@@ -776,6 +799,30 @@ struct SMailMessage : SStrGroup {
 
 	long   Flags;
 	long   Size;
+
+	struct WriterBlock {
+		SLAPI  WriterBlock(const SMailMessage & rMsg) : R_Msg(rMsg), Phase(phsUndef), P_Cb(0), RdDataOff(0), P_InStream(0)
+		{
+		}
+		SLAPI ~WriterBlock()
+		{
+			ZDELETE(P_InStream);
+		}
+		int    SLAPI Read(size_t maxChunkSize, SBuffer & rBuf);
+
+		enum {
+			phsUndef = 0,
+			phsHeader,
+			phsBoundaryHeader,
+			phsBoundaryBody,
+			phsStop
+		};
+		int    Phase;
+		const SMailMessage & R_Msg;
+		const Boundary * P_Cb; // Текущая Boundary
+		uint32 RdDataOff; // Используется на фазе phsBoundaryBody - смещение, с которого следует читать следующую порцию данных
+		SFile * P_InStream;
+	};
 private:
 	struct ParserBlock {
 		SLAPI  ParserBlock();
@@ -796,7 +843,11 @@ private:
 	SString & SLAPI PutField(const char * pFld, const char * pVal, SString & rBuf);
 	int    SLAPI ProcessInputLine(ParserBlock & rBlk, SString & rLineBuf);
 	Boundary * FASTCALL SearchBoundary(const SString & rIdent);
-	Boundary * SLAPI Helper_SearchBoundary(const SString & rIdent, Boundary * pB);
+	Boundary * SLAPI Helper_SearchBoundary(const SString & rIdent, Boundary * pParent);
+	const Boundary * FASTCALL SearchBoundary(const Boundary * pB) const;
+	const Boundary * FASTCALL Helper_SearchBoundary(const Boundary * pB, const Boundary * pParent) const;
+	Boundary * SLAPI Helper_CreateBoundary(SMailMessage::Boundary * pParent, int format);
+	int    SLAPI PreprocessEmailAddrString(const SString & rSrc, SString & rResult) const;
 	int    SLAPI DebugOutput_Boundary(const Boundary & rB, uint tab, SString & rBuf) const;
 
 	char   Zero[8];
@@ -964,10 +1015,10 @@ public:
 		uint   DestPathP; // Путь результирующего файла
 		uint   SrcMimeP;  // MIME исходного файла
 		uint   DestMimeP; // MIME результирующего файла
-		uint   RmvSrcCookieP;  // Специальная строка, которая может быть использована как ключ для последующего удаления исходного файла 
-		uint   RmvDestCookieP; // Специальная строка, которая может быть использована как ключ для последующего удаления результирующего файла 
+		uint   RmvSrcCookieP;  // Специальная строка, которая может быть использована как ключ для последующего удаления исходного файла
+		uint   RmvDestCookieP; // Специальная строка, которая может быть использована как ключ для последующего удаления результирующего файла
 		uint64 Size; // Размер скопированного файла
-	}; 
+	};
 	TSVector <ResultItem> ResultList;
 };
 //

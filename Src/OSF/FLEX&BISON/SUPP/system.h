@@ -29,8 +29,10 @@
 #include <locale.h>
 
 #include <gettext.h>
-// @sobolev #define _(Msgid)  gettext (Msgid)
-// @sobolev #define N_(Msgid) (Msgid)
+#ifndef _
+#define _(Msgid)  gettext (Msgid)
+#endif
+#define N_(Msgid) (Msgid)
 
 
 #ifndef __attribute__

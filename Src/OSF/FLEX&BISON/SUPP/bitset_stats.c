@@ -48,30 +48,30 @@
 #define BITSET_DENSITY_BINS  20
 
 /* Accessor macros.  */
-#define BITSET_STATS_ALLOCS_INC(TYPE)                   \
-        bitset_stats_info->types[(TYPE)].allocs++
-#define BITSET_STATS_FREES_INC(BSET)                    \
-        bitset_stats_info->types[BITSET_TYPE_(BSET)].frees++
-#define BITSET_STATS_SETS_INC(BSET)                     \
-        bitset_stats_info->types[BITSET_TYPE_(BSET)].sets++
-#define BITSET_STATS_CACHE_SETS_INC(BSET)               \
-        bitset_stats_info->types[BITSET_TYPE_(BSET)].cache_sets++
-#define BITSET_STATS_RESETS_INC(BSET)                   \
-        bitset_stats_info->types[BITSET_TYPE_(BSET)].resets++
-#define BITSET_STATS_CACHE_RESETS_INC(BSET)             \
-        bitset_stats_info->types[BITSET_TYPE_(BSET)].cache_resets++
-#define BITSET_STATS_TESTS_INC(BSET)                    \
-        bitset_stats_info->types[BITSET_TYPE_(BSET)].tests++
-#define BITSET_STATS_CACHE_TESTS_INC(BSET)              \
-        bitset_stats_info->types[BITSET_TYPE_(BSET)].cache_tests++
-#define BITSET_STATS_LISTS_INC(BSET)                    \
-        bitset_stats_info->types[BITSET_TYPE_(BSET)].lists++
-#define BITSET_STATS_LIST_COUNTS_INC(BSET, I)           \
-        bitset_stats_info->types[BITSET_TYPE_(BSET)].list_counts[(I)]++
-#define BITSET_STATS_LIST_SIZES_INC(BSET, I)            \
-        bitset_stats_info->types[BITSET_TYPE_(BSET)].list_sizes[(I)]++
-#define BITSET_STATS_LIST_DENSITY_INC(BSET, I)          \
-        bitset_stats_info->types[BITSET_TYPE_(BSET)].list_density[(I)]++
+#define BITSET_STATS_ALLOCS_INC(TYPE)			\
+	bitset_stats_info->types[(TYPE)].allocs++
+#define BITSET_STATS_FREES_INC(BSET)			\
+	bitset_stats_info->types[BITSET_TYPE_(BSET)].frees++
+#define BITSET_STATS_SETS_INC(BSET)			\
+	bitset_stats_info->types[BITSET_TYPE_(BSET)].sets++
+#define BITSET_STATS_CACHE_SETS_INC(BSET)		\
+	bitset_stats_info->types[BITSET_TYPE_(BSET)].cache_sets++
+#define BITSET_STATS_RESETS_INC(BSET)			\
+	bitset_stats_info->types[BITSET_TYPE_(BSET)].resets++
+#define BITSET_STATS_CACHE_RESETS_INC(BSET)		\
+	bitset_stats_info->types[BITSET_TYPE_(BSET)].cache_resets++
+#define BITSET_STATS_TESTS_INC(BSET)			\
+	bitset_stats_info->types[BITSET_TYPE_(BSET)].tests++
+#define BITSET_STATS_CACHE_TESTS_INC(BSET)		\
+	bitset_stats_info->types[BITSET_TYPE_(BSET)].cache_tests++
+#define BITSET_STATS_LISTS_INC(BSET)			\
+	bitset_stats_info->types[BITSET_TYPE_(BSET)].lists++
+#define BITSET_STATS_LIST_COUNTS_INC(BSET, I)		\
+	bitset_stats_info->types[BITSET_TYPE_(BSET)].list_counts[(I)]++
+#define BITSET_STATS_LIST_SIZES_INC(BSET, I)		\
+	bitset_stats_info->types[BITSET_TYPE_(BSET)].list_sizes[(I)]++
+#define BITSET_STATS_LIST_DENSITY_INC(BSET, I)		\
+	bitset_stats_info->types[BITSET_TYPE_(BSET)].list_density[(I)]++
 
 struct bitset_type_info_struct {
 	unsigned int allocs;
@@ -94,12 +94,14 @@ struct bitset_stats_info_struct {
 };
 
 struct bitset_stats_info_struct bitset_stats_info_data;
+
 struct bitset_stats_info_struct * bitset_stats_info;
+
 bool bitset_stats_enabled = false;
 
 /* Print a percentage histogram with message MSG to FILE.  */
 static void bitset_percent_histogram_print(FILE * file, const char * name, const char * msg,
-	unsigned int n_bins, unsigned int * bins)
+    unsigned int n_bins, unsigned int * bins)
 {
 	unsigned int i;
 	unsigned int total;
@@ -107,19 +109,21 @@ static void bitset_percent_histogram_print(FILE * file, const char * name, const
 	total = 0;
 	for(i = 0; i < n_bins; i++)
 		total += bins[i];
+
 	if(!total)
 		return;
+
 	fprintf(file, "%s %s", name, msg);
 	for(i = 0; i < n_bins; i++)
 		fprintf(file, "%.0f-%.0f%%\t%8u (%5.1f%%)\n",
-			i*100.0/n_bins,
-			(i+1)*100.0/n_bins, bins[i],
-			(100.0*bins[i])/total);
+		    i * 100.0 / n_bins,
+		    (i + 1) * 100.0 / n_bins, bins[i],
+		    (100.0 * bins[i]) / total);
 }
 
 /* Print a log histogram with message MSG to FILE.  */
 static void bitset_log_histogram_print(FILE * file, const char * name, const char * msg,
-	unsigned int n_bins, unsigned int * bins)
+    unsigned int n_bins, unsigned int * bins)
 {
 	unsigned int i;
 	unsigned int total;
@@ -128,73 +132,81 @@ static void bitset_log_histogram_print(FILE * file, const char * name, const cha
 	total = 0;
 	for(i = 0; i < n_bins; i++)
 		total += bins[i];
+
 	if(!total)
 		return;
+
 	/* Determine number of useful bins.  */
-	for(i = n_bins; i > 3 && !bins[i-1]; i--)
+	for(i = n_bins; i > 3 && !bins[i - 1]; i--)
 		continue;
 	n_bins = i;
 
 	/* 2 * ceil (log10 (2) * (N - 1)) + 1.  */
-	max_width = 2*(unsigned int)(0.30103*(n_bins-1)+0.9999)+1;
+	max_width = 2 * (unsigned int)(0.30103 * (n_bins - 1) + 0.9999) + 1;
 
 	fprintf(file, "%s %s", name, msg);
 	for(i = 0; i < 2; i++)
 		fprintf(file, "%*d\t%8u (%5.1f%%)\n",
-			max_width, i, bins[i], 100.0*bins[i]/total);
+		    max_width, i, bins[i], 100.0 * bins[i] / total);
+
 	for(; i < n_bins; i++)
 		fprintf(file, "%*lu-%lu\t%8u (%5.1f%%)\n",
-			max_width-((unsigned int)(0.30103*(i)+0.9999)+1),
-			1UL<<(i-1),
-			(1UL<<i)-1,
-			bins[i],
-			(100.0*bins[i])/total);
+		    max_width - ((unsigned int)(0.30103 * (i) + 0.9999) + 1),
+		    1UL << (i - 1),
+		    (1UL << i) - 1,
+		    bins[i],
+		    (100.0 * bins[i]) / total);
 }
 
 /* Print bitset statistics to FILE.  */
 static void bitset_stats_print_1(FILE * file, const char * name,
-	struct bitset_type_info_struct * stats)
+    struct bitset_type_info_struct * stats)
 {
 	if(!stats)
 		return;
+
 	fprintf(file, "%s:\n", name);
 	fprintf(file, _("%u bitset_allocs, %u freed (%.2f%%).\n"),
-		stats->allocs, stats->frees,
-		stats->allocs ? 100.0*stats->frees/stats->allocs : 0);
+	    stats->allocs, stats->frees,
+	    stats->allocs ? 100.0 * stats->frees / stats->allocs : 0);
 	fprintf(file, _("%u bitset_sets, %u cached (%.2f%%)\n"),
-		stats->sets, stats->cache_sets,
-		stats->sets ? 100.0*stats->cache_sets/stats->sets : 0);
+	    stats->sets, stats->cache_sets,
+	    stats->sets ? 100.0 * stats->cache_sets / stats->sets : 0);
 	fprintf(file, _("%u bitset_resets, %u cached (%.2f%%)\n"),
-		stats->resets, stats->cache_resets,
-		stats->resets ? 100.0*stats->cache_resets/stats->resets : 0);
+	    stats->resets, stats->cache_resets,
+	    stats->resets ? 100.0 * stats->cache_resets / stats->resets : 0);
 	fprintf(file, _("%u bitset_tests, %u cached (%.2f%%)\n"),
-		stats->tests, stats->cache_tests,
-		stats->tests ? 100.0*stats->cache_tests/stats->tests : 0);
+	    stats->tests, stats->cache_tests,
+	    stats->tests ? 100.0 * stats->cache_tests / stats->tests : 0);
 
 	fprintf(file, _("%u bitset_lists\n"), stats->lists);
 
 	bitset_log_histogram_print(file, name, _("count log histogram\n"),
-		BITSET_LOG_COUNT_BINS, stats->list_counts);
+	    BITSET_LOG_COUNT_BINS, stats->list_counts);
 
 	bitset_log_histogram_print(file, name, _("size log histogram\n"),
-		BITSET_LOG_SIZE_BINS, stats->list_sizes);
+	    BITSET_LOG_SIZE_BINS, stats->list_sizes);
 
 	bitset_percent_histogram_print(file, name, _("density histogram\n"),
-		BITSET_DENSITY_BINS, stats->list_density);
+	    BITSET_DENSITY_BINS, stats->list_density);
 }
 
 /* Print all bitset statistics to FILE.  */
 static void bitset_stats_print(FILE * file, bool verbose ATTRIBUTE_UNUSED)
 {
 	int i;
+
 	if(!bitset_stats_info)
 		return;
+
 	fprintf(file, _("Bitset statistics:\n\n"));
+
 	if(bitset_stats_info->runs > 1)
 		fprintf(file, _("Accumulated runs = %u\n"), bitset_stats_info->runs);
+
 	for(i = 0; i < BITSET_TYPE_NUM; i++)
 		bitset_stats_print_1(file, bitset_type_names[i],
-			&bitset_stats_info->types[i]);
+		    &bitset_stats_info->types[i]);
 }
 
 /* Initialise bitset statistics logging.  */
@@ -214,14 +226,17 @@ void bitset_stats_disable(void)
 void bitset_stats_read(const char * file_name)
 {
 	FILE * file;
+
 	if(!bitset_stats_info)
 		return;
+
 	if(!file_name)
 		file_name = BITSET_STATS_FILE;
+
 	file = fopen(file_name, "r");
 	if(file) {
 		if(fread(&bitset_stats_info_data, sizeof(bitset_stats_info_data),
-			   1, file) != 1) {
+			    1, file) != 1) {
 			if(ferror(file))
 				perror(_("Could not read stats file."));
 			else
@@ -237,14 +252,17 @@ void bitset_stats_read(const char * file_name)
 void bitset_stats_write(const char * file_name)
 {
 	FILE * file;
+
 	if(!bitset_stats_info)
 		return;
+
 	if(!file_name)
 		file_name = BITSET_STATS_FILE;
+
 	file = fopen(file_name, "w");
 	if(file) {
 		if(fwrite(&bitset_stats_info_data, sizeof(bitset_stats_info_data),
-			   1, file) != 1)
+			    1, file) != 1)
 			perror(_("Could not write stats file."));
 		if(fclose(file) != 0)
 			perror(_("Could not write stats file."));
@@ -268,12 +286,13 @@ void debug_bitset_stats(void)
 static void bitset_stats_set(bitset dst, bitset_bindex bitno)
 {
 	bitset bset = dst->s.bset;
-	bitset_windex wordno = bitno/BITSET_WORD_BITS;
-	bitset_windex offset = wordno-bset->b.cindex;
+	bitset_windex wordno = bitno / BITSET_WORD_BITS;
+	bitset_windex offset = wordno - bset->b.cindex;
 
 	BITSET_STATS_SETS_INC(bset);
+
 	if(offset < bset->b.csize) {
-		bset->b.cdata[offset] |= (bitset_word)1<<(bitno%BITSET_WORD_BITS);
+		bset->b.cdata[offset] |= (bitset_word)1 << (bitno % BITSET_WORD_BITS);
 		BITSET_STATS_CACHE_SETS_INC(bset);
 	}
 	else
@@ -283,13 +302,14 @@ static void bitset_stats_set(bitset dst, bitset_bindex bitno)
 static void bitset_stats_reset(bitset dst, bitset_bindex bitno)
 {
 	bitset bset = dst->s.bset;
-	bitset_windex wordno = bitno/BITSET_WORD_BITS;
-	bitset_windex offset = wordno-bset->b.cindex;
+	bitset_windex wordno = bitno / BITSET_WORD_BITS;
+	bitset_windex offset = wordno - bset->b.cindex;
 
 	BITSET_STATS_RESETS_INC(bset);
+
 	if(offset < bset->b.csize) {
 		bset->b.cdata[offset] &=
-		        ~((bitset_word)1<<(bitno%BITSET_WORD_BITS));
+		    ~((bitset_word)1 << (bitno % BITSET_WORD_BITS));
 		BITSET_STATS_CACHE_RESETS_INC(bset);
 	}
 	else
@@ -304,12 +324,14 @@ static bool bitset_stats_toggle(bitset src, bitset_bindex bitno)
 static bool bitset_stats_test(bitset src, bitset_bindex bitno)
 {
 	bitset bset = src->s.bset;
-	bitset_windex wordno = bitno/BITSET_WORD_BITS;
-	bitset_windex offset = wordno-bset->b.cindex;
+	bitset_windex wordno = bitno / BITSET_WORD_BITS;
+	bitset_windex offset = wordno - bset->b.cindex;
+
 	BITSET_STATS_TESTS_INC(bset);
+
 	if(offset < bset->b.csize) {
 		BITSET_STATS_CACHE_TESTS_INC(bset);
-		return (bool)((bset->b.cdata[offset]>>(bitno%BITSET_WORD_BITS))&1);
+		return (bset->b.cdata[offset] >> (bitno % BITSET_WORD_BITS)) & 1;
 	}
 	else
 		return BITSET_TEST_(bset, bitno);
@@ -460,7 +482,7 @@ static bool bitset_stats_or_and_cmp(bitset dst, bitset src1, bitset src2, bitset
 }
 
 static bitset_bindex bitset_stats_list(bitset bset, bitset_bindex * list,
-	bitset_bindex num, bitset_bindex * next)
+    bitset_bindex num, bitset_bindex * next)
 {
 	bitset_bindex count;
 	bitset_bindex tmp;
@@ -477,7 +499,7 @@ static bitset_bindex bitset_stats_list(bitset bset, bitset_bindex * list,
 	for(i = 0, tmp = count; tmp; tmp >>= 1, i++)
 		continue;
 	if(i >= BITSET_LOG_COUNT_BINS)
-		i = BITSET_LOG_COUNT_BINS-1;
+		i = BITSET_LOG_COUNT_BINS - 1;
 	BITSET_STATS_LIST_COUNTS_INC(bset->s.bset, i);
 
 	/* Log histogram of number of bits in set.  */
@@ -485,19 +507,19 @@ static bitset_bindex bitset_stats_list(bitset bset, bitset_bindex * list,
 	for(i = 0, tmp = size; tmp; tmp >>= 1, i++)
 		continue;
 	if(i >= BITSET_LOG_SIZE_BINS)
-		i = BITSET_LOG_SIZE_BINS-1;
+		i = BITSET_LOG_SIZE_BINS - 1;
 	BITSET_STATS_LIST_SIZES_INC(bset->s.bset, i);
 
 	/* Histogram of fraction of bits set.  */
-	i = size ? (count*BITSET_DENSITY_BINS)/size : 0;
+	i = size ? (count * BITSET_DENSITY_BINS) / size : 0;
 	if(i >= BITSET_DENSITY_BINS)
-		i = BITSET_DENSITY_BINS-1;
+		i = BITSET_DENSITY_BINS - 1;
 	BITSET_STATS_LIST_DENSITY_INC(bset->s.bset, i);
 	return count;
 }
 
 static bitset_bindex bitset_stats_list_reverse(bitset bset, bitset_bindex * list,
-	bitset_bindex num, bitset_bindex * next)
+    bitset_bindex num, bitset_bindex * next)
 {
 	return BITSET_LIST_REVERSE_(bset->s.bset, list, num, next);
 }
@@ -545,7 +567,7 @@ struct bitset_vtable bitset_stats_vtable = {
 };
 
 /* Return enclosed bitset type.  */
-enum bitset_type bitset_stats_type_get(bitset bset)
+enum bitset_type bitset_stats_type_get(bitset bset)                 
 {
 	return BITSET_TYPE_(bset->s.bset);
 }
@@ -559,49 +581,40 @@ bitset bitset_stats_init(bitset bset, bitset_bindex n_bits, enum bitset_type typ
 {
 	size_t bytes;
 	bitset sbset;
-
 	bset->b.vtable = &bitset_stats_vtable;
-
 	/* Disable cache.  */
 	bset->b.cindex = 0;
 	bset->b.csize = 0;
 	bset->b.cdata = 0;
-
 	BITSET_NBITS_(bset) = n_bits;
-
 	/* Set up the actual bitset implementation that
 	   we are a wrapper over.  */
 	switch(type) {
-	    default:
-		abort();
-	    case BITSET_ARRAY:
-		bytes = abitset_bytes(n_bits);
-		sbset = (bitset)xcalloc(1, bytes);
-		abitset_init(sbset, n_bits);
-		break;
-
-	    case BITSET_LIST:
-		bytes = lbitset_bytes(n_bits);
-		sbset = (bitset)xcalloc(1, bytes);
-		lbitset_init(sbset, n_bits);
-		break;
-
-	    case BITSET_TABLE:
-		bytes = ebitset_bytes(n_bits);
-		sbset = (bitset)xcalloc(1, bytes);
-		ebitset_init(sbset, n_bits);
-		break;
-
-	    case BITSET_VARRAY:
-		bytes = vbitset_bytes(n_bits);
-		sbset = (bitset)xcalloc(1, bytes);
-		vbitset_init(sbset, n_bits);
-		break;
+		default:
+		    abort();
+		case BITSET_ARRAY:
+		    bytes = abitset_bytes(n_bits);
+		    sbset = (bitset)xcalloc(1, bytes);
+		    abitset_init(sbset, n_bits);
+		    break;
+		case BITSET_LIST:
+		    bytes = lbitset_bytes(n_bits);
+		    sbset = (bitset)xcalloc(1, bytes);
+		    lbitset_init(sbset, n_bits);
+		    break;
+		case BITSET_TABLE:
+		    bytes = ebitset_bytes(n_bits);
+		    sbset = (bitset)xcalloc(1, bytes);
+		    ebitset_init(sbset, n_bits);
+		    break;
+		case BITSET_VARRAY:
+		    bytes = vbitset_bytes(n_bits);
+		    sbset = (bitset)xcalloc(1, bytes);
+		    vbitset_init(sbset, n_bits);
+		    break;
 	}
 	bset->s.bset = sbset;
-
 	BITSET_STATS_ALLOCS_INC(type);
-
 	return bset;
 }
 

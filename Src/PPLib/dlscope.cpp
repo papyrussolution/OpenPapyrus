@@ -6,7 +6,7 @@
 //
 //
 //
-static long MakeSdRecFlags(uint kind)
+static long FASTCALL MakeSdRecFlags(uint kind)
 {
 	if(kind == DlScope::kEnum)
 		return SdRecord::fEnum;
@@ -16,22 +16,14 @@ static long MakeSdRecFlags(uint kind)
 		return 0;
 }
 
-SLAPI DlScope::DlScope(DLSYMBID id, uint kind, const char * pName, int prototype) : SdRecord(MakeSdRecFlags(kind))
+SLAPI DlScope::DlScope(DLSYMBID id, uint kind, const char * pName, int prototype) : SdRecord(MakeSdRecFlags(kind)),
+	ScFlags(0), Kind(kind), DvFlags(0), BaseId(0), ParentId(0), Version(0), P_Parent(0),
+	P_Base(0), P_IfaceBaseList(0), P_DbIdxSegFlags(0)
 {
 	ID = id;
 	Name = pName;
-	ScFlags  = 0;
 	if(prototype)
 		ScFlags |= sfPrototype;
-	Kind     = kind;
-	DvFlags  = 0;
-	BaseId   = 0;
-	ParentId = 0;
-	Version  = 0;
-	P_Parent = 0;
-	P_Base   = 0;
-	P_IfaceBaseList = 0;
-	P_DbIdxSegFlags = 0;
 	FixDataBuf.Init();
 #ifdef DL600C // {
 	LastLocalId = 0;
@@ -39,13 +31,9 @@ SLAPI DlScope::DlScope(DLSYMBID id, uint kind, const char * pName, int prototype
 }
 
 SLAPI DlScope::DlScope(const DlScope & s) :
-	SdRecord() // Ёто - не copy-constructor так как функци€ копировани€ сделает
-		// работу, которую должен был выполнить copy-constructor базового класса
+	SdRecord(), // Ёто - не copy-constructor так как функци€ копировани€ сделает работу, которую должен был выполнить copy-constructor базового класса
+	P_Parent(0), P_Base(0), P_IfaceBaseList(0), P_DbIdxSegFlags(0)
 {
-	P_Parent = 0;
-	P_Base   = 0;
-	P_IfaceBaseList = 0;
-	P_DbIdxSegFlags = 0;
 	FixDataBuf.Init();
 	Copy(s, 0);
 }
@@ -354,11 +342,10 @@ int SLAPI DlScope::EnumInheritance(uint * pIdx, const DlScope ** ppScope) const
 	return 0;
 }
 
-int SLAPI DlScope::SetupTitle(uint kind, const char * pName)
+void SLAPI DlScope::SetupTitle(uint kind, const char * pName)
 {
 	Kind = kind;
 	Name = pName;
-	return 1;
 }
 
 int SLAPI DlScope::GetQualif(DLSYMBID id, const char * pDiv, int inverse, SString & rBuf) const
@@ -401,10 +388,9 @@ int SLAPI DlScope::IsPrototype() const
 	return BIN(ScFlags & sfPrototype);
 }
 
-int SLAPI DlScope::ResetPrototypeFlag()
+void SLAPI DlScope::ResetPrototypeFlag()
 {
 	ScFlags &= ~sfPrototype;
-	return 1;
 }
 
 int FASTCALL DlScope::SetRecord(const DlScope * pRec)
@@ -474,28 +460,6 @@ const DlScope * SLAPI DlScope::SearchByName_Const(uint kind, const char * pName,
 DlScope * SLAPI DlScope::SearchByName(uint kind, const char * pName, DLSYMBID * pParentID)
 {
 	return (DlScope *)SearchByName_Const(kind, pName, pParentID);
-	/*
-	DLSYMBID parent_id = 0;
-	DlScope * p_scope = 0;
-	if(pName && pName[0]) {
-		if((!kind || Kind == kind) && Name.Cmp(pName, 0) == 0) {
-			p_scope = this;
-		}
-		else {
-			uint   c = ChildList.getCount();
-			if(c) do {
-				DlScope * p_parent = ChildList.at(--c);
-				p_scope = p_parent->SearchByName(kind, pName, &parent_id); // @resursion
-				if(p_scope) {
-					SETIFZ(parent_id, p_parent->ID);
-					break;
-				}
-			} while(c);
-		}
-	}
-	ASSIGN_PTR(pParentID, parent_id);
-	return p_scope;
-	*/
 }
 
 DlScope * SLAPI DlScope::SearchByID(DLSYMBID id, DLSYMBID * pParentID)
@@ -577,7 +541,7 @@ DLSYMBID SLAPI DlScope::EnterScope(DLSYMBID parentId, DLSYMBID newScopeID, uint 
 int SLAPI DlScope::LeaveScope(DLSYMBID scopeID, DLSYMBID * pParentID)
 {
 	DlScope * p_scope = SearchByID(scopeID, pParentID);
-	return p_scope ? 1 : 0;
+	return BIN(p_scope);
 }
 
 int FASTCALL DlScope::InitInheritance(const DlScope * pTopScope)
@@ -696,21 +660,11 @@ int SLAPI DlScope::GetIfaceBase(uint pos, IfaceBase * pEntry) const
 	return ok;
 }
 
-int FASTCALL DlScope::SetAttrib(const Attr & rAttr)
+void FASTCALL DlScope::SetAttrib(const Attr & rAttr)
 {
-	int    ok = 1;
-	// @v5.7.1 if(oneof4(rAttr.A, sfHidden, sfRestricted, sfVersion, sfNoIDL)) {
-		ScFlags |= rAttr.A;
-		if(rAttr.A == sfVersion)
-			Version = rAttr.Ver;
-	/* @v5.7.1
-		ok = 1;
-	}
-	else {
-		ok = 0;
-	}
-	*/
-	return ok;
+	ScFlags |= rAttr.A;
+	if(rAttr.A == sfVersion)
+		Version = rAttr.Ver;
 }
 
 int SLAPI DlScope::GetAttrib(uint attrFlag /* DlScope::sfXXX */, Attr * pAttr) const
@@ -835,7 +789,7 @@ static DlScopePropIdAssoc DlScopePropIdAssocList[] = {
 int FASTCALL DlScope::GetPropSymb(int propId, SString & rSymb)
 {
 	int    ok = 0;
-	rSymb = 0;
+	rSymb.Z();
 	for(uint i = 0; !ok && i < SIZEOFARRAY(DlScopePropIdAssocList); i++)
 		if(DlScopePropIdAssocList[i].Id == propId) {
 			rSymb = DlScopePropIdAssocList[i].P_Text;

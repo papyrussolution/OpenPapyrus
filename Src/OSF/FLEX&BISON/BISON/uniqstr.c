@@ -1,6 +1,6 @@
 /* Keep a unique copy of strings.
 
-   Copyright (C) 2002-2005, 2009-2011 Free Software Foundation, Inc.
+   Copyright (C) 2002-2005, 2009-2015 Free Software Foundation, Inc.
 
    This file is part of Bison, the GNU Compiler Compiler.
 
@@ -19,11 +19,12 @@
 
 #include <config.h>
 #include "system.h"
+
 #include <error.h>
 #include <hash.h>
 #include <quotearg.h>
-#include <stdio.h>
 #include <stdarg.h>
+
 #include "uniqstr.h"
 
 /*-----------------------.
@@ -41,7 +42,7 @@ static struct hash_table * uniqstrs_table = NULL;
 
 uniqstr uniqstr_new(char const * str)
 {
-	uniqstr res = hash_lookup(uniqstrs_table, str);
+	uniqstr res = (uniqstr)hash_lookup(uniqstrs_table, str);
 	if(!res) {
 		/* First insertion in the hash. */
 		res = xstrdup(str);
@@ -52,21 +53,24 @@ uniqstr uniqstr_new(char const * str)
 }
 
 /* arg list should be with char* only and end with NULL */
-char * uniqstr_get_format(char const * aaa, ...)
+char* uniqstr_get_format(char const * aaa, ...)
 {
 	static char format[50] = {0};
-	char * arg = NULL;
+	char* arg = NULL;
 	int i = 0;
 	va_list args;
+
 	va_start(args, aaa);
-	arg = va_arg(args, char *);
+	arg = va_arg(args, char*);
 	while(arg) {
 		format[i++] = '%';
 		format[i++] = 's';
-		arg = va_arg(args, char *);
+		arg = va_arg(args, char*);
 	}
 	va_end(args);
+
 	format[i] = 0;
+
 	return format;
 }
 
@@ -77,9 +81,9 @@ uniqstr uniqstr_vsprintf(char const * format, ...)
 	size_t length;
 	uniqstr result;
 	va_start(args, format);
-	length = _vsnprintf(NULL, 0, format, args);
+	length = vsnprintf(NULL, 0, format, args);
 	va_end(args);
-	res = malloc(sizeof(char)*(length+1));
+	res = (char*)malloc(sizeof(char)*(length+1));
 	//char res[length + 1];
 	va_start(args, format);
 	vsprintf(res, format, args);
@@ -95,8 +99,10 @@ uniqstr uniqstr_vsprintf(char const * format, ...)
 
 void uniqstr_assert(char const * str)
 {
-	if(!hash_lookup(uniqstrs_table, str)) {
-		error(0, 0, "not a uniqstr: %s", quotearg(str));
+	uniqstr s = (uniqstr)hash_lookup(uniqstrs_table, str);
+	if(!s || s != str) {
+		error(0, 0,
+		    "not a uniqstr: %s", quotearg(str));
 		abort();
 	}
 }
@@ -105,7 +111,7 @@ void uniqstr_assert(char const * str)
 | Print the uniqstr.  |
    `--------------------*/
 
-static bool uniqstr_print(uniqstr ustr)
+static inline bool uniqstr_print(uniqstr ustr)
 {
 	fprintf(stderr, "%s\n", ustr);
 	return true;
@@ -113,7 +119,15 @@ static bool uniqstr_print(uniqstr ustr)
 
 static bool uniqstr_print_processor(void * ustr, void * null ATTRIBUTE_UNUSED)
 {
-	return uniqstr_print(ustr);
+	return uniqstr_print((uniqstr)ustr);
+}
+
+int uniqstr_cmp(uniqstr l, uniqstr r)
+{
+	return (l == r ? 0
+	    : !l ? -1
+	    : !r ? +1
+	    : strcmp(l, r));
 }
 
 /*-----------------------.
@@ -122,12 +136,12 @@ static bool uniqstr_print_processor(void * ustr, void * null ATTRIBUTE_UNUSED)
 
 static bool hash_compare_uniqstr(void const * m1, void const * m2)
 {
-	return strcmp(m1, m2) == 0;
+	return STREQ((const char *)m1, (const char *)m2);
 }
 
 static size_t hash_uniqstr(void const * m, size_t tablesize)
 {
-	return hash_string(m, tablesize);
+	return hash_string((const char *)m, tablesize);
 }
 
 /*----------------------------.
@@ -136,7 +150,11 @@ static size_t hash_uniqstr(void const * m, size_t tablesize)
 
 void uniqstrs_new(void)
 {
-	uniqstrs_table = hash_initialize(HT_INITIAL_CAPACITY, NULL, hash_uniqstr, hash_compare_uniqstr, free);
+	uniqstrs_table = hash_initialize(HT_INITIAL_CAPACITY,
+	    NULL,
+	    hash_uniqstr,
+	    hash_compare_uniqstr,
+	    free);
 }
 
 /*-------------------------------------.

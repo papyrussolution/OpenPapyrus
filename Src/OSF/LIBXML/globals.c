@@ -24,26 +24,17 @@
 #else
 	#define IS_MAIN_THREAD 1
 #endif
-
-/*
- * Mutex to protect "ForNewThreads" variables
- */
-static xmlMutex * xmlThrDefMutex = NULL;
-
-/**
- * xmlInitGlobals:
- *
- * Additional initialisation for multi-threading
- */
+static xmlMutex * xmlThrDefMutex = NULL; // Mutex to protect "ForNewThreads" variables
+// 
+// Additional initialisation for multi-threading
+// 
 void xmlInitGlobals()
 {
 	SETIFZ(xmlThrDefMutex, xmlNewMutex());
 }
-/**
- * xmlCleanupGlobals:
- *
- * Additional cleanup for multi-threading
- */
+// 
+// Additional cleanup for multi-threading
+// 
 void xmlCleanupGlobals()
 {
 	xmlFreeMutex(xmlThrDefMutex);

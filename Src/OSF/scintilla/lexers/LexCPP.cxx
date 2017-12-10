@@ -942,7 +942,7 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 			    else if(oneof2(sc.ch, '[', '{')) {
 				    seenDocKeyBrace = true;
 			    }
-			    else if(!setDoxygen.Contains(sc.ch) && !(seenDocKeyBrace && oneof2(sc.ch, ',', '.'))) { 
+			    else if(!setDoxygen.Contains(sc.ch) && !(seenDocKeyBrace && oneof2(sc.ch, ',', '.'))) {
 					char s[100];
 				    if(caseSensitive) {
 					    sc.GetCurrent(s, sizeof(s));
@@ -1308,9 +1308,7 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 						}
 						else if(sc.Match("undef")) {
 							if(options.updatePreprocessor && !preproc.IsInactive()) {
-								const std::string restOfLine = GetRestOfLine(styler,
-								    sc.currentPos + 5,
-								    false);
+								const std::string restOfLine = GetRestOfLine(styler, sc.currentPos + 5, false);
 								std::vector<std::string> tokens = Tokenize(restOfLine);
 								if(tokens.size() >= 1) {
 									const std::string key = tokens[0];

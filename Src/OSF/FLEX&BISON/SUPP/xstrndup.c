@@ -16,9 +16,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include <config.h>
-
-/* Specification.  */
-#include "xstrndup.h"
+#include "xstrndup.h" // Specification
 #include <string.h>
 #include "xalloc.h"
 
@@ -27,8 +25,8 @@
    STRING.  */
 char * xstrndup(const char * string, size_t n)
 {
-	size_t len = strlen(string)+1; // @sobolev strnlen(string, n)-->strlen(string)
-	char * s = xmalloc(sizeof(char)*len);
+	size_t len = strnlen(string, n)+1;
+	char * s = (char *)xmalloc(sizeof(char)*len);
 	strncpy(s, string, n);
 	s[n] = 0;
 	return s;

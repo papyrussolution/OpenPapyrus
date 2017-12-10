@@ -10252,6 +10252,14 @@
 	#define CTL_VETISCFG_USER         (1 + WINDOWS_ID_BIAS)
 	#define CTL_VETISCFG_PASSW        (2 + WINDOWS_ID_BIAS)
 	#define CTL_VETISCFG_APIKEY       (3 + WINDOWS_ID_BIAS)
+#define DLG_PHNCPANE              1332
+	#define cmNewContact              101
+	#define CTL_PHNCPANE_PHN          (1 + WINDOWS_ID_BIAS)
+	#define CTL_PHNCPANE_NAME         (2 + WINDOWS_ID_BIAS)
+	#define CTL_PHNCPANE_ST_INFO      (3 + WINDOWS_ID_BIAS)
+	#define CTL_PHNCPANE_INFOLIST     (4 + WINDOWS_ID_BIAS)
+	#define CTL_PHNCPANE_INFSEL       (5 + WINDOWS_ID_BIAS)
+	#define CTLSEL_PHNCPANE_INFSEL    (6 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

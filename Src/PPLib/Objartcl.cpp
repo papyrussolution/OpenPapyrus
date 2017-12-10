@@ -1504,7 +1504,7 @@ int SLAPI PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 int SLAPI PPObjArticle::SearchAssocObjRef(PPID _obj, PPID _id, PPID * pAccSheetID, PPID kind, PPID * pID)
 {
 	int    r;
-	PPID   acc_sheet_id = pAccSheetID ? *pAccSheetID : 0;
+	PPID   acc_sheet_id = DEREFPTRORZ(pAccSheetID);
 	PPAccSheet acs_rec;
 	PPObjAccSheet as_obj;
 	ASSIGN_PTR(pID, 0);

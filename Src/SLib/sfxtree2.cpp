@@ -238,30 +238,18 @@ IMPL_CMPFUNC(SfxTreeChr, p1, p2)
     if(p_st) {
 		const uint item_size = p_st->GetItemSize();
         switch(item_size) {
-			case 1:
-				result = CMPSIGN(*PTR8(p1), *PTR8(p2));
-				break;
-			case 2:
-				result = CMPSIGN(*PTR16(p1), *PTR16(p2));
-				break;
-			case 4:
-				result = CMPSIGN(*PTR32(p1), *PTR32(p2));
-				break;
-			case 8:
-				result = CMPSIGN(*PTR64(p1), *PTR64(p2));
-				break;
-			default:
-				result = memcmp(p1, p2, item_size);
-				break;
+			case 1: result = CMPSIGN(*PTR8(p1), *PTR8(p2)); break;
+			case 2: result = CMPSIGN(*PTR16(p1), *PTR16(p2)); break;
+			case 4: result = CMPSIGN(*PTR32(p1), *PTR32(p2)); break;
+			case 8: result = CMPSIGN(*PTR64(p1), *PTR64(p2)); break;
+			default: result = memcmp(p1, p2, item_size); break;
         }
     }
     return result;
 }
 
-SSuffixTree::String::String(uint itemSize, uint32 id) : SVector(itemSize, /*128,*/O_ARRAY) // @v9.8.4 SArray-->SVector
+SSuffixTree::String::String(uint itemSize, uint32 id) : SVector(itemSize, O_ARRAY), ID(id), PhasePosition(0) // @v9.8.4 SArray-->SVector
 {
-	ID = id;
-	PhasePosition = 0;
 }
 
 SSuffixTree::StringArray::StringArray() : TSArray <SSuffixTree::String> (aryDataOwner|aryEachItem)
@@ -351,11 +339,8 @@ SSuffixTree::IndexBase & FASTCALL SSuffixTree::IndexBase::operator = (const SSuf
 //
 //
 //
-SSuffixTree::PathEnd::PathEnd()
+SSuffixTree::PathEnd::PathEnd() : NodeP(0), EdgeP(0), Offset(0)
 {
-	NodeP = 0;
-	EdgeP = 0;
-	Offset = 0;
 }
 
 void FASTCALL SSuffixTree::PathEnd::SetNode(uint nodeP)
@@ -395,27 +380,21 @@ void SSuffixTree::PathEnd::Advance(const SSuffixTree & rT, uint edgeP)
 //
 //
 //
-SSuffixTree::Edge::Edge() : SSuffixTree::IndexBase()
+SSuffixTree::Edge::Edge() : SSuffixTree::IndexBase(), SrcNodeP(0), DestNodeP(0)
 {
-	SrcNodeP = 0;
-	DestNodeP = 0;
 }
 //
 //
 //
-SSuffixTree::Node::Node()
+SSuffixTree::Node::Node() : UpEdgeP(0), SfxLinkNodeP(0), EdgeHubP(0)
 {
-	UpEdgeP = 0;
-	SfxLinkNodeP = 0;
-	EdgeHubP = 0;
 }
 //
 //
 //
-SSuffixTree::EdgeHub::EdgeHub()
+SSuffixTree::EdgeHub::EdgeHub() : Count(0)
 {
 	assert(sizeof(I) >= sizeof(Ptr));
-	Count = 0;
 	memzero(I, sizeof(I));
 }
 
@@ -509,15 +488,11 @@ void FASTCALL SSuffixTree::EdgeHubArray::freeItem(void * pItem)
 //
 //
 //
-SSuffixTree::SSuffixTree(uint32 itemSize) : Alphabet(itemSize, 0)
+SSuffixTree::SSuffixTree(uint32 itemSize) : Alphabet(itemSize, 0), ItemSize(itemSize), Flags(0), RootNodeP(0), LastStrAutoId(0)
 {
 	assert(oneof4(itemSize, 1, 2, 4, 8));
-	ItemSize = itemSize;
 	//P_Phase = 0;
 	//Ext = 0;
-	Flags = 0;
-	RootNodeP = 0;
-	LastStrAutoId = 0;
 	{
 		// Нулевая позиция списка строк - эксклюзивная
 		CreateString(0);
@@ -545,7 +520,7 @@ uint SSuffixTree::GetItemSize() const
 uint FASTCALL SSuffixTree::CreateString(uint32 * pId)
 {
 	uint   new_pos = 0;
-	uint32 new_id = pId ? *pId : 0;
+	uint32 new_id = DEREFPTRORZ(pId);
 	if(new_id == 0) {
 		do {
 			new_id = ++LastStrAutoId;

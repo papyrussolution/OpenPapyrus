@@ -28,10 +28,8 @@ int SLAPI SlSession::ShutdownGdiplus()
 	return 1;
 }
 
-SImage::SImage()
+SImage::SImage() : P_Image(0), ClearColor(RGB(0xD4, 0xD0, 0xC8))
 {
-	P_Image = 0;
-	ClearColor = RGB(0xD4, 0xD0, 0xC8);
 }
 
 SImage::~SImage()

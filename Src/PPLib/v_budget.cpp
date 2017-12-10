@@ -1404,9 +1404,8 @@ int SLAPI PPViewBudget::Init_(const PPBaseFilt * pFilt)
 		{
 			class BudgetItemsCrosstab : public Crosstab {
 			public:
-				SLAPI  BudgetItemsCrosstab(PPViewBudget * pV) : Crosstab()
+				SLAPI  BudgetItemsCrosstab(PPViewBudget * pV) : Crosstab(), P_V(pV)
 				{
-					P_V = pV;
 				}
 				virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 				{

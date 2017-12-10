@@ -14,22 +14,16 @@ static int FASTCALL substFCMP(const void * i1, const void * i2, void * pExtraDat
 //
 // ListBoxDef
 //
-SLAPI ListBoxDef::ListBoxDef(uint aOptions, TYPEID aType)
+SLAPI ListBoxDef::ListBoxDef(uint aOptions, TYPEID aType) : Options(aOptions), Format(0), Type(aType), 
+	ViewHight(1), TopItem(0), CurItem(0), CFlags(0), ScrollDelta(0)
 {
-	Options   = aOptions;
-	Format    = 0;
-	Type      = aType;
-	ViewHight = 1;
-	TopItem   = CurItem = 0;
-	CFlags = 0;
-	ScrollDelta = 0; // @v7.2.8
-	SetCapability(0, LBDEFSIGN_DEFAULT); // @v7.8.1
+	SetCapability(0, LBDEFSIGN_DEFAULT);
 	UserData.Init();
 }
 
 SLAPI ListBoxDef::~ListBoxDef()
 {
-	Sign = 0; // @v7.8.1 Помечаем instance как разрушенный
+	Sign = 0; // Помечаем instance как разрушенный
 	UserData.Destroy();
 }
 
@@ -351,9 +345,8 @@ StrAssocArray * ListBoxDef::GetListByPattern(const char * pText)
 //
 // StdListBoxDef
 //
-SLAPI StdListBoxDef::StdListBoxDef(SArray * pArray, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t)
+SLAPI StdListBoxDef::StdListBoxDef(SArray * pArray, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), P_Data(pArray)
 {
-	P_Data = pArray;
 	SetCapability(ListBoxDef::cCountable|ListBoxDef::cFullInMem, LBDEFSIGN_STD);
 	top();
 }
@@ -446,10 +439,9 @@ int SLAPI StdListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMo
 //
 //
 SLAPI StrAssocListBoxDef::StrAssocListBoxDef(StrAssocArray * pList, uint options) :
-	ListBoxDef(options, MKSTYPE(S_ZSTRING, 252))
+	ListBoxDef(options, MKSTYPE(S_ZSTRING, 252)), P_Data(pList)
 {
 	OneItem.Init();
-	P_Data = pList;
 	SetCapability(ListBoxDef::cCountable|ListBoxDef::cFullInMem, LBDEFSIGN_STRASSOC);
 	top();
 }
@@ -570,9 +562,8 @@ void SLAPI StrAssocListBoxDef::freeAll()
 // StdTreeListBoxDef
 //
 SLAPI StdTreeListBoxDef::StdTreeListBoxDef(StrAssocArray * pList, uint aOptions, TYPEID t) :
-	ListBoxDef(aOptions, t), T(sizeof(TreeItem))
+	ListBoxDef(aOptions, t), T(sizeof(TreeItem)), P_SaList(0)
 {
-	P_SaList = 0;
 	SetCapability(ListBoxDef::cTree|ListBoxDef::cFullInMem, LBDEFSIGN_STDTREE);
 	setArray(pList);
 }
@@ -877,9 +868,8 @@ void SLAPI StringListBoxDef::freeAll()
 //
 // DBQListBoxDef
 //
-SLAPI DBQListBoxDef::DBQListBoxDef(DBQuery & rQuery, uint aOptions, uint aBufSize) : ListBoxDef(aOptions, 0)
+SLAPI DBQListBoxDef::DBQListBoxDef(DBQuery & rQuery, uint aOptions, uint aBufSize) : ListBoxDef(aOptions, 0), query(0)
 {
-	query = 0;
 	SetCapability(0, LBDEFSIGN_DBQ);
 	setQuery(rQuery, aBufSize);
 }

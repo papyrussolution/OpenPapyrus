@@ -55,19 +55,10 @@ uint SLAPI BroGroup::NextColumn() const
 //
 //
 //
-SLAPI BrowserDef::BrowserDef(int captionHight, unsigned aOptions, void * extraPtr /*=0*/) :
-	SArray(sizeof(BroColumn), /*8,*/ aryDataOwner|aryEachItem)
+SLAPI BrowserDef::BrowserDef(int captionHight, unsigned aOptions, void * extraPtr /*=0*/) : SArray(sizeof(BroColumn), aryDataOwner|aryEachItem),
+	capHight(captionHight), options(aOptions), NumGroups(0), P_Groups(0), viewHight(1), topItem(0), curItem(0), scrollDelta(0), P_CtList(0),
+	ExtraPtr(extraPtr), UserProc(0)
 {
-	capHight = captionHight;
-	options = aOptions;
-	NumGroups = 0;
-	P_Groups = 0;
-	viewHight = 1;
-	topItem = curItem = 0;
-	scrollDelta = 0;
-	P_CtList = 0;
-	ExtraPtr = extraPtr;
-	UserProc = 0;
 }
 
 SLAPI BrowserDef::~BrowserDef()
@@ -689,10 +680,8 @@ int SLAPI BrowserDef::search(void * pattern, CompFunc /*cfn*/, int srchMode, int
 //
 //
 SLAPI AryBrowserDef::AryBrowserDef(SArray * pAry, const BNFieldList * pFl, int captionHight, uint aOptions, void * extraPtr /*=0*/) :
-	BrowserDef(captionHight, aOptions, extraPtr)
+	BrowserDef(captionHight, aOptions, extraPtr), P_Array(0), P_Fields(0)
 {
-	P_Array = 0;
-	P_Fields = 0;
 	setArray(pAry, pFl, 1);
 }
 

@@ -517,13 +517,8 @@ int SLAPI DlRtm::InitScope(const DlScope * pScope, int topLevel)
 	return ok;
 }
 
-DlRtm::DlRtm(DlContext * pCtx, DlScope * pScope)
+DlRtm::DlRtm(DlContext * pCtx, DlScope * pScope) : P_Ep(0), P_Ctx(pCtx), DataId(0), P_Data(0), P_HdrScope(0)
 {
-	P_Ep = 0;
-	P_Ctx = pCtx;
-	DataId = 0;
-	P_Data = 0;
-	P_HdrScope = 0;
 	THROW_MEM(Extra = (ExtData *)SAlloc::C((size_t)32, sizeof(ExtData)));
 	IterList.Init();
 	if(P_Ctx && pScope) {

@@ -29,6 +29,9 @@
     <ClCompile Include="..\SOAP\CLIENT\VETIS\vetisamsEnterpriseServiceBindingProxy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\SOAP\CLIENT\VETIS\vetisamsProductServiceBindingProxy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\SOAP\CLIENT\VETIS\stub-wsdl" />
@@ -50,6 +53,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\SOAP\CLIENT\VETIS\vetisamsEnterpriseServiceBindingProxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SOAP\CLIENT\VETIS\vetisamsProductServiceBindingProxy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

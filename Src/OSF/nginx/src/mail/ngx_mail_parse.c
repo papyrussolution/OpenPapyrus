@@ -185,36 +185,34 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 			case sw_start:
 			    switch(ch) {
 				    case ' ':
-					s->tag.len = p - s->buffer->start + 1;
-					s->tag.data = s->buffer->start;
-					state = sw_spaces_before_command;
-					break;
+						s->tag.len = p - s->buffer->start + 1;
+						s->tag.data = s->buffer->start;
+						state = sw_spaces_before_command;
+						break;
 				    case __CR:
-					s->state = sw_start;
-					return NGX_MAIL_PARSE_INVALID_COMMAND;
+						s->state = sw_start;
+						return NGX_MAIL_PARSE_INVALID_COMMAND;
 				    case LF:
-					s->state = sw_start;
-					return NGX_MAIL_PARSE_INVALID_COMMAND;
+						s->state = sw_start;
+						return NGX_MAIL_PARSE_INVALID_COMMAND;
 			    }
 			    break;
-
 			case sw_spaces_before_command:
 			    switch(ch) {
 				    case ' ':
-					break;
+						break;
 				    case __CR:
-					s->state = sw_start;
-					return NGX_MAIL_PARSE_INVALID_COMMAND;
+						s->state = sw_start;
+						return NGX_MAIL_PARSE_INVALID_COMMAND;
 				    case LF:
-					s->state = sw_start;
-					return NGX_MAIL_PARSE_INVALID_COMMAND;
+						s->state = sw_start;
+						return NGX_MAIL_PARSE_INVALID_COMMAND;
 				    default:
-					s->cmd_start = p;
-					state = sw_command;
-					break;
+						s->cmd_start = p;
+						state = sw_command;
+						break;
 			    }
 			    break;
-
 			case sw_command:
 			    if(oneof3(ch, ' ', __CR, LF)) {
 				    c = s->cmd_start;
@@ -262,15 +260,9 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 #endif
 
 					    case 10:
-						if((c[0] == 'C'|| c[0] == 'c')
-					    && (c[1] == 'A'|| c[1] == 'a')
-					    && (c[2] == 'P'|| c[2] == 'p')
-					    && (c[3] == 'A'|| c[3] == 'a')
-					    && (c[4] == 'B'|| c[4] == 'b')
-					    && (c[5] == 'I'|| c[5] == 'i')
-					    && (c[6] == 'L'|| c[6] == 'l')
-					    && (c[7] == 'I'|| c[7] == 'i')
-					    && (c[8] == 'T'|| c[8] == 't')
+						if((c[0] == 'C'|| c[0] == 'c') && (c[1] == 'A'|| c[1] == 'a') && (c[2] == 'P'|| c[2] == 'p')
+					    && (c[3] == 'A'|| c[3] == 'a') && (c[4] == 'B'|| c[4] == 'b') && (c[5] == 'I'|| c[5] == 'i')
+					    && (c[6] == 'L'|| c[6] == 'l') && (c[7] == 'I'|| c[7] == 'i') && (c[8] == 'T'|| c[8] == 't')
 					    && (c[9] == 'Y'|| c[9] == 'y')) {
 							s->command = NGX_IMAP_CAPABILITY;
 						}
@@ -347,7 +339,6 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 					goto invalid;
 			    }
 			    break;
-
 			case sw_argument:
 			    if(ch == ' ' && s->quoted) {
 				    break;
@@ -372,14 +363,9 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 
 					switch(ch) {
 						case '"':
-						case ' ':
-						    state = sw_spaces_before_argument;
-						    break;
-						case __CR:
-						    state = sw_almost_done;
-						    break;
-						case LF:
-						    goto done;
+						case ' ': state = sw_spaces_before_argument; break;
+						case __CR: state = sw_almost_done; break;
+						case LF: goto done;
 					}
 					break;
 				    case '\\':
@@ -415,7 +401,6 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 				    break;
 			    }
 			    goto invalid;
-
 			case sw_no_sync_literal_argument:
 			    if(ch == '}') {
 				    s->no_sync_literal = 1;
@@ -423,7 +408,6 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 				    break;
 			    }
 			    goto invalid;
-
 			case sw_start_literal_argument:
 			    switch(ch) {
 				    case __CR:
@@ -442,12 +426,10 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 					goto invalid;
 			    }
 			    break;
-
 			case sw_literal_argument:
 			    if(s->literal_len && --s->literal_len) {
 				    break;
 			    }
-
 			    arg = (ngx_str_t*)ngx_array_push(&s->args);
 			    if(!arg) {
 				    return NGX_ERROR;
@@ -456,9 +438,7 @@ ngx_int_t ngx_mail_imap_parse_command(ngx_mail_session_t * s)
 			    arg->data = s->arg_start;
 			    s->arg_start = NULL;
 			    state = sw_end_literal_argument;
-
 			    break;
-
 			case sw_end_literal_argument:
 			    switch(ch) {
 				    case '{':
@@ -584,14 +564,9 @@ ngx_int_t ngx_mail_smtp_parse_command(ngx_mail_session_t * s)
 #if (NGX_MAIL_SSL)
 				    }
 				    else if(p - c == 8) {
-					    if((c[0] == 'S'|| c[0] == 's')
-					    && (c[1] == 'T'|| c[1] == 't')
-					    && (c[2] == 'A'|| c[2] == 'a')
-					    && (c[3] == 'R'|| c[3] == 'r')
-					    && (c[4] == 'T'|| c[4] == 't')
-					    && (c[5] == 'T'|| c[5] == 't')
-					    && (c[6] == 'L'|| c[6] == 'l')
-					    && (c[7] == 'S'|| c[7] == 's')) {
+					    if((c[0] == 'S'|| c[0] == 's') && (c[1] == 'T'|| c[1] == 't') && (c[2] == 'A'|| c[2] == 'a')
+					    && (c[3] == 'R'|| c[3] == 'r') && (c[4] == 'T'|| c[4] == 't') && (c[5] == 'T'|| c[5] == 't')
+					    && (c[6] == 'L'|| c[6] == 'l') && (c[7] == 'S'|| c[7] == 's')) {
 						    s->command = NGX_SMTP_STARTTLS;
 					    }
 					    else {

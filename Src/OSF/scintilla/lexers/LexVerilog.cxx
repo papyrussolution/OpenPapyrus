@@ -19,13 +19,13 @@ namespace {
 // Use an unnamed namespace to protect the functions and classes from name conflicts
 
 struct PPDefinition {
+	PPDefinition(Sci_Position line_, const std::string &key_, const std::string &value_, bool isUndef_ = false, std::string arguments_ = "");
+
 	Sci_Position line;
 	std::string key;
 	std::string value;
 	bool isUndef;
 	std::string arguments;
-
-	PPDefinition(Sci_Position line_, const std::string &key_, const std::string &value_, bool isUndef_ = false, std::string arguments_ = "");
 };
 
 PPDefinition::PPDefinition(Sci_Position line_, const std::string &key_, const std::string &value_, bool isUndef_, std::string arguments_) :
@@ -34,17 +34,6 @@ PPDefinition::PPDefinition(Sci_Position line_, const std::string &key_, const st
 }
 
 class LinePPState {
-	int state;
-	int ifTaken;
-	int level;
-	bool ValidLevel() const
-	{
-		return level >= 0 && level < 32;
-	}
-	int maskLevel() const
-	{
-		return 1 << level;
-	}
 public:
 	LinePPState() : state(0), ifTaken(0), level(-1)
 	{
@@ -86,31 +75,52 @@ public:
 			ifTaken |= maskLevel();
 		}
 	}
+private:
+	bool ValidLevel() const
+	{
+		return level >= 0 && level < 32;
+	}
+	int maskLevel() const
+	{
+		return 1 << level;
+	}
+	int state;
+	int ifTaken;
+	int level;
 };
 
 // Hold the preprocessor state for each line seen.
 // Currently one entry per line but could become sparse with just one entry per preprocessor line.
 class PPStates {
-	std::vector<LinePPState> vlls;
 public:
 	LinePPState ForLine(Sci_Position line) const
 	{
-		if((line > 0) && (vlls.size() > static_cast<size_t>(line))) {
-			return vlls[line];
-		}
-		else {
-			return LinePPState();
-		}
+		return ((line > 0) && (vlls.size() > static_cast<size_t>(line))) ? vlls[line] : LinePPState();
 	}
 	void Add(Sci_Position line, LinePPState lls)
 	{
 		vlls.resize(line+1);
 		vlls[line] = lls;
 	}
+private:
+	std::vector<LinePPState> vlls;
 };
 
 // Options used for LexerVerilog
 struct OptionsVerilog {
+	OptionsVerilog()
+	{
+		foldComment = false;
+		foldPreprocessor = false;
+		foldPreprocessorElse = false;
+		foldCompact = false;
+		foldAtElse = false;
+		foldAtModule = false;
+		trackPreprocessor = false; // for backwards compatibility, preprocessor functionality is disabled by default
+		updatePreprocessor = false;
+		portStyling = false; // for backwards compatibility, treat input/output/inout as regular keywords
+		allUppercaseDocKeyword = false; // for backwards compatibility, don't treat all uppercase identifiers as documentation keywords
+	}
 	bool foldComment;
 	bool foldPreprocessor;
 	bool foldPreprocessorElse;
@@ -121,25 +131,9 @@ struct OptionsVerilog {
 	bool updatePreprocessor;
 	bool portStyling;
 	bool allUppercaseDocKeyword;
-	OptionsVerilog()
-	{
-		foldComment = false;
-		foldPreprocessor = false;
-		foldPreprocessorElse = false;
-		foldCompact = false;
-		foldAtElse = false;
-		foldAtModule = false;
-		// for backwards compatibility, preprocessor functionality is disabled by default
-		trackPreprocessor = false;
-		updatePreprocessor = false;
-		// for backwards compatibility, treat input/output/inout as regular keywords
-		portStyling = false;
-		// for backwards compatibility, don't treat all uppercase identifiers as documentation keywords
-		allUppercaseDocKeyword = false;
-	}
 };
 
-struct OptionSetVerilog : public OptionSet<OptionsVerilog> {
+struct OptionSetVerilog : public OptionSet <OptionsVerilog> {
 	OptionSetVerilog()
 	{
 		DefineProperty("fold.comment", &OptionsVerilog::foldComment, "This option enables folding multi-line comments when using the Verilog lexer.");
@@ -169,8 +163,6 @@ class LexerVerilog : public ILexerWithSubStyles {
 	PPStates vlls;
 	std::vector<PPDefinition> ppDefineHistory;
 	struct SymbolValue {
-		std::string value;
-		std::string arguments;
 		SymbolValue(const std::string &value_ = "", const std::string &arguments_ = "") : value(value_), arguments(arguments_)
 		{
 		}
@@ -184,13 +176,17 @@ class LexerVerilog : public ILexerWithSubStyles {
 		{
 			return !arguments.empty();
 		}
+		std::string value;
+		std::string arguments;
 	};
 
 	typedef std::map<std::string, SymbolValue> SymbolTable;
 	SymbolTable preprocessorDefinitionsStart;
 	OptionsVerilog options;
 	OptionSetVerilog osVerilog;
-	enum { activeFlag = 0x40 };
+	enum { 
+		activeFlag = 0x40 
+	};
 
 	SubStyles subStyles;
 
@@ -198,11 +194,14 @@ class LexerVerilog : public ILexerWithSubStyles {
 	//		foldExternFlag: EOL while parsing an extern function/task declaration terminated by ';'
 	//		foldWaitDisableFlag: EOL while parsing wait or disable statement, terminated by "fork" or '('
 	//		typdefFlag: EOL while parsing typedef statement, terminated by ';'
-	enum {foldExternFlag = 0x01, foldWaitDisableFlag = 0x02, typedefFlag = 0x04, protectedFlag = 0x08};
-
+	enum {
+		foldExternFlag      = 0x01, 
+		foldWaitDisableFlag = 0x02, 
+		typedefFlag         = 0x04, 
+		protectedFlag       = 0x08
+	};
 	// map using line number as key to store fold state information
 	std::map<Sci_Position, int> foldState;
-
 public:
 	LexerVerilog() : setWord(CharacterSet::setAlphaNum, "._", 0x80, true), subStyles(styleSubable, 0x80, 0x40, activeFlag)
 	{
@@ -370,7 +369,6 @@ static bool FASTCALL AllUpperCase(const char * a)
 
 // Functor used to truncate history
 struct After {
-	Sci_Position line;
 	explicit After(Sci_Position line_) : line(line_)
 	{
 	}
@@ -378,6 +376,7 @@ struct After {
 	{
 		return p.line > line;
 	}
+	Sci_Position line;
 };
 
 static std::string GetRestOfLine(LexAccessor &styler, Sci_Position start, bool allowSpace)
@@ -407,7 +406,7 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 	int lineState = kwOther;
 	bool continuationLine = false;
 	Sci_Position curLine = styler.GetLine(startPos);
-	if(curLine > 0) 
+	if(curLine > 0)
 		lineState = styler.GetLineState(curLine - 1);
 	// Do not leak onto next line
 	if(initStyle == SCE_V_STRINGEOL)
@@ -459,7 +458,6 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 				sc.SetState(sc.state | activitySet);
 			}
 		}
-
 		if(sc.atLineEnd) {
 			curLine++;
 			lineEndNext = styler.LineEnd(curLine);
@@ -468,7 +466,6 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 			styler.SetLineState(curLine, lineState);
 			isEscapedId = false;    // EOL terminates an escaped Identifier
 		}
-
 		// Handle line continuation generically.
 		if(sc.ch == '\\') {
 			if(static_cast<Sci_Position>((sc.currentPos+1)) >= lineEndNext) {
@@ -479,40 +476,30 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 				styler.SetLineState(curLine, lineState);
 				sc.Forward();
 				if(sc.ch == '\r' && sc.chNext == '\n') {
-					// Even in UTF-8, \r and \n are separate
-					sc.Forward();
+					sc.Forward(); // Even in UTF-8, \r and \n are separate
 				}
 				continuationLine = true;
 				sc.Forward();
 				continue;
 			}
 		}
-
 		// for comment keyword
 		if(MaskActive(sc.state) == SCE_V_COMMENT_WORD && !IsAWordChar(sc.ch)) {
 			char s[100];
 			int state = lineState & 0xff;
 			sc.GetCurrent(s, sizeof(s));
-			if(keywords5.InList(s)) {
-				sc.ChangeState(SCE_V_COMMENT_WORD|activitySet);
-			}
-			else {
-				sc.ChangeState(state|activitySet);
-			}
+			sc.ChangeState(keywords5.InList(s) ? (SCE_V_COMMENT_WORD|activitySet) : (state|activitySet));
 			sc.SetState(state|activitySet);
 		}
-
 		const bool atLineEndBeforeSwitch = sc.atLineEnd;
-
 		// Determine if the current state should terminate.
 		switch(MaskActive(sc.state)) {
 			case SCE_V_OPERATOR:
 			    sc.SetState(SCE_V_DEFAULT|activitySet);
 			    break;
 			case SCE_V_NUMBER:
-			    if(!(IsAWordChar(sc.ch) || (sc.ch == '?'))) {
+			    if(!(IsAWordChar(sc.ch) || (sc.ch == '?')))
 				    sc.SetState(SCE_V_DEFAULT|activitySet);
-			    }
 			    break;
 			case SCE_V_IDENTIFIER:
 			    if(!isEscapedId &&(!IsAWordChar(sc.ch) || (sc.ch == '.'))) {
@@ -531,35 +518,27 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 					    lineState = kwInout;
 					    sc.ChangeState(SCE_V_INOUT|activitySet);
 				    }
-				    else if(lineState == kwInput) {
+				    else if(lineState == kwInput)
 					    sc.ChangeState(SCE_V_INPUT|activitySet);
-				    }
-				    else if(lineState == kwOutput) {
+				    else if(lineState == kwOutput)
 					    sc.ChangeState(SCE_V_OUTPUT|activitySet);
-				    }
-				    else if(lineState == kwInout) {
+				    else if(lineState == kwInout)
 					    sc.ChangeState(SCE_V_INOUT|activitySet);
-				    }
 				    else if(lineState == kwDot) {
 					    lineState = kwOther;
 					    if(options.portStyling)
 						    sc.ChangeState(SCE_V_PORT_CONNECT|activitySet);
 				    }
-				    else if(keywords.InList(s)) {
+				    else if(keywords.InList(s))
 					    sc.ChangeState(SCE_V_WORD|activitySet);
-				    }
-				    else if(keywords2.InList(s)) {
+				    else if(keywords2.InList(s))
 					    sc.ChangeState(SCE_V_WORD2|activitySet);
-				    }
-				    else if(keywords3.InList(s)) {
+				    else if(keywords3.InList(s))
 					    sc.ChangeState(SCE_V_WORD3|activitySet);
-				    }
-				    else if(keywords4.InList(s)) {
+				    else if(keywords4.InList(s))
 					    sc.ChangeState(SCE_V_USER|activitySet);
-				    }
-				    else if(options.allUppercaseDocKeyword && AllUpperCase(s)) {
+				    else if(options.allUppercaseDocKeyword && AllUpperCase(s))
 					    sc.ChangeState(SCE_V_USER|activitySet);
-				    }
 				    sc.SetState(SCE_V_DEFAULT|activitySet);
 			    }
 			    break;
@@ -603,7 +582,6 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 			    }
 			    break;
 		}
-
 		if(sc.atLineEnd && !atLineEndBeforeSwitch) {
 			// State exit processing consumed characters up to end of line.
 			curLine++;
@@ -613,7 +591,6 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 			styler.SetLineState(curLine, lineState);
 			isEscapedId = false;    // EOL terminates an escaped Identifier
 		}
-
 		// Determine if a new state should be entered.
 		if(MaskActive(sc.state) == SCE_V_DEFAULT) {
 			if(sc.ch == '`') {
@@ -692,39 +669,32 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 							if(options.updatePreprocessor && !preproc.IsInactive()) {
 								std::string restOfLine = GetRestOfLine(styler, sc.currentPos + 6, true);
 								size_t startName = 0;
-								while((startName < restOfLine.length()) &&
-								    IsASpaceOrTab(restOfLine[startName]))
+								while((startName < restOfLine.length()) && IsASpaceOrTab(restOfLine[startName]))
 									startName++;
 								size_t endName = startName;
-								while((endName < restOfLine.length()) &&
-								    setWord.Contains(static_cast<uchar>(restOfLine[endName])))
+								while((endName < restOfLine.length()) && setWord.Contains(static_cast<uchar>(restOfLine[endName])))
 									endName++;
 								std::string key = restOfLine.substr(startName, endName-startName);
 								if((endName < restOfLine.length()) && (restOfLine.at(endName) == '(')) {
 									// Macro
 									size_t endArgs = endName;
-									while((endArgs < restOfLine.length()) &&
-									    (restOfLine[endArgs] != ')'))
+									while((endArgs < restOfLine.length()) && (restOfLine[endArgs] != ')'))
 										endArgs++;
-									std::string args = restOfLine.substr(endName + 1,
-									    endArgs - endName - 1);
+									std::string args = restOfLine.substr(endName + 1, endArgs - endName - 1);
 									size_t startValue = endArgs+1;
-									while((startValue < restOfLine.length()) &&
-									    IsASpaceOrTab(restOfLine[startValue]))
+									while((startValue < restOfLine.length()) && IsASpaceOrTab(restOfLine[startValue]))
 										startValue++;
 									std::string value;
 									if(startValue < restOfLine.length())
 										value = restOfLine.substr(startValue);
 									preprocessorDefinitions[key] = SymbolValue(value, args);
-									ppDefineHistory.push_back(PPDefinition(curLine, key, value, false,
-										    args));
+									ppDefineHistory.push_back(PPDefinition(curLine, key, value, false, args));
 									definitionsChanged = true;
 								}
 								else {
 									// Value
 									size_t startValue = endName;
-									while((startValue < restOfLine.length()) &&
-									    IsASpaceOrTab(restOfLine[startValue]))
+									while((startValue < restOfLine.length()) && IsASpaceOrTab(restOfLine[startValue]))
 										startValue++;
 									std::string value = restOfLine.substr(startValue);
 									preprocessorDefinitions[key] = value;
@@ -818,12 +788,10 @@ static bool IsCommentLine(Sci_Position line, LexAccessor &styler)
 		char ch = styler[i];
 		char chNext = styler.SafeGetCharAt(i + 1);
 		int style = styler.StyleAt(i);
-		if(ch == '/' && chNext == '/' && oneof2(style, SCE_V_COMMENTLINE, SCE_V_COMMENTLINEBANG)) {
+		if(ch == '/' && chNext == '/' && oneof2(style, SCE_V_COMMENTLINE, SCE_V_COMMENTLINEBANG))
 			return true;
-		}
-		else if(!IsASpaceOrTab(ch)) {
+		else if(!IsASpaceOrTab(ch))
 			return false;
-		}
 	}
 	return false;
 }
@@ -866,13 +834,11 @@ void SCI_METHOD LexerVerilog::Fold(Sci_PositionU startPos, Sci_Position length, 
 	if(foldStateIterator != foldState.end()) {
 		stateCurrent = foldStateIterator->second;
 	}
-
 	// remove all foldState entries after lineCurrent-1
 	foldStateIterator = foldState.upper_bound(lineCurrent-1);
 	if(foldStateIterator != foldState.end()) {
 		foldState.erase(foldStateIterator, foldState.end());
 	}
-
 	for(Sci_PositionU i = startPos; i < endPos; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i + 1);
@@ -882,31 +848,24 @@ void SCI_METHOD LexerVerilog::Fold(Sci_PositionU startPos, Sci_Position length, 
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
 		if(!(stateCurrent & protectedFlag)) {
 			if(options.foldComment && IsStreamCommentStyle(style)) {
-				if(!IsStreamCommentStyle(stylePrev)) {
+				if(!IsStreamCommentStyle(stylePrev))
 					levelNext++;
-				}
-				else if(!IsStreamCommentStyle(styleNext) && !atEOL) {
-					// Comments don't end at end of line and the next character may be unstyled.
-					levelNext--;
-				}
+				else if(!IsStreamCommentStyle(styleNext) && !atEOL)
+					levelNext--; // Comments don't end at end of line and the next character may be unstyled.
 			}
 			if(options.foldComment && atEOL && IsCommentLine(lineCurrent, styler)) {
-				if(!IsCommentLine(lineCurrent - 1, styler)
-				    && IsCommentLine(lineCurrent + 1, styler))
+				if(!IsCommentLine(lineCurrent - 1, styler) && IsCommentLine(lineCurrent + 1, styler))
 					levelNext++;
-				else if(IsCommentLine(lineCurrent - 1, styler)
-				    && !IsCommentLine(lineCurrent+1, styler))
+				else if(IsCommentLine(lineCurrent - 1, styler) && !IsCommentLine(lineCurrent+1, styler))
 					levelNext--;
 			}
 			if(options.foldComment && (style == SCE_V_COMMENTLINE)) {
 				if((ch == '/') && (chNext == '/')) {
 					char chNext2 = styler.SafeGetCharAt(i + 2);
-					if(chNext2 == '{') {
+					if(chNext2 == '{')
 						levelNext++;
-					}
-					else if(chNext2 == '}') {
+					else if(chNext2 == '}')
 						levelNext--;
-					}
 				}
 			}
 		}
@@ -926,28 +885,20 @@ void SCI_METHOD LexerVerilog::Fold(Sci_PositionU startPos, Sci_Position length, 
 			else if(!(stateCurrent & protectedFlag) && options.foldPreprocessor && (style == SCE_V_PREPROCESSOR)) {
 				if(styler.Match(j, "if")) {
 					if(options.foldPreprocessorElse) {
-						// Measure the minimum before a begin to allow
-						// folding on "end else begin"
-						if(levelMinCurrent > levelNext) {
-							levelMinCurrent = levelNext;
-						}
+						// Measure the minimum before a begin to allow folding on "end else begin"
+						SETMIN(levelMinCurrent, levelNext);
 					}
 					levelNext++;
 				}
 				else if(options.foldPreprocessorElse && styler.Match(j, "else")) {
 					levelNext--;
-					if(levelMinCurrent > levelNext) {
-						levelMinCurrent = levelNext;
-					}
+					SETMIN(levelMinCurrent, levelNext);
 					levelNext++;
 				}
 				else if(options.foldPreprocessorElse && styler.Match(j, "elsif")) {
 					levelNext--;
-					// Measure the minimum before a begin to allow
-					// folding on "end else begin"
-					if(levelMinCurrent > levelNext) {
-						levelMinCurrent = levelNext;
-					}
+					// Measure the minimum before a begin to allow folding on "end else begin"
+					SETMIN(levelMinCurrent, levelNext);
 					levelNext++;
 				}
 				else if(styler.Match(j, "endif")) {
@@ -957,12 +908,10 @@ void SCI_METHOD LexerVerilog::Fold(Sci_PositionU startPos, Sci_Position length, 
 		}
 		if(style == SCE_V_OPERATOR) {
 			if(foldAtParenthese) {
-				if(ch == '(') {
+				if(ch == '(')
 					levelNext++;
-				}
-				else if(ch == ')') {
+				else if(ch == ')')
 					levelNext--;
-				}
 			}
 			// semicolons terminate external declarations
 			if(ch == ';') {
@@ -971,57 +920,34 @@ void SCI_METHOD LexerVerilog::Fold(Sci_PositionU startPos, Sci_Position length, 
 					levelNext--;
 					stateCurrent &= ~foldExternFlag;
 				}
-				// wait and disable statements terminated by semicolon
-				if(stateCurrent & foldWaitDisableFlag) {
-					stateCurrent &= ~foldWaitDisableFlag;
-				}
-				// typedef statements terminated by semicolon
-				if(stateCurrent & typedefFlag) {
-					stateCurrent &= ~typedefFlag;
-				}
+				stateCurrent &= ~foldWaitDisableFlag; // wait and disable statements terminated by semicolon
+				stateCurrent &= ~typedefFlag; // typedef statements terminated by semicolon
 			}
 			// wait and disable statements containing '(' will not contain "fork" keyword, special processing is not needed
-			if(ch == '(') {
-				if(stateCurrent & foldWaitDisableFlag) {
-					stateCurrent &= ~foldWaitDisableFlag;
-				}
-			}
+			if(ch == '(')
+				stateCurrent &= ~foldWaitDisableFlag;
 		}
 		if(style == SCE_V_OPERATOR) {
 			if(foldAtBrace) {
-				if(ch == '{') {
+				if(ch == '{')
 					levelNext++;
-				}
-				else if(ch == '}') {
+				else if(ch == '}')
 					levelNext--;
-				}
 			}
 		}
 		if(style == SCE_V_WORD && stylePrev != SCE_V_WORD) {
 			Sci_PositionU j = i;
-			if(styler.Match(j, "case") ||
-			    styler.Match(j, "casex") ||
-			    styler.Match(j, "casez") ||
-			    styler.Match(j, "covergroup") ||
-			    styler.Match(j, "function") ||
-			    styler.Match(j, "generate") ||
-			    styler.Match(j, "interface") ||
-			    styler.Match(j, "package") ||
-			    styler.Match(j, "primitive") ||
-			    styler.Match(j, "program") ||
-			    styler.Match(j, "sequence") ||
-			    styler.Match(j, "specify") ||
-			    styler.Match(j, "table") ||
-			    styler.Match(j, "task") ||
-			    (styler.Match(j, "module") && options.foldAtModule)) {
+			if(styler.Match(j, "case") || styler.Match(j, "casex") || styler.Match(j, "casez") ||
+			    styler.Match(j, "covergroup") || styler.Match(j, "function") || styler.Match(j, "generate") ||
+			    styler.Match(j, "interface") || styler.Match(j, "package") || styler.Match(j, "primitive") ||
+			    styler.Match(j, "program") || styler.Match(j, "sequence") || styler.Match(j, "specify") ||
+			    styler.Match(j, "table") || styler.Match(j, "task") || (styler.Match(j, "module") && options.foldAtModule)) {
 				levelNext++;
 			}
 			else if(styler.Match(j, "begin")) {
 				// Measure the minimum before a begin to allow
 				// folding on "end else begin"
-				if(levelMinCurrent > levelNext) {
-					levelMinCurrent = levelNext;
-				}
+				SETMIN(levelMinCurrent, levelNext);
 				levelNext++;
 			}
 			else if(styler.Match(j, "class")) {
@@ -1031,39 +957,25 @@ void SCI_METHOD LexerVerilog::Fold(Sci_PositionU startPos, Sci_Position length, 
 			}
 			else if(styler.Match(j, "fork")) {
 				// fork does not introduce a block when used in a wait or disable statement
-				if(stateCurrent & foldWaitDisableFlag) {
+				if(stateCurrent & foldWaitDisableFlag)
 					stateCurrent &= ~foldWaitDisableFlag;
-				}
 				else
 					levelNext++;
 			}
-			else if(styler.Match(j, "endcase") ||
-			    styler.Match(j, "endclass") ||
-			    styler.Match(j, "endfunction") ||
-			    styler.Match(j, "endgenerate") ||
-			    styler.Match(j, "endgroup") ||
-			    styler.Match(j, "endinterface") ||
-			    styler.Match(j, "endpackage") ||
-			    styler.Match(j, "endprimitive") ||
-			    styler.Match(j, "endprogram") ||
-			    styler.Match(j, "endsequence") ||
-			    styler.Match(j, "endspecify") ||
-			    styler.Match(j, "endtable") ||
-			    styler.Match(j, "endtask") ||
-			    styler.Match(j, "join") ||
-			    styler.Match(j, "join_any") ||
-			    styler.Match(j, "join_none") ||
-			    (styler.Match(j, "endmodule") && options.foldAtModule) ||
+			else if(styler.Match(j, "endcase") || styler.Match(j, "endclass") || styler.Match(j, "endfunction") ||
+			    styler.Match(j, "endgenerate") || styler.Match(j, "endgroup") || styler.Match(j, "endinterface") ||
+			    styler.Match(j, "endpackage")  || styler.Match(j, "endprimitive") || styler.Match(j, "endprogram") ||
+			    styler.Match(j, "endsequence") || styler.Match(j, "endspecify") || styler.Match(j, "endtable") ||
+			    styler.Match(j, "endtask")     || styler.Match(j, "join") || styler.Match(j, "join_any") ||
+			    styler.Match(j, "join_none")   || (styler.Match(j, "endmodule") && options.foldAtModule) ||
 			    (styler.Match(j, "end") && !IsAWordChar(styler.SafeGetCharAt(j + 3)))) {
 				levelNext--;
 			}
-			else if(styler.Match(j, "extern") ||
-			    styler.Match(j, "pure")) {
+			else if(styler.Match(j, "extern") || styler.Match(j, "pure")) {
 				// extern and pure virtual functions/tasks are terminated by ';' not endfunction/endtask
 				stateCurrent |= foldExternFlag;
 			}
-			else if(styler.Match(j, "disable") ||
-			    styler.Match(j, "wait")) {
+			else if(styler.Match(j, "disable") || styler.Match(j, "wait")) {
 				// fork does not introduce a block when used in a wait or disable statement
 				stateCurrent |= foldWaitDisableFlag;
 			}

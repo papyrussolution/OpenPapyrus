@@ -533,7 +533,7 @@ double SLAPI PPGoodsStruc::GetDenom() const
 int SLAPI PPGoodsStruc::EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const
 {
 	int    ok = -1;
-	uint   p = pPos ? *pPos : 0;
+	uint   p = DEREFPTRORZ(pPos);
 	if(p < Items.getCount()) {
 		double qtty = 0.0;
 		PPGoodsStrucItem item = Items.at(p);
@@ -632,7 +632,7 @@ static int SLAPI IsNumber(const char * pStr, size_t * pPos)
 {
 	int    was_sign = 0;
 	int    was_dot = 0;
-	size_t pos = pPos ? *pPos : 0;
+	size_t pos = DEREFPTRORZ(pPos);
 	SString temp_buf;
 	while(pStr[pos] == ' ' || pStr[pos] == '\t')
 		pos++;

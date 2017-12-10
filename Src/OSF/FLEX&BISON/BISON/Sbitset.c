@@ -1,6 +1,6 @@
 /* A simple, memory-efficient bitset implementation.
 
-   Copyright (C) 2009-2011 Free Software Foundation, Inc.
+   Copyright (C) 2009-2015 Free Software Foundation, Inc.
 
    This file is part of Bison, the GNU Compiler Compiler.
 
@@ -22,59 +22,55 @@
 
 #include "Sbitset.h"
 
-Sbitset
-Sbitset__new (Sbitset__Index nbits)
+Sbitset Sbitset__new(Sbitset__Index nbits)
 {
-  /* Some functions, like Sbitset__last_byte_mask, will fail if nbits = 0.  */
-  aver (nbits);
-  return xcalloc (1, Sbitset__nbytes (nbits));
+	/* Some functions, like Sbitset__last_byte_mask, will fail if nbits = 0.  */
+	aver(nbits);
+	return (Sbitset)xcalloc(1, Sbitset__nbytes(nbits));
 }
 
-Sbitset
-Sbitset__new_on_obstack (Sbitset__Index nbits, struct obstack *obstackp)
+Sbitset Sbitset__new_on_obstack(Sbitset__Index nbits, struct obstack * obstackp)
 {
-  Sbitset result;
-  Sbitset ptr;
-  Sbitset end;
-  aver (nbits);
-  result = obstack_alloc (obstackp, Sbitset__nbytes (nbits));
-  for (ptr = result, end = result + Sbitset__nbytes (nbits); ptr < end; ++ptr)
-    *ptr = 0;
-  return result;
+	Sbitset result;
+	Sbitset ptr;
+	Sbitset end;
+	aver(nbits);
+	result = (Sbitset)obstack_alloc(obstackp, Sbitset__nbytes(nbits));
+	for(ptr = result, end = result + Sbitset__nbytes(nbits); ptr < end; ++ptr)
+		*ptr = 0;
+	return result;
 }
 
-void
-Sbitset__delete (Sbitset self)
+void Sbitset__delete(Sbitset self)
 {
-  free (self);
+	free(self);
 }
 
-bool
-Sbitset__isEmpty (Sbitset self, Sbitset__Index nbits)
+bool Sbitset__isEmpty(Sbitset self, Sbitset__Index nbits)
 {
-  Sbitset last = self + Sbitset__nbytes (nbits) - 1;
-  for (; self < last; ++self)
-    if (*self != 0)
-      return false;
-  return ((*last) & Sbitset__last_byte_mask (nbits)) == 0;
+	Sbitset last = self + Sbitset__nbytes(nbits) - 1;
+	for(; self < last; ++self)
+		if(*self != 0)
+			return false;
+	return ((*last) & Sbitset__last_byte_mask(nbits)) == 0;
 }
 
-void
-Sbitset__fprint(Sbitset self, Sbitset__Index nbits, FILE *file)
+void Sbitset__fprint(Sbitset self, Sbitset__Index nbits, FILE * file)
 {
-  Sbitset__Index i;
-  Sbitset itr;
-  bool first = true;
-  fprintf (file,
-           "nbits = %" SBITSET__INDEX__CONVERSION_SPEC ", set = {",
-           nbits);
-  SBITSET__FOR_EACH (self, nbits, itr, i)
-    {
-      if (first)
-        first = false;
-      else
-        fprintf (file, ",");
-      fprintf (file, " %" SBITSET__INDEX__CONVERSION_SPEC, i);
-    }
-  fprintf (file, " }");
+	Sbitset__Index i;
+	Sbitset itr;
+	bool first = true;
+	fprintf(file,
+	    "nbits = %" SBITSET__INDEX__CONVERSION_SPEC ", set = {",
+	    nbits);
+	SBITSET__FOR_EACH(self, nbits, itr, i)
+	{
+		if(first)
+			first = false;
+		else
+			fprintf(file, ",");
+		fprintf(file, " %" SBITSET__INDEX__CONVERSION_SPEC, i);
+	}
+	fprintf(file, " }");
 }
+

@@ -73,21 +73,13 @@ int SLAPI QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	return ok;
 }
 
-SLAPI PPViewQuot::PPViewQuot() : PPView(0, &Filt, PPVIEW_QUOT)
+SLAPI PPViewQuot::PPViewQuot() : PPView(0, &Filt, PPVIEW_QUOT), P_Qc(0), P_Qc2(0), P_BObj(BillObj), P_TempTbl(0), P_TempSerTbl(0), P_TempOrd(0), 
+	P_GoodsSelDlg(0), FirstQuotBrwColumn(0), HasPeriodVal(0)
 {
-	P_Qc = 0;
-	P_Qc2 = 0;
 	if(CConfig.Flags2 & CCFLG2_QUOT2)
 		P_Qc2 = new Quotation2Core;
 	else
 		P_Qc = new QuotationCore;
-	P_BObj = BillObj;
-	P_TempTbl = 0;
-	P_TempSerTbl = 0;
-	P_TempOrd = 0; // @v8.1.1
-	P_GoodsSelDlg = 0;
-	FirstQuotBrwColumn = 0;
-	HasPeriodVal = 0;
 	PPObjQuotKind::GetSpecialKinds(&Spc, 1);
 }
 
@@ -113,10 +105,8 @@ const StrAssocArray & SLAPI PPViewQuot::GetQuotKindList() const
 
 class QuotFiltDialog : public TDialog {
 public:
-	QuotFiltDialog() : TDialog(DLG_QUOTFLT)
+	QuotFiltDialog() : TDialog(DLG_QUOTFLT), Cls(PPQuot::clsGeneral), LastAccSheetID(0)
 	{
-		Cls = PPQuot::clsGeneral;
-		LastAccSheetID = 0;
 		PPObjQuotKind::GetSpecialKinds(&Spc, 1);
 		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(CTLSEL_QUOTFLT_GOODS, CTLSEL_QUOTFLT_GGRP, cmGoodsFilt));
 		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_QUOTFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
@@ -355,9 +345,8 @@ int SLAPI PPViewQuot::CreateCrosstab(int useTa)
 	PPWait(1);
 	class QuotCrosstab : public Crosstab {
 	public:
-		SLAPI  QuotCrosstab(PPViewQuot * pV) : Crosstab()
+		SLAPI  QuotCrosstab(PPViewQuot * pV) : Crosstab(), P_V(pV)
 		{
-			P_V = pV;
 		}
 		virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 		{
@@ -1770,7 +1759,7 @@ int SLAPI PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 
 int SLAPI PPViewQuot::AddItem(PPID * pGoodsID)
 {
-	PPID   __goods_id = pGoodsID ? *pGoodsID : 0;
+	PPID   __goods_id = DEREFPTRORZ(pGoodsID);
 	if(!__goods_id) {
 		if(Filt.QkCls == PPQuot::clsMtxRestr) {
 			PPID   goods_id = 0;

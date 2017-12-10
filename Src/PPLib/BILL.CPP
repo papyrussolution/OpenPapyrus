@@ -1441,7 +1441,7 @@ int SLAPI BillCore::GetPoolList(PPID poolType, LAssocArray * pAry)
 int SLAPI BillCore::IsMemberOfPool(PPID billID, PPID poolType, PPID * pPoolOwnerID)
 {
 	int    yes = 0;
-	PPID   owner_id = pPoolOwnerID ? *pPoolOwnerID : 0;
+	PPID   owner_id = DEREFPTRORZ(pPoolOwnerID);
 	Reference * p_ref = PPRef;
 	if(owner_id) {
 		if(p_ref->Assc.Search(poolType, owner_id, billID) > 0)

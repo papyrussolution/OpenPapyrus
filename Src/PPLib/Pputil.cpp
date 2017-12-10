@@ -573,7 +573,7 @@ int FASTCALL SearchByID_ForUpdate(DBTable * pTbl, PPID objType, PPID id, void * 
 int FASTCALL AddByID(DBTable * tbl, PPID * pID, void * b, int use_ta)
 {
 	int    ok = 1;
-	PPID   tmp_id = pID ? *pID : 0;
+	PPID   tmp_id = DEREFPTRORZ(pID);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -630,7 +630,7 @@ int FASTCALL AdjustNewObjID(DBTable * tbl, PPID objType, void * b)
 int FASTCALL AddObjRecByID(DBTable * tbl, PPID objType, PPID * pID, void * b, int use_ta)
 {
 	int    ok = 1;
-	PPID   tmp_id = pID ? *pID : 0;
+	PPID   tmp_id = DEREFPTRORZ(pID);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1220,7 +1220,7 @@ long SLAPI PPSymbTranslator::Translate(const char * pString, size_t * pNextPos, 
 	long   v = 0;
 	int    count = 0;
 	size_t max_len = 0;
-	const size_t start_pos = pNextPos ? *pNextPos : 0;
+	const size_t start_pos = DEREFPTRORZ(pNextPos);
 	size_t p = start_pos;
 	char * b, sub[256], temp[128];
 	while(pString[p] == ' ' || pString[p] == '\t')
@@ -1464,7 +1464,7 @@ int PPExtStringStorage::Enum(const SString & rLine, uint * pPos, int * pFldID, S
 
 	int    ok = -1;
 	int    fld_id = 0;
-    uint   pos = pPos ? *pPos : 0;
+    uint   pos = DEREFPTRORZ(pPos);
     if(pos < rLine.Len()) {
 		SStrScan scan(rLine);
 		scan.Incr(pos);

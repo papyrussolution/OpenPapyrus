@@ -163,7 +163,7 @@ int FASTCALL PPServerCmd::GetParam(int parid, SString & rVal) const
 int SLAPI PPServerCmd::GetWord(const char * pBuf, size_t * pPos)
 {
 	int    ok = 1;
-	size_t p = pPos ? *pPos : 0;
+	size_t p = DEREFPTRORZ(pPos);
 	Term.Z();
 	while(oneof2(pBuf[p], ' ', '\t'))
 		p++;

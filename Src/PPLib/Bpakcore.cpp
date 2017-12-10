@@ -339,13 +339,10 @@ int FASTCALL PPFreight::IsEqual(const PPFreight & s) const
 //
 //
 //
-SLAPI PPBill::PPBill()
+SLAPI PPBill::PPBill() : P_PaymOrder(0), P_Freight(0), P_AdvRep(0)
 {
 	MEMSZERO(Rec);
 	MEMSZERO(Rent);
-	P_PaymOrder = 0;
-	P_Freight = 0;
-	P_AdvRep = 0;
 }
 
 void SLAPI PPBill::BaseDestroy()
@@ -562,11 +559,11 @@ int SLAPI ClbNumberList::ReplacePosition(int rowIdx, int newRowIdx)
 //
 //
 //
-SLAPI PPLotTagContainer::PPLotTagContainer() : SArray(sizeof(PPLotTagContainer::Item), /*4,*/ aryDataOwner|aryEachItem)
+SLAPI PPLotTagContainer::PPLotTagContainer() : SArray(sizeof(PPLotTagContainer::Item), aryDataOwner|aryEachItem)
 {
 }
 
-SLAPI PPLotTagContainer::PPLotTagContainer(const PPLotTagContainer & rS) : SArray(sizeof(PPLotTagContainer::Item), /*4,*/ aryDataOwner|aryEachItem)
+SLAPI PPLotTagContainer::PPLotTagContainer(const PPLotTagContainer & rS) : SArray(sizeof(PPLotTagContainer::Item), aryDataOwner|aryEachItem)
 {
 	Copy(rS);
 }
@@ -905,16 +902,12 @@ int SLAPI PPBillPacket::GetGuid(S_GUID & rGuid)
 	return ok;
 }
 
-SLAPI PPBillPacket::CipBlock::CipBlock()
+SLAPI PPBillPacket::CipBlock::CipBlock() : P_CipList(0), P_TSesObj(0)
 {
-	P_CipList = 0;
-	P_TSesObj = 0;
 }
 
-SLAPI PPBillPacket::CipBlock::CipBlock(const PPBillPacket::CipBlock & rS)
+SLAPI PPBillPacket::CipBlock::CipBlock(const PPBillPacket::CipBlock & rS) : P_CipList(0), P_TSesObj(0)
 {
-	P_CipList = 0;
-	P_TSesObj = 0;
 	Copy(rS);
 }
 
@@ -1431,8 +1424,7 @@ SLAPI PPBillExt::PPBillExt()
 
 int SLAPI PPBillExt::IsEmpty() const
 {
-	return (AgentID || PayerID || InvoiceCode[0] || InvoiceDate ||
-		PaymBillCode[0] || PaymBillDate || ExtPriceQuotKindID) ? 0 : 1;
+	return (AgentID || PayerID || InvoiceCode[0] || InvoiceDate || PaymBillCode[0] || PaymBillDate || ExtPriceQuotKindID) ? 0 : 1;
 }
 
 int FASTCALL PPBillExt::IsEqual(const PPBillExt & rS) const
@@ -1490,19 +1482,11 @@ void PPBillPacket::TiItemExt::Clear()
 	MergePosList.clear();
 }
 
-PPBillPacket::TiDifferenceItem::TiDifferenceItem(long flags, const LongArray * pThisPList, const LongArray * pOtherPList)
+PPBillPacket::TiDifferenceItem::TiDifferenceItem(long flags, const LongArray * pThisPList, const LongArray * pOtherPList) : 
+	Flags(flags), ThisQtty(0.0), OtherQtty(0.0), ThisCost(0.0), OtherCost(0.0), ThisPrice(0.0), OtherPrice(0.0), ThisNetPrice(0.0), OtherNetPrice(0.0)
 {
-	Flags = flags;
 	RVALUEPTR(ThisPList, pThisPList);
 	RVALUEPTR(OtherPList, pOtherPList);
-	ThisQtty = 0;
-	OtherQtty = 0;
-	ThisCost = 0;
-	OtherCost = 0;
-	ThisPrice = 0;
-	OtherPrice = 0;
-	ThisNetPrice = 0;
-	OtherNetPrice = 0;
 }
 //
 //
@@ -2148,10 +2132,9 @@ const PPTrfrArray & SLAPI PPBillPacket::GetLots() const
 	return Lots;
 }
 
-int SLAPI PPBillPacket::SetLots(const PPTrfrArray & rS)
+void SLAPI PPBillPacket::SetLots(const PPTrfrArray & rS)
 {
 	Lots = rS;
-	return 1;
 }
 
 int FASTCALL PPBillPacket::SearchTI(int rByBill, uint * pPos) const
@@ -3694,16 +3677,12 @@ int SLAPI PPBillPacket::GetComplete(PPID lotID, CompleteArray * pList)
 //
 //
 //
-TiIter::IndexItem::IndexItem(long tiPos, long ext, long disposePos)
+TiIter::IndexItem::IndexItem(long tiPos, long ext, long disposePos) : TiPos(tiPos), Ext(ext), DisposePos(disposePos)
 {
-	TiPos = tiPos;
-	Ext = ext;
-	DisposePos = disposePos;
 }
 
-SLAPI TiIter::TiIter(PPBillPacket * pPack, long flags, long filtGrpID, Order o)
+SLAPI TiIter::TiIter(PPBillPacket * pPack, long flags, long filtGrpID, Order o) : AccsCost(BillObj->CheckRights(BILLRT_ACCSCOST))
 {
-	AccsCost = BillObj->CheckRights(BILLRT_ACCSCOST);
 	Init(pPack, flags, filtGrpID, o);
 }
 
@@ -4376,34 +4355,27 @@ int SLAPI BillVatArray::Add(double rate, double sum, double base, double amtByVa
 	return ordInsert(&entry, 0, PTR_CMPFUNC(double)) ? 1 : PPSetErrorSLib();
 }
 
-SLAPI BillTotalBlock::BillTotalBlock(BillTotalData * pData, PPID opID, PPID goodsTypeID, int outAmtType, long flags)
+SLAPI BillTotalBlock::BillTotalBlock(BillTotalData * pData, PPID opID, PPID goodsTypeID, int outAmtType, long flags) :
+	State(0), P_Data(pData), OpID(opID), GoodsTypeID(goodsTypeID), OutAmtType(outAmtType), Flags(flags)
 {
-	State = 0;
-	P_Data = pData;
-	OpID = opID;
-	GoodsTypeID = goodsTypeID;
-	OutAmtType = outAmtType;
 	SETFLAG(State, stSelling, BIN(IsSellingOp(OpID) > 0));
 	State |= stAllGoodsUnlimUndef;
-	Flags = flags;
 	DynGoodsTypeForSupplAgent = CConfig.DynGoodsTypeForSupplAgent;
 }
 
-int FASTCALL BillTotalBlock::Add(const PPAdvBillItem * pItem)
+void FASTCALL BillTotalBlock::Add(const PPAdvBillItem * pItem)
 {
 	P_Data->Amt += pItem->Amount;
-	return 1;
 }
 //
 // This is temporary and wrong function. Must be corrected !!!
 //
-int SLAPI BillTotalBlock::AddPckg(const PPTransferItem * /*pTI*/)
+void SLAPI BillTotalBlock::AddPckg(const PPTransferItem * /*pTI*/)
 {
 	P_Data->PackCount++;
-	return 1;
 }
 
-int SLAPI BillTotalBlock::SetupStdAmount(PPID stdAmtID, PPID altAmtID, double stdAmount, double altAmount, long replaceStdAmount, int in_out)
+void SLAPI BillTotalBlock::SetupStdAmount(PPID stdAmtID, PPID altAmtID, double stdAmount, double altAmount, long replaceStdAmount, int in_out)
 {
 	PPID   in_id = 0, out_id = 0;
 	if(altAmtID && altAmtID != stdAmtID) {
@@ -4428,10 +4400,9 @@ int SLAPI BillTotalBlock::SetupStdAmount(PPID stdAmtID, PPID altAmtID, double st
 				P_Data->Amounts.Add(out_id, 0L /* @curID */, stdAmount, 1);
 		}
 	}
-	return 1;
 }
 
-int SLAPI BillTotalBlock::SetupStdAmount(PPID stdAmtID, double stdAmount, int in_out)
+void SLAPI BillTotalBlock::SetupStdAmount(PPID stdAmtID, double stdAmount, int in_out)
 {
 	PPID   in_id = 0, out_id = 0;
 	P_Data->Amounts.Add(stdAmtID, 0L /* @curID */, stdAmount, 1);
@@ -4443,12 +4414,10 @@ int SLAPI BillTotalBlock::SetupStdAmount(PPID stdAmtID, double stdAmount, int in
 		if(in_out > 0 && out_id)
 			P_Data->Amounts.Add(out_id, 0L /* @curID */, stdAmount, 1);
 	}
-	return 1;
 }
 
-int FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
+void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 {
-	int    ok = 1;
 	if(State & stAllGoodsUnlimUndef) {
 		State |= stAllGoodsUnlim;
 		State &= ~stAllGoodsUnlimUndef;
@@ -4467,6 +4436,7 @@ int FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 	//
 	goods_rec.ID = 0;
 	//
+	int    r = 1;
 	if(GoodsTypeID || Flags & BTC_ONLYUNLIMGOODS) {
 		//
 		// Если расчет необходим только по отдельному товарному типу,
@@ -4474,20 +4444,20 @@ int FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 		//
 		if(GObj.Fetch(goods_id, &goods_rec) > 0) {
 			if(!goods_rec.GoodsTypeID)
-				ok = -1;
+				r = -1;
 			else if(GoodsTypeID && goods_rec.GoodsTypeID != GoodsTypeID)
-				ok = -1;
+				r = -1;
 			else if(Flags & BTC_ONLYUNLIMGOODS) {
 				PPObjGoodsType gt_obj;
 				PPGoodsType gt_rec;
 				if(gt_obj.Fetch(goods_rec.GoodsTypeID, &gt_rec) <= 0 || !(gt_rec.Flags & (GTF_UNLIMITED|GTF_QUASIUNLIM)))
-					ok = -1;
+					r = -1;
 			}
 		}
 		else
-			ok = -1;
+			r = -1;
 	}
-	if(ok > 0) {
+	if(r > 0) {
 		int    oddgoods = 0, exclamount = 0, is_asset = 0;
 		int    sign = 1;
 		int    in_out = 0; // < 0 - input on modif; > 0 - output on modif; 0 - no modif
@@ -4645,14 +4615,15 @@ int FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 				PPGoodsType gt_rec;
 				if(SETIFZ(gt_id, goods_rec.GoodsTypeID) && gt_id != PPGT_DEFAULT) {
 					oddgoods = 1;
-					THROW(GTObj.Fetch(gt_id, &gt_rec) > 0);
-					if(gt_rec.Flags & GTF_EXCLAMOUNT)
-						exclamount = 1;
-					SetupStdAmount(PPAMT_BUYING,  gt_rec.AmtCost, cq, cq, (gt_rec.Flags & GTF_RPLC_COST), in_out);
-					SetupStdAmount(PPAMT_SELLING, gt_rec.AmtPrice, pq,
-						(gt_rec.Flags & GTF_PRICEINCLDIS) ? (pq - dq) : pq, (gt_rec.Flags & GTF_RPLC_PRICE), in_out);
-					SetupStdAmount(PPAMT_DISCOUNT, gt_rec.AmtDscnt, dq, dq, (gt_rec.Flags & GTF_RPLC_DSCNT), 0);
-					cvat_amt_id = gt_rec.AmtCVat;
+					if(GTObj.Fetch(gt_id, &gt_rec) > 0) {
+						if(gt_rec.Flags & GTF_EXCLAMOUNT)
+							exclamount = 1;
+						SetupStdAmount(PPAMT_BUYING,  gt_rec.AmtCost, cq, cq, (gt_rec.Flags & GTF_RPLC_COST), in_out);
+						SetupStdAmount(PPAMT_SELLING, gt_rec.AmtPrice, pq,
+							(gt_rec.Flags & GTF_PRICEINCLDIS) ? (pq - dq) : pq, (gt_rec.Flags & GTF_RPLC_PRICE), in_out);
+						SetupStdAmount(PPAMT_DISCOUNT, gt_rec.AmtDscnt, dq, dq, (gt_rec.Flags & GTF_RPLC_DSCNT), 0);
+						cvat_amt_id = gt_rec.AmtCVat;
+					}
 				}
 			}
 			if(!oddgoods) {
@@ -4729,11 +4700,9 @@ int FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 			}
 		}
 	}
-	CATCHZOK
-	return ok;
 }
 
-int SLAPI BillTotalBlock::Finish(const PPBillPacket * pPack)
+void SLAPI BillTotalBlock::Finish(const PPBillPacket * pPack)
 {
 	if(!(State & stExtCost) && pPack && pPack->UsesDistribCost()) {
 		PPObjAmountType at_obj;
@@ -4750,22 +4719,23 @@ int SLAPI BillTotalBlock::Finish(const PPBillPacket * pPack)
 	}
 	SETFLAG(P_Data->Flags, BillTotalData::fExtCost, (State & stExtCost));
 	P_Data->Flags |= BillTotalData::fInitialized;
-	return 1;
 }
 
 int SLAPI PPBillPacket::CalcTotal(BillTotalData * pData, PPID goodsTypeID, long btcFlags)
 {
-	uint   i;
 	PPTransferItem * p_ti;
 	BillTotalBlock btb(pData, Rec.OpID, goodsTypeID, OutAmtType, btcFlags);
-	if(GetOpType(Rec.OpID) == PPOPT_ACCTURN)
-		for(i = 0; i < AdvList.GetCount(); i++)
+	if(GetOpType(Rec.OpID) == PPOPT_ACCTURN) {
+		for(uint i = 0; i < AdvList.GetCount(); i++)
 			btb.Add(&AdvList.Get(i));
-	for(i = 0; EnumTItems(&i, &p_ti);) {
-		if(!(p_ti->Flags & PPTFR_PCKG))
-			btb.Add(p_ti);
-		else
-			btb.AddPckg(p_ti);
+	}
+	{
+		for(uint i = 0; EnumTItems(&i, &p_ti);) {
+			if(!(p_ti->Flags & PPTFR_PCKG))
+				btb.Add(p_ti);
+			else
+				btb.AddPckg(p_ti);
+		}
 	}
 	btb.Finish(this);
 	SETFLAG(ProcessFlags, pfAllGoodsUnlim, (pData->Flags & BillTotalData::fAllGoodsUnlim));
@@ -4880,9 +4850,8 @@ int SLAPI PPBillPacket::InitPckg()
 {
 	int    ok = 1;
 	int    is_mounting_op = BIN(CheckOpFlags(Rec.OpID, OPKF_PCKGMOUNTING));
-	uint   i, j;
 	LPackage * p_pckg;
-	for(i = 0; P_PckgList && P_PckgList->EnumItems(&i, &p_pckg);) {
+	for(uint i = 0; P_PckgList && P_PckgList->EnumItems(&i, &p_pckg);) {
 		int  idx;
 		PPID id;
 		PPTransferItem * p_ti;
@@ -4890,7 +4859,7 @@ int SLAPI PPBillPacket::InitPckg()
 		p_ti = &TI(p_pckg->PckgIdx);
 		p_pckg->ID = p_ti->LotID;
 		p_ti->GoodsID = p_pckg->PckgTypeID;
-		for(j = 0; p_pckg->EnumItems(&j, &idx, &id);) {
+		for(uint j = 0; p_pckg->EnumItems(&j, &idx, &id);) {
 			THROW(ChkTIdx(idx));
 			p_ti = &TI(idx);
 			if(p_ti->Flags & PPTFR_PCKGGEN) {
@@ -4913,8 +4882,7 @@ int SLAPI PPBillPacket::InitPckg()
 int SLAPI PPBillPacket::AddPckg(LPackage * pPckg)
 {
 	int    ok = 1;
-	if(P_PckgList == 0)
-		THROW_MEM(P_PckgList = new LPackageList);
+	THROW_MEM(SETIFZ(P_PckgList, new LPackageList));
 	if(pPckg->PckgIdx < 0) {
 		PPTransferItem ti;
 		ti.GoodsID = pPckg->PckgTypeID;

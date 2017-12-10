@@ -24,11 +24,9 @@ int SLAPI PPCycleFilt::operator !() const
 //
 // PPCycleArray
 //
-SLAPI PPCycleArray::PPCycleArray() : TSVector <DateRange> () // @v9.8.4 TSArray-->TSVector
+SLAPI PPCycleArray::PPCycleArray() : TSVector <DateRange> (), Cycle(0), NumCycles(0) // @v9.8.4 TSArray-->TSVector
 {
 	Period.SetZero();
-	Cycle = 0;
-	NumCycles = 0;
 }
 
 SLAPI PPCycleArray::PPCycleArray(LDATE beg, LDATE end, int cycle, int numCycles) : TSVector <DateRange> () // @v9.8.4 TSArray-->TSVector
@@ -360,14 +358,12 @@ int SLAPI ObjRestrictArray::CheckFlag(PPID objID, long f) const
 //
 //
 //
-SLAPI ObjIdListFilt::ObjIdListFilt()
+SLAPI ObjIdListFilt::ObjIdListFilt() : P_List(0)
 {
-	P_List = 0;
 }
 
-SLAPI ObjIdListFilt::ObjIdListFilt(const ObjIdListFilt & s)
+SLAPI ObjIdListFilt::ObjIdListFilt(const ObjIdListFilt & s) : P_List(0)
 {
-	P_List = 0;
 	Set(s.P_List);
 }
 
@@ -672,16 +668,14 @@ PPObjID & FASTCALL PPObjID::operator = (double oid)
 	return *this;
 }
 
-int SLAPI PPObjID::ToStr(int format, SString & rBuf) const
+SString & FASTCALL PPObjID::ToStr(SString & rBuf) const
 {
-	int    ok = 0;
 	rBuf.Z();
-	if(DS.GetObjectTypeSymb(Obj, rBuf)) {
-		if(Id)
-			rBuf.CatChar('(').Cat(Id).CatChar(')');
-		ok = 1;
-	}
-	return ok;
+	if(!DS.GetObjectTypeSymb(Obj, rBuf)) 
+		rBuf.Cat("Obj").CatChar('[').Cat(Obj).CatChar(']');
+	if(Id)
+		rBuf.CatChar('(').Cat(Id).CatChar(')');
+	return rBuf;
 }
 
 int FASTCALL PPObjID::FromStr(const char * pStr)
@@ -791,9 +785,8 @@ struct SurKey {
 	SBaseBuffer Val;
 };
 
-SurKeyArray::SurKeyArray() : SArray(sizeof(SurKey), /*8,*/ aryDataOwner|aryEachItem)
+SurKeyArray::SurKeyArray() : SArray(sizeof(SurKey), aryDataOwner|aryEachItem), LastId(0)
 {
-	LastId = 0;
 }
 
 //virtual

@@ -2383,10 +2383,8 @@ static VFunction * vtDropSource[] = {
 	(VFunction*)(DropSource_GiveFeedback)
 };
 
-DropSource::DropSource()
+DropSource::DropSource() : vtbl(vtDropSource), sci(0)
 {
-	vtbl = vtDropSource;
-	sci = 0;
 }
 
 /// Implement IUnkown

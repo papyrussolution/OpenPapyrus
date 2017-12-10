@@ -228,7 +228,7 @@ int SLAPI RegisterArray::SelectRegNumber(PPID regTyp, LDATE dt, SString & rBuf) 
 
 int SLAPI RegisterArray::GetRegister(PPID regTyp, LDATE dt, uint * pPos, RegisterTbl::Rec * pRec) const
 {
-	for(uint i = pPos ? *pPos : 0; i < getCount(); i++) {
+	for(uint i = DEREFPTRORZ(pPos); i < getCount(); i++) {
 		const RegisterTbl::Rec & r_reg = at(i);
 		if(r_reg.RegTypeID == regTyp && (!dt || !r_reg.Expiry || r_reg.Expiry >= dt)) {
 			ASSIGN_PTR(pRec, r_reg);

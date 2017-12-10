@@ -8,9 +8,9 @@
 //
 //
 //
-BizScValByTemplViewItem::BizScValByTemplViewItem()
+BizScValByTemplViewItem::BizScValByTemplViewItem() : Id(0), P_Vals(0)
 {
-	memzero(this, sizeof(BizScValByTemplViewItem));
+	Name[0] = 0;
 }
 
 BizScValByTemplViewItem::~BizScValByTemplViewItem()
@@ -515,10 +515,9 @@ private:
 			clearEvent(event);
 		}
 	}
-	int    SetupCtrl(PPID bizsc)
+	void   SetupCtrl(PPID bizsc)
 	{
 		disableCtrl(CTL_BIZSCTC_FORMULA, BIN(bizsc));
-		return 1;
 	}
 	PPBizScTemplCell Data;
 	PPObjBizScore    BscObj;
@@ -968,15 +967,14 @@ IMPLEMENT_PPFILT_FACTORY(BizScTempl); SLAPI BizScTemplFilt::BizScTemplFilt() : P
 	Init(1, 0);
 }
 
-BizScTemplFilt & BizScTemplFilt::operator=(const BizScTemplFilt & s)
+BizScTemplFilt & BizScTemplFilt::operator = (const BizScTemplFilt & s)
 {
 	Copy(&s, 1);
 	return *this;
 }
 
-SLAPI PPViewBizScTempl::PPViewBizScTempl() : PPView(0, &Filt, PPVIEW_BIZSCTEMPL)
+SLAPI PPViewBizScTempl::PPViewBizScTempl() : PPView(0, &Filt, PPVIEW_BIZSCTEMPL), P_TempTbl(0)
 {
-	P_TempTbl = 0;
 }
 
 SLAPI PPViewBizScTempl::~PPViewBizScTempl()

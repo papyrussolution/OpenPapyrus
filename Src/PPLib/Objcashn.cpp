@@ -578,13 +578,8 @@ int  SLAPI PPObjCashNode::GetCafeTableName(int ctblN, SString & rBuf)
 	return ok;
 }
 
-PPObjCashNode::SelFilt::SelFilt()
+PPObjCashNode::SelFilt::SelFilt() : LocID(0), SyncGroup(0), OnlyGroups(-1), ParentID(0), Flags(0)
 {
-	LocID = 0;
-	SyncGroup = 0;
-	OnlyGroups = -1;
-	ParentID = 0;
-	Flags = 0;
 }
 
 SLAPI PPObjCashNode::PPObjCashNode(void * extraPtr) : PPObjReference(PPOBJ_CASHNODE, extraPtr)

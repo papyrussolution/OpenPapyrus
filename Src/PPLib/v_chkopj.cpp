@@ -1,14 +1,13 @@
 // V_CHKOPJ.CPP
-// Copyright (c) A.Starodub 2010, 2013, 2015, 2016
+// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
 //
 // Журнал чековых операций
 //
-SLAPI CheckOpJrnl::CheckOpJrnl(CCheckCore * pCc) : CheckOpJrnlTbl()
+SLAPI CheckOpJrnl::CheckOpJrnl(CCheckCore * pCc) : CheckOpJrnlTbl(), P_Cc(pCc)
 {
-	P_Cc = pCc;
 }
 
 SLAPI CheckOpJrnl::~CheckOpJrnl()
@@ -182,9 +181,8 @@ int SLAPI PPViewCheckOpJrnl::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODYERR(CheckOpJFiltDialog, p_filt);
 }
 
-SLAPI PPViewCheckOpJrnl::PPViewCheckOpJrnl() : PPView(0, &Filt, PPVIEW_CHECKOPJRNL)
+SLAPI PPViewCheckOpJrnl::PPViewCheckOpJrnl() : PPView(0, &Filt, PPVIEW_CHECKOPJRNL), P_Tbl(new CheckOpJrnl(0))
 {
-	P_Tbl = new CheckOpJrnl(0);
 }
 
 SLAPI PPViewCheckOpJrnl::~PPViewCheckOpJrnl()

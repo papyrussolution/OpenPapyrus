@@ -139,34 +139,22 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 				code = *(ngx_http_script_code_pt*)e.ip;
 				code((ngx_http_script_engine_t*)&e);
 			}
-
 			path.len = e.pos - path.data;
-
 			*e.pos = '\0';
-
-			if(alias && alias != NGX_MAX_SIZE_T_VALUE
-			    && ngx_strncmp(name, r->uri.data, alias) == 0) {
+			if(alias && alias != NGX_MAX_SIZE_T_VALUE && ngx_strncmp(name, r->uri.data, alias) == 0) {
 				memmove(name, name + alias, len - alias);
 				path.len -= alias;
 			}
 		}
-
 		test_dir = tf->test_dir;
-
 		tf++;
-
-		ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-		    "trying to use %s: \"%s\" \"%s\"",
-		    test_dir ? "dir" : "file", name, path.data);
-
+		ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "trying to use %s: \"%s\" \"%s\"", test_dir ? "dir" : "file", name, path.data);
 		if(tf->lengths == NULL && tf->name.len == 0) {
 			if(tf->code) {
 				return tf->code;
 			}
-
 			path.len -= root;
 			path.data += root;
-
 			if(path.data[0] == '@') {
 				(void)ngx_http_named_location(r, &path);
 			}
@@ -226,7 +214,6 @@ static ngx_int_t ngx_http_try_files_handler(ngx_http_request_t * r)
 		ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "try file uri: \"%V\"", &r->uri);
 		return NGX_DECLINED;
 	}
-
 	/* not reached */
 }
 

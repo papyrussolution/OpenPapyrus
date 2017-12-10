@@ -1630,7 +1630,7 @@ int SLAPI PPViewLot::UpdateTempTable(PPID lotID)
 int SLAPI PPViewLot::InsertTempRecsByIter(BExtInsert * pBei, long * pCounter, UintHashTable * pHt, int showPercentage)
 {
 	int    ok = 1, r;
-	long   nr = pCounter ? *pCounter : 0;
+	long   nr = DEREFPTRORZ(pCounter);
 	PPObjBillStatus bs_obj;
 	SString temp_buf;
 	TempLotTbl::Rec rec;

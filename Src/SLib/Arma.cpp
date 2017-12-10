@@ -7,11 +7,8 @@
 
 static const double ARMA_INVERTMATRIX_INIT_VAL = 1.e6;
 
-SLAPI ARMA::ARMA()
+SLAPI ARMA::ARMA() : P(0), Q(0), IterCount(0)
 {
-	P = 0;
-	Q = 0;
-	IterCount = 0;
 }
 
 SLAPI ARMA::~ARMA()
@@ -141,9 +138,8 @@ int SLAPI ARMA::Step(double val)
 //
 //
 //
-SLAPI RDI::RDI()
+SLAPI RDI::RDI() : P_Queue(0)
 {
-	P_Queue = 0;
 }
 
 SLAPI RDI::~RDI()

@@ -205,8 +205,7 @@ const zbar_symbol_t * zbar_symbol_first_component(const zbar_symbol_t * sym)
 
 uint base64_encode(char * dst, const char * src, uint srclen)
 {
-	static const char alphabet[] =
-	    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	static const char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	char * start = dst;
 	int nline = 19;
 	for(; srclen; srclen -= 3) {

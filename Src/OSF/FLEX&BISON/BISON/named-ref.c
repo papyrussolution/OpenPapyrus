@@ -1,6 +1,6 @@
 /* Named symbol references for Bison
 
-   Copyright (C) 2009-2011 Free Software Foundation, Inc.
+   Copyright (C) 2009-2015 Free Software Foundation, Inc.
 
    This file is part of Bison, the GNU Compiler Compiler.
 
@@ -22,25 +22,21 @@
 
 #include "named-ref.h"
 
-named_ref *
-named_ref_new (uniqstr id, location loc)
+named_ref * named_ref_new(uniqstr id, BFLocation loc)
 {
-  named_ref *res = xmalloc (sizeof *res);
-
-  res->id = id;
-  res->loc = loc;
-
-  return res;
+	named_ref * res = (named_ref *)xmalloc(sizeof *res);
+	res->id = id;
+	res->loc = loc;
+	return res;
 }
 
-named_ref *
-named_ref_copy (const named_ref *r)
+named_ref * named_ref_copy(const named_ref * r)
 {
-  return named_ref_new (r->id, r->loc);
+	return named_ref_new(r->id, r->loc);
 }
 
-void
-named_ref_free (named_ref *r)
+void named_ref_free(named_ref * r)
 {
-  free (r);
+	free(r);
 }
+

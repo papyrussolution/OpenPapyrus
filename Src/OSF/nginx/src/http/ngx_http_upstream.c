@@ -2978,7 +2978,7 @@ static ngx_int_t ngx_http_upstream_process_accel_expires(ngx_http_request_t * r,
 static ngx_int_t ngx_http_upstream_process_limit_rate(ngx_http_request_t * r, ngx_table_elt_t * h, ngx_uint_t offset)
 {
 	ngx_int_t n;
-	ngx_http_upstream_t  * u = r->upstream;
+	ngx_http_upstream_t * u = r->upstream;
 	u->headers_in.x_accel_limit_rate = h;
 	if(u->conf->ignore_headers & NGX_HTTP_UPSTREAM_IGN_XA_LIMIT_RATE) {
 		return NGX_OK;
@@ -3149,7 +3149,7 @@ static ngx_int_t ngx_http_upstream_copy_last_modified(ngx_http_request_t * r, ng
 static ngx_int_t ngx_http_upstream_rewrite_location(ngx_http_request_t * r, ngx_table_elt_t * h, ngx_uint_t offset)
 {
 	ngx_int_t rc;
-	ngx_table_elt_t  * ho = (ngx_table_elt_t *)ngx_list_push(&r->headers_out.headers);
+	ngx_table_elt_t * ho = (ngx_table_elt_t *)ngx_list_push(&r->headers_out.headers);
 	if(ho == NULL) {
 		return NGX_ERROR;
 	}

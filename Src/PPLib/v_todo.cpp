@@ -22,13 +22,13 @@ void VCalendar::Todo::Init()
 	Priority = 0;
 	Status = stNeedsAction;
 	Classification = clPublic;
-	Category = 0;
-	Owner = 0;
-	Summary = 0;
-	Location = 0;
-	Contact = 0;
-	Attendee = 0;
-	Descr = 0;
+	Category.Z();
+	Owner.Z();
+	Summary.Z();
+	Location.Z();
+	Contact.Z();
+	Attendee.Z();
+	Descr.Z();
 }
 
 SLAPI VCalendar::VCalendar(const char * pFileName /*=0*/, int forExport /*=1*/) : P_Stream(0)
@@ -237,7 +237,7 @@ int SLAPI VCalendar::GetTodo(VCalendar::Todo * pData)
 		VCalendar::Todo todo_rec;
 
 		pData->Init();
-		PrevTempBuf = 0;
+		PrevTempBuf.Z();
 		while(!end_todo && ReadProp(&prop, val, attrs) > 0) {
 			switch(prop) {
 				case prpBeginTodo:
@@ -463,11 +463,9 @@ int SLAPI PrjTaskFilt::GetPriorList(PPIDArray * pList) const
 //
 //
 //
-SLAPI PPViewPrjTask::PPViewPrjTask() : PPView(&TodoObj, &Filt, PPVIEW_PRJTASK)
+SLAPI PPViewPrjTask::PPViewPrjTask() : PPView(&TodoObj, &Filt, PPVIEW_PRJTASK), P_TempOrd(0), P_TempTbl(0)
 {
 	ImplementFlags |= implChangeFilt;
-	P_TempOrd = 0;
-	P_TempTbl = 0;
 	UpdateTaskList.freeAll();
 	Grid.P_View = this;
 }
@@ -1000,9 +998,8 @@ int SLAPI PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 	{
 		class PrjTaskCrosstab : public Crosstab {
 		public:
-			SLAPI  PrjTaskCrosstab(PPViewPrjTask * pV) : Crosstab()
+			SLAPI  PrjTaskCrosstab(PPViewPrjTask * pV) : Crosstab(), P_V(pV)
 			{
-				P_V = pV;
 			}
 			virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 			{
@@ -1512,7 +1509,7 @@ int SLAPI PPViewPrjTask::ViewCrosstabDetail(PPID tabID, const DBFieldList * pFld
 		} k;
 		MEMSZERO(k);
 		if(Filt.TabType == PrjTaskFilt::crstDateHour)
-			 pFldList->GetValue(0, &k.dt, 0);
+			pFldList->GetValue(0, &k.dt, 0);
 		else
 			pFldList->GetValue(0, &k.id, 0);
 		PrjTaskFilt filt = Filt;

@@ -5661,7 +5661,7 @@ int SLAPI PPObjPerson::EditRelation(PPID * pPrmrID, PPID * pScndID, PPID * pRelT
 	PPPersonPacket pack;
 	THROW(CheckRights(PPR_MOD));
 
-	pl_item.PrmrPersonID = pPrmrID ? *pPrmrID : 0;
+	pl_item.PrmrPersonID = DEREFPTRORZ(pPrmrID);
 	if(pScndID)
 		pl_item.ScndPersonList.add(*pScndID);
 	pl_item.LinkTypeID   = (pRelTypeID) ? *pRelTypeID : 0;

@@ -700,9 +700,8 @@ SStrScan & SStrScan::SkipOptionalDiv(int div, int skipWs)
 //
 //
 //
-SStringTag::SStringTag() : SString()
+SStringTag::SStringTag() : SString(), Id(0)
 {
-	Id = 0;
 }
 //
 //
@@ -838,7 +837,7 @@ int SLAPI SString::IsLatin() const
 
 int SLAPI SString::GetWord(size_t * pPos, SString & rBuf) const
 {
-	size_t pos = pPos ? *pPos : 0;
+	size_t pos = DEREFPTRORZ(pPos);
 	rBuf.Z();
 	while(pos < Len()) {
 		char c = C(pos);
@@ -859,20 +858,27 @@ int SLAPI SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) cons
 	const size_t len = Len();
 	if(len) {
 		SETIFZ(pDelimChrSet, " \t\n\r");
-		SString temp_buf;
-		uint   i = 0;
-		do {
-			temp_buf.Z();
-			while(i < len && !strchr(pDelimChrSet, P_Buf[i]))
-				temp_buf.CatChar(P_Buf[i++]);
-			if(temp_buf.NotEmpty()) {
-				rResult.add(temp_buf);
-				ok = 2;
-			}
-			while(i < len && strchr(pDelimChrSet, P_Buf[i]))
-				i++;
-		} while(i < len);
+		const size_t delim_len = strlen(pDelimChrSet);
+		if(delim_len == 0)
+			rResult.add(*this);
+		else {
+			SString temp_buf;
+			uint   i = 0;
+			do {
+				temp_buf.Z();
+				while(i < len && !strchr(pDelimChrSet, P_Buf[i]))
+					temp_buf.CatChar(P_Buf[i++]);
+				if(temp_buf.NotEmpty()) {
+					rResult.add(temp_buf);
+					ok = 2;
+				}
+				while(i < len && strchr(pDelimChrSet, P_Buf[i]))
+					i++;
+			} while(i < len);
+		}
 	}
+	else
+		ok = -1;
 	return ok;
 }
 //
@@ -3698,14 +3704,14 @@ SString & SLAPI SString::Encode_EncodedWordRFC2047(const char * pSrcBuf, SCodepa
 {
 	Z();
 	SString temp_buf;
-	cp.ToStr(cp.fmtDefault, temp_buf);
+	cp.ToStr(cp.fmtXML, temp_buf);
 	Cat("=?").Cat(temp_buf).CatChar('?');
 	if(rfc2207enc == rfc2207encQP)
-		Cat('Q');
+		CatChar('Q');
 	else {
 		if(rfc2207enc != rfc2207encMime64)
 			rfc2207enc = rfc2207encMime64;
-		Cat('B');
+		CatChar('B');
 	}
 	CatChar('?');
 	if(rfc2207enc == rfc2207encQP) {
@@ -6447,41 +6453,18 @@ static int FASTCALL _ProbeDate(SString & rText)
 int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat)
 {
 	int    ok = 1;
+	uint32 h = 0;
 	SString temp_buf;
     SNaturalTokenStat stat;
-    if(len >= 0)
-		stat.Len = (uint32)len;
-	else
-		stat.Len = sstrlen(pToken);
+    stat.Len = (len >= 0) ? (uint32)len : sstrlen(pToken);
     if(stat.Len) {
-		enum {
-			hDec       = 0x00000001,
-			hLatLow    = 0x00000002,
-			hLatUpp    = 0x00000004,
-			hLat       = 0x00000008,
-			hHex       = 0x00000010,
-            hAscii     = 0x00000020,
-            hUtf8      = 0x00000040,
-            h1251      = 0x00000080,
-            h866       = 0x00000100,
-            hDecLat    = 0x00000200,
-            hHexHyphen = 0x00000400, // Только hex && -
-            hDecHyphen = 0x00000800, // Только dec && -
-            hHexColon  = 0x00001000, // Только hex && :
-            hDecColon  = 0x00002000, // Только dec && :
-            hHexDot    = 0x00001000, // Только hex && .
-            hDecDot    = 0x00002000, // Только dec && .
-            hDecSlash  = 0x00004000, // Только dec && /
-            hLeadSharp = 0x00008000  // Лидирующий символ # (если этот символ встречается только в начале строки,
-				// то он не отключает остальные флаги.
-		};
 		enum {
 			fUtf8   = 0x0001
 		};
-		uint32 h = 0xffffffffU & ~hLeadSharp;
 		uint32 f = 0;
 		uint   i;
 		LAssocArray chr_list;
+		h = 0xffffffffU & ~SNTOKSEQ_LEADSHARP;
 		for(i = 0; i < stat.Len; i++) {
             const uchar c = pToken[i];
 			const size_t ul = IsUtf8(pToken+i, stat.Len-i);
@@ -6491,7 +6474,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 			}
 			else {
                 if(!ul)
-					h &= ~hUtf8;
+					h &= ~SNTOKSEQ_UTF8;
 				uint  pos = 0;
 				if(chr_list.Search((long)c, 0, &pos))
 					chr_list.at(pos).Val++;
@@ -6501,73 +6484,73 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 		}
 		chr_list.Sort();
 		if(f & fUtf8) {
-			h &= ~(hDec|hHex|hLatLow|hLatUpp|hLat|hDecLat|hAscii|h866|h1251|hHexHyphen|hDecHyphen|
-				hHexColon|hDecColon|hHexDot|hDecDot|hDecSlash);
+			h &= ~(SNTOKSEQ_DEC|SNTOKSEQ_HEX|SNTOKSEQ_LATLWR|SNTOKSEQ_LATUPR|SNTOKSEQ_LAT|SNTOKSEQ_DECLAT|
+				SNTOKSEQ_ASCII|SNTOKSEQ_866|SNTOKSEQ_1251|SNTOKSEQ_HEXHYPHEN|SNTOKSEQ_DECHYPHEN|SNTOKSEQ_HEXCOLON|
+				SNTOKSEQ_DECCOLON|SNTOKSEQ_HEXDOT|SNTOKSEQ_DECDOT|SNTOKSEQ_DECSLASH);
 		}
 		else {
 			for(i = 0; i < chr_list.getCount(); i++) {
 				const uchar c = (uchar)chr_list.at(i).Key;
 				if(i == 0 && c == '#')
-					h |= hLeadSharp;
+					h |= SNTOKSEQ_LEADSHARP;
 				else {
-					if(h & hAscii && !(c >= 1 && c <= 127)) {
-						h &= ~hAscii;
-					}
+					if(h & SNTOKSEQ_ASCII && !(c >= 1 && c <= 127))
+						h &= ~SNTOKSEQ_ASCII;
 					else {
-						if(h & hLat && !IsLetterASCII(c))
-							h &= ~hLat;
+						if(h & SNTOKSEQ_LAT && !IsLetterASCII(c))
+							h &= ~SNTOKSEQ_LAT;
 						else {
-							if(h & hLatLow && !(c >= 'a' && c <= 'z'))
-								h &= ~hLatLow;
-							if(h & hLatUpp && !(c >= 'A' && c <= 'Z'))
-								h &= ~hLatUpp;
+							if(h & SNTOKSEQ_LATLWR && !(c >= 'a' && c <= 'z'))
+								h &= ~SNTOKSEQ_LATLWR;
+							if(h & SNTOKSEQ_LATUPR && !(c >= 'A' && c <= 'Z'))
+								h &= ~SNTOKSEQ_LATUPR;
 						}
-						if(h & hHex && !ishex(c))
-							h &= ~hHex;
-						else {
-							if(h & hDec && !isdec(c))
-								h &= ~hDec;
-						}
-						if(h & hDecHyphen && !(isdec(c) || c == '-'))
-							h &= ~hDecHyphen;
-						if(h & hHexHyphen && !(ishex(c) || c == '-'))
-							h &= ~hHexHyphen;
-						if(h & hDecLat && !(isdec(c) || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')))
-							h &= ~hDecLat;
-						if(h & hDecColon && !(isdec(c) || c == ':'))
-							h &= ~hDecColon;
-						if(h & hHexColon && !(ishex(c) || c == ':'))
-							h &= ~hHexColon;
-						if(h & hDecDot && !(isdec(c) || c == '.'))
-							h &= ~hDecDot;
-						if(h & hHexDot && !(ishex(c) || c == '.'))
-							h &= ~hHexDot;
-						if(h & hDecSlash && !(isdec(c) || c == '/'))
-							h &= ~hDecSlash;
+						if(h & SNTOKSEQ_HEX && !ishex(c))
+							h &= ~SNTOKSEQ_HEX;
+						else if(h & SNTOKSEQ_DEC && !isdec(c))
+							h &= ~SNTOKSEQ_DEC;
+						if(h & SNTOKSEQ_DECHYPHEN && !(c == '-' || isdec(c)))
+							h &= ~SNTOKSEQ_DECHYPHEN;
+						if(h & SNTOKSEQ_HEXHYPHEN && !(c == '-' || ishex(c)))
+							h &= ~SNTOKSEQ_HEXHYPHEN;
+						if(h & SNTOKSEQ_DECLAT && !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || isdec(c)))
+							h &= ~SNTOKSEQ_DECLAT;
+						if(h & SNTOKSEQ_DECCOLON && !(c == ':' || isdec(c)))
+							h &= ~SNTOKSEQ_DECCOLON;
+						if(h & SNTOKSEQ_HEXCOLON && !(c == ':' || ishex(c)))
+							h &= ~SNTOKSEQ_HEXCOLON;
+						if(h & SNTOKSEQ_DECDOT && !(c == '.' || isdec(c)))
+							h &= ~SNTOKSEQ_DECDOT;
+						if(h & SNTOKSEQ_HEXDOT && !(c == '.' || ishex(c)))
+							h &= ~SNTOKSEQ_HEXDOT;
+						if(h & SNTOKSEQ_DECSLASH && !(c == '/' || isdec(c)))
+							h &= ~SNTOKSEQ_DECSLASH;
 					}
-					if(h & h866 && !IsLetter866(c))
-						h &= ~h866;
-					if(h & h1251 && !IsLetter1251(c))
-						h &= ~h1251;
+					if(h & SNTOKSEQ_866 && !IsLetter866(c))
+						h &= ~SNTOKSEQ_866;
+					if(h & SNTOKSEQ_1251 && !IsLetter1251(c))
+						h &= ~SNTOKSEQ_1251;
 				}
 			}
-			if(!(h & hAscii)) {
-				h &= ~(hLat|hLatUpp|hLatLow|hHex|hDec|hDecLat|hHexHyphen|hDecHyphen|hHexColon|hDecColon|hHexDot|hDecDot|hDecSlash);
+			if(!(h & SNTOKSEQ_ASCII)) {
+				h &= ~(SNTOKSEQ_LAT|SNTOKSEQ_LATUPR|SNTOKSEQ_LATLWR|SNTOKSEQ_HEX|SNTOKSEQ_DEC|SNTOKSEQ_DECLAT|
+					SNTOKSEQ_HEXHYPHEN|SNTOKSEQ_DECHYPHEN|SNTOKSEQ_HEXCOLON|SNTOKSEQ_DECCOLON|SNTOKSEQ_HEXDOT|
+					SNTOKSEQ_DECDOT|SNTOKSEQ_DECSLASH);
 			}
 			else {
-				if(!(h & hHex))
-					h &= ~hDec;
-				if(!(h & hLat))
-					h &= ~(hLatLow|hLatUpp);
+				if(!(h & SNTOKSEQ_HEX))
+					h &= ~SNTOKSEQ_DEC;
+				if(!(h & SNTOKSEQ_LAT))
+					h &= ~(SNTOKSEQ_LATLWR|SNTOKSEQ_LATUPR);
 			}
 		}
-		if(h & hLeadSharp) {
-			if(h & hHex && stat.Len == 7) {
+		if(h & SNTOKSEQ_LEADSHARP) {
+			if(h & SNTOKSEQ_HEX && stat.Len == 7) {
 				rResultList.Add(SNTOK_COLORHEX, 0.9f);
 			}
 		}
 		else {
-			if(h & hDec) {
+			if(h & SNTOKSEQ_DEC) {
 				uchar last = pToken[stat.Len-1];
 				int   cd = 0;
 				rResultList.Add(SNTOK_DIGITCODE, 1.0f);
@@ -6602,10 +6585,8 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 							else
 								rResultList.Add(SNTOK_EAN8, 1.0f);
 						}
-						else {
-							if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
-								rResultList.Add(SNTOK_RU_INN, 1.0f);
-							}
+						else if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, (const char *)pToken, stat.Len)) {
+							rResultList.Add(SNTOK_RU_INN, 1.0f);
 						}
 						break;
 					case 13:
@@ -6631,15 +6612,13 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 						break;
 				}
 			}
-			if(h & hDecLat) {
-				if(stat.Len == 68) {
+			if(h & SNTOKSEQ_DECLAT) {
+				if(stat.Len == 68)
 					rResultList.Add(SNTOK_EGAISMARKCODE, 1.0f);
-				}
-				else {
+				else
 					rResultList.Add(SNTOK_DIGLAT, 1.0f);
-				}
 			}
-			if(h & hHexHyphen) {
+			if(h & SNTOKSEQ_HEXHYPHEN) {
 				if(stat.Len == 36) {
 					uint   pos = 0;
 					long   val = 0;
@@ -6648,17 +6627,17 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 					}
 				}
 			}
-			if(h & (hDecHyphen|hDecSlash|hDecDot)) {
+			if(h & (SNTOKSEQ_DECHYPHEN|SNTOKSEQ_DECSLASH|SNTOKSEQ_DECDOT)) {
 				// 1-1-1 17-12-2016
 				if(stat.Len >= 5 && stat.Len <= 10) {
 					temp_buf.CatN((const char *)pToken, stat.Len);
 					StringSet ss;
 					const char * p_div = 0;
-					if(h & hDecHyphen)
+					if(h & SNTOKSEQ_DECHYPHEN)
 						p_div = "-";
-					else if(h & hDecSlash)
+					else if(h & SNTOKSEQ_DECSLASH)
 						p_div = "/";
-					else if(h & hDecDot)
+					else if(h & SNTOKSEQ_DECDOT)
 						p_div = ".";
 					temp_buf.Tokenize(p_div, ss);
 					const uint ss_count = ss.getCount();
@@ -6669,7 +6648,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 					}
 				}
 			}
-			if(h & hDecDot) {
+			if(h & SNTOKSEQ_DECDOT) {
 				// 1.1.1.1 255.255.255.255
 				if(stat.Len >= 7 && stat.Len <= 15) {
 					temp_buf.CatN((const char *)pToken, stat.Len);
@@ -6711,7 +6690,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 					}
 				}
 			}
-			if(h & hAscii) {
+			if(h & SNTOKSEQ_ASCII) {
 				uint   pos = 0;
 				long   val = 0;
 				if(chr_list.BSearch((long)'@', &val, &pos) && val == 1 && InitReEmail() && P_ReEMail->Find((const char *)pToken)) {
@@ -6723,6 +6702,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 			}
 		}
     }
+	stat.Seq = h;
 	return ok;
 }
 

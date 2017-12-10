@@ -1137,7 +1137,7 @@ int SLAPI ComExcelWorksheets::_Move(long before, long after)
 
 ComExcelWorksheet * ComExcelWorksheets::Enum(long * pPos)
 {
-	long   pos = pPos ? *pPos : 0;
+	long   pos = DEREFPTRORZ(pPos);
 	ComExcelWorksheet * p_sheet = 0;
 	if(pos > 0) {
 		p_sheet = Get(pos);
@@ -1286,7 +1286,7 @@ ComExcelWorkbook * SLAPI ComExcelWorkbooks::_Add()
 
 ComExcelWorkbook * SLAPI ComExcelWorkbooks::Enum(long * pPos)
 {
-	long   pos = pPos ? *pPos : 0;
+	long   pos = DEREFPTRORZ(pPos);
 	ComExcelWorkbook * p_wkbook = 0;
 	if(pos > 0) {
 		p_wkbook = Get(pos);

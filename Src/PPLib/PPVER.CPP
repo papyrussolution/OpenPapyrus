@@ -26,18 +26,12 @@ struct __VerInfo {
 	char   OpenSource[8];
 };
 
-SLAPI PPVersionInfo::PPVersionInfo(const char * pOuterFileName)
+SLAPI PPVersionInfo::PPVersionInfo(const char * pOuterFileName) : P_Info_(0), P_Info_Pre9303(0), P_OuterFileName(newStr(pOuterFileName))
 {
-	P_OuterFileName = newStr(pOuterFileName);
-	P_Info_ = 0;
-	P_Info_Pre9303 = 0;
 }
 
-SLAPI PPVersionInfo::PPVersionInfo(const PPVersionInfo & s)
+SLAPI PPVersionInfo::PPVersionInfo(const PPVersionInfo & s) : P_Info_(0), P_Info_Pre9303(0), P_OuterFileName(0)
 {
-	P_Info_ = 0;
-	P_Info_Pre9303 = 0;
-	P_OuterFileName = 0;
 	if(s.P_OuterFileName)
 		P_OuterFileName = newStr(s.P_OuterFileName);
 	else

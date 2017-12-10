@@ -360,7 +360,7 @@ int FASTCALL StringSet::add(const char * str, uint * pPos)
 
 int SLAPI StringSet::search(const char * pPattern, uint * pPos, int ignoreCase) const
 {
-	uint   pos = pPos ? *pPos : 0;
+	uint   pos = DEREFPTRORZ(pPos);
 	SString temp_buf;
 	for(uint prev_pos = pos; get(&pos, temp_buf) > 0; prev_pos = pos) {
 		if(temp_buf.Cmp(pPattern, ignoreCase) == 0) {
@@ -374,7 +374,7 @@ int SLAPI StringSet::search(const char * pPattern, uint * pPos, int ignoreCase) 
 int SLAPI StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, uint * pNextPos) const
 {
 	int    ok = 0;
-	uint   p = pPos ? *pPos : 0;
+	uint   p = DEREFPTRORZ(pPos);
 	uint   next_pos = p+1;
 	const  uint fix_delim_len = Delim[0] ? strlen(Delim) : 1;
 	SString temp_buf;

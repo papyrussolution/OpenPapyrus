@@ -131,15 +131,9 @@ static char * FASTCALL rcs_unwrap(RcString * rcs)
 
 // end of rc_string part
 
-json_t::json_t(/*enum json_value_type*/int aType)
+json_t::json_t(/*enum json_value_type*/int aType) : Type(aType), P_Next(0), P_Previous(0), P_Parent(0), P_Child(0), P_ChildEnd(0)
 {
-	Type = aType;
 	//P_Text = 0;
-	P_Next = 0;
-	P_Previous = 0;
-	P_Parent = 0;
-	P_Child = 0;
-	P_ChildEnd = 0;
 }
 
 json_t::~json_t()

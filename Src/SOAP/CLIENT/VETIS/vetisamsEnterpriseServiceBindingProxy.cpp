@@ -54,17 +54,17 @@ void EnterpriseServiceBindingProxy::EnterpriseServiceBindingProxy_init(soap_mode
 	{"SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/", "http://www.w3.org/*/soap-encoding", NULL},
 	{"xsi", "http://www.w3.org/2001/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance", NULL},
 	{"xsd", "http://www.w3.org/2001/XMLSchema", "http://www.w3.org/*/XMLSchema", NULL},
-	{"ns4", "http://api.vetrf.ru/schema/cdm/application", NULL, NULL},
-	{"ns3", "http://api.vetrf.ru/schema/cdm/base", NULL, NULL},
-	{"ns6", "http://api.vetrf.ru/schema/cdm/dictionary/v2", NULL, NULL},
-	{"ns7", "http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2", NULL, NULL},
+	{"app", "http://api.vetrf.ru/schema/cdm/application", NULL, NULL},
+	{"base", "http://api.vetrf.ru/schema/cdm/base", NULL, NULL},
+	{"ent", "http://api.vetrf.ru/schema/cdm/dictionary/v2", NULL, NULL},
+	{"vd", "http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2", NULL, NULL},
+	{"ns1", "http://api.vetrf.ru/schema/cdm/registry/enterprise/service/v2", NULL, NULL},
 	{"ns2", "http://api.vetrf.ru/schema/cdm/base/ws-definitions", NULL, NULL},
-	{"ns10", "http://api.vetrf.ru/schema/cdm/application/service", NULL, NULL},
-	{"ns1", "http://api.vetrf.ru/schema/cdm/application/ws-definitions", NULL, NULL},
-	{"ns11", "http://api.vetrf.ru/schema/cdm/mercury/g2b/service/v2", NULL, NULL},
-	{"ns5", "http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2", NULL, NULL},
-	{"ns9", "http://api.vetrf.ru/schema/cdm/registry/enterprise/service/v2", NULL, NULL},
 	{"ns8", "http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2", NULL, NULL},
+	{"ns3", "http://api.vetrf.ru/schema/cdm/application/service", NULL, NULL},
+	{"ws", "http://api.vetrf.ru/schema/cdm/application/ws-definitions", NULL, NULL},
+	{"ns4", "http://api.vetrf.ru/schema/cdm/mercury/g2b/service/v2", NULL, NULL},
+	{"merc", "http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2", NULL, NULL},
 	{NULL, NULL, NULL, NULL}
 };
 	soap_set_namespaces(this, namespaces);
@@ -141,23 +141,23 @@ char *EnterpriseServiceBindingProxy::soap_sprint_fault(char *buf, size_t len)
 int EnterpriseServiceBindingProxy::GetBusinessEntityByGuid(const char *endpoint, const char *soap_action, _ns8__getBusinessEntityByGuidRequest *ns8__getBusinessEntityByGuidRequest, _ns8__getBusinessEntityByGuidResponse *ns8__getBusinessEntityByGuidResponse)
 {
 	struct soap *soap = this;
-	struct __ns9__GetBusinessEntityByGuid soap_tmp___ns9__GetBusinessEntityByGuid;
+	struct __ns1__GetBusinessEntityByGuid soap_tmp___ns1__GetBusinessEntityByGuid;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_endpoint, "https://api2.vetrf.ru:8002/platform/services/2.0/EnterpriseService");
 	SETIFZ(soap_action, "GetBusinessEntityByGuid");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns9__GetBusinessEntityByGuid.ns8__getBusinessEntityByGuidRequest = ns8__getBusinessEntityByGuidRequest;
+	soap_tmp___ns1__GetBusinessEntityByGuid.ns8__getBusinessEntityByGuidRequest = ns8__getBusinessEntityByGuidRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns9__GetBusinessEntityByGuid(soap, &soap_tmp___ns9__GetBusinessEntityByGuid);
+	soap_serialize___ns1__GetBusinessEntityByGuid(soap, &soap_tmp___ns1__GetBusinessEntityByGuid);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns9__GetBusinessEntityByGuid(soap, &soap_tmp___ns9__GetBusinessEntityByGuid, "-ns9:GetBusinessEntityByGuid", NULL)
+		 || soap_put___ns1__GetBusinessEntityByGuid(soap, &soap_tmp___ns1__GetBusinessEntityByGuid, "-ns1:GetBusinessEntityByGuid", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -168,7 +168,7 @@ int EnterpriseServiceBindingProxy::GetBusinessEntityByGuid(const char *endpoint,
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns9__GetBusinessEntityByGuid(soap, &soap_tmp___ns9__GetBusinessEntityByGuid, "-ns9:GetBusinessEntityByGuid", NULL)
+	 || soap_put___ns1__GetBusinessEntityByGuid(soap, &soap_tmp___ns1__GetBusinessEntityByGuid, "-ns1:GetBusinessEntityByGuid", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -194,23 +194,23 @@ int EnterpriseServiceBindingProxy::GetBusinessEntityByGuid(const char *endpoint,
 int EnterpriseServiceBindingProxy::GetBusinessEntityByUuid(const char *endpoint, const char *soap_action, _ns8__getBusinessEntityByUuidRequest *ns8__getBusinessEntityByUuidRequest, _ns8__getBusinessEntityByUuidResponse *ns8__getBusinessEntityByUuidResponse)
 {
 	struct soap *soap = this;
-	struct __ns9__GetBusinessEntityByUuid soap_tmp___ns9__GetBusinessEntityByUuid;
+	struct __ns1__GetBusinessEntityByUuid soap_tmp___ns1__GetBusinessEntityByUuid;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_endpoint, "https://api2.vetrf.ru:8002/platform/services/2.0/EnterpriseService");
 	SETIFZ(soap_action, "GetBusinessEntityByUuid");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns9__GetBusinessEntityByUuid.ns8__getBusinessEntityByUuidRequest = ns8__getBusinessEntityByUuidRequest;
+	soap_tmp___ns1__GetBusinessEntityByUuid.ns8__getBusinessEntityByUuidRequest = ns8__getBusinessEntityByUuidRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns9__GetBusinessEntityByUuid(soap, &soap_tmp___ns9__GetBusinessEntityByUuid);
+	soap_serialize___ns1__GetBusinessEntityByUuid(soap, &soap_tmp___ns1__GetBusinessEntityByUuid);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns9__GetBusinessEntityByUuid(soap, &soap_tmp___ns9__GetBusinessEntityByUuid, "-ns9:GetBusinessEntityByUuid", NULL)
+		 || soap_put___ns1__GetBusinessEntityByUuid(soap, &soap_tmp___ns1__GetBusinessEntityByUuid, "-ns1:GetBusinessEntityByUuid", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -221,7 +221,7 @@ int EnterpriseServiceBindingProxy::GetBusinessEntityByUuid(const char *endpoint,
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns9__GetBusinessEntityByUuid(soap, &soap_tmp___ns9__GetBusinessEntityByUuid, "-ns9:GetBusinessEntityByUuid", NULL)
+	 || soap_put___ns1__GetBusinessEntityByUuid(soap, &soap_tmp___ns1__GetBusinessEntityByUuid, "-ns1:GetBusinessEntityByUuid", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -247,23 +247,23 @@ int EnterpriseServiceBindingProxy::GetBusinessEntityByUuid(const char *endpoint,
 int EnterpriseServiceBindingProxy::GetBusinessEntityList(const char *endpoint, const char *soap_action, _ns8__getBusinessEntityListRequest *ns8__getBusinessEntityListRequest, _ns8__getBusinessEntityListResponse *ns8__getBusinessEntityListResponse)
 {
 	struct soap *soap = this;
-	struct __ns9__GetBusinessEntityList soap_tmp___ns9__GetBusinessEntityList;
+	struct __ns1__GetBusinessEntityList soap_tmp___ns1__GetBusinessEntityList;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_endpoint, "https://api2.vetrf.ru:8002/platform/services/2.0/EnterpriseService");
 	SETIFZ(soap_action, "GetBusinessEntityList");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns9__GetBusinessEntityList.ns8__getBusinessEntityListRequest = ns8__getBusinessEntityListRequest;
+	soap_tmp___ns1__GetBusinessEntityList.ns8__getBusinessEntityListRequest = ns8__getBusinessEntityListRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns9__GetBusinessEntityList(soap, &soap_tmp___ns9__GetBusinessEntityList);
+	soap_serialize___ns1__GetBusinessEntityList(soap, &soap_tmp___ns1__GetBusinessEntityList);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns9__GetBusinessEntityList(soap, &soap_tmp___ns9__GetBusinessEntityList, "-ns9:GetBusinessEntityList", NULL)
+		 || soap_put___ns1__GetBusinessEntityList(soap, &soap_tmp___ns1__GetBusinessEntityList, "-ns1:GetBusinessEntityList", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -274,7 +274,7 @@ int EnterpriseServiceBindingProxy::GetBusinessEntityList(const char *endpoint, c
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns9__GetBusinessEntityList(soap, &soap_tmp___ns9__GetBusinessEntityList, "-ns9:GetBusinessEntityList", NULL)
+	 || soap_put___ns1__GetBusinessEntityList(soap, &soap_tmp___ns1__GetBusinessEntityList, "-ns1:GetBusinessEntityList", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -300,23 +300,23 @@ int EnterpriseServiceBindingProxy::GetBusinessEntityList(const char *endpoint, c
 int EnterpriseServiceBindingProxy::GetBusinessEntityChangesList(const char *endpoint, const char *soap_action, _ns8__getBusinessEntityChangesListRequest *ns8__getBusinessEntityChangesListRequest, _ns8__getBusinessEntityChangesListResponse *ns8__getBusinessEntityChangesListResponse)
 {
 	struct soap *soap = this;
-	struct __ns9__GetBusinessEntityChangesList soap_tmp___ns9__GetBusinessEntityChangesList;
+	struct __ns1__GetBusinessEntityChangesList soap_tmp___ns1__GetBusinessEntityChangesList;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_endpoint, "https://api2.vetrf.ru:8002/platform/services/2.0/EnterpriseService");
 	SETIFZ(soap_action, "GetBusinessEntityChangesList");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns9__GetBusinessEntityChangesList.ns8__getBusinessEntityChangesListRequest = ns8__getBusinessEntityChangesListRequest;
+	soap_tmp___ns1__GetBusinessEntityChangesList.ns8__getBusinessEntityChangesListRequest = ns8__getBusinessEntityChangesListRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns9__GetBusinessEntityChangesList(soap, &soap_tmp___ns9__GetBusinessEntityChangesList);
+	soap_serialize___ns1__GetBusinessEntityChangesList(soap, &soap_tmp___ns1__GetBusinessEntityChangesList);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns9__GetBusinessEntityChangesList(soap, &soap_tmp___ns9__GetBusinessEntityChangesList, "-ns9:GetBusinessEntityChangesList", NULL)
+		 || soap_put___ns1__GetBusinessEntityChangesList(soap, &soap_tmp___ns1__GetBusinessEntityChangesList, "-ns1:GetBusinessEntityChangesList", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -327,7 +327,7 @@ int EnterpriseServiceBindingProxy::GetBusinessEntityChangesList(const char *endp
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns9__GetBusinessEntityChangesList(soap, &soap_tmp___ns9__GetBusinessEntityChangesList, "-ns9:GetBusinessEntityChangesList", NULL)
+	 || soap_put___ns1__GetBusinessEntityChangesList(soap, &soap_tmp___ns1__GetBusinessEntityChangesList, "-ns1:GetBusinessEntityChangesList", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -353,23 +353,23 @@ int EnterpriseServiceBindingProxy::GetBusinessEntityChangesList(const char *endp
 int EnterpriseServiceBindingProxy::GetEnterpriseByGuid(const char *endpoint, const char *soap_action, _ns8__getEnterpriseByGuidRequest *ns8__getEnterpriseByGuidRequest, _ns8__getEnterpriseByGuidResponse *ns8__getEnterpriseByGuidResponse)
 {
 	struct soap *soap = this;
-	struct __ns9__GetEnterpriseByGuid soap_tmp___ns9__GetEnterpriseByGuid;
+	struct __ns1__GetEnterpriseByGuid soap_tmp___ns1__GetEnterpriseByGuid;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_endpoint, "https://api2.vetrf.ru:8002/platform/services/2.0/EnterpriseService");
 	SETIFZ(soap_action, "GetEnterpriseByGuid");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns9__GetEnterpriseByGuid.ns8__getEnterpriseByGuidRequest = ns8__getEnterpriseByGuidRequest;
+	soap_tmp___ns1__GetEnterpriseByGuid.ns8__getEnterpriseByGuidRequest = ns8__getEnterpriseByGuidRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns9__GetEnterpriseByGuid(soap, &soap_tmp___ns9__GetEnterpriseByGuid);
+	soap_serialize___ns1__GetEnterpriseByGuid(soap, &soap_tmp___ns1__GetEnterpriseByGuid);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns9__GetEnterpriseByGuid(soap, &soap_tmp___ns9__GetEnterpriseByGuid, "-ns9:GetEnterpriseByGuid", NULL)
+		 || soap_put___ns1__GetEnterpriseByGuid(soap, &soap_tmp___ns1__GetEnterpriseByGuid, "-ns1:GetEnterpriseByGuid", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -380,7 +380,7 @@ int EnterpriseServiceBindingProxy::GetEnterpriseByGuid(const char *endpoint, con
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns9__GetEnterpriseByGuid(soap, &soap_tmp___ns9__GetEnterpriseByGuid, "-ns9:GetEnterpriseByGuid", NULL)
+	 || soap_put___ns1__GetEnterpriseByGuid(soap, &soap_tmp___ns1__GetEnterpriseByGuid, "-ns1:GetEnterpriseByGuid", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -406,23 +406,23 @@ int EnterpriseServiceBindingProxy::GetEnterpriseByGuid(const char *endpoint, con
 int EnterpriseServiceBindingProxy::GetEnterpriseByUuid(const char *endpoint, const char *soap_action, _ns8__getEnterpriseByUuidRequest *ns8__getEnterpriseByUuidRequest, _ns8__getEnterpriseByUuidResponse *ns8__getEnterpriseByUuidResponse)
 {
 	struct soap *soap = this;
-	struct __ns9__GetEnterpriseByUuid soap_tmp___ns9__GetEnterpriseByUuid;
+	struct __ns1__GetEnterpriseByUuid soap_tmp___ns1__GetEnterpriseByUuid;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_endpoint, "https://api2.vetrf.ru:8002/platform/services/2.0/EnterpriseService");
 	SETIFZ(soap_action, "GetEnterpriseByUuid");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns9__GetEnterpriseByUuid.ns8__getEnterpriseByUuidRequest = ns8__getEnterpriseByUuidRequest;
+	soap_tmp___ns1__GetEnterpriseByUuid.ns8__getEnterpriseByUuidRequest = ns8__getEnterpriseByUuidRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns9__GetEnterpriseByUuid(soap, &soap_tmp___ns9__GetEnterpriseByUuid);
+	soap_serialize___ns1__GetEnterpriseByUuid(soap, &soap_tmp___ns1__GetEnterpriseByUuid);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns9__GetEnterpriseByUuid(soap, &soap_tmp___ns9__GetEnterpriseByUuid, "-ns9:GetEnterpriseByUuid", NULL)
+		 || soap_put___ns1__GetEnterpriseByUuid(soap, &soap_tmp___ns1__GetEnterpriseByUuid, "-ns1:GetEnterpriseByUuid", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -433,7 +433,7 @@ int EnterpriseServiceBindingProxy::GetEnterpriseByUuid(const char *endpoint, con
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns9__GetEnterpriseByUuid(soap, &soap_tmp___ns9__GetEnterpriseByUuid, "-ns9:GetEnterpriseByUuid", NULL)
+	 || soap_put___ns1__GetEnterpriseByUuid(soap, &soap_tmp___ns1__GetEnterpriseByUuid, "-ns1:GetEnterpriseByUuid", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -459,23 +459,23 @@ int EnterpriseServiceBindingProxy::GetEnterpriseByUuid(const char *endpoint, con
 int EnterpriseServiceBindingProxy::GetForeignEnterpriseList(const char *endpoint, const char *soap_action, _ns8__getForeignEnterpriseListRequest *ns8__getForeignEnterpriseListRequest, _ns8__getForeignEnterpriseListResponse *ns8__getForeignEnterpriseListResponse)
 {
 	struct soap *soap = this;
-	struct __ns9__GetForeignEnterpriseList soap_tmp___ns9__GetForeignEnterpriseList;
+	struct __ns1__GetForeignEnterpriseList soap_tmp___ns1__GetForeignEnterpriseList;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_endpoint, "https://api2.vetrf.ru:8002/platform/services/2.0/EnterpriseService");
 	SETIFZ(soap_action, "GetForeignEnterpriseList");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns9__GetForeignEnterpriseList.ns8__getForeignEnterpriseListRequest = ns8__getForeignEnterpriseListRequest;
+	soap_tmp___ns1__GetForeignEnterpriseList.ns8__getForeignEnterpriseListRequest = ns8__getForeignEnterpriseListRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns9__GetForeignEnterpriseList(soap, &soap_tmp___ns9__GetForeignEnterpriseList);
+	soap_serialize___ns1__GetForeignEnterpriseList(soap, &soap_tmp___ns1__GetForeignEnterpriseList);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns9__GetForeignEnterpriseList(soap, &soap_tmp___ns9__GetForeignEnterpriseList, "-ns9:GetForeignEnterpriseList", NULL)
+		 || soap_put___ns1__GetForeignEnterpriseList(soap, &soap_tmp___ns1__GetForeignEnterpriseList, "-ns1:GetForeignEnterpriseList", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -486,7 +486,7 @@ int EnterpriseServiceBindingProxy::GetForeignEnterpriseList(const char *endpoint
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns9__GetForeignEnterpriseList(soap, &soap_tmp___ns9__GetForeignEnterpriseList, "-ns9:GetForeignEnterpriseList", NULL)
+	 || soap_put___ns1__GetForeignEnterpriseList(soap, &soap_tmp___ns1__GetForeignEnterpriseList, "-ns1:GetForeignEnterpriseList", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -512,23 +512,23 @@ int EnterpriseServiceBindingProxy::GetForeignEnterpriseList(const char *endpoint
 int EnterpriseServiceBindingProxy::GetRussianEnterpriseList(const char *endpoint, const char *soap_action, _ns8__getRussianEnterpriseListRequest *ns8__getRussianEnterpriseListRequest, _ns8__getRussianEnterpriseListResponse *ns8__getRussianEnterpriseListResponse)
 {
 	struct soap *soap = this;
-	struct __ns9__GetRussianEnterpriseList soap_tmp___ns9__GetRussianEnterpriseList;
+	struct __ns1__GetRussianEnterpriseList soap_tmp___ns1__GetRussianEnterpriseList;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_endpoint, "https://api2.vetrf.ru:8002/platform/services/2.0/EnterpriseService");
 	SETIFZ(soap_action, "GetRussianEnterpriseList");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns9__GetRussianEnterpriseList.ns8__getRussianEnterpriseListRequest = ns8__getRussianEnterpriseListRequest;
+	soap_tmp___ns1__GetRussianEnterpriseList.ns8__getRussianEnterpriseListRequest = ns8__getRussianEnterpriseListRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns9__GetRussianEnterpriseList(soap, &soap_tmp___ns9__GetRussianEnterpriseList);
+	soap_serialize___ns1__GetRussianEnterpriseList(soap, &soap_tmp___ns1__GetRussianEnterpriseList);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns9__GetRussianEnterpriseList(soap, &soap_tmp___ns9__GetRussianEnterpriseList, "-ns9:GetRussianEnterpriseList", NULL)
+		 || soap_put___ns1__GetRussianEnterpriseList(soap, &soap_tmp___ns1__GetRussianEnterpriseList, "-ns1:GetRussianEnterpriseList", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -539,7 +539,7 @@ int EnterpriseServiceBindingProxy::GetRussianEnterpriseList(const char *endpoint
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns9__GetRussianEnterpriseList(soap, &soap_tmp___ns9__GetRussianEnterpriseList, "-ns9:GetRussianEnterpriseList", NULL)
+	 || soap_put___ns1__GetRussianEnterpriseList(soap, &soap_tmp___ns1__GetRussianEnterpriseList, "-ns1:GetRussianEnterpriseList", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -565,23 +565,23 @@ int EnterpriseServiceBindingProxy::GetRussianEnterpriseList(const char *endpoint
 int EnterpriseServiceBindingProxy::GetForeignEnterpriseChangesList(const char *endpoint, const char *soap_action, _ns8__getForeignEnterpriseChangesListRequest *ns8__getForeignEnterpriseChangesListRequest, _ns8__getForeignEnterpriseChangesListResponse *ns8__getForeignEnterpriseChangesListResponse)
 {
 	struct soap *soap = this;
-	struct __ns9__GetForeignEnterpriseChangesList soap_tmp___ns9__GetForeignEnterpriseChangesList;
+	struct __ns1__GetForeignEnterpriseChangesList soap_tmp___ns1__GetForeignEnterpriseChangesList;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_endpoint, "https://api2.vetrf.ru:8002/platform/services/2.0/EnterpriseService");
 	SETIFZ(soap_action, "GetForeignEnterpriseChangesList");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns9__GetForeignEnterpriseChangesList.ns8__getForeignEnterpriseChangesListRequest = ns8__getForeignEnterpriseChangesListRequest;
+	soap_tmp___ns1__GetForeignEnterpriseChangesList.ns8__getForeignEnterpriseChangesListRequest = ns8__getForeignEnterpriseChangesListRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns9__GetForeignEnterpriseChangesList(soap, &soap_tmp___ns9__GetForeignEnterpriseChangesList);
+	soap_serialize___ns1__GetForeignEnterpriseChangesList(soap, &soap_tmp___ns1__GetForeignEnterpriseChangesList);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns9__GetForeignEnterpriseChangesList(soap, &soap_tmp___ns9__GetForeignEnterpriseChangesList, "-ns9:GetForeignEnterpriseChangesList", NULL)
+		 || soap_put___ns1__GetForeignEnterpriseChangesList(soap, &soap_tmp___ns1__GetForeignEnterpriseChangesList, "-ns1:GetForeignEnterpriseChangesList", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -592,7 +592,7 @@ int EnterpriseServiceBindingProxy::GetForeignEnterpriseChangesList(const char *e
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns9__GetForeignEnterpriseChangesList(soap, &soap_tmp___ns9__GetForeignEnterpriseChangesList, "-ns9:GetForeignEnterpriseChangesList", NULL)
+	 || soap_put___ns1__GetForeignEnterpriseChangesList(soap, &soap_tmp___ns1__GetForeignEnterpriseChangesList, "-ns1:GetForeignEnterpriseChangesList", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -618,23 +618,23 @@ int EnterpriseServiceBindingProxy::GetForeignEnterpriseChangesList(const char *e
 int EnterpriseServiceBindingProxy::GetRussianEnterpriseChangesList(const char *endpoint, const char *soap_action, _ns8__getRussianEnterpriseChangesListRequest *ns8__getRussianEnterpriseChangesListRequest, _ns8__getRussianEnterpriseChangesListResponse *ns8__getRussianEnterpriseChangesListResponse)
 {
 	struct soap *soap = this;
-	struct __ns9__GetRussianEnterpriseChangesList soap_tmp___ns9__GetRussianEnterpriseChangesList;
+	struct __ns1__GetRussianEnterpriseChangesList soap_tmp___ns1__GetRussianEnterpriseChangesList;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_endpoint, "https://api2.vetrf.ru:8002/platform/services/2.0/EnterpriseService");
 	SETIFZ(soap_action, "GetRussianEnterpriseChangesList");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns9__GetRussianEnterpriseChangesList.ns8__getRussianEnterpriseChangesListRequest = ns8__getRussianEnterpriseChangesListRequest;
+	soap_tmp___ns1__GetRussianEnterpriseChangesList.ns8__getRussianEnterpriseChangesListRequest = ns8__getRussianEnterpriseChangesListRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns9__GetRussianEnterpriseChangesList(soap, &soap_tmp___ns9__GetRussianEnterpriseChangesList);
+	soap_serialize___ns1__GetRussianEnterpriseChangesList(soap, &soap_tmp___ns1__GetRussianEnterpriseChangesList);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns9__GetRussianEnterpriseChangesList(soap, &soap_tmp___ns9__GetRussianEnterpriseChangesList, "-ns9:GetRussianEnterpriseChangesList", NULL)
+		 || soap_put___ns1__GetRussianEnterpriseChangesList(soap, &soap_tmp___ns1__GetRussianEnterpriseChangesList, "-ns1:GetRussianEnterpriseChangesList", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -645,7 +645,7 @@ int EnterpriseServiceBindingProxy::GetRussianEnterpriseChangesList(const char *e
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns9__GetRussianEnterpriseChangesList(soap, &soap_tmp___ns9__GetRussianEnterpriseChangesList, "-ns9:GetRussianEnterpriseChangesList", NULL)
+	 || soap_put___ns1__GetRussianEnterpriseChangesList(soap, &soap_tmp___ns1__GetRussianEnterpriseChangesList, "-ns1:GetRussianEnterpriseChangesList", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -671,23 +671,23 @@ int EnterpriseServiceBindingProxy::GetRussianEnterpriseChangesList(const char *e
 int EnterpriseServiceBindingProxy::GetBusinessMemberByGLN(const char *endpoint, const char *soap_action, _ns8__getBusinessMemberByGLNRequest *ns8__getBusinessMemberByGLNRequest, _ns8__getBusinessMemberByGLNResponse *ns8__getBusinessMemberByGLNResponse)
 {
 	struct soap *soap = this;
-	struct __ns9__GetBusinessMemberByGLN soap_tmp___ns9__GetBusinessMemberByGLN;
+	struct __ns1__GetBusinessMemberByGLN soap_tmp___ns1__GetBusinessMemberByGLN;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_endpoint, "https://api2.vetrf.ru:8002/platform/services/2.0/EnterpriseService");
 	SETIFZ(soap_action, "GetBusinessMemberByGLN");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns9__GetBusinessMemberByGLN.ns8__getBusinessMemberByGLNRequest = ns8__getBusinessMemberByGLNRequest;
+	soap_tmp___ns1__GetBusinessMemberByGLN.ns8__getBusinessMemberByGLNRequest = ns8__getBusinessMemberByGLNRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns9__GetBusinessMemberByGLN(soap, &soap_tmp___ns9__GetBusinessMemberByGLN);
+	soap_serialize___ns1__GetBusinessMemberByGLN(soap, &soap_tmp___ns1__GetBusinessMemberByGLN);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns9__GetBusinessMemberByGLN(soap, &soap_tmp___ns9__GetBusinessMemberByGLN, "-ns9:GetBusinessMemberByGLN", NULL)
+		 || soap_put___ns1__GetBusinessMemberByGLN(soap, &soap_tmp___ns1__GetBusinessMemberByGLN, "-ns1:GetBusinessMemberByGLN", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -698,7 +698,7 @@ int EnterpriseServiceBindingProxy::GetBusinessMemberByGLN(const char *endpoint, 
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns9__GetBusinessMemberByGLN(soap, &soap_tmp___ns9__GetBusinessMemberByGLN, "-ns9:GetBusinessMemberByGLN", NULL)
+	 || soap_put___ns1__GetBusinessMemberByGLN(soap, &soap_tmp___ns1__GetBusinessMemberByGLN, "-ns1:GetBusinessMemberByGLN", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
@@ -724,23 +724,23 @@ int EnterpriseServiceBindingProxy::GetBusinessMemberByGLN(const char *endpoint, 
 int EnterpriseServiceBindingProxy::GetActivityLocationList(const char *endpoint, const char *soap_action, _ns8__getActivityLocationListRequest *ns8__getActivityLocationListRequest, _ns8__getActivityLocationListResponse *ns8__getActivityLocationListResponse)
 {
 	struct soap *soap = this;
-	struct __ns9__GetActivityLocationList soap_tmp___ns9__GetActivityLocationList;
+	struct __ns1__GetActivityLocationList soap_tmp___ns1__GetActivityLocationList;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_endpoint, "https://api2.vetrf.ru:8002/platform/services/2.0/EnterpriseService");
 	SETIFZ(soap_action, "GetActivityLocationList");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns9__GetActivityLocationList.ns8__getActivityLocationListRequest = ns8__getActivityLocationListRequest;
+	soap_tmp___ns1__GetActivityLocationList.ns8__getActivityLocationListRequest = ns8__getActivityLocationListRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns9__GetActivityLocationList(soap, &soap_tmp___ns9__GetActivityLocationList);
+	soap_serialize___ns1__GetActivityLocationList(soap, &soap_tmp___ns1__GetActivityLocationList);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns9__GetActivityLocationList(soap, &soap_tmp___ns9__GetActivityLocationList, "-ns9:GetActivityLocationList", NULL)
+		 || soap_put___ns1__GetActivityLocationList(soap, &soap_tmp___ns1__GetActivityLocationList, "-ns1:GetActivityLocationList", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -751,7 +751,7 @@ int EnterpriseServiceBindingProxy::GetActivityLocationList(const char *endpoint,
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns9__GetActivityLocationList(soap, &soap_tmp___ns9__GetActivityLocationList, "-ns9:GetActivityLocationList", NULL)
+	 || soap_put___ns1__GetActivityLocationList(soap, &soap_tmp___ns1__GetActivityLocationList, "-ns1:GetActivityLocationList", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))

@@ -744,8 +744,7 @@ int SLAPI PPObject::GetName(PPID id, SString * pBuf)
 {
 	char   temp_buf[512];
 	int    ok = GetName(id, temp_buf, sizeof(temp_buf));
-	if(pBuf)
-		pBuf->CopyFrom(temp_buf);
+	ASSIGN_PTR(pBuf, temp_buf);
 	return ok;
 }
 
@@ -1554,7 +1553,7 @@ int FASTCALL SearchObject(PPID obj, PPID id, void * b)
 int SLAPI PPSelectObject(PPID objType, PPID * pObjID, uint titleID, void * extraPtr)
 {
 	int    ok = -1;
-	PPID   id = pObjID ? *pObjID : 0;
+	PPID   id = DEREFPTRORZ(pObjID);
 	SString temp_buf;
 	ListWindow * p_lw = (ListWindow *)ValidView(GetPPObjList(objType, OLW_CANINSERT, extraPtr));
 	if(p_lw) {
@@ -1825,7 +1824,7 @@ void ObjLinkFiles::Fns::Reset()
 {
 	ObjType = 0;
 	ObjID = 0;
-	AddedStr = 0;
+	AddedStr.Z();
 	Cntr = 0;
 	Ext[0] = 0;
 }

@@ -1326,7 +1326,7 @@ int SLAPI PPObjWorkbook::PutPacket(PPID * pID, PPWorkbookPacket * pPack, int use
 {
 	assert(pID != 0);
 	int    ok = 1;
-	PPID   _id = pID ? *pID : 0;
+	PPID   _id = DEREFPTRORZ(pID);
 	PPID   hid = 0;
 	PPID   acn_id = 0;
 	const  int is_new = (_id == 0 && pPack);

@@ -3578,9 +3578,8 @@ int SLAPI PPObjBill::EditBillExtData(PPID billID)
 //
 #define GRP_QCERT 1
 
-LotQCertDialog::LotQCertDialog(PPObjBill * pBObj) : TDialog(DLG_LOTQCERT)
+LotQCertDialog::LotQCertDialog(PPObjBill * pBObj) : TDialog(DLG_LOTQCERT), P_BObj(pBObj)
 {
-	P_BObj = pBObj;
 	MEMSZERO(Data);
 	setCtrlOption(CTL_LOTQCERT_FRAME, ofFramed, 1);
 	QCertCtrlGroup * p_qc_grp = new QCertCtrlGroup(CTL_LOTQCERT_QCERT);

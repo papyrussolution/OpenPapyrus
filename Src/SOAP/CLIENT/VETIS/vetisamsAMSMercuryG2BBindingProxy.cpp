@@ -54,17 +54,17 @@ void AMSMercuryG2BBindingProxy::AMSMercuryG2BBindingProxy_init(soap_mode imode, 
 	{"SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/", "http://www.w3.org/*/soap-encoding", NULL},
 	{"xsi", "http://www.w3.org/2001/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance", NULL},
 	{"xsd", "http://www.w3.org/2001/XMLSchema", "http://www.w3.org/*/XMLSchema", NULL},
-	{"ns4", "http://api.vetrf.ru/schema/cdm/application", NULL, NULL},
-	{"ns3", "http://api.vetrf.ru/schema/cdm/base", NULL, NULL},
-	{"ns6", "http://api.vetrf.ru/schema/cdm/dictionary/v2", NULL, NULL},
-	{"ns7", "http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2", NULL, NULL},
+	{"app", "http://api.vetrf.ru/schema/cdm/application", NULL, NULL},
+	{"base", "http://api.vetrf.ru/schema/cdm/base", NULL, NULL},
+	{"ent", "http://api.vetrf.ru/schema/cdm/dictionary/v2", NULL, NULL},
+	{"vd", "http://api.vetrf.ru/schema/cdm/mercury/vet-document/v2", NULL, NULL},
+	{"ns1", "http://api.vetrf.ru/schema/cdm/registry/enterprise/service/v2", NULL, NULL},
 	{"ns2", "http://api.vetrf.ru/schema/cdm/base/ws-definitions", NULL, NULL},
-	{"ns10", "http://api.vetrf.ru/schema/cdm/application/service", NULL, NULL},
-	{"ns1", "http://api.vetrf.ru/schema/cdm/application/ws-definitions", NULL, NULL},
-	{"ns11", "http://api.vetrf.ru/schema/cdm/mercury/g2b/service/v2", NULL, NULL},
-	{"ns5", "http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2", NULL, NULL},
-	{"ns9", "http://api.vetrf.ru/schema/cdm/registry/enterprise/service/v2", NULL, NULL},
 	{"ns8", "http://api.vetrf.ru/schema/cdm/registry/ws-definitions/v2", NULL, NULL},
+	{"ns3", "http://api.vetrf.ru/schema/cdm/application/service", NULL, NULL},
+	{"ws", "http://api.vetrf.ru/schema/cdm/application/ws-definitions", NULL, NULL},
+	{"ns4", "http://api.vetrf.ru/schema/cdm/mercury/g2b/service/v2", NULL, NULL},
+	{"merc", "http://api.vetrf.ru/schema/cdm/mercury/g2b/applications/v2", NULL, NULL},
 	{NULL, NULL, NULL, NULL}
 };
 	soap_set_namespaces(this, namespaces);
@@ -138,25 +138,25 @@ char *AMSMercuryG2BBindingProxy::soap_sprint_fault(char *buf, size_t len)
 }
 #endif
 
-int AMSMercuryG2BBindingProxy::processIncomingConsignmentRequest(const char *endpoint, const char *soap_action, ns5__ProcessIncomingConsignmentRequest *ns5__processIncomingConsignmentRequest, ns5__ProcessIncomingConsignmentResponse *ns5__processIncomingConsignmentResponse)
+int AMSMercuryG2BBindingProxy::processIncomingConsignmentRequest(const char *endpoint, const char *soap_action, merc__ProcessIncomingConsignmentRequest *merc__processIncomingConsignmentRequest, merc__ProcessIncomingConsignmentResponse *merc__processIncomingConsignmentResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__processIncomingConsignmentRequest soap_tmp___ns11__processIncomingConsignmentRequest;
+	struct __ns4__processIncomingConsignmentRequest soap_tmp___ns4__processIncomingConsignmentRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "processIncomingConsignmentRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__processIncomingConsignmentRequest.ns5__processIncomingConsignmentRequest = ns5__processIncomingConsignmentRequest;
+	soap_tmp___ns4__processIncomingConsignmentRequest.merc__processIncomingConsignmentRequest = merc__processIncomingConsignmentRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__processIncomingConsignmentRequest(soap, &soap_tmp___ns11__processIncomingConsignmentRequest);
+	soap_serialize___ns4__processIncomingConsignmentRequest(soap, &soap_tmp___ns4__processIncomingConsignmentRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__processIncomingConsignmentRequest(soap, &soap_tmp___ns11__processIncomingConsignmentRequest, "-ns11:processIncomingConsignmentRequest", NULL)
+		 || soap_put___ns4__processIncomingConsignmentRequest(soap, &soap_tmp___ns4__processIncomingConsignmentRequest, "-ns4:processIncomingConsignmentRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -167,20 +167,20 @@ int AMSMercuryG2BBindingProxy::processIncomingConsignmentRequest(const char *end
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__processIncomingConsignmentRequest(soap, &soap_tmp___ns11__processIncomingConsignmentRequest, "-ns11:processIncomingConsignmentRequest", NULL)
+	 || soap_put___ns4__processIncomingConsignmentRequest(soap, &soap_tmp___ns4__processIncomingConsignmentRequest, "-ns4:processIncomingConsignmentRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__processIncomingConsignmentResponse)
+	if(!merc__processIncomingConsignmentResponse)
 		return soap_closesock(soap);
-	ns5__processIncomingConsignmentResponse->soap_default(soap);
+	merc__processIncomingConsignmentResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__processIncomingConsignmentResponse->soap_get(soap, "ns5:processIncomingConsignmentResponse", "ns5:ProcessIncomingConsignmentResponse");
+	merc__processIncomingConsignmentResponse->soap_get(soap, "merc:processIncomingConsignmentResponse", "merc:ProcessIncomingConsignmentResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -190,25 +190,25 @@ int AMSMercuryG2BBindingProxy::processIncomingConsignmentRequest(const char *end
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::prepareOutgoingConsignmentRequest(const char *endpoint, const char *soap_action, ns5__PrepareOutgoingConsignmentRequest *ns5__prepareOutgoingConsignmentRequest, ns5__PrepareOutgoingConsignmentResponse *ns5__prepareOutgoingConsignmentResponse)
+int AMSMercuryG2BBindingProxy::prepareOutgoingConsignmentRequest(const char *endpoint, const char *soap_action, merc__PrepareOutgoingConsignmentRequest *merc__prepareOutgoingConsignmentRequest, merc__PrepareOutgoingConsignmentResponse *merc__prepareOutgoingConsignmentResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__prepareOutgoingConsignmentRequest soap_tmp___ns11__prepareOutgoingConsignmentRequest;
+	struct __ns4__prepareOutgoingConsignmentRequest soap_tmp___ns4__prepareOutgoingConsignmentRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "prepareOutgoingConsignmentRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__prepareOutgoingConsignmentRequest.ns5__prepareOutgoingConsignmentRequest = ns5__prepareOutgoingConsignmentRequest;
+	soap_tmp___ns4__prepareOutgoingConsignmentRequest.merc__prepareOutgoingConsignmentRequest = merc__prepareOutgoingConsignmentRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__prepareOutgoingConsignmentRequest(soap, &soap_tmp___ns11__prepareOutgoingConsignmentRequest);
+	soap_serialize___ns4__prepareOutgoingConsignmentRequest(soap, &soap_tmp___ns4__prepareOutgoingConsignmentRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__prepareOutgoingConsignmentRequest(soap, &soap_tmp___ns11__prepareOutgoingConsignmentRequest, "-ns11:prepareOutgoingConsignmentRequest", NULL)
+		 || soap_put___ns4__prepareOutgoingConsignmentRequest(soap, &soap_tmp___ns4__prepareOutgoingConsignmentRequest, "-ns4:prepareOutgoingConsignmentRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -219,20 +219,20 @@ int AMSMercuryG2BBindingProxy::prepareOutgoingConsignmentRequest(const char *end
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__prepareOutgoingConsignmentRequest(soap, &soap_tmp___ns11__prepareOutgoingConsignmentRequest, "-ns11:prepareOutgoingConsignmentRequest", NULL)
+	 || soap_put___ns4__prepareOutgoingConsignmentRequest(soap, &soap_tmp___ns4__prepareOutgoingConsignmentRequest, "-ns4:prepareOutgoingConsignmentRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__prepareOutgoingConsignmentResponse)
+	if(!merc__prepareOutgoingConsignmentResponse)
 		return soap_closesock(soap);
-	ns5__prepareOutgoingConsignmentResponse->soap_default(soap);
+	merc__prepareOutgoingConsignmentResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__prepareOutgoingConsignmentResponse->soap_get(soap, "ns5:prepareOutgoingConsignmentResponse", "ns5:PrepareOutgoingConsignmentResponse");
+	merc__prepareOutgoingConsignmentResponse->soap_get(soap, "merc:prepareOutgoingConsignmentResponse", "merc:PrepareOutgoingConsignmentResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -242,25 +242,25 @@ int AMSMercuryG2BBindingProxy::prepareOutgoingConsignmentRequest(const char *end
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::registerProductionOperationRequest(const char *endpoint, const char *soap_action, ns5__RegisterProductionOperationRequest *ns5__registerProductionOperationRequest, ns5__RegisterProductionOperationResponse *ns5__registerProductionOperationResponse)
+int AMSMercuryG2BBindingProxy::registerProductionOperationRequest(const char *endpoint, const char *soap_action, merc__RegisterProductionOperationRequest *merc__registerProductionOperationRequest, merc__RegisterProductionOperationResponse *merc__registerProductionOperationResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__registerProductionOperationRequest soap_tmp___ns11__registerProductionOperationRequest;
+	struct __ns4__registerProductionOperationRequest soap_tmp___ns4__registerProductionOperationRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "registerProductionOperationRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__registerProductionOperationRequest.ns5__registerProductionOperationRequest = ns5__registerProductionOperationRequest;
+	soap_tmp___ns4__registerProductionOperationRequest.merc__registerProductionOperationRequest = merc__registerProductionOperationRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__registerProductionOperationRequest(soap, &soap_tmp___ns11__registerProductionOperationRequest);
+	soap_serialize___ns4__registerProductionOperationRequest(soap, &soap_tmp___ns4__registerProductionOperationRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__registerProductionOperationRequest(soap, &soap_tmp___ns11__registerProductionOperationRequest, "-ns11:registerProductionOperationRequest", NULL)
+		 || soap_put___ns4__registerProductionOperationRequest(soap, &soap_tmp___ns4__registerProductionOperationRequest, "-ns4:registerProductionOperationRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -271,20 +271,20 @@ int AMSMercuryG2BBindingProxy::registerProductionOperationRequest(const char *en
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__registerProductionOperationRequest(soap, &soap_tmp___ns11__registerProductionOperationRequest, "-ns11:registerProductionOperationRequest", NULL)
+	 || soap_put___ns4__registerProductionOperationRequest(soap, &soap_tmp___ns4__registerProductionOperationRequest, "-ns4:registerProductionOperationRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__registerProductionOperationResponse)
+	if(!merc__registerProductionOperationResponse)
 		return soap_closesock(soap);
-	ns5__registerProductionOperationResponse->soap_default(soap);
+	merc__registerProductionOperationResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__registerProductionOperationResponse->soap_get(soap, "ns5:registerProductionOperationResponse", "ns5:RegisterProductionOperationResponse");
+	merc__registerProductionOperationResponse->soap_get(soap, "merc:registerProductionOperationResponse", "merc:RegisterProductionOperationResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -294,25 +294,25 @@ int AMSMercuryG2BBindingProxy::registerProductionOperationRequest(const char *en
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::mergeStockEntriesRequest(const char *endpoint, const char *soap_action, ns5__MergeStockEntriesRequest *ns5__mergeStockEntriesRequest, ns5__MergeStockEntriesResponse *ns5__mergeStockEntriesResponse)
+int AMSMercuryG2BBindingProxy::mergeStockEntriesRequest(const char *endpoint, const char *soap_action, merc__MergeStockEntriesRequest *merc__mergeStockEntriesRequest, merc__MergeStockEntriesResponse *merc__mergeStockEntriesResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__mergeStockEntriesRequest soap_tmp___ns11__mergeStockEntriesRequest;
+	struct __ns4__mergeStockEntriesRequest soap_tmp___ns4__mergeStockEntriesRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "mergeStockEntriesRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__mergeStockEntriesRequest.ns5__mergeStockEntriesRequest = ns5__mergeStockEntriesRequest;
+	soap_tmp___ns4__mergeStockEntriesRequest.merc__mergeStockEntriesRequest = merc__mergeStockEntriesRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__mergeStockEntriesRequest(soap, &soap_tmp___ns11__mergeStockEntriesRequest);
+	soap_serialize___ns4__mergeStockEntriesRequest(soap, &soap_tmp___ns4__mergeStockEntriesRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__mergeStockEntriesRequest(soap, &soap_tmp___ns11__mergeStockEntriesRequest, "-ns11:mergeStockEntriesRequest", NULL)
+		 || soap_put___ns4__mergeStockEntriesRequest(soap, &soap_tmp___ns4__mergeStockEntriesRequest, "-ns4:mergeStockEntriesRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -323,20 +323,20 @@ int AMSMercuryG2BBindingProxy::mergeStockEntriesRequest(const char *endpoint, co
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__mergeStockEntriesRequest(soap, &soap_tmp___ns11__mergeStockEntriesRequest, "-ns11:mergeStockEntriesRequest", NULL)
+	 || soap_put___ns4__mergeStockEntriesRequest(soap, &soap_tmp___ns4__mergeStockEntriesRequest, "-ns4:mergeStockEntriesRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__mergeStockEntriesResponse)
+	if(!merc__mergeStockEntriesResponse)
 		return soap_closesock(soap);
-	ns5__mergeStockEntriesResponse->soap_default(soap);
+	merc__mergeStockEntriesResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__mergeStockEntriesResponse->soap_get(soap, "ns5:mergeStockEntriesResponse", "ns5:MergeStockEntriesResponse");
+	merc__mergeStockEntriesResponse->soap_get(soap, "merc:mergeStockEntriesResponse", "merc:MergeStockEntriesResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -346,25 +346,25 @@ int AMSMercuryG2BBindingProxy::mergeStockEntriesRequest(const char *endpoint, co
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::withdrawVetDocumentRequest(const char *endpoint, const char *soap_action, ns5__WithdrawVetDocumentRequest *ns5__withdrawVetDocumentRequest, ns5__WithdrawVetDocumentResponse *ns5__withdrawVetDocumentResponse)
+int AMSMercuryG2BBindingProxy::withdrawVetDocumentRequest(const char *endpoint, const char *soap_action, merc__WithdrawVetDocumentRequest *merc__withdrawVetDocumentRequest, merc__WithdrawVetDocumentResponse *merc__withdrawVetDocumentResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__withdrawVetDocumentRequest soap_tmp___ns11__withdrawVetDocumentRequest;
+	struct __ns4__withdrawVetDocumentRequest soap_tmp___ns4__withdrawVetDocumentRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "withdrawVetDocumentRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__withdrawVetDocumentRequest.ns5__withdrawVetDocumentRequest = ns5__withdrawVetDocumentRequest;
+	soap_tmp___ns4__withdrawVetDocumentRequest.merc__withdrawVetDocumentRequest = merc__withdrawVetDocumentRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__withdrawVetDocumentRequest(soap, &soap_tmp___ns11__withdrawVetDocumentRequest);
+	soap_serialize___ns4__withdrawVetDocumentRequest(soap, &soap_tmp___ns4__withdrawVetDocumentRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__withdrawVetDocumentRequest(soap, &soap_tmp___ns11__withdrawVetDocumentRequest, "-ns11:withdrawVetDocumentRequest", NULL)
+		 || soap_put___ns4__withdrawVetDocumentRequest(soap, &soap_tmp___ns4__withdrawVetDocumentRequest, "-ns4:withdrawVetDocumentRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -375,20 +375,20 @@ int AMSMercuryG2BBindingProxy::withdrawVetDocumentRequest(const char *endpoint, 
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__withdrawVetDocumentRequest(soap, &soap_tmp___ns11__withdrawVetDocumentRequest, "-ns11:withdrawVetDocumentRequest", NULL)
+	 || soap_put___ns4__withdrawVetDocumentRequest(soap, &soap_tmp___ns4__withdrawVetDocumentRequest, "-ns4:withdrawVetDocumentRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__withdrawVetDocumentResponse)
+	if(!merc__withdrawVetDocumentResponse)
 		return soap_closesock(soap);
-	ns5__withdrawVetDocumentResponse->soap_default(soap);
+	merc__withdrawVetDocumentResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__withdrawVetDocumentResponse->soap_get(soap, "ns5:withdrawVetDocumentResponse", "ns5:WithdrawVetDocumentResponse");
+	merc__withdrawVetDocumentResponse->soap_get(soap, "merc:withdrawVetDocumentResponse", "merc:WithdrawVetDocumentResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -398,25 +398,25 @@ int AMSMercuryG2BBindingProxy::withdrawVetDocumentRequest(const char *endpoint, 
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::modifyBusinessEntityRequest(const char *endpoint, const char *soap_action, ns5__ModifyBusinessEntityRequest *ns5__modifyBusinessEntityRequest, ns5__ModifyBusinessEntityResponse *ns5__modifyBusinessEntityResponse)
+int AMSMercuryG2BBindingProxy::modifyBusinessEntityRequest(const char *endpoint, const char *soap_action, merc__ModifyBusinessEntityRequest *merc__modifyBusinessEntityRequest, merc__ModifyBusinessEntityResponse *merc__modifyBusinessEntityResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__modifyBusinessEntityRequest soap_tmp___ns11__modifyBusinessEntityRequest;
+	struct __ns4__modifyBusinessEntityRequest soap_tmp___ns4__modifyBusinessEntityRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "modifyBusinessEntityRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__modifyBusinessEntityRequest.ns5__modifyBusinessEntityRequest = ns5__modifyBusinessEntityRequest;
+	soap_tmp___ns4__modifyBusinessEntityRequest.merc__modifyBusinessEntityRequest = merc__modifyBusinessEntityRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__modifyBusinessEntityRequest(soap, &soap_tmp___ns11__modifyBusinessEntityRequest);
+	soap_serialize___ns4__modifyBusinessEntityRequest(soap, &soap_tmp___ns4__modifyBusinessEntityRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__modifyBusinessEntityRequest(soap, &soap_tmp___ns11__modifyBusinessEntityRequest, "-ns11:modifyBusinessEntityRequest", NULL)
+		 || soap_put___ns4__modifyBusinessEntityRequest(soap, &soap_tmp___ns4__modifyBusinessEntityRequest, "-ns4:modifyBusinessEntityRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -427,20 +427,20 @@ int AMSMercuryG2BBindingProxy::modifyBusinessEntityRequest(const char *endpoint,
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__modifyBusinessEntityRequest(soap, &soap_tmp___ns11__modifyBusinessEntityRequest, "-ns11:modifyBusinessEntityRequest", NULL)
+	 || soap_put___ns4__modifyBusinessEntityRequest(soap, &soap_tmp___ns4__modifyBusinessEntityRequest, "-ns4:modifyBusinessEntityRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__modifyBusinessEntityResponse)
+	if(!merc__modifyBusinessEntityResponse)
 		return soap_closesock(soap);
-	ns5__modifyBusinessEntityResponse->soap_default(soap);
+	merc__modifyBusinessEntityResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__modifyBusinessEntityResponse->soap_get(soap, "ns5:modifyBusinessEntityResponse", "ns5:ModifyBusinessEntityResponse");
+	merc__modifyBusinessEntityResponse->soap_get(soap, "merc:modifyBusinessEntityResponse", "merc:ModifyBusinessEntityResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -450,25 +450,25 @@ int AMSMercuryG2BBindingProxy::modifyBusinessEntityRequest(const char *endpoint,
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::modifyEnterpriseRequest(const char *endpoint, const char *soap_action, ns5__ModifyEnterpriseRequest *ns5__modifyEnterpriseRequest, ns5__ModifyEnterpriseResponse *ns5__modifyEnterpriseResponse)
+int AMSMercuryG2BBindingProxy::modifyEnterpriseRequest(const char *endpoint, const char *soap_action, merc__ModifyEnterpriseRequest *merc__modifyEnterpriseRequest, merc__ModifyEnterpriseResponse *merc__modifyEnterpriseResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__modifyEnterpriseRequest soap_tmp___ns11__modifyEnterpriseRequest;
+	struct __ns4__modifyEnterpriseRequest soap_tmp___ns4__modifyEnterpriseRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "modifyEnterpriseRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__modifyEnterpriseRequest.ns5__modifyEnterpriseRequest = ns5__modifyEnterpriseRequest;
+	soap_tmp___ns4__modifyEnterpriseRequest.merc__modifyEnterpriseRequest = merc__modifyEnterpriseRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__modifyEnterpriseRequest(soap, &soap_tmp___ns11__modifyEnterpriseRequest);
+	soap_serialize___ns4__modifyEnterpriseRequest(soap, &soap_tmp___ns4__modifyEnterpriseRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__modifyEnterpriseRequest(soap, &soap_tmp___ns11__modifyEnterpriseRequest, "-ns11:modifyEnterpriseRequest", NULL)
+		 || soap_put___ns4__modifyEnterpriseRequest(soap, &soap_tmp___ns4__modifyEnterpriseRequest, "-ns4:modifyEnterpriseRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -479,20 +479,20 @@ int AMSMercuryG2BBindingProxy::modifyEnterpriseRequest(const char *endpoint, con
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__modifyEnterpriseRequest(soap, &soap_tmp___ns11__modifyEnterpriseRequest, "-ns11:modifyEnterpriseRequest", NULL)
+	 || soap_put___ns4__modifyEnterpriseRequest(soap, &soap_tmp___ns4__modifyEnterpriseRequest, "-ns4:modifyEnterpriseRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__modifyEnterpriseResponse)
+	if(!merc__modifyEnterpriseResponse)
 		return soap_closesock(soap);
-	ns5__modifyEnterpriseResponse->soap_default(soap);
+	merc__modifyEnterpriseResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__modifyEnterpriseResponse->soap_get(soap, "ns5:modifyEnterpriseResponse", "ns5:ModifyEnterpriseResponse");
+	merc__modifyEnterpriseResponse->soap_get(soap, "merc:modifyEnterpriseResponse", "merc:ModifyEnterpriseResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -502,25 +502,25 @@ int AMSMercuryG2BBindingProxy::modifyEnterpriseRequest(const char *endpoint, con
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::modifyActivityLocationsRequest(const char *endpoint, const char *soap_action, ns5__ModifyActivityLocationsRequest *ns5__modifyActivityLocationsRequest, ns5__ModifyActivityLocationsResponse *ns5__modifyActivityLocationsResponse)
+int AMSMercuryG2BBindingProxy::modifyActivityLocationsRequest(const char *endpoint, const char *soap_action, merc__ModifyActivityLocationsRequest *merc__modifyActivityLocationsRequest, merc__ModifyActivityLocationsResponse *merc__modifyActivityLocationsResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__modifyActivityLocationsRequest soap_tmp___ns11__modifyActivityLocationsRequest;
+	struct __ns4__modifyActivityLocationsRequest soap_tmp___ns4__modifyActivityLocationsRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "modifyActivityLocationsRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__modifyActivityLocationsRequest.ns5__modifyActivityLocationsRequest = ns5__modifyActivityLocationsRequest;
+	soap_tmp___ns4__modifyActivityLocationsRequest.merc__modifyActivityLocationsRequest = merc__modifyActivityLocationsRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__modifyActivityLocationsRequest(soap, &soap_tmp___ns11__modifyActivityLocationsRequest);
+	soap_serialize___ns4__modifyActivityLocationsRequest(soap, &soap_tmp___ns4__modifyActivityLocationsRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__modifyActivityLocationsRequest(soap, &soap_tmp___ns11__modifyActivityLocationsRequest, "-ns11:modifyActivityLocationsRequest", NULL)
+		 || soap_put___ns4__modifyActivityLocationsRequest(soap, &soap_tmp___ns4__modifyActivityLocationsRequest, "-ns4:modifyActivityLocationsRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -531,20 +531,20 @@ int AMSMercuryG2BBindingProxy::modifyActivityLocationsRequest(const char *endpoi
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__modifyActivityLocationsRequest(soap, &soap_tmp___ns11__modifyActivityLocationsRequest, "-ns11:modifyActivityLocationsRequest", NULL)
+	 || soap_put___ns4__modifyActivityLocationsRequest(soap, &soap_tmp___ns4__modifyActivityLocationsRequest, "-ns4:modifyActivityLocationsRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__modifyActivityLocationsResponse)
+	if(!merc__modifyActivityLocationsResponse)
 		return soap_closesock(soap);
-	ns5__modifyActivityLocationsResponse->soap_default(soap);
+	merc__modifyActivityLocationsResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__modifyActivityLocationsResponse->soap_get(soap, "ns5:modifyActivityLocationsResponse", "ns5:ModifyActivityLocationsResponse");
+	merc__modifyActivityLocationsResponse->soap_get(soap, "merc:modifyActivityLocationsResponse", "merc:ModifyActivityLocationsResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -554,25 +554,25 @@ int AMSMercuryG2BBindingProxy::modifyActivityLocationsRequest(const char *endpoi
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::resolveDiscrepancyRequest(const char *endpoint, const char *soap_action, ns5__ResolveDiscrepancyRequest *ns5__resolveDiscrepancyRequest, ns5__ResolveDiscrepancyResponse *ns5__resolveDiscrepancyResponse)
+int AMSMercuryG2BBindingProxy::resolveDiscrepancyRequest(const char *endpoint, const char *soap_action, merc__ResolveDiscrepancyRequest *merc__resolveDiscrepancyRequest, merc__ResolveDiscrepancyResponse *merc__resolveDiscrepancyResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__resolveDiscrepancyRequest soap_tmp___ns11__resolveDiscrepancyRequest;
+	struct __ns4__resolveDiscrepancyRequest soap_tmp___ns4__resolveDiscrepancyRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "resolveDiscrepancyRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__resolveDiscrepancyRequest.ns5__resolveDiscrepancyRequest = ns5__resolveDiscrepancyRequest;
+	soap_tmp___ns4__resolveDiscrepancyRequest.merc__resolveDiscrepancyRequest = merc__resolveDiscrepancyRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__resolveDiscrepancyRequest(soap, &soap_tmp___ns11__resolveDiscrepancyRequest);
+	soap_serialize___ns4__resolveDiscrepancyRequest(soap, &soap_tmp___ns4__resolveDiscrepancyRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__resolveDiscrepancyRequest(soap, &soap_tmp___ns11__resolveDiscrepancyRequest, "-ns11:resolveDiscrepancyRequest", NULL)
+		 || soap_put___ns4__resolveDiscrepancyRequest(soap, &soap_tmp___ns4__resolveDiscrepancyRequest, "-ns4:resolveDiscrepancyRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -583,20 +583,20 @@ int AMSMercuryG2BBindingProxy::resolveDiscrepancyRequest(const char *endpoint, c
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__resolveDiscrepancyRequest(soap, &soap_tmp___ns11__resolveDiscrepancyRequest, "-ns11:resolveDiscrepancyRequest", NULL)
+	 || soap_put___ns4__resolveDiscrepancyRequest(soap, &soap_tmp___ns4__resolveDiscrepancyRequest, "-ns4:resolveDiscrepancyRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__resolveDiscrepancyResponse)
+	if(!merc__resolveDiscrepancyResponse)
 		return soap_closesock(soap);
-	ns5__resolveDiscrepancyResponse->soap_default(soap);
+	merc__resolveDiscrepancyResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__resolveDiscrepancyResponse->soap_get(soap, "ns5:resolveDiscrepancyResponse", "ns5:ResolveDiscrepancyResponse");
+	merc__resolveDiscrepancyResponse->soap_get(soap, "merc:resolveDiscrepancyResponse", "merc:ResolveDiscrepancyResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -606,25 +606,25 @@ int AMSMercuryG2BBindingProxy::resolveDiscrepancyRequest(const char *endpoint, c
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::modifyProducerStockListRequest(const char *endpoint, const char *soap_action, ns5__ModifyProducerStockListRequest *ns5__modifyProducerStockListRequest, ns5__ModifyProducerStockListResponse *ns5__modifyProducerStockListResponse)
+int AMSMercuryG2BBindingProxy::modifyProducerStockListRequest(const char *endpoint, const char *soap_action, merc__ModifyProducerStockListRequest *merc__modifyProducerStockListRequest, merc__ModifyProducerStockListResponse *merc__modifyProducerStockListResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__modifyProducerStockListRequest soap_tmp___ns11__modifyProducerStockListRequest;
+	struct __ns4__modifyProducerStockListRequest soap_tmp___ns4__modifyProducerStockListRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "modifyProducerStockListRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__modifyProducerStockListRequest.ns5__modifyProducerStockListRequest = ns5__modifyProducerStockListRequest;
+	soap_tmp___ns4__modifyProducerStockListRequest.merc__modifyProducerStockListRequest = merc__modifyProducerStockListRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__modifyProducerStockListRequest(soap, &soap_tmp___ns11__modifyProducerStockListRequest);
+	soap_serialize___ns4__modifyProducerStockListRequest(soap, &soap_tmp___ns4__modifyProducerStockListRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__modifyProducerStockListRequest(soap, &soap_tmp___ns11__modifyProducerStockListRequest, "-ns11:modifyProducerStockListRequest", NULL)
+		 || soap_put___ns4__modifyProducerStockListRequest(soap, &soap_tmp___ns4__modifyProducerStockListRequest, "-ns4:modifyProducerStockListRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -635,20 +635,20 @@ int AMSMercuryG2BBindingProxy::modifyProducerStockListRequest(const char *endpoi
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__modifyProducerStockListRequest(soap, &soap_tmp___ns11__modifyProducerStockListRequest, "-ns11:modifyProducerStockListRequest", NULL)
+	 || soap_put___ns4__modifyProducerStockListRequest(soap, &soap_tmp___ns4__modifyProducerStockListRequest, "-ns4:modifyProducerStockListRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__modifyProducerStockListResponse)
+	if(!merc__modifyProducerStockListResponse)
 		return soap_closesock(soap);
-	ns5__modifyProducerStockListResponse->soap_default(soap);
+	merc__modifyProducerStockListResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__modifyProducerStockListResponse->soap_get(soap, "ns5:modifyProducerStockListResponse", "ns5:ModifyProducerStockListResponse");
+	merc__modifyProducerStockListResponse->soap_get(soap, "merc:modifyProducerStockListResponse", "merc:ModifyProducerStockListResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -658,25 +658,25 @@ int AMSMercuryG2BBindingProxy::modifyProducerStockListRequest(const char *endpoi
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::getVetDocumentByUuidRequest(const char *endpoint, const char *soap_action, ns5__GetVetDocumentByUuidRequest *ns5__getVetDocumentByUuidRequest, ns5__GetVetDocumentByUuidResponse *ns5__getVetDocumentByUuidResponse)
+int AMSMercuryG2BBindingProxy::getVetDocumentByUuidRequest(const char *endpoint, const char *soap_action, merc__GetVetDocumentByUuidRequest *merc__getVetDocumentByUuidRequest, merc__GetVetDocumentByUuidResponse *merc__getVetDocumentByUuidResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__getVetDocumentByUuidRequest soap_tmp___ns11__getVetDocumentByUuidRequest;
+	struct __ns4__getVetDocumentByUuidRequest soap_tmp___ns4__getVetDocumentByUuidRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "getVetDocumentByUuidRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__getVetDocumentByUuidRequest.ns5__getVetDocumentByUuidRequest = ns5__getVetDocumentByUuidRequest;
+	soap_tmp___ns4__getVetDocumentByUuidRequest.merc__getVetDocumentByUuidRequest = merc__getVetDocumentByUuidRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__getVetDocumentByUuidRequest(soap, &soap_tmp___ns11__getVetDocumentByUuidRequest);
+	soap_serialize___ns4__getVetDocumentByUuidRequest(soap, &soap_tmp___ns4__getVetDocumentByUuidRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__getVetDocumentByUuidRequest(soap, &soap_tmp___ns11__getVetDocumentByUuidRequest, "-ns11:getVetDocumentByUuidRequest", NULL)
+		 || soap_put___ns4__getVetDocumentByUuidRequest(soap, &soap_tmp___ns4__getVetDocumentByUuidRequest, "-ns4:getVetDocumentByUuidRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -687,20 +687,20 @@ int AMSMercuryG2BBindingProxy::getVetDocumentByUuidRequest(const char *endpoint,
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__getVetDocumentByUuidRequest(soap, &soap_tmp___ns11__getVetDocumentByUuidRequest, "-ns11:getVetDocumentByUuidRequest", NULL)
+	 || soap_put___ns4__getVetDocumentByUuidRequest(soap, &soap_tmp___ns4__getVetDocumentByUuidRequest, "-ns4:getVetDocumentByUuidRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__getVetDocumentByUuidResponse)
+	if(!merc__getVetDocumentByUuidResponse)
 		return soap_closesock(soap);
-	ns5__getVetDocumentByUuidResponse->soap_default(soap);
+	merc__getVetDocumentByUuidResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__getVetDocumentByUuidResponse->soap_get(soap, "ns5:getVetDocumentByUuidResponse", "ns5:GetVetDocumentByUuidResponse");
+	merc__getVetDocumentByUuidResponse->soap_get(soap, "merc:getVetDocumentByUuidResponse", "merc:GetVetDocumentByUuidResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -710,25 +710,25 @@ int AMSMercuryG2BBindingProxy::getVetDocumentByUuidRequest(const char *endpoint,
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::getVetDocumentListRequest(const char *endpoint, const char *soap_action, ns5__GetVetDocumentListRequest *ns5__getVetDocumentListRequest, ns5__GetVetDocumentListResponse *ns5__getVetDocumentListResponse)
+int AMSMercuryG2BBindingProxy::getVetDocumentListRequest(const char *endpoint, const char *soap_action, merc__GetVetDocumentListRequest *merc__getVetDocumentListRequest, merc__GetVetDocumentListResponse *merc__getVetDocumentListResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__getVetDocumentListRequest soap_tmp___ns11__getVetDocumentListRequest;
+	struct __ns4__getVetDocumentListRequest soap_tmp___ns4__getVetDocumentListRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "getVetDocumentListRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__getVetDocumentListRequest.ns5__getVetDocumentListRequest = ns5__getVetDocumentListRequest;
+	soap_tmp___ns4__getVetDocumentListRequest.merc__getVetDocumentListRequest = merc__getVetDocumentListRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__getVetDocumentListRequest(soap, &soap_tmp___ns11__getVetDocumentListRequest);
+	soap_serialize___ns4__getVetDocumentListRequest(soap, &soap_tmp___ns4__getVetDocumentListRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__getVetDocumentListRequest(soap, &soap_tmp___ns11__getVetDocumentListRequest, "-ns11:getVetDocumentListRequest", NULL)
+		 || soap_put___ns4__getVetDocumentListRequest(soap, &soap_tmp___ns4__getVetDocumentListRequest, "-ns4:getVetDocumentListRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -739,20 +739,20 @@ int AMSMercuryG2BBindingProxy::getVetDocumentListRequest(const char *endpoint, c
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__getVetDocumentListRequest(soap, &soap_tmp___ns11__getVetDocumentListRequest, "-ns11:getVetDocumentListRequest", NULL)
+	 || soap_put___ns4__getVetDocumentListRequest(soap, &soap_tmp___ns4__getVetDocumentListRequest, "-ns4:getVetDocumentListRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__getVetDocumentListResponse)
+	if(!merc__getVetDocumentListResponse)
 		return soap_closesock(soap);
-	ns5__getVetDocumentListResponse->soap_default(soap);
+	merc__getVetDocumentListResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__getVetDocumentListResponse->soap_get(soap, "ns5:getVetDocumentListResponse", "ns5:GetVetDocumentListResponse");
+	merc__getVetDocumentListResponse->soap_get(soap, "merc:getVetDocumentListResponse", "merc:GetVetDocumentListResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -762,25 +762,25 @@ int AMSMercuryG2BBindingProxy::getVetDocumentListRequest(const char *endpoint, c
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::getVetDocumentChangesListRequest(const char *endpoint, const char *soap_action, ns5__GetVetDocumentChangesListRequest *ns5__getVetDocumentChangesListRequest, ns5__GetVetDocumentChangesListResponse *ns5__getVetDocumentChangesListResponse)
+int AMSMercuryG2BBindingProxy::getVetDocumentChangesListRequest(const char *endpoint, const char *soap_action, merc__GetVetDocumentChangesListRequest *merc__getVetDocumentChangesListRequest, merc__GetVetDocumentChangesListResponse *merc__getVetDocumentChangesListResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__getVetDocumentChangesListRequest soap_tmp___ns11__getVetDocumentChangesListRequest;
+	struct __ns4__getVetDocumentChangesListRequest soap_tmp___ns4__getVetDocumentChangesListRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "getVetDocumentChangesListRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__getVetDocumentChangesListRequest.ns5__getVetDocumentChangesListRequest = ns5__getVetDocumentChangesListRequest;
+	soap_tmp___ns4__getVetDocumentChangesListRequest.merc__getVetDocumentChangesListRequest = merc__getVetDocumentChangesListRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__getVetDocumentChangesListRequest(soap, &soap_tmp___ns11__getVetDocumentChangesListRequest);
+	soap_serialize___ns4__getVetDocumentChangesListRequest(soap, &soap_tmp___ns4__getVetDocumentChangesListRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__getVetDocumentChangesListRequest(soap, &soap_tmp___ns11__getVetDocumentChangesListRequest, "-ns11:getVetDocumentChangesListRequest", NULL)
+		 || soap_put___ns4__getVetDocumentChangesListRequest(soap, &soap_tmp___ns4__getVetDocumentChangesListRequest, "-ns4:getVetDocumentChangesListRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -791,20 +791,20 @@ int AMSMercuryG2BBindingProxy::getVetDocumentChangesListRequest(const char *endp
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__getVetDocumentChangesListRequest(soap, &soap_tmp___ns11__getVetDocumentChangesListRequest, "-ns11:getVetDocumentChangesListRequest", NULL)
+	 || soap_put___ns4__getVetDocumentChangesListRequest(soap, &soap_tmp___ns4__getVetDocumentChangesListRequest, "-ns4:getVetDocumentChangesListRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__getVetDocumentChangesListResponse)
+	if(!merc__getVetDocumentChangesListResponse)
 		return soap_closesock(soap);
-	ns5__getVetDocumentChangesListResponse->soap_default(soap);
+	merc__getVetDocumentChangesListResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__getVetDocumentChangesListResponse->soap_get(soap, "ns5:getVetDocumentChangesListResponse", "ns5:GetVetDocumentChangesListResponse");
+	merc__getVetDocumentChangesListResponse->soap_get(soap, "merc:getVetDocumentChangesListResponse", "merc:GetVetDocumentChangesListResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -814,25 +814,25 @@ int AMSMercuryG2BBindingProxy::getVetDocumentChangesListRequest(const char *endp
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::getStockEntryByGuidRequest(const char *endpoint, const char *soap_action, ns5__GetStockEntryByGuidRequest *ns5__getStockEntryByGuidRequest, ns5__GetStockEntryByGuidResponse *ns5__getStockEntryByGuidResponse)
+int AMSMercuryG2BBindingProxy::getStockEntryByGuidRequest(const char *endpoint, const char *soap_action, merc__GetStockEntryByGuidRequest *merc__getStockEntryByGuidRequest, merc__GetStockEntryByGuidResponse *merc__getStockEntryByGuidResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__getStockEntryByGuidRequest soap_tmp___ns11__getStockEntryByGuidRequest;
+	struct __ns4__getStockEntryByGuidRequest soap_tmp___ns4__getStockEntryByGuidRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "getStockEntryByGuidRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__getStockEntryByGuidRequest.ns5__getStockEntryByGuidRequest = ns5__getStockEntryByGuidRequest;
+	soap_tmp___ns4__getStockEntryByGuidRequest.merc__getStockEntryByGuidRequest = merc__getStockEntryByGuidRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__getStockEntryByGuidRequest(soap, &soap_tmp___ns11__getStockEntryByGuidRequest);
+	soap_serialize___ns4__getStockEntryByGuidRequest(soap, &soap_tmp___ns4__getStockEntryByGuidRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__getStockEntryByGuidRequest(soap, &soap_tmp___ns11__getStockEntryByGuidRequest, "-ns11:getStockEntryByGuidRequest", NULL)
+		 || soap_put___ns4__getStockEntryByGuidRequest(soap, &soap_tmp___ns4__getStockEntryByGuidRequest, "-ns4:getStockEntryByGuidRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -843,20 +843,20 @@ int AMSMercuryG2BBindingProxy::getStockEntryByGuidRequest(const char *endpoint, 
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__getStockEntryByGuidRequest(soap, &soap_tmp___ns11__getStockEntryByGuidRequest, "-ns11:getStockEntryByGuidRequest", NULL)
+	 || soap_put___ns4__getStockEntryByGuidRequest(soap, &soap_tmp___ns4__getStockEntryByGuidRequest, "-ns4:getStockEntryByGuidRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__getStockEntryByGuidResponse)
+	if(!merc__getStockEntryByGuidResponse)
 		return soap_closesock(soap);
-	ns5__getStockEntryByGuidResponse->soap_default(soap);
+	merc__getStockEntryByGuidResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__getStockEntryByGuidResponse->soap_get(soap, "ns5:getStockEntryByGuidResponse", "ns5:GetStockEntryByGuidResponse");
+	merc__getStockEntryByGuidResponse->soap_get(soap, "merc:getStockEntryByGuidResponse", "merc:GetStockEntryByGuidResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -866,25 +866,25 @@ int AMSMercuryG2BBindingProxy::getStockEntryByGuidRequest(const char *endpoint, 
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::getStockEntryByUuidRequest(const char *endpoint, const char *soap_action, ns5__GetStockEntryByUuidRequest *ns5__getStockEntryByUuidRequest, ns5__GetStockEntryByUuidResponse *ns5__getStockEntryByUuidResponse)
+int AMSMercuryG2BBindingProxy::getStockEntryByUuidRequest(const char *endpoint, const char *soap_action, merc__GetStockEntryByUuidRequest *merc__getStockEntryByUuidRequest, merc__GetStockEntryByUuidResponse *merc__getStockEntryByUuidResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__getStockEntryByUuidRequest soap_tmp___ns11__getStockEntryByUuidRequest;
+	struct __ns4__getStockEntryByUuidRequest soap_tmp___ns4__getStockEntryByUuidRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "getStockEntryByUuidRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__getStockEntryByUuidRequest.ns5__getStockEntryByUuidRequest = ns5__getStockEntryByUuidRequest;
+	soap_tmp___ns4__getStockEntryByUuidRequest.merc__getStockEntryByUuidRequest = merc__getStockEntryByUuidRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__getStockEntryByUuidRequest(soap, &soap_tmp___ns11__getStockEntryByUuidRequest);
+	soap_serialize___ns4__getStockEntryByUuidRequest(soap, &soap_tmp___ns4__getStockEntryByUuidRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__getStockEntryByUuidRequest(soap, &soap_tmp___ns11__getStockEntryByUuidRequest, "-ns11:getStockEntryByUuidRequest", NULL)
+		 || soap_put___ns4__getStockEntryByUuidRequest(soap, &soap_tmp___ns4__getStockEntryByUuidRequest, "-ns4:getStockEntryByUuidRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -895,20 +895,20 @@ int AMSMercuryG2BBindingProxy::getStockEntryByUuidRequest(const char *endpoint, 
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__getStockEntryByUuidRequest(soap, &soap_tmp___ns11__getStockEntryByUuidRequest, "-ns11:getStockEntryByUuidRequest", NULL)
+	 || soap_put___ns4__getStockEntryByUuidRequest(soap, &soap_tmp___ns4__getStockEntryByUuidRequest, "-ns4:getStockEntryByUuidRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__getStockEntryByUuidResponse)
+	if(!merc__getStockEntryByUuidResponse)
 		return soap_closesock(soap);
-	ns5__getStockEntryByUuidResponse->soap_default(soap);
+	merc__getStockEntryByUuidResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__getStockEntryByUuidResponse->soap_get(soap, "ns5:getStockEntryByUuidResponse", "ns5:GetStockEntryByUuidResponse");
+	merc__getStockEntryByUuidResponse->soap_get(soap, "merc:getStockEntryByUuidResponse", "merc:GetStockEntryByUuidResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -918,25 +918,25 @@ int AMSMercuryG2BBindingProxy::getStockEntryByUuidRequest(const char *endpoint, 
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::getStockEntryListRequest(const char *endpoint, const char *soap_action, ns5__GetStockEntryListRequest *ns5__getStockEntryListRequest, ns5__GetStockEntryListResponse *ns5__getStockEntryListResponse)
+int AMSMercuryG2BBindingProxy::getStockEntryListRequest(const char *endpoint, const char *soap_action, merc__GetStockEntryListRequest *merc__getStockEntryListRequest, merc__GetStockEntryListResponse *merc__getStockEntryListResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__getStockEntryListRequest soap_tmp___ns11__getStockEntryListRequest;
+	struct __ns4__getStockEntryListRequest soap_tmp___ns4__getStockEntryListRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "getStockEntryListRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__getStockEntryListRequest.ns5__getStockEntryListRequest = ns5__getStockEntryListRequest;
+	soap_tmp___ns4__getStockEntryListRequest.merc__getStockEntryListRequest = merc__getStockEntryListRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__getStockEntryListRequest(soap, &soap_tmp___ns11__getStockEntryListRequest);
+	soap_serialize___ns4__getStockEntryListRequest(soap, &soap_tmp___ns4__getStockEntryListRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__getStockEntryListRequest(soap, &soap_tmp___ns11__getStockEntryListRequest, "-ns11:getStockEntryListRequest", NULL)
+		 || soap_put___ns4__getStockEntryListRequest(soap, &soap_tmp___ns4__getStockEntryListRequest, "-ns4:getStockEntryListRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -947,20 +947,20 @@ int AMSMercuryG2BBindingProxy::getStockEntryListRequest(const char *endpoint, co
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__getStockEntryListRequest(soap, &soap_tmp___ns11__getStockEntryListRequest, "-ns11:getStockEntryListRequest", NULL)
+	 || soap_put___ns4__getStockEntryListRequest(soap, &soap_tmp___ns4__getStockEntryListRequest, "-ns4:getStockEntryListRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__getStockEntryListResponse)
+	if(!merc__getStockEntryListResponse)
 		return soap_closesock(soap);
-	ns5__getStockEntryListResponse->soap_default(soap);
+	merc__getStockEntryListResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__getStockEntryListResponse->soap_get(soap, "ns5:getStockEntryListResponse", "ns5:GetStockEntryListResponse");
+	merc__getStockEntryListResponse->soap_get(soap, "merc:getStockEntryListResponse", "merc:GetStockEntryListResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -970,25 +970,25 @@ int AMSMercuryG2BBindingProxy::getStockEntryListRequest(const char *endpoint, co
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::getStockEntryChangesListRequest(const char *endpoint, const char *soap_action, ns5__GetStockEntryChangesListRequest *ns5__getStockEntryChangesListRequest, ns5__GetStockEntryChangesListResponse *ns5__getStockEntryChangesListResponse)
+int AMSMercuryG2BBindingProxy::getStockEntryChangesListRequest(const char *endpoint, const char *soap_action, merc__GetStockEntryChangesListRequest *merc__getStockEntryChangesListRequest, merc__GetStockEntryChangesListResponse *merc__getStockEntryChangesListResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__getStockEntryChangesListRequest soap_tmp___ns11__getStockEntryChangesListRequest;
+	struct __ns4__getStockEntryChangesListRequest soap_tmp___ns4__getStockEntryChangesListRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "getStockEntryChangesListRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__getStockEntryChangesListRequest.ns5__getStockEntryChangesListRequest = ns5__getStockEntryChangesListRequest;
+	soap_tmp___ns4__getStockEntryChangesListRequest.merc__getStockEntryChangesListRequest = merc__getStockEntryChangesListRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__getStockEntryChangesListRequest(soap, &soap_tmp___ns11__getStockEntryChangesListRequest);
+	soap_serialize___ns4__getStockEntryChangesListRequest(soap, &soap_tmp___ns4__getStockEntryChangesListRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__getStockEntryChangesListRequest(soap, &soap_tmp___ns11__getStockEntryChangesListRequest, "-ns11:getStockEntryChangesListRequest", NULL)
+		 || soap_put___ns4__getStockEntryChangesListRequest(soap, &soap_tmp___ns4__getStockEntryChangesListRequest, "-ns4:getStockEntryChangesListRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -999,20 +999,20 @@ int AMSMercuryG2BBindingProxy::getStockEntryChangesListRequest(const char *endpo
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__getStockEntryChangesListRequest(soap, &soap_tmp___ns11__getStockEntryChangesListRequest, "-ns11:getStockEntryChangesListRequest", NULL)
+	 || soap_put___ns4__getStockEntryChangesListRequest(soap, &soap_tmp___ns4__getStockEntryChangesListRequest, "-ns4:getStockEntryChangesListRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__getStockEntryChangesListResponse)
+	if(!merc__getStockEntryChangesListResponse)
 		return soap_closesock(soap);
-	ns5__getStockEntryChangesListResponse->soap_default(soap);
+	merc__getStockEntryChangesListResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__getStockEntryChangesListResponse->soap_get(soap, "ns5:getStockEntryChangesListResponse", "ns5:GetStockEntryChangesListResponse");
+	merc__getStockEntryChangesListResponse->soap_get(soap, "merc:getStockEntryChangesListResponse", "merc:GetStockEntryChangesListResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -1022,25 +1022,25 @@ int AMSMercuryG2BBindingProxy::getStockEntryChangesListRequest(const char *endpo
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::getStockEntryVersionListRequest(const char *endpoint, const char *soap_action, ns5__GetStockEntryVersionListRequest *ns5__getStockEntryVersionListRequest, ns5__GetStockEntryVersionListResponse *ns5__getStockEntryVersionListResponse)
+int AMSMercuryG2BBindingProxy::getStockEntryVersionListRequest(const char *endpoint, const char *soap_action, merc__GetStockEntryVersionListRequest *merc__getStockEntryVersionListRequest, merc__GetStockEntryVersionListResponse *merc__getStockEntryVersionListResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__getStockEntryVersionListRequest soap_tmp___ns11__getStockEntryVersionListRequest;
+	struct __ns4__getStockEntryVersionListRequest soap_tmp___ns4__getStockEntryVersionListRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "getStockEntryVersionListRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__getStockEntryVersionListRequest.ns5__getStockEntryVersionListRequest = ns5__getStockEntryVersionListRequest;
+	soap_tmp___ns4__getStockEntryVersionListRequest.merc__getStockEntryVersionListRequest = merc__getStockEntryVersionListRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__getStockEntryVersionListRequest(soap, &soap_tmp___ns11__getStockEntryVersionListRequest);
+	soap_serialize___ns4__getStockEntryVersionListRequest(soap, &soap_tmp___ns4__getStockEntryVersionListRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__getStockEntryVersionListRequest(soap, &soap_tmp___ns11__getStockEntryVersionListRequest, "-ns11:getStockEntryVersionListRequest", NULL)
+		 || soap_put___ns4__getStockEntryVersionListRequest(soap, &soap_tmp___ns4__getStockEntryVersionListRequest, "-ns4:getStockEntryVersionListRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -1051,20 +1051,20 @@ int AMSMercuryG2BBindingProxy::getStockEntryVersionListRequest(const char *endpo
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__getStockEntryVersionListRequest(soap, &soap_tmp___ns11__getStockEntryVersionListRequest, "-ns11:getStockEntryVersionListRequest", NULL)
+	 || soap_put___ns4__getStockEntryVersionListRequest(soap, &soap_tmp___ns4__getStockEntryVersionListRequest, "-ns4:getStockEntryVersionListRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__getStockEntryVersionListResponse)
+	if(!merc__getStockEntryVersionListResponse)
 		return soap_closesock(soap);
-	ns5__getStockEntryVersionListResponse->soap_default(soap);
+	merc__getStockEntryVersionListResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__getStockEntryVersionListResponse->soap_get(soap, "ns5:getStockEntryVersionListResponse", "ns5:GetStockEntryVersionListResponse");
+	merc__getStockEntryVersionListResponse->soap_get(soap, "merc:getStockEntryVersionListResponse", "merc:GetStockEntryVersionListResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -1074,25 +1074,25 @@ int AMSMercuryG2BBindingProxy::getStockEntryVersionListRequest(const char *endpo
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::updateTransportMovementDetailsRequest(const char *endpoint, const char *soap_action, ns5__UpdateTransportMovementDetailsRequest *ns5__updateTransportMovementDetailsRequest, ns5__UpdateTransportMovementDetailsResponse *ns5__updateTransportMovementDetailsResponse)
+int AMSMercuryG2BBindingProxy::updateTransportMovementDetailsRequest(const char *endpoint, const char *soap_action, merc__UpdateTransportMovementDetailsRequest *merc__updateTransportMovementDetailsRequest, merc__UpdateTransportMovementDetailsResponse *merc__updateTransportMovementDetailsResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__updateTransportMovementDetailsRequest soap_tmp___ns11__updateTransportMovementDetailsRequest;
+	struct __ns4__updateTransportMovementDetailsRequest soap_tmp___ns4__updateTransportMovementDetailsRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "updateTransportMovementDetailsRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__updateTransportMovementDetailsRequest.ns5__updateTransportMovementDetailsRequest = ns5__updateTransportMovementDetailsRequest;
+	soap_tmp___ns4__updateTransportMovementDetailsRequest.merc__updateTransportMovementDetailsRequest = merc__updateTransportMovementDetailsRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__updateTransportMovementDetailsRequest(soap, &soap_tmp___ns11__updateTransportMovementDetailsRequest);
+	soap_serialize___ns4__updateTransportMovementDetailsRequest(soap, &soap_tmp___ns4__updateTransportMovementDetailsRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__updateTransportMovementDetailsRequest(soap, &soap_tmp___ns11__updateTransportMovementDetailsRequest, "-ns11:updateTransportMovementDetailsRequest", NULL)
+		 || soap_put___ns4__updateTransportMovementDetailsRequest(soap, &soap_tmp___ns4__updateTransportMovementDetailsRequest, "-ns4:updateTransportMovementDetailsRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -1103,20 +1103,20 @@ int AMSMercuryG2BBindingProxy::updateTransportMovementDetailsRequest(const char 
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__updateTransportMovementDetailsRequest(soap, &soap_tmp___ns11__updateTransportMovementDetailsRequest, "-ns11:updateTransportMovementDetailsRequest", NULL)
+	 || soap_put___ns4__updateTransportMovementDetailsRequest(soap, &soap_tmp___ns4__updateTransportMovementDetailsRequest, "-ns4:updateTransportMovementDetailsRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__updateTransportMovementDetailsResponse)
+	if(!merc__updateTransportMovementDetailsResponse)
 		return soap_closesock(soap);
-	ns5__updateTransportMovementDetailsResponse->soap_default(soap);
+	merc__updateTransportMovementDetailsResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__updateTransportMovementDetailsResponse->soap_get(soap, "ns5:updateTransportMovementDetailsResponse", "ns5:UpdateTransportMovementDetailsResponse");
+	merc__updateTransportMovementDetailsResponse->soap_get(soap, "merc:updateTransportMovementDetailsResponse", "merc:UpdateTransportMovementDetailsResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -1126,25 +1126,25 @@ int AMSMercuryG2BBindingProxy::updateTransportMovementDetailsRequest(const char 
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::updateVeterinaryEventsRequest(const char *endpoint, const char *soap_action, ns5__UpdateVeterinaryEventsRequest *ns5__updateVeterinaryEventsRequest, ns5__UpdateVeterinaryEventsResponse *ns5__updateVeterinaryEventsResponse)
+int AMSMercuryG2BBindingProxy::updateVeterinaryEventsRequest(const char *endpoint, const char *soap_action, merc__UpdateVeterinaryEventsRequest *merc__updateVeterinaryEventsRequest, merc__UpdateVeterinaryEventsResponse *merc__updateVeterinaryEventsResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__updateVeterinaryEventsRequest soap_tmp___ns11__updateVeterinaryEventsRequest;
+	struct __ns4__updateVeterinaryEventsRequest soap_tmp___ns4__updateVeterinaryEventsRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "updateVeterinaryEventsRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__updateVeterinaryEventsRequest.ns5__updateVeterinaryEventsRequest = ns5__updateVeterinaryEventsRequest;
+	soap_tmp___ns4__updateVeterinaryEventsRequest.merc__updateVeterinaryEventsRequest = merc__updateVeterinaryEventsRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__updateVeterinaryEventsRequest(soap, &soap_tmp___ns11__updateVeterinaryEventsRequest);
+	soap_serialize___ns4__updateVeterinaryEventsRequest(soap, &soap_tmp___ns4__updateVeterinaryEventsRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__updateVeterinaryEventsRequest(soap, &soap_tmp___ns11__updateVeterinaryEventsRequest, "-ns11:updateVeterinaryEventsRequest", NULL)
+		 || soap_put___ns4__updateVeterinaryEventsRequest(soap, &soap_tmp___ns4__updateVeterinaryEventsRequest, "-ns4:updateVeterinaryEventsRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -1155,20 +1155,20 @@ int AMSMercuryG2BBindingProxy::updateVeterinaryEventsRequest(const char *endpoin
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__updateVeterinaryEventsRequest(soap, &soap_tmp___ns11__updateVeterinaryEventsRequest, "-ns11:updateVeterinaryEventsRequest", NULL)
+	 || soap_put___ns4__updateVeterinaryEventsRequest(soap, &soap_tmp___ns4__updateVeterinaryEventsRequest, "-ns4:updateVeterinaryEventsRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__updateVeterinaryEventsResponse)
+	if(!merc__updateVeterinaryEventsResponse)
 		return soap_closesock(soap);
-	ns5__updateVeterinaryEventsResponse->soap_default(soap);
+	merc__updateVeterinaryEventsResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__updateVeterinaryEventsResponse->soap_get(soap, "ns5:updateVeterinaryEventsResponse", "ns5:UpdateVeterinaryEventsResponse");
+	merc__updateVeterinaryEventsResponse->soap_get(soap, "merc:updateVeterinaryEventsResponse", "merc:UpdateVeterinaryEventsResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -1178,25 +1178,25 @@ int AMSMercuryG2BBindingProxy::updateVeterinaryEventsRequest(const char *endpoin
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::checkShipmentRegionalizationRequest(const char *endpoint, const char *soap_action, ns5__CheckShipmentRegionalizationRequest *ns5__checkShipmentRegionalizationRequest, ns5__CheckShipmentRegionalizationResponse *ns5__checkShipmentRegionalizationResponse)
+int AMSMercuryG2BBindingProxy::checkShipmentRegionalizationRequest(const char *endpoint, const char *soap_action, merc__CheckShipmentRegionalizationRequest *merc__checkShipmentRegionalizationRequest, merc__CheckShipmentRegionalizationResponse *merc__checkShipmentRegionalizationResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__checkShipmentRegionalizationRequest soap_tmp___ns11__checkShipmentRegionalizationRequest;
+	struct __ns4__checkShipmentRegionalizationRequest soap_tmp___ns4__checkShipmentRegionalizationRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "checkShipmentRegionalizationRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__checkShipmentRegionalizationRequest.ns5__checkShipmentRegionalizationRequest = ns5__checkShipmentRegionalizationRequest;
+	soap_tmp___ns4__checkShipmentRegionalizationRequest.merc__checkShipmentRegionalizationRequest = merc__checkShipmentRegionalizationRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__checkShipmentRegionalizationRequest(soap, &soap_tmp___ns11__checkShipmentRegionalizationRequest);
+	soap_serialize___ns4__checkShipmentRegionalizationRequest(soap, &soap_tmp___ns4__checkShipmentRegionalizationRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__checkShipmentRegionalizationRequest(soap, &soap_tmp___ns11__checkShipmentRegionalizationRequest, "-ns11:checkShipmentRegionalizationRequest", NULL)
+		 || soap_put___ns4__checkShipmentRegionalizationRequest(soap, &soap_tmp___ns4__checkShipmentRegionalizationRequest, "-ns4:checkShipmentRegionalizationRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -1207,20 +1207,20 @@ int AMSMercuryG2BBindingProxy::checkShipmentRegionalizationRequest(const char *e
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__checkShipmentRegionalizationRequest(soap, &soap_tmp___ns11__checkShipmentRegionalizationRequest, "-ns11:checkShipmentRegionalizationRequest", NULL)
+	 || soap_put___ns4__checkShipmentRegionalizationRequest(soap, &soap_tmp___ns4__checkShipmentRegionalizationRequest, "-ns4:checkShipmentRegionalizationRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__checkShipmentRegionalizationResponse)
+	if(!merc__checkShipmentRegionalizationResponse)
 		return soap_closesock(soap);
-	ns5__checkShipmentRegionalizationResponse->soap_default(soap);
+	merc__checkShipmentRegionalizationResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__checkShipmentRegionalizationResponse->soap_get(soap, "ns5:checkShipmentRegionalizationResponse", "ns5:CheckShipmentRegionalizationResponse");
+	merc__checkShipmentRegionalizationResponse->soap_get(soap, "merc:checkShipmentRegionalizationResponse", "merc:CheckShipmentRegionalizationResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -1230,25 +1230,25 @@ int AMSMercuryG2BBindingProxy::checkShipmentRegionalizationRequest(const char *e
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::addBusinessEntityUserRequest(const char *endpoint, const char *soap_action, ns5__AddBusinessEntityUserRequest *ns5__addBusinessEntityUserRequest, ns5__AddBusinessEntityUserResponse *ns5__addBusinessEntityUserResponse)
+int AMSMercuryG2BBindingProxy::addBusinessEntityUserRequest(const char *endpoint, const char *soap_action, merc__AddBusinessEntityUserRequest *merc__addBusinessEntityUserRequest, merc__AddBusinessEntityUserResponse *merc__addBusinessEntityUserResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__addBusinessEntityUserRequest soap_tmp___ns11__addBusinessEntityUserRequest;
+	struct __ns4__addBusinessEntityUserRequest soap_tmp___ns4__addBusinessEntityUserRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "addBusinessEntityUserRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__addBusinessEntityUserRequest.ns5__addBusinessEntityUserRequest = ns5__addBusinessEntityUserRequest;
+	soap_tmp___ns4__addBusinessEntityUserRequest.merc__addBusinessEntityUserRequest = merc__addBusinessEntityUserRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__addBusinessEntityUserRequest(soap, &soap_tmp___ns11__addBusinessEntityUserRequest);
+	soap_serialize___ns4__addBusinessEntityUserRequest(soap, &soap_tmp___ns4__addBusinessEntityUserRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__addBusinessEntityUserRequest(soap, &soap_tmp___ns11__addBusinessEntityUserRequest, "-ns11:addBusinessEntityUserRequest", NULL)
+		 || soap_put___ns4__addBusinessEntityUserRequest(soap, &soap_tmp___ns4__addBusinessEntityUserRequest, "-ns4:addBusinessEntityUserRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -1259,20 +1259,20 @@ int AMSMercuryG2BBindingProxy::addBusinessEntityUserRequest(const char *endpoint
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__addBusinessEntityUserRequest(soap, &soap_tmp___ns11__addBusinessEntityUserRequest, "-ns11:addBusinessEntityUserRequest", NULL)
+	 || soap_put___ns4__addBusinessEntityUserRequest(soap, &soap_tmp___ns4__addBusinessEntityUserRequest, "-ns4:addBusinessEntityUserRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__addBusinessEntityUserResponse)
+	if(!merc__addBusinessEntityUserResponse)
 		return soap_closesock(soap);
-	ns5__addBusinessEntityUserResponse->soap_default(soap);
+	merc__addBusinessEntityUserResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__addBusinessEntityUserResponse->soap_get(soap, "ns5:addBusinessEntityUserResponse", "ns5:AddBusinessEntityUserResponse");
+	merc__addBusinessEntityUserResponse->soap_get(soap, "merc:addBusinessEntityUserResponse", "merc:AddBusinessEntityUserResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -1282,25 +1282,25 @@ int AMSMercuryG2BBindingProxy::addBusinessEntityUserRequest(const char *endpoint
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::getBusinessEntityUserListRequest(const char *endpoint, const char *soap_action, ns5__GetBusinessEntityUserListRequest *ns5__getBusinessEntityUserListRequest, ns5__GetBusinessEntityUserListResponse *ns5__getBusinessEntityUserListResponse)
+int AMSMercuryG2BBindingProxy::getBusinessEntityUserListRequest(const char *endpoint, const char *soap_action, merc__GetBusinessEntityUserListRequest *merc__getBusinessEntityUserListRequest, merc__GetBusinessEntityUserListResponse *merc__getBusinessEntityUserListResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__getBusinessEntityUserListRequest soap_tmp___ns11__getBusinessEntityUserListRequest;
+	struct __ns4__getBusinessEntityUserListRequest soap_tmp___ns4__getBusinessEntityUserListRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "getBusinessEntityUserListRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__getBusinessEntityUserListRequest.ns5__getBusinessEntityUserListRequest = ns5__getBusinessEntityUserListRequest;
+	soap_tmp___ns4__getBusinessEntityUserListRequest.merc__getBusinessEntityUserListRequest = merc__getBusinessEntityUserListRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__getBusinessEntityUserListRequest(soap, &soap_tmp___ns11__getBusinessEntityUserListRequest);
+	soap_serialize___ns4__getBusinessEntityUserListRequest(soap, &soap_tmp___ns4__getBusinessEntityUserListRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__getBusinessEntityUserListRequest(soap, &soap_tmp___ns11__getBusinessEntityUserListRequest, "-ns11:getBusinessEntityUserListRequest", NULL)
+		 || soap_put___ns4__getBusinessEntityUserListRequest(soap, &soap_tmp___ns4__getBusinessEntityUserListRequest, "-ns4:getBusinessEntityUserListRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -1311,20 +1311,20 @@ int AMSMercuryG2BBindingProxy::getBusinessEntityUserListRequest(const char *endp
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__getBusinessEntityUserListRequest(soap, &soap_tmp___ns11__getBusinessEntityUserListRequest, "-ns11:getBusinessEntityUserListRequest", NULL)
+	 || soap_put___ns4__getBusinessEntityUserListRequest(soap, &soap_tmp___ns4__getBusinessEntityUserListRequest, "-ns4:getBusinessEntityUserListRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__getBusinessEntityUserListResponse)
+	if(!merc__getBusinessEntityUserListResponse)
 		return soap_closesock(soap);
-	ns5__getBusinessEntityUserListResponse->soap_default(soap);
+	merc__getBusinessEntityUserListResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__getBusinessEntityUserListResponse->soap_get(soap, "ns5:getBusinessEntityUserListResponse", "ns5:GetBusinessEntityUserListResponse");
+	merc__getBusinessEntityUserListResponse->soap_get(soap, "merc:getBusinessEntityUserListResponse", "merc:GetBusinessEntityUserListResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -1334,25 +1334,25 @@ int AMSMercuryG2BBindingProxy::getBusinessEntityUserListRequest(const char *endp
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::getBusinessEntityUserRequest(const char *endpoint, const char *soap_action, ns5__GetBusinessEntityUserRequest *ns5__getBusinessEntityUserRequest, ns5__GetBusinessEntityUserResponse *ns5__getBusinessEntityUserResponse)
+int AMSMercuryG2BBindingProxy::getBusinessEntityUserRequest(const char *endpoint, const char *soap_action, merc__GetBusinessEntityUserRequest *merc__getBusinessEntityUserRequest, merc__GetBusinessEntityUserResponse *merc__getBusinessEntityUserResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__getBusinessEntityUserRequest soap_tmp___ns11__getBusinessEntityUserRequest;
+	struct __ns4__getBusinessEntityUserRequest soap_tmp___ns4__getBusinessEntityUserRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "getBusinessEntityUserRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__getBusinessEntityUserRequest.ns5__getBusinessEntityUserRequest = ns5__getBusinessEntityUserRequest;
+	soap_tmp___ns4__getBusinessEntityUserRequest.merc__getBusinessEntityUserRequest = merc__getBusinessEntityUserRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__getBusinessEntityUserRequest(soap, &soap_tmp___ns11__getBusinessEntityUserRequest);
+	soap_serialize___ns4__getBusinessEntityUserRequest(soap, &soap_tmp___ns4__getBusinessEntityUserRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__getBusinessEntityUserRequest(soap, &soap_tmp___ns11__getBusinessEntityUserRequest, "-ns11:getBusinessEntityUserRequest", NULL)
+		 || soap_put___ns4__getBusinessEntityUserRequest(soap, &soap_tmp___ns4__getBusinessEntityUserRequest, "-ns4:getBusinessEntityUserRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -1363,20 +1363,20 @@ int AMSMercuryG2BBindingProxy::getBusinessEntityUserRequest(const char *endpoint
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__getBusinessEntityUserRequest(soap, &soap_tmp___ns11__getBusinessEntityUserRequest, "-ns11:getBusinessEntityUserRequest", NULL)
+	 || soap_put___ns4__getBusinessEntityUserRequest(soap, &soap_tmp___ns4__getBusinessEntityUserRequest, "-ns4:getBusinessEntityUserRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__getBusinessEntityUserResponse)
+	if(!merc__getBusinessEntityUserResponse)
 		return soap_closesock(soap);
-	ns5__getBusinessEntityUserResponse->soap_default(soap);
+	merc__getBusinessEntityUserResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__getBusinessEntityUserResponse->soap_get(soap, "ns5:getBusinessEntityUserResponse", "ns5:GetBusinessEntityUserResponse");
+	merc__getBusinessEntityUserResponse->soap_get(soap, "merc:getBusinessEntityUserResponse", "merc:GetBusinessEntityUserResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -1386,25 +1386,25 @@ int AMSMercuryG2BBindingProxy::getBusinessEntityUserRequest(const char *endpoint
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::updateUserAuthoritiesRequest(const char *endpoint, const char *soap_action, ns5__UpdateUserAuthoritiesRequest *ns5__updateUserAuthoritiesRequest, ns5__UpdateUserAuthoritiesResponse *ns5__updateUserAuthoritiesResponse)
+int AMSMercuryG2BBindingProxy::updateUserAuthoritiesRequest(const char *endpoint, const char *soap_action, merc__UpdateUserAuthoritiesRequest *merc__updateUserAuthoritiesRequest, merc__UpdateUserAuthoritiesResponse *merc__updateUserAuthoritiesResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__updateUserAuthoritiesRequest soap_tmp___ns11__updateUserAuthoritiesRequest;
+	struct __ns4__updateUserAuthoritiesRequest soap_tmp___ns4__updateUserAuthoritiesRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "updateUserAuthoritiesRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__updateUserAuthoritiesRequest.ns5__updateUserAuthoritiesRequest = ns5__updateUserAuthoritiesRequest;
+	soap_tmp___ns4__updateUserAuthoritiesRequest.merc__updateUserAuthoritiesRequest = merc__updateUserAuthoritiesRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__updateUserAuthoritiesRequest(soap, &soap_tmp___ns11__updateUserAuthoritiesRequest);
+	soap_serialize___ns4__updateUserAuthoritiesRequest(soap, &soap_tmp___ns4__updateUserAuthoritiesRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__updateUserAuthoritiesRequest(soap, &soap_tmp___ns11__updateUserAuthoritiesRequest, "-ns11:updateUserAuthoritiesRequest", NULL)
+		 || soap_put___ns4__updateUserAuthoritiesRequest(soap, &soap_tmp___ns4__updateUserAuthoritiesRequest, "-ns4:updateUserAuthoritiesRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -1415,20 +1415,20 @@ int AMSMercuryG2BBindingProxy::updateUserAuthoritiesRequest(const char *endpoint
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__updateUserAuthoritiesRequest(soap, &soap_tmp___ns11__updateUserAuthoritiesRequest, "-ns11:updateUserAuthoritiesRequest", NULL)
+	 || soap_put___ns4__updateUserAuthoritiesRequest(soap, &soap_tmp___ns4__updateUserAuthoritiesRequest, "-ns4:updateUserAuthoritiesRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__updateUserAuthoritiesResponse)
+	if(!merc__updateUserAuthoritiesResponse)
 		return soap_closesock(soap);
-	ns5__updateUserAuthoritiesResponse->soap_default(soap);
+	merc__updateUserAuthoritiesResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__updateUserAuthoritiesResponse->soap_get(soap, "ns5:updateUserAuthoritiesResponse", "ns5:UpdateUserAuthoritiesResponse");
+	merc__updateUserAuthoritiesResponse->soap_get(soap, "merc:updateUserAuthoritiesResponse", "merc:UpdateUserAuthoritiesResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -1438,25 +1438,25 @@ int AMSMercuryG2BBindingProxy::updateUserAuthoritiesRequest(const char *endpoint
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::updateUserWorkingAreasRequest(const char *endpoint, const char *soap_action, ns5__UpdateUserWorkingAreasRequest *ns5__updateUserWorkingAreasRequest, ns5__UpdateUserWorkingAreasResponse *ns5__updateUserWorkingAreasResponse)
+int AMSMercuryG2BBindingProxy::updateUserWorkingAreasRequest(const char *endpoint, const char *soap_action, merc__UpdateUserWorkingAreasRequest *merc__updateUserWorkingAreasRequest, merc__UpdateUserWorkingAreasResponse *merc__updateUserWorkingAreasResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__updateUserWorkingAreasRequest soap_tmp___ns11__updateUserWorkingAreasRequest;
+	struct __ns4__updateUserWorkingAreasRequest soap_tmp___ns4__updateUserWorkingAreasRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "updateUserWorkingAreasRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__updateUserWorkingAreasRequest.ns5__updateUserWorkingAreasRequest = ns5__updateUserWorkingAreasRequest;
+	soap_tmp___ns4__updateUserWorkingAreasRequest.merc__updateUserWorkingAreasRequest = merc__updateUserWorkingAreasRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__updateUserWorkingAreasRequest(soap, &soap_tmp___ns11__updateUserWorkingAreasRequest);
+	soap_serialize___ns4__updateUserWorkingAreasRequest(soap, &soap_tmp___ns4__updateUserWorkingAreasRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__updateUserWorkingAreasRequest(soap, &soap_tmp___ns11__updateUserWorkingAreasRequest, "-ns11:updateUserWorkingAreasRequest", NULL)
+		 || soap_put___ns4__updateUserWorkingAreasRequest(soap, &soap_tmp___ns4__updateUserWorkingAreasRequest, "-ns4:updateUserWorkingAreasRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -1467,20 +1467,20 @@ int AMSMercuryG2BBindingProxy::updateUserWorkingAreasRequest(const char *endpoin
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__updateUserWorkingAreasRequest(soap, &soap_tmp___ns11__updateUserWorkingAreasRequest, "-ns11:updateUserWorkingAreasRequest", NULL)
+	 || soap_put___ns4__updateUserWorkingAreasRequest(soap, &soap_tmp___ns4__updateUserWorkingAreasRequest, "-ns4:updateUserWorkingAreasRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__updateUserWorkingAreasResponse)
+	if(!merc__updateUserWorkingAreasResponse)
 		return soap_closesock(soap);
-	ns5__updateUserWorkingAreasResponse->soap_default(soap);
+	merc__updateUserWorkingAreasResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__updateUserWorkingAreasResponse->soap_get(soap, "ns5:updateUserWorkingAreasResponse", "ns5:UpdateUserWorkingAreasResponse");
+	merc__updateUserWorkingAreasResponse->soap_get(soap, "merc:updateUserWorkingAreasResponse", "merc:UpdateUserWorkingAreasResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -1490,25 +1490,25 @@ int AMSMercuryG2BBindingProxy::updateUserWorkingAreasRequest(const char *endpoin
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::unbindBusinessEntityUserRequest(const char *endpoint, const char *soap_action, ns5__UnbindBusinessEntityUserRequest *ns5__unbindBusinessEntityUserRequest, ns5__UnbindBusinessEntityUserResponse *ns5__unbindBusinessEntityUserResponse)
+int AMSMercuryG2BBindingProxy::unbindBusinessEntityUserRequest(const char *endpoint, const char *soap_action, merc__UnbindBusinessEntityUserRequest *merc__unbindBusinessEntityUserRequest, merc__UnbindBusinessEntityUserResponse *merc__unbindBusinessEntityUserResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__unbindBusinessEntityUserRequest soap_tmp___ns11__unbindBusinessEntityUserRequest;
+	struct __ns4__unbindBusinessEntityUserRequest soap_tmp___ns4__unbindBusinessEntityUserRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "unbindBusinessEntityUserRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__unbindBusinessEntityUserRequest.ns5__unbindBusinessEntityUserRequest = ns5__unbindBusinessEntityUserRequest;
+	soap_tmp___ns4__unbindBusinessEntityUserRequest.merc__unbindBusinessEntityUserRequest = merc__unbindBusinessEntityUserRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__unbindBusinessEntityUserRequest(soap, &soap_tmp___ns11__unbindBusinessEntityUserRequest);
+	soap_serialize___ns4__unbindBusinessEntityUserRequest(soap, &soap_tmp___ns4__unbindBusinessEntityUserRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__unbindBusinessEntityUserRequest(soap, &soap_tmp___ns11__unbindBusinessEntityUserRequest, "-ns11:unbindBusinessEntityUserRequest", NULL)
+		 || soap_put___ns4__unbindBusinessEntityUserRequest(soap, &soap_tmp___ns4__unbindBusinessEntityUserRequest, "-ns4:unbindBusinessEntityUserRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -1519,20 +1519,20 @@ int AMSMercuryG2BBindingProxy::unbindBusinessEntityUserRequest(const char *endpo
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__unbindBusinessEntityUserRequest(soap, &soap_tmp___ns11__unbindBusinessEntityUserRequest, "-ns11:unbindBusinessEntityUserRequest", NULL)
+	 || soap_put___ns4__unbindBusinessEntityUserRequest(soap, &soap_tmp___ns4__unbindBusinessEntityUserRequest, "-ns4:unbindBusinessEntityUserRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__unbindBusinessEntityUserResponse)
+	if(!merc__unbindBusinessEntityUserResponse)
 		return soap_closesock(soap);
-	ns5__unbindBusinessEntityUserResponse->soap_default(soap);
+	merc__unbindBusinessEntityUserResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__unbindBusinessEntityUserResponse->soap_get(soap, "ns5:unbindBusinessEntityUserResponse", "ns5:UnbindBusinessEntityUserResponse");
+	merc__unbindBusinessEntityUserResponse->soap_get(soap, "merc:unbindBusinessEntityUserResponse", "merc:UnbindBusinessEntityUserResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)
@@ -1542,25 +1542,25 @@ int AMSMercuryG2BBindingProxy::unbindBusinessEntityUserRequest(const char *endpo
 	return soap_closesock(soap);
 }
 
-int AMSMercuryG2BBindingProxy::getAppliedUserAuthorityListRequest(const char *endpoint, const char *soap_action, ns5__GetAppliedUserAuthorityListRequest *ns5__getAppliedUserAuthorityListRequest, ns5__GetAppliedUserAuthorityListResponse *ns5__getAppliedUserAuthorityListResponse)
+int AMSMercuryG2BBindingProxy::getAppliedUserAuthorityListRequest(const char *endpoint, const char *soap_action, merc__GetAppliedUserAuthorityListRequest *merc__getAppliedUserAuthorityListRequest, merc__GetAppliedUserAuthorityListResponse *merc__getAppliedUserAuthorityListResponse)
 {
 	struct soap *soap = this;
-	struct __ns11__getAppliedUserAuthorityListRequest soap_tmp___ns11__getAppliedUserAuthorityListRequest;
+	struct __ns4__getAppliedUserAuthorityListRequest soap_tmp___ns4__getAppliedUserAuthorityListRequest;
 	if(endpoint)
 		soap_endpoint = endpoint;
 	SETIFZ(soap_action, "getAppliedUserAuthorityListRequest");
 	soap->encodingStyle = NULL;
-	soap_tmp___ns11__getAppliedUserAuthorityListRequest.ns5__getAppliedUserAuthorityListRequest = ns5__getAppliedUserAuthorityListRequest;
+	soap_tmp___ns4__getAppliedUserAuthorityListRequest.merc__getAppliedUserAuthorityListRequest = merc__getAppliedUserAuthorityListRequest;
 	soap_begin(soap);
 	soap_serializeheader(soap);
-	soap_serialize___ns11__getAppliedUserAuthorityListRequest(soap, &soap_tmp___ns11__getAppliedUserAuthorityListRequest);
+	soap_serialize___ns4__getAppliedUserAuthorityListRequest(soap, &soap_tmp___ns4__getAppliedUserAuthorityListRequest);
 	if(soap_begin_count(soap))
 		return soap->error;
 	if(soap->mode & SOAP_IO_LENGTH) {
 		if(soap_envelope_begin_out(soap)
 		 || soap_putheader(soap)
 		 || soap_body_begin_out(soap)
-		 || soap_put___ns11__getAppliedUserAuthorityListRequest(soap, &soap_tmp___ns11__getAppliedUserAuthorityListRequest, "-ns11:getAppliedUserAuthorityListRequest", NULL)
+		 || soap_put___ns4__getAppliedUserAuthorityListRequest(soap, &soap_tmp___ns4__getAppliedUserAuthorityListRequest, "-ns4:getAppliedUserAuthorityListRequest", NULL)
 		 || soap_body_end_out(soap)
 		 || soap_envelope_end_out(soap))
 			 return soap->error;
@@ -1571,20 +1571,20 @@ int AMSMercuryG2BBindingProxy::getAppliedUserAuthorityListRequest(const char *en
 	 || soap_envelope_begin_out(soap)
 	 || soap_putheader(soap)
 	 || soap_body_begin_out(soap)
-	 || soap_put___ns11__getAppliedUserAuthorityListRequest(soap, &soap_tmp___ns11__getAppliedUserAuthorityListRequest, "-ns11:getAppliedUserAuthorityListRequest", NULL)
+	 || soap_put___ns4__getAppliedUserAuthorityListRequest(soap, &soap_tmp___ns4__getAppliedUserAuthorityListRequest, "-ns4:getAppliedUserAuthorityListRequest", NULL)
 	 || soap_body_end_out(soap)
 	 || soap_envelope_end_out(soap)
 	 || soap_end_send(soap))
 		return soap_closesock(soap);
-	if(!ns5__getAppliedUserAuthorityListResponse)
+	if(!merc__getAppliedUserAuthorityListResponse)
 		return soap_closesock(soap);
-	ns5__getAppliedUserAuthorityListResponse->soap_default(soap);
+	merc__getAppliedUserAuthorityListResponse->soap_default(soap);
 	if(soap_begin_recv(soap)
 	 || soap_envelope_begin_in(soap)
 	 || soap_recv_header(soap)
 	 || soap_body_begin_in(soap))
 		return soap_closesock(soap);
-	ns5__getAppliedUserAuthorityListResponse->soap_get(soap, "ns5:getAppliedUserAuthorityListResponse", "ns5:GetAppliedUserAuthorityListResponse");
+	merc__getAppliedUserAuthorityListResponse->soap_get(soap, "merc:getAppliedUserAuthorityListResponse", "merc:GetAppliedUserAuthorityListResponse");
 	if(soap->error)
 		return soap_recv_fault(soap, 0);
 	if(soap_body_end_in(soap)

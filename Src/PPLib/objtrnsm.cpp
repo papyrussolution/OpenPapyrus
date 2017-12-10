@@ -1,15 +1,15 @@
 // OBJTRNSM.CPP
 // Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
-// @codepage windows-1251
-// Передача объектов между разделами БД
+// @codepage UTF-8
+// РџРµСЂРµРґР°С‡Р° РѕР±СЉРµРєС‚РѕРІ РјРµР¶РґСѓ СЂР°Р·РґРµР»Р°РјРё Р‘Р”
 //
 #include <pp.h>
 #pragma hdrstop
 
 #define OT_MAGIC 0x534F5050L // "PPOS"
 //
-// @attention При изменении формата передачи данных необходимо установить здесь минимальную
-//   версию системы, с которой пакеты паредачи данных могут быть приняты.
+// @attention РџСЂРё РёР·РјРµРЅРµРЅРёРё С„РѕСЂРјР°С‚Р° РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С… РЅРµРѕР±С…РѕРґРёРјРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·РґРµСЃСЊ РјРёРЅРёРјР°Р»СЊРЅСѓСЋ
+//   РІРµСЂСЃРёСЋ СЃРёСЃС‚РµРјС‹, СЃ РєРѕС‚РѕСЂРѕР№ РїР°РєРµС‚С‹ РїР°СЂРµРґР°С‡Рё РґР°РЅРЅС‹С… РјРѕРіСѓС‚ Р±С‹С‚СЊ РїСЂРёРЅСЏС‚С‹.
 //
 static const SVerT __MinCompatVer(9, 8, 9);
 	// @v6.4.7  6.2.2-->6.4.7
@@ -35,8 +35,8 @@ static const SVerT __MinCompatVer(9, 8, 9);
 //
 
 //static
-long PPObjectTransmit::DefaultPriority = 1000;
-long PPObjectTransmit::DependedPriority = 2000;
+const long PPObjectTransmit::DefaultPriority = 1000;
+const long PPObjectTransmit::DependedPriority = 2000;
 
 struct RestoreStackItem {
 	PPObjID Oi;
@@ -86,7 +86,7 @@ int SLAPI PPObjectTransmit::EditConfig()
 			AddClusterAssoc(CTL_DBXCHGCFG_RLZORD,  2, RLZORD_LIFO);
 			SetClusterData(CTL_DBXCHGCFG_RLZORD, Data.RealizeOrder);
 			SetupPPObjCombo(this, CTLSEL_DBXCHGCFG_ONELOC, PPOBJ_LOCATION, Data.OneRcvLocID, 0);
-			SetupPPObjCombo(this, CTLSEL_DBXCHGCFG_DROP, PPOBJ_OPRKIND, Data.DfctRcptOpID, OLW_CANINSERT, (void *)PPOPT_GOODSRECEIPT); // @v7.7.0
+			SetupPPObjCombo(this, CTLSEL_DBXCHGCFG_DROP, PPOBJ_OPRKIND, Data.DfctRcptOpID, OLW_CANINSERT, (void *)PPOPT_GOODSRECEIPT);
 			setCtrlReal(CTL_DBXCHGCFG_PCTADD, R2(fdiv100i(Data.PctAdd)));
 			SetupCtrls(Data.Flags);
 			return 1;
@@ -161,8 +161,8 @@ struct __PPDBXchgConfig {  // @persistent @store(PropertyTbl)
 	PPID   ID;             // Const=PPCFG_MAIN
 	PPID   Prop;           // Const=PPPRP_DBXCHGCFG
 	char   Reserve1[44];   // @reserve
-	PPID   DfctRcptOpID;   // @v7.7.0 Вид операции приходования дефицита.
-	long   CharryOutCounter; // Счетчик исходящих файлов Charry
+	PPID   DfctRcptOpID;   // @v7.7.0 Р’РёРґ РѕРїРµСЂР°С†РёРё РїСЂРёС…РѕРґРѕРІР°РЅРёСЏ РґРµС„РёС†РёС‚Р°.
+	long   CharryOutCounter; // РЎС‡РµС‚С‡РёРє РёСЃС…РѕРґСЏС‰РёС… С„Р°Р№Р»РѕРІ Charry
 	int16  Reserve2;       //
 	int16  RealizeOrder;   //
 	long   PctAdd;         //
@@ -210,7 +210,7 @@ int FASTCALL PPObjectTransmit::ReadConfig(PPDBXchgConfig * pCfg)
 		pCfg->PctAdd      = p.PctAdd;
 		pCfg->Flags       = p.Flags;
 		pCfg->CharryOutCounter = p.CharryOutCounter;
-		pCfg->DfctRcptOpID = p.DfctRcptOpID; // @v7.7.0
+		pCfg->DfctRcptOpID = p.DfctRcptOpID;
 	}
 	return r;
 }
@@ -480,22 +480,14 @@ int SLAPI ObjTransmContext::AcceptDependedNonObject(PPObjID foreignObjId, PPID p
 PP_CREATE_TEMP_FILE_PROC(CreateTempIndex, ObjSyncQueue);
 PP_CREATE_TEMP_FILE_PROC(CreateTempSyncCmp, TempSyncCmp);
 
-SLAPI PPObjectTransmit::PPObjectTransmit(TransmitMode mode, int syncCmp, int recoverTransmission)
+SLAPI PPObjectTransmit::PPObjectTransmit(TransmitMode mode, int syncCmp, int recoverTransmission) : CtrError(0), IamDispatcher(0),
+	P_TmpIdxTbl(0), P_Queue(0), P_ObjColl(0), P_InStream(0), P_OutStream(0), Mode(mode), DestDbDivID(0), 
+	SyncCmpTransmit(BIN(syncCmp && mode == PPObjectTransmit::tmWriting)), RecoverTransmission(BIN(recoverTransmission))
 {
 	const PPConfig & r_cfg = LConfig;
-	CtrError = 0;
-	IamDispatcher = 0;
-	RecoverTransmission = BIN(recoverTransmission); // @v8.2.3
-	P_TmpIdxTbl = 0;
-	P_Queue = 0;
-	P_ObjColl = 0;
-	P_InStream = P_OutStream = 0;
 	Ctx.Flags = 0;
-	Ctx.P_Ot = this; // @v7.6.1
+	Ctx.P_Ot = this;
 	PPObjectTransmit::ReadConfig(&Ctx.Cfg);
-	SyncCmpTransmit = BIN(syncCmp && mode == PPObjectTransmit::tmWriting);
-	Mode = mode;
-	DestDbDivID = 0;
 	if(Mode == PPObjectTransmit::tmReading) {
 		SetDestDbDivID(r_cfg.DBDiv);
 		Ctx.P_DestDbDivPack = 0;
@@ -745,11 +737,15 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 
 	int    ok = 1;
 	const PPConfig & r_cfg = LConfig;
+	PPObject  * p_obj = 0;
 	int    r, need_send = -1;
 	int    this_obj_upd_protocol = updProtocol;
+	const  int  do_log_send_info = BIN(CConfig.Flags & CCFLG_DEBUG);
+	SString send_log_msg;
+	SString obj_name;
+	SString temp_buf;
 	PPObjID oi;
 	oi.Set(objType, objID);
-	SString obj_name;
 	THROW_PP(DestDbDivID, PPERR_INVDESTDBDIV);
 	THROW_PP(!SyncCmpTransmit, PPERR_PPOS_NOBJTRANMODE);
 	THROW(SETIFZ(P_TmpIdxTbl, CreateTempIndex()));
@@ -767,30 +763,48 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 			THROW(r);
 			if(r > 0)
 				need_send = -1;
-			else {
-				//
-				// Обработка специальных случаев для отдельных типов объектов
-				//
-				if(oi.Obj == PPOBJ_SCARD) {
-					if(IamDispatcher > 0)
-						this_obj_upd_protocol = PPOTUP_FORCE;
-					need_send = 1;
+			else { 
+				switch(oi.Obj) { // РћР±СЂР°Р±РѕС‚РєР° СЃРїРµС†РёР°Р»СЊРЅС‹С… СЃР»СѓС‡Р°РµРІ РґР»СЏ РѕС‚РґРµР»СЊРЅС‹С… С‚РёРїРѕРІ РѕР±СЉРµРєС‚РѕРІ
+					case PPOBJ_SCARD:
+						if(IamDispatcher > 0)
+							this_obj_upd_protocol = PPOTUP_FORCE;
+						need_send = 1;
+						break;
+					case PPOBJ_BILL:
+						THROW(need_send = BillObj->NeedTransmit(oi.Id, DestDbDivPack, &Ctx));
+						assert(need_send != NEED_SEND_NOOBJ);
+						break;
+					case PPOBJ_CSESSION:
+						{
+							PPObjCSession * p_csess_obj = (PPObjCSession *)_GetObjectPtr(oi.Obj);
+							THROW(need_send = p_csess_obj->NeedTransmit(oi.Id, DestDbDivPack, &Ctx));
+							assert(need_send != NEED_SEND_NOOBJ);
+						}
+						break;
+					case PPOBJ_LOT:
+						(obj_name = "LOT").Space().CatChar('#').Cat(objID);
+						need_send = NEED_SEND_NOOBJ;
+						break;
+					default:
+						need_send = 1;
+						break;
 				}
-				else if(oi.Obj == PPOBJ_BILL) {
-					THROW(need_send = BillObj->NeedTransmit(oi.Id, DestDbDivPack, &Ctx));
-					assert(need_send != NEED_SEND_NOOBJ);
+				// @v9.8.10 {
+				if(do_log_send_info) {
+					if(need_send != NEED_SEND_NOOBJ) {
+						THROW(SETIFZ(p_obj, _GetObjectPtr(objType))); 
+					}
+					send_log_msg.Z().Cat(DestDbDivID).Space().CatChar('{').Cat(oi.ToStr(temp_buf)).CatChar('}').Space().Cat(need_send).Space().
+						Cat(updProtocol).Space().Cat(innerUpdProtocol);
+					if(obj_name.NotEmpty())
+						temp_buf = obj_name;
+					else if(!p_obj || p_obj->GetName(objID, &temp_buf) <= 0)
+						temp_buf.Z();
+					if(temp_buf.NotEmpty())
+						send_log_msg.Space().Cat(temp_buf);
+					PPLogMessage(PPFILNAM_DBXSEND_LOG, send_log_msg, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 				}
-				else if(oi.Obj == PPOBJ_CSESSION) {
-					PPObjCSession * p_csess_obj = (PPObjCSession *)_GetObjectPtr(oi.Obj);
-					THROW(need_send = p_csess_obj->NeedTransmit(oi.Id, DestDbDivPack, &Ctx));
-					assert(need_send != NEED_SEND_NOOBJ);
-				}
-				else if(oi.Obj == PPOBJ_LOT) {
-					(obj_name = "LOT").Space().CatChar('#').Cat(objID);
-					need_send = NEED_SEND_NOOBJ;
-				}
-				else
-					need_send = 1;
+				// } @v9.8.10 
 			}
 		}
 	}
@@ -809,10 +823,8 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 		}
 		else
 			transmit_flags &= ~(PPObjPack::fForceUpdate | PPObjPack::fUpdate);
-		// @v8.2.3 {
 		if(RecoverTransmission)
 			transmit_flags |= PPObjPack::fRecover;
-		// } @v8.2.3
 		rec.DBID     = (short)r_cfg.DBDiv;
 		rec.ObjType  = (ushort)objType;
 		rec.ObjID    = objID;
@@ -827,12 +839,11 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 		uint   i;
 		int    cr_event;
 		LDATETIME modif;
-		PPObject  * p_obj = 0;
 		PPObjPack   pack;
 		PPObjIDArray temp;
 		ObjSyncQueueTbl::Rec rec;
 		ObjSyncTbl::Rec s_rec;
-		THROW(p_obj = _GetObjectPtr(objType));
+		THROW(SETIFZ(p_obj, _GetObjectPtr(objType)));
 		if(p_obj->GetLastModifEvent(objID, &modif, &cr_event) > 0) {
 			pack.Mod = modif;
 			SETFLAG(pack.Flags, PPObjPack::fCreationDtTm, cr_event);
@@ -840,8 +851,8 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 		}
 		THROW(r = SyncTbl.SearchSync(objType, objID, DestDbDivID, 0, &s_rec));
 		//
-		// Следующие два блока одинаковые, но, вероятно, они все-таки должны различаться.
-		// (необходим более тщительный анализ логики передачи объектов)
+		// РЎР»РµРґСѓСЋС‰РёРµ РґРІР° Р±Р»РѕРєР° РѕРґРёРЅР°РєРѕРІС‹Рµ, РЅРѕ, РІРµСЂРѕСЏС‚РЅРѕ, РѕРЅРё РІСЃРµ-С‚Р°РєРё РґРѕР»Р¶РЅС‹ СЂР°Р·Р»РёС‡Р°С‚СЊСЃСЏ.
+		// (РЅРµРѕР±С…РѕРґРёРј Р±РѕР»РµРµ С‚С‰РёС‚РµР»СЊРЅС‹Р№ Р°РЅР°Р»РёР· Р»РѕРіРёРєРё РїРµСЂРµРґР°С‡Рё РѕР±СЉРµРєС‚РѕРІ)
 		//
 		if(r > 0) {
 			if(this_obj_upd_protocol == PPOTUP_FORCE)
@@ -863,13 +874,11 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 			else
 				pack.Flags &= ~(PPObjPack::fForceUpdate | PPObjPack::fUpdate);
 		}
-		// @v8.2.3 {
 		if(RecoverTransmission)
 			pack.Flags |= PPObjPack::fRecover;
-		// } @v8.2.3
 		//
-		// Вызов GetName гарантированно вызывает p_obj->Search и возвращает
-		// результат этого вызова. Таким образом, избегаем двойного обращения к записи
+		// Р’С‹Р·РѕРІ GetName РіР°СЂР°РЅС‚РёСЂРѕРІР°РЅРЅРѕ РІС‹Р·С‹РІР°РµС‚ p_obj->Search Рё РІРѕР·РІСЂР°С‰Р°РµС‚
+		// СЂРµР·СѓР»СЊС‚Р°С‚ СЌС‚РѕРіРѕ РІС‹Р·РѕРІР°. РўР°РєРёРј РѕР±СЂР°Р·РѕРј, РёР·Р±РµРіР°РµРј РґРІРѕР№РЅРѕРіРѕ РѕР±СЂР°С‰РµРЅРёСЏ Рє Р·Р°РїРёСЃРё
 		//
 		if(need_send && p_obj->GetName(objID, &obj_name) > 0) {
 			MEMSZERO(rec);
@@ -881,18 +890,18 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 			rec.ModTm    = pack.Mod.t;
 			SETFLAG(Ctx.Flags, ObjTransmContext::fNotTrnsmLots, DestDbDivPack.Rec.Flags & DBDIVF_CONSOLID);
 			//
-			// Устанавливаем приоритет приема по умолчанию
+			// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїСЂРёРѕСЂРёС‚РµС‚ РїСЂРёРµРјР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 			//
 			pack.Priority = PPObjectTransmit::DefaultPriority;
 			THROW(p_obj->Read(&pack, objID, 0, &Ctx));
 			//
-			// Функция PPObject::Read могла изменить приоритет приема => принимаем это значение
+			// Р¤СѓРЅРєС†РёСЏ PPObject::Read РјРѕРіР»Р° РёР·РјРµРЅРёС‚СЊ РїСЂРёРѕСЂРёС‚РµС‚ РїСЂРёРµРјР° => РїСЂРёРЅРёРјР°РµРј СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ
 			//
 			rec.Priority = pack.Priority;
 			obj_name.CopyTo(rec.ObjName, sizeof(rec.ObjName));
 			THROW_DB(P_TmpIdxTbl->insertRecBuf(&rec));
 			//
-			// Обрабатываем ссылки внутри пакета объекта
+			// РћР±СЂР°Р±Р°С‚С‹РІР°РµРј СЃСЃС‹Р»РєРё РІРЅСѓС‚СЂРё РїР°РєРµС‚Р° РѕР±СЉРµРєС‚Р°
 			//
 			Ctx.Flags &= ~ObjTransmContext::fNotTrnsmLots;
 		   	THROW(p_obj->ProcessObjRefs(&pack, &temp, 0, &Ctx));
@@ -937,11 +946,10 @@ static int SLAPI ConvertInBill(ILBillPacket * pPack, ObjTransmContext * pCtx)
 				pPack->Rec.LocID  = dest_loc_id;
 				pPack->Rec.Object = PPObjLocation::WarehouseToObj(loc_id);
 				//
-				// @v6.5.7 {
-				// По не понятным причинам иногда JobServer принимает межскладские приходы
-				// без контрагента (оригинальный документ нормальный, кроме того, если принимать
-				// данные в ручную, то проблема не возникает).
-				// Для точной идентификации проблемы сделан следующий участок.
+				// РџРѕ РЅРµ РїРѕРЅСЏС‚РЅС‹Рј РїСЂРёС‡РёРЅР°Рј РёРЅРѕРіРґР° JobServer РїСЂРёРЅРёРјР°РµС‚ РјРµР¶СЃРєР»Р°РґСЃРєРёРµ РїСЂРёС…РѕРґС‹
+				// Р±РµР· РєРѕРЅС‚СЂР°РіРµРЅС‚Р° (РѕСЂРёРіРёРЅР°Р»СЊРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚ РЅРѕСЂРјР°Р»СЊРЅС‹Р№, РєСЂРѕРјРµ С‚РѕРіРѕ, РµСЃР»Рё РїСЂРёРЅРёРјР°С‚СЊ
+				// РґР°РЅРЅС‹Рµ РІ СЂСѓС‡РЅСѓСЋ, С‚Рѕ РїСЂРѕР±Р»РµРјР° РЅРµ РІРѕР·РЅРёРєР°РµС‚).
+				// Р”Р»СЏ С‚РѕС‡РЅРѕР№ РёРґРµРЅС‚РёС„РёРєР°С†РёРё РїСЂРѕР±Р»РµРјС‹ СЃРґРµР»Р°РЅ СЃР»РµРґСѓСЋС‰РёР№ СѓС‡Р°СЃС‚РѕРє.
 				//
 				if(pPack->Rec.Object == 0) {
 					SString msg_buf, fmt_buf, id_buf;
@@ -956,13 +964,13 @@ static int SLAPI ConvertInBill(ILBillPacket * pPack, ObjTransmContext * pCtx)
 					}
 					PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf.Printf(fmt_buf, id_buf.Cat(loc_id).cptr()), LOGMSGF_TIME|LOGMSGF_USER);
 				}
-				// } @v6.5.7
+				//
 				for(uint p = 0; pPack->Lots.enumItems(&p, (void**)&p_ilti);) {
 					p_ilti->Quantity = fabs(p_ilti->Quantity);
 					p_ilti->Rest     = fabs(p_ilti->Rest);
 					p_ilti->Flags   |= (PPTFR_RECEIPT|PPTFR_FORCESUPPL);
 				}
-				pPack->IlbFlags |= ILBillPacket::ilbfConvertedIntrExp; // @v7.6.1
+				pPack->IlbFlags |= ILBillPacket::ilbfConvertedIntrExp;
 			}
 		}
 	}
@@ -1051,7 +1059,7 @@ int SLAPI PPObjectTransmit::ReadFileStat(const char * pFileName, PacketStat & rS
 	THROW_SL(stream.Read(&rStat.Hdr, sizeof(rStat.Hdr), &act_size));
 	if(!(rStat.Hdr.Flags & PPOTF_ARC)) {
 		//
-		// Считываем наименования объектов
+		// РЎС‡РёС‚С‹РІР°РµРј РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ РѕР±СЉРµРєС‚РѕРІ
 		//
 		SString obj_name;
 		stream.Seek(rStat.Hdr.NameListOffs);
@@ -1062,7 +1070,7 @@ int SLAPI PPObjectTransmit::ReadFileStat(const char * pFileName, PacketStat & rS
 		THROW_SL(rStat.NameList.setBuf(p_temp_buf, name_list_size));
 		ZFREE(p_temp_buf);
 		//
-		// Считываем элементы индекса
+		// РЎС‡РёС‚С‹РІР°РµРј СЌР»РµРјРµРЅС‚С‹ РёРЅРґРµРєСЃР°
 		//
 		stream.Seek(rStat.Hdr.IndexOffs);
 		for(uint idx = 0; idx < rStat.Hdr.IndexCount; idx++) {
@@ -1132,7 +1140,7 @@ int SLAPI PPObjectTransmit::Helper_PushObjectsToQueue(PPObjectTransmit::Header &
 					}
 				}
 				else {
-					// Оставляет существующую запись
+					// РћСЃС‚Р°РІР»СЏРµС‚ СЃСѓС‰РµСЃС‚РІСѓСЋС‰СѓСЋ Р·Р°РїРёСЃСЊ
 					PPWaitMsg((msg_buf = wait_fmt_buf).CatDiv('-', 1).Cat("SKIP").CatDiv(':', 2).Cat(idx_rec.ObjName));
 				}
 			}
@@ -1169,13 +1177,13 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 	ObjSyncQueueTbl::Rec idx_rec;
 	//ObjSyncQueueTbl::Rec ex_rec;
 	//
-	// Заносим все объекты, которые надлежит акцептировать в общую очередь приема P_Queue
+	// Р—Р°РЅРѕСЃРёРј РІСЃРµ РѕР±СЉРµРєС‚С‹, РєРѕС‚РѕСЂС‹Рµ РЅР°РґР»РµР¶РёС‚ Р°РєС†РµРїС‚РёСЂРѕРІР°С‚СЊ РІ РѕР±С‰СѓСЋ РѕС‡РµСЂРµРґСЊ РїСЂРёРµРјР° P_Queue
 	//
 	SETIFZ(P_Queue, new ObjSyncQueueCore);
 	THROW_MEM(P_Queue);
 	//
-	// Если файл уже обработан и в очереди хранится ссылка на него то не следует
-	// заталкивать его в очередь
+	// Р•СЃР»Рё С„Р°Р№Р» СѓР¶Рµ РѕР±СЂР°Р±РѕС‚Р°РЅ Рё РІ РѕС‡РµСЂРµРґРё С…СЂР°РЅРёС‚СЃСЏ СЃСЃС‹Р»РєР° РЅР° РЅРµРіРѕ С‚Рѕ РЅРµ СЃР»РµРґСѓРµС‚
+	// Р·Р°С‚Р°Р»РєРёРІР°С‚СЊ РµРіРѕ РІ РѕС‡РµСЂРµРґСЊ
 	//
 	if(rHdr.Flags & PPOTF_ACK && P_Queue->SearchRefToOrgFile(pInFileName, 0) > 0) {
 		PPLoadText(PPTXT_LOG_FILEALLREADYINQUEUE, fmt_buf);
@@ -1185,10 +1193,10 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 	else {
 		const uint max_idx_recs_per_ta = 512;
 		//
-		// @v9.8.3 Алгортим реорганизован с целью сократить размер транзакций.
-		// Выяснилось, что на этой фазе иногда надолго зависают задачи сервера.
-		// Теперь функция P_Queue->AddFileRecord вызывается в рамках собственной транзакции,
-		// а вся очередь объектов на прием формируется отрезками по max_idx_recs_per_ta записей.
+		// @v9.8.3 РђР»РіРѕСЂС‚РёРј СЂРµРѕСЂРіР°РЅРёР·РѕРІР°РЅ СЃ С†РµР»СЊСЋ СЃРѕРєСЂР°С‚РёС‚СЊ СЂР°Р·РјРµСЂ С‚СЂР°РЅР·Р°РєС†РёР№.
+		// Р’С‹СЏСЃРЅРёР»РѕСЃСЊ, С‡С‚Рѕ РЅР° СЌС‚РѕР№ С„Р°Р·Рµ РёРЅРѕРіРґР° РЅР°РґРѕР»РіРѕ Р·Р°РІРёСЃР°СЋС‚ Р·Р°РґР°С‡Рё СЃРµСЂРІРµСЂР°.
+		// РўРµРїРµСЂСЊ С„СѓРЅРєС†РёСЏ P_Queue->AddFileRecord РІС‹Р·С‹РІР°РµС‚СЃСЏ РІ СЂР°РјРєР°С… СЃРѕР±СЃС‚РІРµРЅРЅРѕР№ С‚СЂР°РЅР·Р°РєС†РёРё,
+		// Р° РІСЃСЏ РѕС‡РµСЂРµРґСЊ РѕР±СЉРµРєС‚РѕРІ РЅР° РїСЂРёРµРј С„РѕСЂРјРёСЂСѓРµС‚СЃСЏ РѕС‚СЂРµР·РєР°РјРё РїРѕ max_idx_recs_per_ta Р·Р°РїРёСЃРµР№.
 		//
 		// @v9.8.3 PPTransaction tra(use_ta);
 		// @v9.8.3 THROW(tra);
@@ -1196,8 +1204,8 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 			ObjSyncQueueCore::FileInfo fi;
 			{
 				//
-				// Создаем копию файла в подкаталоге SYNCQUE каталога базы данных
-				// и заносим ссылку на этот файл в таблицу P_Queue
+				// РЎРѕР·РґР°РµРј РєРѕРїРёСЋ С„Р°Р№Р»Р° РІ РїРѕРґРєР°С‚Р°Р»РѕРіРµ SYNCQUE РєР°С‚Р°Р»РѕРіР° Р±Р°Р·С‹ РґР°РЅРЅС‹С…
+				// Рё Р·Р°РЅРѕСЃРёРј СЃСЃС‹Р»РєСѓ РЅР° СЌС‚РѕС‚ С„Р°Р№Р» РІ С‚Р°Р±Р»РёС†Сѓ P_Queue
 				//
 				SFile sys_file;
 				size_t bytes_read = 0;
@@ -1210,9 +1218,9 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 				while((bytes_read = fread(temp_buf, 1, temp_buf.GetSize(), pInStream)) > 0) {
 					THROW_SL(sys_file.Write(temp_buf, bytes_read));
 				}
-				// @todo проверить CRC на копию файла
+				// @todo РїСЂРѕРІРµСЂРёС‚СЊ CRC РЅР° РєРѕРїРёСЋ С„Р°Р№Р»Р°
 				//
-				// Формируем запись о файле для таблицы P_Queue
+				// Р¤РѕСЂРјРёСЂСѓРµРј Р·Р°РїРёСЃСЊ Рѕ С„Р°Р№Р»Рµ РґР»СЏ С‚Р°Р±Р»РёС†С‹ P_Queue
 				//
 				fi.InnerFileName = sys_file_name;
 				fi.OrgFileName = pInFileName;
@@ -1271,7 +1279,7 @@ int SLAPI PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * s
 	}
 	if(hdr.IndexCount > 0) {
 		//
-		// Считываем наименования объектов
+		// РЎС‡РёС‚С‹РІР°РµРј РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ РѕР±СЉРµРєС‚РѕРІ
 		//
 		SString obj_name;
 		fseek(stream, hdr.NameListOffs, SEEK_SET);
@@ -1282,7 +1290,7 @@ int SLAPI PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * s
 		THROW_SL(name_list.setBuf(p_temp_buf, name_list_size));
 		ZFREE(p_temp_buf);
 		//
-		// Строим предварительную таблицу индекса принимаемых объектов P_TmpIdxTbl
+		// РЎС‚СЂРѕРёРј РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ РёРЅРґРµРєСЃР° РїСЂРёРЅРёРјР°РµРјС‹С… РѕР±СЉРµРєС‚РѕРІ P_TmpIdxTbl
 		//
 		fseek(stream, hdr.IndexOffs, SEEK_SET);
 		BExtInsert bei(P_TmpIdxTbl);
@@ -1549,7 +1557,7 @@ int SLAPI PPObjectTransmit::NeedRestoreObj(PPID objType, const PPObjectTransmit:
 	return ok;
 }
 //
-// Функция RestoreObj является рекурсивной.
+// Р¤СѓРЅРєС†РёСЏ RestoreObj СЏРІР»СЏРµС‚СЃСЏ СЂРµРєСѓСЂСЃРёРІРЅРѕР№.
 //
 int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & rItem, PPID * pPrimID)
 {
@@ -1565,8 +1573,8 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 	THROW(PPCheckUserBreak());
 	if(IS_DYN_OBJTYPE(oi_f.Obj)) {
 		//
-		// Проверяем возможность создания динамического объекта. Если это - невозможно, то
-		// искусственно разрешаем ссылку на тип объекта и пытаемся снова.
+		// РџСЂРѕРІРµСЂСЏРµРј РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ СЃРѕР·РґР°РЅРёСЏ РґРёРЅР°РјРёС‡РµСЃРєРѕРіРѕ РѕР±СЉРµРєС‚Р°. Р•СЃР»Рё СЌС‚Рѕ - РЅРµРІРѕР·РјРѕР¶РЅРѕ, С‚Рѕ
+		// РёСЃРєСѓСЃСЃС‚РІРµРЅРЅРѕ СЂР°Р·СЂРµС€Р°РµРј СЃСЃС‹Р»РєСѓ РЅР° С‚РёРї РѕР±СЉРµРєС‚Р° Рё РїС‹С‚Р°РµРјСЃСЏ СЃРЅРѕРІР°.
 		//
 		ObjSyncTbl::Rec rec;
 		THROW(r = SyncTbl.SearchSync(PPOBJ_DYNAMICOBJS, oi_f.Obj, rItem.DBID, 1, &rec));
@@ -1584,7 +1592,7 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 		if(nro > 0 && !(rItem.Flags & PPObjPack::fNoObj)) { // @v7.6.1 (&& !(rItem.Flags & PPObjPack::fNoObj))
 			if(rBlk.DetectRecur(rItem.DBID, oi_f)) {
 				//
-				// Рекурсивная ссылка обнуляется //
+				// Р РµРєСѓСЂСЃРёРІРЅР°СЏ СЃСЃС‹Р»РєР° РѕР±РЅСѓР»СЏРµС‚СЃСЏ //
 				//
 				comm_id.SetZero();
 				primary_id = 0;
@@ -1597,7 +1605,7 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 				PPObjPack  pack;
 				pack.SrcVer = rItem.InVer;
 				//
-				// Запоминаем в стеке восстанавливаемый объект (для проверки на рекурсию)
+				// Р—Р°РїРѕРјРёРЅР°РµРј РІ СЃС‚РµРєРµ РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРјС‹Р№ РѕР±СЉРµРєС‚ (РґР»СЏ РїСЂРѕРІРµСЂРєРё РЅР° СЂРµРєСѓСЂСЃРёСЋ)
 				//
 				THROW(rBlk.PushRestoredObj(rItem.DBID, oi_f));
 				pushed = 1;
@@ -1636,8 +1644,8 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 				}
 				//
 				// @v7.0.10
-				// Предыдущий цикл мог переключить контекст извлечения данных.
-				// По-этому, мы должны после этого цикла снова восстановить правильный контекст.
+				// РџСЂРµРґС‹РґСѓС‰РёР№ С†РёРєР» РјРѕРі РїРµСЂРµРєР»СЋС‡РёС‚СЊ РєРѕРЅС‚РµРєСЃС‚ РёР·РІР»РµС‡РµРЅРёСЏ РґР°РЅРЅС‹С….
+				// РџРѕ-СЌС‚РѕРјСѓ, РјС‹ РґРѕР»Р¶РЅС‹ РїРѕСЃР»Рµ СЌС‚РѕРіРѕ С†РёРєР»Р° СЃРЅРѕРІР° РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ РїСЂР°РІРёР»СЊРЅС‹Р№ РєРѕРЅС‚РµРєСЃС‚.
 				//
 				if(Ctx.LastStreamId != p_fpi->FileId) {
 					p_fpi->SCtxState.SetRdOffs(0);
@@ -1679,7 +1687,7 @@ int SLAPI PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & 
 			if(primary_id) {
 				if(nro != -100) {
 					//
-					// Для объекта, принятого по объединению не фиксируем записи в таблице синхронизации
+					// Р”Р»СЏ РѕР±СЉРµРєС‚Р°, РїСЂРёРЅСЏС‚РѕРіРѕ РїРѕ РѕР±СЉРµРґРёРЅРµРЅРёСЋ РЅРµ С„РёРєСЃРёСЂСѓРµРј Р·Р°РїРёСЃРё РІ С‚Р°Р±Р»РёС†Рµ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё
 					//
 					THROW(SyncTbl._RcvObj(oi_f.Obj, primary_id, comm_id, LConfig.DBDiv, &rItem.Mod, 0));
 					THROW(SyncTbl._RcvObj(oi_f.Obj, oi_f.Id, comm_id, rItem.DBID, &rItem.Mod, 0));
@@ -1737,7 +1745,7 @@ int SLAPI PPObjectTransmit::CommitQueue(const PPIDArray & rSrcDivList, int force
 			ObjSyncQueueTbl::Rec queue_rec;
 			Ctx.P_Rb = &blk;
 			//
-			// Перебираем записи в очереди по индексу {Priority, Dt desc, Tm desc}
+			// РџРµСЂРµР±РёСЂР°РµРј Р·Р°РїРёСЃРё РІ РѕС‡РµСЂРµРґРё РїРѕ РёРЅРґРµРєСЃСѓ {Priority, Dt desc, Tm desc}
 			//
 			{
 				PPIDArray queue_id_list;
@@ -1756,7 +1764,7 @@ int SLAPI PPObjectTransmit::CommitQueue(const PPIDArray & rSrcDivList, int force
 					PPWaitPercent(i+1, queue_id_list.getCount(), queue_rec.ObjName);
 				}
 				//
-				// Определяем, остались ли еще необработанные объекты?
+				// РћРїСЂРµРґРµР»СЏРµРј, РѕСЃС‚Р°Р»РёСЃСЊ Р»Рё РµС‰Рµ РЅРµРѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹Рµ РѕР±СЉРµРєС‚С‹?
 				//
 				if(P_Queue->GetUnprocessedList(0) > 0)
 					is_there_unprocessed_objects = 1;
@@ -1765,7 +1773,7 @@ int SLAPI PPObjectTransmit::CommitQueue(const PPIDArray & rSrcDivList, int force
 				}
 			}
 			//
-			// Формируем пакеты подтверждений
+			// Р¤РѕСЂРјРёСЂСѓРµРј РїР°РєРµС‚С‹ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёР№
 			//
 			// @todo if(!(hdr.Flags & PPOTF_IGNACK))
 			for(i = 0; i < blk.ProcessedList.getCount(); i++) {
@@ -1777,9 +1785,9 @@ int SLAPI PPObjectTransmit::CommitQueue(const PPIDArray & rSrcDivList, int force
 				if(!p_fpi->A.IsValid()) {
 					Header hdr;
 					//
-					// Уникальный идентификатор UUID раздела введен в версии 8.0.12. При передаче данных в другой раздел
-					// раздел-отправитель теперь должен отправить свой UUID.
-					// Функция MakeTransmitFileName() теперь одновременно генерирует (если необходимо) собственный UUID.
+					// РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ UUID СЂР°Р·РґРµР»Р° РІРІРµРґРµРЅ РІ РІРµСЂСЃРёРё 8.0.12. РџСЂРё РїРµСЂРµРґР°С‡Рµ РґР°РЅРЅС‹С… РІ РґСЂСѓРіРѕР№ СЂР°Р·РґРµР»
+					// СЂР°Р·РґРµР»-РѕС‚РїСЂР°РІРёС‚РµР»СЊ С‚РµРїРµСЂСЊ РґРѕР»Р¶РµРЅ РѕС‚РїСЂР°РІРёС‚СЊ СЃРІРѕР№ UUID.
+					// Р¤СѓРЅРєС†РёСЏ MakeTransmitFileName() С‚РµРїРµСЂСЊ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ РіРµРЅРµСЂРёСЂСѓРµС‚ (РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ) СЃРѕР±СЃС‚РІРµРЅРЅС‹Р№ UUID.
 					//
 					S_GUID src_div_uuid;
 					THROW(MakeTransmitFileName(file_path, &src_div_uuid));
@@ -1788,7 +1796,7 @@ int SLAPI PPObjectTransmit::CommitQueue(const PPIDArray & rSrcDivList, int force
 					SetupHeader(PPOT_ACK, queue_rec.DBID, &hdr);
 					THROW_SL(p_fpi->A.Write(&hdr, sizeof(hdr)));
 					//
-					// Заносим в файл подтверждения имя оригинального файла, который был обработан
+					// Р—Р°РЅРѕСЃРёРј РІ С„Р°Р№Р» РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РёРјСЏ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕРіРѕ С„Р°Р№Р»Р°, РєРѕС‚РѕСЂС‹Р№ Р±С‹Р» РѕР±СЂР°Р±РѕС‚Р°РЅ
 					//
 					THROW(P_Queue->GetFileRecord(queue_rec.FileId, fi));
 					if(fi.OrgFileName.NotEmptyS()) {
@@ -1804,7 +1812,7 @@ int SLAPI PPObjectTransmit::CommitQueue(const PPIDArray & rSrcDivList, int force
 					ack.Obj = queue_rec.ObjType;
 					ack.Id  = queue_rec.PrimObjID;
 					ack.CommId = comm_id;
-					// @todo Здесь должен быть момент изменения объекта в собственном разделе
+					// @todo Р—РґРµСЃСЊ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РјРѕРјРµРЅС‚ РёР·РјРµРЅРµРЅРёСЏ РѕР±СЉРµРєС‚Р° РІ СЃРѕР±СЃС‚РІРµРЅРЅРѕРј СЂР°Р·РґРµР»Рµ
 					ack.DT.Set(queue_rec.ModDt, queue_rec.ModTm);
 					THROW_SL(p_fpi->A.Write(&ack, sizeof(ack)));
 					p_fpi->AckCount++;
@@ -1818,7 +1826,7 @@ int SLAPI PPObjectTransmit::CommitQueue(const PPIDArray & rSrcDivList, int force
 						file_path = p_fpi->A.GetName();
 						p_fpi->A.Close();
 						//
-						// Удаляем файлы подтверждений, не имеющие ни одной записи
+						// РЈРґР°Р»СЏРµРј С„Р°Р№Р»С‹ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёР№, РЅРµ РёРјРµСЋС‰РёРµ РЅРё РѕРґРЅРѕР№ Р·Р°РїРёСЃРё
 						//
 						if(p_fpi->AckCount == 0)
 							SFile::Remove(file_path);
@@ -1828,9 +1836,9 @@ int SLAPI PPObjectTransmit::CommitQueue(const PPIDArray & rSrcDivList, int force
 							p_fpi->F.Close();
 				}
 				//
-				// Если нет ни одного необработанного объекта, то вычищаем всю очередь вместе с файлами.
-				// Если же есть хотя бы один необработанный объект, то придется все оставить на месте
-				// из-за того, что необработанный объект может ссылаться на обработанные.
+				// Р•СЃР»Рё РЅРµС‚ РЅРё РѕРґРЅРѕРіРѕ РЅРµРѕР±СЂР°Р±РѕС‚Р°РЅРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°, С‚Рѕ РІС‹С‡РёС‰Р°РµРј РІСЃСЋ РѕС‡РµСЂРµРґСЊ РІРјРµСЃС‚Рµ СЃ С„Р°Р№Р»Р°РјРё.
+				// Р•СЃР»Рё Р¶Рµ РµСЃС‚СЊ С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ РЅРµРѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹Р№ РѕР±СЉРµРєС‚, С‚Рѕ РїСЂРёРґРµС‚СЃСЏ РІСЃРµ РѕСЃС‚Р°РІРёС‚СЊ РЅР° РјРµСЃС‚Рµ
+				// РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ РЅРµРѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹Р№ РѕР±СЉРµРєС‚ РјРѕР¶РµС‚ СЃСЃС‹Р»Р°С‚СЊСЃСЏ РЅР° РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹Рµ.
 				//
 				if(!is_there_unprocessed_objects || forceDestroyQueue)
 					THROW(P_Queue->Clear());
@@ -1934,7 +1942,7 @@ int SLAPI PPObjectTransmit::AcceptDependedNonObject(PPObjID foreignObjId, PPID p
 			(msg_buf = "AcceptDependedNonObject QueueSearch result").Eq().Cat(r).CatDiv(':', 1).CatEq("obj_type", obj_type).CatDiv(',', 2).
 				CatEq("foreignObjId", foreignObjId.Id).CatDiv(',', 2).CatEq("src_div_id", src_div_id);
 			if(r < 0) {
-				// При безуспешном поиске без ошибки код ошибки PPERR_DBENGINE не устанавливается - здесь важен код ошибки
+				// РџСЂРё Р±РµР·СѓСЃРїРµС€РЅРѕРј РїРѕРёСЃРєРµ Р±РµР· РѕС€РёР±РєРё РєРѕРґ РѕС€РёР±РєРё PPERR_DBENGINE РЅРµ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ - Р·РґРµСЃСЊ РІР°Р¶РµРЅ РєРѕРґ РѕС€РёР±РєРё
 				PPSetErrorDB();
 			}
 			PPGetMessage(mfError, -1, 0, 1, err_msg);
@@ -1982,15 +1990,15 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 			}
 		}
 		//
-		// Инициализируем контекст сериализации.
-		// Дескрипторы структур данных будут записываться в поток раздельно
-		// Опорная дата - текущая системная.
+		// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РєРѕРЅС‚РµРєСЃС‚ СЃРµСЂРёР°Р»РёР·Р°С†РёРё.
+		// Р”РµСЃРєСЂРёРїС‚РѕСЂС‹ СЃС‚СЂСѓРєС‚СѓСЂ РґР°РЅРЅС‹С… Р±СѓРґСѓС‚ Р·Р°РїРёСЃС‹РІР°С‚СЊСЃСЏ РІ РїРѕС‚РѕРє СЂР°Р·РґРµР»СЊРЅРѕ
+		// РћРїРѕСЂРЅР°СЏ РґР°С‚Р° - С‚РµРєСѓС‰Р°СЏ СЃРёСЃС‚РµРјРЅР°СЏ.
 		//
 		Ctx.SCtx.Init(SSerializeContext::fSeparateDataStruct, getcurdate_());
 		if(!SyncCmpTransmit) {
 			//
-			// До начала транзакции создадим экземляры всех необходимых объектов данных (что бы не открывать таблицы
-			// внутри транзакции).
+			// Р”Рѕ РЅР°С‡Р°Р»Р° С‚СЂР°РЅР·Р°РєС†РёРё СЃРѕР·РґР°РґРёРј СЌРєР·РµРјР»СЏСЂС‹ РІСЃРµС… РЅРµРѕР±С…РѕРґРёРјС‹С… РѕР±СЉРµРєС‚РѕРІ РґР°РЅРЅС‹С… (С‡С‚Рѕ Р±С‹ РЅРµ РѕС‚РєСЂС‹РІР°С‚СЊ С‚Р°Р±Р»РёС†С‹
+			// РІРЅСѓС‚СЂРё С‚СЂР°РЅР·Р°РєС†РёРё).
 			//
 			for(MEMSZERO(objid); EnumObjectsByIndex(&objid, &rec) > 0;) {
 				if(!(rec.Flags & PPObjPack::fNoObj)) {
@@ -2013,7 +2021,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 				if(!SyncCmpTransmit) {
 					PPObjID iter_objid;
 					for(MEMSZERO(iter_objid); EnumObjectsByIndex(&iter_objid, &rec) > 0; PPWaitPercent(cntr.Increment(), wait_msg)) {
-						objid = iter_objid; // @v7.9.11 objid внутри блока может измениться //
+						objid = iter_objid; // @v7.9.11 objid РІРЅСѓС‚СЂРё Р±Р»РѕРєР° РјРѕР¶РµС‚ РёР·РјРµРЅРёС‚СЊСЃСЏ //
 						if(!(rec.Flags & PPObjPack::fNoObj)) {
 							DBRowId rowid;
 							PPObjPack  pack;
@@ -2066,7 +2074,7 @@ int SLAPI PPObjectTransmit::CreateTransmitPacket(long extra /*=0*/)
 					THROW(Write(P_OutStream, name_list.getBuf(), name_list_size));
 				}
 				//
-				// Сохраняем состояние контекста сериализации
+				// РЎРѕС…СЂР°РЅСЏРµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РєРѕРЅС‚РµРєСЃС‚Р° СЃРµСЂРёР°Р»РёР·Р°С†РёРё
 				//
 				{
 					SBuffer state_buf;
@@ -2196,7 +2204,7 @@ int SLAPI PPObjectTransmit::TransmitModifications(PPID destDBDiv, const ObjTrans
 		for(sj_view.InitIteration(); sj_view.NextIteration(&sj_item) > 0;) {
 			if(!sj_item.ObjType || param.ObjList.Search(sj_item.ObjType, 0) > 0) {
 				if(sj_item.ObjType != PPOBJ_GOODSBASKET) {
-					// Корзины в пакете модифицированных объектов передавать не следует
+					// РљРѕСЂР·РёРЅС‹ РІ РїР°РєРµС‚Рµ РјРѕРґРёС„РёС†РёСЂРѕРІР°РЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ РїРµСЂРµРґР°РІР°С‚СЊ РЅРµ СЃР»РµРґСѓРµС‚
 					THROW(p_ot->PostObject(sj_item.ObjType, sj_item.ObjID, PPOTUP_BYTIME, sync_cmp));
 				}
 			}
@@ -2448,8 +2456,7 @@ int SLAPI PPObjectTransmit::TransmitBills(PPID destDBDiv, const BillTransmitPara
 	PPIDArray        op_list;
 	PPObjectTransmit * p_ot = 0;
 	BillTransmitParam flt;
-	if(pFilt)
-		flt = *pFilt;
+	RVALUEPTR(flt, pFilt);
 	DateIter diter(&flt.Period);
 	THROW_MEM(p_ot = new PPObjectTransmit(PPObjectTransmit::tmWriting, 0, 0));
 	THROW(p_ot->SetDestDbDivID(destDBDiv));

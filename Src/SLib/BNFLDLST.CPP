@@ -1,5 +1,5 @@
 // BNFLDLST.CPP
-// Copyright (c) Sobolev A. 1995, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016
+// Copyright (c) Sobolev A. 1995, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -64,16 +64,12 @@ int SLAPI BNField::putValueToString(const void * pDataBuf, char * pBuf) const
 //
 //
 //
-SLAPI BNFieldList::BNFieldList()
+SLAPI BNFieldList::BNFieldList() : count(0), fields(0)
 {
-	count = 0;
-	fields = 0;
 }
 
-SLAPI BNFieldList::BNFieldList(const BNFieldList & rS)
+SLAPI BNFieldList::BNFieldList(const BNFieldList & rS) : count(0), fields(0)
 {
-	count = 0;
-	fields = 0;
 	copy(&rS);
 }
 

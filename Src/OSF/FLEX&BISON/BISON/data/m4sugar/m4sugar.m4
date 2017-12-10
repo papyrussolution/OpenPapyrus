@@ -3,7 +3,7 @@ divert(-1)#                                                  -*- Autoconf -*-
 # Base M4 layer.
 # Requires GNU M4.
 #
-# Copyright (C) 1999-2011 Free Software Foundation, Inc.
+# Copyright (C) 1999-2013 Free Software Foundation, Inc.
 
 # This file is part of Autoconf.  This program is free
 # software; you can redistribute it and/or modify it under the
@@ -950,7 +950,7 @@ m4_define([m4_make_list], [m4_join([,
 # m4_noquote(STRING)
 # ------------------
 # Return the result of ignoring all quotes in STRING and invoking the
-# macros it contains.  Amongst other things, this is useful for enabling
+# macros it contains.  Among other things, this is useful for enabling
 # macro invocations inside strings with [] blocks (for instance regexps
 # and help-strings).  On the other hand, since all quotes are disabled,
 # any macro expanded during this time that relies on nested [] quoting
@@ -2038,10 +2038,10 @@ m4_define([m4_before],
 # - NAME-TO-CHECK == BODY-TO-EXPAND
 #   Which you can use for regular macros with or without arguments, e.g.,
 #     m4_require([AC_PROG_CC], [AC_PROG_CC])
-#     m4_require([AC_CHECK_HEADERS(limits.h)], [AC_CHECK_HEADERS(limits.h)])
+#     m4_require([AC_CHECK_HEADERS(threads.h)], [AC_CHECK_HEADERS(threads.h)])
 #   which is just the same as
 #     m4_require([AC_PROG_CC])
-#     m4_require([AC_CHECK_HEADERS(limits.h)])
+#     m4_require([AC_CHECK_HEADERS(threads.h)])
 #
 # - BODY-TO-EXPAND == m4_indir([NAME-TO-CHECK])
 #   In the case of macros with irregular names.  For instance:
@@ -2080,13 +2080,19 @@ m4_if([$0], [m4_require], [[m4_defun]], [[AC_DEFUN]])['d macro])])]dnl
 #
 # This is called frequently, so minimize the number of macro invocations
 # by avoiding dnl and other overhead on the common path.
+# The use of a witness macro protecting the warning allows aclocal
+# to silence any warnings when probing for what macros are required
+# and must therefore be located, when using the Autoconf-without-aclocal-m4
+# autom4te language.  For more background, see:
+# https://lists.gnu.org/archive/html/automake-patches/2012-11/msg00035.html
 m4_define([_m4_require_call],
 [m4_pushdef([_m4_divert_grow], m4_decr(_m4_divert_grow))]dnl
 [m4_pushdef([_m4_diverting([$1])])m4_pushdef([_m4_diverting], [$1])]dnl
 [m4_divert_push(_m4_divert_grow, [-])]dnl
 [m4_if([$2], [], [$1], [$2])
 m4_provide_if([$1], [m4_set_remove([_m4_provide], [$1])],
-  [m4_warn([syntax], [$1 is m4_require'd but not m4_defun'd])])]dnl
+  [m4_ifndef([m4_require_silent_probe],
+    [m4_warn([syntax], [$1 is m4_require'd but not m4_defun'd])])])]dnl
 [_m4_divert_raw($3)_m4_undivert(_m4_divert_grow)]dnl
 [m4_divert_pop(_m4_divert_grow)_m4_popdef([_m4_divert_grow],
 [_m4_diverting([$1])], [_m4_diverting])])
@@ -2100,7 +2106,8 @@ m4_provide_if([$1], [m4_set_remove([_m4_provide], [$1])],
 m4_define([_m4_require_check],
 [m4_if(_m4_defn([_m4_diverting]), [$2], [m4_ignore],
        m4_ifdef([_m4_diverting([$2])], [-]), [-], [m4_warn([syntax],
-   [$3: `$1' was expanded before it was required])_m4_require_call],
+   [$3: `$1' was expanded before it was required
+http://www.gnu.org/software/autoconf/manual/autoconf.html#Expanded-Before-Required])_m4_require_call],
        [m4_ignore])])
 
 
@@ -2646,7 +2653,7 @@ dnl prefix1 shorter: pad to length of prefix, and reset cursor
 [$2]m4_define([m4_Cursor], m4_Indent)],
 	      [m4_format([%*s], m4_max([0],
   m4_eval(m4_Indent - m4_Cursor)), [])m4_define([m4_Cursor], m4_Indent)])]],
-dnl now, for each word, compute the curser after the word is output, then
+dnl now, for each word, compute the cursor after the word is output, then
 dnl check if the cursor would exceed the wrap column
 dnl if so, reset cursor, and insert newline and prefix
 dnl if not, insert the separator (usually a space)

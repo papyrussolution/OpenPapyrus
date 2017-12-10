@@ -28,11 +28,6 @@
 /* Get locale_charset() declaration.  */
 #include "localcharset.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 /* Display width.  */
 
 /* These functions are locale dependent.  The encoding argument identifies
@@ -58,10 +53,5 @@ extern int
        u16_strwidth (const uint16_t *s, const char *encoding);
 extern int
        u32_strwidth (const uint32_t *s, const char *encoding);
-
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _UNIWIDTH_H */

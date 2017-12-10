@@ -597,8 +597,8 @@ static cairo_int_status_t _cairo_svg_document_emit_bitmap_glyph_data(cairo_svg_d
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t _cairo_svg_document_emit_glyph(cairo_svg_document_t    * document,
-    cairo_scaled_font_t     * scaled_font, ulong scaled_font_glyph_index, uint font_id, uint subset_glyph_index)
+static cairo_int_status_t _cairo_svg_document_emit_glyph(cairo_svg_document_t * document,
+    cairo_scaled_font_t * scaled_font, ulong scaled_font_glyph_index, uint font_id, uint subset_glyph_index)
 {
 	cairo_int_status_t status;
 	_cairo_output_stream_printf(document->xml_node_glyphs, "<symbol overflow=\"visible\" id=\"glyph%d-%d\">\n", font_id, subset_glyph_index);
@@ -728,14 +728,9 @@ static void _cairo_svg_surface_emit_alpha_filter(cairo_svg_document_t * document
 	if(document->alpha_filter)
 		return;
 	_cairo_output_stream_printf(document->xml_node_defs,
-	    "<filter id=\"alpha\" "
-	    "filterUnits=\"objectBoundingBox\" "
-	    "x=\"0%%\" y=\"0%%\" "
-	    "width=\"100%%\" height=\"100%%\">\n"
-	    "  <feColorMatrix type=\"matrix\" "
-	    "in=\"SourceGraphic\" "
-	    "values=\"0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0\"/>\n"
-	    "</filter>\n");
+	    "<filter id=\"alpha\" filterUnits=\"objectBoundingBox\" "
+	    "x=\"0%%\" y=\"0%%\" width=\"100%%\" height=\"100%%\">\n  <feColorMatrix type=\"matrix\" "
+	    "in=\"SourceGraphic\" values=\"0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0\"/>\n</filter>\n");
 	document->alpha_filter = TRUE;
 }
 

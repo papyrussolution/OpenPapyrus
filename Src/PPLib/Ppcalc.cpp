@@ -556,7 +556,7 @@ IMPL_HANDLE_EVENT(CalcDiffDialog)
 int SLAPI CalcDiff(double amount, double * pDiff)
 {
 	int    ok = -1, valid = 0;
-	double diff = pDiff ? *pDiff : 0.0;
+	double diff = DEREFPTRORZ(pDiff);
 	double cash = amount + diff;
 	CalcDiffDialog * dlg = new CalcDiffDialog();
 	if(CheckDialogPtrErr(&dlg)) {

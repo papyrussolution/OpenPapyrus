@@ -20,11 +20,9 @@
 
 # include <stddef.h>
 
-
 # ifdef __cplusplus
 extern "C" {
 # endif
-
 
 # if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 8)
 #  define _GL_ATTRIBUTE_NORETURN __attribute__ ((__noreturn__))
@@ -49,21 +47,21 @@ extern "C" {
    or by using gnulib's xalloc-die module.  This is the
    function to call when one wants the program to die because of a
    memory allocation failure.  */
-extern void xalloc_die (void) _GL_ATTRIBUTE_NORETURN;
+extern void xalloc_die(void) _GL_ATTRIBUTE_NORETURN;
 
-void *xmalloc (size_t s)
-      _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE ((1));
-void *xzalloc (size_t s)
-      _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE ((1));
-void *xcalloc (size_t n, size_t s)
-      _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE ((1, 2));
-void *xrealloc (void *p, size_t s)
-      _GL_ATTRIBUTE_ALLOC_SIZE ((2));
-void *x2realloc (void *p, size_t *pn);
-void *xmemdup (void const *p, size_t s)
-      _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE ((2));
-char *xstrdup (char const *str)
-      _GL_ATTRIBUTE_MALLOC;
+void * xmalloc(size_t s)
+_GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE((1));
+void * xzalloc(size_t s)
+_GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE((1));
+void * xcalloc(size_t n, size_t s)
+_GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE((1, 2));
+void * xrealloc(void * p, size_t s)
+_GL_ATTRIBUTE_ALLOC_SIZE((2));
+void * x2realloc(void * p, size_t * pn);
+void * xmemdup(void const * p, size_t s)
+_GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE((2));
+char * xstrdup(char const * str)
+_GL_ATTRIBUTE_MALLOC;
 
 /* Return 1 if an array of N objects, each of size S, cannot exist due
    to size arithmetic overflow.  S must be positive and N must be
@@ -77,9 +75,7 @@ char *xstrdup (char const *str)
    sizeof (ptrdiff_t) <= sizeof (size_t), so do not bother to test for
    exactly-SIZE_MAX allocations on such hosts; this avoids a test and
    branch when S is known to be 1.  */
-# define xalloc_oversized(n, s) \
-    ((size_t) (sizeof (ptrdiff_t) <= sizeof (size_t) ? -1 : -2) / (s) < (n))
-
+# define xalloc_oversized(n, s)	((size_t)(sizeof(ptrdiff_t) <= sizeof(size_t) ? -1 : -2) / (s) < (n))
 
 /* In the following macros, T must be an elementary or structure/union or
    typedef'ed type, or a pointer to such a type.  To apply one of the
@@ -88,35 +84,34 @@ char *xstrdup (char const *str)
 
 /* Allocate an object of type T dynamically, with error checking.  */
 /* extern t *XMALLOC (typename t); */
-# define XMALLOC(t) ((t *) xmalloc (sizeof (t)))
+# define XMALLOC(t) ((t*)xmalloc(sizeof(t)))
 
 /* Allocate memory for N elements of type T, with error checking.  */
 /* extern t *XNMALLOC (size_t n, typename t); */
-# define XNMALLOC(n, t) \
-    ((t *) (sizeof (t) == 1 ? xmalloc (n) : xnmalloc (n, sizeof (t))))
+# define XNMALLOC(n, t)	\
+	((t*)(sizeof(t) == 1 ? xmalloc(n) : xnmalloc(n, sizeof(t))))
 
 /* Allocate an object of type T dynamically, with error checking,
    and zero it.  */
 /* extern t *XZALLOC (typename t); */
-# define XZALLOC(t) ((t *) xzalloc (sizeof (t)))
+# define XZALLOC(t) ((t*)xzalloc(sizeof(t)))
 
 /* Allocate memory for N elements of type T, with error checking,
    and zero it.  */
 /* extern t *XCALLOC (size_t n, typename t); */
 # define XCALLOC(n, t) \
-    ((t *) (sizeof (t) == 1 ? xzalloc (n) : xcalloc (n, sizeof (t))))
-
+	((t*)(sizeof(t) == 1 ? xzalloc(n) : xcalloc(n, sizeof(t))))
 
 # if HAVE_INLINE
 #  define static_inline static inline
 # else
-void *xnmalloc (size_t n, size_t s)
-      _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE ((1, 2));
-void *xnrealloc (void *p, size_t n, size_t s)
-      _GL_ATTRIBUTE_ALLOC_SIZE ((2, 3));
-void *x2nrealloc (void *p, size_t *pn, size_t s);
-char *xcharalloc (size_t n)
-      _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE ((1));
+void * xnmalloc(size_t n, size_t s)
+_GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE((1, 2));
+void * xnrealloc(void * p, size_t n, size_t s)
+_GL_ATTRIBUTE_ALLOC_SIZE((2, 3));
+void * x2nrealloc(void * p, size_t * pn, size_t s);
+char * xcharalloc(size_t n)
+_GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE((1));
 # endif
 
 # ifdef static_inline
@@ -124,27 +119,25 @@ char *xcharalloc (size_t n)
 /* Allocate an array of N objects, each with S bytes of memory,
    dynamically, with error checking.  S must be nonzero.  */
 
-static_inline void *xnmalloc (size_t n, size_t s)
-                    _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE ((1, 2));
-static_inline void *
-xnmalloc (size_t n, size_t s)
+static_inline void * xnmalloc(size_t n, size_t s)
+_GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE((1, 2));
+static_inline void * xnmalloc(size_t n, size_t s)
 {
-  if (xalloc_oversized (n, s))
-    xalloc_die ();
-  return xmalloc (n * s);
+	if(xalloc_oversized(n, s))
+		xalloc_die();
+	return xmalloc(n * s);
 }
 
 /* Change the size of an allocated block of memory P to an array of N
    objects each of S bytes, with error checking.  S must be nonzero.  */
 
-static_inline void *xnrealloc (void *p, size_t n, size_t s)
-                    _GL_ATTRIBUTE_ALLOC_SIZE ((2, 3));
-static_inline void *
-xnrealloc (void *p, size_t n, size_t s)
+static_inline void * xnrealloc(void * p, size_t n, size_t s)
+_GL_ATTRIBUTE_ALLOC_SIZE((2, 3));
+static_inline void * xnrealloc(void * p, size_t n, size_t s)
 {
-  if (xalloc_oversized (n, s))
-    xalloc_die ();
-  return xrealloc (p, n * s);
+	if(xalloc_oversized(n, s))
+		xalloc_die();
+	return xrealloc(p, n * s);
 }
 
 /* If P is null, allocate a block of at least *PN such objects;
@@ -200,51 +193,45 @@ xnrealloc (void *p, size_t n, size_t s)
          p[used++] = value;
        }
 
-   */
+ */
 
-static_inline void *
-x2nrealloc (void *p, size_t *pn, size_t s)
+static_inline void * x2nrealloc(void * p, size_t * pn, size_t s)
 {
-  size_t n = *pn;
+	size_t n = *pn;
+	if(!p) {
+		if(!n) {
+			/* The approximate size to use for initial small allocation
+			   requests, when the invoking code specifies an old size of
+			   zero.  64 bytes is the largest "small" request for the
+			   GNU C library malloc.  */
+			enum { DEFAULT_MXFAST = 64 };
 
-  if (! p)
-    {
-      if (! n)
-        {
-          /* The approximate size to use for initial small allocation
-             requests, when the invoking code specifies an old size of
-             zero.  64 bytes is the largest "small" request for the
-             GNU C library malloc.  */
-          enum { DEFAULT_MXFAST = 64 };
+			n = DEFAULT_MXFAST / s;
+			n += !n;
+		}
+	}
+	else{
+		/* Set N = ceil (1.5 * N) so that progress is made if N == 1.
+		   Check for overflow, so that N * S stays in size_t range.
+		   The check is slightly conservative, but an exact check isn't
+		   worth the trouble.  */
+		if((size_t)-1 / 3 * 2 / s <= n)
+			xalloc_die();
+		n += (n + 1) / 2;
+	}
 
-          n = DEFAULT_MXFAST / s;
-          n += !n;
-        }
-    }
-  else
-    {
-      /* Set N = ceil (1.5 * N) so that progress is made if N == 1.
-         Check for overflow, so that N * S stays in size_t range.
-         The check is slightly conservative, but an exact check isn't
-         worth the trouble.  */
-      if ((size_t) -1 / 3 * 2 / s <= n)
-        xalloc_die ();
-      n += (n + 1) / 2;
-    }
-
-  *pn = n;
-  return xrealloc (p, n * s);
+	*pn = n;
+	return xrealloc(p, n * s);
 }
 
 /* Return a pointer to a new buffer of N bytes.  This is like xmalloc,
    except it returns char *.  */
 
-static_inline char *xcharalloc (size_t n)
-                    _GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE ((1));
-static_inline char *
-xcharalloc (size_t n)
+static_inline char * xcharalloc(size_t n)
+_GL_ATTRIBUTE_MALLOC _GL_ATTRIBUTE_ALLOC_SIZE((1));
+static_inline char * xcharalloc(size_t n)
 {
-  return XNMALLOC (n, char);
+	return XNMALLOC(n, char);
 }
 
 # endif
@@ -256,37 +243,31 @@ xcharalloc (size_t n)
    without a cast.  Use templates to work around the problem when
    possible.  */
 
-template <typename T> inline T *
-xrealloc (T *p, size_t s)
+template <typename T> inline T * xrealloc(T * p, size_t s)
 {
-  return (T *) xrealloc ((void *) p, s);
+	return (T*)xrealloc((void*)p, s);
 }
 
-template <typename T> inline T *
-xnrealloc (T *p, size_t n, size_t s)
+template <typename T> inline T * xnrealloc(T * p, size_t n, size_t s)
 {
-  return (T *) xnrealloc ((void *) p, n, s);
+	return (T*)xnrealloc((void*)p, n, s);
 }
 
-template <typename T> inline T *
-x2realloc (T *p, size_t *pn)
+template <typename T> inline T * x2realloc(T * p, size_t * pn)
 {
-  return (T *) x2realloc ((void *) p, pn);
+	return (T*)x2realloc((void*)p, pn);
 }
 
-template <typename T> inline T *
-x2nrealloc (T *p, size_t *pn, size_t s)
+template <typename T> inline T * x2nrealloc(T * p, size_t * pn, size_t s)
 {
-  return (T *) x2nrealloc ((void *) p, pn, s);
+	return (T*)x2nrealloc((void*)p, pn, s);
 }
 
-template <typename T> inline T *
-xmemdup (T const *p, size_t s)
+template <typename T> inline T * xmemdup(T const * p, size_t s)
 {
-  return (T *) xmemdup ((void const *) p, s);
+	return (T*)xmemdup((void const*)p, s);
 }
 
 # endif
-
 
 #endif /* !XALLOC_H_ */

@@ -1,21 +1,16 @@
 // DGACC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 // Диалоговая группа ввода счета и аналитической статьи
 //
 #include <pp.h>
 #pragma hdrstop
 
-AcctCtrlGroup::AcctCtrlGroup(uint _ctl_acc, uint _ctl_art, uint _ctlsel_accnam, uint _ctlsel_artnam) : CtrlGroup()
+AcctCtrlGroup::AcctCtrlGroup(uint _ctl_acc, uint _ctl_art, uint _ctlsel_accnam, uint _ctlsel_artnam) : CtrlGroup(),
+	ctl_acc(_ctl_acc), ctl_art(_ctl_art), ctlsel_accname(_ctlsel_accnam), ctlsel_artname(_ctlsel_artnam),
+	AccSheetID(0), CurID(0), AccSelParam(0)
 {
-	ctl_acc = _ctl_acc;
-	ctl_art = _ctl_art;
-	ctlsel_accname = _ctlsel_accnam;
-	ctlsel_artname = _ctlsel_artnam;
 	AcctId.Clear();
-	AccSheetID = 0;
-	CurID = 0;
-	AccSelParam = 0;
 	ppobj = new PPObjAccTurn(0);
 }
 
@@ -247,43 +242,30 @@ void AcctCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 //
 //
 //
-SLAPI ArticleCtrlGroup::Rec::Rec()
+SLAPI ArticleCtrlGroup::Rec::Rec() : AcsID(0), OpID(0)
 {
-	AcsID = 0;
-	OpID = 0;
 }
 
-SLAPI ArticleCtrlGroup::Rec::Rec(PPID acsID, PPID opID, const ObjIdListFilt * pArList)
+SLAPI ArticleCtrlGroup::Rec::Rec(PPID acsID, PPID opID, const ObjIdListFilt * pArList) : AcsID(acsID), OpID(opID)
 {
-	AcsID = acsID;
-	OpID = opID;
 	RVALUEPTR(ArList, pArList);
 }
 
-SLAPI ArticleCtrlGroup::Rec::Rec(PPID acsID, PPID opID, PPID arID)
+SLAPI ArticleCtrlGroup::Rec::Rec(PPID acsID, PPID opID, PPID arID) : AcsID(acsID), OpID(opID)
 {
-	AcsID = acsID;
-	OpID = opID;
 	if(arID)
 		ArList.Add(arID);
 }
 
 ArticleCtrlGroup::ArticleCtrlGroup(uint ctlselAcs, uint ctlselOp, uint ctlselAr, uint cmEditList, PPID accSheetID, long flags) :
-	CtrlGroup(), Data(accSheetID, 0, 0L)
+	CtrlGroup(), Data(accSheetID, 0, 0L), Flags(flags), CtlselAcs(ctlselAcs), CtlselOp(ctlselOp), CtlselAr(ctlselAr), CmEditList(cmEditList), AccSheetID(accSheetID)
 {
-	Flags = flags;
-	CtlselAcs = ctlselAcs;
-	CtlselOp = ctlselOp;
-	CtlselAr = ctlselAr;
-	CmEditList = cmEditList;
-	AccSheetID = accSheetID;
 }
 
-int ArticleCtrlGroup::SetAccSheet(long accSheetID)
+void ArticleCtrlGroup::SetAccSheet(long accSheetID)
 {
 	AccSheetID = accSheetID;
 	Data.AcsID = accSheetID;
-	return 1;
 }
 
 void ArticleCtrlGroup::SetupAccSheet(TDialog * pDlg)
@@ -397,10 +379,7 @@ static int SLAPI EditArList(TDialog * pDlg, uint ctlID, PPID accSheetID, ObjIdLi
 		ListToListData lst(PPOBJ_ARTICLE, &ar_filt, &ary);
 		lst.TitleStrID = 0; // PPTXT_XXX;
 		if(ListToListDialog(&lst) > 0) {
-			if(ary.getCount())
-				pArList->Set(&ary);
-			else
-				pArList->Set(0);
+			pArList->Set(ary.getCount() ? &ary : 0);
 			if(pArList->GetCount() > 1) {
 				SetComboBoxListText(pDlg, ctlID);
 				pDlg->disableCtrl(ctlID, 1);

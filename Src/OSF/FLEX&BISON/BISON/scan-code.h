@@ -1,6 +1,6 @@
 /* Bison code properties structure and scanner.
 
-   Copyright (C) 2006-2007, 2009-2011 Free Software Foundation, Inc.
+   Copyright (C) 2006-2007, 2009-2015 Free Software Foundation, Inc.
 
    This file is part of Bison, the GNU Compiler Compiler.
 
@@ -39,35 +39,48 @@ extern int max_left_semantic_context;
  * functions.
  */
 typedef struct code_props {
-  /** Set by the init functions.  */
-  enum {
-    CODE_PROPS_NONE, CODE_PROPS_PLAIN,
-    CODE_PROPS_SYMBOL_ACTION, CODE_PROPS_RULE_ACTION
-  } kind;
+	/** Set by the init functions.  */
+	enum {
+		CODE_PROPS_NONE, CODE_PROPS_PLAIN,
+		CODE_PROPS_SYMBOL_ACTION, CODE_PROPS_RULE_ACTION
+	} kind;
 
-  /** \c NULL iff \c code_props::kind is \c CODE_PROPS_NONE.  */
-  char const *code;
-  /** Undefined iff \c code_props::code is \c NULL.  */
-  location location;
+	/**
+	 * \c NULL iff \c code_props::kind is \c CODE_PROPS_NONE.
+	 * Memory is allocated in an obstack freed elsewhere.
+	 */
+	char const * code;
+	/** Undefined iff \c code_props::code is \c NULL.  */
+	BFLocation location;
+	/**
+	 * \c false iff either:
+	 *   - \c code_props_translate_code has never previously been invoked for
+	 *     the \c code_props that would contain the code passage associated
+	 *     with \c self.  (That \c code_props is not the same as this one if this
+	 *     one is for a RHS \c symbol_list node.  Instead, it's the \c code_props
+	 *     for the LHS symbol of the same rule.)
+	 *   - \c code_props_translate_code has been invoked for that \c code_props,
+	 *     but the symbol value associated with this \c code_props was not
+	 *     referenced in the code passage.
+	 */
+	bool is_value_used;
 
-  /**
-   * \c false iff either:
-   *   - \c code_props_translate_code has never previously been invoked for
-   *     the \c code_props that would contain the code passage associated
-   *     with \c self.  (That \c code_props is not the same as this one if this
-   *     one is for a RHS \c symbol_list node.  Instead, it's the \c code_props
-   *     for the LHS symbol of the same rule.)
-   *   - \c code_props_translate_code has been invoked for that \c code_props,
-   *     but the symbol value associated with this \c code_props was not
-   *     referenced in the code passage.
-   */
-  bool is_value_used;
+	/**
+	 * \c true iff this code is an action that is not to be deferred in
+	 * a non-deterministic parser.
+	 */
+	bool is_predicate;
 
-  /** \c NULL iff \c code_props::kind is not \c CODE_PROPS_RULE_ACTION.  */
-  struct symbol_list *rule;
+	/**
+	 * Whether this is actually used (i.e., not completely masked by
+	 * other code props).  */
+	bool is_used;
 
-  /* Named reference. */
-  named_ref *named_ref;
+	/** \c NULL iff \c code_props::kind is not \c CODE_PROPS_RULE_ACTION.  */
+	struct symbol_list * rule;
+
+	/* Named reference. */
+	named_ref * named_ref;
 } code_props;
 
 /**
@@ -76,14 +89,23 @@ typedef struct code_props {
  * \post
  *   - \c self has been overwritten to contain no code.
  */
-void code_props_none_init (code_props *self);
+void code_props_none_init(code_props * self);
 
 /** Equivalent to \c code_props_none_init.  */
-#define CODE_PROPS_NONE_INIT \
-  {CODE_PROPS_NONE, NULL, EMPTY_LOCATION_INIT, false, NULL, NULL}
+# define CODE_PROPS_NONE_INIT			\
+	{					      \
+		/* .kind = */ code_props::CODE_PROPS_NONE,		    \
+		/* .code = */ NULL,			    \
+		/* .location = */ EMPTY_LOCATION_INIT,	    \
+		/* .is_value_used = */ false,		    \
+		/* .is_predicate = */ false,		    \
+		/* .is_used = */ false,			    \
+		/* .rule = */ NULL,			    \
+		/* .named_ref = */ NULL			    \
+	}
 
 /** Initialized by \c CODE_PROPS_NONE_INIT with no further modification.  */
-extern code_props const code_props_none;
+extern code_props code_props_none;
 
 /**
  * \pre
@@ -97,9 +119,7 @@ extern code_props const code_props_none;
  *   - \c self will become invalid if the caller frees \c code before invoking
  *     \c code_props_translate_code on \c self.
  */
-void code_props_plain_init (code_props *self, char const *code,
-                            location code_loc);
-
+void code_props_plain_init(code_props * self, char const * code, BFLocation code_loc);
 /**
  * \pre
  *   - <tt>self != NULL</tt>.
@@ -112,9 +132,7 @@ void code_props_plain_init (code_props *self, char const *code,
  *   - \c self will become invalid if the caller frees \c code before invoking
  *     \c code_props_translate_code on \c self.
  */
-void code_props_symbol_action_init (code_props *self, char const *code,
-                                    location code_loc);
-
+void code_props_symbol_action_init(code_props * self, char const * code, BFLocation code_loc);
 /**
  * \pre
  *   - <tt>self != NULL</tt>.
@@ -132,10 +150,7 @@ void code_props_symbol_action_init (code_props *self, char const *code,
  *       on \c self.
  *     - The caller frees \c rule.
  */
-void code_props_rule_action_init (code_props *self, char const *code,
-                                  location code_loc, struct symbol_list *rule,
-                                  named_ref *name);
-
+void code_props_rule_action_init(code_props * self, char const * code, BFLocation code_loc, struct symbol_list * rule, named_ref * name, bool is_predicate);
 /**
  * \pre
  *   - If there's a code passage contained in \c self and it contains Bison
@@ -147,7 +162,7 @@ void code_props_rule_action_init (code_props *self, char const *code,
  *   - <tt>self->code != self->code\@pre</tt> unless
  *     <tt>self->code\@pre = NULL</tt>.
  */
-void code_props_translate_code (code_props *self);
+void code_props_translate_code(code_props * self);
 
 /**
  * \pre
@@ -158,7 +173,7 @@ void code_props_translate_code (code_props *self);
  *     instance for which \c code_props_translate_code was invoked is now
  *     invalid.
  */
-void code_scanner_last_string_free (void);
+void code_scanner_last_string_free(void);
 
 /**
  * \pre
@@ -168,6 +183,6 @@ void code_scanner_last_string_free (void);
  *     \c code_props_translate_code (if any) has been freed.  All \c code_props
  *     instances may now be invalid.
  */
-void code_scanner_free (void);
+void code_scanner_free(void);
 
 #endif /* !SCAN_CODE_H_ */

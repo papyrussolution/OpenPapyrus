@@ -1919,7 +1919,7 @@ int SLAPI SFile::CalcCRC(long offs, uint32 * pCrc)
 //
 // Идентификация форматов файлов
 //
-class FileFormatRegBase : private SArray {
+class FileFormatRegBase : private SVector, public SStrGroup { // @v9.8.10 SArray-->SVector
 public:
 	FileFormatRegBase();
 	~FileFormatRegBase();
@@ -1941,7 +1941,7 @@ public:
 	int    GetMime(int id, SString & rMime) const;
 	int    GetExt(int id, SString & rExt) const;
 private:
-	struct Entry {
+	struct Entry { // @flat
 		int    FmtId;
 		uint   ExtIdx;
 		uint   SignIdx;
@@ -1954,14 +1954,13 @@ private:
 	int    Get(uint pos, Entry & rEntry, SString & rExt, SString & rSign, int & rMimeType, SString & rMimeSubtype) const;
 	int    Helper_Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign, FileFormatSignatureFunc signFunc);
 
-	StringSet Pool;
+	//StringSet Pool;
 	uint   MaxSignSize;
 };
 
-FileFormatRegBase::FileFormatRegBase() : SArray(sizeof(Entry))
+FileFormatRegBase::FileFormatRegBase() : SVector(sizeof(Entry)), MaxSignSize(0)
 {
-	MaxSignSize = 0;
-	Pool.add("$"); // zero index - is empty string
+	//Pool.add("$"); // zero index - is empty string
 }
 
 FileFormatRegBase::~FileFormatRegBase()
@@ -1976,7 +1975,10 @@ int FileFormatRegBase::GetMime(int id, SString & rMime) const
 		const Entry * p_entry = (const Entry *)at(i);
 		if(p_entry && p_entry->FmtId == id) {
 			if(p_entry->MimeType && p_entry->MimeSubtypeIdx) {
-				Pool.get(p_entry->MimeSubtypeIdx, rMime);
+				SFileFormat::GetMimeTypeName(p_entry->MimeType, rMime);
+				SString temp_buf;
+				GetS(p_entry->MimeSubtypeIdx, temp_buf);
+				rMime.CatChar('/').Cat(temp_buf);
 				ok = 1;
 			}
 			break;
@@ -1992,7 +1994,7 @@ int FileFormatRegBase::GetExt(int id, SString & rExt) const
 	for(uint i = 0; !ok && i < getCount(); i++) {
 		const Entry * p_entry = (const Entry *)at(i);
 		if(p_entry && p_entry->FmtId == id) {
-			if(p_entry->ExtIdx && Pool.get(p_entry->ExtIdx, temp_buf)) {
+			if(p_entry->ExtIdx && GetS(p_entry->ExtIdx, temp_buf)) {
 				// В регистрационной записи может быть несколько расширений, разделенных ';' - берем первое
 				StringSet ss(';', temp_buf);
 				if(ss.get((uint)0, temp_buf)) {
@@ -2028,7 +2030,7 @@ int FileFormatRegBase::SearchEntryByExt(const char * pExt, LongArray & rPosList)
 	for(uint i = 0; i < getCount(); i++) {
 		const Entry * p_entry = (const Entry *)at(i);
 		if(p_entry && p_entry->ExtIdx) {
-			if(Pool.get(p_entry->ExtIdx, temp_buf) && temp_buf == ext) {
+			if(GetS(p_entry->ExtIdx, temp_buf) && temp_buf == ext) {
 				rPosList.add(i);
 				ok = 1;
 			}
@@ -2049,14 +2051,14 @@ int FileFormatRegBase::Get(uint pos, Entry & rEntry, SString & rExt, SString & r
 		if(p_entry) {
 			SString temp_buf;
 			rEntry = *p_entry;
-			if(p_entry->ExtIdx && Pool.get(p_entry->ExtIdx, temp_buf)) {
+			if(p_entry->ExtIdx && GetS(p_entry->ExtIdx, temp_buf)) {
 				rExt = temp_buf;
 			}
-			if(p_entry->SignIdx && Pool.get(p_entry->SignIdx, temp_buf)) {
+			if(p_entry->SignIdx && GetS(p_entry->SignIdx, temp_buf)) {
 				rSign = temp_buf;
 			}
 			rMimeType = p_entry->MimeType;
-			if(p_entry->MimeSubtypeIdx && Pool.get(p_entry->MimeSubtypeIdx, temp_buf)) {
+			if(p_entry->MimeSubtypeIdx && GetS(p_entry->MimeSubtypeIdx, temp_buf)) {
 				rMimeSubtype = temp_buf;
 			}
 			ok = 1;
@@ -2117,17 +2119,13 @@ int FileFormatRegBase::Helper_Register(int id, int mimeType, const char * pMimeS
 		if(ok > 0) {
 			Entry new_entry;
 			MEMSZERO(new_entry);
-			if(new_ext.NotEmpty()) {
-				THROW(Pool.add(new_ext, &new_entry.ExtIdx));
-			}
+			THROW(AddS(new_ext, &new_entry.ExtIdx));
 			if(new_sign.NotEmpty()) {
 				SETMAX(MaxSignSize, is_text_sign ? (new_sign.Len()-1) : new_sign.Len()/2);
-				THROW(Pool.add(new_sign, &new_entry.SignIdx));
+				THROW(AddS(new_sign, &new_entry.SignIdx));
 			}
 			new_entry.MimeType = mimeType;
-			if(new_mime_subtype.NotEmpty()) {
-				THROW(Pool.add(new_mime_subtype, &new_entry.MimeSubtypeIdx));
-			}
+			THROW(AddS(new_mime_subtype, &new_entry.MimeSubtypeIdx));
 			new_entry.FmtId = id;
 			new_entry.SignFunc = signFunc;
 			THROW(insert(&new_entry));
@@ -2390,6 +2388,21 @@ int SFileFormat::IdentifyContentTransferEnc(const char * pCte)
 	return cte;
 }
 
+//static 
+int SFileFormat::GetContentTransferEncName(int cte, SString & rBuf)
+{
+	int    ok = 1;
+	switch(cte) {
+		case cteBase64: rBuf = "base64"; break;
+		case cteQuotedPrintable: rBuf = "quoted-printable"; break;
+		case cte8bit: rBuf = "8bit"; break;
+		case cte7bit: rBuf = "7bit"; break;
+		case cteBinary: rBuf = "binary"; break;
+		default: rBuf.Z(); ok = 0; break;
+	}
+	return ok;
+}
+
 struct __MimeTypeNameEntry {
 	int    Type;
 	const char * P_Name;
@@ -2438,8 +2451,8 @@ int SFileFormat::GetMimeTypeName(int mimeType, SString & rBuf)
 //static
 int SFileFormat::GetMime(int id, SString & rMime)
 {
+	rMime.Z();
 	int    ok = 0;
-	rMime = 0;
 	if(id == Unkn) { // @v9.7.12
 		rMime = "application/octet-stream";
 		ok = -1;
@@ -2455,8 +2468,8 @@ int SFileFormat::GetMime(int id, SString & rMime)
 //static
 int SFileFormat::GetExt(int id, SString & rExt)
 {
+	rExt.Z();
 	int    ok = 0;
-	rExt = 0;
 	if(GloBaseIdx) {
 		const FileFormatRegBase * p_reg = (FileFormatRegBase *)SLS.GetGlobalObject(GloBaseIdx);
 		if(p_reg)
@@ -2465,14 +2478,12 @@ int SFileFormat::GetExt(int id, SString & rExt)
 	return ok;
 }
 
-SFileFormat::SFileFormat()
+SFileFormat::SFileFormat() : Id(0)
 {
-	Id = 0;
 }
 
-SFileFormat::SFileFormat(int f)
+SFileFormat::SFileFormat(int f) : Id(f)
 {
-	Id = f;
 }
 
 SFileFormat::operator int () const
@@ -2528,8 +2539,8 @@ int SFileFormat::Register()
 	Register(Cur,    mtApplication, "octet-stream", "cur", "0002"); // CUR
 	Register(Xml,    mtApplication, "xml", "xml", "T<?xml");                 // XML  @v8.1.0
 	Register(Svg,    mtImage, "svg+xml",   "svg", "T<?xml"); // SVG // @todo Необходимо проверить XML-контент на наличие тега <svg>
-	Register(Html,   mtText,  "html", "html;htm", "T<!DOCTYPE HTML"); // HTML @v8.1.0
-	Register(Ini,    "ini", (const char *)0);  // INI  @v8.1.0
+	Register(Html,   mtText,  "html",  "html;htm", "T<!DOCTYPE HTML"); // HTML @v8.1.0
+	Register(Ini,    mtText,  "plain", "ini", (const char *)0);  // INI  @v8.1.0
 
 	Register(Latex,            mtApplication, "x-latex", "tex", (const char *)0);  // LATEX @v8.8.3
 	Register(Latex,            "latex", (const char *)0);         // LATEX @v8.8.3
@@ -2564,13 +2575,13 @@ int SFileFormat::Register()
 	Register(Pdb,        "pdb",     "4D6963726F736F667420432F432B2B20");
 	Register(WcbffOld,   "",        "0E11fC0DD0CF11E0");
 
-	Register(Zip, mtApplication, "zip",    "zip", "504B0304");
+	Register(Zip,    mtApplication, "zip",    "zip", "504B0304");
 	Register(Zip,        "zip", "504B0506");
 	Register(Zip,        "zip", "504B0708");
 	Register(Rar,        "rar", "52617221");
-	Register(Gz,  mtApplication, "x-gzip", "gz",  "1F8B08");
-	Register(Bz2,        "bz2", "425A68");
-	Register(SevenZ,     "7z",  "377ABCAF");
+	Register(Gz,     mtApplication, "x-gzip", "gz",  "1F8B08");
+	Register(Bz2,    mtApplication, "octet-stream", "bz2", "425A68");
+	Register(SevenZ, mtApplication, "octet-stream", "7z",  "377ABCAF");
 	Register(Xz,         "xz",  "FD377A585A");
 	Register(Z,          "z",   "1F9D90");
 	Register(Cab,        "cab", "49536328");
@@ -2672,12 +2683,8 @@ int SFileFormat::Register()
 //
 //
 //
-SEncodingFormat::SEncodingFormat(int f)
+SEncodingFormat::SEncodingFormat(int f) : Id(oneof2(f, Unkn, Base64) ? f : 0)
 {
-	if(oneof2(f, Unkn, Base64))
-		Id = f;
-	else
-		Id = 0;
 }
 
 SEncodingFormat::operator int () const

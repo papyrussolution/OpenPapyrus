@@ -12,9 +12,8 @@
 using namespace Gdiplus;
 
 struct UhttSearchGoodsParam {
-	UhttSearchGoodsParam()
+	UhttSearchGoodsParam() : Criterion(critBarcode)
 	{
-		Criterion = critBarcode;
 	}
 	enum {
 		critBarcode = 1,
@@ -308,21 +307,13 @@ int SLAPI PPObjGoods::SelectBarcode(int kind, PPID parentID, SString & rBuf)
 	return ok;
 }
 
-GoodsFiltCtrlGroup::Rec::Rec(PPID grpID, PPID goodsID, PPID locID, long flags, long extra)
+GoodsFiltCtrlGroup::Rec::Rec(PPID grpID, PPID goodsID, PPID locID, long flags, long extra) :
+	GoodsID(goodsID), GoodsGrpID(grpID), LocID(locID), Flags(flags), Extra(extra)
 {
-	GoodsID    = goodsID;
-	GoodsGrpID = grpID;
-	LocID      = locID;
-	Flags      = flags;
-	Extra      = extra;
 }
 
-GoodsFiltCtrlGroup::GoodsFiltCtrlGroup(uint ctlselGoods, uint ctlselGGrp, uint cm)
+GoodsFiltCtrlGroup::GoodsFiltCtrlGroup(uint ctlselGoods, uint ctlselGGrp, uint cm) : CtlselGoods(ctlselGoods), CtlselGoodsGrp(ctlselGGrp), Cm(cm), DisableGroupSelection(0)
 {
-	CtlselGoods    = ctlselGoods;
-	CtlselGoodsGrp = ctlselGGrp;
-	Cm             = cm;
-	DisableGroupSelection = 0;
 }
 
 int GoodsFiltCtrlGroup::IsGroupSelectionDisabled() const
@@ -468,9 +459,8 @@ static int SLAPI _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 {
 	class BarcodeItemDialog : public TDialog {
 	public:
-		BarcodeItemDialog(PPID goodsGrpID) : TDialog(DLG_BARCODE)
+		BarcodeItemDialog(PPID goodsGrpID) : TDialog(DLG_BARCODE), GoodsGrpID(goodsGrpID)
 		{
-			GoodsGrpID = goodsGrpID;
 		}
 		int    setDTS(const BarcodeTbl::Rec * pData)
 		{
@@ -686,10 +676,8 @@ int BarcodeListDialog::setupList()
 //
 class ArGoodsCodeDialog : public TDialog {
 public:
-	ArGoodsCodeDialog(int ownCode) : TDialog(DLG_ARGOODSCODE)
+	ArGoodsCodeDialog(int ownCode) : TDialog(DLG_ARGOODSCODE), AcsID(0), OwnCode(ownCode)
 	{
-		AcsID = 0;
-		OwnCode = ownCode;
 	}
 	int    setDTS(const ArGoodsCodeTbl::Rec * pData);
 	int    getDTS(ArGoodsCodeTbl::Rec * pData);
@@ -951,11 +939,9 @@ int SLAPI PPObjGoods::EditArCode(PPID goodsID, PPID arID, int ownCode)
 //
 //
 //
-ClsdGoodsDialog::ClsdGoodsDialog(uint dlgID, PPGdsClsPacket * pGcPack, int modifyOnlyExtRec) : TDialog(dlgID)
+ClsdGoodsDialog::ClsdGoodsDialog(uint dlgID, PPGdsClsPacket * pGcPack, int modifyOnlyExtRec) : TDialog(dlgID),
+	ZeroFlags(0), ModifyOnlyExtRec(modifyOnlyExtRec), GcPack(*pGcPack)
 {
-	ZeroFlags = 0;
-	ModifyOnlyExtRec = modifyOnlyExtRec;
-	GcPack = *pGcPack;
 	if(ModifyOnlyExtRec) {
 		showCtrl(CTL_SG_FULLDLGBUTTON, 0);
 		enableCommand(cmFullGoodsDialog, 0);
@@ -1198,7 +1184,7 @@ int ClsdGoodsDialog::getDTS(PPGoodsPacket * pPack)
 //
 #define GRP_IBG 1L
 
-GoodsDialog::GoodsDialog(uint rezID) : TDialog(rezID)
+GoodsDialog::GoodsDialog(uint rezID) : TDialog(rezID), St(0), gpk(gpkndUndef)
 {
 	int    use_gdscls = BIN(CConfig.Flags & CCFLG_USEGDSCLS);
 	Ptb.SetBrush(brushPriorBarcode, SPaintObj::bsSolid, GetColorRef(SClrGreen), 0);
@@ -1209,7 +1195,6 @@ GoodsDialog::GoodsDialog(uint rezID) : TDialog(rezID)
 		enableCommand(cmGoodsStruc, gs_obj.CheckRights(PPR_READ));
 	}
 	disableCtrl(CTLSEL_GOODS_CLS, !use_gdscls);
-	St = 0;
 	if(GObj.GetConfig().Flags & GCF_DISABLEWOTAXFLAG)
 		St |= stWoTaxFlagDisabled;
 	addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_GOODS_IMAGE,
@@ -1663,9 +1648,8 @@ int SLAPI EditGoodsExTitles(SString & rGoodsExTitles)
 		dlg->AddClusterAssocDef(CTL_GOODSEXTITLES_AI, 0, adinfNone);
 		dlg->AddClusterAssoc(CTL_GOODSEXTITLES_AI, 1, adinfLastSellDate);
 		dlg->SetClusterData(CTL_GOODSEXTITLES_AI, adinf);
-
 		if(ExecView(dlg) == cmOK) {
-			rGoodsExTitles = 0;
+			rGoodsExTitles.Z();
 			dlg->getCtrlString(CTL_GOODSEXTITLES_A, buf);
 			PPPutExtStrData(GDSEXSTR_STORAGE, rGoodsExTitles, buf);
 			dlg->getCtrlString(CTL_GOODSEXTITLES_B, buf);
@@ -2364,25 +2348,13 @@ int SLAPI SetupGoodsGroupCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, v
 //
 // GoodsCtrlGroup
 //
-SLAPI GoodsCtrlGroup::Rec::Rec(PPID grpID, PPID goodsID, PPID locID, uint flags)
+SLAPI GoodsCtrlGroup::Rec::Rec(PPID grpID, PPID goodsID, PPID locID, uint flags) : GrpID(grpID), GoodsID(goodsID), LocID(locID), ArID(0), Flags(flags)
 {
-	GrpID = grpID;
-	GoodsID = goodsID;
-	LocID = locID;
-	ArID  = 0;
-	Flags = flags;
 }
 
-GoodsCtrlGroup::GoodsCtrlGroup(uint _ctlsel_grp, uint _ctlsel_goods) : CtrlGroup()
+GoodsCtrlGroup::GoodsCtrlGroup(uint _ctlsel_grp, uint _ctlsel_goods) : CtrlGroup(), P_Filt(0), 
+	CtlselGrp(_ctlsel_grp), CtlselGoods(_ctlsel_goods), CtlGrp(0), CtlGoods(0), Flags(0), LocID(0), TempAltGrpID(0), ArID(0)
 {
-	P_Filt = 0;
-	CtlselGrp   = _ctlsel_grp;
-	CtlselGoods = _ctlsel_goods;
-	CtlGrp = CtlGoods = 0;
-	Flags  = 0;
-	LocID  = 0;
-	TempAltGrpID = 0;
-	ArID   = 0;
 }
 
 GoodsCtrlGroup::~GoodsCtrlGroup()
@@ -2625,13 +2597,10 @@ public:
 		selfByManuf   = 0x0008,
 		selfBySuppl   = 0x0010
 	};
-	ReplGoodsDialog(int specialForm) : TDialog((specialForm == sfEgais) ? DLG_REPLGOODSALC : DLG_REPLGOODS)
+	ReplGoodsDialog(int specialForm) : TDialog((specialForm == sfEgais) ? DLG_REPLGOODSALC : DLG_REPLGOODS), SelectionFlags(0), SpecialForm(specialForm)
 	{
-		SelectionFlags = 0;
-		SpecialForm = specialForm;
-		if(specialForm == sfEgais) {
+		if(specialForm == sfEgais)
 			PrcssrAlcReport::ReadConfig(&AlcrCfg);
-		}
 		setCtrlOption(CTL_REPLGOODS_PANE1, ofFramed, 1);
 		setCtrlOption(CTL_REPLGOODS_PANE2, ofFramed, 1);
 		addGroup(GRP_GOODS1, new GoodsCtrlGroup(CTLSEL_REPLGOODS_GRP1, CTLSEL_REPLGOODS_GOODS1));
@@ -2913,7 +2882,7 @@ int GoodsAsscDialog::EditPLU(PPID goodsGrpID, long * pPLU)
 		}
 		int    setDTS(const long * pPlu)
 		{
-			setCtrlLong(CTL_EDITPLU_PLU, pPlu ? *pPlu : 0);
+			setCtrlLong(CTL_EDITPLU_PLU, DEREFPTRORZ(pPlu));
 			return 1;
 		}
 		int    getDTS(long * pPLU)
@@ -3705,4 +3674,3 @@ int SLAPI GoodsFilterDialog(GoodsFilt * pFilt)
 {
 	DIALOG_PROC_BODY(GoodsFiltDialog, pFilt);
 }
-

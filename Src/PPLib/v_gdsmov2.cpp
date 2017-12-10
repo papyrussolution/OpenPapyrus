@@ -50,9 +50,8 @@ int SLAPI PPViewGoodsMov2::GetTabTitle(long opID, SString & rBuf)
 
 class GoodsMovCrosstab : public Crosstab {
 public:
-	SLAPI  GoodsMovCrosstab(PPViewGoodsMov2 * pV) : Crosstab()
+	SLAPI  GoodsMovCrosstab(PPViewGoodsMov2 * pV) : Crosstab(), P_V(pV)
 	{
-		P_V = pV;
 	}
 	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 	{

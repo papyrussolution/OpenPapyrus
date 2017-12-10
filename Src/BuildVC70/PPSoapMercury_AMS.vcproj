@@ -351,11 +351,11 @@
 						Name="VCCustomBuildTool"
 						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
 						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl 
-rem mercury-g2b.service_v2.0.wsdl 
+rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+rem mercury-g2b.service_v2.0.wsdl
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pvetisams vetisams.h
 cd $(SolutionDir)
 "
@@ -367,11 +367,11 @@ cd $(SolutionDir)
 						Name="VCCustomBuildTool"
 						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
 						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl 
-rem mercury-g2b.service_v2.0.wsdl 
+rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+rem mercury-g2b.service_v2.0.wsdl
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pvetisams vetisams.h
 cd $(SolutionDir)
 "
@@ -383,11 +383,11 @@ cd $(SolutionDir)
 						Name="VCCustomBuildTool"
 						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
 						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl 
-rem mercury-g2b.service_v2.0.wsdl 
+rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+rem mercury-g2b.service_v2.0.wsdl
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pvetisams vetisams.h
 cd $(SolutionDir)
 "
@@ -399,11 +399,11 @@ cd $(SolutionDir)
 						Name="VCCustomBuildTool"
 						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
 						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl 
-rem mercury-g2b.service_v2.0.wsdl 
+rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+rem mercury-g2b.service_v2.0.wsdl
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pvetisams vetisams.h
 cd $(SolutionDir)
 "
@@ -415,11 +415,11 @@ cd $(SolutionDir)
 						Name="VCCustomBuildTool"
 						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
 						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl 
-rem mercury-g2b.service_v2.0.wsdl 
+rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+rem mercury-g2b.service_v2.0.wsdl
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pvetisams vetisams.h
 cd $(SolutionDir)
 "
@@ -431,11 +431,11 @@ cd $(SolutionDir)
 						Name="VCCustomBuildTool"
 						Description="Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl"
 						CommandLine="cd $(InputDir)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
-rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl 
-rem mercury-g2b.service_v2.0.wsdl 
+rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl
+rem mercury-g2b.service_v2.0.wsdl
 $(SolutionDir)..\..\tools\gsoap-soapcpp2.exe -1 -i -n -C -pvetisams vetisams.h
 cd $(SolutionDir)
 "
@@ -453,6 +453,9 @@ cd $(SolutionDir)
 			</File>
 			<File
 				RelativePath="..\Soap\Client\Vetis\vetisamsEnterpriseServiceBindingProxy.cpp">
+			</File>
+			<File
+				RelativePath="..\Soap\Client\Vetis\vetisamsProductServiceBindingProxy.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -473,6 +476,9 @@ cd $(SolutionDir)
 			</File>
 			<File
 				RelativePath="..\Soap\Client\Vetis\vetisamsH.h">
+			</File>
+			<File
+				RelativePath="..\Soap\Client\Vetis\vetisamsProductServiceBindingProxy.h">
 			</File>
 			<File
 				RelativePath="..\Soap\Client\Vetis\vetisamsStub.h">

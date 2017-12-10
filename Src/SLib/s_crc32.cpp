@@ -130,9 +130,8 @@ struct CrcModel { // cm_t
 //
 //
 //
-SLAPI CRC32::CRC32()
+SLAPI CRC32::CRC32() : P_Tab(0)
 {
-	P_Tab = 0;
 }
 
 SLAPI CRC32::~CRC32()

@@ -555,7 +555,7 @@ int SLAPI PPCheckInPersonArray::SearchByNum(long num, uint * pPos) const
 int SLAPI PPCheckInPersonArray::SearchItem(const PPCheckInPersonItem & rItem, uint * pPos) const
 {
 	int    ok = 0;
-	for(uint   i = pPos ? *pPos : 0; !ok && i < getCount(); i++) {
+	for(uint   i = DEREFPTRORZ(pPos); !ok && i < getCount(); i++) {
 		const PPCheckInPersonItem & r_test = at(i);
 		if(r_test.IsEqual(rItem, PPCheckInPersonItem::eqoKeyOnly)) {
 			ASSIGN_PTR(pPos, i);

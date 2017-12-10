@@ -14,9 +14,8 @@
 //
 //
 //
-SLAPI StyloBhtIIOnHostCfg::StyloBhtIIOnHostCfg()
+SLAPI StyloBhtIIOnHostCfg::StyloBhtIIOnHostCfg() : P_OpList(0)
 {
-	P_OpList = 0;
 	Init();
 }
 
@@ -116,11 +115,9 @@ int SLAPI StyloBhtIIOnHostCfg::IsCostAsPrice(PPID opID) const
 //
 //
 //
-SLAPI PPBhtTerminalPacket::PPBhtTerminalPacket()
+SLAPI PPBhtTerminalPacket::PPBhtTerminalPacket() : P_Filt(0), P_SBIICfg(0)
 {
 	MEMSZERO(Rec);
-	P_Filt = 0;
-	P_SBIICfg = 0;
 }
 
 SLAPI PPBhtTerminalPacket::~PPBhtTerminalPacket()
@@ -144,9 +141,8 @@ PPBhtTerminalPacket & FASTCALL PPBhtTerminalPacket::operator = (const PPBhtTermi
 	return *this;
 }
 
-SLAPI PPObjBHT::PPObjBHT(void * extraPtr) : PPObjReference(PPOBJ_BHT, extraPtr)
+SLAPI PPObjBHT::PPObjBHT(void * extraPtr) : PPObjReference(PPOBJ_BHT, extraPtr), P_BObj(BillObj)
 {
-	P_BObj = BillObj;
 }
 
 class BhtDialog : public TDialog {
@@ -1287,10 +1283,8 @@ int SLAPI BhtRecord::SetBuf(size_t dataSize, const char * pBuf)
 //
 //
 //
-SLAPI BhtFile::BhtFile(const char * pFileName)
+SLAPI BhtFile::BhtFile(const char * pFileName) : Stream(0), P_RecTmpl(0)
 {
-	Stream = 0;
-	P_RecTmpl = 0;
 	Init(pFileName);
 }
 
@@ -1373,11 +1367,8 @@ int SLAPI BhtFile::EnumRecords(uint * pRecNo, BhtRecord * pRec)
 #define STX 0x02 // Start Of Text
 #define ETX 0x03 // End Of Text
 
-SLAPI BhtProtocol::BhtProtocol()
+SLAPI BhtProtocol::BhtProtocol() : Timeout(3000), MaxTries(10), Flags(0)
 {
-	Timeout = 3000;
-	MaxTries = 10;
-	Flags = 0;
 }
 
 SLAPI BhtProtocol::~BhtProtocol()
@@ -1672,11 +1663,8 @@ int SLAPI BhtProtocol::ReceiveFile(const char * pFileName, long timeout)
 //
 #define EOS  0x0d      // End of string
 
-SLAPI CipherProtocol::CipherProtocol()
+SLAPI CipherProtocol::CipherProtocol() : Timeout(3000), MaxTries(10), Flags(0)
 {
-	Timeout = 3000;
-	MaxTries = 10;
-	Flags = 0;
 }
 
 SLAPI CipherProtocol::~CipherProtocol()

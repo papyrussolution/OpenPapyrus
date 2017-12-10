@@ -453,8 +453,8 @@ int SLAPI PPAsyncCashSession::GetLastSess(long cashNumber, LDATETIME dtm, long *
 	int    ok = -1;
 	LDATETIME last_sess_dtm;
 	last_sess_dtm.Set(MAXDATE, ZEROTIME);
-	long   sess_no = pSessNumber ? *pSessNumber : 0;
-	PPID   sess_id = pSessID ? *pSessID : 0;
+	long   sess_no = DEREFPTRORZ(pSessNumber);
+	PPID   sess_id = DEREFPTRORZ(pSessID);
 	LastSess * p_entry = 0;
 	if(P_LastSessList)
 		for(uint i = 0; P_LastSessList->enumItems(&i, (void**)&p_entry);)

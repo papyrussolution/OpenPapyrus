@@ -501,13 +501,7 @@ namespace Scintilla {
 #endif
 
 class LexState : public LexInterface {
-	const LexerModule * lexCurrent;
-	void SetLexerModule(const LexerModule * lex);
-	PropSetSimple props;
-	int interfaceVersion;
 public:
-	int lexLanguage;
-
 	explicit LexState(Document * pdoc_);
 	virtual ~LexState();
 	void SetLexer(uptr_t wParam);
@@ -534,18 +528,23 @@ public:
 	void SetIdentifiers(int style, const char * identifiers);
 	int DistanceToSecondaryStyles();
 	const char * GetSubStyleBases();
+
+	int lexLanguage;
+private:
+	void SetLexerModule(const LexerModule * lex);
+
+	const LexerModule * lexCurrent;
+	PropSetSimple props;
+	int interfaceVersion;
 };
 
 #ifdef SCI_NAMESPACE
 }
 #endif
 
-LexState::LexState(Document * pdoc_) : LexInterface(pdoc_)
+LexState::LexState(Document * pdoc_) : LexInterface(pdoc_), lexCurrent(0), interfaceVersion(lvOriginal), lexLanguage(SCLEX_CONTAINER)
 {
-	lexCurrent = 0;
 	performingStyle = false;
-	interfaceVersion = lvOriginal;
-	lexLanguage = SCLEX_CONTAINER;
 }
 
 LexState::~LexState()
@@ -558,9 +557,7 @@ LexState::~LexState()
 
 LexState * ScintillaBase::DocumentLexState()
 {
-	if(!pdoc->pli) {
-		pdoc->pli = new LexState(pdoc);
-	}
+	SETIFZ(pdoc->pli, new LexState(pdoc));
 	return static_cast<LexState *>(pdoc->pli);
 }
 
@@ -589,8 +586,7 @@ void LexState::SetLexer(uptr_t wParam)
 	}
 	else {
 		const LexerModule * lex = Catalogue::Find(lexLanguage);
-		if(!lex)
-			lex = Catalogue::Find(SCLEX_NULL);
+		SETIFZ(lex, Catalogue::Find(SCLEX_NULL));
 		SetLexerModule(lex);
 	}
 }
@@ -598,21 +594,14 @@ void LexState::SetLexer(uptr_t wParam)
 void LexState::SetLexerLanguage(const char * languageName)
 {
 	const LexerModule * lex = Catalogue::Find(languageName);
-	if(!lex)
-		lex = Catalogue::Find(SCLEX_NULL);
-	if(lex)
+	if(SETIFZ(lex, Catalogue::Find(SCLEX_NULL)))
 		lexLanguage = lex->GetLanguage();
 	SetLexerModule(lex);
 }
 
 const char * LexState::DescribeWordListSets()
 {
-	if(instance) {
-		return instance->DescribeWordListSets();
-	}
-	else {
-		return 0;
-	}
+	return instance ? instance->DescribeWordListSets() : 0;
 }
 
 void LexState::SetWordList(int n, const char * wl)

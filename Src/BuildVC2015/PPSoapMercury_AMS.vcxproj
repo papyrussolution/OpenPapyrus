@@ -239,12 +239,13 @@
     <ClCompile Include="..\SOAP\CLIENT\VETIS\vetisamsApplicationManagementServiceBindingProxy.cpp" />
     <ClCompile Include="..\SOAP\CLIENT\VETIS\vetisamsC.cpp" />
     <ClCompile Include="..\SOAP\CLIENT\VETIS\vetisamsEnterpriseServiceBindingProxy.cpp" />
+    <ClCompile Include="..\SOAP\CLIENT\VETIS\vetisamsProductServiceBindingProxy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\SOAP\CLIENT\VETIS\stub-wsdl">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd %(RootDir)%(Directory)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl 
@@ -255,7 +256,7 @@ cd $(SolutionDir)
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)vetisamsC.cpp;%(RootDir)%(Directory)vetisamsAMSMercuryG2BBindingProxy.cpp;%(RootDir)%(Directory)vetisamsApplicationManagementServiceBindingProxy.cpp;%(RootDir)%(Directory)vetisamsEnterpriseServiceBindingProxy.cpp;%(RootDir)%(Directory)vetisams.h;%(RootDir)%(Directory)vetisamsH.h;%(RootDir)%(Directory)vetisamsStub.h;%(RootDir)%(Directory)vetisamsAMSMercuryG2BBindingProxy.h;%(RootDir)%(Directory)vetisamsEnterpriseServiceBindingProxy.h;%(RootDir)%(Directory)vetisamsApplicationManagementServiceBindingProxy.h;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">cd %(RootDir)%(Directory)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl 
@@ -266,7 +267,7 @@ cd $(SolutionDir)
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)vetisamsC.cpp;%(RootDir)%(Directory)vetisamsAMSMercuryG2BBindingProxy.cpp;%(RootDir)%(Directory)vetisamsApplicationManagementServiceBindingProxy.cpp;%(RootDir)%(Directory)vetisamsEnterpriseServiceBindingProxy.cpp;%(RootDir)%(Directory)vetisams.h;%(RootDir)%(Directory)vetisamsH.h;%(RootDir)%(Directory)vetisamsStub.h;%(RootDir)%(Directory)vetisamsAMSMercuryG2BBindingProxy.h;%(RootDir)%(Directory)vetisamsEnterpriseServiceBindingProxy.h;%(RootDir)%(Directory)vetisamsApplicationManagementServiceBindingProxy.h;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">cd %(RootDir)%(Directory)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl 
@@ -277,7 +278,7 @@ cd $(SolutionDir)
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)vetisamsC.cpp;%(RootDir)%(Directory)vetisamsAMSMercuryG2BBindingProxy.cpp;%(RootDir)%(Directory)vetisamsApplicationManagementServiceBindingProxy.cpp;%(RootDir)%(Directory)vetisamsEnterpriseServiceBindingProxy.cpp;%(RootDir)%(Directory)vetisams.h;%(RootDir)%(Directory)vetisamsH.h;%(RootDir)%(Directory)vetisamsStub.h;%(RootDir)%(Directory)vetisamsAMSMercuryG2BBindingProxy.h;%(RootDir)%(Directory)vetisamsEnterpriseServiceBindingProxy.h;%(RootDir)%(Directory)vetisamsApplicationManagementServiceBindingProxy.h;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd %(RootDir)%(Directory)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl 
@@ -288,7 +289,7 @@ cd $(SolutionDir)
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)vetisamsC.cpp;%(RootDir)%(Directory)vetisamsAMSMercuryG2BBindingProxy.cpp;%(RootDir)%(Directory)vetisamsApplicationManagementServiceBindingProxy.cpp;%(RootDir)%(Directory)vetisamsEnterpriseServiceBindingProxy.cpp;%(RootDir)%(Directory)vetisams.h;%(RootDir)%(Directory)vetisamsH.h;%(RootDir)%(Directory)vetisamsStub.h;%(RootDir)%(Directory)vetisamsAMSMercuryG2BBindingProxy.h;%(RootDir)%(Directory)vetisamsEnterpriseServiceBindingProxy.h;%(RootDir)%(Directory)vetisamsApplicationManagementServiceBindingProxy.h;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">cd %(RootDir)%(Directory)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl 
@@ -299,7 +300,7 @@ cd $(SolutionDir)
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)vetisamsC.cpp;%(RootDir)%(Directory)vetisamsAMSMercuryG2BBindingProxy.cpp;%(RootDir)%(Directory)vetisamsApplicationManagementServiceBindingProxy.cpp;%(RootDir)%(Directory)vetisamsEnterpriseServiceBindingProxy.cpp;%(RootDir)%(Directory)vetisams.h;%(RootDir)%(Directory)vetisamsH.h;%(RootDir)%(Directory)vetisamsStub.h;%(RootDir)%(Directory)vetisamsAMSMercuryG2BBindingProxy.h;%(RootDir)%(Directory)vetisamsEnterpriseServiceBindingProxy.h;%(RootDir)%(Directory)vetisamsApplicationManagementServiceBindingProxy.h;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Construction of gSOAP sources http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">cd %(RootDir)%(Directory)
-$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl
+$(SolutionDir)..\..\tools\gsoap-wsdl2h.exe -s -o vetisams.h http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/EnterpriseService_v2.0_pilot.wsdl http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ProductService_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-last/ams-mercury-g2b.service_v2.0_production.wsdl
 rem http://api.vetrf.ru/schema/platform/services/2.0-RC-last/ams-mercury-g2b.service_v2.0_pilot.wsdl
 rem http://api.vetrf.ru/schema/platform/services/ApplicationManagementService_v1.4_pilot.wsdl 
@@ -321,6 +322,7 @@ cd $(SolutionDir)
     <ClInclude Include="..\SOAP\CLIENT\VETIS\vetisamsApplicationManagementServiceBindingProxy.h" />
     <ClInclude Include="..\SOAP\CLIENT\VETIS\vetisamsEnterpriseServiceBindingProxy.h" />
     <ClInclude Include="..\SOAP\CLIENT\VETIS\vetisamsH.h" />
+    <ClInclude Include="..\SOAP\CLIENT\VETIS\vetisamsProductServiceBindingProxy.h" />
     <ClInclude Include="..\SOAP\CLIENT\VETIS\vetisamsStub.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

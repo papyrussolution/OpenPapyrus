@@ -6,17 +6,14 @@
 #pragma hdrstop
 #include <charry.h>
 
-static void SLAPI set_rt_flag(PPObject * pObj, int * pRt, int flag)
+static void FASTCALL set_rt_flag(PPObject * pObj, int * pRt, int flag)
 {
 	if(pObj->CheckRights(flag))
 		(*pRt) |= flag;
 }
 
-ObjViewDialog::ObjViewDialog(uint dlgRez, PPObject * aObj, void * extraPtr) : TDialog(/*DLG_OBJVIEW*/dlgRez)
+ObjViewDialog::ObjViewDialog(uint dlgRez, PPObject * aObj, void * extraPtr) : TDialog(/*DLG_OBJVIEW*/dlgRez), P_Obj(aObj), ExtraPtr(extraPtr), Rt(0)
 {
-	P_Obj = aObj;
-	ExtraPtr = extraPtr;
-	Rt    = 0;
 	set_rt_flag(P_Obj, &Rt, PPR_INS);
 	set_rt_flag(P_Obj, &Rt, PPR_MOD);
 	set_rt_flag(P_Obj, &Rt, PPR_DEL);
@@ -160,9 +157,8 @@ IMPL_HANDLE_EVENT(ObjViewDialog)
 	clearEvent(event);
 }
 
-RefObjViewDialog::RefObjViewDialog(uint dlgRez, PPObject * aObj, long charryID, void * extraPtr) : ObjViewDialog(dlgRez, aObj, extraPtr)
+RefObjViewDialog::RefObjViewDialog(uint dlgRez, PPObject * aObj, long charryID, void * extraPtr) : ObjViewDialog(dlgRez, aObj, extraPtr), CharryID(charryID)
 {
-	CharryID = charryID;
 }
 
 IMPL_HANDLE_EVENT(RefObjViewDialog)
@@ -524,7 +520,6 @@ int SLAPI PPObjReference::Edit(PPID * pID, void * extraPtr)
 	return ok;
 }
 
-//int SLAPI PPObjReference::Remove(PPID id, long, uint options)
 //virtual
 int SLAPI PPObjReference::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
@@ -959,7 +954,9 @@ int SLAPI PPObjUnit::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 //
 class UnitCache : public ObjCache {
 public:
-	SLAPI UnitCache() : ObjCache(PPOBJ_UNIT, sizeof(UnitData)) {}
+	SLAPI UnitCache() : ObjCache(PPOBJ_UNIT, sizeof(UnitData)) 
+	{
+	}
 private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
@@ -1457,7 +1454,9 @@ int SLAPI PPObjELinkKind::ProcessReservedItem(TVRez & rez)
 
 class ELinkKindCache : public ObjCache {
 public:
-	SLAPI ELinkKindCache() : ObjCache(PPOBJ_ELINKKIND, sizeof(Data)) {}
+	SLAPI ELinkKindCache() : ObjCache(PPOBJ_ELINKKIND, sizeof(Data)) 
+	{
+	}
 private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
@@ -1794,7 +1793,9 @@ int SLAPI SetupCurrencyCombo(TDialog * dlg, uint ctl, PPID id, uint /*flags*/, i
 
 class CurrencyCache : public ObjCache {
 public:
-	SLAPI CurrencyCache() : ObjCache(PPOBJ_CURRENCY, sizeof(Data)) {}
+	SLAPI CurrencyCache() : ObjCache(PPOBJ_CURRENCY, sizeof(Data)) 
+	{
+	}
 private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
@@ -2114,7 +2115,7 @@ int SLAPI PPObjGlobalUserAcc::SerializePacket(int dir, PPGlobalUserAccPacket * p
 int SLAPI PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPack, int use_ta)
 {
 	int    ok = 1;
-	PPID   _id = pID ? *pID : 0;
+	PPID   _id = DEREFPTRORZ(pID);
 	const  int is_new = (_id == 0);
 	const  int is_removing = BIN(*pID != 0 && pPack == 0);
 	PPID   hid = 0;
@@ -3157,7 +3158,7 @@ int SLAPI PPObjUhttStore::ValidatePacket(const PPUhttStorePacket * pPack, long f
 int SLAPI PPObjUhttStore::PutPacket(PPID * pID, PPUhttStorePacket * pPack, int use_ta)
 {
 	int    ok = 1;
-	PPID   _id = pID ? *pID : 0;
+	PPID   _id = DEREFPTRORZ(pID);
 	const  int is_new = (_id == 0);
 	const  int is_removing = BIN(*pID != 0 && pPack == 0);
 	PPID   hid = 0;

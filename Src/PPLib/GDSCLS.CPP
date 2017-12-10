@@ -803,7 +803,7 @@ int SLAPI PPObjGoodsClass::UpdatePropObjType(PPID clsID, int gcProp, PPID prevOb
 int SLAPI PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel, valid_data = 0, is_new = 0;
-	const  PPID org_id = pID ? *pID : 0;
+	const  PPID org_id = DEREFPTRORZ(pID);
 	PPObjGoods goods_obj;
 	PPGdsClsPacket pack;
 	GoodsClassDialog * dlg = 0;

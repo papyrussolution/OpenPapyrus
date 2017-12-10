@@ -2232,7 +2232,7 @@ char * FASTCALL chomp(char * s)
 const char * SLAPI skipws(const char * pStr, size_t * pPos)
 {
 	if(pStr) {
-		size_t pos = pPos ? *pPos : 0;
+		size_t pos = DEREFPTRORZ(pPos);
 		const char * p = pStr+pos;
 		while(*p != ' ' && *p != '\t')
 			p++;
@@ -2344,7 +2344,7 @@ static int SLAPI iswordchar(int ch, const char * /*pWordChars*/)
 
 int SLAPI searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg, size_t * pLen)
 {
-	size_t pos = pBeg ? *pBeg : 0;
+	size_t pos = DEREFPTRORZ(pBeg);
 	const  char * s = pStr + pos;
 	const  char * p;
 	const  char * pat = rParam.P_Pattern;

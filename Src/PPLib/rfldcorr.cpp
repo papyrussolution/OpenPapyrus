@@ -3001,7 +3001,7 @@ int ImpExpCfgsListDialog::EditParam(const char * pIniSection, long * pCDbID)
 	MemLeakTracer mlt;
 	int    ok = -1;
 	int    is_exists = 0;
-	long   cdb_id = pCDbID ? *pCDbID : 0;
+	long   cdb_id = DEREFPTRORZ(pCDbID);
 	ImpExpParamDialog * p_param_dlg = 0;
 	SString ini_file_name, section;
 	PPImpExpParam * p_param = P_ParamList[CfgPos];

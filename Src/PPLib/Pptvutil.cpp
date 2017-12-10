@@ -710,7 +710,7 @@ int SLAPI InputQttyDialog(const char * pTitle, const char * pInputTitle, double 
 		dlg->setTitle(pTitle);
 		if(pInputTitle)
 			dlg->setLabelText(CTL_QTTY_QTTY, pInputTitle);
-		dlg->setCtrlReal(CTL_QTTY_QTTY, pQtty ? *pQtty : 0);
+		dlg->setCtrlReal(CTL_QTTY_QTTY, DEREFPTRORZ(pQtty));
 		if(ExecView(dlg) == cmOK) {
 			ASSIGN_PTR(pQtty, dlg->getCtrlReal(CTL_QTTY_QTTY));
 			ok = 1;
@@ -991,15 +991,11 @@ IMPL_HANDLE_EVENT(Lst2LstDialogUI)
 //
 // Lst2LstAryDialog
 //
-SLAPI ListToListAryData::ListToListAryData(uint rezID, SArray * pLList, SArray * pRList) : ListToListUIData()
+SLAPI ListToListAryData::ListToListAryData(uint rezID, SArray * pLList, SArray * pRList) : ListToListUIData(), RezID(rezID), P_LList(pLList), P_RList(pRList)
 {
-	RezID   = rezID;
-	P_LList = pLList;
-	P_RList = pRList;
 }
 
-Lst2LstAryDialog::Lst2LstAryDialog(uint rezID, ListToListUIData * pData, SArray * pLeft, SArray * pRight) :
-	Lst2LstDialogUI(rezID, pData)
+Lst2LstAryDialog::Lst2LstAryDialog(uint rezID, ListToListUIData * pData, SArray * pLeft, SArray * pRight) : Lst2LstDialogUI(rezID, pData)
 {
 	P_Right = new SArray(pRight->getItemSize()/*sizeof(TaggedString)*/);
 	P_Right->copy(*pRight);
@@ -1020,7 +1016,6 @@ int Lst2LstAryDialog::setupRightList()
 int Lst2LstAryDialog::setupLeftList()
 	{ return SetupList(P_Left, GetLeftList()); }
 
-// virtual @v6.4.9 AHTOXA
 int Lst2LstAryDialog::SetupList(SArray *pA, SmartListBox * pL)
 {
 	if(pL) {
@@ -1098,27 +1093,19 @@ int FASTCALL ListToListAryDialog(ListToListAryData * pData)
 //
 // Lst2LstObjDialog
 //
-ListToListData::ListToListData(PPID objType, void * extraPtr, PPIDArray * pList) : ListToListUIData()
+ListToListData::ListToListData(PPID objType, void * extraPtr, PPIDArray * pList) : ListToListUIData(), ObjType(objType), ExtraPtr(extraPtr), P_SrcList(0), P_List(pList)
 {
-	ObjType = objType;
-	ExtraPtr = extraPtr;
-	P_SrcList = 0;
-	P_List = pList;
 }
 
-ListToListData::ListToListData(const StrAssocArray * pSrcList, PPID objType, PPIDArray * pList)
+ListToListData::ListToListData(const StrAssocArray * pSrcList, PPID objType, PPIDArray * pList) :
+	ObjType(objType), ExtraPtr(0), P_SrcList(pSrcList), P_List(pList)
 {
-	ObjType = objType;
-	ExtraPtr = 0;
-	P_SrcList = pSrcList;
-	P_List = pList;
 }
 
-Lst2LstObjDialog::Lst2LstObjDialog(uint rezID, ListToListData * aData) : Lst2LstDialogUI(rezID, aData), Data(*aData)
+Lst2LstObjDialog::Lst2LstObjDialog(uint rezID, ListToListData * aData) : Lst2LstDialogUI(rezID, aData), Data(*aData), P_Object(0)
 {
 	//Data = *aData;
 	Data.P_List = new PPIDArray(*aData->P_List);
-	P_Object = 0;
 	setup();
 }
 
@@ -1985,12 +1972,9 @@ int SLAPI FileBrowseCtrlGroup::Setup(TDialog * dlg, uint btnCtlID, uint inputCtl
 	return ok;
 }
 
-FileBrowseCtrlGroup::FileBrowseCtrlGroup(uint buttonId, uint inputId, const char * pTitle, long flags)
+FileBrowseCtrlGroup::FileBrowseCtrlGroup(uint buttonId, uint inputId, const char * pTitle, long flags) :
+	ButtonCtlId(buttonId), InputCtlId(inputId), Flags(flags), Title(pTitle)
 {
-	ButtonCtlId = buttonId;
-	InputCtlId  = inputId;
-	Flags = flags;
-	Title = pTitle;
 	if(Title.Strip().Empty()) {
 		PPGetSubStr(PPTXT_FILE_OR_PATH_SELECTION, (Flags & fbcgfPath) ? PPFOPS_PATH : PPFOPS_FILE, Title);
 		Title.Transf(CTRANSF_INNER_TO_OUTER);
@@ -2532,9 +2516,8 @@ int SLAPI SelectorDialog(uint dlgID, uint ctlID, uint * pVal /* IN,OUT */, const
 //
 //
 ListBoxSelDlg::ListBoxSelDlg(ListBoxDef * pDef, uint dlgID /*=0*/) :
-	PPListDialog((dlgID) ? dlgID : ((pDef && pDef->_isTreeList()) ? DLG_LBXSELT : DLG_LBXSEL), CTL_LBXSEL_LIST)
+	PPListDialog((dlgID) ? dlgID : ((pDef && pDef->_isTreeList()) ? DLG_LBXSELT : DLG_LBXSEL), CTL_LBXSEL_LIST), P_Def(pDef)
 {
-	P_Def = pDef;
 	showCtrl(STDCTL_INSBUTTON,  0);
 	showCtrl(STDCTL_EDITBUTTON, 0);
 	showCtrl(STDCTL_DELBUTTON,  0);
@@ -2580,7 +2563,7 @@ int SLAPI ListBoxSelDialog(PPID objID, PPID * pID, void * extraPtr)
 	if(p_def) {
 		p_dlg = new ListBoxSelDlg(p_def);
 		if(CheckDialogPtrErr(&p_dlg)) {
-			PPID id = pID ? *pID : 0;
+			PPID id = DEREFPTRORZ(pID);
 			SString obj_title;
 			p_dlg->setSubTitle(GetObjectTitle(objID, obj_title));
 			p_dlg->setDTS(id);
@@ -2647,7 +2630,7 @@ int  SLAPI ListBoxSelDialog(uint dlgID, StrAssocArray * pAry, PPID * pID, uint f
 int SLAPI ComboBoxSelDialog2(StrAssocArray * pAry, uint subTitleStrId, uint labelStrId, long * pSelectedId, uint flags)
 {
 	int    ok = -1;
-	long   sel_id = pSelectedId ? *pSelectedId : 0;
+	long   sel_id = DEREFPTRORZ(pSelectedId);
 	TDialog * p_dlg = 0;
 	if(pAry && CheckDialogPtrErr(&(p_dlg = new TDialog(DLG_CBXSEL)))) {
 		SString subtitle, label;
@@ -2730,7 +2713,7 @@ int SLAPI ListBoxSelDialog(StrAssocArray * pAry, const char * pTitle, PPID * pID
 				title_buf = pTitle;
 			p_dlg->setTitle(title_buf);
 		}
-		PPID   id = pID ? *pID : 0;
+		PPID   id = DEREFPTRORZ(pID);
 		p_dlg->setDTS(id);
 		if(ExecView(p_dlg) == cmOK) {
 			p_dlg->getDTS(&id);
@@ -2872,9 +2855,8 @@ int SLAPI UISettingsDialog()
 	return r;
 }
 
-EmbedDialog::EmbedDialog(uint resID) : TDialog(resID)
+EmbedDialog::EmbedDialog(uint resID) : TDialog(resID), P_ChildDlg(0)
 {
-	P_ChildDlg = 0;
 }
 
 EmbedDialog::~EmbedDialog()
@@ -2923,11 +2905,8 @@ void EmbedDialog::setChildPos(uint neighbourCtl)
 //
 //
 //
-SpecialInputCtrlGroup::SpecialInputCtrlGroup(uint ctlId, uint rdDelay) : CtrlGroup(), RdTimer(rdDelay)
+SpecialInputCtrlGroup::SpecialInputCtrlGroup(uint ctlId, uint rdDelay) : CtrlGroup(), RdTimer(rdDelay), CtlId(ctlId), RdDelay(rdDelay), P_Ad(0)
 {
-	CtlId = ctlId;
-	RdDelay = rdDelay;
-	P_Ad = 0;
 	UserInterfaceSettings uicfg;
 	if(uicfg.Restore() > 0 && uicfg.SpecialInputDeviceSymb.NotEmptyS()) {
 		PPObjGenericDevice gd_obj;
@@ -4125,16 +4104,12 @@ void PersonListCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 #define SCARD_MIN_SYMBS 4
 
-SLAPI SCardCtrlGroup::Rec::Rec()
+SLAPI SCardCtrlGroup::Rec::Rec() : SCardID(0)
 {
-	SCardID = 0;
 }
 
-SCardCtrlGroup::SCardCtrlGroup(uint ctlselSCardSer, uint ctlSCard, uint cmScsList)
+SCardCtrlGroup::SCardCtrlGroup(uint ctlselSCardSer, uint ctlSCard, uint cmScsList) : CtlselSCardSer(ctlselSCardSer), CtlSCard(ctlSCard), CmSCSerList(cmScsList)
 {
-	CtlselSCardSer = ctlselSCardSer;
-	CtlSCard = ctlSCard;
-	CmSCSerList = cmScsList;
 }
 
 int SCardCtrlGroup::Setup(TDialog * pDlg, int event)
@@ -4214,18 +4189,14 @@ void SCardCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 //
 //
-#if 1 // @construction {
-
-FiasSelExtra::FiasSelExtra(PPFiasReference * pOuterFiasRef) : WordSel_ExtraBlock()
+FiasSelExtra::FiasSelExtra(PPFiasReference * pOuterFiasRef) : WordSel_ExtraBlock(), State(0)
 {
-	State = 0;
 	if(pOuterFiasRef) {
 		P_Fr = pOuterFiasRef;
 		State |= stOuterFiasRef;
 	}
-	else {
+	else
 		P_Fr = new PPFiasReference;
-	}
 }
 
 FiasSelExtra::~FiasSelExtra()
@@ -4294,16 +4265,13 @@ int FiasSelExtra::SearchText(const char * pText, long * pID, SString & rBuf)
 //
 //
 //
-SLAPI FiasAddressCtrlGroup::Rec::Rec()
+SLAPI FiasAddressCtrlGroup::Rec::Rec() : TerminalFiasID(0)
 {
-	TerminalFiasID = 0;
 	TerminalFiasUUID.SetZero();
 }
 
-FiasAddressCtrlGroup::FiasAddressCtrlGroup(uint ctlEdit, uint ctlInfo)
+FiasAddressCtrlGroup::FiasAddressCtrlGroup(uint ctlEdit, uint ctlInfo) : CtlEdit(ctlEdit), CtlInfo(ctlInfo)
 {
-	CtlEdit = ctlEdit;
-	CtlInfo = ctlInfo;
 }
 
 int FiasAddressCtrlGroup::Setup(TDialog * pDlg, int event)
@@ -4344,8 +4312,6 @@ int FiasAddressCtrlGroup::getData(TDialog * pDlg, void * pData)
 void FiasAddressCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 }
-
-#endif // } 0
 //
 //
 //
@@ -4354,10 +4320,8 @@ SLAPI PosNodeCtrlGroup::Rec::Rec(const ObjIdListFilt * pList)
 	RVALUEPTR(List, pList);
 }
 
-PosNodeCtrlGroup::PosNodeCtrlGroup(uint ctlselLoc, uint cmEditList)
+PosNodeCtrlGroup::PosNodeCtrlGroup(uint ctlselLoc, uint cmEditList) : Ctlsel(ctlselLoc), CmEditList(cmEditList)
 {
-	Ctlsel     = ctlselLoc;
-	CmEditList = cmEditList;
 }
 
 void PosNodeCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
@@ -4412,10 +4376,8 @@ SLAPI QuotKindCtrlGroup::Rec::Rec(const ObjIdListFilt * pList)
 	RVALUEPTR(List, pList);
 }
 
-QuotKindCtrlGroup::QuotKindCtrlGroup(uint ctlsel, uint cmEditList)
+QuotKindCtrlGroup::QuotKindCtrlGroup(uint ctlsel, uint cmEditList) : Ctlsel(ctlsel), CmEditList(cmEditList)
 {
-	Ctlsel     = ctlsel;
-	CmEditList = cmEditList;
 }
 
 void QuotKindCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
@@ -4481,10 +4443,8 @@ SLAPI StaffCalCtrlGroup::Rec::Rec(const ObjIdListFilt * pList)
 	RVALUEPTR(List, pList);
 }
 
-StaffCalCtrlGroup::StaffCalCtrlGroup(uint ctlsel, uint cmEditList)
+StaffCalCtrlGroup::StaffCalCtrlGroup(uint ctlsel, uint cmEditList) : Ctlsel(ctlsel), CmEditList(cmEditList)
 {
-	Ctlsel     = ctlsel;
-	CmEditList = cmEditList;
 }
 
 /* @v9.5.5 (inlined)
@@ -5545,7 +5505,7 @@ private:
 
 	DECL_HANDLE_EVENT;
 	// @v9.6.2 virtual void draw();
-	int    Select(long x, long y);
+	void   Select(long x, long y);
 	void   DrawMainRect(TCanvas *, RECT *);
 	void   DrawHourText(TCanvas *);
 	void   DrawHoursRect(TCanvas *);
@@ -5696,14 +5656,13 @@ IMPL_HANDLE_EVENT(TimePickerDialog)
 	clearEvent(event);
 }
 
-int TimePickerDialog::Select(long x, long y)
+void TimePickerDialog::Select(long x, long y)
 {
 	long   h = Data.hour(), m = Data.minut();
 	TmRects.GetTimeByCoord(x, y, &h, &m);
 	Data = encodetime(h, m, 0, 0);
 	invalidateRect(getClientRect(), 1);
 	::UpdateWindow(H());
-	return 1;
 }
 
 void TimePickerDialog::DrawMainRect(TCanvas * pCanv, RECT * pRect)
@@ -5926,12 +5885,9 @@ int TimePickerDialog::getDTS(LTIME * pData)
 void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 {
 	struct TimeButtonWndEx {
-		TimeButtonWndEx(TDialog * pDlg, uint editCtlId, WNDPROC fPrevWndProc)
+		TimeButtonWndEx(TDialog * pDlg, uint editCtlId, WNDPROC fPrevWndProc) : Dlg(pDlg), EditID(editCtlId), PrevWndProc(fPrevWndProc)
 		{
 			STRNSCPY(Signature, "papyrusclock");
-			Dlg = pDlg;
-			EditID = editCtlId;
-			PrevWndProc = fPrevWndProc;
 		}
 		static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
@@ -5965,7 +5921,7 @@ void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 		}
 		char   Signature[24];
 		TDialog * Dlg;
-		uint   EditID;
+		const  uint EditID;
 		WNDPROC PrevWndProc;
 	};
 	HWND   hwnd = GetDlgItem(pDlg->H(), buttCtlID);
@@ -5985,11 +5941,8 @@ void SLAPI SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 //
 // TimePickerCtrlGroup
 //
-TimePickerCtrlGroup::TimePickerCtrlGroup(uint ctl, uint ctlSel, TDialog * pDlg)
+TimePickerCtrlGroup::TimePickerCtrlGroup(uint ctl, uint ctlSel, TDialog * pDlg) : Ctl(ctl), CtlSel(ctlSel), Cmd(0)
 {
-	Ctl    = ctl;
-	CtlSel = ctlSel;
-	Cmd    = 0;
 	if(CtlSel && pDlg) {
 		TButton * p_btn = (TButton*)pDlg->getCtrlView(CtlSel);
 		if(p_btn) {
@@ -6288,10 +6241,8 @@ int SLAPI EmailToBlock::Edit(long flags)
 //
 //
 //
-SendMailDialog::Rec::Rec()
+SendMailDialog::Rec::Rec() : MailAccID(0), Delay(0)
 {
-	MailAccID = 0;
-	Delay = 0;
 }
 
 SendMailDialog::Rec & FASTCALL SendMailDialog::Rec::operator = (const SendMailDialog::Rec & rSrc)
@@ -6904,9 +6855,8 @@ int SLAPI ExportDialogs(const char * pFileName)
 //
 class OpenEditFileDialog : public TDialog {
 public:
-	OpenEditFileDialog() : TDialog(DLG_OPENEDFILE)
+	OpenEditFileDialog() : TDialog(DLG_OPENEDFILE), FileID(0)
 	{
-		FileID = 0;
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_OPENEDFILE_SELECT, CTL_OPENEDFILE_SELECT, 1, 0,
 			PPTXT_FILPAT_PPYTEXT, FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
 		SetupStrListBox(this, CTL_OPENEDFILE_RESERV);

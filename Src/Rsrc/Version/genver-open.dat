@@ -14,9 +14,8 @@ Demo         = 0
 OpenSource   = 1
 MajorVer     =9
 MinorVer     =8
-Revision     =9
-<<<<<<< HEAD
-AssemblyVer=24219
+Revision     =10
+AssemblyVer=24261
 =======
 AssemblyVer=24165
 >>>>>>> parent of f010b32... Version 9.8.9

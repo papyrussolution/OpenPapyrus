@@ -670,7 +670,7 @@ void SLAPI CMrpTab::Sort()
 
 int SLAPI CMrpTab::Search(PPID tabID, PPID destID, PPID srcID, uint * pPos, CMrpTab::Row * pRow) const
 {
-	uint   pos = pPos ? *pPos : 0;
+	uint   pos = DEREFPTRORZ(pPos);
 	Row    pat;
 	pat.TabID  = tabID;
 	pat.DestID = destID;

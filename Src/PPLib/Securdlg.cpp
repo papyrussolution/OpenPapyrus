@@ -219,7 +219,7 @@ int SLAPI EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 	int    ok = 1, valid_data = 0, r;
 	Reference * p_ref = PPRef;
 	int    dlg_id = 0;
-	PPID   _id = pID ? *pID : 0;
+	PPID   _id = DEREFPTRORZ(pID);
 	SecurDialog * dlg = 0;
 	PPSecurPacket spack;
 	PPSecurPacket sample_spack;

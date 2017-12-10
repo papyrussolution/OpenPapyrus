@@ -19,10 +19,9 @@ CashNodeFilt & FASTCALL CashNodeFilt::operator = (const CashNodeFilt & s)
 	return *this;
 }
 
-SLAPI PPViewCashNode::PPViewCashNode() : PPView(&ObjCashN, &Filt, PPVIEW_CASHNODE)
+SLAPI PPViewCashNode::PPViewCashNode() : PPView(&ObjCashN, &Filt, PPVIEW_CASHNODE), P_TempTbl(0)
 {
 	ImplementFlags |= PPView::implDontEditNullFilter; // @v9.6.1
-	P_TempTbl = 0;
 	PPLoadText(PPTXT_CMT, CashTypeNames);
 	// @vmiller {
 	int    s = 0, a = 0, idx = 0;

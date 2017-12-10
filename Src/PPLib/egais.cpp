@@ -68,9 +68,8 @@ void PPEgaisProcessor::Ack::Clear()
 	Message.Z();
 }
 
-PPEgaisProcessor::Reply::Reply()
+PPEgaisProcessor::Reply::Reply() : Status(0)
 {
-	Status = 0;
 	Id.SetZero();
 }
 
@@ -104,19 +103,12 @@ void PPEgaisProcessor::Ticket::Clear()
 	OpR.Clear();
 }
 
-PPEgaisProcessor::ConfirmTicket::ConfirmTicket()
+PPEgaisProcessor::ConfirmTicket::ConfirmTicket() : BillID(0), Conclusion(-1), Date(ZERODATE)
 {
-	BillID = 0;
-	Conclusion = -1;
-	Date = ZERODATE;
 }
 
-SLAPI PPEgaisProcessor::InformAReg::InformAReg()
+SLAPI PPEgaisProcessor::InformAReg::InformAReg() : Qtty(0), ManufDate(ZERODATE), TTNDate(ZERODATE), EGAISDate(ZERODATE)
 {
-	Qtty = 0;
-	ManufDate = ZERODATE;
-	TTNDate = ZERODATE;
-	EGAISDate = ZERODATE;
 }
 
 int SLAPI PPEgaisProcessor::InformAReg::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
@@ -187,9 +179,8 @@ void PPEgaisProcessor::InformB::Clear()
 	Items.clear();
 }
 
-PPEgaisProcessor::ActInformItem::ActInformItem()
+PPEgaisProcessor::ActInformItem::ActInformItem() : P(0)
 {
-	P = 0;
 	AIdent[0] = 0;
 }
 
@@ -197,17 +188,12 @@ PPEgaisProcessor::ActInform::ActInform()
 {
 }
 
-PPEgaisProcessor::RepealWb::RepealWb()
+PPEgaisProcessor::RepealWb::RepealWb() : BillID(0), ReqTime(ZERODATETIME), Confirm(0)
 {
-	BillID = 0;
-	ReqTime = ZERODATETIME;
-	Confirm = 0;
 }
 
-PPEgaisProcessor::QueryBarcode::QueryBarcode()
+PPEgaisProcessor::QueryBarcode::QueryBarcode() : RowId(0), CodeType(0)
 {
-	RowId = 0;
-	CodeType = 0;
 }
 
 SLAPI PPEgaisProcessor::UtmEntry::UtmEntry()
@@ -215,19 +201,13 @@ SLAPI PPEgaisProcessor::UtmEntry::UtmEntry()
 	THISZERO();
 }
 
-SLAPI PPEgaisProcessor::SendBillsParam::SendBillsParam()
+SLAPI PPEgaisProcessor::SendBillsParam::SendBillsParam() : LocID(0)
 {
-	LocID = 0;
 	Period.SetZero();
 }
 
-PPEgaisProcessor::Packet::Packet(int docType)
+PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), IntrBillID(0), P_Data(0), SrcReplyPos(0)
 {
-	DocType = docType;
-	Flags = 0;
-	IntrBillID = 0;
-	P_Data = 0;
-	SrcReplyPos = 0;
 	switch(DocType) {
 		case PPEDIOP_EGAIS_QUERYCLIENTS:
 		case PPEDIOP_EGAIS_QUERYAP:
@@ -989,15 +969,8 @@ int SLAPI PPEgaisProcessor::QueryInfB(PPID locID, const char * pInfB)
     return ok;
 }
 
-SLAPI PPEgaisProcessor::PPEgaisProcessor(long cflags, PPLogger * pOuterLogger) : PrcssrAlcReport()
+SLAPI PPEgaisProcessor::PPEgaisProcessor(long cflags, PPLogger * pOuterLogger) : PrcssrAlcReport(), State(0), P_LecT(0), P_Logger(0), P_UtmEntry(0), P_Taw(0)
 {
-	State = 0;
-	// @v9.6.4 (useless) P_Dgq = 0;
-	P_LecT = 0;
-	P_Logger = 0;
-	P_UtmEntry = 0;
-	// { @v9.7.5
-	P_Taw = 0;
 	{
 		//
 		// Инициализация процессора замены наименований входящих товаров
@@ -1016,7 +989,6 @@ SLAPI PPEgaisProcessor::PPEgaisProcessor(long cflags, PPLogger * pOuterLogger) :
 				ZDELETE(P_Taw);
 		}
 	}
-	// } @v9.7.5
 	P_Las = new PPLocAddrStruc(0, 0);
 	THROW(SetConfig(0));
 	THROW(Init());
@@ -4769,6 +4741,229 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, TSCollection
     return ok;
 }
 
+int SLAPI PPEgaisProcessor::Helper_AcceptTtnRefB(Packet * pPack, TSCollection <PPEgaisProcessor::Packet> * pPackList, const uint packIdx, LongArray & rSkipPackIdxList)
+{
+	int    ok = -1;
+	const InformB * p_inf = (const InformB *)pPack->P_Data;
+	SString temp_buf;
+	int   do_skip = 0;
+	//
+	// Пытаемся избежать повторного разбора двух и более PPEDIOP_EGAIS_TTNINFORMBREG
+	// относящихся к одному документу (разные версии посылок). Нам нужна только последняя версия.
+	//
+	for(uint fwpackidx = packIdx+1; fwpackidx < pPackList->getCount(); fwpackidx++) {
+		const Packet * p_fw_pack = pPackList->at(fwpackidx);
+		if(p_fw_pack && p_fw_pack->P_Data && p_fw_pack->DocType == pPack->DocType) {
+			const InformB * p_fw_inf = (const InformB *)p_fw_pack->P_Data;
+			if(p_fw_inf->Id.CmpNC(p_inf->Id) == 0 && p_fw_inf->OuterCode.CmpNC(p_inf->OuterCode) == 0 && p_fw_inf->OuterDate == p_inf->OuterDate) {
+				if(p_fw_inf->FixDate > p_inf->FixDate)
+                    do_skip = 1;
+				else if(p_fw_inf->FixDate < p_inf->FixDate)
+					rSkipPackIdxList.add((long)fwpackidx);
+				else {
+                    int64 this_fix_number = 0;
+                    int64 fw_fix_number = 0;
+					temp_buf = p_inf->FixNumber;
+					while(temp_buf.Len() && !isdec(temp_buf.C(0)))
+                        temp_buf.ShiftLeft();
+					this_fix_number = temp_buf.ToInt64();
+					temp_buf = p_fw_inf->FixNumber;
+					while(temp_buf.Len() && !isdec(temp_buf.C(0)))
+                        temp_buf.ShiftLeft();
+					fw_fix_number = temp_buf.ToInt64();
+					if(fw_fix_number > this_fix_number) {
+						do_skip = 1;
+					}
+					else if(fw_fix_number < this_fix_number)
+						rSkipPackIdxList.add((long)fwpackidx);
+				}
+			}
+		}
+	}
+	if(!do_skip) {
+		Reference * p_ref = PPRef;
+		const SString edi_ident = p_inf->WBRegId;
+		SString bill_text;
+		BillTbl::Rec ex_bill_rec;
+		PPIDArray bill_id_list;
+		p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_OUTERCODE, p_inf->Id, &bill_id_list);
+		if(p_inf->Id.IsDigit()) {
+			int64 id_64 = p_inf->Id.ToInt64();
+			if(id_64 > 0 && id_64 < LONG_MAX) {
+				PPID   id_32 = (PPID)id_64;
+				if(!bill_id_list.lsearch(id_32) && P_BObj->Fetch(id_32, &ex_bill_rec) > 0) {
+					if(IsOpBelongTo(ex_bill_rec.OpID, Cfg.ExpndOpID) || IsOpBelongTo(ex_bill_rec.OpID, Cfg.IntrExpndOpID)) {
+						BillCore::GetCode(temp_buf = ex_bill_rec.Code);
+						if(temp_buf.NotEmptyS() && temp_buf.CmpNC(p_inf->OuterCode) == 0) {
+							long    _dd = diffdate(p_inf->FixDate, ex_bill_rec.Dt);
+							if(_dd >= 0 && _dd <= 30) // @v8.9.5 7-->30
+								bill_id_list.add(id_32);
+						}
+					}
+				}
+			}
+		}
+		int    _bill_found = 0;
+		int    _err = 0; // Признак того, что произошла ошибка. Если !0, то удалять документ из УТМ нельзя
+		for(uint j = 0; !_bill_found && j < bill_id_list.getCount(); j++) {
+			const PPID bill_id = bill_id_list.get(j);
+			BillTbl::Rec ex_bill_rec;
+			PPBillPacket bp, _link_bp;
+			PPBillPacket * p_intr_link_bp = 0;
+			int   do_update = 0;
+			int   do_update_wroff_pack = 0;
+			//
+			// Значения do_process:
+			// 0 - не обрабатывать,
+			// 1 - приход от поставщика,
+			// 2 - возврат от покупателя
+			// 3 - расходные операции (по ним сейчас ничего не делаем, но временно оставляем так)
+			int   do_process = 0;
+			if(P_BObj->Fetch(bill_id, &ex_bill_rec) > 0) {
+				if(IsOpBelongTo(ex_bill_rec.OpID, ACfg.Hdr.EgaisRcptOpID))
+					do_process = 1;
+				else if(IsOpBelongTo(ex_bill_rec.OpID, ACfg.Hdr.EgaisRetOpID))
+					do_process = 2;
+				if(IsOpBelongTo(ex_bill_rec.OpID, Cfg.ExpndOpID) || IsOpBelongTo(ex_bill_rec.OpID, Cfg.IntrExpndOpID))
+					do_process = 3;
+			}
+			if(do_process == 3) {
+				// Ничего не делаем по справке Б для собственного документа
+			}
+			else if(oneof2(do_process, 1, 2)) {
+				BillCore::GetCode(temp_buf = ex_bill_rec.Code);
+				// @v9.0.1 (temp_buf.NotEmptyS() && temp_buf.CmpNC(p_inf->OuterCode) == 0)
+				if(temp_buf.NotEmptyS() && temp_buf.CmpNC(p_inf->OuterCode) == 0 && P_BObj->ExtractPacket(bill_id, &bp) > 0) {
+					_bill_found = 1;
+					PPObjBill::MakeCodeString(&bp.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
+					ObjTagItem tag_item;
+					int    intr = 0;
+					const  ObjTagItem * p_ex_tag_item = bp.BTagL.GetItem(PPTAG_BILL_EDIIDENT);
+					if(!p_ex_tag_item) {
+						if(tag_item.SetStr(PPTAG_BILL_EDIIDENT, edi_ident)) {
+							bp.BTagL.PutItem(PPTAG_BILL_EDIIDENT, &tag_item);
+							LogTextWithAddendum(PPTXT_EGAIS_BILLEDIASSGNINFB, bill_text);
+							do_update = 1;
+						}
+					}
+					else {
+						p_ex_tag_item->GetStr(temp_buf);
+						if(temp_buf.CmpNC(edi_ident) != 0) {
+							//LogTextWithAddendum(PPTXT_EGAIS_BILLEDIIDNINFB, bill_text);
+							_bill_found = 0;
+						}
+					}
+					if(_bill_found) {
+						for(uint bi = 0; bi < p_inf->Items.getCount(); bi++) {
+							const InformBItem & r_bitem = p_inf->Items.at(bi);
+							if(r_bitem.P && r_bitem.Ident[0]) {
+								for(uint t = 0; t < bp.GetTCount(); t++) {
+									PPTransferItem & r_ti = bp.TI(t);
+									if(r_ti.RByBill == r_bitem.P) {
+										const ObjTagList * p_ex_tag_list = bp.LTagL.Get(t);
+										ObjTagList tag_list;
+										int    do_update_informb = 1;
+										if(p_ex_tag_list) {
+											p_ex_tag_item = p_ex_tag_list->GetItem(PPTAG_LOT_FSRARINFB);
+											if(p_ex_tag_item && p_ex_tag_item->GetStr(temp_buf) > 0 && temp_buf.CmpNC(r_bitem.Ident) == 0)
+												do_update_informb = 0;
+											else
+												tag_list = *p_ex_tag_list;
+										}
+										if(do_update_informb) {
+											tag_list.PutItemStr(PPTAG_LOT_FSRARINFB, r_bitem.Ident);
+											THROW(bp.LTagL.Set(t, &tag_list));
+											do_update = 1;
+										}
+										break;
+									}
+								}
+							}
+						}
+						{
+							//
+							// Если драфт-документ уже имеет привязанный документ внутреннего перемещения,
+							// то нам понадобится пакет этого привязанного документа для изменения
+							// в нем справок А и Б.
+							//
+							PPIDArray wroff_bill_list;
+							BillTbl::Rec wroff_bill_rec;
+							for(DateIter diter; P_BObj->P_Tbl->EnumLinks(bp.Rec.ID, &diter, BLNK_WROFFDRAFT, &wroff_bill_rec) > 0;) {
+								const int local_intr = IsIntrOp(wroff_bill_rec.OpID);
+								if(oneof2(local_intr, INTREXPND, INTRRCPT))
+									wroff_bill_list.add(wroff_bill_rec.ID);
+							}
+							if(wroff_bill_list.getCount() > 1)
+								LogTextWithAddendum(PPTXT_EGAIS_BILLWROFFCONFL, bill_text);
+							else if(wroff_bill_list.getCount() == 1) {
+								THROW(P_BObj->ExtractPacket(wroff_bill_list.get(0), &_link_bp) > 0);
+								intr = IsIntrOp(_link_bp.Rec.OpID);
+								if(oneof2(intr, INTREXPND, INTRRCPT)) {
+									p_intr_link_bp = &_link_bp;
+									for(uint lbi = 0; lbi < _link_bp.GetTCount(); lbi++) {
+										PPTransferItem & r_wo_ti = _link_bp.TI(lbi);
+										for(uint t = 0; t < bp.GetTCount(); t++) {
+											const PPTransferItem & r_ti = bp.ConstTI(t);
+											if(r_ti.RByBill == r_wo_ti.RByBill) {
+												const ObjTagList * p_src_tag_list = bp.LTagL.Get(t);
+												if(p_src_tag_list) {
+													const ObjTagItem * p_infa_tag = p_src_tag_list->GetItem(PPTAG_LOT_FSRARINFA);
+													const ObjTagItem * p_infb_tag = p_src_tag_list->GetItem(PPTAG_LOT_FSRARINFB);
+													if(p_infa_tag || p_infb_tag) {
+														ObjTagList dest_tag_list;
+														if(intr == INTREXPND) {
+															THROW_MEM(SETIFZ(_link_bp.P_MirrorLTagL, new PPLotTagContainer));
+															const ObjTagList * p_dest_tag_list = _link_bp.P_MirrorLTagL->Get(lbi);
+															RVALUEPTR(dest_tag_list, p_dest_tag_list);
+															if(dest_tag_list.PutItemNZ(p_infa_tag, 0) > 0)
+																do_update_wroff_pack = 1;
+															if(dest_tag_list.PutItemNZ(p_infb_tag, 0) > 0)
+																do_update_wroff_pack = 1;
+															_link_bp.P_MirrorLTagL->Set(lbi, &dest_tag_list);
+														}
+														else if(intr == INTRRCPT) {
+															const ObjTagList * p_dest_tag_list = _link_bp.LTagL.Get(lbi);
+															RVALUEPTR(dest_tag_list, p_dest_tag_list);
+															if(dest_tag_list.PutItemNZ(p_infa_tag, 0) > 0)
+																do_update_wroff_pack = 1;
+															if(dest_tag_list.PutItemNZ(p_infb_tag, 0) > 0)
+																do_update_wroff_pack = 1;
+															_link_bp.LTagL.Set(lbi, &dest_tag_list);
+														}
+													}
+												}
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if(do_update) {
+				if(!P_BObj->UpdatePacket(&bp, 1)) {
+					_err = 1;
+					LogLastError();
+				}
+			}
+			if(do_update_wroff_pack && p_intr_link_bp) {
+				if(!P_BObj->UpdatePacket(p_intr_link_bp, 1)) {
+					_err = 1;
+					LogLastError();
+				}
+			}
+		}
+		if(/*!(flags & rifOffline) && */_bill_found && !_err && diffdate(getcurdate_(), p_inf->OuterDate) >= 14) {
+			ok = 2; // сигнал для удаления пакета с УТМ
+			//DeleteSrcPacket(pPack, reply_list);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 struct EgaisRestItem { // @flat
 	EgaisRestItem()
 	{
@@ -6209,25 +6404,8 @@ int SLAPI PPEgaisProcessor::Helper_CollectRefs(void * pCtx, TSCollection <PPEgai
 		temp_buf.Tokenize("/", ss_url_tok);
 		ss_url_tok.reverse();
 		for(uint sp = 0; !doc_type && ss_url_tok.get(&sp, temp_buf);) {
-			if(temp_buf.NotEmptyS()) {
+			if(temp_buf.NotEmptyS())
 				doc_type = PPEgaisProcessor::RecognizeDocTypeTag(temp_buf);
-				/* @v9.5.5
-				if(!doc_type) {
-					if(temp_buf.CmpNC("FORMBREGINFO") == 0)
-						doc_type = PPEDIOP_EGAIS_TTNINFORMBREG;
-					else if(temp_buf.CmpNC("FORM2REGINFO") == 0)
-						doc_type = PPEDIOP_EGAIS_TTNINFORMF2REG;
-					else if(temp_buf.CmpNC("ReplyPartner") == 0)
-						doc_type = PPEDIOP_EGAIS_REPLYCLIENT;
-					else if(temp_buf.CmpNC("ReplyAP") == 0)
-						doc_type = PPEDIOP_EGAIS_REPLYAP;
-					else if(temp_buf.CmpNC("INVENTORYREGINFO") == 0)
-						doc_type = PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG;
-					else if(temp_buf.CmpNC("WayBillTicket") == 0)
-						doc_type = PPEDIOP_EGAIS_CONFIRMTICKET;
-				}
-				*/
-			}
 		}
 		if(oneof7(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_REPLYCLIENT,
 			PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYAP)) {
@@ -6356,9 +6534,8 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 			temp_buf.Tokenize("/", ss_url_tok);
 			ss_url_tok.reverse();
 			for(uint sp = 0; !doc_type && ss_url_tok.get(&sp, temp_buf);) {
-				if(temp_buf.NotEmptyS()) {
+				if(temp_buf.NotEmptyS())
 					doc_type = PPEgaisProcessor::RecognizeDocTypeTag(temp_buf);
-				}
 			}
 			if(ediop_list.bsearch(doc_type)) {
 				int    adr = 1; // AcceptDoc result
@@ -6422,430 +6599,203 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 		int    last_restshop_pos = -1;
 		DateIter last_rest_di;
 		DateIter last_restshop_di;
-		for(uint packidx = 0; packidx < pack_list.getCount(); packidx++) {
-			int    do_skip = 0;
-			if(skip_packidx_list.lsearch((long)packidx))
-				do_skip = 1;
-			else {
-				Packet * p_pack = pack_list.at(packidx);
-				if(p_pack && p_pack->P_Data) {
-					if(oneof2(p_pack->DocType, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2)) {
-						const PPBillPacket * p_rbp = (const PPBillPacket *)p_pack->P_Data;
-						if(p_rbp && p_rbp->Rec.ID) {
-							DateIter tdi;
-							tdi.dt = p_rbp->Rec.Dt;
-							tdi.oprno = p_rbp->Rec.BillNo;
+		//
+		// Акцептируем данные в 2 прохода. На втором проходе акцептируются те объекты, 
+		// которые могут зависить от того, что принято на 1-м проходе.
+		// На текущий момент это - справки Б.
+		//
+		uint   packidx = 0;
+		//
+		// 1-й проход
+		//
+		for(packidx = 0; packidx < pack_list.getCount(); packidx++) {
+			Packet * p_pack = pack_list.at(packidx);
+			if(p_pack && p_pack->P_Data && !skip_packidx_list.lsearch((long)packidx)) {
+				if(oneof3(p_pack->DocType, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYRESTSSHOP)) {
+					const PPBillPacket * p_rbp = (const PPBillPacket *)p_pack->P_Data;
+					if(p_rbp && p_rbp->Rec.ID) {
+						DateIter tdi;
+						tdi.dt = p_rbp->Rec.Dt;
+						tdi.oprno = p_rbp->Rec.BillNo;
+						if(p_pack->DocType == PPEDIOP_EGAIS_REPLYRESTSSHOP) {
+							if(tdi.Cmp(last_restshop_di) > 0) {
+								last_restshop_di = tdi;
+								last_restshop_pos = (int)packidx;
+							}
+						}
+						else {
 							if(tdi.Cmp(last_rest_di) > 0) {
 								last_rest_di = tdi;
 								last_rest_pos = (int)packidx;
 							}
 						}
 					}
-					else if(p_pack->DocType == PPEDIOP_EGAIS_REPLYRESTSSHOP) {
-						const PPBillPacket * p_rbp = (const PPBillPacket *)p_pack->P_Data;
-						if(p_rbp && p_rbp->Rec.ID) {
-							DateIter tdi;
-							tdi.dt = p_rbp->Rec.Dt;
-							tdi.oprno = p_rbp->Rec.BillNo;
-							if(tdi.Cmp(last_restshop_di) > 0) {
-								last_restshop_di = tdi;
-								last_restshop_pos = (int)packidx;
-							}
+				}
+				else if(oneof2(p_pack->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2)) {
+					if(!Helper_AcceptBillPacket(p_pack, &pack_list, packidx))
+						LogLastError();
+				}
+				else if(p_pack->DocType == PPEDIOP_EGAIS_REQUESTREPEALWB) {
+                    const RepealWb * p_rwb = (const RepealWb *)p_pack->P_Data;
+					p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, p_rwb->TTNCode, &bill_id_list);
+					PPIDArray candid_bill_list;
+					BillTbl::Rec bill_rec;
+					for(uint i = 0; i < bill_id_list.getCount(); i++) {
+						const PPID bill_id = bill_id_list.get(i);
+						PPOprKind op_rec;
+						PPFreight freight;
+						if(P_BObj->Search(bill_id, &bill_rec) > 0) {
+                            if(bill_rec.Object && GetOpData(bill_rec.OpID, &op_rec) > 0) {
+                                const PPID psn_id = ObjectToPerson(bill_rec.Object, 0);
+								if(psn_id) {
+									if(p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_FSRARID, temp_buf) > 0 && temp_buf.CmpNC(p_rwb->ContragentCode) == 0) {
+										candid_bill_list.add(bill_id);
+									}
+									else if(P_BObj->FetchFreight(bill_id, &freight) > 0 && freight.DlvrAddrID) {
+										if(p_ref->Ot.GetTagStr(PPOBJ_LOCATION, freight.DlvrAddrID, PPTAG_LOC_FSRARID, temp_buf) > 0 && temp_buf.CmpNC(p_rwb->ContragentCode) == 0)
+											candid_bill_list.add(bill_id);
+									}
+								}
+                            }
 						}
 					}
-					else if(oneof2(p_pack->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2)) {
-						if(!Helper_AcceptBillPacket(p_pack, &pack_list, packidx))
+					if(candid_bill_list.getCount() == 1) {
+						const PPID bill_id = candid_bill_list.get(0);
+						ObjTagItem tag_item;
+						THROW(P_BObj->Search(bill_id, &bill_rec) > 0);
+						if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIREPEALREQ, temp_buf) > 0) {
+							;
+						}
+						else if(tag_item.SetStr(PPTAG_BILL_EDIREPEALREQ, p_rwb->ReqNumber) && p_ref->Ot.PutTag(PPOBJ_BILL, bill_id, &tag_item, 1)) {
+							PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
+							LogTextWithAddendum(PPTXT_EGAIS_WBRPLREQACCEPTED, bill_text);
+						}
+						else
 							LogLastError();
 					}
-					else if(p_pack->DocType == PPEDIOP_EGAIS_REQUESTREPEALWB) {
-                        const RepealWb * p_rwb = (const RepealWb *)p_pack->P_Data;
-						p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, p_rwb->TTNCode, &bill_id_list);
-						PPIDArray candid_bill_list;
-						BillTbl::Rec bill_rec;
-						for(uint i = 0; i < bill_id_list.getCount(); i++) {
-							const PPID bill_id = bill_id_list.get(i);
-							PPOprKind op_rec;
-							PPFreight freight;
-							if(P_BObj->Search(bill_id, &bill_rec) > 0) {
-                                if(bill_rec.Object && GetOpData(bill_rec.OpID, &op_rec) > 0) {
-                                    const PPID psn_id = ObjectToPerson(bill_rec.Object, 0);
-									if(psn_id) {
-										if(p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_FSRARID, temp_buf) > 0 && temp_buf.CmpNC(p_rwb->ContragentCode) == 0) {
-											candid_bill_list.add(bill_id);
-										}
-										else if(P_BObj->FetchFreight(bill_id, &freight) > 0 && freight.DlvrAddrID) {
-											if(p_ref->Ot.GetTagStr(PPOBJ_LOCATION, freight.DlvrAddrID, PPTAG_LOC_FSRARID, temp_buf) > 0 && temp_buf.CmpNC(p_rwb->ContragentCode) == 0)
-												candid_bill_list.add(bill_id);
-										}
-									}
-                                }
-							}
-						}
-						if(candid_bill_list.getCount() == 1) {
-							const PPID bill_id = candid_bill_list.get(0);
-							THROW(P_BObj->Search(bill_id, &bill_rec) > 0);
-							if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIREPEALREQ, temp_buf) > 0) {
-								;
-							}
-							else {
-								ObjTagItem tag_item;
-								if(tag_item.SetStr(PPTAG_BILL_EDIREPEALREQ, p_rwb->ReqNumber)) {
-									if(p_ref->Ot.PutTag(PPOBJ_BILL, bill_id, &tag_item, 1)) {
-										PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
-										LogTextWithAddendum(PPTXT_EGAIS_WBRPLREQACCEPTED, bill_text);
-									}
-									else
-										LogLastError();
-								}
-								else
-									LogLastError();
-							}
-						}
-						else if(candid_bill_list.getCount() > 1) {
-							temp_buf.Z().Cat(p_rwb->TTNCode).CatDiv('-', 1).Cat(p_rwb->ReqNumber);
-							LogTextWithAddendum(PPTXT_EGAIS_WBRPLREQMANYDOCS, temp_buf);
-						}
-						else {
-							// Запрос на отмену проведения через ЕГАИС '%s' не может быть акцептирован поскольку ему не соответствует ни одного документа в БД
-							temp_buf.Z().Cat(p_rwb->TTNCode).CatDiv('-', 1).Cat(p_rwb->ReqNumber);
-							LogTextWithAddendum(PPTXT_EGAIS_WBRPLREQNODOCS, temp_buf);
-						}
+					else if(candid_bill_list.getCount() > 1) {
+						temp_buf.Z().Cat(p_rwb->TTNCode).CatDiv('-', 1).Cat(p_rwb->ReqNumber);
+						LogTextWithAddendum(PPTXT_EGAIS_WBRPLREQMANYDOCS, temp_buf);
 					}
-					else if(oneof2(p_pack->DocType, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TTNINFORMF2REG)) {
-						const InformB * p_inf = (const InformB *)p_pack->P_Data;
-						//
-						// Пытаемся избежать повторного разбора двух и более PPEDIOP_EGAIS_TTNINFORMBREG
-						// относящихся к одному документу (разные версии посылок). Нам нужна только последняя версия.
-						//
-						for(uint fwpackidx = packidx+1; fwpackidx < pack_list.getCount(); fwpackidx++) {
-							Packet * p_fw_pack = pack_list.at(fwpackidx);
-							if(p_fw_pack && p_fw_pack->P_Data && p_fw_pack->DocType == p_pack->DocType) {
-								const InformB * p_fw_inf = (const InformB *)p_fw_pack->P_Data;
-								if(p_fw_inf->Id.CmpNC(p_inf->Id) == 0 && p_fw_inf->OuterCode.CmpNC(p_inf->OuterCode) == 0 && p_fw_inf->OuterDate == p_inf->OuterDate) {
-									if(p_fw_inf->FixDate > p_inf->FixDate) {
-                                        do_skip = 1;
-									}
-									else if(p_fw_inf->FixDate < p_inf->FixDate) {
-										skip_packidx_list.add((long)fwpackidx);
-									}
-									else {
-                                        int64 this_fix_number = 0;
-                                        int64 fw_fix_number = 0;
-										temp_buf = p_inf->FixNumber;
-										while(temp_buf.Len() && !isdec(temp_buf.C(0)))
-                                            temp_buf.ShiftLeft();
-										this_fix_number = temp_buf.ToInt64();
-										temp_buf = p_fw_inf->FixNumber;
-										while(temp_buf.Len() && !isdec(temp_buf.C(0)))
-                                            temp_buf.ShiftLeft();
-										fw_fix_number = temp_buf.ToInt64();
-										if(fw_fix_number > this_fix_number) {
-											do_skip = 1;
-										}
-										else if(fw_fix_number < this_fix_number) {
-											skip_packidx_list.add((long)fwpackidx);
-										}
-									}
-								}
-							}
-						}
-						if(!do_skip) {
-							edi_ident = p_inf->WBRegId;
-							BillTbl::Rec ex_bill_rec;
-							bill_id_list.clear();
-							p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_OUTERCODE, p_inf->Id, &bill_id_list);
-							if(p_inf->Id.IsDigit()) {
-								int64 id_64 = p_inf->Id.ToInt64();
-								if(id_64 > 0 && id_64 < LONG_MAX) {
-									PPID   id_32 = (PPID)id_64;
-									if(!bill_id_list.lsearch(id_32) && P_BObj->Fetch(id_32, &ex_bill_rec) > 0) {
-										if(IsOpBelongTo(ex_bill_rec.OpID, Cfg.ExpndOpID) || IsOpBelongTo(ex_bill_rec.OpID, Cfg.IntrExpndOpID)) {
-											BillCore::GetCode(temp_buf = ex_bill_rec.Code);
-											if(temp_buf.NotEmptyS() && temp_buf.CmpNC(p_inf->OuterCode) == 0) {
-												long    _dd = diffdate(p_inf->FixDate, ex_bill_rec.Dt);
-												if(_dd >= 0 && _dd <= 30) // @v8.9.5 7-->30
-													bill_id_list.add(id_32);
-											}
-										}
-									}
-								}
-							}
-							int    _bill_found = 0;
-							int    _err = 0; // Признак того, что произошла ошибка. Если !0, то удалять документ из УТМ нельзя
-							for(uint j = 0; !_bill_found && j < bill_id_list.getCount(); j++) {
-								const PPID bill_id = bill_id_list.get(j);
-								BillTbl::Rec ex_bill_rec;
-								PPBillPacket bp, _link_bp;
-								PPBillPacket * p_intr_link_bp = 0;
-								int   do_update = 0;
-								int   do_update_wroff_pack = 0;
-								//
-								// Значения do_process:
-								// 0 - не обрабатывать,
-								// 1 - приход от поставщика,
-								// 2 - возврат от покупателя
-								// 3 - расходные операции (по ним сейчас ничего не делаем, но временно оставляем так)
-								int   do_process = 0;
-								if(P_BObj->Fetch(bill_id, &ex_bill_rec) > 0) {
-									if(IsOpBelongTo(ex_bill_rec.OpID, ACfg.Hdr.EgaisRcptOpID))
-										do_process = 1;
-									else if(IsOpBelongTo(ex_bill_rec.OpID, ACfg.Hdr.EgaisRetOpID))
-										do_process = 2;
-									if(IsOpBelongTo(ex_bill_rec.OpID, Cfg.ExpndOpID) || IsOpBelongTo(ex_bill_rec.OpID, Cfg.IntrExpndOpID))
-										do_process = 3;
-								}
-								if(do_process == 3) {
-									// Ничего не делаем по справке Б для собственного документа
-								}
-								else if(oneof2(do_process, 1, 2)) {
-									BillCore::GetCode(temp_buf = ex_bill_rec.Code);
-									// @v9.0.1 (temp_buf.NotEmptyS() && temp_buf.CmpNC(p_inf->OuterCode) == 0)
-									if(temp_buf.NotEmptyS() && temp_buf.CmpNC(p_inf->OuterCode) == 0 && P_BObj->ExtractPacket(bill_id, &bp) > 0) {
-										_bill_found = 1;
-										PPObjBill::MakeCodeString(&bp.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
-										ObjTagItem tag_item;
-										int    intr = 0;
-										const  ObjTagItem * p_ex_tag_item = bp.BTagL.GetItem(PPTAG_BILL_EDIIDENT);
-										if(!p_ex_tag_item) {
-											if(tag_item.SetStr(PPTAG_BILL_EDIIDENT, edi_ident)) {
-												bp.BTagL.PutItem(PPTAG_BILL_EDIIDENT, &tag_item);
-												LogTextWithAddendum(PPTXT_EGAIS_BILLEDIASSGNINFB, bill_text);
-												do_update = 1;
-											}
-										}
-										else {
-											p_ex_tag_item->GetStr(temp_buf);
-											if(temp_buf.CmpNC(edi_ident) != 0) {
-												//LogTextWithAddendum(PPTXT_EGAIS_BILLEDIIDNINFB, bill_text);
-												_bill_found = 0;
-											}
-										}
-										if(_bill_found) {
-											for(uint bi = 0; bi < p_inf->Items.getCount(); bi++) {
-												const InformBItem & r_bitem = p_inf->Items.at(bi);
-												if(r_bitem.P && r_bitem.Ident[0]) {
-													for(uint t = 0; t < bp.GetTCount(); t++) {
-														PPTransferItem & r_ti = bp.TI(t);
-														if(r_ti.RByBill == r_bitem.P) {
-															const ObjTagList * p_ex_tag_list = bp.LTagL.Get(t);
-															ObjTagList tag_list;
-															int    do_update_informb = 1;
-															if(p_ex_tag_list) {
-																p_ex_tag_item = p_ex_tag_list->GetItem(PPTAG_LOT_FSRARINFB);
-																if(p_ex_tag_item && p_ex_tag_item->GetStr(temp_buf) > 0 && temp_buf.CmpNC(r_bitem.Ident) == 0)
-																	do_update_informb = 0;
-																else
-																	tag_list = *p_ex_tag_list;
-															}
-															if(do_update_informb) {
-																tag_list.PutItemStr(PPTAG_LOT_FSRARINFB, r_bitem.Ident);
-																THROW(bp.LTagL.Set(t, &tag_list));
-																do_update = 1;
-															}
-															break;
-														}
-													}
-												}
-											}
-											{
-												//
-												// Если драфт-документ уже имеет привязанный документ внутреннего перемещения,
-												// то нам понадобится пакет этого привязанного документа для изменения
-												// в нем справок А и Б.
-												//
-												PPIDArray wroff_bill_list;
-												BillTbl::Rec wroff_bill_rec;
-												for(DateIter diter; P_BObj->P_Tbl->EnumLinks(bp.Rec.ID, &diter, BLNK_WROFFDRAFT, &wroff_bill_rec) > 0;) {
-													const int local_intr = IsIntrOp(wroff_bill_rec.OpID);
-													if(oneof2(local_intr, INTREXPND, INTRRCPT))
-														wroff_bill_list.add(wroff_bill_rec.ID);
-												}
-												if(wroff_bill_list.getCount() > 1)
-													LogTextWithAddendum(PPTXT_EGAIS_BILLWROFFCONFL, bill_text);
-												else if(wroff_bill_list.getCount() == 1) {
-													THROW(P_BObj->ExtractPacket(wroff_bill_list.get(0), &_link_bp) > 0);
-													intr = IsIntrOp(_link_bp.Rec.OpID);
-													if(oneof2(intr, INTREXPND, INTRRCPT)) {
-														p_intr_link_bp = &_link_bp;
-														for(uint lbi = 0; lbi < _link_bp.GetTCount(); lbi++) {
-															PPTransferItem & r_wo_ti = _link_bp.TI(lbi);
-															for(uint t = 0; t < bp.GetTCount(); t++) {
-																const PPTransferItem & r_ti = bp.ConstTI(t);
-																if(r_ti.RByBill == r_wo_ti.RByBill) {
-																	const ObjTagList * p_src_tag_list = bp.LTagL.Get(t);
-																	if(p_src_tag_list) {
-																		const ObjTagItem * p_infa_tag = p_src_tag_list->GetItem(PPTAG_LOT_FSRARINFA);
-																		const ObjTagItem * p_infb_tag = p_src_tag_list->GetItem(PPTAG_LOT_FSRARINFB);
-																		if(p_infa_tag || p_infb_tag) {
-																			ObjTagList dest_tag_list;
-																			if(intr == INTREXPND) {
-																				THROW_MEM(SETIFZ(_link_bp.P_MirrorLTagL, new PPLotTagContainer));
-																				const ObjTagList * p_dest_tag_list = _link_bp.P_MirrorLTagL->Get(lbi);
-																				RVALUEPTR(dest_tag_list, p_dest_tag_list);
-																				if(dest_tag_list.PutItemNZ(p_infa_tag, 0) > 0)
-																					do_update_wroff_pack = 1;
-																				if(dest_tag_list.PutItemNZ(p_infb_tag, 0) > 0)
-																					do_update_wroff_pack = 1;
-																				_link_bp.P_MirrorLTagL->Set(lbi, &dest_tag_list);
-																			}
-																			else if(intr == INTRRCPT) {
-																				const ObjTagList * p_dest_tag_list = _link_bp.LTagL.Get(lbi);
-																				RVALUEPTR(dest_tag_list, p_dest_tag_list);
-																				if(dest_tag_list.PutItemNZ(p_infa_tag, 0) > 0)
-																					do_update_wroff_pack = 1;
-																				if(dest_tag_list.PutItemNZ(p_infb_tag, 0) > 0)
-																					do_update_wroff_pack = 1;
-																				_link_bp.LTagL.Set(lbi, &dest_tag_list);
-																			}
-																		}
-																	}
-																	break;
-																}
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-								if(do_update) {
-									if(!P_BObj->UpdatePacket(&bp, 1)) {
-										_err = 1;
-										LogLastError();
-									}
-								}
-								if(do_update_wroff_pack && p_intr_link_bp) {
-									if(!P_BObj->UpdatePacket(p_intr_link_bp, 1)) {
-										_err = 1;
-										LogLastError();
-									}
-								}
-							}
-							if(!(flags & rifOffline) && _bill_found && !_err && diffdate(_curdtm.d, p_inf->OuterDate) >= 14)
-								DeleteSrcPacket(p_pack, reply_list);
-						}
+					else {
+						// Запрос на отмену проведения через ЕГАИС '%s' не может быть акцептирован поскольку ему не соответствует ни одного документа в БД
+						temp_buf.Z().Cat(p_rwb->TTNCode).CatDiv('-', 1).Cat(p_rwb->ReqNumber);
+						LogTextWithAddendum(PPTXT_EGAIS_WBRPLREQNODOCS, temp_buf);
 					}
-					else if(p_pack->DocType == PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG) {
-						const ActInform * p_inf = (const ActInform *)p_pack->P_Data;
-						PPID   bill_id = 0;
-						if(flags & rifRepairInventoryMark) {
-							SString ref_b;
-							PPTransaction tra(1);
-							THROW(tra);
-							for(uint j = 0; j < p_inf->Items.getCount(); j++) {
-								const ActInformItem * p_item = p_inf->Items.at(j);
-								if(p_item) {
-									ref_b = 0;
-									if(p_item->BItems.getCount()) {
-										for(uint n = 0; n < p_item->BItems.getCount(); n++) {
-											const InformBItem & r_bitem = p_item->BItems.at(n);
-											if(r_bitem.P == p_item->P && r_bitem.Ident[0]) {
-												(ref_b = r_bitem.Ident).Strip();
-												break;
-											}
-										}
-									}
-									if(p_item->AIdent[0] && ref_b.NotEmpty()) {
-										PPIDArray lot_A_list;
-										PPIDArray lot_B_list;
-										p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARINFA, p_item->AIdent, &lot_A_list);
-										p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARINFB, ref_b, &lot_B_list);
-										if(lot_A_list.getCount() == 0 && lot_B_list.getCount() == 1) {
-											PPID   lot_id = lot_B_list.get(0);
-											ObjTagItem tag_item;
-											THROW(tag_item.SetStr(PPTAG_LOT_FSRARINFA, p_item->AIdent));
-											THROW(p_ref->Ot.PutTag(PPOBJ_LOT, lot_id, &tag_item, 0));
-										}
-									}
-								}
-							}
-							THROW(tra.Commit());
-						}
-						else if(SearchActChargeByActInform(*p_inf, &bill_id) > 0) {
-							PPBillPacket bp;
-							THROW(P_BObj->ExtractPacket(bill_id, &bp) > 0);
-							{
-								PPTransaction tra(1);
-								THROW(tra);
-								for(uint i = 0; i < bp.GetTCount(); i++) {
-									const long   row_id = (long)(i+1);
-									for(uint j = 0; j < p_inf->Items.getCount(); j++) {
-										const ActInformItem * p_item = p_inf->Items.at(j);
-										if(p_item && p_item->P == row_id) {
-											const PPTransferItem & r_ti = bp.ConstTI(i);
-											const PPID lot_id = (PPID)r_ti.QuotPrice;
-											if(lot_id) {
-												ObjTagItem tag_item;
-												if(p_item->AIdent[0]) {
-													THROW(tag_item.SetStr(PPTAG_LOT_FSRARINFA, p_item->AIdent));
-													THROW(p_ref->Ot.PutTag(PPOBJ_LOT, lot_id, &tag_item, 0));
-												}
-												if(p_item->BItems.getCount()) {
-													for(uint n = 0; n < p_item->BItems.getCount(); n++) {
-														const InformBItem & r_bitem = p_item->BItems.at(n);
-														if(r_bitem.P == p_item->P && r_bitem.Ident[0]) {
-															THROW(tag_item.SetStr(PPTAG_LOT_FSRARINFB, r_bitem.Ident));
-															THROW(p_ref->Ot.PutTag(PPOBJ_LOT, lot_id, &tag_item, 0));
-															break;
-														}
-													}
-												}
-											}
+				}
+				else if(p_pack->DocType == PPEDIOP_EGAIS_TICKET) {
+					Ticket * p_tick = (Ticket *)p_pack->P_Data;
+					//
+					// Note: Следующий вызов правильнее разместить в точке @1, однако пока
+					// механизмы не будут окончательно отлажены будем финишировать цикл
+					// обработки документа не зависимо от инфраструктуры хранения данных об
+					// отправленных и ожищающих ответа запросов (DGQ).
+					//
+					THROW(FinishBillProcessingByTicket(p_tick, 1));
+					if(!(flags & rifOffline) && diffdate(_curdtm.d, p_tick->TicketTime.d) > 1)
+						DeleteSrcPacket(p_pack, reply_list);
+				}
+				else if(p_pack->DocType == PPEDIOP_EGAIS_REPLYFORMA) {
+					const EgaisRefATbl::Rec * p_ref_a = (const EgaisRefATbl::Rec *)p_pack->P_Data;
+					if(p_ref_a && P_RefC) {
+						EgaisRefATbl::Rec refai;
+						MEMSZERO(refai);
+						STRNSCPY(refai.RefACode, p_ref_a->RefACode);
+						STRNSCPY(refai.AlcCode,  p_ref_a->AlcCode);
+						STRNSCPY(refai.ManufRarIdent, p_ref_a->ManufRarIdent);
+						STRNSCPY(refai.ImporterRarIdent, p_ref_a->ImporterRarIdent);
+						refai.Volume = p_ref_a->Volume;
+						refai.ActualDate = p_ref_a->ActualDate;
+						refai.BottlingDate = p_ref_a->BottlingDate;
+						THROW(P_RefC->SetRefA(refai));
+					}
+				}
+			}
+		}
+		//
+		// 2-й проход
+		//
+		for(packidx = 0; packidx < pack_list.getCount(); packidx++) {
+			Packet * p_pack = pack_list.at(packidx);
+			if(p_pack && p_pack->P_Data && !skip_packidx_list.lsearch((long)packidx)) {
+				if(oneof2(p_pack->DocType, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TTNINFORMF2REG)) {
+					const int __r = Helper_AcceptTtnRefB(p_pack, &pack_list, packidx, skip_packidx_list);
+					if(!__r)
+						LogLastError();
+					else if(__r == 2 && !(flags & rifOffline) && p_pack->Flags & p_pack->fDoDelete)
+						DeleteSrcPacket(p_pack, reply_list);
+				}
+				else if(p_pack->DocType == PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG) {
+					const ActInform * p_inf = (const ActInform *)p_pack->P_Data;
+					PPID   bill_id = 0;
+					if(flags & rifRepairInventoryMark) {
+						SString ref_b;
+						PPTransaction tra(1);
+						THROW(tra);
+						for(uint j = 0; j < p_inf->Items.getCount(); j++) {
+							const ActInformItem * p_item = p_inf->Items.at(j);
+							if(p_item) {
+								ref_b.Z();
+								if(p_item->BItems.getCount()) {
+									for(uint n = 0; n < p_item->BItems.getCount(); n++) {
+										const InformBItem & r_bitem = p_item->BItems.at(n);
+										if(r_bitem.P == p_item->P && r_bitem.Ident[0]) {
+											(ref_b = r_bitem.Ident).Strip();
 											break;
 										}
 									}
 								}
-								THROW(tra.Commit());
-							}
-						}
-					}
-					else if(p_pack->DocType == PPEDIOP_EGAIS_TICKET) {
-						Ticket * p_tick = (Ticket *)p_pack->P_Data;
-						//
-						// Note: Следующий вызов правильнее разместить в точке @1, однако пока
-						// механизмы не будут окончательно отлажены будем финишировать цикл
-						// обработки документа не зависимо от инфраструктуры хранения данных об
-						// отправленных и ожищающих ответа запросов (DGQ).
-						//
-						THROW(FinishBillProcessingByTicket(p_tick, 1));
-#if 0 // @v9.6.4 (useless) {
-						{
-							DGQTbl::Rec dgq_rec;
-							THROW_MEM(SETIFZ(P_Dgq, new DGQCore));
-							if(P_Dgq->SearchQuery(p_tick->TranspUUID, &dgq_rec) > 0) {
-								if(!dgq_rec.Ready) {
-									temp_buf = GetDocTypeTag(p_tick->DocType);
-									temp_buf.Space().Cat(dgq_rec.QDt, DATF_DMY).Space().Cat(dgq_rec.QTm, TIMF_HMS);
-									if(p_tick->R.Conclusion == 1)
-										temp_buf.Space().Cat("Accepted");
-									else if(p_tick->R.Conclusion == 0)
-										temp_buf.Space().Cat("Rejected");
-									if(p_tick->R.Comment.NotEmptyS())
-										temp_buf.CatDiv('-', 1).Cat(p_tick->R.Comment);
-									LogTextWithAddendum(PPTXT_EGAIS_TICKETREGARRVD, temp_buf);
-									// THROW(FinishBillProcessingByTicket(p_tick)); // @1
-									THROW(P_Dgq->CommitQuery(p_tick->TranspUUID, 1));
+								if(p_item->AIdent[0] && ref_b.NotEmpty()) {
+									PPIDArray lot_A_list;
+									PPIDArray lot_B_list;
+									p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARINFA, p_item->AIdent, &lot_A_list);
+									p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOT, PPTAG_LOT_FSRARINFB, ref_b, &lot_B_list);
+									if(lot_A_list.getCount() == 0 && lot_B_list.getCount() == 1) {
+										PPID   lot_id = lot_B_list.get(0);
+										ObjTagItem tag_item;
+										THROW(tag_item.SetStr(PPTAG_LOT_FSRARINFA, p_item->AIdent));
+										THROW(p_ref->Ot.PutTag(PPOBJ_LOT, lot_id, &tag_item, 0));
+									}
 								}
 							}
 						}
-#endif // } 0 @v9.6.4 (useless)
-						if(!(flags & rifOffline) && diffdate(_curdtm.d, p_tick->TicketTime.d) > 1)
-							DeleteSrcPacket(p_pack, reply_list);
+						THROW(tra.Commit());
 					}
-					else if(p_pack->DocType == PPEDIOP_EGAIS_REPLYFORMA) {
-						const EgaisRefATbl::Rec * p_ref_a = (const EgaisRefATbl::Rec *)p_pack->P_Data;
-						if(p_ref_a && P_RefC) {
-							EgaisRefATbl::Rec refai;
-							MEMSZERO(refai);
-							STRNSCPY(refai.RefACode, p_ref_a->RefACode);
-							STRNSCPY(refai.AlcCode,  p_ref_a->AlcCode);
-							STRNSCPY(refai.ManufRarIdent, p_ref_a->ManufRarIdent);
-							STRNSCPY(refai.ImporterRarIdent, p_ref_a->ImporterRarIdent);
-							refai.Volume = p_ref_a->Volume;
-							refai.ActualDate = p_ref_a->ActualDate;
-							refai.BottlingDate = p_ref_a->BottlingDate;
-							THROW(P_RefC->SetRefA(refai));
+					else if(SearchActChargeByActInform(*p_inf, &bill_id) > 0) {
+						PPBillPacket bp;
+						THROW(P_BObj->ExtractPacket(bill_id, &bp) > 0);
+						{
+							PPTransaction tra(1);
+							THROW(tra);
+							for(uint i = 0; i < bp.GetTCount(); i++) {
+								const long   row_id = (long)(i+1);
+								for(uint j = 0; j < p_inf->Items.getCount(); j++) {
+									const ActInformItem * p_item = p_inf->Items.at(j);
+									if(p_item && p_item->P == row_id) {
+										const PPTransferItem & r_ti = bp.ConstTI(i);
+										const PPID lot_id = (PPID)r_ti.QuotPrice;
+										if(lot_id) {
+											ObjTagItem tag_item;
+											if(p_item->AIdent[0]) {
+												THROW(tag_item.SetStr(PPTAG_LOT_FSRARINFA, p_item->AIdent));
+												THROW(p_ref->Ot.PutTag(PPOBJ_LOT, lot_id, &tag_item, 0));
+											}
+											if(p_item->BItems.getCount()) {
+												for(uint n = 0; n < p_item->BItems.getCount(); n++) {
+													const InformBItem & r_bitem = p_item->BItems.at(n);
+													if(r_bitem.P == p_item->P && r_bitem.Ident[0]) {
+														THROW(tag_item.SetStr(PPTAG_LOT_FSRARINFB, r_bitem.Ident));
+														THROW(p_ref->Ot.PutTag(PPOBJ_LOT, lot_id, &tag_item, 0));
+														break;
+													}
+												}
+											}
+										}
+										break;
+									}
+								}
+							}
+							THROW(tra.Commit());
 						}
 					}
 				}
@@ -7116,9 +7066,8 @@ int SLAPI PPEgaisProcessor::GetAcceptedBillList(const SendBillsParam & rP, long 
 				for(DateIter di(&rP.Period); P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
 					if(oneof2(bill_rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2) && (!rP.LocID || bill_rec.LocID == rP.LocID)) {
 						if(!(flags & bilstfWritedOff) || (bill_rec.Flags & BILLF_WRITEDOFF)) {
-							if(CheckBillForMainOrgID(bill_rec, op_rec)) {
+							if(CheckBillForMainOrgID(bill_rec, op_rec))
 								temp_bill_list.add(bill_rec.ID);
-							}
 						}
 					}
 				}
@@ -9531,11 +9480,8 @@ int SLAPI EgaisRefACore::Export(long fmt, const char * pFileName)
 //
 //
 //
-SLAPI PrcssrAlcReport::RefCollection::RefCollection()
+SLAPI PrcssrAlcReport::RefCollection::RefCollection() : LastPersonP(-1), LastProductP(-1), LastRefAP(-1)
 {
-	LastPersonP = -1;
-	LastProductP = -1;
-	LastRefAP = -1;
 }
 
 int FASTCALL PrcssrAlcReport::RefCollection::SetPerson(EgaisPersonCore::Item & rItem)

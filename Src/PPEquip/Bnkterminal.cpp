@@ -15,10 +15,8 @@ int BnkTermArrAdd(StrAssocArray & rArr, int pos, const char * pValue)
 	return rArr.Add(pos, pValue, 1);
 }
 
-PPBnkTerminal::PPBnkTerminal(PPID bnkTermID, uint logNum, int port, const char * pPath)
+PPBnkTerminal::PPBnkTerminal(PPID bnkTermID, uint logNum, int port, const char * pPath) : State(0), P_AbstrDvc(new PPAbstractDevice(""))
 {
-	State = 0;
-	P_AbstrDvc = new PPAbstractDevice("");
 	P_AbstrDvc->PCpb.Cls = DVCCLS_BNKTERM;
 	P_AbstrDvc->GetDllName(DVCCLS_BNKTERM, bnkTermID, P_AbstrDvc->PCpb.DllName);
 	if(P_AbstrDvc->IdentifyDevice(P_AbstrDvc->PCpb.DllName)) {

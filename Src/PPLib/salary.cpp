@@ -480,9 +480,8 @@ int SLAPI PPViewSalary::GetSalChargeName(PPID salChargeID, SString & rName)
 
 class SalaryCrosstab : public Crosstab {
 public:
-	SLAPI  SalaryCrosstab(PPViewSalary * pV) : Crosstab()
+	SLAPI  SalaryCrosstab(PPViewSalary * pV) : Crosstab(), P_V(pV)
 	{
-		P_V = pV;
 	}
 	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 	{

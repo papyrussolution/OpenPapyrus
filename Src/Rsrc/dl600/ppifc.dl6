@@ -277,6 +277,10 @@ interface ILongList {
 	int    RemoveByVal(long val);
 	void   Sort();
 	void   SortAndUndup();
+	//
+	// Descr: Очищает список.
+	//
+	void   Clear();
 }
 //
 // Descr: Интерфейс обеспечивающий управление списком строк, ассоциированных с целочисленными
@@ -799,6 +803,27 @@ library PapyrusInterfaceLib version(1.1) {
 		string VSymb;     // Если тег имеет тип ottypObjLink или ottypEnum, то здесь хранится символ связанного объекта.
 	}
 	//
+	// Descr: Варианты форматов текстового представления даты. Используется
+	//   функцией IPapyrusUtil::StrToDate
+	//
+	enum PpyDateFormat {
+		datfDefault  =  0, // Формат определяется по ситуации
+		datfAmerican =  1, // mm/dd/yy
+		datfANSI     =  2, // yy.mm.dd
+		datfBritish  =  3, // dd/mm/yy
+		datfFrench   =  4, // dd/mm/yy
+		datfGerman   =  5, // dd.mm.yy
+		datfItalian  =  6, // dd-mm-yy
+		datfJapan    =  7, // yy/mm/dd
+		datfUSA      =  8, // mm-dd-yy
+		datfMDY      =  9, // mm/dd/yy
+		datfDMY      = 10, // dd/mm/yy
+		datfYMD      = 11, // yy/mm/dd
+		datfSQL      = 12, // DATE 'YYYY-MM-DD'
+		datfInternet = 13, // Wed, 27 Feb 2008
+		datfISO8601  = 14  // yyyy-mm-dd
+	}
+	//
 	// Descr: Интерфейс, обеспечивающий функции поддержки.
 	//   По всей вероятности, количество функций в этом интерфейсе будет
 	//   увеличиваться (несмотря на запрет спецификации COM на изменение интерфейсов).
@@ -965,6 +990,25 @@ library PapyrusInterfaceLib version(1.1) {
 		//   файл.
 		//
 		int    UniformFileTransm(in string srcUrl, in string destUrl, in long flags, in IFileFormat iff, in string accsName, in string accsPassw);
+		//
+		// Descr: Переводит строку в дату в соответствии с форматом, заданным параметром fmt.
+		//   Если fmt == datfDefault, то пытается распознать дату по содержимому строки (без гарантии успеха).
+		//
+		date   StrToDate(in string str, PpyDateFormat fmt);
+		//
+		// Descr: Находит все идентификаторы объектов типа objType, удовлетворяющие условию:
+		//   тип тега равен tagID, строковое содержимое тега равно pattern (нечувствительное к регистру сравнение).
+		// Returns:
+		//   Массив идентификаторов найденных объектов
+		//
+		ILongList * SearchObjectsByTagStr(in PpyObjectIdent objType, in long tagID, in string pattern);
+		//
+		// Descr: Находит все идентификаторы объектов типа objType, удовлетворяющие условию:
+		//   тип тега равен tagID, тип значения тега - строка, строковое содержимое тега В ТОЧНОСТИ равно pattern (нечувствительное к регистру сравнение).
+		// Returns:
+		//   Массив идентификаторов найденных объектов
+		//
+		ILongList * SearchObjectsByTagStrExactly(in PpyObjectIdent objType, in long tagID, in string pattern);
 	}
 	//
 	// Descr: Зарезервированные теги объектов

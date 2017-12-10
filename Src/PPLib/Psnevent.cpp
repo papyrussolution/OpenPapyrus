@@ -1267,7 +1267,7 @@ int SLAPI PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int 
 	uint   i, j;
 	LDATE  op_dt = ZERODATE;
 	long   op_no = 0;
-	PPID   id = pID ? *pID : 0;
+	PPID   id = DEREFPTRORZ(pID);
 	const  PPID org_id = id;
 	PPID   prmr_id = 0;
 	PPID   scnd_id = 0;
