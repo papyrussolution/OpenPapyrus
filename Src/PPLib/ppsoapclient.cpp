@@ -1,6 +1,7 @@
 // PPSOAPCLIENT.CPP
 // Copyright (c) A.Sobolev 2015, 2016, 2017
 //
+//
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
@@ -1153,11 +1154,12 @@ VetisUser & FASTCALL VetisUser::operator = (const VetisUser & rS)
 
 VetisApplicationBlock::VetisApplicationBlock() : ApplicationStatus(appstUndef), Func(VetisApplicationData::signNone), 
 	IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME), LocalTransactionId(0), P_GselReq(0), P_LoReq(0)
-=======
-VetisApplicationBlock::VetisApplicationBlock() : ApplicationStatus(appstUndef), Func(detUndef), IssueDate(ZERODATETIME), RcvDate(ZERODATETIME), PrdcRsltDate(ZERODATETIME)
->>>>>>> parent of f010b32... Version 9.8.9
 {
-	P_GselReq = 0;
+}
+
+VetisApplicationBlock::VetisApplicationBlock(const VetisApplicationBlock & rS) : P_GselReq(0)
+{
+	Copy(rS);
 }
 
 VetisApplicationBlock::~VetisApplicationBlock()
@@ -1165,7 +1167,6 @@ VetisApplicationBlock::~VetisApplicationBlock()
 	delete P_GselReq;
 	delete P_LoReq;
 }
-<<<<<<< HEAD
 
 VetisApplicationBlock & FASTCALL VetisApplicationBlock::operator = (const VetisApplicationBlock & rS)
 {
@@ -1217,5 +1218,3 @@ int FASTCALL VetisApplicationBlock::Copy(const VetisApplicationBlock & rS)
 	CATCHZOK
 	return ok;
 }
-=======
->>>>>>> parent of f010b32... Version 9.8.9
