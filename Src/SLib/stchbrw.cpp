@@ -12,14 +12,12 @@
 //
 //
 //
-STimeChunkGrid::HolidayArray::HolidayArray(long id)
+STimeChunkGrid::HolidayArray::HolidayArray(long id) : Id(id)
 {
-	Id = id;
 }
 
-STimeChunkGrid::STimeChunkGrid() : TSCollection <STimeChunkAssocArray> ()
+STimeChunkGrid::STimeChunkGrid() : TSCollection <STimeChunkAssocArray> (), P_CollapseList(0)
 {
-	P_CollapseList = 0;
 }
 
 STimeChunkGrid::~STimeChunkGrid()

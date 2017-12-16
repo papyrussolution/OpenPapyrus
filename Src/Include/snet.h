@@ -796,6 +796,7 @@ struct SMailMessage : SStrGroup {
 	int    SLAPI SaveAttachmentTo(uint attIdx, const char * pDestPath, SString * pResultFileName) const;
 	const  SMailMessage::Boundary * FASTCALL GetAttachmentByIndex(uint attIdx) const;
 	int    SLAPI GetAttachmentFileName(const SMailMessage::Boundary * pB, SString & rFileName) const;
+	int    SLAPI PreprocessEmailAddrString(const SString & rSrc, SString & rResult, StringSet * pSs) const;
 
 	long   Flags;
 	long   Size;
@@ -847,7 +848,6 @@ private:
 	const Boundary * FASTCALL SearchBoundary(const Boundary * pB) const;
 	const Boundary * FASTCALL Helper_SearchBoundary(const Boundary * pB, const Boundary * pParent) const;
 	Boundary * SLAPI Helper_CreateBoundary(SMailMessage::Boundary * pParent, int format);
-	int    SLAPI PreprocessEmailAddrString(const SString & rSrc, SString & rResult) const;
 	int    SLAPI DebugOutput_Boundary(const Boundary & rB, uint tab, SString & rBuf) const;
 
 	char   Zero[8];

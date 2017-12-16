@@ -7,14 +7,9 @@
 #pragma hdrstop
 //
 // @VATBCfg {
-//
-SLAPI VATBCfg::VATBCfg()
+// 
+SLAPI VATBCfg::VATBCfg() : Kind(0), AccSheetID(0), Flags(0), AcctgBasis(0), AcctgBasisAtPeriod(0)
 {
-	Kind = 0;
-	AccSheetID = 0;
-	Flags      = 0;
-	AcctgBasis = 0;
-	AcctgBasisAtPeriod = 0;
 	Period.SetZero();
 }
 
@@ -1187,12 +1182,8 @@ VatBookFilt & FASTCALL VatBookFilt::operator = (const VatBookFilt & s)
 	return *this;
 }
 
-SLAPI PPViewVatBook::PPViewVatBook() : PPView(0, &Filt, PPVIEW_VATBOOK)
+SLAPI PPViewVatBook::PPViewVatBook() : PPView(0, &Filt, PPVIEW_VATBOOK), P_BObj(BillObj), IsMainOrgVatFree(-1), P_GObj(0), P_ClbList(0)
 {
-	P_BObj = BillObj;
-	IsMainOrgVatFree = -1;
-	P_GObj = 0;
-	P_ClbList = 0;
 }
 
 SLAPI PPViewVatBook::~PPViewVatBook()

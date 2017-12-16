@@ -683,19 +683,15 @@ static ssize_t gskit_send(struct connectdata * conn, int sockindex,
 	return (ssize_t)written; /* number of bytes */
 }
 
-static ssize_t gskit_recv(struct connectdata * conn, int num, char * buf,
-    size_t buffersize, CURLcode * curlcode)
+static ssize_t gskit_recv(struct connectdata * conn, int num, char * buf, size_t buffersize, CURLcode * curlcode)
 {
 	struct Curl_easy * data = conn->data;
 	int buffsize;
 	int nread;
 	CURLcode cc = CURLE_RECV_ERROR;
-
 	if(pipe_ssloverssl(conn, num, SOS_READ) >= 0) {
 		buffsize = buffersize > (size_t)INT_MAX ? INT_MAX : (int)buffersize;
-		cc = gskit_status(data, gsk_secure_soc_read(conn->ssl[num].handle,
-			    buf, buffsize, &nread),
-		    "gsk_secure_soc_read()", CURLE_RECV_ERROR);
+		cc = gskit_status(data, gsk_secure_soc_read(conn->ssl[num].handle, buf, buffsize, &nread), "gsk_secure_soc_read()", CURLE_RECV_ERROR);
 	}
 	switch(cc) {
 		case CURLE_OK:
@@ -740,7 +736,6 @@ static CURLcode set_ssl_version_min_max(uint * protoflags, struct connectdata * 
 			    return CURLE_SSL_CONNECT_ERROR;
 		}
 	}
-
 	return CURLE_OK;
 }
 
@@ -756,22 +751,18 @@ static CURLcode gskit_connect_step1(struct connectdata * conn, int sockindex)
 	const char * const keyringlabel = SSL_SET_OPTION(cert);
 	const long int ssl_version = SSL_CONN_CONFIG(version);
 	const bool verifypeer = SSL_CONN_CONFIG(verifypeer);
-	const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name :
-	    conn->host.name;
+	const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name : conn->host.name;
 	const char * sni;
 	uint protoflags = 0;
 	long timeout;
 	Qso_OverlappedIO_t commarea;
 	int sockpair[2];
 	static const int sobufsize = CURL_MAX_WRITE_SIZE;
-
 	/* Create SSL environment, start (preferably asynchronous) handshake. */
-
 	connssl->handle = (gsk_handle)NULL;
 	connssl->iocport = -1;
 	connssl->localfd = -1;
 	connssl->remotefd = -1;
-
 	/* GSKit supports two ways of specifying an SSL context: either by
 	 *  application identifier (that should have been defined at the system
 	 *  level) or by keyring file, password and certificate label.
@@ -784,49 +775,35 @@ static CURLcode gskit_connect_step1(struct connectdata * conn, int sockindex)
 	 * If no key password is given and the keyring is the system keyring,
 	 *  application identifier mode is tried first, as recommended in IBM doc.
 	 */
-
 	envir = (gsk_handle)NULL;
-
-	if(keyringlabel && *keyringlabel && !keyringpwd &&
-	    !strcmp(keyringfile, CURL_CA_BUNDLE)) {
+	if(keyringlabel && *keyringlabel && !keyringpwd && !strcmp(keyringfile, CURL_CA_BUNDLE)) {
 		/* Try application identifier mode. */
-		init_environment(data, &envir, keyringlabel, (const char*)NULL,
-		    (const char*)NULL, (const char*)NULL);
+		init_environment(data, &envir, keyringlabel, (const char*)NULL, (const char*)NULL, (const char*)NULL);
 	}
-
 	if(!envir) {
 		/* Use keyring mode. */
-		result = init_environment(data, &envir, (const char*)NULL,
-		    keyringfile, keyringlabel, keyringpwd);
+		result = init_environment(data, &envir, (const char*)NULL, keyringfile, keyringlabel, keyringpwd);
 		if(result)
 			return result;
 	}
-
 	/* Create secure session. */
-	result = gskit_status(data, gsk_secure_soc_open(envir, &connssl->handle),
-	    "gsk_secure_soc_open()", CURLE_SSL_CONNECT_ERROR);
+	result = gskit_status(data, gsk_secure_soc_open(envir, &connssl->handle), "gsk_secure_soc_open()", CURLE_SSL_CONNECT_ERROR);
 	gsk_environment_close(&envir);
 	if(result)
 		return result;
-
 	/* Establish a pipelining socket pair for SSL over SSL. */
 	if(conn->proxy_ssl[sockindex].use) {
 		if(inetsocketpair(sockpair))
 			return CURLE_SSL_CONNECT_ERROR;
 		connssl->localfd = sockpair[0];
 		connssl->remotefd = sockpair[1];
-		setsockopt(connssl->localfd, SOL_SOCKET, SO_RCVBUF,
-		    (void*)sobufsize, sizeof sobufsize);
-		setsockopt(connssl->remotefd, SOL_SOCKET, SO_RCVBUF,
-		    (void*)sobufsize, sizeof sobufsize);
-		setsockopt(connssl->localfd, SOL_SOCKET, SO_SNDBUF,
-		    (void*)sobufsize, sizeof sobufsize);
-		setsockopt(connssl->remotefd, SOL_SOCKET, SO_SNDBUF,
-		    (void*)sobufsize, sizeof sobufsize);
+		setsockopt(connssl->localfd, SOL_SOCKET, SO_RCVBUF, (void*)sobufsize, sizeof sobufsize);
+		setsockopt(connssl->remotefd, SOL_SOCKET, SO_RCVBUF, (void*)sobufsize, sizeof sobufsize);
+		setsockopt(connssl->localfd, SOL_SOCKET, SO_SNDBUF, (void*)sobufsize, sizeof sobufsize);
+		setsockopt(connssl->remotefd, SOL_SOCKET, SO_SNDBUF, (void*)sobufsize, sizeof sobufsize);
 		curlx_nonblock(connssl->localfd, TRUE);
 		curlx_nonblock(connssl->remotefd, TRUE);
 	}
-
 	/* Determine which SSL/TLS version should be enabled. */
 	sni = hostname;
 	switch(ssl_version) {
@@ -872,14 +849,12 @@ static CURLcode gskit_connect_step1(struct connectdata * conn, int sockindex)
 		if(timeout < 0)
 			result = CURLE_OPERATION_TIMEDOUT;
 		else
-			result = set_numeric(data, connssl->handle, GSK_HANDSHAKE_TIMEOUT,
-			    (timeout + 999) / 1000);
+			result = set_numeric(data, connssl->handle, GSK_HANDSHAKE_TIMEOUT, (timeout + 999) / 1000);
 	}
 	if(!result)
 		result = set_numeric(data, connssl->handle, GSK_OS400_READ_TIMEOUT, 1);
 	if(!result)
-		result = set_numeric(data, connssl->handle, GSK_FD, connssl->localfd >= 0 ?
-		    connssl->localfd : conn->sock[sockindex]);
+		result = set_numeric(data, connssl->handle, GSK_FD, connssl->localfd >= 0 ? connssl->localfd : conn->sock[sockindex]);
 	if(!result)
 		result = set_ciphers(conn, connssl->handle, &protoflags);
 	if(!protoflags) {
@@ -887,13 +862,9 @@ static CURLcode gskit_connect_step1(struct connectdata * conn, int sockindex)
 		result = CURLE_SSL_CIPHER;
 	}
 	if(!result)
-		result = set_enum(data, connssl->handle, GSK_PROTOCOL_SSLV2,
-		    (protoflags & CURL_GSKPROTO_SSLV2_MASK) ?
-		    GSK_PROTOCOL_SSLV2_ON : GSK_PROTOCOL_SSLV2_OFF, FALSE);
+		result = set_enum(data, connssl->handle, GSK_PROTOCOL_SSLV2, (protoflags & CURL_GSKPROTO_SSLV2_MASK) ? GSK_PROTOCOL_SSLV2_ON : GSK_PROTOCOL_SSLV2_OFF, FALSE);
 	if(!result)
-		result = set_enum(data, connssl->handle, GSK_PROTOCOL_SSLV3,
-		    (protoflags & CURL_GSKPROTO_SSLV3_MASK) ?
-		    GSK_PROTOCOL_SSLV3_ON : GSK_PROTOCOL_SSLV3_OFF, FALSE);
+		result = set_enum(data, connssl->handle, GSK_PROTOCOL_SSLV3, (protoflags & CURL_GSKPROTO_SSLV3_MASK) ? GSK_PROTOCOL_SSLV3_ON : GSK_PROTOCOL_SSLV3_OFF, FALSE);
 	if(!result)
 		result = set_enum(data, connssl->handle, GSK_PROTOCOL_TLSV1,
 		    (protoflags & CURL_GSKPROTO_TLSV10_MASK) ?

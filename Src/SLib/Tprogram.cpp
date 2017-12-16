@@ -1010,25 +1010,12 @@ void TProgram::idle()
 
 // Public variables
 
-TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle) : TGroup(TRect())
+TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle) : TGroup(TRect()),
+	State(0), H_MainWnd(0), H_FrameWnd(0), H_CloseWnd(0), H_LogWnd(0), H_Desktop(0), H_ShortcutsWnd(0), 
+	H_TopOfStack(0), H_Accel(0), P_Stw(0), P_DeskTop(0), P_TopView(0), P_Toolbar(0), P_TreeWnd(0), AppSymbol(pAppSymb)
 {
 	hInstance = hInst;
-	State = 0;
-	H_MainWnd  = 0;
-	H_FrameWnd = 0;
-	H_CloseWnd = 0;
-	H_LogWnd   = 0;
-	H_Desktop  = 0;
-	H_ShortcutsWnd = 0;
-	H_TopOfStack = 0;
-	H_Accel = 0;
-	P_Stw = 0;
-	P_DeskTop = 0;
-	P_TopView = 0;
-	P_Toolbar = 0;
-	P_TreeWnd = 0;
 	UICfg.Restore();
-	AppSymbol = pAppSymb;
 	(AppTitle = pAppTitle).SetIfEmpty(AppSymbol);
 	Sf = (sfVisible | sfSelected | sfFocused | sfModal);
 	options = 0;
@@ -2357,7 +2344,7 @@ int DrawStatusBarItem(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			GetWindowRect(hwnd, &rect);
 			if(mouse_pos.y >= rect.top && mouse_pos.y <= rect.bottom) {
 				mouse_pos.x -= rect.left;
-				hotlight = (mouse_pos.x >= out_r.left && mouse_pos.x <= out_r.right) ? 1 : 0;
+				hotlight = BIN(mouse_pos.x >= out_r.left && mouse_pos.x <= out_r.right);
 			}
 		}
 		Rectangle(pDi->hDC, out_r.left, out_r.top, out_r.right, out_r.bottom);
@@ -2505,8 +2492,7 @@ int TProgram::CloseAllBrowsers()
 
 void TProgram::GotoSite()
 {
-	SString url;
-	url = "http://www.petroglif.ru/";
+	SString url = "http://www.petroglif.ru/";
 	ShellExecute(0, _T("open"), url, NULL, NULL, SW_SHOWNORMAL);
 }
 //

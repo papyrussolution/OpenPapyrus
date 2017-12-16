@@ -201,9 +201,8 @@ public:
 	void   SLAPI maxval(void *) const;
 };
 
-SLAPI SRowId::SRowId()
+SLAPI SRowId::SRowId() : DataType(sizeof(DBRowId))
 {
-	s = sizeof(DBRowId);
 }
 
 int SLAPI SRowId::comp(const void * i1, const void * i2) const
@@ -251,16 +250,15 @@ void SLAPI SRowId::maxval(void * pData) const
 
 class SLobType : public DataType {
 public:
-	SLAPI  SLobType(size_t sz = 32)
+	explicit SLAPI SLobType(size_t sz = 32) : DataType(sz)
 	{
-		s = sz;
 	}
 	int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 };
 
 int SLAPI SLobType::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
 {
-	return ((SLob *)pData)->Serialize(dir, s, pInd, rBuf);
+	return ((SLob *)pData)->Serialize(dir, S, pInd, rBuf);
 }
 //
 //

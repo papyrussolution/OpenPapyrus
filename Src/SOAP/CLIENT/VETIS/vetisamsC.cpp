@@ -17,7 +17,7 @@ compiling, linking, and/or using OpenSSL is allowed.
 #include "vetisamsH.h"
 #pragma hdrstop
 
-SOAP_SOURCE_STAMP("@(#) vetisamsC.cpp ver 2.8.8 2017-12-10 14:08:23 GMT")
+SOAP_SOURCE_STAMP("@(#) vetisamsC.cpp ver 2.8.8 2017-12-16 18:36:45 GMT")
 
 
 #ifndef WITH_NOGLOBAL

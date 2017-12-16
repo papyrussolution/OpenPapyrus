@@ -72,9 +72,8 @@ int FASTCALL SWaitableObject::Wait(long timeout)
 //
 //
 //
-SLAPI ACount::ACount()
+SLAPI ACount::ACount() : C(0)
 {
-	C = 0;
 }
 
 SLAPI ACount::ACount(int)
@@ -143,9 +142,8 @@ void SLAPI SCriticalSection::Data::Leave()
 //
 // A BlockingCounter instance may be initialized
 // only with a non-negative value
-SLAPI BlockingCounter::BlockingCounter() : ExclusiveAccess(0, 0)
+SLAPI BlockingCounter::BlockingCounter() : ExclusiveAccess(0, 0), Count(0)
 {
-	Count = 0;
 }
 
 int SLAPI BlockingCounter::Value() const

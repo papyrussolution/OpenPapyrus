@@ -160,9 +160,8 @@ int SSvg::StyleBlock::Init()
 	return 1;
 }
 
-SSvg::CommonFigAttr::CommonFigAttr() : SSvg::StyleBlock()
+SSvg::CommonFigAttr::CommonFigAttr() : SSvg::StyleBlock(), P_Mtx(0)
 {
-	P_Mtx = 0;
 }
 
 int SSvg::CommonFigAttr::Init()
@@ -174,12 +173,9 @@ int SSvg::CommonFigAttr::Init()
 	return 1;
 }
 
-SSvg::SSvg() : TTab(1024, 0)
+SSvg::SSvg() : TTab(1024, 0), P_Result(0), LastOwnSymbNo(0), ReScpNumber(0)
 {
 	InitTokens();
-	P_Result = 0;
-	LastOwnSymbNo = 0;
-	ReScpNumber = 0;
 }
 
 SSvg::~SSvg()

@@ -52,19 +52,16 @@ void SelectionPosition::MoveForInsertDelete(bool insertion, int startChange, int
 			virtualSpace -= virtualLengthRemove;
 			position += virtualLengthRemove;
 		}
-		else if(position > startChange) {
+		else if(position > startChange)
 			position += length;
-		}
 	}
 	else {
-		if(position == startChange) {
+		if(position == startChange)
 			virtualSpace = 0;
-		}
-		if(position > startChange) {
+		else if(position > startChange) {
 			int endDeletion = startChange + length;
-			if(position > endDeletion) {
+			if(position > endDeletion)
 				position -= length;
-			}
 			else {
 				position = startChange;
 				virtualSpace = 0;
@@ -73,12 +70,22 @@ void SelectionPosition::MoveForInsertDelete(bool insertion, int startChange, int
 	}
 }
 
-bool FASTCALL SelectionPosition::operator < (const SelectionPosition &other) const
+bool FASTCALL SelectionPosition::operator == (const SelectionPosition & other) const
+{
+	return (position == other.position && virtualSpace == other.virtualSpace);
+}
+
+bool FASTCALL SelectionPosition::operator != (const SelectionPosition & other) const
+{
+	return (position != other.position || virtualSpace != other.virtualSpace);
+}
+
+bool FASTCALL SelectionPosition::operator < (const SelectionPosition & other) const
 {
 	return (position == other.position) ? (virtualSpace < other.virtualSpace) : (position < other.position);
 }
 
-bool FASTCALL SelectionPosition::operator > (const SelectionPosition &other) const
+bool FASTCALL SelectionPosition::operator > (const SelectionPosition & other) const
 {
 	return (position == other.position) ? (virtualSpace > other.virtualSpace) : (position > other.position);
 }
@@ -91,6 +98,35 @@ bool FASTCALL SelectionPosition::operator <= (const SelectionPosition &other) co
 bool FASTCALL SelectionPosition::operator >= (const SelectionPosition &other) const
 {
 	return (position == other.position && virtualSpace == other.virtualSpace) ? true : (*this > other);
+}
+//
+//
+//
+SelectionSegment::SelectionSegment() : start(), end()
+{
+}
+
+SelectionSegment::SelectionSegment(const SelectionPosition & rA, const SelectionPosition & rB)
+{
+	if(rA < rB) {
+		start = rA;
+		end = rB;
+	}
+	else {
+		start = rB;
+		end = rA;
+	}
+}
+
+bool SelectionSegment::Empty() const
+{
+	return start == end;
+}
+
+void FASTCALL SelectionSegment::Extend(const SelectionPosition & rP)
+{
+	SETMIN(start, rP);
+	SETMAX(end, rP);
 }
 //
 //
@@ -190,22 +226,15 @@ bool SelectionRange::Trim(SelectionRange range)
 	PLATFORM_ASSERT(start <= end);
 	PLATFORM_ASSERT(startRange <= endRange);
 	if((startRange <= end) && (endRange >= start)) {
-		if((start > startRange) && (end < endRange)) {
-			// Completely covered by range -> empty at start
-			end = start;
-		}
-		else if((start < startRange) && (end > endRange)) {
-			// Completely covers range -> empty at start
-			end = start;
-		}
-		else if(start <= startRange) {
-			// Trim end
-			end = startRange;
-		}
+		if((start > startRange) && (end < endRange))
+			end = start; // Completely covered by range -> empty at start
+		else if((start < startRange) && (end > endRange))
+			end = start; // Completely covers range -> empty at start
+		else if(start <= startRange)
+			end = startRange; // Trim end
 		else {   //
 			PLATFORM_ASSERT(end >= endRange);
-			// Trim start
-			start = endRange;
+			start = endRange; // Trim start
 		}
 		if(anchor > caret) {
 			caret = start;
@@ -217,9 +246,8 @@ bool SelectionRange::Trim(SelectionRange range)
 		}
 		return Empty();
 	}
-	else {
+	else
 		return false;
-	}
 }
 
 // If range is all virtual collapse to start of virtual space
@@ -244,7 +272,7 @@ Selection::~Selection()
 
 bool Selection::IsRectangular() const
 {
-	return (selType == selRectangle) || (selType == selThin);
+	return oneof2(selType, selRectangle, selThin);
 }
 
 int Selection::MainCaret() const
@@ -257,7 +285,7 @@ int Selection::MainAnchor() const
 	return Ranges[mainRange].anchor.Position();
 }
 
-SelectionRange &Selection::Rectangular()
+SelectionRange & Selection::Rectangular()
 {
 	return rangeRectangular;
 }
@@ -366,9 +394,8 @@ void Selection::MovePositions(bool insertion, int startChange, int length)
 	for(size_t i = 0; i < Ranges.size(); i++) {
 		Ranges[i].MoveForInsertDelete(insertion, startChange, length);
 	}
-	if(selType == selRectangle) {
+	if(selType == selRectangle)
 		rangeRectangular.MoveForInsertDelete(insertion, startChange, length);
-	}
 }
 
 void Selection::TrimSelection(SelectionRange range)
@@ -421,12 +448,10 @@ void Selection::DropSelection(size_t r)
 	if(Ranges.size() > 1 && r < Ranges.size()) {
 		size_t mainNew = mainRange;
 		if(mainNew >= r) {
-			if(mainNew == 0) {
+			if(mainNew == 0)
 				mainNew = Ranges.size() - 2;
-			}
-			else {
+			else
 				mainNew--;
-			}
 		}
 		Ranges.erase(Ranges.begin() + r);
 		mainRange = mainNew;
@@ -466,8 +491,10 @@ int Selection::CharacterInSelection(int posCharacter) const
 
 int Selection::InSelectionForEOL(int pos) const
 {
-	for(size_t i = 0; i < Ranges.size(); i++) {
-		if(!Ranges[i].Empty() && (pos > Ranges[i].Start().Position()) && (pos <= Ranges[i].End().Position()))
+	const size_t _c = Ranges.size();
+	for(size_t i = 0; i < _c; i++) {
+		const SelectionRange & r_sr = Ranges[i];
+		if(!r_sr.Empty() && (pos > r_sr.Start().Position()) && (pos <= r_sr.End().Position()))
 			return i == mainRange ? 1 : 2;
 	}
 	return 0;
@@ -475,14 +502,18 @@ int Selection::InSelectionForEOL(int pos) const
 
 int Selection::VirtualSpaceFor(int pos) const
 {
-	int virtualSpace = 0;
-	for(size_t i = 0; i < Ranges.size(); i++) {
-		if(Ranges[i].caret.Position() == pos && virtualSpace < Ranges[i].caret.VirtualSpace())
-			virtualSpace = Ranges[i].caret.VirtualSpace();
-		if(Ranges[i].anchor.Position() == pos && virtualSpace < Ranges[i].anchor.VirtualSpace())
-			virtualSpace = Ranges[i].anchor.VirtualSpace();
+	int virtual_space = 0;
+	const size_t _c = Ranges.size();
+	for(size_t i = 0; i < _c; i++) {
+		const SelectionRange & r_sr = Ranges[i];
+		if(r_sr.caret.Position() == pos) {
+			SETMAX(virtual_space, r_sr.caret.VirtualSpace());
+		}
+		if(r_sr.anchor.Position() == pos) { 
+			SETMAX(virtual_space, r_sr.anchor.VirtualSpace());
+		}
 	}
-	return virtualSpace;
+	return virtual_space;
 }
 
 void Selection::Clear()
@@ -518,4 +549,3 @@ void Selection::RotateMain()
 {
 	mainRange = (mainRange + 1) % Ranges.size();
 }
-

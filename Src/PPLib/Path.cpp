@@ -38,10 +38,8 @@ struct PathData {          // @persistent @store(PropertyTbl)
 	// ... PathItem[]
 };
 
-SLAPI PathItem::PathItem(PPID pathID, short flags, const char * str)
+SLAPI PathItem::PathItem(PPID pathID, short flags, const char * str) : ID(pathID), Flags(flags)
 {
-	ID    = pathID;
-	Flags = flags;
 	if(!isempty(str)) {
 		const size_t len = strlen(str) + 1;
 		Size  = (uint16)(sizeof(PathItem) + len);
@@ -70,9 +68,8 @@ void SLAPI PathItem::operator delete(void * p, const char *)
 //
 //
 //
-SLAPI PPPaths::PPPaths()
+SLAPI PPPaths::PPPaths() : P(0)
 {
-	P = 0;
 }
 
 SLAPI PPPaths::~PPPaths()

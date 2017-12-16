@@ -1160,8 +1160,6 @@ namespace Scintilla {
 	// 
 	class Point {
 	public:
-		XYPOSITION x;
-		XYPOSITION y;
 		explicit Point(XYPOSITION x_ = 0, XYPOSITION y_ = 0) : x(x_), y(y_)
 		{
 		}
@@ -1170,6 +1168,8 @@ namespace Scintilla {
 		// Other automatically defined methods (assignment, copy constructor, destructor) are fine
 		//
 		static Point FASTCALL FromLong(long lpoint);
+		XYPOSITION x;
+		XYPOSITION y;
 	};
 	/**
 	 * A geometric rectangle class.
@@ -1178,11 +1178,6 @@ namespace Scintilla {
 	 */
 	class PRectangle {
 	public:
-		XYPOSITION left;
-		XYPOSITION top;
-		XYPOSITION right;
-		XYPOSITION bottom;
-
 		explicit PRectangle(XYPOSITION left_/*= 0*/, XYPOSITION top_/*= 0*/, XYPOSITION right_/*= 0*/, XYPOSITION bottom_/*= 0*/);
 		explicit PRectangle();
 		static PRectangle FromInts(int left_, int top_, int right_, int bottom_);
@@ -1195,13 +1190,18 @@ namespace Scintilla {
 		void Move(XYPOSITION xDelta, XYPOSITION yDelta);
 		XYPOSITION PRectangle::Width() const
 		{
-			return right - left;
+			return (right - left);
 		}
 		XYPOSITION PRectangle::Height() const
 		{
-			return bottom - top;
+			return (bottom - top);
 		}
 		bool Empty() const;
+
+		XYPOSITION left;
+		XYPOSITION top;
+		XYPOSITION right;
+		XYPOSITION bottom;
 	};
 	// 
 	// Holds a desired RGB colour.
@@ -1344,8 +1344,6 @@ namespace Scintilla {
 	// Does not own the window which will normally have a longer life than this object.
 	// 
 	class Window {
-	protected:
-		WindowID wid;
 	public:
 		Window();
 		Window(const Window &source);
@@ -1384,10 +1382,11 @@ namespace Scintilla {
 			cursorReverseArrow, 
 			cursorHand 
 		};
-
 		void SetCursor(Cursor curs);
 		void SetTitle(const char * s);
 		PRectangle GetMonitorRect(Point pt);
+	protected:
+		WindowID wid;
 	private:
 		Cursor cursorLast;
 	};
@@ -1424,7 +1423,6 @@ namespace Scintilla {
 	// Menu management.
 	// 
 	class Menu {
-		MenuID mid;
 	public:
 		Menu();
 		MenuID GetID() const
@@ -1434,16 +1432,19 @@ namespace Scintilla {
 		void CreatePopUp();
 		void Destroy();
 		void Show(Point pt, Window &w);
+	private:
+		MenuID mid;
 	};
 	//
 	//
 	//
 	class ElapsedTime {
-		long bigBit;
-		long littleBit;
 	public:
 		ElapsedTime();
 		double Duration(bool reset = false);
+	private:
+		long bigBit;
+		long littleBit;
 	};
 	// 
 	// Dynamic Library (DLL/SO/...) loading
@@ -1724,7 +1725,8 @@ namespace Scintilla {
 		//
 		// Safe version of operator[], returning a defined value for invalid position
 		//
-		char SafeGetCharAt(Sci_Position position, char chDefault = ' ');
+		char FASTCALL SafeGetCharAt(Sci_Position position, char chDefault);
+		char FASTCALL SafeGetCharAt(Sci_Position position);
 		bool FASTCALL IsLeadByte(char ch) const;
 		EncodingType Encoding() const;
 		bool Match(Sci_Position pos, const char * s);
@@ -1923,15 +1925,15 @@ namespace Scintilla {
 	// A simple lexer with no state
 	//
 	class LexerSimple : public LexerBase {
-	private:
-		const LexerModule * module;
-		//std::string wordLists;
-		SString WordList;
 	public:
 		explicit LexerSimple(const LexerModule *module_);
 		const char * SCI_METHOD DescribeWordListSets();
 		void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument *pAccess);
 		void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position lengthDoc, int initStyle, IDocument *pAccess);
+	private:
+		const LexerModule * module;
+		//std::string wordLists;
+		SString WordList;
 	};
 	//
 	// A simple lexer with no state
@@ -1966,38 +1968,36 @@ namespace Scintilla {
 	};
 
 	class CaseFolderTable : public CaseFolder {
-	protected:
-		char mapping[256];
 	public:
 		CaseFolderTable();
 		virtual ~CaseFolderTable();
 		virtual size_t Fold(char *folded, size_t sizeFolded, const char *mixed, size_t lenMixed);
 		void SetTranslation(char ch, char chTranslation);
 		void StandardASCII();
+	protected:
+		char mapping[256];
 	};
 
 	class CaseFolderUnicode : public CaseFolderTable {
-		ICaseConverter *converter;
 	public:
 		CaseFolderUnicode();
 		virtual size_t Fold(char *folded, size_t sizeFolded, const char *mixed, size_t lenMixed);
+	private:
+		ICaseConverter * converter;
 	};
 	//
 	// #include "Style.h"
 	//
 	struct FontSpecification {
+		FontSpecification();
+		bool FASTCALL operator == (const FontSpecification &other) const;
+		bool FASTCALL operator < (const FontSpecification &other) const;
 		const char * fontName;
 		int    weight;
 		bool   italic;
 		int    size;
 		int    characterSet;
 		int    extraFontFlag;
-
-		FontSpecification() : fontName(0), weight(SC_WEIGHT_NORMAL), italic(false), size(10 * SC_FONT_SIZE_MULTIPLIER), characterSet(0), extraFontFlag(0) 
-		{
-		}
-		bool FASTCALL operator == (const FontSpecification &other) const;
-		bool FASTCALL operator < (const FontSpecification &other) const;
 	};
 	//
 	// Just like Font but only has a copy of the FontID so should not delete it
@@ -2074,8 +2074,6 @@ namespace Scintilla {
 	// #include "Indicator.h"
 	//
 	struct StyleAndColour {
-		int style;
-		ColourDesired fore;
 		StyleAndColour() : style(INDIC_PLAIN), fore(0, 0, 0) 
 		{
 		}
@@ -2086,6 +2084,8 @@ namespace Scintilla {
 		{
 			return (style == other.style) && (fore == other.fore);
 		}
+		int style;
+		ColourDesired fore;
 	};
 	//
 	//
@@ -2117,7 +2117,7 @@ namespace Scintilla {
 		}
 		bool OverridesTextFore() const 
 		{
-			return sacNormal.style == INDIC_TEXTFORE || sacHover.style == INDIC_TEXTFORE;
+			return (sacNormal.style == INDIC_TEXTFORE || sacHover.style == INDIC_TEXTFORE);
 		}
 		int Flags() const 
 		{

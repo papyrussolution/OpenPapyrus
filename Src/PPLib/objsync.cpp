@@ -8,10 +8,8 @@
 //
 //
 //
-SLAPI PPCommSyncID::PPCommSyncID()
+SLAPI PPCommSyncID::PPCommSyncID() : P(0), I(0)
 {
-	P = 0;
-	I = 0;
 }
 
 int FASTCALL PPCommSyncID::operator == (const PPCommSyncID s) const { return (P == s.P && I == s.I); }
@@ -490,11 +488,9 @@ int SLAPI ObjSyncCore::RemoveByCommID(PPID objType, PPCommSyncID commID, PPID db
 //
 //
 //
-SLAPI ObjSyncQueueCore::FileInfo::FileInfo()
+SLAPI ObjSyncQueueCore::FileInfo::FileInfo() : QueueID(0), Flags(0)
 {
 	Mod.SetZero();
-	QueueID = 0;
-	Flags = 0;
 }
 
 int SLAPI ObjSyncQueueCore::AddFileRecord(PPID * pID, const ObjSyncQueueCore::FileInfo & rInfo, int use_ta)

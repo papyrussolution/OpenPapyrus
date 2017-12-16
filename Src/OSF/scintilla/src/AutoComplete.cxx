@@ -218,7 +218,7 @@ void AutoComplete::Cancel()
 		lb->Clear();
 		lb->Destroy();
 		//active = false;
-		Flags &= fActive;
+		Flags &= ~fActive;
 	}
 }
 

@@ -1080,46 +1080,16 @@ void SurfaceGDI::SetDBCSMode(int codePage_)
 #if defined(USE_D2D)
 
 class SurfaceD2D : public Surface {
-	bool unicodeMode;
-	int x, y;
-
-	int codePage;
-	int codePageText;
-
-	ID2D1RenderTarget * pRenderTarget;
-	bool ownRenderTarget;
-	int clipsActive;
-
-	IDWriteTextFormat * pTextFormat;
-	FLOAT yAscent;
-	FLOAT yDescent;
-	FLOAT yInternalLeading;
-
-	ID2D1SolidColorBrush * pBrush;
-
-	int logPixelsY;
-	float dpiScaleX;
-	float dpiScaleY;
-
-	void SetFont(Font &font_);
-
-	// Private so SurfaceD2D objects can not be copied
-	SurfaceD2D(const SurfaceD2D &);
-	SurfaceD2D &operator=(const SurfaceD2D &);
 public:
 	SurfaceD2D();
 	virtual ~SurfaceD2D();
-
 	void SetScale();
 	void Init(WindowID wid);
 	void Init(SurfaceID sid, WindowID wid);
 	void InitPixMap(int width, int height, Surface * surface_, WindowID wid);
-
 	void Release();
 	bool Initialised();
-
 	HRESULT FlushDrawing();
-
 	void PenColour(ColourDesired fore);
 	void D2DPenColour(ColourDesired fore, int alpha = 255);
 	int LogPixelsY();
@@ -1131,12 +1101,10 @@ public:
 	void FillRectangle(PRectangle rc, ColourDesired back);
 	void FillRectangle(PRectangle rc, Surface &surfacePattern);
 	void RoundedRectangle(PRectangle rc, ColourDesired fore, ColourDesired back);
-	void AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fill, int alphaFill,
-	    ColourDesired outline, int alphaOutline, int flags);
+	void AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fill, int alphaFill, ColourDesired outline, int alphaOutline, int flags);
 	void DrawRGBAImage(PRectangle rc, int width, int height, const uchar * pixelsImage);
 	void Ellipse(PRectangle rc, ColourDesired fore, ColourDesired back);
 	void Copy(PRectangle rc, Point from, Surface &surfaceSource);
-
 	void DrawTextCommon(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, UINT fuOptions);
 	void DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back);
 	void DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, const char * s, int len, ColourDesired fore, ColourDesired back);
@@ -1150,36 +1118,37 @@ public:
 	XYPOSITION ExternalLeading(Font &font_);
 	XYPOSITION Height(Font &font_);
 	XYPOSITION AverageCharWidth(Font &font_);
-
 	void SetClip(PRectangle rc);
 	void FlushCachedState();
-
 	void SetUnicodeMode(bool unicodeMode_);
 	void SetDBCSMode(int codePage_);
+private:
+	int x, y;
+	int codePage;
+	int codePageText;
+	ID2D1RenderTarget * pRenderTarget;
+	int clipsActive;
+	IDWriteTextFormat * pTextFormat;
+	FLOAT yAscent;
+	FLOAT yDescent;
+	FLOAT yInternalLeading;
+	ID2D1SolidColorBrush * pBrush;
+	int logPixelsY;
+	float dpiScaleX;
+	float dpiScaleY;
+	bool unicodeMode;
+	bool ownRenderTarget;
+	uint8 Reserve[2]; // @alignment
+
+	void SetFont(Font &font_);
+	// Private so SurfaceD2D objects can not be copied
+	SurfaceD2D(const SurfaceD2D &);
+	SurfaceD2D &operator=(const SurfaceD2D &);
 };
 
-SurfaceD2D::SurfaceD2D() :
-	unicodeMode(false),
-	x(0), y(0)
+SurfaceD2D::SurfaceD2D() : x(0), y(0), codePage(0), codePageText(0), pRenderTarget(NULL), unicodeMode(false), ownRenderTarget(false),
+	clipsActive(0), pTextFormat(NULL), yAscent(2), yDescent(1), yInternalLeading(0), pBrush(NULL), logPixelsY(72), dpiScaleX(1.0f), dpiScaleY(1.0f)
 {
-	codePage = 0;
-	codePageText = 0;
-
-	pRenderTarget = NULL;
-	ownRenderTarget = false;
-	clipsActive = 0;
-
-	// From selected font
-	pTextFormat = NULL;
-	yAscent = 2;
-	yDescent = 1;
-	yInternalLeading = 0;
-
-	pBrush = NULL;
-
-	logPixelsY = 72;
-	dpiScaleX = 1.0;
-	dpiScaleY = 1.0;
 }
 
 SurfaceD2D::~SurfaceD2D()
@@ -2101,26 +2070,19 @@ struct ListItemData {
 };
 
 class LineToItem {
-	std::vector<char> words;
-
-	std::vector<ListItemData> data;
-
 public:
 	LineToItem()
 	{
 	}
-
 	~LineToItem()
 	{
 		Clear();
 	}
-
 	void Clear()
 	{
 		words.clear();
 		data.clear();
 	}
-
 	ListItemData Get(int index) const
 	{
 		if(index >= 0 && index < static_cast<int>(data.size())) {
@@ -2131,23 +2093,23 @@ public:
 			return missing;
 		}
 	}
-
 	int Count() const
 	{
 		return static_cast<int>(data.size());
 	}
-
 	void AllocItem(const char * text, int pixId)
 	{
 		ListItemData lid = { text, pixId };
 		data.push_back(lid);
 	}
-
 	char * SetWords(const char * s)
 	{
 		words = std::vector<char>(s, s+strlen(s)+1);
 		return &words[0];
 	}
+private:
+	std::vector<char> words;
+	std::vector<ListItemData> data;
 };
 
 const TCHAR ListBoxX_ClassName[] = TEXT("ListBoxX");
@@ -2161,6 +2123,47 @@ ListBox::~ListBox()
 }
 
 class ListBoxX : public ListBox {
+public:
+	ListBoxX() : lineHeight(10), fontCopy(0), technology(0), lb(0), unicodeMode(false),
+		desiredVisibleRows(5), maxItemCharacters(0), aveCharWidth(8),
+		parent(NULL), ctrlID(0), doubleClickAction(NULL), doubleClickActionData(NULL),
+		widestItem(NULL), maxCharWidth(1), resizeHit(0), wheelDelta(0)
+	{
+	}
+	virtual ~ListBoxX()
+	{
+		if(fontCopy) {
+			::DeleteObject(fontCopy);
+			fontCopy = 0;
+		}
+	}
+	virtual void SetFont(Font &font);
+	virtual void Create(Window &parent_, int ctrlID_, Point location_, int lineHeight_, bool unicodeMode_, int technology_);
+	virtual void SetAverageCharWidth(int width);
+	virtual void SetVisibleRows(int rows);
+	virtual int GetVisibleRows() const;
+	virtual PRectangle GetDesiredRect();
+	virtual int CaretFromEdge();
+	virtual void Clear();
+	virtual void Append(char * s, int type = -1);
+	virtual int Length();
+	virtual void Select(int n);
+	virtual int GetSelection();
+	virtual int Find(const char * prefix);
+	virtual void GetValue(int n, char * value, int len);
+	virtual void RegisterImage(int type, const char * xpm_data);
+	virtual void RegisterRGBAImage(int type, int width, int height, const uchar * pixelsImage);
+	virtual void ClearRegisteredImages();
+	virtual void SetDoubleClickAction(CallBackAction action, void * data)
+	{
+		doubleClickAction = action;
+		doubleClickActionData = data;
+	}
+	virtual void SetList(const char * list, char separator, char typesep);
+	void Draw(DRAWITEMSTRUCT * pDrawItem);
+	LRESULT WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
+	static LRESULT PASCAL StaticWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
+private:
 	int lineHeight;
 	FontID fontCopy;
 	int technology;
@@ -2204,50 +2207,6 @@ class ListBoxX : public ListBox {
 	static const Point ItemInset;   // Padding around whole item
 	static const Point TextInset;   // Padding around text
 	static const Point ImageInset;  // Padding around image
-
-public:
-	ListBoxX() : lineHeight(10), fontCopy(0), technology(0), lb(0), unicodeMode(false),
-		desiredVisibleRows(5), maxItemCharacters(0), aveCharWidth(8),
-		parent(NULL), ctrlID(0), doubleClickAction(NULL), doubleClickActionData(NULL),
-		widestItem(NULL), maxCharWidth(1), resizeHit(0), wheelDelta(0)
-	{
-	}
-
-	virtual ~ListBoxX()
-	{
-		if(fontCopy) {
-			::DeleteObject(fontCopy);
-			fontCopy = 0;
-		}
-	}
-
-	virtual void SetFont(Font &font);
-	virtual void Create(Window &parent_, int ctrlID_, Point location_, int lineHeight_, bool unicodeMode_, int technology_);
-	virtual void SetAverageCharWidth(int width);
-	virtual void SetVisibleRows(int rows);
-	virtual int GetVisibleRows() const;
-	virtual PRectangle GetDesiredRect();
-	virtual int CaretFromEdge();
-	virtual void Clear();
-	virtual void Append(char * s, int type = -1);
-	virtual int Length();
-	virtual void Select(int n);
-	virtual int GetSelection();
-	virtual int Find(const char * prefix);
-	virtual void GetValue(int n, char * value, int len);
-	virtual void RegisterImage(int type, const char * xpm_data);
-	virtual void RegisterRGBAImage(int type, int width, int height, const uchar * pixelsImage);
-	virtual void ClearRegisteredImages();
-	virtual void SetDoubleClickAction(CallBackAction action, void * data)
-	{
-		doubleClickAction = action;
-		doubleClickActionData = data;
-	}
-
-	virtual void SetList(const char * list, char separator, char typesep);
-	void Draw(DRAWITEMSTRUCT * pDrawItem);
-	LRESULT WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
-	static LRESULT PASCAL StaticWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 };
 
 const Point ListBoxX::ItemInset(0, 0);
@@ -2271,14 +2230,8 @@ void ListBoxX::Create(Window &parent_, int ctrlID_, Point location_, int lineHei
 	HWND hwndParent = static_cast<HWND>(parent->GetID());
 	HINSTANCE hinstanceParent = GetWindowInstance(hwndParent);
 	// Window created as popup so not clipped within parent client area
-	wid = ::CreateWindowEx(
-	    WS_EX_WINDOWEDGE, ListBoxX_ClassName, TEXT(""),
-	    WS_POPUP | WS_THICKFRAME,
-	    100, 100, 150, 80, hwndParent,
-	    NULL,
-	    hinstanceParent,
-	    this);
-
+	wid = ::CreateWindowEx(WS_EX_WINDOWEDGE, ListBoxX_ClassName, TEXT(""),
+	    WS_POPUP | WS_THICKFRAME, 100, 100, 150, 80, hwndParent, NULL, hinstanceParent, this);
 	POINT locationw = {static_cast<LONG>(location.x), static_cast<LONG>(location.y)};
 	::MapWindowPoints(hwndParent, NULL, &locationw, 1);
 	location = Point::FromInts(locationw.x, locationw.y);
@@ -2320,7 +2273,6 @@ HWND ListBoxX::GetHWND() const
 PRectangle ListBoxX::GetDesiredRect()
 {
 	PRectangle rcDesired = GetPosition();
-
 	int rows = Length();
 	if((rows == 0) || (rows > desiredVisibleRows))
 		rows = desiredVisibleRows;

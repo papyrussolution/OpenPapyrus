@@ -11,13 +11,13 @@
 
 class SVoid : public DataType {
 public:
-	SLAPI  SVoid() : DataType() {}
+	SLAPI  SVoid() : DataType(0) {}
 	int    SLAPI base() const { return BTS_VOID; }
 };
 
 class SInt : public DataType {
 public:
-	explicit SLAPI SInt(size_t sz = 2);
+	explicit SLAPI SInt(uint32 sz = 2);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -136,7 +136,7 @@ public:
 
 class SChar : public DataType {
 public:
-	explicit SLAPI SChar(size_t sz = 0);
+	explicit SLAPI SChar(uint32 sz = 0);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -149,7 +149,7 @@ public:
 
 class SZString : public DataType {
 public:
-	explicit SLAPI SZString(size_t = 0);
+	explicit SLAPI SZString(uint32 = 0);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -168,7 +168,7 @@ public:
 	//
 	// –азмер указываетс€ в байтах (не символах)
 	//
-	explicit SLAPI SWcString(size_t = sizeof(wchar_t));
+	explicit SLAPI SWcString(uint32 = sizeof(wchar_t));
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -181,7 +181,7 @@ public:
 
 class SLString : public DataType {
 public:
-	explicit SLAPI SLString(size_t = 0);
+	explicit SLAPI SLString(uint32 = 0);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -194,12 +194,12 @@ public:
 
 class SVariant : public DataType {
 public:
-	SLAPI  SVariant() { s = sizeof(VARIANT); }
+	SLAPI  SVariant() : DataType(sizeof(VARIANT)) {}
 };
 
 class SRaw : public DataType {
 public:
-	explicit SLAPI SRaw(size_t sz = 0);
+	explicit SLAPI SRaw(uint32 sz = 0);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -212,7 +212,7 @@ public:
 
 class SIPoint2 : public DataType {
 public:
-	explicit SLAPI SIPoint2(size_t sz = 4);
+	explicit SLAPI SIPoint2(uint32 sz = 4);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -226,7 +226,7 @@ public:
 
 class SFPoint2 : public DataType {
 public:
-	explicit SLAPI SFPoint2(size_t sz = 8);
+	explicit SLAPI SFPoint2(uint32 sz = 8);
 	int    SLAPI comp(const void *, const void *) const;
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
@@ -283,62 +283,60 @@ void SLAPI RegisterBIST()
 //
 // SChar
 //
-SLAPI SChar::SChar(size_t sz)
+SLAPI SChar::SChar(uint32 sz) : DataType(sz)
 {
-	s = sz;
 }
 
 int SLAPI SChar::comp(const void * i1, const void * i2) const
 {
-	return s ? strncmp((char *)i1, (char *)i2, s) : strcmp((char *)i1, (char *)i2);
+	return S ? strncmp((char *)i1, (char *)i2, S) : strcmp((char *)i1, (char *)i2);
 }
 
 char * SLAPI SChar::tostr(const void * d, long fmt, char * buf) const
 {
-	return strfmt(strnzcpy(buf, (char *)d, s), fmt, buf);
+	return strfmt(strnzcpy(buf, (char *)d, S), fmt, buf);
 }
 
 int SLAPI SChar::fromstr(void * d, long, const char * buf) const
 {
-	if(s) {
-		memset(d, ' ', s);
-		memmove((char *) d, buf, MIN(strlen(buf), s));
+	if(S) {
+		memset(d, ' ', S);
+		memmove((char *)d, buf, MIN(strlen(buf), S));
 		return 1;
 	}
 	else {
-		strcpy((char *) d, buf);
+		strcpy((char *)d, buf);
 		return 0;
 	}
 }
 
 void SLAPI SChar::minval(void * d) const
 {
-	if(s)
-		memset(d, ' ', s);
+	if(S)
+		memset(d, ' ', S);
 	else
-		*(char *) d = 0;
+		*(char *)d = 0;
 }
 
 void SLAPI SChar::maxval(void * d) const
 {
-	if(s)
-		memset(d, 254, s);
+	if(S)
+		memset(d, 254, S);
 	else {
-		*(char *) d = (char)254;
-		((char *) d)[1] = 0;
+		*(char *)d = (char)254;
+		((char *)d)[1] = 0;
 	}
 }
 //
 //
 //
-SLAPI SWcString::SWcString(size_t sz)
+SLAPI SWcString::SWcString(uint32 sz) : DataType(ALIGNSIZE(sz, 1))
 {
-	s = ALIGNSIZE(sz, 1);
 }
 
 int SLAPI SWcString::comp(const void * i1, const void * i2) const
 {
-	return s ? wcsncmp((wchar_t *)i1, (wchar_t *)i2, s/2) : wcscmp((wchar_t *)i1, (wchar_t *)i2);
+	return S ? wcsncmp((wchar_t *)i1, (wchar_t *)i2, S/2) : wcscmp((wchar_t *)i1, (wchar_t *)i2);
 }
 
 char * SLAPI SWcString::tostr(const void * d, long fmt, char * buf) const
@@ -366,38 +364,39 @@ void SLAPI SWcString::maxval(void * d) const
 //
 // SZString
 //
-SLAPI SZString::SZString(size_t sz)
-	{ s = sz; }
+SLAPI SZString::SZString(uint32 sz) : DataType(sz)
+{
+}
 
 #pragma option -K
 
 int SLAPI SZString::comp(const void * i1, const void * i2) const
 {
-	return s ? strncmp((char *)i1, (char *)i2, s) : strcmp((char *)i1, (char *)i2);
+	return S ? strncmp((char *)i1, (char *)i2, S) : strcmp((char *)i1, (char *)i2);
 }
 
 #pragma option -K.
 
 char * SLAPI SZString::tostr(const void * d, long fmt, char * buf) const
 {
-	return strfmt(strnzcpy(buf, (char *)d, s), fmt, buf);
+	return strfmt(strnzcpy(buf, (char *)d, S), fmt, buf);
 }
 
 int SLAPI SZString::fromstr(void * d, long, const char * buf) const
 {
-	strnzcpy((char *)d, buf, s);
+	strnzcpy((char *)d, buf, S);
 	return 1;
 }
 
 void SLAPI SZString::minval(void * d) const
 {
-	((char *) d)[0] = 0;
+	((char *)d)[0] = 0;
 }
 
 void SLAPI SZString::maxval(void * d) const
 {
-	memset(d, 255, s-1);
-	PTR8(d)[s-1] = 0;
+	memset(d, 255, S-1);
+	PTR8(d)[S-1] = 0;
 	// ((char *) d)[0] = (char)254;
 	// ((char *) d)[1] = 0;
 }
@@ -463,8 +462,9 @@ int SLAPI SZString::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBu
 //
 //
 //
-SLAPI SLString::SLString(size_t sz)
-	{ s = sz; }
+SLAPI SLString::SLString(uint32 sz) : DataType(sz)
+{
+}
 
 #pragma option -K
 
@@ -480,7 +480,7 @@ int SLAPI SLString::comp(const void * i1, const void * i2) const
 char * SLAPI SLString::tostr(const void * d, long fmt, char * buf) const
 {
 	size_t l = *(const char *)d;
-	return strfmt(strnzcpy(buf, ((char *)d)+1, MIN(s, l+1)), fmt, buf);
+	return strfmt(strnzcpy(buf, ((char *)d)+1, MIN(S, l+1)), fmt, buf);
 }
 
 int SLAPI SLString::fromstr(void * d, long, const char * buf) const
@@ -524,54 +524,53 @@ static void FASTCALL _longto(long v, void * d, int sz)
 	}
 }
 
-SLAPI SInt::SInt(size_t sz)
+SLAPI SInt::SInt(uint32 sz) : DataType(sz)
 {
-	s = sz;
 }
 
 int SLAPI SInt::comp(const void * i1, const void * i2) const
 {
-	if(s == 0) {
+	if(S == 0) {
 		const int64 l1 = *(int64 *)i1;
 		const int64 l2 = *(int64 *)i2;
 		return CMPSIGN(l1, l2);
 	}
 	else {
-		const long   l1 = _tolong(i1, s);
-		const long   l2 = _tolong(i2, s);
+		const long   l1 = _tolong(i1, S);
+		const long   l2 = _tolong(i2, S);
 		return CMPSIGN(l1, l2);
 	}
 }
 
 char * SLAPI SInt::tostr(const void * d, long fmt, char * buf) const
 {
-	if(s == 8)
+	if(S == 8)
 		return int64fmt(*(int64 *)d, fmt, buf);
 	else
-		return intfmt(_tolong(d, s), fmt, buf);
+		return intfmt(_tolong(d, S), fmt, buf);
 }
 
 int SLAPI SInt::fromstr(void * d, long, const char * buf) const
 {
 	long   lv;
 	int    r = strtolong(buf, &lv);
-	_longto(lv, d, s);
+	_longto(lv, d, S);
 	return r;
 }
 
 int SLAPI SInt::tobase(const void * d, void * baseData) const
 {
-	return ((*(int32 *)baseData = _tolong(d, s)), 1);
+	return ((*(int32 *)baseData = _tolong(d, S)), 1);
 }
 
 int SLAPI SInt::baseto(void * d, const void * baseData) const
 {
-	return (_longto(*(int32 *)baseData, d, s), 1);
+	return (_longto(*(int32 *)baseData, d, S), 1);
 }
 
 void SLAPI SInt::minval(void * d) const
 {
-	switch(s) {
+	switch(S) {
 		case 2: *(int16 *)d = SHRT_MIN;  break;
 		case 4: *(int32 *)d = LONG_MIN;  break;
 		case 1: *(int8  *)d = SCHAR_MIN; break;
@@ -582,7 +581,7 @@ void SLAPI SInt::minval(void * d) const
 
 void SLAPI SInt::maxval(void * d) const
 {
-	switch(s) {
+	switch(S) {
 		case 2: *(int16 *)d = SHRT_MAX; break;
 		case 4: *(int32 *)d  = LONG_MAX; break;
 		case 1: *(int8  *)d  = SCHAR_MAX; break;
@@ -596,7 +595,7 @@ int SLAPI SInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, S
 	int    ok = 1;
 	if(dir > 0) {
 		int    spec = 0; // 1 - zero, 2 - full
-		if(s == 8) {
+		if(S == 8) {
 			const int64 v64 = *(int64 *)pData;
 			if(v64 == 0)
 				spec = 1;
@@ -622,16 +621,16 @@ int SLAPI SInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, S
 			}
 		}
 		else {
-			const long v = _tolong(pData, s);
+			const long v = _tolong(pData, S);
 			if(v == 0)
 				spec = 1;
 			else {
-				if(s > 1 && labs(v) <= 0x7fL) {
+				if(S > 1 && labs(v) <= 0x7fL) {
 					*pInd = 2;
 					int8 _v = (int8)v;
 					rBuf.Write(&_v, sizeof(_v));
 				}
-				else if(s > 2 && labs(v) <= 0x7fffL) {
+				else if(S > 2 && labs(v) <= 0x7fffL) {
 					*pInd = 3;
 					int16 _v = (int16)v;
 					rBuf.Write(_v);
@@ -644,18 +643,18 @@ int SLAPI SInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, S
 			*pInd = 1;
 		else if(spec == 2) {
 			*pInd = 0;
-			rBuf.Write(pData, s);
+			rBuf.Write(pData, S);
 		}
 	}
 	else if(dir < 0) {
 		if(*pInd == 1) {
-			memzero(pData, s);
+			memzero(pData, S);
 		}
 		else if(*pInd == 0) {
-			rBuf.Read(pData, s);
+			rBuf.Read(pData, S);
 		}
 		else {
-			if(s == 8) {
+			if(S == 8) {
 				if(*pInd == 2) {
 					int8 _v;
 					rBuf.Read(&_v, sizeof(_v));
@@ -690,7 +689,7 @@ int SLAPI SInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, S
 				else {
 					THROW_S(0, SLERR_SRLZ_INVDATAIND);
 				}
-				_longto(v, pData, s);
+				_longto(v, pData, S);
 			}
 		}
 	}
@@ -700,21 +699,20 @@ int SLAPI SInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, S
 //
 //
 //
-SLAPI SBool::SBool(size_t sz)
+SLAPI SBool::SBool(size_t sz) : DataType(sz)
 {
-	s = sz;
 }
 
 int SLAPI SBool::comp(const void * p1, const void * p2) const
 {
-	const long   l1 = BIN(_tolong(p1, s));
-	const long   l2 = BIN(_tolong(p2, s));
+	const long   l1 = BIN(_tolong(p1, S));
+	const long   l2 = BIN(_tolong(p2, S));
 	return CMPSIGN(l1, l2);
 }
 
 char * SLAPI SBool::tostr(const void * d, long fmt, char * buf) const
 {
-	const long b = BIN(_tolong(d, s));
+	const long b = BIN(_tolong(d, S));
 	return strcpy(buf, b ? "true" : "false");
 }
 
@@ -730,23 +728,23 @@ int SLAPI SBool::fromstr(void * d, long fmt, const char * buf) const
 		char * p_end = 0;
 		b = BIN(strtol(buf, &p_end, 10));
 	}
-	_longto(b, d, s);
+	_longto(b, d, S);
 	return ok;
 }
 
 int SLAPI SBool::tobase(const void * pData, void * pBaseData) const
 {
-	return ((*(int32 *)pBaseData = _tolong(pData, s)), 1);
+	return ((*(int32 *)pBaseData = _tolong(pData, S)), 1);
 }
 
 int SLAPI SBool::baseto(void * pData, const void * pBaseData) const
 {
-	return (_longto(*(int32 *)pBaseData, pData, s), 1);
+	return (_longto(*(int32 *)pBaseData, pData, S), 1);
 }
 
 void SLAPI SBool::minval(void * pData) const
 {
-	switch(s) {
+	switch(S) {
 		case 2: *(int16 *)pData = 0;  break;
 		case 4: *(int32 *)pData = 0;  break;
 		case 1: *(int8  *)pData = 0; break;
@@ -757,7 +755,7 @@ void SLAPI SBool::minval(void * pData) const
 
 void SLAPI SBool::maxval(void * pData) const
 {
-	switch(s) {
+	switch(S) {
 		case 2: *(int16 *)pData = 1; break;
 		case 4: *(int32 *)pData = 1; break;
 		case 1: *(int8  *)pData = 1; break;
@@ -771,7 +769,7 @@ int SLAPI SBool::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 	int    ok = 1;
 	if(dir > 0) {
 		int    spec = 0; // 1 - false, 2 - true
-		if(s == 8) {
+		if(S == 8) {
 			const int64 v64 = *(int64 *)pData;
 			if(v64 == 0)
 				spec = 1;
@@ -779,7 +777,7 @@ int SLAPI SBool::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 				spec = 2;
 		}
 		else {
-			const long v = _tolong(pData, s);
+			const long v = _tolong(pData, S);
 			if(v == 0)
 				spec = 1;
 			else
@@ -789,15 +787,13 @@ int SLAPI SBool::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 	}
 	else if(dir < 0) {
 		if(*pInd == 1) {
-			memzero(pData, s);
+			memzero(pData, S);
 		}
 		else if(*pInd == 2) {
-			if(s == 8) {
+			if(S == 8)
 				*(int64 *)pData = 1;
-			}
-			else {
-				_longto(1, pData, s);
-			}
+			else
+				_longto(1, pData, S);
 		}
 		else {
 			THROW_S(0, SLERR_SRLZ_INVDATAIND);
@@ -834,51 +830,50 @@ static void FASTCALL _ulongto(ulong ul, void * d, int sz)
 
 #pragma warn +rvl
 
-SLAPI SUInt::SUInt(size_t sz)
+SLAPI SUInt::SUInt(size_t sz) : DataType(sz)
 {
-	s = sz;
 }
 
 int SLAPI SUInt::comp(const void * i1, const void * i2) const
 {
-	if(s == 8) {
+	if(S == 8) {
 		const uint64 v1 = *(uint64 *)i1;
 		const uint64 v2 = *(uint64 *)i2;
 		return CMPSIGN(v1, v2);
 	}
 	else {
-		const ulong  v1 = _toulong(i1, s);
-		const ulong  v2 = _toulong(i2, s);
+		const ulong  v1 = _toulong(i1, S);
+		const ulong  v2 = _toulong(i2, S);
 		return CMPSIGN(v1, v2);
 	}
 }
 
 char * SLAPI SUInt::tostr(const void * d, long fmt, char * buf) const
 {
-	if(s == 8)
+	if(S == 8)
 		return uint64fmt(*(uint64 *)d, fmt, buf);
 	else
-		return uintfmt(_toulong(d, s), fmt, buf);
+		return uintfmt(_toulong(d, S), fmt, buf);
 }
 
 int SLAPI SUInt::fromstr(void * d, long, const char * buf) const
 {
 	ulong  lv;
 	int    r = strtoulong(buf, &lv);
-	_ulongto(lv, d, s);
+	_ulongto(lv, d, S);
 	return r;
 }
 
 int SLAPI SUInt::tobase(const void * d, void * baseData) const
-	{ return ((*(long *)baseData = (long)_toulong(d, s)), 1); }
+	{ return ((*(long *)baseData = (long)_toulong(d, S)), 1); }
 int SLAPI SUInt::baseto(void * d, const void * baseData) const
-	{ return (_ulongto((ulong)*(long *)baseData, d, s), 1); }
+	{ return (_ulongto((ulong)*(long *)baseData, d, S), 1); }
 void SLAPI SUInt::minval(void * d) const
-	{ _ulongto(0L, d, s); }
+	{ _ulongto(0L, d, S); }
 
 void SLAPI SUInt::maxval(void * d) const
 {
-	switch(s) {
+	switch(S) {
 		case 1: *(uint8 *)d  = 255; break;
 		case 2: *(uint16 *)d = USHRT_MAX; break;
 		case 4: *(ulong *)d  = ULONG_MAX; break;
@@ -891,7 +886,7 @@ int SLAPI SUInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 	int    ok = 1;
 	if(dir > 0) {
 		int    spec = 0; // 1 - zero, 2 - full
-		if(s == 8) {
+		if(S == 8) {
 			uint64 v64 = *(uint64 *)pData;
 			if(v64 == 0)
 				spec = 1;
@@ -914,15 +909,15 @@ int SLAPI SUInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 				spec = 2;
 		}
 		else {
-			ulong v = _toulong(pData, s);
+			ulong v = _toulong(pData, S);
 			if(v == 0)
 				spec = 1;
-			else if(s > 1 && v <= 0xffUL) {
+			else if(S > 1 && v <= 0xffUL) {
 				*pInd = 2;
 				uint8 _v = (uint8)v;
 				rBuf.Write(&_v, sizeof(_v));
 			}
-			else if(s > 2 && v <= 0xffffUL) {
+			else if(S > 2 && v <= 0xffffUL) {
 				*pInd = 3;
 				uint16 _v = (uint16)v;
 				rBuf.Write(_v);
@@ -934,17 +929,17 @@ int SLAPI SUInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 			*pInd = 1;
 		else if(spec == 2) {
 			*pInd = 0;
-			rBuf.Write(pData, s);
+			rBuf.Write(pData, S);
 		}
 	}
 	else if(dir < 0) {
 		if(*pInd == 1) {
-			memzero(pData, s);
+			memzero(pData, S);
 		}
 		else if(*pInd == 0) {
-			rBuf.Read(pData, s);
+			rBuf.Read(pData, S);
 		}
-		else if(s == 8) {
+		else if(S == 8) {
 			if(*pInd == 2) {
 				uint8 _v;
 				rBuf.Read(&_v, sizeof(_v));
@@ -979,7 +974,7 @@ int SLAPI SUInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 			else {
 				THROW_S(0, SLERR_SRLZ_INVDATAIND);
 			}
-			_ulongto(v, pData, s);
+			_ulongto(v, pData, S);
 		}
 	}
 	CATCHZOK
@@ -988,8 +983,9 @@ int SLAPI SUInt::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 //
 // SFloat
 //
-SLAPI SFloat::SFloat(size_t sz)
-	{ s = sz; }
+SLAPI SFloat::SFloat(size_t sz) : DataType(sz)
+{
+}
 
 #pragma warn -rvl
 
@@ -1017,8 +1013,8 @@ static void SLAPI __ldblto(double v, void * d, int s)
 
 int SLAPI SFloat::comp(const void * i1, const void * i2) const
 {
-	const LDBL v1 = __toldbl(i1, s);
-	const LDBL v2 = __toldbl(i2, s);
+	const LDBL v1 = __toldbl(i1, S);
+	const LDBL v2 = __toldbl(i2, S);
 	return CMPSIGN(v1, v2);
 }
 
@@ -1031,21 +1027,21 @@ char * SLAPI SFloat::tostr(const void * d, long fmt, char * buf) const
 		f = MKSFMTD(0, 6, NMBF_NOTRAILZ);
 	else
 		f = fmt;
-	return realfmt(__toldbl(d, s), f, buf);
+	return realfmt(__toldbl(d, S), f, buf);
 }
 
 int SLAPI SFloat::fromstr(void * d, long, const char * buf) const
 {
 	double v;
 	int r = strtodoub(buf, &v);
-	__ldblto(v, d, s);
+	__ldblto(v, d, S);
 	return r;
 }
 
 int SLAPI SFloat::tobase(const void * d, void * baseData) const
-	{ return ((*(double *)baseData = __toldbl(d, s)), 1); }
+	{ return ((*(double *)baseData = __toldbl(d, S)), 1); }
 int SLAPI SFloat::baseto(void * d, const void * baseData) const
-	{ return (__ldblto(*(double *)baseData, d, s), 1); }
+	{ return (__ldblto(*(double *)baseData, d, S), 1); }
 
 //static const double min_dbl = MINDOUBLE;
 //static const float min_flt = MINFLOAT;
@@ -1053,7 +1049,7 @@ static const float max_flt = (float)MAXFLOAT;
 
 void SLAPI SFloat::minval(void * d) const
 {
-	switch(s) {
+	switch(S) {
 		case  8: *(double *)d = -SMathConst::Max; break;
 		case  4: *(float *)d  = -max_flt; break;
 		case 10: *(LDBL *)d   = -SMathConst::Max; break;
@@ -1063,7 +1059,7 @@ void SLAPI SFloat::minval(void * d) const
 
 void SLAPI SFloat::maxval(void * d) const
 {
-	switch(s) {
+	switch(S) {
 		case  8: *(double *)d = SMathConst::Max; break;
 		case  4: *(float *)d  = max_flt; break;
 		case 10: *(LDBL *)d   = SMathConst::Max; break;
@@ -1075,7 +1071,7 @@ int SLAPI SFloat::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf,
 {
 	int    ok = 1;
 	if(dir > 0) {
-		double v = __toldbl(pData, s);
+		double v = __toldbl(pData, S);
 		if(v == 0.0) {
 			*pInd = 1;
 		}
@@ -1100,7 +1096,7 @@ int SLAPI SFloat::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf,
 					rBuf.Write(lv);
 				}
 			}
-			else if(s == sizeof(double)) {
+			else if(S == sizeof(double)) {
 				//
 				// ≈сли преобразование (double)-->(float) не приводит к потере
 				// значимости, то в потоке сохран€ем значение как float
@@ -1113,22 +1109,22 @@ int SLAPI SFloat::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf,
 				}
 				else {
 					*pInd = 0;
-					rBuf.Write(pData, s);
+					rBuf.Write(pData, S);
 				}
 			}
 			else {
 				*pInd = 0;
-				rBuf.Write(pData, s);
+				rBuf.Write(pData, S);
 			}
 		}
 	}
 	else if(dir < 0) {
 		if(*pInd == 1) {
-			memzero(pData, s);
+			memzero(pData, S);
 		}
 		else {
 			if(*pInd == 0) {
-				rBuf.Read(pData, s);
+				rBuf.Read(pData, S);
 			}
 			else {
 				double v = 0.0;
@@ -1155,7 +1151,7 @@ int SLAPI SFloat::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf,
 				else {
 					THROW_S(0, SLERR_SRLZ_INVDATAIND);
 				}
-				__ldblto(v, pData, s);
+				__ldblto(v, pData, S);
 			}
 		}
 	}
@@ -1165,68 +1161,67 @@ int SLAPI SFloat::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf,
 //
 // SDecimal
 //
-#define _L (s & 0x00ff)
-#define _D (s >> 8)
+//#define _L (S & 0x00ff)
+//#define _D (S >> 8)
 
-SLAPI SDecimal::SDecimal(size_t sz, size_t prec)
+SLAPI SDecimal::SDecimal(size_t sz, size_t prec) : DataType(GETSSIZE(MKSTYPED(S_DEC, sz, prec)))
 {
-	s = GETSSIZE(MKSTYPED(S_DEC, sz, prec));
 }
 
 size_t SLAPI SDecimal::size() const
 {
-	return _L;
+	return (S & 0x00ff);
 }
 
 int SLAPI SDecimal::comp(const void * i1, const void * i2) const
 {
-	return deccmp((char *) i1, (char *) i2, _L);
+	return deccmp((char *) i1, (char *) i2, (S & 0x00ff));
 }
 
 char * SLAPI SDecimal::tostr(const void * d, long fmt, char * buf) const
 {
 	long f;
 	if(SFMTFLAG(fmt) & COMF_SQL)
-		f = MKSFMTD(0, _D, 0);
+		f = MKSFMTD(0, (S >> 8), 0);
 	else if(fmt == 0)
-		f = MKSFMTD(0, _D, 0);
+		f = MKSFMTD(0, (S >> 8), 0);
 	else
 		f = fmt;
-	return realfmt(dectobin((char *)d, _L, (int16)_D), f, buf); // @v9.8.4 @fix fmt-->f
+	return realfmt(dectobin((char *)d, (S & 0x00ff), (int16)(S >> 8)), f, buf); // @v9.8.4 @fix fmt-->f
 }
 
 int SLAPI SDecimal::fromstr(void * d, long, const char * buf) const
 {
 	double v;
 	int    r = strtodoub(buf, &v);
-	dectodec(v, (char *) d, _L, (int16)_D);
+	dectodec(v, (char *) d, (S & 0x00ff), (int16)(S >> 8));
 	return r;
 }
 
 int SLAPI SDecimal::tobase(const void * d, void * baseData) const
 {
-	return ((*(double *)baseData = dectobin((char *) d, _L, (int16)_D)), 1);
+	return ((*(double *)baseData = dectobin((char *) d, (S & 0x00ff), (int16)(S >> 8))), 1);
 }
 
 int SLAPI SDecimal::baseto(void * d, const void * baseData) const
 {
-	return (dectodec(*(double *)baseData, (char *) d, _L, (int16)_D), 1);
+	return (dectodec(*(double *)baseData, (char *) d, (S & 0x00ff), (int16)(S >> 8)), 1);
 }
 
 static void FASTCALL _bound(void * d, int s, int sign)
 {
-	int    sz = _L;
-	int    dec = _D;
+	int    sz = (s & 0x00ff);
+	int    dec = (s >> 8);
 	LDBL   v = (pow(10.0, sz * 2 - 1) - 1) / pow(10.0, dec);
 	dectodec(sign ? -v : v, (char *) d, sz, dec);
 }
 
-void SLAPI SDecimal::minval(void * d) const { _bound(d, s, 1); }
-void SLAPI SDecimal::maxval(void * d) const { _bound(d, s, 0); }
+void SLAPI SDecimal::minval(void * d) const { _bound(d, S, 1); }
+void SLAPI SDecimal::maxval(void * d) const { _bound(d, S, 0); }
 //
 // SDate
 //
-SLAPI SDate::SDate() { s = 4; }
+SLAPI SDate::SDate() : DataType(4) {}
 char * SLAPI SDate::tostr(const void * v, long f, char * b) const { return datefmt(v, f, b); }
 int  SLAPI SDate::fromstr(void * v, long f, const char * b) const { return strtodate(b, f, v); }
 void SLAPI SDate::minval(void * d) const { return encodedate(0, 0, 0, d); }
@@ -1261,22 +1256,22 @@ int SLAPI SDate::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 				}
 				else {
 					*pInd = 0;
-					rBuf.Write(pData, s);
+					rBuf.Write(pData, S);
 				}
 			}
 			else {
 				*pInd = 0;
-				rBuf.Write(pData, s);
+				rBuf.Write(pData, S);
 			}
 		}
 	}
 	else if(dir < 0) {
 		if(*pInd == 1) {
-			memzero(pData, s);
+			memzero(pData, S);
 		}
 		else {
 			if(*pInd == 0) {
-				rBuf.Read(pData, s);
+				rBuf.Read(pData, S);
 			}
 			else {
 				LDATE  v = ZERODATE;
@@ -1305,18 +1300,12 @@ int SLAPI SDate::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 //
 // STime
 //
-SLAPI STime::STime()
-	{ s = 4; }
-char * SLAPI STime::tostr(const void * v, long f, char * b) const
-	{ return timefmt(*(LTIME *)v, f, b); }
-int SLAPI STime::fromstr(void * v, long f, const char * b) const
-	{ return strtotime(b, f, v); }
-void SLAPI STime::minval(void * d) const
-	{ (((LTIME *)d)->v = 0UL); }
-void SLAPI STime::maxval(void * d) const
-	{ ((LTIME *)d)->v = ULONG_MAX; }
-int SLAPI STime::comp(const void * i1, const void * i2) const
-	{ return CMPSIGN(*(ulong *)i1, *(ulong *)i2); }
+SLAPI STime::STime() : DataType(4) {}
+char * SLAPI STime::tostr(const void * v, long f, char * b) const { return timefmt(*(LTIME *)v, f, b); }
+int SLAPI STime::fromstr(void * v, long f, const char * b) const { return strtotime(b, f, v); }
+void SLAPI STime::minval(void * d) const { (((LTIME *)d)->v = 0UL); }
+void SLAPI STime::maxval(void * d) const { ((LTIME *)d)->v = ULONG_MAX; }
+int SLAPI STime::comp(const void * i1, const void * i2) const { return CMPSIGN(*(ulong *)i1, *(ulong *)i2); }
 
 int SLAPI STime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx)
 {
@@ -1329,7 +1318,7 @@ int SLAPI STime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 		else {
 			if(v.hs() != 0) {
 				*pInd = 0;
-				rBuf.Write(pData, s);
+				rBuf.Write(pData, S);
 			}
 			else if(v.sec() != 0) {
 				ulong t = (ulong)v.totalsec();
@@ -1340,7 +1329,7 @@ int SLAPI STime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 				}
 				else {
 					*pInd = 0;
-					rBuf.Write(pData, s);
+					rBuf.Write(pData, S);
 				}
 			}
 			else if(v.minut() != 0) {
@@ -1357,11 +1346,11 @@ int SLAPI STime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 	}
 	else if(dir < 0) {
 		if(*pInd == 1) {
-			memzero(pData, s);
+			memzero(pData, S);
 		}
 		else {
 			if(*pInd == 0) {
-				rBuf.Read(pData, s);
+				rBuf.Read(pData, S);
 			}
 			else {
 				LTIME v = ZEROTIME;
@@ -1393,9 +1382,8 @@ int SLAPI STime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, 
 //
 // SDateTime
 //
-SLAPI SDateTime::SDateTime()
+SLAPI SDateTime::SDateTime() : DataType(sizeof(LDATETIME))
 {
-	s = sizeof(LDATETIME);
 }
 
 char * SLAPI SDateTime::tostr(const void * v, long f, char * b) const
@@ -1447,7 +1435,7 @@ int SLAPI SDateTime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rB
 {
 	int    ok = 1;
 	if(dir > 0) {
-		if(ismemzero(pData, s)) {
+		if(ismemzero(pData, S)) {
 			*pInd = 1;
 		}
 		else {
@@ -1463,10 +1451,10 @@ int SLAPI SDateTime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rB
 	}
 	else if(dir < 0) {
 		if(*pInd == 1) {
-			memzero(pData, s);
+			memzero(pData, S);
 		}
 		else if(*pInd == 0) {
-			rBuf.Read(pData, s);
+			rBuf.Read(pData, S);
 		}
 		else {
 			uint8 ind_d = ((*pInd) - 100) / 10;
@@ -1485,28 +1473,27 @@ int SLAPI SDateTime::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rB
 //
 //
 //
-SLAPI SRaw::SRaw(size_t sz)
+SLAPI SRaw::SRaw(uint32 sz) : DataType(sz)
 {
-	s = sz;
 }
 
 int SLAPI SRaw::comp(const void * p1, const void *p2) const
 {
-	return memcmp(p1, p2, s);
+	return memcmp(p1, p2, S);
 }
 
 char * SLAPI SRaw::tostr(const void * pData, long, char * pStr) const
 {
 	SString temp_buf;
-	temp_buf.EncodeMime64(pData, s).CopyTo(pStr, 256);
+	temp_buf.EncodeMime64(pData, S).CopyTo(pStr, 256);
 	return pStr;
 }
 
 int SLAPI SRaw::fromstr(void * pData, long, const char * pStr) const
 {
 	SString temp_buf = pStr;
-	size_t real_len = s;
-	return temp_buf.DecodeMime64(pData, s, &real_len);
+	size_t real_len = S;
+	return temp_buf.DecodeMime64(pData, S, &real_len);
 }
 
 int SLAPI SRaw::base() const
@@ -1518,20 +1505,19 @@ int SLAPI SRaw::baseto(void * s, const void * b) const
 
 void SLAPI SRaw::minval(void * pData) const
 {
-	memzero(pData, s);
+	memzero(pData, S);
 }
 
 void SLAPI SRaw::maxval(void * pData) const
 {
-	memset(pData, 0xff, s);
+	memset(pData, 0xff, S);
 }
 //
 //
 //
-SLAPI SIPoint2::SIPoint2(size_t sz)
+SLAPI SIPoint2::SIPoint2(uint32 sz) : DataType(sz)
 {
 	assert(sz == 4);
-	s = sz;
 }
 
 int SLAPI SIPoint2::comp(const void * i1, const void * i2) const
@@ -1631,10 +1617,9 @@ int SLAPI SIPoint2::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBu
 //
 //
 //
-SLAPI SFPoint2::SFPoint2(size_t sz)
+SLAPI SFPoint2::SFPoint2(uint32 sz) : DataType(sz)
 {
 	assert(sz == sizeof(FPoint));
-	s = sz;
 }
 
 int SLAPI SFPoint2::comp(const void * i1, const void * i2) const
@@ -1731,9 +1716,8 @@ int SLAPI SFPoint2::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBu
 //
 //
 //
-SLAPI  SGuid::SGuid()
+SLAPI  SGuid::SGuid() : DataType(sizeof(S_GUID))
 {
-	s = sizeof(S_GUID);
 }
 
 char * SLAPI SGuid::tostr(const void * pData, long f, char * pBuf) const

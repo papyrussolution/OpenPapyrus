@@ -5495,7 +5495,7 @@ int SLAPI CCheckCore::SerializePacket(int dir, CCheckPacket * pPack, SBuffer & r
 	THROW_SL(SerializeRecord(dir, &pPack->Rec, rBuf, pCtx));
 	if(tag & 0x01) {
 		if(dir < 0 && P_Ext == 0) {
-			THROW_SL(pCtx->Unserialize(0, 0, rBuf));
+			THROW_SL(pCtx->Unserialize(0, 0, 0, rBuf));
 		}
 		else {
 			assert(P_Ext != 0); // Условие гарантированно выполняется по причине вышестоящей проверки и установки признака tag.

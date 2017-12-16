@@ -319,6 +319,14 @@ class  BhtTSess;
 class  ExtGoodsSelDialog;
 struct StyloBhtIIConfig;
 class  SrSyntaxRuleSet;
+class  DeviceLoadingStat;
+class  PPSyncCashSession;
+class  PPAsyncCashSession;
+class  PPCashMachine;
+class  PPViewBill;
+class  PPViewPersonEvent;
+class  PPGoodsImpExpParam;
+class  TSessAnlzList;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -3175,6 +3183,26 @@ private:
 	static int  FASTCALL StorageToItem(const ObjAssocTbl::Rec & rRec, PPCheckInPersonItem & rItem);
 };
 //
+// Descr: Класс управляющий таблицей сохранения версий удаленных или изменных объектов данных
+//
+class ObjVersioningCore : public ObjVerTbl {
+public:
+	SLAPI  ObjVersioningCore();
+	int    SLAPI IsInited() const;
+	int    SLAPI InitSerializeContext(int use_ta);
+	SSerializeContext & SLAPI GetSCtx();
+	int    SLAPI Add(PPID * pID, PPObjID oid, SBuffer * pBuf, int use_ta);
+	int    SLAPI Search(PPID id, PPObjID * pOid, long * pVer, SBuffer * pPackBuf);
+	int    SLAPI SearchOid(PPObjID oid, long ver, ObjVerTbl::Rec * pRec, SBuffer * pDataBuf);
+	int    SLAPI GetNextVer(PPObjID oid, long * pVer);
+private:
+	enum {
+		stSCtxInited = 0x0001
+	};
+	long   State;
+	SSerializeContext SCtx;
+};
+//
 // @ModuleDecl(ObjTagCore)
 // Теги объектов
 //
@@ -3652,6 +3680,7 @@ public:
 	ObjTagCore  Ot;
 	UnxTextRefCore UtrC;
 	TextRefCore TrT;
+	ObjVersioningCore * P_OvT;
 };
 //
 // Система внутренних штрихкодов (PPOBJ_BCODESTRUC)
@@ -4748,7 +4777,6 @@ private:
 	};
 	int    SLAPI Helper_GetListBySubstring(const char * pSubstr, void * pList, long flags);
 };
-
 //
 // HistGoodsCore
 //
@@ -4758,7 +4786,6 @@ public:
 	int    SLAPI Search(PPID goodsID, long ver, HistGoodsTbl::Rec * pRec);
 	int    SLAPI Search(PPID histID, SBuffer * pBuf);
 	long   SLAPI GetNextVer(PPID goodsID);
-private:
 };
 //
 // Структуры представления счетов. Существенно,
@@ -4810,7 +4837,7 @@ struct AcctID {
 //
 class STAcct : public DataType {
 public:
-	SLAPI  STAcct(size_t = sizeof(Acct));
+	explicit SLAPI STAcct(uint32 sz = sizeof(Acct));
 	char * SLAPI tostr(const void *, long, char *) const;
 	int    SLAPI fromstr(void *, long, const char *) const;
 };
@@ -5002,7 +5029,7 @@ struct AccTurnParam {
 #define CCFLG_DONTUNDOOPCNTRONESC  0x00000040L // @v9.5.2 Не пытаться откатывать счетчик операций при отмене провоедения нового документа
 #define CCFLG_USEGDSCLS            0x00000080L // Использовать классы товаров
 #define CCFLG_USEGOODSPCKG         0x00000100L // Использовать товарные пакеты
-#define CCFLG_USEDRAFTBILL         0x00000200L // Использовать драфт-документы
+#define CCFLG_USEDRAFTBILL         0x00000200L // Использовать драфт-документы // @v9.8.11 @obsolete
 #define CCFLG_USENOUPDRESTOPFLAG   0x00000400L // Использовать флаг
 	// "Не изменять остатки по лотам" в видах операций. Ошибочная устанока
 	// флага может вызвать исключительно неблагоприятные последствия.
@@ -6716,8 +6743,15 @@ public:
 	//
 	// Really const function: don't modify result object
 	//
-	const PPVersionInfo & SLAPI GetVersionInfo() const;
-	SVerT SLAPI GetVersion() const;
+	const  PPVersionInfo & SLAPI GetVersionInfo() const;
+	SVerT  SLAPI GetVersion() const;
+	//
+	// Descr: Возвращает номер версии системы, минимально допустимый для совместимости
+	//   на уровне сериализации бинарных объектов данных.
+	//   Это значение важно для синхронизации данных между разделами и для правильного
+	//   извлечения версий удаленных и изменненных объектов данных из таблицы ObjVer
+	//
+	SVerT  SLAPI GetMinCompatVersion() const;
 	PPSync & SLAPI GetSync();
 	int    SLAPI LogAction(PPID action, PPID obj, PPID id, long extData, int use_ta);
 	int    SLAPI GetMachineID(MACAddr * pMachineID, int forceUpdate);
@@ -10564,7 +10598,7 @@ public:
 	PPBillPacket * P_LinkPack; // @transient Пакет связанного документа
 	LPackageList * P_PckgList; //
 
-	struct QuotSetupInfoItem {
+	struct QuotSetupInfoItem { // @flat
 		QuotSetupInfoItem();
 
 		enum {
@@ -10581,11 +10615,11 @@ public:
 	// @todo Следующие четыре контейнера необходимо объединить в общий контейнер поскольку
 	//  они представляют однотипные объекты (теги).
 	//
-	ClbNumberList  ClbL;       // Список номеров ГТД
-	ClbNumberList  SnL;        // Список серийных номеров лотов
+	ClbNumberList ClbL;        // Список номеров ГТД
+	ClbNumberList SnL;         // Список серийных номеров лотов
 	PPLotTagContainer LTagL;   // Список тегов лотов
 	PPLotTagContainer * P_MirrorLTagL; // Список тегов зеркальных лотов (созданных при межскладском перемещении)
-	ObjTagList     BTagL;      // Список тегов документа
+	ObjTagList BTagL;          // Список тегов документа
 	//
 	PPID   PaymBillID;         // @*PPObjBill::ExtractPacket Платежный документ (зачеты).
 	PPID   CSessID;            // Кассовая или технологическая сессия, которую списывает документ
@@ -10984,7 +11018,7 @@ private:
 	// Descr: предназначена для перечисления записей по индексам вида { id, date, billno }.
 	//
 	int    SLAPI _Enum(int key, PPID, DateIter *, void * b);
-	int    SLAPI _PrepareWriting(const BillTbl::Rec * pRec);
+	void   SLAPI _PrepareWriting(const BillTbl::Rec * pRec);
 	int    SLAPI PutBillProp(PPID billID, PPID propID, long isThere, void *, size_t);
 	//
 	// Descr: извлекает из БД запись дополнительных полей авансового отчета.
@@ -17671,10 +17705,6 @@ private:
 // асинхронный интерфейсы, однако кассовый узел (PPOBJ_CASHNODE)
 // может использовать либо то либо другое, не не оба вместе.
 //
-class PPSyncCashSession;
-class PPAsyncCashSession;
-class PPCashMachine;
-
 typedef PPCashMachine * (SLAPI * RegCashMachineFunc)(PPID cashID);
 
 struct AsyncCashNPrepParam {
@@ -18298,7 +18328,7 @@ public:
 	SLAPI  AccTurnCore();
 	int    SLAPI SearchByBill(PPID, int reverse, short rByBill, void * = 0);
 	int    SLAPI GetAcctCurID(int aco, PPID accID, PPID * pCurID);
-	int    SLAPI GetAccRelIDs(const AccTurnTbl::Rec *, PPID * pDbtRelID, PPID * pCrdRelID) const;
+	void   SLAPI GetAccRelIDs(const AccTurnTbl::Rec *, PPID * pDbtRelID, PPID * pCrdRelID) const;
 	int    SLAPI ConvertRec(const AccTurnTbl::Rec *, PPAccTurn *, int useCache);
 	int    SLAPI Turn(PPAccTurn*, int use_ta);
 	int    SLAPI RollbackTurn(PPID, short rByBill, int use_ta);
@@ -18402,7 +18432,6 @@ private:
 	TLP_MEMB(FrrlData, Frrl);
 public:
 	PPObjAccount AccObj;
-	//AccountCore & AccT;
 	ArticleCore Art;
 	AcctRel     AccRel;
 	Balance     BalTurn;
@@ -18596,8 +18625,6 @@ protected:
 //
 #define PPACSF_TEMPSESS         0x0001L // Временная сессия //
 #define PPACSF_LOADRESTWOSALES  0x0002L // Загружать остатки без учета продаж (для Атола)
-
-class DeviceLoadingStat;
 //
 // Descr: Базовый класс интерфейса с асинхронными кассовыми сессиями
 //
@@ -21627,7 +21654,7 @@ public:
 class PPWorldPacket {
 public:
 	SLAPI  PPWorldPacket();
-	int    SLAPI Init();
+	void   SLAPI Init();
 	WorldTbl::Rec Rec;
 };
 
@@ -24329,9 +24356,6 @@ private:
 //
 // @ModuleDecl(PrcssrSalary)
 //
-class PPViewBill;
-class PPViewPersonEvent;
-
 class PrcssrSalary {
 public:
 	struct Param {
@@ -26354,8 +26378,6 @@ public:
 	PPObjGoodsStruc GSObj;
 	PPObjGoodsTax   GTxObj;
 protected:
-	PPID   Kind; // PPGDSK_XXX (Initialized by constructor)
-
 	SLAPI  PPObjGoods(PPID objType, void * extraPtr);
 	virtual int  SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  SLAPI EditRights(uint, ObjRights *, EmbedDialog * pDlg = 0);
@@ -26363,8 +26385,10 @@ protected:
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-	int    SLAPI SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer * pBuf);
+	// @v9.8.11 int    SLAPI SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer * pBuf);
 	int    SLAPI SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx, const DBDivPack * pDestDbDiv);
+
+	PPID   Kind; // PPGDSK_XXX (Initialized by constructor)
 private:
 	friend class GoodsCache;
 	friend int FASTCALL GetGoodsNameR(PPID goodsID, SString & rBuf);
@@ -26397,11 +26421,11 @@ private:
 	PPGoodsConfig * P_Cfg;
 	SCtrLite Sctr;
 	int16  EcoSel;         // if !0 && !__WIN32__ then 'exists only' selection uses DBQuery, not SArray
-	int16  Reserve;        // @alignment
+	int16  DoObjVer;       // @v9.8.11 Reserve-->DoObjVer Хранить версии измененных и удаленных объектов
 	PPObjPerson * P_PsnObj;
 	PPObjGoodsType GtObj;  //
 	PPIDArray Locks;
-	TLP_MEMB(HistGoodsCore, HistGoods);
+	// @v9.8.11 (заменено общей технологией) TLP_MEMB(HistGoodsCore, HistGoods);
 public:
 	//TLP_MEMB(GoodsCore, tbl);
 	TLP_MEMB(GoodsCore, P_Tbl);
@@ -27511,8 +27535,6 @@ struct GoodsViewItem : public Goods2Tbl::Rec {
 	char   StrucType[16];
 };
 
-class PPGoodsImpExpParam;
-
 class PPViewGoods : public PPView {
 public:
 	enum IterOrder {
@@ -27944,14 +27966,15 @@ public:
 		double Discount;
 	};
 	SLAPI  DeviceLoadingStat();
-	SLAPI ~DeviceLoadingStat();
 	int    SLAPI StartLoading(PPID * pStatID, int deviceType, PPID deviceID, int use_ta);
 	int    SLAPI RegisterGoods(PPID statID, const GoodsInfo *);
 	int    SLAPI RegisterSCard(PPID statID, const SCardInfo *);
 	int    SLAPI FinishLoading(PPID statID, int status, int use_ta);
-
 	int    SLAPI Search(PPID statID, DvcLoadingStatTbl::Rec *);
-	PPID   SLAPI GetCurStatID() const;
+	PPID   SLAPI GetCurStatID() const
+	{
+		return StatID;
+	}
 	//
 	// Descr: Ищет последнюю запись по устройству типа dvcType с идентификатором dvcID,
 	//   имеющую статус !0.
@@ -27988,8 +28011,8 @@ private:
 	PPID   StatID;         // Текущая обрабатываемая сессия //
 	long   StartClock;
 	RAssocArray SCardList;
-	SArray * P_GoodsList;
-	SArray * P_StatCache;
+	SVector GoodsList; // @v9.8.11 SArray-->SVector
+	SVector StatCache; // @v9.8.11 SArray-->SVector
 };
 //
 // Descr: Класс AsyncCashGoodsGroupIterator, испольуемый для экспорта товарных групп в асинхронный кассовый модуль.
@@ -29703,7 +29726,7 @@ public:
 		ltfGoodsName = 0x0001,
 		ltfLocName   = 0x0002
 	};
-	void   SLAPI MakeLotText(const ReceiptTbl::Rec * pLotRec, long fmt, SString & rBuf);
+	SString & SLAPI MakeLotText(const ReceiptTbl::Rec * pLotRec, long fmt, SString & rBuf);
 	//
 	// Descr: загружает в пакет pack информацию о грузовых
 	//   таможенных декларациях, ассоциированных с лотами. Если параметр
@@ -30320,7 +30343,7 @@ private:
 	int    SLAPI ReplyArticleDel(PPID);
 	int    SLAPI ReplyArticleReplace(PPID destID, PPID srcID);
 	int    SLAPI OrderLots(const PPBillPacket *, PPIDArray *, PPID, double, double, double);
-	int    SLAPI RegisterTransmitProblems(PPBillPacket *, ILBillPacket *, int skipped, ObjTransmContext * pCtx);
+	void   SLAPI RegisterTransmitProblems(PPBillPacket *, ILBillPacket *, int skipped, ObjTransmContext * pCtx);
 	int    SLAPI Helper_Reckon(PPID, ReckonOpArList *, CfmReckoningParam *, int dontConfirm, int use_ta);
 	void   SLAPI Helper_PopupReckonInfo(PPIDArray & rResultBillList);
 	int    SLAPI GetPoolsMembership(PPID id, PPBillPacket *);
@@ -30353,7 +30376,7 @@ private:
 	int    SLAPI Helper_GetShipmentByLot(PPID lotID, const DateRange * pPeriod,
 		const ObjIdListFilt & rOpList, long flags, double * pShipment, PPIDArray * pRecurTrace);
 		// @>>PPObjBill::GetShippedPartOfReceipt
-	int    SLAPI SerializePacket(int dir, ILBillPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    SLAPI SerializePacket__(int dir, ILBillPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    SLAPI Helper_GetExpendedPartOfReceipt(PPID lotID, const DateIter & rDi, const DateRange * pPaymPeriod,
 		const PPIDArray * pOpList, EprBlock & rBlk, PPIDArray & rRecurList);
 	int    SLAPI Helper_GetPayoutPartOfLot(PPID lotID, PplBlock & rBlk, double * pPart, int recur);
@@ -33261,8 +33284,6 @@ private:
 //
 // @ModuleDecl(PPViewTSessAnlz)
 //
-class TSessAnlzList;
-
 struct TSessAnlzFilt : public PPBaseFilt {
 	SLAPI  TSessAnlzFilt();
 	TSessAnlzFilt & FASTCALL operator = (const TSessAnlzFilt &);
@@ -46684,8 +46705,8 @@ private:
 	void   selectQCert(TDialog *);
 	void   setupQcNumber(TDialog *);
 
-	uint   CtlInput;
-	uint   SelCmd;
+	const uint CtlInput;
+	const uint SelCmd;
 	QCertCtrlGroup::Rec Data;
 	PPObjQCert QcObj;
 };

@@ -1715,7 +1715,7 @@ int SLAPI GoodsCore::GetBarcodeByTemplate(PPID grp, /*const char * pWghtPrefix*/
 					low = 1;
 				if(upp <= 0 || upp > (fpow10i(r_len) - 1))
 					upp = fpow10i(r_len) - 1;
-				if(Helper_GetBarcodeByTempl(pfx, sfx, (int)r_len, (long)low, (long)upp, to_add_chkdig, barcode)) {
+				if(Helper_GetBarcodeByTempl(pfx, sfx, (int)r_len, (int64)low, (int64)upp, to_add_chkdig, barcode)) {
 					strnzcpy(buf, barcode, 16);
 					ok = 1;
 				}

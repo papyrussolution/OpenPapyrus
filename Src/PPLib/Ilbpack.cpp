@@ -140,11 +140,8 @@ int SLAPI PPObjBill::OrderLots(const PPBillPacket * pPack, PPIDArray * pLots, PP
 }
 
 struct CmpGenLots {
-	SLAPI  CmpGenLots(PPID lot, LDATE d, long oprNo)
+	SLAPI  CmpGenLots(PPID lot, LDATE d, long oprNo) : lotID(lot), dt(d), o(oprNo)
 	{
-		lotID = lot;
-		dt = d;
-		o = oprNo;
 	}
 	LDATE  dt;
 	long   o;
@@ -345,15 +342,10 @@ class AmtAjustment {
 public:
 	AmtAjustment(const BillTotalData & rTotal, double vatRate, const PPBillPacket & rBp, const LongArray & rRows) :
 		SrcPriceAmount(rTotal.Amounts.Get(PPAMT_SELLING, 0) - rTotal.Amounts.Get(PPAMT_DISCOUNT, 0)),
-		SrcPriceVat(rTotal.Amounts.Get(PPAMT_VATAX, 0)),
-		VatRate(vatRate),
+		SrcPriceVat(rTotal.Amounts.Get(PPAMT_VATAX, 0)), VatRate(vatRate),
 		//MinVatDiv(GetMinVatDivisor(fdiv100r(vatRate), 4)),
-		R_Bp(rBp),
-		R_Rows(rRows)
+		R_Bp(rBp), R_Rows(rRows), P_Btb(0), RunningPriceAmount(0.0), RunningPriceVat(0.0)
 	{
-		P_Btb = 0;
-		RunningPriceAmount = 0.0;
-		RunningPriceVat = 0.0;
 		DiscountList.dim(rRows.getCount());
 		ResetDiscountList();
 	}
@@ -369,12 +361,8 @@ public:
 		}
 	}
 	struct PossibilityRange {
-		PossibilityRange(uint position, ulong step)
+		PossibilityRange(uint position, ulong step) : Position(position), LowEdge(0), UppEdge(0), Step(step)
 		{
-			Position = position;
-			LowEdge = 0;
-			UppEdge = 0;
-			Step = step;
 		}
 		int     Verify() const
 		{
@@ -1067,8 +1055,9 @@ struct GRII {
 	double Ratio;  // Отношение, в котором следует использовать товар SrcID для компенсации
 };
 
-SLAPI GRI::GRI(PPID destID) : SArray(sizeof(GRII))
-	{ DestID = destID; }
+SLAPI GRI::GRI(PPID destID) : SArray(sizeof(GRII)), DestID(destID)
+{
+}
 PPID FASTCALL GRI::GetSrcID(uint i) const
 	{ return ((GRII *)at(i))->SrcID; }
 double FASTCALL GRI::GetQtty(uint i) const
@@ -1148,10 +1137,8 @@ int SLAPI GoodsReplacementArray::Add(PPID destID, PPID srcID, double qtty, doubl
 //
 //
 //
-SLAPI ILBillPacket::ILBillPacket() : PPBill()
+SLAPI ILBillPacket::ILBillPacket() : PPBill(), IlbFlags(0), LocObj(0)
 {
-	IlbFlags = 0;
-	LocObj = 0;
 }
 
 SLAPI ILBillPacket::~ILBillPacket()
@@ -1208,8 +1195,7 @@ int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 	PPBillPacket bpack;
 	THROW(p_bobj->P_Tbl->Extract(billID, this) > 0);
 	const PPID op_type_id = GetOpType(Rec.OpID);
-	cvt_to_opid = (cvtToOpID && (cvt_op_typeid != PPOPT_GENERIC) && cvtToOpID != Rec.OpID &&
-		oneof2(cvt_op_typeid, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT)) ? cvtToOpID : 0;
+	cvt_to_opid = (cvtToOpID && (cvt_op_typeid != PPOPT_GENERIC) && cvtToOpID != Rec.OpID && oneof2(cvt_op_typeid, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT)) ? cvtToOpID : 0;
 	if(cvt_to_opid) {
 		// @v8.9.6 {
 		PPID   dest_loc_id = Rec.LocID;
@@ -1224,8 +1210,6 @@ int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 					if(psn_id) {
 						PPObjArticle ar_obj;
 						PPObjAccSheet acs_obj;
-						//PPAccSheet acs_rec;
-						//if(acs_obj.Fetch(acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MAIN)
 						if(acs_obj.IsLinkedToMainOrg(acs_id))
 							ar_obj.P_Tbl->PersonToArticle(psn_id, cvt_op_rec.AccSheetID, &dest_ar_id);
 					}
@@ -1374,8 +1358,9 @@ int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 				if(cvt_to_opid) {
 					THROW(bpack.SumAmounts(&Amounts));
 				}
-				else
+				else {
 					THROW(p_bobj->P_Tbl->GetAmountList(billID, &Amounts));
+				}
 			}
 			if(cvt_to_opid)
 				Rec.Amount = bpack.GetAmount(0);
@@ -1838,12 +1823,8 @@ int SLAPI ILBillPacket::SerializeLots(int dir, SBuffer & rBuf, SSerializeContext
 //
 PP_CREATE_TEMP_FILE_PROC(CreateTempDeficitTable, TempDeficit);
 
-SLAPI BillTransmDeficit::BillTransmDeficit()
+SLAPI BillTransmDeficit::BillTransmDeficit() : DiffGoodsBySuppl(1), Tbl(CreateTempDeficitTable()), BObj(BillObj)
 {
-	// @v8.1.5 Period.SetZero();
-	DiffGoodsBySuppl = 1;
-	Tbl = CreateTempDeficitTable();
-	BObj = BillObj;
 }
 
 SLAPI BillTransmDeficit::~BillTransmDeficit()
@@ -2018,8 +1999,7 @@ int SLAPI BillTransmDeficit::CalcReqSalesTax(ILTI * pIlti, LDATE dt, PPID opID, 
 	return 1;
 }
 
-int SLAPI BillTransmDeficit::AddRec(ILTI * pIlti, const char * pClbNumber,
-	BillTbl::Rec * pBillRec, PPID supplID, double qtty)
+int SLAPI BillTransmDeficit::AddRec(ILTI * pIlti, const char * pClbNumber, BillTbl::Rec * pBillRec, PPID supplID, double qtty)
 {
 	TempDeficitTbl::Rec tdt_rec;
 	MEMSZERO(tdt_rec);
@@ -2356,7 +2336,7 @@ int SLAPI PPObjBill::TotalTransmitProblems(ObjTransmContext * pCtx, int * pNextP
 	return ok;
 }
 
-int SLAPI PPObjBill::RegisterTransmitProblems(PPBillPacket * pPack, ILBillPacket * pIlBp, int skipped, ObjTransmContext * pCtx)
+void SLAPI PPObjBill::RegisterTransmitProblems(PPBillPacket * pPack, ILBillPacket * pIlBp, int skipped, ObjTransmContext * pCtx)
 {
 	double new_amt = pPack->GetAmount();
 	double org_amt = BR2(pIlBp->Rec.Amount);
@@ -2385,10 +2365,9 @@ int SLAPI PPObjBill::RegisterTransmitProblems(PPBillPacket * pPack, ILBillPacket
 		if(skipped)
 			pCtx->OutputString(PPTXT_BTP_NOTTURNED, 0);
 	}
-	return 1;
 }
 
-int SLAPI PPObjBill::SerializePacket(int dir, ILBillPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+int SLAPI PPObjBill::SerializePacket__(int dir, ILBillPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	long   ff;
@@ -2808,7 +2787,7 @@ int SLAPI PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 				}
 				THROW(tra.Commit());
 			}
-			THROW(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
+			THROW(SerializePacket__(+1, p_pack, buffer, &pCtx->SCtx));
 			THROW_SL(buffer.WriteToFile((FILE*)stream, 0, 0))
 		}
 	}
@@ -2848,7 +2827,7 @@ int SLAPI PPObjBill::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContex
 	else {
 		SBuffer buffer;
 		THROW_SL(buffer.ReadFromFile((FILE*)stream, 0))
-		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
+		THROW(SerializePacket__(-1, p_pack, buffer, &pCtx->SCtx));
 	}
 	CATCH
 		ok = 0;

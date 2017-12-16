@@ -10,10 +10,8 @@ const char * PPDesktop::WndClsName = CLASSNAME_DESKTOPWINDOW;
 //
 //
 //
-PPDesktopAssocCmd::PPDesktopAssocCmd()
+PPDesktopAssocCmd::PPDesktopAssocCmd() : CmdID(0), Flags(0)
 {
-	CmdID = 0;
-	Flags = 0;
 }
 
 PPDesktopAssocCmd & PPDesktopAssocCmd::Clear()
@@ -126,9 +124,8 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 	return ok;
 }
 
-PPDesktopAssocCmdPool::PPDesktopAssocCmdPool()
+PPDesktopAssocCmdPool::PPDesktopAssocCmdPool() : DesktopID(-1)
 {
-	DesktopID = -1;
 	P.add("$"); // zero index - is empty string
 }
 
@@ -412,11 +409,8 @@ static LRESULT CALLBACK EditDlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 	return CallWindowProc(prev_window_proc, hWnd, uMsg, wParam, lParam);
 }
 
-PPBizScoreWindow::PPBizScoreWindow(HWND hParentWnd) : TWindow(TRect(1,1,50,20), 0, 1)
+PPBizScoreWindow::PPBizScoreWindow(HWND hParentWnd) : TWindow(TRect(1,1,50,20), 0, 1), HParentWnd(hParentWnd), ActualDt(ZERODATE), Dtm(ZERODATETIME)
 {
-	HParentWnd = hParentWnd;
-	ActualDt   = ZERODATE;
-	Dtm.SetZero();
 }
 
 PPBizScoreWindow::~PPBizScoreWindow()

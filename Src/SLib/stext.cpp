@@ -1340,14 +1340,12 @@ int SCodepageIdent::GetRegisteredCodepage(uint idx, SCodepage & rCp, SString & r
 	return ok;
 }
 
-SCodepageIdent::SCodepageIdent()
+SCodepageIdent::SCodepageIdent() : Cp(cpANSI)
 {
-	Cp = cpANSI;
 }
 
-SCodepageIdent::SCodepageIdent(int cp)
+SCodepageIdent::SCodepageIdent(int cp) : Cp(cp)
 {
-	Cp = cp;
 }
 
 SCodepageIdent::operator int() const
@@ -3048,7 +3046,7 @@ STextEncodingStat & SLAPI STextEncodingStat::Init(long options)
 		}
 	}
 	Cp = cpUndef;
-	CpName[0] = 0;
+	PTR32(CpName)[0] = 0;
 	Eolf = eolUndef;
 	MEMSZERO(ChrFreq);
 	memzero(Utf8Prefix, sizeof(Utf8Prefix));

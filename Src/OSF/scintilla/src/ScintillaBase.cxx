@@ -73,12 +73,8 @@ bool PRectangle::Empty() const
 //
 //
 //
-ScintillaBase::ScintillaBase()
+ScintillaBase::ScintillaBase() : displayPopupMenu(SC_POPUP_ALL), listType(0), maxListWidth(0), multiAutoCMode(SC_MULTIAUTOC_ONCE)
 {
-	displayPopupMenu = SC_POPUP_ALL;
-	listType = 0;
-	maxListWidth = 0;
-	multiAutoCMode = SC_MULTIAUTOC_ONCE;
 }
 
 ScintillaBase::~ScintillaBase()
@@ -915,4 +911,3 @@ sptr_t ScintillaBase::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 	}
 	return 0l;
 }
-

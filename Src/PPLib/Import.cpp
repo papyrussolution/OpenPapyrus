@@ -4267,8 +4267,6 @@ void FiasImporter::Scb_EndElement(void * ptr, const xmlChar * pName)
 FiasImporter::FiasImporter() : Tra(0), TextCache(4 * 1024 * 1024),
 	P_Sdr(0), P_DebugOutput(0), InputObject(0), RawRecN(0), P_SaxCtx(0), State(0), CurPsPos(-1)
 {
-	//Path = pPath;
-	//Flags = 0;
 }
 
 FiasImporter::~FiasImporter()
@@ -4422,10 +4420,8 @@ int FiasImporter::StartDocument()
 int FiasImporter::EndDocument()
 {
 	int    ok = 1;
-	//if(InputObject == inpAddrObj) {
-		ZDELETE(P_Sdr);
-		ZDELETE(P_DebugOutput);
-	//}
+	ZDELETE(P_Sdr);
+	ZDELETE(P_DebugOutput);
 	return ok;
 }
 
@@ -4565,153 +4561,155 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 				THROW(ReadRecordFromXmlAttrList(ppAttrList));
 				const Sdr_FiasRawAddrObj * p_data = (const Sdr_FiasRawAddrObj *)P_Sdr->GetDataC();
 				assert(p_data);
-				line_buf.Z();
-				if(r_state.Phase == phaseCount) {
-					if(P_DebugOutput && P_DebugOutput->IsValid()) {
-						if(RawRecN == 1) {
-							line_buf.Cat("AOID").Semicol();
-							line_buf.Cat("PREVID").Semicol();
-							line_buf.Cat("NEXTID").Semicol();
-							line_buf.Cat("AOGUID").Semicol();
-							line_buf.Cat("PARENTGUID").Semicol();
-							line_buf.Cat("POSTALCODE").Semicol();
-							line_buf.Cat("SHORTNAME").Semicol();
-							line_buf.Cat("FORMALNAME").Semicol();
-							line_buf.Cat("OFFNAME").Semicol();
-							line_buf.Cat("REGIONCODE").Semicol();
-							line_buf.Cat("AUTOCODE").Semicol();
-							line_buf.Cat("AREACODE").Semicol();
-							line_buf.Cat("CITYCODE").Semicol();
-							line_buf.Cat("CTARCODE").Semicol();
-							line_buf.Cat("PLACECODE").Semicol();
-							line_buf.Cat("STREETCODE").Semicol();
-							line_buf.Cat("EXTRCODE").Semicol();
-							line_buf.Cat("SEXTCODE").Semicol();
-							line_buf.Cat("IFNSFL").Semicol();
-							line_buf.Cat("TERRIFNSFL").Semicol();
-							line_buf.Cat("IFNSUL").Semicol();
-							line_buf.Cat("TERRIFNSUL").Semicol();
-							line_buf.Cat("OKATO").Semicol();
-							line_buf.Cat("OKTMO").Semicol();
-							line_buf.Cat("UPDATEDATE").Semicol();
-							line_buf.Cat("AOLEVEL").Semicol();
-							line_buf.Cat("CODE").Semicol();
-							line_buf.Cat("PLAINCODE").Semicol();
-							line_buf.Cat("ACTSTATUS").Semicol();
-							line_buf.Cat("CENTSTATUS").Semicol();
-							line_buf.Cat("OPERSTATUS").Semicol();
-							line_buf.Cat("CURRSTATUS").Semicol();
-							line_buf.Cat("STARTDATE").Semicol();
-							line_buf.Cat("ENDDATE").Semicol();
-							line_buf.Cat("NORMDOC").Semicol();
-							line_buf.Cat("LIVESTATUS").Semicol();
+				if(p_data && p_data->LIVESTATUS) {
+					line_buf.Z();
+					if(r_state.Phase == phaseCount) {
+						if(P_DebugOutput && P_DebugOutput->IsValid()) {
+							if(RawRecN == 1) {
+								line_buf.Cat("AOID").Semicol();
+								line_buf.Cat("PREVID").Semicol();
+								line_buf.Cat("NEXTID").Semicol();
+								line_buf.Cat("AOGUID").Semicol();
+								line_buf.Cat("PARENTGUID").Semicol();
+								line_buf.Cat("POSTALCODE").Semicol();
+								line_buf.Cat("SHORTNAME").Semicol();
+								line_buf.Cat("FORMALNAME").Semicol();
+								line_buf.Cat("OFFNAME").Semicol();
+								line_buf.Cat("REGIONCODE").Semicol();
+								line_buf.Cat("AUTOCODE").Semicol();
+								line_buf.Cat("AREACODE").Semicol();
+								line_buf.Cat("CITYCODE").Semicol();
+								line_buf.Cat("CTARCODE").Semicol();
+								line_buf.Cat("PLACECODE").Semicol();
+								line_buf.Cat("STREETCODE").Semicol();
+								line_buf.Cat("EXTRCODE").Semicol();
+								line_buf.Cat("SEXTCODE").Semicol();
+								line_buf.Cat("IFNSFL").Semicol();
+								line_buf.Cat("TERRIFNSFL").Semicol();
+								line_buf.Cat("IFNSUL").Semicol();
+								line_buf.Cat("TERRIFNSUL").Semicol();
+								line_buf.Cat("OKATO").Semicol();
+								line_buf.Cat("OKTMO").Semicol();
+								line_buf.Cat("UPDATEDATE").Semicol();
+								line_buf.Cat("AOLEVEL").Semicol();
+								line_buf.Cat("CODE").Semicol();
+								line_buf.Cat("PLAINCODE").Semicol();
+								line_buf.Cat("ACTSTATUS").Semicol();
+								line_buf.Cat("CENTSTATUS").Semicol();
+								line_buf.Cat("OPERSTATUS").Semicol();
+								line_buf.Cat("CURRSTATUS").Semicol();
+								line_buf.Cat("STARTDATE").Semicol();
+								line_buf.Cat("ENDDATE").Semicol();
+								line_buf.Cat("NORMDOC").Semicol();
+								line_buf.Cat("LIVESTATUS").Semicol();
+								line_buf.CR();
+								P_DebugOutput->WriteLine(line_buf);
+							}
+							line_buf.Z();
+							line_buf.Cat(p_data->AOID).Semicol();
+							line_buf.Cat(p_data->PREVID).Semicol();
+							line_buf.Cat(p_data->NEXTID).Semicol();
+							line_buf.Cat(p_data->AOGUID).Semicol();
+							line_buf.Cat(p_data->PARENTGUID).Semicol();
+							line_buf.Cat(p_data->POSTALCODE).Semicol();
+							line_buf.Cat(p_data->SHORTNAME).Semicol();
+							line_buf.Cat(p_data->FORMALNAME).Semicol();
+							line_buf.Cat(p_data->OFFNAME).Semicol();
+							line_buf.Cat(p_data->REGIONCODE).Semicol();
+							line_buf.Cat(p_data->AUTOCODE).Semicol();
+							line_buf.Cat(p_data->AREACODE).Semicol();
+							line_buf.Cat(p_data->CITYCODE).Semicol();
+							line_buf.Cat(p_data->CTARCODE).Semicol();
+							line_buf.Cat(p_data->PLACECODE).Semicol();
+							line_buf.Cat(p_data->STREETCODE).Semicol();
+							line_buf.Cat(p_data->EXTRCODE).Semicol();
+							line_buf.Cat(p_data->SEXTCODE).Semicol();
+							line_buf.Cat(p_data->IFNSFL).Semicol();
+							line_buf.Cat(p_data->TERRIFNSFL).Semicol();
+							line_buf.Cat(p_data->IFNSUL).Semicol();
+							line_buf.Cat(p_data->TERRIFNSUL).Semicol();
+							line_buf.Cat(p_data->OKATO).Semicol();
+							line_buf.Cat(p_data->OKTMO).Semicol();
+							line_buf.Cat(p_data->UPDATEDATE).Semicol();
+							line_buf.Cat(p_data->AOLEVEL).Semicol();
+							line_buf.Cat(p_data->CODE).Semicol();
+							line_buf.Cat(p_data->PLAINCODE).Semicol();
+							line_buf.Cat(p_data->ACTSTATUS).Semicol();
+							line_buf.Cat(p_data->CENTSTATUS).Semicol();
+							line_buf.Cat(p_data->OPERSTATUS).Semicol();
+							line_buf.Cat(p_data->CURRSTATUS).Semicol();
+							line_buf.Cat(p_data->STARTDATE).Semicol();
+							line_buf.Cat(p_data->ENDDATE).Semicol();
+							line_buf.Cat(p_data->NORMDOC).Semicol();
+							line_buf.Cat(p_data->LIVESTATUS).Semicol();
 							line_buf.CR();
 							P_DebugOutput->WriteLine(line_buf);
 						}
-						line_buf.Z();
-						line_buf.Cat(p_data->AOID).Semicol();
-						line_buf.Cat(p_data->PREVID).Semicol();
-						line_buf.Cat(p_data->NEXTID).Semicol();
-						line_buf.Cat(p_data->AOGUID).Semicol();
-						line_buf.Cat(p_data->PARENTGUID).Semicol();
-						line_buf.Cat(p_data->POSTALCODE).Semicol();
-						line_buf.Cat(p_data->SHORTNAME).Semicol();
-						line_buf.Cat(p_data->FORMALNAME).Semicol();
-						line_buf.Cat(p_data->OFFNAME).Semicol();
-						line_buf.Cat(p_data->REGIONCODE).Semicol();
-						line_buf.Cat(p_data->AUTOCODE).Semicol();
-						line_buf.Cat(p_data->AREACODE).Semicol();
-						line_buf.Cat(p_data->CITYCODE).Semicol();
-						line_buf.Cat(p_data->CTARCODE).Semicol();
-						line_buf.Cat(p_data->PLACECODE).Semicol();
-						line_buf.Cat(p_data->STREETCODE).Semicol();
-						line_buf.Cat(p_data->EXTRCODE).Semicol();
-						line_buf.Cat(p_data->SEXTCODE).Semicol();
-						line_buf.Cat(p_data->IFNSFL).Semicol();
-						line_buf.Cat(p_data->TERRIFNSFL).Semicol();
-						line_buf.Cat(p_data->IFNSUL).Semicol();
-						line_buf.Cat(p_data->TERRIFNSUL).Semicol();
-						line_buf.Cat(p_data->OKATO).Semicol();
-						line_buf.Cat(p_data->OKTMO).Semicol();
-						line_buf.Cat(p_data->UPDATEDATE).Semicol();
-						line_buf.Cat(p_data->AOLEVEL).Semicol();
-						line_buf.Cat(p_data->CODE).Semicol();
-						line_buf.Cat(p_data->PLAINCODE).Semicol();
-						line_buf.Cat(p_data->ACTSTATUS).Semicol();
-						line_buf.Cat(p_data->CENTSTATUS).Semicol();
-						line_buf.Cat(p_data->OPERSTATUS).Semicol();
-						line_buf.Cat(p_data->CURRSTATUS).Semicol();
-						line_buf.Cat(p_data->STARTDATE).Semicol();
-						line_buf.Cat(p_data->ENDDATE).Semicol();
-						line_buf.Cat(p_data->NORMDOC).Semicol();
-						line_buf.Cat(p_data->LIVESTATUS).Semicol();
-						line_buf.CR();
-						P_DebugOutput->WriteLine(line_buf);
-					}
-				}
-				else {
-					FiasAddrObjTbl::Rec rec, org_rec;
-					MEMSZERO(rec);
-					SStringU utext;
-					int    sr = 0;
-					if(r_state.Phase == phaseUUID) {
-						THROW(CollectUuid(p_data->AOID));
-						THROW(CollectUuid(p_data->PREVID));
-						THROW(CollectUuid(p_data->NEXTID));
-						THROW(CollectUuid(p_data->AOGUID));
-						THROW(CollectUuid(p_data->PARENTGUID));
-						THROW(FlashUuidChunk(1024, 1));
-					}
-					else if(r_state.Phase == phaseText) {
-						THROW(ProcessString(p_data->FORMALNAME, &rec.NameTRef, line_buf, utext));
-						THROW(ProcessString(p_data->OFFNAME,    &rec.OfcNameTRef, line_buf, utext));
-						THROW(ProcessString(p_data->SHORTNAME,  &rec.SnTRef, line_buf, utext));
-						THROW(ProcessString(p_data->OKATO,      &rec.OkatoTRef, line_buf, utext));
-						THROW(ProcessString(p_data->OKTMO,      &rec.OktmoTRef, line_buf, utext));
-						THROW(ProcessString(p_data->PLAINCODE,  &rec.KladrCodeTRef, line_buf, utext));
-						THROW(ToggleTransaction(10000));
 					}
 					else {
-						THROW(FT.UrT.GetUuid(p_data->AOID, &rec.RecUuID, 0, 0));
-						THROW(sr = FT.SearchAddr(rec.RecUuID, &org_rec));
-						if(sr < 0) {
-							THROW(FT.UrT.GetUuid(p_data->PREVID, &rec.PrevRecUuRef, 0, 0));
-							THROW(FT.UrT.GetUuid(p_data->NEXTID, &rec.NextRecUuRef, 0, 0));
-							THROW(FT.UrT.GetUuid(p_data->AOGUID, &rec.IdUuRef, UuidRefCore::sgoHash, 0));
-							THROW(FT.UrT.GetUuid(p_data->PARENTGUID, &rec.ParentUuRef, UuidRefCore::sgoHash, 0));
-							//
+						FiasAddrObjTbl::Rec rec, org_rec;
+						MEMSZERO(rec);
+						SStringU utext;
+						int    sr = 0;
+						if(r_state.Phase == phaseUUID) {
+							THROW(CollectUuid(p_data->AOID));
+							THROW(CollectUuid(p_data->PREVID));
+							THROW(CollectUuid(p_data->NEXTID));
+							THROW(CollectUuid(p_data->AOGUID));
+							THROW(CollectUuid(p_data->PARENTGUID));
+							THROW(FlashUuidChunk(1024, 1));
+						}
+						else if(r_state.Phase == phaseText) {
 							THROW(ProcessString(p_data->FORMALNAME, &rec.NameTRef, line_buf, utext));
 							THROW(ProcessString(p_data->OFFNAME,    &rec.OfcNameTRef, line_buf, utext));
 							THROW(ProcessString(p_data->SHORTNAME,  &rec.SnTRef, line_buf, utext));
 							THROW(ProcessString(p_data->OKATO,      &rec.OkatoTRef, line_buf, utext));
 							THROW(ProcessString(p_data->OKTMO,      &rec.OktmoTRef, line_buf, utext));
 							THROW(ProcessString(p_data->PLAINCODE,  &rec.KladrCodeTRef, line_buf, utext));
-							rec.PostalCode = atoi(p_data->POSTALCODE);
-							rec.IfnsJ = atoi(p_data->IFNSUL);
-							rec.IfnsI = atoi(p_data->IFNSFL);
-							rec.TerrIfnsJ = atoi(p_data->TERRIFNSUL);
-							rec.TerrIfnsI = atoi(p_data->TERRIFNSFL);
-
-							rec.LevelStatus = atoi(p_data->AOLEVEL);
-							rec.CenterStatus = (int16)p_data->CENTSTATUS;
-							rec.ActionStatus = (int16)p_data->ACTSTATUS;
-							rec.KladrCurStatus = (int16)p_data->CURRSTATUS;
-
-							rec.StartDt = p_data->STARTDATE;
-							rec.EndDt = p_data->ENDDATE;
-							rec.UpdateDt = p_data->UPDATEDATE;
-
-							SETFLAG(rec.Flags, FIASADRF_ACTUAL, p_data->LIVESTATUS);
-							if(r_state.Phase == phaseData) {
-								THROW_SL(AddrRecChunk.insert(&rec));
-								THROW(FlashAddrChunk(1024, 1));
-							}
-							else {
-								THROW_DB(FT.AdrT.insertRecBuf(&rec));
-							}
+							THROW(ToggleTransaction(10000));
 						}
-						if(r_state.Phase != phaseData) {
-							THROW(ToggleTransaction(1000));
+						else {
+							THROW(FT.UrT.GetUuid(p_data->AOID, &rec.RecUuID, 0, 0));
+							THROW(sr = FT.SearchAddr(rec.RecUuID, &org_rec));
+							if(sr < 0) {
+								THROW(FT.UrT.GetUuid(p_data->PREVID, &rec.PrevRecUuRef, 0, 0));
+								THROW(FT.UrT.GetUuid(p_data->NEXTID, &rec.NextRecUuRef, 0, 0));
+								THROW(FT.UrT.GetUuid(p_data->AOGUID, &rec.IdUuRef, UuidRefCore::sgoHash, 0));
+								THROW(FT.UrT.GetUuid(p_data->PARENTGUID, &rec.ParentUuRef, UuidRefCore::sgoHash, 0));
+								//
+								THROW(ProcessString(p_data->FORMALNAME, &rec.NameTRef, line_buf, utext));
+								THROW(ProcessString(p_data->OFFNAME,    &rec.OfcNameTRef, line_buf, utext));
+								THROW(ProcessString(p_data->SHORTNAME,  &rec.SnTRef, line_buf, utext));
+								THROW(ProcessString(p_data->OKATO,      &rec.OkatoTRef, line_buf, utext));
+								THROW(ProcessString(p_data->OKTMO,      &rec.OktmoTRef, line_buf, utext));
+								THROW(ProcessString(p_data->PLAINCODE,  &rec.KladrCodeTRef, line_buf, utext));
+								rec.PostalCode = atoi(p_data->POSTALCODE);
+								rec.IfnsJ = atoi(p_data->IFNSUL);
+								rec.IfnsI = atoi(p_data->IFNSFL);
+								rec.TerrIfnsJ = atoi(p_data->TERRIFNSUL);
+								rec.TerrIfnsI = atoi(p_data->TERRIFNSFL);
+
+								rec.LevelStatus = atoi(p_data->AOLEVEL);
+								rec.CenterStatus = (int16)p_data->CENTSTATUS;
+								rec.ActionStatus = (int16)p_data->ACTSTATUS;
+								rec.KladrCurStatus = (int16)p_data->CURRSTATUS;
+
+								rec.StartDt = p_data->STARTDATE;
+								rec.EndDt = p_data->ENDDATE;
+								rec.UpdateDt = p_data->UPDATEDATE;
+
+								SETFLAG(rec.Flags, FIASADRF_ACTUAL, p_data->LIVESTATUS);
+								if(r_state.Phase == phaseData) {
+									THROW_SL(AddrRecChunk.insert(&rec));
+									THROW(FlashAddrChunk(1024, 1));
+								}
+								else {
+									THROW_DB(FT.AdrT.insertRecBuf(&rec));
+								}
+							}
+							if(r_state.Phase != phaseData) {
+								THROW(ToggleTransaction(1000));
+							}
 						}
 					}
 				}

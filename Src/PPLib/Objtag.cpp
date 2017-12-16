@@ -2153,7 +2153,7 @@ int TagFiltDialog::EditItem(long * pPos)
 	while(ok <= 0 && ExecView(p_dlg) == cmOK) {
 		if(p_dlg->getDTS(&item) > 0) {
 			int    replace_dup_factor = 1;
-			if(Data.Flags & Data.fColors) { // @v9.8.6 
+			if(Data.Flags & Data.fColors) { // @v9.8.6
 				replace_dup_factor = -1;
 			}
 			else {
@@ -3257,9 +3257,8 @@ int ObjTagCache::Dirty(PPID objType, PPID objID, PPID tagID)
 //
 class TagCache : public ObjCache {
 public:
-	SLAPI TagCache() : ObjCache(PPOBJ_TAG, sizeof(TagCacheEntry)), SymbList(PPOBJ_TAG)
+	SLAPI TagCache() : ObjCache(PPOBJ_TAG, sizeof(TagCacheEntry)), SymbList(PPOBJ_TAG), P_Ic(0)
 	{
-		P_Ic = 0;
 	}
 	SLAPI ~TagCache()
 	{

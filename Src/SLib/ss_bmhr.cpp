@@ -183,15 +183,9 @@ int SSrchPattern::Calc_L(const uint16 * pN, uint16 * pL, uint16 * pl)
 //
 //
 //
-SSrchPattern::SSrchPattern(const char * pPattern, long flags, int alg)
+SSrchPattern::SSrchPattern(const char * pPattern, long flags, int alg) :
+	P_Pat(0), P_PatAlloc(0), P_PreprocBuf(0), PatSize(0), PreprocSize(0), Flags(0), HashSize(0)
 {
-	P_Pat = 0;
-	P_PatAlloc = 0;
-	P_PreprocBuf = 0;
-	PatSize = 0;
-	PreprocSize = 0;
-	Flags = 0;
-	HashSize = 0;
 	Init(pPattern, flags, alg);
 }
 

@@ -1205,15 +1205,33 @@ int SLAPI PPObjGoods::ReplaceName(PPGoodsPacket * pPack, const PPGoodsReplaceNam
 					if(sj_rec.Action == PPACN_OBJUPD && sj_rec.Extra > 0) {
 						SBuffer buf;
 						PPGoodsPacket hist_pack;
-						if(HistGoods->Search(sj_rec.Extra, &buf) > 0) {
-							if(SerializePacket_(0, &hist_pack, &buf)) {
-								if(strcmp(hist_pack.Rec.Name, pPack->Rec.Name) != 0 || strcmp(hist_pack.Rec.Abbr, pPack->Rec.Abbr)) {
-									STRNSCPY(pPack->Rec.Name, hist_pack.Rec.Name);
-									STRNSCPY(pPack->Rec.Abbr, hist_pack.Rec.Abbr);
-									ok = 1;
+						//
+						ObjVersioningCore * p_ovc = PPRef->P_OvT; // @v9.8.11
+						if(p_ovc && p_ovc->InitSerializeContext(1)) {
+							PPObjID oid;
+							long   vv = 0;
+							if(p_ovc->Search(sj_rec.Extra, &oid, &vv, &buf) > 0) {
+								SSerializeContext & r_sctx = p_ovc->GetSCtx();
+								if(SerializePacket(-1, &hist_pack, buf, &r_sctx, 0)) {
+									if(!sstreq(hist_pack.Rec.Name, pPack->Rec.Name) || !sstreq(hist_pack.Rec.Abbr, pPack->Rec.Abbr)) {
+										STRNSCPY(pPack->Rec.Name, hist_pack.Rec.Name);
+										STRNSCPY(pPack->Rec.Abbr, hist_pack.Rec.Abbr);
+										ok = 1;
+									}
 								}
 							}
 						}
+						/* @v9.8.11 else {
+							if(HistGoods->Search(sj_rec.Extra, &buf) > 0) {
+								if(SerializePacket_(0, &hist_pack, &buf)) {
+									if(!sstreq(hist_pack.Rec.Name, pPack->Rec.Name) || !sstreq(hist_pack.Rec.Abbr, pPack->Rec.Abbr)) {
+										STRNSCPY(pPack->Rec.Name, hist_pack.Rec.Name);
+										STRNSCPY(pPack->Rec.Abbr, hist_pack.Rec.Abbr);
+										ok = 1;
+									}
+								}
+							}
+						}*/
 					}
 				}
 			}

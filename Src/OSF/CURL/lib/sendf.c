@@ -225,9 +225,7 @@ void Curl_failf(struct Curl_easy * data, const char * fmt, ...)
 	va_list ap;
 	size_t len;
 	va_start(ap, fmt);
-
 	vsnprintf(data->state.buffer, BUFSIZE, fmt, ap);
-
 	if(data->set.errorbuffer && !data->state.errorbuf) {
 		snprintf(data->set.errorbuffer, CURL_ERROR_SIZE, "%s", data->state.buffer);
 		data->state.errorbuf = TRUE; /* wrote error string */
@@ -240,13 +238,11 @@ void Curl_failf(struct Curl_easy * data, const char * fmt, ...)
 		}
 		Curl_debug(data, CURLINFO_TEXT, data->state.buffer, len, 0);
 	}
-
 	va_end(ap);
 }
 
 /* Curl_sendf() sends formatted data to the server */
-CURLcode Curl_sendf(curl_socket_t sockfd, struct connectdata * conn,
-    const char * fmt, ...)
+CURLcode Curl_sendf(curl_socket_t sockfd, struct connectdata * conn, const char * fmt, ...)
 {
 	struct Curl_easy * data = conn->data;
 	ssize_t bytes_written;
@@ -260,21 +256,16 @@ CURLcode Curl_sendf(curl_socket_t sockfd, struct connectdata * conn,
 	va_end(ap);
 	if(!s)
 		return CURLE_OUT_OF_MEMORY;  /* failure */
-
 	bytes_written = 0;
 	write_len = strlen(s);
 	sptr = s;
-
 	for(;; ) {
 		/* Write the buffer to the socket */
 		result = Curl_write(conn, sockfd, sptr, write_len, &bytes_written);
-
 		if(result)
 			break;
-
 		if(data->set.verbose)
 			Curl_debug(data, CURLINFO_DATA_OUT, sptr, (size_t)bytes_written, conn);
-
 		if((size_t)bytes_written != write_len) {
 			/* if not all was written at once, we must advance the pointer, decrease
 			   the size left and try again! */

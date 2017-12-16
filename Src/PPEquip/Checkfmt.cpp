@@ -84,15 +84,8 @@ public:
 //
 //
 //
-PPSlipFormatEntry::PPSlipFormatEntry()
+PPSlipFormatEntry::PPSlipFormatEntry() : Flags(0), Condition(0), FontId(0), PictId(0), BarcodeId(0), P_TrueZone(0), P_FalseZone(0)
 {
-	Flags = 0;
-	Condition = 0;
-	FontId = 0;
-	PictId = 0;
-	BarcodeId = 0;
-	P_TrueZone = 0;
-	P_FalseZone = 0;
 }
 
 PPSlipFormatEntry::~PPSlipFormatEntry()
@@ -103,10 +96,9 @@ PPSlipFormatEntry::~PPSlipFormatEntry()
 //
 //
 //
-PPSlipFormatZone::PPSlipFormatZone(int kind) : TSCollection <PPSlipFormatEntry> ()
+PPSlipFormatZone::PPSlipFormatZone(int kind) : TSCollection <PPSlipFormatEntry> (), Kind(kind)
 {
 	assert(oneof5(kind, kInner, kHeader, kFooter, kDetail, kPaymDetail)); // @v8.4.1 kPaymDetail
-	Kind = kind;
 }
 
 class PPSlipFormat {
@@ -315,22 +307,11 @@ private:
 	SString LastFormatName;
 };
 
-PPSlipFormat::PPSlipFormat()
+PPSlipFormat::PPSlipFormat() : LineNo(0), PageWidth(0), PageLength(0), LastPictId(0), Src(0), 
+	P_CcPack(0), P_Od(0), RegTo(0), IsWrap(0), RunningTotal(0.0), CurZone(0), TextOutput(0)
 {
-	LineNo     = 0;
-	PageWidth  = 0;
-	PageLength = 0;
-	LastPictId = 0;
-	Src = 0;
-	P_CcPack = 0;
-	P_Od   = 0;
-	RegTo  = 0;
-	IsWrap = 0;
-	RunningTotal = 0.0;
 	PPLoadText(PPTXT_SLIPFMT_KEYW, VarString);
 	PPLoadText(PPTXT_SLIPFMT_METAVAR, MetavarList);
-	CurZone = 0;
-	TextOutput = 0;
 }
 
 PPSlipFormat::~PPSlipFormat()

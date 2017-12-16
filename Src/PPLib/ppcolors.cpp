@@ -252,10 +252,9 @@ static BOOL CALLBACK BrightViewProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 	return (prev_proc) ? CallWindowProc(prev_proc, hWnd, uMsg, wParam, lParam) : 0;
 }
 
-PPColorPickerDialog::PPColorPickerDialog() : TDialog(DLG_COLORS)
+PPColorPickerDialog::PPColorPickerDialog() : TDialog(DLG_COLORS), BeginCircleMove(0), BeginRGBMove(0), BeginBrightMove(0)
 {
 	RECT r, hsb_r;
-	BeginCircleMove = BeginRGBMove = BeginBrightMove = 0;
 	addGroup(GRP_REDSPIN,   new SpinCtrlGroup(CTL_COLORS_RED,   cmUp, CTL_COLORS_RUP, cmDown, CTL_COLORS_RDOWN, 0, 255));
 	addGroup(GRP_GREENSPIN, new SpinCtrlGroup(CTL_COLORS_GREEN, cmUp, CTL_COLORS_GUP, cmDown, CTL_COLORS_GDOWN, 0, 255));
 	addGroup(GRP_BLUESPIN,  new SpinCtrlGroup(CTL_COLORS_BLUE,  cmUp, CTL_COLORS_BUP, cmDown, CTL_COLORS_BDOWN, 0, 255));
@@ -723,9 +722,8 @@ int EditColor(long * pColor)
 //static
 const COLORREF ColorCtrlGroup::Rec::UndefC = 0x00000000U;
 
-ColorCtrlGroup::Rec::Rec()
+ColorCtrlGroup::Rec::Rec() : C(UndefC)
 {
-	C = UndefC;
 }
 
 int ColorCtrlGroup::Rec::AddColorItem(SColor c, const char * pName)
@@ -798,16 +796,12 @@ int ColorCtrlGroup::Rec::SearchColorItem(COLORREF c, uint * pPos) const
 	return ColorList.Search((long)c, pPos);
 }
 
-ColorCtrlGroup::ColorCtrlGroup(uint ctl, uint ctlSel, uint cmNewColor, uint ctlNewColor) : CtrlGroup()
+ColorCtrlGroup::ColorCtrlGroup(uint ctl, uint ctlSel, uint cmNewColor, uint ctlNewColor) : CtrlGroup(),
+	Ctl(ctl), CtlSel(ctlSel), CmNewColor(cmNewColor), CtlNewColor(ctlNewColor), H_BrBkInput(0),
+	H_BrBkList(CreateSolidBrush(GetColorRef(SClrWhite))),
+	H_BrSelList(CreateSolidBrush((COLORREF)COLOR_SELLIST)),
+	H_BrFrameList(CreateSolidBrush((COLORREF)COLOR_FRAMELIST))
 {
-	Ctl            = ctl;
-	CtlSel         = ctlSel;
-	CmNewColor     = cmNewColor;
-	CtlNewColor    = ctlNewColor;
-	H_BrBkList     = CreateSolidBrush(GetColorRef(SClrWhite));
-	H_BrSelList    = CreateSolidBrush((COLORREF)COLOR_SELLIST);
-	H_BrFrameList  = CreateSolidBrush((COLORREF)COLOR_FRAMELIST);
-	H_BrBkInput    = 0;
 }
 
 ColorCtrlGroup::~ColorCtrlGroup()

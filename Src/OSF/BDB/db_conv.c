@@ -51,19 +51,13 @@ int __db_pgin(DB_ENV * dbenv, db_pgno_t pg, void * pp, DBT * cookie)
 	DB dummydb, * dbp;
 	DB_CIPHER * db_cipher;
 	DB_LSN not_used;
-	DB_PGINFO * pginfo;
-	ENV * env;
-	PAGE * pagep;
 	size_t sum_len;
-	int is_hmac, ret;
-	uint8 * chksum;
-
-	pginfo = (DB_PGINFO *)cookie->data;
-	env = dbenv->env;
-	pagep = (PAGE *)pp;
-
-	ret = is_hmac = 0;
-	chksum = NULL;
+	int is_hmac = 0;
+	int ret = 0;
+	DB_PGINFO * pginfo = (DB_PGINFO *)cookie->data;
+	ENV * env = dbenv->env;
+	PAGE * pagep = (PAGE *)pp;
+	uint8 * chksum = NULL;
 	memzero(&dummydb, sizeof(DB));
 	dbp = &dummydb;
 	dbp->dbenv = dbenv;
@@ -84,8 +78,7 @@ int __db_pgin(DB_ENV * dbenv, db_pgno_t pg, void * pp, DBT * cookie)
 			F_SET(dbp, DB_AM_CHKSUM);
 		else
 			F_CLR(dbp, DB_AM_CHKSUM);
-		if(((DBMETA *)pp)->encrypt_alg != 0 ||
-		   F_ISSET(dbp, DB_AM_ENCRYPT))
+		if(((DBMETA *)pp)->encrypt_alg != 0 || F_ISSET(dbp, DB_AM_ENCRYPT))
 			is_hmac = 1;
 		/*
 		 * !!!
@@ -163,25 +156,20 @@ int __db_pgin(DB_ENV * dbenv, db_pgno_t pg, void * pp, DBT * cookie)
 		break;
 	    case P_HASH_UNSORTED:
 	    case P_HASH:
-	    case P_HASHMETA:
-		return __ham_pgin(dbp, pg, pp, cookie);
+	    case P_HASHMETA: return __ham_pgin(dbp, pg, pp, cookie);
 	    case P_HEAP:
 	    case P_HEAPMETA:
-	    case P_IHEAP:
-		return __heap_pgin(dbp, pg, pp, cookie);
+	    case P_IHEAP: return __heap_pgin(dbp, pg, pp, cookie);
 	    case P_BTREEMETA:
 	    case P_IBTREE:
 	    case P_IRECNO:
 	    case P_LBTREE:
 	    case P_LDUP:
 	    case P_LRECNO:
-	    case P_OVERFLOW:
-		return __bam_pgin(dbp, pg, pp, cookie);
+	    case P_OVERFLOW: return __bam_pgin(dbp, pg, pp, cookie);
 	    case P_QAMMETA:
-	    case P_QAMDATA:
-		return __qam_pgin_out(env, pg, pp, cookie);
-	    default:
-		break;
+	    case P_QAMDATA: return __qam_pgin_out(env, pg, pp, cookie);
+	    default: break;
 	}
 	return __db_pgfmt(env, pg);
 }

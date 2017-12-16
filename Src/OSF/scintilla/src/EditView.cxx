@@ -1903,19 +1903,16 @@ static void DrawFoldLines(Surface * surface, const EditModel &model, const ViewS
 	bool expanded = model.cs.GetExpanded(line);
 	const int level = model.pdoc->GetLevel(line);
 	const int levelNext = model.pdoc->GetLevel(line + 1);
-	if((level & SC_FOLDLEVELHEADERFLAG) &&
-	    (LevelNumber(level) < LevelNumber(levelNext))) {
+	if((level & SC_FOLDLEVELHEADERFLAG) && (LevelNumber(level) < LevelNumber(levelNext))) {
 		// Paint the line above the fold
-		if((expanded && (model.foldFlags & SC_FOLDFLAG_LINEBEFORE_EXPANDED))
-		    ||
+		if((expanded && (model.foldFlags & SC_FOLDFLAG_LINEBEFORE_EXPANDED)) ||
 		    (!expanded && (model.foldFlags & SC_FOLDFLAG_LINEBEFORE_CONTRACTED))) {
 			PRectangle rcFoldLine = rcLine;
 			rcFoldLine.bottom = rcFoldLine.top + 1;
 			surface->FillRectangle(rcFoldLine, vsDraw.styles[STYLE_DEFAULT].fore);
 		}
 		// Paint the line below the fold
-		if((expanded && (model.foldFlags & SC_FOLDFLAG_LINEAFTER_EXPANDED))
-		    ||
+		if((expanded && (model.foldFlags & SC_FOLDFLAG_LINEAFTER_EXPANDED)) ||
 		    (!expanded && (model.foldFlags & SC_FOLDFLAG_LINEAFTER_CONTRACTED))) {
 			PRectangle rcFoldLine = rcLine;
 			rcFoldLine.top = rcFoldLine.bottom - 1;

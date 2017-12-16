@@ -1,5 +1,5 @@
 // SSYSTEM.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2016
+// Copyright (c) A.Sobolev 2012, 2013, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -11,9 +11,8 @@ int SSystem::BigEndian()
     return BIN((((const int *)"\0\x1\x2\x3\x4\x5\x6\x7")[0] & 255) != 0);
 }
 
-SSystem::SSystem(int imm)
+SSystem::SSystem(int imm) : Flags(0)
 {
-	Flags = 0;
 	if(imm) {
 		GetCpuInfo();
 		if(SSystem::BigEndian())

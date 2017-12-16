@@ -2857,6 +2857,29 @@ file:
 	access=1;
 }
 //
+// @construction
+// Сохраненные версии модифицированных и удаленных объектов.
+// Записи с типом и идентификатором объекта 0 представляют собой
+// сохраненный контекст синхронизации, соответствующий версии системы SysVer.
+// Для таких записей Ver == SysVer (для индексации).
+//
+table ObjVer {
+	autolong ID;    // Уникальный идент записи
+	long   ObjType; // Тип объекта
+	long   ObjID;   // ИД объекта
+	long   Ver;     // Версия объекта
+	uint32 SysVer;  // Пороговая версия системы, сформировавшей запись. Необходима для правильной трансляции
+		// данных при изменении формата данных.
+	long   Size;    // Размер сохраненного пакета
+	blob   Data[2048]; // Бинарное представление пакета объекта
+index:
+    ID (unique);
+    ObjType, ObjID, Ver (unique);
+file:
+	"objver.btr";
+	vlr;
+}
+//
 // Descr: Запросы к удаленным сервисам, требующие длительного времени отклика
 // (Delayed Global Query)
 //
@@ -3456,39 +3479,6 @@ file:
 	"ufp.btr";
 	acstable = "rusncase.alt";
 }
-//
-//
-//
-/*
-table UserProfile {
-	autolong  ID;
-	int64     SeqID;
-	string    DbID[40];
-	string    SessID[40];
-	long      ThreadId;
-	long      FuncID;
-	int64     Clock;
-	date      Dt;
-	time      Tm;
-	long      Flags;
-	double    Factor1;
-	double    Factor2;
-	double    Factor3;
-	double    Factor4;
-	double    Factor5;
-	double    Factor6;
-	double    Factor7;
-	double    Factor8;
-index:
-	ID (unique mod);
-	SeqID, DbID, SessID (unique mod);
-	DbID, SessID, FuncID, Dt, Tm (dup mod);
-    Dt, Tm (dup mod);
-file:
-	"userprof.btr";
-	acstable = "rusncase.alt";
-}
-*/
 //
 // Временная таблица производственного отчета по техн сессии
 //

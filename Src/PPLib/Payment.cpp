@@ -1935,7 +1935,7 @@ class PPViewPaymBill {
 public:
 	SLAPI  PPViewPaymBill();
 	SLAPI ~PPViewPaymBill();
-	int    SLAPI Init(const PaymBillFilt *);
+	void   SLAPI Init(const PaymBillFilt *);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(PaymBillViewItem *);
 	const  PaymBillFilt * SLAPI GetFilt() const { return &Filt; }
@@ -1947,10 +1947,8 @@ private:
 	SArray * P_PaymBillList;
 };
 
-SLAPI PPViewPaymBill::PPViewPaymBill()
+SLAPI PPViewPaymBill::PPViewPaymBill() : P_BObj(BillObj), P_PaymBillList(0)
 {
-	P_BObj = BillObj;
-	P_PaymBillList = 0;
 }
 
 SLAPI PPViewPaymBill::~PPViewPaymBill()
@@ -1958,11 +1956,10 @@ SLAPI PPViewPaymBill::~PPViewPaymBill()
 	ZDELETE(P_PaymBillList);
 }
 
-int SLAPI PPViewPaymBill::Init(const PaymBillFilt * pFilt)
+void SLAPI PPViewPaymBill::Init(const PaymBillFilt * pFilt)
 {
 	if(!RVALUEPTR(Filt, pFilt))
 		MEMSZERO(Filt);
-	return 1;
 }
 
 int SLAPI PPViewPaymBill::InitIteration()

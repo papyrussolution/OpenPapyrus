@@ -8,9 +8,8 @@
 
 TLP_IMPL(AccTurnCore, AccTurnCore::FrrlData, Frrl);
 
-SLAPI AccTurnCore::AccTurnCore() : AccTurnTbl() /*, AccT(*AccObj.P_Tbl)*/
+SLAPI AccTurnCore::AccTurnCore() : AccTurnTbl(), Frrl(0) /*, AccT(*AccObj.P_Tbl)*/
 {
-	Frrl = 0;
 }
 
 int SLAPI AccTurnCore::AcctIDToRel(const AcctID * pAcctId, PPID * pAccRelID)
@@ -40,8 +39,7 @@ int SLAPI AccTurnCore::AcctRelToID(PPID relID, AcctID * pAcctId, PPID * pAccShee
 	return ok;
 }
 
-int SLAPI AccTurnCore::UpdateItemInExtGenAccList(PPID objID, long f, PPID accID,
-	ObjRestrictArray * pAccList, PPIDArray * pCurList)
+int SLAPI AccTurnCore::UpdateItemInExtGenAccList(PPID objID, long f, PPID accID, ObjRestrictArray * pAccList, PPIDArray * pCurList)
 {
 	if(!pAccList->UpdateItemByID(objID, f))
 		return 0;
@@ -286,11 +284,10 @@ int SLAPI AccTurnCore::GetBalRest(LDATE dt, PPID accID, double * pDbt, double * 
 	return ok;
 }
 
-int SLAPI AccTurnCore::GetAccRelIDs(const AccTurnTbl::Rec * pRec, PPID * pDbtRelID, PPID * pCrdRelID) const
+void SLAPI AccTurnCore::GetAccRelIDs(const AccTurnTbl::Rec * pRec, PPID * pDbtRelID, PPID * pCrdRelID) const
 {
 	ASSIGN_PTR(pDbtRelID, pRec->Reverse ? pRec->CorrAcc : pRec->Acc);
 	ASSIGN_PTR(pCrdRelID, pRec->Reverse ? pRec->Acc : pRec->CorrAcc);
-	return 1;
 }
 
 int SLAPI AccTurnCore::ConvertRec(const AccTurnTbl::Rec * pRec, PPAccTurn * pAturn, int useCache)
@@ -881,7 +878,7 @@ int SLAPI AccTurnCore::GetBill(PPAccTurn * pAt)
 
 static int SLAPI ValidateAccKind(int k)
 {
-	return (k == ACT_ACTIVE || k == ACT_PASSIVE || k == ACT_AP) ? 1 : PPSetError(PPERR_ACTNDEF);
+	return oneof3(k, ACT_ACTIVE, ACT_PASSIVE, ACT_AP) ? 1 : PPSetError(PPERR_ACTNDEF);
 }
 
 int SLAPI AccTurnCore::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int createIfNExists, int use_ta)
@@ -1122,8 +1119,7 @@ int SLAPI AccTurnCore::UpdateAmount(PPID billID, short rByBill, double newAmt, d
 int SLAPI AccTurnCore::Turn(PPAccTurn * pAturn, int use_ta)
 {
 	int    ok = 1;
-	int    zero_crd_acc = BIN((pAturn->Flags & PPAF_REGISTER) ||
-		(pAturn->Flags & PPAF_OUTBAL) && !(pAturn->Flags & PPAF_OUTBAL_TRANSFER));
+	int    zero_crd_acc = BIN((pAturn->Flags & PPAF_REGISTER) || (pAturn->Flags & PPAF_OUTBAL) && !(pAturn->Flags & PPAF_OUTBAL_TRANSFER));
 	PPID   dbt_rel = 0, crd_rel = 0;
 	AccTurnParam dbt_param, crd_param;
 	THROW_PP(pAturn->Amount != 0.0, PPERR_INVTURNAMOUNT);
@@ -1131,8 +1127,9 @@ int SLAPI AccTurnCore::Turn(PPAccTurn * pAturn, int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(pAturn->RByBill < BASE_RBB_BIAS)
+		if(pAturn->RByBill < BASE_RBB_BIAS) {
 			THROW(GetBill(pAturn));
+		}
 		THROW(_ProcessAcct(PPDEBIT,  pAturn->CurID, &pAturn->DbtID, &dbt_rel, &dbt_param));
 		if(!zero_crd_acc) {
 			THROW(_ProcessAcct(PPCREDIT, pAturn->CurID, &pAturn->CrdID, &crd_rel, &crd_param));
@@ -1140,22 +1137,26 @@ int SLAPI AccTurnCore::Turn(PPAccTurn * pAturn, int use_ta)
 		else
 			crd_rel = 0;
 		THROW(LockFRR(dbt_rel, pAturn->Date));
-		if(!zero_crd_acc)
+		if(!zero_crd_acc) {
 			THROW(LockFRR(crd_rel, pAturn->Date));
+		}
 		THROW(BalTurn.Turn(pAturn->DbtID.ac, pAturn->Date, &dbt_param, 0));
-		if(!zero_crd_acc)
+		if(!zero_crd_acc) {
 			THROW(BalTurn.Turn(pAturn->CrdID.ac, pAturn->Date, &crd_param, 0));
+		}
 		THROW(_Turn(pAturn, dbt_rel, crd_rel, &dbt_param));
-		if(!zero_crd_acc)
+		if(!zero_crd_acc) {
 			THROW(_Turn(pAturn, crd_rel, dbt_rel, &crd_param));
+		}
 		if(pAturn->CurID) {
 			PPAccTurn base_aturn = *pAturn;
 			base_aturn.RByBill  += BASE_RBB_BIAS;
 			base_aturn.CurID  = 0;
 			base_aturn.Amount = R2(pAturn->Amount * pAturn->CRate);
 			THROW(GetBaseAcctID(&pAturn->DbtID, &base_aturn.DbtID));
-			if(!zero_crd_acc)
+			if(!zero_crd_acc) {
 				THROW(GetBaseAcctID(&pAturn->CrdID, &base_aturn.CrdID));
+			}
 			THROW(Turn(&base_aturn, 0)); // @recursion
 		}
 		THROW(tra.Commit());

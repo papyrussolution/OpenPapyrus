@@ -212,12 +212,13 @@ int SLAPI Reference::SetExField(PPConfigPrivate * pRec, int fldId, const char * 
 	return ok;
 }
 
-SLAPI Reference::Reference() : ReferenceTbl()
+SLAPI Reference::Reference() : ReferenceTbl(), P_OvT(new ObjVersioningCore)
 {
 }
 
 SLAPI Reference::~Reference()
 {
+	delete P_OvT;
 }
 
 int SLAPI Reference::AllocDynamicObj(PPID * pDynObjType, const char * pName, long flags, int use_ta)
@@ -1051,15 +1052,8 @@ struct _PPRights {         // @persistent @store(PropertyTbl)
 	// ... (ObjRights: size = ORTailSize - sizeof(_PPRights)) //
 };
 
-SLAPI PPRights::PPRights()
+SLAPI PPRights::PPRights() : P_Rt(0), P_OpList(0), P_LocList(0), P_CfgList(0), P_AccList(0), P_PosList(0), P_QkList(0)
 {
-	P_Rt = 0;
-	P_OpList = 0;
-	P_LocList = 0;
-	P_CfgList = 0;
-	P_AccList = 0;
-	P_PosList = 0; // @v8.9.1
-	P_QkList = 0; // @v8.9.1
 }
 
 SLAPI PPRights::~PPRights()
@@ -1990,9 +1984,8 @@ int FASTCALL UuidRefCore::UuidToText(const S_GUID & rUuid, SString & rText)
 }
 #endif // } 0
 
-SLAPI UuidRefCore::UuidRefCore() : UuidRefTbl()
+SLAPI UuidRefCore::UuidRefCore() : UuidRefTbl(), P_Hash(0)
 {
-	P_Hash = 0;
 }
 
 SLAPI UuidRefCore::~UuidRefCore()
@@ -2151,12 +2144,9 @@ TextRefIdent::TextRefIdent()
 	THISZERO();
 }
 
-TextRefIdent::TextRefIdent(PPID objType, PPID objID, int16 prop)
+TextRefIdent::TextRefIdent(PPID objType, PPID objID, int16 prop) : P(prop), L(0)
 {
-	O.Obj = objType;
-	O.Id = objID;
-	P = prop;
-	L = 0;
+	O.Set(objType, objID);
 }
 
 int TextRefIdent::operator !() const
@@ -2184,9 +2174,8 @@ private:
 	TextRefCore * P_T; // @notowned
 };
 
-SelfTextRefCache::SelfTextRefCache() : ObjCache(PPOBJ_SELFREFTEXT, sizeof(ObjCacheEntry)), TextCache(4 * 1024 * 1024)
+SelfTextRefCache::SelfTextRefCache() : ObjCache(PPOBJ_SELFREFTEXT, sizeof(ObjCacheEntry)), TextCache(4 * 1024 * 1024), P_T(0)
 {
-	P_T = 0;
 }
 
 void FASTCALL SelfTextRefCache::SetTable(TextRefCore * pT)
@@ -2580,10 +2569,8 @@ int SLAPI UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText
     return ok;
 }
 
-UnxTextRefCore::_Enum::_Enum(UnxTextRefCore * pT, long h)
+UnxTextRefCore::_Enum::_Enum(UnxTextRefCore * pT, long h) : P_T(pT), H(h)
 {
-	P_T = pT;
-	H = h;
 }
 
 UnxTextRefCore::_Enum::~_Enum()

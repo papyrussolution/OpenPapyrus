@@ -11,8 +11,8 @@
 #define TV_DEBUG_STACK 0
 
 //
-CtrlGroup::CtrlGroup()
-	{ Id = 0; }
+CtrlGroup::CtrlGroup() : Id(0)
+	{}
 CtrlGroup::~CtrlGroup()
 	{}
 void CtrlGroup::handleEvent(TDialog*, TEvent&)

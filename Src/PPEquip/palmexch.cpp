@@ -292,16 +292,13 @@ int SyncTable::DeleteTable(const char * pName)
 	return ok;
 }
 
-SyncTable::SyncTable(int compress, int palmCompressed, SpiiExchgContext * pCtx)
+SyncTable::SyncTable(int compress, int palmCompressed, SpiiExchgContext * pCtx) : P_Ctx(pCtx), 
+	Compress(compress), PalmCompressed(palmCompressed), DefReopenDelta(2000)
 {
-	P_Ctx = pCtx;
-	Compress = compress;
-	PalmCompressed = palmCompressed;
 	Handle[0] = 0;
 	Handle[0] = 0;
 	MEMSZERO(RecInfo);
 	TblName[0] = 0;
-	DefReopenDelta = 2000;
 }
 
 SyncTable::~SyncTable()

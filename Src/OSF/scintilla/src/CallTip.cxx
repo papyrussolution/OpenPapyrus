@@ -14,26 +14,17 @@
 using namespace Scintilla;
 #endif
 
-CallTip::CallTip()
+CallTip::CallTip() : /*inCallTipMode(false),*/Flags(0), posStartCallTip(0), lineHeight(1), offsetMain(0), startHighlight(0), endHighlight(0), tabSize(0)
 {
 	wCallTip = 0;
-	inCallTipMode = false;
-	posStartCallTip = 0;
-	rectUp = PRectangle(0, 0, 0, 0);
-	rectDown = PRectangle(0, 0, 0, 0);
-	lineHeight = 1;
-	offsetMain = 0;
-	startHighlight = 0;
-	endHighlight = 0;
-	tabSize = 0;
-	above = false;
-	useStyleCallTip = false;    // for backwards compatibility
-
+	//rectUp = PRectangle(0, 0, 0, 0);
+	//rectDown = PRectangle(0, 0, 0, 0);
+	//above = false;
+	//useStyleCallTip = false;    // for backwards compatibility
 	insetX = 5;
 	widthArrow = 14;
 	borderHeight = 2; // Extra line for border and an empty line at top and bottom.
 	verticalOffset = 1;
-
 #ifdef __APPLE__
 	// proper apple colours for the default
 	colourBG = ColourDesired(0xff, 0xff, 0xc6);
@@ -256,7 +247,7 @@ PRectangle CallTip::CallTipStart(int pos, Point pt, int textHeight, const char *
 	surfaceMeasure->SetDBCSMode(codePage);
 	startHighlight = 0;
 	endHighlight = 0;
-	inCallTipMode = true;
+	Flags |= fInCallTipMode;
 	posStartCallTip = pos;
 	XYPOSITION deviceHeight = static_cast<XYPOSITION>(surfaceMeasure->DeviceHeightFont(size));
 	FontParameters fp(faceName, deviceHeight / SC_FONT_SIZE_MULTIPLIER, SC_WEIGHT_NORMAL, false, 0, technology, characterSet);
@@ -282,7 +273,7 @@ PRectangle CallTip::CallTipStart(int pos, Point pt, int textHeight, const char *
 	// the tip text, else to the tip text left edge.
 	int height = lineHeight * numLines - static_cast<int>(surfaceMeasure->InternalLeading(font)) + borderHeight * 2;
 	delete surfaceMeasure;
-	if(above) {
+	if(Flags & fAbove) {
 		return PRectangle(pt.x - offsetMain, pt.y - verticalOffset - height, pt.x + width - offsetMain, pt.y - verticalOffset);
 	}
 	else {
@@ -293,10 +284,9 @@ PRectangle CallTip::CallTipStart(int pos, Point pt, int textHeight, const char *
 
 void CallTip::CallTipCancel()
 {
-	inCallTipMode = false;
-	if(wCallTip.Created()) {
+	Flags &= ~fInCallTipMode;
+	if(wCallTip.Created())
 		wCallTip.Destroy();
-	}
 }
 
 void CallTip::SetHighlight(int start, int end)
@@ -316,14 +306,14 @@ void CallTip::SetHighlight(int start, int end)
 void CallTip::SetTabSize(int tabSz)
 {
 	tabSize = tabSz;
-	useStyleCallTip = true;
+	Flags |= fUseStyleCallTip;
 }
 
 // Set the calltip position, below the text by default or if above is false
 // else above the text.
 void CallTip::SetPosition(bool aboveText)
 {
-	above = aboveText;
+	SETFLAG(Flags, fAbove, aboveText);
 }
 
 // It might be better to have two access functions for this and to use

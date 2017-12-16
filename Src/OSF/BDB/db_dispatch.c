@@ -56,16 +56,13 @@ static int __db_txnlist_find_internal(ENV*, DB_TXNHEAD*, db_txnlist_type, uint32
 int __db_dispatch(ENV * env, DB_DISTAB * dtab, DBT * db /* The log record upon which to dispatch */,
 	DB_LSN * lsnp /* The lsn of the record being dispatched. */, db_recops redo /* Redo this op (or undo it) */, void * params)
 {
-	DB_ENV * dbenv;
-	DB_TXNHEAD * info;       /* Transaction list. */
-	DB_LOG_VRFY_INFO * lvh;
 	DB_LSN prev_lsn;
 	uint32 rectype, status, txnid, urectype;
-	int make_call, ret;
-	dbenv = env->dbenv;
-	make_call = ret = 0;
-	lvh = NULL;
-	info = NULL;
+	int make_call = 0;
+	int ret = 0;
+	DB_ENV * dbenv = env->dbenv;
+	DB_LOG_VRFY_INFO * lvh = NULL;
+	DB_TXNHEAD * info = NULL; /* Transaction list. */
 	LOGCOPY_32(env, &rectype, db->data);
 	LOGCOPY_32(env, &txnid, (uint8 *)db->data+sizeof(rectype));
 	/*

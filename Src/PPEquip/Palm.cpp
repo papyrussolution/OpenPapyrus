@@ -3224,18 +3224,13 @@ int SLAPI PPObjStyloPalm::ImportToDo(SQueue * pQueue, PPLogger * pLogger, int us
 	return ok;
 }
 
-SLAPI PPObjStyloPalm::ExportBlock::ExportBlock()
+SLAPI PPObjStyloPalm::ExportBlock::ExportBlock() : P_DebtView(0), P_GrView(0), P_BrandList(0), P_WhList(0), P_GgList(0)
 {
 	P_GObj = new PPObjGoods;
 	P_BrObj = new PPObjBrand;
 	P_PsnObj = new PPObjPerson;
 	P_LocObj = new PPObjLocation;
 	P_ArObj = new PPObjArticle;
-	P_DebtView = 0;
-	P_GrView = 0;
-	P_BrandList = 0;
-	P_WhList = 0;
-	P_GgList = 0;
 }
 
 SLAPI PPObjStyloPalm::ExportBlock::~ExportBlock()
@@ -4291,12 +4286,8 @@ int SLAPI PPObjStyloPalm::ImpExp(PalmPaneData * pData)
 	return ok;
 }
 
-SLAPI PalmImportWaiter::PalmImportWaiter(PalmImportProc proc, void * procExtraPtr)
+SLAPI PalmImportWaiter::PalmImportWaiter(PalmImportProc proc, void * procExtraPtr) : Semaphore(0), P_DeviceList(0), Proc(proc), ProcExtraPtr(procExtraPtr)
 {
-	Semaphore = 0;
-	P_DeviceList = 0;
-	Proc = proc;
-	ProcExtraPtr = procExtraPtr;
 	InitDeviceList();
 }
 
@@ -4372,12 +4363,8 @@ int SLAPI PalmImportWaiter::Activate()
 //
 //
 //
-SLAPI PalmInputParam::PalmInputParam()
+SLAPI PalmInputParam::PalmInputParam() : P_BillQueue(0), P_ToDoQueue(0), P_DebtMemoQueue(0), P_GtList(0)
 {
-	P_BillQueue = 0;
-	P_ToDoQueue = 0;
-	P_DebtMemoQueue = 0;
-	P_GtList = 0;
 }
 //
 //

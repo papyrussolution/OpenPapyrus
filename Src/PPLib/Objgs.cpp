@@ -813,19 +813,11 @@ int SLAPI PPGoodsStrucItem::GetQtty(double complQtty, double * pItemQtty) const
 class GoodsStrucSelectorDialog : public TDialog {
 public:
 	struct DataBlock {
-		DataBlock(PPID namedGsID)
+		DataBlock(PPID namedGsID) : Mode(mNamedStruc), Flags(0), GsID(namedGsID), P_List(0)
 		{
-			Mode = mNamedStruc;
-			Flags = 0;
-			GsID = namedGsID;
-			P_List = 0;
 		}
-		DataBlock(const TSCollection <PPGoodsStruc> * pList, PPID selectionID)
+		DataBlock(const TSCollection <PPGoodsStruc> * pList, PPID selectionID) : Mode(mList), Flags(0), GsID(selectionID), P_List(pList)
 		{
-			Mode = mList;
-			Flags = 0;
-			GsID = selectionID;
-			P_List = pList;
 		}
 		enum {
             mNamedStruc = 1,
@@ -969,14 +961,13 @@ struct GoodsStrucCopyParam {
 
 class GSDialog : public PPListDialog {
 public:
-	GSDialog() : PPListDialog(DLG_GSTRUC, CTL_GSTRUC_LIST)
+	GSDialog() : PPListDialog(DLG_GSTRUC, CTL_GSTRUC_LIST), NewGoodsGrpID(0), Changed(0)
 	{
 		NewGoodsGrpID = 0;
 		MEMSZERO(GscParam);
 		SetupCalPeriod(CTLCAL_GSTRUC_PERIOD, CTL_GSTRUC_PERIOD);
 		if(P_Box && P_Box->def)
 			P_Box->def->SetOption(lbtFocNotify, 1);
-		Changed = 0;
 		updateList(-1);
 	}
 	int    setDTS(const PPGoodsStruc *);
@@ -1344,11 +1335,8 @@ private:
 	double Price;
 };
 
-GSItemDialog::GSItemDialog(PPGoodsStrucItem * pData, const PPGoodsStruc * pStruc) : TDialog(DLG_GSITEM)
+GSItemDialog::GSItemDialog(PPGoodsStrucItem * pData, const PPGoodsStruc * pStruc) : TDialog(DLG_GSITEM), P_Struc(pStruc), P_Data(pData), Price(0.0)
 {
-	P_Struc = pStruc;
-	P_Data = pData;
-	Price = 0.0;
 	SString buf;
 	ushort v;
 	disableCtrl(CTL_GSITEM_PRICE, 1);
@@ -1660,8 +1648,7 @@ int GSDialog::addItemBySample()
 
 int GSDialog::editItem(long pos, long)
 {
-	if(pos >= 0 && pos < (long)Data.Items.getCount() &&
-		editItemDialog((int)pos, &Data.Items.at((uint)pos)) > 0) {
+	if(pos >= 0 && pos < (long)Data.Items.getCount() && editItemDialog((int)pos, &Data.Items.at((uint)pos)) > 0) {
 		Changed = 1;
 		return 1;
 	}
@@ -2313,10 +2300,8 @@ int SLAPI PPObjGoodsStruc::Print(PPGoodsStruc * pGoodsStruc)
 	return ok;
 }
 
-SLAPI GStrucIterator::GStrucIterator()
+SLAPI GStrucIterator::GStrucIterator() : Idx(0), LoadRecurItems(0)
 {
-	Idx = 0;
-	LoadRecurItems = 0;
 }
 
 const PPGoodsStruc * SLAPI GStrucIterator::GetStruc() const
@@ -2495,14 +2480,8 @@ int SLAPI PPObjGoodsStruc::CheckRecursion()
 //
 //
 //
-SLAPI SaGiftItem::SaGiftItem()
+SLAPI SaGiftItem::SaGiftItem() : StrucID(0), OrgStrucID(0), QuotKindID(0), Flags(0), Limit(0.0f), AmtRestrict(0.0)
 {
-	StrucID = 0;
-	OrgStrucID = 0;
-	QuotKindID = 0;
-	Flags = 0;
-	Limit = 0.0f;
-	AmtRestrict = 0.0;
 }
 
 SLAPI SaGiftItem::SaGiftItem(const SaGiftItem & rS)

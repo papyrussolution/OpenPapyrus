@@ -29,12 +29,9 @@ IMPL_INVARIANT_C(StaffAmtEntry)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SLAPI StaffAmtEntry::StaffAmtEntry(PPID amtTypeID, PPID curID, double amt)
+SLAPI StaffAmtEntry::StaffAmtEntry(PPID amtTypeID, PPID curID, double amt) : AmtTypeID(amtTypeID), CurID(curID), Amt(amt)
 {
-	AmtTypeID = amtTypeID;
-	CurID = curID;
 	Period.SetZero();
-	Amt = amt;
 }
 
 int FASTCALL StaffAmtEntry::IsEqual(const StaffAmtEntry & rS) const

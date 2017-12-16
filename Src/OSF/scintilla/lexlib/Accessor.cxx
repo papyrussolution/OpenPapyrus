@@ -62,12 +62,22 @@ IDocumentWithLineEnd * LexAccessor::MultiByteAccess() const
 //
 // Safe version of operator[], returning a defined value for invalid position
 //
-char LexAccessor::SafeGetCharAt(Sci_Position position, char chDefault)
+char FASTCALL LexAccessor::SafeGetCharAt(Sci_Position position, char chDefault)
 {
 	if(position < startPos || position >= endPos) {
 		Fill(position);
 		if(position < startPos || position >= endPos)
 			return chDefault; // Position is outside range of document
+	}
+	return buf[position - startPos];
+}
+
+char FASTCALL LexAccessor::SafeGetCharAt(Sci_Position position)
+{
+	if(position < startPos || position >= endPos) {
+		Fill(position);
+		if(position < startPos || position >= endPos)
+			return ' '; // Position is outside range of document
 	}
 	return buf[position - startPos];
 }

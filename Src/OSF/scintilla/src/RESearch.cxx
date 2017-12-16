@@ -244,12 +244,8 @@ const char bitarr[] = { 1, 2, 4, 8, 16, 32, 64, '\200' };
  * Document). The Document default state is that word chars are:
  * 0-9, a-z, A-Z and _
  */
-RESearch::RESearch(CharClassify * charClassTable) 
+RESearch::RESearch(CharClassify * charClassTable) : failure(0), charClass(charClassTable), sta(NOP) /* status of lastpat */, bol(0)
 {
-	failure = 0;
-	charClass = charClassTable;
-	sta = NOP;                  /* status of lastpat */
-	bol = 0;
 	std::fill(bittab, bittab + BITBLK, 0);
 	std::fill(tagstk, tagstk + MAXTAG, 0);
 	std::fill(nfa, nfa + MAXNFA, 0);

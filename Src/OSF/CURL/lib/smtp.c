@@ -217,22 +217,22 @@ static bool smtp_endofresp(struct connectdata * conn, char * line, size_t len, i
 {
 	struct smtp_conn * smtpc = &conn->proto.smtpc;
 	bool result = FALSE;
-	/* Nothing for us */
+	// Nothing for us 
 	if(len < 4 || !ISDIGIT(line[0]) || !ISDIGIT(line[1]) || !ISDIGIT(line[2]))
 		return FALSE;
-	/* Do we have a command response? This should be the response code followed
-	   by a space and optionally some text as per RFC-5321 and as outlined in
-	   Section 4. Examples of RFC-4954 but some e-mail servers ignore this and
-	   only send the response code instead as per Section 4.2. */
+	// Do we have a command response? This should be the response code followed
+	// by a space and optionally some text as per RFC-5321 and as outlined in
+	// Section 4. Examples of RFC-4954 but some e-mail servers ignore this and
+	// only send the response code instead as per Section 4.2.
 	if(line[3] == ' ' || len == 5) {
 		result = TRUE;
 		*resp = curlx_sltosi(strtol(line, NULL, 10));
-		/* Make sure real server never sends internal value */
+		// Make sure real server never sends internal value 
 		if(*resp == 1)
 			*resp = 0;
 	}
-	/* Do we have a multiline (continuation) response? */
-	else if(line[3] == '-' && (smtpc->state == SMTP_EHLO || smtpc->state == SMTP_COMMAND)) {
+	// Do we have a multiline (continuation) response? 
+	else if(line[3] == '-' && oneof2(smtpc->state, SMTP_EHLO, SMTP_COMMAND)) {
 		result = TRUE;
 		*resp = 1; /* Internal response code */
 	}
@@ -249,15 +249,14 @@ static void smtp_get_message(char * buffer, char ** outptr)
 {
 	size_t len = 0;
 	char * message = NULL;
-	/* Find the start of the message */
+	// Find the start of the message 
 	for(message = buffer + 4; *message == ' ' || *message == '\t'; message++)
 		;
-
-	/* Find the end of the message */
+	// Find the end of the message 
 	for(len = strlen(message); len--; )
 		if(message[len] != '\r' && message[len] != '\n' && message[len] != ' ' && message[len] != '\t')
 			break;
-	/* Terminate the message */
+	// Terminate the message 
 	if(++len) {
 		message[len] = '\0';
 	}
@@ -270,12 +269,11 @@ static void smtp_get_message(char * buffer, char ** outptr)
  *
  * This is the ONLY way to change SMTP state!
  */
-static void state(struct connectdata * conn, smtpstate newstate)
+static void FASTCALL state(struct connectdata * conn, smtpstate newstate)
 {
 	struct smtp_conn * smtpc = &conn->proto.smtpc;
 #if defined(DEBUGBUILD) && !defined(CURL_DISABLE_VERBOSE_STRINGS)
-	/* for debug purposes */
-	static const char * const names[] = {
+	static const char * const names[] = { // for debug purposes 
 		"STOP",
 		"SERVERGREET",
 		"EHLO",
@@ -289,14 +287,11 @@ static void state(struct connectdata * conn, smtpstate newstate)
 		"DATA",
 		"POSTDATA",
 		"QUIT",
-		/* LAST */
+		// LAST 
 	};
-
 	if(smtpc->state != newstate)
-		infof(conn->data, "SMTP %p state change from %s to %s\n",
-		    (void*)smtpc, names[smtpc->state], names[newstate]);
+		infof(conn->data, "SMTP %p state change from %s to %s\n", (void*)smtpc, names[smtpc->state], names[newstate]);
 #endif
-
 	smtpc->state = newstate;
 }
 
@@ -451,7 +446,7 @@ static CURLcode smtp_perform_command(struct connectdata * conn)
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
 	struct SMTP * smtp = (struct SMTP *)data->req.protop;
-	/* Send the command */
+	// Send the command 
 	if(smtp->rcpt)
 		result = Curl_pp_sendf(&conn->proto.smtpc.pp, "%s %s", smtp->custom && smtp->custom[0] != '\0' ? smtp->custom : "VRFY", smtp->rcpt->data);
 	else
@@ -474,31 +469,27 @@ static CURLcode smtp_perform_mail(struct connectdata * conn)
 	char * size = NULL;
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
-	/* Calculate the FROM parameter */
+	// Calculate the FROM parameter 
 	if(!data->set.str[STRING_MAIL_FROM])
-		/* Null reverse-path, RFC-5321, sect. 3.6.3 */
-		from = _strdup("<>");
+		from = _strdup("<>"); // Null reverse-path, RFC-5321, sect. 3.6.3 
 	else if(data->set.str[STRING_MAIL_FROM][0] == '<')
 		from = aprintf("%s", data->set.str[STRING_MAIL_FROM]);
 	else
 		from = aprintf("<%s>", data->set.str[STRING_MAIL_FROM]);
 	if(!from)
 		return CURLE_OUT_OF_MEMORY;
-	/* Calculate the optional AUTH parameter */
+	// Calculate the optional AUTH parameter 
 	if(data->set.str[STRING_MAIL_AUTH] && conn->proto.smtpc.sasl.authused) {
 		if(data->set.str[STRING_MAIL_AUTH][0] != '\0')
 			auth = aprintf("%s", data->set.str[STRING_MAIL_AUTH]);
 		else
-			/* Empty AUTH, RFC-2554, sect. 5 */
-			auth = _strdup("<>");
-
+			auth = _strdup("<>"); // Empty AUTH, RFC-2554, sect. 5 
 		if(!auth) {
 			SAlloc::F(from);
 			return CURLE_OUT_OF_MEMORY;
 		}
 	}
-
-	/* Calculate the optional SIZE parameter */
+	// Calculate the optional SIZE parameter 
 	if(conn->proto.smtpc.size_supported && conn->data->state.infilesize > 0) {
 		size = aprintf("%" CURL_FORMAT_CURL_OFF_T, data->state.infilesize);
 		if(!size) {
@@ -507,7 +498,7 @@ static CURLcode smtp_perform_mail(struct connectdata * conn)
 			return CURLE_OUT_OF_MEMORY;
 		}
 	}
-	/* Send the MAIL command */
+	// Send the MAIL command 
 	if(!auth && !size)
 		result = Curl_pp_sendf(&conn->proto.smtpc.pp, "MAIL FROM:%s", from);
 	else if(auth && !size)
@@ -706,7 +697,6 @@ static CURLcode smtp_state_auth_resp(struct connectdata * conn, int smtpcode, sm
 			default:
 			    break;
 		}
-
 	return result;
 }
 
@@ -719,8 +709,7 @@ static CURLcode smtp_state_command_resp(struct connectdata * conn, int smtpcode,
 	char * line = data->state.buffer;
 	size_t len = strlen(line);
 	(void)instate; /* no use for this yet */
-	if((smtp->rcpt && smtpcode/100 != 2 && smtpcode != 553 && smtpcode != 1) ||
-	    (!smtp->rcpt && smtpcode/100 != 2 && smtpcode != 1)) {
+	if((smtp->rcpt && smtpcode/100 != 2 && smtpcode != 553 && smtpcode != 1) || (!smtp->rcpt && smtpcode/100 != 2 && smtpcode != 1)) {
 		failf(data, "Command failed: %d", smtpcode);
 		result = CURLE_RECV_ERROR;
 	}
@@ -731,25 +720,19 @@ static CURLcode smtp_state_command_resp(struct connectdata * conn, int smtpcode,
 			result = Curl_client_write(conn, CLIENTWRITE_BODY, line, len + 1);
 			line[len] = '\0';
 		}
-
 		if(smtpcode != 1) {
 			if(smtp->rcpt) {
 				smtp->rcpt = smtp->rcpt->next;
-
 				if(smtp->rcpt) {
-					/* Send the next command */
-					result = smtp_perform_command(conn);
+					result = smtp_perform_command(conn); /* Send the next command */
 				}
 				else
-					/* End of DO phase */
-					state(conn, SMTP_STOP);
+					state(conn, SMTP_STOP); /* End of DO phase */
 			}
 			else
-				/* End of DO phase */
-				state(conn, SMTP_STOP);
+				state(conn, SMTP_STOP); /* End of DO phase */
 		}
 	}
-
 	return result;
 }
 

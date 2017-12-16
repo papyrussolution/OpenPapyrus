@@ -213,11 +213,8 @@ int SLAPI PPCommandDescr::EditCommandParam(PPID cmdDescrID, long cmdID, SBuffer 
 //
 //
 //
-SLAPI PPCommandItem::PPCommandItem(int kind)
+SLAPI PPCommandItem::PPCommandItem(int kind) : Kind(kind), Flags(0), ID(0)
 {
-	Kind = kind;
-	Flags = 0;
-	ID = 0;
 }
 
 SLAPI PPCommandItem::~PPCommandItem()
@@ -310,10 +307,9 @@ int SLAPI PPCommandItem::SetUniqueID(long * pID)
 //
 //
 //
-SLAPI PPCommand::PPCommand() : PPCommandItem(kCommand)
+SLAPI PPCommand::PPCommand() : PPCommandItem(kCommand), CmdID(0)
 {
 	P = 0;
-	CmdID = 0;
 	memzero(Reserve, sizeof(Reserve));
 }
 
@@ -1065,10 +1061,9 @@ int SLAPI PPCommandMngr::Backup()
 }
 */
 
-SLAPI PPCommandMngr::PPCommandMngr(const char * pFileName, int readOnly)
+SLAPI PPCommandMngr::PPCommandMngr(const char * pFileName, int readOnly) : ReadOnly(readOnly)
 {
 	long   mode = 0;
-	ReadOnly = readOnly;
 	if(readOnly)
 		mode = (SFile::mRead | SFile::mDenyWrite); // @v9.0.11 SFile::mDenyWrite
 	else

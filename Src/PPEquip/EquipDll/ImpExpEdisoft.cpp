@@ -514,7 +514,7 @@ public:
 		memzero(Header.EdiPassword, sizeof(Header.EdiPassword));
 	}
 	Sdr_ImpExpHeader Header;
-	SString    TTN;  // ƒл€ RECADV. ѕолучаем из первой полученной строки документа подтверждени€ прихода товара
+	SString TTN;  // ƒл€ RECADV. ѕолучаем из первой полученной строки документа подтверждени€ прихода товара
 					 // ƒл€ DESADV. ѕолучаем из заголовка документа и пихаем во все товарные строки
 };
 
@@ -544,13 +544,9 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 	}
 	return TRUE;
 }
-
-//
 //
 // Ёкспорт
 //
-//
-
 class ExportCls : public ImportExportCls {
 public:
 	ExportCls();
@@ -580,22 +576,13 @@ private:
 	double TotalGoodsCount;     // ¬ документах надо указывать общее количество товара. ѕридетс€ считать самосто€тельно
 };
 
-ExportCls::ExportCls()
+ExportCls::ExportCls() : Id(0), ObjId(0), ObjType(0), MessageType(0), Inited(0), ReadReceiptNum(0), BillSumWithoutVat(0.0), P_XmlWriter(0)
 {
-	Id = 0;
-	ObjId = 0;
-	ObjType = 0;
-	MessageType = 0;
-	Inited = 0;
-	ReadReceiptNum = 0;
-	BillSumWithoutVat = 0.0;
-	ExpFileName = 0;
-	LogName = 0;
-	P_XmlWriter = 0;
+	LogName.Z();
 	ErrorCode = 0;
 	WebServcErrorCode = 0;
 	TotalGoodsCount = 0;
-	TTN = 0;
+	TTN.Z();
 }
 
 ExportCls::~ExportCls()

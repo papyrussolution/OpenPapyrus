@@ -2288,7 +2288,7 @@ SMailMessage::Boundary * SLAPI SMailMessage::AttachFile(Boundary * pB, int forma
 	return p_result;
 }
 
-int SLAPI SMailMessage::PreprocessEmailAddrString(const SString & rSrc, SString & rResult) const
+int SLAPI SMailMessage::PreprocessEmailAddrString(const SString & rSrc, SString & rResult, StringSet * pSs) const
 {
 	rResult.Z();
 
@@ -2301,6 +2301,7 @@ int SLAPI SMailMessage::PreprocessEmailAddrString(const SString & rSrc, SString 
 	SNaturalTokenArray nta;
 	SString name_buf, addr_buf;
 	SString temp_buf;
+	SString fragment_buf;
 	for(uint ssp = 0; ss_to.get(&ssp, temp_buf);) {
 		uint ang_pos = 0;
 		nta.clear();
@@ -2310,6 +2311,7 @@ int SLAPI SMailMessage::PreprocessEmailAddrString(const SString & rSrc, SString 
 			if(rResult.Len() > 70)
 				rResult.CRB().Space();
 			rResult.Cat(temp_buf);
+			CALLPTRMEMB(pSs, add(temp_buf));
 			ok = 1;
 		}
 		else if(temp_buf.StrChr('<', &ang_pos)) {
@@ -2334,6 +2336,10 @@ int SLAPI SMailMessage::PreprocessEmailAddrString(const SString & rSrc, SString 
 					else
 						rResult.Space();
 					rResult.CatChar('<').Cat(addr_buf).CatChar('>');
+					if(pSs) {
+						//pSs->add(fragment_buf.Z().Cat(temp_buf).Space().CatChar('<').Cat(addr_buf).CatChar('>'));
+						pSs->add(fragment_buf.Z().Cat(addr_buf));
+					}
 					ok = 1;
 				}
 				else
@@ -2364,7 +2370,7 @@ int SLAPI SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 		out_buf.Cat(temp_buf).CRB();
 		R_Msg.GetField(SMailMessage::fldFrom, temp_buf);
 		if(temp_buf.NotEmptyS()) {
-			if(R_Msg.PreprocessEmailAddrString(temp_buf, result_buf))
+			if(R_Msg.PreprocessEmailAddrString(temp_buf, result_buf, 0))
 				out_buf.Cat("From").CatDiv(':', 2).Cat(result_buf).CRB();
 		}
 		R_Msg.GetField(SMailMessage::fldMailer, temp_buf);
@@ -2378,10 +2384,10 @@ int SLAPI SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 		}
 		{
 			R_Msg.GetField(SMailMessage::fldTo, temp_buf);
-			if(R_Msg.PreprocessEmailAddrString(temp_buf, result_buf))
+			if(R_Msg.PreprocessEmailAddrString(temp_buf, result_buf, 0))
 				out_buf.Cat("To").CatDiv(':', 2).Cat(result_buf).CRB();
 			R_Msg.GetField(SMailMessage::fldCc, temp_buf);
-			if(R_Msg.PreprocessEmailAddrString(temp_buf, result_buf))
+			if(R_Msg.PreprocessEmailAddrString(temp_buf, result_buf, 0))
 				out_buf.Cat("Cc").CatDiv(':', 2).Cat(result_buf).CRB();
 		}
 		R_Msg.GetField(SMailMessage::fldSubj, temp_buf);
@@ -4023,76 +4029,105 @@ int ScURL::Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN)
 	return ok;
 }
 
+struct CbRead_EMailMessage_Block {
+	CbRead_EMailMessage_Block(const SMailMessage & rMsg) : Wb(rMsg)
+	{
+	}
+	SMailMessage::WriterBlock Wb;
+	SBuffer TBuf;
+};
+
+static size_t CbRead_EMailMessage(char * pBuffer, size_t size, size_t nitems, void * pExtra)
+{
+	size_t written_sz = 0;
+	const size_t outer_buf_sz = (size * nitems);
+	if(outer_buf_sz != 0) {
+		CbRead_EMailMessage_Block * p_blk = (CbRead_EMailMessage_Block *)pExtra;
+		size_t avl_sz = p_blk->TBuf.GetAvailableSize();
+		int    r = 1;
+		while(r > 0 && written_sz < outer_buf_sz) {
+			size_t s = MIN(avl_sz, (outer_buf_sz-written_sz));
+			if(s) {
+				p_blk->TBuf.Read(pBuffer + written_sz, s);
+				written_sz += s;
+			}
+			else {
+				p_blk->TBuf.Clear();
+				r = p_blk->Wb.Read(4096, p_blk->TBuf);
+			}
+			avl_sz = p_blk->TBuf.GetAvailableSize();
+		}
+	}
+	return written_sz;
+}
+
 int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, SMailMessage & rMsg)
 {
-	/*
-	int main(void)
-	{
-		CURL *curl;
-		CURLcode res = CURLE_OK;
-		struct curl_slist *recipients = NULL;
-		struct fileBuf_upload_status file_upload_ctx;
-		size_t file_size(0);
-		file_upload_ctx.lines_read = 0;
-		curl = curl_easy_init();
-		file_size = read_file();
-		if(curl) {
-			curl_easy_setopt(curl, CURLOPT_USERNAME, "xxxx");
-			curl_easy_setopt(curl, CURLOPT_PASSWORD, "xxxx");
-			curl_easy_setopt(curl, CURLOPT_URL, "smtp://smtp.gmail.com:587");
-			curl_easy_setopt(curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
-			//curl_easy_setopt(curl, CURLOPT_CAINFO, "google.pem");
-			curl_easy_setopt(curl, CURLOPT_MAIL_FROM, FROM);
-			recipients = curl_slist_append(recipients, TO);
-			curl_easy_setopt(curl, CURLOPT_MAIL_RCPT, recipients);
-
-			curl_easy_setopt(curl, CURLOPT_INFILESIZE, file_size);
-			curl_easy_setopt(curl, CURLOPT_READFUNCTION, fileBuf_source);
-			curl_easy_setopt(curl, CURLOPT_READDATA, &file_upload_ctx);
-			curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-			curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
-
-			res = curl_easy_perform(curl);
-
-			if(res != CURLE_OK)
-				fprintf(stderr, "curl_easy_perform() failed: %s\n",
-			curl_easy_strerror(res));
-			curl_slist_free_all(recipients);
-			curl_easy_cleanup(curl);
-		}
-		delete[] fileBuf;
-		return (int)res;
-	}
-	*/
-	int    ok = -1;
+	int    ok = 1;
 	SString temp_buf;
+	SString addr_buf;
+	SString from_buf;
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
-	THROW(PrepareURL(url_local, InetUrl::protSMTP, url_info));
+	struct curl_slist * p_recipients = 0;
+	{
+		THROW(PrepareURL(url_local, InetUrl::protSMTP, url_info));
+		url_local.Composite(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort|InetUrl::stPath, temp_buf);
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_USERNAME, url_info.User.cptr())));
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_PASSWORD, url_info.Password.cptr())));
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0));
 	{
-		rMsg.GetField(rMsg.fldFrom, temp_buf);
-		if(temp_buf.NotEmptyS()) {
-			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_MAIL_FROM, temp_buf.cptr())));
-		}
+		CbRead_EMailMessage_Block rd_blk(rMsg);
 		{
-			struct curl_slist * p_recipients = 0;
-			StringSet ss_rcp;
-			rMsg.GetField(rMsg.fldTo, temp_buf);
-			temp_buf.Tokenize(",; ", ss_rcp);
-			rMsg.GetField(rMsg.fldCc, temp_buf);
-			temp_buf.Tokenize(",; ", ss_rcp);
-			for(uint ssp = 0; ss_rcp.get(&ssp, temp_buf);) {
-				if(temp_buf.NotEmptyS())
-					p_recipients = curl_slist_append(p_recipients, temp_buf);
+			StringSet ss;
+			rMsg.GetField(SMailMessage::fldFrom, temp_buf);
+			if(temp_buf.NotEmptyS()) {
+				ss.clear();
+				if(rMsg.PreprocessEmailAddrString(temp_buf, addr_buf, &ss)) {
+					uint ssp = 0;
+					if(ss.get(&ssp, from_buf)) {
+						THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_MAIL_FROM, from_buf.cptr())));
+					}
+				}
 			}
-			if(p_recipients) {
-				THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_MAIL_RCPT, p_recipients)));
+			rMsg.GetField(SMailMessage::fldTo, temp_buf);
+			if(temp_buf.NotEmptyS()) {
+				ss.clear();
+				if(rMsg.PreprocessEmailAddrString(temp_buf, addr_buf, &ss)) {
+					for(uint ssp = 0; ss.get(&ssp, temp_buf);)
+						p_recipients = curl_slist_append(p_recipients, temp_buf.cptr());
+				}
 			}
+			rMsg.GetField(SMailMessage::fldCc, temp_buf);
+			if(temp_buf.NotEmptyS()) {
+				ss.clear();
+				if(rMsg.PreprocessEmailAddrString(temp_buf, addr_buf, &ss)) {
+					for(uint ssp = 0; ss.get(&ssp, temp_buf);)
+						p_recipients = curl_slist_append(p_recipients, temp_buf.cptr());
+				}
+			}
+			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_MAIL_RCPT, p_recipients)));
 		}
-
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL)));
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_READFUNCTION, CbRead_EMailMessage)));
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_READDATA, &rd_blk)));
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_UPLOAD, 1L)));
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_VERBOSE, 1L)));
+		{
+			SLS.QueryPath("log", temp_buf);
+			temp_buf.SetLastSlash().Cat("curl.log");
+			SFile f_err(temp_buf, SFile::mWrite);
+			if(((FILE *)f_err) != 0) {
+				THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_STDERR, (FILE *)f_err)));
+			}
+			THROW(Execute());
+			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_STDERR, 0)));
+		}
 	}
 	CATCHZOK
+	curl_slist_free_all(p_recipients);
 	return ok;
 }
 //
@@ -4443,20 +4478,19 @@ void SLAPI Test_MailMsg_ReadFromFile()
 	}
 }
 
-void SLAPI Test_MakeEmailMessage()
+static void SLAPI Test_MakeEmailMessage(SMailMessage & rMsg)
 {
 	SString path;
-	SMailMessage msg;
 	SString temp_buf;
 	SBuffer data_buf;
-	temp_buf.Z().Cat("Соболев Антон").Space().CatChar('<').Cat("sobolev@petroglif.ru").CatChar('>').Transf(CTRANSF_OUTER_TO_UTF8);
-	msg.SetField(msg.fldFrom, temp_buf);
-	temp_buf.Z().Cat("Соболев Антон").Space().CatChar('<').Cat("soobolev@yandex.ru").CatChar('>');
+	temp_buf.Z().Cat("Соболев Антон").Space().CatChar('<').Cat("soobolev@yandex.ru").CatChar('>').Transf(CTRANSF_OUTER_TO_UTF8);
+	rMsg.SetField(rMsg.fldFrom, temp_buf);
+	temp_buf.Z().Cat("Соболев Антон").Space().CatChar('<').Cat("sobolev@petroglif.ru").CatChar('>');
 	temp_buf.Comma().Cat("Папирус Сольюшн").Space().CatChar('<').Cat("papyrussolution@gmail.com").CatChar('>');
 	temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
-	msg.SetField(msg.fldTo, temp_buf);
+	rMsg.SetField(rMsg.fldTo, temp_buf);
 	temp_buf.Z().Cat("Тестовое письмо для проверки правильности формирования сообщения. Вот!").Transf(CTRANSF_OUTER_TO_UTF8);
-	msg.SetField(msg.fldSubj, temp_buf);
+	rMsg.SetField(rMsg.fldSubj, temp_buf);
 	{
 		{
 			SLS.QueryPath("testroot", path);
@@ -4468,16 +4502,24 @@ void SLAPI Test_MakeEmailMessage()
 					temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
 					data_buf.Write(temp_buf, temp_buf.Len());
 				}
-				msg.AttachContent(0, SFileFormat::Txt, cpUTF8, data_buf.GetBuf(data_buf.GetRdOffs()), data_buf.GetAvailableSize());
+				rMsg.AttachContent(0, SFileFormat::Txt, cpUTF8, data_buf.GetBuf(data_buf.GetRdOffs()), data_buf.GetAvailableSize());
 			}
 		}
 		{
 			SLS.QueryPath("testroot", path);
 			path.SetLastSlash().Cat("data").SetLastSlash().Cat("test-gif.gif");
-			msg.AttachFile(0, SFileFormat::Unkn, path);
+			rMsg.AttachFile(0, SFileFormat::Unkn, path);
 		}
 	}
+}
+
+void SLAPI Test_MakeEmailMessage()
+{
+	SMailMessage msg;
+	Test_MakeEmailMessage(msg);
 	{
+		SString path;
+		SBuffer data_buf;
 		SLS.QueryPath("testroot", path);
 		path.SetLastSlash().Cat("data/email").SetLastSlash().Cat("mkmsgtest.eml");
 		SFile f_out(path, SFile::mWrite|SFile::mBinary);
@@ -4493,6 +4535,38 @@ void SLAPI Test_MakeEmailMessage()
 #endif
 
 #if SLTEST_RUNNING // {
+
+SLTEST_R(ScURL_Mail_SMTP)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString url_text;
+	InetUrl url;
+	{
+		uint   arg_no = 0;
+		if(EnumArg(&arg_no, temp_buf)) {
+			url.Parse(temp_buf);
+			if(EnumArg(&arg_no, temp_buf)) {
+				url.SetComponent(url.cUserName, temp_buf);
+				if(EnumArg(&arg_no, temp_buf))
+					url.SetComponent(url.cPassword, temp_buf);
+			}
+		}
+	}
+	{
+		LAssocArray mail_list;
+		ScURL curl;
+		SString output_path;
+		SMailMessage msg;
+		Test_MakeEmailMessage(msg);
+		THROW(SLTEST_CHECK_NZ(curl.SmtpSend(url, ScURL::mfDontVerifySslPeer, msg)));
+	}
+	CATCH
+		CurrentStatus = 0;
+		ok = 0;
+	ENDCATCH
+	return CurrentStatus;
+}
 
 SLTEST_R(ScURL_Mail)
 {

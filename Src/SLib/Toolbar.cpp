@@ -9,14 +9,8 @@
 
 #define OEMRESOURCE
 
-TToolbar::TToolbar(HWND hWnd, DWORD style)
+TToolbar::TToolbar(HWND hWnd, DWORD style) : PrevToolProc(0), H_MainWnd(hWnd), H_Menu(0), H_Toolbar(0), CurrPos(0), Style(style)
 {
-	PrevToolProc = 0;
-	H_MainWnd = hWnd;
-	H_Menu = 0;
-	H_Toolbar = 0;
-	CurrPos = 0;
-	Style = style;
 	MEMSZERO(ClientRect);
 	MEMSZERO(CurrRect);
 	memzero(&MousePoint, sizeof(POINTS));
@@ -926,10 +920,8 @@ INT_PTR CALLBACK TToolbar::TuneToolsDlgProc(HWND hWnd, UINT message, WPARAM wPar
 //
 //
 //
-ToolbarCfg::ToolbarCfg()
+ToolbarCfg::ToolbarCfg() : P_Buttons(0), Count(0)
 {
-	P_Buttons = 0;
-	Count = 0;
 }
 
 ToolbarCfg::~ToolbarCfg()

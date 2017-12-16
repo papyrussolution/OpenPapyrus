@@ -5317,8 +5317,13 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText, TSCollection <AddrTok> &
 int TestAddressRecognition()
 {
 	PPFiasReference * p_fr = 0;
-	SFile in_file("D:/PAPYRUS/Src/PPTEST/DATA/address-land.csv", SFile::mRead);
-	SFile out_file("D:/PAPYRUS/Src/PPTEST/DATA/address-land.out", SFile::mWrite);
+	SString path;
+	SString file_name;
+	PPGetPath(PPPATH_TESTROOT, path);
+	(file_name = path).SetLastSlash().Cat("data").SetLastSlash().Cat("address-land.csv");
+	SFile in_file(file_name, SFile::mRead);
+	(file_name = path).SetLastSlash().Cat("data").SetLastSlash().Cat("address-land.out");
+	SFile out_file(file_name, SFile::mWrite);
 	if(in_file.IsValid()) {
 		if(DS.GetConstTLA().IsAuth()) {
 			p_fr = new PPFiasReference;
@@ -6088,7 +6093,6 @@ int SLAPI PPFiasReference::GetRandomAddress(long extValue, PPID cityID, PPID * p
 				ok = 1;
 			}
         }
-
     }
     CATCHZOK
     ASSIGN_PTR(pStreetID, street_id);
@@ -6249,9 +6253,8 @@ public:
 private:
     class TestDialog : public TDialog {
 	public:
-		TestDialog(TestFiasProcessor * pPrcssr) : TDialog(DLG_TESTFIAS)
+		TestDialog(TestFiasProcessor * pPrcssr) : TDialog(DLG_TESTFIAS), P(pPrcssr)
 		{
-			P = pPrcssr;
 			addGroup(1,  new FiasAddressCtrlGroup(CTL_TESTFIAS_INPUT, CTL_TESTFIAS_INFO));
 		}
 	private:

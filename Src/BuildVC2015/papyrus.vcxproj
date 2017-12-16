@@ -2027,7 +2027,6 @@
     </ProjectReference>
     <ProjectReference Include="scintilla2.vcxproj">
       <Project>{6824fe2f-b7df-4338-8025-a1b145da91b6}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="slib.vcxproj">
       <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>

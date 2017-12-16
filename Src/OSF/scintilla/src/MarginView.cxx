@@ -217,29 +217,29 @@ void Editor::MarginView::PaintMargin(Surface * surface, int topLine, PRectangle 
 							if(levelNum < levelNextNum) {
 								if(model.cs.GetExpanded(lineDoc)) {
 									if(levelNum == SC_FOLDLEVELBASE)
-										marks |= 1 << SC_MARKNUM_FOLDEROPEN;
+										marks |= (1 << SC_MARKNUM_FOLDEROPEN);
 									else
-										marks |= 1 << folderOpenMid;
+										marks |= (1 << folderOpenMid);
 								}
 								else {
 									if(levelNum == SC_FOLDLEVELBASE)
-										marks |= 1 << SC_MARKNUM_FOLDER;
+										marks |= (1 << SC_MARKNUM_FOLDER);
 									else
-										marks |= 1 << folderEnd;
+										marks |= (1 << folderEnd);
 								}
 							}
 							else if(levelNum > SC_FOLDLEVELBASE) 
-								marks |= 1 << SC_MARKNUM_FOLDERSUB;
+								marks |= (1 << SC_MARKNUM_FOLDERSUB);
 						}
 						else {
 							if(levelNum < levelNextNum) {
 								if(model.cs.GetExpanded(lineDoc))
-									marks |= 1 << SC_MARKNUM_FOLDERSUB;
+									marks |= (1 << SC_MARKNUM_FOLDERSUB);
 								else if(levelNum > SC_FOLDLEVELBASE)
-									marks |= 1 << SC_MARKNUM_FOLDERSUB;
+									marks |= (1 << SC_MARKNUM_FOLDERSUB);
 							}
 							else if(levelNum > SC_FOLDLEVELBASE)
-								marks |= 1 << SC_MARKNUM_FOLDERSUB;
+								marks |= (1 << SC_MARKNUM_FOLDERSUB);
 						}
 						needWhiteClosure = false;
 						const int firstFollowupLine = model.cs.DocFromDisplay(model.cs.DisplayFromDoc(lineDoc + 1));

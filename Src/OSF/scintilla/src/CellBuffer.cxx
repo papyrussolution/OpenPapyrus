@@ -71,13 +71,8 @@ int FASTCALL LineVector::LineStart(int line) const
 	return starts.PositionFromPartition(line);
 }
 
-UndoHistory::Action::Action()
+UndoHistory::Action::Action() : at(tStart), position(0), data(0), lenData(0), mayCoalesce(false)
 {
-	at = tStart;
-	position = 0;
-	data = 0;
-	lenData = 0;
-	mayCoalesce = false;
 }
 
 UndoHistory::Action::~Action()
@@ -138,15 +133,9 @@ void UndoHistory::Action::Grab(Action * source)
 // unless it looks as if the new action is caused by the user typing or deleting a stream of text.
 // Sequences that look like typing or deletion are coalesced into a single user operation.
 
-UndoHistory::UndoHistory()
+UndoHistory::UndoHistory() : lenActions(100), maxAction(0), currentAction(0), undoSequenceDepth(0), savePoint(0), tentativePoint(-1)
 {
-	lenActions = 100;
 	actions = new Action[lenActions];
-	maxAction = 0;
-	currentAction = 0;
-	undoSequenceDepth = 0;
-	savePoint = 0;
-	tentativePoint = -1;
 	actions[currentAction].Create(Action::tStart);
 }
 

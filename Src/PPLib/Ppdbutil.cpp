@@ -22,9 +22,8 @@ static int SLAPI ProtectDatabase(DbLoginBlock * pDlb, int protect, char * pPw, c
 //
 class PPRecoverParam : public BRecoverParam {
 public:
-	SLAPI PPRecoverParam() : BRecoverParam()
+	SLAPI PPRecoverParam() : BRecoverParam(), Stop(0)
 	{
-		Stop = 0;
 	}
 	virtual int SLAPI callbackProc(int ev, long lp1, long lp2, void * vp);
 	int    Stop;
@@ -225,13 +224,10 @@ PPBackup * SLAPI PPBackup::CreateInstance(PPDbEntrySet2 * dbes)
 	return ppb;
 }
 
-SLAPI PPBackup::PPBackup(const char * pDbName, DbProvider * pDb) : DBBackup()
+SLAPI PPBackup::PPBackup(const char * pDbName, DbProvider * pDb) : DBBackup(), State(stValid), P_ScenList(0), P_Sync(0)
 {
-	State = stValid;
 	//Valid = 1;
 	//IsDBLocked = 0;
-	P_ScenList = 0;
-	P_Sync = 0;
 	SString data_path;
 	THROW_MEM(P_Sync = new PPSync);
 	pDb->GetDataPath(data_path);
@@ -451,9 +447,8 @@ static int SLAPI SetupListBox(TView * pList, uint sz, uint fl, uint lbfl)
 
 class ConfigBackupDialog : public TDialog {
 public:
-	ConfigBackupDialog(PPIniFile * pIniFile) : TDialog(DLG_BUCFG_SELECT)
+	ConfigBackupDialog(PPIniFile * pIniFile) : TDialog(DLG_BUCFG_SELECT), IniFile(pIniFile)
 	{
-		IniFile = pIniFile;
 		List = (SmartListBox *)getCtrlView(CTL_BUCFG_SCNAME);
 		SetupListBox(List, 64, lbtFocNotify|lbtDisposeData|lbtDblClkNotify, ofFramed);
 		DBES.ReadFromProfile(IniFile, 0);
@@ -711,11 +706,8 @@ private:
 	Param  P;
 };
 
-SLAPI PrcssrDbDump::PrcssrDbDump(PPDbEntrySet2 * pDbes) : TblEntryList(sizeof(PrcssrDbDump::TableEntry))
+SLAPI PrcssrDbDump::PrcssrDbDump(PPDbEntrySet2 * pDbes) : TblEntryList(sizeof(PrcssrDbDump::TableEntry)), MaxBufLen(1024 * 1024), State(stValid)
 {
-	MaxBufLen = 1024 * 1024;
-	State = 0;
-	State |= stValid;
 	if(pDbes)
 		P_Dbes = pDbes;
 	else {
@@ -737,10 +729,9 @@ int SLAPI PrcssrDbDump::EditParam(Param * pData)
 {
 	class DbDumpDialog : public TDialog {
 	public:
-		DbDumpDialog(PPDbEntrySet2 * pDbes) : TDialog(DLG_DBDUMP)
+		DbDumpDialog(PPDbEntrySet2 * pDbes) : TDialog(DLG_DBDUMP), P_Dbes(pDbes)
 		{
 			assert(pDbes);
-			P_Dbes = pDbes;
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_DBDUMP_FILE, CTL_DBDUMP_FILE, 1, 0, PPTXT_FILPAT_DBDUMP,
 				FileBrowseCtrlGroup::fbcgfFile | FileBrowseCtrlGroup::fbcgfAllowNExists);
 		}
@@ -1021,7 +1012,7 @@ int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 					THROW_SL(FDump.Read(buffer));
 					for(int64 j = 0; j < local_count; j++) {
 						tbl.clearDataBuf();
-						THROW_SL(Ctx.Unserialize(&tbl.GetFields(), tbl.getDataBuf(), buffer));
+						THROW_SL(Ctx.Unserialize(tbl.GetTableName(), &tbl.GetFields(), tbl.getDataBuf(), buffer));
 						if(has_lob) {
 							const SLob * p_lob = (SLob *)lob_fld.getValuePtr();
 							tbl.setLobSize(lob_fld, p_lob ? p_lob->GetPtrSize() : 0);
@@ -1146,9 +1137,8 @@ int SLAPI DoDbDump(PPDbEntrySet2 * pDbes)
 //
 class DBMaintenanceDialog : public TDialog {
 public:
-	DBMaintenanceDialog(PPDbEntrySet2 * _dbes) : TDialog(DLG_BU_PRELUDE)
+	DBMaintenanceDialog(PPDbEntrySet2 * _dbes) : TDialog(DLG_BU_PRELUDE), dbes(_dbes)
 	{
-		dbes = _dbes;
 		if(dbes) {
 			if(dbes->GetCount() == 1)
 				dbes->SetSelection(1);
@@ -1223,9 +1213,6 @@ IMPL_HANDLE_EVENT(DBMaintenanceDialog)
 			}
 	}
 }
-//
-//
-//
 //
 //
 //
@@ -1441,15 +1428,12 @@ int SLAPI CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog = 1);
 
 class BackupDialog : public TDialog {
 public:
-	BackupDialog(uint rezID, BackupDlgData * data, PPBackup * ppb) : TDialog(rezID)
+	BackupDialog(uint rezID, BackupDlgData * data, PPBackup * ppb) : TDialog(rezID), CtrlX(0), Data(*data), AsBackup((data->Cmd == cmBuBackup) ? 1 : 0)
 	{
-		CtrlX = 0;
 		enableCommand(cmBuBackup,  1);
 		enableCommand(cmBuRestore, 1);
 		enableCommand(cmBuRemove,  1);
 		enableCommand(cmBuCheck,   1);
-		Data = *data;
-		AsBackup = (Data.Cmd == cmBuBackup) ? 1 : 0;
 		Data.Cmd = 0;
 		PPB      = ppb;
 		P_List   = (SmartListBox*)getCtrlView(CTL_BU_BACKUP_LIST);
@@ -1996,11 +1980,10 @@ static int SLAPI PPRecoverDialog(PPDbEntrySet2 * pDbes, BTBLID * pTblID, SString
 {
 	class RecoverDialog : public TDialog {
 	public:
-		RecoverDialog::RecoverDialog() : TDialog(DLG_RECOVER)
+		RecoverDialog::RecoverDialog() : TDialog(DLG_RECOVER), _dbes(0)
 		{
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_RECOVER_DEST, CTL_RECOVER_DEST, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_RECOVER_LOG,  CTL_RECOVER_LOG,  2, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
-			_dbes = 0;
 		}
 		int    setDTS(PPDbEntrySet2 * dbes, BTBLID tblID, const SString & rDest, const SString & rLog)
 		{
@@ -2933,12 +2916,8 @@ private:
 	TestTa01Tbl * P_Ta;
 };
 
-SLAPI PrcssrTestDb::PrcssrTestDb()
+SLAPI PrcssrTestDb::PrcssrTestDb() : TaCount(0), P_Ref1(0), P_Ref2(0), P_Ta(0)
 {
-	TaCount = 0;
-	P_Ref1 = 0;
-	P_Ref2 = 0;
-	P_Ta = 0;
 }
 
 SLAPI PrcssrTestDb::~PrcssrTestDb()
@@ -3701,7 +3680,7 @@ SLTEST_R(TestDbSerialization)
 					{
 						BillTbl::Rec bill_rec;
 						SLTEST_CHECK_NZ(bill_tbl.search(0, &id, spEq));
-						THROW(SLTEST_CHECK_NZ(ctx.Unserialize(&bill_tbl.GetFields(), &bill_rec, srlz_buf)));
+						THROW(SLTEST_CHECK_NZ(ctx.Unserialize(bill_tbl.GetTableName(), &bill_tbl.GetFields(), &bill_rec, srlz_buf)));
 						THROW(SLTEST_CHECK_NZ(bill_tbl.GetFields().IsEqualRecords(&bill_rec, &bill_tbl.data)));
 					}
 					break;
@@ -3709,7 +3688,7 @@ SLTEST_R(TestDbSerialization)
 					{
 						ReceiptTbl::Rec lot_rec;
 						SLTEST_CHECK_NZ(lot_tbl.search(0, &id, spEq));
-						THROW(SLTEST_CHECK_NZ(ctx.Unserialize(&lot_tbl.GetFields(), &lot_rec, srlz_buf)));
+						THROW(SLTEST_CHECK_NZ(ctx.Unserialize(lot_tbl.GetTableName(), &lot_tbl.GetFields(), &lot_rec, srlz_buf)));
 						THROW(SLTEST_CHECK_NZ(lot_tbl.GetFields().IsEqualRecords(&lot_rec, &lot_tbl.data)));
 					}
 					break;
@@ -3717,12 +3696,12 @@ SLTEST_R(TestDbSerialization)
 					{
 						CCheckTbl::Rec cc_rec;
 						SLTEST_CHECK_NZ(cc_tbl.search(0, &id, spEq));
-						THROW(SLTEST_CHECK_NZ(ctx.Unserialize(&cc_tbl.GetFields(), &cc_rec, srlz_buf)));
+						THROW(SLTEST_CHECK_NZ(ctx.Unserialize(cc_tbl.GetTableName(), &cc_tbl.GetFields(), &cc_rec, srlz_buf)));
 						THROW(SLTEST_CHECK_NZ(cc_tbl.GetFields().IsEqualRecords(&cc_rec, &cc_tbl.data)));
 						{
 							CCheckLineTbl::Rec ccl_rec, ccl_rec2;
 							for(int rbc = 0; cc_tbl.EnumLines(cc_rec.ID, &rbc, &ccl_rec) > 0;) {
-								THROW(SLTEST_CHECK_NZ(ctx.Unserialize(&cc_tbl.Lines.GetFields(), &ccl_rec2, srlz_buf)));
+								THROW(SLTEST_CHECK_NZ(ctx.Unserialize(cc_tbl.Lines.GetTableName(), &cc_tbl.Lines.GetFields(), &ccl_rec2, srlz_buf)));
 								THROW(SLTEST_CHECK_NZ(cc_tbl.Lines.GetFields().IsEqualRecords(&ccl_rec, &ccl_rec2)));
 							}
 						}
@@ -3732,7 +3711,7 @@ SLTEST_R(TestDbSerialization)
 					{
 						PrjTaskTbl::Rec todo_rec;
 						SLTEST_CHECK_NZ(todo_tbl.search(0, &id, spEq));
-						THROW(SLTEST_CHECK_NZ(ctx.Unserialize(&todo_tbl.GetFields(), &todo_rec, srlz_buf)));
+						THROW(SLTEST_CHECK_NZ(ctx.Unserialize(todo_tbl.GetTableName(), &todo_tbl.GetFields(), &todo_rec, srlz_buf)));
 						THROW(SLTEST_CHECK_NZ(todo_tbl.GetFields().IsEqualRecords(&todo_rec, &todo_tbl.data)));
 					}
 					break;

@@ -285,46 +285,38 @@ static void ColouriseFortranDoc(Sci_PositionU startPos, Sci_Position length, int
 static int classifyFoldPointFortran(const char* s, const char* prevWord, const char chNextNonBlank)
 {
 	int lev = 0;
-
-	if((strcmp(prevWord, "module") == 0 && strcmp(s, "subroutine") == 0)
-	    || (strcmp(prevWord, "module") == 0 && strcmp(s, "function") == 0)) {
+	if((sstreq(prevWord, "module") && sstreq(s, "subroutine")) || (sstreq(prevWord, "module") && sstreq(s, "function"))) {
 		lev = 0;
 	}
-	else if(strcmp(s, "associate") == 0 || strcmp(s, "block") == 0
-	    || strcmp(s, "blockdata") == 0 || strcmp(s, "select") == 0
-	    || strcmp(s, "selecttype") == 0 || strcmp(s, "selectcase") == 0
-	    || strcmp(s, "do") == 0 || strcmp(s, "enum") ==0
-	    || strcmp(s, "function") == 0 || strcmp(s, "interface") == 0
-	    || strcmp(s, "module") == 0 || strcmp(s, "program") == 0
-	    || strcmp(s, "subroutine") == 0 || strcmp(s, "then") == 0
-	    || (strcmp(s, "type") == 0 && chNextNonBlank != '(')
-	    || strcmp(s, "critical") == 0 || strcmp(s, "submodule") == 0) {
-		if(strcmp(prevWord, "end") == 0)
+	else if(sstreq(s, "associate") || sstreq(s, "block") || sstreq(s, "blockdata") || sstreq(s, "select") || sstreq(s, "selecttype") || 
+		sstreq(s, "selectcase") || sstreq(s, "do") || sstreq(s, "enum") || sstreq(s, "function") || sstreq(s, "interface") || 
+		sstreq(s, "module") || sstreq(s, "program") || sstreq(s, "subroutine") || sstreq(s, "then") || 
+		(sstreq(s, "type") && chNextNonBlank != '(') ||  sstreq(s, "critical") || sstreq(s, "submodule")) {
+		if(sstreq(prevWord, "end"))
 			lev = 0;
 		else
 			lev = 1;
 	}
-	else if((strcmp(s, "end") == 0 && chNextNonBlank != '=')
-	    || strcmp(s, "endassociate") == 0 || strcmp(s, "endblock") == 0
-	    || strcmp(s, "endblockdata") == 0 || strcmp(s, "endselect") == 0
-	    || strcmp(s, "enddo") == 0 || strcmp(s, "endenum") ==0
-	    || strcmp(s, "endif") == 0 || strcmp(s, "endforall") == 0
-	    || strcmp(s, "endfunction") == 0 || strcmp(s, "endinterface") == 0
-	    || strcmp(s, "endmodule") == 0 || strcmp(s, "endprogram") == 0
-	    || strcmp(s, "endsubroutine") == 0 || strcmp(s, "endtype") == 0
-	    || strcmp(s, "endwhere") == 0 || strcmp(s, "endcritical") == 0
-	    || (strcmp(prevWord, "module") == 0 && strcmp(s, "procedure") == 0)      // Take care of the "module procedure" statement
-	    || strcmp(s, "endsubmodule") == 0) {
+	else if((sstreq(s, "end") && chNextNonBlank != '=')
+	    || sstreq(s, "endassociate") || sstreq(s, "endblock") || 
+		sstreq(s, "endblockdata") || sstreq(s, "endselect") || 
+		sstreq(s, "enddo") || sstreq(s, "endenum") || 
+		sstreq(s, "endif") || sstreq(s, "endforall") || 
+		sstreq(s, "endfunction") || sstreq(s, "endinterface") || 
+		sstreq(s, "endmodule") || sstreq(s, "endprogram") || 
+		sstreq(s, "endsubroutine") || sstreq(s, "endtype") || 
+		sstreq(s, "endwhere") || sstreq(s, "endcritical") || 
+		(sstreq(prevWord, "module") && sstreq(s, "procedure")) // Take care of the "module procedure" statement
+	    || sstreq(s, "endsubmodule")) {
 		lev = -1;
 	}
-	else if(strcmp(prevWord, "end") == 0 && strcmp(s, "if") == 0) {   // end if
+	else if(sstreq(prevWord, "end") && sstreq(s, "if")) {   // end if
 		lev = 0;
 	}
-	else if(strcmp(prevWord, "type") == 0 && strcmp(s, "is") == 0) {   // type is
+	else if(sstreq(prevWord, "type") && sstreq(s, "is")) {   // type is
 		lev = -1;
 	}
-	else if((strcmp(prevWord, "end") == 0 && strcmp(s, "procedure") == 0)
-	    || strcmp(s, "endprocedure") == 0) {
+	else if((sstreq(prevWord, "end") && sstreq(s, "procedure")) || sstreq(s, "endprocedure")) {
 		lev = 1;         // level back to 0, because no folding support for "module procedure" in submodule
 	}
 	return lev;
@@ -402,8 +394,8 @@ static void FoldFortranDoc(Sci_PositionU startPos, Sci_Position length, int init
 				}
 				s[k] = '\0';
 				// Handle the forall and where statement and structure.
-				if(strcmp(s, "forall") == 0 || (strcmp(s, "where") == 0 && strcmp(prevWord, "else") != 0)) {
-					if(strcmp(prevWord, "end") != 0) {
+				if(sstreq(s, "forall") || (sstreq(s, "where") && !sstreq(prevWord, "else"))) {
+					if(!sstreq(prevWord, "end")) {
 						j = i + 1;
 						char chBrace = '(', chSeek = ')', ch1 = styler.SafeGetCharAt(j);
 						// Find the position of the first (
@@ -415,23 +407,26 @@ static void FoldFortranDoc(Sci_PositionU startPos, Sci_Position length, int init
 						int depth = 1;
 						char chAtPos;
 						char styAtPos;
-						while(j<endPos) {
+						while(j < endPos) {
 							j++;
 							chAtPos = styler.SafeGetCharAt(j);
 							styAtPos = styler.StyleAt(j);
 							if(styAtPos == styBrace) {
-								if(chAtPos == chBrace) depth++;
-								if(chAtPos == chSeek) depth--;
-								if(depth == 0) break;
+								if(chAtPos == chBrace) 
+									depth++;
+								if(chAtPos == chSeek) 
+									depth--;
+								if(depth == 0) 
+									break;
 							}
 						}
 						Sci_Position tmpLineCurrent = lineCurrent;
-						while(j<endPos) {
+						while(j < endPos) {
 							j++;
 							chAtPos = styler.SafeGetCharAt(j);
 							styAtPos = styler.StyleAt(j);
-							if(!IsALineEnd(chAtPos) &&
-							    (styAtPos == SCE_F_COMMENT || IsABlank(chAtPos))) continue;
+							if(!IsALineEnd(chAtPos) && (styAtPos == SCE_F_COMMENT || IsABlank(chAtPos))) 
+								continue;
 							if(isFixFormat) {
 								if(!IsALineEnd(chAtPos)) {
 									break;
@@ -440,9 +435,7 @@ static void FoldFortranDoc(Sci_PositionU startPos, Sci_Position length, int init
 									if(tmpLineCurrent < styler.GetLine(styler.Length()-1)) {
 										tmpLineCurrent++;
 										j = styler.LineStart(tmpLineCurrent);
-										if(styler.StyleAt(j+5) == SCE_F_CONTINUATION
-										    && !IsABlank(styler.SafeGetCharAt(j+5)) &&
-										    styler.SafeGetCharAt(j+5) != '0') {
+										if(styler.StyleAt(j+5) == SCE_F_CONTINUATION && !IsABlank(styler.SafeGetCharAt(j+5)) && styler.SafeGetCharAt(j+5) != '0') {
 											j += 5;
 											continue;
 										}
@@ -472,37 +465,31 @@ static void FoldFortranDoc(Sci_PositionU startPos, Sci_Position length, int init
 				else {
 					int wordLevelDelta = classifyFoldPointFortran(s, prevWord, chNextNonBlank);
 					levelDeltaNext += wordLevelDelta;
-					if(((strcmp(s, "else") == 0) && (nextEOL || chNextNonBlank == '!')) ||
-					    (strcmp(prevWord, "else") == 0 && strcmp(s, "where") == 0) || strcmp(s, "elsewhere") == 0) {
+					if((sstreq(s, "else") && (nextEOL || chNextNonBlank == '!')) ||
+					    (sstreq(prevWord, "else") && sstreq(s, "where")) || sstreq(s, "elsewhere")) {
 						if(!isPrevLine) {
 							levelCurrent--;
 						}
 						levelDeltaNext++;
 					}
-					else if((strcmp(prevWord, "else") == 0 && strcmp(s, "if") == 0) || strcmp(s, "elseif") == 0) {
+					else if((sstreq(prevWord, "else") && sstreq(s, "if")) || sstreq(s, "elseif")) {
 						if(!isPrevLine) {
 							levelCurrent--;
 						}
 					}
-					else if((strcmp(prevWord,
-							    "select") == 0 && strcmp(s, "case") == 0) || strcmp(s, "selectcase") == 0 ||
-					    (strcmp(prevWord, "select") == 0 && strcmp(s, "type") == 0) || strcmp(s, "selecttype") == 0) {
+					else if((sstreq(prevWord, "select") && sstreq(s, "case")) || sstreq(s, "selectcase") ||
+					    (sstreq(prevWord, "select") && sstreq(s, "type")) || sstreq(s, "selecttype")) {
 						levelDeltaNext += 2;
 					}
-					else if((strcmp(s,
-							    "case") == 0 &&
-						    chNextNonBlank == '(') ||
-					    (strcmp(prevWord, "case") == 0 && strcmp(s, "default") == 0) ||
-					    (strcmp(prevWord, "type") == 0 && strcmp(s, "is") == 0) ||
-					    (strcmp(prevWord, "class") == 0 && strcmp(s, "is") == 0) ||
-					    (strcmp(prevWord, "class") == 0 && strcmp(s, "default") == 0) ) {
+					else if((sstreq(s, "case") && chNextNonBlank == '(') || (sstreq(prevWord, "case") && sstreq(s, "default")) ||
+					    (sstreq(prevWord, "type") && sstreq(s, "is")) || (sstreq(prevWord, "class") && sstreq(s, "is")) ||
+					    (sstreq(prevWord, "class") && sstreq(s, "default"))) {
 						if(!isPrevLine) {
 							levelCurrent--;
 						}
 						levelDeltaNext++;
 					}
-					else if((strcmp(prevWord,
-							    "end") == 0 && strcmp(s, "select") == 0) || strcmp(s, "endselect") == 0) {
+					else if((sstreq(prevWord, "end") && sstreq(s, "select")) || sstreq(s, "endselect")) {
 						levelDeltaNext -= 2;
 					}
 
@@ -511,7 +498,7 @@ static void FoldFortranDoc(Sci_PositionU startPos, Sci_Position length, int init
 					// labels to ensure the folding level does not decrease too far when labels are used for other
 					// purposes.
 					// Since this is difficult, do-label constructs are not folded.
-					if(strcmp(s, "do") == 0 && IsADigit(chNextNonBlank)) {
+					if(sstreq(s, "do") && IsADigit(chNextNonBlank)) {
 						// Remove delta for do-label
 						levelDeltaNext -= wordLevelDelta;
 					}

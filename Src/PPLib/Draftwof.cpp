@@ -6,9 +6,8 @@
 #pragma hdrstop
 #include <charry.h>
 
-SLAPI PPDraftWrOffPacket::PPDraftWrOffPacket()
+SLAPI PPDraftWrOffPacket::PPDraftWrOffPacket() : P_List(0)
 {
-   	P_List = 0;
 	Init();
 }
 
@@ -337,9 +336,8 @@ IMPLEMENT_PPFILT_FACTORY(PrcssrWrOffDraft); SLAPI PrcssrWrOffDraftFilt::PrcssrWr
 	Init(1, 0);
 }
 
-SLAPI PrcssrWrOffDraft::PrcssrWrOffDraft()
+SLAPI PrcssrWrOffDraft::PrcssrWrOffDraft() : P_BObj(BillObj)
 {
-	P_BObj = BillObj;
 }
 
 int SLAPI PrcssrWrOffDraft::InitParam(PrcssrWrOffDraftFilt * pP)

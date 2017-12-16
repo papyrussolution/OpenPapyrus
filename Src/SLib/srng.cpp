@@ -1,5 +1,5 @@
 // SRNG.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2010, 2016
+// Copyright (c) A.Sobolev 2007, 2008, 2010, 2016, 2017
 //
 // Random Number Generators
 //
@@ -7,12 +7,8 @@
 #include <tv.h>
 #pragma hdrstop
 
-SRng::SRng(int alg, uint level)
+SRng::SRng(int alg, uint level) : Alg(alg), Level(level), RandMin(0), RandMax(0)
 {
-	Alg = alg;
-	Level = level;
-	RandMin = 0;
-	RandMax = 0;
 }
 
 ulong SRng::GetMin() const
@@ -1085,9 +1081,8 @@ double gsl_ran_poisson_pdf(ulong k, double mu)
 //
 //
 //
-SRandGenerator::SRandGenerator(SRng::Algorithm alg, uint level)
+SRandGenerator::SRandGenerator(SRng::Algorithm alg, uint level) : P_Inner(SRng::CreateInstance(alg, level))
 {
-	P_Inner = SRng::CreateInstance(alg, level);
 }
 
 SRandGenerator::~SRandGenerator()

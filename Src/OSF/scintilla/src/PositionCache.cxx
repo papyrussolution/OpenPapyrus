@@ -413,16 +413,8 @@ void BreakFinder::Insert(int val)
 
 BreakFinder::BreakFinder(const LineLayout * ll_, const Selection * psel, Range lineRange_, int posLineStart_,
     int xStart, bool breakForSelection, const Document * pdoc_, const SpecialRepresentations * preprs_, const ViewStyle * pvsDraw) :
-	ll(ll_),
-	lineRange(lineRange_),
-	posLineStart(posLineStart_),
-	nextBreak(lineRange_.start),
-	saeCurrentPos(0),
-	saeNext(0),
-	subBreak(-1),
-	pdoc(pdoc_),
-	encodingFamily(pdoc_->CodePageFamily()),
-	preprs(preprs_)
+	ll(ll_), lineRange(lineRange_), posLineStart(posLineStart_), nextBreak(lineRange_.start), saeCurrentPos(0),
+	saeNext(0), subBreak(-1), pdoc(pdoc_), encodingFamily(pdoc_->CodePageFamily()), preprs(preprs_)
 {
 	// Search for first visible break
 	// First find the first visible character
@@ -535,8 +527,7 @@ PositionCacheEntry::PositionCacheEntry() : styleNumber(0), len(0), clock(0), pos
 {
 }
 
-void PositionCacheEntry::Set(uint styleNumber_, const char * s_,
-    uint len_, XYPOSITION * positions_, uint clock_)
+void PositionCacheEntry::Set(uint styleNumber_, const char * s_, uint len_, XYPOSITION * positions_, uint clock_)
 {
 	Clear();
 	styleNumber = styleNumber_;
@@ -605,11 +596,9 @@ void PositionCacheEntry::ResetClock()
 		clock = 1;
 }
 
-PositionCache::PositionCache()
+PositionCache::PositionCache() : clock(1), allClear(true)
 {
-	clock = 1;
 	pces.resize(0x400);
-	allClear = true;
 }
 
 PositionCache::~PositionCache()

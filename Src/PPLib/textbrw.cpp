@@ -828,12 +828,8 @@ static int FASTCALL ScToVkTranslate(int keyIn)
 	}
 }
 
-STextBrowser::Document::Document()
+STextBrowser::Document::Document() : Cp(cpANSI), Eolf(eolUndef), State(0), SciDoc(0)
 {
-	Cp = cpANSI;
-	Eolf = eolUndef;
-	State = 0;
-	SciDoc = 0;
 }
 
 STextBrowser::Document & FASTCALL STextBrowser::Document::Reset(int preserveFileName)
@@ -854,17 +850,13 @@ long STextBrowser::Document::SetState(long st, int set)
 	return State;
 }
 
-STextBrowser::STextBrowser() : TBaseBrowserWindow(WndClsName), SScEditorBase()
+STextBrowser::STextBrowser() : TBaseBrowserWindow(WndClsName), SScEditorBase(), SpcMode(spcmNo)
 {
-	// @v9.7.11 P_SrDb = 0; // @v9.2.0
-	SpcMode = spcmNo; // @v9.2.0
 	Init(0);
 }
 
-STextBrowser::STextBrowser(const char * pFileName, int toolbarId) : TBaseBrowserWindow(WndClsName), SScEditorBase()
+STextBrowser::STextBrowser(const char * pFileName, int toolbarId) : TBaseBrowserWindow(WndClsName), SScEditorBase(), SpcMode(spcmNo)
 {
-	// @v9.7.11 P_SrDb = 0; // @v9.2.0
-	SpcMode = spcmNo; // @v9.2.0
 	Init(pFileName, toolbarId);
 }
 

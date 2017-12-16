@@ -191,15 +191,10 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 	resp_buf.BufferType = SECBUFFER_TOKEN;
 	resp_buf.pvBuffer   = output_token;
 	resp_buf.cbBuffer   = curlx_uztoul(token_max);
-
 	/* Generate our response message */
-	status = s_pSecFn->InitializeSecurityContext(&credentials, NULL, spn,
-	    0, 0, 0, &chlg_desc, 0,
-	    &context, &resp_desc, &attrs,
-	    &expiry);
-
-	if(status == SEC_I_COMPLETE_NEEDED ||
-	    status == SEC_I_COMPLETE_AND_CONTINUE)
+	status = s_pSecFn->InitializeSecurityContext(&credentials, NULL, spn, 0, 0, 0, &chlg_desc, 0,
+	    &context, &resp_desc, &attrs, &expiry);
+	if(status == SEC_I_COMPLETE_NEEDED || status == SEC_I_COMPLETE_AND_CONTINUE)
 		s_pSecFn->CompleteAuthToken(&credentials, &resp_desc);
 	else if(status != SEC_E_OK && status != SEC_I_CONTINUE_NEEDED) {
 		s_pSecFn->FreeCredentialsHandle(&credentials);
@@ -207,30 +202,17 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 		SAlloc::F(spn);
 		SAlloc::F(output_token);
 		SAlloc::F(input_token);
-
 		return CURLE_RECV_ERROR;
 	}
-
 	/* Base64 encode the response */
-	result = Curl_base64_encode(data, (char*)output_token, resp_buf.cbBuffer,
-	    outptr, outlen);
-
+	result = Curl_base64_encode(data, (char*)output_token, resp_buf.cbBuffer, outptr, outlen);
 	/* Free our handles */
 	s_pSecFn->DeleteSecurityContext(&context);
 	s_pSecFn->FreeCredentialsHandle(&credentials);
-
-	/* Free the identity structure */
-	Curl_sspi_free_identity(p_identity);
-
-	/* Free the SPN */
-	SAlloc::F(spn);
-
-	/* Free the response buffer */
-	SAlloc::F(output_token);
-
-	/* Free the decoded challenge message */
-	SAlloc::F(input_token);
-
+	Curl_sspi_free_identity(p_identity); /* Free the identity structure */
+	SAlloc::F(spn); /* Free the SPN */
+	SAlloc::F(output_token); /* Free the response buffer */
+	SAlloc::F(input_token); /* Free the decoded challenge message */
 	return result;
 }
 

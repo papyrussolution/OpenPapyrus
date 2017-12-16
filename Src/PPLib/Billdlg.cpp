@@ -2757,7 +2757,7 @@ int BillDialog::editItems()
 //
 // BillInfoDialog
 //
-static void SLAPI SetBillFlagsCtrl(TDialog * dlg, uint ctlID, long f)
+static void FASTCALL SetBillFlagsCtrl(TDialog * dlg, uint ctlID, long f)
 {
 	dlg->AddClusterAssoc(ctlID,  0, BILLF_TOTALDISCOUNT);
 	//dlg->AddClusterAssoc(ctlID,  1, BILLF_TRFRBYPRICE);
@@ -2782,9 +2782,8 @@ int SLAPI PPObjBill::ViewBillInfo(PPID billID)
 	class BillInfoDialog : public AmtListDialog {
 	public:
 		BillInfoDialog(PPBillPacket * pPack) : AmtListDialog(DLG_BILLINFO, CTL_BILLINFO_AMTLIST, 1,
-			&pPack->Amounts, 0, 0, OLW_CANINSERT | OLW_CANEDIT | OLW_CANDELETE)
+			&pPack->Amounts, 0, 0, OLW_CANINSERT|OLW_CANEDIT|OLW_CANDELETE), P_Pack(pPack)
 		{
-			P_Pack = pPack;
 		}
 		int getDTS(PPBillPacket *)
 		{
@@ -3702,10 +3701,8 @@ int SLAPI PPObjBill::EditLotExtData(PPID lotID)
 
 class LotInfoDialog : public TDialog {
 public:
-	LotInfoDialog(ReceiptTbl::Rec * pRec, int _canEdit) : TDialog(DLG_LOTINFO)
+	LotInfoDialog(ReceiptTbl::Rec * pRec, int _canEdit) : TDialog(DLG_LOTINFO), P_BObj(BillObj), CanEdit(_canEdit)
 	{
-		P_BObj = BillObj;
-		CanEdit = _canEdit;
 		SetupPPObjCombo(this, CTLSEL_LOTINFO_LOC, PPOBJ_LOCATION, 0, 0);
 		if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
 			SetupArCombo(this, CTLSEL_LOTINFO_SUPPL, pRec->SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet|sacfNonGeneric);

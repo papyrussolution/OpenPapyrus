@@ -663,13 +663,12 @@ void * SLAPI PPObjTSession::MakeExtraParam(PPID superSessID, PPID prcID, int kin
 //
 TLP_IMPL(PPObjTSession, TSessionCore, P_Tbl);
 
-SLAPI PPObjTSession::PPObjTSession(void * extraPtr) : PPObject(PPOBJ_TSESSION)
+SLAPI PPObjTSession::PPObjTSession(void * extraPtr) : PPObject(PPOBJ_TSESSION), P_BhtCurSess(0)
 {
 	ExtraPtr = extraPtr;
 	TLP_OPEN(P_Tbl);
 	MEMSZERO(Cfg);
 	ImplementFlags |= implStrAssocMakeList;
-	P_BhtCurSess = 0;
 }
 
 SLAPI PPObjTSession::~PPObjTSession()
@@ -3790,9 +3789,8 @@ int SLAPI PPObjTSession::GetWrOffOrder(TSessWrOffOrder * pData)
 	return ok;
 }
 
-SLAPI TSessWrOffOrder::TSessWrOffOrder() : ObjRestrictArray()
+SLAPI TSessWrOffOrder::TSessWrOffOrder() : ObjRestrictArray(), IsLoaded(0)
 {
-	IsLoaded = 0;
 }
 
 TSessWrOffOrder & FASTCALL TSessWrOffOrder::operator = (const TSessWrOffOrder & rSrc)

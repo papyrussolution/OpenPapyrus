@@ -122,10 +122,9 @@ SLAPI PPWorldPacket::PPWorldPacket()
 	Init();
 }
 
-int SLAPI PPWorldPacket::Init()
+void SLAPI PPWorldPacket::Init()
 {
 	THISZERO();
-	return 1;
 }
 //
 //

@@ -10748,32 +10748,6 @@
 #define PPERR_PSNTAGNEEDED        337 // Необходимо задать тег персоналии
 #define PPERR_PRMRPSNNEEDED       338 // Необходимо задать первичную персоналию
 #define PPERR_INVPOCLAUSEVERB     339 // Недопустимый тип персонального действия //
-#define PPERR_RMVFILLEDSTAFF      340 // Нельзя удалить заполненную штатную должность
-#define PPERR_PERSONNEEDED        341 // Необходимо задать персоналию
-#define PPERR_CRYSTAL_REPORT      342 // Ошибка печати через Seagate Crystal Report
-#define PPERR_INVLOTDTUPD         343 // Недопустимая дата при изменении лота
-#define PPERR_REVALDTUPD          344 // Нельзя менять дату переоценки
-#define PPERR_TOOHIGHDATE         345 // Дата имеет значение, большее допустимого
-#define PPERR_DUPLOTREVAL         346 // Не допускается двойная переоценка лота в одном документе
-#define PPERR_BARCSTDNSUPPORT     347 // Неверный или неподдерживаемый стандарт штрихкода
-#define PPERR_INVBCPTYPE          348 // Недопустимый тип принтера штрихкодов
-#define PPERR_BARLABELFILENEXISTS 349 // Не найден файл с описанием этикеток
-#define PPERR_LABELPRNIDNEEDED    350 // Необходимо выбрать принтер этикеток
-//
-// Ошибки синхронизации
-//
-#define PPERR_SYNCCREAT           351 // Ошибка создания файла синхронизации '%s'
-#define PPERR_SYNCMAGIC           352 // Неверная сигнатура в файле синхронизации '%s'
-#define PPERR_SYNCREAD            353 // Ошибка чтения файла синхронизации '%s'
-#define PPERR_SYNCWRITE           354 // Ошибка записи в файл синхронизации '%s'
-#define PPERR_SYNCOPEN            355 // Ошибка открытия файла синхронизации '%s'
-#define PPERR_SYNCHCORRUPT        356 // Нарушен заголовок файла синхронизации '%s'
-#define PPERR_SYNCMUTEXBUSY       357 // Mutex заблокирован другим пользователем
-#define PPERR_SYNCDBLOCKED        358 // База данных '%s' заблокирована
-#define PPERR_SYNCDBINUSE         359 // .База данных '%s' не может быть заблокирована поскольку используется //
-#define PPERR_SYNCINVOFFS         360 // .Internal error: invalid offset
-#define PPERR_SYNCLOCKFAULT       361 // .Ошибка блокировки записи в файле синхронизации '%s'
-#define PPERR_SYNCUNLOCKFAULT     362 // .Ошибка разблокировки записи в файле синхронизации '%s'
 
 #define PPERR_RSTRDBIDNEEDED      371 // Для восстановления необходимо выбрать базу данных
 #define PPERR_LABELSYNTX          372 // Синтаксическая ошибка в файле описания этикеток
@@ -10823,13 +10797,6 @@
 #define PPERR_MISSPCKGLOC         427 // Selected package is not belong to same location as Bill Packet
 #define PPERR_GTAXENTINTRSCT      428 // Пересечение периодов в элементах налоговой группы
 #define PPERR_IMPORTUNDEFFLD      429 // Ошибка импорта: не определено одно из обязательных полей
-
-#define PPERR_DBCHA_REFABSENCE    431 // Отсутствует интегрирующая запись (R)eferenceTbl
-#define PPERR_DBCHA_BILLABSENCE   432 // Отсутствует интегрирующая запись (B)illTbl
-#define PPERR_DBCHA_ARABSENCE     433 // Отсутствует интегрирующая запись (A)rticleTbl
-#define PPERR_DBCHA_INVDATA       434 // Нарушение интегрирующей стяжки по базе
-#define PPERR_DBCHA_INVLINKS      435 // Нарушение интегрирующей стяжки по связям
-#define PPERR_DBCHA_INVPASSWORD   436 // Неверный пароль интегрирующей стяжки
 
 #define PPERR_RPTNAVAILONDOS      440 // Отчет не доступен в DOS-версии системы
 #define PPERR_UNDEFTEMPPATH       442 // Не определен временный каталог в файле PP.INI

@@ -830,6 +830,11 @@ int SLAPI SSerializeContext::Init(long flags, LDATE suppDate)
 	return 1;
 }
 
+int FASTCALL SSerializeContext::CheckFlag(long f) const
+{
+	return BIN(Flags & f);
+}
+
 LDATE SLAPI SSerializeContext::GetSupportingDate() const
 {
 	return SuppDate;
@@ -1072,7 +1077,7 @@ int SLAPI SSerializeContext::Serialize(const char * pDbtName, BNFieldList * pFld
 	return ok;
 }
 
-int SLAPI SSerializeContext::Unserialize(const BNFieldList * pFldList, void * pData, SBuffer & rBuf)
+int SLAPI SSerializeContext::Unserialize(const char * pDbtName, const BNFieldList * pFldList, void * pData, SBuffer & rBuf)
 {
 	int    ok = 1, r;
 	uint32 dbt_id = 0;
@@ -1083,7 +1088,8 @@ int SLAPI SSerializeContext::Unserialize(const BNFieldList * pFldList, void * pD
 	THROW(rBuf.Read(dbt_id));
 	THROW(rBuf.Read(temp_val));
 	THROW_S(oneof2(temp_val, 0, 1), SLERR_SRLZ_COMMRDFAULT);
-	THROW(r = GetDbtDescr(dbt_id, &inner_fld_list));
+	// @v9.8.11 THROW(r = GetDbtDescr(dbt_id, &inner_fld_list));
+	r = GetDbtDescr(dbt_id, &inner_fld_list); // @v9.8.11
 	if(r > 0) {
 		if(temp_val == 1) {
 			BNFieldList temp_flist;

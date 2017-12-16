@@ -667,12 +667,8 @@ public:
 	class TagArray;
 
 	struct Tag {
-		Tag()
+		Tag() : SymbID(0), Kind(0), ValID(0), P_Parent(0)
 		{
-			SymbID = 0;
-			Kind = 0;
-			ValID = 0;
-			P_Parent = 0;
 		}
 		~Tag()
 		{

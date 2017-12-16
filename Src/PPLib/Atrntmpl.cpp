@@ -66,10 +66,9 @@ void PPAccTurnTempl::ATSubstObjects::destroy()
 	ForeignList.clear();
 }
 
-PPAccTurnTempl::ATSubstObjects::Item::Item()
+PPAccTurnTempl::ATSubstObjects::Item::Item() : AcsID(0)
 {
 	Aid.Clear();
-	AcsID = 0;
 }
 //
 //
@@ -1036,14 +1035,13 @@ int SLAPI PPAccTurnTempl::AccTemplFromStr(int side, const char * pBuf)
 
 class ATurnTmplDialog : public TDialog {
 public:
-	ATurnTmplDialog(uint rezID, PPObjAccTurn * _ppobj) : TDialog(rezID)
+	ATurnTmplDialog(uint rezID, PPObjAccTurn * _ppobj) : TDialog(rezID), ppobj(_ppobj)
 	{
 		SetupCalCtrl(CTLCAL_ATRNTMPL_PERIOD, this, CTL_ATRNTMPL_PERIOD, 1);
 		AcctCtrlGroup * p_acc_grp = 0;
 		setCtrlOption(CTL_ATRNTMPL_DTEXT,  ofFramed, 1);
 		setCtrlOption(CTL_ATRNTMPL_CTEXT,  ofFramed, 1);
 		setCtrlOption(CTL_ATRNTMPL_SFRAME, ofFramed, 1);
-		ppobj = _ppobj;
 		p_acc_grp = new AcctCtrlGroup(CTL_ATRNTMPL_DACC, CTL_ATRNTMPL_DART,
 			CTLSEL_ATRNTMPL_DACCNAME, CTLSEL_ATRNTMPL_DARTNAME);
 		addGroup(GRP_DBT, p_acc_grp);
@@ -1221,11 +1219,8 @@ int SLAPI EditAccTurnTemplate(PPObjAccTurn * pObj, PPAccTurnTempl * pData)
 //
 class SelAmtSymbDialog : public TDialog {
 public:
-	SelAmtSymbDialog(long options) : TDialog(DLG_SELAMTSYMB)
+	SelAmtSymbDialog(long options) : TDialog(DLG_SELAMTSYMB), Options(options), SelID(0), SelKind(0)
 	{
-		Options = options;
-		SelID = 0;
-		SelKind = 0;
 		P_List = (SmartListBox *)getCtrlView(CTL_SELAMTSYMB_LIST);
 		StrAssocListBoxDef * p_def = new StrAssocListBoxDef(0, lbtDisposeData|lbtDblClkNotify);
 		if(p_def) {

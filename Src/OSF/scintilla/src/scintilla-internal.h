@@ -796,13 +796,10 @@ public:
 	/// Set calltip position.
 	void SetPosition(bool aboveText);
 	/// Used to determine which STYLE_xxxx to use for call tip information
-	bool UseStyleCallTip() const { return useStyleCallTip;}
+	bool UseStyleCallTip() const { return BIN(Flags & fUseStyleCallTip); }
 	// Modify foreground and background colours
 	void SetForeBack(const ColourDesired &fore, const ColourDesired &back);
-	bool IsInCollTipMode() const
-	{
-		return inCallTipMode;
-	}
+	bool IsInCollTipMode() const { return BIN(Flags & fInCallTipMode); }
 
 	Window wCallTip;
 	Window wDraw;
@@ -837,9 +834,15 @@ private:
 	int lineHeight;         // vertical line spacing
 	int offsetMain;         // The alignment point of the call tip
 	int tabSize;            // Tab size in pixels, <=0 no TAB expand
-	bool inCallTipMode;
-	bool useStyleCallTip;   // if true, STYLE_CALLTIP should be used
-	bool above;		// if true, display calltip above text
+	//bool inCallTipMode;
+	//bool useStyleCallTip;   // if true, STYLE_CALLTIP should be used
+	//bool above;		// if true, display calltip above text
+	enum {
+		fInCallTipMode   = 0x0001,
+		fUseStyleCallTip = 0x0002, // if true, STYLE_CALLTIP should be used
+		fAbove           = 0x0004  // if true, display calltip above text
+	};
+	long   Flags;
 };
 //
 // CaseConvert.h
@@ -1678,23 +1681,10 @@ private:
 //
 // ViewStyle.h
 //
-class FontNames {
-public:
-	FontNames();
-	~FontNames();
-	void Clear();
-	const char * Save(const char *name);
-private:
-	std::vector <char *> names;
-
-	// Private so FontNames objects can not be copied
-	FontNames(const FontNames &);
-};
-
 class FontRealised : public FontMeasurements {
 	// Private so FontRealised objects can not be copied
 	FontRealised(const FontRealised &);
-	FontRealised & operator=(const FontRealised &);
+	FontRealised & operator = (const FontRealised &);
 public:
 	Font font;
 	FontRealised();
@@ -1738,7 +1728,8 @@ public:
 	ColourOptional(uptr_t wParam, sptr_t lParam) : ColourDesired(static_cast<long>(lParam)), isSet(wParam != 0) 
 	{
 	}
-	bool isSet;
+	bool  isSet;
+	uint8 CoReserve[3]; // @alignment
 };
 //
 //
@@ -1789,8 +1780,9 @@ public:
 		ColourDesired back;
 		int    width;
 		int    mask;
-		bool   sensitive;
 		int    cursor;
+		bool   sensitive;
+		uint8  Reserve[3]; // @alignment
 	};
 	struct ForeBackColours {
 		ColourOptional fore;
@@ -1887,21 +1879,31 @@ private:
 	// Private so can only be copied through copy constructor which ensures font names initialised correctly
 	ViewStyle & operator = (const ViewStyle &);
 
+	class FontNames {
+	public:
+		FontNames();
+		~FontNames();
+		void Clear();
+		const char * Save(const char *name);
+	private:
+		std::vector <char *> names;
+		// Private so FontNames objects can not be copied
+		FontNames(const FontNames &);
+	};
+
 	FontNames fontNames;
 	FontMap fonts;
 };
 //
 // Selection.h
 //
-class SelectionPosition {
+class SelectionPosition { // @flat
 public:
 	explicit SelectionPosition(int position_ = INVALID_POSITION, int virtualSpace_ = 0);
 	void Reset();
 	void MoveForInsertDelete(bool insertion, int startChange, int length);
-	bool FASTCALL operator == (const SelectionPosition &other) const
-	{
-		return position == other.position && virtualSpace == other.virtualSpace;
-	}
+	bool FASTCALL operator == (const SelectionPosition &other) const;
+	bool FASTCALL operator != (const SelectionPosition &other) const;
 	bool FASTCALL operator < (const SelectionPosition &other) const;
 	bool FASTCALL operator > (const SelectionPosition &other) const;
 	bool FASTCALL operator <= (const SelectionPosition &other) const;
@@ -1929,31 +1931,13 @@ private:
 // Ordered range to make drawing simpler
 //
 struct SelectionSegment {
+	SelectionSegment();
+	SelectionSegment(const SelectionPosition & rA, const SelectionPosition & rB);
+	bool Empty() const;
+	void FASTCALL Extend(const SelectionPosition & rP);
+
 	SelectionPosition start;
 	SelectionPosition end;
-	SelectionSegment() : start(), end()
-	{
-	}
-	SelectionSegment(SelectionPosition a, SelectionPosition b)
-	{
-		if(a < b) {
-			start = a;
-			end = b;
-		}
-		else {
-			start = b;
-			end = a;
-		}
-	}
-	bool Empty() const
-	{
-		return start == end;
-	}
-	void Extend(SelectionPosition p)
-	{
-		SETMIN(start, p);
-		SETMAX(end, p);
-	}
 };
 
 struct SelectionRange {
@@ -1996,21 +1980,12 @@ struct SelectionRange {
 
 class Selection {
 public:
-	enum selTypes { 
-		noSel, 
-		selStream, 
-		selRectangle, 
-		selLines, 
-		selThin 
-	};
-	selTypes selType;
-
 	Selection();
 	~Selection();
 	bool IsRectangular() const;
 	int MainCaret() const;
 	int MainAnchor() const;
-	SelectionRange &Rectangular();
+	SelectionRange & Rectangular();
 	SelectionSegment Limits() const;
 	// This is for when you want to move the caret in response to a
 	// user direction command - for rectangular selections, use the range
@@ -2019,10 +1994,10 @@ public:
 	size_t Count() const;
 	size_t Main() const;
 	void SetMain(size_t r);
-	SelectionRange &Range(size_t r);
-	const SelectionRange &Range(size_t r) const;
-	SelectionRange &RangeMain();
-	const SelectionRange &RangeMain() const;
+	SelectionRange & Range(size_t r);
+	const SelectionRange & Range(size_t r) const;
+	SelectionRange & RangeMain();
+	const SelectionRange & RangeMain() const;
 	SelectionPosition Start() const;
 	bool MoveExtends() const;
 	void SetMoveExtends(bool moveExtends_);
@@ -2053,6 +2028,14 @@ public:
 	{
 		return Ranges;
 	}
+	enum selTypes { 
+		noSel, 
+		selStream, 
+		selRectangle, 
+		selLines, 
+		selThin 
+	};
+	selTypes selType;
 private:
 	std::vector <SelectionRange> Ranges;
 	std::vector <SelectionRange> RangesSaved;

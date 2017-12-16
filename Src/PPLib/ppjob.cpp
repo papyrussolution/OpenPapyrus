@@ -3075,10 +3075,9 @@ IMPLEMENT_JOB_HDL_FACTORY(UPDATEQUOTS);
 class JOB_HDL_CLS(EXPORTVIEW) : public PPJobHandler {
 public:
 	struct Param {
-		Param()
+		Param() : Flags(0)
 		{
 			memzero(ReserveStart, sizeof(ReserveStart));
-			Flags = 0;
 		}
 		int    Write(SBuffer & rBuf, long)
 		{
@@ -3221,17 +3220,9 @@ public:
 		enum {
 			fExpAllStores = 0x0001
 		};
-		Param()
+		Param() : Flags(0), PersonKindForExport(0), PersonSetSz(0), GoodsFlags(0), GoodsAllSetSz(0), GoodsRndSetSz(0), BrandsFlags(0), StoresFlags(0)
 		{
 			memzero(ReserveStart, sizeof(ReserveStart));
-			Flags = 0;
-			PersonKindForExport = 0;
-			PersonSetSz = 0;
-			GoodsFlags = 0;
-			GoodsAllSetSz = 0;
-			GoodsRndSetSz = 0;
-			BrandsFlags = 0;
-			StoresFlags = 0;
 		}
 		int    Write(SBuffer & rBuf, long)
 		{
@@ -3543,7 +3534,8 @@ IMPLEMENT_JOB_HDL_FACTORY(PERSONEVENTBYREADER);
 // @vmiller
 class TSessAutoSmsFiltDialog : public TDialog {
 public:
-	TSessAutoSmsFiltDialog() : TDialog(DLG_JTSASMSFILT) {
+	TSessAutoSmsFiltDialog() : TDialog(DLG_JTSASMSFILT) 
+	{
 		SetupCalPeriod(CTLCAL_JTSASMSFILT_STPERIOD, CTL_JTSASMSFILT_STPRD);
 		SetupCalPeriod(CTLCAL_JTSASMSFILT_FNPERIOD, CTL_JTSASMSFILT_FNPRD);
 	}

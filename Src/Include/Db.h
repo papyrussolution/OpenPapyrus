@@ -882,6 +882,8 @@ int btrnfound__();
 #define BE_CANNOT_CREATE_WITH_BAT           105
 #define BE_CHUNK_CANNOT_GET_NEXT            106
 #define BE_CHUNK_INCOMPATIBLE_FILE          107
+#define BE_FILEREACHEDSIZELIMIT             132 // The file has reached its size limit
+#define BE_MAXUSERCOUNTREACHED              161 // The maximum number of user count licenses has been reached
 //
 // Scalable SQL engine codes (Used for my DB library)
 //
@@ -1889,7 +1891,7 @@ private:
 	//
 	// Структура должна быть выравненена до размера, кратного 32.
 	// В результате буфер данных, находящийся в начале порожденной структуры будет
-	// находиться на границе кэш-линии, что увеличит скорость работы. 
+	// находиться на границе кэш-линии, что увеличит скорость работы.
 	// Общий размер регулируется полем Reserve[] (see above)
 	//
 };
@@ -4065,12 +4067,12 @@ public:
 		uint32 DataChunk;    //
 		//uint32 CacheSize;    // @v9.6.4 Размер кэша таблицы (kilobytes!!!). 0 - default
 		uint32 PageSize;     // @v9.6.4 Размер страницы данных (bytes). 0 - default
-		
+
 		uint32 HashNElem;    // @v9.7.12 Для хэш-таблиц: ожидаемый размер хэш-таблицы
 		uint32 HashFFactor;  // @v9.7.12 Для хэш-таблиц: fill-factor. Reasonable rule: (pagesize - 32) / (average_key_size + average_data_size + 8)
 
-		uint   PartitionCount; // @v9.8.2 Количество partitions. Если параметр не нулевой, то 
-			// класс таблицы обязан переопределить виртуальную функцию Implement_PartitionFunc(DBT * pKey) 
+		uint   PartitionCount; // @v9.8.2 Количество partitions. Если параметр не нулевой, то
+			// класс таблицы обязан переопределить виртуальную функцию Implement_PartitionFunc(DBT * pKey)
 			// таким образом, чтобы она возвращала номер [0..PartitionCount-1] в зависимости от значения ключа pKey.
 
 		SString Name;        // Имя файла
@@ -4097,7 +4099,7 @@ public:
 	// Descr: Конфигурация таблицы с типом индекса BTREE.
 	//
 	struct ConfigBTree : public Config {
-		ConfigBTree(const char * pName, long flags, uint32 pageSize, uint partitionCount) : 
+		ConfigBTree(const char * pName, long flags, uint32 pageSize, uint partitionCount) :
 			Config(pName, idxtypBTree, flags, pageSize, 0, partitionCount)
 		{
 		}

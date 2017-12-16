@@ -25,23 +25,22 @@ Acct & FASTCALL Acct::operator = (const PPAccount & s)
 //
 // STAcct
 //
-SLAPI STAcct::STAcct(size_t size)
+SLAPI STAcct::STAcct(uint32 sz) : DataType(sz)
 {
-	s = size;
 }
 
 char * SLAPI STAcct::tostr(const void * a, long fmt, char * b) const
 {
 	const  int accflen = 8;
 	int    ofs;
-	if(s == (sizeof(Acct)-sizeof(long)))
+	if(S == (sizeof(Acct)-sizeof(long)))
 		fmt |= ACCF_BAL;
-	if(s > sizeof(Acct)) {
+	if(S > sizeof(Acct)) {
 		fmt &= ~SFALIGNMASK;
 		fmt |= ALIGN_LEFT;
 		SETSFMTLEN(fmt, accflen);
 	}
-	if(s > sizeof(Acct)) {
+	if(S > sizeof(Acct)) {
 		if(!(fmt & ACCF_NAMEONLY)) {
 			((const Acct *)a)->ToStr(fmt, b);
 			ofs = accflen;
@@ -49,7 +48,7 @@ char * SLAPI STAcct::tostr(const void * a, long fmt, char * b) const
 		else
 			ofs = 0;
 		size_t sz = sizeof(int16) * 2;
-		strnzcpy(b+ofs, ((char *)a)+sz, s-sz);
+		strnzcpy(b+ofs, ((char *)a)+sz, S-sz);
 	}
 	else
 		((const Acct *)a)->ToStr(fmt, b);

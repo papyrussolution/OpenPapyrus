@@ -1114,7 +1114,7 @@ int SLAPI DBTable::SerializeRecord(int dir, void * pRec, SBuffer & rBuf, SSerial
 		ok = pCtx->Serialize(tableName, &fields, pRec, rBuf);
 	}
 	else if(dir < 0) {
-		ok = pCtx->Unserialize(&fields, pRec, rBuf);
+		ok = pCtx->Unserialize(tableName, &fields, pRec, rBuf);
 	}
 	return ok;
 }
@@ -1124,6 +1124,12 @@ int SLAPI DBTable::Helper_SerializeArrayOfRecords(int dir, SVectorBase * pList, 
 	int    ok = 1;
 	int32  c = pList ? pList->getCount() : 0; // @persistent
 	STempBuffer temp_buf(0);
+	// @v9.8.11 {
+	if(dir > 0) {
+		uint32 dbt_id = 0;
+		THROW(pCtx->AddDbtDescr(tableName, &fields, &dbt_id));
+	}
+	// } @v9.8.11 
 	THROW(pCtx->Serialize(dir, c, rBuf));
 	for(int32 i = 0; i < c; i++) {
 		if(pList) {
@@ -1148,13 +1154,13 @@ int SLAPI DBTable::Helper_SerializeArrayOfRecords(int dir, SVectorBase * pList, 
 int SLAPI DBTable::SerializeArrayOfRecords(int dir, SArray * pList, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	if(dir < 0 && pList)
-		pList->freeAll();
+		pList->clear(); // @v9.8.11 freeAll()-->clear()
 	return Helper_SerializeArrayOfRecords(dir, pList, rBuf, pCtx);
 }
 
 int SLAPI DBTable::SerializeArrayOfRecords(int dir, SVector * pList, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	if(dir < 0 && pList)
-		pList->freeAll();
+		pList->clear(); // @v9.8.11 freeAll()-->clear()
 	return Helper_SerializeArrayOfRecords(dir, pList, rBuf, pCtx);
 }

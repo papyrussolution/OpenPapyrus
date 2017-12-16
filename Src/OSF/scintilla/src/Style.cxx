@@ -39,6 +39,10 @@ void FontAlias::ClearFont()
 	SetID(0);
 }
 
+FontSpecification::FontSpecification() : fontName(0), weight(SC_WEIGHT_NORMAL), italic(false), size(10 * SC_FONT_SIZE_MULTIPLIER), characterSet(0), extraFontFlag(0) 
+{
+}
+
 bool FASTCALL FontSpecification::operator == (const FontSpecification &other) const
 {
 	return fontName == other.fontName && weight == other.weight && italic == other.italic &&

@@ -6023,15 +6023,15 @@ int SLAPI ViewBillsByPool(PPID poolType, PPID poolOwnerID)
 int FASTCALL BrowseBills(BrowseBillsType bbt)
 {
 	int    ok = -1;
-	if(bbt == bbtDraftBills && !(CConfig.Flags & CCFLG_USEDRAFTBILL))
+	/* @v9.8.11 if(bbt == bbtDraftBills && !(CConfig.Flags & CCFLG_USEDRAFTBILL))
 		ok = (PPMessage(mfInfo, PPINF_NOSETUSEDRAFTBILLFLAG), -1);
-	else {
+	else { */
 		THROW(PPCheckDatabaseChain());
 		{
 			BillFilt::FiltExtraParam p(1, bbt);
 			ok = PPView::Execute(PPVIEW_BILL, 0, GetModelessStatus(), &p);
 		}
-	}
+	// @v9.8.1 }
 	CATCHZOKPPERR
 	return ok;
 }

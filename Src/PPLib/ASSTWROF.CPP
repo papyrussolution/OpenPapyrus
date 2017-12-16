@@ -1,5 +1,5 @@
 // ASSTWROF.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -146,14 +146,14 @@ double SLAPI CalcAssetDeprec(LDATE start, LDATE dt, long term)
 	return ((double)num_periods) / (double)term;
 }
 
-int SLAPI CalcRestAssetPrice(LDATE start, LDATE dt, long term, double cost, double * pPrice)
+/* @v9.8.11 (unused) int SLAPI CalcRestAssetPrice(LDATE start, LDATE dt, long term, double cost, double * pPrice)
 {
 	double deprec = CalcAssetDeprec(start, dt, term);
 	*pPrice = cost - (cost * deprec);
 	if(*pPrice < 0)
 		*pPrice = 0;
 	return 1;
-}
+}*/
 //
 //
 //
@@ -166,9 +166,8 @@ public:
 		PPID   RevalOpID;
 		PPID   LocID;
 	};
-	SLAPI  PrcssrAssetDeprec()
+	SLAPI  PrcssrAssetDeprec() : P_BObj(BillObj)
 	{
-		P_BObj = BillObj;
 		MEMSZERO(P);
 	}
 	int    SLAPI InitParam(Param * pParam)
@@ -347,8 +346,9 @@ int SLAPI RevalAssets()
 	PrcssrAssetDeprec::Param param;
 	prcssr.InitParam(&param);
 
-	param.Dt    = LConfig.OperDate;
-	param.LocID = LConfig.Location;
+	const PPConfig & r_cfg = LConfig;
+	param.Dt    = r_cfg.OperDate;
+	param.LocID = r_cfg.Location;
 	PPID op_id  = GetSingleOp(PPOPT_GOODSREVAL);
 	if(op_id) {
 		if(op_id > 0)

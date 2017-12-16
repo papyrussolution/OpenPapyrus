@@ -96,9 +96,8 @@ int FASTCALL checkdrange(LDATE dt, LDATE low, LDATE upp)
 //
 // IterCounter
 //
-SLAPI IterCounter::IterCounter()
+SLAPI IterCounter::IterCounter() : Total(0), Count(0)
 {
-	Init();
 }
 
 void FASTCALL IterCounter::Init(ulong total)
@@ -261,15 +260,12 @@ uint64 SLAPI SProfile::GetAbsTimeMicroseconds()
 	return result;
 }
 
-SLAPI SProfile::SProfile(int singleThreaded) : SingleThreaded(BIN(singleThreaded))
+SLAPI SProfile::SProfile(int singleThreaded) : SingleThreaded(BIN(singleThreaded)), StartClock(0), EndClock(0)
 {
-	StartClock = 0;
-	EndClock = 0;
 	LARGE_INTEGER cf;
 	QueryPerformanceFrequency(&cf);
 	ClockFrequency = cf.QuadPart;
 	QueryPerformanceCounter(&cf);
-
 	Gtb.PrevHrc   = 0;
 	Gtb.StartHrc  = (int64)cf.QuadPart;
 	Gtb.StartTick = GetTickCount();
@@ -279,9 +275,8 @@ SLAPI SProfile::~SProfile()
 {
 }
 
-SLAPI SProfile::Measure::Measure()
+SLAPI SProfile::Measure::Measure() : Start(SLS.GetProfileTime())
 {
-	Start = SLS.GetProfileTime();
 }
 
 uint64 SLAPI SProfile::Measure::Get()

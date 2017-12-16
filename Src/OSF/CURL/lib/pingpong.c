@@ -72,9 +72,8 @@ CURLcode Curl_pp_statemach(struct pingpong * pp, bool block)
 		return CURLE_OPERATION_TIMEDOUT; /* already too little time */
 	}
 	if(block) {
-		interval_ms = 1000; /* use 1 second timeout intervals */
-		if(timeout_ms < interval_ms)
-			interval_ms = timeout_ms;
+		interval_ms = 1000; // use 1 second timeout intervals 
+		SETMIN(interval_ms, timeout_ms);
 	}
 	else
 		interval_ms = 0;  /* immediate */

@@ -1,14 +1,12 @@
 // STOOLTI.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2010, 2011, 2016
+// Copyright (c) A.Starodub 2008, 2009, 2010, 2011, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
 
-STooltip::STooltip()
+STooltip::STooltip() : HwndTT(0), Parent(0)
 {
-	HwndTT = 0;
-	Parent = 0;
 }
 
 STooltip::~STooltip()
@@ -68,16 +66,8 @@ int STooltip::Remove(long id)
 
 #define MSGWND_CLOSETIMER 1L
 
-SMessageWindow::SMessageWindow()
+SMessageWindow::SMessageWindow() : HWnd(0), Cmd(0), Extra(0), Brush(0), Font(0), P_Image(0), PrevImgProc(0)
 {
-	HWnd        = 0;
-	Cmd         = 0;
-	Extra       = 0;
-	Text        = 0;
-	Brush       = 0;
-	Font        = 0;
-	P_Image     = 0;
-	PrevImgProc = 0;
 	PrevMouseCoord.x = 0; // @v9.0.6
 	PrevMouseCoord.y = 0; // @v9.0.6
 	MEMSZERO(PrevMouseCoord);

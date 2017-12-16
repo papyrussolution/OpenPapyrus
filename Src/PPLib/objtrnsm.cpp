@@ -7,29 +7,34 @@
 #pragma hdrstop
 
 #define OT_MAGIC 0x534F5050L // "PPOS"
-//
-// @attention При изменении формата передачи данных необходимо установить здесь минимальную
-//   версию системы, с которой пакеты паредачи данных могут быть приняты.
-//
-static const SVerT __MinCompatVer(9, 8, 9);
-	// @v6.4.7  6.2.2-->6.4.7
-	// @v7.0.0  6.4.7-->6.9.10
-	// @v7.0.7  6.9.10-->7.0.7
-	// @v7.2.0  7.0.7-->7.2.0
-	// @v7.2.7  7.2.0-->7.2.7
-	// @v7.3.5  7.2.7-->7.3.5
-	// @v7.5.11 7.3.5-->7.5.11
-	// @v7.6.1  7.5.11-->7.6.1
-	// @v7.7.2  7.6.1-->7.7.2
-	// @v7.7.12 7.7.2-->7.7.12
-	// @v8.0.3  7.7.12-->8.0.3
-	// @v8.2.3  8.0.3-->8.2.3
-	// @v8.3.6  8.2.3-->8.3.6
-	// @v8.5.0  8.3.6-->8.5.0
-	// @v8.8.0  8.5.0-->8.8.0
-	// @v9.0.4  8.8.0-->9.0.4
-	// @v9.4.0  9.0.4-->9.4.0
-	// @v9.8.9  9.4.0-->9.8.9
+
+SVerT SLAPI PPSession::GetMinCompatVersion() const
+{
+	//
+	// @attention При изменении формата передачи данных необходимо установить здесь минимальную
+	//   версию системы, с которой пакеты паредачи данных могут быть приняты.
+	//
+	static const SVerT __MinCompatVer(9, 8, 9);
+		// @v6.4.7  6.2.2-->6.4.7
+		// @v7.0.0  6.4.7-->6.9.10
+		// @v7.0.7  6.9.10-->7.0.7
+		// @v7.2.0  7.0.7-->7.2.0
+		// @v7.2.7  7.2.0-->7.2.7
+		// @v7.3.5  7.2.7-->7.3.5
+		// @v7.5.11 7.3.5-->7.5.11
+		// @v7.6.1  7.5.11-->7.6.1
+		// @v7.7.2  7.6.1-->7.7.2
+		// @v7.7.12 7.7.2-->7.7.12
+		// @v8.0.3  7.7.12-->8.0.3
+		// @v8.2.3  8.0.3-->8.2.3
+		// @v8.3.6  8.2.3-->8.3.6
+		// @v8.5.0  8.3.6-->8.5.0
+		// @v8.8.0  8.5.0-->8.8.0
+		// @v9.0.4  8.8.0-->9.0.4
+		// @v9.4.0  9.0.4-->9.4.0
+		// @v9.8.9  9.4.0-->9.8.9
+	return __MinCompatVer;
+}
 //
 // DB Exchange Config (PPDBXchgConfig)
 //
@@ -481,7 +486,7 @@ PP_CREATE_TEMP_FILE_PROC(CreateTempIndex, ObjSyncQueue);
 PP_CREATE_TEMP_FILE_PROC(CreateTempSyncCmp, TempSyncCmp);
 
 SLAPI PPObjectTransmit::PPObjectTransmit(TransmitMode mode, int syncCmp, int recoverTransmission) : CtrError(0), IamDispatcher(0),
-	P_TmpIdxTbl(0), P_Queue(0), P_ObjColl(0), P_InStream(0), P_OutStream(0), Mode(mode), DestDbDivID(0), 
+	P_TmpIdxTbl(0), P_Queue(0), P_ObjColl(0), P_InStream(0), P_OutStream(0), Mode(mode), DestDbDivID(0),
 	SyncCmpTransmit(BIN(syncCmp && mode == PPObjectTransmit::tmWriting)), RecoverTransmission(BIN(recoverTransmission))
 {
 	const PPConfig & r_cfg = LConfig;
@@ -554,7 +559,7 @@ void SLAPI PPObjectTransmit::SetupHeader(uint type, PPID destDBID, PPObjectTrans
 		// } @v8.2.3
 	}
 	pHdr->SwVer      = DS.GetVersion();
-	pHdr->MinDestVer = __MinCompatVer;
+	pHdr->MinDestVer = DS.GetMinCompatVersion(); // @v9.8.11 __MinCompatVer-->DS.GetMinCompatVersion()
 	pHdr->SrcDivUuid  = ThisDbDivPack.Rec.Uuid; // @v8.0.12
 	pHdr->DestDivUuid = DestDbDivPack.Rec.Uuid; // @v8.0.12
 	/* @v8.0.12
@@ -589,7 +594,8 @@ int FASTCALL PPObjectTransmit::CheckInHeader(const PPObjectTransmit::Header * pH
 		int    mj, mn, r;
 		pHdr->MinDestVer.Get(&mj, &mn, &r);
 		THROW_PP_S(!cur_ver.IsLt(mj, mn, r), PPERR_RCVPACKETVER, temp_buf.Z().CatDotTriplet(mj, mn, r));
-		__MinCompatVer.Get(&mj, &mn, &r);
+		// @v9.8.11 __MinCompatVer.Get(&mj, &mn, &r);
+		DS.GetMinCompatVersion().Get(&mj, &mn, &r); // @v9.8.11 
 		THROW_PP_S(!pHdr->SwVer.IsLt(mj, mn, r), PPERR_RCVPACKETSRCVER, temp_buf.Z().CatDotTriplet(mj, mn, r));
 	}
 	CATCHZOK
@@ -763,7 +769,7 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 			THROW(r);
 			if(r > 0)
 				need_send = -1;
-			else { 
+			else {
 				switch(oi.Obj) { // Обработка специальных случаев для отдельных типов объектов
 					case PPOBJ_SCARD:
 						if(IamDispatcher > 0)
@@ -792,7 +798,7 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 				// @v9.8.10 {
 				if(do_log_send_info) {
 					if(need_send != NEED_SEND_NOOBJ) {
-						THROW(SETIFZ(p_obj, _GetObjectPtr(objType))); 
+						THROW(SETIFZ(p_obj, _GetObjectPtr(objType)));
 					}
 					send_log_msg.Z().Cat(DestDbDivID).Space().CatChar('{').Cat(oi.ToStr(temp_buf)).CatChar('}').Space().Cat(need_send).Space().
 						Cat(updProtocol).Space().Cat(innerUpdProtocol);
@@ -804,7 +810,7 @@ int SLAPI PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updPr
 						send_log_msg.Space().Cat(temp_buf);
 					PPLogMessage(PPFILNAM_DBXSEND_LOG, send_log_msg, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 				}
-				// } @v9.8.10 
+				// } @v9.8.10
 			}
 		}
 	}
@@ -1170,12 +1176,10 @@ int SLAPI PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, 
 	SString sys_file_name;
 	SString fmt_buf;
 	SString msg_buf;
-	//SString obj_buf;
 	SString err_msg;
 	SString wait_fmt_buf;
 	long   sys_file_id = 0;
 	ObjSyncQueueTbl::Rec idx_rec;
-	//ObjSyncQueueTbl::Rec ex_rec;
 	//
 	// Заносим все объекты, которые надлежит акцептировать в общую очередь приема P_Queue
 	//
@@ -1370,10 +1374,8 @@ int SLAPI PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * s
 }
 
 SLAPI PPObjectTransmit::RestoreObjBlock::RestoreObjBlock(ObjSyncQueueCore * pQueue, PPObjectTransmit * pOt) :
-	S(sizeof(RestoreStackItem))
+	S(sizeof(RestoreStackItem)), P_Queue(pQueue), P_Ot(pOt)
 {
-	P_Queue = pQueue;
-	P_Ot = pOt;
 }
 
 int SLAPI PPObjectTransmit::RestoreObjBlock::PushRestoredObj(PPID dbID, PPObjID oi)
@@ -2141,9 +2143,7 @@ int SLAPI PPObjectTransmit::TransmitModificationsByDBDivList(ObjTransmitParam * 
 	int    ok = 1;
 	PPLogger logger;
 	ObjTransmitParam param;
-	if(pParam)
-		param = *pParam;
-	else
+	if(!RVALUEPTR(param, pParam))
 		param.Init();
 	if(pParam || ObjTransmDialog(DLG_MODTRANSM, &param, OBJTRNSMDLGF_SEARCHDTTM) > 0) {
 		const PPIDArray & rary = param.DestDBDivList.Get();
@@ -2224,9 +2224,8 @@ int SLAPI PPObjectTransmit::TransmitModifications(PPID destDBDiv, const ObjTrans
 	return ok;
 }
 
-SLAPI BillTransmitParam::BillTransmitParam() : PPBaseFilt(PPFILT_BILLTRANSMITPARAM, 0, 0)
+SLAPI BillTransmitParam::BillTransmitParam() : PPBaseFilt(PPFILT_BILLTRANSMITPARAM, 0, 0), P_BillF(0)
 {
-	P_BillF = 0;
 	SetFlatChunk(offsetof(BillTransmitParam, ReserveStart), offsetof(BillTransmitParam, DestDBDivList)-offsetof(BillTransmitParam, ReserveStart));
 	SetBranchObjIdListFilt(offsetof(BillTransmitParam, DestDBDivList));
 	SetBranchBaseFiltPtr(PPFILT_BILL, offsetof(BillTransmitParam, P_BillF));
@@ -2234,16 +2233,17 @@ SLAPI BillTransmitParam::BillTransmitParam() : PPBaseFilt(PPFILT_BILLTRANSMITPAR
 	DestDBDivList.InitEmpty();
 }
 
-#define GRP_BTRAN_AR  1
-#define GRP_BTRAN_AR2 2
-
 class BillTransDialog : public WLDialog {
 public:
+	enum {
+		ctlgroupBtranAr  = 1, // @v9.8.11 <--GRP_BTRAN_AR
+		ctlgroupBtranAr2 = 2  // @v9.8.11 <--GRP_BTRAN_AR2
+	};
 	BillTransDialog() : WLDialog(DLG_BTRAN, CTL_BTRAN_LABEL)
 	{
 		SetupCalCtrl(CTLCAL_BTRAN_PERIOD, this, CTL_BTRAN_PERIOD, 1);
-		addGroup(GRP_BTRAN_AR,  new ArticleCtrlGroup(0, CTLSEL_BTRAN_OP, CTLSEL_BTRAN_AR,  0, 0, 0));
-		addGroup(GRP_BTRAN_AR2, new ArticleCtrlGroup(0, CTLSEL_BTRAN_OP, CTLSEL_BTRAN_AR2, 0, 0, ArticleCtrlGroup::fByOpAccSheet2));
+		addGroup(ctlgroupBtranAr,  new ArticleCtrlGroup(0, CTLSEL_BTRAN_OP, CTLSEL_BTRAN_AR,  0, 0, 0));
+		addGroup(ctlgroupBtranAr2, new ArticleCtrlGroup(0, CTLSEL_BTRAN_OP, CTLSEL_BTRAN_AR2, 0, 0, ArticleCtrlGroup::fByOpAccSheet2));
 		//ArticleCtrlGroup(uint ctlselAcs, uint ctlselOp, uint ctlselAr, uint cmEditList, long accSheetID);
 		if(!SetupStrListBox(this, CTL_BTRAN_LIST))
 			PPError();
@@ -2269,13 +2269,13 @@ public:
 		}
 		{
 			ArticleCtrlGroup::Rec ar_grp_rec(0, Data.OpID, Data.ArID);
-			ArticleCtrlGroup * p_ar_grp = (ArticleCtrlGroup *)getGroup(GRP_BTRAN_AR);
-			setGroupData(GRP_BTRAN_AR, &ar_grp_rec);
+			ArticleCtrlGroup * p_ar_grp = (ArticleCtrlGroup *)getGroup(ctlgroupBtranAr);
+			setGroupData(ctlgroupBtranAr, &ar_grp_rec);
 		}
 		{
 			ArticleCtrlGroup::Rec ar2_grp_rec(0, Data.OpID, Data.Ar2ID);
-			ArticleCtrlGroup * p_ar2_grp = (ArticleCtrlGroup *)getGroup(GRP_BTRAN_AR2);
-			setGroupData(GRP_BTRAN_AR2, &ar2_grp_rec);
+			ArticleCtrlGroup * p_ar2_grp = (ArticleCtrlGroup *)getGroup(ctlgroupBtranAr2);
+			setGroupData(ctlgroupBtranAr2, &ar2_grp_rec);
 		}
 		SetupCtrls();
 		setWL(Data.Flags & BillTransmitParam::fLabelOnly);
@@ -2300,12 +2300,12 @@ public:
 			Data.ToOpID = Data.OpID ? Data.ToOpID : 0L;
 			{
 				ArticleCtrlGroup::Rec ar_grp_rec;
-				getGroupData(GRP_BTRAN_AR, &ar_grp_rec);
+				getGroupData(ctlgroupBtranAr, &ar_grp_rec);
 				Data.ArID = ar_grp_rec.ArList.GetSingle();
 			}
 			{
 				ArticleCtrlGroup::Rec ar2_grp_rec;
-				getGroupData(GRP_BTRAN_AR2, &ar2_grp_rec);
+				getGroupData(ctlgroupBtranAr2, &ar2_grp_rec);
 				Data.Ar2ID = ar2_grp_rec.ArList.GetSingle();
 			}
 			sel = CTL_BTRAN_LIST;
@@ -2574,14 +2574,12 @@ int PPObjectTransmit::Transmit(PPID dbDivID, const PPObjIDArray * pObjAry, const
 //
 class ObjTranDialog : public TDialog {
 public:
-	ObjTranDialog(uint dlgID, long dlgFlags) : TDialog(dlgID)
+	ObjTranDialog(uint dlgID, long dlgFlags) : TDialog(dlgID), DlgFlags(dlgFlags), Since(ZERODATETIME)
 	{
-		Since.SetZero();
 		if(!SetupStrListBox(this, CTL_OBJTRANSM_DBDIVLIST))
 			PPError();
 		if(!SetupStrListBox(this, CTL_OBJTRANSM_OBJLIST))
 			PPError();
-		DlgFlags = dlgFlags;
 		showCtrl(CTL_OBJTRANSM_FILT, 0);
 	}
 	int    setDTS(const ObjTransmitParam *);
@@ -3001,7 +2999,8 @@ int SLAPI PPObjectTransmit::StartReceivingPacket(const char * pFileName, const v
 			Ctx.OutReceivingMsg(msg_buf.Printf(buf, temp_buf.Z().CatDotTriplet(mj, mn, r).cptr()));
 			ok = -1;
 		}
-		__MinCompatVer.Get(&mj, &mn, &r);
+		// @v9.8.11 __MinCompatVer.Get(&mj, &mn, &r);
+		DS.GetMinCompatVersion().Get(&mj, &mn, &r); // @v9.8.11 
 		if(p_hdr->SwVer.IsLt(mj, mn, r)) {
 			PPLoadText(PPTXT_RCVPACKETREJSRCVER, buf);
 			Ctx.OutReceivingMsg(msg_buf.Printf(buf, temp_buf.Z().CatDotTriplet(mj, mn, r).cptr()));

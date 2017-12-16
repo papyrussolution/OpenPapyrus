@@ -1,53 +1,37 @@
 // DLS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
 
-struct _GoodsInfo {
+struct _GoodsInfo { // @flat
 	PPID   ID;
 	long   PLU;
 	double Price;
 };
 
-SLAPI DeviceLoadingStat::DeviceLoadingStat() : DvcLoadingStatTbl()
+SLAPI DeviceLoadingStat::DeviceLoadingStat() : DvcLoadingStatTbl(), StatID(0), GoodsList(sizeof(_GoodsInfo)), StatCache(sizeof(DvcLoadingStatTbl::Rec))
 {
-	StatID = 0;
-	P_GoodsList = new SArray(sizeof(_GoodsInfo));
-	P_StatCache = new SArray(sizeof(DvcLoadingStatTbl::Rec));
-}
-
-SLAPI DeviceLoadingStat::~DeviceLoadingStat()
-{
-	delete P_GoodsList;
-	delete P_StatCache;
 }
 
 int SLAPI DeviceLoadingStat::Fetch(PPID statID, DvcLoadingStatTbl::Rec * pRec)
 {
 	int    ok = -1;
 	uint   pos = 0;
-	if(P_StatCache == 0)
-		THROW_MEM(P_StatCache = new SArray(sizeof(DvcLoadingStatTbl::Rec)));
-	if(P_StatCache->lsearch(&statID, &pos, CMPF_LONG)) {
-		ASSIGN_PTR(pRec, *(DvcLoadingStatTbl::Rec *)P_StatCache->at(pos));
+	if(StatCache.lsearch(&statID, &pos, CMPF_LONG)) {
+		ASSIGN_PTR(pRec, *(DvcLoadingStatTbl::Rec *)StatCache.at(pos));
 		ok = 1;
 	}
 	else {
 		DvcLoadingStatTbl::Rec rec;
 		if(Search(statID, &rec) > 0) {
-			THROW_SL(P_StatCache->insert(&rec));
+			THROW_SL(StatCache.insert(&rec));
 			ASSIGN_PTR(pRec, rec);
 			ok = 1;
 		}
 	}
 	CATCHZOK
 	return ok;
-}
-
-PPID SLAPI DeviceLoadingStat::GetCurStatID() const
-{
-	return StatID;
 }
 
 int SLAPI DeviceLoadingStat::Search(PPID statID, DvcLoadingStatTbl::Rec * pRec)
@@ -67,8 +51,7 @@ int SLAPI DeviceLoadingStat::GetPrev(PPID curStatID, PPID * pStatID, DvcLoadingS
 		return 0;
 }
 
-int SLAPI DeviceLoadingStat::GetLast(int dvcType, PPID dvcID,
-	const LDATETIME & rDtm, PPID * pStatID, DvcLoadingStatTbl::Rec * pRec)
+int SLAPI DeviceLoadingStat::GetLast(int dvcType, PPID dvcID, const LDATETIME & rDtm, PPID * pStatID, DvcLoadingStatTbl::Rec * pRec)
 {
 	DvcLoadingStatTbl::Key1 k1;
 	MEMSZERO(k1);
@@ -135,14 +118,12 @@ int SLAPI DeviceLoadingStat::RegisterGoods(PPID statID, const GoodsInfo * pInfo)
 	int    ok = 1;
 	uint   pos = 0;
 	THROW_INVARG(statID == StatID);
-	if(P_GoodsList == 0)
-		THROW_MEM(P_GoodsList = new SArray(sizeof(_GoodsInfo)));
-	if(!P_GoodsList->lsearch(&pInfo->ID, &pos, CMPF_LONG)) {
+	if(!GoodsList.lsearch(&pInfo->ID, &pos, CMPF_LONG)) {
 		_GoodsInfo  gds_info;
 		gds_info.ID    = pInfo->ID;
 		gds_info.PLU   = pInfo->PLU;
 		gds_info.Price = pInfo->Price;
-		THROW_SL(P_GoodsList->insert(&gds_info));
+		THROW_SL(GoodsList.insert(&gds_info));
 	}
 	CATCHZOK
 	return ok;
@@ -180,10 +161,9 @@ int SLAPI DeviceLoadingStat::CutTables(short dvcType, int use_ta)
 int SLAPI DeviceLoadingStat::FinishLoading(PPID statID, int status, int use_ta)
 {
 	int    ok = 1;
-	long   timing = 0;
 	DvcLoadingStatTbl::Rec rec;
+	const long timing = clock() - StartClock;
 	THROW_INVARG(statID == StatID);
-	timing = clock() - StartClock;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -195,9 +175,9 @@ int SLAPI DeviceLoadingStat::FinishLoading(PPID statID, int status, int use_ta)
 		{
 			DlsObjTbl::Rec dlso_rec;
 			BExtInsert bei(&DlsoT);
-			if(P_GoodsList->getCount()) {
-				for(uint i = 0; i < P_GoodsList->getCount(); i++) {
-					const _GoodsInfo & gds_info = *(_GoodsInfo *)P_GoodsList->at(i);
+			if(GoodsList.getCount()) {
+				for(uint i = 0; i < GoodsList.getCount(); i++) {
+					const _GoodsInfo & gds_info = *(_GoodsInfo *)GoodsList.at(i);
 					MEMSZERO(dlso_rec);
 					dlso_rec.DlsID   = statID;
 					dlso_rec.ObjType = PPOBJ_GOODS;
@@ -278,11 +258,11 @@ int SLAPI DeviceLoadingStat::GetUpdatedObjects(PPID objType, const LDATETIME & s
 	q.selectAll().where(p_sj->ObjType == objType);
 	acn_list.addzlist(PPACN_OBJADD, PPACN_OBJUPD, PPACN_OBJUNIFY, 0L);
 	if(objType == PPOBJ_GOODS)
-		acn_list.addzlist(PPACN_GOODSQUOTUPD, PPACN_QUOTUPD2, PPACN_GOODSNODISRMVD, 0L); // @v7.3.3 PPACN_QUOTUPD2
+		acn_list.addzlist(PPACN_GOODSQUOTUPD, PPACN_QUOTUPD2, PPACN_GOODSNODISRMVD, 0L);
 	else if(objType == PPOBJ_SCARD)
 		acn_list.add(PPACN_SCARDDISUPD);
 	acn_list.sort();
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) { // @v7.7.8 spGt-->spGe
+	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
 		if(cmp(since, p_sj->data.Dt, p_sj->data.Tm) < 0 && acn_list.bsearch(p_sj->data.Action))
 			if(pObjList)
 				THROW(pObjList->add(p_sj->data.ObjID)); // @v8.0.10 addUnique-->add
@@ -357,9 +337,8 @@ IMPLEMENT_PPFILT_FACTORY(DvcLoadingStat); SLAPI DvcLoadingStatFilt::DvcLoadingSt
 
 class DLSFiltDialog : public TDialog {
 public:
-	DLSFiltDialog() : TDialog(DLG_DLSFLT)
+	DLSFiltDialog() : TDialog(DLG_DLSFLT), LastDvcTypeSel(0)
 	{
-		LastDvcTypeSel = 0;
 		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_DLSFLT_GGRP, CTLSEL_DLSFLT_GOODS));
 	}
 	int    setDTS(const DvcLoadingStatFilt *);
@@ -678,9 +657,8 @@ SLAPI DLSDetailFilt::DLSDetailFilt()
 	THISZERO();
 }
 
-SLAPI PPViewDLSDetail::PPViewDLSDetail() : PPView(0)
+SLAPI PPViewDLSDetail::PPViewDLSDetail() : PPView(0), P_DlsObjTbl(0)
 {
-	P_DlsObjTbl = 0;
 }
 
 SLAPI PPViewDLSDetail::~PPViewDLSDetail()
@@ -809,4 +787,3 @@ int SLAPI ViewDLSDetail(DLSDetailFilt * pFilt)
 	delete p_v;
 	return ok;
 }
-

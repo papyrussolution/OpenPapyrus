@@ -19,16 +19,16 @@ ViewStyle::MarginStyle::MarginStyle() : style(SC_MARGIN_SYMBOL), width(0), mask(
 }
 
 // A list of the fontnames - avoids wasting space in each style
-FontNames::FontNames()
+ViewStyle::FontNames::FontNames()
 {
 }
 
-FontNames::~FontNames()
+ViewStyle::FontNames::~FontNames()
 {
 	Clear();
 }
 
-void FontNames::Clear()
+void ViewStyle::FontNames::Clear()
 {
 	for(std::vector<char *>::const_iterator it = names.begin(); it != names.end(); ++it) {
 		delete []*it;
@@ -36,20 +36,20 @@ void FontNames::Clear()
 	names.clear();
 }
 
-const char * FontNames::Save(const char * name)
+const char * ViewStyle::FontNames::Save(const char * name)
 {
-	if(!name)
-		return 0;
-	for(std::vector<char *>::const_iterator it = names.begin(); it != names.end(); ++it) {
-		if(strcmp(*it, name) == 0) {
-			return *it;
+	char * p_name_save = 0;
+	if(name) {
+		for(std::vector<char *>::const_iterator it = names.begin(); it != names.end(); ++it) {
+			if(strcmp(*it, name) == 0)
+				return *it;
 		}
+		const size_t lenName = strlen(name) + 1;
+		p_name_save = new char[lenName];
+		memcpy(p_name_save, name, lenName);
+		names.push_back(p_name_save);
 	}
-	const size_t lenName = strlen(name) + 1;
-	char * nameSave = new char[lenName];
-	memcpy(nameSave, name, lenName);
-	names.push_back(nameSave);
-	return nameSave;
+	return p_name_save;
 }
 
 FontRealised::FontRealised()
@@ -395,9 +395,8 @@ int FASTCALL ViewStyle::AllocateExtendedStyles(int numberStyles)
 
 void ViewStyle::EnsureStyle(size_t index)
 {
-	if(index >= styles.size()) {
+	if(index >= styles.size())
 		AllocStyles(index+1);
-	}
 }
 
 void ViewStyle::ResetDefaultStyle()

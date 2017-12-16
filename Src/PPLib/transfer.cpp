@@ -6,10 +6,8 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI Transfer::Transfer() : TransferTbl()
+SLAPI Transfer::Transfer() : TransferTbl(), __DontCheckQttyInUpdateTransferItem__(0), P_LcrT(0)
 {
-	__DontCheckQttyInUpdateTransferItem__ = 0;
-	P_LcrT = 0;
 	const int lcrusage = CConfig.LcrUsage;
 	if(oneof2(lcrusage, 1, 2))
 		P_LcrT = new LotCurRestTbl;
@@ -300,9 +298,8 @@ int SLAPI Transfer::UpdateFwRevalCostAndPrice(PPID lotID, LDATE dt, long oprno, 
 	return ok;
 }
 
-SLAPI Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray * pLocList)
+SLAPI Transfer::GetLotPricesCache::GetLotPricesCache(LDATE dt, const PPIDArray * pLocList) : Date(plusdate(dt, 1))
 {
-	Date = plusdate(dt, 1);
 	//
 	// Получаем список видов операции переоценки
 	//
@@ -426,18 +423,9 @@ void SLAPI GoodsRestVal::Init(const ReceiptTbl::Rec * pLotRec, double r)
 	LotTagText[0] = 0;
 }
 
-SLAPI GoodsRestParam::GoodsRestParam()
+SLAPI GoodsRestParam::GoodsRestParam() : CalcMethod(0), Flags_(0), DiffParam(_diffNone), Date(ZERODATE), Md_(ZERODATE), OprNo(0), Mo_(0),
+	LocID(0), GoodsID(0), SupplID(0), AgentID(0), GoodsTaxGrpID(0), DiffLotTagID(0), P_SupplAgentBillList(0)
 {
-	CalcMethod = 0;
-	Flags_ = 0;
-	DiffParam = _diffNone;
-	Date = Md_ = ZERODATE;
-	OprNo = 0;
-	Mo_ = 0;
-	LocID = GoodsID = SupplID = AgentID = 0;
-	GoodsTaxGrpID = 0;
-	DiffLotTagID = 0;
-	P_SupplAgentBillList = 0;
 	InitVal();
 }
 
@@ -553,9 +541,9 @@ int FASTCALL GoodsRestParam::CanMerge(const GoodsRestVal * v, const GoodsRestVal
 	else if(DiffParam & _diffPack && a->UnitsPerPack != v->UnitsPerPack)
 		yes = 0;
 	// @v9.7.11 {
-	else if(DiffParam & _diffExpiry && a->Expiry != v->Expiry) 
+	else if(DiffParam & _diffExpiry && a->Expiry != v->Expiry)
 		yes = 0;
-	// } @v9.7.11 
+	// } @v9.7.11
 	else if(DiffParam & _diffSerial && strcmp(a->Serial, v->Serial) != 0)
 		yes = 0;
 	else if(DiffByTag() && strcmp(a->LotTagText, v->LotTagText) != 0)
@@ -1333,8 +1321,7 @@ long FASTCALL MASK_TFR_FLAGS(long f)
 int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 {
 	int    ok = 1, r;
-	int    _reverse = 0; // @v8.0.3
-	// @v8.0.3 const  int rbb = ti->RByBill;
+	int    _reverse = 0;
 	const  int reval = BIN(ti->Flags & PPTFR_REVAL);
 	ReceiptTbl::Rec lot_rec;
 	SString msg_buf, fmt_buf;
@@ -1345,8 +1332,6 @@ int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		// @v8.0.3 THROW(RecByBill(ti->BillID, &ti->RByBill));
-		// @v8.0.3 {
 		assert(rByBill >= 0 && rByBill < 32000);
 		if(ti->RByBill == 0) {
 			ti->RByBill = ++rByBill;
@@ -1386,7 +1371,6 @@ int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 				_reverse = 1;
 			}
 		}
-		// } @v8.0.3
 		//
 		// Следующий участок кода форсирует генерацию лота в том случае, если операция является приходной,
 		// не установлен флаг PPTFR_RECEIPT и лот операции нулевой либо его цены не совпадают с ценами операции.
@@ -1416,8 +1400,7 @@ int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 				THROW(AddLotItem(ti, force_lot_id));
 			}
 			THROW(GetRest(ti->LotID, ti->Date, &rest, &ph_rest));
-			THROW_PP_S((rest >= 0.0 && ph_rest >= 0.0) ||
-				((rest + ti->Quantity_) >= 0.0 && !(ti->Flags & PPTFR_RECEIPT)), PPERR_LOTRESTINVALID, ti->LotID); // @v8.0.9 (|| (rest + ti->Quantity_) >= 0.0 ...)
+			THROW_PP_S((rest >= 0.0 && ph_rest >= 0.0) || ((rest + ti->Quantity_) >= 0.0 && !(ti->Flags & PPTFR_RECEIPT)), PPERR_LOTRESTINVALID, ti->LotID);
 		}
 		if(reval) {
 			LDATE  dt = plusdate(ti->Date, 1);
@@ -1442,12 +1425,12 @@ int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 		THROW(GetOprNo(rec.Dt, &rec.OprNo));
 		rec.BillID   = ti->BillID;
 		rec.RByBill  = ti->RByBill;
-		rec.Reverse  = _reverse; // @v8.0.3 (rbb ? 1 : 0)-->_reverse
+		rec.Reverse  = _reverse;
 		rec.CorrLoc  = ti->CorrLoc;
 		rec.LotID    = ti->LotID;
 		rec.GoodsID  = ti->GoodsID;
 		rec.Flags    = MASK_TFR_FLAGS(ti->Flags);
-		rec.Quantity = qtty; // @v7.8.10 (reval ? 0.0 : ti->Quantity_)-->qtty
+		rec.Quantity = qtty;
 		rec.WtQtty   = (ti->Flags & PPTFR_INDEPPHQTTY) ? (float)R6(ti->WtQtty) : 0;
 		if(ti->IsUnlimWoLot()) {
 			rec.Rest = 0.0;
@@ -1476,7 +1459,7 @@ int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 			ti->Quantity_ = -ti->Quantity_;
 			ti->WtQtty   = -ti->WtQtty;
 			ti->Flags   &= ~PPTFR_UNITEINTR;
-			ti->TFlags  &= ~PPTransferItem::tfForceNew; // @v8.0.3
+			ti->TFlags  &= ~PPTransferItem::tfForceNew;
 			INVERSEFLAG(ti->Flags, PPTFR_RECEIPT);
 			//
 			// Откладываем обработку ошибки в AddItem до восстановления значений ti
@@ -1501,12 +1484,9 @@ int SLAPI Transfer::AddItem(PPTransferItem * ti, int16 & rByBill, int use_ta)
 //
 //
 //
-Transfer::LcrBlock::LcrBlock(int op, LotCurRestTbl * pTbl, BExtInsert * pBei)
+Transfer::LcrBlock::LcrBlock(int op, LotCurRestTbl * pTbl, BExtInsert * pBei) : Op(op), P_Tbl(pTbl), P_Bei(pBei)
 {
 	assert(oneof3(op, opTest, opRecalc, opUpdate));
-	Op = op;
-	P_Tbl = pTbl;
-	P_Bei = pBei;
 	InitLot(0);
 }
 
@@ -2099,6 +2079,7 @@ int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int revers
 	long   upd_oprno   = 0;
 	int    sav = 0;
 	double save_dis;
+	SString temp_buf;
 	DBRowId pos;
 	TransferTbl::Rec rec;
 	ReceiptTbl::Rec lot_rec;
@@ -2128,8 +2109,16 @@ int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int revers
 						if(ti->Date != rec.Dt) {
 							LDATE temp_dt = rec.Dt;
 							long  temp_oprno = rec.OprNo;
-							if(EnumByLot(ti->LotID, &temp_dt, &temp_oprno, 0) > 0)
-								THROW_PP(ti->Date < temp_dt, PPERR_INVLOTDTUPD);
+							TransferTbl::Rec temp_trfr_rec;
+							if(EnumByLot(ti->LotID, &temp_dt, &temp_oprno, &temp_trfr_rec) > 0) {
+								// @v9.8.11 THROW_PP(ti->Date < temp_dt, PPERR_INVLOTDTUPD);
+								// @v9.8.11 {
+								if(ti->Date >= temp_dt) {
+									Rcpt.Search(ti->LotID, &lot_rec);
+									CALLEXCEPT_PP_S(PPERR_INVLOTDTUPD, BillObj->MakeLotText(&lot_rec, PPObjBill::ltfGoodsName, temp_buf));
+								}
+								// } @v9.8.11
+							}
 							THROW(GetOprNo(ti->Date, &upd_oprno));
 							rec.OprNo = upd_oprno;
 							// @v9.0.0 {
@@ -2246,8 +2235,15 @@ int SLAPI Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int revers
 				if(ti->Date != rec.Dt) {
 					LDATE  temp_dt = rec.Dt;
 					long   temp_oprno = rec.OprNo;
-					if(EnumByLot(rec.LotID, &temp_dt, &temp_oprno, 0) > 0)
-						THROW_PP(ti->Date < temp_dt, PPERR_INVLOTDTUPD);
+					if(EnumByLot(rec.LotID, &temp_dt, &temp_oprno, 0) > 0) {
+						// @v9.8.11 THROW_PP(ti->Date < temp_dt, PPERR_INVLOTDTUPD);
+						// @v9.8.11 {
+						if(ti->Date >= temp_dt) {
+							Rcpt.Search(rec.LotID, &lot_rec);
+							CALLEXCEPT_PP_S(PPERR_INVLOTDTUPD, BillObj->MakeLotText(&lot_rec, PPObjBill::ltfGoodsName, temp_buf));
+						}
+						// } @v9.8.11
+					}
 					THROW(GetOprNo(ti->Date, &upd_oprno));
 					rec.Dt    = ti->Date;
 					rec.OprNo = upd_oprno;

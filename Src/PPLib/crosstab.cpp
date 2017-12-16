@@ -19,10 +19,8 @@ Crosstab::Summary::Item::Item(uint32 aggrFldPosMask, const char * pTitle, uint e
 {
 }
 
-Crosstab::Summary::Summary(size_t extSize, uint aggrFldCount)
+Crosstab::Summary::Summary(size_t extSize, uint aggrFldCount) : ExtSize(extSize), AggrFldCount(NZOR(aggrFldCount, 1))
 {
-	ExtSize = extSize;
-	AggrFldCount = NZOR(aggrFldCount, 1);
 }
 
 size_t Crosstab::Summary::GetEntrySize() const
@@ -150,13 +148,8 @@ int SLAPI Crosstab::Summary::Serialize(int dir, SBuffer & rBuf, SSerializeContex
 //
 //
 //
-SLAPI Crosstab::Crosstab()
+SLAPI Crosstab::Crosstab() : P_Tbl(0), P_RTbl(0), P_CtValList(0), P_TotalRows(0), P_TotalCols(0)
 {
-	P_Tbl = 0;
-	P_RTbl = 0;
-	P_CtValList = 0;
-	P_TotalRows = 0;
-	P_TotalCols = 0;
 }
 
 SLAPI Crosstab::~Crosstab()

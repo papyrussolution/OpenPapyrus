@@ -408,44 +408,44 @@ int __env_get_memory_init(DB_ENV * dbenv, DB_MEM_CONFIG type, uint32 * countp)
 	ENV * env = dbenv->env;
 	switch(type) {
 	    case DB_MEM_LOCK:
-		ENV_NOT_CONFIGURED(env, env->lk_handle, __p_funcnam, DB_INIT_LOCK);
-		if(LOCKING_ON(env))
-			*countp = ((DB_LOCKREGION *)env->lk_handle->reginfo.primary)->stat.st_initlocks;
-		else
-			*countp = dbenv->lk_init;
-		break;
+			ENV_NOT_CONFIGURED(env, env->lk_handle, __p_funcnam, DB_INIT_LOCK);
+			if(LOCKING_ON(env))
+				*countp = ((DB_LOCKREGION *)env->lk_handle->reginfo.primary)->stat.st_initlocks;
+			else
+				*countp = dbenv->lk_init;
+			break;
 	    case DB_MEM_LOCKOBJECT:
-		ENV_NOT_CONFIGURED(env, env->lk_handle, __p_funcnam, DB_INIT_LOCK);
-		if(LOCKING_ON(env))
-			*countp = ((DB_LOCKREGION *)env->lk_handle->reginfo.primary)->stat.st_initobjects;
-		else
-			*countp = dbenv->lk_init_objects;
-		break;
+			ENV_NOT_CONFIGURED(env, env->lk_handle, __p_funcnam, DB_INIT_LOCK);
+			if(LOCKING_ON(env))
+				*countp = ((DB_LOCKREGION *)env->lk_handle->reginfo.primary)->stat.st_initobjects;
+			else
+				*countp = dbenv->lk_init_objects;
+			break;
 	    case DB_MEM_LOCKER:
-		ENV_NOT_CONFIGURED(env, env->lk_handle, __p_funcnam, DB_INIT_LOCK);
-		if(LOCKING_ON(env))
-			*countp = ((DB_LOCKREGION *)env->lk_handle->reginfo.primary)->stat.st_initlockers;
-		else
-			*countp = dbenv->lk_init_lockers;
-		break;
+			ENV_NOT_CONFIGURED(env, env->lk_handle, __p_funcnam, DB_INIT_LOCK);
+			if(LOCKING_ON(env))
+				*countp = ((DB_LOCKREGION *)env->lk_handle->reginfo.primary)->stat.st_initlockers;
+			else
+				*countp = dbenv->lk_init_lockers;
+			break;
 	    case DB_MEM_LOGID:
-		ENV_NOT_CONFIGURED(env, env->lg_handle, __p_funcnam, DB_INIT_LOG);
-		if(LOGGING_ON(env))
-			*countp = ((LOG *)env->lg_handle->reginfo.primary)->stat.st_fileid_init;
-		else
-			*countp = dbenv->lg_fileid_init;
-		break;
+			ENV_NOT_CONFIGURED(env, env->lg_handle, __p_funcnam, DB_INIT_LOG);
+			if(LOGGING_ON(env))
+				*countp = ((LOG *)env->lg_handle->reginfo.primary)->stat.st_fileid_init;
+			else
+				*countp = dbenv->lg_fileid_init;
+			break;
 	    case DB_MEM_TRANSACTION:
-		ENV_NOT_CONFIGURED(env, env->tx_handle, __p_funcnam, DB_INIT_TXN);
-		if(TXN_ON(env))
-			*countp = ((DB_TXNREGION *)env->tx_handle->reginfo.primary)->inittxns;
-		else
-			*countp = dbenv->tx_init;
-		break;
+			ENV_NOT_CONFIGURED(env, env->tx_handle, __p_funcnam, DB_INIT_TXN);
+			if(TXN_ON(env))
+				*countp = ((DB_TXNREGION *)env->tx_handle->reginfo.primary)->inittxns;
+			else
+				*countp = dbenv->tx_init;
+			break;
 	    case DB_MEM_THREAD:
-		/* We always update thr_init when joining an env. */
-		*countp = dbenv->thr_init;
-		break;
+			// We always update thr_init when joining an env. 
+			*countp = dbenv->thr_init;
+			break;
 	}
 	return 0;
 }
@@ -460,24 +460,12 @@ int __env_set_memory_init(DB_ENV * dbenv, DB_MEM_CONFIG type, uint32 count)
 	ENV * env = dbenv->env;
 	ENV_ILLEGAL_AFTER_OPEN(env, "DB_ENV->set_memory_init");
 	switch(type) {
-	    case DB_MEM_LOCK:
-		dbenv->lk_init = count;
-		break;
-	    case DB_MEM_LOCKOBJECT:
-		dbenv->lk_init_objects = count;
-		break;
-	    case DB_MEM_LOCKER:
-		dbenv->lk_init_lockers = count;
-		break;
-	    case DB_MEM_LOGID:
-		dbenv->lg_fileid_init = count;
-		break;
-	    case DB_MEM_TRANSACTION:
-		dbenv->tx_init = count;
-		break;
-	    case DB_MEM_THREAD:
-		dbenv->thr_init = count;
-		break;
+	    case DB_MEM_LOCK: dbenv->lk_init = count; break;
+	    case DB_MEM_LOCKOBJECT: dbenv->lk_init_objects = count; break;
+	    case DB_MEM_LOCKER: dbenv->lk_init_lockers = count; break;
+	    case DB_MEM_LOGID: dbenv->lg_fileid_init = count; break;
+	    case DB_MEM_TRANSACTION: dbenv->tx_init = count; break;
+	    case DB_MEM_THREAD: dbenv->thr_init = count; break;
 	}
 	return 0;
 }
@@ -720,7 +708,6 @@ static int __env_get_flags(DB_ENV * dbenv, uint32 * flagsp)
 	return 0;
 }
 /*
- * __env_set_flags --
  *	DB_ENV->set_flags.
  *
  * PUBLIC: int  __env_set_flags __P((DB_ENV *, uint32, int));
@@ -732,11 +719,9 @@ int __env_set_flags(DB_ENV * dbenv, uint32 flags, int on)
 	uint32 mapped_flags;
 	int mem_on, needs_checkpoint, ret;
 	ENV * env = dbenv->env;
-#define OK_FLAGS                                                        \
-	(DB_AUTO_COMMIT|DB_CDB_ALLDB|DB_DATABASE_LOCKING|DB_DIRECT_DB|DB_DSYNC_DB|DB_MULTIVERSION|\
-	 DB_NOLOCKING|DB_NOMMAP|DB_NOPANIC|DB_OVERWRITE|DB_PANIC_ENVIRONMENT|DB_REGION_INIT|\
-	 DB_TIME_NOTGRANTED|DB_TXN_NOSYNC|DB_TXN_NOWAIT|DB_TXN_SNAPSHOT|DB_TXN_WRITE_NOSYNC|DB_YIELDCPU|\
-	 DB_HOTBACKUP_IN_PROGRESS|DB_NOFLUSH)
+#define OK_FLAGS (DB_AUTO_COMMIT|DB_CDB_ALLDB|DB_DATABASE_LOCKING|DB_DIRECT_DB|DB_DSYNC_DB|DB_MULTIVERSION|\
+	 DB_NOLOCKING|DB_NOMMAP|DB_NOPANIC|DB_OVERWRITE|DB_PANIC_ENVIRONMENT|DB_REGION_INIT|DB_TIME_NOTGRANTED|\
+	DB_TXN_NOSYNC|DB_TXN_NOWAIT|DB_TXN_SNAPSHOT|DB_TXN_WRITE_NOSYNC|DB_YIELDCPU|DB_HOTBACKUP_IN_PROGRESS|DB_NOFLUSH)
 	if(LF_ISSET(~OK_FLAGS))
 		return __db_ferr(env, "DB_ENV->set_flags", 0);
 	if(on) {
@@ -1115,8 +1100,10 @@ static int __env_set_isalive(DB_ENV * dbenv, int (*is_alive)__P((DB_ENV*, pid_t,
 		__db_errx(env, DB_STR("1563", "is_alive method specified but no thread region allocated"));
 		return EINVAL;
 	}
-	dbenv->is_alive = is_alive;
-	return 0;
+	else {
+		dbenv->is_alive = is_alive;
+		return 0;
+	}
 }
 /*
  * __env_get_thread_count --

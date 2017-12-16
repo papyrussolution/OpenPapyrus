@@ -1191,6 +1191,29 @@ RPoint3 & FASTCALL operator / (const RPoint3 & p, double d)
 //
 //
 //
+int SColorRGB::IsZero() const
+{
+	return (!R && !G && !B);
+}
+
+SColorRGB SColorRGB::Set(uint r, uint g, uint b)
+{
+	R = r;
+	G = g;
+	B = b;
+	return *this;
+}
+
+SColorRGB FASTCALL SColorRGB::Set(uint v)
+{
+	R = v;
+	G = v;
+	B = v;
+	return *this;
+}
+//
+//
+//
 struct ColorName {
 	uint32 C; // 0x00rrggbb
 	const char * N;
@@ -1339,7 +1362,7 @@ static const ColorName ColorNameList[] = {
 
 static char FASTCALL hexdigit(uint d)
 {
-	return (d >= 0 && d < 10) ? (d + '0') : ((d >= 10 && d < 16) ? (d - 10 + 'A') : '0');
+	return (d >= 0 && d <= 9) ? (d + '0') : ((d >= 10 && d <= 15) ? (d - 10 + 'A') : '0');
 }
 
 int FASTCALL SColorBase::FromStr(const char * pStr)

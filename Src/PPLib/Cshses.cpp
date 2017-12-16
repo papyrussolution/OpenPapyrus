@@ -11,15 +11,11 @@
 //
 // PPSyncCashSession
 //
-SLAPI PPSyncCashSession::PPSyncCashSession(PPID n, const char * /*pName*/, const char * /*pPort*/)
+SLAPI PPSyncCashSession::PPSyncCashSession(PPID n, const char * /*pName*/, const char * /*pPort*/) :
+	State(0), NodeID(n), Handle(-1), PortType(0), P_SlipFmt(0)
 {
-	State     = 0;
-	NodeID    = n;
-	Handle    = -1;
-	PortType  = 0;
-	Name[0]   = 0;
-	Port[0]   = 0;
-	P_SlipFmt = 0;
+	Name[0] = 0;
+	Port[0] = 0;
 	if(CnObj.GetSync(NodeID, &SCn) > 0) {
 		P_SlipFmt = new PPSlipFormatter(SCn.SlipFmtPath);
 	}
@@ -107,19 +103,9 @@ int SLAPI PPSyncCashSession::CompleteSession(PPID sessID)
 //
 // PPAsyncCashSession
 //
-SLAPI PPAsyncCashSession::PPAsyncCashSession(PPID n) : CSessGrouping()
+SLAPI PPAsyncCashSession::PPAsyncCashSession(PPID n) : CSessGrouping(), NodeID(n), Flags(0), SinceDlsID(0),
+	CnFlags(~0L), CnExtFlags(~0L), P_TmpCcTbl(0), P_TmpCclTbl(0), P_TmpCpTbl(0), P_LastSessList(0), P_GCfg(0), P_Dls(0)
 {
-	NodeID = n;
-	Flags  = 0;
-	SinceDlsID = 0;
-	CnFlags = ~0L;
-	CnExtFlags = ~0L; // @v8.9.10
-	P_TmpCcTbl  = 0;
-	P_TmpCclTbl = 0;
-	P_TmpCpTbl = 0; // @v8.1.0
-	P_LastSessList = 0;
-	P_GCfg = 0;
-	P_Dls = 0;
 }
 
 SLAPI PPAsyncCashSession::~PPAsyncCashSession()
@@ -593,7 +579,7 @@ int SLAPI PPAsyncCashSession::CalcSessionTotal(PPID sessID, CSessTotal * pTotal)
 	return 1;
 }
 
-struct CclAssocItem {
+struct CclAssocItem { // @flat
 	PPID   TempChkID;
 	PPID   ChkID;
 	uint16 RByCheck;
@@ -1140,7 +1126,6 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 			if(path.CmpPrefix(p_ftp_flag, 1) == 0) {
 				SString ftp_path, file_name;
 				SPathStruc sp;
-
 				path.ShiftLeft(strlen(p_ftp_flag));
 				path.ShiftLeftChr('\\').ShiftLeftChr('\\').ShiftLeftChr('/').ShiftLeftChr('/');
 				ftp_path.CatCharN('\\', 2).Cat(path);
@@ -1245,14 +1230,9 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 //
 // AsyncCashGoodsIterator
 //
-SLAPI AsyncCashGoodsIterator::AsyncCashGoodsIterator(PPID cashNodeID, long flags, PPID sinceDlsID, DeviceLoadingStat * pDls)
+SLAPI AsyncCashGoodsIterator::AsyncCashGoodsIterator(PPID cashNodeID, long flags, PPID sinceDlsID, DeviceLoadingStat * pDls) :
+	P_Dls(0), P_G2OAssoc(0), P_G2DAssoc(0), P_AcggIter(0), P_AlcPrc(0), Algorithm(algDefault)
 {
-	P_Dls = 0;
-	P_G2OAssoc = 0;
-	P_G2DAssoc = 0;
-	P_AcggIter = 0;
-	P_AlcPrc = 0; // @v8.9.8
-	Algorithm = algDefault;
 	Init(cashNodeID, flags, sinceDlsID, pDls);
 }
 
@@ -2000,15 +1980,11 @@ int SLAPI AsyncCashGoodsInfo::AdjustBarcode(int chkDig)
 //
 // AsyncCashSCardsIterator
 //
-SLAPI AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updOnly, DeviceLoadingStat * pDLS, PPID statID)
+SLAPI AsyncCashSCardsIterator::AsyncCashSCardsIterator(PPID cashNodeID, int updOnly, DeviceLoadingStat * pDLS, PPID statID) :
+	P_IterQuery(0), UpdatedOnly(updOnly), P_DLS(pDLS), StatID(statID)
 {
 	MEMSZERO(Rec);
-	P_IterQuery = 0;
 	Since.SetZero();
-	UpdatedOnly = updOnly;
-	UpdSCardList.freeAll();
-	P_DLS  = pDLS;
-	StatID = statID;
 	DefSCardPersonID = SCObj.GetConfig().DefPersonID;
 	PersonTbl::Rec psn_rec;
 	if(PsnObj.Search(DefSCardPersonID, &psn_rec) > 0)
@@ -2136,12 +2112,8 @@ int SLAPI AsyncCashSCardsIterator::SetStat()
 //
 // AsyncCashiersIterator
 //
-SLAPI AsyncCashiersIterator::AsyncCashiersIterator()
+SLAPI AsyncCashiersIterator::AsyncCashiersIterator() : ProsessUnworkedPos(0), TabNumRegID(0), P_IterQuery(0), Since(ZERODATETIME)
 {
-	Since.SetZero();
-	ProsessUnworkedPos = 0;
-	TabNumRegID = 0;
-	P_IterQuery = 0;
 }
 
 SLAPI AsyncCashiersIterator::~AsyncCashiersIterator()
@@ -2254,9 +2226,9 @@ void SLAPI AsyncCashGoodsGroupInfo::Init()
 	THISZERO();
 }
 
-SLAPI AsyncCashGoodsGroupIterator::AsyncCashGoodsGroupIterator(PPID cashNodeID, long flags, DeviceLoadingStat * pDls, const PPIDArray * pTermGrpList)
+SLAPI AsyncCashGoodsGroupIterator::AsyncCashGoodsGroupIterator(PPID cashNodeID, long flags, DeviceLoadingStat * pDls, const PPIDArray * pTermGrpList) : 
+	P_GrpList(0)
 {
-	P_GrpList = 0;
 	Init(cashNodeID, flags, pDls, pTermGrpList);
 }
 
