@@ -6,7 +6,6 @@
 // @v9.6.3 #include <idea.h>
 //
 //
-//
 class BaseWtmToolDialog : public TDialog {
 public:
 	BaseWtmToolDialog(uint dlgID);
