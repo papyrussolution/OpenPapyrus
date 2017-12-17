@@ -16,41 +16,35 @@ struct Transpos {
 	void   Print();
 	void   GetTransposition(long buf[]);
 
-	long * List;
+	long * P_List;
 	long   Size;
-	long * Pattern;
+	long * P_Pattern;
 	long   Stop;
 	long   Counter;
 };
 
-Transpos::Transpos()
+Transpos::Transpos() : P_List(0), Size(0), P_Pattern(0), Stop(0), Counter(0)
 {
-	List = 0;
-	Size = 0;
-	List = 0;
-	Pattern = 0;
-	Stop = 0;
-	Counter = 0;
 }
 
 Transpos::~Transpos()
 {
-	SAlloc::F(List);
-	SAlloc::F(Pattern);
+	SAlloc::F(P_List);
+	SAlloc::F(P_Pattern);
 }
 
 void Transpos::Init(long sz, long stop, long pattern[])
 {
 	int    i;
 	Size = sz;
-	List = (long*)SAlloc::M((size_t)(sizeof(long) * Size));
+	P_List = (long*)SAlloc::M((size_t)(sizeof(long) * Size));
 	for(i = 0; i < Size; i++)
-		List[i] = i+1;
-	Pattern = 0;
+		P_List[i] = i+1;
+	P_Pattern = 0;
 	if(pattern) {
-		Pattern = (long*)SAlloc::M((size_t)(sizeof(long) * Size));
+		P_Pattern = (long*)SAlloc::M((size_t)(sizeof(long) * Size));
 		for(i = 0; i < Size; i++)
-			Pattern[i] = pattern[i];
+			P_Pattern[i] = pattern[i];
 	}
 	Stop = stop;
 	Counter = 1;
@@ -59,14 +53,14 @@ void Transpos::Init(long sz, long stop, long pattern[])
 void Transpos::GetTransposition(long buf[])
 {
 	for(int i = 0; i < Size; i++)
-		buf[i] = List[i];
+		buf[i] = P_List[i];
 }
 
 int Transpos::CheckForTermination()
 {
-	if(List && Pattern) {
+	if(P_List && P_Pattern) {
 		for(int i = 0; i < Size; i++)
-			if(List[i] != Pattern[i])
+			if(P_List[i] != P_Pattern[i])
 				return (Counter == Stop) ? 1 : 0;
 		return 1;
 	}
@@ -88,10 +82,12 @@ void Transpos::Print()
 
 void Transpos::Swap(long _i, long _j)
 {
-	size_t i = (size_t)_i, j = (size_t)_j;
-	long   t = List[i-1];
-   	List[i-1] = List[j-1];
-	List[j-1] = t;
+	const size_t i = (size_t)_i;
+	const size_t j = (size_t)_j;
+	//long   t = P_List[i-1];
+   	//P_List[i-1] = P_List[j-1];
+	//P_List[j-1] = t;
+	Exchange(&P_List[i-1], &P_List[j-1]);
 }
 
 int Transpos::Transposition(long order)

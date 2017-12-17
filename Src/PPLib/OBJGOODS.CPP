@@ -7,7 +7,7 @@
 // @ModuleDef(PPObjGoods)
 //
 TLP_IMPL(PPObjGoods, GoodsCore, P_Tbl);
-TLP_IMPL(PPObjGoods, HistGoodsCore, HistGoods);
+// @v9.8.11 TLP_IMPL(PPObjGoods, HistGoodsCore, HistGoods);
 //
 // HistGoodsCore
 //
@@ -437,20 +437,21 @@ void SLAPI PPObjGoods::InitInstance(SCtrLite sctr, void * extraPtr)
 	TLP_OPEN(P_Tbl);
 	ExtraPtr = extraPtr;
 	Kind = PPGDSK_GOODS;
-	EcoSel = 0;
 	P_PsnObj = 0;
+	EcoSel = 0;
+	DoObjVer = BIN(CConfig.Flags & CCFLG_USEHISTGOODS);
+	/* @v9.8.11 
 	HistGoods = 0;
-	if(Sctr != SConstructorLite && CConfig.Flags & CCFLG_USEHISTGOODS)
+	if(Sctr != SConstructorLite && DoObjVer) {
 		TLP_OPEN(HistGoods);
+	}
+	*/
 }
 
 void PPObjGoods::InitConfig()
 {
-	if(!P_Cfg) {
-		P_Cfg = new PPGoodsConfig;
-		if(P_Cfg)
-			P_Tbl->FetchConfig(P_Cfg);
-	}
+	if(SETIFZ(P_Cfg, new PPGoodsConfig))
+		P_Tbl->FetchConfig(P_Cfg);
 }
 
 // Protected constructor
@@ -478,9 +479,10 @@ SLAPI PPObjGoods::~PPObjGoods()
 {
 	delete P_PsnObj;
 	// @v8.0.9 {
+	/* @v9.8.11
 	if(HistGoods) {
 		TLP_CLOSE(HistGoods);
-	}
+	}*/
 	// } @v8.0.9
 	TLP_CLOSE(P_Tbl);
 	delete P_Cfg;
@@ -725,6 +727,7 @@ int SLAPI PPObjGoods::GetValueAddedData(PPID id, PPGoodsPacket * pPack)
 	return ok;
 }
 
+#if 0 // @v9.8.11 {
 #define GOODSPACK_VER 3 // @v6.2.0 0-->1; @v7.2.0 1-->2; @v7.7.12 2-->3
 
 int SLAPI PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer * pBuf)
@@ -839,6 +842,7 @@ int SLAPI PPObjGoods::SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer
 	CATCHZOK
 	return ok;
 }
+#endif // } 0 @v9.8.11
 
 int SLAPI PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 {
@@ -980,12 +984,22 @@ int SLAPI PPObjGoods::UpdateName(PPID id, const char * pNewName, int use_ta)
 				PPID   hid = 0;
 				DBRowId pos;
 				THROW_DB(P_Tbl->getPosition(&pos));
-				if(TLP(HistGoods).IsOpened()) {
-					SBuffer hist_buf;
-					PPGoodsPacket old_pack;
-					THROW(GetPacket(id, &old_pack, 0) > 0);
-					THROW(SerializePacket_(1, &old_pack, &hist_buf));
-					THROW(HistGoods->Insert(&hid, &hist_buf, 0));
+				if(DoObjVer) {
+					ObjVersioningCore * p_ovc = PPRef->P_OvT; // @v9.8.11
+					if(p_ovc && p_ovc->InitSerializeContext(0)) {
+						SSerializeContext & r_sctx = p_ovc->GetSCtx();
+						PPObjID oid;
+						SBuffer hist_buf;
+						PPGoodsPacket old_pack;
+						THROW(GetPacket(id, &old_pack, 0) > 0);
+						THROW(SerializePacket(+1, &old_pack, hist_buf, &r_sctx, 0));
+						THROW(p_ovc->Add(&hid, oid.Set(Obj, id), &hist_buf, 0));
+					}
+					/* @v9.8.11
+					else if(TLP(HistGoods).IsOpened()) {
+						THROW(SerializePacket_(1, &old_pack, &hist_buf));
+						THROW(HistGoods->Insert(&hid, &hist_buf, 0));
+					}*/
 				}
 				THROW_DB(P_Tbl->getDirectForUpdate(0, 0, pos));
 				P_Tbl->copyBufTo(&rec);
@@ -1019,6 +1033,7 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 	PPGoodsStrucHeader gs_rec;
 	PPID   def_prc_id = 0;
 	Reference * p_ref = PPRef;
+	ObjVersioningCore * p_ovc = p_ref->P_OvT;
 	PPObjTech * p_tec_obj = 0;
 	PPObjProcessor * p_prc_obj = 0;
 	PPUserFuncProfiler ufp(PPUPRF_GOODSPUT); // @v8.1.3
@@ -1035,11 +1050,9 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {
-			// @v8.0.3 THROW(Search(*pID, &rec) > 0);
-			// @v8.0.3 org_rec = rec;
 			THROW(GetPacket(*pID, &old_pack, 0) > 0);
-			rec = old_pack.Rec;     // @v8.0.3
-			org_rec = old_pack.Rec; // @v8.0.3
+			rec = old_pack.Rec;
+			org_rec = old_pack.Rec;
 			if(pPack) {
 				// 
 				// Подготовка пакета к корректному сравнению с оригинальным пакетом:
@@ -1056,7 +1069,6 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 					pPack->ArCodes.at(i).GoodsID = *pID;
 				}
 				// } 
-				// @v8.1.3 {
 				// Если не надо менять изображение, то не следует и сравнивать флаг GF_HASIMAGES
 				if(pPack->UpdFlags & PPGoodsPacket::ufDontChgImgFlag) {
 					SETFLAG(pPack->Rec.Flags, GF_HASIMAGES, org_rec.Flags & GF_HASIMAGES);
@@ -1081,17 +1093,19 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 							pPack->Stock.MinStockList.atFree(i);
 					} while(i);
 				}
-				// } @v8.1.3
 				if(IsPacketEq(*pPack, old_pack, 0, &pack_cmp_result_flags))
 					no_changes = 1;
-				// @v8.1.3 {
 				old_pack.ExtRec.UniqCntr = preserve_org_ext_uniq_cntr;
 				pPack->ExtRec.UniqCntr = preserve_new_ext_uniq_cntr;
-				// } @v8.1.3
 			}
-			if(!is_new && !no_changes && TLP(HistGoods).IsOpened()) {
-				THROW(SerializePacket_(1, &old_pack, &hist_buf));
-				//old_pack.ToHistPack(&hist_buf);
+			if(!is_new && !no_changes && DoObjVer) {
+				if(p_ovc && p_ovc->InitSerializeContext(0)) {
+					SSerializeContext & r_sctx = p_ovc->GetSCtx();
+					THROW(SerializePacket(+1, &old_pack, hist_buf, &r_sctx, 0));
+				}
+				/* @v9.8.11 else if(TLP(HistGoods).IsOpened()) {
+					THROW(SerializePacket_(1, &old_pack, &hist_buf));
+				}*/
 			}
 		}
 		if(pPack == 0) {
@@ -1239,9 +1253,14 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 			if(def_prc_id && p_tec_obj) {
 				THROW(p_tec_obj->CreateAutoTech(def_prc_id, *pID, 0, 0));
 			}
-			if(!is_new) {
-				if(TLP(HistGoods).IsOpened())
+			if(!is_new && DoObjVer) {
+				if(p_ovc && p_ovc->InitSerializeContext(0)) {
+					PPObjID oid;
+					THROW(p_ovc->Add(&hid, oid.Set(Obj, *pID), &hist_buf, 0));
+				}
+				/* @v9.8.11 else if(TLP(HistGoods).IsOpened()) {
 					THROW(HistGoods->Insert(&hid, &hist_buf, 0));
+				}*/
 			}
 			if(!is_removing) {
 				DS.LogAction((is_new ? PPACN_OBJADD : PPACN_OBJUPD), Obj, *pID, hid, 0);
@@ -3265,14 +3284,24 @@ int SLAPI PPObjGoods::ViewVersion(PPID histID)
 {
 	int    ok = -1;
 	if(histID) {
-		if(TLP(HistGoods).IsOpened()) {
-			SBuffer buf;
-			PPGoodsPacket pack;
+		SBuffer buf;
+		PPGoodsPacket pack;
+		ObjVersioningCore * p_ovc = PPRef->P_OvT;
+		if(p_ovc && p_ovc->InitSerializeContext(1)) {
+			SSerializeContext & r_sctx = p_ovc->GetSCtx();
+			PPObjID oid;
+			long   vv = 0;
+			THROW(p_ovc->Search(histID, &oid, &vv, &buf) > 0);
+			THROW(SerializePacket(-1, &pack, buf, &r_sctx, 0));
+			THROW(Helper_Edit(&pack.Rec.ID, &pack, pack.GetPacketKind(), 0, 1));
+			ok = 1;
+		}
+		/* @v9.8.11 else if(TLP(HistGoods).IsOpened()) {
 			THROW(HistGoods->Search(histID, &buf) > 0);
 			THROW(SerializePacket_(0, &pack, &buf));
 			THROW(Helper_Edit(&pack.Rec.ID, &pack, pack.GetPacketKind(), 0, 1));
 			ok = 1;
-		}
+		}*/
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -3285,7 +3314,6 @@ int SLAPI PPObjGoods::EditClsdGoods(PPGoodsPacket * pPack, int modifyOnlyExtRec)
 	PPGdsClsPacket  gc_pack;
 	uint   dlg_id = DLG_SG;
 	ClsdGoodsDialog * dlg = 0;
-
 	if(modifyOnlyExtRec != 2)
 		THROW(gc_obj.GetPacket(pPack->Rec.GdsClsID, &gc_pack) > 0);
 	THROW(CheckDialogPtr(&(dlg = new ClsdGoodsDialog(dlg_id, &gc_pack, modifyOnlyExtRec))));
@@ -3573,7 +3601,8 @@ int SLAPI PPObjGoods::SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & 
 	THROW(pPack->Stock.Serialize(dir, rBuf, pSCtx));
 	THROW(pPack->TagL.Serialize(dir, rBuf, pSCtx));
 	THROW(pPack->GenericList.Serialize(dir, rBuf, pSCtx));
-	THROW(pPack->LinkFiles.Serialize(dir, (GetConfig().Flags & GCF_XCHG_SENDATTACHMENT) ? 0 : 1, rBuf, pSCtx)); // @v8.2.3
+	THROW(pPack->LinkFiles.Serialize(dir, (GetConfig().Flags & GCF_XCHG_SENDATTACHMENT && 
+		!pSCtx->CheckFlag(SSerializeContext::fDontProcessAttachment)) ? 0 : 1, rBuf, pSCtx)); // @v8.2.3
 	{
 		PPQuotArray quot_list;
 		if(dir > 0) {

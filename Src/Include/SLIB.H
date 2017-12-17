@@ -2585,7 +2585,8 @@ struct STypEx { // @persistent @size=16
 //
 class DataType {
 public:
-	SLAPI  DataType() {}
+	explicit SLAPI DataType(uint32 sz) : S(sz) {}
+	SLAPI DataType() : S(0) {}
 	virtual size_t SLAPI size() const;
 	virtual int    SLAPI comp(const void * i1, const void * i2) const;
 	virtual char * SLAPI tostr(const void *, long, char * b) const;
@@ -2611,7 +2612,7 @@ public:
 	virtual int    SLAPI Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    SLAPI isnumber() const { return (base() == BTS_INT || base() == BTS_REAL); }
 
-	size_t s; // Size or other specific data
+	uint32 S; // Size or other specific data // @v9.8.11 size_t-->uint32
 };
 
 // @v8.7.2 SPTRDEF(DataType);
@@ -10513,24 +10514,10 @@ enum SColourCollection { // 0x00rrggbb
 // Descr: Структура для унификации сторонних библиотек
 //
 struct SColorRGB {
-	int    IsZero() const
-	{
-		return (!R && !G && !B);
-	}
-	SColorRGB Set(uint r, uint g, uint b)
-	{
-		R = r;
-		G = g;
-		B = b;
-		return *this;
-	}
-	SColorRGB FASTCALL Set(uint v)
-	{
-		R = v;
-		G = v;
-		B = v;
-		return *this;
-	}
+	int    IsZero() const;
+	SColorRGB Set(uint r, uint g, uint b);
+	SColorRGB FASTCALL Set(uint v);
+
 	uint8  R;
 	uint8  G;
 	uint8  B;
@@ -10626,11 +10613,13 @@ public:
 		// из потока будут в произвольном порядке, а не в той последовательности,
 		// в которой записывались.
 		//
-		fSeparateDataStruct = 0x0001
+		fSeparateDataStruct    = 0x0001,
+		fDontProcessAttachment = 0x0002  // @v9.8.11 Запрет на сериализацию связанных blob'ов (которые могут быть пропущены)
 	};
 	SLAPI  SSerializeContext();
 	SLAPI ~SSerializeContext();
 	int    SLAPI Init(long flags, LDATE suppDate);
+	int    FASTCALL CheckFlag(long f) const;
 	//
 	// Descr: Записывает (считывает) состояние объекта в (из) буфер rBuf.
 	//   Если Flags & fSeparateDataStruct, то вместе с состоянием сериализуется и
@@ -10649,7 +10638,7 @@ public:
 	// Note: Если pFldList == 0 тогда просто указатель считывания перемещается в конец
 	//   записи, но по указателю pData ничего не записывается.
 	//
-	int    SLAPI Unserialize(const BNFieldList * pFldList, void * pData, SBuffer & rBuf);
+	int    SLAPI Unserialize(const char * pDbtName, const BNFieldList * pFldList, void * pData, SBuffer & rBuf);
 
 	int    SLAPI Serialize(int dir, TYPEID typ, void * pData, uint8 * pInd, SBuffer & rBuf);
 	int    SLAPI Serialize(int dir, SString & rStr, SBuffer & rBuf);
@@ -10686,10 +10675,9 @@ public:
 	//   В поток заносится разница в днях между сохраняемой датой и опорной датой.
 	//
 	LDATE  SLAPI GetSupportingDate() const;
+	int    SLAPI AddDbtDescr(const char * pName, const BNFieldList * pList, uint32 * pID); // @v9.8.11 private-->public
+	int    SLAPI GetDbtDescr(uint id, BNFieldList * pList) const; // @v9.8.11 private-->public
 private:
-	int    SLAPI AddDbtDescr(const char * pName, const BNFieldList * pList, uint32 * pID);
-	int    SLAPI GetDbtDescr(uint id, BNFieldList * pList) const;
-
 	long   State;
 	long   Flags;
 	uint32 LastSymbId;

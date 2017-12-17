@@ -12,9 +12,8 @@ SLAPI PPConfig::PPConfig()
 	THISZERO();
 }
 
-PPObjSecur::Exclusion::Exclusion(int exclrt)
+PPObjSecur::Exclusion::Exclusion(int exclrt) : State(0)
 {
-	State = 0;
 	if(!PPMaster) {
 		PPThreadLocalArea & r_tla = DS.GetTLA();
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
@@ -46,12 +45,8 @@ PPObjSecur::Exclusion::~Exclusion()
 	}
 }
 
-PPObjSecur::ExtraParam::ExtraParam() : Signature(SECUREXTRAPARAMSIGN)
+PPObjSecur::ExtraParam::ExtraParam() : Signature(SECUREXTRAPARAMSIGN), Type(0), ParentID(0), SampleID(0), Flags(0)
 {
-	Type = 0;
-	ParentID = 0;
-	SampleID = 0; // @v9.8.4
-	Flags = 0;
 }
 
 PPObjSecur::ExtraParam & PPObjSecur::ExtraParam::operator = (const PPObjSecur::ExtraParam & rS)

@@ -1,5 +1,5 @@
 // GDSCLS.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 //
 #include <pp.h>
 #pragma hdrstop
@@ -341,11 +341,8 @@ private:
 
 class GoodsClassProp2Dialog : public TDialog {
 public:
-	GoodsClassProp2Dialog() : TDialog(DLG_GDSCLSPROP2)
+	GoodsClassProp2Dialog() : TDialog(DLG_GDSCLSPROP2), OrgObjType(0), P_GcPack(0), GcProp(0)
 	{
-		OrgObjType = 0;
-		P_GcPack = 0;
-		GcProp = 0;
 	}
 	int    setDTS(const PPGdsClsProp *, int gcProp, const PPGdsClsPacket * pGcPack);
 	int    getDTS(PPGdsClsProp *);
@@ -463,9 +460,11 @@ IMPL_HANDLE_EVENT(GoodsClassDialog)
 			case cmGdsClsFormList:   EditGcFormulaList(&Data); break;
 			case cmGdsClsDynGenMask: editDynGenMask();         break;
 			case cmGdsClsLotDim:     EditLotDimParam();        break; // @v8.9.1
-			case cmClusterClk: {
+			case cmClusterClk: 
+				{
 					uint   f_ctl_id = event.getCtlID();
-					uint   stru_f = 0, cmd_id = 0;
+					uint   stru_f = 0;
+					uint   cmd_id = 0;
 					switch(f_ctl_id) {
 						case CTL_GDSCLS_E_KIND:
 							stru_f = PPGdsCls::fUsePropKind;
@@ -1102,7 +1101,7 @@ int SLAPI PPGdsClsPacket::GetFormula(int idx, PPGdsClsFormula * pForm) const
 
 int SLAPI PPGdsClsPacket::SetDefaultFormula(int idx)
 {
-	int    cnt = FormulaList.getCount();
+	const int cnt = FormulaList.getCount();
 	if(idx > 0 && idx <= cnt) {
 		for(int i = cnt; i > 0; i--) {
 			PPGdsClsFormula form;
@@ -1114,7 +1113,8 @@ int SLAPI PPGdsClsPacket::SetDefaultFormula(int idx)
 		}
 		return 1;
 	}
-	return -1;
+	else
+		return -1;
 }
 //
 //
@@ -1258,11 +1258,8 @@ int SLAPI EditGcFormulaList(PPGdsClsPacket * pData)
 //
 class GcCalcDialog : public TDialog {
 public:
-	GcCalcDialog() : TDialog(DLG_GDSCLSCALC)
+	GcCalcDialog() : TDialog(DLG_GDSCLSCALC), Result(0.0), IsThereResult(0), TSessID(0)
 	{
-		Result = 0;
-		IsThereResult = 0;
-		TSessID = 0;
 	}
 	int    setDTS(PPID goodsID, PPID tsessID);
 	int    getDTS(double * pResult);

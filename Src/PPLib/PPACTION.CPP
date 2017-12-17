@@ -5,11 +5,8 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI SysJournal::SysJournal() : SysJournalTbl()
+SLAPI SysJournal::SysJournal() : SysJournalTbl(), P_RsrvT((CConfig.Flags & CCFLG_RSRVSJ) ? new SjRsrvTbl : 0)
 {
-	P_RsrvT = 0;
-	if(CConfig.Flags & CCFLG_RSRVSJ)
-		P_RsrvT = new SjRsrvTbl;
 	PPLoadText(PPTXT_ERR_SYSJLOGGING, FmtBuf);
 }
 
@@ -671,8 +668,7 @@ int SLAPI GtaJournalCore::CheckInOp(PPGta & rGta, int use_ta)
 	{
 		GtaJournalTbl::Rec rec;
 		GtaJournalTbl::Key1 k1;
-		if(p_bobj)
-			p_bobj->InitGtaBlock();
+		CALLPTRMEMB(p_bobj, InitGtaBlock());
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		MEMSZERO(rec);
@@ -720,6 +716,157 @@ int SLAPI GtaJournalCore::CheckInOp(PPGta & rGta, int use_ta)
 		THROW(tra.Commit());
 	}
 	CATCHZOK
+	return ok;
+}
+//
+// ObjVersioningCore
+//
+SLAPI ObjVersioningCore::ObjVersioningCore() : ObjVerTbl(), State(0)
+{
+}
+
+int SLAPI ObjVersioningCore::IsInited() const
+{
+	return BIN(State & stSCtxInited);
+}
+
+SSerializeContext & SLAPI ObjVersioningCore::GetSCtx()
+{
+	return SCtx;
+}
+
+int SLAPI ObjVersioningCore::InitSerializeContext(int use_ta)
+{
+	int    ok = 1;
+	if(!(State & stSCtxInited)) {
+		SCtx.Init(SSerializeContext::fSeparateDataStruct|SSerializeContext::fDontProcessAttachment, ZERODATE);
+
+		const uint32 sysver = DS.GetMinCompatVersion();
+		PPObjID oid_dummy;
+		oid_dummy.Set(0, 0);
+		ObjVerTbl::Rec rec;
+		SBuffer ctx_buf;
+		if(SearchOid(oid_dummy, (long)sysver, &rec, &ctx_buf) > 0) {
+			THROW(SCtx.SerializeState(-1, ctx_buf));
+		}
+		else {
+			Reference * p_ref = PPRef;
+			PPObjBill * p_bobj = BillObj;
+			if(p_bobj && p_ref) {
+				PPObjGoods goods_obj;
+				PPObjPerson psn_obj;
+				const DBTable * table_list[] = {
+					p_ref,
+					p_bobj->P_Tbl,
+					&p_bobj->GetInvT(),
+					goods_obj.P_Tbl,
+					&goods_obj.P_Tbl->GetExtTbl_(),
+					&goods_obj.P_Tbl->GetBcTbl_(),
+					&goods_obj.P_Tbl->GetACodTbl_(),
+					psn_obj.P_Tbl, 
+					psn_obj.RegObj.P_Tbl
+				};
+				for(uint i = 0; i < SIZEOFARRAY(table_list); i++) {
+					const DBTable * p_tbl = table_list[i];
+					THROW(SCtx.AddDbtDescr(p_tbl->GetTableName(), &p_tbl->GetFields(), 0));
+				}
+				THROW(SCtx.SerializeState(+1, ctx_buf));
+				{
+					PPID   vv_id = 0;
+					THROW(Add(&vv_id, oid_dummy, &ctx_buf, use_ta));
+				}
+			}
+		}
+		State |= stSCtxInited;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI ObjVersioningCore::Add(PPID * pID, PPObjID oid, SBuffer * pBuf, int use_ta)
+{
+	int    ok = 1;
+	ObjVerTbl::Rec rec;
+	ObjVerTbl::Rec last_ver_rec;
+	MEMSZERO(rec);
+    rec.ObjType = oid.Obj;
+    rec.ObjID = oid.Id;
+	rec.SysVer = DS.GetMinCompatVersion();
+	if(oid.Obj == 0 && oid.Id == 0) {
+		rec.Ver = (long)rec.SysVer;
+	}
+	else {
+		if(SearchOid(oid, 0, &last_ver_rec, 0) > 0)
+			rec.Ver = last_ver_rec.Ver+1;
+		else
+			rec.Ver = 1;
+	}
+	size_t data_len = pBuf ? pBuf->GetAvailableSize() : 0;
+	rec.Size = data_len;
+	copyBufFrom(&rec);
+	if(data_len) {
+		const void * p_data_buf = pBuf->GetBuf();
+		THROW(writeLobData(this->Data, p_data_buf, data_len));
+	}
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		THROW_DB(insertRec(0, pID));
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI ObjVersioningCore::Search(PPID id, PPObjID * pOid, long * pVer, SBuffer * pPackBuf)
+{
+	int    ok = -1;
+	ObjVerTbl::Key0 k;
+	k.ID = id;
+	if(search(0, &k, spEq)) {
+		CALLPTRMEMB(pOid, Set(data.ObjType, data.ObjID));
+		ASSIGN_PTR(pVer, data.Ver);
+		if(pPackBuf) {
+			pPackBuf->Clear();
+			readLobData(this->Data, *pPackBuf);
+		}
+		ok = 1;
+	}
+	return ok;
+}
+
+int SLAPI ObjVersioningCore::SearchOid(PPObjID oid, long ver, ObjVerTbl::Rec * pRec, SBuffer * pPackBuf)
+{
+	int    ok = -1;
+	int    sp = 0;
+	ObjVerTbl::Key1 k;
+	k.ObjType = oid.Obj;
+	k.ObjID = oid.Id;
+	if(ver == 0) {
+		k.Ver = MAXLONG;
+		sp = spLt;
+	}
+	else {
+		k.Ver = ver;
+		sp = spEq;
+	}
+	if(search(1, &k, sp) > 0 && k.ObjType == oid.Obj && k.ObjID == oid.Id) {
+		copyBufTo(pRec);
+		if(pPackBuf) {
+			pPackBuf->Clear();
+			readLobData(this->Data, *pPackBuf);
+		}
+		ok = 1;
+	}
+	return ok;
+}
+
+int SLAPI ObjVersioningCore::GetNextVer(PPObjID oid, long * pVer)
+{
+	int    ok = 1;
+	ObjVerTbl::Rec rec;
+	long   ver = (SearchOid(oid, 0, &rec, 0) > 0) ? (rec.Ver + 1) : 1;
+	ASSIGN_PTR(pVer, ver);
 	return ok;
 }
 //

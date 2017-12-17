@@ -194,9 +194,8 @@ void SLAPI SFileEntryPool::Entry::Clear()
 	Path.Z();
 }
 
-SLAPI SFileEntryPool::SFileEntryPool() : SStrGroup()
+SLAPI SFileEntryPool::SFileEntryPool() : SStrGroup(), State(0)
 {
-	State = 0;
 }
 
 uint SLAPI SFileEntryPool::GetCount() const

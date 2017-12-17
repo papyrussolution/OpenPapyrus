@@ -84,7 +84,7 @@ int CommCfgDialog::editSysParams()
 			setCtrlData(CTL_CCFGSYS_CSFWPRD,    &Data.CSessFwAsscPeriod);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  0, CCFLG_USEGDSCLS);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  1, CCFLG_USEGOODSPCKG);
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  2, CCFLG_USEDRAFTBILL);
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  2, CCFLG_USEDRAFTBILL); // @v9.8.11 @obsolete
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  3, CCFLG_USEHISTBILL);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  4, CCFLG_CHECKSPOILAGE);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  5, CCFLG_THROUGHSCARDUNIQ);

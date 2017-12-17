@@ -11,7 +11,7 @@
 #define _INTRPTR(ptr) ((flags&aryPtrContainer)?&(ptr):(ptr))
 #define _BDATA        PTR8(data)
 
-SLAPI SStack::SStack(uint itemSize, /*uint aDelta,*/ uint o) : SArray(itemSize, /*aDelta,*/ o)
+SLAPI SStack::SStack(uint itemSize, uint o) : SArray(itemSize, o)
 {
 	pointer = 0;
 	// @v9.8.1 {

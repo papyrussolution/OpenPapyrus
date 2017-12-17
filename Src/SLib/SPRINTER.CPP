@@ -22,14 +22,8 @@ int   SLAPI SPrinter::endPage()         { return 1; }
 //
 // @todo перенести функционал в SPrinter
 //
-SPrinting::SPrinting(HWND screenHwnd)
+SPrinting::SPrinting(HWND screenHwnd) : Top(2), PrinterDc(0), OldFont(0), PageStarted(0), DocStarted(0), OldColor(-1)
 {
-	Top         = 2;
-	PrinterDc   = 0;
-	OldFont     = 0;
-	PageStarted = 0;
-	DocStarted  = 0;
-	OldColor    = -1;
 	HDC hdc = GetDC(screenHwnd);
 	ScreenDpiX = GetDeviceCaps(hdc, LOGPIXELSX);
 	ScreenDpiY = GetDeviceCaps(hdc, LOGPIXELSY);
@@ -231,8 +225,7 @@ SPrnCmdSet * SLAPI SPrnCmdSet::CreateInstance(long id, long /* extra */)
 //
 // EpsonCmdSet
 //
-SLAPI EpsonCmdSet::EpsonCmdSet() :
-	SPrnCmdSet()
+SLAPI EpsonCmdSet::EpsonCmdSet() : SPrnCmdSet()
 {
 }
 

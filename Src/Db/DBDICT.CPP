@@ -435,8 +435,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 					(dest = pParam->P_DestPath).Strip().SetLastSlash();
 					dest.Cat(ts.Location);
 					//
-					// ”дал€етс€ файл назначени€ (если таблица состоит из нескольких файлов, то
-					// удал€ютс€ все файлы)
+					// ”дал€етс€ файл назначени€ (если таблица состоит из нескольких файлов, то удал€ютс€ все файлы)
 					//
 					for(tpe.Init(dest); tpe.Next(spart) > 0;) {
 						if(fileExists(spart)) {
@@ -461,7 +460,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 					else
 						lob_fld.id = 0;
 					pParam->callbackProc(BREV_START, (long)path.cptr(), (long)dest.cptr());
-					if(tbl.step(sp_first) || BtrError == BE_VLRPAGE)
+					if(tbl.step(sp_first) || BtrError == BE_VLRPAGE) {
 						do {
 							RECORDSIZE retBufLen = tbl.getRetBufLen();
 							THROW(tbl.getPosition(&pos));
@@ -484,6 +483,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 								}
 							}
 						} while(tbl.step(sp_next) || BtrError == BE_VLRPAGE);
+					}
 					if(ok >= 0) {
 						if(!BTRNFOUND) {
 							pParam->callbackProc(BREV_ERRSTEP, pos);

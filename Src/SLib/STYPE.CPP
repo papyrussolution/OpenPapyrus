@@ -24,7 +24,7 @@ void FASTCALL RegisterSType(TYPEID id, DataType * typ)
 DataType & FASTCALL stype(TYPEID t, DataType * pT)
 {
 	assert(type_table[GETSTYPE(t)] != 0);
-	pT->s = GETSSIZE(t);
+	pT->S = GETSSIZE(t);
 	getVptr(pT) = type_table[GETSTYPE(t)];
 	return *pT;
 }
@@ -56,7 +56,7 @@ void FASTCALL stmaxval(TYPEID t, void * d)
 //
 //
 //
-size_t SLAPI DataType::size() const { return s; }
+size_t SLAPI DataType::size() const { return S; }
 int    SLAPI DataType::comp(const void * i1, const void * i2) const { return memcmp(i1, i2, size()); }
 
 char * SLAPI DataType::tostr(const void *, long, char * b) const

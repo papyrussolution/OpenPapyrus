@@ -4693,6 +4693,36 @@ public:
 	DBField Reserve;
 	};
 
+	class ObjVerTbl : public DBTable {
+public:
+	ObjVerTbl(const char * pFileName = 0);
+
+	struct Rec {
+		int32  ID;
+		int32  ObjType;
+		int32  ObjID;
+		int32  Ver;
+		uint32 SysVer;
+		int32  Size;
+		TSLob <2048> Data;
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		int32  ObjType;
+		int32  ObjID;
+		int32  Ver;
+	};
+	DBField ID;
+	DBField ObjType;
+	DBField ObjID;
+	DBField Ver;
+	DBField SysVer;
+	DBField Size;
+	DBField Data;
+	};
+
 	class SysProfilerTbl : public DBTable {
 public:
 	SysProfilerTbl(const char * pFileName = 0);

@@ -495,15 +495,12 @@ IMPL_HANDLE_EVENT(SelQCertDialog)
 //
 //
 //
-SLAPI QCertCtrlGroup::Rec::Rec(PPID qCertID)
+SLAPI QCertCtrlGroup::Rec::Rec(PPID qCertID) : QCertID(qCertID)
 {
-	QCertID = qCertID;
 }
 
-QCertCtrlGroup::QCertCtrlGroup(uint ctlInput, uint selCmd) : CtrlGroup()
+QCertCtrlGroup::QCertCtrlGroup(uint ctlInput, uint selCmd) : CtrlGroup(), CtlInput(ctlInput), SelCmd(selCmd)
 {
-	CtlInput = ctlInput;
-	SelCmd   = selCmd;
 	MEMSZERO(Data);
 }
 
