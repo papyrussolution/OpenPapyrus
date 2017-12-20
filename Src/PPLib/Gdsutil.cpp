@@ -348,16 +348,10 @@ static int SLAPI BarcodeList(BarcodeArray * pCodes, int * pSelection)
 	return ok;
 }
 
-SLAPI GoodsCodeSrchBlock::GoodsCodeSrchBlock()
+SLAPI GoodsCodeSrchBlock::GoodsCodeSrchBlock() : ArID(0), Flags(0), GoodsID(0), ScaleID(0), Qtty(0.0), P_List(0)
 {
 	Code[0] = 0;
 	RetCode[0] = 0;
-	ArID = 0;
-	Flags = 0;
-	GoodsID = 0;
-	ScaleID = 0;
-	Qtty = 0.0;
-	P_List = 0;
 	MEMSZERO(Rec);
 }
 
@@ -2713,14 +2707,9 @@ int SLAPI PPObjGoods::SelectGoodsInPlaceOfRemoved(PPID rmvdGoodsID, PPID extGood
 //
 //
 //
-SLAPI RetailExtrItem::RetailExtrItem()
+SLAPI RetailExtrItem::RetailExtrItem() : Cost(0.0), Price(0.0), BasePrice(0.0), ExtPrice(0.0), OuterPrice(0.0), 
+	Flags(0), QuotKindUsedForPrice(0), QuotKindUsedForExtPrice(0), CurLotDate(ZERODATE), Expiry(ZERODATE)
 {
-	Cost = Price = BasePrice = ExtPrice = 0.0;
-	OuterPrice = 0.0;
-	Flags = 0;
-	QuotKindUsedForPrice = 0;
-	QuotKindUsedForExtPrice = 0;
-	CurLotDate = Expiry = ZERODATE;
 }
 
 RetailPriceExtractor::ExtQuotBlock::ExtQuotBlock(PPID quotKindID)
@@ -2736,17 +2725,13 @@ RetailPriceExtractor::ExtQuotBlock::ExtQuotBlock(const PPSCardSerPacket & rScsPa
 		QkList.addnz(rScsPack.Rec.QuotKindID_s);
 }
 
-SLAPI RetailPriceExtractor::RetailPriceExtractor() : EqBlk(0)
+SLAPI RetailPriceExtractor::RetailPriceExtractor() : EqBlk(0), LocID(0), ArID(0), Flags(0), P_GObj(new PPObjGoods)
 {
-	LocID = 0;
-	ArID = 0;
-	Flags = 0;
-	P_GObj = new PPObjGoods;
 }
 
-SLAPI RetailPriceExtractor::RetailPriceExtractor(PPID locID, const ExtQuotBlock * pEqBlk, PPID arID, LDATETIME actualDtm, long flags) : EqBlk(0)
+SLAPI RetailPriceExtractor::RetailPriceExtractor(PPID locID, const ExtQuotBlock * pEqBlk, PPID arID, LDATETIME actualDtm, long flags) : 
+	EqBlk(0), P_GObj(new PPObjGoods)
 {
-	P_GObj = new PPObjGoods;
 	Init(locID, pEqBlk, arID, actualDtm, flags);
 }
 
@@ -3021,6 +3006,56 @@ int FASTCALL PPBarcode::RecognizeStdName(const char * pText)
 	int    bcstd = 0;
     SString text = pText;
     if(text.NotEmptyS()) {
+		// @v9.8.11 {
+		const SymbHashTable * p_sht = PPGetStringHash(PPSTR_HASHTOKEN);
+		if(p_sht) {
+			text.ToLower();
+			for(int do_again = 1; do_again;) {
+				do_again = 0;
+				uint _ut = 0;
+				p_sht->Search(text, &_ut, 0);
+				switch(_ut) {
+					case PPHS_BCS_CODE11:          bcstd = BARCSTD_CODE11; break;
+					case PPHS_BCS_CODE39:          bcstd = BARCSTD_CODE39; break;
+					case PPHS_BCS_CODE49:          bcstd = BARCSTD_CODE49; break;
+					case PPHS_BCS_CODE93:          bcstd = BARCSTD_CODE93; break;
+					case PPHS_BCS_CODE128:         bcstd = BARCSTD_CODE128; break;
+					case PPHS_BCS_PDF417:          bcstd = BARCSTD_PDF417; break;
+					case PPHS_PDF:                 bcstd = BARCSTD_PDF417; break;
+					case PPHS_BCS_EAN13:           bcstd = BARCSTD_EAN13; break;
+					case PPHS_BCS_EAN8:            bcstd = BARCSTD_EAN8; break;
+					case PPHS_BCS_UPCA:            bcstd = BARCSTD_UPCA; break;
+					case PPHS_BCS_UPCE:            bcstd = BARCSTD_UPCE; break;
+					case PPHS_BCS_QR:              bcstd = BARCSTD_QR; break;
+					case PPHS_BCS_QRCODE:          bcstd = BARCSTD_QR; break;
+					case PPHS_BCS_INTERLEAVED2OF5: bcstd = BARCSTD_INTRLVD2OF5; break;
+					case PPHS_BCS_INDUSTIAL2OF5:   bcstd = BARCSTD_IND2OF5; break;
+					case PPHS_BCS_STANDARD2OF5:    bcstd = BARCSTD_STD2OF5; break;
+					case PPHS_BCS_CODABAR:         bcstd = BARCSTD_ANSI; break;
+					case PPHS_BCS_MSI:             bcstd = BARCSTD_MSI; break;
+					case PPHS_BCS_PLESSEY:         bcstd = BARCSTD_PLESSEY; break;
+					case PPHS_BCS_POSTNET:         bcstd = BARCSTD_POSTNET; break;
+					case PPHS_BCS_LOGMARS:         bcstd = BARCSTD_LOGMARS; break;
+					default:
+						{
+							//
+							// Возможно, что символ стандарта записан с разделением двух частей пробелом 
+							// или дефисом. Поэтому, найдя первый такой знак (но только один) попытаемся
+							// его убрать и повторить попытку поиска.
+							// Например: ucp-a == upca или pdf 417 == pdf417
+							// 
+							uint cpos = 0;
+							if(text.StrChr('-', &cpos) || text.StrChr(' ', &cpos)) {
+								text.Excise(cpos, 1);
+								do_again = 1;
+							}
+						}
+						break;
+				}
+			}
+		}
+		// } @v9.8.11 
+#if 0 // @v9.8.11 {
 		text.ToLower();
 		if(oneof3(text, "code11", "code-11", "code 11"))
 			bcstd = BARCSTD_CODE11;
@@ -3060,6 +3095,7 @@ int FASTCALL PPBarcode::RecognizeStdName(const char * pText)
 			bcstd = BARCSTD_POSTNET;
 		else if(text == "logmars")
 			bcstd = BARCSTD_LOGMARS;
+#endif // } @v9.8.11
     }
     if(!bcstd) {
 		PPSetError(PPERR_INVBARCODESTDSYMB, pText);
@@ -3067,15 +3103,9 @@ int FASTCALL PPBarcode::RecognizeStdName(const char * pText)
     return bcstd;
 }
 
-SLAPI PPBarcode::BarcodeImageParam::BarcodeImageParam()
+SLAPI PPBarcode::BarcodeImageParam::BarcodeImageParam() : Std(0), Flags(0), OutputFormat(0), Angle(0), ColorFg(ZEROCOLOR), ColorBg(ZEROCOLOR)
 {
-	Std = 0;
-	Flags = 0;
-	OutputFormat = 0;
-	Angle = 0;
 	Size.Set(0, 0);
-	ColorFg = ZEROCOLOR;
-	ColorBg = ZEROCOLOR;
 }
 
 //static
@@ -3287,9 +3317,76 @@ int FASTCALL PPBarcode::RecognizeImage(const char * pInpFileName, TSCollection <
 
 #if SLTEST_RUNNING // {
 
+struct TestBcStdSymb {
+	const char * P_Symb;
+	int   Std;
+};
+
+static const TestBcStdSymb TestBcStdSymbList[] = {
+	{ "code11", BARCSTD_CODE11 },
+	{ "code-11" , BARCSTD_CODE11 },
+	{ "code 11", BARCSTD_CODE11 },
+	{ "code39",  BARCSTD_CODE39 },
+	{ "code-39", BARCSTD_CODE39 },
+	{ "code 39", BARCSTD_CODE39 },
+	{ "code49",  BARCSTD_CODE49 },
+	{ "code-49", BARCSTD_CODE49 },
+	{ "code 49", BARCSTD_CODE49 },
+	{ "code93",  BARCSTD_CODE93 },
+	{ "code-93", BARCSTD_CODE93 },
+	{ "code 93", BARCSTD_CODE93 },
+	{ "code128",  BARCSTD_CODE128 },
+	{ "code-128", BARCSTD_CODE128 },
+	{ "code 128", BARCSTD_CODE128 },
+	{ "pdf417",   BARCSTD_PDF417 },
+	{ "pdf-417",  BARCSTD_PDF417 },
+	{ "pdf 417",  BARCSTD_PDF417 },
+	{ "pdf",      BARCSTD_PDF417 },
+	{ "ean13", BARCSTD_EAN13 },
+	{ "ean-13", BARCSTD_EAN13 },
+	{ "ean 13", BARCSTD_EAN13 },
+	{ "ean8", BARCSTD_EAN8 },
+	{ "ean-8", BARCSTD_EAN8 },
+	{ "ean 8", BARCSTD_EAN8 },
+	{ "upca", BARCSTD_UPCA },
+	{ "upc-a", BARCSTD_UPCA },
+	{ "upc a", BARCSTD_UPCA },
+	{ "upce", BARCSTD_UPCE },
+	{ "upc-e", BARCSTD_UPCE },
+	{ "upc e", BARCSTD_UPCE },
+	{ "qr", BARCSTD_QR },
+	{ "qr-code", BARCSTD_QR },
+	{ "qr code", BARCSTD_QR },
+	{ "qrcode", BARCSTD_QR },
+	{ "interleaved2of5", BARCSTD_INTRLVD2OF5 },
+	{ "industial2of5", BARCSTD_IND2OF5 },
+	{ "standard2of5", BARCSTD_STD2OF5 },
+	{ "codabar", BARCSTD_ANSI },
+	{ "msi", BARCSTD_MSI },
+	{ "plessey", BARCSTD_PLESSEY },
+	{ "postnet", BARCSTD_POSTNET },
+	{ "logmars", BARCSTD_LOGMARS }
+};
+
 SLTEST_R(BarcodeOutputAndRecognition)
 {
 	SString temp_buf;
+	{
+		for(uint i = 0; i < SIZEOFARRAY(TestBcStdSymbList); i++) {
+			const TestBcStdSymb & r_entry = TestBcStdSymbList[i];
+			(temp_buf = r_entry.P_Symb).ToUpper();
+			int std = PPBarcode::RecognizeStdName(temp_buf);
+			SLTEST_CHECK_EQ((long)std, (long)r_entry.Std);
+			SLTEST_CHECK_NZ(PPBarcode::GetStdName(std, temp_buf));
+			int _found = 0;
+			for(uint j = 0; !_found && j < SIZEOFARRAY(TestBcStdSymbList); j++) {
+				const TestBcStdSymb & r_entry2 = TestBcStdSymbList[j];
+				if(r_entry2.Std == std && temp_buf.CmpNC(r_entry2.P_Symb) == 0)
+					_found = 1;
+			}
+			SLTEST_CHECK_NZ(_found);
+		}
+	}
 	SString line_buf;
 	SString code_buf;
 	SString input_file_path;

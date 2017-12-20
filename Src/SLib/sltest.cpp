@@ -574,7 +574,7 @@ int STestSuite::LoadTestList(const char * pIniFileName)
 		cur_path.SetLastSlash();
 	}
 	((TSCollection <Entry> *)P_List)->freeAll();
-	LogFileName = 0;
+	LogFileName.Z();
 	for(i = 0; sect_list.get(&i, sect_buf);) {
 		if(sect_buf.CmpNC("common") == 0) {
 			if(ini_file.GetParam(sect_buf, "logfile", param_buf) > 0)
@@ -592,38 +592,37 @@ int STestSuite::LoadTestList(const char * pIniFileName)
 				; // Test disabled
 			}
 			else {
-				Entry * p_entry = new Entry;
-				p_entry->MaxCount = 1;
-				p_entry->TestName = sect_buf;
-				if(ini_file.GetParam(sect_buf, "descr", param_buf) > 0)
-					p_entry->Descr = param_buf;
-				if(ini_file.GetParam(sect_buf, "arglist", param_buf) > 0) {
-					StringSet ss(';', param_buf);
-					for(uint k = 0; ss.get(&k, temp_buf);)
-						p_entry->ArgList.add(temp_buf.Strip());
-				}
-				if(ini_file.GetParam(sect_buf, "benchmark", param_buf) > 0) {
-					StringSet ss(';', param_buf);
-					for(uint k = 0; ss.get(&k, temp_buf);) {
-						if(temp_buf.NotEmptyS()) {
-							p_entry->BenchmarkList.add(temp_buf);
-							Benchmark bm;
-							MEMSZERO(bm);
-							p_entry->BmrList.insert(&bm);
+				Entry * p_entry = ((TSCollection <Entry> *)P_List)->CreateNewItem();
+				if(p_entry) {
+					p_entry->MaxCount = 1;
+					p_entry->TestName = sect_buf;
+					if(ini_file.GetParam(sect_buf, "descr", param_buf) > 0)
+						p_entry->Descr = param_buf;
+					if(ini_file.GetParam(sect_buf, "arglist", param_buf) > 0) {
+						StringSet ss(';', param_buf);
+						for(uint k = 0; ss.get(&k, temp_buf);)
+							p_entry->ArgList.add(temp_buf.Strip());
+					}
+					if(ini_file.GetParam(sect_buf, "benchmark", param_buf) > 0) {
+						StringSet ss(';', param_buf);
+						for(uint k = 0; ss.get(&k, temp_buf);) {
+							if(temp_buf.NotEmptyS()) {
+								p_entry->BenchmarkList.add(temp_buf);
+								Benchmark bm;
+								MEMSZERO(bm);
+								p_entry->BmrList.insert(&bm);
+							}
 						}
 					}
+					if(ini_file.GetParam(sect_buf, "input", param_buf) > 0)
+						p_entry->InPath = param_buf;
+					p_entry->InPath.SetIfEmpty((!!def_in_path.NotEmptyS()) ? def_in_path : cur_path);
+					if(ini_file.GetParam(sect_buf, "output", param_buf) > 0)
+						p_entry->OutPath = param_buf;
+					p_entry->OutPath.SetIfEmpty((!!def_out_path.NotEmptyS()) ? def_out_path : cur_path);
+					if(ini_file.GetIntParam(sect_buf, "count", &ival) > 0)
+						p_entry->MaxCount = (ival > 0) ? ival : 1;
 				}
-				if(ini_file.GetParam(sect_buf, "input", param_buf) > 0)
-					p_entry->InPath = param_buf;
-				if(p_entry->InPath.Empty())
-					p_entry->InPath = (!!def_in_path.NotEmptyS()) ? def_in_path : cur_path;
-				if(ini_file.GetParam(sect_buf, "output", param_buf) > 0)
-					p_entry->OutPath = param_buf;
-				if(p_entry->OutPath.Empty())
-					p_entry->OutPath = (!!def_out_path.NotEmptyS()) ? def_out_path : cur_path;
-				if(ini_file.GetIntParam(sect_buf, "count", &ival) > 0)
-					p_entry->MaxCount = (ival > 0) ? ival : 1;
-				((TSCollection <Entry> *)P_List)->insert(p_entry);
 			}
 		}
 	}

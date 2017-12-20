@@ -508,7 +508,7 @@ static char * ngx_http_rewrite_if_condition(ngx_conf_t * cf, ngx_http_rewrite_lo
 			memzero(regex, sizeof(ngx_http_script_regex_code_t));
 			memzero(&rc, sizeof(ngx_regex_compile_t));
 			rc.pattern = value[last];
-			rc.options = (p[len - 1] == '*') ? NGX_REGEX_CASELESS : 0;
+			rc.options = (p[len-1] == '*') ? NGX_REGEX_CASELESS : 0;
 			rc.err.len = NGX_MAX_CONF_ERRSTR;
 			rc.err.data = errstr;
 			regex->regex = ngx_http_regex_compile(cf, &rc);

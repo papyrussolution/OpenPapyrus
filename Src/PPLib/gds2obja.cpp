@@ -9,11 +9,8 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI GoodsToObjAssoc::GoodsToObjAssoc(PPID asscTyp, PPID objType, int dupAllowing)
+SLAPI GoodsToObjAssoc::GoodsToObjAssoc(PPID asscTyp, PPID objType, int dupAllowing) : AsscType(asscTyp), ObjType(objType), Flags(0)
 {
-	AsscType = asscTyp;
-	ObjType = objType;
-	Flags = 0;
 	SETFLAG(Flags, fDup, dupAllowing);
 	MEMSZERO(NoaRec);
 	if(asscTyp > 1000) {
@@ -192,19 +189,16 @@ int SLAPI GoodsToObjAssoc::Get(PPID goodsID, PPID * pObjID)
 // @ModuleDef(PPViewGoodsToObjAssoc)
 //
 IMPLEMENT_PPFILT_FACTORY(GoodsToObjAssoc); SLAPI GoodsToObjAssocFilt::GoodsToObjAssocFilt() :
-	PPBaseFilt(PPFILT_GOODSTOOBJASSOC, 0, 1) // @v8.1.9 ver 0-->1
+	PPBaseFilt(PPFILT_GOODSTOOBJASSOC, 0, 1), P_LocF(0) // @v8.1.9 ver 0-->1
 {
-	P_LocF = 0;
 	SetFlatChunk(offsetof(GoodsToObjAssocFilt, ReserveStart),
 		offsetof(GoodsToObjAssocFilt, Reserve)-offsetof(GoodsToObjAssocFilt, ReserveStart)+sizeof(Reserve));
 	SetBranchBaseFiltPtr(PPFILT_LOCATION, offsetof(GoodsToObjAssocFilt, P_LocF)); // @v8.1.9
 	Init(1, 0);
 }
 
-SLAPI PPViewGoodsToObjAssoc::PPViewGoodsToObjAssoc() : PPView(0, &Filt, PPVIEW_GOODSTOOBJASSOC)
+SLAPI PPViewGoodsToObjAssoc::PPViewGoodsToObjAssoc() : PPView(0, &Filt, PPVIEW_GOODSTOOBJASSOC), P_Assoc(0), P_AsscObj(0)
 {
-	P_Assoc = 0;
-	P_AsscObj = 0;
 	ImplementFlags |= implBrowseArray;
 }
 

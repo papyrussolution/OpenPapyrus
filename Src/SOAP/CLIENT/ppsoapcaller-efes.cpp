@@ -787,8 +787,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetDebtDetai
 					for(uint j = 0; j < pItems->getCount(); j++) {
 						const SapEfesDebtDetailReportEntry * p_src_pack = pItems->at(j);
 						if(p_src_pack->NativeArID == native_ar_id) {
-							if(cli_code.Empty())
-								cli_code = p_src_pack->BuyerCode;
+							cli_code.SetIfEmpty(p_src_pack->BuyerCode);
 							items_count++;
 						}
 						else if(p_src_pack->NativeArID > native_ar_id)

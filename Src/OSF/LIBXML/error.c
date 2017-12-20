@@ -658,7 +658,7 @@ void XMLCDECL xmlParserValidityWarning(void * ctx, const char * msg, ...)
 	xmlParserInputPtr input = NULL;
 	char * str;
 	int len = sstrlen((const xmlChar*)msg);
-	if(ctxt && (len != 0) && (msg[len - 1] != ':')) {
+	if(ctxt && (len != 0) && (msg[len-1] != ':')) {
 		input = ctxt->input;
 		if((input->filename == NULL) && (ctxt->inputNr > 1))
 			input = ctxt->inputTab[ctxt->inputNr - 2];

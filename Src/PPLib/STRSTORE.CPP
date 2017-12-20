@@ -426,9 +426,9 @@ StringStore2::LangStrCollItem * FASTCALL StringStore2::GetOrConstructList(int sl
 			p_result = p_item;
     }
     if(!p_result) {
-		p_result = new LangStrCollItem;
-		p_result->SLang = slang;
-		StrList.insert(p_result);
+		p_result = StrList.CreateNewItem();
+		if(p_result)
+			p_result->SLang = slang;
     }
     return p_result;
 }
@@ -541,8 +541,7 @@ int SLAPI StringStore2::Error(int errCode, long flags)
 #else
 	PPLoadString(PPMSG_ERROR, errCode, temp_buf);
 #endif
-	if(temp_buf.Empty())
-		temp_buf = "Unknown error";
+	temp_buf.SetIfEmpty("Unknown error");
 	ess_msg_buf.Printf(temp_buf, ErrAddedMsg.cptr());
 	msg_buf.Printf("%s(%d): error sc2c: %s", p_file_name, line, ess_msg_buf.cptr());
 	printf((const char *)msg_buf.CR().ToOem());

@@ -3552,7 +3552,7 @@ static xmlChar * xmlParseAttValueComplex(xmlParserCtxt * ctxt, int * attlen, int
 	if(ctxt->instate == XML_PARSER_EOF)
 		goto error;
 	if(in_space && normalize) {
-		while((len > 0) && (buf[len - 1] == 0x20))
+		while((len > 0) && (buf[len-1] == 0x20))
 			len--;
 	}
 	buf[len] = 0;

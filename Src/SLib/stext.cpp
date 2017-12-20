@@ -3220,15 +3220,15 @@ SLTEST_R(STextEncodingStat)
 	SString in_file_name;
 	SString temp_buf;
 	SFileEntryPool fep;
-	SFileEntryPool::Entry fep_entry;
+	//SFileEntryPool::Entry fep_entry;
 	SPathStruc ps;
 	STextEncodingStat tes(STextEncodingStat::fUseUCharDet);
 	THROW(Make_STextEncodingStat_FilePool(test_data_path, fep));
 	{
 		SFile f_out(out_file_name, SFile::mWrite);
 		for(uint i = 0; i < fep.GetCount(); i++) {
-			if(fep.Get(i, fep_entry)) {
-				(in_file_name = fep_entry.Path).SetLastSlash().Cat(fep_entry.Name);
+			if(fep.Get(i, /*fep_entry*/0, &in_file_name)) {
+				//(in_file_name = fep_entry.Path).SetLastSlash().Cat(fep_entry.Name);
 				SFile f_in(in_file_name, SFile::mRead);
 				tes.Init(STextEncodingStat::fUseUCharDet);
 				while(f_in.ReadLine(temp_buf)) {

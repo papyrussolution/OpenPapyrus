@@ -371,8 +371,7 @@ int WinInetFTP::Connect(PPInternetAccount * pAccount)
 	{
 		InetUrl url(url_buf);
 		url.GetComponent(InetUrl::cHost, 0, host);
-		if(host.Empty())
-			host = url_buf;
+		host.SetIfEmpty(url_buf);
 		if(pwd[0] == 0) {
 			if(url.GetComponent(InetUrl::cPassword, 0, temp_buf) > 0)
 				STRNSCPY(pwd, temp_buf);

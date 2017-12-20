@@ -668,10 +668,9 @@ static void do_sarray_io(j_common_ptr cinfo, jvirt_sarray_ptr ptr, boolean writi
 static void do_barray_io(j_common_ptr cinfo, jvirt_barray_ptr ptr, boolean writing)
 /* Do backing store read or write of a virtual coefficient-block array */
 {
-	long bytesperrow, file_offset, byte_count, rows, thisrow, i;
-
-	bytesperrow = (long)ptr->blocksperrow * SIZEOF(JBLOCK);
-	file_offset = ptr->cur_start_row * bytesperrow;
+	long byte_count, rows, thisrow, i;
+	long bytesperrow = (long)ptr->blocksperrow * SIZEOF(JBLOCK);
+	long file_offset = ptr->cur_start_row * bytesperrow;
 	/* Loop to read or write each allocation chunk in mem_buffer */
 	for(i = 0; i < (long)ptr->rows_in_mem; i += ptr->rowsperchunk) {
 		/* One chunk, but check for short chunk at end of buffer */
@@ -685,13 +684,9 @@ static void do_barray_io(j_common_ptr cinfo, jvirt_barray_ptr ptr, boolean writi
 			break;
 		byte_count = rows * bytesperrow;
 		if(writing)
-			(*ptr->b_s_info.write_backing_store)(cinfo, &ptr->b_s_info,
-			    (void FAR*)ptr->mem_buffer[i],
-			    file_offset, byte_count);
+			(*ptr->b_s_info.write_backing_store)(cinfo, &ptr->b_s_info, (void FAR*)ptr->mem_buffer[i], file_offset, byte_count);
 		else
-			(*ptr->b_s_info.read_backing_store)(cinfo, &ptr->b_s_info,
-			    (void FAR*)ptr->mem_buffer[i],
-			    file_offset, byte_count);
+			(*ptr->b_s_info.read_backing_store)(cinfo, &ptr->b_s_info, (void FAR*)ptr->mem_buffer[i], file_offset, byte_count);
 		file_offset += byte_count;
 	}
 }
@@ -704,15 +699,11 @@ METHODDEF(JSAMPARRAY) access_virt_sarray(j_common_ptr cinfo, jvirt_sarray_ptr pt
 {
 	JDIMENSION end_row = start_row + num_rows;
 	JDIMENSION undef_row;
-
 	/* debugging check */
-	if(end_row > ptr->rows_in_array || num_rows > ptr->maxaccess ||
-	    ptr->mem_buffer == NULL)
+	if(end_row > ptr->rows_in_array || num_rows > ptr->maxaccess || ptr->mem_buffer == NULL)
 		ERREXIT(cinfo, JERR_BAD_VIRTUAL_ACCESS);
-
 	/* Make the desired part of the virtual array accessible */
-	if(start_row < ptr->cur_start_row ||
-	    end_row > ptr->cur_start_row+ptr->rows_in_mem) {
+	if(start_row < ptr->cur_start_row || end_row > ptr->cur_start_row+ptr->rows_in_mem) {
 		if(!ptr->b_s_open)
 			ERREXIT(cinfo, JERR_VIRTUAL_BUG);
 		/* Flush old buffer contents if necessary */
@@ -732,9 +723,7 @@ METHODDEF(JSAMPARRAY) access_virt_sarray(j_common_ptr cinfo, jvirt_sarray_ptr pt
 		}
 		else {
 			/* use long arithmetic here to avoid overflow & unsigned problems */
-			long ltemp;
-
-			ltemp = (long)end_row - (long)ptr->rows_in_mem;
+			long ltemp = (long)end_row - (long)ptr->rows_in_mem;
 			if(ltemp < 0)
 				ltemp = 0;  /* don't fall off front end of file */
 			ptr->cur_start_row = (JDIMENSION)ltemp;
@@ -781,23 +770,18 @@ METHODDEF(JSAMPARRAY) access_virt_sarray(j_common_ptr cinfo, jvirt_sarray_ptr pt
 	return ptr->mem_buffer + (start_row - ptr->cur_start_row);
 }
 
-METHODDEF(JBLOCKARRAY) access_virt_barray(j_common_ptr cinfo, jvirt_barray_ptr ptr,
-    JDIMENSION start_row, JDIMENSION num_rows, boolean writable)
+METHODDEF(JBLOCKARRAY) access_virt_barray(j_common_ptr cinfo, jvirt_barray_ptr ptr, JDIMENSION start_row, JDIMENSION num_rows, boolean writable)
 /* Access the part of a virtual block array starting at start_row */
 /* and extending for num_rows rows.  writable is true if  */
 /* caller intends to modify the accessed area. */
 {
 	JDIMENSION end_row = start_row + num_rows;
 	JDIMENSION undef_row;
-
 	/* debugging check */
-	if(end_row > ptr->rows_in_array || num_rows > ptr->maxaccess ||
-	    ptr->mem_buffer == NULL)
+	if(end_row > ptr->rows_in_array || num_rows > ptr->maxaccess || ptr->mem_buffer == NULL)
 		ERREXIT(cinfo, JERR_BAD_VIRTUAL_ACCESS);
-
 	/* Make the desired part of the virtual array accessible */
-	if(start_row < ptr->cur_start_row ||
-	    end_row > ptr->cur_start_row+ptr->rows_in_mem) {
+	if(start_row < ptr->cur_start_row || end_row > ptr->cur_start_row+ptr->rows_in_mem) {
 		if(!ptr->b_s_open)
 			ERREXIT(cinfo, JERR_VIRTUAL_BUG);
 		/* Flush old buffer contents if necessary */
@@ -817,9 +801,7 @@ METHODDEF(JBLOCKARRAY) access_virt_barray(j_common_ptr cinfo, jvirt_barray_ptr p
 		}
 		else {
 			/* use long arithmetic here to avoid overflow & unsigned problems */
-			long ltemp;
-
-			ltemp = (long)end_row - (long)ptr->rows_in_mem;
+			long ltemp = (long)end_row - (long)ptr->rows_in_mem;
 			if(ltemp < 0)
 				ltemp = 0;  /* don't fall off front end of file */
 			ptr->cur_start_row = (JDIMENSION)ltemp;

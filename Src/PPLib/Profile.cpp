@@ -1236,11 +1236,11 @@ int SLAPI PPUserProfileCore::Load(const char * pPath)
 					}
 				}
 				if(!fp) {
-					UfpFileSet * p_new_set = new UfpFileSet;
+					UfpFileSet * p_new_set = file_set_list.CreateNewItem();
+					THROW_SL(p_new_set);
 					p_new_set->DbUuid = db_uuid;
 					p_new_set->DbSymb = dbsymb;
 					p_new_set->Set.AddFast(kind, sde.FileName);
-					file_set_list.insert(p_new_set);
 					ok = 1;
 				}
 			}

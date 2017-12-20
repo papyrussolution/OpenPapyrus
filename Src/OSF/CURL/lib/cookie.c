@@ -200,8 +200,8 @@ static char * sanitize_cookie_path(const char * cookie_path)
 			memmove((void*)new_path, (const void*)(new_path + 1), len);
 			len--;
 		}
-		if(len && (new_path[len - 1] == '\"')) {
-			new_path[len - 1] = 0x0;
+		if(len && (new_path[len-1] == '\"')) {
+			new_path[len-1] = 0x0;
 			len--;
 		}
 		// RFC6265 5.2.4 The Path Attribute 
@@ -210,8 +210,8 @@ static char * sanitize_cookie_path(const char * cookie_path)
 			new_path = _strdup("/");
 		}
 		else { // convert /hoge/ to /hoge 
-			if(len && new_path[len - 1] == '/') {
-				new_path[len - 1] = 0x0;
+			if(len && new_path[len-1] == '/') {
+				new_path[len-1] = 0x0;
 			}
 		}
 	}

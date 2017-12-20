@@ -7,10 +7,10 @@
 
 IMPL_CMPFUNC(SDirEntry_Time, i1, i2)
 {
-	LDATE d1 = ((SDirEntry *)i1)->WriteTime.d;
-	LDATE d2 = ((SDirEntry *)i2)->WriteTime.d;
-	LTIME t1 = ((SDirEntry *)i1)->WriteTime.t;
-	LTIME t2 = ((SDirEntry *)i2)->WriteTime.t;
+	LDATE d1 = ((const SDirEntry *)i1)->WriteTime.d;
+	LDATE d2 = ((const SDirEntry *)i2)->WriteTime.d;
+	LTIME t1 = ((const SDirEntry *)i1)->WriteTime.t;
+	LTIME t2 = ((const SDirEntry *)i2)->WriteTime.t;
 	if(d1 > d2) return 1;
 	if(d1 < d2) return -1;
 	if(t1 > t2) return 1;
@@ -194,8 +194,60 @@ void SLAPI SFileEntryPool::Entry::Clear()
 	Path.Z();
 }
 
-SLAPI SFileEntryPool::SFileEntryPool() : SStrGroup(), State(0)
+SLAPI SFileEntryPool::SFileEntryPool() : SStrGroup(), State(0), InitPathP(0)
 {
+}
+
+void SLAPI SFileEntryPool::Clear()
+{
+	ClearS();
+	L.clear();
+	State = 0;
+	InitPathP = 0;
+}
+
+void FASTCALL SFileEntryPool::SetInitPath(const char * pPath)
+{
+	SString temp_buf;
+	GetS(InitPathP, temp_buf);
+	if(temp_buf != pPath) {
+		(temp_buf = pPath).Strip();
+		AddS(temp_buf, &InitPathP);
+	}
+}
+
+int FASTCALL SFileEntryPool::GetInitPath(SString & rPath) const
+{
+	GetS(InitPathP, rPath);
+	return rPath.NotEmpty() ? 1 : -1;
+}
+
+int SLAPI SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long flags)
+{
+	int    ok = -1;
+	Clear();
+	if(!isempty(pPath)) {
+		SDirEntry fb;
+		SString srch_path = pPath;
+		if(pWildcard) {
+			srch_path.SetLastSlash();
+			SetInitPath(srch_path);
+			srch_path.Cat(pWildcard);
+		}
+		else {
+			SPathStruc ps;
+			ps.Split(pPath);
+			SString temp_buf;
+			ps.Merge(~(SPathStruc::fNam|SPathStruc::fExt), temp_buf);
+			SetInitPath(temp_buf.SetLastSlash());
+		}
+		for(SDirec sdirec(srch_path); sdirec.Next(&fb) > 0;) {
+			THROW(Add(pPath, fb));
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 uint SLAPI SFileEntryPool::GetCount() const
@@ -203,10 +255,34 @@ uint SLAPI SFileEntryPool::GetCount() const
 	return L.getCount();
 }
 
-int SLAPI SFileEntryPool::Get(uint pos, SFileEntryPool::Entry & rEntry) const
+int FASTCALL SFileEntryPool::Remove(uint pos)
 {
+	int    ok = 1;
+	if(pos < L.getCount())
+		L.atFree(pos);
+	else
+		ok = 0;
+	return ok;
+}
+
+int SLAPI SFileEntryPool::Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFullPath) const
+{
+	CALLPTRMEMB(pFullPath, Z());
     if(pos < L.getCount()) {
-		ConvertEntry(L.at(pos), rEntry);
+		const InnerEntry & r_item = L.at(pos);
+		if(pEntry) {
+			ConvertEntry(r_item, *pEntry);
+			if(pFullPath)
+				pFullPath->Z().Cat(pEntry->Path).SetLastSlash().Cat(pEntry->Name);
+		}
+		else if(pFullPath) {
+			pFullPath->Z();
+			SString temp_buf;
+			GetS(r_item.PathP, temp_buf);
+			pFullPath->Cat(temp_buf);
+			GetS(r_item.NameP, temp_buf);
+			pFullPath->SetLastSlash().Cat(temp_buf);
+		}
 		return 1;
     }
     else

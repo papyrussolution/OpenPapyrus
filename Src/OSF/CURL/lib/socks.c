@@ -647,7 +647,7 @@ CURLcode Curl_SOCKS5(const char * proxy_name, const char * proxy_password, const
 			uchar port_upper = (uchar)socksreq[len - 2];
 			socksreq[len - 2] = 0;
 			failf(data, "Can't complete SOCKS5 connection to %s:%d. (%d)",
-			    (char*)&socksreq[5], ((port_upper << 8) | (uchar)socksreq[len - 1]), (uchar)socksreq[1]);
+			    (char*)&socksreq[5], ((port_upper << 8) | (uchar)socksreq[len-1]), (uchar)socksreq[1]);
 			socksreq[len - 2] = port_upper;
 		}
 		else if(socksreq[3] == 4) {

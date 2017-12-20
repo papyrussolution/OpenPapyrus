@@ -159,12 +159,10 @@ int SLAPI PPObjBizScore::TestPacket(PPBizScorePacket * pPack, SString & rResult)
 
 class BizPrimitivCreateDialog : public TDialog {
 public:
-	BizPrimitivCreateDialog(const char * pBizScoreName) : TDialog(DLG_BIZPRCRT)
+	BizPrimitivCreateDialog(const char * pBizScoreName) : TDialog(DLG_BIZPRCRT), BizScoreName(pBizScoreName)
 	{
 		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_BIZPRCRT_LOC, 0, 0, cmLocList, 0, 0, 0));
 		SetupCalPeriod(CTLCAL_BIZPRCRT_PERIOD, CTL_BIZPRCRT_PERIOD);
-		if(pBizScoreName)
-			BizScoreName = pBizScoreName;
 	}
 	int    setDTS(const DL2_Score * pData)
 	{
@@ -771,9 +769,8 @@ int SLAPI PPViewBizScore::EditBaseFilt(PPBaseFilt * pBaseFilt)
 int SLAPI PPViewBizScore::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
-	if(Helper_InitBaseFilt(pBaseFilt)) {
+	if(Helper_InitBaseFilt(pBaseFilt))
 		ok = 1;
-	}
 	else
 		ok = 0;
 	return ok;

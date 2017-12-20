@@ -1514,9 +1514,8 @@ int SLAPI PPTextAnalyzer::ParseReplacerLine(const SString & rLine, PPTextAnalyze
 					THROW_PP(p_current_chain && p_current_chain->List.getCount(), PPERR_TXA_RIGHTEMPTYTO);
 					target_idx = rReplacer.SearchTarget(p_current_chain->List);
 					if(!target_idx) {
-						THROW_MEM(p_target = new Replacer::TargetItem);
+						THROW_SL(p_target = rReplacer.TargetList.CreateNewItem());
 						p_target->List = p_current_chain->List;
-						rReplacer.TargetList.insert(p_target);
 						target_idx = rReplacer.TargetList.getCount();
 						assert(rReplacer.SearchTarget(p_current_chain->List) == target_idx); // Проверим инвариант
 						p_target = 0;
@@ -2177,8 +2176,7 @@ int SLAPI PPTextAnalyzerWrapper::ReplaceString(const char * pText, SString & rRe
 		TempBuf.ToLower1251();
 		A.Reset(0);
 		ok = A.ProcessString(R, 0, TempBuf, rResult, &Fb, 0);
-		if(rResult.Empty())
-			rResult = pText;
+		rResult.SetIfEmpty(pText);
 		if(Flags & fEncInner)
 			rResult.Transf(CTRANSF_OUTER_TO_INNER);
 	}
@@ -2761,10 +2759,9 @@ int SLAPI PPObjectTokenizer::SearchGoodsAnalogs(PPID goodsID, PPIDArray & rList,
 						const PPID c_id = component_list.get(i);
 						by_component_list.clear();
 						if(sw_obj.GetListByComponent(c_id, by_component_list) > 0 && by_component_list.getCount()) {
-							_AnalogByComponentEntry * p_ace = new _AnalogByComponentEntry;
+							_AnalogByComponentEntry * p_ace = sw_by_component_list.CreateNewItem();
 							p_ace->ComponentID = c_id;
 							p_ace->SuprWareList = by_component_list;
-							sw_by_component_list.insert(p_ace);
 							for(uint j = 0; j < by_component_list.getCount(); j++) {
 								const PPID by_component_id = by_component_list.get(j);
 								final_by_component_list.Add(by_component_id, 1.0);
@@ -3405,10 +3402,8 @@ int SLAPI PPKeywordListGenerator::CreateGroup(const char * pContext, uint * pPos
 			ok = 2;
 		}
 		else {
-			Group * p_new_group = new Group;
+			Group * p_new_group = List.CreateNewItem(&pos);
 			AddS(pContext, &p_new_group->ContextP);
-			List.insert(p_new_group);
-			pos = List.getCount()-1;
 			ok = 1;
 		}
 	}

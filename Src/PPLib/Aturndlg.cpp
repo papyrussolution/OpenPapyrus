@@ -136,12 +136,9 @@ void CurAmtCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 #define GRP_CRD    2
 #define GRP_CURAMT 3
 
-AccTurnDialog::AccTurnDialog(uint rezID, PPObjBill * pBObj) : TDialog(rezID)
+AccTurnDialog::AccTurnDialog(uint rezID, PPObjBill * pBObj) : TDialog(rezID), P_BObj(pBObj), P_Pack(0)
 {
-	P_BObj = pBObj;
-	P_Pack = 0;
 	MEMSZERO(Data);
-
 	setCtrlOption(CTL_ATURN_DTEXT, ofFramed, 1);
 	setCtrlOption(CTL_ATURN_CTEXT, ofFramed, 1);
 	AcctCtrlGroup * p_ac_grp = new AcctCtrlGroup(CTL_ATURN_DACC,

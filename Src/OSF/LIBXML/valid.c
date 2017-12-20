@@ -1102,7 +1102,7 @@ void xmlSnprintfElementContent(char * buf, int size, xmlElementContent * content
 		return;
 	len = strlen(buf);
 	if(size - len < 50) {
-		if((size - len > 4) && (buf[len - 1] != '.'))
+		if((size - len > 4) && (buf[len-1] != '.'))
 			strcat(buf, " ...");
 		return;
 	}
@@ -1136,7 +1136,7 @@ void xmlSnprintfElementContent(char * buf, int size, xmlElementContent * content
 			    xmlSnprintfElementContent(buf, size, content->c1, 0);
 		    len = strlen(buf);
 		    if(size - len < 50) {
-			    if((size - len > 4) && (buf[len - 1] != '.'))
+			    if((size - len > 4) && (buf[len-1] != '.'))
 				    strcat(buf, " ...");
 			    return;
 		    }
@@ -1156,7 +1156,7 @@ void xmlSnprintfElementContent(char * buf, int size, xmlElementContent * content
 			    xmlSnprintfElementContent(buf, size, content->c1, 0);
 		    len = strlen(buf);
 		    if(size - len < 50) {
-			    if((size - len > 4) && (buf[len - 1] != '.'))
+			    if((size - len > 4) && (buf[len-1] != '.'))
 				    strcat(buf, " ...");
 			    return;
 		    }
@@ -4538,7 +4538,7 @@ static void xmlSnprintfElements(char * buf, int size, xmlNode * P_Node, int glob
 	while(cur) {
 		len = strlen(buf);
 		if(size - len < 50) {
-			if((size - len > 4) && (buf[len - 1] != '.'))
+			if((size - len > 4) && (buf[len-1] != '.'))
 				strcat(buf, " ...");
 			return;
 		}
@@ -4546,7 +4546,7 @@ static void xmlSnprintfElements(char * buf, int size, xmlNode * P_Node, int glob
 			case XML_ELEMENT_NODE:
 			    if(cur->ns && (cur->ns->prefix != NULL)) {
 				    if((size - len) < (int)(sstrlen(cur->ns->prefix) + 10)) {
-					    if((size - len > 4) && (buf[len - 1] != '.'))
+					    if((size - len > 4) && (buf[len-1] != '.'))
 						    strcat(buf, " ...");
 					    return;
 				    }
@@ -4554,7 +4554,7 @@ static void xmlSnprintfElements(char * buf, int size, xmlNode * P_Node, int glob
 				    strcat(buf, ":");
 			    }
 			    if((size - len) < (int)(sstrlen(cur->name) + 10)) {
-				    if((size - len > 4) && (buf[len - 1] != '.'))
+				    if((size - len > 4) && (buf[len-1] != '.'))
 					    strcat(buf, " ...");
 				    return;
 			    }

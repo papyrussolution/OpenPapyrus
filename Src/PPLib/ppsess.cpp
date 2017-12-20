@@ -1458,126 +1458,13 @@ static int _TestSymbols()
 int TestSStringPerf(); // @prototype
 int SLAPI TestPPObjBillParseText(); // @prototype
 
-void InitTest()
+static void InitTest()
 {
 #ifndef NDEBUG // {
 	{
 		//TestSStringPerf();
 		//TestPPObjBillParseText();
 	}
-	{
-		//
-		// Эта проверка нужна мне для успокоения.
-		// Ибо меня преследует фобия, что такое равенство не выполняется.
-		//
-		char   temp_buf[32];
-		assert((void *)temp_buf == (void *)&temp_buf);
-	}
-	{
-		//
-		// Проверка компилятора не предмет однозначного равенства результатов сравнения 0 или 1.
-		//
-		int    ix;
-		double rx;
-		void * p_x = 0;
-		ix = 0;
-		assert((ix == 0) == 1);
-		assert((ix != 0) == 0);
-		assert((ix > 0) == 0);
-		assert((ix <= 0) == 1);
-		ix = 93281;
-		assert((ix == 93281) == 1);
-		assert((ix != 93281) == 0);
-		rx = 0.0;
-		assert((rx == 0) == 1);
-		assert((rx != 0) == 0);
-		rx = 17.5;
-		assert((rx == 17.5) == 1);
-		assert((rx != 17.5) == 0);
-		p_x = 0;
-		assert((p_x == 0) == 1);
-		assert((p_x != 0) == 0);
-		p_x = &rx;
-		assert((p_x == &rx) == 1);
-		assert((p_x != &rx) == 0);
-	}
-	{
-		//
-		// Тестирование макроса SETIFZ
-		//
-		int    a = 1;
-		SETIFZ(a, 2);
-		assert(a == 1);
-		a = 0;
-		SETIFZ(a, 2);
-		assert(a == 2);
-		{
-			void * ptr = 0;
-			if(SETIFZ(ptr, SAlloc::M(128))) {
-				assert(ptr != 0);
-			}
-			else {
-				assert(ptr == 0);
-			}
-			ZFREE(ptr);
-			//
-			const char * p_abc = "abc";
-			ptr = (void *)p_abc;
-			if(SETIFZ(ptr, SAlloc::M(128))) {
-				assert(ptr == p_abc);
-			}
-			else {
-				assert(ptr == 0);
-			}
-			ptr = 0;
-			p_abc = 0;
-			if(SETIFZ(ptr, (void *)p_abc)) {
-				assert(0);
-			}
-			else {
-				assert(ptr == p_abc);
-			}
-		}
-
-	}
-	{
-		//
-		// Удостоверяемся в том, что SIZEOFARRAY работает правильно (тоже фобия)
-		//
-		struct TestStruc {
-			const char * P_S;
-			int16  I16;
-		};
-		TestStruc test_array[] = {
-			{ "Abc", 1 },
-			{ "Ab2", 2 },
-			{ "Ab3", 3 },
-			{ "Ab4", 4 },
-			{ "Ab5", 5 }
-		};
-		assert(SIZEOFARRAY(test_array) == 5);
-	}
-	assert(sizeof(char) == 1);
-	assert(sizeof(int) == 4);
-	assert(sizeof(unsigned int) == 4);
-
-	assert(sizeof(int8) == 1);
-	assert(sizeof(uint8) == 1);
-	assert(sizeof(int16) == 2);
-	assert(sizeof(uint16) == 2);
-	assert(sizeof(int32) == 4);
-	assert(sizeof(uint32) == 4);
-	assert(sizeof(int64) == 8);
-	assert(sizeof(uint64) == 8);
-	assert(sizeof(S_GUID) == 16);
-	assert(sizeof(IntRange) == 8);
-	assert(sizeof(RealRange) == 16);
-	assert(sizeof(SBaseBuffer) == 8);
-	assert(sizeof(DateRepeating) == 8);
-	assert(sizeof(DateTimeRepeating) == 12);
-	assert(sizeof(KeyDownCommand) == 4); // @v8.1.6
-	assert(sizeof(DBFH) == 32);
-	assert(sizeof(DBFF) == 32);
 	{
 		//
 		// Проверка совместимости типа SColor с WinGDI-типом RGBQUAD.
@@ -1594,28 +1481,19 @@ void InitTest()
 		q = (RGBQUAD)c;
 		assert(memcmp(&c, &q, sizeof(q)) == 0);
 	}
-	{
-		//
-		// Убедимся, что функции TView::GetId() и TView::TestId() адекватно
-		// работают с нулевым указателем this.
-		//
-		TView * p_zero_view = 0;
-		assert(p_zero_view->GetId() == 0);
-		assert(p_zero_view->TestId(1) == 0);
-	}
-	assert(sizeof(TYPEID) == 4); // @v9.8.6
-	assert(sizeof(STypEx) == 16);
+	assert(sizeof(KeyDownCommand) == 4);
+	assert(sizeof(TView) % 4 == 0);
+	assert(sizeof(TWindow) % 4 == 0);
+	assert(sizeof(TDialog) % 4 == 0);
+	assert(sizeof(DBFH) == 32);
+	assert(sizeof(DBFF) == 32);
 	assert(DBRPL_ERROR == 0); // @v8.8.2
-	assert(sizeof(CommPortParams) == 6);
 	assert(sizeof(DBRowId) == 32);
 	//
 	// Так как множество классов наследуются от DBTable важно, чтобы
 	// размер DBTable был кратен 32 (для выравнивания по кэш-линии).
 	//
 	assert(sizeof(DBTable) % 32 == 0);
-	assert(sizeof(TView) % 4 == 0);
-	assert(sizeof(TWindow) % 4 == 0);
-	assert(sizeof(TDialog) % 4 == 0);
 	//
 	// Записи системного журнала и резервной
 	// таблицы системного журнала должны быть эквивалентны.
@@ -1716,6 +1594,15 @@ void InitTest()
 	assert(PPSetError(0, 0L) == 0);
 	// } @v9.0.11
 	assert(_TestSymbols());
+	{
+		//
+		// Убедимся, что функции TView::GetId() и TView::TestId() адекватно
+		// работают с нулевым указателем this.
+		//
+		TView * p_zero_view = 0;
+		assert(p_zero_view->GetId() == 0);
+		assert(p_zero_view->TestId(1) == 0);
+	}
 	{
 		//
 		// @v9.3.4 Возможность системы получить стоп-событие, созданное в SlSession, критична!

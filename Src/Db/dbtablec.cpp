@@ -486,8 +486,7 @@ int SLAPI DBTable::open(const char * pTblName, const char * pFileName, int openM
 	CATCH
 		handle = 0;
 		if(OpenExceptionProc) {
-			if(fileName.Empty())
-				fileName = NZOR(pFileName, pTblName);
+			fileName.SetIfEmpty(NZOR(pFileName, pTblName));
 			OpenExceptionProc(fileName, BtrError);
 		}
 	ENDCATCH

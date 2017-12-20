@@ -170,8 +170,7 @@ METHODDEF(void) process_data_buffer_main(j_compress_ptr cinfo,
 			}
 			/* In a read pass, pretend we just read some source data. */
 			if(!writing) {
-				*in_row_ctr += (JDIMENSION)
-				    (cinfo->max_v_samp_factor * cinfo->min_DCT_v_scaled_size);
+				*in_row_ctr += (JDIMENSION)(cinfo->max_v_samp_factor * cinfo->min_DCT_v_scaled_size);
 				mainp->rowgroup_ctr = (JDIMENSION)cinfo->min_DCT_v_scaled_size;
 			}
 		}

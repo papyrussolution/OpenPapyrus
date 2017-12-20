@@ -132,10 +132,8 @@ METHODDEF(boolean) compress_data(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
 	forward_DCT_ptr forward_DCT;
 
 	/* Loop to write as much as one whole iMCU row */
-	for(yoffset = coef->MCU_vert_offset; yoffset < coef->MCU_rows_per_iMCU_row;
-	    yoffset++) {
-		for(MCU_col_num = coef->mcu_ctr; MCU_col_num <= last_MCU_col;
-		    MCU_col_num++) {
+	for(yoffset = coef->MCU_vert_offset; yoffset < coef->MCU_rows_per_iMCU_row; yoffset++) {
+		for(MCU_col_num = coef->mcu_ctr; MCU_col_num <= last_MCU_col; MCU_col_num++) {
 			/* Determine where data comes from in input_buf and do the DCT thing.
 			 * Each call on forward_DCT processes a horizontal row of DCT blocks
 			 * as wide as an MCU; we rely on having allocated the MCU_buffer[] blocks
@@ -216,7 +214,6 @@ METHODDEF(boolean) compress_data(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
  * the entropy encoder during this first pass; be careful about looking
  * at the scan-dependent variables (MCU dimensions, etc).
  */
-
 METHODDEF(boolean) compress_first_pass(j_compress_ptr cinfo, JSAMPIMAGE input_buf)
 {
 	my_coef_ptr coef = (my_coef_ptr)cinfo->coef;
@@ -273,12 +270,10 @@ METHODDEF(boolean) compress_first_pass(j_compress_ptr cinfo, JSAMPIMAGE input_bu
 		if(coef->iMCU_row_num == last_iMCU_row) {
 			blocks_across += ndummy; /* include lower right corner */
 			MCUs_across = blocks_across / h_samp_factor;
-			for(block_row = block_rows; block_row < compptr->v_samp_factor;
-			    block_row++) {
+			for(block_row = block_rows; block_row < compptr->v_samp_factor; block_row++) {
 				thisblockrow = buffer[block_row];
 				lastblockrow = buffer[block_row-1];
-				FMEMZERO((void FAR*)thisblockrow,
-				    (size_t)(blocks_across * SIZEOF(JBLOCK)));
+				FMEMZERO((void FAR*)thisblockrow, (size_t)(blocks_across * SIZEOF(JBLOCK)));
 				for(MCUindex = 0; MCUindex < MCUs_across; MCUindex++) {
 					lastDC = lastblockrow[h_samp_factor-1][0];
 					for(bi = 0; bi < h_samp_factor; bi++) {

@@ -5605,8 +5605,8 @@ int SLAPI PPObjPerson::AddRelationList(PPID * pPrmrID, PPIDArray * pScndList, PP
 	PersonLink pl_item;
 	PPPersonPacket pack;
 	THROW(CheckRights(PPR_MOD));
-	pl_item.PrmrPersonID = (pPrmrID)    ? *pPrmrID    : 0;
-	pl_item.LinkTypeID   = (pRelTypeID) ? *pRelTypeID : 0;
+	pl_item.PrmrPersonID = DEREFPTRORZ(pPrmrID);
+	pl_item.LinkTypeID   = DEREFPTRORZ(pRelTypeID);
 	RVALUEPTR(pl_item.ScndPersonList, pScndList);
 	SETFLAG(pl_item.Flags, PersonLink::fLockPrmr, pl_item.PrmrPersonID);
 	SETFLAG(pl_item.Flags, PersonLink::fLockScnd, pl_item.ScndPersonList.getCount());
@@ -5830,8 +5830,7 @@ int SLAPI PPObjPerson::IndexPhones(int use_ta)
 				city_prefix = 0;
 				if(LocObj.FetchCityByAddr(city_addr_id, &city_rec) > 0 && city_rec.Phone[0])
 					PPEAddr::Phone::NormalizeStr(city_rec.Phone, city_prefix);
-				if(city_prefix.Empty())
-					city_prefix = main_city_prefix;
+				city_prefix.SetIfEmpty(main_city_prefix);
 				P_Tbl->GetELinks(objid.Id, &ela);
 				for(uint i = 0; i < ela.getCount(); i++) {
 					const PPELink & r_item = ela.at(i);

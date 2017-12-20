@@ -102,7 +102,7 @@ static void read_colormap(tga_source_ptr sinfo, int cmaplen, int mapentrysize)
 METHODDEF(void) read_non_rle_pixel(tga_source_ptr sinfo)
 /* Read one Targa pixel from the input file; no RLE expansion */
 {
-	register FILE * infile = sinfo->pub.input_file;
+	FILE * infile = sinfo->pub.input_file;
 	for(int i = 0; i < sinfo->pixel_size; i++) {
 		sinfo->tga_pixel[i] = (U_CHAR)getc(infile);
 	}
@@ -174,11 +174,9 @@ METHODDEF(JDIMENSION) get_16bit_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo
 /* This version is for reading 16-bit pixels */
 {
 	tga_source_ptr source = (tga_source_ptr)sinfo;
-	register int t;
-	register JSAMPROW ptr;
-	register JDIMENSION col;
-
-	ptr = source->pub.buffer[0];
+	int t;
+	JDIMENSION col;
+	JSAMPROW ptr = source->pub.buffer[0];
 	for(col = cinfo->image_width; col > 0; col--) {
 		(*source->read_pixel)(source); /* Load next pixel into tga_pixel */
 		t = UCH(source->tga_pixel[0]);
@@ -201,8 +199,8 @@ METHODDEF(JDIMENSION) get_24bit_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo
 /* This version is for reading 24-bit pixels */
 {
 	tga_source_ptr source = (tga_source_ptr)sinfo;
-	register JDIMENSION col;
-	register JSAMPROW ptr = source->pub.buffer[0];
+	JDIMENSION col;
+	JSAMPROW ptr = source->pub.buffer[0];
 	for(col = cinfo->image_width; col > 0; col--) {
 		(*source->read_pixel)(source); /* Load next pixel into tga_pixel */
 		*ptr++ = (JSAMPLE)UCH(source->tga_pixel[2]); /* change BGR to RGB order */
@@ -350,8 +348,7 @@ METHODDEF(void) start_input_tga(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 
 	if(is_bottom_up) {
 		/* Create a virtual array to buffer the upside-down image. */
-		source->whole_image = (*cinfo->mem->request_virt_sarray)
-			    ((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE,
+		source->whole_image = (*cinfo->mem->request_virt_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE,
 		    (JDIMENSION)width * components, (JDIMENSION)height, (JDIMENSION)1);
 		if(cinfo->progress) {
 			cd_progress_ptr progress = (cd_progress_ptr)cinfo->progress;
@@ -374,8 +371,7 @@ METHODDEF(void) start_input_tga(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 		if(maplen > 256 || GET_2B(3) != 0)
 			ERREXIT(cinfo, JERR_TGA_BADCMAP);
 		/* Allocate space to store the colormap */
-		source->colormap = (*cinfo->mem->alloc_sarray)
-			    ((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)maplen, (JDIMENSION)3);
+		source->colormap = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)maplen, (JDIMENSION)3);
 		/* and read it from the file */
 		read_colormap(source, (int)maplen, UCH(targaheader[7]));
 	}

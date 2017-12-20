@@ -176,11 +176,10 @@ int SLAPI PPNamedFiltPool::PutNamedFilt(PPID * pNamedFiltID, const PPNamedFilt *
 			max_id = p_nfilt->ID;
 	}
 	if(ok < 0 && pNFilt) {
-		PPNamedFilt * p_nfilt = new PPNamedFilt;
-		THROW_MEM(p_nfilt);
+		PPNamedFilt * p_nfilt = CreateNewItem();
+		THROW_SL(p_nfilt);
 		*p_nfilt = *pNFilt;
 		p_nfilt->ID = max_id+1;
-		THROW_SL(insert(p_nfilt));
 		ASSIGN_PTR(pNamedFiltID, p_nfilt->ID);
 	}
 	CATCHZOK

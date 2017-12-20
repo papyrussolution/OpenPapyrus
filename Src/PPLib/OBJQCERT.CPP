@@ -326,9 +326,7 @@ int SLAPI PPObjQCert::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 {
 	if(p && p->Data) {
 		QualityCertTbl::Rec * r = (QualityCertTbl::Rec *)p->Data;
-		return (
-			ProcessObjRefInArray(PPOBJ_PERSON, &r->RegOrgan, ary, replace)
-		) ? 1 : 0;
+		return (ProcessObjRefInArray(PPOBJ_PERSON, &r->RegOrgan, ary, replace)) ? 1 : 0;
 	}
 	return -1;
 }
@@ -337,10 +335,8 @@ int SLAPI PPObjQCert::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repl
 //
 class SelQCertDialog : public TDialog {
 public:
-	SelQCertDialog() : TDialog(DLG_SELQCERT)
+	SelQCertDialog() : TDialog(DLG_SELQCERT), IsSelByGoods(0), GoodsID(0)
 	{
-		IsSelByGoods = 0;
-		GoodsID = 0;
 		P_List = (SmartListBox *)getCtrlView(CTL_SELQCERT_LIST);
 		setCtrlOption(CTL_SELQCERT_LIST, ofFramed, 1);
 		updateList(0);

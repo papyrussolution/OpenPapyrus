@@ -28,10 +28,10 @@ int i2c_ASN1_BIT_STRING(ASN1_BIT_STRING * a, uchar ** pp)
 		}
 		else {
 			for(; len > 0; len--) {
-				if(a->data[len - 1])
+				if(a->data[len-1])
 					break;
 			}
-			j = a->data[len - 1];
+			j = a->data[len-1];
 			if(j & 0x01)
 				bits = 0;
 			else if(j & 0x02)
@@ -104,7 +104,7 @@ ASN1_BIT_STRING * c2i_ASN1_BIT_STRING(ASN1_BIT_STRING ** a, const uchar ** pp, l
 			goto err;
 		}
 		memcpy(s, p, (int)len);
-		s[len - 1] &= (0xff << i);
+		s[len-1] &= (0xff << i);
 		p += len;
 	}
 	else

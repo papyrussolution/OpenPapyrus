@@ -158,10 +158,7 @@ int STimeChunkGrid::SetHolidayList(long rowID, const STimeChunkArray * pList)
 const STimeChunkArray * FASTCALL STimeChunkGrid::GetHolidayList(long rowID) const
 {
 	uint   pos = 0;
-	if(HL.lsearch(&rowID, &pos, CMPF_LONG, offsetof(HolidayArray, Id)))
-		return (STimeChunkArray *)HL.at(pos);
-	else
-		return 0;
+	return HL.lsearch(&rowID, &pos, CMPF_LONG, offsetof(HolidayArray, Id)) ? (STimeChunkArray *)HL.at(pos) : 0;
 }
 
 int STimeChunkGrid::SetCollapseList(const STimeChunkArray * pList)
@@ -826,15 +823,14 @@ void STimeChunkBrowser::OnUpdateData()
 	RowStateList.freeAll();
 	for(uint i = 0; i < P_Data->getCount(); i++) {
 		const STimeChunkAssocArray * p_row = P_Data->at(i);
-		RowState * p_s = new RowState;
 		LAssocArray order_list;
+		RowState * p_s = RowStateList.CreateNewItem();
 		p_s->Id = p_row->Id;
 		p_s->Order = p_row->GetIntersectionOrder(&order_list, 1000);
 		if(p_s->Order > 1)
 			p_s->OrderList = order_list;
-		RowStateList.insert(p_s);
 	}
-	RowStateList.sort(CMPF_LONG); // @v7.6.10
+	RowStateList.sort(CMPF_LONG);
 	int    r = P_Data->GetBounds(St.Bounds);
 	if(!(r & 0x01))
 		St.Bounds.Start.Set(NZOR(P.DefBounds.low, getcurdate_()), ZEROTIME);
@@ -1882,10 +1878,9 @@ static int AddIntersectRectPair(uint p1, uint p2, TSCollection <LongArray> & rLi
 		r_item.add(p1);
 	}
 	else {
-		LongArray * p_new_item = new LongArray;
+		LongArray * p_new_item = rList.CreateNewItem();
 		p_new_item->add(p1);
 		p_new_item->add(p2);
-		rList.insert(p_new_item);
 	}
 	//
 	// @test {

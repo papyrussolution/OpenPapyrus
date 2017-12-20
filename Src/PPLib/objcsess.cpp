@@ -1121,11 +1121,10 @@ int SLAPI EditDueToKeyboardRights()
 //
 //
 //
-CTableOrder::Packet::Packet()
+CTableOrder::Packet::Packet() : SCardID(0)
 {
 	LDATETIME dtm;
 	dtm.SetZero();
-	SCardID = 0;
 	Init(0, dtm, 0);
 }
 
@@ -1138,7 +1137,7 @@ void CTableOrder::Packet::Init(PPID posNodeID, LDATETIME initDtm, long initDurat
 	TableNo = 0;
 	Status = 0;
 	PrepayAmount = 0.0;
-	Memo = 0;
+	Memo.Z();
 	if(checkdate(initDtm.d, 0))
 		Chunk.Init(initDtm, initDuration);
 	else {
@@ -1150,14 +1149,8 @@ void CTableOrder::Packet::Init(PPID posNodeID, LDATETIME initDtm, long initDurat
 //
 //
 //
-CTableOrder::Param::Param()
+CTableOrder::Param::Param() : Ver(1), PosNodeID(0), StartTime(ZERODATETIME), InitDuration(0), Flags(0), TableNo(0)
 {
-	Ver = 1;
-	PosNodeID = 0;
-	StartTime = ZEROTIME;
-	InitDuration = 0;
-	Flags = 0;
-	TableNo = 0;
 	MEMSZERO(Reserve);
 }
 
@@ -1175,13 +1168,8 @@ int CTableOrder::Param::Serialize(int dir, SBuffer & rBuf, SSerializeContext * p
 	return ok;
 }
 
-CTableOrder::CTableOrder()
+CTableOrder::CTableOrder() : P_Grid(0), State(stRtUndef), P_ScObj(new PPObjSCard), P_CnObj(new PPObjCashNode)
 {
-	P_ScObj = new PPObjSCard;
-	P_CnObj = new PPObjCashNode;
-	P_Grid = 0;
-	State = 0;
-	State |= stRtUndef;
 }
 
 CTableOrder::~CTableOrder()
@@ -1235,13 +1223,12 @@ int CTableOrder::EditParam(Param * pParam)
 
 class CTableOrderDialog : public TDialog {
 public:
-	CTableOrderDialog(CTableOrder * pTo) : TDialog(DLG_CTBLORD)
+	CTableOrderDialog(CTableOrder * pTo) : TDialog(DLG_CTBLORD), P_To(pTo)
 	{
-		P_To = pTo;
 		SetupCalDate(CTLCAL_CTBLORD_STDT, CTL_CTBLORD_STDT);
 		SetupCalDate(CTLCAL_CTBLORD_FNDT, CTL_CTBLORD_FNDT);
-		SetupTimePicker(this, CTL_CTBLORD_STTM, CTLTM_CTBLORD_STTM); // @v6.7.9
-		SetupTimePicker(this, CTL_CTBLORD_FNTM, CTLTM_CTBLORD_FNTM); // @v6.7.9
+		SetupTimePicker(this, CTL_CTBLORD_STTM, CTLTM_CTBLORD_STTM);
+		SetupTimePicker(this, CTL_CTBLORD_FNTM, CTLTM_CTBLORD_FNTM);
 		enableCommand(cmCreateSCard, !Data.SCardID && ScObj.CheckRights(PPR_INS) && ScObj.GetConfig().DefCreditSerID);
 	}
 	int    setDTS(const CTableOrder::Packet * pData)
@@ -1710,10 +1697,8 @@ public:
 	CTableOrder * P_To; // @notowned
 };
 
-CTableTimeChunkGrid::CTableTimeChunkGrid(PPID posNodeID, CTableOrder * pTo) : STimeChunkGrid()
+CTableTimeChunkGrid::CTableTimeChunkGrid(PPID posNodeID, CTableOrder * pTo) : STimeChunkGrid(), PosNodeID(posNodeID), P_To(pTo)
 {
-	PosNodeID = posNodeID;
-	P_To = pTo;
 }
 
 /* @v9.4.5 CTableTimeChunkGrid::~CTableTimeChunkGrid()

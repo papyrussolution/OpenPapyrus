@@ -2096,11 +2096,10 @@ private:
 
 class AsyncCashNodeDialog : public TDialog {
 public:
-	AsyncCashNodeDialog(PPAsyncCashNode * pData) : TDialog(DLG_CASHNA)
+	AsyncCashNodeDialog(PPAsyncCashNode * pData) : TDialog(DLG_CASHNA), P_Data(pData)
 	{
 		PPIniFile  ini_file;
 		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ACSCLOSE_USEALTIMPORT, &UseAltImport);
-		P_Data = pData;
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_CASHN_IMPFILES, CTL_CASHN_IMPFILES, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_CASHN_EXPPATHS, CTL_CASHN_EXPPATHS, 2, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 	}

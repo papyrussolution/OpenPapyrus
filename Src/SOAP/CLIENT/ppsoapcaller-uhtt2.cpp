@@ -1233,7 +1233,7 @@ extern "C" __declspec(dllexport) TSCollection <UhttBillPacket> * UhttGetBill(PPS
 				for(int i = 0; i < resp.__sizebillArray; i++) {
 					ns1__bill * p_bill = resp.billArray[i];
 					if(p_bill) {
-						UhttBillPacket * p_pack = new UhttBillPacket;
+						UhttBillPacket * p_pack = p_result->CreateNewItem();
 						THROW(p_pack);
 						p_pack->ID = p_bill->ID;
 						p_pack->LocID = p_bill->LocationID;
@@ -1270,7 +1270,6 @@ extern "C" __declspec(dllexport) TSCollection <UhttBillPacket> * UhttGetBill(PPS
 								}
 							}
 						}
-						p_result->insert(p_pack);
 					}
 				}
 			}
@@ -1313,7 +1312,7 @@ extern "C" __declspec(dllexport) TSCollection <UhttQuotPacket> * UhttGetQuot(PPS
 				for(int i = 0; i < resp.__sizequoteArray; i++) {
 					ns1__quote * p_item = resp.quoteArray[i];
 					if(p_item) {
-						UhttQuotPacket * p_pack = new UhttQuotPacket;
+						UhttQuotPacket * p_pack = p_result->CreateNewItem();
 						THROW(p_pack);
 						p_pack->GoodsID = p_item->GoodsID;
 						p_pack->SellerID = p_item->SellerID;
@@ -1324,7 +1323,6 @@ extern "C" __declspec(dllexport) TSCollection <UhttQuotPacket> * UhttGetQuot(PPS
 						p_pack->MinQtty = p_item->MinQtty;
 						//p_pack->ActualPeriod = p_item->ActialPeriod;
 						//p_pack->ChangesDate = p_item->ChangesDate;
-						p_result->insert(p_pack);
 					}
 				}
 			}
@@ -1357,7 +1355,7 @@ extern "C" __declspec(dllexport) TSCollection <UhttGoodsRestListItem> * UhttGetG
 				for(int i = 0; i < resp.__sizegoodsRestList; i++) {
 					ns1__goodsRestValue * p_item = resp.goodsRestList[i];
 					if(p_item) {
-						UhttGoodsRestListItem * p_pack = new UhttGoodsRestListItem;
+						UhttGoodsRestListItem * p_pack = p_result->CreateNewItem();
 						THROW(p_pack);
 						p_pack->GoodsID = p_item->GoodsID;
 						p_pack->LocID = p_item->LocationID;
@@ -1374,7 +1372,6 @@ extern "C" __declspec(dllexport) TSCollection <UhttGoodsRestListItem> * UhttGetG
 							p_pack->PriceDtm.Date = p_item->QuoteDt->Date;
 							p_pack->PriceDtm.Time = p_item->QuoteDt->Time;
 						}
-						p_result->insert(p_pack);
 					}
 				}
 			}
@@ -1408,7 +1405,7 @@ extern "C" __declspec(dllexport) TSCollection <UhttDCFileVersionInfo> * UhttDCGe
 				for(int i = 0; i < resp.__sizeverArray; i++) {
 					ns1__dcFileVersionInfo * p_item = resp.verArray[i];
 					if(p_item) {
-						UhttDCFileVersionInfo * p_pack = new UhttDCFileVersionInfo;
+						UhttDCFileVersionInfo * p_pack = p_result->CreateNewItem();
 						THROW(p_pack);
 						p_pack->ID        = p_item->ID;
 						(p_pack->Key      = p_item->Key).Transf(CTRANSF_UTF8_TO_INNER);
@@ -1420,7 +1417,6 @@ extern "C" __declspec(dllexport) TSCollection <UhttDCFileVersionInfo> * UhttDCGe
 						p_pack->Size      = (long)p_item->Size;
 						p_pack->Flags     = p_item->Flags;
 						(p_pack->Memo     = p_item->Memo).Transf(CTRANSF_UTF8_TO_INNER);
-						p_result->insert(p_pack);
 					}
 				}
 			}
@@ -1460,11 +1456,10 @@ static int Implement_GetWorkbookPacket(const ns1__workbook * pSp, UhttWorkbookIt
 			for(int j = 0; j < pSp->__sizeTags; j++) {
 				ns1__tagValue * p_tag = pSp->Tags[j];
 				if(p_tag) {
-					UhttTagItem * p_new_item = new UhttTagItem;
+					UhttTagItem * p_new_item = rP.TagList.CreateNewItem();
 					THROW(p_new_item);
 					(p_new_item->Symb = p_tag->Symb).Transf(CTRANSF_UTF8_TO_INNER);
 					(p_new_item->Value = p_tag->Value).Transf(CTRANSF_UTF8_TO_INNER);
-					THROW(rP.TagList.insert(p_new_item));
 				}
 			}
 		}
@@ -1542,10 +1537,9 @@ extern "C" __declspec(dllexport) TSCollection <UhttWorkbookItemPacket> * UhttGet
 				for(int i = 0; i < resp.__sizeworkbookItemArray; i++) {
 					ns1__workbook * p_item = resp.workbookItemArray[i];
 					if(p_item) {
-						UhttWorkbookItemPacket * p_pack = new UhttWorkbookItemPacket;
+						UhttWorkbookItemPacket * p_pack = p_result->CreateNewItem();
 						THROW(p_pack);
 						THROW(Implement_GetWorkbookPacket(p_item, *p_pack));
-						p_result->insert(p_pack);
 					}
 				}
 			}
@@ -1783,12 +1777,11 @@ static UhttProcessorPacket * UhttProcessorOuterToInner(const ns1__processor * pO
 			for(int i = 0; i < pOuter->__sizePlaces; i++) {
 				const ns1__prcPlace * p_src_place = pOuter->Places[i];
 				if(p_src_place) {
-					UhttPrcPlaceDescription * p_new_place = new UhttPrcPlaceDescription;
+					UhttPrcPlaceDescription * p_new_place = p_result->Places.CreateNewItem();
 					THROW(p_new_place);
 					p_new_place->GoodsID = p_src_place->GoodsID;
 					(p_new_place->Range = p_src_place->Range).Transf(CTRANSF_UTF8_TO_INNER);
 					(p_new_place->Descr = p_src_place->Descr).Transf(CTRANSF_UTF8_TO_INNER);
-					THROW(p_result->Places.insert(p_new_place));
 				}
 			}
 		}
@@ -1919,18 +1912,17 @@ static UhttTSessionPacket * UhttTSessionOuterToInner(const ns1__tSession * pOute
 					for(int j = 0; j < pOuter->__sizeTags; j++) {
 						ns1__tagValue * p_tag = pOuter->Tags[j];
 						if(p_tag) {
-							UhttTagItem * p_new_item = new UhttTagItem;
+							UhttTagItem * p_new_item = p_result->TagList.CreateNewItem();
 							THROW(p_new_item);
 							(p_new_item->Symb = p_tag->Symb).Transf(CTRANSF_UTF8_TO_INNER);
 							(p_new_item->Value = p_tag->Value).Transf(CTRANSF_UTF8_TO_INNER);
-							THROW(p_result->TagList.insert(p_new_item));
 						}
 					}
 				}
 				for(int i = 0; i < pOuter->__sizeLines; i++) {
 					const ns1__tSessionLine * p_src_line = pOuter->Lines[i];
 					if(p_src_line) {
-						UhttTSessLine * p_new_line = new UhttTSessLine;
+						UhttTSessLine * p_new_line = p_result->Lines.CreateNewItem();
 						THROW(p_new_line);
 						#define CPYFLD(f) p_new_line->f = p_src_line->f
 						CPYFLD(TSessID);
@@ -1948,7 +1940,6 @@ static UhttTSessionPacket * UhttTSessionOuterToInner(const ns1__tSession * pOute
 						p_new_line->Tm.T = p_src_line->Tm;
 						p_new_line->Expiry.T = p_src_line->Expiry;
 						(p_new_line->Serial = p_src_line->Serial).Transf(CTRANSF_UTF8_TO_INNER);
-						THROW(p_result->Lines.insert(p_new_line));
 						#undef CPYFLD
 					}
 				}
@@ -1957,7 +1948,7 @@ static UhttTSessionPacket * UhttTSessionOuterToInner(const ns1__tSession * pOute
 				for(int i = 0; i < pOuter->__sizeCips; i++) {
 					const ns1__checkInPerson * p_src_cip = pOuter->Cips[i];
 					if(p_src_cip) {
-						UhttCipPacket * p_new_cip = new UhttCipPacket;
+						UhttCipPacket * p_new_cip = p_result->Cips.CreateNewItem();
 						THROW(p_new_cip);
 						#define CPYFLD(f) p_new_cip->f = p_src_cip->f
 						CPYFLD(ID);
@@ -1976,8 +1967,6 @@ static UhttTSessionPacket * UhttTSessionOuterToInner(const ns1__tSession * pOute
 						p_new_cip->CiTm.T = p_src_cip->CiTm;
 						(p_new_cip->PlaceCode = p_src_cip->PlaceCode).Transf(CTRANSF_UTF8_TO_INNER);
 						(p_new_cip->Memo = p_src_cip->Memo).Transf(CTRANSF_UTF8_TO_INNER);
-
-						THROW(p_result->Cips.insert(p_new_cip));
 						#undef CPYFLD
 					}
 				}

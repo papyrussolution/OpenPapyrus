@@ -494,7 +494,7 @@ static int aesni_cbc_hmac_sha1_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 			    EVP_CIPHER_CTX_iv_noconst(ctx), 0);
 
 			/* figure out payload length */
-			pad = out[len - 1];
+			pad = out[len-1];
 			maxpad = len - (SHA_DIGEST_LENGTH + 1);
 			maxpad |= (255 - maxpad) >> (sizeof(maxpad) * 8 - 8);
 			maxpad &= 255;

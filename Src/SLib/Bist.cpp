@@ -1749,4 +1749,3 @@ void SLAPI SGuid::maxval(void * pData) const
 {
 	memset(pData, 0xff, sizeof(S_GUID));
 }
-

@@ -21,16 +21,8 @@
 		Item Type Name:   "Type_Name\0"
 	} Items Count Times
 */
-
 //
 //
-//
-//
-//
-//
-
-//
-
 // static
 PPDeclStruc * SLAPI PPDeclStruc::CreateInstance(long typeID, void * /*extraPtr*/, const PPDeclStruc * pOuter, PPLogger * pLogger)
 {
@@ -288,9 +280,11 @@ int SLAPI PrcssrMailCharry::Run()
 	SString src_path;
 	SaveParam(&P);
 	PPGetPath(PPPATH_OUT, src_path);
-	PPFileNameArray fary;
-	THROW(fary.Scan(src_path, "*" CHARRYEXT));
-	THROW(PutFilesToEmail(&fary, P.MailAccID, P.DestAddr, SUBJECTCHARRY, 0));
+	//PPFileNameArray fary;
+	SFileEntryPool fep;
+	//THROW(fary.Scan(src_path, "*" CHARRYEXT));
+	THROW(fep.Scan(src_path, "*" CHARRYEXT, 0));
+	THROW(PutFilesToEmail(/*&fary*/&fep, P.MailAccID, P.DestAddr, SUBJECTCHARRY, 0));
 	CATCHZOK
 	return ok;
 }
@@ -311,9 +305,8 @@ int SLAPI SendCharryFiles()
 //
 //
 //
-RcvCharryParam::RcvCharryParam()
+RcvCharryParam::RcvCharryParam() : MailAccID(0), Action(0), Flags(0)
 {
-	THISZERO();
 }
 
 int SLAPI RcvCharryParam::Edit()
@@ -360,7 +353,8 @@ int SLAPI ReceiveCharryObjects(RcvCharryParam * pParam)
 	if(pParam || rcp.Edit() > 0) {
 		uint   p;
 		SString path, file_path;
-		PPFileNameArray fary;
+		//PPFileNameArray fary;
+		SFileEntryPool fep;
 		RVALUEPTR(rcp, pParam);
 		if(rcp.Action == RcvCharryParam::aRcvFromFile) {
 			if(PPOpenFile(PPTXT_FILPAT_CHARRY, path, 0, APPL->H_MainWnd) > 0) {
@@ -381,16 +375,20 @@ int SLAPI ReceiveCharryObjects(RcvCharryParam * pParam)
 			THROW(PPGetPath(PPPATH_IN, path));
 			if(rcp.Action == RcvCharryParam::aRcvFromMail)
 				THROW(GetFilesFromMailServer(rcp.MailAccID, path, SMailMessage::fPpyCharry, 0 /*don't clean*/, 1 /*dele msg*/));
-			THROW(fary.Scan(path.SetLastSlash(), "*" CHARRYEXT));
-			for(p = 0; fary.Enum(&p, 0, &file_path);) {
-				PPDeclStrucProcessor dsp;
-				if(dsp.InitDataParsing(file_path) > 0) {
-					PPDeclStruc * p_decl = 0;
-					while((r = dsp.NextDecl(&p_decl)) > 0) {
-						PPDeclStrucItem item;
-						THROW(p_decl->GetItem(0, &item));
+			//THROW(fary.Scan(path.SetLastSlash(), "*" CHARRYEXT));
+			THROW(fep.Scan(path.SetLastSlash(), "*" CHARRYEXT, 0));
+			//for(p = 0; fary.Enum(&p, 0, &file_path);) {
+			for(p = 0; p < fep.GetCount(); p++) {
+				if(fep.Get(p, 0, &file_path)) {
+					PPDeclStrucProcessor dsp;
+					if(dsp.InitDataParsing(file_path) > 0) {
+						PPDeclStruc * p_decl = 0;
+						while((r = dsp.NextDecl(&p_decl)) > 0) {
+							PPDeclStrucItem item;
+							THROW(p_decl->GetItem(0, &item));
+						}
+						THROW(r);
 					}
-					THROW(r);
 				}
 			}
 		}

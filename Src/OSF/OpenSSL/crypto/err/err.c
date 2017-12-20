@@ -515,12 +515,12 @@ void ERR_error_string_n(ulong e, char * buf, size_t len)
 				char * s = buf;
 				for(i = 0; i < NUM_COLONS; i++) {
 					char * colon = strchr(s, ':');
-					if(colon == NULL || colon > &buf[len - 1] - NUM_COLONS + i) {
+					if(colon == NULL || colon > &buf[len-1] - NUM_COLONS + i) {
 						/*
 						 * set colon no. i at last possible position (buf[len-1]
 						 * is the terminating 0)
 						 */
-						colon = &buf[len - 1] - NUM_COLONS + i;
+						colon = &buf[len-1] - NUM_COLONS + i;
 						*colon = ':';
 					}
 					s = colon + 1;

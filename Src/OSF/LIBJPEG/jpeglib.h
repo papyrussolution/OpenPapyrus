@@ -712,15 +712,11 @@ struct jpeg_memory_mgr {
 	JMETHOD(void FAR *, alloc_large, (j_common_ptr cinfo, int pool_id, size_t sizeofobject));
 	JMETHOD(JSAMPARRAY, alloc_sarray, (j_common_ptr cinfo, int pool_id, JDIMENSION samplesperrow, JDIMENSION numrows));
 	JMETHOD(JBLOCKARRAY, alloc_barray, (j_common_ptr cinfo, int pool_id, JDIMENSION blocksperrow, JDIMENSION numrows));
-	JMETHOD(jvirt_sarray_ptr, request_virt_sarray, (j_common_ptr cinfo, int pool_id, boolean pre_zero,
-		    JDIMENSION samplesperrow, JDIMENSION numrows, JDIMENSION maxaccess));
-	JMETHOD(jvirt_barray_ptr, request_virt_barray, (j_common_ptr cinfo, int pool_id, boolean pre_zero,
-		    JDIMENSION blocksperrow, JDIMENSION numrows, JDIMENSION maxaccess));
+	JMETHOD(jvirt_sarray_ptr, request_virt_sarray, (j_common_ptr cinfo, int pool_id, boolean pre_zero, JDIMENSION samplesperrow, JDIMENSION numrows, JDIMENSION maxaccess));
+	JMETHOD(jvirt_barray_ptr, request_virt_barray, (j_common_ptr cinfo, int pool_id, boolean pre_zero, JDIMENSION blocksperrow, JDIMENSION numrows, JDIMENSION maxaccess));
 	JMETHOD(void, realize_virt_arrays, (j_common_ptr cinfo));
-	JMETHOD(JSAMPARRAY, access_virt_sarray, (j_common_ptr cinfo, jvirt_sarray_ptr ptr, JDIMENSION start_row,
-		    JDIMENSION num_rows, boolean writable));
-	JMETHOD(JBLOCKARRAY, access_virt_barray, (j_common_ptr cinfo, jvirt_barray_ptr ptr, JDIMENSION start_row,
-		    JDIMENSION num_rows, boolean writable));
+	JMETHOD(JSAMPARRAY, access_virt_sarray, (j_common_ptr cinfo, jvirt_sarray_ptr ptr, JDIMENSION start_row, JDIMENSION num_rows, boolean writable));
+	JMETHOD(JBLOCKARRAY, access_virt_barray, (j_common_ptr cinfo, jvirt_barray_ptr ptr, JDIMENSION start_row, JDIMENSION num_rows, boolean writable));
 	JMETHOD(void, free_pool, (j_common_ptr cinfo, int pool_id));
 	JMETHOD(void, self_destruct, (j_common_ptr cinfo));
 

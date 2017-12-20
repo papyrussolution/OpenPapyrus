@@ -1328,9 +1328,8 @@ SArray * SLAPI PPViewBizScValByTempl::CreateBrowserArray(uint * pBrwId, SString 
 	SString subtitle;
 	TSCollection <BizScValByTemplViewItem> * p_array = new TSCollection <BizScValByTemplViewItem>;
 	for(uint i = 0; i < Data.getCount(); i++) {
-		BizScValByTemplViewItem * p_item = new BizScValByTemplViewItem;
+		BizScValByTemplViewItem * p_item = p_array->CreateNewItem();
 		*p_item = *Data.at(i);
-		p_array->insert(p_item);
 	}
 	uint   brw_id = BROWSER_BIZSCVALBYTEMPL;
 	GetObjectName(PPOBJ_BIZSCTEMPL, Filt.TemplateID, subtitle);

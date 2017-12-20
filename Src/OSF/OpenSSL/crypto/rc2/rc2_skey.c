@@ -63,7 +63,7 @@ void RC2_set_key(RC2_KEY * key, int len, const uchar * data, int bits)
 	for(i = 0; i < len; i++)
 		k[i] = data[i];
 	/* expand table */
-	d = k[len - 1];
+	d = k[len-1];
 	j = 0;
 	for(i = len; i < 128; i++, j++) {
 		d = key_table[(k[j] + d) & 0xff];

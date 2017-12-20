@@ -590,7 +590,7 @@ XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeDtd(xmlDtd * pCur);
 #ifdef LIBXML_LEGACY_ENABLED
 XMLPUBFUN xmlNs * XMLCALL xmlNewGlobalNs(xmlDoc * doc, const xmlChar * href, const xmlChar * prefix);
 #endif /* LIBXML_LEGACY_ENABLED */
-XMLPUBFUN xmlNs * XMLCALL xmlNewNs(xmlNode * P_Node, const xmlChar * href, const xmlChar * prefix);
+XMLPUBFUN xmlNs * /*XMLCALL*/FASTCALL xmlNewNs(xmlNode * P_Node, const xmlChar * href, const xmlChar * prefix);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeNs(xmlNs * cur);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeNsList(xmlNs * cur);
 XMLPUBFUN xmlDoc * XMLCALL xmlNewDoc(const xmlChar * version);

@@ -685,7 +685,7 @@ ngx_array_t * ngx_ssl_read_password_file(ngx_conf_t * cf, ngx_str_t * file)
 				break;
 			}
 			len = last++ - p;
-			if(len && p[len - 1] == __CR) {
+			if(len && p[len-1] == __CR) {
 				len--;
 			}
 

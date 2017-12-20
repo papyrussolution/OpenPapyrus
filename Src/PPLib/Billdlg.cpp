@@ -1111,9 +1111,8 @@ int SLAPI PPLinkFilesArray::ReadFromProp(PPID billID)
 			char * p = p_buf;
 			p += sizeof(_e);
 			for(uint i = 0; i < (uint)_e.ItemsCount; p += at(i)->Size(), i++) {
-				PPLinkFile * p_flink = new PPLinkFile;
-				p_flink->CopyFrom(p);
-				insert(p_flink);
+				PPLinkFile * p_flink = CreateNewItem();
+				CALLPTRMEMB(p_flink, CopyFrom(p));
 			}
 		}
 	}

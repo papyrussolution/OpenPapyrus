@@ -519,15 +519,12 @@ int SLAPI GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpPara
 
 class SelectBillImpCfgDialog : public TDialog {
 public:
-	SelectBillImpCfgDialog(uint dlgId, const char * pIniFileName, int import) : TDialog(dlgId)
+	SelectBillImpCfgDialog(uint dlgId, const char * pIniFileName, int import) : TDialog(dlgId), P_Data(0), Import(import)
 	{
 		P_IniFile = new PPIniFile(pIniFileName, 0, 1, 1);
-		P_Data = 0;
-		Import = import;
 		SetupCalPeriod(CTLCAL_IEBILLSEL_PERIOD, CTL_IEBILLSEL_PERIOD);
-		if(!Import) {
+		if(!Import)
 			addGroup(GRP_EMAILLIST, new EmailCtrlGroup(CTL_IEBILLSEL_MAILADR, cmEMailList));
-		}
 	}
 	~SelectBillImpCfgDialog()
 	{

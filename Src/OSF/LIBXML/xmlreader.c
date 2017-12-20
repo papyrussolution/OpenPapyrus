@@ -4123,7 +4123,7 @@ static void XMLCDECL xmlTextReaderValidityWarning(void * ctxt, const char * msg,
 {
 	va_list ap;
 	int len = sstrlen(msg);
-	if(len && (msg[len - 1] != ':')) {
+	if(len && (msg[len-1] != ':')) {
 		// some callbacks only report locator information: skip them (mimicking behaviour in error.c)
 		va_start(ap, msg);
 		xmlTextReaderGenericError(ctxt, XML_PARSER_SEVERITY_VALIDITY_WARNING, xmlTextReaderBuildMessage(msg, ap));

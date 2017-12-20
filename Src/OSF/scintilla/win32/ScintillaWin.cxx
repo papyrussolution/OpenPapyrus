@@ -709,7 +709,7 @@ void ScintillaWin::AddCharUTF16(wchar_t const * wcs, uint wclen)
 		UINT cpDest = CodePageOfDocument();
 		char inBufferCP[maxLenInputIME * 2];
 		int size = ::WideCharToMultiByte(cpDest, 0, wcs, wclen, inBufferCP, sizeof(inBufferCP) - 1, 0, 0);
-		for(int i = 0; i<size; i++) {
+		for(int i = 0; i < size; i++) {
 			AddChar(inBufferCP[i]);
 		}
 	}
@@ -1830,9 +1830,11 @@ int ScintillaWin::GetCtrlID()
 
 void ScintillaWin::NotifyParent(SCNotification scn)
 {
-	scn.nmhdr.hwndFrom = MainHWND();
-	scn.nmhdr.idFrom = GetCtrlID();
-	::SendMessage(::GetParent(MainHWND()), WM_NOTIFY, GetCtrlID(), reinterpret_cast<LPARAM>(&scn));
+	const HWND hw_main = MainHWND();
+	const int ctrl_id = GetCtrlID();
+	scn.nmhdr.hwndFrom = hw_main;
+	scn.nmhdr.idFrom = ctrl_id;
+	::SendMessage(::GetParent(hw_main), WM_NOTIFY, ctrl_id, reinterpret_cast<LPARAM>(&scn));
 }
 
 void ScintillaWin::NotifyDoubleClick(Point pt, int modifiers)
@@ -1851,45 +1853,41 @@ public:
 	}
 	virtual size_t Fold(char * folded, size_t sizeFolded, const char * mixed, size_t lenMixed)
 	{
-		if((lenMixed == 1) && (sizeFolded > 0)) {
+		size_t result = 1;
+		if(lenMixed == 1 && sizeFolded > 0)
 			folded[0] = mapping[static_cast<uchar>(mixed[0])];
-			return 1;
-		}
 		else {
-			if(lenMixed > utf16Mixed.size()) {
+			if(lenMixed > utf16Mixed.size())
 				utf16Mixed.resize(lenMixed + 8);
-			}
 			size_t nUtf16Mixed = ::MultiByteToWideChar(cp, 0, mixed, static_cast<int>(lenMixed), &utf16Mixed[0], static_cast<int>(utf16Mixed.size()));
-			if(nUtf16Mixed == 0) {
-				// Failed to convert -> bad input
-				folded[0] = '\0';
-				return 1;
-			}
-			uint lenFlat = 0;
-			for(size_t mixIndex = 0; mixIndex < nUtf16Mixed; mixIndex++) {
-				if((lenFlat + 20) > utf16Folded.size())
-					utf16Folded.resize(lenFlat + 60);
-				const char * foldedUTF8 = CaseConvert(utf16Mixed[mixIndex], CaseConversionFold);
-				if(foldedUTF8) {
-					// Maximum length of a case conversion is 6 bytes, 3 characters
-					wchar_t wFolded[20];
-					size_t charsConverted = UTF16FromUTF8(foldedUTF8, strlen(foldedUTF8), wFolded, SIZEOFARRAY(wFolded));
-					for(size_t j = 0; j<charsConverted; j++)
-						utf16Folded[lenFlat++] = wFolded[j];
-				}
-				else {
-					utf16Folded[lenFlat++] = utf16Mixed[mixIndex];
-				}
-			}
-			size_t lenOut = ::WideCharToMultiByte(cp, 0, &utf16Folded[0], lenFlat, NULL, 0, NULL, 0);
-			if(lenOut < sizeFolded) {
-				::WideCharToMultiByte(cp, 0, &utf16Folded[0], lenFlat, folded, static_cast<int>(lenOut), NULL, 0);
-				return lenOut;
-			}
+			if(nUtf16Mixed == 0) // Failed to convert -> bad input
+				folded[0] = '\0'; 
 			else {
-				return 0;
+				uint lenFlat = 0;
+				for(size_t mixIndex = 0; mixIndex < nUtf16Mixed; mixIndex++) {
+					if((lenFlat + 20) > utf16Folded.size())
+						utf16Folded.resize(lenFlat + 60);
+					const char * foldedUTF8 = CaseConvert(utf16Mixed[mixIndex], CaseConversionFold);
+					if(foldedUTF8) {
+						// Maximum length of a case conversion is 6 bytes, 3 characters
+						wchar_t wFolded[20];
+						size_t charsConverted = UTF16FromUTF8(foldedUTF8, strlen(foldedUTF8), wFolded, SIZEOFARRAY(wFolded));
+						for(size_t j = 0; j < charsConverted; j++)
+							utf16Folded[lenFlat++] = wFolded[j];
+					}
+					else
+						utf16Folded[lenFlat++] = utf16Mixed[mixIndex];
+				}
+				size_t lenOut = ::WideCharToMultiByte(cp, 0, &utf16Folded[0], lenFlat, NULL, 0, NULL, 0);
+				if(lenOut < sizeFolded) {
+					::WideCharToMultiByte(cp, 0, &utf16Folded[0], lenFlat, folded, static_cast<int>(lenOut), NULL, 0);
+					result = lenOut;
+				}
+				else
+					result = 0;
 			}
 		}
+		return result;
 	}
 private:
 	// Allocate the expandable storage here so that it does not need to be reallocated

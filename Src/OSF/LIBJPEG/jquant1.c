@@ -319,24 +319,17 @@ static void create_colorindex(j_decompress_ptr cinfo)
 		pad = 0;
 		cquantize->is_padded = FALSE;
 	}
-
-	cquantize->colorindex = (*cinfo->mem->alloc_sarray)
-		    ((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (JDIMENSION)(MAXJSAMPLE+1 + pad),
+	cquantize->colorindex = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)(MAXJSAMPLE+1 + pad),
 	    (JDIMENSION)cinfo->out_color_components);
-
 	/* blksize is number of adjacent repeated entries for a component */
 	blksize = cquantize->sv_actual;
-
 	for(i = 0; i < cinfo->out_color_components; i++) {
 		/* fill in colorindex entries for i'th color component */
 		nci = cquantize->Ncolors[i]; /* # of distinct values for this color */
 		blksize = blksize / nci;
-
 		/* adjust colorindex pointers to provide padding at negative indexes. */
 		if(pad)
 			cquantize->colorindex[i] += MAXJSAMPLE;
-
 		/* in loop, val = index of current output value, */
 		/* and k = largest j that maps to current val */
 		indexptr = cquantize->colorindex[i];
@@ -356,7 +349,6 @@ static void create_colorindex(j_decompress_ptr cinfo)
 			}
 	}
 }
-
 /*
  * Create an ordered-dither array for a component having ncolors
  * distinct output values.
@@ -364,13 +356,9 @@ static void create_colorindex(j_decompress_ptr cinfo)
 
 LOCAL(ODITHER_MATRIX_PTR) make_odither_array(j_decompress_ptr cinfo, int ncolors)
 {
-	ODITHER_MATRIX_PTR odither;
 	int j, k;
 	INT32 num, den;
-
-	odither = (ODITHER_MATRIX_PTR)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(ODITHER_MATRIX));
+	ODITHER_MATRIX_PTR odither = (ODITHER_MATRIX_PTR)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(ODITHER_MATRIX));
 	/* The inter-value distance for this color is MAXJSAMPLE/(ncolors-1).
 	 * Hence the dither value for the matrix cell with fill order f
 	 * (f=0..N-1) should be (N-1-2*f)/(2*N) * MAXJSAMPLE/(ncolors-1).
@@ -379,8 +367,7 @@ LOCAL(ODITHER_MATRIX_PTR) make_odither_array(j_decompress_ptr cinfo, int ncolors
 	den = 2 * ODITHER_CELLS * ((INT32)(ncolors - 1));
 	for(j = 0; j < ODITHER_SIZE; j++) {
 		for(k = 0; k < ODITHER_SIZE; k++) {
-			num = ((INT32)(ODITHER_CELLS-1 - 2*((int)base_dither_matrix[j][k])))
-			    * MAXJSAMPLE;
+			num = ((INT32)(ODITHER_CELLS-1 - 2*((int)base_dither_matrix[j][k]))) * MAXJSAMPLE;
 			/* Ensure round towards zero despite C's lack of consistency
 			 * about rounding negative values in integer division...
 			 */

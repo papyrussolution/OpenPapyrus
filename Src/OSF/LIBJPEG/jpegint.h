@@ -368,9 +368,7 @@ extern const INT32 jpeg_aritab[];
 
 #ifdef INCOMPLETE_TYPES_BROKEN
 	#ifndef AM_MEMORY_MANAGER       /* only jmemmgr.c defines these */
-struct jvirt_sarray_control { long dummy; };
-
-struct jvirt_barray_control { long dummy; };
-
+		struct jvirt_sarray_control { long dummy; };
+		struct jvirt_barray_control { long dummy; };
 	#endif
 #endif /* INCOMPLETE_TYPES_BROKEN */

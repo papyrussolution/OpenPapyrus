@@ -318,14 +318,8 @@ double lnfact(uint n)
 //
 //
 //
-SLAPI SHistogram::SHistogram()
+SLAPI SHistogram::SHistogram() : Flags(0), LeftEdge(0.0), Step(0.0), P_Stat(0), DevMean(0.0), DevWidth(0.0)
 {
-	Flags = 0;
-	LeftEdge = 0.0;
-	Step = 0.0;
-	P_Stat = 0;
-	DevMean = 0.0;
-	DevWidth = 0.0;
 }
 
 SLAPI SHistogram::~SHistogram()

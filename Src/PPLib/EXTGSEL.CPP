@@ -258,7 +258,8 @@ int TIDlgInitData::GetTiSign() const
 #define MAX_GOODS_RECS   50000
 #define MIN_WORDSEL_SYMB 4
 
-ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : TDialog(DLG_EXTGSEL), P_ObjTkn(0), Flags(0), OpID(_op)
+ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : TDialog(DLG_EXTGSEL), P_ObjTkn(0), Flags(0), OpID(_op),
+	ArID(0), InnerSelectionID(0), Price(0.0)
 {
 	const  PPConfig & r_cfg = LConfig;
 	SETFLAGBYSAMPLE(Flags, fByName, flags);
@@ -268,9 +269,6 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 	SETFLAGBYSAMPLE(Flags, fForcePassive, flags);
 	SETFLAGBYSAMPLE(Flags, fSelectModifMode, flags); // @v8.4.12
 	LocID = r_cfg.Location;
-	ArID  = 0;
-	InnerSelectionID = 0;
-	Price = 0.0;
 	MEMSZERO(SerialData);
 	P_List = (SmartListBox*)getCtrlView(CTL_EXTGSEL_LIST);
 	showCtrl(CTL_EXTGSEL_MTX_IND, 0);

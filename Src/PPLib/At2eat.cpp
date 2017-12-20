@@ -60,9 +60,8 @@ int SLAPI PPObjBill::ConvertGenAccturnToExtAccBill(PPID srcID, PPID * pDestID, C
 
 class CvtAt2Ab_Dialog : public TDialog {
 public:
-	CvtAt2Ab_Dialog() : TDialog(DLG_CVTAT2AB)
+	CvtAt2Ab_Dialog() : TDialog(DLG_CVTAT2AB), AccSheetID(0), AccSheet2ID(0)
 	{
-		AccSheetID = AccSheet2ID = 0;
 		MEMSZERO(Data);
 	}
 	int    setDTS(const CvtAt2Ab_Param *);

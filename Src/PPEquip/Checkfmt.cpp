@@ -1985,10 +1985,9 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 			bb.Id = (int)(BcList.getCount()+1);
 			THROW_SL(BcList.insert(&bb));
 			{
-				THROW_MEM(p_entry = new PPSlipFormatEntry);
+				THROW_SL(p_entry = pZone->CreateNewItem());
 				p_entry->Flags |= PPSlipFormatEntry::fSignBarcode;
 				p_entry->BarcodeId = bb.Id;
-				pZone->insert(p_entry);
 				p_entry = 0;
 			}
 		}

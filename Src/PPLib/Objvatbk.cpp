@@ -2737,10 +2737,7 @@ int SLAPI PPViewVatBook::GetNalogRuOpIdent(const VatBookViewItem & rItem, SStrin
 				rBuf.CatLongZ(exp_symb_val, 2);
 			}
 		}
-		if(rBuf.Empty()) {
-			// В записи книге и в виде операции не указан валидный код операции - определяем его самостроятельно.
-			rBuf = "01";
-		}
+		rBuf.SetIfEmpty("01"); // Если в записи книге и в виде операции не указан валидный код операции - определяем его самостроятельно.
 	}
 	return 1;
 }

@@ -1991,10 +1991,9 @@ int SLAPI QuotCache::BelongToMatrix(QuotationCore * pTbl, PPID goodsID, PPID loc
 						ok = Matrix.at(pos)->Vect.bsearch(labs(goodsID));
 					}
 					else {
-						MatrixEntry * p_entry = new MatrixEntry;
+						MatrixEntry * p_entry = Matrix.CreateNewItem();
 						p_entry->LocID = locID;
 						pTbl->GetMatrix(MtxQkID, locID, &p_entry->Vect);
-						Matrix.insert(p_entry);
 						ok = p_entry->Vect.bsearch(labs(goodsID));
 					}
 				}
@@ -3641,10 +3640,9 @@ int SLAPI Quot2Cache::BelongToMatrix(Quotation2Core * pTbl, PPID goodsID, PPID l
 						ok = Matrix.at(pos)->Vect.bsearch(labs(goodsID));
 					}
 					else {
-						MatrixEntry * p_entry = new MatrixEntry;
+						MatrixEntry * p_entry = Matrix.CreateNewItem();
 						p_entry->LocID = locID;
 						pTbl->GetMatrix(MtxQkID, locID, &p_entry->Vect);
-						Matrix.insert(p_entry);
 						ok = p_entry->Vect.bsearch(labs(goodsID));
 					}
 				}

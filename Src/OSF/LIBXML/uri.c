@@ -2162,11 +2162,11 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 		}
 		else {
 			memcpy(vptr, uptr, len);
-			vptr[len - 1] = 0;
+			vptr[len-1] = 0;
 		}
 	}
 	else {
-		vptr[len - 1] = 0;
+		vptr[len-1] = 0;
 	}
 	/* escape the freshly-built path */
 	vptr = val;

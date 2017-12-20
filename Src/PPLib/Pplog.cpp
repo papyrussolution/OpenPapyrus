@@ -31,6 +31,8 @@ public:
 	TVMsgLog * P_MsgLog; // private. Don't use !
 };
 
+#ifndef USE_LOGLISTWINDOWSCI
+
 class LogListWindow : public TWindow {
 public:
 	LogListWindow(TRect &, LogListBoxDef *, const char *, int);
@@ -54,6 +56,8 @@ protected:
 	int    StopExec; // Признак остановки цикла исполнения //
 	WNDPROC PrevLogListProc;
 };
+
+#endif // } USE_LOGLISTWINDOWSCI
 //
 // Новый вариант окна отображения сообщений (на платформе Scintilla)
 //
@@ -539,13 +543,8 @@ LRESULT CALLBACK LogListWindowSCI::ScintillaWindowProc(HWND hwnd, UINT msg, WPAR
 //
 // PPMsgLog
 //
-SLAPI PPMsgLog::PPMsgLog()
+SLAPI PPMsgLog::PPMsgLog() : Valid(0), Stream(-1), InStream(-1), P_Index(0), NextStrOffset(0)
 {
-	Valid = 0;
-	Stream = -1;
-	InStream = -1;
-	P_Index = 0;
-	NextStrOffset = 0;
 }
 
 SLAPI PPMsgLog::~PPMsgLog()
@@ -824,10 +823,8 @@ int FASTCALL PPMsgLog::NextIteration(MsgLogItem * pItem)
 //
 // TVMsgLog
 //
-SLAPI TVMsgLog::TVMsgLog() : PPMsgLog()
+SLAPI TVMsgLog::TVMsgLog() : PPMsgLog(), P_LWnd(0), HorzRange(0)
 {
-	P_LWnd = 0;
-	HorzRange = 0;
 }
 
 // static
@@ -1005,6 +1002,8 @@ int SLAPI PPLogger::Save(const char * pFileName, long options)
 	return 1;
 }
 
+#ifndef USE_LOGLISTWINDOWSCI
+
 // static
 BOOL CALLBACK LogListWindow::LogListProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -1139,6 +1138,8 @@ IMPL_HANDLE_EVENT(LogListWindow)
 	else
 		TWindow::handleEvent(event);
 }
+
+#endif // } USE_LOGLISTWINDOWSCI
 //
 //
 //
@@ -1412,18 +1413,18 @@ int SLAPI PPSession::Log(const char * pFileName, const char * pStr, long options
 	return ok;
 }
 
-int SLAPI PPLogMessage(const char * pFileName, const char * pStr, long options)
+int FASTCALL PPLogMessage(const char * pFileName, const char * pStr, long options)
 {
 	return DS.Log(pFileName, pStr, options);
 }
 
-int SLAPI PPLogMessage(uint fileId, const char * pStr, long options)
+int FASTCALL PPLogMessage(uint fileId, const char * pStr, long options)
 {
 	SString file_name;
 	return PPGetFilePath(PPPATH_LOG, fileId, file_name) ? PPLogMessage(file_name, pStr, options) : 0;
 }
 
-int SLAPI PPLogMessageList(uint fileId, const SStrCollection & rList, long options)
+int FASTCALL PPLogMessageList(uint fileId, const SStrCollection & rList, long options)
 {
 	int    ok = 0;
 	const  uint c = rList.getCount();
@@ -1440,7 +1441,7 @@ int SLAPI PPLogMessageList(uint fileId, const SStrCollection & rList, long optio
 	return ok;
 }
 
-int SLAPI PPLogMessage(uint fileId, uint strGroup, uint strId, long options)
+int FASTCALL PPLogMessage(uint fileId, uint strGroup, uint strId, long options)
 {
 	SString msg_buf;
 	PPLoadString(strGroup, strId, msg_buf);

@@ -3388,8 +3388,7 @@ int SLAPI PrcssrPersonImport::Run()
 				}
 				if(IeParam.SrchRegTypeID) {
 					(temp_buf = rec.Code).Strip();
-					if(temp_buf.Empty())
-						temp_buf = dblgis_code;
+					temp_buf.SetIfEmpty(dblgis_code);
 					if(IeParam.Flags & IeParam.fCodeToHex) {
 						PsnObj.AddRegisterToPacket(pack, IeParam.SrchRegTypeID, CodeToHex(temp_buf), 0);
 					}

@@ -3808,8 +3808,8 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 								THROW_SL(uhtt_pack.Items.insert(&uhtt_bill_item));
 							}
 							if(exp_options & GoodsRestFilt::uefPrice) {
-								UhttQuotPacket * p_uhtt_qp = new UhttQuotPacket;
-								THROW_MEM(p_uhtt_qp);
+								UhttQuotPacket * p_uhtt_qp = uhtt_quot_list.CreateNewItem();
+								THROW_SL(p_uhtt_qp);
 								p_uhtt_qp->GoodsID = uhtt_goods_id;
 								p_uhtt_qp->LocID = uhtt_src_loc_id;
 								p_uhtt_qp->Value = view_item.Price;
@@ -3824,7 +3824,6 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 									if(GObj.GetQuotExt(goods_id, qi, &test_price, 1) > 0 && test_price == 0.0)
 										p_uhtt_qp->Flags |= PPQuot::fZero;
 								}
-								THROW_SL(uhtt_quot_list.insert(p_uhtt_qp));
 								/*
 								if(!uhtt_cli.SetQuot(uhtt_qp)) {
 									PPGetMessage(mfError, PPERR_UHTT_SETQUOTFAULT, 0, 1, fmt_buf);
@@ -3861,12 +3860,11 @@ int SLAPI PPViewGoodsRest::ExportUhtt(int silent)
 									assert(s == 0);
 									// } @paranoic
 									if(!s) {
-										UhttQuotPacket * p_uhtt_qp = new UhttQuotPacket;
-										THROW_MEM(p_uhtt_qp);
+										UhttQuotPacket * p_uhtt_qp = uhtt_quot_list.CreateNewItem();
+										THROW_SL(p_uhtt_qp);
 										p_uhtt_qp->GoodsID = p_uhtt_item->GoodsID;
 										p_uhtt_qp->LocID = uhtt_src_loc_id;
 										p_uhtt_qp->Value = 0.0;
-										THROW_SL(uhtt_quot_list.insert(p_uhtt_qp));
 									}
 								}
 							}

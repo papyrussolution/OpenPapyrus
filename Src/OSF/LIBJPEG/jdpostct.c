@@ -207,11 +207,8 @@ GLOBAL(void) jinit_d_post_controller(j_decompress_ptr cinfo, boolean need_full_b
 			/* Two-pass color quantization: need full-image storage. */
 			/* We round up the number of rows to a multiple of the strip height. */
 #ifdef QUANT_2PASS_SUPPORTED
-			post->whole_image = (*cinfo->mem->request_virt_sarray)
-				    ((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE,
-			    cinfo->output_width * cinfo->out_color_components,
-			    (JDIMENSION)jround_up((long)cinfo->output_height,
-				    (long)post->strip_height),
+			post->whole_image = (*cinfo->mem->request_virt_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE,
+			    cinfo->output_width * cinfo->out_color_components, (JDIMENSION)jround_up((long)cinfo->output_height, (long)post->strip_height),
 			    post->strip_height);
 #else
 			ERREXIT(cinfo, JERR_BAD_BUFFER_MODE);
@@ -219,10 +216,8 @@ GLOBAL(void) jinit_d_post_controller(j_decompress_ptr cinfo, boolean need_full_b
 		}
 		else {
 			/* One-pass color quantization: just make a strip buffer. */
-			post->buffer = (*cinfo->mem->alloc_sarray)
-				    ((j_common_ptr)cinfo, JPOOL_IMAGE,
-			    cinfo->output_width * cinfo->out_color_components,
-			    post->strip_height);
+			post->buffer = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE,
+			    cinfo->output_width * cinfo->out_color_components, post->strip_height);
 		}
 	}
 }

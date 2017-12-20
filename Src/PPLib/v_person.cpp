@@ -2486,9 +2486,8 @@ int SLAPI PPViewPerson::ExportUhtt()
 					int   dont_update = 0;
 					if(loc_rec.Code[0] && uhtt_cli.GetLocationByCode(loc_rec.Code, ret_loc_pack) > 0) {
 						uhtt_loc_id = ret_loc_pack.ID;
-						if(addr_buf.NotEmpty() && ret_loc_pack.Address.Empty()) {
+						if(addr_buf.NotEmpty() && ret_loc_pack.Address.Empty())
 							dont_update = 0;
-						}
 						else
 							dont_update = 1;
 					}

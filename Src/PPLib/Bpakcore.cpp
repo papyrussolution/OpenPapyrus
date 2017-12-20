@@ -2300,13 +2300,12 @@ static int AddModifGoodsListItem(TSCollection <ModifGoodsItem> & rList, int pos,
 		}
 	}
 	if(!found) {
-		ModifGoodsItem * p_new_mg_item = new ModifGoodsItem;
-		THROW_MEM(p_new_mg_item);
+		ModifGoodsItem * p_new_mg_item = rList.CreateNewItem();
+		THROW_SL(p_new_mg_item);
 		p_new_mg_item->GoodsID = goodsID;
 		p_new_mg_item->Sign = sign;
 		p_new_mg_item->Qtty = qtty;
 		p_new_mg_item->PosList.add(pos);
-		THROW_SL(rList.insert(p_new_mg_item));
 	}
 	CATCHZOK
 	return ok;

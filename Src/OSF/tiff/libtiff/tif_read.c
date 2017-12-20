@@ -358,11 +358,11 @@ static tmsize_t TIFFReadEncodedStripGetStripSize(TIFF* tif, uint32 strip, uint16
 		return((tmsize_t)(-1));
 	}
 	rowsperstrip = td->td_rowsperstrip;
-	if(rowsperstrip>td->td_imagelength)
-		rowsperstrip = td->td_imagelength;
+	SETMIN(rowsperstrip, td->td_imagelength);
 	stripsperplane = TIFFhowmany_32_maxuint_compat(td->td_imagelength, rowsperstrip);
 	stripinplane = (strip%stripsperplane);
-	if(pplane) *pplane = (uint16)(strip/stripsperplane);
+	if(pplane) 
+		*pplane = (uint16)(strip/stripsperplane);
 	rows = td->td_imagelength-stripinplane*rowsperstrip;
 	SETMIN(rows, rowsperstrip);
 	stripsize = TIFFVStripSize(tif, rows);

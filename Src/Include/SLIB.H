@@ -3016,10 +3016,8 @@ struct DateRange { // @persistent @size=8
 	LDATE  upp;
 };
 
-inline int FASTCALL operator > (const DateRange & r1, const DateRange & r2)
-	{ return BIN(r1.Cmp(r2) > 0); }
-inline int FASTCALL operator < (const DateRange & r1, const DateRange & r2)
-	{ return BIN(r1.Cmp(r2) < 0); }
+inline int FASTCALL operator > (const DateRange & r1, const DateRange & r2) { return BIN(r1.Cmp(r2) > 0); }
+inline int FASTCALL operator < (const DateRange & r1, const DateRange & r2) { return BIN(r1.Cmp(r2) < 0); }
 
 struct TimeRange {
 	void   SLAPI Set(LTIME lowTm, LTIME uppTm);
@@ -3129,7 +3127,7 @@ public:
 	static USize & Convert(const USize & rUszFrom, USize & rUszTo, const SUnit::Context * pCtx = 0);
 
 	SUnit();
-	SUnit(int id);
+	explicit SUnit(int id);
 	SUnit(const char * pName, const SUnit::Context * pCtx);
 	operator int () const;
 	int    GetCls() const;
@@ -3643,6 +3641,7 @@ public:
 	SString & FASTCALL CopyFrom(const SString &);
 	SString & FASTCALL CopyFrom(const char *);
 	SString & FASTCALL SetIfEmpty(const char *);
+	SString & FASTCALL SetIfEmpty(const SString &);
 	int    SLAPI IsLegalUtf8() const;
 	int    SLAPI CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion);
 	//
@@ -3913,7 +3912,6 @@ public:
 	};
 
 	int    SLAPI AnalyzeCase() const;
-
 	long   SLAPI ToLong() const;
 	int64  SLAPI ToInt64() const;
 private:
@@ -6889,10 +6887,27 @@ public:
 		SString Path;
 	};
 	SLAPI  SFileEntryPool();
+	void   SLAPI Clear();
+	void   FASTCALL SetInitPath(const char * pPath);
+	int    FASTCALL GetInitPath(SString & rPath) const;
+	//
+	// Descr: Сканирует файловую систему начиная с каталога pPath по шаблону pWildcard.
+	// Note: Если !isempty(pPath), то он сохраняется во внутреннем представленнии головного каталога.
+	// Returns:
+	//   >0 - найден по крайней мере один файл, удовлетворяющий условиям
+	//   <0 - не найдено ни одного файла
+	//   0  - ошибка
+	//
+	int    SLAPI Scan(const char * pPath, const char * pWildcard, long flags);
 	int    SLAPI Add(const char * pPath, SDirEntry & rDe);
 	int    SLAPI Add(SFileEntryPool::Entry & rDe);
     uint   SLAPI GetCount() const;
-    int    SLAPI Get(uint pos, /*SDirEntry*/SFileEntryPool::Entry & rEntry) const;
+    int    SLAPI Get(uint pos, SFileEntryPool::Entry * pEntry, SString * pFullPath) const;
+	//
+	// Descr: Удаляет элемент по индексу pos.
+	// Note: Само-собой разумеется, что сам файл не удаляется.
+	//
+	int    FASTCALL Remove(uint pos);
 
     enum {
     	scByName = 1,
@@ -6921,6 +6936,9 @@ private:
 
     TSVector <InnerEntry> L; // @v9.8.4 TSArray-->TSVector
     long   State;
+	uint   InitPathP; // Опциональная позиция начального каталога. В общем случае
+		// это поле не важно, но иногда функции "хотят" передавать друг другу
+		// головной каталог вместе с набором файлов.
 };
 //
 // Descr: Список временных отрезков.
@@ -8293,6 +8311,7 @@ public:
 		JavaScript       = 115, // @v9.7.1 JS
 		Json             = 116, // @v9.7.2
 		Pbxproj          = 117, // @v9.8.1 Файл проекта xcode
+		PapyruDbDivXchg  = 118, // @v9.8.11 Приватный формат проекта Papyrus: файл обмена данными между разделами
 
 		FirstUser        = 10000
 	};

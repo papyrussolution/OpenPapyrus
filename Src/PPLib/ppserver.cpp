@@ -3183,8 +3183,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ReceiveFile(int verb, const char 
 		THROW_SL(So.RecvBlock(&blk, sizeof(blk), &recv_size) > 0 && recv_size == sizeof(blk));
 		file_path = pParam;
 		SFileFormat::GetExt(blk.Format, file_ext);
-		if(file_ext.Empty())
-			file_ext = ".";
+		file_ext.SetIfEmpty(".");
 		if(blk.TransmType == blk.ttObjImage) {
 			THROW_PP_S(oneof5(blk.ObjType, PPOBJ_GOODS, PPOBJ_BRAND, PPOBJ_PERSON, PPOBJ_TSESSION, PPOBJ_WORKBOOK), PPERR_JOBSRV_OBJTYPENOTSUPP, temp_buf.Z().Cat(blk.ObjType));
 			m |= SFile::mBinary;
@@ -5163,8 +5162,7 @@ SLTEST_R(PapyrusTcpClient)
 			}
 		}
 	}
-	if(srv_addr_line.Empty())
-		srv_addr_line = "localhost";
+	srv_addr_line.SetIfEmpty("localhost");
 	if(port <= 0)
 		port = DEFAULT_SERVER_PORT;
 	if(timeout < 0 || timeout > 100000)

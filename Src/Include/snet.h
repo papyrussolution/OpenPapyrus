@@ -171,7 +171,10 @@ public:
 	int    Parse(const char * pUrl);
 	int    GetComponent(int c, int urlDecode, SString & rBuf) const;
 	int    SetComponent(int c, const char * pBuf);
-	int    GetProtocol() const;
+	int    GetProtocol() const
+	{
+		return Protocol;
+	}
 	int    SetProtocol(int protocol);
 	int    GetQueryParam(const char * pParam, int urlDecode, SString & rBuf) const;
 	//
@@ -732,7 +735,7 @@ struct SMailMessage : SStrGroup {
 		ContentTypeBlock Ct;
 		ContentDispositionBlock Cd;
 		int    ContentTransfEnc; // SFileFormat::cteXXX Content-Transfer-Encoding:
-		uint   ContentIdP;    // "Content-ID" 
+		uint   ContentIdP;    // "Content-ID"
 		uint   ContentDescrP; // "Content-Description"
 		uint   LineNo_Start;  // @debug
 		uint   LineNo_Finish; // @debug
@@ -755,7 +758,7 @@ struct SMailMessage : SStrGroup {
 	//     pBuf - on success, 0 - on error
 	//
 	SString & SLAPI GetBoundary(int start, SString & rBuf) const;
-	
+
 	int    SLAPI AttachFile(const char * pFilePath);
 	//
 	// Descr: Вставляет в письмо inline-содержание. Содержание вставляется как внутренняя область
@@ -802,13 +805,8 @@ struct SMailMessage : SStrGroup {
 	long   Size;
 
 	struct WriterBlock {
-		SLAPI  WriterBlock(const SMailMessage & rMsg) : R_Msg(rMsg), Phase(phsUndef), P_Cb(0), RdDataOff(0), P_InStream(0)
-		{
-		}
-		SLAPI ~WriterBlock()
-		{
-			ZDELETE(P_InStream);
-		}
+		SLAPI  WriterBlock(const SMailMessage & rMsg);
+		SLAPI ~WriterBlock();
 		int    SLAPI Read(size_t maxChunkSize, SBuffer & rBuf);
 
 		enum {
@@ -921,11 +919,13 @@ public:
 		authServer = 1
 	};
 	int    SetAuth(int auth, const char * pUser, const char * pPassword);
+	void   SetLogFileName(const char * pFileName);
 
 	enum {
 		mfDontVerifySslPeer = 0x0001, // Устанавливает опцию CURLOPT_SSL_VERIFYPEER в FALSE
 		mfTcpKeepAlive      = 0x0002, // Устанавливает опцию CURLOPT_TCP_KEEPALIVE в TRUE
-		mfNoProgerss        = 0x0004  // Устанавливает опцию CURLOPT_NOPROGRESS в TRUE
+		mfNoProgerss        = 0x0004, // Устанавливает опцию CURLOPT_NOPROGRESS в TRUE
+		mfVerbose           = 0x0008  // Подробный вывод в файл журнала (требуется предварительный вызов SetLogFileName())
 	};
 
     int    HttpPost(const char * pUrl, int mflags, HttpForm & rForm, SFile * pReplyStream);
@@ -987,6 +987,8 @@ private:
 
 	SFile  NullWrF; // Файл-заглушка для записи того, что не важно
 	void * H;
+	SString LogFileName;
+	SFile * P_LogF;
 };
 //
 // Descr: Класс реализующий максимально простой интерфейс для копирования файла с одного URL на другой.

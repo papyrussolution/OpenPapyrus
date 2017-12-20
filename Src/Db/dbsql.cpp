@@ -1547,9 +1547,7 @@ void ConnectBase::MakeTNSString (std::string& str, const char* host, const char*
 
 SString & SLAPI SOraDbProvider::MakeFileName_(const char * pTblName, SString & rBuf)
 {
-	if(rBuf.Empty())
-		rBuf = pTblName;
-	return rBuf;
+	return rBuf.SetIfEmpty(pTblName);
 }
 
 int SLAPI SOraDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat)

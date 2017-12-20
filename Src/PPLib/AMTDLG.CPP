@@ -17,10 +17,9 @@ struct AmtDialogEntry {
 
 class AmountDialog : public TDialog {
 public:
-	AmountDialog(int isCanEdit, AmtList * pList, PPIDArray * pRestrictList) : TDialog(DLG_BILLAMTCUR)
+	AmountDialog(int isCanEdit, AmtList * pList, PPIDArray * pRestrictList) : 
+		TDialog(DLG_BILLAMTCUR), CanEdit(isCanEdit), P_RestrictList(pRestrictList)
 	{
-		CanEdit = isCanEdit;
-		P_RestrictList = pRestrictList;
 		CurAmtCtrlGroup * p_ca_grp = new CurAmtCtrlGroup(CTL_BILLAMT_AMOUNT,
 			CTLSEL_BILLAMT_CUR, CTL_BILLAMT_CRATE, CTL_BILLAMT_BASEAMT, 0, cmBillAmtSelRate, pList);
 		addGroup(GRP_CURAMT, p_ca_grp);

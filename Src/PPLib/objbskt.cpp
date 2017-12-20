@@ -1,5 +1,5 @@
 // OBJBSKT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -12,8 +12,8 @@ IMPL_CMPFUNC(ILTI, i1, i2)
 
 IMPL_CMPFUNC(ILTIGGRP, i1, i2)
 {
-	ILTI * item1 = (ILTI *) i1;
-	ILTI * item2 = (ILTI *) i2;
+	const ILTI * item1 = (const ILTI *) i1;
+	const ILTI * item2 = (const ILTI *) i2;
 	int    cmp = 0;
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec rec, grp_rec;
@@ -46,8 +46,8 @@ IMPL_CMPFUNC(ILTIGOODS, i1, i2)
 	PPObjGoods goods_obj;
 	SString name1, name2;
 	Goods2Tbl::Rec rec1, rec2;
-	goods_obj.Fetch(((ILTI *)i1)->GoodsID, &rec1);
-	goods_obj.Fetch(((ILTI *)i2)->GoodsID, &rec2);
+	goods_obj.Fetch(((const ILTI *)i1)->GoodsID, &rec1);
+	goods_obj.Fetch(((const ILTI *)i2)->GoodsID, &rec2);
 	if((cmp = stricmp866(rec1.Name, rec2.Name)) > 0)
 		return 1;
 	else if(cmp < 0)
@@ -177,10 +177,8 @@ int SLAPI PPBasketPacket::SearchGoodsID(PPID goodsID, uint * pPos) const
 //
 // PPObjGoodsBasket
 //
-PPObjGoodsBasket::Locking::Locking(PPID id)
+PPObjGoodsBasket::Locking::Locking(PPID id) : ID(0), L(0)
 {
-	ID = 0;
-	L = 0;
 	if(id)
 		Lock(id);
 }
@@ -231,12 +229,11 @@ SLAPI PPObjGoodsBasket::PPObjGoodsBasket(void * extraPtr) : PPObjReference(PPOBJ
 }
 
 // static
-int SLAPI PPObjGoodsBasket::SetAddLockErrInfo(PPID mutexID)
+void SLAPI PPObjGoodsBasket::SetAddLockErrInfo(PPID mutexID)
 {
 	SString buf;
 	DS.GetSync().GetLockingText(mutexID, 1, buf);
 	PPSetAddedMsgString(buf);
-	return 1;
 }
 
 // static
@@ -763,9 +760,8 @@ void * SLAPI PPObjGoodsBasket::CreateObjListWin(uint flags, void * extraPtr)
 class GoodsBasketView : public ObjViewDialog {
 public:
 	GoodsBasketView(PPObjGoodsBasket * _ppobj, const char * pMsg, int asSelector) :
-		ObjViewDialog(asSelector ? DLG_SELBASKET : DLG_GOODSBASKETVIEW, _ppobj, 0)
+		ObjViewDialog(asSelector ? DLG_SELBASKET : DLG_GOODSBASKETVIEW, _ppobj, 0), AsSelector(asSelector)
 	{
-		AsSelector = asSelector;
 		setStaticText(CTL_OBJVIEW_ST_MSG, pMsg);
 	}
 private:
@@ -908,11 +904,8 @@ int SLAPI PPObjGoodsBasket::Edit(PPID * pID, void * extraPtr)
 //
 //
 //
-SLAPI SelBasketParam::SelBasketParam() : PPBasketCombine()
+SLAPI SelBasketParam::SelBasketParam() : PPBasketCombine(), SelPrice(0), SelReplace(1), Flags(0)
 {
-	SelPrice = 0;
-	SelReplace = 1;
-	Flags = 0;
 }
 
 int SLAPI SelBasketParam::StoreInReg(const char * pName) const
@@ -952,9 +945,8 @@ int SLAPI GetBasketByDialog(SelBasketParam * pParam, const char * pCallerSymb, u
 {
 	class GBDataDialog : public TDialog {
 	public:
-		GBDataDialog(uint dlgID, SelBasketParam & rData, const char * pCallerSymb) : TDialog(dlgID), R_Data(rData)
+		GBDataDialog(uint dlgID, SelBasketParam & rData, const char * pCallerSymb) : TDialog(dlgID), R_Data(rData), P_CallerSymb(pCallerSymb)
 		{
-			P_CallerSymb = pCallerSymb;
 		}
 		int setDTS()
 		{
@@ -1102,13 +1094,9 @@ int SLAPI GetBasketByDialog(SelBasketParam * pParam, const char * pCallerSymb, u
 //
 // PPViewGoodsBasket
 //
-SLAPI PPViewGoodsBasket::PPViewGoodsBasket(PPBasketPacket * pPacket)
+SLAPI PPViewGoodsBasket::PPViewGoodsBasket(PPBasketPacket * pPacket) : 
+	IterCount(0), NumIters(0), P_OrdTbl(0), P_IterQuery(0), P_GBPacket(pPacket), Flags(0)
 {
-	IterCount = NumIters = 0;
-	P_OrdTbl = 0;
-	P_IterQuery = 0;
-	P_GBPacket = pPacket;
-	Flags = 0;
 }
 
 SLAPI PPViewGoodsBasket::~PPViewGoodsBasket()

@@ -62,7 +62,7 @@ LIBSSH2_API int libssh2_keepalive_send(LIBSSH2_SESSION * session, int * seconds_
 			uchar keepalive_data[] = "\x50\x00\x00\x00\x15keepalive@libssh2.orgW";
 			size_t len = sizeof(keepalive_data) - 1;
 			int rc;
-			keepalive_data[len - 1] = (uchar)session->keepalive_want_reply;
+			keepalive_data[len-1] = (uchar)session->keepalive_want_reply;
 			rc = _libssh2_transport_send(session, keepalive_data, len, NULL, 0);
 			// Silently ignore PACKET_EAGAIN here: if the write buffer is already full, sending another keepalive is not useful. 
 			if(rc && rc != LIBSSH2_ERROR_EAGAIN) {

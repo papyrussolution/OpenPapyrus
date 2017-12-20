@@ -198,10 +198,11 @@ int SLAPI SIniSectBuffer::SetParam(const char * pParam, const char * pVal, int o
 			insert(p_nss);
 	}
 	else if(pVal) {
-		StringSet * p_nss = new StringSet;
-		p_nss->add(pParam);
-		p_nss->add(pVal);
-		insert(p_nss);
+		StringSet * p_nss = CreateNewItem();
+		if(p_nss) {
+			p_nss->add(pParam);
+			p_nss->add(pVal);
+		}
 	}
 	return 1;
 }

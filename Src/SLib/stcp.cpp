@@ -32,7 +32,7 @@ ulong SLAPI InetAddr::IPToULong(const char * pIP)
 // static
 void SLAPI InetAddr::ULongToIP(ulong ip, SString & rIP)
 {
-	rIP = 0;
+	rIP.Z();
 	for(uint i = 4; i > 0; i--) {
 		rIP.Cat((ip >> 8 * (i - 1)) & 0x000000FF);
 		if(i != 1)
@@ -902,7 +902,7 @@ InetUrl & InetUrl::Clear()
 	InetAddr::Clear();
 	State = stEmpty;
 	TermList.Clear();
-	Org = 0;
+	Org.Z();
 	Protocol = protUnkn;
 	return *this;
 }
@@ -957,9 +957,8 @@ const char * FASTCALL InetUrl::GetSchemeMnem(int schemeId)
 int FASTCALL InetUrl::GetSchemeId(const char * pSchemeMnem)
 {
 	for(uint i = 0; i < SIZEOFARRAY(SchemeMnem); i++) {
-		if(sstreqi_ascii(pSchemeMnem, SchemeMnem[i])) {
+		if(sstreqi_ascii(pSchemeMnem, SchemeMnem[i]))
 			return (int)i;
-		}
 	}
 	return protUnkn;
 }
@@ -1093,11 +1092,6 @@ int InetUrl::SetProtocol(int protocol)
 	const char * p_sh = GetSchemeMnem(Protocol);
 	SetComponent(cScheme, p_sh);
 	return preserve_val;
-}
-
-int InetUrl::GetProtocol() const
-{
-	return Protocol;
 }
 
 int InetUrl::GetComponent(int c, int urlDecode, SString & rBuf) const
@@ -1234,7 +1228,7 @@ static const struct ContentDispositionTypeName { const char * P_Name; int Type; 
 };
 
 
-//static 
+//static
 int FASTCALL SMailMessage::ContentDispositionBlock::GetTypeName(int t, SString & rBuf)
 {
 	int    ok = 0;
@@ -1248,7 +1242,7 @@ int FASTCALL SMailMessage::ContentDispositionBlock::GetTypeName(int t, SString &
 	return ok;
 }
 
-//static 
+//static
 int FASTCALL SMailMessage::ContentDispositionBlock::IdentifyType(const char * pTypeName)
 {
 	int    type = ContentDispositionBlock::tUnkn;
@@ -1874,7 +1868,7 @@ int SLAPI SMailMessage::ReadFromFile(SFile & rF)
 	while(rF.ReadLine(line_buf)) {
 		blk.LineNo++;
 		line_buf.Chomp();
-		if(line_buf.Len() && (line_buf[0] == '\t' || line_buf[0] == ' ')) {
+		if(line_buf.Len() && oneof2(line_buf[0], '\t', ' ')) {
 			if(line_buf[0] == '\t')
 				full_line./*Space().*/Cat(line_buf.cptr()+1);
 			else
@@ -2354,10 +2348,48 @@ int SLAPI SMailMessage::PreprocessEmailAddrString(const SString & rSrc, SString 
 	return ok;
 }
 
+static void EncodedStringWithWrapping(const char * pOrgBuf, uint hdrLen, SString & rResult)
+{
+	const  size_t org_len_mb = sstrlen(pOrgBuf);
+	if(org_len_mb) {
+		SString temp_buf;
+		temp_buf.Encode_EncodedWordRFC2047(pOrgBuf, cpUTF8, SString::rfc2207encMime64);
+		if((temp_buf.Len() + hdrLen) >= 78) {
+			SStringU org_buf_u;
+			org_buf_u.CopyFromUtf8(pOrgBuf, org_len_mb);
+			const size_t org_len_u = org_buf_u.Len();
+			const size_t ovrhd_sz = 12;
+			const double rel = (double)org_len_u / (double)(temp_buf.Len() - ovrhd_sz);
+			SString chunk_buf;
+			size_t offs = (size_t)((78 - hdrLen - ovrhd_sz) * rel);
+			chunk_buf.CopyUtf8FromUnicode(org_buf_u, offs, 0);
+			temp_buf.Encode_EncodedWordRFC2047(chunk_buf, cpUTF8, SString::rfc2207encMime64);
+			rResult.Cat(temp_buf);
+			if(offs < org_len_u) {
+				rResult.CRB().Space();
+				temp_buf.CopyUtf8FromUnicode(org_buf_u + offs, org_len_u - offs, 0);
+				EncodedStringWithWrapping(temp_buf, 1, rResult); // @recursion
+			}
+		}
+		else
+			rResult.Cat(temp_buf);
+	}
+}
+
+SLAPI SMailMessage::WriterBlock::WriterBlock(const SMailMessage & rMsg) : R_Msg(rMsg), Phase(phsUndef), P_Cb(0), RdDataOff(0), P_InStream(0)
+{
+}
+
+SLAPI SMailMessage::WriterBlock::~WriterBlock()
+{
+	ZDELETE(P_InStream);
+}
+
 int SLAPI SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 {
 	int    ok = 1;
 	SString temp_buf;
+	SString line_buf;
 	SString result_buf;
 	SString out_buf;
 	if(Phase == phsUndef) {
@@ -2392,8 +2424,10 @@ int SLAPI SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 		}
 		R_Msg.GetField(SMailMessage::fldSubj, temp_buf);
 		if(temp_buf.NotEmptyS()) {
-			result_buf.Encode_EncodedWordRFC2047(temp_buf, cpUTF8, SString::rfc2207encMime64);
-			out_buf.Cat("Subject").CatDiv(':', 2).Cat(result_buf).CRB();
+			const char * p_subj = "Subject";
+			EncodedStringWithWrapping(temp_buf, strlen(p_subj) + 2, line_buf.Z());
+			//result_buf.Encode_EncodedWordRFC2047(temp_buf, cpUTF8, SString::rfc2207encMime64);
+			out_buf.Cat(p_subj).CatDiv(':', 2).Cat(/*result_buf*/line_buf).CRB();
 		}
 		rBuf.Write(out_buf.ucptr(), out_buf.Len());
 		//
@@ -2445,37 +2479,68 @@ int SLAPI SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 		}
 		{
 			SFileFormat::GetContentTransferEncName(/*P_Cb->ContentTransfEnc*/SFileFormat::cteBase64, temp_buf);
-			if(temp_buf.NotEmptyS()) {
+			if(temp_buf.NotEmptyS())
 				out_buf.Cat("Content-Transfer-Encoding").CatDiv(':', 2).Cat(temp_buf).CRB();
-			}
 		}
 		if(ContentDispositionBlock::GetTypeName(P_Cb->Cd.Type, temp_buf)) {
-			out_buf.Cat("Content-Disposition").CatDiv(':', 2).Cat(temp_buf);
+			line_buf.Z();
+			line_buf.Cat("Content-Disposition").CatDiv(':', 2).Cat(temp_buf);
 			R_Msg.GetS(P_Cb->Cd.NameP, temp_buf);
 			if(temp_buf.NotEmptyS()) {
-				out_buf.CatDiv(';', 2).CatEqQ("name", temp_buf);
+				if(line_buf.Len() >= 77) {
+					out_buf.Cat(line_buf.Semicol().CRB());
+					line_buf.Z().Space();
+				}
+				else
+					line_buf.CatDiv(';', 2);
+				line_buf.CatEqQ("name", temp_buf);
 			}
 			R_Msg.GetS(P_Cb->Cd.FileNameP, temp_buf);
-			if(temp_buf.NotEmptyS()) {
-				out_buf.CatDiv(';', 2).CatEqQ("filename", temp_buf);
-			}
+			if(temp_buf.NotEmptyS())
+				line_buf.CatDiv(';', 2).CatEqQ("filename", temp_buf);
 			if(P_Cb->Cd.Size) {
 				temp_buf.Z().Cat(P_Cb->Cd.Size);
-				out_buf.CatDiv(';', 2).CatEqQ("size", temp_buf);
+				if(line_buf.Len() >= 77) {
+					out_buf.Cat(line_buf.Semicol().CRB());
+					line_buf.Z().Space();
+				}
+				else
+					line_buf.CatDiv(';', 2);
+				line_buf.CatEqQ("size", temp_buf);
 			}
 			if(!!P_Cb->Cd.CrDtm) {
 				temp_buf.Z().Cat(P_Cb->Cd.CrDtm, DATF_INTERNET, TIMF_HMS);
-				out_buf.CatDiv(';', 2).CatEqQ("creation-date", temp_buf);				
+				if(line_buf.Len() >= 77) {
+					out_buf.Cat(line_buf.Semicol().CRB());
+					line_buf.Z().Space();
+				}
+				else
+					line_buf.CatDiv(';', 2);
+				line_buf.CatEqQ("creation-date", temp_buf);
 			}
 			if(!!P_Cb->Cd.ModifDtm) {
 				temp_buf.Z().Cat(P_Cb->Cd.ModifDtm, DATF_INTERNET, TIMF_HMS);
-				out_buf.CatDiv(';', 2).CatEqQ("modification-date", temp_buf);				
+				if(line_buf.Len() >= 77) {
+					out_buf.Cat(line_buf.Semicol().CRB());
+					line_buf.Z().Space();
+				}
+				else
+					line_buf.CatDiv(';', 2);
+				line_buf.CatEqQ("modification-date", temp_buf);
 			}
 			if(!!P_Cb->Cd.RdDtm) {
 				temp_buf.Z().Cat(P_Cb->Cd.RdDtm, DATF_INTERNET, TIMF_HMS);
-				out_buf.CatDiv(';', 2).CatEqQ("read-date", temp_buf);				
+				if(line_buf.Len() >= 77) {
+					out_buf.Cat(line_buf.Semicol().CRB());
+					line_buf.Z().Space();
+				}
+				else
+					line_buf.CatDiv(';', 2);
+				line_buf.CatEqQ("read-date", temp_buf);
 			}
-			out_buf.CRB();
+			line_buf.CRB();
+
+			out_buf.Cat(line_buf);
 		}
 		R_Msg.GetS(P_Cb->ContentIdP, temp_buf);
 		if(temp_buf.NotEmptyS())
@@ -2687,10 +2752,11 @@ int SProxiAuthParam::SetEntry(Entry & rEntry)
 		ok = 2;
 	}
 	else {
-		Entry * p_entry = new Entry;
-		*p_entry = rEntry;
-		List.insert(p_entry);
-		ok = 1;
+		Entry * p_entry = List.CreateNewItem();
+		if(p_entry) {
+			*p_entry = rEntry;
+			ok = 1;
+		}
 	}
 	return ok;
 }
@@ -3211,7 +3277,7 @@ size_t ScURL::CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra)
 
 #define _CURLH ((CURL *)H)
 
-ScURL::ScURL() : NullWrF(0, SFile::mNullWrite)
+ScURL::ScURL() : NullWrF(0, SFile::mNullWrite), P_LogF(0)
 {
 	if(!_GlobalInitDone) {
 		ENTER_CRITICAL_SECTION
@@ -3230,6 +3296,7 @@ ScURL::~ScURL()
 {
 	if(H)
 		curl_easy_cleanup(_CURLH);
+	delete P_LogF;
 }
 
 int FASTCALL ScURL::SetError(int errCode)
@@ -3338,6 +3405,31 @@ int ScURL::SetCommonOptions(int mflags, int bufferSize, const char * pUserAgent)
 	}
 	if(!isempty(pUserAgent)) {
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_USERAGENT, pUserAgent)));
+	}
+	if(P_LogF || LogFileName.NotEmpty() || mflags & mfVerbose) {
+		if(!P_LogF) {
+			SString file_name = LogFileName;
+			if(file_name.Empty()) {
+				SLS.QueryPath("log", file_name);
+				if(file_name.NotEmpty())
+					file_name.SetLastSlash().Cat("curl.log");
+			}
+			if(file_name.NotEmpty()) {
+				P_LogF = new SFile(file_name, SFile::mAppend);
+			}
+		}
+		if(P_LogF) {
+			if(P_LogF->IsValid()) {
+				THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_STDERR, (FILE *)*P_LogF)));
+				if(mflags & mfVerbose) {
+					THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_VERBOSE, 1L)));
+				}
+			}
+			else {
+				ZDELETE(P_LogF);
+				THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_STDERR, (FILE *)0)));
+			}
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -3526,6 +3618,11 @@ int ScURL::HttpDelete(const char * pUrl, int flags, SFile * pReplyStream)
 	CATCHZOK
 	CleanCbRW();
 	return ok;
+}
+
+void ScURL::SetLogFileName(const char * pFileName)
+{
+    LogFileName = pFileName;
 }
 
 int ScURL::SetAuth(int auth, const char * pUser, const char * pPassword)
@@ -4114,17 +4211,8 @@ int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, SMailMessage & rMsg)
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_READFUNCTION, CbRead_EMailMessage)));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_READDATA, &rd_blk)));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_UPLOAD, 1L)));
-		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_VERBOSE, 1L)));
-		{
-			SLS.QueryPath("log", temp_buf);
-			temp_buf.SetLastSlash().Cat("curl.log");
-			SFile f_err(temp_buf, SFile::mWrite);
-			if(((FILE *)f_err) != 0) {
-				THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_STDERR, (FILE *)f_err)));
-			}
-			THROW(Execute());
-			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_STDERR, 0)));
-		}
+		THROW(Execute());
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_STDERR, 0)));
 	}
 	CATCHZOK
 	curl_slist_free_all(p_recipients);
@@ -4163,8 +4251,8 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
         const int prot_dest = url_dest.GetProtocol();
         THROW(oneof8(prot_src, InetUrl::protFile, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp,
 			InetUrl::protHttp, InetUrl::protHttps, InetUrl::protPOP3, InetUrl::protPOP3S));
-        THROW(oneof6(prot_dest, InetUrl::protFile, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp,
-			InetUrl::protHttp, InetUrl::protHttps));
+        THROW(oneof8(prot_dest, InetUrl::protFile, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp,
+			InetUrl::protHttp, InetUrl::protHttps, InetUrl::protSMTP, InetUrl::protSMTPS));
 		THROW(prot_src == InetUrl::protFile || prot_dest == InetUrl::protFile);
 		if(prot_src == InetUrl::protFile) { // Отправка локального файла
 			SString local_path_src;
@@ -4214,6 +4302,21 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 					}
 				}
 			}
+			else if(oneof2(prot_dest, InetUrl::protSMTP, InetUrl::protSMTPS)) {
+				// mailto:abc@abc.com?subject=topic
+				// smtp://yandex.ru?subject=topic&from=x@yandex.ru
+				ScURL curl;
+				SString _from;
+				SString _to;
+				SString _subj;
+				url_src.GetQueryParam("from", 1, _from);
+				url_src.GetQueryParam("to", 1, _to);
+				url_src.GetQueryParam("subject", 1, _subj);
+                if(AccsName.NotEmpty()) {
+                    url_dest.SetComponent(InetUrl::cUserName, AccsName);
+                    url_dest.SetComponent(InetUrl::cPassword, AccsPassword);
+                }
+			}
 		}
 		else if(prot_dest == InetUrl::protFile) { // Получение файла в локальный каталог
 			SString local_path_dest;
@@ -4251,7 +4354,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 						url_src.SetComponent(InetUrl::cPath, temp_buf);
 						THROW(curl.FtpList(url_src, 0, fep));
 						for(uint i = 0; i < fep.GetCount(); i++) {
-							if(fep.Get(i, fe) && SFile::WildcardMatch(filt_filename, fe.Name)) {
+							if(fep.Get(i, &fe, 0) && SFile::WildcardMatch(filt_filename, fe.Name)) {
 								ps.Nam = fe.Name;
 								ps.Merge(~SPathStruc::fExt, temp_buf);
 								url_src.SetComponent(InetUrl::cPath, temp_buf);
@@ -4383,10 +4486,8 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 												ps_src.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 												if(filt_filename.Empty() || SFile::WildcardMatch(filt_filename, temp_buf)) {
 													ps.Split(local_path_dest);
-													if(ps.Nam.Empty())
-														ps.Nam = ps_src.Nam;
-													if(ps.Ext.Empty())
-														ps.Ext = ps_src.Ext;
+													ps.Nam.SetIfEmpty(ps_src.Nam);
+													ps.Ext.SetIfEmpty(ps_src.Ext);
 													result_file_ext = ps.Ext;
 													if(ps.Nam.Empty()) {
 														ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
@@ -4436,7 +4537,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 //
 //
 //
-#ifndef NDEBUG
+#if !defined(NDEBUG) || SLTEST_RUNNING
 void SLAPI Test_MailMsg_ReadFromFile()
 {
 	const char * src_file_name_list[] = {

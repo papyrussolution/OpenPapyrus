@@ -19,31 +19,27 @@ extern "C" {
 #endif
 /*
  * Define our typedefs and structures
- *
  */
-typedef struct _xmlChSRange xmlChSRange;
-typedef xmlChSRange * xmlChSRangePtr;
-struct _xmlChSRange {
+struct xmlChSRange {
 	ushort low;
 	ushort high;
 };
 
-typedef struct _xmlChLRange xmlChLRange;
-typedef xmlChLRange * xmlChLRangePtr;
-struct _xmlChLRange {
+struct xmlChLRange {
 	uint low;
 	uint high;
 };
 
-typedef struct _xmlChRangeGroup xmlChRangeGroup;
-typedef xmlChRangeGroup * xmlChRangeGroupPtr;
-
-struct _xmlChRangeGroup {
+struct xmlChRangeGroup {
 	int nbShortRange;
 	int nbLongRange;
-	const xmlChSRange   * shortRange; /* points to an array of ranges */
-	const xmlChLRange   * longRange;
+	const xmlChSRange * shortRange; /* points to an array of ranges */
+	const xmlChLRange * longRange;
 };
+
+typedef xmlChSRange * xmlChSRangePtr;
+typedef xmlChLRange * xmlChLRangePtr;
+typedef xmlChRangeGroup * xmlChRangeGroupPtr;
 /**
  * Range checking routine
  */

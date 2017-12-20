@@ -8,6 +8,8 @@
 
 // Prototype (PPREPORT.CPP)
 int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName);
+
+#if 0 // @v9.8.11 (useless) {
 //
 // PPInetAccountManager
 //
@@ -20,10 +22,6 @@ public:
 		mctBat,
 		mctAll
 	};
-
-	SLAPI  PPInetAccountManager() {}
-	SLAPI ~PPInetAccountManager() {}
-
 	int SLAPI GetMailAccounts(MailClientType mct, PPID * pActiveID, PPInetAccntArray * pAccounts);
 private:
 	int SLAPI GetDefaultMailClient(MailClientType *);
@@ -180,7 +178,6 @@ int SLAPI PPInetAccountManager::GetOutlookExpressAccounts(PPID * pActiveID, PPIn
 				ASSIGN_PTR(pActiveID, p_account->ID);
 		}
 	}
-	// @v7.9.6 pAccounts->sort(PTR_CMPFUNC(Pchar), offsetof(PPInternetAccount, Name));
 	CATCHZOK
 	return ok;
 }
@@ -231,24 +228,20 @@ int SLAPI PPInetAccountManager::GetDefaultMailClient(MailClientType * pMCT)
 	CATCHZOK
 	return ok;
 }
+#endif // } 0 @v9.8.11 (useless)
 //
 // PPViewReport
 //
 IMPLEMENT_PPFILT_FACTORY(Report); SLAPI ReportFilt::ReportFilt() : PPBaseFilt(PPFILT_REPORT, 0, 0)
 {
-	SetFlatChunk(offsetof(ReportFilt, ReserveStart),
-		offsetof(ReportFilt, StdName) - offsetof(ReportFilt, ReserveStart));
+	SetFlatChunk(offsetof(ReportFilt, ReserveStart), offsetof(ReportFilt, StdName) - offsetof(ReportFilt, ReserveStart));
 	SetBranchSString(offsetof(ReportFilt, StdName));
 	SetBranchSString(offsetof(ReportFilt, StrucName));
 	Init(1, 0);
 }
 
-SLAPI PPViewReport::PPViewReport() : PPView(0, &Filt, PPVIEW_REPORT)
+SLAPI PPViewReport::PPViewReport() : PPView(0, &Filt, PPVIEW_REPORT), P_StdRptFile(0), P_RptFile(0), P_TempTbl(0), LocalRptCodepage(866)
 {
-	P_StdRptFile = 0;
-	P_RptFile    = 0;
-	P_TempTbl    = 0;
-	LocalRptCodepage = 866;
 	DefReportId = REPORT_RPTINFO;
 	PPIniFile::GetSectSymb(PPINISECT_SYSTEM, SystemSect);
 	PPIniFile::GetParamSymb(  PPINIPARAM_CODEPAGE,           CodepageParam);
@@ -290,12 +283,12 @@ int SLAPI PPViewReport::SaveChanges(int remove)
 		SString temp_fname;
 		if(P_StdRptFile) {
 			temp_fname = P_StdRptFile->GetFileName();
-			ZDELETE(P_StdRptFile);
+			ZDELETE(P_StdRptFile); // release object before file removing 
 			SFile::Remove(temp_fname);
 		}
 		if(P_RptFile) {
 			temp_fname = P_RptFile->GetFileName();
-			ZDELETE(P_RptFile);
+			ZDELETE(P_RptFile); // release object before file removing 
 			SFile::Remove(temp_fname);
 		}
 	}
@@ -357,8 +350,8 @@ int SLAPI PPViewReport::Init_(const PPBaseFilt * pFilt)
 
 IMPL_CMPFUNC(REPORTNAME, i1, i2)
 {
-	ReportViewItem * p_i1 = (ReportViewItem*)i1;
-	ReportViewItem * p_i2 = (ReportViewItem*)i2;
+	const ReportViewItem * p_i1 = (const ReportViewItem*)i1;
+	const ReportViewItem * p_i2 = (const ReportViewItem*)i2;
 	return stricmp866(p_i1->StdName, p_i2->StdName);
 }
 
@@ -501,10 +494,8 @@ int SLAPI PPViewReport::SendMail(long id)
 	class ReportMailDialog : public TDialog {
 	public:
 		struct Rec {
-			Rec()
+			Rec() : AccountID(0), Dtm(ZERODATETIME)
 			{
-				AccountID = 0;
-				Dtm.SetZero();
 			}
 			PPID    AccountID;
 			SString SupportMail;
@@ -867,7 +858,7 @@ int SLAPI PPViewReport::CreateRptList(ReportViewItemArray * pList)
 			p_file->GetEntries(sect, &entries, 1);
 			for(uint j = 0; entries.get(&j, entry) > 0;) {
 				if(SplitLocalRptStr(p_file, LocalRptCodepage, sect, entry, &item) > 0)
-					THROW_PP(pList->insert(&item), PPERR_SLIB);
+					THROW_SL(pList->insert(&item));
 			}
 		}
 	}
@@ -1083,21 +1074,12 @@ int SLAPI PPViewReport::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
 				hdr.ID = 0;
-			case PPVCMD_EDITITEM:
-				ok = EditItem(&hdr.ID);
-				break;
-			case PPVCMD_DELETEITEM:
-				ok = DelItem(hdr.ID);
-				break;
-			case PPVCMD_CALLCRR:
-				ok = CallCR(hdr.ID);
-				break;
-			case PPVCMD_VERIFY:
-				ok = Verify(hdr.ID);
-				break;
-			case PPVCMD_MAILRPT:
-				ok = SendMail(hdr.ID);
-				break;
+				// @fallthrough
+			case PPVCMD_EDITITEM: ok = EditItem(&hdr.ID); break;
+			case PPVCMD_DELETEITEM: ok = DelItem(hdr.ID); break;
+			case PPVCMD_CALLCRR: ok = CallCR(hdr.ID); break;
+			case PPVCMD_VERIFY: ok = Verify(hdr.ID); break;
+			case PPVCMD_MAILRPT: ok = SendMail(hdr.ID); break;
 		}
 	}
 	if(!ok)

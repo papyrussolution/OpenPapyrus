@@ -64,7 +64,7 @@ typedef struct _bmp_source_struct {
 static int FASTCALL read_byte(bmp_source_ptr sinfo)
 {
 	FILE * infile = sinfo->pub.input_file;
-	register int c;
+	int c;
 	if((c = getc(infile)) == EOF)
 		ERREXIT(sinfo->cinfo, JERR_INPUT_EOF);
 	return c;

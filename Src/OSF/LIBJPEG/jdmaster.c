@@ -140,14 +140,10 @@ GLOBAL(void) jpeg_calc_output_dimensions(j_decompress_ptr cinfo)
 	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components;
 	    ci++, compptr++) {
 		/* Size in samples, after IDCT scaling */
-		compptr->downsampled_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width *
-		    (long)(compptr->h_samp_factor * compptr->DCT_h_scaled_size),
-		    (long)(cinfo->max_h_samp_factor * cinfo->block_size));
-		compptr->downsampled_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height *
-		    (long)(compptr->v_samp_factor * compptr->DCT_v_scaled_size),
-		    (long)(cinfo->max_v_samp_factor * cinfo->block_size));
+		compptr->downsampled_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width *
+		    (long)(compptr->h_samp_factor * compptr->DCT_h_scaled_size), (long)(cinfo->max_h_samp_factor * cinfo->block_size));
+		compptr->downsampled_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height *
+		    (long)(compptr->v_samp_factor * compptr->DCT_v_scaled_size), (long)(cinfo->max_v_samp_factor * cinfo->block_size));
 	}
 
 #endif /* IDCT_SCALING_SUPPORTED */
@@ -174,16 +170,13 @@ GLOBAL(void) jpeg_calc_output_dimensions(j_decompress_ptr cinfo)
 		    cinfo->out_color_components = cinfo->num_components;
 		    break;
 	}
-	cinfo->output_components = (cinfo->quantize_colors ? 1 :
-	    cinfo->out_color_components);
-
+	cinfo->output_components = (cinfo->quantize_colors ? 1 : cinfo->out_color_components);
 	/* See if upsampler will want to emit more than one row at a time */
 	if(use_merged_upsample(cinfo))
 		cinfo->rec_outbuf_height = cinfo->max_v_samp_factor;
 	else
 		cinfo->rec_outbuf_height = 1;
 }
-
 /*
  * Several decompression processes need to range-limit values to the range
  * 0..MAXJSAMPLE; the input value may fall somewhat outside this range

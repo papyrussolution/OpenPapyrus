@@ -20,7 +20,6 @@
  */
 
 #if 0                           /* This table is not actually needed in v6a */
-
 const int jpeg_zigzag_order[DCTSIZE2] = {
 	0,  1,  5,  6, 14, 15, 27, 28,
 	2,  4,  7, 13, 16, 26, 29, 42,
@@ -31,7 +30,6 @@ const int jpeg_zigzag_order[DCTSIZE2] = {
 	21, 34, 37, 47, 50, 56, 59, 61,
 	35, 36, 48, 49, 57, 58, 62, 63
 };
-
 #endif
 
 /*

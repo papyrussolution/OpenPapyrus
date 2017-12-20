@@ -1963,7 +1963,7 @@ SelectionPosition Editor::RealizeVirtualSpace(const SelectionPosition &position)
 	return SelectionPosition(RealizeVirtualSpace(position.Position(), position.VirtualSpace()));
 }
 
-void Editor::AddChar(char ch)
+void FASTCALL Editor::AddChar(char ch)
 {
 	char s[2];
 	s[0] = ch;
@@ -2007,10 +2007,8 @@ void Editor::AddCharUTF(const char * s, uint len, bool treatAsDBCS)
 						pdoc->DeleteChars(positionInsert, currentSel->Length());
 						currentSel->ClearVirtualSpace();
 					}
-					else {
-						// Range is all virtual so collapse to start of virtual space
+					else // Range is all virtual so collapse to start of virtual space
 						currentSel->MinimizeVirtualSpace();
-					}
 				}
 				else if(EditModelFlags & fInOverstrike) {
 					if(positionInsert < pdoc->Length()) {
@@ -2030,30 +2028,25 @@ void Editor::AddCharUTF(const char * s, uint len, bool treatAsDBCS)
 				// If in wrap mode rewrap current line so EnsureCaretVisible has accurate information
 				if(Wrapping()) {
 					AutoSurface surface(this);
-					if(surface) {
-						if(WrapOneLine(surface, pdoc->LineFromPosition(positionInsert))) {
-							SetScrollBars();
-							SetVerticalScrollPos();
-							Redraw();
-						}
+					if(surface && WrapOneLine(surface, pdoc->LineFromPosition(positionInsert))) {
+						SetScrollBars();
+						SetVerticalScrollPos();
+						Redraw();
 					}
 				}
 			}
 		}
 	}
-	if(Wrapping()) {
+	if(Wrapping())
 		SetScrollBars();
-	}
 	ThinRectangularRange();
 	// If in wrap mode rewrap current line so EnsureCaretVisible has accurate information
 	EnsureCaretVisible();
 	// Avoid blinking during rapid typing:
 	ShowCaretAtCurrentPosition();
-	if((caretSticky == SC_CARETSTICKY_OFF) ||
-	    ((caretSticky == SC_CARETSTICKY_WHITESPACE) && !IsAllSpacesOrTabs(s, len))) {
+	if((caretSticky == SC_CARETSTICKY_OFF) || ((caretSticky == SC_CARETSTICKY_WHITESPACE) && !IsAllSpacesOrTabs(s, len))) {
 		SetLastXChosen();
 	}
-
 	if(treatAsDBCS) {
 		NotifyChar((static_cast<uchar>(s[0]) << 8) | static_cast<uchar>(s[1]));
 	}
@@ -2083,8 +2076,7 @@ void Editor::ClearBeforeTentativeStart()
 	FilterSelections();
 	UndoGroup ug(pdoc, (sel.Count() > 1) || !sel.Empty() || (EditModelFlags & fInOverstrike));
 	for(size_t r = 0; r<sel.Count(); r++) {
-		if(!RangeContainsProtected(sel.Range(r).Start().Position(),
-			    sel.Range(r).End().Position())) {
+		if(!RangeContainsProtected(sel.Range(r).Start().Position(), sel.Range(r).End().Position())) {
 			int positionInsert = sel.Range(r).Start().Position();
 			if(!sel.Range(r).Empty()) {
 				if(sel.Range(r).Length()) {
@@ -2105,18 +2097,15 @@ void Editor::ClearBeforeTentativeStart()
 void Editor::InsertPaste(const char * text, int len)
 {
 	if(multiPasteMode == SC_MULTIPASTE_ONCE) {
-		SelectionPosition selStart = sel.Start();
-		selStart = RealizeVirtualSpace(selStart);
+		SelectionPosition selStart = RealizeVirtualSpace(sel.Start());
 		const int lengthInserted = pdoc->InsertString(selStart.Position(), text, len);
-		if(lengthInserted > 0) {
+		if(lengthInserted > 0)
 			SetEmptySelection(selStart.Position() + lengthInserted);
-		}
 	}
 	else {
 		// SC_MULTIPASTE_EACH
 		for(size_t r = 0; r<sel.Count(); r++) {
-			if(!RangeContainsProtected(sel.Range(r).Start().Position(),
-				    sel.Range(r).End().Position())) {
+			if(!RangeContainsProtected(sel.Range(r).Start().Position(), sel.Range(r).End().Position())) {
 				int positionInsert = sel.Range(r).Start().Position();
 				if(!sel.Range(r).Empty()) {
 					if(sel.Range(r).Length()) {
@@ -2152,24 +2141,21 @@ void Editor::InsertPasteShape(const char * text, int len, PasteShape shape)
 	if(shape == pasteRectangular) {
 		PasteRectangular(sel.Start(), text, len);
 	}
-	else {
-		if(shape == pasteLine) {
-			int insertPos = pdoc->LineStart(pdoc->LineFromPosition(sel.MainCaret()));
-			int lengthInserted = pdoc->InsertString(insertPos, text, len);
-			// add the newline if necessary
-			if((len > 0) && (text[len - 1] != '\n' && text[len - 1] != '\r')) {
-				const char * endline = StringFromEOLMode(pdoc->eolMode);
-				int length = static_cast<int>(strlen(endline));
-				lengthInserted += pdoc->InsertString(insertPos + lengthInserted, endline, length);
-			}
-			if(sel.MainCaret() == insertPos) {
-				SetEmptySelection(sel.MainCaret() + lengthInserted);
-			}
+	else if(shape == pasteLine) {
+		int insertPos = pdoc->LineStart(pdoc->LineFromPosition(sel.MainCaret()));
+		int lengthInserted = pdoc->InsertString(insertPos, text, len);
+		// add the newline if necessary
+		if((len > 0) && (text[len-1] != '\n' && text[len-1] != '\r')) {
+			const char * endline = StringFromEOLMode(pdoc->eolMode);
+			int length = static_cast<int>(strlen(endline));
+			lengthInserted += pdoc->InsertString(insertPos + lengthInserted, endline, length);
 		}
-		else {
-			InsertPaste(text, len);
+		if(sel.MainCaret() == insertPos) {
+			SetEmptySelection(sel.MainCaret() + lengthInserted);
 		}
 	}
+	else
+		InsertPaste(text, len);
 }
 
 void FASTCALL Editor::ClearSelection(bool retainMultipleSelections)
@@ -2195,9 +2181,8 @@ void Editor::ClearAll()
 {
 	{
 		UndoGroup ug(pdoc);
-		if(0 != pdoc->Length()) {
+		if(pdoc->Length() != 0)
 			pdoc->DeleteChars(0, pdoc->Length());
-		}
 		if(!pdoc->IsReadOnly()) {
 			cs.Clear();
 			pdoc->AnnotationClearAll();
@@ -2213,8 +2198,7 @@ void Editor::ClearAll()
 
 void Editor::ClearDocumentStyle()
 {
-	Decoration * deco = pdoc->decorations.root;
-	while(deco) {
+	for(Decoration * deco = pdoc->decorations.root; deco;) {
 		// Save next in case deco deleted
 		Decoration * decoNext = deco->next;
 		if(deco->indicator < INDIC_CONTAINER) {
@@ -2299,38 +2283,28 @@ void Editor::Clear()
 {
 	// If multiple selections, don't delete EOLS
 	if(sel.Empty()) {
-		bool singleVirtual = false;
-		if((sel.Count() == 1) &&
-		    !RangeContainsProtected(sel.MainCaret(), sel.MainCaret() + 1) &&
-		    sel.RangeMain().Start().VirtualSpace()) {
-			singleVirtual = true;
-		}
+		const int main_caret = sel.MainCaret();
+		bool singleVirtual = (sel.Count() == 1 && !RangeContainsProtected(main_caret, main_caret + 1) && sel.RangeMain().Start().VirtualSpace()) ? true : false;
 		UndoGroup ug(pdoc, (sel.Count() > 1) || singleVirtual);
-		for(size_t r = 0; r<sel.Count(); r++) {
-			if(!RangeContainsProtected(sel.Range(r).caret.Position(), sel.Range(r).caret.Position() + 1)) {
-				if(sel.Range(r).Start().VirtualSpace()) {
-					if(sel.Range(r).anchor < sel.Range(r).caret)
-						sel.Range(r) =
-						    SelectionRange(RealizeVirtualSpace(sel.Range(r).anchor.Position(),
-							    sel.Range(r).anchor.VirtualSpace()));
-					else
-						sel.Range(r) =
-						    SelectionRange(RealizeVirtualSpace(sel.Range(r).caret.Position(),
-							    sel.Range(r).caret.VirtualSpace()));
+		for(size_t r = 0; r < sel.Count(); r++) {
+			SelectionRange & r_sr = sel.Range(r);
+			if(!RangeContainsProtected(r_sr.caret.Position(), r_sr.caret.Position() + 1)) {
+				if(r_sr.Start().VirtualSpace()) {
+					const SelectionPosition & r_sp = (r_sr.anchor < r_sr.caret) ? r_sr.anchor : r_sr.caret;
+					sel.Range(r) = SelectionRange(RealizeVirtualSpace(r_sp.Position(), r_sp.VirtualSpace()));
+					r_sr = sel.Range(r);
 				}
-				if((sel.Count() == 1) || !pdoc->IsPositionInLineEnd(sel.Range(r).caret.Position())) {
-					pdoc->DelChar(sel.Range(r).caret.Position());
-					sel.Range(r).ClearVirtualSpace();
+				if(sel.Count() == 1 || !pdoc->IsPositionInLineEnd(r_sr.caret.Position())) {
+					pdoc->DelChar(r_sr.caret.Position());
+					r_sr.ClearVirtualSpace();
 				}  // else multiple selection so don't eat line ends
 			}
-			else {
-				sel.Range(r).ClearVirtualSpace();
-			}
+			else
+				r_sr.ClearVirtualSpace();
 		}
 	}
-	else {
+	else
 		ClearSelection();
-	}
 	sel.RemoveDuplicates();
 	ShowCaretAtCurrentPosition();           // Avoid blinking
 }

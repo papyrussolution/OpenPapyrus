@@ -3082,26 +3082,30 @@ int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 		char * p_fname = 0;
 		SString file_path, ack_file_path;
 		SStrCollection  flist;
-		PPFileNameArray fary;
+		//PPFileNameArray fary;
+		SFileEntryPool fep;
+		SFileEntryPool::Entry fe;
 		PPObjDBDiv dbdiv_obj;
 		PPWait(1);
 		PPObjectTransmit ot(PPObjectTransmit::tmReading, BIN(param.Flags & ObjReceiveParam::fSyncCmp), 0);
 		THROW(PPGetPath(PPPATH_IN, file_path));
-		THROW(fary.Scan(file_path.SetLastSlash(), "*" PPSEXT));
+		//THROW(fary.Scan(file_path.SetLastSlash(), "*" PPSEXT));
+		THROW(fep.Scan(file_path.SetLastSlash(), "*" PPSEXT, 0));
 		do {
 			next_pass = 0;
-			SDirEntry fb;
-			for(uint p = 0; fary.Enum(&p, &fb, &file_path);) {
-				if(SFile::WaitForWriteSharingRelease(file_path, 20000)) {
+			//SDirEntry fb;
+			//for(uint p = 0; fary.Enum(&p, &fb, &file_path);) {
+			for(uint p = 0; p < fep.GetCount(); p++) {
+				if(fep.Get(p, &fe, &file_path) && SFile::WaitForWriteSharingRelease(file_path, 20000)) {
 					PPObjectTransmit::Header hdr;
 					if(ot.OpenInPacket(file_path, &hdr) > 0) {
 						if(hdr.DestDBID == LConfig.DBDiv && param.CheckDbDivID(hdr.DBID)) {
 							int    is_received = 0;
 							int    do_accept_src_uuid = 0;
-							PPWaitMsg(fb.FileName);
+							PPWaitMsg(/*fb.FileName*/fe.Name);
 							if(param.Flags & ObjReceiveParam::fSyncCmp) {
 								if(hdr.PacketType == PPOT_SYNCCMP) {
-									THROW(ot.StartReceivingPacket(fb.FileName, &hdr));
+									THROW(ot.StartReceivingPacket(/*fb.FileName*/fe.Name, &hdr));
 									THROW(ot.RestoreFromStream(file_path, ot.P_InStream, pParam->P_SyncCmpTbl));
 									THROW_MEM(p_fname = newStr(file_path));
 									THROW_SL(flist.insert(p_fname));
@@ -3110,7 +3114,7 @@ int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 							}
 							else {
 								if(hdr.PacketType == PPOT_OBJ) {
-									THROW(r = ot.StartReceivingPacket(fb.FileName, &hdr));
+									THROW(r = ot.StartReceivingPacket(/*fb.FileName*/fe.Name, &hdr));
 									if(r > 0) {
 										THROW(ot.RestoreFromStream(file_path, ot.P_InStream, 0));
 										ZDELETE(ot.P_TmpIdxTbl);

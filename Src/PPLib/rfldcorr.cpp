@@ -68,7 +68,7 @@ int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField)
 			SString temp_buf;
 			if(use_formula) {
 				getCtrlString(CTL_FLDCORR_FORMULA, Data.Formula);
-				if(Data.Formula.Strip().Empty())
+				if(!Data.Formula.NotEmptyS())
 					Data.Formula = "@empty";
 				temp_long = 0;
 			}
@@ -697,11 +697,16 @@ int PPImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 	(wildcard = ps.Nam).Dot().Cat(ps.Ext);
 	ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, path);
 	//return rList.Scan(path, wildcard);
-	PPFileNameArray ffa;
-	if(ffa.Scan(path, wildcard)) {
-		for(uint fi = 0; ffa.Enum(&fi, 0, &path.Z());) {
-			rList.add(path);
-			ok = 1;
+	//PPFileNameArray ffa;
+	SFileEntryPool fep;
+	//if(ffa.Scan(path, wildcard)) {
+	if(fep.Scan(path, wildcard, 0) > 0) {
+		//for(uint fi = 0; ffa.Enum(&fi, 0, &path.Z());) {
+		for(uint fi = 0; fi < fep.GetCount(); fi++) {
+			if(fep.Get(fi, 0, &path)) {
+				rList.add(path);
+				ok = 1;
+			}
 		}
 	}
 	else
@@ -767,10 +772,14 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 			}
 			// } @todo obsolete block. must be refactored
 			if(ok < 0) {
-				PPFileNameArray fna;
-				fna.Scan(path, wildcard);
-				for(uint i = 0; fna.Enum(&i, 0, &temp_buf.Z());) {
-					rList.add(temp_buf);
+				//PPFileNameArray fna;
+				SFileEntryPool fep;
+				//fna.Scan(path, wildcard);
+				fep.Scan(path, wildcard, 0);
+				//for(uint i = 0; fna.Enum(&i, 0, &temp_buf.Z());) {
+				for(uint i = 0; i < fep.GetCount(); i++) {
+					if(fep.Get(i, 0, &temp_buf))
+						rList.add(temp_buf);
 				}
 			}
 		}
@@ -965,7 +974,7 @@ int PPImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr,
 		rHdr.Flags = 0;
 		rHdr.Name = Name;
 		rHdr.SubSymb = InrRec.Name;
-		rHdr.DbSymb = 0;
+		rHdr.DbSymb.Z();
 		rHdr.OwnerSymb = GlobalUserName;
 		rTail.Clear();
 	}
@@ -3366,29 +3375,15 @@ int InitImpExpDbfParam(uint recType, PPImpExpParam * pParam, const char * pFileN
 }
 
 // @vmiller {
-ImpExpDll::ImpExpDll()
+ImpExpDll::ImpExpDll() : OpKind(0), Inited(0), P_Lib(0), InitExport(0), SetExportObj(0), InitExportIter(0), NextExportIter(0),
+	InitImport(0), GetImportObj(0), InitImportIter(0), NextImportIter(0), ReplyImportObjStatus(0),
+	EnumExpReceipt(0), FinishImpExp(0), GetErrorMessage(0)
 {
-	OpKind = 0;
-	Inited = 0;
-	P_Lib = 0;
-	InitExport = 0;
-	SetExportObj = 0;
-	InitExportIter = 0;
-	NextExportIter = 0;
-	InitImport = 0;
-	GetImportObj = 0;
-	InitImportIter = 0;
-	NextImportIter = 0;
-	ReplyImportObjStatus = 0;
-	EnumExpReceipt = 0;
-	FinishImpExp = 0;
-	GetErrorMessage = 0;
 }
 
 ImpExpDll::~ImpExpDll()
 {
 	if(Inited) {
-		int size = 0;
 		FinishImpExp();
 		ReleaseLibrary();
 	}

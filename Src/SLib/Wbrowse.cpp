@@ -194,8 +194,8 @@ TBaseBrowserWindow::TBaseBrowserWindow(LPCTSTR pWndClsName) : TWindow(TRect(1, 1
 TBaseBrowserWindow::IdentBlock & TBaseBrowserWindow::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
 {
 	rBlk.IdBias = 0;
-	rBlk.ClsName = 0;
-	rBlk.InstanceIdent = 0;
+	rBlk.ClsName.Z();
+	rBlk.InstanceIdent.Z();
 	return rBlk;
 }
 
@@ -203,9 +203,7 @@ int TBaseBrowserWindow::Insert()
 {
 	int    ret = 0;
 	SString buf = getTitle();
-	if(buf.Empty())
-		buf = ClsName;
-	buf.Transf(CTRANSF_INNER_TO_OUTER);
+	buf.SetIfEmpty(ClsName).Transf(CTRANSF_INNER_TO_OUTER);
 	if(IsIconic(APPL->H_MainWnd))
 		ShowWindow(APPL->H_MainWnd, SW_MAXIMIZE);
 	if(GetActiveWindow() != APPL->H_MainWnd) {

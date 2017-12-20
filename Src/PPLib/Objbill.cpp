@@ -2904,9 +2904,8 @@ int SLAPI PPObjBill::EditConfig()
 {
 	class BillConfigDialog : public TDialog {
 	public:
-		BillConfigDialog(PPBillConfig * pCfg) : TDialog(DLG_BILLCFG)
+		BillConfigDialog(PPBillConfig * pCfg) : TDialog(DLG_BILLCFG), P_Cfg(pCfg)
 		{
-			P_Cfg = pCfg;
 		}
 		TDisCalcMethodParam Tdcmp;
 	private:
@@ -3740,11 +3739,8 @@ int SLAPI PPObjBill::SetupImportedPrice(const PPBillPacket * pPack, PPTransferIt
 //
 struct AutoCalcPricesParam : public CalcPriceParam {
 public:
-	AutoCalcPricesParam(int strictPriceValuation) : CalcPriceParam()
+	AutoCalcPricesParam(int strictPriceValuation) : CalcPriceParam(), StrictPriceValuation(strictPriceValuation), _Action(0), SupplID(0)
 	{
-		StrictPriceValuation = strictPriceValuation;
-		_Action = 0;
-		SupplID = 0;
 	}
 	enum {
 		_aPrice = 0,
@@ -3760,9 +3756,8 @@ static int SLAPI AutoCalcSelectQuot(PPObjBill * pBObj, AutoCalcPricesParam * pDa
 {
 	class AutoCalcSelectQuotDialog : public TDialog {
 	public:
-		AutoCalcSelectQuotDialog(PPObjBill * pBObj) : TDialog(DLG_SELQUOT3), Data(0)
+		AutoCalcSelectQuotDialog(PPObjBill * pBObj) : TDialog(DLG_SELQUOT3), Data(0), P_BObj(pBObj)
 		{
-			P_BObj = pBObj;
 			PPObjQuotKind::Special sqk;
 			PPObjQuotKind::GetSpecialKinds(&sqk, 1);
 			SupplDealQkID = sqk.SupplDealID;
@@ -3878,10 +3873,8 @@ int PPObjBill::AutoCalcPrices(PPBillPacket * pPack, int interactive, int * pIsMo
 	class NewPricesDialog : public PPListDialog {
 	public:
 		NewPricesDialog(const PPBillPacket * pPack, RAssocArray * pData, int byCost = 0) :
-			PPListDialog(DLG_AUTONEWP, CTL_AUTONEWP_LIST)
+			PPListDialog(DLG_AUTONEWP, CTL_AUTONEWP_LIST), P_Pack(pPack), ByCost(byCost)
 		{
-			P_Pack = pPack;
-			ByCost = byCost;
 			RVALUEPTR(Data, pData);
 			updateList(-1);
 		}

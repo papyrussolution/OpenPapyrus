@@ -5532,9 +5532,7 @@ int SLAPI PPObjLocation::IndexPhones(int use_ta)
 				WorldTbl::Rec city_rec;
 				if(FetchCity(city_id, &city_rec) > 0 && city_rec.Phone[0])
 					PPEAddr::Phone::NormalizeStr(city_rec.Phone, city_prefix);
-				if(city_prefix.Empty())
-					city_prefix = main_city_prefix;
-
+				city_prefix.SetIfEmpty(main_city_prefix);
 				objid.Set(PPOBJ_LOCATION, P_Tbl->data.ID);
 				if(city_prefix.Len()) {
 					size_t sl = phone.Len() + city_prefix.Len();

@@ -201,9 +201,8 @@ int SLAPI PPAdvBillItemList::Serialize(int dir, SBuffer & rBuf, SSerializeContex
 
 class AdvBillItemDialog : public TDialog {
 public:
-	AdvBillItemDialog(uint dlgID) : TDialog(dlgID)
+	AdvBillItemDialog(uint dlgID) : TDialog(dlgID), P_Pack(0)
 	{
-		P_Pack = 0;
 	}
 	void   setBillPacket(const PPBillPacket * pPack)
 	{

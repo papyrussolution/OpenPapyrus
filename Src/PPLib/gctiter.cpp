@@ -76,9 +76,8 @@ int FASTCALL GCTFilt::AcceptIntr3(const BillTbl::Rec & rRec) const
 //
 // GCT_BillCache
 //
-SLAPI GCTIterator::GCT_BillCache::GCT_BillCache()
+SLAPI GCTIterator::GCT_BillCache::GCT_BillCache() : P_BObj(BillObj)
 {
-	P_BObj = BillObj;
 }
 
 int FASTCALL GCTIterator::GCT_BillCache::CheckBillForAgent(PPID billID) const
@@ -380,22 +379,17 @@ long SLAPI GCTIterator::AnalyzeOp(PPID opID, PPIDArray * pResultOpList)
 //
 // GCTIterator
 //
-SLAPI GCTIterator::GCTIterator(const GCTFilt * pFilt, const DateRange * pDRange)
+SLAPI GCTIterator::GCTIterator(const GCTFilt * pFilt, const DateRange * pDRange) : State(0), IterPhase(iterphaseInit),
+	trfr_q(0), rcpt_q(0), cptrfr_q(0), BCache(0), P_GoodsRestList(0)
 {
 	Filt = *pFilt;
-	State = 0;
-	IterPhase = iterphaseInit;
 	Period = *pDRange;
-	trfr_q = rcpt_q = 0;
-	cptrfr_q = 0; // @v9.4.1
 	{
 		PPObjBill * p_bobj = BillObj;
 		Trfr = p_bobj->trfr;
 		CpTrfr = p_bobj->P_CpTrfr;
 		BT   = p_bobj->P_Tbl;
 	}
-	BCache = 0;
-	P_GoodsRestList = 0;
 	if(Filt.ArList.GetCount()) {
 		const PPIDArray & r_ar_list = Filt.ArList.Get();
 		PPIDArray list;

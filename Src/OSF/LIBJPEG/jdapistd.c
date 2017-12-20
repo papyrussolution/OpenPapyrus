@@ -202,8 +202,7 @@ GLOBAL(boolean) jpeg_start_output(j_decompress_ptr cinfo, int scan_number)
 	/* Limit scan number to valid range */
 	if(scan_number <= 0)
 		scan_number = 1;
-	if(cinfo->inputctl->eoi_reached &&
-	    scan_number > cinfo->input_scan_number)
+	if(cinfo->inputctl->eoi_reached && scan_number > cinfo->input_scan_number)
 		scan_number = cinfo->input_scan_number;
 	cinfo->output_scan_number = scan_number;
 	/* Perform any dummy output passes, and set up for the real pass */

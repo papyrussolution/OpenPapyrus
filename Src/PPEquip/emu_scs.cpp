@@ -65,13 +65,9 @@ PPSyncCashSession * SLAPI CM_SYNCSYM::SyncInterface()
 
 REGISTER_CMT(SYNCSYM,1,0);
 
-SLAPI SCS_SYNCSYM::SCS_SYNCSYM(PPID n, char * pName, char * pPort) : PPSyncCashSession(n, pName, pPort)
+SLAPI SCS_SYNCSYM::SCS_SYNCSYM(PPID n, char * pName, char * pPort) : PPSyncCashSession(n, pName, pPort),
+	PrinterDC(0), OldPrinterFont(0), PrinterPort(SCn.PrinterPort), TextOutput(0)
 {
-	PrinterDC = 0;
-	OldPrinterFont = 0;
-	PrinterPort = SCn.PrinterPort;
-	// PPRef->GetItem(PPOBJ_CASHNODE, n, &NodeRec); // @vmiller
-	TextOutput = 0; // @vmiller
 }
 
 SLAPI SCS_SYNCSYM::~SCS_SYNCSYM()
@@ -342,7 +338,6 @@ int SLAPI SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
 				THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 				if(r > 0) {
 					SString buf;
-					PrnLineStruc * p_prn_ls = 0;
 					PrnLinesArray prn_list;
 					TextOutput = sdc_param.TextOutput; // @vmiller
 					SETIFZ(pPack->Rec.Dt, getcurdate_());
@@ -353,17 +348,21 @@ int SLAPI SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
 							double _p = sl_param.Price;
 							running_total += (_q * _p);
 						}
-						p_prn_ls = new PrnLineStruc;
-						p_prn_ls->PrnBuf = line_buf;
-						p_prn_ls->Param = sl_param;
-						prn_list.insert(p_prn_ls);
+						{
+							PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
+							THROW_SL(p_prn_ls);
+							p_prn_ls->PrnBuf = line_buf;
+							p_prn_ls->Param = sl_param;
+						}
 					}
 					buf.Z().Dot();
 					sl_param.Init();
-					p_prn_ls = new PrnLineStruc;
-					p_prn_ls->PrnBuf = buf;
-					p_prn_ls->Param  = sl_param;
-					prn_list.insert(p_prn_ls);
+					{
+						PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
+						THROW_SL(p_prn_ls);
+						p_prn_ls->PrnBuf = buf;
+						p_prn_ls->Param  = sl_param;
+					}
 					SendToPrinter(&prn_list);
 				}
 			}
@@ -389,21 +388,22 @@ int SLAPI SCS_SYNCSYM::PrintCheckByBill(const PPBillPacket * pPack, double multi
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {
 				SString buf;
-				PrnLineStruc * p_prn_ls = 0;
 				PrnLinesArray prn_list;
 				TextOutput = sdc_param.TextOutput; // @vmiller
 				for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
-					p_prn_ls = new PrnLineStruc;
+					PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
+					THROW_SL(p_prn_ls);
 					p_prn_ls->PrnBuf = line_buf;
 					p_prn_ls->Param = sl_param;
-					prn_list.insert(p_prn_ls);
 				}
 				buf.Z().Dot();
 				sl_param.Init();
-				p_prn_ls = new PrnLineStruc;
-				p_prn_ls->PrnBuf = buf;
-				p_prn_ls->Param  = sl_param;
-				prn_list.insert(p_prn_ls);
+				{
+					PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
+					THROW_SL(p_prn_ls);
+					p_prn_ls->PrnBuf = buf;
+					p_prn_ls->Param  = sl_param;
+				}
 				SendToPrinter(&prn_list);
 			}
 		}

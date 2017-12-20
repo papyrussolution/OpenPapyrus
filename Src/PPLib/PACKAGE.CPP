@@ -1,5 +1,5 @@
 // PACKAGE.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2008, 2009, 2010, 2015, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017
 // @Kernel
 //
 #include <pp.h>
@@ -8,19 +8,19 @@
 // Implementation of LPackage
 // @todo 29/06/2006 Перевести на LAssocArray
 //
-struct LPII {
+struct LPII { // @flat
 	int16  Idx;
 	int32  ID;
 };
 
-SLAPI LPackage::LPackage() : SArray(sizeof(LPII))
+SLAPI LPackage::LPackage() : SVector(sizeof(LPII)) // @v9.8.11 SArray-->SVector
 {
 	Init();
 }
 
 int FASTCALL LPackage::Copy(const LPackage & s)
 {
-	SArray::copy(s);
+	SVector::copy(s); // @v9.8.11 SArray-->SVector
 	PckgIdx = s.PckgIdx;
 	ID = s.ID;
 	PrevID = s.PrevID;

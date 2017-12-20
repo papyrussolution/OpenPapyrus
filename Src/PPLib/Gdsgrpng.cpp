@@ -96,13 +96,9 @@ IMPL_CMPFUNC(GGAKey, i1, i2)
 		return 0;
 }
 
-SLAPI GoodsGrpngArray::GoodsGrpngArray(PPLogger * pLogger) : SArray(sizeof(GoodsGrpngEntry))
+SLAPI GoodsGrpngArray::GoodsGrpngArray(PPLogger * pLogger) : SVector(sizeof(GoodsGrpngEntry)), // @v9.8.11 SArray-->SVector
+	P_BObj(BillObj), ExtCostAmtID(0), ExtPriceAmtID(0), ExtDisAmtID(0), P_Logger(pLogger), ErrDetected(0), P_PplBlk(0)
 {
-	P_BObj = BillObj;
-	ExtCostAmtID = ExtPriceAmtID = ExtDisAmtID = 0;
-	P_Logger = pLogger;
-	ErrDetected = 0;
-	P_PplBlk = 0;
 }
 
 SLAPI GoodsGrpngArray::~GoodsGrpngArray()
@@ -125,7 +121,7 @@ int SLAPI GoodsGrpngArray::WasErrDetected() const
 
 GoodsGrpngEntry & FASTCALL GoodsGrpngArray::at(uint p)
 {
-	return *(GoodsGrpngEntry*)SArray::at(p);
+	return *(GoodsGrpngEntry*)SVector::at(p); // @v9.8.11 SArray-->SVector
 }
 
 int SLAPI GoodsGrpngArray::Search(GoodsGrpngEntry * pGGE, uint * p)
@@ -306,13 +302,11 @@ private:
 	const AdjGdsGrpng * P_Agg;
 };
 
-SLAPI GCT_Iterator::GCT_Iterator(const GCTFilt * f, const DateRange * pDR, const AdjGdsGrpng * pAgg)
+SLAPI GCT_Iterator::GCT_Iterator(const GCTFilt * f, const DateRange * pDR, const AdjGdsGrpng * pAgg) : P_Agg(pAgg), trfr_q(0), rcpt_q(0)
 {
 	flt = *f;
-	P_Agg = pAgg;
 	if(!RVALUEPTR(Period, pDR))
 		Period.SetZero();
-	trfr_q = rcpt_q = 0;
 	Trfr = BillObj->trfr;
 }
 

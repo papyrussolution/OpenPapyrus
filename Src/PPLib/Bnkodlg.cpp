@@ -1,5 +1,5 @@
 // BNKODLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2014, 2016
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2014, 2016, 2017
 // @codepage windows-1251
 // Диалог редактирования данных для банковских платежных документов
 //
@@ -191,10 +191,9 @@ int BnkOrdTaxMarkersDialog::getDTS(PPBankingOrder * pData)
 //
 // BankingOrder (declared in PPDLGS.H)
 //
-BankingOrderDialog::BankingOrderDialog() : TDialog(DLG_BNKPAYM)
+BankingOrderDialog::BankingOrderDialog() : TDialog(DLG_BNKPAYM), PayerValidCode(-1), RcvrValidCode(-1)
 {
 	SetupCalCtrl(CTLCAL_BNKPAYM_DT, this, CTL_BNKPAYM_DT, 4);
-	PayerValidCode = RcvrValidCode = -1;
 	Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
 	Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
 }

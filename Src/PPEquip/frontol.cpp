@@ -76,13 +76,8 @@ public:
 
 REGISTER_CMT(FRONTOL,0,1);
 
-SLAPI ACS_FRONTOL::ACS_FRONTOL(PPID id) : PPAsyncCashSession(id)
+SLAPI ACS_FRONTOL::ACS_FRONTOL(PPID id) : PPAsyncCashSession(id), ImpExpTimeout(0), ImportDelay(0), CrdCardAsDsc(0), SkipExportingDiscountSchemes(0)
 {
-	ImpExpTimeout = 0;
-	ImportDelay = 0;
-	CrdCardAsDsc = 0;
-	SkipExportingDiscountSchemes = 0;
-
 	int    v = 0;
 	PPIniFile ini_file;
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ATOL_TIMEOUT, &ImpExpTimeout);

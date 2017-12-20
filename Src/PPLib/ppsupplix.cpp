@@ -4502,10 +4502,10 @@ void SLAPI SapEfes::Init()
 {
 	Reference * p_ref = PPRef;
 	State = 0;
-	SvcUrl = 0;
-	UserName = 0;
-	Password = 0;
-	Wareh = 0;
+	SvcUrl.Z();
+	UserName.Z();
+	Password.Z();
+	Wareh.Z();
 	{
         Ep.GetExtStrData(Ep.extssRemoteAddr, SvcUrl);
         Ep.GetExtStrData(Ep.extssAccsName, UserName);
@@ -4525,8 +4525,7 @@ void SLAPI SapEfes::Init()
 		}
 	}
 	// } @v9.5.5
-	if(Wareh.Empty())
-		Wareh = "DDJ0";
+	Wareh.SetIfEmpty("DDJ0");
 	InitGoodsList(iglfWithArCodesOnly); // @v9.5.1
 	State |= stInited;
 }
@@ -5056,8 +5055,8 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
 								skip = 1;
 							}
 						}
-						else if(loc_code.Empty())
-							loc_code = cli_code;
+						else
+							loc_code.SetIfEmpty(cli_code);
 						if(!skip) {
 							Goods2Tbl::Rec goods_rec;
 							BillTbl::Rec ord_rec;

@@ -2277,10 +2277,9 @@ int SLAPI RecoverTransfer()
 							p_pack = p;
 					}
 					if(!p_pack) {
-						THROW_MEM(p_pack = new PPBillPacket);
+						THROW_SL(p_pack = pack_list.CreateNewItem());
 						THROW(p_pack->CreateBlank2(CConfig.ReceiptOp, first_date, loc_id, 0));
 						PPGetWord(PPWORD_AT_AUTO, 0, p_pack->Rec.Memo, sizeof(p_pack->Rec.Memo));
-						THROW_SL(pack_list.insert(p_pack));
 					}
 					THROW(ti.Init(&p_pack->Rec));
 					ti.GoodsID  = goods_id;

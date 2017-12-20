@@ -131,8 +131,7 @@ typedef struct {                /* Bitreading working state within an MCU */
 
 #define CHECK_BIT_BUFFER(state, nbits, action) \
 	{ if(bits_left < (nbits)) {  \
-		  if(!jpeg_fill_bit_buffer(&(state), get_buffer, bits_left, nbits))  \
-		  { action; }  \
+		  if(!jpeg_fill_bit_buffer(&(state), get_buffer, bits_left, nbits)) { action; }  \
 		  get_buffer = (state).get_buffer; bits_left = (state).bits_left; } }
 
 #define GET_BITS(nbits)	(((int)(get_buffer >> (bits_left -= (nbits)))) & BIT_MASK(nbits))
@@ -156,7 +155,7 @@ typedef struct {                /* Bitreading working state within an MCU */
  */
 
 #define HUFF_DECODE(result, state, htbl, failaction, slowlabel)	\
-	{ register int nb, look; \
+	{ int nb, look; \
 	  if(bits_left < HUFF_LOOKAHEAD) { \
 		  if(!jpeg_fill_bit_buffer(&state, get_buffer, bits_left, 0)) {failaction; } \
 		  get_buffer = state.get_buffer; bits_left = state.bits_left; \
@@ -243,7 +242,7 @@ typedef struct {
 
 typedef huff_entropy_decoder * huff_entropy_ptr;
 
-static const int jpeg_zigzag_order[8][8] = {
+static const int8 jpeg_zigzag_order[8][8] = {
 	{  0,  1,  5,  6, 14, 15, 27, 28 },
 	{  2,  4,  7, 13, 16, 26, 29, 42 },
 	{  3,  8, 12, 17, 25, 30, 41, 43 },
@@ -254,7 +253,7 @@ static const int jpeg_zigzag_order[8][8] = {
 	{ 35, 36, 48, 49, 57, 58, 62, 63 }
 };
 
-static const int jpeg_zigzag_order7[7][7] = {
+static const int8 jpeg_zigzag_order7[7][7] = {
 	{  0,  1,  5,  6, 14, 15, 27 },
 	{  2,  4,  7, 13, 16, 26, 28 },
 	{  3,  8, 12, 17, 25, 29, 38 },
@@ -264,7 +263,7 @@ static const int jpeg_zigzag_order7[7][7] = {
 	{ 21, 33, 34, 42, 43, 47, 48 }
 };
 
-static const int jpeg_zigzag_order6[6][6] = {
+static const int8 jpeg_zigzag_order6[6][6] = {
 	{  0,  1,  5,  6, 14, 15 },
 	{  2,  4,  7, 13, 16, 25 },
 	{  3,  8, 12, 17, 24, 26 },
@@ -273,7 +272,7 @@ static const int jpeg_zigzag_order6[6][6] = {
 	{ 20, 21, 29, 30, 34, 35 }
 };
 
-static const int jpeg_zigzag_order5[5][5] = {
+static const int8 jpeg_zigzag_order5[5][5] = {
 	{  0,  1,  5,  6, 14 },
 	{  2,  4,  7, 13, 15 },
 	{  3,  8, 12, 16, 21 },
@@ -281,24 +280,23 @@ static const int jpeg_zigzag_order5[5][5] = {
 	{ 10, 18, 19, 23, 24 }
 };
 
-static const int jpeg_zigzag_order4[4][4] = {
+static const int8 jpeg_zigzag_order4[4][4] = {
 	{ 0,  1,  5,  6 },
 	{ 2,  4,  7, 12 },
 	{ 3,  8, 11, 13 },
 	{ 9, 10, 14, 15 }
 };
 
-static const int jpeg_zigzag_order3[3][3] = {
+static const int8 jpeg_zigzag_order3[3][3] = {
 	{ 0, 1, 5 },
 	{ 2, 4, 6 },
 	{ 3, 7, 8 }
 };
 
-static const int jpeg_zigzag_order2[2][2] = {
+static const int8 jpeg_zigzag_order2[2][2] = {
 	{ 0, 1 },
 	{ 2, 3 }
 };
-
 /*
  * Compute the derived values for a Huffman table.
  * This routine also performs some validation checks on the table.
@@ -423,31 +421,26 @@ static void jpeg_make_d_derived_tbl(j_decompress_ptr cinfo, boolean isDC, int tb
  * be a win to set MIN_GET_BITS to the minimum value of 15.  This reduces the
  * average shift distance at the cost of more calls to jpeg_fill_bit_buffer.
  */
-
 #ifdef SLOW_SHIFT_32
-#define MIN_GET_BITS  15        /* minimum allowable value */
+	#define MIN_GET_BITS  15        /* minimum allowable value */
 #else
-#define MIN_GET_BITS  (BIT_BUF_SIZE-7)
+	#define MIN_GET_BITS  (BIT_BUF_SIZE-7)
 #endif
-
-LOCAL(boolean) jpeg_fill_bit_buffer(bitread_working_state * state,
-    register bit_buf_type get_buffer, register int bits_left,
-    int nbits)
-/* Load up the bit buffer to a depth of at least nbits */
+//
+// Load up the bit buffer to a depth of at least nbits 
+//
+static boolean FASTCALL jpeg_fill_bit_buffer(bitread_working_state * state, bit_buf_type get_buffer, int bits_left, int nbits)
 {
 	/* Copy heavily used state fields into locals (hopefully registers) */
-	register const JOCTET * next_input_byte = state->next_input_byte;
-	register size_t bytes_in_buffer = state->bytes_in_buffer;
+	const JOCTET * next_input_byte = state->next_input_byte;
+	size_t bytes_in_buffer = state->bytes_in_buffer;
 	j_decompress_ptr cinfo = state->cinfo;
-
 	/* Attempt to load at least MIN_GET_BITS bits into get_buffer. */
 	/* (It is assumed that no request will be for more than that many bits.) */
 	/* We fail to do so only if we hit a marker or are forced to suspend. */
-
 	if(cinfo->unread_marker == 0) { /* cannot advance past a marker */
 		while(bits_left < MIN_GET_BITS) {
-			register int c;
-
+			int c;
 			/* Attempt to read a byte */
 			if(bytes_in_buffer == 0) {
 				if(!(*cinfo->src->fill_input_buffer)(cinfo))
@@ -475,7 +468,6 @@ LOCAL(boolean) jpeg_fill_bit_buffer(bitread_working_state * state,
 					bytes_in_buffer--;
 					c = GETJOCTET(*next_input_byte++);
 				} while(c == 0xFF);
-
 				if(c == 0) {
 					/* Found FF/00, which represents an FF data byte */
 					c = 0xFF;
@@ -494,7 +486,6 @@ LOCAL(boolean) jpeg_fill_bit_buffer(bitread_working_state * state,
 					goto no_more_bytes;
 				}
 			}
-
 			/* OK, load c into get_buffer */
 			get_buffer = (get_buffer << 8) | c;
 			bits_left += 8;
@@ -546,31 +537,24 @@ no_more_bytes:
 #define BIT_MASK(nbits)   bmask[nbits]
 #define HUFF_EXTEND(x, s)  ((x) <= bmask[(s) - 1] ? (x) - bmask[s] : (x))
 
-static const int bmask[16] =    /* bmask[n] is mask for n rightmost bits */
-{ 0, 0x0001, 0x0003, 0x0007, 0x000F, 0x001F, 0x003F, 0x007F, 0x00FF,
-  0x01FF, 0x03FF, 0x07FF, 0x0FFF, 0x1FFF, 0x3FFF, 0x7FFF };
+// bmask[n] is mask for n rightmost bits 
+static const int bmask[16] = { 0, 0x0001, 0x0003, 0x0007, 0x000F, 0x001F, 0x003F, 0x007F, 0x00FF, 0x01FF, 0x03FF, 0x07FF, 0x0FFF, 0x1FFF, 0x3FFF, 0x7FFF };
 
 #endif /* AVOID_TABLES */
 
 /*
  * Out-of-line code for Huffman code decoding.
  */
-static int jpeg_huff_decode(bitread_working_state * state,
-    register bit_buf_type get_buffer, register int bits_left,
-    d_derived_tbl * htbl, int min_bits)
+static int jpeg_huff_decode(bitread_working_state * state, bit_buf_type get_buffer, int bits_left, d_derived_tbl * htbl, int min_bits)
 {
 	register int l = min_bits;
 	register INT32 code;
-
 	/* HUFF_DECODE has determined that the code is at least min_bits */
 	/* bits long, so fetch that many bits in one swoop. */
-
 	CHECK_BIT_BUFFER(*state, l, return -1);
 	code = GET_BITS(l);
-
 	/* Collect the rest of the Huffman code one bit at a time. */
 	/* This is per Figure F.16 in the JPEG spec. */
-
 	while(code > htbl->maxcode[l]) {
 		code <<= 1;
 		CHECK_BIT_BUFFER(*state, 1, return -1);
@@ -599,18 +583,16 @@ static int jpeg_huff_decode(bitread_working_state * state,
 METHODDEF(void) finish_pass_huff(j_decompress_ptr cinfo)
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
-
 	/* Throw away any unused bits remaining in bit buffer; */
 	/* include any full bytes in next_marker's count of discarded bytes */
 	cinfo->marker->discarded_bytes += entropy->bitstate.bits_left / 8;
 	entropy->bitstate.bits_left = 0;
 }
-
 /*
  * Check for a restart marker & resynchronize decoder.
  * Returns FALSE if must suspend.
  */
-LOCAL(boolean) process_restart(j_decompress_ptr cinfo)
+static boolean FASTCALL process_restart(j_decompress_ptr cinfo)
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
 	int ci;
@@ -618,16 +600,13 @@ LOCAL(boolean) process_restart(j_decompress_ptr cinfo)
 	/* Advance past the RSTn marker */
 	if(!(*cinfo->marker->read_restart_marker)(cinfo))
 		return FALSE;
-
 	/* Re-initialize DC predictions to 0 */
 	for(ci = 0; ci < cinfo->comps_in_scan; ci++)
 		entropy->saved.last_dc_val[ci] = 0;
 	/* Re-init EOB run count, too */
 	entropy->saved.EOBRUN = 0;
-
 	/* Reset restart counter */
 	entropy->restarts_to_go = cinfo->restart_interval;
-
 	/* Reset out-of-data flag, unless read_restart_marker left us smack up
 	 * against a marker.  In that case we will end up treating the next data
 	 * segment as empty, and we can avoid producing bogus output pixels by
@@ -635,10 +614,8 @@ LOCAL(boolean) process_restart(j_decompress_ptr cinfo)
 	 */
 	if(cinfo->unread_marker == 0)
 		entropy->insufficient_data = FALSE;
-
 	return TRUE;
 }
-
 /*
  * Huffman MCU decoding.
  * Each of these routines decodes and returns one MCU's worth of
@@ -718,10 +695,8 @@ METHODDEF(boolean) decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 		BITREAD_SAVE_STATE(cinfo, entropy->bitstate);
 		ASSIGN_STATE(entropy->saved, state);
 	}
-
 	/* Account for restart interval (no-op if not using restarts) */
 	entropy->restarts_to_go--;
-
 	return TRUE;
 }
 
@@ -729,7 +704,6 @@ METHODDEF(boolean) decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
  * MCU decoding for AC initial scan (either spectral selection,
  * or first pass of successive approximation).
  */
-
 METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
@@ -1009,12 +983,10 @@ undoit:
 
 	return FALSE;
 }
-
 /*
  * Decode one MCU's worth of Huffman-compressed coefficients,
  * partial blocks.
  */
-
 METHODDEF(boolean) decode_mcu_sub(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 {
 	huff_entropy_ptr entropy = (huff_entropy_ptr)cinfo->entropy;
@@ -1108,10 +1080,8 @@ METHODDEF(boolean) decode_mcu_sub(j_decompress_ptr cinfo, JBLOCKROW *MCU_data)
 			/* In this path we just discard the values */
 			for(; k <= Se; k++) {
 				HUFF_DECODE(s, br_state, htbl, return FALSE, label3);
-
 				r = s >> 4;
 				s &= 15;
-
 				if(s) {
 					k += r;
 					CHECK_BIT_BUFFER(br_state, s, return FALSE);
@@ -1332,7 +1302,6 @@ bad:
 			else
 				entropy->pub.decode_mcu = decode_mcu_AC_refine;
 		}
-
 		for(ci = 0; ci < cinfo->comps_in_scan; ci++) {
 			compptr = cinfo->cur_comp_info[ci];
 			/* Make sure requested tables are present, and compute derived tables.
@@ -1341,21 +1310,18 @@ bad:
 			if(cinfo->Ss == 0) {
 				if(cinfo->Ah == 0) { /* DC refinement needs no table */
 					tbl = compptr->dc_tbl_no;
-					jpeg_make_d_derived_tbl(cinfo, TRUE, tbl,
-					    &entropy->derived_tbls[tbl]);
+					jpeg_make_d_derived_tbl(cinfo, TRUE, tbl, &entropy->derived_tbls[tbl]);
 				}
 			}
 			else {
 				tbl = compptr->ac_tbl_no;
-				jpeg_make_d_derived_tbl(cinfo, FALSE, tbl,
-				    &entropy->derived_tbls[tbl]);
+				jpeg_make_d_derived_tbl(cinfo, FALSE, tbl, &entropy->derived_tbls[tbl]);
 				/* remember the single active table */
 				entropy->ac_derived_tbl = entropy->derived_tbls[tbl];
 			}
 			/* Initialize DC predictions to 0 */
 			entropy->saved.last_dc_val[ci] = 0;
 		}
-
 		/* Initialize private state variables */
 		entropy->saved.EOBRUN = 0;
 	}
@@ -1386,12 +1352,10 @@ bad:
 			/* Compute derived values for Huffman tables */
 			/* We may do this more than once for a table, but it's not expensive */
 			tbl = compptr->dc_tbl_no;
-			jpeg_make_d_derived_tbl(cinfo, TRUE, tbl,
-			    &entropy->dc_derived_tbls[tbl]);
+			jpeg_make_d_derived_tbl(cinfo, TRUE, tbl, &entropy->dc_derived_tbls[tbl]);
 			if(cinfo->lim_Se) { /* AC needs no table when not present */
 				tbl = compptr->ac_tbl_no;
-				jpeg_make_d_derived_tbl(cinfo, FALSE, tbl,
-				    &entropy->ac_derived_tbls[tbl]);
+				jpeg_make_d_derived_tbl(cinfo, FALSE, tbl, &entropy->ac_derived_tbls[tbl]);
 			}
 			/* Initialize DC predictions to 0 */
 			entropy->saved.last_dc_val[ci] = 0;
@@ -1472,7 +1436,6 @@ GLOBAL(void) jinit_huff_decoder(j_decompress_ptr cinfo)
 {
 	huff_entropy_ptr entropy;
 	int i;
-
 	entropy = (huff_entropy_ptr)
 	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
 	    SIZEOF(huff_entropy_decoder));

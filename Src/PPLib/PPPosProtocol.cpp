@@ -4130,10 +4130,10 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 			}
 			else
 				this_db_uuid.SetZero();
-			SFileEntryPool::Entry fe;
+			//SFileEntryPool::Entry fe;
 			for(uint i = 0; i < fep.GetCount(); i++) {
-				if(fep.Get(i, fe)) {
-					(in_file_name = fe.Path).SetLastSlash().Cat(fe.Name);
+				if(fep.Get(i, 0, &in_file_name)) {
+					//(in_file_name = fe.Path).SetLastSlash().Cat(fe.Name);
 					if(fileExists(in_file_name) && SFile::WaitForWriteSharingRelease(in_file_name, 60000)) {
 						DestroyReadBlock();
 						PPID   cn_id = 0;

@@ -1390,8 +1390,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 		if(!isempty(pOutFileName)) {
 			P_ExportCls->PathStruct.Split(pOutFileName);
 			P_ExportCls->PathStruct.Ext = "xml";
-			if(P_ExportCls->PathStruct.Nam.Empty())
-				P_ExportCls->PathStruct.Nam = "export_";
+			P_ExportCls->PathStruct.Nam.SetIfEmpty("export_");
 		}
 		else {
 			SLS.Init("Papyrus");

@@ -99,7 +99,7 @@ PPPaintCloth * SLAPI PPFindLastPaintCloth()
 	return APPL ? (PPPaintCloth*)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 2) : 0;
 }
 
-STextBrowser * SLAPI PPFindLastTextBrowser(const char * pFileName)
+static STextBrowser * SLAPI PPFindLastTextBrowser(const char * pFileName)
 {
 	return APPL ? (STextBrowser*)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 3, pFileName) : 0;
 }
@@ -397,7 +397,7 @@ int SLAPI GetIntRangeInput(TDialog * dlg, uint ctl, IntRange * pR)
 		return 0;
 }
 
-int SLAPI PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMenuID)
+int FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMenuID)
 {
 	int    ok = 1;
 	if(pDlg) {
@@ -2245,8 +2245,7 @@ IMPL_HANDLE_EVENT(ExtOpenFileDlg)
 			}
 		}
 		else if(TVCMD == cmBrowseDir) {
-			SString dir;
-			dir = WaitFolder;
+			SString dir = WaitFolder;
 			if(PPOpenDir(dir, OpenDirTitle, 0) > 0)
 				WaitFolder = dir;
 			SetupCtrls();
@@ -2254,8 +2253,7 @@ IMPL_HANDLE_EVENT(ExtOpenFileDlg)
 		else if(TVCMD == cmBrowseFile) {
 			SString path;
 			getCtrlString(CTL_OPENFILE_PATH, path);
-			if(path.Empty())
-				path = WaitFolder;
+			path.SetIfEmpty(WaitFolder);
 			if(PPOpenFile(path, Patterns.getBuf(), 0, 0) > 0)
 				setCtrlString(CTL_OPENFILE_PATH, Data = path);
 
@@ -3593,8 +3591,7 @@ StrAssocArray * PhoneSelExtra::GetList(const char * pText)
 									name = loc_rec.Name;
 								if(name.Empty())
 									LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, name);
-								if(name.Empty())
-									name = loc_rec.Code;
+								name.SetIfEmpty(loc_rec.Code);
 								if(name.Empty())
 									LocationCore::GetExField(&loc_rec, LOCEXSTR_FULLADDR, name);
 								if(name.Empty())

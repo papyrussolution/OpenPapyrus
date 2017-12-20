@@ -4336,9 +4336,8 @@ int SLAPI PPUhttClient::GetTSessionByPrc(long prcID, const LDATETIME & rSince, T
 			if(PreprocessResult(p_result, sess)) {
 				for(uint i = 0; i < p_result->getCount(); i++) {
 					if(p_result->at(i)) {
-						UhttTSessionPacket * p_pack = new UhttTSessionPacket;
+						UhttTSessionPacket * p_pack = rResult.CreateNewItem();
 						*p_pack = *p_result->at(i);
-						rResult.insert(p_pack);
 					}
 				}
 				DestroyResult((void **)&p_result);

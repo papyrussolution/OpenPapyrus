@@ -4428,11 +4428,10 @@ int SLAPI CSessGrouping::ConvertSign(const int sign, const PPID sessID, const PP
 							if(qtty > 0.0 && sign > 0) {
 								THROW(p_bobj->ConvertILTI(&ilti, &pack, 0, cvt_flags, serial_buf));
 								if(ComplDfct && CConfig.AutoComplOp && R6(ilti.Rest) != 0.0) {
-									PUGL * p_pugl = new PUGL;
-									THROW_MEM(p_pugl);
+									PUGL * p_pugl = compl_dfct_list.CreateNewItem();
+									THROW_SL(p_pugl);
 									THROW(p_pugl->Add(&ilti, pack.Rec.LocID, item_pos, pack.Rec.Dt));
 									p_pugl->SetHeader(&pack.Rec);
-									compl_dfct_list.insert(p_pugl);
 								}
 							}
 							else if(qtty < 0.0 && sign < 0) {
@@ -4584,11 +4583,10 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 									p_pack = p;
 							}
 							if(!p_pack) {
-								THROW_MEM(p_pack = new PPBillPacket);
+								THROW_SL(p_pack = pack_list.CreateNewItem());
 								THROW(p_pack->CreateBlank2(op_id, date, loc_id, 0));
 								PPGetWord(PPWORD_AT_AUTO, 0, p_pack->Rec.Memo, sizeof(p_pack->Rec.Memo));
 								p_pack->SetPoolMembership(PPBillPacket::bpkCSessDfct, sessID);
-								THROW_SL(pack_list.insert(p_pack));
 							}
 							if(GetOpData(p_pack->Rec.OpID, &op_rec) > 0) {
 								if(op_rec.AccSheetID == r_cfg.LocAccSheetID)

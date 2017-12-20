@@ -1299,15 +1299,21 @@ int DL200_ParamDialog::setupFileCombo()
 			uint   p, i = 0;
 			SDirEntry sde;
 			SString path, file_path;
-			PPFileNameArray fary;
+			//PPFileNameArray fary;
+			SFileEntryPool fep;
 			THROW(PPGetPath(PPPATH_DD, path));
-			THROW(fary.Scan(path.SetLastSlash(), "*" ".BIN"));
-			for(p = 0; fary.Enum(&p, &sde, &file_path);)
-				if(DL2_Storage::IsDL200File(file_path) > 0) {
-					if(stricmp(Data.FileName, file_path) == 0)
-						sel = i+1;
-					p_lw->listBox()->addItem(++i, sde.FileName);
+			//THROW(fary.Scan(path.SetLastSlash(), "*" ".BIN"));
+			THROW(fep.Scan(path.SetLastSlash(), "*.BIN", 0));
+			//for(p = 0; fary.Enum(&p, &sde, &file_path);)
+			for(p = 0; p < fep.GetCount(); p++) {
+				if(fep.Get(p, 0, &file_path)) {
+					if(DL2_Storage::IsDL200File(file_path) > 0) {
+						if(stricmp(Data.FileName, file_path) == 0)
+							sel = i+1;
+						p_lw->listBox()->addItem(++i, sde.FileName);
+					}
 				}
+			}
 		}
 		p_cb->setListWindow(p_lw, sel);
 	}

@@ -421,12 +421,11 @@ int SLAPI PPViewOpGrouping::AddStatItem(PPID opID, int sign, double val, uint si
 		}
 	}
 	if(!found) {
-		OpGroupingStatEntry * p_new_entry = new OpGroupingStatEntry;
+		OpGroupingStatEntry * p_new_entry = pList[si].CreateNewItem();
 		p_new_entry->OpID = opID;
 		p_new_entry->Sign = sign;
 		p_new_entry->S.Init(StatBase::fStoreVals);
 		p_new_entry->S.Step(val);
-		pList[si].insert(p_new_entry);
 	}
 	return ok;
 }

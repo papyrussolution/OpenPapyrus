@@ -558,7 +558,7 @@ static char * SLAPI protectFileName(char * p, const char * pDataPath)
 	n[1] = 'B';
 	if(pDataPath && pDataPath[0]) {
 		size_t len = strlen(strcpy(p, pDataPath));
-		if(p[len - 1] != '\\') {
+		if(p[len-1] != '\\') {
 			p[len] = '\\';
 			p[++len] = 0;
 		}

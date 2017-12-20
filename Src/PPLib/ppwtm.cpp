@@ -2525,6 +2525,7 @@ int SLAPI DoConstructionTest()
 	int    ok = -1;
 #ifndef NDEBUG
 	//Test_MailMsg_ReadFromFile();
+	//TestSArchive();
 	Test_MakeEmailMessage();
 #endif
 	//PPWhatmanWindow::Launch("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm");
@@ -2564,7 +2565,6 @@ int SLAPI DoConstructionTest()
 		*/
 	}
 #endif // } 0
-	//TestSArchive();
 	//TestLargeVlrInputOutput();
 	return ok;
 }

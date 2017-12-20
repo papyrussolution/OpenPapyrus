@@ -111,7 +111,7 @@ int SLAPI PPIniFile::IsWinCoding()
 int SLAPI PPIniFile::Backup(uint maxCopies)
 {
 	int    ok = 1;
-	struct FE {
+	struct FE { // @flat
 		LDATETIME Dtm;
 		long   C;
 	};
@@ -121,7 +121,7 @@ int SLAPI PPIniFile::Backup(uint maxCopies)
 	SString new_name, temp_name;
 	SString nam = ps.Nam;
 	long   c = 0;
-	SArray fe_list(sizeof(FE));
+	SVector fe_list(sizeof(FE)); // @v9.8.11 SArray-->SVector
 	do {
 		(ps.Nam = nam).CatChar('-').CatLongZ(++c, 3);
 		ps.Merge(temp_name);
@@ -133,8 +133,8 @@ int SLAPI PPIniFile::Backup(uint maxCopies)
 			fe.C = c;
 			fe_list.insert(&fe);
 		}
-		else if(new_name.Empty())
-			new_name = temp_name;
+		else 
+			new_name.SetIfEmpty(temp_name);
 	} while(c < 999);
 	if(new_name.NotEmpty()) {
 		fe_list.sort(PTR_CMPFUNC(LDATETIME));

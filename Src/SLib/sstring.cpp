@@ -1108,8 +1108,7 @@ int SLAPI STokenizer::IndexResources(int force)
 		P_ResourceIndex = new TSCollection <ResourceIndexItem>;
 		uint   _pos_in_rtext = 0;
 		uint   _rp = 0;
-		uint   i;
-		for(i = 0; i < L.getCount(); i++) {
+		for(uint i = 0; i < L.getCount(); i++) {
 			const Token & r_t = L.at(i);
 			if(r_t.RP) {
 				if(r_t.RP == _rp) {
@@ -1120,21 +1119,16 @@ int SLAPI STokenizer::IndexResources(int force)
 					_pos_in_rtext = 0;
 				}
 				uint  _p = 0;
+				ResourceToken rt_item;
+				rt_item.RP = r_t.RP;
+				rt_item.PosInRText = _pos_in_rtext;
 				if(P_ResourceIndex->lsearch(&r_t.PP, &_p, CMPF_LONG)) {
-					ResourceToken rt_item;
-					rt_item.RP = r_t.RP;
-					rt_item.PosInRText = _pos_in_rtext;
 					P_ResourceIndex->at(_p)->RL.insert(&rt_item);
 				}
 				else {
-					ResourceIndexItem * p_new_item = new ResourceIndexItem;
+					ResourceIndexItem * p_new_item = P_ResourceIndex->CreateNewItem();
 					p_new_item->PP = r_t.PP;
-
-					ResourceToken rt_item;
-					rt_item.RP = r_t.RP;
-					rt_item.PosInRText = _pos_in_rtext;
 					p_new_item->RL.insert(&rt_item);
-					P_ResourceIndex->insert(p_new_item);
 				}
 			}
 		}
@@ -1669,6 +1663,13 @@ SString & FASTCALL SString::SetIfEmpty(const char * pS)
 {
 	if(Empty())
 		CopyFrom(pS);
+	return *this;
+}
+
+SString & FASTCALL SString::SetIfEmpty(const SString & rS)
+{
+	if(Empty())
+		CopyFrom(rS);
 	return *this;
 }
 

@@ -5054,11 +5054,10 @@ int SLAPI PPObjBHT::TransmitData()
 {
 	class BhtSendDlg : public TDialog {
 	public:
-		BhtSendDlg(PPObjBHT * pObj) : TDialog(DLG_BHTSEND)
+		BhtSendDlg(PPObjBHT * pObj) : TDialog(DLG_BHTSEND), P_BhtObj(pObj)
 		{
 			ushort v = 0;
 			const  PPID   bht_id = pObj ? pObj->GetSingle() : 0;
-			P_BhtObj = pObj;
 			SetupPPObjCombo(this, CTLSEL_BHTSEND_BHT, PPOBJ_BHT, bht_id, 0);
 			setCtrlData(CTL_BHTSEND_WHAT,  &v);
 			setCtrlData(CTL_BHTSEND_FLAGS, &(v = 1));

@@ -122,12 +122,8 @@ IMPL_CMPCFUNC(SFSortChunkInfo, i1, i2)
 	}
 }
 
-SLAPI SFSortChunkInfo::SFSortChunkInfo()
+SLAPI SFSortChunkInfo::SFSortChunkInfo() : ChunkNo(0), LineCount_(0), CurrentFlushIdx_(0), P_RdStream(0)
 {
-	ChunkNo = 0;
-	LineCount_ = 0;
-	CurrentFlushIdx_ = 0;
-	P_RdStream = 0;
 }
 
 SLAPI SFSortChunkInfo::~SFSortChunkInfo()
@@ -140,7 +136,7 @@ void SLAPI SFSortChunkInfo::CleanUp()
 	ZDELETE(P_RdStream);
 	if(FileName.NotEmpty()) {
 		SFile::Remove(FileName);
-		FileName = 0;
+		FileName.Z();
 	}
 }
 	

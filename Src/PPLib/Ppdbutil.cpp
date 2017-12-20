@@ -484,8 +484,7 @@ int ConfigBackupDialog::updateList()
 		ss.add(strip(strcpy(sub, p_entry->Name)), 0);
 		DBES.GetAttr(p_entry->DBName, DbLoginBlock::attrDbSymb, n);
 		DBES.GetAttr(p_entry->DBName, DbLoginBlock::attrDbFriendlyName, pn);
-		if(pn.Empty())
-			pn = n;
+		pn.SetIfEmpty(n);
 		ss.add(pn.Strip(), 0);
 		List->addItem(i+1, ss.getBuf());
 	}

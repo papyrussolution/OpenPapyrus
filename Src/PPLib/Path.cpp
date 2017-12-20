@@ -450,18 +450,21 @@ SString & FASTCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, l
 	return MakeTempFileName(path.SetLastSlash(), pPrefix, pExt, pStart, rBuf);
 }
 
-int SLAPI PPRemoveFiles(const PPFileNameArray * pFileList, uint * pSuccCount, uint * pErrCount)
+int SLAPI PPRemoveFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList, uint * pSuccCount, uint * pErrCount)
 {
 	int    ok = -1;
 	uint   succ_count = 0;
 	uint   err_count = 0;
 	if(pFileList) {
 		SString file_path;
-		for(uint i = 0; pFileList->Enum(&i, 0, &file_path);) {
-			if(SFile::Remove(file_path))
-				succ_count++;
-			else
-				err_count++;
+		//for(uint i = 0; pFileList->Enum(&i, 0, &file_path);) {
+		for(uint i = 0; i < pFileList->GetCount(); i++) {
+			if(pFileList->Get(i, 0, &file_path)) {
+				if(SFile::Remove(file_path))
+					succ_count++;
+				else
+					err_count++;
+			}
 		}
 		ok = 1;
 	}
@@ -472,18 +475,31 @@ int SLAPI PPRemoveFiles(const PPFileNameArray * pFileList, uint * pSuccCount, ui
 
 int SLAPI PPRemoveFilesByExt(const char * pSrc, const char * pExt, uint * pSuccCount, uint * pErrCount)
 {
-	PPFileNameArray fary;
+	//PPFileNameArray fary;
+	SFileEntryPool fep;
 	SString wildcard;
 	wildcard.CatChar('*');
 	if(pExt && pExt[0] != '.')
 		wildcard.Dot();
 	wildcard.Cat(pExt);
-	fary.Scan(pSrc, wildcard);
-	return PPRemoveFiles(&fary, pSuccCount, pErrCount);
+	//fary.Scan(pSrc, wildcard);
+	fep.Scan(pSrc, wildcard, 0);
+	return PPRemoveFiles(&/*fary*/fep, pSuccCount, pErrCount);
 }
 //
 //
 //
+#if 0 // @v9.8.11 (replaced with SFileEntryPool) {
+class PPFileNameArray : public TSArray <SDirEntry> {
+public:
+	SLAPI  PPFileNameArray();
+	int    SLAPI Scan(const char * pPath, const char * pWildcard);
+	int    SLAPI Enum(uint * pIdx, SDirEntry * pEntry, SString * pFullPath) const;
+	const  SString & SLAPI GetPath() const;
+//private:
+	SString Path; //
+};
+
 SLAPI PPFileNameArray::PPFileNameArray() : TSArray <SDirEntry>()
 {
 }
@@ -525,3 +541,4 @@ int SLAPI PPFileNameArray::Enum(uint * pIdx, SDirEntry * pEntry, SString * pFull
 	else
 		return 0;
 }
+#endif // } 0 @v9.8.11

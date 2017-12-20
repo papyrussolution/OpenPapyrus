@@ -501,9 +501,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							// label : none below above
 							// text: code
 							PPBarcode::GetStdName(sl_param.BarcodeStd, temp_buf);
-							if(temp_buf.Empty()) {
-								temp_buf = "qr"; // "pdf417";
-							}
+							temp_buf.SetIfEmpty("qr"); // "pdf417";
 							PROFILE_START_S("DVCCMD_PRINTBARCODE")
 							ArrAdd(Arr_In, DVCPARAM_TYPE, temp_buf);
 							ArrAdd(Arr_In, DVCPARAM_WIDTH,  sl_param.BarcodeWd);

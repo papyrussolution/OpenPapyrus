@@ -49,156 +49,122 @@ GLOBAL(void) jpeg_core_output_dimensions(j_decompress_ptr cinfo)
 	/* Compute actual output image dimensions and DCT scaling choices. */
 	if(cinfo->scale_num * cinfo->block_size <= cinfo->scale_denom) {
 		/* Provide 1/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 1;
 		cinfo->min_DCT_v_scaled_size = 1;
 	}
 	else if(cinfo->scale_num * cinfo->block_size <= cinfo->scale_denom * 2) {
 		/* Provide 2/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * 2L, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * 2L, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * 2L, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * 2L, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 2;
 		cinfo->min_DCT_v_scaled_size = 2;
 	}
 	else if(cinfo->scale_num * cinfo->block_size <= cinfo->scale_denom * 3) {
 		/* Provide 3/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * 3L, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * 3L, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * 3L, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * 3L, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 3;
 		cinfo->min_DCT_v_scaled_size = 3;
 	}
 	else if(cinfo->scale_num * cinfo->block_size <= cinfo->scale_denom * 4) {
 		/* Provide 4/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * 4L, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * 4L, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * 4L, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * 4L, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 4;
 		cinfo->min_DCT_v_scaled_size = 4;
 	}
 	else if(cinfo->scale_num * cinfo->block_size <= cinfo->scale_denom * 5) {
 		/* Provide 5/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * 5L, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * 5L, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * 5L, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * 5L, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 5;
 		cinfo->min_DCT_v_scaled_size = 5;
 	}
 	else if(cinfo->scale_num * cinfo->block_size <= cinfo->scale_denom * 6) {
 		/* Provide 6/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * 6L, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * 6L, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * 6L, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * 6L, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 6;
 		cinfo->min_DCT_v_scaled_size = 6;
 	}
 	else if(cinfo->scale_num * cinfo->block_size <= cinfo->scale_denom * 7) {
 		/* Provide 7/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * 7L, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * 7L, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * 7L, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * 7L, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 7;
 		cinfo->min_DCT_v_scaled_size = 7;
 	}
 	else if(cinfo->scale_num * cinfo->block_size <= cinfo->scale_denom * 8) {
 		/* Provide 8/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * 8L, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * 8L, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * 8L, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * 8L, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 8;
 		cinfo->min_DCT_v_scaled_size = 8;
 	}
 	else if(cinfo->scale_num * cinfo->block_size <= cinfo->scale_denom * 9) {
 		/* Provide 9/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * 9L, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * 9L, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * 9L, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * 9L, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 9;
 		cinfo->min_DCT_v_scaled_size = 9;
 	}
 	else if(cinfo->scale_num * cinfo->block_size <= cinfo->scale_denom * 10) {
 		/* Provide 10/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * 10L, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * 10L, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * 10L, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * 10L, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 10;
 		cinfo->min_DCT_v_scaled_size = 10;
 	}
 	else if(cinfo->scale_num * cinfo->block_size <= cinfo->scale_denom * 11) {
 		/* Provide 11/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * 11L, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * 11L, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * 11L, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * 11L, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 11;
 		cinfo->min_DCT_v_scaled_size = 11;
 	}
 	else if(cinfo->scale_num * cinfo->block_size <= cinfo->scale_denom * 12) {
 		/* Provide 12/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * 12L, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * 12L, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * 12L, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * 12L, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 12;
 		cinfo->min_DCT_v_scaled_size = 12;
 	}
 	else if(cinfo->scale_num * cinfo->block_size <= cinfo->scale_denom * 13) {
 		/* Provide 13/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * 13L, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * 13L, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * 13L, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * 13L, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 13;
 		cinfo->min_DCT_v_scaled_size = 13;
 	}
 	else if(cinfo->scale_num * cinfo->block_size <= cinfo->scale_denom * 14) {
 		/* Provide 14/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * 14L, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * 14L, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * 14L, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * 14L, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 14;
 		cinfo->min_DCT_v_scaled_size = 14;
 	}
 	else if(cinfo->scale_num * cinfo->block_size <= cinfo->scale_denom * 15) {
 		/* Provide 15/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * 15L, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * 15L, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * 15L, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * 15L, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 15;
 		cinfo->min_DCT_v_scaled_size = 15;
 	}
 	else {
 		/* Provide 16/block_size scaling */
-		cinfo->output_width = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_width * 16L, (long)cinfo->block_size);
-		cinfo->output_height = (JDIMENSION)
-		    jdiv_round_up((long)cinfo->image_height * 16L, (long)cinfo->block_size);
+		cinfo->output_width = (JDIMENSION)jdiv_round_up((long)cinfo->image_width * 16L, (long)cinfo->block_size);
+		cinfo->output_height = (JDIMENSION)jdiv_round_up((long)cinfo->image_height * 16L, (long)cinfo->block_size);
 		cinfo->min_DCT_h_scaled_size = 16;
 		cinfo->min_DCT_v_scaled_size = 16;
 	}
-
 	/* Recompute dimensions of components */
 	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components;
 	    ci++, compptr++) {
 		compptr->DCT_h_scaled_size = cinfo->min_DCT_h_scaled_size;
 		compptr->DCT_v_scaled_size = cinfo->min_DCT_v_scaled_size;
 	}
-
 #else /* !IDCT_SCALING_SUPPORTED */
 
 	/* Hardwire it to "no scaling" */

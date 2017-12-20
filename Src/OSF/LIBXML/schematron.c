@@ -1105,14 +1105,14 @@ static xmlChar * xmlSchematronFormatReport(xmlSchematronValidCtxtPtr ctxt, xmlNo
 			int len = sstrlen(ret);
 			xmlChar c;
 			if(len > 0) {
-				c = ret[len - 1];
+				c = ret[len-1];
 				if((c == ' ') || (c == '\n') || (c == '\r') || (c == '\t')) {
 					while((c == ' ') || (c == '\n') ||
 					    (c == '\r') || (c == '\t')) {
 						len--;
 						if(len == 0)
 							break;
-						c = ret[len - 1];
+						c = ret[len-1];
 					}
 					ret[len] = ' ';
 					ret[len + 1] = 0;

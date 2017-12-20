@@ -43,10 +43,9 @@ public:
 	{
 		return P_Pack;
 	}
-	int    GetTotal(TotalData * pTotal) const
+	void   GetTotal(TotalData * pTotal) const
 	{
 		ASSIGN_PTR(pTotal, Total);
-		return 1;
 	}
 	const  LongArray & SLAPI GetPriceDevList() const;
 	const  StrAssocArray & SLAPI GetProblemsList() const;
@@ -3019,15 +3018,12 @@ int BillItemBrowser::editPackageData(LPackage * pPckg)
 {
 	class PckgDialog : public TDialog {
 	public:
-		PckgDialog(PPBillPacket * pPack, PPObjBill * pBObj) : TDialog(DLG_PCKG)
+		PckgDialog(PPBillPacket * pPack, PPObjBill * pBObj) : TDialog(DLG_PCKG), P_Pack(pPack), P_BObj(pBObj)
 		{
-			P_Pack = pPack;
-			P_BObj = pBObj;
 		}
 		int    setDTS(const LPackage * pData)
 		{
 			Data = *pData;
-
 			SetupPPObjCombo(this, CTLSEL_PCKG_TYPE, PPOBJ_PCKGTYPE, Data.PckgTypeID, 0, 0);
 			setCtrlData(CTL_PCKG_CODE, Data.Code);
 			setCtrlData(CTL_PCKG_ID, &Data.ID);

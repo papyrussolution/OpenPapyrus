@@ -34,11 +34,8 @@ private:
 	TRect  DefaultRect;
 };
 
-InventoryDialog::InventoryDialog(uint rezID, PPObjBill * pBObj, PPBillPacket * pData) : TDialog(rezID)
+InventoryDialog::InventoryDialog(uint rezID, PPObjBill * pBObj, PPBillPacket * pData) : TDialog(rezID), P_BObj(pBObj), Flags(0)
 {
-	Flags = 0;
-	P_BObj = pBObj;
-
 	int    dsbl_object2 = 0;
 	SString temp_buf;
 	PPObjArticle ar_obj;
@@ -1310,9 +1307,8 @@ private:
 	PPInventoryImpExpParam IeParam;
 };
 
-SLAPI PrcssrInvImport::PrcssrInvImport()
+SLAPI PrcssrInvImport::PrcssrInvImport() : P_BObj(BillObj)
 {
-	P_BObj = BillObj;
 }
 
 int SLAPI PrcssrInvImport::InitParam(Param * pParam)

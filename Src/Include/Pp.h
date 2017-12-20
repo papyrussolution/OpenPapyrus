@@ -558,7 +558,7 @@ int SLAPI PPUpdateLic(const char * pSrcFile);
 //
 // Descr: Класс, управляющий получение списка файлов по шаблону
 //
-class PPFileNameArray : public TSArray <SDirEntry> {
+/*class PPFileNameArray : public TSArray <SDirEntry> {
 public:
 	SLAPI  PPFileNameArray();
 	int    SLAPI Scan(const char * pPath, const char * pWildcard);
@@ -566,7 +566,7 @@ public:
 	const  SString & SLAPI GetPath() const;
 //private:
 	SString Path; //
-};
+};*/
 //
 // Descr: Список идентификаторов. Практически полностью повторяет
 //   функционал LongArray (PPIDArray) за исключением того, что может быть
@@ -1661,10 +1661,10 @@ private:
 #define LOGMSGF_DIRECTOUTP  0x0100L // @v9.2.0 Сообщение выводится без посредничества специального потока, управляющего выводом в журналы
 #define LOGMSGF_NODUPFORJOB 0x0200L // @v9.2.11 Сообщение не следует дублировать в спец журнале для рассылки результатов выполнения задач
 
-int SLAPI PPLogMessage(const char * pFileName, const char * pStr, long options);
-int SLAPI PPLogMessage(uint fileNameId, const char * pMsg, long options);
-int SLAPI PPLogMessageList(uint fileNameId, const SStrCollection & rList, long options);
-int SLAPI PPLogMessage(uint fileId, uint strGroup, uint strId, long options);
+int FASTCALL PPLogMessage(const char * pFileName, const char * pStr, long options);
+int FASTCALL PPLogMessage(uint fileNameId, const char * pMsg, long options);
+int FASTCALL PPLogMessageList(uint fileNameId, const SStrCollection & rList, long options);
+int FASTCALL PPLogMessage(uint fileId, uint strGroup, uint strId, long options);
 //
 //
 //
@@ -7135,15 +7135,16 @@ SString & FASTCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, l
 //
 // Descr: Удаляет файлы, пути к которым перечислены в массиве pFileList
 //
-int    SLAPI PPRemoveFiles(const PPFileNameArray * pFileList, uint * pSuccCount, uint * pErrCount);
+int    SLAPI PPRemoveFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList, uint * pSuccCount, uint * pErrCount);
 int    SLAPI PPRemoveFilesByExt(const char * pSrc, const char * pExt, uint * pSuccCount, uint * pErrCount);
 int    SLAPI GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long filtFlags, int clean, int deleMsg);
 //
 // Передает выборку файлов по адресу pDestAddr, используя учетную запись mailAccID
 // и тему сообщения pSubj.
 //
-int    SLAPI PutFilesToEmail(const PPFileNameArray *, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags);
-int    SLAPI PutFilesToEmail(const StringSet *, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags);
+int    SLAPI PutFilesToEmail(const /*PPFileNameArray*/SFileEntryPool *, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags);
+// @v9.8.11 int    SLAPI PutFilesToEmail(const StringSet *, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags);
+int    SLAPI PutFilesToEmail2(const StringSet * pFileList, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags); // @v9.8.11 
 //
 // Descr: Загружает из ресурсов структуру SdRecord.
 //   Тип ресурса - PP_RCDECLRECORD, идентификатор - rezID.
@@ -8918,7 +8919,7 @@ public:
 	// к одному лоту и не содержит элементов.
 #define PCKGF_MIRROR     0x0008
 
-class LPackage : private SArray {
+class LPackage : private SVector { // @v9.8.11 SArray-->SVector
 public:
 	SLAPI  LPackage();
 	LPackage & FASTCALL operator = (const LPackage &);
@@ -30864,7 +30865,7 @@ struct GCTFilt : public PPBaseFilt {
 	// передаче запись (межскладской приход)
 #define GGEF_SUPPRDISCOUNT   0x4000L // @internal
 
-struct GoodsGrpngEntry {
+struct GoodsGrpngEntry { // @flat
 	SLAPI  GoodsGrpngEntry();
 	PPID   FASTCALL IsProfitable(int incomeCalcMethod = -1) const;
 	double FASTCALL Income(int incomeCalcMethod = -1) const;
@@ -30916,7 +30917,7 @@ private:
 	int    SLAPI MakeBillIDList(const GCTFilt * pF, const PPIDArray * pOpList, int byReckon);
 };
 
-class GoodsGrpngArray : public SArray {
+class GoodsGrpngArray : public SVector { // @v9.8.11 SArray-->SVector
 public:
 	SLAPI  GoodsGrpngArray(PPLogger * pLogger = 0);
 	SLAPI ~GoodsGrpngArray();
@@ -40347,7 +40348,7 @@ public:
 	int    SLAPI SelectBasket(PPBasketCombine & rBasket);
 	int    SLAPI Transfer(PPID);
 private:
-	static int   SLAPI SetAddLockErrInfo(PPID mutexID);
+	static void SLAPI SetAddLockErrInfo(PPID mutexID);
 
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
@@ -48931,6 +48932,7 @@ private:
 // DeleteTmpFiles
 //
 struct DeleteTmpFilesParam {
+	SLAPI  DeleteTmpFilesParam();
 	enum {
 		fRmvTempData     = 0x0001,
 		fRmvTempPrns     = 0x0002,
@@ -49451,7 +49453,7 @@ int    SLAPI GetRealRangeInput(TDialog *, uint ctl, double * pLow, double * pUpp
 int    SLAPI GetRealRangeInput(TDialog *, uint ctl, RealRange *);
 int    SLAPI SetIntRangeInput(TDialog *, uint ctl, const IntRange *);
 int    SLAPI GetIntRangeInput(TDialog *, uint ctl, IntRange *);
-int    SLAPI PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMenuID);
+int    FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMenuID);
 
 int    SLAPI ViewGoodsTurnover(long);
 int    SLAPI PrintDialog(SPrinter *);
@@ -49539,9 +49541,9 @@ struct CalcPriceParam {
 // ARG(prec IN): @{0..6} точность представления результата. 0 - до целых значений,
 //   3 - с точностью 0.001 и т.д.
 //
-ulong   SLAPI GetMinVatDivisor(double rate, uint prec);
+ulong  SLAPI GetMinVatDivisor(double rate, uint prec);
 int    SLAPI CalcPrice(CalcPriceParam *);
-int 	SLAPI CalcDiff(double amount, double * pDiff);
+int    SLAPI CalcDiff(double amount, double * pDiff);
 int    SLAPI CalcTaxPrice(PPID goodsID, PPID opID, LDATE, double price, int = 0);
 int    SLAPI CloseCashDay();
 int    SLAPI SelectorDialog(uint dlgID, uint ctlID, uint * pVal /* IN,OUT */, const char * pTitle = 0);

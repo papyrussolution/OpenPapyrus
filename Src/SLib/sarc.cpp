@@ -144,23 +144,28 @@ int SLAPI SArchive::AddEntry(const char * pSrcFileName, const char * pName, int 
         THROW(fileExists(temp_buf));
 		{
 			int64   new_entry_idx = 0;
-			if(isempty(pName)) {
-				SPathStruc ps;
-				ps.Split(temp_buf);
-				ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
-			}
-			else {
-                SPathStruc::NormalizePath(pName, SPathStruc::npfSlash, temp_buf);
-			}
 			if(flags & aefDirectory) {
-				new_entry_idx = zip_dir_add((zip_t *)H, pName, 0);
+				(temp_buf = pName).Transf(CTRANSF_OUTER_TO_UTF8);
+				new_entry_idx = zip_dir_add((zip_t *)H, temp_buf, 0);
 				THROW(new_entry_idx >= 0);
 			}
 			else {
-				THROW(p_zsrc = zip_source_file((zip_t *)H, pSrcFileName, 0, -1));
-				new_entry_idx = zip_file_add((zip_t *)H, temp_buf, p_zsrc, ZIP_FL_OVERWRITE);
-				THROW(new_entry_idx >= 0);
-				p_zsrc = 0;
+				if(isempty(pName)) {
+					SPathStruc ps;
+					ps.Split(temp_buf);
+					ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
+				}
+				else {
+					SPathStruc::NormalizePath(pName, SPathStruc::npfSlash, temp_buf);
+				}
+				{
+					SString src_file_name = pSrcFileName;
+					src_file_name.Transf(CTRANSF_OUTER_TO_UTF8);
+					THROW(p_zsrc = zip_source_file((zip_t *)H, src_file_name, 0, -1));
+					new_entry_idx = zip_file_add((zip_t *)H, temp_buf.Transf(CTRANSF_OUTER_TO_UTF8), p_zsrc, ZIP_FL_OVERWRITE);
+					THROW(new_entry_idx >= 0);
+					p_zsrc = 0;
+				}
 			}
 		}
 	}
@@ -183,38 +188,40 @@ int SLAPI SArchive::Helper_AddEntries(const SString & rRoot, const SString & rSu
 		SString local_path;
 		SString entry_name;
 		SString file_name;
+		SString de_name;
 		(local_path = rRoot).SetLastSlash().Cat(rSub).SetLastSlash();
 		(temp_buf = local_path).Cat(rMask.NotEmpty() ? rMask : "*.*");
 		SDirEntry de;
 		for(SDirec dir(temp_buf); dir.Next(&de) > 0;) {
 			if(!de.IsSelf() && !de.IsUpFolder()) {
+				de_name = de.FileName;
 				if(de.IsFolder()) {
 					if(flags & aefRecursive) {
-						(file_name = local_path).Cat(de.FileName);
+						(file_name = local_path).Cat(de_name);
 						if(rSub.NotEmpty()) {
-							(temp_buf = rSub).SetLastSlash().Cat(de.FileName);
+							(temp_buf = rSub).SetLastSlash().Cat(de_name);
 						}
 						else {
-							temp_buf.Z().Cat(de.FileName);
+							temp_buf.Z().Cat(de_name);
 						}
 						SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, entry_name);
 						THROW(AddEntry(file_name, entry_name, flags | aefDirectory));
 						//
 						if(rSub.NotEmpty()) {
-							(file_name = rSub).SetLastSlash().Cat(de.FileName);
-							(temp_buf = rSub).SetLastSlash().Cat(de.FileName);
+							(file_name = rSub).SetLastSlash().Cat(de_name);
+							(temp_buf = rSub).SetLastSlash().Cat(de_name);
 						}
 						else {
-							file_name.Z().Cat(de.FileName);
-							temp_buf.Z().Cat(de.FileName);
+							file_name.Z().Cat(de_name);
+							temp_buf.Z().Cat(de_name);
 						}
 						SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, entry_name);
 						THROW(Helper_AddEntries(rRoot, file_name, rMask, flags)); // @recursion
 					}
 				}
 				else {
-					(file_name = local_path).Cat(de.FileName);
-					(temp_buf = rSub).SetLastSlash().Cat(de.FileName);
+					(file_name = local_path).Cat(de_name);
+					(temp_buf = rSub).SetLastSlash().Cat(de_name);
                     SPathStruc::NormalizePath(temp_buf, SPathStruc::npfSlash, entry_name);
 					THROW(AddEntry(file_name, entry_name, flags));
 				}
@@ -240,18 +247,23 @@ int SLAPI SArchive::AddEntries(const char * pMask, int flags)
 void SLAPI TestSArchive()
 {
 	int    ok = 1;
-	const  char * p_root = "d:/papyrus/src/pptest";
+	//const  char * p_root = "d:/papyrus/src/pptest";
 	SString temp_buf;
 	SArchive arc;
 	// "D:\Papyrus\Src\PPTEST\DATA\Test Directory\Test Directory Level 2\Directory With Many Files"
 	{
-		(temp_buf = p_root).SetLastSlash().Cat("out").SetLastSlash().Cat("zip_test.zip");
+		//(temp_buf = p_root).SetLastSlash().Cat("out").SetLastSlash().Cat("zip_test.zip");
+		SLS.QueryPath("testroot", temp_buf);
+		temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("zip_test.zip");
 		THROW(arc.Open(SArchive::tZip, temp_buf, SFile::mReadWrite));
 		{
 			//SDirEntry de;
 			//SString src_dir = "D:/Papyrus/Src/PPTEST/DATA/Test Directory/Test Directory Level 2/Directory With Many Files";
-			SString src_dir = "D:/Papyrus/Src/PPTEST/DATA";
-			(temp_buf = src_dir).SetLastSlash().Cat("*.*");
+			//SString src_dir = "D:/Papyrus/Src/PPTEST/DATA";
+			//(temp_buf = src_dir).SetLastSlash().Cat("*.*");
+			SString src_dir;
+			SLS.QueryPath("testroot", src_dir);
+			(temp_buf = src_dir).SetLastSlash().Cat("data").SetLastSlash().Cat("*.*");
 			THROW(arc.AddEntries(temp_buf, SArchive::aefRecursive));
 			/*
 			for(SDirec dir(temp_buf); dir.Next(&de) > 0;) {
@@ -265,7 +277,9 @@ void SLAPI TestSArchive()
 		THROW(arc.Close());
 	}
 	{
-		(temp_buf = p_root).SetLastSlash().Cat("out").SetLastSlash().Cat("zip_test.zip");
+		//(temp_buf = p_root).SetLastSlash().Cat("out").SetLastSlash().Cat("zip_test.zip");
+		SLS.QueryPath("testroot", temp_buf);
+		temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("zip_test.zip");
 		THROW(arc.Open(SArchive::tZip, temp_buf, SFile::mRead));
 		{
 			int64 c = arc.GetEntriesCount();
@@ -280,8 +294,6 @@ void SLAPI TestSArchive()
 		}
 		arc.Close();
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 }
 

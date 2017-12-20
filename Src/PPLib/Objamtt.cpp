@@ -120,9 +120,8 @@ StrAssocArray * SLAPI PPObjAmountType::CreateSelectorList(long options, const PP
 
 class AmtTypeDialog : public TDialog {
 public:
-	AmtTypeDialog(PPObjAmountType * pObj) : TDialog(DLG_AMOUNTTYPE)
+	AmtTypeDialog(PPObjAmountType * pObj) : TDialog(DLG_AMOUNTTYPE), P_Obj(pObj)
 	{
-		P_Obj = pObj;
 	}
 	int    setDTS(const PPAmountTypePacket *);
 	int    getDTS(PPAmountTypePacket *);
@@ -896,4 +895,3 @@ int SLAPI PPObjAmountType::Browse(void * extraPtr)
 		ok = PPErrorZ();
 	return ok;
 }
-

@@ -2677,7 +2677,7 @@ int SFileFormat::Register()
 	Register(Json,       "json", "T{"); // @v9.7.2
 	Register(Json,       "json", "T["); // @v9.7.2
 	Register(Pbxproj,    "pbxproj", 0); // @v9.8.1
-
+	Register(PapyruDbDivXchg, mtApplication, "x-papyrus", "pps", "50504F53"); // @v9.8.11
 	return ok;
 }
 //

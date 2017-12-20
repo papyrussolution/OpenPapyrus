@@ -512,8 +512,9 @@ int SLAPI ACS_CRUKM::GetSessionData(int * pSessCount, int * pIsForwardSess, Date
 	SessEntry * p_sess_entry = 0;
 	SArray max_sess_list(sizeof(SessEntry));
 	PPAsyncCashNode cn_data;
-	SDirEntry fb;
-	PPFileNameArray fary;
+	//SDirEntry fb;
+	//PPFileNameArray fary;
+	SFileEntryPool fep;
 	SDirec sdirec;
 
 	Cr_ZReportTbl * p_zr_tbl = 0;
@@ -562,17 +563,23 @@ int SLAPI ACS_CRUKM::GetSessionData(int * pSessCount, int * pIsForwardSess, Date
 	// Searching file with sales (last CQ?????.BTR)
 	// Assigned to PP_SalesFileName
 	//
-	PPGetFileName(PPFILNAM_CQXXXXXX_BTR, file_name);
+	/*PPGetFileName(PPFILNAM_CQXXXXXX_BTR, file_name); // cq??????.btr
 	(srch_path = imp_path).Cat(file_name);
 	for(sdirec.Init(srch_path); sdirec.Next(&fb) > 0;)
 		THROW_SL(fary.ordInsert(&fb, 0, PTR_CMPFUNC(SDirEntry_Time)));
-	THROW_PP(fary.getCount(), PPERR_INVFILESET);
+	THROW_PP(fary.getCount(), PPERR_INVFILESET);*/
+	//(fname = imp_path).Cat(fary.at(fary.getCount()-1).FileName);
+	fep.Scan(imp_path, "cq??????.btr", 0);
+	fep.Sort(fep.scByAccsTime|fep.scDesc);
+	THROW_PP(fep.GetCount(), PPERR_INVFILESET);
+	fep.Get(0, 0, &fname);
 
-	(fname = imp_path).Cat(fary.at(fary.getCount()-1).FileName);
 	THROW_PP(::fileExists(fname), PPERR_INVFILESET);
 	THROW_MEM(PP_SalesFileName[0] = newStr(fname));
-	if(fary.getCount() > 1) {
-		(fname = imp_path).Cat(fary.at(fary.getCount()-2).FileName);
+	//if(fary.getCount() > 1) {
+	if(fep.GetCount() > 1) {
+		//(fname = imp_path).Cat(fary.at(fary.getCount()-2).FileName);
+		fep.Get(1, 0, &fname);
 		if(::fileExists(fname))
 			THROW_MEM(PP_SalesFileName[1] = newStr(fname));
 	}

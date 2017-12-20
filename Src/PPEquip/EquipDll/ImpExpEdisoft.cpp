@@ -1179,10 +1179,8 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 			P_ExportCls->Header = *(Sdr_ImpExpHeader*)pExpHeader;
 		if(!isempty(pOutFileName)) {
 			P_ExportCls->PathStruct.Split(pOutFileName);
-			if(P_ExportCls->PathStruct.Nam.Empty())
-				P_ExportCls->PathStruct.Nam = "edisoft_export_";
-			if(P_ExportCls->PathStruct.Ext.Empty())
-				P_ExportCls->PathStruct.Ext = "xml";
+			P_ExportCls->PathStruct.Nam.SetIfEmpty("edisoft_export_");
+			P_ExportCls->PathStruct.Ext.SetIfEmpty("xml");
 		}
 		else {
 			SLS.Init("Papyrus");
@@ -1454,8 +1452,7 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 			P_ImportCls->PathStruct.Split(pInputFileName);
 			if(P_ImportCls->PathStruct.Nam.Empty())
 				(P_ImportCls->PathStruct.Nam = "edisoft_import_").Cat(P_ImportCls->ObjId);
-			if(P_ImportCls->PathStruct.Ext.Empty())
-				P_ImportCls->PathStruct.Ext = "xml";
+			P_ImportCls->PathStruct.Ext.SetIfEmpty("xml");
 		}
 		else {
 			char fname[256];

@@ -1,5 +1,5 @@
 // CTRANDLG.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2003, 2005, 2006, 2007, 2008, 2016
+// Copyright (c) A.Sobolev 2000, 2001, 2003, 2005, 2006, 2007, 2008, 2016, 2017
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -10,11 +10,9 @@
 
 class CurTransBillDialog : public TDialog {
 public:
-	CurTransBillDialog() : TDialog(DLG_C_TRANS)
+	CurTransBillDialog() : TDialog(DLG_C_TRANS), P_Pack(0), HasAmtIDList(0)
 	{
-		P_Pack = 0;
 		MEMSZERO(Data);
-		HasAmtIDList = 0;
 		setCtrlOption(CTL_BILL_FRAME1, ofFramed, 1);
 		setCtrlOption(CTL_BILL_FRAME2, ofFramed, 1);
 		CurAmtCtrlGroup * p_ca_grp = new CurAmtCtrlGroup(CTL_BILL_AMOUNT, CTLSEL_BILL_CUR,

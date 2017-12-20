@@ -377,9 +377,8 @@ int SLAPI PPObjArticle::PutClientAgreement(PPID id, PPClientAgreement * pAgt, in
 //
 class AgtDialog : public TDialog {
 public:
-	AgtDialog(uint dlgID) : TDialog(dlgID)
+	AgtDialog(uint dlgID) : TDialog(dlgID), ArID(0)
 	{
-		ArID = 0;
 	}
 protected:
 	DECL_HANDLE_EVENT
@@ -479,9 +478,8 @@ int DebtLimListDialog::setupList()
 
 class DebtLimItemDialog : public TDialog {
 public:
-	DebtLimItemDialog(StrAssocArray * pDebtDimList) : TDialog(DLG_DBTLIMITEM)
+	DebtLimItemDialog(StrAssocArray * pDebtDimList) : TDialog(DLG_DBTLIMITEM), P_DebtDimList(pDebtDimList)
 	{
-		P_DebtDimList = pDebtDimList;
 		SetupCalDate(CTLCAL_DBTLIMITEM_LOCKPRCB, CTL_DBTLIMITEM_LOCKPRCB);
 	}
 	int    setDTS(const PPClientAgreement::DebtLimit * pData)
@@ -1558,9 +1556,8 @@ int SupplAgtDialog::EditOrdParamEntry(PPID arID, PPSupplAgreement::OrderParamEnt
 {
     class SOrdParamEntryDialog : public TDialog {
 	public:
-		SOrdParamEntryDialog(PPID arID) : TDialog(DLG_SORDPE)
+		SOrdParamEntryDialog(PPID arID) : TDialog(DLG_SORDPE), ArID(arID)
 		{
-			ArID = arID;
 		}
 		int  setDTS(PPSupplAgreement::OrderParamEntry * pData)
 		{

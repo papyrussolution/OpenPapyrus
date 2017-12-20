@@ -347,8 +347,7 @@ int DBDivDialog::setDTS(const DBDivPack * p)
 	setCtrlData(CTL_DBDIV_NAME, data.Rec.Name);
 	{
 		data.GetExtStrData(DBDIVEXSTR_GATEWAYLIST, temp_buf); // @v8.0.11
-		if(temp_buf.Empty())
-			temp_buf = data.Rec.Addr;
+		temp_buf.SetIfEmpty(data.Rec.Addr);
 		SetupAddr(temp_buf); // @v8.0.11
 		// @v8.0.11 setCtrlData(CTL_DBDIV_ADDR, data.Rec.Addr);
 	}

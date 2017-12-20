@@ -1292,7 +1292,7 @@ static StStatusText StatusTexts[] = {
 
 static SString & GetSmscErrorText(int error, SString & rErrorText)
 {
-	rErrorText = 0;
+	rErrorText.Z();
 	for(size_t i = 0; i < SIZEOFARRAY(SmscErrorMsgs); i++) {
 		if(SmscErrorMsgs[i].Id == error) {
 			PPLoadString(PPMSG_ERROR, SmscErrorMsgs[i].TextId, rErrorText);

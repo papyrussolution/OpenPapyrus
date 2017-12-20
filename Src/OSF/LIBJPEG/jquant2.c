@@ -142,9 +142,7 @@
 #define C2_SHIFT  (BITS_IN_JSAMPLE-HIST_C2_BITS)
 
 typedef uint16 histcell;        /* histogram cell; prefer an unsigned type */
-
 typedef histcell FAR * histptr; /* for pointers to histogram cells */
-
 typedef histcell hist1d[HIST_C2_ELEMS]; /* typedefs for the array */
 typedef hist1d FAR * hist2d;    /* type for the 2nd-level pointers */
 typedef hist2d * hist3d;        /* type for top-level pointer */

@@ -348,29 +348,19 @@ METHODDEF(void) start_pass(j_decompress_ptr cinfo)
 		}
 	}
 }
-
 /*
  * Initialize IDCT manager.
  */
-
 GLOBAL(void) jinit_inverse_dct(j_decompress_ptr cinfo)
 {
-	my_idct_ptr idct;
 	int ci;
 	jpeg_component_info * compptr;
-
-	idct = (my_idct_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(my_idct_controller));
+	my_idct_ptr idct = (my_idct_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_idct_controller));
 	cinfo->idct = &idct->pub;
 	idct->pub.start_pass = start_pass;
-
-	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components;
-	    ci++, compptr++) {
+	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components; ci++, compptr++) {
 		/* Allocate and pre-zero a multiplier table for each component */
-		compptr->dct_table =
-		    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-		    SIZEOF(multiplier_table));
+		compptr->dct_table = (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(multiplier_table));
 		memzero(compptr->dct_table, SIZEOF(multiplier_table));
 		/* Mark multiplier table not yet set up for any method */
 		idct->cur_method[ci] = -1;

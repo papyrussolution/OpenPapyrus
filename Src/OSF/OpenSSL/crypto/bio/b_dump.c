@@ -35,7 +35,7 @@ int BIO_dump_indent_cb(int (* cb)(const void * data, size_t len, void * u),
 	trc = 0;
 
 #ifdef TRUNCATE
-	for(; (len > 0) && ((s[len - 1] == ' ') || (s[len - 1] == '\0')); len--)
+	for(; (len > 0) && ((s[len-1] == ' ') || (s[len-1] == '\0')); len--)
 		trc++;
 #endif
 

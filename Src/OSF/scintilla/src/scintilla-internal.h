@@ -3105,7 +3105,7 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	void   FilterSelections();
 	int    RealizeVirtualSpace(int position, uint virtualSpace);
 	SelectionPosition RealizeVirtualSpace(const SelectionPosition &position);
-	void   AddChar(char ch);
+	void   FASTCALL AddChar(char ch);
 	void   ClearBeforeTentativeStart();
 	void   InsertPaste(const char * text, int len);
 	
@@ -3308,7 +3308,7 @@ protected:
 	virtual void Initialise() = 0;
 	virtual void Finalise();
 
-	virtual void AddCharUTF(const char *s, uint len, bool treatAsDBCS=false);
+	virtual void AddCharUTF(const char *s, uint len, bool treatAsDBCS = false);
 	void Command(int cmdId);
 	virtual void CancelModes();
 	virtual int KeyCommand(uint iMessage);
@@ -3382,12 +3382,7 @@ public:
 		assert(position < Length());
 		const int partition = starts->PartitionFromPosition(position);
 		const int startPartition = starts->PositionFromPartition(partition);
-		if(startPartition == position) {
-			return values->ValueAt(partition);
-		}
-		else {
-			return T();
-		}
+		return (startPartition == position) ? values->ValueAt(partition) : T();
 	}
 	void SetValueAt(int position, T value)
 	{
@@ -3419,9 +3414,8 @@ public:
 					starts->InsertText(partition, insertLength);
 			}
 		}
-		else {
+		else
 			starts->InsertText(partition, insertLength);
-		}
 	}
 	void DeletePosition(int position)
 	{

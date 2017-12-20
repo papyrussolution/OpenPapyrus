@@ -95,14 +95,10 @@ GLOBAL(void) jpeg_idct_float(j_decompress_ptr cinfo, jpeg_component_info * compp
 		 * With typical images and quantization tables, half or more of the
 		 * column DCT calculations can be simplified this way.
 		 */
-
-		if(inptr[DCTSIZE*1] == 0 && inptr[DCTSIZE*2] == 0 &&
-		    inptr[DCTSIZE*3] == 0 && inptr[DCTSIZE*4] == 0 &&
-		    inptr[DCTSIZE*5] == 0 && inptr[DCTSIZE*6] == 0 &&
-		    inptr[DCTSIZE*7] == 0) {
+		if(inptr[DCTSIZE*1] == 0 && inptr[DCTSIZE*2] == 0 && inptr[DCTSIZE*3] == 0 && inptr[DCTSIZE*4] == 0 &&
+		    inptr[DCTSIZE*5] == 0 && inptr[DCTSIZE*6] == 0 && inptr[DCTSIZE*7] == 0) {
 			/* AC terms all zero */
 			FAST_FLOAT dcval = DEQUANTIZE(inptr[DCTSIZE*0], quantptr[DCTSIZE*0]);
-
 			wsptr[DCTSIZE*0] = dcval;
 			wsptr[DCTSIZE*1] = dcval;
 			wsptr[DCTSIZE*2] = dcval;

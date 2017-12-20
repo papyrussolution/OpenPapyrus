@@ -1335,7 +1335,6 @@ public:
 	{
 		int    ok = -1, r = 0;
 		DeleteTmpFilesParam param;
-		MEMSZERO(param);
 		const size_t sav_offs = pParam->GetRdOffs();
 		if((r = ReadParam(*pParam, &param, sizeof(param))) != 0) {
 			if((ok = DeleteTmpFilesDlg(&param)) > 0) {
@@ -2567,8 +2566,7 @@ int SLAPI PPObjRFIDDevice::Test(const PPRFIDDevice & rRec, SString & rRetBuf)
 				rRetBuf.CatHex((uint8)chr);
 			}
 		}
-		if(rRetBuf.Empty())
-			rRetBuf = "no reply";
+		rRetBuf.SetIfEmpty("no reply");
 	}
 	/*
 	//

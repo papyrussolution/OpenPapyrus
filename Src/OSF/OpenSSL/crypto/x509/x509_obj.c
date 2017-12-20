@@ -47,7 +47,7 @@ char * X509_NAME_oneline(const X509_NAME * a, char * buf, int len)
 			OPENSSL_free(b);
 		}
 		strncpy(buf, "NO X509_NAME", len);
-		buf[len - 1] = '\0';
+		buf[len-1] = '\0';
 		return buf;
 	}
 

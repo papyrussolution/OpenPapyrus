@@ -229,7 +229,7 @@ ASN1_OBJECT * c2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
 	 * see: X.690 8.19.2
 	 */
 	if(len <= 0 || len > INT_MAX || pp == NULL || (p = *pp) == NULL ||
-	    p[len - 1] & 0x80) {
+	    p[len-1] & 0x80) {
 		ASN1err(ASN1_F_C2I_ASN1_OBJECT, ASN1_R_INVALID_OBJECT_ENCODING);
 		return NULL;
 	}

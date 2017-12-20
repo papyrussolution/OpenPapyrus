@@ -2124,8 +2124,7 @@ void LoginDialogParam::SetupDBSelCombo(HWND hDlg)
 			P_DbEs->GetByID(i, &dlb);
 			dlb.GetAttr(DbLoginBlock::attrDbSymb, n);
 			dlb.GetAttr(DbLoginBlock::attrDbFriendlyName, pn);
-			if(pn.Empty())
-				pn = n;
+			pn.SetIfEmpty(n);
 			if(pn.NotEmptyS()) {
 				pn.Transf(CTRANSF_INNER_TO_OUTER);
 				SendDlgItemMessage(hDlg, CTLSEL_LOGIN_DB, CB_ADDSTRING, (WPARAM)0, (LPARAM)pn.cptr());

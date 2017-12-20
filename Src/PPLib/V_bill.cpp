@@ -4936,7 +4936,8 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 					}
 					if(inet_acc_id && inet_addr_list.getCount() && result_file_list.getCount()) {
 						temp_buf = inet_addr_list.at(0).Txt;
-						PutFilesToEmail(&result_file_list, inet_acc_id, temp_buf, mail_subj, 0);
+						if(!PutFilesToEmail2(&result_file_list, inet_acc_id, temp_buf, mail_subj, 0))
+							logger.LogLastError();
 					}
 				}
 			}

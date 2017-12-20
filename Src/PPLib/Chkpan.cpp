@@ -11025,8 +11025,7 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 		if(pLocPrn) {
 			if(pLocPrn->Flags & PPLocPrinter::fHasKitchenBell && KitchenBellCmd.NotEmpty()) {
 				SString kitchen_bell_port = KitchenBellPort;
-				if(kitchen_bell_port.Empty())
-					kitchen_bell_port = loc_prn_port;
+				kitchen_bell_port.SetIfEmpty(loc_prn_port);
 				if(kitchen_bell_port.NotEmptyS()) {
 					size_t out_size = 0;
 					char   out_buf[64];

@@ -428,13 +428,12 @@ int SLAPI PPEgaisProcessor::GetReplyList(void * pCtx, PPID locID, int direction 
 					THROW(!SXml::IsContent(p_root, "error"))
 					for(xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
 						if(SXml::IsName(p_c, "url")) {
-							Reply * p_new_reply = new Reply;
-							THROW_MEM(p_new_reply);
+							Reply * p_new_reply = rList.CreateNewItem();
+							THROW_SL(p_new_reply);
 							SXml::GetContent(p_c, temp_buf);
 							p_new_reply->Url = temp_buf;
 							if(SXml::GetAttrib(p_c, "replyId", temp_buf) && temp_buf.NotEmptyS())
 								p_new_reply->Id.FromStr(temp_buf);
-							THROW_SL(rList.insert(p_new_reply));
 						}
 						else if(SXml::GetContentByName(p_c, "ver", temp_buf)) {
 							// Фактически, здесь номер версии не используем
@@ -2919,8 +2918,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									rar_product_ident = 0;
 									CALLPTRMEMB(p_ti_tag_list, GetItemStr(PPTAG_LOT_FSRARINFB, infb_ident));
 									CALLPTRMEMB(p_ti_tag_list, GetItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, rar_product_ident));
-									if(rar_product_ident.Empty())
-										rar_product_ident = agi.EgaisCode;
+									rar_product_ident.SetIfEmpty(agi.EgaisCode);
 									if(rar_product_ident.NotEmpty() && infb_ident.NotEmpty()) {
 										double qtty = fabs(r_ti.Quantity_);
 										long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
@@ -2962,8 +2960,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									rar_product_ident = 0;
 									CALLPTRMEMB(p_ti_tag_list, GetItemStr(PPTAG_LOT_FSRARINFB, infb_ident));
 									CALLPTRMEMB(p_ti_tag_list, GetItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, rar_product_ident));
-									if(rar_product_ident.Empty())
-										rar_product_ident = agi.EgaisCode;
+									rar_product_ident.SetIfEmpty(agi.EgaisCode);
 									if(rar_product_ident.NotEmpty() && infb_ident.NotEmpty()) {
 										double qtty = fabs(r_ti.Quantity_);
 										long   qtty_fmt = MKSFMTD(0, 0, NMBF_NOTRAILZ);
@@ -6338,12 +6335,11 @@ int SLAPI PPEgaisProcessor::Helper_ReadFilesOffline(const char * pPath, TSCollec
 			(temp_buf = pPath).SetLastSlash().Cat(de.FileName);
 			ps.Split(temp_buf);
 			if(ps.Ext.CmpNC("xml") == 0) {
-				PPEgaisProcessor::Reply * p_new_reply = new PPEgaisProcessor::Reply;
-				THROW_MEM(p_new_reply);
+				PPEgaisProcessor::Reply * p_new_reply = rList.CreateNewItem();
+				THROW_SL(p_new_reply);
 				p_new_reply->Status |= Reply::stOffline;
 				p_new_reply->AcceptedFileName = temp_buf;
 				SPathStruc::NormalizePath(pPath, SPathStruc::npfSlash, p_new_reply->Url);
-				THROW_SL(rList.insert(p_new_reply));
 			}
 		}
 	}

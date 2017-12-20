@@ -3607,7 +3607,7 @@ static int add_data(zip_t * za, zip_source_t * src, zip_dirent_t * de)
 		_zip_error_set_from_source(&za->error, src);
 		return -1;
 	}
-	if((st.valid & ZIP_STAT_COMP_METHOD) == 0) {
+	if(!(st.valid & ZIP_STAT_COMP_METHOD)) {
 		st.valid |= ZIP_STAT_COMP_METHOD;
 		st.comp_method = ZIP_CM_STORE;
 	}
@@ -3662,7 +3662,7 @@ static int add_data(zip_t * za, zip_source_t * src, zip_dirent_t * de)
 		if(s_crc == NULL) {
 			return -1;
 		}
-		if(de->comp_method != ZIP_CM_STORE && ((st.valid & ZIP_STAT_SIZE) == 0 || st.size != 0)) {
+		if(de->comp_method != ZIP_CM_STORE && (!(st.valid & ZIP_STAT_SIZE) || st.size)) {
 			if((comp_impl = _zip_get_compression_implementation(de->comp_method)) == NULL) {
 				zip_error_set(&za->error, SLERR_ZIP_COMPNOTSUPP, 0);
 				zip_source_free(s_crc);

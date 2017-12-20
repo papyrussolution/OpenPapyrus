@@ -15,7 +15,7 @@ int SLAPI RemovePPSHeader(const char * pFile, const PPObjectTransmit::Header * p
 //   pack == 1 - упаковать, pack == 0 - распаковать. Упакованные и распакованные файлы
 //   будут иметь одинаковые имена
 //
-int SLAPI PackTransmitFiles(const PPFileNameArray * pFileList, int pack);
+static int SLAPI PackTransmitFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList, int pack);
 //
 // ObjReceiveParamDialog
 //
@@ -343,8 +343,9 @@ int SLAPI GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDes
 		ext.Dot().Cat(sp.Ext);
 		(src_path = src_dir).Cat(file_list.at(i).Txt);
 		(dest_path = dest_dir).Cat(file_list.at(i).Txt);
-		if((filtFlags & SMailMessage::fPpyObject) && ext.CmpNC(PPSEXT) == 0 || (filtFlags & SMailMessage::fPpyCharry) && ext.CmpNC(ORDEXT) == 0 ||
-			(filtFlags & SMailMessage::fPpyOrder) && ext.CmpNC(CHARRYEXT) == 0) {
+		if(((filtFlags & SMailMessage::fPpyObject) && ext.CmpNC(PPSEXT) == 0) || 
+			((filtFlags & SMailMessage::fPpyCharry) && ext.CmpNC(ORDEXT) == 0) ||
+			((filtFlags & SMailMessage::fPpyOrder) && ext.CmpNC(CHARRYEXT) == 0)) {
 			THROW(ftp.SafeGet(dest_path, src_path, 0, CallbackFTPTransfer, 0));
 			{
 				int accept_file = 1;
@@ -363,21 +364,25 @@ int SLAPI GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDes
 	return ok;
 }
 
-int SLAPI PutFilesToEmail(const PPFileNameArray * pFileList, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags)
+int SLAPI PutFilesToEmail(const /*PPFileNameArray*/SFileEntryPool * pFileList, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags)
 {
 	StringSet ss_file_list;
 	SString file_path;
-	if(pFileList)
-		for(uint i = 0; pFileList->Enum(&i, 0, &file_path);) {
-			ss_file_list.add(file_path);
+	if(pFileList) {
+		//for(uint i = 0; pFileList->Enum(&i, 0, &file_path);) {
+		for(uint i = 0; i < pFileList->GetCount(); i++) {
+			if(pFileList->Get(i, 0, &file_path))
+				ss_file_list.add(file_path);
 		}
-	return PutFilesToEmail((pFileList ? &ss_file_list : (const StringSet *)0), mailAccID, pDestAddr, pSubj, trnsmFlags);
+	}
+	//return PutFilesToEmail((pFileList ? &ss_file_list : (const StringSet *)0), mailAccID, pDestAddr, pSubj, trnsmFlags);
+	return PutFilesToEmail2((pFileList ? &ss_file_list : (const StringSet *)0), mailAccID, pDestAddr, pSubj, trnsmFlags);
 }
 
+#if 0 // @v9.8.11 {
 int SLAPI PutFilesToEmail(const StringSet * pFileList, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags)
 {
 	int    ok = 1;
-	uint   i;
 	SString file_path, temp_buf;
 	PPObjInternetAccount mac_obj;
 	PPInternetAccount mac_rec;
@@ -398,30 +403,91 @@ int SLAPI PutFilesToEmail(const StringSet * pFileList, PPID mailAccID, const cha
 	msg.SetField(SMailMessage::fldFrom, temp_buf.Strip());
 	msg.SetField(SMailMessage::fldTo,   pDestAddr);
 	if(pFileList) {
-        for(i = 0; pFileList->get(&i, file_path);) {
-			if(::fileExists(file_path))
-				THROW(msg.AttachFile(file_path));
+        for(uint i = 0; pFileList->get(&i, file_path);) {
+			THROW(!::fileExists(file_path) || msg.AttachFile(file_path));
         }
 	}
 	mac_rec.GetExtField(MAEXSTR_SENDSERVER, temp_buf);
 	PPWaitMsg(PPSTR_TEXT, PPTXT_WTMAILCONNECTION, temp_buf);
 	THROW(PPMailSmtp::Send(mac_rec, msg, SendMailCallback, msg_counter));
 	PPWait(0);
-	if(trnsmFlags & TRNSMF_DELINFILES) {
-		if(pFileList) {
-		    for(i = 0; pFileList->get(&i, file_path);)
-				SFile::Remove(file_path);
+	if(trnsmFlags & TRNSMF_DELINFILES && pFileList) {
+	    for(uint i = 0; pFileList->get(&i, file_path);)
+			SFile::Remove(file_path);
+	}
+	CATCHZOK
+	return ok;
+}
+#endif // } 0 @v9.8.11
+
+int SLAPI PutFilesToEmail2(const StringSet * pFileList, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags)
+{
+	int    ok = 1;
+	PPID   mail_acc_id = mailAccID;
+	SString file_path;
+	SString temp_buf;
+	PPObjInternetAccount mac_obj;
+	PPInternetAccount mac_rec;
+	{
+		if(mail_acc_id == 0) {
+			PPAlbatrosConfig cfg;
+			THROW(PPAlbatrosCfgMngr::Get(&cfg) > 0);
+			mail_acc_id = cfg.Hdr.MailAccID;
+		}
+		THROW_PP(mail_acc_id, PPERR_UNDEFMAILACC);
+		THROW_PP(mac_obj.Get(mail_acc_id, &mac_rec) > 0, PPERR_UNDEFMAILACC);
+		{
+			SMailMessage msg;
+			msg.SetField(SMailMessage::fldSubj, pSubj);
+			mac_rec.GetExtField(MAEXSTR_FROMADDRESS, temp_buf);
+			msg.SetField(SMailMessage::fldFrom, temp_buf.Strip());
+			msg.SetField(SMailMessage::fldTo,   pDestAddr);
+			if(pFileList) {
+				for(uint i = 0; pFileList->get(&i, file_path);) {
+					THROW(!::fileExists(file_path) || msg.AttachFile(0, SFileFormat::Unkn, file_path));
+				}
+			}
+			mac_rec.GetExtField(MAEXSTR_SENDSERVER, temp_buf);
+			{
+				InetUrl url;
+				ScURL curl;
+				{
+					mac_rec.GetExtField(MAEXSTR_SENDSERVER, temp_buf);
+					url.SetComponent(url.cHost, temp_buf);
+					url.SetProtocol((mac_rec.Flags & mac_rec.fUseSSL) ? InetUrl::protSMTPS : InetUrl::protSMTP);
+					int    port = mac_rec.GetSendPort();
+					if(port)
+						url.SetPort(port);
+					mac_rec.GetExtField(MAEXSTR_RCVNAME, temp_buf);
+					url.SetComponent(url.cUserName, temp_buf);
+					{
+						char pw[128];
+						mac_rec.GetPassword(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
+						url.SetComponent(url.cPassword, pw);
+						memzero(pw, sizeof(pw));
+					}
+					THROW_SL(curl.SmtpSend(url, curl.mfVerbose|ScURL::mfDontVerifySslPeer, msg));
+					if(trnsmFlags & TRNSMF_DELINFILES && pFileList) {
+						for(uint i = 0; pFileList->get(&i, file_path);)
+							SFile::Remove(file_path);
+					}
+				}
+			}
 		}
 	}
 	CATCHZOK
 	return ok;
 }
 
-int SLAPI PutFilesToFtp(const PPFileNameArray * pFileList, PPID ftpAccID, const char * pDestAddr, long trnsmFlags)
+static int SLAPI PutFilesToFtp(const /*PPFileNameArray*/SFileEntryPool * pFileList, PPID ftpAccID, const char * pDestAddr, long trnsmFlags)
 {
 	int    ok = 1;
 	uint   i;
-	SString file_path, dest_dir;
+	SString dest_dir;
+	SString dest_path;
+	SString file_path;
+	SString file_name;
+	SPathStruc ps;
 	WinInetFTP ftp;
 	PPObjInternetAccount obj_acct;
 	PPInternetAccount acct;
@@ -438,13 +504,14 @@ int SLAPI PutFilesToFtp(const PPFileNameArray * pFileList, PPID ftpAccID, const 
 	(dest_dir = pDestAddr).ReplaceStr("ftp:", "", 1).SetLastSlash();
 	THROW(ftp.Init());
 	THROW(ftp.Connect(&acct));
-	for(i = 0; pFileList->Enum(&i, 0, &file_path);) {
-		SString dest_path, file_name;
-		SPathStruc sp;
-		sp.Split(file_path);
-		sp.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
-		(dest_path = dest_dir).Cat(file_name);
-		THROW(ftp.SafePut(file_path, dest_path, 0, CallbackFTPTransfer, 0));
+	//for(i = 0; pFileList->Enum(&i, 0, &file_path);) {
+	for(i = 0; i < pFileList->GetCount(); i++) {
+		if(pFileList->Get(i, 0, &file_path)) {
+			ps.Split(file_path);
+			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
+			(dest_path = dest_dir).Cat(file_name);
+			THROW(ftp.SafePut(file_path, dest_path, 0, CallbackFTPTransfer, 0));
+		}
 	}
 	PPWait(0);
 	if(trnsmFlags & TRNSMF_DELINFILES)
@@ -460,7 +527,11 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 	int    check_email = 0, check_ftp = 0;
 	uint   i;
 	SString dest, src, msg_buf, file_path;
-	PPFileNameArray fary;
+	SString dest_dir;
+	//PPFileNameArray fary;
+	//SDirEntry fb;
+	SFileEntryPool fep;
+	SFileEntryPool::Entry fe;
 	DBDivPack dbdiv_pack;
 	PPObjDBDiv obj_dbdiv;
 	PPDBDiv db_div_rec;
@@ -499,7 +570,6 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 		else
 			use_src = use_email = use_ftp = 1;
 		if(use_src && src.NotEmpty() && IsEmailAddr(src) == 0 && IsFtpAddr(src) == 0) {
-			SDirEntry fb;
 			int    removable_drive = 0;
 			char   drive = 'C', ext[10];
 			fnsplit(src, &drive, 0, 0, ext);
@@ -524,14 +594,19 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 			//
 			// copy files to PPPATH_IN
 			//
-			THROW(fary.Scan(src, "*" PPSEXT));
-			for(i = 0; fary.Enum(&i, &fb, &file_path);) {
-				char   dest_dir[MAXPATH];
-				PPWaitMsg(fb.FileName);
-				STRNSCPY(dest_dir, file_path);
-				::replacePath(dest_dir, dest, 1);
-				if(SFile::WaitForWriteSharingRelease(file_path, 20000)) {
-					THROW_SL(copyFileByName(file_path, dest_dir));
+			//THROW(fary.Scan(src, "*" PPSEXT));
+			THROW(fep.Scan(src, "*" PPSEXT, 0));
+			//for(i = 0; fary.Enum(&i, &fb, &file_path);) {
+			for(i = 0; i < fep.GetCount(); i++) {
+				if(fep.Get(i, &fe, &file_path)) {
+					//char   dest_dir[MAXPATH];
+					PPWaitMsg(fe.Name);
+					//STRNSCPY(dest_dir, file_path);
+					//::replacePath(dest_dir, dest, 1);
+					SPathStruc::ReplacePath(dest_dir = file_path, dest, 1);
+					if(SFile::WaitForWriteSharingRelease(file_path, 20000)) {
+						THROW_SL(copyFileByName(file_path, dest_dir));
+					}
 				}
 			}
 		}
@@ -546,60 +621,74 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 	}
 	// AHTOXA {
 	// Распаковка принятых файлов
-	THROW(fary.Scan(dest, "*" PPSEXT));
+	//THROW(fary.Scan(dest, "*" PPSEXT));
+	THROW(fep.Scan(dest, "*" PPSEXT, 0));
 	{
 		// Пропускаем файлы, заголовок которых не читается {
-		SDirEntry fb;
+		//SDirEntry fb;
 		LongArray to_remove_pos_list;
-		for(i = 0; fary.Enum(&i, &fb, &file_path);) {
-			PPObjectTransmit::Header hdr;
-			if(!PPObjectTransmit::GetHeader(file_path, &hdr)) {
-				to_remove_pos_list.add(i-1);
+		//for(i = 0; fary.Enum(&i, &fb, &file_path);) {
+		for(i = 0; i < fep.GetCount(); i++) {
+			if(fep.Get(i, 0, &file_path)) {
+				PPObjectTransmit::Header hdr;
+				if(!PPObjectTransmit::GetHeader(file_path, &hdr)) {
+					to_remove_pos_list.add(/*i-1*/i);
+				}
 			}
 		}
 		if(to_remove_pos_list.getCount()) {
 			for(i = 0; i < to_remove_pos_list.getCount(); i++) {
 				const uint fa_pos = (uint)to_remove_pos_list.get(i);
-				fary.atFree(fa_pos);
+				//fary.atFree(fa_pos);
+				fep.Remove(fa_pos);
 			}
 		}
 		// }
 	}
-	THROW(PackTransmitFiles(&fary, 0));
+	THROW(PackTransmitFiles(/*&fary*/&fep, 0));
 	// } AHTOXA
 	CATCHZOK
 	PPWait(0);
 	return ok;
 }
 
-static int SLAPI PutFilesToDiskPath(const PPFileNameArray * pFileList, const char * pDestPath, long trnsmFlags)
+static int SLAPI PutFilesToDiskPath(const /*PPFileNameArray*/SFileEntryPool * pFileList, const char * pDestPath, long trnsmFlags)
 {
 	int    ok = 1;
 	int    removable_drive = 0;
-	char   src_dir[MAXPATH], dest_dir[MAXPATH];
+	//char   src_dir[MAXPATH];
+	//char   dest_dir[MAXPATH];
+	SString src_dir;
+	SString dest_dir;
 	char   msg_buf[128], ext[10], drive;
 	SString file_path;
 	uint   i;
-	SDirEntry fb;
+	//SDirEntry fb;
+	SFileEntryPool::Entry fe;
 
 	fnsplit(pDestPath, &drive, 0, 0, ext);
 	PPSetAddedMsgString(pDestPath);
 	THROW_PP_S(driveValid(pDestPath), PPERR_NEXISTPATH, pDestPath);
 	removable_drive = IsRemovableDrive(toupper(drive));
 	if(removable_drive > 0) {
-		sprintf(dest_dir, "%c:\\", drive);
+		//sprintf(dest_dir, "%c:\\", drive);
+		dest_dir.Z().CatChar(drive).CatChar(':').CatChar('\\');
 		msg_buf[0] = toupper(drive);
 		msg_buf[1] = 0;
 		PPSetAddedMsgString(msg_buf);
-		while(access(dest_dir, 0))
+		while(::access(dest_dir, 0))
 			THROW_PP(CONFIRM(PPCFM_INSERTDISK), PPERR_DRIVEUNAVELAIBLE);
 	}
 	//
 	// Проверяем существование заданных каталогов
 	//
-	rmvLastSlash(STRNSCPY(src_dir, pFileList->GetPath()));
-	if(removable_drive != 1)
-		rmvLastSlash(STRNSCPY(dest_dir, pDestPath));
+	//rmvLastSlash(STRNSCPY(src_dir, pFileList->GetPath()));
+	pFileList->GetInitPath(src_dir);
+	src_dir.RmvLastSlash();
+	if(removable_drive != 1) {
+		//rmvLastSlash(STRNSCPY(dest_dir, pDestPath));
+		(dest_dir = pDestPath).RmvLastSlash();
+	}
 	PPSetAddedMsgString(src_dir);
 	THROW_PP(access(src_dir, 0) == 0, PPERR_NEXISTPATH);
 	PPSetAddedMsgString(dest_dir);
@@ -612,11 +701,15 @@ static int SLAPI PutFilesToDiskPath(const PPFileNameArray * pFileList, const cha
 	// copy files to dest
 	//
 	PPWait(1);
-	for(i = 0; pFileList->Enum(&i, &fb, &file_path);) {
-		PPWaitMsg(fb.FileName);
-		STRNSCPY(dest_dir, file_path);
-		replacePath(dest_dir, pDestPath, 1);
-		THROW_SL(copyFileByName(file_path, dest_dir));
+	//for(i = 0; pFileList->Enum(&i, &fb, &file_path);) {
+	for(i = 0; i < pFileList->GetCount(); i++) {
+		if(pFileList->Get(i, &fe, &file_path)) {
+			PPWaitMsg(fe.Name);
+			//STRNSCPY(dest_dir, file_path);
+			//replacePath(dest_dir, pDestPath, 1);
+			SPathStruc::ReplacePath(dest_dir = file_path, pDestPath, 1);
+			THROW_SL(copyFileByName(file_path, dest_dir));
+		}
 	}
 	PPWait(0);
 	if(trnsmFlags & TRNSMF_DELINFILES)
@@ -634,39 +727,46 @@ int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 	PPGetPath(PPPATH_OUT, src);
 	THROW(obj_dbdiv.Get(dbDivID, &dbdiv_pack) > 0);
 	if((dest = dbdiv_pack.Rec.Addr).NotEmptyS()) {
-		PPFileNameArray fary;
-		THROW(fary.Scan(src, "*" PPSEXT));
+		//PPFileNameArray fary;
+		SFileEntryPool fep;
+		//THROW(fary.Scan(src, "*" PPSEXT));
+		THROW(fep.Scan(src, "*" PPSEXT, 0));
 		{
-			SDirEntry fb;
+			//SDirEntry fb;
+			SFileEntryPool::Entry fe;
 			SString file_name;
 			PPObjectTransmit ot(PPObjectTransmit::tmReading, 0, 0);
-			for(uint i = 0; fary.Enum(&i, &fb, &file_name);) {
-				PPObjectTransmit::Header hdr;
-				if(!ot.GetHeader(file_name, &hdr) || hdr.DestDBID != dbDivID) {
-					//
-					// Если заголовок файла не удалось считать, то полагаем, что файл
-					// либо инвалидный, либо не наш. То есть, его передавать не следует.
-					// Не следует так же передавать файлы, не предназначенные для раздела dbDivID.
-					//
-					fary.atFree(--i);
+			uint i = fep.GetCount();
+			if(i) do {
+				if(fep.Get(--i, &fe, &file_name)) {
+					PPObjectTransmit::Header hdr;
+					if(!ot.GetHeader(file_name, &hdr) || hdr.DestDBID != dbDivID) {
+						//
+						// Если заголовок файла не удалось считать, то полагаем, что файл
+						// либо инвалидный, либо не наш. То есть, его передавать не следует.
+						// Не следует так же передавать файлы, не предназначенные для раздела dbDivID.
+						//
+						fep.Remove(i);
+					}
 				}
-			}
+			} while(i);
 		}
 		// AHTOXA {
 		// Упаковка файлов перед отправкой
 		PPDBXchgConfig cfg;
 		THROW(PPObjectTransmit::ReadConfig(&cfg));
-		if(cfg.Flags & DBDXF_PACKFILES)
-			THROW(PackTransmitFiles(&fary, 1));
+		if(cfg.Flags & DBDXF_PACKFILES) {
+			THROW(PackTransmitFiles(/*&fary*/&fep, 1));
+		}
 		// } AHTOXA
 		if(IsEmailAddr(dest)) {
-			THROW(PutFilesToEmail(&fary, 0, dest, SUBJECTDBDIV, trnsmFlags));
+			THROW(PutFilesToEmail(/*&fary*/&fep, 0, dest, SUBJECTDBDIV, trnsmFlags));
 		}
 		else if(IsFtpAddr(dest)) {
-			THROW(PutFilesToFtp(&fary, 0, dest, trnsmFlags));
+			THROW(PutFilesToFtp(/*&fary*/&fep, 0, dest, trnsmFlags));
 		}
 		else {
-			THROW(PutFilesToDiskPath(&fary, dest, trnsmFlags));
+			THROW(PutFilesToDiskPath(/*&fary*/&fep, dest, trnsmFlags));
 		}
 	}
 	else
@@ -761,7 +861,7 @@ int SLAPI PackTransmitFile(const char * pFileName, int pack, PercentFunc callbac
 	return ok;
 }
 
-int SLAPI PackTransmitFiles(const PPFileNameArray * pFileList, int pack)
+static int SLAPI PackTransmitFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList, int pack)
 {
 #ifndef __CONFIG__
 	int (* p_callback_proc)(long, long, const char *, int) = CallbackCompress;
@@ -770,10 +870,14 @@ int SLAPI PackTransmitFiles(const PPFileNameArray * pFileList, int pack)
 #endif //__CONFIG__
 	int    ok = 1;
 	SString file_path;
-	SDirEntry fb;
+	//SDirEntry fb;
+	SFileEntryPool::Entry fe;
 	PPWait(1);
-	for(uint i = 0; pFileList->Enum(&i, &fb, &file_path);) {
-		THROW(PackTransmitFile(file_path, pack, p_callback_proc));
+	//for(uint i = 0; pFileList->Enum(&i, &fb, &file_path);) {
+	for(uint i = 0; i < pFileList->GetCount(); i++) {
+		if(pFileList->Get(i, &fe, &file_path)) {
+			THROW(PackTransmitFile(file_path, pack, p_callback_proc));
+		}
 	}
 	CATCHZOK
 	PPWait(0);

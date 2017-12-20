@@ -168,17 +168,17 @@ static void build_bg_ycc_rgb_table(j_decompress_ptr cinfo)
 METHODDEF(void) ycc_rgb_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
 	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
-	register int y, cb, cr;
-	register JSAMPROW outptr;
-	register JSAMPROW inptr0, inptr1, inptr2;
-	register JDIMENSION col;
+	int y, cb, cr;
+	JSAMPROW outptr;
+	JSAMPROW inptr0, inptr1, inptr2;
+	JDIMENSION col;
 	JDIMENSION num_cols = cinfo->output_width;
 	/* copy these pointers into registers if possible */
-	register JSAMPLE * range_limit = cinfo->sample_range_limit;
-	register int * Crrtab = cconvert->Cr_r_tab;
-	register int * Cbbtab = cconvert->Cb_b_tab;
-	register INT32 * Crgtab = cconvert->Cr_g_tab;
-	register INT32 * Cbgtab = cconvert->Cb_g_tab;
+	JSAMPLE * range_limit = cinfo->sample_range_limit;
+	int * Crrtab = cconvert->Cr_r_tab;
+	int * Cbbtab = cconvert->Cb_b_tab;
+	INT32 * Crgtab = cconvert->Cr_g_tab;
+	INT32 * Cbgtab = cconvert->Cb_g_tab;
 	SHIFT_TEMPS
 	while(--num_rows >= 0) {
 		inptr0 = input_buf[0][input_row];
@@ -227,11 +227,11 @@ static void build_rgb_y_table(j_decompress_ptr cinfo)
 METHODDEF(void) rgb_gray_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
 	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
-	register INT32 * ctab = cconvert->rgb_y_tab;
-	register int r, g, b;
-	register JSAMPROW outptr;
-	register JSAMPROW inptr0, inptr1, inptr2;
-	register JDIMENSION col;
+	INT32 * ctab = cconvert->rgb_y_tab;
+	int r, g, b;
+	JSAMPROW outptr;
+	JSAMPROW inptr0, inptr1, inptr2;
+	JDIMENSION col;
 	JDIMENSION num_cols = cinfo->output_width;
 	while(--num_rows >= 0) {
 		inptr0 = input_buf[0][input_row];
@@ -259,10 +259,10 @@ METHODDEF(void) rgb_gray_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, J
 
 METHODDEF(void) rgb1_rgb_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
-	register int r, g, b;
-	register JSAMPROW outptr;
-	register JSAMPROW inptr0, inptr1, inptr2;
-	register JDIMENSION col;
+	int r, g, b;
+	JSAMPROW outptr;
+	JSAMPROW inptr0, inptr1, inptr2;
+	JDIMENSION col;
 	JDIMENSION num_cols = cinfo->output_width;
 	while(--num_rows >= 0) {
 		inptr0 = input_buf[0][input_row];
@@ -292,11 +292,11 @@ METHODDEF(void) rgb1_rgb_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, J
 METHODDEF(void) rgb1_gray_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
 	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
-	register INT32 * ctab = cconvert->rgb_y_tab;
-	register int r, g, b;
-	register JSAMPROW outptr;
-	register JSAMPROW inptr0, inptr1, inptr2;
-	register JDIMENSION col;
+	INT32 * ctab = cconvert->rgb_y_tab;
+	int r, g, b;
+	JSAMPROW outptr;
+	JSAMPROW inptr0, inptr1, inptr2;
+	JDIMENSION col;
 	JDIMENSION num_cols = cinfo->output_width;
 	while(--num_rows >= 0) {
 		inptr0 = input_buf[0][input_row];
@@ -314,9 +314,7 @@ METHODDEF(void) rgb1_gray_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, 
 			r = (r + g - CENTERJSAMPLE) & MAXJSAMPLE;
 			b = (b + g - CENTERJSAMPLE) & MAXJSAMPLE;
 			/* Y */
-			outptr[col] = (JSAMPLE)
-			    ((ctab[r+R_Y_OFF] + ctab[g+G_Y_OFF] + ctab[b+B_Y_OFF])
-			    >> SCALEBITS);
+			outptr[col] = (JSAMPLE)((ctab[r+R_Y_OFF] + ctab[g+G_Y_OFF] + ctab[b+B_Y_OFF]) >> SCALEBITS);
 		}
 	}
 }
@@ -378,12 +376,9 @@ METHODDEF(void) null_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIME
  * we just copy the Y (luminance) component and ignore chrominance.
  */
 
-METHODDEF(void) grayscale_convert(j_decompress_ptr cinfo,
-    JSAMPIMAGE input_buf, JDIMENSION input_row,
-    JSAMPARRAY output_buf, int num_rows)
+METHODDEF(void) grayscale_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
-	jcopy_sample_rows(input_buf[0], (int)input_row, output_buf, 0,
-	    num_rows, cinfo->output_width);
+	jcopy_sample_rows(input_buf[0], (int)input_row, output_buf, 0, num_rows, cinfo->output_width);
 }
 
 /*
@@ -394,9 +389,9 @@ METHODDEF(void) grayscale_convert(j_decompress_ptr cinfo,
 
 METHODDEF(void) gray_rgb_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
-	register JSAMPROW outptr;
-	register JSAMPROW inptr;
-	register JDIMENSION col;
+	JSAMPROW outptr;
+	JSAMPROW inptr;
+	JDIMENSION col;
 	JDIMENSION num_cols = cinfo->output_width;
 	while(--num_rows >= 0) {
 		inptr = input_buf[0][input_row++];
@@ -419,17 +414,17 @@ METHODDEF(void) gray_rgb_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, J
 METHODDEF(void) ycck_cmyk_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
 	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
-	register int y, cb, cr;
-	register JSAMPROW outptr;
-	register JSAMPROW inptr0, inptr1, inptr2, inptr3;
-	register JDIMENSION col;
+	int y, cb, cr;
+	JSAMPROW outptr;
+	JSAMPROW inptr0, inptr1, inptr2, inptr3;
+	JDIMENSION col;
 	JDIMENSION num_cols = cinfo->output_width;
 	/* copy these pointers into registers if possible */
-	register JSAMPLE * range_limit = cinfo->sample_range_limit;
-	register int * Crrtab = cconvert->Cr_r_tab;
-	register int * Cbbtab = cconvert->Cb_b_tab;
-	register INT32 * Crgtab = cconvert->Cr_g_tab;
-	register INT32 * Cbgtab = cconvert->Cb_g_tab;
+	JSAMPLE * range_limit = cinfo->sample_range_limit;
+	int * Crrtab = cconvert->Cr_r_tab;
+	int * Cbbtab = cconvert->Cb_b_tab;
+	INT32 * Crgtab = cconvert->Cr_g_tab;
+	INT32 * Cbgtab = cconvert->Cb_g_tab;
 	SHIFT_TEMPS
 	while(--num_rows >= 0) {
 		inptr0 = input_buf[0][input_row];

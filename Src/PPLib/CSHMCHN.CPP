@@ -513,9 +513,8 @@ struct CashStat {
 
 class CashStatDialog : public TDialog {
 public:
-	CashStatDialog(uint dlgID, PPCashMachine * pCm, CashStat * pStat) : TDialog(dlgID)
+	CashStatDialog(uint dlgID, PPCashMachine * pCm, CashStat * pStat) : TDialog(dlgID), machine(pCm)
 	{
-		machine = pCm;
 		if(!RVALUEPTR(stat, pStat))
 			MEMSZERO(stat);
 		setup();

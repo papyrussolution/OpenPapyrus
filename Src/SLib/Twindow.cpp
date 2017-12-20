@@ -1222,9 +1222,7 @@ int TWindowBase::Create(long parent, long createOptions)
 	TWindowBase::RegWindowClass(102);
 
 	SString title_buf = getTitle();
-	if(title_buf.Empty())
-		title_buf = P_ClsName;
-	title_buf.Transf(CTRANSF_INNER_TO_OUTER);
+	title_buf.SetIfEmpty(P_ClsName).Transf(CTRANSF_INNER_TO_OUTER);
 	HWND  hw_parent = (HWND)parent;
 	DWORD style = WS_HSCROLL | WS_VSCROLL /*| WS_CLIPSIBLINGS | WS_CLIPCHILDREN*/;
 	int   x = size.x ? origin.x : CW_USEDEFAULT;

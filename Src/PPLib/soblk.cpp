@@ -508,9 +508,8 @@ SelectObjectBlock::DistribCCheck::Line::Line()
 	THISZERO();
 }
 
-SLAPI SelectObjectBlock::DistribCCheck::DistribCCheck()
+SLAPI SelectObjectBlock::DistribCCheck::DistribCCheck() : P_CsObj(0)
 {
-	P_CsObj = 0;
 }
 
 SLAPI SelectObjectBlock::DistribCCheck::~DistribCCheck()
@@ -947,55 +946,41 @@ static int SLAPI Helper_ProcessTddo(long dataId, void * pAry, const char * pData
 	return ok;
 }
 
-Backend_SelectObjectBlock::LocalGoodsGroupFilt::LocalGoodsGroupFilt()
+Backend_SelectObjectBlock::LocalGoodsGroupFilt::LocalGoodsGroupFilt() : ParentID(0), Flags(0)
 {
-	ParentID = 0;
-	Flags = 0;
 }
 
-Backend_SelectObjectBlock::LocalBrandFilt::LocalBrandFilt()
+Backend_SelectObjectBlock::LocalBrandFilt::LocalBrandFilt() : OwnerID(0), Flags(0)
 {
-	OwnerID = 0;
-	Flags = 0;
 }
 
 Backend_SelectObjectBlock::LocalGlobalAccFilt::LocalGlobalAccFilt()
 {
 }
 
-Backend_SelectObjectBlock::LocalDraftTransitGoodsRestFilt::LocalDraftTransitGoodsRestFilt()
+Backend_SelectObjectBlock::LocalDraftTransitGoodsRestFilt::LocalDraftTransitGoodsRestFilt() : GoodsID(0), LocID(0), Dt(ZERODATE)
 {
-	GoodsID = 0;
-	LocID = 0;
-	Dt = ZERODATE;
 }
 
-Backend_SelectObjectBlock::LocalUhttStoreFilt::LocalUhttStoreFilt()
+Backend_SelectObjectBlock::LocalUhttStoreFilt::LocalUhttStoreFilt() : OwnerID(0)
 {
-	OwnerID = 0;
 }
 
-Backend_SelectObjectBlock::LocalWorkbookFilt::LocalWorkbookFilt()
+Backend_SelectObjectBlock::LocalWorkbookFilt::LocalWorkbookFilt() : ParentID(0), Type(0), Flags(0)
 {
-	ParentID = 0;
-	Type = 0;
-	Flags = 0;
 }
 
-Backend_SelectObjectBlock::LocalQuotFilt::LocalQuotFilt() : QuotFilt()
+Backend_SelectObjectBlock::LocalQuotFilt::LocalQuotFilt() : QuotFilt(), LocalFlags(0)
 {
-	LocalFlags = 0;
 }
 
-Backend_SelectObjectBlock::SetBlock::SetBlock()
+Backend_SelectObjectBlock::SetBlock::SetBlock() : P_Rtm(0)
 {
 	MEMSZERO(U);
-	P_Rtm = 0;
 }
 
-Backend_SelectObjectBlock::TagBlock::TagBlock() : ObjTagItem()
+Backend_SelectObjectBlock::TagBlock::TagBlock() : ObjTagItem(), ObjType(0)
 {
-	ObjType = 0;
 }
 
 Backend_SelectObjectBlock::SetBlock::~SetBlock()
@@ -1003,41 +988,13 @@ Backend_SelectObjectBlock::SetBlock::~SetBlock()
 	delete P_Rtm;
 }
 
-Backend_SelectObjectBlock::Backend_SelectObjectBlock()
+Backend_SelectObjectBlock::Backend_SelectObjectBlock() : Operator(0), ObjType(0), ObjTypeExt(0), P_ScObj(0), 
+	P_TSesObj(0), P_GoodsF(0), P_PsnF(0), P_PsnRelF(0), P_GgF(0), P_BrF(0), P_QF(0), P_GaF(0), P_LocF(0),
+	P_LocTspF(0), P_WrldF(0), P_SpecSerF(0), P_SCardF(0), P_CurRateF(0), P_UhttSCardOpF(0), P_BillF(0), 
+	P_DtGrF(0), P_UhttStorF(0), P_WorkbookF(0), P_TSesF(0), P_PrcF(0), P_Qc(0), P_SetBlk(0), P_TagBlk(0), 
+	P_DCc(0), OutFormat(fmtXml), Separate(0), P_UuidList(0)
 {
-	Operator = 0;
-	ObjType = 0;
-	ObjTypeExt = 0;
-	P_ScObj = 0;
-	P_TSesObj = 0;
-	P_GoodsF = 0;
-	P_PsnF = 0;
-	P_PsnRelF = 0;
-	P_GgF = 0;
-	P_BrF = 0;
-	P_QF = 0;
-	P_GaF = 0;
-	P_LocF = 0;
-	P_LocTspF = 0; // @v8.7.8
-	P_WrldF = 0;
-	P_SpecSerF = 0;
-	P_SCardF = 0;
-	P_CurRateF = 0;
-	P_UhttSCardOpF = 0;
-	P_BillF = 0;
-	P_DtGrF = 0;
-	P_UhttStorF = 0;
-	P_WorkbookF = 0;
-	P_TSesF = 0; // @v8.7.0
-	P_PrcF = 0; // @v8.7.4
-	P_Qc = 0;
-	P_SetBlk = 0;
-	P_TagBlk = 0;
-	P_DCc = 0;
-	OutFormat = fmtXml;
 	Page = 0;
-	Separate = 0;
-	P_UuidList = 0; // @v8.7.5
 }
 
 Backend_SelectObjectBlock::~Backend_SelectObjectBlock()
@@ -1318,20 +1275,11 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 // Локальная структура описания селектора интернет-магазина Universe-HTT
 //
 struct LocalSelectorDescr {
-	LocalSelectorDescr()
+	LocalSelectorDescr() : ID(0), Attr(0), Clsf(0), Type(0)
 	{
-		ID = 0;
-		Attr = 0;
-		Clsf = 0;
-		Type = 0;
 	}
-	LocalSelectorDescr(const StrAssocArray::Item & rSi)
+	LocalSelectorDescr(const StrAssocArray::Item & rSi) : ID(rSi.Id), Attr(0), Clsf(0), Type(0), Title(rSi.Txt)
 	{
-		ID = rSi.Id;
-		Attr = 0;
-		Clsf = 0;
-		Type = 0;
-		Title = rSi.Txt;
 	}
 	void   Set(const char * pCrit, const char * pPart)
 	{
@@ -1853,10 +1801,8 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 {
 	int    ok = -1;
-
 	int    use_filt = 1;
 	SString temp_buf, o_buf, txt_buf;
-
 	Goods2Tbl::Rec goods_rec;
 	if(IdList.getCount()) {
 		for(uint i = 0; i < IdList.getCount(); i++) {

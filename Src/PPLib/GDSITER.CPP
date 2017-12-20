@@ -1044,12 +1044,8 @@ int SLAPI GoodsGroupIterator::Serialize(int dir, SBuffer & rBuf, SSerializeConte
 //
 //
 //
-SLAPI PPGoodsReplaceNameParam::PPGoodsReplaceNameParam()
+SLAPI PPGoodsReplaceNameParam::PPGoodsReplaceNameParam() : BrandID(0), GoodsGrpID(0), ManufID(0), Flags(0)
 {
-	BrandID = 0;
-	GoodsGrpID = 0;
-	ManufID = 0;
-	Flags = 0;
 }
 
 int SLAPI PPObjGoods::MakeReplaceStr(const PPGoodsPacket * pPack,
