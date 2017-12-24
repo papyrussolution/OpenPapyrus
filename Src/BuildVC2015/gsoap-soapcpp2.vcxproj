@@ -157,6 +157,11 @@
     <ClInclude Include="..\Osf\gSOAP\soapcpp2\soapcpp2.h" />
     <ClInclude Include="..\Osf\gSOAP\soapcpp2\soapcpp2_yacc.tab.cpp.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

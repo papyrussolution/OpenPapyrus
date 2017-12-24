@@ -670,4 +670,4 @@ int xmlListCopy(xmlList * cur, const xmlList * old)
 /* xmlListUnique() */
 /* xmlListSwap */
 #define bottom_list
-#include "elfgcchack.h"
+//#include "elfgcchack.h"

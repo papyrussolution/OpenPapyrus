@@ -139,12 +139,12 @@
 #define ELEMENT_CODE_E2005_137		"137"		// Дата/время документа/сообщения
 #define ELEMENT_CODE_E6345_RUB		"RUB"		// Рубли
 #define ELEMENT_CODE_E7077_F		"F"			// Код формата описания товара - текст
-#define ELEMENT_CODE_E6063_21		"21"		// Идентификатор заказанного количества
+//#define ELEMENT_CODE_E6063_21		"21"		// Идентификатор заказанного количества
 #define ELEMENT_CODE_E6063_194		"194"		// Идентификатор принятого количества
-#define ELEMENT_CODE_E6063_59		"59"		// Идентификатор количества товара в упаковке
-#define ELEMENT_CODE_E6063_113		"113"		// Идентификатор подтвержденного количества (индедификатор может любой из предложенных)
-#define ELEMENT_CODE_E6063_170		"170"		// Идентификатор подтвержденного количества (индедификатор может любой из предложенных)
-#define ELEMENT_CODE_E6063_12		"12"		// Идентификатор отгруженного количества (DESADV)
+//#define ELEMENT_CODE_E6063_59		"59"		// Идентификатор количества товара в упаковке
+//#define ELEMENT_CODE_E6063_113		"113"		// Идентификатор подтвержденного количества (индедификатор может любой из предложенных)
+//#define ELEMENT_CODE_E6063_170		"170"		// Идентификатор подтвержденного количества (индедификатор может любой из предложенных)
+//#define ELEMENT_CODE_E6063_12		"12"		// Идентификатор отгруженного количества (DESADV)
 #define ELEMENT_CODE_E6411_PCE		"PCE"		// Единицы измерения - Отдельные элементы
 #define ELEMENT_CODE_E6411_KGM		"KGM"		// Единицы измерения - Килограммы
 #define ELEMENT_CODE_E5025_XB5		"XB5"		// Идентификатор цены товара с НДС (DESADV)
@@ -1182,7 +1182,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 		xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_C186); // Подробности
 			xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)ELEMENT_NAME_E6063); // Квалификатор типа количества
 				if(MessageType == PPEDIOP_ORDER)
-					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E6063_21); // Заказанное количество товара
+					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)"21"); // Заказанное количество товара
 				else if(MessageType == PPEDIOP_RECADV)
 					xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E6063_194); // Принятое количество товара
 			xmlTextWriterEndElement(P_XmlWriter); //E6063
@@ -2544,13 +2544,13 @@ int ImportCls::ParseForGoodsData(uint messageType, Sdr_BRow * pBRow)
 										if(p_node->next) {
 											p_node = p_node->next; // <E6060>
 											if(SXml::IsName(p_node, ELEMENT_NAME_E6060) && p_node->children) {
-												if(str.CmpNC(ELEMENT_CODE_E6063_21) == 0)
+												if(str == "21")
 													str.Set(p_node->children->content); // @vmiller Заказанное количество (ORDRSP/DESADV)
-												else if(str.CmpNC(ELEMENT_CODE_E6063_113) == 0 || str.CmpNC(ELEMENT_CODE_E6063_170) == 0)
+												else if(str == "113" || str == "170")
 													pBRow->Quantity = atof((const char *)p_node->children->content); // Подтвержденное количество (ORDRSP)
-												else if(str.CmpNC(ELEMENT_CODE_E6063_12) == 0)
+												else if(str == "12")
 													pBRow->Quantity = atof((const char *)p_node->children->content); // Отгруженное количество (DESADV)
-												else if(str.CmpNC(ELEMENT_CODE_E6063_59) == 0)
+												else if(str == "59")
 													pBRow->UnitPerPack = atof((const char *)p_node->children->content); // Количество товара в упаковке
 											}
 										}

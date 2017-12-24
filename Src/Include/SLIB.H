@@ -26,7 +26,7 @@
 	#include <errno.h>
 	#include <fcntl.h> // @v9.8.2
 	#include <sys\stat.h> // @v9.8.2
-	#include <tchar.h> 
+	#include <tchar.h>
 #endif
 //
 //#include <port.h>
@@ -446,6 +446,10 @@ typedef int (FASTCALL *CompFunc)(const void *, const void *, void * pExtraData);
 #define CMPCASCADE7(si, s1, s2, m1, m2, m3, m4, m5, m6, m7)  \
 	if(!(si=CMPSIGN((s1)->m1,(s2)->m1)) && !(si=CMPSIGN((s1)->m2,(s2)->m2)) && !(si=CMPSIGN((s1)->m3,(s2)->m3)) && \
 		!(si=CMPSIGN((s1)->m4,(s2)->m4)) && !(si=CMPSIGN((s1)->m5,(s2)->m5)) && !(si=CMPSIGN((s1)->m6,(s2)->m6))) si=CMPSIGN((s1)->m7,(s2)->m7);
+
+#define CMPARRAY2(si, a1, a2) { if(!(si = CMPSIGN(a1[0], a2[0]))) si = CMPSIGN(a1[1], a2[1]); }
+#define CMPARRAY3(si, a1, a2) { if(!(si = CMPSIGN(a1[0], a2[0])) && !(si = CMPSIGN(a1[1], a2[1]))) si = CMPSIGN(a1[2], a2[2]); }
+#define CMPARRAY4(si, a1, a2) { if(!(si = CMPSIGN(a1[0], a2[0])) && !(si = CMPSIGN(a1[1], a2[1])) && !(si = CMPSIGN(a1[2], a2[2]))) si = CMPSIGN(a1[3], a2[3]); }
 
 #define RET_CMPCASCADE2(s1, s2, m1, m2) { int si = 0; CMPCASCADE2(si, s1, s2, m1, m2); return si; }
 #define RET_CMPCASCADE3(s1, s2, m1, m2, m3) { int si = 0; CMPCASCADE3(si, s1, s2, m1, m2, m3); return si; }
@@ -2884,7 +2888,7 @@ struct SSzChunk { // @flat @noconstructor @novtbl
 //
 //
 //
-struct RealRange {         // @persistent @size=16
+struct RealRange { // @persistent @flat @size=16 @noconstructor @novtbl
 	int    SLAPI IsZero() const;
 	int    FASTCALL IsEqual(const RealRange & rS) const;
 	double SLAPI GetDistance() const;
@@ -4247,7 +4251,7 @@ int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr = '\"');
 //
 // @v8.6.4 #define IS_DIGIT(c) ((c)>='0'&&(c)<='9')
 //
-// Descr: Возвращает !0 если символ c является шестнацдатиричным знаком [0-9A-Fa-f]
+// Descr: Возвращает !0 если символ c является шестнадцатиричным знаком [0-9A-Fa-f]
 //
 int    FASTCALL ishex(char c);
 //
@@ -6079,29 +6083,6 @@ public:
 	//   !0 - Указатель на вновь созданных элемент
 	//   0  - Ошибка
 	//
-	/*
-	T * FASTCALL CreateNewItem(uint * pPosition)
-	{
-		T * p_new_item = new T;
-		if(p_new_item) {
-			if(insert(p_new_item)) {
-				ASSIGN_PTR(pPosition, count-1);
-			}
-			else
-				ZDELETE(p_new_item);
-		}
-		return p_new_item;
-	}
-	T * FASTCALL CreateNewItem()
-	{
-		T * p_new_item = new T;
-		if(p_new_item) {
-			if(!insert(p_new_item))
-				ZDELETE(p_new_item);
-		}
-		return p_new_item;
-	}
-	*/
 	T * FASTCALL CreateNewItem(uint * pPosition)
 	{
 		T * p_new_item = new T;
@@ -8591,7 +8572,9 @@ public:
 		const  MapEntry * FASTCALL SearchU(uint32 u) const; // Test - very slow func
 		const  MapEntry * FASTCALL SearchFallback(uint32 u) const;
 		int    SLAPI TranslateToU(const uint8 * pSrc, size_t srcLen, SStringU & rBuf) const;
-		int    SLAPI TranslateToB(const wchar_t * pSrc, size_t srcLen, SString & rBuf) const;
+		//
+		// Descr: Транслирует unicode-строку pSrc длиной srcLen в мультибайтовую строку rBuf
+		//
 		int    SLAPI TranslateToB2(const wchar_t * pSrc, size_t srcLen, SString & rBuf);
 		//
 		// Descr: Testing function
@@ -8637,10 +8620,8 @@ public:
 	// Descr: Временная структура для построения таблицы преобразования символьных таблиц
 	//
 	struct CMapTranslEntry {
-		CMapTranslEntry()
-		{
-			THISZERO();
-		}
+		SLAPI  CMapTranslEntry();
+
 		enum {
 			fNone     = 0x0001,
 			fFallback = 0x0002,

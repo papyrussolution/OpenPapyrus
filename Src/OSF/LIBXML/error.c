@@ -809,4 +809,4 @@ int xmlCopyError(xmlErrorPtr from, xmlErrorPtr to)
 }
 
 #define bottom_error
-#include "elfgcchack.h"
+//#include "elfgcchack.h"

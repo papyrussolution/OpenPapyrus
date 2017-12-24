@@ -2322,7 +2322,7 @@ int xmlIsID(xmlDoc * doc, xmlNode * elem, xmlAttrPtr attr)
 {
 	if(!attr || (attr->name == NULL))
 		return 0;
-	if(attr->ns && attr->ns->prefix && (!strcmp((char*)attr->name, "id")) && (!strcmp((char*)attr->ns->prefix, "xml")))
+	if(attr->ns && attr->ns->prefix && sstreq(attr->name, "id") && sstreq(attr->ns->prefix, "xml"))
 		return 1;
 	if(!doc)
 		return 0;
@@ -6235,4 +6235,4 @@ int xmlValidGetValidElements(xmlNode * prev, xmlNode * next, const xmlChar ** na
 #endif /* LIBXML_VALID_ENABLED */
 
 #define bottom_valid
-#include "elfgcchack.h"
+//#include "elfgcchack.h"

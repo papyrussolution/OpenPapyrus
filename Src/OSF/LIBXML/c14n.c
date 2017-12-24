@@ -1940,5 +1940,5 @@ static xmlChar * xmlC11NNormalizeString(const xmlChar * input, xmlC14NNormalizat
 
 #endif /* LIBXML_OUTPUT_ENABLED */
 #define bottom_c14n
-#include "elfgcchack.h"
+//#include "elfgcchack.h"
 #endif /* LIBXML_C14N_ENABLED */

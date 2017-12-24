@@ -2645,9 +2645,9 @@ void SLAPI iSalesPepsi::GetLogFileName(SString & rFileName) const
 int SLAPI iSalesPepsi::Init(/*PPID arID*/)
 {
 	State = 0;
-	SvcUrl = 0;
-	UserName = 0;
-	Password = 0;
+	SvcUrl.Z();
+	UserName.Z();
+	Password.Z();
 	int    ok = 1;
 	{
         Ep.GetExtStrData(Ep.extssRemoteAddr, SvcUrl);

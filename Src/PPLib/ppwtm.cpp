@@ -2536,7 +2536,6 @@ int SLAPI DoConstructionTest()
 	}
 #if 0 // {
 	{
-		/*
 		SString map_pool_file_name;
 		SString map_transl_file_name;
 		PPGetFilePath(PPPATH_OUT, "SCodepageMapPool.txt", map_pool_file_name);
@@ -2556,7 +2555,6 @@ int SLAPI DoConstructionTest()
 			ub2.Read("d:/papyrus/__temp__/ub.bin");
 			ub2.Cpmp.Test(&ub2.Ut, map_pool_file_name, map_transl_file_name);
 		}
-		*/
 	}
 #endif // } 0
 	//TestLargeVlrInputOutput();

@@ -1088,7 +1088,7 @@ time_t SLAPI LDATETIME::GetTimeT() const
 		return 0;
 	else {
 		struct tm _t;
-		_t.tm_year = d.year();
+		_t.tm_year = d.year() - 1900;
 		_t.tm_mon = d.month();
 		_t.tm_mday = d.day();
 		_t.tm_hour = t.hour();

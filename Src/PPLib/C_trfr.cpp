@@ -2127,9 +2127,8 @@ struct BadTrfrEntry { // @flat
 
 class BadTrfrEntryListDialog : public PPListDialog {
 public:
-	BadTrfrEntryListDialog(SVector * pList) : PPListDialog(DLG_R_TFR_A, CTL_R_TFR_A_LIST) // @v9.8.8 SArray-->SVector
+	BadTrfrEntryListDialog(SVector * pList) : PPListDialog(DLG_R_TFR_A, CTL_R_TFR_A_LIST), P_List(pList) // @v9.8.8 SArray-->SVector
 	{
-		P_List = pList;
 		updateList(-1);
 	}
 private:

@@ -848,13 +848,7 @@ int SLAPI PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 {
 	int    ok = 1;
 	id = labs(id);
-	/* @v8.3.7
-	ZDELETE(pPack->P_Filt);
-	ZDELETE(pPack->P_Quots);
-	pPack->ExTitles = 0;
-	pPack->TagL.Destroy();
-	*/
-	pPack->destroy(); // @v8.3.7
+	pPack->destroy();
 	if((ok = Search(id, &pPack->Rec)) > 0) {
 		if(pPack->Rec.PhUPerU == HUGE_VAL)
 			pPack->Rec.PhUPerU = 0.0;
@@ -1054,7 +1048,7 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 			rec = old_pack.Rec;
 			org_rec = old_pack.Rec;
 			if(pPack) {
-				// 
+				//
 				// ѕодготовка пакета к корректному сравнению с оригинальным пакетом:
 				// если pPack пришел из другого раздела, то идентификаторы товара в структурах, хран€щихс€ в
 				// других таблицах могут отличатьс€ от *pID.
@@ -1068,7 +1062,7 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 				for(i = 0; i < pPack->ArCodes.getCount(); i++) {
 					pPack->ArCodes.at(i).GoodsID = *pID;
 				}
-				// } 
+				// }
 				// ≈сли не надо мен€ть изображение, то не следует и сравнивать флаг GF_HASIMAGES
 				if(pPack->UpdFlags & PPGoodsPacket::ufDontChgImgFlag) {
 					SETFLAG(pPack->Rec.Flags, GF_HASIMAGES, org_rec.Flags & GF_HASIMAGES);

@@ -952,4 +952,4 @@ int xmlHashRemoveEntry3(xmlHashTable * table, const xmlChar * name, const xmlCha
 }
 
 #define bottom_hash
-#include "elfgcchack.h"
+//#include "elfgcchack.h"

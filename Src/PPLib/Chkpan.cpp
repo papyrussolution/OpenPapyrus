@@ -2567,7 +2567,7 @@ int CPosProcessor::Helper_SetupSessUuidForCheck(PPID checkID)
 int CPosProcessor::IsOnlyChargeGoodsInPacket(PPID scID, const CCheckPacket * pPack)
 {
 	int    only_charge_goods = 1;
-	const PPID charge_goods_id = GetChargeGoodsID(scID);
+	const  PPID charge_goods_id = GetChargeGoodsID(scID);
 	if(pPack) {
 		for(uint i = 0; only_charge_goods && i < pPack->GetCount(); i++) {
 			const CCheckLineTbl::Rec & r_line = pPack->GetLine(i);
@@ -5332,19 +5332,15 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 {
 	class CheckDlvrDialog : public TDialog {
 	public:
-		CheckDlvrDialog(PPID scardID, const char * pDlvrPhone, const char * pChannel) :
-			TDialog(DLG_CCHKDLVR), Channel(pChannel)
+		CheckDlvrDialog(PPID scardID, const char * pDlvrPhone, const char * pChannel) : TDialog(DLG_CCHKDLVR), Channel(pChannel),
+			LockAddrModChecking(0), PersonID(0), DefCityID(0), DlvrPhone(pDlvrPhone)
 		{
 			addGroup(GRP_SCARD, new SCardCtrlGroup(0, CTL_CCHKDLVR_SCARD, 0)); // @v9.4.5
-			LockAddrModChecking = 0;
 			MEMSZERO(OrgLocRec);
 			Data.SCardID_ = scardID;
-			PersonID = 0;
 			SetupCalDate(CTLCAL_CCHKDLVR_DT, CTL_CCHKDLVR_DT);
 			SetupTimePicker(this, CTL_CCHKDLVR_TM, CTLTM_CCHKDLVR_TM);
 			setStaticText(CTL_CCHKDLVR_ST_SIP, Channel);
-			DefCityID = 0;
-			DlvrPhone = pDlvrPhone;
 			GetMainCityID(&DefCityID);
 		}
 		int    setDTS(const CheckPaneDialog::ExtCcData * pData)
@@ -6684,7 +6680,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			case kbF8:
 				BARRIER(SuspendCheck());
 				break;
-			case kbCtrlF8: // Просмотр информации о пластиковой карте
+			case kbCtrlF8: // Просмотр информации о персональной карте
 				if(!Barrier()) {
 					PPID   scard_id = CSt.GetID();
 					ViewSCardInfo(&scard_id, 1);
@@ -8918,7 +8914,7 @@ private:
 		stNeedActivation = 0x0010, // Карта требует активации. Информация окрашивается в желтый цвет.
 		stAutoActivation = 0x0020  // Автоактивация карты //
 	};
-	struct SpcListItem {
+	struct SpcListItem { // @flat
 		PPID   PersonID;
 		PPID   SCardID;
 		PPID   SCardSerID;
@@ -8928,17 +8924,15 @@ private:
 		double Rest;
 		double Amount;
 	};
-	class  SpcArray : public TSArray <SpcListItem> {
+	class  SpcArray : public TSVector <SpcListItem>, public SStrGroup { // @v9.8.9 TSArray-->TSVector, SStrGroup
 	public:
-		SpcArray() : TSArray <SpcListItem> ()
+		SpcArray() : TSVector <SpcListItem> ()
 		{
-			StrPool.add("$");
 		}
 		void   Clear()
 		{
 			freeAll();
-			StrPool.clear();
-			StrPool.add("$");
+			ClearS();
 		}
 		int    Add(PPID cardID, PPID cardSerID, const char * pCardCode, double rest, double amount)
 		{
@@ -8953,23 +8947,20 @@ private:
 			temp_buf = pCardCode;
 			if(!temp_buf.NotEmptyS())
 				ideqvalstr(cardID, temp_buf);
-			StrPool.add(temp_buf, &item.SCardCodePos);
+			AddS(temp_buf, &item.SCardCodePos);
 			insert(&item);
 			return ok;
 		}
 		PPID   Get(uint pos, SString & rCardCode, SString & rCardSerName, double * pRest, double * pAmount)
 		{
-			rCardCode = 0;
-			rCardSerName = 0;
+			rCardCode.Z();
+			rCardSerName.Z();
 			if(pos < getCount()) {
 				const SpcListItem & r_item = at(pos);
-				StrPool.get(r_item.SCardCodePos, rCardCode);
-				if(r_item.SCardSerID) {
-					PPSCardSeries scs_rec;
-					if(ScsObj.Fetch(r_item.SCardSerID, &scs_rec) > 0) {
-						rCardSerName = scs_rec.Name;
-					}
-				}
+				PPSCardSeries scs_rec;
+				GetS(r_item.SCardCodePos, rCardCode);
+				if(r_item.SCardSerID && ScsObj.Fetch(r_item.SCardSerID, &scs_rec) > 0)
+					rCardSerName = scs_rec.Name;
 				ASSIGN_PTR(pRest, r_item.Rest);
 				ASSIGN_PTR(pAmount, r_item.Amount);
 				return r_item.SCardID;
@@ -8989,11 +8980,11 @@ private:
 			temp_buf = pPersonName;
 			if(!temp_buf.NotEmptyS())
 				ideqvalstr(personID, temp_buf);
-			StrPool.add(temp_buf, &item.PersonNamePos);
+			AddS(temp_buf, &item.PersonNamePos);
 			temp_buf = pCardCode;
 			if(!temp_buf.NotEmptyS())
 				ideqvalstr(cardID, temp_buf);
-			StrPool.add(temp_buf, &item.SCardCodePos);
+			AddS(temp_buf, &item.SCardCodePos);
 			item.SCardExpiry = expiry;
 			insert(&item);
 			return ok;
@@ -9007,8 +8998,8 @@ private:
 			if(pos < getCount()) {
 				const SpcListItem & r_item = at(pos);
 				rExpiry = r_item.SCardExpiry;
-				StrPool.get(r_item.PersonNamePos, rPersonName);
-				StrPool.get(r_item.SCardCodePos, rCardCode);
+				GetS(r_item.PersonNamePos, rPersonName);
+				GetS(r_item.SCardCodePos, rCardCode);
 				if(r_item.SCardSerID) {
 					PPSCardSeries scs_rec;
 					if(ScsObj.Fetch(r_item.SCardSerID, &scs_rec) > 0) {
@@ -9021,7 +9012,6 @@ private:
 				return 0;
 		}
 	private:
-		StringSet StrPool;
 		PPObjSCardSeries ScsObj;
 	};
 
@@ -9188,6 +9178,12 @@ int SCardInfoDialog::SetupCard(PPID scardID)
 		SCardID = 0;
 		setGroupData(GRP_IBG, &ibg_rec);
 	}
+	// @v9.8.9 {
+	{
+		PPID   charge_goods_id = (SCardID && (LocalState & stAsSelector)) ? ScObj.GetChargeGoodsID(SCardID) : 0;
+		showButton(cmCharge, charge_goods_id);
+	}
+	// } @v9.8.9 
 	setCtrlData(CTL_SCARDVIEW_SALDO,   &sc_rec.Rest);
 	setCtrlString(CTL_SCARDVIEW_OWNER, psn_name);
 	setCtrlString(CTL_SCARDVIEW_CARD,  card);
@@ -9212,12 +9208,12 @@ int SCardInfoDialog::setupList()
 			for(view.InitIteration(0); view.NextIteration(&item) > 0;) {
 				if(!(item.Flags & CCHKF_SKIP)) {
 					ss.clear();
-					ss.add(buf.Z().Cat(item.Dt), 0);                                // Дата
-					ss.add(buf.Z().Cat(item.Tm), 0);                                // Время //
-					ss.add(buf.Z().Cat(item.CashID), 0);                            // Касса
-					ss.add(buf.Z().Cat(item.Code), 0);                              // Номер чека
-					ss.add(buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY), 0);   // Сумма
-					ss.add(buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY), 0); // Скидка
+					ss.add(buf.Z().Cat(item.Dt));                                // Дата
+					ss.add(buf.Z().Cat(item.Tm));                                // Время //
+					ss.add(buf.Z().Cat(item.CashID));                            // Касса
+					ss.add(buf.Z().Cat(item.Code));                              // Номер чека
+					ss.add(buf.Z().Cat(MONEYTOLDBL(item.Amount), SFMT_MONEY));   // Сумма
+					ss.add(buf.Z().Cat(MONEYTOLDBL(item.Discount), SFMT_MONEY)); // Скидка
 					THROW(addStringToList(item.ID, ss.getBuf()));
 				}
 			}
@@ -9234,8 +9230,8 @@ int SCardInfoDialog::setupList()
 			view.InitIteration();
 			for(uint i = 1; view.NextIteration(&item) > 0; i++) {
 				ss.clear();
-				ss.add(buf.Z().Cat(item.Dt), 0);                 // Дата
-				ss.add(buf.Z().Cat(item.Tm), 0);                 // Время //
+				ss.add(buf.Z().Cat(item.Dt));                 // Дата
+				ss.add(buf.Z().Cat(item.Tm));                 // Время //
 				if(item.Flags & SCARDOPF_FREEZING) {
 					DateRange frz_prd;
 					frz_prd.Set(item.FreezingStart, item.FreezingEnd);
@@ -9243,8 +9239,8 @@ int SCardInfoDialog::setupList()
 					ss.add(buf.Z());
 				}
 				else {
-					ss.add(buf.Z().Cat(item.Amount, SFMT_MONEY|NMBF_NOZERO), 0); // Сумма
-					ss.add(buf.Z().Cat(item.Rest, SFMT_MONEY|NMBF_NOZERO), 0);   // Остаток
+					ss.add(buf.Z().Cat(item.Amount, SFMT_MONEY|NMBF_NOZERO)); // Сумма
+					ss.add(buf.Z().Cat(item.Rest, SFMT_MONEY|NMBF_NOZERO));   // Остаток
 				}
 				THROW(addStringToList(i, ss.getBuf()));
 			}
@@ -9382,12 +9378,24 @@ void SCardInfoDialog::CommitMovCrd()
 
 IMPL_HANDLE_EVENT(SCardInfoDialog)
 {
+	// @v9.8.0 {
+	if(TVCOMMAND && TVCMD == cmCharge) {
+		SString code;
+		getCtrlString(CTL_SCARDVIEW_INPUT, code);
+		if(!code.NotEmptyS() && IsInState(sfModal)) {
+			PPID   charge_goods_id = (SCardID && (LocalState & stAsSelector)) ? ScObj.GetChargeGoodsID(SCardID) : 0;
+			if(charge_goods_id) {
+				endModal(cmCharge);
+				return; // После endModal не следует обращаться к this
+			}
+		}
+	}
+	// } @v9.8.0
 	if(TVCOMMAND && TVCMD == cmOK) {
 		if(oneof2(Mode, modeSelectByOwner, modeSelectByMultCode)) {
 			PPID   sc_id = 0;
-			if(getSelection(&sc_id) && sc_id) {
+			if(getSelection(&sc_id) && sc_id)
 				SetupCard(sc_id);
-			}
 		}
 		else {
 			SString code;
@@ -9584,7 +9592,24 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 
 static int SLAPI Helper_ViewSCardInfo(PPID * pSCardID, int asSelector)
 {
-	DIALOG_PROC_BODY_P1(SCardInfoDialog, asSelector, pSCardID);
+	//DIALOG_PROC_BODY_P1(SCardInfoDialog, asSelector, pSCardID);
+	int    ok = -1;
+	SCardInfoDialog * dlg = new SCardInfoDialog(asSelector);
+	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(pSCardID)) {
+		int    cm = 0;
+		while(ok <= 0 && ((cm = ExecView(dlg)) == cmOK || cm == cmCharge)) {
+			if(dlg->getDTS(pSCardID)) {
+				if(cm == cmCharge)
+					ok = 2;
+				else 
+					ok = 1;
+			}
+		}
+	}
+	else 
+		ok = 0;
+	delete dlg; 
+	return ok;
 }
 
 int SLAPI ViewSCardInfo(PPID * pSCardID, int asSelector)
@@ -9823,6 +9848,8 @@ void CheckPaneDialog::AcceptSCard(int fromInput, PPID scardID, int ignoreRights)
 			}
 			if(ok) {
 				int    ext_cancel = 0; // Признак отмены расширенного выбора карты
+				int    auto_charge = 0; // Признак автоматического выбора товара для начисления (пользователь до этого 
+					// в диалоге выбора карты нажал соответствующую кнопку).
 				if(fromInput == 100 && CnExtFlags & CASHFX_EXTSCARDSEL) {
 					//
 					// Расширенный выбор карты
@@ -9834,16 +9861,23 @@ void CheckPaneDialog::AcceptSCard(int fromInput, PPID scardID, int ignoreRights)
 						if(temp_buf.NotEmptyS() && ScObj.SearchCode(0, temp_buf, &sc_rec) > 0)
 							scard_id = sc_rec.ID;
 					}
-					if(ViewSCardInfo(&scard_id, 1) > 0) {
-						if(scard_id && ScObj.Search(scard_id, &sc_rec) > 0) {
-							CSt.SetID(scard_id, sc_rec.Code);
-							is_found = 1;
+					{
+						const int cm = ViewSCardInfo(&scard_id, 1);
+						if(cm > 0) {
+							if(scard_id && ScObj.Search(scard_id, &sc_rec) > 0) {
+								CSt.SetID(scard_id, sc_rec.Code);
+								// @v9.8.9 {
+								if(cm == 2) // Начисление на карту
+									auto_charge = 1;
+								// } @v9.8.9 
+								is_found = 1;
+							}
+							else
+								Flags |= fWaitOnSCard; // Ниже по этому флагу произойдет сброс выбранной карты.
 						}
 						else
-							Flags |= fWaitOnSCard; // Ниже по этому флагу произойдет сброс выбранной карты.
+							ext_cancel = 1;
 					}
-					else
-						ext_cancel = 1;
 				}
 				else if(fromInput) {
 					//
@@ -9885,10 +9919,23 @@ void CheckPaneDialog::AcceptSCard(int fromInput, PPID scardID, int ignoreRights)
 							//
 							{
 								Implement_AcceptSCard(sc_rec);
-								if(sc_rec.AutoGoodsID) {
-									PgsBlock pgsb(1.0);
-									if(PreprocessGoodsSelection(sc_rec.AutoGoodsID, 0, pgsb) > 0)
-										SetupNewRow(sc_rec.AutoGoodsID, pgsb);
+								// @v9.8.9 {
+								if(auto_charge) {
+									PPID   charge_goods_id = GetChargeGoodsID(CSt.GetID());
+									if(charge_goods_id != UNDEF_CHARGEGOODSID) {
+										PgsBlock pgsb(1.0);
+										if(PreprocessGoodsSelection(charge_goods_id, 0, pgsb) > 0)
+											SetupNewRow(charge_goods_id, pgsb);
+									}
+								}
+								else 
+								// } @v9.8.9
+								{
+									if(sc_rec.AutoGoodsID) {
+										PgsBlock pgsb(1.0);
+										if(PreprocessGoodsSelection(sc_rec.AutoGoodsID, 0, pgsb) > 0)
+											SetupNewRow(sc_rec.AutoGoodsID, pgsb);
+									}
 								}
 								CSt.Discount = fdiv100i(sc_rec.PDis);
 								Flags |= fPctDis;

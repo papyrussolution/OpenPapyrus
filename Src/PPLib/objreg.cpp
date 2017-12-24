@@ -502,11 +502,9 @@ int SLAPI PPObjRegister::Edit(PPID * pID, void * extraPtr /*personID*/)
 
 class RegisterListDialog : public PPListDialog {
 public:
-	RegisterListDialog(PPPersonPacket * pPsnPack, PPID eventID) : PPListDialog(DLG_REGLST, CTL_REGLST_LIST)
+	RegisterListDialog(PPPersonPacket * pPsnPack, PPID eventID) : PPListDialog(DLG_REGLST, CTL_REGLST_LIST),
+		P_PsnPack(0), P_LocPack(0), P_Data(&StubData)
 	{
-		P_PsnPack = 0;
-		P_LocPack = 0;
-		P_Data = &StubData;
 		if(pPsnPack) {
 			P_PsnPack = pPsnPack;
 			P_Data = &pPsnPack->Regs;
@@ -522,11 +520,9 @@ public:
 		EventID  = eventID;
 		updateList(-1);
 	}
-	RegisterListDialog(PPLocationPacket * pLocPack) : PPListDialog(DLG_REGLST, CTL_REGLST_LIST)
+	RegisterListDialog(PPLocationPacket * pLocPack) : PPListDialog(DLG_REGLST, CTL_REGLST_LIST),
+		P_PsnPack(0), P_LocPack(0), P_Data(&StubData)
 	{
-		P_PsnPack = 0;
-		P_LocPack = 0;
-		P_Data = &StubData;
 		if(pLocPack) {
 			Oid.Set(PPOBJ_LOCATION, pLocPack->ID);
 			P_LocPack = pLocPack;
@@ -770,10 +766,8 @@ int SLAPI PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 //
 class BankAccountListDialog : public PPListDialog {
 public:
-	BankAccountListDialog(PPPersonPacket * pPsnPack) : PPListDialog(DLG_BACCLST, CTL_BACCLST_LIST)
+	BankAccountListDialog(PPPersonPacket * pPsnPack) : PPListDialog(DLG_BACCLST, CTL_BACCLST_LIST), P_PsnPack(0), P_Data(&StubData)
 	{
-		P_PsnPack = 0;
-		P_Data = &StubData;
 		if(pPsnPack) {
 			P_PsnPack = pPsnPack;
 			P_Data = &pPsnPack->Regs;

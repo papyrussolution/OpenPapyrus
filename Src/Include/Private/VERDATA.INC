@@ -1,9 +1,6 @@
 	//
 	// 	..\INCLUDE\PRIVATE\VERDATA.INC
 	// 	2017-12-24T18:45:36
-=======
-	// 	2017-11-23T19:06:08
->>>>>>> parent of f010b32... Version 9.8.9
 	// 	Automaticaly generated file
 	// 	Don't modify!
 	//

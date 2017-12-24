@@ -1,5 +1,5 @@
 // SUNIT.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2016
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2016, 2017
 //
 #include <slib.h>
 #include <tv.h>
@@ -151,19 +151,16 @@ USize & SUnit::Convert(const USize & rUszFrom, USize & rUszTo, const SUnit::Cont
 	return rUszTo;
 }
 
-SUnit::SUnit()
+SUnit::SUnit() : Id(0)
 {
-	Id = 0;
 }
 
-SUnit::SUnit(int id)
+SUnit::SUnit(int id) : Id(id)
 {
-	Id = id;
 }
 
-SUnit::SUnit(const char * pName, const SUnit::Context * pCtx)
+SUnit::SUnit(const char * pName, const SUnit::Context * pCtx) : Id(0)
 {
-	Id = 0;
 }
 
 SUnit::operator int () const

@@ -569,12 +569,10 @@ CURLcode Curl_set_dns_interface(struct Curl_easy * data,
 #endif
 }
 
-CURLcode Curl_set_dns_local_ip4(struct Curl_easy * data,
-    const char * local_ip4)
+CURLcode Curl_set_dns_local_ip4(struct Curl_easy * data, const char * local_ip4)
 {
 #if (ARES_VERSION >= 0x010704)
 	struct in_addr a4;
-
 	if((!local_ip4) || (local_ip4[0] == 0)) {
 		a4.s_addr = 0; /* disabled: do not bind to a specific address */
 	}
@@ -583,9 +581,7 @@ CURLcode Curl_set_dns_local_ip4(struct Curl_easy * data,
 			return CURLE_BAD_FUNCTION_ARGUMENT;
 		}
 	}
-
 	ares_set_local_ip4((ares_channel)data->state.resolver, ntohl(a4.s_addr));
-
 	return CURLE_OK;
 #else /* c-ares version too old! */
 	(void)data;

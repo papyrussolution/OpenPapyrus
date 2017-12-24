@@ -1011,4 +1011,4 @@ xmlOutputBufferCreateFilenameFunc * __xmlOutputBufferCreateFilenameValue()
 }
 
 #define bottom_globals
-#include "elfgcchack.h"
+//#include "elfgcchack.h"

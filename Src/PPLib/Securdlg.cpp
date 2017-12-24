@@ -514,17 +514,15 @@ int SLAPI EditCfgOptionsDialog(PPConfig * pCfg, long, EmbedDialog * pDlg)
 
 class ActiveUserListDlg : public PPListDialog {
 public:
-	ActiveUserListDlg() : PPListDialog(DLG_AUSERSLST, CTL_AUSERSLST_LIST)
+	ActiveUserListDlg() : PPListDialog(DLG_AUSERSLST, CTL_AUSERSLST_LIST), Options(0)
 	{
 		AddClusterAssoc(CTL_AUSERSLST_FLAGS, 0, ACTIVEUSERLIST_SHOWMACHINE);
 		SetClusterData(CTL_AUSERSLST_FLAGS, 0);
-		Options = 0;
 		updateList(-1);
 	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int setupList();
-
 	int  GetDtm(PPID userID, PPID sessID, LDATETIME * pLoginDtm, SString & rWorkDtm);
 
 	long Options;

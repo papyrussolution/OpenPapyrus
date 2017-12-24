@@ -307,10 +307,8 @@ int SLAPI PPNamedFiltMngr::SavePool(const PPNamedFiltPool * pPool) const
 //
 class FiltPoolDialog : public PPListDialog {
 public:
-	FiltPoolDialog(PPNamedFiltMngr * pMngr, PPNamedFiltPool * pData) : PPListDialog(DLG_FILTPOOL, CTL_FILTPOOL_LIST)
+	FiltPoolDialog(PPNamedFiltMngr * pMngr, PPNamedFiltPool * pData) : PPListDialog(DLG_FILTPOOL, CTL_FILTPOOL_LIST), P_Mngr(pMngr), P_Data(pData)
 	{
-		P_Mngr = pMngr;
-		P_Data = pData;
 		updateList(-1);
 	}
 private:

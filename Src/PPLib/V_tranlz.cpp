@@ -452,20 +452,10 @@ int SLAPI PPViewTrfrAnlz::FlashCacheItems(uint count)
 	return ok;
 }
 
-SLAPI PPViewTrfrAnlz::PPViewTrfrAnlz() :
-	PPView(0, &Filt, PPVIEW_TRFRANLZ),
-	Cache(sizeof(TagrCacheItem), /*32,*/O_ARRAY),
-	MaxCacheItems(DS.CheckExtFlag(ECF_SYSSERVICE) ? (128*1024) : (64*1024U)),
-	CacheDelta(DS.CheckExtFlag(ECF_SYSSERVICE) ? 4096 : 2048)
+SLAPI PPViewTrfrAnlz::PPViewTrfrAnlz() : PPView(0, &Filt, PPVIEW_TRFRANLZ), Cache(sizeof(TagrCacheItem), /*32,*/O_ARRAY),
+	MaxCacheItems(DS.CheckExtFlag(ECF_SYSSERVICE) ? (128*1024) : (64*1024U)), CacheDelta(DS.CheckExtFlag(ECF_SYSSERVICE) ? 4096 : 2048),
+	P_TrAnlzTbl(0), P_TrGrpngTbl(0), P_OrderTbl(0), P_IterOrderQuery(0), P_InnerIterItem(0), P_BObj(BillObj), Flags(0), GrpIdCounter(0)
 {
-	P_TrAnlzTbl = 0;
-	P_TrGrpngTbl = 0;
-	P_OrderTbl  = 0;
-	P_IterOrderQuery = 0;
-	P_InnerIterItem = 0;
-	P_BObj = BillObj;
-	Flags = 0;
-	GrpIdCounter = 0;
 	ImplementFlags |= implDontSetupCtColumnsOnChgFilt;
 	ImplementFlags |= implUseServer;
 	SETFLAG(Flags, fAccsCost, P_BObj->CheckRights(BILLRT_ACCSCOST));
@@ -484,9 +474,8 @@ SLAPI PPViewTrfrAnlz::~PPViewTrfrAnlz()
 
 class TrfrAnlzCrosstab : public Crosstab {
 public:
-	SLAPI  TrfrAnlzCrosstab(PPViewTrfrAnlz * pV) : Crosstab()
+	SLAPI  TrfrAnlzCrosstab(PPViewTrfrAnlz * pV) : Crosstab(), P_V(pV)
 	{
-		P_V = pV;
 	}
 	virtual BrowserWindow * SLAPI CreateBrowser(uint brwId, int dataOwner)
 	{
@@ -3672,15 +3661,13 @@ void PPALDD_TrfrAnlzBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 //
 //
 //
-PrcssrAlcReport::Config::Config()
+PrcssrAlcReport::Config::Config() : P_CcFilt(0)
 {
-	P_CcFilt = 0;
 	Clear();
 }
 
-SLAPI PrcssrAlcReport::Config::Config(const Config & rS)
+SLAPI PrcssrAlcReport::Config::Config(const Config & rS) : P_CcFilt(0)
 {
-	P_CcFilt = 0;
 	Copy(rS);
 }
 
