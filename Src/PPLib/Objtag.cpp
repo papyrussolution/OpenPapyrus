@@ -747,10 +747,9 @@ static int SLAPI SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTa
 {
 	class SelectObjTagTypeDialog : public TDialog {
 	public:
-		SelectObjTagTypeDialog(const ObjTagFilt * pObjTagF) : TDialog(DLG_OBJTAGTYP)
+		SelectObjTagTypeDialog(const ObjTagFilt * pObjTagF) : TDialog(DLG_OBJTAGTYP), P_ObjTypeList(0)
 		{
 			RVALUEPTR(Filt, pObjTagF);
-			P_ObjTypeList = 0;
 			TagObjTypeList.addzlist(PPOBJ_PERSON, PPOBJ_GOODS, PPOBJ_BILL, PPOBJ_LOT, PPOBJ_WORKBOOK,
 				PPOBJ_LOCATION, PPOBJ_GLOBALUSERACC, PPOBJ_UHTTSTORE, PPOBJ_CASHNODE, 0);
 		}
@@ -1913,11 +1912,8 @@ struct SelTagDialogData {
 
 class SelTagDialog : public TDialog {
 public:
-	SelTagDialog(int checkRestrict, PPID objType) : TDialog(DLG_SELTAG)
+	SelTagDialog(int checkRestrict, PPID objType) : TDialog(DLG_SELTAG), EnumID(0), CheckRestrict(checkRestrict), ObjType(objType)
 	{
-		EnumID = 0;
-		CheckRestrict = checkRestrict;
-		ObjType = objType;
 		{
 			SString temp_buf;
 			GetObjectTitle(ObjType, temp_buf);
@@ -2133,9 +2129,9 @@ private:
 		setCtrlString(CTL_SELTAG_RESTRICT, restrict);
 		return 1;
 	}
-	int    CheckRestrict;
+	const  int  CheckRestrict;
+	const  PPID ObjType;
 	PPID   EnumID;
-	PPID   ObjType;
 	SelTagDialogData Data;
 	PPObjTag ObjTag;
 };
@@ -2475,9 +2471,8 @@ int SLAPI EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const PPI
 {
 	class TagValDialog : public TDialog {
 	public:
-		TagValDialog(uint resID, const ObjTagItem * pItem, PPID objID) : TDialog(resID)
+		TagValDialog(uint resID, const ObjTagItem * pItem, PPID objID) : TDialog(resID), ObjID(objID)
 		{
-			ObjID = objID;
 			RVALUEPTR(Item, pItem);
 		}
 	private:
@@ -2550,7 +2545,7 @@ int SLAPI EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const PPI
 				return;
 			clearEvent(event);
 		}
-		PPID   ObjID;
+		const PPID ObjID;
 		ObjTagItem Item;
 	};
 	int    ok = -1, r, valid_data = 0;

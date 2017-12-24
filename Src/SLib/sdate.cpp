@@ -346,20 +346,19 @@ static long FASTCALL _datetol360(const void * dt, int format)
 #define firstDay     1
 #define firstOff    4L
 
-long SLAPI CLADateToLong(struct date * d)
+static long SLAPI CLADateToLong(const SDosDate * d)
 {
-	struct date doff;
+	SDosDate doff;
 	long loff;
 	int  leap;
 	doff.da_year = d->da_year - firstYear;
 	doff.da_day  = d->da_day  - firstDay;
 	leap = (d->da_year % 4 == 0);
-	loff = firstOff + doff.da_year * 365L + (doff.da_year >> 2) + doff.da_day +
-		getDays(d->da_mon, leap) - getDays(firstMon, 0) - 1;
+	loff = firstOff + doff.da_year * 365L + (doff.da_year >> 2) + doff.da_day + getDays(d->da_mon, leap) - getDays(firstMon, 0) - 1;
 	return loff;
 }
 
-void SLAPI CLALongToDate(long off, struct date * d)
+static void SLAPI CLALongToDate(long off, SDosDate * d)
 {
 	long dev  = off - ((off / 365) >> 2) - 2;
 	int  rest = (int)(dev % 365);
@@ -381,15 +380,20 @@ static void formatNotSupported(const char * pFormatName)
 void SLAPI _encodedate(int day, int mon, int year, void * pBuf, int format)
 {
 	char   tmp[64];
-#ifndef _WIN32_WCE
-	struct date dt;
-#endif
 	switch(format) {
+		case DF_BTRIEVE:
+			{
+				/*LDATE temp_dt;
+				temp_dt.encode(day, mon, year);
+				*(LDATE *)pBuf = temp_dt;*/
+				((LDATE *)pBuf)->encode(day, mon, year);
+			}
+			break;
 #ifndef _WIN32_WCE
 		case DF_DOS:
-			((struct date *)pBuf)->da_day  = day;
-			((struct date *)pBuf)->da_mon  = mon;
-			((struct date *)pBuf)->da_year = year;
+			((SDosDate *)pBuf)->da_day  = day;
+			((SDosDate *)pBuf)->da_mon  = mon;
+			((SDosDate *)pBuf)->da_year = year;
 			break;
 #endif
 		case DF_FAT:
@@ -403,20 +407,16 @@ void SLAPI _encodedate(int day, int mon, int year, void * pBuf, int format)
 			formatNotSupported("Paradox");
 			break;
 		case DF_CLARION:
-#ifdef USE_DF_CLARION
-			dt.da_day  = day;
-			dt.da_mon  = mon;
-			dt.da_year = year;
-			*(long *)pBuf = CLADateToLong(&dt);
-#else
-			formatNotSupported("Clarion");
-#endif
-			break;
-		case DF_BTRIEVE:
 			{
-				LDATE temp_dt;
-				temp_dt.encode(day, mon, year);
-				*(LDATE *)pBuf = temp_dt;
+#ifdef USE_DF_CLARION
+				SDosDate dt;
+				dt.da_day  = day;
+				dt.da_mon  = mon;
+				dt.da_year = year;
+				*(long *)pBuf = CLADateToLong(&dt);
+#else
+				formatNotSupported("Clarion");
+#endif
 			}
 			break;
 		default:
@@ -430,7 +430,7 @@ void SLAPI _decodedate(int * day, int * mon, int * year, const void * pBuf, int 
 {
 	char   tmp[64];
 #ifndef _WIN32_WCE
-	struct date d;
+	SDosDate d;
 #endif
 	switch(format)  {
 		case DF_BTRIEVE:
@@ -443,9 +443,9 @@ void SLAPI _decodedate(int * day, int * mon, int * year, const void * pBuf, int 
 			break;
 #ifndef _WIN32_WCE
 		case DF_DOS:
-			*day  = ((struct date *)pBuf)->da_day;
-			*mon  = ((struct date *)pBuf)->da_mon;
-			*year = ((struct date *)pBuf)->da_year;
+			*day  = ((SDosDate *)pBuf)->da_day;
+			*mon  = ((SDosDate *)pBuf)->da_mon;
+			*year = ((SDosDate *)pBuf)->da_year;
 			break;
 #endif
 		case DF_FAT:
@@ -875,7 +875,7 @@ int FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm)
 {
 #if defined(__WIN32__) || defined(_WIN32_WCE)
 	SYSTEMTIME st;
-	GetLocalTime(&st);
+	::GetLocalTime(&st);
 	if(pDt)
 		_encodedate((char)st.wDay, (char)st.wMonth, (int)st.wYear, pDt, DF_BTRIEVE);
 	if(pTm) {

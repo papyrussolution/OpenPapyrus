@@ -703,6 +703,15 @@
 	#define PPACN_GOODSPASSVSET    81L // @v9.5.0 Установлен признак "Пассивный" для товара
 	// !!! При вставке нового значения изменить PPACN_LAST !!!
 	#define PPACN_LAST             81L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
+	//
+	// Далее следуют идентификаторы событий, которые не отображаются в системном журнале, однако
+	// должны быть в том же поле идентификаторов, что и PPACN_XXX поскольку заносятся в очередь
+	// извещения о событиях наравне с PPACN_XXX.
+	//
+	#define PPEVNT_PHNS_PRERING  1001L // PhoneService event: Channel has detected an incoming call and is waiting for ring
+	#define PPEVNT_PHNS_RING     1002L // PhoneService event: Line is ringing
+	#define PPEVNT_PHNS_RINGING  1003L // PhoneService event: Remote end is ringing
+	#define PPEVNT_PHNC_UP       1004L // PhoneService event: Line is up
 //
 // Фантомный объект. В таблице Reference для него не существует записей.
 // Могут существовать записи в таблице Property, реализующие линейный
@@ -1707,6 +1716,7 @@
 #define cmSendSms                1164
 #define cmVerify                 1165
 #define cmFilter                 1166 // @v9.7.10
+#define cmExtParams              1167 // @v9.8.11 команда стала общей (ранее принадлежала только диалогу фильтра товаров)
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -3324,7 +3334,6 @@
 	#define cmManufFilt               102
 	#define cmAdvOptions              103
 	#define cmGoodsFiltVat            105
-	#define cmExtParams               106
 	#define cmBrandList               107
 	#define cmBrandOwnerList          108
 	#define CTL_GOODSFLT_GRP             (1 + WINDOWS_ID_BIAS)
@@ -7214,6 +7223,8 @@
 	#define CTL_EQCFG_RNGLIMPRICEBHT     (27 + WINDOWS_ID_BIAS)
 	#define CTL_EQCFG_SUSPCPFX           (28 + WINDOWS_ID_BIAS)
 	#define CTL_EQCFG_LOOKBKPRCPRD       (29 + WINDOWS_ID_BIAS)
+	#define CTL_EQCFG_PHNSVC             (30 + WINDOWS_ID_BIAS)
+	#define CTLSEL_EQCFG_PHNSVC          (31 + WINDOWS_ID_BIAS)
 #define DLG_CBFLDS                822 //PLUS Fields copied from LST2LST
 	#define CTL_CBFLDS_TYPE             (7 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CBFLDS_TYPE          (8 + WINDOWS_ID_BIAS)
@@ -10260,6 +10271,8 @@
 	#define CTL_PHNCPANE_INFOLIST     (4 + WINDOWS_ID_BIAS)
 	#define CTL_PHNCPANE_INFSEL       (5 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PHNCPANE_INFSEL    (6 + WINDOWS_ID_BIAS)
+#define DLG_EQCFGEXT              1333
+	// CTL_EQUIPCFG_XXX
 //
 // Win32 Dialog Identifiers
 //
@@ -11303,61 +11316,7 @@
 #define PPERR_NFILTNAMENEEDED		1371 // @paul  Необходимо ввести название
 #define PPERR_SYMBNEEDED            1372 // @paul  Символ не задан или задан не верно
 // } @paul @pentaho
-
-#define PPERR_CUSTDISP				1393 // Ошибки дисплеев покупателей [%s]
-#define PPERR_BNKTERM				1394 // Ошибка банковского терминала [%s]
-//#define PPERR_INVTSESSTATUS      xxxx // Недопустимый статус технологической сессии (%s).
-#define PPERR_INVSCARDHASH          1395 // Неверный код пластиковой карты
-#define PPERR_EDSERROR				1396 // Ошибка ЭЦП
-#define PPERR_EDS_OPENCERTSTORE				1397 // Ошибка открытия хранилища сертификатов
-#define	PPERR_EDS_GETCERT					1398 // Ошибка получения контекста сертификата
-#define PPERR_EDS_GETPROVIDER				1399 // Ошибка получения контекста криптопровайдера
-#define PPERR_EDS_CHAINCREAT				1400 // Ошибка получения цепочки сертификатов
-#define PPERR_EDS_CERTTRUSTTIMENOTVALID		1401 // Проверка цепочки сертификатов: Истек срок действия одного из сертификатов цепочки
-#define PPERR_EDS_CERTTRUSTISREVOKED		1402 // Проверка цепочки сертификатов: Один из сертификатов был отозван
-#define PPERR_EDS_CERTTRUSTSIGNNOTVALID		1403 // Проверка цепочки сертификатов: Один из сертификатов имеет неверную ЭЦП
-#define PPERR_EDS_CERTTRUSTUSAGENOTVALID	1404 // Проверка цепочки сертификатов: Сертификат не может быть использован по данному назначению
-#define PPERR_EDS_CERTTRUSUNTRUSTEDROOT		1405 // Проверка цепочки сертификатов: Цепочка сертификатов выстроена до корневого центра сертификации (ЦС), но сертификат корневого ЦС отсутствует на компьютере в хранилище доверенных корневых ЦС
-#define PPERR_EDS_CERTTRUSTREVOKTNUNKNOWN	1406 // Проверка цепочки сертификатов: Статус отзыва одного из сертификатов не известен
-#define PPERR_EDS_CERTTRUSTCYCLIC			1407 // Проверка цепочки сертификатов: Цепочка сертификатов является циклической (один из сертификатов цепочки выдан центром сертификации, который сертифицирован исходным сертификатом)
-#define PPERR_EDS_CERTTRUSTINVEXT			1408 // Проверка цепочки сертификатов: Один из сертификатов имеет недопустимое расширение
-#define PPERR_EDS_CERTTRUSTPOLICYINV		1409 // Проверка цепочки сертификатов: Один из сертификатов имеет неверную политику ограничений
-#define PPERR_EDS_CERTTRUSTBASICCONSTRINV	1410 // Проверка цепочки сертификатов: Либо один из сертификатов не имеет достаточных прав для выдачи сертификатов, либо длина цепочки была привышена
-#define PPERR_EDS_CERTTRUSTCHAINISPARTNL	1411 // Проверка цепочки сертификатов: Цепочка сертификата неполна
-#define PPERR_EDS_CERTTRUSTCTLTIMENOTVALID	1412 // Проверка цепочки сертификатов: Истек срок действия списка отозванных сертификатов
-#define PPERR_EDS_CERTTRUSTCTLSIGNNOTVALID	1413 // Проверка цепочки сертификатов: Список отозванных сертификатов, который был использован для построения цепочки, не имеет действительной ЭЦП
-#define PPERR_EDS_CERTTRUSTCTLUSAGENOTVALID	1414 // Проверка цепочки сертификатов: Неверное применение списка отозванных сертификатов
-#define PPERR_EDS_GETKEYFAILED				1415 // Ошибка получения пользовательского ключа
-#define PPERR_EDS_GETKEYLENFAILED			1416 // Ошибка получения длины ключа
-#define PPERR_EDS_GETBLOCKSIZEFAILED		1417 // Не удалось получить размер блока для шифрования/дешифровани
-#define PPERR_EDS_ENCRYPTIONFAILED			1418 // Ошибка шифровани
-#define PPERR_EDS_DECRYPTIONFAILED			1419 // Ошибка дешифровани
-#define PPERR_EDS_CREATESIGNATUREFAILED		1420 // Ошибка создания ЭЦП
-#define PPERR_EDS_MSGOPENFAILED				1421 // CryptMsgOpenToDecode or CryptMsgOpenToEncode failed
-#define PPERR_EDS_MSGUPDATEFAILED			1422 // CryptMsgUpdate failed
-#define PPERR_EDS_ADDSIGNERFAILED			1423 // Информация о подписчике не добавлена
-#define PPERR_EDS_ADDCERTFAILED				1424 // Информация о сертификате подписчика не добавлена
-#define PPERR_EDS_GETSIGNINFOFAILED			1425 // Не удалось получить информацию о подписи
-#define PPERR_EDS_DELSIGNFAILED				1426 // Ошибка удаления подписи
-#define PPERR_EDS_DELCERTINFOFAILED			1427 // Ошибка удаления информации о сертификате
-#define PPERR_EDS_GETSIGNCOUNTFAILED		1428 // Не удалось получить количество подписей
-#define PPERR_EDS_GETCERTINFOFAILED			1429 // Не удалось получить информацию о сертификате
-#define PPERR_EDS_GETSIGNERNAMEFAILED		1430 // Не удалось получить имя владельца сертификата
-#define PPERR_EDS_CASHONOFFERR				1431 // Ошибка включения/выключения кэшировани
-#define PPERR_EDS_SIGNNOTVERIFIED			1432 // Подпись не действительна. Подписанные данные могли быть изменены
-#define PPERR_EDS_COUNTERSIGNNOTVERIFIED	1433 // Заверяющая подпись недействительна
-#define PPERR_EDS_SIGNVERIFY				1434 // Ошибка проверки записи
-#define PPERR_EDS_GETHASHFAILED				1435 // Не удалось получить хеш подписи
-#define PPERR_EDS_DERENCODEFAILED			1436 // Ошибка при der-кодировании
-#define PPERR_EDS_TSPRESPPARSEFAILED		1437 // Ошибка разбора ответа от сервера штампов времени
-#define PPERR_EDS_TSPFAILED					1438 // Ошибка получения штампа времени
-#define PPERR_IMPEXP_DLL					1439 // Ошибка импорта/экспорта через dll [%s]
-#define PPERR_USB_DEVNOTCONNECTED			1440 // Устройство USB не подключено: [%s]
-#define PPERR_USB_OPENFAILED				1441 // Ошибка открытия порта USB: [%s]
-//#define PPERR_USB_READFAILED				1442 // Ошибка чтения из порта USB
-//#define PPERR_USB_WRITEFAILED				1443 // Ошибка записи в порт USB
-#define PPERR_READER						1444 // Ошибка Reader: [%s]
-#define PPERR_SMS_SCHEDULEFAULT				1445 // Расписанием не разрешена отправка sms в данный момент
+//PPERR_INVTSESSTATUS      xxxx // Недопустимый статус технологической сессии (%s).
 // @v8.2.0 #define PPERR_EMPTY_EDISYMB					1446 // У поставщика id = %s отсутствует символ провайдера
 //
 // LastError

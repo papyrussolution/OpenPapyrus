@@ -23,19 +23,19 @@ IMPLEMENT_PPFILT_FACTORY(Transport); SLAPI TransportFilt::TransportFilt() : PPBa
 // virtual
 int SLAPI TransportFilt::Describe(long flags, SString & rBuf) const
 {
-	PutObjMembToBuf(PPOBJ_TRANSPMODEL, ModelID,   STRINGIZING(ModelID),      rBuf);
-	PutObjMembToBuf(PPOBJ_PERSON,      OwnerID,   STRINGIZING(BrandOwnerID), rBuf);
-	PutObjMembToBuf(PPOBJ_PERSON,      CaptainID, STRINGIZING(CaptainID),    rBuf);
-	PutObjMembToBuf(PPOBJ_COUNTRY,     CountryID, STRINGIZING(CountryID),    rBuf);
-	PutMembToBuf(Code.cptr(),      STRINGIZING(Code),      rBuf);
-	PutMembToBuf(TrailCode.cptr(), STRINGIZING(TrailCode), rBuf);
+	PutObjMembToBuf(PPOBJ_TRANSPMODEL, ModelID,   STRINGIZE(ModelID),      rBuf);
+	PutObjMembToBuf(PPOBJ_PERSON,      OwnerID,   STRINGIZE(BrandOwnerID), rBuf);
+	PutObjMembToBuf(PPOBJ_PERSON,      CaptainID, STRINGIZE(CaptainID),    rBuf);
+	PutObjMembToBuf(PPOBJ_COUNTRY,     CountryID, STRINGIZE(CountryID),    rBuf);
+	PutMembToBuf(Code,      STRINGIZE(Code),      rBuf);
+	PutMembToBuf(TrailCode, STRINGIZE(TrailCode), rBuf);
 	// TrType
 	{
 		long id = 1;
 		StrAssocArray flag_list;
-		if(TrType == PPTRTYP_CAR)         flag_list.Add(id++, STRINGIZING(PPTRTYPE_CAR));
-		else if(TrType == PPTRTYP_SHIP)   flag_list.Add(id++, STRINGIZING(PPTRTYPE_SHIP));
-		PutFlagsMembToBuf(&flag_list, STRINGIZING(TrType), rBuf);
+		if(TrType == PPTRTYP_CAR)         flag_list.Add(id++, STRINGIZE(PPTRTYPE_CAR));
+		else if(TrType == PPTRTYP_SHIP)   flag_list.Add(id++, STRINGIZE(PPTRTYPE_SHIP));
+		PutFlagsMembToBuf(&flag_list, STRINGIZE(TrType), rBuf);
 	}
 	return 1;
 }

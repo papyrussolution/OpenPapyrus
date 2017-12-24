@@ -35,7 +35,7 @@ template <class objcls, class objrec> inline void dbqf_objname_i(int option, DBC
 	}
 }
 
-static void SLAPI dbqf_oidtext_ii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_oidtext_ii)
 {
     char   name_buf[128+48];
 	if(option == CALC_SIZE)
@@ -58,7 +58,7 @@ static void SLAPI dbqf_oidtext_ii(int option, DBConst * result, DBConst * params
 	}
 }
 
-static void SLAPI dbqf_scardextstring_ii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_scardextstring_ii)
 {
     char   name_buf[256];
 	if(option == CALC_SIZE)
@@ -91,7 +91,7 @@ template <class objcls, class objrec> inline void dbqf_objsymb_i(int option, DBC
 	}
 }
 
-static void SLAPI dbqf_empty(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_empty)
 {
 	if(option == CALC_SIZE)
 		result->init((long)4);
@@ -105,7 +105,7 @@ static void SLAPI dbqf_empty(int option, DBConst * result, DBConst * params)
 	}
 }
 
-static void SLAPI dbqf_tseslnflags_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_tseslnflags_i)
 {
 	if(option == CALC_SIZE)
 		result->init((long)8);
@@ -125,7 +125,7 @@ static void SLAPI dbqf_tseslnflags_i(int option, DBConst * result, DBConst * par
 //
 // GoodsID, Flags, Qtty, WtQtty
 //
-static void SLAPI dbqf_tseslnphqtty_iirr(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_tseslnphqtty_iirr)
 {
 	PPID   goods_id = params[0].lval;
 	long   f        = params[1].lval;
@@ -145,7 +145,7 @@ static void SLAPI dbqf_tseslnphqtty_iirr(int option, DBConst * result, DBConst *
 	result->init(phqtty);
 }
 
-static void SLAPI dbqf_debt_rrii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_debt_rrii)
 {
 	long   f = params[2].lval;
 	long   op_id = params[3].lval;
@@ -153,19 +153,19 @@ static void SLAPI dbqf_debt_rrii(int option, DBConst * result, DBConst * params)
 	result->init(r);
 }
 
-static void SLAPI dbqf_billfrghtissuedt_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_billfrghtissuedt_i)
 {
 	PPFreight freight;
 	result->init((BillObj->FetchFreight(params[0].lval, &freight) > 0) ? freight.IssueDate : ZERODATE);
 }
 
-static void SLAPI dbqf_billfrghtarrvldt_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_billfrghtarrvldt_i)
 {
 	PPFreight freight;
 	result->init((BillObj->FetchFreight(params[0].lval, &freight) > 0) ? freight.ArrivalDate : ZERODATE);
 }
 
-static void SLAPI dbqf_billfrghtstrgloc_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_billfrghtstrgloc_i)
 {
 	char   ret_buf[48];
 	if(option == CALC_SIZE)
@@ -186,7 +186,7 @@ static void SLAPI dbqf_billfrghtstrgloc_i(int option, DBConst * result, DBConst 
 	}
 }
 
-static void SLAPI dbqf_billfrghtdlvraddr_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_billfrghtdlvraddr_i)
 {
 	char   ret_buf[128];
 	if(option == CALC_SIZE)
@@ -232,7 +232,7 @@ static void SLAPI dbqf_billfrghtdlvraddr_i(int option, DBConst * result, DBConst
 	}
 }
 
-static void SLAPI dbqf_billagentname_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_billagentname_i)
 {
 	if(option == CALC_SIZE)
 		result->init((long)sizeof(((ArticleTbl::Rec *)0)->Name));
@@ -250,7 +250,7 @@ static void SLAPI dbqf_billagentname_i(int option, DBConst * result, DBConst * p
 	}
 }
 
-static void SLAPI dbqf_registertext_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_registertext_i)
 {
 	const  size_t buffer_size = 64;
 	if(option == CALC_SIZE)
@@ -269,7 +269,7 @@ static void SLAPI dbqf_registertext_i(int option, DBConst * result, DBConst * pa
 	}
 }
 
-static void SLAPI dbqf_objtagtext_ii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objtagtext_ii)
 {
 	const  size_t buffer_size = 128;
 	if(option == CALC_SIZE)
@@ -289,7 +289,7 @@ static void SLAPI dbqf_objtagtext_ii(int option, DBConst * result, DBConst * par
 	}
 }
 
-static void SLAPI dbqf_cqtty_rrii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_cqtty_rrii)
 {
 	if(option == CALC_SIZE)
 		result->init((long)24);
@@ -312,7 +312,7 @@ static void SLAPI dbqf_cqtty_rrii(int option, DBConst * result, DBConst * params
 	}
 }
 
-static void SLAPI dbqf_trfrprice_irrr(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_trfrprice_irrr)
 {
 	uint   p = 0;
 	long   op_id    = params[p++].lval;
@@ -340,7 +340,7 @@ static void SLAPI dbqf_trfrprice_irrr(int option, DBConst * result, DBConst * pa
 	result->init(r);
 }
 
-static void SLAPI dbqf_datetime_dt(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_datetime_dt)
 {
 	const size_t field_len = 20;
 	if(option == CALC_SIZE)
@@ -353,7 +353,7 @@ static void SLAPI dbqf_datetime_dt(int option, DBConst * result, DBConst * param
 	}
 }
 
-static void SLAPI dbqf_durationtotime_dt(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_durationtotime_dt)
 {
 	const size_t field_len = 20;
 	if(option == CALC_SIZE)
@@ -369,7 +369,7 @@ static void SLAPI dbqf_durationtotime_dt(int option, DBConst * result, DBConst *
 	}
 }
 
-static void SLAPI dbqf_world_ismemb_ii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_world_ismemb_ii)
 {
 	long   r = 0;
 	if(params[0].lval && params[1].lval) {
@@ -379,7 +379,7 @@ static void SLAPI dbqf_world_ismemb_ii(int option, DBConst * result, DBConst * p
 	result->init(r);
 }
 
-static void SLAPI dbqf_checkcsposnode_ii(int option, DBConst * result, DBConst * params) // (csessID, posNodeID)
+static IMPL_DBE_PROC(dbqf_checkcsposnode_ii) // (csessID, posNodeID)
 {
 	long   r = 0;
 	if(params[1].lval) {
@@ -395,7 +395,7 @@ static void SLAPI dbqf_checkcsposnode_ii(int option, DBConst * result, DBConst *
 	result->init(r);
 }
 
-static void SLAPI dbqf_checkcsposnodelist_ii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_checkcsposnodelist_ii)
 {
 	long   r = 0;
 	const LongArray * p_list = (const LongArray *)params[1].ptrval;
@@ -412,7 +412,7 @@ static void SLAPI dbqf_checkcsposnodelist_ii(int option, DBConst * result, DBCon
 	result->init(r);
 }
 
-static void SLAPI dbqf_strbystrgrouppos_ip(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_strbystrgrouppos_ip)
 {
 	char   text_buf[256];
 	if(option == CALC_SIZE)
@@ -430,7 +430,7 @@ static void SLAPI dbqf_strbystrgrouppos_ip(int option, DBConst * result, DBConst
 	}
 }
 
-static void SLAPI dbqf_checkuserid_ii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_checkuserid_ii)
 {
 	long   r = 0;
 	if(params[1].lval) {
@@ -448,7 +448,7 @@ static void SLAPI dbqf_checkuserid_ii(int option, DBConst * result, DBConst * pa
 	result->init(r);
 }
 
-static void SLAPI dbqf_checkwmsloc_ii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_checkwmsloc_ii)
 {
 	long   r = 0;
 	if(params[1].lval) {
@@ -466,7 +466,7 @@ static void SLAPI dbqf_checkwmsloc_ii(int option, DBConst * result, DBConst * pa
 }
 
 // @vmiller
-static void SLAPI dbqf_strexistsub_ss(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_strexistsub_ss)
 {
 	long   r = 0;
 	r = ExtStrSrch(params[0].sptr, params[1].sptr);
@@ -474,7 +474,7 @@ static void SLAPI dbqf_strexistsub_ss(int option, DBConst * result, DBConst * pa
 }
 
 // @vmiller
-static void SLAPI dbqf_getagrmntsymbol_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_getagrmntsymbol_i)
 {
 	const size_t result_size = 32;
 	if(option == CALC_SIZE) {
@@ -490,7 +490,7 @@ static void SLAPI dbqf_getagrmntsymbol_i(int option, DBConst * result, DBConst *
 	}
 }
 
-static void SLAPI dbqf_objname_user_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_user_i)
 {
 	PPSecur rec;
 	if(option == CALC_SIZE)
@@ -505,7 +505,7 @@ static void SLAPI dbqf_objname_user_i(int option, DBConst * result, DBConst * pa
 	}
 }
 
-static void SLAPI dbqf_objname_globaluser_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_globaluser_i)
 {
 	PPGlobalUserAcc rec;
 	if(option == CALC_SIZE)
@@ -520,7 +520,7 @@ static void SLAPI dbqf_objname_globaluser_i(int option, DBConst * result, DBCons
 	}
 }
 
-static void SLAPI dbqf_objname_tech_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_tech_i)
 {
 	TechTbl::Rec rec;
 	if(option == CALC_SIZE)
@@ -535,7 +535,7 @@ static void SLAPI dbqf_objname_tech_i(int option, DBConst * result, DBConst * pa
 	}
 }
 
-static void SLAPI dbqf_objname_goodsbytech_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_goodsbytech_i)
 {
 	TechTbl::Rec rec;
 	Goods2Tbl::Rec goods_rec;
@@ -554,7 +554,7 @@ static void SLAPI dbqf_objname_goodsbytech_i(int option, DBConst * result, DBCon
 	}
 }
 
-static void SLAPI dbqf_objname_oprkind_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_oprkind_i)
 {
 	PPOprKind rec;
 	if(option == CALC_SIZE)
@@ -567,7 +567,7 @@ static void SLAPI dbqf_objname_oprkind_i(int option, DBConst * result, DBConst *
 	}
 }
 
-static void SLAPI dbqf_objname_salcharge_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_salcharge_i)
 {
 	PPSalChargePacket pack;
 	if(option == CALC_SIZE)
@@ -582,7 +582,7 @@ static void SLAPI dbqf_objname_salcharge_i(int option, DBConst * result, DBConst
 	}
 }
 
-static void SLAPI dbqf_objname_bizscore_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_bizscore_i)
 {
 	PPBizScorePacket pack;
 	if(option == CALC_SIZE)
@@ -597,12 +597,12 @@ static void SLAPI dbqf_objname_bizscore_i(int option, DBConst * result, DBConst 
 	}
 }
 
-static void SLAPI dbqf_objname_billstatus_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_billstatus_i)
 	{ dbqf_objname_i <PPObjBillStatus, PPBillStatus> (option, result, params); }
-static void SLAPI dbqf_objname_ar_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_ar_i)
 	{ dbqf_objname_i <PPObjArticle, ArticleTbl::Rec> (option, result, params); }
 
-static void SLAPI dbqf_objname_arbyacc_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_arbyacc_i)
 {
 	if(option == CALC_SIZE || ObjRts.CheckAccID(params[1].lval, PPR_READ))
 		dbqf_objname_i <PPObjArticle, ArticleTbl::Rec> (option, result, params);
@@ -613,7 +613,7 @@ static void SLAPI dbqf_objname_arbyacc_i(int option, DBConst * result, DBConst *
 	}
 }
 
-static void SLAPI dbqf_objname_loc_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_loc_i)
 {
 	//dbqf_objname_i <PPObjLocation, LocationTbl::Rec> (option, result, params);
 	LocationTbl::Rec rec;
@@ -642,50 +642,48 @@ static void SLAPI dbqf_objname_loc_i(int option, DBConst * result, DBConst * par
 	}
 }
 
-static void SLAPI dbqf_objname_unit_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_unit_i)
 	{ dbqf_objname_i <PPObjUnit, PPUnit> (option, result, params); }
-static void SLAPI dbqf_objname_prc_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_prc_i)
 	{ dbqf_objname_i <PPObjProcessor, ProcessorTbl::Rec> (option, result, params); }
-static void SLAPI dbqf_objname_goods_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_goods_i)
 	{ dbqf_objname_i <PPObjGoods, Goods2Tbl::Rec> (option, result, params); }
-static void SLAPI dbqf_objname_person_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_person_i)
 	{ dbqf_objname_i <PPObjPerson, PersonTbl::Rec> (option, result, params); }
-static void SLAPI dbqf_objname_staff_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_staff_i)
 	{ dbqf_objname_i <PPObjStaffList, PPStaffEntry> (option, result, params); }
-static void SLAPI dbqf_objname_staffcal_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_staffcal_i)
 	{ dbqf_objname_i <PPObjStaffCal, PPStaffCal> (option, result, params); }
-static void SLAPI dbqf_objname_accsheet_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_accsheet_i)
 	{ dbqf_objname_i <PPObjAccSheet, PPAccSheet> (option, result, params); }
-static void SLAPI dbqf_objname_quotkind_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_quotkind_i)
 	{ dbqf_objname_i <PPObjQuotKind, PPQuotKind> (option, result, params); }
-static void SLAPI dbqf_objname_cashnode_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_cashnode_i)
 	{ dbqf_objname_i <PPObjCashNode, PPCashNode> (option, result, params); }
-static void SLAPI dbqf_objname_scale_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_scale_i)
 	{ dbqf_objname_i <PPObjScale, PPScale> (option, result, params); }
-static void SLAPI dbqf_objname_psnopkind_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_psnopkind_i)
 	{ dbqf_objname_i <PPObjPsnOpKind, PPPsnOpKind> (option, result, params); }
-static void SLAPI dbqf_objname_brand_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_brand_i)
 	{ dbqf_objname_i <PPObjBrand, PPBrand> (option, result, params); }
-static void SLAPI dbqf_objsymb_currency_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objsymb_currency_i)
 	{ dbqf_objsymb_i <PPObjCurrency, PPCurrency> (option, result, params); }
-static void SLAPI dbqf_objname_world_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_world_i)
 	{ dbqf_objname_i <PPObjWorld, WorldTbl::Rec> (option, result, params); }
-static void SLAPI dbqf_objname_personstatus_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_personstatus_i)
 	{ dbqf_objname_i <PPObjPersonStatus, PPPersonStatus> (option, result, params); }
-static void SLAPI dbqf_objname_personcat_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_personcat_i)
 	{ dbqf_objname_i <PPObjPersonCat, PPPersonCat> (option, result, params); }
-static void SLAPI dbqf_objname_amttype_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_amttype_i)
 	{ dbqf_objname_i <PPObjAmountType, PPAmountType> (option, result, params); }
-static void SLAPI dbqf_objname_psnkind_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_psnkind_i)
 	{ dbqf_objname_i <PPObjPersonKind, PPPersonKind> (option, result, params); }
-static void SLAPI dbqf_objname_scardser_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_scardser_i)
 	{ dbqf_objname_i <PPObjSCardSeries, PPSCardSeries> (option, result, params); }
-
-static void SLAPI dbqf_objname_debtdim_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_debtdim_i)
 	{ dbqf_objname_i <PPObjDebtDim, PPDebtDim> (option, result, params); }
 
-
-static void SLAPI dbqf_objcode_scard_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objcode_scard_i)
 {
 	SCardTbl::Rec rec;
 	if(option == CALC_SIZE)
@@ -702,7 +700,7 @@ static void SLAPI dbqf_objcode_scard_i(int option, DBConst * result, DBConst * p
 	}
 }
 
-static void SLAPI dbqf_scardownername_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_scardownername_i)
 {
 	char   psn_name[128];
 	if(option == CALC_SIZE)
@@ -722,7 +720,7 @@ static void SLAPI dbqf_scardownername_i(int option, DBConst * result, DBConst * 
 	}
 }
 
-static void SLAPI dbqf_locownername_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_locownername_i)
 {
 	char   psn_name[128];
 	if(option == CALC_SIZE)
@@ -742,7 +740,7 @@ static void SLAPI dbqf_locownername_i(int option, DBConst * result, DBConst * pa
 	}
 }
 
-static void SLAPI dbqf_usrpersonname_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_usrpersonname_i)
 {
 	char   psn_name[128];
 	if(option == CALC_SIZE)
@@ -762,7 +760,7 @@ static void SLAPI dbqf_usrpersonname_i(int option, DBConst * result, DBConst * p
 	}
 }
 
-static void SLAPI dbqf_ufpfuncname_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_ufpfuncname_i)
 {
 	char   name[128];
 	if(option == CALC_SIZE)
@@ -780,7 +778,7 @@ static void SLAPI dbqf_ufpfuncname_i(int option, DBConst * result, DBConst * par
 	}
 }
 
-static void SLAPI dbqf_versionname_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_versionname_i)
 {
 	char   name[32];
 	if(option == CALC_SIZE)
@@ -798,7 +796,7 @@ static void SLAPI dbqf_versionname_i(int option, DBConst * result, DBConst * par
 	}
 }
 
-static void SLAPI dbqf_ufpfuncid_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_ufpfuncid_i)
 {
 	long func_id = 0L;
 	char   name[128];
@@ -814,7 +812,7 @@ static void SLAPI dbqf_ufpfuncid_i(int option, DBConst * result, DBConst * param
 	}
 }
 
-static void SLAPI dbqf_objname_personpost_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_personpost_i)
 {
 	char   name_buf[64];
 	PersonPostTbl::Rec rec;
@@ -833,7 +831,7 @@ static void SLAPI dbqf_objname_personpost_i(int option, DBConst * result, DBCons
 	}
 }
 
-static void SLAPI dbqf_stafforgname_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_stafforgname_i)
 {
 	char   name_buf[128];
 	if(option == CALC_SIZE)
@@ -855,7 +853,7 @@ static void SLAPI dbqf_stafforgname_i(int option, DBConst * result, DBConst * pa
 	}
 }
 
-static void SLAPI dbqf_staffdivname_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_staffdivname_i)
 {
 	char   name_buf[128];
 	if(option == CALC_SIZE)
@@ -877,7 +875,7 @@ static void SLAPI dbqf_staffdivname_i(int option, DBConst * result, DBConst * pa
 	}
 }
 
-static void SLAPI dbqf_objcodecmplx_bill_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objcodecmplx_bill_i)
 {
 	char   name_buf[48];
 	BillTbl::Rec rec;
@@ -896,7 +894,7 @@ static void SLAPI dbqf_objcodecmplx_bill_i(int option, DBConst * result, DBConst
 	}
 }
 
-static void SLAPI dbqf_objcode_bill_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objcode_bill_i)
 {
 	char   name_buf[24];
 	BillTbl::Rec rec;
@@ -912,7 +910,7 @@ static void SLAPI dbqf_objcode_bill_i(int option, DBConst * result, DBConst * pa
 	}
 }
 
-static void SLAPI dbqf_objmemo_bill_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objmemo_bill_i)
 {
 	char   name_buf[512];
 	BillTbl::Rec rec;
@@ -928,7 +926,7 @@ static void SLAPI dbqf_objmemo_bill_i(int option, DBConst * result, DBConst * pa
 	}
 }
 
-static void SLAPI dbqf_objname_acctrel_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_acctrel_i)
 {
 	char   name_buf[32];
 	AcctRelTbl::Rec rec;
@@ -951,35 +949,35 @@ static void SLAPI dbqf_objname_acctrel_i(int option, DBConst * result, DBConst *
 	}
 }
 
-static void SLAPI dbqf_percent_rr(int options, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_percent_rr)
 {
 	result->init(fdivnz(100.0 * params[0].rval, params[1].rval));
 }
 
-static void SLAPI dbqf_percentincdiv_rr(int options, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_percentincdiv_rr)
 {
 	result->init(fdivnz(100.0 * params[0].rval, params[1].rval+params[0].rval));
 }
 
-static void SLAPI dbqf_percentaddendum_rr(int options, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_percentaddendum_rr)
 {
 	result->init(fdivnz(100.0 * (params[0].rval-params[1].rval), params[1].rval));
 }
 
-static void SLAPI dbqf_invent_diffqtty_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_invent_diffqtty_i)
 {
 	long   flags     = params[0].lval;
 	double diff_qtty = params[1].rval;
 	result->init(INVENT_DIFFSIGN(flags) * diff_qtty);
 }
 
-static void SLAPI dbqf_tacost_rr(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_tacost_rr)
 {
 	// params[0] - qtty; params[1] - cost
 	result->init(R2(fdivnz(params[1].rval, params[0].rval)));
 }
 
-static void SLAPI dbqf_taprice_rrr(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_taprice_rrr)
 {
 	double qtty     = params[0].rval;
 	double price    = params[1].rval;
@@ -987,7 +985,7 @@ static void SLAPI dbqf_taprice_rrr(int option, DBConst * result, DBConst * param
 	result->init(R2(fdivnz(price/*+discount*/, qtty)));
 }
 
-static void SLAPI dbqf_addedcreditlimit_rii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_addedcreditlimit_rii)
 {
 	double limit = params[0].rval;
 	int    term = params[1].lval;
@@ -996,7 +994,7 @@ static void SLAPI dbqf_addedcreditlimit_rii(int option, DBConst * result, DBCons
 	result->init(_result);
 }
 
-static void SLAPI dbqf_idcommsyncid_ii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_idcommsyncid_ii)
 {
 	char   buf[20];
 	if(option == CALC_SIZE) {
@@ -1012,7 +1010,7 @@ static void SLAPI dbqf_idcommsyncid_ii(int option, DBConst * result, DBConst * p
 	}
 }
 
-static void SLAPI dbqf_idobjtitle_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_idobjtitle_i)
 {
 	char   buf[64];
 	if(option == CALC_SIZE) {
@@ -1026,7 +1024,7 @@ static void SLAPI dbqf_idobjtitle_i(int option, DBConst * result, DBConst * para
 	}
 }
 
-static void SLAPI dbqf_sysjaction_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_sysjaction_i)
 {
 	char   buf[64];
 	if(option == CALC_SIZE) {
@@ -1040,7 +1038,7 @@ static void SLAPI dbqf_sysjaction_i(int option, DBConst * result, DBConst * para
 	}
 }
 
-static void SLAPI dbqf_gtajaction_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_gtajaction_i)
 {
 	char   buf[64];
 	if(option == CALC_SIZE) {
@@ -1054,7 +1052,7 @@ static void SLAPI dbqf_gtajaction_i(int option, DBConst * result, DBConst * para
 	}
 }
 
-static void SLAPI dbqf_yeswordbyflag_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_yeswordbyflag_i)
 {
 	char buf[12];
 	if(option == CALC_SIZE) {
@@ -1077,7 +1075,7 @@ static void SLAPI dbqf_yeswordbyflag_i(int option, DBConst * result, DBConst * p
 	}
 }
 
-static void SLAPI dbqf_budgplanorfact_rii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_budgplanorfact_rii)
 {
 	double amt     = params[0].rval;
 	long   kind    = params[1].lval;
@@ -1087,7 +1085,7 @@ static void SLAPI dbqf_budgplanorfact_rii(int option, DBConst * result, DBConst 
 	result->init(amt);
 }
 
-static void SLAPI dbqf_chkopjaction_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_chkopjaction_i)
 {
 	char   buf[64];
 	if(option == CALC_SIZE) {
@@ -1101,7 +1099,7 @@ static void SLAPI dbqf_chkopjaction_i(int option, DBConst * result, DBConst * pa
 	}
 }
 
-static void SLAPI dbqf_addr_city_name_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_addr_city_name_i)
 {
 	char   buf[48];
 	if(option == CALC_SIZE) {
@@ -1120,7 +1118,7 @@ static void SLAPI dbqf_addr_city_name_i(int option, DBConst * result, DBConst * 
 	}
 }
 
-static void SLAPI dbqf_addr_ex_field_ii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_addr_ex_field_ii)
 {
 	char   buf[128];
 	if(option == CALC_SIZE) {
@@ -1246,7 +1244,7 @@ int PPDbqFuncPool::IdBillFrghtStrgLoc  = 0; // @v8.8.6
 int PPDbqFuncPool::IdSCardExtString    = 0; // @v9.6.1 (scardID, fldId)
 int PPDbqFuncPool::IdStrByStrGroupPos  = 0; // @v9.8.3 (position, (const SStrGroup *)) Возвращает строку из пула строк, идентифицируемую позицией position
 
-static void SLAPI dbqf_goodsstockdim_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
@@ -1266,12 +1264,12 @@ static void SLAPI dbqf_goodsstockdim_i(int option, DBConst * result, DBConst * p
 	}
 }
 
-static void SLAPI dbqf_lotclosedate_d(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_lotclosedate_d)
 {
 	result->init((params[0].dval != MAXDATE) ? params[0].dval : ZERODATE);
 }
 
-static void SLAPI dbqf_goodsstockbrutto_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_goodsstockbrutto_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
@@ -1288,7 +1286,7 @@ static void SLAPI dbqf_goodsstockbrutto_i(int option, DBConst * result, DBConst 
 	}
 }
 
-static void SLAPI dbqf_goodsstockmin_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_goodsstockmin_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
@@ -1305,7 +1303,7 @@ static void SLAPI dbqf_goodsstockmin_i(int option, DBConst * result, DBConst * p
 	}
 }
 
-static void SLAPI dbqf_goodsstockpack_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_goodsstockpack_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
@@ -1322,7 +1320,7 @@ static void SLAPI dbqf_goodsstockpack_i(int option, DBConst * result, DBConst * 
 	}
 }
 
-static void SLAPI dbqf_goodssinglebarcode_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_goodssinglebarcode_i)
 {
 	char   buf[24];
 	if(option == CALC_SIZE) {
@@ -1337,7 +1335,7 @@ static void SLAPI dbqf_goodssinglebarcode_i(int option, DBConst * result, DBCons
 	}
 }
 
-static void SLAPI dbqf_rpttypename_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_rpttypename_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
@@ -1354,7 +1352,7 @@ static void SLAPI dbqf_rpttypename_i(int option, DBConst * result, DBConst * par
 	}
 }
 
-static void SLAPI dbqf_logfilename_i(int option, DBConst *result, DBConst *params)
+static IMPL_DBE_PROC(dbqf_logfilename_i)
 {
 	if(option == CALC_SIZE) {
 		result->init((long)32);
@@ -1375,7 +1373,7 @@ static void SLAPI dbqf_logfilename_i(int option, DBConst *result, DBConst *param
 	}
 }
 
-static void SLAPI dbqf_counter_i(int option, DBConst *result, DBConst *params)
+static IMPL_DBE_PROC(dbqf_counter_i)
 {
 	long * ptr = (long *)params[0].lval;
 	long   val = DEREFPTRORZ(ptr) + 1;
@@ -1385,7 +1383,7 @@ static void SLAPI dbqf_counter_i(int option, DBConst *result, DBConst *params)
 
 //int PPDbqFuncPool::IdPropSubStr        = 0; // @v5.9.10 (ObjType, ObjID, PropID, Sub)
 
-static void SLAPI dbqf_propsubstr_iiii(int option, DBConst *result, DBConst *params)
+static IMPL_DBE_PROC(dbqf_propsubstr_iiii)
 {
 	if(option == CALC_SIZE) {
 		result->init((long)252);
@@ -1402,7 +1400,7 @@ static void SLAPI dbqf_propsubstr_iiii(int option, DBConst *result, DBConst *par
 	}
 }
 
-static void SLAPI dbqf_transptypename_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_transptypename_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
@@ -1419,7 +1417,7 @@ static void SLAPI dbqf_transptypename_i(int option, DBConst * result, DBConst * 
 	}
 }
 
-static void SLAPI dbqf_formatcycle_di(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_formatcycle_di)
 {
 	char   buf[64];
 	if(option == CALC_SIZE) {
@@ -1437,7 +1435,7 @@ static void SLAPI dbqf_formatcycle_di(int option, DBConst * result, DBConst * pa
 	}
 }
 
-static void SLAPI dbqf_daterange_dd(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_daterange_dd)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {
@@ -1452,7 +1450,7 @@ static void SLAPI dbqf_daterange_dd(int option, DBConst * result, DBConst * para
 	}
 }
 
-static void SLAPI dbqf_datebase_id(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_datebase_id)
 {
 	int    sd = params[0].lval;
 	LDATE  base = params[1].dval;

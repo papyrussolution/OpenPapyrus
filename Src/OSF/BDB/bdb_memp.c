@@ -1150,7 +1150,7 @@ int __memp_fget_pp(DB_MPOOLFILE * dbmfp, db_pgno_t * pgnoaddr, DB_TXN * txnp, ui
 	}
 	ENV_ENTER(env, ip);
 	rep_blocked = 0;
-	if(txnp == NULL && IS_ENV_REPLICATED(env)) {
+	if(!txnp && IS_ENV_REPLICATED(env)) {
 		if((ret = __op_rep_enter(env, 0, 1)) != 0)
 			goto err;
 		rep_blocked = 1;
@@ -1173,7 +1173,7 @@ err:
  * __memp_fget --
  *	Get a page from the file.
  */
-int __memp_fget(DB_MPOOLFILE * dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 flags, void * addrp)
+int FASTCALL __memp_fget(DB_MPOOLFILE * dbmfp, db_pgno_t * pgnoaddr, DB_THREAD_INFO * ip, DB_TXN * txn, uint32 flags, void * addrp)
 {
 	enum { FIRST_FOUND, FIRST_MISS, SECOND_FOUND, SECOND_MISS } state;
 	BH * alloc_bhp, * bhp, * oldest_bhp;
@@ -2443,7 +2443,7 @@ static int __memp_get_last_pgno_pp(DB_MPOOLFILE * dbmfp, db_pgno_t * pgnoaddr)
  * __memp_fn --
  *	On errors we print whatever is available as the file name.
  */
-char * __memp_fn(DB_MPOOLFILE * dbmfp)
+char * FASTCALL __memp_fn(DB_MPOOLFILE * dbmfp)
 {
 	return __memp_fns(dbmfp->env->mp_handle, dbmfp->mfp);
 }
@@ -3064,7 +3064,7 @@ int __memp_fclose_pp(DB_MPOOLFILE * dbmfp, uint32 flags)
 /*
  *	DB_MPOOLFILE->close.
  */
-int __memp_fclose(DB_MPOOLFILE * dbmfp, uint32 flags)
+int FASTCALL __memp_fclose(DB_MPOOLFILE * dbmfp, uint32 flags)
 {
 	MPOOLFILE * mfp;
 	char * rpath;
@@ -3370,7 +3370,7 @@ static int FASTCALL __memp_reset_lru(ENV * env, REGINFO * infop)
 	return 0;
 }
 
-int __memp_fput(DB_MPOOLFILE * dbmfp, DB_THREAD_INFO * ip, void * pgaddr, DB_CACHE_PRIORITY priority)
+int FASTCALL __memp_fput(DB_MPOOLFILE * dbmfp, DB_THREAD_INFO * ip, void * pgaddr, DB_CACHE_PRIORITY priority)
 {
 	int    ret = 0;
 	if(pgaddr) {
@@ -3553,7 +3553,7 @@ int __memp_unpin_buffers(ENV * env, DB_THREAD_INFO * ip)
  * __memp_dirty --
  *	Upgrade a page from a read-only to a writable pointer.
  */
-int __memp_dirty(DB_MPOOLFILE * dbmfp, void * addrp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_CACHE_PRIORITY priority, uint32 flags)
+int FASTCALL __memp_dirty(DB_MPOOLFILE * dbmfp, void * addrp, DB_THREAD_INFO * ip, DB_TXN * txn, DB_CACHE_PRIORITY priority, uint32 flags)
 {
 	DB_MPOOL_HASH * hp;
 	DB_TXN * ancestor;
@@ -7010,14 +7010,11 @@ int __memp_ftruncate(DB_MPOOLFILE * dbmfp, DB_TXN * txn, DB_THREAD_INFO * ip, db
 	 * we are out of disk space we can generate an error [#12743].
 	 */
 	MUTEX_LOCK(env, mfp->mutex);
-	if(!F_ISSET(mfp, MP_TEMP) &&
-	   !mfp->no_backing_file && pgno <= mfp->last_flushed_pgno)
+	if(!F_ISSET(mfp, MP_TEMP) && !mfp->no_backing_file && pgno <= mfp->last_flushed_pgno)
 #ifdef HAVE_FTRUNCATE
-		ret = __os_truncate(env,
-			dbmfp->fhp, pgno, mfp->pagesize);
+		ret = __os_truncate(env, dbmfp->fhp, pgno, mfp->pagesize);
 #else
-		ret = __db_zero_extend(env,
-			dbmfp->fhp, pgno, mfp->last_pgno, mfp->pagesize);
+		ret = __db_zero_extend(env, dbmfp->fhp, pgno, mfp->last_pgno, mfp->pagesize);
 #endif
 	/*
 	 * This set could race with another thread of control that extending
@@ -7026,11 +7023,9 @@ int __memp_ftruncate(DB_MPOOLFILE * dbmfp, DB_TXN * txn, DB_THREAD_INFO * ip, db
 	 */
 	if(ret == 0) {
 		mfp->last_pgno = pgno-1;
-		if(mfp->last_flushed_pgno > mfp->last_pgno)
-			mfp->last_flushed_pgno = mfp->last_pgno;
+		SETMIN(mfp->last_flushed_pgno, mfp->last_pgno);
 	}
 	MUTEX_UNLOCK(env, mfp->mutex);
-
 	return ret;
 }
 

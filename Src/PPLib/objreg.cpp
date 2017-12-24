@@ -661,16 +661,15 @@ int SLAPI PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 {
 	class BankAccountDialog : public TDialog {
 	public:
-		BankAccountDialog() : TDialog(DLG_BACCT)
+		BankAccountDialog() : TDialog(DLG_BACCT), ValidAcc(-1)
 		{
-			ValidAcc = -1;
 			SetupCalDate(CTLCAL_BACCT_OPENDATE, CTL_BACCT_OPENDATE);
 			Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
 			Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
 		}
 		void   SetupBIC()
 		{
-			BIC = 0;
+			BIC.Z();
 			PPID   bank_id = getCtrlLong(CTLSEL_BACCT_BANK);
 			if(bank_id) {
 				PPObjPerson psn_obj;

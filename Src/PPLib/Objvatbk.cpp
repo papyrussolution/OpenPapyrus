@@ -335,9 +335,8 @@ int SLAPI PPObjVATBook::Browse(void * extraPtr)
 //
 class VATBookDialog : public TDialog {
 public:
-	VATBookDialog(uint rezID, PPObjVATBook * aPPObj) : TDialog(rezID)
+	VATBookDialog(uint rezID, PPObjVATBook * aPPObj) : TDialog(rezID), ppobj(aPPObj)
 	{
-		ppobj = aPPObj;
 		disableCtrl(CTL_VATBOOK_AMT, 1);
 		SetupCalDate(CTLCAL_VATBOOK_DT,      CTL_VATBOOK_DT);
 		SetupCalDate(CTLCAL_VATBOOK_INVCDT,  CTL_VATBOOK_INVCDT);
@@ -535,9 +534,8 @@ int VATBookDialog::getDTS(VATBookTbl::Rec * pData)
 //
 class SimpleLedgerDialog : public TDialog {
 public:
-	SimpleLedgerDialog(PPObjVATBook * aPPObj) : TDialog(DLG_SMPLLEDG)
+	SimpleLedgerDialog(PPObjVATBook * aPPObj) : TDialog(DLG_SMPLLEDG), ppobj(aPPObj)
 	{
-		ppobj = aPPObj;
 		SetupCalDate(CTLCAL_SMPLLEDG_DT, CTL_SMPLLEDG_DT);
 	}
 	int    setDTS(const VATBookTbl::Rec *);
@@ -926,9 +924,8 @@ int VATBCfgDialog::editItemDialog(VATBCfg::Item * pItem)
 {
 	class VATBItemDlg : public TDialog {
 	public:
-		VATBItemDlg(VATBCfg * pCfg) : TDialog((pCfg->Kind == PPVTB_SIMPLELEDGER) ? DLG_VATBL_SIMPLE : DLG_VATBL)
+		VATBItemDlg(VATBCfg * pCfg) : TDialog((pCfg->Kind == PPVTB_SIMPLELEDGER) ? DLG_VATBL_SIMPLE : DLG_VATBL), P_Cfg(pCfg)
 		{
-			P_Cfg = pCfg;
 		}
 		int    setDTS(const VATBCfg::Item * pItem)
 		{
@@ -1428,9 +1425,8 @@ int SLAPI PPViewVatBook::ViewTotal()
 //
 class VATBFiltDialog : public TDialog {
 public:
-	VATBFiltDialog(uint rezID, PPObjVATBook * pObj) : TDialog(rezID)
+	VATBFiltDialog(uint rezID, PPObjVATBook * pObj) : TDialog(rezID), P_VBObj(pObj)
 	{
-		P_VBObj = pObj;
 		SetupCalCtrl(CTLCAL_VATBFLT_PERIOD, this, CTL_VATBFLT_PERIOD, 1);
 	}
 	int    setDTS(const VatBookFilt *);

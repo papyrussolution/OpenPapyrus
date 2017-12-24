@@ -45,11 +45,11 @@
 #include "db_int.h"
 #pragma hdrstop
 
-static int __bam_build __P((DBC*, uint32, DBT*, PAGE*, uint32, uint32));
-static int __bam_dup_check __P((DBC*, uint32, PAGE*, uint32, uint32, db_indx_t *));
-static int __bam_dup_convert __P((DBC*, PAGE*, uint32, uint32));
-static int __bam_ovput __P((DBC*, uint32, db_pgno_t, PAGE*, uint32, DBT *));
-static uint32 __bam_partsize __P((DB*, uint32, DBT*, PAGE*, uint32));
+static int __bam_build(DBC*, uint32, DBT*, PAGE*, uint32, uint32);
+static int __bam_dup_check(DBC*, uint32, PAGE*, uint32, uint32, db_indx_t *);
+static int __bam_dup_convert(DBC*, PAGE*, uint32, uint32);
+static int __bam_ovput(DBC*, uint32, db_pgno_t, PAGE*, uint32, DBT *);
+static uint32 __bam_partsize(DB*, uint32, DBT*, PAGE*, uint32);
 /*
  * __bam_iitem --
  *	Insert an item into the tree.
@@ -99,7 +99,7 @@ int __bam_iitem(DBC * dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
 	if(F_ISSET(dbp, DB_AM_FIXEDLEN)) {
 		if(data_size > t->re_len)
 			return __db_rec_toobig(env, data_size, t->re_len);
-		/* Records that are deleted anyway needn't be padded out. */
+		// Records that are deleted anyway needn't be padded out. 
 		if(!LF_ISSET(BI_DELETED) && data_size < t->re_len) {
 			padrec = 1;
 			data_size = t->re_len;
@@ -128,29 +128,24 @@ int __bam_iitem(DBC * dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
 			if(cp->stream_start_pgno != ((BOVERFLOW *)bk)->pgno || cp->stream_off > data->doff || data->doff > cp->stream_off+P_MAXSPACE(dbp, dbp->pgsize)) {
 				memzero(&tdbt, sizeof(DBT));
 				tdbt.doff = data->doff-1;
-				/*
-				 * Set the length to 1, to force __db_goff
-				 * to do the traversal.
-				 */
+				// 
+				// Set the length to 1, to force __db_goff to do the traversal.
+				// 
 				tdbt.dlen = tdbt.ulen = 1;
 				tdbt.data = &tmp_ch;
 				tdbt.flags = DB_DBT_PARTIAL|DB_DBT_USERMEM;
-				/*
-				 * Read to the last page.  It will be cached
-				 * in the cursor.
-				 */
+				// 
+				// Read to the last page.  It will be cached in the cursor.
+				// 
 				if((ret = __db_goff(dbc, &tdbt, ((BOVERFLOW *)bk)->tlen, ((BOVERFLOW *)bk)->pgno, NULL, NULL)) != 0)
 					return ret;
 			}
-			/*
-			 * Since this is an append, dlen is irrelevant (there
-			 * are no bytes to overwrite). We need the caller's
-			 * DBT size to end up with the total size of the item.
-			 * From now on, use dlen as the length of the user's
-			 * data that we are going to append.
-			 * Don't futz with the caller's DBT any more than we
-			 * have to in order to send back the size.
-			 */
+			// 
+			// Since this is an append, dlen is irrelevant (there are no bytes to overwrite). We need the caller's
+			// DBT size to end up with the total size of the item. From now on, use dlen as the length of the user's
+			// data that we are going to append. Don't futz with the caller's DBT any more than we
+			// have to in order to send back the size.
+			// 
 			tdbt = *data;
 			tdbt.dlen = data->size;
 			tdbt.size = data_size;
@@ -179,60 +174,45 @@ int __bam_iitem(DBC * dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
 			return EINVAL;
 		}
 	}
-	/*
-	 * If the key or data item won't fit on a page, we'll have to store
-	 * them on overflow pages.
-	 */
+	// 
+	// If the key or data item won't fit on a page, we'll have to store them on overflow pages.
+	// 
 	needed = 0;
 	bigdata = data_size > cp->ovflsize;
 	switch(op) {
 	    case DB_KEYFIRST:
-		/* We're adding a new key and data pair. */
-		bigkey = key->size > cp->ovflsize;
-		if(bigkey)
-			needed += BOVERFLOW_PSIZE;
-		else
-			needed += BKEYDATA_PSIZE(key->size);
-		if(bigdata)
-			needed += BOVERFLOW_PSIZE;
-		else
-			needed += BKEYDATA_PSIZE(data_size);
-		break;
+			// We're adding a new key and data pair. 
+			bigkey = key->size > cp->ovflsize;
+			needed += (bigkey ? BOVERFLOW_PSIZE : BKEYDATA_PSIZE(key->size));
+			needed += (bigdata ? BOVERFLOW_PSIZE : BKEYDATA_PSIZE(data_size));
+			break;
 	    case DB_AFTER:
 	    case DB_BEFORE:
 	    case DB_CURRENT:
-		/*
-		 * We're either overwriting the data item of a key/data pair
-		 * or we're creating a new on-page duplicate and only adding
-		 * a data item.
-		 *
-		 * !!!
-		 * We're not currently correcting for space reclaimed from
-		 * already deleted items, but I don't think it's worth the
-		 * complexity.
-		 */
-		bigkey = 0;
-		if(op == DB_CURRENT) {
-			bk = GET_BKEYDATA(dbp, h, indx+(TYPE(h) == P_LBTREE ? O_INDX : 0));
-			if(B_TYPE(bk->type) == B_KEYDATA)
-				have_bytes = BKEYDATA_PSIZE(bk->len);
-			else
-				have_bytes = BOVERFLOW_PSIZE;
-			need_bytes = 0;
-		}
-		else {
-			have_bytes = 0;
-			need_bytes = sizeof(db_indx_t);
-		}
-		if(bigdata)
-			need_bytes += BOVERFLOW_PSIZE;
-		else
-			need_bytes += BKEYDATA_PSIZE(data_size);
-		if(have_bytes < need_bytes)
-			needed += need_bytes-have_bytes;
-		break;
+			/*
+			 * We're either overwriting the data item of a key/data pair
+			 * or we're creating a new on-page duplicate and only adding a data item.
+			 *
+			 * !!!
+			 * We're not currently correcting for space reclaimed from
+			 * already deleted items, but I don't think it's worth the complexity.
+			 */
+			bigkey = 0;
+			if(op == DB_CURRENT) {
+				bk = GET_BKEYDATA(dbp, h, indx+(TYPE(h) == P_LBTREE ? O_INDX : 0));
+				have_bytes = (B_TYPE(bk->type) == B_KEYDATA) ? BKEYDATA_PSIZE(bk->len) : BOVERFLOW_PSIZE;
+				need_bytes = 0;
+			}
+			else {
+				have_bytes = 0;
+				need_bytes = sizeof(db_indx_t);
+			}
+			need_bytes += (bigdata ? BOVERFLOW_PSIZE : BKEYDATA_PSIZE(data_size));
+			if(have_bytes < need_bytes)
+				needed += need_bytes-have_bytes;
+			break;
 	    default:
-		return __db_unknown_flag(env, "DB->put", op);
+			return __db_unknown_flag(env, "DB->put", op);
 	}
 	/* Split the page if there's not enough room. */
 	if(P_FREESPACE(dbp, h) < needed)
@@ -263,8 +243,7 @@ int __bam_iitem(DBC * dbc, DBT * key, DBT * data, uint32 op, uint32 flags)
 	}
 	if(F_ISSET(dbc, DBC_OPD))
 		LOCK_CHECK_OFF(dbc->thread_info);
-	ret = __memp_dirty(mpf, &h,
-		dbc->thread_info, dbc->txn, dbc->priority, 0);
+	ret = __memp_dirty(mpf, &h, dbc->thread_info, dbc->txn, dbc->priority, 0);
 	if(cp->csp->page == cp->page)
 		cp->csp->page = h;
 	cp->page = h;

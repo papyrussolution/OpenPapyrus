@@ -4,12 +4,10 @@
 #include <db.h>
 #pragma hdrstop
 
-Generator_SQL::Generator_SQL(SqlServerType sqlst, long flags)
+Generator_SQL::Generator_SQL(SqlServerType sqlst, long flags) : Sqlst(sqlst), Flags(flags)
 {
-	Sqlst = sqlst;
 	if(!oneof4(Sqlst, sqlstGeneric, sqlstORA, sqlstMSS, sqlstFB))
 		Sqlst = sqlstGeneric;
-	Flags = flags;
 }
 
 Generator_SQL & FASTCALL Generator_SQL::Tok(int tok)
@@ -143,7 +141,6 @@ Generator_SQL & FASTCALL Generator_SQL::_Symb(int s)
 	}
 	return *this;
 }
-
 
 SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 {

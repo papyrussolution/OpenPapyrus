@@ -59,6 +59,7 @@ public:
         int    PutAttribSkipEmpty(const char * pName, const char * pValue);
         int    PutInner(const char * pInnerName, const char * pInnerValue);
         int    PutInnerSkipEmpty(const char * pInnerName, const char * pInnerValue);
+		int    PutInnerValidDate(const char * pInnerName, LDATE dt, long fmt);
         int    SetValue(const SString & rText);
 	private:
 		int    Construct(xmlTextWriter * pWriter, const char * pName);

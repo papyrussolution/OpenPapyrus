@@ -234,7 +234,7 @@ int TIFFVGetFieldDefaulted(TIFF* tif, uint32 tag, va_list ap)
 		case TIFFTAG_TRANSFERFUNCTION:
 		    if(!td->td_transferfunction[0] && !TIFFDefaultTransferFunction(td)) {
 			    TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "No space for \"TransferFunction\" tag");
-			    return (0);
+			    return 0;
 		    }
 		    *va_arg(ap, uint16 **) = td->td_transferfunction[0];
 		    if(td->td_samplesperpixel - td->td_extrasamples > 1) {
@@ -244,7 +244,7 @@ int TIFFVGetFieldDefaulted(TIFF* tif, uint32 tag, va_list ap)
 		    return (1);
 		case TIFFTAG_REFERENCEBLACKWHITE:
 		    if(!td->td_refblackwhite && !TIFFDefaultRefBlackWhite(td))
-			    return (0);
+			    return 0;
 		    *va_arg(ap, float **) = td->td_refblackwhite;
 		    return (1);
 	}

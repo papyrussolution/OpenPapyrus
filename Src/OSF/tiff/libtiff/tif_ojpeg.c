@@ -436,14 +436,12 @@ int TIFFInitOJPEG(TIFF* tif, int scheme)
 	 * Merge codec-specific tag information.
 	 */
 	if(!_TIFFMergeFields(tif, ojpegFields, TIFFArrayCount(ojpegFields))) {
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Merging Old JPEG codec-specific tags failed");
+		TIFFErrorExt(tif->tif_clientdata, module, "Merging Old JPEG codec-specific tags failed");
 		return 0;
 	}
-
 	/* state block */
 	sp = SAlloc::M(sizeof(OJPEGState));
-	if(sp==NULL) {
+	if(!sp) {
 		TIFFErrorExt(tif->tif_clientdata, module, "No space for OJPEG state block");
 		return 0;
 	}
@@ -609,7 +607,7 @@ static void OJPEGPrintDir(TIFF* tif, FILE* fd, long flags)
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint8 m;
 	(void)flags;
-	assert(sp!=NULL);
+	assert(sp != NULL);
 	if(TIFFFieldSet(tif, FIELD_OJPEG_JPEGINTERCHANGEFORMAT))
 		fprintf(fd, "  JpegInterchangeFormat: " TIFF_UINT64_FORMAT "\n", (TIFF_UINT64_T)sp->jpeg_interchange_format);
 	if(TIFFFieldSet(tif, FIELD_OJPEG_JPEGINTERCHANGEFORMATLENGTH))
@@ -746,9 +744,9 @@ static int OJPEGPreDecodeSkipScanlines(TIFF* tif)
 	static const char module[] = "OJPEGPreDecodeSkipScanlines";
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint32 m;
-	if(sp->skip_buffer==NULL) {
+	if(!sp->skip_buffer) {
 		sp->skip_buffer = SAlloc::M(sp->bytes_per_line);
-		if(sp->skip_buffer==NULL) {
+		if(!sp->skip_buffer) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
 			return 0;
 		}
@@ -1886,17 +1884,15 @@ static int OJPEGReadBufferFill(OJPEGState* sp)
 				    if(sp->in_buffer_file_pos!=0) {
 					    if(sp->in_buffer_file_pos>=sp->file_size)
 						    sp->in_buffer_file_pos = 0;
-					    else if(sp->tif->tif_dir.td_stripbytecount==NULL)
+					    else if(sp->tif->tif_dir.td_stripbytecount == NULL)
 						    sp->in_buffer_file_togo = sp->file_size-sp->in_buffer_file_pos;
 					    else {
 						    if(sp->tif->tif_dir.td_stripbytecount == 0) {
-							    TIFFErrorExt(sp->tif->tif_clientdata,
-							    sp->tif->tif_name,
-							    "Strip byte counts are missing");
+							    TIFFErrorExt(sp->tif->tif_clientdata, sp->tif->tif_name, "Strip byte counts are missing");
 							    return 0;
 						    }
 						    sp->in_buffer_file_togo = sp->tif->tif_dir.td_stripbytecount[sp->in_buffer_next_strile];
-						    if(sp->in_buffer_file_togo==0)
+						    if(sp->in_buffer_file_togo == 0)
 							    sp->in_buffer_file_pos = 0;
 						    else if(sp->in_buffer_file_pos+sp->in_buffer_file_togo>sp->file_size)
 							    sp->in_buffer_file_togo = sp->file_size-sp->in_buffer_file_pos;

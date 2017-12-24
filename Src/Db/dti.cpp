@@ -92,10 +92,8 @@ int PervasiveDBCatalog::PtRelease()
 	return ok;
 }
 
-PervasiveDBCatalog::PervasiveDBCatalog()
+PervasiveDBCatalog::PervasiveDBCatalog() : State(0), H_Connection(0xFFFFFFFF) 
 {
-	State = 0;
-	H_Connection = 0xFFFFFFFF;
 	P_Lib = 0;
 	if(PtLoad()) {
 		State |= sValid;

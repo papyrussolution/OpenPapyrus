@@ -1106,13 +1106,10 @@ err:
  */
 int __repmgr_setup_gmdb_op(ENV*env, DB_THREAD_INFO * ip, DB_TXN ** txnp, uint32 flags)
 {
-	DB_REP * db_rep;
-	DB_TXN * txn;
-	DB * dbp;
 	int ret, was_open;
-	db_rep = env->rep_handle;
-	dbp = NULL;
-	txn = NULL;
+	DB_REP * db_rep = env->rep_handle;
+	DB * dbp = NULL;
+	DB_TXN * txn = NULL;
 	/*
 	 * If the caller provided a place to return a txn handle, create it and
 	 * perform any open operation as part of that txn.  The caller is
@@ -1121,8 +1118,8 @@ int __repmgr_setup_gmdb_op(ENV*env, DB_THREAD_INFO * ip, DB_TXN ** txnp, uint32 
 	 * open.
 	 */
 	DB_ASSERT(env, db_rep->gmdb_busy);
-	was_open = db_rep->gmdb != NULL;
-	if((txnp != NULL || !was_open) && (ret = __txn_begin(env, ip, NULL, &txn, DB_IGNORE_LEASE)) != 0)
+	was_open = (db_rep->gmdb != NULL);
+	if((txnp || !was_open) && (ret = __txn_begin(env, ip, NULL, &txn, DB_IGNORE_LEASE)) != 0)
 		goto err;
 	if(!was_open) {
 		DB_ASSERT(env, txn != NULL);
@@ -1135,8 +1132,8 @@ int __repmgr_setup_gmdb_op(ENV*env, DB_THREAD_INFO * ip, DB_TXN ** txnp, uint32 
 		DB_ASSERT(env, db_rep->active_gmdb_update == none);
 		db_rep->active_gmdb_update = gmdb_secondary;
 		ret = __rep_open_sysdb(env, ip, txn, REPMEMBERSHIP, flags, &dbp);
-		if(ret == 0 && txnp == NULL) {
-			/* The txn was just for the open operation. */
+		if(!ret && !txnp) {
+			// The txn was just for the open operation
 			ret = __txn_commit(txn, 0);
 			txn = NULL;
 		}
@@ -1147,8 +1144,7 @@ int __repmgr_setup_gmdb_op(ENV*env, DB_THREAD_INFO * ip, DB_TXN ** txnp, uint32 
 	/*
 	 * Lock out normal API operations.  Again because we need to know that
 	 * if a PERM_FAIL occurs, it was associated with our txn.  Also, so that
-	 * we avoid confusing the application with a PERM_FAIL event for our own
-	 * txn.
+	 * we avoid confusing the application with a PERM_FAIL event for our own txn.
 	 */
 	if((ret = __rep_take_apilockout(env)) != 0)
 		goto err;
@@ -1160,7 +1156,7 @@ int __repmgr_setup_gmdb_op(ENV*env, DB_THREAD_INFO * ip, DB_TXN ** txnp, uint32 
 		DB_ASSERT(env, dbp != NULL);
 		db_rep->gmdb = dbp;
 	}
-	if(txnp != NULL) {
+	if(txnp) {
 		DB_ASSERT(env, txn != NULL);
 		*txnp = txn;
 	}
@@ -1233,7 +1229,7 @@ int __repmgr_hold_master_role(ENV*env, REPMGR_CONNECTION * conn)
 			db_rep->gmdb_busy = TRUE;
 	}
 	UNLOCK_MUTEX(db_rep->mutex);
-	if(conn != NULL && ret == DB_REP_UNAVAIL && (t_ret = reject_fwd(env, conn)) != 0)
+	if(conn && ret == DB_REP_UNAVAIL && (t_ret = reject_fwd(env, conn)) != 0)
 		ret = t_ret;
 	return ret;
 }

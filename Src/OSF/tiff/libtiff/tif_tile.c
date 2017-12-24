@@ -69,19 +69,19 @@ int TIFFCheckTile(TIFF* tif, uint32 x, uint32 y, uint32 z, uint16 s)
 	TIFFDirectory * td = &tif->tif_dir;
 	if(x >= td->td_imagewidth) {
 		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "%lu: Col out of range, max %lu", (unsigned long)x, (unsigned long)(td->td_imagewidth - 1));
-		return (0);
+		return 0;
 	}
 	if(y >= td->td_imagelength) {
 		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "%lu: Row out of range, max %lu", (unsigned long)y, (unsigned long)(td->td_imagelength - 1));
-		return (0);
+		return 0;
 	}
 	if(z >= td->td_imagedepth) {
 		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "%lu: Depth out of range, max %lu", (unsigned long)z, (unsigned long)(td->td_imagedepth - 1));
-		return (0);
+		return 0;
 	}
 	if(td->td_planarconfig == PLANARCONFIG_SEPARATE && s >= td->td_samplesperpixel) {
 		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "%lu: Sample out of range, max %lu", (unsigned long)s, (unsigned long)(td->td_samplesperpixel - 1));
-		return (0);
+		return 0;
 	}
 	return (1);
 }
@@ -126,7 +126,7 @@ uint64 TIFFTileRowSize64(TIFF* tif)
 	}
 	if(td->td_tilewidth == 0) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Tile width is zero");
-		return (0);
+		return 0;
 	}
 	rowsize = _TIFFMultiply64(tif, td->td_bitspersample, td->td_tilewidth, "TIFFTileRowSize");
 	if(td->td_planarconfig == PLANARCONFIG_CONTIG) {
@@ -166,7 +166,7 @@ uint64 TIFFVTileSize64(TIFF* tif, uint32 nrows)
 	static const char module[] = "TIFFVTileSize64";
 	TIFFDirectory * td = &tif->tif_dir;
 	if(td->td_tilelength == 0 || td->td_tilewidth == 0 || td->td_tiledepth == 0)
-		return (0);
+		return 0;
 	if((td->td_planarconfig==PLANARCONFIG_CONTIG)&& (td->td_photometric==PHOTOMETRIC_YCBCR)&& (td->td_samplesperpixel==3)&& (!isUpSampled(tif))) {
 		/*
 		 * Packed YCbCr data contain one Cb+Cr for every

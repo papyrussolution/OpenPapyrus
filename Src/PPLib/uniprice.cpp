@@ -1,5 +1,5 @@
 // UNIPRICE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017
 // @codepage windows-1251
 // Унификация цен реализации товара
 //
@@ -52,10 +52,8 @@ static int SLAPI GetNewPrice(PrcssrUnifyPriceFilt * pParam, const Goods2Tbl::Rec
 {
 	class NewPriceDialog : public TDialog {
 	public:
-		NewPriceDialog(PrcssrUnifyPriceFilt * aParam, PPID aGoods) : TDialog(DLG_NEWPRICE)
+		NewPriceDialog(PrcssrUnifyPriceFilt * aParam, PPID aGoods) : TDialog(DLG_NEWPRICE), Param(*aParam), GoodsID(aGoods)
 		{
-			Param = *aParam;
-			GoodsID = aGoods;
 			disableCtrls(1, CTL_NEWPRICE_GOODS, CTL_NEWPRICE_LOC, 0);
 		}
 	private:
@@ -107,9 +105,8 @@ static int SLAPI GetNewPrice(PrcssrUnifyPriceFilt * pParam, const Goods2Tbl::Rec
 	return r;
 }
 
-SLAPI PrcssrUnifyPrice::PrcssrUnifyPrice()
+SLAPI PrcssrUnifyPrice::PrcssrUnifyPrice() : P_BObj(BillObj)
 {
-	P_BObj = BillObj;
 }
 
 int SLAPI PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
@@ -556,4 +553,3 @@ int SLAPI UnifyGoodsPrice()
 	}
 	return ok;
 }
-

@@ -197,7 +197,7 @@ static int LZWSetupDecode(TIFF* tif)
 		tif->tif_data = (uint8*)SAlloc::M(sizeof(LZWCodecState));
 		if(tif->tif_data == NULL) {
 			TIFFErrorExt(tif->tif_clientdata, module, "No space for LZW state block");
-			return (0);
+			return 0;
 		}
 		DecoderState(tif)->dec_codetab = NULL;
 		DecoderState(tif)->dec_decode = NULL;
@@ -212,7 +212,7 @@ static int LZWSetupDecode(TIFF* tif)
 		sp->dec_codetab = (code_t*)SAlloc::M(CSIZE*sizeof(code_t));
 		if(sp->dec_codetab == NULL) {
 			TIFFErrorExt(tif->tif_clientdata, module, "No space for LZW code table");
-			return (0);
+			return 0;
 		}
 		/*
 		 * Pre-load the table.
@@ -244,7 +244,7 @@ static int LZWPreDecode(TIFF* tif, uint16 s)
 	if(sp->dec_codetab == NULL) {
 		tif->tif_setupdecode(tif);
 		if(sp->dec_codetab == NULL)
-			return (0);
+			return 0;
 	}
 	/*
 	 * Check for old bit-reversed codes.
@@ -278,7 +278,7 @@ static int LZWPreDecode(TIFF* tif, uint16 s)
 			    "Old-style LZW codes not supported");
 			sp->dec_decode = LZWDecode;
 		}
-		return (0);
+		return 0;
 #endif /* !LZW_COMPAT */
 	}
 	else {
@@ -348,7 +348,7 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 	   Fail if value does not fit in long.
 	 */
 	if((tmsize_t)occ != occ0)
-		return (0);
+		return 0;
 	/*
 	 * Restart interrupted output operation.
 	 */
@@ -419,7 +419,7 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 				break;
 			if(code > CODE_CLEAR) {
 				TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "LZWDecode: Corrupted LZW table at scanline %d", tif->tif_row);
-				return (0);
+				return 0;
 			}
 			*op++ = (char)code;
 			occ--;
@@ -432,12 +432,12 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 		 */
 		if(free_entp < &sp->dec_codetab[0] || free_entp >= &sp->dec_codetab[CSIZE]) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Corrupted LZW table at scanline %d", tif->tif_row);
-			return (0);
+			return 0;
 		}
 		free_entp->next = oldcodep;
 		if(free_entp->next < &sp->dec_codetab[0] || free_entp->next >= &sp->dec_codetab[CSIZE]) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Corrupted LZW table at scanline %d", tif->tif_row);
-			return (0);
+			return 0;
 		}
 		free_entp->firstchar = free_entp->next->firstchar;
 		free_entp->length = free_entp->next->length+1;
@@ -455,7 +455,7 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 			 */
 			if(codep->length == 0) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Wrong length of decoded string: data probably corrupted at scanline %d", tif->tif_row);
-				return (0);
+				return 0;
 			}
 			if(codep->length > occ) {
 				/*
@@ -517,7 +517,7 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 #else
 		TIFFErrorExt(tif->tif_clientdata, module, "Not enough data at scanline %d (short %llu bytes)", tif->tif_row, (unsigned long long)occ);
 #endif
-		return (0);
+		return 0;
 	}
 	return (1);
 }
@@ -555,7 +555,7 @@ static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 	   Fail if value does not fit in long.
 	 */
 	if((tmsize_t)occ != occ0)
-		return (0);
+		return 0;
 	/*
 	 * Restart interrupted output operation.
 	 */
@@ -623,7 +623,7 @@ static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 				break;
 			if(code > CODE_CLEAR) {
 				TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "LZWDecode: Corrupted LZW table at scanline %d", tif->tif_row);
-				return (0);
+				return 0;
 			}
 			*op++ = (char)code;
 			occ--;
@@ -639,7 +639,7 @@ static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 		    free_entp >= &sp->dec_codetab[CSIZE]) {
 			TIFFErrorExt(tif->tif_clientdata, module,
 			    "Corrupted LZW table at scanline %d", tif->tif_row);
-			return (0);
+			return 0;
 		}
 
 		free_entp->next = oldcodep;
@@ -647,7 +647,7 @@ static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 		    free_entp->next >= &sp->dec_codetab[CSIZE]) {
 			TIFFErrorExt(tif->tif_clientdata, module,
 			    "Corrupted LZW table at scanline %d", tif->tif_row);
-			return (0);
+			return 0;
 		}
 		free_entp->firstchar = free_entp->next->firstchar;
 		free_entp->length = free_entp->next->length+1;
@@ -670,7 +670,7 @@ static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 				    "Wrong length of decoded "
 				    "string: data probably corrupted at scanline %d",
 				    tif->tif_row);
-				return (0);
+				return 0;
 			}
 			if(codep->length > occ) {
 				/*
@@ -725,7 +725,7 @@ static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 		    "Not enough data at scanline %d (short %llu bytes)",
 		    tif->tif_row, (unsigned long long)occ);
 #endif
-		return (0);
+		return 0;
 	}
 	return (1);
 }
@@ -746,7 +746,7 @@ static int LZWSetupEncode(TIFF* tif)
 	if(sp->enc_hashtab == NULL) {
 		TIFFErrorExt(tif->tif_clientdata, module,
 		    "No space for LZW hash table");
-		return (0);
+		return 0;
 	}
 	return (1);
 }
@@ -836,7 +836,7 @@ static int LZWEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 
 	(void)s;
 	if(sp == NULL)
-		return (0);
+		return 0;
 
 	assert(sp->enc_hashtab != NULL);
 
@@ -1116,7 +1116,7 @@ int TIFFInitLZW(TIFF* tif, int scheme)
 	return (1);
 bad:
 	TIFFErrorExt(tif->tif_clientdata, module, "No space for LZW state block");
-	return (0);
+	return 0;
 }
 
 /*

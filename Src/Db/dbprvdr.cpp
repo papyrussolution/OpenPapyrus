@@ -6,15 +6,13 @@
 #pragma hdrstop
 // @v9.6.3 #include <idea.h>
 
-DbLoginBlock::DbLoginBlock()
+DbLoginBlock::DbLoginBlock() : End(0)
 {
-	End = 0;
 	SBaseBuffer::Init();
 }
 
-DbLoginBlock::DbLoginBlock(const DbLoginBlock & rS)
+DbLoginBlock::DbLoginBlock(const DbLoginBlock & rS) : End(0)
 {
-	End = 0;
 	SBaseBuffer::Init();
 	Copy(rS);
 }
@@ -112,10 +110,8 @@ int DbLoginBlock::SetAttr(int attr, const char * pVal)
 	return ok;
 }
 
-DbLoginBlockArray::DbLoginBlockArray() : TSCollection <DbLoginBlock>()
+DbLoginBlockArray::DbLoginBlockArray() : TSCollection <DbLoginBlock>(), LastId(0), SelId(0)
 {
-	LastId = 0;
-	SelId = 0;
 }
 
 void DbLoginBlockArray::Clear()
@@ -243,7 +239,7 @@ int DbLoginBlockArray::GetByPos(uint pos, DbLoginBlock * pBlk) const
 int DbLoginBlockArray::GetAttr(const char * pDbSymb, int attr, SString & rVal) const
 {
 	int    ok = 0;
-	rVal = 0;
+	rVal.Z();
 	SString symb;
 	for(uint i = 0; i < getCount(); i++) {
 		const DbLoginBlock * p_blk = at(i);
@@ -258,7 +254,7 @@ int DbLoginBlockArray::GetAttr(const char * pDbSymb, int attr, SString & rVal) c
 int DbLoginBlockArray::GetAttr(long id, int attr, SString & rVal) const
 {
 	int    ok = 0;
-	rVal = 0;
+	rVal.Z();
 	//
 	if(id > 0 && id <= (long)getCount()) {
 		const DbLoginBlock * p_blk = at(id-1);
@@ -315,12 +311,8 @@ int DbLoginBlockArray::MakeList(StrAssocArray * pList, long options) const
 //
 //
 //
-SLAPI DbProvider::DbProvider(DbDictionary * pDict, long capability)
+SLAPI DbProvider::DbProvider(DbDictionary * pDict, long capability) : P_Dict(pDict), Capability(capability), State(0), DbPathID(0)
 {
-	P_Dict = pDict;
-	Capability = capability;
-	State = 0;
-	DbPathID = 0;
 	DbUUID.SetZero();
 }
 
@@ -806,5 +798,3 @@ int SLAPI DbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 	delete q;
 	return ok;
 }
-
-

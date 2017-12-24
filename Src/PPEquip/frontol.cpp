@@ -17,13 +17,6 @@ static void RcvMailCallback(const IterCounter & bytesCounter, const IterCounter 
 	PPWaitPercent(bytesCounter, msg);
 }
 
-static long SLAPI GetDscntCode(PPID goodsID, PPID objID, int isQuotKind)
-{
-	long   obj_bias = (objID > 900) ? objID - 900 : objID;
-	long   dscnt_code = (obj_bias << 19) + goodsID + (isQuotKind ? 0x40000000 : 0);
-	return dscnt_code;
-}
-
 class ACS_FRONTOL : public PPAsyncCashSession {
 public:
 	SLAPI  ACS_FRONTOL(PPID id);

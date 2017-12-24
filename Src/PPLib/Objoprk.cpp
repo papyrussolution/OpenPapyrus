@@ -1322,9 +1322,8 @@ int SLAPI PPObjOpCounter::Browse(void * extraPtr)
 //
 class OprKindDialog : public TDialog {
 public:
-	OprKindDialog(uint rezID, PPOprKindPacket * pData) : TDialog(rezID)
+	OprKindDialog(uint rezID, PPOprKindPacket * pData) : TDialog(rezID), P_Data(pData)
 	{
-		P_Data = pData;
 		P_AtObj = BillObj->atobj;
 		P_ListBox = (SmartListBox*)getCtrlView(CTL_OPRKIND_LIST);
 		IsGeneric = BIN(P_Data->Rec.OpTypeID == PPOPT_GENERIC);

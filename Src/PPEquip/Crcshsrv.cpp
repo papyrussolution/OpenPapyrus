@@ -8,7 +8,7 @@
 //
 // CashiersArray
 //
-struct CashierEntry {
+struct CashierEntry { // @flat
 	SLAPI  CashierEntry()
 	{
 		THISZERO();
@@ -34,14 +34,14 @@ IMPL_CMPFUNC(CashierEnKey, i1, i2)
 	return cmp;
 }
 
-class CashiersArray : public SArray {
+class CashiersArray : public SVector { // @v9.8.11 SArray-->SVector
 public:
-	SLAPI  CashiersArray() : SArray(sizeof(CashierEntry))
+	SLAPI  CashiersArray() : SVector(sizeof(CashierEntry)) // @v9.8.11 SArray-->SVector
 	{
 	}
 	CashierEntry & FASTCALL at(uint p) const
 	{
-		return *(CashierEntry*)SArray::at(p);
+		return *(CashierEntry*)SVector::at(p); // @v9.8.11 SArray-->SVector
 	}
 	int    FASTCALL Add(CashierEntry * pEntry)
 	{
@@ -97,18 +97,14 @@ public:
 		LTIME Tm;
 	};
 
-	SLAPI  ACS_CRCSHSRV(PPID n) : PPAsyncCashSession(n)
+	SLAPI  ACS_CRCSHSRV(PPID n) : PPAsyncCashSession(n), Options(0), CurOperDate(ZERODATE), P_SCardPaymTbl(0), StatID(0)
 	{
-		Options = 0;
 		int    ipar = 0;
 		PPIniFile  ini_file;
 		ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_ACSCLOSE_USEALTIMPORT, &ipar); // &UseAltImport);
 		if(ipar > 0)
 			Options |= oUseAltImport;
-		CurOperDate = ZERODATE;
 		ChkRepPeriod.SetZero();
-		P_SCardPaymTbl = 0;
-		StatID = 0;
 		for(size_t i = 0; i < SIZEOFARRAY(P_IEParam); i++)
 			P_IEParam[i] = 0;
 		{
@@ -294,13 +290,13 @@ int SLAPI ACS_CRCSHSRV::IsReadyForExport()
 
 static void SLAPI ConvertCashierRightsToCrystalRightsSet(const char * pRights, char * pCrystalRights, size_t szCrRts)
 {
-	char   correspondance[32] = {
+	static const char correspondance[32] = {
 		12, 27,  1,  3,  4, 5, 15,  9,
 		10, 13, 29,  7,  0, 0,  0,  0,
 		22,  2, 17,  6, 24, 8, 16, 18,
 		19, 20, 21, 23, 25, 11, 14, 0
 	};
-	const size_t count = min(sizeof(correspondance), szCrRts);
+	const size_t count = MIN(SIZEOFARRAY(correspondance), szCrRts);
 	memzero(pCrystalRights, szCrRts);
 	for(size_t i = 0; i < count; i++) {
 		const int idx = correspondance[i];
@@ -347,14 +343,14 @@ static int SLAPI PrepareDscntCodeBiasList(LAssocArray * pAry)
 //       биты 19-29 - dscnt_code_bias (< 2048)
 //       биты  0-18 - ИД товара (< 524288)
 //
-static long SLAPI GetDscntCode(PPID goodsID, PPID objID, int isQuotKind)
+static long FASTCALL GetDscntCode(PPID goodsID, PPID objID, int isQuotKind)
 {
 	long   obj_bias = (objID > 900) ? objID - 900 : objID;
 	long   dscnt_code = (obj_bias << 19) + goodsID + (isQuotKind ? 0x40000000 : 0);
 	return dscnt_code;
 }
 
-static void SLAPI AddTimeToFileName(SString & fName)
+static void FASTCALL AddTimeToFileName(SString & fName)
 {
 	const LTIME cur_time = getcurtime_();
 	SPathStruc ps;

@@ -828,9 +828,8 @@ static int GetDiscount(TDialog * pDlg, uint ctl, PPQuotKind * pRec)
 
 class QuotKindDialog : public TDialog {
 public:
-	QuotKindDialog(PPObjReference * pRef) : TDialog(DLG_QUOTKIND)
+	QuotKindDialog(PPObjReference * pRef) : TDialog(DLG_QUOTKIND), P_Ref(pRef)
 	{
-		P_Ref = pRef;
 	}
  	int    setDTS(const PPQuotKindPacket * pPack);
 	int    getDTS(PPQuotKindPacket * pPack);

@@ -1874,9 +1874,8 @@ IMPLEMENT_CMD_HDL_FACTORY(ADDPERSONEVENT);
 //
 class CashNodeFiltDialog : public TDialog {
 public:
-	CashNodeFiltDialog() : TDialog(DLG_CASHPANEFLT)
+	CashNodeFiltDialog() : TDialog(DLG_CASHPANEFLT), PrevCashNodeID(0)
 	{
-		PrevCashNodeID = 0;
 	}
 	int    setDTS(const CashNodePaneFilt * pData);
 	int    getDTS(CashNodePaneFilt * pData);
@@ -2051,9 +2050,8 @@ public:
 	};
 
 	static int OpTypeListByBbt(PPID bbt, PPIDArray * pOpTypeList);
-	AddBillFiltDlg() : TDialog(DLG_ADDBILLFLT)
+	AddBillFiltDlg() : TDialog(DLG_ADDBILLFLT), PrevBbt(0)
 	{
-		PrevBbt = 0;
 	}
 	int    setDTS(const Param *);
 	int    getDTS(Param *);

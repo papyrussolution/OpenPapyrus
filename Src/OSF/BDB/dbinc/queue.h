@@ -304,9 +304,7 @@ struct name {								\
 } while (0)
 
 #define	STAILQ_EMPTY(head)	((head)->stqh_first == NULL)
-
 #define	STAILQ_FIRST(head)	((head)->stqh_first)
-
 #define	STAILQ_FOREACH(var, head, field) for((var) = STAILQ_FIRST((head)); (var); (var) = STAILQ_NEXT((var), field))
 #define	STAILQ_INIT(head) do { STAILQ_FIRST((head)) = NULL; (head)->stqh_last = &STAILQ_FIRST((head)); } while (0)
 
@@ -353,14 +351,12 @@ struct name {								\
 	if((STAILQ_FIRST((head)) = STAILQ_NEXT((elm), field)) == NULL)	\
 		(head)->stqh_last = &STAILQ_FIRST((head));		\
 } while (0)
-
 /*
  * List declarations.
  */
 #define	LIST_HEAD(name, type) struct name { struct type * lh_first; /* first element */ }
 #define	LIST_HEAD_INITIALIZER(head) { NULL }
 #define	LIST_ENTRY(type) struct { struct type *le_next;	/* next element */ struct type **le_prev; /* address of previous next element */ }
-
 /*
  * List functions.
  */
@@ -372,8 +368,7 @@ struct name {								\
 
 #define	LIST_INSERT_AFTER(listelm, elm, field) do {			\
 	if((LIST_NEXT((elm), field) = LIST_NEXT((listelm), field)) != NULL)\
-		LIST_NEXT((listelm), field)->field.le_prev =		\
-		    &LIST_NEXT((elm), field);				\
+		LIST_NEXT((listelm), field)->field.le_prev = &LIST_NEXT((elm), field); \
 	LIST_NEXT((listelm), field) = (elm);				\
 	(elm)->field.le_prev = &LIST_NEXT((listelm), field);		\
 } while (0)

@@ -2256,6 +2256,17 @@ SMailMessage::Boundary * SLAPI SMailMessage::AttachFile(Boundary * pB, int forma
 		if(ffr > 0)
 			format = ff;
 	}
+	{
+		THROW(!pB || SearchBoundary(pB));
+		SETIFZ(pB, &B);
+		if(pB->Children.getCount() == 0) {
+			//
+			// ≈сли в boundary нет ни одного дочернего элемента, то необходимо создать
+			// текстовый дочерний boundary иначе наш attachment может быть не верно истолкован
+			//
+			THROW(AttachContent(pB, SFileFormat::Txt, cpUTF8, "", 0));
+		}
+	}
 	THROW(p_result = Helper_CreateBoundary(pB, format));
 	{
 		SString temp_buf;
@@ -2273,6 +2284,7 @@ SMailMessage::Boundary * SLAPI SMailMessage::AttachFile(Boundary * pB, int forma
 			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 			AddS(temp_buf, &p_result->Cd.NameP);
 			p_result->Cd.FileNameP = p_result->Cd.NameP;
+			p_result->Ct.NameP = p_result->Cd.NameP; // ¬ Content-Type тоже надо им€ вставить
 		}
 		p_result->Cd.Type = ContentDispositionBlock::tAttachment;
 	}

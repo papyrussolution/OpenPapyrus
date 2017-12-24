@@ -178,60 +178,60 @@ int SLAPI LotFilt::Describe(long flags, SString & rBuf) const
 	{
 		SString buf;
 		if(CostDevRestr == drNone)
-			buf = STRINGIZING(drNone);
+			buf = STRINGIZE(drNone);
 		else if(CostDevRestr == drBelow)
-			buf = STRINGIZING(drBelow);
+			buf = STRINGIZE(drBelow);
 		else if(CostDevRestr == drAbove)
-			buf = STRINGIZING(drAbove);
+			buf = STRINGIZE(drAbove);
 		else if(CostDevRestr == drAny)
-			buf = STRINGIZING(drAny);
-		PutMembToBuf((const char*)buf, STRINGIZING(CostDevRestr), rBuf);
+			buf = STRINGIZE(drAny);
+		PutMembToBuf(buf, STRINGIZE(CostDevRestr), rBuf);
 
 		if(PriceDevRestr == drNone)
-			buf = STRINGIZING(drNone);
+			buf = STRINGIZE(drNone);
 		else if(PriceDevRestr == drBelow)
-			buf = STRINGIZING(drBelow);
+			buf = STRINGIZE(drBelow);
 		else if(PriceDevRestr == drAbove)
-			buf = STRINGIZING(drAbove);
+			buf = STRINGIZE(drAbove);
 		else if(PriceDevRestr == drAny)
-			buf = STRINGIZING(drAny);
-		PutMembToBuf((const char*)buf, STRINGIZING(PriceDevRestr), rBuf);
+			buf = STRINGIZE(drAny);
+		PutMembToBuf(buf, STRINGIZE(PriceDevRestr), rBuf);
 	}
-	PutMembToBuf(&Period,         STRINGIZING(Period),      rBuf);
-	PutMembToBuf(&Operation,      STRINGIZING(Operation),   rBuf);
-	PutMembToBuf(&ExpiryPrd,      STRINGIZING(ExpiryPrd),   rBuf);
-	PutMembToBuf(&QcExpiryPrd,    STRINGIZING(QcExpiryPrd), rBuf);
-	PutMembToBuf((long)ClosedTag, STRINGIZING(ClosedTag),   rBuf);
-	// @v8.4.11 PutMembToBuf(Serial,          STRINGIZING(Serial),      rBuf);
-	PutMembToBuf(&CostRange,      STRINGIZING(CostRange),   rBuf);
-	PutMembToBuf(&PriceRange,     STRINGIZING(PriceRange),  rBuf);
+	PutMembToBuf(&Period,         STRINGIZE(Period),      rBuf);
+	PutMembToBuf(&Operation,      STRINGIZE(Operation),   rBuf);
+	PutMembToBuf(&ExpiryPrd,      STRINGIZE(ExpiryPrd),   rBuf);
+	PutMembToBuf(&QcExpiryPrd,    STRINGIZE(QcExpiryPrd), rBuf);
+	PutMembToBuf((long)ClosedTag, STRINGIZE(ClosedTag),   rBuf);
+	// @v8.4.11 PutMembToBuf(Serial,          STRINGIZE(Serial),      rBuf);
+	PutMembToBuf(&CostRange,      STRINGIZE(CostRange),   rBuf);
+	PutMembToBuf(&PriceRange,     STRINGIZE(PriceRange),  rBuf);
 
-	PutObjMembToBuf(PPOBJ_LOCATION,   LocID,       STRINGIZING(LocID),       rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,    SupplID,     STRINGIZING(SupplID),     rBuf);
-	PutObjMembToBuf(PPOBJ_GOODSGROUP, GoodsGrpID,  STRINGIZING(GoodsGrpID),  rBuf);
-	PutObjMembToBuf(PPOBJ_GOODS,      GoodsID,     STRINGIZING(GoodsID),     rBuf);
-	PutObjMembToBuf(PPOBJ_QCERT,      QCertID,     STRINGIZING(QCertID),     rBuf);
-	PutObjMembToBuf(PPOBJ_LOT,        ParentLotID, STRINGIZING(ParentLotID), rBuf);
-	PutObjMembToBuf(PPOBJ_GOODSTAX,   InTaxGrpID,  STRINGIZING(InTaxGrpID),  rBuf);
+	PutObjMembToBuf(PPOBJ_LOCATION,   LocID,       STRINGIZE(LocID),       rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,    SupplID,     STRINGIZE(SupplID),     rBuf);
+	PutObjMembToBuf(PPOBJ_GOODSGROUP, GoodsGrpID,  STRINGIZE(GoodsGrpID),  rBuf);
+	PutObjMembToBuf(PPOBJ_GOODS,      GoodsID,     STRINGIZE(GoodsID),     rBuf);
+	PutObjMembToBuf(PPOBJ_QCERT,      QCertID,     STRINGIZE(QCertID),     rBuf);
+	PutObjMembToBuf(PPOBJ_LOT,        ParentLotID, STRINGIZE(ParentLotID), rBuf);
+	PutObjMembToBuf(PPOBJ_GOODSTAX,   InTaxGrpID,  STRINGIZE(InTaxGrpID),  rBuf);
 	{
 		long id = 1;
 		StrAssocArray flag_list;
-		if(Flags & fEmptyPeriod)        flag_list.Add(id++, STRINGIZING(fEmptyPeriod));
-		if(Flags & fWithoutQCert)       flag_list.Add(id++, STRINGIZING(fWithoutQCert));
-		if(Flags & fOrders)             flag_list.Add(id++, STRINGIZING(fOrders));
-		if(Flags & fCostAbovePrice)     flag_list.Add(id++, STRINGIZING(fCostAbovePrice));
-		if(Flags & fWithoutClb)         flag_list.Add(id++, STRINGIZING(fWithoutClb));
-		if(Flags & fDeadLots)           flag_list.Add(id++, STRINGIZING(fDeadLots));
-		if(Flags & fWithoutExpiry)      flag_list.Add(id++, STRINGIZING(fWithoutExpiry));
-		if(Flags & fOnlySpoilage)       flag_list.Add(id++, STRINGIZING(fOnlySpoilage));
-		if(Flags & fShowSerialN)        flag_list.Add(id++, STRINGIZING(fShowSerialN));
-		if(Flags & fSkipNoOp)           flag_list.Add(id++, STRINGIZING(fSkipNoOp));
-		if(Flags & fCheckOriginLotDate) flag_list.Add(id++, STRINGIZING(fCheckOriginLotDate));
-		if(Flags & fSkipClosedBeforeOp) flag_list.Add(id++, STRINGIZING(fSkipClosedBeforeOp));
-		if(Flags & fNoTempTable)        flag_list.Add(id++, STRINGIZING(fNoTempTable));
-		if(Flags & fShowBillStatus)     flag_list.Add(id++, STRINGIZING(fShowBillStatus));
-		if(Flags & fShowPriceDev)       flag_list.Add(id++, STRINGIZING(fShowPriceDev));
-		PutFlagsMembToBuf(&flag_list, STRINGIZING(Flags), rBuf);
+		if(Flags & fEmptyPeriod)        flag_list.Add(id++, STRINGIZE(fEmptyPeriod));
+		if(Flags & fWithoutQCert)       flag_list.Add(id++, STRINGIZE(fWithoutQCert));
+		if(Flags & fOrders)             flag_list.Add(id++, STRINGIZE(fOrders));
+		if(Flags & fCostAbovePrice)     flag_list.Add(id++, STRINGIZE(fCostAbovePrice));
+		if(Flags & fWithoutClb)         flag_list.Add(id++, STRINGIZE(fWithoutClb));
+		if(Flags & fDeadLots)           flag_list.Add(id++, STRINGIZE(fDeadLots));
+		if(Flags & fWithoutExpiry)      flag_list.Add(id++, STRINGIZE(fWithoutExpiry));
+		if(Flags & fOnlySpoilage)       flag_list.Add(id++, STRINGIZE(fOnlySpoilage));
+		if(Flags & fShowSerialN)        flag_list.Add(id++, STRINGIZE(fShowSerialN));
+		if(Flags & fSkipNoOp)           flag_list.Add(id++, STRINGIZE(fSkipNoOp));
+		if(Flags & fCheckOriginLotDate) flag_list.Add(id++, STRINGIZE(fCheckOriginLotDate));
+		if(Flags & fSkipClosedBeforeOp) flag_list.Add(id++, STRINGIZE(fSkipClosedBeforeOp));
+		if(Flags & fNoTempTable)        flag_list.Add(id++, STRINGIZE(fNoTempTable));
+		if(Flags & fShowBillStatus)     flag_list.Add(id++, STRINGIZE(fShowBillStatus));
+		if(Flags & fShowPriceDev)       flag_list.Add(id++, STRINGIZE(fShowPriceDev));
+		PutFlagsMembToBuf(&flag_list, STRINGIZE(Flags), rBuf);
 	}
 	return 1;
 }

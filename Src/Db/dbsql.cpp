@@ -1132,12 +1132,11 @@ int SOraDbProvider::GetDirect(DBTable & rTbl, const DBRowId & rPos, int forUpdat
 }
 
 SOraDbProvider::SOraDbProvider(const char * pDataPath) :
-	DbProvider(DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), SqlGen(sqlstORA, 0)
+	DbProvider(DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), SqlGen(sqlstORA, 0), Flags(0)
 {
 	DataPath = pDataPath;
 	DBS.GetDbPathID(DataPath, &DbPathID);
 	Ocif::Load();
-	Flags = 0;
 	Env.T = OCI_HTYPE_ENV;
 	OCIEnvCreate(&Env.Env, OCI_OBJECT, 0, 0, 0, 0, 0, 0);
 	Err = OhAlloc(OCI_HTYPE_ERROR);

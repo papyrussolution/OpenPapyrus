@@ -329,11 +329,8 @@ int PrcFreeListDialog::setupList()
 
 class TSessionDialog : public TDialog {
 public:
-	TSessionDialog(uint dlgID) : TDialog(dlgID)
+	TSessionDialog(uint dlgID) : TDialog(dlgID), SessUpdated(0), InnerGetDTS(0), InpUpdLock(0)
 	{
-		SessUpdated = 0;
-		InnerGetDTS = 0;
-		InpUpdLock = 0;
 		SetupCalDate(CTLCAL_TSESS_STDT, CTL_TSESS_STDT);
 		SetupCalDate(CTLCAL_TSESS_FNDT, CTL_TSESS_FNDT);
 		SetupCalPeriod(CTLCAL_TSESS_PLANPERIOD, CTL_TSESS_PLANPERIOD);
@@ -669,8 +666,7 @@ class TSessMoreDialog : public PPListDialog {
 public:
 	TSessMoreDialog() : PPListDialog(DLG_TSESSEXT, CTL_TSESSEXT_PLACELIST)
 	{
-		addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_TSESSEXT_IMAGE,
-			cmAddImage, cmDelImage, 1));
+		addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_TSESSEXT_IMAGE, cmAddImage, cmDelImage, 1));
 	}
 	int    setDTS(const TSessionPacket * pData)
 	{
@@ -1513,7 +1509,7 @@ int TSessionDialog::getDTS(TSessionPacket * pData)
 
 class TSessLineDialog : public TDialog {
 public:
-	TSessLineDialog(uint dlgId) : TDialog(dlgId/*DLG_TSESSLN*/)
+	TSessLineDialog(uint dlgId) : TDialog(dlgId/*DLG_TSESSLN*/), PctDis(0.0)
 	{
 		SetupCalDate(CTLCAL_TSESSLN_DT, CTL_TSESSLN_DT);
 		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_TSESSLN_GGRP, CTLSEL_TSESSLN_GOODS));
@@ -1524,7 +1520,6 @@ public:
 		}
 		else if(!TSesObj.CheckRights(TSESRT_MODPRICE))
 			disableCtrls(1, CTL_TSESSLN_PRICE, CTL_TSESSLN_DSCNT, 0);
-		PctDis = 0.0;
 		PPSetupCtrlMenu(this, CTL_TSESSLN_QTTY, CTLMNU_TSESSLN_QTTY, CTRLMENU_TSESSLINEQTTY);
 		PPSetupCtrlMenu(this, CTL_TSESSLN_INDEPPHQTTY, CTLMNU_TSESSLN_PHQTTY, CTRLMENU_TSESSLINEPHQTTY);
 	}

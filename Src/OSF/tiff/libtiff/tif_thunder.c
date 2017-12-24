@@ -149,7 +149,7 @@ static int ThunderDecode(TIFF* tif, uint8* op, tmsize_t maxpixels)
 		    (unsigned long long)npixels,
 		    (unsigned long long)maxpixels);
 #endif
-		return (0);
+		return 0;
 	}
 
 	return (1);
@@ -162,11 +162,11 @@ static int ThunderDecodeRow(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 	(void)s;
 	if(occ % tif->tif_scanlinesize) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Fractional scanlines cannot be read");
-		return (0);
+		return 0;
 	}
 	while(occ > 0) {
 		if(!ThunderDecode(tif, row, tif->tif_dir.td_imagewidth))
-			return (0);
+			return 0;
 		occ -= tif->tif_scanlinesize;
 		row += tif->tif_scanlinesize;
 	}

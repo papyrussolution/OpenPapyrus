@@ -371,11 +371,9 @@ int SLAPI ViewFiltPool()
 //
 class FiltItemDialog : public TDialog {
 public:
-	FiltItemDialog(PPNamedFiltMngr * pMngr, PPNamedFiltPool * pPool) : TDialog(DLG_FILTITEM)
+	FiltItemDialog(PPNamedFiltMngr * pMngr, PPNamedFiltPool * pPool) : TDialog(DLG_FILTITEM), P_Mngr(pMngr), P_Pool(pPool)
 	{
-		P_Mngr = pMngr;
 		P_Mngr->GetResourceLists(&CmdSymbList, &CmdTextList);
-		P_Pool = pPool;
 	}
 	//
 	// Descr: Заполняет интерфейс данными из pData

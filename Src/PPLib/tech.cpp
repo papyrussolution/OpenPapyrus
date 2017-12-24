@@ -874,9 +874,8 @@ int TechDialog::getDTS(PPTechPacket * pData)
 //
 class ToolingDialog : public TDialog {
 public:
-	ToolingDialog() : TDialog(DLG_TOOLING)
+	ToolingDialog() : TDialog(DLG_TOOLING), WasNewStrucCreated(0)
 	{
-		WasNewStrucCreated = 0;
 		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_TECH_GGRP, CTLSEL_TECH_GOODS));
 		addGroup(GRP_PREVGOODS, new GoodsCtrlGroup(CTLSEL_TECH_PREVGGRP, CTLSEL_TECH_PREVGOODS));
 		addGroup(GRP_PRC, new PrcCtrlGroup(CTLSEL_TECH_PRC));

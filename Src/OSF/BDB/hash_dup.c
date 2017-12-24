@@ -125,40 +125,37 @@ int __ham_add_dup(DBC * dbc, DBT * nval, uint32 flags, db_pgno_t * pgnop)
 			hcp->dup_len = pval.size;
 			hcp->dup_tlen = DUP_SIZE(hcp->dup_len);
 		}
-		/* Now make the new entry a duplicate. */
+		// Now make the new entry a duplicate. 
 		if((ret = __ham_make_dup(env, nval, &tmp_val, &dbc->my_rdata.data, &dbc->my_rdata.ulen)) != 0)
 			return ret;
 		tmp_val.dlen = 0;
-		switch(flags) {                         /* On page. */
+		switch(flags) { // On page.
 		    case DB_KEYFIRST:
 		    case DB_KEYLAST:
 		    case DB_NODUPDATA:
 		    case DB_OVERWRITE_DUP:
-			if(dbp->dup_compare) {
-				__ham_dsearch(dbc, nval, &tmp_val.doff, &cmp, flags);
-				// Duplicate duplicates are not supported with sorted dups.  We can either overwrite or return DB_KEYEXIST.
-				if(cmp == 0) {
-					return (flags == DB_OVERWRITE_DUP) ? __ham_overwrite(dbc, nval, flags) : __db_duperr(dbp, flags);
+				if(dbp->dup_compare) {
+					__ham_dsearch(dbc, nval, &tmp_val.doff, &cmp, flags);
+					// Duplicate duplicates are not supported with sorted dups.  We can either overwrite or return DB_KEYEXIST.
+					if(cmp == 0) {
+						return (flags == DB_OVERWRITE_DUP) ? __ham_overwrite(dbc, nval, flags) : __db_duperr(dbp, flags);
+					}
 				}
-			}
-			else {
-				hcp->dup_tlen = LEN_HDATA(dbp, hcp->page, dbp->pgsize, hcp->indx);
-				hcp->dup_len = nval->size;
-				F_SET(hcp, H_ISDUP);
-				if(flags == DB_KEYFIRST)
-					hcp->dup_off = tmp_val.doff = 0;
-				else
-					hcp->dup_off = tmp_val.doff = hcp->dup_tlen;
-			}
-			break;
+				else {
+					hcp->dup_tlen = LEN_HDATA(dbp, hcp->page, dbp->pgsize, hcp->indx);
+					hcp->dup_len = nval->size;
+					F_SET(hcp, H_ISDUP);
+					hcp->dup_off = tmp_val.doff = (flags == DB_KEYFIRST) ? 0 : hcp->dup_tlen;
+				}
+				break;
 		    case DB_BEFORE:
-			tmp_val.doff = hcp->dup_off;
-			break;
+				tmp_val.doff = hcp->dup_off;
+				break;
 		    case DB_AFTER:
-			tmp_val.doff = hcp->dup_off+DUP_SIZE(hcp->dup_len);
-			break;
+				tmp_val.doff = hcp->dup_off+DUP_SIZE(hcp->dup_len);
+				break;
 		    default:
-			return __db_unknown_path(env, "__ham_add_dup");
+				return __db_unknown_path(env, "__ham_add_dup");
 		}
 		/* Add the duplicate. */
 		if((ret = __memp_dirty(mpf, &hcp->page, dbc->thread_info, dbc->txn, dbc->priority, 0)) != 0 ||

@@ -20,37 +20,37 @@ IMPLEMENT_PPFILT_FACTORY(GoodsRest); SLAPI GoodsRestFilt::GoodsRestFilt() : PPBa
 // virtual
 int SLAPI GoodsRestFilt::Describe(long flags, SString & rBuf) const
 {
-	PutObjMembToBuf(PPOBJ_ARTICLE,     SupplID,    STRINGIZING(SupplID),    rBuf);
-	PutObjMembToBuf(PPOBJ_GOODSGROUP,  GoodsGrpID, STRINGIZING(GoodsGrpID), rBuf);
-	PutObjMembToBuf(PPOBJ_QUOTKIND,    QuotKindID, STRINGIZING(QuotKindID), rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,     AgentID,    STRINGIZING(AgentID),    rBuf);
-	PutObjMembToBuf(PPOBJ_BRAND,       BrandID,    STRINGIZING(BrandID),    rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,     SupplID,    STRINGIZE(SupplID),    rBuf);
+	PutObjMembToBuf(PPOBJ_GOODSGROUP,  GoodsGrpID, STRINGIZE(GoodsGrpID), rBuf);
+	PutObjMembToBuf(PPOBJ_QUOTKIND,    QuotKindID, STRINGIZE(QuotKindID), rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,     AgentID,    STRINGIZE(AgentID),    rBuf);
+	PutObjMembToBuf(PPOBJ_BRAND,       BrandID,    STRINGIZE(BrandID),    rBuf);
 
-	PutMembToBuf(&PrgnPeriod,          STRINGIZING(PrgnPeriod),    rBuf);
-	PutMembToBuf(Date,                 STRINGIZING(Date),          rBuf);
-	PutMembToBuf(DeficitDt,            STRINGIZING(DeficitDt),     rBuf);
-	PutMembToBuf((long)ExhaustTerm,    STRINGIZING(ExhaustTerm),   rBuf);
-	PutMembToBuf((long)AmtType,        STRINGIZING(AmtType),       rBuf);
-	PutMembToBuf((long)(Flags2 & f2CalcPrognosis),  STRINGIZING(CalcPrognosis), rBuf); // @v9.5.8 CalcPrognosis-->Flags2
+	PutMembToBuf(&PrgnPeriod,          STRINGIZE(PrgnPeriod),    rBuf);
+	PutMembToBuf(Date,                 STRINGIZE(Date),          rBuf);
+	PutMembToBuf(DeficitDt,            STRINGIZE(DeficitDt),     rBuf);
+	PutMembToBuf((long)ExhaustTerm,    STRINGIZE(ExhaustTerm),   rBuf);
+	PutMembToBuf((long)AmtType,        STRINGIZE(AmtType),       rBuf);
+	PutMembToBuf((long)(Flags2 & f2CalcPrognosis),  STRINGIZE(CalcPrognosis), rBuf); // @v9.5.8 CalcPrognosis-->Flags2
 	{
 		SString buf;
 		if(CalcMethod == GoodsRestParam::pcmAvg)
-			buf = STRINGIZING(pcmAvg);
+			buf = STRINGIZE(pcmAvg);
 		else if(CalcMethod == GoodsRestParam::pcmFirstLot)
-			buf = STRINGIZING(pcmFirstLot);
+			buf = STRINGIZE(pcmFirstLot);
 		else if(CalcMethod == GoodsRestParam::pcmLastLot)
-			buf = STRINGIZING(pcmLastLot);
+			buf = STRINGIZE(pcmLastLot);
 		else if(CalcMethod == GoodsRestParam::pcmSum)
-			buf = STRINGIZING(pcmSum);
+			buf = STRINGIZE(pcmSum);
 		else if(CalcMethod == GoodsRestParam::pcmDiff)
-			buf = STRINGIZING(pcmDiff);
+			buf = STRINGIZE(pcmDiff);
 		else if(CalcMethod == GoodsRestParam::pcmMostRecent)
-			buf = STRINGIZING(pcmMostRecent);
-		PutMembToBuf((const char*)buf,  STRINGIZING(CalcMethod),  rBuf);
+			buf = STRINGIZE(pcmMostRecent);
+		PutMembToBuf(buf,  STRINGIZE(CalcMethod),  rBuf);
 	}
-	PutSggMembToBuf(Sgg, STRINGIZING(Sgg), rBuf);
-	PutObjMembListToBuf(PPOBJ_GOODS,    &GoodsList, STRINGIZING(GoodsList), rBuf);
-	PutObjMembListToBuf(PPOBJ_LOCATION, &LocList,   STRINGIZING(LocList),   rBuf);
+	PutSggMembToBuf(Sgg, STRINGIZE(Sgg), rBuf);
+	PutObjMembListToBuf(PPOBJ_GOODS,    &GoodsList, STRINGIZE(GoodsList), rBuf);
+	PutObjMembListToBuf(PPOBJ_LOCATION, &LocList,   STRINGIZE(LocList),   rBuf);
 	{
 		long id = 0;
 		StrAssocArray flag_list;
@@ -80,7 +80,7 @@ int SLAPI GoodsRestFilt::Describe(long flags, SString & rBuf) const
 		__FLG(fCrosstab);
 		__FLG(fShowGoodsMatrixBelongs);
 #undef __FLG
-		PutFlagsMembToBuf(&flag_list, STRINGIZING(Flags), rBuf);
+		PutFlagsMembToBuf(&flag_list, STRINGIZE(Flags), rBuf);
 	}
 	return 1;
 }

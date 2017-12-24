@@ -140,14 +140,6 @@ void * FASTCALL SBuffer::Ptr(size_t offs) const
 	{ return (((int8 *)P_Buf)+offs); }
 const void * FASTCALL SBuffer::GetBuf(size_t offs) const
 	{ return (const void *)Ptr(offs); }
-SLAPI SBuffer::operator const void * () const
-	{ return P_Buf; }
-size_t SLAPI SBuffer::GetSize() const
-	{ return Size; }
-size_t SLAPI SBuffer::GetRdOffs() const
-	{ return RdOffs; }
-size_t SLAPI SBuffer::GetWrOffs() const
-	{ return WrOffs; }
 void FASTCALL SBuffer::SetRdOffs(size_t offs)
 	{ RdOffs = MIN(offs, WrOffs); }
 void FASTCALL SBuffer::SetWrOffs(size_t offs)
@@ -783,25 +775,10 @@ int SLAPI STempBuffer::IsValid() const
 	return BIN(P_Buf);
 }
 
-size_t SLAPI STempBuffer::GetSize() const
-{
-	return Size;
-}
-
-SLAPI STempBuffer::operator char * ()
-{
-	return P_Buf;
-}
-
-SLAPI STempBuffer::operator const char * () const
-{
-	return P_Buf;
-}
-
-const uchar * SLAPI STempBuffer::ucptr() const
-{
-	return (const uchar *)P_Buf;
-}
+size_t SLAPI STempBuffer::GetSize() const { return Size; }
+SLAPI  STempBuffer::operator char * () { return P_Buf; }
+SLAPI  STempBuffer::operator const char * () const { return P_Buf; }
+const  uchar * SLAPI STempBuffer::ucptr() const { return (const uchar *)P_Buf; }
 //
 //
 //
@@ -824,7 +801,7 @@ int SLAPI SSerializeContext::Init(long flags, LDATE suppDate)
 {
 	Flags |= flags;
 	SuppDate = suppDate;
-	P_DbtDescrList->freeAll();
+	CALLPTRMEMB(P_DbtDescrList, freeAll());
 	LastSymbId = 0;
 	SymbTbl.Clear();
 	return 1;
@@ -1491,10 +1468,8 @@ SLTEST_R(SBufferPipe)
 
 	class ThreadReader : public SlThread {
 	public:
-		ThreadReader(SBufferPipe * pPipe, const char * pOutFileName) : SlThread()
+		ThreadReader(SBufferPipe * pPipe, const char * pOutFileName) : SlThread(), P_Pipe(pPipe), OutFileName(pOutFileName)
 		{
-			P_Pipe = pPipe;
-			OutFileName = pOutFileName;
 		}
 	private:
 		virtual void Run()
@@ -1522,10 +1497,8 @@ SLTEST_R(SBufferPipe)
 	};
 	class ThreadWriter : public SlThread {
 	public:
-		ThreadWriter(SBufferPipe * pPipe, const char * pInFileName) : SlThread()
+		ThreadWriter(SBufferPipe * pPipe, const char * pInFileName) : SlThread(), P_Pipe(pPipe), InFileName(pInFileName)
 		{
-			P_Pipe = pPipe;
-			InFileName = pInFileName;
 		}
 	private:
 		virtual void Run()

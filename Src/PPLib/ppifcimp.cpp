@@ -401,7 +401,7 @@ static void StrAssocItemToSTaggedString(const StrAssocArray::Item & rSrc, STagge
 	}
 }
 
-static void ClearSTaggedString(STaggedString * pDest)
+static void FASTCALL ClearSTaggedString(STaggedString * pDest)
 {
 	if(pDest) {
 		pDest->Id = pDest->ParentId = 0;

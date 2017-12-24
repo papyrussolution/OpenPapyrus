@@ -24,9 +24,9 @@ IMPLEMENT_PPFILT_FACTORY(SuprWare); SLAPI SuprWareFilt::SuprWareFilt() : PPBaseF
 // virtual
 int SLAPI SuprWareFilt::Describe(long flags, SString & rBuf) const
 {
-	PutMembToBuf((long)SuprWareType, STRINGIZING(SuprWareType), rBuf);
-	PutMembToBuf((long)SuprWareCat, STRINGIZING(SuprWareCat), rBuf);
-	PutMembToBuf((const char*)SrchStr, STRINGIZING(SrchStr), rBuf);
+	PutMembToBuf((long)SuprWareType, STRINGIZE(SuprWareType), rBuf);
+	PutMembToBuf((long)SuprWareCat, STRINGIZE(SuprWareCat), rBuf);
+	PutMembToBuf(SrchStr, STRINGIZE(SrchStr), rBuf);
 	return 1;
 }
 

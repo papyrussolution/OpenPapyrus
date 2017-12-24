@@ -40,13 +40,8 @@ int SLAPI PriceListFilt::Setup()
 //   LocID = LConfig.Location
 //   UserID = -1;
 //
-SLAPI PPViewPriceList::PPViewPriceList() : PPView(0, &Filt)
+SLAPI PPViewPriceList::PPViewPriceList() : PPView(0, &Filt), P_BObj(BillObj), P_GGIter(0), P_TempTbl(0), State(0), NewGoodsGrpID(0)
 {
-	P_BObj = BillObj;
-	P_GGIter = 0;
-	P_TempTbl = 0;
-	State = 0;
-	NewGoodsGrpID = 0;
 	MEMSZERO(Cfg);
 }
 
@@ -259,9 +254,8 @@ int SLAPI SelectPriceListImportCfg(PPPriceListImpExpParam * pParam, int forExpor
 
 class PPPriceListImporter {
 public:
-	SLAPI  PPPriceListImporter()
+	SLAPI  PPPriceListImporter() : P_View(0)
 	{
-		P_View = 0;
 	}
 	int    SLAPI Init(PPViewPriceList * pView);
 	int    SLAPI Init(PPViewPriceList * pView, PPPriceListImpExpParam * pParam);
@@ -1326,14 +1320,14 @@ IMPL_HANDLE_EVENT(PLineFiltDialog)
 //
 // PListFiltDialog
 //
-#define GRP_GOODSGRP 1
-
 class PListFiltDialog : public TDialog {
 public:
-	PListFiltDialog(PPViewPriceList * pV) : TDialog(DLG_PLISTFLT)
+	enum {
+		ctlgroupGoodsGrp = 1
+	};
+	PListFiltDialog(PPViewPriceList * pV) : TDialog(DLG_PLISTFLT), P_PLV(pV)
 	{
-		P_PLV = pV;
-		addGroup(GRP_GOODSGRP, new GoodsFiltCtrlGroup(0, CTLSEL_PLIST_GGRP, cmGoodsFilt)); // @v6.1.7 AHTOXA
+		addGroup(ctlgroupGoodsGrp, new GoodsFiltCtrlGroup(0, CTLSEL_PLIST_GGRP, cmGoodsFilt));
 	}
 	int    setDTS(const PriceListFilt *);
 	int    getDTS(PriceListFilt *);
@@ -1430,7 +1424,6 @@ int PListFiltDialog::setDTS(const PriceListFilt * pFilt)
 	int    ok = 1;
 	PPID   acs_id = 0;
 	Data = *pFilt;
-	// @v7.3.0 disableCtrl(CTL_PLIST_DATE, 1);
 	SetupPPObjCombo(this, CTLSEL_PLIST_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
 	SetupPPObjCombo(this, CTLSEL_PLIST_QUOTK, PPOBJ_QUOTKIND, ((Data.QuotKindID > 0) ? Data.QuotKindID : 0L), 0, 0);
 	setCtrlData(CTL_PLIST_DATE, &Data.Dt);
@@ -1449,7 +1442,7 @@ int PListFiltDialog::setDTS(const PriceListFilt * pFilt)
 	SetClusterData(CTL_PLIST_IGNZEROQUOT, Data.Flags);
 	{
 		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
-		setGroupData(GRP_GOODSGRP, &gf_rec);
+		setGroupData(ctlgroupGoodsGrp, &gf_rec);
 		AddClusterAssoc(CTL_PLIST_LINEFLAGS, 0, PLISTF_EXCLGGRP);
 		AddClusterAssoc(CTL_PLIST_LINEFLAGS, 1, PLISTF_PRESENTONLY);
 		SetClusterData(CTL_PLIST_LINEFLAGS, Data.Flags);
@@ -1485,7 +1478,7 @@ int PListFiltDialog::getDTS(PriceListFilt * pFilt)
 	{
 		GoodsFiltCtrlGroup::Rec gf_rec;
 		GetClusterData(CTL_PLIST_LINEFLAGS, &Data.Flags);
-		getGroupData(GRP_GOODSGRP, &gf_rec);
+		getGroupData(ctlgroupGoodsGrp, &gf_rec);
 		Data.GoodsGrpID = gf_rec.GoodsGrpID;
 	}
 	if(Data.UserID != prev_user || Data.ArticleID != prev_ar || Data.LocID != prev_loc || Data.QuotKindID != prev_quot) {
@@ -1549,14 +1542,14 @@ int SLAPI PPViewPriceList::EditBaseFilt(PPBaseFilt * pBaseFilt)
 //
 // PLineDialog
 //
-#define GRP_GOODS 1
-
 class PLineDialog : public TDialog {
 public:
-	PLineDialog(PPViewPriceList * pV) : TDialog(DLG_PLINE)
+	enum {
+		ctlgroupGoods = 1
+	};
+	PLineDialog(PPViewPriceList * pV) : TDialog(DLG_PLINE), P_PLV(pV)
 	{
-		P_PLV = pV;
-		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_PLINE_GGRP, CTLSEL_PLINE_GOODS));
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_PLINE_GGRP, CTLSEL_PLINE_GOODS));
 	}
 	int    setDTS(const PriceLineTbl::Rec *);
 	int    getDTS(PriceLineTbl::Rec *);
@@ -1572,7 +1565,7 @@ int PLineDialog::setDTS(const PriceLineTbl::Rec * pData)
 	Data = *pData;
 
 	GoodsCtrlGroup::Rec gcgr(0, Data.GoodsID);
-	setGroupData(GRP_GOODS, &gcgr);
+	setGroupData(ctlgroupGoods, &gcgr);
 	if(Data.QuotKindID >= 0)
 		SetupPPObjCombo(this, CTLSEL_PLINE_QUOTKIND, PPOBJ_QUOTKIND, Data.QuotKindID, 0, 0);
 	else
@@ -1594,7 +1587,7 @@ int PLineDialog::getDTS(PriceLineTbl::Rec * pData)
 {
 	int    ok = 1;
 	GoodsCtrlGroup::Rec gcgr;
-	getGroupData(GRP_GOODS, &gcgr);
+	getGroupData(ctlgroupGoods, &gcgr);
 	Data.GoodsID = gcgr.GoodsID;
 	if(Data.GoodsID == 0)
 		ok = (PPError(PPERR_GOODSNEEDED, 0), 0);
@@ -1753,9 +1746,8 @@ int SLAPI PPViewPriceList::EditLine(PriceLineIdent * pIdent)
 
 class PPPriceListExporter {
 public:
-	SLAPI  PPPriceListExporter()
+	SLAPI  PPPriceListExporter() : P_IE(0)
 	{
-		P_IE = 0;
 	}
 	SLAPI ~PPPriceListExporter()
 	{
@@ -1865,8 +1857,7 @@ int SLAPI PPViewPriceList::SendPList()
 		PPWaitMsg(msg_buf);
 		PPGetFilePath(PPPATH_OUT, PPFILNAM_PLIST_CNF, path);
 		THROW_MEM(p_ini_file = new PPIniFile(path, TRUE));
-		p_ini_file->Append(PPINISECT_PRICELIST, PPINIPARAM_PL_USEPACKAGE,
-			(LConfig.Flags & CFGFLG_USEPACKAGE) ? "yes" : "no", 1);
+		p_ini_file->Append(PPINISECT_PRICELIST, PPINIPARAM_PL_USEPACKAGE, (LConfig.Flags & CFGFLG_USEPACKAGE) ? "yes" : "no", 1);
 		datefmt(&LConfig.OperDate, MKSFMT(0, DATF_DMY | DATF_CENTURY), sdt);
 		p_ini_file->Append(PPINISECT_PRICELIST, PPINIPARAM_PL_OPERDATE, sdt, 1);
 		{
@@ -2021,7 +2012,7 @@ int SLAPI PPViewPriceList::ConvertLinesToBasket()
 	return ok;
 }
 
-static int SLAPI WriteHelper(FILE * pOut, const char * pFieldName, char * pFieldValue, int * pNeedComma)
+static int FASTCALL WriteHelper(FILE * pOut, const char * pFieldName, char * pFieldValue, int * pNeedComma)
 {
 	int    ok = 0;
 	if(pOut && pFieldName) {
@@ -2036,7 +2027,7 @@ static int SLAPI WriteHelper(FILE * pOut, const char * pFieldName, char * pField
 	return ok;
 }
 
-static char * XmlConvertStr(const char * pStr, int cvtOem, char * pBuf, size_t bufLen)
+static char * FASTCALL XmlConvertStr(const char * pStr, int cvtOem, char * pBuf, size_t bufLen)
 {
 	SString temp_buf = pStr;
 	if(cvtOem)
@@ -2046,7 +2037,7 @@ static char * XmlConvertStr(const char * pStr, int cvtOem, char * pBuf, size_t b
 	return pBuf;
 }
 
-static int SLAPI XmlWriteData(FILE * pStream, const char * pField, const char * pData, int skipEmpty)
+static int FASTCALL XmlWriteData(FILE * pStream, const char * pField, const char * pData, int skipEmpty)
 {
 	char val_buf[128], par_buf[128], *p;
 	strip(STRNSCPY(val_buf, pData));
@@ -2071,13 +2062,13 @@ static int SLAPI XmlWriteData(FILE * pStream, const char * pField, const char * 
 	return 1;
 }
 
-static int SLAPI XmlWriteData(FILE * pStream, const char * pField, long data, int skipZero)
+static int FASTCALL XmlWriteData(FILE * pStream, const char * pField, long data, int skipZero)
 {
 	char   str_val[64];
 	return (skipZero && data == 0) ? -1 : XmlWriteData(pStream, pField, ltoa(data, str_val, 10), 0);
 }
 
-static int SLAPI XmlWriteData(FILE * pStream, const char * pField, double data, int skipZero)
+static int FASTCALL XmlWriteData(FILE * pStream, const char * pField, double data, int skipZero)
 {
 	char   str_val[64];
 	if(skipZero && data == 0)
@@ -2086,7 +2077,7 @@ static int SLAPI XmlWriteData(FILE * pStream, const char * pField, double data, 
 	return XmlWriteData(pStream, pField, str_val, 0);
 }
 
-static int SLAPI XmlWriteTag(FILE * pStream, const char * pTag, int start, int newLine)
+static int FASTCALL XmlWriteTag(FILE * pStream, const char * pTag, int start, int newLine)
 {
 	char par_buf[128], *p = par_buf;
 	*p++ = '<';
@@ -2102,7 +2093,7 @@ static int SLAPI XmlWriteTag(FILE * pStream, const char * pTag, int start, int n
 }
 
 // WriteHelper(p_xml_file, "<!ELEMENT Name          (#PCDATA)>\n", s_i.Name         , 0);
-static SString & XmlDeclElement(const char * pFieldName, SString & rBuf)
+static SString & FASTCALL XmlDeclElement(const char * pFieldName, SString & rBuf)
 {
 	rBuf.Z().CatChar('<').CatChar('!').Cat("ELEMENT").Space().Cat(pFieldName).Space().
 		CatChar('(').CatChar('#').Cat("PCDATA").CatChar(')').CatChar('>').CR();
@@ -2438,7 +2429,8 @@ static int SLAPI PutSylkHeader(const SArray * pSpec, SylkWriter & sw, int rowNo)
 				break;
 			case plevsUnit:
 				sw.PutFormat("FG0L", 0, i, rowNo);
-				sw.PutVal(p_item->Title[0] ? p_item->Title : "Единица", 0);
+				PPLoadString("munit_s", temp_buf);
+				sw.PutVal(p_item->Title[0] ? p_item->Title : temp_buf.Transf(CTRANSF_INNER_TO_OUTER), 0);
 				break;
 			case plevsPack:
 				sw.PutFormat("FG0R", 0, i, rowNo);
@@ -2447,11 +2439,13 @@ static int SLAPI PutSylkHeader(const SArray * pSpec, SylkWriter & sw, int rowNo)
 				break;
 			case plevsPrice:
 				sw.PutFormat("FG0R", 0, i, rowNo);
-				sw.PutVal(p_item->Title[0] ? p_item->Title : "Цена единицы", 0);
+				PPLoadString("priceofunit", temp_buf);
+				sw.PutVal(p_item->Title[0] ? p_item->Title : temp_buf.Transf(CTRANSF_INNER_TO_OUTER), 0);
 				break;
 			case plevsPackPrice:
 				sw.PutFormat("FG0R", 0, i, rowNo);
-				sw.PutVal(p_item->Title[0] ? p_item->Title : "Цена упаковки", 0);
+				PPLoadString("priceofpack", temp_buf);
+				sw.PutVal(p_item->Title[0] ? p_item->Title : temp_buf.Transf(CTRANSF_INNER_TO_OUTER), 0);
 				break;
 			case plevsMemo:
 				sw.PutFormat("FG0L", 0, i, rowNo);

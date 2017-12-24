@@ -5,10 +5,12 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <gdiplus.h>
 #include <csoap.h>
 #include <ppsoapclient.h>
 
+#define max MAX // @v9.8.11
+#define min MIN // @v9.8.11
+#include <gdiplus.h>
 using namespace Gdiplus;
 
 struct UhttSearchGoodsParam {
@@ -3050,9 +3052,9 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	int    editGoodsViewOptions();
-	int    editExtParams();
+	int    EditExtParams();
 	int    editSysjFilt();
-	int    groupList();
+	void   GroupList();
 	int    vatFilt();
 	void   setupVat();
 	void   SetupCtrls();
@@ -3233,10 +3235,10 @@ IMPL_HANDLE_EVENT(GoodsFiltDialog)
 	TDialog::handleEvent(event);
 	if(TVCOMMAND) {
 		switch(TVCMD) {
-			case cmGrpList:      groupList();            break;
+			case cmGrpList:      GroupList();            break;
 			case cmViewOptions:  editGoodsViewOptions(); break;
 			case cmGoodsFiltVat: vatFilt();              break;
-			case cmExtParams:    editExtParams();        break;
+			case cmExtParams:    EditExtParams();        break;
 			case cmSysjFilt2:    editSysjFilt();         break;
 			case cmAdvOptions:
 				GetClusterData(CTL_GOODSFLT_FLAGS, &Data.Flags);
@@ -3271,9 +3273,8 @@ IMPL_HANDLE_EVENT(GoodsFiltDialog)
 
 class GoodsAdvOptDialog : public TDialog {
 public:
-	GoodsAdvOptDialog() : TDialog(DLG_GDSFVOPT)
+	GoodsAdvOptDialog() : TDialog(DLG_GDSFVOPT), AcsID(0)
 	{
-		AcsID = 0;
 	}
 	int    setDTS(const GoodsFilt * pData);
 	int    getDTS(GoodsFilt * pData);
@@ -3464,7 +3465,7 @@ void EditExtParamsDlg::getRange(uint ctlID, RealRange * pRng, long scale)
 {
 	GetRealRangeInput(this, ctlID, pRng);
 	if(scale < 0) {
-		double _pw = fpow10i((int)scale);
+		const double _pw = fpow10i((int)scale);
 		pRng->Set(pRng->low * _pw, pRng->upp * _pw);
 	}
 	else if(scale > 0)
@@ -3493,18 +3494,17 @@ int EditExtParamsDlg::getDTS(ClsdGoodsFilt * pData)
 	return ok;
 }
 
-int GoodsFiltDialog::editExtParams()
+int GoodsFiltDialog::EditExtParams()
 {
 	DIALOG_PROC_BODY(EditExtParamsDlg, &Data.Ep);
 }
 
-int GoodsFiltDialog::groupList()
+void GoodsFiltDialog::GroupList()
 {
 	getCtrlData(CTLSEL_GOODSFLT_GRP, &Data.GrpID);
 	PPID   prev_grp_id = Data.GrpID;
 	Data.GrpIDList.InitEmpty();
-	if(prev_grp_id)
-		Data.GrpIDList.Add(prev_grp_id);
+	Data.GrpIDList.Add(prev_grp_id);
 	PPIDArray temp_list = Data.GrpIDList.Get();
 	ListToListData data(PPOBJ_GOODSGROUP, (void *)GGRTYP_SEL_NORMAL, &temp_list);
 	data.Flags |= ListToListData::fIsTreeList;
@@ -3518,7 +3518,6 @@ int GoodsFiltDialog::groupList()
 	if(Data.GrpIDList.GetCount() > 1)
 		SetComboBoxListText(this, CTLSEL_GOODSFLT_GRP);
 	disableCtrl(CTLSEL_GOODSFLT_GRP, BIN(Data.GrpIDList.GetCount() > 1));
-	return 1;
 }
 
 void GoodsFiltDialog::setupVat()

@@ -1980,7 +1980,7 @@ int SLAPI BillTransmDeficit::PrintTotalDeficit(ObjTransmContext * pCtx)
 	return 1;
 }
 
-int SLAPI BillTransmDeficit::CalcReqSalesTax(ILTI * pIlti, LDATE dt, PPID opID, double * pSalesTax)
+void SLAPI BillTransmDeficit::CalcReqSalesTax(ILTI * pIlti, LDATE dt, PPID opID, double * pSalesTax)
 {
 	double stax = 0.0;
 	if(pIlti->Flags & PPTFR_RMVEXCISE) {
@@ -1996,7 +1996,6 @@ int SLAPI BillTransmDeficit::CalcReqSalesTax(ILTI * pIlti, LDATE dt, PPID opID, 
 		}
 	}
 	ASSIGN_PTR(pSalesTax, stax);
-	return 1;
 }
 
 int SLAPI BillTransmDeficit::AddRec(ILTI * pIlti, const char * pClbNumber, BillTbl::Rec * pBillRec, PPID supplID, double qtty)

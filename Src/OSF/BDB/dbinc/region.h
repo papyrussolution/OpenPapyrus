@@ -270,16 +270,23 @@ struct __db_reginfo_t {		/* __env_region_attach IN parameters. */
 #define	REGION_TRACKED		0x10	/* Region private memory is tracked. */
 	uint32 flags;
 };
-/*
- * R_ADDR	Return a per-process address for a shared region offset.
- * R_OFFSET	Return a shared region offset for a per-process address.
- */
-#define	R_ADDR(reginfop, offset) ((F_ISSET((reginfop)->env, ENV_PRIVATE) ? ROFF_TO_P(offset) : (void *)((uint8 *)((reginfop)->addr) + (offset))))
-#define	R_OFFSET(reginfop, p)    ((F_ISSET((reginfop)->env, ENV_PRIVATE) ? P_TO_ROFF(p) : (roff_t)((uint8 *)(p) - (uint8 *)(reginfop)->addr)))
-/*
- * PANIC_ISSET, PANIC_CHECK:
- *	Check to see if the DB environment is dead.
- */
+
+void * FASTCALL _Dbd_RAdd(const REGINFO * pRegInfo, roff_t offs);
+roff_t FASTCALL _Dbd_ROffset(const REGINFO * pRegInfo, const void * p);
+// 
+// Descr: Return a per-process address for a shared region offset.
+// 
+//#define R_ADDR(reginfop, offset) ((F_ISSET((reginfop)->env, ENV_PRIVATE) ? ROFF_TO_P(offset) : (void *)((uint8 *)((reginfop)->addr) + (offset))))
+#define R_ADDR(reginfop, offset) _Dbd_RAdd(reginfop, offset)
+// 
+// Descr: Return a shared region offset for a per-process address.
+// 
+//#define R_OFFSET(reginfop, p) ((F_ISSET((reginfop)->env, ENV_PRIVATE) ? P_TO_ROFF(p) : (roff_t)((uint8 *)(p) - (uint8 *)(reginfop)->addr)))
+#define R_OFFSET(reginfop, p) _Dbd_ROffset(reginfop, p)
+// 
+// PANIC_ISSET, PANIC_CHECK:
+// Check to see if the DB environment is dead.
+// 
 int FASTCALL _panic_isset(const ENV * pEnv);
 
 //#define PANIC_ISSET(env)          ((env) && (env)->reginfo && ((REGENV *)(env)->reginfo->primary)->panic != 0 && !F_ISSET((env)->dbenv, DB_ENV_NOPANIC))

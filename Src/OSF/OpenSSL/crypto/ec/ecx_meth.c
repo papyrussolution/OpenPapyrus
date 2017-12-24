@@ -240,8 +240,7 @@ static int ecx_key_print(BIO * bp, const EVP_PKEY * pkey, int indent, ASN1_PCTX 
 	return 1;
 }
 
-static int ecx_priv_print(BIO * bp, const EVP_PKEY * pkey, int indent,
-    ASN1_PCTX * ctx)
+static int ecx_priv_print(BIO * bp, const EVP_PKEY * pkey, int indent, ASN1_PCTX * ctx)
 {
 	return ecx_key_print(bp, pkey, indent, ctx, X25519_PRIVATE);
 }

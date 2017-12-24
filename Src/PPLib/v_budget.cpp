@@ -372,7 +372,6 @@ public:
 		PPLoadString(PPSTR_TEXT, PPTXT_BUDGSCEN, BudgTitle);
 		setTitle(BudgTitle);
 	}
-
 	int setDTS(const PPBudgetPacket *);
 	int getDTS(PPBudgetPacket *);
 private:
@@ -381,7 +380,7 @@ private:
 	virtual int editItem(long, long);
 	virtual int setupList();
 
-	SString        BudgTitle;
+	SString BudgTitle;
 	PPBudgetPacket Data;
 };
 

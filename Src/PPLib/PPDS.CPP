@@ -337,19 +337,19 @@ int SLAPI PPDeclStruc::WriteDataToStream(FILE * stream, void * extraPtr)
 	return Helper_WriteDataToStream(stream, 1, 1, extraPtr);
 }
 
-static void SLAPI WriteIndent(FILE * stream, int level)
+static void FASTCALL WriteIndent(FILE * stream, int level)
 {
 	for(int l = 0; l < level; l++)
 		fputc('\t', stream);
 }
 
-static void SLAPI WriteBrace(FILE * stream, int isOpen)
+static void FASTCALL WriteBrace(FILE * stream, int isOpen)
 {
 	fputc(isOpen ? '{' : '}', stream);
 	fputc('\n', stream);
 }
 
-static void SLAPI WriteEqSign(FILE * stream)
+static void FASTCALL WriteEqSign(FILE * stream)
 {
 	//fputc(' ', stream);
 	fputc('=', stream);

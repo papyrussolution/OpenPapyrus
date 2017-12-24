@@ -3322,11 +3322,6 @@ void SPaintObj::Destroy()
 	H = 0;
 }
 
-int SPaintObj::GetId() const
-	{ return Id; }
-int SPaintObj::GetType() const
-	{ return T; }
-
 SPaintObj::Pen * SPaintObj::GetPen() const
 {
 	return (T == tPen && F & fInner) ? (SPaintObj::Pen *)H : 0;

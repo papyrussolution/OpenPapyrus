@@ -35,7 +35,7 @@ int TIFFFlush(TIFF* tif)
 		return 1;
 
 	if(!TIFFFlushData(tif))
-		return (0);
+		return 0;
 
 	/* In update (r+) mode we try to detect the case where
 	   only the strip/tile map has been altered, and we try to
@@ -75,7 +75,7 @@ int TIFFFlush(TIFF* tif)
 
 	if((tif->tif_flags & (TIFF_DIRTYDIRECT|TIFF_DIRTYSTRIP))
 	    && !TIFFRewriteDirectory(tif))
-		return (0);
+		return 0;
 
 	return (1);
 }
@@ -96,7 +96,7 @@ int TIFFFlushData(TIFF* tif)
 	if(tif->tif_flags & TIFF_POSTENCODE) {
 		tif->tif_flags &= ~TIFF_POSTENCODE;
 		if(!(*tif->tif_postencode)(tif))
-			return (0);
+			return 0;
 	}
 	return (TIFFFlushData1(tif));
 }

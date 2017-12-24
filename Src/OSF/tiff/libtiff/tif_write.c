@@ -530,7 +530,7 @@ int TIFFSetupStrips(TIFF* tif)
 	td->td_stripbytecount = (uint64*)
 	    SAlloc::M(td->td_nstrips * sizeof(uint64));
 	if(td->td_stripoffset == NULL || td->td_stripbytecount == NULL)
-		return (0);
+		return 0;
 	/*
 	 * Place data at the end-of-file
 	 * (by setting offsets to zero).
@@ -554,13 +554,13 @@ int TIFFWriteCheck(TIFF* tif, int tiles, const char* module)
 {
 	if(tif->tif_mode == O_RDONLY) {
 		TIFFErrorExt(tif->tif_clientdata, module, "File not open for writing");
-		return (0);
+		return 0;
 	}
 	if(tiles ^ isTiled(tif)) {
 		TIFFErrorExt(tif->tif_clientdata, module, tiles ?
 		    "Can not write tiles to a stripped image" :
 		    "Can not write scanlines to a tiled image");
-		return (0);
+		return 0;
 	}
 
 	_TIFFFillStriles(tif);
@@ -578,7 +578,7 @@ int TIFFWriteCheck(TIFF* tif, int tiles, const char* module)
 	if(!TIFFFieldSet(tif, FIELD_IMAGEDIMENSIONS)) {
 		TIFFErrorExt(tif->tif_clientdata, module,
 		    "Must set \"ImageWidth\" before writing data");
-		return (0);
+		return 0;
 	}
 	if(tif->tif_dir.td_samplesperpixel == 1) {
 		/*
@@ -594,25 +594,25 @@ int TIFFWriteCheck(TIFF* tif, int tiles, const char* module)
 		if(!TIFFFieldSet(tif, FIELD_PLANARCONFIG)) {
 			TIFFErrorExt(tif->tif_clientdata, module,
 			    "Must set \"PlanarConfiguration\" before writing data");
-			return (0);
+			return 0;
 		}
 	}
 	if(tif->tif_dir.td_stripoffset == NULL && !TIFFSetupStrips(tif)) {
 		tif->tif_dir.td_nstrips = 0;
 		TIFFErrorExt(tif->tif_clientdata, module, "No space for %s arrays",
 		    isTiled(tif) ? "tile" : "strip");
-		return (0);
+		return 0;
 	}
 	if(isTiled(tif)) {
 		tif->tif_tilesize = TIFFTileSize(tif);
 		if(tif->tif_tilesize == 0)
-			return (0);
+			return 0;
 	}
 	else
 		tif->tif_tilesize = (tmsize_t)(-1);
 	tif->tif_scanlinesize = TIFFScanlineSize(tif);
 	if(tif->tif_scanlinesize == 0)
-		return (0);
+		return 0;
 	tif->tif_flags |= TIFF_BEENWRITING;
 	return (1);
 }
@@ -645,7 +645,7 @@ int TIFFWriteBufferSetup(TIFF* tif, void* bp, tmsize_t size)
 		bp = SAlloc::M(size);
 		if(bp == NULL) {
 			TIFFErrorExt(tif->tif_clientdata, module, "No space for output buffer");
-			return (0);
+			return 0;
 		}
 		tif->tif_flags |= TIFF_MYBUFFER;
 	}
@@ -676,7 +676,7 @@ static int TIFFGrowStrips(TIFF* tif, uint32 delta, const char* module)
 		SAlloc::F(new_stripbytecount);
 		td->td_nstrips = 0;
 		TIFFErrorExt(tif->tif_clientdata, module, "No space to expand strip arrays");
-		return (0);
+		return 0;
 	}
 	td->td_stripoffset = new_stripoffset;
 	td->td_stripbytecount = new_stripbytecount;
@@ -714,7 +714,7 @@ static int TIFFAppendToStrip(TIFF* tif, uint32 strip, uint8* data, tmsize_t cc)
 				TIFFErrorExt(tif->tif_clientdata, module,
 				    "Seek error at scanline %lu",
 				    (unsigned long)tif->tif_row);
-				return (0);
+				return 0;
 			}
 		}
 		else {
@@ -740,12 +740,12 @@ static int TIFFAppendToStrip(TIFF* tif, uint32 strip, uint8* data, tmsize_t cc)
 		m = (uint32)m;
 	if((m<tif->tif_curoff)||(m<(uint64)cc)) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Maximum TIFF file size exceeded");
-		return (0);
+		return 0;
 	}
 	if(!WriteOK(tif, data, cc)) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Write error at scanline %lu",
 		    (unsigned long)tif->tif_row);
-		return (0);
+		return 0;
 	}
 	tif->tif_curoff = m;
 	td->td_stripbytecount[strip] += cc;
@@ -776,7 +776,7 @@ int TIFFFlushData1(TIFF* tif)
 			/* function */
 			tif->tif_rawcc = 0;
 			tif->tif_rawcp = tif->tif_rawdata;
-			return (0);
+			return 0;
 		}
 		tif->tif_rawcc = 0;
 		tif->tif_rawcp = tif->tif_rawdata;

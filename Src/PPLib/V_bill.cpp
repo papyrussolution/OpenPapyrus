@@ -8,16 +8,12 @@
 //
 //
 //
-SLAPI BillFilt::FiltExtraParam::FiltExtraParam(long setupValues, BrowseBillsType bbt)
+SLAPI BillFilt::FiltExtraParam::FiltExtraParam(long setupValues, BrowseBillsType bbt) : SetupValues(setupValues), Bbt(bbt)
 {
-	SetupValues = setupValues;
-	Bbt = bbt;
 }
 
-IMPLEMENT_PPFILT_FACTORY(Bill); SLAPI BillFilt::BillFilt() : PPBaseFilt(PPFILT_BILL, 0, 3) // @v8.2.9 ver 2-->3
+IMPLEMENT_PPFILT_FACTORY(Bill); SLAPI BillFilt::BillFilt() : PPBaseFilt(PPFILT_BILL, 0, 3), P_SjF(0), P_TagF(0) // @v8.2.9 ver 2-->3
 {
-	P_SjF  = 0;
-	P_TagF = 0;
 	SetFlatChunk(offsetof(BillFilt, ReserveStart),
 		offsetof(BillFilt, ReserveEnd)-offsetof(BillFilt, ReserveStart)+sizeof(ReserveEnd));
 	SetBranchObjIdListFilt(offsetof(BillFilt, List));
@@ -34,10 +30,8 @@ int SLAPI BillFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	if(ver == 2) {
 		class BillFilt_v2 : public PPBaseFilt {
 		public:
-			SLAPI  BillFilt_v2() : PPBaseFilt(PPFILT_BILL, 0, 2)
+			SLAPI  BillFilt_v2() : PPBaseFilt(PPFILT_BILL, 0, 2), P_SjF(0), P_TagF(0)
 			{
-				P_SjF  = 0;
-				P_TagF = 0;
 				SetFlatChunk(offsetof(BillFilt, ReserveStart),
 					offsetof(BillFilt, ReserveEnd)-offsetof(BillFilt, ReserveStart)+sizeof(ReserveEnd));
 				SetBranchObjIdListFilt(offsetof(BillFilt, List));
@@ -143,43 +137,43 @@ int SLAPI BillFilt::Describe(long flags, SString & rBuf) const
 	long   id = 1;
 	SString buf;
 	StrAssocArray flag_list;
-	PutObjMembToBuf(PPOBJ_ACCSHEET,    AccSheetID, STRINGIZING(AccSheetID),  rBuf);
-	PutObjMembToBuf(PPOBJ_PERSON,      MainOrgID,  STRINGIZING(MainOrgID),   rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,     ObjectID,   STRINGIZING(ObjectID),    rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,     Object2ID,  STRINGIZING(Object2ID),   rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,     PayerID,    STRINGIZING(PayerID),     rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,     AgentID,    STRINGIZING(AgentID),     rBuf);
-	PutObjMembToBuf(PPOBJ_USR,         CreatorID,  STRINGIZING(CreatorID),   rBuf);
-	PutObjMembToBuf(PPOBJ_OPRKIND,     OpID,       STRINGIZING(OpID),        rBuf);
-	PutObjMembToBuf(PPOBJ_BILL,        PoolBillID, STRINGIZING(PoolOpID),    rBuf);
-	PutObjMembToBuf(PPOBJ_CURRENCY,    CurID,      STRINGIZING(CurID),       rBuf);
-	PutObjMembToBuf(PPOBJ_STATUS,      StatusID,   STRINGIZING(StatusID),    rBuf);
+	PutObjMembToBuf(PPOBJ_ACCSHEET,    AccSheetID, STRINGIZE(AccSheetID),  rBuf);
+	PutObjMembToBuf(PPOBJ_PERSON,      MainOrgID,  STRINGIZE(MainOrgID),   rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,     ObjectID,   STRINGIZE(ObjectID),    rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,     Object2ID,  STRINGIZE(Object2ID),   rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,     PayerID,    STRINGIZE(PayerID),     rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,     AgentID,    STRINGIZE(AgentID),     rBuf);
+	PutObjMembToBuf(PPOBJ_USR,         CreatorID,  STRINGIZE(CreatorID),   rBuf);
+	PutObjMembToBuf(PPOBJ_OPRKIND,     OpID,       STRINGIZE(OpID),        rBuf);
+	PutObjMembToBuf(PPOBJ_BILL,        PoolBillID, STRINGIZE(PoolOpID),    rBuf);
+	PutObjMembToBuf(PPOBJ_CURRENCY,    CurID,      STRINGIZE(CurID),       rBuf);
+	PutObjMembToBuf(PPOBJ_STATUS,      StatusID,   STRINGIZE(StatusID),    rBuf);
 
-	PutMembToBuf(&Period,              STRINGIZING(Period),     rBuf);
-	PutMembToBuf(&PaymPeriod,          STRINGIZING(PaymPeriod), rBuf);
-	PutMembToBuf(&DuePeriod,           STRINGIZING(DuePeriod),  rBuf);
-	PutMembToBuf((long)Ft_STax,        STRINGIZING(Ft_STax),   rBuf);
-	PutMembToBuf((long)Ft_ClosedOrder, STRINGIZING(Ft_ClosedOrder),       rBuf);
+	PutMembToBuf(&Period,              STRINGIZE(Period),     rBuf);
+	PutMembToBuf(&PaymPeriod,          STRINGIZE(PaymPeriod), rBuf);
+	PutMembToBuf(&DuePeriod,           STRINGIZE(DuePeriod),  rBuf);
+	PutMembToBuf((long)Ft_STax,        STRINGIZE(Ft_STax),   rBuf);
+	PutMembToBuf((long)Ft_ClosedOrder, STRINGIZE(Ft_ClosedOrder),       rBuf);
 
 	if(DenyFlags & fDenyAdd)
-		flag_list.Add(id++, STRINGIZING(fDenyAdd));
+		flag_list.Add(id++, STRINGIZE(fDenyAdd));
 	if(DenyFlags & fDenyUpdate)
-		flag_list.Add(id++, STRINGIZING(fDenyAdd));
+		flag_list.Add(id++, STRINGIZE(fDenyAdd));
 	if(DenyFlags & fDenyRemove)
-		flag_list.Add(id++, STRINGIZING(fDenyAdd));
-	PutFlagsMembToBuf(&flag_list, STRINGIZING(DenyFlags), rBuf);
+		flag_list.Add(id++, STRINGIZE(fDenyAdd));
+	PutFlagsMembToBuf(&flag_list, STRINGIZE(DenyFlags), rBuf);
 
 	if(ClientCardMode == ccmDebts)
-		PutMembToBuf(STRINGIZING(ccmDebts),     STRINGIZING(ClientCardMode), rBuf);
+		PutMembToBuf(STRINGIZE(ccmDebts),     STRINGIZE(ClientCardMode), rBuf);
 	else if(ClientCardMode == ccmRPayments)
-		PutMembToBuf(STRINGIZING(ccmRPayments), STRINGIZING(ClientCardMode), rBuf);
+		PutMembToBuf(STRINGIZE(ccmRPayments), STRINGIZE(ClientCardMode), rBuf);
 	if(SortOrder == ordByObject)
-		PutMembToBuf(STRINGIZING(ordByObject),  STRINGIZING(SortOrder), rBuf);
+		PutMembToBuf(STRINGIZE(ordByObject),  STRINGIZE(SortOrder), rBuf);
 	else if(SortOrder == ordByCode)
-		PutMembToBuf(STRINGIZING(ordByCode),    STRINGIZING(SortOrder), rBuf);
+		PutMembToBuf(STRINGIZE(ordByCode),    STRINGIZE(SortOrder), rBuf);
 	else
-		PutMembToBuf(STRINGIZING(ordByDate),    STRINGIZING(SortOrder), rBuf);
-	PutMembToBuf(&AmtRange, STRINGIZING(AmtRange), rBuf);
+		PutMembToBuf(STRINGIZE(ordByDate),    STRINGIZE(SortOrder), rBuf);
+	PutMembToBuf(&AmtRange, STRINGIZE(AmtRange), rBuf);
 	{
 		buf.Z();
 #define __BBT(f) case f: buf = #f; break
@@ -197,9 +191,9 @@ int SLAPI BillFilt::Describe(long flags, SString & rBuf) const
 			__BBT(bbtWmsBills);
 		}
 #undef __BBT
-		PutMembToBuf((const char*)buf,  STRINGIZING(Bbt),  rBuf);
+		PutMembToBuf(buf,  STRINGIZE(Bbt),  rBuf);
 	}
-	PutObjMembListToBuf(PPOBJ_LOCATION, &LocList,   STRINGIZING(LocList),   rBuf);
+	PutObjMembListToBuf(PPOBJ_LOCATION, &LocList,   STRINGIZE(LocList),   rBuf);
 	{
 		id = 1;
 		flag_list.Clear();
@@ -227,7 +221,7 @@ int SLAPI BillFilt::Describe(long flags, SString & rBuf) const
 		__ADD_FLAG(fWmsOnly);
 		__ADD_FLAG(fUnshippedOnly);
 #undef __ADD_FLAG
-		PutFlagsMembToBuf(&flag_list, STRINGIZING(Flags), rBuf);
+		PutFlagsMembToBuf(&flag_list, STRINGIZE(Flags), rBuf);
 	}
 	return 1;
 }
@@ -4522,13 +4516,11 @@ int SLAPI PPViewBill::ViewTotal()
 	class BillTotalDialog : public AmtListDialog {
 	public:
 		BillTotalDialog(uint resID, uint listCtlId, BillTotal * pTotal, PPViewBill * pV) :
-			AmtListDialog(resID, listCtlId, 1, &pTotal->Amounts, 0, 0, 0)
+			AmtListDialog(resID, listCtlId, 1, &pTotal->Amounts, 0, 0, 0), P_Total(pTotal), P_V(pV)
 		{
-			P_Total = pTotal;
 			setCtrlLong(CTL_BILLTOTAL2_COUNT, pTotal->Count);
 			setCtrlReal(CTL_BILLTOTAL2_SUM,   pTotal->Sum);
 			setCtrlReal(CTL_BILLTOTAL2_DEBT,  pTotal->Debt);
-			P_V = pV;
 		}
 	protected:
 		DECL_HANDLE_EVENT
@@ -4684,7 +4676,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 					PPEgaisProcessor::SendBillsParam sbp;
 					sbp.IdList = bill_id_list;
 					sbp.LocID = (single_loc_id > 0) ? single_loc_id : Filt.LocList.GetSingle();
-					TSArray <PPEgaisProcessor::UtmEntry> utm_list;
+					TSVector <PPEgaisProcessor::UtmEntry> utm_list; // @v9.8.11 TSArray-->TSVector
 					THROW(ep.GetUtmList(sbp.LocID, utm_list));
 					for(uint i = 0; i < utm_list.getCount(); i++) {
 						ep.SetUtmEntry(sbp.LocID, &utm_list.at(i), &sbp.Period);
@@ -5417,10 +5409,8 @@ int SLAPI PPViewBill::GetPacket(PPID billID, PPBillPacket * pPack) const
 // Descr: Блок данных для печати специальной информации по списку документов
 //
 struct BillInfoListPrintData {
-	BillInfoListPrintData(PPViewBill * pV, PPBillPacket * pPack)
+	BillInfoListPrintData(PPViewBill * pV, PPBillPacket * pPack) : P_V(pV), P_Pack(pPack)
 	{
-		P_V = pV;
-		P_Pack = pPack;
 	}
 	PPViewBill * P_V;
 	PPBillPacket * P_Pack;
@@ -5528,11 +5518,12 @@ int SLAPI PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPV
 {
 	int    ok = -1, update = 0;
 	if(pEv) {
-		if(kind == PPAdviseBlock::evBillChanged)
+		if(kind == PPAdviseBlock::evBillChanged) {
 			if(pEv->IsFinish() && UpdateBillList.getCount())
 				update = 1;
 			else
 				UpdateBillList.add(pEv->ObjID);
+		}
 		ok = 1;
 	}
 	if(ok > 0 && update && pBrw) {
@@ -8718,7 +8709,7 @@ PPALDD_DESTRUCTOR(UhttDraftTransitGoodsRestList)
 
 int PPALDD_UhttDraftTransitGoodsRestList::InitData(PPFilt & rFilt, long rsrv)
 {
-	TSArray <UhttGoodsRestVal> * p_list = (TSArray <UhttGoodsRestVal> *)rFilt.Ptr;
+	TSVector <UhttGoodsRestVal> * p_list = (TSVector <UhttGoodsRestVal> *)rFilt.Ptr; // @v9.8.11 TSArray-->TSVector
 	Extra[0].Ptr = p_list;
 	return DlRtm::InitData(rFilt, rsrv);
 }
@@ -8726,7 +8717,7 @@ int PPALDD_UhttDraftTransitGoodsRestList::InitData(PPFilt & rFilt, long rsrv)
 int PPALDD_UhttDraftTransitGoodsRestList::InitIteration(long iterId, int sortId, long rsrv)
 {
 	IterProlog(iterId, 1);
-	TSArray <UhttGoodsRestVal> * p_list = (TSArray <UhttGoodsRestVal> *)Extra[0].Ptr;
+	TSVector <UhttGoodsRestVal> * p_list = (TSVector <UhttGoodsRestVal> *)Extra[0].Ptr; // @v9.8.11 TSArray-->TSVector
 	CALLPTRMEMB(p_list, setPointer(0));
 	return -1;
 }
@@ -8735,7 +8726,7 @@ int PPALDD_UhttDraftTransitGoodsRestList::NextIteration(long iterId)
 {
 	int    ok = -1;
 	IterProlog(iterId, 0);
-	TSArray <UhttGoodsRestVal> * p_list = (TSArray <UhttGoodsRestVal> *)Extra[0].Ptr;
+	TSVector <UhttGoodsRestVal> * p_list = (TSVector <UhttGoodsRestVal> *)Extra[0].Ptr; // @v9.8.11 TSArray-->TSVector
 	if(p_list && (p_list->getPointer() < p_list->getCount())) {
 		UhttGoodsRestVal & r_gr_val = p_list->at(p_list->getPointer());
 		I.GoodsID = r_gr_val.GoodsID;

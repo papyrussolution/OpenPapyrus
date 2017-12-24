@@ -1157,9 +1157,8 @@ int PrcCtrlGroup::getData(TDialog * pDlg, void * pData)
 //
 class ProcessorDialog : public TDialog {
 public:
-	ProcessorDialog(uint dlgID) : TDialog(dlgID)
+	ProcessorDialog(uint dlgID) : TDialog(dlgID), InheritedFlags(0)
 	{
-		InheritedFlags = 0;
 	}
 	int    setDTS(const PPProcessorPacket *);
 	int    getDTS(PPProcessorPacket *);

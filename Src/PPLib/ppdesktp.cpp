@@ -3,6 +3,9 @@
 //
 #include <pp.h>
 #pragma hdrstop
+
+#define max MAX // @v9.8.11
+#define min MIN // @v9.8.11
 #include <gdiplus.h>
 using namespace Gdiplus;
 
@@ -32,7 +35,7 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 	rBlk.Flags = 0;
 	rBlk.AddedIntVal = 0;
 	rBlk.LenRange = 0;
-	rBlk.AddedStrVal = 0;
+	rBlk.AddedStrVal.Z();
 	rBlk.Key.Clear();
 
 	SString temp_buf;
@@ -40,9 +43,7 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 	do {
 		scan.Skip();
 		if(scan.Get("@scard", temp_buf) || scan.Get("@card", temp_buf)) {
-			if(!rBlk.Type) {
-				rBlk.Type = cbSCardCode;
-			}
+			SETIFZ(rBlk.Type, cbSCardCode);
 		}
 		else if(scan.Get("@reg", temp_buf)) {
 			if(!rBlk.Type) {
@@ -66,9 +67,7 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 			}
 		}
 		else if(scan.Get("@barcode", temp_buf)) {
-			if(!rBlk.Type) {
-				rBlk.Type = cbGoodsBarcode;
-			}
+			SETIFZ(rBlk.Type, cbGoodsBarcode);
 		}
 		else if(scan[0] == '[') {
 			scan.Incr();
@@ -84,10 +83,8 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 			if(rBlk.LenRange.IsZero()) {
 				double low = 0.0, upp = 0.0;
 				strtorrng(temp_buf, &low, &upp);
-				if(low < 0.0)
-					low = 0.0;
-				if(upp < 0.0)
-					upp = 0.0;
+				SETMAX(low, 0.0);
+				SETMAX(upp, 0.0);
 				if(low > upp)
 					Exchange(&low, &upp);
 				rBlk.LenRange.low = (int)low;
@@ -112,9 +109,7 @@ int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 		else {
 			uint klen = 0;
 			if(rBlk.Key.SetKeyName(scan, &klen) > 0) {
-				if(!rBlk.Type) {
-					rBlk.Type = cbKey;
-				}
+				SETIFZ(rBlk.Type, cbKey);
 				scan.Incr(klen);
 			}
 			else
@@ -1362,9 +1357,8 @@ int PPDesktop::WaitCommand()
 {
 	class WaitCmdDialog : public TDialog {
 	public:
-		WaitCmdDialog(long desktopID) : TDialog(DLG_WAITCMD)
+		WaitCmdDialog(long desktopID) : TDialog(DLG_WAITCMD), __Locking(0)
 		{
-			__Locking = 0;
 			if(desktopID)
 				AssocList.ReadFromProp(desktopID);
 			CommAssocList.ReadFromProp(0L);

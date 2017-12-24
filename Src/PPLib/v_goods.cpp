@@ -268,53 +268,53 @@ int SLAPI GoodsFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 // virtual
 int SLAPI GoodsFilt::Describe(long flags, SString & rBuf) const
 {
-	PutObjMembToBuf(PPOBJ_PERSON,     BrandOwnerID,   STRINGIZING(BrandOwnerID),   rBuf);
-	PutObjMembToBuf(PPOBJ_UNIT,       UnitID,         STRINGIZING(UnitID),         rBuf);
-	PutObjMembToBuf(PPOBJ_UNIT,       PhUnitID,       STRINGIZING(PhUnitID),       rBuf);
-	PutObjMembToBuf(PPOBJ_WORLD,      ManufCountryID, STRINGIZING(ManufCountryID), rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,    SupplID,        STRINGIZING(SupplID),        rBuf);
-	PutObjMembToBuf(PPOBJ_GOODSTYPE,  GoodsTypeID,    STRINGIZING(GoodsTypeID),    rBuf);
-	PutObjMembToBuf(PPOBJ_GOODSTAX,   TaxGrpID,       STRINGIZING(TaxGrpID),       rBuf);
-	PutMembToBuf(&LotPeriod, STRINGIZING(LotPeriod),    rBuf);
-	PutMembToBuf(VatRate,    STRINGIZING(VatRate),   rBuf);
-	PutMembToBuf(VatDate,    STRINGIZING(VatDate),   rBuf);
-	PutMembToBuf((const char*)SrchStr_, STRINGIZING(SrchStr_), rBuf);
-	PutMembToBuf((const char*)BarcodeLen, STRINGIZING(BarcodeLen), rBuf);
-	PutObjMembListToBuf(PPOBJ_GOODSGROUP, &GrpIDList, STRINGIZING(GrpIDList), rBuf);
-	PutObjMembListToBuf(PPOBJ_PERSON,     &ManufList, STRINGIZING(ManufList), rBuf);
-	PutObjMembListToBuf(PPOBJ_LOCATION,   &LocList,   STRINGIZING(LocList),   rBuf);
-	PutObjMembListToBuf(PPOBJ_BRAND,      &BrandList, STRINGIZING(BrandList), rBuf);
+	PutObjMembToBuf(PPOBJ_PERSON,     BrandOwnerID,   STRINGIZE(BrandOwnerID),   rBuf);
+	PutObjMembToBuf(PPOBJ_UNIT,       UnitID,         STRINGIZE(UnitID),         rBuf);
+	PutObjMembToBuf(PPOBJ_UNIT,       PhUnitID,       STRINGIZE(PhUnitID),       rBuf);
+	PutObjMembToBuf(PPOBJ_WORLD,      ManufCountryID, STRINGIZE(ManufCountryID), rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,    SupplID,        STRINGIZE(SupplID),        rBuf);
+	PutObjMembToBuf(PPOBJ_GOODSTYPE,  GoodsTypeID,    STRINGIZE(GoodsTypeID),    rBuf);
+	PutObjMembToBuf(PPOBJ_GOODSTAX,   TaxGrpID,       STRINGIZE(TaxGrpID),       rBuf);
+	PutMembToBuf(&LotPeriod, STRINGIZE(LotPeriod),    rBuf);
+	PutMembToBuf(VatRate,    STRINGIZE(VatRate),   rBuf);
+	PutMembToBuf(VatDate,    STRINGIZE(VatDate),   rBuf);
+	PutMembToBuf(SrchStr_, STRINGIZE(SrchStr_), rBuf);
+	PutMembToBuf(BarcodeLen, STRINGIZE(BarcodeLen), rBuf);
+	PutObjMembListToBuf(PPOBJ_GOODSGROUP, &GrpIDList, STRINGIZE(GrpIDList), rBuf);
+	PutObjMembListToBuf(PPOBJ_PERSON,     &ManufList, STRINGIZE(ManufList), rBuf);
+	PutObjMembListToBuf(PPOBJ_LOCATION,   &LocList,   STRINGIZE(LocList),   rBuf);
+	PutObjMembListToBuf(PPOBJ_BRAND,      &BrandList, STRINGIZE(BrandList), rBuf);
 	{
 		long id = 1;
 		StrAssocArray flag_list;
-		if(Flags & fUseGrpList)            flag_list.Add(id++, STRINGIZING(fUseGrpList));
-		if(Flags & fUseUnitMask)           flag_list.Add(id++, STRINGIZING(fIntUnitOnly));
-		if(Flags & fIntUnitOnly)           flag_list.Add(id++, STRINGIZING(fIntUnitOnly));
-		if(Flags & fFloatUnitOnly)         flag_list.Add(id++, STRINGIZING(fFloatUnitOnly));
-		if(Flags & fNegation)              flag_list.Add(id++, STRINGIZING(fNegation));
-		if(Flags & fGenGoods)              flag_list.Add(id++, STRINGIZING(fGenGoods));
-		if(Flags & fGroupGenGoods)         flag_list.Add(id++, STRINGIZING(fGroupGenGoods));
-		if(Flags & fUndefType)             flag_list.Add(id++, STRINGIZING(fUndefType));
-		if(Flags & fNewLots)               flag_list.Add(id++, STRINGIZING(fNewLots));
-		if(Flags & fExcludeAsset)          flag_list.Add(id++, STRINGIZING(fExcludeAsset));
-		if(Flags & fIncludeIntr)           flag_list.Add(id++, STRINGIZING(fIncludeIntr));
-		if(Flags & fShowBarcode)           flag_list.Add(id++, STRINGIZING(fShowBarcode));
-		if(Flags & fShowCargo)             flag_list.Add(id++, STRINGIZING(fShowCargo));
-		if(Flags & fHidePassive)           flag_list.Add(id++, STRINGIZING(fHidePassive));
-		if(Flags & fPassiveOnly)           flag_list.Add(id++, STRINGIZING(fPassiveOnly));
-		if(Flags & fGenGoodsOnly)          flag_list.Add(id++, STRINGIZING(fGenGoodsOnly));
-		if(Flags & fWOTaxGdsOnly)          flag_list.Add(id++, STRINGIZING(fWOTaxGdsOnly));
-		if(Flags & fNoZeroRestOnLotPeriod) flag_list.Add(id++, STRINGIZING(fNoZeroRestOnLotPeriod));
-		if(Flags & fNoDisOnly)             flag_list.Add(id++, STRINGIZING(fNoDisOnly));
-		if(Flags & fShowStrucType)         flag_list.Add(id++, STRINGIZING(fShowStrucType));
-		if(Flags & fNotUseViewOptions)     flag_list.Add(id++, STRINGIZING(fNotUseViewOptions));
-		if(Flags & fShowGoodsWOStruc)      flag_list.Add(id++, STRINGIZING(fShowGoodsWOStruc));
-		if(Flags & fWoTaxGrp)              flag_list.Add(id++, STRINGIZING(fWoTaxGrp));
-		if(Flags & fRestrictByMatrix)      flag_list.Add(id++, STRINGIZING(fRestrictByMatrix));
-		if(Flags & fShowArCode)            flag_list.Add(id++, STRINGIZING(fShowArCode));
-		if(Flags & fShowOwnArCode)         flag_list.Add(id++, STRINGIZING(fShowOwnArCode));
-		if(Flags & fShowWoArCode)          flag_list.Add(id++, STRINGIZING(fShowWoArCode));
-		PutFlagsMembToBuf(&flag_list, STRINGIZING(Flags), rBuf);
+		if(Flags & fUseGrpList)            flag_list.Add(id++, STRINGIZE(fUseGrpList));
+		if(Flags & fUseUnitMask)           flag_list.Add(id++, STRINGIZE(fIntUnitOnly));
+		if(Flags & fIntUnitOnly)           flag_list.Add(id++, STRINGIZE(fIntUnitOnly));
+		if(Flags & fFloatUnitOnly)         flag_list.Add(id++, STRINGIZE(fFloatUnitOnly));
+		if(Flags & fNegation)              flag_list.Add(id++, STRINGIZE(fNegation));
+		if(Flags & fGenGoods)              flag_list.Add(id++, STRINGIZE(fGenGoods));
+		if(Flags & fGroupGenGoods)         flag_list.Add(id++, STRINGIZE(fGroupGenGoods));
+		if(Flags & fUndefType)             flag_list.Add(id++, STRINGIZE(fUndefType));
+		if(Flags & fNewLots)               flag_list.Add(id++, STRINGIZE(fNewLots));
+		if(Flags & fExcludeAsset)          flag_list.Add(id++, STRINGIZE(fExcludeAsset));
+		if(Flags & fIncludeIntr)           flag_list.Add(id++, STRINGIZE(fIncludeIntr));
+		if(Flags & fShowBarcode)           flag_list.Add(id++, STRINGIZE(fShowBarcode));
+		if(Flags & fShowCargo)             flag_list.Add(id++, STRINGIZE(fShowCargo));
+		if(Flags & fHidePassive)           flag_list.Add(id++, STRINGIZE(fHidePassive));
+		if(Flags & fPassiveOnly)           flag_list.Add(id++, STRINGIZE(fPassiveOnly));
+		if(Flags & fGenGoodsOnly)          flag_list.Add(id++, STRINGIZE(fGenGoodsOnly));
+		if(Flags & fWOTaxGdsOnly)          flag_list.Add(id++, STRINGIZE(fWOTaxGdsOnly));
+		if(Flags & fNoZeroRestOnLotPeriod) flag_list.Add(id++, STRINGIZE(fNoZeroRestOnLotPeriod));
+		if(Flags & fNoDisOnly)             flag_list.Add(id++, STRINGIZE(fNoDisOnly));
+		if(Flags & fShowStrucType)         flag_list.Add(id++, STRINGIZE(fShowStrucType));
+		if(Flags & fNotUseViewOptions)     flag_list.Add(id++, STRINGIZE(fNotUseViewOptions));
+		if(Flags & fShowGoodsWOStruc)      flag_list.Add(id++, STRINGIZE(fShowGoodsWOStruc));
+		if(Flags & fWoTaxGrp)              flag_list.Add(id++, STRINGIZE(fWoTaxGrp));
+		if(Flags & fRestrictByMatrix)      flag_list.Add(id++, STRINGIZE(fRestrictByMatrix));
+		if(Flags & fShowArCode)            flag_list.Add(id++, STRINGIZE(fShowArCode));
+		if(Flags & fShowOwnArCode)         flag_list.Add(id++, STRINGIZE(fShowOwnArCode));
+		if(Flags & fShowWoArCode)          flag_list.Add(id++, STRINGIZE(fShowWoArCode));
+		PutFlagsMembToBuf(&flag_list, STRINGIZE(Flags), rBuf);
 	}
 	if(P_SjF)
 		P_SjF->Describe(flags, rBuf);
@@ -1335,7 +1335,7 @@ static int GetStrucTypeString(PPID strucID, SString & rBuf)
 	return ok;
 }
 
-static void SLAPI dbqf_goodsstructype_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_goodsstructype_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {

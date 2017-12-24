@@ -80,7 +80,7 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 
 	if(!tif->tif_decodestatus) {
 		sprintf(emsg, "Sorry, requested compression method is not configured");
-		return (0);
+		return 0;
 	}
 	switch(td->td_bitspersample) {
 		case 1:
@@ -92,11 +92,11 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 		default:
 		    sprintf(emsg, "Sorry, can not handle images with %d-bit samples",
 		    td->td_bitspersample);
-		    return (0);
+		    return 0;
 	}
 	if(td->td_sampleformat == SAMPLEFORMAT_IEEEFP) {
 		sprintf(emsg, "Sorry, can not handle images with IEEE floating-point samples");
-		return (0);
+		return 0;
 	}
 	colorchannels = td->td_samplesperpixel - td->td_extrasamples;
 	if(!TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photometric)) {
@@ -109,7 +109,7 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 			    break;
 			default:
 			    sprintf(emsg, "Missing needed %s tag", photoTag);
-			    return (0);
+			    return 0;
 		}
 	}
 	switch(photometric) {
@@ -125,7 +125,7 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 			    photoTag, photometric,
 			    "Samples/pixel", td->td_samplesperpixel,
 			    td->td_bitspersample);
-			    return (0);
+			    return 0;
 		    }
 		    /*
 		     * We should likely validate that any extra samples are either
@@ -144,7 +144,7 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 		case PHOTOMETRIC_RGB:
 		    if(colorchannels < 3) {
 			    sprintf(emsg, "Sorry, can not handle RGB image with %s=%d", "Color channels", colorchannels);
-			    return (0);
+			    return 0;
 		    }
 		    break;
 		case PHOTOMETRIC_SEPARATED:
@@ -164,7 +164,7 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 		case PHOTOMETRIC_LOGL:
 		    if(td->td_compression != COMPRESSION_SGILOG) {
 			    sprintf(emsg, "Sorry, LogL data must have %s=%d", "Compression", COMPRESSION_SGILOG);
-			    return (0);
+			    return 0;
 		    }
 		    break;
 		case PHOTOMETRIC_LOGLUV:
@@ -172,12 +172,12 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 		    td->td_compression != COMPRESSION_SGILOG24) {
 			    sprintf(emsg, "Sorry, LogLuv data must have %s=%d or %d",
 			    "Compression", COMPRESSION_SGILOG, COMPRESSION_SGILOG24);
-			    return (0);
+			    return 0;
 		    }
 		    if(td->td_planarconfig != PLANARCONFIG_CONTIG) {
 			    sprintf(emsg, "Sorry, can not handle LogLuv images with %s=%d",
 			    "Planarconfiguration", td->td_planarconfig);
-			    return (0);
+			    return 0;
 		    }
 		    if(td->td_samplesperpixel != 3 || colorchannels != 3) {
 			    sprintf(emsg,
@@ -200,7 +200,7 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 		default:
 		    sprintf(emsg, "Sorry, can not handle image with %s=%d",
 		    photoTag, photometric);
-		    return (0);
+		    return 0;
 	}
 	return (1);
 }
@@ -424,7 +424,7 @@ int TIFFRGBAImageBegin(TIFFRGBAImage* img, TIFF* tif, int stop, char emsg[1024])
 		    if(planarconfig != PLANARCONFIG_CONTIG) {
 			    sprintf(emsg, "Sorry, can not handle LogLuv images with %s=%d",
 			    "Planarconfiguration", planarconfig);
-			    return (0);
+			    return 0;
 		    }
 		    TIFFSetField(tif, TIFFTAG_SGILOGDATAFMT, SGILOGDATAFMT_8BIT);
 		    img->photometric = PHOTOMETRIC_RGB;                 /* little white lie */
@@ -465,12 +465,12 @@ int TIFFRGBAImageGet(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 {
 	if(img->get == NULL) {
 		TIFFErrorExt(img->tif->tif_clientdata, TIFFFileName(img->tif), "No \"get\" routine setup");
-		return (0);
+		return 0;
 	}
 	if(img->put.any == NULL) {
 		TIFFErrorExt(img->tif->tif_clientdata, TIFFFileName(img->tif),
 		    "No \"put\" routine setupl; probably can not handle image format");
-		return (0);
+		return 0;
 	}
 	return (*img->get)(img, raster, w, h);
 }
@@ -598,7 +598,7 @@ static int gtTileContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 	bufsize = TIFFTileSize(tif);
 	if(bufsize == 0) {
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif), "%s", "No space for tile buffer");
-		return (0);
+		return 0;
 	}
 
 	TIFFGetField(tif, TIFFTAG_TILEWIDTH, &tw);
@@ -714,7 +714,7 @@ static int gtTileSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h
 	bufsize = TIFFSafeMultiply(tmsize_t, alpha ? 4 : 3, tilesize);
 	if(bufsize == 0) {
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif), "Integer overflow in %s", "gtTileSeparate");
-		return (0);
+		return 0;
 	}
 
 	TIFFGetField(tif, TIFFTAG_TILEWIDTH, &tw);
@@ -874,7 +874,7 @@ static int gtStripContig(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 h)
 	TIFFGetFieldDefaulted(tif, TIFFTAG_YCBCRSUBSAMPLING, &subsamplinghor, &subsamplingver);
 	if(subsamplingver == 0) {
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif), "Invalid vertical YCbCr subsampling");
-		return (0);
+		return 0;
 	}
 
 	maxstripsize = TIFFStripSize(tif);
@@ -964,7 +964,7 @@ static int gtStripSeparate(TIFFRGBAImage* img, uint32* raster, uint32 w, uint32 
 	bufsize = TIFFSafeMultiply(tmsize_t, alpha ? 4 : 3, stripsize);
 	if(bufsize == 0) {
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif), "Integer overflow in %s", "gtStripSeparate");
-		return (0);
+		return 0;
 	}
 
 	flip = setorientation(img);
@@ -2201,7 +2201,7 @@ static int initYCbCrConversion(TIFFRGBAImage* img)
 		img->ycbcr = (TIFFYCbCrToRGB*)SAlloc::M(TIFFroundup_32(sizeof(TIFFYCbCrToRGB), sizeof(long)) + 4*256*sizeof(TIFFRGBValue) + 2*256*sizeof(int) + 3*256*sizeof(int32));
 		if(img->ycbcr == NULL) {
 			TIFFErrorExt(img->tif->tif_clientdata, module, "No space for YCbCr->RGB conversion state");
-			return (0);
+			return 0;
 		}
 	}
 	TIFFGetFieldDefaulted(img->tif, TIFFTAG_YCBCRCOEFFICIENTS, &luma);
@@ -2210,13 +2210,13 @@ static int initYCbCrConversion(TIFFRGBAImage* img)
 	/* and also if lumaGreen is zero since we divide by it later */
 	if(luma[0] != luma[0] || luma[1] != luma[1] || luma[1] == 0.0 || luma[2] != luma[2]) {
 		TIFFErrorExt(img->tif->tif_clientdata, module, "Invalid values for YCbCrCoefficients tag");
-		return (0);
+		return 0;
 	}
 	if(!isInRefBlackWhiteRange(refBlackWhite[0]) || !isInRefBlackWhiteRange(refBlackWhite[1]) ||
 	    !isInRefBlackWhiteRange(refBlackWhite[2]) || !isInRefBlackWhiteRange(refBlackWhite[3]) ||
 	    !isInRefBlackWhiteRange(refBlackWhite[4]) || !isInRefBlackWhiteRange(refBlackWhite[5]) ) {
 		TIFFErrorExt(img->tif->tif_clientdata, module, "Invalid values for ReferenceBlackWhite tag");
-		return (0);
+		return 0;
 	}
 
 	if(TIFFYCbCrToRGBInit(img->ycbcr, luma, refBlackWhite) < 0)
@@ -2274,7 +2274,7 @@ static int makebwmap(TIFFRGBAImage* img)
 	    256*sizeof(uint32 *)+(256*nsamples*sizeof(uint32)));
 	if(img->BWmap == NULL) {
 		TIFFErrorExt(img->tif->tif_clientdata, TIFFFileName(img->tif), "No space for B&W mapping table");
-		return (0);
+		return 0;
 	}
 	p = (uint32*)(img->BWmap + 256);
 	for(i = 0; i < 256; i++) {
@@ -2327,7 +2327,7 @@ static int setupMap(TIFFRGBAImage* img)
 	img->Map = (TIFFRGBValue*)SAlloc::M((range+1) * sizeof(TIFFRGBValue));
 	if(img->Map == NULL) {
 		TIFFErrorExt(img->tif->tif_clientdata, TIFFFileName(img->tif), "No space for photometric conversion table");
-		return (0);
+		return 0;
 	}
 	if(img->photometric == PHOTOMETRIC_MINISWHITE) {
 		for(x = 0; x <= range; x++)
@@ -2343,7 +2343,7 @@ static int setupMap(TIFFRGBAImage* img)
 		 * unpacking tables for samples <= 8 bits.
 		 */
 		if(!makebwmap(img))
-			return (0);
+			return 0;
 		/* no longer need Map, free it */
 		SAlloc::F(img->Map);
 		img->Map = NULL;
@@ -2397,7 +2397,7 @@ static int makecmap(TIFFRGBAImage* img)
 	img->PALmap = (uint32**)SAlloc::M(256*sizeof(uint32 *)+(256*nsamples*sizeof(uint32)));
 	if(img->PALmap == NULL) {
 		TIFFErrorExt(img->tif->tif_clientdata, TIFFFileName(img->tif), "No space for Palette mapping table");
-		return (0);
+		return 0;
 	}
 	p = (uint32*)(img->PALmap + 256);
 	for(i = 0; i < 256; i++) {
@@ -2450,7 +2450,7 @@ static int buildMap(TIFFRGBAImage* img)
 		case PHOTOMETRIC_MINISBLACK:
 		case PHOTOMETRIC_MINISWHITE:
 		    if(!setupMap(img))
-			    return (0);
+			    return 0;
 		    break;
 		case PHOTOMETRIC_PALETTE:
 		    /*
@@ -2466,7 +2466,7 @@ static int buildMap(TIFFRGBAImage* img)
 		     * unpacking tables for samples < 8 bits.
 		     */
 		    if(img->bitspersample <= 8 && !makecmap(img))
-			    return (0);
+			    return 0;
 		    break;
 	}
 	return (1);
@@ -2600,7 +2600,7 @@ static int PickContigCase(TIFFRGBAImage* img)
 			    break;
 		    }
 	}
-	return ((img->get!=NULL) && (img->put.contig!=NULL));
+	return (img->get && img->put.contig);
 }
 
 /*
@@ -2666,7 +2666,7 @@ static int PickSeparateCase(TIFFRGBAImage* img)
 		    }
 		    break;
 	}
-	return ((img->get!=NULL) && (img->put.separate!=NULL));
+	return (img->get && img->put.separate);
 }
 
 static int BuildMapUaToAa(TIFFRGBAImage* img)
@@ -2674,9 +2674,9 @@ static int BuildMapUaToAa(TIFFRGBAImage* img)
 	static const char module[] = "BuildMapUaToAa";
 	uint8* m;
 	uint16 na, nv;
-	assert(img->UaToAa==NULL);
+	assert(img->UaToAa == NULL);
 	img->UaToAa = (uint8*)SAlloc::M(65536);
-	if(img->UaToAa==NULL) {
+	if(!img->UaToAa) {
 		TIFFErrorExt(img->tif->tif_clientdata, module, "Out of memory");
 		return 0;
 	}
@@ -2693,9 +2693,9 @@ static int BuildMapBitdepth16To8(TIFFRGBAImage* img)
 	static const char module[] = "BuildMapBitdepth16To8";
 	uint8* m;
 	uint32 n;
-	assert(img->Bitdepth16To8==NULL);
+	assert(img->Bitdepth16To8 == NULL);
 	img->Bitdepth16To8 = (uint8 *)SAlloc::M(65536);
-	if(img->Bitdepth16To8==NULL) {
+	if(!img->Bitdepth16To8) {
 		TIFFErrorExt(img->tif->tif_clientdata, module, "Out of memory");
 		return 0;
 	}
@@ -2729,14 +2729,14 @@ int TIFFReadRGBAStripExt(TIFF* tif, uint32 row, uint32 * raster, int stop_on_err
 	if(TIFFIsTiled(tif) ) {
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif),
 		    "Can't use TIFFReadRGBAStrip() with tiled file.");
-		return (0);
+		return 0;
 	}
 
 	TIFFGetFieldDefaulted(tif, TIFFTAG_ROWSPERSTRIP, &rowsperstrip);
 	if( (row % rowsperstrip) != 0) {
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif),
 		    "Row passed to TIFFReadRGBAStrip() must be first in a strip.");
-		return (0);
+		return 0;
 	}
 
 	if(TIFFRGBAImageOK(tif, emsg) && TIFFRGBAImageBegin(&img, tif, stop_on_error, emsg)) {
@@ -2789,7 +2789,7 @@ int TIFFReadRGBATileExt(TIFF* tif, uint32 col, uint32 row, uint32 * raster, int 
 	if(!TIFFIsTiled(tif) ) {
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif),
 		    "Can't use TIFFReadRGBATile() with stripped file.");
-		return (0);
+		return 0;
 	}
 
 	TIFFGetFieldDefaulted(tif, TIFFTAG_TILEWIDTH, &tile_xsize);
@@ -2798,7 +2798,7 @@ int TIFFReadRGBATileExt(TIFF* tif, uint32 col, uint32 row, uint32 * raster, int 
 		TIFFErrorExt(tif->tif_clientdata, TIFFFileName(tif),
 		    "Row/col passed to TIFFReadRGBATile() must be top"
 		    "left corner of a tile.");
-		return (0);
+		return 0;
 	}
 
 	/*

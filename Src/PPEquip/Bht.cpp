@@ -1621,7 +1621,7 @@ int SLAPI BhtProtocol::SendDataFile(const char * pFileName, const BhtRecord * pS
 	return ok;
 }
 
-static int SLAPI _StoreDataBlock(size_t dataLen, const char * pBuf, FILE * out)
+static int FASTCALL _StoreDataBlock(size_t dataLen, const char * pBuf, FILE * out)
 {
 	if(out) {
 		for(size_t i = 0; i < dataLen; i++)

@@ -6,6 +6,9 @@
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
+
+#define max MAX // @v9.8.11
+#define min MIN // @v9.8.11
 #include <gdiplus.h>
 
 int SLAPI RunInputProcessThread(PPID posNodeID); // @prototype(PPPosProtocol.cpp)
@@ -288,7 +291,7 @@ int CPosProcessor::Packet::HasCur() const
 	return BIN(CurPos >= 0);
 }
 
-int FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack) const
+void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack) const
 {
 	if(pPack) {
 		// @v8.2.11 {
@@ -314,7 +317,6 @@ int FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack) cons
 			pPack->Ext.StartOrdDtm = Eccd.DlvrDtm;
 		}
 	}
-	return 1;
 }
 
 int CPosProcessor::Packet::SetupInfo(SString & rBuf)
@@ -348,21 +350,6 @@ int CPosProcessor::Packet::SetupInfo(SString & rBuf)
 		rBuf.Cat(word).CatDiv(':', 2).Cat(GetCur().Division);
 	}
 	return 1;
-}
-
-CCheckItem & CPosProcessor::Packet::GetCur()
-{
-	return Cur;
-}
-
-const CCheckItem & CPosProcessor::Packet::GetCurC() const
-{
-	return Cur;
-}
-
-double CPosProcessor::Packet::GetRest() const
-{
-	return Rest;
 }
 
 void CPosProcessor::Packet::SetRest(double rest)
@@ -479,15 +466,10 @@ SLAPI CPosProcessor::PgsBlock::PgsBlock(double qtty) : Qtty((qtty != 0.0) ? qtty
 //
 //
 //
-CPosProcessor::AcceptCheckProcessBlock::AcceptCheckProcessBlock()
+CPosProcessor::AcceptCheckProcessBlock::AcceptCheckProcessBlock() : R(1), SyncPrnErr(0), RExt(1), ExtSyncPrnErr(0), Flags(0)
 {
-	R = 1;
-	SyncPrnErr = 0;
-	RExt = 1;
-	ExtSyncPrnErr = 0;
 	//IsPack = 0;
 	//IsExtPack = 0;
-	Flags = 0;
 	MEMSZERO(LastChkRec);
 }
 //
@@ -526,10 +508,8 @@ CPosProcessor::RetBlock & CPosProcessor::RetBlock::Clear()
 //
 //
 //
-CPosProcessor::CardState::CardState()
+CPosProcessor::CardState::CardState() : P_DisByAmtRule(0), P_Eqb(0)
 {
-	P_DisByAmtRule = 0;
-	P_Eqb = 0;
 	Reset();
 }
 
@@ -740,10 +720,8 @@ int CPosProcessor::ExportCCheckList(long ctblId, SString & rBuf)
 	int    ok = 1;
 	uint   i;
 	SString temp_buf;
-
 	xmlTextWriter * p_writer = 0;
 	xmlBuffer * p_xml_buf = 0;
-
 	TSVector <CCheckViewItem> cc_list;
 	THROW(Backend_GetCCheckList(ctblId, cc_list));
 	//
@@ -955,7 +933,7 @@ int CPosProcessor::ExportModifList(PPID goodsID, SString & rBuf)
 	return ok;
 }
 
-int CPosProcessor::GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & rList)
+void CPosProcessor::GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & rList)
 {
 	rList.clear();
 	CCheckFilt cc_filt;
@@ -964,18 +942,15 @@ int CPosProcessor::GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & r
 	//cc_filt.CashNodeID = CashNodeID;
 	//cc_filt.TableCode = (P_AddParam) ? P_AddParam->TableCode : 0;
 	//cc_filt.AgentID = (P_AddParam) ? P_AddParam->AgentID : 0;
-	if(InitCcView()) {
-		if(P_CcView->Init_(&cc_filt)) {
-			CCheckViewItem item;
-			for(P_CcView->InitIteration(0); P_CcView->NextIteration(&item) > 0;) {
-				if(!(item.Flags & (CCHKF_SKIP|CCHKF_CLOSEDORDER))) {
-					if(!checkdate(lastDate, 0) || item.OrderTime.Start.d == lastDate || item.OrderTime.Finish.d == lastDate)
-						rList.insert(&item);
-				}
+	if(InitCcView() && P_CcView->Init_(&cc_filt)) {
+		CCheckViewItem item;
+		for(P_CcView->InitIteration(0); P_CcView->NextIteration(&item) > 0;) {
+			if(!(item.Flags & (CCHKF_SKIP|CCHKF_CLOSEDORDER))) {
+				if(!checkdate(lastDate, 0) || item.OrderTime.Start.d == lastDate || item.OrderTime.Finish.d == lastDate)
+					rList.insert(&item);
 			}
 		}
 	}
-	return 1;
 }
 //
 //
@@ -1239,11 +1214,6 @@ int CPosProcessor::SetupState(int st)
 	return ok;
 }
 
-int CPosProcessor::GetState() const
-{
-	return State_p;
-}
-
 int FASTCALL CPosProcessor::IsState(int s) const
 {
 	return BIN(State_p == s);
@@ -1294,10 +1264,9 @@ int CPosProcessor::SetupExt(const CCheckPacket * pPack)
 	return 1;
 }
 
-int CPosProcessor::SetupSessUuid(S_GUID & rUuid)
+void CPosProcessor::SetupSessUuid(const S_GUID & rUuid)
 {
 	SessUUID = rUuid;
-	return 1;
 }
 
 int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent)

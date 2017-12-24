@@ -226,7 +226,7 @@ int SLAPI PPPhoneServicePacket::SetExField(int fldId, const char * pBuf)
 	return ok;
 }
 
-#define PHNSVC_PW_SIZE 20
+#define PHNSVC_PW_SIZE 64 // @v9.8.11 20-->64
 
 int SLAPI PPPhoneServicePacket::GetPassword(SString & rBuf) const
 {
@@ -430,7 +430,7 @@ PhnSvcChannelStatus & PhnSvcChannelStatus::Clear()
 	return *this;
 }
 
-PhnSvcChannelStatusPool::PhnSvcChannelStatusPool() : SArray(sizeof(Item_))
+PhnSvcChannelStatusPool::PhnSvcChannelStatusPool() : SVector(sizeof(Item_)) // @v9.8.11 SArray-->SVector
 {
 	Pool.add("$"); // zero index - is empty string
 }
@@ -439,7 +439,7 @@ PhnSvcChannelStatusPool & PhnSvcChannelStatusPool::Clear()
 {
 	Pool.clear();
 	Pool.add("$"); // zero index - is empty string
-	SArray::clear();
+	SVector::clear(); // @v9.8.11 SArray-->SVector
 	return *this;
 }
 
@@ -572,12 +572,10 @@ int AsteriskAmiClient::GetChannelList(const char * pChannelName, PhnSvcChannelSt
 					do_insert = 1;
 					cnl_status.CallerId = temp_buf;
 				}
-				// @v7.8.0 {
 				if(reply.GetTag("ConnectedLineNum", temp_buf)) {
 					do_insert = 1;
 					cnl_status.ConnectedLineNum = temp_buf;
 				}
-				// } @v7.8.0
 				if(do_insert)
 					rList.Add(cnl_status);
 			}
@@ -631,12 +629,10 @@ int AsteriskAmiClient::GetChannelStatus(const char * pChannelName, PhnSvcChannel
 				do_insert = 1;
 				cnl_status.CallerId = temp_buf;
 			}
-			// @v7.8.0 {
 			if(reply.GetTag("ConnectedLineNum", temp_buf)) {
 				do_insert = 1;
 				cnl_status.ConnectedLineNum = temp_buf;
 			}
-			// } @v7.8.0
 			if(do_insert)
 				rList.Add(cnl_status);
 		}
@@ -773,9 +769,8 @@ int AsteriskAmiClient::Message::ParseReply(const char * pReply)
 	return ok;
 }
 
-AsteriskAmiClient::AsteriskAmiClient() : S(1000)
+AsteriskAmiClient::AsteriskAmiClient() : S(1000), State(0)
 {
-	State = 0;
 }
 
 AsteriskAmiClient::~AsteriskAmiClient()
@@ -797,13 +792,11 @@ int AsteriskAmiClient::Connect(const char * pServerAddr, int serverPort)
 
 int AsteriskAmiClient::Log(const char * pText)
 {
-// @v7.9.9 #ifndef NDEBUG // {
-	if(CConfig.Flags & CCFLG_DEBUG) { // @v7.9.9
+	if(CConfig.Flags & CCFLG_DEBUG) {
 		SString temp_buf;
 		(temp_buf = pText).ReplaceStr("\xD\xA", ";", 0);
 		PPLogMessage(PPFILNAM_PHNSVC_LOG, temp_buf, LOGMSGF_TIME);
 	}
-// @v7.9.9 #endif // } !NDEBUG
 	return 1;
 }
 

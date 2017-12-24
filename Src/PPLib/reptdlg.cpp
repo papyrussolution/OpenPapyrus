@@ -108,16 +108,8 @@ private:
 //
 class RepMonthlyDialog : public TDialog {
 public:
-	RepMonthlyDialog() : TDialog(DLG_REP_MONTHLY)
+	RepMonthlyDialog() : TDialog(DLG_REP_MONTHLY), __Lock(0), Kind(1), MonthCount(1), MonthNo(1), DayOfMonth(1), WeekNo(1), DayOfWeek(1)
 	{
-		__Lock = 0;
-
-		Kind = 1;
-		MonthCount = 1;
-		MonthNo = 1;
-		DayOfMonth = 1;
-		WeekNo = 1;
-		DayOfWeek = 1;
 	}
 	virtual int TransmitData(int dir, void * pData)
 	{

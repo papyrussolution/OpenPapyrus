@@ -847,9 +847,8 @@ ListToListUIData::ListToListUIData()
 	THISZERO();
 }
 
-Lst2LstDialogUI::Lst2LstDialogUI(uint rezID, ListToListUIData * aData) : TDialog(rezID)
+Lst2LstDialogUI::Lst2LstDialogUI(uint rezID, ListToListUIData * pData) : TDialog(rezID), Data(*pData)
 {
-	Data = *aData;
 	setup();
 }
 
@@ -2792,16 +2791,17 @@ int UICfgDialog::setDTS(const UserInterfaceSettings * pUICfg)
 	cmbb_pos = (UICfg.WindowViewStyle >= 0) ? (UICfg.WindowViewStyle + 1) : 1;
 	((ComboBox*)getCtrlView(CTLSEL_UICFG_WNDVIEWKIND))->TransmitData(+1, &cmbb_pos);
 	setCtrlData(CTL_UICFG_LISTELEMCOUNT, &UICfg.ListElemCount);
-	AddClusterAssoc(CTL_UICFG_FLAGS, 0, UserInterfaceSettings::fDontExitBrowserByEsc);
-	AddClusterAssoc(CTL_UICFG_FLAGS, 1, UserInterfaceSettings::fShowShortcuts);
-	AddClusterAssoc(CTL_UICFG_FLAGS, 2, UserInterfaceSettings::fAddToBasketItemCurBrwItemAsQtty);
-	AddClusterAssoc(CTL_UICFG_FLAGS, 3, UserInterfaceSettings::fShowBizScoreOnDesktop);
-	AddClusterAssoc(CTL_UICFG_FLAGS, 4, UserInterfaceSettings::fDisableNotFoundWindow);
-	AddClusterAssoc(CTL_UICFG_FLAGS, 5, UserInterfaceSettings::fUpdateReminder);
-	AddClusterAssoc(CTL_UICFG_FLAGS, 6, UserInterfaceSettings::fTcbInterlaced);
-	AddClusterAssoc(CTL_UICFG_FLAGS, 7, UserInterfaceSettings::fDisableBeep);   // @v8.1.6
-	AddClusterAssoc(CTL_UICFG_FLAGS, 8, UserInterfaceSettings::fBasketItemFocusPckg); // @v8.3.7
-	AddClusterAssoc(CTL_UICFG_FLAGS, 9, UserInterfaceSettings::fOldModifSignSelection); // @v8.5.0
+	AddClusterAssoc(CTL_UICFG_FLAGS,  0, UserInterfaceSettings::fDontExitBrowserByEsc);
+	AddClusterAssoc(CTL_UICFG_FLAGS,  1, UserInterfaceSettings::fShowShortcuts);
+	AddClusterAssoc(CTL_UICFG_FLAGS,  2, UserInterfaceSettings::fAddToBasketItemCurBrwItemAsQtty);
+	AddClusterAssoc(CTL_UICFG_FLAGS,  3, UserInterfaceSettings::fShowBizScoreOnDesktop);
+	AddClusterAssoc(CTL_UICFG_FLAGS,  4, UserInterfaceSettings::fDisableNotFoundWindow);
+	AddClusterAssoc(CTL_UICFG_FLAGS,  5, UserInterfaceSettings::fUpdateReminder);
+	AddClusterAssoc(CTL_UICFG_FLAGS,  6, UserInterfaceSettings::fTcbInterlaced);
+	AddClusterAssoc(CTL_UICFG_FLAGS,  7, UserInterfaceSettings::fDisableBeep);   // @v8.1.6
+	AddClusterAssoc(CTL_UICFG_FLAGS,  8, UserInterfaceSettings::fBasketItemFocusPckg); // @v8.3.7
+	AddClusterAssoc(CTL_UICFG_FLAGS,  9, UserInterfaceSettings::fOldModifSignSelection); // @v8.5.0
+	AddClusterAssoc(CTL_UICFG_FLAGS, 10, UserInterfaceSettings::fPollVoipService); // @v9.8.11
 	INVERSEFLAG(UICfg.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
 	SetClusterData(CTL_UICFG_FLAGS, UICfg.Flags);
 	{
@@ -2969,10 +2969,9 @@ void SpecialInputCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 //
 //
-SLAPI LocationCtrlGroup::Rec::Rec(const ObjIdListFilt * pLocList, PPID parentID)
+SLAPI LocationCtrlGroup::Rec::Rec(const ObjIdListFilt * pLocList, PPID parentID) : ParentID(parentID)
 {
 	RVALUEPTR(LocList, pLocList);
-	ParentID = parentID;
 }
 
 void SLAPI LocationCtrlGroup::Helper_Construct()
@@ -3005,11 +3004,10 @@ void LocationCtrlGroup::SetInfoCtl(uint ctlId)
 	CtlInfo = ctlId;
 }
 
-int LocationCtrlGroup::SetExtLocList(const PPIDArray * pExtLocList)
+void LocationCtrlGroup::SetExtLocList(const PPIDArray * pExtLocList)
 {
     if(!RVALUEPTR(ExtLocList, pExtLocList))
 		ExtLocList.clear();
-	return 1;
 }
 
 int LocationCtrlGroup::SetWarehouseCellMode(TDialog * pDlg, int enable)
@@ -4998,7 +4996,8 @@ ResolveGoodsItemList & FASTCALL ResolveGoodsItemList::operator = (const PPIDArra
 
 class ResolveGoodsDialog : public PPListDialog {
 public:
-	ResolveGoodsDialog(int flags) : PPListDialog((flags & (RESOLVEGF_SHOWRESOLVED|RESOLVEGF_SHOWEXTDLG)) ? DLG_SUBSTGL : DLG_LBXSEL, CTL_LBXSEL_LIST)
+	ResolveGoodsDialog(int flags) : 
+		PPListDialog((flags & (RESOLVEGF_SHOWRESOLVED|RESOLVEGF_SHOWEXTDLG)) ? DLG_SUBSTGL : DLG_LBXSEL, CTL_LBXSEL_LIST), Flags(flags), GoodsGrpID(0)
 	{
 		SString subtitle;
 		PPLoadText(PPTXT_NOTIMPORTEDGOODS, subtitle);
@@ -5007,8 +5006,6 @@ public:
 		showCtrl(STDCTL_DELBUTTON,   0);
 		showCtrl(CTL_LBXSEL_UPBTN,   0);
 		showCtrl(CTL_LBXSEL_DOWNBTN, 0);
-		Flags = flags;
-		GoodsGrpID = 0;
 		GObj.ReadConfig(&GoodsCfg);
 		updateList(-1);
 	}
@@ -5283,9 +5280,8 @@ int SLAPI ViewImageInfo(const char * pImagePath, const char * pInfo, const char 
 {
 	class ImageInfoDialog : public TDialog {
 	public:
-		ImageInfoDialog(int simple) : TDialog(simple ? DLG_IMAGEINFO2 : DLG_IMAGEINFO)
+		ImageInfoDialog(int simple) : TDialog(simple ? DLG_IMAGEINFO2 : DLG_IMAGEINFO), IsSimple(simple)
 		{
-			IsSimple = simple;
 			if(IsSimple) {
 				SetCtrlResizeParam(CTL_IMAGEINFO_IMAGE, 0, 0, 0, 0, crfResizeable);
 				showCtrl(STDCTL_OKBUTTON, 0);
@@ -6199,9 +6195,8 @@ int SLAPI EmailToBlock::Edit(long flags)
 {
 	class EmailToBlockDialog : public TDialog {
 	public:
-		EmailToBlockDialog(long flags) : TDialog(DLG_MAILTO)
+		EmailToBlockDialog(long flags) : TDialog(DLG_MAILTO), Flags(0)
 		{
-			Flags = 0;
 			addGroup(GRP_EMAILLIST, new EmailCtrlGroup(CTL_MAILTO_ADDR, cmEMailList));
 		}
 		int    setDTS(EmailToBlock * pData)

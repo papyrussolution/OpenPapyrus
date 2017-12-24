@@ -1261,7 +1261,7 @@ int SLAPI PPViewQuot::GetTabTitle(long tabID, SString & rBuf)
 	return 1;
 }
 
-static void SLAPI dbqf_quotperiod_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_quotperiod_i)
 {
 	char   buf[32];
 	if(option == CALC_SIZE) {

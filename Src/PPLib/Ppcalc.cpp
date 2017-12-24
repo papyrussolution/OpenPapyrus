@@ -587,9 +587,8 @@ int PPCalculator(uint32 parentWnd, const char * pInitData)
 {
 	class CalcDialog : public TDialog {
 	public:
-		CalcDialog() : TDialog(DLG_CALC)
+		CalcDialog() : TDialog(DLG_CALC), Err(0)
 		{
-			Err = 0;
 			CFL.Load();
 			enableCommand(cmCalcEq, 1);
 			setState(sfFocused, true);

@@ -16,6 +16,16 @@ static int  __env_sys_detach(ENV*, REGINFO*, int);
 static void __env_des_destroy(ENV*, REGION *);
 static void __env_remove_file(ENV *);
 
+void * FASTCALL _Dbd_RAdd(const REGINFO * pRegInfo, roff_t offs)
+{
+	return ((F_ISSET(pRegInfo->env, ENV_PRIVATE) ? ROFF_TO_P(offs) : (void *)((uint8 *)(pRegInfo->addr) + offs)));
+}
+
+roff_t FASTCALL _Dbd_ROffset(const REGINFO * pRegInfo, const void * p)
+{
+	return F_ISSET(pRegInfo->env, ENV_PRIVATE) ? P_TO_ROFF(p) : ((roff_t)((uint8 *)(p) - (uint8 *)pRegInfo->addr));
+}
+
 int FASTCALL _panic_isset(const ENV * pEnv)
 {
 	//#define PANIC_ISSET(env) ((env) && (env)->reginfo && ((REGENV *)(env)->reginfo->primary)->panic != 0 && !F_ISSET((env)->dbenv, DB_ENV_NOPANIC))
@@ -176,8 +186,7 @@ loop:
 			}
 		}
 		if((ret = __os_read(env, env->lockfhp, &ref, sizeof(ref), &nrw)) != 0 || nrw < (size_t)sizeof(ref)) {
-			if(ret == 0)
-				ret = EIO;
+			SETIFZ(ret, EIO);
 			__db_err(env, ret, DB_STR_A("1537", "%s: unable to read system-memory information", "%s"), infop->name);
 			goto err;
 		}

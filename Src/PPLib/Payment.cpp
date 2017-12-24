@@ -954,9 +954,8 @@ int SLAPI PPObjBill::GatherPayableBills(ReckonOpArItem * pItem, PPID curID,
 
 class CfmReckoningDialog : public TDialog {
 public:
-	CfmReckoningDialog(uint dlgID, PPObjBill * pBObj) : TDialog(dlgID)
+	CfmReckoningDialog(uint dlgID, PPObjBill * pBObj) : TDialog(dlgID), P_BObj(pBObj)
 	{
-		P_BObj = pBObj;
 		MEMSZERO(Data);
 		P_List = (SmartListBox *)getCtrlView(CTL_CFM_RECKONING_LIST);
 		if(!SetupStrListBox(P_List))

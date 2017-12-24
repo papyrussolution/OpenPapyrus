@@ -159,15 +159,14 @@ SXml::WNode::WNode(xmlTextWriter * pWriter, const char * pName, const char * pVa
 
 SXml::WNode::~WNode()
 {
-	if(State & stStarted && Lx) {
+	if(Lx && State & stStarted)
 		xmlTextWriterEndElement(Lx);
-	}
 }
 
 int SXml::WNode::PutAttrib(const char * pName, const char * pValue)
 {
 	int    ok = 1;
-	if(State & stStarted && Lx) {
+	if(Lx && State & stStarted) {
 		xmlTextWriterStartAttribute(Lx, (const xmlChar*)pName);
 		xmlTextWriterWriteString(Lx, (const xmlChar*)pValue);
 		xmlTextWriterEndAttribute(Lx);
@@ -190,6 +189,16 @@ int SXml::WNode::PutAttribSkipEmpty(const char * pName, const char * pValue)
 	}
 	else
 		ok = 0;
+	return ok;
+}
+
+int SXml::WNode::PutInnerValidDate(const char * pInnerName, LDATE dt, long fmt)
+{
+	int    ok = -1;
+	if(checkdate(dt, 0)) {
+		SString temp_buf;
+		ok = PutInner(pInnerName, temp_buf.Cat(dt, fmt));
+	}
 	return ok;
 }
 

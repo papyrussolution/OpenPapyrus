@@ -161,7 +161,7 @@ static uint32 checkInkNamesString(TIFF* tif, uint32 slen, const char* s)
 bad:
 	TIFFErrorExt(tif->tif_clientdata, "TIFFSetField", "%s: Invalid InkNames value; expecting %d names, found %d",
 		tif->tif_name, td->td_samplesperpixel, td->td_samplesperpixel-i);
-	return (0);
+	return 0;
 }
 
 float FASTCALL TIFFClampDoubleToFloat(double val)
@@ -651,21 +651,21 @@ badvalue:
 		TIFFErrorExt(tif->tif_clientdata, module, "%s: Bad value %u for \"%s\" tag", tif->tif_name, v, fip2 ? fip2->field_name : "Unknown");
 		va_end(ap);
 	}
-	return (0);
+	return 0;
 badvalue32:
 	{
 		const TIFFField* fip2 = TIFFFieldWithTag(tif, tag);
 		TIFFErrorExt(tif->tif_clientdata, module, "%s: Bad value %u for \"%s\" tag", tif->tif_name, v32, fip2 ? fip2->field_name : "Unknown");
 		va_end(ap);
 	}
-	return (0);
+	return 0;
 badvaluedouble:
 	{
 		const TIFFField* fip2 = TIFFFieldWithTag(tif, tag);
 		TIFFErrorExt(tif->tif_clientdata, module, "%s: Bad value %f for \"%s\" tag", tif->tif_name, dblval, fip2 ? fip2->field_name : "Unknown");
 		va_end(ap);
 	}
-	return (0);
+	return 0;
 }
 
 /*
@@ -682,7 +682,7 @@ static int OkToChangeTag(TIFF* tif, uint32 tag)
 	const TIFFField* fip = TIFFFindField(tif, tag, TIFF_ANY);
 	if(!fip) {                      /* unknown tag */
 		TIFFErrorExt(tif->tif_clientdata, "TIFFSetField", "%s: Unknown %stag %u", tif->tif_name, isPseudoTag(tag) ? "pseudo-" : "", tag);
-		return (0);
+		return 0;
 	}
 	if(tag != TIFFTAG_IMAGELENGTH && (tif->tif_flags & TIFF_BEENWRITING) && !fip->field_oktochange) {
 		/*
@@ -692,7 +692,7 @@ static int OkToChangeTag(TIFF* tif, uint32 tag)
 		 * compression and/or format of the data.
 		 */
 		TIFFErrorExt(tif->tif_clientdata, "TIFFSetField", "%s: Cannot modify tag \"%s\" while writing", tif->tif_name, fip->field_name);
-		return (0);
+		return 0;
 	}
 	return (1);
 }
@@ -1314,8 +1314,7 @@ static int TIFFAdvanceDirectory(TIFF* tif, uint64* nextdir, uint64* off)
 				TIFFErrorExt(tif->tif_clientdata, module, "Error fetching directory link");
 				return 0;
 			}
-			if(off!=NULL)
-				*off = (uint64)poffc;
+			ASSIGN_PTR(off, (uint64)poffc);
 			memcpy(&nextdir32, tif->tif_base+poffc, sizeof(uint32));
 			if(tif->tif_flags&TIFF_SWAB)
 				TIFFSwabLong(&nextdir32);
@@ -1345,8 +1344,7 @@ static int TIFFAdvanceDirectory(TIFF* tif, uint64* nextdir, uint64* off)
 				TIFFErrorExt(tif->tif_clientdata, module, "Error fetching directory link");
 				return 0;
 			}
-			if(off!=NULL)
-				*off = (uint64)poffc;
+			ASSIGN_PTR(off, (uint64)poffc);
 			memcpy(nextdir, tif->tif_base+poffc, sizeof(uint64));
 			if(tif->tif_flags&TIFF_SWAB)
 				TIFFSwabLong8(nextdir);
@@ -1360,7 +1358,7 @@ static int TIFFAdvanceDirectory(TIFF* tif, uint64* nextdir, uint64* off)
 			if(!SeekOK(tif, *nextdir) ||
 			    !ReadOK(tif, &dircount, sizeof(uint16))) {
 				TIFFErrorExt(tif->tif_clientdata, module, "%s: Error fetching directory count", tif->tif_name);
-				return (0);
+				return 0;
 			}
 			if(tif->tif_flags & TIFF_SWAB)
 				TIFFSwabShort(&dircount);
@@ -1370,7 +1368,7 @@ static int TIFFAdvanceDirectory(TIFF* tif, uint64* nextdir, uint64* off)
 				(void)TIFFSeekFile(tif, dircount*12, SEEK_CUR);
 			if(!ReadOK(tif, &nextdir32, sizeof(uint32))) {
 				TIFFErrorExt(tif->tif_clientdata, module, "%s: Error fetching directory link", tif->tif_name);
-				return (0);
+				return 0;
 			}
 			if(tif->tif_flags & TIFF_SWAB)
 				TIFFSwabLong(&nextdir32);
@@ -1381,7 +1379,7 @@ static int TIFFAdvanceDirectory(TIFF* tif, uint64* nextdir, uint64* off)
 			uint16 dircount16;
 			if(!SeekOK(tif, *nextdir) || !ReadOK(tif, &dircount64, sizeof(uint64))) {
 				TIFFErrorExt(tif->tif_clientdata, module, "%s: Error fetching directory count", tif->tif_name);
-				return (0);
+				return 0;
 			}
 			if(tif->tif_flags & TIFF_SWAB)
 				TIFFSwabLong8(&dircount64);
@@ -1396,7 +1394,7 @@ static int TIFFAdvanceDirectory(TIFF* tif, uint64* nextdir, uint64* off)
 				(void)TIFFSeekFile(tif, dircount16*20, SEEK_CUR);
 			if(!ReadOK(tif, nextdir, sizeof(uint64))) {
 				TIFFErrorExt(tif->tif_clientdata, module, "%s: Error fetching directory link", tif->tif_name);
-				return (0);
+				return 0;
 			}
 			if(tif->tif_flags & TIFF_SWAB)
 				TIFFSwabLong8(nextdir);
@@ -1444,7 +1442,7 @@ int TIFFSetDirectory(TIFF* tif, uint16 dirn)
 		nextdir = tif->tif_header.big.tiff_diroff;
 	for(n = dirn; n > 0 && nextdir != 0; n--)
 		if(!TIFFAdvanceDirectory(tif, &nextdir, NULL))
-			return (0);
+			return 0;
 	tif->tif_nextdiroff = nextdir;
 	/*
 	 * Set curdir to the actual directory index.  The
@@ -1505,7 +1503,7 @@ int TIFFUnlinkDirectory(TIFF* tif, uint16 dirn)
 	uint16 n;
 	if(tif->tif_mode == O_RDONLY) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Can not unlink directory in read-only file");
-		return (0);
+		return 0;
 	}
 	/*
 	 * Go to the directory before the one we want
@@ -1523,17 +1521,17 @@ int TIFFUnlinkDirectory(TIFF* tif, uint16 dirn)
 	for(n = dirn-1; n > 0; n--) {
 		if(nextdir == 0) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Directory %d does not exist", dirn);
-			return (0);
+			return 0;
 		}
 		if(!TIFFAdvanceDirectory(tif, &nextdir, &off))
-			return (0);
+			return 0;
 	}
 	/*
 	 * Advance to the directory to be unlinked and fetch
 	 * the offset of the directory that follows.
 	 */
 	if(!TIFFAdvanceDirectory(tif, &nextdir, NULL))
-		return (0);
+		return 0;
 	/*
 	 * Go back and patch the link field of the preceding
 	 * directory to point to the offset of the directory
@@ -1548,7 +1546,7 @@ int TIFFUnlinkDirectory(TIFF* tif, uint16 dirn)
 			TIFFSwabLong(&nextdir32);
 		if(!WriteOK(tif, &nextdir32, sizeof(uint32))) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Error writing directory link");
-			return (0);
+			return 0;
 		}
 	}
 	else {
@@ -1556,7 +1554,7 @@ int TIFFUnlinkDirectory(TIFF* tif, uint16 dirn)
 			TIFFSwabLong8(&nextdir);
 		if(!WriteOK(tif, &nextdir, sizeof(uint64))) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Error writing directory link");
-			return (0);
+			return 0;
 		}
 	}
 	/*

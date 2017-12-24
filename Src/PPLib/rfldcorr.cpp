@@ -39,9 +39,8 @@ int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField)
 {
 	class SdFieldCorrDialog : public TDialog {
 	public:
-		SdFieldCorrDialog(const SdRecord * pInnerRec) : TDialog(DLG_FLDCORR)
+		SdFieldCorrDialog(const SdRecord * pInnerRec) : TDialog(DLG_FLDCORR), P_Rec(pInnerRec)
 		{
-			P_Rec = pInnerRec;
 		}
 		int    setDTS(const SdbField * pData)
 		{
@@ -221,9 +220,7 @@ int SdFieldCorrListDialog::editItem(long pos, long id)
 	int    ok = -1;
 	SdbField fld;
 	if(Data.GetFieldByPos(pos, &fld) > 0) {
-		// @v7.4.1 fld.Name.ToOem(); // @v7.0.3
 		while(ok <= 0 && EditFieldCorr(P_Rec, &fld) > 0) {
-			// @v7.4.1 fld.Name.Transf(CTRANSF_INNER_TO_OUTER); // @v7.0.3
 			SETFLAG(fld.T.Flags, STypEx::fZeroID, fld.T.Flags & STypEx::fFormula);
 			if(fld.ID == 0 && !(fld.T.Flags & STypEx::fZeroID))
 				fld.ID = 30000;
@@ -283,9 +280,8 @@ int EditTextDbFileParam(/*TextDbFile::Param * pData*/ PPImpExpParam * pIeParam)
 {
 	class TextDbFileParamDialog : public TDialog {
 	public:
-		TextDbFileParamDialog(PPImpExpParam * pParam) : TDialog(DLG_TXTDBPARAM)
+		TextDbFileParamDialog(PPImpExpParam * pParam) : TDialog(DLG_TXTDBPARAM), P_Param(pParam)
 		{
-			P_Param = pParam;
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_TXTDBPARAM_FNAME, CTL_TXTDBPARAM_FILENAME, 1, 0, 0, FileBrowseCtrlGroup::fbcgfFile);
 		}
 		int    setDTS(const TextDbFile::Param * pData)
@@ -370,9 +366,8 @@ int EditXmlDbFileParam(/*XmlDbFile::Param * pData*/PPImpExpParam * pIeParam)
 {
 	class XmlDbFileParamDialog : public TDialog {
 	public:
-		XmlDbFileParamDialog(PPImpExpParam * pParam) : TDialog(DLG_XMLDBPARAM), Data(0, 0, 0, 0)
+		XmlDbFileParamDialog(PPImpExpParam * pParam) : TDialog(DLG_XMLDBPARAM), Data(0, 0, 0, 0), P_Param(pParam)
 		{
-			P_Param = pParam;
 		}
 		int    setDTS(const XmlDbFile::Param * pData)
 		{
@@ -1480,10 +1475,9 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 //
 //
 //
-ImpExpParamDialog::ImpExpParamDialog(uint dlgID, long options) : TDialog(dlgID)
+ImpExpParamDialog::ImpExpParamDialog(uint dlgID, long options) : TDialog(dlgID), Flags(options)
 {
 	FileBrowseCtrlGroup::Setup(this, CTLBRW_IMPEXP_FILENAME, CTL_IMPEXP_FILENAME, 1, 0, 0, FileBrowseCtrlGroup::fbcgfFile);
-	Flags = options;
 	if(Flags & fDisableName)
 		disableCtrl(CTL_IMPEXP_NAME, 1);
 	if(Flags & fDisableExport)

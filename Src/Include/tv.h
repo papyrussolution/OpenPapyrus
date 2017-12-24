@@ -735,8 +735,8 @@ public:
 	SPaintObj(int ident = 0);
 	~SPaintObj();
 	void   Destroy();
-	int    GetType() const;
-	int    GetId() const;
+	int    GetId() const { return Id; }
+	int    GetType() const { return T; }
 
 	Pen *  GetPen() const;
 	Brush * GetBrush() const;
@@ -3808,8 +3808,9 @@ public:
 		fDisableBeep                     = 0x0200, // @v8.1.6 Запретить звуковые сигналы (ограниченная реализация)
 		fBasketItemFocusPckg             = 0x0400, // @v8.3.7 При вводе нового элемента товарной корзины фокус ввода устанавливать на
 			// количество упаковок (а не единиц, как по умолчанию).
-		fOldModifSignSelection           = 0x0800  // @v8.5.0 Использовать технику выбора знака для строки документа модификации
+		fOldModifSignSelection           = 0x0800, // @v8.5.0 Использовать технику выбора знака для строки документа модификации
 			// товара, применявшуюся до v8.4.12 (выбор товара - выбор знака)
+		fPollVoipService                 = 0x1000  // @v9.8.11 Опрашивать VoIP сервис для обработки событий вызовов и звонков
 	};
 	enum {
 		wndVKDefault = 0,
@@ -5230,8 +5231,8 @@ public:
 	int    SLAPI buildIndex();
 	int    SLAPI getChar();
 	uint   SLAPI getUINT();
-	char * SLAPI getString(char *, int kind = 0 /*0 - 866, 1 - w_char, 2 - 1251*/);
-	SString & SLAPI getString(SString & rBuf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/);
+	char * FASTCALL getString(char *, int kind = 0 /*0 - 866, 1 - w_char, 2 - 1251*/);
+	SString & FASTCALL getString(SString & rBuf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/);
 	TRect  SLAPI getRect();
 	TYPEID SLAPI getType(int defaultLen);
 	long   SLAPI getFormat(int defaultLen);

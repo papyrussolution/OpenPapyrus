@@ -657,7 +657,7 @@ int SLAPI PPViewAccturn::PreprocessBrowser(PPViewBrowser * pBrw)
 
 // dbt_acc_id, crd_acc_id, (long)(AccTurnFilt *)
 
-static void SLAPI dbqf_accturn_checkrelrestriction_iii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_accturn_checkrelrestriction_iii)
 {
 	long   ok = 1;
 	PPID   dbt_acc_id = params[0].lval;
@@ -698,7 +698,7 @@ static void SLAPI dbqf_accturn_checkrelrestriction_iii(int option, DBConst * res
 	result->init(ok);
 }
 
-static void SLAPI dbqf_objname_cursymbbyacctrel_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 {
 	char   name_buf[48];
 	PPCurrency rec;

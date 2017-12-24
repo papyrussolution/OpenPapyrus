@@ -2627,9 +2627,9 @@ int SLAPI ReadEquipConfig(PPEquipConfig * pCfg)
 	return r;
 }
 
-class EquipConfigDlg : public TDialog {
+class EquipConfigDialog : public TDialog {
 public:
-	EquipConfigDlg() : TDialog(DLG_EQUIPCFG)
+	EquipConfigDialog() : TDialog(DLG_EQUIPCFG)
 	{
 	}
 	int    setDTS(const PPEquipConfig *);
@@ -2637,10 +2637,99 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls();
+	int    EditExtParams();
 	PPEquipConfig Data;
 };
 
-int EquipConfigDlg::setDTS(const PPEquipConfig * pData)
+int EquipConfigDialog::EditExtParams()
+{
+	class ExtEquipConfigDialog : public TDialog {
+	public:
+		ExtEquipConfigDialog() : TDialog(DLG_EQCFGEXT)
+		{
+		}
+		int    setDTS(const PPEquipConfig * pData)
+		{
+			int    ok = 1;
+			Data = *pData;
+			SetupPPObjCombo(this, CTLSEL_EQCFG_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.FtpAcctID, 0, (void *)PPObjInternetAccount::filtfFtp/*INETACCT_ONLYFTP*/);
+			SetupPPObjCombo(this, CTLSEL_EQCFG_SALESGRP, PPOBJ_GOODSGROUP, Data.SalesGoodsGrp, OLW_CANSELUPLEVEL, (void *)GGRTYP_SEL_ALT);
+			setCtrlData(CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
+			setCtrlData(CTL_EQCFG_AGENTPREFIX,  &Data.AgentPrefix);
+			setCtrlData(CTL_EQCFG_SUSPCPFX, Data.SuspCcPrefix);
+			{
+				RealRange subst_range;
+				SetRealRangeInput(this, CTL_EQCFG_DFCTCOSTRNG, &(subst_range = Data.DeficitSubstPriceDevRange).Scale(0.1), 1);
+			}
+			{
+				double rng_lim = ((double)Data.BHTRngLimWgtGoods) / 100;
+				setCtrlData(CTL_EQCFG_RNGLIMGOODSBHT, &rng_lim);
+				rng_lim = ((double)Data.BHTRngLimPrice) / 100;
+				setCtrlData(CTL_EQCFG_RNGLIMPRICEBHT, &rng_lim);
+			}
+			setCtrlLong(CTL_EQCFG_LOOKBKPRCPRD, Data.LookBackPricePeriod);
+			return ok;
+		}
+		int    getDTS(PPEquipConfig * pData)
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			getCtrlData(CTLSEL_EQCFG_FTPACCT,     &Data.FtpAcctID);
+			getCtrlData(sel = CTLSEL_EQCFG_SALESGRP,    &Data.SalesGoodsGrp);
+			if(Data.SalesGoodsGrp) {
+				Goods2Tbl::Rec ggrec;
+				PPObjGoodsGroup ggobj;
+				MEMSZERO(ggrec);
+				ggobj.Search(Data.SalesGoodsGrp, &ggrec);
+				//sel = CTL_EQCFG_SALESGRP;
+				THROW_PP(ggrec.Flags & GF_EXCLALTFOLD, PPERR_INVSALESGRP);
+			}
+			getCtrlData(sel = CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
+			getCtrlData(sel = CTL_EQCFG_AGENTPREFIX,  &Data.AgentPrefix);
+			getCtrlData(sel = CTL_EQCFG_SUSPCPFX, Data.SuspCcPrefix);
+			{
+				RealRange subst_range;
+				GetRealRangeInput(this, CTL_EQCFG_DFCTCOSTRNG, &subst_range);
+				if(!subst_range.IsZero()) {
+					if(subst_range.low == subst_range.upp) {
+						subst_range.low = -fabs(subst_range.low);
+						subst_range.upp = +fabs(subst_range.upp);
+					}
+					subst_range.Scale(10.0);
+					Data.DeficitSubstPriceDevRange.Set((int)subst_range.low, (int)subst_range.upp);
+				}
+				else
+					Data.DeficitSubstPriceDevRange = 0;
+			}
+			{
+				double rng_lim = 0;
+				getCtrlData(sel = CTL_EQCFG_RNGLIMGOODSBHT, &rng_lim);
+				THROW_PP(rng_lim >= 0 && rng_lim <= 100, PPERR_PERCENTINPUT);
+				Data.BHTRngLimWgtGoods = (long)(rng_lim * 100);
+
+				getCtrlData(sel = CTL_EQCFG_RNGLIMPRICEBHT, &(rng_lim = 0));
+				THROW_PP(rng_lim >= 0 && rng_lim <= 100, PPERR_PERCENTINPUT);
+				Data.BHTRngLimPrice = (long)(rng_lim * 100);
+			}
+			{
+				Data.LookBackPricePeriod = getCtrlLong(sel = CTL_EQCFG_LOOKBKPRCPRD);
+				THROW_PP(Data.LookBackPricePeriod >= 0 && Data.LookBackPricePeriod <= 365, PPERR_USERINPUT);
+			}
+			const int prefix_len = strlen(Data.AgentPrefix);
+			THROW_PP(Data.AgentCodeLen >= 0 && (!prefix_len || prefix_len < Data.AgentCodeLen), PPERR_USERINPUT);
+			ASSIGN_PTR(pData, Data);
+			CATCH
+				ok = PPErrorByDialog(this, sel);
+			ENDCATCH
+			return ok;
+		}
+	private:
+		PPEquipConfig Data;
+	};
+	DIALOG_PROC_BODY(ExtEquipConfigDialog, &Data);
+}
+
+int EquipConfigDialog::setDTS(const PPEquipConfig * pData)
 {
 	PPIDArray op_type_list;
 	if(!RVALUEPTR(Data, pData))
@@ -2658,11 +2747,12 @@ int EquipConfigDlg::setDTS(const PPEquipConfig * pData)
 	SetupOprKindCombo(this, CTLSEL_EQCFG_OPDOTHRLOC, Data.OpOnDfctOthrLoc, 0, &op_type_list, 0);
 	SetupOprKindCombo(this, CTLSEL_EQCFG_TEMPSESSOP, Data.OpOnTempSess,    0, &op_type_list, 0);
 	SetupPPObjCombo(this, CTLSEL_EQCFG_QUOT, PPOBJ_QUOTKIND, Data.QuotKindID,  0);
-	SetupPPObjCombo(this, CTLSEL_EQCFG_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.FtpAcctID, 0, (void *)PPObjInternetAccount::filtfFtp/*INETACCT_ONLYFTP*/);
-	SetupPPObjCombo(this, CTLSEL_EQCFG_SALESGRP, PPOBJ_GOODSGROUP, Data.SalesGoodsGrp, OLW_CANSELUPLEVEL, (void *)GGRTYP_SEL_ALT);
-	setCtrlData(CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
-	setCtrlData(CTL_EQCFG_AGENTPREFIX,  &Data.AgentPrefix);
-	setCtrlData(CTL_EQCFG_SUSPCPFX, Data.SuspCcPrefix); // @v8.1.9
+	SetupPPObjCombo(this, CTLSEL_EQCFG_PHNSVC, PPOBJ_PHONESERVICE, Data.PhnSvcID, 0); // @v9.8.11
+	//SetupPPObjCombo(this, CTLSEL_EQCFG_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.FtpAcctID, 0, (void *)PPObjInternetAccount::filtfFtp/*INETACCT_ONLYFTP*/);
+	//SetupPPObjCombo(this, CTLSEL_EQCFG_SALESGRP, PPOBJ_GOODSGROUP, Data.SalesGoodsGrp, OLW_CANSELUPLEVEL, (void *)GGRTYP_SEL_ALT);
+	//setCtrlData(CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
+	//setCtrlData(CTL_EQCFG_AGENTPREFIX,  &Data.AgentPrefix);
+	//setCtrlData(CTL_EQCFG_SUSPCPFX, Data.SuspCcPrefix); // @v8.1.9
 	AddClusterAssoc(CTL_EQCFG_FLAGS,  0, PPEquipConfig::fCheckScaleInput);
 	AddClusterAssoc(CTL_EQCFG_FLAGS,  1, PPEquipConfig::fComplDeficit);
 	AddClusterAssoc(CTL_EQCFG_FLAGS,  2, PPEquipConfig::fCloseSessTo10Level);
@@ -2685,6 +2775,7 @@ int EquipConfigDlg::setDTS(const PPEquipConfig * pData)
 	AddClusterAssoc(CTL_EQCFG_FLAGS2, 2, PPEquipConfig::fAutosaveSyncChecks); // @v8.7.7
 
 	SetClusterData(CTL_EQCFG_FLAGS2, Data.Flags);
+	/*
 	{
 		RealRange subst_range;
 		SetRealRangeInput(this, CTL_EQCFG_DFCTCOSTRNG, &(subst_range = Data.DeficitSubstPriceDevRange).Scale(0.1), 1);
@@ -2697,11 +2788,12 @@ int EquipConfigDlg::setDTS(const PPEquipConfig * pData)
 		setCtrlData(CTL_EQCFG_RNGLIMPRICEBHT, &rng_lim);
 	}
 	setCtrlLong(CTL_EQCFG_LOOKBKPRCPRD, Data.LookBackPricePeriod); // @v9.8.4
+	*/
 	SetupCtrls();
 	return 1;
 }
 
-int EquipConfigDlg::getDTS(PPEquipConfig * pData)
+int EquipConfigDialog::getDTS(PPEquipConfig * pData)
 {
 	int    ok = 1;
 	uint   sel = 0;
@@ -2713,11 +2805,13 @@ int EquipConfigDlg::getDTS(PPEquipConfig * pData)
 	getCtrlData(CTLSEL_EQCFG_OPDOTHRLOC,  &Data.OpOnDfctOthrLoc);
 	getCtrlData(CTLSEL_EQCFG_TEMPSESSOP,  &Data.OpOnTempSess);
 	getCtrlData(CTLSEL_EQCFG_QUOT,        &Data.QuotKindID);
-	getCtrlData(CTLSEL_EQCFG_FTPACCT,     &Data.FtpAcctID);
-	getCtrlData(CTLSEL_EQCFG_SALESGRP,    &Data.SalesGoodsGrp);
-	getCtrlData(sel = CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
-	getCtrlData(sel = CTL_EQCFG_AGENTPREFIX,  &Data.AgentPrefix);
-	getCtrlData(sel = CTL_EQCFG_SUSPCPFX, Data.SuspCcPrefix); // @v8.1.9
+	getCtrlData(CTLSEL_EQCFG_PHNSVC,      &Data.PhnSvcID); // @v9.8.11
+	//getCtrlData(CTLSEL_EQCFG_FTPACCT,     &Data.FtpAcctID);
+	//getCtrlData(CTLSEL_EQCFG_SALESGRP,    &Data.SalesGoodsGrp);
+	//getCtrlData(sel = CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
+	//getCtrlData(sel = CTL_EQCFG_AGENTPREFIX,  &Data.AgentPrefix);
+	//getCtrlData(sel = CTL_EQCFG_SUSPCPFX, Data.SuspCcPrefix); // @v8.1.9
+	/*
 	if(Data.SalesGoodsGrp) {
 		Goods2Tbl::Rec ggrec;
 		PPObjGoodsGroup ggobj;
@@ -2756,16 +2850,17 @@ int EquipConfigDlg::getDTS(PPEquipConfig * pData)
 	}
 	const int prefix_len = strlen(Data.AgentPrefix);
 	THROW_PP(Data.AgentCodeLen >= 0 && (!prefix_len || prefix_len < Data.AgentCodeLen), PPERR_USERINPUT);
+	*/
 	GetClusterData(CTL_EQCFG_FLAGS,  &Data.Flags);
 	GetClusterData(CTL_EQCFG_FLAGS2, &Data.Flags);
 	ASSIGN_PTR(pData, Data);
-	CATCH
+	/*CATCH
 		ok = PPErrorByDialog(this, sel);
-	ENDCATCH
+	ENDCATCH*/
 	return ok;
 }
 
-void EquipConfigDlg::SetupCtrls()
+void EquipConfigDialog::SetupCtrls()
 {
 	const PPID quotk = getCtrlLong(CTLSEL_EQCFG_QUOT);
 	DisableClusterItem(CTL_EQCFG_FLAGS, 6, quotk);
@@ -2777,23 +2872,26 @@ void EquipConfigDlg::SetupCtrls()
 	}
 }
 
-IMPL_HANDLE_EVENT(EquipConfigDlg)
+IMPL_HANDLE_EVENT(EquipConfigDialog)
 {
 	TDialog::handleEvent(event);
-	if(event.isCbSelected(CTLSEL_EQCFG_QUOT)) {
+	if(event.isCbSelected(CTLSEL_EQCFG_QUOT))
 		SetupCtrls();
-		clearEvent(event);
-	}
+	else if(event.isCmd(cmExtParams))
+		EditExtParams();
+	else
+		return;
+	clearEvent(event);
 }
 
 int SLAPI EditEquipConfig()
 {
 	int    ok = -1, is_new = 0;
-	EquipConfigDlg * dlg = 0;
+	EquipConfigDialog * dlg = 0;
 	PPEquipConfig  eq_cfg;
 	THROW(CheckCfgRights(PPCFGOBJ_EQUIP, PPR_READ, 0));
 	THROW(is_new = ReadEquipConfig(&eq_cfg));
-	THROW(CheckDialogPtr(&(dlg = new EquipConfigDlg())));
+	THROW(CheckDialogPtr(&(dlg = new EquipConfigDialog())));
 	dlg->setDTS(&eq_cfg);
 	while(ok < 0 && ExecView(dlg) == cmOK) {
 		THROW(CheckCfgRights(PPCFGOBJ_EQUIP, PPR_MOD, 0));

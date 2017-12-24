@@ -79,7 +79,7 @@ int SLAPI PPViewLotOp::GetLotRec(ReceiptTbl::Rec * pRec)
 	return ok;
 }
 
-static void SLAPI dbqf_lotopladingbill_i(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_lotopladingbill_i)
 {
 	PPID   bill_id = params[0].lval;
 	if(bill_id) {

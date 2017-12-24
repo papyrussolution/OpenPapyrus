@@ -1306,9 +1306,8 @@ int PsnOpDialog::editPsnConstr(int scnd)
 {
 	class PsnConstrDialog : public TDialog {
 	public:
-		PsnConstrDialog(int scnd) : TDialog(scnd ? DLG_PSNOPKSC : DLG_PSNOPKPC)
+		PsnConstrDialog(int scnd) : TDialog(scnd ? DLG_PSNOPKSC : DLG_PSNOPKPC), Scnd(scnd)
 		{
-			Scnd = scnd;
 		}
 		int    setDTS(PPPsnOpKindPacket::PsnConstr * pc)
 		{
@@ -1459,9 +1458,8 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 {
 	class PoClauseDialog : public TDialog {
 	public:
-		PoClauseDialog(PPPsnOpKindPacket * pokPack) : TDialog(DLG_POVERB)
+		PoClauseDialog(PPPsnOpKindPacket * pokPack) : TDialog(DLG_POVERB), PokPack(pokPack)
 		{
-			PokPack = pokPack;
 			disableCtrl(CTLSEL_POVERB_LINK, 1);
 		}
 		int    setDTS(PoClause_ * pClause)

@@ -568,33 +568,26 @@ private:
 	uint   AutoSms;
 };
 
-SendSmsDialog::SendSmsDialog(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr) : TDialog(DLG_SENDSMS)
+SendSmsDialog::SendSmsDialog(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr) : 
+	TDialog(DLG_SENDSMS), AccID(accID), SplitMsg(0), AutoSms(0), ObjTypeId(0)
 {
-	AccID = accID;
-	SplitMsg = 0;
 	PrsnIdArr.Copy(rPrsnIdArr);
 	PhoneArr.Copy(rPhoneArr);
-	AutoSms = 0;
-	ObjTypeId = 0;
 	PPSmsAccPacket acc_pack;
 	PPObjSmsAccount mobj;
 	if(mobj.GetPacket(accID, &acc_pack))
 		if(acc_pack.Rec.Flags & PPSmsAccount::smacfSpliLongMsg)
 			SplitMsg = 1;
-
 	if(!SetupStrListBox(this, CTL_SENDSMS_INSERT))
 		PPError();
 	DrawList();
 }
 
-SendSmsDialog::SendSmsDialog(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr) : TDialog(/*DLG_SENDSMS*/0)
+SendSmsDialog::SendSmsDialog(PPID accID, StrAssocArray & rPrsnIdArr, StrAssocArray & rPhoneArr, PPID objTypeId, StrAssocArray & rObjIdArr) : 
+	TDialog(/*DLG_SENDSMS*/0), AccID(accID), SplitMsg(0), AutoSms(1), ObjTypeId(objTypeId)
 {
-	AccID = accID;
-	SplitMsg = 0;
 	PrsnIdArr.Copy(rPrsnIdArr);
 	PhoneArr.Copy(rPhoneArr);
-	AutoSms = 1;
-	ObjTypeId = objTypeId;
 	ObjIdArr.Copy(rObjIdArr);
 	PPSmsAccPacket acc_pack;
 	PPObjSmsAccount mobj;

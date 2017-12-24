@@ -926,10 +926,8 @@ int SLAPI PPObjStaffList::EditPostAmounts(PPID id)
 
 class PersonPostDialog : public TDialog {
 public:
-	PersonPostDialog() : TDialog(DLG_PERSONPOST)
+	PersonPostDialog() : TDialog(DLG_PERSONPOST), Flags(0), PrevClosedVal(0)
 	{
-		Flags = 0;
-		PrevClosedVal = 0;
 		addGroup(GRP_DIV, new DivisionCtrlGroup(
 			CTLSEL_PERSONPOST_ORG, CTLSEL_PERSONPOST_DIV, CTLSEL_PERSONPOST_POST, 0));
 		SetupCalDate(CTLCAL_PERSONPOST_DATE,   CTL_PERSONPOST_DATE);

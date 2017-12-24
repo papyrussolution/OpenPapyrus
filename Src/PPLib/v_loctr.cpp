@@ -725,7 +725,7 @@ int FASTCALL PPViewLocTransf::NextIteration(LocTransfViewItem * pItem)
 	return ok;
 }
 
-static void SLAPI dbqf_checkcellparent_ii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_checkcellparent_ii)
 {
 	long   r = 0;
 	const PPIDArray * p_cell_list = (const PPIDArray *)params[1].lval;

@@ -497,7 +497,7 @@ typedef enum {
 #define	ENV_NOT_CONFIGURED(env, handle, i, flags)     if(F_ISSET((env), ENV_OPEN_CALLED)) ENV_REQUIRES_CONFIG(env, handle, i, flags)
 
 #define	ENV_ENTER_RET(env, ip, ret) do {				\
-	ret = 0;							\
+	ret = 0; \
 	PANIC_CHECK_RET(env, ret);					\
  	if(ret == 0) {							\
 		if((env)->thr_hashtab == NULL)				\
@@ -849,7 +849,12 @@ typedef struct __dbpginfo {
 //
 // LOG_COMPARE -- compare two LSNs.
 //
-#define	LOG_COMPARE(lsn0, lsn1) ((lsn0)->file != (lsn1)->file ? ((lsn0)->file < (lsn1)->file ? -1 : 1) : ((lsn0)->Offset_ != (lsn1)->Offset_ ? ((lsn0)->Offset_ < (lsn1)->Offset_ ? -1 : 1) : 0))
+inline int FASTCALL _BdbLogCompare(const DB_LSN * pLsn0, const DB_LSN * pLsn1)
+{
+	return (pLsn0->file != pLsn1->file ? (pLsn0->file < pLsn1->file ? -1 : 1) : (pLsn0->Offset_ != pLsn1->Offset_ ? (pLsn0->Offset_ < pLsn1->Offset_ ? -1 : 1) : 0));
+}
+#define LOG_COMPARE(lsn0, lsn1) _BdbLogCompare(lsn0, lsn1)
+//#define LOG_COMPARE(lsn0, lsn1) ((lsn0)->file != (lsn1)->file ? ((lsn0)->file < (lsn1)->file ? -1 : 1) : ((lsn0)->Offset_ != (lsn1)->Offset_ ? ((lsn0)->Offset_ < (lsn1)->Offset_ ? -1 : 1) : 0))
 //
 // Txn.
 //
@@ -857,8 +862,9 @@ typedef struct __dbpginfo {
 #define	NOWAIT_FLAG(txn)       ((txn) != NULL && F_ISSET((txn), TXN_NOWAIT) ? DB_LOCK_NOWAIT : 0)
 #define	IS_REAL_TXN(txn)       ((txn) != NULL && !F_ISSET(txn, TXN_FAMILY))
 #define	IS_SUBTRANSACTION(txn) ((txn) != NULL && (txn)->parent != NULL)
-
-/* Checks for existence of an XA transaction in access method interfaces. */
+//
+// Checks for existence of an XA transaction in access method interfaces. 
+//
 #define	XA_CHECK_TXN(ip, txn) 						\
 	if((ip) != NULL && (txn) == NULL) {				\
 		(txn) = SH_TAILQ_FIRST(&(ip)->dbth_xatxn, __db_txn);	\
@@ -871,7 +877,7 @@ typedef struct __dbpginfo {
 	if((ip) != NULL) {						\
 		DB_TXN *__txn = SH_TAILQ_FIRST(&(ip)->dbth_xatxn, __db_txn);	\
 		if(__txn && __txn->xa_thr_status == TXN_XA_THREAD_ASSOCIATED)	\
-		    	retval = EINVAL;				\
+			retval = EINVAL;				\
 	}								\
 }
 //

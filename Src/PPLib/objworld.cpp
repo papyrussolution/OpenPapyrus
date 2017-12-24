@@ -465,10 +465,9 @@ int SLAPI PPObjWorld::Browse(void * extraPtr)
 
 class EditWorldDialog : public TDialog {
 public:
-	EditWorldDialog(uint resID) : TDialog(resID)
+	EditWorldDialog(uint resID) : TDialog(resID), DupID(0)
 	{
 		PPLoadText(PPTXT_WORLDKINDNAMES, KindNames);
-		DupID = 0;
 	}
 	int    setDTS(const PPWorldPacket *);
 	int    getDTS(PPWorldPacket *);

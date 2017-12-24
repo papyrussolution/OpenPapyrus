@@ -1265,11 +1265,10 @@ public:
 	//     товара с целью определения текущих параметров.
 	//     Если defLocID == 0, то считается, что он равен LConfig.Location.
 	//
-	GBItemDialog(PPBasketCombine & rCart, PPID defLocID, long flags) : TDialog(DLG_GBITEM), R_Cart(rCart)
+	GBItemDialog(PPBasketCombine & rCart, PPID defLocID, long flags) : 
+		TDialog(DLG_GBITEM), R_Cart(rCart), DefLocID(NZOR(defLocID, LConfig.Location)), Flags(flags)
 	{
-		DefLocID = NZOR(defLocID, LConfig.Location);
 		//EnableChangeBasket = enableChgBasket;
-		Flags = flags;
 		MEMSZERO(Item);
 		SetupCalDate(CTLCAL_GBITEM_EXPIRY, CTL_GBITEM_EXPIRY);
 	}

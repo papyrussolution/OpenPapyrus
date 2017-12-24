@@ -3405,7 +3405,7 @@ int SLAPI PPBillImporter::Run()
 			PPEgaisProcessor::SendBillsParam sbp;
 			sbp.LocID = LocID;
 			sbp.Period = Period;
-			TSArray <PPEgaisProcessor::UtmEntry> utm_list;
+			TSVector <PPEgaisProcessor::UtmEntry> utm_list; // @v9.8.11 TSArray-->TSVector
 			THROW(ep.GetUtmList(LocID, utm_list));
 			PPWait(1);
 			for(uint i = 0; i < utm_list.getCount(); i++) {

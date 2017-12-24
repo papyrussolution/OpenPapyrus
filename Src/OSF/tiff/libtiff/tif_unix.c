@@ -152,7 +152,7 @@ static int _tiffMapProc(thandle_t fd, void** pbase, toff_t* psize)
 			return (1);
 		}
 	}
-	return (0);
+	return 0;
 }
 
 static void _tiffUnmapProc(thandle_t fd, void* base, toff_t size)
@@ -165,7 +165,7 @@ static void _tiffUnmapProc(thandle_t fd, void* base, toff_t size)
 static int _tiffMapProc(thandle_t fd, void** pbase, toff_t* psize)
 {
 	(void)fd; (void)pbase; (void)psize;
-	return (0);
+	return 0;
 }
 
 static void _tiffUnmapProc(thandle_t fd, void* base, toff_t size)

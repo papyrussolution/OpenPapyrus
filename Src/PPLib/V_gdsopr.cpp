@@ -229,15 +229,15 @@ IMPLEMENT_PPFILT_FACTORY(GoodsOpAnalyze); SLAPI GoodsOpAnalyzeFilt::GoodsOpAnaly
 // virtual
 int SLAPI GoodsOpAnalyzeFilt::Describe(long flags, SString & rBuf) const
 {
-	PutObjMembToBuf(PPOBJ_QUOTKIND,   QuotKindID,   STRINGIZING(QuotKindID), rBuf);
-	PutObjMembToBuf(PPOBJ_OPRKIND,    OpID,         STRINGIZING(OpID), rBuf);
-	PutObjMembToBuf(PPOBJ_ACCSHEET,   AccSheetID,   STRINGIZING(AccSheetID), rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,    ObjectID,     STRINGIZING(ObjectID), rBuf);
-	PutObjMembToBuf(PPOBJ_WORLD,      ObjCityID,    STRINGIZING(ObjCityID), rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,    SupplID,      STRINGIZING(SupplID), rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,    AgentID,      STRINGIZING(AgentID), rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,    SupplAgentID, STRINGIZING(SupplAgentID), rBuf);
-	PutObjMembToBuf(PPOBJ_GOODSGROUP, GoodsGrpID,   STRINGIZING(GoodsGrpID), rBuf);
+	PutObjMembToBuf(PPOBJ_QUOTKIND,   QuotKindID,   STRINGIZE(QuotKindID), rBuf);
+	PutObjMembToBuf(PPOBJ_OPRKIND,    OpID,         STRINGIZE(OpID), rBuf);
+	PutObjMembToBuf(PPOBJ_ACCSHEET,   AccSheetID,   STRINGIZE(AccSheetID), rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,    ObjectID,     STRINGIZE(ObjectID), rBuf);
+	PutObjMembToBuf(PPOBJ_WORLD,      ObjCityID,    STRINGIZE(ObjCityID), rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,    SupplID,      STRINGIZE(SupplID), rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,    AgentID,      STRINGIZE(AgentID), rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,    SupplAgentID, STRINGIZE(SupplAgentID), rBuf);
+	PutObjMembToBuf(PPOBJ_GOODSGROUP, GoodsGrpID,   STRINGIZE(GoodsGrpID), rBuf);
 	{
 		SString buf;
 #define __OPGRP(f) if(OpGrpID == f) buf = #f;
@@ -247,19 +247,19 @@ int SLAPI GoodsOpAnalyzeFilt::Describe(long flags, SString & rBuf) const
 		__OPGRP(ogPayed);
 		__OPGRP(ogInOutAnalyze);
 #undef __OPGRP
-		PutMembToBuf((const char*)buf, STRINGIZING(OpGrpID), rBuf);
+		PutMembToBuf(buf, STRINGIZE(OpGrpID), rBuf);
 	}
-	PutSggMembToBuf(Sgg, STRINGIZING(Sgg), rBuf);
+	PutSggMembToBuf(Sgg, STRINGIZE(Sgg), rBuf);
 
-	PutMembToBuf((long)ABCAnlzGroup, STRINGIZING(ABCAnlzGroup),    rBuf);
-	PutMembToBuf(RestCalcDate,       STRINGIZING(RestCalcDate),    rBuf);
-	PutMembToBuf(CmpRestCalcDate,    STRINGIZING(CmpRestCalcDate), rBuf);
-	PutMembToBuf(&CmpPeriod,         STRINGIZING(CmpPeriod),       rBuf);
-	PutMembToBuf(&Period,            STRINGIZING(Period),          rBuf);
+	PutMembToBuf((long)ABCAnlzGroup, STRINGIZE(ABCAnlzGroup),    rBuf);
+	PutMembToBuf(RestCalcDate,       STRINGIZE(RestCalcDate),    rBuf);
+	PutMembToBuf(CmpRestCalcDate,    STRINGIZE(CmpRestCalcDate), rBuf);
+	PutMembToBuf(&CmpPeriod,         STRINGIZE(CmpPeriod),       rBuf);
+	PutMembToBuf(&Period,            STRINGIZE(Period),          rBuf);
 
-	PutObjMembListToBuf(PPOBJ_GOODS,    &GoodsIdList, STRINGIZING(GoodsIdList), rBuf);
-	PutObjMembListToBuf(PPOBJ_BILL,     &BillList,    STRINGIZING(BIllList),    rBuf);
-	PutObjMembListToBuf(PPOBJ_LOCATION, &GoodsIdList, STRINGIZING(LocList),     rBuf);
+	PutObjMembListToBuf(PPOBJ_GOODS,    &GoodsIdList, STRINGIZE(GoodsIdList), rBuf);
+	PutObjMembListToBuf(PPOBJ_BILL,     &BillList,    STRINGIZE(BIllList),    rBuf);
+	PutObjMembListToBuf(PPOBJ_LOCATION, &GoodsIdList, STRINGIZE(LocList),     rBuf);
 	{
 		long   id = 1;
 		StrAssocArray flag_list;
@@ -285,7 +285,7 @@ int SLAPI GoodsOpAnalyzeFilt::Describe(long flags, SString & rBuf) const
 		__FLG(fTradePlanGoodsOnly);
 		__FLG(fCrosstab);
 #undef __FLG
-		PutFlagsMembToBuf(&flag_list, STRINGIZING(Flags), rBuf);
+		PutFlagsMembToBuf(&flag_list, STRINGIZE(Flags), rBuf);
 	}
 	return 1;
 }

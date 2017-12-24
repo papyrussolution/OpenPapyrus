@@ -3340,7 +3340,7 @@ browser PLINES_BYALLQUOTS north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 	"≈д.изм.",             4, notype, 0,  4
 	"@quote",             12, notype, 0, 10
 	"”паковка",            5, notype, NMBF_NOZERO, 6
-	"÷ена единицы",        6, notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
+	"@priceofunit",        6, notype, NMBF_DELCOMMA | NMBF_NOZERO, 10.2
 	"@memo",              10, notype, 0, 30
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         : kbEnter,    TBBM_EDIT,             "@{doeditrow}\tEnter"

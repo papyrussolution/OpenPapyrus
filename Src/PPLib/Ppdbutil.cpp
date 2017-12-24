@@ -1427,14 +1427,13 @@ int SLAPI CheckBuCopy(PPBackup * pPB, BackupDlgData * pBDD, int showDialog = 1);
 
 class BackupDialog : public TDialog {
 public:
-	BackupDialog(uint rezID, BackupDlgData * data, PPBackup * ppb) : TDialog(rezID), CtrlX(0), Data(*data), AsBackup((data->Cmd == cmBuBackup) ? 1 : 0)
+	BackupDialog(uint rezID, BackupDlgData * data, PPBackup * ppb) : TDialog(rezID), CtrlX(0), Data(*data), AsBackup(BIN(data->Cmd == cmBuBackup)), PPB(ppb)
 	{
 		enableCommand(cmBuBackup,  1);
 		enableCommand(cmBuRestore, 1);
 		enableCommand(cmBuRemove,  1);
 		enableCommand(cmBuCheck,   1);
 		Data.Cmd = 0;
-		PPB      = ppb;
 		P_List   = (SmartListBox*)getCtrlView(CTL_BU_BACKUP_LIST);
 		SetupStrListBox(this, CTL_BU_BACKUP_LIST);
 		setupScenCombo();

@@ -64,7 +64,7 @@ static int DumpModeEncode(TIFF* tif, uint8* pp, tmsize_t cc, uint16 s)
 		cc -= n;
 		if(tif->tif_rawcc >= tif->tif_rawdatasize &&
 		    !TIFFFlushData1(tif))
-			return (0);
+			return 0;
 	}
 	return (1);
 }
@@ -84,7 +84,7 @@ static int DumpModeDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 		TIFFErrorExt(tif->tif_clientdata, module, "Not enough data for scanline %lu, expected a request for at most %lld bytes, got a request for %lld bytes",
 		    (unsigned long)tif->tif_row, (signed long long)tif->tif_rawcc, (signed long long)cc);
 #endif
-		return (0);
+		return 0;
 	}
 	/*
 	 * Avoid copy if client has setup raw

@@ -473,9 +473,8 @@ private:
 	SString ResultText;
 };
 
-SelectObjectBlock::SelectObjectBlock()
+SelectObjectBlock::SelectObjectBlock() : P_BSob(new Backend_SelectObjectBlock())
 {
-	P_BSob = new Backend_SelectObjectBlock();
 }
 
 SelectObjectBlock::~SelectObjectBlock()
@@ -919,7 +918,6 @@ GETOBJATTACHMENTINFO
 	ID
 
 */
-
 static int SLAPI Helper_ProcessTddo(long dataId, void * pAry, const char * pDataName, SString & rOutTemplate, PPJobSrvReply & rResult)
 {
 	int       ok = 1;
@@ -2322,7 +2320,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					THROW_PP(P_DtGrF, PPERR_EMPTYPPOBJECT);
 					THROW_PP(P_DtGrF->GoodsID, PPERR_CMDSEL_ARGABS_GOODS);
 					{
-						TSArray <UhttGoodsRestVal> r_list;
+						TSVector <UhttGoodsRestVal> r_list; // @v9.8.11 TSArray-->TSVector
 						PPID   rest_op_id = 0;
 						PPID   order_op_id = 0;
 						PPOprKind op_rec;
@@ -4638,19 +4636,13 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 		THROW_PP(oneof3(Operator, oSelect, oGetGoodsMatrix, oGetTSessPlaceStatus), PPERR_CMDSEL_MISSFORMATCRIT);
 		THROW_PP(OutFormat == 0, PPERR_CMDSEL_DUPFORMATCRIT);
 		switch(subcriterion) {
-			case scXml:
-				OutFormat = fmtXml;
-				break;
-			case scXmlUtf8:
-				OutFormat = fmtXmlUtf8;
-				break;
+			case scXml: OutFormat = fmtXml; break;
+			case scXmlUtf8: OutFormat = fmtXmlUtf8; break;
+			case scBinary: OutFormat = fmtBinary; break;
 			case scTddo:
 				OutFormat = fmtTddo;
 				THROW_PP(rArg.NotEmpty(), PPERR_CMDSEL_MISSTDDOTEMPLATE);
 				OutTemplate = rArg;
-				break;
-			case scBinary:
-				OutFormat = fmtBinary;
 				break;
 			case scJson:
 				OutFormat = fmtJson;
@@ -4879,34 +4871,18 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 				else if(Operator == oBillAddLine) {
 					SETIFZ(P_SetBlk, new SetBlock);
 					switch(criterion) {
-						case cID:
-							P_SetBlk->U.B.ID = rArg.ToLong();
-							break;
 						case cGoods:
 							THROW(r = ResolveCrit_Goods(subcriterion, rArg, &P_SetBlk->U.B.GoodsID));
 							THROW_PP_S(r > 0, PPERR_CMDSEL_UNIDENTGOODS, rArg);
 							break;
-						case cSeries:
-							rArg.CopyTo(P_SetBlk->U.B.Serial, sizeof(P_SetBlk->U.B.Serial));
-							break;
-						case cQuantity:
-							P_SetBlk->U.B.Qtty = rArg.ToReal();
-							break;
-						case cPrice:
-							P_SetBlk->U.B.Price = rArg.ToReal();
-							break;
-						case cDiscount:
-							P_SetBlk->U.B.Discount = rArg.ToReal();
-							break;
-						case cAmount:
-							P_SetBlk->U.B.Amount = rArg.ToReal();
-							break;
-						case cTSession:
-                            P_SetBlk->U.B.TSessID = rArg.ToLong();
-                            break;
-						case cPlace:
-							STRNSCPY(P_SetBlk->U.B.PlaceCode, rArg);
-							break;
+						case cID: P_SetBlk->U.B.ID = rArg.ToLong(); break;
+						case cSeries: rArg.CopyTo(P_SetBlk->U.B.Serial, sizeof(P_SetBlk->U.B.Serial)); break;
+						case cQuantity: P_SetBlk->U.B.Qtty = rArg.ToReal(); break;
+						case cPrice: P_SetBlk->U.B.Price = rArg.ToReal(); break;
+						case cDiscount: P_SetBlk->U.B.Discount = rArg.ToReal(); break;
+						case cAmount: P_SetBlk->U.B.Amount = rArg.ToReal(); break;
+						case cTSession: P_SetBlk->U.B.TSessID = rArg.ToLong(); break;
+						case cPlace: STRNSCPY(P_SetBlk->U.B.PlaceCode, rArg); break;
 						default:
 							CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION);
 							break;
@@ -5270,14 +5246,12 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 					case cMatrix:
 						P_GoodsF->Flags |= GoodsFilt::fRestrictByMatrix;
 						break;
-					// @v7.3.4 {
 					case cMatrixLoc:
 						P_GoodsF->Flags |= GoodsFilt::fRestrictByMatrix;
 						THROW(ResolveCrit_Loc(subcriterion, rArg, &temp_id));
 						if(temp_id)
 							P_GoodsF->MtxLocID = temp_id;
 						break;
-					// } @v7.3.4
 					case cPassive:
 						if(rArg.OneOf(';', "no;false;0;default", 1))
 							P_GoodsF->Flags |= GoodsFilt::fHidePassive;

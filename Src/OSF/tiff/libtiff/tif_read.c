@@ -145,7 +145,7 @@ static int TIFFFillStripPartial(TIFF * tif, int strip, tmsize_t read_ahead, int 
 		tif->tif_curstrip = NOSTRIP;
 		if((tif->tif_flags & TIFF_MYBUFFER) == 0) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Data buffer too small to hold part of strip %lu", (unsigned long)strip);
-			return (0);
+			return 0;
 		}
 	}
 	if(restart) {
@@ -232,12 +232,12 @@ static int TIFFSeek(TIFF* tif, uint32 row, uint16 sample)
 	if(row >= td->td_imagelength) {         /* out of range */
 		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "%lu: Row out of range, max %lu",
 		    (unsigned long)row, (unsigned long)td->td_imagelength);
-		return (0);
+		return 0;
 	}
 	if(td->td_planarconfig == PLANARCONFIG_SEPARATE) {
 		if(sample >= td->td_samplesperpixel) {
 			TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "%lu: Sample out of range, max %lu", (unsigned long)sample, (unsigned long)td->td_samplesperpixel);
-			return (0);
+			return 0;
 		}
 		strip = (uint32)sample*td->td_stripsperimage + row/td->td_rowsperstrip;
 	}
@@ -274,7 +274,7 @@ static int TIFFSeek(TIFF* tif, uint32 row, uint16 sample)
 	if(strip != tif->tif_curstrip) {        /* different strip, refill */
 		if(whole_strip) {
 			if(!TIFFFillStrip(tif, strip))
-				return (0);
+				return 0;
 		}
 		else {
 			if(!TIFFFillStripPartial(tif, strip, read_ahead, 1) )
@@ -305,7 +305,7 @@ static int TIFFSeek(TIFF* tif, uint32 row, uint16 sample)
 		}
 		else {
 			if(!TIFFStartStrip(tif, strip))
-				return (0);
+				return 0;
 		}
 	}
 	if(row != tif->tif_row) {
@@ -314,7 +314,7 @@ static int TIFFSeek(TIFF* tif, uint32 row, uint16 sample)
 		 */
 		/* TODO: Will this really work with partial buffers? */
 		if(!(*tif->tif_seek)(tif, row - tif->tif_row))
-			return (0);
+			return 0;
 		tif->tif_row = row;
 	}
 	return (1);
@@ -565,7 +565,7 @@ int TIFFFillStrip(TIFF* tif, uint32 strip)
 #else
 			TIFFErrorExt(tif->tif_clientdata, module, "Invalid strip byte count %llu, strip %lu", (unsigned long long)bytecount, (unsigned long)strip);
 #endif
-			return (0);
+			return 0;
 		}
 
 		/* To avoid excessive memory allocations: */
@@ -615,7 +615,7 @@ int TIFFFillStrip(TIFF* tif, uint32 strip)
 				    (unsigned long)strip, (unsigned long long)tif->tif_size - td->td_stripoffset[strip], (unsigned long long)bytecount);
 #endif
 				tif->tif_curstrip = NOSTRIP;
-				return (0);
+				return 0;
 			}
 		}
 		if(isMapped(tif) && (isFillOrder(tif, td->td_fillorder) || (tif->tif_flags & TIFF_NOBITREV))) {
@@ -664,7 +664,7 @@ int TIFFFillStrip(TIFF* tif, uint32 strip)
 				tif->tif_curstrip = NOSTRIP;
 				if((tif->tif_flags & TIFF_MYBUFFER) == 0) {
 					TIFFErrorExt(tif->tif_clientdata, module, "Data buffer too small to hold strip %lu", (unsigned long)strip);
-					return (0);
+					return 0;
 				}
 			}
 			if(tif->tif_flags&TIFF_BUFFERMMAP) {
@@ -675,15 +675,15 @@ int TIFFFillStrip(TIFF* tif, uint32 strip)
 			}
 			if(isMapped(tif) ) {
 				if(bytecountm > tif->tif_rawdatasize && !TIFFReadBufferSetup(tif, 0, bytecountm)) {
-					return (0);
+					return 0;
 				}
 				if(TIFFReadRawStrip1(tif, strip, tif->tif_rawdata, bytecountm, module) != bytecountm) {
-					return (0);
+					return 0;
 				}
 			}
 			else {
 				if(TIFFReadRawStripOrTile2(tif, strip, 1, bytecountm, module) != bytecountm) {
-					return (0);
+					return 0;
 				}
 			}
 			tif->tif_rawdataoff = 0;
@@ -907,7 +907,7 @@ int TIFFFillTile(TIFF* tif, uint32 tile)
 			    (unsigned long long)bytecount,
 			    (unsigned long)tile);
 #endif
-			return (0);
+			return 0;
 		}
 
 		/* To avoid excessive memory allocations: */
@@ -951,7 +951,7 @@ int TIFFFillTile(TIFF* tif, uint32 tile)
 			 */
 			if(bytecount > (uint64)tif->tif_size || td->td_stripoffset[tile] > (uint64)tif->tif_size - bytecount) {
 				tif->tif_curtile = NOTILE;
-				return (0);
+				return 0;
 			}
 		}
 		if(isMapped(tif) && (isFillOrder(tif, td->td_fillorder) || (tif->tif_flags & TIFF_NOBITREV))) {
@@ -994,7 +994,7 @@ int TIFFFillTile(TIFF* tif, uint32 tile)
 				tif->tif_curtile = NOTILE;
 				if((tif->tif_flags & TIFF_MYBUFFER) == 0) {
 					TIFFErrorExt(tif->tif_clientdata, module, "Data buffer too small to hold tile %lu", (unsigned long)tile);
-					return (0);
+					return 0;
 				}
 			}
 			if(tif->tif_flags&TIFF_BUFFERMMAP) {
@@ -1005,15 +1005,15 @@ int TIFFFillTile(TIFF* tif, uint32 tile)
 			}
 			if(isMapped(tif) ) {
 				if(bytecountm > tif->tif_rawdatasize && !TIFFReadBufferSetup(tif, 0, bytecountm)) {
-					return (0);
+					return 0;
 				}
 				if(TIFFReadRawTile1(tif, tile, tif->tif_rawdata, bytecountm, module) != bytecountm) {
-					return (0);
+					return 0;
 				}
 			}
 			else {
 				if(TIFFReadRawStripOrTile2(tif, tile, 0, bytecountm, module) != bytecountm) {
-					return (0);
+					return 0;
 				}
 			}
 			tif->tif_rawdataoff = 0;
@@ -1053,7 +1053,7 @@ int TIFFReadBufferSetup(TIFF* tif, void* bp, tmsize_t size)
 		tif->tif_rawdatasize = (tmsize_t)TIFFroundup_64((uint64)size, 1024);
 		if(tif->tif_rawdatasize==0) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Invalid buffer size");
-			return (0);
+			return 0;
 		}
 		/* Initialize to zero to avoid uninitialized buffers in case of */
 		/* short reads (http://bugzilla.maptools.org/show_bug.cgi?id=2651) */
@@ -1063,7 +1063,7 @@ int TIFFReadBufferSetup(TIFF* tif, void* bp, tmsize_t size)
 	if(tif->tif_rawdata == NULL) {
 		TIFFErrorExt(tif->tif_clientdata, module, "No space for data buffer at scanline %lu", (unsigned long)tif->tif_row);
 		tif->tif_rawdatasize = 0;
-		return (0);
+		return 0;
 	}
 	return (1);
 }
@@ -1078,7 +1078,7 @@ static int TIFFStartStrip(TIFF* tif, uint32 strip)
 		return 0;
 	if((tif->tif_flags & TIFF_CODERSETUP) == 0) {
 		if(!(*tif->tif_setupdecode)(tif))
-			return (0);
+			return 0;
 		tif->tif_flags |= TIFF_CODERSETUP;
 	}
 	tif->tif_curstrip = strip;
@@ -1107,7 +1107,7 @@ static int TIFFStartTile(TIFF* tif, uint32 tile)
 		return 0;
 	if((tif->tif_flags & TIFF_CODERSETUP) == 0) {
 		if(!(*tif->tif_setupdecode)(tif))
-			return (0);
+			return 0;
 		tif->tif_flags |= TIFF_CODERSETUP;
 	}
 	tif->tif_curtile = tile;
@@ -1139,11 +1139,11 @@ static int TIFFCheckRead(TIFF* tif, int tiles)
 {
 	if(tif->tif_mode == O_WRONLY) {
 		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "File not open for reading");
-		return (0);
+		return 0;
 	}
 	if(tiles ^ isTiled(tif)) {
 		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, tiles ? "Can not read tiles from a stripped image" : "Can not read scanlines from a tiled image");
-		return (0);
+		return 0;
 	}
 	return (1);
 }

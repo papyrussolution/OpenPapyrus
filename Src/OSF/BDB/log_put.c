@@ -1345,13 +1345,13 @@ static int __log_put_record_int(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret
 	ret = 0;
 	data = NULL;
 	if(LF_ISSET(DB_LOG_NOT_DURABLE) || (dbp != NULL && F_ISSET(dbp, DB_AM_NOT_DURABLE))) {
-		if(txnp == NULL)
+		if(!txnp)
 			return 0;
 		is_durable = 0;
 	}
 	else
 		is_durable = 1;
-	if(txnp == NULL) {
+	if(!txnp) {
 		txn_num = 0;
 		lsnp = &null_lsn;
 		null_lsn.file = null_lsn.Offset_ = 0;
@@ -1378,7 +1378,7 @@ static int __log_put_record_int(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret
 		npad = env->crypto_handle->adj_size(logrec.size);
 		logrec.size += npad;
 	}
-	if(is_durable || txnp == NULL) {
+	if(is_durable || !txnp) {
 		if((ret = __os_malloc(env, logrec.size, &logrec.data)) != 0)
 			return ret;
 	}
@@ -1499,8 +1499,8 @@ static int __log_put_record_int(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret
 			break;
 		    case LOGREC_POINTER:
 			pagelsn = va_arg(argp, DB_LSN *);
-			if(pagelsn != NULL) {
-				if(txnp != NULL) {
+			if(pagelsn) {
+				if(txnp) {
 					if(LOG_COMPARE(pagelsn, &lp->lsn) >= 0 && (ret = __log_check_page_lsn(env, dbp, pagelsn)) != 0)
 						return ret;
 				}
@@ -1516,9 +1516,9 @@ static int __log_put_record_int(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret
 		}
 	}
 	DB_ASSERT(env, (uint32)(bp-(uint8 *)logrec.data) <= logrec.size);
-	if(is_durable || txnp == NULL) {
+	if(is_durable || !txnp) {
 		if((ret = __log_put(env, rlsnp, (DBT *)&logrec, flags|DB_LOG_NOCOPY)) == 0) {
-			if(txnp != NULL)
+			if(txnp)
 				*lsnp = *rlsnp;
 			*ret_lsnp = *rlsnp;
 		}
@@ -1548,7 +1548,7 @@ static int __log_put_record_int(ENV * env, DB * dbp, DB_TXN * txnp, DB_LSN * ret
 #ifdef DIAGNOSTIC
 	__os_free(env, logrec.data);
 #else
-	if(is_durable || txnp == NULL)
+	if(is_durable || !txnp)
 		__os_free(env, logrec.data);
 #endif
 	return ret;

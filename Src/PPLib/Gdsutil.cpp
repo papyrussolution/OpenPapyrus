@@ -1211,9 +1211,8 @@ int SLAPI EditQuotVal(PPQuot * pQ, int quotCls)
 {
 	class SetQuotDialog : public TDialog {
 	public:
-		SetQuotDialog(int quotCls) : TDialog((quotCls == PPQuot::clsPredictCoeff) ? DLG_SETQUOTPC : DLG_SETQUOT)
+		SetQuotDialog(int quotCls) : TDialog((quotCls == PPQuot::clsPredictCoeff) ? DLG_SETQUOTPC : DLG_SETQUOT), QuotCls(quotCls)
 		{
-			QuotCls = quotCls;
 			PPObjQuotKind qk_obj;
 			if(!qk_obj.CheckRights(QUOTRT_UPDQUOTS)) {
 				SString temp_buf;
@@ -1303,7 +1302,7 @@ int SLAPI EditQuotVal(PPQuot * pQ, int quotCls)
 				clearEvent(event);
 			}
 		}
-		int    QuotCls;
+		const int QuotCls;
 		PPQuot Data;
 	};
 	DIALOG_PROC_BODY_P1(SetQuotDialog, quotCls, pQ);

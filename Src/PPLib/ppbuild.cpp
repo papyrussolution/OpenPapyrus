@@ -220,15 +220,13 @@ int	SLAPI PrcssrBuild::EditParam(Param * pParam)
 {
 	class SelfBuildDialog : public TDialog {
 	public:
-		SelfBuildDialog(PrcssrBuild & rPrcssr) : TDialog(DLG_SELFBUILD), R_Prcssr(rPrcssr)
+		SelfBuildDialog(PrcssrBuild & rPrcssr) : TDialog(DLG_SELFBUILD), R_Prcssr(rPrcssr), PrevTimeoutRest(-1), StartClock(0)
 		{
 #ifdef NDEBUG
 			CloseTimeout = 60;
 #else
 			CloseTimeout = -1;
 #endif
-			PrevTimeoutRest = -1;
-			StartClock = 0;
 		}
 		int setDTS(const PrcssrBuild::Param * pData)
 		{

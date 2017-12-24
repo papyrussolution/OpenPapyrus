@@ -66,7 +66,7 @@ static int NeXTDecode(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 	scanline = tif->tif_scanlinesize;
 	if(occ % scanline) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Fractional scanlines cannot be read");
-		return (0);
+		return 0;
 	}
 	for(row = buf; cc > 0 && occ > 0; occ -= scanline, row += scanline) {
 		n = *bp++;
@@ -128,7 +128,7 @@ static int NeXTDecode(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 				    if(op_offset >= scanline) {
 					    TIFFErrorExt(tif->tif_clientdata, module, "Invalid data for scanline %ld",
 						    (long)tif->tif_row);
-					    return (0);
+					    return 0;
 				    }
 				    if(cc == 0)
 					    goto bad;
@@ -145,7 +145,7 @@ static int NeXTDecode(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 bad:
 	TIFFErrorExt(tif->tif_clientdata, module, "Not enough data for scanline %ld",
 	    (long)tif->tif_row);
-	return (0);
+	return 0;
 }
 
 static int NeXTPreDecode(TIFF* tif, uint16 s)
@@ -155,7 +155,7 @@ static int NeXTPreDecode(TIFF* tif, uint16 s)
 	(void)s;
 	if(td->td_bitspersample != 2) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Unsupported BitsPerSample = %d", td->td_bitspersample);
-		return (0);
+		return 0;
 	}
 	return (1);
 }

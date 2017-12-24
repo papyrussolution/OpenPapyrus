@@ -236,6 +236,10 @@ BlockingCounter & SLAPI BlockingCounter::operator--()
 //
 //
 //
+SLAPI SemiMutex::SemiMutex() : ExclusiveAccess(0, 0)
+{
+}
+
 // Share execution with other "readers".
 int SLAPI SemiMutex::ReadLock()
 {

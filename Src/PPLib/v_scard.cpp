@@ -2777,7 +2777,7 @@ int SLAPI PPViewSCardOp::AddItem(int freezing)
 	return ok;
 }
 
-static void SLAPI dbqf_scardop_extobj_ii(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_scardop_extobj_ii)
 {
 	char   buf[64];
 	if(option == CALC_SIZE) {

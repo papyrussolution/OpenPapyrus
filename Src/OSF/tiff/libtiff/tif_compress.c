@@ -68,7 +68,7 @@ static int TIFFNoDecode(TIFF* tif, const char* method)
 		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "%s %s decoding is not implemented", c->name, method);
 	else
 		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Compression scheme %u %s decoding is not implemented", tif->tif_dir.td_compression, method);
-	return (0);
+	return 0;
 }
 
 static int _TIFFNoFixupTags(TIFF* tif)
@@ -99,7 +99,7 @@ int _TIFFNoSeek(TIFF* tif, uint32 off)
 {
 	(void)off;
 	TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Compression algorithm does not support random access");
-	return (0);
+	return 0;
 }
 
 int _TIFFNoPreCode(TIFF* tif, uint16 s)

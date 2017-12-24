@@ -1266,13 +1266,11 @@ int StaffCalDialog::setupList()
 
 class StaffCalDayDialog : public TDialog {
 public:
-	StaffCalDayDialog(const PPStaffCalPacket * pPack) : TDialog(DLG_STAFFCALD)
+	StaffCalDayDialog(const PPStaffCalPacket * pPack) : TDialog(DLG_STAFFCALD), P_Pack(pPack), LockUpdByInput(0)
 	{
-		P_Pack = pPack;
 		SetupCalDate(CTLCAL_STAFFCALD_DATE, CTL_STAFFCALD_DATE);
 		SetupTimePicker(this, CTL_STAFFCALD_TMSTART, CTLTM_STAFFCALD_TMSTART);
 		SetupTimePicker(this, CTL_STAFFCALD_TMEND, CTLTM_STAFFCALD_TMEND);
-		LockUpdByInput = 0;
 	}
 	int    setDTS(const StaffCalendarTbl::Rec * pData);
 	int    getDTS(StaffCalendarTbl::Rec * pData);

@@ -2675,10 +2675,8 @@ public:
 	int    GetDirect(DBTable & rTbl, const DBRowId & rPos, int forUpdate);
 private:
 	struct OH {
-		OH()
+		OH() : H(0), T(0)
 		{
-			H = 0;
-			T = 0;
 		}
 		int    Valid() const
 		{
@@ -2744,10 +2742,8 @@ private:
 		uint32 T;              // Тип манипулятора (OCI_HTYPE_XXX)
 	};
 	struct OD { // @#size=8
-		OD()
+		OD() : H(0), T(0)
 		{
-			H = 0;
-			T = 0;
 		}
 		int    operator !() const { return (T == 0); }
 		operator OCIDateTime * () const { return (OCIDateTime *)H; }    // OCI_DTYPE_TIMESTAMP
@@ -2757,9 +2753,8 @@ private:
 		uint32 T;
 	};
 	struct RAW {
-		RAW()
+		RAW() : P(0)
 		{
-			P = 0;
 		}
 		OCIRaw * P;
 	};
@@ -3125,16 +3120,17 @@ extern DbSession DBS;
 #define AGGR_NEXT   2 // Для каждой записи
 #define AGGR_END    3 // Больше записей не будет
 #define CALC_SIZE  10 // Вычислить длину результата
-/*
-	params - массив параметров. Разрушается вызывающей функцией.
-	Параметр option используется агрегатными функциями и принимает
-	одно из значений {AGGR_BEGIN | AGGR_NEXT | AGGR_END}. При этом,
-	если option == AGGR_BEGIN || option == AGGR_NEXT, параметр result
-	используется по усмотрению функции (промежуточные результаты), при
-	option == AGGR_END в параметр result должно быть занесено
-	окончательное значение.
-*/
-typedef void (SLAPI *DBQProc)(int option, DBConst * result, DBConst * params);
+// 
+// params - массив параметров. Разрушается вызывающей функцией.
+// Параметр option используется агрегатными функциями и принимает
+// одно из значений {AGGR_BEGIN | AGGR_NEXT | AGGR_END}. При этом,
+// если option == AGGR_BEGIN || option == AGGR_NEXT, параметр result
+// используется по усмотрению функции (промежуточные результаты), при
+// option == AGGR_END в параметр result должно быть занесено
+// окончательное значение.
+// 
+typedef void (SLAPI * DBQProc)(int option, DBConst * result, DBConst * params);
+#define IMPL_DBE_PROC(name) void SLAPI name(int option, DBConst * result, DBConst * params)
 
 enum DBFunc {
 	dbq_error = 0,
@@ -3262,8 +3258,6 @@ struct DBItem {
 };
 
 struct DBField : public DBItem {
-	int    fld;
-
 	DBTable * SLAPI getTable() const { return _GetTable(id); }
 	const BNField & SLAPI getField() const { return _GetTable(id)->fields[fld]; }
 	int    FASTCALL getValue(void *, size_t * pSize) const;
@@ -3271,6 +3265,8 @@ struct DBField : public DBItem {
 	void * SLAPI getValuePtr();
 	// if !*k then getFirst index, else getNext index
 	int    SLAPI getIndex(BNKey * pK, int * pKeyPos, int * pSeg);
+
+	int    fld;
 };
 
 class DBFieldList {
@@ -3404,6 +3400,16 @@ union DBDataCell {
 };
 
 struct DBQ {
+	SLAPI  DBQ(DBItem &, int comp, DBItem &);
+	SLAPI  DBQ(int logic, DBQ &, DBQ &);
+	void   FASTCALL destroy(int withTree = 0);
+	int    SLAPI testForKey(int itm, int tblID, int * pIsDyn);
+		// @<<DBQ::getPotentialKey(int itm, int tblID, int segment, KR * kr)
+	int    SLAPI getPotentialKey(int itm, int tblID, int segment, KR * pKr);
+		// @<<DBTree::chooseKey(int n, int tblID, int seg, PKR dest, uint * pTrace)
+	int    FASTCALL checkTerm(int);
+	int    SLAPI CreateSqlExpr(Generator_SQL * pGen, int itm) const;
+
 	DBTree * tree;
 	uint   count;
 	struct T {
@@ -3417,16 +3423,6 @@ struct DBQ {
 		DBDataCell left, right;
 	};
 	T *    items;
-
-	SLAPI  DBQ(DBItem &, int comp, DBItem &);
-	SLAPI  DBQ(int logic, DBQ &, DBQ &);
-	void   FASTCALL destroy(int withTree = 0);
-	int    SLAPI testForKey(int itm, int tblID, int * pIsDyn);
-		// @<<DBQ::getPotentialKey(int itm, int tblID, int segment, KR * kr)
-	int    SLAPI getPotentialKey(int itm, int tblID, int segment, KR * pKr);
-		// @<<DBTree::chooseKey(int n, int tblID, int seg, PKR dest, uint * pTrace)
-	int    FASTCALL checkTerm(int);
-	int    SLAPI CreateSqlExpr(Generator_SQL * pGen, int itm) const;
 };
 
 #define NOKEY 0x0001
@@ -3540,7 +3536,7 @@ public:
 	};
 };
 
-int SLAPI compare(KR, KR);
+int FASTCALL compare(KR, KR);
 
 DBQuery & FASTCALL selectbycell(int count, DBDataCell *);
 DBQuery & FASTCALL select(const DBFieldList &);
@@ -3899,7 +3895,7 @@ public:
 	void   SLAPI setMaxReject(uint);
 	//
 	// Descr: Снимает внутренний признак окончания чтения. Необходим для случаев,
-	//   когда необходимо продолжить чтение с текущей позиции в предположении, что
+	//   когда требуется продолжить чтение с текущей позиции в предположении, что
 	//   с момента последнего чтения появились новые записи.
 	//
 	void   SLAPI resetEof();

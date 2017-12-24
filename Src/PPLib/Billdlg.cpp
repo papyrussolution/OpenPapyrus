@@ -81,15 +81,13 @@ int SLAPI EditRentCondition(PPRentCondition * pRc)
 //
 class BillExtDialog : public TDialog {
 public:
-	BillExtDialog(uint dlgID, ObjTagList * pTagList) : TDialog(dlgID/*DLG_BILLEXT*/)
+	BillExtDialog(uint dlgID, ObjTagList * pTagList) : TDialog(dlgID/*DLG_BILLEXT*/), IsTagList(0)
 	{
 		if(pTagList) {
 			TagL = *pTagList;
 			TagL.ObjType = PPOBJ_BILL;
 			IsTagList = 1;
 		}
-		else
-			IsTagList = 0;
 		enableCommand(cmTags, IsTagList);
 	}
 	const ObjTagList * GetTagList() const
@@ -2920,7 +2918,7 @@ int SLAPI PPObjBill::EditFreightDialog(PPBillPacket * pPack)
 {
 	class FreightDialog : public TDialog {
 	public:
-		FreightDialog() : TDialog(DLG_FREIGHT)
+		FreightDialog() : TDialog(DLG_FREIGHT), P_Pack(0)
 		{
 		}
 		int setDTS(const PPFreight * pData, PPBillPacket * pPack)

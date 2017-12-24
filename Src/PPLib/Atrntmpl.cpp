@@ -1030,11 +1030,12 @@ int SLAPI PPAccTurnTempl::AccTemplFromStr(int side, const char * pBuf)
 //
 // Диалог шаблона бухгалтерской проводки
 //
-#define GRP_DBT 1
-#define GRP_CRD 2
-
 class ATurnTmplDialog : public TDialog {
 public:
+	enum {
+		ctlgroupDbt = 1,
+		ctlgroupCrd = 2,
+	};
 	ATurnTmplDialog(uint rezID, PPObjAccTurn * _ppobj) : TDialog(rezID), ppobj(_ppobj)
 	{
 		SetupCalCtrl(CTLCAL_ATRNTMPL_PERIOD, this, CTL_ATRNTMPL_PERIOD, 1);
@@ -1042,12 +1043,10 @@ public:
 		setCtrlOption(CTL_ATRNTMPL_DTEXT,  ofFramed, 1);
 		setCtrlOption(CTL_ATRNTMPL_CTEXT,  ofFramed, 1);
 		setCtrlOption(CTL_ATRNTMPL_SFRAME, ofFramed, 1);
-		p_acc_grp = new AcctCtrlGroup(CTL_ATRNTMPL_DACC, CTL_ATRNTMPL_DART,
-			CTLSEL_ATRNTMPL_DACCNAME, CTLSEL_ATRNTMPL_DARTNAME);
-		addGroup(GRP_DBT, p_acc_grp);
-		p_acc_grp = new AcctCtrlGroup(CTL_ATRNTMPL_CACC, CTL_ATRNTMPL_CART,
-			CTLSEL_ATRNTMPL_CACCNAME, CTLSEL_ATRNTMPL_CARTNAME);
-		addGroup(GRP_CRD, p_acc_grp);
+		p_acc_grp = new AcctCtrlGroup(CTL_ATRNTMPL_DACC, CTL_ATRNTMPL_DART, CTLSEL_ATRNTMPL_DACCNAME, CTLSEL_ATRNTMPL_DARTNAME);
+		addGroup(ctlgroupDbt, p_acc_grp);
+		p_acc_grp = new AcctCtrlGroup(CTL_ATRNTMPL_CACC, CTL_ATRNTMPL_CART, CTLSEL_ATRNTMPL_CACCNAME, CTLSEL_ATRNTMPL_CARTNAME);
+		addGroup(ctlgroupCrd, p_acc_grp);
 		setDTS(0);
 	}
 	int    setDTS(const PPAccTurnTempl *);
@@ -1155,9 +1154,9 @@ int ATurnTmplDialog::setDTS(const PPAccTurnTempl * pData)
 	setCtrlData(CTL_ATRNTMPL_AMOUNT, data.Expr);
 	getSheetOfAcc(&(rec.AcctId = data.DbtID), &rec.AccSheetID);
 	rec.AccSelParam = ACY_SEL_BALOBALALIAS;
-	setGroupData(GRP_DBT, &rec);
+	setGroupData(ctlgroupDbt, &rec);
 	getSheetOfAcc(&(rec.AcctId = data.CrdID), &rec.AccSheetID);
-	setGroupData(GRP_CRD, &rec);
+	setGroupData(ctlgroupCrd, &rec);
 	data.SubstToStrings(prim_subst, foreign_subst);
 	setCtrlString(CTL_ATRNTMPL_PSUBST, prim_subst);
 	setCtrlString(CTL_ATRNTMPL_FSUBST, foreign_subst);
@@ -1179,14 +1178,14 @@ int ATurnTmplDialog::getDTS(PPAccTurnTempl * pData)
 	ushort v = 0;
 	AcctCtrlGroup::Rec dbt_acc_rec, crd_acc_rec;
 	getFlags();
-	THROW(getGroupData(GRP_DBT, &dbt_acc_rec));
+	THROW(getGroupData(ctlgroupDbt, &dbt_acc_rec));
 	data.DbtID = dbt_acc_rec.AcctId;
-	THROW(getGroupData(GRP_CRD, &crd_acc_rec));
+	THROW(getGroupData(ctlgroupCrd, &crd_acc_rec));
 	data.CrdID = crd_acc_rec.AcctId;
 	selectCtrl(CTL_ATRNTMPL_AMOUNT);
 	getCtrlData(CTL_ATRNTMPL_AMOUNT, data.Expr);
 	if(dbt_acc_rec.AccType != ACY_ALIAS && crd_acc_rec.AccType != ACY_ALIAS) {
-		if(dbt_acc_rec.AccType == ACY_OBAL || dbt_acc_rec.AccType == ACY_REGISTER) {
+		if(oneof2(dbt_acc_rec.AccType, ACY_OBAL, ACY_REGISTER)) {
 			THROW_PP(!crd_acc_rec.AcctId.ac || crd_acc_rec.AccType != ACY_BAL, PPERR_INVACCTYPEPAIR);
 		}
 	}

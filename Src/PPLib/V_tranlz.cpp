@@ -202,86 +202,86 @@ int SLAPI TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
 int SLAPI TrfrAnlzFilt::Describe(long flags, SString & rBuf) const
 {
 	SString temp_buf;
-	PutMembToBuf(&Period,     STRINGIZING(Period), rBuf);
-	PutMembToBuf(&LotsPeriod, STRINGIZING(LotsPeriod), rBuf);
+	PutMembToBuf(&Period,     STRINGIZE(Period), rBuf);
+	PutMembToBuf(&LotsPeriod, STRINGIZE(LotsPeriod), rBuf);
 
-	PutObjMembToBuf(PPOBJ_OPRKIND,      OpID,        STRINGIZING(OpID),      rBuf);
-	PutObjMembToBuf(PPOBJ_ARTICLE,      SupplID,    STRINGIZING(SupplID),    rBuf);
-	PutObjMembToBuf(PPOBJ_GOODS,        GoodsID,    STRINGIZING(GoodsID),    rBuf);
-	PutObjMembToBuf(PPOBJ_GOODSGROUP,   GoodsGrpID, STRINGIZING(GoodsGrpID), rBuf);
-	PutObjMembToBuf(PPOBJ_WORLD,        CityID,     STRINGIZING(CityID),     rBuf);
-	PutObjMembToBuf(PPOBJ_PRSNCATEGORY, PsnCatID,   STRINGIZING(PsnCatID),   rBuf);
-	PutObjMembToBuf(PPOBJ_LOCATION,     DlvrAddrID, STRINGIZING(DlvrAddrID), rBuf);
+	PutObjMembToBuf(PPOBJ_OPRKIND,      OpID,        STRINGIZE(OpID),      rBuf);
+	PutObjMembToBuf(PPOBJ_ARTICLE,      SupplID,    STRINGIZE(SupplID),    rBuf);
+	PutObjMembToBuf(PPOBJ_GOODS,        GoodsID,    STRINGIZE(GoodsID),    rBuf);
+	PutObjMembToBuf(PPOBJ_GOODSGROUP,   GoodsGrpID, STRINGIZE(GoodsGrpID), rBuf);
+	PutObjMembToBuf(PPOBJ_WORLD,        CityID,     STRINGIZE(CityID),     rBuf);
+	PutObjMembToBuf(PPOBJ_PRSNCATEGORY, PsnCatID,   STRINGIZE(PsnCatID),   rBuf);
+	PutObjMembToBuf(PPOBJ_LOCATION,     DlvrAddrID, STRINGIZE(DlvrAddrID), rBuf);
 	{
 		if(CtKind == ctNone)
-			temp_buf = STRINGIZING(ctNone);
+			temp_buf = STRINGIZE(ctNone);
 		else if(CtKind == ctDate)
-			temp_buf = STRINGIZING(ctDate);
+			temp_buf = STRINGIZE(ctDate);
 		else if(CtKind == ctCntragent)
-			temp_buf = STRINGIZING(ctCntragent);
+			temp_buf = STRINGIZE(ctCntragent);
 		else if(CtKind == ctLocation)
-			temp_buf = STRINGIZING(ctLocation);
+			temp_buf = STRINGIZE(ctLocation);
 		else
 			temp_buf.Z();
-		PutMembToBuf(temp_buf.cptr(), STRINGIZING(CtKind), rBuf);
+		PutMembToBuf(temp_buf, STRINGIZE(CtKind), rBuf);
 	}
 	{
 		if(InitOrd == PPViewTrfrAnlz::OrdByDefault)
-			temp_buf = STRINGIZING(OrdByDefault);
+			temp_buf = STRINGIZE(OrdByDefault);
 		else if(InitOrd == PPViewTrfrAnlz::OrdByDate)
-			temp_buf = STRINGIZING(OrdByDate);
+			temp_buf = STRINGIZE(OrdByDate);
 		else if(InitOrd == PPViewTrfrAnlz::OrdByGoods)
-			temp_buf = STRINGIZING(OrdByGoods);
+			temp_buf = STRINGIZE(OrdByGoods);
 		else if(InitOrd == PPViewTrfrAnlz::OrdByArticle)
-			temp_buf = STRINGIZING(OrdByArticle);
+			temp_buf = STRINGIZE(OrdByArticle);
 		else
 			temp_buf.Z();
-	 	PutMembToBuf(temp_buf.cptr(), STRINGIZING(InitOrd), rBuf);
+	 	PutMembToBuf(temp_buf, STRINGIZE(InitOrd), rBuf);
 	}
 	{
 		switch(Grp) {
-			case gNone:                    temp_buf = STRINGIZING(gNong); break;
-			case gGoods:                   temp_buf = STRINGIZING(gGoods); break;
-			case gCntragent:               temp_buf = STRINGIZING(gCntragent); break;
-			case gCntragentDate:           temp_buf = STRINGIZING(gCntragentDate); break;
-			case gGoodsCntragent:          temp_buf = STRINGIZING(gGoodsCntragent); break;
-			case gGoodsCntragentDate:      temp_buf = STRINGIZING(gGoodsCntragentDate); break;
-			case gGoodsBill:               temp_buf = STRINGIZING(gGoodsBill); break;
-			case gDateCntragentAgentGoods: temp_buf = STRINGIZING(gDateCntragentAgentGoods); break;
-			case gGoodsDate:               temp_buf = STRINGIZING(gGoodsDate); break;
-			case gBillCntragent:           temp_buf = STRINGIZING(gBillCntragent); break;
+			case gNone:                    temp_buf = STRINGIZE(gNong); break;
+			case gGoods:                   temp_buf = STRINGIZE(gGoods); break;
+			case gCntragent:               temp_buf = STRINGIZE(gCntragent); break;
+			case gCntragentDate:           temp_buf = STRINGIZE(gCntragentDate); break;
+			case gGoodsCntragent:          temp_buf = STRINGIZE(gGoodsCntragent); break;
+			case gGoodsCntragentDate:      temp_buf = STRINGIZE(gGoodsCntragentDate); break;
+			case gGoodsBill:               temp_buf = STRINGIZE(gGoodsBill); break;
+			case gDateCntragentAgentGoods: temp_buf = STRINGIZE(gDateCntragentAgentGoods); break;
+			case gGoodsDate:               temp_buf = STRINGIZE(gGoodsDate); break;
+			case gBillCntragent:           temp_buf = STRINGIZE(gBillCntragent); break;
 			default: temp_buf.Z();
 		}
-		PutMembToBuf(temp_buf.cptr(), STRINGIZING(Grp), rBuf);
+		PutMembToBuf(temp_buf, STRINGIZE(Grp), rBuf);
 	}
 	{
 		long id = 1;
 		StrAssocArray flag_list;
-		if(Flags & fLabelOnly)          flag_list.Add(id++, STRINGIZING(fLabelOnly));
-		if(Flags & fGByDate)            flag_list.Add(id++, STRINGIZING(fGByDate));
-		if(Flags & fGetRest)            flag_list.Add(id++, STRINGIZING(fGetRest));
-		if(Flags & fSubstPersonRAddr)   flag_list.Add(id++, STRINGIZING(fSubstPersonRAddr));
-		if(Flags & fSubstDlvrAddr)      flag_list.Add(id++, STRINGIZING(fSubstDlvrAddr));
-		if(Flags & fDiffByDlvrAddr)     flag_list.Add(id++, STRINGIZING(fDiffByDlvrAddr));
-		if(Flags & fDontInitSubstNames) flag_list.Add(id++, STRINGIZING(fDontInitSubstNames));
-		if(Flags & fInitLocCount)       flag_list.Add(id++, STRINGIZING(fInitLocCount));
-		if(Flags & fCalcRest)           flag_list.Add(id++, STRINGIZING(fCalcRest));
-		if(Flags & fShowAllArticles)    flag_list.Add(id++, STRINGIZING(fShowAllArticles));
-		if(Flags & fShowAllAgents)      flag_list.Add(id++, STRINGIZING(fShowAllAgents));
-		if(Flags & fShowAllGoods)       flag_list.Add(id++, STRINGIZING(fShowAllGoods));
-		if(Flags & fByZeroAgent)        flag_list.Add(id++, STRINGIZING(fByZeroAgent));
-		PutFlagsMembToBuf(&flag_list, STRINGIZING(Flags), rBuf);
+		if(Flags & fLabelOnly)          flag_list.Add(id++, STRINGIZE(fLabelOnly));
+		if(Flags & fGByDate)            flag_list.Add(id++, STRINGIZE(fGByDate));
+		if(Flags & fGetRest)            flag_list.Add(id++, STRINGIZE(fGetRest));
+		if(Flags & fSubstPersonRAddr)   flag_list.Add(id++, STRINGIZE(fSubstPersonRAddr));
+		if(Flags & fSubstDlvrAddr)      flag_list.Add(id++, STRINGIZE(fSubstDlvrAddr));
+		if(Flags & fDiffByDlvrAddr)     flag_list.Add(id++, STRINGIZE(fDiffByDlvrAddr));
+		if(Flags & fDontInitSubstNames) flag_list.Add(id++, STRINGIZE(fDontInitSubstNames));
+		if(Flags & fInitLocCount)       flag_list.Add(id++, STRINGIZE(fInitLocCount));
+		if(Flags & fCalcRest)           flag_list.Add(id++, STRINGIZE(fCalcRest));
+		if(Flags & fShowAllArticles)    flag_list.Add(id++, STRINGIZE(fShowAllArticles));
+		if(Flags & fShowAllAgents)      flag_list.Add(id++, STRINGIZE(fShowAllAgents));
+		if(Flags & fShowAllGoods)       flag_list.Add(id++, STRINGIZE(fShowAllGoods));
+		if(Flags & fByZeroAgent)        flag_list.Add(id++, STRINGIZE(fByZeroAgent));
+		PutFlagsMembToBuf(&flag_list, STRINGIZE(Flags), rBuf);
 	}
 
-	PutSggMembToBuf(Sgg, STRINGIZING(Sgg), rBuf);
-	PutSgpMembToBuf(Sgp, STRINGIZING(Sgp), rBuf);
-	PutSgdMembToBuf(Sgd, STRINGIZING(Sgd), rBuf);
+	PutSggMembToBuf(Sgg, STRINGIZE(Sgg), rBuf);
+	PutSgpMembToBuf(Sgp, STRINGIZE(Sgp), rBuf);
+	PutSgdMembToBuf(Sgd, STRINGIZE(Sgd), rBuf);
 
-	PutObjMembListToBuf(PPOBJ_BILL,     &BillList,     STRINGIZING(BillList),     rBuf);
-	PutObjMembListToBuf(PPOBJ_BILL,     &RcptBillList, STRINGIZING(RcptBillList), rBuf);
-	PutObjMembListToBuf(PPOBJ_LOCATION, &LocList,      STRINGIZING(LocList),      rBuf);
-	PutObjMembListToBuf(PPOBJ_LOCATION, &ArList,       STRINGIZING(ArList),       rBuf);
-	PutObjMembListToBuf(PPOBJ_LOCATION, &AgentList,    STRINGIZING(AgentList),    rBuf);
+	PutObjMembListToBuf(PPOBJ_BILL,     &BillList,     STRINGIZE(BillList),     rBuf);
+	PutObjMembListToBuf(PPOBJ_BILL,     &RcptBillList, STRINGIZE(RcptBillList), rBuf);
+	PutObjMembListToBuf(PPOBJ_LOCATION, &LocList,      STRINGIZE(LocList),      rBuf);
+	PutObjMembListToBuf(PPOBJ_LOCATION, &ArList,       STRINGIZE(ArList),       rBuf);
+	PutObjMembListToBuf(PPOBJ_LOCATION, &AgentList,    STRINGIZE(AgentList),    rBuf);
 	return 1;
 }
 //
@@ -1582,7 +1582,7 @@ int SLAPI PPViewTrfrAnlz::AddAbsentSaldo()
 	return ok;
 }
 
-int SLAPI PPViewTrfrAnlz::InitDateText(LDATE dt, PPID billID, SString & rBuf)
+void SLAPI PPViewTrfrAnlz::InitDateText(LDATE dt, PPID billID, SString & rBuf)
 {
 	FormatSubstDate(Filt.Sgd, dt, rBuf, (P_TrGrpngTbl && Filt.CtKind == TrfrAnlzFilt::ctDate) ? DATF_YMD|DATF_CENTURY : 0);
 	if(billID && Filt.Grp != TrfrAnlzFilt::gDateCntragentAgentGoods) {
@@ -1590,7 +1590,6 @@ int SLAPI PPViewTrfrAnlz::InitDateText(LDATE dt, PPID billID, SString & rBuf)
 		if(P_BObj->Fetch(billID, &bill_rec) > 0 && bill_rec.Code[0])
 			rBuf.Space().Space().Cat(bill_rec.Code);
 	}
-	return 1;
 }
 
 int SLAPI PPViewTrfrAnlz::InitGrpngNames()
@@ -1884,7 +1883,7 @@ int PPViewTrfrAnlz::DynFuncGetRest = 0;
 int PPViewTrfrAnlz::DynFuncGetAvgRest = 0;
 int PPViewTrfrAnlz::DynFuncGetTrnovr = 0;
 
-static void SLAPI dbqf_trfrnalz_getturnover_iidprr(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_trfrnalz_getturnover_iidprr)
 {
 	double turnover = 0.0;
 	double rest = 0.0;
@@ -1916,7 +1915,7 @@ static void SLAPI dbqf_trfrnalz_getturnover_iidprr(int option, DBConst * result,
 	}
 }
 
-static void SLAPI dbqf_trfrnalz_getrest_iidp(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_trfrnalz_getrest_iidp)
 {
 	double rest = 0.0;
 	if(option != CALC_SIZE) {
@@ -1931,7 +1930,7 @@ static void SLAPI dbqf_trfrnalz_getrest_iidp(int option, DBConst * result, DBCon
 	}
 }
 
-static void SLAPI dbqf_trfrnalz_getavgrest_iidp(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_trfrnalz_getavgrest_iidp)
 {
 	double rest = 0.0;
 	if(option != CALC_SIZE) {
@@ -2352,33 +2351,30 @@ int SLAPI PPViewTrfrAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewB
 	return ok;
 }
 
-SString & SLAPI PPViewTrfrAnlz::GetCtColumnTitle(int ct, SString & rBuf)
+SString & SLAPI PPViewTrfrAnlz::GetCtColumnTitle(const int ct, SString & rBuf)
 {
-	rBuf.Space() = 0;
+	rBuf.Z();
 	SString temp_buf;
-	if(ct == TrfrAnlzFilt::ctvQtty) {
-		// @v9.1.4 PPGetWord(PPWORD_QTTY, 0, rBuf);
-		PPLoadString("qtty", rBuf); // @v9.1.4
+	switch(ct) {
+		case TrfrAnlzFilt::ctvQtty: PPLoadString("qtty", rBuf); break;
+		case TrfrAnlzFilt::ctvCost:
+			PPGetWord(PPWORD_COST, 0, temp_buf);
+			PPGetWord(PPWORD_TRNOVR_IN, 0, rBuf).Space().Cat(temp_buf);
+			break;
+		case TrfrAnlzFilt::ctvNetPrice:
+			PPGetWord(PPWORD_PRICE_P, 0, temp_buf);
+			PPGetWord(PPWORD_TRNOVR_IN, 0, rBuf).Space().Cat(temp_buf);
+			break;
+		case TrfrAnlzFilt::ctvPctMargin:
+			PPGetWord(PPWORD_MARGIN, 0, rBuf).Space().CatChar('%');
+			break;
+		case TrfrAnlzFilt::ctvPctIncome:
+			PPLoadString("income", rBuf);
+			rBuf.Space().CatChar('%');
+			break;
+		case TrfrAnlzFilt::ctvIncome: PPLoadString("income", rBuf); break;
+		case TrfrAnlzFilt::ctvLocCount: PPGetWord(PPWORD_LOCSCOUNT, 0, rBuf); break;
 	}
-	else if(ct == TrfrAnlzFilt::ctvCost) {
-		PPGetWord(PPWORD_COST, 0, temp_buf);
-		PPGetWord(PPWORD_TRNOVR_IN, 0, rBuf).Space().Cat(temp_buf);
-	}
-	else if(ct == TrfrAnlzFilt::ctvNetPrice) {
-		PPGetWord(PPWORD_PRICE_P, 0, temp_buf);
-		PPGetWord(PPWORD_TRNOVR_IN, 0, rBuf).Space().Cat(temp_buf);
-	}
-	else if(ct == TrfrAnlzFilt::ctvPctMargin)
-		PPGetWord(PPWORD_MARGIN, 0, rBuf).Space().CatChar('%');
-	else if(ct == TrfrAnlzFilt::ctvPctIncome) {
-		PPLoadString("income", rBuf);
-		rBuf.Space().CatChar('%');
-	}
-	else if(ct == TrfrAnlzFilt::ctvIncome) {
-		PPLoadString("income", rBuf);
-	}
-	if(ct == TrfrAnlzFilt::ctvLocCount)
-		PPGetWord(PPWORD_LOCSCOUNT, 0, rBuf);
 	return rBuf;
 }
 
@@ -2824,19 +2820,20 @@ void FASTCALL PPViewTrfrAnlz::InitAppData(TrfrAnlzViewItem * pItem)
 //
 //
 //
-#define GRP_GOODSFILT 1
-#define GRP_LOC       2
-#define GRP_ARTICLE   3
-#define GRP_AGENT     4
-
 class TrfrAnlzFiltDialog : public WLDialog {
 public:
+	enum {
+		ctlgroupGoodsFilt = 1,
+		ctlgroupLoc       = 2,
+		ctlgroupArticle   = 3,
+		ctlgroupAgent     = 4
+	};
 	TrfrAnlzFiltDialog() : WLDialog(DLG_TRFRANLZ, CTL_GTO_LABEL)
 	{
-		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(CTLSEL_GTO_GOODS, CTLSEL_GTO_GGRP, cmGoodsFilt));
-		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_GTO_LOC, 0, 0, cmLocList, 0, 0, 0));
-		addGroup(GRP_ARTICLE, new ArticleCtrlGroup(CTLSEL_GTO_ACS, CTLSEL_GTO_OPR, CTLSEL_GTO_OBJECT, cmArList, 0)); // @v8.0.9 GetSellAccSheet()-->0
-		addGroup(GRP_AGENT,   new ArticleCtrlGroup(0, 0, CTLSEL_GTO_AGENT,  cmAgentList, GetAgentAccSheet()));
+		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(CTLSEL_GTO_GOODS, CTLSEL_GTO_GGRP, cmGoodsFilt));
+		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_GTO_LOC, 0, 0, cmLocList, 0, 0, 0));
+		addGroup(ctlgroupArticle, new ArticleCtrlGroup(CTLSEL_GTO_ACS, CTLSEL_GTO_OPR, CTLSEL_GTO_OBJECT, cmArList, 0)); // @v8.0.9 GetSellAccSheet()-->0
+		addGroup(ctlgroupAgent, new ArticleCtrlGroup(0, 0, CTLSEL_GTO_AGENT,  cmAgentList, GetAgentAccSheet()));
 		SetupCalPeriod(CTLCAL_GTO_PERIOD, CTL_GTO_PERIOD);
 		SetupCalPeriod(CTLCAL_GTO_LOTPERIOD, CTL_GTO_LOTPERIOD);
 	}
@@ -2884,7 +2881,7 @@ void TrfrAnlzFiltDialog::SetupCtrls()
 	}
 	else if(flags & TrfrAnlzFilt::fShowAllGoods) {
 		GoodsFiltCtrlGroup::Rec gf_rec(0, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
-		setGroupData(GRP_GOODSFILT, &gf_rec);
+		setGroupData(ctlgroupGoodsFilt, &gf_rec);
 		DisableClusterItem(CTL_GTO_SHOWALL, 0, 1);
 		DisableClusterItem(CTL_GTO_SHOWALL, 1, 1);
 		enableCommand(cmGoodsFilt, 0);
@@ -2893,7 +2890,7 @@ void TrfrAnlzFiltDialog::SetupCtrls()
 		DisableClusterItem(CTL_GTO_SHOWALL, 0, 0);
 		DisableClusterItem(CTL_GTO_SHOWALL, 1, 0);
 		DisableClusterItem(CTL_GTO_SHOWALL, 2, 0);
-		const GoodsFiltCtrlGroup * p_grp = (const GoodsFiltCtrlGroup *)getGroup(GRP_GOODSFILT);
+		const GoodsFiltCtrlGroup * p_grp = (const GoodsFiltCtrlGroup *)getGroup(ctlgroupGoodsFilt);
 		if(!p_grp || !p_grp->IsGroupSelectionDisabled())
 			enableCommand(cmGoodsFilt, 1);
 	}
@@ -2915,7 +2912,7 @@ int TrfrAnlzFiltDialog::setDTS(const TrfrAnlzFilt * pData)
 	SetPeriodInput(this, CTL_GTO_LOTPERIOD, &Data.LotsPeriod);
 	{
 		LocationCtrlGroup::Rec loc_rec(&Data.LocList);
-		setGroupData(GRP_LOC, &loc_rec);
+		setGroupData(ctlgroupLoc, &loc_rec);
 	}
 	SetupArCombo(this, CTLSEL_GTO_SUPPL, Data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 	SetupArCombo(this, CTLSEL_GTO_SUPPLAG, Data.SupplAgentID, OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet); // @v8.4.1
@@ -2926,15 +2923,15 @@ int TrfrAnlzFiltDialog::setDTS(const TrfrAnlzFilt * pData)
 			PPOPT_GOODSORDER, PPOPT_GENERIC, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, 0L);
 		SetupOprKindCombo(this, CTLSEL_GTO_OPR, Data.OpID, 0, &types, 0);
 		ArticleCtrlGroup::Rec grp_rec(Data.AcsID, Data.OpID, &Data.ArList); // @v8.4.1 Data.AcsID
-		setGroupData(GRP_ARTICLE, &grp_rec);
+		setGroupData(ctlgroupArticle, &grp_rec);
 	}
 	{
 		ArticleCtrlGroup::Rec grp_rec(GetAgentAccSheet(), 0, &Data.AgentList);
-		setGroupData(GRP_AGENT, &grp_rec);
+		setGroupData(ctlgroupAgent, &grp_rec);
 	}
 	{
 		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
-		setGroupData(GRP_GOODSFILT, &gf_rec);
+		setGroupData(ctlgroupGoodsFilt, &gf_rec);
 	}
 	setWL(BIN(Data.Flags & TrfrAnlzFilt::fLabelOnly));
 	setCtrlUInt16(CTL_GTO_GRPDATE, v = BIN(Data.Flags & TrfrAnlzFilt::fGByDate));
@@ -2979,26 +2976,26 @@ int TrfrAnlzFiltDialog::getDTS(TrfrAnlzFilt * pData)
 	THROW(GetPeriodInput(this, CTL_GTO_LOTPERIOD, &Data.LotsPeriod));
 	{
 		LocationCtrlGroup::Rec loc_rec;
-		getGroupData(GRP_LOC, &loc_rec);
+		getGroupData(ctlgroupLoc, &loc_rec);
 		Data.LocList = loc_rec.LocList;
 	}
 	getCtrlData(CTLSEL_GTO_SUPPL, &Data.SupplID);
 	getCtrlData(CTLSEL_GTO_SUPPLAG, &Data.SupplAgentID); // @v8.4.1
 	{
 		ArticleCtrlGroup::Rec grp_rec;
-		getGroupData(GRP_ARTICLE, &grp_rec);
+		getGroupData(ctlgroupArticle, &grp_rec);
 		Data.OpID = grp_rec.OpID;
 		Data.AcsID = grp_rec.AcsID; // @v8.4.1
 		Data.ArList = grp_rec.ArList;
 	}
 	{
 		ArticleCtrlGroup::Rec grp_rec;
-		getGroupData(GRP_AGENT, &grp_rec);
+		getGroupData(ctlgroupAgent, &grp_rec);
 		Data.AgentList = grp_rec.ArList;
 	}
 	getCtrlData(CTLSEL_GTO_CITY,   &Data.CityID);
 	getCtrlData(CTLSEL_GTO_PSNCAT, &Data.PsnCatID);
-	THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
+	THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 	Data.GoodsGrpID = gf_rec.GoodsGrpID;
 	Data.GoodsID    = gf_rec.GoodsID;
 	SETFLAG(Data.Flags, TrfrAnlzFilt::fLabelOnly, getWL());
@@ -3026,7 +3023,7 @@ void TrfrAnlzFiltDialog::SetSaldoInfo()
 	PPID  ar_id = 0;
 	GoodsFiltCtrlGroup::Rec  rec;
 	getCtrlData(CTLSEL_GTO_OBJECT, &ar_id);
-	if(getGroupData(GRP_GOODSFILT, &rec) && rec.GoodsGrpID &&
+	if(getGroupData(ctlgroupGoodsFilt, &rec) && rec.GoodsGrpID && 
 		((Data.Grp == TrfrAnlzFilt::gGoods && ar_id) || (Data.Grp == TrfrAnlzFilt::gCntragent && rec.GoodsID))
 		&& Data.Sgg == sggNone && Data.Sgp == sgpNone) {
 		SString temp_buf, txt_buf;
@@ -4345,7 +4342,7 @@ int SLAPI PrcssrAlcReport::ParseEgaisMark(const char * pMark, PrcssrAlcReport::E
 	КонецФункции
 	*/
 	rMb.Ver = 0;
-	rMb.EgaisCode = 0;
+	rMb.EgaisCode.Z();
 
 	int    ok = 0;
 	EgaisMarkBlock mb;

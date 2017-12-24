@@ -401,17 +401,13 @@ static CURLcode imap_perform_capability(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
 	struct imap_conn * imapc = &conn->proto.imapc;
-
 	imapc->sasl.authmechs = SASL_AUTH_NONE; /* No known auth. mechanisms yet */
 	imapc->sasl.authused = SASL_AUTH_NONE; /* Clear the auth. mechanism used */
 	imapc->tls_supported = FALSE;     /* Clear the TLS capability */
-
 	/* Send the CAPABILITY command */
 	result = imap_sendf(conn, "CAPABILITY");
-
 	if(!result)
 		state(conn, IMAP_CAPABILITY);
-
 	return result;
 }
 
@@ -423,17 +419,12 @@ static CURLcode imap_perform_capability(struct connectdata * conn)
  */
 static CURLcode imap_perform_starttls(struct connectdata * conn)
 {
-	CURLcode result = CURLE_OK;
-
 	/* Send the STARTTLS command */
-	result = imap_sendf(conn, "STARTTLS");
-
+	CURLcode result = imap_sendf(conn, "STARTTLS");
 	if(!result)
 		state(conn, IMAP_STARTTLS);
-
 	return result;
 }
-
 /***********************************************************************
  *
  * imap_perform_upgrade_tls()
@@ -442,25 +433,19 @@ static CURLcode imap_perform_starttls(struct connectdata * conn)
  */
 static CURLcode imap_perform_upgrade_tls(struct connectdata * conn)
 {
-	CURLcode result = CURLE_OK;
 	struct imap_conn * imapc = &conn->proto.imapc;
-
 	/* Start the SSL connection */
-	result = Curl_ssl_connect_nonblocking(conn, FIRSTSOCKET, &imapc->ssldone);
-
+	CURLcode result = Curl_ssl_connect_nonblocking(conn, FIRSTSOCKET, &imapc->ssldone);
 	if(!result) {
 		if(imapc->state != IMAP_UPGRADETLS)
 			state(conn, IMAP_UPGRADETLS);
-
 		if(imapc->ssldone) {
 			imap_to_imaps(conn);
 			result = imap_perform_capability(conn);
 		}
 	}
-
 	return result;
 }
-
 /***********************************************************************
  *
  * imap_perform_login()
@@ -513,11 +498,9 @@ static CURLcode imap_perform_authenticate(struct connectdata * conn, const char 
  *
  * Sends SASL continuation data or cancellation.
  */
-static CURLcode imap_continue_authenticate(struct connectdata * conn,
-    const char * resp)
+static CURLcode imap_continue_authenticate(struct connectdata * conn, const char * resp)
 {
 	struct imap_conn * imapc = &conn->proto.imapc;
-
 	return Curl_pp_sendf(&imapc->pp, "%s", resp);
 }
 
@@ -534,7 +517,6 @@ static CURLcode imap_perform_authentication(struct connectdata * conn)
 	CURLcode result = CURLE_OK;
 	struct imap_conn * imapc = &conn->proto.imapc;
 	saslprogress progress;
-
 	/* Check we have enough data to authenticate with and end the
 	   connect phase if we don't */
 	if(!Curl_sasl_can_authenticate(&imapc->sasl, conn)) {
@@ -555,7 +537,6 @@ static CURLcode imap_perform_authentication(struct connectdata * conn)
 			result = CURLE_LOGIN_DENIED;
 		}
 	}
-
 	return result;
 }
 
@@ -1190,15 +1171,11 @@ static CURLcode imap_connect(struct connectdata * conn, bool * done)
 	result = imap_parse_url_options(conn);
 	if(result)
 		return result;
-
 	/* Start off waiting for the server greeting response */
 	state(conn, IMAP_SERVERGREET);
-
 	/* Start off with an response id of '*' */
 	strcpy(imapc->resptag, "*");
-
 	result = imap_multi_statemach(conn, done);
-
 	return result;
 }
 
@@ -1233,7 +1210,6 @@ static CURLcode imap_done(struct connectdata * conn, CURLcode status, bool prema
 			if(!result)
 				state(conn, IMAP_APPEND_FINAL);
 		}
-
 		/* Run the state-machine
 
 		   TODO: when the multi interface is used, this _really_ should be using
@@ -1243,7 +1219,6 @@ static CURLcode imap_done(struct connectdata * conn, CURLcode status, bool prema
 		if(!result)
 			result = imap_block_statemach(conn);
 	}
-
 	/* Cleanup our per-request based variables */
 	ZFREE(imap->mailbox);
 	ZFREE(imap->uidvalidity);
@@ -1253,10 +1228,8 @@ static CURLcode imap_done(struct connectdata * conn, CURLcode status, bool prema
 	ZFREE(imap->query);
 	ZFREE(imap->custom);
 	ZFREE(imap->custom_params);
-
 	/* Clear the transfer mode for the next request */
 	imap->transfer = FTPTRANSFER_BODY;
-
 	return result;
 }
 

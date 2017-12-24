@@ -1466,10 +1466,8 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
                 for(uint i = 0; i < lot_list.getCount(); i++) {
 					const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
 					SXml::WNode w_l(rB.P_Xw, "lot");
-					if(checkdate(r_lot_rec.Dt, 0))
-						w_l.PutInner("date", temp_buf.Z().Cat(r_lot_rec.Dt, DATF_ISO8601|DATF_CENTURY));
-					if(checkdate(r_lot_rec.Expiry, 0))
-						w_l.PutInner("expiry", temp_buf.Z().Cat(r_lot_rec.Expiry, DATF_ISO8601|DATF_CENTURY));
+					w_l.PutInnerValidDate("date", r_lot_rec.Dt, DATF_ISO8601|DATF_CENTURY);
+					w_l.PutInnerValidDate("expiry", r_lot_rec.Expiry, DATF_ISO8601|DATF_CENTURY);
 					if(r_lot_rec.Cost > 0.0)
 						w_l.PutInner("cost", temp_buf.Z().Cat(r_lot_rec.Cost, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
 					if(r_lot_rec.Price > 0.0)
@@ -1615,8 +1613,7 @@ int SLAPI PPPosProtocol::WriteSCardInfo(WriteBlock & rB, const char * pScopeXmlT
 				THROW(WritePersonInfo(rB, "owner", reg_typ_id, psn_pack));
 			}
 		}
-		if(checkdate(rInfo.Rec.Expiry, 0))
-			w_s.PutInner("expiry", temp_buf.Z().Cat(rInfo.Rec.Expiry, DATF_ISO8601|DATF_CENTURY));
+		w_s.PutInnerValidDate("expiry", rInfo.Rec.Expiry, DATF_ISO8601|DATF_CENTURY);
 		if(rInfo.Rec.PDis > 0)
 			w_s.PutInner("discount", temp_buf.Z().Cat(fdiv100i(rInfo.Rec.PDis), MKSFMTD(0, 2, NMBF_NOTRAILZ)));
 		//if(rInfo.P_QuotByQttyList)

@@ -2012,19 +2012,13 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 				case kbUp:
 				case kbLeft:
 					if(W.GetCurrentObject(&cur_obj_idx)) {
-						if(cur_obj_idx > 0)
-							new_obj_idx = cur_obj_idx-1;
-						else
-							new_obj_idx = (int)(W.GetObjectsCount()-1);
+						new_obj_idx = (cur_obj_idx > 0) ? (cur_obj_idx-1) : (int)(W.GetObjectsCount()-1);
 					}
 					break;
 				case kbDown:
 				case kbRight:
 					if(W.GetCurrentObject(&cur_obj_idx)) {
-						if((cur_obj_idx+1) < (int)W.GetObjectsCount())
-							new_obj_idx = cur_obj_idx+1;
-						else
-							new_obj_idx = 0;
+						new_obj_idx = ((cur_obj_idx+1) < (int)W.GetObjectsCount()) ? (cur_obj_idx+1) :  0;
 					}
 					break;
 				case kbDel:

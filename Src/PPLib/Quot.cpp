@@ -57,9 +57,8 @@ int SLAPI ViewQuotValueInfo(const PPQuot & rQuot)
 
 class QuotUpdDialog : public TDialog {
 public:
-	QuotUpdDialog() : TDialog(DLG_QUOTUPD)
+	QuotUpdDialog() : TDialog(DLG_QUOTUPD), QuotCls(PPQuot::clsGeneral)
 	{
-		QuotCls = PPQuot::clsGeneral;
 		PPObjQuotKind::GetSpecialKinds(&QkSpc, 1);
 		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_QUOTUPD_GGRP, cmGoodsFilt)); // @v7.9.11
 		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_QUOTUPD_GGRP, CTLSEL_QUOTUPD_GOODS));

@@ -103,7 +103,7 @@ static int ZIPSetupDecode(TIFF* tif)
 	/* PredictorSetup() fails */
 	if((sp->state & ZSTATE_INIT_DECODE) == 0 && inflateInit(&sp->stream) != Z_OK) {
 		TIFFErrorExt(tif->tif_clientdata, module, "%s", SAFE_MSG(sp));
-		return (0);
+		return 0;
 	}
 	else {
 		sp->state |= ZSTATE_INIT_DECODE;
@@ -128,7 +128,7 @@ static int ZIPPreDecode(TIFF* tif, uint16 s)
 	sp->stream.avail_in = (uInt)tif->tif_rawcc;
 	if((tmsize_t)sp->stream.avail_in != tif->tif_rawcc) {
 		TIFFErrorExt(tif->tif_clientdata, module, "ZLib cannot deal with buffers this size");
-		return (0);
+		return 0;
 	}
 	return (inflateReset(&sp->stream) == Z_OK);
 }
@@ -148,7 +148,7 @@ static int ZIPDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 	sp->stream.avail_out = (uInt)occ;
 	if((tmsize_t)sp->stream.avail_out != occ) {
 		TIFFErrorExt(tif->tif_clientdata, module, "ZLib cannot deal with buffers this size");
-		return (0);
+		return 0;
 	}
 	do {
 		int state = inflate(&sp->stream, Z_PARTIAL_FLUSH);
@@ -157,17 +157,17 @@ static int ZIPDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 		if(state == Z_DATA_ERROR) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Decoding error at scanline %lu, %s", (unsigned long)tif->tif_row, SAFE_MSG(sp));
 			if(inflateSync(&sp->stream) != Z_OK)
-				return (0);
+				return 0;
 			continue;
 		}
 		if(state != Z_OK) {
 			TIFFErrorExt(tif->tif_clientdata, module, "ZLib error: %s", SAFE_MSG(sp));
-			return (0);
+			return 0;
 		}
 	} while(sp->stream.avail_out > 0);
 	if(sp->stream.avail_out != 0) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Not enough data at scanline %lu (short " TIFF_UINT64_FORMAT " bytes)", (unsigned long)tif->tif_row, (TIFF_UINT64_T)sp->stream.avail_out);
-		return (0);
+		return 0;
 	}
 	tif->tif_rawcp = sp->stream.next_in;
 	tif->tif_rawcc = sp->stream.avail_in;
@@ -185,7 +185,7 @@ static int ZIPSetupEncode(TIFF* tif)
 	}
 	if(deflateInit(&sp->stream, sp->zipquality) != Z_OK) {
 		TIFFErrorExt(tif->tif_clientdata, module, "%s", SAFE_MSG(sp));
-		return (0);
+		return 0;
 	}
 	else {
 		sp->state |= ZSTATE_INIT_ENCODE;
@@ -210,7 +210,7 @@ static int ZIPPreEncode(TIFF* tif, uint16 s)
 	sp->stream.avail_out = (uInt)tif->tif_rawdatasize;
 	if((tmsize_t)sp->stream.avail_out != tif->tif_rawdatasize) {
 		TIFFErrorExt(tif->tif_clientdata, module, "ZLib cannot deal with buffers this size");
-		return (0);
+		return 0;
 	}
 	return (deflateReset(&sp->stream) == Z_OK);
 }
@@ -230,12 +230,12 @@ static int ZIPEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	sp->stream.avail_in = (uInt)cc;
 	if((tmsize_t)sp->stream.avail_in != cc) {
 		TIFFErrorExt(tif->tif_clientdata, module, "ZLib cannot deal with buffers this size");
-		return (0);
+		return 0;
 	}
 	do {
 		if(deflate(&sp->stream, Z_NO_FLUSH) != Z_OK) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Encoder error: %s", SAFE_MSG(sp));
-			return (0);
+			return 0;
 		}
 		if(sp->stream.avail_out == 0) {
 			tif->tif_rawcc = tif->tif_rawdatasize;
@@ -270,7 +270,7 @@ static int ZIPPostEncode(TIFF* tif)
 			    break;
 			default:
 			    TIFFErrorExt(tif->tif_clientdata, module, "ZLib error: %s", SAFE_MSG(sp)); 
-				return (0);
+				return 0;
 		}
 	} while(state != Z_STREAM_END);
 	return (1);
@@ -308,7 +308,7 @@ static int ZIPVSetField(TIFF* tif, uint32 tag, va_list ap)
 				    sp->zipquality, Z_DEFAULT_STRATEGY) != Z_OK) {
 				    TIFFErrorExt(tif->tif_clientdata, module, "ZLib error: %s",
 				    SAFE_MSG(sp));
-				    return (0);
+				    return 0;
 			    }
 		    }
 		    return (1);
@@ -391,7 +391,7 @@ int TIFFInitZIP(TIFF* tif, int scheme)
 	return (1);
 bad:
 	TIFFErrorExt(tif->tif_clientdata, module, "No space for ZIP state block");
-	return (0);
+	return 0;
 }
 
 #endif /* ZIP_SUPPORT */

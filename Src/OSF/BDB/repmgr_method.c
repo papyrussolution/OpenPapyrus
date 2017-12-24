@@ -2302,12 +2302,10 @@ static int set_local_site(DB_SITE*dbsite, uint32 value)
 	REP * rep;
 	REPMGR_SITE * site;
 	int locked, ret;
-
 	COMPQUIET(rep, 0);
 	COMPQUIET(ip, 0);
 	env = dbsite->env;
 	db_rep = env->rep_handle;
-
 	locked = FALSE;
 	if(REP_ON(env)) {
 		rep = db_rep->region;
@@ -2355,13 +2353,11 @@ static int set_local_site(DB_SITE*dbsite, uint32 value)
  */
 static int refresh_site(DB_SITE*dbsite)
 {
-	DB_REP * db_rep;
-	ENV * env;
 	REPMGR_SITE * site;
-	env = dbsite->env;
+	ENV * env = dbsite->env;
 	PANIC_CHECK(env);
 	if(F_ISSET(dbsite, DB_SITE_PREOPEN) && REP_ON(env)) {
-		db_rep = env->rep_handle;
+		DB_REP * db_rep = env->rep_handle;
 		LOCK_MUTEX(db_rep->mutex);
 		site = __repmgr_lookup_site(env, dbsite->host, dbsite->port);
 		DB_ASSERT(env, site != NULL);
@@ -2386,7 +2382,7 @@ static int __repmgr_remove_site_pp(DB_SITE*dbsite)
 	return ret;
 }
 
-static int __repmgr_remove_site(DB_SITE*dbsite)
+static int __repmgr_remove_site(DB_SITE * dbsite)
 {
 	ENV * env;
 	DB_REP * db_rep;

@@ -287,9 +287,8 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 {
 	class RtOpItemDialog : public TDialog {
 	public:
-		RtOpItemDialog(const ObjRestrictArray * pList) : TDialog(DLG_RTOPLI)
+		RtOpItemDialog(const ObjRestrictArray * pList) : TDialog(DLG_RTOPLI), P_List(pList)
 		{
-			P_List = pList;
 		}
 		int setDTS(const ObjRestrictItem * pData)
 		{

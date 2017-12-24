@@ -1921,7 +1921,7 @@ int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr)
 // Descr: копирует сроку from в буфер to и возвращает указатель на
 //   завершающий нулевой символ строки to.
 //
-char * stpcpy(char *to, const char *from)
+char * FASTCALL stpcpy(char *to, const char *from)
 {
 	size_t len = strlen(from);
 	memcpy(to, from, len+1);

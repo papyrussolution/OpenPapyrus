@@ -380,6 +380,19 @@ static void InitTest()
 		const long test_dword = 0x1234befa;
 		assert(MakeLong(LoWord(test_dword), HiWord(test_dword)) == test_dword);
 	}
+	{
+		//
+		// Проверка макроса SETIFZ для даты
+		//
+		const LDATE cdt = getcurdate_();
+		LDATE dt;
+		dt = ZERODATE;
+		SETIFZ(dt, cdt);
+		assert(dt == cdt);
+		dt = encodedate(7, 11, 2017);
+		SETIFZ(dt, cdt);
+		assert(dt != cdt);
+	}
 #endif // } NDEBUG
 }
 

@@ -1175,7 +1175,7 @@ size_t SLAPI SDecimal::size() const
 
 int SLAPI SDecimal::comp(const void * i1, const void * i2) const
 {
-	return deccmp((char *) i1, (char *) i2, (S & 0x00ff));
+	return deccmp((char *)i1, (char *)i2, (int16)(S & 0x00ff));
 }
 
 char * SLAPI SDecimal::tostr(const void * d, long fmt, char * buf) const
@@ -1187,25 +1187,25 @@ char * SLAPI SDecimal::tostr(const void * d, long fmt, char * buf) const
 		f = MKSFMTD(0, (S >> 8), 0);
 	else
 		f = fmt;
-	return realfmt(dectobin((char *)d, (S & 0x00ff), (int16)(S >> 8)), f, buf); // @v9.8.4 @fix fmt-->f
+	return realfmt(dectobin((char *)d, (int16)(S & 0x00ff), (int16)(S >> 8)), f, buf); // @v9.8.4 @fix fmt-->f
 }
 
 int SLAPI SDecimal::fromstr(void * d, long, const char * buf) const
 {
 	double v;
 	int    r = strtodoub(buf, &v);
-	dectodec(v, (char *) d, (S & 0x00ff), (int16)(S >> 8));
+	dectodec(v, (char *) d, (int16)(S & 0x00ff), (int16)(S >> 8));
 	return r;
 }
 
 int SLAPI SDecimal::tobase(const void * d, void * baseData) const
 {
-	return ((*(double *)baseData = dectobin((char *) d, (S & 0x00ff), (int16)(S >> 8))), 1);
+	return ((*(double *)baseData = dectobin((char *)d, (int16)(S & 0x00ff), (int16)(S >> 8))), 1);
 }
 
 int SLAPI SDecimal::baseto(void * d, const void * baseData) const
 {
-	return (dectodec(*(double *)baseData, (char *) d, (S & 0x00ff), (int16)(S >> 8)), 1);
+	return (dectodec(*(double *)baseData, (char *)d, (int16)(S & 0x00ff), (int16)(S >> 8)), 1);
 }
 
 static void FASTCALL _bound(void * d, int s, int sign)

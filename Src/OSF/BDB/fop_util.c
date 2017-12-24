@@ -40,8 +40,8 @@ static int __fop_ondisk_swap(DB*, DB*, DB_TXN*, const char *, const char *, cons
 } while(0)
 #endif
 
-#define RESET_MPF(D, F) do {                                            \
-		__memp_fclose((D)->mpf, (F));                             \
+#define RESET_MPF(D, F) do { \
+		__memp_fclose((D)->mpf, (F)); \
 		(D)->mpf = NULL;                                                \
 		F_CLR((D), DB_AM_OPEN_CALLED);                                  \
 		if((ret = __memp_fcreate((D)->env, &(D)->mpf)) != 0)           \

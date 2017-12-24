@@ -17,9 +17,8 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 {
 	class BillPrintDialog : public TDialog {
 	public:
-		BillPrintDialog(uint dlgID, PPID oprType) : TDialog(dlgID)
+		BillPrintDialog(uint dlgID, PPID oprType) : TDialog(dlgID), OprType(oprType)
 		{
-			OprType = oprType;
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -34,13 +33,12 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 			}
 		}
 
-		PPID   OprType;
+		const PPID   OprType;
 	};
 	class MultiPrintDialog : public TDialog {
 	public:
-		MultiPrintDialog(uint dlgID, PPID oprType) : TDialog(dlgID)
+		MultiPrintDialog(uint dlgID, PPID oprType) : TDialog(dlgID), OprType(oprType)
 		{
-			OprType = oprType;
 		}
 		long   GetNumCopies(uint ctl)
 		{
@@ -103,7 +101,7 @@ static int SLAPI SelectForm(long f, uint * pAmtTypes, LAssocArray & rSelAry, PPI
 				clearEvent(event);
 			}
 		}
-		PPID   OprType;
+		const PPID   OprType;
 	};
 	int    ok = 1, v = 0, div_copies = 0, only_price_chng = 0;
 	ushort p;

@@ -360,9 +360,7 @@ int SLAPI PPViewDisplayExtList::Pack()
 			const uint c = L.getCount();
 			for(uint i = 0; ok && i < c; i++) {
 				InnerItem & r_item = L.at(i);
-				uint   _pos = r_item.TitleP;
-				Pack_Replace(p_pack_handle, _pos);
-				r_item.TitleP = _pos;
+				Pack_Replace(p_pack_handle, r_item.TitleP);
 			}
 			Pack_Finish(p_pack_handle);
 			ok = 1;
@@ -445,18 +443,17 @@ int SLAPI PPBaseFilt::Describe(long flags, SString & rBuf) const
 	return 1;
 }
 
-int SLAPI PPBaseFilt::PutObjMembToBuf(PPID objType, PPID objID, const char * pMembName, SString & rBuf) const
+//static
+void FASTCALL PPBaseFilt::PutObjMembToBuf(PPID objType, PPID objID, const char * pMembName, SString & rBuf)
 {
-	int    ok = -1;
 	SString obj_name;
 	if(objID && GetObjectName(objType, objID, obj_name) > 0)
-		ok = PutMembToBuf((const char*)obj_name, pMembName, rBuf);
-	return ok;
+		PutMembToBuf(obj_name, pMembName, rBuf);
 }
 
-int SLAPI PPBaseFilt::PutObjMembListToBuf(PPID objType, const ObjIdListFilt * pList, const char * pMembName, SString & rBuf) const
+//static
+void FASTCALL PPBaseFilt::PutObjMembListToBuf(PPID objType, const ObjIdListFilt * pList, const char * pMembName, SString & rBuf)
 {
-	int    ok = -1;
 	if(pList && !pList->IsEmpty()) {
 		const PPIDArray & r_list = pList->Get();
 		const uint _count = r_list.getCount();
@@ -470,17 +467,15 @@ int SLAPI PPBaseFilt::PutObjMembListToBuf(PPID objType, const ObjIdListFilt * pL
 				if(i != _count-1)
 					buf.Comma();
 			}
-			PutMembToBuf((const char*)buf, pMembName, rBuf);
+			PutMembToBuf(buf, pMembName, rBuf);
 		}
-		ok = 1;
 	}
-	return ok;
 }
 
-int SLAPI PPBaseFilt::PutFlagsMembToBuf(StrAssocArray * pFlagList, const char * pMembName, SString & rBuf) const
+// static
+void FASTCALL PPBaseFilt::PutFlagsMembToBuf(StrAssocArray * pFlagList, const char * pMembName, SString & rBuf)
 {
-	int    ok = -1;
-	uint   count = (pFlagList) ? pFlagList->getCount() : 0;
+	uint   count = pFlagList ? pFlagList->getCount() : 0;
 	if(count) {
 		SString buf;
 		for(uint i = 0; i < count; i++) {
@@ -489,72 +484,67 @@ int SLAPI PPBaseFilt::PutFlagsMembToBuf(StrAssocArray * pFlagList, const char * 
 			if(i != count - 1)
 				buf.Comma();
 		}
-		PutMembToBuf((const char*)buf, pMembName, rBuf);
-		ok = 1;
+		PutMembToBuf(buf, pMembName, rBuf);
 	}
-	return ok;
 }
 
-int SLAPI PPBaseFilt::PutMembToBuf(const char * pParam, const char * pMembName, SString & rBuf) const
+//static
+void FASTCALL PPBaseFilt::PutMembToBuf(const SString & rParam, const char * pMembName, SString & rBuf)
 {
-	int    ok = -1;
-	if((pMembName && strlen(pMembName)) && (pParam && strlen(pParam))) {
+	if(rParam.Len() && sstrlen(pMembName))
+		rBuf.Cat(pMembName).Eq().Cat(rParam).Semicol();
+}
+
+//static
+void FASTCALL PPBaseFilt::PutMembToBuf(const char * pParam, const char * pMembName, SString & rBuf)
+{
+	if(sstrlen(pMembName) && sstrlen(pParam))
 		rBuf.Cat(pMembName).Eq().Cat(pParam).Semicol();
-		ok = 1;
-	}
-	return ok;
 }
 
-int SLAPI PPBaseFilt::PutMembToBuf(LDATE param, const char * pMembName, SString & rBuf) const
+//static
+void FASTCALL PPBaseFilt::PutMembToBuf(LDATE param, const char * pMembName, SString & rBuf)
 {
-	int ok = -1;
 	if(param != ZERODATE) {
 		SString buf;
-		buf.Cat(param);
-		ok = PutMembToBuf((const char*)buf, pMembName, rBuf);
+		PutMembToBuf(buf.Cat(param), pMembName, rBuf);
 	}
-	return ok;
 }
 
-int SLAPI PPBaseFilt::PutMembToBuf(const DateRange * pParam, const char * pMembName, SString & rBuf) const
+//static
+void FASTCALL PPBaseFilt::PutMembToBuf(const DateRange * pParam, const char * pMembName, SString & rBuf)
 {
-	int    ok = -1;
 	if(pParam && pParam->IsZero() == 0) {
 		SString buf;
-		buf.Cat(*pParam);
-		ok = PutMembToBuf((const char*)buf, pMembName, rBuf);
+		PutMembToBuf(buf.Cat(*pParam), pMembName, rBuf);
 	}
-	return ok;
 }
 
-int SLAPI PPBaseFilt::PutMembToBuf(const RealRange * pParam,  const char * pMembName, SString & rBuf) const
+//static
+void FASTCALL PPBaseFilt::PutMembToBuf(const RealRange * pParam,  const char * pMembName, SString & rBuf)
 {
-	int    ok = -1;
 	if(pParam && !pParam->IsZero()) {
 		SString buf;
-		buf.Cat(pParam->low).Dot().Dot().Cat(pParam->upp);
-		ok = PutMembToBuf((const char*)buf, pMembName, rBuf);
+		PutMembToBuf(buf.Cat(pParam->low).Dot().Dot().Cat(pParam->upp), pMembName, rBuf);
 	}
-	return ok;
 }
 
-int SLAPI PPBaseFilt::PutMembToBuf(double param, const char * pMembName, SString & rBuf) const
+//static
+void FASTCALL PPBaseFilt::PutMembToBuf(double param, const char * pMembName, SString & rBuf)
 {
 	SString buf;
-	buf.Cat(param);
-	return PutMembToBuf((const char*)buf, pMembName, rBuf);
+	PutMembToBuf(buf.Cat(param), pMembName, rBuf);
 }
 
-int SLAPI PPBaseFilt::PutMembToBuf(long param, const char * pMembName, SString & rBuf) const
+//static
+void FASTCALL PPBaseFilt::PutMembToBuf(long param, const char * pMembName, SString & rBuf)
 {
 	SString buf;
-	buf.Cat(param);
-	return PutMembToBuf((const char*)buf, pMembName, rBuf);
+	PutMembToBuf(buf.Cat(param), pMembName, rBuf);
 }
 
-int SLAPI PPBaseFilt::PutSggMembToBuf(SubstGrpGoods sgg, const char * pMembName, SString & rBuf) const
+void SLAPI PPBaseFilt::PutSggMembToBuf(SubstGrpGoods sgg, const char * pMembName, SString & rBuf) const
 {
-	int    ok = -1;
 	struct SggStruc {
 		uint32 SggID;
 		const char * P_Name;
@@ -584,18 +574,15 @@ int SLAPI PPBaseFilt::PutSggMembToBuf(SubstGrpGoods sgg, const char * pMembName,
 		__ITEM(sggGroupSecondLvl)
 	};
 #undef __ITEM
-	uint count = sizeof(SggStrucList) / sizeof(SggStruc);
-	for(uint i = 0; i < count; i++)
+	for(uint i = 0; i < SIZEOFARRAY(SggStrucList); i++)
 		if(SggStrucList[i].SggID == sgg) {
-			ok = PutMembToBuf(SggStrucList[i].P_Name, pMembName, rBuf);
+			PutMembToBuf(SggStrucList[i].P_Name, pMembName, rBuf);
 			break;
 		}
-	return ok;
 }
 
-int SLAPI PPBaseFilt::PutSgpMembToBuf(SubstGrpPerson sgp, const char * pMembName, SString & rBuf) const
+void SLAPI PPBaseFilt::PutSgpMembToBuf(SubstGrpPerson sgp, const char * pMembName, SString & rBuf) const
 {
-	int    ok = -1;
 	struct SgpStruc {
 		uint32 SgpID;
 		const char * P_Name;
@@ -614,18 +601,15 @@ int SLAPI PPBaseFilt::PutSgpMembToBuf(SubstGrpPerson sgp, const char * pMembName
 		__ITEM(sgpArticleMask)
 	};
 #undef __ITEM
-	uint   count = sizeof(SgpStrucList) / sizeof(SgpStruc);
-	for(uint i = 0; i < count; i++)
+	for(uint i = 0; i < SIZEOFARRAY(SgpStrucList); i++)
 		if(SgpStrucList[i].SgpID == sgp) {
-			ok = PutMembToBuf(SgpStrucList[i].P_Name, pMembName, rBuf);
+			PutMembToBuf(SgpStrucList[i].P_Name, pMembName, rBuf);
 			break;
 		}
-	return ok;
 }
 
-int SLAPI PPBaseFilt::PutSgdMembToBuf(SubstGrpDate sgd, const char * pMembName, SString & rBuf) const
+void SLAPI PPBaseFilt::PutSgdMembToBuf(SubstGrpDate sgd, const char * pMembName, SString & rBuf) const
 {
-	int    ok = -1;
 	struct SgdStruc {
 		uint32 SgpID;
 		const char * P_Name;
@@ -642,10 +626,9 @@ int SLAPI PPBaseFilt::PutSgdMembToBuf(SubstGrpDate sgd, const char * pMembName, 
 	uint count = sizeof(SgdStrucList) / sizeof(SgdStruc);
 	for(uint i = 0; i < count; i++)
 		if(SgdStrucList[i].SgpID == sgd) {
-			ok = PutMembToBuf(SgdStrucList[i].P_Name, pMembName, rBuf);
+			PutMembToBuf(SgdStrucList[i].P_Name, pMembName, rBuf);
 			break;
 		}
-	return ok;
 }
 
 PPBaseFilt & FASTCALL PPBaseFilt::operator = (const PPBaseFilt & s)

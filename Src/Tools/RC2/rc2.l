@@ -83,7 +83,7 @@ R_DECLARE_CMD "declare command"
 {WHITE}		{ ; }
 
 {STRING}	{
-	size_t len = min(yyleng - 1, sizeof(yylval.sval)-1);
+	size_t len = MIN(yyleng - 1, sizeof(yylval.sval)-1);
 	memcpy(yylval.sval, yytext + 1, len - 1);
 	yylval.sval[len - 1] = 0;
 	return T_STR;
@@ -91,13 +91,13 @@ R_DECLARE_CMD "declare command"
 {INTEGER}   { yylval.lval = atol(yytext); return T_TINT; }
 {HEXINT}    { yylval.lval = strtol(yytext, 0, 0); return T_TINT; }
 {IDENT}     {
-	size_t len = min(yyleng, sizeof(yylval.sval)-1);
+	size_t len = MIN(yyleng, sizeof(yylval.sval)-1);
 	memcpy(yylval.sval, yytext, len);
 	yylval.sval[len] = 0;
 	return T_IDENT;
 }
 {COLOR}     { 
-	size_t len = min(yyleng, sizeof(yylval.sval)-1);
+	size_t len = MIN(yyleng, sizeof(yylval.sval)-1);
 	SString temp_buf;
 	temp_buf.CatN(yytext, len);
 	yylval.scolor_val.FromStr(temp_buf);

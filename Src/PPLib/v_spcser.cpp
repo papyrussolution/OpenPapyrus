@@ -124,7 +124,7 @@ int FASTCALL PPViewSpecSeries::NextIteration(SpecSeriesViewItem * pItem)
 	return ok;
 }
 
-static void SLAPI dbqf_spcsn_textfld_iisi(int option, DBConst * result, DBConst * params)
+static IMPL_DBE_PROC(dbqf_spcsn_textfld_iisi)
 {
 	char   result_buf[128];
 	if(option == CALC_SIZE) {

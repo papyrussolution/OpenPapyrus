@@ -23,10 +23,8 @@
  * LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
  * OF THIS SOFTWARE.
  */
-
 #ifndef _TIFFIO_
 #define	_TIFFIO_
-
 /*
  * TIFF I/O Library Definitions.
  */
@@ -213,18 +211,15 @@ struct _TIFFRGBAImage {
 	    tileSeparateRoutine separate;
 	} put;
 	TIFFRGBValue* Map;                      /* sample mapping array */
-	uint32** BWmap;                         /* black&white map */
-	uint32** PALmap;                        /* palette image map */
+	uint32 ** BWmap;                         /* black&white map */
+	uint32 ** PALmap;                        /* palette image map */
 	TIFFYCbCrToRGB* ycbcr;                  /* YCbCr conversion state */
 	TIFFCIELabToRGB* cielab;                /* CIE L*a*b conversion state */
-
-	uint8* UaToAa;                          /* Unassociated alpha to associated alpha conversion LUT */
-	uint8* Bitdepth16To8;                   /* LUT for conversion from 16bit to 8bit values */
-
+	uint8 * UaToAa;                          /* Unassociated alpha to associated alpha conversion LUT */
+	uint8 * Bitdepth16To8;                   /* LUT for conversion from 16bit to 8bit values */
 	int row_offset;
 	int col_offset;
 };
-
 /*
  * Macros for extracting components from the
  * packed ABGR form returned by TIFFReadRGBAImage.
@@ -233,7 +228,6 @@ struct _TIFFRGBAImage {
 #define TIFFGetG(abgr) (((abgr) >> 8) & 0xff)
 #define TIFFGetB(abgr) (((abgr) >> 16) & 0xff)
 #define TIFFGetA(abgr) (((abgr) >> 24) & 0xff)
-
 /*
  * A CODEC is a software package that implements decoding,
  * encoding, or decoding+encoding of a compression algorithm.
@@ -243,19 +237,18 @@ struct _TIFFRGBAImage {
  */
 typedef int (*TIFFInitMethod)(TIFF*, int);
 typedef struct {
-	char* name;
+	char * name;
 	uint16 scheme;
 	TIFFInitMethod init;
 } TIFFCodec;
 
-#include <stdio.h>
-#include <stdarg.h>
+//#include <stdio.h>
+//#include <stdarg.h>
 
 /* share internal LogLuv conversion routines? */
 #ifndef LOGLUV_PUBLIC
-#define LOGLUV_PUBLIC 1
+	#define LOGLUV_PUBLIC 1
 #endif
-
 #if !defined(__GNUC__) && !defined(__attribute__)
 #  define __attribute__(x) /*nothing*/
 #endif
@@ -332,7 +325,6 @@ typedef struct {
 extern  TIFFTagMethods *TIFFAccessTagMethods(TIFF *);
 extern  void *TIFFGetClientInfo(TIFF *, const char *);
 extern  void TIFFSetClientInfo(TIFF *, void *, const char *);
-
 extern void TIFFCleanup(TIFF* tif);
 extern void TIFFClose(TIFF* tif);
 extern int TIFFFlush(TIFF* tif);
@@ -411,8 +403,7 @@ extern void TIFFPrintDirectory(TIFF*, FILE*, long = 0);
 extern int TIFFReadScanline(TIFF* tif, void* buf, uint32 row, uint16 sample = 0);
 extern int TIFFWriteScanline(TIFF* tif, void* buf, uint32 row, uint16 sample = 0);
 extern int TIFFReadRGBAImage(TIFF*, uint32, uint32, uint32*, int = 0);
-extern int TIFFReadRGBAImageOriented(TIFF*, uint32, uint32, uint32*,
-    int = ORIENTATION_BOTLEFT, int = 0);
+extern int TIFFReadRGBAImageOriented(TIFF*, uint32, uint32, uint32*, int = ORIENTATION_BOTLEFT, int = 0);
 #else
 extern void TIFFPrintDirectory(TIFF*, FILE*, long);
 extern int TIFFReadScanline(TIFF* tif, void* buf, uint32 row, uint16 sample);
@@ -473,14 +464,14 @@ extern void FASTCALL TIFFSwabLong(uint32*);
 extern void FASTCALL TIFFSwabLong8(uint64*);
 extern void TIFFSwabFloat(float*);
 extern void TIFFSwabDouble(double*);
-extern void TIFFSwabArrayOfShort(uint16* wp, tmsize_t n);
+extern void FASTCALL TIFFSwabArrayOfShort(uint16* wp, tmsize_t n);
 extern void TIFFSwabArrayOfTriples(uint8* tp, tmsize_t n);
-extern void TIFFSwabArrayOfLong(uint32* lp, tmsize_t n);
-extern void TIFFSwabArrayOfLong8(uint64* lp, tmsize_t n);
+extern void FASTCALL TIFFSwabArrayOfLong(uint32* lp, tmsize_t n);
+extern void FASTCALL TIFFSwabArrayOfLong8(uint64* lp, tmsize_t n);
 extern void TIFFSwabArrayOfFloat(float* fp, tmsize_t n);
 extern void TIFFSwabArrayOfDouble(double* dp, tmsize_t n);
-extern void TIFFReverseBits(uint8* cp, tmsize_t n);
-extern const unsigned char* TIFFGetBitRevTable(int);
+extern void FASTCALL TIFFReverseBits(uint8* cp, tmsize_t n);
+extern const unsigned char * TIFFGetBitRevTable(int);
 
 #ifdef LOGLUV_PUBLIC
 #define U_NEU		0.210526316
@@ -508,14 +499,10 @@ extern uint32 LogLuv32fromXYZ(float*, int);
 #endif /* LOGLUV_PUBLIC */
 
 extern int TIFFCIELabToRGBInit(TIFFCIELabToRGB*, const TIFFDisplay *, float*);
-extern void TIFFCIELabToXYZ(TIFFCIELabToRGB *, uint32, int32, int32,
-    float *, float *, float *);
-extern void TIFFXYZToRGB(TIFFCIELabToRGB *, float, float, float,
-    uint32 *, uint32 *, uint32 *);
-
+extern void TIFFCIELabToXYZ(TIFFCIELabToRGB *, uint32, int32, int32, float *, float *, float *);
+extern void TIFFXYZToRGB(TIFFCIELabToRGB *, float, float, float, uint32 *, uint32 *, uint32 *);
 extern int TIFFYCbCrToRGBInit(TIFFYCbCrToRGB*, float*, float*);
-extern void TIFFYCbCrtoRGB(TIFFYCbCrToRGB *, uint32, int32, int32,
-    uint32 *, uint32 *, uint32 *);
+extern void TIFFYCbCrtoRGB(TIFFYCbCrToRGB *, uint32, int32, int32, uint32 *, uint32 *, uint32 *);
 
 /****************************************************************************
  *               O B S O L E T E D    I N T E R F A C E S

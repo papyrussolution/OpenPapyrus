@@ -232,7 +232,7 @@ int TIFFRewriteDirectory(TIFF * tif)
 			TIFFSeekFile(tif, 4, SEEK_SET);
 			if(!WriteOK(tif, &(tif->tif_header.classic.tiff_diroff), 4)) {
 				TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Error updating TIFF header");
-				return (0);
+				return 0;
 			}
 		}
 		else {
@@ -243,14 +243,14 @@ int TIFFRewriteDirectory(TIFF * tif)
 				uint32 nextnextdir;
 				if(!SeekOK(tif, nextdir) || !ReadOK(tif, &dircount, 2)) {
 					TIFFErrorExt(tif->tif_clientdata, module, "Error fetching directory count");
-					return (0);
+					return 0;
 				}
 				if(tif->tif_flags & TIFF_SWAB)
 					TIFFSwabShort(&dircount);
 				(void)TIFFSeekFile(tif, nextdir+2+dircount*12, SEEK_SET);
 				if(!ReadOK(tif, &nextnextdir, 4)) {
 					TIFFErrorExt(tif->tif_clientdata, module, "Error fetching directory link");
-					return (0);
+					return 0;
 				}
 				if(tif->tif_flags & TIFF_SWAB)
 					TIFFSwabLong(&nextnextdir);
@@ -259,7 +259,7 @@ int TIFFRewriteDirectory(TIFF * tif)
 					(void)TIFFSeekFile(tif, nextdir+2+dircount*12, SEEK_SET);
 					if(!WriteOK(tif, &m, 4)) {
 						TIFFErrorExt(tif->tif_clientdata, module, "Error writing directory link");
-						return (0);
+						return 0;
 					}
 					tif->tif_diroff = 0;
 					break;
@@ -275,7 +275,7 @@ int TIFFRewriteDirectory(TIFF * tif)
 			TIFFSeekFile(tif, 8, SEEK_SET);
 			if(!WriteOK(tif, &(tif->tif_header.big.tiff_diroff), 8)) {
 				TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Error updating TIFF header");
-				return (0);
+				return 0;
 			}
 		}
 		else {
@@ -287,19 +287,19 @@ int TIFFRewriteDirectory(TIFF * tif)
 				uint64 nextnextdir;
 				if(!SeekOK(tif, nextdir) || !ReadOK(tif, &dircount64, 8)) {
 					TIFFErrorExt(tif->tif_clientdata, module, "Error fetching directory count");
-					return (0);
+					return 0;
 				}
 				if(tif->tif_flags & TIFF_SWAB)
 					TIFFSwabLong8(&dircount64);
 				if(dircount64>0xFFFF) {
 					TIFFErrorExt(tif->tif_clientdata, module, "Sanity check on tag count failed, likely corrupt TIFF");
-					return (0);
+					return 0;
 				}
 				dircount = (uint16)dircount64;
 				(void)TIFFSeekFile(tif, nextdir+8+dircount*20, SEEK_SET);
 				if(!ReadOK(tif, &nextnextdir, 8)) {
 					TIFFErrorExt(tif->tif_clientdata, module, "Error fetching directory link");
-					return (0);
+					return 0;
 				}
 				if(tif->tif_flags & TIFF_SWAB)
 					TIFFSwabLong8(&nextnextdir);
@@ -308,7 +308,7 @@ int TIFFRewriteDirectory(TIFF * tif)
 					(void)TIFFSeekFile(tif, nextdir+8+dircount*20, SEEK_SET);
 					if(!WriteOK(tif, &m, 8)) {
 						TIFFErrorExt(tif->tif_clientdata, module, "Error writing directory link");
-						return (0);
+						return 0;
 					}
 					tif->tif_diroff = 0;
 					break;
@@ -344,7 +344,7 @@ static int TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone, uint64* 
 			tif->tif_flags &= ~TIFF_POSTENCODE;
 			if(!(*tif->tif_postencode)(tif)) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Error post-encoding before directory write");
-				return (0);
+				return 0;
 			}
 		}
 		(*tif->tif_close)(tif);       /* shutdown encoder */
@@ -358,7 +358,7 @@ static int TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone, uint64* 
 		if(tif->tif_rawcc > 0 && (tif->tif_flags & TIFF_BEENWRITING) != 0) {
 			if(!TIFFFlushData1(tif) ) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Error flushing data before directory write");
-				return (0);
+				return 0;
 			}
 		}
 		if((tif->tif_flags & TIFF_MYBUFFER) && tif->tif_rawdata) {
@@ -729,7 +729,7 @@ static int TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone, uint64* 
 		}
 	}
 	dirmem = SAlloc::M(dirsize);
-	if(dirmem==NULL) {
+	if(!dirmem) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
 		goto bad;
 	}
@@ -886,7 +886,7 @@ static int TIFFWriteDirectoryTagSampleformatArray(TIFF* tif, uint32* ndir, TIFFD
 	void * conv = SAlloc::M(count*sizeof(double));
 	if(conv == NULL) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
-		return (0);
+		return 0;
 	}
 	switch(tif->tif_dir.td_sampleformat) {
 		case SAMPLEFORMAT_IEEEFP:
@@ -1486,7 +1486,7 @@ static int TIFFWriteDirectoryTagLongLong8Array(TIFF* tif, uint32* ndir, TIFFDirE
 	** and convert to long format.
 	*/
 	p = (uint32 *)SAlloc::M(count*sizeof(uint32));
-	if(p==NULL) {
+	if(!p) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
 		return 0;
 	}
@@ -1571,7 +1571,7 @@ static int TIFFWriteDirectoryTagShortLongLong8Array(TIFF* tif, uint32* ndir, TIF
 	if(n==0) {
 		uint16 * q;
 		uint16 * p = SAlloc::M(count*sizeof(uint16));
-		if(p==NULL) {
+		if(!p) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
 			return 0;
 		}
@@ -1583,7 +1583,7 @@ static int TIFFWriteDirectoryTagShortLongLong8Array(TIFF* tif, uint32* ndir, TIF
 	else if(n==1) {
 		uint32 * q;
 		uint32 * p = SAlloc::M(count*sizeof(uint32));
-		if(p==NULL) {
+		if(!p) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
 			return 0;
 		}
@@ -1610,18 +1610,22 @@ static int TIFFWriteDirectoryTagColormap(TIFF* tif, uint32* ndir, TIFFDirEntry* 
 		(*ndir)++;
 		return 1;
 	}
-	m = (1<<tif->tif_dir.td_bitspersample);
-	n = (uint16 *)SAlloc::M(3*m*sizeof(uint16));
-	if(n==NULL) {
-		TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
-		return 0;
+	else {
+		m = (1<<tif->tif_dir.td_bitspersample);
+		n = (uint16 *)SAlloc::M(3*m*sizeof(uint16));
+		if(!n) {
+			TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
+			return 0;
+		}
+		else {
+			memcpy(&n[0], tif->tif_dir.td_colormap[0], m*sizeof(uint16));
+			memcpy(&n[m], tif->tif_dir.td_colormap[1], m*sizeof(uint16));
+			memcpy(&n[2*m], tif->tif_dir.td_colormap[2], m*sizeof(uint16));
+			o = TIFFWriteDirectoryTagCheckedShortArray(tif, ndir, dir, TIFFTAG_COLORMAP, 3*m, n);
+			SAlloc::F(n);
+			return o;
+		}
 	}
-	memcpy(&n[0], tif->tif_dir.td_colormap[0], m*sizeof(uint16));
-	memcpy(&n[m], tif->tif_dir.td_colormap[1], m*sizeof(uint16));
-	memcpy(&n[2*m], tif->tif_dir.td_colormap[2], m*sizeof(uint16));
-	o = TIFFWriteDirectoryTagCheckedShortArray(tif, ndir, dir, TIFFTAG_COLORMAP, 3*m, n);
-	SAlloc::F(n);
-	return(o);
 }
 
 static int TIFFWriteDirectoryTagTransferfunction(TIFF* tif, uint32* ndir, TIFFDirEntry* dir)
@@ -1654,7 +1658,7 @@ static int TIFFWriteDirectoryTagTransferfunction(TIFF* tif, uint32* ndir, TIFFDi
 	}
 	SETIFZ(n, 1);
 	o = (uint16 *)SAlloc::M(n*m*sizeof(uint16));
-	if(o==NULL) {
+	if(!o) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Out of memory");
 		return 0;
 	}
@@ -2170,7 +2174,7 @@ static int TIFFLinkDirectory(TIFF* tif)
 			(void)TIFFSeekFile(tif, tif->tif_subifdoff, SEEK_SET);
 			if(!WriteOK(tif, &m, 4)) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Error writing SubIFD directory link");
-				return (0);
+				return 0;
 			}
 			/*
 			 * Advance to the next SubIFD or, if this is
@@ -2190,7 +2194,7 @@ static int TIFFLinkDirectory(TIFF* tif)
 			(void)TIFFSeekFile(tif, tif->tif_subifdoff, SEEK_SET);
 			if(!WriteOK(tif, &m, 8)) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Error writing SubIFD directory link");
-				return (0);
+				return 0;
 			}
 			/*
 			 * Advance to the next SubIFD or, if this is
@@ -2217,7 +2221,7 @@ static int TIFFLinkDirectory(TIFF* tif)
 			(void)TIFFSeekFile(tif, 4, SEEK_SET);
 			if(!WriteOK(tif, &m, 4)) {
 				TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Error writing TIFF header");
-				return (0);
+				return 0;
 			}
 			return (1);
 		}
@@ -2230,14 +2234,14 @@ static int TIFFLinkDirectory(TIFF* tif)
 			uint32 nextnextdir;
 			if(!SeekOK(tif, nextdir) || !ReadOK(tif, &dircount, 2)) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Error fetching directory count");
-				return (0);
+				return 0;
 			}
 			if(tif->tif_flags & TIFF_SWAB)
 				TIFFSwabShort(&dircount);
 			(void)TIFFSeekFile(tif, nextdir+2+dircount*12, SEEK_SET);
 			if(!ReadOK(tif, &nextnextdir, 4)) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Error fetching directory link");
-				return (0);
+				return 0;
 			}
 			if(tif->tif_flags & TIFF_SWAB)
 				TIFFSwabLong(&nextnextdir);
@@ -2245,7 +2249,7 @@ static int TIFFLinkDirectory(TIFF* tif)
 				(void)TIFFSeekFile(tif, nextdir+2+dircount*12, SEEK_SET);
 				if(!WriteOK(tif, &m, 4)) {
 					TIFFErrorExt(tif->tif_clientdata, module, "Error writing directory link");
-					return (0);
+					return 0;
 				}
 				break;
 			}
@@ -2265,7 +2269,7 @@ static int TIFFLinkDirectory(TIFF* tif)
 			(void)TIFFSeekFile(tif, 8, SEEK_SET);
 			if(!WriteOK(tif, &m, 8)) {
 				TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Error writing TIFF header");
-				return (0);
+				return 0;
 			}
 			return (1);
 		}
@@ -2279,19 +2283,19 @@ static int TIFFLinkDirectory(TIFF* tif)
 			uint64 nextnextdir;
 			if(!SeekOK(tif, nextdir) || !ReadOK(tif, &dircount64, 8)) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Error fetching directory count");
-				return (0);
+				return 0;
 			}
 			if(tif->tif_flags & TIFF_SWAB)
 				TIFFSwabLong8(&dircount64);
 			if(dircount64>0xFFFF) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Sanity check on tag count failed, likely corrupt TIFF");
-				return (0);
+				return 0;
 			}
 			dircount = (uint16)dircount64;
 			(void)TIFFSeekFile(tif, nextdir+8+dircount*20, SEEK_SET);
 			if(!ReadOK(tif, &nextnextdir, 8)) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Error fetching directory link");
-				return (0);
+				return 0;
 			}
 			if(tif->tif_flags & TIFF_SWAB)
 				TIFFSwabLong8(&nextnextdir);
@@ -2299,7 +2303,7 @@ static int TIFFLinkDirectory(TIFF* tif)
 				(void)TIFFSeekFile(tif, nextdir+8+dircount*20, SEEK_SET);
 				if(!WriteOK(tif, &m, 8)) {
 					TIFFErrorExt(tif->tif_clientdata, module, "Error writing directory link");
-					return (0);
+					return 0;
 				}
 				break;
 			}
@@ -2513,7 +2517,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 		if(!WriteOK(tif, buf_to_write, count*TIFFDataWidth(datatype))) {
 			SAlloc::F(buf_to_write);
 			TIFFErrorExt(tif->tif_clientdata, module, "Error writing directory link");
-			return (0);
+			return 0;
 		}
 		SAlloc::F(buf_to_write);
 		return 1;
@@ -2527,7 +2531,7 @@ int _TIFFRewriteField(TIFF* tif, uint16 tag, TIFFDataType in_datatype, tmsize_t 
 		if(!WriteOK(tif, buf_to_write, count*TIFFDataWidth(datatype))) {
 			SAlloc::F(buf_to_write);
 			TIFFErrorExt(tif->tif_clientdata, module, "Error writing directory link");
-			return (0);
+			return 0;
 		}
 	}
 	else {

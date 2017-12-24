@@ -497,7 +497,7 @@ static int Fax3SetupState(TIFF* tif)
 	if(td->td_bitspersample != 1) {
 		TIFFErrorExt(tif->tif_clientdata, module,
 		    "Bits/sample must be 1 for Group 3/4 encoding/decoding");
-		return (0);
+		return 0;
 	}
 	/*
 	 * Calculate the scanline/tile widths.
@@ -528,11 +528,11 @@ static int Fax3SetupState(TIFF* tif)
 	}
 	if((nruns == 0) || (TIFFSafeMultiply(uint32, nruns, 2) == 0)) {
 		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Row pixels integer overflow (rowpixels %u)", rowpixels);
-		return (0);
+		return 0;
 	}
 	dsp->runs = (uint32*)_TIFFCheckMalloc(tif, TIFFSafeMultiply(uint32, nruns, 2), sizeof(uint32), "for Group 3/4 run arrays");
 	if(dsp->runs == NULL)
-		return (0);
+		return 0;
 	memzero(dsp->runs, TIFFSafeMultiply(uint32, nruns, 2)*sizeof(uint32));
 	dsp->curruns = dsp->runs;
 	if(needsRefLine)
@@ -559,7 +559,7 @@ static int Fax3SetupState(TIFF* tif)
 		if(esp->refline == NULL) {
 			TIFFErrorExt(tif->tif_clientdata, module,
 			    "No space for Group 3/4 reference line");
-			return (0);
+			return 0;
 		}
 	}
 	else                                    /* 1d encoding */
@@ -1055,7 +1055,7 @@ static int Fax3Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	(void)s;
 	if(cc % sp->b.rowbytes) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Fractional scanlines cannot be written");
-		return (0);
+		return 0;
 	}
 	while(cc > 0) {
 		if((sp->b.mode & FAXMODE_NOEOL) == 0)
@@ -1063,13 +1063,13 @@ static int Fax3Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 		if(is2DEncoding(sp)) {
 			if(sp->tag == G3_1D) {
 				if(!Fax3Encode1DRow(tif, bp, sp->b.rowpixels))
-					return (0);
+					return 0;
 				sp->tag = G3_2D;
 			}
 			else {
 				if(!Fax3Encode2DRow(tif, bp, sp->refline,
 					    sp->b.rowpixels))
-					return (0);
+					return 0;
 				sp->k--;
 			}
 			if(sp->k == 0) {
@@ -1081,7 +1081,7 @@ static int Fax3Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 		}
 		else {
 			if(!Fax3Encode1DRow(tif, bp, sp->b.rowpixels))
-				return (0);
+				return 0;
 		}
 		bp += sp->b.rowbytes;
 		cc -= sp->b.rowbytes;
@@ -1287,7 +1287,7 @@ static int InitCCITTFax3(TIFF* tif)
 	tif->tif_data = (uint8*)SAlloc::M(sizeof(Fax3CodecState));
 	if(tif->tif_data == NULL) {
 		TIFFErrorExt(tif->tif_clientdata, module, "No space for state block");
-		return (0);
+		return 0;
 	}
 	memzero(tif->tif_data, sizeof(Fax3CodecState));
 	sp = Fax3State(tif);
@@ -1413,11 +1413,11 @@ static int Fax4Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	(void)s;
 	if(cc % sp->b.rowbytes) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Fractional scanlines cannot be written");
-		return (0);
+		return 0;
 	}
 	while(cc > 0) {
 		if(!Fax3Encode2DRow(tif, bp, sp->refline, sp->b.rowpixels))
-			return (0);
+			return 0;
 		memcpy(sp->refline, bp, sp->b.rowbytes);
 		bp += sp->b.rowbytes;
 		cc -= sp->b.rowbytes;
@@ -1460,7 +1460,7 @@ int TIFFInitCCITTFax4(TIFF* tif, int scheme)
 		return TIFFSetField(tif, TIFFTAG_FAXMODE, FAXMODE_NORTC);
 	}
 	else
-		return (0);
+		return 0;
 }
 
 /*
@@ -1533,7 +1533,7 @@ int TIFFInitCCITTRLE(TIFF* tif, int scheme)
 		    FAXMODE_NORTC|FAXMODE_NOEOL|FAXMODE_BYTEALIGN);
 	}
 	else
-		return (0);
+		return 0;
 }
 
 int TIFFInitCCITTRLEW(TIFF* tif, int scheme)
@@ -1550,7 +1550,7 @@ int TIFFInitCCITTRLEW(TIFF* tif, int scheme)
 		    FAXMODE_NORTC|FAXMODE_NOEOL|FAXMODE_WORDALIGN);
 	}
 	else
-		return (0);
+		return 0;
 }
 
 #endif /* CCITT_SUPPORT */

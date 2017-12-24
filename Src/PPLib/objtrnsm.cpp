@@ -3238,7 +3238,7 @@ static int SLAPI SyncRefObj(ObjSyncCore * pSyncTbl, PPID obj, PPID dest)
 	return ok;
 }
 
-static int SLAPI SyncTblObj(ObjSyncCore * sync, DBTable * tbl, PPID obj, PPID dest)
+static int FASTCALL SyncTblObj(ObjSyncCore * sync, DBTable * tbl, PPID obj, PPID dest)
 {
 	int    ok = 1;
 	SString msg_buf;

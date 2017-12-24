@@ -1245,7 +1245,7 @@ void BrowserWindow::SetupColumnWidth(uint colNo)
 				w = 10;
 			else
 				w = (int)(cw * 6 / 5 + 1);
-			r_c.width = max(6, w);
+			r_c.width = MAX(6, w);
 			CalcRight();
 			SETSFMTLEN(r_c.format, r_c.width);
 			r_c.Options |= BCO_SIZESET;
@@ -1257,7 +1257,7 @@ void BrowserWindow::SetColumnWidth(int colNo, int newWidth)
 {
 	if(colNo >= 0 && colNo < (int)P_Def->getCount()) {
 		BroColumn & c = P_Def->at(colNo);
-		c.width = max(6, newWidth);
+		c.width = MAX(6, newWidth);
 		CalcRight();
 		SETSFMTLEN(c.format, c.width);
 	}
@@ -1692,8 +1692,8 @@ void BrowserWindow::Paint()
 			}
 			for(i = 0; i < P_Def->GetGroupCount(); i++) {
 				const BroGroup * p_grp = P_Def->GetGroup(i);
-				lt = max(p_grp->first, Left);
-				rt = min(p_grp->NextColumn()-1, Right);
+				lt = MAX(p_grp->first, Left);
+				rt = MIN(p_grp->NextColumn()-1, Right);
 				if(lt <= rt) {
 					r.left    = P_Def->at(lt).x - 1;
 					r.right   = CellRight(P_Def->at(rt));
@@ -1993,7 +1993,7 @@ void BrowserWindow::Resize(TPoint p, int mode)
 			LastResizeColumnPos = -1;
 			if(p.x > 8192)
 				p.x = 0;
-			if((newSz = max(p.x - r_c.x, 6)) != (int)(ChrSz.x * r_c.width)) {
+			if((newSz = MAX(p.x - r_c.x, 6)) != (int)(ChrSz.x * r_c.width)) {
 				newSz /= ChrSz.x;
 				SetColumnWidth(ResizedCol - 1, newSz);
 				IsUserSettingsChanged = 1;
@@ -2009,7 +2009,7 @@ void BrowserWindow::Resize(TPoint p, int mode)
 				uint   gidx;
 				if(P_Def->isColInGroup(ResizedCol - 1, &gidx)) {
 					const BroGroup * p_grp = P_Def->GetGroup(gidx);
-					gidx = max(p_grp->first, Left);
+					gidx = MAX(p_grp->first, Left);
 					r.left = P_Def->at(gidx).x + 1;
 				}
 				else

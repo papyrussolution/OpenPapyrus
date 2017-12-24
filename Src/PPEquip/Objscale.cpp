@@ -26,7 +26,7 @@ struct SplitStrItem {
 	char * ptr;
 };
 
-static int SLAPI SplitString(const char * pStr, int count, SplitStrItem * pItems)
+static void FASTCALL SplitString(const char * pStr, int count, SplitStrItem * pItems)
 {
 	size_t src_pos = 0;
 	for(int i = 0; i < count; i++) {
@@ -53,7 +53,6 @@ static int SLAPI SplitString(const char * pStr, int count, SplitStrItem * pItems
 		}
 		pItems[i].ptr[dest_pos] = 0;
 	}
-	return 1;
 }
 //
 //
@@ -3099,7 +3098,7 @@ int SLAPI DIGI::SetConnection()
 		v = 0;
 	return v;
 }*/
-static int LongToHexBytesStr(long val, int prec, SString & rBuf)
+static int FASTCALL LongToHexBytesStr(long val, int prec, SString & rBuf)
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -3119,7 +3118,7 @@ static int LongToHexBytesStr(long val, int prec, SString & rBuf)
 	return ok;
 }
 
-int LongToBCDStr(long val, const char * pFmt, SString & rBuf)
+int FASTCALL LongToBCDStr(long val, const char * pFmt, SString & rBuf)
 {
 	rBuf.Z();
 	SString temp_buf;

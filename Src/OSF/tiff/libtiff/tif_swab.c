@@ -71,7 +71,7 @@ void FASTCALL TIFFSwabLong8(uint64* lp)
 #endif
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfShort)
-void TIFFSwabArrayOfShort(register uint16* wp, tmsize_t n)
+void FASTCALL TIFFSwabArrayOfShort(register uint16* wp, tmsize_t n)
 {
 	unsigned char* cp;
 	unsigned char t;
@@ -102,7 +102,7 @@ void TIFFSwabArrayOfTriples(register uint8* tp, tmsize_t n)
 #endif
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfLong)
-void TIFFSwabArrayOfLong(register uint32* lp, tmsize_t n)
+void FASTCALL TIFFSwabArrayOfLong(register uint32* lp, tmsize_t n)
 {
 	unsigned char * cp;
 	unsigned char t;
@@ -119,7 +119,7 @@ void TIFFSwabArrayOfLong(register uint32* lp, tmsize_t n)
 #endif
 
 #if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfLong8)
-void TIFFSwabArrayOfLong8(register uint64* lp, tmsize_t n)
+void FASTCALL TIFFSwabArrayOfLong8(register uint64* lp, tmsize_t n)
 {
 	unsigned char * cp;
 	unsigned char t;
@@ -208,7 +208,7 @@ void TIFFSwabArrayOfDouble(double* dp, tmsize_t n)
  * for algorithms that want an equivalent table that
  * do not reverse bit values.
  */
-static const unsigned char TIFFBitRevTable[256] = {
+static const uchar TIFFBitRevTable[256] = {
 	0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
 	0x10, 0x90, 0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0,
 	0x08, 0x88, 0x48, 0xc8, 0x28, 0xa8, 0x68, 0xe8,
@@ -242,7 +242,7 @@ static const unsigned char TIFFBitRevTable[256] = {
 	0x0f, 0x8f, 0x4f, 0xcf, 0x2f, 0xaf, 0x6f, 0xef,
 	0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff
 };
-static const unsigned char TIFFNoBitRevTable[256] = {
+static const uchar TIFFNoBitRevTable[256] = {
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 	0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
 	0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
@@ -277,12 +277,12 @@ static const unsigned char TIFFNoBitRevTable[256] = {
 	0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff,
 };
 
-const unsigned char* TIFFGetBitRevTable(int reversed)
+const unsigned char * TIFFGetBitRevTable(int reversed)
 {
 	return (reversed ? TIFFBitRevTable : TIFFNoBitRevTable);
 }
 
-void TIFFReverseBits(uint8* cp, tmsize_t n)
+void FASTCALL TIFFReverseBits(uint8 * cp, tmsize_t n)
 {
 	for(; n > 8; n -= 8) {
 		cp[0] = TIFFBitRevTable[cp[0]];

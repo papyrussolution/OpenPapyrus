@@ -242,16 +242,11 @@ void PrcPaneDialog::setupHint()
 	}
 }
 
-PrcPaneDialog::PrcPaneDialog() : TDialog(DLG_PRCPAN)
+PrcPaneDialog::PrcPaneDialog() : TDialog(DLG_PRCPAN), State(sUNDEF), NewGoodsGrpID(0), IdleSessID(0), LastOprNo(0), CanSwitch(0)
 {
 	SString font_face;
 	MEMSZERO(H);
 	MEMSZERO(E);
-	State = sUNDEF;
-	NewGoodsGrpID = 0;
-	IdleSessID = 0;
-	LastOprNo  = 0;
-	CanSwitch  = 0;
 	LastPrcStatusCheckTime.SetZero();
 	PPGetSubStr(PPTXT_FONTFACE, PPFONT_IMPACT, font_face);
 	SetCtrlFont(CTL_PRCPAN_QTTY,      font_face, 32);

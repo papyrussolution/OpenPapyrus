@@ -2591,18 +2591,19 @@ protected:
 	//
 	// Вспомогательные методы для функции Describe
 	//
-	int    SLAPI PutObjMembToBuf(PPID objType, PPID objID, const char * pMembName, SString & rBuf) const;
-	int    SLAPI PutObjMembListToBuf(PPID objType, const ObjIdListFilt * pList, const char * pMembName, SString & rBuf) const;
-	int    SLAPI PutFlagsMembToBuf(StrAssocArray * pFlagList, const char * pMembName, SString & rBuf) const;
-	int    SLAPI PutMembToBuf(LDATE, const char * pMembName, SString & rBuf) const;
-	int    SLAPI PutMembToBuf(const DateRange *, const char * pMembName, SString & rBuf) const;
-	int    SLAPI PutMembToBuf(const RealRange *, const char * pMembName, SString & rBuf) const;
-	int    SLAPI PutMembToBuf(const char *, const char * pMembName, SString & rBuf) const;
-	int    SLAPI PutMembToBuf(double, const char * pMembName, SString & rBuf) const;
-	int    SLAPI PutMembToBuf(long, const char * pMembName, SString & rBuf) const;
-	int    SLAPI PutSggMembToBuf(SubstGrpGoods,  const char * pMembName, SString & rBuf) const;
-	int    SLAPI PutSgpMembToBuf(SubstGrpPerson, const char * pMembName, SString & rBuf) const;
-	int    SLAPI PutSgdMembToBuf(SubstGrpDate,   const char * pMembName, SString & rBuf) const;
+	static void FASTCALL PutObjMembListToBuf(PPID objType, const ObjIdListFilt * pList, const char * pMembName, SString & rBuf);
+	static void FASTCALL PutFlagsMembToBuf(StrAssocArray * pFlagList, const char * pMembName, SString & rBuf);
+	static void FASTCALL PutObjMembToBuf(PPID objType, PPID objID, const char * pMembName, SString & rBuf);
+	static void FASTCALL PutMembToBuf(LDATE, const char * pMembName, SString & rBuf);
+	static void FASTCALL PutMembToBuf(const DateRange *, const char * pMembName, SString & rBuf);
+	static void FASTCALL PutMembToBuf(const RealRange *, const char * pMembName, SString & rBuf);
+	static void FASTCALL PutMembToBuf(const char *, const char * pMembName, SString & rBuf);
+	static void FASTCALL PutMembToBuf(const SString &, const char * pMembName, SString & rBuf);
+	static void FASTCALL PutMembToBuf(double, const char * pMembName, SString & rBuf);
+	static void FASTCALL PutMembToBuf(long, const char * pMembName, SString & rBuf);
+	void   SLAPI PutSggMembToBuf(SubstGrpGoods,  const char * pMembName, SString & rBuf) const;
+	void   SLAPI PutSgpMembToBuf(SubstGrpPerson, const char * pMembName, SString & rBuf) const;
+	void   SLAPI PutSgdMembToBuf(SubstGrpDate,   const char * pMembName, SString & rBuf) const;
 private:
 	int    FASTCALL CheckBranchOffs(size_t offs);
 	void   SLAPI Destroy();
@@ -5681,6 +5682,7 @@ private:
 //
 //
 struct PPAdviseEvent {
+	void   SLAPI Clear();
 	PPAdviseEvent & FASTCALL operator = (const SysJournalTbl::Rec & rSjRec);
 
 	class ExtObject {
@@ -5696,24 +5698,44 @@ struct PPAdviseEvent {
     int32  UserID;
     int32  SjExtra;
     long   Flags;
+
+	int32  Priority; // Для обработки телефонных событий
+	int32  Duration; // Для обработки телефонных событий
+	//
+	// Следующие три поля являются позициями соответствующих строк в пуле PPAdviseEventVector
+	//
+	uint   ChannelP;  // Символ телефонного канала
+	uint   CallerIdP; // Вызывающий номер
+	uint   ConnectedLineNumP; // Номер линии
+
     ExtObject * ExtraObj; // @notowned
+};
+//
+// Descr: Вспомогательный класс для управления очередью событий
+//
+class PPAdviseEventVector : public TSVector <PPAdviseEvent>, public SStrGroup {
+public:
+	SLAPI  PPAdviseEventVector();
+	void   SLAPI Clear();
+	uint   FASTCALL MoveItemTo(uint pos, PPAdviseEventVector & rDest) const;
+protected:
+	int    SLAPI Pack();
 };
 //
 // Descr: Реализует очередь системных событий, заполняемую в отдельном потоке.
 //   Поток-источник пишет новые события в очередь методом Push который блокирует
-//   очередь с ожиданием. То есть, если кто-то читает очередь, то потор ждет
+//   очередь с ожиданием. То есть, если кто-то читает очередь, то поток ждет
 //   окончания чтения.
 //
 //   Реципиенты же, наоборот, забирают данные из очередь только после успешной блокировки
-//   без ожидания - с целью избежать задерки.
+//   без ожидания - с целью избежать задержки.
 //
-class PPAdviseEventQueue : private TSVector <PPAdviseEvent> { // @v9.8.4 TSArray-->TSVector
+class PPAdviseEventQueue : private PPAdviseEventVector { // @v9.8.4 TSArray-->TSVector // @v9.8.11 TSVector <PPAdviseEvent>-->PPAdviseEventVector
 public:
 	SLAPI  PPAdviseEventQueue();
-    int    FASTCALL Push(const TSVector <PPAdviseEvent> & rList);
+    int    FASTCALL Push(const PPAdviseEventVector & rList);
 	uint   GetCount();
-	int    Get(int64 lowIdent, TSVector <PPAdviseEvent> & rList);
-	//int64  Marker(int64 _newMarker);
+	int    Get(int64 lowIdent, PPAdviseEventVector & rList);
 	int    Purge();
 
 	class Client {
@@ -5729,7 +5751,7 @@ public:
 
 		uint32 Sign;
 		int64  Marker;
-		TSVector <PPAdviseEvent> EvqList; // @v9.8.4 TSArray-->TSVector
+		PPAdviseEventVector EvqList; // @v9.8.4 TSArray-->TSVector // @v9.8.11 TSVector <PPAdviseEvent>-->PPAdviseEventVector
 		LongArray RegDbList; // Список идентификаторов путей баз данных, в чьих очередях
 			// клиент зарегистрирован. Необходим для ускорения процесса регистрации.
 	};
@@ -6743,7 +6765,10 @@ public:
 	//
 	// Really const function: don't modify result object
 	//
-	const  PPVersionInfo & SLAPI GetVersionInfo() const;
+	const PPVersionInfo & SLAPI GetVersionInfo() const
+	{
+		return Ver;
+	}
 	SVerT  SLAPI GetVersion() const;
 	//
 	// Descr: Возвращает номер версии системы, минимально допустимый для совместимости
@@ -11386,7 +11411,7 @@ private:
 //
 //
 //
-struct UhttGoodsRestVal {
+struct UhttGoodsRestVal { // @flat
 	PPID   GoodsID;
 	PPID   LocID;
 	double Rest;
@@ -13138,6 +13163,7 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 		// применялся только для асинхронных кассовых узлов.
 		// Начиная с v9.8.4, если указан PPEquipConfig::LookBackPricePeriod > 0, то AcgiPriceLookBackPeriod игнорируется.
 	char   SuspCcPrefix[8];   // @v8.1.9 Префикс номера отложенного чека для быстрого восстановления чека по номеру в кассовой панели
+	PPID   PhnSvcID;          // @v9.8.11 Телефонный сервис, опрашиваемый сессией 
 };
 
 int  SLAPI ReadEquipConfig(PPEquipConfig * pCfg);
@@ -19383,7 +19409,7 @@ public:
 #define PHNSVCTYPE_ASTERISK 1
 
 struct PPPhoneService {
-	PPPhoneService();
+	SLAPI  PPPhoneService();
 
 	PPID   Tag;                 // Const=PPOBJ_PHONESERVICE
 	PPID   ID;                  // @id
@@ -19452,7 +19478,7 @@ struct PhnSvcChannelStatus {
 	SString ConnectedLineNum;
 };
 
-class PhnSvcChannelStatusPool : SArray {
+class PhnSvcChannelStatusPool : SVector { // @v9.8.11 SArray-->SVector
 public:
 	PhnSvcChannelStatusPool();
 	uint   GetCount() const;
@@ -19460,7 +19486,7 @@ public:
 	int    FASTCALL Get(uint idx, PhnSvcChannelStatus & rStatus) const;
 	PhnSvcChannelStatusPool & Clear();
 private:
-	struct Item_ {
+	struct Item_ { // @flat
 		long   State;
 		long   Flags;
 		long   Priority;
@@ -29433,7 +29459,7 @@ struct PayableBillListItem {
 class PayableBillList : public TSVector <PayableBillListItem> { // @v9.8.4 TSArray-->TSVector
 public:
 	SLAPI  PayableBillList(AmtList * pAmt = 0, AmtList * pPaym = 0);
-	int    SLAPI GetIdList(LongArray & rList) const;
+	void   FASTCALL GetIdList(LongArray & rList) const;
 	int    FASTCALL AddBill(const BillTbl::Rec * pBillRec);
 	int    SLAPI AddPayableItem(const PayableBillListItem * pItem, long tabID, double paym, int useExtCoef);
 	AmtList * P_Amt;       // @notowned
@@ -33784,7 +33810,7 @@ private:
 	int    SLAPI TurnDeficit(PPID locID, LDATE dt, double pctAddition, ObjTransmContext * pCtx);
 	int    SLAPI PrintTotalDeficit(ObjTransmContext * pCtx);
 	int    SLAPI Search(PPID locID, PPID goodsID, PPID supplID, TempDeficitTbl::Rec *);
-	int    SLAPI CalcReqSalesTax(ILTI *, LDATE, PPID opID, double * pSalesTax);
+	void   SLAPI CalcReqSalesTax(ILTI *, LDATE, PPID opID, double * pSalesTax);
 	int    SLAPI AddRec(ILTI *, const char * pClbNumber, BillTbl::Rec *, PPID supplID, double qtty);
 	int    SLAPI UpdateRec(TempDeficitTbl::Rec *, ILTI *, const char * pClbNumber, BillTbl::Rec *, double qtty);
 	int    SLAPI CompleteGoodsRest();
@@ -39482,7 +39508,7 @@ private:
 	// too contains bill.Code and write date format at front of them
 	// (function Add must write bill code to field TempTrfrGrpngTbl.DtText).
 	//
-	int    SLAPI InitDateText(LDATE, PPID billID, SString & rBuf);
+	void   SLAPI InitDateText(LDATE, PPID billID, SString & rBuf);
 	//int    SLAPI InitDateText(LDATE, PPID billID, char * pBuf, size_t bufLen);
 	//
 	// Descr: возвращает сальдо на указанную дату. Если дата не указана (ZERODATE), тогда на текущую дату.
@@ -43722,7 +43748,7 @@ public:
     //
     // Descr: Дескриптор сервера УТМ
     //
-    struct UtmEntry {
+    struct UtmEntry { // @flat
     	SLAPI  UtmEntry();
 
     	enum {
@@ -43802,7 +43828,7 @@ public:
 	void   SLAPI SetTestSendingMode(int set);
 	void   SLAPI SetNonRvmTagMode(int set);
 	int    SLAPI CheckLic() const;
-	int    SLAPI GetUtmList(PPID locID, TSArray <UtmEntry> & rList);
+	int    SLAPI GetUtmList(PPID locID, TSVector <UtmEntry> & rList); // @v9.8.11 TSArray-->TSVector
 	void   SLAPI SetUtmEntry(PPID locID, const UtmEntry * pEntry, const DateRange * pPeriod);
 	int    SLAPI GetFSRARID(PPID locID, SString & rBuf, PPID * pMainOrgID);
 	int    SLAPI GetURL(PPID locID, SString & rBuf);
@@ -46745,7 +46771,7 @@ public:
 	//LocationCtrlGroup(uint ctlselLoc, uint cmEditLocList, long flags, const PPIDArray * pExtLocList);
 	//LocationCtrlGroup(uint ctlselLoc, uint ctlCode, uint cmEditLocList, long flags);
 	//LocationCtrlGroup(uint ctlPhone, uint cmEditLoc, long flags);
-	int    SetExtLocList(const PPIDArray * pExtLocList);
+	void   SetExtLocList(const PPIDArray * pExtLocList);
 	void   SetInfoCtl(uint ctlId);
 	virtual int setData(TDialog *, void *); // (LocationCtrlGroup::Rec*)
 	virtual int getData(TDialog *, void *); // (LocationCtrlGroup::Rec*)
@@ -48168,7 +48194,10 @@ public:
 	int    GetCheckInfo(CCheckPacket * pPack);
 	void   CalcTotal(double * pTotal, double * pDiscount) const;
 	double GetUsableBonus() const;
-	int    GetState() const;
+	int    GetState() const
+	{
+		return State_p;
+	}
 	int    FASTCALL IsState(int s) const;
 	PPID   GetPosNodeID() const;
 	long   GetTableCode() const;
@@ -48180,7 +48209,7 @@ public:
 	int    FASTCALL NextIteration(CCheckItem * pItem);
 	int    SetupCTable(int tableNo, int guestCount);
 	int    SetupAgent(PPID agentID, int asAuthAgent);
-	int    SetupSessUuid(S_GUID & rUuid);
+	void   SetupSessUuid(const S_GUID & rUuid);
 	int    OpenSession(LDATE * pDt, int ifClosed);
 	int    RestoreSuspendedCheck(PPID ccID); // private->public
 	int    Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId);
@@ -48231,7 +48260,7 @@ public:
 	int    ExportCTblList(SString & rBuf);
 	int    ExportCCheckList(long ctblId, SString & rBuf);
 	int    ExportModifList(PPID goodsID, SString & rBuf);
-	int    GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & rList);
+	void   GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & rList);
 	int    AutosaveCheck();
 	CCheckCore & GetCc();
 	PPObjSCard & GetScObj();
@@ -48329,11 +48358,20 @@ protected:
 		int    HasCur() const;
 		PPID   FASTCALL GetAgentID(int actual = 0) const;
 		double GetGoodsQtty(PPID goodsID) const;
-		int    FASTCALL SetupCCheckPacket(CCheckPacket * pPack) const;
+		void   FASTCALL SetupCCheckPacket(CCheckPacket * pPack) const;
 		int    SetupInfo(SString & rBuf);
-		CCheckItem & GetCur();
-		const CCheckItem & GetCurC() const;
-		double GetRest() const;
+		CCheckItem & GetCur()
+		{
+			return Cur;
+		}
+		const CCheckItem & GetCurC() const
+		{
+			return Cur;
+		}
+		double GetRest() const
+		{
+			return Rest;
+		}
 		void   SetRest(double rest);
 		int    MoveUp(uint itemIdx);
 		int    MoveDown(uint itemIdx);

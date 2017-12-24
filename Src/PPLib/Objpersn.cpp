@@ -2343,9 +2343,8 @@ int SLAPI PPObjPerson::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int rep
 //
 class ReplPrsnDialog : public TDialog {
 public:
-	ReplPrsnDialog(int addr) : TDialog(addr ? DLG_REPLADDR : DLG_REPLPRSN)
+	ReplPrsnDialog(int addr) : TDialog(addr ? DLG_REPLADDR : DLG_REPLPRSN), Addr(addr)
 	{
-		Addr = addr;
 		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PRSNKIND, 0, 0, 0);
 		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND2, PPOBJ_PRSNKIND, 0, 0, 0);
 		replyKindSelected(0);

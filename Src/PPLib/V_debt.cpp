@@ -52,11 +52,10 @@ int FASTCALL PayableBillList::AddBill(const BillTbl::Rec * pBillRec)
 		return -1;
 }
 
-int SLAPI PayableBillList::GetIdList(LongArray & rList) const
+void FASTCALL PayableBillList::GetIdList(LongArray & rList) const
 {
 	for(uint i = 0; i < getCount(); i++)
 		rList.add(at(i).ID);
-	return 1;
 }
 //
 // DebtTrnovrTotal
@@ -3807,7 +3806,7 @@ int SLAPI PrcssrDebtRate::Run()
 			}
 		}
 		else if(P.AccSheetID == GetSellAccSheet() || (acs_obj.Fetch(P.AccSheetID, &acs_rec) > 0 && acs_rec.Flags & ACSHF_USECLIAGT)) {
-			struct StopItem {
+			struct StopItem { // @flat
 				PPID   ArID;
 				PPID   DebtDimID;
 				double Debt;
@@ -3824,8 +3823,8 @@ int SLAPI PrcssrDebtRate::Run()
 			PPObjOprKind op_obj;
 			SString fmt_buf, msg_buf;
 			PPObjBill::DebtBlock blk;
-			SArray set_stop_list(sizeof(StopItem));       // Список статей, которым следует выставить STOP
-			SArray reset_stop_list(sizeof(StopItem));     // Список статей, с которых следует снять STOP
+			SVector set_stop_list(sizeof(StopItem));       // Список статей, которым следует выставить STOP
+			SVector reset_stop_list(sizeof(StopItem));     // Список статей, с которых следует снять STOP
 			{
 				PPObjDebtDim dd_obj;
 				PPDebtDim dd_rec;

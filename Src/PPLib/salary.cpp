@@ -303,9 +303,8 @@ int SLAPI PPViewSalary::EditBaseFilt(PPBaseFilt * pBaseFilt)
 class SalaryDialog : public TDialog {
 #define GRP_DIV 1
 public:
-	SalaryDialog() : TDialog(DLG_SALARY)
+	SalaryDialog() : TDialog(DLG_SALARY), OrgID(0), DivID(0), StaffID(0)
 	{
-		OrgID = DivID = StaffID = 0;
 	}
 	int    setDTS(const SalaryTbl::Rec * pData)
 	{
@@ -2231,9 +2230,8 @@ int SLAPI PrcssrSalary::TestCalcPeriod(PPID postID)
 {
 	class TestStaffCalDialog : public TDialog {
 	public:
-		TestStaffCalDialog(PrcssrSalary * pPrc) : TDialog(DLG_TESTSTAFFCAL)
+		TestStaffCalDialog(PrcssrSalary * pPrc) : TDialog(DLG_TESTSTAFFCAL), P_Prc(pPrc)
 		{
-			P_Prc = pPrc;
 			SetupCalPeriod(CTLCAL_TESTSTAFFCAL_PERIOD, CTL_TESTSTAFFCAL_PERIOD);
 		}
 		int    setDTS(const PrcssrSalary::CalcPeriodParam * pData)

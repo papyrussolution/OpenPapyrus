@@ -197,10 +197,11 @@ int SLAPI PPAdvBillItemList::Serialize(int dir, SBuffer & rBuf, SSerializeContex
 //
 // AdvBillItemDialog
 //
-#define GRP_ACC   1
-
 class AdvBillItemDialog : public TDialog {
 public:
+	enum {
+		ctlgroupAcc = 1
+	};
 	AdvBillItemDialog(uint dlgID) : TDialog(dlgID), P_Pack(0)
 	{
 	}
@@ -257,7 +258,7 @@ void AdvBillItemDialog::editLink()
 					getCtrlData(CTL_ADVBITEM_CODE,  Data.AdvCode);
 					getCtrlData(CTL_ADVBITEM_AMOUNT, &Data.Amount);
 					getCtrlData(CTL_ADVBITEM_MEMO,   Data.Memo);
-					getGroupData(GRP_ACC, &acc_rec);
+					getGroupData(ctlgroupAcc, &acc_rec);
 					Data.AccID = acc_rec.AcctId.ac;
 					Data.ArID  = acc_rec.AcctId.ar;
 				}
@@ -377,12 +378,12 @@ int AdvBillItemDialog::setDTS(const PPAdvBillItem * pData)
 	AcctCtrlGroup::Rec acc_rec;
 	AcctCtrlGroup * p_acc_grp = new AcctCtrlGroup(CTL_ADVBITEM_ACC, CTL_ADVBITEM_ART, CTLSEL_ADVBITEM_ACCNAME, CTLSEL_ADVBITEM_ARTNAME);
 	THROW_MEM(p_acc_grp);
-	addGroup(GRP_ACC, p_acc_grp);
+	addGroup(ctlgroupAcc, p_acc_grp);
 	acc_rec.AcctId.ac   = Data.AccID;
 	acc_rec.AcctId.ar   = Data.ArID;
 	BillObj->atobj->P_Tbl->AccObj.InitAccSheetForAcctID(&acc_rec.AcctId, &acc_rec.AccSheetID);
 	acc_rec.AccSelParam = ACY_SEL_BAL;
-	setGroupData(GRP_ACC, &acc_rec);
+	setGroupData(ctlgroupAcc, &acc_rec);
 	SetupCalDate(CTLCAL_ADVBITEM_DT, CTL_ADVBITEM_DT);
 	setCtrlData(CTL_ADVBITEM_DT,     &Data.AdvDt);
 	SetupPPObjCombo(this, CTLSEL_ADVBITEM_BILLKIND, PPOBJ_ADVBILLKIND, Data.AdvBillKindID, OLW_CANINSERT);
@@ -405,7 +406,7 @@ int AdvBillItemDialog::getDTS(PPAdvBillItem * pData)
 	getCtrlData(CTLSEL_ADVBITEM_BILLKIND, &Data.AdvBillKindID);
 	getCtrlData(CTL_ADVBITEM_AMOUNT, &Data.Amount);
 	getCtrlData(CTL_ADVBITEM_MEMO,   Data.Memo);
-	getGroupData(GRP_ACC, &acc_rec);
+	getGroupData(ctlgroupAcc, &acc_rec);
 	Data.AccID = acc_rec.AcctId.ac;
 	Data.ArID  = acc_rec.AcctId.ar;
 	ASSIGN_PTR(pData, Data);

@@ -46,7 +46,7 @@ void ListWindow::executeNM(HWND parent)
 	TView::SetWindowProp(H(), GWL_STYLE, WS_CHILD);
 	TView::SetWindowProp(H(), GWL_EXSTYLE, 0L);
 	SetParent(H(), hwnd_parent);
-	if(Id == DLGW_LBX || Id == DLGW_TREELBX) {
+	if(oneof2(Id, DLGW_LBX, DLGW_TREELBX)) {
 		UserInterfaceSettings ui_cfg;
 		if(ui_cfg.Restore() > 0) {
 			if(Id == DLGW_LBX)

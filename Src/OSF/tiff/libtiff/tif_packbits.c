@@ -37,7 +37,7 @@ static int PackBitsPreEncode(TIFF* tif, uint16 s)
 
 	tif->tif_data = (uint8*)SAlloc::M(sizeof(tmsize_t));
 	if(tif->tif_data == NULL)
-		return (0);
+		return 0;
 	/*
 	 * Calculate the scanline/tile-width size in bytes.
 	 */
@@ -94,7 +94,7 @@ again:
 				slop = (long)(op - lastliteral);
 				tif->tif_rawcc += (tmsize_t)(lastliteral - tif->tif_rawcp);
 				if(!TIFFFlushData1(tif))
-					return (0);
+					return 0;
 				op = tif->tif_rawcp;
 				while(slop-- > 0)
 					*op++ = *lastliteral++;
@@ -103,7 +103,7 @@ again:
 			else {
 				tif->tif_rawcc += (tmsize_t)(op - tif->tif_rawcp);
 				if(!TIFFFlushData1(tif))
-					return (0);
+					return 0;
 				op = tif->tif_rawcp;
 			}
 		}
@@ -275,7 +275,7 @@ static int PackBitsDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 		TIFFErrorExt(tif->tif_clientdata, module,
 		    "Not enough data for scanline %lu",
 		    (unsigned long)tif->tif_row);
-		return (0);
+		return 0;
 	}
 	return (1);
 }

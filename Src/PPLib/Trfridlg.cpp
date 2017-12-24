@@ -419,20 +419,11 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 #define GRP_QCERT  1
 #define GRP_LOC    2
 
-TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opID), OpTypeID(GetOpType(opID))
+TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opID), OpTypeID(GetOpType(opID)),
+	InitGoodsGrpID(0), GoodsGrpID(0), P_BObj(BillObj), Rest(0.0), OrdRest(0.0), OrdReserved(0.0), MinQtty(0.0), MaxQtty(0.0), NumPacks(0.0),
+	OrgQtty(0.0), OrgPrice(0.0), EditMode(0), ItemNo(0), P_Pack(0), P_OrderItem(0), St(0)
 {
-	InitGoodsGrpID = 0;
-	GoodsGrpID  = 0;
-	P_BObj      = BillObj;
-	P_Trfr      = P_BObj->trfr;
-	Rest = OrdRest = OrdReserved = MinQtty = MaxQtty = NumPacks = 0.0;
-	OrgQtty     = 0.0; // @v7.8.10
-	OrgPrice    = 0.0; // @v9.4.3
-	EditMode    = 0;
-	ItemNo      = 0;
-	P_Pack      = 0;
-	P_OrderItem = 0;
-	St = 0;
+	P_Trfr = P_BObj->trfr;
 	Ptb.SetBrush(brushChangedCost, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrBlue), 0.3), 0);
 	Ptb.SetBrush(brushQuotedPrice, SPaintObj::bsSolid, GetColorRef(SClrYellow), 0);
 	Ptb.SetBrush(brushQuotedPriceNoCancel, SPaintObj::bsSolid, GetColorRef(SClrLime), 0);

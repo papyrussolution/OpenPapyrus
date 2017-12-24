@@ -5595,10 +5595,8 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_clr_cookie(struct soap * soap, const char * name
 
 SOAP_FMAC1 char * SOAP_FMAC2 soap_cookie_value(struct soap * soap, const char * name, const char * domain, const char * path)
 {
-	struct soap_cookie * p;
-	if((p = soap_cookie(soap, name, domain, path)))
-		return p->value;
-	return NULL;
+	struct soap_cookie * p = soap_cookie(soap, name, domain, path);
+	return p ? p->value : 0;
 }
 
 SOAP_FMAC1 char * SOAP_FMAC2 soap_env_cookie_value(struct soap * soap, const char * name, const char * domain, const char * path)

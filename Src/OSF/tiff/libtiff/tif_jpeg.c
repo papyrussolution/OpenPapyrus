@@ -519,7 +519,7 @@ static int TIFFjpeg_tables_dest(JPEGState* sp, TIFF* tif)
 	if(sp->jpegtables == NULL) {
 		sp->jpegtables_length = 0;
 		TIFFErrorExt(sp->tif->tif_clientdata, "TIFFjpeg_tables_dest", "No space for JPEGTables");
-		return (0);
+		return 0;
 	}
 	sp->cinfo.c.dest = &sp->dest;
 	sp->dest.init_destination = tables_init_destination;
@@ -654,7 +654,7 @@ static int alloc_downsampled_buffers(TIFF* tif, jpeg_component_info* comp_info,
 		    compptr->width_in_blocks * DCTSIZE,
 		    (JDIMENSION)(compptr->v_samp_factor*DCTSIZE));
 		if(buf == NULL)
-			return (0);
+			return 0;
 		sp->ds_buffer[ci] = buf;
 	}
 	sp->samplesperclump = samples_per_clump;
@@ -753,7 +753,7 @@ static void JPEGFixupTagsSubsampling(TIFF* tif)
 	m.tif = tif;
 	m.buffersize = 2048;
 	m.buffer = SAlloc::M(m.buffersize);
-	if(m.buffer==NULL) {
+	if(!m.buffer) {
 		TIFFWarningExt(tif->tif_clientdata, module,
 		    "Unable to allocate memory for auto-correcting of subsampling values; auto-correcting skipped");
 		return;
@@ -764,9 +764,7 @@ static void JPEGFixupTagsSubsampling(TIFF* tif)
 	m.filepositioned = 0;
 	m.filebytesleft = tif->tif_dir.td_stripbytecount[0];
 	if(!JPEGFixupTagsSubsamplingSec(&m))
-		TIFFWarningExt(
-		    tif->tif_clientdata,
-		    module,
+		TIFFWarningExt(tif->tif_clientdata, module,
 		    "Unable to auto-correct subsampling values, likely corrupt JPEG compressed data in first strip/tile; auto-correcting skipped");
 	SAlloc::F(m.buffer);
 }
@@ -972,7 +970,7 @@ static int JPEGSetupDecode(TIFF* tif)
 		TIFFjpeg_tables_src(sp);
 		if(TIFFjpeg_read_header(sp, FALSE) != JPEG_HEADER_TABLES_ONLY) {
 			TIFFErrorExt(tif->tif_clientdata, "JPEGSetupDecode", "Bogus JPEGTables field");
-			return (0);
+			return 0;
 		}
 	}
 
@@ -1017,7 +1015,7 @@ int TIFFJPEGIsFullStripRequired(TIFF* tif)
 	TIFFjpeg_data_src(&state);
 	if(TIFFjpeg_read_header(&state, TRUE) != JPEG_HEADER_OK) {
 		TIFFjpeg_destroy(&state);
-		return (0);
+		return 0;
 	}
 	ret = TIFFjpeg_has_multiple_scans(&state);
 	TIFFjpeg_destroy(&state);
@@ -1048,13 +1046,13 @@ int TIFFJPEGIsFullStripRequired(TIFF* tif)
 	 * in case application didn't read the whole strip.
 	 */
 	if(!TIFFjpeg_abort(sp))
-		return (0);
+		return 0;
 	/*
 	 * Read the header for this strip/tile.
 	 */
 
 	if(TIFFjpeg_read_header(sp, TRUE) != JPEG_HEADER_OK)
-		return (0);
+		return 0;
 
 	tif->tif_rawcp = (uint8*)sp->src.next_input_byte;
 	tif->tif_rawcc = sp->src.bytes_in_buffer;
@@ -1118,25 +1116,25 @@ int TIFFJPEGIsFullStripRequired(TIFF* tif)
 		    " expected %dx%d, got %dx%d",
 		    segment_width, segment_height,
 		    sp->cinfo.d.image_width, sp->cinfo.d.image_height);
-		return (0);
+		return 0;
 	}
 	if(sp->cinfo.d.num_components !=
 	    (td->td_planarconfig == PLANARCONFIG_CONTIG ?
 		    td->td_samplesperpixel : 1)) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Improper JPEG component count");
-		return (0);
+		return 0;
 	}
 #ifdef JPEG_LIB_MK1
 	if(12 != td->td_bitspersample && 8 != td->td_bitspersample) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Improper JPEG data precision");
-		return (0);
+		return 0;
 	}
 	sp->cinfo.d.data_precision = td->td_bitspersample;
 	sp->cinfo.d.bits_in_jsample = td->td_bitspersample;
 #else
 	if(sp->cinfo.d.data_precision != td->td_bitspersample) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Improper JPEG data precision");
-		return (0);
+		return 0;
 	}
 #endif
 
@@ -1174,7 +1172,7 @@ int TIFFJPEGIsFullStripRequired(TIFF* tif)
 			    (unsigned)nRequiredMemory,
 			    (unsigned)TIFF_LIBJPEG_LARGEST_MEM_ALLOC,
 			    (unsigned)TIFF_LIBJPEG_LARGEST_MEM_ALLOC);
-			return (0);
+			return 0;
 		}
 	}
 
@@ -1188,14 +1186,14 @@ int TIFFJPEGIsFullStripRequired(TIFF* tif)
 			    sp->cinfo.d.comp_info[0].h_samp_factor,
 			    sp->cinfo.d.comp_info[0].v_samp_factor,
 			    sp->h_sampling, sp->v_sampling);
-			return (0);
+			return 0;
 		}
 		/* Rest should have sampling factors 1,1 */
 		for(ci = 1; ci < sp->cinfo.d.num_components; ci++) {
 			if(sp->cinfo.d.comp_info[ci].h_samp_factor != 1 ||
 			    sp->cinfo.d.comp_info[ci].v_samp_factor != 1) {
 				TIFFErrorExt(tif->tif_clientdata, module, "Improper JPEG sampling factors");
-				return (0);
+				return 0;
 			}
 		}
 	}
@@ -1204,7 +1202,7 @@ int TIFFJPEGIsFullStripRequired(TIFF* tif)
 		if(sp->cinfo.d.comp_info[0].h_samp_factor != 1 ||
 		    sp->cinfo.d.comp_info[0].v_samp_factor != 1) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Improper JPEG sampling factors");
-			return (0);
+			return 0;
 		}
 	}
 	downsampled_output = FALSE;
@@ -1243,12 +1241,12 @@ int TIFFJPEGIsFullStripRequired(TIFF* tif)
 	}
 	/* Start JPEG decompressor */
 	if(!TIFFjpeg_start_decompress(sp))
-		return (0);
+		return 0;
 	/* Allocate downsampled-data buffers if needed */
 	if(downsampled_output) {
 		if(!alloc_downsampled_buffers(tif, sp->cinfo.d.comp_info,
 			    sp->cinfo.d.num_components))
-			return (0);
+			return 0;
 		sp->scancount = DCTSIZE;        /* mark buffer empty */
 	}
 	return (1);
@@ -1293,7 +1291,7 @@ static int JPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 			JSAMPROW bufptr = (JSAMPROW)buf;
 
 			if(TIFFjpeg_read_scanlines(sp, &bufptr, 1) != 1)
-				return (0);
+				return 0;
 
 			++tif->tif_row;
 			buf += sp->bytesperline;
@@ -1360,7 +1358,7 @@ static int JPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 				 * for 12bit data, which we need to repack.
 				 */
 				if(TIFFjpeg_read_scanlines(sp, &line_work_buf, 1) != 1)
-					return (0);
+					return 0;
 
 				if(sp->cinfo.d.data_precision == 12) {
 					int value_pairs = (sp->cinfo.d.output_width
@@ -1452,28 +1450,23 @@ static int JPEGDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 		unsigned short* tmpbuf = SAlloc::M(sizeof(unsigned short) *
 		    sp->cinfo.d.output_width *
 		    sp->cinfo.d.num_components);
-		if(tmpbuf==NULL) {
-			TIFFErrorExt(tif->tif_clientdata, "JPEGDecodeRaw",
-			    "Out of memory");
+		if(!tmpbuf) {
+			TIFFErrorExt(tif->tif_clientdata, "JPEGDecodeRaw", "Out of memory");
 			return 0;
 		}
 #endif
-
 		do {
 			jpeg_component_info * compptr;
 			int ci, clumpoffset;
-
 			if(cc < sp->bytesperline) {
-				TIFFErrorExt(tif->tif_clientdata, "JPEGDecodeRaw",
-				    "application buffer not large enough for all data.");
+				TIFFErrorExt(tif->tif_clientdata, "JPEGDecodeRaw", "application buffer not large enough for all data.");
 				return 0;
 			}
-
 			/* Reload downsampled-data buffer if needed */
 			if(sp->scancount >= DCTSIZE) {
 				int n = sp->cinfo.d.max_v_samp_factor * DCTSIZE;
 				if(TIFFjpeg_read_raw_data(sp, sp->ds_buffer, n) != n)
-					return (0);
+					return 0;
 				sp->scancount = 0;
 			}
 			/*
@@ -1613,11 +1606,11 @@ static int prepare_JPEGTables(TIFF* tif)
 
 	/* Initialize quant tables for current quality setting */
 	if(!TIFFjpeg_set_quality(sp, sp->jpegquality, FALSE))
-		return (0);
+		return 0;
 	/* Mark only the tables we want for output */
 	/* NB: chrominance tables are currently used only with YCbCr */
 	if(!TIFFjpeg_suppress_tables(sp, TRUE))
-		return (0);
+		return 0;
 	if(sp->jpegtablesmode & JPEGTABLESMODE_QUANT) {
 		unsuppress_quant_table(sp, 0);
 		if(sp->photometric == PHOTOMETRIC_YCBCR)
@@ -1630,10 +1623,10 @@ static int prepare_JPEGTables(TIFF* tif)
 	}
 	/* Direct libjpeg output into jpegtables */
 	if(!TIFFjpeg_tables_dest(sp, tif))
-		return (0);
+		return 0;
 	/* Emit tables-only datastream */
 	if(!TIFFjpeg_write_tables(sp))
-		return (0);
+		return 0;
 
 	return (1);
 }
@@ -1688,7 +1681,7 @@ static int JPEGSetupEncode(TIFF* tif)
 		sp->cinfo.c.in_color_space = JCS_UNKNOWN;
 	}
 	if(!TIFFjpeg_set_defaults(sp))
-		return (0);
+		return 0;
 	/* Set per-file parameters */
 	switch(sp->photometric) {
 		case PHOTOMETRIC_YCBCR:
@@ -1697,13 +1690,13 @@ static int JPEGSetupEncode(TIFF* tif)
 		    if(sp->h_sampling == 0 || sp->v_sampling == 0) {
 			    TIFFErrorExt(tif->tif_clientdata, module,
 			    "Invalig horizontal/vertical sampling value");
-			    return (0);
+			    return 0;
 		    }
 		    if(td->td_bitspersample > 16) {
 			    TIFFErrorExt(tif->tif_clientdata, module,
 			    "BitsPerSample %d not allowed for JPEG",
 			    td->td_bitspersample);
-			    return (0);
+			    return 0;
 		    }
 
 		    /*
@@ -1733,7 +1726,7 @@ static int JPEGSetupEncode(TIFF* tif)
 		    TIFFErrorExt(tif->tif_clientdata, module,
 		    "PhotometricInterpretation %d not allowed for JPEG",
 		    (int)sp->photometric);
-		    return (0);
+		    return 0;
 		default:
 		    /* TIFF 6.0 forbids subsampling of all other color spaces */
 		    sp->h_sampling = 1;
@@ -1757,7 +1750,7 @@ static int JPEGSetupEncode(TIFF* tif)
 	{
 		TIFFErrorExt(tif->tif_clientdata, module, "BitsPerSample %d not allowed for JPEG",
 		    (int)td->td_bitspersample);
-		return (0);
+		return 0;
 	}
 	sp->cinfo.c.data_precision = td->td_bitspersample;
 #ifdef JPEG_LIB_MK1
@@ -1768,13 +1761,13 @@ static int JPEGSetupEncode(TIFF* tif)
 			TIFFErrorExt(tif->tif_clientdata, module,
 			    "JPEG tile height must be multiple of %d",
 			    sp->v_sampling * DCTSIZE);
-			return (0);
+			return 0;
 		}
 		if((td->td_tilewidth % (sp->h_sampling * DCTSIZE)) != 0) {
 			TIFFErrorExt(tif->tif_clientdata, module,
 			    "JPEG tile width must be multiple of %d",
 			    sp->h_sampling * DCTSIZE);
-			return (0);
+			return 0;
 		}
 	}
 	else {
@@ -1783,7 +1776,7 @@ static int JPEGSetupEncode(TIFF* tif)
 			TIFFErrorExt(tif->tif_clientdata, module,
 			    "RowsPerStrip must be multiple of %d for JPEG",
 			    sp->v_sampling * DCTSIZE);
-			return (0);
+			return 0;
 		}
 	}
 
@@ -1792,7 +1785,7 @@ static int JPEGSetupEncode(TIFF* tif)
 		if(sp->jpegtables == NULL
 		    || memcmp(sp->jpegtables, "\0\0\0\0\0\0\0\0\0", 8) == 0) {
 			if(!prepare_JPEGTables(tif))
-				return (0);
+				return 0;
 			/* Mark the field present */
 			/* Can't use TIFFSetField since BEENWRITING is already set! */
 			tif->tif_flags |= TIFF_DIRTYDIRECT;
@@ -1853,7 +1846,7 @@ static int JPEGPreEncode(TIFF* tif, uint16 s)
 	}
 	if(segment_width > 65535 || segment_height > 65535) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Strip/tile too large for JPEG");
-		return (0);
+		return 0;
 	}
 	sp->cinfo.c.image_width = segment_width;
 	sp->cinfo.c.image_height = segment_height;
@@ -1866,7 +1859,7 @@ static int JPEGPreEncode(TIFF* tif, uint16 s)
 					downsampled_input = TRUE;
 			}
 			if(!TIFFjpeg_set_colorspace(sp, JCS_YCbCr))
-				return (0);
+				return 0;
 			/*
 			 * Set Y sampling factors;
 			 * we assume jpeg_set_colorspace() set the rest to 1
@@ -1876,13 +1869,13 @@ static int JPEGPreEncode(TIFF* tif, uint16 s)
 		}
 		else {
 			if(!TIFFjpeg_set_colorspace(sp, sp->cinfo.c.in_color_space))
-				return (0);
+				return 0;
 			/* jpeg_set_colorspace set all sampling factors to 1 */
 		}
 	}
 	else {
 		if(!TIFFjpeg_set_colorspace(sp, JCS_UNKNOWN))
-			return (0);
+			return 0;
 		sp->cinfo.c.comp_info[0].component_id = s;
 		/* jpeg_set_colorspace() set sampling factors to 1 */
 		if(sp->photometric == PHOTOMETRIC_YCBCR && s > 0) {
@@ -1901,7 +1894,7 @@ static int JPEGPreEncode(TIFF* tif, uint16 s)
 	/* should really be called when dealing with files with directories with */
 	/* mixed qualities. see http://trac.osgeo.org/gdal/ticket/3539 */
 	if(!TIFFjpeg_set_quality(sp, sp->jpegquality, FALSE))
-		return (0);
+		return 0;
 	if(sp->jpegtablesmode & JPEGTABLESMODE_QUANT) {
 		suppress_quant_table(sp, 0);
 		suppress_quant_table(sp, 1);
@@ -1936,12 +1929,12 @@ static int JPEGPreEncode(TIFF* tif, uint16 s)
 	}
 	/* Start JPEG compressor */
 	if(!TIFFjpeg_start_compress(sp, FALSE))
-		return (0);
+		return 0;
 	/* Allocate downsampled-data buffers if needed */
 	if(downsampled_input) {
 		if(!alloc_downsampled_buffers(tif, sp->cinfo.c.comp_info,
 			    sp->cinfo.c.num_components))
-			return (0);
+			return 0;
 	}
 	sp->scancount = 0;
 
@@ -2004,7 +1997,7 @@ static int JPEGEncode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 			bufptr[0] = (JSAMPROW)buf;
 		}
 		if(TIFFjpeg_write_scanlines(sp, bufptr, 1) != 1)
-			return (0);
+			return 0;
 		if(nrows > 0)
 			tif->tif_row++;
 		buf += sp->bytesperline;
@@ -2093,7 +2086,7 @@ static int JPEGEncodeRaw(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 		if(sp->scancount >= DCTSIZE) {
 			int n = sp->cinfo.c.max_v_samp_factor * DCTSIZE;
 			if(TIFFjpeg_write_raw_data(sp, sp->ds_buffer, n) != n)
-				return (0);
+				return 0;
 			sp->scancount = 0;
 		}
 		tif->tif_row += sp->v_sampling;
@@ -2133,7 +2126,7 @@ static int JPEGPostEncode(TIFF* tif)
 		}
 		n = sp->cinfo.c.max_v_samp_factor * DCTSIZE;
 		if(TIFFjpeg_write_raw_data(sp, sp->ds_buffer, n) != n)
-			return (0);
+			return 0;
 	}
 
 	return (TIFFjpeg_finish_compress(JState(tif)));
@@ -2206,7 +2199,7 @@ static int JPEGVSetField(TIFF* tif, uint32 tag, va_list ap)
 		    v32 = (uint32)va_arg(ap, uint32);
 		    if(v32 == 0) {
 			    /* XXX */
-			    return (0);
+			    return 0;
 		    }
 		    _TIFFsetByteArray(&sp->jpegtables, va_arg(ap, void*), v32);
 		    sp->jpegtables_length = v32;
@@ -2241,7 +2234,7 @@ static int JPEGVSetField(TIFF* tif, uint32 tag, va_list ap)
 		TIFFSetFieldBit(tif, fip->field_bit);
 	}
 	else {
-		return (0);
+		return 0;
 	}
 
 	tif->tif_flags |= TIFF_DIRTYDIRECT;
@@ -2353,11 +2346,11 @@ static int JPEGInitializeLibJPEG(TIFF * tif, int decompress)
 	 */
 	if(decompress) {
 		if(!TIFFjpeg_create_decompress(sp))
-			return (0);
+			return 0;
 	}
 	else {
 		if(!TIFFjpeg_create_compress(sp))
-			return (0);
+			return 0;
 #ifndef TIFF_JPEG_MAX_MEMORY_TO_USE
 #define TIFF_JPEG_MAX_MEMORY_TO_USE (10 * 1024 * 1024)
 #endif

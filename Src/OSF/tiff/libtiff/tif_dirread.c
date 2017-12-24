@@ -3590,25 +3590,25 @@ int TIFFReadDirectory(TIFF* tif)
 	tif->tif_scanlinesize = TIFFScanlineSize(tif);
 	if(!tif->tif_scanlinesize) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Cannot handle zero scanline size");
-		return (0);
+		return 0;
 	}
 	if(isTiled(tif)) {
 		tif->tif_tilesize = TIFFTileSize(tif);
 		if(!tif->tif_tilesize) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Cannot handle zero tile size");
-			return (0);
+			return 0;
 		}
 	}
 	else {
 		if(!TIFFStripSize(tif)) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Cannot handle zero strip size");
-			return (0);
+			return 0;
 		}
 	}
 	return (1);
 bad:
 	SAlloc::F(dir);
-	return (0);
+	return 0;
 }
 
 static void TIFFReadDirectoryCheckOrder(TIFF* tif, TIFFDirEntry* dir, uint16 dircount)
@@ -3884,7 +3884,7 @@ static int CheckDirCount(TIFF* tif, TIFFDirEntry* dir, uint32 count)
 		const TIFFField* fip = TIFFFieldWithTag(tif, dir->tdir_tag);
 		TIFFWarningExt(tif->tif_clientdata, tif->tif_name, "incorrect count for field \"%s\" (" TIFF_UINT64_FORMAT ", expecting %u); tag ignored",
 		    fip ? fip->field_name : "unknown tagname", dir->tdir_count, count);
-		return (0);
+		return 0;
 	}
 	else if((uint64)count < dir->tdir_count) {
 		const TIFFField* fip = TIFFFieldWithTag(tif, dir->tdir_tag);
@@ -4155,7 +4155,7 @@ static int TIFFFetchNormalTag(TIFF* tif, TIFFDirEntry* dp, int recover)
 							o = NULL;
 						else
 							o = (uint8 *)SAlloc::M((uint32)dp->tdir_count+1);
-						if(o==NULL) {
+						if(!o) {
 							SAlloc::F(data);
 							return 0;
 						}

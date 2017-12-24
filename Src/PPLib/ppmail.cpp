@@ -280,14 +280,14 @@ int SLAPI PPInternetAccount::GetRcvPort()
 //
 //
 //
-static void SetExtStrData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, uint strID)
+static void FASTCALL SetExtStrData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, uint strID)
 {
 	SString temp_buf;
 	pData->GetExtField(strID, temp_buf);
 	dlg->setCtrlString(ctlID, temp_buf);
 }
 
-static void GetExtStrData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, uint strID)
+static void FASTCALL GetExtStrData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, uint strID)
 {
 	//char   temp_buf[256];
 	SString temp_buf;
@@ -296,14 +296,14 @@ static void GetExtStrData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, 
 		pData->SetExtField(strID, temp_buf);
 }
 
-static void SetExtIntData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, uint strID)
+static void FASTCALL SetExtIntData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, uint strID)
 {
 	SString temp_buf;
 	pData->GetExtField(strID, temp_buf);
 	dlg->setCtrlLong(ctlID, temp_buf.ToLong());
 }
 
-static void GetExtIntData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, uint strID)
+static void FASTCALL GetExtIntData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, uint strID)
 {
 	//char   temp_buf[256];
 	SString temp_buf;
@@ -1132,7 +1132,7 @@ int SLAPI PPMail::PutField(uint fldId, const char * pVal, SString & rResult) con
 	return ok;
 }
 
-static void mkmailcmd(SString & rBuf, const char * pCmd, int type, const void * pAddInfo)
+static void FASTCALL mkmailcmd(SString & rBuf, const char * pCmd, int type, const void * pAddInfo)
 {
 	rBuf = pCmd;
 	if(type == 1)
@@ -1410,12 +1410,11 @@ int SLAPI PPMailSmtp::SendCmd(long cmd, const char * pAddStr, SString & rReplyBu
 	return ok;
 }
 
-static int SLAPI _PUTS(const char * pLine, FILE * out)
+static void FASTCALL _PUTS(const char * pLine, FILE * out)
 {
 	if(pLine)
 		fputs(pLine, out);
 	fputc('\n', out);
-	return 1;
 }
 
 int SLAPI PPMailSmtp::MakeMessageID(SString & rBuf)

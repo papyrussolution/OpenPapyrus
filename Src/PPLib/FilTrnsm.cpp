@@ -21,9 +21,8 @@ static int SLAPI PackTransmitFiles(const /*PPFileNameArray*/SFileEntryPool * pFi
 //
 class ObjReceiveParamDialog : public TDialog {
 public:
-	ObjReceiveParamDialog(int editOptions) : TDialog(DLG_DBTRANSM_IN)
+	ObjReceiveParamDialog(int editOptions) : TDialog(DLG_DBTRANSM_IN), EditOptions(editOptions)
 	{
-		EditOptions = editOptions;
 		if(!SetupStrListBox(this, CTL_DBTRANSM_IN_LIST))
 			PPError();
 	}
@@ -34,7 +33,7 @@ private:
 	void   updateList();
 	void   addItem();
 	void   delItem();
-	int    EditOptions;
+	const  int EditOptions;
 	ObjReceiveParam Data;
 };
 

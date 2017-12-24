@@ -1767,7 +1767,7 @@ void SLAPI PPEgaisProcessor::SetUtmEntry(PPID locID, const UtmEntry * pEntry, co
 	}
 }
 
-int SLAPI PPEgaisProcessor::GetUtmList(PPID locID, TSArray <UtmEntry> & rList)
+int SLAPI PPEgaisProcessor::GetUtmList(PPID locID, TSVector <UtmEntry> & rList) // @v9.8.11 TSArray-->TSVector
 {
 	rList.clear();
 	int    ok = -1;
@@ -2734,14 +2734,11 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 													{
 														SXml::WNode n_infa(_doc, "ainp:InformF1");
 														n_infa.PutInner("iab:Quantity", EncText(temp_buf.Z().Cat(iar.Qtty)));
-														if(checkdate(iar.ManufDate, 0))
-															n_infa.PutInner("iab:BottlingDate", EncText(temp_buf.Z().Cat(iar.ManufDate, DATF_ISO8601|DATF_CENTURY)));
+														n_infa.PutInnerValidDate("iab:BottlingDate", iar.ManufDate, DATF_ISO8601|DATF_CENTURY);
 														n_infa.PutInnerSkipEmpty("iab:TTNNumber", EncText(temp_buf = iar.TTNCode));
-														if(checkdate(iar.TTNDate, 0))
-															n_infa.PutInner("iab:TTNDate", EncText(temp_buf.Z().Cat(iar.TTNDate, DATF_ISO8601|DATF_CENTURY)));
+														n_infa.PutInnerValidDate("iab:TTNDate", iar.TTNDate, DATF_ISO8601|DATF_CENTURY);
 														n_infa.PutInnerSkipEmpty("iab:EGAISFixNumber", EncText(temp_buf = iar.EGAISCode));
-														if(checkdate(iar.EGAISDate, 0))
-															n_infa.PutInner("iab:EGAISFixDate", EncText(temp_buf.Z().Cat(iar.EGAISDate, DATF_ISO8601|DATF_CENTURY)));
+														n_infa.PutInnerValidDate("iab:EGAISFixDate", iar.EGAISDate, DATF_ISO8601|DATF_CENTURY);
 													}
 												}
 												else
@@ -2819,14 +2816,11 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 													{
 														SXml::WNode n_infa(_doc, "ain:InformA");
 														n_infa.PutInner("iab:Quantity", EncText(temp_buf.Z().Cat(iar.Qtty)));
-														if(checkdate(iar.ManufDate, 0))
-															n_infa.PutInner("iab:BottlingDate", EncText(temp_buf.Z().Cat(iar.ManufDate, DATF_ISO8601|DATF_CENTURY)));
+														n_infa.PutInnerValidDate("iab:BottlingDate", iar.ManufDate, DATF_ISO8601|DATF_CENTURY);
 														n_infa.PutInnerSkipEmpty("iab:TTNNumber", EncText(temp_buf = iar.TTNCode));
-														if(checkdate(iar.TTNDate, 0))
-															n_infa.PutInner("iab:TTNDate", EncText(temp_buf.Z().Cat(iar.TTNDate, DATF_ISO8601|DATF_CENTURY)));
+														n_infa.PutInnerValidDate("iab:TTNDate", iar.TTNDate, DATF_ISO8601|DATF_CENTURY);
 														n_infa.PutInnerSkipEmpty("iab:EGAISFixNumber", EncText(temp_buf = iar.EGAISCode));
-														if(checkdate(iar.EGAISDate, 0))
-															n_infa.PutInner("iab:EGAISFixDate", EncText(temp_buf.Z().Cat(iar.EGAISDate, DATF_ISO8601|DATF_CENTURY)));
+														n_infa.PutInnerValidDate("iab:EGAISFixDate", iar.EGAISDate, DATF_ISO8601|DATF_CENTURY);
 													}
 												}
 												else
@@ -7703,9 +7697,8 @@ int SLAPI PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 {
 	class EgaisQDialog : public TDialog {
 	public:
-		EgaisQDialog(PPEgaisProcessor * pPrc) : TDialog(DLG_EGAISQ)
+		EgaisQDialog(PPEgaisProcessor * pPrc) : TDialog(DLG_EGAISQ), P_Prc(pPrc)
 		{
-			P_Prc = pPrc;
 			Prev_afClearInnerEgaisDb_State = 0;
 		}
         void   DisplayInfo(const char * pInfo)
@@ -7727,7 +7720,7 @@ int SLAPI PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 				getCtrlData(CTLSEL_EGAISQ_LOC, &loc_id);
 				{
 					PPID   preserve_main_org_id = 0;
-					TSArray <UtmEntry> utm_list;
+					TSVector <UtmEntry> utm_list; // @v9.8.11 TSArray-->TSVector
 					GetMainOrgID(&preserve_main_org_id);
 					if(main_org_id)
 						DS.SetMainOrgID(main_org_id, 0);
@@ -7912,7 +7905,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 	SString mark_buf;
 	SString temp_buf;
 	PPID   preserve_main_org_id = 0;
-	TSArray <UtmEntry> utm_list;
+	TSVector <UtmEntry> utm_list; // @v9.8.11 TSArray-->TSVector
 	GetMainOrgID(&preserve_main_org_id);
 	if(rParam.MainOrgID)
 		DS.SetMainOrgID(rParam.MainOrgID, 0);
@@ -8308,9 +8301,8 @@ int SLAPI PPEgaisProcessor::InputMark(PrcssrAlcReport::GoodsItem * pAgi, SString
 {
 	class EgaisMakrDialog : public TDialog {
 	public:
-		EgaisMakrDialog(const PrcssrAlcReport::GoodsItem * pAgi) : TDialog(DLG_EGAISMARK)
+		EgaisMakrDialog(const PrcssrAlcReport::GoodsItem * pAgi) : TDialog(DLG_EGAISMARK), P_Agi(pAgi)
 		{
-			P_Agi = pAgi;
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -8399,7 +8391,7 @@ int SLAPI TestEGAIS(PPEgaisProcessor::TestParam * pParam)
 		THROW(ep);
 		PPWait(1);
 		{
-			TSArray <PPEgaisProcessor::UtmEntry> utm_list;
+			TSVector <PPEgaisProcessor::UtmEntry> utm_list; // @v9.8.11 TSArray-->TSVector
 			THROW(ep.GetUtmList(param.LocID, utm_list));
 			for(uint i = 0; i < utm_list.getCount(); i++) {
 				ep.SetUtmEntry(param.LocID, &utm_list.at(i), 0);

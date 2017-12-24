@@ -30,10 +30,8 @@ int SLAPI UpdatePassword()
 
 class SecurDialog : public TDialog {
 public:
-	SecurDialog(int dlgID, PPID objType, PPID objID) : TDialog(dlgID)
+	SecurDialog(int dlgID, PPID objType, PPID objID) : TDialog(dlgID), ObjType(objType), ObjID(objID)
 	{
-		ObjType = objType;
-		ObjID   = objID;
 	}
 	int    setDTS(const PPSecurPacket * pData)
 	{
@@ -91,7 +89,7 @@ public:
 		*pData = Pack;
 		return ok;
 	}
-	PPID   ObjType;
+	const  PPID   ObjType;
 	PPID   ObjID;
 private:
 	DECL_HANDLE_EVENT;

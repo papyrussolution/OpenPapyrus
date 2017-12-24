@@ -463,6 +463,8 @@ enum BarcodeVarStr {
 	bcvsManuf,        // @v7.5.1 Перенесено сверху-вниз (во избежании коллизии с bcvsManufDate)
 	bcvsQuot,         // @v7.6.10 quot:
 	bcvsGoodsCode,    // @v8.1.3 Текстовое представление кода товара
+	bcvsMainOrg,      // @v9.8.11 Наименование главной организации
+	bcvsWarehouse,    // @v9.8.11 Наименование склада
 
 	bcvsMemory,
 	bcvsCodepage,
@@ -473,7 +475,7 @@ enum BarcodeVarStr {
 };
 
 #define FIRSTSUBSTVAR bcvsGoodsName
-#define NUMSUBSTVARS  39 // 24-->33, @v7.2.12 34->36, @v7.5.1 36-->37 @v7.6.10 37-->38 @v8.1.3 38-->39
+#define NUMSUBSTVARS  41 // 24-->33, @v7.2.12 34->36, @v7.5.1 36-->37 @v7.6.10 37-->38 @v8.1.3 38-->39 @v9.8.11 39-->41
 
 SLAPI BarcodeLabel::BarcodeLabel() : SArray(sizeof(BarcodeLabelEntry)), P_GPack(0), P_GcPack(0)
 {
@@ -732,16 +734,16 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 					d = stpcpy(d, RGI.BillCode);
 					break;
 				case bcvsQtty:
-					d = stpcpy(d, realfmt(RGI.Qtty, MKSFMTD(0, 6, NMBF_NOZERO | NMBF_NOTRAILZ), temp));
+					d = stpcpy(d, realfmt(RGI.Qtty, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), temp));
 					break;
 				case bcvsPhQtty:
-					d = stpcpy(d, realfmt(RGI.PhQtty, MKSFMTD(0, 6, NMBF_NOZERO | NMBF_NOTRAILZ), temp));
+					d = stpcpy(d, realfmt(RGI.PhQtty, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), temp));
 					break;
 				case bcvsPack:
-					d = stpcpy(d, realfmt(RGI.UnitPerPack, MKSFMTD(0, 6, NMBF_NOZERO | NMBF_NOTRAILZ), temp));
+					d = stpcpy(d, realfmt(RGI.UnitPerPack, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), temp));
 					break;
 				case bcvsBrutto:
-					d = stpcpy(d, realfmt(RGI.Brutto, MKSFMTD(0, 6, NMBF_NOZERO | NMBF_NOTRAILZ), temp));
+					d = stpcpy(d, realfmt(RGI.Brutto, MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ), temp));
 					break;
 				case bcvsObjName:
 					d = stpcpy(d, RGI.ArName);
@@ -848,7 +850,7 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 								double quot = 0.0;
 								double cost_ = NZOR(RGI.LineCost, RGI.Cost);
 								double price_ = NZOR(RGI.LinePrice, RGI.Price);
-								QuotIdent qi(QIDATE(getcurdate_()), RGI.LocID, qk_id, 0L /* @curID */);
+								const QuotIdent qi(QIDATE(getcurdate_()), RGI.LocID, qk_id, 0L /* @curID */);
 								goods_obj.GetQuotExt(RGI.ID, qi, cost_, price_, &quot, 1);
 								d = stpcpy(d, realfmt(quot, MKSFMTD(0, 2, NMBF_NOZERO), temp));
 								var_len += (ss_+1);
@@ -863,6 +865,18 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 					d = stpcpy(d, temp_str);
 					break;
 				// } @v8.1.3
+				// @v9.8.11 {
+				case bcvsMainOrg:
+					GetMainOrgName(temp_str);
+					d = stpcpy(d, temp_str);
+					break;
+				case bcvsWarehouse:
+					temp_str.Z();
+					if(RGI.LocID)
+						GetLocationName(RGI.LocID, temp_str);
+					d = stpcpy(d, temp_str);
+					break;
+				// } @v9.8.11 
 			}
 			s += var_len;
 			break;
@@ -1793,7 +1807,7 @@ int FASTCALL BarcodeLabelPrinter::PutChr(char c)
 	return Buf.Write(&c, 1) ? 1 : PPSetErrorSLib();
 }
 
-static char * SLAPI PutIntToBuf(char * pBuf, int n, int numDigits)
+static char * FASTCALL PutIntToBuf(char * pBuf, int n, int numDigits)
 {
 	return longfmtz(n, numDigits, pBuf, 0);
 }

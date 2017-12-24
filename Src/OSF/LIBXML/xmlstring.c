@@ -878,7 +878,8 @@ int xmlUTF8Strloc(const xmlChar * utf, const xmlChar * utfchar)
 {
 	int i, size;
 	xmlChar ch;
-	if(utf==NULL || utfchar==NULL) return -1;
+	if(!utf || !utfchar) 
+		return -1;
 	size = xmlUTF8Strsize(utfchar, 1);
 	for(i = 0; (ch = *utf) != 0; i++) {
 		if(xmlStrncmp(utf, utfchar, size)==0)

@@ -1,11 +1,14 @@
 // EMU_SCS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2003, 2009, 2011, 2012, 2013, 2015, 2016
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2003, 2009, 2011, 2012, 2013, 2015, 2016, 2017
 // @codepage windows-1251
 // Интерфейс эмулятора синхронного кассового аппарата
 //
 #include <pp.h>
 #pragma hdrstop
 #include <process.h>
+
+#define max MAX // @v9.8.11
+#define min MIN // @v9.8.11
 #include <gdiplus.h>
 using namespace Gdiplus;
 //

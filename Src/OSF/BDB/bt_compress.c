@@ -1579,35 +1579,21 @@ static int __bamc_compress_iget(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 			__bamc_compress_reset(dbc);
 			ret = __bamc_compress_get_next(dbc, flags);
 			break;
-	    case DB_NEXT:
-			ret = __bamc_compress_get_next(dbc, flags);
-			break;
-	    case DB_NEXT_DUP:
-			ret = __bamc_compress_get_next_dup(dbc, 0, flags);
-			break;
-	    case DB_NEXT_NODUP:
-			ret = __bamc_compress_get_next_nodup(dbc, flags);
-			break;
+	    case DB_NEXT: ret = __bamc_compress_get_next(dbc, flags); break;
+	    case DB_NEXT_DUP: ret = __bamc_compress_get_next_dup(dbc, 0, flags); break;
+	    case DB_NEXT_NODUP: ret = __bamc_compress_get_next_nodup(dbc, flags); break;
 	    case DB_LAST:
 			__bamc_compress_reset(dbc);
 			ret = __bamc_compress_get_prev(dbc, flags);
 			break;
-	    case DB_PREV:
-			ret = __bamc_compress_get_prev(dbc, flags);
-			break;
-	    case DB_PREV_DUP:
-			ret = __bamc_compress_get_prev_dup(dbc, flags);
-			break;
-	    case DB_PREV_NODUP:
-			ret = __bamc_compress_get_prev_nodup(dbc, flags);
-			break;
+	    case DB_PREV: ret = __bamc_compress_get_prev(dbc, flags); break;
+	    case DB_PREV_DUP: ret = __bamc_compress_get_prev_dup(dbc, flags); break;
+	    case DB_PREV_NODUP: ret = __bamc_compress_get_prev_nodup(dbc, flags); break;
 	    case DB_SET:
 			if(((BTREE *)dbc->dbp->bt_internal)->bt_compare == __bam_defcmp)
 				F_SET(key, DB_DBT_ISSET);
 			/* FALL THROUGH */
-	    case DB_SET_RANGE:
-			ret = __bamc_compress_get_set(dbc, key, 0, method, flags);
-			break;
+	    case DB_SET_RANGE: ret = __bamc_compress_get_set(dbc, key, 0, method, flags); break;
 	    case DB_GET_BOTH:
 			if(!F_ISSET(dbc->dbp, DB_AM_DUPSORT) || ((BTREE *)dbc->dbp->bt_internal)->compress_dup_compare == __bam_defcmp)
 				F_SET(data, DB_DBT_ISSET);
@@ -1617,12 +1603,8 @@ static int __bamc_compress_iget(DBC * dbc, DBT * key, DBT * data, uint32 flags)
 				F_SET(key, DB_DBT_ISSET);
 			ret = __bamc_compress_get_set(dbc, key, data, method, flags);
 			break;
-	    case DB_GET_BOTHC:
-			ret = __bamc_compress_get_bothc(dbc, data, flags);
-			break;
-	    default:
-			ret = __db_unknown_flag(dbp->env, "__bamc_compress_iget", method);
-			break;
+	    case DB_GET_BOTHC: ret = __bamc_compress_get_bothc(dbc, data, flags); break;
+	    default: ret = __db_unknown_flag(dbp->env, "__bamc_compress_iget", method); break;
 	}
 	if(ret != 0)
 		goto err;

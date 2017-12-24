@@ -479,7 +479,7 @@ int SLAPI PPObjCSession::EditRights(uint bufSize, ObjRights * rt, EmbedDialog * 
 {
 	class CSessRightsDlg : public TDialog {
 	public:
-		CSessRightsDlg::CSessRightsDlg() : TDialog(DLG_RTCSESS)
+		CSessRightsDlg() : TDialog(DLG_RTCSESS)
 		{
 		}
 		virtual int TransmitData(int dir, void * pData)

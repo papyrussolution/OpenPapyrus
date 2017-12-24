@@ -388,7 +388,7 @@ struct Assoc {
 
 class ResolveAssocCollisionDialog : public TDialog {
 public:
-	ResolveAssocCollisionDialog() : TDialog(DLG_ASC_RESOLVE)
+	ResolveAssocCollisionDialog() : TDialog(DLG_ASC_RESOLVE), P_A(0)
 	{
 	}
 	int    getDTS(SArray *pA);

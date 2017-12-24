@@ -28,7 +28,6 @@
 #define	_TIFF_
 
 #include "tiffconf.h"
-
 /*
  * Tag Image File Format (TIFF)
  *
@@ -309,14 +308,10 @@ typedef enum {
 #define	    SAMPLEFORMAT_COMPLEXIEEEFP	6	/* !complex ieee floating */
 #define	TIFFTAG_SMINSAMPLEVALUE		340	/* !variable MinSampleValue */
 #define	TIFFTAG_SMAXSAMPLEVALUE		341	/* !variable MaxSampleValue */
-#define	TIFFTAG_CLIPPATH		343	/* %ClipPath
-						   [Adobe TIFF technote 2] */
-#define	TIFFTAG_XCLIPPATHUNITS		344	/* %XClipPathUnits
-						   [Adobe TIFF technote 2] */
-#define	TIFFTAG_YCLIPPATHUNITS		345	/* %YClipPathUnits
-						   [Adobe TIFF technote 2] */
-#define	TIFFTAG_INDEXED			346	/* %Indexed
-						   [Adobe TIFF Technote 3] */
+#define	TIFFTAG_CLIPPATH		343	/* %ClipPath [Adobe TIFF technote 2] */
+#define	TIFFTAG_XCLIPPATHUNITS		344	/* %XClipPathUnits [Adobe TIFF technote 2] */
+#define	TIFFTAG_YCLIPPATHUNITS		345	/* %YClipPathUnits [Adobe TIFF technote 2] */
+#define	TIFFTAG_INDEXED			346	/* %Indexed [Adobe TIFF Technote 3] */
 #define	TIFFTAG_JPEGTABLES		347	/* %JPEG table stream */
 #define	TIFFTAG_OPIPROXY		351	/* %OPI Proxy [Adobe TIFF technote] */
 /* Tags 400-435 are from the TIFF/FX spec */
@@ -422,8 +417,7 @@ typedef enum {
 #define TIFFTAG_IT8TRANSPARENCYINDICATOR 34028	/* HC transparency switch */
 #define TIFFTAG_IT8COLORCHARACTERIZATION 34029	/* color character. table */
 #define TIFFTAG_IT8HCUSAGE		34030	/* HC usage indicator */
-#define TIFFTAG_IT8TRAPINDICATOR	34031	/* Trapping indicator
-						   (untrapped=0, trapped=1) */
+#define TIFFTAG_IT8TRAPINDICATOR	34031	/* Trapping indicator (untrapped=0, trapped=1) */
 #define TIFFTAG_IT8CMYKEQUIVALENT	34032	/* CMYK color equivalents */
 /* tags 34232-34236 are private tags registered to Texas Instruments */
 #define TIFFTAG_FRAMECOUNT              34232   /* Sequence Frame Count */
@@ -451,48 +445,30 @@ typedef enum {
 #define TIFFTAG_DNGVERSION		50706	/* &DNG version number */
 #define TIFFTAG_DNGBACKWARDVERSION	50707	/* &DNG compatibility version */
 #define TIFFTAG_UNIQUECAMERAMODEL	50708	/* &name for the camera model */
-#define TIFFTAG_LOCALIZEDCAMERAMODEL	50709	/* &localized camera model
-						   name */
-#define TIFFTAG_CFAPLANECOLOR		50710	/* &CFAPattern->LinearRaw space
-						   mapping */
+#define TIFFTAG_LOCALIZEDCAMERAMODEL	50709	/* &localized camera model name */
+#define TIFFTAG_CFAPLANECOLOR		50710	/* &CFAPattern->LinearRaw space mapping */
 #define TIFFTAG_CFALAYOUT		50711	/* &spatial layout of the CFA */
 #define TIFFTAG_LINEARIZATIONTABLE	50712	/* &lookup table description */
-#define TIFFTAG_BLACKLEVELREPEATDIM	50713	/* &repeat pattern size for
-						   the BlackLevel tag */
+#define TIFFTAG_BLACKLEVELREPEATDIM	50713	/* &repeat pattern size for the BlackLevel tag */
 #define TIFFTAG_BLACKLEVEL		50714	/* &zero light encoding level */
-#define TIFFTAG_BLACKLEVELDELTAH	50715	/* &zero light encoding level
-						   differences (columns) */
-#define TIFFTAG_BLACKLEVELDELTAV	50716	/* &zero light encoding level
-						   differences (rows) */
-#define TIFFTAG_WHITELEVEL		50717	/* &fully saturated encoding
-						   level */
+#define TIFFTAG_BLACKLEVELDELTAH	50715	/* &zero light encoding level differences (columns) */
+#define TIFFTAG_BLACKLEVELDELTAV	50716	/* &zero light encoding level differences (rows) */
+#define TIFFTAG_WHITELEVEL		50717	/* &fully saturated encoding level */
 #define TIFFTAG_DEFAULTSCALE		50718	/* &default scale factors */
-#define TIFFTAG_DEFAULTCROPORIGIN	50719	/* &origin of the final image
-						   area */
-#define TIFFTAG_DEFAULTCROPSIZE		50720	/* &size of the final image 
-						   area */
-#define TIFFTAG_COLORMATRIX1		50721	/* &XYZ->reference color space
-						   transformation matrix 1 */
-#define TIFFTAG_COLORMATRIX2		50722	/* &XYZ->reference color space
-						   transformation matrix 2 */
+#define TIFFTAG_DEFAULTCROPORIGIN	50719	/* &origin of the final image area */
+#define TIFFTAG_DEFAULTCROPSIZE		50720	/* &size of the final image area */
+#define TIFFTAG_COLORMATRIX1		50721	/* &XYZ->reference color space transformation matrix 1 */
+#define TIFFTAG_COLORMATRIX2		50722	/* &XYZ->reference color space transformation matrix 2 */
 #define TIFFTAG_CAMERACALIBRATION1	50723	/* &calibration matrix 1 */
 #define TIFFTAG_CAMERACALIBRATION2	50724	/* &calibration matrix 2 */
-#define TIFFTAG_REDUCTIONMATRIX1	50725	/* &dimensionality reduction
-						   matrix 1 */
-#define TIFFTAG_REDUCTIONMATRIX2	50726	/* &dimensionality reduction
-						   matrix 2 */
-#define TIFFTAG_ANALOGBALANCE		50727	/* &gain applied the stored raw
-						   values*/
-#define TIFFTAG_ASSHOTNEUTRAL		50728	/* &selected white balance in
-						   linear reference space */
-#define TIFFTAG_ASSHOTWHITEXY		50729	/* &selected white balance in
-						   x-y chromaticity
-						   coordinates */
-#define TIFFTAG_BASELINEEXPOSURE	50730	/* &how much to move the zero
-						   point */
+#define TIFFTAG_REDUCTIONMATRIX1	50725	/* &dimensionality reduction matrix 1 */
+#define TIFFTAG_REDUCTIONMATRIX2	50726	/* &dimensionality reduction matrix 2 */
+#define TIFFTAG_ANALOGBALANCE		50727	/* &gain applied the stored raw values*/
+#define TIFFTAG_ASSHOTNEUTRAL		50728	/* &selected white balance in linear reference space */
+#define TIFFTAG_ASSHOTWHITEXY		50729	/* &selected white balance in x-y chromaticity coordinates */
+#define TIFFTAG_BASELINEEXPOSURE	50730	/* &how much to move the zero point */
 #define TIFFTAG_BASELINENOISE		50731	/* &relative noise level */
-#define TIFFTAG_BASELINESHARPNESS	50732	/* &relative amount of
-						   sharpening */
+#define TIFFTAG_BASELINESHARPNESS	50732	/* &relative amount of sharpening */
 #define TIFFTAG_BAYERGREENSPLIT		50733	/* &how closely the values of
 						   the green pixels in the
 						   blue/green rows track the
@@ -502,30 +478,20 @@ typedef enum {
 #define TIFFTAG_CAMERASERIALNUMBER	50735	/* &camera's serial number */
 #define TIFFTAG_LENSINFO		50736	/* info about the lens */
 #define TIFFTAG_CHROMABLURRADIUS	50737	/* &chroma blur radius */
-#define TIFFTAG_ANTIALIASSTRENGTH	50738	/* &relative strength of the
-						   camera's anti-alias filter */
+#define TIFFTAG_ANTIALIASSTRENGTH	50738	/* &relative strength of the camera's anti-alias filter */
 #define TIFFTAG_SHADOWSCALE		50739	/* &used by Adobe Camera Raw */
 #define TIFFTAG_DNGPRIVATEDATA		50740	/* &manufacturer's private data */
-#define TIFFTAG_MAKERNOTESAFETY		50741	/* &whether the EXIF MakerNote
-						   tag is safe to preserve
-						   along with the rest of the
-						   EXIF data */
+#define TIFFTAG_MAKERNOTESAFETY		50741	/* &whether the EXIF MakerNote tag is safe to preserve along with the rest of the EXIF data */
 #define	TIFFTAG_CALIBRATIONILLUMINANT1	50778	/* &illuminant 1 */
 #define TIFFTAG_CALIBRATIONILLUMINANT2	50779	/* &illuminant 2 */
 #define TIFFTAG_BESTQUALITYSCALE	50780	/* &best quality multiplier */
-#define TIFFTAG_RAWDATAUNIQUEID		50781	/* &unique identifier for
-						   the raw image data */
-#define TIFFTAG_ORIGINALRAWFILENAME	50827	/* &file name of the original
-						   raw file */
-#define TIFFTAG_ORIGINALRAWFILEDATA	50828	/* &contents of the original
-						   raw file */
-#define TIFFTAG_ACTIVEAREA		50829	/* &active (non-masked) pixels
-						   of the sensor */
-#define TIFFTAG_MASKEDAREAS		50830	/* &list of coordinates
-						   of fully masked pixels */
+#define TIFFTAG_RAWDATAUNIQUEID		50781	/* &unique identifier for the raw image data */
+#define TIFFTAG_ORIGINALRAWFILENAME	50827	/* &file name of the original raw file */
+#define TIFFTAG_ORIGINALRAWFILEDATA	50828	/* &contents of the original raw file */
+#define TIFFTAG_ACTIVEAREA		50829	/* &active (non-masked) pixels of the sensor */
+#define TIFFTAG_MASKEDAREAS		50830	/* &list of coordinates of fully masked pixels */
 #define TIFFTAG_ASSHOTICCPROFILE	50831	/* &these two tags used to */
-#define TIFFTAG_ASSHOTPREPROFILEMATRIX	50832	/* map cameras's color space
-						   into ICC profile space */
+#define TIFFTAG_ASSHOTPREPROFILEMATRIX	50832	/* map cameras's color space into ICC profile space */
 #define TIFFTAG_CURRENTICCPROFILE	50833	/* & */
 #define TIFFTAG_CURRENTPREPROFILEMATRIX	50834	/* & */
 /* tag 65535 is an undefined tag used by Eastman Kodak */
