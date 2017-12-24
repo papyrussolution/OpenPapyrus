@@ -3727,10 +3727,9 @@ int SLAPI PPObjEdiProvider::Edit(PPID * pID, void * extraPtr)
 {
 	class EdiProviderDialog : public TDialog {
 	public:
-		EdiProviderDialog(PPObjEdiProvider * pObj) : TDialog(DLG_EDIPRV)
+		EdiProviderDialog(PPObjEdiProvider * pObj) : TDialog(DLG_EDIPRV), P_Obj(pObj)
 		{
 			assert(pObj);
-			P_Obj = pObj;
 		}
 		int    setDTS(const PPEdiProviderPacket * pData)
 		{

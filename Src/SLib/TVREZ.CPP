@@ -5,11 +5,8 @@
 #include <tv.h>
 #pragma hdrstop
 
-SLAPI TVRez::TVRez(const char * fName, int useIndex)
+SLAPI TVRez::TVRez(const char * fName, int useIndex) : Stream(0), P_Index(0), HeaderType(hdrUnknown)
 {
-	Stream = 0;
-	P_Index = 0;
-	HeaderType = hdrUnknown;
 	open(fName, useIndex);
 }
 
@@ -74,7 +71,7 @@ static char FASTCALL wchar_to_1251(int16 src)
 	return c;
 }
 
-SString & SLAPI TVRez::getString(SString & rBuf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/)
+SString & FASTCALL TVRez::getString(SString & rBuf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/)
 {
 	rBuf.Z();
 	for(char c = !0; c != 0;) {
@@ -91,11 +88,11 @@ SString & SLAPI TVRez::getString(SString & rBuf, int kind /*0 - 866, 1 - w_char,
 			rBuf.CatChar(c);
 	}
 	if(kind == 2)
-		rBuf.ToOem();
+		rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 	return rBuf;
 }
 
-char * SLAPI TVRez::getString(char * buf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/)
+char * FASTCALL TVRez::getString(char * buf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/)
 {
 	size_t i = 0;
 	if(buf) {

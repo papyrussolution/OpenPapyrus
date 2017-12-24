@@ -4,8 +4,6 @@
 #include <pp.h>
 #pragma hdrstop
 
-#define GRP_CURAMT 1
-
 struct AmtDialogEntry {
 	PPID   AmtTypeID;
 	PPID   CurID;
@@ -17,12 +15,15 @@ struct AmtDialogEntry {
 
 class AmountDialog : public TDialog {
 public:
+	enum {
+		ctlgroupCurAmt = 1
+	};
 	AmountDialog(int isCanEdit, AmtList * pList, PPIDArray * pRestrictList) : 
 		TDialog(DLG_BILLAMTCUR), CanEdit(isCanEdit), P_RestrictList(pRestrictList)
 	{
 		CurAmtCtrlGroup * p_ca_grp = new CurAmtCtrlGroup(CTL_BILLAMT_AMOUNT,
 			CTLSEL_BILLAMT_CUR, CTL_BILLAMT_CRATE, CTL_BILLAMT_BASEAMT, 0, cmBillAmtSelRate, pList);
-		addGroup(GRP_CURAMT, p_ca_grp);
+		addGroup(ctlgroupCurAmt, p_ca_grp);
 	}
 	int    setDTS(const AmtDialogEntry *);
 	int    getDTS(AmtDialogEntry *);
@@ -49,7 +50,7 @@ int AmountDialog::setDTS(const AmtDialogEntry * pData)
 	ca_rec.CRate  = Data.CRate;
 	ca_rec.BaseAmount = Data.BaseAmt;
 	ca_rec.CRateDate = Data.CRateDate;
-	setGroupData(GRP_CURAMT, &ca_rec);
+	setGroupData(ctlgroupCurAmt, &ca_rec);
 	return 1;
 }
 
@@ -58,7 +59,7 @@ int AmountDialog::getDTS(AmtDialogEntry * pData)
 	int    ok = 1;
 	CurAmtCtrlGroup::Rec ca_rec;
 	getCtrlData(CTLSEL_BILLAMT_AMTTYPE, &Data.AmtTypeID);
-	getGroupData(GRP_CURAMT, &ca_rec);
+	getGroupData(ctlgroupCurAmt, &ca_rec);
 	Data.CurID   = ca_rec.CurID;
 	Data.Amt     = ca_rec.Amount;
 	Data.CRate   = ca_rec.CRate;

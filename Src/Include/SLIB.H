@@ -112,6 +112,8 @@
 	#define _argc __argc
 	#define _argv __argv
 #endif
+#undef min // @v9.8.11
+#undef max // @v9.8.11
 
 #define FNF_WILDCARDS 0x01
 #define FNF_EXTENSION 0x02
@@ -147,37 +149,6 @@
 	#define _argv __argv
 	#pragma warning(disable : 4068)
 #endif
-#ifdef __WIN32__
-	struct date {
-		int    da_year; /* Year - 1980      */
-		char   da_day;  /* Day of the month */
-		char   da_mon;  /* Month (1 = Jan)  */
-	};
-
-	#ifdef __cplusplus
-	extern "C" {
-	#endif
-	// short  bioscom(int cmd, char abyte, int port);
-	int    getdisk();
-	#ifndef  _WIN32_WCE // {
-	char * stpcpy(char *to, const char *from);
-	#endif // _WIN32_WCE {
-	int    fnsplit(const char *, char *, char *, char *, char *);
-	void   fnmerge(register char *, const char *, const char *, const char *nameP, const char *);
-	#ifdef __cplusplus
-	}
-	#endif
-#endif  /* __WIN32__ */
-#ifdef __WATCOMC__
-	#ifdef __cplusplus
-	extern "C" {
-	#endif
-	int    fnsplit(const char *, char *, char *, char *, char *);
-	void   fnmerge(register char *, const char *, const char *, const char *nameP, const char *);
-	#ifdef __cplusplus
-	}
-	#endif
-#endif /* __WATCOMC__ */
 //
 // Types & definitions
 //
@@ -1547,6 +1518,15 @@ struct S_GUID {    // @persistent @size=16
 	int    Generate();
 
 	uint32 Data[4];
+};
+//
+// Descr: Представление даты в формате MS-DOS.
+// Note: obsolete (практически не используется)
+//
+struct SDosDate {
+	int16  da_year; // Year - 1980      
+	int8   da_day;  // Day of the month 
+	int8   da_mon;  // Month (1 = Jan)  
 };
 //
 // Descr: Дата/время в формате Microsoft OLE (DATE)
@@ -3339,7 +3319,7 @@ private:
 //
 // Descr: Класс, реализующий механизм работы со строками.
 //
-#define STRINGIZING(var) #var // заключает выражение в кавычки
+#define STRINGIZE(var) #var // заключает выражение в кавычки
 #define CAT_FLD(fld, str)     str.Cat(#fld).CatChar('=').Cat(fld)
 #define CAT_FLD_HEX(fld, str) str.Cat(#fld).CatChar('=').CatHex(fld)
 
@@ -4159,6 +4139,14 @@ typedef struct tagSSrchParam {
 	const  char * P_WordChars; // Reserved. Must be NULL.
 	int    Flags;
 } SSrchParam;
+
+// short  bioscom(int cmd, char abyte, int port);
+int    getdisk();
+#ifndef  _WIN32_WCE // {
+	char * FASTCALL stpcpy(char *to, const char *from);
+#endif // _WIN32_WCE {
+int    fnsplit(const char *, char *, char *, char *, char *);
+void   fnmerge(char *, const char *, const char *, const char *nameP, const char *);
 
 #define STRNSCPY(dest,src) strnzcpy(dest,src,sizeof(dest))
 //
@@ -5065,9 +5053,9 @@ public:
 	STempBuffer & FASTCALL operator = (const STempBuffer & rS);
 	int    SLAPI IsValid() const;
 	size_t SLAPI GetSize() const;
-	const  uchar * SLAPI ucptr() const;
 	SLAPI  operator char * ();
 	SLAPI  operator const char * () const;
+	const  uchar * SLAPI ucptr() const;
 	int    FASTCALL Alloc(size_t sz);
 };
 //
@@ -5113,11 +5101,11 @@ public:
 	//   Пустые буферы (WrOffs == 0) считаются равными.
 	//
 	int    FASTCALL IsEqual(const SBuffer & rS) const;
-	SLAPI  operator const void * () const;
+	SLAPI  operator const void * () const { return P_Buf; }
+	size_t SLAPI GetSize() const { return Size; }
+	size_t SLAPI GetRdOffs() const { return RdOffs; }
+	size_t SLAPI GetWrOffs() const { return WrOffs; }
 	const  void * FASTCALL GetBuf(size_t offs = 0) const;
-	size_t SLAPI GetSize() const;
-	size_t SLAPI GetRdOffs() const;
-	size_t SLAPI GetWrOffs() const;
 	void   FASTCALL SetRdOffs(size_t offs);
 	void   FASTCALL SetWrOffs(size_t offs);
 	//
@@ -11463,6 +11451,7 @@ protected:
 //
 class SemiMutex {
 public:
+	SLAPI  SemiMutex();
 	//
 	// Descr: Share execution with other "readers".
 	//

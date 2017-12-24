@@ -386,8 +386,7 @@ DBQuery & FASTCALL selectbycell(int count, DBDataCell * pList)
 
 DBQuery & SLAPIV select(DBField first_arg, ...)
 {
-	va_list list;
-	list = (va_list)&first_arg;
+	va_list list = (va_list)&first_arg;
 	DBQuery & q = *new DBQuery;
 	if(&q != 0) {
 		int  id;
@@ -557,17 +556,16 @@ DBQuery & FASTCALL DBQuery::where(DBQ & q)
 
 int SLAPI DBQuery::calcRecSize()
 {
-	uint   i = 0;
 	recSize  = 0;
 	if(syntax & t_all) {
-		while(i < tblCount) {
+		for(uint i = 0; i < tblCount;) {
 			RECORDSIZE rs;
 			tbls[i++].tbl->getRecSize(&rs);
 			recSize += rs;
 		}
 	}
 	else {
-		while(i < fldCount)
+		for(uint i = 0; i < fldCount;)
 			recSize += (RECORDSIZE)stsize(flds[i++].type);
 	}
 	return 1;
@@ -584,12 +582,9 @@ int SLAPI DBQuery::getFieldPosByName(const char * pFldName, uint * pPos) const
 	return 0;
 }
 
-DBQuery::Tbl::Tbl()
+DBQuery::Tbl::Tbl() : tbl(0), keyBuf(0), flg(0)
 {
-	tbl = 0;
-	keyBuf = 0;
-	Pos.SetZero();
-	flg = 0;
+	// @v9.8.11 (ctr has done it) Pos.SetZero();
 }
 
 int FASTCALL DBQuery::Tbl::Srch(void * pKey, int sp)

@@ -181,7 +181,7 @@ typedef long lzo_ptrdiff_t;
 	extern const lzo_byte * lzo_copyright(void);
 	extern const lzo_uint32 _lzo_crc32_table[256];
 
-	#define _LZO_STRINGIZE(x)           # x
+	#define _LZO_STRINGIZE(x)           #x
 	#define _LZO_MEXPAND(x)             _LZO_STRINGIZE(x)
 
 	#define _LZO_CONCAT2(a, b)           a ## b

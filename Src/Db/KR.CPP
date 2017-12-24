@@ -1,13 +1,12 @@
 // KR.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2008, 2009, 2010, 2013, 2016
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2008, 2009, 2010, 2013, 2016, 2017
 // @codepage windows-1251
 //
 #include <db.h>
 #pragma hdrstop
 
-SLAPI KR::KR()
+SLAPI KR::KR() : P_b(0)
 {
-	P_b = 0;
 }
 
 int SLAPI KR::operator !() const
@@ -530,7 +529,7 @@ int SLAPI KR::rating()
 // случае. ≈сли вернул 0, то это означает, что оба ограничени€ не пригодны
 // дл€ ключевки.
 //
-int SLAPI compare(KR kr1, KR kr2)
+int FASTCALL compare(KR kr1, KR kr2)
 {
 	const int r1 = kr1.rating();
 	const int r2 = kr2.rating();

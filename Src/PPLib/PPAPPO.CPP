@@ -940,7 +940,7 @@ enum {
 	cmdlPpIniSubst     // PPINISUBST
 };
 
-static int SLAPI GetStartUpOption(int o, SString & rArgBuf)
+static int FASTCALL GetStartUpOption(int o, SString & rArgBuf)
 {
 	static SString * p_cmdl_symbols = 0;
 	int    ok = 0;

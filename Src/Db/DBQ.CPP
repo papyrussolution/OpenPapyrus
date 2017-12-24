@@ -479,10 +479,8 @@ int SLAPI DBField::putValue(const void * pBuf) const
 //
 //
 //
-SLAPI DBFieldList::DBFieldList(uint n)
+SLAPI DBFieldList::DBFieldList(uint n) : Count(0), P_Flds(0)
 {
-	Count = 0;
-	P_Flds = 0;
 	Alloc(n);
 }
 
@@ -645,10 +643,8 @@ int SLAPI DBDataCell::toString(SString & rBuf, long options) const
 //
 // DBQ
 //
-SLAPI DBQ::DBQ(DBItem & left, int cmp, DBItem & right)
+SLAPI DBQ::DBQ(DBItem & left, int cmp, DBItem & right) : count(1), items(new T)
 {
-	items = new T;
-	count = 1;
 	items[0].flags = 0;
 	if(cmp == _OUTER_EQ_) {
 		items[0].flags |= DBQ_OUTER;

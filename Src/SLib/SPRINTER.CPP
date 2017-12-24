@@ -5,6 +5,9 @@
 #include <tv.h>
 #pragma hdrstop
 #include <report.h>
+
+#define max MAX // @v9.8.11
+#define min MIN // @v9.8.11
 #include <gdiplus.h>
 using namespace Gdiplus;
 

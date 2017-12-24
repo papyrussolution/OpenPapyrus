@@ -7,7 +7,7 @@
 #include <tv.h>
 #pragma hdrstop
 
-static void __makepath(register char * pathP, const char * driveP, const char * dirP, const char * nameP, const char * extP)
+static void __makepath(char * pathP, const char * driveP, const char * dirP, const char * nameP, const char * extP)
 {
 	if(driveP && *driveP) {
 		*pathP++ = *driveP++;
@@ -28,7 +28,7 @@ static void __makepath(register char * pathP, const char * driveP, const char * 
 	*pathP = 0;
 }
 
-void fnmerge(register char * pathP, const char * driveP, const char * dirP, const char * nameP, const char * extP)
+void fnmerge(char * pathP, const char * driveP, const char * dirP, const char * nameP, const char * extP)
 {
 	__makepath(pathP, driveP, dirP, nameP, extP);
 }

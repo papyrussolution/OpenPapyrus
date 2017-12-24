@@ -425,7 +425,6 @@ DBQ & __stdcall intrange(DBItem & i, const IntRange & rR)
 //
 // Определения функций
 //
-#define DBE_PROC(name) void SLAPI name(int option, DBConst * result, DBConst * params)
 #define RES(p)         result->init(p)
 #define RRES           result->rval
 #define IRES           result->lval
@@ -440,11 +439,11 @@ DBQ & __stdcall intrange(DBItem & i, const IntRange & rR)
 
 #pragma warn -par
 
-DBE_PROC(_add_ii) { RES(IPAR(0)+IPAR(1)); }
-DBE_PROC(_sub_ii) { RES(IPAR(0)-IPAR(1)); }
-DBE_PROC(_mul_ii) { RES(IPAR(0)*IPAR(1)); }
+IMPL_DBE_PROC(_add_ii) { RES(IPAR(0)+IPAR(1)); }
+IMPL_DBE_PROC(_sub_ii) { RES(IPAR(0)-IPAR(1)); }
+IMPL_DBE_PROC(_mul_ii) { RES(IPAR(0)*IPAR(1)); }
 
-DBE_PROC(_div_ii)
+IMPL_DBE_PROC(_div_ii)
 {
 	long v = IPAR(0);
 	long d = IPAR(1);
@@ -452,22 +451,22 @@ DBE_PROC(_div_ii)
 	RES(r);
 }
 
-DBE_PROC(_rem_ii) { RES(IPAR(0)%IPAR(1)); }
-DBE_PROC(_add_rr) { RES(RPAR(0)+RPAR(1)); }
-DBE_PROC(_sub_rr) { RES(RPAR(0)-RPAR(1)); }
-DBE_PROC(_mul_rr) { RES(RPAR(0)*RPAR(1)); }
+IMPL_DBE_PROC(_rem_ii) { RES(IPAR(0)%IPAR(1)); }
+IMPL_DBE_PROC(_add_rr) { RES(RPAR(0)+RPAR(1)); }
+IMPL_DBE_PROC(_sub_rr) { RES(RPAR(0)-RPAR(1)); }
+IMPL_DBE_PROC(_mul_rr) { RES(RPAR(0)*RPAR(1)); }
 
-DBE_PROC(_div_rr)
+IMPL_DBE_PROC(_div_rr)
 {
 	RES(fdivnz(RPAR(0), RPAR(1)));
 }
 
-DBE_PROC(_and_ii) { RES(IPAR(0) & IPAR(1)); }
-DBE_PROC(_or_ii)  { RES(IPAR(0) | IPAR(1)); }
-DBE_PROC(_xor_ii) { RES(IPAR(0) ^ IPAR(1)); }
-DBE_PROC(_not_ii) { RES(~IPAR(0)); }
+IMPL_DBE_PROC(_and_ii) { RES(IPAR(0) & IPAR(1)); }
+IMPL_DBE_PROC(_or_ii)  { RES(IPAR(0) | IPAR(1)); }
+IMPL_DBE_PROC(_xor_ii) { RES(IPAR(0) ^ IPAR(1)); }
+IMPL_DBE_PROC(_not_ii) { RES(~IPAR(0)); }
 
-DBE_PROC(_ltoa_i)
+IMPL_DBE_PROC(_ltoa_i)
 {
 	if(option == CALC_SIZE)
 		RES((long)12);
@@ -478,7 +477,7 @@ DBE_PROC(_ltoa_i)
 	}
 }
 
-DBE_PROC(_enumtoa_iii)
+IMPL_DBE_PROC(_enumtoa_iii)
 {
 	int    i;
 	char ** p = (char **)IPAR(2);
@@ -499,7 +498,7 @@ DBE_PROC(_enumtoa_iii)
 	}
 }
 
-DBE_PROC(_flagtoa_iii)
+IMPL_DBE_PROC(_flagtoa_iii)
 {
 	int    i;
 	char ** p = (char **)IPAR(2);
@@ -520,7 +519,7 @@ DBE_PROC(_flagtoa_iii)
 	}
 }
 
-DBE_PROC(_add_ss)
+IMPL_DBE_PROC(_add_ss)
 {
 	if(option == CALC_SIZE)
 		RES(IPAR(0)+IPAR(1));
@@ -535,7 +534,7 @@ DBE_PROC(_add_ss)
 	}
 }
 
-DBE_PROC(_left_si)
+IMPL_DBE_PROC(_left_si)
 {
 	if(option == CALC_SIZE)
 		if(IPAR(1) == 0)
@@ -548,7 +547,7 @@ DBE_PROC(_left_si)
 	}
 }
 
-DBE_PROC(_right_si)
+IMPL_DBE_PROC(_right_si)
 {
 	if(option == CALC_SIZE)
 		if(IPAR(1) == 0)
@@ -559,7 +558,7 @@ DBE_PROC(_right_si)
 		RES(SPAR(0)+IPAR(1));
 }
 
-DBE_PROC(_ltrim_s)
+IMPL_DBE_PROC(_ltrim_s)
 {
 	if(option == CALC_SIZE)
 		RES(IPAR(0));
@@ -567,7 +566,7 @@ DBE_PROC(_ltrim_s)
 		RES(trimleft(SPAR(0)));
 }
 
-DBE_PROC(_rtrim_s)
+IMPL_DBE_PROC(_rtrim_s)
 {
 	if(option == CALC_SIZE)
 		RES(IPAR(0));
@@ -575,17 +574,17 @@ DBE_PROC(_rtrim_s)
 		RES(trimright(SPAR(0)));
 }
 
-DBE_PROC(_strlen_s)
+IMPL_DBE_PROC(_strlen_s)
 {
 	RES((long)strlen(SPAR(0)));
 }
 
-DBE_PROC(_contains_s)
+IMPL_DBE_PROC(_contains_s)
 {
 	RES((long)(BIN(strstr(SPAR(0), SPAR(1)))));
 }
 
-DBE_PROC(_lower_s)
+IMPL_DBE_PROC(_lower_s)
 {
 	if(option == CALC_SIZE)
 		RES(IPAR(0));
@@ -593,7 +592,7 @@ DBE_PROC(_lower_s)
 		RES(strlwr866(SPAR(0)));
 }
 
-DBE_PROC(_upper_s)
+IMPL_DBE_PROC(_upper_s)
 {
 	if(option == CALC_SIZE)
 		RES(IPAR(0));
@@ -601,14 +600,14 @@ DBE_PROC(_upper_s)
 		RES(strupr866(SPAR(0)));
 }
 
-DBE_PROC(_day_d)  {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES((long)d);}
-DBE_PROC(_mon_d)  {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES((long)m);}
-DBE_PROC(_year_d) {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES((long)y);}
-DBE_PROC(_weekday_d) { RES((long)dayofweek(&DPAR(0), 1)); }
-DBE_PROC(_add_di) { plusdate(&DPAR(0), IPAR(1), 0); result->copy(params[0]); }
-DBE_PROC(_sub_dd) { RES((long)diffdate(&DPAR(0), &DPAR(1), 0)); }
+IMPL_DBE_PROC(_day_d)  {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES((long)d);}
+IMPL_DBE_PROC(_mon_d)  {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES((long)m);}
+IMPL_DBE_PROC(_year_d) {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES((long)y);}
+IMPL_DBE_PROC(_weekday_d) { RES((long)dayofweek(&DPAR(0), 1)); }
+IMPL_DBE_PROC(_add_di) { plusdate(&DPAR(0), IPAR(1), 0); result->copy(params[0]); }
+IMPL_DBE_PROC(_sub_dd) { RES((long)diffdate(&DPAR(0), &DPAR(1), 0)); }
 
-DBE_PROC(_count_v)
+IMPL_DBE_PROC(_count_v)
 {
 	switch(option) {
 		case AGGR_BEGIN:
@@ -624,7 +623,7 @@ DBE_PROC(_count_v)
 
 #pragma warn +par
 
-DBE_PROC(_sum_i)
+IMPL_DBE_PROC(_sum_i)
 {
 	switch(option) {
 		case AGGR_BEGIN:
@@ -638,7 +637,7 @@ DBE_PROC(_sum_i)
 	}
 }
 
-DBE_PROC(_sum_r)
+IMPL_DBE_PROC(_sum_r)
 {
 	switch(option) {
 		case AGGR_BEGIN:
@@ -652,7 +651,7 @@ DBE_PROC(_sum_r)
 	}
 }
 
-DBE_PROC(_avg_r)
+IMPL_DBE_PROC(_avg_r)
 {
 	struct Temp { double sum; long count; };
 	switch(option) {
@@ -674,7 +673,7 @@ DBE_PROC(_avg_r)
 	}
 }
 
-DBE_PROC(_min_v)
+IMPL_DBE_PROC(_min_v)
 {
 	int    bt = params[0].tag;
 	int    st = bt2st(bt);
@@ -707,7 +706,7 @@ DBE_PROC(_min_v)
 	}
 }
 
-DBE_PROC(_max_v)
+IMPL_DBE_PROC(_max_v)
 {
 	int    bt = params[0].tag;
 	int    st = bt2st(bt);
@@ -794,9 +793,8 @@ DBFuncInfo * FASTCALL DbqFuncTab::Get(int funcId)
 	return Inst.GetFuncPtr(funcId);
 }
 
-SLAPI DbqFuncTab::DbqFuncTab()
+SLAPI DbqFuncTab::DbqFuncTab() : P_Tab(0)
 {
-	P_Tab = 0;
 	PreRegister();
 }
 

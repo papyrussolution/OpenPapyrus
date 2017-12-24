@@ -88,7 +88,7 @@ BDictionary * SLAPI BDictionary::CreateBtrDictInstance(const char * pPath)
 int SLAPI BDictionary::Init(const char * pDataPath, const char * pTempPath)
 {
 	assert(P_Dict);
-	DbName = 0;
+	DbName.Z();
 	DbPathID = 0;
 	DataPath = NZOR(pDataPath, Path);
 	if(pTempPath && ::access(pTempPath, 0) == 0)
@@ -256,11 +256,7 @@ SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) :
 
 /*virtual*/ int SLAPI BDictionary::DropFile(const char * pFileName)
 {
-	int    ok = -1;
-	if(IsFileExists_(pFileName) > 0) { // @v7.9.9 fileExists-->IsFileExists
-		ok = SFile::Remove(pFileName);
-	}
-	return ok;
+	return (IsFileExists_(pFileName) > 0) ? SFile::Remove(pFileName) : -1;
 }
 
 /*virtual*/ int SLAPI BDictionary::GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat)
@@ -388,13 +384,8 @@ SLAPI BDictionary::~BDictionary()
 //
 //
 //
-SLAPI BRecoverParam::BRecoverParam()
+SLAPI BRecoverParam::BRecoverParam() : P_DestPath(0), P_BakPath(0), OrgNumRecs(0), ActNumRecs(0), ErrCode(0), Tm(0)
 {
-	P_DestPath = 0;
-	P_BakPath = 0;
-	OrgNumRecs = ActNumRecs = 0;
-	ErrCode = 0;
-	Tm = 0;
 }
 
 int SLAPI BRecoverParam::callbackProc(int, long, long, void *)
