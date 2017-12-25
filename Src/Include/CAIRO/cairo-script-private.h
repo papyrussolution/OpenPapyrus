@@ -32,7 +32,6 @@
  * Contributor(s):
  *	Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef CAIRO_SCRIPT_PRIVATE_H
 #define CAIRO_SCRIPT_PRIVATE_H
 
@@ -44,7 +43,7 @@ CAIRO_BEGIN_DECLS
 cairo_private cairo_device_t * _cairo_script_context_create_internal (cairo_output_stream_t *stream);
 cairo_private void _cairo_script_context_attach_snapshots (cairo_device_t *device, cairo_bool_t enable);
 
-slim_hidden_proto (cairo_script_surface_create);
+slim_hidden_proto(cairo_script_surface_create);
 
 CAIRO_END_DECLS
 

@@ -39,60 +39,33 @@
 #include "cairo.h"
 
 #if CAIRO_HAS_SCRIPT_SURFACE
+	CAIRO_BEGIN_DECLS
+	/**
+	 * cairo_script_mode_t:
+	 * @CAIRO_SCRIPT_MODE_ASCII: the output will be in readable text (default). (Since 1.12)
+	 * @CAIRO_SCRIPT_MODE_BINARY: the output will use byte codes. (Since 1.12)
+	 *
+	 * A set of script output variants.
+	 *
+	 * Since: 1.12
+	 **/
+	typedef enum {
+		CAIRO_SCRIPT_MODE_ASCII,
+		CAIRO_SCRIPT_MODE_BINARY
+	} cairo_script_mode_t;
 
-CAIRO_BEGIN_DECLS
+	cairo_public cairo_device_t * cairo_script_create(const char * filename);
+	cairo_public cairo_device_t * cairo_script_create_for_stream(cairo_write_func_t write_func, void * closure);
+	cairo_public void cairo_script_write_comment(cairo_device_t * script, const char * comment, int len);
+	cairo_public void cairo_script_set_mode(cairo_device_t * script, cairo_script_mode_t mode);
+	cairo_public cairo_script_mode_t cairo_script_get_mode(cairo_device_t * script);
+	cairo_public cairo_surface_t * cairo_script_surface_create(cairo_device_t * script, cairo_content_t content, double width, double height);
+	cairo_public cairo_surface_t * cairo_script_surface_create_for_target(cairo_device_t * script, cairo_surface_t * target);
+	cairo_public cairo_status_t cairo_script_from_recording_surface(cairo_device_t * script, cairo_surface_t * recording_surface);
 
-/**
- * cairo_script_mode_t:
- * @CAIRO_SCRIPT_MODE_ASCII: the output will be in readable text (default). (Since 1.12)
- * @CAIRO_SCRIPT_MODE_BINARY: the output will use byte codes. (Since 1.12)
- *
- * A set of script output variants.
- *
- * Since: 1.12
- **/
-typedef enum {
-    CAIRO_SCRIPT_MODE_ASCII,
-    CAIRO_SCRIPT_MODE_BINARY
-} cairo_script_mode_t;
-
-cairo_public cairo_device_t *
-cairo_script_create (const char *filename);
-
-cairo_public cairo_device_t *
-cairo_script_create_for_stream (cairo_write_func_t	 write_func,
-				void			*closure);
-
-cairo_public void
-cairo_script_write_comment (cairo_device_t *script,
-			    const char *comment,
-			    int len);
-
-cairo_public void
-cairo_script_set_mode (cairo_device_t *script,
-		       cairo_script_mode_t mode);
-
-cairo_public cairo_script_mode_t
-cairo_script_get_mode (cairo_device_t *script);
-
-cairo_public cairo_surface_t *
-cairo_script_surface_create (cairo_device_t *script,
-			     cairo_content_t content,
-			     double width,
-			     double height);
-
-cairo_public cairo_surface_t *
-cairo_script_surface_create_for_target (cairo_device_t *script,
-					cairo_surface_t *target);
-
-cairo_public cairo_status_t
-cairo_script_from_recording_surface (cairo_device_t	*script,
-				     cairo_surface_t	*recording_surface);
-
-CAIRO_END_DECLS
-
+	CAIRO_END_DECLS
 #else  /*CAIRO_HAS_SCRIPT_SURFACE*/
-# error Cairo was not compiled with support for the CairoScript backend
+	#error Cairo was not compiled with support for the CairoScript backend
 #endif /*CAIRO_HAS_SCRIPT_SURFACE*/
 
 #endif /*CAIRO_SCRIPT_H*/

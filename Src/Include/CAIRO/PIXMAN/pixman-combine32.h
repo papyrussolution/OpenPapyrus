@@ -46,54 +46,36 @@ un8x4_add_un8x4 (uint32_t x, uint32_t y)
     return t;
 }
 
-#define UN8x4_ADD_UN8x4(x, y) \
-    ((x) = un8x4_add_un8x4 ((x), (y)))
-
-#define UN8_rb_ADD_UN8_rb(x, y, t) \
-    ((t) = un8x4_add_un8x4 ((x), (y)), (x) = (t))
-
-#define ADD_UN8(x, y, t) \
-    ((t) = (x), un8x4_add_un8x4 ((t), (y)))
+#define UN8x4_ADD_UN8x4(x, y)      ((x) = un8x4_add_un8x4 ((x), (y)))
+#define UN8_rb_ADD_UN8_rb(x, y, t) ((t) = un8x4_add_un8x4 ((x), (y)), (x) = (t))
+#define ADD_UN8(x, y, t)           ((t) = (x), un8x4_add_un8x4 ((t), (y)))
 
 #endif
 #endif
 
 /*****************************************************************************/
-
 /*
  * Helper macros.
  */
-
-#define MUL_UN8(a, b, t)						\
-    ((t) = (a) * (uint16)(b) + ONE_HALF, ((((t) >> G_SHIFT ) + (t) ) >> G_SHIFT ))
-
-#define DIV_UN8(a, b)							\
-    (((uint16) (a) * MASK + ((b) / 2)) / (b))
-
+#define MUL_UN8(a, b, t) ((t) = (a) * (uint16)(b) + ONE_HALF, ((((t) >> G_SHIFT ) + (t) ) >> G_SHIFT ))
+#define DIV_UN8(a, b)    (((uint16) (a) * MASK + ((b) / 2)) / (b))
 #ifndef ADD_UN8
-#define ADD_UN8(x, y, t)				     \
-    ((t) = (x) + (y),					     \
-     (uint32_t) (uint8) ((t) | (0 - ((t) >> G_SHIFT))))
+	#define ADD_UN8(x, y, t) ((t) = (x) + (y), (uint32_t) (uint8) ((t) | (0 - ((t) >> G_SHIFT))))
 #endif
-
-#define DIV_ONE_UN8(x)							\
-    (((x) + ONE_HALF + (((x) + ONE_HALF) >> G_SHIFT)) >> G_SHIFT)
-
+#define DIV_ONE_UN8(x) (((x) + ONE_HALF + (((x) + ONE_HALF) >> G_SHIFT)) >> G_SHIFT)
 /*
  * The methods below use some tricks to be able to do two color
  * components at the same time.
  */
-
 /*
  * x_rb = (x_rb * a) / 255
  */
 #define UN8_rb_MUL_UN8(x, a, t)						\
-    do									\
-    {									\
-	t  = ((x) & RB_MASK) * (a);					\
-	t += RB_ONE_HALF;						\
-	x = (t + ((t >> G_SHIFT) & RB_MASK)) >> G_SHIFT;		\
-	x &= RB_MASK;							\
+    do {									\
+		t  = ((x) & RB_MASK) * (a);					\
+		t += RB_ONE_HALF;						\
+		x = (t + ((t >> G_SHIFT) & RB_MASK)) >> G_SHIFT;		\
+		x &= RB_MASK;							\
     } while (0)
 
 /*

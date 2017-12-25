@@ -29,10 +29,8 @@
  *
  * The Initial Developer of the Original Code is Chris Wilson.
  *
- * Contributors(s):
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributors(s): Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef CAIRO_DRM_PRIVATE_H
 #define CAIRO_DRM_PRIVATE_H
 

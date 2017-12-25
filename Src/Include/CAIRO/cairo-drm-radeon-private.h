@@ -26,7 +26,6 @@
  * the specific language governing rights and limitations.
  *
  */
-
 #ifndef CAIRO_DRM_RADEON_PRIVATE_H
 #define CAIRO_DRM_RADEON_PRIVATE_H
 
@@ -53,36 +52,14 @@ typedef struct _radeon_device {
 
 cairo_private cairo_status_t radeon_device_init(radeon_device_t * device, int fd);
 cairo_private void radeon_device_fini(radeon_device_t * device);
-cairo_private cairo_bool_t radeon_info(int fd,
-    uint64_t * gart_size,
-    uint64_t * vram_size);
-
-cairo_private void radeon_bo_write(const radeon_device_t * dev,
-    radeon_bo_t * bo,
-    ulong offset,
-    ulong size,
-    const void * data);
-
-cairo_private void radeon_bo_read(const radeon_device_t * dev,
-    radeon_bo_t * bo,
-    ulong offset,
-    ulong size,
-    void * data);
-
+cairo_private cairo_bool_t radeon_info(int fd, uint64_t * gart_size, uint64_t * vram_size);
+cairo_private void radeon_bo_write(const radeon_device_t * dev, radeon_bo_t * bo, ulong offset, ulong size, const void * data);
+cairo_private void radeon_bo_read(const radeon_device_t * dev, radeon_bo_t * bo, ulong offset, ulong size, void * data);
 cairo_private void radeon_bo_wait(const radeon_device_t * dev, radeon_bo_t * bo);
-
 cairo_private void * radeon_bo_map(const radeon_device_t * dev, radeon_bo_t * bo);
-
 cairo_private void radeon_bo_unmap(radeon_bo_t * bo);
-
-cairo_private cairo_drm_bo_t * radeon_bo_create(radeon_device_t * dev,
-    uint32_t size,
-    uint32_t initial_domain);
-
+cairo_private cairo_drm_bo_t * radeon_bo_create(radeon_device_t * dev, uint32_t size, uint32_t initial_domain);
 cairo_private cairo_drm_bo_t * radeon_bo_create_for_name(radeon_device_t * dev, uint32_t name);
-
-cairo_private cairo_surface_t * radeon_bo_get_image(const radeon_device_t * device,
-    radeon_bo_t * bo,
-    const cairo_drm_surface_t * surface);
+cairo_private cairo_surface_t * radeon_bo_get_image(const radeon_device_t * device, radeon_bo_t * bo, const cairo_drm_surface_t * surface);
 
 #endif /* CAIRO_DRM_RADEON_PRIVATE_H */

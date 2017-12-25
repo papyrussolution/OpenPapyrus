@@ -29,16 +29,11 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
- *	Behdad Esfahbod <behdad@behdad.org>
- *	Chris Wilson <chris@chris-wilson.co.uk>
- *	Karl Tomlinson <karlt+@karlt.net>, Mozilla Corporation
+ * Contributor(s): Carl D. Worth <cworth@cworth.org> Behdad Esfahbod <behdad@behdad.org> Chris Wilson <chris@chris-wilson.co.uk> 
+ *   Karl Tomlinson <karlt+@karlt.net>, Mozilla Corporation
  */
-
 /* Heed well the words of Owen Taylor:
  * "Any patch that works around a render bug, or claims to, without a
  * specific reference to the bug filed in bugzilla.freedesktop.org will
@@ -64,12 +59,9 @@
 
 #if DEBUG
 #define UNSUPPORTED(reason) \
-	fprintf(stderr,	\
-	    "cairo-xlib: hit unsupported operation %s(), line %d: %s\n", \
-	    __FUNCTION__, __LINE__, reason), \
-	CAIRO_INT_STATUS_UNSUPPORTED
+	fprintf(stderr,	"cairo-xlib: hit unsupported operation %s(), line %d: %s\n", __FUNCTION__, __LINE__, reason), CAIRO_INT_STATUS_UNSUPPORTED
 #else
-#define UNSUPPORTED(reason) CAIRO_INT_STATUS_UNSUPPORTED
+	#define UNSUPPORTED(reason) CAIRO_INT_STATUS_UNSUPPORTED
 #endif
 
 #if DEBUG

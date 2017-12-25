@@ -78,8 +78,7 @@ static force_inline pixman_bool_t repeat(pixman_repeat_t repeat, int * c, int si
 
 static force_inline int pixman_fixed_to_bilinear_weight(pixman_fixed_t x)
 {
-	return (x >> (16 - BILINEAR_INTERPOLATION_BITS)) &
-	       ((1 << BILINEAR_INTERPOLATION_BITS) - 1);
+	return (x >> (16 - BILINEAR_INTERPOLATION_BITS)) & ((1 << BILINEAR_INTERPOLATION_BITS) - 1);
 }
 
 #if BILINEAR_INTERPOLATION_BITS <= 4

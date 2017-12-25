@@ -27,40 +27,24 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org>
  */
-
 #ifndef CAIRO_SKIA_H
 #define CAIRO_SKIA_H
 
 #include "cairo.h"
 
 #if CAIRO_HAS_SKIA_SURFACE
+	CAIRO_BEGIN_DECLS
 
-CAIRO_BEGIN_DECLS
+	cairo_public cairo_surface_t * cairo_skia_surface_create(cairo_format_t format, int width, int height);
+	cairo_public cairo_surface_t * cairo_skia_surface_create_for_data(uchar * data, cairo_format_t format, int width, int height, int stride);
 
-cairo_public cairo_surface_t *
-cairo_skia_surface_create (cairo_format_t format,
-			   int width,
-			   int height);
-
-cairo_public cairo_surface_t *
-cairo_skia_surface_create_for_data (uchar *data,
-				    cairo_format_t format,
-				    int width,
-				    int height,
-				    int stride);
-
-CAIRO_END_DECLS
-
+	CAIRO_END_DECLS
 #else
-
-# error Cairo was not compiled with support for the Skia backend
-
+	#error Cairo was not compiled with support for the Skia backend
 #endif
 
 #endif

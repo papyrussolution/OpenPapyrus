@@ -29,15 +29,10 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
- *	Kristian Høgsberg <krh@redhat.com>
- *	Keith Packard <keithp@keithp.com>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org> Kristian Høgsberg <krh@redhat.com> Keith Packard <keithp@keithp.com>
  */
-
 #ifndef CAIRO_PS_SURFACE_PRIVATE_H
 #define CAIRO_PS_SURFACE_PRIVATE_H
 

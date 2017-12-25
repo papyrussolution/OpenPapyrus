@@ -30,16 +30,11 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
- *	Behdad Esfahbod <behdad@behdad.org>
- *	Chris Wilson <chris@chris-wilson.co.uk>
- *	Karl Tomlinson <karlt+@karlt.net>, Mozilla Corporation
+ * Contributor(s): Carl D. Worth <cworth@cworth.org> Behdad Esfahbod <behdad@behdad.org>
+ *	Chris Wilson <chris@chris-wilson.co.uk> Karl Tomlinson <karlt+@karlt.net>, Mozilla Corporation
  */
-
 /* The original X drawing API was very restrictive in what it could handle,
  * pixel-aligned fill/blits are all that map into Cairo's drawing model.
  */
@@ -591,23 +586,15 @@ static cairo_int_status_t _cairo_xlib_core_compositor_fill(const cairo_composito
     double tolerance,
     cairo_antialias_t antialias)
 {
-	cairo_int_status_t status;
-
-	status = CAIRO_INT_STATUS_UNSUPPORTED;
-	if(extents->clip->path == NULL &&
-	    _cairo_path_fixed_fill_is_rectilinear(path)) {
+	cairo_int_status_t status = CAIRO_INT_STATUS_UNSUPPORTED;
+	if(extents->clip->path == NULL && _cairo_path_fixed_fill_is_rectilinear(path)) {
 		cairo_boxes_t boxes;
-
 		_cairo_boxes_init_with_clip(&boxes, extents->clip);
-		status = _cairo_path_fixed_fill_rectilinear_to_boxes(path,
-		    fill_rule,
-		    antialias,
-		    &boxes);
+		status = _cairo_path_fixed_fill_rectilinear_to_boxes(path, fill_rule, antialias, &boxes);
 		if(likely(status == CAIRO_INT_STATUS_SUCCESS))
 			status = draw_boxes(extents, &boxes);
 		_cairo_boxes_fini(&boxes);
 	}
-
 	return status;
 }
 
@@ -622,7 +609,6 @@ const cairo_compositor_t * _cairo_xlib_core_compositor_get(void)
 		compositor.stroke = _cairo_xlib_core_compositor_stroke;
 		compositor.glyphs = NULL; /* XXX PolyGlyph? */
 	}
-
 	return &compositor;
 }
 

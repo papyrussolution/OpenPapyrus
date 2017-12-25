@@ -30,13 +30,9 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
- *	Kristian Høgsberg <krh@redhat.com>
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org> Kristian Høgsberg <krh@redhat.com> Chris Wilson <chris@chris-wilson.co.uk>
  */
 #include "cairoint.h"
 #pragma hdrstop
@@ -66,35 +62,25 @@ cairo_status_t _cairo_clip_combine_with_surface(const cairo_clip_t * clip, cairo
 		    clip);
 		clip_path = clip_path->prev;
 	}
-
 	copy->path = copy_path;
 	_cairo_clip_destroy(copy);
 	return status;
 }
 
-static cairo_status_t _cairo_path_fixed_add_box(cairo_path_fixed_t * path,
-    const cairo_box_t * box,
-    cairo_fixed_t fx,
-    cairo_fixed_t fy)
+static cairo_status_t _cairo_path_fixed_add_box(cairo_path_fixed_t * path, const cairo_box_t * box, cairo_fixed_t fx, cairo_fixed_t fy)
 {
-	cairo_status_t status;
-
-	status = _cairo_path_fixed_move_to(path, box->p1.x + fx, box->p1.y + fy);
+	cairo_status_t status = _cairo_path_fixed_move_to(path, box->p1.x + fx, box->p1.y + fy);
 	if(unlikely(status))
 		return status;
-
 	status = _cairo_path_fixed_line_to(path, box->p2.x + fx, box->p1.y + fy);
 	if(unlikely(status))
 		return status;
-
 	status = _cairo_path_fixed_line_to(path, box->p2.x + fx, box->p2.y + fy);
 	if(unlikely(status))
 		return status;
-
 	status = _cairo_path_fixed_line_to(path, box->p1.x + fx, box->p2.y + fy);
 	if(unlikely(status))
 		return status;
-
 	return _cairo_path_fixed_close_path(path);
 }
 
@@ -113,9 +99,7 @@ cairo_surface_t * _cairo_clip_get_surface(const cairo_clip_t * clip, cairo_surfa
 		_cairo_path_fixed_init(&path);
 		status = CAIRO_STATUS_SUCCESS;
 		for(i = 0; status == CAIRO_STATUS_SUCCESS && i < clip->num_boxes; i++) {
-			status = _cairo_path_fixed_add_box(&path, &clip->boxes[i],
-			    -_cairo_fixed_from_int(clip->extents.x),
-			    -_cairo_fixed_from_int(clip->extents.y));
+			status = _cairo_path_fixed_add_box(&path, &clip->boxes[i], -_cairo_fixed_from_int(clip->extents.x), -_cairo_fixed_from_int(clip->extents.y));
 		}
 		if(status == CAIRO_STATUS_SUCCESS)
 			status = _cairo_surface_fill(surface, CAIRO_OPERATOR_ADD,
@@ -127,11 +111,7 @@ cairo_surface_t * _cairo_clip_get_surface(const cairo_clip_t * clip, cairo_surfa
 		}
 	}
 	else {
-		surface = _cairo_surface_create_scratch(target,
-		    CAIRO_CONTENT_ALPHA,
-		    clip->extents.width,
-		    clip->extents.height,
-		    CAIRO_COLOR_WHITE);
+		surface = _cairo_surface_create_scratch(target, CAIRO_CONTENT_ALPHA, clip->extents.width, clip->extents.height, CAIRO_COLOR_WHITE);
 		if(unlikely(surface->status))
 			return surface;
 	}
@@ -144,14 +124,8 @@ cairo_surface_t * _cairo_clip_get_surface(const cairo_clip_t * clip, cairo_surfa
 	status = CAIRO_STATUS_SUCCESS;
 	clip_path = copy_path;
 	while(status == CAIRO_STATUS_SUCCESS && clip_path) {
-		status = _cairo_surface_fill(surface,
-		    CAIRO_OPERATOR_IN,
-		    &_cairo_pattern_white.base,
-		    &clip_path->path,
-		    clip_path->fill_rule,
-		    clip_path->tolerance,
-		    clip_path->antialias,
-		    region);
+		status = _cairo_surface_fill(surface, CAIRO_OPERATOR_IN, &_cairo_pattern_white.base,
+		    &clip_path->path, clip_path->fill_rule, clip_path->tolerance, clip_path->antialias, region);
 		clip_path = clip_path->prev;
 	}
 	copy->path = copy_path;
@@ -182,4 +156,3 @@ cairo_surface_t * _cairo_clip_get_image(const cairo_clip_t * clip, cairo_surface
 	}
 	return surface;
 }
-

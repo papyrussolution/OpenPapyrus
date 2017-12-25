@@ -40,7 +40,6 @@
 #include <SkCanvas.h>
 #include <SkPaint.h>
 #include <SkPath.h>
-
 /**
  * cairo_skia_context_t:
  *
@@ -64,61 +63,50 @@ typedef struct _cairo_skia_context cairo_skia_context_t;
 typedef struct _cairo_skia_surface cairo_skia_surface_t;
 
 struct _cairo_skia_context {
-    cairo_t base;
-
-    cairo_skia_surface_t *original;
-    cairo_skia_surface_t *target;
-
-    cairo_matrix_t matrix;
-
-    SkCanvas *canvas;
-    SkPaint *paint;
-    SkPath *path;
-
-    cairo_surface_t *source;
-    cairo_image_surface_t *source_image;
-    void *source_extra;
+	cairo_t base;
+	cairo_skia_surface_t * original;
+	cairo_skia_surface_t * target;
+	cairo_matrix_t matrix;
+	SkCanvas * canvas;
+	SkPaint * paint;
+	SkPath * path;
+	cairo_surface_t * source;
+	cairo_image_surface_t * source_image;
+	void * source_extra;
 };
 
 struct _cairo_skia_surface {
-    cairo_image_surface_t image;
-
-    SkBitmap *bitmap;
+	cairo_image_surface_t image;
+	SkBitmap * bitmap;
 };
 
-static inline bool
-format_to_sk_config (cairo_format_t format,
-		     SkBitmap::Config& config,
-		     bool& opaque)
+static inline bool format_to_sk_config(cairo_format_t format, SkBitmap::Config& config, bool& opaque)
 {
-    opaque = false;
-
-    switch (format) {
-    case CAIRO_FORMAT_ARGB32:
-	config = SkBitmap::kARGB_8888_Config;
-	break;
-    case CAIRO_FORMAT_RGB24:
-	config = SkBitmap::kARGB_8888_Config;
-	opaque = true;
-	break;
-    case CAIRO_FORMAT_RGB16_565:
-	config = SkBitmap::kRGB_565_Config;
-	opaque = true;
-	break;
-    case CAIRO_FORMAT_A8:
-	config = SkBitmap::kA8_Config;
-	break;
-    case CAIRO_FORMAT_RGB30:
-    case CAIRO_FORMAT_INVALID:
-    case CAIRO_FORMAT_A1:
-    default:
-	return false;
-    }
-
-    return true;
+	opaque = false;
+	switch(format) {
+		case CAIRO_FORMAT_ARGB32:
+		    config = SkBitmap::kARGB_8888_Config;
+		    break;
+		case CAIRO_FORMAT_RGB24:
+		    config = SkBitmap::kARGB_8888_Config;
+		    opaque = true;
+		    break;
+		case CAIRO_FORMAT_RGB16_565:
+		    config = SkBitmap::kRGB_565_Config;
+		    opaque = true;
+		    break;
+		case CAIRO_FORMAT_A8:
+		    config = SkBitmap::kA8_Config;
+		    break;
+		case CAIRO_FORMAT_RGB30:
+		case CAIRO_FORMAT_INVALID:
+		case CAIRO_FORMAT_A1:
+		default:
+		    return false;
+	}
+	return true;
 }
 
-cairo_private cairo_t *
-_cairo_skia_context_create (void *target);
+cairo_private cairo_t * _cairo_skia_context_create(void * target);
 
 #endif /* CAIRO_SKIA_CONTEXT_PRIVATE_H */

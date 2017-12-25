@@ -27,13 +27,10 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org>
  */
-
 #ifndef CAIRO_XLIB_XRENDER_H
 #define CAIRO_XLIB_XRENDER_H
 
@@ -45,18 +42,9 @@
 #include <X11/extensions/Xrender.h>
 
 CAIRO_BEGIN_DECLS
-
-cairo_public cairo_surface_t *
-cairo_xlib_surface_create_with_xrender_format (Display		 *dpy,
-                                               Drawable		  drawable,
-					       Screen		 *screen,
-                                               XRenderPictFormat *format,
-                                               int		  width,
-                                               int		  height);
-
-cairo_public XRenderPictFormat *
-cairo_xlib_surface_get_xrender_format (cairo_surface_t *surface);
-
+	cairo_public cairo_surface_t * cairo_xlib_surface_create_with_xrender_format(Display * dpy,
+		Drawable drawable, Screen * screen, XRenderPictFormat * format, int width, int height);
+	cairo_public XRenderPictFormat * cairo_xlib_surface_get_xrender_format(cairo_surface_t * surface);
 CAIRO_END_DECLS
 
 #else  /* CAIRO_HAS_XLIB_XRENDER_SURFACE */

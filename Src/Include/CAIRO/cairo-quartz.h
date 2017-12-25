@@ -29,10 +29,8 @@
  *
  * The Initial Developer of the Original Code is Mozilla Foundation.
  *
- * Contributor(s):
- *      Vladimir Vukicevic <vladimir@mozilla.com>
+ * Contributor(s): Vladimir Vukicevic <vladimir@mozilla.com>
  */
-
 #ifndef CAIRO_QUARTZ_H
 #define CAIRO_QUARTZ_H
 
@@ -44,39 +42,22 @@
 
 CAIRO_BEGIN_DECLS
 
-cairo_public cairo_surface_t *
-cairo_quartz_surface_create (cairo_format_t format,
-                             uint width,
-                             uint height);
-
-cairo_public cairo_surface_t *
-cairo_quartz_surface_create_for_cg_context (CGContextRef cgContext,
-                                            uint width,
-                                            uint height);
-
-cairo_public CGContextRef
-cairo_quartz_surface_get_cg_context (cairo_surface_t *surface);
+cairo_public cairo_surface_t * cairo_quartz_surface_create(cairo_format_t format, uint width, uint height);
+cairo_public cairo_surface_t * cairo_quartz_surface_create_for_cg_context(CGContextRef cgContext, uint width, uint height);
+cairo_public CGContextRef cairo_quartz_surface_get_cg_context(cairo_surface_t * surface);
 
 #if CAIRO_HAS_QUARTZ_FONT
-
 /*
  * Quartz font support
  */
-
-cairo_public cairo_font_face_t *
-cairo_quartz_font_face_create_for_cgfont (CGFontRef font);
-
-cairo_public cairo_font_face_t *
-cairo_quartz_font_face_create_for_atsu_font_id (ATSUFontID font_id);
-
+cairo_public cairo_font_face_t * cairo_quartz_font_face_create_for_cgfont(CGFontRef font);
+cairo_public cairo_font_face_t * cairo_quartz_font_face_create_for_atsu_font_id(ATSUFontID font_id);
 #endif /* CAIRO_HAS_QUARTZ_FONT */
 
 CAIRO_END_DECLS
 
 #else
-
-# error Cairo was not compiled with support for the quartz backend
-
+	#error Cairo was not compiled with support for the quartz backend
 #endif /* CAIRO_HAS_QUARTZ_SURFACE */
 
 #endif /* CAIRO_QUARTZ_H */
