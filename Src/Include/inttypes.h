@@ -1,5 +1,5 @@
-/* 7.8 Format conversion of integer types <inttypes.h> */
-
+// 7.8 Format conversion of integer types <inttypes.h> 
+// 
 #ifndef _INTTYPES_H_
 #define _INTTYPES_H_
 
@@ -8,26 +8,26 @@
 #define __need_wchar_t
 #include <stddef.h>
 
-#ifdef	__cplusplus
-extern	"C"	{
+#ifdef  __cplusplus
+extern  "C" {
 #endif
 
 typedef struct {
 	intmax_t quot;
 	intmax_t rem;
-	} imaxdiv_t;
+} imaxdiv_t;
 
 #if !defined(__cplusplus) || defined(__STDC_FORMAT_MACROS)
-
-/* 7.8.1 Macros for format specifiers
- * 
- * MS runtime does not yet understand C9x standard "ll"
- * length specifier. It appears to treat "ll" as "l".
- * The non-standard I64 length specifier causes warning in GCC,
- * but understood by MS runtime functions.
- */
-
-/* fprintf macros for signed types */
+// 
+// 7.8.1 Macros for format specifiers
+// 
+// MS runtime does not yet understand C9x standard "ll"
+// length specifier. It appears to treat "ll" as "l".
+// The non-standard I64 length specifier causes warning in GCC,
+// but understood by MS runtime functions.
+// 
+// fprintf macros for signed types 
+// 
 #define PRId8 "d"
 #define PRId16 "d"
 #define PRId32 "d"
@@ -82,13 +82,13 @@ typedef struct {
 #define PRIoMAX "I64o"
 
 #define PRIoPTR "o"
-
-/* fprintf macros for unsigned types */
+// 
+// fprintf macros for unsigned types 
+// 
 #define PRIu8 "u"
 #define PRIu16 "u"
 #define PRIu32 "u"
 #define PRIu64 "I64u"
-
 
 #define PRIuLEAST8 "u"
 #define PRIuLEAST16 "u"
@@ -138,14 +138,12 @@ typedef struct {
 
 #define PRIXMAX "I64X"
 #define PRIXPTR "X"
-
-/*
- *  fscanf macros for signed int types
- *  NOTE: if 32-bit int is used for int_fast8_t and int_fast16_t
- *  (see stdint.h, 7.18.1.3), FAST8 and FAST16 should have
- *  no length identifiers
- */
-
+// 
+// fscanf macros for signed int types
+// NOTE: if 32-bit int is used for int_fast8_t and int_fast16_t
+// (see stdint.h, 7.18.1.3), FAST8 and FAST16 should have
+// no length identifiers
+// 
 #define SCNd16 "hd"
 #define SCNd32 "d"
 #define SCNd64 "I64d"
@@ -205,10 +203,9 @@ typedef struct {
 
 #define SCNxMAX "I64x"
 #define SCNxPTR "x"
-
-
-/* fscanf macros for unsigned int types */
-
+// 
+// fscanf macros for unsigned int types 
+// 
 #define SCNu16 "hu"
 #define SCNu32 "u"
 #define SCNu64 "I64u"
@@ -225,12 +222,11 @@ typedef struct {
 #define SCNuPTR "u"
 
 #if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
-/*
- * no length modifier for char types prior to C9x
- * MS runtime scanf appears to treat "hh" as "h" 
- */
-
-/* signed char */
+// 
+// no length modifier for char types prior to C9x
+// MS runtime scanf appears to treat "hh" as "h"
+// 
+// signed char 
 #define SCNd8 "hhd"
 #define SCNdLEAST8 "hhd"
 #define SCNdFAST8 "hhd"
@@ -253,23 +249,25 @@ typedef struct {
 #define SCNuFAST8 "hhu"
 #endif /* __STDC_VERSION__ >= 199901 */
 
-#endif	/* !defined(__cplusplus) || defined(__STDC_FORMAT_MACROS) */
+#endif  /* !defined(__cplusplus) || defined(__STDC_FORMAT_MACROS) */
 
-intmax_t __cdecl imaxabs (intmax_t j);
+intmax_t __cdecl imaxabs(intmax_t j);
 #ifndef __NO_INLINE__
-/*__CRT_INLINE*/ intmax_t __cdecl imaxabs (intmax_t j)
-	{return	(j >= 0 ? j : -j);}
+/*__CRT_INLINE*/ intmax_t __cdecl imaxabs(intmax_t j)
+{
+	return (j >= 0 ? j : -j);
+}
 #endif
-imaxdiv_t __cdecl imaxdiv (intmax_t numer, intmax_t denom);
+imaxdiv_t __cdecl imaxdiv(intmax_t numer, intmax_t denom);
+//
+// 7.8.2 Conversion functions for greatest-width integer types 
+//
+intmax_t __cdecl strtoimax(const char* nptr, char** endptr, int base);
+uintmax_t __cdecl strtoumax(const char* nptr, char** endptr, int base);
+intmax_t __cdecl wcstoimax(const wchar_t* nptr, wchar_t** endptr, int base);
+uintmax_t __cdecl wcstoumax(const wchar_t* nptr, wchar_t** endptr, int base);
 
-/* 7.8.2 Conversion functions for greatest-width integer types */
-
-intmax_t __cdecl strtoimax (const char* nptr, char** endptr, int base);
-uintmax_t __cdecl strtoumax (const char* nptr, char** endptr, int base);
-intmax_t __cdecl wcstoimax (const wchar_t* nptr, wchar_t** endptr, int base);
-uintmax_t __cdecl wcstoumax (const wchar_t* nptr, wchar_t** endptr, int base);
-
-#ifdef	__cplusplus
+#ifdef  __cplusplus
 }
 #endif
 

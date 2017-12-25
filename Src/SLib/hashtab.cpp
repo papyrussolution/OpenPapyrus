@@ -1269,41 +1269,36 @@ struct UT_hash_handle {
 	} while(0)
 */
 
-
 /* These macros use decltype or the earlier __typeof GNU extension.
    As decltype is only available in newer compilers (VS2010 or gcc 4.3+
    when compiling c++ source) this code uses whatever method is needed
    or, for VS2008 where neither is available, uses casting workarounds. */
 #ifdef _MSC_VER         /* MS compiler */
-#if _MSC_VER >= 1600 && defined(__cplusplus)  /* VS2010 or newer in C++ mode */
-#define DECLTYPE(x) (decltype(x))
-#else                   /* VS2008 or older (or VS2010 in C mode) */
-#define NO_DECLTYPE
-#define DECLTYPE(x)
-#endif
+	#if _MSC_VER >= 1600 && defined(__cplusplus)  /* VS2010 or newer in C++ mode */
+		#define DECLTYPE(x) (decltype(x))
+	#else                   /* VS2008 or older (or VS2010 in C mode) */
+		#define NO_DECLTYPE
+		#define DECLTYPE(x)
+	#endif
 #else                   /* GNU, Sun and other compilers */
-#define DECLTYPE(x) (__typeof(x))
+	#define DECLTYPE(x) (__typeof(x))
 #endif
-
 #ifdef NO_DECLTYPE
-#define DECLTYPE_ASSIGN(dst, src)						  \
-	do {										 \
-		char ** _da_dst = (char**)(&(dst));						\
-		*_da_dst = (char*)(src);						       \
-	} while(0)
+	#define DECLTYPE_ASSIGN(dst, src)						  \
+		do {										 \
+			char ** _da_dst = (char**)(&(dst));						\
+			*_da_dst = (char*)(src);						       \
+		} while(0)
 #else
-#define DECLTYPE_ASSIGN(dst, src)						  \
-	do {										 \
-		(dst) = DECLTYPE(dst) (src);							\
-	} while(0)
+	#define DECLTYPE_ASSIGN(dst, src) do { (dst) = DECLTYPE(dst) (src); } while(0)
 #endif
-
-/* a number of the hash function use uint32_t which isn't defined on win32 */
+//
+// a number of the hash function use uint32_t which isn't defined on win32 
 #ifdef _MSC_VER
-typedef unsigned int uint32_t;
-typedef unsigned char uint8_t;
+	typedef unsigned int uint32_t;
+	typedef unsigned char uint8_t;
 #else
-#include <inttypes.h>   /* uint32_t */
+	#include <inttypes.h>   /* uint32_t */
 #endif
 
 #define UTHASH_VERSION 1.9 .7

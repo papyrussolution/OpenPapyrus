@@ -80,39 +80,33 @@
 #endif
 
 PIXMAN_BEGIN_DECLS
-
 /*
  * Standard integers
  */
-
 #if !defined (PIXMAN_DONT_DEFINE_STDINT)
-
-#if defined (_SVR4) || defined (SVR4) || defined (__OpenBSD__) || defined (_sgi) || defined (__sun) || defined (sun) ||	\
-	defined (__digital__) || defined (__HP_cc)
-#  include <inttypes.h>
-/* VS 2010 (_MSC_VER 1600) has stdint.h */
-#elif defined (_MSC_VER) && _MSC_VER < 1600
-	// @sobolev typedef __int8 int8;
-	typedef unsigned __int8 uint8;
-	typedef __int16 int16;
-	typedef unsigned __int16 uint16;
-	typedef __int32 int32_t;
-	typedef unsigned __int32 uint32_t;
-	typedef __int64 int64_t;
-	typedef unsigned __int64 uint64_t;
-#elif defined (_AIX)
-	#include <sys/inttypes.h>
-#else
-	#include <stdint.h>
+	#if defined (_SVR4) || defined (SVR4) || defined (__OpenBSD__) || defined (_sgi) || defined (__sun) || defined (sun) ||	\
+		defined (__digital__) || defined (__HP_cc)
+	#  include <inttypes.h>
+	/* VS 2010 (_MSC_VER 1600) has stdint.h */
+	#elif defined (_MSC_VER) && _MSC_VER < 1600
+		// @sobolev typedef __int8 int8;
+		typedef unsigned __int8 uint8;
+		typedef __int16 int16;
+		typedef unsigned __int16 uint16;
+		typedef __int32 int32_t;
+		typedef unsigned __int32 uint32_t;
+		typedef __int64 int64_t;
+		typedef unsigned __int64 uint64_t;
+	#elif defined (_AIX)
+		#include <sys/inttypes.h>
+	#else
+		#include <stdint.h>
+	#endif
 #endif
-
-#endif
-
 /*
  * Boolean
  */
 typedef int pixman_bool_t;
-
 /*
  * Fixpoint numbers
  */
