@@ -240,11 +240,11 @@ void * CRYPTO_zalloc(size_t num, const char *file, int line);
 void * FASTCALL CRYPTO_malloc_lite(size_t num);
 void * FASTCALL CRYPTO_zalloc_lite(size_t num);
 void * CRYPTO_memdup(const void *str, size_t siz, const char *file, int line);
-char * CRYPTO_strdup(const char *str, const char *file, int line);
+char * FASTCALL CRYPTO_strdup(const char *str, const char *file, int line);
 char * CRYPTO_strndup(const char *str, size_t s, const char *file, int line);
 void   CRYPTO_free(void *ptr, const char *file, int line);
 void   FASTCALL CRYPTO_free_lite(void * str);
-void   CRYPTO_clear_free(void *ptr, size_t num, const char *file, int line);
+void   FASTCALL CRYPTO_clear_free(void *ptr, size_t num, const char *file, int line);
 void * CRYPTO_realloc(void *addr, size_t num, const char *file, int line);
 void * CRYPTO_clear_realloc(void *addr, size_t old_num, size_t num, const char *file, int line);
 int    CRYPTO_secure_malloc_init(size_t sz, int minsize);
@@ -282,7 +282,7 @@ int CRYPTO_mem_leaks(BIO *bio);
 #endif
 
 /* die if we have to */
-ossl_noreturn void OPENSSL_die(const char *assertion, const char *file, int line);
+ossl_noreturn void FASTCALL OPENSSL_die(const char *assertion, const char *file, int line);
 #if OPENSSL_API_COMPAT < 0x10100000L
 	#define OpenSSLDie(f,l,a) OPENSSL_die((a),(f),(l))
 #endif
@@ -303,7 +303,7 @@ int OPENSSL_gmtime_diff(int *pday, int *psec, const struct tm *from, const struc
  * into a defined order as the return value when a != b is undefined, other
  * than to be non-zero.
  */
-int CRYPTO_memcmp(const volatile void * volatile in_a, const volatile void * volatile in_b, size_t len);
+int FASTCALL CRYPTO_memcmp(const volatile void * volatile in_a, const volatile void * volatile in_b, size_t len);
 
 /* Standard initialisation options */
 #define OPENSSL_INIT_NO_LOAD_CRYPTO_STRINGS 0x00000001L

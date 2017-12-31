@@ -1385,7 +1385,7 @@ int SLAPI PPObjWorkbook::PutPacket(PPID * pID, PPWorkbookPacket * pPack, int use
 				THROW_PP(r != DBRPL_CANCEL, PPERR_USERBREAK);
 				THROW(RemoveByID(P_Tbl, _id, 0));
 			}
-			THROW(p_ref->RemoveProp(Obj, _id, 0, 0));
+			THROW(p_ref->RemoveProperty(Obj, _id, 0, 0));
 			THROW(p_ref->Ot.PutList(Obj, _id, 0, 0));
 			THROW(RemoveSync(_id));
 			{

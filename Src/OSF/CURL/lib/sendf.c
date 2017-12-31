@@ -569,11 +569,8 @@ CURLcode Curl_read_plain(curl_socket_t sockfd, char * buf, size_t bytesfromsocke
  *
  * Returns a regular CURLcode value.
  */
-CURLcode Curl_read(struct connectdata * conn, /* connection data */
-    curl_socket_t sockfd,                    /* read from this socket */
-    char * buf,                              /* store read data here */
-    size_t sizerequested,                    /* max amount to read */
-    ssize_t * n)                             /* amount bytes read */
+CURLcode Curl_read(struct connectdata * conn/* connection data */, curl_socket_t sockfd/* read from this socket */,
+    char * buf/* store read data here */, size_t sizerequested/* max amount to read */, ssize_t * n/* amount bytes read */)
 {
 	CURLcode result = CURLE_RECV_ERROR;
 	ssize_t nread = 0;

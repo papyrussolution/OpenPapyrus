@@ -1399,11 +1399,13 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 									THROW(p_pack->InsertRow(&ti, 0));
 									if(rec.get(fldn_clb, temp_buf2, 1)) {
 										temp_buf2.ReplaceChar('\\', '/').ReplaceChar('-', ' ');
-										THROW(p_pack->ClbL.AddNumber(p_pack->GetTCount()-1, temp_buf2));
+										// @v9.8.11 THROW(p_pack->ClbL.AddNumber(p_pack->GetTCount()-1, temp_buf2));
+										THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, p_pack->GetTCount()-1, temp_buf2)); // @v9.8.11 
 									}
 									if(rec.get(fldn_serial, temp_buf2, 1)) {
 										temp_buf2.ReplaceChar('\\', '/').ReplaceChar('-', ' ');
-										THROW(p_pack->SnL.AddNumber(p_pack->GetTCount()-1, temp_buf2));
+										// @v9.8.11 THROW(p_pack->SnL.AddNumber(p_pack->GetTCount()-1, temp_buf2));
+										THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, p_pack->GetTCount()-1, temp_buf2)); // @v9.8.11 
 									}
 								}
 							}

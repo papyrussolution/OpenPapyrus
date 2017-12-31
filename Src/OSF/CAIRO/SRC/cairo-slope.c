@@ -54,7 +54,7 @@
    == 0 => a equal to b
    >  0 => a more positive than b
  */
-int _cairo_slope_compare(const cairo_slope_t * a, const cairo_slope_t * b)
+int FASTCALL _cairo_slope_compare(const cairo_slope_t * a, const cairo_slope_t * b)
 {
 	cairo_int64_t ady_bdx = _cairo_int32x32_64_mul(a->dy, b->dx);
 	cairo_int64_t bdy_adx = _cairo_int32x32_64_mul(b->dy, a->dx);
@@ -71,7 +71,6 @@ int _cairo_slope_compare(const cairo_slope_t * a, const cairo_slope_t * b)
 		return 1;
 	if(b->dx == 0 && b->dy ==0)
 		return -1;
-
 	/* Finally, we're looking at two vectors that are either equal or
 	 * that differ by exactly pi. We can identify the "differ by pi"
 	 * case by looking for a change in sign in either dx or dy between
@@ -87,8 +86,6 @@ int _cairo_slope_compare(const cairo_slope_t * a, const cairo_slope_t * b)
 		else
 			return +1;
 	}
-
-	/* Finally, for identical slopes, we obviously return 0. */
-	return 0;
+	return 0; // Finally, for identical slopes, we obviously return 0. 
 }
 

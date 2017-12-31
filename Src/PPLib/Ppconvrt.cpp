@@ -141,7 +141,7 @@ public:
 	int    SLAPI Convert();
 protected:
 	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion) = 0;
-	virtual int SLAPI DestroyTable(DBTable * pTbl);
+	virtual void SLAPI DestroyTable(DBTable * pTbl);
 	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen) = 0;
 	virtual int SLAPI Final(DBTable * pTbl)
 	{
@@ -150,10 +150,9 @@ protected:
 	PPLogger Logger;
 };
 
-int SLAPI PPTableConversion::DestroyTable(DBTable * pTbl)
+void SLAPI PPTableConversion::DestroyTable(DBTable * pTbl)
 {
 	delete pTbl;
-	return 1;
 }
 
 int SLAPI PPTableConversion::Convert()
@@ -389,9 +388,8 @@ int SLAPI Convert253()
 //
 class GoodsConvertion270 {
 public:
-	SLAPI GoodsConvertion270()
+	SLAPI GoodsConvertion270() : GrpIdBias(1000L)
 	{
-		GrpIdBias = 1000L;
 	}
 	int SLAPI Convert();
 private:
@@ -3899,9 +3897,8 @@ static int SLAPI ConvertRef2()
 
 class PPCvtCGoodsLine5810 : public PPTableConversion {
 public:
-	PPCvtCGoodsLine5810() : PPTableConversion()
+	PPCvtCGoodsLine5810() : PPTableConversion(), C4911(-1)
 	{
-		C4911 = -1;
 	}
 	virtual DBTable * SLAPI CreateTableInstance(int * needConversion);
 	virtual int SLAPI ConvertRec(DBTable * newTbl, void * oldRec, int * pNewRecLen);
@@ -4202,13 +4199,13 @@ public:
 				THROW(PPStartTransaction(&ta, 1));
 				for(cn_id = 0; p_ref->EnumItems(PPOBJ_CASHNODE, &cn_id, &cn_rec) > 0;) {
 					if(cn_rec.Flags & CASHF_SYNC)
-						if(p_ref->GetProp(PPOBJ_CASHNODE, cn_id, CNPRP_EXTDEVICES) > 0)
+						if(p_ref->GetProperty(PPOBJ_CASHNODE, cn_id, CNPRP_EXTDEVICES) > 0)
 							break;
 						else {
 							__PPCustDisp    cd;
 							__PPTouchScreen ts;
-							int  is_cd = BIN(p_ref->GetProp(PPOBJ_CASHNODE, cn_id, CNPRP_CUSTDISP, &cd, sizeof(cd)) > 0);
-							int  is_ts = BIN(p_ref->GetProp(PPOBJ_CASHNODE, cn_id, CNPRP_TOUCHSCREEN, &ts, sizeof(ts)) > 0);
+							int  is_cd = BIN(p_ref->GetProperty(PPOBJ_CASHNODE, cn_id, CNPRP_CUSTDISP, &cd, sizeof(cd)) > 0);
+							int  is_ts = BIN(p_ref->GetProperty(PPOBJ_CASHNODE, cn_id, CNPRP_TOUCHSCREEN, &ts, sizeof(ts)) > 0);
 							if(is_cd || is_ts) {
 								__PPExtDevices  ed;
 								MEMSZERO(ed);
@@ -4265,9 +4262,8 @@ public:
 
 class PPCvtLocation6202 : public PPTableConversion {
 public:
-	PPCvtLocation6202() : PPTableConversion()
+	PPCvtLocation6202() : PPTableConversion(), Before5207(0)
 	{
-		Before5207 = 0;
 	}
 	struct Location_Before6202 {           // size=156+160 /*136*/
 		long   ID;
@@ -4621,9 +4617,8 @@ public:
 	};
 	int    Before4405;
 
-	PPCvtGoods6202() : PPTableConversion()
+	PPCvtGoods6202() : PPTableConversion(), Before4405(0)
 	{
-		Before4405 = 0;
 	}
 	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
 	{
@@ -4647,11 +4642,9 @@ public:
 		}
 		return p_tbl;
 	}
-	virtual int SLAPI DestroyTable(DBTable * pTbl)
+	virtual void SLAPI DestroyTable(DBTable * pTbl)
 	{
-		if(pTbl)
-			delete (GoodsCore *)pTbl;
-		return 1;
+		delete (GoodsCore *)pTbl;
 	}
 	virtual int SLAPI ConvertRec(DBTable * pTbl, void * pOldRec, int * pNewRecLen)
 	{
@@ -5084,9 +5077,8 @@ class PPCvtInventory6407 : public PPTableConversion {
 private:
 	int    Before5009;
 public:
-	PPCvtInventory6407() : PPTableConversion()
+	PPCvtInventory6407() : PPTableConversion(), Before5009(0)
 	{
-		Before5009 = 0;
 	}
 	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
 	{
@@ -5522,9 +5514,8 @@ int SLAPI Convert7305()
 class PPCvtVatBook7311 : public PPTableConversion {
 public:
 	int    Pre7208;
-	PPCvtVatBook7311() : PPTableConversion()
+	PPCvtVatBook7311() : PPTableConversion(), Pre7208(0)
 	{
-		Pre7208 = 0;
 	}
 	DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
 	{
@@ -5660,10 +5651,8 @@ CONVERT_PROC(Convert7506, PPCvtTech7506);
 //
 class PPCvtCCheckExt7601 : public PPTableConversion {
 public:
-	PPCvtCCheckExt7601()
+	PPCvtCCheckExt7601() : P_CcT(0), Pre6708(0)
 	{
-		P_CcT = 0;
-		Pre6708 = 0;
 	}
 	~PPCvtCCheckExt7601()
 	{
@@ -6135,7 +6124,7 @@ int SLAPI PPObjWorkbook_Pre813::RemovePacket(PPID id, int use_ta)
 		THROW(tra);
 		THROW(CheckRights(PPR_DEL));
 		THROW(ref->RemoveItem(Obj, id, 0));
-		THROW(ref->RemoveProp(Obj, id, 0, 0));
+		THROW(ref->RemoveProperty(Obj, id, 0, 0));
 		THROW(ref->Ot.PutList(Obj, id, 0, 0));
 		THROW(RemoveSync(id));
 		{
@@ -6517,7 +6506,7 @@ public:
 		cpext.Clb[0] = 0;
 		STRNSCPY(cpext.PartNo, p_old_data->PartNo);
 		STRNSCPY(cpext.Clb, p_old_data->Clb);
-        CpTransfCore::PutExt(*data, &cpext);
+        CpTransfCore::PutExt__(*data, &cpext);
 		return 1;
 	}
 };
@@ -7105,3 +7094,69 @@ CONVERT_PROC(Convert9400, PPCvtSCard9400);
 //
 //
 //
+class PPCvtLotExtCode9811 : public PPTableConversion {
+public:
+	virtual DBTable * SLAPI CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new LotExtCodeTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			RECORDSIZE recsz = 0;
+			if(p_tbl->getRecSize(&recsz)) {
+				*pNeedConversion = BIN(recsz != sizeof(LotExtCodeTbl::Rec));
+			}
+		}
+		return p_tbl;
+	}
+	virtual int SLAPI ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
+	{
+		struct LotExtCodeRec_Before9811 {
+			long   LotID;
+			char   Code[96];
+		};
+		LotExtCodeTbl::Rec * p_data = (LotExtCodeTbl::Rec *)pNewTbl->getDataBuf();
+		LotExtCodeRec_Before9811 * p_old_rec = (LotExtCodeRec_Before9811 *)pOldRec;
+		memzero(p_data, sizeof(*p_data));
+		p_data->LotID = p_old_rec->LotID;
+		STRNSCPY(p_data->Code, p_old_rec->Code);
+		return 1;
+	}
+};
+
+int SLAPI Convert9811()
+{
+	int    ok = 1;
+	SysJournal * p_sj = 0;
+	PPWait(1);
+	{
+		PPCvtLotExtCode9811 cvt;
+		int r = cvt.Convert();
+		THROW(r);
+		if(r > 0) {
+			//
+			// Если конвертация была осуществлена именно сейчас, то необходимо зафиксировать
+			// в системном журнале событие, которое будет разграничивать применении старой
+			// и новой схемы хранения версионных объектов
+			//
+			// Обращаю внимание на то, что сама конвертация PPCvtLotExtCode9811 никак не связана
+			// с необходимостью введения событийной метки. Просто причина в том, что это происходит
+			// при одной и той же смене версии.
+			//
+			LDATETIME moment;
+			PPIDArray acn_list;
+			acn_list.add(PPACN_EVENTTOKEN);
+			THROW(p_sj = new SysJournal);
+			if(p_sj->GetLastObjEvent(PPOBJ_EVENTTOKEN, PPEVTOK_OBJHIST9811, &acn_list, &moment) > 0) {
+				ok = -1; // Событие уже установлено
+			}
+			else {
+				THROW(p_sj->LogEvent(PPACN_EVENTTOKEN, PPOBJ_EVENTTOKEN, PPEVTOK_OBJHIST9811, 0, 1/*use_ta*/));
+			}
+		}
+	}
+	PPWait(0);
+	CATCHZOKPPERR
+	ZDELETE(p_sj);
+	return ok;
+}

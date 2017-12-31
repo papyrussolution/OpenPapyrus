@@ -90,7 +90,7 @@ int FASTCALL LocationCore::IsEmptyAddressRec(const LocationTbl::Rec & rRec)
 }
 
 //static
-int SLAPI LocationCore::Helper_IsEqExField(const LocationTbl::Rec & rRec1, const LocationTbl::Rec & rRec2, int fldId, SString & rBuf1, SString & rBuf2)
+int FASTCALL LocationCore::Helper_IsEqExField(const LocationTbl::Rec & rRec1, const LocationTbl::Rec & rRec2, int fldId, SString & rBuf1, SString & rBuf2)
 {
 	GetExField(&rRec1, fldId, rBuf1);
 	GetExField(&rRec2, fldId, rBuf2);
@@ -98,7 +98,7 @@ int SLAPI LocationCore::Helper_IsEqExField(const LocationTbl::Rec & rRec1, const
 }
 
 // static
-int SLAPI LocationCore::IsEqualRec(const LocationTbl::Rec & rRec1, const LocationTbl::Rec & rRec2)
+int FASTCALL LocationCore::IsEqualRec(const LocationTbl::Rec & rRec1, const LocationTbl::Rec & rRec2)
 {
 	#define CMP_FLD(f) if(rRec1.f != rRec2.f) return 0;
 	CMP_FLD(ParentID);
@@ -143,7 +143,7 @@ int SLAPI LocationCore::IsEqualRec(const LocationTbl::Rec & rRec1, const Locatio
 }
 
 //static
-int SLAPI LocationCore::GetExField(const LocationTbl::Rec * pRec, int fldId, SString & rBuf)
+int FASTCALL LocationCore::GetExField(const LocationTbl::Rec * pRec, int fldId, SString & rBuf)
 {
 	int    ok = -1;
 	rBuf.Z();
@@ -155,7 +155,7 @@ int SLAPI LocationCore::GetExField(const LocationTbl::Rec * pRec, int fldId, SSt
 }
 
 //static
-int SLAPI LocationCore::SetExField(LocationTbl::Rec * pRec, int fldId, const char * pBuf)
+int FASTCALL LocationCore::SetExField(LocationTbl::Rec * pRec, int fldId, const char * pBuf)
 {
 	int    ok = -1;
 	if(oneof6(fldId, LOCEXSTR_ZIP, LOCEXSTR_SHORTADDR, LOCEXSTR_FULLADDR, LOCEXSTR_EMAIL, LOCEXSTR_PHONE, LOCEXSTR_CONTACT) || fldId > LOCEXSTR_EXTFLDSOFFS) {
@@ -545,7 +545,7 @@ int SLAPI LocationCore::SearchRef(PPID locType, PPID objType, PPID objID, PPID *
 }
 
 // static
-int SLAPI LocationCore::GetAddress(const LocationTbl::Rec & rRec, uint, SString & rBuf)
+int FASTCALL LocationCore::GetAddress(const LocationTbl::Rec & rRec, uint, SString & rBuf)
 {
 	rBuf.Z();
 	if(rRec.Flags & LOCF_MANUALADDR)

@@ -30,11 +30,8 @@
  *
  * The Initial Developer of the Original Code is Carl Worth
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org> Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 /* Provide definitions for standalone compilation */
 #include "cairoint.h"
 #pragma hdrstop
@@ -74,43 +71,30 @@ typedef struct _cairo_bo_sweep_line {
 	cairo_bo_edge_t * current_edge;
 } cairo_bo_sweep_line_t;
 
-static inline int _cairo_point_compare(const cairo_point_t * a,
-    const cairo_point_t * b)
+static inline int _cairo_point_compare(const cairo_point_t * a, const cairo_point_t * b)
 {
-	int cmp;
-
-	cmp = a->y - b->y;
+	int cmp = a->y - b->y;
 	if(likely(cmp))
 		return cmp;
-
 	return a->x - b->x;
 }
 
-static inline int _cairo_bo_edge_compare(const cairo_bo_edge_t   * a,
-    const cairo_bo_edge_t   * b)
+static inline int _cairo_bo_edge_compare(const cairo_bo_edge_t * a, const cairo_bo_edge_t * b)
 {
-	int cmp;
-
-	cmp = a->edge.line.p1.x - b->edge.line.p1.x;
+	int cmp = a->edge.line.p1.x - b->edge.line.p1.x;
 	if(likely(cmp))
 		return cmp;
-
 	return b->edge.bottom - a->edge.bottom;
 }
 
-static inline int cairo_bo_event_compare(const cairo_bo_event_t * a,
-    const cairo_bo_event_t * b)
+static inline int cairo_bo_event_compare(const cairo_bo_event_t * a, const cairo_bo_event_t * b)
 {
-	int cmp;
-
-	cmp = _cairo_point_compare(&a->point, &b->point);
+	int cmp = _cairo_point_compare(&a->point, &b->point);
 	if(likely(cmp))
 		return cmp;
-
 	cmp = a->type - b->type;
 	if(cmp)
 		return cmp;
-
 	return a - b;
 }
 
@@ -119,18 +103,13 @@ static inline cairo_bo_event_t * _cairo_bo_event_dequeue(cairo_bo_sweep_line_t *
 	return *sweep_line->events++;
 }
 
-CAIRO_COMBSORT_DECLARE(_cairo_bo_event_queue_sort,
-    cairo_bo_event_t *,
-    cairo_bo_event_compare)
+CAIRO_COMBSORT_DECLARE(_cairo_bo_event_queue_sort, cairo_bo_event_t *, cairo_bo_event_compare)
 
-static void _cairo_bo_sweep_line_init(cairo_bo_sweep_line_t * sweep_line,
-    cairo_bo_event_t     ** events,
-    int num_events)
+static void _cairo_bo_sweep_line_init(cairo_bo_sweep_line_t * sweep_line, cairo_bo_event_t ** events, int num_events)
 {
 	_cairo_bo_event_queue_sort(events, num_events);
 	events[num_events] = NULL;
 	sweep_line->events = events;
-
 	sweep_line->head = NULL;
 	sweep_line->current_y = INT32_MIN;
 	sweep_line->current_edge = NULL;
@@ -488,4 +467,3 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_rectilinear_traps(cairo_traps_t
 		SAlloc::F(events);
 	return status;
 }
-

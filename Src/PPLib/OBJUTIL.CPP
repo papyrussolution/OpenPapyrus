@@ -824,7 +824,7 @@ int SLAPI PPObject::ValidateSelection(PPID, uint olwFlags, void * extraPtr)
 	return 1;
 }
 
-int SLAPI PPObject::Dirty(PPID id)
+int FASTCALL PPObject::Dirty(PPID id)
 {
 	int    ok = -1;
 	ObjCache * p_cache = DS.GetDbLocalObjCache(Obj);
@@ -1021,7 +1021,7 @@ int SLAPI PPObject::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, 
 			r = SendObjMessage(DBMSG_OBJDELETE, 0, Obj, id, pExtraParam, pObjColl);
 			THROW(r == DBRPL_OK && Search(id) > 0 && DeleteObj(id));
 		}
-		THROW(PPRef->RemoveProp(Obj, id, 0, 0));
+		THROW(PPRef->RemoveProperty(Obj, id, 0, 0));
 		THROW(RemoveSync(id));
 		if(!(options & not_addtolog))
 			DS.LogAction(PPACN_OBJRMV, Obj, id, 0, 0);
@@ -1466,7 +1466,7 @@ int SLAPI SetupPPObjCombo(ComboBox * pCombo, PPID obj, PPID id, uint flags, void
 	return ok;
 }
 
-int SLAPI SetupObjListCombo(TDialog * dlg, uint ctl, PPID id, const PPIDArray * pInclList)
+int FASTCALL SetupObjListCombo(TDialog * dlg, uint ctl, PPID id, const PPIDArray * pInclList)
 {
 	ComboBox * p_cb = (ComboBox*)dlg->getCtrlView(ctl);
 	if(p_cb) {

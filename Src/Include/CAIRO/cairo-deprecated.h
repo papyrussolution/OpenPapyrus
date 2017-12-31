@@ -29,31 +29,28 @@
  *
  * The Initial Developer of the Original Code is Red Hat, Inc.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org>
  */
-
 #ifndef CAIRO_DEPRECATED_H
 #define CAIRO_DEPRECATED_H
 
 #define CAIRO_FONT_TYPE_ATSUI CAIRO_FONT_TYPE_QUARTZ
-
-/* Obsolete functions. These definitions exist to coerce the compiler
- * into providing a little bit of guidance with its error
- * messages. The idea is to help users port their old code without
- * having to dig through lots of documentation.
- *
- * The first set of REPLACED_BY functions is for functions whose names
- * have just been changed. So fixing these up is mechanical, (and
- * automated by means of the cairo/util/cairo-api-update script.
- *
- * The second set of DEPRECATED_BY functions is for functions where
- * the replacement is used in a different way, (ie. different
- * arguments, multiple functions instead of one, etc). Fixing these up
- * will require a bit more work on the user's part, (and hopefully we
- * can get cairo-api-update to find these and print some guiding
- * information).
- */
+// 
+// Obsolete functions. These definitions exist to coerce the compiler
+// into providing a little bit of guidance with its error
+// messages. The idea is to help users port their old code without
+// having to dig through lots of documentation.
+// 
+// The first set of REPLACED_BY functions is for functions whose names
+// have just been changed. So fixing these up is mechanical, (and
+// automated by means of the cairo/util/cairo-api-update script.
+// 
+// The second set of DEPRECATED_BY functions is for functions where
+// the replacement is used in a different way, (ie. different
+// arguments, multiple functions instead of one, etc). Fixing these up
+// will require a bit more work on the user's part, (and hopefully we
+// can get cairo-api-update to find these and print some guiding information).
+// 
 #define cairo_current_font_extents   cairo_current_font_extents_REPLACED_BY_cairo_font_extents
 #define cairo_get_font_extents       cairo_get_font_extents_REPLACED_BY_cairo_font_extents
 #define cairo_current_operator       cairo_current_operator_REPLACED_BY_cairo_get_operator

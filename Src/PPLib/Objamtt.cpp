@@ -594,7 +594,7 @@ IMPL_DESTROY_OBJ_PACK(PPObjAmountType, PPAmountTypePacket);
 class AmountTypeCache : public ObjCache {
 public:
 	SLAPI  AmountTypeCache();
-	virtual int SLAPI Dirty(PPID id); // @sync_w
+	virtual int FASTCALL Dirty(PPID id); // @sync_w
 	int    SLAPI FetchByTax(PPID * pID, PPID tax, double taxRate); // @sync_r
 	int    SLAPI FetchCompl(PPID srcAmtID, PPID * pInAmtID, PPID * pOutAmtID); // @sync_r
 	int    SLAPI FetchTaxIDs(TaxAmountIDs * pBlk);
@@ -687,7 +687,7 @@ int SLAPI AmountTypeCache::InitTaxBlock()
 	return 1;
 }
 
-int SLAPI AmountTypeCache::Dirty(PPID id)
+int FASTCALL AmountTypeCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	PPAmountType temp_rec;

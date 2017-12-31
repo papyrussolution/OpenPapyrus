@@ -29,11 +29,6 @@ void DrawWrapMarker(Surface * surface, PRectangle rcPlace, bool isEndMarker, Col
 	int dy = static_cast<int>(rcPlace.bottom - rcPlace.top) / 5;
 	int y = static_cast<int>(rcPlace.bottom - rcPlace.top) / 2 + dy;
 	struct Relative {
-		Surface * surface;
-		int xBase;
-		int xDir;
-		int yBase;
-		int yDir;
 		void MoveTo(int xRelative, int yRelative)
 		{
 			surface->MoveTo(xBase + xDir * xRelative, yBase + yDir * yRelative);
@@ -42,6 +37,11 @@ void DrawWrapMarker(Surface * surface, PRectangle rcPlace, bool isEndMarker, Col
 		{
 			surface->LineTo(xBase + xDir * xRelative, yBase + yDir * yRelative);
 		}
+		Surface * surface;
+		int xBase;
+		int xDir;
+		int yBase;
+		int yDir;
 	};
 
 	Relative rel = { surface, x0, xStraight ? 1 : -1, y0, 1 };
@@ -56,17 +56,49 @@ void DrawWrapMarker(Surface * surface, PRectangle rcPlace, bool isEndMarker, Col
 	rel.MoveTo(xa, y);
 	rel.LineTo(xa + w, y);
 	rel.LineTo(xa + w, y - 2 * dy);
-	rel.LineTo(xa - 1,   // on windows lineto is exclusive endpoint, perhaps GTK not...
-	    y - 2 * dy);
+	rel.LineTo(xa - 1 /* on windows lineto is exclusive endpoint, perhaps GTK not... */, y - 2 * dy);
 }
 
-Editor::MarginView::MarginView()
+HighlightDelimiter::HighlightDelimiter() : isEnabled(false)
 {
-	pixmapSelMargin = 0;
-	pixmapSelPattern = 0;
-	pixmapSelPatternOffset1 = 0;
-	wrapMarkerPaddingRight = 3;
-	customDrawWrapMarker = NULL;
+	Clear();
+}
+
+void HighlightDelimiter::Clear()
+{
+	beginFoldBlock = -1;
+	endFoldBlock = -1;
+	firstChangeableLineBefore = -1;
+	firstChangeableLineAfter = -1;
+}
+
+bool HighlightDelimiter::NeedsDrawing(int line) const
+{
+	return isEnabled && (line <= firstChangeableLineBefore || line >= firstChangeableLineAfter);
+}
+
+bool HighlightDelimiter::IsFoldBlockHighlighted(int line) const
+{
+	return isEnabled && beginFoldBlock != -1 && beginFoldBlock <= line && line <= endFoldBlock;
+}
+
+bool HighlightDelimiter::IsHeadOfFoldBlock(int line) const
+{
+	return beginFoldBlock == line && line < endFoldBlock;
+}
+
+bool HighlightDelimiter::IsBodyOfFoldBlock(int line) const
+{
+	return beginFoldBlock != -1 && beginFoldBlock < line && line < endFoldBlock;
+}
+
+bool HighlightDelimiter::IsTailOfFoldBlock(int line) const
+{
+	return beginFoldBlock != -1 && beginFoldBlock < line && line == endFoldBlock;
+}
+
+Editor::MarginView::MarginView() : pixmapSelMargin(0), pixmapSelPattern(0), pixmapSelPatternOffset1(0), wrapMarkerPaddingRight(3), customDrawWrapMarker(0)
+{
 }
 
 void Editor::MarginView::DropGraphics(bool freeObjects)
@@ -131,8 +163,7 @@ static int SubstituteMarkerIfEmpty(int markerCheck, int markerDefault, const Vie
 	return (vs.markers[markerCheck].markType == SC_MARK_EMPTY) ? markerDefault : markerCheck;
 }
 
-void Editor::MarginView::PaintMargin(Surface * surface, int topLine, PRectangle rc, PRectangle rcMargin,
-    const EditModel &model, const ViewStyle &vs)
+void Editor::MarginView::PaintMargin(Surface * surface, int topLine, PRectangle rc, PRectangle rcMargin, const EditModel &model, const ViewStyle &vs)
 {
 	PRectangle rcSelMargin = rcMargin;
 	rcSelMargin.right = rcMargin.left;
@@ -309,10 +340,8 @@ void Editor::MarginView::PaintMargin(Surface * surface, int topLine, PRectangle 
 						if(model.foldFlags & (SC_FOLDFLAG_LEVELNUMBERS | SC_FOLDFLAG_LINESTATE)) {
 							if(model.foldFlags & SC_FOLDFLAG_LEVELNUMBERS) {
 								int lev = model.pdoc->GetLevel(lineDoc);
-								sprintf(number, "%c%c %03X %03X",
-								    (lev & SC_FOLDLEVELHEADERFLAG) ? 'H' : '_',
-								    (lev & SC_FOLDLEVELWHITEFLAG) ? 'W' : '_',
-								    LevelNumber(lev), lev >> 16);
+								sprintf(number, "%c%c %03X %03X", (lev & SC_FOLDLEVELHEADERFLAG) ? 'H' : '_',
+								    (lev & SC_FOLDLEVELWHITEFLAG) ? 'W' : '_', LevelNumber(lev), lev >> 16);
 							}
 							else {
 								int state = model.pdoc->GetLineState(lineDoc);
@@ -360,7 +389,6 @@ void Editor::MarginView::PaintMargin(Surface * surface, int topLine, PRectangle 
 						}
 					}
 				}
-
 				if(marks) {
 					for(int markBit = 0; (markBit < 32) && marks; markBit++) {
 						if(marks & 1) {

@@ -1454,7 +1454,7 @@ void FASTCALL CSessTotal::Add(const CSessTotal * pSubTotal)
 // CCheckCore
 //
 //static
-SString & SLAPI CCheckCore::MakeCodeString(const CCheckTbl::Rec * pRec, SString & rBuf)
+SString & FASTCALL CCheckCore::MakeCodeString(const CCheckTbl::Rec * pRec, SString & rBuf)
 {
 	rBuf.Z().Cat(pRec->Dt).CatDiv(':', 1);
 	if(pRec->Tm)
@@ -1462,9 +1462,8 @@ SString & SLAPI CCheckCore::MakeCodeString(const CCheckTbl::Rec * pRec, SString 
 	return rBuf.CatLongZ(pRec->CashID, 4).CatDiv(':', 1).Cat(pRec->Code);
 }
 
-SLAPI CCheckCore::CCheckCore() : CCheckTbl()
+SLAPI CCheckCore::CCheckCore() : CCheckTbl(), P_ChkOpJrnl(0)
 {
-	P_ChkOpJrnl = 0;
 	const PPCommConfig & r_ccfg = CConfig;
 	P_Ext = (r_ccfg.Flags & CCFLG_USECCHECKEXT) ? new CCheckExtTbl : 0;
 	P_LnExt = (r_ccfg.Flags & CCFLG_USECCHECKLINEEXT) ? new CCheckLineExtTbl : 0;
@@ -4925,7 +4924,8 @@ int SLAPI CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPI
 								temp_buf_u.CopyToMb(CP_UTF8, serial_buf);
 								serial_buf.Transf(CTRANSF_UTF8_TO_INNER);
 								if(serial_buf.NotEmptyS()) {
-									pack.SnL.AddNumber(&rows, serial_buf);
+									// @v9.8.11 pack.SnL.AddNumber(&rows, serial_buf);
+									pack.LTagL.AddNumber(PPTAG_LOT_SN, &rows, serial_buf); // @v9.8.11 
 								}
 							}
 							// } @v9.0.11

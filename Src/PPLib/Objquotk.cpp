@@ -1224,7 +1224,7 @@ public:
 private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
-	virtual int  SLAPI Dirty(PPID id); // @sync_w
+	virtual int  FASTCALL Dirty(PPID id); // @sync_w
 
 	int    RtlListInited;
 	PPIDArray RtlQkList;   // Список видов котировок с признаком QUOTKF_RETAILED
@@ -1251,7 +1251,7 @@ public:
 	PPObjQuotKind::Special Sk;
 };
 
-int SLAPI QuotKindCache::Dirty(PPID id)
+int FASTCALL QuotKindCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	ObjCache::Dirty(id);

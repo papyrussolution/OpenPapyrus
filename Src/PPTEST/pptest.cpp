@@ -11,7 +11,7 @@
 //#define TEST_REGEXP
 //#define TEST_DL600
 
-int SLAPI Debug_GetFilesFromMessage(const char * pMsgFile); // filtrnsm.cpp
+// @v9.8.11 int SLAPI Debug_GetFilesFromMessage(const char * pMsgFile); // filtrnsm.cpp
 
 #if 0 // {
 

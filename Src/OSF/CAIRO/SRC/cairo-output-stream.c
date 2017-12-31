@@ -34,7 +34,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#define _BSD_SOURCE /* for snprintf() */
+// @v1.14.12 #define _BSD_SOURCE /* for snprintf() */
+#define _DEFAULT_SOURCE /* for snprintf() */ // @v1.14.12 
 //#include <errno.h>
 
 /* Numbers printed with %f are printed with this number of significant
@@ -355,14 +356,14 @@ void _cairo_output_stream_vprintf(cairo_output_stream_t * stream, const char * f
 		 * of them is larger than our format buffer size. */
 		single_fmt_length = f - start + 1;
 		assert(single_fmt_length + 1 <= SINGLE_FMT_BUFFER_SIZE);
-		/* Reuse the format string for this conversion. */
+		// Reuse the format string for this conversion. 
 		memcpy(single_fmt, start, single_fmt_length);
 		single_fmt[single_fmt_length] = '\0';
-		/* Flush contents of buffer before snprintf()'ing into it. */
+		// Flush contents of buffer before snprintf()'ing into it. 
 		_cairo_output_stream_write(stream, buffer, p - buffer);
-		/* We group signed and unsigned together in this switch, the
-		* only thing that matters here is the size of the arguments,
-		* since we're just passing the data through to sprintf(). */
+		// We group signed and unsigned together in this switch, the
+		// only thing that matters here is the size of the arguments,
+		// since we're just passing the data through to sprintf(). */
 		switch(*f | length_modifier) {
 			case '%':
 			    buffer[0] = *f;
@@ -397,10 +398,20 @@ void _cairo_output_stream_vprintf(cairo_output_stream_t * stream, const char * f
 				    single_fmt, va_arg(ap, long int));
 			    }
 			    break;
-			case 's':
-			    snprintf(buffer, sizeof buffer,
-			    single_fmt, va_arg(ap, const char *));
-			    break;
+			/* @v1.14.12 case 's':
+			    snprintf(buffer, sizeof buffer, single_fmt, va_arg(ap, const char *));
+			    break;*/
+			// @v1.14.12 {
+			case 's': 
+				{
+					// Write out strings as they may be larger than the buffer. 
+					const char * s = va_arg(ap, const char *);
+					int len = strlen(s);
+					_cairo_output_stream_write(stream, s, len);
+					buffer[0] = 0;
+				}
+				break;
+			// } @v1.14.12 
 			case 'f':
 			    _cairo_dtostr(buffer, sizeof buffer, va_arg(ap, double), FALSE);
 			    break;

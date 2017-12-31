@@ -43,8 +43,8 @@
     <_ProjectFileVersion>14.0.24720.0</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <IgnoreImportLibrary>false</IgnoreImportLibrary>
     <LinkIncremental>false</LinkIncremental>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
@@ -52,8 +52,8 @@
     <CodeAnalysisRuleAssemblies />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <IgnoreImportLibrary>false</IgnoreImportLibrary>
     <LinkIncremental>false</LinkIncremental>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
@@ -66,7 +66,7 @@
       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GENVERC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
@@ -80,6 +80,7 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Imm32.lib;..\lib\winddk\hid.lib;..\lib\winddk\hidparse.lib;..\lib\winddk\Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -114,6 +115,7 @@
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Imm32.lib;..\lib\winddk\hid.lib;..\lib\winddk\hidparse.lib;..\lib\winddk\Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>

@@ -166,9 +166,9 @@ typedef union bio_addr_st BIO_ADDR;
 typedef struct bio_addrinfo_st BIO_ADDRINFO;
 
 int BIO_get_new_index(void);
-void BIO_set_flags(BIO *b, int flags);
-int BIO_test_flags(const BIO *b, int flags);
-void BIO_clear_flags(BIO *b, int flags);
+void FASTCALL BIO_set_flags(BIO *b, int flags);
+int  FASTCALL BIO_test_flags(const BIO *b, int flags);
+void FASTCALL BIO_clear_flags(BIO *b, int flags);
 
 #define BIO_get_flags(b) BIO_test_flags(b, ~(0x0))
 #define BIO_set_retry_special(b) BIO_set_flags(b, (BIO_FLAGS_IO_SPECIAL|BIO_FLAGS_SHOULD_RETRY))
@@ -496,8 +496,8 @@ BIO *BIO_new_file(const char *filename, const char *mode);
 # ifndef OPENSSL_NO_STDIO
 BIO *BIO_new_fp(FILE *stream, int close_flag);
 # endif
-BIO *BIO_new(const BIO_METHOD *type);
-int BIO_free(BIO *a);
+BIO * FASTCALL BIO_new(const BIO_METHOD *type);
+int FASTCALL BIO_free(BIO *a);
 void BIO_set_data(BIO *a, void *ptr);
 void *BIO_get_data(BIO *a);
 void BIO_set_init(BIO *a, int init);
@@ -511,7 +511,7 @@ int FASTCALL BIO_gets(BIO *bp, char *buf, int size);
 int FASTCALL BIO_write(BIO *b, const void *data, int len);
 int FASTCALL BIO_puts(BIO *bp, const char *buf);
 int BIO_indent(BIO *b, int indent, int max);
-long BIO_ctrl(BIO *bp, int cmd, long larg, void *parg);
+long FASTCALL BIO_ctrl(BIO *bp, int cmd, long larg, void *parg);
 long BIO_callback_ctrl(BIO *b, int cmd, void (*fp) (BIO *, int, const char *, int, long, long));
 void *BIO_ptr_ctrl(BIO *bp, int cmd, long larg);
 long BIO_int_ctrl(BIO *bp, int cmd, long larg, int iarg);

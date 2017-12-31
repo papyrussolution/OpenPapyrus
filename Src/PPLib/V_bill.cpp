@@ -5223,7 +5223,7 @@ int SLAPI PPViewBill::Browse(int modeless)
 {
 	int    ok = 1;
 	const  PPConfig & r_cfg = LConfig;
-	const  long save_state = P_BObj->State;
+	// @v9.8.11 const  long save_state = P_BObj->State;
 	const  PPID save_loc   = r_cfg.Location;
 	PPID   single_loc_id = LocList_.getSingle();
 	Filt.Period.Actualize(ZERODATE); // @v8.7.7
@@ -5234,7 +5234,7 @@ int SLAPI PPViewBill::Browse(int modeless)
 	CATCHZOK
 	if(!modeless) {
 		DS.SetLocation(save_loc);
-		P_BObj->State = save_state;
+		// @v9.8.11 P_BObj->State = save_state;
 	}
 	return ok;
 }
@@ -6926,7 +6926,7 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 				freight_bill_id = rec.ID;
 			else if(p_billcore->IsMemberOfPool(rec.ID, PPASS_OPBILLPOOL, &freight_bill_id) <= 0)
 				freight_bill_id = 0;
-			if(freight_bill_id && PPRef->GetProp(PPOBJ_BILL, freight_bill_id, BILLPRP_FREIGHT, &freight, sizeof(freight)) > 0) {
+			if(freight_bill_id && PPRef->GetProperty(PPOBJ_BILL, freight_bill_id, BILLPRP_FREIGHT, &freight, sizeof(freight)) > 0) {
 				STRNSCPY(H.FreightCode, freight.Name);
 				H.TranspID       = freight.ShipID;
 				H.PortOfLoading  = freight.PortOfLoading;
@@ -8140,7 +8140,7 @@ int PPALDD_AdvanceRep::NextIteration(PPIterID iterId)
 	IterProlog(iterId, 0);
 	PPBillPacket * p_pack = (PPBillPacket *)(Extra[0].Ptr);
 	if(H.nn < (int16)p_pack->AdvList.GetCount()) {
-		PPAdvBillItem & r_item = p_pack->AdvList.Get(H.nn);
+		PPAdvBillItemList::Item & r_item = p_pack->AdvList.Get(H.nn);
 		STRNSCPY(I.AdvCode, r_item.AdvCode);
 		I.AdvDt = r_item.AdvDt;
 		I.AdvBillKindID = r_item.AdvBillKindID;
@@ -8419,7 +8419,7 @@ int PPALDD_Warrant::NextIteration(PPIterID iterId)
 	PPBillPacket * p_pack = (PPBillPacket *)NZOR(Extra[1].Ptr, Extra[0].Ptr);
 	if(I.LineNo < (int16)p_pack->AdvList.GetCount()) {
 		char   buf[128];
-		const  PPAdvBillItem & r_item = p_pack->AdvList.Get(I.LineNo);
+		const  PPAdvBillItemList::Item & r_item = p_pack->AdvList.Get(I.LineNo);
 		STRNSCPY(I.GdsName, r_item.Memo);
 		GetObjectName(PPOBJ_UNIT, r_item.ArID, I.Unit, sizeof(I.Unit));
 		numbertotext(r_item.Amount, NTTF_NOZERO|NTTF_FIRSTCAP|NTTF_DECCURR, buf); // @v8.3.5 NTTF_DECCURR

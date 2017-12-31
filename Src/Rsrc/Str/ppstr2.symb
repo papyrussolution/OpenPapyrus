@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147489437
+LastSignatureCode=2147489438
 LastAutoCodeList=1,11106;102,10162;103,10071;110,10000;111,11651;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10078;120,10005;1001,10000;121,10000;122,10000;123,10300;1002,10000;1003,10000;1004,10000;1005,10000;124,10073
 
 [SignatureList]
@@ -2345,6 +2345,7 @@ cfgcomm_ccflg_useomtpaymamt=2147488101
 cfgcomm_ccflg_noadjprwroffdraft=2147488189
 cfgcomm_ccflg_ccflg_dontundoopcntronesc=2147488758
 cfgcomm_ccflg_usesartredb=2147489280
+cfgcomm_ccflg_uselotxcode=2147489438
 cfgcomm_dyngoodstypeforsupplagent=2147486598
 cfgcomm_flags=2147486599
 cfgcomm_flags2=2147486600

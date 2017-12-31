@@ -29,9 +29,7 @@
  *
  * The Initial Developer of the Original Code is Keith Packard
  *
- * Contributor(s):
- * Keith Packard <keithp@keithp.com>
- * Adrian Johnson <ajohnson@redneon.com>
+ * Contributor(s): Keith Packard <keithp@keithp.com> Adrian Johnson <ajohnson@redneon.com>
  */
 #include "cairoint.h"
 #pragma hdrstop
@@ -583,14 +581,8 @@ typedef cairo_int_status_t (*_stroke_func)(void * surface, cairo_operator_t op, 
 typedef cairo_int_status_t (*_fill_func)(void * surface, cairo_operator_t op, const cairo_pattern_t * source, const cairo_path_fixed_t * path,
 	CairoFillRule fill_rule, double tolerance, cairo_antialias_t antialias, const cairo_clip_t * clip);
 
-typedef cairo_int_status_t
-(*_show_glyphs_func)(void * surface,
- cairo_operator_t op,
- const cairo_pattern_t * source,
- cairo_glyph_t * glyphs,
- int num_glyphs,
- cairo_scaled_font_t * scaled_font,
- const cairo_clip_t * clip);
+typedef cairo_int_status_t (*_show_glyphs_func)(void * surface, cairo_operator_t op, const cairo_pattern_t * source,
+	cairo_glyph_t * glyphs, int num_glyphs, cairo_scaled_font_t * scaled_font, const cairo_clip_t * clip);
 
 static const cairo_surface_backend_t cairo_null_surface_backend = {
 	CAIRO_INTERNAL_SURFACE_TYPE_NULL,

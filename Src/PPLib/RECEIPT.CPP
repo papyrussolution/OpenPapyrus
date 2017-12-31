@@ -92,16 +92,15 @@ int FASTCALL ReceiptCore::LotDimensions::FromString(const char * pBuf)
 }
 
 //static
-SString & SLAPI ReceiptCore::MakeCodeString(const ReceiptTbl::Rec * pRec, int options, SString & rBuf)
+SString & FASTCALL ReceiptCore::MakeCodeString(const ReceiptTbl::Rec * pRec, int options, SString & rBuf)
 {
 	// "@goods - @date - @int - @article"
 	rBuf.Z();
 	return PPFormatT(PPTXT_CODELOT, &rBuf, pRec->GoodsID, pRec->Dt, pRec->OprNo, pRec->SupplID);
 }
 
-SLAPI ReceiptCore::ReceiptCore() : ReceiptTbl()
+SLAPI ReceiptCore::ReceiptCore() : ReceiptTbl(), IgnoreGpretMostRecentFlags(-1)
 {
-	IgnoreGpretMostRecentFlags = -1;
 }
 
 int SLAPI ReceiptCore::Search(PPID id, ReceiptTbl::Rec * pRec)

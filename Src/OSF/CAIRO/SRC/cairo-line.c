@@ -176,11 +176,8 @@ static int lines_compare_x_for_y_general(const cairo_line_t * a, const cairo_lin
 			    return dx;
 		    }
 		    else {
-			    cairo_int64_t bdy_dx, dy_bdx;
-
-			    bdy_dx = _cairo_int32x32_64_mul(bdy, dx);
-			    dy_bdx = _cairo_int32x32_64_mul(y - b->p1.y, bdx);
-
+			    cairo_int64_t bdy_dx = _cairo_int32x32_64_mul(bdy, dx);
+			    cairo_int64_t dy_bdx = _cairo_int32x32_64_mul(y - b->p1.y, bdx);
 			    return _cairo_int64_cmp(bdy_dx, dy_bdx);
 		    }
 		case HAVE_ALL:
@@ -192,9 +189,7 @@ static int lines_compare_x_for_y_general(const cairo_line_t * a, const cairo_lin
 #undef L
 }
 
-static int lines_compare_x_for_y(const cairo_line_t * a,
-    const cairo_line_t * b,
-    int32_t y)
+static int lines_compare_x_for_y(const cairo_line_t * a, const cairo_line_t * b, int32_t y)
 {
 	/* If the sweep-line is currently on an end-point of a line,
 	 * then we know its precise x value (and considering that we often need to
@@ -216,24 +211,18 @@ static int lines_compare_x_for_y(const cairo_line_t * a,
 		ax = a->p2.x;
 	else
 		have_ax_bx &= ~HAVE_AX;
-
 	if(y == b->p1.y)
 		bx = b->p1.x;
 	else if(y == b->p2.y)
 		bx = b->p2.x;
 	else
 		have_ax_bx &= ~HAVE_BX;
-
 	switch(have_ax_bx) {
 		default:
-		case HAVE_NEITHER:
-		    return lines_compare_x_for_y_general(a, b, y);
-		case HAVE_AX:
-		    return -line_compare_for_y_against_x(b, y, ax);
-		case HAVE_BX:
-		    return line_compare_for_y_against_x(a, y, bx);
-		case HAVE_BOTH:
-		    return ax - bx;
+		case HAVE_NEITHER: return lines_compare_x_for_y_general(a, b, y);
+		case HAVE_AX: return -line_compare_for_y_against_x(b, y, ax);
+		case HAVE_BX: return line_compare_for_y_against_x(a, y, bx);
+		case HAVE_BOTH: return ax - bx;
 	}
 }
 
@@ -283,4 +272,3 @@ int cairo_lines_compare_at_y(const cairo_line_t * a, const cairo_line_t * b, int
 	_cairo_slope_init(&sb, &b->p1, &b->p2);
 	return _cairo_slope_compare(&sb, &sa);
 }
-

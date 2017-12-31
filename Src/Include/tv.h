@@ -3363,12 +3363,13 @@ public:
 		stDataFounded                = 0x0004,  // Признак того, что (def->setData() != 0)
 		stLButtonDown                = 0x0008,  // Левая кнопка мыши нажата на списке
 		stInited                     = 0x0010,  // Выставляется функцией SmartListBox::onInit.
-		stLBIsLinkedUISrchTextBlock  = 0x0020   // Окно поиска будет прилинковано непосредственно к списку. При уничтожении фокус будет попадать на список.
+		stLBIsLinkedUISrchTextBlock  = 0x0020,  // Окно поиска будет прилинковано непосредственно к списку. При уничтожении фокус будет попадать на список.
+		stOmitSearchByFirstChar      = 0x0040   // @v9.8.11 Не обрабатывать ввод символа как сигнал к поиску 
 	};
 
 	SmartListBox(const TRect & rRect, ListBoxDef * pDef, int isTree = 0);
 	~SmartListBox();
-	void   FASTCALL setDef(ListBoxDef*);
+	void   FASTCALL setDef(ListBoxDef *);
 	int    search(void * pattern, CompFunc fcmp, int srchMode);
 	int    FASTCALL getCurID(long * pId);
 	int    FASTCALL getCurData(void * pData);
@@ -3381,6 +3382,7 @@ public:
 	virtual void   selectItem(long item);
 	virtual int    TransmitData(int dir, void * pData);
 	virtual void   setState(uint aState, bool enable);
+	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	//
 	// Descr: Вставляет колонку в многоколоночный список.
 	// ARG(pos    IN): Позиция, в которой должна быть вставлена колонка.
@@ -3421,7 +3423,6 @@ public:
 	int    removeItem(long pos);
 	void   freeAll();
 	void   FASTCALL focusItem(long item);
-	virtual int handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	int    SetupTreeWnd(HTREEITEM hParent, long parentID); // @recursion
 	void   Scroll(short sbCmd, int value);
 	void   CreateScrollBar(int create);
@@ -3435,6 +3436,11 @@ public:
 	int    SetTreeListState(int yes);
 	void   SetOwnerDrawState();
 	void   SetLBLnkToUISrchState();
+	//
+	// Descr: Устанавливает состояние stOmitSearchByFirstChar препятствующее
+	//   появлению окна поиска в ответ на ввод символьной клавиши.
+	//
+	void   SetOmitSearchByFirstChar();
 	int    HasState(long s) const;
 	//
 	// Перемещает окно Scrollbar в соответствии со списком. При этом старое окно Scrollbar разрушается и создается новое
@@ -3496,7 +3502,7 @@ public:
 	//     не удалось получить единственный элемент списка.
 	//
 	int    getSingle(long * pVal);
-	int    getResult(long *);
+	int    FASTCALL getResult(long *);
 	int    getString(SString & rBuf);
 	int    getListData(void *);
 	int    isTreeList() const;
@@ -4175,7 +4181,7 @@ public:
 	// Descr: Разрушает все окна сообщений, которые имеют родительское окно parent.
 	//   Если parent == 0, то разрушает все окна, которые были открыты.
 	//
-	static int DestroyByParent(HWND parent);
+	static void FASTCALL DestroyByParent(HWND parent);
 
 	SMessageWindow();
 	~SMessageWindow();

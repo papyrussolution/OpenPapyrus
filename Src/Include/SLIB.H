@@ -1528,9 +1528,9 @@ struct S_GUID {    // @persistent @size=16
 // Note: obsolete (практически не используется)
 //
 struct SDosDate {
-	int16  da_year; // Year - 1980      
-	int8   da_day;  // Day of the month 
-	int8   da_mon;  // Month (1 = Jan)  
+	int16  da_year; // Year - 1980
+	int8   da_day;  // Day of the month
+	int8   da_mon;  // Month (1 = Jan)
 };
 //
 // Descr: Дата/время в формате Microsoft OLE (DATE)
@@ -2064,7 +2064,7 @@ public:
 #define NZOR(v,a)                   ((v)?(v):(a))
 //#define NZOR_F(v,a)                 ((!!(v))?(v):(a))
 // @v8.6.8 #define SETIFZ(v,a)                 if(!v) {(v)=(a);}
-#define SETIFZ(v,a)                 ((v) || !!((v)=(a))) // @v8.6.8
+#define SETIFZ(v,a)                 (!!(v) || !!((v)=(a))) // @v8.6.8
 #define SETMAX(v,b)                 {if((v)<(b)) (v)=(b);}
 #define SETMIN(v,b)                 {if((v)>(b)) (v)=(b);}
 #define SETMINMAX(v,i,x)            {if((v)>(x)) (v)=(x); else if((v)<(i)) (v)=(i);}
@@ -2892,14 +2892,14 @@ struct RealRange { // @persistent @flat @size=16 @noconstructor @novtbl
 	int    SLAPI IsZero() const;
 	int    FASTCALL IsEqual(const RealRange & rS) const;
 	double SLAPI GetDistance() const;
-	double SLAPI GetActualLow() const
-	{
-		return MIN(low, upp);
-	}
-	double SLAPI GetActualUpp() const
-	{
-		return MAX(low, upp);
-	}
+	//
+	// Descr: Возвращает наименьшее значение из (low, upp)
+	//
+	double SLAPI GetActualLow() const;
+	//
+	// Descr: Возвращает наибольшее значение из (low, upp)
+	//
+	double SLAPI GetActualUpp() const;
 	RealRange & Clear();
 	RealRange & FASTCALL operator = (const IntRange & rS);
 	int    FASTCALL operator != (const RealRange & rS) const;

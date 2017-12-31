@@ -210,61 +210,39 @@ PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), Intr
 {
 	switch(DocType) {
 		case PPEDIOP_EGAIS_QUERYCLIENTS:
-		case PPEDIOP_EGAIS_QUERYAP:
-			P_Data = new StrStrAssocArray;
-			break;
+		case PPEDIOP_EGAIS_QUERYAP: P_Data = new StrStrAssocArray; break;
 		case PPEDIOP_EGAIS_QUERYFORMA:
-		case PPEDIOP_EGAIS_QUERYFORMB:
-			P_Data = new SString;
-			break;
-		case PPEDIOP_EGAIS_TICKET:
-			P_Data = new Ticket;
-			break;
+		case PPEDIOP_EGAIS_QUERYFORMB: P_Data = new SString; break;
+		case PPEDIOP_EGAIS_TICKET: P_Data = new Ticket; break;
 		case PPEDIOP_EGAIS_TTNINFORMBREG:
-		case PPEDIOP_EGAIS_TTNINFORMF2REG: // @v9.5.5
-			P_Data = new InformB;
-			break;
-		case PPEDIOP_EGAIS_REPLYCLIENT:
-			P_Data = new TSCollection <PPPersonPacket>;
-			break;
-		case PPEDIOP_EGAIS_REPLYAP:
-			P_Data = new TSCollection <PPGoodsPacket>;
-			break;
+		case PPEDIOP_EGAIS_TTNINFORMF2REG: P_Data = new InformB; break;
+		case PPEDIOP_EGAIS_REPLYCLIENT: P_Data = new TSCollection <PPPersonPacket>; break;
+		case PPEDIOP_EGAIS_REPLYAP: P_Data = new TSCollection <PPGoodsPacket>; break;
 		case PPEDIOP_EGAIS_REPLYFORMA:
 			P_Data = new EgaisRefATbl::Rec;
 			memzero(P_Data, sizeof(EgaisRefATbl::Rec));
 			break;
 		case PPEDIOP_EGAIS_WAYBILL:
-		case PPEDIOP_EGAIS_WAYBILL_V2: // @v9.5.5
+		case PPEDIOP_EGAIS_WAYBILL_V2:
 		case PPEDIOP_EGAIS_WAYBILLACT:
-		case PPEDIOP_EGAIS_WAYBILLACT_V2: // @v9.5.8
+		case PPEDIOP_EGAIS_WAYBILLACT_V2:
 		case PPEDIOP_EGAIS_ACTCHARGEON:
-		case PPEDIOP_EGAIS_ACTCHARGEON_V2: // @v9.3.12
-		case PPEDIOP_EGAIS_ACTCHARGEONSHOP: // @v9.2.11
+		case PPEDIOP_EGAIS_ACTCHARGEON_V2:
+		case PPEDIOP_EGAIS_ACTCHARGEONSHOP:
 		case PPEDIOP_EGAIS_REPLYRESTS:
-		case PPEDIOP_EGAIS_REPLYRESTS_V2: // @v9.7.5
+		case PPEDIOP_EGAIS_REPLYRESTS_V2:
 		case PPEDIOP_EGAIS_REPLYRESTSSHOP:
 		case PPEDIOP_EGAIS_ACTWRITEOFF:
-		case PPEDIOP_EGAIS_ACTWRITEOFF_V2: // @v9.3.12
-		case PPEDIOP_EGAIS_ACTWRITEOFFSHOP: // @v9.4.0
+		case PPEDIOP_EGAIS_ACTWRITEOFF_V2:
+		case PPEDIOP_EGAIS_ACTWRITEOFFSHOP:
 		case PPEDIOP_EGAIS_TRANSFERTOSHOP:
-		case PPEDIOP_EGAIS_TRANSFERFROMSHOP: // @v9.3.10
-			P_Data = new PPBillPacket;
-			break;
-		case PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG:
-			P_Data = new ActInform;
-			break;
-		case PPEDIOP_EGAIS_CONFIRMTICKET:
-			P_Data = new ConfirmTicket();
-			break;
+		case PPEDIOP_EGAIS_TRANSFERFROMSHOP: P_Data = new PPBillPacket; break;
+		case PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG: P_Data = new ActInform; break;
+		case PPEDIOP_EGAIS_CONFIRMTICKET: P_Data = new ConfirmTicket(); break;
 		case PPEDIOP_EGAIS_REQUESTREPEALWB:
-		case PPEDIOP_EGAIS_CONFIRMREPEALWB:
-			P_Data = new RepealWb();
-			break;
+		case PPEDIOP_EGAIS_CONFIRMREPEALWB: P_Data = new RepealWb(); break;
         case PPEDIOP_EGAIS_QUERYBARCODE:
-		case PPEDIOP_EGAIS_REPLYBARCODE:
-			P_Data = new TSCollection <QueryBarcode>;
-			break;
+		case PPEDIOP_EGAIS_REPLYBARCODE: P_Data = new TSCollection <QueryBarcode>; break;
 	}
 }
 
@@ -272,29 +250,15 @@ PPEgaisProcessor::Packet::~Packet()
 {
 	switch(DocType) {
 		case PPEDIOP_EGAIS_QUERYCLIENTS:
-		case PPEDIOP_EGAIS_QUERYAP:
-			delete ((StrStrAssocArray *)P_Data);
-			break;
+		case PPEDIOP_EGAIS_QUERYAP: delete ((StrStrAssocArray *)P_Data); break;
 		case PPEDIOP_EGAIS_QUERYFORMA:
-		case PPEDIOP_EGAIS_QUERYFORMB:
-			delete ((SString *)P_Data);
-			break;
-		case PPEDIOP_EGAIS_TICKET:
-			delete ((Ticket *)P_Data);
-			break;
+		case PPEDIOP_EGAIS_QUERYFORMB: delete ((SString *)P_Data); break;
+		case PPEDIOP_EGAIS_TICKET: delete ((Ticket *)P_Data); break;
 		case PPEDIOP_EGAIS_TTNINFORMBREG:
-		case PPEDIOP_EGAIS_TTNINFORMF2REG: // @v9.5.5
-			delete ((InformB *)P_Data);
-			break;
-		case PPEDIOP_EGAIS_REPLYCLIENT:
-			delete ((TSCollection <PPPersonPacket> *)P_Data);
-			break;
-		case PPEDIOP_EGAIS_REPLYAP:
-			delete ((TSCollection <PPGoodsPacket> *)P_Data);
-			break;
-		case PPEDIOP_EGAIS_REPLYFORMA:
-			delete ((EgaisRefATbl::Rec *)P_Data);
-			break;
+		case PPEDIOP_EGAIS_TTNINFORMF2REG: delete ((InformB *)P_Data); break;
+		case PPEDIOP_EGAIS_REPLYCLIENT: delete ((TSCollection <PPPersonPacket> *)P_Data); break;
+		case PPEDIOP_EGAIS_REPLYAP: delete ((TSCollection <PPGoodsPacket> *)P_Data); break;
+		case PPEDIOP_EGAIS_REPLYFORMA: delete ((EgaisRefATbl::Rec *)P_Data); break;
 		case PPEDIOP_EGAIS_WAYBILL:
 		case PPEDIOP_EGAIS_WAYBILL_V2: // @v9.5.5
 		case PPEDIOP_EGAIS_WAYBILLACT:
@@ -309,23 +273,13 @@ PPEgaisProcessor::Packet::~Packet()
 		case PPEDIOP_EGAIS_ACTWRITEOFF_V2: // @v9.3.12
 		case PPEDIOP_EGAIS_ACTWRITEOFFSHOP: // @v9.4.0
 		case PPEDIOP_EGAIS_TRANSFERTOSHOP:
-		case PPEDIOP_EGAIS_TRANSFERFROMSHOP: // @v9.3.10
-			delete ((PPBillPacket *)P_Data);
-			break;
-		case PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG:
-			delete ((ActInform *)P_Data);
-			break;
-		case PPEDIOP_EGAIS_CONFIRMTICKET:
-			delete ((ConfirmTicket *)P_Data);
-			break;
+		case PPEDIOP_EGAIS_TRANSFERFROMSHOP: delete ((PPBillPacket *)P_Data); break;
+		case PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG: delete ((ActInform *)P_Data); break;
+		case PPEDIOP_EGAIS_CONFIRMTICKET: delete ((ConfirmTicket *)P_Data); break;
 		case PPEDIOP_EGAIS_REQUESTREPEALWB:
-		case PPEDIOP_EGAIS_CONFIRMREPEALWB:
-			delete ((RepealWb *)P_Data);
-			break;
+		case PPEDIOP_EGAIS_CONFIRMREPEALWB: delete ((RepealWb *)P_Data); break;
         case PPEDIOP_EGAIS_QUERYBARCODE:
-		case PPEDIOP_EGAIS_REPLYBARCODE:
-			delete ((TSCollection <QueryBarcode> *)P_Data);
-			break;
+		case PPEDIOP_EGAIS_REPLYBARCODE: delete ((TSCollection <QueryBarcode> *)P_Data); break;
 	}
 }
 
@@ -1907,7 +1861,7 @@ int SLAPI PPEgaisProcessor::Helper_MakeMarkList(PPID lotID, StringSet & rSsExtCo
 		LotExtCodeTbl::Key0 k0;
 		MEMSZERO(k0);
 		k0.LotID = lotID;
-		if(P_LecT->search(0, &k0, spGe) && P_LecT->data.LotID == lotID) {
+		if(P_LecT->search(0, &k0, spGe) && P_LecT->data.LotID == lotID && P_LecT->data.BillID == 0) {
 			ok = 1;
 			SString temp_buf;
 			do {
@@ -1916,7 +1870,7 @@ int SLAPI PPEgaisProcessor::Helper_MakeMarkList(PPID lotID, StringSet & rSsExtCo
 					ext_code_count++;
 					rSsExtCodes.add(temp_buf);
 				}
-			} while(P_LecT->search(0, &k0, spNext) && P_LecT->data.LotID == lotID);
+			} while(P_LecT->search(0, &k0, spNext) && P_LecT->data.LotID == lotID && P_LecT->data.BillID == 0);
 		}
 	}
 	CATCHZOK
@@ -2279,7 +2233,8 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										w_p.PutInner("wb:Quantity", EncText(temp_buf.Z().Cat(qtty, qtty_fmt))); // @v9.7.10 qtty_fmt
 										w_p.PutInner("wb:Price", EncText(temp_buf.Z().Cat(price, MKSFMTD(0, 2, 0))));
 									}
-									p_bp->SnL.GetNumber(tidx, &temp_buf);
+									// @v9.8.11 p_bp->SnL.GetNumber(tidx, &temp_buf);
+									p_bp->LTagL.GetNumber(PPTAG_LOT_SN, tidx, temp_buf); // @v9.8.11 
 									w_p.PutInnerSkipEmpty("wb:Party", EncText(temp_buf));
 									WriteInformCode(_doc, "wb", 'A', ref_a, BIN(doc_type == PPEDIOP_EGAIS_WAYBILL_V2));
 									WriteInformCode(_doc, "wb", 'B', ref_b, BIN(doc_type == PPEDIOP_EGAIS_WAYBILL_V2));
@@ -6590,7 +6545,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 		DateIter last_rest_di;
 		DateIter last_restshop_di;
 		//
-		// Акцептируем данные в 2 прохода. На втором проходе акцептируются те объекты, 
+		// Акцептируем данные в 2 прохода. На втором проходе акцептируются те объекты,
 		// которые могут зависить от того, что принято на 1-м проходе.
 		// На текущий момент это - справки Б.
 		//

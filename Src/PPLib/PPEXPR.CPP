@@ -68,7 +68,7 @@ int SLAPI ExprEvalContext::ResolveFunc(int funcId, FC & rFc)
 }
 
 //static
-int SLAPI PPExprParser::CalcExpression(const char * pStr, double * pResult, const PPCalcFuncList * pCFL, ExprEvalContext * pCtx)
+int FASTCALL PPExprParser::CalcExpression(const char * pStr, double * pResult, const PPCalcFuncList * pCFL, ExprEvalContext * pCtx)
 {
 	PPExprParser parser(pStr, pCFL, pCtx);
 	return parser.CalcExpr(pResult);
@@ -76,9 +76,8 @@ int SLAPI PPExprParser::CalcExpression(const char * pStr, double * pResult, cons
 //
 // BillContext
 //
-SLAPI BillSymbCache::BillSymbCache() : ObjCache(PPOBJ_BILLSYMB, sizeof(Data))
+SLAPI BillSymbCache::BillSymbCache() : ObjCache(PPOBJ_BILLSYMB, sizeof(Data)), sDELIM(0x0000005CL)
 {
-	sDELIM = 0x0000005CL;
 	FormSet.setDelim((char*)&sDELIM);
 }
 
@@ -470,7 +469,7 @@ int SLAPI BillContext::Resolve(const char * b, double * pResult)
 		}
 	}
 	else if(r == 3) {
-		PPAdvBillItem & r_adv_line = P_Pack->AdvList.Get(AdvLineIdx);
+		PPAdvBillItemList::Item & r_adv_line = P_Pack->AdvList.Get(AdvLineIdx);
 		if((&r_adv_line) != 0) {
 			if(id == PPAMT_ADLN_MAIN)
 				val = r_adv_line.Amount;
@@ -488,10 +487,8 @@ int SLAPI BillContext::Resolve(const char * b, double * pResult)
 //
 //
 //
-PPExprParser::State::State()
+PPExprParser::State::State() : OidObjType(0), OidObjTypeExt(0)
 {
-	OidObjType = 0;
-	OidObjTypeExt = 0;
 }
 
 PPExprParser::State & FASTCALL PPExprParser::State::operator = (const PPExprParser::State & rS)
@@ -501,14 +498,9 @@ PPExprParser::State & FASTCALL PPExprParser::State::operator = (const PPExprPars
 	return *this;
 }
 
-SLAPI PPExprParser::PPExprParser(const char * pStr, const PPCalcFuncList * pCFL, ExprEvalContext * pContext)
+SLAPI PPExprParser::PPExprParser(const char * pStr, const PPCalcFuncList * pCFL, ExprEvalContext * pContext) :
+	Token(0), Number(0.0), Pos(0), P_Ctx(pContext), P_CFL(pCFL), P_S(newStr(pStr))
 {
-	Token   = 0;
-	Number  = 0.0;
-	P_S     = newStr(pStr);
-	Pos     = 0;
-	P_Ctx   = pContext;
-	P_CFL   = pCFL;
 	Next();
 }
 

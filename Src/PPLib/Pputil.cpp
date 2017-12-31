@@ -91,12 +91,12 @@ SString & SLAPI MoneyToStr(double nmb, long fmt, SString & rBuf)
 	return rBuf.Space().CatLongZ(fraction, 2).Space().Cat(word);
 }
 
-double SLAPI SalesTaxMult(double rate)
+double FASTCALL SalesTaxMult(double rate)
 {
 	return (rate / (100.0 + rate));
 }
 
-double SLAPI CalcVATRate(double base, double vat_sum)
+double FASTCALL CalcVATRate(double base, double vat_sum)
 {
 	return fdivnz(100.0 * vat_sum, base - vat_sum);
 }

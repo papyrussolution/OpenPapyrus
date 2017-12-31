@@ -17,6 +17,11 @@ IMPLEMENT_PPFILT_FACTORY(Quot); SLAPI QuotFilt::QuotFilt() : PPBaseFilt(PPFILT_Q
 	Init(1, 0);
 }
 
+int SLAPI QuotFilt::IsSeries() const
+{
+	return BIN(Flags & fSeries && GoodsID && QuotKindID);
+}
+
 int SLAPI QuotFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;

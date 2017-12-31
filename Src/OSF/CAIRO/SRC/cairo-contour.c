@@ -48,7 +48,7 @@ void _cairo_contour_init(cairo_contour_t * contour, int direction)
 	contour->tail = &contour->chain;
 }
 
-cairo_int_status_t __cairo_contour_add_point(cairo_contour_t * contour, const cairo_point_t * point)
+cairo_int_status_t FASTCALL __cairo_contour_add_point(cairo_contour_t * contour, const cairo_point_t * point)
 {
 	cairo_contour_chain_t * tail = contour->tail;
 	cairo_contour_chain_t * next;
@@ -93,21 +93,19 @@ static void last_dec(cairo_contour_t * contour, cairo_point_t ** p, cairo_contou
 
 void _cairo_contour_reverse(cairo_contour_t * contour)
 {
-	cairo_contour_chain_t * first_chain, * last_chain;
-	cairo_point_t * first, * last;
 	contour->direction = -contour->direction;
-	if(contour->chain.num_points <= 1)
-		return;
-	first_chain = &contour->chain;
-	last_chain = contour->tail;
-	first = &first_chain->points[0];
-	last = &last_chain->points[last_chain->num_points-1];
-	while(first != last) {
-		cairo_point_t p = *first;
-		*first = *last;
-		*last = p;
-		first_inc(contour, &first, &first_chain);
-		last_dec(contour, &last, &last_chain);
+	if(contour->chain.num_points > 1) {
+		cairo_contour_chain_t * first_chain = &contour->chain;
+		cairo_contour_chain_t * last_chain = contour->tail;
+		cairo_point_t * first = &first_chain->points[0];
+		cairo_point_t * last = &last_chain->points[last_chain->num_points-1];
+		while(first != last) {
+			cairo_point_t p = *first;
+			*first = *last;
+			*last = p;
+			first_inc(contour, &first, &first_chain);
+			last_dec(contour, &last, &last_chain);
+		}
 	}
 }
 
@@ -160,17 +158,13 @@ static void iter_init_last(cairo_contour_iter_t * iter, cairo_contour_t * contou
 	iter->point = &contour->tail->points[contour->tail->num_points-1];
 }
 
-static const cairo_contour_chain_t * prev_const_chain(const cairo_contour_t * contour,
-    const cairo_contour_chain_t * chain)
+static const cairo_contour_chain_t * prev_const_chain(const cairo_contour_t * contour, const cairo_contour_chain_t * chain)
 {
 	const cairo_contour_chain_t * prev;
-
 	if(chain == &contour->chain)
 		return NULL;
-
 	for(prev = &contour->chain; prev->next != chain; prev = prev->next)
 		;
-
 	return prev;
 }
 
@@ -190,12 +184,12 @@ cairo_int_status_t _cairo_contour_add_reversed(cairo_contour_t * dst, const cair
 	}
 }
 
-static cairo_uint64_t point_distance_sq(const cairo_point_t * p1, const cairo_point_t * p2)
+/*static cairo_uint64_t point_distance_sq(const cairo_point_t * p1, const cairo_point_t * p2)
 {
 	int32_t dx = p1->x - p2->x;
 	int32_t dy = p1->y - p2->y;
 	return _cairo_int32x32_64_mul(dx, dx) + _cairo_int32x32_64_mul(dy, dy);
-}
+}*/
 
 #define DELETED(p) ((p)->x == INT_MIN && (p)->y == INT_MAX)
 #define MARK_DELETED(p) ((p)->x = INT_MIN, (p)->y = INT_MAX)
@@ -262,7 +256,7 @@ void _cairo_contour_simplify(cairo_contour_t * contour, double tolerance)
 	/* stage 1: vertex reduction */
 	for(chain = &contour->chain; chain; chain = chain->next) {
 		for(i = 0; i < chain->num_points; i++) {
-			if(last == NULL || point_distance_sq(last, &chain->points[i]) > tolerance) {
+			if(!last || CairoPointDistanceSq(last, &chain->points[i]) > tolerance) {
 				last = &chain->points[i];
 			}
 			else {
@@ -280,7 +274,7 @@ void _cairo_contour_simplify(cairo_contour_t * contour, double tolerance)
 				uint64_t d;
 				if(DELETED(&chain->points[i]))
 					continue;
-				d = point_distance_sq(last, &chain->points[i]);
+				d = CairoPointDistanceSq(last, &chain->points[i]);
 				if(d > max) {
 					furthest.chain = chain;
 					furthest.point = &chain->points[i];

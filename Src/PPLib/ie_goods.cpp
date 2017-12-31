@@ -2783,12 +2783,14 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										(temp_buf2 = sdr_rec.Clb).Strip();
 										if(temp_buf2.Len()) {
 											temp_buf2.ReplaceChar('\\', '/').ReplaceChar('-', ' ');
-											THROW(p_pack->ClbL.AddNumber(p_pack->GetTCount()-1, temp_buf2));
+											// @v9.8.11 THROW(p_pack->ClbL.AddNumber(p_pack->GetTCount()-1, temp_buf2));
+											THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, p_pack->GetTCount()-1, temp_buf2)); // @v9.8.11 
 										}
 										(temp_buf2 = sdr_rec.Serial).Strip();
 										if(temp_buf2.Len()) {
 											temp_buf2.ReplaceChar('\\', '/').ReplaceChar('-', ' ');
-											THROW(p_pack->SnL.AddNumber(p_pack->GetTCount()-1, temp_buf2));
+											// @v9.8.11 THROW(p_pack->SnL.AddNumber(p_pack->GetTCount()-1, temp_buf2));
+											THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, p_pack->GetTCount()-1, temp_buf2)); // @v9.8.11 
 										}
 									}
 								}

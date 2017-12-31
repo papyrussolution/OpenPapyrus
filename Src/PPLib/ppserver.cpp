@@ -784,7 +784,7 @@ int SLAPI PPJobSession::MailNotify(const char * pTmpLogFileName)
 				msg_buf.Cat(temp_buf);
 				line_count++;
 			}
-			msg_buf.ToUtf8(); // @v7.6.4
+			msg_buf.Transf(CTRANSF_OUTER_TO_UTF8);
 			mail_msg.SetField(SMailMessage::fldText, msg_buf);
 		}
 		if(!(Job.Flags & Job.fSkipEmptyNotification) || line_count) {
@@ -812,7 +812,8 @@ int SLAPI PPJobSession::MailNotify(const char * pTmpLogFileName)
 					}
 					mail_msg.SetField(SMailMessage::fldTo, addr_line);
 					mail_counter.Init(1);
-					if(!PPMailSmtp::Send(inet_acc, mail_msg, SendMailCallback, mail_counter))
+					// @v9.8.11  if(!PPMailSmtp::Send(inet_acc, mail_msg, SendMailCallback, mail_counter))
+					if(!PPSendEmail(inet_acc, mail_msg, SendMailCallback, mail_counter)) // @v9.8.11 
 						PPError();
 				}
 			}

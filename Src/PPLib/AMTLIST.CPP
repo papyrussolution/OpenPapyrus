@@ -5,32 +5,20 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI AmtEntry::AmtEntry()
+SLAPI AmtEntry::AmtEntry() : AmtTypeID(0), CurID(0), Amt(0.0)
 {
-	AmtTypeID = 0;
-	CurID = 0;
-	Amt = 0.0;
 }
 
-SLAPI AmtEntry::AmtEntry(PPID amtTypeID)
+SLAPI AmtEntry::AmtEntry(PPID amtTypeID) : AmtTypeID(amtTypeID), CurID(0), Amt(0.0)
 {
-	AmtTypeID = amtTypeID;
-	CurID = 0;
-	Amt = 0.0;
 }
 
-SLAPI AmtEntry::AmtEntry(PPID amtTypeID, PPID curID)
+SLAPI AmtEntry::AmtEntry(PPID amtTypeID, PPID curID) : AmtTypeID(amtTypeID), CurID(curID), Amt(0.0)
 {
-	AmtTypeID = amtTypeID;
-	CurID = curID;
-	Amt = 0.0;
 }
 
-SLAPI AmtEntry::AmtEntry(PPID amtTypeID, PPID curID, double amt)
+SLAPI AmtEntry::AmtEntry(PPID amtTypeID, PPID curID, double amt) : AmtTypeID(amtTypeID), CurID(curID), Amt(amt)
 {
-	AmtTypeID = amtTypeID;
-	CurID = curID;
-	Amt = amt;
 }
 
 int FASTCALL AmtEntry::IsEqual(const AmtEntry & rS) const

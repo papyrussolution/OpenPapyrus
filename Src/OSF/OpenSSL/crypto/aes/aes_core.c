@@ -777,13 +777,11 @@ int AES_set_decrypt_key(const uchar * userKey, const int bits,
 	}
 	return 0;
 }
-
 /*
  * Encrypt a single block
  * in and out can overlap
  */
-void AES_encrypt(const uchar * in, uchar * out,
-    const AES_KEY * key)
+void AES_encrypt(const uchar * in, uchar * out, const AES_KEY * key)
 {
 	const u32 * rk;
 	u32 s0, s1, s2, s3, t0, t1, t2, t3;
@@ -968,13 +966,11 @@ void AES_encrypt(const uchar * in, uchar * out,
 	    rk[3];
 	PUTU32(out + 12, s3);
 }
-
 /*
  * Decrypt a single block
  * in and out can overlap
  */
-void AES_decrypt(const uchar * in, uchar * out,
-    const AES_KEY * key)
+void AES_decrypt(const uchar * in, uchar * out, const AES_KEY * key)
 {
 	const u32 * rk;
 	u32 s0, s1, s2, s3, t0, t1, t2, t3;
@@ -1205,8 +1201,7 @@ static const u32 rcon[] = {
 /**
  * Expand the cipher key into the encryption key schedule.
  */
-int AES_set_encrypt_key(const uchar * userKey, const int bits,
-    AES_KEY * key)
+int AES_set_encrypt_key(const uchar * userKey, const int bits, AES_KEY * key)
 {
 	u32 * rk;
 	int i = 0;

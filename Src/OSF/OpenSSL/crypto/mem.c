@@ -207,7 +207,7 @@ void FASTCALL CRYPTO_free_lite(void * str)
 	}
 }
 
-void CRYPTO_clear_free(void * str, size_t num, const char * file, int line)
+void FASTCALL CRYPTO_clear_free(void * str, size_t num, const char * file, int line)
 {
 	if(str) {
 		if(num)

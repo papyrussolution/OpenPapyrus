@@ -157,25 +157,24 @@ static void stroker_fini(struct stroker * stroker)
 	_cairo_pen_fini(&stroker->pen);
 }
 
-static void translate_point(cairo_point_t * point, cairo_point_t * offset)
+/*static void translate_point(cairo_point_t * point, cairo_point_t * offset)
 {
 	point->x += offset->x;
 	point->y += offset->y;
-}
+}*/
 
-static int join_is_clockwise(const cairo_stroke_face_t * in,
-    const cairo_stroke_face_t * out)
+static int join_is_clockwise(const cairo_stroke_face_t * in, const cairo_stroke_face_t * out)
 {
 	return _cairo_slope_compare(&in->dev_vector, &out->dev_vector) < 0;
 }
 
-static int slope_compare_sgn(double dx1, double dy1, double dx2, double dy2)
+/*static int slope_compare_sgn(double dx1, double dy1, double dx2, double dy2)
 {
 	double c = dx1 * dy2 - dx2 * dy1;
 	if(c > 0) return 1;
 	if(c < 0) return -1;
 	return 0;
-}
+}*/
 
 static cairo_bool_t stroker_intersects_join(const struct stroker * stroker,
     const cairo_point_t * in,
@@ -236,7 +235,7 @@ static void join(struct stroker * stroker,
 				    &start, &stop);
 				    while(start != stop) {
 					    tri[2] = in->point;
-					    translate_point(&tri[2], &pen->vertices[start].point);
+					    CairoTranslatePoint(&tri[2], &pen->vertices[start].point);
 					    edges[2] = in->point;
 					    edges[3] = tri[2];
 					    _cairo_traps_tessellate_triangle_with_edges(stroker->traps,
@@ -255,7 +254,7 @@ static void join(struct stroker * stroker,
 				    &start, &stop);
 				    while(start != stop) {
 					    tri[2] = in->point;
-					    translate_point(&tri[2], &pen->vertices[start].point);
+					    CairoTranslatePoint(&tri[2], &pen->vertices[start].point);
 					    edges[2] = in->point;
 					    edges[3] = tri[2];
 					    _cairo_traps_tessellate_triangle_with_edges(stroker->traps,
@@ -409,8 +408,7 @@ static void join(struct stroker * stroker,
 			    mdx = mx - ix; 
 				mdy = my - iy;
 				// Make sure the miter point line lies between the two faces by comparing the slopes
-			    if(slope_compare_sgn(fdx1, fdy1, mdx, mdy) !=
-				    slope_compare_sgn(fdx2, fdy2, mdx, mdy)) {
+			    if(CairoSlopeCompareSgn(fdx1, fdy1, mdx, mdy) != CairoSlopeCompareSgn(fdx2, fdy2, mdx, mdy)) {
 				    /*
 				     * Draw the quadrilateral
 				     */
@@ -454,7 +452,7 @@ static void add_cap(struct stroker * stroker, cairo_stroke_face_t * f)
 		    tri[1] = f->cw;
 		    while(start != stop) {
 			    tri[2] = f->point;
-			    translate_point(&tri[2], &pen->vertices[start].point);
+			    CairoTranslatePoint(&tri[2], &pen->vertices[start].point);
 			    edges[2] = f->point;
 			    edges[3] = tri[2];
 			    _cairo_traps_tessellate_triangle_with_edges(stroker->traps, tri, edges);
@@ -608,10 +606,10 @@ static void compute_face(const cairo_point_t * point, const cairo_slope_t * dev_
 	offset_cw.x = -offset_ccw.x;
 	offset_cw.y = -offset_ccw.y;
 	face->ccw = *point;
-	translate_point(&face->ccw, &offset_ccw);
+	CairoTranslatePoint(&face->ccw, &offset_ccw);
 	face->point = *point;
 	face->cw = *point;
-	translate_point(&face->cw, &offset_cw);
+	CairoTranslatePoint(&face->cw, &offset_cw);
 	//face->usr_vector.x = slope_dx;
 	//face->usr_vector.y = slope_dy;
 	face->usr_vector = _slope_d;
@@ -665,8 +663,8 @@ static void add_sub_edge(struct stroker * stroker, const cairo_point_t * p1, con
 	end->point = *p2;
 	rectangle[0].x = p2->x - p1->x;
 	rectangle[0].y = p2->y - p1->y;
-	translate_point(&end->ccw, &rectangle[0]);
-	translate_point(&end->cw, &rectangle[0]);
+	CairoTranslatePoint(&end->ccw, &rectangle[0]);
+	CairoTranslatePoint(&end->cw, &rectangle[0]);
 	if(p1->x == p2->x && p1->y == p2->y)
 		return;
 	if(!stroker_intersects_edge(stroker, start, end))
@@ -850,8 +848,8 @@ static cairo_status_t spline_to(void * closure, const cairo_point_t * point, con
 		rectangle[2].x = point->x - face.point.x;
 		rectangle[2].y = point->y - face.point.y;
 		face.point = *point;
-		translate_point(&face.ccw, &rectangle[2]);
-		translate_point(&face.cw, &rectangle[2]);
+		CairoTranslatePoint(&face.ccw, &rectangle[2]);
+		CairoTranslatePoint(&face.cw, &rectangle[2]);
 		rectangle[2] = face.ccw;
 		rectangle[3] = face.cw;
 		_cairo_traps_tessellate_convex_quad(stroker->traps, rectangle);

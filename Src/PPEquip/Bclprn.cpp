@@ -1612,8 +1612,9 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill2(const PPBillPacket * pPack, uin
 				SETIFZ(p_rgi->Price, p_ti->Price);
 				p_rgi->RevalPrice = p_rgi->Price;
 				if(p_rgi->Serial[0] == 0) {
-					pPack->SnL.GetNumber(cur_pos, &serial);
-					serial.CopyTo(p_rgi->Serial, sizeof(p_rgi->Serial));
+					// @v9.8.11 pPack->SnL.GetNumber(cur_pos, &serial);
+					pPack->LTagL.GetNumber(PPTAG_LOT_SN, cur_pos, serial); // @v9.8.11 
+					STRNSCPY(p_rgi->Serial, serial);
 				}
 			}
 			//
@@ -1719,8 +1720,9 @@ int SLAPI BarcodeLabelPrinter::PrintLabelByBill__(PPBillPacket * pPack, uint pos
 				SETIFZ(rgi.Price, p_ti->Price);
 				rgi.RevalPrice = rgi.Price;
 				if(rgi.Serial[0] == 0) {
-					pPack->SnL.GetNumber(cur_pos, &serial); // @v8.7.12 @fix pos-->cur_pos
-					serial.CopyTo(rgi.Serial, sizeof(rgi.Serial));
+					// @v9.8.11 pPack->SnL.GetNumber(cur_pos, &serial); // @v8.7.12 @fix pos-->cur_pos
+					pPack->LTagL.GetNumber(PPTAG_LOT_SN, cur_pos, serial); // @v9.8.11 
+					STRNSCPY(rgi.Serial, serial);
 				}
 			}
 			//

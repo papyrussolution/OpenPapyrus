@@ -22,9 +22,9 @@ int SLAPI strtorrng(const char * pBuf, double * pLow, double * pUpp)
 				i--;
 				if(oneof2(p_tmp[i], '\'', ' '))
 					strcpy(p_tmp+i, p_tmp+i+1);
-				else if(p_tmp[i] == ',') // @v9.6.7 
+				else if(p_tmp[i] == ',') // @v9.6.7
 					p_tmp[i] = '.';
-				/* @v9.6.7 
+				/* @v9.6.7
 				else if(p_tmp[i] == ',' && (!i || p_tmp[i-1] != ','))
 					strcpy(p_tmp+i, p_tmp+i+1);
 				*/
@@ -284,6 +284,16 @@ RealRange & SLAPI RealRange::SetMiddle(double middle, double delta)
 double SLAPI RealRange::GetDistance() const
 {
 	return (upp-low);
+}
+
+double SLAPI RealRange::GetActualLow() const
+{
+	return MIN(low, upp);
+}
+
+double SLAPI RealRange::GetActualUpp() const
+{
+	return MAX(low, upp);
 }
 //
 //

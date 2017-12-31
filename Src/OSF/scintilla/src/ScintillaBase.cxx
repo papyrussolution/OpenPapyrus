@@ -302,15 +302,12 @@ void ScintillaBase::AutoCompleteMoveToCurrentWord()
 
 void ScintillaBase::AutoCompleteCharacterAdded(char ch)
 {
-	if(ac.IsFillUpChar(ch)) {
+	if(ac.IsFillUpChar(ch))
 		AutoCompleteCompleted(ch, SC_AC_FILLUP);
-	}
-	else if(ac.IsStopChar(ch)) {
+	else if(ac.IsStopChar(ch))
 		AutoCompleteCancel();
-	}
-	else {
+	else
 		AutoCompleteMoveToCurrentWord();
-	}
 }
 
 void ScintillaBase::AutoCompleteCharacterDeleted()

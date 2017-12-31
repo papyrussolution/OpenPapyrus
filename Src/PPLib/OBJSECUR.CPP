@@ -660,7 +660,7 @@ void SLAPI UserCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 }
 // }
 
-int SLAPI PPObjSecur::Fetch(PPID id, PPSecur * pRec)
+int FASTCALL PPObjSecur::Fetch(PPID id, PPSecur * pRec)
 {
 	UserCache * p_cache = GetDbLocalCachePtr <UserCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);

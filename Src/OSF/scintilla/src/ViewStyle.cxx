@@ -452,7 +452,7 @@ int ViewStyle::MarginFromLocation(Point pt) const
 
 bool ViewStyle::ValidStyle(size_t styleIndex) const
 {
-	return styleIndex < styles.size();
+	return (styleIndex < styles.size());
 }
 
 void ViewStyle::CalcLargestMarkerHeight()

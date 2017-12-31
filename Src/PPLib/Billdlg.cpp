@@ -1103,9 +1103,9 @@ int SLAPI PPLinkFilesArray::ReadFromProp(PPID billID)
 	char * p_buf = 0;
 	_Entry _e;
 	Reference * p_ref = PPRef;
-	if(p_ref->GetProp(PPOBJ_BILL, billID, BILLPRP_LINKFILES, &_e, sizeof(_e)) > 0 && _e.ItemsCount > 0) {
+	if(p_ref->GetProperty(PPOBJ_BILL, billID, BILLPRP_LINKFILES, &_e, sizeof(_e)) > 0 && _e.ItemsCount > 0) {
 		THROW_MEM(p_buf = new char[_e.Size]);
-		if(p_ref->GetProp(PPOBJ_BILL, billID, BILLPRP_LINKFILES, p_buf, _e.Size) > 0) {
+		if(p_ref->GetProperty(PPOBJ_BILL, billID, BILLPRP_LINKFILES, p_buf, _e.Size) > 0) {
 			char * p = p_buf;
 			p += sizeof(_e);
 			for(uint i = 0; i < (uint)_e.ItemsCount; p += at(i)->Size(), i++) {
@@ -1153,7 +1153,7 @@ int SLAPI PPLinkFilesArray::WriteToProp(PPID billID, int useTa)
 			THROW(ok = p_ref->PutProp(PPOBJ_BILL, billID, BILLPRP_LINKFILES, p_buf, sz));
 		}
 		else {
-			THROW(p_ref->RemoveProp(PPOBJ_BILL, billID, BILLPRP_LINKFILES, 0));
+			THROW(p_ref->RemoveProperty(PPOBJ_BILL, billID, BILLPRP_LINKFILES, 0));
 		}
 		prev_ary.RemoveByAry(this);
 		THROW(tra.Commit());

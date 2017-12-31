@@ -4351,7 +4351,7 @@ int SLAPI PPViewDebtorStat::MakeViewItem(const DebtStatTbl::Rec * pRec, DebtorSt
 	return 1;
 }
 
-int SLAPI PPViewDebtorStat::CheckForFilt(const DebtStatTbl::Rec & rRec) const
+int FASTCALL PPViewDebtorStat::CheckForFilt(const DebtStatTbl::Rec & rRec) const
 {
 	const long ff = Filt.Flags;
 	const long f = rRec.Flags;

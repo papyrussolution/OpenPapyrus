@@ -106,7 +106,7 @@ static const cairo_device_t _invalid_device = {
 	CAIRO_STATUS_DEVICE_ERROR,
 };
 
-cairo_device_t * _cairo_device_create_in_error(cairo_status_t status)
+cairo_device_t * FASTCALL _cairo_device_create_in_error(cairo_status_t status)
 {
 	switch(status) {
 		case CAIRO_STATUS_NO_MEMORY: return (cairo_device_t*)&_nil_device;
@@ -157,7 +157,7 @@ cairo_device_t * _cairo_device_create_in_error(cairo_status_t status)
 	}
 }
 
-void _cairo_device_init(cairo_device_t * device, const cairo_device_backend_t * backend)
+void FASTCALL _cairo_device_init(cairo_device_t * device, const cairo_device_backend_t * backend)
 {
 	CAIRO_REFERENCE_COUNT_INIT(&device->ref_count, 1);
 	device->status = CAIRO_STATUS_SUCCESS;
@@ -183,7 +183,7 @@ void _cairo_device_init(cairo_device_t * device, const cairo_device_backend_t * 
  *
  * Since: 1.10
  **/
-cairo_device_t * cairo_device_reference(cairo_device_t * device)
+cairo_device_t * FASTCALL cairo_device_reference(cairo_device_t * device)
 {
 	if(device && !CAIRO_REFERENCE_COUNT_IS_INVALID(&device->ref_count)) {
 		assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&device->ref_count));
@@ -228,15 +228,12 @@ cairo_status_t cairo_device_status(cairo_device_t * device)
  **/
 void cairo_device_flush(cairo_device_t * device)
 {
-	cairo_status_t status;
-	if(device == NULL || device->status)
-		return;
-	if(device->finished)
-		return;
-	if(device->backend->flush != NULL) {
-		status = device->backend->flush(device);
-		if(unlikely(status))
-			status = _cairo_device_set_error(device, status);
+	if(device && !device->status && !device->finished) {
+		if(device->backend->flush) {
+			cairo_status_t status = device->backend->flush(device);
+			if(unlikely(status))
+				status = _cairo_device_set_error(device, status);
+		}
 	}
 }
 
@@ -393,7 +390,7 @@ void cairo_device_release(cairo_device_t * device)
 
 slim_hidden_def(cairo_device_release);
 
-cairo_status_t _cairo_device_set_error(cairo_device_t * device, cairo_status_t status)
+cairo_status_t FASTCALL _cairo_device_set_error(cairo_device_t * device, cairo_status_t status)
 {
 	if(status == CAIRO_STATUS_SUCCESS)
 		return CAIRO_STATUS_SUCCESS;

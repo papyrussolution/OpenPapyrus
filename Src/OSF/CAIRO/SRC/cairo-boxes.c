@@ -122,7 +122,7 @@ static void FASTCALL _cairo_boxes_add_internal(cairo_boxes_t * boxes, const cair
 		boxes->is_pixel_aligned = _cairo_box_is_pixel_aligned(box);
 }
 
-cairo_status_t _cairo_boxes_add(cairo_boxes_t * boxes, cairo_antialias_t antialias, const cairo_box_t * box)
+cairo_status_t FASTCALL _cairo_boxes_add(cairo_boxes_t * boxes, cairo_antialias_t antialias, const cairo_box_t * box)
 {
 	cairo_box_t b;
 	if(antialias == CAIRO_ANTIALIAS_NONE) {

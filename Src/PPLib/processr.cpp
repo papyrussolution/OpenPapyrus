@@ -208,9 +208,8 @@ int ProcessorPlaceCodeTemplate::HasCode(const char * pCode) const
 //
 //
 //
-PPProcessorPacket::PlaceDescription::PlaceDescription()
+PPProcessorPacket::PlaceDescription::PlaceDescription() : GoodsID(0)
 {
-	GoodsID = 0;
 }
 
 PPProcessorPacket::PlaceDescription & PPProcessorPacket::PlaceDescription::Clear()
@@ -312,10 +311,9 @@ PPID SLAPI PPProcessorPacket::ExtBlock::GetOwnerGuaID() const
 	return Fb.OwnerGuaID;
 }
 
-int SLAPI PPProcessorPacket::ExtBlock::SetOwnerGuaID(PPID id)
+void SLAPI PPProcessorPacket::ExtBlock::SetOwnerGuaID(PPID id)
 {
 	Fb.OwnerGuaID = id;
-	return 1;
 }
 
 long SLAPI PPProcessorPacket::ExtBlock::GetCipCancelTimeout() const
@@ -926,21 +924,22 @@ int SLAPI PPObjProcessor::PutExtention(PPID id, PPProcessorPacket::ExtBlock * pE
 int SLAPI PPObjProcessor::GetExtention(PPID id, PPProcessorPacket::ExtBlock * pExt)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	Strg_ProcessorExt * p_strg = 0;
 	size_t sz = 0;
 	SBuffer buffer;
-	if(PPRef->GetPropSBuffer(Obj, id, PRCPRP_EXT2, buffer) > 0) {
+	if(p_ref->GetPropSBuffer(Obj, id, PRCPRP_EXT2, buffer) > 0) {
 		if(pExt) {
 			SSerializeContext sctx;
 			THROW(pExt->Serialize(-1, buffer, &sctx));
 		}
 		ok = 1;
 	}
-	else if(PPRef->GetPropActualSize(Obj, id, PRCPRP_EXT, &sz) > 0) {
+	else if(p_ref->GetPropActualSize(Obj, id, PRCPRP_EXT, &sz) > 0) {
 		if(pExt) {
 			SString stub_extsting;
 			p_strg = (Strg_ProcessorExt *)SAlloc::M(sz);
-			ok = PPRef->GetProp(Obj, id, PRCPRP_EXT, p_strg, sz);
+			ok = p_ref->GetProperty(Obj, id, PRCPRP_EXT, p_strg, sz);
 			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична
 			THROW(ok > 0);
 			pExt->destroy();

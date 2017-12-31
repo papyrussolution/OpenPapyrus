@@ -472,7 +472,7 @@ int SLAPI PPObjOprKind::GetATTemplList(PPID opID, PPAccTurnTemplArray * pList)
 	PPAccTurnTempl t;
 	const  size_t sz = sizeof(PPAccTurnTempl);
 	CALLPTRMEMB(pList, clear());
-	while(PPRef->EnumProps(PPOBJ_OPRKIND, opID, &p, memzero(&t, sz), sz) > 0 && p <= last) {
+	while(PPRef->EnumProperties(PPOBJ_OPRKIND, opID, &p, memzero(&t, sz), sz) > 0 && p <= last) {
 		if(pList)
 			THROW_SL(pList->insert(&t));
 		ok = 1;
@@ -503,7 +503,7 @@ int SLAPI PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
 	if(pack->Rec.OpTypeID == PPOPT_INVENTORY) {
 		PPInventoryOpEx ioe;
 		ZDELETE(pack->P_IOE);
-		if(ref->GetProp(PPOBJ_OPRKIND, id, OPKPRP_INVENTORY, &ioe, sizeof(ioe)) > 0) {
+		if(ref->GetProperty(PPOBJ_OPRKIND, id, OPKPRP_INVENTORY, &ioe, sizeof(ioe)) > 0) {
 			THROW_MEM(pack->P_IOE = new PPInventoryOpEx);
 			*pack->P_IOE = ioe;
 		}
@@ -535,7 +535,7 @@ int SLAPI PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
 		PPDebtInventOpEx dioe;
 		MEMSZERO(dioe);
 		ZDELETE(pack->P_DIOE);
-		if(ref->GetProp(PPOBJ_OPRKIND, id, OPKPRP_DEBTINVENT, &dioe, sizeof(dioe)) > 0) {
+		if(ref->GetProperty(PPOBJ_OPRKIND, id, OPKPRP_DEBTINVENT, &dioe, sizeof(dioe)) > 0) {
 			THROW_MEM(pack->P_DIOE = new PPDebtInventOpEx);
 			*pack->P_DIOE = dioe;
 		}
@@ -735,7 +735,7 @@ int SLAPI PPObjOprKind::GetDraftExData(PPID id, PPDraftOpEx * pData)
 {
 	int    ok = -1;
 	PPDraftOpEx_Strg strg;
-	if(ref->GetProp(Obj, id, OPKPRP_DRAFT, &strg, sizeof(strg)) > 0) {
+	if(ref->GetProperty(Obj, id, OPKPRP_DRAFT, &strg, sizeof(strg)) > 0) {
 		if(pData) {
 			pData->WrOffOpID  = strg.WrOffOpID;
 			pData->WrOffObjID = strg.WrOffObjID;
@@ -1134,11 +1134,9 @@ private:
 };
 
 OprKindView::OprKindView(PPID extData, int extDataKind) :
-	PPListDialog(((extDataKind == 2) ? DLG_OPLINKSVIEW : DLG_OPKVIEW), CTL_OPKVIEW_LIST)
+	PPListDialog(((extDataKind == 2) ? DLG_OPLINKSVIEW : DLG_OPKVIEW), CTL_OPKVIEW_LIST), 
+	ExtDataKind(extDataKind), OpTypeID(0), LinkOpID_(0)
 {
-	ExtDataKind = extDataKind;
-	OpTypeID = 0;
-	LinkOpID_ = 0;
 	if(ExtDataKind == 3) {
 		OpCounterID = extData;
 		SetupPPObjCombo(this, CTLSEL_OPKVIEW_TYPE, PPOBJ_OPCOUNTER, OpCounterID, 0, 0);
@@ -1675,12 +1673,10 @@ int OprKindDialog::getDTS(PPOprKindPacket * /*_data*/)
 	getCtrlData(sel = CTL_OPRKIND_NAME,    P_Data->Rec.Name);
 	THROW_PP(*strip(P_Data->Rec.Name), PPERR_NAMENEEDED);
 	getCtrlData(CTL_OPRKIND_SYMB, P_Data->Rec.Symb);
-	// @v7.3.5 {
 	{
 		getCtrlString(CTL_OPRKIND_EXPSYMB, temp_buf);
 		P_Data->PutExtStrData(OPKEXSTR_EXPSYMB, temp_buf.Strip());
 	}
-	// } @v7.3.5
 	getCtrlData(CTL_OPRKIND_ID,            &P_Data->Rec.ID);
 	getCtrlData(CTL_OPRKIND_RANK,          &P_Data->Rec.Rank);
 	getCtrlData(sel = CTLSEL_OPRKIND_TYPE, &P_Data->Rec.OpTypeID);
@@ -2818,7 +2814,7 @@ int SLAPI PPObjOprKind::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					return RetRefsExistsErr(Obj, op_rec.ID);
 				else if(oneof2(_obj, PPOBJ_ACCOUNT2, PPOBJ_ARTICLE)) {
 					PPAccTurnTempl att;
-					for(PPID prop = 0; ref->EnumProps(Obj, op_rec.ID, &prop, &att, sizeof(att)) > 0 && prop <= PP_MAXATURNTEMPLATES;)
+					for(PPID prop = 0; ref->EnumProperties(Obj, op_rec.ID, &prop, &att, sizeof(att)) > 0 && prop <= PP_MAXATURNTEMPLATES;)
 						if((_obj == PPOBJ_ACCOUNT2 && (att.DbtID.ac == _id || att.CrdID.ac == _id)) ||
 							(_obj == PPOBJ_ARTICLE && (att.DbtID.ar == _id || att.CrdID.ar == _id)))
 							return RetRefsExistsErr(Obj, op_rec.ID);
@@ -2967,7 +2963,7 @@ int SLAPI InvOpExCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 	int    ok = 1;
 	Data * p_cache_rec = (Data *)pEntry;
 	PPInventoryOpEx rec;
-	if(PPRef->GetProp(PPOBJ_OPRKIND, id, OPKPRP_INVENTORY, &rec, sizeof(rec)) > 0) {
+	if(PPRef->GetProperty(PPOBJ_OPRKIND, id, OPKPRP_INVENTORY, &rec, sizeof(rec)) > 0) {
 	   	p_cache_rec->WrDnOp  = rec.WrDnOp;
 		p_cache_rec->WrDnObj = rec.WrDnObj;
 	   	p_cache_rec->WrUpOp  = rec.WrUpOp;
@@ -3018,16 +3014,14 @@ public:
 		PPID   OpTypeID;
 		PPID   AccSheetID;
 	};
-	SLAPI  OpCache() : ObjCache(PPOBJ_OPRKIND, sizeof(OpCache::OpData))
+	SLAPI  OpCache() : ObjCache(PPOBJ_OPRKIND, sizeof(OpCache::OpData)), P_ReckonOpList(0), State(0)
 	{
-		P_ReckonOpList = 0;
-		State = 0;
 	}
 	SLAPI ~OpCache()
 	{
 		delete P_ReckonOpList;
 	}
-	virtual int  SLAPI Dirty(PPID); // @sync_w
+	virtual int FASTCALL Dirty(PPID); // @sync_w
 	int    SLAPI GetReckonOpList(PPIDArray *); // @sync_rw
 	int    SLAPI GetInventoryOpEx(PPID, PPInventoryOpEx *); // @>>IoeC.Get()
 	PPID   FASTCALL GetBySymb(const char * pSymb);
@@ -3047,7 +3041,7 @@ private:
 	StrAssocArray OpSymbList;
 };
 
-int SLAPI OpCache::Dirty(PPID opID)
+int FASTCALL OpCache::Dirty(PPID opID)
 {
 	{
 		//RwL.WriteLock();

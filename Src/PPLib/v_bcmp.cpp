@@ -50,13 +50,30 @@ int SLAPI PPViewGoodsBillCmp::GetBillCodes(const GoodsBillCmpFilt * pFilt, SStri
 	const  PPID rh_bill_id = pFilt->RhBillList.getCount() ? pFilt->RhBillList.get(0) : 0;
 	BillTbl::Rec bill_rec;
 	if(oneof2(pFilt->WhatBillIsHistory, ISHIST_LEFTBILL, ISHIST_BOTHBILL)) {
-		HistBillTbl::Rec hb_rec;
-		MEMSZERO(hb_rec);
-		r = Hb.Search(lh_bill_id, &hb_rec);
-		HistBillCore::HBRecToBRec(&hb_rec, &bill_rec);
+		if(1) {
+			ObjVersioningCore * p_ovc = PPRef->P_OvT;
+			if(p_ovc && p_ovc->InitSerializeContext(1)) {
+				SSerializeContext & r_sctx = p_ovc->GetSCtx();
+				SBuffer buf;
+				PPBillPacket pack;
+				PPObjID oid;
+				long   vv = 0;
+				if(p_ovc->Search(lh_bill_id, &oid, &vv, &buf) > 0 && BillObj->SerializePacket__(-1, &pack, buf, &r_sctx)) {
+					bill_rec = pack.Rec;
+					r = 1;
+				}
+			}
+		}
+		else {
+			HistBillTbl::Rec hb_rec;
+			MEMSZERO(hb_rec);
+			r = Hb_.Search(lh_bill_id, &hb_rec);
+			HistBillCore::HBRecToBRec(&hb_rec, &bill_rec);
+		}
 	}
-	else
+	else {
 		r = P_BObj->Search(lh_bill_id, &bill_rec);
+	}
 	if(r > 0)
 		PPObjBill::MakeCodeString(&bill_rec, 0, rLhCode);
 	else
@@ -64,10 +81,26 @@ int SLAPI PPViewGoodsBillCmp::GetBillCodes(const GoodsBillCmpFilt * pFilt, SStri
 	if(pFilt->LhBillList.getCount() > 1)
 		rLhCode.Insert(0, "*");
 	if(oneof2(pFilt->WhatBillIsHistory, ISHIST_RIGHTBILL, ISHIST_BOTHBILL)) {
-		HistBillTbl::Rec hb_rec;
-		MEMSZERO(hb_rec);
-		r = Hb.Search(rh_bill_id, &hb_rec);
-		HistBillCore::HBRecToBRec(&hb_rec, &bill_rec);
+		if(1) {
+			ObjVersioningCore * p_ovc = PPRef->P_OvT;
+			if(p_ovc && p_ovc->InitSerializeContext(1)) {
+				SSerializeContext & r_sctx = p_ovc->GetSCtx();
+				SBuffer buf;
+				PPBillPacket pack;
+				PPObjID oid;
+				long   vv = 0;
+				if(p_ovc->Search(rh_bill_id, &oid, &vv, &buf) > 0 && BillObj->SerializePacket__(-1, &pack, buf, &r_sctx)) {
+					bill_rec = pack.Rec;
+					r = 1;
+				}
+			}
+		}
+		else {
+			HistBillTbl::Rec hb_rec;
+			MEMSZERO(hb_rec);
+			r = Hb_.Search(rh_bill_id, &hb_rec);
+			HistBillCore::HBRecToBRec(&hb_rec, &bill_rec);
+		}
 	}
 	else
 		r = P_BObj->Search(rh_bill_id, &bill_rec);
@@ -130,9 +163,23 @@ int SLAPI PPViewGoodsBillCmp::PutBillToTempTable(PPID billID, int side /* 1 - lh
 	PPBillPacket pack;
 	THROW_INVARG(oneof2(side, 1, 2));
 	if(isHistory) {
-		PPHistBillPacket h_pack;
-		if((r = Hb.GetPacket(billID, &h_pack)) > 0)
-			r = h_pack.ConvertToBillPack(&pack);
+		if(1) {
+			SBuffer buf;
+			ObjVersioningCore * p_ovc = PPRef->P_OvT;
+			if(p_ovc && p_ovc->InitSerializeContext(1)) {
+				SSerializeContext & r_sctx = p_ovc->GetSCtx();
+				PPObjID oid;
+				long   vv = 0;
+				THROW(p_ovc->Search(billID, &oid, &vv, &buf) > 0);
+				THROW(BillObj->SerializePacket__(-1, &pack, buf, &r_sctx));
+				r = 1;
+			}
+		}
+		else {
+			PPHistBillPacket h_pack;
+			if((r = Hb_.GetPacket(billID, &h_pack)) > 0)
+				r = h_pack.ConvertToBillPack(&pack);
+		}
 	}
 	else
 		r = P_BObj->ExtractPacket(billID, &pack);

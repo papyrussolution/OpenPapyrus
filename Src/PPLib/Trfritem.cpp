@@ -5,7 +5,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-static inline int Impl_IsUnlimWoLot(long flags)
+static int FASTCALL Impl_IsUnlimWoLot(long flags)
 {
 	if(CConfig.Flags & CCFLG_GENLOTONUNLIMORDER)
 		return BIN((flags & PPTFR_ACK) || (flags & PPTFR_UNLIM && !(flags & (PPTFR_ORDER|PPTFR_SHADOW))));
@@ -30,7 +30,7 @@ int SLAPI PPTransferItem::IsUnlimWoLot() const
 	return Impl_IsUnlimWoLot(Flags);
 }
 
-int SLAPI IsUnlimWoLot(const TransferTbl::Rec & rRec)
+int FASTCALL IsUnlimWoLot(const TransferTbl::Rec & rRec)
 {
 	return Impl_IsUnlimWoLot(rRec.Flags);
 }

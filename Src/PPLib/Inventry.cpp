@@ -535,7 +535,8 @@ int SLAPI PPObjBill::RollbackInventoryWrOff(PPID id)
 			THROW(ExtractPacketWithFlags(link_id, &link_pack, BPLD_LOCK|BPLD_FORCESERIALS) > 0);
 			lock_list.add(link_id);
 			for(i = 0; link_pack.EnumTItems(&i, &p_ti);) {
-				link_pack.SnL.GetNumber(i-1, &serial);
+				// @v9.8.11 link_pack.SnL.GetNumber(i-1, &serial);
+				link_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, serial); // @v9.8.11 
 				if(r_inv_tbl.SearchIdentical(id, p_ti->GoodsID, serial, &inv_rec) > 0) {
 					inv_rec.WrOffPrice = inv_rec.StockPrice;
 					if(inv_rec.Flags & (INVENTF_WRITEDOFF|INVENTF_GENWROFFLINE)) {
@@ -647,7 +648,7 @@ int SLAPI PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/
 	InvItem inv_item;
 	PPBillPacket link_pack;
 	const PPID bill_id = billID;
-	struct WrOffPriceBlock {
+	struct WrOffPriceBlock { // @flat
 		long   InvR;
 		//
 		// Дата и порядковый номер операции, до которых следует принимать в расчет остаток по лотам.
@@ -660,7 +661,7 @@ int SLAPI PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/
 		double Qtty;
 		double Sum;
 	};
-	SArray wroff_price_list(sizeof(WrOffPriceBlock));
+	SVector wroff_price_list(sizeof(WrOffPriceBlock)); // @v9.8.11 SArray-->SVector
 	PPWait(1);
 	{
 		PPTransaction tra(use_ta);
@@ -673,7 +674,8 @@ int SLAPI PPObjBill::RecalcInventoryStockRests(PPID billID, /*int recalcPrices*/
 				PPTransferItem * p_ti;
 				THROW(ExtractPacketWithFlags(link_id, &link_pack, BPLD_LOCK|BPLD_FORCESERIALS) > 0);
 				for(uint i = 0; link_pack.EnumTItems(&i, &p_ti);) {
-					link_pack.SnL.GetNumber(i-1, &serial);
+					// @v9.8.11 link_pack.SnL.GetNumber(i-1, &serial);
+					link_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, serial); // @v9.8.11 
 					if(r_inv_tbl.SearchIdentical(bill_id, p_ti->GoodsID, serial, &rec) > 0) {
 						uint   pos = 0;
 						double t_qtty = fabs(p_ti->Qtty());
@@ -1196,7 +1198,8 @@ int SLAPI InventoryConversion::Run(PPID billID)
 										ilti.SetQtty(diff);
 										rows.clear();
 										THROW(P_BObj->ConvertILTI(&ilti, &wrUpPack, &rows, CILTIF_DEFAULT|CILTIF_INHLOTTAGS, ir.Serial)); // @v8.4.4 CILTIF_INHLOTTAGS
-										THROW(wrUpPack.ClbL.AddNumber(&rows, clb));
+										// @v9.8.11 THROW(wrUpPack.ClbL.AddNumber(&rows, clb));
+										THROW(wrUpPack.LTagL.AddNumber(PPTAG_LOT_CLB, &rows, clb)); // @v9.8.11 
 										{
 											double amt = 0.0, t_qtty = 0.0;
 											for(uint rp = 0; rp < rows.getCount(); rp++) {

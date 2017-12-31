@@ -165,7 +165,7 @@ void SLAPI GoodsTypeCache::EntryToData(const ObjCacheEntry * pEntry, void * pDat
 
 IMPL_OBJ_FETCH(PPObjGoodsType, PPGoodsType, GoodsTypeCache);
 
-int SLAPI PPObjGoodsType::IsUnlim(PPID id)
+int FASTCALL PPObjGoodsType::IsUnlim(PPID id)
 {
 	PPGoodsType gt_rec;
 	return BIN(id && id != PPGT_DEFAULT && Fetch(id, &gt_rec) > 0 && gt_rec.Flags & (GTF_UNLIMITED | GTF_AUTOCOMPL));
@@ -649,9 +649,8 @@ int SLAPI PPObjGoodsValRestr::GetPacket(PPID id, PPGoodsValRestrPacket * pPack)
 //
 class GoodsValRestrCache : public ObjCache {
 public:
-	SLAPI GoodsValRestrCache() : ObjCache(PPOBJ_GOODSVALRESTR, sizeof(GoodsValRestrData)) // @v7.9.2 mistake PPOBJ_GOODSTYPE-->PPOBJ_GOODSVALRESTR
+	SLAPI GoodsValRestrCache() : ObjCache(PPOBJ_GOODSVALRESTR, sizeof(GoodsValRestrData)), P_BarList(0)
 	{
-		P_BarList = 0;
 	}
 	SLAPI ~GoodsValRestrCache()
 	{
@@ -662,7 +661,7 @@ public:
 private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
-	virtual int  SLAPI Dirty(PPID id);
+	virtual int  FASTCALL Dirty(PPID id);
 public:
 	struct GoodsValRestrData : public ObjCacheEntry {
 		PPID   ScpShipmOpID;
@@ -725,7 +724,7 @@ int SLAPI GoodsValRestrCache::FetchBarList(PPObjGoodsValRestr::GvrArray & rList)
 	return ok;
 }
 
-int SLAPI GoodsValRestrCache::Dirty(PPID id)
+int FASTCALL GoodsValRestrCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	ObjCache::Dirty(id);

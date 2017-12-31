@@ -116,7 +116,7 @@ void _cairo_freelist_free(cairo_freelist_t * freelist, void * voidnode)
 	}
 }
 
-void _cairo_freepool_init(cairo_freepool_t * freepool, unsigned nodesize)
+void FASTCALL _cairo_freepool_init(cairo_freepool_t * freepool, unsigned nodesize)
 {
 	freepool->first_free_node = NULL;
 	freepool->pools = &freepool->embedded_pool;
@@ -129,7 +129,7 @@ void _cairo_freepool_init(cairo_freepool_t * freepool, unsigned nodesize)
 	VG(VALGRIND_MAKE_MEM_NOACCESS(freepool->embedded_data, sizeof(freepool->embedded_data)));
 }
 
-void _cairo_freepool_fini(cairo_freepool_t * freepool)
+void FASTCALL _cairo_freepool_fini(cairo_freepool_t * freepool)
 {
 	cairo_freelist_pool_t * pool = freepool->pools;
 	while(pool != &freepool->embedded_pool) {

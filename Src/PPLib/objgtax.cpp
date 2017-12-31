@@ -888,7 +888,7 @@ public:
 	SLAPI  GTaxCache();
 	int    SLAPI Get(PPID, LDATE, PPID, PPGoodsTaxEntry *);
 	int    SLAPI GetByID(PPID, PPGoodsTaxEntry *);
-	virtual int  SLAPI Dirty(PPID); // @sync_w
+	virtual int  FASTCALL Dirty(PPID); // @sync_w
 private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long)
 	{
@@ -905,7 +905,7 @@ SLAPI GTaxCache::GTaxCache() : ObjCache(PPOBJ_GOODSTAX, sizeof(PPGoodsTaxEntry))
 {
 }
 
-int SLAPI GTaxCache::Dirty(PPID id)
+int FASTCALL GTaxCache::Dirty(PPID id)
 {
 	{
 		//RwL.WriteLock();

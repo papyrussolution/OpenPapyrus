@@ -226,7 +226,7 @@
       <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\bn;..\OSF\OpenSSL\crypto\rsa;..\OSF\OpenSSL\crypto\dh;..\OSF\OpenSSL\crypto\bio;..\OSF\OpenSSL;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling />
+      <ExceptionHandling>false</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
@@ -516,7 +516,7 @@
       <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\bn;..\OSF\OpenSSL\crypto\rsa;..\OSF\OpenSSL\crypto\dh;..\OSF\OpenSSL\crypto\bio;..\OSF\OpenSSL;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling />
+      <ExceptionHandling>false</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <StructMemberAlignment>1Byte</StructMemberAlignment>

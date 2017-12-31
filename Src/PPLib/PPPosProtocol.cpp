@@ -3,7 +3,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-
 /*
 
 pap
@@ -31,15 +30,13 @@ destination:
 */
 class ACS_PAPYRUS_APN : public PPAsyncCashSession {
 public:
-	SLAPI  ACS_PAPYRUS_APN(PPID n, PPID parent) : PPAsyncCashSession(n), ParentNodeID(parent)
+	SLAPI  ACS_PAPYRUS_APN(PPID n, PPID parent) : PPAsyncCashSession(n), ParentNodeID(parent), P_Pib(0), StatID(0)
 	{
-		P_Pib = 0;
 		if(GetNodeData(&Acn) > 0) {
 			Acn.GetLogNumList(LogNumList);
 			ExpPath = Acn.ExpPaths;
 			ImpPath = Acn.ImpFiles;
 		}
-		StatID = 0;
 	}
 	SLAPI ~ACS_PAPYRUS_APN()
 	{
@@ -662,12 +659,8 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 //
 //
 //
-SLAPI PPPosProtocol::WriteBlock::WriteBlock()
+SLAPI PPPosProtocol::WriteBlock::WriteBlock() : P_Xw(0), P_Xd(0), P_Root(0), LocID(0)
 {
-	P_Xw = 0;
-	P_Xd = 0;
-	P_Root = 0;
-	LocID = 0;
 }
 
 SLAPI PPPosProtocol::WriteBlock::~WriteBlock()
@@ -746,16 +739,9 @@ SLAPI PPPosProtocol::UnitBlock::UnitBlock() : ObjectBlock(), CodeP(0), SymbP(0),
 {
 }
 
-SLAPI PPPosProtocol::GoodsBlock::GoodsBlock() : ObjectBlock()
+SLAPI PPPosProtocol::GoodsBlock::GoodsBlock() : 
+	ObjectBlock(), ParentBlkP(0), InnerId(0),  GoodsFlags(0), UnitBlkP(0),  PhUnitBlkP(0),  PhUPerU(0.0), Price(0.0), Rest(0.0)
 {
-	ParentBlkP = 0;
-	InnerId = 0;
-	GoodsFlags = 0;
-	UnitBlkP = 0;
-	PhUnitBlkP = 0;
-	PhUPerU = 0.0;
-	Price = 0.0;
-	Rest = 0.0;
 }
 
 SLAPI PPPosProtocol::GoodsGroupBlock::GoodsGroupBlock() : ObjectBlock(), CodeP(0), ParentBlkP(0)
@@ -787,22 +773,9 @@ SLAPI PPPosProtocol::CCheckBlock::CCheckBlock() : ObjectBlock(), Code(0), CcFlag
 {
 }
 
-SLAPI PPPosProtocol::CcLineBlock::CcLineBlock() : ObjectBlock()
+SLAPI PPPosProtocol::CcLineBlock::CcLineBlock() : ObjectBlock(), CcID(0), RByCheck(0), CclFlags(0), DivN(0), Queue(0), GoodsBlkP(0), 
+	Qtty(0.0), Price(0.0), Discount(0.0), SumDiscount(0.0), Amount(0.0), CCheckBlkP(0), SerialP(0), EgaisMarkP(0)
 {
-	CcID = 0;
-	RByCheck = 0; // (id)
-	CclFlags = 0;
-	DivN = 0;
-	Queue = 0;
-	GoodsBlkP = 0;
-	Qtty = 0.0;
-	Price = 0.0;
-	Discount = 0.0;
-	SumDiscount = 0.0;
-	Amount = 0.0;
-	CCheckBlkP = 0;
-	SerialP = 0;
-	EgaisMarkP = 0;
 }
 
 SLAPI PPPosProtocol::CcPaymentBlock::CcPaymentBlock() : CcID(0), PaymType(0), Amount(0.0), SCardBlkP(0)
@@ -1195,9 +1168,8 @@ const void * SLAPI PPPosProtocol::ProcessInputBlock::GetStoredReadBlocks() const
 	return P_RbList;
 }
 
-SLAPI PPPosProtocol::PPPosProtocol()
+SLAPI PPPosProtocol::PPPosProtocol() : P_BObj(BillObj)
 {
-	P_BObj = BillObj;
 }
 
 SLAPI PPPosProtocol::~PPPosProtocol()
@@ -2722,12 +2694,8 @@ int PPPosProtocol::Characters(const char * pS, size_t len)
 extern "C" xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options);
 void FASTCALL xmlDetectSAX2(xmlParserCtxt * ctxt); // @prototype
 
-SLAPI PPPosProtocol::ReadBlock::ReadBlock()
+SLAPI PPPosProtocol::ReadBlock::ReadBlock() : P_SaxCtx(0), State(0), Phase(phUnkn), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN))
 {
-	P_SaxCtx = 0;
-	State = 0;
-	Phase = phUnkn;
-	P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
 }
 
 SLAPI PPPosProtocol::ReadBlock::~ReadBlock()
@@ -4633,10 +4601,8 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
 	class PosInputProcessThread : public PPThread {
 	public:
 		struct InitBlock {
-			InitBlock(PPID posNodeID)
+			InitBlock(PPID posNodeID) : PosNodeID(posNodeID), ForcePeriodMs(0)
 			{
-				PosNodeID = posNodeID;
-				ForcePeriodMs = 0;
 			}
 			SString DbSymb;
 			SString UserName;

@@ -14,7 +14,7 @@ SVerT SLAPI PPSession::GetMinCompatVersion() const
 	// @attention При изменении формата передачи данных необходимо установить здесь минимальную
 	//   версию системы, с которой пакеты паредачи данных могут быть приняты.
 	//
-	static const SVerT __MinCompatVer(9, 8, 9);
+	static const SVerT __MinCompatVer(9, 8, 11);
 		// @v6.4.7  6.2.2-->6.4.7
 		// @v7.0.0  6.4.7-->6.9.10
 		// @v7.0.7  6.9.10-->7.0.7
@@ -33,6 +33,7 @@ SVerT SLAPI PPSession::GetMinCompatVersion() const
 		// @v9.0.4  8.8.0-->9.0.4
 		// @v9.4.0  9.0.4-->9.4.0
 		// @v9.8.9  9.4.0-->9.8.9
+		// @v9.8.11 9.8.9-->9.8.11
 	return __MinCompatVer;
 }
 //
@@ -595,7 +596,7 @@ int FASTCALL PPObjectTransmit::CheckInHeader(const PPObjectTransmit::Header * pH
 		pHdr->MinDestVer.Get(&mj, &mn, &r);
 		THROW_PP_S(!cur_ver.IsLt(mj, mn, r), PPERR_RCVPACKETVER, temp_buf.Z().CatDotTriplet(mj, mn, r));
 		// @v9.8.11 __MinCompatVer.Get(&mj, &mn, &r);
-		DS.GetMinCompatVersion().Get(&mj, &mn, &r); // @v9.8.11 
+		DS.GetMinCompatVersion().Get(&mj, &mn, &r); // @v9.8.11
 		THROW_PP_S(!pHdr->SwVer.IsLt(mj, mn, r), PPERR_RCVPACKETSRCVER, temp_buf.Z().CatDotTriplet(mj, mn, r));
 	}
 	CATCHZOK
@@ -3000,7 +3001,7 @@ int SLAPI PPObjectTransmit::StartReceivingPacket(const char * pFileName, const v
 			ok = -1;
 		}
 		// @v9.8.11 __MinCompatVer.Get(&mj, &mn, &r);
-		DS.GetMinCompatVersion().Get(&mj, &mn, &r); // @v9.8.11 
+		DS.GetMinCompatVersion().Get(&mj, &mn, &r); // @v9.8.11
 		if(p_hdr->SwVer.IsLt(mj, mn, r)) {
 			PPLoadText(PPTXT_RCVPACKETREJSRCVER, buf);
 			Ctx.OutReceivingMsg(msg_buf.Printf(buf, temp_buf.Z().CatDotTriplet(mj, mn, r).cptr()));

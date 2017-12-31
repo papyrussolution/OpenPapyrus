@@ -30,9 +30,7 @@
  *
  * The Initial Developer of the Original Code is Carl Worth
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org> Chris Wilson <chris@chris-wilson.co.uk>
  */
 // Provide definitions for standalone compilation 
 #include "cairoint.h"
@@ -487,6 +485,12 @@ static /*inline*/ void FASTCALL sweep_line_insert(sweep_line_t * sweep, rectangl
 	pqueue_push(sweep, rectangle);
 }
 
+// @cairover-1.14.12 
+static int sweep_line_setjmp(sweep_line_t * sweep_line)
+{
+	return setjmp(sweep_line->unwind);
+}
+
 static cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular(rectangle_t ** rectangles,
     int num_rectangles, CairoFillRule fill_rule, cairo_bool_t do_traps, void * container)
 {
@@ -495,7 +499,8 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_rectangular(rectangle_t 
 	cairo_status_t status;
 	cairo_bool_t update = FALSE;
 	sweep_line_init(&sweep_line, rectangles, num_rectangles, fill_rule, do_traps, container);
-	if((status = (cairo_status_t)setjmp(sweep_line.unwind)))
+	// @cairover-1.14.12 if((status = (cairo_status_t)setjmp(sweep_line.unwind)))
+	if((status = (cairo_status_t)sweep_line_setjmp(&sweep_line))) // @cairover-1.14.12 
 		return status;
 	rectangle = rectangle_pop_start(&sweep_line);
 	do {

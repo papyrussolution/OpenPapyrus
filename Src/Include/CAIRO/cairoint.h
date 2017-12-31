@@ -396,7 +396,80 @@ static inline cairo_bool_t cairo_list_is_singular(const cairo_list_t * head)
 #endif
 
 CAIRO_BEGIN_DECLS
+// @cairover-1.14.12 {
+// 
+// C++11 atomic primitives were designed to be more flexible than the
+// __sync_* family of primitives.  Despite the name, they are available
+// in C as well as C++.  The motivating reason for using them is that
+// for _cairo_atomic_{int,ptr}_get, the compiler is able to see that
+// the load is intended to be atomic, as opposed to the __sync_*
+// version, below, where the load looks like a plain load.  Having
+// the load appear atomic to the compiler is particular important for
+// tools like ThreadSanitizer so they don't report false positives on
+// memory operations that we intend to be atomic.
+// 
+#if HAVE_CXX11_ATOMIC_PRIMITIVES
 
+#define HAS_ATOMIC_OPS 1
+
+typedef int cairo_atomic_int_t;
+
+static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_get (cairo_atomic_int_t *x)
+{
+	return __atomic_load_n(x, __ATOMIC_SEQ_CST);
+}
+
+static cairo_always_inline void * _cairo_atomic_ptr_get (void **x)
+{
+	return __atomic_load_n(x, __ATOMIC_SEQ_CST);
+}
+
+#if SIZEOF_VOID_P==SIZEOF_INT
+	typedef int cairo_atomic_intptr_t;
+#elif SIZEOF_VOID_P==SIZEOF_LONG
+	typedef long cairo_atomic_intptr_t;
+#elif SIZEOF_VOID_P==SIZEOF_LONG_LONG
+	typedef long long cairo_atomic_intptr_t;
+#else
+	#error No matching integer pointer type
+#endif
+
+static cairo_always_inline cairo_bool_t _cairo_atomic_int_cmpxchg_impl(cairo_atomic_int_t *x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv)
+{
+	cairo_atomic_int_t expected = oldv;
+	return __atomic_compare_exchange_n(x, &expected, newv, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+}
+
+static cairo_always_inline cairo_atomic_int_t _cairo_atomic_int_cmpxchg_return_old_impl(cairo_atomic_int_t *x, cairo_atomic_int_t oldv, cairo_atomic_int_t newv)
+{
+	cairo_atomic_int_t expected = oldv;
+	(void) __atomic_compare_exchange_n(x, &expected, newv, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+	return expected;
+}
+
+static cairo_always_inline cairo_bool_t _cairo_atomic_ptr_cmpxchg_impl(void **x, void *oldv, void *newv)
+{
+	void *expected = oldv;
+	return __atomic_compare_exchange_n(x, &expected, newv, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+}
+
+static cairo_always_inline void * _cairo_atomic_ptr_cmpxchg_return_old_impl(void **x, void *oldv, void *newv)
+{
+	void *expected = oldv;
+	(void) __atomic_compare_exchange_n(x, &expected, newv, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
+	return expected;
+}
+
+#define _cairo_atomic_int_inc(x) ((void) __atomic_fetch_add(x, 1, __ATOMIC_SEQ_CST))
+#define _cairo_atomic_int_dec(x) ((void) __atomic_fetch_sub(x, 1, __ATOMIC_SEQ_CST))
+#define _cairo_atomic_int_dec_and_test(x) (__atomic_fetch_sub(x, 1, __ATOMIC_SEQ_CST) == 1)
+#define _cairo_atomic_int_cmpxchg(x, oldv, newv) _cairo_atomic_int_cmpxchg_impl(x, oldv, newv)
+#define _cairo_atomic_int_cmpxchg_return_old(x, oldv, newv) _cairo_atomic_int_cmpxchg_return_old_impl(x, oldv, newv)
+#define _cairo_atomic_ptr_cmpxchg(x, oldv, newv) _cairo_atomic_ptr_cmpxchg_impl(x, oldv, newv)
+#define _cairo_atomic_ptr_cmpxchg_return_old(x, oldv, newv) _cairo_atomic_ptr_cmpxchg_return_old_impl(x, oldv, newv)
+
+#endif
+// } @cairover-1.14.12 
 #if HAVE_INTEL_ATOMIC_PRIMITIVES
 	#define HAS_ATOMIC_OPS 1
 
@@ -972,6 +1045,13 @@ struct cairo_point_t {
     cairo_fixed_t x;
     cairo_fixed_t y;
 };
+
+void FASTCALL CairoTranslatePoint(cairo_point_t * point, const cairo_point_t * offset);
+cairo_uint64_t FASTCALL CairoPointDistanceSq(const cairo_point_t * p1, const cairo_point_t * p2);
+// 
+// Return -1, 0 or 1 depending on the relative slopes of two lines.
+// 
+int FASTCALL CairoSlopeCompareSgn(double dx1, double dy1, double dx2, double dy2);
 //
 #include "cairo-fixed-private.h"
 //
@@ -2775,22 +2855,18 @@ cairo_private void _cairo_pen_fini(cairo_pen_t * pen);
 cairo_private cairo_status_t _cairo_pen_add_points(cairo_pen_t * pen, cairo_point_t * point, int num_points);
 cairo_private int _cairo_pen_find_active_cw_vertex_index(const cairo_pen_t * pen, const cairo_slope_t * slope);
 cairo_private int _cairo_pen_find_active_ccw_vertex_index(const cairo_pen_t * pen, const cairo_slope_t * slope);
-cairo_private void _cairo_pen_find_active_cw_vertices(const cairo_pen_t * pen,
-    const cairo_slope_t * in, const cairo_slope_t * out, int * start, int * stop);
-cairo_private void _cairo_pen_find_active_ccw_vertices(const cairo_pen_t * pen,
-    const cairo_slope_t * in, const cairo_slope_t * out, int * start, int * stop);
+cairo_private void _cairo_pen_find_active_cw_vertices(const cairo_pen_t * pen, const cairo_slope_t * in, const cairo_slope_t * out, int * start, int * stop);
+cairo_private void _cairo_pen_find_active_ccw_vertices(const cairo_pen_t * pen, const cairo_slope_t * in, const cairo_slope_t * out, int * start, int * stop);
 /* cairo-polygon.c */
-cairo_private void _cairo_polygon_init(cairo_polygon_t   * polygon, const cairo_box_t * boxes, int num_boxes);
-cairo_private void _cairo_polygon_init_with_clip(cairo_polygon_t * polygon, const cairo_clip_t * clip);
+cairo_private void FASTCALL _cairo_polygon_init(cairo_polygon_t   * polygon, const cairo_box_t * boxes, int num_boxes);
+cairo_private void FASTCALL _cairo_polygon_init_with_clip(cairo_polygon_t * polygon, const cairo_clip_t * clip);
 cairo_private cairo_status_t _cairo_polygon_init_boxes(cairo_polygon_t * polygon, const cairo_boxes_t * boxes);
 cairo_private cairo_status_t _cairo_polygon_init_box_array(cairo_polygon_t * polygon, cairo_box_t * boxes, int num_boxes);
 cairo_private void _cairo_polygon_limit(cairo_polygon_t * polygon, const cairo_box_t * limits, int num_limits);
 cairo_private void _cairo_polygon_limit_to_clip(cairo_polygon_t * polygon, const cairo_clip_t * clip);
-cairo_private void _cairo_polygon_fini(cairo_polygon_t * polygon);
-cairo_private_no_warn cairo_status_t _cairo_polygon_add_line(cairo_polygon_t * polygon,
-    const cairo_line_t * line, int top, int bottom, int dir);
-cairo_private_no_warn cairo_status_t _cairo_polygon_add_external_edge(void * polygon,
-    const cairo_point_t * p1, const cairo_point_t * p2);
+cairo_private void FASTCALL _cairo_polygon_fini(cairo_polygon_t * polygon);
+cairo_private_no_warn cairo_status_t _cairo_polygon_add_line(cairo_polygon_t * polygon, const cairo_line_t * line, int top, int bottom, int dir);
+cairo_private_no_warn cairo_status_t _cairo_polygon_add_external_edge(void * polygon, const cairo_point_t * p1, const cairo_point_t * p2);
 cairo_private_no_warn cairo_status_t _cairo_polygon_add_contour(cairo_polygon_t * polygon, const cairo_contour_t * contour);
 cairo_private void _cairo_polygon_translate(cairo_polygon_t * polygon, int dx, int dy);
 cairo_private cairo_status_t _cairo_polygon_reduce(cairo_polygon_t * polygon, CairoFillRule fill_rule);
@@ -2808,7 +2884,7 @@ static inline cairo_bool_t _cairo_polygon_is_empty(const cairo_polygon_t * polyg
 cairo_private cairo_bool_t _cairo_spline_init(cairo_spline_t * spline,
     cairo_spline_add_point_func_t add_point_func, void * closure,
     const cairo_point_t * a, const cairo_point_t * b, const cairo_point_t * c, const cairo_point_t * d);
-cairo_private cairo_status_t _cairo_spline_decompose(cairo_spline_t * spline, double tolerance);
+cairo_private cairo_status_t FASTCALL _cairo_spline_decompose(cairo_spline_t * spline, double tolerance);
 cairo_private cairo_status_t _cairo_spline_bound(cairo_spline_add_point_func_t add_point_func,
     void * closure, const cairo_point_t * p0, const cairo_point_t * p1, const cairo_point_t * p2, const cairo_point_t * p3);
 /* cairo-matrix.c */
@@ -3640,7 +3716,7 @@ cairo_private void FASTCALL _cairo_boxes_init_with_clip(cairo_boxes_t * boxes, c
 cairo_private void _cairo_boxes_init_for_array(cairo_boxes_t * boxes, cairo_box_t * array, int num_boxes);
 cairo_private void _cairo_boxes_init_from_rectangle(cairo_boxes_t * boxes, int x, int y, int w, int h);
 cairo_private void FASTCALL _cairo_boxes_limit(cairo_boxes_t * boxes, const cairo_box_t   * limits, int num_limits);
-cairo_private cairo_status_t _cairo_boxes_add(cairo_boxes_t * boxes, cairo_antialias_t antialias, const cairo_box_t * box);
+cairo_private cairo_status_t FASTCALL _cairo_boxes_add(cairo_boxes_t * boxes, cairo_antialias_t antialias, const cairo_box_t * box);
 cairo_private void FASTCALL _cairo_boxes_extents(const cairo_boxes_t * boxes, cairo_box_t * box);
 cairo_private cairo_box_t * _cairo_boxes_to_array(const cairo_boxes_t * boxes, int * num_boxes, cairo_bool_t force_allocation);
 cairo_private cairo_status_t _cairo_boxes_intersect(const cairo_boxes_t * a, const cairo_boxes_t * b, cairo_boxes_t * out);
@@ -3749,7 +3825,7 @@ cairo_private cairo_status_t _cairo_shape_init_from_polygon(cairo_shape_t * shap
 cairo_private cairo_status_t _cairo_shape_reduce(cairo_shape_t * shape, double tolerance);
 #endif
 cairo_private void _cairo_contour_init(cairo_contour_t * contour, int direction);
-cairo_private cairo_int_status_t __cairo_contour_add_point(cairo_contour_t * contour, const cairo_point_t * point);
+cairo_private cairo_int_status_t FASTCALL __cairo_contour_add_point(cairo_contour_t * contour, const cairo_point_t * point);
 cairo_private void _cairo_contour_simplify(cairo_contour_t * contour, double tolerance);
 cairo_private void _cairo_contour_reverse(cairo_contour_t * contour);
 cairo_private cairo_int_status_t _cairo_contour_add(cairo_contour_t * dst, const cairo_contour_t * src);
@@ -4703,8 +4779,8 @@ cairo_private void * _cairo_freelist_calloc(cairo_freelist_t * freelist);
 // but makes it available for later reuse by _cairo_freelist_alloc().
 // 
 cairo_private void _cairo_freelist_free(cairo_freelist_t * freelist, void * node);
-cairo_private void _cairo_freepool_init(cairo_freepool_t * freepool, unsigned nodesize);
-cairo_private void _cairo_freepool_fini(cairo_freepool_t * freepool);
+cairo_private void FASTCALL _cairo_freepool_init(cairo_freepool_t * freepool, unsigned nodesize);
+cairo_private void FASTCALL _cairo_freepool_fini(cairo_freepool_t * freepool);
 void FASTCALL _cairo_freepool_reset(cairo_freepool_t * freepool);
 cairo_private void * _cairo_freepool_alloc_from_new_pool(cairo_freepool_t * freepool);
 void * FASTCALL _cairo_freepool_alloc_from_pool(cairo_freepool_t * freepool);
@@ -4787,9 +4863,9 @@ struct _cairo_device_backend {
     void (*destroy) (void *device);
 };
 
-cairo_private cairo_device_t * _cairo_device_create_in_error (cairo_status_t status);
-cairo_private void _cairo_device_init (cairo_device_t *device, const cairo_device_backend_t *backend);
-cairo_private cairo_status_t _cairo_device_set_error (cairo_device_t *device, cairo_status_t error);
+cairo_private cairo_device_t * FASTCALL _cairo_device_create_in_error(cairo_status_t status);
+cairo_private void FASTCALL _cairo_device_init(cairo_device_t *device, const cairo_device_backend_t *backend);
+cairo_private cairo_status_t FASTCALL _cairo_device_set_error(cairo_device_t *device, cairo_status_t error);
 
 slim_hidden_proto_no_warn (cairo_device_reference);
 slim_hidden_proto (cairo_device_acquire);
@@ -6734,7 +6810,7 @@ static inline cairo_bool_t _cairo_slope_backwards(const cairo_slope_t * a, const
 	return _cairo_int64_negative(_cairo_int64_add(_cairo_int32x32_64_mul(a->dx, b->dx), _cairo_int32x32_64_mul(a->dy, b->dy)));
 }
 
-cairo_private int _cairo_slope_compare(const cairo_slope_t * a, const cairo_slope_t * b) cairo_pure;
+cairo_private int FASTCALL _cairo_slope_compare(const cairo_slope_t * a, const cairo_slope_t * b) cairo_pure;
 
 CAIRO_BEGIN_DECLS
 //

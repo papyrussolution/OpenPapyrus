@@ -14,8 +14,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -26,7 +26,8 @@
 				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;USE_DL600"
 				StringPooling="TRUE"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
 				StructMemberAlignment="1"
@@ -82,8 +83,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -99,6 +100,8 @@
 				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;USE_DL600"
 				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"

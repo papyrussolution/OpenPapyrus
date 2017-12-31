@@ -11,7 +11,7 @@
 #include "evp_locl.h"
 
 /* This call frees resources associated with the context */
-int EVP_MD_CTX_reset(EVP_MD_CTX * ctx)
+int FASTCALL EVP_MD_CTX_reset(EVP_MD_CTX * ctx)
 {
 	if(!ctx)
 		return 1;
@@ -37,7 +37,7 @@ EVP_MD_CTX * EVP_MD_CTX_new(void)
 	return (EVP_MD_CTX*)OPENSSL_zalloc(sizeof(EVP_MD_CTX));
 }
 
-void EVP_MD_CTX_free(EVP_MD_CTX * ctx)
+void FASTCALL EVP_MD_CTX_free(EVP_MD_CTX * ctx)
 {
 	EVP_MD_CTX_reset(ctx);
 	OPENSSL_free(ctx);
@@ -59,8 +59,7 @@ int EVP_DigestInit_ex(EVP_MD_CTX * ctx, const EVP_MD * type, ENGINE * impl)
 	 * previous handle, re-querying for an ENGINE, and having a
 	 * reinitialisation, when it may all be unnecessary.
 	 */
-	if(ctx->engine && ctx->digest &&
-	    (type == NULL || (type->type == ctx->digest->type)))
+	if(ctx->engine && ctx->digest && (type == NULL || (type->type == ctx->digest->type)))
 		goto skip_to_init;
 	if(type) {
 		/*
@@ -82,7 +81,6 @@ int EVP_DigestInit_ex(EVP_MD_CTX * ctx, const EVP_MD * type, ENGINE * impl)
 		if(impl != NULL) {
 			/* There's an ENGINE for this job ... (apparently) */
 			const EVP_MD * d = ENGINE_get_digest(impl, type->type);
-
 			if(d == NULL) {
 				EVPerr(EVP_F_EVP_DIGESTINIT_EX, EVP_R_INITIALIZATION_ERROR);
 				ENGINE_finish(impl);
@@ -145,8 +143,7 @@ int EVP_DigestUpdate(EVP_MD_CTX * ctx, const void * data, size_t count)
 /* The caller can assume that this removes any secret data from the context */
 int EVP_DigestFinal(EVP_MD_CTX * ctx, uchar * md, uint * size)
 {
-	int ret;
-	ret = EVP_DigestFinal_ex(ctx, md, size);
+	int ret = EVP_DigestFinal_ex(ctx, md, size);
 	EVP_MD_CTX_reset(ctx);
 	return ret;
 }

@@ -827,7 +827,7 @@ int SLAPI PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 			if(oneof2(_pre764, 1, 2)) {
 				THROW_MEM(p_buf_pre764 = (__StyloBhtIIConfig *)SAlloc::M(cfg_indb_size));
 				memzero(p_buf_pre764, cfg_indb_size);
-				THROW(ref->GetProp(Obj, id, BHTPRP_SBIICFG, p_buf_pre764, cfg_indb_size) > 0);
+				THROW(ref->GetProperty(Obj, id, BHTPRP_SBIICFG, p_buf_pre764, cfg_indb_size) > 0);
 				{
 					uint8 * ptr = 0;
 					uint   op_items_count = 0;
@@ -869,7 +869,7 @@ int SLAPI PPObjBHT::GetPacket(PPID id, PPBhtTerminalPacket * pPack)
 			uint   cfg_rec_size = 4096;
 			THROW_MEM(p_buf = (__StyloBhtConfig2 *)SAlloc::M(cfg_rec_size));
 			memzero(p_buf, cfg_rec_size);
-			if(ref->GetProp(Obj, id, BHTPRP_SBIICFG2, p_buf, cfg_rec_size) > 0) {
+			if(ref->GetProperty(Obj, id, BHTPRP_SBIICFG2, p_buf, cfg_rec_size) > 0) {
 				THROW_MEM(pPack->P_SBIICfg = new StyloBhtIIOnHostCfg);
 				p_cfg = pPack->P_SBIICfg;
 				p_cfg->Flags = p_buf->Flags;
@@ -970,9 +970,9 @@ int SLAPI PPObjBHT::PutPacket(PPID * pID, PPBhtTerminalPacket * pPack, int use_t
 		THROW(ref->PutProp(Obj, *pID, BHTPRP_SBIICFG2, p_buf, buf_size));
 	}
 	else {
-		THROW(ref->RemoveProp(Obj, *pID, BHTPRP_SBIICFG2, 0));
+		THROW(ref->RemoveProperty(Obj, *pID, BHTPRP_SBIICFG2, 0));
 	}
-	THROW(ref->RemoveProp(Obj, *pID, BHTPRP_SBIICFG, 0)); // Удаляем прежнюю версию записи
+	THROW(ref->RemoveProperty(Obj, *pID, BHTPRP_SBIICFG, 0)); // Удаляем прежнюю версию записи
 	THROW(ref->PutPropVlrString(PPOBJ_BHT, *pID, BHTPRP_PATH,
 		oneof3(pPack->Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII) ? pPack->ImpExpPath_ : (const char *)0));
 	THROW(tra.Commit());
@@ -2182,7 +2182,8 @@ int SLAPI PPObjBHT::PrepareBillRowCellData(PPBhtTerminalPacket * pPack, PPID bil
 			Sdr_SBIIBillRowWithCells sdr_brow;
 
 			MEMSZERO(sdr_brow);
-			pack.SnL.GetNumber(i, &serial);
+			// @v9.8.11 pack.SnL.GetNumber(i, &serial);
+			pack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial); // @v9.8.11 
 			sdr_brow.BillID   = billID;
 			sdr_brow.GoodsID  = ti.GoodsID;
 			serial.CopyTo(sdr_brow.Serial, sizeof(sdr_brow.Serial));
@@ -2548,7 +2549,8 @@ int SLAPI PPObjBHT::PrepareBillData2(PPBhtTerminalPacket * pPack, PPIDArray * pG
 						for(pack.InitExtTIter(uniteGoods ? ETIEF_UNITEBYGOODS : 0); pack.EnumTItemsExt(0, &ti) > 0; i++) {
 							Sdr_SBIISampleBillRow sdr_brow;
 							MEMSZERO(sdr_brow);
-							pack.SnL.GetNumber(i, &serial);
+							// @v9.8.11 pack.SnL.GetNumber(i, &serial);
+							pack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial); // @v9.8.11 
 							sdr_brow.BillID  = item.ID;
 							sdr_brow.GoodsID = ti.GoodsID;
 							serial.CopyTo(sdr_brow.Serial, sizeof(sdr_brow.Serial));

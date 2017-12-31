@@ -319,7 +319,7 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack) con
 	}
 }
 
-int CPosProcessor::Packet::SetupInfo(SString & rBuf)
+void CPosProcessor::Packet::SetupInfo(SString & rBuf)
 {
 	SString word;
 	rBuf.Z();
@@ -349,7 +349,6 @@ int CPosProcessor::Packet::SetupInfo(SString & rBuf)
 		PPLoadString("department", word); // @v9.2.7
 		rBuf.Cat(word).CatDiv(':', 2).Cat(GetCur().Division);
 	}
-	return 1;
 }
 
 void CPosProcessor::Packet::SetRest(double rest)
@@ -6447,8 +6446,13 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_CHKPAN_LIST);
 					if(p_list && p_list->def) {
 						uint pos = p_list->def->_curItem();
-						if(pos < P.getCount())
+						if(pos < P.getCount()) {
 							ViewStoragePlaces(P.at(p_list->def->_curItem()).GoodsID);
+							// @v9.8.11 {
+							if(Flags & fNoEdit)
+								SetupInfo(0);
+							// } @v9.8.11 
+						}
 					}
 				}
 				break;
@@ -7714,6 +7718,22 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 		PPLoadString("rest", word);
 		buf.Cat(word).CatDiv(':', 2).Cat(P.GetRest(), MKSFMTD(0, 3, NMBF_NOTRAILZ));
 	}
+	// @v9.8.11 {
+	if(Flags & fNoEdit) {
+		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_CHKPAN_LIST);
+		if(p_list) {
+			const long cur = p_list->def ? p_list->def->_curItem() : -1;
+			if(cur >= 0 && cur < (long)P.getCount()) {
+				const CCheckItem & r_item = P.at(cur);
+				if(r_item.EgaisMark[0]) {
+					if(buf.NotEmpty())
+						buf.Space();
+					buf.Cat(r_item.EgaisMark);
+				}
+			}
+		}
+	}
+	// } @v9.8.11 
 	setStaticText(CTL_CHKPAN_CAFE_STATUS, buf);
 }
 

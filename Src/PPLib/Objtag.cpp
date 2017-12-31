@@ -2818,7 +2818,7 @@ public:
 	ObjTagCache();
 	~ObjTagCache();
 	int    Fetch(PPID objID, PPID tagID, ObjTagItem * pItem);
-	int    Dirty(PPID objType, PPID objID, PPID tagID);
+	int    FASTCALL Dirty(PPID objType, PPID objID, PPID tagID);
 private:
 	struct TagTypeEntry {
 		PPID   TagID;
@@ -3210,7 +3210,7 @@ int ObjTagCache::Fetch(PPID objID, PPID tagID, ObjTagItem * pItem)
 	return ok;
 }
 
-int ObjTagCache::Dirty(PPID objType, PPID objID, PPID tagID)
+int FASTCALL ObjTagCache::Dirty(PPID objType, PPID objID, PPID tagID)
 {
 	int    ok = 1;
 	{
@@ -3257,7 +3257,7 @@ public:
 private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
-	virtual int  SLAPI Dirty(PPID id); // @sync_w
+	virtual int  FASTCALL Dirty(PPID id); // @sync_w
 
 	struct TagCacheEntry : public ObjCacheEntry {
 		int16  Flags;
@@ -3272,7 +3272,7 @@ private:
 	RefSymbArray SymbList;
 };
 
-int SLAPI TagCache::Dirty(PPID id)
+int FASTCALL TagCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	ObjCache::Dirty(id);

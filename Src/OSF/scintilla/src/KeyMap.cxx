@@ -14,6 +14,15 @@
 using namespace Scintilla;
 #endif
 
+KeyMap::KeyModifiers::KeyModifiers(int key_, int modifiers_) : key(key_), modifiers(modifiers_) 
+{
+}
+
+bool FASTCALL KeyMap::KeyModifiers::operator < (const KeyModifiers &other) const 
+{
+	return (key == other.key) ? (modifiers < other.modifiers) : (key < other.key);
+}
+
 KeyMap::KeyMap()
 {
 	for(int i = 0; MapDefault[i].key; i++) {
@@ -60,7 +69,7 @@ uint KeyMap::Find(int key, int modifiers) const
 #define SCI_SCTRL_META (SCI_CTRL | SCI_SHIFT)
 #endif
 
-const KeyToCommand KeyMap::MapDefault[] = {
+const KeyMap::KeyToCommand KeyMap::MapDefault[] = {
 #if OS_X_KEYS
 	{SCK_DOWN,          SCI_CTRL,       SCI_DOCUMENTEND},
 	{SCK_DOWN,          SCI_CSHIFT,     SCI_DOCUMENTENDEXTEND},

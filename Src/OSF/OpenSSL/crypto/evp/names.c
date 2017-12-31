@@ -50,7 +50,7 @@ const EVP_CIPHER * EVP_get_cipherbyname(const char * name)
 	return (cp);
 }
 
-const EVP_MD * EVP_get_digestbyname(const char * name)
+const EVP_MD * FASTCALL EVP_get_digestbyname(const char * name)
 {
 	const EVP_MD * cp;
 	if(!OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_DIGESTS, NULL))

@@ -97,7 +97,7 @@ private:
 	int    addItemByOrder(PPBillPacket * order, int line);
 	int    ConvertBasketToBill();
 	int    ConvertBillToBasket();
-	int    getMinMaxQtty(uint itemPos, double * pMinQtty, double * pMaxQtty);
+	void   GetMinMaxQtty(uint itemPos, RealRange & rRange) const;
 	int    subtractRetsFromLinkPack();
 	// Ненулевой параметр только при вызове из конструктора
 	SArray * MakeList(PPBillPacket * = 0, int pckgPos = -1);
@@ -115,6 +115,7 @@ private:
 	int    SLAPI GetPriceRestrictions(int itemPos, const PPTransferItem & rTi, RealRange * pRange);
 	int    SLAPI UpdatePriceDevList(long pos, int op);
 	int    SLAPI CheckRows(); // Проверяет список строк документа. Если есть проблемы, то они добавляются в список ProblemsList, который отображается при наведении на соотвествующую строку (колонка 1)
+	int    SLAPI EditExtCodeList(int rowIdx);
 
 	PPObjBill * P_BObj;
 	Transfer  * P_T;
@@ -406,7 +407,7 @@ int BillItemBrowser::subtractRetsFromLinkPack()
 	return ok;
 }
 
-SLAPI BillItemBrowser::ColumnPosBlock::ColumnPosBlock() : 
+SLAPI BillItemBrowser::ColumnPosBlock::ColumnPosBlock() :
 	QttyPos(-2), CostPos(-2), PricePos(-2), SerialPos(-2), QuotInfoPos(-2), CodePos(-2), LinkQttyPos(-2), OrdQttyPos(-2)
 {
 }
@@ -1016,7 +1017,8 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 		item.RByBill = p_ti->RByBill; // @v8.0.3
 		{
 			if(CConfig.Flags & CCFLG_CHECKSPOILAGE && P_BObj->Cfg.Flags & BCF_SHOWSERIALSINGBLINES) {
-				p_pack->SnL.GetNumber(item.Pos, &temp_buf);
+				// @v9.8.11 p_pack->SnL.GetNumber(item.Pos, &temp_buf);
+				p_pack->LTagL.GetNumber(PPTAG_LOT_SN, item.Pos, temp_buf); // @v9.8.11 
 				if(SETIFZ(P_SpcCore, new SpecSeriesCore)) {
 					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 					SpecSeries2Tbl::Rec spc_rec;
@@ -1311,7 +1313,8 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 							}
 						}
 						else {
-							P_Pack->SnL.GetNumber(p_item->Pos, &temp_buf);
+							// @v9.8.11 P_Pack->SnL.GetNumber(p_item->Pos, &temp_buf);
+							P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, p_item->Pos, temp_buf); // @v9.8.11 
 							pBlk->Set(temp_buf);
 						}
 					}
@@ -1399,7 +1402,8 @@ int SLAPI BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					if(is_total)
 						pBlk->SetZero();
 					else {
-						P_Pack->SnL.GetNumber(p_item->Pos, &temp_buf);
+						// @v9.8.11 P_Pack->SnL.GetNumber(p_item->Pos, &temp_buf);
+						P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, p_item->Pos, temp_buf); // @v9.8.11 
 						pBlk->Set(temp_buf);
 					}
 					break;
@@ -1651,7 +1655,7 @@ int BillItemBrowser::_moveItem2(int srcRowIdx)
 					r = 0;
 				if(r) {
 					PPTransferItem & r_temp_ti = P_LinkPack->TI(j);
-					double temp_q = fabs(r_temp_ti.Quantity_);
+					const double temp_q = fabs(r_temp_ti.Quantity_);
 					if(temp_q != 0.0) {
 						price = (r_temp_ti.NetPrice() * temp_q + price * qtty) / (temp_q + qtty);
 						qtty += temp_q;
@@ -2154,25 +2158,22 @@ void BillItemBrowser::viewPckgItems(int activateNewRow)
 	}
 }
 
-int BillItemBrowser::getMinMaxQtty(uint itemPos, double * pMinQtty, double * pMaxQtty)
+void BillItemBrowser::GetMinMaxQtty(uint itemPos, RealRange & rBounds) const
 {
-	double min_qtty = 0.0, max_qtty = 0.0;
+	rBounds.Clear();
 	const PPTransferItem & r_ti = P_Pack->ConstTI(itemPos);
 	if(P_Pack->OpTypeID == PPOPT_GOODSEXPEND) {
 		if(P_Pack->Rec.ID) {
 			DateIter di;
 			BillTbl::Rec bill_rec;
 			while(P_BObj->P_Tbl->EnumLinks(P_Pack->Rec.ID, &di, BLNK_RETURN, &bill_rec) > 0)
-				P_T->SubtractBillQtty(bill_rec.ID, r_ti.LotID, &min_qtty);
+				P_T->SubtractBillQtty(bill_rec.ID, r_ti.LotID, &rBounds.low);
 		}
 	}
 	else if(P_Pack->OpTypeID == PPOPT_GOODSRETURN && P_LinkPack)
 		for(uint i = 0; P_LinkPack->SearchLot(r_ti.LotID, &i); i++)
 			if(!(State & stExpndOnReturn))
-				max_qtty += P_LinkPack->ConstTI(i).Quantity_;
-	ASSIGN_PTR(pMinQtty, fabs(min_qtty));
-	ASSIGN_PTR(pMaxQtty, fabs(max_qtty));
-	return 1;
+				rBounds.upp += P_LinkPack->ConstTI(i).Quantity_;
 }
 
 void BillItemBrowser::editItem()
@@ -2197,7 +2198,7 @@ void BillItemBrowser::editItem()
 		}
 		else if(!AsSelector) {
 			TIDlgInitData tidi;
-			getMinMaxQtty((uint)c, &tidi.MinQtty, &tidi.MaxQtty);
+			GetMinMaxQtty((uint)c, tidi.QttyBounds);
 			while(!valid_data && EditTransferItem(P_Pack, (int) c, &tidi, 0) == cmOK) {
 				valid_data = 1;
 				//
@@ -2370,6 +2371,146 @@ void BillItemBrowser::selectPckg(PPID goodsID)
 				PPError();
 		}
 	}
+}
+
+int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
+{
+	class LotXCodeListDialog : public PPListDialog {
+	public:
+		LotXCodeListDialog(const PPBillPacket * pPack, int rowIdx) : PPListDialog(DLG_LOTXCLIST, CTL_LOTXCLIST_LIST, fOmitSearchByFirstChar), 
+			P_Pack(pPack), RowIdx(rowIdx)
+		{
+		}
+		int    setDTS(const PPLotExtCodeContainer * pData)
+		{
+			RVALUEPTR(Data, pData);
+			updateList(-1);
+			return 1;
+		}
+		int    getDTS(PPLotExtCodeContainer * pData)
+		{
+			ASSIGN_PTR(pData, Data);
+			return 1;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			if(TVKEYDOWN) {
+				uchar  c = TVCHR;
+				if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || isdec(c)) {
+					LotExtCodeTbl::Rec rec;
+					if(EditItemDialog(rec, c) > 0) {
+						uint   idx = 0;
+						if(Data.Add(RowIdx, rec.Code, &idx)) {
+							updateList(-1);
+						}
+					}
+					clearEvent(event);
+				}
+			}
+			PPListDialog::handleEvent(event);
+		}
+		virtual int setupList()
+		{
+			int    ok = 1;
+			SString temp_buf;
+			StringSet ss;
+			LongArray idx_list;
+			Data.Get(RowIdx, &idx_list, ss);
+			for(uint i = 0; i < idx_list.getCount(); i++) {
+				int   row_idx = 0;
+				const long  idx = idx_list.get(i);
+				if(Data.GetByIdx(idx, &row_idx, temp_buf) && row_idx == RowIdx) {
+					THROW(addStringToList(idx, temp_buf));
+				}
+			}
+			CATCHZOK
+			return ok;
+		}
+		virtual int addItem(long * pPos, long * pID)
+		{
+			int    ok = -1;
+			LotExtCodeTbl::Rec rec;
+			MEMSZERO(rec);
+			rec.BillID = P_Pack->Rec.ID;
+			rec.RByBill = RowIdx;
+			while(ok < 0 && EditItemDialog(rec, 0) > 0) {
+				uint   idx = 0;
+				if(Data.Add(RowIdx, rec.Code, &idx)) {
+					ASSIGN_PTR(pID, idx);
+					ok = 1;
+				}
+			}
+			return ok;
+		}
+		virtual int delItem(long pos, long id)
+		{
+			int    ok = -1;
+			return ok;
+		}
+		int SLAPI EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar)
+		{
+			int    ok = -1;
+			uint   sel = 0;
+			TDialog * dlg = new TDialog(DLG_LOTEXTCODE);
+			SString temp_buf, info_buf;
+			SString mark_buf;
+			ReceiptTbl::Rec lot_rec;
+			ReceiptCore & r_rcpt = BillObj->trfr->Rcpt;
+			THROW(CheckDialogPtr(&dlg));
+			if(r_rcpt.Search(rRec.LotID, &lot_rec) <= 0)
+				MEMSZERO(lot_rec);
+			if(firstChar) {
+				temp_buf.Z().CatChar(firstChar);
+			}
+			else
+				(temp_buf = rRec.Code).Strip();
+			dlg->setCtrlString(CTL_LOTEXTCODE_CODE, temp_buf);
+			if(firstChar) {
+				TInputLine * il = (TInputLine*)dlg->getCtrlView(CTL_LOTEXTCODE_CODE);
+				CALLPTRMEMB(il, disableDeleteSelection(1));
+			}
+			if(lot_rec.GoodsID) {
+				GetGoodsName(lot_rec.GoodsID, temp_buf);
+				info_buf.Z().CatEq("LotID", lot_rec.ID).Space().Cat(lot_rec.Dt, DATF_DMY|DATF_CENTURY).CR().Cat(temp_buf);
+			}
+			dlg->setStaticText(CTL_LOTEXTCODE_INFO, info_buf);
+			while(ok < 0 && ExecView(dlg) == cmOK) {
+				dlg->getCtrlString(sel = CTL_LOTEXTCODE_CODE, temp_buf);
+				if(!temp_buf.NotEmptyS())
+					PPErrorByDialog(dlg, sel, PPERR_CODENEEDED);
+				else if(temp_buf.Len() >= sizeof(rRec.Code)) {
+					PPSetError(PPERR_CODETOOLONG, (long)(sizeof(rRec.Code)-1));
+					PPErrorByDialog(dlg, sel);
+				}
+				else if(!PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf)) {
+					PPSetError(PPERR_TEXTISNTEGAISMARK, temp_buf);
+					PPErrorByDialog(dlg, sel);
+				}
+				else {
+					STRNSCPY(rRec.Code, mark_buf);
+					// PPBarcode::CreateImage(temp_buf, BARCSTD_PDF417, SFileFormat::Png, 0); // @debug
+					ok = 1;
+				}
+			}
+			CATCHZOKPPERR
+			delete dlg;
+			return ok;
+		}
+		const PPBillPacket * P_Pack;
+		const int RowIdx;
+		PPLotExtCodeContainer Data;
+	};
+	int    ok = -1;
+	LotXCodeListDialog * dlg = new LotXCodeListDialog(P_Pack, rowIdx);
+	if(CheckDialogPtr(&dlg)) {
+		dlg->setDTS(&P_Pack->XcL);
+		if(ExecView(dlg) == cmOK) {
+			dlg->getDTS(&P_Pack->XcL);
+		}
+	}
+	delete dlg;
+	return ok;
 }
 
 IMPL_HANDLE_EVENT(BillItemBrowser)
@@ -2611,6 +2752,12 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 							EventBarrier(1);
 						}
 					}
+					else if(TVCHR == kbCtrlE) {
+						int    c = getCurItemPos();
+						if(c >= 0) {
+							EditExtCodeList(c+1);
+						}
+					}
 					else if(TVCHR == kbCtrlL) {
 						if(!EventBarrier()) {
 							int    c = getCurItemPos();
@@ -2661,11 +2808,13 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 								PPTransferItem * p_ti = 0;
 								int    upd = 0;
 								for(uint i = 0; P_Pack->EnumTItems(&i, &p_ti);) {
-									if(P_Pack->SnL.GetNumber(i-1, &temp_buf) <= 0 || !temp_buf.NotEmptyS()) {
+									// @v9.8.11 if(P_Pack->SnL.GetNumber(i-1, &temp_buf) <= 0 || !temp_buf.NotEmptyS()) {
+									if(P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, temp_buf) <= 0 || !temp_buf.NotEmptyS()) { // @v9.8.11 
 										templt = (GObj.IsAsset(p_ti->GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
-										if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(p_ti->GoodsID), &P_Pack->SnL, templt, temp_buf) > 0) {
+										if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(p_ti->GoodsID), &P_Pack->LTagL/*SnL*/, templt, temp_buf) > 0) {
 											if(temp_buf.NotEmptyS()) {
-												P_Pack->SnL.AddNumber(i-1, temp_buf);
+												// @v9.8.11 P_Pack->SnL.AddNumber(i-1, temp_buf);
+												P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, i-1, temp_buf); // @v9.8.11 
 												upd = 1;
 											}
 										}

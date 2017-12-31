@@ -188,10 +188,15 @@ static inline int _cairo_fixed_integer_floor(cairo_fixed_t f)
 	return (f >= 0) ? (f >> CAIRO_FIXED_FRAC_BITS) : (-((-f - 1) >> CAIRO_FIXED_FRAC_BITS) - 1);
 }
 
-static inline int _cairo_fixed_integer_ceil(cairo_fixed_t f)
+static inline int _cairo_fixed_integer_ceil(cairo_fixed_t f) // @cairover-1.14.12
+{
+	return (f > 0) ? (((f - 1)>>CAIRO_FIXED_FRAC_BITS) + 1) : -((cairo_fixed_t)(-(cairo_fixed_unsigned_t)f) >> CAIRO_FIXED_FRAC_BITS);
+}
+
+/* @cairover-1.14.12 static inline int _cairo_fixed_integer_ceil(cairo_fixed_t f)
 {
 	return (f > 0) ? (((f - 1)>>CAIRO_FIXED_FRAC_BITS) + 1) : (-(-f >> CAIRO_FIXED_FRAC_BITS));
-}
+}*/
 // 
 // A bunch of explicit 16.16 operators; we need these
 // to interface with pixman and other backends that require 16.16 fixed point types.

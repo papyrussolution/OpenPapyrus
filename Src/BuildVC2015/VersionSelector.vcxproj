@@ -40,13 +40,13 @@
     <_ProjectFileVersion>14.0.24720.0</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -54,14 +54,18 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Imm32.lib;..\lib\winddk\hid.lib;..\lib\winddk\hidparse.lib;..\lib\winddk\Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -84,6 +88,10 @@
       <DebugInformationFormat />
       <CompileAsManaged>false</CompileAsManaged>
       <CompileAsWinRT>false</CompileAsWinRT>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>false</ExceptionHandling>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;..\lib\crpe32m.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Imm32.lib;..\lib\winddk\hid.lib;..\lib\winddk\hidparse.lib;..\lib\winddk\Setupapi.lib;%(AdditionalDependencies)</AdditionalDependencies>

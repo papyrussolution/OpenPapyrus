@@ -107,6 +107,7 @@ int CommCfgDialog::editSysParams()
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 3, CCFLG2_USECCHECKEXTPAYM); // @v8.0.0
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 4, CCFLG2_USEOMTPAYMAMT); // @v8.5.8
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 5, CCFLG2_USESARTREDB); // @v9.7.11
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 6, CCFLG2_USELOTXCODE); // @v9.8.11
 			SetClusterData(CTL_CCFGSYS_FLAGS2, Data.Flags2);
 			{
 				SString db_path;

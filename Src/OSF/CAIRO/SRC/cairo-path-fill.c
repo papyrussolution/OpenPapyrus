@@ -74,58 +74,39 @@ static cairo_status_t _cairo_filler_move_to(void * closure, const cairo_point_t 
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_filler_curve_to(void * closure,
-    const cairo_point_t     * p1,
-    const cairo_point_t     * p2,
-    const cairo_point_t     * p3)
+static cairo_status_t _cairo_filler_curve_to(void * closure, const cairo_point_t * p1, const cairo_point_t * p2, const cairo_point_t * p3)
 {
 	cairo_filler_t * filler = (cairo_filler_t *)closure;
 	cairo_spline_t spline;
 	if(filler->has_limits) {
-		if(!_cairo_spline_intersects(&filler->current_point, p1, p2, p3,
-			    &filler->limit))
+		if(!_cairo_spline_intersects(&filler->current_point, p1, p2, p3, &filler->limit))
 			return _cairo_filler_line_to(filler, p3);
 	}
-
-	if(!_cairo_spline_init(&spline,
-		    (cairo_spline_add_point_func_t)_cairo_filler_line_to, filler,
-		    &filler->current_point, p1, p2, p3)) {
+	if(!_cairo_spline_init(&spline, (cairo_spline_add_point_func_t)_cairo_filler_line_to, filler, &filler->current_point, p1, p2, p3)) {
 		return _cairo_filler_line_to(closure, p3);
 	}
-
 	return _cairo_spline_decompose(&spline, filler->tolerance);
 }
 
-cairo_status_t _cairo_path_fixed_fill_to_polygon(const cairo_path_fixed_t * path,
-    double tolerance,
-    cairo_polygon_t * polygon)
+cairo_status_t _cairo_path_fixed_fill_to_polygon(const cairo_path_fixed_t * path, double tolerance, cairo_polygon_t * polygon)
 {
 	cairo_filler_t filler;
 	cairo_status_t status;
-
 	filler.polygon = polygon;
 	filler.tolerance = tolerance;
-
 	filler.has_limits = FALSE;
 	if(polygon->num_limits) {
 		filler.has_limits = TRUE;
 		filler.limit = polygon->limit;
 	}
-
 	/* make sure that the closure represents a degenerate path */
 	filler.current_point.x = 0;
 	filler.current_point.y = 0;
 	filler.last_move_to = filler.current_point;
-
-	status = _cairo_path_fixed_interpret(path,
-	    _cairo_filler_move_to,
-	    _cairo_filler_line_to,
-	    _cairo_filler_curve_to,
-	    _cairo_filler_close,
-	    &filler);
+	status = _cairo_path_fixed_interpret(path, _cairo_filler_move_to, _cairo_filler_line_to,
+	    _cairo_filler_curve_to, _cairo_filler_close, &filler);
 	if(unlikely(status))
 		return status;
-
 	return _cairo_filler_close(&filler);
 }
 
@@ -156,10 +137,9 @@ static cairo_status_t _cairo_filler_ra_close(void * closure)
 static cairo_status_t _cairo_filler_ra_move_to(void * closure, const cairo_point_t * point)
 {
 	cairo_filler_ra_t * filler = (cairo_filler_ra_t *)closure;
-	cairo_status_t status;
 	cairo_point_t p;
 	/* close current subpath */
-	status = _cairo_filler_ra_close(closure);
+	cairo_status_t status = _cairo_filler_ra_close(closure);
 	if(unlikely(status))
 		return status;
 	p.x = _cairo_fixed_round_down(point->x);
@@ -237,7 +217,6 @@ cairo_status_t _cairo_path_fixed_fill_rectilinear_to_boxes(const cairo_path_fixe
 			cairo_fixed_t t = box.p1.y;
 			box.p1.y = box.p2.y;
 			box.p2.y = t;
-
 			t = box.p1.x;
 			box.p1.x = box.p2.x;
 			box.p2.x = t;

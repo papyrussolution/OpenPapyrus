@@ -182,19 +182,13 @@ INT_PTR CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 //
 //
 //
-SmartListBox::SmartListBox(const TRect & bounds, ListBoxDef * aDef, int isTreeList) : TView(bounds), Columns(sizeof(ColumnDescr))
+SmartListBox::SmartListBox(const TRect & bounds, ListBoxDef * aDef, int isTreeList) : TView(bounds), Columns(sizeof(ColumnDescr)),
+	State(0), SrchPatternPos(0), ColumnsSpcPos(0), def(0), Range(0), Height(0), Top(0), HIML(0), SrchFunc(PTR_CMPFUNC(_PcharNoCase))
 {
 	SubSign = TV_SUBSIGN_LISTBOX;
-	State = 0;
-	SrchPatternPos = 0;
-	ColumnsSpcPos = 0;
 	StrPool.add("$"); // zero index - is empty string
 	SetTreeListState(isTreeList);
-	SrchFunc = PTR_CMPFUNC(_PcharNoCase);
 	options |= ofSelectable | ofFirstClick;
-	def = 0;
-	Range = Height = Top = 0;
-	HIML = 0;
 	setDef(aDef);
 }
 
@@ -819,7 +813,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				search(0, srchFirst);
 			else if(wParam == kbCtrlG)
 				search(0, srchNext);
-			else {
+			else if(!(State & stOmitSearchByFirstChar)) {
 				char b[2];
 				b[0] = (char)wParam;
 				b[1] = 0;
@@ -830,6 +824,8 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				else
 					return 0;
 			}
+			else
+				return 0;
 			break;
 		case WM_MOUSEWHEEL:
 			{
@@ -1115,6 +1111,11 @@ void SmartListBox::SetOwnerDrawState()
 void SmartListBox::SetLBLnkToUISrchState()
 {
 	State |= stLBIsLinkedUISrchTextBlock;
+}
+
+void SmartListBox::SetOmitSearchByFirstChar()
+{
+	State |= stOmitSearchByFirstChar;
 }
 
 int SmartListBox::HasState(long s) const

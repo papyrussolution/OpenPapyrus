@@ -1246,7 +1246,7 @@ int FASTCALL SMailMessage::ContentDispositionBlock::GetTypeName(int t, SString &
 int FASTCALL SMailMessage::ContentDispositionBlock::IdentifyType(const char * pTypeName)
 {
 	int    type = ContentDispositionBlock::tUnkn;
-	for(uint i = 0; type != ContentDispositionBlock::tUnkn && i < SIZEOFARRAY(ContentDispositionTypeNameList); i++) {
+	for(uint i = 0; type == ContentDispositionBlock::tUnkn && i < SIZEOFARRAY(ContentDispositionTypeNameList); i++) {
 		if(sstreqi_ascii(pTypeName, ContentDispositionTypeNameList[i].P_Name))
 			type = ContentDispositionTypeNameList[i].Type;
 	}
@@ -1616,7 +1616,7 @@ int SLAPI DecodeMimeStringToBuffer(const SString & rLine, int contentTransfEnc, 
 	return ok;
 }
 
-int SLAPI SMailMessage::ProcessInputLine(ParserBlock & rBlk, SString & rLineBuf)
+int SLAPI SMailMessage::ProcessInputLine(ParserBlock & rBlk, const SString & rLineBuf)
 {
 	int    ok = 1;
 	int    do_read_field = 1;
@@ -1859,6 +1859,7 @@ SMailMessage::Boundary * SLAPI SMailMessage::Helper_SearchBoundary(const SString
 int SLAPI SMailMessage::ReadFromFile(SFile & rF)
 {
 	int    ok = -1;
+	int    prev_full_line_was_empty = 0;
 	SString line_buf;
 	SString prev_line;
 	SString full_line;
@@ -1875,8 +1876,10 @@ int SLAPI SMailMessage::ReadFromFile(SFile & rF)
 				full_line.Cat(line_buf.cptr()+1);
 		}
 		else {
-			if(blk.LineNo > 1)
+			if(blk.LineNo > 1 && (!full_line.Empty() || !prev_full_line_was_empty)) {
 				THROW(ProcessInputLine(blk, full_line));
+			}
+			prev_full_line_was_empty = full_line.Empty();
 			full_line = line_buf;
 		}
 		ok = 1;
@@ -2651,6 +2654,10 @@ int SLAPI SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 					Phase = phsStop;
 					do_close_boundary = 1;
 				}
+			}
+			else {
+				Phase = phsStop;
+				do_close_boundary = 1;
 			}
 			if(do_close_boundary && P_Cb->P_Parent) {
 				out_buf.Z(); // Пустая строка не нужна - перевод каретки не добавляем
@@ -4041,6 +4048,7 @@ int ScURL::Pop3List(const InetUrl & rUrl, int mflags, LAssocArray & rList) // LI
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0))
+	// THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "LIST"))); // @v9.8.11
 	{
 		SBuffer reply_buf;
 		SFile reply_stream(reply_buf, SFile::mWrite);
@@ -4069,7 +4077,7 @@ int ScURL::Pop3List(const InetUrl & rUrl, int mflags, LAssocArray & rList) // LI
 
 int ScURL::Pop3Top(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & rMsg)
 {
-	int    ok = -1;
+	int    ok = 1;
 	SString temp_buf;
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
@@ -4101,7 +4109,7 @@ int ScURL::Pop3Top(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & r
 
 int ScURL::Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & rMsg, SDataMoveProgressInfo * pProgress)
 {
-	int    ok = -1;
+	int    ok = 1;
 	SString temp_buf;
 	InetUrl url_local = rUrl;
 	InnerUrlInfo url_info;
@@ -4134,7 +4142,21 @@ int ScURL::Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & r
 
 int ScURL::Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN)
 {
-	int    ok = -1;
+	int    ok = 1;
+	SString temp_buf;
+	InetUrl url_local = rUrl;
+	InnerUrlInfo url_info;
+	THROW(PrepareURL(url_local, InetUrl::protPOP3, url_info));
+	{
+		url_local.SetComponent(InetUrl::cPath, temp_buf.Z().Cat(msgN));
+		url_local.Composite(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort|InetUrl::stPath, temp_buf);
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+	}
+	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0))
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "DELE"))); // Номер сообщения в пути (see above)
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_NOBODY, 1L)));
+	THROW(Execute());
+	CATCHZOK
 	return ok;
 }
 
@@ -4448,7 +4470,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 				{
 					LAssocArray mail_list;
 					SPathStruc ps_src; // Структура имени исходного файла (в письме)
-					THROW(curl.Pop3List(url_src, ScURL::mfDontVerifySslPeer, mail_list));
+					THROW(curl.Pop3List(url_src, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, mail_list));
 					{
 						SString _progress_src;
 						SString _progress_dest;
@@ -4470,10 +4492,11 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 						SMailMessage msg;
 						SString result_file_name;
 						SString result_file_ext;
+						LongArray processed_msg_idx_list;
 						for(uint i = 0; i < mail_list.getCount(); i++) {
 							const long msg_idx = mail_list.at(i).Key;
 							msg.Init();
-							if(curl.Pop3Top(url_src, ScURL::mfDontVerifySslPeer, msg_idx, msg)) {
+							if(curl.Pop3Top(url_src, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, msg_idx, msg)) {
 								int   do_get = 1;
 								do_get = do_get && (!filt_from.NotEmptyS() || msg.IsFrom(filt_from));
 								do_get = do_get && (!filt_subj.NotEmptyS() || msg.IsSubj(filt_subj, 0));
@@ -4514,7 +4537,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 															}
 															fec++;
 															ps.Merge(result_file_name);
-														} while(fileExists(result_file_name));
+														} while((Flags & fRenameExistantFiles) && fileExists(result_file_name));
 													}
 													if(msg.SaveAttachmentTo(ai, result_file_name, &temp_buf)) {
 														result_file_name = temp_buf;
@@ -4525,6 +4548,8 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 														temp_buf.Z().Cat(msg_idx);
 														AddS(temp_buf, &ri.RmvSrcCookieP);
 														ResultList.insert(&ri);
+														processed_msg_idx_list.add(msg_idx);
+														ok = 1;
 													}
 												}
 											}
@@ -4536,6 +4561,13 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 								scfd.OverallItemsDone++;
 								scfd.OverallSizeDone += mail_list.at(i).Val;
 								pf(&scfd);
+							}
+						}
+						if(Flags & fDeleteAfter && processed_msg_idx_list.getCount()) {
+							processed_msg_idx_list.sortAndUndup();
+							for(uint j = 0; j < processed_msg_idx_list.getCount(); j++) {
+								const long msg_idx = processed_msg_idx_list.get(j);
+								curl.Pop3Delete(url_src, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, msg_idx);
 							}
 						}
 					}

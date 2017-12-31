@@ -40,16 +40,16 @@
     <_ProjectFileVersion>14.0.24720.0</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules />
     <CodeAnalysisRuleAssemblies />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2015\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules />
@@ -61,8 +61,8 @@
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WITH_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <MinimalRebuild>true</MinimalRebuild>
-      <ExceptionHandling />
+      <MinimalRebuild>false</MinimalRebuild>
+      <ExceptionHandling>false</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
@@ -93,7 +93,7 @@
       <AdditionalIncludeDirectories>..\include;..\osf\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;WITH_OPENSSL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling />
+      <ExceptionHandling>false</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <StructMemberAlignment>1Byte</StructMemberAlignment>

@@ -3972,7 +3972,8 @@ static void _cairo_debug_print_surface_pattern(FILE * file, const cairo_surface_
 
 static void _cairo_debug_print_raster_source_pattern(FILE * file, const cairo_raster_source_pattern_t * raster)
 {
-	printf("  content: %x, size %dx%d\n", raster->content, raster->extents.width, raster->extents.height);
+	// @v1.14.12 printf("  content: %x, size %dx%d\n", raster->content, raster->extents.width, raster->extents.height);
+	fprintf(file, "  content: %x, size %dx%d\n", raster->content, raster->extents.width, raster->extents.height); // @v1.14.12 
 }
 
 static void _cairo_debug_print_linear_pattern(FILE * file, const cairo_linear_pattern_t * pattern)

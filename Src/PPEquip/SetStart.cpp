@@ -760,7 +760,7 @@ int SLAPI ACS_SETSTART::ImportFiles()
 	PPMailPop3 mail(0);
 
 	PPGetPath(PPPATH_IN, dir_in);
-	ImportedFiles = 0;
+	ImportedFiles.Z();
 	SETIFZ(last_date, plusdate(LConfig.OperDate, 2));
 	first_date = plusdate(first_date, -1);
 	last_date  = plusdate(last_date, 1);
@@ -769,8 +769,9 @@ int SLAPI ACS_SETSTART::ImportFiles()
 	{
 		PPAlbatrosConfig alb_cfg;
 		MEMSZERO(mac_rec);
-		if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0 && alb_cfg.Hdr.MailAccID)
+		if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0 && alb_cfg.Hdr.MailAccID) {
 			THROW_PP(obj_acct.Get(alb_cfg.Hdr.MailAccID, &mac_rec) > 0, PPERR_UNDEFMAILACC);
+		}
 	}
 	for(uint i = 0, set_no = 0; ImpPaths.get(&i, imp_path); set_no++) {
 		if(imp_path.CmpPrefix(p_ftp_flag, 1) == 0) {

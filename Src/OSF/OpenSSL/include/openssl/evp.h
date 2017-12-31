@@ -359,14 +359,14 @@ int    FASTCALL EVP_MD_size(const EVP_MD * md);
 int    FASTCALL EVP_MD_block_size(const EVP_MD * md);
 unsigned long EVP_MD_flags(const EVP_MD * md);
 
-const EVP_MD * EVP_MD_CTX_md(const EVP_MD_CTX * ctx);
+const EVP_MD * FASTCALL EVP_MD_CTX_md(const EVP_MD_CTX * ctx);
 int (*EVP_MD_CTX_update_fn(EVP_MD_CTX *ctx))(EVP_MD_CTX *ctx, const void * data, size_t count);
 void EVP_MD_CTX_set_update_fn(EVP_MD_CTX * ctx, int (* update)(EVP_MD_CTX * ctx, const void * data, size_t count));
 #define EVP_MD_CTX_size(e)              EVP_MD_size(EVP_MD_CTX_md(e))
 #define EVP_MD_CTX_block_size(e)        EVP_MD_block_size(EVP_MD_CTX_md(e))
 #define EVP_MD_CTX_type(e)              EVP_MD_type(EVP_MD_CTX_md(e))
 EVP_PKEY_CTX * EVP_MD_CTX_pkey_ctx(const EVP_MD_CTX * ctx);
-void * EVP_MD_CTX_md_data(const EVP_MD_CTX * ctx);
+void * FASTCALL EVP_MD_CTX_md_data(const EVP_MD_CTX * ctx);
 
 int    EVP_CIPHER_nid(const EVP_CIPHER * cipher);
 #define EVP_CIPHER_name(e) OBJ_nid2sn(EVP_CIPHER_nid(e))
@@ -432,8 +432,8 @@ void BIO_set_md(BIO *, const EVP_MD * md);
 
 int EVP_MD_CTX_ctrl(EVP_MD_CTX * ctx, int cmd, int p1, void * p2);
 EVP_MD_CTX * EVP_MD_CTX_new(void);
-int EVP_MD_CTX_reset(EVP_MD_CTX * ctx);
-void EVP_MD_CTX_free(EVP_MD_CTX * ctx);
+int FASTCALL EVP_MD_CTX_reset(EVP_MD_CTX * ctx);
+void FASTCALL EVP_MD_CTX_free(EVP_MD_CTX * ctx);
 #define EVP_MD_CTX_create()     EVP_MD_CTX_new()
 #define EVP_MD_CTX_init(ctx)    EVP_MD_CTX_reset((ctx))
 #define EVP_MD_CTX_destroy(ctx) EVP_MD_CTX_free((ctx))
@@ -735,10 +735,8 @@ const EVP_CIPHER * EVP_seed_ofb(void);
 	    | OPENSSL_INIT_ADD_ALL_DIGESTS, NULL)
 #  endif
 
-#define OpenSSL_add_all_ciphers() \
-	OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS, NULL)
-#define OpenSSL_add_all_digests() \
-	OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_DIGESTS, NULL)
+#define OpenSSL_add_all_ciphers() OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS, NULL)
+#define OpenSSL_add_all_digests() OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_DIGESTS, NULL)
 
 #define EVP_cleanup() while(0) continue
 # endif
@@ -747,28 +745,13 @@ int EVP_add_cipher(const EVP_CIPHER * cipher);
 int EVP_add_digest(const EVP_MD * digest);
 
 const EVP_CIPHER * EVP_get_cipherbyname(const char * name);
-const EVP_MD * EVP_get_digestbyname(const char * name);
-
-void EVP_CIPHER_do_all(void (* fn)(const EVP_CIPHER * ciph,
-	    const char * from, const char * to, void * x),
-    void * arg);
-void EVP_CIPHER_do_all_sorted(void (*fn)
-    (const EVP_CIPHER *ciph, const char * from,
-	    const char * to, void * x), void * arg);
-
-void EVP_MD_do_all(void (* fn)(const EVP_MD * ciph,
-	    const char * from, const char * to, void * x),
-    void * arg);
-void EVP_MD_do_all_sorted(void (*fn)
-    (const EVP_MD *ciph, const char * from,
-	    const char * to, void * x), void * arg);
-
-int EVP_PKEY_decrypt_old(uchar * dec_key,
-    const uchar * enc_key, int enc_key_len,
-    EVP_PKEY * private_key);
-int EVP_PKEY_encrypt_old(uchar * enc_key,
-    const uchar * key, int key_len,
-    EVP_PKEY * pub_key);
+const EVP_MD * FASTCALL EVP_get_digestbyname(const char * name);
+void EVP_CIPHER_do_all(void (* fn)(const EVP_CIPHER * ciph, const char * from, const char * to, void * x), void * arg);
+void EVP_CIPHER_do_all_sorted(void (*fn) (const EVP_CIPHER *ciph, const char * from, const char * to, void * x), void * arg);
+void EVP_MD_do_all(void (* fn)(const EVP_MD * ciph, const char * from, const char * to, void * x), void * arg);
+void EVP_MD_do_all_sorted(void (*fn)(const EVP_MD *ciph, const char * from, const char * to, void * x), void * arg);
+int EVP_PKEY_decrypt_old(uchar * dec_key, const uchar * enc_key, int enc_key_len, EVP_PKEY * private_key);
+int EVP_PKEY_encrypt_old(uchar * enc_key, const uchar * key, int key_len, EVP_PKEY * pub_key);
 int EVP_PKEY_type(int type);
 int EVP_PKEY_id(const EVP_PKEY * pkey);
 int EVP_PKEY_base_id(const EVP_PKEY * pkey);

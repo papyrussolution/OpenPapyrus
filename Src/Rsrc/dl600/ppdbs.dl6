@@ -1375,12 +1375,17 @@ file:
 //
 table LotExtCode {
 	long   LotID;
-	string Code[96];
+	long   BillID;   // @v9.8.11
+	int16  RByBill;  // @v9.8.11
+	int16  Sign;     // @v9.8.11 +1 - приход, -1 - расход, 0 - не определено (или по контексту)
+	string Code[80]; // @v9.8.11 [96]-->[90]
 index:
-	LotID, Code (unique mod);
-	Code (unique mod);
+	LotID, BillID, RByBill, Code (unique mod);
+	Code, BillID, RByBill (unique mod);
+    BillID, RByBill, Code (unique mod anysegnull); // @v9.8.11
 file:
 	"lotxcode.btr";
+	compress;
 	access=1;
 }
 //

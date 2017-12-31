@@ -18,7 +18,7 @@ int OPENSSL_memcmp(const void * v1, const void * v2, size_t n)
 	return ret;
 }
 
-char * CRYPTO_strdup(const char * str, const char* file, int line)
+char * FASTCALL CRYPTO_strdup(const char * str, const char* file, int line)
 {
 	char * ret = 0;
 	if(str) {

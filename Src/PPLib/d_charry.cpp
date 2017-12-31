@@ -854,8 +854,10 @@ int SLAPI PPDS_CrrBill::InitData(Ido op, void * /*dataPtr*/, long addedParam)
 									ti.Price = price;
 							}
 						THROW(pack.InsertRow(&ti, &poslist));
-						if(Data.ClbL.GetNumber(i-1, &clb) > 0)
-							pack.ClbL.AddNumber(&poslist, clb);
+						// @v9.8.11 if(Data.ClbL.GetNumber(i-1, &clb) > 0)
+							// @v9.8.11 pack.ClbL.AddNumber(&poslist, clb);
+						if(Data.LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb) > 0) // @v9.8.11 
+							pack.LTagL.AddNumber(PPTAG_LOT_CLB, &poslist, clb); // @v9.8.11 
 					}
 					else {
 						CALLPTRMEMB(P_Logger, LogLastError());
@@ -931,8 +933,10 @@ int SLAPI PPDS_CrrBill::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTrans
 			PPTransferItem item = ((PPDS_CrrBillItem *)pData)->Data;
 			STRNSCPY(clb, ((PPDS_CrrBillItem *)pData)->CLB);
 			THROW(Data.InsertRow(&item, &poslist));
-			for(uint i = 0; i < poslist.getCount(); i++)
-				Data.ClbL.AddNumber(poslist.at(i), clb);
+			for(uint i = 0; i < poslist.getCount(); i++) {
+				// @v9.8.11 Data.ClbL.AddNumber(poslist.at(i), clb);
+				Data.LTagL.AddNumber(PPTAG_LOT_CLB, poslist.at(i), clb); // @v9.8.11 
+			}
 			ok = 1;
 		}
 	}

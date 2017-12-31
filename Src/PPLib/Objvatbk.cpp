@@ -87,6 +87,12 @@ double FASTCALL PPObjVATBook::GetVatRate(int idx)
 		return 0.0;
 }
 
+//static 
+int FASTCALL PPObjVATBook::IsValidKind(int kind)
+{
+	return oneof3(kind, PPVTB_SELL, PPVTB_BUY, PPVTB_SIMPLELEDGER) ? 1 : PPSetError(PPERR_INVVATBOOKKIND);
+}
+
 TLP_IMPL(PPObjVATBook, VATBookTbl, P_Tbl);
 
 SLAPI PPObjVATBook::PPObjVATBook(void * extraPtr) : PPObject(PPOBJ_VATBOOK)

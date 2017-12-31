@@ -37,25 +37,19 @@
 #include "cairoint.h"
 #pragma hdrstop
 
-cairo_bool_t _cairo_spline_intersects(const cairo_point_t * a,
-    const cairo_point_t * b,
-    const cairo_point_t * c,
-    const cairo_point_t * d,
-    const cairo_box_t * box)
+cairo_bool_t _cairo_spline_intersects(const cairo_point_t * a, const cairo_point_t * b,
+    const cairo_point_t * c, const cairo_point_t * d, const cairo_box_t * box)
 {
 	cairo_box_t bounds;
-	if(_cairo_box_contains_point(box, a) ||
-	    _cairo_box_contains_point(box, b) ||
-	    _cairo_box_contains_point(box, c) ||
-	    _cairo_box_contains_point(box, d)) {
+	if(_cairo_box_contains_point(box, a) || _cairo_box_contains_point(box, b) ||
+	    _cairo_box_contains_point(box, c) || _cairo_box_contains_point(box, d)) {
 		return TRUE;
 	}
 	bounds.p2 = bounds.p1 = *a;
 	_cairo_box_add_point(&bounds, b);
 	_cairo_box_add_point(&bounds, c);
 	_cairo_box_add_point(&bounds, d);
-	if(bounds.p2.x <= box->p1.x || bounds.p1.x >= box->p2.x ||
-	    bounds.p2.y <= box->p1.y || bounds.p1.y >= box->p2.y) {
+	if(bounds.p2.x <= box->p1.x || bounds.p1.x >= box->p2.x || bounds.p2.y <= box->p1.y || bounds.p1.y >= box->p2.y) {
 		return FALSE;
 	}
 #if 0 /* worth refining? */
@@ -107,24 +101,18 @@ cairo_bool_t _cairo_spline_init(cairo_spline_t * spline,
 	return TRUE;
 }
 
-static cairo_status_t _cairo_spline_add_point(cairo_spline_t * spline,
-    const cairo_point_t * point,
-    const cairo_point_t * knot)
+static cairo_status_t _cairo_spline_add_point(cairo_spline_t * spline, const cairo_point_t * point, const cairo_point_t * knot)
 {
-	cairo_point_t * prev;
 	cairo_slope_t slope;
-
-	prev = &spline->last_point;
+	cairo_point_t * prev = &spline->last_point;
 	if(prev->x == point->x && prev->y == point->y)
 		return CAIRO_STATUS_SUCCESS;
-
 	_cairo_slope_init(&slope, point, knot);
-
 	spline->last_point = *point;
 	return spline->add_point_func(spline->closure, point, &slope);
 }
 
-static void _lerp_half(const cairo_point_t * a, const cairo_point_t * b, cairo_point_t * result)
+static void FASTCALL _lerp_half(const cairo_point_t * a, const cairo_point_t * b, cairo_point_t * result)
 {
 	result->x = a->x + ((b->x - a->x) >> 1);
 	result->y = a->y + ((b->y - a->y) >> 1);
@@ -135,7 +123,6 @@ static void _de_casteljau(cairo_spline_knots_t * s1, cairo_spline_knots_t * s2)
 	cairo_point_t ab, bc, cd;
 	cairo_point_t abbc, bccd;
 	cairo_point_t final;
-
 	_lerp_half(&s1->a, &s1->b, &ab);
 	_lerp_half(&s1->b, &s1->c, &bc);
 	_lerp_half(&s1->c, &s1->d, &cd);
@@ -223,38 +210,28 @@ static double _cairo_spline_error_squared(const cairo_spline_knots_t * knots)
 		return cerr;
 }
 
-static cairo_status_t _cairo_spline_decompose_into(cairo_spline_knots_t * s1,
-    double tolerance_squared,
-    cairo_spline_t * result)
+static cairo_status_t _cairo_spline_decompose_into(cairo_spline_knots_t * s1, double tolerance_squared, cairo_spline_t * result)
 {
 	cairo_spline_knots_t s2;
 	cairo_status_t status;
-
 	if(_cairo_spline_error_squared(s1) < tolerance_squared)
 		return _cairo_spline_add_point(result, &s1->a, &s1->b);
-
 	_de_casteljau(s1, &s2);
-
 	status = _cairo_spline_decompose_into(s1, tolerance_squared, result);
 	if(unlikely(status))
 		return status;
-
 	return _cairo_spline_decompose_into(&s2, tolerance_squared, result);
 }
 
-cairo_status_t _cairo_spline_decompose(cairo_spline_t * spline, double tolerance)
+cairo_status_t FASTCALL _cairo_spline_decompose(cairo_spline_t * spline, double tolerance)
 {
-	cairo_spline_knots_t s1;
 	cairo_status_t status;
-
-	s1 = spline->knots;
+	cairo_spline_knots_t s1 = spline->knots;
 	spline->last_point = s1.a;
 	status = _cairo_spline_decompose_into(&s1, tolerance * tolerance, spline);
 	if(unlikely(status))
 		return status;
-
-	return spline->add_point_func(spline->closure,
-	    &spline->knots.d, &spline->final_slope);
+	return spline->add_point_func(spline->closure, &spline->knots.d, &spline->final_slope);
 }
 
 /* Note: this function is only good for computing bounds in device space. */

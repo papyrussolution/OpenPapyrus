@@ -25,7 +25,7 @@
 CURLcode Curl_is_connected(struct connectdata * conn, int sockindex, bool * connected);
 CURLcode Curl_connecthost(struct connectdata * conn, const struct Curl_dns_entry * host);
 // generic function that returns how much time there's left to run, according to the timeouts set 
-time_t Curl_timeleft(struct Curl_easy * data, struct timeval * nowp, bool duringconnect);
+time_t FASTCALL Curl_timeleft(struct Curl_easy * data, struct timeval * nowp, bool duringconnect);
 
 #define DEFAULT_CONNECT_TIMEOUT 300000 /* milliseconds == five minutes */
 #define HAPPY_EYEBALLS_TIMEOUT     200 /* milliseconds to wait between IPv4/IPv6 connection attempts */
@@ -79,7 +79,6 @@ struct Curl_sockaddr_ex {
 };
 
 #define sa_addr _sa_ex_u.addr
-
 /*
  * Create a socket based on info from 'conn' and 'ai'.
  *
@@ -106,7 +105,7 @@ void Curl_tcpnodelay(struct connectdata * conn, curl_socket_t sockfd);
 #define CONNCTRL_CONNECTION 1
 #define CONNCTRL_STREAM 2
 
-void Curl_conncontrol(struct connectdata * conn,
+void FASTCALL Curl_conncontrol(struct connectdata * conn,
     int closeit
 #if defined(DEBUGBUILD) && !defined(CURL_DISABLE_VERBOSE_STRINGS)
     , const char * reason
@@ -114,13 +113,13 @@ void Curl_conncontrol(struct connectdata * conn,
     );
 
 #if defined(DEBUGBUILD) && !defined(CURL_DISABLE_VERBOSE_STRINGS)
-#define streamclose(x, y) Curl_conncontrol(x, CONNCTRL_STREAM, y)
-#define connclose(x, y) Curl_conncontrol(x, CONNCTRL_CONNECTION, y)
-#define connkeep(x, y) Curl_conncontrol(x, CONNCTRL_KEEP, y)
+	#define streamclose(x, y) Curl_conncontrol(x, CONNCTRL_STREAM, y)
+	#define connclose(x, y) Curl_conncontrol(x, CONNCTRL_CONNECTION, y)
+	#define connkeep(x, y) Curl_conncontrol(x, CONNCTRL_KEEP, y)
 #else /* if !DEBUGBUILD || CURL_DISABLE_VERBOSE_STRINGS */
-#define streamclose(x, y) Curl_conncontrol(x, CONNCTRL_STREAM)
-#define connclose(x, y) Curl_conncontrol(x, CONNCTRL_CONNECTION)
-#define connkeep(x, y) Curl_conncontrol(x, CONNCTRL_KEEP)
+	#define streamclose(x, y) Curl_conncontrol(x, CONNCTRL_STREAM)
+	#define connclose(x, y) Curl_conncontrol(x, CONNCTRL_CONNECTION)
+	#define connkeep(x, y) Curl_conncontrol(x, CONNCTRL_KEEP)
 #endif
 
 bool Curl_conn_data_pending(struct connectdata * conn, int sockindex);

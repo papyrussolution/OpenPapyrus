@@ -2992,7 +2992,7 @@ public:
 	}
 	int    SLAPI GetSaGiftList(SaGiftArray * pList, int clear);
 private:
-	virtual int  SLAPI Dirty(PPID id);
+	virtual int  FASTCALL Dirty(PPID id);
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 public:
@@ -3081,7 +3081,7 @@ void SLAPI GoodsStrucCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
 }
 
-int SLAPI GoodsStrucCache::Dirty(PPID id)
+int FASTCALL GoodsStrucCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	{

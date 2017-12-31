@@ -60,12 +60,12 @@ int SLAPI PPObjAdvBillKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, in
 //
 //
 //
-SLAPI PPAdvBillItem::PPAdvBillItem()
+SLAPI PPAdvBillItemList::Item::Item()
 {
 	THISZERO();
 }
 
-int FASTCALL PPAdvBillItem::IsEqual(const PPAdvBillItem & rS) const
+int FASTCALL PPAdvBillItemList::Item::IsEqual(const PPAdvBillItemList::Item & rS) const
 {
 #define CMPF(f) if(f != rS.f) return 0;
 	CMPF(BillID);
@@ -88,7 +88,7 @@ int FASTCALL PPAdvBillItem::IsEqual(const PPAdvBillItem & rS) const
 //
 //
 //
-SLAPI PPAdvBillItemList::PPAdvBillItemList() : SArray(sizeof(PPAdvBillItem))
+SLAPI PPAdvBillItemList::PPAdvBillItemList() : SArray(sizeof(PPAdvBillItemList::Item))
 {
 }
 
@@ -104,8 +104,8 @@ int FASTCALL PPAdvBillItemList::IsEqual(const PPAdvBillItemList & rS) const
 		// Перестановка элементов считается отличием
 		//
 		for(uint i = 0; eq && i < c; i++) {
-			const PPAdvBillItem & r_rec = Get(i);
-			const PPAdvBillItem & r_rec2 = rS.Get(i);
+			const Item & r_rec = Get(i);
+			const Item & r_rec2 = rS.Get(i);
 			if(!r_rec.IsEqual(r_rec2))
 				eq = 0;
 		}
@@ -118,9 +118,9 @@ uint SLAPI PPAdvBillItemList::GetCount() const
 	return getCount();
 }
 
-PPAdvBillItem & FASTCALL PPAdvBillItemList::Get(uint pos) const
+PPAdvBillItemList::Item & FASTCALL PPAdvBillItemList::Get(uint pos) const
 {
-	return (pos < getCount()) ? *(PPAdvBillItem *)at(pos) : *(PPAdvBillItem *)0;
+	return (pos < getCount()) ? *(Item *)at(pos) : *(Item *)0;
 }
 
 int SLAPI PPAdvBillItemList::SearchBillLink(PPID billID, uint * pPos) const
@@ -137,7 +137,7 @@ int SLAPI PPAdvBillItemList::SearchBillLink(PPID billID, uint * pPos) const
 int SLAPI PPAdvBillItemList::GetStorageForm(uint pos, AdvBillItemTbl::Rec * pItem) const
 {
 	if(pos < GetCount()) {
-		const PPAdvBillItem & item = Get(pos);
+		const Item & item = Get(pos);
 		memzero(pItem, sizeof(*pItem));
 		pItem->BillID  = item.BillID;
 		pItem->RByBill = item.RByBill;
@@ -159,7 +159,7 @@ int SLAPI PPAdvBillItemList::GetStorageForm(uint pos, AdvBillItemTbl::Rec * pIte
 
 int SLAPI PPAdvBillItemList::AddStorageForm(const AdvBillItemTbl::Rec * pItem)
 {
-	PPAdvBillItem item;
+	Item item;
 	item.BillID  = pItem->BillID;
 	item.RByBill = pItem->RByBill;
 	STRNSCPY(item.AdvCode, pItem->AdvCode);
@@ -175,7 +175,7 @@ int SLAPI PPAdvBillItemList::AddStorageForm(const AdvBillItemTbl::Rec * pItem)
 	return Add(&item);
 }
 
-int SLAPI PPAdvBillItemList::Add(const PPAdvBillItem * pItem)
+int SLAPI PPAdvBillItemList::Add(const PPAdvBillItemList::Item * pItem)
 {
 	return insert(pItem) ? 1 : PPSetErrorSLib();
 }
@@ -209,14 +209,14 @@ public:
 	{
 		P_Pack = pPack;
 	}
-	virtual int setDTS(const PPAdvBillItem *);
-	virtual int getDTS(PPAdvBillItem *);
+	virtual int setDTS(const PPAdvBillItemList::Item *);
+	virtual int getDTS(PPAdvBillItemList::Item *);
 protected:
 	DECL_HANDLE_EVENT;
 	void   setupLinkBill();
 	void   editLink();
 	void   removeLink();
-	PPAdvBillItem Data;
+	PPAdvBillItemList::Item Data;
 	const PPBillPacket * P_Pack;
 };
 
@@ -371,7 +371,7 @@ IMPL_HANDLE_EVENT(AdvBillItemDialog)
 	clearEvent(event);
 }
 
-int AdvBillItemDialog::setDTS(const PPAdvBillItem * pData)
+int AdvBillItemDialog::setDTS(const PPAdvBillItemList::Item * pData)
 {
 	int    ok = 1;
 	Data = *pData;
@@ -395,7 +395,7 @@ int AdvBillItemDialog::setDTS(const PPAdvBillItem * pData)
 	return ok;
 }
 
-int AdvBillItemDialog::getDTS(PPAdvBillItem * pData)
+int AdvBillItemDialog::getDTS(PPAdvBillItemList::Item * pData)
 {
 	int    ok = 1;
 	uint   sel = 0;
@@ -423,7 +423,7 @@ public:
 	WarrantItemDialog(uint dlgID) : AdvBillItemDialog(dlgID) 
 	{
 	}
-	virtual int WarrantItemDialog::setDTS(const PPAdvBillItem * pData)
+	virtual int WarrantItemDialog::setDTS(const PPAdvBillItemList::Item * pData)
 	{
 		Data = *pData;
 		setCtrlData(CTL_WARRITEM_NAME, Data.Memo);
@@ -431,7 +431,7 @@ public:
 		setCtrlData(CTL_WARRITEM_QTTY, &Data.Amount);
 		return 1;
 	}
-	virtual int WarrantItemDialog::getDTS(PPAdvBillItem * pData)
+	virtual int WarrantItemDialog::getDTS(PPAdvBillItemList::Item * pData)
 	{
 		getCtrlData(CTL_WARRITEM_NAME, Data.Memo);
 		getCtrlData(CTLSEL_WARRITEM_UNIT, &Data.ArID);
@@ -449,7 +449,7 @@ public:
 	{
 		AccSheetID = accSheetID;
 	}
-	virtual int setDTS(const PPAdvBillItem * pData)
+	virtual int setDTS(const PPAdvBillItemList::Item * pData)
 	{
 		Data = *pData;
 		SetupArCombo(this, CTLSEL_DINVITEM_AR, Data.ArID, OLW_CANINSERT, AccSheetID, sacfDisableIfZeroSheet);
@@ -457,7 +457,7 @@ public:
 		setCtrlData(CTL_DINVITEM_MEMO,    Data.Memo);
 		return 1;
 	}
-	virtual int getDTS(PPAdvBillItem * pData)
+	virtual int getDTS(PPAdvBillItemList::Item * pData)
 	{
 		getCtrlData(CTLSEL_DINVITEM_AR,  &Data.ArID);
 		getCtrlData(CTL_DINVITEM_AMOUNT, &Data.Amount);
@@ -479,7 +479,7 @@ struct AdvBillItemEntry {
 	char   Memo[128];      // #132
 };
 
-typedef int (* SetupAdvItemRowProc)(AdvBillItemEntry *, const PPAdvBillItem *, PPObjBill *);
+typedef int (* SetupAdvItemRowProc)(AdvBillItemEntry *, const PPAdvBillItemList::Item *, PPObjBill *);
 
 class AdvBillItemBrowser : public BrowserWindow {
 public:
@@ -489,7 +489,7 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	int    getCurItemPos();
-	int    editAdvBillItem(PPAdvBillItem * pData);
+	int    editAdvBillItem(PPAdvBillItemList::Item * pData);
 	int    addItem();
 	int    addItemBySample();
 	int    editItem();
@@ -507,12 +507,9 @@ enum { // Параметр функции AdvBillItemBrowser::update
 	pos_bottom = -3
 };
 
-AdvBillItemBrowser::AdvBillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p,
-	SetupAdvItemRowProc pSetEntry) : BrowserWindow(rezID, (SArray *)0)
+AdvBillItemBrowser::AdvBillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p, SetupAdvItemRowProc pSetEntry) : 
+	BrowserWindow(rezID, (SArray *)0), P_BObj(pBObj), P_Pack(p), P_SetEntry(pSetEntry)
 {
-	P_BObj     = pBObj;
-	P_Pack     = p;
-	P_SetEntry = pSetEntry;
 	IsWarrant  = BIN(GetOpSubType(P_Pack->Rec.OpID) == OPSUBT_WARRANT);
 	SString code;
 	setSubTitle(PPObjBill::MakeCodeString(&P_Pack->Rec, 0, code));
@@ -529,7 +526,7 @@ int AdvBillItemBrowser::getCurItemPos()
 //
 //
 //
-int AdvBillItemBrowser::editAdvBillItem(PPAdvBillItem * pData)
+int AdvBillItemBrowser::editAdvBillItem(PPAdvBillItemList::Item * pData)
 {
 	int    ok = -1;
 	AdvBillItemDialog * dlg = 0;
@@ -593,7 +590,7 @@ int AdvBillItemBrowser::update(int pos)
 		p_def->setArray(0, 0, 1);
 		THROW_MEM(p_list = new SArray(sizeof(AdvBillItemEntry)));
 		for(i = 0; i < count; i++) {
-			const PPAdvBillItem & item = P_Pack->AdvList.Get(i);
+			const PPAdvBillItemList::Item & item = P_Pack->AdvList.Get(i);
 			AdvBillItemEntry entry;
 			P_SetEntry(&entry, &item, P_BObj);
 			THROW_SL(p_list->insert(&entry));
@@ -619,7 +616,7 @@ int AdvBillItemBrowser::update(int pos)
 }
 
 // SetupAdvItemRowProc
-static int SetAdvBillItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItem * pItem, PPObjBill * pBObj)
+static int SetAdvBillItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItemList::Item * pItem, PPObjBill * pBObj)
 {
 	int    ok = 1;
 	SString result_buf, temp_buf;
@@ -645,7 +642,7 @@ static int SetAdvBillItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItem * 
 }
 
 // SetupAdvItemRowProc
-static int SetWarrantItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItem * pItem, PPObjBill *)
+static int SetWarrantItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItemList::Item * pItem, PPObjBill *)
 {
 	int    ok = 1;
 	memzero(pEntry, sizeof(AdvBillItemEntry));
@@ -658,7 +655,7 @@ static int SetWarrantItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItem * 
 }
 
 // SetupAdvItemRowProc
-static int SetDebtInventItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItem * pItem, PPObjBill *)
+static int SetDebtInventItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItemList::Item * pItem, PPObjBill *)
 {
 	int    ok = 1;
 	PPObjArticle ar_obj;
@@ -676,8 +673,7 @@ static int SetDebtInventItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItem
 int AdvBillItemBrowser::addItem()
 {
 	int    ok = -1;
-	PPAdvBillItem item;
-	MEMSZERO(item);
+	PPAdvBillItemList::Item item;
 	if(editAdvBillItem(&item) > 0) {
 		P_Pack->AdvList.Add(&item);
 		P_Pack->CheckLargeBill(1);
@@ -692,7 +688,7 @@ int AdvBillItemBrowser::addItemBySample()
 	int    ok = -1;
 	int16  c = getCurItemPos();
 	if(c >= 0 && c < (int16)P_Pack->AdvList.GetCount()) {
-		PPAdvBillItem item = P_Pack->AdvList.Get(c);
+		PPAdvBillItemList::Item item = P_Pack->AdvList.Get(c);
 		item.BillID = 0;
 		item.RByBill = 0;
 		if(editAdvBillItem(&item) > 0) {
@@ -709,7 +705,7 @@ int AdvBillItemBrowser::editItem()
 {
 	int16  c = getCurItemPos();
 	if(c >= 0 && c < (int16)P_Pack->AdvList.GetCount()) {
-		PPAdvBillItem & r_item = P_Pack->AdvList.Get(c);
+		PPAdvBillItemList::Item & r_item = P_Pack->AdvList.Get(c);
 		if(editAdvBillItem(&r_item) > 0) {
 			update(pos_cur);
 			return 1;
@@ -736,7 +732,7 @@ int SLAPI ViewAdvBillDetails(PPBillPacket * pPack, PPObjBill * pBObj)
 {
 	int    r = -1;
 	uint   res_id;
-	int    (*set_entry)(AdvBillItemEntry * pEntry, const PPAdvBillItem * pItem, PPObjBill *) = 0;
+	int    (*set_entry)(AdvBillItemEntry * pEntry, const PPAdvBillItemList::Item * pItem, PPObjBill *) = 0;
 	if(pPack->OpTypeID == PPOPT_ACCTURN) {
 		if(GetOpSubType(pPack->Rec.OpID) == OPSUBT_WARRANT) {
 			res_id    = BROWSER_WARRANTITEM;
@@ -781,8 +777,8 @@ int SLAPI PPObjBill::WriteOffDebtInventory(PPID billID, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		for(i = 0; i < pack.AdvList.GetCount(); i++) {
-			PPAdvBillItem & r_item = pack.AdvList.Get(i);
-			if(!(r_item.Flags & PPAdvBillItem::fWritedOff)) {
+			PPAdvBillItemList::Item & r_item = pack.AdvList.Get(i);
+			if(!(r_item.Flags & PPAdvBillItemList::Item::fWritedOff)) {
 				PPBillPacket wo_pack;
 				if(r_item.Amount > 0) {
 					if(op_pack.P_DIOE->WrDnOp) {
@@ -811,5 +807,3 @@ int SLAPI PPObjBill::WriteOffDebtInventory(PPID billID, int use_ta)
 	CATCHZOK
 	return ok;
 }
-
-

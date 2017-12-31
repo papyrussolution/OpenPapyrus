@@ -241,7 +241,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 	}
 }
 
-int ListWindow::getResult(long * pVal)
+int FASTCALL ListWindow::getResult(long * pVal)
 {
 	return def ? def->getCurID(pVal) : 0;
 }

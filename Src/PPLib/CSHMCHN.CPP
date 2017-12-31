@@ -690,7 +690,7 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 	const  PPConfig & r_cfg = LConfig;
 	int    r = cmOK;
 	int    deny_ops = 0;
-	const  long save_state = p_bobj->State;
+	// @v9.8.11 const  long save_state = p_bobj->State;
 	LDATE  save_date = ZERODATE;
 	LDATE  cur_date = ZERODATE;
 	PPSyncCashNode  scn;
@@ -793,7 +793,7 @@ int SLAPI PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long
 	}
 	CATCHZOK
 	DS.SetCurCashNodeID(0);
-	p_bobj->State = save_state;
+	// @v9.8.11 p_bobj->State = save_state;
 	if(save_date)
 		DS.SetOperDate(save_date);
 	delete p_cml_x;

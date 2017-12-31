@@ -832,7 +832,7 @@ int SLAPI PPObjStaffList::PutPacket(PPID * pID, PPStaffPacket * pPack, int use_t
 				THROW(r = GetPostList(*pID, 0));
 				THROW_PP(r < 0, PPERR_RMVFILLEDSTAFF);
 				THROW(ref->RemoveItem(Obj, *pID, 0));
-				THROW(ref->RemoveProp(Obj, *pID, 0, 0));
+				THROW(ref->RemoveProperty(Obj, *pID, 0, 0));
 				THROW(RemoveSync(*pID));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, 0, 0);
 			}
@@ -1338,13 +1338,13 @@ void SLAPI StaffListCache::EntryToData(const ObjCacheEntry * pEntry, void * pDat
 	GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
 }
 
-int SLAPI PPObjStaffList::Fetch(PPID id, PPStaffEntry * pRec)
+int FASTCALL PPObjStaffList::Fetch(PPID id, PPStaffEntry * pRec)
 {
 	StaffListCache * p_cache = GetDbLocalCachePtr <StaffListCache> (Obj);
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);
 }
 
-int SLAPI PPObjStaffList::Dirty(PPID id)
+int FASTCALL PPObjStaffList::Dirty(PPID id)
 {
 	StaffListCache * p_cache = GetDbLocalCachePtr <StaffListCache> (Obj, 0);
 	return p_cache ? p_cache->Dirty(id) : -1;

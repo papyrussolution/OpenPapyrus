@@ -118,11 +118,10 @@ static BOOL CALLBACK CloseTooltipWnd2(HWND hwnd, LPARAM lParam)
 }
 
 //static
-int SMessageWindow::DestroyByParent(HWND parent)
+void FASTCALL SMessageWindow::DestroyByParent(HWND parent)
 {
 	EnumWindows(CloseTooltipWnd, (LPARAM)parent);
 	EnumChildWindows(parent, CloseTooltipWnd2, 0);
-	return 1;
 }
 
 // static

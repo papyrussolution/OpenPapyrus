@@ -201,33 +201,19 @@ void _cairo_debug_print_path(FILE * stream, cairo_path_fixed_t * path)
 {
 	cairo_status_t status;
 	cairo_box_t box;
-	fprintf(stream,
-	    "path: extents=(%f, %f), (%f, %f)\n",
-	    _cairo_fixed_to_double(path->extents.p1.x),
-	    _cairo_fixed_to_double(path->extents.p1.y),
-	    _cairo_fixed_to_double(path->extents.p2.x),
-	    _cairo_fixed_to_double(path->extents.p2.y));
-
-	status = _cairo_path_fixed_interpret(path,
-	    _print_move_to,
-	    _print_line_to,
-	    _print_curve_to,
-	    _print_close,
-	    stream);
+	fprintf(stream, "path: extents=(%f, %f), (%f, %f)\n", _cairo_fixed_to_double(path->extents.p1.x),
+	    _cairo_fixed_to_double(path->extents.p1.y), _cairo_fixed_to_double(path->extents.p2.x), _cairo_fixed_to_double(path->extents.p2.y));
+	status = _cairo_path_fixed_interpret(path, _print_move_to, _print_line_to, _print_curve_to, _print_close, stream);
 	assert(status == CAIRO_STATUS_SUCCESS);
-
 	if(_cairo_path_fixed_is_box(path, &box)) {
-		fprintf(stream, "[box (%d, %d), (%d, %d)]",
-		    box.p1.x, box.p1.y, box.p2.x, box.p2.y);
+		fprintf(stream, "[box (%d, %d), (%d, %d)]", box.p1.x, box.p1.y, box.p2.x, box.p2.y);
 	}
-
-	printf("\n");
+	fprintf(stream, "\n"); // @cairover-1.14.12 @fix
 }
 
 void _cairo_debug_print_polygon(FILE * stream, cairo_polygon_t * polygon)
 {
 	int n;
-
 	fprintf(stream,
 	    "polygon: extents=(%f, %f), (%f, %f)\n",
 	    _cairo_fixed_to_double(polygon->extents.p1.x),

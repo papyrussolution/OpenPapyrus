@@ -931,7 +931,7 @@ int EditMenusDlg::IsMenuUsed(PPID obj, PPID menuID, int isDesktop)
 	PPConfig cfg;
 	for(PPID id = 0; !used && PPRef->EnumItems(obj, &id) > 0;) {
 		MEMSZERO(cfg);
-		if(PPRef->GetProp(obj, id, PPPRP_CFG, &cfg, sizeof(cfg)) > 0)
+		if(PPRef->GetProperty(obj, id, PPPRP_CFG, &cfg, sizeof(cfg)) > 0)
 			if(isDesktop)
 				used = (cfg.DesktopID == menuID) ? 1 : 0;
 			else

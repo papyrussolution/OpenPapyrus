@@ -840,7 +840,7 @@ private:
 	static int SLAPI IsFieldHeader(const SString & rLineBuf, const char * pHeader, SString & rValue);
 
 	SString & SLAPI PutField(const char * pFld, const char * pVal, SString & rBuf);
-	int    SLAPI ProcessInputLine(ParserBlock & rBlk, SString & rLineBuf);
+	int    SLAPI ProcessInputLine(ParserBlock & rBlk, const SString & rLineBuf);
 	Boundary * FASTCALL SearchBoundary(const SString & rIdent);
 	Boundary * SLAPI Helper_SearchBoundary(const SString & rIdent, Boundary * pParent);
 	const Boundary * FASTCALL SearchBoundary(const Boundary * pB) const;
@@ -998,6 +998,10 @@ public:
 	SLAPI  SUniformFileTransmParam();
 	int    SLAPI Run(SDataMoveProgressProc pf, void * extraPtr);
 
+	enum {
+		fRenameExistantFiles = 0x0001,
+		fDeleteAfter         = 0x0002       
+	};
 	long   Flags;
 	int    Format; // SFileFormat::XXX
 	SString SrcPath;

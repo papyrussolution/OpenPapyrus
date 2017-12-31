@@ -193,7 +193,7 @@ int SLAPI PPObjProject::EditConfig()
 }
 
 //static
-SString & SLAPI PPObjProject::MakeCodeString(const ProjectTbl::Rec * pRec, SString & rBuf)
+SString & FASTCALL PPObjProject::MakeCodeString(const ProjectTbl::Rec * pRec, SString & rBuf)
 {
 	return rBuf.Z().Cat(pRec->Code).CatDiv('-', 1).Cat(pRec->Name);
 }
@@ -532,9 +532,8 @@ IMPLEMENT_PPFILT_FACTORY(Project); SLAPI ProjectFilt::ProjectFilt() : PPBaseFilt
 //
 //
 //
-SLAPI PPViewProject::PPViewProject() : PPView(&PrjObj, &Filt)
+SLAPI PPViewProject::PPViewProject() : PPView(&PrjObj, &Filt), P_PrjTaskView(0)
 {
-	P_PrjTaskView = 0;
 	DefReportId = REPORT_PROJECTVIEW;
 }
 
@@ -824,6 +823,13 @@ int SLAPI PPViewProject::Export()
 //
 // PrjTaskCore
 //
+//static 
+int FASTCALL PrjTaskCore::IsValidStatus(int s) 
+	{ return (s >= 1 && s <= 5) ? 1 : PPSetError(PPERR_INVTODOSTATUS); }
+//static 
+int FASTCALL PrjTaskCore::IsValidPrior(int p) 
+	{ return (p >= 1 && p <= 5); }
+
 SLAPI PrjTaskCore::PrjTaskCore() : PrjTaskTbl()
 {
 }
@@ -936,7 +942,6 @@ int SLAPI PrjTaskCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 			ok = 1;
 		}
 	}
-	// @v6.5.12 {
 	else if(objType == PPOBJ_LOCATION) {
 		BExtQuery q(this, 0, 1);
 		q.select(this->ID, 0).where(this->DlvrAddrID == objID);
@@ -946,7 +951,6 @@ int SLAPI PrjTaskCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 			ok = 1;
 		}
 	}
-	// } @v6.5.12
 	else if(objType == PPOBJ_PROJECT) {
 		k_.k2.ProjectID = objID;
 		if(search(2, &k_.k2, spGe) && k_.k2.ProjectID == objID) {

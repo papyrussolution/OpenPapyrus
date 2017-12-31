@@ -75,11 +75,10 @@ int PPObjCSession::StringToRights(const char * pBuf, long * pRt, long * pOpRt)
 
 TLP_IMPL(PPObjCSession, CSessionCore, P_Tbl);
 
-SLAPI PPObjCSession::PPObjCSession(void * extraPtr) : PPObject(PPOBJ_CSESSION)
+SLAPI PPObjCSession::PPObjCSession(void * extraPtr) : PPObject(PPOBJ_CSESSION), P_EqCfg(0)
 {
 	TLP_OPEN(P_Tbl);
 	ExtraPtr = extraPtr;
-	P_EqCfg = 0;
 }
 
 SLAPI PPObjCSession::~PPObjCSession()
@@ -103,7 +102,7 @@ int SLAPI PPObjCSession::Search(PPID id, void * b)
 }
 
 //static
-SString & SLAPI PPObjCSession::MakeCodeString(const CSessionTbl::Rec * pRec, SString & rBuf)
+SString & FASTCALL PPObjCSession::MakeCodeString(const CSessionTbl::Rec * pRec, SString & rBuf)
 {
 	rBuf.Z();
 	rBuf.Cat(pRec->Dt).CatDiv('-', 1).Cat(pRec->SessNumber).CatDiv('-', 1).Cat(pRec->CashNumber).CatDiv('-', 1);

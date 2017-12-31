@@ -2815,7 +2815,7 @@ public:
 	int    SLAPI ReleaseFullEaList(const StrAssocArray * pList);
 	const  StrAssocArray * SLAPI GetFullEaList();
 
-	virtual int  SLAPI Dirty(PPID); // @sync_w
+	virtual int  FASTCALL Dirty(PPID); // @sync_w
 private:
 	struct WHObjEntry {
 		PPID   LocID;
@@ -2836,12 +2836,10 @@ private:
 	//
 	class FealArray : public StrAssocArray {
 	public:
-		FealArray(int use) : StrAssocArray()
+		FealArray(int use) : StrAssocArray(), Use(use), Inited(0)
 		{
-			Use = use;
-			Inited = 0;
 		}
-		void   Dirty(PPID cardID)
+		void   FASTCALL Dirty(PPID cardID)
 		{
 			DirtyTable.Add((uint32)labs(cardID));
 		}
@@ -3046,7 +3044,7 @@ int SLAPI LocationCache::GetConfig(PPLocationConfig * pCfg, int enforce)
 	return 1;
 }
 
-int SLAPI LocationCache::Dirty(PPID locID)
+int FASTCALL LocationCache::Dirty(PPID locID)
 {
 	PPObjLocation loc_obj(SConstructorLite);
 	{

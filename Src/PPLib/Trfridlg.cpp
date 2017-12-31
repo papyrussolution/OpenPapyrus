@@ -185,8 +185,9 @@ int TrfrItemDialog::ProcessRevalOnAllLots(const PPTransferItem * pItem)
 					item.Price    = pItem->Price;
 					THROW(P_Pack->BoundsByLot(item.LotID, &item, -1, &item.Rest_, 0));
 					THROW(P_Pack->InsertRow(&item, 0, 0));
-					P_Pack->ClbL.ReplacePosition(-1, P_Pack->GetTCount() - 1);
-					P_Pack->SnL.ReplacePosition(-1, P_Pack->GetTCount() - 1);
+					P_Pack->LTagL.ReplacePosition(-1, P_Pack->GetTCount() - 1); // @v9.8.11
+					// @v9.8.11 P_Pack->ClbL.ReplacePosition(-1, P_Pack->GetTCount() - 1);
+					// @v9.8.11 P_Pack->SnL.ReplacePosition(-1, P_Pack->GetTCount() - 1);
 				}
 			}
 		}
@@ -281,8 +282,8 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 	THROW(CheckDialogPtr(&(dlg = new TrfrItemDialog(dlg_id, op_id))));
 	SETFLAG(dlg->St, TrfrItemDialog::stAllowSupplSel, allow_suppl_sel);
 	if(pInitData) {
-		dlg->MinQtty = pInitData->MinQtty;
-		dlg->MaxQtty = pInitData->MaxQtty;
+		dlg->MinQtty = pInitData->QttyBounds.low;
+		dlg->MaxQtty = pInitData->QttyBounds.upp;
 	}
 	if(itemNo < 0) {
 		THROW_MEM(p_item = new PPTransferItem(&pPack->Rec, sign));
@@ -376,7 +377,8 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 			SETIFZ(p_spc_core, new SpecSeriesCore);
 			if(p_spc_core) {
 				SpecSeries2Tbl::Rec spc_rec;
-				if(pPack->SnL.GetNumber(itemNo, &serial) > 0) {
+				// @v9.8.11 if(pPack->SnL.GetNumber(itemNo, &serial) > 0) {
+				if(pPack->LTagL.GetNumber(PPTAG_LOT_SN, itemNo, serial) > 0) { // @v9.8.11 
 					serial.Transf(CTRANSF_INNER_TO_OUTER);
 					if(p_spc_core->SearchBySerial(SPCSERIK_SPOILAGE, serial, &spc_rec) > 0) {
 						if(ViewSpoilList(p_spc_core, serial, 1) < 0)
@@ -671,7 +673,8 @@ void TrfrItemDialog::editQCertData()
 				lqcd.Expiry  = Item.Expiry;
 				lqcd.IsInheritedClb = 1;
 				P_BObj->GetClbNumberByLot(Item.LotID, 0, org_clb);
-				P_Pack->SnL.GetNumber(ItemNo, &serial);
+				// @v9.8.11 P_Pack->SnL.GetNumber(ItemNo, &serial);
+				P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, ItemNo, serial); // @v9.8.11 
 				org_clb.Strip().CopyTo(lqcd.CLB, sizeof(lqcd.CLB));
 				serial.Strip().CopyTo(lqcd.Serial, sizeof(lqcd.Serial));
 				dlg->setDTS(&lqcd);
@@ -680,7 +683,8 @@ void TrfrItemDialog::editQCertData()
 						valid_data = 1;
 						Item.QCert = lqcd.QCertID;
 						Item.Expiry = lqcd.Expiry;
-						P_Pack->SnL.AddNumber(ItemNo, lqcd.Serial);
+						// @v9.8.11 P_Pack->SnL.AddNumber(ItemNo, lqcd.Serial);
+						P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, lqcd.Serial); // @v9.8.11 
 						setCtrlData(CTL_LOT_EXPIRY, &Item.Expiry);
 					}
 			}
@@ -700,7 +704,7 @@ void TrfrItemDialog::GenerateSerial()
 	if(IsTaggedItem()) {
 		SString templt = (GObj.IsAsset(Item.GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
 		SString serial;
-		if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(Item.GoodsID), &P_Pack->SnL, templt, serial) > 0)
+		if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(Item.GoodsID), &P_Pack->LTagL/*SnL*/, templt, serial) > 0)
 			setCtrlString(CTL_LOT_SERIAL, serial);
 	}
 }
@@ -1340,8 +1344,10 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 			int    ret = 0;
 			Item.LotID = lot_id;
 			THROW(ret = P_BObj->GetSerialNumberByLot(Item.LotID, temp_buf.Z(), 0));
-			if(ret > 0)
-				THROW(P_Pack->SnL.AddNumber(ItemNo, temp_buf));
+			if(ret > 0) {
+				// @v9.8.11 THROW(P_Pack->SnL.AddNumber(ItemNo, temp_buf));
+				THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, temp_buf)); // @v9.8.11 
+			}
 		}
 		else if(P_Trfr->Rcpt.GetLastLot(Item.GoodsID, -lid, sd, &lot_rec) > 0) {
 			if(OpTypeID == PPOPT_GOODSACK)
@@ -1862,9 +1868,11 @@ int TrfrItemDialog::setDTS(PPTransferItem * pItem)
 	}
 	if(P_Pack) {
 		if(ItemNo >= 0) {
-			if(P_Pack->ClbL.GetNumber(ItemNo, &temp_buf) > 0)
+			// @v9.8.11 if(P_Pack->ClbL.GetNumber(ItemNo, &temp_buf) > 0)
+			if(P_Pack->LTagL.GetNumber(PPTAG_LOT_CLB, ItemNo, temp_buf) > 0) // @v9.8.11 
 				setCtrlString(CTL_LOT_CLB, temp_buf);
-			if(P_Pack->SnL.GetNumber(ItemNo, &temp_buf) > 0)
+			// @v9.8.11 if(P_Pack->SnL.GetNumber(ItemNo, &temp_buf) > 0)
+			if(P_Pack->LTagL.GetNumber(PPTAG_LOT_SN, ItemNo, temp_buf) > 0) // @v9.8.11 
 				setCtrlString(CTL_LOT_SERIAL, temp_buf);
 		}
 		else if(IsTaggedItem() && P_BObj->GetConfig().Flags & BCF_AUTOSERIAL) {
@@ -2228,12 +2236,14 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 				SETFLAG(Item.Flags, PPTFR_COSTWOVAT, v);
 			GetClusterData(CTL_LOT_FIXEDMODIFCOST, &Item.Flags);
 			getCtrlString(CTL_LOT_CLB, clb_number.Z());
-			THROW(P_Pack->ClbL.AddNumber(ItemNo, clb_number));
+			// @v9.8.11 THROW(P_Pack->ClbL.AddNumber(ItemNo, clb_number));
+			THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_CLB, ItemNo, clb_number)); // @v9.8.11 
 			getCtrlData(CTLSEL_LOT_INTAXGRP, &Item.LotTaxGrpID);
 		}
 		getCtrlString(CTL_LOT_SERIAL, clb_number.Z());
 		P_BObj->AdjustSerialForUniq(Item.GoodsID, Item.LotID, 0, clb_number);
-		THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
+		// @v9.8.11 THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
+		THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, clb_number)); // @v9.8.11 
 		// @v9.3.6 {
 		if(IsSourceSerialUsed()) {
 			getCtrlString(CTL_LOT_SOURCESERIAL, temp_buf);
@@ -2258,17 +2268,21 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	else if(IsIntrExpndOp(P_Pack->Rec.OpID)) {
 		{
 			ObjTagList tag_list;
-			P_BObj->GetTagListByLot(Item.LotID, 1, &tag_list);
+			P_BObj->GetTagListByLot(Item.LotID, 0, &tag_list); // @v9.8.11 skipReserved 1-->0
 			P_Pack->LTagL.Set(ItemNo, tag_list.GetCount() ? &tag_list : 0);
 		}
-		if(P_BObj->GetSerialNumberByLot(Item.LotID, clb_number, 0) > 0)
+		/* @v9.8.11 if(P_BObj->GetSerialNumberByLot(Item.LotID, clb_number, 0) > 0) {
 			THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
+		}*/
 	}
 	if(P_Pack->OpTypeID == PPOPT_DRAFTEXPEND) {
 		getCtrlString(CTL_LOT_SERIAL, clb_number.Z());
-		THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
-		if(P_BObj->GetClbNumberByLot(Item.LotID, 0, clb_number.Z()) > 0)
-			THROW(P_Pack->ClbL.AddNumber(ItemNo, clb_number));
+		// @v9.8.11 THROW(P_Pack->SnL.AddNumber(ItemNo, clb_number));
+		THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_SN, ItemNo, clb_number)); // @v9.8.11 
+		if(P_BObj->GetClbNumberByLot(Item.LotID, 0, clb_number.Z()) > 0) {
+			// @v9.8.11 THROW(P_Pack->ClbL.AddNumber(ItemNo, clb_number));
+			THROW(P_Pack->LTagL.AddNumber(PPTAG_LOT_CLB, ItemNo, clb_number)); // @v9.8.11 
+		}
 	}
 	getManuf(); // @v8.4.11
 	*pItem = Item;

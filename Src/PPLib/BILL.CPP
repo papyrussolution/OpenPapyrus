@@ -13,7 +13,7 @@
 #define BILLCODE_SIZ sizeof(((BillTbl::Rec*)0)->Code)
 
 // static
-char * SLAPI BillCore::SetCode(char * code, long f)
+char * FASTCALL BillCore::SetCode(char * code, long f)
 {
 	char   temp[BILLCODE_SIZ];
 	strip(code);
@@ -37,7 +37,7 @@ double SLAPI BillCore::GetQttyEpsilon()
 }
 
 //static
-int SLAPI BillCore::GetRecadvStatus(const BillTbl::Rec & rRec)
+int FASTCALL BillCore::GetRecadvStatus(const BillTbl::Rec & rRec)
 {
 	int   recadv_status = PPEDI_RECADV_STATUS_UNDEF;
 	if(rRec.Flags2 & BILLF2_RECADV_ACCP)
@@ -48,7 +48,7 @@ int SLAPI BillCore::GetRecadvStatus(const BillTbl::Rec & rRec)
 }
 
 //static
-int SLAPI BillCore::SetRecadvStatus(int recadvStatus, BillTbl::Rec & rRec)
+int FASTCALL BillCore::SetRecadvStatus(int recadvStatus, BillTbl::Rec & rRec)
 {
 	int    ok = -1;
 	const  long preserve_flags2 = rRec.Flags2;
@@ -79,7 +79,7 @@ int SLAPI BillCore::SetRecadvStatus(int recadvStatus, BillTbl::Rec & rRec)
 }
 
 //static
-int SLAPI BillCore::GetRecadvConfStatus(const BillTbl::Rec & rRec)
+int FASTCALL BillCore::GetRecadvConfStatus(const BillTbl::Rec & rRec)
 {
 	int    recadv_conf_status = PPEDI_RECADVCONF_STATUS_UNDEF;
 	const  long _f = CHKXORFLAGS(rRec.Flags2, BILLF2_EDIAR_AGR, BILLF2_EDIAR_DISAGR);
@@ -117,13 +117,13 @@ int SLAPI BillCore::SetRecadvConfStatus(int recadvConfStatus, BillTbl::Rec & rRe
 }
 
 // static
-char * SLAPI BillCore::GetCode(char * code)
+char * FASTCALL BillCore::GetCode(char * code)
 {
 	return (code[0] == WHITE_LABEL_SIGN) ? strcpy(code, code+1) : code;
 }
 
 //static
-SString & SLAPI BillCore::GetCode(SString & rCode)
+SString & FASTCALL BillCore::GetCode(SString & rCode)
 {
 	return rCode.Strip().ShiftLeftChr(WHITE_LABEL_SIGN);
 }
@@ -340,7 +340,7 @@ int SLAPI BillCore::_GetBillNo(LDATE date, long * pBillNo)
 int SLAPI BillCore::GetRentCondition(PPID id, PPRentCondition * pRC)
 {
 	PropertyTbl::Rec prp_rec;
-	int    r = PPRef->GetProp(PPOBJ_BILL, id, BILLPRP_RENT, &prp_rec, sizeof(prp_rec));
+	int    r = PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_RENT, &prp_rec, sizeof(prp_rec));
 	if(pRC)
 		if(r > 0)
 			memcpy(pRC, prp_rec.Text, sizeof(*pRC));
@@ -357,7 +357,7 @@ int SLAPI BillCore::SetFreight(PPID id, PPFreight * pFreight, int use_ta)
 int SLAPI BillCore::GetFreight(PPID id, PPFreight * pFreight)
 {
 	PPFreight freight;
-	if(PPRef->GetProp(PPOBJ_BILL, id, BILLPRP_FREIGHT, &freight, sizeof(freight)) > 0) {
+	if(PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_FREIGHT, &freight, sizeof(freight)) > 0) {
 		ASSIGN_PTR(pFreight, freight);
 		return 1;
 	}
@@ -553,7 +553,7 @@ int SLAPI BillCore::PutExtraData(PPID id, const PPBillExt * pExt, int use_ta)
 			THROW(SetRecFlag(id, BILLF_EXTRA, 1, 0));
 		}
 		else {
-			THROW(p_ref->RemoveProp(PPOBJ_BILL, id, BILLPRP_EXTRA, 0));
+			THROW(p_ref->RemoveProperty(PPOBJ_BILL, id, BILLPRP_EXTRA, 0));
 			THROW(SetRecFlag(id, BILLF_EXTRA, 0, 0));
 		}
 		THROW(tra.Commit());
@@ -565,7 +565,7 @@ int SLAPI BillCore::PutExtraData(PPID id, const PPBillExt * pExt, int use_ta)
 int SLAPI BillCore::GetExtraData(PPID id, PPBillExt * pExt)
 {
 	BillCore::Extra_Strg exr;
-	int    r = PPRef->GetProp(PPOBJ_BILL, id, BILLPRP_EXTRA, &exr, sizeof(exr));
+	int    r = PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_EXTRA, &exr, sizeof(exr));
 	if(r > 0) {
 		if(pExt) {
 			pExt->PayerID = exr.PayerID;
@@ -590,7 +590,7 @@ int SLAPI BillCore::GetAdvanceRep(PPID id, PPAdvanceRep ** ppData)
 		(*ppData) = new PPAdvanceRep;
 	if((*ppData) == 0)
 		ok = PPSetErrorNoMem();
-	else if(PPRef->GetProp(PPOBJ_BILL, id, BILLPRP_ADVANCEREP, &advrep, sizeof(advrep)) > 0)
+	else if(PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_ADVANCEREP, &advrep, sizeof(advrep)) > 0)
 		memcpy(*ppData, &advrep, sizeof(advrep));
 	else {
 		memzero(*ppData, sizeof(PPAdvanceRep));
@@ -615,7 +615,7 @@ int SLAPI BillCore::Extract(PPID id, PPBill * pInfo)
 	if(pInfo->Rec.Flags & BILLF_BANKING) {
 		PPBankingOrder paym_order;
 		MEMSZERO(paym_order);
-		if(PPRef->GetProp(PPOBJ_BILL, id, BILLPRP_PAYMORDER, &paym_order, sizeof(paym_order)) > 0) {
+		if(PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_PAYMORDER, &paym_order, sizeof(paym_order)) > 0) {
 			THROW_MEM(pInfo->P_PaymOrder = new PPBankingOrder);
 			memcpy(pInfo->P_PaymOrder, &paym_order, sizeof(paym_order));
 		}
@@ -647,7 +647,7 @@ int SLAPI BillCore::Remove(PPID id, int use_ta)
 		THROW(tra);
 		THROW(UpdateAmount(id, 0, 0)); // Удаляем все суммы для документа id
 		THROW(PutPayPlan(id, 0, 0));
-		THROW(PPRef->RemoveProp(PPOBJ_BILL, id, 0, 0));
+		THROW(PPRef->RemoveProperty(PPOBJ_BILL, id, 0, 0));
 		THROW_DB(deleteFrom(this, 0, (this->ID == id)));
 		THROW(tra.Commit());
 	}
@@ -723,8 +723,7 @@ int SLAPI BillCore::EditRec(PPID * pID, BillTbl::Rec * pRec, int use_ta)
 int SLAPI BillCore::PutBillProp(PPID billID, PPID propID, long isThere, void * pBuf, size_t bufSize)
 {
 	Reference * p_ref = PPRef;
-	return isThere ? p_ref->PutProp(PPOBJ_BILL, billID, propID, pBuf, bufSize) :
-		p_ref->RemoveProp(PPOBJ_BILL, billID, propID, 0);
+	return isThere ? p_ref->PutProp(PPOBJ_BILL, billID, propID, pBuf, bufSize) : p_ref->RemoveProperty(PPOBJ_BILL, billID, propID, 0);
 }
 
 int SLAPI BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
@@ -751,7 +750,7 @@ int SLAPI BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 			pInfo->Amounts.Put(PPAMT_RENTPRD, pInfo->Rec.CurID, pInfo->Rent.PartAmount, 1, 1);
 		}
 		else {
-			THROW(p_ref->RemoveProp(PPOBJ_BILL, *pID, BILLPRP_RENT, 0));
+			THROW(p_ref->RemoveProperty(PPOBJ_BILL, *pID, BILLPRP_RENT, 0));
 			pInfo->Amounts.Remove(PPAMT_RENTPRD, -1);
 		}
 		THROW(PutBillProp(*pID, BILLPRP_PAYMORDER, pInfo->Rec.Flags & BILLF_BANKING, pInfo->P_PaymOrder, sizeof(PPBankingOrder)));
@@ -1546,7 +1545,7 @@ int SLAPI BillCore::GetAdvanceBillList(PPID objID, PPID exclBillID, DateRange * 
 	k3.Dt = pPeriod ? pPeriod->low : ZERODATE;
 	for(q.initIteration(0, &k3, spGt); q.nextIteration() > 0;)
 		if(data.ID != exclBillID && data.Flags & BILLF_ADVANCEREP)
-			if(p_ref->GetProp(PPOBJ_BILL, data.ID, BILLPRP_ADVANCEREP, &advrep, sizeof(advrep)) > 0) {
+			if(p_ref->GetProperty(PPOBJ_BILL, data.ID, BILLPRP_ADVANCEREP, &advrep, sizeof(advrep)) > 0) {
 				rest = advrep.OutRest;
 				CALLPTRMEMB(pList, add(data.ID));
 			}

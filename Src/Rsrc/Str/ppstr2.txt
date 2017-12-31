@@ -3138,7 +3138,7 @@ AlbatrosOrderItem;GoodsID;GoodsName;GoodsCode;UnitsPerPack;Qtty;Price;Discount;A
 184 "Сброс чеков в систему"
 185 "Сброс строк чеков в систему"
 186 /!/ "From:;To:;Subject:;Content-Type:;Content-Disposition:;Content-Transfer-Encoding:;MIME-Version:;boundary=;charset=;\
-attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-date;read-date;size"
+attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-date;read-date;size;Date:"
 187 "Ожидание соединения с почтовым сервером %s"
 188 "Проверка содержимого почтового ящика"
 189 "\
@@ -7819,6 +7819,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgcomm_ccflg_noadjprwroffdraft          "Не применять выравнивание при списании драфт-документов"
 @cfgcomm_ccflg_ccflg_dontundoopcntronesc  "Не откатывать счетчик операций при отказе от документа"
 @cfgcomm_ccflg_usesartredb                "Использовать базу данных Sartre"
+@cfgcomm_ccflg_uselotxcode                "Использовать расширенные коды строк документа"
 @cfgcomm_dyngoodstypeforsupplagent        "Динамический тип товара для лотов, имеющих агента поставщика"
 @cfgcomm_flags                            "@{flags}"
 @cfgcomm_flags2                           "Дополнительное поле флагов"

@@ -32,8 +32,7 @@ static void _cairo_nil_destroy(void * abstract)
 	(void)abstract;
 }
 
-static cairo_status_t _cairo_nil_scan_converter_generate(void * abstract_converter,
-    cairo_span_renderer_t * renderer)
+static cairo_status_t _cairo_nil_scan_converter_generate(void * abstract_converter, cairo_span_renderer_t * renderer)
 {
 	(void)abstract_converter;
 	(void)renderer;

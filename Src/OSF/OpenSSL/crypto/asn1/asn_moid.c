@@ -52,9 +52,9 @@ static int do_create(const char * value, const char * name)
 {
 	int nid;
 	ASN1_OBJECT * oid;
-	const char * ln, * ostr, * p;
+	const char * ln, * ostr;
 	char * lntmp;
-	p = strrchr(value, ',');
+	const char * p = strrchr(value, ',');
 	if(!p) {
 		ln = name;
 		ostr = value;
@@ -67,12 +67,9 @@ static int do_create(const char * value, const char * name)
 		while(isspace((uchar)*ostr))
 			ostr++;
 	}
-
 	nid = OBJ_create(ostr, name, ln);
-
 	if(nid == NID_undef)
 		return 0;
-
 	if(p) {
 		ln = value;
 		while(isspace((uchar)*ln))
@@ -92,7 +89,6 @@ static int do_create(const char * value, const char * name)
 		oid = OBJ_nid2obj(nid);
 		oid->ln = lntmp;
 	}
-
 	return 1;
 }
 

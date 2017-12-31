@@ -2556,6 +2556,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 						THROW(Convert9214()); // @v9.2.14 EgaisProduct
 						THROW(Convert9400()); // @v9.4.0
 						THROW(ConvertSCardSeries9809()); // @v9.8.9
+						THROW(Convert9811()); // @v9.8.11
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;
@@ -2873,7 +2874,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			else {
 				class PPDbDispatchSession : public PPThread {
 				public:
-					SLAPI PPDbDispatchSession(long dbPathID, const char * pDbSymb) : PPThread(PPThread::kDbDispatcher, pDbSymb, 0), 
+					SLAPI PPDbDispatchSession(long dbPathID, const char * pDbSymb) : PPThread(PPThread::kDbDispatcher, pDbSymb, 0),
 						DbPathID(dbPathID), DbSymb(pDbSymb)
 					{
 					}
@@ -3019,7 +3020,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 											(dtm = last_sj_time).addhs(CycleMs / 10);
 											if(cmp(dtm, cdtm) <= 0)
 												do_immediate |= doImmSj;
-											else 
+											else
 												timer_sj.Set(dtm, 0);
 										}
 										h_list[h_count++] = timer_sj;
@@ -3191,7 +3192,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 								}
 							}
 						}
-						// } @v9.8.11 
+						// } @v9.8.11
 						PPAdviseEventCollectorSjSession * p_evc = new PPAdviseEventCollectorSjSession(blk, p_phnsvc_pack, cycle_ms);
 						p_evc->Start(0);
 						r_tla.P_AeqThrd = p_evc; // @v8.6.7
@@ -3314,7 +3315,7 @@ const SrSyntaxRuleSet * SLAPI PPSession::GetSrSyntaxRuleSet()
 				}
 			}
 		}
-		else 
+		else
 			State |= stSrStxInvalid;
 	}
 	LEAVE_CRITICAL_SECTION
@@ -4607,7 +4608,7 @@ PPAdviseEventQueue::Stat::Stat() : LivingTime(0), StartClock(0), Push_Count(0), 
 {
 }
 
-SLAPI PPAdviseEventQueue::PPAdviseEventQueue() : 
+SLAPI PPAdviseEventQueue::PPAdviseEventQueue() :
 	/*TSVector <PPAdviseEvent> ()*/PPAdviseEventVector(), CliList(/*DEFCOLLECTDELTA,*/(aryDataOwner|aryPtrContainer)), LastIdent(0)
 {
 	S.StartClock = clock();
@@ -4715,7 +4716,7 @@ int PPAdviseEventQueue::Get(int64 lowIdent, PPAdviseEventVector & rList)
 				}
 				for(; _pos < _c; _pos++) {
 					// @v9.8.11 rList.insert(&at(_pos));
-					MoveItemTo(_pos, rList); // @v9.8.11 
+					MoveItemTo(_pos, rList); // @v9.8.11
 				}
 			}
 			//Lck.Unlock();

@@ -87,50 +87,43 @@ void XPM::Init(const char * const * linesForm)
 	height = 1;
 	width = 1;
 	nColours = 1;
-	pixels.clear();
+	Pixels.clear();
 	codeTransparent = ' ';
-	if(!linesForm)
-		return;
-
-	std::fill(colourCodeTable, colourCodeTable+256, 0);
-	const char * line0 = linesForm[0];
-	width = atoi(line0);
-	line0 = NextField(line0);
-	height = atoi(line0);
-	pixels.resize(width*height);
-	line0 = NextField(line0);
-	nColours = atoi(line0);
-	line0 = NextField(line0);
-	if(atoi(line0) != 1) {
-		// Only one char per pixel is supported
-		return;
-	}
-
-	for(int c = 0; c<nColours; c++) {
-		const char * colourDef = linesForm[c+1];
-		int code = static_cast<uchar>(colourDef[0]);
-		colourDef += 4;
-		ColourDesired colour(0xff, 0xff, 0xff);
-		if(*colourDef == '#') {
-			colour.Set(colourDef);
+	if(linesForm) {
+		std::fill(colourCodeTable, colourCodeTable+256, 0);
+		const char * line0 = linesForm[0];
+		width = atoi(line0);
+		line0 = NextField(line0);
+		height = atoi(line0);
+		Pixels.resize(width*height);
+		line0 = NextField(line0);
+		nColours = atoi(line0);
+		line0 = NextField(line0);
+		if(atoi(line0) == 1) { // Only one char per pixel is supported
+			for(int c = 0; c<nColours; c++) {
+				const char * colourDef = linesForm[c+1];
+				int code = static_cast<uchar>(colourDef[0]);
+				colourDef += 4;
+				ColourDesired colour(0xff, 0xff, 0xff);
+				if(*colourDef == '#')
+					colour.Set(colourDef);
+				else
+					codeTransparent = static_cast<char>(code);
+				colourCodeTable[code] = colour;
+			}
+			for(int y = 0; y<height; y++) {
+				const char * lform = linesForm[y+nColours+1];
+				const size_t len = MeasureLength(lform);
+				for(size_t x = 0; x < len; x++)
+					Pixels[y * width + x] = static_cast<uchar>(lform[x]);
+			}
 		}
-		else {
-			codeTransparent = static_cast<char>(code);
-		}
-		colourCodeTable[code] = colour;
-	}
-
-	for(int y = 0; y<height; y++) {
-		const char * lform = linesForm[y+nColours+1];
-		size_t len = MeasureLength(lform);
-		for(size_t x = 0; x<len; x++)
-			pixels[y * width + x] = static_cast<uchar>(lform[x]);
 	}
 }
 
 void XPM::Draw(Surface * surface, PRectangle &rc)
 {
-	if(!pixels.empty()) {
+	if(!Pixels.empty()) {
 		// Centre the pixmap
 		int startY = static_cast<int>(rc.top + (rc.Height() - height) / 2);
 		int startX = static_cast<int>(rc.left + (rc.Width() - width) / 2);
@@ -138,7 +131,7 @@ void XPM::Draw(Surface * surface, PRectangle &rc)
 			int prevCode = 0;
 			int xStartRun = 0;
 			for(int x = 0; x<width; x++) {
-				int code = pixels[y * width + x];
+				const int code = Pixels[y * width + x];
 				if(code != prevCode) {
 					FillRun(surface, prevCode, startX + xStartRun, startY + y, startX + x);
 					xStartRun = x;
@@ -152,12 +145,12 @@ void XPM::Draw(Surface * surface, PRectangle &rc)
 
 void XPM::PixelAt(int x, int y, ColourDesired &colour, bool &transparent) const
 {
-	if(pixels.empty() || (x<0) || (x >= width) || (y<0) || (y >= height)) {
+	if(Pixels.empty() || (x<0) || (x >= width) || (y<0) || (y >= height)) {
 		colour = 0;
 		transparent = true;
 	}
 	else {
-		int code = pixels[y * width + x];
+		int code = Pixels[y * width + x];
 		transparent = code == codeTransparent;
 		colour = transparent ? 0 : ColourFromCode(code).AsLong();
 	}

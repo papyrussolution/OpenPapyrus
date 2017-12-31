@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 
-BIO * BIO_new(const BIO_METHOD * method)
+BIO * FASTCALL BIO_new(const BIO_METHOD * method)
 {
 	BIO * bio = (BIO*)OPENSSL_zalloc(sizeof(*bio));
 	if(bio == NULL) {
@@ -40,7 +40,7 @@ err:
 	return NULL;
 }
 
-int BIO_free(BIO * a)
+int FASTCALL BIO_free(BIO * a)
 {
 	int i;
 	if(!a)
@@ -112,17 +112,17 @@ int BIO_up_ref(BIO * a)
 	return ((i > 1) ? 1 : 0);
 }
 
-void BIO_clear_flags(BIO * b, int flags)
+void FASTCALL BIO_clear_flags(BIO * b, int flags)
 {
 	b->flags &= ~flags;
 }
 
-int BIO_test_flags(const BIO * b, int flags)
+int FASTCALL BIO_test_flags(const BIO * b, int flags)
 {
 	return (b->flags & flags);
 }
 
-void BIO_set_flags(BIO * b, int flags)
+void FASTCALL BIO_set_flags(BIO * b, int flags)
 {
 	b->flags |= flags;
 }
@@ -271,7 +271,7 @@ void * BIO_ptr_ctrl(BIO * b, int cmd, long larg)
 	return (BIO_ctrl(b, cmd, larg, (char*)&p) > 0) ? p : 0;
 }
 
-long BIO_ctrl(BIO * b, int cmd, long larg, void * parg)
+long FASTCALL BIO_ctrl(BIO * b, int cmd, long larg, void * parg)
 {
 	long ret = 0;
 	if(b) {

@@ -521,79 +521,51 @@ static cairo_status_t _cairo_win32_printing_surface_paint_image_pattern(cairo_wi
 	 */
 	if(!(surface->win32.flags & CAIRO_WIN32_SURFACE_CAN_STRETCHDIB))
 		return CAIRO_INT_STATUS_UNSUPPORTED;
-
 	if(surface->content == CAIRO_CONTENT_COLOR_ALPHA)
 		background_color = CAIRO_COLOR_WHITE;
 	else
 		background_color = CAIRO_COLOR_BLACK;
-
 	extend = cairo_pattern_get_extend(&pattern->base);
-
-	status = _cairo_surface_acquire_source_image(pattern->surface,
-	    &image, &image_extra);
+	status = _cairo_surface_acquire_source_image(pattern->surface, &image, &image_extra);
 	if(status)
 		return status;
-
 	if(image->base.status) {
 		status = image->base.status;
 		goto CLEANUP_IMAGE;
 	}
-
 	if(image->width == 0 || image->height == 0) {
 		status = CAIRO_STATUS_SUCCESS;
 		goto CLEANUP_IMAGE;
 	}
-
 	mime_type = BI_JPEG;
-	status = _cairo_win32_printing_surface_check_jpeg(surface,
-	    pattern->surface,
-	    &mime_data,
-	    &mime_size,
-	    &mime_info);
+	status = _cairo_win32_printing_surface_check_jpeg(surface, pattern->surface,
+	    &mime_data, &mime_size, &mime_info);
 	if(status == CAIRO_INT_STATUS_UNSUPPORTED) {
 		mime_type = BI_PNG;
-		status = _cairo_win32_printing_surface_check_png(surface,
-		    pattern->surface,
-		    &mime_data,
-		    &mime_size,
-		    &mime_info);
+		status = _cairo_win32_printing_surface_check_png(surface, pattern->surface,
+		    &mime_data, &mime_size, &mime_info);
 	}
 	if(_cairo_status_is_error(status))
 		return status;
-
 	use_mime = (status == CAIRO_STATUS_SUCCESS);
-
 	if(!use_mime && image->format != CAIRO_FORMAT_RGB24) {
 		cairo_surface_t * opaque_surface;
 		cairo_surface_pattern_t image_pattern;
 		cairo_solid_pattern_t background_pattern;
-
-		opaque_surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24,
-		    image->width,
-		    image->height);
+		opaque_surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, image->width, image->height);
 		if(opaque_surface->status) {
 			status = opaque_surface->status;
 			goto CLEANUP_OPAQUE_IMAGE;
 		}
-
-		_cairo_pattern_init_solid(&background_pattern,
-		    background_color);
-		status = _cairo_surface_paint(opaque_surface,
-		    CAIRO_OPERATOR_SOURCE,
-		    &background_pattern.base,
-		    NULL);
+		_cairo_pattern_init_solid(&background_pattern, background_color);
+		status = _cairo_surface_paint(opaque_surface, CAIRO_OPERATOR_SOURCE, &background_pattern.base, NULL);
 		if(status)
 			goto CLEANUP_OPAQUE_IMAGE;
-
 		_cairo_pattern_init_for_surface(&image_pattern, &image->base);
-		status = _cairo_surface_paint(opaque_surface,
-		    CAIRO_OPERATOR_OVER,
-		    &image_pattern.base,
-		    NULL);
+		status = _cairo_surface_paint(opaque_surface, CAIRO_OPERATOR_OVER, &image_pattern.base, NULL);
 		_cairo_pattern_fini(&image_pattern.base);
 		if(status)
 			goto CLEANUP_OPAQUE_IMAGE;
-
 		opaque_image = (cairo_image_surface_t*)opaque_surface;
 	}
 	else {
@@ -1516,8 +1488,7 @@ static cairo_int_status_t _cairo_win32_printing_surface_start_page(void * abstra
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void _cairo_win32_printing_surface_set_paginated_mode(void * abstract_surface,
-    cairo_paginated_mode_t paginated_mode)
+static void _cairo_win32_printing_surface_set_paginated_mode(void * abstract_surface, cairo_paginated_mode_t paginated_mode)
 {
 	cairo_win32_printing_surface_t * surface = (cairo_win32_printing_surface_t *)abstract_surface;
 	surface->paginated_mode = paginated_mode;

@@ -38,7 +38,8 @@
  */
 #include "cairoint.h"
 #pragma hdrstop
-#define _BSD_SOURCE /* for hypot() */
+// @v1.14.12 #define _BSD_SOURCE /* for hypot() */
+#define _DEFAULT_SOURCE /* for hypot() */ // @v1.14.12
 
 #define DEBUG 0
 
@@ -48,13 +49,11 @@ struct stroker {
 	cairo_contour_t path;
 #endif
 	struct stroke_contour {
-		/* Note that these are not strictly contours as they may intersect */
+		// Note that these are not strictly contours as they may intersect 
 		cairo_contour_t contour;
 	} cw, ccw;
-
 	cairo_uint64_t contour_tolerance;
 	cairo_polygon_t * polygon;
-
 	const cairo_matrix_t * ctm;
 	const cairo_matrix_t * ctm_inverse;
 	double tolerance;
@@ -75,17 +74,17 @@ struct stroker {
 //static inline double normalize_slope(double * dx, double * dy);
 static void compute_face(const cairo_point_t * point, const cairo_slope_t * dev_slope, struct stroker * stroker, cairo_stroke_face_t * face);
 
-static cairo_uint64_t point_distance_sq(const cairo_point_t * p1, const cairo_point_t * p2)
+/*static cairo_uint64_t point_distance_sq(const cairo_point_t * p1, const cairo_point_t * p2)
 {
 	int32_t dx = p1->x - p2->x;
 	int32_t dy = p1->y - p2->y;
 	return _cairo_int32x32_64_mul(dx, dx) + _cairo_int32x32_64_mul(dy, dy);
-}
+}*/
 
 static cairo_bool_t within_tolerance(const cairo_point_t * p1, const cairo_point_t * p2, cairo_uint64_t tolerance)
 {
 	return FALSE;
-	return _cairo_int64_lt(point_distance_sq(p1, p2), tolerance);
+	return _cairo_int64_lt(CairoPointDistanceSq(p1, p2), tolerance);
 }
 
 static void contour_add_point(struct stroker * stroker, stroker::stroke_contour * c, const cairo_point_t * point)
@@ -95,13 +94,13 @@ static void contour_add_point(struct stroker * stroker, stroker::stroke_contour 
 	//*_cairo_contour_last_point (&c->contour) = *point;
 }
 
-static void translate_point(cairo_point_t * point, const cairo_point_t * offset)
+/*static void translate_point(cairo_point_t * point, const cairo_point_t * offset)
 {
 	point->x += offset->x;
 	point->y += offset->y;
-}
+}*/
 
-static int slope_compare_sgn(double dx1, double dy1, double dx2, double dy2)
+/*static int slope_compare_sgn(double dx1, double dy1, double dx2, double dy2)
 {
 	double c = (dx1 * dy2 - dx2 * dy1);
 	if(c > 0) 
@@ -110,9 +109,9 @@ static int slope_compare_sgn(double dx1, double dy1, double dx2, double dy2)
 		return -1;
 	else
 		return 0;
-}
+}*/
 
-static inline int range_step(int i, int step, int max)
+/*static inline int range_step(int i, int step, int max)
 {
 	i += step;
 	if(i < 0)
@@ -120,7 +119,7 @@ static inline int range_step(int i, int step, int max)
 	if(i >= max)
 		i = 0;
 	return i;
-}
+}*/
 /*
  * Construct a fan around the midpoint using the vertices from pen between
  * inpt and outpt.
@@ -137,7 +136,7 @@ static void add_fan(struct stroker * stroker, const cairo_slope_t * in_vector, c
 		_cairo_pen_find_active_cw_vertices(pen, in_vector, out_vector, &start, &stop);
 		while(start != stop) {
 			cairo_point_t p = *midpt;
-			translate_point(&p, &pen->vertices[start].point);
+			CairoTranslatePoint(&p, &pen->vertices[start].point);
 			contour_add_point(stroker, c, &p);
 			if(++start == pen->num_vertices)
 				start = 0;
@@ -147,7 +146,7 @@ static void add_fan(struct stroker * stroker, const cairo_slope_t * in_vector, c
 		_cairo_pen_find_active_ccw_vertices(pen, in_vector, out_vector, &start, &stop);
 		while(start != stop) {
 			cairo_point_t p = *midpt;
-			translate_point(&p, &pen->vertices[start].point);
+			CairoTranslatePoint(&p, &pen->vertices[start].point);
 			contour_add_point(stroker, c, &p);
 			if(start-- == 0)
 				start += pen->num_vertices;
@@ -456,8 +455,7 @@ static void outer_close(struct stroker * stroker, const cairo_stroke_face_t * in
 			     * Make sure the miter point line lies between the two
 			     * faces by comparing the slopes
 			     */
-			    if(slope_compare_sgn(fdx1, fdy1, mdx, mdy) !=
-				    slope_compare_sgn(fdx2, fdy2, mdx, mdy)) {
+			    if(CairoSlopeCompareSgn(fdx1, fdy1, mdx, mdy) != CairoSlopeCompareSgn(fdx2, fdy2, mdx, mdy)) {
 				    cairo_point_t p;
 				    p.x = _cairo_fixed_from_double(mx);
 				    p.y = _cairo_fixed_from_double(my);
@@ -609,37 +607,28 @@ static void outer_join(struct stroker * stroker, const cairo_stroke_face_t * in,
 			     * that moves the miter intersection from between the two faces,
 			     * then draw a bevel instead.
 			     */
-
 			    ix = _cairo_fixed_to_double(in->point.x);
 			    iy = _cairo_fixed_to_double(in->point.y);
-
 			    /* slope of one face */
 			    fdx1 = x1 - ix; fdy1 = y1 - iy;
-
 			    /* slope of the other face */
 			    fdx2 = x2 - ix; fdy2 = y2 - iy;
-
 			    /* slope from the intersection to the miter point */
 			    mdx = mx - ix; mdy = my - iy;
-
 			    /*
 			     * Make sure the miter point line lies between the two
 			     * faces by comparing the slopes
 			     */
-			    if(slope_compare_sgn(fdx1, fdy1, mdx, mdy) !=
-				    slope_compare_sgn(fdx2, fdy2, mdx, mdy)) {
+			    if(CairoSlopeCompareSgn(fdx1, fdy1, mdx, mdy) != CairoSlopeCompareSgn(fdx2, fdy2, mdx, mdy)) {
 				    cairo_point_t p;
-
 				    p.x = _cairo_fixed_from_double(mx);
 				    p.y = _cairo_fixed_from_double(my);
-
 				    *_cairo_contour_last_point(&outer->contour) = p;
 				    return;
 			    }
 		    }
 		    break;
 	    }
-
 		case CAIRO_LINE_JOIN_BEVEL:
 		    break;
 	}
@@ -807,10 +796,10 @@ static void compute_face(const cairo_point_t * point, const cairo_slope_t * dev_
 	offset_cw.x = -offset_ccw.x;
 	offset_cw.y = -offset_ccw.y;
 	face->ccw = *point;
-	translate_point(&face->ccw, &offset_ccw);
+	CairoTranslatePoint(&face->ccw, &offset_ccw);
 	face->point = *point;
 	face->cw = *point;
-	translate_point(&face->cw, &offset_cw);
+	CairoTranslatePoint(&face->cw, &offset_cw);
 	//face->usr_vector.x = slope_dx;
 	//face->usr_vector.y = slope_dy;
 	face->usr_vector = _slope_d;

@@ -386,12 +386,13 @@ int SLAPI PPSyncCashNode::CTblListFromString(const char * pBuf)
 // static
 int SLAPI PPObjCashNode::IsExtCashNode(PPID nodeID, PPID * pParentID)
 {
+	Reference * p_ref = PPRef;
 	int    is_ext_cash_node = 0;
 	PPID   parent_id = 0;
 	PPCashNode cn_rec;
-	for(PPID cn_id = 0; !is_ext_cash_node && PPRef->EnumItems(PPOBJ_CASHNODE, &cn_id, &cn_rec) > 0;) {
+	for(PPID cn_id = 0; !is_ext_cash_node && p_ref->EnumItems(PPOBJ_CASHNODE, &cn_id, &cn_rec) > 0;) {
 		__PPExtDevices  ed;
-		if(cn_rec.Flags & CASHF_SYNC && PPRef->GetProp(PPOBJ_CASHNODE, cn_id, CNPRP_EXTDEVICES, &ed, sizeof(ed)) > 0 && ed.ExtCashNodeID == nodeID) {
+		if(cn_rec.Flags & CASHF_SYNC && p_ref->GetProperty(PPOBJ_CASHNODE, cn_id, CNPRP_EXTDEVICES, &ed, sizeof(ed)) > 0 && ed.ExtCashNodeID == nodeID) {
 			parent_id = ed.CashNodeID;
 			is_ext_cash_node = 1;
 		}
@@ -699,7 +700,7 @@ int SLAPI PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 		if(ref->GetPropActualSize(Obj, id, CNPRP_EXTDEVICES, &ed_size) > 0) {
 			THROW_MEM(p_ed = (__PPExtDevices *)SAlloc::M(ed_size));
 			memzero(p_ed, ed_size);
-			if(ref->GetProp(Obj, id, CNPRP_EXTDEVICES, p_ed, ed_size) > 0) {
+			if(ref->GetProperty(Obj, id, CNPRP_EXTDEVICES, p_ed, ed_size) > 0) {
 				pSCN->TouchScreenID = p_ed->TouchScreenID;
 				pSCN->ExtCashNodeID = p_ed->ExtCashNodeID;
 				// @v9.6.9 pSCN->PapyrusNodeID = p_ed->PapyrusNodeID;
@@ -755,7 +756,7 @@ int SLAPI PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 		{
 			__PosNodeExt pnext;
 			MEMSZERO(pnext);
-			if(ref->GetProp(Obj, id, CNPRP_EXTRA, &pnext, sizeof(pnext)) > 0) {
+			if(ref->GetProperty(Obj, id, CNPRP_EXTRA, &pnext, sizeof(pnext)) > 0) {
 				pSCN->Scf.DaysPeriod = pnext.ScfDaysPeriod;
 				pSCN->Scf.DlvrItemsShowTag = pnext.ScfDlvrItemsShowTag;
 				pSCN->Scf.Flags = pnext.ScfFlags; // @v9.7.5

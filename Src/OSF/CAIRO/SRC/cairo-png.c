@@ -27,19 +27,14 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
- *	Kristian Høgsberg <krh@redhat.com>
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org> Kristian Høgsberg <krh@redhat.com> Chris Wilson <chris@chris-wilson.co.uk>
  */
 #include "cairoint.h"
 #pragma hdrstop
 #include <errno.h>
 #include <png.h>
-
 /**
  * SECTION:cairo-png
  * @Title: PNG Support
@@ -57,7 +52,6 @@
  * function, and process it with another library, e.g. gdk-pixbuf or
  * libpng.
  **/
-
 /**
  * CAIRO_HAS_PNG_FUNCTIONS:
  *
@@ -67,7 +61,6 @@
  *
  * Since: 1.0
  **/
-
 struct png_read_closure_t {
 	cairo_read_func_t read_func;
 	void * closure;
@@ -137,6 +130,14 @@ static void png_simple_warning_callback(png_structp png, const char * error_msg)
 	 */
 }
 
+static int png_setjmp(png_struct * png)
+{
+#ifdef PNG_SETJMP_SUPPORTED
+	return setjmp(png_jmpbuf (png));
+#endif
+	return 0;
+}
+
 /* Starting with libpng-1.2.30, we must explicitly specify an output_flush_fn.
  * Otherwise, we will segfault if we are writing to a stream. */
 static void png_simple_output_flush_fn(png_structp png_ptr)
@@ -190,10 +191,16 @@ static cairo_status_t write_png(cairo_surface_t * surface, png_rw_ptr write_func
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto BAIL4;
 	}
+/* @v1.14.12
 #ifdef PNG_SETJMP_SUPPORTED
 	if(setjmp(png_jmpbuf(png)))
 		goto BAIL4;
 #endif
+*/
+	// @v1.14.12 {
+	if(png_setjmp(png))
+		goto BAIL4;
+	// } @v1.14.12 
 	png_set_write_fn(png, closure, write_func, png_simple_output_flush_fn);
 	switch(clone->format) {
 		case CAIRO_FORMAT_ARGB32:
@@ -462,12 +469,20 @@ static cairo_surface_t * read_png(struct png_read_closure_t * png_closure)
 	}
 	png_set_read_fn(png, png_closure, stream_read_func);
 	status = CAIRO_STATUS_SUCCESS;
+/* @v1.14.12 
 #ifdef PNG_SETJMP_SUPPORTED
 	if(setjmp(png_jmpbuf(png))) {
 		surface = _cairo_surface_create_in_error(status);
 		goto BAIL;
 	}
 #endif
+*/
+	// @v1.14.12 {
+	if(png_setjmp(png)) {
+		surface = _cairo_surface_create_in_error(status);
+		goto BAIL;
+	}
+	// } @v1.14.12 
 	png_read_info(png, info);
 	png_get_IHDR(png, info, &png_width, &png_height, &depth, &color_type, &interlace, 0, 0);
 	if(unlikely(status)) { /* catch any early warnings */

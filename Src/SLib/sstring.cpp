@@ -3749,9 +3749,9 @@ size_t SLAPI SString::Decode_EncodedWordRFC2047(SString & rBuf, SCodepageIdent *
 			}
 			if(i < src_len && cp.FromStr(temp_buf)) {
 				p = i+1;
-				if(p_src_buf[p] == 'B')
+				if(oneof2(p_src_buf[p], 'B', 'b'))
 					rfc2207enc = rfc2207encMime64;
-				else if(p_src_buf[p] == 'Q')
+				else if(oneof2(p_src_buf[p], 'Q', 'q'))
 					rfc2207enc = rfc2207encQP;
 				else
 					error = 1;

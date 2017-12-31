@@ -1002,10 +1002,8 @@ int SLAPI PPObjPerson::EditConfig()
 
 TLP_IMPL(PPObjPerson, PersonCore, P_Tbl);
 
-SLAPI PPObjPerson::PPObjPerson(void * extraPtr) : PPObject(PPOBJ_PERSON)
+SLAPI PPObjPerson::PPObjPerson(void * extraPtr) : PPObject(PPOBJ_PERSON), P_ArObj(new PPObjArticle), P_PrcObj(new PPObjProcessor)
 {
-	P_ArObj = new PPObjArticle;
-	P_PrcObj = new PPObjProcessor;
 	TLP_OPEN(P_Tbl);
 	ExtraPtr = extraPtr;
 	Cfg.Flags &= ~PPPersonConfig::fValid;
@@ -2641,7 +2639,7 @@ int SLAPI PPObjPerson::GetPacket(PPID id, PPPersonPacket * pPack, uint flags)
 		}
 		THROW(GetDlvrLocList(id, &dlvr_loc_list));
 		THROW(GetStaffAmtList(id, &pPack->Amounts));
-		THROW(r = p_ref->GetProp(Obj, id, PSNPRP_CASHIERINFO, &cshr_prop, sizeof(cshr_prop)));
+		THROW(r = p_ref->GetProperty(Obj, id, PSNPRP_CASHIERINFO, &cshr_prop, sizeof(cshr_prop)));
 		if(r > 0) {
 			pPack->CshrInfo.Flags = CIF_CASHIER;
 			STRNSCPY(pPack->CshrInfo.Password, (char *)cshr_prop.Text);
@@ -5929,8 +5927,7 @@ int FASTCALL PPObjPerson::FetchConfig(PPPersonConfig * pCfg)
 		return p_cache->GetConfig(pCfg, 0);
 	}
 	else {
-		if(pCfg)
-			pCfg->Init();
+		CALLPTRMEMB(pCfg, Init());
 		return 0;
 	}
 }

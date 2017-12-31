@@ -26,7 +26,7 @@
 				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\CAIRO\PIXMAN;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;CAIRO_WIN32_STATIC_BUILD;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;PACKAGE=pixman-1;PACKAGE_VERSION=&quot;&quot;;PACKAGE_BUGREPORT=&quot;&quot;"
 				StringPooling="TRUE"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"

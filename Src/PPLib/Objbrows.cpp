@@ -308,6 +308,12 @@ SLAPI PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialo
 	P_Box = (SmartListBox*)getCtrlView(ctlList);
 	if(!SetupStrListBox(P_Box))
 		PPError();
+	else {
+		// @v9.8.11 {
+		if(flags & fOmitSearchByFirstChar)
+			P_Box->SetOmitSearchByFirstChar();
+		// } @v9.8.11 
+	}
 	if(isCurrCtlID(ctlList) && (Options & oHasOkButton) && (Options & oHasEditButton)) {
 		SetDefaultButton(STDCTL_OKBUTTON,   0);
 	   	SetDefaultButton(STDCTL_EDITBUTTON, 1);

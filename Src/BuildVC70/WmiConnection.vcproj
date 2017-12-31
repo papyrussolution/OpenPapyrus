@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			CharacterSet="2">
@@ -24,7 +24,7 @@
 				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;WMICONNECTION_EXPORTS"
 				StringPooling="TRUE"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
@@ -76,8 +76,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
-			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ProjectName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
+			IntermediateDirectory="$(ProjectDir)..\..\__TEMP__\VC70\$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="2"
 			CharacterSet="2">
 			<Tool
@@ -85,7 +85,9 @@
 				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;WMICONNECTION_EXPORTS"
 				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"

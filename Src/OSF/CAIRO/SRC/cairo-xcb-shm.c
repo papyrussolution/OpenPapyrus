@@ -167,8 +167,7 @@ cairo_int_status_t _cairo_xcb_connection_allocate_shm_info(cairo_xcb_connection_
 		}
 	}
 
-	cairo_list_foreach_entry_safe(pool, next, cairo_xcb_shm_mem_pool_t,
-	    &connection->shm_pools, link)
+	cairo_list_foreach_entry_safe(pool, next, cairo_xcb_shm_mem_pool_t, &connection->shm_pools, link)
 	{
 		if(pool->mem.free_bytes > size) {
 			mem = _cairo_mempool_alloc(&pool->mem, size);

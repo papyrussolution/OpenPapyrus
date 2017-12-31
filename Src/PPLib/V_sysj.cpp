@@ -61,13 +61,13 @@ IMPL_HANDLE_EVENT(SysJFiltDialog)
 	else if(event.isCbSelected(CTLSEL_SYSJFILT_ACTION))
 		Filt.ActionIDList.setSingleNZ(getCtrlLong(CTLSEL_SYSJFILT_ACTION));
 	else if(event.isCbSelected(CTLSEL_SYSJFILT_SUBST) || event.isCbSelected(CTLSEL_SYSJFILT_SUBSTDT))
-		setupCtrls();
+		SetupCtrls();
 	else
 		return;
 	clearEvent(event);
 }
 
-int SysJFiltDialog::setupCtrls()
+void SysJFiltDialog::SetupCtrls()
 {
 	int    subst_used = 0;
 	getCtrlData(CTLSEL_SYSJFILT_SUBST, &Filt.Sgsj);
@@ -78,7 +78,6 @@ int SysJFiltDialog::setupCtrls()
 		Filt.Flags &= ~SysJournalFilt::fShowObjects;
 		SetClusterData(CTL_SYSJFILT_FLAGS, Filt.Flags);
 	}
-	return 1;
 }
 
 int SysJFiltDialog::setDTS(const SysJournalFilt * pFilt)
@@ -102,7 +101,7 @@ int SysJFiltDialog::setDTS(const SysJournalFilt * pFilt)
 	}
 	SetupStringCombo(this, CTLSEL_SYSJFILT_SUBST, PPTXT_SUBSTSYSJLIST, Filt.Sgsj);
 	SetupSubstDateCombo(this, CTLSEL_SYSJFILT_SUBSTDT, Filt.Sgd);
-	setupCtrls();
+	SetupCtrls();
 	return 1;
 }
 
@@ -141,16 +140,10 @@ int SLAPI PPViewSysJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY_P1(SysJFiltDialog, DLG_SYSJFILT, (SysJournalFilt *)pBaseFilt);
 }
 
-SLAPI PPViewSysJournal::PPViewSysJournal() : PPView(0, &Filt, PPVIEW_SYSJOURNAL)
+SLAPI PPViewSysJournal::PPViewSysJournal() : PPView(0, &Filt, PPVIEW_SYSJOURNAL), P_TmpTbl(0), P_SubstTbl(0), P_NamesTbl(0),
+	LockUpByNotify(0), LastRefreshDtm(ZERODATETIME), P_Tbl(new SysJournal), P_ObjColl(new ObjCollection)
 {
 	ImplementFlags |= implUseServer;
-	P_Tbl      = new SysJournal;
-	P_TmpTbl   = 0;
-	P_SubstTbl = 0;
-	P_NamesTbl = 0;
-	P_ObjColl = new ObjCollection;
-	LockUpByNotify = 0;
-	LastRefreshDtm.SetZero();
 }
 
 SLAPI PPViewSysJournal::~PPViewSysJournal()
@@ -537,7 +530,8 @@ int SLAPI PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 			MEMSZERO(hdr);
 		if(ppvCmd == PPVCMD_VIEWHISTORY) {
 			if(hdr.Obj == PPOBJ_BILL && oneof2(hdr.Action, PPACN_UPDBILL, PPACN_RMVBILL)) {
-				ViewBillHistory(R0i(hdr.Extra));
+				LDATETIME ev_dtm = hdr.Dtm;
+				ViewBillHistory(R0i(hdr.Extra), ev_dtm);
 				ok = -1;
 			}
 		}
@@ -695,17 +689,44 @@ int SLAPI PPViewSysJournal::EditObj(PPObjID * pObjID)
 	return pObjID ? EditPPObj(pObjID->Obj, pObjID->Id) : -1;
 }
 
-int SLAPI PPViewSysJournal::ViewBillHistory(PPID histID)
+int SLAPI PPViewSysJournal::ViewBillHistory(PPID histID, LDATETIME evDtm)
 {
 	int    ok = -1;
 	if(histID) {
-		HistBillCore hb_core;
-		PPBillPacket pack;
-		PPHistBillPacket hb_pack;
-		THROW(hb_core.GetPacket(histID, &hb_pack) > 0);
-		THROW(hb_pack.ConvertToBillPack(&pack));
-		THROW(::EditGoodsBill(&pack, PPObjBill::efNoUpdNotif));
-		ok = 1;
+		int   do_use_old_tech = 0;
+		if(!!evDtm) {
+			LDATETIME moment;
+			PPIDArray acn_list;
+			acn_list.add(PPACN_EVENTTOKEN);
+			SysJournal * p_sj = DS.GetTLA().P_SysJ;
+			if(p_sj && p_sj->GetLastObjEvent(PPOBJ_EVENTTOKEN, PPEVTOK_OBJHIST9811, &acn_list, &moment) > 0) {
+				if(cmp(moment, evDtm) > 0)
+					do_use_old_tech = 1;
+			}
+		}
+		if(!do_use_old_tech) {
+			SBuffer buf;
+			PPBillPacket pack;
+			ObjVersioningCore * p_ovc = PPRef->P_OvT;
+			if(p_ovc && p_ovc->InitSerializeContext(1)) {
+				SSerializeContext & r_sctx = p_ovc->GetSCtx();
+				PPObjID oid;
+				long   vv = 0;
+				THROW(p_ovc->Search(histID, &oid, &vv, &buf) > 0);
+				THROW(BillObj->SerializePacket__(-1, &pack, buf, &r_sctx));
+				THROW(::EditGoodsBill(&pack, PPObjBill::efNoUpdNotif));
+				ok = 1;
+			}
+		}
+		else {
+			HistBillCore hb_core;
+			PPBillPacket pack;
+			PPHistBillPacket hb_pack;
+			THROW(hb_core.GetPacket(histID, &hb_pack) > 0);
+			THROW(hb_pack.ConvertToBillPack(&pack));
+			THROW(::EditGoodsBill(&pack, PPObjBill::efNoUpdNotif));
+			ok = 1;
+		}
 	}
 	CATCHZOKPPERR
 	return ok;

@@ -26,11 +26,13 @@
 				AdditionalIncludeDirectories="..\include;..\include\zlib;&quot;..\OSF\OpenSSL\crypto\modes&quot;;&quot;..\OSF\OpenSSL\crypto\bn&quot;;&quot;..\OSF\OpenSSL\crypto\rsa&quot;;&quot;..\OSF\OpenSSL\crypto\dh&quot;;&quot;..\OSF\OpenSSL\crypto\bio&quot;;&quot;..\OSF\OpenSSL&quot;;&quot;..\OSF\OpenSSL\include&quot;"
 				PreprocessorDefinitions="_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
+				EnableFunctionLevelLinking="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough=""
@@ -97,11 +99,13 @@
 				AdditionalIncludeDirectories="..\include;..\include\zlib;&quot;..\OSF\OpenSSL\crypto\modes&quot;;&quot;..\OSF\OpenSSL\crypto\bn&quot;;&quot;..\OSF\OpenSSL\crypto\rsa&quot;;&quot;..\OSF\OpenSSL\crypto\dh&quot;;&quot;..\OSF\OpenSSL\crypto\bio&quot;;&quot;..\OSF\OpenSSL&quot;;&quot;..\OSF\OpenSSL\include&quot;"
 				PreprocessorDefinitions="NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS"
 				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
 				BufferSecurityCheck="FALSE"
+				EnableFunctionLevelLinking="FALSE"
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough=""
@@ -2283,10 +2287,10 @@
 				RelativePath="..\Osf\OpenSSL\crypto\include\internal\async.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL\include\internal\bio.h">
+				RelativePath="..\Osf\OpenSSL\include\openssl\bio.h">
 			</File>
 			<File
-				RelativePath="..\Osf\OpenSSL\include\openssl\bio.h">
+				RelativePath="..\Osf\OpenSSL\include\internal\bio.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\include\openssl\bn.h">

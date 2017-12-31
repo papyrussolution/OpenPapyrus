@@ -6,7 +6,7 @@
 //
 //
 //
-int SLAPI SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID _accSheetID, /*int disableIfZeroSheet*/long sacf)
+int FASTCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID _accSheetID, /*int disableIfZeroSheet*/long sacf)
 {
 	// @v9.2.3 flags &= ~OLW_LOADDEFONOPEN; // @v9.2.1 Из-за того, что ExtraPtr теперь - сложный объект этот флаг использовать нельзя
 
@@ -1983,7 +1983,7 @@ public:
 	SLAPI  ArticleCache() : ObjCacheHash(PPOBJ_ARTICLE, sizeof(Data), 1024*1024, 4), IsVatFreeListInited(0)
 	{
 	}
-	virtual int SLAPI Dirty(PPID id); // @sync_w
+	virtual int FASTCALL Dirty(PPID id); // @sync_w
 	int    SLAPI IsSupplVatFree(PPID supplID); // @sync_rw
 private:
 	struct Data : public ObjCacheEntry {
@@ -2032,7 +2032,7 @@ int SLAPI ArticleCache::IsSupplVatFree(PPID supplID)
 	return ok;
 }
 
-int SLAPI ArticleCache::Dirty(PPID id)
+int FASTCALL ArticleCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	{
@@ -2091,7 +2091,7 @@ int FASTCALL IsSupplVATFree(PPID supplID)
 	return p_cache ? p_cache->IsSupplVatFree(supplID) : 0;
 }
 
-int SLAPI PPObjArticle::Dirty(PPID id)
+int FASTCALL PPObjArticle::Dirty(PPID id)
 {
 	ArticleCache * p_cache = GetDbLocalCachePtr <ArticleCache> (Obj, 0);
 	CALLPTRMEMB(p_cache, Dirty(id));
@@ -2472,7 +2472,7 @@ public:
 	{
 		ZDELETE(P_AgentList);
 	}
-	virtual int SLAPI Dirty(PPID id);
+	virtual int FASTCALL Dirty(PPID id);
 	int    FetchAgentList(LAssocArray * pAgentList);
 private:
 	virtual int  SLAPI FetchEntry(PPID, ObjCacheEntry * pEntry, long);
@@ -2519,7 +2519,7 @@ void SLAPI DebtDimCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 	b.Get(p_data_rec->Symb, sizeof(p_data_rec->Symb));
 }
 
-int SLAPI DebtDimCache::Dirty(PPID id)
+int FASTCALL DebtDimCache::Dirty(PPID id)
 {
 	int    ok = id ? ObjCache::Dirty(id) : 1;
 	{

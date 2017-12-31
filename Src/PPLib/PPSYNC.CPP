@@ -322,7 +322,7 @@ int SLAPI PPSync::Lock(ulong offs, int checkOnly)
 	return ok;
 }
 
-int SLAPI PPSync::Unlock(ulong offs)
+int FASTCALL PPSync::Unlock(ulong offs)
 {
 	int    ok = 1;
 	if(CheckOffset(offs)) {

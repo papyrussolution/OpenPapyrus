@@ -124,7 +124,7 @@ char * curl_easy_escape(struct Curl_easy * data, const char * string, int inleng
  * *olen. If length == 0, the length is assumed to be strlen(string).
  *
  */
-CURLcode Curl_urldecode(struct Curl_easy * data, const char * string, size_t length, char ** ostring, size_t * olen, bool reject_ctrl)
+CURLcode FASTCALL Curl_urldecode(struct Curl_easy * data, const char * string, size_t length, char ** ostring, size_t * olen, bool reject_ctrl)
 {
 	size_t alloc = (length ? length : strlen(string))+1;
 	char * ns = (char *)SAlloc::M(alloc);

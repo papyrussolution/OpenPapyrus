@@ -201,6 +201,83 @@ static void SendMailCallback(const IterCounter & bytesCounter, const IterCounter
 	PPWaitPercent(bytesCounter, msg);
 }
 
+//typedef int (* SDataMoveProgressProc)(const SDataMoveProgressInfo *);
+
+static int GetFilesFromMailServerProgressProc(const SDataMoveProgressInfo * pInfo)
+{
+	SString msg_buf;
+	msg_buf.Cat(pInfo->OverallItemsDone).CatChar(':').Cat(pInfo->OverallSizeDone).CatChar('/').
+		Cat(pInfo->OverallItemsCount).CatChar(':').Cat(pInfo->OverallSizeTotal);
+	PPWaitMsg(msg_buf);
+	return 0;
+}
+
+int SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long filtFlags, int clean, int deleMsg)
+{
+	int    ok = 1;
+	SString temp_buf;
+	PPID   mail_acc_id = mailAccID;
+	PPObjInternetAccount mac_obj;
+	PPInternetAccount mac_rec;
+	if(mail_acc_id == 0) {
+		PPAlbatrosConfig cfg;
+		THROW(PPAlbatrosCfgMngr::Get(&cfg) > 0);
+		mail_acc_id = cfg.Hdr.MailAccID;
+	}
+	THROW_PP(mail_acc_id, PPERR_UNDEFMAILACC);
+	THROW_PP(mac_obj.Get(mail_acc_id, &mac_rec) > 0, PPERR_UNDEFMAILACC);
+	PPWait(1);
+	{
+		InetUrl url;
+		SUniformFileTransmParam uftp;
+		uftp.DestPath = pDestPath;
+		{
+			mac_rec.GetExtField(MAEXSTR_RCVSERVER, temp_buf);
+			url.SetComponent(url.cHost, temp_buf);
+			url.SetProtocol((mac_rec.Flags & mac_rec.fUseSSL) ? InetUrl::protPOP3S : InetUrl::protPOP3);
+			int    port = mac_rec.GetRcvPort();
+			if(port)
+				url.SetPort(port);
+			mac_rec.GetExtField(MAEXSTR_RCVNAME, temp_buf);
+			url.SetComponent(url.cUserName, temp_buf);
+			{
+				char pw[128];
+				mac_rec.GetPassword(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
+				url.SetComponent(url.cPassword, pw);
+				memzero(pw, sizeof(pw));
+			}
+		}
+		if(filtFlags & SMailMessage::fPpyObject) {
+			temp_buf.EncodeUrl("/*.pps", 0);
+			url.SetComponent(InetUrl::cPath, temp_buf);
+			//
+			temp_buf.EncodeUrl("subject=" SUBJECTDBDIV, 0);
+			url.SetComponent(InetUrl::cQuery, temp_buf);
+		}
+		else if(filtFlags & SMailMessage::fPpyCharry) {
+			temp_buf.EncodeUrl("/*.chy", 0);
+			url.SetComponent(InetUrl::cPath, temp_buf);
+			temp_buf.EncodeUrl("subject=" SUBJECTCHARRY, 0);
+			url.SetComponent(InetUrl::cQuery, temp_buf);
+		}
+		else if(filtFlags & SMailMessage::fPpyOrder) {
+			temp_buf.EncodeUrl("subject=" SUBJECTORDER, 0);
+			url.SetComponent(InetUrl::cQuery, temp_buf);
+		}
+		url.Composite(0, temp_buf);
+		uftp.SrcPath = temp_buf;
+		if(deleMsg)
+			uftp.Flags |= uftp.fDeleteAfter;
+		//uftp.Format = SFileFormat::Jpeg;
+		THROW_SL(uftp.Run(GetFilesFromMailServerProgressProc, 0));
+		temp_buf = uftp.Reply;
+	}
+	CATCHZOK
+	PPWait(0);
+	return ok;
+}
+
+
 int SLAPI GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long filtFlags, int clean, int deleMsg)
 {
 	int    ok = 1;
@@ -285,15 +362,15 @@ int SLAPI GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long fi
 	return ok;
 }
 
-int SLAPI Debug_GetFilesFromMessage(const char * pMsgFile)
+/* @v9.8.11 int SLAPI Debug_GetFilesFromMessage(const char * pMsgFile)
 {
 	int    ok = 0;
 	SString dest_path;
 	PPGetPath(PPPATH_IN, dest_path);
-	PPMailPop3 mail(0);
+	PPMailPop3 mail(0); // 
 	ok = mail.SaveAttachment(pMsgFile, 0, dest_path);
 	return ok;
-}
+}*/
 
 static int CallbackFTPTransfer(long count, long total, const char * pMsg, int)
 {
@@ -418,6 +495,34 @@ int SLAPI PutFilesToEmail(const StringSet * pFileList, PPID mailAccID, const cha
 	return ok;
 }
 #endif // } 0 @v9.8.11
+
+//int SLAPI PPMailSmtp::Send(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
+int SLAPI PPSendEmail(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter)
+{
+	int    ok = 1;
+	SString temp_buf;
+	InetUrl url;
+	ScURL curl;
+	{
+		rAcc.GetExtField(MAEXSTR_SENDSERVER, temp_buf);
+		url.SetComponent(url.cHost, temp_buf);
+		url.SetProtocol((rAcc.Flags & rAcc.fUseSSL) ? InetUrl::protSMTPS : InetUrl::protSMTP);
+		int    port = rAcc.GetSendPort();
+		if(port)
+			url.SetPort(port);
+		rAcc.GetExtField(MAEXSTR_RCVNAME, temp_buf);
+		url.SetComponent(url.cUserName, temp_buf);
+		{
+			char pw[128];
+			rAcc.GetPassword(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
+			url.SetComponent(url.cPassword, pw);
+			memzero(pw, sizeof(pw));
+		}
+		THROW_SL(curl.SmtpSend(url, curl.mfVerbose|ScURL::mfDontVerifySslPeer, rMsg));
+	}
+	CATCHZOK
+	return ok;
+}
 
 int SLAPI PutFilesToEmail2(const StringSet * pFileList, PPID mailAccID, const char * pDestAddr, const char * pSubj, long trnsmFlags)
 {
@@ -611,7 +716,7 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 		}
 		assert(MemHeapTracer::Check()); // @debug
 		if(use_email && check_email) {
-			THROW(GetFilesFromMailServer(0, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele msg */));
+			THROW(GetFilesFromMailServer2(0, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele msg */));
 		}
 		if(IsFtpAddr(src) && check_ftp) {  // else if -> if Так как в обратном случае, если хоть один раздел получает данные с эл. почты, то в эту ветку никогда не попадем.
 			THROW(GetFilesFromFtp(0, src, dest, SMailMessage::fPpyObject, 0 /* don't clean */, 1 /* dele from ftp */, &pParam->SenderDbDivList));

@@ -887,6 +887,7 @@
 	#define DBTDIMPRP_AGENTLIST  1L // Список агентов
 #define PPOBJ_EVENTTOKEN    65L // @v7.2.1 Специальный объект, используемый как уникальная метка для событий.
 	#define PPEVTOK_CVTSCS9809   1L // @v9.8.9 Событие конвертации серий персональных карт v9.8.9
+	#define PPEVTOK_OBJHIST9811  2L // @v9.8.11 Событие переключения техники хранения версий объектов
 #define PPOBJ_SMSPRVACCOUNT 66L // @v7.2.9 Учетная запись провайдера рассылки SMS
 	//
 	// Extra record of PPOBJ_SMSPRVACCOUNT
@@ -10274,6 +10275,9 @@
 	#define CTLSEL_PHNCPANE_INFSEL    (6 + WINDOWS_ID_BIAS)
 #define DLG_EQCFGEXT              1333
 	// CTL_EQUIPCFG_XXX
+#define DLG_LOTXCLIST             1334
+	#define CTL_LOTXCLIST_LIST        (1 + WINDOWS_ID_BIAS)
+	#define CTL_LOTXCLIST_INFO        (2 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //
@@ -11516,6 +11520,7 @@
 	#define PPMAILFLD_MODIFICATIONDATE 15 // modification-date
 	#define PPMAILFLD_READDATE         16 // read-date
 	#define PPMAILFLD_SIZE             17 // size
+	#define PPMAILFLD_DATE             18 // Date:
 #define PPTXT_WTMAILCONNECTION            187 // Ожидание соединения с почтовым сервером %s
 #define PPTXT_CHECKINMAILFORPPY           188 // Просмотр входящей почты
 #define PPTXT_TAXPAYMREASON               189 // Коды основания бюджетных платежей

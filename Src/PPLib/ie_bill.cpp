@@ -42,11 +42,8 @@ IMPL_CMPFUNC(Sdr_BRow_ID, i1, i2)
 IMPLEMENT_IMPEXP_HDL_FACTORY(BILL, PPBillImpExpParam);
 IMPLEMENT_IMPEXP_HDL_FACTORY(BROW, PPBillImpExpParam);
 
-PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags)
+PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), Flags(0), ImpOpID(0), PredefFormat(pfUndef)
 {
-	Flags = 0;
-	ImpOpID = 0;
-	PredefFormat = pfUndef;
 	Object1SrchCode.Z();
 	Object2SrchCode.Z();
 }
@@ -256,8 +253,8 @@ int PPBillImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & r
 		Flags = 0;
 		PredefFormat = pfUndef; // @v9.7.8
 		ImpOpID = 0;
-		Object1SrchCode = 0;
-		Object2SrchCode = 0;
+		Object1SrchCode.Z();
+		Object2SrchCode.Z();
 		for(uint i = 0; i < param_list.getCount(); i++) {
 			StrAssocArray::Item item = param_list.at_WithoutParent(i);
 			temp_buf = item.Txt;
@@ -515,16 +512,17 @@ int SLAPI EditBillImpExpParams(int editBill)
 //
 int SLAPI GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpParam * pParam, uint maxBackup); // @prototype
 
-#define GRP_EMAILLIST 1
-
 class SelectBillImpCfgDialog : public TDialog {
 public:
+	enum {
+		ctlgroupEmailList = 1
+	};
 	SelectBillImpCfgDialog(uint dlgId, const char * pIniFileName, int import) : TDialog(dlgId), P_Data(0), Import(import)
 	{
 		P_IniFile = new PPIniFile(pIniFileName, 0, 1, 1);
 		SetupCalPeriod(CTLCAL_IEBILLSEL_PERIOD, CTL_IEBILLSEL_PERIOD);
 		if(!Import)
-			addGroup(GRP_EMAILLIST, new EmailCtrlGroup(CTL_IEBILLSEL_MAILADR, cmEMailList));
+			addGroup(ctlgroupEmailList, new EmailCtrlGroup(CTL_IEBILLSEL_MAILADR, cmEMailList));
 	}
 	~SelectBillImpCfgDialog()
 	{
@@ -599,7 +597,7 @@ public:
 			SetupPPObjCombo(this, CTLSEL_IEBILLSEL_MAILACC, PPOBJ_INTERNETACCOUNT, P_Data->Tp.InetAccID, 0, (void *)PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/);
 			{
 				EmailCtrlGroup::Rec grp_rec(&P_Data->Tp.AddrList);
-				setGroupData(GRP_EMAILLIST, &grp_rec);
+				setGroupData(ctlgroupEmailList, &grp_rec);
 			}
 			setCtrlString(CTL_IEBILLSEL_MAILSUBJ, P_Data->Tp.Subject);
 		}
@@ -628,7 +626,7 @@ public:
 			getCtrlData(CTLSEL_IEBILLSEL_MAILACC, &P_Data->Tp.InetAccID);
 			{
 				EmailCtrlGroup::Rec grp_rec;
-				getGroupData(GRP_EMAILLIST, &grp_rec);
+				getGroupData(ctlgroupEmailList, &grp_rec);
 				P_Data->Tp.AddrList = grp_rec.AddrList;
 			}
 			getCtrlString(CTL_IEBILLSEL_MAILSUBJ, P_Data->Tp.Subject);
@@ -831,28 +829,23 @@ private:
 //
 //
 //
-PPBillImpExpBaseProcessBlock::TransmitParam::TransmitParam()
+PPBillImpExpBaseProcessBlock::TransmitParam::TransmitParam() : InetAccID(0)
 {
-	InetAccID = 0;
 }
 
 void PPBillImpExpBaseProcessBlock::TransmitParam::Reset()
 {
 	InetAccID = 0;
 	AddrList.Clear();
-	Subject = 0;
+	Subject.Z();
 }
 
-PPBillImpExpBaseProcessBlock::SearchBlock::SearchBlock()
+PPBillImpExpBaseProcessBlock::SearchBlock::SearchBlock() : Dt(ZERODATE), SurveyDays(7)
 {
-	Dt = ZERODATE;
-	SurveyDays = 7;
 }
 
-PPBillImpExpBaseProcessBlock::PPBillImpExpBaseProcessBlock()
+PPBillImpExpBaseProcessBlock::PPBillImpExpBaseProcessBlock() : P_BObj(BillObj), DisabledOptions(0)
 {
-	P_BObj = BillObj;
-	DisabledOptions = 0;
 	Reset();
 }
 
@@ -1095,10 +1088,8 @@ int UnknownGoodsSubstDialog::editItem(long pos, long id)
 //
 //
 //
-PPBillImporter::PPBillImporter()
+PPBillImporter::PPBillImporter() : P_Cc(0), P_Btd(0)
 {
-	P_Cc = 0;
-	P_Btd = 0;
 	Init();
 }
 
@@ -2780,7 +2771,7 @@ int SLAPI PPBillImporter::Import(int useTa)
 								}
 								else if(P_BObj->GetConfig().Flags & BCF_AUTOSERIAL) {
 									sn_templt = (goods_obj.IsAsset(ti.GoodsID) > 0) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt;
-									P_BObj->GetSnByTemplate(pack.Rec.Code, labs(ti.GoodsID), &pack.SnL, sn_templt, serial);
+									P_BObj->GetSnByTemplate(pack.Rec.Code, labs(ti.GoodsID), &pack.LTagL/*SnL*/, sn_templt, serial);
 								}
 							}
 							{
@@ -3999,10 +3990,12 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 				brow.CVatSum  = vect.GetValue(GTAXVF_VAT);
 			}
 			brow.Expiry = p_ti->Expiry;
-			pPack->SnL.GetNumber(i-1, &temp_buf);
-			temp_buf.CopyTo(brow.Serial, sizeof(brow.Serial));
-			pPack->ClbL.GetNumber(i-1, &temp_buf);
-			temp_buf.CopyTo(brow.CLB, sizeof(brow.CLB));
+			// @v9.8.11 pPack->SnL.GetNumber(i-1, &temp_buf);
+			pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, temp_buf); // @v9.8.11 
+			STRNSCPY(brow.Serial, temp_buf);
+			// @v9.8.11 pPack->ClbL.GetNumber(i-1, &temp_buf);
+			pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, temp_buf); // @v9.8.11 
+			STRNSCPY(brow.CLB, temp_buf);
 			if(p_ti->QCert) {
 				QualityCertTbl::Rec qc_rec;
 				if(QcObj.Search(p_ti->QCert, &qc_rec) > 0) {
@@ -4370,15 +4363,10 @@ int SLAPI PPBillExporter::CheckBillsWasExported(ImpExpDll * pExpDll)
 class Generator_DocNalogRu {
 public:
 	struct HeaderInfo {
-		HeaderInfo()
+		HeaderInfo() : SenderPersonID(0), ReceiverPersonID(0), ProviderPersonID(0), Flags(0)
 		{
-			SenderPersonID = 0;
-			ReceiverPersonID = 0;
-			ProviderPersonID = 0;
-			Flags = 0;
 			Uuid.SetZero();
 		}
-
 		PPID   SenderPersonID;
 		PPID   ReceiverPersonID;
 		PPID   ProviderPersonID;

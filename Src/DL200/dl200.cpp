@@ -425,9 +425,8 @@ int SLAPI DL2_Entry::Print(FILE * pStream) const
 	return 1;
 }
 //
-SLAPI DL2_Row::DL2_Row() : DL2_Entry(DL2ENT_ROW)
+SLAPI DL2_Row::DL2_Row() : DL2_Entry(DL2ENT_ROW), P_F(0)
 {
-	P_F = 0;
 }
 
 DL2_Row & FASTCALL DL2_Row::operator = (const DL2_Row & s)

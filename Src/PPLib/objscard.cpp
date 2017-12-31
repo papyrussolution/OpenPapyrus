@@ -21,7 +21,7 @@ void SLAPI PPSCardPacket::Clear()
 }
 
 // static
-int SLAPI PPObjSCard::PreprocessSCardCode(SString & rCode)
+int FASTCALL PPObjSCard::PreprocessSCardCode(SString & rCode)
 {
 	int    ok = -1;
 	if(rCode.Len()) {
@@ -932,21 +932,21 @@ int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 		// Правила для чеков
 		//
 		THROW_MEM(p_strg = new (&pack.CcAmtDisRule, 128, SCARDSERIES_CCHECKRULE) Storage_SCardRule);
-		if(p_ref->GetProp(Obj, id, SCARDSERIES_CCHECKRULE, p_strg, p_strg->GetSize()) > 0)
+		if(p_ref->GetProperty(Obj, id, SCARDSERIES_CCHECKRULE, p_strg, p_strg->GetSize()) > 0)
 			THROW(p_strg->CopyTo(&pack.CcAmtDisRule));
 		ZDELETE(p_strg);
 		//
 		// Правила для расчета бонусов
 		//
 		THROW_MEM(p_strg = new (&pack.CcAmtDisRule, 128, SCARDSERIES_BONUSRULE) Storage_SCardRule);
-		if(p_ref->GetProp(Obj, id, SCARDSERIES_BONUSRULE, p_strg, p_strg->GetSize()) > 0)
+		if(p_ref->GetProperty(Obj, id, SCARDSERIES_BONUSRULE, p_strg, p_strg->GetSize()) > 0)
 			THROW(p_strg->CopyTo(&pack.BonusRule));
 		ZDELETE(p_strg);
 		//
 		//
 		//
 		THROW_MEM(p_strg = new (&pack.Rule, 128, SCARDSERIES_RULE2) Storage_SCardRule);
-		if((r = p_ref->GetProp(Obj, id, SCARDSERIES_RULE2, p_strg, p_strg->GetSize())) > 0) {
+		if((r = p_ref->GetProperty(Obj, id, SCARDSERIES_RULE2, p_strg, p_strg->GetSize())) > 0) {
 			THROW(p_strg->CopyTo(&pack.Rule));
 		}
 		else {
@@ -958,12 +958,12 @@ int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 			size_t sz = sizeof(long) + sizeof(PropPPIDArray) + init_count * sizeof(Item_);
 			THROW_MEM(p_rec = (PropPPIDArray*)SAlloc::C(1, sz));
 			pack.Rule.freeAll();
-			if((r = p_ref->GetProp(Obj, id, SCARDSERIES_RULE, p_rec, sz)) > 0) {
+			if((r = p_ref->GetProperty(Obj, id, SCARDSERIES_RULE, p_rec, sz)) > 0) {
 				if(p_rec->Count > (long)init_count) {
 					sz = sizeof(long) + sizeof(PropPPIDArray) + (size_t)p_rec->Count * sizeof(Item_);
 					SAlloc::F(p_rec);
 					THROW_MEM(p_rec = (PropPPIDArray *)SAlloc::C(1, sz));
-					THROW(p_ref->GetProp(Obj, id, SCARDSERIES_RULE, p_rec, sz) > 0);
+					THROW(p_ref->GetProperty(Obj, id, SCARDSERIES_RULE, p_rec, sz) > 0);
 				}
 				memcpy(&pack.Rule.TrnovrPeriod, PTR8(p_rec + 1), sizeof(long));
 				for(uint i = 0; i < (uint)p_rec->Count; i++) {
@@ -987,7 +987,7 @@ int SLAPI PPObjSCardSeries::GetPacket(PPID id, PPSCardSerPacket * pPack)
 			// Блок расширения
 			Storage_SCardSerExt se;
 			int    se_r = 0;
-			THROW(se_r = p_ref->GetProp(Obj, pack.Rec.ID, SCARDSERIES_EXT, &se, sizeof(se))); // @v8.7.12
+			THROW(se_r = p_ref->GetProperty(Obj, pack.Rec.ID, SCARDSERIES_EXT, &se, sizeof(se))); // @v8.7.12
 			if(se_r > 0)
 				se.Get(pack.Eb);
 		}
@@ -1081,11 +1081,14 @@ int SLAPI PPObjSCardSeries::PutPacket(PPID * pID, PPSCardSerPacket * pPack, int 
 		}
 		else if(*pID) {
 			THROW(CheckRights(PPR_DEL));
-			THROW(p_ref->RemoveProp(Obj, *pID, SCARDSERIES_RULE, 0));
-			THROW(p_ref->RemoveProp(Obj, *pID, SCARDSERIES_CCHECKRULE, 0));
-			THROW(p_ref->RemoveProp(Obj, *pID, SCARDSERIES_BONUSRULE, 0));
-			THROW(p_ref->RemoveProp(Obj, *pID, SCARDSERIES_QKLIST, 0));
-			THROW(p_ref->RemoveProp(Obj, *pID, SCARDSERIES_EXT, 0)); // @v8.7.12
+			/* @v9.8.11
+			THROW(p_ref->RemoveProperty(Obj, *pID, SCARDSERIES_RULE, 0));
+			THROW(p_ref->RemoveProperty(Obj, *pID, SCARDSERIES_CCHECKRULE, 0));
+			THROW(p_ref->RemoveProperty(Obj, *pID, SCARDSERIES_BONUSRULE, 0));
+			THROW(p_ref->RemoveProperty(Obj, *pID, SCARDSERIES_QKLIST, 0));
+			THROW(p_ref->RemoveProperty(Obj, *pID, SCARDSERIES_EXT, 0)); // @v8.7.12
+			*/
+			THROW(p_ref->RemoveProperty(Obj, *pID, 0, 0)); // @v9.8.11
 			THROW(RemoveObjV(*pID, 0, 0, 0));
 			acn_id = PPACN_OBJRMV;
 			ok = 1;
@@ -1206,7 +1209,6 @@ int SLAPI PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 		{
 			if(!RVALUEPTR(Data, pData))
 				Data.Init();
-
 			long   _type = Data.Rec.GetType();
 			// @v9.8.9 {
 			{
@@ -4269,7 +4271,7 @@ public:
 	SLAPI  ~SCardCache()
 	{
 	}
-	virtual int SLAPI Dirty(PPID id); // @sync_w
+	virtual int FASTCALL Dirty(PPID id); // @sync_w
 	const  StrAssocArray * SLAPI GetFullList(); // @sync_w
 	int    FASTCALL ReleaseFullList(const StrAssocArray * pList);
 	int    SLAPI FetchExtText(PPID id, SString & rBuf)
@@ -4283,12 +4285,10 @@ private:
 
 	class FclArray : public StrAssocArray {
 	public:
-		FclArray(int use) : StrAssocArray()
+		FclArray(int use) : StrAssocArray(), Use(use), Inited(0)
 		{
-			Use = use;
-			Inited = 0;
 		}
-		void   Dirty(PPID cardID)
+		void   FASTCALL Dirty(PPID cardID)
 		{
 			DirtyTable.Add((uint32)labs(cardID));
 		}
@@ -4464,7 +4464,7 @@ int FASTCALL SCardCache::ReleaseFullList(const StrAssocArray * pList)
 	return 1;
 }
 
-int SLAPI SCardCache::Dirty(PPID id)
+int FASTCALL SCardCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	ObjCacheHash::Dirty(id);
@@ -5116,7 +5116,7 @@ int SLAPI ConvertSCardSeries9809()
 						PPSCardSerPacket::Ext ext;
 						Storage_SCardSerExt se;
 						int    se_r = 0;
-						THROW(se_r = p_ref->GetProp(obj_type, _id, SCARDSERIES_EXT, &se, sizeof(se)));
+						THROW(se_r = p_ref->GetProperty(obj_type, _id, SCARDSERIES_EXT, &se, sizeof(se)));
 						if(se_r > 0)
 							se.Get(ext);
                         STRNSCPY(ext.CodeTempl, code_templ);

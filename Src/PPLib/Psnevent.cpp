@@ -207,7 +207,7 @@ SLAPI PPObjPersonEvent::~PPObjPersonEvent()
 }
 
 // static
-SString & SLAPI PPObjPersonEvent::MakeCodeString(const PersonEventTbl::Rec * pRec, int options, SString & rBuf)
+SString & FASTCALL PPObjPersonEvent::MakeCodeString(const PersonEventTbl::Rec * pRec, int options, SString & rBuf)
 {
 	rBuf.Z();
 	if(pRec) {

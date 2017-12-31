@@ -354,7 +354,7 @@ int PPDesktopAssocCmdPool::ReadFromProp(PPID desktopId)
 	SETIFZ(desktop_id, COMMON_DESKCMDASSOC);
 	if(p_ref->GetPropActualSize(PPOBJ_DESKTOP, desktop_id, PPPRP_DESKCMDASSOC, &sz) > 0) {
 		p_strg = (DesktopAssocCmdPool_Strg *)SAlloc::M(sz);
-		THROW(p_ref->GetProp(PPOBJ_DESKTOP, desktop_id, PPPRP_DESKCMDASSOC, p_strg, sz) > 0);
+		THROW(p_ref->GetProperty(PPOBJ_DESKTOP, desktop_id, PPPRP_DESKCMDASSOC, p_strg, sz) > 0);
 		{
 			SSerializeContext sctx;
 			SBuffer tail_buf;

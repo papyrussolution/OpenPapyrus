@@ -193,7 +193,7 @@ int SLAPI PPAccTurnTempl::GetObjByVar(PPID var, ATBillParam * pParam, PPID * pOb
 		case PPSYM_ADVLNACC:
 			if(p_pack) {
 				if(!(pParam->Flags & ATBillParam::fAr)) {
-					PPAdvBillItem & r_item = p_pack->AdvList.Get(pParam->AdvItemIdx);
+					PPAdvBillItemList::Item & r_item = p_pack->AdvList.Get(pParam->AdvItemIdx);
 					if(&r_item)
 						obj_id = r_item.AccID;
 				}
@@ -210,7 +210,7 @@ int SLAPI PPAccTurnTempl::GetObjByVar(PPID var, ATBillParam * pParam, PPID * pOb
 					}
 				}
 				else {
-					PPAdvBillItem & r_item = p_pack->AdvList.Get(pParam->AdvItemIdx);
+					PPAdvBillItemList::Item & r_item = p_pack->AdvList.Get(pParam->AdvItemIdx);
 					if(&r_item)
 						obj_id = r_item.ArID;
 				}
@@ -692,7 +692,7 @@ int SLAPI PPAccTurnTempl::EnumerateExtLines(const PPBillPacket * pPack, ExtLines
 		else {
 			PPObjAdvBillKind abk_obj;
 			while(!ok && pBlk->Idx < pBlk->P_Pack->AdvList.GetCount()) {
-				const PPAdvBillItem & r_abi = pBlk->P_Pack->AdvList.Get(pBlk->Idx);
+				const PPAdvBillItemList::Item & r_abi = pBlk->P_Pack->AdvList.Get(pBlk->Idx);
 				PPAdvBillKind abk_rec;
 				if(&r_abi) {
 					if(r_abi.AdvBillKindID && BillObj->Search(r_abi.AdvBillID, 0) > 0 &&
@@ -789,7 +789,7 @@ int SLAPI PPAccTurnTempl::CreateAccturns(PPBillPacket * pPack)
 					}
 					else if(pPack->Rec.CurID == cur_id)
 						if(r == 1) {
-							const PPAdvBillItem & r_abi = pPack->AdvList.Get(elb.Idx);
+							const PPAdvBillItemList::Item & r_abi = pPack->AdvList.Get(elb.Idx);
 							if(&r_abi)
 								at.Amount = r_abi.Amount;
 						}

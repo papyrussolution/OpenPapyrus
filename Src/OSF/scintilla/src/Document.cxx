@@ -509,15 +509,14 @@ int Document::GetFoldParent(int line) const
 	return ((GetLevel(lineLook) & SC_FOLDLEVELHEADERFLAG) && (LevelNumber(GetLevel(lineLook)) < level)) ? lineLook : -1;
 }
 
-void Document::GetHighlightDelimiters(HighlightDelimiter &highlightDelimiter, int line, int lastLine)
+void Document::GetHighlightDelimiters(HighlightDelimiter & highlightDelimiter, int line, int lastLine)
 {
 	int level = GetLevel(line);
 	int lookLastLine = smax(line, lastLine) + 1;
 	int lookLine = line;
 	int lookLineLevel = level;
 	int lookLineLevelNum = LevelNumber(lookLineLevel);
-	while((lookLine > 0) && ((lookLineLevel & SC_FOLDLEVELWHITEFLAG) ||
-		    ((lookLineLevel & SC_FOLDLEVELHEADERFLAG) && (lookLineLevelNum >= LevelNumber(GetLevel(lookLine + 1)))))) {
+	while(lookLine > 0 && ((lookLineLevel & SC_FOLDLEVELWHITEFLAG) || ((lookLineLevel & SC_FOLDLEVELHEADERFLAG) && (lookLineLevelNum >= LevelNumber(GetLevel(lookLine + 1)))))) {
 		lookLineLevel = GetLevel(--lookLine);
 		lookLineLevelNum = LevelNumber(lookLineLevel);
 	}
@@ -558,7 +557,6 @@ void Document::GetHighlightDelimiters(HighlightDelimiter &highlightDelimiter, in
 	}
 	if(firstChangeableLineBefore == -1)
 		firstChangeableLineBefore = beginFoldBlock - 1;
-
 	int firstChangeableLineAfter = -1;
 	for(lookLine = line + 1, lookLineLevel = GetLevel(lookLine), lookLineLevelNum = LevelNumber(lookLineLevel);
 	    lookLine <= endFoldBlock;
@@ -570,7 +568,6 @@ void Document::GetHighlightDelimiters(HighlightDelimiter &highlightDelimiter, in
 	}
 	if(firstChangeableLineAfter == -1)
 		firstChangeableLineAfter = endFoldBlock + 1;
-
 	highlightDelimiter.beginFoldBlock = beginFoldBlock;
 	highlightDelimiter.endFoldBlock = endFoldBlock;
 	highlightDelimiter.firstChangeableLineBefore = firstChangeableLineBefore;

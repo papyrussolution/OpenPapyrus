@@ -2242,7 +2242,6 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 					if(op_type_id == PPOPT_GOODSRECEIPT && r_ti.Flags & PPTFR_RECEIPT) {
 						r_ti.QCert = lot_rec.QCertID;
 						r_ti.Expiry = p_item->Expiry;
-						// @v7.5.10 {
 						if(lot_rec.ID) {
 							//
 							// Наследуем теги (имеющие признак OTF_INHERITABLE) от последнего лота.
@@ -2263,7 +2262,6 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 									pPack->LTagL.Set((uint)*p_i, &new_lot_tag_list);
 							}
 						}
-						// } @v7.5.10
 					}
 					THROW_SL(all_rows.insert(p_i));
 				}

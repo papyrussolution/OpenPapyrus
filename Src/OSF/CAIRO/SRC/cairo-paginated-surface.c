@@ -74,8 +74,7 @@ static cairo_surface_t * _create_recording_surface_for_target(cairo_surface_t * 
 	}
 }
 
-cairo_surface_t * _cairo_paginated_surface_create(cairo_surface_t * target, cairo_content_t content,
-    const cairo_paginated_surface_backend_t        * backend)
+cairo_surface_t * _cairo_paginated_surface_create(cairo_surface_t * target, cairo_content_t content, const cairo_paginated_surface_backend_t * backend)
 {
 	cairo_status_t status;
 	cairo_paginated_surface_t * surface = (cairo_paginated_surface_t *)SAlloc::M(sizeof(cairo_paginated_surface_t));

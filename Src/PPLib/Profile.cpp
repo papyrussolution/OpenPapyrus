@@ -616,9 +616,8 @@ SString & SLAPI PPUserFuncProfiler::GetFileName_(int fk, SString & rBuf)
  	return DS.GetTLA().Prf.GetUserProfileFileName(fk, rBuf);
 }
 
-SLAPI PPUserFuncProfiler::PPUserFuncProfiler(int funcId)
+SLAPI PPUserFuncProfiler::PPUserFuncProfiler(int funcId) : H(funcId ? DS.GetTLA().Prf.StartUserProfileFunc(funcId) : 0)
 {
-	H = funcId ? DS.GetTLA().Prf.StartUserProfileFunc(funcId) : 0;
 }
 
 SLAPI PPUserFuncProfiler::~PPUserFuncProfiler()
@@ -707,9 +706,8 @@ PPUserProfileCore::StateItem & SLAPI PPUserProfileCore::StateItem::Clear()
 	return *this;
 }
 
-PPUserProfileCore::StateBlock::StateBlock() : SStrGroup()
+PPUserProfileCore::StateBlock::StateBlock() : SStrGroup(), Ver(DS.GetVersion())
 {
-	Ver = DS.GetVersion();
 }
 
 PPUserProfileCore::StateBlock & PPUserProfileCore::StateBlock::Clear()

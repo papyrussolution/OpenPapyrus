@@ -276,15 +276,15 @@ int OPENSSL_isservice(void)
 
 #endif
 
-void OPENSSL_die(const char * message, const char * file, int line)
+void FASTCALL OPENSSL_die(const char * message, const char * file, int line)
 {
 	OPENSSL_showfatal("%s:%d: OpenSSL internal error: %s\n", file, line, message);
 #if !defined(_WIN32) || defined(__CYGWIN__)
 	abort();
 #else
-	/*
-	 * Win32 abort() customarily shows a dialog, but we just did that...
-	 */
+	// 
+	// Win32 abort() customarily shows a dialog, but we just did that...
+	// 
 # if !defined(_WIN32_WCE)
 	raise(SIGABRT);
 # endif
@@ -307,7 +307,7 @@ void OPENSSL_die(const char * message, const char * file, int line)
  * around a subtle bug in gcc 4.6+ which causes writes through
  * pointers to volatile to not be emitted in some rare, never needed in real life, pieces of code.
  */
-int CRYPTO_memcmp(const volatile void * volatile in_a, const volatile void * volatile in_b, size_t len)
+int FASTCALL CRYPTO_memcmp(const volatile void * volatile in_a, const volatile void * volatile in_b, size_t len)
 {
 	size_t i;
 	const volatile uchar * a = (const volatile uchar *)in_a;

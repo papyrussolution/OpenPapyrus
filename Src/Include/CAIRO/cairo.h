@@ -920,7 +920,7 @@ typedef struct {
 } cairo_glyph_t;
 
 cairo_public cairo_glyph_t * cairo_glyph_allocate(int num_glyphs);
-cairo_public void cairo_glyph_free(cairo_glyph_t * glyphs);
+cairo_public void FASTCALL cairo_glyph_free(cairo_glyph_t * glyphs);
 
 /**
  * cairo_text_cluster_t:
@@ -1720,7 +1720,7 @@ typedef struct cairo_path {
 
 cairo_public cairo_path_t * cairo_copy_path(cairo_t * cr);
 cairo_public cairo_path_t * cairo_copy_path_flat(cairo_t * cr);
-cairo_public void cairo_append_path(cairo_t * cr, const cairo_path_t   * path);
+cairo_public void cairo_append_path(cairo_t * cr, const cairo_path_t * path);
 cairo_public void cairo_path_destroy(cairo_path_t * path);
 
 /* Error status queries */
@@ -1730,7 +1730,7 @@ cairo_public const char * cairo_status_to_string(cairo_status_t status);
 
 /* Backend device manipulation */
 
-cairo_public cairo_device_t * cairo_device_reference(cairo_device_t * device);
+cairo_public cairo_device_t * FASTCALL cairo_device_reference(cairo_device_t * device);
 
 /**
  * cairo_device_type_t:

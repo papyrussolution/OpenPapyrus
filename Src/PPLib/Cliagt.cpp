@@ -251,7 +251,7 @@ int SLAPI PPObjArticle::HasClientAgreement(PPID id)
 		PropertyTbl::Rec prop_rec;
 		PPClientAgreement agt;
 		MEMSZERO(prop_rec);
-		if(PPRef->GetProp(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT, &prop_rec, sizeof(prop_rec)) > 0) {
+		if(PPRef->GetProperty(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT, &prop_rec, sizeof(prop_rec)) > 0) {
 			agt.Init();
 			PropToClientAgt(&prop_rec, &agt, 0);
 			agt.ClientID = id;
@@ -271,7 +271,7 @@ int SLAPI PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement * pAgt, in
 	PPPersonRelTypePacket rt_pack;
 	PPIDArray rel_list;
 	MEMSZERO(prop_rec);
-	THROW(r = p_ref->GetProp(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT, &prop_rec, sizeof(prop_rec)));
+	THROW(r = p_ref->GetProperty(PPOBJ_ARTICLE, id, ARTPRP_CLIAGT, &prop_rec, sizeof(prop_rec)));
 	if(r < 0 && id) {
 		PPID   mainorg_id = 0, mainorg_arid = 0;
 		//PPPersonRelType relt_rec;
@@ -280,7 +280,7 @@ int SLAPI PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement * pAgt, in
 		// @v8.2.2 if(id != mainorg_arid && ObjRelTyp.Search(PPPSNRELTYP_AFFIL, &relt_rec) > 0 && (relt_rec.Flags & PPPersonRelType::fInhMainOrgAgreement)) {
 		if(id != mainorg_arid && ObjRelTyp.Fetch(PPPSNRELTYP_AFFIL, &rt_pack) > 0 && (rt_pack.Rec.Flags & PPPersonRelType::fInhMainOrgAgreement)) { // @v8.2.2
 			if(GetRelPersonList(id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0 && rel_list.getCount() && rel_list.lsearch(mainorg_arid) > 0) {
-				THROW(r = p_ref->GetProp(PPOBJ_ARTICLE, mainorg_arid, ARTPRP_CLIAGT, &prop_rec, sizeof(prop_rec)));
+				THROW(r = p_ref->GetProperty(PPOBJ_ARTICLE, mainorg_arid, ARTPRP_CLIAGT, &prop_rec, sizeof(prop_rec)));
 			}
 		}
 	}
@@ -290,14 +290,14 @@ int SLAPI PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement * pAgt, in
 			if(GetRelPersonList(id, PPPSNRELTYP_AFFIL, 0, &rel_list) > 0) {
 				for(uint i = 0; r < 0 && i < rel_list.getCount(); i++) {
 					PPID rel_ar_id = ObjectToPerson(rel_list.get(i), 0);
-					THROW(r = p_ref->GetProp(PPOBJ_ARTICLE, rel_ar_id, ARTPRP_CLIAGT, &prop_rec, sizeof(prop_rec)));
+					THROW(r = p_ref->GetProperty(PPOBJ_ARTICLE, rel_ar_id, ARTPRP_CLIAGT, &prop_rec, sizeof(prop_rec)));
 				}
 			}
 		}
 	}
 	// } @v8.2.2
 	if(use_default) {
-		THROW(r2 = p_ref->GetProp(PPOBJ_ARTICLE, 0, ARTPRP_CLIAGT, &def_prop_rec, sizeof(def_prop_rec)));
+		THROW(r2 = p_ref->GetProperty(PPOBJ_ARTICLE, 0, ARTPRP_CLIAGT, &def_prop_rec, sizeof(def_prop_rec)));
 		if(r2 > 0)
 			PropToClientAgt(&def_prop_rec, &def_agt, 0);
 		if(r < 0 && id) {
@@ -937,7 +937,7 @@ PPSupplAgreement::ExchangeParam & FASTCALL PPSupplAgreement::ExchangeParam::oper
 	return *this;
 }
 
-PPSupplAgreement::ExchangeParam & PPSupplAgreement::ExchangeParam::Clear()
+PPSupplAgreement::ExchangeParam & SLAPI PPSupplAgreement::ExchangeParam::Clear()
 {
 	LastDt = ZERODATE;
 	GoodsGrpID = 0;
@@ -950,7 +950,7 @@ PPSupplAgreement::ExchangeParam & PPSupplAgreement::ExchangeParam::Clear()
 	PriceQuotID = 0;
 	ProtVer = 0;
 	ConnAddr.Clear();
-	ExtString = 0;
+	ExtString.Z();
 	MEMSZERO(Fb);
 	DebtDimList.Set(0); // @v9.1.3
 	return *this;
@@ -1283,7 +1283,7 @@ int SLAPI PPObjArticle::HasSupplAgreement(PPID id)
 		Reference * p_ref = PPRef;
 		if(p_ref->GetPropSBuffer(PPOBJ_ARTICLE, id, ARTPRP_SUPPLAGT2, _buf) > 0)
 			yes = 1;
-		else if(p_ref->GetProp(PPOBJ_ARTICLE, id, ARTPRP_SUPPLAGT, &prop_rec, sizeof(prop_rec)) > 0)
+		else if(p_ref->GetProperty(PPOBJ_ARTICLE, id, ARTPRP_SUPPLAGT, &prop_rec, sizeof(prop_rec)) > 0)
 			yes = 1;
 	}
 	return yes;
@@ -1307,10 +1307,10 @@ int SLAPI PPObjArticle::GetSupplAgreement(PPID id, PPSupplAgreement * pAgt, int 
 		}
 		else {
 			PropertyTbl::Rec prop_rec;
-			THROW(r = p_ref->GetProp(PPOBJ_ARTICLE, id, ARTPRP_SUPPLAGT, &prop_rec, sizeof(prop_rec)));
+			THROW(r = p_ref->GetProperty(PPOBJ_ARTICLE, id, ARTPRP_SUPPLAGT, &prop_rec, sizeof(prop_rec)));
 			if(r > 0) {
 				PPSupplExchangeCfg _ex_cfg;
-				THROW(p_ref->GetProp(PPOBJ_ARTICLE, id, ARTPRP_SUPPLAGT_EXCH, &_ex_cfg, sizeof(_ex_cfg)));
+				THROW(p_ref->GetProperty(PPOBJ_ARTICLE, id, ARTPRP_SUPPLAGT_EXCH, &_ex_cfg, sizeof(_ex_cfg)));
 				pAgt->Ep = _ex_cfg;
 				PropToSupplAgt(&prop_rec, pAgt);
 				pAgt->SupplID = id;

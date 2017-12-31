@@ -1124,8 +1124,8 @@ int SLAPI PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 				THROW(p_ref->PutPropVlrString(Obj, *pID, GDSPRP_EXTSTRDATA, 0));
 				THROW(P_Tbl->PutStockExt(*pID, 0, 0));
 				THROW(p_ref->PutPropVlrString(PPOBJ_GOODSGROUP, *pID, GGPRP_EXSTRTITLES, 0));
-				THROW(p_ref->RemoveProp(PPOBJ_GOODSGROUP, *pID, GGPRP_GOODSFILT2, 0));
-				THROW(p_ref->RemoveProp(PPOBJ_GOODSGROUP, *pID, GGPRP_GOODSFLT_, 0));
+				THROW(p_ref->RemoveProperty(PPOBJ_GOODSGROUP, *pID, GGPRP_GOODSFILT2, 0));
+				THROW(p_ref->RemoveProperty(PPOBJ_GOODSGROUP, *pID, GGPRP_GOODSFLT_, 0));
 				THROW(PutQuotList(*pID, 0, 0));
 				old_pack.LinkFiles.Init(PPOBJ_GOODS);
 				old_pack.LinkFiles.Save(*pID, 0L);

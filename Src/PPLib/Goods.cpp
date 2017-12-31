@@ -679,13 +679,13 @@ int SLAPI GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*
 		sz = sizeof(__GoodsStockExt) + (sizeof(GoodsStockExt::Pallet) * init_plt_c);
 		THROW_MEM(p_strg = (__GoodsStockExt *)SAlloc::M(sz));
 		memzero(p_strg, sizeof(*p_strg));
-		THROW(ok = P_Ref->GetProp(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz));
+		THROW(ok = P_Ref->GetProperty(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz));
 		if(ok > 0) {
 			if(p_strg->PltList.Count > init_plt_c && p_strg->PltList.Count <= 8) {
 				init_plt_c = p_strg->PltList.Count;
 				sz = sizeof(__GoodsStockExt) + (sizeof(GoodsStockExt::Pallet) * init_plt_c);
 				THROW_MEM(p_strg = (__GoodsStockExt *)SAlloc::R(p_strg, sz));
-				THROW(P_Ref->GetProp(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz) > 0);
+				THROW(P_Ref->GetProperty(PPOBJ_GOODS, id, GDSPRP_STOCKDATA, p_strg, sz) > 0);
 			}
 			// «ащита от 'гр€зных' значений в базе данных {
 			SETMAX(p_strg->Brutto, 0);
@@ -2248,7 +2248,7 @@ public:
 
 	SLAPI  GoodsCache();
 	SLAPI ~GoodsCache();
-	virtual int SLAPI Dirty(PPID id); // @sync_w
+	virtual int FASTCALL Dirty(PPID id); // @sync_w
 	int    SLAPI GetGtl(PPID grpID, PPIDArray * pList, PPIDArray * pUntermList); // @sync_r
 	// @v8.1.5 int    SLAPI PutGtl(PPID grpID, const PPIDArray * pList, const PPIDArray * pUntermList); // @sync_w
 	int    SLAPI GetAltGrpFilt(PPID grpID, GoodsFilt * pFilt); // @sync_r
@@ -2665,7 +2665,7 @@ int GoodsCache::ReleaseFullList(const StrAssocArray * pList)
 	return 1;
 }
 
-int SLAPI GoodsCache::Dirty(PPID id)
+int FASTCALL GoodsCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -2973,7 +2973,7 @@ int SLAPI GoodsCore::ResetFullList()
 	return p_cache ? p_cache->ResetFullList() : 0;
 }
 
-int SLAPI GoodsCore::Fetch(PPID id, Goods2Tbl::Rec * pRec)
+int FASTCALL GoodsCore::Fetch(PPID id, Goods2Tbl::Rec * pRec)
 {
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS);
 	id = labs(id);
@@ -2993,7 +2993,7 @@ int SLAPI GoodsCore::SearchBy2dBarcode(const char * pCodeLine, BarcodeTbl::Rec *
 	return ok;
 }
 
-int SLAPI GoodsCore::Dirty(PPID id)
+int FASTCALL GoodsCore::Dirty(PPID id)
 {
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS, 1);
 	return p_cache ? p_cache->Dirty(id) : -1;

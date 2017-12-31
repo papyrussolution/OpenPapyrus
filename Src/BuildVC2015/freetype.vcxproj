@@ -263,7 +263,7 @@
       <AdditionalIncludeDirectories>..\INCLUDE\ZLIB;..\include;..\include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;WIN32;_LIB;FT2_BUILD_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling />
+      <ExceptionHandling>false</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
@@ -335,7 +335,7 @@
       <AdditionalIncludeDirectories>..\INCLUDE\ZLIB;..\include;..\include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;FT_DEBUG_LEVEL_ERROR;FT_DEBUG_LEVEL_TRACE;WIN32;_LIB;FT2_BUILD_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling />
+      <ExceptionHandling>false</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StructMemberAlignment>1Byte</StructMemberAlignment>

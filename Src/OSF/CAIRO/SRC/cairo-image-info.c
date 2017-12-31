@@ -116,26 +116,21 @@ cairo_int_status_t _cairo_image_info_get_jpeg_info(cairo_image_info_t * info, co
 			case SOF14:
 			case SOF15:
 			    /* Start of frame found. Extract the image parameters. */
-			    if(p + 8 > data + length)
+			    if((p + 8) > (data + length))
 				    return CAIRO_INT_STATUS_UNSUPPORTED;
-
 			    _jpeg_extract_info(info, p);
 			    return CAIRO_STATUS_SUCCESS;
-
 			default:
 			    if(*p >= RST_begin && *p <= RST_end) {
 				    p++;
 				    break;
 			    }
-
-			    if(p + 2 > data + length)
+			    if((p + 3) > (data + length)) // @v1.14.12 (p + 2) --> (p + 3)
 				    return CAIRO_INT_STATUS_UNSUPPORTED;
-
 			    p = _jpeg_skip_segment(p);
 			    break;
 		}
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

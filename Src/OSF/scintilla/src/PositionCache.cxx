@@ -362,7 +362,7 @@ void SpecialRepresentations::ClearRepresentation(const char * charBytes)
 	}
 }
 
-const Representation * SpecialRepresentations::RepresentationFromCharacter(const char * charBytes, size_t len) const
+const SpecialRepresentations::Representation * SpecialRepresentations::RepresentationFromCharacter(const char * charBytes, size_t len) const
 {
 	PLATFORM_ASSERT(len <= 4);
 	if(startByteHasReprs[static_cast<uchar>(charBytes[0])]) {
@@ -388,7 +388,7 @@ void SpecialRepresentations::Clear()
 	std::fill(startByteHasReprs, startByteHasReprs+0x100, 0);
 }
 
-BreakFinder::TextSegment::TextSegment(int start_ /*= 0*/, int length_ /*= 0*/, const Representation * representation_ /*= 0*/) :
+BreakFinder::TextSegment::TextSegment(int start_ /*= 0*/, int length_ /*= 0*/, const SpecialRepresentations::Representation * representation_ /*= 0*/) :
 	start(start_), length(length_), representation(representation_)
 {
 }
@@ -469,10 +469,8 @@ BreakFinder::TextSegment BreakFinder::Next()
 				charWidth = UTF8DrawBytes(reinterpret_cast<uchar *>(ll->chars) + nextBreak, lineRange.end - nextBreak);
 			else if(encodingFamily == efDBCS)
 				charWidth = pdoc->IsDBCSLeadByte(ll->chars[nextBreak]) ? 2 : 1;
-			const Representation * repr = preprs->RepresentationFromCharacter(ll->chars + nextBreak, charWidth);
-			if(((nextBreak > 0) && (ll->styles[nextBreak] != ll->styles[nextBreak - 1])) ||
-			    repr ||
-			    (nextBreak == saeNext)) {
+			const SpecialRepresentations::Representation * repr = preprs->RepresentationFromCharacter(ll->chars + nextBreak, charWidth);
+			if(((nextBreak > 0) && (ll->styles[nextBreak] != ll->styles[nextBreak - 1])) || repr || (nextBreak == saeNext)) {
 				while((nextBreak >= saeNext) && (saeNext < lineRange.end)) {
 					saeCurrentPos++;
 					saeNext = (saeCurrentPos < selAndEdge.size()) ? selAndEdge[saeCurrentPos] : lineRange.end;

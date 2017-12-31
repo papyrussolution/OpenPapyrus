@@ -3300,9 +3300,8 @@ IMPLEMENT_PPFILT_FACTORY(LotExtCode); SLAPI LotExtCodeFilt::LotExtCodeFilt() : P
 	Init(1, 0);
 }
 
-SLAPI PPViewLotExtCode::PPViewLotExtCode() : PPView(0, &Filt, PPVIEW_LOTEXTCODE)
+SLAPI PPViewLotExtCode::PPViewLotExtCode() : PPView(0, &Filt, PPVIEW_LOTEXTCODE), P_BObj(BillObj)
 {
-	P_BObj = BillObj;
 	ImplementFlags |= implDontEditNullFilter;
 }
 
@@ -3351,9 +3350,8 @@ int FASTCALL PPViewLotExtCode::NextIteration(LotExtCodeViewItem * pItem)
 PPBaseFilt * SLAPI PPViewLotExtCode::CreateFilt(void * extraPtr) const
 {
 	LotExtCodeFilt * p_filt = new LotExtCodeFilt;
-	if(p_filt) {
-		p_filt->LotID = ((long)extraPtr);
-	}
+	if(p_filt)
+		p_filt->LotID = (long)extraPtr;
 	return p_filt;
 }
 
@@ -3367,6 +3365,7 @@ int SLAPI PPViewLotExtCode::GetRec(const void * pHdr, LotExtCodeTbl::Rec & rRec)
 	int    ok = 0;
 	if(pHdr) {
 		LotExtCodeTbl::Key0 k0;
+		MEMSZERO(k0);
 		k0.LotID = *(long *)pHdr;
 		STRNSCPY(k0.Code, (const char *)(PTR8(pHdr)+sizeof(long)));
 		if(Tbl.search(0, &k0, spEq)) {
@@ -3423,7 +3422,8 @@ int SLAPI PPViewLotExtCode::CheckDupCode(const LotExtCodeTbl::Rec & rRec)
 	LotExtCodeTbl::Key1 k1;
 	MEMSZERO(k1);
 	STRNSCPY(k1.Code, rRec.Code);
-	if(Tbl.search(1, &k1, spEq)) {
+	k1.BillID = rRec.BillID; // @v9.8.11
+	if(Tbl.search(1, &k1, spGe) && sstreqi_ascii(Tbl.data.Code, rRec.Code) && Tbl.data.BillID == rRec.BillID) {
 		SString msg_buf, temp_buf;
 		ReceiptTbl::Rec lot_rec;
 		if(P_BObj->trfr->Rcpt.Search(Tbl.data.LotID, &lot_rec) > 0)

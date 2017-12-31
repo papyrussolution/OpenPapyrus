@@ -264,6 +264,10 @@ long SLAPI PoClause_::GetDirFlags() const
 //
 //
 //
+SLAPI PsnOpKindFilt::PsnOpKindFilt(PPID show, PPID parentID, int cantSelParent) : Show(show), ParentID(parentID), CantSelParent(cantSelParent)
+{
+}
+
 int FASTCALL PPPsnOpKind2::IsEqual(const PPPsnOpKind2 & rS) const
 {
 #define TEST_FLD(fld) if(fld != rS.fld) return 0
@@ -535,7 +539,7 @@ PPID SLAPI PPObjPsnOpKind::Select(long)
 }
 
 // static
-int SLAPI PPObjPsnOpKind::CheckRecursion(PPID id, PPID parentID)
+int FASTCALL PPObjPsnOpKind::CheckRecursion(PPID id, PPID parentID)
 {
 	int    ok = 1;
 	if(id) {
@@ -767,7 +771,7 @@ int SLAPI PPObjPsnOpKind::GetPacket(PPID id, PPPsnOpKindPacket * pack)
 		size_t extra_sz = 0;
 		if(ref->GetPropActualSize(Obj, id, POKPRP_EXTRA, &extra_sz) > 0) {
 			p_ex = (_POKExtra *)SAlloc::M(extra_sz);
-			THROW(ref->GetProp(Obj, id, POKPRP_EXTRA, p_ex, extra_sz) > 0);
+			THROW(ref->GetProperty(Obj, id, POKPRP_EXTRA, p_ex, extra_sz) > 0);
 			if(extra_sz >= sizeof(_POKExtra)) {
 				pack->PCPrmr.PersonKindID = p_ex->PrmrKindID;
 				pack->PCScnd.PersonKindID = p_ex->ScndKindID;
@@ -810,7 +814,7 @@ int SLAPI PPObjPsnOpKind::GetPacket(PPID id, PPPsnOpKindPacket * pack)
 			pack->AllowedTags.Add(pack->Rec.ExValSrc);
 			pack->Rec.ExValSrc = 0;
 		}
-		for(PPID prop_id = 0; (r = ref->EnumProps(Obj, id, &prop_id, (char *)prop_buf, prop_buf.GetSize())) > 0;) {
+		for(PPID prop_id = 0; (r = ref->EnumProperties(Obj, id, &prop_id, (char *)prop_buf, prop_buf.GetSize())) > 0;) {
 			/* @v7.8.9 if(prop_id == POKPRP_EXTRA) {
 				_POKExtra & ex = *(_POKExtra*)(char *)prop_buf;
 				pack->PCPrmr.PersonKindID = ex.PrmrKindID;

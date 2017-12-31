@@ -900,11 +900,13 @@ int SLAPI PPBillPacket::InsertComplete(PPGoodsStruc * pGS, uint pos, PUGL * pDfc
 		}
 		// @v9.1.4 {
 		if(ok > 0 && src_serial.NotEmpty()) {
-			SnL.GetNumber(pos, &serial);
+			// @v9.8.11 SnL.GetNumber(pos, &serial);
+			LTagL.GetNumber(PPTAG_LOT_SN, pos, serial); // @v9.8.11 
 			if(serial.Empty()) {
 				// @todo Следует формировать новую серию по какому-либо шаблону
 				(serial = src_serial).CatChar('-').Cat("???");
-				SnL.AddNumber(pos, serial);
+				// @v9.8.11 SnL.AddNumber(pos, serial);
+				LTagL.AddNumber(PPTAG_LOT_SN, pos, serial); // @v9.8.11 
 			}
 		}
 		// } @v9.1.4

@@ -393,6 +393,20 @@ static void InitTest()
 		SETIFZ(dt, cdt);
 		assert(dt != cdt);
 	}
+	{
+		//
+		// Проверка макроса SETIFZ для LDATETIME
+		//
+		const LDATETIME cdtm = getcurdatetime_();
+		LDATETIME dtm;
+		dtm = ZERODATETIME;
+		SETIFZ(dtm, cdtm);
+		assert(dtm == cdtm);
+		dtm.d = encodedate(7, 11, 2017);
+		dtm.t = encodetime(12, 25, 58, 9);
+		SETIFZ(dtm, cdtm);
+		assert(dtm != cdtm);
+	}
 #endif // } NDEBUG
 }
 

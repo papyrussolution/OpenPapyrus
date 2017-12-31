@@ -289,7 +289,6 @@ EVP_MD * EVP_MD_meth_new(int md_type, int pkey_type)
 EVP_MD * EVP_MD_meth_dup(const EVP_MD * md)
 {
 	EVP_MD * to = EVP_MD_meth_new(md->type, md->pkey_type);
-
 	if(to != NULL)
 		memcpy(to, md, sizeof(*to));
 	return to;
@@ -330,23 +329,19 @@ int EVP_MD_meth_set_init(EVP_MD * md, int (* init)(EVP_MD_CTX * ctx))
 	return 1;
 }
 
-int EVP_MD_meth_set_update(EVP_MD * md, int (* update)(EVP_MD_CTX * ctx,
-	    const void * data,
-	    size_t count))
+int EVP_MD_meth_set_update(EVP_MD * md, int (* update)(EVP_MD_CTX * ctx, const void * data, size_t count))
 {
 	md->update = update;
 	return 1;
 }
 
-int EVP_MD_meth_set_final(EVP_MD * md, int (* final)(EVP_MD_CTX * ctx,
-	    uchar * md))
+int EVP_MD_meth_set_final(EVP_MD * md, int (* final)(EVP_MD_CTX * ctx, uchar * md))
 {
 	md->final = final;
 	return 1;
 }
 
-int EVP_MD_meth_set_copy(EVP_MD * md, int (* copy)(EVP_MD_CTX * to,
-	    const EVP_MD_CTX * from))
+int EVP_MD_meth_set_copy(EVP_MD * md, int (* copy)(EVP_MD_CTX * to, const EVP_MD_CTX * from))
 {
 	md->copy = copy;
 	return 1;
@@ -358,8 +353,7 @@ int EVP_MD_meth_set_cleanup(EVP_MD * md, int (* cleanup)(EVP_MD_CTX * ctx))
 	return 1;
 }
 
-int EVP_MD_meth_set_ctrl(EVP_MD * md, int (* ctrl)(EVP_MD_CTX * ctx, int cmd,
-	    int p1, void * p2))
+int EVP_MD_meth_set_ctrl(EVP_MD * md, int (* ctrl)(EVP_MD_CTX * ctx, int cmd, int p1, void * p2))
 {
 	md->md_ctrl = ctrl;
 	return 1;
@@ -385,41 +379,38 @@ ulong EVP_MD_meth_get_flags(const EVP_MD * md)
 	return md->flags;
 }
 
-int(*EVP_MD_meth_get_init(const EVP_MD *md)) (EVP_MD_CTX *ctx)
+int (*EVP_MD_meth_get_init(const EVP_MD *md)) (EVP_MD_CTX *ctx)
 {
 	return md->init;
 }
-int(*EVP_MD_meth_get_update(const EVP_MD *md)) (EVP_MD_CTX *ctx,
-    const void * data,
-    size_t count)
+
+int (*EVP_MD_meth_get_update(const EVP_MD *md)) (EVP_MD_CTX *ctx, const void * data, size_t count)
 {
 	return md->update;
 }
-int(*EVP_MD_meth_get_final(const EVP_MD *md)) (EVP_MD_CTX *ctx,
-    uchar *md)
+
+int (*EVP_MD_meth_get_final(const EVP_MD *md)) (EVP_MD_CTX *ctx, uchar *md)
 {
 	return md->final;
 }
-int(*EVP_MD_meth_get_copy(const EVP_MD *md)) (EVP_MD_CTX *to,
-    const EVP_MD_CTX *from)
+int (*EVP_MD_meth_get_copy(const EVP_MD *md)) (EVP_MD_CTX *to, const EVP_MD_CTX *from)
 {
 	return md->copy;
 }
+
 int(*EVP_MD_meth_get_cleanup(const EVP_MD *md)) (EVP_MD_CTX *ctx)
 {
 	return md->cleanup;
 }
-int(*EVP_MD_meth_get_ctrl(const EVP_MD *md)) (EVP_MD_CTX *ctx, int cmd,
-    int p1, void * p2)
+
+int (*EVP_MD_meth_get_ctrl(const EVP_MD *md)) (EVP_MD_CTX *ctx, int cmd, int p1, void * p2)
 {
 	return md->md_ctrl;
 }
 
-const EVP_MD * EVP_MD_CTX_md(const EVP_MD_CTX * ctx)
+const EVP_MD * FASTCALL EVP_MD_CTX_md(const EVP_MD_CTX * ctx)
 {
-	if(!ctx)
-		return NULL;
-	return ctx->digest;
+	return ctx ? ctx->digest : 0;
 }
 
 EVP_PKEY_CTX * EVP_MD_CTX_pkey_ctx(const EVP_MD_CTX * ctx)
@@ -427,13 +418,12 @@ EVP_PKEY_CTX * EVP_MD_CTX_pkey_ctx(const EVP_MD_CTX * ctx)
 	return ctx->pctx;
 }
 
-void * EVP_MD_CTX_md_data(const EVP_MD_CTX * ctx)
+void * FASTCALL EVP_MD_CTX_md_data(const EVP_MD_CTX * ctx)
 {
 	return ctx->md_data;
 }
 
-int(*EVP_MD_CTX_update_fn(EVP_MD_CTX *ctx)) (EVP_MD_CTX *ctx,
-    const void * data, size_t count)
+int(*EVP_MD_CTX_update_fn(EVP_MD_CTX *ctx)) (EVP_MD_CTX *ctx, const void * data, size_t count)
 {
 	return ctx->update;
 }

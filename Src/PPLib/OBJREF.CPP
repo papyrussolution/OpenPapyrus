@@ -2130,7 +2130,7 @@ int SLAPI PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPac
 			if(*pID) {
 				THROW(CheckRights(PPR_DEL));
 				THROW(ref->RemoveItem(Obj, _id, 0));
-				THROW(ref->RemoveProp(Obj, _id, 0, 0));
+				THROW(ref->RemoveProperty(Obj, _id, 0, 0));
 				THROW(ref->Ot.PutList(Obj, _id, 0, 0));
 				THROW(RemoveSync(_id));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, hid, 0);
@@ -3173,7 +3173,7 @@ int SLAPI PPObjUhttStore::PutPacket(PPID * pID, PPUhttStorePacket * pPack, int u
 			if(*pID) {
 				THROW(CheckRights(PPR_DEL));
 				THROW(ref->RemoveItem(Obj, _id, 0));
-				THROW(ref->RemoveProp(Obj, _id, 0, 0));
+				THROW(ref->RemoveProperty(Obj, _id, 0, 0));
 				THROW(ref->Ot.PutList(Obj, _id, 0, 0));
 				THROW(RemoveSync(_id));
 				DS.LogAction(PPACN_OBJRMV, Obj, *pID, hid, 0);

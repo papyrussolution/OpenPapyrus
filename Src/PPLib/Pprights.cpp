@@ -7,7 +7,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-ObjRights::ObjRights(PPID objType)
+SLAPI ObjRights::ObjRights(PPID objType)
 {
 	ObjType = objType;
 	Size = sizeof(ObjRights);
@@ -1273,11 +1273,8 @@ private:
 	SecurCollection Data;
 };
 
-FastEditRightsDlg::FastEditRightsDlg(int readOnly) : EmbedDialog(DLG_EDITRHTS)
+FastEditRightsDlg::FastEditRightsDlg(int readOnly) : EmbedDialog(DLG_EDITRHTS), ReadOnly(readOnly), GrpUserID(0), EditWhat(cAccessPeriod)
 {
-	ReadOnly = readOnly;
-	GrpUserID = 0;
-	EditWhat = cAccessPeriod;
 	loadChild(EditWhat);
 }
 
@@ -1422,11 +1419,12 @@ int FastEditRightsDlg::updateChildsRights(PPSecurPacket * pParent)
 
 int FastEditRightsDlg::loadPtr(void ** ppPtr, uint pos, int load)
 {
+	PPSecurPacket * p_item = (pos < Data.getCount()) ? Data.at(pos) : 0;
 	switch(EditWhat) {
 		case cAccessPeriod:
 			if(load == 1) {
 				*ppPtr = new PPAccessRestriction;
-				Data.at(pos)->Rights.GetAccessRestriction(*(PPAccessRestriction*)*ppPtr);
+				p_item->Rights.GetAccessRestriction(*(PPAccessRestriction*)*ppPtr);
 			}
 			else if(load == 2) {
 				delete (PPAccessRestriction*)*ppPtr;
@@ -1434,61 +1432,58 @@ int FastEditRightsDlg::loadPtr(void ** ppPtr, uint pos, int load)
 			}
 			else if(*ppPtr) {
 				((PPAccessRestriction*)*ppPtr)->SetSaveMode(1);
-				Data.at(pos)->Rights.SetAccessRestriction((PPAccessRestriction*)*ppPtr);
+				p_item->Rights.SetAccessRestriction((PPAccessRestriction*)*ppPtr);
 				((PPAccessRestriction*)*ppPtr)->SetSaveMode(0);
 			}
 			break;
 		case cAccessibleOpr:
 			if(load == 1) {
-				if(!Data.at(pos)->Rights.P_OpList)
-					Data.at(pos)->Rights.P_OpList = new ObjRestrictArray;
-				*ppPtr = Data.at(pos)->Rights.P_OpList;
+				SETIFZ(p_item->Rights.P_OpList, new ObjRestrictArray);
+				*ppPtr = p_item->Rights.P_OpList;
 			}
 			else if(!load && (*ppPtr))	{
-				Data.at(pos)->Rights.P_OpList = (ObjRestrictArray*)*ppPtr;
-				if(Data.at(pos)->Rights.P_OpList->getCount() <= 0) {
-					ZDELETE(Data.at(pos)->Rights.P_OpList);
+				p_item->Rights.P_OpList = (ObjRestrictArray*)*ppPtr;
+				if(p_item->Rights.P_OpList->getCount() <= 0) {
+					ZDELETE(p_item->Rights.P_OpList);
 					*ppPtr = 0;
 				}
 			}
 			break;
 		case cAccessibleLoc:
 			if(load == 1) {
-				if(!Data.at(pos)->Rights.P_LocList)
-					Data.at(pos)->Rights.P_LocList = new ObjRestrictArray;
-				*ppPtr = Data.at(pos)->Rights.P_LocList;
+				SETIFZ(p_item->Rights.P_LocList, new ObjRestrictArray);
+				*ppPtr = p_item->Rights.P_LocList;
 			}
 			else if(!load && (*ppPtr)) {
-				Data.at(pos)->Rights.P_LocList = (ObjRestrictArray*)*ppPtr;
-				if(Data.at(pos)->Rights.P_LocList->getCount() <= 0) {
-					ZDELETE(Data.at(pos)->Rights.P_LocList);
+				p_item->Rights.P_LocList = (ObjRestrictArray*)*ppPtr;
+				if(p_item->Rights.P_LocList->getCount() <= 0) {
+					ZDELETE(p_item->Rights.P_LocList);
 					*ppPtr = 0;
 				}
 			}
 			break;
 		case cAccessibleAcc:
 			if(load == 1) {
-				if(!Data.at(pos)->Rights.P_AccList)
-					Data.at(pos)->Rights.P_AccList = new ObjRestrictArray;
-				*ppPtr = Data.at(pos)->Rights.P_AccList;
+				SETIFZ(p_item->Rights.P_AccList, new ObjRestrictArray);
+				*ppPtr = p_item->Rights.P_AccList;
 			}
 			else if(!load && (*ppPtr)) {
-				Data.at(pos)->Rights.P_AccList = (ObjRestrictArray*)*ppPtr;
-				if(Data.at(pos)->Rights.P_AccList->getCount() <= 0) {
-					ZDELETE(Data.at(pos)->Rights.P_AccList);
+				p_item->Rights.P_AccList = (ObjRestrictArray*)*ppPtr;
+				if(p_item->Rights.P_AccList->getCount() <= 0) {
+					ZDELETE(p_item->Rights.P_AccList);
 					*ppPtr = 0;
 				}
 			}
 			break;
 		case cConfig:
 			if(load == 1)
-				*ppPtr = &Data.at(pos)->Config;
+				*ppPtr = &p_item->Config;
 			else if(!load && (*ppPtr))
-				Data.at(pos)->Config = *(PPConfig*)*ppPtr;
+				p_item->Config = *(PPConfig*)*ppPtr;
 			break;
 		default:
 			if(load == 1)
-				*ppPtr = Data.at(pos)->Rights.GetObjRights(EditWhat - OBJTYPE_OFFSET, 1);
+				*ppPtr = p_item->Rights.GetObjRights(EditWhat - OBJTYPE_OFFSET, 1);
 			else if(load == 2) {
 				ObjRights * p_r = (ObjRights*)*ppPtr;
 				ObjRights::Destroy(p_r);
@@ -1497,7 +1492,7 @@ int FastEditRightsDlg::loadPtr(void ** ppPtr, uint pos, int load)
 			else if(!load && (*ppPtr)) {
 				ObjRights * p_r = (ObjRights*)*ppPtr;
 				p_r->OprFlags &= ~(PPORF_DEFAULT /* @v8.3.3 | PPORF_INHERITED*/);
-				Data.at(pos)->Rights.SetObjRights(EditWhat - OBJTYPE_OFFSET, p_r, 1);
+				p_item->Rights.SetObjRights(EditWhat - OBJTYPE_OFFSET, p_r, 1);
 			}
 			break;
 	}

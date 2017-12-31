@@ -433,10 +433,10 @@ struct PPInternetAccount_ { // @persistent @store(ReferenceTbl+)
 		ExtStr = 0;
 		memzero(this, sizeof(*this)-sizeof(ExtStr));
 	}
-	int    SLAPI Cmp(PPInternetAccount_ * pAccount); // @v5.3.5 AHTOXA realy const
-	int    SLAPI NotEmpty(); // @v5.3.5 AHTOXA
+	int    SLAPI Cmp(PPInternetAccount_ * pAccount);
+	int    SLAPI NotEmpty();
 	int    SLAPI GetExtField(int fldID, char * pBuf, size_t bufLen);
-	int    SLAPI GetExtField(int fldID, SString & rBuf); // @v5.3.5 AHTOXA
+	int    SLAPI GetExtField(int fldID, SString & rBuf);
 	int    SLAPI SetExtField(int fldID, const char * pBuf);
 	int    SLAPI SetPassword(const char *, int fldID = MAEXSTR_RCVPASSWORD); // @v5.0.1 AHTOXA change
 	int    SLAPI GetPassword(char * pBuf, size_t bufLen, int fldID = MAEXSTR_RCVPASSWORD); // @v5.0.1 AHTOXA change

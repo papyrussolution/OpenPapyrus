@@ -247,7 +247,7 @@ int FASTCALL ObjCache::Helper_Dirty(PPID id)
 	return ok;
 }
 
-int SLAPI ObjCache::Dirty(PPID id)
+int FASTCALL ObjCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	{

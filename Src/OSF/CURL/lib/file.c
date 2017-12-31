@@ -58,11 +58,9 @@
  */
 
 static CURLcode file_do(struct connectdata *, bool * done);
-static CURLcode file_done(struct connectdata * conn,
-    CURLcode status, bool premature);
+static CURLcode file_done(struct connectdata * conn, CURLcode status, bool premature);
 static CURLcode file_connect(struct connectdata * conn, bool * done);
-static CURLcode file_disconnect(struct connectdata * conn,
-    bool dead_connection);
+static CURLcode file_disconnect(struct connectdata * conn, bool dead_connection);
 static CURLcode file_setup_connection(struct connectdata * conn);
 
 /*
@@ -93,12 +91,8 @@ static CURLcode file_setup_connection(struct connectdata * conn)
 {
 	/* allocate the FILE specific struct */
 	conn->data->req.protop = SAlloc::C(1, sizeof(struct FILEPROTO));
-	if(!conn->data->req.protop)
-		return CURLE_OUT_OF_MEMORY;
-
-	return CURLE_OK;
+	return conn->data->req.protop ? CURLE_OK : CURLE_OUT_OF_MEMORY;
 }
-
 /*
    Check if this is a range download, and if so, set the internal variables
    properly. This code is copied from the FTP implementation and might as
@@ -111,7 +105,6 @@ static CURLcode file_range(struct connectdata * conn)
 	char * ptr;
 	char * ptr2;
 	struct Curl_easy * data = conn->data;
-
 	if(data->state.use_range && data->state.range) {
 		from = curlx_strtoofft(data->state.range, &ptr, 0);
 		while(*ptr && (ISSPACE(*ptr) || (*ptr=='-')))
@@ -163,9 +156,7 @@ static CURLcode file_connect(struct connectdata * conn, bool * done)
 	char * actual_path;
 #endif
 	size_t real_path_len;
-
-	CURLcode result = Curl_urldecode(data, data->state.path, 0, &real_path,
-	    &real_path_len, FALSE);
+	CURLcode result = Curl_urldecode(data, data->state.path, 0, &real_path, &real_path_len, FALSE);
 	if(result)
 		return result;
 

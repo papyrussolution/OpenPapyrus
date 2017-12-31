@@ -889,31 +889,20 @@ static cairo_surface_t * _cairo_ps_surface_create_for_stream_internal(cairo_outp
 	surface->page_bbox.width  = (int)width;
 	surface->page_bbox.height = (int)height;
 	_cairo_surface_clipper_init(&surface->clipper, _cairo_ps_surface_clipper_intersect_clip_path);
-	_cairo_pdf_operators_init(&surface->pdf_operators,
-	    surface->stream,
-	    &surface->cairo_to_ps,
-	    surface->font_subsets,
-	    TRUE);
+	_cairo_pdf_operators_init(&surface->pdf_operators, surface->stream, &surface->cairo_to_ps, surface->font_subsets, TRUE);
 	surface->num_pages = 0;
-
 	cairo_list_init(&surface->document_media);
 	_cairo_array_init(&surface->dsc_header_comments, sizeof(char *));
 	_cairo_array_init(&surface->dsc_setup_comments, sizeof(char *));
 	_cairo_array_init(&surface->dsc_page_setup_comments, sizeof(char *));
-
 	surface->dsc_comment_target = &surface->dsc_header_comments;
-
-	surface->paginated_surface = _cairo_paginated_surface_create(
-	    &surface->base,
-	    CAIRO_CONTENT_COLOR_ALPHA,
-	    &cairo_ps_surface_paginated_backend);
+	surface->paginated_surface = _cairo_paginated_surface_create( &surface->base, CAIRO_CONTENT_COLOR_ALPHA, &cairo_ps_surface_paginated_backend);
 	status = surface->paginated_surface->status;
 	if(status == CAIRO_STATUS_SUCCESS) {
 		/* paginated keeps the only reference to surface now, drop ours */
 		cairo_surface_destroy(&surface->base);
 		return surface->paginated_surface;
 	}
-
 	_cairo_scaled_font_subsets_destroy(surface->font_subsets);
 CLEANUP_OUTPUT_STREAM:
 	status_ignored = _cairo_output_stream_destroy(surface->stream);
@@ -923,7 +912,6 @@ CLEANUP_SURFACE:
 CLEANUP:
 	/* destroy stream on behalf of caller */
 	status_ignored = _cairo_output_stream_destroy(stream);
-
 	return _cairo_surface_create_in_error(status);
 }
 

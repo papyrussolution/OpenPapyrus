@@ -40,10 +40,9 @@ static int send_fp_chars(void * arg, const void * buf, int len)
 		return 0;
 	return 1;
 }
-
 #endif
 
-typedef int char_io (void * arg, const void * buf, int len);
+typedef int char_io(void * arg, const void * buf, int len);
 /*
  * This function handles display of strings, one character at a time. It is
  * passed an ulong for each character because it could come from 2 or
@@ -197,8 +196,7 @@ static int do_hex_dump(char_io * io_ch, void * arg, uchar * buf, int buflen)
  * encoding. This uses the RFC2253 #01234 format.
  */
 
-static int do_dump(ulong lflags, char_io * io_ch, void * arg,
-    const ASN1_STRING * str)
+static int do_dump(ulong lflags, char_io * io_ch, void * arg, const ASN1_STRING * str)
 {
 	/*
 	 * Placing the ASN1_STRING in a temp ASN1_TYPE allows the DER encoding to
@@ -207,7 +205,6 @@ static int do_dump(ulong lflags, char_io * io_ch, void * arg,
 	ASN1_TYPE t;
 	uchar * der_buf, * p;
 	int outlen, der_len;
-
 	if(!io_ch(arg, "#", 1))
 		return -1;
 	/* If we don't dump DER encoding just dump content octets */
@@ -254,9 +251,7 @@ static const signed char tag2nbyte[] = {
  * escape and display options. Returns number of characters written or -1 if
  * an error occurred.
  */
-
-static int do_print_ex(char_io * io_ch, void * arg, ulong lflags,
-    const ASN1_STRING * str)
+static int do_print_ex(char_io * io_ch, void * arg, ulong lflags, const ASN1_STRING * str)
 {
 	int outlen, len;
 	int type;
@@ -524,12 +519,10 @@ int ASN1_STRING_print_ex_fp(FILE * fp, const ASN1_STRING * str, ulong flags)
 }
 
 #endif
-
 /*
  * Utility function: convert any string type to UTF8, returns number of bytes
  * in output string or a negative error code
  */
-
 int ASN1_STRING_to_UTF8(uchar ** out, const ASN1_STRING * in)
 {
 	ASN1_STRING stmp, * str = &stmp;
@@ -546,9 +539,7 @@ int ASN1_STRING_to_UTF8(uchar ** out, const ASN1_STRING * in)
 	stmp.data = NULL;
 	stmp.length = 0;
 	stmp.flags = 0;
-	ret =
-	    ASN1_mbstring_copy(&str, in->data, in->length, mbflag,
-	    B_ASN1_UTF8STRING);
+	ret = ASN1_mbstring_copy(&str, in->data, in->length, mbflag, B_ASN1_UTF8STRING);
 	if(ret < 0)
 		return ret;
 	*out = stmp.data;
@@ -564,7 +555,6 @@ int asn1_valid_host(const ASN1_STRING * host)
 	int i;
 	char width = -1;
 	unsigned short chflags = 0, prevchflags;
-
 	if(type > 0 && type < 31)
 		width = tag2nbyte[type];
 	if(width == -1 || hostlen == 0)

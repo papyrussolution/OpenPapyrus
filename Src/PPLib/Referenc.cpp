@@ -253,10 +253,10 @@ int SLAPI Reference::FreeDynamicObj(PPID dynObjType, int use_ta)
 		THROW(tra);
 		THROW(GetItem(PPOBJ_DYNAMICOBJS, dynObjType) > 0);
 		THROW_DB(deleteRec());
-		THROW(RemoveProp(PPOBJ_DYNAMICOBJS, dynObjType, 0, 0));
+		THROW(RemoveProperty(PPOBJ_DYNAMICOBJS, dynObjType, 0, 0));
 		for(id = 0; (r = EnumItems(dynObjType, &id)) > 0;) {
 			THROW_DB(deleteRec());
-			THROW(RemoveProp(dynObjType, id, 0, 0));
+			THROW(RemoveProperty(dynObjType, id, 0, 0));
 		}
 		THROW(r);
 		THROW(tra.Commit());
@@ -564,14 +564,14 @@ int SLAPI Reference::RemoveItem(PPID obj, PPID id, int use_ta)
 		THROW(r != DBRPL_ERROR);
 		THROW_PP(r != DBRPL_CANCEL, PPERR_USERBREAK);
 		THROW_DB(deleteFrom(this, 0, (this->ObjType == obj && this->ObjID == id)));
-		THROW(RemoveProp(obj, id, 0, 0));
+		THROW(RemoveProperty(obj, id, 0, 0));
 		THROW(tra.Commit());
 	}
 	CATCHZOK
 	return ok;
 }
 
-int SLAPI Reference::RemoveProp(PPID obj, PPID id, PPID prop, int use_ta)
+int SLAPI Reference::RemoveProperty(PPID obj, PPID id, PPID prop, int use_ta)
 {
 	int    ok = 1;
 	{
@@ -681,7 +681,7 @@ int SLAPI Reference::_SearchProp(PPID obj, PPID id, PPID prop, int spMode, void 
 	return ok;
 }
 
-int SLAPI Reference::GetProp(PPID obj, PPID id, PPID prop, void * b, size_t s)
+int SLAPI Reference::GetProperty(PPID obj, PPID id, PPID prop, void * b, size_t s)
 {
 	return _SearchProp(obj, id, prop, spEq, b, s);
 }
@@ -708,7 +708,7 @@ int SLAPI Reference::GetPropActualSize(PPID obj, PPID id, PPID prop, size_t * pA
 	return ok;
 }
 
-int SLAPI Reference::EnumProps(PPID obj, PPID id, PPID * prop, void * b, uint s)
+int SLAPI Reference::EnumProperties(PPID obj, PPID id, PPID * prop, void * b, uint s)
 {
 	int    sp = (*prop == 0) ? spGe : spNext;
 	int    r = _SearchProp(obj, id, *prop, sp, b, s);
@@ -915,7 +915,7 @@ int SLAPI Reference::PutPropArray(PPID obj, PPID id, PPID prop, const SVectorBas
 
 int SLAPI Reference::GetConfig(PPID obj, PPID id, PPID cfgID, void * b, uint s)
 {
-	int    r = GetProp(obj, id, cfgID, b, s);
+	int    r = GetProperty(obj, id, cfgID, b, s);
 	if(r < 0 && oneof2(obj, PPOBJ_USRGRP, PPOBJ_USR))
 		if(GetItem(obj, id) > 0) {
 			PPID   prev_level_id = (obj == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
@@ -965,7 +965,7 @@ int SLAPI Reference::EditSecur(PPID obj, PPID id, PPSecurPacket * pPack, int isN
 		THROW(isNew ? AddItem(obj, &id, &pPack->Secur, 0) : UpdateItem(obj, id, &pPack->Secur, 1, 0));
 		THROW(pPack->Paths.Put(obj, id));
 		if(is_user && pPack->Secur.Flags & USRF_INHCFG) {
-			THROW(RemoveProp(obj, id, PPPRP_CFG, 0));
+			THROW(RemoveProperty(obj, id, PPPRP_CFG, 0));
 		}
 		else {
 			THROW(SetConfig(obj, id, PPPRP_CFG, &pPack->Config, sizeof(pPack->Config)));
@@ -1273,15 +1273,8 @@ int SLAPI PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 		{
 			class OraReader {
 			public:
-				PPID   ObjType;
-				PPID   ObjID;
-				int    IgnoreCheckSum;
-
-				OraReader(PPID objType, PPID objID, int ignoreCheckSum)
+				OraReader(PPID objType, PPID objID, int ignoreCheckSum) : ObjType(objType), ObjID(objID), IgnoreCheckSum(ignoreCheckSum)
 				{
-					ObjType = objType;
-					ObjID = objID;
-					IgnoreCheckSum = ignoreCheckSum;
 				}
 				int Read(PPID propID, ulong * pCheckSum, ObjRestrictArray ** ppList)
 				{
@@ -1299,6 +1292,9 @@ int SLAPI PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 					CATCHZOK
 					return ok;
 				}
+				PPID   ObjType;
+				PPID   ObjID;
+				int    IgnoreCheckSum;
 			};
 			OraReader orar(P_Rt->SecurObj, P_Rt->SecurID, ignoreCheckSum);
 			THROW(orar.Read(PPPRP_RT_OPLIST,  &P_Rt->ChkSumOpList, &P_OpList));
@@ -1332,7 +1328,7 @@ int SLAPI PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 
 int SLAPI PPRights::Remove(PPID securType, PPID securID)
 {
-	return PPRef->RemoveProp(securType, securID, PPPRP_RTCOMM, 0);
+	return PPRef->RemoveProperty(securType, securID, PPPRP_RTCOMM, 0);
 }
 
 int SLAPI PPRights::Put(PPID securType, PPID securID)

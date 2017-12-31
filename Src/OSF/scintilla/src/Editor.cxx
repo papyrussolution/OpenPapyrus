@@ -14,6 +14,22 @@
 using namespace Scintilla;
 #endif
 
+AutoLineLayout::AutoLineLayout(LineLayoutCache &llc_, LineLayout *ll_) : llc(llc_), ll(ll_) 
+{
+}
+
+AutoLineLayout::~AutoLineLayout() 
+{
+	llc.Dispose(ll);
+	ll = 0;
+}
+
+void AutoLineLayout::Set(LineLayout * ll_) 
+{
+	llc.Dispose(ll);
+	ll = ll_;
+}
+
 AutoSurface::AutoSurface(Editor * ed, int technology /*= -1*/) : surf(0)
 {
 	if(ed->wMain.GetID()) {
@@ -120,6 +136,26 @@ void Editor::SelectionText::Copy(const std::string &s_, int codePage_, int chara
 void FASTCALL Editor::SelectionText::Copy(const SelectionText &other)
 {
 	Copy(other.s, other.codePage, other.characterSet, other.rectangular, other.lineCopy);
+}
+
+const char * Editor::SelectionText::Data() const
+{
+	return s.c_str();
+}
+
+size_t Editor::SelectionText::Length() const
+{
+	return s.length();
+}
+
+size_t Editor::SelectionText::LengthWithTerminator() const
+{
+	return s.length() + 1;
+}
+
+bool Editor::SelectionText::Empty() const
+{
+	return s.empty();
 }
 
 void Editor::SelectionText::FixSelectionForClipboard()
@@ -1185,7 +1221,7 @@ Editor::XYScrollPosition::XYScrollPosition(int xOffset_, int topLine_) : xOffset
 {
 }
 
-bool Editor::XYScrollPosition::operator == (const XYScrollPosition & other) const
+bool FASTCALL Editor::XYScrollPosition::operator == (const XYScrollPosition & other) const
 {
 	return (xOffset == other.xOffset) && (topLine == other.topLine);
 }
@@ -7181,10 +7217,11 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_SETREPRESENTATION:
 		    reprs.SetRepresentation(reinterpret_cast<const char *>(wParam), CharPtrFromSPtr(lParam));
 		    break;
-		case SCI_GETREPRESENTATION: {
-		    const Representation * repr = reprs.RepresentationFromCharacter(reinterpret_cast<const char *>(wParam), UTF8MaxBytes);
-		    return repr ? StringResult(lParam, repr->stringRep.c_str()) : 0;
-	    }
+		case SCI_GETREPRESENTATION: 
+			{
+				const SpecialRepresentations::Representation * repr = reprs.RepresentationFromCharacter(reinterpret_cast<const char *>(wParam), UTF8MaxBytes);
+				return repr ? StringResult(lParam, repr->stringRep.c_str()) : 0;
+			}
 		case SCI_CLEARREPRESENTATION:
 		    reprs.ClearRepresentation(reinterpret_cast<const char *>(wParam));
 		    break;

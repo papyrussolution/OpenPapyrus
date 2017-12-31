@@ -1303,13 +1303,13 @@ int SLAPI PersonCore::GetELinks(PPID id, PPELinkArray * ary)
 	PropertyTbl::Rec * buf = 0;
 	ary->clear();
 	THROW_MEM(buf = (PropertyTbl::Rec *)SAlloc::M(sz));
-	THROW(r = p_ref->GetProp(PPOBJ_PERSON, id, PSNPRP_ELINK, buf, sz));
+	THROW(r = p_ref->GetProperty(PPOBJ_PERSON, id, PSNPRP_ELINK, buf, sz));
 	if(r > 0) {
 		size_t i = sz;
 		sz = (size_t)buf->Val2 + PROPRECFIXSIZE;
 		if(i < sz) {
 			THROW_MEM(buf = (PropertyTbl::Rec *)SAlloc::R(buf, sz));
-			THROW(p_ref->GetProp(PPOBJ_PERSON, id, PSNPRP_ELINK, buf, sz) > 0);
+			THROW(p_ref->GetProperty(PPOBJ_PERSON, id, PSNPRP_ELINK, buf, sz) > 0);
 		}
 		THROW(Helper_GetELinksFromPropRec(buf, sz, ary));
 	}

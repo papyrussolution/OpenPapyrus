@@ -39,7 +39,6 @@
  * Contributor(s):
  *	Owen Taylor <otaylor@redhat.com>
  */
-
 #include "cairoint.h"
 #pragma hdrstop
 
@@ -120,17 +119,15 @@ static const char utf8_skip_data[256] = {
  * If @p does not point to a valid UTF-8 encoded character, results are
  * undefined.
  **/
-static uint32_t _utf8_get_char(const uchar * p)
+static uint32_t FASTCALL _utf8_get_char(const uchar * p)
 {
 	int i, mask = 0, len;
 	uint32_t result;
 	uchar c = (uchar)*p;
-
 	UTF8_COMPUTE(c, mask, len);
 	if(len == -1)
 		return (uint32_t)-1;
 	UTF8_GET(result, p, i, mask, len);
-
 	return result;
 }
 
@@ -170,7 +167,6 @@ static uint32_t FASTCALL _utf8_get_char_extended(const uchar * p, long max_len)
 	else {
 		return (uint32_t)-1;
 	}
-
 	if(max_len >= 0 && len > max_len) {
 		for(i = 1; i < max_len; i++) {
 			if((((uchar*)p)[i] & 0xc0) != 0x80)
@@ -178,24 +174,19 @@ static uint32_t FASTCALL _utf8_get_char_extended(const uchar * p, long max_len)
 		}
 		return (uint32_t)-2;
 	}
-
 	for(i = 1; i < len; ++i) {
 		uint32_t ch = ((uchar*)p)[i];
-
 		if((ch & 0xc0) != 0x80) {
 			if(ch)
 				return (uint32_t)-1;
 			else
 				return (uint32_t)-2;
 		}
-
 		wc <<= 6;
 		wc |= (ch & 0x3f);
 	}
-
 	if(UTF8_LENGTH(wc) != len)
 		return (uint32_t)-1;
-
 	return wc;
 }
 
@@ -250,30 +241,22 @@ int FASTCALL _cairo_utf8_get_char_validated(const char * p, uint32_t * unicode)
  *   successfully converted. %CAIRO_STATUS_INVALID_STRING if an
  *   invalid sequence was found.
  **/
-cairo_status_t _cairo_utf8_to_ucs4(const char * str,
-    int len,
-    uint32_t  ** result,
-    int        * items_written)
+cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32_t ** result, int * items_written)
 {
 	uint32_t * str32 = NULL;
-	int n_chars, i;
-	const uchar * in;
+	int i;
 	const uchar * const ustr = (const uchar*)str;
-
-	in = ustr;
-	n_chars = 0;
+	const uchar * in = ustr;
+	int n_chars = 0;
 	while((len < 0 || ustr + len - in > 0) && *in) {
 		uint32_t wc = _utf8_get_char_extended(in, ustr + len - in);
 		if(wc & 0x80000000 || !UNICODE_VALID(wc))
 			return _cairo_error(CAIRO_STATUS_INVALID_STRING);
-
 		n_chars++;
 		if(n_chars == INT_MAX)
 			return _cairo_error(CAIRO_STATUS_INVALID_STRING);
-
 		in = UTF8_NEXT_CHAR(in);
 	}
-
 	if(result) {
 		str32 = (uint32_t *)_cairo_malloc_ab(n_chars + 1, sizeof(uint32_t));
 		if(!str32)
@@ -284,13 +267,10 @@ cairo_status_t _cairo_utf8_to_ucs4(const char * str,
 			in = UTF8_NEXT_CHAR(in);
 		}
 		str32[i] = 0;
-
 		*result = str32;
 	}
 
-	if(items_written)
-		*items_written = n_chars;
-
+	ASSIGN_PTR(items_written, n_chars);
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -308,10 +288,8 @@ cairo_status_t _cairo_utf8_to_ucs4(const char * str,
 int FASTCALL _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8)
 {
 	int bytes;
-	char * p;
 	if(unicode < 0x80) {
-		if(utf8)
-			*utf8 = unicode;
+		ASSIGN_PTR(utf8, unicode);
 		return 1;
 	}
 	else if(unicode < 0x800) {
@@ -326,15 +304,14 @@ int FASTCALL _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8)
 	else {
 		return 0;
 	}
-	if(!utf8)
-		return bytes;
-	p = utf8 + bytes;
-	while(p > utf8) {
-		*--p = 0x80 | (unicode & 0x3f);
-		unicode >>= 6;
+	if(utf8) {
+		char * p = utf8 + bytes;
+		while(p > utf8) {
+			*--p = 0x80 | (unicode & 0x3f);
+			unicode >>= 6;
+		}
+		*p |= 0xf0 << (4 - bytes);
 	}
-	*p |= 0xf0 << (4 - bytes);
-
 	return bytes;
 }
 
@@ -360,18 +337,13 @@ int FASTCALL _cairo_ucs4_to_utf8(uint32_t unicode, char * utf8)
  *   successfully converted. %CAIRO_STATUS_INVALID_STRING if an
  *   an invalid sequence was found.
  **/
-cairo_status_t _cairo_utf8_to_utf16(const char * str,
-    int len,
-    uint16 ** result,
-    int       * items_written)
+cairo_status_t _cairo_utf8_to_utf16(const char * str, int len, uint16 ** result, int * items_written)
 {
 	uint16 * str16 = NULL;
-	int n16, i;
-	const uchar * in;
+	int i;
 	const uchar * const ustr = (const uchar*)str;
-
-	in = ustr;
-	n16 = 0;
+	const uchar * in = ustr;
+	int n16 = 0;
 	while((len < 0 || ustr + len - in > 0) && *in) {
 		uint32_t wc = _utf8_get_char_extended(in, ustr + len - in);
 		if(wc & 0x80000000 || !UNICODE_VALID(wc))
@@ -387,11 +359,9 @@ cairo_status_t _cairo_utf8_to_utf16(const char * str,
 	str16 = (uint16 *)_cairo_malloc_ab(n16 + 1, sizeof(uint16));
 	if(!str16)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	in = ustr;
 	for(i = 0; i < n16; ) {
 		uint32_t wc = _utf8_get_char(in);
-
 		if(wc < 0x10000) {
 			str16[i++] = wc;
 		}
@@ -399,16 +369,11 @@ cairo_status_t _cairo_utf8_to_utf16(const char * str,
 			str16[i++] = (wc - 0x10000) / 0x400 + 0xd800;
 			str16[i++] = (wc - 0x10000) % 0x400 + 0xdc00;
 		}
-
 		in = UTF8_NEXT_CHAR(in);
 	}
-
 	str16[i] = 0;
-
 	*result = str16;
-	if(items_written)
-		*items_written = n16;
-
+	ASSIGN_PTR(items_written, n16);
 	return CAIRO_STATUS_SUCCESS;
 }
 

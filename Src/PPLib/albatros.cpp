@@ -866,7 +866,8 @@ int SLAPI ImportOrders()
 	if(CONFIRM(PPCFM_DELOUTFILES))
 		clean = 1;
 	PPWait(1);
-	THROW(GetFilesFromMailServer(cfg.Hdr.MailAccID, path_in, SMailMessage::fPpyOrder, clean, 1 /* dele msg */));
+	// @v9.8.11 GetFilesFromMailServer-->GetFilesFromMailServer2
+	THROW(GetFilesFromMailServer2(cfg.Hdr.MailAccID, path_in, SMailMessage::fPpyOrder, clean, 1 /* dele msg */));
 	THROW(fary.Scan(path_in.SetLastSlash(), "*" ORDEXT));
 	for(j = 0; fary.Enum(&j, 0, &file_path);) {
 		int    r;
