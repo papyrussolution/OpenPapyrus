@@ -71,7 +71,7 @@ int SCDBObjProgram::GetHostProgramVer(uint32 * pVer)
 				ok = 1;
 			}
 		}
-		ZDELETE(p_buf);
+		ZDELETEARRAY(p_buf);
 	}
 	ASSIGN_PTR(pVer, ver);
 	return ok;

@@ -1,5 +1,5 @@
 // PPREPORT.CPP
-// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -15,7 +15,7 @@
 #define VAR_DBF_NAME  "rpt_var.dbf"
 //
 // Prototype
-int  SLAPI CopyDataStruct(const char *pSrc, const char *pDest, const char *pFileName);
+int  FASTCALL CopyDataStruct(const char *pSrc, const char *pDest, const char *pFileName);
 int  SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName);
 //
 //
@@ -69,22 +69,14 @@ static int FindExeByExt(const char * pExt, char * pExe, size_t buflen, char * pA
 //
 //
 //
-PPReportEnv::PPReportEnv()
+PPReportEnv::PPReportEnv() : Sort(0), PrnFlags(0)
 {
-	Sort = 0;
-	PrnFlags = 0;
 }
 //
 //
 //
-SLAPI PrnDlgAns::PrnDlgAns(const char * pReportName)
+SLAPI PrnDlgAns::PrnDlgAns(const char * pReportName) : Dest(0), Selection(0), NumCopies(1), Flags(0), P_ReportName(pReportName), P_DefPrnForm(0)
 {
-	Dest = 0;
-	Selection = 0;
-	NumCopies = 1;
-	Flags = 0;
-	P_ReportName = pReportName;
-	P_DefPrnForm = 0;
 }
 
 SLAPI PrnDlgAns::~PrnDlgAns()
@@ -697,9 +689,8 @@ int SLAPI LoadExportOptions(const char * pReportName, PEExportOptions * pOptions
 	return ok;
 }
 
-SLAPI ReportDescrEntry::ReportDescrEntry()
+SLAPI ReportDescrEntry::ReportDescrEntry() : Flags(0)
 {
-	Flags = 0;
 }
 
 // static
@@ -1309,7 +1300,7 @@ int SLAPI SReport::createVarDataFile(SString & rFileName, SCollection * fldIDs)
 	}
 	dbf->create(flds_count, flds);
 	delete dbf;
-	delete flds;
+	delete [] flds;
 	return 1;
 }
 

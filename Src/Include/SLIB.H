@@ -1,5 +1,5 @@
 // SLIB.H
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #ifndef __SLIB_H
@@ -1539,8 +1539,7 @@ struct SDosDate {
 //   Hour values are expressed as the absolute value of the fractional part of the number.
 //   The following table illustrates this.
 //
-struct OleDate {
-	// @noconstructor
+struct OleDate { // @noctr
 	operator double() const { return v; }
 	double v;
 };
@@ -1549,8 +1548,7 @@ struct OleDate {
 //   Два старших байта - год, средний байт - месяц, самый младший - день.
 //   |yyyy|mm|dd|
 //
-struct LDATE {
-	// @noconstructor
+struct LDATE { // @noctr
 	enum {
 		cZero = 0,         // Дата имеет нулевое значение
 		cNormal,           // Дата имеет правильное актуальное значение
@@ -1691,10 +1689,8 @@ private:
 //   Специализированное представление той же сущности, для которой применяется CALDATE.
 //   Нюанс использования состоит в очень сжатой форме хранения данного класса (2 байта).
 //
-class WorkDate { // @size=2
+class WorkDate { // @noctr @size=2
 public:
-	// @noconstructor
-
 	static int    FASTCALL ShrinkDate(LDATE dt);
 	static LDATE  FASTCALL ExpandDate(int16 sdt);
 
@@ -1842,11 +1838,8 @@ struct STimeChunk {
 //
 // Descr: Класс, определяющий календарные периодичности.
 //
-class DateRepeating { // @persistent @size=8
+class DateRepeating { // @persistent @noctr @novtbl @size=8
 public:
-	//
-	// @noconstructor @novtbl
-	//
 	static int FASTCALL IsValidPrd(int prd);
 
 	int    FASTCALL operator == (const DateRepeating & rS) const;
@@ -2873,7 +2866,7 @@ struct IntRange { // @persistent @size=8
 //
 //
 //
-struct SSzChunk { // @flat @noconstructor @novtbl
+struct SSzChunk { // @flat @noctr @novtbl
 	SSzChunk & Clear();
 	SSzChunk & Set(int begin, int len);
 	SSzChunk & SetRange(int begin, int end);
@@ -2888,7 +2881,7 @@ struct SSzChunk { // @flat @noconstructor @novtbl
 //
 //
 //
-struct RealRange { // @persistent @flat @size=16 @noconstructor @novtbl
+struct RealRange { // @persistent @flat @noctr @novtbl @size=16 
 	int    SLAPI IsZero() const;
 	int    FASTCALL IsEqual(const RealRange & rS) const;
 	double SLAPI GetDistance() const;
@@ -3035,8 +3028,7 @@ int    FASTCALL checkdrange(LDATE dt, LDATE low, LDATE upp);
 //
 // Descr: Величина, ассоциированная с единицей измерения.
 //
-struct USize {
-	// @noconstructor @novtbl
+struct USize { // @noctr @novtbl
 	USize & Set(double s, int unit = 0, int dir = DIREC_UNKN);
 	void   SetInvalid();
 	int    IsValid() const;
@@ -4042,9 +4034,9 @@ struct SPathStruc {
 	//  !0 - позиция следующего за точкой первого символа расширения в rPath
 	//
 	static uint FASTCALL GetExt(const SString & rPath, SString * pExt);
-	static int ReplaceExt(SString & rPath, const char * pExt, int force);
-	static int ReplacePath(SString & rPath, const char * pNewPath, int force);
-	static int GetRelativePath(const char * pFrom, uint dwAttrFrom, const char * pTo, uint dwAttrTo, SString & rPath);
+	static int  FASTCALL ReplaceExt(SString & rPath, const char * pExt, int force);
+	static int  ReplacePath(SString & rPath, const char * pNewPath, int force);
+	static int  GetRelativePath(const char * pFrom, uint dwAttrFrom, const char * pTo, uint dwAttrTo, SString & rPath);
 	//
 	// Descr: Флаги функции SPathStruc::NormalizePath
 	//
@@ -4111,7 +4103,7 @@ struct SVerT { // @persistent Size=4
 	int    SLAPI IsLt(int, int, int) const;
 	int    SLAPI IsGt(int, int, int) const;
 	int    SLAPI IsEq(int, int, int) const;
-	int    SLAPI Cmp(const SVerT *) const;
+	int    FASTCALL Cmp(const SVerT *) const;
 	SString FASTCALL ToStr(SString & rBuf) const;
 	//
 	// Descr: Преобразует строковое представление версии в данный экземпляр объекта.
@@ -4346,10 +4338,10 @@ extern const char * monthNames[NUM_MONTHES];
 //
 // Functions for date formats convertion
 //
-void   SLAPI _encodedate(int d, int m, int y, void *, int);
-void   SLAPI _decodedate(int * pD, int * pM, int * pY, const void *, int);
-int    SLAPI _checkdate(int d, int m, int y);
-char * SLAPI _datefmt(int d, int m, int y, int format, char *);
+void   FASTCALL _encodedate(int d, int m, int y, void *, int);
+void   FASTCALL _decodedate(int * pD, int * pM, int * pY, const void *, int);
+int    FASTCALL _checkdate(int d, int m, int y);
+char * FASTCALL _datefmt(int d, int m, int y, int format, char *);
 void   SLAPI encodedate(int, int, int, void *);
 void   SLAPI decodedate(int *, int *, int *, const void *);
 void   SLAPI decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME *);
@@ -4389,11 +4381,11 @@ int   FASTCALL getcurtime(LTIME *);
 //
 // Descr: Возвращает текущую системную дату
 //
-LDATE SLAPI    getcurdate_();
+LDATE FASTCALL getcurdate_();
 //
 // Descr: Возвращает текущее системное время //
 //
-LTIME SLAPI    getcurtime_();
+LTIME FASTCALL getcurtime_();
 int   FASTCALL getcurdatetime(LDATETIME *);
 int   FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm);
 LDATETIME FASTCALL getcurdatetime_();
@@ -4468,11 +4460,11 @@ int   FASTCALL GetDayOfWeekByText(const char * pText);
 //
 // Time format convertion
 //
-int   SLAPI _encodetime(int h, int m, int s, int ts, void *, int);
-int   SLAPI _decodetime(int * h, int * m, int * s, int * ts, void *, int);
-int   SLAPI encodetime(int h, int m, int s, int ts, void *);
-void  SLAPI decodetime(int * h, int * m, int * s, int * ts, void *);
-LTIME SLAPI encodetime(int h, int m, int s, int ts);
+int   FASTCALL _encodetime(int h, int m, int s, int ts, void *, int);
+int   FASTCALL _decodetime(int * h, int * m, int * s, int * ts, void *, int);
+int   FASTCALL encodetime(int h, int m, int s, int ts, void *);
+void  FASTCALL decodetime(int * h, int * m, int * s, int * ts, void *);
+LTIME FASTCALL encodetime(int h, int m, int s, int ts);
 /*
 	Result of difftime:
 		(dim == 1) : hours
@@ -4480,7 +4472,7 @@ LTIME SLAPI encodetime(int h, int m, int s, int ts);
 		(dim == 3) : seconds
 		(dim == 4) : thousandths of second
 */
-long  SLAPI DiffTime(LTIME t1, LTIME t2, int dim);
+long  FASTCALL DiffTime(LTIME t1, LTIME t2, int dim);
 long  SLAPI diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long * pDiffDays);
 long  SLAPI diffdatetime(const LDATETIME &, const LDATETIME &, int dim, long * pDiffDays);
 long  SLAPI diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2);
@@ -5364,7 +5356,7 @@ private:
 
 void SLAPI IdeaEncrypt(const char * password, void * buf, size_t len);
 void SLAPI IdeaDecrypt(const char * password, void * buf, size_t len);
-void SLAPI IdeaRandMem(void * buf, size_t len);
+void FASTCALL IdeaRandMem(void * buf, size_t len);
 //
 // Math
 //
@@ -7516,10 +7508,8 @@ public:
 //   В отличии от SArray крайне примитивен и занимает очень мало памяти.
 //   Так как не содержит конструктора и деструктора, может быть использован в union'ах.
 //
-class SV_Uint32 {
+class SV_Uint32 { // @noctr @nodestructor
 public:
-	// @noconstructor
-	// @nodestructor
 	void   Init();
 	void   Destroy();
 	int    FASTCALL Copy(const SV_Uint32 &);
@@ -9442,11 +9432,11 @@ public:
 	SLAPI  LVect();
 	SLAPI ~LVect();
 	int    SLAPI init(LMIDX dim, const double * pVals = 0);
-	int    SLAPI copy(const LVect &);
+	int    FASTCALL copy(const LVect &);
 	const  char * SLAPI getname() const { return P_Name; }
-	int    SLAPI setname(const char * pName);
+	void   FASTCALL setname(const char * pName);
 	LMIDX  SLAPI size() const { return Dim; }
-	double SLAPI get(LMIDX) const;
+	double FASTCALL get(LMIDX) const;
 	int    SLAPI set(LMIDX, double);
 	int    SLAPI zero(LMIDX = -1);
 
@@ -9472,9 +9462,9 @@ public:
 	SLAPI  LMatrix();
 	SLAPI ~LMatrix();
 	int    SLAPI init(LMIDX numRows, LMIDX numCols);
-	int    SLAPI copy(const LMatrix &);
+	int    FASTCALL copy(const LMatrix &);
 	const  char * SLAPI getname() const { return P_Name; }
-	int    SLAPI setname(const char * pName);
+	void   FASTCALL setname(const char * pName);
 
 	int    SLAPI checktarget(LMIDX row, LMIDX col) const;
 	LMIDX  SLAPI rows() const { return NumRows; }
@@ -9586,8 +9576,8 @@ const LMatrix2D & FASTCALL operator * (const LMatrix2D & rLeft, const LMatrix2D 
 class LMatrix3D {
 public:
 	SLAPI  LMatrix3D();
-	LMatrix3D & operator = (double s);
-	LMatrix3D & operator = (const LMatrix3D & rS);
+	LMatrix3D & FASTCALL operator = (double s);
+	LMatrix3D & FASTCALL operator = (const LMatrix3D & rS);
 	LMatrix3D & SLAPI InitUnit(double v);
 	LMatrix3D & SLAPI InitScale(double x, double y, double z);
 	LMatrix3D & SLAPI InitRotateX(double teta);
@@ -9898,10 +9888,10 @@ uint64 FASTCALL sexpanduint64(const void * pBuf, uint size);
 //
 int    FASTCALL smax(int a, int b);
 int    FASTCALL smin(int a, int b);
-double SLAPI smax(double a, double b);
-double SLAPI smin(double a, double b);
-float  SLAPI smax(float a, float b);
-float  SLAPI smin(float a, float b);
+double FASTCALL smax(double a, double b);
+double FASTCALL smin(double a, double b);
+float  FASTCALL smax(float a, float b);
+float  FASTCALL smin(float a, float b);
 double FASTCALL fdiv100r(double);
 double FASTCALL fdiv100i(long);
 double FASTCALL fdiv1000i(long);
@@ -9911,7 +9901,7 @@ double FASTCALL fdiv1000i(long);
 //   1 - fabs(v1-v2) < epsilon
 //   0 - fabs(v1-v2) >= epsilon
 //
-int SLAPI feqeps(double v1, double v2, double epsilon);
+int    FASTCALL feqeps(double v1, double v2, double epsilon);
 //
 // Descr: ret = (dr != 0) ? (dd / dr) : 0
 //
@@ -10021,14 +10011,14 @@ inline int fsignz(double x) { return (x > 0) ? +1 : ((x < 0) ? -1 : 0); }
 //   1 - пересечение rSrc1 и rSrc2 не пустое
 //   0 - пересечение rSrc1 и rSrc2 пустое (в rDst все координаты обнуляются).
 //
-int FASTCALL SIntersectRect(RECT & rDst, const RECT & rSrc1, const RECT & rSrc2);
+int  FASTCALL SIntersectRect(RECT & rDst, const RECT & rSrc1, const RECT & rSrc2);
 //
 // Descr: Идентифицирует факт пересечения прямоугольников rSrc1 и rSrc2.
 // Returns:
 //   1 - пересечение rSrc1 и rSrc2 не пустое
 //   0 - пересечение rSrc1 и rSrc2 пустое
 //
-int FASTCALL SIntersectRect(const RECT & rSrc1, const RECT & rSrc2);
+int  FASTCALL SIntersectRect(const RECT & rSrc1, const RECT & rSrc2);
 void FASTCALL SInflateRect(RECT & rRect, int cx, int cy);
 //
 //
@@ -10154,11 +10144,8 @@ private:
 //
 //
 //
-class TPoint { // @persistent @store(SSerializeContext) @size=4
+class TPoint { // @persistent @store(SSerializeContext) @noctr @nodestructor @novtbl @size=4
 public:
-	//
-	// @noconstructor @nodestructor @novtbl
-	//
 	operator FPoint () const;
 	uint32 towparam() const;
 	TPoint FASTCALL operator = (TPoint p);
@@ -10247,8 +10234,8 @@ public:
 	//   Если точка содержится в прямоугольнике, но не на границе, то функция возвращает 1000.
 	//
 	int    FASTCALL contains(TPoint p) const;
-	int    operator == (const TRect& r) const;
-	int    operator != (const TRect& r) const;
+	int    FASTCALL operator == (const TRect& r) const;
+	int    FASTCALL operator != (const TRect& r) const;
 
 	TPoint a, b;
 };
@@ -10264,8 +10251,8 @@ public:
 	~SRegion();
 	void   Destroy();
 	int operator !() const;
-	SRegion & operator = (const SRegion & rS);
-	int    operator == (const SRegion & rS) const;
+	SRegion & FASTCALL operator = (const SRegion & rS);
+	int    FASTCALL operator == (const SRegion & rS) const;
 	int    Add(const TRect & rR, int combine);
 	int    Add(const SRegion & rS, int combine);
 	//
@@ -10577,9 +10564,9 @@ struct SColor : public SColorBase {
 extern const SColor ZEROCOLOR;
 
 COLORREF FASTCALL GetColorRef(SColourCollection);
-COLORREF GetGrayColorRef(float whitePart);
-COLORREF LightenColor(COLORREF col, double factor);
-COLORREF DarkenColor(COLORREF col, double factor);
+COLORREF FASTCALL GetGrayColorRef(float whitePart);
+COLORREF FASTCALL LightenColor(COLORREF col, double factor);
+COLORREF FASTCALL DarkenColor(COLORREF col, double factor);
 
 #define MULTALPHA(a,c) (uint8)(((((a)*(c))+0x80)+((((a)*(c))+0x80)>>8))>>8)
 #define PREMULTIPLY_ALPHA_ARGB32(c) { uint32 a = (((c)&0xff000000)>>24); \
@@ -11088,11 +11075,12 @@ int    SLAPI SGetComputerName(SString & rName);
 //
 class SDynLibrary {
 public:
-	SLAPI  SDynLibrary(const char * pFileName = 0);
+	explicit SLAPI  SDynLibrary(const char * pFileName = 0);
 	SLAPI ~SDynLibrary();
 	int    SLAPI IsValid() const;
 	int    FASTCALL Load(const char * pFileName);
-	FARPROC SLAPI GetProcAddr(const char * pProcName, int unicodeSuffix = 0);
+	FARPROC FASTCALL GetProcAddr(const char * pProcName);
+	FARPROC FASTCALL GetProcAddr(const char * pProcName, int unicodeSuffix);
 private:
 	HMODULE H;
 };
@@ -11103,7 +11091,7 @@ class WinRegValue {
 public:
 	friend class WinRegKey;
 
-	SLAPI  WinRegValue(size_t bufSize = 0);
+	explicit SLAPI  WinRegValue(size_t bufSize = 0);
 	SLAPI ~WinRegValue();
 	int    SLAPI  Alloc(size_t);
 	uint   SLAPI  GetType() const { return Type; }
@@ -11270,7 +11258,7 @@ class SCriticalSection {
 public:
 	class Data {
 	public:
-		SLAPI  Data(int dontDestroy = 0);
+		explicit SLAPI Data(int dontDestroy = 0);
 		SLAPI ~Data();
 		void   SLAPI Enter();
 		int    SLAPI TryEnter();
@@ -11719,7 +11707,7 @@ public:
 	};
 	static __int64 SLAPI NSec100Clock();
 
-	SLAPI  SProfile(int singleThreaded = 0);
+	explicit SLAPI SProfile(int singleThreaded = 0);
 	SLAPI ~SProfile();
 	uint64 SLAPI GetAbsTimeMicroseconds();
 protected:
@@ -12560,7 +12548,7 @@ protected:
 
 class SDrawShape : public SDrawFigure { // @persistent @store(SSerializeContext)
 public:
-	SDrawShape(const char * pSid = 0);
+	explicit SDrawShape(const char * pSid = 0);
 	virtual SDrawFigure * Dup() const;
 	virtual int  Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    FASTCALL Copy(const SDrawShape & rS);
@@ -12570,7 +12558,7 @@ public:
 
 class SDrawText : public SDrawFigure { // @persistent @store(SSerializeContext)
 public:
-	SDrawText(const char * pSid = 0);
+	explicit SDrawText(const char * pSid = 0);
 	virtual SDrawFigure * Dup() const;
 	virtual int  Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    FASTCALL Copy(const SDrawText & rS);

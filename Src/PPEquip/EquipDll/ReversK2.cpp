@@ -569,8 +569,7 @@ uchar K2Controller::SendReq(uint16 addr, int cmd, const void * pData, size_t dat
 		req_num = 0;
 	ENDCATCH;
 	// @v8.2.8 (done by destructor) ZDELETE(frame_req.P_Data);
-	if(p_allocated_wr_buf)
-		delete p_allocated_wr_buf;
+	delete [] p_allocated_wr_buf;
 	return req_num;
 }
 

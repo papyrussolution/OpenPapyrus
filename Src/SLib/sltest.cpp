@@ -91,21 +91,21 @@ int SLAPI STestDataArray::ReadBotanTestSequence(int formatVer, const char * pFil
 //
 //
 //
-static SString & catval(long v, const char * pV, SString & rBuf)
+static SString & FASTCALL catval(long v, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').CatEq(pV, v).CatChar(')'); }
-static SString & catval(ulong v, const char * pV, SString & rBuf)
+static SString & FASTCALL catval(ulong v, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').Cat(pV).Eq().Cat(v).CatChar(')'); }
-static SString & catval(int64 v, const char * pV, SString & rBuf)
+static SString & FASTCALL catval(int64 v, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').Cat(pV).Eq().Cat(v).CatChar(')'); }
-static SString & catval(uint64 v, const char * pV, SString & rBuf)
+static SString & FASTCALL catval(uint64 v, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').Cat(pV).Eq().Cat(v).CatChar(')'); }
-static SString & catval(double v, const char * pV, SString & rBuf)
+static SString & FASTCALL catval(double v, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').CatEq(pV, v, MKSFMTD(0, 15, NMBF_NOTRAILZ)).CatChar(')'); }
-static SString & catval(LDATE v, const char * pV, SString & rBuf)
+static SString & FASTCALL catval(LDATE v, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').CatEq(pV, v, DATF_DMY|DATF_CENTURY).CatChar(')'); }
-static SString & catval(const SString & rS, const char * pV, SString & rBuf)
+static SString & FASTCALL catval(const SString & rS, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').CatEq(pV, rS).CatChar(')'); }
-static SString & catval(const char * pS, const char * pV, SString & rBuf)
+static SString & FASTCALL catval(const char * pS, const char * pV, SString & rBuf)
 	{ return rBuf.CatChar('(').CatEq(pV, pS).CatChar(')'); }
 
 int STestCase::_check_nz(int result, const char * pV)

@@ -1078,10 +1078,8 @@ DBTable * SLAPI PrcssrDL200::CreateIterDBTable()
 	ENDCATCH
 	return p_tbl;
 }
-//
-// Prototype (defined in pputil.cpp)
-//
-int SLAPI __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName);
+
+int FASTCALL __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName); // Prototype (pputil.cpp)
 
 int	SLAPI PrcssrDL200::FillHeader()
 {

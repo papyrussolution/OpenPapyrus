@@ -6117,7 +6117,7 @@ static void soap_free_pht(struct soap * soap)
 
 SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_embed(struct soap * soap, const void * p, const struct soap_array * a, int n, const char * tag, int type)
 {
-	struct soap_plist * pp;
+	struct soap_plist * pp = 0;
 	if(soap->version == 2)
 		soap->encoding = 1;
 	int i = a ? soap_array_pointer_lookup(soap, p, a, n, type, &pp) : soap_pointer_lookup(soap, p, type, &pp);
@@ -8851,7 +8851,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_element_id(struct soap * soap, const char * tag, 
 	if(soap->mode&SOAP_XML_TREE)
 		return 0;
 	if(id < 0) {
-		struct soap_plist * pp;
+		struct soap_plist * pp = 0;
 		id = a ? soap_array_pointer_lookup(soap, p, a, n, t, &pp) : soap_pointer_lookup(soap, p, t, &pp);
 		if(id) {
 			if(soap_is_embedded(soap, pp)) {

@@ -1,5 +1,5 @@
 // PP.H
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 // Спасибо за проделанную работу:
@@ -53,7 +53,7 @@
 //      функций. В том числе не могут быть порождены от классов с виртуальными функциями.
 //      Специальный акцент на этом моменте делается из-за потенциальной опасности обнуления
 //      всей структуры целиком, что повлечет разрушение указателя на таблицу виртуальных функций.
-// @noconstructor - помечаются структуры и классы не имеющие и не могущие иметь конструктора.
+// @noctr - помечаются структуры и классы не имеющие и не могущие иметь конструктора.
 //      Пометка важна в случаях, когда структура может входить в union. В этом случае компилятор
 //      (возможно, не любой) выдает ошибку.
 // @nointeract - признак, означающий, что функция или класс никак не взаимодействуют
@@ -333,8 +333,7 @@ typedef LongArray PPIDArray;
 //
 // Descr: Габаритные размеры (mm).
 //
-struct PPDimention {
-	// @noconstructor @novtbl
+struct PPDimention { // @noctr @novtbl
 	PPDimention & Reset();
 	int    operator !() const;
 	int    FASTCALL IsEqual(const PPDimention & rS) const;
@@ -7246,11 +7245,13 @@ int    FASTCALL CheckFiltID(PPID flt, PPID id);
 
 class PPExtStringStorage {
 public:
-	PPExtStringStorage();
-	int    Put(SString & rLine, int fldID, const char * pBuf);
-	int    Get(const SString & rLine, int fldID, SString & rBuf);
-	int    Enum(const SString & rLine, uint * pPos, int * pFldID, SString & rBuf);
+	SLAPI  PPExtStringStorage();
+	int    SLAPI Put(SString & rLine, int fldID, const char * pBuf);
+	int    SLAPI Put(SString & rLine, int fldID, const SString & rBuf);
+	int    SLAPI Get(const SString & rLine, int fldID, SString & rBuf);
+	int    SLAPI Enum(const SString & rLine, uint * pPos, int * pFldID, SString & rBuf);
 private:
+	int    SLAPI Excise(SString & rLine, int fldID);
 	CRegExp Re;
 };
 
@@ -7285,6 +7286,7 @@ protected:
 //
 int    FASTCALL PPCmpExtStrData(int fldID, const SString & rLine1, const SString & rLine2, long options);
 int    FASTCALL PPPutExtStrData(int fldID, SString & rLine, const char * pBuf);
+int    FASTCALL PPPutExtStrData(int fldID, SString & rLine, const SString & rBuf);
 //
 // Descr: преобразует период *pPeriod в пересечение с периодом документов, определенным в правах
 //   пользователя. Если результат является пустым, то возвращает 0 и устанавливает код ошибки (PPERR_NORTPERIOD).
@@ -21535,8 +21537,8 @@ public:
 		PPID    CountryID;
 		SString SubName;
 	};
-	static void * SLAPI MakeExtraParam(int kind, PPID parentID, PPID countryID);
-	static void * SLAPI MakeExtraParam(const PPIDArray & rKindList, PPID parentID, PPID countryID);
+	static void * FASTCALL MakeExtraParam(int kind, PPID parentID, PPID countryID);
+	static void * FASTCALL MakeExtraParam(const PPIDArray & rKindList, PPID parentID, PPID countryID);
 	static int  SLAPI ConvertExtraParam(void * extraPtr, SelFilt * pFilt);
 	static int  SLAPI UniteMaxLike();
 	static SString & SLAPI GetNativeCountryName(SString & rBuf);
@@ -25518,7 +25520,7 @@ public:
 	int    FASTCALL GetGroupCode(SString & rBuf) const;
 	int    SLAPI SetGroupCode(const char *);
 	int    SLAPI GetExtStrData(int fldID, SString & rBuf) const;
-	int    SLAPI PutExtStrData(int fldID, const char * pBuf);
+	int    SLAPI PutExtStrData(int fldID, const SString & rBuf/*const char * pBuf*/);
 	int    SLAPI IsExtRecEmpty() const;
 	GoodsPacketKind SLAPI GetPacketKind() const;
 	int    SLAPI GetArCode(PPID arID, SString & rCode) const;
@@ -28255,7 +28257,7 @@ public:
 	static int SLAPI TransmitData(PPID scaleID);
 	static int SLAPI EncodeIP(const char * pIP, char * pEncodedIP, size_t ipSize);
 	static int SLAPI DecodeIP(const char * pEncodedIP, char * pIP);
-	static void * SLAPI MakeExtraParam(long scaleTypeID, long groupID);
+	static void * FASTCALL MakeExtraParam(long scaleTypeID, long groupID);
 	static int CheckForConnection(const char * pIPAddress, uint timeout, uint attemptCount);
 
 	explicit SLAPI PPObjScale(void * extraPtr = 0);
@@ -28274,7 +28276,7 @@ public:
 	int    SLAPI CheckDup(PPID objID, const PPScale * pRec);
 	int    SLAPI PrepareData(PPID, long flags, PPLogger * pLogger);
 	int    SLAPI TransmitData(PPID, long flags, PPLogger * pLogger);
-	int    SLAPI GetStat(Stat *) const;
+	void   SLAPI GetStat(Stat *) const;
 	//
 	// Descr: Возвращает список устройств, у которых определен префикс штрихкода.
 	//   Результать заноситься в массив pList парами {ID устройства, префикс штрихкода}.
@@ -28300,7 +28302,7 @@ public:
 	int    SLAPI IsPassive(PPID id, PPScale * pScale);
 protected:
 	int    SLAPI SendPlu(PPScale *, const char * pFileName, int updateOnly, PPLogger * pLogger);
-	int    SLAPI InitStat();
+	void   SLAPI InitStat();
 
 	Stat   StatBuf;
 private:
@@ -32531,7 +32533,7 @@ public:
 	//   Если superSessAsSimple, то для суперсессий возвращет TSESK_SESSION
 	//
 	static int    FASTCALL GetSessionKind(const TSessionTbl::Rec & rRec, int superSessAsSimple = 1);
-	static void  * SLAPI MakeExtraParam(PPID superSessID, PPID prcID, int kind);
+	static void * FASTCALL MakeExtraParam(PPID superSessID, PPID prcID, int kind);
 	static int    SLAPI ConvertExtraParam(void * extraPtr, SelFilt * pFilt);
 	//
 	// Descr: Возвращает продолжительность сессии pRec в секундах.
@@ -49058,7 +49060,7 @@ int    FASTCALL PPGetSubStr(const char * pStr, int idx /* 0.. */, char * pBuf, s
 int    FASTCALL PPGetSubStr(uint strID, int idx, SString &);
 int    FASTCALL PPGetSubStr(uint strID, int idx /* 0.. */, char * buf, size_t buflen);
 int    FASTCALL PPCmpSubStr(const char * pStr, int idx /* 0.. */, const char * pTestStr, int ignoreCase);
-int    SLAPI PPSearchSubStr(const char * pStr, int * pIdx, const char * pTestStr, int ignoreCase);
+int    FASTCALL PPSearchSubStr(const char * pStr, int * pIdx, const char * pTestStr, int ignoreCase);
 char * SLAPI numbertotext(double nmb, long fmt, char * pBuf);
 char * FASTCALL PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, char * pBuf, size_t bufLen); // @obsolete
 SString & FASTCALL PPGetWord(uint wordId /* PPWORD_XXX */, int ansiCoding, SString & rBuf);

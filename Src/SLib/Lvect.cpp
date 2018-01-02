@@ -32,7 +32,7 @@ int SLAPI LMatrix::init(LMIDX numRows, LMIDX numCols)
 	}
 }
 
-int SLAPI LMatrix::copy(const LMatrix & s)
+int FASTCALL LMatrix::copy(const LMatrix & s)
 {
 	if(!init(s.NumRows, s.NumCols))
 		return 0;
@@ -42,11 +42,10 @@ int SLAPI LMatrix::copy(const LMatrix & s)
 	}
 }
 
-int SLAPI LMatrix::setname(const char * pName)
+void FASTCALL LMatrix::setname(const char * pName)
 {
 	delete P_Name;
 	P_Name = newStr(pName);
-	return 1;
 }
 
 int SLAPI LMatrix::checktarget(LMIDX row, LMIDX col) const
@@ -197,19 +196,18 @@ int SLAPI LVect::init(LMIDX dim, const double * pVals)
 	return 1;
 }
 
-int SLAPI LVect::copy(const LVect & s)
+int FASTCALL LVect::copy(const LVect & s)
 {
 	return init(s.Dim, s.P_Vals);
 }
 
-int SLAPI LVect::setname(const char * pName)
+void FASTCALL LVect::setname(const char * pName)
 {
 	delete P_Name;
 	P_Name = newStr(pName);
-	return 1;
 }
 
-double SLAPI LVect::get(LMIDX p) const
+double FASTCALL LVect::get(LMIDX p) const
 {
 	return checkupper((uint)p, (uint)Dim) ? P_Vals[p] : 0;
 }
@@ -1067,12 +1065,12 @@ LMatrix3D & SLAPI LMatrix3D::InitUnit(double mult)
 	return *this;
 }
 
-LMatrix3D & LMatrix3D::operator = (double s)
+LMatrix3D & FASTCALL LMatrix3D::operator = (double s)
 {
 	return InitUnit(s);
 }
 
-LMatrix3D & LMatrix3D::operator = (const LMatrix3D & rS)
+LMatrix3D & FASTCALL LMatrix3D::operator = (const LMatrix3D & rS)
 {
 	memcpy(M, rS.M, sizeof(M));
 	return *this;

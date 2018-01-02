@@ -1890,7 +1890,7 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 		ZDELETE(P_XmlT);
 		ZDELETE(P_SoapT);
 	ENDCATCH
-	delete p_dbf_flds;
+	delete [] p_dbf_flds;
 	delete p_dbf_tbl;
 	return ok;
 }

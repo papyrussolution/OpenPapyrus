@@ -1,5 +1,5 @@
 // PPUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @Kernel
 //
 #include <pp.h>
@@ -143,7 +143,7 @@ int FASTCALL PPGetSubStrById(int strId, int subId, SString & rBuf)
 	return ok;
 }
 
-static int __CompareStrings(const char * pStr, const char * pTest, size_t maxCmpLen, int ignoreCase)
+static int FASTCALL __CompareStrings(const char * pStr, const char * pTest, size_t maxCmpLen, int ignoreCase)
 {
 	if(maxCmpLen) {
 		if(ignoreCase) {
@@ -162,7 +162,7 @@ static int __CompareStrings(const char * pStr, const char * pTest, size_t maxCmp
 	return 0;
 }
 
-int SLAPI PPSearchSubStr(const char * pStr, int * pIdx, const char * pTestStr, int ignoreCase)
+int FASTCALL PPSearchSubStr(const char * pStr, int * pIdx, const char * pTestStr, int ignoreCase)
 {
 	int    idx = -1;
 	uint   pos = 0;
@@ -1349,7 +1349,7 @@ DBFCreateFld * SLAPI LoadDBFStruct(uint rezID, uint * pNumFlds)
 		}
 	}
 	CATCH
-		ZDELETE(p_flds);
+		ZDELETEARRAY(p_flds);
 		num_flds = 0;
 	ENDCATCH
 	ASSIGN_PTR(pNumFlds, num_flds);
@@ -1395,45 +1395,58 @@ int FASTCALL LoadSdRecord(uint rezID, SdRecord * pRec, int headerOnly /*=0*/)
 //
 //
 //
-PPExtStringStorage::PPExtStringStorage() : Re("<[0-9]+>")
+SLAPI PPExtStringStorage::PPExtStringStorage() : Re("<[0-9]+>")
 {
 }
 
-int PPExtStringStorage::Put(SString & rLine, int fldID, const char * pBuf)
+int SLAPI PPExtStringStorage::Excise(SString & rLine, int fldID)
 {
-	int    ok = -2;
-	if(isempty(pBuf)) {
-		if(rLine.NotEmpty()) {
-			SStrScan scan(rLine);
-			SString temp_buf;
-			while(ok <= 0 && Re.Find(&scan)) {
-				scan.Get(temp_buf).TrimRight().ShiftLeft();
-				size_t tag_offs = scan.IncrLen();
-				if(temp_buf.ToLong() == fldID) {
-					size_t start = scan.Offs;
-					if(Re.Find(&scan))
-						rLine.Excise(tag_offs, scan.Offs - tag_offs);
-					else
-						rLine.Trim(tag_offs);
-					ok = 1;
-				}
-				/* @v8.8.6 @fix Отсутствие тега fldID не является сбойной ситуацией
+	int    ok = -1;
+	if(rLine.NotEmpty()) {
+		SStrScan scan(rLine);
+		SString temp_buf;
+		while(ok <= 0 && Re.Find(&scan)) {
+			scan.Get(temp_buf).TrimRight().ShiftLeft();
+			const size_t tag_offs = scan.IncrLen();
+			if(temp_buf.ToLong() == fldID) {
+				if(Re.Find(&scan))
+					rLine.Excise(tag_offs, scan.Offs - tag_offs);
 				else
-					ok = 0;
-				*/
+					rLine.Trim(tag_offs);
+				ok = 1;
 			}
 		}
 	}
-	else {
-		while(Put(rLine, fldID, 0) > 0) // @recursion
-			;
+	return ok;
+}
+
+int SLAPI PPExtStringStorage::Put(SString & rLine, int fldID, const char * pBuf)
+{
+	int    ok = -2;
+	while(Excise(rLine, fldID) > 0) {
+		ok = 1;
+	}
+	if(!isempty(pBuf)) {
 		rLine.CatChar('<').Cat(fldID).CatChar('>').Cat(pBuf);
 		ok = 1;
 	}
 	return ok;
 }
 
-int PPExtStringStorage::Get(const SString & rLine, int fldID, SString & rBuf)
+int SLAPI PPExtStringStorage::Put(SString & rLine, int fldID, const SString & rBuf)
+{
+	int    ok = -2;
+	while(Excise(rLine, fldID) > 0) {
+		ok = 1;
+	}
+	if(rBuf.NotEmpty()) {
+		rLine.CatChar('<').Cat(fldID).CatChar('>').Cat(rBuf);
+		ok = 1;
+	}
+	return ok;
+}
+
+int SLAPI PPExtStringStorage::Get(const SString & rLine, int fldID, SString & rBuf)
 {
 	int    ok = -2;
 	rBuf.Z();
@@ -1458,7 +1471,7 @@ int PPExtStringStorage::Get(const SString & rLine, int fldID, SString & rBuf)
 	return ok;
 }
 
-int PPExtStringStorage::Enum(const SString & rLine, uint * pPos, int * pFldID, SString & rBuf)
+int SLAPI PPExtStringStorage::Enum(const SString & rLine, uint * pPos, int * pFldID, SString & rBuf)
 {
 	rBuf.Z();
 
@@ -1524,6 +1537,12 @@ int FASTCALL PPPutExtStrData(int fldID, SString & rLine, const char * pBuf)
 {
 	PPExtStringStorage ess;
 	return ess.Put(rLine, fldID, pBuf);
+}
+
+int FASTCALL PPPutExtStrData(int fldID, SString & rLine, const SString & rBuf)
+{
+	PPExtStringStorage ess;
+	return ess.Put(rLine, fldID, rBuf);
 }
 //
 //
@@ -1796,7 +1815,7 @@ static int SLAPI LoadDbqStringSubst(uint strID, size_t numItems, size_t strSize,
 		long   id = 0;
 		char * p = 0;
 		char   temp_buf[32];
-		if(PPGetSubStr(strID, idx, item_buf, sizeof(item_buf)) > 0)
+		if(PPGetSubStr(strID, idx, item_buf, sizeof(item_buf)) > 0) {
 			if((p = strchr(item_buf, ',')) != 0) {
 				*p++ = 0;
 				id = atol(item_buf);
@@ -1805,6 +1824,7 @@ static int SLAPI LoadDbqStringSubst(uint strID, size_t numItems, size_t strSize,
 				p = item_buf;
 				id = idx + 1;
 			}
+		}
 		else {
 			id = idx+1;
 			itoa(id, temp_buf, 10);
@@ -1818,14 +1838,12 @@ static int SLAPI LoadDbqStringSubst(uint strID, size_t numItems, size_t strSize,
 	return 1;
 }
 
-SLAPI DbqStringSubst::DbqStringSubst(size_t numItems)
+SLAPI DbqStringSubst::DbqStringSubst(size_t numItems) : NumItems(numItems), IsInited(0)
 {
-	NumItems = numItems;
 	Items = new Subst[NumItems];
 	memzero(Items, sizeof(Subst) * NumItems);
 	P_Items = new Subst*[NumItems];
 	memzero(P_Items, sizeof(Subst*) * NumItems);
-	IsInited = 0;
 }
 
 SLAPI DbqStringSubst::~DbqStringSubst()
@@ -2101,33 +2119,15 @@ static SString & SLAPIV Helper_PPFormat(const SString & rFmt, SString * pBuf, /*
 				long   sym  = st.Translate(scan);
 				PPID   obj_id = 0;
 				switch(sym) {
-					case tokInt:
-						buf.Cat(va_arg(pArgList, long));
-						break;
-					case tokHex:
-						buf.Cat(va_arg(pArgList, long)); // @todo HEX
-						break;
-					case tokReal:
-						buf.Cat(va_arg(pArgList, double), MKSFMTD(0, 6, NMBF_NOTRAILZ));
-						break;
-					case tokSStr:
-						buf.Cat(va_arg(pArgList, SString));
-						break;
-					case tokZStr:
-						buf.Cat(va_arg(pArgList, const char *));
-						break;
-					case tokDate:
-						buf.Cat(va_arg(pArgList, LDATE));
-						break;
-					case tokPeriod:
-						buf.Cat(va_arg(pArgList, DateRange), 1);
-						break;
-					case tokTime:
-						buf.Cat(va_arg(pArgList, LTIME));
-						break;
-					case tokDateTime:
-						buf.Cat(va_arg(pArgList, LDATETIME));
-						break;
+					case tokInt: buf.Cat(va_arg(pArgList, long)); break;
+					case tokHex: buf.Cat(va_arg(pArgList, long)); break; // @todo HEX
+					case tokReal: buf.Cat(va_arg(pArgList, double), MKSFMTD(0, 6, NMBF_NOTRAILZ)); break;
+					case tokSStr: buf.Cat(va_arg(pArgList, SString)); break;
+					case tokZStr: buf.Cat(va_arg(pArgList, const char *)); break;
+					case tokDate: buf.Cat(va_arg(pArgList, LDATE)); break;
+					case tokPeriod: buf.Cat(va_arg(pArgList, DateRange), 1); break;
+					case tokTime: buf.Cat(va_arg(pArgList, LTIME)); break;
+					case tokDateTime: buf.Cat(va_arg(pArgList, LDATETIME)); break;
 						//
 						//
 						//
@@ -2430,7 +2430,7 @@ int SLAPI WaitNewFile(const char * pDir, SString & rFile, int notifyTimeout /* =
 	return ok;
 }
 
-int SLAPI __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName)
+int FASTCALL __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName)
 {
 	SString src, dest;
 	(src = pSrcPath).SetLastSlash().Cat(pFileName);
@@ -2438,7 +2438,7 @@ int SLAPI __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const 
 	return fileExists(src) ? copyFileByName(src, dest) : PPSetError(PPERR_NOSRCFILE, src);
 }
 
-int SLAPI CopyDataStruct(const char *pSrc, const char *pDest, const char *pFileName)
+int FASTCALL CopyDataStruct(const char *pSrc, const char *pDest, const char *pFileName)
 {
 	return __CopyFileByPath(pSrc, pDest, pFileName) ? 1 : PPErrorZ();
 }

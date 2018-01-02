@@ -52,13 +52,7 @@ void CRegExp::set_invalid()
 
 int FASTCALL CRegExp::operator == (const CRegExp & rxp) const
 {
-	int    ind = ProgSize; // Get regular expression size
-	if(ind != rxp.ProgSize) // If different size regexp
-		return 0;
-	while(ind-- != 0) // Else while still characters
-		if(P_Program[ind] != rxp.P_Program[ind]) // If regexp are different
-			return 0;
-	return 1;
+	return BIN(ProgSize == rxp.ProgSize && memcmp(P_Program, rxp.P_Program, ProgSize) == 0);
 }
 //
 // Descr: Two CRegExp objects that are deep_equal are both == and have ;
@@ -70,13 +64,8 @@ int FASTCALL CRegExp::operator == (const CRegExp & rxp) const
 //
 int FASTCALL CRegExp::deep_equal(const CRegExp & rxp) const
 {
-	int    ind = ProgSize;						/* Get regular expression size */
-	if(ind != rxp.ProgSize)							/* If different size regexp */
-		return 0;
-	while(ind-- != 0)								/* Else while still characters */
-		if(P_Program[ind] != rxp.P_Program[ind])	/* If regexp are different */
-			return 0;
-	return (startp[0] == rxp.startp[0] && /* Else if same start/end ptrs, */ endp[0] == rxp.endp[0]);
+	return BIN(ProgSize == rxp.ProgSize && memcmp(P_Program, rxp.P_Program, ProgSize) == 0 && 
+		(startp[0] == rxp.startp[0] && /* Else if same start/end ptrs, */ endp[0] == rxp.endp[0]));
 }
 //
 //  The remaining code in this file is derived from the regular expression code
@@ -172,12 +161,11 @@ int FASTCALL CRegExp::deep_equal(const CRegExp & rxp) const
 // Utility definitions.
 //
 #ifndef CHARBITS
-#define UCHARAT(p)	((int) * (const unsigned char *)(p))
+	#define UCHARAT(p)	((int) * (const unsigned char *)(p))
 #else
-#define UCHARAT(p)	((int) *(p) & CHARBITS)
+	#define UCHARAT(p)	((int) *(p) & CHARBITS)
 #endif
 #define FAIL(m)		{ regerror(m); return NULL; }
-
 #define ISMULT(c)	oneof3(c, '*', '+', '?')
 #define META		"^$.[()|?+*\\"
 //

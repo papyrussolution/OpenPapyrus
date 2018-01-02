@@ -118,12 +118,12 @@
 #define ELEMENT_NAME_E4441		"E4441"
 #define ELEMENT_NAME_E4440		"E4440"
 //
-// Значения элементов-идентифиаторов
+// Значения элементов-идентификаторов
 //
 #define ELEMENT_CODE_E0065_ORDERS	"ORDERS"	// Тип сообщения - заказ
 #define ELEMENT_CODE_E0065_RECADV   "RECADV"    // Тип сообщения - уведомление о приемке
 #define ELEMENT_CODE_E0065_ORDRSP	"ORDRSP"	// Тип сообщения - подтверждение заказа
-#define ELEMENT_CODE_E0065_DESADV   "DESADV"    // Тип собщения - уведомление об отправке
+#define ELEMENT_CODE_E0065_DESADV   "DESADV"    // Тип сообщения - уведомление об отправке
 #define ELEMENT_CODE_E0065_APERAK	"APERAK"	// Тип сообщения - проверка статуса
 #define ELEMENT_CODE_E0052_D		"D"			// Версия сообщения
 #define ELEMENT_CODE_E0054_01B		"01B"		// Версия выпуска

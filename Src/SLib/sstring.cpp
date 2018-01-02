@@ -4941,7 +4941,7 @@ uint FASTCALL SPathStruc::GetExt(const SString & rPath, SString * pExt)
 }
 
 // static
-int SPathStruc::ReplaceExt(SString & rPath, const char * pExt, int force)
+int FASTCALL SPathStruc::ReplaceExt(SString & rPath, const char * pExt, int force)
 {
 	int    ok = -1;
 	rPath.Strip();

@@ -50,9 +50,15 @@ public:
 	//
 	virtual int SearchText(const char * pText, long * pID, SString & rBuf);
 	virtual StrAssocArray * GetList(const char * pText);
-	long   GetFlags() const;
-	boolean IsTextMode() const;
-	void   SetTextMode(boolean v);
+	long   GetFlags() const
+	{
+		return Flags;
+	}
+	bool   IsTextMode() const
+	{
+		return CtrlTextMode;
+	}
+	void   SetTextMode(bool v);
 	void   SetData(long id, const char * pText);
 	//
 	// Descr: Производит поиск текста по id, затем вызывает функциию SetData
@@ -65,9 +71,10 @@ public:
 	};
 //protected:
 	long   Flags;
-	boolean CtrlTextMode; // Если true, то при вызове функции TransmitData, данные в элемент управления будут
+	bool   CtrlTextMode; // Если true, то при вызове функции TransmitData, данные в элемент управления будут
 		// устанавливаться в соответствии с внутренним форматом этого элемента.
 		// Иначе, функция будет считать что ей передали id и необходимо произвести поиск текста соотвествующего этому id.
+	uint8  Reserve[3]; // @alignment
 	uint   MinSymbCount;
 	uint   InputCtl;
 	HWND   H_InputDlg;
@@ -83,14 +90,13 @@ enum {
 	mbRightButton = 0x02
 };
 
-struct KeyDownCommand { // @flat @size=4
+struct KeyDownCommand { // @flat @noctr @size=4
 	enum {
 		stateAlt   = 0x0001,
 		stateCtrl  = 0x0002,
 		stateShift = 0x0004
 	};
 	//SLAPI  KeyDownCommand();
-	// @noconstructor
 	void   Clear()
 	{
 		State = 0;
@@ -3511,9 +3517,15 @@ public:
 	ListWindowSmartListBox * listBox() const;
 	int    MoveWindow(HWND linkHwnd, long right);
 	int    MoveWindow(RECT & rRect);
-	ListBoxDef * getDef() const;
+	ListBoxDef * getDef() const
+	{
+		return def;
+	}
 	void   SetToolbar(uint tbId);
-	uint   GetToolbar() const;
+	uint   GetToolbar() const
+	{
+		return TbId;
+	}
 protected:
 	void   prepareForSearching(int firstLetter);
 	ListBoxDef * def;

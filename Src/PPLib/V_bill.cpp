@@ -826,7 +826,7 @@ int SLAPI PPViewBill::Init_(const PPBaseFilt * pFilt)
 	if(!(Filt.Flags & BillFilt::fIgnoreRtPeriod))
 		THROW(AdjustPeriodToRights(Filt.Period, 0));
 	if(IsTempTblNeeded()) {
-		IterOrder ord;
+		IterOrder ord = OrdByDefault;
 		if(Filt.SortOrder == BillFilt::ordByDate)
 			ord = OrdByDate;
 		else if(Filt.SortOrder == BillFilt::ordByCode)

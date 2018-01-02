@@ -272,19 +272,16 @@ int FRect::Contains(FPoint p) const
 //
 //
 //
-FShape::Circle::Circle()
+FShape::Circle::Circle() : R(0.0f)
 {
-	R = 0.0f;
 }
 
-FShape::EllipseArc::EllipseArc()
+FShape::EllipseArc::EllipseArc() : Start(0.0f), End(0.0f)
 {
-	Start = End = 0.0f;
 }
 
-FShape::CircleArc::CircleArc()
+FShape::CircleArc::CircleArc() : Start(0.0f), End(0.0f)
 {
-	Start = End = 0.0f;
 }
 
 uint FShape::Polygon::GetVertexCount() const
@@ -292,12 +289,9 @@ uint FShape::Polygon::GetVertexCount() const
 	return (getCount() / 2);
 }
 
-FShape::FShape(int kind)
+FShape::FShape(int kind) : Kind(kind), Flags(0), P_List(0)
 {
-	Kind = kind;
-	Flags = 0;
 	memzero(P, sizeof(P));
-	P_List = 0;
 }
 
 FShape::~FShape()
@@ -305,9 +299,8 @@ FShape::~FShape()
 	delete P_List;
 }
 
-FShape::FShape(const FShape & rS)
+FShape::FShape(const FShape & rS) : P_List(0)
 {
-    P_List = 0;
     Copy(rS);
 }
 
@@ -709,10 +702,8 @@ TRect::TRect(int ax, int ay, int bx, int by)
 	b.y = by;
 }
 
-TRect::TRect(TPoint p1, TPoint p2)
+TRect::TRect(TPoint p1, TPoint p2) : a(p1), b(p2)
 {
-	a = p1;
-	b = p2;
 }
 
 TRect::TRect(TPoint sz)
@@ -947,12 +938,12 @@ int FASTCALL TRect::contains(TPoint p) const
 	//return (p.x >= a.x && p.x <= b.x && p.y >= a.y && p.y <= b.y);
 }
 
-int TRect::operator == (const TRect& r) const
+int FASTCALL TRect::operator == (const TRect& r) const
 {
 	return (a == r.a && b == r.b);
 }
 
-int TRect::operator != (const TRect& r) const
+int FASTCALL TRect::operator != (const TRect& r) const
 {
 	return (!(*this == r));
 }
@@ -1521,7 +1512,9 @@ SColorBase SColorBase::PremultiplyAlpha()
 
 SColor::SColor()
 {
-	R = G = B = 0;
+	R = 0;
+	G = 0;
+	B = 0;
 	Alpha = 0xff;
 }
 
@@ -1609,13 +1602,13 @@ COLORREF FASTCALL GetColorRef(SColourCollection c)
 	return RGB((c & 0x00ff0000) >> 16, (c & 0x0000ff00) >> 8, c & 0xff);
 }
 
-COLORREF GetGrayColorRef(float whitePart)
+COLORREF FASTCALL GetGrayColorRef(float whitePart)
 {
 	SColor c(whitePart);
 	return (COLORREF)c;
 }
 
-COLORREF LightenColor(COLORREF col, double factor)
+COLORREF FASTCALL LightenColor(COLORREF col, double factor)
 {
 	if(factor > 0.0 && factor <= 1.0){
 		uint8  x = GetRValue(col);
@@ -1630,7 +1623,7 @@ COLORREF LightenColor(COLORREF col, double factor)
 		return col;
 }
 
-COLORREF DarkenColor(COLORREF col, double factor)
+COLORREF FASTCALL DarkenColor(COLORREF col, double factor)
 {
 	if(factor > 0.0 && factor <= 1.0) {
 		uint8  x = GetRValue(col);
@@ -1693,7 +1686,7 @@ int UiRelRect::IsEmpty() const
 //
 //
 //
-SRegion::SRegion()
+SRegion::SRegion() 
 {
 	H = (void *)0;
 }
@@ -1721,7 +1714,7 @@ int SRegion::operator !() const
 	return (!H);
 }
 
-SRegion & SRegion::operator = (const SRegion & rS)
+SRegion & FASTCALL SRegion::operator = (const SRegion & rS)
 {
 	Destroy();
 	if(!!rS) {
@@ -1733,7 +1726,7 @@ SRegion & SRegion::operator = (const SRegion & rS)
 	return *this;
 }
 
-int SRegion::operator == (const SRegion & rS) const
+int FASTCALL SRegion::operator == (const SRegion & rS) const
 {
 	int    c = 0;
 	if(!!H && !!rS.H) {

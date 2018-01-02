@@ -233,7 +233,7 @@ int SLAPI SVerT::IsEq(int j, int n, int r) const
 	return (V == v2.V && R == v2.R) ? 1 : 0;
 }
 
-int SLAPI SVerT::Cmp(const SVerT * pVer) const
+int FASTCALL SVerT::Cmp(const SVerT * pVer) const
 {
 	int ok = 0;
 	if(pVer) {

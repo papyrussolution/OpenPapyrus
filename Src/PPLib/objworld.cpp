@@ -1,5 +1,5 @@
 // OBJWORLD.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -150,11 +150,10 @@ PPID PPObjWorld::SelFilt::GetSingleKind() const
 //
 //
 //static
-void * SLAPI PPObjWorld::MakeExtraParam(int kind, PPID parentID, PPID countryID)
+void * FASTCALL PPObjWorld::MakeExtraParam(int kind, PPID parentID, PPID countryID)
 {
 	uint   mask = 0;
-	if(oneof6(kind, WORLDOBJ_CONTINENT, WORLDOBJ_GENREGION, WORLDOBJ_COUNTRY,
-		WORLDOBJ_REGION, WORLDOBJ_CITY, WORLDOBJ_STREET))
+	if(oneof6(kind, WORLDOBJ_CONTINENT, WORLDOBJ_GENREGION, WORLDOBJ_COUNTRY, WORLDOBJ_REGION, WORLDOBJ_CITY, WORLDOBJ_STREET))
 		mask |= (1U << (kind-1));
 	long   v = (mask << 24);
 	if(countryID)
@@ -165,13 +164,12 @@ void * SLAPI PPObjWorld::MakeExtraParam(int kind, PPID parentID, PPID countryID)
 }
 
 //static
-void * SLAPI PPObjWorld::MakeExtraParam(const PPIDArray & rKindList, PPID parentID, PPID countryID)
+void * FASTCALL PPObjWorld::MakeExtraParam(const PPIDArray & rKindList, PPID parentID, PPID countryID)
 {
 	uint   mask = 0;
 	for(uint i = 0; i < rKindList.getCount(); i++) {
 		uint k = rKindList.get(i);
-		if(oneof3(k, WORLDOBJ_CONTINENT, WORLDOBJ_GENREGION, WORLDOBJ_COUNTRY) ||
-			oneof4(k, WORLDOBJ_REGION, WORLDOBJ_CITY, WORLDOBJ_STREET, WORLDOBJ_CITYAREA)) {
+		if(oneof7(k, WORLDOBJ_CONTINENT, WORLDOBJ_GENREGION, WORLDOBJ_COUNTRY, WORLDOBJ_REGION, WORLDOBJ_CITY, WORLDOBJ_STREET, WORLDOBJ_CITYAREA)) {
 			mask |= (1U << (k-1));
 		}
 	}
@@ -270,7 +268,7 @@ PPObjWorld::SelFilt::SelFilt() : KindFlags(0), ParentID(0), CountryID(0)
 
 class PPObjWorldListWindow : public PPObjListWindow {
 public:
-	static void * MakeExtraParam(PPID curId, void * extraPtr)
+	static void * FASTCALL MakeExtraParam(PPID curId, void * extraPtr)
 	{
 		void * extra_ptr = extraPtr;
 	  	PPObjWorld::SelFilt filt;

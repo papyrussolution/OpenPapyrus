@@ -315,7 +315,7 @@ int SLAPI VCalendar::GetTodo(VCalendar::Todo * pData)
 int SLAPI VCalendar::GetDtm(SString & rBuf, LDATETIME * pDtm)
 {
 	int    ok = -1;
-	LDATETIME dtm;
+	LDATETIME dtm = ZERODATETIME;
 	SString str_dt, str_tm;
 	rBuf.Divide('T', str_dt, str_tm);
 	if(str_dt.Len() == 8) {

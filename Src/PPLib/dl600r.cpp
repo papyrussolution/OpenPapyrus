@@ -517,7 +517,7 @@ int SLAPI DlRtm::InitScope(const DlScope * pScope, int topLevel)
 	return ok;
 }
 
-DlRtm::DlRtm(DlContext * pCtx, DlScope * pScope) : P_Ep(0), P_Ctx(pCtx), DataId(0), P_Data(0), P_HdrScope(0)
+DlRtm::DlRtm(DlContext * pCtx, DlScope * pScope) : P_Ep(0), P_Ctx(pCtx), DataId(0), P_Data(0), P_HdrScope(0), Valid(1)
 {
 	THROW_MEM(Extra = (ExtData *)SAlloc::C((size_t)32, sizeof(ExtData)));
 	IterList.Init();
@@ -526,7 +526,6 @@ DlRtm::DlRtm(DlContext * pCtx, DlScope * pScope) : P_Ep(0), P_Ctx(pCtx), DataId(
 		DataId = pScope->ID;
 		THROW(InitScope(pScope, 1));
 	}
-	Valid = 1;
 	CATCH
 		Valid = 0;
 	ENDCATCH
@@ -882,10 +881,8 @@ static int FASTCALL __FillRecBuf(const DlScope * pScope, char * pRecBuf)
 	}
 	return ok;
 }
-//
-// Prototype (defined in pputil.cpp)
-//
-int SLAPI __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName);
+
+int FASTCALL __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName); // Prototype (pputil.cpp)
 
 SLAPI DlRtm::ExportParam::ExportParam() : P_F(0), Sort(0), Flags(0)
 {

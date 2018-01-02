@@ -4392,7 +4392,7 @@ int SLAPI CheckVersion()
 					ppw_ver.Set(HIWORD(p_file_info->dwProductVersionMS), LOWORD(p_file_info->dwProductVersionMS), HIWORD(p_file_info->dwProductVersionLS));
 				}
 			}
-			ZDELETE(p_buf);
+			ZDELETEARRAY(p_buf);
 		}
 	}
 	if(ppws_ver.Cmp(&ppw_ver) != 0) {

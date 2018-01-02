@@ -1,5 +1,5 @@
 // GOODSDLG.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 // Диалог редактирования товара
 //
@@ -412,7 +412,7 @@ int GoodsFiltCtrlGroup::getData(TDialog * pDlg, void * pData)
 
 void GoodsFiltCtrlGroup::SetupCtrls(TDialog * pDlg)
 {
-	int    by_filt = Filt.IsEmpty() ? 0 : 1;
+	const int by_filt = Filt.IsEmpty() ? 0 : 1;
 	pDlg->disableCtrl(CtlselGoods, by_filt);
 	pDlg->disableCtrl(CtlselGoodsGrp, BIN(DisableGroupSelection || by_filt));
 	if(by_filt) {
@@ -557,7 +557,7 @@ static int SLAPI _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 
 class BarcodeListDialog : public PPListDialog {
 public:
-	BarcodeListDialog() : PPListDialog(DLG_BARCODELIST, CTL_BARCODELIST_LIST)
+	BarcodeListDialog() : PPListDialog(DLG_BARCODELIST, CTL_BARCODELIST_LIST), GoodsID(0), GoodsGrpID(0)
 	{
 	}
 	int    setDTS(BarcodeArray *, PPID goodsID, PPID goodsGrpID);
@@ -3029,15 +3029,16 @@ int SLAPI PPObjGoods::ShowGoodsAsscInfo(PPID goodsID)
 //
 // Диалог фильтра по товарам
 //
-#define GRP_BRAND      1
-#define GRP_BRANDOWNER 2
-
 class GoodsFiltDialog : public TDialog {
 public:
+	enum {
+		ctlgroupBrand      = 1,
+		ctlgroupBrandOwner = 2
+	};
 	GoodsFiltDialog() : TDialog(DLG_GOODSFLT)
 	{
-		addGroup(GRP_BRAND, new BrandCtrlGroup(CTLSEL_GOODSFLT_BRAND, cmBrandList));
-		addGroup(GRP_BRANDOWNER, new PersonListCtrlGroup(CTLSEL_GOODSFLT_BROWNER, 0, cmBrandOwnerList, 0));
+		addGroup(ctlgroupBrand, new BrandCtrlGroup(CTLSEL_GOODSFLT_BRAND, cmBrandList));
+		addGroup(ctlgroupBrandOwner, new PersonListCtrlGroup(CTLSEL_GOODSFLT_BROWNER, 0, cmBrandOwnerList, 0));
 	}
 	int    setDTS(GoodsFilt *);
 	int    getDTS(GoodsFilt *);
@@ -3056,7 +3057,6 @@ private:
 //
 // диалог дополнительных опций фильтра по товарам
 //
-//#define GRP_LOC       3
 class GoodsFiltAdvDialog : public TDialog {
 public:
 	enum {
@@ -3579,8 +3579,8 @@ int GoodsFiltDialog::setDTS(GoodsFilt * pFilt)
 	BrandCtrlGroup::Rec brand_grp_rec(Data.BrandList.IsExists() ? &Data.BrandList.Get() : 0);
 	PersonListCtrlGroup::Rec brandowner_grp_rec(PPPRK_MANUF, Data.BrandOwnerList.IsExists() ? &Data.BrandOwnerList.Get() : 0);
 
-	setGroupData(GRP_BRAND, &brand_grp_rec);
-	setGroupData(GRP_BRANDOWNER, &brandowner_grp_rec);
+	setGroupData(ctlgroupBrand, &brand_grp_rec);
+	setGroupData(ctlgroupBrandOwner, &brandowner_grp_rec);
 	SetupPPObjCombo(this, CTLSEL_GOODSFLT_GRP,     PPOBJ_GOODSGROUP, Data.GrpID,       OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
 	SetupPPObjCombo(this, CTLSEL_GOODSFLT_MANUF,   PPOBJ_PERSON,     Data.ManufID,     OLW_LOADDEFONOPEN, (void *)PPPRK_MANUF);
 	SetupPPObjCombo(this, CTLSEL_GOODSFLT_COUNTRY, PPOBJ_COUNTRY,    Data.ManufCountryID, OLW_LOADDEFONOPEN, 0);
@@ -3649,12 +3649,12 @@ int GoodsFiltDialog::getDTS(GoodsFilt * pFilt)
 	getCtrlString(CTL_GOODSFLT_BCLEN, Data.BarcodeLen);
 	{
 		BrandCtrlGroup::Rec brand_grp_rec;
-		getGroupData(GRP_BRAND, &brand_grp_rec);
+		getGroupData(ctlgroupBrand, &brand_grp_rec);
 		Data.BrandList.Set(&brand_grp_rec.List);
 	}
 	{
 		PersonListCtrlGroup::Rec brandowner_grp_rec;
-		getGroupData(GRP_BRANDOWNER, &brandowner_grp_rec);
+		getGroupData(ctlgroupBrandOwner, &brandowner_grp_rec);
 		Data.BrandOwnerList.Set(&brandowner_grp_rec.List);
 	}
 	getCtrlData(CTLSEL_GOODSFLT_ORDER, &Data.InitOrder);

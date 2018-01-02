@@ -141,10 +141,9 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		{
 			TDialog::handleEvent(event);
 			if(event.isClusterClk(CTL_TSESSFILT_IDLE)) {
-				long temp_long = GetClusterData(CTL_TSESSFILT_IDLE);
+				const long temp_long = GetClusterData(CTL_TSESSFILT_IDLE);
 				PrcTechCtrlGroup * p_grp = (PrcTechCtrlGroup *)getGroup(GRP_PRCTECH);
-				if(p_grp)
-					p_grp->setIdleStatus(this, BIN(temp_long > 0));
+				CALLPTRMEMB(p_grp, setIdleStatus(this, BIN(temp_long > 0)));
 				clearEvent(event);
 			}
 		}
@@ -291,8 +290,7 @@ int SLAPI PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 				Filt.SuperSessID = sess_id;
 			}
 			else {
-				Filt.StPeriod.low = plusdate(curdtm.d, -1);
-				Filt.StPeriod.upp = plusdate(curdtm.d, 1);
+				Filt.StPeriod.Set(plusdate(curdtm.d, -1), plusdate(curdtm.d, 1));
 				Filt.Flags |= TSessionFilt::fSuperSessOnly;
 			}
 		}

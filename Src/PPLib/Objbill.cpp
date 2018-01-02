@@ -122,7 +122,7 @@ TLP_IMPL(PPObjBill, AdvBillItemTbl, P_AdvBI);
 TLP_IMPL(PPObjBill, LotExtCodeTbl, P_LotXcT); // @v9.8.11
 
 SLAPI PPObjBill::PPObjBill(void * extraPtr) : PPObject(PPOBJ_BILL), CcFlags(CConfig.Flags), P_CpTrfr(0),
-	P_AdvBI(0), P_InvT(0), P_GsT(0), P_ScObj(0), /*HistBill(0),*/ P_LotXcT(0), P_Cr(0), ExtraPtr(extraPtr), 
+	P_AdvBI(0), P_InvT(0), P_GsT(0), P_ScObj(0), /*HistBill(0),*/ P_LotXcT(0), P_Cr(0), ExtraPtr(extraPtr),
 	State2(0) /*, DemoRestrict(-1)*/
 {
 	atobj   = new PPObjAccTurn(0);
@@ -139,9 +139,9 @@ SLAPI PPObjBill::PPObjBill(void * extraPtr) : PPObject(PPOBJ_BILL), CcFlags(CCon
 		State2 |= stDoObjVer; // @v9.8.11
 	}
 	// @v9.8.11 {
-	if(CcFlags & CCFLG2_USELOTXCODE)
+	if(CConfig.Flags2 & CCFLG2_USELOTXCODE)
 		TLP_OPEN(P_LotXcT);
-	// } @v9.8.11 
+	// } @v9.8.11
 	ReadConfig(&Cfg);
 }
 
@@ -361,7 +361,7 @@ int SLAPI PPObjBill::IsPacketEq(const PPBillPacket & rS1, const PPBillPacket & r
 				if(!r_ti1.IsEqual(r_ti2))
 					eq = 0;
 				else if((r_ti1.Flags & PPTFR_RECEIPT) || is_intr || rS1.IsDraft()){
-					/* @v9.8.11 
+					/* @v9.8.11
 					rS1.ClbL.GetNumber(i, &n1);
 					rS2.ClbL.GetNumber(i, &n2);
 					if(n1 != n2)
@@ -391,7 +391,7 @@ int SLAPI PPObjBill::IsPacketEq(const PPBillPacket & rS1, const PPBillPacket & r
 					}
 					else if(BIN(p_t1) != BIN(p_t2))
 						eq = 0;
-					// } @v9.8.11 
+					// } @v9.8.11
 				}
 				// @v8.9.5 {
 				if(eq && is_intr) {
@@ -1075,7 +1075,7 @@ int SLAPI PPObjBill::AddExpendByReceipt(PPID * pBillID, PPID sampleBillID, const
 						pack.LTagL.AddNumber(PPTAG_LOT_CLB, &rows, clb);
 					if(sample_pack.LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb) > 0)
 						pack.LTagL.AddNumber(PPTAG_LOT_SN, &rows, clb);
-					// } @v9.8.11 
+					// } @v9.8.11
 				}
 			}
 		}
@@ -2373,7 +2373,7 @@ int SLAPI PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID, const
 							memzero(pttrn, sizeof(pttrn));
 							sprintf(pttrn, "%s%0*ld", pfx, (int)r_len, n);
 							// @v9.8.11 if(pExclList && pExclList->SearchNumber(pttrn, 0) > 0)
-							if(pExclList && pExclList->SearchString(pttrn, PPTAG_LOT_SN, 0, frlist) > 0) // @v9.8.11 
+							if(pExclList && pExclList->SearchString(pttrn, PPTAG_LOT_SN, 0, frlist) > 0) // @v9.8.11
 								continue;
 							else {
 								f = 1;
@@ -2651,7 +2651,7 @@ int FASTCALL PPObjBill::ReadConfig(PPBillConfig * pCfg)
 				memzero(p_buf, buf_size + 1);
 				reg_key.GetString(BillAddFilesFolder, p_buf, buf_size);
 				pCfg->AddFilesFolder.CopyFrom(p_buf);
-				ZDELETE(p_buf);
+				ZDELETEARRAY(p_buf);
 			}
 		}
 	}
@@ -3094,7 +3094,7 @@ int SLAPI PPObjBill::GetComplete(PPID lotID, long flags, CompleteArray * pList)
 						item.Cost    = p_ti->Cost;
 						item.Price   = p_ti->Price;
 						// @v9.8.11 pack.SnL.GetNumber(p-1, &serial);
-						pack.LTagL.GetNumber(PPTAG_LOT_SN, p-1, serial); // @v9.8.11 
+						pack.LTagL.GetNumber(PPTAG_LOT_SN, p-1, serial); // @v9.8.11
 						STRNSCPY(item.Serial, serial);
 						THROW_SL(pList->insert(&item));
 						if(p_ti->Flags & PPTFR_RECEIPT && p_ti->LotID) {
@@ -5143,7 +5143,7 @@ int SLAPI PPObjBill::GetSubstText(PPID srcID, SubstParam * pParam, SString & rBu
 	return ok;
 }
 
-PPObjBill::PplBlock::PplBlock(DateRange & rPeriod, const PPIDArray * pOpList, const PPIDArray * pPaymOpList) : 
+PPObjBill::PplBlock::PplBlock(DateRange & rPeriod, const PPIDArray * pOpList, const PPIDArray * pPaymOpList) :
 	Flags(0), Period(rPeriod), Amount(0.0), NominalAmount(0.0), Payment(0.0), PaymentBefore(0.0), Part(1.0), PartBefore(1.0)
 {
 	GatherPaymPeriod.SetZero();
@@ -5767,12 +5767,12 @@ int SLAPI PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 				ObjTagList * p_tag_list = pPack->LTagL.Get(row_idx); // PPLotTagContainer
 				if(p_ti->Flags & PPTFR_RECEIPT) {
 					THROW(p_ref->Ot.PutListExcl(PPOBJ_LOT, p_ti->LotID, p_tag_list, &excl_tag_list, 0));
-					/* @v9.8.11 
+					/* @v9.8.11
 					// @v9.8.11 p_clb = (pPack->ClbL.GetNumber(row_idx, &clb) > 0) ? clb.cptr() : 0;
-					p_clb = (pPack->LTagL.GetNumber(PPTAG_LOT_CLB, row_idx, clb) > 0) ? clb.cptr() : 0; // @v9.8.11 
+					p_clb = (pPack->LTagL.GetNumber(PPTAG_LOT_CLB, row_idx, clb) > 0) ? clb.cptr() : 0; // @v9.8.11
 					THROW(SetClbNumberByLot(p_ti->LotID, p_clb, 0));
 					// @v9.8.11 p_clb = (pPack->SnL.GetNumber(row_idx, &clb) > 0) ? clb.cptr() : 0;
-					p_clb = (pPack->LTagL.GetNumber(PPTAG_LOT_SN, row_idx, clb) > 0) ? clb.cptr() : 0; // @v9.8.11 
+					p_clb = (pPack->LTagL.GetNumber(PPTAG_LOT_SN, row_idx, clb) > 0) ? clb.cptr() : 0; // @v9.8.11
 					THROW(SetSerialNumberByLot(p_ti->LotID, p_clb, 0));
 					*/
 				}
@@ -6686,10 +6686,10 @@ int SLAPI PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 					CpTrfrExt cte;
 					MEMSZERO(cte);
 					// @v9.8.11 pPack->ClbL.GetNumber(i-1, &clb);
-					pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb); // @v9.8.11 
+					pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb); // @v9.8.11
 					STRNSCPY(cte.Clb, clb);
 					// @v9.8.11 pPack->SnL.GetNumber(i-1, &clb);
-					pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb); // @v9.8.11 
+					pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb); // @v9.8.11
 					STRNSCPY(cte.PartNo, clb);
 					THROW(pti->Init(&pPack->Rec, zero_rbybill));
 					THROW(P_CpTrfr->PutItem(pti, (zero_rbybill ? 0 : pti->RByBill), &cte, 0));
@@ -6982,7 +6982,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 				THROW(SerializePacket__(+1, &org_pack, hist_buf, &r_sctx));
 			}
 		}
-		// } @v9.8.11 
+		// } @v9.8.11
 		THROW(PPStartTransaction(&ta, use_ta));
 		THROW(BeginTFrame(id, tb_)); // @v8.0.3
 		THROW(LockFRR(pPack->Rec.Dt, &frrl_tag, 0));
@@ -7039,10 +7039,10 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 							found = 1;
 							if(p_ti->IsEqual(ti)) {
 								// @v9.8.11 pPack->ClbL.GetNumber(i-1, &clb);
-								pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb); // @v9.8.11 
+								pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb); // @v9.8.11
 								if(clb.Strip().CmpNC(strip(cte.Clb)) == 0) {
 									// @v9.8.11 pPack->SnL.GetNumber(i-1, &clb);
-									pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb); // @v9.8.11 
+									pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb); // @v9.8.11
 									if(clb.Strip().CmpNC(strip(cte.PartNo)) == 0)
 										not_changed_lines.add(i);
 								}
@@ -7070,10 +7070,10 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 						CpTrfrExt cte;
 						MEMSZERO(cte);
 						// @v9.8.11 pPack->ClbL.GetNumber(i-1, &clb);
-						pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb); // @v9.8.11 
+						pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, clb); // @v9.8.11
 						STRNSCPY(cte.Clb, clb);
 						// @v9.8.11 pPack->SnL.GetNumber(i-1, &clb);
-						pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb); // @v9.8.11 
+						pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, clb); // @v9.8.11
 						STRNSCPY(cte.PartNo, clb);
 						THROW(P_CpTrfr->PutItem(p_ti, 0 /*forceRByBill*/, &cte, 0));
 						ufp_counter.TiAddCount++;
@@ -7261,7 +7261,7 @@ int SLAPI PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 					THROW(p_ovc->Add(&h_id, oid.Set(Obj, id), &hist_buf, 0));
 				}
 			}
-			// } @v9.8.11 
+			// } @v9.8.11
 			// @v9.5.2 {
 			if(CcFlags & CCFLG_DEBUG) {
 				if(CheckOpFlags(pPack->Rec.OpID, OPKF_ONORDER)) {
@@ -7376,7 +7376,7 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 					THROW(SerializePacket__(+1, &org_pack, hist_buf, &r_sctx));
 				}
 			}
-			// } @v9.8.11 
+			// } @v9.8.11
 		}
 		THROW_PP_S(!brec.StatusID || !CheckStatusFlag(brec.StatusID, BILSTF_DENY_DEL), PPERR_BILLST_DENY_DEL,
 			PPObjBill::MakeCodeString(&brec, 1, bill_code));
@@ -7468,7 +7468,7 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 					THROW(p_ovc->Add(&h_id, oid.Set(Obj, id), &hist_buf, 0));
 				}
 			}
-			// } @v9.8.11 
+			// } @v9.8.11
 			DS.LogAction(PPACN_RMVBILL, PPOBJ_BILL, id, h_id, 0);
 		}
 		THROW(PPCommitWork(&ta));

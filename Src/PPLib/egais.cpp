@@ -2234,7 +2234,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										w_p.PutInner("wb:Price", EncText(temp_buf.Z().Cat(price, MKSFMTD(0, 2, 0))));
 									}
 									// @v9.8.11 p_bp->SnL.GetNumber(tidx, &temp_buf);
-									p_bp->LTagL.GetNumber(PPTAG_LOT_SN, tidx, temp_buf); // @v9.8.11 
+									p_bp->LTagL.GetNumber(PPTAG_LOT_SN, tidx, temp_buf); // @v9.8.11
 									w_p.PutInnerSkipEmpty("wb:Party", EncText(temp_buf));
 									WriteInformCode(_doc, "wb", 'A', ref_a, BIN(doc_type == PPEDIOP_EGAIS_WAYBILL_V2));
 									WriteInformCode(_doc, "wb", 'B', ref_b, BIN(doc_type == PPEDIOP_EGAIS_WAYBILL_V2));
@@ -2823,6 +2823,13 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											qtty_fmt = MKSFMTD(0, 3, 0);
 										}
 										w_p.PutInner("awr:Quantity", EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
+										// @v9.8.11 {
+										if(doc_type == PPEDIOP_EGAIS_ACTWRITEOFF_V2 && p_bp->XcL.Get(tidx+1, 0, ss_ext_codes) > 0) {
+											SXml::WNode w_mc(_doc, "awr:MarkCodeInfo");
+											for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);)
+												w_mc.PutInner("awr:MarkCode", temp_buf);
+										}
+										// } @v9.8.11
 									}
 									{
 										MEMSZERO(lot_rec);
@@ -4923,6 +4930,7 @@ struct EgaisRestItem { // @flat
     double Rest;
 };
 
+/* @v9.8.11 unused
 struct EgaisSettledTransferItem {
     char   InformBIdent[24];
 	PPID   GoodsID;
@@ -4937,6 +4945,7 @@ IMPL_CMPCFUNC(EgaisSettledTransferItem, p1, p2)
 	const EgaisSettledTransferItem * i2 = (const EgaisSettledTransferItem *)p2;
     return strcmp(i1->InformBIdent, i2->InformBIdent);
 }
+*/
 
 int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurrentRestPack, const DateRange * pPeriod)
 {
@@ -5051,6 +5060,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 						}
 					}
 					if(!skip) {
+						const int use_lotxcode = BIN(CConfig.Flags2 & CCFLG2_USELOTXCODE);
 						PPViewCCheck cc_view;
 						CCheckViewItem cc_item;
 						CCheckCore * p_cc = cc_view.GetCc();
@@ -5058,6 +5068,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 						if(p_cc) {
 							CCheckPacket cc_pack;
 							EgaisMarkBlock emb;
+							SString egais_mark;
 							BarcodeArray bc_list;
 							LongArray crest_row_list;
 							LongArray ex_row_list;
@@ -5074,9 +5085,9 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 									const CCheckLineTbl::Rec & r_ccl = cc_pack.GetLine(clidx);
 									const PPID goods_id = labs(r_ccl.GoodsID);
 									if(alco_goods_list.bsearch(goods_id)) {
-										cc_pack.GetLineTextExt(clidx, CCheckPacket::lnextEgaisMark, temp_buf);
+										cc_pack.GetLineTextExt(clidx, CCheckPacket::lnextEgaisMark, /*temp_buf*/egais_mark);
 										bc_list.clear();
-										if(temp_buf.NotEmpty() && ParseEgaisMark(temp_buf, emb) > 0) {
+										if(egais_mark.NotEmpty() && ParseEgaisMark(egais_mark, emb) > 0) {
 											egais_code = emb.EgaisCode;
 											bc_list.Add(egais_code, 0, 1.0);
 										}
@@ -5138,6 +5149,10 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 															tag_list.PutItemStr(PPTAG_LOT_FSRARLOTGOODSCODE, egais_code);
 															THROW(p_wroff_bp->LTagL.Set(new_pos, &tag_list));
 														}
+														// @v9.8.11 {
+														if(use_lotxcode && egais_mark.NotEmpty())
+															p_wroff_bp->XcL.Add(new_pos+1, egais_mark, 0);
+														// } @v9.8.11
 													}
 													ccl_rest -= wroff_qtty;
 												}

@@ -109,9 +109,8 @@ long SLAPI ACount::Decr()
 //
 //
 //
-SLAPI SCriticalSection::Data::Data(int dontDestroy)
+SLAPI SCriticalSection::Data::Data(int dontDestroy)  : DontDestroyOnDestruction(dontDestroy)
 {
-	DontDestroyOnDestruction = dontDestroy;
 	InitializeCriticalSection(&C);
 }
 

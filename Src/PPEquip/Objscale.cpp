@@ -1,5 +1,5 @@
 // OBJSCALE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -564,12 +564,8 @@ int SLAPI PPScaleDevice::DistributeFile(const char * pFileName, int rmv)
 
 class CommLP15 : public PPScaleDevice {
 public:
-	SLAPI  CommLP15(int p, const PPScale * pData) : PPScaleDevice(p, pData)
+	SLAPI  CommLP15(int p, const PPScale * pData) : PPScaleDevice(p, pData), Err(0), MsgCode(0), SocketHandle(NULL), IsConnected(0)
 	{
-		Err     = 0;
-		MsgCode = 0;
-		SocketHandle = NULL;
-		IsConnected  = 0;
 		if(!(Data.Flags & SCALF_SYSPINITED))
 			GetDefaultSysParams(&Data);
 	}
@@ -1188,12 +1184,8 @@ int SLAPI CommLP15::GetData(int * pGdsNo, double * pWeight)
 //
 class CasCL5000J : public PPScaleDevice {
 public:
-	SLAPI  CasCL5000J(int p, const PPScale * pData) : PPScaleDevice(p, pData)
+	SLAPI  CasCL5000J(int p, const PPScale * pData) : PPScaleDevice(p, pData), Err(0), MsgCode(0), SocketHandle(NULL), IsConnected(0)
 	{
-		Err           = 0;
-		MsgCode       = 0;
-		SocketHandle  = NULL;
-		IsConnected   = 0;
 		if(!(Data.Flags & SCALF_SYSPINITED))
 			GetDefaultSysParams(&Data);
 		{
@@ -1639,9 +1631,8 @@ int SLAPI CasCL5000J::GetData(int * pGdsNo, double * pWeight)
 //
 class CommMassaK : public PPScaleDevice {
 public:
-	SLAPI  CommMassaK(int p, const PPScale * pData) : PPScaleDevice(p, pData)
+	SLAPI  CommMassaK(int p, const PPScale * pData) : PPScaleDevice(p, pData), Err(0)
 	{
-		Err = 0;
 		if(!(Data.Flags & SCALF_SYSPINITED))
 			GetDefaultSysParams(&Data);
 	}
@@ -1750,10 +1741,8 @@ int SLAPI CommMassaK::SendPLU(const ScalePLU * pPLU)
 //
 class COMMassaK : public PPScaleDevice {
 public:
-	SLAPI  COMMassaK(int p, const PPScale * pData) : PPScaleDevice(p, pData)
+	SLAPI  COMMassaK(int p, const PPScale * pData) : PPScaleDevice(p, pData), P_DrvMassaK(0), ResCode(mkErrOK)
 	{
-		P_DrvMassaK = 0;
-		ResCode = mkErrOK;
 		if(H_Port != INVALID_HANDLE_VALUE) {
 			CloseHandle(H_Port);
 			H_Port = INVALID_HANDLE_VALUE;
@@ -2085,10 +2074,8 @@ int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 //
 class COMMassaKVer1 : public PPScaleDevice {
 public:
-	SLAPI  COMMassaKVer1(int p, const PPScale * pData) : PPScaleDevice(p, pData)
+	SLAPI  COMMassaKVer1(int p, const PPScale * pData) : PPScaleDevice(p, pData), P_DrvMassaK(0), ResCode(mkErrOK)
 	{
-		P_DrvMassaK = 0;
-		ResCode = mkErrOK;
 	}
 	SLAPI ~COMMassaKVer1()
 	{
@@ -2264,16 +2251,9 @@ typedef ushort (__cdecl * MT_CalcCrcProc)(const char *, uint);
 
 class TCPIPMToledo : public PPScaleDevice {
 public:
-	SLAPI  TCPIPMToledo(int p, const PPScale * pData) : PPScaleDevice(p, pData)
+	SLAPI  TCPIPMToledo(int p, const PPScale * pData) : PPScaleDevice(p, pData), P_DrvMT(0), P_AddStrAry(0),
+		P_PLUStream(0), TrfrDLLHandle(0), TrfrDLLCall(0), CalcCrcCall(0), SocketHandle(0), IsConnected(0)
 	{
-		P_DrvMT       = 0;
-		P_AddStrAry   = 0;
-		P_PLUStream   = 0;
-		TrfrDLLHandle = 0;
-		TrfrDLLCall   = 0;
-		CalcCrcCall   = 0;
-		SocketHandle  = 0;
-		IsConnected   = 0;
 		UseNewAlg     = (Data.ProtocolVer >= 100) ? 0 : 1;
 		if(!(Data.Flags & SCALF_SYSPINITED))
 			GetDefaultSysParams(&Data);
@@ -2811,7 +2791,8 @@ int SLAPI TCPIPMToledo::ExecMTOper(PPID id)
 //
 class CrystalCashServer : public PPScaleDevice {
 public:
-	SLAPI  CrystalCashServer(const PPScale * pData, const char * pExpPaths) : PPScaleDevice(0, pData), P_OutTblScale(0), P_AddStrAry(0)
+	SLAPI  CrystalCashServer(const PPScale * pData, const char * pExpPaths) :
+		PPScaleDevice(0, pData), P_OutTblScale(0), P_AddStrAry(0)
 	{
 		ExpPaths = pExpPaths;
 		PPObjGoods::ReadConfig(&GCfg);
@@ -4674,7 +4655,7 @@ int SLAPI PPObjScale::IsPassive(PPID id, PPScale * pScale)
 }
 
 // static
-void * SLAPI PPObjScale::MakeExtraParam(long onlyGroups, long groupID)
+void * FASTCALL PPObjScale::MakeExtraParam(long onlyGroups, long groupID)
 {
 	return (void *)((onlyGroups << 24) | groupID);
 }
@@ -4866,16 +4847,14 @@ int SLAPI PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 	return ok;
 }
 
-int SLAPI PPObjScale::InitStat()
+void SLAPI PPObjScale::InitStat()
 {
 	MEMSZERO(StatBuf);
-	return 1;
 }
 
-int SLAPI PPObjScale::GetStat(Stat * pStat) const
+void SLAPI PPObjScale::GetStat(Stat * pStat) const
 {
 	ASSIGN_PTR(pStat, StatBuf);
-	return 1;
 }
 //
 // PPObjScale::TransmitData
@@ -5113,7 +5092,7 @@ PPScaleDevice * SLAPI GetScaleDevice(PPScale * pScaleData)
 {
 	int    port = 0;
 	PPScaleDevice * p_comm = 0;
-	if(pScaleData->ScaleTypeID == PPSCLT_CRCSHSRV || pScaleData->ScaleTypeID == PPSCLT_DIGI) {
+	if(oneof2(pScaleData->ScaleTypeID, PPSCLT_CRCSHSRV, PPSCLT_DIGI)) {
 		SString paths;
 		THROW(PPRef->GetPropVlrString(PPOBJ_SCALE, pScaleData->ID, SCLPRP_EXPPATHS, paths));
 		if(pScaleData->ScaleTypeID == PPSCLT_CRCSHSRV)

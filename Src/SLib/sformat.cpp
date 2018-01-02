@@ -149,7 +149,7 @@ char * SLAPI strfmt(const char * str, long fmt, char * buf)
 //
 int FASTCALL _decode_date_fmt(int style, int * pDiv);
 
-char * SLAPI _datefmt(int day, int mon, int year, int style, char * pBuf)
+char * FASTCALL _datefmt(int day, int mon, int year, int style, char * pBuf)
 {
 	int    div;
 	int    ord;		/* 0 - mm.dd.yy, 1 - dd.mm.yy, 2 - yy.mm.dd */

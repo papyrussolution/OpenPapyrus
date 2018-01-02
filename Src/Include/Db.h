@@ -1,5 +1,5 @@
 // DB.H
-// Copyright (C) Sobolev A. 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (C) Sobolev A. 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #ifndef __DB_H
@@ -60,9 +60,8 @@ enum SqlServerType {
 //   извлеченные из таблицы данных, либо зарезервированную сигнатуру CLob::Signature, которая означает,
 //   что данные представлены манипулятором Hdr::H.
 //
-class SLob { // @persistent size=32
+class SLob { // @persistent @noctr @novtbl size=32
 public:
-	// @noconstructor @novtbl
 	void   FASTCALL Init(uint32 descriptor);
 	int    FASTCALL InitPtr(uint32 sz);
 	int    IsPtr() const;

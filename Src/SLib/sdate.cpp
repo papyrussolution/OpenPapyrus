@@ -377,7 +377,7 @@ static void formatNotSupported(const char * pFormatName)
 	exit(-1);
 }
 
-void SLAPI _encodedate(int day, int mon, int year, void * pBuf, int format)
+void FASTCALL _encodedate(int day, int mon, int year, void * pBuf, int format)
 {
 	char   tmp[64];
 	switch(format) {
@@ -426,7 +426,7 @@ void SLAPI _encodedate(int day, int mon, int year, void * pBuf, int format)
 	}
 }
 
-void SLAPI _decodedate(int * day, int * mon, int * year, const void * pBuf, int format)
+void FASTCALL _decodedate(int * day, int * mon, int * year, const void * pBuf, int format)
 {
 	char   tmp[64];
 #ifndef _WIN32_WCE
@@ -582,7 +582,7 @@ long FASTCALL diffdate(LDATE d, LDATE s)
 //
 //
 //
-int SLAPI _checkdate(int day, int mon, int year)
+int FASTCALL _checkdate(int day, int mon, int year)
 {
 	int    err = SLERR_SUCCESS;
 	if(!(year & REL_DATE_MASK) && (year != ANY_DATE_VALUE) && (year < 1801 || year > 2099))
@@ -744,20 +744,20 @@ LTIME & FASTCALL LTIME::addhs(long n)
 	PTR8(pTm)[0] = ts; PTR8(pTm)[1] = s; PTR8(pTm)[2] = m; PTR8(pTm)[3] = h;
 
 
-int SLAPI encodetime(int h, int m, int s, int ts, void * tm)
+int FASTCALL encodetime(int h, int m, int s, int ts, void * tm)
 {
 	__ENCODEDATE(h, m, s, ts, tm);
 	return 1;
 }
 
-LTIME SLAPI encodetime(int h, int m, int s, int ts)
+LTIME FASTCALL encodetime(int h, int m, int s, int ts)
 {
 	LTIME  tm;
 	__ENCODEDATE(h, m, s, ts, &tm.v);
 	return tm;
 }
 
-void SLAPI decodetime(int * h, int * m, int * s, int * ts, void * tm)
+void FASTCALL decodetime(int * h, int * m, int * s, int * ts, void * tm)
 {
 	ASSIGN_PTR(h,  ((char *)tm)[3]);
 	ASSIGN_PTR(m,  ((char *)tm)[2]);
@@ -765,7 +765,7 @@ void SLAPI decodetime(int * h, int * m, int * s, int * ts, void * tm)
 	ASSIGN_PTR(ts, ((char *)tm)[0]);
 }
 
-long SLAPI DiffTime(LTIME t1, LTIME t2, int dim)
+long FASTCALL DiffTime(LTIME t1, LTIME t2, int dim)
 {
 	int    h1, m1, s1, ts1;
 	int    h2, m2, s2, ts2;
@@ -912,14 +912,14 @@ int FASTCALL getcurtime(LTIME * tm)
 	return getcurdatetime(0, tm);
 }
 
-LDATE SLAPI getcurdate_()
+LDATE FASTCALL getcurdate_()
 {
 	LDATE dt;
 	getcurdatetime(&dt, 0);
 	return dt;
 }
 
-LTIME SLAPI getcurtime_()
+LTIME FASTCALL getcurtime_()
 {
 	LTIME tm;
 	getcurdatetime(0, &tm);

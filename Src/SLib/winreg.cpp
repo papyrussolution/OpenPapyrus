@@ -9,9 +9,8 @@
 // @v8.3.3 Удалено условие #ifdef __WIN32__
 //
 //
-SLAPI SDynLibrary::SDynLibrary(const char * pFileName)
+SLAPI SDynLibrary::SDynLibrary(const char * pFileName) : H(0)
 {
-	H = 0;
 	if(pFileName)
 		Load(pFileName);
 }
@@ -48,7 +47,18 @@ int SLAPI SDynLibrary::IsValid() const
 	}
 }
 
-FARPROC SLAPI SDynLibrary::GetProcAddr(const char * pProcName, int unicodeSuffix)
+FARPROC FASTCALL SDynLibrary::GetProcAddr(const char * pProcName)
+{
+	FARPROC proc = 0;
+	if(H) {
+		proc = ::GetProcAddress(H, pProcName);
+		if(!proc)
+			SLS.SetOsError(pProcName);
+	}
+	return proc;
+}
+
+FARPROC FASTCALL SDynLibrary::GetProcAddr(const char * pProcName, int unicodeSuffix)
 {
 	FARPROC proc = 0;
 	if(H) {
@@ -71,11 +81,8 @@ FARPROC SLAPI SDynLibrary::GetProcAddr(const char * pProcName, int unicodeSuffix
 //
 //
 //
-SLAPI WinRegValue::WinRegValue(size_t bufSize)
+SLAPI WinRegValue::WinRegValue(size_t bufSize) : Type(0), P_Buf(0), BufSize(0), DataSize(0)
 {
-	Type = 0;
-	P_Buf = 0;
-	BufSize = DataSize = 0;
 	Alloc(bufSize);
 }
 

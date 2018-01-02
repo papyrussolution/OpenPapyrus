@@ -1,5 +1,5 @@
 // PPDRVAPI.CPP
-// Copyright (c) A.Sobolev 2013, 2017
+// Copyright (c) A.Sobolev 2013, 2017, 2018
 //
 #include <ppdrvapi.h>
 
@@ -9,7 +9,7 @@ PPDrvInputParamBlock::PPDrvInputParamBlock(const char * pInputText) : Ss(';', pI
 
 int PPDrvInputParamBlock::Get(const char * pParam, SString & rValue)
 {
-	rValue = 0;
+	rValue.Z();
 	for(uint i = 0; Ss.get(&i, TempBuf);) {
 		TempBuf.Divide('=', KeyBuf, ValBuf);
 		if(KeyBuf.Strip().CmpNC(pParam) == 0) {
@@ -63,15 +63,8 @@ SLAPI PPDrvSession::PPDrvSession(const char * pName, PPDrv_CreateInstanceProc pr
 
 #define SIGN_PPDRVTLA 0x7D08E312L
 
-SLAPI PPDrvThreadLocalArea::PPDrvThreadLocalArea()
+SLAPI PPDrvThreadLocalArea::PPDrvThreadLocalArea() : Sign(SIGN_PPDRVTLA), Id(0), TId(0), LastErr(0), State(0), I(0), P_FinishEvnt(0)
 {
-	Sign = SIGN_PPDRVTLA;
-	Id = 0;
-	TId = 0;
-	LastErr = 0;
-	State = 0;
-	I = 0;
-	P_FinishEvnt = 0;
 }
 
 SLAPI PPDrvThreadLocalArea::~PPDrvThreadLocalArea()
@@ -296,9 +289,8 @@ int PPDrvSession::Helper_ProcessCommand(const char * pCmd, const char * pInputDa
 	return err;
 }
 
-PPBaseDriver::PPBaseDriver()
+PPBaseDriver::PPBaseDriver() : Capability(0)
 {
-	Capability = 0;
 }
 
 PPBaseDriver::~PPBaseDriver()
@@ -309,4 +301,3 @@ int PPBaseDriver::ProcessCommand(const SString & rCmd, const char * pInputData, 
 {
 	return 0;
 }
-

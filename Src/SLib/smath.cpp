@@ -115,16 +115,16 @@ double fgetneginf() { return _fdiv(-1.0, 0.0); }
 
 int    FASTCALL smax(int a, int b)       { return MAX(a, b); }
 int    FASTCALL smin(int a, int b)       { return MIN(a, b); }
-double SLAPI smax(double a, double b) { return MAX(a, b); }
-double SLAPI smin(double a, double b) { return MIN(a, b); }
-float  SLAPI smax(float a, float b)   { return MAX(a, b); }
-float  SLAPI smin(float a, float b)   { return MIN(a, b); }
+double FASTCALL smax(double a, double b) { return MAX(a, b); }
+double FASTCALL smin(double a, double b) { return MIN(a, b); }
+float  FASTCALL smax(float a, float b)   { return MAX(a, b); }
+float  FASTCALL smin(float a, float b)   { return MIN(a, b); }
 double FASTCALL fdiv100r(double v)    { return v / 100.0; }
 double FASTCALL fdiv100i(long v)      { return ((double)v) / 100.0; }
 double FASTCALL fdiv1000i(long v)     { return ((double)v) / 1000.0; }
 double FASTCALL fdivnz(double dd, double dr) { return (dr != 0.0) ? (dd / dr) : 0.0; }
 
-int SLAPI feqeps(double v1, double v2, double epsilon)
+int FASTCALL feqeps(double v1, double v2, double epsilon)
 {
 	return (fabs(v1-v2) < epsilon) ? 1 : 0;
 }

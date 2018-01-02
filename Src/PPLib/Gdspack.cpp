@@ -61,8 +61,8 @@ PPGoodsPacket & FASTCALL PPGoodsPacket::operator = (const PPGoodsPacket & src)
 
 int SLAPI PPGoodsPacket::GetExtStrData(int fldID, SString & rBuf) const
 	{ return PPGetExtStrData(fldID, ExtString, rBuf); }
-int SLAPI PPGoodsPacket::PutExtStrData(int fldID, const char * pBuf)
-	{ return PPPutExtStrData(fldID, ExtString, pBuf); }
+int SLAPI PPGoodsPacket::PutExtStrData(int fldID, const SString & rBuf/*const char * pBuf*/)
+	{ return PPPutExtStrData(fldID, ExtString, rBuf); }
 GoodsPacketKind SLAPI PPGoodsPacket::GetPacketKind() const
 	{ return PPObjGoods::GetRecKind(&Rec); }
 

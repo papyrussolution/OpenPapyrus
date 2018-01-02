@@ -998,7 +998,7 @@ struct _RightNKeyPosEntry { // @persistent @size=8
 	long   KeyPos;
 };
 
-#define WKEYRTCOUNT 13 // @v7.0.5 [9]-->[11] // @v8.5.5 [11]-->[13]
+#define WKEYRTCOUNT 14 // @v7.0.5 [9]-->[11] // @v8.5.5 [11]-->[13] // @v9.8.11 @fix 13-->14
 
 struct _PPKeybordWKeyCfg { // @persistent @store(PropertyTbl) @size=84
 	PPID   Tag;            // Const=PPOBJ_CONFIG

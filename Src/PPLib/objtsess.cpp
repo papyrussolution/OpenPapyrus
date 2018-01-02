@@ -1,5 +1,5 @@
 // OBJTSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -14,15 +14,10 @@
 //
 //
 //
-class BhtTSess : SArray {
+class BhtTSess : SVector { // @v9.8.11 SArray-->SVector
 public:
-	SLAPI  BhtTSess(PPLogger * pLogger) : SArray(sizeof(PSE))
+	SLAPI  BhtTSess(PPLogger * pLogger) : SVector(sizeof(PSE)), LastUsedEntryPos(UINT_MAX), P_Logger(pLogger), Ta(0), LastLine_SessID(0), LastLine_OprNo(0)
 	{
-		LastUsedEntryPos = UINT_MAX;
-		P_Logger = pLogger;
-		Ta = 0;
-		LastLine_SessID = 0;
-		LastLine_OprNo = 0;
 	}
 	void   SLAPI Reset()
 	{
@@ -83,7 +78,7 @@ private:
 		fProperSess = 0x0001, // Сессия создана этим сеансом обмена с терминалом
 		fSwitchable = 0x0002  // Процессор, с которым связан элемент, допускает переключение
 	};
-	struct PSE {
+	struct PSE { // @flat
 		PPID   SessID;
 		PPID   PrcID;
 		PPID   ArID;
@@ -619,7 +614,7 @@ int SLAPI PPObjTSession::ConvertExtraParam(void * extraPtr, SelFilt * pFilt)
 }
 
 // static
-void * SLAPI PPObjTSession::MakeExtraParam(PPID superSessID, PPID prcID, int kind)
+void * FASTCALL PPObjTSession::MakeExtraParam(PPID superSessID, PPID prcID, int kind)
 {
 	long   param = 0;
 	if(kind == TSESK_SUPERSESS) {

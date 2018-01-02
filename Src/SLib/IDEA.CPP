@@ -56,7 +56,7 @@
 	with the Most Significant Byte (MSB) first, regardless of the
 	internal native byte order of the target CPU.
 
-	Modified for C++ by Anton Sobolev. (Feb 1998-2003)
+	Modified for C++ by Anton Sobolev. (Feb 1998-2018)
 */
 #include <slib.h>
 #include <tv.h>
@@ -629,7 +629,7 @@ void SLAPI IdeaDecrypt(const char * pw, void * buf, size_t len)
 	IdeaCrypt(pw, buf, len, 1);
 }
 
-void SLAPI IdeaRandMem(void * buf, size_t len)
+void FASTCALL IdeaRandMem(void * buf, size_t len)
 {
 	size_t i;
 	uint8  key[16];

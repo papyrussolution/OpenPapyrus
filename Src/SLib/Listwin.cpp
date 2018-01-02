@@ -1,5 +1,5 @@
 // LISTWIN.CPP
-// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) V.Antonov, A.Osolotkin, A.Starodub, A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -319,19 +319,9 @@ int ListWindow::MoveWindow(RECT & rRect)
 	return 1;
 }
 
-ListBoxDef * ListWindow::getDef() const
-{
-	return def;
-}
-
 void ListWindow::SetToolbar(uint tbId)
 {
 	TbId = tbId;
-}
-
-uint ListWindow::GetToolbar() const
-{
-	return TbId;
 }
 //
 // WordSelector
@@ -362,11 +352,6 @@ void WordSel_ExtraBlock::Init(uint inputCtl, HWND hInputDlg, TDialog * pOutDlg, 
 	SelId        = 0;
 }
 
-long WordSel_ExtraBlock::GetFlags() const
-{
-	return Flags;
-}
-
 int WordSel_ExtraBlock::Search(long id, SString & rBuf)
 {
 	return -1;
@@ -377,12 +362,7 @@ int WordSel_ExtraBlock::SearchText(const char * pText, long * pID, SString & rBu
 	return -1;
 }
 
-boolean WordSel_ExtraBlock::IsTextMode() const
-{
-	return CtrlTextMode;
-}
-
-void WordSel_ExtraBlock::SetTextMode(boolean v)
+void WordSel_ExtraBlock::SetTextMode(bool v)
 {
 	CtrlTextMode = v;
 }
