@@ -27,8 +27,7 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * Contributor(s):
- *	Mathias Hasselmann <mathias.hasselmann@gmx.de>
+ * Contributor(s): Mathias Hasselmann <mathias.hasselmann@gmx.de>
  */
 #ifndef CAIRO_FEATURES_H
 	#define CAIRO_MUTEX_DECLARE(mutex) // This block is to just make this header file standalone

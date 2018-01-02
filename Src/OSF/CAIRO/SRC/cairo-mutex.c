@@ -27,8 +27,7 @@
  *
  * The Original Code is the cairo graphics library.
  *
- * Contributor(s):
- *	Mathias Hasselmann <mathias.hasselmann@gmx.de>
+ * Contributor(s): Mathias Hasselmann <mathias.hasselmann@gmx.de>
  */
 #include "cairoint.h"
 #pragma hdrstop
@@ -50,18 +49,18 @@
 	{
 		if(!_cairo_mutex_initialized) {
 			_cairo_mutex_initialized = TRUE;
-			#define  CAIRO_MUTEX_DECLARE(mutex) CAIRO_MUTEX_INIT (mutex);
+			#define  CAIRO_MUTEX_DECLARE(mutex) CAIRO_MUTEX_INIT(mutex);
 			#include "cairo-mutex-list-private.h"
 			#undef   CAIRO_MUTEX_DECLARE
 		}
 	}
 #endif
 #if _CAIRO_MUTEX_IMPL_USE_STATIC_FINALIZER
-	void _cairo_mutex_finalize (void)
+	void _cairo_mutex_finalize(void)
 	{
 		if(_cairo_mutex_initialized) {
 			_cairo_mutex_initialized = FALSE;
-			#define  CAIRO_MUTEX_DECLARE(mutex) CAIRO_MUTEX_FINI (mutex);
+			#define  CAIRO_MUTEX_DECLARE(mutex) CAIRO_MUTEX_FINI(mutex);
 			#include "cairo-mutex-list-private.h"
 			#undef   CAIRO_MUTEX_DECLARE
 		}
