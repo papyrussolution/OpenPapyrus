@@ -1,5 +1,5 @@
 // V_DLG.CPP
-// Copyright (c) A.Sobolev 2011, 2016
+// Copyright (c) A.Sobolev 2011, 2016, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -51,7 +51,7 @@ int SLAPI PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
 	Ctx.GetDialogList(&temp_list);
 	temp_list.SortByText();
 	for(uint i = 0; i < temp_list.getCount(); i++) {
-		StrAssocArray::Item t = temp_list.at(i);
+		StrAssocArray::Item t = temp_list.Get(i);
 		const DlScope * p_scope = Ctx.GetScope_Const(t.Id, DlScope::kUiDialog);
 		if(p_scope) {
 			DialogViewItem item;

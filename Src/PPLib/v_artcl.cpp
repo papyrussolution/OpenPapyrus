@@ -1,5 +1,5 @@
 // V_ARTCL.CPP
-// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
+// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -19,14 +19,8 @@ ArticleFilt & FASTCALL ArticleFilt::operator = (const ArticleFilt & s)
 	return *this;
 }
 
-SLAPI PPViewArticle::PPViewArticle() : PPView(&ArObj, &Filt)
+SLAPI PPViewArticle::PPViewArticle() : PPView(&ArObj, &Filt), P_TempTbl(0), AgtProp(0), P_DebtDimList(0), LimitTerm(0), AddedLimitTerm(0), CtrlX(0)
 {
-	P_TempTbl = 0;
-	AgtProp = 0;
-	P_DebtDimList = 0;
-	LimitTerm = 0;
-	AddedLimitTerm = 0;
-	CtrlX = 0;
 }
 
 SLAPI PPViewArticle::~PPViewArticle()
@@ -113,7 +107,7 @@ int SLAPI PPViewArticle::InitDebtLim(TempArAgtTbl::Rec * pRec, PPClientAgreement
 		char * p_mc = (char*)&pRec->MaxCredit1;
 		for(uint i = 0; i < lim_count; i++) {
 			uint   pos = 0;
-			long   debt_dim_id = P_DebtDimList->at(i).Id;
+			long   debt_dim_id = P_DebtDimList->Get(i).Id;
 			if(pCliAgt->DebtLimList.lsearch(&debt_dim_id, &pos, PTR_CMPFUNC(long)) > 0) {
 				PPClientAgreement::DebtLimit dbt_lim = pCliAgt->DebtLimList.at(pos);
 				SETFLAG(pRec->StopFlags, 1 << i, dbt_lim.Flags & PPClientAgreement::DebtLimit::fStop);
@@ -1020,14 +1014,11 @@ DBQuery * SLAPI PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	return p_q;
 }
 
-int SLAPI PPViewArticle::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewArticle::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
 	if(pBrw) {
-		if(Filt.PersonID) {
+		if(Filt.PersonID)
 			pBrw->InsColumnWord(2, PPWORD_ACCSHEET, 5, 0L, MKSFMTD(20, 0, 0), 0);
-			ok = 1;
-		}
 		if(Filt.Flags & ArticleFilt::fCheckObj)
 			pBrw->InsColumnWord(-1, PPWORD_MESSAGE, 18, 0L, MKSFMT(40, 0), 0);
 		/*
@@ -1044,7 +1035,7 @@ int SLAPI PPViewArticle::PreprocessBrowser(PPViewBrowser * pBrw)
 			uint   beg_fld_pos = 21;
 			const  int col_in_grp = (LimitTerm && AddedLimitTerm) ? 3 : 2;
 			for(uint i = 0, pos = beg_fld_pos; i < count; i++) {
-				const StrAssocArray::Item entry = P_DebtDimList->at(i);
+				const StrAssocArray::Item entry = P_DebtDimList->Get(i);
 				BroGroup grp;
 				grp.first = beg_dim_col + (i * col_in_grp);
 				grp.count = col_in_grp;
@@ -1059,11 +1050,9 @@ int SLAPI PPViewArticle::PreprocessBrowser(PPViewBrowser * pBrw)
 				pos++;
 				// } @v8.2.4
 				pBrw->InsColumn(-1, "@stop", pos++, 0L, MKSFMT(3, 0), 0);
-				ok = 1;
 			}
 		}
 	}
-	return ok;
 }
 
 int SLAPI PPViewArticle::Print(const void * pHdr)

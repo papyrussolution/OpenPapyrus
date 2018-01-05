@@ -1,5 +1,5 @@
 // V_REGTYP.CPP
-// Copyright (c) A.Starodub 2010, 2013, 2015, 2016
+// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2018
 // @codepage windows-1251
 //
 // Типы регистрационных документов 
@@ -174,14 +174,9 @@ int FASTCALL PPViewRegisterType::NextIteration(RegTypeViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewRegisterType::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewRegisterType::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
-	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewRegisterType::GetDataForBrowser, this);
-		ok = 1;
-	}
-	return ok;
+	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewRegisterType::GetDataForBrowser, this));
 }
 
 SArray * SLAPI PPViewRegisterType::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)

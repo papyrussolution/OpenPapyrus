@@ -654,9 +654,9 @@ void TView::Show(int doShow)
 	ShowWindow(getHandle(), doShow ? SW_SHOW : SW_HIDE);
 }
 
-TView * TView::prev()
+TView * TView::prev() const
 {
-	TView * res = this;
+	TView * res = (TView *)this; // @badcast
 	while(res->next != this)
 		res = res->next;
 	return res;
@@ -667,12 +667,12 @@ int TView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return  0;
 }
 
-TView * TView::nextView()
+TView * TView::nextView() const
 {
 	return (this == owner->P_Last) ? 0 : next;
 }
 
-TView * TView::prevView()
+TView * TView::prevView() const
 {
 	return (this == owner->first()) ? 0 : prev();
 }
@@ -1568,17 +1568,12 @@ ushort TGroup::execView(TWindow * p)
 		if(save_owner == 0)
 			Insert_(p);
 		{
-			// @v9.0.4 retval = p->execute();
-			// @v9.0.4 {
-			{
-				TEvent event;
-				event.what = TEvent::evCommand;
-				event.message.command = cmExecute;
-				event.message.infoPtr = 0;
-				p->handleEvent(event);
-				retval = (event.what == TEvent::evNothing) ? (ushort)event.message.infoLong : 0;
-			}
-			// } @v9.0.4
+			TEvent event;
+			event.what = TEvent::evCommand;
+			event.message.command = cmExecute;
+			event.message.infoPtr = 0;
+			p->handleEvent(event);
+			retval = (event.what == TEvent::evNothing) ? (ushort)event.message.infoLong : 0;
 		}
 		if(save_owner == 0)
 			remove(p);
@@ -1658,10 +1653,10 @@ void TGroup::Insert_(TView * p)
 	insertBefore(p, first());
 }
 
-void TGroup::insertBefore(TView * p, TView * Target)
+void TGroup::insertBefore(TView * p, TView * pTarget)
 {
-	if(p && !p->owner && (!Target || Target->owner == this))
-		insertView(p, Target);
+	if(p && !p->owner && (!pTarget || pTarget->owner == this))
+		insertView(p, pTarget);
 }
 
 void TGroup::insertView(TView * p, TView * Target)

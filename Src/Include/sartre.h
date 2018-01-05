@@ -220,8 +220,14 @@ class SrSList : public SBaseBuffer {
 public:
 	SrSList(int type);
 	virtual ~SrSList();
-	int    GetType() const;
-	size_t GetLength() const;
+	int    GetType() const
+	{
+		return Type;
+	}
+	size_t GetLength() const
+	{
+		return Len;
+	}
 	int FASTCALL Copy(const SrSList & rS);
 	virtual void Clear();
 	virtual int IsEqual(const SrSList & rS) const;

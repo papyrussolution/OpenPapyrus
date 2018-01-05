@@ -1,5 +1,5 @@
 // PPSUPPLIX.CPP
-// Copyright (c) A.Sobolev 2016, 2017
+// Copyright (c) A.Sobolev 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -822,9 +822,8 @@ int SLAPI PPSupplExchange_Baltika::ExportRestParties()
 		THROW(gr_view.Init_(&filt));
 		file_name = path;
 		if(i > 0) {
-			SPathStruc sp;
 			files_count++;
-			sp.Split(file_name);
+			SPathStruc sp(file_name);
 			sp.Nam.Cat(files_count);
 			sp.Merge(file_name);
 		}
@@ -999,9 +998,8 @@ int SLAPI PPSupplExchange_Baltika::ExportRest()
 		THROW(v.Init_(&filt));
 		file_name = path;
 		if(i > 0) {
-			SPathStruc sp;
 			files_count++;
-			sp.Split(file_name);
+			SPathStruc sp(file_name);
 			sp.Nam.Cat(files_count);
 			sp.Merge(file_name);
 		}
@@ -1178,9 +1176,7 @@ int SLAPI PPSupplExchange_Baltika::ExportSpoilageRest(PPID locID, uint filesIdx)
 		SString client_code;
 		PPIniFile ini_file(0, 0, 0, 1);
 		PPGetFilePath(PPPATH_OUT, "sprest.xml", file_name);
-		SPathStruc sp;
-
-		sp.Split(file_name);
+		SPathStruc sp(file_name);
 		sp.Nam.Cat(filesIdx);
 		sp.Merge(file_name);
 
@@ -1949,7 +1945,7 @@ int SLAPI PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, c
 								const uint cli_count = p_cli_list->getCount();
 								const uint goods_count = goods_list.getCount();
 								for(uint i = 0; i < cli_count; i++) {
-									const PPID ar_id = p_cli_list->at(i).Id;
+									const PPID ar_id = p_cli_list->Get(i).Id;
 									const PPID person_id = ObjectToPerson(ar_id);
 									ArticleTbl::Rec ar_rec;
 									if(person_id && !rExclArList.bsearch(ar_id) && ArObj.Search(ar_id, &ar_rec) > 0 && !ar_rec.Closed) {
@@ -2057,7 +2053,7 @@ PPID SLAPI PPSupplExchange_Baltika::GetConsigLocGroupID()
 	StrAssocArray * p_list = obj_loc.MakeList_(&loc_filt, 1);
 	for(uint i = 0; !loc_grp_id && i < p_list->getCount(); i++) {
 		LocationTbl::Rec loc_rec;
-		if(obj_loc.Search(p_list->at(i).Id, &loc_rec) > 0 && sstreqi_ascii(loc_rec.Code, "CONSIGNATION"))
+		if(obj_loc.Search(p_list->Get(i).Id, &loc_rec) > 0 && sstreqi_ascii(loc_rec.Code, "CONSIGNATION"))
 			loc_grp_id = loc_rec.ID;
 	}
 	ZDELETE(p_list);
@@ -4291,8 +4287,7 @@ int SLAPI iSalesPepsi::SendInvoices()
     }
 	if(LogFileName.NotEmpty()) {
 		SString dump_file_name;
-		SPathStruc ps;
-		ps.Split(LogFileName);
+		SPathStruc ps(LogFileName);
 		ps.Nam.CatChar('-').Cat("dump").CatChar('-').Cat("invoices");
 		ps.Merge(dump_file_name);
 		SFile f_out_log(dump_file_name, SFile::mWrite);

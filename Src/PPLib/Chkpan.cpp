@@ -1,5 +1,5 @@
 // CHKPAN.CPP
-// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Панель ввода кассовых чеков
 //
@@ -2971,7 +2971,7 @@ int CheckPaneDialog::MakeGroupEntryList(StrAssocArray * pTreeList, PPID parentID
 {
 	int    ok = -1;
 	for(uint i = 0; i < pTreeList->getCount(); i++) {
-		StrAssocArray::Item item = pTreeList->at(i);
+		StrAssocArray::Item item = pTreeList->Get(i);
 		if(item.ParentId == parentID) {
 			uint   pos = 0;
 			int    is_opened = -1;
@@ -4557,10 +4557,10 @@ private:
 				ListWindow * p_lw = new ListWindow(new StrAssocListBoxDef(&FmtList, /*lbtDisposeData |*/ lbtDblClkNotify), 0, 0);
 				long   fmt_id = 0;
 				if(FmtList.getCount() == 1)
-					fmt_id = FmtList.at(0).Id;
+					fmt_id = FmtList.Get(0).Id;
 				else if(FmtList.getCount() > 1 && P_AddParam && P_AddParam->FormatName.NotEmpty()) {
 					for(uint i = 0; !fmt_id && i < FmtList.getCount(); i++) {
-						StrAssocArray::Item fmt_list_item = FmtList.at(i);
+						StrAssocArray::Item fmt_list_item = FmtList.Get(i);
 						if(P_AddParam->FormatName.CmpNC(fmt_list_item.Txt) == 0)
 							fmt_id = fmt_list_item.Id;
 					}
@@ -5301,7 +5301,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 		THROW_PP(dt || (State & stSelectFormat), PPERR_CHKDATENEEDED);
 		THROW_SL(checkdate(dt, 0));
 		if(fmt_id) {
-			StrAssocArray::Item fmt_item = FmtList.at((uint)(fmt_id - 1));
+			StrAssocArray::Item fmt_item = FmtList.Get((uint)(fmt_id - 1));
 			if(fmt_item.Txt[0])
 				sel_chk.SelFormat = fmt_item.Txt;
 		}
@@ -5996,9 +5996,8 @@ int CheckPaneDialog::ProcessPhnSvc(int mode)
 										}
 									}
 								}
-								if(!contact_buf.NotEmpty()) {
+								if(contact_buf.Empty())
 									contact_buf = "UNKNOWN";
-								}
 								ringing_line.CatDiv(';', 2).Cat(contact_buf);
 							}
 						}
@@ -10967,7 +10966,7 @@ int CheckPaneDialog::PrintSlipDocument()
 			THROW(InitCashMachine());
 			if(P_CM->GetSlipFormatList(&fmt_list, 1) > 0) {
 				if(fmt_list.getCount() == 1) {
-					format_name = fmt_list.at(0).Txt;
+					format_name = fmt_list.Get(0).Txt;
 				}
 				//
 				// @todo Вероятно, необходимо вызвать ошибку, если fmt_list.getCount() == 0
@@ -12457,9 +12456,9 @@ int SLAPI PrcssrCCheckGenerator::Run()
 		if(sc_count) {
 			uint sc_pos = P_RngSCard->GetUniformInt(sc_count * P.SCardPeriod);
 			if(sc_pos < sc_count) {
-				sc_code = P_ScList->at(sc_pos).Txt;
+				sc_code = P_ScList->Get(sc_pos).Txt;
 				if(sc_code.NotEmptyS())
-					P.P_Pan->SetSCard(P_ScList->at(sc_pos).Txt);
+					P.P_Pan->SetSCard(P_ScList->Get(sc_pos).Txt);
 			}
 		}
 		{

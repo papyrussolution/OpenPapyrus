@@ -1,5 +1,5 @@
 // V_ACCT.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2011, 2016
+// Copyright (c) A.Sobolev, A.Starodub 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2011, 2016, 2018
 //
 // PPViewAccount
 //
@@ -20,10 +20,9 @@ AccountFilt & FASTCALL AccountFilt::operator = (const AccountFilt & s)
 	return *this;
 }
 
-SLAPI PPViewAccount::PPViewAccount() : PPView(&AccObj, &Filt, PPVIEW_ACCOUNT)
+SLAPI PPViewAccount::PPViewAccount() : PPView(&AccObj, &Filt, PPVIEW_ACCOUNT), P_AnlzFilt(0)
 {
 	ImplementFlags |= implBrowseArray;
-	P_AnlzFilt = 0;
 	DefReportId = REPORT_ACCOUNTVIEW;
 }
 
@@ -268,8 +267,7 @@ int SLAPI PPViewAccount::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				pBlk->Set(temp_buf);
 				break;
 			case 6:
-				temp_buf.Z().CatHex(p_item->Flags);
-				pBlk->Set(temp_buf);
+				pBlk->Set(temp_buf.Z().CatHex(p_item->Flags));
 				break;
 			case 7:
 				pBlk->Set(p_item->Frrl_Date);
@@ -282,14 +280,9 @@ int SLAPI PPViewAccount::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-int SLAPI PPViewAccount::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewAccount::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
-	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewAccount::GetDataForBrowser, this);
-		ok = 1;
-	}
-	return ok;
+	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewAccount::GetDataForBrowser, this));
 }
 
 SArray * SLAPI PPViewAccount::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)

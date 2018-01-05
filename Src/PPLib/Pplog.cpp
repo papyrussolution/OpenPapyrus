@@ -1,5 +1,5 @@
 // PPLOG.CPP
-// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -11,9 +11,8 @@
 
 class LogListBoxDef : public StdListBoxDef {
 public:
-	SLAPI  LogListBoxDef(SArray * pArray, uint aOptions, TYPEID t, TVMsgLog * pMl) : StdListBoxDef(pArray, aOptions, t)
+	SLAPI  LogListBoxDef(SArray * pArray, uint aOptions, TYPEID t, TVMsgLog * pMl) : StdListBoxDef(pArray, aOptions, t), P_MsgLog(pMl)
 	{
-		P_MsgLog = pMl;
 	}
 	SLAPI ~LogListBoxDef()
 	{
@@ -755,8 +754,7 @@ int SLAPI PPMsgLog::SaveLogFile(const char * pFileName, long options)
 		int16  r, h;
 		SString path;
 		{
-			SPathStruc ps;
-			ps.Split(pFileName);
+			SPathStruc ps(pFileName);
 			if(!ps.Dir.NotEmptyS() && !ps.Drv.NotEmptyS() && PPGetPath(PPPATH_LOG, path) > 0)
 				path.SetLastSlash().Cat(pFileName);
 			else
@@ -892,23 +890,18 @@ void SLAPI TVMsgLog::RefreshList()
 //
 //
 //
-SLAPI PPLogger::PPLogger()
+SLAPI PPLogger::PPLogger() : Flags(0), P_Log(0)
 {
-	Flags = 0;
-	P_Log = 0;
 }
 
-SLAPI PPLogger::PPLogger(long flags)
+SLAPI PPLogger::PPLogger(long flags) : Flags(flags), P_Log(0)
 {
-	Flags = flags;
-	P_Log = 0;
 }
 
 SLAPI PPLogger::~PPLogger()
 {
-	if(P_Log) {
+	if(P_Log)
 		TVMsgLog::Delete_((TVMsgLog *)P_Log, BIN(CS_SERVER));
-	}
 }
 
 void SLAPI PPLogger::Clear()

@@ -1,5 +1,5 @@
 // V_BUDGET.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017, 2018
 //
 // PPViewBudget
 //
@@ -151,7 +151,7 @@ int SLAPI BudgetItemCore::PutItem(PPID * pID, BudgetItemTbl::Rec * pRec, int use
 			StrAssocArray child_list;
 			if(obj_acct.GetChildList(prev_rec.Acc, &child_list) > 0)
 				for(uint i = 0; i < child_list.getCount(); i++)
-					deleteFrom(this, 0, BudgetID == prev_rec.BudgetID && Kind == prev_rec.Kind && Dt == prev_rec.Dt && Acc == child_list.at(i).Id);
+					deleteFrom(this, 0, BudgetID == prev_rec.BudgetID && Kind == prev_rec.Kind && Dt == prev_rec.Dt && Acc == child_list.Get(i).Id);
 		}
 		{
 			StrAssocArray acc_list;
@@ -159,7 +159,7 @@ int SLAPI BudgetItemCore::PutItem(PPID * pID, BudgetItemTbl::Rec * pRec, int use
 			if(obj_acct.GetParentList(p_cur_rec->Acc, &acc_list) > 0) {
 				for(uint i = 0; i < acc_list.getCount(); i++) {
 					PPID id = 0;
-					PPID parent_acc = acc_list.at(i).Id;
+					PPID parent_acc = acc_list.Get(i).Id;
 					BudgetItemTbl::Rec parent_bi_rec;
 					MEMSZERO(parent_bi_rec);
 					if(Search(p_cur_rec->BudgetID, parent_acc, p_cur_rec->Kind, p_cur_rec->Dt, &parent_bi_rec) > 0) {
@@ -1314,12 +1314,12 @@ int SLAPI PPViewBudget::UpdateTempTable(PPIDArray & rIdList)
 					StrAssocArray list;
 					if(ObjAcct.GetParentList(rec.Acc, &list) > 0) {
 						for(uint i = 0, stop = 0; !stop && i < list.getCount(); i++) {
-							StrAssocArray::Item & r_item = list.at(i);
-							if(r_item.ParentId == Filt.ParentAcctID) {
+							StrAssocArray::Item _item = list.Get(i);
+							if(_item.ParentId == Filt.ParentAcctID) {
 								BudgetItemTbl::Rec par_rec;
 								MEMSZERO(par_rec);
 								stop = 1;
-								if(ObjBudg.ItemsTbl.Search(rec.BudgetID, r_item.Id, rec.Kind, rec.Dt, &par_rec) > 0) {
+								if(ObjBudg.ItemsTbl.Search(rec.BudgetID, _item.Id, rec.Kind, rec.Dt, &par_rec) > 0) {
 									PPIDArray idlist;
 									idlist.add(par_rec.ID);
 									UpdateTempTable(idlist); // @recursion

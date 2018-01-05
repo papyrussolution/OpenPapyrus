@@ -462,13 +462,13 @@ xmlBuffer * FASTCALL xmlBufBackToBuffer(xmlBuf * buf);
 int FASTCALL xmlBufMergeBuffer(xmlBuf * buf, xmlBuffer * buffer);
 int FASTCALL xmlBufResetInput(xmlBuf * buf, xmlParserInput * input);
 size_t FASTCALL xmlBufGetInputBase(xmlBuf * buf, xmlParserInput * input);
-int xmlBufSetInputBaseCur(xmlBufPtr buf, xmlParserInputPtr input, size_t base, size_t cur);
+int xmlBufSetInputBaseCur(xmlBufPtr buf, xmlParserInput * input, size_t base, size_t cur);
 //
 //#include "enc.h"
 //
 int xmlCharEncFirstLineInt(xmlCharEncodingHandler *handler, xmlBuffer * out, xmlBuffer * in, int len);
-int xmlCharEncFirstLineInput(xmlParserInputBufferPtr input, int len);
-int xmlCharEncInput(xmlParserInputBufferPtr input, int flush);
+int xmlCharEncFirstLineInput(xmlParserInputBuffer * input, int len);
+int xmlCharEncInput(xmlParserInputBuffer * input, int flush);
 int FASTCALL xmlCharEncOutput(xmlOutputBuffer * output, int init);
 //
 #ifdef LIBXML_CATALOG_ENABLED

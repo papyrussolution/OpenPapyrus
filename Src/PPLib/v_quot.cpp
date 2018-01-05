@@ -1,5 +1,5 @@
 // V_QUOT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -387,19 +387,19 @@ int SLAPI PPViewQuot::CreateCrosstab(int useTa)
 		P_Ct->AddInheritedFixField(P_TempTbl->GoodsName);
 		for(uint i = 0; i < MAX_QUOTS_PER_TERM_REC && i < QuotKindList.getCount(); i++, fld_pos++) {
 			if(Filt.QkCls == PPQuot::clsGeneral) {
-				if(QuotKindList.at(i).Id == Filt.QuotKindID)
+				if(QuotKindList.Get(i).Id == Filt.QuotKindID)
 					break;
 			}
 			else if(Filt.QkCls == PPQuot::clsMtx) {
-				if(QuotKindList.at(i).Id == Spc.MtxID)
+				if(QuotKindList.Get(i).Id == Spc.MtxID)
 					break;
 			}
 			else if(Filt.QkCls == PPQuot::clsMtxRestr) {
-				if(QuotKindList.at(i).Id == Spc.MtxRestrID)
+				if(QuotKindList.Get(i).Id == Spc.MtxRestrID)
 					break;
 			}
 			else if(Filt.QkCls == PPQuot::clsPredictCoeff) {
-				if(QuotKindList.at(i).Id == Spc.PredictCoeffID)
+				if(QuotKindList.Get(i).Id == Spc.PredictCoeffID)
 					break;
 			}
 		}
@@ -455,8 +455,8 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 		}
 		else if(Filt.QkCls == PPQuot::clsGeneral && Filt.QuotKindID != 0) {
 			for(long i = (long)QuotKindList.getCount(); i >= 0; i--)
-				if(QuotKindList.at(i).Id != Filt.QuotKindID)
-					QuotKindList.atFree(i);
+				if(QuotKindList.Get(i).Id != Filt.QuotKindID)
+					QuotKindList.AtFree(i);
 		}
 	}
 	if(Filt.IsSeries() && P_Qc2) {
@@ -1147,9 +1147,9 @@ int SLAPI PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotI
 					qk_list.addUnique(pQList->at(i).KindID);
 				i = QuotKindList.getCount();
 				if(i) do {
-					StrAssocArray::Item qki = QuotKindList.at(--i);
+					StrAssocArray::Item qki = QuotKindList.Get(--i);
 					if(qki.Id != pFilt->QuotKindID && !qk_list.lsearch(qki.Id))
-						QuotKindList.atFree(i);
+						QuotKindList.AtFree(i);
 				} while(i);
 			}
 #ifndef NDEBUG
@@ -1393,7 +1393,7 @@ DBQuery * SLAPI PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 		else {
 			if(pSubTitle) {
 				if(QuotKindList.getCount() && !oneof2(Filt.QkCls, PPQuot::clsGeneral, PPQuot::clsSupplDeal))
-					pSubTitle->CopyFrom(QuotKindList.at(0).Txt);
+					pSubTitle->CopyFrom(QuotKindList.Get(0).Txt);
 				else if(Filt.QuotKindID)
 					QuotKindList.Get(Filt.QuotKindID, *pSubTitle);
 			}
@@ -1459,9 +1459,8 @@ int PPViewQuot::CellStyleFunc(const void * pData, long col, int paintAction, Bro
 	return ok;
 }
 
-int SLAPI PPViewQuot::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewQuot::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
 	if(pBrw) {
 		if(P_TempSerTbl) {
 			pBrw->SetCellStyleFunc(PPViewQuot::CellStyleFunc, this);
@@ -1475,23 +1474,20 @@ int SLAPI PPViewQuot::PreprocessBrowser(PPViewBrowser * pBrw)
 				HasPeriodVal = 2; // Признак того, что создана колонка, соответствующая периоду
 			}
 			for(uint i = 0; i < MAX_QUOTS_PER_TERM_REC && i < QuotKindList.getCount(); i++) {
-				const StrAssocArray::Item entry = QuotKindList.at(i);
+				const StrAssocArray::Item entry = QuotKindList.Get(i);
 				pBrw->insertColumn(-1, entry.Txt, 7+1+i, 0L, MKSFMTD(8, 2, ALIGN_RIGHT|NMBF_NOZERO), 0);
-				ok = 1;
 			}
 		}
 		else if(Filt.QkCls == PPQuot::clsMtx)
 			pBrw->SetCellStyleFunc(PPViewQuot::CellStyleFunc, this);
 	}
-	return ok;
 }
 
 int SLAPI PPViewQuot::GetCtQuotVal(const void * pRow, long col, long aggrNum, double * pVal)
 {
 	int    ok = -1;
 	double val = 0.0;
-	if(P_Ct)
-		P_Ct->GetAggrFieldVal(col - 1, aggrNum, pRow, &val, sizeof(val));
+	CALLPTRMEMB(P_Ct, GetAggrFieldVal(col - 1, aggrNum, pRow, &val, sizeof(val)));
 	ASSIGN_PTR(pVal, val);
 	return ok;
 }
@@ -1525,7 +1521,7 @@ int SLAPI PPViewQuot::GetEditIds(const void * pRow, PPViewQuot::BrwHdr * pHdr, l
 			hdr.ArticleID = e_.ArticleID;
 			hdr.PeriodIdx = e_.PeriodIdx;
 			if(quot_col >= 0 && quot_col < (long)QuotKindList.getCount())
-				hdr.QuotKindID = QuotKindList.at(quot_col).Id;
+				hdr.QuotKindID = QuotKindList.Get(quot_col).Id;
 			SETIFZ(hdr.QuotKindID, Filt.QuotKindID);
 		}
 	}
@@ -1687,7 +1683,7 @@ int SLAPI PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 						int    pos = pBrw->view->GetCurColumn();
 						if(pos >= FirstQuotBrwColumn) {
 							pos -= FirstQuotBrwColumn;
-							qk_id = QuotKindList.at(pos).Id;
+							qk_id = QuotKindList.Get(pos).Id;
 						}
 					}
 					else if(Filt.QkCls == PPQuot::clsMtx && Spc.MtxID)
@@ -2051,7 +2047,7 @@ int PPALDD_QuotView::InitData(PPFilt & rFilt, long rsrv)
 	const size_t sz = sizeof(H.QuotName1);
 	const size_t offs = offsetof(PPALDD_QuotView::Head, QuotName1);
 	for(uint i = 0; i < p_v->GetQuotKindList().getCount(); i++) {
-		const StrAssocArray::Item item = p_v->GetQuotKindList().at(i);
+		const StrAssocArray::Item item = p_v->GetQuotKindList().Get(i);
 		strnzcpy(((char *)&H)+offs+sz*i, item.Txt, sz);
 	}
 	return DlRtm::InitData(rFilt, rsrv);

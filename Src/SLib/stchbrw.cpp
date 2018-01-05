@@ -1,5 +1,5 @@
 // STCHBRW.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // TimeChunkBrowser
 //
@@ -612,7 +612,7 @@ int STimeChunkBrowser::SaveParameters()
 		SString temp_buf, sub_key;
 		MakeParamKeyList(param_list);
 		for(uint i = 0; i < param_list.getCount(); i++) {
-			StrAssocArray::Item item = param_list.at(i);
+			StrAssocArray::Item item = param_list.Get(i);
 			switch(item.Id) {
 				case kpPixQuant: temp_buf.CatEq(item.Txt, (long)P.PixQuant).Semicol(); break;
 				case kpPixRow:   temp_buf.CatEq(item.Txt, (long)P.PixRow).Semicol(); break;
@@ -645,7 +645,7 @@ int STimeChunkBrowser::RestoreParameters(STimeChunkBrowser::Param & rParam)
 				scan.Get(temp_buf);
 				scan.IncrLen(1 /* character ';' */);
 				for(uint i = 0; i < param_list.getCount(); i++) {
-					StrAssocArray::Item item = param_list.at(i);
+					StrAssocArray::Item item = param_list.Get(i);
 					if(temp_buf.Divide('=', left, right) > 0 && left.Strip().CmpNC(item.Txt) == 0) {
 						switch(item.Id) {
 							case kpPixQuant:     rParam.PixQuant = (uint)right.ToLong(); break;
@@ -2194,7 +2194,8 @@ STimeChunk FASTCALL STimeChunkBrowser::GetBoundsTime(const Area & rArea) const
 {
 	STimeChunk view_time_bounds;
 	const STimeChunkArray * p_collapse_list = GetCollapseList_();
-	const uint cc = p_collapse_list ? p_collapse_list->getCount() : 0;
+	//const uint cc = p_collapse_list ? p_collapse_list->getCount() : 0;
+	const uint cc = SVectorBase::GetCount(p_collapse_list);
 	if(P.ViewType == Param::vHourDay) {
 		/*
 		const uint  days_per_screen = rArea.Right.width() / rArea.PixQuant;

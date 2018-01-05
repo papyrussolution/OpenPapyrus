@@ -1,5 +1,5 @@
 // V_ACANLZ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1632,14 +1632,9 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int SLAPI PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
-	if(pBrw) {
-		pBrw->SetCellStyleFunc(CellStyleFunc, this);
-		ok = 1;
-	}
-	return ok;
+	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, this));
 }
 
 // virtual

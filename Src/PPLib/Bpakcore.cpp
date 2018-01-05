@@ -1,5 +1,5 @@
 // BPAKCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage Windows-1251
 // @Kernel
 //
@@ -4300,7 +4300,7 @@ int SLAPI TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 		{
 			ord_list.SortByText();
 			for(i = 0; i < ord_list.getCount(); i++) {
-				StrAssocArray::Item oi = ord_list.at(i);
+				StrAssocArray::Item oi = ord_list.Get(i);
 				uint   elp = 0;
 				int    r = ext_list.lsearch(&oi.Id, &elp, CMPF_LONG);
 				assert(r);

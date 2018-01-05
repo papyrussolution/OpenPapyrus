@@ -1,5 +1,5 @@
 // V_TSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -86,12 +86,8 @@ PPViewTSession::IterBlock & FASTCALL PPViewTSession::IterBlock::Init(int order)
 	return *this;
 }
 //
-SLAPI PPViewTSession::PPViewTSession() : PPView(&TSesObj, &Filt)
+SLAPI PPViewTSession::PPViewTSession() : PPView(&TSesObj, &Filt), P_TempTbl(0), P_LastAnlzFilt(0), P_UhttsPack(0), State(0)
 {
-	P_TempTbl = 0;
-	P_LastAnlzFilt = 0;
-	P_UhttsPack = 0;
-	State = 0;
 	ImplementFlags |= implOnAddSetupPos;
 }
 
@@ -757,16 +753,13 @@ DBQuery * SLAPI PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSub
 	return q;
 }
 
-int SLAPI PPViewTSession::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewTSession::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		const PPTSessConfig & r_cfg = TSesObj.GetConfig();
-		if(r_cfg.ViewRefreshPeriod) {
+		if(r_cfg.ViewRefreshPeriod)
 			pBrw->SetRefreshPeriod(r_cfg.ViewRefreshPeriod);
-			return 1;
-		}
 	}
-	return -1;
 }
 
 int SLAPI PPViewTSession::WriteOff(PPID sessID)
@@ -851,9 +844,7 @@ int SLAPI PPViewTSession::Print(const void * pHdr)
 {
 	PPID   id = pHdr ? *(PPID *)pHdr : 0;
 	if(id) {
-		PPFilt pf;
-		pf.Ptr = 0;
-		pf.ID  = id;
+		PPFilt pf(id);
 		PPAlddPrint(REPORT_TSESSION, &pf);
 	}
 	return -1;
@@ -1334,10 +1325,8 @@ int SLAPI TSessLineFilt::Init()
 	return 1;
 }
 
-SLAPI PPViewTSessLine::PPViewTSessLine()
+SLAPI PPViewTSessLine::PPViewTSessLine() : P_TempTbl(0), NewGoodsGrpID(0)
 {
-	P_TempTbl = 0;
-	NewGoodsGrpID = 0;
 }
 
 SLAPI PPViewTSessLine::~PPViewTSessLine()
@@ -1668,15 +1657,12 @@ DBQuery * SLAPI PPViewTSessLine::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return q;
 }
 
-int SLAPI PPViewTSessLine::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewTSessLine::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
 	if(pBrw && Filt.GoodsID && GoodsIdList.getSingle() == 0) {
 		// pBrw->InsColumnWord(1, PPWORD_GOODS, 3, 0, 0, 0);
 		pBrw->InsColumn(1, "@ware", 3, 0, 0, 0);
-		ok = 1;
 	}
-	return ok;
 }
 
 int SLAPI PPViewTSessLine::TranslateBrwHdr(const void * pRow, BrwHdr * pHdr)

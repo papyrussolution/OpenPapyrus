@@ -426,8 +426,7 @@ IMPL_HANDLE_EVENT(PuglDialog)
 {
 	PPListDialog::handleEvent(event);
 	if(event.isCmd(cmMsgNCmplPrint)) {
-		PPFilt pf;
-		pf.Ptr = &Data;
+		PPFilt pf(&Data);
 		PPAlddPrint(REPORT_PUGL, &pf);
 	}
 	else if(event.isCmd(cmLBItemSelected)) {

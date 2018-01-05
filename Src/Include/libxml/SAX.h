@@ -19,7 +19,7 @@ extern "C" {
 #endif
 XMLPUBFUN const xmlChar * XMLCALL getPublicId(void *ctx);
 XMLPUBFUN const xmlChar * XMLCALL getSystemId(void *ctx);
-XMLPUBFUN void XMLCALL setDocumentLocator(void *ctx, xmlSAXLocatorPtr loc);
+XMLPUBFUN void XMLCALL setDocumentLocator(void *ctx, xmlSAXLocator * loc);
 XMLPUBFUN int XMLCALL getLineNumber(void *ctx);
 XMLPUBFUN int XMLCALL getColumnNumber(void *ctx);
 XMLPUBFUN int XMLCALL isStandalone(void *ctx);
@@ -29,7 +29,7 @@ XMLPUBFUN void XMLCALL internalSubset(void *ctx, const xmlChar *name, const xmlC
 XMLPUBFUN void XMLCALL externalSubset(void *ctx, const xmlChar *name, const xmlChar *ExternalID, const xmlChar *SystemID);
 XMLPUBFUN xmlEntity * XMLCALL getEntity(void *ctx, const xmlChar *name);
 XMLPUBFUN xmlEntity * XMLCALL getParameterEntity(void *ctx, const xmlChar *name);
-XMLPUBFUN xmlParserInputPtr XMLCALL resolveEntity(void *ctx, const xmlChar *publicId, const xmlChar *systemId);
+XMLPUBFUN xmlParserInput * XMLCALL resolveEntity(void *ctx, const xmlChar *publicId, const xmlChar *systemId);
 XMLPUBFUN void XMLCALL entityDecl(void *ctx, const xmlChar *name, int type, const xmlChar *publicId, const xmlChar *systemId, xmlChar *content);
 XMLPUBFUN void XMLCALL attributeDecl(void *ctx, const xmlChar *elem, const xmlChar *fullname, int type, int def, const xmlChar *defaultValue, xmlEnumeration * tree);
 XMLPUBFUN void XMLCALL elementDecl(void *ctx, const xmlChar *name, int type, xmlElementContent * content);

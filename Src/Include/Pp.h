@@ -136,9 +136,55 @@
 // @v9.4.5 #define USE_OBJSYNC2 // @obsolete @v5.8.2
 // @v9.4.5 #define USE_REF2     // @v5.8.2
 
-#define DECL_REF_REC(rec)     typedef rec##2 rec
+#define DECL_REF_REC(rec)     struct rec##2; typedef rec##2 rec
 #define ReferenceTbl          Reference2Tbl
 #define REF_TEST_RECSIZE(rec) assert(sizeof(rec##_) == sizeof(Reference_Tbl::Rec) && sizeof(rec##2) == sizeof(Reference2Tbl::Rec));
+
+DECL_REF_REC(PPObjectTag);
+DECL_REF_REC(PPSecur);
+DECL_REF_REC(PPBarcodeStruc);
+DECL_REF_REC(PPUnit);
+DECL_REF_REC(PPNamedObjAssoc);
+DECL_REF_REC(PPPersonKind);
+DECL_REF_REC(PPPersonStatus);
+DECL_REF_REC(PPELinkKind);
+DECL_REF_REC(PPCurrency);
+DECL_REF_REC(PPCurRateType);
+DECL_REF_REC(PPAmountType);
+DECL_REF_REC(PPOprType);
+DECL_REF_REC(PPOpCounter);
+DECL_REF_REC(PPGdsCls);
+DECL_REF_REC(PPAssetWrOffGrp);
+DECL_REF_REC(PPOprKind);
+DECL_REF_REC(PPBillStatus);
+DECL_REF_REC(PPAccSheet);
+DECL_REF_REC(PPCashNode);
+DECL_REF_REC(PPLocPrinter);
+DECL_REF_REC(PPBarcodePrinter);
+DECL_REF_REC(PPStyloPalm);
+DECL_REF_REC(PPTouchScreen);
+DECL_REF_REC(PPInternetAccount);
+DECL_REF_REC(PPDBDiv);
+DECL_REF_REC(PPGoodsType);
+DECL_REF_REC(PPGoodsStrucHeader);
+DECL_REF_REC(PPGoodsTax);
+DECL_REF_REC(PPRegisterType);
+DECL_REF_REC(PPQuotKind);
+DECL_REF_REC(PPPsnOpKind);
+DECL_REF_REC(PPWorldObjStatus);
+DECL_REF_REC(PPPersonRelType);
+DECL_REF_REC(PPSalCharge);
+DECL_REF_REC(PPDateTimeRep);
+DECL_REF_REC(PPDutySched);
+DECL_REF_REC(PPStaffCal);
+DECL_REF_REC(PPGoodsInfo);
+DECL_REF_REC(PPScale);
+DECL_REF_REC(PPBhtTerminal);
+DECL_REF_REC(PPSCardSeries);
+DECL_REF_REC(PPDraftWrOff);
+DECL_REF_REC(PPAdvBillKind);
+DECL_REF_REC(PPGoodsBasket);
+DECL_REF_REC(PPDraftCreateRule);
 
 class  PPThread;
 class  PPObjBill;
@@ -327,9 +373,25 @@ class  PPViewBill;
 class  PPViewPersonEvent;
 class  PPGoodsImpExpParam;
 class  TSessAnlzList;
+class  PhoneServiceEventResponder;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
+//
+// Descr: Утилитный класс, используемый как базовый для классов, имеющих
+//   строки расширения, идентифицируемые целочисленными значениями.
+//
+class PPExtStrContainer {
+public:
+	SLAPI  PPExtStrContainer();
+	int    SLAPI GetExtStrData(int fldID, SString & rBuf) const;
+	int    SLAPI PutExtStrData(int fldID, const char * pStr);
+	int    SLAPI SerializeB(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	void   FASTCALL SetBuffer(const char * pSrc);
+	const  SString & SLAPI GetBuffer() const;
+protected:
+	SString ExtString;
+};
 //
 // Descr: Габаритные размеры (mm).
 //
@@ -362,13 +424,7 @@ struct PPDimention { // @noctr @novtbl
 };
 //
 //
-int    SLAPI CreateSerial(PPRegistrInfo *);
-int    SLAPI SetRegistrInfo(const PPRegistrInfo *, const char *);
 //
-//
-//
-#define MAX_LINKED_FILES 32
-
 class ObjLinkFiles {
 public:
 	//
@@ -548,12 +604,6 @@ struct PPLicData {
 	uint32 DbDivArray[8];   // Битовый массив доступных разделов БД
 	uint32 SrvJobArray[16]; // Битовый массив доступных задач сервера
 };
-
-int SLAPI PPLicUpdate();
-int SLAPI PPLicRegister();
-int SLAPI PPGetLicData(PPLicData * pData);
-int SLAPI PPUpdateLic(const char * pSrcFile, const char * pRegName, const char * pRegNum);
-int SLAPI PPUpdateLic(const char * pSrcFile);
 //
 // Descr: Класс, управляющий получение списка файлов по шаблону
 //
@@ -915,10 +965,6 @@ struct GdsClsCalcExprContext {
 	PPID   GoodsID;
 	PPID   PrevGoodsID;
 };
-
-int    SLAPI PPCalcExpression(const char *, double * pResult, const PPCalcFuncList *);
-int    SLAPI PPCalcExpression(const char *, double * pResult, PPBillPacket *, PPID curID, uint advItemIdx);
-int    SLAPI PPCalcExpression(const char *, double * pResult, GdsClsCalcExprContext * pCtx);
 //
 //	Структура результирующей кросс-таблицы следующая:
 //		autolong CTID;
@@ -1681,8 +1727,6 @@ struct PPObjID { // @flat
 	PPID   Obj;
 	PPID   Id;
 };
-
-DECL_CMPFUNC(PPObjID);
 
 class PPObjIDArray : public TSVector <PPObjID> { // @v9.8.4 TSArray-->TSVector
 public:
@@ -2668,8 +2712,7 @@ private:
 extern "C" typedef PPBaseFilt * (*FN_PPFILT_FACTORY)();
 
 #define PPFILT_FACTORY(filtSymb)  BFF_##filtSymb
-#define IMPLEMENT_PPFILT_FACTORY(filtSymb) \
-	extern "C" __declspec(dllexport) PPBaseFilt * BFF_##filtSymb() { return new filtSymb##Filt(); }
+#define IMPLEMENT_PPFILT_FACTORY(filtSymb) extern "C" __declspec(dllexport) PPBaseFilt * BFF_##filtSymb() { return new filtSymb##Filt(); }
 //
 // @ModuleDecl(PPConfig)
 //
@@ -3247,8 +3290,6 @@ struct PPObjectTag2 {   // @persistent @store(Reference2Tbl+)
 	PPID   TagGroupID;  // Группа, к которой относится тег
 };
 
-DECL_REF_REC(PPObjectTag);
-
 class PPTagEnumList : public StrAssocArray {
 public:
 	SLAPI  PPTagEnumList(PPID enumID = 0);
@@ -3526,8 +3567,6 @@ struct PPSecur2 {          // @persistent @store(Reference2Tbl+)
 	PPID   PersonID;       // (USER only) Связанная персоналия //
 };
 
-DECL_REF_REC(PPSecur);
-
 struct PPSecurPacket {
 	SLAPI  PPSecurPacket();
 	PPSecurPacket & FASTCALL operator = (const PPSecurPacket &);
@@ -3693,8 +3732,6 @@ struct PPBarcodeStruc2 {   // @persistent @store(Reference2Tbl+)
 	long   Reserve1;       // @reserve
 	long   Reserve2;       // @reserve
 };
-
-DECL_REF_REC(PPBarcodeStruc);
 //
 // @ModuleDecl(QuotationCore)
 //
@@ -3878,8 +3915,6 @@ struct PPQuot { // @persistent(DBX see Note above)
 	PPID   QTaID;  // @transient
 	LDATETIME Dtm; //
 };
-
-DECL_CMPFUNC(PPQuot);
 
 class PPQuotArray : public TSVector <PPQuot> { // @v9.8.4 TSArray-->TSVector
 public:
@@ -5792,16 +5827,23 @@ public:
 	void   SLAPI PushErrContext();
 	void   SLAPI PopErrContext();
 	int    SLAPI IsConsistent() const;
-	long   SLAPI GetId() const;
+	long   SLAPI GetId() const
+	{
+		return Id;
+	}
 	//
 	// Descr: Возвращает !0 если поток авторизован в базе данных Papyrus
 	//
 	int    SLAPI IsAuth() const;
-	ThreadID SLAPI GetThreadID() const;
-
+	ThreadID SLAPI GetThreadID() const
+	{
+		return TId;
+	}
 	PPView * SLAPI GetPPViewPtr(int32 id) const;
 	int32  SLAPI CreatePPViewPtr(PPView *);
 	int    SLAPI ReleasePPViewPtr(int32 id);
+	int    SLAPI SetupPhoneServiceEventResponder();
+	void   SLAPI ReleasePhoneServiceEventResponder();
 	//
 	// Descr: До версии 8.6.1 некоторые атрибуты, связанные с текущим значением главной
 	//   организации инициализировались при открытии сессии (PPSession::Login).
@@ -5817,12 +5859,8 @@ public:
 	//   быть необходимо, например, при изменении главной организации).
 	//
     int    SLAPI InitMainOrgData(int reset);
-    //
-    //
-    //
     int    SLAPI SetIfcConfigParam(const char * pParam, const char * pValue);
     int    SLAPI GetIfcConfigParam(const char * pParam, SString & rValue) const;
-    //
     SrDatabase * SLAPI GetSrDatabase();
 private:
 	int    SLAPI RegisterAdviseObjects();
@@ -5861,6 +5899,7 @@ private:
 	ErrContext * P_ErrCtx;
 	PPThread * P_AeqThrd;
 	SrDatabase * P_SrDb; // @v9.7.11
+	PhoneServiceEventResponder * P_PhnSvcEvRespr; // @v9.8.12
 public:
 	class WaitBlock {
 	public:
@@ -6008,7 +6047,13 @@ public:
 //
 //
 //
-struct PPNotifyEvent {
+struct PPNotifyEvent : public PPExtStrContainer {
+	enum {
+		extssMessage          = 1,
+		extssChannel          = 2,
+		extssCallerId         = 3,
+		extssConnectedLineNum = 4
+	};
 	SLAPI  PPNotifyEvent();
 	void   SLAPI Clear();
 	PPNotifyEvent & SLAPI SetFinishTag();
@@ -6019,7 +6064,7 @@ struct PPNotifyEvent {
 	PPID   ObjID;
 	long   ExtInt_;
 	LDATETIME ExtDtm;
-	SString ExtStr;
+	//SString ExtStr;
 };
 //
 // Descr: callback-функция, вызываемая в ответ на событие.
@@ -6043,7 +6088,9 @@ struct PPAdviseBlock {
 		evWaitMsg,              // Оповещать о вызове PPWaitMsg или PPWaitPercent
 		evQuartz,               // Оповещать через секундные интервалы
 		evTSessChanged,         // Оповещать об изменениях технологических сессий
-		evPsnEvChanged          // @v8.0.3  Оповещать об изменениях персональных операций
+		evPsnEvChanged,         // @v8.0.3  Оповещать об изменениях персональных операций
+		evPhoneRinging,         // @v9.8.11 Телефонный сервис: звонит телефон
+		evPhoneUp               // @v9.8.11 Телефонный сервис: поднята телефонная трубка      
 	};
 	long   Cookie;     // for internal use
 	int    Kind;       // PPAdivseBlock::evXXX Тип извещения, для которого сформирован этот блок.
@@ -6968,10 +7015,6 @@ void   SLAPI PPSaveErrContext();
 void   SLAPI PPRestoreErrContext();
 
 int    FASTCALL dbl_cmp(double, double);
-
-DECL_CMPFUNC(PPLBItem);
-DECL_CMPFUNC(PPTLBItem);
-DECL_CMPFUNC(Acct);
 //
 // Descr: Набор точек входа в базы данных.
 //   Описание точек входа в БД хранится в файле BIN\PP.INI в разделе [dbname]
@@ -7257,21 +7300,6 @@ private:
 
 int    FASTCALL PPGetExtStrData(int fldID, int defFldID, const SString & rLine, SString & rBuf);
 int    FASTCALL PPGetExtStrData(int fldID, const SString & rLine, SString & rBuf);
-//
-// Descr: Утилитный класс, используемый как базовый для классов, имеющих
-//   строки расширения, идентифицируемые целочисленными значениями.
-//
-class PPExtStrContainer {
-public:
-	SLAPI  PPExtStrContainer();
-	int    SLAPI GetExtStrData(int fldID, SString & rBuf) const;
-	int    SLAPI PutExtStrData(int fldID, const char * pStr);
-	int    SLAPI SerializeB(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-	void   FASTCALL SetBuffer(const char * pSrc);
-	const  SString & SLAPI GetBuffer() const;
-protected:
-	SString ExtString;
-};
 //
 // Descr: Сравнивает значения тегированных подстрок с идентификатором fldID в строке rLine1 и rLine2.
 // ARG(fldID   IN): Идентификатор тега подстроки
@@ -13582,15 +13610,13 @@ private:
 	double Sum;
 };
 
-struct DraftRcptItem {
+struct DraftRcptItem { // @flat
 	PPID   GoodsID;
 	PPID   LocID;
 	double Qtty;
 };
 
-typedef TSArray <DraftRcptItem> DraftRcptArray;
-
-DECL_CMPFUNC(DraftRcptItem);
+typedef TSVector <DraftRcptItem> DraftRcptArray; // @v9.8.12 TSArray-->TSVector
 //
 // Descr: Дескриптор статуса стола кафе.
 //
@@ -13980,21 +14006,26 @@ private:
 	Subst ** P_Items;
 	int    IsInited;
 };
+
+DBTable * FASTCALL __PreprocessCreatedDbTable(DBTable * pT);
 //
 // Макрос для генерации функции создания временного файла
 //
-#define PP_CREATE_TEMP_FILE_PROC(proc,nam)                 \
+/*#define PP_CREATE_TEMP_FILE_PROC(proc,nam)                 \
 static nam##Tbl * SLAPI proc() { nam##Tbl * t = new nam##Tbl(DBTable::CrTempFileNamePtr); \
-  if(t && t->IsOpened()) return t; else { delete t; t = 0; return (PPSetErrorDB(), (nam##Tbl *)0); }}
+  if(t && t->IsOpened()) return t; else { delete t; t = 0; return (PPSetErrorDB(), (nam##Tbl *)0); }}*/
+#define PP_CREATE_TEMP_FILE_PROC(proc,nam)                 \
+static nam##Tbl * SLAPI proc() { return (nam##Tbl *)__PreprocessCreatedDbTable(new nam##Tbl(DBTable::CrTempFileNamePtr)); }
 
 template <class T> inline T * CreateTempFile()
 {
-	T * t = new T(DBTable::CrTempFileNamePtr);
+	/*T * t = new T(DBTable::CrTempFileNamePtr);
 	if(!t || !t->IsOpened()) {
 		ZDELETE(t);
 		PPSetErrorDB();
 	}
-	return t;
+	return t;*/
+	return (T *)__PreprocessCreatedDbTable(new T(DBTable::CrTempFileNamePtr));
 }
 
 template <class T> int SerializeDbTableByFileName(int dir, T ** ppT, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -14037,7 +14068,6 @@ public:
 		exefDisable3Tier = 0x0002
 	};
 	static int FASTCALL Execute(int viewID, const PPBaseFilt * pFilt, int flags /* exefXXX */, void * extraPtr);
-
 	static int SLAPI ExecuteServer(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply);
 	static int SLAPI Destroy(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply);
 	static int SLAPI Refresh(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply);
@@ -14149,7 +14179,7 @@ protected:
 	//   >0 - были сделаны какие-либо изменения в таблице pBrw
 	//   0  - ошибка. В этом случае функция PPView::Browse прерывает исполнение.
 	//
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw); // @<<PPView::Browse
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw); // @<<PPView::Browse
 	virtual int   SLAPI ViewTotal();
 	virtual int   SLAPI Print(const void *);
 	virtual void * SLAPI GetEditExtraParam();
@@ -15091,8 +15121,6 @@ struct PPUnit2 {           // @persistent @store(Reference2Tbl+)
 	long   Reserve2;       // @reserve
 };
 
-DECL_REF_REC(PPUnit);
-
 class PPObjUnit : public PPObjReference {
 public:
 	SLAPI  PPObjUnit(void * extraPtr = 0);
@@ -15132,8 +15160,6 @@ struct PPNamedObjAssoc2 {  // @persistent @store(Reference2Tbl+)
 	long   ScndObjType;    // PPOBJ_WAREHOUSE || PPOBJ_WAREPLACE || PPOBJ_ARTICLE
 };
 
-DECL_REF_REC(PPNamedObjAssoc);
-
 class PPObjNamedObjAssoc : public PPObjReference {
 public:
 	SLAPI  PPObjNamedObjAssoc(void * extraPtr = 0);
@@ -15163,8 +15189,6 @@ struct PPPersonKind2 {     // @persistent @store(Reference2Tbl+)
 	PPID   FolderRegTypeID; // Тип регистра, идентифицирующего наименование каталога с документами по персоналии
 };
 
-DECL_REF_REC(PPPersonKind);
-
 class PPObjPersonKind : public PPObjReference {
 public:
 	SLAPI  PPObjPersonKind(void * extraPtr = 0);
@@ -15191,8 +15215,6 @@ struct PPPersonStatus2 {   // @persistent @store(Reference2Tbl+)
 	long   Flags;          // PSNSTF_XXX
 	long   Reserve2[2];    // @reserve
 };
-
-DECL_REF_REC(PPPersonStatus);
 
 class PPObjPersonStatus : public PPObjReference {
 public:
@@ -15248,8 +15270,6 @@ struct PPELinkKind2 {      // @persistent @store(Reference2Tbl+)
 	long   Reserve2;       // @reserve
 };
 
-DECL_REF_REC(PPELinkKind);
-
 class PPObjELinkKind : public PPObjReference {
 public:
 	SLAPI  PPObjELinkKind(void * extraPTr = 0);
@@ -15303,8 +15323,6 @@ struct PPCurrency2 {       // @persistent @store(Reference2Tbl+)
 	long   Reserve2;       // @reserve
 };
 
-DECL_REF_REC(PPCurrency);
-
 struct PPCurrencyConfig {  // @persistent @store(PropertyTbl)
 	PPID   Tag;            // Const=PPOBJ_CONFIG
 	PPID   ID;             // Const=PPCFG_MAIN
@@ -15351,8 +15369,6 @@ struct PPCurRateType2 {    // @persistent @store(Reference2Tbl+)
 	long   Reserve2[2];    // @reserve
 };
 
-DECL_REF_REC(PPCurRateType);
-
 class PPObjCurRateType : public PPObjReference {
 public:
 	SLAPI  PPObjCurRateType(void * extraPtr = 0);
@@ -15362,14 +15378,14 @@ public:
 // @ModuleDecl(CurRateCore)
 // Валютные курсы
 //
-struct CurRateIdent {
+struct CurRateIdent { // @flat
 	PPID   CurID;
 	PPID   BaseCurID;
 	PPID   RateTypeID;
 	LDATE  Dt;
 };
 
-struct UhttCurRateIdent {
+struct UhttCurRateIdent { // @flat
 	CurRateIdent Ident;
 	double Rate;
 };
@@ -15431,8 +15447,6 @@ struct PPAmountType2 {     // @persistent @store(Reference2Tbl+)
 		PPID   RefAmtTypeID;  // Сумма, комплементарная данной (Flags & (fInAmount | fOutAmount))
 	};
 };
-
-DECL_REF_REC(PPAmountType);
 
 struct PPAmountTypePacket {
 	SLAPI  PPAmountTypePacket();
@@ -15501,8 +15515,6 @@ struct PPOprType2 {        // @persistent @store(Reference2Tbl+)
 	long   Reserve2[2];    // @reserve
 };
 
-DECL_REF_REC(PPOprType);
-
 class PPObjOprType : public PPObjReference {
 public:
 	SLAPI  PPObjOprType(void * extraPtr);
@@ -15528,8 +15540,6 @@ struct PPOpCounter2 {      // @persistent @store(Reference2Tbl+)
 	long   OwnerObjID;     // Объект-владелец счетчика (если 0, то может принадлежать более чем одной операции)
 		// Если OwnerObjID == -1, то счетчик принадлежит конфигурации объекта ObjType
 };
-
-DECL_REF_REC(PPOpCounter);
 
 class PPOpCounterPacket {
 public:
@@ -15661,8 +15671,6 @@ struct PPGdsCls2 {         // @persistent @store(Reference2Tbl+)
 		// то считает, что X принадлежит G.
 };
 
-DECL_REF_REC(PPGdsCls);
-
 struct PPGdsClsFormula {
 	SLAPI  PPGdsClsFormula();
 	void   SLAPI Clear();
@@ -15788,8 +15796,6 @@ struct PPAssetWrOffGrp2 {  // @persistent @store(Reference2Tbl+)
 	long   Flags;          //
 	long   Reserve2[2];    // @reserve
 };
-
-DECL_REF_REC(PPAssetWrOffGrp);
 
 class PPObjAssetWrOffGrp : public PPObjReference {
 public:
@@ -15923,8 +15929,6 @@ struct PPOprKind2 {        // @persistent @store(Reference2Tbl+)
 	PPID   OpTypeID;       //
 	PPID   AccSheetID;     //
 };
-
-DECL_REF_REC(PPOprKind);
 //
 // Дополнительная информация об операции инвентаризации
 //
@@ -16108,7 +16112,7 @@ class PPOprKindPacket {
 public:
 	SLAPI  PPOprKindPacket();
 	SLAPI ~PPOprKindPacket();
-	int    SLAPI Init();
+	void   SLAPI Init();
 	int    SLAPI GetExtStrData(int fldID, SString & rBuf) const;
 	int    SLAPI PutExtStrData(int fldID, const char *);
 	PPOprKindPacket & FASTCALL operator = (const PPOprKindPacket & rSrc);
@@ -16204,102 +16208,6 @@ private:
 	int    SLAPI Helper_GetReservedOp(PPID * pID, const ReservedOpCreateBlock & rBlk, int use_ta);
 };
 //
-// Descr: возвращает запись PPOprKind, соответствующую идентификатору вида операции opID.
-//   Возвращаемая запись извлекается из кэша, поэтому, не все поля в ней заполнены так,
-//   как в базе данных (Name не определено). Параметр pData может быть равен нулю. В случае ошибки
-//   возвращает 0.
-//
-int    FASTCALL GetOpData(PPID opID, PPOprKind * pData);
-//
-// Descr: Через кэш извлекает запись вида операции по символу pSymb.
-//
-int    FASTCALL GetOpBySymb(const char * pSymb, PPOprKind * pData);
-int    FASTCALL GetOpName(PPID opID, char * buf, size_t buflen); // @obsolete use GetOpName(PPID opID, SString &)
-int    FASTCALL GetOpName(PPID opID, SString &);
-//
-// Descr: проверяет флаги операции opID по следующему алгоритму:
-//   if (GetOpData(oprKind) == 0) return 0;
-//   if (andF && (Flags & andF) != andF) return 0;
-//   if (notF && (Flags & notF) == notF) return 0;
-//   In another cases return 1;
-//
-int    FASTCALL CheckOpFlags(PPID opID, long andF, long notF = 0);
-int    FASTCALL CheckOpPrnFlags(PPID opID, long andF);
-PPID   FASTCALL GetOpType(PPID opID, PPOprKind * = 0);
-int    FASTCALL GetOpSubType(PPID opID);
-int    FASTCALL GetOpList(PPID opTypeID, PPIDArray * pList);
-//
-// Descr: возвращает (>0) если операция op принадлежит типу
-//   PPOPT_GENERIC, (<0) если op == 0 и (0) в противном случае.
-//
-int    FASTCALL IsGenericOp(PPID opID);
-//
-// Descr: возвращает параметром pList список операций,
-//   обобщаемых операцией opID. Если opID == 0 или opID не является обобщенной
-//   операцией, то возвращается (<0). Если возникла ошибка, то возвращается 0.
-//
-int    FASTCALL GetGenericOpList(PPID opID, ObjRestrictArray * pList);
-//
-// Descr: Редуцированный вариант предыдущей функции. Возвращает только список операций без флагов.
-//
-int    FASTCALL GetGenericOpList(PPID opID, PPIDArray * pList);
-int    FASTCALL IsOpBelongTo(PPID testOpID, PPID anotherOpID);
-int    SLAPI GetOpCommonAccSheet(PPID opID, PPID * pAccSheetID, PPID * pAccSheet2ID);
-//
-// Descr: Утилитная функция. Определяет, является ли операция возвратом либо
-//   оплатой. Эта проверка используется весьма часто.
-// Returns:
-//   0 - вид операции не является ни оплатой, ни возвратом
-//  !0 - тип операции, к которому относится операция opID (PPOPT_PAYMENT || PPOPT_GOODSRETURN || PPOPT_CHARGE).
-//
-PPID   FASTCALL IsOpPaymOrRetn(PPID opID);
-//
-// Descr: Определяет, является ли операция оплатой.
-//   Отличается от IsOpPaymOrRetn только тем, что для операции возврата возвращает 0.
-//
-int    FASTCALL IsOpPaym(PPID opID);
-//
-// Descr: Если операция товарная и оценивается в ценах реализации, то функция IsSellingOperation
-//   возвращает (> 0), если товарная и оценивается в ценах поступления, то 0, для нетоварных операций
-//   возвращает (< 0).
-//
-int    FASTCALL IsSellingOp(PPID);
-//
-// Descr: по спецификации идентична IsSellingOp. Существенная разница в том, что IsSellingOp извлекает ответ
-//   из состояния флажка OPKF_SELLING структуры PPOprKind, а _IsSellingOp дает ответ полагаясь на
-//   подразумеваемые свойства зарезервированных видов и типов операций. Функция _IsSellingOp необходима
-//   лишь в редких случаях. Например для оценки корректности установки вышеозначенного флажка в диалоге пользователем.
-//
-int    FASTCALL _IsSellingOp(PPID);
-int    FASTCALL IsExpendOp(PPID);
-//
-#define INTREXPND 1
-#define INTRRCPT  2
-//
-// Descr: определяет является ли операция межскладской передачей. Если возвращаемое значение равно 0,
-//   то ответ отрицательный. Если 1 - то межскладской расход, 2 - межскладской приход.
-//   Признаком межскладской операции является условие: (Op(o).AccSheet == LConfig.LocSheet) &&
-//     (Op(o)::Type == PPOPT_GOODSEXPEND || Op(o)::Type == PPOPT_GOODSRECEIPT).
-//
-int    FASTCALL IsIntrOp(PPID opID);
-int    FASTCALL IsIntrExpndOp(PPID opID); // {IsIntrOp(opID) == INTREXPND}
-int    FASTCALL IsDraftOp(PPID opID);
-int    FASTCALL IsGoodsDetailOp(PPID opID);
-int    SLAPI EnumOperations(PPID oprType, PPID *, PPOprKind * = 0);
-PPID   SLAPI GetCashOp();
-PPID   SLAPI GetCashRetOp();
-PPID   SLAPI GetReceiptOp();
-//
-// Descr: возвращает ИД операции, если она единственная принадлежит
-//   заданному типу oprType. Если существует более одной такой операции,
-//   то возвращается <0. Если вообще нет таких операций, то возвращается 0.
-//
-PPID   FASTCALL GetSingleOp(PPID oprType);
-//
-// Descr: Возвращает список зачетных операций
-//
-int    FASTCALL GetReckonOpList(PPIDArray *);
-//
 // @ModuleDecl(PPObjBillStatus)
 // Статусы документов
 //
@@ -16348,8 +16256,6 @@ struct PPBillStatus2 {     // @persistent @store(Reference2Tbl+)
 	long   CheckFields;    // BILCHECKF_XXX Обязательные поля документа
 	long   Reserve3;       // @reserve
 };
-
-DECL_REF_REC(PPBillStatus);
 
 class PPObjBillStatus : public PPObjReference {
 public:
@@ -16641,7 +16547,7 @@ public:
 	int    SLAPI ViewGraph();
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 
 	BizScoreCore Tbl;
@@ -16965,8 +16871,6 @@ struct PPAccSheet2 {       // @persistent @store(Reference2Tbl+)
 	long   Assoc;          // @#{0L, PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_ACCOUNT} Ассоциированный объект
 	long   ObjGroup;       // Подгруппа ассоциированных объектов
 };
-
-DECL_REF_REC(PPAccSheet);
 
 class PPObjAccSheet : public PPObjReference {
 public:
@@ -17322,8 +17226,6 @@ struct PPCashNode2 {       // @persistent @store(Reference2Tbl+)
 	long   LocID;          // ->Location.ID  Склад
 	PPID   CurSessID;      // ->CSession.ID  Текущая кассовая сессия (для синхронных узлов)
 };
-
-DECL_REF_REC(PPCashNode);
 
 class PPGenCashNode {        // @transient
 public:
@@ -17853,8 +17755,6 @@ struct PPLocPrinter2 {     // @persistent @store(Reference2Tbl+)
 	long   LocID;          // ->Location.ID  Склад
 	long   Reserve2;       // @reserve
 };
-
-DECL_REF_REC(PPLocPrinter);
 
 class PPObjLocPrinter : public PPObjReference {
 public:
@@ -18647,7 +18547,7 @@ protected:
 
 	PPID   NodeID;
 	long   Flags;      // PPACSF_XXX
-	PPID   SinceDlsID; // @v7.1.11 Ид записи статистики загрузки, начиная (включая) с которой следует выгрузить изменения //
+	PPID   SinceDlsID; // Ид записи статистики загрузки, начиная (включая) с которой следует выгрузить изменения //
 	// Temp Session {
 	TempCCheckTbl     * P_TmpCcTbl;
 	TempCCheckLineTbl * P_TmpCclTbl;
@@ -18740,8 +18640,6 @@ struct PPBarcodePrinter2 { // @persistent @store(Reference2Tbl+)
 	//
 	SString PortEx;        // @persistent @store(PropertyTbl[PPOBJ_BCODEPRINTER, id, BCPPRP_PORTEX]) @anchor
 };
-
-DECL_REF_REC(PPBarcodePrinter);
 
 class PPObjBarcodePrinter : public PPObjReference {
 public:
@@ -18875,8 +18773,6 @@ struct PPStyloPalm2 {          // @persistent @store(Reference2Tbl+)
 		// Flags & (PLMF_IMPASCHECKS|PLMF_EXPCLIDEBT|PLMF_EXPSELL|PLMF_EXPBRAND), PPStyloPalmPacket::P_LocList
 	PPID   AgentID;            // ->Article.ID; Agent - owner of palm
 };
-
-DECL_REF_REC(PPStyloPalm);
 
 struct PPStyloPalmPacket {
 public:
@@ -19231,8 +19127,6 @@ struct PPTouchScreen2 {    // @persistent @store(Reference2Tbl+)
 	PPID   AltGdsGrpID;         // Альтернативная группа, товары из которой показываются в кассовой панели по умолчанию
 };
 
-DECL_REF_REC(PPTouchScreen);
-
 class PPTouchScreenPacket {
 public:
 	SLAPI  PPTouchScreenPacket();
@@ -19394,6 +19288,20 @@ private:
 	TcpSocket S;
 };
 //
+// Descr: Класс, реализующий высокоуровневый функционал ответа на события телефонного сервиса.
+//
+class PhoneServiceEventResponder {
+public:
+	SLAPI  PhoneServiceEventResponder();
+	SLAPI ~PhoneServiceEventResponder();
+	int    SLAPI IdentifyCaller(const char * pCaller, PPObjIDArray & rList);
+private:
+	static int AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr);
+
+	long   AdvCookie_Ringing;
+	long   AdvCookie_Up;
+};
+//
 // @ModuleDecl(PPObjInternetAccount)
 //
 #define MAEXSTR_SENDSERVER       1 // Сервер исходящей почты (SMTP)
@@ -19456,8 +19364,6 @@ struct PPInternetAccount2 { // @persistent @store(Reference2Tbl+)
 	//
 	SString ExtStr;        // @anchor
 };
-
-DECL_REF_REC(PPInternetAccount);
 
 typedef TSCollection <PPInternetAccount> PPInetAccntArray;
 
@@ -20181,8 +20087,6 @@ struct PPDBDiv2 {          // @persistent @store(Reference2Tbl+)
 	long   OutCounter;    // Счетчик исходящих пакетов
 };
 
-DECL_REF_REC(PPDBDiv);
-
 #define DBDIVEXSTR_ACCLIST     1 // Список счетов, проводки по которым следует передавать //
 #define DBDIVEXSTR_GATEWAYLIST 2 // Список адресов шлюзов, через которые следует отправлять данные
 //
@@ -20266,8 +20170,6 @@ struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPID   WrOffGrpID;     // Группа списания основных фондов (required GTF_ASSETS)
 	long   Reserve2;       // @reserve
 };
-
-DECL_REF_REC(PPGoodsType);
 
 class PPObjGoodsType : public PPObjReference {
 public:
@@ -20446,8 +20348,6 @@ struct PPGoodsStrucHeader2 { // @persistent @store(Reference2Tbl+)
 	PPID   ParentID;         // Родительская структура
 	long   Reserve2;         // @reserve
 };
-
-DECL_REF_REC(PPGoodsStrucHeader);
 //
 // Descr: Флаги компонентов товарной структуры
 //
@@ -20804,8 +20704,6 @@ struct PPGoodsTax2 {       // @persistent @store(Reference2Tbl+)
 	long   UnionVect;      //
 };
 
-DECL_REF_REC(PPGoodsTax);
-
 class PPGoodsTaxPacket : public SArray {
 public:
 	SLAPI  PPGoodsTaxPacket();
@@ -20951,8 +20849,6 @@ struct PPRegisterType2 {   // @persistent @store(Reference2Tbl+)
 	PPID   PersonKindID;   // Вид персоналии, к которой должен относиться этот регистр. Если 0, то к любому виду.
 };
 
-DECL_REF_REC(PPRegisterType);
-
 struct PPRegisterTypePacket {
 	SLAPI  PPRegisterTypePacket();
 	PPRegisterTypePacket & FASTCALL operator = (const PPRegisterTypePacket &);
@@ -21092,8 +20988,6 @@ struct PPQuotKind2 {       // @persistent @store(Reference2Tbl+)
 	PPID   AccSheetID;     // Таблица статей, с которыми ассоциируются значения котировок.
 		// Если AccSheetID == 0, то полагается, что таблица статей GetSellAccSheet() (покупатели)
 };
-
-DECL_REF_REC(PPQuotKind);
 
 class PPQuotKindPacket {
 public:
@@ -21274,8 +21168,6 @@ struct PPPsnOpKind2 {      // @persistent @store(Reference2Tbl+)
 	PPID   LinkBillOpID;   // ->Ref(PPOBJ_OPRKIND).ID
 	PPID   PairOp;         // @#{PairOp != ID} ->self.ID   Парная операция //
 };
-
-DECL_REF_REC(PPPsnOpKind);
 //
 // Описание действий над персоналиями, осуществляемых посредством
 // персональных операций
@@ -21478,8 +21370,6 @@ struct PPWorldObjStatus2 { // @persistent @store(Reference2Tbl+)
 	long   Kind;           // WORLDOBJ_XXX
 	long   Code;           // Классификатор (возможно, связан с внешним классификатором). Если Code!=0, то значение уникально
 };
-
-DECL_REF_REC(PPWorldObjStatus);
 
 class PPObjWorldObjStatus : public PPObjReference {
 public:
@@ -21806,7 +21696,7 @@ private:
 	int    EndDocument();
 	int    StartElement(const char * pName, const char ** ppAttrList);
 	int    EndElement(const char * pName);
-	int    SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName);
+	int    SaxParseFile(xmlSAXHandler * sax, const char * pFileName);
 	void   SaxStop();
 	int    ProcessString(const char * pRawText, long * pRefId, SString & rTempBuf, SStringU & rTempBufU);
 
@@ -22200,17 +22090,18 @@ public:
 //
 //
 //
+struct PPLocAddrStruc_MatchEntry {
+	SLAPI  PPLocAddrStruc_MatchEntry(uint p1 = 0, uint p2 = 0, int reverse = 0);
+	SLAPI  PPLocAddrStruc_MatchEntry(const PPLocAddrStruc_MatchEntry & rS);
+
+	uint   P1;
+	uint   P2;
+	int    Reverse;
+	LAssocArray CityStreetList;
+};
+
 class PPLocAddrStruc : public StrAssocArray {
 public:
-	struct _MatchEntry {
-		SLAPI  _MatchEntry(uint p1 = 0, uint p2 = 0, int reverse = 0);
-		SLAPI  _MatchEntry(const _MatchEntry & rS);
-
-		uint   P1;
-		uint   P2;
-		int    Reverse;
-		LAssocArray CityStreetList;
-	};
 	//
 	// Descr: Специальный тип идентифицирующий необходимость создания экземпляра
 	//   объекта с собственным экземпляром PPFiasReference
@@ -22227,9 +22118,9 @@ public:
 	int    SLAPI Output(SString & rBuf); // @debug
 
 	int    SLAPI HasAmbiguity() const;
-	const  TSCollection <_MatchEntry> * SLAPI GetAmbiguityMatchList() const;
-	const  _MatchEntry * SLAPI GetAmbiguityMatchEntry() const;
-	int    SLAPI MatchEntryToStr(const _MatchEntry *, SString & rBuf);
+	const  TSCollection <PPLocAddrStruc_MatchEntry> * SLAPI GetAmbiguityMatchList() const;
+	const  PPLocAddrStruc_MatchEntry * SLAPI GetAmbiguityMatchEntry() const;
+	int    SLAPI MatchEntryToStr(const PPLocAddrStruc_MatchEntry *, SString & rBuf);
 
 	enum {
 		tAddress = 1,
@@ -22342,8 +22233,8 @@ private:
 	TSCollection <AddrTok> TokList;
 	PPFiasReference * P_Fr; // @notowned unless State & stOwnFiasRef
 
-	TSCollection <_MatchEntry> * P_AmbigMatchList;
-	_MatchEntry * P_AmbigMatchEntry;
+	TSCollection <PPLocAddrStruc_MatchEntry> * P_AmbigMatchList;
+	PPLocAddrStruc_MatchEntry * P_AmbigMatchEntry;
 };
 //
 // @ModuleDecl(PPObjBnkAcct)
@@ -22459,8 +22350,6 @@ struct PPPersonRelType2 {  // @persistent @store(Reference2Tbl+)
 	long   Flags;          // Флаги (PPPersonRelType::fXXX)
 	long   Reserve2[2];    // @reserve
 };
-
-DECL_REF_REC(PPPersonRelType);
 
 struct PPPersonRelTypePacket {
 	SLAPI  PPPersonRelTypePacket();
@@ -23315,9 +23204,9 @@ public:
 private:
 	static void FASTCALL MakeListEntry(const PPStaffEntry & rSrc, PPViewStaffList::BrwEntry & rEntry);
 	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void * SLAPI GetEditExtraParam();
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	static int   GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI FetchData(PPID id);
@@ -23403,8 +23292,6 @@ struct PPSalCharge2 {      // @persistent @store(Reference2Tbl+)
 	PPID   WrOffOpID;      // ->Ref(PPOBJ_OPRKIND)    Вид операции списания //
 };
 
-DECL_REF_REC(PPSalCharge);
-
 struct PPSalChargePacket {
 	DECL_INVARIANT_C(); // @unimplemented
 	SLAPI  PPSalChargePacket();
@@ -23454,8 +23341,6 @@ struct PPDateTimeRep2 {    // @persistent @store(Reference2Tbl+)
 	long   Reserve2[2];    //
 };
 
-DECL_REF_REC(PPDateTimeRep);
-
 class PPObjDateTimeRep : public PPObjReference {
 public:
 	SLAPI  PPObjDateTimeRep(void * extraPtr = 0);
@@ -23487,8 +23372,6 @@ struct PPDutySched2 {      // @persistent @store(Reference2Tbl+)
 	PPID   ObjType;        //
 	long   ObjGroup;       //
 };
-
-DECL_REF_REC(PPDutySched);
 
 class PPDutySchedPacket {
 public:
@@ -23592,8 +23475,6 @@ struct PPStaffCal2 {       // @persistent @store(Reference2Tbl+)
 	PPID   LinkCalID;      // ИД родительского календаря //
 	PPID   LinkObjID;      // ИД связанного объекта
 };
-
-DECL_REF_REC(PPStaffCal);
 //
 // Descr: Структура фильтра штатных календарей.
 //
@@ -24210,7 +24091,7 @@ private:
 	virtual int   SLAPI Print(const void *);
 	virtual void * SLAPI GetEditExtraParam();
 	virtual int   SLAPI Detail(const void *, PPViewBrowser * pBrw);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   SLAPI HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	int    SLAPI Transmit(PPID /*id*/);
 	int    SLAPI ChangeFlags(long action);
@@ -24452,9 +24333,9 @@ public:
 	int    FASTCALL HasImage(const void * pData);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int  SLAPI OnExecBrowser(PPViewBrowser *);
-	virtual int  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int SLAPI Print(const void *);
+	virtual int   SLAPI OnExecBrowser(PPViewBrowser *);
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int   SLAPI Print(const void *);
 	int    SLAPI InitPersonAttribIteration();
 	int    SLAPI InitPersonIteration();
 	int    SLAPI IsTempTblNeeded(); // non-const because calls PsnObj.GetConfig
@@ -24773,7 +24654,7 @@ public:
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
 	virtual int  SLAPI Init_(const PPBaseFilt * pFilt);
-	virtual int  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(SysJournalViewItem *);
 	int    FASTCALL CheckRecForFilt(const SysJournalTbl::Rec * pRec);
@@ -24843,7 +24724,7 @@ public:
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt *);
 	virtual int  SLAPI Init_(const PPBaseFilt * pFilt);
-	//virtual int  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	//virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(GtaJournalViewItem *);
 	int    FASTCALL CheckRecForFilt(const GtaJournalTbl::Rec * pRec);
@@ -24902,7 +24783,7 @@ public:
 	virtual int SLAPI Init_(const PPBaseFilt *pFilt);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(LogsMonitorViewItem *);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser *pBrw);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser *pBrw);
 	//int SLAPI CheckRecForFilt(const TempLogFileMonTbl::Rec *pRec);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint *pBrwId, SString *pSubTitle);
@@ -26383,8 +26264,6 @@ struct PPGoodsInfo2 {      // @persistent @store(Reference2Tbl+)
 	long   Flags;          //
 	long   Reserve2[2];    // @reserve
 };
-
-DECL_REF_REC(PPGoodsInfo);
 //
 // Descr: Параметры запуска инфокиоска
 //
@@ -27455,7 +27334,7 @@ public:
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  SLAPI OnExecBrowser(PPViewBrowser *);
-	virtual int  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int  SLAPI Print(const void *);
 	virtual int  SLAPI ViewTotal();
@@ -27584,8 +27463,8 @@ private:
 		PPID   ObjID;
 	};
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	static int SLAPI GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI AddItem(PPViewBrowser * pBrw);
@@ -28146,10 +28025,10 @@ private:
 
 	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int SLAPI OnExecBrowser(PPViewBrowser *);
-	virtual int SLAPI Print(const void * pHdr);
-	virtual int SLAPI ViewTotal();
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI OnExecBrowser(PPViewBrowser *);
+	virtual int    SLAPI Print(const void * pHdr);
+	virtual int    SLAPI ViewTotal();
 	int    SLAPI UpdateTempTable(PPID goodsID, int use_ta);
 	int    SLAPI Helper_CreateTmpTblEntries(const QuotFilt *, PPQuotItemArray * pQList, int use_ta);
 	int    SLAPI Helper_RemoveTempRecsByGoodsID(PPID goodsID, int use_ta);
@@ -28233,8 +28112,6 @@ struct PPScale2 {          // @persistent @store(Reference2Tbl+)
 	long   Location;       // ->Location.ID Склад, к которому относится устройство
 	long   AltGoodsGrp;    // ->Goods2.ID   Альтернативная группа товаров, загружаемая на весы
 };
-
-DECL_REF_REC(PPScale);
 
 class PPObjScale : public PPObjReference {
 public:
@@ -28342,8 +28219,6 @@ struct PPBhtTerminal2 {    // @persistent @store(Reference2Tbl+)
 	long   BhtTypeID;      // Reserved (Denso only)
 	PPID   ExpendOpID;     // Expend Operation Kind ID (PPOPT_GOODSEXPEND || PPOPT_DRAFTEXPEND)
 };
-
-DECL_REF_REC(PPBhtTerminal);
 
 struct SBIIOpInfo { // @persistent @size=24 @flat
 	long   OpID;
@@ -31198,8 +31073,6 @@ struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
 	// @v9.8.9 long   PersonKindID;       // Вид персоналии, используемый для владельцев карт (по умолчанию - PPPRK_CLIENT)
 };
 
-DECL_REF_REC(PPSCardSeries);
-
 struct TrnovrRngDis {      // @persistent @flat
 	SLAPI  TrnovrRngDis();
 	int    SLAPI GetResult(double currentValue, double * pResult) const;
@@ -31695,9 +31568,9 @@ public:
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(DvcLoadingStatViewItem *);
 private:
-	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 
 	DvcLoadingStatFilt Filt;
 	PPIDArray GGrpList;
@@ -31721,14 +31594,13 @@ public:
 		short  ObjType;
 		long   ObjID;
 	};
-
 	SLAPI  PPViewDLSDetail();
 	SLAPI ~PPViewDLSDetail();
 	int    SLAPI Init(const DLSDetailFilt * pFilt);
 private:
-	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 
 	DLSDetailFilt  Filt;
 	DlsObjTbl * P_DlsObjTbl;
@@ -31794,8 +31666,6 @@ struct PPDraftWrOff2 {     // @persistent @store(Reference2Tbl+)
 	PPID   DfctCompensArID; // Контрагент в документах компенсации дефицита
 };
 
-DECL_REF_REC(PPDraftWrOff);
-
 struct PPDraftWrOffEntry {
 	PPID   OpID;
 	PPID   LocID;
@@ -31839,8 +31709,6 @@ struct PPAdvBillKind2 {    // @persistent @store(Reference2Tbl+)
 	PPID   LinkOpID;       // Операция связанного документа //
 	long   Reserve2;       // @reserve
 };
-
-DECL_REF_REC(PPAdvBillKind);
 
 class PPObjAdvBillKind : public PPObjReference {
 public:
@@ -33116,11 +32984,11 @@ public:
 private:
 	virtual void * SLAPI GetEditExtraParam();
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int   SLAPI Detail(const void * pHdr, PPViewBrowser * pBrw);
-	virtual int   SLAPI ViewTotal();
-	virtual int   SLAPI Print(const void *);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    SLAPI Detail(const void * pHdr, PPViewBrowser * pBrw);
+	virtual int    SLAPI ViewTotal();
+	virtual int    SLAPI Print(const void *);
 	int    SLAPI IsTempTblNeeded() const;
 	void   SLAPI MakeTempRec(const TSessionTbl::Rec * pSrcRec, TempOrderTbl::Rec * pDestRec);
 	int    SLAPI WriteOff(PPID sessID);
@@ -33263,9 +33131,9 @@ public:
 	int    SLAPI GetPhQtty(const TSessAnlzViewItem * pItem, PPID * pPhUnitID, double * pIn, double * pOut);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int   SLAPI Print(const void *);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    SLAPI Print(const void *);
 	int    SLAPI CreateTSessFiltByPlan(const TSessionTbl::Rec * pPlanRec, TSessionFilt * pFilt) const;
 	int    SLAPI CreateBySess(PPID sessID, TSessAnlzList * pResult, PPIDArray * pProcessedList);
 	void   SLAPI RecToViewItem(const TempTSessRepTbl::Rec * pRec, TSessAnlzViewItem * pItem);
@@ -33321,10 +33189,10 @@ private:
 		long   OprNo;
 	};
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *);
-	virtual int SLAPI Print(const void *);
-	virtual int SLAPI ViewTotal();
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *);
+	virtual int    SLAPI Print(const void *);
+	virtual int    SLAPI ViewTotal();
 	int    SLAPI IsTempTblNeeded();
 	int    SLAPI CreateIterQuery();
 	int    SLAPI TranslateBrwHdr(const void *, BrwHdr *);
@@ -33382,12 +33250,12 @@ public:
 	int    SLAPI UpdateTimeGridItem(PPID sessID, PPID prcID, const STimeChunk & rNewChunk);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int   SLAPI Detail(const void * pHdr, PPViewBrowser * pBrw);
-	virtual int   SLAPI Print(const void *);
-	virtual int   SLAPI OnExecBrowser(PPViewBrowser * pBrw);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   SLAPI HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    SLAPI Detail(const void * pHdr, PPViewBrowser * pBrw);
+	virtual int    SLAPI Print(const void *);
+	virtual int    SLAPI OnExecBrowser(PPViewBrowser * pBrw);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	int    SLAPI ProcessPrc(PPID prcID, BExtInsert * pBei);
 	int    SLAPI Update(const PPIDArray & rPrcList);
 	void   SLAPI RecToViewItem(const TempPrcBusyTbl::Rec * pRec, PrcBusyViewItem * pItem) const;
@@ -34649,7 +34517,7 @@ public:
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   SLAPI HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 
 	int    SLAPI IsTempTblNeeded() const;
@@ -34760,7 +34628,7 @@ private:
 		PPID   RcknBillID; //
 	};
 	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   SLAPI ViewTotal();
 	virtual int   SLAPI Print(const void *);
@@ -34870,7 +34738,7 @@ private:
 		long   Flags;    // @v9.7.9
 	};
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   SLAPI ViewTotal();
 	virtual int   SLAPI Detail(const void *, PPViewBrowser * pBrw);
 	int    SLAPI CheckLineForFilt(const InventoryTbl::Rec * pRec) const;
@@ -34993,13 +34861,13 @@ public:
 	void   SLAPI FormatCycle(LDATE dt, char * pBuf, size_t bufLen);
 	int    SLAPI ConvertGenAccturnToExtAccBill();
 private:
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	int SLAPI Browse(int modeless);
-	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   SLAPI ViewTotal();
-	virtual int   SLAPI Detail(const void *, PPViewBrowser * pBrw);
-	virtual int   SLAPI Print(const void *);
+	virtual int    SLAPI ViewTotal();
+	virtual int    SLAPI Detail(const void *, PPViewBrowser * pBrw);
+	virtual int    SLAPI Print(const void *);
 	int    SLAPI CreateGrouping();
 	int    SLAPI AddBillToList(PPID billID);
 	int    SLAPI RemoveBillFromList(PPID billID);
@@ -35223,7 +35091,7 @@ public:
 private:
 	static int   CalcChildLots(ReceiptTbl::Rec *, void * extraPtr);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   SLAPI ViewTotal();
 	virtual int   SLAPI Print(const void *);
 	virtual int   SLAPI Detail(const void *, PPViewBrowser * pBrw);
@@ -35393,7 +35261,7 @@ public:
 	int    SLAPI GetItem(PPID lotID, AssetViewItem *);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   SLAPI Detail(const void *, PPViewBrowser * pBrw);
 	virtual int   SLAPI ViewTotal();
@@ -35484,11 +35352,11 @@ public:
 	int    FASTCALL NextIteration(FreightViewItem *);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int SLAPI Detail(const void * pHdr, PPViewBrowser * pBrw);
-	virtual int SLAPI Print(const void *);
-	virtual int SLAPI ViewTotal();
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI Detail(const void * pHdr, PPViewBrowser * pBrw);
+	virtual int    SLAPI Print(const void *);
+	virtual int    SLAPI ViewTotal();
 	int    SLAPI GetBillList(ObjIdListFilt * pList);
 	int    SLAPI PrintBill(PPID billID, int addCashSummator);
 	int    SLAPI PrintBillList();
@@ -35740,10 +35608,6 @@ private:
 	BuildStat Stat;
 };
 //
-//
-//
-int SLAPI GetEstimatedSales(const ObjIdListFilt * pLocList, PPID goodsID, const DateRange *, double * pQtty);
-//
 // @ModuleDecl(PPViewSales)
 //
 struct PredictSalesFilt : public PPBaseFilt {
@@ -35822,7 +35686,7 @@ private:
 	static int EnumProc_CrTmpTbl(PredictSalesItem *, long);
 
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   SLAPI ViewTotal();
 	int    SLAPI InitCycleList(const PPIDArray * pGoodsList);
@@ -36173,8 +36037,6 @@ struct GoodsRestTotalPrintData {
 	const GoodsRestFilt * P_Filt;
 };
 
-DECL_CMPFUNC(ReceiptTbl_DtOprNo);
-
 class PPViewGoodsRest : public PPView {
 public:
 	struct BrwHdr {
@@ -36293,7 +36155,7 @@ private:
 
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  SLAPI OnExecBrowser(PPViewBrowser * pBrw);
 	virtual int  SLAPI ViewTotal();
 	virtual int  SLAPI SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -36599,9 +36461,9 @@ public:
 private:
 	static int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 
-	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI EditItem(PPStockOpt::Item * pItem);
 	SArray * SLAPI Helper_CreateBrowserArray();
@@ -36812,17 +36674,9 @@ public:
 };
 
 struct PriceListViewItem {
-	PriceListViewItem()
-	{
-		Clear();
-	}
-	void   Clear()
-	{
-		memzero(this, offsetof(PriceListViewItem, GoodsName_));
-		GoodsName_ = 0;
-		GoodsGrpName_ = 0;
-		Memo_ = 0;
-	}
+	SLAPI  PriceListViewItem();
+	void   SLAPI Clear();
+
 	PPID   PListID;        //
 	int16  LineNo;         //
 	int16  Reserve;        // @alignment
@@ -36909,8 +36763,8 @@ public:
 	int    SLAPI UpdatePriceList(LDATE date, Sdr_PriceListArray * pList, int useTa);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    SLAPI UpdateTempTbl(PriceLineIdent *);
 	int    SLAPI SetGoodsPrice(RecalcParamBlock * pRPB, PPID quotKindID, double unitsPerPack, double price, int isPresent, int use_ta);
 	int    SLAPI InitIterQuery(PPID grpID);
@@ -37202,7 +37056,7 @@ private:
 	};
 
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   SLAPI ViewTotal();
 	virtual int   SLAPI Print(const void *);
 	virtual int   SLAPI Detail(const void *, PPViewBrowser * pBrw);
@@ -37455,7 +37309,7 @@ public:
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	int    SLAPI UpdateTempTable();
 	void   SLAPI MakeTempRec(long order, const DebtorStatViewItem * pItem, TempOrderTbl::Rec * pRec);
 	int    SLAPI MakeViewItem(const DebtStatTbl::Rec * pRec, DebtorStatViewItem * pItem);
@@ -37574,9 +37428,9 @@ public:
 	int    FASTCALL NextIteration(ShipmAnalyzeViewItem *);
 protected:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int SLAPI Print(const void * pHdr);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI Print(const void * pHdr);
 
 	ShipmAnalyzeFilt Filt;
 	PPObjBill   * BObj;
@@ -37647,7 +37501,7 @@ private:
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void * SLAPI GetEditExtraParam();
-	virtual int    SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI FetchData(long id);
 
@@ -37756,10 +37610,10 @@ private:
 	static int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    FASTCALL _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	virtual int  SLAPI Detail(const void * pHdr, PPViewBrowser * pBrw);
-	virtual int  SLAPI ViewTotal();
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual int    SLAPI Detail(const void * pHdr, PPViewBrowser * pBrw);
+	virtual int    SLAPI ViewTotal();
 
 	BalanceFilt Filt;
 	PPObjCurrency CurObj;
@@ -37963,10 +37817,10 @@ public:
 	uint   IterFlags;  // PPViewAccAnlz::fIterXXX
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	virtual int  SLAPI Print(const void *);
-	virtual int  SLAPI ViewTotal();
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual int    SLAPI Print(const void *);
+	virtual int   SLAPI ViewTotal();
 
 	int    SLAPI EditSupplTrnovrFilt(AccAnlzFilt *);
 	int    SLAPI EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnumProc, long);
@@ -38222,7 +38076,7 @@ private:
 		StatBase S;
 	};
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int    SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int    SLAPI Detail(const void * pHdr, PPViewBrowser * pBrw);
 	virtual int    SLAPI Print(const void * pHdr);
@@ -38354,7 +38208,7 @@ public:
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  SLAPI SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // @v6.4.10
 	virtual int  SLAPI ViewTotal();
 	virtual int  SLAPI Print(const void *);
@@ -38410,7 +38264,7 @@ public:
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  SLAPI SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // @v6.4.10
 	virtual int  SLAPI ViewTotal();
 	virtual int  SLAPI Print(const void *);
@@ -38876,13 +38730,13 @@ private:
 	int    SLAPI Helper_Construct();
 	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int SLAPI OnExecBrowser(PPViewBrowser *);
-	virtual int SLAPI Detail(const void *, PPViewBrowser * pBrw);
-	virtual int SLAPI ViewTotal();
-	virtual int SLAPI Print(const void *);
-	virtual int SLAPI SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // @v6.6.8
-	SString &   SLAPI GetCtColumnTitle(int ct, SString & rBuf);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI OnExecBrowser(PPViewBrowser *);
+	virtual int    SLAPI Detail(const void *, PPViewBrowser * pBrw);
+	virtual int    SLAPI ViewTotal();
+	virtual int    SLAPI Print(const void *);
+	virtual int    SLAPI SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // @v6.6.8
+	SString & SLAPI GetCtColumnTitle(int ct, SString & rBuf);
 	int    SLAPI IsTempTblNeeded() const;
 	int    SLAPI DoProcessLines() const;
 	void   SLAPI PreprocessCheckRec(const CCheckTbl::Rec * pRec, CCheckTbl::Rec & rResultRec, CCheckExtTbl::Rec & rExtRec);
@@ -39338,7 +39192,7 @@ private:
 	static int   DynFuncGetTrnovr;
 
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw); // @<<PPView::Browse
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw); // @<<PPView::Browse
 	virtual int   SLAPI ViewTotal();
 	virtual int   SLAPI Print(const void *);
 	virtual int   SLAPI Detail(const void *, PPViewBrowser * pBrw);
@@ -39723,7 +39577,7 @@ public:
 	int    SLAPI GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col);
 private:
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  SLAPI ViewTotal();
 	virtual int  SLAPI Print(const void *);
@@ -39913,7 +39767,7 @@ private:
 		double Turnover;
 	};
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  SLAPI OnExecBrowser(PPViewBrowser * pBrw);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void * SLAPI GetEditExtraParam();
@@ -40089,7 +39943,7 @@ private:
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void * SLAPI GetEditExtraParam();
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   SLAPI Print(const void *);
 	int    SLAPI UpdateTempTable(PPID arID);
 	int    SLAPI EditLinkObject(PPID arID);
@@ -40132,8 +39986,6 @@ struct PPGoodsBasket2 {    // @persistent @store(Reference2Tbl+)
 	PPID   User;           // ->Ref(PPOBJ_USR) Пользователь, создавший корзину
 	PPID   SupplID;        // ->Article.ID
 };
-
-DECL_REF_REC(PPGoodsBasket);
 
 class PPBasketPacket : public ILBillPacket {
 public:
@@ -40536,7 +40388,7 @@ public:
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	virtual int  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  SLAPI Detail(const void *, PPViewBrowser * pBrw);
 	virtual int  SLAPI Print(const void *);
 	virtual int  SLAPI ViewTotal();
@@ -41080,8 +40932,6 @@ struct PPDraftCreateRule2 {  // @persistent @store(Reference2Tbl+)
 	PPID   SCardSerID;     //
 };
 
-DECL_REF_REC(PPDraftCreateRule);
-
 class PPDfCreateRulePacket {
 public:
 	SLAPI  PPDfCreateRulePacket();
@@ -41543,7 +41393,7 @@ private:
 	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   SLAPI HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   SLAPI ViewTotal();
 	virtual int   SLAPI Print(const void *);
 	virtual void * SLAPI GetEditExtraParam();
@@ -41649,7 +41499,7 @@ public:
 private:
 	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	int    SLAPI SetContractPrices();
 
 	PriceAnlzFilt Filt;
@@ -41884,10 +41734,9 @@ public:
 	};
 	SLAPI  PPViewScale();
 	SLAPI ~PPViewScale();
-	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
-	virtual int SLAPI Init_(const PPBaseFilt *);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-
+	virtual int    SLAPI EditBaseFilt(PPBaseFilt *);
+	virtual int    SLAPI Init_(const PPBaseFilt *);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(ScaleViewItem *);
 	int    SLAPI CheckScaleStatus(PPID scaleID, int statusFromList);
@@ -42044,8 +41893,8 @@ public:
 private:
 	static int SLAPI GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	int    SLAPI FetchData();
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI CheckForFilt(const PPAmountTypePacket * pPack) const;
@@ -42250,8 +42099,8 @@ private:
 	static int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 
 	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI StopThread(long tid);
 	int    SLAPI ResetCache();
@@ -42349,8 +42198,8 @@ public:
 private:
 	static int SLAPI GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
 	int    SLAPI FetchData(long id);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI MakeListEntry(const PPAmountTypePacket * pPack, AmountTypeViewItem * pItem);
@@ -42399,8 +42248,8 @@ private:
 	static int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 
 	virtual SArray * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    SLAPI FetchData(long id);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    SLAPI MakeListEntry(const PPRegisterTypePacket * pPack, RegTypeViewItem * pItem);
@@ -42484,8 +42333,8 @@ private:
 	static int DynFuncSpcSnTextFld;
 
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 
 	int    SLAPI AddItem();
 	int    SLAPI EditItem(PPID id);
@@ -42556,8 +42405,8 @@ public:
 private:
 	static int SLAPI GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 
 	SString YesWord;
@@ -42743,10 +42592,9 @@ public:
 	int    FASTCALL NextIteration(UserProfileViewItem * pItem);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int SLAPI HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
-
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	int SLAPI LoadFromFile(PPIDArray * pIdList);
 	int SLAPI RemoveAll();
 
@@ -42797,9 +42645,9 @@ public:
 private:
 	static int SLAPI GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int  SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int  SLAPI Print(const void *);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int    SLAPI Print(const void *);
 	int    SLAPI CheckForFilt(PPJob & rJob);
 	int    SLAPI MakeList();
 	int    SLAPI SavePool();
@@ -45644,7 +45492,7 @@ private:
 	int    EndDocument();
 	int    StartElement(const char * pName, const char ** ppAttrList);
 	int    EndElement(const char * pName);
-	int    SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName);
+	int    SaxParseFile(xmlSAXHandler * sax, const char * pFileName);
 	void   SaxStop();
 
 	int    SLAPI GetPhaseSymb(long phase, SString & rSymb) const;
@@ -47475,6 +47323,9 @@ public:
 	int    setDTS(const Rec *);
 	int    getDTS(Rec *);
 private:
+	enum {
+		ctlgroupEmailList = 1
+	};
 	virtual int setupList();
 	virtual int addItem(long * pPos, long * pID);
 	virtual int editItem(long pos, long id);
@@ -47504,10 +47355,7 @@ private:
 };
 
 struct EmailToBlock {
-	EmailToBlock()
-	{
-		MailAccID = 0;
-	}
+	SLAPI  EmailToBlock();
 	enum {
 		efDisableAccount = 0x0001 // Запретить выбор аккаунта (актуально в случае, если в момент использования сеанс не будет авторизован)
 	};
@@ -49008,7 +48856,13 @@ private:
 //
 // Standalone functions and supported structures
 //
-
+DECL_CMPFUNC(PPObjID);
+DECL_CMPFUNC(PPQuot);
+DECL_CMPFUNC(PPLBItem);
+DECL_CMPFUNC(PPTLBItem);
+DECL_CMPFUNC(Acct);
+DECL_CMPFUNC(DraftRcptItem);
+DECL_CMPFUNC(ReceiptTbl_DtOprNo);
 //
 // Descr: Инициализирует глобальный объект, управляющий строковыми ресурсами.
 //
@@ -49275,6 +49129,13 @@ int    SLAPI PPGetObjTypeList(PPIDArray * pList, long flags);
 int    SLAPI SendObjMessage(int msg, PPID destObj, PPID obj, PPID id, void * msgExtraPtr, ObjCollection * pDestObjColl);
 int    SLAPI SendObjMessage(int msg, PPID destObj, PPID obj, PPID id);
 int    SLAPI PPGetConfigList(StrAssocArray *);
+int    SLAPI PPLicUpdate();
+int    SLAPI PPLicRegister();
+int    SLAPI PPGetLicData(PPLicData * pData);
+int    SLAPI PPUpdateLic(const char * pSrcFile, const char * pRegName, const char * pRegNum);
+int    SLAPI PPUpdateLic(const char * pSrcFile);
+// @v9.8.12 (unused) int    SLAPI CreateSerial(PPRegistrInfo *);
+// @v9.8.12 (unused) int    SLAPI SetRegistrInfo(const PPRegistrInfo *, const char *);
 //
 // Descr: посылает сообщение msg всем объектам за исключением объекта srcObjType
 //   от объекта {srcObjType, srcObjID} с дополнительным параметром msgExtra.
@@ -49285,6 +49146,102 @@ int    SLAPI PPGetConfigList(StrAssocArray *);
 //   0  - по крайней мере один из объектов в ответ на сообщение вернул код DBRPL_ERROR
 //
 int    SLAPI BroadcastObjMessage(int msg, PPID srcObjType, PPID srcObjID, void * msgExtraPtr);
+//
+// Descr: возвращает запись PPOprKind, соответствующую идентификатору вида операции opID.
+//   Возвращаемая запись извлекается из кэша, поэтому, не все поля в ней заполнены так,
+//   как в базе данных (Name не определено). Параметр pData может быть равен нулю. В случае ошибки
+//   возвращает 0.
+//
+int    FASTCALL GetOpData(PPID opID, PPOprKind * pData);
+//
+// Descr: Через кэш извлекает запись вида операции по символу pSymb.
+//
+int    FASTCALL GetOpBySymb(const char * pSymb, PPOprKind * pData);
+int    FASTCALL GetOpName(PPID opID, char * buf, size_t buflen); // @obsolete use GetOpName(PPID opID, SString &)
+int    FASTCALL GetOpName(PPID opID, SString &);
+//
+// Descr: проверяет флаги операции opID по следующему алгоритму:
+//   if (GetOpData(oprKind) == 0) return 0;
+//   if (andF && (Flags & andF) != andF) return 0;
+//   if (notF && (Flags & notF) == notF) return 0;
+//   In another cases return 1;
+//
+int    FASTCALL CheckOpFlags(PPID opID, long andF, long notF = 0);
+int    FASTCALL CheckOpPrnFlags(PPID opID, long andF);
+PPID   FASTCALL GetOpType(PPID opID, PPOprKind * = 0);
+int    FASTCALL GetOpSubType(PPID opID);
+int    FASTCALL GetOpList(PPID opTypeID, PPIDArray * pList);
+//
+// Descr: возвращает (>0) если операция op принадлежит типу
+//   PPOPT_GENERIC, (<0) если op == 0 и (0) в противном случае.
+//
+int    FASTCALL IsGenericOp(PPID opID);
+//
+// Descr: возвращает параметром pList список операций,
+//   обобщаемых операцией opID. Если opID == 0 или opID не является обобщенной
+//   операцией, то возвращается (<0). Если возникла ошибка, то возвращается 0.
+//
+int    FASTCALL GetGenericOpList(PPID opID, ObjRestrictArray * pList);
+//
+// Descr: Редуцированный вариант предыдущей функции. Возвращает только список операций без флагов.
+//
+int    FASTCALL GetGenericOpList(PPID opID, PPIDArray * pList);
+int    FASTCALL IsOpBelongTo(PPID testOpID, PPID anotherOpID);
+int    SLAPI GetOpCommonAccSheet(PPID opID, PPID * pAccSheetID, PPID * pAccSheet2ID);
+//
+// Descr: Утилитная функция. Определяет, является ли операция возвратом либо
+//   оплатой. Эта проверка используется весьма часто.
+// Returns:
+//   0 - вид операции не является ни оплатой, ни возвратом
+//  !0 - тип операции, к которому относится операция opID (PPOPT_PAYMENT || PPOPT_GOODSRETURN || PPOPT_CHARGE).
+//
+PPID   FASTCALL IsOpPaymOrRetn(PPID opID);
+//
+// Descr: Определяет, является ли операция оплатой.
+//   Отличается от IsOpPaymOrRetn только тем, что для операции возврата возвращает 0.
+//
+int    FASTCALL IsOpPaym(PPID opID);
+//
+// Descr: Если операция товарная и оценивается в ценах реализации, то функция IsSellingOperation
+//   возвращает (> 0), если товарная и оценивается в ценах поступления, то 0, для нетоварных операций
+//   возвращает (< 0).
+//
+int    FASTCALL IsSellingOp(PPID);
+//
+// Descr: по спецификации идентична IsSellingOp. Существенная разница в том, что IsSellingOp извлекает ответ
+//   из состояния флажка OPKF_SELLING структуры PPOprKind, а _IsSellingOp дает ответ полагаясь на
+//   подразумеваемые свойства зарезервированных видов и типов операций. Функция _IsSellingOp необходима
+//   лишь в редких случаях. Например для оценки корректности установки вышеозначенного флажка в диалоге пользователем.
+//
+int    FASTCALL _IsSellingOp(PPID);
+int    FASTCALL IsExpendOp(PPID);
+//
+#define INTREXPND 1
+#define INTRRCPT  2
+//
+// Descr: определяет является ли операция межскладской передачей. Если возвращаемое значение равно 0,
+//   то ответ отрицательный. Если 1 - то межскладской расход, 2 - межскладской приход.
+//   Признаком межскладской операции является условие: (Op(o).AccSheet == LConfig.LocSheet) &&
+//     (Op(o)::Type == PPOPT_GOODSEXPEND || Op(o)::Type == PPOPT_GOODSRECEIPT).
+//
+int    FASTCALL IsIntrOp(PPID opID);
+int    FASTCALL IsIntrExpndOp(PPID opID); // {IsIntrOp(opID) == INTREXPND}
+int    FASTCALL IsDraftOp(PPID opID);
+int    FASTCALL IsGoodsDetailOp(PPID opID);
+int    SLAPI EnumOperations(PPID oprType, PPID *, PPOprKind * = 0);
+PPID   SLAPI GetCashOp();
+PPID   SLAPI GetCashRetOp();
+PPID   SLAPI GetReceiptOp();
+//
+// Descr: возвращает ИД операции, если она единственная принадлежит
+//   заданному типу oprType. Если существует более одной такой операции,
+//   то возвращается <0. Если вообще нет таких операций, то возвращается 0.
+//
+PPID   FASTCALL GetSingleOp(PPID oprType);
+//
+// Descr: Возвращает список зачетных операций
+//
+int    FASTCALL GetReckonOpList(PPIDArray *);
 //
 // Descr: функция очень полезна для реализации ComboBox'ов.
 //   Фактически возвращает (PPObjListWindow*), однако полагаться //
@@ -49654,6 +49611,9 @@ struct CalcPriceParam {
 //   3 - с точностью 0.001 и т.д.
 //
 ulong  SLAPI GetMinVatDivisor(double rate, uint prec);
+int    SLAPI PPCalcExpression(const char *, double * pResult, const PPCalcFuncList *);
+int    SLAPI PPCalcExpression(const char *, double * pResult, PPBillPacket *, PPID curID, uint advItemIdx);
+int    SLAPI PPCalcExpression(const char *, double * pResult, GdsClsCalcExprContext * pCtx);
 int    SLAPI CalcPrice(CalcPriceParam *);
 int    SLAPI CalcDiff(double amount, double * pDiff);
 int    SLAPI CalcTaxPrice(PPID goodsID, PPID opID, LDATE, double price, int = 0);
@@ -49819,6 +49779,10 @@ int    SLAPI UISettingsDialog();
 int    SLAPI GoodsFilterDialog(GoodsFilt *);
 int    SLAPI GoodsFilterAdvDialog(GoodsFilt *, int disableLocSel);
 int    SLAPI CreateBizScGlblUserAcct();
+//
+// Descr: Возвращает прогноз продаж товара goodsID по набору складов pLocList на период pPeriod.
+//
+int    SLAPI GetEstimatedSales(const ObjIdListFilt * pLocList, PPID goodsID, const DateRange * pPeriod, double * pQtty);
 //
 // Descr: Флаги опций просмотра ассоциаций товар-объект
 //

@@ -1,5 +1,5 @@
 // GDS2OBJA.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2014, 2015, 2016, 2017, 2018
 //
 // Список соответствий Товар(Группа товаров) - Объект
 // Используется для автоматического формирования документов
@@ -347,14 +347,9 @@ int SLAPI PPViewGoodsToObjAssoc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 	return ok;
 }
 
-int SLAPI PPViewGoodsToObjAssoc::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewGoodsToObjAssoc::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
-	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewGoodsToObjAssoc::GetDataForBrowser, this);
-		ok = 1;
-	}
-	return ok;
+	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewGoodsToObjAssoc::GetDataForBrowser, this));
 }
 
 SArray * SLAPI PPViewGoodsToObjAssoc::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)

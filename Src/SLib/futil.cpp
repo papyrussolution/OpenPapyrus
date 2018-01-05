@@ -107,8 +107,7 @@ char * SLAPI rmvLastSlash(char * p)
 
 SString & SLAPI getExecPath(SString & rBuf)
 {
-	SPathStruc ps;
-	ps.Split(SLS.GetExePath());
+	SPathStruc ps(SLS.GetExePath());
 	ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, rBuf);
 	return rBuf;
 }
@@ -672,8 +671,7 @@ int SFileUtil::GetDiskSpace(const char * pPath, int64 * pTotal, int64 * pAvail)
 	int    ok = 1;
 	ULARGE_INTEGER avail, total, total_free;
 	SString path;
-	SPathStruc ps;
-	ps.Split(pPath);
+	SPathStruc ps(pPath);
 	ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, path);
 	if(GetDiskFreeSpaceEx(path, &avail, &total, &total_free)) {
 		ASSIGN_PTR(pTotal, total.QuadPart);

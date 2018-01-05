@@ -2156,9 +2156,9 @@ void xmlRegisterHTTPPostCallbacks()
  *
  * Returns the new parser input or NULL
  */
-xmlParserInputBufferPtr xmlAllocParserInputBuffer(xmlCharEncoding enc)
+xmlParserInputBuffer * xmlAllocParserInputBuffer(xmlCharEncoding enc)
 {
-	xmlParserInputBufferPtr ret = (xmlParserInputBufferPtr)SAlloc::M(sizeof(xmlParserInputBuffer));
+	xmlParserInputBuffer * ret = (xmlParserInputBuffer *)SAlloc::M(sizeof(xmlParserInputBuffer));
 	if(!ret) {
 		xmlIOErrMemory("creating input buffer");
 	}
@@ -2338,9 +2338,9 @@ int xmlOutputBufferClose(xmlOutputBuffer * out)
 
 #endif /* LIBXML_OUTPUT_ENABLED */
 
-xmlParserInputBufferPtr __xmlParserInputBufferCreateFilename(const char * URI, xmlCharEncoding enc)
+xmlParserInputBuffer * __xmlParserInputBufferCreateFilename(const char * URI, xmlCharEncoding enc)
 {
-	xmlParserInputBufferPtr ret;
+	xmlParserInputBuffer * ret;
 	int i = 0;
 	void * context = NULL;
 	if(xmlInputCallbackInitialized == 0)
@@ -2416,7 +2416,7 @@ xmlParserInputBufferPtr __xmlParserInputBufferCreateFilename(const char * URI, x
  *
  * Returns the new parser input or NULL
  */
-xmlParserInputBufferPtr xmlParserInputBufferCreateFilename(const char * URI, xmlCharEncoding enc)
+xmlParserInputBuffer * xmlParserInputBufferCreateFilename(const char * URI, xmlCharEncoding enc)
 {
 	return xmlParserInputBufferCreateFilenameValue ?
 		xmlParserInputBufferCreateFilenameValue(URI, enc) : __xmlParserInputBufferCreateFilename(URI, enc);
@@ -2568,9 +2568,9 @@ xmlOutputBuffer * xmlOutputBufferCreateFilename(const char * URI, xmlCharEncodin
  *
  * Returns the new parser input or NULL
  */
-xmlParserInputBufferPtr xmlParserInputBufferCreateFile(FILE * file, xmlCharEncoding enc)
+xmlParserInputBuffer * xmlParserInputBufferCreateFile(FILE * file, xmlCharEncoding enc)
 {
-	xmlParserInputBufferPtr ret = 0;
+	xmlParserInputBuffer * ret = 0;
 	if(xmlInputCallbackInitialized == 0)
 		xmlRegisterDefaultInputCallbacks();
 	if(file) {
@@ -2661,9 +2661,9 @@ size_t xmlOutputBufferGetSize(xmlOutputBuffer * out)
  *
  * Returns the new parser input or NULL
  */
-xmlParserInputBufferPtr xmlParserInputBufferCreateFd(int fd, xmlCharEncoding enc)
+xmlParserInputBuffer * xmlParserInputBufferCreateFd(int fd, xmlCharEncoding enc)
 {
-	xmlParserInputBufferPtr ret = 0;
+	xmlParserInputBuffer * ret = 0;
 	if(fd >= 0) {
 		ret = xmlAllocParserInputBuffer(enc);
 		if(ret) {
@@ -2686,7 +2686,7 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateFd(int fd, xmlCharEncoding enc
  *
  * Returns the new parser input or NULL
  */
-xmlParserInputBufferPtr xmlParserInputBufferCreateMem(const char * mem, int size, xmlCharEncoding enc)
+xmlParserInputBuffer * xmlParserInputBufferCreateMem(const char * mem, int size, xmlCharEncoding enc)
 {
 	xmlParserInputBuffer * ret = 0;
 	if(size > 0 && mem) {
@@ -2716,7 +2716,7 @@ xmlParserInputBufferPtr xmlParserInputBufferCreateMem(const char * mem, int size
  *
  * Returns the new parser input or NULL
  */
-xmlParserInputBufferPtr xmlParserInputBufferCreateStatic(const char * mem, int size, xmlCharEncoding enc)
+xmlParserInputBuffer * xmlParserInputBufferCreateStatic(const char * mem, int size, xmlCharEncoding enc)
 {
 	xmlParserInputBuffer * ret = 0;
 	if(size > 0 && mem) {
@@ -2782,7 +2782,7 @@ xmlOutputBuffer * xmlOutputBufferCreateFd(int fd, xmlCharEncodingHandler * encod
  *
  * Returns the new parser input or NULL
  */
-xmlParserInputBufferPtr xmlParserInputBufferCreateIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx, xmlCharEncoding enc)
+xmlParserInputBuffer * xmlParserInputBufferCreateIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx, xmlCharEncoding enc)
 {
 	xmlParserInputBuffer * ret = 0;
 	if(ioread) {
@@ -2872,7 +2872,7 @@ xmlOutputBufferCreateFilenameFunc xmlOutputBufferCreateFilenameDefault(xmlOutput
  * Returns the number of chars read and stored in the buffer, or -1
  *         in case of error.
  */
-int xmlParserInputBufferPush(xmlParserInputBufferPtr in, int len, const char * buf) 
+int xmlParserInputBufferPush(xmlParserInputBuffer * in, int len, const char * buf) 
 {
 	int nbchars = 0;
 	int ret;
@@ -2940,7 +2940,7 @@ static int endOfInput(void * context ATTRIBUTE_UNUSED, char * buffer ATTRIBUTE_U
  * Returns the number of chars read and stored in the buffer, or -1
  *         in case of error.
  */
-int xmlParserInputBufferGrow(xmlParserInputBufferPtr in, int len)
+int xmlParserInputBufferGrow(xmlParserInputBuffer * in, int len)
 {
 	char * buffer = NULL;
 	int res = 0;
@@ -3030,7 +3030,7 @@ int xmlParserInputBufferGrow(xmlParserInputBufferPtr in, int len)
  * Returns the number of chars read and stored in the buffer, or -1
  *         in case of error.
  */
-int xmlParserInputBufferRead(xmlParserInputBufferPtr in, int len)
+int xmlParserInputBufferRead(xmlParserInputBuffer * in, int len)
 {
 	if(!in || in->error)
 		return -1;
@@ -3466,7 +3466,7 @@ char * xmlParserGetDirectory(const char * filename)
  *
  * Returns the input or NULL in case of HTTP error.
  */
-xmlParserInputPtr xmlCheckHTTPInput(xmlParserCtxt * ctxt, xmlParserInputPtr ret)
+xmlParserInput * xmlCheckHTTPInput(xmlParserCtxt * ctxt, xmlParserInput * ret)
 {
 #ifdef LIBXML_HTTP_ENABLED
 	if(ret && ret->buf && (ret->buf->readcallback == xmlIOHTTPRead) && ret->buf->context) {
@@ -3607,9 +3607,9 @@ static xmlChar * xmlResolveResourceFromCatalog(const char * URL, const char * ID
  *
  * Returns a new allocated xmlParserInputPtr, or NULL.
  */
-static xmlParserInputPtr xmlDefaultExternalEntityLoader(const char * URL, const char * ID, xmlParserCtxt * ctxt)
+static xmlParserInput * xmlDefaultExternalEntityLoader(const char * URL, const char * ID, xmlParserCtxt * ctxt)
 {
-	xmlParserInputPtr ret = NULL;
+	xmlParserInput * ret = NULL;
 #ifdef DEBUG_EXTERNAL_ENTITIES
 	xmlGenericError(0, "xmlDefaultExternalEntityLoader(%s, xxx)\n", URL);
 #endif
@@ -3676,10 +3676,10 @@ xmlExternalEntityLoader xmlGetExternalEntityLoader()
  *
  * Returns the xmlParserInputPtr or NULL
  */
-xmlParserInputPtr xmlLoadExternalEntity(const char * URL, const char * ID, xmlParserCtxt * ctxt)
+xmlParserInput * xmlLoadExternalEntity(const char * URL, const char * ID, xmlParserCtxt * ctxt)
 {
 	if(URL && !xmlNoNetExists(URL)) {
-		xmlParserInputPtr ret = 0;
+		xmlParserInput * ret = 0;
 		char * canonicFilename = (char*)xmlCanonicPath((const xmlChar*)URL);
 		if(canonicFilename == NULL) {
 			xmlIOErrMemory("building canonical path\n");
@@ -3711,9 +3711,9 @@ xmlParserInputPtr xmlLoadExternalEntity(const char * URL, const char * ID, xmlPa
  *
  * Returns a new allocated xmlParserInputPtr, or NULL.
  */
-xmlParserInputPtr xmlNoNetExternalEntityLoader(const char * URL, const char * ID, xmlParserCtxt * ctxt)
+xmlParserInput * xmlNoNetExternalEntityLoader(const char * URL, const char * ID, xmlParserCtxt * ctxt)
 {
-	xmlParserInputPtr input = NULL;
+	xmlParserInput * input = NULL;
 	xmlChar * resource = NULL;
 #ifdef LIBXML_CATALOG_ENABLED
 	resource = xmlResolveResourceFromCatalog(URL, ID, ctxt);

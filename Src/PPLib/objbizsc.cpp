@@ -1,5 +1,5 @@
 // OBJBIZSC.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -192,7 +192,7 @@ public:
 		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_BIZSCORE, str.Z());
 		Primitiv_List.Add(7, str);
 		//
-		id = (Primitiv_List.SearchByText(Primitiv_List.at(Data.Kind - 1).Txt, 1, &(pos = 0)) > 0) ? (uint)Primitiv_List.at(pos).Id : 0;
+		id = (Primitiv_List.SearchByText(Primitiv_List.Get(Data.Kind-1).Txt, 1, &(pos = 0)) > 0) ? (uint)Primitiv_List.Get(pos).Id : 0;
 		SetupStrAssocCombo(this, CTLSEL_BIZPRCRT_PRIMITIV, &Primitiv_List, (long)id, 0);
 
 		// В зависимости от выбранного примитива активируем/блокируем остальные параметры
@@ -1278,7 +1278,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 					buf = "<FONT COLOR='#FF0000'>";
 				else
 					buf = "<FONT>";
-				buf.Cat(name).CatChar(':').Space().Cat(val).Cat("</FONT>").CRB();
+				buf.Cat(name).CatDiv(':', 2).Cat(val).Cat("</FONT>").CRB();
 				THROW(pSock->Send(buf, buf.Len(), 0));
 			}
 		}
@@ -1526,10 +1526,9 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int SLAPI PPViewBizScoreVal::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewBizScoreVal::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, 0));
-	return 1;
 }
 
 DBQuery * SLAPI PPViewBizScoreVal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)

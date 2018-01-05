@@ -133,7 +133,7 @@ void xmlParserPrintFileInfo(xmlParserInput * input)
  *
  * Displays current context within the input content for error tracking
  */
-static void xmlParserPrintFileContextInternal(xmlParserInputPtr input, xmlGenericErrorFunc channel, void * data)
+static void xmlParserPrintFileContextInternal(xmlParserInput * input, xmlGenericErrorFunc channel, void * data)
 {
 	uint n, col;    /* GCC warns if signed, because compared with sizeof() */
 	xmlChar content[81]; /* space for 80 chars + line terminator */
@@ -206,8 +206,8 @@ static void xmlReportError(xmlErrorPtr err, xmlParserCtxt * ctxt, const char * s
 	const xmlChar * name = NULL;
 	xmlNode * P_Node;
 	xmlErrorLevel level;
-	xmlParserInputPtr input = NULL;
-	xmlParserInputPtr cur = NULL;
+	xmlParserInput * input = NULL;
+	xmlParserInput * cur = NULL;
 	if(err) {
 		if(channel == NULL) {
 			channel = xmlGenericError;
@@ -352,7 +352,7 @@ void XMLCDECL __xmlRaiseError(xmlStructuredErrorFunc schannel, xmlGenericErrorFu
 	xmlParserCtxt * ctxt = NULL;
 	xmlNode * P_Node = (xmlNode *)nod;
 	char * str = NULL;
-	xmlParserInputPtr input = NULL;
+	xmlParserInput * input = NULL;
 	xmlErrorPtr to = &xmlLastError;
 	xmlNode * baseptr = NULL;
 	if(code == XML_ERR_OK)
@@ -534,8 +534,8 @@ void FASTCALL __xmlSimpleError(int domain, int code, xmlNode * P_Node, const cha
 void XMLCDECL xmlParserError(void * ctx, const char * msg, ...)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlParserInputPtr input = NULL;
-	xmlParserInputPtr cur = NULL;
+	xmlParserInput * input = NULL;
+	xmlParserInput * cur = NULL;
 	char * str;
 	if(ctxt) {
 		input = ctxt->input;
@@ -571,8 +571,8 @@ void XMLCDECL xmlParserError(void * ctx, const char * msg, ...)
 void XMLCDECL xmlParserWarning(void * ctx, const char * msg, ...)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlParserInputPtr input = NULL;
-	xmlParserInputPtr cur = NULL;
+	xmlParserInput * input = NULL;
+	xmlParserInput * cur = NULL;
 	char * str;
 	if(ctxt) {
 		input = ctxt->input;
@@ -614,7 +614,7 @@ void XMLCDECL xmlParserWarning(void * ctx, const char * msg, ...)
 void XMLCDECL xmlParserValidityError(void * ctx, const char * msg, ...)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlParserInputPtr input = NULL;
+	xmlParserInput * input = NULL;
 	char * str;
 	int len = sstrlen((const xmlChar*)msg);
 	static int had_info = 0;
@@ -655,7 +655,7 @@ void XMLCDECL xmlParserValidityError(void * ctx, const char * msg, ...)
 void XMLCDECL xmlParserValidityWarning(void * ctx, const char * msg, ...)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlParserInputPtr input = NULL;
+	xmlParserInput * input = NULL;
 	char * str;
 	int len = sstrlen((const xmlChar*)msg);
 	if(ctxt && (len != 0) && (msg[len-1] != ':')) {

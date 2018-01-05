@@ -377,7 +377,7 @@ int PriceChecker::GetGoodsPrice(long goodsID, double * price)
 			long ret = 0;
 			for(i = 0; i < IniParam.ArrStorage.getCount(); i++) {
 				MEMSZERO(rec_loc);
-				str.Z().Cat(IniParam.ArrStorage.at(i).Txt).CopyToOleStr(&loc_name);
+				str.Z().Cat(IniParam.ArrStorage.Get(i).Txt).CopyToOleStr(&loc_name);
 				p_loc_obj->SearchByCode(loc_name, loctWarehouse, &rec_loc, &ret);
 				if(ret > 0) {
 					//LogMessage("GetGoodsPrice: LocId for ", (const char *)str, " found", "");	// @vmiller

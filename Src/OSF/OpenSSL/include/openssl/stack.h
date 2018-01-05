@@ -20,30 +20,28 @@ typedef int (*OPENSSL_sk_compfunc)(const void *, const void *);
 typedef void (*OPENSSL_sk_freefunc)(void *);
 typedef void *(*OPENSSL_sk_copyfunc)(const void *);
 
-int OPENSSL_sk_num(const OPENSSL_STACK *);
-void *OPENSSL_sk_value(const OPENSSL_STACK *, int);
-
-void *OPENSSL_sk_set(OPENSSL_STACK *st, int i, const void *data);
-
-OPENSSL_STACK *OPENSSL_sk_new(OPENSSL_sk_compfunc cmp);
-OPENSSL_STACK *OPENSSL_sk_new_null(void);
-void OPENSSL_sk_free(OPENSSL_STACK *);
-void OPENSSL_sk_pop_free(OPENSSL_STACK *st, void (*func) (void *));
+int    FASTCALL OPENSSL_sk_num(const OPENSSL_STACK *);
+void * FASTCALL OPENSSL_sk_value(const OPENSSL_STACK *, int);
+void * FASTCALL OPENSSL_sk_set(OPENSSL_STACK *st, int i, const void *data);
+OPENSSL_STACK * FASTCALL OPENSSL_sk_new(OPENSSL_sk_compfunc cmp);
+OPENSSL_STACK * OPENSSL_sk_new_null(void);
+void   OPENSSL_sk_free(OPENSSL_STACK *);
+void   OPENSSL_sk_pop_free(OPENSSL_STACK *st, void (*func) (void *));
 OPENSSL_STACK *OPENSSL_sk_deep_copy(const OPENSSL_STACK *, OPENSSL_sk_copyfunc c, OPENSSL_sk_freefunc f);
-int OPENSSL_sk_insert(OPENSSL_STACK *sk, const void *data, int where);
-void *OPENSSL_sk_delete(OPENSSL_STACK *st, int loc);
-void *OPENSSL_sk_delete_ptr(OPENSSL_STACK *st, const void *p);
-int OPENSSL_sk_find(OPENSSL_STACK *st, const void *data);
-int OPENSSL_sk_find_ex(OPENSSL_STACK *st, const void *data);
-int OPENSSL_sk_push(OPENSSL_STACK *st, const void *data);
-int OPENSSL_sk_unshift(OPENSSL_STACK *st, const void *data);
-void *OPENSSL_sk_shift(OPENSSL_STACK *st);
-void *OPENSSL_sk_pop(OPENSSL_STACK *st);
-void OPENSSL_sk_zero(OPENSSL_STACK *st);
+int    FASTCALL OPENSSL_sk_insert(OPENSSL_STACK *sk, const void *data, int where);
+void * FASTCALL OPENSSL_sk_delete(OPENSSL_STACK *st, int loc);
+void * FASTCALL OPENSSL_sk_delete_ptr(OPENSSL_STACK *st, const void *p);
+int    FASTCALL OPENSSL_sk_find(OPENSSL_STACK *st, const void *data);
+int    FASTCALL OPENSSL_sk_find_ex(OPENSSL_STACK *st, const void *data);
+int    FASTCALL OPENSSL_sk_push(OPENSSL_STACK *st, const void *data);
+int    FASTCALL OPENSSL_sk_unshift(OPENSSL_STACK *st, const void *data);
+void * FASTCALL OPENSSL_sk_shift(OPENSSL_STACK *st);
+void * FASTCALL OPENSSL_sk_pop(OPENSSL_STACK *st);
+void   FASTCALL OPENSSL_sk_zero(OPENSSL_STACK *st);
 OPENSSL_sk_compfunc OPENSSL_sk_set_cmp_func(OPENSSL_STACK *sk, OPENSSL_sk_compfunc cmp);
-OPENSSL_STACK *OPENSSL_sk_dup(const OPENSSL_STACK *st);
-void OPENSSL_sk_sort(OPENSSL_STACK *st);
-int OPENSSL_sk_is_sorted(const OPENSSL_STACK *st);
+OPENSSL_STACK * FASTCALL OPENSSL_sk_dup(const OPENSSL_STACK *st);
+void   OPENSSL_sk_sort(OPENSSL_STACK *st);
+int    FASTCALL OPENSSL_sk_is_sorted(const OPENSSL_STACK *st);
 
 # if OPENSSL_API_COMPAT < 0x10100000L
 #define _STACK OPENSSL_STACK

@@ -1,15 +1,11 @@
 // V_GDSMOV2.CPP
-// Copyright (c) A.Starodub 2011, 2015, 2016
+// Copyright (c) A.Starodub 2011, 2015, 2016, 2018
 //
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPViewGoodsMov2::PPViewGoodsMov2() : PPView(0, &Filt, PPVIEW_GOODSMOV2)
+SLAPI PPViewGoodsMov2::PPViewGoodsMov2() : PPView(0, &Filt, PPVIEW_GOODSMOV2), P_BObj(BillObj), P_TempTbl(0), PrintWoPacks(0)
 {
-	P_BObj = BillObj;
-	P_TempTbl = 0;
-	PrintWoPacks = 0;
-	P_Ct = 0;
 	ImplementFlags |= implUseServer;
 	DefReportId = REPORT_GOODSMOV2; // @v8.5.7
 	PPLoadString("inrest", InRestText);
@@ -309,10 +305,9 @@ int SLAPI PPViewGoodsMov2::Print(const void *)
 	return ok;
 }
 
-int SLAPI PPViewGoodsMov2::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewGoodsMov2::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetTempGoodsGrp(Filt.GoodsGrpID));
-	return 1;
 }
 
 DBQuery * SLAPI PPViewGoodsMov2::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)

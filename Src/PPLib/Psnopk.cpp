@@ -1,5 +1,5 @@
 // PSNOPK.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 //
 // Виды персональных операций
 //
@@ -499,7 +499,7 @@ int FASTCALL PsnOpKindView::NextIteration(PPPsnOpKind * pItem)
 {
 	int    ok = -1;
 	if(P_Items && IterNo < P_Items->getCount())
-		ok = Obj.Search(P_Items->at(IterNo++).Id, pItem);
+		ok = Obj.Search(P_Items->Get(IterNo++).Id, pItem);
 	return ok;
 }
 
@@ -517,7 +517,7 @@ int PsnOpKindView::CopyList(PPID parentID, StrAssocArray * pSrc, StrAssocArray *
 			uint pos = 0;
 			PPID id = list.at(i);
 			if(pSrc->Search(id, &pos) > 0) {
-				StrAssocArray::Item item = pSrc->at(pos);
+				StrAssocArray::Item item = pSrc->Get(pos);
 				if(pSrc->HasChild(id)) {
 					pDest->Add(item.Id, item.ParentId, item.Txt);
 					CopyList(item.Id, pSrc, pDest); // @recursion

@@ -1,5 +1,5 @@
 // SSTRING.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -3874,7 +3874,7 @@ SString & SString::EncodeString(const char * pSrc, const char * pEncodeStr, int 
 	ss.setDelim(",");
 	for(p = 0; p < list.getCount(); p++) {
 		uint p1 = 0;
-		buf = list.at(p).Txt;
+		buf = list.Get(p).Txt;
 		ss.setBuf(buf, buf.Len() + 1);
 		ss.get(&p1, (decode == 0) ? replacer : pattern);
 		ss.get(&p1, (decode == 0) ? pattern  : replacer);
@@ -4727,6 +4727,12 @@ SPathStruc::SPathStruc() : Flags(0)
 {
 }
 
+SPathStruc::SPathStruc(const char * pPath) : Flags(0)
+{
+	if(!isempty(pPath))
+		Split(pPath);
+}
+
 SPathStruc & SPathStruc::Copy(const SPathStruc * pS, long flags)
 {
 	if(flags & fDrv) {
@@ -4985,16 +4991,14 @@ int FASTCALL SPathStruc::ReplaceExt(SString & rPath, const char * pExt, int forc
 int SPathStruc::ReplacePath(SString & rPath, const char * pNewPath, int force)
 {
 	int    ok = -1;
-	SPathStruc ps;
-	ps.Split(rPath);
+	SPathStruc ps(rPath);
 	if(force || (ps.Drv.Empty() && ps.Dir.Empty())) {
 		if(isempty(pNewPath)) {
 			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, rPath);
 		}
 		else {
-			SPathStruc ps2;
 			SString new_path = pNewPath;
-			ps2.Split(new_path.SetLastSlash());
+			SPathStruc ps2(new_path.SetLastSlash());
 			ps2.Merge(&ps, SPathStruc::fNam|SPathStruc::fExt, rPath);
 		}
 		ok = 1;
@@ -5092,7 +5096,7 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 }
 
 //static
-SString & SPathStruc::NormalizePath(const char * pPath, long flags, SString & rNormalizedPath)
+SString & FASTCALL SPathStruc::NormalizePath(const char * pPath, long flags, SString & rNormalizedPath)
 {
 	(rNormalizedPath = pPath).Strip();
 	if(flags & npfOEM)

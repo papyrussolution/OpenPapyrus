@@ -1,5 +1,5 @@
 // BDB.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <db.h>
@@ -7,9 +7,8 @@
 #include <errno.h>
 #include <BerkeleyDB.h>
 
-BDbDatabase::Txn::Txn() : TblList(/*16,*/aryPtrContainer /* not aryEachItem */)
+BDbDatabase::Txn::Txn() : TblList(/*16,*/aryPtrContainer /* not aryEachItem */), T(0)
 {
-	T = 0;
 }
 
 // static
@@ -28,8 +27,8 @@ SString & BDbDatabase::MakeFileName(const char * pFile, const char * pTblName, S
 int BDbDatabase::SplitFileName(const char * pFileName, SString & rFile, SString & rTbl)
 {
 	int    ok = 0;
-	rFile = 0;
-	rTbl = 0;
+	rFile.Z();
+	rTbl.Z();
 	SString file_name = pFileName;
 	size_t pos = 0;
 	if(file_name.Strip().Search("->", 0, 0, &pos)) {
@@ -1789,7 +1788,7 @@ SLTEST_R(BerkeleyDB)
 					}
 					THROW(SLTEST_CHECK_NZ(bdb.CommitWork()));
 					for(i = 0; i < test_list.getCount(); i++) {
-						line_buf = test_list.at(i).Txt;
+						line_buf = test_list.Get(i).Txt;
 						line_buf.Divide(';', en_buf, ru_buf);
 						key_buf = en_buf;
 						THROW(SLTEST_CHECK_NZ(tbl.Search(key_buf, val_buf)));
@@ -1802,7 +1801,7 @@ SLTEST_R(BerkeleyDB)
 						//
 						THROW(SLTEST_CHECK_NZ(bdb.StartTransaction()));
 						for(i = 0; i < test_list.getCount(); i++) {
-							line_buf = test_list.at(i).Txt;
+							line_buf = test_list.Get(i).Txt;
 							line_buf.Divide(';', en_buf, ru_buf);
 							key_buf = en_buf;
 							THROW(SLTEST_CHECK_NZ(tbl.Search(key_buf, val_buf)));
@@ -1810,7 +1809,7 @@ SLTEST_R(BerkeleyDB)
 						}
 						THROW(SLTEST_CHECK_NZ(bdb.CommitWork()));
 						for(i = 0; i < test_list.getCount(); i++) {
-							line_buf = test_list.at(i).Txt;
+							line_buf = test_list.Get(i).Txt;
 							line_buf.Divide(';', en_buf, ru_buf);
 							key_buf = en_buf;
 							THROW(SLTEST_CHECK_Z(tbl.Search(key_buf, val_buf)));
@@ -1845,7 +1844,7 @@ SLTEST_R(BerkeleyDB)
 					// Ни одной записи из добавленных записей не должно быть в базе данных
 					//
 					for(i = 0; i < test_list.getCount(); i++) {
-						line_buf = test_list.at(i).Txt;
+						line_buf = test_list.Get(i).Txt;
 						line_buf.Divide(';', en_buf, ru_buf);
 						key_buf = en_buf;
 						THROW(SLTEST_CHECK_Z(tbl.Search(key_buf, val_buf)));
@@ -1872,7 +1871,7 @@ SLTEST_R(BerkeleyDB)
 					}
 					THROW(SLTEST_CHECK_NZ(bdb.CommitWork()));
 					for(i = 0; i < test_list.getCount(); i++) {
-						line_buf = test_list.at(i).Txt;
+						line_buf = test_list.Get(i).Txt;
 						line_buf.Divide(';', en_buf, ru_buf);
 						key_buf = en_buf;
 						THROW(SLTEST_CHECK_NZ(tbl.Search(key_buf, val_buf)));

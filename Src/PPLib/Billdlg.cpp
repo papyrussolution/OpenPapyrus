@@ -1,5 +1,5 @@
 // BILLDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -772,9 +772,8 @@ int SLAPI PPLinkFile::Init(const char * pPath)
 	Path.Z();
 	Description = 0;
 	if(pPath && strlen(pPath)) {
-		SPathStruc ps;
 		pathToUNC(pPath, Path);
-		ps.Split(Path);
+		SPathStruc ps(Path);
 		Ext = ps.Ext;
 		ok = 1;
 	}
@@ -1033,8 +1032,7 @@ int SLAPI PPLinkFilesArray::EditDescr(uint pos)
 		SString title, fname;
 		PPLinkFile * p_flink = at(pos);
 		SString descr = p_flink->Description;
-		SPathStruc ps;
-		ps.Split(p_flink->Path);
+		SPathStruc ps(p_flink->Path);
 		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, fname);
 		PPInputStringDialogParam isd_param(PPLoadTextS(PPTXT_INPUTDESCR, title), fname);
 		if(InputStringDialog(&isd_param, descr) > 0 && descr.Len()) {
@@ -1241,9 +1239,8 @@ int LinkFilesDialog::LinkFile(const char * pPath, uint * pPos)
 	int    ok = -1;
 	if(pPath && strlen(pPath)) {
 		SString title, fname;
-		SPathStruc ps;
 		PPLinkFile flink;
-		ps.Split(pPath);
+		SPathStruc ps(pPath);
 		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, fname);
 		flink.Init(pPath);
 		PPInputStringDialogParam isd_param(PPLoadTextS(PPTXT_INPUTDESCR, title), fname.ToOem());
@@ -1474,7 +1471,7 @@ int BillDialog::sendItem(long pos, long id)
 				if(data.MailAccID) {
 					int    first = 1;
 					for(uint i = 0; i < data.AddrList.getCount(); i++) {
-						addr = data.AddrList.at(i).Txt;
+						addr = data.AddrList.Get(i).Txt;
 						if(addr.NotEmptyS()) {
 							if(!first && data.Delay > 0 && data.Delay <= (24 * 3600 * 1000)) {
 								SDelay(data.Delay);

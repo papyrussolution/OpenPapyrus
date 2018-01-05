@@ -1,5 +1,5 @@
 // STRSTORE.CPP
-// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -17,10 +17,8 @@ static const char * P_StrSt_EmptyCodeSymb = ".N.";
 //
 //
 //
-StringStore2::LangStrCollItem::LangStrCollItem()
+StringStore2::LangStrCollItem::LangStrCollItem() : SLang(0), P_PositionHash(0)
 {
-	SLang = 0;
-	P_PositionHash = 0;
 }
 
 StringStore2::LangStrCollItem::~LangStrCollItem()
@@ -158,7 +156,7 @@ int SLAPI StringStore2::Load(const char * pFileName, int selfTest)
 				if(p_item->P_PositionHash) {
 					SString temp_buf;
 					for(uint i = 0; i < p_item->List.getCount(); i++) {
-						StrAssocArray::Item item = p_item->List.at(i);
+						StrAssocArray::Item item = p_item->List.Get(i);
 						long   tpos = 0;
 						assert(p_item->P_PositionHash->Get(item.Id, &tpos));
 						p_item->List.GetTextByPos((uint)tpos, temp_buf);
@@ -344,7 +342,7 @@ int SLAPI StringStore2::GetDescription(const char * pSignature, SString & rBuf) 
         }
 	}
 	else if(SignatureList.SearchByText(pSignature, 0, &pos) > 0) {
-		long   code_str = SignatureList.at(pos).Id;
+		long   code_str = SignatureList.Get(pos).Id;
 		ok = Helper_GetDescription(code_str, rBuf);
 	}
 	return ok;
@@ -411,7 +409,7 @@ int SLAPI StringStore2::GetString(const char * pSignature, SString & rBuf) const
         }
 	}
 	else if(SignatureList.SearchByText(pSignature, 0, &pos) > 0) {
-		long   code_str = SignatureList.at(pos).Id;
+		long   code_str = SignatureList.Get(pos).Id;
 		ok = Helper_GetString(code_str, rBuf);
 	}
 	return ok;
@@ -568,17 +566,17 @@ int SLAPI StringStore2::StoreState(const char * pFileName)
     ini_file.AppendParam("common", "LastAutoCodeList", temp_buf, 1);
 	//
 	for(i = 0; i < SignatureList.getCount(); i++) {
-		StrAssocArray::Item item = SignatureList.at(i);
+		StrAssocArray::Item item = SignatureList.Get(i);
 		ini_file.AppendParam("SignatureList", item.Txt, temp_buf.Z().Cat((uint32)item.Id), 1);
 	}
 	//
 	for(i = 0; i < /*P_Pb->*/GrpSymbList.getCount(); i++) {
-		StrAssocArray::Item item = /*P_Pb->*/GrpSymbList.at(i);
+		StrAssocArray::Item item = /*P_Pb->*/GrpSymbList.Get(i);
 		ini_file.AppendParam("GrpSymbList", item.Txt, temp_buf.Z().Cat((uint32)item.Id), 1);
 	}
 	//
 	for(i = 0; i < P_Pb->StrSymbList.getCount(); i++) {
-		StrAssocArray::Item item = P_Pb->StrSymbList.at(i);
+		StrAssocArray::Item item = P_Pb->StrSymbList.Get(i);
 		ini_file.AppendParam("StrSymbList", item.Txt, temp_buf.Z().Cat((uint32)item.Id), 1);
 	}
 	//
@@ -771,7 +769,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 			// только строки, которые не были переведены ранее.
 			//
 			for(uint fli = 0; fli < file_lang_list.getCount(); fli++) {
-				StrAssocArray::Item fl_item = file_lang_list.at(fli);
+				StrAssocArray::Item fl_item = file_lang_list.Get(fli);
 				if(fl_item.Id == auto_transl_lang) {
 					file_lang_list.Swap(0, fli);
                     break;
@@ -780,7 +778,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 		}
 		THROW(RestoreState(ident_file_name));
 		for(uint fli = 0; fli < file_lang_list.getCount(); fli++) {
-			StrAssocArray::Item fl_item = file_lang_list.at(fli);
+			StrAssocArray::Item fl_item = file_lang_list.Get(fli);
 			StringStore2::ParseItem item;
 			StringStore2::ParseItem last_group;
 			StringStore2::ParseItem last_lang;
@@ -1022,7 +1020,7 @@ int SLAPI StringStore2::Write(SFile & rF, LangStrCollItem * pData)
 		pData->DescrPosList.freeAll();
 		for(uint i = 0; i < pData->DescrList.getCount(); i++) {
             long   offs = rF.Tell();
-            const  StrAssocArray::Item item = pData->DescrList.at(i);
+            const  StrAssocArray::Item item = pData->DescrList.Get(i);
             const  size_t tlen = sstrlen(item.Txt);
             THROW(rF.Write(&item.Id, sizeof(item.Id)));
 			THROW(rF.Write(&tlen, sizeof(tlen)));
@@ -1101,11 +1099,11 @@ int SLAPI StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 	if(rItem.Group == 0) {
 		if(rItem.GroupSymb.NotEmpty()) {
 			if(/*P_Pb->*/GrpSymbList.SearchByText(rItem.GroupSymb, 0, &(pos = 0))) {
-				rItem.Group = /*P_Pb->*/GrpSymbList.at(pos).Id;
+				rItem.Group = /*P_Pb->*/GrpSymbList.Get(pos).Id;
 				ok = 2;
 			}
 			else if(P_Pb->Saved_GrpSymbList.SearchByText(rItem.GroupSymb, 0, &(pos = 0))) {
-				rItem.Group = P_Pb->Saved_GrpSymbList.at(pos).Id;
+				rItem.Group = P_Pb->Saved_GrpSymbList.Get(pos).Id;
 				THROW(/*P_Pb->*/GrpSymbList.Add(rItem.Group, rItem.GroupSymb));
 				if(!P_Pb->LastAutoCodeList.Search(rItem.Group, 0, 0)) {
 					THROW(P_Pb->LastAutoCodeList.Add(rItem.Group, 10000, 0, 0));
@@ -1120,7 +1118,7 @@ int SLAPI StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 		if(rItem.GroupSymb.Empty()) {
 			empty_symb = 1;
 			if(/*P_Pb->*/GrpSymbList.Search(rItem.Group, &(pos = 0))) {
-				rItem.GroupSymb = /*P_Pb->*/GrpSymbList.at(pos).Txt;
+				rItem.GroupSymb = /*P_Pb->*/GrpSymbList.Get(pos).Txt;
 				ok = 2;
 			}
 			else
@@ -1129,11 +1127,11 @@ int SLAPI StringStore2::AddGroup(StringStore2::ParseItem & rItem)
 	}
 	if(ok < 0) {
 		if(/*P_Pb->*/GrpSymbList.Search(rItem.Group, &(pos = 0))) {
-			THROW(rItem.GroupSymb.Cmp(/*P_Pb->*/GrpSymbList.at(pos).Txt, 0) == 0);
+			THROW(rItem.GroupSymb.Cmp(/*P_Pb->*/GrpSymbList.Get(pos).Txt, 0) == 0);
 			ok = 2;
 		}
 		else if(!empty_symb && /*P_Pb->*/GrpSymbList.SearchByText(rItem.GroupSymb, 0, &(pos = 0))) {
-			THROW(rItem.Group == /*P_Pb->*/GrpSymbList.at(pos).Id);
+			THROW(rItem.Group == /*P_Pb->*/GrpSymbList.Get(pos).Id);
 			ok = 2;
 		}
 		else {
@@ -1161,16 +1159,16 @@ int SLAPI StringStore2::AddString(long group, StringStore2::ParseItem & rItem, l
 	THROW_V(group < 0x7fff, sc2eGrpCodeLimit); // @str ѕревышение максимального значени€ кода группы
 	if(rItem.CodeSymb.NotEmpty()) {
 		if(P_Pb->StrSymbList.SearchByText(rItem.CodeSymb, 0, &(pos = 0))) {
-			temp_buf = P_Pb->StrSymbList.at(pos).Txt;
+			temp_buf = P_Pb->StrSymbList.Get(pos).Txt;
 			THROW_V(temp_buf == rItem.CodeSymb, sc2eCodeSymbConflict);
-			code_str = P_Pb->StrSymbList.at(pos).Id;
+			code_str = P_Pb->StrSymbList.Get(pos).Id;
 			ErrAddedMsg = rItem.CodeSymb;
 			THROW_V(HiWord(code_str) == group, sc2eSavedSymbNEqGrp);
 		}
 		else {
 			if(rItem.Code == 0) {
                 if(P_Pb->Saved_StrSymbList.SearchByText(rItem.CodeSymb, 0, &(pos = 0))) {
-					long temp_code_str = P_Pb->Saved_StrSymbList.at(pos).Id;
+					long temp_code_str = P_Pb->Saved_StrSymbList.Get(pos).Id;
 					rItem.Code = LoWord(temp_code_str);
 					ErrAddedMsg = rItem.CodeSymb;
                     THROW_V(HiWord(temp_code_str) == group, sc2eSavedSymbNEqGrp);
@@ -1192,10 +1190,10 @@ int SLAPI StringStore2::AddString(long group, StringStore2::ParseItem & rItem, l
 		rItem.CodeSymb = P_StrSt_EmptyCodeSymb;
 		if(rItem.Signature.NotEmpty()) {
 			if(SignatureList.SearchByText(rItem.Signature, 0, &(pos = 0))) {
-				code_str = SignatureList.at(pos).Id;
+				code_str = SignatureList.Get(pos).Id;
 			}
 			else if(P_Pb->Saved_SignatureList.SearchByText(rItem.Signature, 0, &(pos = 0))) {
-				code_str = P_Pb->Saved_SignatureList.at(pos).Id;
+				code_str = P_Pb->Saved_SignatureList.Get(pos).Id;
 				THROW(SignatureList.Add(code_str, rItem.Signature));
 			}
 			else {
@@ -1590,12 +1588,12 @@ int SLAPI StringStore2::GenerateHeaderFile(const char * pFileName, const char * 
 	/*P_Pb->*/GrpSymbList.SortByID();
 	P_Pb->StrSymbList.SortByID();
 	for(i = 0; i < /*P_Pb->*/GrpSymbList.getCount(); i++) {
-		StrAssocArray::Item item = /*P_Pb->*/GrpSymbList.at(i);
+		StrAssocArray::Item item = /*P_Pb->*/GrpSymbList.Get(i);
 		if(strcmp(item.Txt, P_StrSt_EmptyCodeSymb) != 0)
 			gen.Wr_Define(item.Txt, temp_buf.Z().Cat(item.Id));
 	}
 	for(i = 0; i < P_Pb->StrSymbList.getCount(); i++) {
-		StrAssocArray::Item item = P_Pb->StrSymbList.at(i);
+		StrAssocArray::Item item = P_Pb->StrSymbList.Get(i);
 		long grp = (long)HiWord(item.Id);
 		if(strcmp(item.Txt, P_StrSt_EmptyCodeSymb) != 0) {
 			long code = 0;

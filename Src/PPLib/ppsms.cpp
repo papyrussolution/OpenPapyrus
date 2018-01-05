@@ -789,9 +789,7 @@ int SendSmsDialog::GetAutoSmsText(PPID psnID, PPID objID, SString & rText)
 				}
 				{
 					DlRtm::ExportParam ep;
-					PPFilt _pf;
-					_pf.ID = psnID;
-					_pf.Ptr = 0;
+					PPFilt _pf(psnID);
 					ep.P_F = &_pf;
 					THROW(t.Process("Person", temp_buf, /*prsn_id, 0*/ep, &param_list, text));
 					(rText = 0).CopyFromN((const char *)text.GetBuf(), text.GetAvailableSize()).ToOem();

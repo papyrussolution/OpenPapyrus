@@ -1,5 +1,5 @@
 // SETSTART.CPP
-// Copyright (c) A.Sobolev 2016, 2017
+// Copyright (c) A.Sobolev 2016, 2017, 2018
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу SetStart (аналогичен ФРОНТОЛ'у)
 //
@@ -784,8 +784,7 @@ int SLAPI ACS_SETSTART::ImportFiles()
 				ftp_connected = 1;
 			}
 			{
-				SPathStruc sp;
-				sp.Split(imp_path);
+				SPathStruc sp(imp_path);
 				sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, ftp_dir);
 				sp.Split(PathRpt);
 				sp.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, file_name);
@@ -864,8 +863,7 @@ int SLAPI ACS_SETSTART::ImportFiles()
 		SString temp_dir = dir_in;
 		for(uint file_no = 0; path.GetSubFrom(ImportedFiles, ';', file_no) > 0; file_no++) {
 			if(fileExists(path)) {
-				SPathStruc sp;
-				sp.Split(path);
+				SPathStruc sp(path);
 				// sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, temp_dir);
 				// удаление временных файлов, если их кол-во стало больше 30 {
 				{

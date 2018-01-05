@@ -1,5 +1,5 @@
 // TCONTROL.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -1523,7 +1523,7 @@ ComboBox::ComboBox(const TRect & bounds, ushort aFlags) : TView(bounds)
 ComboBox::~ComboBox()
 {
 	RestoreOnDestruction();
-	if(!P_ListWin || P_ListWin->def != P_Def)
+	if(!P_ListWin || P_ListWin->P_Def != P_Def)
 		delete P_Def;
 	delete P_ListWin;
 }
@@ -1563,7 +1563,7 @@ int ComboBox::setListWindow(ListWindow * pListWin)
 {
 	int    ok = 1;
 	if(pListWin) {
-		setDef(pListWin->def);
+		setDef(pListWin->P_Def);
 		//
 		// @todo ¬ этом месте необходимо принудительно завершить модальность
 		// окна P_ListWin если оно активно и модально

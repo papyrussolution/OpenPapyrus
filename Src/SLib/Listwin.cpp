@@ -18,7 +18,7 @@ ListWindow::ListWindow(ListBoxDef * pDef, const char * pTitle, int aNum) : TDial
 	TbId = 0;
 }
 
-ListWindow::ListWindow() : TDialog(_DefLwRect, 0), def(0), PrepareSearchLetter(0), P_Lb(0), TbId(0)
+ListWindow::ListWindow() : TDialog(_DefLwRect, 0), P_Def(0), PrepareSearchLetter(0), P_Lb(0), TbId(0)
 {
 }
 
@@ -59,7 +59,7 @@ void ListWindow::executeNM(HWND parent)
 	APPL->SetWindowViewByKind(H(), TProgram::wndtypListDialog);
 	MoveWindow(0, 0);
 	if(DlgFlags & fLarge) {
-		def->SetOption(lbtSelNotify, 1);
+		P_Def->SetOption(lbtSelNotify, 1);
 		::SendDlgItemMessage(H(), CTL_LBX_LIST, LB_SETITEMHEIGHT, 0, (LPARAM)40);
 	}
 }
@@ -68,16 +68,16 @@ int FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 {
 	int    found = 0;
 	TView * p_next = 0;
-	def = pDef;
-	if(def) {
+	P_Def = pDef;
+	if(P_Def) {
 		UserInterfaceSettings uiset;
 		uiset.Restore();
 		if(uiset.ListElemCount < 2) {
 			uiset.ListElemCount = 20;
 			uiset.Save();
 		}
-		def->setViewHight(uiset.ListElemCount);
-		def->SetOption(lbtHSizeAlreadyDef, 1);
+		P_Def->setViewHight(uiset.ListElemCount);
+		P_Def->SetOption(lbtHSizeAlreadyDef, 1);
 	}
 	if(P_Lb) {
 		TView * p = first();
@@ -100,7 +100,7 @@ int FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 
 int ListWindow::isTreeList() const
 {
-	return BIN(def && def->_isTreeList());
+	return BIN(P_Def && P_Def->_isTreeList());
 }
 
 IMPL_HANDLE_EVENT(ListWindow)
@@ -110,7 +110,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 		ComboBox * p_combo = P_Lb ? P_Lb->combo : 0;
 		HWND   hwnd_parent = p_combo ? p_combo->link()->Parent : APPL->H_MainWnd;
 		TView::messageCommand(owner, cmLBLoadDef, this);
-		Id = isTreeList() ? DLGW_TREELBX : ((def && def->Options & lbtOwnerDraw) ? DLGW_OWNDRAWLBX : lw_dlg_id);
+		Id = isTreeList() ? DLGW_TREELBX : ((P_Def && P_Def->Options & lbtOwnerDraw) ? DLGW_OWNDRAWLBX : lw_dlg_id);
 		HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)DialogProc, (LPARAM)this);
 		if(oneof2(Id, DLGW_LBX, DLGW_TREELBX)) {
 			UserInterfaceSettings ui_cfg;
@@ -131,7 +131,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 		else
 			MoveWindow(0, 0);
 		if(DlgFlags & fLarge) {
-			def->SetOption(lbtSelNotify, 1);
+			P_Def->SetOption(lbtSelNotify, 1);
 			::SendDlgItemMessage(H(), CTL_LBX_LIST, LB_SETITEMHEIGHT, 0, (LPARAM)40);
 		}
 		if(APPL->PushModalWindow(this, H())) {
@@ -243,26 +243,26 @@ IMPL_HANDLE_EVENT(ListWindow)
 
 int FASTCALL ListWindow::getResult(long * pVal)
 {
-	return def ? def->getCurID(pVal) : 0;
+	return P_Def ? P_Def->getCurID(pVal) : 0;
 }
 
 int ListWindow::getString(SString & rBuf)
 {
-	return def ? def->getCurString(rBuf) : (rBuf.Z(), 0);
+	return P_Def ? P_Def->getCurString(rBuf) : (rBuf.Z(), 0);
 }
 
 int ListWindow::getListData(void * pData)
 {
-	return def ? def->getCurData(pData) : 0;
+	return P_Def ? P_Def->getCurData(pData) : 0;
 }
 
 int ListWindow::getSingle(long * pVal)
 {
-	if(def) {
-		long c = def->getRecsCount();
+	if(P_Def) {
+		const long c = P_Def->getRecsCount();
 		if(c == 1) {
-			def->go(0);
-			return def->getCurID(pVal);
+			P_Def->go(0);
+			return P_Def->getCurID(pVal);
 		}
 	}
 	return 0;
@@ -283,7 +283,7 @@ int ListWindow::MoveWindow(HWND linkHwnd, long right)
 	}
 	GetWindowRect(H(), &list_rect);
 	long   item_height = isTreeList() ? TreeView_GetItemHeight(h_list) : ::SendMessage(h_list, LB_GETITEMHEIGHT, 0, 0);
-	int    h = 	(def) ? ((def->ViewHight + 1) * item_height) : (list_rect.bottom - list_rect.top);
+	int    h = 	P_Def ? ((P_Def->ViewHight + 1) * item_height) : (list_rect.bottom - list_rect.top);
 	int    tt = link_rect.top;
 	int    x  = link_rect.left;
 	int    w  = (link_rect.right - link_rect.left);
@@ -376,19 +376,17 @@ void WordSel_ExtraBlock::SetData(long id, const char * pText)
 		TView * p_v = p_dlg ? p_dlg->getCtrlView(ctl_id) : 0;
  		if(p_v) {
  			if(p_v->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
-				boolean preserve_text_mode = CtrlTextMode;
+				bool   preserve_text_mode = CtrlTextMode;
 				SetTextMode(true);
 				p_dlg->setCtrlData(ctl_id, (void*)pText);
- 				// @v7.7.12 SetFocus(p_v->getHandle()); // @?
 				SetTextMode(preserve_text_mode);
  			}
  			else if(p_v->IsSubSign(TV_SUBSIGN_LISTBOX)) {
  				SmartListBox * p_lbx = (SmartListBox*)p_v;
- 				// @v7.7.12 SetFocus(p_lbx->getHandle()); // @?
  				p_lbx->search(&id, 0, lbSrchByID);
  				p_lbx->selectItem(id);
  			}
-			TView::messageCommand(p_dlg, cmWSSelected, p_v); // @v7.7.12
+			TView::messageCommand(p_dlg, cmWSSelected, p_v);
 		}
 	}
 }
@@ -428,10 +426,10 @@ StrAssocArray * WordSel_ExtraBlock::GetList(const char * pText)
 
 WordSelector::WordSelector(WordSel_ExtraBlock * pBlk) : IsActive(0), IsVisible(0), P_Blk(pBlk)
 {
-	def = new StrAssocListBoxDef(new StrAssocArray(), lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtOwnerDraw);
-	P_Lb = (WordSelectorSmartListBox*)new WordSelectorSmartListBox(TRect(0, 0, 11, 11), def);
+	P_Def = new StrAssocListBoxDef(new StrAssocArray(), lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtOwnerDraw);
+	P_Lb = (WordSelectorSmartListBox*)new WordSelectorSmartListBox(TRect(0, 0, 11, 11), P_Def);
 	P_Lb->SetOwnerDrawState();
-	setDef(def);
+	setDef(P_Def);
 	TButton * b = new TButton(TRect(0, 0, 20, 20), "OK", cmOK, bfDefault);
 	Insert_(&b->SetId(IDOK)); /*CTLID_LISTBOXOKBUTTON*/
 
@@ -481,9 +479,9 @@ int WordSelector::Refresh(const char * pText)
 		else
 			text = pText;
 		if((p_data = P_Blk->GetList(text)) && p_data->getCount()) {
-			if(def) {
-				((StrAssocListBoxDef*)def)->setArray(p_data);
-				setDef(def);
+			if(P_Def) {
+				((StrAssocListBoxDef*)P_Def)->setArray(p_data);
+				setDef(P_Def);
 				MoveWindow(P_Blk->H_InputDlg, 0);
 			}
 			if(CheckVisible() == 0) {
@@ -688,17 +686,17 @@ int FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 {
 	int    found = 0;
 	TView * p_next = 0;
-	def = pDef;
-	if(def) {
+	P_Def = pDef;
+	if(P_Def) {
 		int    create_scroll = 0;
-		uint   elem_count = def->getRecsCount();
+		uint   elem_count = P_Def->getRecsCount();
 		if(elem_count > 20) {
 			create_scroll = 1;
 			elem_count = 20;
 		}
 		P_Lb->CreateScrollBar(create_scroll);
-		def->setViewHight(elem_count);
-		def->SetOption(lbtHSizeAlreadyDef, 1);
+		P_Def->setViewHight(elem_count);
+		P_Def->SetOption(lbtHSizeAlreadyDef, 1);
 	}
 	if(P_Lb) {
 		TView * p = first();

@@ -1,5 +1,5 @@
 // V_OPGRP.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -33,12 +33,8 @@ int SLAPI OpGroupingFilt::IsEqualExcept(const OpGroupingFilt & rS, long flags) c
 		return IsEqual(&rS, 1);
 }
 
-SLAPI PPViewOpGrouping::PPViewOpGrouping() : PPView(0, &Filt, PPVIEW_OPGROUPING)
+SLAPI PPViewOpGrouping::PPViewOpGrouping() : PPView(0, &Filt, PPVIEW_OPGROUPING), P_TempTbl(0), P_TempStatTbl(0), P_ViewTrfrAnlz(0), P_ViewBill(0)
 {
-	P_TempTbl = 0;
-	P_TempStatTbl = 0;
-	P_ViewTrfrAnlz = 0;
-	P_ViewBill     = 0;
 }
 
 SLAPI PPViewOpGrouping::~PPViewOpGrouping()
@@ -721,19 +717,16 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int SLAPI PPViewOpGrouping::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewOpGrouping::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
 	if(pBrw) {
 		if(Filt.Flags & OpGroupingFilt::fCalcAvgLn) {
 			pBrw->InsColumnWord(-1, PPWORD_LINES,    13, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0);
 			pBrw->InsColumnWord(-1, PPWORD_AVGLINES, 14, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0);
 		}
-		if(pBrw->SetTempGoodsGrp(Filt.GoodsGrpID) > 0)
-			ok = 1;
+		pBrw->SetTempGoodsGrp(Filt.GoodsGrpID);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}
-	return ok;
 }
 
 DBQuery * SLAPI PPViewOpGrouping::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)

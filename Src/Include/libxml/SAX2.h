@@ -16,7 +16,7 @@ extern "C" {
 #endif
 XMLPUBFUN const xmlChar * XMLCALL xmlSAX2GetPublicId(void * ctx);
 XMLPUBFUN const xmlChar * XMLCALL xmlSAX2GetSystemId(void * ctx);
-XMLPUBFUN void XMLCALL xmlSAX2SetDocumentLocator(void * ctx, xmlSAXLocatorPtr loc);
+XMLPUBFUN void XMLCALL xmlSAX2SetDocumentLocator(void * ctx, xmlSAXLocator * loc);
 XMLPUBFUN int XMLCALL xmlSAX2GetLineNumber(void * ctx);
 XMLPUBFUN int XMLCALL xmlSAX2GetColumnNumber(void * ctx);
 XMLPUBFUN int XMLCALL xmlSAX2IsStandalone(void * ctx);
@@ -26,7 +26,7 @@ XMLPUBFUN void XMLCALL xmlSAX2InternalSubset(void * ctx, const xmlChar * name, c
 XMLPUBFUN void XMLCALL xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * ExternalID, const xmlChar * SystemID);
 XMLPUBFUN xmlEntity * XMLCALL xmlSAX2GetEntity(void * ctx, const xmlChar * name);
 XMLPUBFUN xmlEntity * XMLCALL xmlSAX2GetParameterEntity(void * ctx, const xmlChar * name);
-XMLPUBFUN xmlParserInputPtr XMLCALL xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, const xmlChar * systemId);
+XMLPUBFUN xmlParserInput * XMLCALL xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, const xmlChar * systemId);
 XMLPUBFUN void XMLCALL xmlSAX2EntityDecl(void * ctx, const xmlChar * name, int type, const xmlChar * publicId, const xmlChar * systemId, xmlChar * content);
 XMLPUBFUN void XMLCALL xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * fullname, int type, int def, const xmlChar * defaultValue, xmlEnumeration * tree);
 XMLPUBFUN void XMLCALL xmlSAX2ElementDecl(void * ctx, const xmlChar * name, int type, xmlElementContent * content);

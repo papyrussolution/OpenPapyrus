@@ -1,5 +1,5 @@
 // PPCOLORS.CPP
-// Copyright (c) A.Starodub 2007, 2009, 2010, 2011, 2013, 2016, 2017
+// Copyright (c) A.Starodub 2007, 2009, 2010, 2011, 2013, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -746,7 +746,7 @@ int ColorCtrlGroup::Rec::AddUndefColorItem()
 		if(cpos == (ColorList.getCount()-1))
 			ok = -1;
 		else {
-			ColorList.atFree(cpos);
+			ColorList.AtFree(cpos);
 			AddColorItem(UndefC, userdef);
 		}
 	}
@@ -852,7 +852,7 @@ void ColorCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		if(TVCMD == CmNewColor && event.isCtlEvent(CtlNewColor)) {
 			const uint cc = Data.ColorList.getCount();
 			if(cc) {
-				long c = Data.ColorList.at(cc-1).Id;
+				long c = Data.ColorList.Get(cc-1).Id;
 				if(EditColor(&c) > 0) {
 					uint   cpos = 0;
 					if(!Data.SearchColorItem(c, &cpos)) {

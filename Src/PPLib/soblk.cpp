@@ -1,5 +1,5 @@
 // SOBLK.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -933,9 +933,8 @@ static int SLAPI Helper_ProcessTddo(long dataId, void * pAry, const char * pData
 		Tddo t;
 		t.SetInputFileName(file_name);
 		DlRtm::ExportParam ep;
-		PPFilt _pf;
+		PPFilt _pf(pAry);
 		_pf.ID = dataId;
-		_pf.Ptr = pAry;
 		ep.P_F = &_pf;
 		THROW(t.Process(pDataName, temp_buf, /*dataId, pAry*/ep, &ext_param_list, rResult)); // @badcast
 		rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
@@ -1339,14 +1338,13 @@ struct LocalSelectorDescr {
 			PPIDArray parent_id_list, named_id_list;
 			for(uint j = 0, k = Values.getCount(); j < k; j++) {
 				json_t * p_jsel_val = new json_t(json_t::tOBJECT);
-				const StrAssocArray::Item & r_val = Values.at(j);
-				json_insert_pair_into_object(p_jsel_val, "ID", json_new_string(temp_buf.Z().Cat(r_val.Id)));
-				json_insert_pair_into_object(p_jsel_val, "Txt", json_new_string((temp_buf = r_val.Txt).Transf(CTRANSF_INNER_TO_OUTER)));
-				json_insert_pair_into_object(p_jsel_val, "PID", json_new_string(temp_buf.Z().Cat(r_val.ParentId)));
-				named_id_list.add(r_val.Id);
-				if(r_val.ParentId) {
-					parent_id_list.add(r_val.ParentId);
-				}
+				StrAssocArray::Item _val = Values.Get(j);
+				json_insert_pair_into_object(p_jsel_val, "ID", json_new_string(temp_buf.Z().Cat(_val.Id)));
+				json_insert_pair_into_object(p_jsel_val, "Txt", json_new_string((temp_buf = _val.Txt).Transf(CTRANSF_INNER_TO_OUTER)));
+				json_insert_pair_into_object(p_jsel_val, "PID", json_new_string(temp_buf.Z().Cat(_val.ParentId)));
+				named_id_list.add(_val.Id);
+				if(_val.ParentId)
+					parent_id_list.add(_val.ParentId);
 				//
 				json_insert_child(p_jsel_val_ary, p_jsel_val);
 			}
@@ -1421,7 +1419,7 @@ int FASTCALL Backend_SelectObjectBlock::TrimResultListByPage(StrAssocArray & rLi
 				//
 				if(c > end_pos) {
 					do {
-						rList.atFree(--c);
+						rList.AtFree(--c);
 					} while(c > end_pos);
 				}
 				//
@@ -1429,7 +1427,7 @@ int FASTCALL Backend_SelectObjectBlock::TrimResultListByPage(StrAssocArray & rLi
 				//
 				c = start_pos;
 				if(c) do {
-					rList.atFree(--c);
+					rList.AtFree(--c);
 				} while(c);
 			}
 		}
@@ -1508,7 +1506,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 		TSCollection <PPObjTSession::PlaceStatus> status_list;
 		if(P_LocTspF && P_LocTspF->PlaceCode[0] && !sstreqi_ascii(P_LocTspF->PlaceCode, "all")) {
             for(uint j = 0; j < ResultList.getCount(); j++) {
-                const PPID tsess_id = ResultList.at(j).Id;
+                const PPID tsess_id = ResultList.Get(j).Id;
                 THROW(P_TSesObj->GetPlaceStatus(tsess_id, P_LocTspF->PlaceCode, qk_id, (store_id ? store_rec.LocID : 0), status_item));
                 {
 					PPObjTSession::PlaceStatus * p_new_item = new PPObjTSession::PlaceStatus(status_item);
@@ -1524,7 +1522,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 			PPProcessorPacket prc_pack;
 			StringSet ss_places;
 			for(uint j = 0; j < ResultList.getCount(); j++) {
-				const PPID tsess_id = ResultList.at(j).Id;
+				const PPID tsess_id = ResultList.Get(j).Id;
 				if(P_TSesObj->Search(tsess_id, &tses_rec) > 0 && P_TSesObj->PrcObj.GetPacket(tses_rec.PrcID, &prc_pack) > 0) {
 					const uint pdc = prc_pack.Ext.GetPlaceDescriptionCount();
 					if(pdc) {
@@ -1659,7 +1657,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 						uint pos = 0;
 						PPViewTSession::UhttStoreExt iter_ext;
 						for(uint j = 0; j < ResultList.getCount(); j++) {
-							const PPID tsess_id = ResultList.at(j).Id;
+							const PPID tsess_id = ResultList.Get(j).Id;
 							if(P_TSesObj->Search(tsess_id, &tses_rec) > 0) {
 								if(p_view && p_view->GetUhttStoreExtension(tses_rec, iter_ext) > 0 && iter_ext.SfList.getCount()) {
 									int sel_idx = 0;
@@ -1667,7 +1665,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 										LocalSelectorDescr * p_sdescr = sdescr_list.at(sel_idx);
 										if(p_sdescr) {
 											pos = 0;
-											const StrAssocArray::Item & r_item = iter_ext.SfList.at(i);
+											const StrAssocArray::Item & r_item = iter_ext.SfList.Get(i);
 											if(r_item.Id || r_item.Txt) {
 												if(p_sdescr->Values.SearchByText(r_item.Txt, 1, &pos) == 0)
 													p_sdescr->Values.AddFast(r_item.Id, r_item.ParentId, r_item.Txt);
@@ -1696,7 +1694,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 						PPCheckInPersonArray ci_list;
 						const LDATETIME _cdtm = getcurdatetime_();
 						for(uint j = 0; j < ResultList.getCount(); j++) {
-							const PPID tsess_id = ResultList.at(j).Id;
+							const PPID tsess_id = ResultList.Get(j).Id;
 							if(P_TSesObj->Search(tsess_id, &tses_rec) > 0 && prc_obj.Fetch(tses_rec.PrcID, &prc_rec) > 0) {
 								tses_ext.destroy();
 								P_TSesObj->GetExtention(tsess_id, &tses_ext);
@@ -1904,10 +1902,10 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 									LocalSelectorDescr * p_sdescr = sdescr_list.at(sel_idx);
 									if(p_sdescr) {
 										pos = 0;
-										const StrAssocArray::Item & r_item = iter_ext.SfList.at(i);
-										if(r_item.Id || r_item.Txt) {
-											if(p_sdescr->Values.SearchByText(r_item.Txt, 1, &pos) == 0)
-												p_sdescr->Values.AddFast(r_item.Id, r_item.ParentId, r_item.Txt);
+										StrAssocArray::Item _item = iter_ext.SfList.Get(i);
+										if(_item.Id || _item.Txt) {
+											if(p_sdescr->Values.SearchByText(_item.Txt, 1, &pos) == 0)
+												p_sdescr->Values.AddFast(_item.Id, _item.ParentId, _item.Txt);
 										}
 									}
 									sel_idx++;
@@ -3698,7 +3696,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 			case oSelect:
 				if(ResultList.getCount()) {
 					if(ResultList.getCount() == 1)
-						gta_blk.ObjId.Id = ResultList.at(0).Id;
+						gta_blk.ObjId.Id = ResultList.Get(0).Id;
 					gta_blk.Count = ResultList.getCount();
 				}
 				else

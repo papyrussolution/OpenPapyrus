@@ -1,5 +1,5 @@
 // V_SCALE.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2010, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2008, 2009, 2010, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -249,10 +249,9 @@ static int ScaleReadyColorFunc(const void * pData, long col, int paintAction, Br
 	return ok;
 }
 
-int SLAPI PPViewScale::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewScale::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(ScaleReadyColorFunc, this));
-	return 1;
 }
 
 DBQuery * SLAPI PPViewScale::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)

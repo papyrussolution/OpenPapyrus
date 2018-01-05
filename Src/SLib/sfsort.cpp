@@ -1,5 +1,5 @@
 // SFSORT.CPP
-// Copyright (c) A.Sobolev 2017
+// Copyright (c) A.Sobolev 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -8,13 +8,11 @@
 class SfSortStringPool : public SStrGroup {
 public:
 	static int SLAPI Helper_CmpFunc_ByText(const uint * p1, const uint * p2, SfSortStringPool * pArray);
-	SLAPI  SfSortStringPool(CompFunc fcmp) : SStrGroup()
+	SLAPI  SfSortStringPool(CompFunc fcmp) : SStrGroup(), TextCmpProc(fcmp)
 	{
-		TextCmpProc = fcmp;
 	}
-	SLAPI  SfSortStringPool(const StrAssocArray & rS)
+	SLAPI  SfSortStringPool(const StrAssocArray & rS) : TextCmpProc(0)
 	{
-		TextCmpProc = 0;
 		Copy(rS);
 	}
 	SfSortStringPool & FASTCALL operator = (const SfSortStringPool & rS)
@@ -148,10 +146,9 @@ int SLAPI SFSortChunkInfo::Finish(const char * pSrcFileName, SfSortStringPool & 
 	if(_c) {
 		rChunk.Sort();
 		//
-		SPathStruc ps;
 		SString line_buf;
 		SString temp_buf;
-		ps.Split(pSrcFileName);
+		SPathStruc ps(pSrcFileName);
 		ps.Nam.CatChar('-').Cat("temp").CatLongZ(ChunkNo, 8);
 		ps.Merge(FileName);
 		SFile f_temp(FileName, SFile::mWrite|SFile::mBinary|SFile::mNoStd);
@@ -356,9 +353,8 @@ int SLAPI SFSortChunkInfoList::Merge(uint firstIdx, uint lastIdx, SFSortChunkInf
 			SFSortChunkInfo * p_result_chunk = rDest.CreateItem();
 			THROW(p_result_chunk);
 			{
-				SPathStruc ps;
 				SString temp_buf;
-				ps.Split(SrcFileName);
+				SPathStruc ps(SrcFileName);
 				ps.Nam.CatChar('-').Cat("temp").CatLongZ((long)p_result_chunk->ChunkNo, 8);
 				ps.Merge(p_result_chunk->FileName);
 				{
@@ -694,8 +690,7 @@ SLTEST_R(FileSort)
 		sp.MaxChunkSize = 1024 * 1024;
 		sp.MaxThread = 2;
 		{
-			SPathStruc ps;
-			ps.Split(test_file_name);
+			SPathStruc ps(test_file_name);
 			ps.Nam.CatChar('-').Cat("sorted");
 			ps.Merge(dest_file_name);
 		}

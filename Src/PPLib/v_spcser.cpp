@@ -1,5 +1,5 @@
 // V_SPCSER.CPP
-// Copyright (c) A.Starodub 2012, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2012, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -217,10 +217,8 @@ DBQuery * SLAPI PPViewSpecSeries::CreateBrowserQuery(uint * pBrwId, SString * pS
 }
 
 // virtual
-int SLAPI PPViewSpecSeries::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewSpecSeries::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int ok = -1;
-	return -1;
 }
 
 class SpecSerDlg : public TDialog {
@@ -457,7 +455,7 @@ int SLAPI PPViewSpecSeries::ImportUhtt()
 			THROW(p_pack = uhtt_series_list.at(i));
 			THROW(Tbl.GetListBySerial(p_pack->InfoKind, p_pack->Serial, &list));
 			for(uint j = 0; j < list.getCount(); j++) {
-				if(Tbl.Search(list.at(j).Id, &rec) > 0) {
+				if(Tbl.Search(list.Get(j).Id, &rec) > 0) {
 					LDATE dt;
 					strtodate(p_pack->InfoDate, DATF_YMD, &dt);
 					if((p_pack->Serial == rec.Serial) && (p_pack->Barcode == rec.Barcode) &&

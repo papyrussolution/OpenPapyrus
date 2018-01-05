@@ -1,5 +1,5 @@
 // WORKBOOK.CPP
-// Copyright (c) Petroglif 2014, 2015, 2016, 2017
+// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -181,7 +181,7 @@ void SLAPI PPWorkbookPacket::destroy()
 	MEMSZERO(Rec);
 	TagL.Destroy();
 	F.Clear();
-	ExtString = 0;
+	ExtString.Z();
 }
 
 int SLAPI PPWorkbookPacket::GetExtStrData(int fldID, SString & rBuf) const
@@ -564,7 +564,7 @@ int SLAPI PPObjWorkbook::SelectKeywordReverse(SString & rKeyword)
 			}
 			temp_list.SortByText();
 			for(uint j = 0; j < temp_list.getCount(); j++) {
-				StrAssocArray::Item item = temp_list.at(j);
+				StrAssocArray::Item item = temp_list.Get(j);
 				p_lw->listBox()->addItem(item.Id, item.Txt);
 			}
 			while(ok < 0 && ExecView(p_lw) == cmOK) {
@@ -1049,8 +1049,7 @@ int SLAPI PPObjWorkbook::Helper_Edit(PPID * pID, AddBlock * pAb)
 			if(pAb->FileName.NotEmpty() && fileExists(pAb->FileName)) {
 				pack.F.Replace(0, pAb->FileName);
 				if(pack.Rec.Name[0] == 0) {
-					SPathStruc ps;
-					ps.Split(pAb->FileName);
+					SPathStruc ps(pAb->FileName);
 					ps.Nam.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
 				}
 			}
@@ -1416,7 +1415,7 @@ int SLAPI PPObjWorkbook::GetPacket(PPID id, PPWorkbookPacket * pPack)
 {
 	pPack->TagL.Destroy();
 	pPack->F.Clear();
-	pPack->ExtString = 0;
+	pPack->ExtString.Z();
 	int    ok = -1;
 	if(Search(id, &pPack->Rec) > 0) {
 		Reference * p_ref = PPRef;
@@ -2629,9 +2628,9 @@ int SLAPI PPObjWorkbook::ImportFiles(PPID rootID, PPObjWorkbook::ImpExpParam * p
 		THROW(Search(pParam->RootID, &root_rec) > 0);
 		THROW(oneof2(root_rec.Type, PPWBTYP_SITE, PPWBTYP_FOLDER));
 		{
-			SPathStruc ps, ps_;
+			SPathStruc ps_;
 			PPWait(1);
-			ps.Split(pParam->Wildcard);
+			SPathStruc ps(pParam->Wildcard);
 			SString base_path, naked_wildcard;
 			ps_.Merge(&ps, SPathStruc::fDrv|SPathStruc::fDir, base_path);
 			ps_.Clear().Merge(&ps, SPathStruc::fNam|SPathStruc::fExt, naked_wildcard);
@@ -2765,7 +2764,7 @@ static int SLAPI SelectWorkbookImpExpConfig(PPWorkbookImpExpParam * pParam, int 
 	THROW_INVARG(pParam);
 	pParam->Direction = BIN(import);
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_WORKBOOK, &param, &list, import ? 2 : 1));
-	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.at(p).Id : 0;
+	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.Get(p).Id : 0;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, temp_buf));
 	{
 		PPIniFile ini_file(temp_buf, 0, 1, 1);
@@ -2951,8 +2950,7 @@ int SLAPI PPWorkbookExporter::Init(const PPWorkbookImpExpParam * pParam)
 		THROW_MEM(P_IEWorkbook = new PPImpExp(&Param, 0));
 		THROW(P_IEWorkbook->OpenFileForWriting(0, 1));
 		{
-			SPathStruc ps;
-			ps.Split(P_IEWorkbook->GetParamConst().FileName);
+			SPathStruc ps(P_IEWorkbook->GetParamConst().FileName);
 			ps.Ext = "files";
 			ps.Merge(DestFilesPath);
 		}
@@ -3009,8 +3007,7 @@ int SLAPI PPWorkbookExporter::ExportPacket(const PPWorkbookPacket * pPack)
 				THROW_SL(::createDir(DestFilesPath));
 			}
 			SString dest_filename;
-			SPathStruc ps;
-			ps.Split(temp_buf);
+			SPathStruc ps(temp_buf);
 			MakeTempFileName(DestFilesPath, "wbf", ps.Ext, 0, dest_filename);
 			THROW_SL(SCopyFile(temp_buf, dest_filename, 0, FILE_SHARE_READ, 0));
 			dest_filename.CopyTo(sdr_rec.Content, sizeof(sdr_rec.Content));

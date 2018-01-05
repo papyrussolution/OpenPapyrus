@@ -1,5 +1,5 @@
 // DBBACKUP.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2017
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2017, 2018
 //
 #include <db.h>
 #pragma hdrstop
@@ -78,8 +78,7 @@ int SLAPI DBBackup::InfoFile::MakeFileName(const char * pPath, const char * pFil
 	if(pPath)
 		(temp = pPath).SetLastSlash();
 	else {
-		SPathStruc ps;
-		ps.Split(FileName);
+		SPathStruc ps(FileName);
 		ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, temp);
 		temp.SetLastSlash();
 	}
@@ -351,7 +350,7 @@ int SLAPI DBBackup::CheckCopy(BCopyData * pData, CopyParams * pCP, BackupLogFunc
 	THROW_V(P_Db, SDBERR_BU_DICTNOPEN);
 	P_Db->GetListOfTables(0, &tbl_list);
 	for(uint j = 0; j < tbl_list.getCount(); j++) {
-		const StrAssocArray::Item item = tbl_list.at(j);
+		const StrAssocArray::Item item = tbl_list.Get(j);
 		if(P_Db->GetTableInfo(item.Id, &ts) > 0 && !(ts.Flags & XTF_DICT) && ts.Location.NotEmpty()) {
 			TablePartsEnum tpe(0);
 			path = ts.Location;
@@ -410,7 +409,7 @@ int SLAPI DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, long initPara
 	THROW_V(P_Db, SDBERR_BU_DICTNOPEN);
 	P_Db->GetListOfTables(0, &tbl_list);
 	for(uint j = 0; j < tbl_list.getCount(); j++) {
-		const StrAssocArray::Item item = tbl_list.at(j);
+		const StrAssocArray::Item item = tbl_list.Get(j);
 		if(P_Db->GetTableInfo(item.Id, &ts) > 0 && !(ts.Flags & XTF_DICT) && ts.Location.NotEmpty()) {
 			TablePartsEnum tpe(0);
 			path = ts.Location;
@@ -442,7 +441,7 @@ int SLAPI DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, long initPara
 		// THROW_V(Btrieve::RemoveContinuous(copycont_filelist.getBuf()), SDBERR_BTRIEVE);
 		SString msg_buf;
 		for(uint j = 0; j < tbl_list.getCount(); j++) {
-			const StrAssocArray::Item item = tbl_list.at(j);
+			const StrAssocArray::Item item = tbl_list.Get(j);
 			if(P_Db->GetTableInfo(item.Id, &ts) > 0 && !(ts.Flags & XTF_DICT) && ts.Location.NotEmpty()) {
 				TablePartsEnum tpe(0);
 				path = ts.Location;
@@ -559,7 +558,7 @@ int SLAPI DBBackup::RemoveDatabase(int safe)
 	THROW_V(P_Db, SDBERR_BU_DICTNOPEN);
 	P_Db->GetListOfTables(0, &tbl_list);
 	for(uint j = 0; j < tbl_list.getCount(); j++) {
-		const StrAssocArray::Item item = tbl_list.at(j);
+		const StrAssocArray::Item item = tbl_list.Get(j);
 		if(P_Db->GetTableInfo(item.Id, &ts) > 0 && !(ts.Flags & XTF_DICT) && ts.Location.NotEmpty()) {
 			int    first = 0;
 			TablePartsEnum tpe(0);
@@ -594,7 +593,7 @@ int SLAPI DBBackup::RestoreRemovedDB(int restoreFiles)
 	THROW_V(P_Db, SDBERR_BU_DICTNOPEN);
 	P_Db->GetListOfTables(0, &tbl_list);
 	for(uint j = 0; j < tbl_list.getCount(); j++) {
-		const StrAssocArray::Item item = tbl_list.at(j);
+		const StrAssocArray::Item item = tbl_list.Get(j);
 		if(P_Db->GetTableInfo(item.Id, &ts) > 0 && !(ts.Flags & XTF_DICT) && ts.Location.NotEmpty()) {
 			path = ts.Location;
 			int    first = 0;
@@ -674,8 +673,7 @@ int SLAPI DBBackup::CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, lo
 
 				for(tpe.Init(src_path); tpe.Next(spart) > 0;) {
 					if(fileExists(spart)) {
-						SPathStruc sp;
-						sp.Split(spart);
+						SPathStruc sp(spart);
 						SPathStruc::ReplaceExt(dest_path, sp.Ext, 1);
 						if(SCopyFile(spart, dest_path, DBBackup::CopyProgressProc, FILE_SHARE_READ, this) <= 0)
 							LogMessage(fnLog, BACKUPLOG_ERR_COPY, src_path, initParam);

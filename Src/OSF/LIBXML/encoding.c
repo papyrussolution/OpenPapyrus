@@ -1613,7 +1613,7 @@ int xmlCharEncFirstLine(xmlCharEncodingHandler * handler, xmlBuffer * out, xmlBu
  *     -2 if the transcoding fails (for *in is not valid utf8 string or
  *        the result of transformation can't fit into the encoding we want), or
  */
-int xmlCharEncFirstLineInput(xmlParserInputBufferPtr input, int len)
+int xmlCharEncFirstLineInput(xmlParserInputBuffer * input, int len)
 {
 	int ret = -2;
 	size_t written;
@@ -1720,7 +1720,7 @@ int xmlCharEncFirstLineInput(xmlParserInputBufferPtr input, int len)
  *     -2 if the transcoding fails (for *in is not valid utf8 string or
  *        the result of transformation can't fit into the encoding we want), or
  */
-int xmlCharEncInput(xmlParserInputBufferPtr input, int flush)
+int xmlCharEncInput(xmlParserInputBuffer * input, int flush)
 {
 	int ret = -2;
 	size_t written;
@@ -2302,7 +2302,7 @@ int xmlCharEncCloseFunc(xmlCharEncodingHandler * handler)
  */
 long xmlByteConsumed(xmlParserCtxt * ctxt)
 {
-	xmlParserInputPtr in;
+	xmlParserInput * in;
 	if(!ctxt)
 		return -1;
 	in = ctxt->input;

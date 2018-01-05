@@ -1,5 +1,5 @@
 // V_DEBT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // Implementation of PPViewDebtTrnovr
 //
@@ -2264,7 +2264,7 @@ int SLAPI PPViewDebtTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 					PersonCore::GetELinks(ObjectToPerson(hdr.ArID, 0), &phones_ary);
 					for(uint i = 0; i < phones_ary.getCount(); i++) {
 						GetObjectName(PPOBJ_ELINKKIND, phones_ary.at(i).KindID, buf, 1);
-						buf.CatChar(':').Space().Cat(phones_ary.at(i).Addr).CR();
+						buf.CatDiv(':', 2).Cat(phones_ary.at(i).Addr).CR();
 						r = 1;
 					}
 					if(r > 0)
@@ -2280,9 +2280,8 @@ int SLAPI PPViewDebtTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	return ok;
 }
 
-int SLAPI PPViewDebtTrnovr::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewDebtTrnovr::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
 	if(pBrw && P_TempTbl && !P_Ct) {
 		DBQBrowserDef * p_def = (DBQBrowserDef *)pBrw->getDef();
 		const DBQuery * p_q = p_def ? p_def->getQuery() : 0;
@@ -2320,10 +2319,8 @@ int SLAPI PPViewDebtTrnovr::PreprocessBrowser(PPViewBrowser * pBrw)
 				fld_no = 2; //(Filt.Flags & DebtTrnovrFilt::fExtended) ? 13 : 9;
 				pBrw->InsColumn(2, "@cycle", fld_no, 0, 0, 0);
 			}
-			ok = 1;
 		}
 	}
-	return ok;
 }
 
 DBQuery * SLAPI PPViewDebtTrnovr::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
@@ -4718,10 +4715,9 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int SLAPI PPViewDebtorStat::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewDebtorStat::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, 0));
-	return 1;
 }
 
 int SLAPI PPViewDebtorStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)

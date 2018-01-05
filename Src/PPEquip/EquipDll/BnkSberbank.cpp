@@ -1,7 +1,7 @@
 // BNKSBERBANK.CPP
 //
 // Библиотека для работы с терминалами, обслуживающими карты Сбербанка
-
+//
 #include <ppdrvapi.h>
 
 extern PPDrvSession DRVS;
@@ -508,8 +508,7 @@ int PPDrvSberTrmnl::Init(const char * pLibPath)
 			SString slip_file_name;
 			SIniFile ini_file("pinpad.ini");
 			if(ini_file.GetParam(0, "printerfile", slip_file_name) > 0) {
-				SPathStruc ps;
-				ps.Split(slip_file_name);
+				SPathStruc ps(slip_file_name);
 				if(ps.Drv.Empty() && ps.Dir.Empty()) {
 					(SlipFileName = pLibPath).SetLastSlash().Cat(slip_file_name);
 				}
@@ -532,7 +531,7 @@ int PPDrvSberTrmnl::Init(const char * pLibPath)
 			SString msg, buf;
 			DRVS.GetErrText(serrNotInited, msg);
 			DRVS.GetErrText(-1, buf);
-			msg.CatChar(':').Space().Cat(buf);
+			msg.CatDiv(':', 2).Cat(buf);
 			DRVS.Log(msg, 0xffff);
 		}
 	ENDCATCH;
@@ -563,7 +562,7 @@ int PPDrvSberTrmnl::Connect()
 			SString msg, buf;
 			DRVS.GetErrText(-1, msg);
 			DRVS.GetErrText(result, buf);
-			msg.CatChar(':').Space().Cat(buf);
+			msg.CatDiv(':', 2).Cat(buf);
 			DRVS.Log(msg, 0xffff);
 		}
 	ENDCATCH;
@@ -599,7 +598,7 @@ int PPDrvSberTrmnl::Pay(double amount, SString & rSlip)
 			//rcode = auth_answr.Rcode;
 			//DRVS.GetErrText(rcode.ToLong(), buf);
 			DRVS.GetErrText(result, buf);
-			msg.CatChar(':').Space().Cat("Error Code ").Cat(/*auth_answr.Rcode*/result).CatChar(':').Cat(buf);
+			msg.CatDiv(':', 2).Cat("Error Code ").Cat(/*auth_answr.Rcode*/result).CatChar(':').Cat(buf);
 			if(auth_answr.AMessage)
 				msg.CR().Tab().Cat("Addition message: ").Cat(auth_answr.AMessage);
 			DRVS.Log(msg, 0xffff);
@@ -632,7 +631,7 @@ int PPDrvSberTrmnl::Refund(double amount, SString & rSlip)
 			//rcode = auth_answr.Rcode;
 			//DRVS.GetErrText(rcode.ToLong(), buf);
 			DRVS.GetErrText(result, buf);
-			msg.CatChar(':').Space().Cat("Error Code ").Cat(/*auth_answr.Rcode*/result).CatChar(':').Cat(buf);
+			msg.CatDiv(':', 2).Cat("Error Code ").Cat(/*auth_answr.Rcode*/result).CatChar(':').Cat(buf);
 			if(auth_answr.AMessage)
 				msg.CR().Tab().Cat("Adddition message: ").Cat(auth_answr.AMessage);
 			DRVS.Log(msg, 0xffff);
@@ -666,7 +665,7 @@ int PPDrvSberTrmnl::GetSessReport(SString & rCheck)
 			//rcode = auth_answr.Rcode;
 			//DRVS.GetErrText(rcode.ToLong(), buf);
 			DRVS.GetErrText(result, buf);
-			msg.CatChar(':').Space().Cat("Error Code ").Cat(/*auth_answr.Rcode*/result).CatChar(':').Cat(buf);
+			msg.CatDiv(':', 2).Cat("Error Code ").Cat(/*auth_answr.Rcode*/result).CatChar(':').Cat(buf);
 			if(auth_answr.AMessage)
 				msg.CR().Tab().Cat("Adddition message: ").Cat(auth_answr.AMessage);
 			DRVS.Log(msg, 0xffff);

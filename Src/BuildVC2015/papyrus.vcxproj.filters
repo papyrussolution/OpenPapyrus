@@ -157,7 +157,6 @@
     <ClCompile Include="..\PPLib\Path.cpp" />
     <ClCompile Include="..\PPLib\Payment.cpp" />
     <ClCompile Include="..\PPLib\Person.cpp" />
-    <ClCompile Include="..\PPLib\PLIST.CPP" />
     <ClCompile Include="..\PPLib\pp-pch.cpp" />
     <ClCompile Include="..\PPLib\Ppaction.cpp" />
     <ClCompile Include="..\PPLib\Ppappo.cpp" />
@@ -326,6 +325,7 @@
     <ClCompile Include="..\PPLib\ppngx.cpp" />
     <ClCompile Include="..\PPLib\tddo2.cpp" />
     <ClCompile Include="..\PPLib\vetis.cpp" />
+    <ClCompile Include="..\PPLib\phnpan.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h">

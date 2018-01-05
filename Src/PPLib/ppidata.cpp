@@ -1,5 +1,5 @@
 // PPYIDATA.CPP
-// Copyright (c) A.Starodub 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -425,8 +425,7 @@ int WinInetFTP::CheckSizeAfterCopy(const char * pLocalPath, const char * pFTPPat
 			InetUrl url(temp_buf);
 			url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		}
-        SPathStruc ps;
-        ps.Split(temp_buf);
+        SPathStruc ps(temp_buf);
 		if(ps.Dir.NotEmpty())
 			THROW(CD(ps.Dir));
         ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
@@ -643,8 +642,7 @@ int WinInetFTP::TransferFile(const char * pLocalPath, const char * pFTPPath, int
 			InetUrl url(temp_buf);
 			url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		}
-        SPathStruc ps;
-        ps.Split(temp_buf);
+        SPathStruc ps(temp_buf);
 		if(ps.Dir.NotEmpty())
 			THROW(CD(ps.Dir));
         ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
@@ -764,8 +762,7 @@ int WinInetFTP::Delete(const char * pPath)
 			InetUrl url(temp_buf);
 			url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		}
-        SPathStruc ps;
-        ps.Split(temp_buf);
+        SPathStruc ps(temp_buf);
 		if(ps.Dir.NotEmpty())
 			THROW(CD(ps.Dir));
         ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
@@ -791,8 +788,7 @@ int WinInetFTP::Exists(const char * pPath)
 			InetUrl url(temp_buf);
 			url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		}
-        SPathStruc ps;
-        ps.Split(temp_buf);
+        SPathStruc ps(temp_buf);
 		if(ps.Dir.NotEmpty())
 			ok = CD(ps.Dir);
         ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
@@ -823,8 +819,7 @@ int WinInetFTP::GetFileList(const char * pDir, StrAssocArray * pFileList, const 
 			InetUrl url(temp_buf);
 			url.GetComponent(InetUrl::cPath, 0, temp_buf);
 		}
-        SPathStruc ps;
-        ps.Split(temp_buf);
+        SPathStruc ps(temp_buf);
 		if(ps.Dir.NotEmpty())
 			ok = CD(ps.Dir);
 	}
@@ -862,8 +857,7 @@ int WinInetFTP::CD(const char * pDir, int isFullPath /*=1*/)
 	sdir = dir;
 	*/
 	if(pDir) {
-		SPathStruc ps;
-		ps.Split(pDir);
+		SPathStruc ps(pDir);
 		SString sdir = ps.Dir;
 		{
 			uint   stop = 0;

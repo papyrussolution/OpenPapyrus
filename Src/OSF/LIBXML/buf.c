@@ -1190,7 +1190,7 @@ size_t FASTCALL xmlBufGetInputBase(xmlBuf * buf, xmlParserInput * input)
  *
  * Returns -1 in case of error, 0 otherwise
  */
-int xmlBufSetInputBaseCur(xmlBufPtr buf, xmlParserInputPtr input, size_t base, size_t cur)
+int xmlBufSetInputBaseCur(xmlBufPtr buf, xmlParserInput * input, size_t base, size_t cur)
 {
 	if((input == NULL) || (buf == NULL) || (buf->error))
 		return -1;

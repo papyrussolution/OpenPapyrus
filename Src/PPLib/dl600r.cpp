@@ -1,5 +1,5 @@
 // DL600R.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // Run-time DL600 modules
 //
 #pragma hdrstop
@@ -10,6 +10,14 @@
 //
 //
 PPFilt::PPFilt() : ID(0), Ptr(0)
+{
+}
+
+PPFilt::PPFilt(long id) : ID(id), Ptr(0)
+{
+}
+
+PPFilt::PPFilt(void * ptr) : ID(0), Ptr(ptr)
 {
 }
 
@@ -357,23 +365,22 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 					if(preproc_func && arg_no == 1) {
 						if(func.ImplID == DL6FI_DOT) {
 							int    r;
-							PPFilt pf;
 							DlRtm * p_rtm = GetRtm(te.T.Link);
 							THROW(p_rtm);
-							pf.ID = *(long *)S.GetPtr(ret_sp);
-							THROW(r = p_rtm->InitData(pf));
-							//
-							// ≈сли порожденный класс не смог инициализировать данные, то
-							// мы инициализируем их сами. Ёто - наследие прошлого: слишком
-							// большой объем кода работает так, что DlRtm::InitData не вызываетс€ //
-							// в случае неудачи с поиском требуемой записи и т.д.
-							if(r < 0) {
-								PPFilt empty_filt;
-								empty_filt.Ptr = 0;
-								empty_filt.ID = 0;
-								p_rtm->DlRtm::InitData(empty_filt, 0);
+							{
+								PPFilt pf(*(long *)S.GetPtr(ret_sp));
+								THROW(r = p_rtm->InitData(pf));
+								//
+								// ≈сли порожденный класс не смог инициализировать данные, то
+								// мы инициализируем их сами. Ёто - наследие прошлого: слишком
+								// большой объем кода работает так, что DlRtm::InitData не вызываетс€ //
+								// в случае неудачи с поиском требуемой записи и т.д.
+								if(r < 0) {
+									PPFilt empty_filt;
+									p_rtm->DlRtm::InitData(empty_filt, 0);
+								}
+								THROW(EvaluateExpr(p_rtm, p_rtm->GetHdrScope(), pRtm, pScope, p_arg->P_Next, ret_pos)); // @recursion (set caller scope)
 							}
-							THROW(EvaluateExpr(p_rtm, p_rtm->GetHdrScope(), pRtm, pScope, p_arg->P_Next, ret_pos)); // @recursion (set caller scope)
 							break;
 						}
 						else if(func.ImplID == DL6FI_REF) {
@@ -1419,8 +1426,7 @@ int SLAPI DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags
 	THROW_MEM(p_root_ary);
 	THROW(pAry);
 	for(uint i = 0, n = pAry->getCount(); i < n; i++) {
-		PPFilt filt;
-		filt.ID = pAry->at(i).Id;
+		PPFilt filt(pAry->Get(i).Id);
 		if(filt.ID > 0)
 			THROW(Helper_PutItemToJson(&filt, p_root_ary));
 	}
@@ -1435,15 +1441,16 @@ int SLAPI DlRtm::PutToJsonBuffer(StrAssocArray * pAry, SString & rBuf, int flags
 int SLAPI DlRtm::PutToJsonBuffer(void * ptr, SString & rBuf, int flags)
 {
 	int    ok = 1;
-	PPFilt filt;
 	char * p_temp_buf = 0;
 	json_t * p_root_ary = new json_t(json_t::tARRAY);
 	THROW_MEM(p_root_ary);
 	THROW(ptr);
-	filt.Ptr = ptr;
-	THROW(Helper_PutItemToJson(&filt, p_root_ary));
-	json_tree_to_string(p_root_ary, &p_temp_buf);
-	rBuf.Z().Cat(p_temp_buf);
+	{
+		PPFilt filt(ptr);
+		THROW(Helper_PutItemToJson(&filt, p_root_ary));
+		json_tree_to_string(p_root_ary, &p_temp_buf);
+		rBuf.Z().Cat(p_temp_buf);
+	}
 	CATCHZOK
 	SAlloc::F(p_temp_buf);
 	json_free_value(&p_root_ary);

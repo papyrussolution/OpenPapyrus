@@ -1,5 +1,5 @@
 // PPGPLOT.CPP
-// Copyright (c) A.Sobolev 2008, 2011, 2014, 2016, 2017
+// Copyright (c) A.Sobolev 2008, 2011, 2014, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -721,8 +721,8 @@ int Generator_GnuPlot::Plot(const PlotParam * pParam)
 					if(i)
 						LineBuf.CatDiv(',', 2);
 					LineBuf.CatQStr((i == 0) ? data_file_name : "").Space(); // data source
-					LineBuf.Cat("using").Space().Cat(Param.Legend.at(i).Id).CatChar(':').Cat("xtic(1)");
-					temp_buf.Z().Cat(Param.Legend.at(i).Id);
+					LineBuf.Cat("using").Space().Cat(Param.Legend.Get(i).Id).CatChar(':').Cat("xtic(1)");
+					temp_buf.Z().Cat(Param.Legend.Get(i).Id);
 					LineBuf.Space().Cat("title").Space().CatQStr(temp_buf); // title
 				}
 			}
@@ -731,8 +731,8 @@ int Generator_GnuPlot::Plot(const PlotParam * pParam)
 					if(i)
 						LineBuf.CatDiv(',', 2);
 					LineBuf.CatQStr((i == 0) ? data_file_name : "").Space(); // data source
-					LineBuf.Cat("using").Space().Cat(1).CatChar(':').Cat(Param.Legend.at(i).Id);
-					LineBuf.Space().Cat("title").Space().CatQStr(Param.Legend.at(i).Txt); // title
+					LineBuf.Cat("using").Space().Cat(1).CatChar(':').Cat(Param.Legend.Get(i).Id);
+					LineBuf.Space().Cat("title").Space().CatQStr(Param.Legend.Get(i).Txt); // title
 					if(Param.Flags & PlotParam::fLines)
 						LineBuf.Space().Cat("with").Space().Cat("lines");
 					else if(Param.Flags & PlotParam::fPoints)

@@ -1,5 +1,5 @@
 // OBJREF.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -824,7 +824,8 @@ int SLAPI PPObjUnit::UniteMaxLike()
 				PPTransaction tra(1); // @v9.8.6
 				THROW(tra); // @v9.8.6
 				for(uint i = 0; i < p_list->getCount(); i++) {
-					PPID id = p_list->at(i).Id, like_id = 0;
+					PPID   id = p_list->Get(i).Id;
+					PPID   like_id = 0;
 					PPUnit rec;
 					if(Search(id, &rec) > 0) {
 						while(SearchMaxLike(&rec, &like_id) > 0) {

@@ -1,5 +1,5 @@
 // V_SYSJ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -853,12 +853,13 @@ int SLAPI PPViewSysJournal::HandleNotifyEvent(int kind, const PPNotifyEvent * pE
 }
 
 //virtual
-int SLAPI PPViewSysJournal::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewSysJournal::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	if(pBrw && Filt.Flags & SysJournalFilt::fShowObjects && Filt.ActionIDList.getSingle() == PPACN_SCARDDISUPD)
-		pBrw->InsColumnWord(7, PPWORD_PCTDIS, 2, 0, MKSFMTD(0, 2, NMBF_NOZERO | NMBF_NOTRAILZ), 0);
-	CALLPTRMEMB(pBrw, Advise(PPAdviseBlock::evSysJournalChanged, 0, -1, 0));
-	return 1;
+	if(pBrw) {
+		if(Filt.Flags & SysJournalFilt::fShowObjects && Filt.ActionIDList.getSingle() == PPACN_SCARDDISUPD)
+			pBrw->InsColumnWord(7, PPWORD_PCTDIS, 2, 0, MKSFMTD(0, 2, NMBF_NOZERO | NMBF_NOTRAILZ), 0);
+		pBrw->Advise(PPAdviseBlock::evSysJournalChanged, 0, -1, 0);
+	}
 }
 //
 //

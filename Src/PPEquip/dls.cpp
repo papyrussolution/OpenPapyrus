@@ -1,5 +1,5 @@
 // DLS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -281,8 +281,7 @@ int SLAPI DeviceLoadingStat::DoMaintain(LDATE toDt)
 	DvcLoadingStatTbl::Key2 k;
 	{
 		SString buf, added_param;
-		SPathStruc ps;
-		ps.Split(DBTable::GetName());
+		SPathStruc ps(DBTable::GetName());
 		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, added_param);
 		msg.Printf(PPLoadTextS(PPTXT_DBMAINTAIN, buf), added_param);
 	}
@@ -582,21 +581,17 @@ DBQuery * SLAPI PPViewDvcLoadingStat::CreateBrowserQuery(uint * pBrwId, SString 
 	return q;
 }
 
-int SLAPI PPViewDvcLoadingStat::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewDvcLoadingStat::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
 	if(pBrw && !Filt.DvcID) {
 		SString  dvc_name;
 		GetDvcName(Filt.DvcType, &dvc_name);
 		pBrw->view->insertColumn(0, dvc_name, 7, 0L, MKSFMTD(20, 0, 0), 0);
-		ok = 1;
 	}
 	if(Filt.GoodsGrpID || Filt.GoodsID) {
 		pBrw->view->insertColumn(2, "@ware", 8, 0L, MKSFMTD(20, 0, 0), 0);
 		pBrw->view->insertColumn(3, "@price", 9, 0L, SFMT_MONEY, 0);
-		ok = 1;
 	}
-	return ok;
 }
 
 int SLAPI PPViewDvcLoadingStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
@@ -717,14 +712,10 @@ DBQuery * SLAPI PPViewDLSDetail::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return q;
 }
 
-int SLAPI PPViewDLSDetail::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewDLSDetail::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
-	if(pBrw && Filt.DvcType == dvctScales) {
+	if(pBrw && Filt.DvcType == dvctScales)
 		pBrw->InsColumnWord(1, PPWORD_PLU, 3, 0L, MKSFMTD(5, 0, NMBF_NOZERO), 0);
-		ok = 1;
-	}
-	return ok;
 }
 
 int SLAPI PPViewDLSDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)

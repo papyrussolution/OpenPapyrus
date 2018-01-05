@@ -1,5 +1,5 @@
 // STCP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -1433,8 +1433,7 @@ int SLAPI SMailMessage::EnumAttach(uint * pPos, SString & rFileName, SString & r
 	if(pos < AttachPosL.getCount()) {
 		//rFullPath = AttList.at(pos);
 		GetS(AttachPosL.at(pos), rFullPath);
-		SPathStruc ps;
-		ps.Split(rFullPath);
+		SPathStruc ps(rFullPath);
 		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, rFileName);
 		pos++;
 		ASSIGN_PTR(pPos, pos);
@@ -1952,8 +1951,7 @@ int SLAPI SMailMessage::SaveAttachmentTo(uint attIdx, const char * pDestPath, SS
 			}
 		}
 		{
-			SPathStruc ps;
-			ps.Split(pDestPath);
+			SPathStruc ps(pDestPath);
 			if(ps.Nam.NotEmpty()) {
 				result_file_name = pDestPath;
 			}
@@ -2282,8 +2280,7 @@ SMailMessage::Boundary * SLAPI SMailMessage::AttachFile(Boundary * pB, int forma
 			p_result->Cd.ModifDtm = fs.ModTime;
 			p_result->Cd.Size = fs.Size;
 
-			SPathStruc ps;
-			ps.Split(pFilePath);
+			SPathStruc ps(pFilePath);
 			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 			AddS(temp_buf, &p_result->Cd.NameP);
 			p_result->Cd.FileNameP = p_result->Cd.NameP;
@@ -2967,7 +2964,7 @@ int SHttpClient::TolkToServer(int method, const char * pUrl)
 		// Посылаем теги заголовка запроса
 		//
 		for(uint i = 0; i < Header.getCount(); i++) {
-			StrAssocArray::Item hitem = Header.at(i);
+			StrAssocArray::Item hitem = Header.Get(i);
 			if(!isempty(hitem.Txt) && GetHeaderTitle(hitem.Id, temp_buf)) {
 				line_buf.Cat(temp_buf).CatDiv(':', 2).Cat(hitem.Txt).CRB();
 			}
@@ -3845,8 +3842,7 @@ int ScURL::FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, SDa
 	THROW(fileExists(pLocalFile));
 	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	{
-		SPathStruc ps;
-		ps.Split(pLocalFile);
+		SPathStruc ps(pLocalFile);
 		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 		url_info.Path.SetLastDSlash().Cat(temp_buf);
 		url_local.SetComponent(InetUrl::cPath, url_info.Path);
@@ -3890,10 +3886,8 @@ int ScURL::FtpGet(const InetUrl & rUrl, int mflags, const char * pLocalFile, SSt
 	InnerUrlInfo url_info;
 	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
 	{
-		SPathStruc ps_local;
-		SPathStruc ps_remote;
-		ps_local.Split(pLocalFile);
-		ps_remote.Split(url_info.Path);
+		SPathStruc ps_local(pLocalFile);
+		SPathStruc ps_remote(url_info.Path);
 		if(ps_remote.Nam.NotEmpty()) {
 			if(ps_local.Nam.Empty()) {
 				ps_local.Nam = ps_remote.Nam;
@@ -4603,8 +4597,7 @@ void SLAPI Test_MailMsg_ReadFromFile()
 			{
 				SString out_file_name;
 				SString out_buf;
-				SPathStruc ps;
-				ps.Split(f_in.GetName());
+				SPathStruc ps(f_in.GetName());
 				ps.Nam.Cat("-testoutput");
 				ps.Ext = "out";
 				ps.Merge(out_file_name);

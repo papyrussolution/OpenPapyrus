@@ -1,5 +1,5 @@
 // V_GREST.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3342,7 +3342,7 @@ int SLAPI PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int pain
 }
 
 //virtual
-int SLAPI PPViewGoodsRest::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewGoodsRest::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	uint   brw_id = 0;
 	int    deficit_col = 0, minstock_col = 0, draft_rcpt_col = 0;
@@ -3415,7 +3415,6 @@ int SLAPI PPViewGoodsRest::PreprocessBrowser(PPViewBrowser * pBrw)
 		// } @v8.7.3
 	}
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, this));
-	return 1;
 }
 
 // virtual

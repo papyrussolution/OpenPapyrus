@@ -46,7 +46,7 @@ static void FASTCALL xmlTreeErrMemory(const char * extra)
  *
  * Handle an out of memory condition
  */
-static void xmlTreeErr(int code, xmlNode * P_Node, const char * extra)
+static void FASTCALL xmlTreeErr(int code, xmlNode * P_Node, const char * extra)
 {
 	const char * msg = NULL;
 	switch(code) {
@@ -74,7 +74,26 @@ const xmlChar xmlStringComment[] = { 'c', 'o', 'm', 'm', 'e', 'n', 't', 0 };
 static int xmlCompressMode = 0;
 static int xmlCheckDTD = 1;
 
-#define UPDATE_LAST_CHILD_AND_PARENT(n) if(n) {	       \
+static void FASTCALL __UpdateLastChildAndParent(xmlNode * pNode)
+{
+	if(pNode) {
+		xmlNode * ulccur = pNode->children;
+		if(ulccur) {
+			while(ulccur->next) {
+				ulccur->parent = pNode;
+				ulccur = ulccur->next;
+			}
+			ulccur->parent = pNode;
+			pNode->last = ulccur;
+		}
+		else
+			pNode->last = NULL;
+	}
+}
+
+#define UPDATE_LAST_CHILD_AND_PARENT(n) __UpdateLastChildAndParent(n);
+
+/*#define UPDATE_LAST_CHILD_AND_PARENT(n) if(n) {	       \
 		xmlNode * ulccur = (n)->children;				    \
 		if(ulccur == NULL) {						   \
 			(n)->last = NULL;						\
@@ -85,7 +104,7 @@ static int xmlCheckDTD = 1;
 			}								\
 			ulccur->parent = (n);						\
 			(n)->last = ulccur;						\
-		}}
+		}}*/
 
 #define IS_STR_XML(str) ((str) && (str[0] == 'x') && (str[1] == 'm') && (str[2] == 'l') && (str[3] == 0))
 
@@ -1689,7 +1708,6 @@ xmlAttrPtr xmlNewNsPropEatName(xmlNode * P_Node, xmlNs * ns, xmlChar * name, con
 	}
 	return xmlNewPropInternal(P_Node, ns, name, value, 1);
 }
-
 /**
  * xmlNewDocProp:
  * @doc:  the document
@@ -1699,7 +1717,7 @@ xmlAttrPtr xmlNewNsPropEatName(xmlNode * P_Node, xmlNs * ns, xmlChar * name, con
  * Create a new property carried by a document.
  * Returns a pointer to the attribute
  */
-xmlAttrPtr xmlNewDocProp(xmlDoc * doc, const xmlChar * name, const xmlChar * value)
+xmlAttr * FASTCALL xmlNewDocProp(xmlDoc * doc, const xmlChar * name, const xmlChar * value)
 {
 	xmlAttr * cur = 0;
 	if(!name) {
@@ -1755,13 +1773,13 @@ void xmlFreePropList(xmlAttrPtr cur)
  *
  * Free one attribute, all the content is freed too
  */
-void xmlFreeProp(xmlAttrPtr cur)
+void FASTCALL xmlFreeProp(xmlAttr * cur)
 {
 	if(cur) {
 		xmlDict * p_dict = cur->doc ? cur->doc->dict : 0;
 		if(__xmlRegisterCallbacks && (xmlDeregisterNodeDefaultValue))
 			xmlDeregisterNodeDefaultValue((xmlNode *)cur);
-		/* Check for ID removal -> leading to invalid references ! */
+		// Check for ID removal -> leading to invalid references ! 
 		if(cur->doc && (cur->atype == XML_ATTRIBUTE_ID))
 			xmlRemoveID(cur->doc, cur);
 		xmlFreeNodeList(cur->children);
@@ -1973,7 +1991,6 @@ xmlNode * xmlNewDocNode(xmlDoc * doc, xmlNs * ns, const xmlChar * name, const xm
 	}
 	return cur;
 }
-
 /**
  * xmlNewDocNodeEatName:
  * @doc:  the document
@@ -2001,8 +2018,8 @@ xmlNode * xmlNewDocNodeEatName(xmlDoc * doc, xmlNs * ns, xmlChar * name, const x
 		}
 	}
 	else {
-		/* if name don't come from the doc dictionnary free it here */
-		if(name && doc && (!(xmlDictOwns(doc->dict, name))))
+		// if name don't come from the doc dictionnary free it here 
+		if(name && doc && !(xmlDictOwns(doc->dict, name)))
 			SAlloc::F(name);
 	}
 	return cur;
@@ -3121,7 +3138,6 @@ xmlNode * xmlNextElementSibling(xmlNode * P_Node) {
 }
 
 #endif /* LIBXML_TREE_ENABLED */
-
 /**
  * xmlFreeNodeList:
  * @cur:  the first node in the list
@@ -3129,7 +3145,7 @@ xmlNode * xmlNextElementSibling(xmlNode * P_Node) {
  * Free a node and all its siblings, this is a recursive behaviour, all
  * the children are freed too.
  */
-void xmlFreeNodeList(xmlNode * cur)
+void FASTCALL xmlFreeNodeList(xmlNode * cur)
 {
 	if(cur) {
 		if(cur->type == XML_NAMESPACE_DECL) {
@@ -3240,7 +3256,7 @@ void xmlUnlinkNode(xmlNode * cur)
 	if(cur->type == XML_NAMESPACE_DECL)
 		return;
 	if(cur->type == XML_DTD_NODE) {
-		xmlDocPtr doc = cur->doc;
+		xmlDoc * doc = cur->doc;
 		if(doc) {
 			if(doc->intSubset == (xmlDtd *)cur)
 				doc->intSubset = NULL;
@@ -3249,7 +3265,7 @@ void xmlUnlinkNode(xmlNode * cur)
 		}
 	}
 	if(cur->type == XML_ENTITY_DECL) {
-		xmlDocPtr doc = cur->doc;
+		xmlDoc * doc = cur->doc;
 		if(doc) {
 			if(doc->intSubset) {
 				if(xmlHashLookup((xmlHashTable *)doc->intSubset->entities, cur->name) == cur)
@@ -4910,7 +4926,6 @@ xmlChar * FASTCALL xmlNodeGetContent(const xmlNode * cur)
 	}
 	return 0;
 }
-
 /**
  * xmlNodeSetContent:
  * @cur:  the node being modified
@@ -5271,7 +5286,7 @@ static xmlNs * FASTCALL xmlTreeEnsureXMLDecl(xmlDoc * doc)
  *
  * Returns the namespace pointer or NULL.
  */
-xmlNs * xmlSearchNs(xmlDoc * doc, xmlNode * P_Node, const xmlChar * nameSpace) 
+xmlNs * FASTCALL xmlSearchNs(xmlDoc * doc, xmlNode * P_Node, const xmlChar * nameSpace) 
 {
 	xmlNs * cur = 0;
 	const xmlNode * orig = P_Node;
@@ -5343,12 +5358,9 @@ static int xmlNsInScope(xmlDocPtr doc ATTRIBUTE_UNUSED, xmlNode * P_Node, xmlNod
 			return -1;
 		else {
 			if(P_Node->type == XML_ELEMENT_NODE) {
-				xmlNs * tst = P_Node->nsDef;
-				while(tst) {
+				for(xmlNs * tst = P_Node->nsDef; tst; tst = tst->next)
 					if(sstreq(tst->prefix, prefix))
 						return 0;
-					tst = tst->next;
-				}
 			}
 			P_Node = P_Node->parent;
 		}
@@ -5370,13 +5382,13 @@ xmlNs * xmlSearchNsByHref(xmlDoc * doc, xmlNode * P_Node, const xmlChar * href)
 	xmlNs * cur;
 	xmlNode * orig = P_Node;
 	int is_attr;
-	if(!P_Node || (P_Node->type == XML_NAMESPACE_DECL) || (href == NULL))
+	if(!P_Node || (P_Node->type == XML_NAMESPACE_DECL) || !href)
 		return 0;
 	if(sstreq(href, XML_XML_NAMESPACE)) {
 		/*
 		 * Only the document can hold the XML spec namespace.
 		 */
-		if((doc == NULL) && (P_Node->type == XML_ELEMENT_NODE)) {
+		if(!doc && (P_Node->type == XML_ELEMENT_NODE)) {
 			/*
 			 * The XML-1.0 namespace is normally held on the root
 			 * element. In this case exceptionally create it on the
@@ -5400,13 +5412,8 @@ xmlNs * xmlSearchNsByHref(xmlDoc * doc, xmlNode * P_Node, const xmlChar * href)
 			if(!doc)
 				return 0;
 		}
-		/*
-		 * Return the XML namespace declaration held by the doc.
-		 */
-		if(doc->oldNs == NULL)
-			return(xmlTreeEnsureXMLDecl(doc));
-		else
-			return(doc->oldNs);
+		// Return the XML namespace declaration held by the doc.
+		return doc->oldNs ? doc->oldNs : xmlTreeEnsureXMLDecl(doc);
 	}
 	is_attr = (P_Node->type == XML_ATTRIBUTE_NODE);
 	while(P_Node) {
@@ -5482,7 +5489,8 @@ static xmlNs * xmlNewReconciliedNs(xmlDoc * doc, xmlNode * tree, xmlNs * ns)
 		snprintf((char*)prefix, sizeof(prefix), "%.20s", (char*)ns->prefix);
 	def = xmlSearchNs(doc, tree, prefix);
 	while(def) {
-		if(counter > 1000) return 0;
+		if(counter > 1000) 
+			return 0;
 		if(ns->prefix == NULL)
 			snprintf((char*)prefix, sizeof(prefix), "default%d", counter++);
 		else
@@ -5493,7 +5501,7 @@ static xmlNs * xmlNewReconciliedNs(xmlDoc * doc, xmlNode * tree, xmlNs * ns)
 	 * OK, now we are ready to create a new one.
 	 */
 	def = xmlNewNs(tree, ns->href, prefix);
-	return(def);
+	return def;
 }
 
 #ifdef LIBXML_TREE_ENABLED
@@ -5685,7 +5693,7 @@ int xmlReconciliateNs(xmlDoc * doc, xmlNode * tree)
 
 #endif /* LIBXML_TREE_ENABLED */
 
-static xmlAttrPtr xmlGetPropNodeInternal(const xmlNode * P_Node, const xmlChar * name, const xmlChar * nsName, int useDTD)
+static xmlAttr * FASTCALL xmlGetPropNodeInternal(const xmlNode * P_Node, const xmlChar * name, const xmlChar * nsName, int useDTD)
 {
 	xmlAttr * prop;
 	if(!P_Node || (P_Node->type != XML_ELEMENT_NODE) || !name)
@@ -6878,10 +6886,9 @@ void xmlSetCompressMode(int mode)
 #define XML_TREE_NSMAP_DOC -3
 #define XML_TREE_NSMAP_CUSTOM -4
 
-typedef struct xmlNsMapItem * xmlNsMapItemPtr;
 struct xmlNsMapItem {
-	xmlNsMapItemPtr next;
-	xmlNsMapItemPtr prev;
+	xmlNsMapItem * next;
+	xmlNsMapItem * prev;
 	xmlNs * oldNs; /* old ns decl reference */
 	xmlNs * newNs; /* new ns decl reference */
 	int shadowDepth; /* Shadowed at this depth */
@@ -6896,12 +6903,14 @@ struct xmlNsMapItem {
 	int depth;
 };
 
-typedef struct xmlNsMap * xmlNsMapPtr;
 struct xmlNsMap {
-	xmlNsMapItemPtr first;
-	xmlNsMapItemPtr last;
-	xmlNsMapItemPtr pool;
+	xmlNsMapItem * first;
+	xmlNsMapItem * last;
+	xmlNsMapItem * pool;
 };
+
+//typedef struct xmlNsMapItem * xmlNsMapItemPtr;
+//typedef struct xmlNsMap * xmlNsMapPtr;
 
 #define XML_NSMAP_NOTEMPTY(m) (((m) != NULL) && ((m)->first != NULL))
 #define XML_NSMAP_FOREACH(m, i) for(i = (m)->first; i != NULL; i = (i)->next)
@@ -6921,7 +6930,7 @@ struct xmlNsMap {
  *
  * Frees the ns-map
  */
-static void FASTCALL xmlDOMWrapNsMapFree(xmlNsMapPtr nsmap)
+static void FASTCALL xmlDOMWrapNsMapFree(xmlNsMap * nsmap)
 {
 	if(nsmap) {
 		xmlNsMapItem * cur = nsmap->pool;
@@ -6948,10 +6957,10 @@ static void FASTCALL xmlDOMWrapNsMapFree(xmlNsMapPtr nsmap)
  *
  * Adds an ns-mapping item.
  */
-static xmlNsMapItem * FASTCALL xmlDOMWrapNsMapAddItem(xmlNsMapPtr * nsmap, int position, xmlNs * oldNs, xmlNs * newNs, int depth)
+static xmlNsMapItem * FASTCALL xmlDOMWrapNsMapAddItem(xmlNsMap ** nsmap, int position, xmlNs * oldNs, xmlNs * newNs, int depth)
 {
-	xmlNsMapItemPtr ret;
-	xmlNsMapPtr map;
+	xmlNsMapItem * ret;
+	xmlNsMap * map;
 	if(!nsmap)
 		return 0;
 	if(position != -1 && position != 0)
@@ -6959,7 +6968,7 @@ static xmlNsMapItem * FASTCALL xmlDOMWrapNsMapAddItem(xmlNsMapPtr * nsmap, int p
 	map = *nsmap;
 	if(map == NULL) {
 		// Create the ns-map.
-		map = (xmlNsMapPtr)SAlloc::M(sizeof(struct xmlNsMap));
+		map = (xmlNsMap *)SAlloc::M(sizeof(struct xmlNsMap));
 		if(map == NULL) {
 			xmlTreeErrMemory("allocating namespace map");
 			return 0;
@@ -6975,7 +6984,7 @@ static xmlNsMapItem * FASTCALL xmlDOMWrapNsMapAddItem(xmlNsMapPtr * nsmap, int p
 	}
 	else {
 		// Create a new item.
-		ret = (xmlNsMapItemPtr)SAlloc::M(sizeof(struct xmlNsMapItem));
+		ret = (xmlNsMapItem *)SAlloc::M(sizeof(struct xmlNsMapItem));
 		if(!ret) {
 			xmlTreeErrMemory("allocating namespace map item");
 			return 0;
@@ -7068,7 +7077,7 @@ xmlDOMWrapCtxtPtr xmlDOMWrapNewCtxt()
 void xmlDOMWrapFreeCtxt(xmlDOMWrapCtxtPtr ctxt)
 {
 	if(ctxt) {
-		xmlDOMWrapNsMapFree((xmlNsMapPtr)ctxt->namespaceMap);
+		xmlDOMWrapNsMapFree((xmlNsMap *)ctxt->namespaceMap);
 		/*
 		 * @todo Store the namespace map in the context.
 		 */
@@ -7106,11 +7115,11 @@ static xmlNs * xmlTreeNSListLookupByPrefix(xmlNs * nsList, const xmlChar * prefi
  *
  * Returns 0 on success, -1 on API or internal errors.
  */
-static int FASTCALL xmlDOMWrapNSNormGatherInScopeNs(xmlNsMapPtr * map, xmlNode * P_Node)
+static int FASTCALL xmlDOMWrapNSNormGatherInScopeNs(xmlNsMap ** map, xmlNode * P_Node)
 {
 	xmlNode * cur;
 	xmlNs * ns;
-	xmlNsMapItemPtr mi;
+	xmlNsMapItem * mi;
 	int shadowed;
 	if((map == NULL) || *map)
 		return -1;
@@ -7555,9 +7564,9 @@ ns_next_prefix:
  *
  * Returns 0 if succeeded, -1 otherwise and on API/internal errors.
  */
-static int xmlDOMWrapNSNormAquireNormalizedNs(xmlDoc * doc, xmlNode * elem, xmlNs * ns, xmlNs ** retNs, xmlNsMapPtr * nsMap, int depth, int ancestorsOnly, int prefixed)
+static int xmlDOMWrapNSNormAquireNormalizedNs(xmlDoc * doc, xmlNode * elem, xmlNs * ns, xmlNs ** retNs, xmlNsMap ** nsMap, int depth, int ancestorsOnly, int prefixed)
 {
-	xmlNsMapItemPtr mi;
+	xmlNsMapItem * mi;
 	if(!doc || (ns == NULL) || (retNs == NULL) || (nsMap == NULL))
 		return -1;
 	*retNs = NULL;
@@ -7675,8 +7684,8 @@ int xmlDOMWrapReconcileNamespaces(xmlDOMWrapCtxtPtr ctxt ATTRIBUTE_UNUSED, xmlNo
 	xmlDocPtr doc;
 	xmlNode * cur;
 	xmlNode * curElem = NULL;
-	xmlNsMapPtr nsMap = NULL;
-	xmlNsMapItemPtr /* topmi = NULL, */ mi;
+	xmlNsMap * nsMap = NULL;
+	xmlNsMapItem * /* topmi = NULL, */ mi;
 	/* @ancestorsOnly should be set by an option flag. */
 	int ancestorsOnly = 0;
 	int optRemoveRedundantNS = BIN((xmlDOMReconcileNSOptions)options & XML_DOM_RECONNS_REMOVEREDUND);
@@ -7893,8 +7902,8 @@ static int xmlDOMWrapAdoptBranch(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xm
 	int ret = 0;
 	xmlNode * cur;
 	xmlNode * curElem = NULL;
-	xmlNsMapPtr nsMap = NULL;
-	xmlNsMapItemPtr mi;
+	xmlNsMap * nsMap = NULL;
+	xmlNsMapItem * mi;
 	xmlNs * ns = NULL;
 	int depth = -1;
 	/* gather @parent's ns-decls. */
@@ -7909,7 +7918,7 @@ static int xmlDOMWrapAdoptBranch(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xm
 	 * Get the ns-map from the context if available.
 	 */
 	if(ctxt)
-		nsMap = (xmlNsMapPtr)ctxt->namespaceMap;
+		nsMap = (xmlNsMap *)ctxt->namespaceMap;
 	/*
 	 * Disable search for ns-decls in the parent-axis of the
 	 * desination element, if:
@@ -8209,8 +8218,8 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * P
 	int ret = 0;
 	xmlNode * cur;
 	xmlNode * curElem = NULL;
-	xmlNsMapPtr nsMap = NULL;
-	xmlNsMapItemPtr mi;
+	xmlNsMap * nsMap = NULL;
+	xmlNsMapItem * mi;
 	xmlNs * ns;
 	int depth = -1;
 	/* int adoptStr = 1; */
@@ -8253,7 +8262,7 @@ int xmlDOMWrapCloneNode(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlNode * P
 	 * Reuse the namespace map of the context.
 	 */
 	if(ctxt)
-		nsMap = (xmlNsMapPtr)ctxt->namespaceMap;
+		nsMap = (xmlNsMap *)ctxt->namespaceMap;
 	*resNode = NULL;
 	cur = P_Node;
 	if(cur && (cur->type == XML_NAMESPACE_DECL))

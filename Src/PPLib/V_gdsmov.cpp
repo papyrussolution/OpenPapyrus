@@ -1,5 +1,5 @@
 // V_GDSMOV.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev, A.Starodub 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -52,12 +52,8 @@ int SLAPI GoodsMovTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * 
 //
 // @ModuleDecl(PPViewGoodsMov)
 //
-SLAPI PPViewGoodsMov::PPViewGoodsMov() : PPView(0, &Filt, PPVIEW_GOODSMOV)
+SLAPI PPViewGoodsMov::PPViewGoodsMov() : PPView(0, &Filt, PPVIEW_GOODSMOV), P_BObj(BillObj), P_TempTbl(0), P_GGIter(0), PrintWoPacks(0)
 {
-	P_BObj = BillObj;
-	P_TempTbl = 0;
-	P_GGIter = 0;
-	PrintWoPacks = 0;
 	ImplementFlags |= implUseServer;
 	DefReportId = REPORT_GOODSMOV; // @v8.5.7
 }
@@ -617,11 +613,9 @@ int SLAPI PPViewGoodsMov::Print(const void *)
 	return ok;
 }
 
-int SLAPI PPViewGoodsMov::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewGoodsMov::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	if(pBrw)
-		pBrw->SetTempGoodsGrp(Filt.GoodsGrpID);
-	return 1;
+	CALLPTRMEMB(pBrw, SetTempGoodsGrp(Filt.GoodsGrpID));
 }
 
 DBQuery * SLAPI PPViewGoodsMov::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)

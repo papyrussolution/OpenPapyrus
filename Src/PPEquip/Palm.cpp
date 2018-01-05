@@ -1,5 +1,5 @@
 // PALM.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -8,7 +8,7 @@
 //
 //
 //
-SLAPI PalmBillQueue::PalmBillQueue() : SArray(sizeof(PalmBillPacket *), /*8,*/ aryPtrContainer)
+SLAPI PalmBillQueue::PalmBillQueue() : SArray(sizeof(PalmBillPacket *), aryPtrContainer)
 {
 }
 
@@ -1391,8 +1391,7 @@ static int GetImportFileList(int isAndr, const char * pPath, WinInetFTP * pFtp, 
 		if(isAndr) {
 			SString mask;
 			PPGetFileName(PPFILNAM_PALM_OUTXML, fname);
-			SPathStruc sp;
-			sp.Split(fname);
+			SPathStruc sp(fname);
 			// @v9.7.10 mask.Printf("*%s*.%s", sp.Nam.cptr(), sp.Ext.cptr());
 			mask.CatChar('*').Cat(sp.Nam).CatChar('*').Dot().Cat(sp.Ext); // @v9.7.10
 			if(pFtp)
@@ -1442,7 +1441,7 @@ int SLAPI PPObjStyloPalm::ReadInputBill(PPStyloPalm * pRec, const char * pPath, 
 			SPathStruc sp;
 			if(GetImportFileList(1, pPath, 0, &file_list, 0) > 0) {
 				for(uint i = 0; i < file_list.getCount(); i++) {
-					AndroidReader reader((path = pPath).SetLastSlash().Cat(file_list.at(i).Txt), pRec);
+					AndroidReader reader((path = pPath).SetLastSlash().Cat(file_list.Get(i).Txt), pRec);
 					if(!(pRec->Flags & PLMF_BLOCKED)) { // @v9.4.7
 						reader.ReadBills(pParam, bill_id_bias, &ord_count);
 					}
@@ -1865,7 +1864,7 @@ int SLAPI PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID
 		ok = 0;
 		if(pLogger) {
 			PPGetLastErrorMessage(1, temp_buf);
-			pLogger->Log((msg_buf = palm_rec.Name).CatChar(':').Space().Cat(temp_buf));
+			pLogger->Log((msg_buf = palm_rec.Name).CatDiv(':', 2).Cat(temp_buf));
 		}
 	ENDCATCH
 	ASSIGN_PTR(pResultID, result_id);
@@ -1917,7 +1916,7 @@ int SLAPI PPObjStyloPalm::ImportInventory(PalmBillPacket * pSrcPack, PPID opID, 
 		if(pLogger) {
 			SString msg;
 			PPGetLastErrorMessage(1, temp_buf);
-			(msg = palm_rec.Name).CatChar(':').Space().Cat(temp_buf);
+			(msg = palm_rec.Name).CatDiv(':', 2).Cat(temp_buf);
 			pLogger->Log(msg);
 		}
 	ENDCATCH
@@ -2031,7 +2030,7 @@ static int SLAPI DeleteImportFiles(const PPStyloPalmPacket * pPack)
 		if(::access(input_path, 0) == 0) {
 			GetImportFileList(is_andr, input_path, 0, &file_list, 0);
 			for(uint i = 0; i < file_list.getCount(); i++) {
-				file_name = file_list.at(i).Txt;
+				file_name = file_list.Get(i).Txt;
 				(path_ = input_path).SetLastSlash().Cat(file_name.Strip());
 				SFile::Remove(path_);
 			}
@@ -2218,7 +2217,7 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 					if(GetImportFileList(1, ftp_path, pFtp, &file_list, pLogger) > 0) {
 						DeleteImportFiles(pPack);
 						for(uint i = 0; i < file_list.getCount(); i++) {
-							const char * p_fname = file_list.at(i).Txt;
+							const char * p_fname = file_list.Get(i).Txt;
 							if((r = CopyFileToFtp(0, p_fname, path, ftp_path, pPack->Rec.Name, pFtp, 0, pLogger)) <= 0) {
 								SString add_str = DS.GetTLA().AddedMsgString;
 								DelLocalFile(path, p_ready_flag);
@@ -2281,7 +2280,7 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 			if(!pFtp->Exists(spready_ftp_path)) {
 				if(GetImportFileList(is_andr, ftp_path, pFtp, &file_list, pLogger) > 0)
 					for(uint i = 0; i < file_list.getCount(); i++)
-						DelFtpFile(file_list.at(i).Txt, ftp_path, pFtp, pLogger);
+						DelFtpFile(file_list.Get(i).Txt, ftp_path, pFtp, pLogger);
 			}
 		}
 	}
@@ -3371,7 +3370,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 		gr_filt.WaitMsgID  = PPTXT_WAIT_GOODSREST;
 		PPSetAddedMsgString(p_qk_tbl->getName());
 		for(i = 0; i < rBlk.QkList.getCount(); i++) {
-			StrAssocArray::Item & r_item = rBlk.QkList.at(i);
+			StrAssocArray::Item & r_item = rBlk.QkList.Get(i);
 			DbfRecord drec_qk(p_qk_tbl);
 			drec_qk.empty();
 			drec_qk.put(1, r_item.Id);
@@ -3413,7 +3412,7 @@ int SLAPI PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlo
 					}
 				}
 				for(i = 0; i < PALM_MAX_QUOT && i < rBlk.QkList.getCount(); i++) {
-					StrAssocArray::Item & r_item = rBlk.QkList.at(i);
+					StrAssocArray::Item & r_item = rBlk.QkList.Get(i);
 					QuotIdent qi(QIDATE(getcurdate_()), gr_filt.LocList.GetSingle(), r_item.Id);
 					double quot = 0.0;
 					if(rBlk.P_GObj->GetQuotExt(gr_item.GoodsID, qi, gr_item.Cost, gr_item.Price, &quot, 1) > 0) {

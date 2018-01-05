@@ -1,5 +1,5 @@
 // PRNBILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -286,9 +286,8 @@ static int SLAPI PrintInvoice(PPBillPacket * pPack, int prnflags)
 	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_INVFOOTONBOTT, &val) && val)
 		env.PrnFlags |= SReport::FooterOnBottom;
 	pPack->GetContextEmailAddr(env.EmailAddr);
-	PPFilt pf;
 	pPack->Rec.Flags |= BILLF_PRINTINVOICE;
-	pf.Ptr = pPack;
+	PPFilt pf(pPack);
 	ok = PPAlddPrint(REPORT_INVOICE, &pf, &env);
 	pPack->Rec.Flags &= ~BILLF_PRINTINVOICE;
 	return ok;
@@ -311,7 +310,6 @@ int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printing
 	int    prn_no_ask = BIN(ppAry && *ppAry && printingNoAsk);
 	uint   c, alt_rpt_id = 0, amt_types = 0;
 	const  long preserve_process_flags = pPack->ProcessFlags;
-	PPFilt pf;
 	PPOprKind opk;
 	PPObjOprKind op_obj;
 	PPReportEnv env;
@@ -323,19 +321,19 @@ int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printing
 		GetReportIDByName(env.DefPrnForm, &alt_rpt_id);
 	//
 	if(pPack->Rec.Flags & BILLF_BANKING) {
-		pf.Ptr = pPack;
+		PPFilt pf(pPack);
 		uint rpt_id = (pPack->P_PaymOrder && pPack->P_PaymOrder->Flags & BNKPAYMF_REQ) ? REPORT_BNKPAYMREQ : REPORT_BNKPAYMORDER;
 		ok = PPAlddPrint(rpt_id, &pf, &env);
 	}
 	else if(pPack->OpTypeID == PPOPT_GOODSREVAL) {
 		long   f = (opk.PrnFlags & (OPKF_PRT_BUYING | OPKF_PRT_SELLING));
 		uint   rpt_id = (f == (OPKF_PRT_BUYING | OPKF_PRT_SELLING) || f == 0) ? REPORT_GREVALBILL : REPORT_GREVALBILLP;
-		pf.Ptr = pPack;
+		PPFilt pf(pPack);
 		ok = PPAlddPrint(rpt_id, &pf, &env);
 	}
 	// @v8.6.2 {
 	else if(pPack->OpTypeID == PPOPT_CORRECTION) {
-		pf.Ptr = pPack;
+		PPFilt pf(pPack);
 		ok = PPAlddPrint(REPORT_INVOICECORR, &pf, &env);
 	}
 	// } @v8.6.2
@@ -350,11 +348,11 @@ int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printing
 		ok = PrintInvoice(pPack, 0);
 	}
 	else if(pPack->OpTypeID == PPOPT_ACCTURN && opk.SubType == OPSUBT_WARRANT) {
-		pf.Ptr = pPack;
+		PPFilt pf(pPack);
 		ok = PPAlddPrint(REPORT_WARRANT, &pf, &env);
 	}
 	else if(pPack->OpTypeID == PPOPT_ACCTURN && opk.SubType == OPSUBT_ADVANCEREP) {
-		pf.Ptr = pPack;
+		PPFilt pf(pPack);
 		ok = PPAlddPrint(REPORT_ADVANCEREP, &pf, &env);
 	}
 	else if(pPack->OpTypeID == PPOPT_ACCTURN && !alt_rpt_id) {
@@ -391,7 +389,7 @@ int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printing
 		else if(prf == OPKF_PRT_INVOICE)
 			ok = PrintInvoice(pPack, 0);
 		else if(prf == OPKF_PRT_PAYPLAN) {
-			pf.Ptr = pPack;
+			PPFilt pf(pPack);
 			ok = PPAlddPrint(REPORT_BILLPAYPLAN, &pf, &env);
 		}
 	}
@@ -511,7 +509,7 @@ int FASTCALL PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, int printing
 			}
 		}
 		if(ok > 0) {
-			pf.Ptr = pPack;
+			PPFilt pf(pPack);
 			env.PrnFlags = SReport::NoRepError;
 			if(rpt_ids.getCount() > 1 || printingNoAsk)
 				env.PrnFlags |= SReport::PrintingNoAsk;
@@ -590,9 +588,8 @@ int SLAPI PrintCashOrderByGoodsBill(PPBillPacket * pPack, int prnflags)
 
 int SLAPI PrintCashOrder(PPBillPacket * pPack, int pay_rcv, int prnflags)
 {
-	PPFilt pf;
+	PPFilt pf(pPack);
 	pf.ID  = pay_rcv ? 1 : 2;
-	pf.Ptr = pPack;
 	PPReportEnv env;
 	env.PrnFlags = prnflags;
 	pPack->GetContextEmailAddr(env.EmailAddr);

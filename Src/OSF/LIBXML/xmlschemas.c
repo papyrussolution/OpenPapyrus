@@ -835,7 +835,7 @@ struct xmlSchemaAttrInfo {
 	xmlSchemaNodeInfo * parent;
 };
 
-typedef xmlSchemaAttrInfo * xmlSchemaAttrInfoPtr;
+//typedef xmlSchemaAttrInfo * xmlSchemaAttrInfoPtr;
 
 #define XML_SCHEMA_VALID_CTXT_FLAG_STREAM 1
 /**
@@ -867,20 +867,20 @@ struct _xmlSchemaValidCtxt {
 	int    valueWS;
 	int    options;
 	xmlNode * validationRoot;
-	xmlSchemaParserCtxtPtr pctxt;
+	xmlSchemaParserCtxt * pctxt;
 	int    xsiAssemble;
 	int    depth;
-	xmlSchemaNodeInfoPtr * elemInfos; /* array of element informations */
+	xmlSchemaNodeInfo ** elemInfos; /* array of element informations */
 	int    sizeElemInfos;
-	xmlSchemaNodeInfoPtr inode; /* the current element information */
-	xmlSchemaIDCAugPtr aidcs; /* a list of augmented IDC informations */
-	xmlSchemaIDCStateObjPtr xpathStates; /* first active state object. */
-	xmlSchemaIDCStateObjPtr xpathStatePool; /* first stored state object. */
-	xmlSchemaIDCMatcherPtr idcMatcherCache; /* Cache for IDC matcher objects. */
-	xmlSchemaPSVIIDCNodePtr * idcNodes; /* list of all IDC node-table entries*/
+	xmlSchemaNodeInfo * inode; /* the current element information */
+	xmlSchemaIDCAug * aidcs; /* a list of augmented IDC informations */
+	xmlSchemaIDCStateObj * xpathStates; /* first active state object. */
+	xmlSchemaIDCStateObj * xpathStatePool; /* first stored state object. */
+	xmlSchemaIDCMatcher * idcMatcherCache; /* Cache for IDC matcher objects. */
+	xmlSchemaPSVIIDCNode ** idcNodes; /* list of all IDC node-table entries*/
 	int    nbIdcNodes;
 	int    sizeIdcNodes;
-	xmlSchemaPSVIIDCKeyPtr * idcKeys; /* list of all IDC node-table entries */
+	xmlSchemaPSVIIDCKey ** idcKeys; /* list of all IDC node-table entries */
 	int    nbIdcKeys;
 	int    sizeIdcKeys;
 	int    flags;
@@ -888,7 +888,7 @@ struct _xmlSchemaValidCtxt {
 #ifdef LIBXML_READER_ENABLED
 	xmlTextReader * reader;
 #endif
-	xmlSchemaAttrInfoPtr * attrInfos;
+	xmlSchemaAttrInfo ** attrInfos;
 	int    nbAttrInfos;
 	int    sizeAttrInfos;
 	int    skipDepth;
@@ -2074,7 +2074,7 @@ static const xmlChar * xmlSchemaFormatErrorNodeQName(xmlChar ** str, xmlSchemaNo
 	return 0;
 }
 
-static void xmlSchemaIllegalAttrErr(xmlSchemaAbstractCtxtPtr actxt, xmlParserErrors error, xmlSchemaAttrInfoPtr ni, xmlNode * P_Node)
+static void xmlSchemaIllegalAttrErr(xmlSchemaAbstractCtxtPtr actxt, xmlParserErrors error, xmlSchemaAttrInfo * ni, xmlNode * P_Node)
 {
 	xmlChar * msg = NULL, * str = NULL;
 	xmlSchemaFormatNodeForError(&msg, actxt, P_Node);
@@ -18335,7 +18335,7 @@ static int xmlSchemaAssembleByXSI(xmlSchemaValidCtxtPtr vctxt)
 	const xmlChar * nsname = NULL, * location;
 	int count = 0;
 	int ret = 0;
-	xmlSchemaAttrInfoPtr iattr;
+	xmlSchemaAttrInfo * iattr;
 	/*
 	 * Parse the value; we will assume an even number of values
 	 * to be given (this is how Xerces and XSV work).
@@ -18477,7 +18477,7 @@ static int xmlSchemaValidateNotation(xmlSchemaValidCtxtPtr vctxt, xmlSchemaPtr s
 				return 1;
 			}
 			if(xmlSchemaGetNotation(schema, localName, nsName) != NULL) {
-				if((valNeeded) && (val != NULL)) {
+				if((valNeeded) && val) {
 					(*val) = xmlSchemaNewNOTATIONValue(sstrdup(localName), sstrdup(nsName));
 					if(*val == NULL)
 						ret = -1;
@@ -20245,14 +20245,14 @@ static int xmlSchemaCheckCVCIDCKeyRef(xmlSchemaValidCtxtPtr vctxt)
 *									*
 ************************************************************************/
 
-static xmlSchemaAttrInfoPtr xmlSchemaGetFreshAttrInfo(xmlSchemaValidCtxtPtr vctxt)
+static xmlSchemaAttrInfo * xmlSchemaGetFreshAttrInfo(xmlSchemaValidCtxtPtr vctxt)
 {
-	xmlSchemaAttrInfoPtr iattr;
+	xmlSchemaAttrInfo * iattr;
 	/*
 	 * Grow/create list of attribute infos.
 	 */
 	if(vctxt->attrInfos == NULL) {
-		vctxt->attrInfos = (xmlSchemaAttrInfoPtr*)SAlloc::M(sizeof(xmlSchemaAttrInfoPtr));
+		vctxt->attrInfos = (xmlSchemaAttrInfo **)SAlloc::M(sizeof(xmlSchemaAttrInfo *));
 		vctxt->sizeAttrInfos = 1;
 		if(vctxt->attrInfos == NULL) {
 			xmlSchemaVErrMemory(vctxt, "allocating attribute info list", 0);
@@ -20261,7 +20261,7 @@ static xmlSchemaAttrInfoPtr xmlSchemaGetFreshAttrInfo(xmlSchemaValidCtxtPtr vctx
 	}
 	else if(vctxt->sizeAttrInfos <= vctxt->nbAttrInfos) {
 		vctxt->sizeAttrInfos++;
-		vctxt->attrInfos = (xmlSchemaAttrInfoPtr*)SAlloc::R(vctxt->attrInfos, vctxt->sizeAttrInfos * sizeof(xmlSchemaAttrInfoPtr));
+		vctxt->attrInfos = (xmlSchemaAttrInfo **)SAlloc::R(vctxt->attrInfos, vctxt->sizeAttrInfos * sizeof(xmlSchemaAttrInfo *));
 		if(vctxt->attrInfos == NULL) {
 			xmlSchemaVErrMemory(vctxt, "re-allocating attribute info list", 0);
 			return 0;
@@ -20279,7 +20279,7 @@ static xmlSchemaAttrInfoPtr xmlSchemaGetFreshAttrInfo(xmlSchemaValidCtxtPtr vctx
 	/*
 	 * Create an attribute info.
 	 */
-	iattr = (xmlSchemaAttrInfoPtr)SAlloc::M(sizeof(xmlSchemaAttrInfo));
+	iattr = (xmlSchemaAttrInfo *)SAlloc::M(sizeof(xmlSchemaAttrInfo));
 	if(iattr == NULL) {
 		xmlSchemaVErrMemory(vctxt, "creating new attribute info", 0);
 		return 0;
@@ -20293,7 +20293,7 @@ static xmlSchemaAttrInfoPtr xmlSchemaGetFreshAttrInfo(xmlSchemaValidCtxtPtr vctx
 static int xmlSchemaValidatorPushAttribute(xmlSchemaValidCtxtPtr vctxt, xmlNode * attrNode, int nodeLine,
     const xmlChar * localName, const xmlChar * nsName, int ownedNames, xmlChar * value, int ownedValue)
 {
-	xmlSchemaAttrInfoPtr attr = xmlSchemaGetFreshAttrInfo(vctxt);
+	xmlSchemaAttrInfo * attr = xmlSchemaGetFreshAttrInfo(vctxt);
 	if(!attr) {
 		VERROR_INT("xmlSchemaPushAttribute", "calling xmlSchemaGetFreshAttrInfo()");
 		return -1;
@@ -20372,7 +20372,7 @@ static void xmlSchemaClearElemInfo(xmlSchemaValidCtxt * vctxt, xmlSchemaNodeInfo
 		xmlSchemaFreeValue(ielem->val);
 		ielem->val = NULL;
 	}
-	if(ielem->idcMatchers != NULL) {
+	if(ielem->idcMatchers) {
 		/*
 		 * REVISIT OPTIMIZE TODO: Use a pool of IDC matchers.
 		 *   Does it work?
@@ -20411,14 +20411,14 @@ static void xmlSchemaClearElemInfo(xmlSchemaValidCtxt * vctxt, xmlSchemaNodeInfo
  *
  * Returns the element info item or NULL on API or internal errors.
  */
-static xmlSchemaNodeInfoPtr xmlSchemaGetFreshElemInfo(xmlSchemaValidCtxtPtr vctxt)
+static xmlSchemaNodeInfo * xmlSchemaGetFreshElemInfo(xmlSchemaValidCtxtPtr vctxt)
 {
-	xmlSchemaNodeInfoPtr info = NULL;
+	xmlSchemaNodeInfo * info = NULL;
 	if(vctxt->depth > vctxt->sizeElemInfos) {
 		VERROR_INT("xmlSchemaGetFreshElemInfo", "inconsistent depth encountered");
 		return 0;
 	}
-	if(vctxt->elemInfos == NULL) {
+	if(!vctxt->elemInfos) {
 		vctxt->elemInfos = (xmlSchemaNodeInfoPtr*)SAlloc::M(10 * sizeof(xmlSchemaNodeInfoPtr));
 		if(vctxt->elemInfos == NULL) {
 			xmlSchemaVErrMemory(vctxt, "allocating the element info array", 0);
@@ -20444,19 +20444,17 @@ static xmlSchemaNodeInfoPtr xmlSchemaGetFreshElemInfo(xmlSchemaValidCtxtPtr vctx
 	}
 	else
 		info = vctxt->elemInfos[vctxt->depth];
-	if(info == NULL) {
+	if(!info) {
 		info = (xmlSchemaNodeInfoPtr)SAlloc::M(sizeof(xmlSchemaNodeInfo));
-		if(info == NULL) {
+		if(!info) {
 			xmlSchemaVErrMemory(vctxt, "allocating an element info", 0);
 			return 0;
 		}
 		vctxt->elemInfos[vctxt->depth] = info;
 	}
-	else {
-		if(info->localName != NULL) {
-			VERROR_INT("xmlSchemaGetFreshElemInfo", "elem info has not been cleared");
-			return 0;
-		}
+	else if(info->localName) {
+		VERROR_INT("xmlSchemaGetFreshElemInfo", "elem info has not been cleared");
+		return 0;
 	}
 	memzero(info, sizeof(xmlSchemaNodeInfo));
 	info->nodeType = XML_ELEMENT_NODE;
@@ -21081,7 +21079,7 @@ static int xmlSchemaVExpandQName(xmlSchemaValidCtxtPtr vctxt, const xmlChar * va
 	return 0;
 }
 
-static int xmlSchemaProcessXSIType(xmlSchemaValidCtxtPtr vctxt, xmlSchemaAttrInfoPtr iattr, xmlSchemaTypePtr * localType, xmlSchemaElementPtr elemDecl)
+static int xmlSchemaProcessXSIType(xmlSchemaValidCtxtPtr vctxt, xmlSchemaAttrInfo * iattr, xmlSchemaTypePtr * localType, xmlSchemaElementPtr elemDecl)
 {
 	int ret = 0;
 	/*
@@ -21214,7 +21212,7 @@ static int xmlSchemaValidateElemDecl(xmlSchemaValidCtxtPtr vctxt)
 	}
 	if(vctxt->nbAttrInfos != 0) {
 		int ret;
-		xmlSchemaAttrInfoPtr iattr;
+		xmlSchemaAttrInfo * iattr;
 		/*
 		 * cvc-elt (3.3.4) : 3
 		 * Handle 'xsi:nil'.
@@ -21306,7 +21304,7 @@ static int xmlSchemaVAttributesSimple(xmlSchemaValidCtxtPtr vctxt)
 	 */
 	if(vctxt->nbAttrInfos) {
 		for(int i = 0; i < vctxt->nbAttrInfos; i++) {
-			xmlSchemaAttrInfoPtr iattr = vctxt->attrInfos[i];
+			xmlSchemaAttrInfo * iattr = vctxt->attrInfos[i];
 			if(!iattr->metaType) {
 				ACTIVATE_ATTRIBUTE(iattr)
 				xmlSchemaIllegalAttrErr(ACTXT_CAST vctxt, XML_SCHEMAV_CVC_TYPE_3_1_1, iattr, 0);
@@ -21325,7 +21323,7 @@ static void xmlSchemaClearAttrInfos(xmlSchemaValidCtxtPtr vctxt)
 {
 	if(vctxt->nbAttrInfos) {
 		for(int i = 0; i < vctxt->nbAttrInfos; i++) {
-			xmlSchemaAttrInfoPtr attr = vctxt->attrInfos[i];
+			xmlSchemaAttrInfo * attr = vctxt->attrInfos[i];
 			if(attr->flags & XML_SCHEMA_NODE_INFO_FLAG_OWNED_NAMES) {
 				SAlloc::F((xmlChar*)attr->localName);
 				SAlloc::F((xmlChar*)attr->nsName);
@@ -21357,7 +21355,8 @@ static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxtPtr vctxt)
 	xmlSchemaItemListPtr attrUseList;
 	xmlSchemaAttributeUsePtr attrUse = NULL;
 	xmlSchemaAttributePtr attrDecl = NULL;
-	xmlSchemaAttrInfoPtr iattr, tmpiattr;
+	xmlSchemaAttrInfo * iattr;
+	xmlSchemaAttrInfo * tmpiattr;
 	int i, j, found, nbAttrs, nbUses;
 	int xpathRes = 0, res, wildIDs = 0, fixed;
 	xmlNode * defAttrOwnerElem = NULL;
@@ -21933,7 +21932,7 @@ static int xmlSchemaValidateElemWildcard(xmlSchemaValidCtxtPtr vctxt, int * skip
 		 *
 		 * Use the xsi:type attribute for the type definition.
 		 */
-		xmlSchemaAttrInfoPtr iattr = xmlSchemaGetMetaAttrInfo(vctxt, XML_SCHEMA_ATTR_INFO_META_XSI_TYPE);
+		xmlSchemaAttrInfo * iattr = xmlSchemaGetMetaAttrInfo(vctxt, XML_SCHEMA_ATTR_INFO_META_XSI_TYPE);
 		if(iattr) {
 			if(xmlSchemaProcessXSIType(vctxt, iattr, &(vctxt->inode->typeDef), NULL) == -1) {
 				VERROR_INT("xmlSchemaValidateElemWildcard", "calling xmlSchemaProcessXSIType() to process the attribute 'xsi:nil'");
@@ -22505,7 +22504,7 @@ static int xmlSchemaValidateChildElem(xmlSchemaValidCtxtPtr vctxt)
 		 */
 		vctxt->inode->decl = xmlSchemaGetElem(vctxt->schema, vctxt->inode->localName, vctxt->inode->nsName);
 		if(vctxt->inode->decl == NULL) {
-			xmlSchemaAttrInfoPtr iattr;
+			xmlSchemaAttrInfo * iattr;
 			/*
 			 * Process "xsi:type".
 			 * SPEC (cvc-assess-elt) (1.2.1.2.1) - (1.2.1.2.3)
@@ -22532,8 +22531,7 @@ static int xmlSchemaValidateChildElem(xmlSchemaValidCtxtPtr vctxt)
 				 * skip by `validating` with respect to the `ur-type
 				 * definition` as per Element Locally Valid (Type) ($3.3.4)."
 				 */
-				vctxt->inode->typeDef =
-				    xmlSchemaGetBuiltInType(XML_SCHEMAS_ANYTYPE);
+				vctxt->inode->typeDef = xmlSchemaGetBuiltInType(XML_SCHEMAS_ANYTYPE);
 			}
 		}
 		return 0;
@@ -23483,11 +23481,10 @@ void xmlSchemaFreeValidCtxt(xmlSchemaValidCtxtPtr ctxt)
 			} while(cur);
 		}
 		if(ctxt->attrInfos) {
-			int i;
 			// Just a paranoid call to the cleanup. 
 			if(ctxt->nbAttrInfos != 0)
 				xmlSchemaClearAttrInfos(ctxt);
-			for(i = 0; i < ctxt->sizeAttrInfos; i++) {
+			for(int i = 0; i < ctxt->sizeAttrInfos; i++) {
 				xmlSchemaAttrInfo * attr = ctxt->attrInfos[i];
 				SAlloc::F(attr);
 			}
@@ -23921,7 +23918,7 @@ struct _xmlSchemaSAXPlug {
 	void * user_data;
 	// the block plugged back and validation informations 
 	xmlSAXHandler schemas_sax;
-	xmlSchemaValidCtxtPtr ctxt;
+	xmlSchemaValidCtxt * ctxt;
 };
 
 /* All those functions just bounces to the user provided SAX handlers */
@@ -23957,7 +23954,7 @@ static void externalSubsetSplit(void * ctx, const xmlChar * name, const xmlChar 
 		ctxt->user_sax->externalSubset(ctxt->user_data, name, ExternalID, SystemID);
 }
 
-static xmlParserInputPtr resolveEntitySplit(void * ctx, const xmlChar * publicId, const xmlChar * systemId)
+static xmlParserInput * resolveEntitySplit(void * ctx, const xmlChar * publicId, const xmlChar * systemId)
 {
 	xmlSchemaSAXPlugPtr ctxt = (xmlSchemaSAXPlugPtr)ctx;
 	return (ctxt && ctxt->user_sax && ctxt->user_sax->resolveEntity) ? ctxt->user_sax->resolveEntity(ctxt->user_data, publicId, systemId) : 0;
@@ -24012,7 +24009,7 @@ static void unparsedEntityDeclSplit(void * ctx, const xmlChar * name, const xmlC
 		ctxt->user_sax->unparsedEntityDecl(ctxt->user_data, name, publicId, systemId, notationName);
 }
 
-static void setDocumentLocatorSplit(void * ctx, xmlSAXLocatorPtr loc)
+static void setDocumentLocatorSplit(void * ctx, xmlSAXLocator * loc)
 {
 	xmlSchemaSAXPlugPtr ctxt = (xmlSchemaSAXPlugPtr)ctx;
 	if(ctxt && ctxt->user_sax && ctxt->user_sax->setDocumentLocator)
@@ -24152,7 +24149,7 @@ static void endElementNsSplit(void * ctx, const xmlChar * localname, const xmlCh
  * Returns a pointer to a data structure needed to unplug the validation layer
  *         or NULL in case of errors.
  */
-xmlSchemaSAXPlugPtr xmlSchemaSAXPlug(xmlSchemaValidCtxtPtr ctxt, xmlSAXHandlerPtr * sax, void ** user_data)
+xmlSchemaSAXPlugPtr xmlSchemaSAXPlug(xmlSchemaValidCtxtPtr ctxt, xmlSAXHandler ** sax, void ** user_data)
 {
 	xmlSchemaSAXPlugPtr ret;
 	xmlSAXHandler * old_sax;
@@ -24358,7 +24355,7 @@ static int xmlSchemaValidateStreamLocator(void * ctx, const char ** file, unsign
  * Returns 0 if the document is schemas valid, a positive error code
  *     number otherwise and -1 in case of internal or API error.
  */
-int xmlSchemaValidateStream(xmlSchemaValidCtxtPtr ctxt, xmlParserInputBufferPtr input, xmlCharEncoding enc, xmlSAXHandlerPtr sax, void * user_data)
+int xmlSchemaValidateStream(xmlSchemaValidCtxtPtr ctxt, xmlParserInputBuffer * input, xmlCharEncoding enc, xmlSAXHandler * sax, void * user_data)
 {
 	xmlSchemaSAXPlugPtr plug = NULL;
 	xmlSAXHandler * old_sax = NULL;
@@ -24438,7 +24435,7 @@ done:
 int xmlSchemaValidateFile(xmlSchemaValidCtxtPtr ctxt, const char * filename, int options ATTRIBUTE_UNUSED)
 {
 	int ret;
-	xmlParserInputBufferPtr input;
+	xmlParserInputBuffer * input;
 	if(!ctxt || (filename == NULL))
 		return -1;
 	input = xmlParserInputBufferCreateFilename(filename, XML_CHAR_ENCODING_NONE);

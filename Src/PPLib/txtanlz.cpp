@@ -3055,8 +3055,7 @@ int SLAPI PPKeywordListGenerator::GetRandomWord(SString & rBuf)
 	if(!Rwb.GetCount()) {
 		if(DataFileName.NotEmpty()) {
 			SString rw_file_name;
-			SPathStruc ps;
-			ps.Split(DataFileName);
+			SPathStruc ps(DataFileName);
             ps.Nam.CatChar('-').Cat("random");
             ps.Merge(rw_file_name);
 			if(fileExists(rw_file_name)) {

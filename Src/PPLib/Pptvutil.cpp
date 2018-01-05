@@ -1,5 +1,5 @@
 // PPTVUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -118,8 +118,7 @@ void SLAPI PPViewTextBrowser(const char * pFileName, const char * pTitle, int to
 			title_buf = pTitle;
 		}
 		else {
-			SPathStruc ps;
-			ps.Split(pFileName);
+			SPathStruc ps(pFileName);
 			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, title_buf);
 		}
 		p_brw->setTitle(title_buf);
@@ -1525,7 +1524,7 @@ static int SLAPI Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SStrin
 			// @v9.5.0 {
 			if(pAddendumList && pAddendumList->getCount()) {
 				for(uint i = 0; i < pAddendumList->getCount(); i++) {
-					StrAssocArray::Item ai = pAddendumList->at(i);
+					StrAssocArray::Item ai = pAddendumList->Get(i);
 					THROW_SL(p_list->Add(ai.Id, ai.Txt, 0));
 				}
 			}
@@ -1931,8 +1930,7 @@ static int SplitPath(const char * pDirNFile, SString & rDir, SString & rFile)
 	int    ok = -1;
 	rDir = rFile = 0;
 	if(!isempty(pDirNFile)) {
-		SPathStruc  ps;
-		ps.Split(pDirNFile);
+		SPathStruc  ps(pDirNFile);
 		ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, rDir);
 		ps.Split(pDirNFile);
 		ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, rFile);
@@ -2075,8 +2073,7 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 	}
 	sofn.lpstrInitialDir = InitDir; // @unicodeproblem
 	if((ok = ::GetOpenFileName((LPOPENFILENAME)&sofn)) != 0) { // @unicodeproblem
-		SPathStruc ps;
-		ps.Split(file_name);
+		SPathStruc ps(file_name);
 		ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, InitDir);
 		if(Flags & fbcgfSaveLastPath) {
 			WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_Dialog, 0);
@@ -2275,8 +2272,7 @@ int ExtOpenFileDlg::setDTS(const char * pPath)
 	Data = pPath;
 	setCtrlString(CTL_OPENFILE_PATH, Data);
 	if(WaitFolder.Len() == 0) {
-		SPathStruc sp;
-		sp.Split(Data);
+		SPathStruc sp(Data);
 		sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, WaitFolder);
 		SetupCtrls();
 	}
@@ -3497,7 +3493,7 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 						if(id > 0) {
 							GetObjectName((AccSheetID) ? PPOBJ_ARTICLE : PPOBJ_PERSON, id, name.Z());
 							if(use_phone_list) {
-								(temp_name = phone_list.at(i).Txt).Space().Cat(name);
+								(temp_name = phone_list.Get(i).Txt).Space().Cat(name);
 								name = temp_name;
 							}
 							p_list->Add(id, 0, name);
@@ -3569,7 +3565,7 @@ StrAssocArray * PhoneSelExtra::GetList(const char * pText)
 			if(src_ea_list.getCount()) {
 				SETIFZ(p_list, new StrAssocArray());
 				for(uint i = 0; i < src_ea_list.getCount(); i++) {
-					const PPID ea_id = src_ea_list.at(i).Id;
+					const PPID ea_id = src_ea_list.Get(i).Id;
 					if(p_locc->GetEAddr(ea_id, &ea_rec) > 0) {
 						if(ea_rec.LinkObjType == PPOBJ_PERSON && LocalFlags & lfPerson && PsnObj.Fetch(ea_rec.LinkObjID, &psn_rec) > 0) {
 							eac_list.add(ea_rec.ID);
@@ -5367,9 +5363,9 @@ int EditMemosDialog::setDTS(const char * pMemos)
 int EditMemosDialog::getDTS(SString & rMemos)
 {
 	SString buf;
-	rMemos = 0;
+	rMemos.Z();
 	for(uint i = 0; i < Memos.getCount(); i++) {
-		buf = Memos.at(i).Txt;
+		buf = Memos.Get(i).Txt;
 		buf.ReplaceStr(MemosDelim, "", 0);
 		if(i != 0)
 			rMemos.Cat(MemosDelim);
@@ -5384,7 +5380,7 @@ int EditMemosDialog::setupList()
 	int    ok = 1;
 	SString buf;
 	for(uint i = 0; ok && i < Memos.getCount(); i++) {
-		StrAssocArray::Item item = Memos.at(i);
+		StrAssocArray::Item item = Memos.Get(i);
 		(buf = item.Txt).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
 		if(!addStringToList(item.Id, buf))
 			ok = PPErrorZ();
@@ -6050,7 +6046,7 @@ int EmailCtrlGroup::SetLine(TDialog * pDlg)
 {
 	SString addr_list;
 	for(uint i = 0; i < Data.AddrList.getCount(); i++) {
-		addr_list.Cat(Data.AddrList.at(i).Txt);
+		addr_list.Cat(Data.AddrList.Get(i).Txt);
 		if(i + 1 < Data.AddrList.getCount())
 			addr_list.Semicol();
 	}
@@ -6088,8 +6084,8 @@ int EmailListDlg::setupList()
 	int    ok = 1;
 	SString temp_buf;
 	for(uint i = 0; i < Data.getCount(); i++) {
-		long   id = Data.at(i).Id;
-		temp_buf = Data.at(i).Txt;
+		long   id = Data.Get(i).Id;
+		temp_buf = Data.Get(i).Txt;
 		if(!addStringToList(id, temp_buf))
 			ok = PPErrorZ();
 	}
@@ -6123,7 +6119,7 @@ int EmailListDlg::editItem(long pos, long id)
 	int    ok = -1;
 	if(pos >= 0 && pos < (long)Data.getCount()) {
 		SString title;
-		SString addr = Data.at(pos).Txt;
+		SString addr = Data.Get(pos).Txt;
 		PPLoadString("email", title);
 		if(InputStringDialog(title, title, 0, 0, addr) > 0 && IsEmailAddr(addr)) {
 			Data.Add(id, addr);
@@ -6189,7 +6185,9 @@ void EmailCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 //
 //
-#define GRP_EMAILLIST 1
+SLAPI EmailToBlock::EmailToBlock() : MailAccID(0)
+{
+}
 
 int SLAPI EmailToBlock::Edit(long flags)
 {
@@ -6197,7 +6195,7 @@ int SLAPI EmailToBlock::Edit(long flags)
 	public:
 		EmailToBlockDialog(long flags) : TDialog(DLG_MAILTO), Flags(0)
 		{
-			addGroup(GRP_EMAILLIST, new EmailCtrlGroup(CTL_MAILTO_ADDR, cmEMailList));
+			addGroup(ctlgroupEmailList, new EmailCtrlGroup(CTL_MAILTO_ADDR, cmEMailList));
 		}
 		int    setDTS(EmailToBlock * pData)
 		{
@@ -6207,7 +6205,7 @@ int SLAPI EmailToBlock::Edit(long flags)
 			setCtrlString(CTL_MAILTO_SUBJ, Data.Subj);
 			{
 				EmailCtrlGroup::Rec grp_rec(&Data.AddrList);
-				setGroupData(GRP_EMAILLIST, &grp_rec);
+				setGroupData(ctlgroupEmailList, &grp_rec);
 			}
 			return ok;
 		}
@@ -6218,13 +6216,16 @@ int SLAPI EmailToBlock::Edit(long flags)
 			getCtrlString(CTL_MAILTO_SUBJ, Data.Subj);
 			{
 				EmailCtrlGroup::Rec grp_rec;
-				getGroupData(GRP_EMAILLIST, &grp_rec);
+				getGroupData(ctlgroupEmailList, &grp_rec);
 				Data.AddrList = grp_rec.AddrList;
 			}
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
 	private:
+		enum {
+			ctlgroupEmailList = 1
+		};
 		long   Flags;
 		EmailToBlock Data;
 	};
@@ -6252,7 +6253,7 @@ SendMailDialog::Rec & FASTCALL SendMailDialog::Rec::operator = (const SendMailDi
 
 SendMailDialog::SendMailDialog() : PPListDialog(DLG_SENDMAIL, CTL_SENDMAIL_ATTACHLIST)
 {
-	addGroup(GRP_EMAILLIST, new EmailCtrlGroup(CTL_SENDMAIL_ADDR, cmEMailList));
+	addGroup(ctlgroupEmailList, new EmailCtrlGroup(CTL_SENDMAIL_ADDR, cmEMailList));
 	updateList(-1);
 }
 
@@ -6328,7 +6329,7 @@ int SendMailDialog::setDTS(const Rec * pData)
 	setCtrlString(CTL_SENDMAIL_TEXT, Data.Text);
 	{
 		EmailCtrlGroup::Rec grp_rec(&Data.AddrList);
-		setGroupData(GRP_EMAILLIST, &grp_rec);
+		setGroupData(ctlgroupEmailList, &grp_rec);
 	}
 	{
 		int32  delay_sec = (int32)(Data.Delay / 1000);
@@ -6348,7 +6349,7 @@ int SendMailDialog::getDTS(Rec * pData)
 	getCtrlString(CTL_SENDMAIL_TEXT, Data.Text);
 	{
 		EmailCtrlGroup::Rec grp_rec;
-		getGroupData(GRP_EMAILLIST, &grp_rec);
+		getGroupData(ctlgroupEmailList, &grp_rec);
 		Data.AddrList = grp_rec.AddrList;
 	}
 	{
@@ -6380,8 +6381,7 @@ int PPCallHelp(uint32 wnd, uint cmd, uint ctx)
 			const char * p_file_name = "pphelp.chm";
 			PPGetFilePath(PPPATH_BIN, p_file_name, path);
 			if(fileExists(path)) {
-				SPathStruc ps;
-				ps.Split(path);
+				SPathStruc ps(path);
 				if(ps.Flags & SPathStruc::fUNC || ((ps.Flags & SPathStruc::fDrv) && GetDriveType(ps.Drv.SetLastSlash()) == DRIVE_REMOTE)) { // @unicodeproblem
 					//
 					// В связи с проблемой загрузки help'а с сетевого каталога коприруем файла в
@@ -6478,16 +6478,14 @@ int SLAPI ExportDialogs(const char * pFileName)
 	StrAssocArray prop_list;
 	SFile  f_out(pFileName, SFile::mWrite);
 	{
-		SPathStruc ps;
-		ps.Split(pFileName);
+		SPathStruc ps(pFileName);
 		ps.Nam.CatChar('-').Cat("text");
 		ps.Ext = "tsv";
 		ps.Merge(temp_buf);
 	}
 	SFile f_out_text(temp_buf, SFile::mWrite);
 	{
-		SPathStruc ps;
-		ps.Split(pFileName);
+		SPathStruc ps(pFileName);
 		ps.Nam.CatChar('-').Cat("manual");
 		ps.Ext = "tex";
 		ps.Merge(temp_buf);

@@ -1,5 +1,5 @@
 // CSHSES.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 // Интерфейс с асинхронными кассовыми устройствами
@@ -1115,8 +1115,7 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 		STRNSCPY(buf, pFileName);
 		for(uint i = 0; ss.get(&i, path) > 0;) {
 			if(!isempty(pSubDir)) {
-				SPathStruc sp;
-				sp.Split(path);
+				SPathStruc sp(path);
 				sp.Dir.RmvLastSlash();
 				if(!oneof2(pSubDir[0], '\\', '/'))
 					sp.Dir.SetLastSlash();
@@ -2241,7 +2240,7 @@ int SLAPI AsyncCashGoodsGroupIterator::MakeGroupList(StrAssocArray * pTreeList, 
 {
 	int    ok = -1;
 	for(uint i = 0; i < pTreeList->getCount(); i++) {
-		StrAssocArray::Item item = pTreeList->at(i);
+		StrAssocArray::Item item = pTreeList->Get(i);
 		if(item.ParentId == parentID) {
 			Goods2Tbl::Rec goods_rec;
 			if(GObj.Fetch(item.Id, &goods_rec) > 0 && !(goods_rec.Flags & GF_ALTGROUP)) {

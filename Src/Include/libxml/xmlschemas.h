@@ -1,13 +1,11 @@
 /*
  * Summary: incomplete XML Schemas structure implementation
- * Description: interface to the XML Schemas handling and schema validity
- *              checking, it is incomplete right now.
+ * Description: interface to the XML Schemas handling and schema validity checking, it is incomplete right now.
  *
  * Copy: See Copyright for the status of this software.
  *
  * Author: Daniel Veillard
  */
-
 #ifndef __XML_SCHEMA_H__
 #define __XML_SCHEMA_H__
 
@@ -20,7 +18,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /**
  * This error codes are obsolete; not used any more.
  */
@@ -78,7 +75,6 @@ typedef enum {
  */
 typedef struct _xmlSchema xmlSchema;
 typedef xmlSchema * xmlSchemaPtr;
-
 /**
  * xmlSchemaValidityErrorFunc:
  * @ctx: the validation context
@@ -147,7 +143,7 @@ XMLPUBFUN xmlSchemaValidCtxtPtr XMLCALL xmlSchemaNewValidCtxt(xmlSchemaPtr schem
 XMLPUBFUN void XMLCALL xmlSchemaFreeValidCtxt(xmlSchemaValidCtxtPtr ctxt);
 XMLPUBFUN int XMLCALL xmlSchemaValidateDoc(xmlSchemaValidCtxtPtr ctxt, xmlDocPtr instance);
 XMLPUBFUN int XMLCALL xmlSchemaValidateOneElement(xmlSchemaValidCtxtPtr ctxt, xmlNodePtr elem);
-XMLPUBFUN int XMLCALL xmlSchemaValidateStream(xmlSchemaValidCtxtPtr ctxt, xmlParserInputBufferPtr input, xmlCharEncoding enc, xmlSAXHandlerPtr sax, void * user_data);
+XMLPUBFUN int XMLCALL xmlSchemaValidateStream(xmlSchemaValidCtxtPtr ctxt, xmlParserInputBuffer * input, xmlCharEncoding enc, xmlSAXHandler * sax, void * user_data);
 XMLPUBFUN int XMLCALL xmlSchemaValidateFile(xmlSchemaValidCtxtPtr ctxt, const char * filename, int options);
 XMLPUBFUN xmlParserCtxt * XMLCALL xmlSchemaValidCtxtGetParserCtxt(xmlSchemaValidCtxtPtr ctxt);
 /*
@@ -156,7 +152,7 @@ XMLPUBFUN xmlParserCtxt * XMLCALL xmlSchemaValidCtxtGetParserCtxt(xmlSchemaValid
 typedef struct _xmlSchemaSAXPlug xmlSchemaSAXPlugStruct;
 typedef xmlSchemaSAXPlugStruct * xmlSchemaSAXPlugPtr;
 
-XMLPUBFUN xmlSchemaSAXPlugPtr XMLCALL xmlSchemaSAXPlug(xmlSchemaValidCtxtPtr ctxt, xmlSAXHandlerPtr * sax, void ** user_data);
+XMLPUBFUN xmlSchemaSAXPlugPtr XMLCALL xmlSchemaSAXPlug(xmlSchemaValidCtxtPtr ctxt, xmlSAXHandler ** sax, void ** user_data);
 XMLPUBFUN int XMLCALL xmlSchemaSAXUnplug(xmlSchemaSAXPlugPtr plug);
 XMLPUBFUN void XMLCALL xmlSchemaValidateSetLocator(xmlSchemaValidCtxtPtr vctxt, xmlSchemaValidityLocatorFunc f, void * ctxt);
 

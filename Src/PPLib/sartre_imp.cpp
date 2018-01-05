@@ -1,5 +1,5 @@
 // SARTRE_IMP.CPP
-// Copyright (c) A.Sobolev 2017
+// Copyright (c) A.Sobolev 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -964,7 +964,7 @@ int TestImport_Words_MySpell()
 					pos_list.shuffle();
 					assert(pos_list.getCount() == cc);
 					for(i = 0; i < cc; i++) {
-						StrAssocArray::Item item = test_list.at(pos_list.get(i));
+						StrAssocArray::Item item = test_list.Get(pos_list.get(i));
 						int r = tbl_words.Search((word = item.Txt).ToUtf8(), &id);
 						if(r <= 0 || id != item.Id) {
 							// error
@@ -984,7 +984,7 @@ int TestImport_Words_MySpell()
 					pos_list.shuffle();
 					assert(pos_list.getCount() == cc);
 					for(i = 0; i < cc; i++) {
-						StrAssocArray::Item item = test_list.at(pos_list.get(i));
+						StrAssocArray::Item item = test_list.Get(pos_list.get(i));
 						int r = tbl_words.Search(item.Id, word);
 						word.Utf8ToChar();
 						if(r <= 0 || word != item.Txt) {

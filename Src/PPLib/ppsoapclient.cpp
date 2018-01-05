@@ -1,5 +1,5 @@
 // PPSOAPCLIENT.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018
 //
 //
 #include <pp.h>
@@ -481,8 +481,7 @@ int UhttDocumentPacket::SetFile(const char * pFileName)
 			rest_size -= temp_sz;
 		}
 		{
-			SPathStruc ps;
-			ps.Split(pFileName);
+			SPathStruc ps(pFileName);
 			Name = ps.Nam;
 		}
 	}

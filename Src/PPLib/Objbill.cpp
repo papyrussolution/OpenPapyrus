@@ -1,5 +1,5 @@
 // OBJBILL.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3148,8 +3148,7 @@ int PPObjBill::GetDraftRcptList(DateRange * pPeriod, const PPIDArray * pLocList,
 {
 	int    ok = 1;
 	const  PPID draft_op_id = DS.GetTLA().Cc.DraftRcptOp;
-	if(pList)
-		pList->freeAll();
+	CALLPTRMEMB(pList, clear());
 	if(draft_op_id) {
 		BillTbl::Key2 k2;
 		DBQ  * dbq = 0;

@@ -1,5 +1,5 @@
 // SC_PGM.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2015, 2016
+// Copyright (c) A.Starodub 2009, 2010, 2015, 2016, 2018
 // Part of StyloConduit project
 // // Ёкспорт файлов дл€ обновлени€ программы
 //
@@ -90,8 +90,7 @@ int SCDBObjProgram::ExportFile(SFile * pFile, PROGRESSFN pFn)
 		{
 			const SString & r_path = pFile->GetName();
 			SString log_msg, fname;
-			SPathStruc sp;
-			sp.Split(r_path);
+			SPathStruc sp(r_path);
 			sp.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, fname);
 			numrecs = (long)(size / buf_len); // @32-64
 			p_out_buf = new char[buf_len];

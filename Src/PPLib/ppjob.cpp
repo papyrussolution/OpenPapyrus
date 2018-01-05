@@ -1,5 +1,5 @@
 // PPJOB.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // @Kernel
 //
@@ -1961,7 +1961,7 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 			if(sect.NotEmpty()) {
 				uint p = 0;
 				if(LineList.SearchByText(sect, 1, &p) > 0)
-					setCtrlLong(CTLSEL_BILLEXPFILT_RCFG, LineList.at(p).Id);
+					setCtrlLong(CTLSEL_BILLEXPFILT_RCFG, LineList.Get(p).Id);
 			}
 		}
 		else if(event.isCbSelected(CTLSEL_BILLEXPFILT_RCFG)) {
@@ -1972,7 +1972,7 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 				if(sect.NotEmpty()) {
 					uint p = 0;
 					if(HdrList.SearchByText(sect, 1, &p) > 0)
-						setCtrlLong(CTLSEL_BILLEXPFILT_CFG, HdrList.at(p).Id);
+						setCtrlLong(CTLSEL_BILLEXPFILT_CFG, HdrList.Get(p).Id);
 				}
 			}
 		}
@@ -1998,7 +1998,7 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 					HdrList.Add(id, buf);
 				}
 				GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
-				id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? (uint)HdrList.at(p).Id : 0;
+				id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? (uint)HdrList.Get(p).Id : 0;
 				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, &HdrList, (long)id, 0);
 			}
 			else {
@@ -2006,9 +2006,9 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 				GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_BILL, &bill_param, &HdrList, 1);
 				bill_param.Init();
 				GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
-				id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? (uint)HdrList.at(p).Id : 0;
+				id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? (uint)HdrList.Get(p).Id : 0;
 				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, &HdrList, (long)id, 0);
-				id = (LineList.SearchByText(brow_param.Name, 1, &(p = 0)) > 0) ? (uint)LineList.at(p).Id : 0;
+				id = (LineList.SearchByText(brow_param.Name, 1, &(p = 0)) > 0) ? (uint)LineList.Get(p).Id : 0;
 				SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_RCFG, &LineList, (long)id, 0);
 			}
 		}
@@ -2033,9 +2033,9 @@ int ExportBillsFiltDialog::setDTS(const ExpBillsFilt * pData)
 			SString sect;
 			PPBillImpExpParam bill_param, brow_param;
 			GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
-			id = (HdrList.SearchByText(bill_param.Name, 1, &p) > 0) ? (uint)HdrList.at(p).Id : 0;
+			id = (HdrList.SearchByText(bill_param.Name, 1, &p) > 0) ? (uint)HdrList.Get(p).Id : 0;
 			SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, &HdrList, (long)id, 0);
-			id = (LineList.SearchByText(brow_param.Name, 1, &p) > 0) ? (uint)LineList.at(p).Id : 0;
+			id = (LineList.SearchByText(brow_param.Name, 1, &p) > 0) ? (uint)LineList.Get(p).Id : 0;
 			SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_RCFG, &LineList, (long)id, 0);
 		}
 	}//@vmiller
@@ -2058,7 +2058,7 @@ int ExportBillsFiltDialog::setDTS(const ExpBillsFilt * pData)
 			HdrList.Add(id, buf);
 		}
 		GetParamsByName(Data.BillParam, Data.BRowParam, &bill_param, &brow_param);
-		id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? (uint)HdrList.at(p).Id : 0;
+		id = (HdrList.SearchByText(bill_param.Name, 1, &(p = 0)) > 0) ? (uint)HdrList.Get(p).Id : 0;
 		SetupStrAssocCombo(this, CTLSEL_BILLEXPFILT_CFG, &HdrList, (long)id, 0);
 	}
 	// } @vmiller
@@ -2227,7 +2227,7 @@ public:
 			uint    p  = 0, id = 0;
 			PPGoodsImpExpParam param;
 			GetParamByName(Data.ExpCfg, &param);
-			id = (CfgList.SearchByText(param.Name, 1, &p) > 0) ? (uint)CfgList.at(p).Id : 0;
+			id = (CfgList.SearchByText(param.Name, 1, &p) > 0) ? (uint)CfgList.Get(p).Id : 0;
 			SetupStrAssocCombo(this, CTLSEL_GOODSEXPFILT_CFG, &CfgList, (long)id, 0);
 		}
 		return ok;
@@ -3174,11 +3174,9 @@ public:
 		THROW(param.Read(*pParam, 0));
 		THROW(PPView::ExecuteNF(param.NfSymb, param.Dl600_Name, result_fname));
 		if(param.FileName.NotEmpty()) {
-			SPathStruc dest_ps;
-			dest_ps.Split(param.FileName);
+			SPathStruc dest_ps(param.FileName);
 			if(dest_ps.Nam.Empty()) {
-				SPathStruc src_ps;
-				src_ps.Split(result_fname);
+				SPathStruc src_ps(result_fname);
 				dest_ps.Nam = src_ps.Nam;
 				dest_ps.Ext = src_ps.Ext;
 			}

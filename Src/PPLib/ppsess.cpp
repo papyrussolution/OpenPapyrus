@@ -1,5 +1,5 @@
 // PPSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -359,7 +359,24 @@ SLAPI PPThreadLocalArea::~PPThreadLocalArea()
 	ZDELETE(P_ExpCtx);
 	ZDELETE(P_IfcCtx);
 	ZDELETE(P_SrDb); // @v9.7.11
+	ZDELETE(P_PhnSvcEvRespr); // @v9.8.12
 	Sign = 0;
+}
+
+int SLAPI PPThreadLocalArea::SetupPhoneServiceEventResponder()
+{
+	int    ok = -1;
+	if(!P_PhnSvcEvRespr) {
+		P_PhnSvcEvRespr = new PhoneServiceEventResponder;
+		if(P_PhnSvcEvRespr)
+			ok = 1;
+	}
+	return ok;
+}
+
+void SLAPI PPThreadLocalArea::ReleasePhoneServiceEventResponder()
+{
+	ZDELETE(P_PhnSvcEvRespr);
 }
 
 int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
@@ -425,6 +442,85 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 		}
 	private:
 		long   Timer;
+	};
+	class IdleCmdPhoneSvc : public IdleCommand, private PPAdviseEventQueue::Client {
+	public:
+		IdleCmdPhoneSvc(long refreshPeriod, PPID notifyID) : IdleCommand(refreshPeriod), NotifyID(notifyID)
+		{
+		}
+		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
+		{
+			int    ok = -1;
+			PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(this);
+			const uint evqc = (p_queue && p_queue->Get(Marker, EvqList) > 0) ? EvqList.getCount() : 0;
+			if(evqc) {
+				//
+				// Установить маркер очереди необходимо даже если подписчиков на события нет.
+				//
+				Marker = EvqList.at(evqc-1).Ident;
+				PPAdviseList adv_list_ringing;
+				PPAdviseList adv_list_up;
+				if(!NotifyID || NotifyID == PPAdviseBlock::evPhoneRinging)
+					DS.GetAdviseList(PPAdviseBlock::evPhoneRinging, 0, adv_list_ringing);
+				if(!NotifyID || NotifyID == PPAdviseBlock::evPhoneUp)
+					DS.GetAdviseList(PPAdviseBlock::evPhoneUp, 0, adv_list_up);
+				if(adv_list_ringing.GetCount() || adv_list_up.GetCount()) {
+					SString temp_buf;
+					PPThreadLocalArea & r_tla = DS.GetTLA();
+					PPAdviseBlock adv_blk;
+					PPNotifyEvent ev;
+					for(uint i = 0; i < evqc; i++) {
+						const PPAdviseEvent & r_ev = EvqList.at(i);
+						if(r_ev.Action == PPEVNT_PHNS_RINGING) {
+							for(uint j = 0; adv_list_ringing.Enum(&j, &adv_blk);) {
+								if(adv_blk.Proc) {
+									ev.Clear();
+									ev.Action = r_ev.Action;
+									EvqList.GetS(r_ev.ChannelP, temp_buf);
+									ev.PutExtStrData(ev.extssChannel, temp_buf);
+									EvqList.GetS(r_ev.CallerIdP, temp_buf);
+									ev.PutExtStrData(ev.extssCallerId, temp_buf);
+									EvqList.GetS(r_ev.ConnectedLineNumP, temp_buf);
+									ev.PutExtStrData(ev.extssConnectedLineNum, temp_buf);
+									ev.ExtDtm  = rPrevRunTime;
+									adv_blk.Proc(PPAdviseBlock::evPhoneRinging, &ev, adv_blk.ProcExtPtr);
+									{ // finalize {
+										ev.SetFinishTag();
+										ev.ExtDtm = rPrevRunTime;
+										adv_blk.Proc(PPAdviseBlock::evPhoneRinging, &ev, adv_blk.ProcExtPtr);
+									} // } finalize
+									ok = 1;
+								}
+							}
+						}
+						else if(r_ev.Action == PPEVNT_PHNC_UP) {
+							for(uint j = 0; adv_list_up.Enum(&j, &adv_blk);) {
+								if(adv_blk.Proc) {
+									ev.Clear();
+									ev.Action = r_ev.Action;
+									EvqList.GetS(r_ev.ChannelP, temp_buf);
+									ev.PutExtStrData(ev.extssChannel, temp_buf);
+									EvqList.GetS(r_ev.CallerIdP, temp_buf);
+									ev.PutExtStrData(ev.extssCallerId, temp_buf);
+									EvqList.GetS(r_ev.ConnectedLineNumP, temp_buf);
+									ev.PutExtStrData(ev.extssConnectedLineNum, temp_buf);
+									ev.ExtDtm  = rPrevRunTime;
+									adv_blk.Proc(PPAdviseBlock::evPhoneUp, &ev, adv_blk.ProcExtPtr);
+									{ // finalize {
+										ev.SetFinishTag();
+										ev.ExtDtm = rPrevRunTime;
+										adv_blk.Proc(PPAdviseBlock::evPhoneUp, &ev, adv_blk.ProcExtPtr);
+									} // } finalize
+									ok = 1;
+								}
+							}
+						}
+					}
+				}
+			}
+			return ok;
+		}
+		PPID   NotifyID;
 	};
 	class IdleCmdUpdateObjList : public IdleCommand, private PPAdviseEventQueue::Client {
 	public:
@@ -752,6 +848,8 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 	IdleCmdList.insert(new IdleCmdUpdateObjList(5,  -1, PPAdviseBlock::evSysJournalChanged));
 	IdleCmdList.insert(new IdleCmdUpdateLogsMon(10, -1, PPAdviseBlock::evLogsChanged));
 	IdleCmdList.insert(new IdleCmdQuartz(PPAdviseBlock::evQuartz));
+	IdleCmdList.insert(new IdleCmdPhoneSvc(2, 0)); // @v9.8.12
+	
 #if USE_ADVEVQUEUE==2
 	IdleCmdList.insert(new IdleCmdTestAdvEvQueue); // @debug
 #endif
@@ -761,16 +859,6 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 int  SLAPI PPThreadLocalArea::IsAuth() const
 {
 	return BIN(State & stAuth);
-}
-
-long SLAPI PPThreadLocalArea::GetId() const
-{
-	return Id;
-}
-
-ThreadID SLAPI PPThreadLocalArea::GetThreadID() const
-{
-	return TId;
 }
 
 int SLAPI PPThreadLocalArea::IsConsistent() const
@@ -994,7 +1082,7 @@ SrDatabase * SLAPI PPThreadLocalArea::GetSrDatabase()
 
 int SLAPI PPThreadLocalArea::GetIfcConfigParam(const char * pParam, SString & rValue) const
 {
-	rValue = 0;
+	rValue.Z();
 	return IfcConfig.Search(pParam, &rValue, 0);
 }
 
@@ -3215,6 +3303,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 					}
 				}
 			}
+			r_tla.SetupPhoneServiceEventResponder(); // @v9.8.12
 			// @v8.1.12 {
 			{
 				char   domain_user[128];
@@ -3463,12 +3552,11 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 						if(adv_blk.Proc) {
 							for(i = 0; list.enumItems(&i, (void **)&p_item);) {
 								if((!adv_blk.Action || p_item->Action == adv_blk.Action) && (!adv_blk.ObjType || adv_blk.ObjType == p_item->ObjType)) {
+									ev.Clear();
 									ev.Action  = p_item->Action;
 									ev.ObjType = p_item->ObjType;
 									ev.ObjID   = p_item->ObjID;
 									ev.ExtInt_ = p_item->Extra;
-									ev.ExtDtm.SetZero();
-									ev.ExtStr  = 0;
 									adv_blk.Proc(PPAdviseBlock::evDirtyCacheBySysJ, &ev, adv_blk.ProcExtPtr);
 								}
 							}
@@ -3527,6 +3615,7 @@ int SLAPI PPSession::Logout()
 	if(r_tla.State & PPThreadLocalArea::stAuth) { // @v9.2.1
 		const SString active_user = r_tla.UserName;
 		SString pn;
+		r_tla.ReleasePhoneServiceEventResponder(); // @v9.8.12
 		SetPrivateBasket(0, 1);
 		//
 		// Удаляем временный каталог для отчетных данных
@@ -3839,9 +3928,8 @@ int SLAPI PPSession::GetPath(PPID pathID, SString & rBuf)
 				// то нам нужен один уровень вверх и сразу в PPTEST (..\pptest).
 				//
 				SString temp_buf;
-                SPathStruc ps;
 				GetPath(PPPATH_BIN, temp_buf); // @recursion
-                ps.Split(temp_buf);
+                SPathStruc ps(temp_buf);
                 ps.Dir.SetLastSlash().Cat("..\\..\\src\\pptest");
 				ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, rBuf);
 			}
@@ -4039,6 +4127,7 @@ DlContext * SLAPI PPSession::Helper_GetInterfaceContext(DlContext ** ppCtx, uint
 			ZDELETE(*ppCtx);
 	ENDCATCH
 	CALLPTRMEMB(p_csd, Leave());
+	delete p_csd; // @v9.8.12
 	return *ppCtx;
 }
 
@@ -4069,7 +4158,9 @@ void SLAPI PPNotifyEvent::Clear()
 	ObjID = 0;
 	ExtInt_ = 0;
 	ExtDtm.SetZero();
-	ExtStr = 0;
+	//ExtStr.Z();
+	ExtString.Z();
+
 }
 
 PPNotifyEvent & SLAPI PPNotifyEvent::SetFinishTag()
@@ -4088,7 +4179,7 @@ SLAPI PPAdviseBlock::PPAdviseBlock()
 	THISZERO();
 }
 
-SLAPI PPAdviseList::PPAdviseList() : SArray(sizeof(PPAdviseBlock), /*16,*/O_ARRAY), LastCookie(0)
+SLAPI PPAdviseList::PPAdviseList() : SArray(sizeof(PPAdviseBlock), O_ARRAY), LastCookie(0)
 {
 }
 
@@ -4393,13 +4484,6 @@ PPID SLAPI PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam
 	ASSIGN_PTR(pExtraParam, ext);
 	return obj_type;
 }
-
-/*
-int SLAPI PPSession::TestObjectTypeSymbols()
-{
-
-}
-*/
 
 int SLAPI PPSession::GetObjectTitle(PPID objType, SString & rBuf)
 {

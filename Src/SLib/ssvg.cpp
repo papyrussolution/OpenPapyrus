@@ -1,5 +1,5 @@
 // SSVG.CPP
-// Copyright (c) A.Sobolev 2010, 2012, 2016, 2017
+// Copyright (c) A.Sobolev 2010, 2012, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -485,7 +485,7 @@ int SSvg::ParseStyle(xmlNode * pNode, SDraw & rDraw, StyleBlock & rBlk)
 	StrAssocArray attr_list;
 	GetAttrList(pNode, attr_list);
 	for(uint i = 0; i < attr_list.getCount(); i++) {
-		StrAssocArray::Item item = attr_list.at(i);
+		StrAssocArray::Item item = attr_list.Get(i);
 		ProcessStyleItem(item.Id, val = item.Txt, rBlk);
 	}
 	return ok;
@@ -534,7 +534,7 @@ int SSvg::_GetCommonFigAttrAndInsert(const StrAssocArray & rAttrList, CommonFigA
 	SString temp_buf;
 	rA.Init();
 	for(uint i = 0; i < rAttrList.getCount(); i++) {
-		StrAssocArray::Item item = rAttrList.at(i);
+		StrAssocArray::Item item = rAttrList.Get(i);
 		if(item.Id == tId) {
 			rA.Sid = item.Txt;
 		}
@@ -656,7 +656,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 					FShape::Line line;
 					GetAttrList(p_node, attr_list);
 					for(uint i = 0; i < attr_list.getCount(); i++) {
-						StrAssocArray::Item item = attr_list.at(i);
+						StrAssocArray::Item item = attr_list.Get(i);
 						if(item.Id == tX1) {
 							if(_GetUSize(item.Txt, DIREC_HORZ, line.A.X))
 								coord_ready |= 0x0001;
@@ -691,7 +691,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 					FPoint vr;
 					GetAttrList(p_node, attr_list);
 					for(uint i = 0; i < attr_list.getCount(); i++) {
-						StrAssocArray::Item item = attr_list.at(i);
+						StrAssocArray::Item item = attr_list.Get(i);
 						switch(item.Id) {
 							case tX:
 								if(_GetUSize(item.Txt, DIREC_HORZ, rect.a.X))
@@ -742,7 +742,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 					FShape::Circle circle;
 					GetAttrList(p_node, attr_list);
 					for(uint i = 0; i < attr_list.getCount(); i++) {
-						StrAssocArray::Item item = attr_list.at(i);
+						StrAssocArray::Item item = attr_list.Get(i);
 						if(item.Id == tCx) {
 							if(_GetUSize(item.Txt, DIREC_HORZ, circle.C.X))
 								coord_ready |= 0x0001;
@@ -768,7 +768,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 					FShape::Ellipse ellipse;
 					GetAttrList(p_node, attr_list);
 					for(uint i = 0; i < attr_list.getCount(); i++) {
-						StrAssocArray::Item item = attr_list.at(i);
+						StrAssocArray::Item item = attr_list.Get(i);
 						if(item.Id == tCx) {
 							if(_GetUSize(item.Txt, DIREC_HORZ, ellipse.C.X))
 								coord_ready |= 0x0001;
@@ -972,7 +972,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 							float offs = 0.0f;
 							StyleBlock sb;
 							for(uint i = 0; i < attr_list.getCount(); i++) {
-								StrAssocArray::Item item = attr_list.at(i);
+								StrAssocArray::Item item = attr_list.Get(i);
 								ProcessStyleItem(item.Id, temp_buf = item.Txt, sb);
 							}
 							if(attr_list.Get(tOffset, temp_buf)) {

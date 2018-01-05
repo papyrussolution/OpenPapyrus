@@ -1,5 +1,5 @@
 // PPIFCIMP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 // Реализация интерфейсов
@@ -415,7 +415,7 @@ int32 DL6ICLS_StrAssocList::Get(int32 pos, STaggedString* pItem)
 	int    ok = 0;
 	StrAssocArray * p_data = (StrAssocArray *)ExtraPtr;
 	if(p_data) {
-		StrAssocItemToSTaggedString(p_data->at((uint)pos), pItem);
+		StrAssocItemToSTaggedString(p_data->Get((uint)pos), pItem);
 		if(((uint)pos) < p_data->getCount())
 			ok = 1;
 	}
@@ -431,7 +431,7 @@ int32 DL6ICLS_StrAssocList::SearchById(int32 id, STaggedString* pItem)
 	if(SetAppError(BIN(p_data))) {
 		uint pos = 0;
 		if(p_data->Search(id, &pos)) {
-			StrAssocItemToSTaggedString(p_data->at(pos), pItem);
+			StrAssocItemToSTaggedString(p_data->Get(pos), pItem);
 			ok = 1;
 		}
 		else
@@ -447,7 +447,7 @@ int32 DL6ICLS_StrAssocList::SearchByText(SString & text, STaggedString* pItem)
 	if(SetAppError(BIN(p_data))) {
 		uint pos = 0;
 		if(p_data->SearchByText(text, PTR_CMPFUNC(PcharNoCase), &pos)) {
-			StrAssocItemToSTaggedString(p_data->at(pos), pItem);
+			StrAssocItemToSTaggedString(p_data->Get(pos), pItem);
 			ok = 1;
 		}
 		else
@@ -465,7 +465,7 @@ int32 DL6ICLS_StrAssocList::SearchByTextPattern(SString & rText, STaggedString *
 	if(SetAppError(BIN(p_data))) {
 		uint pos = 0;
 		if(p_data->SearchByText(rText, PTR_CMPFUNC(PcharNoCaseLen), &pos)) {
-			StrAssocItemToSTaggedString(p_data->at(pos), pItem);
+			StrAssocItemToSTaggedString(p_data->Get(pos), pItem);
 			ok = 1;
 		}
 		else
@@ -479,7 +479,7 @@ SString & DL6ICLS_StrAssocList::GetTextById(int32 id)
 	StrAssocArray * p_data = (StrAssocArray *)ExtraPtr;
 	if(p_data) {
 		uint pos = 0;
-		RetStrBuf = p_data->Search(id, &pos) ? p_data->at(pos).Txt : (const char *)0;
+		RetStrBuf = p_data->Search(id, &pos) ? p_data->Get(pos).Txt : (const char *)0;
 	}
 	else {
 		RetStrBuf.Z();
@@ -502,7 +502,7 @@ int32 DL6ICLS_StrAssocList::NextIteration(STaggedString* pItem)
 	if(SetAppError(BIN(p_data))) {
 		uint p = p_data->getPointer();
 		if(p < p_data->getCount()) {
-			StrAssocItemToSTaggedString(p_data->at(p), pItem);
+			StrAssocItemToSTaggedString(p_data->Get(p), pItem);
 			p_data->incPointer();
 			ok = 1;
 		}
@@ -1562,7 +1562,7 @@ int32 DL6ICLS_PPUtil::SendMail(int32 acctID, SString & rSubject, SString & rMess
 	SStrCollection files_list;
 	if(p_attachments)
 		for(uint i = 0; i < p_attachments->getCount(); i++)
-			files_list.insert(newStr(p_attachments->at(i).Txt));
+			files_list.insert(newStr(p_attachments->Get(i).Txt));
 	rSubject.Transf(CTRANSF_INNER_TO_UTF8);
 	rMessage.Transf(CTRANSF_INNER_TO_UTF8);
 	rMail.Transf(CTRANSF_INNER_TO_UTF8);
@@ -6403,7 +6403,7 @@ ILotList * DL6ICLS_PPObjBill::GetCurLotList(LDATE lowDt, LDATE uppDt, int32 good
 		if(p_loc_list) {
 			uint loc_count = p_loc_list->getCount();
 			for(uint i = 0; i < loc_count; i++)
-				loc_list.Add(p_loc_list->at(i).Id);
+				loc_list.Add(p_loc_list->Get(i).Id);
 			loc_list.Sort();
 		}
 	}
@@ -6559,7 +6559,7 @@ double DL6ICLS_PPObjBill::GetRestByTag(LDATE dt, int32 goodsID, int32 tagID, SSt
 			if(p_loc_list) {
 				uint count = p_loc_list->getCount();
 				for(uint i = 0; i < count; i++)
-					gp.LocList.add(p_loc_list->at(i).Id);
+					gp.LocList.add(p_loc_list->Get(i).Id);
 			}
 		}
 		if(p_e->P_BObj->trfr->GetRest(&gp) > 0) {
@@ -6999,7 +6999,7 @@ int32 DL6ICLS_PPPersonRelTypePacket::PutInhRegTypeList(IStrAssocList * pList)
 	if(p_pack && pList) {
 		p_pack->InhRegTypeList.freeAll();
 		for(uint i = 0; i < p_list->getCount(); i++)
-			p_pack->InhRegTypeList.add(p_list->at(i).Id);
+			p_pack->InhRegTypeList.add(p_list->Get(i).Id);
 	}
 	return ok;
 }

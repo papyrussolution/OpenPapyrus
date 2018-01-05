@@ -2420,7 +2420,7 @@ int TProgram::DrawControl(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			{
 				DRAWITEMSTRUCT * p_di = (DRAWITEMSTRUCT *)lParam;
 				if(oneof2(UICfg.WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector)) {
-					if(msg != WM_NCPAINT && (p_di->CtlType == ODT_BUTTON)) {
+					if(p_di->CtlType == ODT_BUTTON && msg != WM_NCPAINT) {
 						if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKFancy) {
 							ok = DrawButton2(hwnd, p_di);
 						}
@@ -2433,7 +2433,7 @@ int TProgram::DrawControl(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						ok = DrawButton2(hwnd, p_di);
 #endif*/
 					}
-					else if(p_di->CtlType == ODT_CHECKBOX || p_di->CtlType == ODT_RADIOBTN)
+					else if(oneof2(p_di->CtlType, ODT_CHECKBOX, ODT_RADIOBTN))
 						ok = -1;
 					else if(p_di->CtlType == ODT_EDIT && msg == WM_NCPAINT) {
 						if(UICfg.WindowViewStyle == UserInterfaceSettings::wndVKFancy) {

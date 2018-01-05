@@ -1,5 +1,5 @@
 // V_CCHECK.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2574,9 +2574,8 @@ int SLAPI PPViewCCheck::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 	return ok;
 }
 
-int SLAPI PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
 	SString title, buf;
 	if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
 		if(pBrw && P_Ct) {
@@ -2607,7 +2606,6 @@ int SLAPI PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 				}
 				P_Ct->SetupBrowserCtColumns(pBrw);
 			}
-			ok = 1;
 		}
 		else {
 			if(Filt.Grp == 0) {
@@ -2616,11 +2614,9 @@ int SLAPI PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 			}
 			if(DoProcessLines() && Filt.Grp == 0) {
 				pBrw->InsColumn(4, "@qtty", 9, 0, MKSFMTD(12, 3, 0), 0);
-				ok = 1;
 			}
 			else if(!P_TmpGrpTbl && !P_TmpTbl) {
 				pBrw->InsColumn(6, "@cashier", 9, 0, MKSFMT(12, 0), 0);
-				ok = 1;
 			}
 			if(Filt.Grp == CCheckFilt::gGoodsDate)
 				pBrw->InsColumn(1, "@date", 1, 0, DATF_DMY, 0);
@@ -2658,7 +2654,6 @@ int SLAPI PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 				pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 		}
 	}
-	return ok;
 }
 
 int SLAPI PPViewCCheck::OnExecBrowser(PPViewBrowser * pBrw)

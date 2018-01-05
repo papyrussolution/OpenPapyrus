@@ -1,5 +1,5 @@
 // PPRIGHTS.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 // Права доступа
@@ -7,12 +7,8 @@
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI ObjRights::ObjRights(PPID objType)
+SLAPI ObjRights::ObjRights(PPID objType) : ObjType(objType), Size(sizeof(ObjRights)), Flags(PPRights::GetDefaultFlags()), OprFlags(PPRights::GetDefaultOprFlags())
 {
-	ObjType = objType;
-	Size = sizeof(ObjRights);
-	Flags = PPRights::GetDefaultFlags();
-	OprFlags = PPRights::GetDefaultOprFlags();
 }
 
 //static
@@ -179,7 +175,7 @@ int RightsDialog::setupList()
 	temp_list.SortByText();
 	for(i = 0; i < temp_list.getCount(); i++) {
 		ss.clear();
-		StrAssocArray::Item entry = temp_list.at(i);
+		StrAssocArray::Item entry = temp_list.Get(i);
 		ObjRights * p_obj_rt = Data.GetObjRights(entry.Id, 1);
 		THROW(p_obj_rt);
 		rtfld = p_obj_rt->Flags;
@@ -525,7 +521,7 @@ int RtCfgListDialog::setDTS(const ObjRestrictArray * pData)
 	StrAssocArray t_ary;
 	PPGetConfigList(&t_ary);
 	for(uint i = Data.getCount(); i < t_ary.getCount(); i++)
-		Data.Add(t_ary.at(i).Id, 0, 0);
+		Data.Add(t_ary.Get(i).Id, 0, 0);
 	updateList(-1);
 	return 1;
 }
@@ -1634,7 +1630,7 @@ int FastEditRightsDlg::setDTS(const SecurCollection * pData)
 	}
 	temp_list.SortByText();
 	for(i = 0; i < temp_list.getCount(); i++) {
-		StrAssocArray::Item entry = temp_list.at(i);
+		StrAssocArray::Item entry = temp_list.Get(i);
 		rbyo_buf.Printf(rbyo_fmt_buf, entry.Id + OBJTYPE_OFFSET, entry.Txt);
 		THROW_SL(rights_params.insert(newStr(rbyo_buf)));
 	}
@@ -1667,7 +1663,7 @@ int LoadGrpUsrRights(SecurCollection * pRights)
 	THROW_MEM(p_usr_list = usr_obj.MakeStrAssocList(0));
 	for(uint i = 0; i < p_usr_list->getCount(); i++) {
 		PPSecurPacket * p_pack = new PPSecurPacket;
-		PPID   id = p_usr_list->at(i).Id;
+		PPID   id = p_usr_list->Get(i).Id;
 		if(id & PPObjSecur::maskUserGroup) {
 			THROW(p_ref->LoadSecur(PPOBJ_USRGRP, (id & ~PPObjSecur::maskUserGroup), p_pack));
 		}

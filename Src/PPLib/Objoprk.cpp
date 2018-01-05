@@ -1,5 +1,5 @@
 // OBJOPRK.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -252,18 +252,17 @@ SLAPI PPOprKindPacket::~PPOprKindPacket()
 	delete P_DraftData;
 }
 
-int SLAPI PPOprKindPacket::Init()
+void SLAPI PPOprKindPacket::Init()
 {
 	MEMSZERO(Rec);
 	ATTmpls.freeAll();
-	ExtString = 0;
+	ExtString.Z();
 	ZDELETE(P_IOE);
 	ZDELETE(P_DIOE);
 	ZDELETE(P_GenList);
 	ZDELETE(P_ReckonData);
 	ZDELETE(P_PoolData);
 	ZDELETE(P_DraftData);
-	return 1;
 }
 
 PPOprKindPacket & FASTCALL PPOprKindPacket::operator = (const PPOprKindPacket & rSrc)
@@ -422,7 +421,7 @@ PPID SLAPI SelectOpKind(PPID linkOpID, PPIDArray * pOpList, uint opklFlags)
 	StrAssocArray * p_ary = 0;
 	THROW(p_ary = PPObjOprKind::MakeOprKindList(linkOpID, pOpList, opklFlags));
 	if(p_ary->getCount() == 1)
-		id = p_ary->at(0).Id;
+		id = p_ary->Get(0).Id;
 	else if(p_ary->getCount() == 0)
 		id = -1;
 	if(id == 0) {
@@ -1212,7 +1211,7 @@ int OprKindView::setupList()
 	if(p_ary) {
 		ok = 1;
 		for(uint i = 0; i < p_ary->getCount(); i++) {
-			StrAssocArray::Item item = p_ary->at(i);
+			StrAssocArray::Item item = p_ary->Get(i);
 			if(!addStringToList(item.Id, item.Txt)) {
 				ok = 0;
 				break;

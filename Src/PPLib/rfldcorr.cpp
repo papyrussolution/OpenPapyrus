@@ -1,5 +1,5 @@
 // RFLDCORR.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -611,8 +611,8 @@ int PPImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) 
 	}
 	else {
 		SString temp_buf;
-		SPathStruc ps, ps_temp;
-		ps.Split(FileName);
+		SPathStruc ps_temp;
+		SPathStruc ps(FileName);
 		if(ps.Drv.Empty() && ps.Dir.Empty()) {
 			PPGetPath(PPPATH_OUT, temp_buf);
 			ps_temp.Split(temp_buf);
@@ -685,8 +685,7 @@ int PPImpExpParam::PreprocessImportFileSpec(StringSet & rList)
 	SString _file_spec;
 	(_file_spec = FileName).Transf(CTRANSF_INNER_TO_OUTER);
 
-	SPathStruc ps;
-	ps.Split(_file_spec);
+	SPathStruc ps(_file_spec);
 	SString wildcard, path;
 	(wildcard = ps.Nam).Dot().Cat(ps.Ext);
 	ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, path);
@@ -755,7 +754,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 				THROW(ftp.Connect(&ia_pack));
 				THROW(ftp.GetFileList(ftp_path, &file_list, /*file_name*/wildcard));
 				for(uint i = 0; i < file_list.getCount(); i++) {
-					StrAssocArray::Item item = file_list.at(i);
+					StrAssocArray::Item item = file_list.Get(i);
 					//SPathStruc::NormalizePath((temp_buf = ftp_path).Cat(item.Txt), SPathStruc::npfSlash|SPathStruc::npfKeepCase, file_name);
 					(file_name = ftp_path).Cat(item.Txt);
 					PPGetFilePath(PPPATH_IN, item.Txt, temp_buf);
@@ -883,8 +882,7 @@ int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 			if(fileExists(FileName)) {
 				SString ftp_path, naked_file_name;
 				{
-					SPathStruc ps;
-					ps.Split(FileName);
+					SPathStruc ps(FileName);
 					ps.Merge(SPathStruc::fNam|SPathStruc::fExt, naked_file_name);
 					ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
 					ftp_path.SetLastSlash().Cat(naked_file_name);
@@ -1796,8 +1794,7 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 		}
 		else {
 			SString dir;
-			SPathStruc sp;
-			sp.Split(filename);
+			SPathStruc sp(filename);
 			sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, dir);
 			if(!pathValid(dir.SetLastSlash(), 1))
 				createDir(dir);
@@ -2783,7 +2780,7 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 		if(p_box) {
 			SetupStrListBox(p_box);
 			for(uint i = 0; i < CfgsList.getCount(); i++)
-				p_box->addItem(CfgsList.at(i).Id, CfgsList.at(i).Txt);
+				p_box->addItem(CfgsList.Get(i).Id, CfgsList.Get(i).Txt);
 			if(p_box->def)
 				p_box->def->top();
 			p_box->Draw_();
@@ -2873,7 +2870,7 @@ ImpExpParamDialog * ImpExpCfgsListDialog::GetParamDlg(uint cfgPos)
 {
 	ImpExpParamDialog * p_dlg = 0;
 	if(cfgPos < CfgsList.getCount()) {
-		switch(CfgsList.at(cfgPos).Id) {
+		switch(CfgsList.Get(cfgPos).Id) {
 			case PPREC_GOODS2:
 				p_dlg = new GoodsImpExpDialog;
 				break;
@@ -2916,7 +2913,7 @@ int ImpExpCfgsListDialog::SetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 {
 	int    ok = 0;
 	if(pDlg && cfgPos < CfgsList.getCount()) {
-		switch(CfgsList.at(cfgPos).Id) {
+		switch(CfgsList.Get(cfgPos).Id) {
 			case PPREC_GOODS2:
 				ok = ((GoodsImpExpDialog*)pDlg)->setDTS((PPGoodsImpExpParam*)pParam);
 				break;
@@ -2959,7 +2956,7 @@ int ImpExpCfgsListDialog::GetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 {
 	int    ok = 0;
 	if(pDlg && cfgPos < CfgsList.getCount()) {
-		switch(CfgsList.at(cfgPos).Id) {
+		switch(CfgsList.Get(cfgPos).Id) {
 			case PPREC_GOODS2:
 				ok = ((GoodsImpExpDialog*)pDlg)->getDTS((PPGoodsImpExpParam*)pParam);
 				break;
@@ -3009,7 +3006,7 @@ int ImpExpCfgsListDialog::EditParam(const char * pIniSection, long * pCDbID)
 	PPImpExpParam * p_param = P_ParamList[CfgPos];
 	THROW(CheckDialogPtr(&(p_param_dlg = GetParamDlg(CfgPos))));
 	p_param->Init();
-	THROW(LoadSdRecord(CfgsList.at(CfgPos).Id, &p_param->InrRec));
+	THROW(LoadSdRecord(CfgsList.Get(CfgPos).Id, &p_param->InrRec));
 	if(DS.CheckExtFlag(ECF_USECDB)) {
 		//PPConfigDatabase
 		PPConfigDatabase::CObjHeader cobj_hdr;
@@ -3081,16 +3078,16 @@ int ImpExpCfgsListDialog::setupList()
 	PROFILE_START
 	SString sect, sub;
 	StringSet ss(SLBColumnDelim);
-	setStaticText(CTL_IMPEXPCFGS_CFGNAME, CfgsList.at(CfgPos).Txt);
-	PPImpExpParam * p_param = PPImpExpParam::CreateInstance(CfgsList.at(CfgPos).Id, 0); //P_ParamList[CfgPos];
+	setStaticText(CTL_IMPEXPCFGS_CFGNAME, CfgsList.Get(CfgPos).Txt);
+	PPImpExpParam * p_param = PPImpExpParam::CreateInstance(CfgsList.Get(CfgPos).Id, 0); //P_ParamList[CfgPos];
 	if(p_param) {
 		if(DS.CheckExtFlag(ECF_USECDB)) {
 			StrAssocArray list;
 			SBuffer cobj_tail;
 			THROW(p_param->Init());
-			THROW(GetImpExpSectionsCDb(CDb, CfgsList.at(CfgPos).Id, list, 0));
+			THROW(GetImpExpSectionsCDb(CDb, CfgsList.Get(CfgPos).Id, list, 0));
 			for(uint i = 0; i < list.getCount(); i++) {
-				StrAssocArray::Item item = list.at(i);
+				StrAssocArray::Item item = list.Get(i);
 				PPConfigDatabase::CObjHeader cobj_hdr;
 				p_param->OtrRec.Clear();
 				p_param->FileName = 0;
@@ -3132,7 +3129,7 @@ int ImpExpCfgsListDialog::setupList()
 					PROFILE(THROW(ini_file.GetSections(&all_sections)));
 					for(uint p = 0; all_sections.get(&p, section);) {
 						THROW(p_param->Init());
-						PROFILE(THROW(LoadSdRecord(CfgsList.at(CfgPos).Id, &p_param->InrRec)));
+						PROFILE(THROW(LoadSdRecord(CfgsList.Get(CfgPos).Id, &p_param->InrRec)));
 						PROFILE_START
 						if(p_param->ProcessName(3, section)) {
 							p_param->OtrRec.Clear();

@@ -1,5 +1,5 @@
 // PPSERVER.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2155,10 +2155,9 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::TransmitFile(int verb, const char
 		rReply.SetDataType(rReply.htFile, "FILE");
 		THROW_SL(fileExists(pParam));
 		{
-			SPathStruc ps;
 			SFileUtil::Stat fs;
 			SFileFormat ff;
-			ps.Split(pParam);
+			SPathStruc ps(pParam);
 			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 			temp_buf.CopyTo(blk.Name, sizeof(blk.Name));
 			THROW(SFileUtil::GetStat(pParam, &fs));
@@ -2918,8 +2917,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 				{
 					dev_uuid = dev_name; // @todo
 					if(dev_uuid.Empty()) {
-						SPathStruc sp;
-						sp.Split(temp_path);
+						SPathStruc sp(temp_path);
 						sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, log_path);
 					}
 					else {
@@ -2931,8 +2929,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 				if(fileExists(temp_path) > 0) {
 					long start = 1;
 					SString dir, path;
-					SPathStruc sp;
-					sp.Split(temp_path);
+					SPathStruc sp(temp_path);
 					sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, dir);
 					path = MakeTempFileName(dir, "out", "xml", &start, path);
 					SCopyFile(temp_path, path, 0, FILE_SHARE_READ, 0);
@@ -2944,9 +2941,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 					if(dev_name.Empty()) {
 						SString right;
 						StringSet ss("\\");
-						SPathStruc sp;
-
-						sp.Split(temp_path);
+						SPathStruc sp(temp_path);
 						ss.setBuf(sp.Dir);
 						sp.Dir.RmvLastSlash();
 						sp.Dir.Reverse();
@@ -3334,7 +3329,7 @@ int PPServerSession::TestingClient(TcpSocket & rSo, StrAssocArray & rStrList)
 		uint16 num_lines = (uint16)rStrList.getCount();
 		THROW(TestSend(rSo, &num_lines, sizeof(num_lines), &actual_size) > 0);
 		for(i = 0; i < num_lines; i++) {
-			line_buf = rStrList.at(i).Txt;
+			line_buf = rStrList.Get(i).Txt;
 			line_buf.CR();
 			THROW(TestSend(rSo, line_buf.cptr(), line_buf.Len(), &actual_size) > 0);
 		}
@@ -3358,7 +3353,7 @@ int PPServerSession::TestingClient(TcpSocket & rSo, StrAssocArray & rStrList)
 				i = 0;
 				while((actual_size = buf.ReadTerm("\n", p_buf, max_size)) != 0) {
 					line_buf.CopyFromN(p_buf, actual_size).Chomp();
-					if(line_buf.Cmp(rStrList.at(i).Txt, 0) != 0) {
+					if(line_buf.Cmp(rStrList.Get(i).Txt, 0) != 0) {
 						msg_buf.Printf("Returned line not equal to sended line '%s'", line_buf.cptr());
 						PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP);
 					}

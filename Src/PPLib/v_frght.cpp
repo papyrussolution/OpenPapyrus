@@ -1,5 +1,5 @@
 // V_FRGHT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -13,10 +13,8 @@ IMPLEMENT_PPFILT_FACTORY(Freight); SLAPI FreightFilt::FreightFilt() : PPBaseFilt
 	Init(1, 0);
 }
 
-SLAPI PPViewFreight::PPViewFreight() : PPView(0, &Filt, PPVIEW_FREIGHT)
+SLAPI PPViewFreight::PPViewFreight() : PPView(0, &Filt, PPVIEW_FREIGHT), P_BObj(BillObj), P_TmpTbl(0)
 {
-	P_BObj = BillObj;
-	P_TmpTbl = 0;
 }
 
 SLAPI PPViewFreight::~PPViewFreight()
@@ -516,15 +514,12 @@ DBQuery * SLAPI PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 	return q;
 }
 
-int SLAPI PPViewFreight::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewFreight::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
 	if(pBrw && Filt.LocID == 0) {
 		// @v9.0.2 pBrw->InsColumnWord(1, PPWORD_WAREHOUSE, 13, 0, 0, 0);
 		pBrw->InsColumn(1, "@warehouse", 13, 0, 0, 0); // @v9.0.2
-		ok = 1;
 	}
-	return ok;
 }
 
 int SLAPI PPViewFreight::GetBillList(ObjIdListFilt * pList)

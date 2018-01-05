@@ -1,5 +1,5 @@
 // FRONTOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -692,8 +692,7 @@ int SLAPI ACS_FRONTOL::ImportFiles()
 				ftp_connected = 1;
 			}
 			{
-				SPathStruc sp;
-				sp.Split(imp_path);
+				SPathStruc sp(imp_path);
 				sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, ftp_dir);
 				sp.Split(PathRpt);
 				sp.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, file_name);
@@ -770,8 +769,7 @@ int SLAPI ACS_FRONTOL::ImportFiles()
 		temp_dir = dir_in;
 		for(uint file_no = 0; path.GetSubFrom(ImportedFiles, ';', file_no) > 0; file_no++) {
 			if(fileExists(path)) {
-				SPathStruc sp;
-				sp.Split(path);
+				SPathStruc sp(path);
 				// sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, temp_dir);
 				// удаление временных файлов, если их кол-во стало больше 30 {
 				{

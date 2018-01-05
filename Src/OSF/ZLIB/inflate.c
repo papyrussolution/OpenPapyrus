@@ -1256,7 +1256,6 @@ int ZEXPORT inflateSetDictionary(z_streamp strm, const Bytef * dictionary, uInt 
 		if(dictid != state->check)
 			return Z_DATA_ERROR;
 	}
-
 	/* copy dictionary to window using updatewindow(), which will amend the
 	   existing dictionary if appropriate */
 	ret = updatewindow(strm, dictionary + dictLength, dictLength);
@@ -1461,4 +1460,3 @@ unsigned long ZEXPORT inflateCodesUsed(z_streamp strm)
 		return (unsigned long)(state->next - state->codes);
 	}
 }
-

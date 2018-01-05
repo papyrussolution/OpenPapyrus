@@ -1732,11 +1732,11 @@ int GoodsVadDialog::setupList()
 		PPLoadText(PPTXT_ALLWAREHOUSES, buf);
 		loc_list.Add(0, buf);
 		for(uint i = 0; i < p_loc_list->getCount(); i++) {
-			item = p_loc_list->at(i);
+			item = p_loc_list->Get(i);
 			loc_list.Add(item.Id, item.Txt);
 		}
 		for(uint i = 0; i < loc_list.getCount(); i++) {
-			item = loc_list.at(i);
+			item = loc_list.Get(i);
 			double qtty = Data.Stock.GetMinStock(item.Id, 0);
 			StringSet ss(SLBColumnDelim);
 			ss.add(item.Txt);
@@ -1952,7 +1952,7 @@ int GoodsVadDialog::setDTS(const PPGoodsPacket * pData)
 int GoodsVadDialog::getDTS(PPGoodsPacket * pData)
 {
 	double brutto = 0.0;
-	Data.ExtString = 0;
+	Data.ExtString.Z();
 	getExtStrData(CTL_GOODSVAD_STORAGE);
 	getExtStrData(CTL_GOODSVAD_STANDARD);
 	getExtStrData(CTL_GOODSVAD_LABELNAME);

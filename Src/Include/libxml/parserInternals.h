@@ -293,7 +293,7 @@ XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreateMemoryParserCtxt(const char * buffer,
 XMLPUBFUN xmlParserCtxt * XMLCALL xmlCreateEntityParserCtxt(const xmlChar * URL, const xmlChar * ID, const xmlChar * base);
 XMLPUBFUN int XMLCALL xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc);
 XMLPUBFUN int XMLCALL xmlSwitchToEncoding(xmlParserCtxt * ctxt, xmlCharEncodingHandler * handler);
-XMLPUBFUN int XMLCALL xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandler * handler);
+XMLPUBFUN int XMLCALL xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInput * input, xmlCharEncodingHandler * handler);
 
 #ifdef IN_LIBXML
 /* internal error reporting */
@@ -302,19 +302,17 @@ XMLPUBFUN void /*XMLCALL*/FASTCALL __xmlErrEncoding(xmlParserCtxt * ctxt, xmlPar
 /**
  * Input Streams.
  */
-XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewStringInputStream(xmlParserCtxt * ctxt, const xmlChar * buffer);
-XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntity * entity);
+XMLPUBFUN xmlParserInput * XMLCALL xmlNewStringInputStream(xmlParserCtxt * ctxt, const xmlChar * buffer);
+XMLPUBFUN xmlParserInput * XMLCALL xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntity * entity);
 XMLPUBFUN int /*XMLCALL*/FASTCALL xmlPushInput(xmlParserCtxt * ctxt, xmlParserInput * input);
 XMLPUBFUN xmlChar /*XMLCALL*/FASTCALL xmlPopInput(xmlParserCtxt * ctxt);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeInputStream(xmlParserInput * input);
-XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filename);
-XMLPUBFUN xmlParserInputPtr XMLCALL xmlNewInputStream(xmlParserCtxt * ctxt);
-
+XMLPUBFUN xmlParserInput * XMLCALL xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filename);
+XMLPUBFUN xmlParserInput * XMLCALL xmlNewInputStream(xmlParserCtxt * ctxt);
 /**
  * Namespaces.
  */
 XMLPUBFUN xmlChar * XMLCALL xmlSplitQName(xmlParserCtxt * ctxt, const xmlChar * name, xmlChar ** prefix);
-
 /**
  * Generic production rules.
  */
@@ -396,8 +394,8 @@ XMLPUBFUN xmlChar * XMLCALL xmlStringLenDecodeEntities(xmlParserCtxt * ctxt, con
  */
 XMLPUBFUN int XMLCALL nodePush(xmlParserCtxt * ctxt, xmlNodePtr value);
 XMLPUBFUN xmlNode * XMLCALL nodePop(xmlParserCtxt * ctxt);
-XMLPUBFUN int /*XMLCALL*/FASTCALL inputPush(xmlParserCtxt * ctxt, xmlParserInputPtr value);
-XMLPUBFUN xmlParserInputPtr XMLCALL inputPop(xmlParserCtxt * ctxt);
+XMLPUBFUN int /*XMLCALL*/FASTCALL inputPush(xmlParserCtxt * ctxt, xmlParserInput * value);
+XMLPUBFUN xmlParserInput * XMLCALL inputPop(xmlParserCtxt * ctxt);
 XMLPUBFUN const xmlChar * XMLCALL namePop(xmlParserCtxt * ctxt);
 XMLPUBFUN int XMLCALL namePush(xmlParserCtxt * ctxt, const xmlChar * value);
 

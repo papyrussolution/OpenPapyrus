@@ -1,5 +1,5 @@
 // PPINICFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2012, 2013, 2015, 2016, 2017, 2018
 // @Kernel
 //
 #include <pp.h>
@@ -116,8 +116,7 @@ int SLAPI PPIniFile::Backup(uint maxCopies)
 		long   C;
 	};
 	SString file_name = GetFileName();
-	SPathStruc ps;
-	ps.Split(file_name);
+	SPathStruc ps(file_name);
 	SString new_name, temp_name;
 	SString nam = ps.Nam;
 	long   c = 0;

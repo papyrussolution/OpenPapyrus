@@ -1590,7 +1590,7 @@ EXPORT int ReplyImportObjStatus(uint idSess, uint objId, void * pObjStatus)
 		if(P_ImportCls) {
 			if(P_ImportCls->MessageType == PPEDIOP_APERAK) {
 				// Что-нибудь делаем с этим статусом
-				str.Z().Cat(P_ImportCls->AperakInfo.OrderNum.Transf(CTRANSF_INNER_TO_OUTER)).CatChar(':').Space().Cat(P_ImportCls->AperakInfo.Msg.Utf8ToChar());
+				str.Z().Cat(P_ImportCls->AperakInfo.OrderNum.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv(':', 2).Cat(P_ImportCls->AperakInfo.Msg.Utf8ToChar());
 				LogMessage(str);
 			}
 			// Иначе ничего не делаем
@@ -1751,35 +1751,37 @@ int ImportCls::SetNewStatus(SString & rErrTrackIdList)
 {
 	int    ok = 1;
 	SString login;
+	char   track_id_buf[256];
 	_ns1__ChangeDocumentStatus param;
 	_ns1__ChangeDocumentStatusResponse resp;
 	EDIServiceSoapProxy proxy(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
 	gSoapClientInit(&proxy, 0, 0);
-	rErrTrackIdList = 0;
+	rErrTrackIdList.Z();
 	for(size_t pos = 0; pos < TrackIds.getCount(); pos++) {
+		STRNSCPY(track_id_buf, TrackIds.Get(pos).Txt);
 		FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
 		param.Name = (char *)(const char *)login; // @badcast
 		//param.Name = Header.EdiLogin;			// ИД пользователя в системе
 		param.Password = Header.EdiPassword;	// Пароль
-		param.TrackingId = (char *)(const char *)TrackIds.at(pos).Txt; // ИД документа в системе
+		param.TrackingId = track_id_buf; // ИД документа в системе
 		param.Status = "N"; // Новый статус документа (new)
 		if(proxy.ChangeDocumentStatus(&param, &resp) == SOAP_OK) {
 			if(atoi(resp.ChangeDocumentStatusResult->Res) != 0) {
 				SetError(IEERR_WEBSERVСERR);
 				SetWebServcError(atoi(resp.ChangeDocumentStatusResult->Res));
 				if(rErrTrackIdList.Empty())
-					rErrTrackIdList = TrackIds.at(pos).Txt;
+					rErrTrackIdList = track_id_buf;
 				else
-					rErrTrackIdList.Comma().Cat(TrackIds.at(pos).Txt);
+					rErrTrackIdList.Comma().Cat(track_id_buf);
 				ok = 0;
 			}
 		}
 		else {
 			ProcessError(proxy);
 			if(rErrTrackIdList.Empty())
-				rErrTrackIdList = TrackIds.at(pos).Txt;
+				rErrTrackIdList = track_id_buf;
 			else
-				rErrTrackIdList.Comma().Cat(TrackIds.at(pos).Txt);
+				rErrTrackIdList.Comma().Cat(track_id_buf);
 			ok = 0;
 		}
 	}
@@ -1929,7 +1931,7 @@ int ImportCls::ParseListMBResp(const char * pResp, SString & rPartnerIln, SStrin
 	SString str;
 	xmlTextReader * p_xml_ptr;
 	xmlNode * p_node;
-	xmlParserInputBufferPtr p_input = xmlParserInputBufferCreateMem(pResp, sstrlen(pResp), XML_CHAR_ENCODING_NONE);
+	xmlParserInputBuffer * p_input = xmlParserInputBufferCreateMem(pResp, sstrlen(pResp), XML_CHAR_ENCODING_NONE);
 	THROWERR((p_xml_ptr = xmlNewTextReader(p_input, NULL)), IEERR_NULLREADXMLPTR);
 	while(xmlTextReaderRead(p_xml_ptr) && (found != 2)) {
 		p_node = xmlTextReaderCurrentNode(p_xml_ptr);

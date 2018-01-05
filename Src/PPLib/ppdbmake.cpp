@@ -1,5 +1,5 @@
 // PPDBMAKE.CPP
-// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016, 2017
+// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -28,7 +28,7 @@ static int64 calcNeededSize(int isEmpty)
 	base_path.SetLastSlash();
 	p_dict->GetListOfTables(0, &tbl_list);
 	for(uint j = 0; j < tbl_list.getCount(); j++) {
-		const StrAssocArray::Item item = tbl_list.at(j);
+		const StrAssocArray::Item item = tbl_list.Get(j);
 		if(p_dict->GetTableInfo(item.Id, &ts) && !(ts.Flags & XTF_DICT)) {
 			file_name = ts.Location;
 			ps.Split(file_name);
@@ -92,7 +92,7 @@ int SLAPI CreateByExample(const char * pPath)
 	DbProvider * p_dict = CurDict;
 	p_dict->GetListOfTables(0, &tbl_list);
 	for(uint j = 0; j < tbl_list.getCount(); j++) {
-		const StrAssocArray::Item item = tbl_list.at(j);
+		const StrAssocArray::Item item = tbl_list.Get(j);
 		if(p_dict->GetTableInfo(item.Id, &ts) && !(ts.Flags & XTF_DICT)) {
 			file_name = ts.Location;
 			(src_path = pp).Cat(file_name.Strip());
@@ -316,8 +316,7 @@ int SLAPI MakeDatabase()
 			}
 			if(i >= 0) {
 				i = 1;
-				SPathStruc ps;
-				ps.Split(dbpath.SetLastSlash());
+				SPathStruc ps(dbpath.SetLastSlash());
 				if(!(ps.Flags & SPathStruc::fDrv && ps.Flags & SPathStruc::fDir)) {
 					PPMessage(mfInfo | mfCancel, PPINF_NEEDFULLPATH, dbpath);
 					i = 0;

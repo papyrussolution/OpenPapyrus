@@ -1,5 +1,5 @@
 // V_PANLZ.CPP
-// Copyright (c) A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -473,15 +473,13 @@ DBQuery * SLAPI PPViewPriceAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return p_q;
 }
 
-int SLAPI PPViewPriceAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewPriceAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
 	if(pBrw) {
 		pBrw->SetTempGoodsGrp(Filt.GoodsGrpID);
 		if(Filt.Flags & PriceAnlzFilt::fDivideBySuppl)
 			pBrw->InsColumn(1, "@supplier", 4, 0, MKSFMT(15, 0), 0);
 	}
-	return ok;
 }
 
 //virtual

@@ -1136,7 +1136,8 @@ int SLAPI SSerializeContext::Serialize(int dir, SStrCollection * pColl, SBuffer 
 	int    ok = 1;
 	SString temp_buf;
 	if(dir > 0) {
-		uint32 c = pColl ? pColl->getCount() : 0;
+		//uint32 c = pColl ? pColl->getCount() : 0;
+		const uint32 c = SVectorBase::GetCount(pColl);
 		THROW(rBuf.Write(&c, sizeof(c)));
 		for(uint i = 0; i < c; i++) {
 			temp_buf = pColl->at(i);

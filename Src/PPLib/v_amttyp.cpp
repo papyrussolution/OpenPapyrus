@@ -1,5 +1,5 @@
 // V_AMTTYP.CPP
-// Copyright (c) A.Starodub 2010, 2012, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2010, 2012, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 // Типы сумм документа
@@ -348,14 +348,9 @@ int FASTCALL PPViewAmountType::NextIteration(AmountTypeViewItem * pItem)
 	return ok;
 }
 
-int SLAPI PPViewAmountType::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewAmountType::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
-	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewAmountType::GetDataForBrowser, this);
-		ok = 1;
-	}
-	return ok;
+	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewAmountType::GetDataForBrowser, this));
 }
 
 SArray * SLAPI PPViewAmountType::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)

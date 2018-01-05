@@ -1,5 +1,5 @@
 // V_STAFF.CPP
-// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -269,14 +269,9 @@ int SLAPI PPViewStaffList::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-int SLAPI PPViewStaffList::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewStaffList::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
-	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewStaffList::GetDataForBrowser, this);
-		ok = 1;
-	}
-	return ok;
+	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewStaffList::GetDataForBrowser, this));
 }
 
 SArray * SLAPI PPViewStaffList::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
@@ -948,7 +943,7 @@ StrAssocArray * FastEditSumByDivDlg::MakeDivList()
 	if(ObjPsn.GetListByKind(PPPRK_EMPLOYER, &empl_idlist, &empl_list) > 0) {
 		PPIDArray staff_idlist;
 		for(uint i = 0; i < empl_list.getCount(); i++) {
-			StrAssocArray::Item empl = empl_list.at(i);
+			StrAssocArray::Item empl = empl_list.Get(i);
 			p_ret_list->Add(empl.Id, TOP_ID, empl.Txt);
 		}
 		//
@@ -960,7 +955,7 @@ StrAssocArray * FastEditSumByDivDlg::MakeDivList()
 			filt.OrgID = (empl_list.getCount() == 1) ? empl_list.at_WithoutParent(0).Id : 0;
 			ObjStaffL.GetList(filt, 0, &staff_entry_list);
 			for(uint i = 0; i < staff_entry_list.getCount(); i++) {
-				StrAssocArray::Item item = staff_entry_list.at(i);
+				StrAssocArray::Item item = staff_entry_list.Get(i);
 				PPStaffEntry se;
 				if(ObjStaffL.Fetch(item.Id, &se) > 0) {
 					if(empl_list.getCount() <= 1 || empl_list.Search(se.OrgID, 0)) {
@@ -1039,7 +1034,7 @@ StrAssocArray * FastEditSumByDivDlg::MakeSumList(long divID)
 			if(p_staffcal_list = ObjStaffCal.MakeStrAssocList((divt != divtTop) ? &sc_flt : 0)) {
 				p_staffcal_list->SortByText();
 				for(uint i = 0; i < p_staffcal_list->getCount(); i++)
-					p_ret_list->Add(p_staffcal_list->at(i).Id, p_staffcal_list->at(i).Txt);
+					p_ret_list->Add(p_staffcal_list->Get(i).Id, p_staffcal_list->Get(i).Txt);
 			}
 		}
 	}
@@ -1062,7 +1057,7 @@ int FastEditSumByDivDlg::SetupDivList()
 			for(uint i = 0; i < p_div_list->getCount(); i++) {
 				long img_id = 0;
 				DivType divt;
-				StrAssocArray::Item item = p_div_list->at(i);
+				StrAssocArray::Item item = p_div_list->Get(i);
 				GetRealDivID(&ObjPsn, item.Id, &divt);
 				if(divt == divtEmployer)
 					img_id = ICON_SMALLEMPLOYER;
@@ -1194,7 +1189,7 @@ int FastEditSumByDivDlg::setupList()
 		p_def->ClearImageAssocList();
 		for(uint i = 0; i < p_list->getCount(); i++) {
 			long img_id = 0;
-			StrAssocArray::Item item = p_list->at(i);
+			StrAssocArray::Item item = p_list->Get(i);
 			if(item.Id < AMOUNTTYPE_OFFS)
 				img_id = ICON_SMALLCALENDAR;
 			else
@@ -1327,7 +1322,7 @@ StrAssocArray * FastEditDivBySumDlg::MakeDivList(PPID amtID)
 		p_cal_list = ObjStaffCal.MakeStrAssocList(&sc_flt);
 		if(p_cal_list && p_cal_list->getCount()) {
 			for(uint i = 0; i < p_cal_list->getCount(); i++) {
-				PPID cal_id = p_cal_list->at(i).Id;
+				PPID cal_id = p_cal_list->Get(i).Id;
 				PPStaffCal staff_cal;
 				THROW(ObjStaffCal.Search(cal_id, &staff_cal) > 0);
 				THROW(PutDivEntryToList(staff_cal.LinkObjType, staff_cal.LinkObjID, p_ret_list));
@@ -1368,7 +1363,7 @@ StrAssocArray * FastEditDivBySumDlg::MakeSumList()
 		p_staffcal_list = ObjStaffCal.MakeStrAssocList(0);
 		if(p_staffcal_list) {
 			for(uint i = 0; i < p_staffcal_list->getCount(); i++)
-				p_ret_list->Add(p_staffcal_list->at(i).Id, p_staffcal_list->at(i).Txt);
+				p_ret_list->Add(p_staffcal_list->Get(i).Id, p_staffcal_list->Get(i).Txt);
 		}
 	}
 	CATCH
@@ -1389,7 +1384,7 @@ int FastEditDivBySumDlg::SetupSumList()
 			ListBoxDef * p_def = new StrAssocListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtSelNotify|lbtDisposeData);
 			for(uint i = 0; i < p_list->getCount(); i++) {
 				long img_id = 0;
-				StrAssocArray::Item item = p_list->at(i);
+				StrAssocArray::Item item = p_list->Get(i);
 				if(item.Id < AMOUNTTYPE_OFFS)
 					img_id = ICON_SMALLCALENDAR;
 				else
@@ -1430,7 +1425,7 @@ int FastEditDivBySumDlg::EditAmount(PPID divID, PPID amtID)
 				pos = -1;
 		}
 		else
-			pos = sel_amt_list.at(0).Id;
+			pos = sel_amt_list.Get(0).Id;
 		if(pos >= 0 && EditStaffAmtEntry(pos, &amt_list) > 0)
 			THROW(ok = PutAmountList(real_div_id, divt, &amt_list));
 	}
@@ -1467,7 +1462,7 @@ int FastEditDivBySumDlg::EditCalendar(PPID divID, PPID parentCalID)
 				ListBoxSelDialog(p_div_cal_list, title, &cal_id, 0);
 			}
 			else
-				cal_id = p_div_cal_list->at(0).Id;
+				cal_id = p_div_cal_list->Get(0).Id;
 			if(cal_id)
 				THROW(ok = ObjStaffCal.Edit(&cal_id, 0));
 		}
@@ -1503,7 +1498,7 @@ int FastEditDivBySumDlg::setupList()
 		p_def->ClearImageAssocList();
 		for(uint i = 0; i < p_list->getCount(); i++) {
 			long img_id = 0;
-			StrAssocArray::Item item = p_list->at(i);
+			StrAssocArray::Item item = p_list->Get(i);
 			DivType divt;
 			PPID real_div_id = GetRealDivID(&ObjPsn, item.Id, &divt);
 			if(divt == divtEmployer)

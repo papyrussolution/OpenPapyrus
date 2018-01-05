@@ -1,5 +1,5 @@
 // PPPOSPROTOCOL.CPP
-// Copyright (c) A.Sobolev 2016, 2017
+// Copyright (c) A.Sobolev 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -3907,7 +3907,7 @@ int SLAPI PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess)
 	PPWaitMsg(msg_buf);
 	xmlFreeParserCtxt(RdB.P_SaxCtx);
 	THROW(RdB.P_SaxCtx = xmlCreateURLParserCtxt(pFileName, 0));
-	if(RdB.P_SaxCtx->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
+	if(RdB.P_SaxCtx->sax != (xmlSAXHandler *)&xmlDefaultSAXHandler)
 		SAlloc::F(RdB.P_SaxCtx->sax);
 	RdB.P_SaxCtx->sax = &saxh;
 	xmlDetectSAX2(RdB.P_SaxCtx);
@@ -3973,8 +3973,7 @@ int SLAPI PPPosProtocol::BackupInputFile(const char * pFileName)
 	SString arc_file_name;
 	SString src_file_name;
 	SString src_file_ext;
-	SPathStruc ps;
-	ps.Split(pFileName);
+	SPathStruc ps(pFileName);
 	src_file_name = ps.Nam;
 	src_file_ext = ps.Ext;
     ps.Nam = "pppp-backup";

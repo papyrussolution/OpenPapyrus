@@ -1,5 +1,5 @@
 // V_TODO.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1932,14 +1932,9 @@ int SLAPI PPViewPrjTask::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, 
 	return ok;
 }
 
-int SLAPI PPViewPrjTask::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewPrjTask::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	if(pBrw) {
-		pBrw->Advise(PPAdviseBlock::evTodoChanged, 0, PPOBJ_PRJTASK, 0);
-		return 1;
-	}
-	else
-		return -1;
+	CALLPTRMEMB(pBrw, Advise(PPAdviseBlock::evTodoChanged, 0, PPOBJ_PRJTASK, 0));
 }
 //
 //

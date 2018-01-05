@@ -1,5 +1,5 @@
 // PPDESKTP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -474,7 +474,7 @@ int PPBizScoreWindow::Update()
 	PPGetWord(PPWORD_CALCDATE, 0, buf);
 	text.Cat(buf).CatDiv(':', 1).Cat(ActualDt).CRB();
 	for(uint i = 0; i < BizScoreList.getCount(); i++) {
-		(buf = BizScoreList.at(i).Txt).Divide(';', name, value);
+		(buf = BizScoreList.Get(i).Txt).Divide(';', name, value);
 		(buf = name).CatDiv(':', 1).Cat(value).CRB();
 		text.Cat(buf);
 	}
@@ -643,9 +643,8 @@ int PPDesktop::Init__(long desktopID)
 		//
 		if(P_ActiveDesktop->GetLogo().NotEmpty()) {
 			SString path, buf;
-			SPathStruc ps;
 			Logotype.Init();
-			ps.Split(P_ActiveDesktop->GetLogo());
+			SPathStruc ps(P_ActiveDesktop->GetLogo());
 			PPGetPath(PPPATH_BIN, path);
 			PPLoadText(PPTXT_DESKIMGDIR, buf);
 			path.SetLastSlash().Cat(buf);

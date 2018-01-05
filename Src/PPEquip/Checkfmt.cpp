@@ -1,5 +1,5 @@
 // CHECKFMT.CPP
-// Copyright (c) V.Nasonov 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) V.Nasonov 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -20,13 +20,13 @@ void SLAPI SlipLineParam::Init()
 	DivID = 0;
 	FontSize = 0;
 	MEMSZERO(PictCoord);
-	FontName = 0;
-	PictPath = 0;
+	FontName.Z();
+	PictPath.Z();
 	BarcodeStd = 0;
 	BarcodeWd = 0;
 	BarcodeHt = 0;
-	Text = 0; // @v9.5.7
-	Code = 0; // @v9.5.7
+	Text.Z(); // @v9.5.7
+	Code.Z(); // @v9.5.7
 }
 
 class PPSlipFormatZone;
@@ -2463,7 +2463,7 @@ SLTEST_R(PPSlipFormatLexer)
 		SLTEST_CHECK_NZ(fmt.GetFormList(in_file_name, &list, 0));
 		result.Z().CR();
 		for(uint i = 0; i < list.getCount(); i++) {
-			result.Cat(list.at(i).Txt).CR();
+			result.Cat(list.Get(i).Txt).CR();
 		}
 		f_out.WriteLine(result);
 	}

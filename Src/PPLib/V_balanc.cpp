@@ -1,5 +1,5 @@
 // V_BALANCE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2010, 2011, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -12,11 +12,10 @@ IMPLEMENT_PPFILT_FACTORY(Balance); SLAPI BalanceFilt::BalanceFilt() : PPBaseFilt
 	Init(1, 0);
 }
 
-SLAPI PPViewBalance::PPViewBalance() : PPView(0, &Filt, PPVIEW_BALANCE)
+SLAPI PPViewBalance::PPViewBalance() : PPView(0, &Filt, PPVIEW_BALANCE), P_ATC(BillObj->atobj->P_Tbl)
 {
 	ImplementFlags |= implBrowseArray;
 	DefReportId = REPORT_BALANCE;
-	P_ATC = BillObj->atobj->P_Tbl;
 }
 
 SLAPI PPViewBalance::~PPViewBalance()
@@ -381,14 +380,9 @@ int FASTCALL PPViewBalance::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-int SLAPI PPViewBalance::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewBalance::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
-	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewBalance::GetDataForBrowser, this);
-		ok = 1;
-	}
-	return ok;
+	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewBalance::GetDataForBrowser, this));
 }
 
 SArray * SLAPI PPViewBalance::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)

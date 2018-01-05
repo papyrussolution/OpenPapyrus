@@ -1832,12 +1832,10 @@ SLAPI QuotCache::QuotCache() :
 	ObjCache(PPOBJ_QUOT, sizeof(ObjCacheEntry), ObjCache::fOwnerArray), QuotCacheBase(1)
 {
 	P_Ary = new QuotCacheCollection();
-	{
-		long   cookie = 0;
-		cookie = _AdviseQuotCacheUpdate(PPACN_GOODSQUOTUPD, QuotCache::OnSysJ, this);
-		cookie = _AdviseQuotCacheUpdate(PPACN_GOODSMTXUPD, QuotCache::OnSysJ, this);
-		cookie = _AdviseQuotCacheUpdate(PPACN_MTXGOODSADD, QuotCache::OnSysJ, this);
-	}
+	long   cookie = 0;
+	cookie = _AdviseQuotCacheUpdate(PPACN_GOODSQUOTUPD, QuotCache::OnSysJ, this);
+	cookie = _AdviseQuotCacheUpdate(PPACN_GOODSMTXUPD, QuotCache::OnSysJ, this);
+	cookie = _AdviseQuotCacheUpdate(PPACN_MTXGOODSADD, QuotCache::OnSysJ, this);
 }
 
 SLAPI QuotCache::~QuotCache()

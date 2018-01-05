@@ -306,11 +306,11 @@ void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
 		/*
 		 * Try to fetch and parse the external subset.
 		 */
-		xmlParserInputPtr oldinput;
+		xmlParserInput * oldinput;
 		int oldinputNr;
 		int oldinputMax;
-		xmlParserInputPtr * oldinputTab;
-		xmlParserInputPtr input = NULL;
+		xmlParserInput ** oldinputTab;
+		xmlParserInput * input = NULL;
 		xmlCharEncoding enc;
 		int oldcharset;
 		const xmlChar * oldencoding;
@@ -333,7 +333,7 @@ void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
 		oldcharset = ctxt->charset;
 		oldencoding = ctxt->encoding;
 		ctxt->encoding = NULL;
-		ctxt->inputTab = (xmlParserInputPtr*)SAlloc::M(5 * sizeof(xmlParserInputPtr));
+		ctxt->inputTab = (xmlParserInput **)SAlloc::M(5 * sizeof(xmlParserInput *));
 		if(ctxt->inputTab == NULL) {
 			xmlSAX2ErrMemory(ctxt, "xmlSAX2ExternalSubset");
 			ctxt->input = oldinput;
@@ -401,10 +401,10 @@ void xmlSAX2ExternalSubset(void * ctx, const xmlChar * name, const xmlChar * Ext
  *
  * Returns the xmlParserInputPtr if inlined or NULL for DOM behaviour.
  */
-xmlParserInputPtr xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, const xmlChar * systemId)
+xmlParserInput * xmlSAX2ResolveEntity(void * ctx, const xmlChar * publicId, const xmlChar * systemId)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlParserInputPtr ret;
+	xmlParserInput * ret;
 	xmlChar * URI;
 	const char * base = NULL;
 	if(!ctx)
@@ -746,7 +746,7 @@ void xmlSAX2UnparsedEntityDecl(void * ctx, const xmlChar * name, const xmlChar *
  * Receive the document locator at startup, actually xmlDefaultSAXLocator
  * Everything is available on the context, so this is useless in our case.
  */
-void xmlSAX2SetDocumentLocator(void * ctx ATTRIBUTE_UNUSED, xmlSAXLocatorPtr loc ATTRIBUTE_UNUSED)
+void xmlSAX2SetDocumentLocator(void * ctx ATTRIBUTE_UNUSED, xmlSAXLocator * loc ATTRIBUTE_UNUSED)
 {
 	/* xmlParserCtxt * ctxt = (xmlParserCtxt *) ctx; */
 #ifdef DEBUG_SAX
@@ -2425,7 +2425,7 @@ void xmlSAX2InitDefaultSAXHandler(xmlSAXHandler * hdlr, int warning)
 void xmlDefaultSAXHandlerInit()
 {
 #ifdef LIBXML_SAX1_ENABLED
-	xmlSAXVersion((xmlSAXHandlerPtr) &xmlDefaultSAXHandler, 1);
+	xmlSAXVersion((xmlSAXHandler *) &xmlDefaultSAXHandler, 1);
 #endif /* LIBXML_SAX1_ENABLED */
 }
 
@@ -2478,7 +2478,7 @@ void xmlSAX2InitHtmlDefaultSAXHandler(xmlSAXHandler * hdlr)
  */
 void htmlDefaultSAXHandlerInit()
 {
-	xmlSAX2InitHtmlDefaultSAXHandler((xmlSAXHandlerPtr) &htmlDefaultSAXHandler);
+	xmlSAX2InitHtmlDefaultSAXHandler((xmlSAXHandler *) &htmlDefaultSAXHandler);
 }
 
 #endif /* LIBXML_HTML_ENABLED */
@@ -2531,7 +2531,7 @@ void xmlSAX2InitDocbDefaultSAXHandler(xmlSAXHandler * hdlr)
  */
 void docbDefaultSAXHandlerInit()
 {
-	xmlSAX2InitDocbDefaultSAXHandler((xmlSAXHandlerPtr) &docbDefaultSAXHandler);
+	xmlSAX2InitDocbDefaultSAXHandler((xmlSAXHandler *) &docbDefaultSAXHandler);
 }
 
 #endif /* LIBXML_DOCB_ENABLED */

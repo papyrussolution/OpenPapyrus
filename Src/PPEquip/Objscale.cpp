@@ -4072,7 +4072,7 @@ int SLAPI ShtrihCE::CloseConnection()
 			SString line_buf;
 			if(MsgResLines.getCount()) {
 				for(uint i = 0; i < MsgResLines.getCount(); i++) {
-					StrAssocArray::Item item = MsgResLines.at(i);
+					StrAssocArray::Item item = MsgResLines.Get(i);
 					line_buf.Z().Cat("<R").Space();
 					line_buf.Cat(item.Id).Semicol();
 					line_buf.Cat((long)1).Semicol();
@@ -4698,7 +4698,7 @@ int SLAPI PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 			StrAssocArray * p_list = MakeStrAssocList(PPObjScale::MakeExtraParam(0, id));
 			if(p_list) {
 				for(uint i = 0; i < p_list->getCount(); i++) {
-					int r = PrepareData(p_list->at(i).Id, flags|fTrSkipListing, pLogger); // @recursion
+					int r = PrepareData(p_list->Get(i).Id, flags|fTrSkipListing, pLogger); // @recursion
 					ok = (ok != 0) ? r : ok;
 				}
 			}
@@ -5010,7 +5010,7 @@ int SLAPI PPObjScale::TransmitData(PPID id, long flags, PPLogger * pLogger)
 			StrAssocArray * p_list = MakeStrAssocList(PPObjScale::MakeExtraParam(0, id));
 			if(p_list) {
 				for(uint i = 0; i < p_list->getCount(); i++) {
-					int r = TransmitData(p_list->at(i).Id, flags|fTrSkipListing, pLogger); // @recursion
+					int r = TransmitData(p_list->Get(i).Id, flags|fTrSkipListing, pLogger); // @recursion
 					ok = (ok != 0) ? r : ok;
 				}
 			}

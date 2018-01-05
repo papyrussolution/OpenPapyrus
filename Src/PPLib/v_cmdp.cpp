@@ -1,5 +1,5 @@
 // V_CMDP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2016, 2017, 2018
 //
 // Редактирование списка команд
 //
@@ -15,11 +15,9 @@ int SLAPI MenuResToMenu(uint resMenuID, PPCommandFolder * pMenu);
 
 class CmdItemDialog : public TDialog {
 public:
-	CmdItemDialog(const PPCommandGroup * pGrp, int isDesktopCmd) : TDialog(DLG_CMDITEM)
+	CmdItemDialog(const PPCommandGroup * pGrp, int isDesktopCmd) : TDialog(DLG_CMDITEM), IsDesktopCmd(isDesktopCmd), P_Grp(pGrp)
 	{
-		IsDesktopCmd = isDesktopCmd;
 		CmdDescr.GetResourceList(1, &CmdSymbList);
-		P_Grp = pGrp;
 		if(IsDesktopCmd)
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_CMDITEM_ICON, CTL_CMDITEM_ICON, GRP_FBG, PPTXT_SELCMDICON, PPTXT_FILPAT_ICONS, FileBrowseCtrlGroup::fbcgfFile);
 		disableCtrl(CTL_CMDITEM_ICON, 1);
@@ -547,7 +545,7 @@ int DesktopAssocCmdsDialog::setupList()
 			if(CmdList.Search(assci.CmdID, &pos) > 0) {
 				ss.clear();
 				ss.add(assci.Code, 0);
-				ss.add(CmdList.at(pos).Txt, 0);
+				ss.add(CmdList.Get(pos).Txt, 0);
 				if(!addStringToList(i+1, ss.getBuf()))
 					ok = 0;
 			}
@@ -825,7 +823,7 @@ int EditMenusDlg::setupList()
 	StrAssocArray items;
 	THROW(PPCommandFolder::GetMenuList(&Data, &items, IsDesktop));
 	for(uint i = 0; i < items.getCount(); i++) {
-		StrAssocArray::Item item = items.at(i);
+		StrAssocArray::Item item = items.Get(i);
 		StringSet ss(SLBColumnDelim);
 		ss += item.Txt;
 		THROW_SL(P_Box->addItem(item.Id, ss.getBuf()))
@@ -1111,7 +1109,7 @@ void SLAPI ReadMenu(HMENU hm, PPID parentID, PPCommandFolder * pMenu, StrAssocAr
 	if(pMenu && pItems) {
 		SString temp_buf;
 		for(uint i = 0; i < pItems->getCount(); i++) {
-			StrAssocArray::Item item_ = pItems->at(i);
+			StrAssocArray::Item item_ = pItems->Get(i);
 			if(item_.ParentId == parentID) {
 				const PPCommandItem * p_item = pMenu->SearchByIDRecursive(item_.Id, 0);
 				if(p_item) {

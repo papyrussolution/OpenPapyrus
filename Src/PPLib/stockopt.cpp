@@ -1,5 +1,5 @@
 // STOCKOPT.CPP
-// Copirught (c) A.Sobolev 2011, 2015, 2016, 2017
+// Copirught (c) A.Sobolev 2011, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -7,13 +7,8 @@
 #define PPERR_STKOPT_UNDEFRATE  20001
 #define PPERR_STKOPT_UNDEFGOODS 20002
 
-PPStockOpt::Config::Config()
+PPStockOpt::Config::Config() : MaxItems(0), RateOfRet(0.0), ExpirySafetyFactor(0.5), MaxCost(0.0), MaxSales(0.0)
 {
-	MaxItems = 0;
-	RateOfRet = 0.0;
-	ExpirySafetyFactor = 0.5;
-	MaxCost = 0.0;
-	MaxSales = 0.0;
 	memzero(Reserve, sizeof(Reserve));
 }
 //
@@ -815,14 +810,9 @@ int PPViewStockOpt::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-int SLAPI PPViewStockOpt::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewStockOpt::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
-	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewStockOpt::GetDataForBrowser, this);
-		ok = 1;
-	}
-	return ok;
+	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewStockOpt::GetDataForBrowser, this));
 }
 
 SArray * SLAPI PPViewStockOpt::Helper_CreateBrowserArray()

@@ -1,5 +1,5 @@
 // PPDEVICE.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -560,7 +560,7 @@ int PPAbstractDevice::RunCmd__(int cmdID, const StrAssocArray & rIn, StrAssocArr
 	SString s_cmd, input, str;
 	THROW(PPLoadString(PPSTR_ABDVCCMD, cmdID, s_cmd)); // @todo @err
 	for(uint i = 0; i < rIn.getCount(); i++) {
-		StrAssocArray::Item item = rIn.at(i);
+		StrAssocArray::Item item = rIn.Get(i);
 		THROW(PPLoadString(PPSTR_ABDVCCMD, item.Id, str)); // @todo @err
 		if(input.NotEmpty())
 			input.Semicol();

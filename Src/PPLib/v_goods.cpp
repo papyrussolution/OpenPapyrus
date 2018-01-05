@@ -1,5 +1,5 @@
 // V_GOODS.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1255,9 +1255,8 @@ int SLAPI PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAct
 	return ok;
 }
 
-int SLAPI PPViewGoods::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
 	if(!GObj.CheckFlag(Filt.GrpID, GF_DYNAMICALTGRP) && PPObjGoodsGroup::IsAlt(Filt.GrpID) > 0 && !(Filt.Flags & GoodsFilt::fNegation)) // @v8.3.12 && !(Filt.Flags & GoodsFilt::fNegation)
 		pBrw->InsColumnWord(-1, PPWORD_PLU, 17, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0);
 	/*
@@ -1282,7 +1281,6 @@ int SLAPI PPViewGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 		pBrw->InsColumn(-1, "@code", 9, 0, 0, 0); // @v9.0.2
 	}
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, /*this*/pBrw)); // @v9.5.5 this-->pBrw
-	return ok;
 }
 
 static void FASTCALL SetGsChr(SString & rS, char c)
@@ -4479,9 +4477,8 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 				PPGetPath(PPPATH_TEMP, dest_file_path);
             dest_file_path.SetLastSlash().Cat("img");
             ::createDir(dest_file_path);
-            SPathStruc ps_dest, ps_src;
-            ps_dest.Split(dest_file_path);
-            ps_src.Split(org_file_path);
+            SPathStruc ps_dest(dest_file_path);
+            SPathStruc ps_src(org_file_path);
             ps_dest.Nam = ps_src.Nam;
             /* @v9.1.1
             if(P_Ep && P_Ep->OutputFormat == SFileFormat::Latex)
@@ -5326,7 +5323,7 @@ int PPALDD_GoodsClassView::NextIteration(PPIterID iterId)
 	IterProlog(iterId, 0);
 	StrAssocArray * p_list = (StrAssocArray *)Extra[0].Ptr;
 	if(p_list && p_list->getPointer() < p_list->getCount()) {
-		I.GcID = p_list->at(p_list->incPointer()).Id;
+		I.GcID = p_list->Get(p_list->incPointer()).Id;
 		ok = DlRtm::NextIteration(iterId);
 	}
 	return ok;

@@ -1,5 +1,5 @@
 // V_LIKENS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -285,10 +285,10 @@ int SLAPI PPViewObjLikeness::CreateLikenessTable()
 		asc_param.no_case = 1;
 		for(i = 0; i < count; i++) {
 			StrAssocArray::Item item1, item2;
-			item1 = list.at(i);
+			item1 = list.Get(i);
 			ApproxStrComparator asc(item1.Txt, &asc_param);
 			for(long j = i + 1; j < count; j++) { // все элементы сравниваем с друг другом только 1 раз
-				item2 = list.at(j);
+				item2 = list.Get(j);
 				double s = asc.Next(item2.Txt);
 				if(s >= rate) {
 					lkns_rec.ID1  = item1.Id;

@@ -1,5 +1,5 @@
 // PROJECT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2096,10 +2096,10 @@ int ViewTasksDialog::setupList()
 	if(P_Data) {
 		SString buf;
 		for(uint i = 0; i < P_Data->getCount(); i++) {
-			buf = P_Data->at(i).Txt;
+			buf = P_Data->Get(i).Txt;
 			if(!buf.Len())
-				buf.Cat(P_Data->at(i).Id);
-			THROW(addStringToList(P_Data->at(i).Id, (const char*)buf));
+				buf.Cat(P_Data->Get(i).Id);
+			THROW(addStringToList(P_Data->Get(i).Id, buf.cptr()));
 		}
 		ok = 1;
 	}

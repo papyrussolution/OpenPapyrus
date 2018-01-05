@@ -1,5 +1,5 @@
 // PPTEX2HTML.CPP
-// Copyright (c) A.Sobolev 2014, 2015, 2016
+// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1537,8 +1537,7 @@ int PPTex2HtmlPrcssr::InitOutput(SFile * pOut, const char * pPartLabel, const ch
 			P.PutExtStrData(Param::exsOutputFileName, output_file_name);
 		}
 		if(part_suffix.NotEmpty()) {
-			SPathStruc ps;
-			ps.Split(output_file_name);
+			SPathStruc ps(output_file_name);
 			ps.Nam.Cat(part_suffix);
 			ps.Merge(output_file_name);
 		}
@@ -1571,8 +1570,7 @@ int PPTex2HtmlPrcssr::Run()
 				P.GetExtStrData(Param::exsInputFileName, output_file_name);
 				SPathStruc::ReplaceExt(output_file_name, "html", 1);
 			}
-			SPathStruc ps;
-			ps.Split(output_file_name);
+			SPathStruc ps(output_file_name);
 			ps.Ext = "img";
 			ps.Merge(output_file_name);
 			createDir(output_file_name);
@@ -1892,7 +1890,7 @@ private:
 			if(pPara->Topic.NotEmpty()) {
 				uint p = 0;
 				if(TopicCountList.SearchByText(pPara->Topic, 0, &p)) {
-					long c = TopicCountList.at(p).Id;
+					long c = TopicCountList.Get(p).Id;
 					TopicCountList.UpdateByPos(p, c+1);
 				}
 				else {
@@ -2358,8 +2356,7 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 					WriteText(f_out, entry_buf);
 					if(P.Flags & Param::fDivide) {
 						SString part_file_name;
-						SPathStruc ps;
-						ps.Split(pOutputFileName);
+						SPathStruc ps(pOutputFileName);
 						int    mj, mn, rz;
 						p_entry->Ver.Get(&mj, &mn, &rz);
 						ps.Nam.CatChar('-').CatLongZ(mj, 2).CatLongZ(mn, 2).CatLongZ(rz, 2);

@@ -1,16 +1,12 @@
 // PPNAMEDFILT.CPP
-// Copyright (c) P.Andrianov 2011, 2014, 2016
+// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI PPNamedFilt::PPNamedFilt()
+SLAPI PPNamedFilt::PPNamedFilt() : ID(0), Ver(0), ViewID(0), Flags(0)
 {
-	ID = 0;
-	Ver = 0;
-	ViewID = 0;
-	Flags = 0;
 	memzero(Reserve, sizeof(Reserve));
 }
 
@@ -71,10 +67,8 @@ SLAPI PPNamedFilt::~PPNamedFilt()
 	Param.Clear();
 }
 
-SLAPI PPNamedFiltPool::PPNamedFiltPool(const char * pDbSymb, const int readOnly) : TSCollection <PPNamedFilt> ()
+SLAPI PPNamedFiltPool::PPNamedFiltPool(const char * pDbSymb, const int readOnly) : TSCollection <PPNamedFilt> (), DbSymb(pDbSymb), Flags(0)
 {
-	DbSymb = pDbSymb;
-	Flags = 0;
 	SETFLAG(Flags, fReadOnly, readOnly);
 }
 
@@ -415,7 +409,7 @@ IMPL_HANDLE_EVENT(FiltItemDialog)
 			SString name;
 			getCtrlString(CTL_FILTITEM_NAME, name);
 			if(!name.NotEmptyS()) {
-				setCtrlString(CTL_FILTITEM_NAME, CmdTextList.at(pos).Txt);
+				setCtrlString(CTL_FILTITEM_NAME, CmdTextList.Get(pos).Txt);
 			}
 			Data.Param.Clear(); // Поменялся PPView, фильтр устарел
 			enableCommand(cmCmdParam, 1);
@@ -497,7 +491,7 @@ int FiltItemDialog::getDTS(PPNamedFilt * pData)
 	getCtrlData(sel = CTLSEL_FILTITEM_CMD, &view_id);
 	THROW_PP(CmdSymbList.Search(view_id, &pos), PPERR_INVNFCMD);
 	GetClusterData(CTL_FILTITEM_FLAGS, &Data.Flags);
-	Data.ViewSymb = CmdSymbList.at(pos).Txt;
+	Data.ViewSymb = CmdSymbList.Get(pos).Txt;
 	Data.ViewID = view_id;
 	ASSIGN_PTR(pData, Data);
 	CATCH

@@ -1,5 +1,5 @@
 // V_GDSOPR.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -350,24 +350,12 @@ void GoodsOpAnalyzeFilt::ZeroCompareItems()
 //
 //
 //
-SLAPI PPViewGoodsOpAnalyze::PPViewGoodsOpAnalyze() : PPView(0, &Filt, PPVIEW_GOODSOPANALYZE)
+SLAPI PPViewGoodsOpAnalyze::PPViewGoodsOpAnalyze() : PPView(0, &Filt, PPVIEW_GOODSOPANALYZE), P_BObj(BillObj), P_Psc(0), State(0),
+	P_TempTbl(0), P_TempOrd(0), IterIdx(0), P_GGIter(0), P_TradePlanPacket(0), P_TrfrFilt(0), P_Cache(0), P_CmpView(0), P_Uniq(0), 
+	P_GoodsList(0), CurrentViewOrder(OrdByDefault)
 {
-	P_BObj   = BillObj;
-	P_Psc    = 0;
-	State    = 0;
 	if(P_BObj->CheckRights(BILLRT_ACCSCOST))
 		State |= sAccsCost;
-	P_TempTbl = 0;
-	P_TempOrd = 0;
-	IterIdx   = 0;
-	P_GGIter  = 0;
-	P_TradePlanPacket = 0;
-	P_TrfrFilt = 0;
-	P_Cache    = 0;
-	P_CmpView  = 0;
-	P_Uniq     = 0;
-	P_GoodsList = 0;
-	CurrentViewOrder = OrdByDefault;
 }
 
 SLAPI PPViewGoodsOpAnalyze::~PPViewGoodsOpAnalyze()
@@ -1852,7 +1840,7 @@ int SLAPI ABCGrpStorageList::InitGoodsGrpList(GoodsOpAnalyzeFilt * pFilt)
 			PPObjGoodsGroup ggobj;
 			p_ggrp_list = ggobj.MakeStrAssocList((void *)GGRTYP_SEL_NORMAL);
 			for(long i = p_ggrp_list->getCount(); i >= 0; i--) {
-				PPID ggrp_id = p_ggrp_list->at(i).Id;
+				PPID ggrp_id = p_ggrp_list->Get(i).Id;
 				if(P_GObj->CheckFlag(ggrp_id, GF_FOLDER))
 					p_ggrp_list->Remove(ggrp_id);
 			}
@@ -1863,7 +1851,7 @@ int SLAPI ABCGrpStorageList::InitGoodsGrpList(GoodsOpAnalyzeFilt * pFilt)
 		for(uint i = 0; i < p_ggrp_list->getCount(); i++) {
 		 	ABCGrpStorageList::TotalItem item;
 			MEMSZERO(item);
-			item.GoodsGrpID = p_ggrp_list->at(i).Id;
+			item.GoodsGrpID = p_ggrp_list->Get(i).Id;
 			P_TotalItems->insert(&item);
 			GoodsGroupList.add(item.GoodsGrpID);
 		}
@@ -3395,9 +3383,8 @@ int SLAPI PPViewGoodsOpAnalyze::ViewGraph()
 	return ok;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int   ok = -1;
 	DBQBrowserDef * p_def = (pBrw) ? (DBQBrowserDef *)pBrw->getDef() : 0;
 	const DBQuery * p_q = (p_def) ? p_def->getQuery() : 0;
 	if(p_q) {
@@ -3541,7 +3528,6 @@ int SLAPI PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 				}
 				first_c += cols_count;
 			}
-			ok = 1;
 		}
 		if(P_Ct == 0 && Filt.Flags & GoodsOpAnalyzeFilt::fEachLocation && Filt.ABCAnlzGroup <= 0) {
 			// @v9.0.2 pBrw->InsColumnWord(loc_ins_col, PPWORD_WAREHOUSE, 18, 0, 0, 0);
@@ -3553,7 +3539,6 @@ int SLAPI PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 		}
 		pBrw->SetTempGoodsGrp(Filt.GoodsGrpID);
 	}
-	return ok;
 }
 
 DBQuery * SLAPI PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString * pSubTitle)

@@ -1,16 +1,13 @@
 // DL600.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
 //
 //
 //
-DlFunc::DlFunc() : ArgNamList("/&"), ArgList(sizeof(DlFunc::Arg))
+DlFunc::DlFunc() : ArgNamList("/&"), ArgList(sizeof(DlFunc::Arg)), TypID(0), Flags(0), ImplID(0)
 {
-	TypID = 0;
-	Flags = 0;
-	ImplID = 0;
 	ArgNamList.add("$"); // zero index - undefined name
 }
 
@@ -1713,8 +1710,7 @@ int SLAPI DlContext::InitFileNames(const char * pInFileName)
 {
 	if(Flags & fCompile) {
 		InFileName = pInFileName;
-		SPathStruc ps;
-		ps.Split(InFileName);
+		SPathStruc ps(InFileName);
 		ps.Ext = "h";
 		ps.Merge(CDeclFileName);
 		ps.Ext = "cpp";

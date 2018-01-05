@@ -1,5 +1,5 @@
 // MRP.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1703,8 +1703,7 @@ int SLAPI PPObjMrpTab::DoMaintain(LDATE toDt)
 	{
 		SString file_name, fmt_buf;
 		PPLoadText(PPTXT_DBMAINTAIN, fmt_buf);
-		SPathStruc ps;
-		ps.Split(P_Tbl->GetName());
+		SPathStruc ps(P_Tbl->GetName());
 		ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
 		msg.Printf(fmt_buf, file_name.cptr());
 	}

@@ -1,5 +1,5 @@
 // V_BILL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -718,7 +718,6 @@ void BillFiltDialog::setupAccSheet(PPID sheet, PPID accSheet2ID)
 SLAPI PPViewBill::PPViewBill() : PPView(0, &Filt, PPVIEW_BILL), P_TempTbl(0), P_TempOrd(0), P_BPOX(0), P_Arp(0),
 	P_BObj(BillObj), CtrlX(0), P_IterState(0), LastSelID(0)
 {
-
 }
 
 SLAPI PPViewBill::~PPViewBill()
@@ -2446,7 +2445,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 }
 
 //virtual
-int SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	int    caption = 0;
 	SString title, sub_title, temp_buf;
@@ -2606,7 +2605,6 @@ int SLAPI PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 		pBrw->setSubTitle(sub_title);
 	}
 	pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
-	return 1;
 }
 
 DBQuery * SLAPI PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
@@ -4927,7 +4925,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 						ok = 1;
 					}
 					if(inet_acc_id && inet_addr_list.getCount() && result_file_list.getCount()) {
-						temp_buf = inet_addr_list.at(0).Txt;
+						temp_buf = inet_addr_list.Get(0).Txt;
 						if(!PutFilesToEmail2(&result_file_list, inet_acc_id, temp_buf, mail_subj, 0))
 							logger.LogLastError();
 					}

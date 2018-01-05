@@ -1,5 +1,5 @@
 // STYLOPALM.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2015
+// Copyright (c) A.Sobolev 2005, 2006, 2010, 2011, 2015, 2018
 //
 #pragma hdrstop
 #include <stylopalm.h>
@@ -31,8 +31,7 @@ int PalmConfig::Write(const char * pPath)
 	int    ok = 1;
 #if !defined(__palmos__) && !defined(_WIN32_WCE) // {
 	SString fname;
-	SPathStruc ps;
-	ps.Split(pPath);
+	SPathStruc ps(pPath);
 	if(ps.Ext.Len())
 		fname = pPath;
 	else {
@@ -56,8 +55,7 @@ int PalmConfig::Read(const char * pPath)
 	int    ok = 1;
 #if !defined(__palmos__) &&  !defined(_WIN32_WCE) // {
 	SString fname;
-	SPathStruc ps;
-	ps.Split(pPath);
+	SPathStruc ps(pPath);
 	if(ps.Ext.Len())
 		fname = pPath;
 	else

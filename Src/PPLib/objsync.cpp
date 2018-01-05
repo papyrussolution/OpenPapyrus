@@ -1,5 +1,5 @@
 // OBJSYNC.CPP
-// Copyright (c) A.Sobolev 1997-2001, 2002, 2003, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997-2001, 2002, 2003, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018
 //
 // Поддержка синхронизации объектов в распределенной базе данных
 //
@@ -497,9 +497,8 @@ int SLAPI ObjSyncQueueCore::AddFileRecord(PPID * pID, const ObjSyncQueueCore::Fi
 {
 	int    ok = 1;
 	ObjSyncQueueTbl::Rec rec;
-	SPathStruc ps;
 	SString name_buf, temp_buf;
-	ps.Split(rInfo.InnerFileName);
+	SPathStruc ps(rInfo.InnerFileName);
 	name_buf = ps.Nam; // Файл не имеет расширения //
 	ps.Split(rInfo.OrgFileName);
 	ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
@@ -539,9 +538,8 @@ int SLAPI ObjSyncQueueCore::SearchRefToOrgFile(const char * pFileName, ObjSyncQu
 {
 	int    ok = -1;
 	SString temp_buf, left, right, nam;
-	SPathStruc ps;
 	ObjSyncQueueTbl::Key0 k0;
-	ps.Split(pFileName);
+	SPathStruc ps(pFileName);
 	ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, nam);
 	MEMSZERO(k0);
 	BExtQuery q(this, 0);

@@ -44,18 +44,11 @@ extern "C" {
     { \
         OPENSSL_sk_free((OPENSSL_STACK *)sk); \
     } \
-    static ossl_inline void sk_##t1##_zero(STACK_OF(t1) *sk) \
-    { \
-        OPENSSL_sk_zero((OPENSSL_STACK *)sk); \
-    } \
-    static ossl_inline t2 *sk_##t1##_delete(STACK_OF(t1) *sk, int i) \
-    { \
-        return (t2 *)OPENSSL_sk_delete((OPENSSL_STACK *)sk, i); \
-    } \
+    static ossl_inline void sk_##t1##_zero(STACK_OF(t1) *sk) { OPENSSL_sk_zero((OPENSSL_STACK *)sk); } \
+    static ossl_inline t2 *sk_##t1##_delete(STACK_OF(t1) *sk, int i) { return (t2 *)OPENSSL_sk_delete((OPENSSL_STACK *)sk, i); } \
     static ossl_inline t2 *sk_##t1##_delete_ptr(STACK_OF(t1) *sk, t2 *ptr) \
     { \
-        return (t2 *)OPENSSL_sk_delete_ptr((OPENSSL_STACK *)sk, \
-                                           (const void *)ptr); \
+        return (t2 *)OPENSSL_sk_delete_ptr((OPENSSL_STACK *)sk, (const void *)ptr); \
     } \
     static ossl_inline int sk_##t1##_push(STACK_OF(t1) *sk, t2 *ptr) \
     { \
@@ -120,8 +113,7 @@ extern "C" {
 
 #define DEFINE_SPECIAL_STACK_OF(t1, t2) SKM_DEFINE_STACK_OF(t1, t2, t2)
 #define DEFINE_STACK_OF(t) SKM_DEFINE_STACK_OF(t, t, t)
-#define DEFINE_SPECIAL_STACK_OF_CONST(t1, t2) \
-            SKM_DEFINE_STACK_OF(t1, const t2, t2)
+#define DEFINE_SPECIAL_STACK_OF_CONST(t1, t2) SKM_DEFINE_STACK_OF(t1, const t2, t2)
 #define DEFINE_STACK_OF_CONST(t) SKM_DEFINE_STACK_OF(t, const t, t)
 
 /*-

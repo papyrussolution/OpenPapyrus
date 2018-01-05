@@ -1,5 +1,5 @@
 // PPWTM.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1717,7 +1717,7 @@ int PPWhatmanWindow::LocalMenu(int objIdx)
 				menu.AddSeparator();
 				SString cmd_text;
 				for(uint i = 0; i < p_wtmo_list->getCount(); i++) {
-					StrAssocArray::Item item = p_wtmo_list->at(i);
+					StrAssocArray::Item item = p_wtmo_list->Get(i);
 					(cmd_text = item.Txt).Transf(CTRANSF_INNER_TO_OUTER);
 					menu.Add(cmd_text, MAKELONG(cmaInsert, (uint16)item.Id));
 				}

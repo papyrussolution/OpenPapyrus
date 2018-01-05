@@ -1,5 +1,5 @@
 // V_ATURN.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -637,7 +637,7 @@ int SLAPI PPViewAccturn::EditBaseFilt(PPBaseFilt * pFilt)
 }
 
 // virtual
-int SLAPI PPViewAccturn::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewAccturn::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.BillID) {
@@ -652,7 +652,6 @@ int SLAPI PPViewAccturn::PreprocessBrowser(PPViewBrowser * pBrw)
 				pBrw->InsColumn(col, "@currency", /*12*/8, 0, MKSFMT(6, 0), 0);
 		}
 	}
-	return 1;
 }
 
 // dbt_acc_id, crd_acc_id, (long)(AccTurnFilt *)

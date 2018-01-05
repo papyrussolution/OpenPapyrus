@@ -1,5 +1,5 @@
 // OBJBROWS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -161,14 +161,14 @@ IMPL_HANDLE_EVENT(PPObjListWindow)
 		if(TVCOMMAND) {
 			switch(TVCMD) {
 				case cmLBLoadDef:
-					if(!def && (Flags & OLW_LOADDEFONOPEN)) {
+					if(!P_Def && (Flags & OLW_LOADDEFONOPEN)) {
 						ListWindowSmartListBox * p_box = listBox();
 						if(p_box) {
 							setDef(p_obj->Selector(ExtraPtr));
-							p_box->setDef(def);
+							p_box->setDef(P_Def);
 							ComboBox * p_combo = p_box->combo;
 							if(p_combo) {
-								p_combo->setDef(def);
+								p_combo->setDef(P_Def);
 								p_combo->setDataByUndefID();
 							}
 						}

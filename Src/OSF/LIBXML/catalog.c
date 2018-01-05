@@ -562,11 +562,11 @@ static int xmlDumpXMLCatalog(FILE * out, xmlCatalogEntryPtr catal)
 	xmlNs * ns;
 	xmlDtdPtr dtd;
 	xmlNodePtr catalog;
-	xmlOutputBufferPtr buf;
+	xmlOutputBuffer * buf;
 	/*
 	 * Rebuild a catalog
 	 */
-	xmlDocPtr doc = xmlNewDoc(NULL);
+	xmlDoc * doc = xmlNewDoc(NULL);
 	if(!doc)
 		return -1;
 	dtd = xmlNewDtd(doc, BAD_CAST "catalog", BAD_CAST "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN",
@@ -755,8 +755,8 @@ xmlDocPtr xmlParseCatalogFile(const char * filename)
 {
 	xmlDoc * ret;
 	char * directory = NULL;
-	xmlParserInputPtr inputStream;
-	xmlParserInputBufferPtr buf;
+	xmlParserInput * inputStream;
+	xmlParserInputBuffer * buf;
 	xmlParserCtxt * ctxt = xmlNewParserCtxt();
 	if(!ctxt) {
 #ifdef LIBXML_SAX1_ENABLED

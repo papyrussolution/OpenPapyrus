@@ -37,27 +37,29 @@ typedef enum {                  /* Operating modes for buffer controllers */
 #define DSTATE_BUFPOST  208     /* looking for SOS/EOI in jpeg_finish_output */
 #define DSTATE_RDCOEFS  209     /* reading file in jpeg_read_coefficients */
 #define DSTATE_STOPPING 210     /* looking for EOI in jpeg_finish_decompress */
-
-/* Declarations for compression modules */
-
-/* Master control module */
+//
+// Declarations for compression modules 
+//
+// Master control module 
+//
 struct jpeg_comp_master {
 	JMETHOD(void, prepare_for_pass, (j_compress_ptr cinfo));
 	JMETHOD(void, pass_startup, (j_compress_ptr cinfo));
 	JMETHOD(void, finish_pass, (j_compress_ptr cinfo));
-
-	/* State variables made visible to other modules */
-	boolean call_pass_startup; /* True if pass_startup must be called */
-	boolean is_last_pass;   /* True during last pass */
+	// State variables made visible to other modules 
+	boolean call_pass_startup; // True if pass_startup must be called 
+	boolean is_last_pass;      // True during last pass 
 };
-
-/* Main buffer control (downsampled-data buffer) */
+//
+// Main buffer control (downsampled-data buffer) 
+//
 struct jpeg_c_main_controller {
 	JMETHOD(void, start_pass, (j_compress_ptr cinfo, J_BUF_MODE pass_mode));
 	JMETHOD(void, process_data, (j_compress_ptr cinfo, JSAMPARRAY input_buf, JDIMENSION *in_row_ctr, JDIMENSION in_rows_avail));
 };
-
-/* Compression preprocessing (downsampling input buffer control) */
+//
+// Compression preprocessing (downsampling input buffer control) 
+//
 struct jpeg_c_prep_controller {
 	JMETHOD(void, start_pass, (j_compress_ptr cinfo, J_BUF_MODE pass_mode));
 	JMETHOD(void, pre_process_data, (j_compress_ptr cinfo, JSAMPARRAY input_buf, JDIMENSION *in_row_ctr,

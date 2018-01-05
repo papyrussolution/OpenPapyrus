@@ -566,7 +566,7 @@ int ImportExportCls::ParseRlnResponse(const char * pResp)
 	SString str;
 	StRlnConfig * p_rln_cfg = 0;
 	xmlTextReader * p_xml_ptr;
-	xmlParserInputBufferPtr p_input = 0;
+	xmlParserInputBuffer * p_input = 0;
 	xmlNode * p_node;
 	RlnCfgList.freeAll();
 	if(pResp) {
@@ -1704,10 +1704,6 @@ public:
 		Inited = 0;
 		IncomMessagesCounter = 0;
 		BillSumWithoutVat = 0.0;
-		DocNum = 0;
-		ImpFileName = 0;
-		LogFileName = 0;
-		LastTrackId = 0;
 		ErrorCode = 0;
 		WebServcErrorCode = 0;
 		AperakInfo.Clear();
@@ -1923,7 +1919,7 @@ EXPORT int ReplyImportObjStatus(uint idSess, uint objId, void * pObjStatus)
 		if(p_obj_status->DocStatus == docStatIsSuchDoc) {
 			if(message_type == PPEDIOP_APERAK) {
 				// Что-нибудь делаем с этим статусом
-				str.Z().Cat(P_ImportCls->AperakInfo.DocNum).CatChar(':').Space().Cat(P_ImportCls->AperakInfo.Msg).Utf8ToChar();
+				str.Z().Cat(P_ImportCls->AperakInfo.DocNum).CatDiv(':', 2).Cat(P_ImportCls->AperakInfo.Msg).Utf8ToChar();
 				LogMessage(str);
 			}
 			// Иначе ничего не делаем
@@ -2058,35 +2054,37 @@ int ImportCls::SetNewStatus(SString & rErrTrackIdList)
 {
 	int    ok = 1;
 	SString str, login;
+	char   track_id_buf[256];
 	_ns1__ChangeDocumentStatus param;
 	_ns1__ChangeDocumentStatusResponse resp;
 	EDIWebServiceSoapProxy proxy(SOAP_XML_INDENT);
 	gSoapClientInit(&proxy, 0, 0);
 	rErrTrackIdList = 0;
 	for(size_t pos = 0; pos < TrackIds.getCount(); pos++) {
+		STRNSCPY(track_id_buf, TrackIds.Get(pos).Txt);
 		FormatLoginToLogin(Header.EdiLogin, login.Z()); // ИД пользователя
 		param.Name = (char *)login.cptr(); // @badcast
 		//param.Name = Header.EdiLogin;			// ИД пользователя в системе
 		param.Password = Header.EdiPassword;	// Пароль
-		param.TrackingId = (char *)(const char *)TrackIds.at(pos).Txt; // ИД документа в системе
+		param.TrackingId = track_id_buf; // ИД документа в системе
 		param.Status = "N"; // Новый статус документа (new)
 		if(proxy.ChangeDocumentStatus(&param, &resp) == SOAP_OK) {
 			if(atoi(resp.ChangeDocumentStatusResult->Res) != 0) {
 				SetError(IEERR_WEBSERVСERR);
 				SetWebServcError(atoi((const char *)resp.ChangeDocumentStatusResult->Res));
 				if(rErrTrackIdList.Empty())
-					rErrTrackIdList = TrackIds.at(pos).Txt;
+					rErrTrackIdList = track_id_buf;
 				else
-					rErrTrackIdList.Comma().Cat(TrackIds.at(pos).Txt);
+					rErrTrackIdList.Comma().Cat(track_id_buf);
 				ok = 0;
 			}
 		}
 		else {
 			ProcessError(proxy);
 			if(rErrTrackIdList.Empty())
-				rErrTrackIdList = TrackIds.at(pos).Txt;
+				rErrTrackIdList = track_id_buf;
 			else
-				rErrTrackIdList.Comma().Cat(TrackIds.at(pos).Txt);
+				rErrTrackIdList.Comma().Cat(track_id_buf);
 			ok = 0;
 		}
 	}
@@ -2103,14 +2101,11 @@ int ImportCls::SetNewStatus(SString & rErrTrackIdList)
 int ImportCls::ListMessageBox(uint messageType)
 {
 	MsgList.Clear();
-
 	int    ok = -1;
 	uint   pos = 0;
-
 	xmlTextReader * p_xml_ptr = 0;
-	xmlParserInputBufferPtr p_input = 0;
+	xmlParserInputBuffer * p_input = 0;
 	//MessageInfoBlock * p_info_blk = 0;
-
 	SString fmt, low, upp, str, login;
 	SString edi_doc_type_symb;
 	_ns1__ListMBEx param;
@@ -2627,7 +2622,7 @@ int ImportCls::ParseAperakResp(const char * pResp)
 	int    ok = 1;
 	SString str;
 	xmlTextReader * p_xml_ptr;
-	xmlParserInputBufferPtr p_input = 0;
+	xmlParserInputBuffer * p_input = 0;
 	xmlNode * p_node;
 	AperakInfo.Clear();
 	if(pResp) {

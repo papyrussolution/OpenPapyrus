@@ -449,8 +449,12 @@ private:
 // Класс, от которого наследуются ImportCls и ExportCls. Содержит общие методы, для этих классов
 class ImportExportCls {
 public:
-	ImportExportCls() {};
-	~ImportExportCls() {};
+	ImportExportCls() 
+	{
+	};
+	~ImportExportCls() 
+	{
+	};
 	void CleanHeader();
 
 	Sdr_ImpExpHeader Header;
@@ -476,15 +480,11 @@ public:
 		stDisconnected = 0,
 		stConnected
 	};
-	FtpClient(const char * pLogin, const char * pPass) {
-		Status = stDisconnected;
-		Login = pLogin;
-		Password = pPass;
-		HInternet = 0;
-		HFtpSession = 0;
-		HFtpFind = 0;
+	FtpClient(const char * pLogin, const char * pPass) : Status(stDisconnected), Login(pLogin), Password(pPass), HInternet(0), HFtpSession(0), HFtpFind(0)
+	{
 	}
-	~FtpClient() {
+	~FtpClient() 
+	{
 		Disconnect();
 	}
 	int Connect();
@@ -505,15 +505,12 @@ private:
 int FtpClient::Connect()
 {
 	int ok = 1;
-
 	if(Status == stDisconnected) {
 		THROW(HInternet = InternetOpen(NULL, INTERNET_OPEN_TYPE_DIRECT, NULL,NULL, 0));
 		THROW(HFtpSession = InternetConnect(HInternet, SERVERADDR, INTERNET_DEFAULT_FTP_PORT, Login, Password, INTERNET_SERVICE_FTP, INTERNET_FLAG_PASSIVE, 0));
 		Status = stConnected;
 	}
-    CATCH
-		ok = 0;
-	ENDCATCH;
+    CATCHZOK
 	return ok;
 }
 
@@ -532,28 +529,20 @@ void FtpClient::Disconnect()
 int FtpClient::PutFile(const char * pLocSrc, const char * pFtpDst)
 {
 	int ok = 1;
-
 	if(Status == stDisconnected)
 		THROW(Connect());
 	THROW(FtpPutFile(HFtpSession, pLocSrc, pFtpDst, FTP_TRANSFER_TYPE_BINARY, 0));
-
-	CATCH
-		ok = 0;
-	ENDCATCH;
+	CATCHZOK
 	return ok;
 }
 
 int FtpClient::GetFile(const char * pFtpSrc, const char * pLocDst)
 {
 	int ok = 1;
-
 	if(Status == stDisconnected)
 		THROW(Connect());
 	THROW(FtpGetFile(HFtpSession, pFtpSrc, pLocDst, 0, 0, 0, NULL));
-
-	CATCH
-		ok = 0;
-	ENDCATCH;
+	CATCHZOK
     return ok;
 }
 
@@ -568,7 +557,6 @@ int FtpClient::NextFileName(const char * pFtpSrc, SString & rFileName)
 {
 	int ok = 1;
 	WIN32_FIND_DATA find_data;
-	
 	if(Status == stDisconnected)
 		THROW(Connect());
 	memzero(&find_data, sizeof(WIN32_FIND_DATA));
@@ -589,14 +577,10 @@ int FtpClient::NextFileName(const char * pFtpSrc, SString & rFileName)
 int FtpClient::DeleteFile(const char * pFtpFile)
 {
 	int ok = 1;
-
 	if(Status == stDisconnected)
 		THROW(Connect());
 	THROW(FtpDeleteFile(HFtpSession, pFtpFile));
-
-	CATCH
-		ok = 0;
-	ENDCATCH;
+	CATCHZOK
     return ok;
 }
 
@@ -662,23 +646,11 @@ private:
 	double TotalGoodsCount;     // В документах надо указывать общее количество товара. Придется считать самостоятельно
 };
 
-ExportCls::ExportCls()
+ExportCls::ExportCls() : Id(0), ObjId(0), ObjType(0), MessageType(0), Inited(0), SegNum(0), ReadReceiptNum(0),
+	BillSumWithoutVat(0.0), P_XmlWriter(0), TotalGoodsCount(0)
 {
-	Id = 0;
-	ObjId = 0;
-	ObjType = 0;
-	MessageType = 0;
-	Inited = 0;
-	SegNum = 0;
-	ReadReceiptNum = 0;
-	BillSumWithoutVat = 0.0;
-	ExpFileName = 0;
-	LogName = 0;
-	P_XmlWriter = 0;
 	ErrorCode = 0;
 	WebServcErrorCode = 0;
-	TotalGoodsCount = 0;
-	TTN = 0;
 }
 
 ExportCls::~ExportCls()
@@ -690,7 +662,6 @@ void ExportCls::CreateFileName(uint num)
 {
 	ExpFileName.Z().Cat(PathStruct.Drv).CatChar(':').Cat(PathStruct.Dir).Cat(PathStruct.Nam).Cat(num).Dot().Cat(PathStruct.Ext);
 }
-
 //
 // Работа с форматами документов и сообщений
 //
@@ -1272,7 +1243,7 @@ int ExportCls::GoodsLines(Sdr_BRow * pBRow)
 	CATCH
 		SysLogMessage(SYSLOG_GOODSLINES);
 		ok = 0;
-	ENDCATCH;
+	ENDCATCH
 	return ok;
 }
 
@@ -1357,13 +1328,9 @@ int ExportCls::SendDoc()
 {
 	int ok = 1;
 	SString	inbox_filename;
-	SPathStruc path_struct;
-
-	path_struct.Split(ExpFileName);
+	SPathStruc path_struct(ExpFileName);
 	(inbox_filename = OUTBOX).CatChar('/').Cat(path_struct.Nam).Dot().Cat(path_struct.Ext);
-
 	Sdr_DllImpExpReceipt * p_exp_rcpt = 0;
-
 	FtpClient ftp_client(Header.EdiLogin, Header.EdiPassword);
 	// Подключаемся к ftp
 	if(ftp_client.Connect()) {
@@ -1389,7 +1356,6 @@ int ExportCls::SendDoc()
 	}
 	return ok;
 }
-
 //
 // Внешние функции экспорта
 //
@@ -1399,10 +1365,7 @@ EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 	SFile log_file;
 	SPathStruc log_path;
 	SString str;
-
-	if(!P_ExportCls) {
-		P_ExportCls = new ExportCls;
-	}
+	SETIFZ(P_ExportCls, new ExportCls);
 	if(P_ExportCls && !P_ExportCls->Inited) {
 		if(pExpHeader) {
 			P_ExportCls->Header = *(Sdr_ImpExpHeader*)pExpHeader;
@@ -1682,7 +1645,6 @@ int ImportCls::ReceiveDoc()
 	memzero(&srch_param, sizeof(SSrchParam));
 	srch_param.Flags = SSPF_WORDS;
 	FtpClient ftp_client(Header.EdiLogin, Header.EdiPassword);
-
 	if(MessageType == msgOrdRsp) {
 		file_type = "ordRsp";
 		box_name = INBOX;
@@ -1695,7 +1657,6 @@ int ImportCls::ReceiveDoc()
 		file_type = "status";
 		box_name = /*REPORTSBOX*/INBOX; // @vmiller Вроде, у них сюда должен приходить APERAK
 	}
-
 	// Устанавливаем соединение
 	if(!ftp_client.Connect()) {
 		ProcessError("FtpConnect");
@@ -1720,8 +1681,8 @@ int ImportCls::ReceiveDoc()
 
 	// Теперь читаем конкретный файл
 	if(InboxReadIndex < InboxFiles.getCount()) {
-		SString name = InboxFiles.at(InboxReadIndex).Txt;
-		if(ftp_client.GetFile(InboxFiles.at(InboxReadIndex).Txt, ImpFileName)) {
+		SString name = InboxFiles.Get(InboxReadIndex).Txt;
+		if(ftp_client.GetFile(InboxFiles.Get(InboxReadIndex).Txt, ImpFileName)) {
 			SFile file(ImpFileName, SFile::mRead);
 			SString file_buf;
 			int64 file_size = 0;
@@ -1756,14 +1717,10 @@ int ImportCls::ReceiveDoc()
 			ok = 0;
 		}
 	}
-
 	// Нет входящих сообщений
 	if(ok && (!InboxFiles.getCount() || (InboxReadIndex >= InboxFiles.getCount())))
 		ok = -1;
-
-	CATCH
-		ok = 0;
-	ENDCATCH;
+	CATCHZOK
 	if(!ok)
 		SysLogMessage(SYSLOG_RECEIVEDOC);
 	return ok;
@@ -2289,7 +2246,6 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 	else {
 		ok = -1;
 	}
-
 	CATCH
 		SysLogMessage(SYSLOG_PARSEFORGOODDATA);
 		ok = 0;
@@ -2298,20 +2254,15 @@ int ImportCls::ParseForGoodsData(Sdr_BRow * pBRow)
 		xmlFreeDoc(p_doc);
 	return ok;
 }
-
 //
 // Внешние функции импорта
 //
-
 EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 {
 	int ok = 1;
 	SPathStruc log_path;
 	SString str;
-
-	if(!P_ImportCls) {
-		P_ImportCls = new ImportCls;
-	}
+	SETIFZ(P_ImportCls, new ImportCls);
 	if(P_ImportCls && !P_ImportCls->Inited) {
 		if(pImpHeader) {
 			P_ImportCls->Header = *(Sdr_ImpExpHeader*)pImpHeader;
@@ -2345,7 +2296,6 @@ EXPORT int InitImport(void * pImpHeader, const char * pInputFileName, int * pId)
 		P_ImportCls->Inited = 1;
 	}
 	THROWERR(P_ImportCls, IEERR_IMPEXPCLSNOTINTD);
-
 	CATCH
 		SysLogMessage(SYSLOG_INITIMPORT);
 		GetErrorMsg(str.Z());
@@ -2408,19 +2358,17 @@ EXPORT int InitImportObjIter(uint idSess, uint objId)
 {
 	int ok = 1;
 	SString str;
-
 	THROWERR(P_ImportCls, IEERR_IMPEXPCLSNOTINTD);
 	THROWERR(idSess == P_ImportCls->Id, IEERR_NOSESS);
 	THROWERR(objId == P_ImportCls->ObjId, IEERR_NOOBJID);
 	P_ImportCls->Itr.Init();
-
 	CATCH
 		SysLogMessage(SYSLOG_INITIMPORTOBJITER);
 		GetErrorMsg(str.Z());
 		LogMessage(str);
 		SysLogMessage(str);
 		ok = 0;
-	ENDCATCH;
+	ENDCATCH
 	return ok;
 }
 
@@ -2465,15 +2413,15 @@ EXPORT int ReplyImportObjStatus(uint idSess, uint objId, void * pObjStatus)
 		if(P_ImportCls) {
 			if(P_ImportCls->MessageType == msgAperak) {
 				// Что-нибудь делаем с этим статусом
-				str.Z().Cat(P_ImportCls->AperakInfo.OrderNum.ToChar()).CatChar(':').Space().Cat(P_ImportCls->AperakInfo.Msg.Utf8ToChar());
+				str.Z().Cat(P_ImportCls->AperakInfo.OrderNum.ToChar()).CatDiv(':', 2).Cat(P_ImportCls->AperakInfo.Msg.Utf8ToChar());
 				if(P_ImportCls->AperakInfo.AddedMsg.NotEmpty())
-					str.CatChar(':').Space().Cat(P_ImportCls->AperakInfo.AddedMsg.Utf8ToChar());
+					str.CatDiv(':', 2).Cat(P_ImportCls->AperakInfo.AddedMsg.Utf8ToChar());
 				LogMessage(str);
 			}
 			// И удаляем этот файл из папки на ftp
 			FtpClient ftp_client(P_ImportCls->Header.EdiLogin, P_ImportCls->Header.EdiPassword);
 			if(ftp_client.Connect()) {
-				if(!ftp_client.DeleteFile(P_ImportCls->InboxFiles.at(P_ImportCls->InboxReadIndex).Txt)) {
+				if(!ftp_client.DeleteFile(P_ImportCls->InboxFiles.Get(P_ImportCls->InboxReadIndex).Txt)) {
 					ProcessError("FtpDeleteFile");
 					r = 0;
 				}
@@ -2521,11 +2469,9 @@ EXPORT int ReplyImportObjStatus(uint idSess, uint objId, void * pObjStatus)
 		P_ImportCls->InboxReadIndex++;
 	return ok;
 }
-
 //
 // Общие внешние функции
 //
-
 EXPORT int FinishImpExp()
 {
 	int    ok = 1;
@@ -2552,7 +2498,7 @@ EXPORT int FinishImpExp()
 		SysLogMessage(str);
 		LogMessage(str);
 		ok = 0;
-	ENDCATCH;
+	ENDCATCH
 	ZDELETE(P_ExportCls);
 	ZDELETE(P_ImportCls);
 	return ok;
@@ -2576,16 +2522,15 @@ void ProcessError(const char * pProcess)
 	SString temp_buf;
 	ErrorCode = IEERR_FTP;
 	DWORD code = GetLastError();
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
-		temp_err_buf, 256, 0);
-	(temp_buf = pProcess).CatChar(':').Space().Cat(temp_err_buf);
+	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), temp_err_buf, 256, 0);
+	(temp_buf = pProcess).CatDiv(':', 2).Cat(temp_err_buf);
 	// Смотрим дополнительное описание ошибки
 	if(code == ERROR_INTERNET_EXTENDED_ERROR) {
 		DWORD size = 256;
 		MEMSZERO(temp_err_buf);
 		code = 0;
 		InternetGetLastResponseInfo(&code, temp_err_buf, &size);
-		temp_buf.CatChar(':').Space().Cat(temp_err_buf);
+		temp_buf.CatDiv(':', 2).Cat(temp_err_buf);
 	}
 	StrError = temp_buf;
 }

@@ -1,5 +1,5 @@
 // SARTRE_DB.CPP
-// Copyright (c) A.Sobolev 2017
+// Copyright (c) A.Sobolev 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1731,7 +1731,7 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSVector <Sr
 					afx_buf_u.CopyToUtf8(temp_buf, 0);
 					uint   afx_pos = 0;
 					if(afx_list.SearchByText(temp_buf, 0, &afx_pos))
-						afx_id = afx_list.at(afx_pos).Id;
+						afx_id = afx_list.Get(afx_pos).Id;
 					else if(pfx_len == 0 && FetchSpecialWord(SrWordTbl::spcAffix, temp_buf, &afx_id) > 0) {
 						//
 						// ƒл€ pfx_len > 0 все возможные окончани€ уже найдены на итерации (pfx == 0)

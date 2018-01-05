@@ -1,5 +1,5 @@
 // V_PRCFRE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -14,10 +14,9 @@ IMPLEMENT_PPFILT_FACTORY(PrcBusy); SLAPI PrcBusyFilt::PrcBusyFilt() : PPBaseFilt
 	Init(1, 0);
 }
 
-SLAPI PPViewPrcBusy::PPViewPrcBusy() : PPView(0, &Filt, PPVIEW_PRCBUSY)
+SLAPI PPViewPrcBusy::PPViewPrcBusy() : PPView(0, &Filt, PPVIEW_PRCBUSY), P_TempTbl(0)
 {
 	ImplementFlags |= implChangeFilt;
-	P_TempTbl = 0;
 	Grid.P_View = this;
 }
 
@@ -362,19 +361,16 @@ int SLAPI PPViewPrcBusy::Print(const void * pHdr)
 	PPID   __id = pHdr ? *(PPID *)pHdr : 0;
 	PrcBusyViewItem item;
 	if(GetItem(__id, &item) > 0 && item.TSessID) {
-		PPFilt pf;
-		pf.Ptr = 0;
-		pf.ID  = item.TSessID;
+		PPFilt pf(item.TSessID);
 		PPAlddPrint(REPORT_TSESSION, &pf);
 	}
 	return -1;
 }
 
 //virtual
-int SLAPI PPViewPrcBusy::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewPrcBusy::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, Advise(PPAdviseBlock::evTSessChanged, 0, PPOBJ_TSESSION, 0));
-	return 1;
 }
 
 int SLAPI PPViewPrcBusy::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)

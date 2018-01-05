@@ -1,5 +1,5 @@
 // DBDICT.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2018
 //
 #include <db.h>
 #pragma hdrstop
@@ -28,10 +28,10 @@ void DbTableStat::Clear()
 	FldCount = 0;
 	IdxCount = 0;
 	PageSize = 0;
-	TblName = 0;
-	Location = 0;
-	OwnerName = 0;
-	SpaceName = 0;
+	TblName.Z();
+	Location.Z();
+	OwnerName.Z();
+	SpaceName.Z();
 	FldList.reset();
 	IdxList.reset();
 }
@@ -114,8 +114,7 @@ SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) :
 
 /*virtual*/ SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFileName)
 {
-	SPathStruc ps;
-	ps.Split(rFileName);
+	SPathStruc ps(rFileName);
 	if(ps.Dir.Empty()) {
 		int    path_from_redirect = 0;
 		SString data_path;
@@ -131,9 +130,8 @@ SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) :
 					buf.Divide('=', tbl_name, tbl_path);
 					tbl_name.Strip();
 					if(ps.Nam.CmpNC(tbl_name) == 0) {
-						SPathStruc rps;
 						tbl_path.TrimRightChr('\xA').TrimRightChr('\xD').Strip().SetLastSlash();
-						rps.Split(tbl_path);
+						SPathStruc rps(tbl_path);
 						rps.Merge(&ps, SPathStruc::fNam|SPathStruc::fExt, rFileName);
 						path_from_redirect = 1;
 						break;
@@ -511,8 +509,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 			}
 			if(ok) {
 				for(tpe.Init(dest); tpe.Next(spart, &first) > 0;) {
-					SPathStruc sp;
-					sp.Split(spart);
+					SPathStruc sp(spart);
 					SPathStruc::ReplaceExt(temp_buf = path, sp.Ext, 1);
 					SFile::Rename(spart, temp_buf);
 				}
@@ -537,8 +534,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 				if(first)
 					temp_buf = buf;
 				else {
-					SPathStruc sp;
-					sp.Split(buf);
+					SPathStruc sp(buf);
 					sp.Merge(~SPathStruc::fExt, temp_buf);
 					sp.Split(spart);
 					temp_buf.Dot().Cat(sp.Ext);
@@ -562,8 +558,7 @@ int SLAPI TablePartsEnum::Init(const char * pPath)
 	int    ok = -1;
 	if(pPath) {
 		SString path;
-		SPathStruc sp;
-		sp.Split(pPath);
+		SPathStruc sp(pPath);
 		sp.Ext = (sp.Ext.Cmp("___", 0) == 0) ? "_??" : "^??";
 		sp.Merge(path);
 		sp.Merge(0, SPathStruc::fNam|SPathStruc::fExt, Dir);
@@ -589,7 +584,7 @@ int SLAPI TablePartsEnum::Next(SString & rPath, int * pFirst /*=0*/)
 {
 	int    ok = -1;
 	if(List.getPointer() < List.getCount()) {
-		rPath = List.at(List.getPointer()).Txt;
+		rPath = List.Get(List.getPointer()).Txt;
 		ASSIGN_PTR(pFirst, List.getPointer() == 0);
 		List.incPointer();
 		ok = 1;
@@ -600,8 +595,7 @@ int SLAPI TablePartsEnum::Next(SString & rPath, int * pFirst /*=0*/)
 int SLAPI TablePartsEnum::ReplaceExt(int first, const SString & rIn, SString & rOut)
 {
 	SString ext;
-	SPathStruc sp;
-	sp.Split(rIn);
+	SPathStruc sp(rIn);
 	int    to_save = BIN(sp.Ext.C(0) != '_');
 	ext = sp.Ext;
 	sp.Ext.Z();
@@ -640,9 +634,8 @@ int DBTablePartitionList::Init(const char * pPath, const char * pFileName, long 
 		SString temp_buf;
 		SString path;
 		SString name; // ָלÿ פאיכא בוח נאסרטנוםטÿ //
-		SPathStruc sp_p, sp_n;
-		sp_p.Split(pPath);
-		sp_n.Split(pFileName);
+		SPathStruc sp_p(pPath);
+		SPathStruc sp_n(pFileName);
 		if(sp_n.Nam.NotEmpty())
 			name = sp_n.Nam;
 		else if(sp_p.Nam.NotEmpty())

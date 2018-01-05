@@ -2361,9 +2361,8 @@ int SLAPI WaitForExists(const char * pPath, int whileExists /* = 1 */, int notif
 		int exists = fileExists(pPath) ? 1 : 0;
 		if((exists && whileExists) || (!exists && !whileExists)) {
 			DirChangeNotification * p_dc_notify = 0;
-			SPathStruc paths;
 			SString    path = pPath;
-			paths.Split(path);
+			SPathStruc paths(path);
 			if(paths.Nam.Len() == 0) {
 				path.RmvLastSlash().Dot();
 				paths.Split(path);
@@ -2708,8 +2707,7 @@ extern "C" __declspec(dllexport) int cdecl UnixToDos(const char * pWildcard, lon
 	SString file_name, temp_file_name, line_buf, msg_buf;
 	SString test_line_buf;
 	SDirEntry entry;
-	SPathStruc ps;
-	ps.Split(pWildcard);
+	SPathStruc ps(pWildcard);
 	for(SDirec dir(pWildcard, 0); dir.Next(&entry) > 0;) {
 		ps.Nam = entry.FileName;
 		ps.Ext.Z();

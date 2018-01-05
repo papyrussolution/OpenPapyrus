@@ -1,5 +1,5 @@
 // TRFRIDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -151,7 +151,7 @@ int SLAPI ViewSpoilList(SpecSeriesCore * pTbl, const char * pSerial, int useText
 		dlg->setCtrlString(CTL_SPOILLIST_SERIAL, pSerial);
 		pTbl->GetListBySerial(SPCSERIK_SPOILAGE, pSerial, &name_list);
 		for(uint i = 0; i < name_list.getCount(); i++)
-			dlg->addStringToList(i+1, name_list.at(i).Txt);
+			dlg->addStringToList(i+1, name_list.Get(i).Txt);
 		if(!useText)
 			dlg->showCtrl(CTL_SPOILLIST_TEXT, 0);
 		if(ExecViewAndDestroy(dlg) == cmOK)

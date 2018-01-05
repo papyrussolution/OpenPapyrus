@@ -1,5 +1,5 @@
 // IE_GOODS.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -266,7 +266,7 @@ static int SLAPI SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 	THROW_INVARG(pParam);
 	pParam->Direction = BIN(import);
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, _rec_ident, &param, &list, import ? 2 : 1));
-	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.at(p).Id : 0;
+	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.Get(p).Id : 0;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 	{
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
@@ -811,7 +811,7 @@ int SLAPI SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 	THROW_INVARG(pParam);
 	pParam->Direction = BIN(import);
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_GOODS2, &param, &list, import ? 2 : 1));
-	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.at(p).Id : 0;
+	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.Get(p).Id : 0;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 	{
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
@@ -936,9 +936,8 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 								SFileFormat::GetExt(ff, ext_buf);
 							}
 							SString dest_fname;
-							SPathStruc src_ps, dest_ps;
-							src_ps.Split(img_path);
-							dest_ps.Split(Param.FileName);
+							SPathStruc src_ps(img_path);
+							SPathStruc dest_ps(Param.FileName);
 							for(uint i = 0; i < count; i++) {
 								dest_ps.Nam = pPack->Codes.at(i).Code;
                                 dest_ps.Ext = ext_buf;
@@ -2176,8 +2175,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 			if(Param.Flags & PPGoodsImpExpParam::fImportImages) {
 				file_name = Param.FileName;
 				SString set_path, line_buf;
-				SPathStruc ps;
-				ps.Split(Param.FileName);
+				SPathStruc ps(Param.FileName);
 				ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, file_name);
 				THROW_SL(isDir(file_name.RmvLastSlash()));
 				(set_path = file_name).SetLastSlash().Cat("__SET__");

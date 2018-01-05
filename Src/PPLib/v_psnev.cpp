@@ -1,5 +1,5 @@
 // V_PSNEV.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev, A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @ModuleDef(PPViewPersonEvent)
 //
 #include <pp.h>
@@ -70,10 +70,8 @@ IMPLEMENT_PPFILT_FACTORY(PersonEvent); SLAPI PersonEventFilt::PersonEventFilt() 
 //
 //
 //
-SLAPI PPViewPersonEvent::PPViewPersonEvent() : PPView(&PsnEvObj, &Filt, PPVIEW_PERSONEVENT)
+SLAPI PPViewPersonEvent::PPViewPersonEvent() : PPView(&PsnEvObj, &Filt, PPVIEW_PERSONEVENT), P_TempGrpTbl(0), P_TempTbl(0)
 {
-	P_TempGrpTbl = 0;
-	P_TempTbl = 0;
 }
 
 SLAPI PPViewPersonEvent::~PPViewPersonEvent()
@@ -483,15 +481,13 @@ int SLAPI PPViewPersonEvent::CellStyleFunc_(const void * pData, long col, int pa
 	return ok;
 }
 
-int SLAPI PPViewPersonEvent::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewPersonEvent::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		if(!P_TempGrpTbl && !P_TempTbl) {
+		if(!P_TempGrpTbl && !P_TempTbl)
 			pBrw->Advise(PPAdviseBlock::evPsnEvChanged, 0, PPOBJ_PERSONEVENT, 0);
-		}
+		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}
-	pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
-	return 1;
 }
 
 int SLAPI PPViewPersonEvent::Transmit(PPID /*id*/)
@@ -900,4 +896,3 @@ void PPALDD_PsnOpKindView::Destroy()
 	Extra[0].Ptr = 0;
 	Extra[1].Ptr = 0;
 }
-

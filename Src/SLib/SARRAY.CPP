@@ -1,5 +1,5 @@
 // SARRAY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -11,6 +11,12 @@
 #define _USERPTR(ptr)    ((flags&aryPtrContainer)?(*(void **)(ptr)):(ptr))
 #define _USERPTR_C(ptr)  ((flags&aryPtrContainer)?(*(const void **)(ptr)):(ptr))
 #define _INTRPTR(ptr)    ((flags&aryPtrContainer)?&(ptr):(ptr))
+
+//static 
+uint FASTCALL SVectorBase::GetCount(const SVectorBase * pB)
+{
+	return pB ? pB->getCount() : 0;
+}
 
 SLAPI SVectorBase::SVectorBase(uint itemSize, /*uint aDelta,*/ uint o) : isize(itemSize), flags(o), data(0), count(0), pointer(0), Limit(0)
 {
@@ -2072,9 +2078,8 @@ int FASTCALL SV_Uint32::Read(SBuffer & rBuf)
 //
 //
 //
-SLAPI StrAssocArray::StrAssocArray() : SStrGroup()
+SLAPI StrAssocArray::StrAssocArray() : LAssocArray(), SStrGroup(), TextCmpProc(0)
 {
-	TextCmpProc = 0; // @v9.5.9
 }
 
 SLAPI StrAssocArray::StrAssocArray(const StrAssocArray & rS) : SStrGroup()
@@ -2095,9 +2100,10 @@ StrAssocArray & FASTCALL StrAssocArray::operator = (const StrAssocArray & rS)
 
 int FASTCALL StrAssocArray::Copy(const StrAssocArray & rS)
 {
+	//Assoc = rS.Assoc;
+	LAssocArray::copy(rS);
 	SStrGroup::CopyS(rS);
 	TextCmpProc = rS.TextCmpProc; // @v9.5.9
-	Assoc = rS.Assoc;
 	ParentList = rS.ParentList;
 	return 1;
 }
@@ -2105,12 +2111,12 @@ int FASTCALL StrAssocArray::Copy(const StrAssocArray & rS)
 int FASTCALL StrAssocArray::IsEqual(const StrAssocArray & s) const
 {
 	int    ok = 0;
-	uint   c = getCount();
-	if(c == s.getCount()) {
+	uint   c = LAssocArray::getCount();
+	if(c == s.LAssocArray::getCount()) {
 		ok = 1;
 		for(uint i = 0; ok && i < c; i++) {
-			Item b = at(i);
-			Item sb = s.at(i);
+			Item b = Get(i);
+			Item sb = s.Get(i);
 			if(b.Id == sb.Id && b.ParentId == sb.ParentId) {
 				if(b.Txt != 0 && sb.Txt != 0) {
 					if(strcmp(b.Txt, sb.Txt) != 0)
@@ -2124,9 +2130,13 @@ int FASTCALL StrAssocArray::IsEqual(const StrAssocArray & s) const
 	return ok;
 }
 
+uint SLAPI StrAssocArray::getPointer() const { return LAssocArray::getPointer(); }
+uint SLAPI StrAssocArray::setPointer(uint p) { return LAssocArray::setPointer(p); }
+uint SLAPI StrAssocArray::incPointer() { return LAssocArray::incPointer(); }
+
 int FASTCALL StrAssocArray::HasChild(long id) const
 {
-	return (id == 0) ? (Assoc.getCount() ? 1 : 0) : ParentList.SearchByVal(id, 0, 0);
+	return (id == 0) ? (LAssocArray::getCount() ? 1 : 0) : ParentList.SearchByVal(id, 0, 0);
 }
 
 int SLAPI StrAssocArray::GetParent(long id, long * pParentId) const
@@ -2142,17 +2152,17 @@ int SLAPI StrAssocArray::GetListByParent(long parentId, int recursive, LongArray
 	int    ok = 1;
 	LongArray temp_list;
 	if(parentId) {
-		const uint c = Assoc.getCount();
+		const uint c = LAssocArray::getCount();
 		for(uint i = 0; i < c; i++) {
-			long   id = Assoc.at(i).Key;
+			long   id = LAssocArray::at(i).Key;
 			if(ParentList.SearchPair(id, parentId, 0) > 0)
 				temp_list.addUnique(id);
 		}
 	}
 	else {
-		const uint c = Assoc.getCount();
+		const uint c = LAssocArray::getCount();
 		for(uint i = 0; i < c; i++) {
-			long   id = Assoc.at(i).Key;
+			long   id = LAssocArray::at(i).Key;
 			long   p = 0;
 			if(!ParentList.Search(id, &p, 0) || p == 0)
 				temp_list.addUnique(id);
@@ -2181,7 +2191,7 @@ int SLAPI StrAssocArray::AddFast(long id, const char * pStr)
 	}
 	else
 		assc.Val = 0;
-	return BIN(Assoc.insert(&assc));
+	return BIN(LAssocArray::insert(&assc));
 }
 
 int SLAPI StrAssocArray::AddFast(long id, long parentId, const char * pStr)
@@ -2195,7 +2205,7 @@ int SLAPI StrAssocArray::AddFast(long id, long parentId, const char * pStr)
 	}
 	else
 		assc.Val = 0;
-	int    ok = BIN(Assoc.insert(&assc));
+	int    ok = BIN(LAssocArray::insert(&assc));
 	if(ok && parentId)
 		ok = ParentList.Update(id, parentId);
 	return ok;
@@ -2206,7 +2216,7 @@ int SLAPI StrAssocArray::Add(long id, const char * pStr, int replaceDup)
 	int    ok = 0;
 	uint   pos = 0, str_pos = 0;
 	if(replaceDup != -100 && Search(id, &pos)) {
-		LAssoc & r_assc = Assoc.at(pos);
+		LAssoc & r_assc = LAssocArray::at(pos);
 		if(replaceDup > 0) {
 			if(!isempty(pStr)) {
 				AddS(pStr, &str_pos);
@@ -2225,7 +2235,7 @@ int SLAPI StrAssocArray::Add(long id, const char * pStr, int replaceDup)
 			}
 			else
 				assc.Val = 0;
-			ok = Assoc.insert(&assc) ? 3 : 0;
+			ok = LAssocArray::insert(&assc) ? 3 : 0;
 		}
 		else
 			ok = -1;
@@ -2239,7 +2249,7 @@ int SLAPI StrAssocArray::Add(long id, const char * pStr, int replaceDup)
 		}
 		else
 			assc.Val = 0;
-		ok = BIN(Assoc.insert(&assc));
+		ok = BIN(LAssocArray::insert(&assc));
 	}
 	return ok;
 }
@@ -2249,7 +2259,7 @@ int SLAPI StrAssocArray::Add(long id, long parentId, const char * pStr, int repl
 	int    ok = 0;
 	uint   pos = 0, str_pos = 0;
 	if(replaceDup != -100 && Search(id, &pos)) {
-		LAssoc & r_assc = Assoc.at(pos);
+		LAssoc & r_assc = LAssocArray::at(pos);
 		if(replaceDup > 0) {
 			if(!isempty(pStr)) {
 				AddS(pStr, &str_pos);
@@ -2272,7 +2282,7 @@ int SLAPI StrAssocArray::Add(long id, long parentId, const char * pStr, int repl
 			}
 			else
 				assc.Val = 0;
-			ok = Assoc.insert(&assc) ? 3 : 0;
+			ok = LAssocArray::insert(&assc) ? 3 : 0;
 			// @todo Вставить родительский идентификатор (logic)
 		}
 		else
@@ -2287,7 +2297,7 @@ int SLAPI StrAssocArray::Add(long id, long parentId, const char * pStr, int repl
 		}
 		else
 			assc.Val = 0;
-		ok = BIN(Assoc.insert(&assc));
+		ok = BIN(LAssocArray::insert(&assc));
 		if(ok && parentId)
 			ok = ParentList.Update(id, parentId);
 	}
@@ -2296,8 +2306,8 @@ int SLAPI StrAssocArray::Add(long id, long parentId, const char * pStr, int repl
 
 int SLAPI StrAssocArray::UpdateByPos(uint pos, long newId)
 {
-	if(pos < Assoc.getCount()) {
-		Assoc.at(pos).Key = newId;
+	if(pos < LAssocArray::getCount()) {
+		LAssocArray::at(pos).Key = newId;
 		return 1;
 	}
 	else
@@ -2306,12 +2316,12 @@ int SLAPI StrAssocArray::UpdateByPos(uint pos, long newId)
 
 int SLAPI StrAssocArray::Swap(uint p1, uint p2)
 {
-	return Assoc.swap(p1, p2);
+	return LAssocArray::swap(p1, p2);
 }
 
 int SLAPI StrAssocArray::Remove(long id)
 {
-	int    ok = Assoc.Remove(id) ? 1 : -1;
+	int    ok = LAssocArray::Remove(id) ? 1 : -1;
 	ParentList.Remove(id);
 	return ok;
 }
@@ -2323,7 +2333,7 @@ StrAssocArray & SLAPI StrAssocArray::Clear()
 	//
 	// @v9.8.0 Assoc.freeAll();
 	// @v9.8.0 ParentList.freeAll();
-	Assoc.clear(); // @v9.8.0
+	LAssocArray::clear(); // @v9.8.0
 	ParentList.clear(); // @v9.8.0
 	ClearS();
 	return *this;
@@ -2344,9 +2354,9 @@ int SLAPI StrAssocArray::Pack()
 	if(Pool.getDataLen()) {
 		void * p_pack_handle = Pack_Start();
 		if(p_pack_handle) {
-			const uint c = Assoc.getCount();
+			const uint c = LAssocArray::getCount();
 			for(uint i = 0; ok && i < c; i++) {
-				LAssoc & r_assc = Assoc.at(i);
+				LAssoc & r_assc = LAssocArray::at(i);
 				uint   _pos = r_assc.Val;
 				Pack_Replace(p_pack_handle, _pos);
 				r_assc.Val = (long)_pos;
@@ -2358,11 +2368,6 @@ int SLAPI StrAssocArray::Pack()
 			ok = 0;
 	}
 	return ok;
-}
-
-uint SLAPI StrAssocArray::getCount() const
-{
-	return Assoc.getCount();
 }
 
 int SLAPI StrAssocArray::Helper_RemoveRecursion(long parentId, LongArray & rRecurList, LongArray & rPassedList, LongArray * pBadList)
@@ -2396,16 +2401,16 @@ int SLAPI StrAssocArray::RemoveRecursion(LongArray * pBadList)
 {
 	int    ok = -1;
 	LongArray recur_list;
-	const uint _c = Assoc.getCount();
+	const uint _c = LAssocArray::getCount();
 	if(_c) {
 		LongArray passed_list;
 		ok = Helper_RemoveRecursion(0, recur_list, passed_list, pBadList);
 		passed_list.sortAndUndup();
 		for(uint i = 0; i < _c; i++) {
-			const long _id = Assoc.at(i).Key;
+			const long _id = LAssocArray::at(i).Key;
 			if(!passed_list.bsearch(_id)) {
 				recur_list.clear();
-				int r = Helper_RemoveRecursion(Assoc.at(i).Key, recur_list, passed_list, pBadList);
+				int r = Helper_RemoveRecursion(LAssocArray::at(i).Key, recur_list, passed_list, pBadList);
 				if(ok < 0)
 					ok = r;
 			}
@@ -2417,8 +2422,8 @@ int SLAPI StrAssocArray::RemoveRecursion(LongArray * pBadList)
 uint FASTCALL StrAssocArray::GetTextPos(uint pos) const
 {
 	uint   tpos = 0;
-	if(pos < Assoc.getCount()) {
-		const LAssoc & r_assc = Assoc.at(pos);
+	if(pos < LAssocArray::getCount()) {
+		const LAssoc & r_assc = LAssocArray::at(pos);
 		tpos = (uint)r_assc.Val;
 		if(!tpos || tpos >= Pool.getDataLen())
 			tpos = 0;
@@ -2439,14 +2444,15 @@ int SLAPI StrAssocArray::GetTextByPos(uint textPos, SString & rBuf) const
 	return ok;
 }
 
-StrAssocArray::Item FASTCALL StrAssocArray::at(uint pos) const
+//StrAssocArray::Item FASTCALL StrAssocArray::at(uint pos) const
+StrAssocArray::Item FASTCALL StrAssocArray::Get(uint pos) const
 {
 	Item   item;
 	item.Id = 0;
 	item.ParentId = 0;
 	item.Txt = 0;
-	if(pos < Assoc.getCount()) {
-		const LAssoc & r_assc = Assoc.at(pos);
+	if(pos < LAssocArray::getCount()) {
+		const LAssoc & r_assc = LAssocArray::at(pos);
 		item.Id = r_assc.Key;
 		uint   pos2 = (uint)r_assc.Val;
 		if(pos2 && pos2 < Pool.getDataLen())
@@ -2462,8 +2468,8 @@ StrAssocArray::Item FASTCALL StrAssocArray::at_WithoutParent(uint pos) const
 	item.Id = 0;
 	item.ParentId = 0;
 	item.Txt = 0;
-	if(pos < Assoc.getCount()) {
-		const LAssoc & r_assc = Assoc.at(pos);
+	if(pos < LAssocArray::getCount()) {
+		const LAssoc & r_assc = LAssocArray::at(pos);
 		item.Id = r_assc.Key;
 		uint   pos2 = (uint)r_assc.Val;
 		if(pos2 && pos2 < Pool.getDataLen())
@@ -2472,11 +2478,11 @@ StrAssocArray::Item FASTCALL StrAssocArray::at_WithoutParent(uint pos) const
 	return item;
 }
 
-int SLAPI StrAssocArray::atFree(uint pos)
+int SLAPI StrAssocArray::AtFree(uint pos)
 {
-	if(pos < Assoc.getCount()) {
-		ParentList.Remove(Assoc.at(pos).Key);
-		Assoc.atFree(pos);
+	if(pos < LAssocArray::getCount()) {
+		ParentList.Remove(LAssocArray::at(pos).Key);
+		LAssocArray::atFree(pos);
 		return 1;
 	}
 	else
@@ -2485,14 +2491,14 @@ int SLAPI StrAssocArray::atFree(uint pos)
 
 int SLAPI StrAssocArray::Search(long id, uint * pPos) const
 {
-	return Assoc.Search(id, 0, pPos);
+	return LAssocArray::Search(id, 0, pPos);
 }
 
 int SLAPI StrAssocArray::SearchByText(const char * pTxt, int ignoreCase, uint * pPos) const
 {
 	uint   pos = 0, assc_pos;
 	while(Pool.search(pTxt, &pos, ignoreCase)) {
-		if(Assoc.lsearch(&pos, &(assc_pos = 0), CMPF_LONG, offsetof(LAssoc, Val))) {
+		if(LAssocArray::lsearch(&pos, &(assc_pos = 0), CMPF_LONG, offsetof(LAssoc, Val))) {
 			ASSIGN_PTR(pPos, assc_pos);
 			return 1;
 		}
@@ -2513,8 +2519,8 @@ int SLAPI StrAssocArray::SearchByText(const char * pTxt, CompFunc fcmp, uint * p
 		const  char * p_pool = Pool.getBuf();
 		if(p_pool) {
 			uint   last_pos = DEREFPTRORZ(pPos);
-			for(uint i = last_pos; i < Assoc.getCount(); i++) {
-				uint   str_offs = (uint)Assoc.at(i).Val;
+			for(uint i = last_pos; i < LAssocArray::getCount(); i++) {
+				uint   str_offs = (uint)LAssocArray::at(i).Val;
 				if(str_offs && p_pool[str_offs] && fcmp(p_pool+str_offs, pTxt, 0) == 0) {
 					ASSIGN_PTR(pPos, i);
 					return 1;
@@ -2544,7 +2550,7 @@ int SLAPI StrAssocArray::Get(long id, SString & rBuf) const
 	long   str_pos = 0;
 	uint   pos;
 	rBuf.Z();
-	if(Assoc.Search(id, &str_pos, &pos)) {
+	if(LAssocArray::Search(id, &str_pos, &pos)) {
 		GetS(str_pos, rBuf);
 		ok = rBuf.NotEmpty() ? 1 : -1;
 	}
@@ -2553,11 +2559,11 @@ int SLAPI StrAssocArray::Get(long id, SString & rBuf) const
 
 int SLAPI StrAssocArray::GetMaxID(long * pId) const
 {
-	uint   c = Assoc.getCount();
+	const uint c = LAssocArray::getCount();
 	if(c) {
 		long   _max = -MAXLONG;
 		for(uint i = 0; i < c; i++) {
-			long   key = Assoc.at(i).Key;
+			long   key = LAssocArray::at(i).Key;
 			SETMAX(_max, key);
 		}
 		ASSIGN_PTR(pId, _max);
@@ -2570,11 +2576,11 @@ int SLAPI StrAssocArray::GetMaxID(long * pId) const
 int SLAPI StrAssocArray::GetMaxLength(uint * pMaxLen) const
 {
 	uint   max_len = 0;
-	uint   c = Assoc.getCount();
+	const  uint c = LAssocArray::getCount();
 	if(c) {
 		SString temp_buf;
 		for(uint i = 0; i < c; i++) {
-			long   str_pos = Assoc.at(i).Val;
+			const long str_pos = LAssocArray::at(i).Val;
 			if(GetS(str_pos, temp_buf) && temp_buf.Len() > max_len)
 				max_len = temp_buf.Len();
 		}
@@ -2635,13 +2641,13 @@ int SLAPI StrAssocArray::Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const 
 		LAssoc pi[2];
 		uint p = 0;
 		if(par[0] && pArray->Search(par[0], &(p = 0)))
-			pi[0] = pArray->Assoc.at(p);
+			pi[0] = pArray->LAssocArray::at(p);
 		else {
 			pi[0].Key = par[0];
 			pi[0].Val = 0;
 		}
 		if(par[1] && pArray->Search(par[1], &(p = 0)))
-			pi[1] = pArray->Assoc.at(p);
+			pi[1] = pArray->LAssocArray::at(p);
 		else {
 			pi[1].Key = par[1];
 			pi[1].Val = 0;
@@ -2703,27 +2709,27 @@ IMPL_CMPFUNC(StrAssoc_ByID, i1, i2)
 void SLAPI StrAssocArray::SortByID()
 {
 	if(ParentList.getCount() == 0)
-		Assoc.Sort();
+		LAssocArray::Sort();
 	else {
 		ParentList.Sort();
-		Assoc.sort(PTR_CMPFUNC(StrAssoc_ByID), this);
+		LAssocArray::sort(PTR_CMPFUNC(StrAssoc_ByID), this);
 	}
 }
 
 void SLAPI StrAssocArray::SortByText()
 {
 	ParentList.Sort();
-	Assoc.sort(PTR_CMPFUNC(StrAssoc_ByText), this);
+	LAssocArray::sort(PTR_CMPFUNC(StrAssoc_ByText), this);
 }
 
 void SLAPI StrAssocArray::SortByLength(int descend)
 {
-	Assoc.sort(descend ? PTR_CMPFUNC(StrAssoc_ByLength_Descend) : PTR_CMPFUNC(StrAssoc_ByLength), &Pool);
+	LAssocArray::sort(descend ? PTR_CMPFUNC(StrAssoc_ByLength_Descend) : PTR_CMPFUNC(StrAssoc_ByLength), &Pool);
 }
 
 void SLAPI StrAssocArray::Reverse()
 {
-	Assoc.reverse(0, Assoc.getCount());
+	LAssocArray::reverse(0, LAssocArray::getCount());
 }
 
 int SLAPI StrAssocArray::Test_Cmp(const TaggedStringArray & rTsa, int * pNEqPos) const
@@ -2734,7 +2740,7 @@ int SLAPI StrAssocArray::Test_Cmp(const TaggedStringArray & rTsa, int * pNEqPos)
 	THROW(rTsa.getCount() == c);
 	for(i = 0; i < c; i++) {
 		const TaggedString & r_ts = rTsa.at(i);
-		Item sa = at(i);
+		Item sa = Get(i);
 		neq_pos = (int)i;
 		THROW(sa.Id == r_ts.Id);
 		if(sa.Txt) {
@@ -2752,7 +2758,7 @@ int SLAPI StrAssocArray::Test_Cmp(const TaggedStringArray & rTsa, int * pNEqPos)
 int FASTCALL StrAssocArray::Write(SBuffer & rBuf, long o) const
 {
 	int    ok = 1;
-	THROW(rBuf.Write(&Assoc, 0));
+	THROW(rBuf.Write((LAssocArray *)this, 0));
 	THROW(rBuf.Write(&ParentList, 0));
 	THROW(Pool.Write(rBuf));
 	CATCHZOK
@@ -2762,7 +2768,7 @@ int FASTCALL StrAssocArray::Write(SBuffer & rBuf, long o) const
 int FASTCALL StrAssocArray::Read(SBuffer & rBuf, long o)
 {
 	int    ok = 1;
-	THROW(rBuf.Read(&Assoc, 0));
+	THROW(rBuf.Read((LAssocArray *)this, 0));
 	THROW(rBuf.Read(&ParentList, 0));
 	THROW(Pool.Read(rBuf));
 	CATCHZOK
@@ -2774,7 +2780,7 @@ int FASTCALL StrAssocArray::Read(SBuffer & rBuf, long o)
 int SLAPI StrAssocArray::Write(SFile & rFile, long o) const
 {
 	int    ok = 1;
-	THROW(Assoc.Write(rFile, o));
+	THROW(LAssocArray::Write(rFile, o));
 	THROW(ParentList.Write(rFile, o));
 	THROW(Pool.Write(rFile, o));
 	CATCHZOK
@@ -2784,7 +2790,7 @@ int SLAPI StrAssocArray::Write(SFile & rFile, long o) const
 int SLAPI StrAssocArray::Read(SFile & rFile, long o)
 {
 	int    ok = 1;
-	THROW(Assoc.Read(rFile, o));
+	THROW(LAssocArray::Read(rFile, o));
 	THROW(ParentList.Read(rFile, o));
 	THROW(Pool.Read(rFile, o));
 	CATCHZOK
@@ -3020,7 +3026,8 @@ int SLAPIV LongArray::addzlist(long first, ...)
 int FASTCALL LongArray::add(const LongArray * pS)
 {
 	int    ok = 1;
-	const  uint _c = pS ? pS->getCount() : 0;
+	//const  uint _c = pS ? pS->getCount() : 0;
+	const  uint _c = SVectorBase::GetCount(pS);
 	if(_c) {
 		/* @v9.0.0
 		for(uint i = 0; ok && i < _c; i++)
@@ -3035,7 +3042,8 @@ int FASTCALL LongArray::add(const LongArray * pS)
 int SLAPI LongArray::addExclusive(const LongArray * pS, const LongArray * pExcl)
 {
 	int   ok = 1;
-	const uint _c = pS ? pS->getCount() : 0;
+	//const uint _c = pS ? pS->getCount() : 0;
+	const  uint _c = SVectorBase::GetCount(pS);
 	if(_c) {
 		if(pExcl) {
 			for(uint i = 0; ok && i < _c; i++) {

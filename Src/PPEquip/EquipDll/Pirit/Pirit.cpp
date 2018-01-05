@@ -899,11 +899,11 @@ SString & PiritEquip::LastErrorText(SString & rMsg)
 		// @v9.6.9 GetStatus(status_str);
 		status_str = "unkn"; // @v9.6.9
 		if(LastStatus == CHECKOPENED)
-			rMsg.CatChar(':').Space().Cat(CHECK_OPENED_STR);
+			rMsg.CatDiv(':', 2).Cat(CHECK_OPENED_STR);
 		else if(LastStatus == CHECKCLOSED)
-			rMsg.CatChar(':').Space().Cat(CHECK_CLOSED_STR);
+			rMsg.CatDiv(':', 2).Cat(CHECK_CLOSED_STR);
 		GetLastCmdName(cmd_str);
-		rMsg.CatChar(':').Space().Cat(cmd_str);
+		rMsg.CatDiv(':', 2).Cat(cmd_str);
 	}
 	// } new
 	else

@@ -1,5 +1,5 @@
 // INVENTRY.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 // Инвентаризация //
@@ -1346,7 +1346,7 @@ int PrcssrInvImport::EditParam(Param * pParam)
 			PPIDArray op_type_list;
 			op_type_list.add(PPOPT_INVENTORY);
 			if(CfgList.getCount() == 1)
-				cfg_id = CfgList.at(0).Id;
+				cfg_id = CfgList.Get(0).Id;
 			SetupStrAssocCombo(this, CTLSEL_IEINV_CFG, &CfgList, cfg_id, 0, 0, 0);
 			SetupOprKindCombo(this, CTLSEL_IEINV_OP, Data.OpID, 0, &op_type_list, 0);
 			SetupPPObjCombo(this, CTLSEL_IEINV_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
@@ -1770,7 +1770,7 @@ int SLAPI TestGenerateInventory()
 			PPInventoryImpExpParam ie_param;
 			THROW(LoadSdRecord(PPREC_INVENTORYITEM, &ie_param.InrRec));
 			{
-				temp_buf = cfg_list.at(i).Txt;
+				temp_buf = cfg_list.Get(i).Txt;
 				ie_param.ProcessName(1, temp_buf);
 				THROW(ie_param.ReadIni(&ini_file, temp_buf, 0));
 				{

@@ -166,7 +166,7 @@ int xmlIsLetter(int c)
 #ifdef DEBUG_INPUT
 #define CHECK_BUFFER(in) check_buffer(in)
 
-static void check_buffer(xmlParserInputPtr in) 
+static void check_buffer(xmlParserInput * in) 
 {
 	if(in->base != xmlBufContent(in->buf->buffer)) {
 		xmlGenericError(0, "xmlParserInput: base mismatch problem\n");
@@ -194,7 +194,7 @@ static void check_buffer(xmlParserInputPtr in)
  *
  * Returns -1 as this is an error to use it.
  */
-int xmlParserInputRead(xmlParserInputPtr in ATTRIBUTE_UNUSED, int len ATTRIBUTE_UNUSED) 
+int xmlParserInputRead(xmlParserInput * in ATTRIBUTE_UNUSED, int len ATTRIBUTE_UNUSED) 
 {
 	return -1;
 }
@@ -779,7 +779,7 @@ int FASTCALL xmlCopyChar(int len ATTRIBUTE_UNUSED, xmlChar * out, int val)
 ************************************************************************/
 
 static int xmlSwitchToEncodingInt(xmlParserCtxt * ctxt, xmlCharEncodingHandler * handler, int len);
-static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandler * handler, int len);
+static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInput * input, xmlCharEncodingHandler * handler, int len);
 /**
  * xmlSwitchEncoding:
  * @ctxt:  the parser context
@@ -939,7 +939,7 @@ int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc)
  *
  * Returns 0 in case of success, -1 otherwise
  */
-static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandler * handler, int len)
+static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInput * input, xmlCharEncodingHandler * handler, int len)
 {
 	int nbchars;
 	if(handler == NULL)
@@ -1055,7 +1055,7 @@ static int xmlSwitchInputEncodingInt(xmlParserCtxt * ctxt, xmlParserInputPtr inp
  *
  * Returns 0 in case of success, -1 otherwise
  */
-int xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInputPtr input, xmlCharEncodingHandler * handler)
+int xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInput * input, xmlCharEncodingHandler * handler)
 {
 	return xmlSwitchInputEncodingInt(ctxt, input, handler, -1);
 }
@@ -1143,9 +1143,9 @@ void FASTCALL xmlFreeInputStream(xmlParserInput * input)
  *
  * Returns the new input stream or NULL
  */
-xmlParserInputPtr xmlNewInputStream(xmlParserCtxt * ctxt)
+xmlParserInput * xmlNewInputStream(xmlParserCtxt * ctxt)
 {
-	xmlParserInputPtr input = (xmlParserInputPtr)SAlloc::M(sizeof(xmlParserInput));
+	xmlParserInput * input = (xmlParserInput *)SAlloc::M(sizeof(xmlParserInput));
 	if(!input)
 		xmlErrMemory(ctxt,  "couldn't allocate a new input stream\n");
 	else {
@@ -1173,9 +1173,9 @@ xmlParserInputPtr xmlNewInputStream(xmlParserCtxt * ctxt)
  *
  * Returns the new input stream or NULL
  */
-xmlParserInputPtr xmlNewIOInputStream(xmlParserCtxt * ctxt, xmlParserInputBufferPtr input, xmlCharEncoding enc)
+xmlParserInput * xmlNewIOInputStream(xmlParserCtxt * ctxt, xmlParserInputBuffer * input, xmlCharEncoding enc)
 {
-	xmlParserInputPtr inputStream = 0;
+	xmlParserInput * inputStream = 0;
 	if(input) {
 		if(xmlParserDebugEntities)
 			xmlGenericError(0, "new input from I/O\n");
@@ -1199,9 +1199,9 @@ xmlParserInputPtr xmlNewIOInputStream(xmlParserCtxt * ctxt, xmlParserInputBuffer
  *
  * Returns the new input stream or NULL
  */
-xmlParserInputPtr xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntity * entity)
+xmlParserInput * xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntity * entity)
 {
-	xmlParserInputPtr input = 0;
+	xmlParserInput * input = 0;
 	if(entity == NULL) {
 		xmlErrInternal(ctxt, "xmlNewEntityInputStream entity = NULL\n", 0);
 	}
@@ -1239,9 +1239,9 @@ xmlParserInputPtr xmlNewEntityInputStream(xmlParserCtxt * ctxt, xmlEntity * enti
  * Create a new input stream based on a memory buffer.
  * Returns the new input stream
  */
-xmlParserInputPtr xmlNewStringInputStream(xmlParserCtxt * ctxt, const xmlChar * buffer)
+xmlParserInput * xmlNewStringInputStream(xmlParserCtxt * ctxt, const xmlChar * buffer)
 {
-	xmlParserInputPtr input = 0;
+	xmlParserInput * input = 0;
 	if(!buffer) {
 		xmlErrInternal(ctxt, "xmlNewStringInputStream string = NULL\n", 0);
 	}
@@ -1269,13 +1269,13 @@ xmlParserInputPtr xmlNewStringInputStream(xmlParserCtxt * ctxt, const xmlChar * 
  *
  * Returns the new input stream or NULL in case of error
  */
-xmlParserInputPtr xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filename)
+xmlParserInput * xmlNewInputFromFile(xmlParserCtxt * ctxt, const char * filename)
 {
-	xmlParserInputPtr inputStream = 0;
+	xmlParserInput * inputStream = 0;
 	if(xmlParserDebugEntities)
 		xmlGenericError(0, "new input from file: %s\n", filename);
 	if(ctxt) {
-		xmlParserInputBufferPtr buf = xmlParserInputBufferCreateFilename(filename, XML_CHAR_ENCODING_NONE);
+		xmlParserInputBuffer * buf = xmlParserInputBufferCreateFilename(filename, XML_CHAR_ENCODING_NONE);
 		if(!buf) {
 			SString msg_buf = "failed to load external entity";
 			if(filename)
@@ -1343,7 +1343,7 @@ int xmlInitParserCtxt(xmlParserCtxt * ctxt)
 	ctxt->atts = NULL;
 	/* Allocate the Input stack */
 	if(ctxt->inputTab == NULL) {
-		ctxt->inputTab = (xmlParserInputPtr*)SAlloc::M(5 * sizeof(xmlParserInputPtr));
+		ctxt->inputTab = (xmlParserInput **)SAlloc::M(5 * sizeof(xmlParserInput *));
 		ctxt->inputMax = 5;
 	}
 	if(ctxt->inputTab == NULL) {
@@ -1509,7 +1509,7 @@ void FASTCALL xmlFreeParserCtxt(xmlParserCtxt * ctxt)
 		SAlloc::F((char*)ctxt->extSubURI);
 		SAlloc::F((char*)ctxt->extSubSystem);
 	#ifdef LIBXML_SAX1_ENABLED
-		if(ctxt->sax && (ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler))
+		if(ctxt->sax && (ctxt->sax != (xmlSAXHandler *)&xmlDefaultSAXHandler))
 	#else
 		if(ctxt->sax)
 	#endif /* LIBXML_SAX1_ENABLED */

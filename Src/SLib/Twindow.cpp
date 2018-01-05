@@ -1,7 +1,7 @@
 // TWINDOW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
 // WIN32
-// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017
+// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -12,11 +12,8 @@
 #define MPST_ERROR         0x0001
 #define MPST_PREVSEPARATOR 0x0002
 
-TMenuPopup::TMenuPopup()
+TMenuPopup::TMenuPopup() : State(0), Count(0), H((uint32)::CreatePopupMenu())
 {
-	State = 0;
-	Count = 0;
-	H = (uint32)::CreatePopupMenu();
 }
 
 TMenuPopup::~TMenuPopup()
@@ -91,9 +88,8 @@ int TMenuPopup::Execute(HWND hWnd, long flags)
 //
 //
 //
-TWindow::LocalMenuPool::LocalMenuPool(TWindow * pWin) : List(sizeof(TWindow::LocalMenuPool::Item))
+TWindow::LocalMenuPool::LocalMenuPool(TWindow * pWin) : List(sizeof(TWindow::LocalMenuPool::Item)), P_Win(pWin)
 {
-	P_Win = pWin;
 	StrPool.add("$"); // zero index - is empty string
 }
 
@@ -173,21 +169,13 @@ int TWindow::LocalMenuPool::ShowMenu(uint buttonId)
 //
 //
 //
-ToolbarList::ToolbarList() : SVector(sizeof(ToolbarItem)) // @v9.8.4 SArray-->SVector
-	{ Bitmap = 0; }
-
-void ToolbarList::setBitmap(uint b)
-	{ Bitmap = b; }
-uint ToolbarList::getBitmap() const
-	{ return Bitmap; }
-uint ToolbarList::getItemsCount() const
-	{ return getCount(); }
-const ToolbarItem & FASTCALL ToolbarList::getItem(uint idx) const
-	{ return *(ToolbarItem *)at(idx); }
-void ToolbarList::clearAll()
-	{ freeAll(); }
-int ToolbarList::addItem(const ToolbarItem * pItem)
-	{ return pItem ? insert(pItem) : -1; }
+ToolbarList::ToolbarList() : SVector(sizeof(ToolbarItem)), Bitmap(0) {} // @v9.8.4 SArray-->SVector
+void  ToolbarList::setBitmap(uint b) { Bitmap = b; }
+uint  ToolbarList::getBitmap() const { return Bitmap; }
+uint  ToolbarList::getItemsCount() const { return getCount(); }
+const ToolbarItem & FASTCALL ToolbarList::getItem(uint idx) const { return *(ToolbarItem *)at(idx); }
+void  ToolbarList::clearAll() { freeAll(); }
+int   ToolbarList::addItem(const ToolbarItem * pItem) { return pItem ? insert(pItem) : -1; }
 
 ToolbarList & FASTCALL ToolbarList::operator = (const ToolbarList & s)
 {
@@ -263,12 +251,9 @@ int TWindow::IsMDIClientWindow(HWND h)
 	return BIN(cls_name.Cmp("MDICLIENT", 0) == 0);
 }
 
-SLAPI TWindow::TWindow(const TRect & bounds, const char * pTitle, short aNumber) : TGroup(bounds)
+SLAPI TWindow::TWindow(const TRect & bounds, const char * pTitle, short aNumber) : TGroup(bounds), P_Lmp(0), HW(0), PrevInStack(0)
 {
 	options  |= ofSelectable;
-	P_Lmp = 0;
-	HW = 0;
-	PrevInStack = 0;
 	Title = pTitle;
 }
 
@@ -780,11 +765,12 @@ IMPL_HANDLE_EVENT(TWindow)
 {
 	TGroup::handleEvent(event);
 	if(event.isCmd(cmClose)) {
-		if(!TVINFOPTR || TVINFOPTR == this)
+		if(!TVINFOPTR || TVINFOPTR == this || TVINFOVIEW->owner == this) { // @v9.8.12 (|| TVINFOVIEW->owner == this)
 			if(IsInState(sfModal))
 				TView::messageCommand(this, cmCancel, this);
 			else
 				close();
+		}
 		else
 			return;
 	}
@@ -1296,8 +1282,8 @@ int TWindowBase::AddChild(TWindowBase * pWin, long createOptions, long zone)
 			Layout.InsertWindow(zone, pWin, 0, 0);
 		TWindow::Insert_(pWin);
 		Layout.Arrange();
-		ShowWindow(pWin->H(), SW_SHOWNORMAL);
-		UpdateWindow(H());
+		::ShowWindow(pWin->H(), SW_SHOWNORMAL);
+		::UpdateWindow(H());
 	}
 	return ok;
 }
@@ -1308,8 +1294,8 @@ IMPL_HANDLE_EVENT(TWindowBase)
 		ushort last_command = 0;
 		SString buf = getTitle();
 		buf.Transf(CTRANSF_INNER_TO_OUTER);
-		if(IsIconic(APPL->H_MainWnd))
-			ShowWindow(APPL->H_MainWnd, SW_MAXIMIZE);
+		if(::IsIconic(APPL->H_MainWnd))
+			::ShowWindow(APPL->H_MainWnd, SW_MAXIMIZE);
 		if(APPL->H_MainWnd) {
 			if(IsMDIClientWindow(APPL->H_MainWnd)) {
 				Create((long)APPL->H_MainWnd, coMDI);
@@ -1321,7 +1307,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 		::ShowWindow(HW, SW_NORMAL);
 		::UpdateWindow(HW);
 		if(APPL->PushModalWindow(this, HW)) {
-			EnableWindow(PrevInStack, 0);
+			::EnableWindow(PrevInStack, 0);
 			APPL->MsgLoop(this, EndModalCmd);
 			last_command = EndModalCmd;
 			EndModalCmd = 0;
@@ -1339,14 +1325,14 @@ IMPL_HANDLE_EVENT(TWindowBase)
 			}
 			else if(event.isCmd(cmSetBounds)) {
 				const TRect * p_rc = (const TRect *)TVINFOPTR;
-				SetWindowPos(H(), 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOREDRAW);
+				::SetWindowPos(H(), 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOREDRAW);
 				clearEvent(event);
 			}
 			else if(event.isCmd(cmSize)) {
 				SizeEvent * p_se = (SizeEvent *)TVINFOPTR;
 				Layout.SetContainerBounds(getClientRect());
 				invalidateAll(1);
-				UpdateWindow(H());
+				::UpdateWindow(H());
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 // SCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // @Kernel
 //
@@ -1282,9 +1282,9 @@ int SLAPI SCardCore::GetPrefixRanges(PPID seriesID, uint maxLen, TSCollection <P
 					THROW_SL(p_new_range);
 					{
 						p_new_range->Len = p_entry->Len;
-						lo = p_entry->Codes.at(0).Txt;
+						lo = p_entry->Codes.Get(0).Txt;
 						assert(lo.Len() == p_entry->Len);
-						up = p_entry->Codes.at(ec-1).Txt;
+						up = p_entry->Codes.Get(ec-1).Txt;
 						assert(up.Len() == p_entry->Len);
 						p_new_range->Low = lo.Trim(maxLen);
 						p_new_range->Upp = up.Trim(maxLen);

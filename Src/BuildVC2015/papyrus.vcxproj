@@ -1243,7 +1243,7 @@
     <ClCompile Include="..\PPLib\Path.cpp" />
     <ClCompile Include="..\PPLib\Payment.cpp" />
     <ClCompile Include="..\PPLib\Person.cpp" />
-    <ClCompile Include="..\PPLib\PLIST.CPP" />
+    <ClCompile Include="..\PPLib\phnpan.cpp" />
     <ClCompile Include="..\PPLib\pp-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

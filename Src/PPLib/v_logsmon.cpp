@@ -1,5 +1,5 @@
 // V_LOGSMON.CPP
-// A. Kurilov 2008, 2009, 2015, 2016
+// A. Kurilov 2008, 2009, 2015, 2016, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -70,8 +70,7 @@ IMPLEMENT_PPFILT_FACTORY(LogsMonitor); LogsMonitorFilt::LogsMonitorFilt() : PPBa
 	Init(1, 0);
 }
 //
-LogsMonitorFiltDialog::LogsMonitorFiltDialog(uint resID) :
-	PPListDialog(DLG_LOGSMON, CTL_LOGSMON_LIST)
+LogsMonitorFiltDialog::LogsMonitorFiltDialog(uint resID) : PPListDialog(DLG_LOGSMON, CTL_LOGSMON_LIST)
 {
 	// SetupCalPeriod(CTLCAL_LOGSMONFILT_PERIOD, CTL_LOGSMONFILT_PERIOD);
 }
@@ -179,10 +178,8 @@ int SLAPI PPViewLogsMonitor::EditBaseFilt(PPBaseFilt *pBaseFilt)
 //
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempLogFileMon);
 //
-SLAPI PPViewLogsMonitor::PPViewLogsMonitor() : PPView(0, &Filt, PPVIEW_LOGSMONITOR)
+SLAPI PPViewLogsMonitor::PPViewLogsMonitor() : PPView(0, &Filt, PPVIEW_LOGSMONITOR), P_TmpTbl(0), FirstTime(1)
 {
-	P_TmpTbl = 0;
-	FirstTime = 1;
 	// смещения строк для всех журналов установить равным 0
 	LogsArray all_logs;
 	LoadAllLogs(&all_logs);
@@ -275,14 +272,9 @@ int SLAPI PPViewLogsMonitor::Print(const void *)
 }
 #endif // 0
 //
-int SLAPI PPViewLogsMonitor::PreprocessBrowser(PPViewBrowser *pBrw)
+void SLAPI PPViewLogsMonitor::PreprocessBrowser(PPViewBrowser *pBrw)
 {
-	int    ok = 1;
-	if(pBrw)
-		pBrw->Advise(PPAdviseBlock::evLogsChanged, 0, -1, 0);
-	else
-		ok = -1;
-	return ok;
+	CALLPTRMEMB(pBrw, Advise(PPAdviseBlock::evLogsChanged, 0, -1, 0));
 }
 //
 int SLAPI PPViewLogsMonitor::HandleNotifyEvent(int kind, const PPNotifyEvent *pEv, PPViewBrowser *pBrw, void * extraProcPtr)

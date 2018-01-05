@@ -1125,6 +1125,8 @@ typedef long PPIterID;
 
 struct PPFilt {
 	PPFilt();
+	explicit PPFilt(long id);
+	explicit PPFilt(void * ptr);
 
 	long   ID;
 	void * Ptr;

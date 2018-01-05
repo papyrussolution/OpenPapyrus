@@ -1,5 +1,5 @@
 // SEXTPRC.CPP
-// Copyright (c) A.Sobolev 2016, 2017
+// Copyright (c) A.Sobolev 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -74,11 +74,9 @@ int SLAPI ExecVDos(ExecVDosParam & rParam)
 	if(startup_path.NotEmptyS()) {
 		startup_path.RmvLastSlash();
 		if(::fileExists(startup_path)) {
-			SPathStruc ps;
-			ps.Split(startup_path.SetLastSlash());
+			SPathStruc ps(startup_path.SetLastSlash());
 			if(ps.Drv.Empty()) {
-				SPathStruc ps_cd;
-				ps_cd.Split(curdir);
+				SPathStruc ps_cd(curdir);
 				ps.Drv = ps_cd.Drv;
 				ps.Merge(startup_path);
 			}
@@ -90,11 +88,9 @@ int SLAPI ExecVDos(ExecVDosParam & rParam)
 		vdos_path.RmvLastSlash();
 		THROW(::fileExists(vdos_path));
 		{
-			SPathStruc ps;
-			ps.Split(vdos_path.SetLastSlash());
+			SPathStruc ps(vdos_path.SetLastSlash());
 			if(ps.Drv.Empty()) {
-				SPathStruc ps_cd;
-				ps_cd.Split(curdir);
+				SPathStruc ps_cd(curdir);
 				ps.Drv = ps_cd.Drv;
 				ps.Merge(vdos_path);
 			}

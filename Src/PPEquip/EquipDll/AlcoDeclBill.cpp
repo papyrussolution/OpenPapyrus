@@ -833,7 +833,6 @@ int GetObjTypeBySymb(const char * pSymb, uint & rType)
 EXPORT int InitExport(void * pExpHeader, const char * pOutFileName, int * pId)
 {
 	int ok = 1;
-
 	if(!P_ExportCls) {
 		P_ExportCls = new ExportCls;
 	}

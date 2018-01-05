@@ -1,5 +1,5 @@
 // SARC.CPP
-// Copyright (c) A.Sobolev 2016, 2017
+// Copyright (c) A.Sobolev 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -103,8 +103,7 @@ int SLAPI SArchive::ExtractEntry(int64 idx, const char * pDestName)
 		SFile f_dest;
         THROW(GetEntryName(idx, entry_name));
         {
-        	SPathStruc ps;
-        	ps.Split(pDestName);
+        	SPathStruc ps(pDestName);
             if(ps.Nam.Empty()) {
 				ps.Nam = entry_name;
 				ps.Ext.Z();
@@ -151,8 +150,7 @@ int SLAPI SArchive::AddEntry(const char * pSrcFileName, const char * pName, int 
 			}
 			else {
 				if(isempty(pName)) {
-					SPathStruc ps;
-					ps.Split(temp_buf);
+					SPathStruc ps(temp_buf);
 					ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_buf);
 				}
 				else {
@@ -237,8 +235,7 @@ int SLAPI SArchive::AddEntries(const char * pMask, int flags)
 	SString root;
 	SString sub;
 	SString mask;
-	SPathStruc ps;
-	ps.Split(pMask);
+	SPathStruc ps(pMask);
     ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, root);
     ps.Merge(SPathStruc::fNam|SPathStruc::fExt, mask);
 	return Helper_AddEntries(root, sub, mask, flags);

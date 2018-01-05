@@ -1,5 +1,5 @@
 // GDSUTIL.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Утилиты для работы с товарами
 //
@@ -1875,9 +1875,9 @@ int QuotationDialog::SetupMatrixLocList(const StrAssocArray * pLocList, SmartLis
 	if(pLocList && pBox) {
 		uint pos = 0;
 		if(level == 0 && pLocList->Search(parentLocID, &pos))
-			THROW(SetupMatrixLocEntry(pLocList->at(pos), pBox, level));
+			THROW(SetupMatrixLocEntry(pLocList->Get(pos), pBox, level));
 		for(uint i = 0; i < pLocList->getCount(); i++) {
-			const StrAssocArray::Item & r_item = pLocList->at(i);
+			const StrAssocArray::Item & r_item = pLocList->Get(i);
 			if(r_item.ParentId == parentLocID) {
 				THROW(SetupMatrixLocEntry(r_item, pBox, level+1));
 				THROW(SetupMatrixLocList(pLocList, pBox, r_item.Id, level+2)); // @recursion
@@ -3260,8 +3260,7 @@ int FASTCALL PPBarcode::RecognizeImage(const char * pInpFileName, TSCollection <
 			//
 			// @debug
 			//
-			SPathStruc ps;
-			ps.Split(pInpFileName);
+			SPathStruc ps(pInpFileName);
 			ps.Nam.Cat("-debug1");
 			ps.Ext = "png";
 			ps.Merge(debug_file_name);

@@ -3202,7 +3202,7 @@ int SLAPI PPObjTSession::ConvertWrOffDeficit(PPID sessID, PPID locID, const PUGL
 			for(i = 0; i < goods_name_list.getCount(); i++) {
 				PUGI   item;
 				uint   pos = 0;
-				PPID   goods_id = goods_name_list.at(i).Id;
+				PPID   goods_id = goods_name_list.Get(i).Id;
 				if(pDfctList->SearchGoods(goods_id, &pos, &item)) {
 					int    is_other_loc = 0;
 					PPID   op_id = 0;

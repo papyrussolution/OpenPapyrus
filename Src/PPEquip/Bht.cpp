@@ -1,5 +1,5 @@
 // BHT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -282,8 +282,7 @@ int BhtDialog::getDTS(PPBhtTerminalPacket * pData)
 	else if(Data.Rec.BhtTypeID != PPObjBHT::btCom) {
 		getCtrlString(CTL_BHT_IMPEXPPATH, Data.ImpExpPath_);
 		if(Data.ImpExpPath_.NotEmptyS()) {
-			SPathStruc ps;
-			ps.Split(Data.ImpExpPath_);
+			SPathStruc ps(Data.ImpExpPath_);
 			if(ps.Drv.Empty())
 				ok = PPSetError(PPERR_IMPEXPPATHNOTVALID);
 		}
@@ -503,7 +502,7 @@ int StyloBhtIICfgDialog::addItem(long * pPos, long * pID)
 		op_type_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL,
 			PPOPT_GOODSORDER, PPOPT_GOODSMODIF, PPOPT_GOODSACK, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, 0L);
 		for(uint i = 0; i < p_list->getCount(); i++) {
-			StrAssocArray::Item item = p_list->at(i);
+			StrAssocArray::Item item = p_list->Get(i);
 			if(!Data.P_OpList->lsearch(&item.Id, 0, PTR_CMPFUNC(long)) && op_type_list.lsearch(GetOpType(item.Id)))
 				_list.Add(item.Id, item.Txt);
 		}
@@ -578,7 +577,7 @@ int StyloBhtIICfgDialog::setDTS(const StyloBhtIIOnHostCfg * pData)
 			PPError(PPERR_USERNOTFOUND);
 		}
 		else
-			user_id = UserList.at(pos).Id;
+			user_id = UserList.Get(pos).Id;
 	}
 	SetupStrAssocCombo(this, CTLSEL_SBIICFG_USER, &UserList, user_id, 0, 0, 0);
 	InetAddr::ULongToIP(Data.ServerAddr, buf);
@@ -2622,7 +2621,7 @@ int SLAPI PPObjBHT::PrepareLocCellData(PPBhtTerminalPacket * pPack)
 		if(p_cell_list->getCount()) {
 			for(uint i = 0; i < p_cell_list->getCount(); i++) {
 				LocationTbl::Rec loc_rec;
-				if(loc_obj.Search(p_cell_list->at(i).Id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WHCELL) {
+				if(loc_obj.Search(p_cell_list->Get(i).Id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WHCELL) {
 					Sdr_SBIILocCell sdr_loc;
 					MEMSZERO(sdr_loc);
 					sdr_loc.ID = loc_rec.ID;
@@ -3058,8 +3057,7 @@ int SLAPI PPObjBHT::TransmitGoods(PPID bhtID, BhtProtocol * pBP, int updateData)
 		// Формирование имени дополнительного файла товаров на случай,
 		// если количество записей превышает 32K
 		//
-		SPathStruc ps;
-		ps.Split(path);
+		SPathStruc ps(path);
 		ps.Nam.Cat("2");
 		ps.Merge(path2);
 	}

@@ -1,5 +1,5 @@
 // OBJTAG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Теги объектов
 //
@@ -439,7 +439,7 @@ int SLAPI PPTagEnumList::Write(int use_ta)
 		for(item_id = 0; p_ref->EnumItems(EnumID, &item_id, &rec) > 0;) {
 			uint  _pos = 0;
 			if(Search(item_id, &_pos)) {
-				StrAssocArray::Item _item = at(_pos);
+				StrAssocArray::Item _item = Get(_pos);
 				(name = _item.Txt).Strip();
 				if(name.Cmp(strip(rec.ObjName), 0) != 0 || _item.ParentId != rec.Val2) {
 					name.CopyTo(rec.ObjName, sizeof(rec.ObjName));
@@ -454,7 +454,7 @@ int SLAPI PPTagEnumList::Write(int use_ta)
 		}
 		processed_items.sort();
 		for(i = 0; i < getCount(); i++) {
-			StrAssocArray::Item item = at(i);
+			StrAssocArray::Item item = Get(i);
 			if(!processed_items.bsearch(item.Id)) {
 				MEMSZERO(rec);
 				STRNSCPY(rec.ObjName, item.Txt);
@@ -700,7 +700,7 @@ int TagEnumListDialog::getDTS(PPTagEnumList * pList)
 int TagEnumListDialog::setupList()
 {
 	for(uint i = 0; i < Data.getCount(); i++) {
-		StrAssocArray::Item item = Data.at(i);
+		StrAssocArray::Item item = Data.Get(i);
 		if(!addStringToList(item.Id, item.Txt))
 			return 0;
 	}
@@ -1391,7 +1391,7 @@ int SLAPI PPObjTag::GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHa
 		uint   i;
 		if(pFilt->Flags & TagFilt::fNotTagsInList) {
 			for(i = 0; i < pFilt->TagsRestrict.getCount(); i++) {
-				StrAssocArray::Item item = pFilt->TagsRestrict.at(i);
+				StrAssocArray::Item item = pFilt->TagsRestrict.Get(i);
 				UintHashTable local_list;
 				if(ref->Ot.GetObjectList(objType, item.Id, local_list) > 0) {
 					exclude_list.Add(local_list);
@@ -1401,7 +1401,7 @@ int SLAPI PPObjTag::GetObjListByFilt(PPID objType, const TagFilt * pFilt, UintHa
 		}
 		else {
 			for(i = 0; i < pFilt->TagsRestrict.getCount(); i++) {
-				StrAssocArray::Item item = pFilt->TagsRestrict.at(i);
+				StrAssocArray::Item item = pFilt->TagsRestrict.Get(i);
 				TagFilt::GetRestriction(item.Txt, restrict);
 				UintHashTable local_list;
 				if(restrict.CmpNC(P_EmptyTagValRestrict) == 0) {
@@ -1643,7 +1643,7 @@ int SLAPI PPObjTag::RecoverLostUnifiedLinks()
 			THROW(tra);
 			for(uint i = 0; i < count; i++) {
 				PPObjectTag2 tag;
-				const PPID tag_id = p_tags_list->at(i).Id;
+				const PPID tag_id = p_tags_list->Get(i).Id;
 				if(tag_obj.Fetch(tag_id, &tag) > 0 && oneof2(tag.TagDataType, OTTYP_OBJLINK, OTTYP_ENUM) && tag.TagEnumID) {
 					ObjTagTbl::Key1 k1;
 					k1.TagID = tag_id;
@@ -1727,7 +1727,7 @@ int SLAPI PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				uint count = p_tags_list->getCount();
 				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
 					PPObjectTag tag;
-					if(Fetch(p_tags_list->at(i).Id, &tag) > 0 && oneof2(_id, tag.ObjTypeID, tag.TagEnumID))
+					if(Fetch(p_tags_list->Get(i).Id, &tag) > 0 && oneof2(_id, tag.ObjTypeID, tag.TagEnumID))
 						ok = RetRefsExistsErr(Obj, _id);
 				}
 			}
@@ -1740,7 +1740,7 @@ int SLAPI PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			if(p_tags_list) {
 				uint count = p_tags_list->getCount();
 				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
-					const PPID tag_id = p_tags_list->at(i).Id;
+					const PPID tag_id = p_tags_list->Get(i).Id;
 					PPObjectTag tag;
 					if(Fetch(tag_id, &tag) > 0) {
 						if(tag.TagEnumID == _obj) {
@@ -1767,7 +1767,7 @@ int SLAPI PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
 					int update = 0;
 					PPObjectTag tag;
-					if(Fetch(p_tags_list->at(i).Id, &tag) > 0) {
+					if(Fetch(p_tags_list->Get(i).Id, &tag) > 0) {
 						if(_id == tag.ObjTypeID) {
 							tag.ObjTypeID = (long)extraPtr;
 							update = 1;
@@ -1799,7 +1799,7 @@ int SLAPI PPObjTag::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			if(p_tags_list) {
 				uint count = p_tags_list->getCount();
 				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
-					const PPID tag_id = p_tags_list->at(i).Id;
+					const PPID tag_id = p_tags_list->Get(i).Id;
 					PPObjectTag tag;
 					if(Fetch(tag_id, &tag) > 0) {
 						if(tag.TagEnumID == _obj) {
@@ -1862,7 +1862,7 @@ private:
 	}
 	virtual int delItem(long pos, long)
 	{
-		return Data.TagsRestrict.atFree((uint)pos) ? 1 : -1;
+		return Data.TagsRestrict.AtFree((uint)pos) ? 1 : -1;
 	}
 	virtual int editItem(long pos, long)
 	{
@@ -2136,7 +2136,7 @@ int TagFiltDialog::EditItem(long * pPos)
 	int    ok = -1;
 	const  int  is_new = (*pPos >= 0) ? 0 : 1;
 	uint   pos = is_new ? -1 : (uint)(*pPos);
-	SelTagDialogData item(is_new ? 0 : &Data.TagsRestrict.at(pos));
+	SelTagDialogData item(is_new ? 0 : &Data.TagsRestrict.Get(pos));
 	SelTagDialog * p_dlg = 0;
 	GetClusterData(CTL_TAGFLT_FLAGS, &Data.Flags);
 	THROW(CheckDialogPtr(&(p_dlg = new SelTagDialog((Data.Flags & TagFilt::fNotTagsInList) ? 0 : 1, ObjType))));
@@ -2150,7 +2150,7 @@ int TagFiltDialog::EditItem(long * pPos)
 			else {
 				uint   fp = 0;
 				if(!is_new || Data.TagsRestrict.Search(item.Id, &fp) > 0)
-					THROW_SL(Data.TagsRestrict.atFree(fp));
+					THROW_SL(Data.TagsRestrict.AtFree(fp));
 			}
 			THROW_SL(Data.TagsRestrict.Add(item.Id, item.Txt, replace_dup_factor));
 			Data.TagsRestrict.Search(item.Id, &pos);
@@ -2171,7 +2171,7 @@ int TagFiltDialog::setupList()
 	PPIDArray id_list;
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < Data.TagsRestrict.getCount(); i++) {
-		StrAssocArray::Item item = Data.TagsRestrict.at(i);
+		StrAssocArray::Item item = Data.TagsRestrict.Get(i);
 		TagFilt::GetRestriction(item.Txt, restrict);
 		PPObjectTag tag;
 		THROW(ObjTag.Fetch(item.Id, &tag));

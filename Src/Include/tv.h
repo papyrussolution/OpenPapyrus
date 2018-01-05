@@ -1522,9 +1522,9 @@ public:
 	//
 	void   ResetOwnerCurrent();
 	int    FASTCALL EventBarrier(int rmv = 0);
-	TView * nextView();
-	TView * prevView();
-	TView * prev();
+	TView * nextView() const;
+	TView * prevView() const;
+	TView * prev() const;
 	TView * next;
 	TView * TopView();
 	int    IsConsistent() const;
@@ -2656,10 +2656,13 @@ public:
 		coExport = 1
 	};
 	SLAPI  TDialog(uint resID, ConstructorOption); // special constructor.
-
 	SLAPI ~TDialog();
 	virtual int    TransmitData(int dir, void * pData);
 	virtual int    FASTCALL valid(ushort command);
+	//
+	// Descr: Запускает немодальное окно диалога
+	//
+	int    Insert();
 	int    SetFont(const SFontDescr & rFd);
 	void   ToCascade();
 	//
@@ -3519,7 +3522,7 @@ public:
 	int    MoveWindow(RECT & rRect);
 	ListBoxDef * getDef() const
 	{
-		return def;
+		return P_Def;
 	}
 	void   SetToolbar(uint tbId);
 	uint   GetToolbar() const
@@ -3528,7 +3531,7 @@ public:
 	}
 protected:
 	void   prepareForSearching(int firstLetter);
-	ListBoxDef * def;
+	ListBoxDef * P_Def;
 	ListWindowSmartListBox * P_Lb; // box;
 	int    PrepareSearchLetter;
 	//@v9.8.0 int    IsLargeListBox;
@@ -4526,7 +4529,6 @@ public:
 	enum {
 		IdBiasBrowser          = 0x00100000,
 		IdBiasTimeChunkBrowser = 0x00200000,
-		// @v7.0.0 @obsolete IdBiasPaintCloth       = 0x00400000
 		IdBiasTextBrowser      = 0x00800000
 	};
 protected:

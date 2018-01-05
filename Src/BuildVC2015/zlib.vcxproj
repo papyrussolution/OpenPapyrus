@@ -761,11 +761,9 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Osf\Zlib\deflate.c" />
     <ClCompile Include="..\Osf\Zlib\inffast.c" />
     <ClCompile Include="..\Osf\Zlib\inflate.c" />
     <ClCompile Include="..\OSF\ZLIB\szlib.c" />
-    <ClCompile Include="..\Osf\Zlib\trees.c" />
     <ClCompile Include="..\OSF\ZLIB\zlib-pch.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

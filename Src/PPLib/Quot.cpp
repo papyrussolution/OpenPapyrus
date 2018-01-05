@@ -1,5 +1,5 @@
 // QUOT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -23,11 +23,8 @@ int SLAPI ViewQuotValueInfo(const PPQuot & rQuot)
 	PPFormatPeriod(&rQuot.Period, temp_buf);
 	dlg->setCtrlString(CTL_QUOT_PERIOD, temp_buf);
 
-	temp_buf.Z().Cat(rQuot.Dtm, DATF_DMY, TIMF_HMS);
-	dlg->setCtrlString(CTL_QUOT_DATETIME, temp_buf);
-
-	temp_buf.Z().Cat(rQuot.Quot, MKSFMTD(0, 6, NMBF_NOTRAILZ));
-	dlg->setCtrlString(CTL_QUOT_VALUE, temp_buf);
+	dlg->setCtrlString(CTL_QUOT_DATETIME, temp_buf.Z().Cat(rQuot.Dtm, DATF_DMY, TIMF_HMS));
+	dlg->setCtrlString(CTL_QUOT_VALUE, temp_buf.Z().Cat(rQuot.Quot, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
 
 	temp_buf.Z();
 	if(rQuot.Flags & PPQuot::fPctOnCost)
@@ -1180,7 +1177,7 @@ private:
 	SRng * P_RngQ;         // Генератор значения котировки
 };
 
-PrcssrQuotTester::PrcssrQuotTester()
+PrcssrQuotTester::PrcssrQuotTester() : P_RngCount(0), P_RngGoods(0), P_RngGoodsGrp(0), P_RngLoc(0), P_RngQ(0)
 {
 	const PPThreadLocalArea & r_tla = DS.GetConstTLA();
 	SupplDealQkID  = r_tla.SupplDealQuotKindID;
@@ -1188,12 +1185,6 @@ PrcssrQuotTester::PrcssrQuotTester()
 	SupplDevDnQkID = r_tla.SupplDevDnQuotKindID;
 	MtxQkID        = GObj.GetConfig().MtxQkID;
 	MtxRestrQkID   = GObj.GetConfig().MtxRestrQkID;
-
-	P_RngCount = 0;
-	P_RngGoods = 0;
-	P_RngGoodsGrp = 0;
-	P_RngLoc = 0;
-	P_RngQ = 0;
 }
 
 PrcssrQuotTester::~PrcssrQuotTester()
@@ -1255,7 +1246,7 @@ int PrcssrQuotTester::Init()
 		StrAssocArray qk_list;
 		qk_obj.MakeList(&qk_filt, &qk_list);
 		for(uint i = 0; i < qk_list.getCount(); i++)
-			QkList.add(qk_list.at(i).Id);
+			QkList.add(qk_list.Get(i).Id);
 	}
 	CATCHZOK
 	return ok;

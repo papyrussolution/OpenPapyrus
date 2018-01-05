@@ -1,5 +1,5 @@
 // DBSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018
 //
 #include <db.h>
 #pragma hdrstop
@@ -1686,7 +1686,7 @@ int SLAPI SOraDbProvider::DropFile(const char * pFileName)
 				seq_list.Add(seq_list.getCount()+1, seq_name);
 			}
 			for(uint i = 0; i < seq_list.getCount(); i++) {
-				SqlGen.Reset().Tok(Generator_SQL::tokDrop).Sp().Tok(Generator_SQL::tokSequence).Sp().Text(seq_list.at(i).Txt);
+				SqlGen.Reset().Tok(Generator_SQL::tokDrop).Sp().Tok(Generator_SQL::tokSequence).Sp().Text(seq_list.Get(i).Txt);
 				SSqlStmt stmt(this, (const SString &)SqlGen);
 				THROW(stmt.Exec(1, OCI_DEFAULT));
 			}

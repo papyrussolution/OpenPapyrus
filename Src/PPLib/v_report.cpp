@@ -1,5 +1,5 @@
 // V_REPORT.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -395,14 +395,13 @@ int ReportFiltDlg::setDTS(const ReportFilt * pData)
 	int    ok = 1;
 	uint   pos = 0;
 	long   _id = 0;
-
 	Data.Copy(pData, 1);
 	if(StdReportList.SearchByText(Data.StdName, 1, &pos) > 0)
-		_id = StdReportList.at(pos).Id;
+		_id = StdReportList.Get(pos).Id;
 	SetupStrAssocCombo(this, CTLSEL_REPORTFLT_STDNAME, &StdReportList, _id, 0);
 
 	if(StrucList.SearchByText(Data.StrucName, 1, &pos) > 0)
-		_id = StrucList.at(pos).Id;
+		_id = StrucList.Get(pos).Id;
 	else
 		_id = 0;
 	SetupStrAssocCombo(this, CTLSEL_REPORTFLT_STRUC, &StrucList, _id, 0);
@@ -635,11 +634,10 @@ void SLAPI PPViewReport::MakeTempRec(const ReportViewItem * pItem, TempReportTbl
 int SLAPI PPViewReport::GetAltPath(long type, const char * pPath, const char * pStdName, SString & rPath)
 {
 	int    ok = 1;
-	rPath = 0;
+	rPath.Z();
 	if(type == ReportFilt::rpttLocal && strlen(pPath)) {
 		SString path;
-		SPathStruc sp;
-		sp.Split(pPath);
+		SPathStruc sp(pPath);
 		if(!sp.Drv.NotEmptyS()) {
 			PPGetPath(PPPATH_BIN, path);
 			path.SetLastSlash().Cat(pPath);
@@ -941,10 +939,10 @@ int ReportDlg::setDTS(const ReportViewItem * pData)
 		MEMSZERO(Data);
 	setCtrlData(CTL_REPORT_MODIFDATE, &Data.ModifDt);
 	if(RptList.SearchByText(Data.StdName, 1, &pos) > 0)
-		_id = RptList.at(pos).Id;
+		_id = RptList.Get(pos).Id;
 	SetupStrAssocCombo(this, CTLSEL_REPORT_STDNAME, &RptList, _id,   0);
 	if(StrucList.SearchByText(Data.StrucName, 1, &pos) > 0)
-		_id = StrucList.at(pos).Id;
+		_id = StrucList.Get(pos).Id;
 	else
 		_id = 0;
 	SetupStrAssocCombo(this, CTLSEL_REPORT_STRUCNAME, &StrucList,   _id, 0);

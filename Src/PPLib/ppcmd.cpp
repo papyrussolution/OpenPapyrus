@@ -1,5 +1,5 @@
 // PPCMD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @Kernel
 //
 #include <pp.h>
@@ -23,8 +23,8 @@ void SLAPI PPCommandDescr::Init()
 	IconId = 0;
 	ToolbarId = 0;
 	memzero(&Reserve, sizeof(Reserve));
-	Symb = 0;
-	Text = 0;
+	Symb.Z();
+	Text.Z();
 }
 
 int SLAPI PPCommandDescr::GetFactoryFuncName(SString & rBuf) const
@@ -649,7 +649,7 @@ int SLAPI PPCommandFolder::GetCommandList(StrAssocArray * pList, int onlyFolders
 		ID = 0;
 		ok = Enumerate(_GetIdParentList, 0, &_list);
 		if(_list.P_List->getCount())
-			_list.P_List->atFree(0);
+			_list.P_List->AtFree(0);
 		_list.P_List->SortByID();
 		ID = id;
 	}
@@ -1766,9 +1766,9 @@ int SLAPI CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 						else {
 							StrAssocArray warn_list, info_list;
 							if(tag_obj.GetWarnList(&psn_pack.TagL, &warn_list, &info_list) > 0)
-								warn = warn_list.at(0).Txt;
-							else if(info_list.getCount() && tag_obj.Fetch(info_list.at(0).Id, &tag_rec) > 0)
-								info.CR().CatEq(tag_rec.Name, info_list.at(0).Txt);
+								warn = warn_list.Get(0).Txt;
+							else if(info_list.getCount() && tag_obj.Fetch(info_list.Get(0).Id, &tag_rec) > 0)
+								info.CR().CatEq(tag_rec.Name, info_list.Get(0).Txt);
 						}
 					}
 					psn_pack.LinkFiles.Init(PPOBJ_PERSON);

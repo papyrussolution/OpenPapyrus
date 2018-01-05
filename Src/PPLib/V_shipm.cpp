@@ -1,5 +1,5 @@
 // V_SHIPM.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Анализ отгрузки товаров
 //
@@ -48,10 +48,8 @@ PPBaseFilt * SLAPI PPViewShipmAnalyze::CreateFilt(void * extraPtr) const
 	return (PPBaseFilt*)p_filt;
 }
 
-SLAPI PPViewShipmAnalyze::PPViewShipmAnalyze() : PPView(0, &Filt, PPVIEW_SHIPMANALYZE)
+SLAPI PPViewShipmAnalyze::PPViewShipmAnalyze() : PPView(0, &Filt, PPVIEW_SHIPMANALYZE), BObj(BillObj), Tbl(0)
 {
-	BObj = BillObj;
-	Tbl = 0;
 }
 
 SLAPI PPViewShipmAnalyze::~PPViewShipmAnalyze()
@@ -472,9 +470,8 @@ int SLAPI PPViewShipmAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPV
 }
 
 //virtual
-int SLAPI PPViewShipmAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewShipmAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	return 1;
 }
 //
 // Implementation of PPALDD_ShipmAnlz

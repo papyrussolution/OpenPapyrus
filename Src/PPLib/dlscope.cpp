@@ -1,5 +1,5 @@
 // DLSCOPE.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -821,7 +821,7 @@ SString & DlScope::PropListToLine(const StrAssocArray & rPropList, uint tabCount
 		SString prop_symb, prop_val;
 		rBuf.CR().Tab(tabCount).Cat("property").Space().CatChar('{').CR();
 		for(uint i = 0; i < rPropList.getCount(); i++) {
-			StrAssocArray::Item prop = rPropList.at(i);
+			StrAssocArray::Item prop = rPropList.Get(i);
 			if(DlScope::GetPropSymb(prop.Id, prop_symb)) {
 				prop_val = prop.Txt;
 				rBuf.Tab(tabCount+1).Cat(prop_symb);

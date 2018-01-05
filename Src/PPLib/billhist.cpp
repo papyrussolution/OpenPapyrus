@@ -1,5 +1,5 @@
 // BHISTCOR.CPP
-// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // @Kernel
 //
@@ -158,8 +158,7 @@ int SLAPI HistBillCore::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 	}
 	if(toDt) {
 		{
-			SPathStruc ps;
-			ps.Split(DBTable::GetName());
+			SPathStruc ps(DBTable::GetName());
 			ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, fname);
 			msg.Printf(PPLoadTextS(PPTXT_DBMAINTAIN, buf), fname.cptr());
 		}

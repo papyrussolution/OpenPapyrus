@@ -1,5 +1,5 @@
 // V_USPROF.CPP
-// Copyright (c) A.Starodub 2014, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -150,13 +150,12 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 }
 
 // virtual
-int SLAPI PPViewUserProfile::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewUserProfile::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		pBrw->SetCellStyleFunc(CellStyleFunc, this);
 		// pBrw->Advise(PPAdviseBlock::evQuartz, 0, 0, 0);
 	}
-	return 1;
 }
 
 // virtual

@@ -1,8 +1,6 @@
 // IMPEXPKONTUR.CPP
 // Библиотека для импорта/экспорта документов в xml через провайдера Kontur
 //
-//
-//
 // ЭКСПОРТ
 // (Order)
 // Входные парметры от Papyrus
@@ -1200,8 +1198,7 @@ int ExportCls::SendDoc()
 {
 	int    ok = 1;
 	SString	inbox_filename;
-	SPathStruc path_struct;
-	path_struct.Split(ExpFileName);
+	SPathStruc path_struct(ExpFileName);
 	(inbox_filename = OUTBOX).CatChar('/').Cat(path_struct.Nam).Dot().Cat(path_struct.Ext);
 	Sdr_DllImpExpReceipt * p_exp_rcpt = 0;
 	FtpClient ftp_client(Header.EdiLogin, Header.EdiPassword);
@@ -1600,8 +1597,7 @@ int ImportCls::ParseFileName(const char * pFileName, PPEdiMessageEntry * pEntry)
 {
 	int    ok = 0;
 	SString left, right;
-    SPathStruc ps;
-    ps.Split(pFileName);
+    SPathStruc ps(pFileName);
     pEntry->EdiOp = 0;
 	if(ps.Nam.Divide('_', left, right) > 0) {
 		if(left.CmpNC("OrdRsp") == 0)
@@ -2626,9 +2622,9 @@ int ImportCls::ReplyImportObjStatus(uint idSess, uint objId, void * pObjStatus)
 		if(doc_status == docStatIsSuchDoc) {
 			if(r_eme.EdiOp == PPEDIOP_APERAK) {
 				// Что-нибудь делаем с этим статусом
-				str.Z().Cat(AperakInfo.OrderNum.Transf(CTRANSF_INNER_TO_OUTER)).CatChar(':').Space().Cat(AperakInfo.Msg.Utf8ToChar());
+				str.Z().Cat(AperakInfo.OrderNum.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv(':', 2).Cat(AperakInfo.Msg.Utf8ToChar());
 				if(AperakInfo.AddedMsg.NotEmpty())
-					str.CatChar(':').Space().Cat(AperakInfo.AddedMsg.Utf8ToChar());
+					str.CatDiv(':', 2).Cat(AperakInfo.AddedMsg.Utf8ToChar());
 				LogMessage(str);
 			}
 			// И удаляем этот файл из папки на ftp
@@ -2740,14 +2736,14 @@ void ProcessError(const char * pProcess)
 	ErrorCode = IEERR_FTP;
 	DWORD code = GetLastError();
 	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT), temp_err_buf, 256, 0);
-	(temp_buf = pProcess).CatChar(':').Space().Cat(temp_err_buf);
+	(temp_buf = pProcess).CatDiv(':', 2).Cat(temp_err_buf);
 	// Смотрим дополнительное описание ошибки
 	if(code == ERROR_INTERNET_EXTENDED_ERROR) {
 		DWORD  size = 256;
 		MEMSZERO(temp_err_buf);
 		code = 0;
 		InternetGetLastResponseInfo(&code, temp_err_buf, &size);
-		temp_buf.CatChar(':').Space().Cat(temp_err_buf);
+		temp_buf.CatDiv(':', 2).Cat(temp_err_buf);
 	}
 	StrError = temp_buf;
 }

@@ -1,5 +1,5 @@
 // CRCSHSRV.CPP
-// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу кассового сервера (ООО Кристалл Сервис)
 //
@@ -318,7 +318,7 @@ static int SLAPI PrepareDscntCodeBiasList(LAssocArray * pAry)
 	k = MIN(qk_list.getCount(), 127); // Вынуждены ограничивать кол-во видов котировок (BIAS <128)
 	for(i = 0; i < k; i++) {
 		uint  pos = 0;
-		PPID  key, qk_id = qk_list.at(i).Id;
+		PPID  key, qk_id = qk_list.Get(i).Id;
 		PPID  dc_bias = qk_id % 127;
 		while(bias_ary.SearchByVal(dc_bias, &key, &pos)) {
 			dc_bias = (dc_bias + 1) % 127; // @v5.8.2 (qk_id+1)-->(dc_bias+1)
@@ -353,8 +353,7 @@ static long FASTCALL GetDscntCode(PPID goodsID, PPID objID, int isQuotKind)
 static void FASTCALL AddTimeToFileName(SString & fName)
 {
 	const LTIME cur_time = getcurtime_();
-	SPathStruc ps;
-	ps.Split(fName);
+	SPathStruc ps(fName);
 	// @v9.7.0 ps.Nam.CatLongZ(cur_time.hour(), 2).CatLongZ(cur_time.minut(), 2).CatLongZ(cur_time.sec(), 2);
 	ps.Nam.Cat(cur_time, TIMF_HMS|TIMF_NODIV); // @v9.7.0
 	ps.Merge(fName);
@@ -2699,9 +2698,8 @@ PPBillImpExpParam * SLAPI ACS_CRCSHSRV::CreateImpExpParam(uint sdRecID)
 			p_param->OtrRec.Clear();
 			if(p_param->ReadIni(&ini_file, section, 0)) {
 				p_param->Direction = 1;
-				SPathStruc  sps, def_sps;
-				sps.Split(p_param->FileName);
-				def_sps.Split(PathRpt[sdRecID - PPREC_CS_ZREP]);
+				SPathStruc  sps(p_param->FileName);
+				SPathStruc  def_sps(PathRpt[sdRecID - PPREC_CS_ZREP]);
 				if(!(sps.Flags & SPathStruc::fDrv))
 					sps.Drv = def_sps.Drv;
 				if(!(sps.Flags & SPathStruc::fDir)) {
@@ -4065,7 +4063,7 @@ int SLAPI ACS_CRCSHSRV::GetSeparatedFileSet(int filTyp)
 	if(ini_file.GetParam(sect_name, param, buf) > 0) {
 		int  param_no = 0;
 		StringSet param_set(';', buf);
-		param = 0;
+		param.Z();
 		for(uint pos = 0; param_no < 4 && param_set.get(&pos, buf); param_no++)
 			if(param_no == 0)
 				sect_name = buf;
@@ -4114,8 +4112,7 @@ int SLAPI ACS_CRCSHSRV::GetSeparatedFileSet(int filTyp)
 			for(uint i = 0; i < LogNumList.getCount(); i++) {
 				param.Z().Cat(LogNumList.at(i));
 				if(ini_file.GetParam(sect_name, param, buf) > 0) {
-					SPathStruc  ps1;
-					ps1.Split(file_name);
+					SPathStruc  ps1(file_name);
 					ps.Split(buf);
 					ps.Drv = ps1.Drv;
 				}
@@ -4161,8 +4158,7 @@ int SLAPI ACS_CRCSHSRV::QueryFile(int filTyp, const char * pQueryBuf, LDATE quer
 	else
 		SFile::Remove(PathRpt[filTyp]);
 	{
-		SPathStruc ps;
-		ps.Split(PathQue[filTyp]);
+		SPathStruc ps(PathQue[filTyp]);
 		if(ps.Nam.CmpNC("all") == 0 && ps.Ext.CmpNC("dbf") == 0) {
 			THROW(p_qtbl = CreateDbfTable(DBFS_CRCS_SIGNAL_ALL_EXPORT, PathQue[filTyp], 1));
 			{
@@ -4346,10 +4342,9 @@ int SLAPI ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
 		if(r > 0) {
 			if(ModuleVer == 10) {
 				SString data_dir, data_path;
-				SPathStruc sp;
 				SDirEntry sd_entry;
 				SDirec sd;
-				sp.Split(PathRpt[filTypZRepXml]);
+				SPathStruc sp(PathRpt[filTypZRepXml]);
 				sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, data_dir);
 				sp.Nam.Cat("*");
 				sp.Merge(data_path);
@@ -4456,11 +4451,9 @@ int SLAPI ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 	const long _max_copies = 10L; //#define MAX_COPIES 10L
 	long   start = 1L;
 	SString backup_dir, dest_path, ext;
-	SPathStruc sp;
 	SString prefix = pPrefix;
 	prefix.Strip().Trim(4);
-
-	sp.Split(pPath);
+	SPathStruc sp(pPath);
 	ext = sp.Ext;
 	sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, backup_dir);
 	backup_dir.Cat("backup").SetLastSlash();
@@ -4529,9 +4522,8 @@ int SLAPI ACS_CRCSHSRV::ImportSession(int)
 			wait_msg.Printf(wait_msg_tmpl, datefmt(&oper_date, DATF_DMY, date_buf));
 			if(ModuleVer == 10) {
 				SString data_dir, data_path;
-				SPathStruc sp;
 				SDirEntry sd_entry;
-				sp.Split(PathRpt[filTypChkXml]);
+				SPathStruc sp(PathRpt[filTypChkXml]);
 				sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, data_dir);
 				sp.Nam.Cat("*");
 				sp.Merge(data_path);

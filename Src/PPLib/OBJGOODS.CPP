@@ -1,5 +1,5 @@
 // OBJGOODS.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -717,7 +717,7 @@ int SLAPI PPObjGoods::IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket 
 int SLAPI PPObjGoods::GetValueAddedData(PPID id, PPGoodsPacket * pPack)
 {
 	int    ok = -1;
-	pPack->ExtString = 0;
+	pPack->ExtString.Z();
 	if(pPack->Rec.Flags & GF_EXTPROP) {
 		THROW(PPRef->GetPropVlrString(PPOBJ_GOODS, id, GDSPRP_EXTSTRDATA, pPack->ExtString));
 		if(pPack->ExtString.NotEmptyS())

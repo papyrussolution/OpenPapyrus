@@ -1,5 +1,5 @@
 // PPMAIL.CPP
-// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A. Starodub, A.Sobolev 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -289,7 +289,6 @@ static void FASTCALL SetExtStrData(TDialog * dlg, PPInternetAccount * pData, uin
 
 static void FASTCALL GetExtStrData(TDialog * dlg, PPInternetAccount * pData, uint ctlID, uint strID)
 {
-	//char   temp_buf[256];
 	SString temp_buf;
 	dlg->getCtrlString(ctlID, temp_buf);
 	if(temp_buf.NotEmptyS())
@@ -1551,8 +1550,7 @@ int SLAPI PPMailSmtp::SendMsgToFile(SMailMessage * pMsg, SString & rFileName)
 			fn.Quot('\"', '\"');
 			_PUTS(pMsg->GetBoundary(1, boundary), out);
 			{
-				SPathStruc sp;
-				sp.Split(path);
+				SPathStruc sp(path);
 				if(img_exts.Search(sp.Ext, 0, 1, 0) > 0) {
 					is_img = 1;
 					ext = sp.Ext;
@@ -1743,7 +1741,7 @@ int SLAPI SendMail(const char * pSubj, const char * pLetter, StrAssocArray * pMa
 	msg_counter.Init(1);
 	for(uint i = 0; i < pMailList->getCount(); i++) {
 		SMailMessage mail_msg;
-		mail_addr = pMailList->at(i).Txt;
+		mail_addr = pMailList->Get(i).Txt;
 		pAccount->GetExtField(MAEXSTR_FROMADDRESS, from_addr);
 		mail_msg.SetField(SMailMessage::fldSubj,     pSubj);
 		mail_msg.SetField(SMailMessage::fldFrom,     from_addr.cptr());

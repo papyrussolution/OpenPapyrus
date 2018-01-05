@@ -30,16 +30,6 @@ SrSList::~SrSList()
 	SBaseBuffer::Destroy();
 }
 
-int SrSList::GetType() const
-{
-	return Type;
-}
-
-size_t SrSList::GetLength() const
-{
-	return Len;
-}
-
 int FASTCALL SrSList::Copy(const SrSList & rS)
 {
 	SBaseBuffer::Copy(rS);

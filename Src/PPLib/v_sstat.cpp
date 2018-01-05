@@ -1,5 +1,5 @@
 // V_SSTAT.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -68,11 +68,8 @@ void SLAPI SStatFilt::SetPckgRounding(int t)
 //
 //
 //
-SLAPI PPViewSStat::PPViewSStat() : PPView(0, &Filt, PPVIEW_SSTAT)
+SLAPI PPViewSStat::PPViewSStat() : PPView(0, &Filt, PPVIEW_SSTAT), P_TempTbl(0), P_TempOrd(0), P_VGr(0)
 {
-	P_TempTbl = 0;
-	P_TempOrd = 0;
-	P_VGr = 0;
 	MEMSZERO(PrCfg);
 	PrcssrPrediction::GetPredictCfg(&PrCfg);
 }
@@ -1175,13 +1172,12 @@ int SLAPI PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAct
 	return ok;
 }
 
-int SLAPI PPViewSStat::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewSStat::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
-	if(pBrw && pBrw->SetTempGoodsGrp(Filt.GoodsGrpID) > 0)
-		ok = 1;
-	pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
-	return ok;
+	if(pBrw) {
+		pBrw->SetTempGoodsGrp(Filt.GoodsGrpID);
+		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+	}
 }
 //
 //

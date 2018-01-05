@@ -1,5 +1,5 @@
 // TSSTAT.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2010, 2013, 2016
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2010, 2013, 2016, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -74,34 +74,9 @@ int SLAPI StatBase::Step(double val)
 	return 1;
 }
 
-long SLAPI StatBase::GetCount() const
-{
-	return Count;
-}
-
-double SLAPI StatBase::GetMin() const
-{
-	return Min;
-}
-
-double SLAPI StatBase::GetMax() const
-{
-	return Max;
-}
-
 double SLAPI StatBase::GetSum() const
 {
 	return Sum[0];
-}
-
-double SLAPI StatBase::GetExp() const
-{
-	return Exp;
-}
-
-double SLAPI StatBase::GetVar() const
-{
-	return Var;
 }
 
 double SLAPI StatBase::GetVariance() const
@@ -112,16 +87,6 @@ double SLAPI StatBase::GetVariance() const
 double SLAPI StatBase::GetStdDev() const
 {
 	return sqrt(GetVariance());
-}
-
-double SLAPI StatBase::GetTestGamma() const
-{
-	return Test_Z;
-}
-
-double SLAPI StatBase::GetTestGaussian() const
-{
-	return Test_ChSq;
 }
 
 int SLAPI StatBase::GetValue(long idx, double * pVal) const
@@ -357,11 +322,8 @@ double Lockes_Z_Test(const RealArray & x)
 //
 //
 //
-SLAPI TimSerStat::TimSerStat()
+SLAPI TimSerStat::TimSerStat() : P_Queue(0), P_AC_Add(0), P_AC_Mul(0)
 {
-	P_Queue = 0;
-	P_AC_Add = 0;
-	P_AC_Mul = 0;
 	Init();
 }
 
@@ -446,11 +408,8 @@ double SLAPI TimSerStat::GetAutocorrel(uint lag) const
 //
 //
 //
-SLAPI TimSerSpikes::TimSerSpikes()
+SLAPI TimSerSpikes::TimSerSpikes() : Sign(0), Count(0), P_Spikes(0)
 {
-	Sign = 0;
-	Count = 0;
-	P_Spikes = 0;
 }
 
 SLAPI TimSerSpikes::~TimSerSpikes()
@@ -463,7 +422,7 @@ int SLAPI TimSerSpikes::Init(int sign)
 	Sign = sign;
 	Count = 0;
 	MEMSZERO(Prev);
-	P_Spikes = new SArray(sizeof(Spike));
+	P_Spikes = new SVector(sizeof(Spike)); // @v9.8.12 SArray-->SVector
 	return P_Spikes ? 1 : (SLibError = SLERR_NOMEM, 0);
 }
 
@@ -492,7 +451,8 @@ int SLAPI TimSerSpikes::Step(long n, double val)
 
 long SLAPI TimSerSpikes::GetNumSpikes() const
 {
-	return P_Spikes ? P_Spikes->getCount() : 0;
+	//return P_Spikes ? P_Spikes->getCount() : 0;
+	return SVectorBase::GetCount(P_Spikes);
 }
 
 double SLAPI TimSerSpikes::GetSpike(long n, long * pN) const
@@ -505,7 +465,7 @@ double SLAPI TimSerSpikes::GetSpike(long n, long * pN) const
 	return 0L;
 }
 
-struct _PRDINF {
+struct _PRDINF { // @flat
 	long   Distance;
 	long   Count;
 };
@@ -514,7 +474,7 @@ long SLAPI TimSerSpikes::GetMostCommonDistance()
 {
 	uint   i = 0;
 	_PRDINF prd, * p_prd;
-	SArray prd_ary(sizeof(_PRDINF));
+	SVector prd_ary(sizeof(_PRDINF)); // @v9.8.12 SArray-->SVector
 	for(i = 0; (int)i < GetNumSpikes() - 1; i++) {
 		long s, n;
 		uint idx = 0;

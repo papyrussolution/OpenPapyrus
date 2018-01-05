@@ -1,5 +1,5 @@
 // OBJACSHT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -295,7 +295,7 @@ void * SLAPI PPObjAccSheet::CreateObjListWin(uint flags, void * extraPtr)
 				THROW(p_list);
 				PPWait(1);
 				for(uint i = 0; i < p_list->getCount(); i++) {
-					THROW(objid_ary.Add(PPOBJ_ACCSHEET, p_list->at(i).Id));
+					THROW(objid_ary.Add(PPOBJ_ACCSHEET, p_list->Get(i).Id));
 				}
 				THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 				ok = 1;

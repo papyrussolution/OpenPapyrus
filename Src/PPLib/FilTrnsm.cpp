@@ -1,5 +1,5 @@
 // FILTRNSM.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Передача объектов между разделами БД
 //
@@ -414,11 +414,11 @@ int SLAPI GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDes
 	for(uint i = 0; i < file_list.getCount(); i++) {
 		SString src_path, dest_path;
 		SString    ext;
-		SPathStruc sp;
-		sp.Split(file_list.at(i).Txt);
+		StrAssocArray::Item file_item = file_list.Get(i);
+		SPathStruc sp(file_item.Txt);
 		ext.Dot().Cat(sp.Ext);
-		(src_path = src_dir).Cat(file_list.at(i).Txt);
-		(dest_path = dest_dir).Cat(file_list.at(i).Txt);
+		(src_path = src_dir).Cat(file_item.Txt);
+		(dest_path = dest_dir).Cat(file_item.Txt);
 		if(((filtFlags & SMailMessage::fPpyObject) && ext.CmpNC(PPSEXT) == 0) || 
 			((filtFlags & SMailMessage::fPpyCharry) && ext.CmpNC(ORDEXT) == 0) ||
 			((filtFlags & SMailMessage::fPpyOrder) && ext.CmpNC(CHARRYEXT) == 0)) {

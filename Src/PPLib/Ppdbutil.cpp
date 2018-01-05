@@ -1,5 +1,5 @@
 // PPDBUTIL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -14,6 +14,15 @@
 
 static const char * DefaultScenName = "Default";
 static const char * BACKUP = "BACKUP";
+
+DBTable * FASTCALL __PreprocessCreatedDbTable(DBTable * pT)
+{
+	if(!pT || !pT->IsOpened()) {
+		ZDELETE(pT);
+		PPSetErrorDB();
+	}
+	return pT;
+}
 
 // Prototype
 static int SLAPI ProtectDatabase(DbLoginBlock * pDlb, int protect, char * pPw, char * pNewPw);
@@ -134,8 +143,7 @@ static int SLAPI _Recover(BTBLID tblID, PPRecoverParam * pParam, SArray * pRecov
 		r_info.ActNumRecs = pParam->ActNumRecs;
 		r_info.NotRcvrdNumRecs = r_info.OrgNumRecs - r_info.ActNumRecs;
 		{
-			SPathStruc ps;
-			ps.Split(path);
+			SPathStruc ps(path);
 			ps.Nam.CopyTo(r_info.TableName, sizeof(r_info.TableName));
 		}
 		pRecoverInfoAry->insert(&r_info);
@@ -878,7 +886,7 @@ int SLAPI PrcssrDbDump::Run()
 			CurDict->GetListOfTables(0, &tbl_list);
 			SString path;
 			for(uint j = 0; j < tbl_list.getCount(); j++) {
-				THROW(Helper_Dump(tbl_list.at(j).Id));
+				THROW(Helper_Dump(tbl_list.Get(j).Id));
 			}
 		}
 	}
@@ -888,7 +896,7 @@ int SLAPI PrcssrDbDump::Run()
 		}
 		else {
 			for(uint j = 0; j < TblNameList.getCount(); j++) {
-				THROW(Helper_Undump(TblNameList.at(j).Id));
+				THROW(Helper_Undump(TblNameList.Get(j).Id));
 			}
 		}
 	}
@@ -1646,8 +1654,7 @@ int SLAPI UseCopyContinouos(PPDbEntrySet2 * pDbes)
 			PPID   dbentry_id = NZOR(pDbes->GetSelection(), pDbes->SetDefaultSelection());
 			SString data_path, disk;
 			pDbes->GetAttr(dbentry_id, DbLoginBlock::attrDbPath, data_path);
-			SPathStruc ps;
-			ps.Split(data_path);
+			SPathStruc ps(data_path);
 			if(ps.Flags & SPathStruc::fUNC) {
 				(disk = ps.Drv).RmvLastSlash();
 				SString lcn; // local machine name
@@ -2088,7 +2095,7 @@ static int SLAPI _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 					StrAssocArray tbl_list;
 					CurDict->GetListOfTables(0, &tbl_list);
 					for(uint j = 0; j < tbl_list.getCount(); j++) {
-						THROW_PP(_Recover((BTBLID)tbl_list.at(j).Id, &param, &r_info_array), PPERR_DBLIB);
+						THROW_PP(_Recover((BTBLID)tbl_list.Get(j).Id, &param, &r_info_array), PPERR_DBLIB);
 					}
 				}
 				PPWait(0);
@@ -2439,7 +2446,7 @@ static int SLAPI ProtectDatabase(DbLoginBlock * pDlb, int protect, char * pPw, c
 			DbProvider * p_db = CurDict;
 			p_db->GetListOfTables(0, &tbl_list);
 			for(uint j = 0; j < tbl_list.getCount(); j++) {
-				if(p_db->GetTableInfo(tbl_list.at(j).Id, &ts) > 0) {
+				if(p_db->GetTableInfo(tbl_list.Get(j).Id, &ts) > 0) {
 					PPWaitMsg(ts.TblName);
 					DBS.GetProtectData(buf, 1);
 					THROW_PP(stricmp(buf, pPw) == 0, PPERR_INVUSERORPASSW);
@@ -2975,7 +2982,7 @@ int SLAPI PrcssrTestDb::GenerateString(char * pBuf, size_t maxLen)
 	if(WordList.getCount() > 10) {
 		for(i = 0; i < num_words; i++) {
 			uint pos = labs(G.GetUniformInt(WordList.getCount()));
-			temp_buf = WordList.at(pos).Txt;
+			temp_buf = WordList.Get(pos).Txt;
 			if(i)
 				line_buf.Space();
 			line_buf.Cat(temp_buf);

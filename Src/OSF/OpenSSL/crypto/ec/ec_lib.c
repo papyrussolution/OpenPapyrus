@@ -276,7 +276,7 @@ int EC_GROUP_set_generator(EC_GROUP * group, const EC_POINT * generator, const B
 	return 1;
 }
 
-const EC_POINT * EC_GROUP_get0_generator(const EC_GROUP * group)
+const EC_POINT * FASTCALL EC_GROUP_get0_generator(const EC_GROUP * group)
 {
 	return group->generator;
 }
@@ -290,12 +290,13 @@ int EC_GROUP_get_order(const EC_GROUP * group, BIGNUM * order, BN_CTX * ctx)
 {
 	if(group->order == NULL)
 		return 0;
-	if(!BN_copy(order, group->order))
+	else if(!BN_copy(order, group->order))
 		return 0;
-	return !BN_is_zero(order);
+	else
+		return !BN_is_zero(order);
 }
 
-const BIGNUM * EC_GROUP_get0_order(const EC_GROUP * group)
+const BIGNUM * FASTCALL EC_GROUP_get0_order(const EC_GROUP * group)
 {
 	return group->order;
 }
@@ -490,10 +491,10 @@ int EC_GROUP_cmp(const EC_GROUP * a, const EC_GROUP * b, BN_CTX * ctx)
 	BN_CTX_free(ctx_new);
 	return r;
 }
-
-/* functions for EC_POINT objects */
-
-EC_POINT * EC_POINT_new(const EC_GROUP * group)
+//
+// functions for EC_POINT objects 
+//
+EC_POINT * FASTCALL EC_POINT_new(const EC_GROUP * group)
 {
 	EC_POINT * ret;
 	if(group == NULL) {
@@ -517,10 +518,10 @@ EC_POINT * EC_POINT_new(const EC_GROUP * group)
 	return ret;
 }
 
-void EC_POINT_free(EC_POINT * point)
+void FASTCALL EC_POINT_free(EC_POINT * point)
 {
 	if(point) {
-		if(point->meth->point_finish != 0)
+		if(point->meth->point_finish)
 			point->meth->point_finish(point);
 		OPENSSL_free(point);
 	}

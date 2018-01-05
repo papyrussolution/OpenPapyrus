@@ -1,5 +1,5 @@
 // OBJACCT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1369,9 +1369,9 @@ int SLAPI PPObjAccount::GetChildList(PPID parentID, StrAssocArray * pChildList)
 	StrAssocArray * p_list = MakeStrAssocList((void *)ACY_SEL_BUDGET);
 	if(p_list) {
 		for(uint i = 0; i < p_list->getCount(); i++) {
-			if(BelongTo(p_list->at(i).Id, parentID) > 0) {
-				if(pChildList)
-					pChildList->Add(p_list->at(i).Id, p_list->at(i).ParentId, p_list->at(i).Txt);
+			StrAssocArray::Item item = p_list->Get(i);
+			if(BelongTo(item.Id, parentID) > 0) {
+				CALLPTRMEMB(pChildList, Add(item.Id, item.ParentId, item.Txt));
 				ok = 1;
 			}
 		}
@@ -1386,9 +1386,9 @@ int SLAPI PPObjAccount::GetParentList(PPID acctID, StrAssocArray * pParentList)
 	StrAssocArray * p_list = MakeStrAssocList((void *)ACY_SEL_BUDGET);
 	if(p_list) {
 		for(uint i = 0; i < p_list->getCount(); i++) {
-			if(BelongTo(acctID, p_list->at(i).Id) > 0) {
-				if(pParentList)
-					pParentList->Add(p_list->at(i).Id, p_list->at(i).ParentId, p_list->at(i).Txt);
+			StrAssocArray::Item item = p_list->Get(i);
+			if(BelongTo(acctID, item.Id) > 0) {
+				CALLPTRMEMB(pParentList, Add(item.Id, item.ParentId, item.Txt));
 				ok = 1;
 			}
 		}

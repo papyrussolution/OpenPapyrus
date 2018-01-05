@@ -1,5 +1,5 @@
 // PPVIEW.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -18,8 +18,8 @@ int SLAPI PPView::LoadResource(int kind, int id, PPView::Rc & rRc)
 	int    ok = 1;
 	TVRez * p_rez = P_SlRez;
 	rRc.Id = id;
-	rRc.Symb = 0;
-	rRc.Descr = 0;
+	rRc.Symb.Z();
+	rRc.Descr.Z();
 	THROW_PP(p_rez, PPERR_RESFAULT);
 	if(kind == 0) {
 		THROW(p_rez->findResource(id, PP_RCDECLVIEW));
@@ -479,7 +479,7 @@ void FASTCALL PPBaseFilt::PutFlagsMembToBuf(StrAssocArray * pFlagList, const cha
 	if(count) {
 		SString buf;
 		for(uint i = 0; i < count; i++) {
-			StrAssocArray::Item item = pFlagList->at(i);
+			StrAssocArray::Item item = pFlagList->Get(i);
 			buf.Cat(item.Txt);
 			if(i != count - 1)
 				buf.Comma();
@@ -1315,12 +1315,10 @@ int SLAPI PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name
 			}
 			{
 				DlContext ctx;
-				PPFilt f;
+				PPFilt f(p_view);
 				DlRtm::ExportParam ep;
 				THROW(ctx.InitSpecial(DlContext::ispcExpData));
 				THROW(ctx.CreateDlRtmInstance(dl600_name, &p_rtm));
-				f.ID = 0;
-				f.Ptr = p_view;
 				ep.P_F = &f;
 				ep.Sort = 0;
 				ep.Flags |= (DlRtm::ExportParam::fIsView|DlRtm::ExportParam::fInheritedTblNames);
@@ -1355,7 +1353,11 @@ int SLAPI PPView::ExecuteServer(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 			static int Proc(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
 			{
 				PPJobSrvReply * p_reply = (PPJobSrvReply *)procExtPtr;
-				CALLPTRMEMB(p_reply, SendInformer(pEv->ExtStr));
+				if(p_reply) {
+					SString temp_buf;
+					pEv->GetExtStrData(PPNotifyEvent::extssMessage, temp_buf);
+					p_reply->SendInformer(temp_buf);
+				}
 				return 1;
 			}
 		};
@@ -1464,34 +1466,20 @@ int SLAPI PPView::GetOuterTitle(SString * pBuf) const
 	return OuterTitle.NotEmpty() ? 1 : 0;
 }
 
-int SLAPI PPView::EditBaseFilt(PPBaseFilt * pFilt)
-	{ return PPSetError(PPERR_BASEFILTUNSUPPORTED); }
-int SLAPI PPView::Init_(const PPBaseFilt * pFilt)
-	{ return PPSetError(PPERR_BASEFILTUNSUPPORTED); }
-int SLAPI PPView::GetOuterChangesStatus() const
-	{ return BIN(BaseState & bsOuterChangesStatus); }
-const char * SLAPI PPView::GetSymb() const
-	{ return Symb.cptr(); }
-const char * SLAPI PPView::GetDescr() const
-	{ return Descr.cptr(); }
-int SLAPI PPView::IsCrosstab() const
-	{ return BIN(P_Ct);}
-const IterCounter & SLAPI PPView::GetCounter() const
-	{ return Counter; }
-void * SLAPI PPView::GetEditExtraParam()
-	{ return 0; }
-DBQuery * SLAPI PPView::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
-	{ return 0; }
-SArray * SLAPI PPView::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
-	{ return 0; }
-int SLAPI PPView::PreprocessBrowser(PPViewBrowser * pBrw)
-	{ return -1; }
-int SLAPI PPView::OnExecBrowser(PPViewBrowser *)
-	{ return -1; }
-int SLAPI PPView::Detail(const void *, PPViewBrowser * pBrw)
-	{ return -1; }
-int SLAPI PPView::ViewTotal()
-	{ return -1; }
+int SLAPI PPView::EditBaseFilt(PPBaseFilt * pFilt) { return PPSetError(PPERR_BASEFILTUNSUPPORTED); }
+int SLAPI PPView::Init_(const PPBaseFilt * pFilt) { return PPSetError(PPERR_BASEFILTUNSUPPORTED); }
+int SLAPI PPView::GetOuterChangesStatus() const { return BIN(BaseState & bsOuterChangesStatus); }
+const char * SLAPI PPView::GetSymb() const { return Symb.cptr(); }
+const char * SLAPI PPView::GetDescr() const { return Descr.cptr(); }
+int SLAPI PPView::IsCrosstab() const { return BIN(P_Ct);}
+const IterCounter & SLAPI PPView::GetCounter() const { return Counter; }
+void * SLAPI PPView::GetEditExtraParam() { return 0; }
+DBQuery * SLAPI PPView::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle) { return 0; }
+SArray * SLAPI PPView::CreateBrowserArray(uint * pBrwId, SString * pSubTitle) { return 0; }
+void SLAPI PPView::PreprocessBrowser(PPViewBrowser * pBrw) {}
+int SLAPI PPView::OnExecBrowser(PPViewBrowser *) { return -1; }
+int SLAPI PPView::Detail(const void *, PPViewBrowser * pBrw) { return -1; }
+int SLAPI PPView::ViewTotal() { return -1; }
 
 void SLAPI PPView::Helper_FormatCycle(const PPCycleFilt & rCf, const PPCycleArray & rCa, LDATE dt, char * pBuf, size_t bufLen)
 {
@@ -1556,7 +1544,7 @@ int SLAPI PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 			THROW(p_array = CreateBrowserArray(&brw_id, &sub_title));
 			if(pW->ChangeResource(brw_id, p_array, 1) == 2) {
 				if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
-					THROW(PreprocessBrowser(pW));
+					PreprocessBrowser(pW);
 					if(ExtToolbarId)
 						pW->LoadToolbar(ExtToolbarId);
 				}
@@ -1582,7 +1570,7 @@ int SLAPI PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 						if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
 							if(!(ImplementFlags & implDontSetupCtColumnsOnChgFilt))
 								P_Ct->SetupBrowserCtColumns(pW);
-							THROW(PreprocessBrowser(pW));
+							PreprocessBrowser(pW);
 							if(ExtToolbarId)
 								pW->LoadToolbar(ExtToolbarId);
 						}
@@ -1601,7 +1589,7 @@ int SLAPI PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 				THROW_PP(p_q != PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
 				if(pW->ChangeResource(brw_id, p_q, 1) == 2) { // @v6.2.3 force=1
 					if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
-						THROW(PreprocessBrowser(pW));
+						PreprocessBrowser(pW);
 						if(ExtToolbarId)
 							pW->LoadToolbar(ExtToolbarId);
 					}
@@ -1695,7 +1683,7 @@ int SLAPI PPView::Browse(int modeless)
 		brw->setTitle(title);
 	else
 		brw->setSubTitle(sub_title);
-	THROW(PreprocessBrowser(brw));
+	PreprocessBrowser(brw);
 	if(ExtToolbarId)
 		brw->LoadToolbar(ExtToolbarId);
 	PPWait(0);

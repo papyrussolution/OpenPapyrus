@@ -403,9 +403,6 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\Osf\Zlib\deflate.c">
-			</File>
-			<File
 				RelativePath="..\Osf\Zlib\inffast.c">
 			</File>
 			<File
@@ -413,9 +410,6 @@
 			</File>
 			<File
 				RelativePath="..\Osf\Zlib\szlib.c">
-			</File>
-			<File
-				RelativePath="..\Osf\Zlib\trees.c">
 			</File>
 			<File
 				RelativePath="..\Osf\Zlib\zlib-pch.c">

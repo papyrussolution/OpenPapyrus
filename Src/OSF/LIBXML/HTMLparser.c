@@ -1850,25 +1850,25 @@ int htmlEncodeEntities(uchar* out, int * outlen, const uchar* in, int * inlen, i
  */
 static htmlParserInputPtr htmlNewInputStream(htmlParserCtxtPtr ctxt)
 {
-	htmlParserInputPtr input = (xmlParserInputPtr)SAlloc::M(sizeof(htmlParserInput));
-	if(!input) {
+	htmlParserInputPtr input = (xmlParserInput *)SAlloc::M(sizeof(htmlParserInput));
+	if(!input)
 		htmlErrMemory(ctxt, "couldn't allocate a new input stream\n");
-		return NULL;
+	else {
+		memzero(input, sizeof(htmlParserInput));
+		input->filename = NULL;
+		input->directory = NULL;
+		input->base = NULL;
+		input->cur = NULL;
+		input->buf = NULL;
+		input->line = 1;
+		input->col = 1;
+		input->buf = NULL;
+		input->free = NULL;
+		input->version = NULL;
+		input->consumed = 0;
+		input->length = 0;
 	}
-	memzero(input, sizeof(htmlParserInput));
-	input->filename = NULL;
-	input->directory = NULL;
-	input->base = NULL;
-	input->cur = NULL;
-	input->buf = NULL;
-	input->line = 1;
-	input->col = 1;
-	input->buf = NULL;
-	input->free = NULL;
-	input->version = NULL;
-	input->consumed = 0;
-	input->length = 0;
-	return(input);
+	return input;
 }
 // 
 // Commodity functions, cleanup needed ?
@@ -4050,7 +4050,7 @@ int htmlParseDocument(htmlParserCtxtPtr ctxt)
 	xmlDtdPtr dtd;
 	xmlInitParser();
 	htmlDefaultSAXHandlerInit();
-	if(!ctxt || (ctxt->input == NULL)) {
+	if(!ctxt || !ctxt->input) {
 		htmlParseErr(ctxt, XML_ERR_INTERNAL_ERROR, "htmlParseDocument: context error\n", 0, 0);
 		return XML_ERR_INTERNAL_ERROR;
 	}
@@ -4141,7 +4141,6 @@ int htmlParseDocument(htmlParserCtxtPtr ctxt)
  *
  * Returns 0 in case of success and -1 in case of error
  */
-
 static int htmlInitParserCtxt(htmlParserCtxtPtr ctxt)
 {
 	htmlSAXHandler * sax;
@@ -4160,7 +4159,7 @@ static int htmlInitParserCtxt(htmlParserCtxtPtr ctxt)
 	}
 	else
 		memzero(sax, sizeof(htmlSAXHandler));
-	/* Allocate the Input stack */
+	// Allocate the Input stack 
 	ctxt->inputTab = (htmlParserInputPtr*)SAlloc::M(5 * sizeof(htmlParserInputPtr));
 	if(ctxt->inputTab == NULL) {
 		htmlErrMemory(NULL, "htmlInitParserCtxt: out of memory\n");
@@ -4176,7 +4175,7 @@ static int htmlInitParserCtxt(htmlParserCtxtPtr ctxt)
 	ctxt->encoding = NULL;
 	ctxt->standalone = -1;
 	ctxt->instate = XML_PARSER_START;
-	/* Allocate the Node stack */
+	// Allocate the Node stack 
 	ctxt->PP_NodeTab = (htmlNodePtr*)SAlloc::M(10 * sizeof(htmlNodePtr));
 	if(ctxt->PP_NodeTab == NULL) {
 		htmlErrMemory(NULL, "htmlInitParserCtxt: out of memory\n");
@@ -4191,8 +4190,7 @@ static int htmlInitParserCtxt(htmlParserCtxtPtr ctxt)
 	ctxt->nodeNr = 0;
 	ctxt->nodeMax = 10;
 	ctxt->P_Node = NULL;
-
-	/* Allocate the Name stack */
+	// Allocate the Name stack 
 	ctxt->nameTab = (const xmlChar**)SAlloc::M(10 * sizeof(xmlChar *));
 	if(ctxt->nameTab == NULL) {
 		htmlErrMemory(NULL, "htmlInitParserCtxt: out of memory\n");
@@ -4210,13 +4208,11 @@ static int htmlInitParserCtxt(htmlParserCtxtPtr ctxt)
 	ctxt->nameNr = 0;
 	ctxt->nameMax = 10;
 	ctxt->name = NULL;
-
 	ctxt->nodeInfoTab = NULL;
 	ctxt->nodeInfoNr  = 0;
 	ctxt->nodeInfoMax = 0;
-
 	if(sax == NULL)
-		ctxt->sax = (xmlSAXHandlerPtr) &htmlDefaultSAXHandler;
+		ctxt->sax = (xmlSAXHandler *) &htmlDefaultSAXHandler;
 	else {
 		ctxt->sax = sax;
 		memcpy(sax, &htmlDefaultSAXHandler, sizeof(xmlSAXHandlerV1));
@@ -4239,7 +4235,6 @@ static int htmlInitParserCtxt(htmlParserCtxtPtr ctxt)
 	xmlInitNodeInfoSeq(&ctxt->node_seq);
 	return 0;
 }
-
 /**
  * htmlFreeParserCtxt:
  * @ctxt:  an HTML parser context
@@ -4247,7 +4242,6 @@ static int htmlInitParserCtxt(htmlParserCtxtPtr ctxt)
  * Free all the memory used by a parser context. However the parsed
  * document in ctxt->myDoc is not freed.
  */
-
 void htmlFreeParserCtxt(htmlParserCtxtPtr ctxt)
 {
 	xmlFreeParserCtxt(ctxt);
@@ -4286,28 +4280,24 @@ htmlParserCtxtPtr htmlNewParserCtxt()
  */
 htmlParserCtxtPtr htmlCreateMemoryParserCtxt(const char * buffer, int size)
 {
-	xmlParserCtxt * ctxt;
-	xmlParserInputPtr input;
-	xmlParserInputBufferPtr buf;
-	if(!buffer)
-		return NULL;
-	if(size <= 0)
-		return NULL;
-	ctxt = htmlNewParserCtxt();
-	if(!ctxt)
-		return NULL;
-	buf = xmlParserInputBufferCreateMem(buffer, size, XML_CHAR_ENCODING_NONE);
-	if(!buf)
-		return NULL;
-	input = xmlNewInputStream(ctxt);
-	if(!input) {
-		xmlFreeParserCtxt(ctxt);
-		return NULL;
+	xmlParserCtxt * ctxt = 0;
+	if(buffer && size > 0) {
+		ctxt = htmlNewParserCtxt();
+		if(ctxt) {
+			xmlParserInputBuffer * buf = xmlParserInputBufferCreateMem(buffer, size, XML_CHAR_ENCODING_NONE);
+			if(!buf)
+				return NULL;
+			xmlParserInput * input = xmlNewInputStream(ctxt);
+			if(!input) {
+				xmlFreeParserCtxt(ctxt);
+				return NULL;
+			}
+			input->filename = NULL;
+			input->buf = buf;
+			xmlBufResetInput(buf->buffer, input);
+			inputPush(ctxt, input);
+		}
 	}
-	input->filename = NULL;
-	input->buf = buf;
-	xmlBufResetInput(buf->buffer, input);
-	inputPush(ctxt, input);
 	return ctxt;
 }
 
@@ -5224,7 +5214,7 @@ int htmlParseChunk(htmlParserCtxtPtr ctxt, const char * chunk, int size, int ter
 	}
 	else if(ctxt->instate != XML_PARSER_EOF) {
 		if(ctxt->input && ctxt->input->buf) {
-			xmlParserInputBufferPtr in = ctxt->input->buf;
+			xmlParserInputBuffer * in = ctxt->input->buf;
 			if(in->encoder && in->buffer && in->raw) {
 				size_t base = xmlBufGetInputBase(in->buffer, ctxt->input);
 				size_t current = ctxt->input->cur - ctxt->input->base;
@@ -5289,7 +5279,7 @@ htmlParserCtxtPtr htmlCreatePushParserCtxt(htmlSAXHandlerPtr sax, void * user_da
 			if(enc==XML_CHAR_ENCODING_UTF8 || buf->encoder)
 				ctxt->charset = XML_CHAR_ENCODING_UTF8;
 			if(sax) {
-				if(ctxt->sax != (xmlSAXHandlerPtr)&htmlDefaultSAXHandler)
+				if(ctxt->sax != (xmlSAXHandler *)&htmlDefaultSAXHandler)
 					SAlloc::F(ctxt->sax);
 				ctxt->sax = (htmlSAXHandlerPtr)SAlloc::M(sizeof(htmlSAXHandler));
 				if(ctxt->sax == NULL) {
@@ -5627,7 +5617,7 @@ htmlStatus htmlNodeStatus(const htmlNodePtr P_Node, int legacy)
 void htmlCtxtReset(htmlParserCtxtPtr ctxt)
 {
 	if(ctxt) {
-		xmlParserInputPtr input;
+		xmlParserInput * input;
 		xmlInitParser();
 		xmlDict * dict = ctxt->dict;
 		while((input = inputPop(ctxt)) != NULL) { /* Non consuming */
@@ -5874,8 +5864,8 @@ htmlDocPtr htmlReadMemory(const char * buffer, int size, const char * URL, const
 htmlDocPtr htmlReadFd(int fd, const char * URL, const char * encoding, int options)
 {
 	htmlParserCtxtPtr ctxt;
-	xmlParserInputBufferPtr input;
-	xmlParserInputPtr stream;
+	xmlParserInputBuffer * input;
+	xmlParserInput * stream;
 	if(fd < 0)
 		return NULL;
 	xmlInitParser();
@@ -5914,8 +5904,8 @@ htmlDocPtr htmlReadFd(int fd, const char * URL, const char * encoding, int optio
 htmlDocPtr htmlReadIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx, const char * URL, const char * encoding, int options)
 {
 	htmlParserCtxtPtr ctxt;
-	xmlParserInputBufferPtr input;
-	xmlParserInputPtr stream;
+	xmlParserInputBuffer * input;
+	xmlParserInput * stream;
 	if(ioread == NULL)
 		return NULL;
 	xmlInitParser();
@@ -5955,7 +5945,7 @@ htmlDocPtr htmlReadIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose
  */
 htmlDocPtr htmlCtxtReadDoc(htmlParserCtxtPtr ctxt, const xmlChar * cur, const char * URL, const char * encoding, int options)
 {
-	xmlParserInputPtr stream;
+	xmlParserInput * stream;
 	if(!cur || !ctxt)
 		return NULL;
 	xmlInitParser();
@@ -5982,7 +5972,7 @@ htmlDocPtr htmlCtxtReadDoc(htmlParserCtxtPtr ctxt, const xmlChar * cur, const ch
  */
 htmlDocPtr htmlCtxtReadFile(htmlParserCtxtPtr ctxt, const char * filename, const char * encoding, int options)
 {
-	xmlParserInputPtr stream;
+	xmlParserInput * stream;
 	if(!filename || !ctxt)
 		return NULL;
 	xmlInitParser();
@@ -6010,8 +6000,8 @@ htmlDocPtr htmlCtxtReadFile(htmlParserCtxtPtr ctxt, const char * filename, const
  */
 htmlDocPtr htmlCtxtReadMemory(htmlParserCtxtPtr ctxt, const char * buffer, int size, const char * URL, const char * encoding, int options)
 {
-	xmlParserInputBufferPtr input;
-	xmlParserInputPtr stream;
+	xmlParserInputBuffer * input;
+	xmlParserInput * stream;
 	if(!ctxt || !buffer)
 		return NULL;
 	xmlInitParser();
@@ -6044,8 +6034,8 @@ htmlDocPtr htmlCtxtReadMemory(htmlParserCtxtPtr ctxt, const char * buffer, int s
  */
 htmlDocPtr htmlCtxtReadFd(htmlParserCtxtPtr ctxt, int fd, const char * URL, const char * encoding, int options)
 {
-	xmlParserInputBufferPtr input;
-	xmlParserInputPtr stream;
+	xmlParserInputBuffer * input;
+	xmlParserInput * stream;
 	if(fd < 0 || !ctxt)
 		return NULL;
 	xmlInitParser();
@@ -6080,8 +6070,8 @@ htmlDocPtr htmlCtxtReadFd(htmlParserCtxtPtr ctxt, int fd, const char * URL, cons
 htmlDocPtr htmlCtxtReadIO(htmlParserCtxtPtr ctxt, xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx,
     const char * URL, const char * encoding, int options)
 {
-	xmlParserInputBufferPtr input;
-	xmlParserInputPtr stream;
+	xmlParserInputBuffer * input;
+	xmlParserInput * stream;
 	if(!ioread || !ctxt)
 		return NULL;
 	xmlInitParser();

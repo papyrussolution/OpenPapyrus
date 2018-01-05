@@ -1,5 +1,5 @@
 // CLIBNK2.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 // Модуль формирования данных для передачи в системы клиент-банк
@@ -11,9 +11,8 @@
 //
 IMPLEMENT_IMPEXP_HDL_FACTORY(CLIBNKDATA, PPCliBnkImpExpParam);
 
-PPCliBnkImpExpParam::PPCliBnkImpExpParam(uint recId, long flags) : PPImpExpParam(NZOR(recId, PPREC_CLIBNKDATA), flags)
+PPCliBnkImpExpParam::PPCliBnkImpExpParam(uint recId, long flags) : PPImpExpParam(NZOR(recId, PPREC_CLIBNKDATA), flags), DefPayerByAmtSign(0)
 {
-	DefPayerByAmtSign = 0;
 }
 
 //virtual
@@ -409,7 +408,7 @@ int ResolveAssocCollisionDialog::SetupPersonsListByOprKind(PPID opID)
 		if(p_a->P_Item->OpID == opID && psn_obj.Search(p_a->PersonID, &r) > 0) {
 			persons.Add(p_a->PersonID, r.Name);
 		}
-	PPID   s = persons.getCount() ? persons.at(0).Id : 0;
+	PPID   s = persons.getCount() ? persons.Get(0).Id : 0;
 	SetupStrAssocCombo(this, CTLSEL_ASCRES_PERSON, &persons, s, 0);
 	return 1;
 }

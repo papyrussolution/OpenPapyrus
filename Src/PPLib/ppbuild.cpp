@@ -1,5 +1,5 @@
 // PPBUILD.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -27,10 +27,8 @@ public:
 			fCopyToUhtt      = 0x0040,
 			fOpenSource      = 0x0080  // OpenSource-вариант сборки
 		};
-		Param()
+		Param() : Flags(0), ConfigEntryIdx(0)
 		{
-			Flags = 0;
-			ConfigEntryIdx = 0;
 			//PrefMsvsVerMajor = 0;
 		}
 		Param(const Param & rS)
@@ -61,9 +59,8 @@ public:
 		uint   ConfigEntryIdx;   // Индекс выбранной конфигурации сборки. 0 - undef
 		SString VerSuffix;       // Опциональный суффикс версии дистрибутива (например, PRE)
 		struct ConfigEntry {
-			ConfigEntry()
+			ConfigEntry() : PrefMsvsVerMajor(0)
 			{
-				PrefMsvsVerMajor = 0;
 			}
 			SString Name;            // Наименование элемента конфигурации сборки
 			int    PrefMsvsVerMajor; // PPINIPARAM_PREFMSVSVER
@@ -395,7 +392,7 @@ int SLAPI PrcssrBuild::FindMsvs(int prefMsvsVerMajor, StrAssocArray & rList, SSt
 	}
 	if(ok > 0 && pPrefPath) {
 		for(uint i = 0; pPrefPath->Empty() && i < rList.getCount(); i++) {
-			StrAssocArray::Item item = rList.at(i);
+			StrAssocArray::Item item = rList.Get(i);
 			int    msvs_ver_major = (item.Id >> 16);
 			int    msvs_ver_minor = (item.Id & 0xffff);
 			if(prefMsvsVerMajor) {

@@ -27,9 +27,9 @@ typedef xmlParserCtxt htmlParserCtxt;
 typedef xmlParserCtxt * htmlParserCtxtPtr;
 typedef xmlParserNodeInfo htmlParserNodeInfo;
 typedef xmlSAXHandler htmlSAXHandler;
-typedef xmlSAXHandlerPtr htmlSAXHandlerPtr;
+typedef xmlSAXHandler * htmlSAXHandlerPtr;
 typedef xmlParserInput htmlParserInput;
-typedef xmlParserInputPtr htmlParserInputPtr;
+typedef xmlParserInput * htmlParserInputPtr;
 typedef xmlDocPtr htmlDocPtr;
 typedef xmlNodePtr htmlNodePtr;
 /*

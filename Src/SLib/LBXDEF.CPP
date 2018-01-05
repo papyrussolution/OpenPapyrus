@@ -1,5 +1,5 @@
 // LBXDEF.CPP
-// Copyright (c) Sobolev A. 1996, 1997, 2000, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) Sobolev A. 1996, 1997, 2000, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -383,7 +383,8 @@ int SLAPI StdListBoxDef::valid()
 
 long SLAPI StdListBoxDef::getRecsCount()
 {
-	return P_Data ? P_Data->getCount() : 0;
+	//return P_Data ? P_Data->getCount() : 0;
+	return SVectorBase::GetCount(P_Data);
 }
 
 int SLAPI StdListBoxDef::getIdList(LongArray & rList)
@@ -496,7 +497,7 @@ int SLAPI StrAssocListBoxDef::getIdList(LongArray & rList)
 	int    ok = -1;
 	if(P_Data) {
 		for(uint i = 0; i < P_Data->getCount(); i++) {
-			rList.addUnique(P_Data->at(i).Id);
+			rList.addUnique(P_Data->Get(i).Id);
 			ok = 1;
 		}
 	}
@@ -551,7 +552,7 @@ int SLAPI StrAssocListBoxDef::addItem(long id, const char * pStr, long * pPos)
 
 int SLAPI StrAssocListBoxDef::removeItem(long pos)
 {
-	return (P_Data && pos >= 0) ? P_Data->atFree((uint)pos) : 0;
+	return (P_Data && pos >= 0) ? P_Data->AtFree((uint)pos) : 0;
 }
 
 void SLAPI StrAssocListBoxDef::freeAll()
@@ -570,16 +571,15 @@ SLAPI StdTreeListBoxDef::StdTreeListBoxDef(StrAssocArray * pList, uint aOptions,
 
 SLAPI StdTreeListBoxDef::~StdTreeListBoxDef()
 {
-	if(Options & lbtDisposeData) {
+	if(Options & lbtDisposeData)
 		delete P_SaList;
-	}
 }
 
 int SLAPI StdTreeListBoxDef::Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxList, uint32 * pPos)
 {
 	int    ok = 1;
 	if(!rAddedIdxList.Has(idx)) {
-		StrAssocArray::Item item_ = P_SaList->at(idx);
+		StrAssocArray::Item item_ = P_SaList->Get(idx);
 		TreeItem ti;
 		ti.Id = item_.Id;
 		ti.ParentId = item_.ParentId;
@@ -652,7 +652,7 @@ int SLAPI StdTreeListBoxDef::getCurID(long * pId)
 {
 	int    ok = 0;
 	if(P_SaList) {
-		char * p = (char*)getRow_(_curItem());
+		const void * p = (const void *)getRow_(_curItem());
 		if(p) {
 			*pId = ((long *)p)[0];
 			ok = 1;
@@ -664,9 +664,9 @@ int SLAPI StdTreeListBoxDef::getCurID(long * pId)
 int SLAPI StdTreeListBoxDef::getCurData(void * b)
 {
 	if(P_SaList) {
-		char * p = (char *)getRow_(_curItem());
+		const void * p = (const void *)getRow_(_curItem());
 		if(p)
-			strnzcpy((char *)b, ((Item *)p)->Txt, 255);
+			strnzcpy((char *)b, ((const Item *)p)->Txt, 255);
 	}
 	return 0;
 }
@@ -686,7 +686,7 @@ int SLAPI StdTreeListBoxDef::getIdList(LongArray & rList)
 	int    ok = -1;
 	if(P_SaList) {
 		for(uint i = 0; i < P_SaList->getCount(); i++) {
-			rList.addUnique(P_SaList->at(i).Id);
+			rList.addUnique(P_SaList->Get(i).Id);
 			ok = 1;
 		}
 	}
@@ -696,7 +696,7 @@ int SLAPI StdTreeListBoxDef::getIdList(LongArray & rList)
 void * FASTCALL StdTreeListBoxDef::getRow_(long r)
 {
 	if(P_SaList && r < (long)P_SaList->getCount()) {
-		StrAssocArray::Item item = P_SaList->at(r);
+		StrAssocArray::Item item = P_SaList->Get(r);
 		TempItem.Id = item.Id;
 		TempItem.ParentId = item.ParentId;
 		STRNSCPY(TempItem.Txt, item.Txt);

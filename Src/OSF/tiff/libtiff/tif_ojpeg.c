@@ -197,13 +197,12 @@ static const TIFFField ojpegFields[] = {
 #ifndef LIBJPEG_ENCAP_EXTERNAL
 #include <setjmp.h>
 #endif
-
-/* We undefine FAR to avoid conflict with JPEG definition */
-
+//
+// We undefine FAR to avoid conflict with JPEG definition 
+//
 #ifdef FAR
-#undef FAR
+	#undef FAR
 #endif
-
 /*
    Libjpeg's jmorecfg.h defines INT16 and INT32, but only if XMD_H is
    not defined.  Unfortunately, the MinGW and Borland compilers include
@@ -2368,8 +2367,8 @@ static void OJPEGLibjpegJpegSourceMgrSkipInputData(jpeg_decompress_struct* cinfo
 }
 
 #ifdef _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4702 ) /* unreachable code */
+	#pragma warning( push )
+	#pragma warning( disable : 4702 ) /* unreachable code */
 #endif
 static boolean OJPEGLibjpegJpegSourceMgrResyncToRestart(jpeg_decompress_struct* cinfo, int desired)
 {

@@ -1,5 +1,5 @@
 // TECH.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -356,7 +356,7 @@ int SLAPI PPObjTech::SetupCombo(TDialog * dlg, uint ctlID, PPID id, long flags, 
 				PPObjListWindow * p_lw = new PPObjListWindow(PPOBJ_TECH, p_list, OLW_CANINSERT, 0);
 				if(p_lw) {
 					if(id == 0 && p_list->getCount() == 1)
-						id = p_list->at(0).Id;
+						id = p_list->Get(0).Id;
 					p_combo->setListWindow(p_lw, id);
 					ok = 1;
 				}

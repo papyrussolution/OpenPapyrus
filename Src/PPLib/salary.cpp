@@ -1,5 +1,5 @@
 // SALARY.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1276,7 +1276,7 @@ int SLAPI PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 		const char * p_symb = pSymb+3;
 		uint   pos = 0;
 		if(ScSymbList.SearchByText(p_symb, 1, &pos)) {
-			result = (double)ScSymbList.at(pos).Id;
+			result = (double)ScSymbList.Get(pos).Id;
 			if(!(P.Flags & Param::fSilent) && P.Flags & Param::fVerbose) {
 				Logger.Log(PPFormatT(PPTXT_LOG_PRCSALUSEDPOSTAMT, &msg_buf, pSymb, result));
 			}
@@ -1293,7 +1293,7 @@ int SLAPI PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 		if(CurPostPack.Rec.PersonID) {
 			uint   pos = 0;
 			if(TagSymbList.SearchByText(p_symb, 1, &pos) > 0) {
-				PPID   tag_id = TagSymbList.at(pos).Id;
+				PPID   tag_id = TagSymbList.Get(pos).Id;
 				ObjTagItem tag_item;
 				if(PPRef->Ot.GetTag(PPOBJ_PERSON, CurPostPack.Rec.PersonID, tag_id, &tag_item) > 0) {
 					if(tag_item.TagDataType == OTTYP_NUMBER)
@@ -1376,7 +1376,7 @@ int SLAPI PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 		const char * p_symb = pSymb+2;
 		uint   pos = 0;
 		if(EvSymbList.SearchByText(p_symb, 1, &pos)) {
-			result = (double)EvSymbList.at(pos).Id;
+			result = (double)EvSymbList.Get(pos).Id;
 			if(!(P.Flags & Param::fSilent) && P.Flags & Param::fVerbose) {
 				Logger.Log(PPFormatT(PPTXT_LOG_PRCSALUUSEDPSNEV, &msg_buf, pSymb, result));
 			}
@@ -1435,7 +1435,7 @@ int SLAPI PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 		}
 	}
 	else if(AmtTypeList.SearchByText(pSymb, 1, &(pos = 0))) {
-		PPID   amt_id = AmtTypeList.at(pos).Id;
+		PPID   amt_id = AmtTypeList.Get(pos).Id;
 		if(CurPostPack.Amounts.Get(amt_id, cur_id, P.NominalPeriod.low, &result) > 0) {
 			if(!(P.Flags & Param::fSilent) && P.Flags & Param::fVerbose) {
 				Logger.Log(PPFormatT(PPTXT_LOG_PRCSALUSEDPOSTAMT, &msg_buf, pSymb, result));
@@ -1453,7 +1453,7 @@ int SLAPI PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 		}
 		else {
 			if(CalList.SearchByText(pSymb, 1, &(pos = 0))) {
-				result = (double)CalList.at(pos).Id;
+				result = (double)CalList.Get(pos).Id;
 			}
 			else {
 				if(!(P.Flags & Param::fSilent)) {
@@ -1465,7 +1465,7 @@ int SLAPI PrcssrSalary::Expr_ResolveSymb(const char * pSymb, double * pVal)
 		ok = 1;
 	}
 	else if(CalList.SearchByText(pSymb, 1, &(pos = 0))) {
-		result = (double)CalList.at(pos).Id;
+		result = (double)CalList.Get(pos).Id;
 		ok = 1;
 	}
 	ASSIGN_PTR(pVal, result);

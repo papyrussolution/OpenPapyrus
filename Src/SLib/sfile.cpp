@@ -1,5 +1,5 @@
 // SFILE.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -2181,8 +2181,7 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 	LongArray candid_by_ext;
 	LongArray candid_by_sign;
 	{
-		SPathStruc ps;
-		ps.Split(pFileName);
+		SPathStruc ps(pFileName);
 		int    entry_mime_type;
 		SString ext = ps.Ext;
 		SString entry_ext, entry_sign, entry_mime_subtype;

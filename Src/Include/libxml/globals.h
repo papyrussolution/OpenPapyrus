@@ -28,7 +28,6 @@ extern "C" {
 
 XMLPUBFUN void XMLCALL xmlInitGlobals();
 XMLPUBFUN void XMLCALL xmlCleanupGlobals();
-
 /**
  * xmlParserInputBufferCreateFilenameFunc:
  * @URI: the URI to read from
@@ -37,10 +36,9 @@ XMLPUBFUN void XMLCALL xmlCleanupGlobals();
  * Signature for the function doing the lookup for a suitable input method
  * corresponding to an URI.
  *
- * Returns the new xmlParserInputBufferPtr in case of success or NULL if no
- *         method was found.
+ * Returns the new xmlParserInputBufferPtr in case of success or NULL if no method was found.
  */
-typedef xmlParserInputBufferPtr(*xmlParserInputBufferCreateFilenameFunc)(const char *URI, xmlCharEncoding enc);
+typedef xmlParserInputBuffer * (*xmlParserInputBufferCreateFilenameFunc)(const char *URI, xmlCharEncoding enc);
 /**
  * xmlOutputBufferCreateFilenameFunc:
  * @URI: the URI to write to

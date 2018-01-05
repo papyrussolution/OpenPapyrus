@@ -194,7 +194,8 @@ int SLAPI BrowserDef::AddCrosstab(BroCrosstab * pCt)
 }
 
 uint  SLAPI BrowserDef::GetCrosstabCount() const
-	{ return P_CtList ? P_CtList->getCount() : 0; }
+	//{ return P_CtList ? P_CtList->getCount() : 0; }
+	{ return SVectorBase::GetCount(P_CtList); }
 const BroCrosstab * SLAPI BrowserDef::GetCrosstab(uint ctN) const
 	{ return (P_CtList && ctN < P_CtList->getCount()) ? (const BroCrosstab *)P_CtList->at(ctN) : 0; }
 
@@ -746,7 +747,8 @@ int SLAPI AryBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, 
 
 long SLAPI AryBrowserDef::getRecsCount()
 {
-	return (long)(P_Array ? P_Array->getCount() : 0);
+	//return (long)(P_Array ? P_Array->getCount() : 0);
+	return (long)SVectorBase::GetCount(P_Array);
 }
 
 void * FASTCALL AryBrowserDef::getRow(long row)

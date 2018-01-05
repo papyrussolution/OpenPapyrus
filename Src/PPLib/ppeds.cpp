@@ -27,7 +27,7 @@ void PPEds::GetEncryptedFileName(const char * pFileName, SString & rEncryptFileN
 	int count = 0;
 	SString ext;
 	rEncryptFileName.Z().Cat(pFileName);
-	ext = 0;
+	ext.Z();
 	while(rEncryptFileName.Last() != '.') {
 		count++;
 		rEncryptFileName.TrimRight();
@@ -2118,10 +2118,8 @@ int PPEds::GetSignFilesForDoc(const char * pFileName, StrAssocArray & rFilesLis)
 	size_t i = 0;
 	SFile file;
 	SFindFile find_file;
-	SPathStruc spath;
 	SString path;
-
-	spath.Split(pFileName);
+	SPathStruc spath(pFileName);
 	spath.Nam.CatChar('*');
 	spath.Ext.Z().Cat("p7s");
 	spath.Merge(path);
@@ -2157,9 +2155,9 @@ int PPEds::GetSignFileAndSignNames(int posInList, const char * pFileName, SStrin
 	SString signer_name;
 	THROW(GetSignFilesForDoc(pFileName, sign_files_list));
 	for(size_t i = 1; i <= sign_files_list.getCount(); i++) {
-		THROW(GetSignsCount(sign_files_list.at(i - 1).Txt, count));
+		THROW(GetSignsCount(sign_files_list.Get(i-1).Txt, count));
 		if((posInList - (int)i) <= count)
-			rSignFileName.CopyFrom(sign_files_list.at(i-1).Txt);
+			rSignFileName.CopyFrom(sign_files_list.Get(i-1).Txt);
 	}
 	CATCHZOK;
 	return ok;

@@ -1,5 +1,5 @@
 // OBJSCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1654,10 +1654,10 @@ int SLAPI PPObjSCardSeriesListWindow::InitIteration()
 int FASTCALL PPObjSCardSeriesListWindow::NextIteration(PPSCardSeries * pRec)
 {
 	int    ok = -1;
-	if(pRec && def) {
-		const StrAssocArray * p_scs_ary = ((StrAssocListBoxDef *)def)->getArray();
+	if(pRec && P_Def) {
+		const StrAssocArray * p_scs_ary = ((StrAssocListBoxDef *)P_Def)->getArray();
 		if(p_scs_ary && CurIterPos < p_scs_ary->getCount()) {
-			StrAssocArray::Item item = p_scs_ary->at(CurIterPos++);
+			StrAssocArray::Item item = p_scs_ary->Get(CurIterPos++);
 			PPID   id = item.Id;
 			PPObjSCardSeries * p_sc_obj = (PPObjSCardSeries *)P_Obj;
 			if(p_sc_obj && p_sc_obj->Search(id, pRec) > 0)
@@ -4809,7 +4809,7 @@ static int SLAPI SelectSCardImportCfgs(PPSCardImpExpParam * pParam, int import)
 	THROW_INVARG(pParam);
 	pParam->Direction = BIN(import);
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_SCARD, &param, &list, import ? 2 : 1));
-	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.at(p).Id : 0;
+	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.Get(p).Id : 0;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 	{
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);

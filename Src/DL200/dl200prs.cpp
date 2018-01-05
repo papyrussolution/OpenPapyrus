@@ -1,16 +1,13 @@
 // DL200PRS.CPP
-// Copyrigh (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2012, 2013, 2015, 2016, 2017
+// Copyrigh (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2009, 2012, 2013, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
 
 // Prototype (REPORTW.CPP)
 
-DL2_Resolver::SPD::SPD(int kind, DL2_Resolver * pR)
+DL2_Resolver::SPD::SPD(int kind, DL2_Resolver * pR) : Kind(kind), P_R(pR), Flags(0)
 {
-	Kind = kind;
-	P_R = pR;
-	Flags = 0;
 }
 
 DL2_Resolver::SPD::~SPD()
@@ -217,9 +214,6 @@ public:
 	DateRange Period;
 	ObjIdListFilt LocList;
 	ObjIdListFilt GgList;
-	//
-	//
-	//
 	CCheckTotal Total;
 };
 
@@ -251,9 +245,7 @@ public:
 			THROW(ResolveGoodsGroupList(rS.GoodsGrpListID, GgList));
 		}
 		Flags &= ~fResolved; // @v7.5.0
-		CATCH
-			ok = 0;
-		ENDCATCH
+		CATCHZOK
 		return ok;
 	}
 	virtual DL2_CI * Resolve(const DL2_Score & rS)
@@ -471,17 +463,14 @@ public:
 //
 //
 //
-SLAPI DL2_Resolver::DL2_Resolver(long flags)
+SLAPI DL2_Resolver::DL2_Resolver(long flags) : Flags(flags), ActualDate(ZERODATE), CurAr(-1)
 {
 	SString buf;
-	Flags = flags;
 	PPLoadText(PPTXT_DL200_NAMEVARS, buf);
 	StringSet ss(';', buf);
 	for(uint i = 0, j = 0; ss.get(&i, buf) > 0; j++)
 		NameVars.Add(j + 1, buf);
 	NameVars.SortByText();
-	ActualDate = ZERODATE;
-	CurAr = -1;
 }
 
 SLAPI DL2_Resolver::~DL2_Resolver()
@@ -538,7 +527,7 @@ int SLAPI DL2_Resolver::ResolveName(const char * pExpression, SString & rName)
 	SString buf;
 	rName = 0;
 	if(NameVars.SearchByText(pExpression, 1, &pos) > 0)
-		id = NameVars.at(pos).Id - 1;
+		id = NameVars.Get(pos).Id - 1;
 	switch(id) {
 		case PPDL200_NAMEVAR_MAINORGNAME:
 			rName = GetMainOrgName(rName);
@@ -834,7 +823,7 @@ int SLAPI DL200_Context::IsFunc(const char * pSymb, int * pFuncId)
 		symb.Strip();
 		uint   pos = 0;
 		if(FuncList.SearchByText(symb, 1, &pos)) {
-			func_id = FuncList.at(pos).Id;
+			func_id = FuncList.Get(pos).Id;
 		}
 		else {
 			func_id = ++LastFuncId;
@@ -1561,4 +1550,3 @@ int SLAPI ProcessDL200()
 	}
 	return 1;
 }
-

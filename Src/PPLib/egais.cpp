@@ -1,5 +1,5 @@
 // EGAIS.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018
 // Поддержка форматов для обмена с системой EGAIS
 // @codepage UTF-8
 //
@@ -5320,7 +5320,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 							{
 								uint   clp = 0;
 								if(checked_list.SearchByText(egais_code, PTR_CMPFUNC(PcharNoCase), &clp)) {
-									const long clid = checked_list.at(clp).Id;
+									const long clid = checked_list.Get(clp).Id;
 									double checked_qtty = checked_qtty_list.Get(clid, 0);
 									shop_rest += checked_qtty;
 								}
@@ -5369,7 +5369,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCu
 											clp = 0;
 											THROW_SL(checked_list.SearchByText(egais_code, PTR_CMPFUNC(PcharNoCase), &clp));
                                         }
-                                        const long clid = checked_list.at(clp).Id;
+                                        const long clid = checked_list.Get(clp).Id;
                                         THROW_SL(checked_qtty_list.Add(clid, transfer_qtty, 1, 0));
 									}
 									{
@@ -5689,8 +5689,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 {
 	long   file_no = 0;
 	{
-		SPathStruc ps;
-		ps.Split(pFileName);
+		SPathStruc ps(pFileName);
 		file_no = ps.Nam.ToLong();
 	}
 	int    ok = -1;
@@ -5940,12 +5939,11 @@ int SLAPI PPEgaisProcessor::MakeOutputFileName(const Reply * pReply, const SStri
 {
 	rFileName.Z();
 	int    ok = 1;
-	SPathStruc ps;
 	SString temp_buf;
 	InetUrl _up(pReply->Url);
 	_up.GetComponent(InetUrl::cPath, 0, temp_buf);
 	(rFileName = rTempPath).SetLastSlash().Cat(temp_buf);
-	ps.Split(rFileName);
+	SPathStruc ps(rFileName);
 	(temp_buf = ps.Nam).CatChar('.').Cat("xml");
 	ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, rFileName);
 	THROW_SL(::createDir(rFileName));
@@ -8153,8 +8151,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 					*p_qb = qb;
 				}
 				else {
-					SPathStruc ps;
-					ps.Split(rParam.ParamString);
+					SPathStruc ps(rParam.ParamString);
 					if(ps.Drv.Empty() && ps.Dir.Empty()) {
 						PPGetFilePath(PPPATH_IN, rParam.ParamString, temp_buf);
 					}

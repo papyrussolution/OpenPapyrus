@@ -1,5 +1,5 @@
 // TAB.CPP
-// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017
+// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -177,7 +177,7 @@ int SLAPI STab::GetRow(uint pos, Row & rRow) const
 {
 	int    ok = 1;
 	if(pos < Data.getCount()) {
-		StrAssocArray::Item item = Data.at(pos);
+		StrAssocArray::Item item = Data.Get(pos);
 		ok = rRow.FromStr(item.Txt);
 	}
 	else
@@ -418,8 +418,7 @@ int SLAPI STabFile::WriteTab(const char * pTabName, STab * pTab)
 	SString temp_file_name, path;
 	THROW(IsValid());
 	{
-		SPathStruc ps;
-		ps.Split(F.GetName());
+		SPathStruc ps(F.GetName());
 		ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, path);
 		MakeTempFileName(path, "STB", "TMP", 0, temp_file_name);
 		THROW(temp_file.Open(temp_file_name, SFile::mWrite));

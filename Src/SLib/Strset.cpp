@@ -1,5 +1,5 @@
 // STRSET.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -253,7 +253,7 @@ void SLAPI StringSet::sort()
 	temp_list.SortByText();
 	clear();
 	for(i = 0; i < temp_list.getCount(); i++)
-		add(temp_list.at(i).Txt);
+		add(temp_list.Get(i).Txt);
 }
 
 void SLAPI StringSet::sortAndUndup()
@@ -268,7 +268,7 @@ void SLAPI StringSet::sortAndUndup()
 	clear();
 	str = 0;
 	for(i = 0; i < temp_list.getCount(); i++) {
-		const char * p_item = temp_list.at(i).Txt;
+		const char * p_item = temp_list.Get(i).Txt;
 		if(i && str != p_item) {
 			add(p_item);
 		}

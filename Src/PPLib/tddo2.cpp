@@ -1,5 +1,5 @@
 // TDDO2.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -62,8 +62,7 @@ int SLAPI Tddo::GetFileName(const char * pFileName, int fileType, const char * p
 	{
 		SString preserve_result = rResult;
 		if(pInputFileName) {
-			SPathStruc ps;
-			ps.Split(pInputFileName);
+			SPathStruc ps(pInputFileName);
 			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, path);
 		}
 		if(path.NotEmptyS()) {
@@ -240,9 +239,7 @@ int SLAPI Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 			THROW(ResolveVar(item_name, pScope, rR));
 		}
 		if(c == '.') {
-			PPFilt pf;
-			MEMSZERO(pf);
-			pf.ID = rR.RefID;
+			PPFilt pf(rR.RefID);
 			rScan.Incr();
 			THROW_PP_S(rR.RefType, PPERR_TDDO_DOTOPNOTLINK, item_name);
 			DlRtm * p_rtm = P_Ctx->GetRtm(rR.RefType);
@@ -255,8 +252,6 @@ int SLAPI Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 			// в случае неудачи с поиском требуемой записи и т.д.
 			if(r < 0) {
 				PPFilt empty_filt;
-				empty_filt.Ptr = 0;
-				empty_filt.ID = 0;
 				p_rtm->DlRtm::InitData(empty_filt, 0);
 			}
 			THROW(ResolveExpr(p_rtm, p_rtm->GetHdrScope(), pCallerRtm, rScan, rR)); // @recursion (set caller scope)
@@ -287,9 +282,7 @@ int SLAPI Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 		rScan.Incr();
 		c = rScan.Skip()[0];
 		if(c == '.') {
-			PPFilt pf;
-			MEMSZERO(pf);
-			pf.ID = rR.RefID;
+			PPFilt pf(rR.RefID);
 			rScan.Incr();
 			THROW_PP_S(rR.RefType, PPERR_TDDO_DOTOPNOTLINK, item_name);
 			DlRtm * p_rtm = P_Ctx->GetRtm(rR.RefType);
@@ -302,8 +295,6 @@ int SLAPI Tddo::ResolveExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 			// в случае неудачи с поиском требуемой записи и т.д.
 			if(r < 0) {
 				PPFilt empty_filt;
-				empty_filt.Ptr = 0;
-				empty_filt.ID = 0;
 				p_rtm->DlRtm::InitData(empty_filt, 0);
 			}
 			THROW(ResolveExpr(p_rtm, p_rtm->GetHdrScope(), pCallerRtm, rScan, rR)); // @recursion (set caller scope)
@@ -469,23 +460,20 @@ int SLAPI Tddo::ResolveVar(const SString & rText, const DlScope * pScope, Result
 	}
 	else if(rText == "__FILEDIR__") {
 		if(InputFileName.NotEmpty()) {
-			SPathStruc ps;
-			ps.Split(InputFileName);
+			SPathStruc ps(InputFileName);
 			ps.Merge(SPathStruc::fDrv|SPathStruc::fDir, rR.S);
 			rR.S.SetLastSlash();
 		}
 	}
 	else if(rText == "__FILENAME__") {
 		if(InputFileName.NotEmpty()) {
-			SPathStruc ps;
-			ps.Split(InputFileName);
+			SPathStruc ps(InputFileName);
 			rR.S = ps.Nam;
 		}
 	}
 	else if(rText == "__FILEEXT__") {
 		if(InputFileName.NotEmpty()) {
-			SPathStruc ps;
-			ps.Split(InputFileName);
+			SPathStruc ps(InputFileName);
 			rR.S = ps.Ext;
 		}
 	}
@@ -3150,9 +3138,7 @@ int SLAPI TestTddo2()
 #if 0 // {
 	for(uint i = 0; i < id_list.getCount(); i++) {
 		DlRtm::ExportParam ep;
-		PPFilt _pf;
-		_pf.ID = id_list.get(i);
-		_pf.Ptr = 0;
+		PPFilt _pf(id_list.get(i));
 		ep.P_F = &_pf;
 		tddo.Process(0, in_buf, /*id_list.get(i), 0*/ep, &ext_param_list, out_buf);
 		out_buf.WriteByte('\n');
@@ -3188,9 +3174,7 @@ int SLAPI TestTddo()
 		in_buf.Cat(temp_buf);
 	for(uint i = 0; i < id_list.getCount(); i++) {
 		DlRtm::ExportParam ep;
-		PPFilt _pf;
-		_pf.ID = id_list.get(i);
-		_pf.Ptr = 0;
+		PPFilt _pf(id_list.get(i));
 		ep.P_F = &_pf;
 		tddo.Process(0, in_buf, /*id_list.get(i), 0*/ep, &ext_param_list, out_buf);
 		out_buf.WriteByte('\n');
@@ -3230,9 +3214,7 @@ SLTEST_R(Tddo)
 		ext_param_list.add("Param 04", 0);
 		{
 			DlRtm::ExportParam ep;
-			PPFilt _f;
-			_f.ID = id_list.get(i);
-			_f.Ptr = 0;
+			PPFilt _f(id_list.get(i));
 			ep.P_F = &_f;
 			THROW(tddo.Process(0, in_buf, ep, &ext_param_list, out_buf));
 		}

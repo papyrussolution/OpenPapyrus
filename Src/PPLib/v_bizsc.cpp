@@ -1,5 +1,5 @@
 // V_BIZSC.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1302,9 +1302,8 @@ int FASTCALL PPViewBizScValByTempl::NextIteration(BizScValByTemplViewItem * pIte
 	return ok;
 }
 
-int SLAPI PPViewBizScValByTempl::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewBizScValByTempl::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
 	if(pBrw) {
 		SString name;
 		PPBizScTemplCol * p_col = 0;
@@ -1318,9 +1317,7 @@ int SLAPI PPViewBizScValByTempl::PreprocessBrowser(PPViewBrowser * pBrw)
 				pBrw->insertColumn(-1, name, i + 1, MKSTYPE(S_ZSTRING, 20), ALIGN_RIGHT, BCO_USERPROC);
 			}
 		}
-		ok = 1;
 	}
-	return ok;
 }
 
 SArray * SLAPI PPViewBizScValByTempl::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)

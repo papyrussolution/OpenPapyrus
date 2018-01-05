@@ -1,5 +1,5 @@
 // SFXTREE2.CPP
-// Copyright (c) A.Sobolev 2016
+// Copyright (c) A.Sobolev 2016, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -25,7 +25,10 @@ public:
 	};
 
 	SSuffixTree(uint32 itemSize);
-	uint   GetItemSize() const;
+	uint   GetItemSize() const
+	{
+		return ItemSize;
+	}
 	uint   FASTCALL CreateString(uint32 * pId);
 	int    AddChunkToString(uint strP, const void * pItems, uint itemsCount);
 	int    InsertString(uint stringP);
@@ -512,11 +515,6 @@ SSuffixTree::SSuffixTree(uint32 itemSize) : Alphabet(itemSize, 0), ItemSize(item
 	}
 }
 
-uint SSuffixTree::GetItemSize() const
-{
-	return ItemSize;
-}
-
 uint FASTCALL SSuffixTree::CreateString(uint32 * pId)
 {
 	uint   new_pos = 0;
@@ -800,8 +798,10 @@ int SSuffixTree::IsEqChr(const void * p1, const void * p2) const
 int SSuffixTree::StrEq(const SSuffixTree::String * pS1, uint item1, const SSuffixTree::String * pS2, uint item2) const
 {
 	int    yes = 0;
-	const  uint len1 = pS1 ? pS1->getCount() : 0;
-	const  uint len2 = pS2 ? pS2->getCount() : 0;
+	//const  uint len1 = pS1 ? pS1->getCount() : 0;
+	const  uint len1 = SVectorBase::GetCount(pS1);
+	//const  uint len2 = pS2 ? pS2->getCount() : 0;
+	const  uint len2 = SVectorBase::GetCount(pS2);
 	if(item1 <= len1 && item2 <= len2) {
 		// Treat the end-of-string markers separately:
 		if(item1 == len1 || item2 == len2) {
@@ -827,7 +827,8 @@ int SSuffixTree::StrEq(uint str1P, uint item1, uint str2P, uint item2) const
 int SSuffixTree::StrEq(const void * pChr, uint strP, uint itemIdx) const
 {
 	const SSuffixTree::String * p_str = GetStr(strP);
-	const  uint len = p_str ? p_str->getCount() : 0;
+	//const  uint len = p_str ? p_str->getCount() : 0;
+	const  uint len = SVectorBase::GetCount(p_str);
 	return (itemIdx < len) ? IsEqChr(pChr, p_str->at(itemIdx)) : 0;
 }
 
@@ -836,8 +837,10 @@ uint SSuffixTree::StrItemsCommon(uint str1P, uint off1, uint str2P, uint off2, u
 	uint   result = 0;
 	const SSuffixTree::String * p_str1 = GetStr(str1P);
 	const SSuffixTree::String * p_str2 = (str1P == str2P) ? p_str1 : GetStr(str2P);
-	const  uint len1 = p_str1 ? p_str1->getCount() : 0;
-	const  uint len2 = p_str2 ? p_str2->getCount() : 0;
+	//const  uint len1 = p_str1 ? p_str1->getCount() : 0;
+	const  uint len1 = SVectorBase::GetCount(p_str1);
+	//const  uint len2 = p_str2 ? p_str2->getCount() : 0;
+	const  uint len2 = SVectorBase::GetCount(p_str2);
 	if(off1 <= len1 && off2 <= len2) {
 		const uint len = MIN(MIN((len1+1) - off1, (len2+1) - off2), maxLen);
 		while(result < len && StrEq(p_str1, off1 + result, p_str2, off2 + result))

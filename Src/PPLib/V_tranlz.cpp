@@ -1,5 +1,5 @@
 // V_TRANLZ.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -456,8 +456,7 @@ SLAPI PPViewTrfrAnlz::PPViewTrfrAnlz() : PPView(0, &Filt, PPVIEW_TRFRANLZ), Cach
 	MaxCacheItems(DS.CheckExtFlag(ECF_SYSSERVICE) ? (128*1024) : (64*1024U)), CacheDelta(DS.CheckExtFlag(ECF_SYSSERVICE) ? 4096 : 2048),
 	P_TrAnlzTbl(0), P_TrGrpngTbl(0), P_OrderTbl(0), P_IterOrderQuery(0), P_InnerIterItem(0), P_BObj(BillObj), Flags(0), GrpIdCounter(0)
 {
-	ImplementFlags |= implDontSetupCtColumnsOnChgFilt;
-	ImplementFlags |= implUseServer;
+	ImplementFlags |= (implDontSetupCtColumnsOnChgFilt|implUseServer);
 	SETFLAG(Flags, fAccsCost, P_BObj->CheckRights(BILLRT_ACCSCOST));
 }
 
@@ -2367,18 +2366,15 @@ SString & SLAPI PPViewTrfrAnlz::GetCtColumnTitle(const int ct, SString & rBuf)
 	return rBuf;
 }
 
-int SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
 	if(pBrw) {
 		if(!P_Ct) {
 			if(Filt.Grp == TrfrAnlzFilt::gGoodsDate) {
 				pBrw->InsColumn(1, "@date", 3, 0, MKSFMT(0, DATF_DMY), 0);
-				ok = 1;
 			}
 			if(Filt.Flags & TrfrAnlzFilt::fCalcRest) {
 				pBrw->insertColumn(-1, "Rest", 23, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0); // @v9.3.5 #19-->20 // @v9.4.10 #20-->23
-				ok = 1;
 				if(Filt.RestAddendumValue & TrfrAnlzFilt::ravTurnoverRate) {
 					pBrw->insertColumn(-1, "Turnover", 24, 0, MKSFMTD(0, 6, NMBF_NOZERO), 0); // @v9.3.5 #20-->21 // @v9.4.10 #21-->24
 				}
@@ -2392,7 +2388,6 @@ int SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 						if(p_q->getFieldPosByName("PVat", &pos)) {
 							// @v9.0.2 pBrw->InsColumnWord(-1, PPWORD_VAT, pos, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0);
 							pBrw->InsColumn(-1, "@vat", pos, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0); // @v9.0.2
-							ok = 1;
 						}
 					}
 				}
@@ -2489,10 +2484,8 @@ int SLAPI PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 			}
 			P_Ct->SetupBrowserCtColumns(pBrw);
 		}
-		if(pBrw->SetTempGoodsGrp(Filt.GoodsGrpID) > 0)
-			ok = 1;
+		pBrw->SetTempGoodsGrp(Filt.GoodsGrpID);
 	}
-	return ok;
 }
 
 int SLAPI PPViewTrfrAnlz::Print(const void *)

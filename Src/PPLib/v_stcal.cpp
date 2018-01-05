@@ -1,5 +1,5 @@
 // V_STCAL.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -15,9 +15,8 @@ IMPLEMENT_PPFILT_FACTORY(StaffCal); SLAPI StaffCalFilt::StaffCalFilt() : PPBaseF
 	Init(1, 0);
 }
 
-SLAPI PPViewStaffCal::PPViewStaffCal() : PPView(0, &Filt, PPVIEW_STAFFCAL)
+SLAPI PPViewStaffCal::PPViewStaffCal() : PPView(0, &Filt, PPVIEW_STAFFCAL), P_TempTbl(0)
 {
-	P_TempTbl = 0;
 	Grid.P_View = this;
 	ImplementFlags |= implChangeFilt;
 }
@@ -464,7 +463,7 @@ int FASTCALL PPViewStaffCal::NextIteration(StaffCalViewItem * pItem)
 			STRNSCPY(pItem->DtText, r_rec.DtText);
 			uint pos = 0;
 			if(ObjNameList.Search(r_rec.LinkObjID, &pos))
-				STRNSCPY(pItem->LinkObjName, ObjNameList.at(pos).Txt);
+				STRNSCPY(pItem->LinkObjName, ObjNameList.Get(pos).Txt);
 		}
 		Counter.Increment();
 		return 1;

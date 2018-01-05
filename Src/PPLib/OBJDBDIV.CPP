@@ -1,5 +1,5 @@
 // OBJDBDIV.CPP
-// Copyright (c) A.Sobolev 1997-2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997-2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Объект, управляющий разделами БД
 //
@@ -32,7 +32,7 @@ PPID SLAPI PPObjDBDiv::Select(int skipCurrent, int * pSingle)
 	StrAssocArray * p_ary = 0;
 	THROW(p_ary = MakeDBDivList(skipCurrent));
 	if(p_ary->getCount() == 1) {
-		id = p_ary->at(0).Id;
+		id = p_ary->Get(0).Id;
 		ASSIGN_PTR(pSingle, 1)
 		ZDELETE(p_ary);
 	}
@@ -75,7 +75,7 @@ void SLAPI DBDivPack::Init()
 {
 	MEMSZERO(Rec);
 	LocList.freeAll();
-	ExtString = 0;
+	ExtString.Z();
 }
 
 int SLAPI DBDivPack::PutExtStrData(int fldID, const char * pBuf)

@@ -342,7 +342,7 @@ private:
 			THROW(p_list);
 			PPWait(1);
 			for(uint i = 0; i < p_list->getCount(); i++) {
-				THROW(objid_ary.Add(PPOBJ_WORLD, p_list->at(i).Id));
+				THROW(objid_ary.Add(PPOBJ_WORLD, p_list->Get(i).Id));
 			}
 			THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 			ok = 1;
@@ -381,7 +381,7 @@ private:
 			THROW(p_list);
 			PPWait(1);
 			for(uint i = 0; i < p_list->getCount(); i++) {
-				THROW(objid_ary.Add(PPOBJ_WORLD, p_list->at(i).Id));
+				THROW(objid_ary.Add(PPOBJ_WORLD, p_list->Get(i).Id));
 			}
 			THROW(PPObjectTransmit::Transmit(&rary, &objid_ary, &param));
 			ok = 1;
@@ -426,7 +426,8 @@ int SLAPI PPObjWorld::UniteMaxLike()
 				THROW(tra);
 				for(uint i = 0; i < p_list->getCount(); i++) {
 					long   like_flags = PPObjWorld::smlCode|PPObjWorld::smlName|smlCheckCountryOrParent;
-					PPID   id = p_list->at(i).Id, like_id = 0;
+					PPID   id = p_list->Get(i).Id;
+					PPID   like_id = 0;
 					PPWorldPacket pack;
 					THROW(PPCheckUserBreak());
 					if(obj_world.GetPacket(id, &pack) > 0) {
@@ -531,10 +532,10 @@ int EditWorldDialog::CheckDuplicateName(PPID * pSelID)
 					PPID   item_id = w_rec.ID;
 					PPID   parent_id = NZOR(w_rec.ParentID, w_rec.CountryID);
 					PPGetSubStr(KindNames, w_rec.Kind - 1, buf);
-					buf.Space().CatChar('-').Space().Cat(w_rec.Name);
+					buf.CatDiv('-', 1).Cat(w_rec.Name);
 					while(parent_id && ObjWorld.Fetch(parent_id, &w_rec) > 0) {
 						PPGetSubStr(KindNames, w_rec.Kind - 1, parent_name);
-						buf.Comma().Space().Cat(parent_name).CatChar(':').Space().Cat(w_rec.Name);
+						buf.Comma().Space().Cat(parent_name).CatDiv(':', 2).Cat(w_rec.Name);
 						parent_id = NZOR(w_rec.ParentID, w_rec.CountryID);
 					}
 					items_list.Add(item_id, buf);

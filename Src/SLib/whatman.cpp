@@ -1,5 +1,5 @@
 // WHATMAN.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -15,9 +15,8 @@ public:
 		const char * P_Symb;
 		const char * P_Name;
 	};
-	WhatmanObjectRegTable() : SVector(sizeof(Entry))
+	WhatmanObjectRegTable() : SVector(sizeof(Entry)), LastIndex(0)
 	{
-		LastIndex = 0;
 		Pool.add("$"); // zero index - is empty string
 	}
 	int    Add(const char * pSymb, const char * pName, FN_WTMOBJ_FACTORY factory);
@@ -216,7 +215,7 @@ int TWhatmanObject::HandleCommand(int cmd, void * pExt)
 		if(p_blk) {
 			p_blk->WtmObjTypeSymb = Symb;
 			p_blk->Val1 = p_blk->Val2 = 0;
-			p_blk->ExtString = 0;
+			p_blk->ExtString.Z();
 		}
 	}
 	return ok;

@@ -1,5 +1,5 @@
 // OBJLOCTN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1209,7 +1209,7 @@ private:
 				StrAssocArray * p_list = r_obj.MakeList_(0);
 				if(p_list) {
 					for(uint i = 0; i < p_list->getCount(); i++) {
-						id_list.addUnique(p_list->at(i).Id);
+						id_list.addUnique(p_list->Get(i).Id);
 					}
 					if(!SendCharryObject(PPDS_CRRLOCATION, id_list)) {
 						PPError();
@@ -1415,7 +1415,7 @@ int LocationExtFieldsDialog::Edit(TaggedString * pData)
 	field_names = FieldNames;
 	for(uint i = 0; i < Fields.getCount(); i++) {
 		uint pos = 0;
-		long id = Fields.at(i).Id;
+		long id = Fields.Get(i).Id;
 		if(id != data.Id && field_names.Search(id, &pos) > 0)
 			field_names.atFree(pos);
 	}
@@ -1504,7 +1504,7 @@ int LocationExtFieldsDialog::getDTS(LocationTbl::Rec * pData)
 	for(uint id = 1; id <= MAX_DLVRADDRFLDS; id++)
 		LocationCore::SetExField(&Data, id + LOCEXSTR_EXTFLDSOFFS, 0);
 	for(uint i = 0; i < Fields.getCount(); i++) {
-		StrAssocArray::Item item = Fields.at(i);
+		StrAssocArray::Item item = Fields.Get(i);
 		LocationCore::SetExField(&Data, item.Id, item.Txt);
 	}
 	ASSIGN_PTR(pData, Data);
@@ -4047,10 +4047,8 @@ PPLocAddrStruc::AddrTok & PPLocAddrStruc::AddrTok::Reset()
 	return *this;
 }
 
-PPLocAddrStruc::DescrSelector::DescrSelector()
+PPLocAddrStruc::DescrSelector::DescrSelector() : T(0), Kt(0)
 {
-	T = 0;
-	Kt = 0;
 }
 
 void PPLocAddrStruc::DescrSelector::Init()
@@ -4071,16 +4069,13 @@ PPLocAddrStruc::DetectBlock & PPLocAddrStruc::DetectBlock::Init(int entityType, 
 	return *this;
 }
 
-SLAPI PPLocAddrStruc::_MatchEntry::_MatchEntry(uint p1, uint p2, int reverse) : P1(p1), P2(p2), Reverse(reverse)
+SLAPI PPLocAddrStruc_MatchEntry::PPLocAddrStruc_MatchEntry(uint p1, uint p2, int reverse) : P1(p1), P2(p2), Reverse(reverse)
 {
 }
 
-SLAPI PPLocAddrStruc::_MatchEntry::_MatchEntry(const _MatchEntry & rS)
+SLAPI PPLocAddrStruc_MatchEntry::PPLocAddrStruc_MatchEntry(const PPLocAddrStruc_MatchEntry & rS) : 
+	P1(rS.P1), P2(rS.P2), Reverse(rS.Reverse), CityStreetList(rS.CityStreetList)
 {
-	P1 = rS.P1;
-	P2 = rS.P2;
-	Reverse = rS.Reverse;
-	CityStreetList = rS.CityStreetList;
 }
 
 int SLAPI PPLocAddrStruc::Helper_Construct()
@@ -4154,17 +4149,17 @@ int SLAPI PPLocAddrStruc::HasAmbiguity() const
 		return 0;
 }
 
-const TSCollection <PPLocAddrStruc::_MatchEntry> * SLAPI PPLocAddrStruc::GetAmbiguityMatchList() const
+const TSCollection <PPLocAddrStruc_MatchEntry> * SLAPI PPLocAddrStruc::GetAmbiguityMatchList() const
 {
 	return P_AmbigMatchList;
 }
 
-const PPLocAddrStruc::_MatchEntry * SLAPI PPLocAddrStruc::GetAmbiguityMatchEntry() const
+const PPLocAddrStruc_MatchEntry * SLAPI PPLocAddrStruc::GetAmbiguityMatchEntry() const
 {
 	return P_AmbigMatchEntry;
 }
 
-int SLAPI PPLocAddrStruc::MatchEntryToStr(const PPLocAddrStruc::_MatchEntry * pEntry, SString & rBuf)
+int SLAPI PPLocAddrStruc::MatchEntryToStr(const PPLocAddrStruc_MatchEntry * pEntry, SString & rBuf)
 {
 	int    ok = 1;
     SString temp_buf;
@@ -4977,13 +4972,13 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 						}
 					}
 					{
-						TSCollection <_MatchEntry> _match_list;
+						TSCollection <PPLocAddrStruc_MatchEntry> _match_list;
 						for(i = 0; i < dtb_list.getCount(); i++) {
 							const DetectBlock * p1 = dtb_list.at(i);
 							for(uint j = i+1; j < dtb_list.getCount(); j++) {
 								const DetectBlock * p2 = dtb_list.at(j);
-								_MatchEntry * p_mentry = 0;
-								_MatchEntry * p_mentry_reverse = 0;
+								PPLocAddrStruc_MatchEntry * p_mentry = 0;
+								PPLocAddrStruc_MatchEntry * p_mentry_reverse = 0;
 								if(p1->T == tStreet && p2->T == tCity) {
 									for(uint sp = 0; sp < p1->FiasCandidList.getCount(); sp++) {
 										for(uint cp = 0; cp < p2->FiasCandidList.getCount(); cp++) {
@@ -4991,7 +4986,7 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
                                             const PPID cobj = p2->FiasCandidList.at(cp);
                                             if(P_Fr->Match(sobj, cobj, -1) > 0) {
 												if(!p_mentry_reverse) {
-													THROW_MEM(p_mentry_reverse = new _MatchEntry(p1->P, p2->P, 1));
+													THROW_MEM(p_mentry_reverse = new PPLocAddrStruc_MatchEntry(p1->P, p2->P, 1));
 													p_mentry_reverse->P1 = p1->P;
 													p_mentry_reverse->P2 = p2->P;
 												}
@@ -5012,7 +5007,7 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
                                             const PPID cobj = p1->FiasCandidList.at(cp);
                                             if(P_Fr->Match(sobj, cobj, -1) > 0) {
 												if(!p_mentry) {
-													THROW_MEM(p_mentry = new _MatchEntry(p1->P, p2->P, 0));
+													THROW_MEM(p_mentry = new PPLocAddrStruc_MatchEntry(p1->P, p2->P, 0));
 													p_mentry->P1 = p1->P;
 													p_mentry->P2 = p2->P;
 												}
@@ -5037,7 +5032,7 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 							}
 						}
 						if(_match_list.getCount() == 1) {
-							const _MatchEntry * p_mentry = _match_list.at(0);
+							const PPLocAddrStruc_MatchEntry * p_mentry = _match_list.at(0);
 							assert(p_mentry);
 							assert(p_mentry->CityStreetList.getCount());
 							if(p_mentry) {
@@ -5064,13 +5059,13 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
                                 }
                                 else if(p_mentry->CityStreetList.getCount() > 1) {
 									// Ќе однозначность в разрешении города/улицы
-                                    THROW_MEM(P_AmbigMatchEntry = new _MatchEntry(*p_mentry));
+                                    THROW_MEM(P_AmbigMatchEntry = new PPLocAddrStruc_MatchEntry(*p_mentry));
                                 }
 							}
 						}
 						else if(_match_list.getCount() > 1) {
 							// Ќеоднозначность в разрешении города/улицы
-							THROW_MEM(P_AmbigMatchList = new TSCollection <_MatchEntry>);
+							THROW_MEM(P_AmbigMatchList = new TSCollection <PPLocAddrStruc_MatchEntry>);
 							THROW_SL(TSCollection_Copy(*P_AmbigMatchList, _match_list));
 						}
 					}
@@ -5343,7 +5338,7 @@ int TestAddressRecognition()
 			}
 			else if(las.GetAmbiguityMatchList()) {
 				temp_buf.CR();
-				const  TSCollection <PPLocAddrStruc::_MatchEntry> * p_aml = las.GetAmbiguityMatchList();
+				const  TSCollection <PPLocAddrStruc_MatchEntry> * p_aml = las.GetAmbiguityMatchList();
 				for(uint i = 0; i < p_aml->getCount(); i++) {
 					las.MatchEntryToStr(las.GetAmbiguityMatchEntry(), temp_buf);
 					temp_buf.CR();

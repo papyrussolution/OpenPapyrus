@@ -2054,6 +2054,7 @@ public:
 #define oneof10(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10))
 #define oneof11(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11))
 #define oneof12(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12))
+#define oneof14(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12)||(f)==(c13)||(f)==(c14))
 #define NZOR(v,a)                   ((v)?(v):(a))
 //#define NZOR_F(v,a)                 ((!!(v))?(v):(a))
 // @v8.6.8 #define SETIFZ(v,a)                 if(!v) {(v)=(a);}
@@ -2881,7 +2882,7 @@ struct SSzChunk { // @flat @noctr @novtbl
 //
 //
 //
-struct RealRange { // @persistent @flat @noctr @novtbl @size=16 
+struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	int    SLAPI IsZero() const;
 	int    FASTCALL IsEqual(const RealRange & rS) const;
 	double SLAPI GetDistance() const;
@@ -4049,10 +4050,14 @@ struct SPathStruc {
 	//
 	// Descr: Унифицирует текстовое представление пути pPath. Результат переносится в rNormalizedPath
 	//
-	static SString & NormalizePath(const char * pPath, long flags, SString & rNormalizedPath);
+	static SString & FASTCALL NormalizePath(const char * pPath, long flags, SString & rNormalizedPath);
 
 	int    Invariant(SInvariantParam *);
 	SPathStruc();
+	//
+	// Descr: Создает экземпляр объекта и, если pPath != 0, то сразу вызывает SPathStruc::Split(pPath)
+	//
+	explicit SPathStruc(const char * pPath);
 	//
 	// Descr: Копирует в this компоненты пути pS заданные
 	//   флагами flags.
@@ -5629,6 +5634,11 @@ enum {
 //
 class SVectorBase { // @novtbl
 public:
+	//
+	// Descr: Утилитная функция для замещения популярной конструкции (pV ? pV->getCount() : 0)
+	//
+	static uint FASTCALL GetCount(const SVectorBase * pB);
+
 	int    SLAPI operator ! () const { return (count == 0); }
 	uint   SLAPI getCount() const { return count; }
 	//int    FASTCALL checkIndex(uint) const;
@@ -6627,7 +6637,7 @@ protected:
 //   В этом основное отличие данного класса от массивов вроде TaggesStringArray,
 //   где под каждую пару выделено фиксированное пространство.
 //
-class StrAssocArray : public SStrGroup {
+class StrAssocArray : private LAssocArray, private SStrGroup {
 public:
 	friend int SLAPI Helper_CmpFunc_StrAssocByText(const LAssoc *, const LAssoc *, StrAssocArray *, LAssocArray *);
 	friend int SLAPI Helper_CmpFunc_StrAssocByID(long, long, StrAssocArray *, LAssocArray *);
@@ -6654,11 +6664,12 @@ public:
 	//   0 - массивы не равны
 	//
 	int    FASTCALL IsEqual(const StrAssocArray & src) const;
-	uint   SLAPI getCount() const;
-	uint   SLAPI getPointer() const { return Assoc.getPointer(); }
-	uint   SLAPI setPointer(uint p) { return Assoc.setPointer(p); }
-	uint   SLAPI incPointer() { return Assoc.incPointer(); }
-	Item   FASTCALL at(uint pos) const;
+	uint   SLAPI getCount() const { return LAssocArray::count; }
+	uint   SLAPI getPointer() const;
+	uint   SLAPI setPointer(uint p);
+	uint   SLAPI incPointer();
+	//Item   FASTCALL at(uint pos) const;
+	Item   FASTCALL Get(uint pos) const;
 	//
 	// Descr: То же, что и StrAssocArray::at, только не пытается инициализировать
 	//   родительский идентификатор. Благодаря этому функция выполняется значительно
@@ -6666,7 +6677,7 @@ public:
 	//
 	Item   FASTCALL at_WithoutParent(uint pos) const;
 
-	int    SLAPI atFree(uint pos);
+	int    SLAPI AtFree(uint pos);
 	int    SLAPI Search(long id, uint * pPos) const;
 	//
 	// Descr: Ищет в массиве элемент, текст которого совпадает с параметром pTxt.
@@ -6802,7 +6813,7 @@ public:
 	static int SLAPI Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const LAssoc * p2, StrAssocArray * pArray, LAssocArray * pRecurTracer); // @reallyprivate
 protected:
 	CompFunc TextCmpProc; // @v9.5.9
-	LAssocArray Assoc;
+	//LAssocArray Assoc;
 	LAssocArray ParentList;
 private:
 	int    SLAPI Helper_RemoveRecursion(long parentId, LongArray & rRecurList, LongArray & rPassedList, LongArray * pBadList);
@@ -8875,12 +8886,12 @@ private:
 	char * reg(int paren, int * pFlag); // @<<compile,regatom
 	char * FASTCALL regnode(char op);
 	void   FASTCALL regc(char b);
-	void   reginsert(char op, char * opnd);
+	void   FASTCALL reginsert(char op, char * opnd);
 
 	const  char * FASTCALL regnext(const char * p) const;
 	char * FASTCALL regnext(char * p) const;
-	void   regtail(char * p, const char * val);
-	void   regoptail(char * p, const char * val);
+	void   FASTCALL regtail(char * p, const char * val);
+	void   FASTCALL regoptail(char * p, const char * val);
 	int    FASTCALL regrepeat(const char * p);
 	int    regtry(const char * string, const char ** start, const char ** end, const char * prog);
 	int    FASTCALL regmatch(const char * prog);
@@ -9598,21 +9609,19 @@ public:
 	};
 	SLAPI  StatBase(long flags = 0);
 	virtual SLAPI ~StatBase();
-
 	virtual int SLAPI Init(long flags = 0);
 	virtual int SLAPI Finish();
 	int    SLAPI Step(double);
-
-	long   SLAPI GetCount() const;
+	long   SLAPI GetCount() const { return Count; }
+	double SLAPI GetMin() const { return Min; }
+	double SLAPI GetMax() const { return Max; }
+	double SLAPI GetExp() const { return Exp; }
+	double SLAPI GetVar() const { return Var; }
+	double SLAPI GetTestGamma() const { return Test_Z; }
+	double SLAPI GetTestGaussian() const { return Test_ChSq; }
 	double SLAPI GetSum() const;
-	double SLAPI GetMin() const;
-	double SLAPI GetMax() const;
-	double SLAPI GetExp() const;
-	double SLAPI GetVar() const;
 	double SLAPI GetVariance() const;
 	double SLAPI GetStdDev() const;
-	double SLAPI GetTestGamma() const;
-	double SLAPI GetTestGaussian() const;
 	int    SLAPI GetValue(long idx, double * pVal) const;
 	int    SLAPI GetGammaParams(double * pAlpha, double * pBeta) const;
 protected:
@@ -9674,14 +9683,14 @@ public:
 	double SLAPI GetSpike(long, long * pN) const;
 	long   SLAPI GetMostCommonDistance();
 private:
-	struct Spike {
+	struct Spike { // @flat
 		long   N;
 		double V;
 	};
 	int    Sign;
 	long   Count;
 	Spike  Prev[2];
-	SArray * P_Spikes;
+	SVector * P_Spikes; // @v9.8.12 SArray-->SVector
 };
 
 class ARMA {
@@ -11789,7 +11798,10 @@ public:
 	//
 	void   FASTCALL Sleep(uint milliseconds);
 	void   SLAPI SetStopState();
-	ThreadID SLAPI GetThreadID() const;
+	ThreadID SLAPI GetThreadID() const
+	{
+		return ID;
+	}
 	int    SLAPI IsRunning() const;
 	int    SLAPI IsIdle() const;
 	//

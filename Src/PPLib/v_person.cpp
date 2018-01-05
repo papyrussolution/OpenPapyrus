@@ -1,5 +1,5 @@
 // V_PERSON.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -53,12 +53,8 @@ int SLAPI ViewPersonInfoBySCard(const char * pCode)
 //
 //
 //
-SLAPI PPViewPerson::PPViewPerson() : PPView(0, &Filt, PPVIEW_PERSON)
+SLAPI PPViewPerson::PPViewPerson() : PPView(0, &Filt, PPVIEW_PERSON), DefaultTagID(0), P_TempPsn(0), P_Fr(0)
 {
-	DefaultTagID = 0;
-	P_TempPsn    = 0;
-	P_IterQuery  = 0;
-	P_Fr = 0;
 }
 
 SLAPI PPViewPerson::~PPViewPerson()
@@ -1381,7 +1377,7 @@ static SArray * SLAPI CreateExtRegList(PersonFilt * pFilt, PPID * pAttrID, int o
 			ere.AttribType = PPPSNATTR_TAG;
 			id = TAGOFFSET;
 			for(uint i = 0; i < p_list->getCount(); i++) {
-				StrAssocArray::Item item = p_list->at(i);
+				StrAssocArray::Item item = p_list->Get(i);
 				ere.ExtRegID = TAGOFFSET + item.Id;
 				(tag_name = tag_attr).Cat(item.Txt).CopyTo(ere.Name, sizeof(ere.Name));
 				if(pAttrID && *pAttrID == ere.ExtRegID)
@@ -1977,7 +1973,7 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 }
 
 // virtual
-int SLAPI PPViewPerson::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewPerson::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		if(Filt.Flags & PersonFilt::fShowFiasRcgn && Filt.IsLocAttr() && P_TempPsn) {
@@ -1989,7 +1985,6 @@ int SLAPI PPViewPerson::PreprocessBrowser(PPViewBrowser * pBrw)
 		}
 		pBrw->SetCellStyleFunc(CellStyleFunc, this);
 	}
-	return 1;
 }
 
 DBQuery * SLAPI PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
@@ -2421,8 +2416,8 @@ int SLAPI PPViewPerson::SendMail(PPID mailAccId, StrAssocArray * pMailList, PPLo
 			PPWait(1);
 			for(uint i = 0; i < pMailList->getCount(); i++) {
 				PPSmsSender::FormatMessageBlock fmb;
-				fmb.PersonID = pMailList->at(i).Id;
-				const  char * p_mail_addr = pMailList->at(i).Txt;
+				fmb.PersonID = pMailList->Get(i).Id;
+				const  char * p_mail_addr = pMailList->Get(i).Txt;
 				SString text, subj;
 				if(i && data.Delay > 0 && data.Delay <= (24 * 3600 * 1000)) {
 					SDelay(data.Delay);
@@ -2431,7 +2426,7 @@ int SLAPI PPViewPerson::SendMail(PPID mailAccId, StrAssocArray * pMailList, PPLo
 				PPSmsSender::FormatMessage(data.Subj, subj, &fmb);
 				subj.Transf(CTRANSF_INNER_TO_UTF8);
 				text.Transf(CTRANSF_INNER_TO_UTF8);
-				THROW(::SendMail(subj, text, pMailList->at(i).Txt, data.MailAccID, &data.FilesList, pLogger));
+				THROW(::SendMail(subj, text, pMailList->Get(i).Txt, data.MailAccID, &data.FilesList, pLogger));
 			}
 			PPWait(0);
 		}

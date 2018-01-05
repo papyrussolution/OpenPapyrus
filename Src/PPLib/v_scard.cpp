@@ -1,5 +1,5 @@
 // V_SCARD.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -139,11 +139,9 @@ int SCardSelPrcssrParam::Read(SBuffer & rBuf, long)
 //
 // @ModuleDef(PPViewSCard)
 //
-IMPLEMENT_PPFILT_FACTORY(SCard); SLAPI SCardFilt::SCardFilt() : PPBaseFilt(PPFILT_SCARD, 0, 3) // @v7.7.11 1-->2 // @v8.4.2 2-->3
+IMPLEMENT_PPFILT_FACTORY(SCard); SLAPI SCardFilt::SCardFilt() : PPBaseFilt(PPFILT_SCARD, 0, 3), // @v7.7.11 1-->2 // @v8.4.2 2-->3
+	P_SjF(0), P_ExludeOwnerF(0), P_OwnerF(0)
 {
-	P_SjF = 0;
-	P_ExludeOwnerF = 0;
-	P_OwnerF = 0;
 	SetFlatChunk(offsetof(SCardFilt, ReserveStart),
 		offsetof(SCardFilt, Reserve) - offsetof(SCardFilt, ReserveStart) + sizeof(Reserve));
 	SetBranchSString(offsetof(SCardFilt, Number));
@@ -1674,9 +1672,8 @@ int SLAPI PPViewSCard::CellStyleFunc_(const void * pData, long col, int paintAct
 	return ok;
 }
 
-int SLAPI PPViewSCard::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewSCard::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
 	if(pBrw) {
 		if(Filt.Flags & SCardFilt::fShowOwnerAddrDetail && P_TmpTbl) {
 			pBrw->InsColumn(-1, "@phone",     14, 0L, 0, 0); // @v9.6.1 #12-->#14
@@ -1688,11 +1685,9 @@ int SLAPI PPViewSCard::PreprocessBrowser(PPViewBrowser * pBrw)
 			pBrw->InsColumn(-1, "@house",     20, 0L, 0, 0); // @v9.6.1 #18-->#20
 			pBrw->InsColumn(-1, "@apartment", 21, 0L, 0, 0); // @v9.6.1 #19-->#21
 			pBrw->InsColumn(-1, "@addendum",  22, 0L, 0, 0); // @v9.6.1 #20-->#22
-			ok = 1;
 		}
 		pBrw->SetCellStyleFunc(CellStyleFunc, this);
 	}
-	return ok;
 }
 
 DBQuery * SLAPI PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)

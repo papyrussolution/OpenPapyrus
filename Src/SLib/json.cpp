@@ -1,4 +1,3 @@
-//
 // Copyright (C) 2007 by Rui Maciel
 // rui.maciel@gmail.com
 //
@@ -2899,8 +2898,7 @@ SLTEST_R(JSON)
 				}
 				SLTEST_CHECK_NZ(JsonToXmlDOM(json_buf, xml_buf));
 				{
-					SPathStruc ps;
-					ps.Split(in_file_name);
+					SPathStruc ps(in_file_name);
 					ps.Nam.CatChar('-').Cat("result");
 					ps.Ext = "xml";
 					ps.Drv.Z();

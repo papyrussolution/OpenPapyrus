@@ -1,5 +1,5 @@
 // V_ASSET.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -20,11 +20,8 @@ AssetFilt & FASTCALL AssetFilt::operator = (const AssetFilt & s)
 	return *this;
 }
 
-SLAPI PPViewAsset::PPViewAsset() : PPView(0, &Filt, PPVIEW_ASSET)
+SLAPI PPViewAsset::PPViewAsset() : PPView(0, &Filt, PPVIEW_ASSET), P_BObj(BillObj), P_TempTbl(0), P_GGIter(0)
 {
-	P_BObj = BillObj;
-	P_TempTbl = 0;
-	P_GGIter = 0;
 }
 
 SLAPI PPViewAsset::~PPViewAsset()
@@ -563,9 +560,7 @@ int SLAPI PPViewAsset::Print(const void * pHdr)
 	if(P_BObj->IsAssetLot(lot_id) > 0) {
 		int    r;
 		if((r = P_BObj->MakeAssetCard(lot_id, &card)) > 0) {
-			PPFilt pf;
-			pf.ID = 0;
-			pf.Ptr = &card;
+			PPFilt pf(&card);
 			ok = PPAlddPrint(REPORT_ASSETCARD, &pf);
 		}
 		else if(r == 0)
@@ -580,9 +575,9 @@ int SLAPI PPViewAsset::Print(const void * pHdr)
 	return ok;
 }
 
-int SLAPI PPViewAsset::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewAsset::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	return (pBrw && pBrw->SetTempGoodsGrp(Filt.GoodsGrpID) > 0) ? 1 : -1;
+	CALLPTRMEMB(pBrw, SetTempGoodsGrp(Filt.GoodsGrpID));
 }
 //
 // Implementation of PPALDD_AssetView

@@ -1,5 +1,5 @@
 // GDSPACK.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -19,19 +19,19 @@ SLAPI PPGoodsPacket::~PPGoodsPacket()
 void SLAPI PPGoodsPacket::destroy()
 {
 	UpdFlags = 0;
-	ClsDimZeroFlags = 0; // @v7.7.2
+	ClsDimZeroFlags = 0;
 	MEMSZERO(Rec);
 	MEMSZERO(ExtRec);
 	Stock.Init();
 	Codes.freeAll();
 	ArCodes.freeAll();
-	ExtString = 0;
+	ExtString.Z();
 	ZDELETE(P_Filt);
 	ZDELETE(P_Quots);
 	ZDELETE(P_Gled);
 	LinkFiles.Clear();
-	TagL.Destroy();   // @v7.0.11
-	GenericList.Set(0); // @v7.7.12
+	TagL.Destroy();
+	GenericList.Set(0);
 }
 
 PPGoodsPacket & FASTCALL PPGoodsPacket::operator = (const PPGoodsPacket & src)
@@ -92,7 +92,7 @@ int FASTCALL PPGoodsPacket::GetGroupCode(SString & rBuf) const
 
 int SLAPI PPGoodsPacket::SetGroupCode(const char * buf)
 {
-	Codes.freeAll();
+	Codes.clear();
 	if(buf && buf[0]) {
 		char   temp[32];
 		char * p;

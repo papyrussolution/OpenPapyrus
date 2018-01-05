@@ -302,12 +302,12 @@ char * FASTCALL CRegExp::regnode(char op)
 // Descr: insert an operator in front of already-emitted operand Means
 //   relocating the operand.
 //
-void CRegExp::reginsert(char op, char * pOpnd)
+void FASTCALL CRegExp::reginsert(char op, char * pOpnd)
 {
 	if(P_RegCode == &RegDummy)
 		RegSize += 3;
 	else {
-		char * p_src = P_RegCode;
+		const char * p_src = P_RegCode;
 		P_RegCode += 3;
 		char * p_dst = P_RegCode;
 		while(p_src > pOpnd)
@@ -379,7 +379,7 @@ char * FASTCALL CRegExp::regatom(int * pFlag)
 				}
 				else {
 					P_RegParse++;
-					*pFlag |= HASWIDTH | SIMPLE;
+					*pFlag |= (HASWIDTH | SIMPLE);
 				}
 				break;
 			case '(':
@@ -436,7 +436,7 @@ char * FASTCALL CRegExp::regatom(int * pFlag)
 //
 // Descr: set the next-pointer at the end of a node chain
 //
-void CRegExp::regtail(char * p, const char * val)
+void FASTCALL CRegExp::regtail(char * p, const char * val)
 {
 	if(p != &RegDummy) {
 		// Find last node.
@@ -453,7 +453,7 @@ void CRegExp::regtail(char * p, const char * val)
 // Descr: regtail on operand of first argument
 //   nop if operandless
 //
-void CRegExp::regoptail(char *p, const char *val)
+void FASTCALL CRegExp::regoptail(char * p, const char * val)
 {
 	// "Operandless" and "op != BRANCH" are synonymous in practice.
 	if(p && p != &RegDummy && OP(p) == BRANCH)

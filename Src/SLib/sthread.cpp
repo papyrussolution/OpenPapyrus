@@ -801,11 +801,6 @@ void SLAPI SlThread::SetStopState()
 	EvLocalStop.Signal();
 }
 
-ThreadID SLAPI SlThread::GetThreadID() const
-{
-	return ID;
-}
-
 int SLAPI SlThread::IsRunning() const
 {
 	return BIN(State & stRunning);

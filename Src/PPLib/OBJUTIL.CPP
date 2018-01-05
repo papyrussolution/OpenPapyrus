@@ -1,5 +1,5 @@
 // OBJUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1614,6 +1614,8 @@ int SLAPI PPGetConfigList(StrAssocArray * pAry)
 //
 //
 //
+#define MAX_LINKED_FILES 32
+
 SLAPI ObjLinkFiles::ObjLinkFiles()
 {
 	Clear();
@@ -1641,7 +1643,7 @@ void SLAPI ObjLinkFiles::Clear()
 {
 	Files.freeAll();
 	State = 0;
-	StoreDir = 0;
+	StoreDir.Z();
 	ObjType = 0;
 	ObjID = 0;
 	FilesNums = 0;
@@ -1744,7 +1746,7 @@ int SLAPI ObjLinkFiles::SetupZeroPositionFile(PPID objType, PPID objID, const ch
 int SLAPI ObjLinkFiles::GetZeroPositionFile(PPID objType, PPID objID, SString & rPath)
 {
 	int    ok = 1;
-	rPath = 0;
+	rPath.Z();
 	Init(objType);
 	THROW(Load(objID, 0L));
 	THROW(At(0, rPath));
@@ -1835,8 +1837,7 @@ int SLAPI ObjLinkFiles::SplitInnerFileName(const char * pFileName, Fns * pS)
 	int    ok = 0;
 	if(pFileName) {
 		pS->Reset();
-		SPathStruc ps;
-		ps.Split(pFileName);
+		SPathStruc ps(pFileName);
 		STRNSCPY(pS->Ext, ps.Ext);
 		SString temp_buf;
 		StringSet ss('@', ps.Nam);
@@ -1939,9 +1940,8 @@ int SLAPI ObjLinkFiles::Helper_Save(PPID objID, const char * pAddedStr, uint idx
 		THROW(CheckFile(idx, orig_path) > 0);
 		THROW(GetFreeNum(&num) > 0);
 		{
-			SPathStruc ps;
 			SString path;
-			ps.Split(orig_path);
+			SPathStruc ps(orig_path);
 			(path = StoreDir).RmvLastSlash();
 			if(createDir(path)) {
 				MakeFilePath(objID, pAddedStr, path);
@@ -2084,8 +2084,7 @@ int SLAPI ObjLinkFiles::Serialize(int dir, int transmissionNotSupported, SBuffer
 				THROW_SL(pSCtx->Serialize(dir, org_file_name, rBuf));
 				THROW_SL(pSCtx->Serialize(dir, fs, rBuf));
 				{
-					SPathStruc ps;
-					ps.Split(org_file_name);
+					SPathStruc ps(org_file_name);
 					MakeTempFileName(temp_path, "olf", ps.Ext, 0, file_path);
 					SFile f(file_path, SFile::mWrite|SFile::mBinary);
 					THROW_SL(f.IsValid());
@@ -2317,7 +2316,7 @@ int PPALDD_StrAssocArray::NextIteration(long iterId)
 	IterProlog(iterId, 0);
 	StrAssocArray * p_list = (StrAssocArray *)Extra[0].Ptr;
 	if(p_list && p_list->getPointer() < p_list->getCount()) {
-		StrAssocArray::Item item = p_list->at(p_list->getPointer());
+		StrAssocArray::Item item = p_list->Get(p_list->getPointer());
 		I.Id = item.Id;
 		I.ParentId = item.ParentId;
 		STRNSCPY(I.Txt, item.Txt);

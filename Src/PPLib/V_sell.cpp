@@ -1,5 +1,5 @@
 // V_SELL.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017
+// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -511,14 +511,9 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int SLAPI PPViewPredictSales::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewPredictSales::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
-	if(pBrw) {
-		pBrw->SetCellStyleFunc(CellStyleFunc, 0);
-		ok = 1;
-	}
-	return ok;
+	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, 0));
 }
 
 DBQuery * SLAPI PPViewPredictSales::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)

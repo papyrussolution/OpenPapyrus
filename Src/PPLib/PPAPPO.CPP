@@ -1,5 +1,5 @@
 // PPAPPO.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 // Overlaid part of PPApp class implementation
 //
@@ -1463,12 +1463,12 @@ int PPBackupSystemFiles()
 					if(de.FileName[0] != '.' && de.FileName[1] != 0)
 						temp_dir_list.Add(i, 0, de.FileName);
 				if(temp_dir_list.getCount() > 0) {
-					(path = backup_dir).SetLastSlash().Cat(temp_dir_list.at(0).Txt);
+					(path = backup_dir).SetLastSlash().Cat(temp_dir_list.Get(0).Txt);
 					RemoveDir(path);
-					temp_dir_list.atFree(0);
+					temp_dir_list.AtFree(0);
 				}
 				for(uint j = 0; j < temp_dir_list.getCount(); j++) {
-					(buf = backup_dir).SetLastSlash().Cat(temp_dir_list.at(j).Txt);
+					(buf = backup_dir).SetLastSlash().Cat(temp_dir_list.Get(j).Txt);
 					SFile::Rename(buf, path);
 					path = buf;
 				}

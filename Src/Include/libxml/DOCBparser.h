@@ -21,18 +21,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /*
  * Most of the back-end structures from XML and SGML are shared.
  */
 typedef xmlParserCtxt docbParserCtxt;
 typedef xmlParserCtxt * docbParserCtxtPtr;
 typedef xmlSAXHandler docbSAXHandler;
-typedef xmlSAXHandlerPtr docbSAXHandlerPtr;
+typedef xmlSAXHandler * docbSAXHandlerPtr;
 typedef xmlParserInput docbParserInput;
-typedef xmlParserInputPtr docbParserInputPtr;
+typedef xmlParserInput * docbParserInputPtr;
 typedef xmlDocPtr docbDocPtr;
-
 /*
  * There is only few public functions.
  */

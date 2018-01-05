@@ -749,8 +749,7 @@ int SLAPI ReportDescrEntry::SetReportFileName(const char * pFileName)
 	SString file_name = pFileName;
 	const uint16 cr_eng_ver = PEGetVersion(PE_GV_ENGINE);
 	if(HiByte(cr_eng_ver) >= 10) {
-		SPathStruc ps;
-		ps.Split(file_name);
+		SPathStruc ps(file_name);
 		if(ps.Nam.CmpSuffix("-c10", 1) != 0) {
 			ps.Nam.Cat("-c10");
 			SString temp_buf;
@@ -762,8 +761,7 @@ int SLAPI ReportDescrEntry::SetReportFileName(const char * pFileName)
 		}
 	}
 	{
-		SPathStruc ps;
-		ps.Split(file_name);
+		SPathStruc ps(file_name);
 		SETFLAG(Flags, fTddoResource, ps.Ext.ToLower() == "tddo");
 	}
 	ReportPath_ = file_name;
@@ -2322,8 +2320,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				t.SetInputFileName(fn);
 				{
 					SString inner_fn;
-                	SPathStruc ps;
-                	ps.Split(fn);
+                	SPathStruc ps(fn);
                 	ps.Drv.Z();
                 	ps.Dir.Z();
 					const SString nam = ps.Nam;

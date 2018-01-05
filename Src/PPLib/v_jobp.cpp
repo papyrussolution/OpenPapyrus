@@ -1,5 +1,5 @@
 // V_JOBP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 // Редактирование списка процессорных задач
 //
@@ -12,7 +12,6 @@ class JobItemDialog : public TDialog {
 public:
 	JobItemDialog(PPJobMngr * pMngr, PPJobPool * pJobPool) : TDialog(DLG_JOBITEM), P_Mngr(pMngr), P_JobPool(pJobPool)
 	{
-		
 		P_Mngr->GetResourceList(0, &CmdSymbList);
 		if(P_JobPool) {
 			PPJob job;
@@ -147,7 +146,7 @@ int JobItemDialog::setDTS(const PPJob * pData)
 	cmd_txt_list.SortByText();
 	uint   pos = 0;
 	if(CmdSymbList.SearchByText(Data.Descr.Symb, 1, &pos))
-		cmd_id = CmdSymbList.at(pos).Id;
+		cmd_id = CmdSymbList.Get(pos).Id;
 	SetupStrAssocCombo(this, CTLSEL_JOBITEM_CMD, &cmd_txt_list, cmd_id, 0);
 	SetupStrAssocCombo(this, CTLSEL_JOBITEM_NEXTJOB, &JobList, Data.NextJobID, 0, 0, 0);
 	disableCtrl(CTLSEL_JOBITEM_CMD, cmd_id);
@@ -619,14 +618,9 @@ int PPViewJob::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-int SLAPI PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
-	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewJob::GetDataForBrowser, this);
-		ok = 1;
-	}
-	return ok;
+	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewJob::GetDataForBrowser, this));
 }
 
 // virtual
@@ -706,7 +700,7 @@ int SLAPI PPViewJob::CheckForFilt(PPJob & rJob)
 		uint pos = 0;
 		PPID cmd_id = 0;
 		if(CmdSymbList.SearchByText(rJob.Descr.Symb, 1, &pos))
-			cmd_id = CmdSymbList.at(pos).Id;
+			cmd_id = CmdSymbList.Get(pos).Id;
 		r = BIN(Filt.CmdId == cmd_id);
 	}
 	return r;

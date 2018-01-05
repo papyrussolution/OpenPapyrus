@@ -1,5 +1,5 @@
 // WBROWSE.CPP
-// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) Sobolev A. 1994-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // WIN32
 //
@@ -11,10 +11,8 @@
 //
 //
 //
-SLAPI SylkWriter::SylkWriter(const char * pFileName)
+SLAPI SylkWriter::SylkWriter(const char * pFileName) : Stream(0)
 {
-	Stream = 0;
-	Buf = 0;
 	Open(pFileName);
 }
 
@@ -181,12 +179,9 @@ BroColumn::BroColumn()
 //
 //
 //
-TBaseBrowserWindow::TBaseBrowserWindow(LPCTSTR pWndClsName) : TWindow(TRect(1, 1, 50, 20), 0, 0)
+TBaseBrowserWindow::TBaseBrowserWindow(LPCTSTR pWndClsName) : TWindow(TRect(1, 1, 50, 20), 0, 0), 
+	ResourceID(0), ClsName(pWndClsName), ToolbarID(0), BbState(0)
 {
-	ResourceID = 0;
-	ClsName    = pWndClsName;
-	ToolbarID  = 0;
-	BbState    = 0;
 	//WoScrollbars = false;
 }
 
@@ -209,30 +204,24 @@ int TBaseBrowserWindow::Insert()
 	if(GetActiveWindow() != APPL->H_MainWnd) {
 		setState(sfModal, true);
 		{
-			// @v9.0.4 ret = (int)execute();
-			// @v9.0.4 {
-			{
-				TEvent event;
-				event.what = TEvent::evCommand;
-				event.message.command = cmExecute;
-				event.message.infoPtr = 0;
-				this->handleEvent(event);
-				ret = (event.what == TEvent::evNothing) ? event.message.infoLong : 0;
-			}
-			// } @v9.0.4
+			TEvent event;
+			event.what = TEvent::evCommand;
+			event.message.command = cmExecute;
+			event.message.infoPtr = 0;
+			this->handleEvent(event);
+			ret = (event.what == TEvent::evNothing) ? event.message.infoLong : 0;
 		}
 		delete this;
 	}
 	else {
-		DWORD  style = WS_CHILD | WS_CLIPSIBLINGS | WS_TABSTOP;
+		DWORD  style = WS_CHILD|WS_CLIPSIBLINGS|WS_TABSTOP;
 		HWND   hw_frame = APPL->GetFrameWindow();
 		if(!(BbState & bbsWoScrollbars))
 			style |= (WS_HSCROLL | WS_VSCROLL);
 		if(hw_frame) {
 			RECT   rc_frame;
 			::GetClientRect(hw_frame, &rc_frame);
-			HW = ::CreateWindowEx(0, ClsName, buf, style, 0, 0,
-				rc_frame.right-16, rc_frame.bottom, hw_frame, 0, TProgram::GetInst(), this); // @unicodeproblem
+			HW = ::CreateWindowEx(0, ClsName, buf, style, 0, 0, rc_frame.right-16, rc_frame.bottom, hw_frame, 0, TProgram::GetInst(), this); // @unicodeproblem
 			APPL->SizeMainWnd(HW); // @v9.7.5
 			::ShowWindow(HW, SW_SHOW);
 			if(ResourceID == 0) {
@@ -1788,7 +1777,8 @@ void BrowserWindow::Paint()
 		//
 		{
 			ItemRect(Left, 0, &r, FALSE);
-			uint   r_h_count = P_RowsHeightAry ? P_RowsHeightAry->getCount() : 0;
+			//uint   r_h_count = P_RowsHeightAry ? P_RowsHeightAry->getCount() : 0;
+			const  uint r_h_count = SVectorBase::GetCount(P_RowsHeightAry);
 			uint   sel_col_count = SelectedColumns.getCount();
 			long   last_fill_row = 0;
 			r.top += hdr_width - 2 + YCell * GetRowHeightMult(0);

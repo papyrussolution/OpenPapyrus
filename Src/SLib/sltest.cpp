@@ -1,5 +1,5 @@
 // SLTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // Test Suits
 //
@@ -568,8 +568,7 @@ int STestSuite::LoadTestList(const char * pIniFileName)
 	THROW(ini_file.GetSections(&sect_list));
 	cur_path = pIniFileName;
 	{
-		SPathStruc ps;
-		ps.Split(cur_path);
+		SPathStruc ps(cur_path);
 		ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, cur_path);
 		cur_path.SetLastSlash();
 	}

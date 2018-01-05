@@ -162,14 +162,13 @@ int EC_METHOD_get_field_type(const EC_METHOD *meth);
  *                     in the group of all points on the elliptic curve.
  *  \return 1 on success and 0 if an error occurred
  */
-int EC_GROUP_set_generator(EC_GROUP *group, const EC_POINT *generator,
-                           const BIGNUM *order, const BIGNUM *cofactor);
+int EC_GROUP_set_generator(EC_GROUP *group, const EC_POINT *generator, const BIGNUM *order, const BIGNUM *cofactor);
 
 /** Returns the generator of a EC_GROUP object.
  *  \param  group  EC_GROUP object
  *  \return the currently used generator (possibly NULL).
  */
-const EC_POINT *EC_GROUP_get0_generator(const EC_GROUP *group);
+const EC_POINT * FASTCALL EC_GROUP_get0_generator(const EC_GROUP *group);
 
 /** Returns the montgomery data for order(Generator)
  *  \param  group  EC_GROUP object
@@ -189,7 +188,7 @@ int EC_GROUP_get_order(const EC_GROUP *group, BIGNUM *order, BN_CTX *ctx);
  *  \param  group  EC_GROUP object
  *  \return the group order
  */
-const BIGNUM *EC_GROUP_get0_order(const EC_GROUP *group);
+const BIGNUM * FASTCALL EC_GROUP_get0_order(const EC_GROUP * group);
 
 /** Gets the number of bits of the order of an EC_GROUP
  *  \param  group  EC_GROUP object
@@ -403,12 +402,12 @@ int EC_curve_nist2nid(const char *name);
  *  \param  group  EC_GROUP the underlying EC_GROUP object
  *  \return newly created EC_POINT object or NULL if an error occurred
  */
-EC_POINT *EC_POINT_new(const EC_GROUP *group);
+EC_POINT * FASTCALL EC_POINT_new(const EC_GROUP *group);
 
 /** Frees a EC_POINT object
  *  \param  point  EC_POINT object to be freed
  */
-void EC_POINT_free(EC_POINT *point);
+void FASTCALL EC_POINT_free(EC_POINT *point);
 
 /** Clears and frees a EC_POINT object
  *  \param  point  EC_POINT object to be cleared and freed

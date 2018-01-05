@@ -1,5 +1,5 @@
 // IMPORT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 // Функции импорта справочников
@@ -2057,7 +2057,7 @@ int PrcssrPhoneListImport::EditParam(Param * pParam)
 			int    ok = 1;
 			long   cfg_id = 0;
 			if(CfgList.getCount() == 1)
-				cfg_id = CfgList.at(0).Id;
+				cfg_id = CfgList.Get(0).Id;
 			SetupStrAssocCombo(this, CTLSEL_IEPHONE_CFG, &CfgList, cfg_id, 0, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_IEPHONE_DEFCITY, PPOBJ_WORLD, Data.DefCityID, 0, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
 			return ok;
@@ -3109,7 +3109,7 @@ int PersonImportDialog::setDTS(const PrcssrPersonImport::Param * pData)
 	int    ok = 1;
 	long   cfg_id = 0;
 	if(CfgList.getCount() == 1)
-		cfg_id = CfgList.at(0).Id;
+		cfg_id = CfgList.Get(0).Id;
 	SetupStrAssocCombo(this, CTLSEL_IEPERSON_CFG, &CfgList, cfg_id, 0, 0, 0);
 	SetupPPObjCombo(this, CTLSEL_IEPERSON_CAT, PPOBJ_PRSNCATEGORY, Data.CategoryID, OLW_CANINSERT, 0);
 	return ok;
@@ -4207,8 +4207,7 @@ int SLAPI FiasImporter::ProcessState::SearchItem(const char * pPath, int phase, 
 {
 	int    ok = 0;
 	uint   pos = 0;
-	SPathStruc ps;
-	ps.Split(pPath);
+	SPathStruc ps(pPath);
 	SPathStruc::NormalizePath(ps.Nam, 0, rNormalizedName);
 	for(uint i = 0; !ok && i < L.getCount(); i++) {
 		const Item & r_item = L.at(i);
@@ -4316,9 +4315,7 @@ int FiasImporter::ParseFiasFileName(const char * pFileName, SString & rObjName, 
 	rObjName = 0;
 	rDt = ZERODATE;
 	rUuid.SetZero();
-
-	SPathStruc ps;
-	ps.Split(pFileName);
+	SPathStruc ps(pFileName);
 	if(ps.Ext.CmpNC("xml") == 0) {
 		StringSet ss('_', ps.Nam);
 		SString temp_buf;
@@ -5300,7 +5297,7 @@ void SLAPI PrcssrOsm::Reset()
 	ZDELETE(P_Ufp);
 }
 
-int PrcssrOsm::SaxParseFile(xmlSAXHandlerPtr sax, const char * pFileName)
+int PrcssrOsm::SaxParseFile(xmlSAXHandler * sax, const char * pFileName)
 {
 	int    ret = 0;
 	xmlFreeParserCtxt(P_SaxCtx);
@@ -5591,8 +5588,7 @@ int SLAPI PrcssrOsm::WriteRoadStone(RoadStone & rRs)
 	SString temp_buf;
 	SString line_buf;
 	SString file_name;
-	SPathStruc ps;
-	ps.Split(rRs.SrcFileName);
+	SPathStruc ps(rRs.SrcFileName);
 	ps.Nam.CatChar('-');
 	THROW(GetPhaseSymb(rRs.Phase, temp_buf));
     ps.Nam.Cat(temp_buf);
@@ -5617,8 +5613,7 @@ int SLAPI PrcssrOsm::ReadRoadStone(long phase, RoadStone & rRs)
 	int    ok = 1;
 	SString temp_buf;
 	SString file_name;
-	SPathStruc ps;
-	ps.Split(P.SrcFileName);
+	SPathStruc ps(P.SrcFileName);
 	ps.Nam.CatChar('-');
 	THROW(GetPhaseSymb(phase, temp_buf));
     ps.Nam.Cat(temp_buf);
@@ -5854,8 +5849,7 @@ int SLAPI PrcssrOsm::ProcessWaySizes()
 		long   prev_file_no = -1;
 		int    skip_this_file_no = 0;
 		SString preserve_filnam;
-		SPathStruc ps_out_filename;
-		ps_out_filename.Split(P_SizeOutF->GetName());
+		SPathStruc ps_out_filename(P_SizeOutF->GetName());
 		preserve_filnam = ps_out_filename.Nam;
 
 		if(curs.Search(key_buf, data_buf, spFirst)) do {
@@ -6081,21 +6075,18 @@ int SLAPI PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, ui
 	SString lat_file_name;
 	SString lon_file_name;
 	{
-		SPathStruc ps;
+		SPathStruc ps(pSrcFileName);
 		{
 			ps.Split(pSrcFileName);
-			{
-				ps.Split(pSrcFileName);
-				ps.Nam.CatChar('-').Cat("lat").CatChar('-').Cat("sorted");
-				ps.Ext = "txt";
-				ps.Merge(lat_file_name);
-			}
-			{
-				ps.Split(pSrcFileName);
-				ps.Nam.CatChar('-').Cat("lon").CatChar('-').Cat("sorted");
-				ps.Ext = "txt";
-				ps.Merge(lon_file_name);
-			}
+			ps.Nam.CatChar('-').Cat("lat").CatChar('-').Cat("sorted");
+			ps.Ext = "txt";
+			ps.Merge(lat_file_name);
+		}
+		{
+			ps.Split(pSrcFileName);
+			ps.Nam.CatChar('-').Cat("lon").CatChar('-').Cat("sorted");
+			ps.Ext = "txt";
+			ps.Merge(lon_file_name);
 		}
 	}
 	if(fileExists(lat_file_name) && fileExists(lon_file_name)) {
@@ -6284,8 +6275,7 @@ int PrcssrOsm::SortCbProc(const SFileSortProgressData * pInfo)
 		const PrcssrOsm * p_prcr = (const PrcssrOsm *)pInfo->ExtraPtr;
 		if(p_prcr) {
 			SString file_name;
-			SPathStruc ps;
-			ps.Split(pInfo->P_SrcFileName);
+			SPathStruc ps(pInfo->P_SrcFileName);
 			ps.Merge(SPathStruc::fNam|SPathStruc::fExt, file_name);
 			if(pInfo->Phase == 1) {
 				msg_buf.Printf(p_prcr->FmtMsg_SortSplit, file_name.cptr());

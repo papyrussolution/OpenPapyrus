@@ -361,7 +361,7 @@ static xmlDocPtr xmlXIncludeParseFile(xmlXIncludeCtxtPtr ctxt, const char * URL)
 {
 	xmlDocPtr ret;
 	xmlParserCtxt * pctxt;
-	xmlParserInputPtr inputStream;
+	xmlParserInput * inputStream;
 	xmlInitParser();
 	pctxt = xmlNewParserCtxt();
 	if(pctxt == NULL) {
@@ -1615,14 +1615,14 @@ loaded:
  */
 static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int nr) 
 {
-	xmlParserInputBufferPtr buf;
+	xmlParserInputBuffer * buf;
 	xmlNode * P_Node;
 	xmlChar * URL;
 	int i;
 	xmlChar * encoding = NULL;
 	xmlCharEncoding enc = (xmlCharEncoding)0;
 	xmlParserCtxt * pctxt;
-	xmlParserInputPtr inputStream;
+	xmlParserInput * inputStream;
 	int xinclude_multibyte_fallback_used = 0;
 	/*
 	 * Check the URL and remove any fragment identifier

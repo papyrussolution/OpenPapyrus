@@ -1,5 +1,5 @@
 // OBJCASHN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -520,7 +520,7 @@ PPID SLAPI PPObjCashNode::Select(PPID locID, int syncGroup, int * pIsSingle, int
 		ZDELETE(p_ary);
 	}
 	else if(p_ary->getCount() == 1) {
-		id = p_ary->at(0).Id;
+		id = p_ary->Get(0).Id;
 		THROW_PP(id != PPCMT_OKA500, PPERR_OKA500NOTSUPPORTED);
 		ASSIGN_PTR(pIsSingle, 1);
 		ZDELETE(p_ary);

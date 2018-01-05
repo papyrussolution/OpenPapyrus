@@ -1,5 +1,5 @@
 // GENVER.CPP
-// Copyright (c) A.Sobolev 2001, 2011, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2011, 2015, 2016, 2017, 2018
 //
 // For private use only. Redistribution prohibited !
 
@@ -330,8 +330,7 @@ int main(int argc, char * argv[])
 			(in_file_name = argv[1]).Strip();
 			SPathStruc::ReplaceExt(in_file_name, "ini", 0);
 			{
-				SPathStruc ps;
-				ps.Split(in_file_name);
+				SPathStruc ps(in_file_name);
 				ps.Nam.Cat("-open");
 				ps.Merge(in_file_name_open);
 				if(!fileExists(in_file_name_open))

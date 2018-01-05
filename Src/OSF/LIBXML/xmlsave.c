@@ -1989,7 +1989,7 @@ void xmlAttrSerializeTxtContent(xmlBuffer * buf, xmlDoc * doc, xmlAttrPtr attr, 
  *
  * Returns the number of bytes written to the buffer or -1 in case of error
  */
-int xmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNodePtr cur, int level, int format)
+int xmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNode * cur, int level, int format)
 {
 	int ret = -1;
 	if(buf && cur) {
@@ -2018,7 +2018,7 @@ int xmlNodeDump(xmlBuffer * buf, xmlDoc * doc, xmlNodePtr cur, int level, int fo
  * Returns the number of bytes written to the buffer, in case of error 0
  *     is returned or @buf stores the error
  */
-size_t xmlBufNodeDump(xmlBufPtr buf, xmlDoc * doc, xmlNodePtr cur, int level, int format)
+size_t xmlBufNodeDump(xmlBufPtr buf, xmlDoc * doc, xmlNode * cur, int level, int format)
 {
 	int    ret = -1;
 	size_t use;

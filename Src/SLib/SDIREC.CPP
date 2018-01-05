@@ -1,5 +1,5 @@
 // SDIREC.CPP
-// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -235,9 +235,8 @@ int SLAPI SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long 
 			srch_path.Cat(pWildcard);
 		}
 		else {
-			SPathStruc ps;
-			ps.Split(pPath);
 			SString temp_buf;
+			SPathStruc ps(pPath);
 			ps.Merge(~(SPathStruc::fNam|SPathStruc::fExt), temp_buf);
 			SetInitPath(temp_buf.SetLastSlash());
 		}

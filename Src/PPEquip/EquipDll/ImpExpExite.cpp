@@ -1325,7 +1325,6 @@ int ExportCls::EndDoc()
 	TTN = 0;
 	return ok;
 }
-
 //
 // Работа с FTP
 //
@@ -1334,13 +1333,9 @@ int ExportCls::SendDoc()
 {
 	int ok = 1;
 	SString	inbox_filename;
-	SPathStruc path_struct;
-
-	path_struct.Split(ExpFileName);
+	SPathStruc path_struct(ExpFileName);
 	(inbox_filename = OUTBOX).CatChar('/').Cat(path_struct.Nam).Dot().Cat(path_struct.Ext);
-
 	Sdr_DllImpExpReceipt * p_exp_rcpt = 0;
-
 	FtpClient ftp_client(Header.EdiLogin, Header.EdiPassword);
 	// Подключаемся к ftp
 	if(ftp_client.Connect()) {
@@ -1686,8 +1681,8 @@ int ImportCls::ReceiveDoc()
 
 	// Теперь читаем конкретный файл
 	if(InboxReadIndex < InboxFiles.getCount()) {
-		SString name = InboxFiles.at(InboxReadIndex).Txt;
-		if(ftp_client.GetFile(InboxFiles.at(InboxReadIndex).Txt, ImpFileName)) {
+		SString name = InboxFiles.Get(InboxReadIndex).Txt;
+		if(ftp_client.GetFile(InboxFiles.Get(InboxReadIndex).Txt, ImpFileName)) {
 			SFile file(ImpFileName, SFile::mRead);
 			SString file_buf;
 			int64 file_size = 0;
@@ -2427,15 +2422,15 @@ EXPORT int ReplyImportObjStatus(uint idSess, uint objId, void * pObjStatus)
 		if(P_ImportCls) {
 			if(P_ImportCls->MessageType == msgAperak) {
 				// Что-нибудь делаем с этим статусом
-				str.Z().Cat(P_ImportCls->AperakInfo.OrderNum.ToChar()).CatChar(':').Space().Cat(P_ImportCls->AperakInfo.Msg.Utf8ToChar());
+				str.Z().Cat(P_ImportCls->AperakInfo.OrderNum.ToChar()).CatDiv(':', 2).Cat(P_ImportCls->AperakInfo.Msg.Utf8ToChar());
 				if(P_ImportCls->AperakInfo.AddedMsg.NotEmpty())
-					str.CatChar(':').Space().Cat(P_ImportCls->AperakInfo.AddedMsg.Utf8ToChar());
+					str.CatDiv(':', 2).Cat(P_ImportCls->AperakInfo.AddedMsg.Utf8ToChar());
 				LogMessage(str);
 			}
 			// И удаляем этот файл из папки на ftp
 			FtpClient ftp_client(P_ImportCls->Header.EdiLogin, P_ImportCls->Header.EdiPassword);
 			if(ftp_client.Connect()) {
-				if(!ftp_client.DeleteFile(P_ImportCls->InboxFiles.at(P_ImportCls->InboxReadIndex).Txt)) {
+				if(!ftp_client.DeleteFile(P_ImportCls->InboxFiles.Get(P_ImportCls->InboxReadIndex).Txt)) {
 					ProcessError("FtpDeleteFile");
 					r = 0;
 				}
@@ -2540,14 +2535,14 @@ void ProcessError(const char * pProcess)
 	DWORD code = GetLastError();
 	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
 		temp_err_buf, 256, 0);
-	(temp_buf = pProcess).CatChar(':').Space().Cat(temp_err_buf);
+	(temp_buf = pProcess).CatDiv(':', 2).Cat(temp_err_buf);
 	// Смотрим дополнительное описание ошибки
 	if(code == ERROR_INTERNET_EXTENDED_ERROR) {
 		DWORD size = 256;
 		MEMSZERO(temp_err_buf);
 		code = 0;
 		InternetGetLastResponseInfo(&code, temp_err_buf, &size);
-		temp_buf.CatChar(':').Space().Cat(temp_err_buf);
+		temp_buf.CatDiv(':', 2).Cat(temp_err_buf);
 	}
 	StrError = temp_buf;
 }

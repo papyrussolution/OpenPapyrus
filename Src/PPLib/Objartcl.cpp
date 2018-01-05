@@ -1,5 +1,5 @@
 // OBJARTCL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2348,7 +2348,7 @@ int SLAPI PPObjDebtDim::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				uint count = p_dd_list->getCount();
 				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
 					PPDebtDimPacket dd_pack;
-					if(GetPacket(p_dd_list->at(i).Id, &dd_pack) > 0 && dd_pack.AgentList.CheckID(_id) > 0)
+					if(GetPacket(p_dd_list->Get(i).Id, &dd_pack) > 0 && dd_pack.AgentList.CheckID(_id) > 0)
 						ok = RetRefsExistsErr(Obj, _id);
 				}
 			}
@@ -2363,7 +2363,7 @@ int SLAPI PPObjDebtDim::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				for(uint i = 0; ok == DBRPL_OK && i < count; i++) {
 					uint pos = 0;
 					PPDebtDimPacket dd_pack;
-					if(GetPacket(p_dd_list->at(i).Id, &dd_pack) > 0 && dd_pack.AgentList.Search(_id, &pos) > 0) {
+					if(GetPacket(p_dd_list->Get(i).Id, &dd_pack) > 0 && dd_pack.AgentList.Search(_id, &pos) > 0) {
 						if(!dd_pack.AgentList.Update(pos, (long)extraPtr) || !PutPacket(&dd_pack.Rec.ID, &dd_pack, 0))
 							ok = DBRPL_ERROR;
 					}

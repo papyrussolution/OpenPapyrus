@@ -1,5 +1,5 @@
 // CCHECK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // @Kernel
 //
@@ -885,7 +885,7 @@ int SLAPI CCheckPacket::PackLineTextExt(SString & rResult) const
 	SString line_buf;
 	SString temp_buf;
     for(uint i = 0; i < LnTextList.getCount(); i++) {
-        StrAssocArray::Item item = LnTextList.at(i);
+        StrAssocArray::Item item = LnTextList.Get(i);
 		PPExtStringStorage ess;
 		line_buf = item.Txt;
 		int    fld_id = 0;
@@ -4556,7 +4556,7 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 				const LDATE date = *(LDATE *)&date_list.at(k);
 				for(i = 0; i < goods_name_list.getCount(); i++) {
 					uint   pos = 0;
-					PPID   goods_id = goods_name_list.at(i).Id;
+					PPID   goods_id = goods_name_list.Get(i).Id;
 					if(dfct_list.SearchByDateGoods(date, goods_id, &pos, &item)) {
 						int    is_other_loc = 0;
 						PPID   op_id = 0;

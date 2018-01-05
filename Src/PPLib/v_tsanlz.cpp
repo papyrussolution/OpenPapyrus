@@ -1,5 +1,5 @@
 // V_TSANLZ.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -83,9 +83,8 @@ struct AddQttyBlock {
 
 class TSessAnlzList : public TSVector <TSessAnlzEntry> { // @v9.8.4 TSArray-->TSVector
 public:
-	SLAPI  TSessAnlzList(SubstGrpGoods sgg, GoodsSubstList * pGsl, int addTotal) : TSVector <TSessAnlzEntry> ()
+	SLAPI  TSessAnlzList(SubstGrpGoods sgg, GoodsSubstList * pGsl, int addTotal) : TSVector <TSessAnlzEntry> (), Sgg(sgg), AddTotal(addTotal)
 	{
-		Sgg = sgg;
 		if(pGsl) {
 			P_ScndSggList = pGsl;
 			IsScndSggListOwn = 0;
@@ -94,7 +93,6 @@ public:
 			P_ScndSggList = new GoodsSubstList;
 			IsScndSggListOwn = 1;
 		}
-		AddTotal = addTotal;
 	}
 	SLAPI ~TSessAnlzList();
 	int    SLAPI Search(long dtVal, PPID prcID, PPID prmrGoodsID, PPID goodsID, uint * pPos, int useSubst = 0);
@@ -1046,9 +1044,8 @@ DBQuery * SLAPI PPViewTSessAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSu
 	return p_q;
 }
 
-int SLAPI PPViewTSessAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewTSessAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
 	if(pBrw && P_TempTbl) {
 		DBQBrowserDef * p_def = (DBQBrowserDef *)pBrw->getDef();
 		const DBQuery * p_q = p_def ? p_def->getQuery() : 0;
@@ -1064,17 +1061,14 @@ int SLAPI PPViewTSessAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 					PPLoadString("date", buf);
 				}
 				pBrw->insertColumn(col_no++, buf, 1, 0, 0, 0);
-				ok = 1;
 			}
 			if(Filt.DiffPrc) {
 				// @v9.0.2 PPGetWord((Filt.DiffPrc == TSessAnlzFilt::difprcAr) ? PPWORD_AR : PPWORD_PRC, 0, buf);
 				PPLoadString(((Filt.DiffPrc == TSessAnlzFilt::difprcAr) ? "article" : "processor"), buf); // @v9.0.2
 				pBrw->insertColumn(col_no++, buf, 2, 0, 0, 0);
-				ok = 1;
 			}
 			if(Filt.DiffMg) {
 				pBrw->InsColumnWord(col_no++, PPWORD_PRMRGOODS, 3, 0, 0, 0);
-				ok = 1;
 			}
 			if(Filt.Flags & TSessAnlzFilt::fCalcCompParts) {
 				pBrw->insertColumn(5+col_no++, "InPart",  10, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0);
@@ -1082,7 +1076,6 @@ int SLAPI PPViewTSessAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 			}
 		}
 	}
-	return ok;
 }
 
 int SLAPI PPViewTSessAnlz::GetPhQtty(const TSessAnlzViewItem * pItem, PPID * pPhUnitID, double * pIn, double * pOut)

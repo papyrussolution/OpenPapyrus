@@ -1,6 +1,6 @@
 // TDIALOG.CPP  TurboVision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017
+// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018
 // Release for WIN32
 //
 #include <slib.h>
@@ -9,18 +9,12 @@
 #include <ppdefs.h> // @ Muxa При вызове findResource используется TAB_HELP, определенный в ppdefs.h
 
 #define TV_DEBUG_STACK 0
-
 //
-CtrlGroup::CtrlGroup() : Id(0)
-	{}
-CtrlGroup::~CtrlGroup()
-	{}
-void CtrlGroup::handleEvent(TDialog*, TEvent&)
-	{}
-int CtrlGroup::setData(TDialog*, void*)
-	{ return -1; }
-int CtrlGroup::getData(TDialog*, void*)
-	{ return -1; }
+CtrlGroup::CtrlGroup() : Id(0) {}
+CtrlGroup::~CtrlGroup() {}
+void CtrlGroup::handleEvent(TDialog*, TEvent&) {}
+int CtrlGroup::setData(TDialog*, void*) { return -1; }
+int CtrlGroup::getData(TDialog*, void*) { return -1; }
 //
 //
 //
@@ -494,11 +488,6 @@ void SLAPI TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc,
 		TDialog::LoadDialog(P_SlRez, resID, this, (co == coExport) ? ldfDL600_Cvt : 0);
 		if(dlgPreFunc)
 			dlgPreFunc(this, extraParam);
-#if 0 // @v7.7.7 {
-		if(TabbedDialog::topTabbedDialog && (TabbedDialog::topTabbedDialog->findPageByID(resourceID)) != -1)
-			hWnd = 0;
-		else {
-#endif // } 0 @v7.7.7
 		//
 		// @v4.2.5
 		// Операция по сохранению текущего окна необходима из-за того, что при создании
@@ -508,7 +497,7 @@ void SLAPI TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc,
 		//
 		TView * preserve_current = APPL->P_DeskTop->P_Current;
 		HW = APPL->CreateDlg(resourceID, APPL->H_TopOfStack, (DLGPROC)DialogProc, (LPARAM)this);
-		ShowWindow(H(), SW_HIDE);
+		::ShowWindow(H(), SW_HIDE);
 		APPL->P_DeskTop->setCurrent(preserve_current, leaveSelect);
 	}
 }
@@ -619,13 +608,13 @@ IMPL_HANDLE_EVENT(TDialog)
 				InitRect = getRect();
 				TView::messageCommand(this, cmSetupResizeParams);
 				APPL->SetWindowViewByKind(H(), TProgram::wndtypDialog);
-				ShowWindow(H(), SW_SHOW);
-				SetForegroundWindow(H()); // @v8.2.6
-				SetActiveWindow(H());     // @v8.2.6
-				EnableWindow(PrevInStack, 0);
+				::ShowWindow(H(), SW_SHOW);
+				::SetForegroundWindow(H()); // @v8.2.6
+				::SetActiveWindow(H());     // @v8.2.6
+				::EnableWindow(PrevInStack, 0);
 				if(next && next->IsConsistent() && next->IsSubSign(TV_SUBSIGN_DIALOG) && ((TDialog*)next)->resourceID == -1) {
 					is_list_win = TRUE;
-					EnableWindow(GetParent(PrevInStack), 0);
+					::EnableWindow(GetParent(PrevInStack), 0);
 				}
 				// @v9.6.2 DlgFlags |= fInitModal; // @debug @v7.7.6
 				MSG msg;
@@ -633,7 +622,7 @@ IMPL_HANDLE_EVENT(TDialog)
 					GetMessage(&msg, 0, 0, 0);
 					if(!TranslateAccelerator(msg.hwnd, APPL->H_Accel, &msg)) {
 						if(!IsDialogMessage(H(), &msg)) {
-							TranslateMessage(&msg);
+							::TranslateMessage(&msg);
 							DispatchMessage(&msg);
 						}
 					}
@@ -648,8 +637,8 @@ IMPL_HANDLE_EVENT(TDialog)
 				EndModalCmd = 0;
 				APPL->PopModalWindow(this, 0);
 				if(is_list_win) {
-					EnableWindow(GetParent(PrevInStack), 1);
-					SetFocus(GetDlgItem(PrevInStack, CTL_LBX_LIST));
+					::EnableWindow(GetParent(PrevInStack), 1);
+					::SetFocus(::GetDlgItem(PrevInStack, CTL_LBX_LIST));
 				}
 			}
 		}
@@ -672,6 +661,12 @@ IMPL_HANDLE_EVENT(TDialog)
 							EndModalCmd = event.message.command;
 							clearEvent(event);
 						}
+						// @v9.8.12 {
+						else if(event.message.command == cmCancel) {
+							close();
+							return; // Окно разрушено - делать в этой процедуре больше нечего!
+						}
+						// } @v9.8.12 
 						/* @v9.6.2
 						// @v7.7.6 {
 						else if(DlgFlags & fInitModal) {
@@ -893,10 +888,9 @@ int TDialog::SetupInputLine(uint ctlID, TYPEID typ, long format)
 
 int TDialog::SetupSpin(uint ctlID, uint buddyCtlID, int low, int upp, int cur)
 {
-	SendDlgItemMessage(H(), ctlID, UDM_SETBUDDY, (WPARAM)GetDlgItem(H(), buddyCtlID), 0); // @v7.7.12
+	SendDlgItemMessage(H(), ctlID, UDM_SETBUDDY, (WPARAM)GetDlgItem(H(), buddyCtlID), 0);
 	SendDlgItemMessage(H(), ctlID, UDM_SETRANGE, 0, MAKELONG(upp, low));
 	SendDlgItemMessage(H(), ctlID, UDM_SETPOS, 0, MAKELONG(cur, 0));
-	// @v7.7.12 SendDlgItemMessage(H(), ctlID, UDM_SETBUDDY, (WPARAM)GetDlgItem(H(), buddyCtlID), 0);
 	return 1;
 }
 //
@@ -1168,7 +1162,7 @@ int TDialog::Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, ResizeParamEntry *
 		if(rpe.Flags & crfResizeable) {
 			ctrl_wnd = GetDlgItem(H(), rpe.CtrlID);
 			if(SETIFZ(ctrl_wnd, GetDlgItem(H(), MAKE_BUTTON_ID(rpe.CtrlID, 1)))) {
-				GetWindowRect(ctrl_wnd, &ctrl_rect);
+				::GetWindowRect(ctrl_wnd, &ctrl_rect);
 				size_to_resize += *p_old_rect_s - *p_old_rect_f;
 			}
 		}
@@ -1184,7 +1178,7 @@ int TDialog::Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, ResizeParamEntry *
 			else if(pCalcedCtrlAry->lsearch(*p_param_f) && pCoordAry->lsearch(p_param_f, &(p = 0), CMPF_LONG)) {
 				linked_coord = pCoordAry->at(p);
 				if(linked_coord.CtrlWnd) {
-					GetWindowRect(linked_coord.CtrlWnd, &linked_rect);
+					::GetWindowRect(linked_coord.CtrlWnd, &linked_rect);
 					old_f_bound = *p_old_linked_f;
 					new_f_bound = *p_new_linked_f;
 					is_found = 1;
@@ -1209,7 +1203,7 @@ int TDialog::Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, ResizeParamEntry *
 			if(rpe.Flags & crfResizeable) {
 				ctrl_wnd = GetDlgItem(H(), rpe.CtrlID);
 				if(SETIFZ(ctrl_wnd, GetDlgItem(H(), MAKE_BUTTON_ID(rpe.CtrlID, 1)))) {
-					GetWindowRect(ctrl_wnd, &ctrl_rect);
+					::GetWindowRect(ctrl_wnd, &ctrl_rect);
 					size_to_resize += *p_old_rect_s - *p_old_rect_f;
 				}
 			}
@@ -1225,7 +1219,7 @@ int TDialog::Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, ResizeParamEntry *
 				else if(pCalcedCtrlAry->lsearch(*p_param_s) && pCoordAry->lsearch(p_param_s, &(p = 0), CMPF_LONG)) {
 					linked_coord = pCoordAry->at(p);
 					if(linked_coord.CtrlWnd) {
-						GetWindowRect(linked_coord.CtrlWnd, &linked_rect);
+						::GetWindowRect(linked_coord.CtrlWnd, &linked_rect);
 						old_s_bound = *p_old_linked_s;
 						new_s_bound = *p_new_linked_s;
 						is_found = 1;
@@ -1634,4 +1628,23 @@ int TDialog::ResetWordSelector(uint ctlID)
 		}
 	}
 	return ok;
+}
+
+int TDialog::Insert()
+{
+	int    ret = 0;
+	SString buf = getTitle();
+	buf.SetIfEmpty("Dialog").Transf(CTRANSF_INNER_TO_OUTER);
+	if(::IsIconic(APPL->H_MainWnd))
+		::ShowWindow(APPL->H_MainWnd, SW_MAXIMIZE);
+	if(HW) {
+		HWND   hw_frame = APPL->GetFrameWindow();
+		if(hw_frame) {
+			APPL->SetWindowViewByKind(HW, TProgram::wndtypDialog);
+			::ShowWindow(HW, SW_SHOW);
+			::UpdateWindow(HW);
+		}
+		ret = -1;
+	}
+	return ret;
 }

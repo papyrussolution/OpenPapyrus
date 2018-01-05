@@ -1,5 +1,5 @@
 // PPMSG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -19,8 +19,7 @@ int SLAPI PPInitStrings(const char * pFileName)
 		else
 			name = pFileName;
         {
-            SPathStruc ps;
-            ps.Split(name);
+            SPathStruc ps(name);
 			if(!ps.Nam.HasChr('-')) {
 				const SString org_nam = ps.Nam;
 				const SString org_ext = ps.Ext;
@@ -36,7 +35,7 @@ int SLAPI PPInitStrings(const char * pFileName)
 							size_t hyphen_pos = 0;
 							if(temp_buf.StrChr('-', &hyphen_pos)) {
 								temp_buf.Sub(hyphen_pos+1, temp_buf.Len(), lang_symb = 0);
-								int slang = RecognizeLinguaSymb(lang_symb, 0);
+								const int slang = RecognizeLinguaSymb(lang_symb, 0);
 								if(slang > 0) {
 									ps_lang.Split(de.FileName);
 									ps.Nam = ps_lang.Nam;
@@ -737,7 +736,8 @@ int FASTCALL PPThreadLocalArea::WaitBlock::SetMessage(const char * pMsg)
 		for(uint j = 0; adv_list.Enum(&j, &adv_blk);) {
 			if(adv_blk.Proc) {
 				ev.Clear();
-				ev.ExtStr = pMsg;
+				// @v9.8.12 ev.ExtStr = pMsg;
+				ev.PutExtStrData(PPNotifyEvent::extssMessage, pMsg); // @v9.8.12 
 				adv_blk.Proc(PPAdviseBlock::evWaitMsg, &ev, adv_blk.ProcExtPtr);
 			}
 		}

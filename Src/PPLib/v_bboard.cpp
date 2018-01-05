@@ -1,5 +1,5 @@
 // V_BBOARD.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -122,16 +122,13 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int SLAPI PPViewServerStat::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewServerStat::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int    ok = -1;
 	if(pBrw) {
 		pBrw->SetDefUserProc(PPViewServerStat::GetDataForBrowser, this);
 		pBrw->SetRefreshPeriod(5);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
-		ok = 1;
 	}
-	return ok;
 }
 
 SArray * SLAPI PPViewServerStat::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)

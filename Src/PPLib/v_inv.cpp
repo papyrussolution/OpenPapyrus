@@ -1,5 +1,5 @@
 // V_INV.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -44,18 +44,9 @@ int SLAPI InventoryFilt::Setup(PPID billID)
 	return 1;
 }
 
-SLAPI PPViewInventory::PPViewInventory() : PPView(0, &Filt, PPVIEW_INVENTORY)
+SLAPI PPViewInventory::PPViewInventory() : PPView(0, &Filt, PPVIEW_INVENTORY), P_BObj(BillObj), P_TempTbl(0), P_TempOrd(0), P_TempSubstTbl(0), 
+	P_GgIter(0), P_GIter(0), Flags(0), CommonLocID(0), CommonDate(ZERODATE), LastSurrID(0)
 {
-	P_BObj = BillObj;
-	P_TempTbl = 0;
-	P_TempOrd = 0;
-	P_TempSubstTbl = 0;
-	P_GgIter = 0;
-	P_GIter = 0;
-	Flags = 0;
-	CommonLocID = 0;
-	CommonDate = ZERODATE;
-	LastSurrID = 0;
 }
 
 SLAPI PPViewInventory::~PPViewInventory()
@@ -1844,10 +1835,9 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 }
 
 //virtual
-int SLAPI PPViewInventory::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewInventory::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, pBrw));
-	return 1;
 }
 
 DBQuery * SLAPI PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)

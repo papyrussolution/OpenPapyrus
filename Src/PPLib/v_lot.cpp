@@ -1,5 +1,5 @@
 // V_LOT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2188,9 +2188,8 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int SLAPI PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
+void SLAPI PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	int   ok = -1;
 	if(pBrw) {
 		if(Filt.Flags & LotFilt::fOrders) {
 			SString word;
@@ -2205,7 +2204,6 @@ int SLAPI PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
 				// @v9.1.11 pBrw->InsColumnWord(-1, PPWORD_STATUS, 15, 0, MKSFMT(10, 0), BCO_CAPLEFT);
 				pBrw->InsColumn(-1, "@status", 15, 0, MKSFMT(10, 0), BCO_CAPLEFT); // @v9.1.11
 			}
-			ok = 1;
 		}
 		if(Filt.Flags & LotFilt::fShowSerialN) {
 			DBQBrowserDef * p_def = (DBQBrowserDef *)pBrw->getDef();
@@ -2213,14 +2211,11 @@ int SLAPI PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
 			if(p_q) {
 				uint fld_no = P_TempTbl ? 14 : 12;
 				pBrw->InsColumn(-1, "@serial", fld_no, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPRIGHT);
-				ok = 1;
 			}
 		}
-		if(pBrw->SetTempGoodsGrp(Filt.GoodsGrpID) > 0)
-			ok = 1;
+		pBrw->SetTempGoodsGrp(Filt.GoodsGrpID);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}
-	return ok;
 }
 
 DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
@@ -3097,7 +3092,7 @@ int SLAPI SelectLotImpExpCfgs(PPLotImpExpParam * pParam, int import)
 	THROW_INVARG(pParam);
 	pParam->Direction = BIN(import);
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_LOT, &param, &list, import ? 2 : 1));
-	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.at(p).Id : 0;
+	id = (list.SearchByText(pParam->Name, 1, &p) > 0) ? (uint)list.Get(p).Id : 0;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 	{
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);

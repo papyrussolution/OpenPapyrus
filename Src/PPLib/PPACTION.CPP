@@ -1,5 +1,5 @@
 // PPACTION.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018
 // @Kernel
 //
 #include <pp.h>
@@ -463,8 +463,7 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 			THROW_DB(BTROKORNFOUND);
 		}
 		if(toDt) {
-			SPathStruc ps;
-			ps.Split(DBTable::GetName());
+			SPathStruc ps(DBTable::GetName());
 			ps.Merge(0, SPathStruc::fDrv|SPathStruc::fDir, temp_buf);
 			msg_buf.Printf(PPLoadTextS(PPTXT_DBMAINTAIN, fmt_buf), temp_buf.cptr());
 			{
