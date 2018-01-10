@@ -587,9 +587,7 @@ int asn1_valid_host(const ASN1_STRING * host)
 			 * If previous is dot or hyphen then illegal unless both
 			 * are hyphens: as .- -. .. are all illegal
 			 */
-			if(prevchflags & (CHARTYPE_HOST_DOT | CHARTYPE_HOST_HYPHEN)
-			    && ((prevchflags & CHARTYPE_HOST_DOT)
-				    || (chflags & CHARTYPE_HOST_DOT)))
+			if(prevchflags & (CHARTYPE_HOST_DOT | CHARTYPE_HOST_HYPHEN) && ((prevchflags & CHARTYPE_HOST_DOT) || (chflags & CHARTYPE_HOST_DOT)))
 				return 0;
 		}
 	}

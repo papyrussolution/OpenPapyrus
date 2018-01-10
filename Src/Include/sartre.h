@@ -339,17 +339,20 @@ struct SrWordAssoc { // @flat
 		fHasFlexiaModel = 0x0001,
 		fHasAccentModel = 0x0002,
 		fHasPrefix      = 0x0004,
-		fHasAffixModel  = 0x0008
+		fHasAffixModel  = 0x0008,
+		fHasAbbrExp     = 0x0010,
+		fAbbrDotOption  = 0x0020  // Аббревиатура может иметь опциональную точку в конце
 	};
 
-	int32  ID;             // -->SrWordAssocTbl.ID Уникальный идент ассоциации 
+	int32  ID;             // -->SrWordAssocTbl.ID Уникальный идент ассоциации
 	LEXID  WordID;         // Идентификатор слова
 	long   Flags;          // @flags
 	int32  BaseFormID;     // -->SrGrammarTbl(Type=SRGRAMTYP_WORDFORM)
 	int32  FlexiaModelID;  // -->SrGrammarTbl(Type=SRGRAMTYP_FLEXIAMODEL)
-	int32  AccentModelID;  // @todo Модель ударений 
+	int32  AccentModelID;  // @todo Модель ударений
 	int32  PrefixID;       //
-	int32  AffixModelID;   // @todo Аффиксная модель для проверки правописания 
+	int32  AffixModelID;   // @todo Аффиксная модель для проверки правописания
+	NGID   AbbrExpID;      // @v9.8.12 NGram, развертывающая аббревиатуру
 };
 //
 // {id;word}
@@ -704,6 +707,7 @@ struct SrWordInfo { // @flat
 	int32  FormID;     // SrGrammarTbl.ID Идентификатор словоформы найденного слова
 	// Для того, чтобы получить итоговое описание словоформы необходимо сцепить словоформы BaseFormID и FormID
 	int32  WaID;       // Идентификатор дескриптивной ассоциации слова
+	NGID   AbbrExpID;  // @v9.8.12 SrNGramTbl.ID Расшифровка аббревиатуры
 	double Score;      // Величина сопоставления данной грамматической формы с требуемой (при преобразовании слова)
 };
 
@@ -723,7 +727,7 @@ public:
 
 	enum {
 		oReadOnly         = 0x0001, // База данных открывается в режиме READ-ONLY
-		oWriteStatOnClose = 0x0002  // При закрытии базы данных сохранять статистику  
+		oWriteStatOnClose = 0x0002  // При закрытии базы данных сохранять статистику
 	};
 
 	int    Open(const char * pDbPath, long flags);
@@ -748,7 +752,7 @@ public:
 	int    SetConceptProp(CONCEPTID cID, CONCEPTID propID, long flags, double propVal);
 	//
 	// Descr: Устанавливает теги словоформы wordID в соответствии с определением rWf.
-	//   Предварительно ищет существующие дескрипторы словоформ этого слова и, если существует 
+	//   Предварительно ищет существующие дескрипторы словоформ этого слова и, если существует
 	//   хоть один, содержащий rWf как свое подмножество, то ничего не делает. В противном случае
 	//   добавляет новый дескриптор, соответствующий rWf.
 	// Note: Функция высокоуровневая и ориентирована на завершенные слова. Дескрипторы словоформ, определенные
@@ -808,7 +812,7 @@ public:
 
 	int    GetPropType(CONCEPTID propID);
 	//
-	// Descr: Ищет идентификатор концепции с символом pSymbUtf8. 
+	// Descr: Ищет идентификатор концепции с символом pSymbUtf8.
 	// ARG(pSymbUtf8 IN): символ концепции. Значение хранится в таблице SrWordTbl со спец префиксом "/:".
 	// ARG(pID OUT): указатель на идентификатор найденной или созданной концепции с символом pSymbUtf8.
 	// Returns:
@@ -853,7 +857,7 @@ public:
 	int    StoreGeoNodeList(const TSVector <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, int dontCheckExist, TSVector <PPOsm::NodeClusterStatEntry> * pStat);
 	int    StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSVector <PPOsm::WayStatEntry> * pStat);
 	int    StoreGeoNodeWayRefList(const LLAssocArray & rList);
-
+	int    StoreFiasAddr(const Sdr_FiasRawAddrObj & rItem);
 	//
 	// Descr: Формирует текст специальной лексемы с префиксом, определенным параметром spcTag.
 	// Returns:
@@ -915,7 +919,7 @@ public:
 	};
 
 	struct ExprItem { // @flat
-		SLAPI  ExprItem();
+		explicit SLAPI ExprItem(uint16 kind = 0);
 
 		uint16 K;
 		uint16 ArgCount; // Количество аргументов (для K == kOp)
@@ -979,7 +983,7 @@ public:
 		uint   TextIdxStart;
 		uint   TextIdxEnd;
 		const  SrSyntaxRuleSet::Rule * P_Rule; // @notowned
-		uint   StackP; 
+		uint   StackP;
 		CONCEPTID ConceptId;
 	};
 	//
@@ -989,7 +993,7 @@ public:
 		uint   RuleIdx;   // Инекс правила, которому соответствует распознанная конструкция
 		uint   TIdxFirst; // Индекс в токенайзере, с которого начинается распознанная конструкция
 		uint   TIdxNext;  // Индекс в токенайзере, следующий за последним символом распознанной конструкции
-		TSVector <MatchEntry> MatchList; 
+		TSVector <MatchEntry> MatchList;
 	};
 
 	int    SLAPI ProcessText(SrDatabase & rDb, SrSyntaxRuleTokenizer & rT, uint tidxFirst, uint tidxCount, TSCollection <Result> & rResultList) const;

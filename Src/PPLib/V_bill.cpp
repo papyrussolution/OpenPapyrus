@@ -4861,15 +4861,24 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 				else {
 					const PPID inet_acc_id = b_e.Tp.InetAccID;
 					const StrAssocArray inet_addr_list = b_e.Tp.AddrList;
+					int   use_mail_addr_by_context = 0;
 					SString mail_subj = b_e.Tp.Subject;
-					if(!mail_subj.NotEmptyS())
-						mail_subj = "No Subject";
-					mail_subj.Transf(CTRANSF_INNER_TO_UTF8);
+					mail_subj.SetIfEmpty("No Subject").Transf(CTRANSF_INNER_TO_UTF8);
+					if(inet_acc_id && inet_addr_list.getCount()) {
+						for(uint ai = 0; !use_mail_addr_by_context && ai < inet_addr_list.getCount(); ai++) {
+							temp_buf = inet_addr_list.Get(ai).Txt;
+							if(temp_buf.CmpNC("@bycontext") == 0 || temp_buf == "@@")
+								use_mail_addr_by_context = 1;
+						}
+					}
 					if(b_e.BillParam.Flags & PPBillImpExpParam::fExpOneByOne) {
+						StringSet local_result_file_list;
 						for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
 							const  PPID bill_id = bill_id_list.get(_idx);
 							if(P_BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
-								THROW(r = b_e.Init(&bill_param, &brow_param, &pack, &result_file_list));
+								local_result_file_list.clear();
+								THROW(r = b_e.Init(&bill_param, &brow_param, &pack, &local_result_file_list));
+								result_file_list.add(local_result_file_list);
 								{
 									PPImpExp * p_iebill = b_e.GetIEBill();
 									PPImpExp * p_iebrow = b_e.GetIEBRow();
@@ -4888,6 +4897,10 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 										if(p_iebrow && fileExists(b_e.BRowParam.FileName) && b_e.BRowParam.FileName.CmpNC(b_e.BillParam.FileName) != 0)
 											b_e.BRowParam.DistributeFile(&logger);
 									}
+								}
+								if(use_mail_addr_by_context && pack.GetContextEmailAddr(temp_buf) > 0 && local_result_file_list.getCount()) {
+									if(!PutFilesToEmail2(&local_result_file_list, inet_acc_id, temp_buf, mail_subj, 0))
+										logger.LogLastError();
 								}
 							}
 							else
@@ -4925,8 +4938,15 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 						ok = 1;
 					}
 					if(inet_acc_id && inet_addr_list.getCount() && result_file_list.getCount()) {
-						temp_buf = inet_addr_list.Get(0).Txt;
-						if(!PutFilesToEmail2(&result_file_list, inet_acc_id, temp_buf, mail_subj, 0))
+						temp_buf.Z();
+						for(uint ai = 0; !use_mail_addr_by_context && ai < inet_addr_list.getCount(); ai++) {
+							temp_buf = inet_addr_list.Get(ai).Txt;
+							if(temp_buf.CmpNC("@bycontext") == 0 || temp_buf == "@@")
+								temp_buf.Z();
+							else
+								break;
+						}
+						if(temp_buf.NotEmptyS() && !PutFilesToEmail2(&result_file_list, inet_acc_id, temp_buf, mail_subj, 0))
 							logger.LogLastError();
 					}
 				}

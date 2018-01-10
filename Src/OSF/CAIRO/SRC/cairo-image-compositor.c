@@ -1021,44 +1021,31 @@ typedef struct _cairo_image_span_renderer {
 
 COMPILE_TIME_ASSERT(sizeof(cairo_image_span_renderer_t) <= sizeof(cairo_abstract_span_renderer_t));
 
-static cairo_status_t _cairo_image_bounded_opaque_spans(void * abstract_renderer,
-    int y, int height,
-    const cairo_half_open_span_t * spans,
-    unsigned num_spans)
+static cairo_status_t _cairo_image_bounded_opaque_spans(void * abstract_renderer, int y, int height,
+    const cairo_half_open_span_t * spans, unsigned num_spans)
 {
-	cairo_image_span_renderer_t * r = abstract_renderer;
-
+	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t *)abstract_renderer;
 	if(num_spans == 0)
 		return CAIRO_STATUS_SUCCESS;
-
 	do {
 		if(spans[0].coverage)
-			pixman_image_compositor_blt(r->compositor,
-			    spans[0].x, y,
-			    spans[1].x - spans[0].x, height,
-			    spans[0].coverage);
+			pixman_image_compositor_blt(r->compositor, spans[0].x, y,
+			    spans[1].x - spans[0].x, height, spans[0].coverage);
 		spans++;
 	} while(--num_spans > 1);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t _cairo_image_bounded_spans(void * abstract_renderer,
-    int y, int height,
-    const cairo_half_open_span_t * spans,
-    unsigned num_spans)
+    int y, int height, const cairo_half_open_span_t * spans, unsigned num_spans)
 {
-	cairo_image_span_renderer_t * r = abstract_renderer;
-
+	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t *)abstract_renderer;
 	if(num_spans == 0)
 		return CAIRO_STATUS_SUCCESS;
-
 	do {
 		if(spans[0].coverage) {
-			pixman_image_compositor_blt(r->compositor,
-			    spans[0].x, y,
-			    spans[1].x - spans[0].x, height,
-			    r->opacity * spans[0].coverage);
+			pixman_image_compositor_blt(r->compositor, spans[0].x, y,
+			    spans[1].x - spans[0].x, height, r->opacity * spans[0].coverage);
 		}
 		spans++;
 	} while(--num_spans > 1);
@@ -1067,12 +1054,9 @@ static cairo_status_t _cairo_image_bounded_spans(void * abstract_renderer,
 }
 
 static cairo_status_t _cairo_image_unbounded_spans(void * abstract_renderer,
-    int y, int height,
-    const cairo_half_open_span_t * spans,
-    unsigned num_spans)
+    int y, int height, const cairo_half_open_span_t * spans, unsigned num_spans)
 {
-	cairo_image_span_renderer_t * r = abstract_renderer;
-
+	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t *)abstract_renderer;
 	assert(y + height <= r->extents.height);
 	if(y > r->extents.y) {
 		pixman_image_compositor_blt(r->compositor,
@@ -1080,84 +1064,56 @@ static cairo_status_t _cairo_image_unbounded_spans(void * abstract_renderer,
 		    r->extents.width, y - r->extents.y,
 		    0);
 	}
-
 	if(num_spans == 0) {
-		pixman_image_compositor_blt(r->compositor,
-		    r->extents.x, y,
-		    r->extents.width,  height,
-		    0);
+		pixman_image_compositor_blt(r->compositor, r->extents.x, y, r->extents.width,  height, 0);
 	}
 	else {
 		if(spans[0].x != r->extents.x) {
-			pixman_image_compositor_blt(r->compositor,
-			    r->extents.x, y,
-			    spans[0].x - r->extents.x,
-			    height,
-			    0);
+			pixman_image_compositor_blt(r->compositor, r->extents.x, y, spans[0].x - r->extents.x, height, 0);
 		}
-
 		do {
 			assert(spans[0].x < r->extents.x + r->extents.width);
-			pixman_image_compositor_blt(r->compositor,
-			    spans[0].x, y,
-			    spans[1].x - spans[0].x, height,
-			    r->opacity * spans[0].coverage);
+			pixman_image_compositor_blt(r->compositor, spans[0].x, y,
+			    spans[1].x - spans[0].x, height, r->opacity * spans[0].coverage);
 			spans++;
 		} while(--num_spans > 1);
-
 		if(spans[0].x != r->extents.x + r->extents.width) {
 			assert(spans[0].x < r->extents.x + r->extents.width);
-			pixman_image_compositor_blt(r->compositor,
-			    spans[0].x,     y,
-			    r->extents.x + r->extents.width - spans[0].x, height,
-			    0);
+			pixman_image_compositor_blt(r->compositor, spans[0].x, y,
+			    r->extents.x + r->extents.width - spans[0].x, height, 0);
 		}
 	}
-
 	r->extents.y = y + height;
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_image_clipped_spans(void * abstract_renderer,
-    int y, int height,
-    const cairo_half_open_span_t * spans,
-    unsigned num_spans)
+static cairo_status_t _cairo_image_clipped_spans(void * abstract_renderer, int y, int height,
+    const cairo_half_open_span_t * spans, unsigned num_spans)
 {
-	cairo_image_span_renderer_t * r = abstract_renderer;
-
+	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t *)abstract_renderer;
 	assert(num_spans);
-
 	do {
 		if(!spans[0].inverse)
-			pixman_image_compositor_blt(r->compositor,
-			    spans[0].x, y,
-			    spans[1].x - spans[0].x, height,
-			    r->opacity * spans[0].coverage);
+			pixman_image_compositor_blt(r->compositor, spans[0].x, y,
+			    spans[1].x - spans[0].x, height, r->opacity * spans[0].coverage);
 		spans++;
 	} while(--num_spans > 1);
-
 	r->extents.y = y + height;
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t _cairo_image_finish_unbounded_spans(void * abstract_renderer)
 {
-	cairo_image_span_renderer_t * r = abstract_renderer;
-
+	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t *)abstract_renderer;
 	if(r->extents.y < r->extents.height) {
-		pixman_image_compositor_blt(r->compositor,
-		    r->extents.x, r->extents.y,
-		    r->extents.width,
-		    r->extents.height - r->extents.y,
-		    0);
+		pixman_image_compositor_blt(r->compositor, r->extents.x, r->extents.y,
+		    r->extents.width, r->extents.height - r->extents.y, 0);
 	}
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_int_status_t span_renderer_init(cairo_abstract_span_renderer_t      * _r,
-    const cairo_composite_rectangles_t * composite,
-    cairo_bool_t needs_clip)
+static cairo_int_status_t span_renderer_init(cairo_abstract_span_renderer_t * _r,
+    const cairo_composite_rectangles_t * composite, cairo_bool_t needs_clip)
 {
 	cairo_image_span_renderer_t * r = (cairo_image_span_renderer_t*)_r;
 	cairo_image_surface_t * dst = (cairo_image_surface_t*)composite->surface;
@@ -1165,51 +1121,36 @@ static cairo_int_status_t span_renderer_init(cairo_abstract_span_renderer_t     
 	cairo_operator_t op = composite->op;
 	int src_x, src_y;
 	int mask_x, mask_y;
-
 	TRACE((stderr, "%s\n", __FUNCTION__));
-
 	if(op == CAIRO_OPERATOR_CLEAR) {
 		op = PIXMAN_OP_LERP_CLEAR;
 	}
-	else if(dst->base.is_clear &&
-	    (op == CAIRO_OPERATOR_SOURCE ||
-		    op == CAIRO_OPERATOR_OVER ||
-		    op == CAIRO_OPERATOR_ADD)) {
-		op = PIXMAN_OP_SRC;
+	else if(dst->base.is_clear && (op == CAIRO_OPERATOR_SOURCE || op == CAIRO_OPERATOR_OVER || op == CAIRO_OPERATOR_ADD)) {
+		op = (cairo_operator_t)PIXMAN_OP_SRC;
 	}
 	else if(op == CAIRO_OPERATOR_SOURCE) {
 		op = PIXMAN_OP_LERP_SRC;
 	}
 	else {
-		op = _pixman_operator(op);
+		op = (cairo_operator_t)_pixman_operator(op);
 	}
-
 	r->compositor = NULL;
 	r->mask = NULL;
 	r->src = _pixman_image_for_pattern(dst, source, FALSE,
-	    &composite->unbounded,
-	    &composite->source_sample_area,
-	    &src_x, &src_y);
+	    &composite->unbounded, &composite->source_sample_area, &src_x, &src_y);
 	if(unlikely(r->src == NULL))
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 	r->opacity = 1.0;
 	if(composite->mask_pattern.base.type == CAIRO_PATTERN_TYPE_SOLID) {
 		r->opacity = composite->mask_pattern.solid.color.alpha;
 	}
 	else {
-		r->mask = _pixman_image_for_pattern(dst,
-		    &composite->mask_pattern.base,
-		    TRUE,
-		    &composite->unbounded,
-		    &composite->mask_sample_area,
-		    &mask_x, &mask_y);
+		r->mask = _pixman_image_for_pattern(dst, &composite->mask_pattern.base, TRUE, 
+			&composite->unbounded, &composite->mask_sample_area, &mask_x, &mask_y);
 		if(unlikely(r->mask == NULL))
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 		/* XXX Component-alpha? */
-		if((dst->base.content & CAIRO_CONTENT_COLOR) == 0 &&
-		    _cairo_pattern_is_opaque(source, &composite->source_sample_area)) {
+		if((dst->base.content & CAIRO_CONTENT_COLOR) == 0 && _cairo_pattern_is_opaque(source, &composite->source_sample_area)) {
 			pixman_image_unref(r->src);
 			r->src = r->mask;
 			src_x = mask_x;
@@ -1217,7 +1158,6 @@ static cairo_int_status_t span_renderer_init(cairo_abstract_span_renderer_t     
 			r->mask = NULL;
 		}
 	}
-
 	if(composite->is_bounded) {
 		if(r->opacity == 1.)
 			r->base.render_rows = _cairo_image_bounded_opaque_spans;
@@ -1234,20 +1174,12 @@ static cairo_int_status_t span_renderer_init(cairo_abstract_span_renderer_t     
 		r->extents = composite->unbounded;
 		r->extents.height += r->extents.y;
 	}
-
-	r->compositor =
-	    pixman_image_create_compositor(op, r->src, r->mask, dst->pixman_image,
-	    composite->unbounded.x + src_x,
-	    composite->unbounded.y + src_y,
-	    composite->unbounded.x + mask_x,
-	    composite->unbounded.y + mask_y,
-	    composite->unbounded.x,
-	    composite->unbounded.y,
-	    composite->unbounded.width,
-	    composite->unbounded.height);
+	r->compositor = pixman_image_create_compositor(op, r->src, r->mask, dst->pixman_image,
+	    composite->unbounded.x + src_x, composite->unbounded.y + src_y, composite->unbounded.x + mask_x,
+	    composite->unbounded.y + mask_y, composite->unbounded.x, composite->unbounded.y,
+	    composite->unbounded.width, composite->unbounded.height);
 	if(unlikely(r->compositor == NULL))
 		return CAIRO_INT_STATUS_NOTHING_TO_DO;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -1266,36 +1198,41 @@ static void span_renderer_fini(cairo_abstract_span_renderer_t * _r, cairo_int_st
 }
 
 #else
+
 typedef struct _cairo_image_span_renderer {
 	cairo_span_renderer_t base;
-	const cairo_composite_rectangles_t * composite;
-	float opacity;
-	uint8 op;
+	const  cairo_composite_rectangles_t * composite;
+	float  opacity;
+	uint8  op;
+	uint8  Reserve[3]; // @alignment
 	int    bpp;
 	pixman_image_t * src;
 	pixman_image_t * mask;
 	union {
 		struct Fill {
-			int stride;
+			int    stride;
 			uint8 * data;
 			uint32_t pixel;
 		} fill;
 		struct Blit {
-			int stride;
+			int    stride;
 			uint8 * data;
-			int src_stride;
+			int    src_stride;
 			uint8 * src_data;
 		} blit;
 		struct Composite {
 			pixman_image_t * dst;
-			int src_x, src_y;
-			int mask_x, mask_y;
-			int run_length;
+			int    src_x;
+			int    src_y;
+			int    mask_x;
+			int    mask_y;
+			int    run_length;
 		} composite;
 		struct Finish {
 			CairoIRect extents;
-			int src_x, src_y;
-			int stride;
+			int    src_x;
+			int    src_y;
+			int    stride;
 			uint8 * data;
 		} mask;
 	} u;

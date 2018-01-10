@@ -181,7 +181,7 @@ int SLAPI PoClauseArray_::Serialize(int dir, SBuffer & rBuf, SSerializeContext *
 //
 //
 //
-static VerbObjAssoc __VerbObjAssocList[] = {
+static const VerbObjAssoc __VerbObjAssocList[] = {
 	{ POVERB_ASSIGNKIND,       PPOBJ_PRSNKIND, 0},
 	{ POVERB_REVOKEKIND,       PPOBJ_PRSNKIND, 0},
 	{ POVERB_SETTAG,           PPOBJ_TAG, 0},
@@ -211,13 +211,8 @@ static VerbObjAssoc __VerbObjAssocList[] = {
 //
 //
 //
-SLAPI PoClause_::PoClause_()
+SLAPI PoClause_::PoClause_() : Num(0), VerbID(0), Subj(0), DirObj(0), Flags(0)
 {
-	Num = 0;
-	VerbID = 0;
-	Subj = 0;
-	DirObj = 0;
-	Flags = 0;
 }
 
 int FASTCALL PoClause_::IsEqual(const PoClause_ & rS) const
@@ -1113,11 +1108,10 @@ int SLAPI PPObjPsnOpKind::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int 
 			PoClause_ clause;
 			for(i = 0; i < p_pack->ClauseList.GetCount(); i++) {
 				p_pack->ClauseList.Get(i, clause);
-				PPID   obj_type = clause.GetDirObjType();
+				const PPID obj_type = clause.GetDirObjType();
 				ProcessObjRefInArray(obj_type, &clause.DirObj, ary, replace);
-				if(replace) {
+				if(replace)
 					p_pack->ClauseList.Set(i, &clause);
-				}
 			}
 		}
 	}
@@ -1355,6 +1349,7 @@ int PsnOpDialog::editPsnConstr(int scnd)
 				if(p_box) {
 					PPIDArray scs_list;
 					ListToListData l2l(PPOBJ_SCARDSERIES, 0, &scs_list);
+					l2l.Flags |= ListToListData::fIsTreeList; // @v9.8.12 @fix
 					if(ListToListDialog(&l2l) > 0) {
 						data.RestrictScSerList.addUnique(&scs_list);
 						p_box->setDef(CreateScsListDef());
@@ -1491,12 +1486,10 @@ int SLAPI EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 					ideqvalstr(tag_id, tag_name = 0);
 				TagList.Add(tag_id, tag_name);
 			}
-			setCtrlString(CTL_POVERB_CMDTXT, data.CmdText); // @v7.8.0
-			// @v7.9.0 {
+			setCtrlString(CTL_POVERB_CMDTXT, data.CmdText);
 			AddClusterAssoc(CTL_POVERB_FLAGS, 0, PoClause_::fPassive);
 			AddClusterAssoc(CTL_POVERB_FLAGS, 1, PoClause_::fOnRedo);
 			SetClusterData(CTL_POVERB_FLAGS, data.Flags);
-			// } @v7.9.0
 			replyVerbSelected(1);
 			disableCtrl(CTLSEL_POVERB_VERB, BIN(data.Num));
 			return ok;

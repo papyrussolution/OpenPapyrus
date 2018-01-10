@@ -33,12 +33,9 @@ void ListBoxDef::SetCapability(long c, uint32 sign)
 	Sign = sign;
 }
 
-long SLAPI ListBoxDef::_topItem() const
-	{ return TopItem; }
-long SLAPI ListBoxDef::_curItem() const
-	{ return CurItem; }
-int SLAPI ListBoxDef::_isTreeList() const
-	{ return BIN(CFlags & cTree); }
+long SLAPI ListBoxDef::_topItem() const { return TopItem; }
+long SLAPI ListBoxDef::_curItem() const { return CurItem; }
+int SLAPI ListBoxDef::_isTreeList() const { return BIN(CFlags & cTree); }
 
 int SLAPI ListBoxDef::SetUserData(const void * pData, size_t size)
 {
@@ -803,12 +800,8 @@ int SLAPI StdTreeListBoxDef::GetStringByID(long id, SString & rBuf)
 int SLAPI StdTreeListBoxDef::GoByID(long id)
 {
 	uint   pos = 0;
-	if(valid()) {
-		if(P_SaList) {
-			if(P_SaList->Search(id, &pos))
-				go(pos);
-		}
-	}
+	if(valid() && P_SaList && P_SaList->Search(id, &pos))
+		go(pos);
 	return 1;
 }
 
@@ -819,10 +812,7 @@ int FASTCALL StdTreeListBoxDef::HasChild(long id)
 
 int SLAPI StdTreeListBoxDef::GetListByParent(long parentId, LongArray & rList) const
 {
-	int    ok = -1;
-	if(P_SaList)
-		ok = P_SaList->GetListByParent(parentId, 0, rList);
-	return ok;
+	return P_SaList ? P_SaList->GetListByParent(parentId, 0, rList) : -1;
 }
 
 int SLAPI StdTreeListBoxDef::GetParent(long child, long * pParent)

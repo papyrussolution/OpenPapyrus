@@ -357,19 +357,9 @@ void SLAPI PPTagEnumList::SetEnumID(PPID enumID)
 	EnumID = enumID;
 }
 
-PPID SLAPI PPTagEnumList::GetEnumID() const
-{
-	return EnumID;
-}
-
 void SLAPI PPTagEnumList::SetFlags(long flags)
 {
 	SETFLAG(Flags, PPCommObjEntry::fHierarchical, flags & PPCommObjEntry::fHierarchical);
-}
-
-long SLAPI PPTagEnumList::GetFlags() const
-{
-	return Flags;
 }
 
 int SLAPI PPTagEnumList::PutItem(PPID * pID, const char * pName, PPID parentID)
@@ -1492,7 +1482,7 @@ int SLAPI PPObjTag::GetListByFlag(long mask, PPIDArray & rList)
 int SLAPI PPObjTag::NormalizeTextCriterion(PPID tagID, const char * pCrit, SString & rNormCrit)
 {
 	int    ok = 1;
-	PPObjectTag2 tag_rec;
+	PPObjectTag tag_rec;
 	rNormCrit = pCrit;
 	if(rNormCrit.NotEmptyS()) {
 		if(Fetch(tagID, &tag_rec) > 0) {
@@ -1642,7 +1632,7 @@ int SLAPI PPObjTag::RecoverLostUnifiedLinks()
 			PPTransaction tra(1);
 			THROW(tra);
 			for(uint i = 0; i < count; i++) {
-				PPObjectTag2 tag;
+				PPObjectTag tag;
 				const PPID tag_id = p_tags_list->Get(i).Id;
 				if(tag_obj.Fetch(tag_id, &tag) > 0 && oneof2(tag.TagDataType, OTTYP_OBJLINK, OTTYP_ENUM) && tag.TagEnumID) {
 					ObjTagTbl::Key1 k1;
@@ -3451,7 +3441,7 @@ int PPALDD_TagType::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		PPObjTag tag_obj;
-		PPObjectTag2 tag_rec;
+		PPObjectTag tag_rec;
 		if(tag_obj.Fetch(H.ID, &tag_rec) > 0) {
 			H.TagDataType = tag_rec.TagDataType;
 			H.Flags       = tag_rec.Flags;

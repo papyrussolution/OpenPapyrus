@@ -1219,7 +1219,7 @@ int SLAPI DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 		}
 		temp_buf.Z();
 	}
-	rOutFileName = 0;
+	rOutFileName.Z();
 	data_name = (rParam.Flags & ExportParam::fInheritedTblNames && p_data->GetBase()) ? p_data->GetBase()->Name : p_data->Name;
 	head_name = data_name;
 	data_name.Dot().Cat("xml");

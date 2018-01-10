@@ -32,7 +32,7 @@ void FASTCALL uriStackToOctet(UriIp4Parser * parser, uchar * octet);
 //
 //
 //
-static void uriWriteQuadToDoubleByte(const uchar * hexDigits, int digitCount, uchar * output)
+static void FASTCALL uriWriteQuadToDoubleByte(const uchar * hexDigits, int digitCount, uchar * output)
 {
 	switch(digitCount) {
 	    case 1: // 0x___? -> \x00 \x0? 
@@ -178,46 +178,33 @@ static int FASTCALL UriMergePath(UriUri * absWork, const UriUri * relAppend)
 
 static int UriAddBaseUriImpl(UriUri * absDest, const UriUri * relSource, const UriUri * absBase)
 {
-	if(absDest == NULL) {
-		return SLERR_URI_NULL;
-	}
+	int    ok = 1;
+	THROW_S(absDest, SLERR_URI_NULL);
 	UriResetUri(absDest);
-	if(!relSource || !absBase) {
-		return SLERR_URI_NULL;
-	}
-	if(absBase->Scheme.P_First == NULL) { // absBase absolute? 
-		return SLERR_URI_ADDBASE_REL_BASE;
-	}
+	THROW_S(relSource && absBase, SLERR_URI_NULL);
+	THROW_S(absBase->Scheme.P_First, SLERR_URI_ADDBASE_REL_BASE); // absBase absolute? 
 	if(relSource->Scheme.P_First) { // [01/32] if defined(R.scheme) then 
 		absDest->Scheme = relSource->Scheme; // [02/32] T.scheme = R.scheme; 
-		if(!UriCopyAuthority(absDest, relSource)) // [03/32] T.authority = R.authority; 
-			return SLERR_NOMEM;
-		if(!UriCopyPath(absDest, relSource)) // [04/32] T.path = remove_dot_segments(R.path); 
-			return SLERR_NOMEM;
-		if(!UriRemoveDotSegmentsAbsolute(absDest))
-			return SLERR_NOMEM;
+		THROW(UriCopyAuthority(absDest, relSource)); // [03/32] T.authority = R.authority; 
+		THROW(UriCopyPath(absDest, relSource)); // [04/32] T.path = remove_dot_segments(R.path); 
+		THROW(UriRemoveDotSegmentsAbsolute(absDest));
 		absDest->query = relSource->query; // [05/32] T.query = R.query; 
 		// [06/32] else 
 	}
 	else {
 		if(UriIsHostSet(relSource)) { // [07/32] if defined(R.authority) then 
-			if(!UriCopyAuthority(absDest, relSource)) // [08/32] T.authority = R.authority; 
-				return SLERR_NOMEM;
-			if(!UriCopyPath(absDest, relSource)) // [09/32] T.path = remove_dot_segments(R.path); 
-				return SLERR_NOMEM;
-			if(!UriRemoveDotSegmentsAbsolute(absDest))
-				return SLERR_NOMEM;
+			THROW(UriCopyAuthority(absDest, relSource)); // [08/32] T.authority = R.authority; 
+			THROW(UriCopyPath(absDest, relSource)); // [09/32] T.path = remove_dot_segments(R.path); 
+			THROW(UriRemoveDotSegmentsAbsolute(absDest));
 			absDest->query = relSource->query; // [10/32] T.query = R.query; 
 			// [11/32] else 
 		}
 		else {
 			// [28/32] T.authority = Base.authority; 
-			if(!UriCopyAuthority(absDest, absBase))
-				return SLERR_NOMEM;
+			THROW(UriCopyAuthority(absDest, absBase));
 			// [12/32] if(R.path == "") then 
-			else if(relSource->pathHead == NULL) {
-				if(!UriCopyPath(absDest, absBase)) // [13/32] T.path = Base.path; 
-					return SLERR_NOMEM;
+			if(relSource->pathHead == NULL) {
+				THROW(UriCopyPath(absDest, absBase)); // [13/32] T.path = Base.path; 
 				if(relSource->query.P_First) { // [14/32] if defined(R.query) then 
 					absDest->query = relSource->query; // [15/32] T.query = R.query; 
 					// [16/32] else 
@@ -230,21 +217,15 @@ static int UriAddBaseUriImpl(UriUri * absDest, const UriUri * relSource, const U
 			}
 			else {
 				if(relSource->IsAbsolutePath) { // [20/32] if(R.path starts-with "/") then 
-					if(!UriCopyPath(absDest, relSource)) // [21/32] T.path = remove_dot_segments(R.path);
-						return SLERR_NOMEM;
-					else if(!UriRemoveDotSegmentsAbsolute(absDest))
-						return SLERR_NOMEM;
+					THROW(UriCopyPath(absDest, relSource)); // [21/32] T.path = remove_dot_segments(R.path);
+					THROW(UriRemoveDotSegmentsAbsolute(absDest));
 					// [22/32] else 
 				}
 				else {
-					if(!UriCopyPath(absDest, absBase)) // [23/32] T.path = merge(Base.path, R.path);
-						return SLERR_NOMEM;
-					else if(!UriMergePath(absDest, relSource))
-						return SLERR_NOMEM;
-					else if(!UriRemoveDotSegmentsAbsolute(absDest)) // [24/32] T.path = remove_dot_segments(T.path); 
-						return SLERR_NOMEM;
-					else if(!UriFixAmbiguity(absDest))
-						return SLERR_NOMEM;
+					THROW(UriCopyPath(absDest, absBase)); // [23/32] T.path = merge(Base.path, R.path);
+					THROW(UriMergePath(absDest, relSource));
+					THROW(UriRemoveDotSegmentsAbsolute(absDest)); // [24/32] T.path = remove_dot_segments(T.path); 
+					THROW(UriFixAmbiguity(absDest));
 					// [25/32] endif; 
 				}
 				absDest->query = relSource->query; // [26/32] T.query = R.query; 
@@ -257,20 +238,21 @@ static int UriAddBaseUriImpl(UriUri * absDest, const UriUri * relSource, const U
 		// [31/32] endif; 
 	}
 	absDest->fragment = relSource->fragment; // [32/32] T.fragment = R.fragment; 
-	return SLERR_SUCCESS;
+	CATCHZOK
+	return ok;
 }
 
 int UriAddBaseUri(UriUri * absDest, const UriUri * relSource, const UriUri * pAbsBase)
 {
-	const int res = UriAddBaseUriImpl(absDest, relSource, pAbsBase);
-	if(res != SLERR_SUCCESS && absDest)
+	int    ok = UriAddBaseUriImpl(absDest, relSource, pAbsBase);
+	if(!ok && absDest)
 		absDest->Destroy();
-	return res;
+	return ok;
 }
 //
 //
 //
-static int UriAppendSegment(UriUri * uri, const char * first, const char * afterLast)
+static int FASTCALL UriAppendSegment(UriUri * uri, const char * first, const char * afterLast)
 {
 	int    ok = 1;
 	// Create segment 
@@ -593,8 +575,7 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 				/* Copy value */
 				write[0] = _UT('=');
 				write++;
-				afterValue = UriEscapeEx(value, value+valueLen,
-					write, spaceToPlus, normalizeBreaks);
+				afterValue = UriEscapeEx(value, value+valueLen, write, spaceToPlus, normalizeBreaks);
 				write +=(afterValue-write);
 			}
 		}
@@ -841,7 +822,7 @@ char * UriEscape(const char * in, char * out, int spaceToPlus, int normalizeBrea
 	return UriEscapeEx(in, NULL, out, spaceToPlus, normalizeBreaks);
 }
 
-char * UriEscapeEx(const char * inFirst, const char * inAfterLast, char * out, int spaceToPlus, int normalizeBreaks)
+char * FASTCALL UriEscapeEx(const char * inFirst, const char * inAfterLast, char * out, int spaceToPlus, int normalizeBreaks)
 {
 	const char * read = inFirst;
 	char * write = out;
@@ -1301,7 +1282,7 @@ int UriRemoveDotSegmentsEx(UriUri * pUri, int relative, int pathOwned)
 					if(relative) {
 						if(p_prev == NULL)
 							removeSegment = FALSE;
-						else if(p_prev && (p_prev->text.P_AfterLast-p_prev->text.P_First) == 2 && (p_prev->text.P_First[0] == _UT('.')) && (p_prev->text.P_First[1] == _UT('.')))
+						else if(p_prev && p_prev->text.Len() == 2 && (p_prev->text.P_First[0] == _UT('.')) && (p_prev->text.P_First[1] == _UT('.')))
 							removeSegment = FALSE;
 					}
 					if(removeSegment) {
@@ -1488,8 +1469,9 @@ int UriCopyPath(UriUri * dest, const UriUri * source)
 	dest->IsAbsolutePath = source->IsAbsolutePath;
 	return TRUE;
 }
-
-/* Copies the authority part of an URI over to another. */
+//
+// Copies the authority part of an URI over to another. 
+//
 int UriCopyAuthority(UriUri*dest, const UriUri*source)
 {
 	// From this functions usage we know that the dest URI cannot be uri->owner  
@@ -1509,7 +1491,7 @@ int UriCopyAuthority(UriUri*dest, const UriUri*source)
 	}
 	else if(source->HostData.ip6) {
 		dest->HostData.ip4 = NULL;
-		dest->HostData.ip6 =(UriIp6 *)SAlloc::M(sizeof(UriIp6));
+		dest->HostData.ip6 = (UriIp6 *)SAlloc::M(sizeof(UriIp6));
 		if(dest->HostData.ip6 == NULL) {
 			return FALSE; // Raises SAlloc::M error 
 		}
@@ -1551,10 +1533,10 @@ int UriFixAmbiguity(UriUri * uri)
 	return TRUE;
 }
 
-void UriFixEmptyTrailSegment(UriUri*uri)
+void UriFixEmptyTrailSegment(UriUri * uri)
 {
 	/* Fix path if only one empty segment */
-	if(!uri->IsAbsolutePath && !UriIsHostSet(uri) && uri->pathHead && !uri->pathHead->next && (uri->pathHead->text.P_First == uri->pathHead->text.P_AfterLast)) {
+	if(!uri->IsAbsolutePath && !UriIsHostSet(uri) && uri->pathHead && !uri->pathHead->next && uri->pathHead->text.Len() == 0) {
 		ZFREE(uri->pathHead);
 		uri->pathTail = NULL;
 	}
@@ -1562,16 +1544,7 @@ void UriFixEmptyTrailSegment(UriUri*uri)
 //
 //
 //
-static int UriNormalizeSyntaxEngine(UriUri*uri, uint inMask, uint * outMask);
-static int UriMakeRangeOwner(uint * doneMask, uint maskTest, UriTextRange*range);
-static int FASTCALL UriMakeOwner(UriUri*uri, uint * doneMask);
-static void FASTCALL UriFixPercentEncodingInplace(const char * pFirst, const char ** afterLast);
-static int FASTCALL UriContainsUglyPercentEncoding(const char * pFirst, const char * afterLast);
-static void FASTCALL UriLowercaseInplace(const char * pFirst, const char * afterLast);
-static int FASTCALL UriLowercaseMalloc(const char ** ppFirst, const char ** afterLast);
-static void UriPreventLeakage(UriUri * uri, uint revertMask);
-
-static void UriPreventLeakage(UriUri * uri, uint revertMask)
+static void FASTCALL UriPreventLeakage(UriUri * uri, uint revertMask)
 {
 	if(revertMask&URI_NORMALIZE_SCHEME) {
 		SAlloc::F((char *)uri->Scheme.P_First);
@@ -1588,7 +1561,7 @@ static void UriPreventLeakage(UriUri * uri, uint revertMask)
 			uri->HostData.ipFuture.Clear();
 			uri->HostText.Clear();
 		}
-		else if(uri->HostText.P_First &&(uri->HostData.ip4 == NULL) &&(uri->HostData.ip6 == NULL)) {
+		else if(uri->HostText.P_First && !uri->HostData.ip4 && !uri->HostData.ip6) {
 			// Regname 
 			SAlloc::F((char *)uri->HostText.P_First);
 			uri->HostText.Clear();
@@ -1618,10 +1591,11 @@ static void UriPreventLeakage(UriUri * uri, uint revertMask)
 	}
 }
 
-static int FASTCALL UriContainsUppercaseLetters(const char * pFirst, const char * afterLast)
+static int FASTCALL UriContainsUppercaseLetters(/*const char * pFirst, const char * afterLast*/const UriTextRange & rR)
 {
-	if(pFirst && afterLast && (afterLast > pFirst)) {
-		for(const char * i = pFirst; i < afterLast; i++) {
+	//if(pFirst && afterLast && (afterLast > pFirst)) {
+	if(rR.P_First && rR.P_AfterLast && (rR.P_AfterLast > rR.P_First)) {
+		for(const char * i = rR.P_First; i < rR.P_AfterLast; i++) {
 			// 6.2.2.1 Case Normalization: uppercase letters in scheme or host 
 			if((*i >= _UT('A')) &&(*i <= _UT('Z'))) {
 				return TRUE;
@@ -1658,12 +1632,13 @@ static int FASTCALL UriContainsUglyPercentEncoding(const char * pFirst, const ch
 	return FALSE;
 }
 
-static void FASTCALL UriLowercaseInplace(const char * pFirst, const char * afterLast)
+static void FASTCALL UriLowercaseInplace(/*const char * pFirst, const char * afterLast*/UriTextRange & rR)
 {
-	if(pFirst && afterLast && (afterLast > pFirst)) {
-		char * i = (char *)pFirst; // @badcast
+	//if(pFirst && afterLast && (afterLast > pFirst)) {
+	if(rR.P_First && rR.P_AfterLast && rR.Len() > 0) {
+		char * i = (char *)rR.P_First; // @badcast
 		const int lowerUpperDiff =(_UT('a')-_UT('A'));
-		for(; i < afterLast; i++) {
+		for(; i < rR.P_AfterLast; i++) {
 			if((*i >= _UT('A')) &&(*i <=_UT('Z'))) {
 				*i = (char)(*i+lowerUpperDiff);
 			}
@@ -1758,10 +1733,12 @@ static void FASTCALL UriFixPercentEncodingInplace(const char * first, const char
 	}
 }
 
-UriTextRange::UriTextRange()
+UriTextRange::UriTextRange() : P_First(0), P_AfterLast(0)
 {
-	P_First = 0;
-	P_AfterLast = 0;
+}
+
+UriTextRange::UriTextRange(const char * pFirst, const char * pAfterLast) : P_First(pFirst), P_AfterLast(pAfterLast)
+{
 }
 
 void UriTextRange::Clear()
@@ -1840,7 +1817,7 @@ static int FASTCALL UriFixPercentEncodingMalloc(const char ** ppFirst, const cha
 	}
 }
 
-static int UriMakeRangeOwner(uint * doneMask, uint maskTest, UriTextRange * range)
+static int FASTCALL UriMakeRangeOwner(uint * doneMask, uint maskTest, UriTextRange * range)
 {
 	if(((*doneMask&maskTest) == 0) && range->P_First && range->P_AfterLast) {
 		const int len_in_chars =(int)range->Len();
@@ -1917,31 +1894,7 @@ static int FASTCALL UriMakeOwner(UriUri * uri, uint * doneMask)
 	return ok;
 }
 
-uint FASTCALL UriNormalizeSyntaxMaskRequired(const UriUri * uri)
-{
-	uint res;
- #if defined(__GNUC__) &&((__GNUC__ > 4) || ((__GNUC__ == 4) && defined(__GNUC_MINOR__) &&(__GNUC_MINOR__ >= 2)))
-	// Slower code that fixes a warning, not sure if this is a smart idea 
-	UriUri writeableClone;
-	memcpy(&writeableClone, uri, 1*sizeof(UriUri));
-	UriNormalizeSyntaxEngine(&writeableClone, 0, &res);
- #else
-	UriNormalizeSyntaxEngine((UriUri *)uri, 0, &res);
- #endif
-	return res;
-}
-
-int FASTCALL UriNormalizeSyntaxEx(UriUri * uri, uint mask)
-{
-	return UriNormalizeSyntaxEngine(uri, mask, 0);
-}
-
-int FASTCALL UriNormalizeSyntax(UriUri * uri)
-{
-	return UriNormalizeSyntaxEx(uri,(uint)-1);
-}
-
-static int UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * outMask)
+static int FASTCALL UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * outMask)
 {
 	uint doneMask = URI_NORMALIZED;
 	if(uri == NULL) {
@@ -1958,8 +1911,8 @@ static int UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * outMask)
 		return SLERR_SUCCESS; // Nothing to do 
 	// Scheme, host 
 	if(outMask) {
-		const int normalizeScheme = UriContainsUppercaseLetters(uri->Scheme.P_First, uri->Scheme.P_AfterLast);
-		const int normalizeHostCase = UriContainsUppercaseLetters(uri->HostText.P_First, uri->HostText.P_AfterLast);
+		const int normalizeScheme = UriContainsUppercaseLetters(uri->Scheme);
+		const int normalizeHostCase = UriContainsUppercaseLetters(uri->HostText);
 		if(normalizeScheme)
 			*outMask |= URI_NORMALIZE_SCHEME;
 		if(normalizeHostCase)
@@ -1974,7 +1927,7 @@ static int UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * outMask)
 		// Scheme 
 		if((inMask&URI_NORMALIZE_SCHEME) && uri->Scheme.P_First) {
 			if(uri->IsOwner) {
-				UriLowercaseInplace(uri->Scheme.P_First, uri->Scheme.P_AfterLast);
+				UriLowercaseInplace(uri->Scheme);
 			}
 			else {
 				if(!UriLowercaseMalloc(&(uri->Scheme.P_First), &(uri->Scheme.P_AfterLast))) {
@@ -1989,7 +1942,7 @@ static int UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * outMask)
 			if(uri->HostData.ipFuture.P_First) {
 				// IPvFuture 
 				if(uri->IsOwner)
-					UriLowercaseInplace(uri->HostData.ipFuture.P_First, uri->HostData.ipFuture.P_AfterLast);
+					UriLowercaseInplace(uri->HostData.ipFuture);
 				else {
 					if(!UriLowercaseMalloc(&(uri->HostData.ipFuture.P_First), &(uri->HostData.ipFuture.P_AfterLast))) {
 						UriPreventLeakage(uri, doneMask);
@@ -2011,7 +1964,7 @@ static int UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * outMask)
 					}
 					doneMask |= URI_NORMALIZE_HOST;
 				}
-				UriLowercaseInplace(uri->HostText.P_First, uri->HostText.P_AfterLast);
+				UriLowercaseInplace(uri->HostText);
 			}
 		}
 	}
@@ -2118,6 +2071,30 @@ static int UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * outMask)
 		uri->IsOwner = TRUE;
 	}
 	return SLERR_SUCCESS;
+}
+
+uint FASTCALL UriNormalizeSyntaxMaskRequired(const UriUri * uri)
+{
+	uint res;
+ #if defined(__GNUC__) &&((__GNUC__ > 4) || ((__GNUC__ == 4) && defined(__GNUC_MINOR__) &&(__GNUC_MINOR__ >= 2)))
+	// Slower code that fixes a warning, not sure if this is a smart idea 
+	UriUri writeableClone;
+	memcpy(&writeableClone, uri, 1*sizeof(UriUri));
+	UriNormalizeSyntaxEngine(&writeableClone, 0, &res);
+ #else
+	UriNormalizeSyntaxEngine((UriUri *)uri, 0, &res);
+ #endif
+	return res;
+}
+
+int FASTCALL UriNormalizeSyntaxEx(UriUri * uri, uint mask)
+{
+	return UriNormalizeSyntaxEngine(uri, mask, 0);
+}
+
+int FASTCALL UriNormalizeSyntax(UriUri * uri)
+{
+	return UriNormalizeSyntaxEx(uri,(uint)-1);
 }
 //
 //
@@ -2771,46 +2748,11 @@ static const char * UriParseDecOctetFour(UriIp4Parser * parser, const char * fir
  #define URI_SET_HEXDIG URI_SET_DIGIT: case URI_SET_HEX_LETTER_UPPER: case URI_SET_HEX_LETTER_LOWER
  #define URI_SET_ALPHA URI_SET_HEX_LETTER_UPPER: \
     case URI_SET_HEX_LETTER_LOWER: \
-    case _UT('g'): \
-    case _UT('G'): \
-    case _UT('h'): \
-    case _UT('H'): \
-    case _UT('i'): \
-    case _UT('I'): \
-    case _UT('j'): \
-    case _UT('J'): \
-    case _UT('k'): \
-    case _UT('K'): \
-    case _UT('l'): \
-    case _UT('L'): \
-    case _UT('m'): \
-    case _UT('M'): \
-    case _UT('n'): \
-    case _UT('N'): \
-    case _UT('o'): \
-    case _UT('O'): \
-    case _UT('p'): \
-    case _UT('P'): \
-    case _UT('q'): \
-    case _UT('Q'): \
-    case _UT('r'): \
-    case _UT('R'): \
-    case _UT('s'): \
-    case _UT('S'): \
-    case _UT('t'): \
-    case _UT('T'): \
-    case _UT('u'): \
-    case _UT('U'): \
-    case _UT('v'): \
-    case _UT('V'): \
-    case _UT('w'): \
-    case _UT('W'): \
-    case _UT('x'): \
-    case _UT('X'): \
-    case _UT('y'): \
-    case _UT('Y'): \
-    case _UT('z'): \
-    case _UT('Z')
+    case _UT('g'): case _UT('G'): case _UT('h'): case _UT('H'): case _UT('i'): case _UT('I'): case _UT('j'): case _UT('J'): \
+    case _UT('k'): case _UT('K'): case _UT('l'): case _UT('L'): case _UT('m'): case _UT('M'): case _UT('n'): case _UT('N'): \
+    case _UT('o'): case _UT('O'): case _UT('p'): case _UT('P'): case _UT('q'): case _UT('Q'): case _UT('r'): case _UT('R'): \
+    case _UT('s'): case _UT('S'): case _UT('t'): case _UT('T'): case _UT('u'): case _UT('U'): case _UT('v'): case _UT('V'): \
+    case _UT('w'): case _UT('W'): case _UT('x'): case _UT('X'): case _UT('y'): case _UT('Y'): case _UT('z'): case _UT('Z')
 
 UriParserState::UriParserState()
 {
@@ -3423,10 +3365,7 @@ const char * FASTCALL UriParserState::ParseMustBeSegmentNzNc(const char * pFirst
 						}
 						else {
 							afterZeroMoreSlashSegs = ParseZeroMoreSlashSegs(afterSegment, afterLast);
-							if(afterZeroMoreSlashSegs == NULL)
-								return NULL;
-							else
-								return ParseUriTail(afterZeroMoreSlashSegs, afterLast);
+							return afterZeroMoreSlashSegs ? ParseUriTail(afterZeroMoreSlashSegs, afterLast) : 0;
 						}
 					}
 				}
@@ -4247,6 +4186,10 @@ int UriParseUri(UriParserState * pState, const char * pText)
 {
 	const size_t len = sstrlen(pText);
 	return (pState && len) ? pState->ParseUriEx(pText, pText+len) : SLS.SetError(SLERR_URI_NULL);
+}
+
+UriUri::PathSegment::PathSegment(const char * pFirst, const char * pAfterLast) : text(pFirst, pAfterLast), next(0), reserved(0)
+{
 }
 
 //void UriFreeUriMembers(UriUri * pUri)

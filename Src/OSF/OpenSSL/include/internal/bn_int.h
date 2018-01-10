@@ -14,9 +14,9 @@
 extern "C" {
 #endif
 
-BIGNUM *bn_wexpand(BIGNUM *a, int words);
-BIGNUM *bn_expand2(BIGNUM *a, int words);
-void bn_correct_top(BIGNUM *a);
+BIGNUM * FASTCALL bn_wexpand(BIGNUM * a, int words);
+BIGNUM * FASTCALL bn_expand2(BIGNUM * a, int words);
+void FASTCALL bn_correct_top(BIGNUM * a);
 /*
  * Determine the modified width-(w+1) Non-Adjacent Form (wNAF) of 'scalar'.
  * This is an array r[] of values that are either zero or odd with an
@@ -57,7 +57,7 @@ size_t bn_sizeof_BIGNUM(void);
  * Return element el from an array of BIGNUMs starting at base (required
  * because callers do not know the size of BIGNUM at compilation time)
  */
-BIGNUM *bn_array_el(BIGNUM *base, int el);
+BIGNUM * bn_array_el(BIGNUM *base, int el);
 
 #ifdef  __cplusplus
 }

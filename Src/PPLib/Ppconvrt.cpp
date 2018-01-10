@@ -1,5 +1,5 @@
 // PPCONVRT.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Конвертация файлов данных при изменениях версий
 //
@@ -78,8 +78,9 @@ int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, cons
 						for(PPID phs_id = 0; p_ref->EnumItems(PPOBJ_PHONESERVICE, &phs_id, &phs_rec) > 0;) {
 							if(p_ref->GetPropVlrString(PPOBJ_PHONESERVICE, phs_id, PHNSVCPRP_TAIL, temp_buf) > 0) {
 								PPGetExtStrData(PHNSVCEXSTR_PASSWORD, temp_buf, src_pw_buf);
-								Reference::Helper_DecodeOtherPw(ppb_src.DefPassword, src_pw_buf, /*PHNSVC_PW_SIZE*/20, dest_pw_buf);
-								Reference::Helper_EncodeOtherPw(ppb_dest.DefPassword, dest_pw_buf, /*PHNSVC_PW_SIZE*/20, src_pw_buf);
+								// @v9.8.12 20-->64
+								Reference::Helper_DecodeOtherPw(ppb_src.DefPassword, src_pw_buf, /*PHNSVC_PW_SIZE*/64, dest_pw_buf);
+								Reference::Helper_EncodeOtherPw(ppb_dest.DefPassword, dest_pw_buf, /*PHNSVC_PW_SIZE*/64, src_pw_buf);
 								PPPutExtStrData(PHNSVCEXSTR_PASSWORD, temp_buf, src_pw_buf);
 								THROW(p_ref->PutPropVlrString(PPOBJ_PHONESERVICE, phs_id, PHNSVCPRP_TAIL, temp_buf));
 							}
@@ -522,7 +523,7 @@ int SLAPI GoodsConvertion270::ConvertGroupRec(GoodsGroupTbl::Rec * grec, Goods2T
 	}
 	if(grec->VATax != 0 || grec->Excise != 0) {
    	    PPID gtax_id = 0;
-		GTObj.GetBySheme(&gtax_id, grec->VATax, 0, grec->Excise, 0);
+		GTObj.GetByScheme(&gtax_id, grec->VATax, 0, grec->Excise, 0, 0/*use_ta*/);
 	   	g2rec->TaxGrpID = gtax_id;
 	}
 	return ok;
@@ -549,8 +550,7 @@ int SLAPI GoodsConvertion270::ConvertGoodsRec(GoodsTbl::Rec * grec, Goods2Tbl::R
 	STRNSCPY(buf, grec->Abbr);
 	buf[sizeof(grec->Abbr)-1] = 0;
 	STRNSCPY(g2rec->Abbr, strip(buf));
-	if((grec->VATax != 0 || (grec->Flags & GF_ZVAT)) ||
-		(grec->Excise != 0 || (grec->Flags & GF_ZEXCISE))) {
+	if((grec->VATax != 0 || (grec->Flags & GF_ZVAT)) || (grec->Excise != 0 || (grec->Flags & GF_ZEXCISE))) {
 		PPID gtax_id = 0;
 		int  abs_excise = 0;
 		double excise = 0, sales_tax = 0;
@@ -560,7 +560,7 @@ int SLAPI GoodsConvertion270::ConvertGoodsRec(GoodsTbl::Rec * grec, Goods2Tbl::R
 		}
 		else
 			sales_tax = grec->Excise;
-		GTObj.GetBySheme(&gtax_id, grec->VATax, excise, sales_tax, (abs_excise ? GTAXF_ABSEXCISE : 0));
+		GTObj.GetByScheme(&gtax_id, grec->VATax, excise, sales_tax, (abs_excise ? GTAXF_ABSEXCISE : 0), 0/*use_ta*/);
 		g2rec->TaxGrpID = gtax_id;
 	}
 	return ok;
@@ -6179,7 +6179,7 @@ int SLAPI PPObjWorkbook_Pre813::GetItemPath(PPID itemID, SString & rPath)
 	int   ok = 0;
 	PPWorkbook rec;
 	SString temp_buf;
-	rPath = 0;
+	rPath.Z();
 	if(itemID > 0) {
 		for(PPID id = itemID; id && Search(id, &rec) > 0; id = rec.ParentID) {
 			temp_buf = rPath;
@@ -7133,15 +7133,11 @@ int SLAPI Convert9811()
 		PPCvtLotExtCode9811 cvt;
 		int r = cvt.Convert();
 		THROW(r);
-		if(r > 0) {
+		{
 			//
-			// Если конвертация была осуществлена именно сейчас, то необходимо зафиксировать
-			// в системном журнале событие, которое будет разграничивать применении старой
+			// Необходимо зафиксировать в системном журнале событие,
+			// которое будет разграничивать применении старой
 			// и новой схемы хранения версионных объектов
-			//
-			// Обращаю внимание на то, что сама конвертация PPCvtLotExtCode9811 никак не связана
-			// с необходимостью введения событийной метки. Просто причина в том, что это происходит
-			// при одной и той же смене версии.
 			//
 			LDATETIME moment;
 			PPIDArray acn_list;

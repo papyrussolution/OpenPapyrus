@@ -784,31 +784,31 @@ slim_hidden_def(cairo_surface_reference);
  **/
 void FASTCALL cairo_surface_destroy(cairo_surface_t * surface)
 {
-	if(surface == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&surface->ref_count))
-		return;
-	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count));
-	if(!_cairo_reference_count_dec_and_test(&surface->ref_count))
-		return;
-	assert(surface->snapshot_of == NULL);
-	if(!surface->finished) {
-		_cairo_surface_finish_snapshots(surface);
-		// We may have been referenced by a snapshot prior to have
-		// detaching it with the copy-on-write.
-		if(CAIRO_REFERENCE_COUNT_GET_VALUE(&surface->ref_count))
-			return;
-		_cairo_surface_finish(surface);
+	if(surface && !CAIRO_REFERENCE_COUNT_IS_INVALID(&surface->ref_count)) {
+		assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count));
+		if(_cairo_reference_count_dec_and_test(&surface->ref_count)) {
+			assert(surface->snapshot_of == NULL);
+			if(!surface->finished) {
+				_cairo_surface_finish_snapshots(surface);
+				// We may have been referenced by a snapshot prior to have
+				// detaching it with the copy-on-write.
+				if(CAIRO_REFERENCE_COUNT_GET_VALUE(&surface->ref_count))
+					return;
+				_cairo_surface_finish(surface);
+			}
+			if(surface->damage)
+				_cairo_damage_destroy(surface->damage);
+			_cairo_user_data_array_fini(&surface->user_data);
+			_cairo_user_data_array_fini(&surface->mime_data);
+			if(surface->owns_device)
+				cairo_device_destroy(surface->device);
+			assert(surface->snapshot_of == NULL);
+			assert(!_cairo_surface_has_snapshots(surface));
+			// paranoid check that nobody took a reference whilst finishing 
+			assert(!CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count));
+			SAlloc::F(surface);
+		}
 	}
-	if(surface->damage)
-		_cairo_damage_destroy(surface->damage);
-	_cairo_user_data_array_fini(&surface->user_data);
-	_cairo_user_data_array_fini(&surface->mime_data);
-	if(surface->owns_device)
-		cairo_device_destroy(surface->device);
-	assert(surface->snapshot_of == NULL);
-	assert(!_cairo_surface_has_snapshots(surface));
-	// paranoid check that nobody took a reference whilst finishing 
-	assert(!CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count));
-	SAlloc::F(surface);
 }
 
 slim_hidden_def(cairo_surface_destroy);
@@ -952,7 +952,6 @@ cairo_status_t cairo_surface_set_user_data(cairo_surface_t * surface, const cair
 		return _cairo_error(CAIRO_STATUS_SURFACE_FINISHED);
 	return _cairo_user_data_array_set_data(&surface->user_data, key, user_data, destroy);
 }
-
 /**
  * cairo_surface_get_mime_data:
  * @surface: a #cairo_surface_t
@@ -966,28 +965,26 @@ cairo_status_t cairo_surface_set_user_data(cairo_surface_t * surface, const cair
  *
  * Since: 1.10
  **/
-void cairo_surface_get_mime_data(cairo_surface_t * surface, const char * mime_type, const uchar ** data, ulong * length)
+void FASTCALL cairo_surface_get_mime_data(cairo_surface_t * surface, const char * mime_type, const uchar ** data, ulong * length)
 {
-	cairo_user_data_slot_t * slots;
-	int i, num_slots;
 	*data = NULL;
 	*length = 0;
 	// Prevent reads of the array during teardown 
-	if(!CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count))
-		return;
-	/* The number of mime-types attached to a surface is usually small,
-	 * typically zero. Therefore it is quicker to do a strcmp() against
-	 * each key than it is to intern the string (i.e. compute a hash,
-	 * search the hash table, and do a final strcmp).
-	 */
-	num_slots = surface->mime_data.num_elements;
-	slots = (cairo_user_data_slot_t *)_cairo_array_index(&surface->mime_data, 0);
-	for(i = 0; i < num_slots; i++) {
-		if(slots[i].key && strcmp((char*)slots[i].key, mime_type) == 0) {
-			cairo_mime_data_t * mime_data = (cairo_mime_data_t *)slots[i].user_data;
-			*data = mime_data->data;
-			*length = mime_data->length;
-			return;
+	if(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&surface->ref_count)) {
+		/* The number of mime-types attached to a surface is usually small,
+		 * typically zero. Therefore it is quicker to do a strcmp() against
+		 * each key than it is to intern the string (i.e. compute a hash,
+		 * search the hash table, and do a final strcmp).
+		 */
+		const int num_slots = surface->mime_data.num_elements;
+		cairo_user_data_slot_t * slots = (cairo_user_data_slot_t *)_cairo_array_index(&surface->mime_data, 0);
+		for(int i = 0; i < num_slots; i++) {
+			if(slots[i].key && strcmp((char*)slots[i].key, mime_type) == 0) {
+				cairo_mime_data_t * mime_data = (cairo_mime_data_t *)slots[i].user_data;
+				*data = mime_data->data;
+				*length = mime_data->length;
+				return;
+			}
 		}
 	}
 }

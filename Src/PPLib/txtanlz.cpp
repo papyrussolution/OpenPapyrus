@@ -1,5 +1,5 @@
 // TXTANLZ.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -7,11 +7,8 @@
 //
 //
 //
-PPTextAnalyzer::Replacer::SrcItem::SrcItem()
+PPTextAnalyzer::Replacer::SrcItem::SrcItem() : Op(0), Flags(0), TargetIdx(0)
 {
-	Op = 0;
-	Flags = 0;
-	TargetIdx = 0;
 }
 
 const SSzChunk * FASTCALL PPTextAnalyzer::Replacer::SrcItem::GetTermGroup(uint termIdx, uint * pGrpIdx) const
@@ -69,20 +66,12 @@ int PPTextAnalyzer::Replacer::Chain::Add(int type, const PPTextAnalyzer::Replace
 }
 
 //static
-int FASTCALL PPTextAnalyzer::Replacer::IsOp(int termType)
-{
-	return BIN(termType > stLastLex);
-}
-
+int FASTCALL PPTextAnalyzer::Replacer::IsOp(int termType) { return BIN(termType > stLastLex); }
 //static
-int FASTCALL PPTextAnalyzer::Replacer::IsLex(int termType)
-{
-	return BIN(termType < stLastLex);
-}
+int FASTCALL PPTextAnalyzer::Replacer::IsLex(int termType) { return BIN(termType < stLastLex); }
 
-PPTextAnalyzer::Replacer::Replacer()
+PPTextAnalyzer::Replacer::Replacer() : P_Cluster(0)
 {
-	P_Cluster = 0;
 	InitParsing(0);
 }
 
@@ -109,11 +98,6 @@ long PPTextAnalyzer::Replacer::SetState(long st, int set)
 	long   prev_state = State;
 	SETFLAG(State, st, set);
 	return prev_state;
-}
-
-long PPTextAnalyzer::Replacer::GetState() const
-{
-	return State;
 }
 
 PPTextAnalyzer::Replacer::SrcItem * PPTextAnalyzer::Replacer::MakeSrcItem(
@@ -183,15 +167,9 @@ uint PPTextAnalyzer::Replacer::SearchTarget(const Replacer::Chain & rChain) cons
 	return idx;
 }
 
-PPTextAnalyzer::FindBlock::FindBlock(const PPTextAnalyzer::Replacer & rR) : TSVector <PPTextAnalyzer::FindItem> (), R(rR) // @v9.8.6 TSArray-->TSVector
+PPTextAnalyzer::FindBlock::FindBlock(const PPTextAnalyzer::Replacer & rR) : TSVector <PPTextAnalyzer::FindItem> (), // @v9.8.6 TSArray-->TSVector
+	R(rR), P_Item(0), IdxFirst(0), IdxLast(0), NextPos(0), State(0), P_Idx(0), P_Next(0)
 {
-	P_Item = 0;
-	IdxFirst = 0;
-	IdxLast = 0;
-	NextPos = 0;
-	State = 0;
-	P_Idx = 0;
-	P_Next = 0;
 }
 
 PPTextAnalyzer::FindBlock::~FindBlock()
@@ -916,15 +894,7 @@ int SLAPI PPTextAnalyzer::DoReplacement(const PPTextAnalyzer::Replacer & rR, PPT
 									last_inserted_token = r_term.Tok;
 								}
 								break;
-							case 1:
-							case 2:
-							case 3:
-							case 4:
-							case 5:
-							case 6:
-							case 7:
-							case 8:
-							case 9:
+							case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
 								{
 									const FindItem * p_fbigi = rBlk.GetGroupItem(r_term.Type);
 									THROW(p_fbigi); // @err
@@ -1638,11 +1608,8 @@ int SLAPI PPTextAnalyzer::ParseReplacerFile(const char * pFileName, Replacer & r
 
 #endif // } 0
 
-SLAPI PPTextAnalyzer::PPTextAnalyzer() : STokenizer()
+SLAPI PPTextAnalyzer::PPTextAnalyzer() : STokenizer(), SignalProc(0), P_SignalProcExtra(0)
 {
-	SignalProc = 0;
-	P_SignalProcExtra = 0;
-
 	Param p;
 	p.Delim = " \t\n\r(){}[]<>,.:;-\\/&$#@!?*^\"+=%\xA0";
 	p.Flags |= (fDivAlNum|fEachDelim);
@@ -1666,17 +1633,14 @@ void SLAPI PPTextAnalyzer::SetSignalProc(TextAnalyzerSignalProc proc, void * pPr
 int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 {
 	int    ok = 1;
-
 	ANNTYP * p_result = 0;
 	ANNTYP * p_nn_input = 0;
 	ANNTYP * p_nn_output = 0;
 	ANNTYP * p_nn_test_output = 0;
 	Fann * p_ann = 0;
-
 	uint   max_inp_tokens = 0;
 	LongArray group_list;
 	LongArray brand_list;
-
 	SString ident;
 	SString text;
 	SString norm_code; // Нормализованное представление штрихкода
@@ -2146,9 +2110,8 @@ int SLAPI PPTextAnalyzer::Test()
 	return ok;
 }
 
-SLAPI PPTextAnalyzerWrapper::PPTextAnalyzerWrapper() : R(), Fb(R)
+SLAPI PPTextAnalyzerWrapper::PPTextAnalyzerWrapper() : R(), Fb(R), Flags(0)
 {
-	Flags = 0;
 }
 
 int SLAPI PPTextAnalyzerWrapper::Init(const char * pRuleFileName, long flags)
@@ -2185,11 +2148,9 @@ int SLAPI PPTextAnalyzerWrapper::ReplaceString(const char * pText, SString & rRe
 	return ok;
 }
 
-IMPLEMENT_PPFILT_FACTORY(PrcssrObjText); SLAPI PrcssrObjTextFilt::PrcssrObjTextFilt() : PPBaseFilt(PPFILT_PRCSSROBJTEXTPARAM, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(PrcssrObjText); SLAPI PrcssrObjTextFilt::PrcssrObjTextFilt() : 
+	PPBaseFilt(PPFILT_PRCSSROBJTEXTPARAM, 0, 0), P_GoodsF(0), P_BrandF(0), P_PsnF(0)
 {
-	P_GoodsF = 0;
-	P_BrandF = 0;
-	P_PsnF = 0;
 	SetFlatChunk(offsetof(PrcssrObjTextFilt, ReserveStart),
 		offsetof(PrcssrObjTextFilt, RuleFileName)-offsetof(PrcssrObjTextFilt, ReserveStart));
 	SetBranchSString(offsetof(PrcssrObjTextFilt, RuleFileName));
@@ -2225,9 +2186,8 @@ int SLAPI PrcssrObjTextFilt::IsEmpty() const
 		return 1;
 }
 
-SLAPI PrcssrObjText::PrcssrObjText()
+SLAPI PrcssrObjText::PrcssrObjText() : P_Rpl(0)
 {
-	P_Rpl = 0;
 }
 
 SLAPI PrcssrObjText::~PrcssrObjText()
@@ -2865,11 +2825,8 @@ private:
 	};
 	class Group : public TSVector <PPKeywordListGenerator::Item_> { // @v9.8.4 TSArray-->TSVector
 	public:
-		Group()
+		Group() : ContextP(0), ItemsLimit(0), WordsLimit(0)
 		{
-			ContextP = 0;
-			ItemsLimit = 0;
-			WordsLimit = 0;
 		}
 		uint   ContextP;
         uint   ItemsLimit;
@@ -2893,13 +2850,8 @@ private:
 	SCycleTimer DataFileChangeDetectTimer;
 };
 
-PPKeywordListGenerator::RunStat::RunStat()
+PPKeywordListGenerator::RunStat::RunStat() : WordCount(0), ItemCount(0), LastRunWordCount(0), LastRunItemCount(0), RunCount(0)
 {
-	WordCount = 0;
-	ItemCount = 0;
-	LastRunWordCount = 0;
-	LastRunItemCount = 0;
-	RunCount = 0;
 }
 
 int PPKeywordListGenerator::RunStat::GetText(uint p, SString & rText) const
@@ -2969,7 +2921,7 @@ int PPKeywordListGenerator::RunStat::AddItem(const SString & rItem)
 	return 1;
 }
 
-SLAPI PPKeywordListGenerator::PPKeywordListGenerator() : SStrGroup(), DataFileChangeDetectTimer(60000)
+SLAPI PPKeywordListGenerator::PPKeywordListGenerator() : SStrGroup(), DataFileChangeDetectTimer(60000), DataFileDtm(ZERODATETIME)
 {
 	_Divider = 9999;
 	do {
@@ -2977,9 +2929,6 @@ SLAPI PPKeywordListGenerator::PPKeywordListGenerator() : SStrGroup(), DataFileCh
 			break;
 		}
 	} while(--_Divider);
-
-	DataFileDtm = ZERODATETIME;
-
 	SString file_name;
 	PPIniFile ini_file;
 	ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_KEYWORDDATAFILE, file_name);
@@ -3590,9 +3539,8 @@ public:
 	}
 private:
 	struct SerItem {
-		SerItem(double p) : S(StatBase::fStoreVals)
+		SerItem(double p) : S(StatBase::fStoreVals), P(p)
 		{
-			P = p;
 		}
 		double P;
 		StatBase S;
@@ -3692,11 +3640,8 @@ int SLAPI Test_KeywordListGenerator()
 //
 //
 //
-SLAPI PPAutoTranslSvc_Microsoft::PPAutoTranslSvc_Microsoft()
+SLAPI PPAutoTranslSvc_Microsoft::PPAutoTranslSvc_Microsoft() : LastStatusCode(0), P_XpCtx(0), ExpirySec(0)
 {
-	LastStatusCode = 0;
-	P_XpCtx = 0;
-	ExpirySec = 0;
 	AuthTime.SetZero();
 	MEMSZERO(S);
 }

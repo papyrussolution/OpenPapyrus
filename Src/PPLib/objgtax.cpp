@@ -1,5 +1,5 @@
 // OBJGTAX.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -14,7 +14,7 @@ double SLAPI PPGoodsTaxEntry::GetVatRate() const
 
 char * SLAPI PPGoodsTaxEntry::FormatVAT(char * pBuf, size_t bufLen) const
 {
-	long   fmt = MKSFMTD(0, 2, NMBF_NOTRAILZ | ALIGN_LEFT | NMBF_NOZERO);
+	const  long fmt = MKSFMTD(0, 2, NMBF_NOTRAILZ | ALIGN_LEFT | NMBF_NOZERO);
 	char   str[32];
 	realfmt(fdiv100i(VAT), fmt, str); // @divtax
 	return strnzcpy(pBuf, str, bufLen);
@@ -22,7 +22,7 @@ char * SLAPI PPGoodsTaxEntry::FormatVAT(char * pBuf, size_t bufLen) const
 
 char * SLAPI PPGoodsTaxEntry::FormatSTax(char * pBuf, size_t bufLen) const
 {
-	long   fmt = MKSFMTD(0, 2, NMBF_NOTRAILZ | ALIGN_LEFT | NMBF_NOZERO);
+	const  long fmt = MKSFMTD(0, 2, NMBF_NOTRAILZ | ALIGN_LEFT | NMBF_NOZERO);
 	char   str[32];
 	realfmt(fdiv100i(SalesTax), fmt, str); // @divtax
 	return strnzcpy(pBuf, str, bufLen);
@@ -534,8 +534,9 @@ int SLAPI PPObjGoodsTax::GetDefaultName(PPGoodsTax * rec, char * buf, size_t buf
 	return 1;
 }
 
-int SLAPI PPObjGoodsTax::GetBySheme(PPID * pID, double vat, double excise, double stax, long flags)
+int SLAPI PPObjGoodsTax::GetByScheme(PPID * pID, double vat, double excise, double stax, long flags, int use_ta)
 {
+	int    ok = 1;
 	PPID   id = 0;
 	PPGoodsTax pattern, rec;
 	MEMSZERO(pattern);
@@ -545,18 +546,17 @@ int SLAPI PPObjGoodsTax::GetBySheme(PPID * pID, double vat, double excise, doubl
 	pattern.Flags    = flags;
 	if(SearchIdentical(&pattern, &id, &rec) > 0) {
 		ASSIGN_PTR(pID, id);
-		return 1;
 	}
 	else {
 		rec = pattern;
 		GetDefaultName(&rec, rec.Name, sizeof(rec.Name));
-		if(ref->AddItem(PPOBJ_GOODSTAX, &id, &rec, 0)) {
+		if(ref->AddItem(PPOBJ_GOODSTAX, &id, &rec, use_ta)) {
 			ASSIGN_PTR(pID, id);
-			return 1;
 		}
 		else
-			return 0;
+			ok = 0;
 	}
+	return ok;
 }
 
 // static

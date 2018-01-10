@@ -1,5 +1,5 @@
 // VTBUTTON.CPP
-// Copyright (c) V.Nasonov 2002, 2003, 2005, 2006, 2007, 2010, 2011, 2014, 2015, 2016, 2017
+// Copyright (c) V.Nasonov 2002, 2003, 2005, 2006, 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -50,7 +50,7 @@ int TCalcInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam
 	int    ok = TInputLine::handleWindowsMessage(uMsg, wParam, lParam);
 	if(ok > 0) {
 		if(uMsg == WM_INITDIALOG) {
-			Vbwe.P_Dlg = (TDialog *)owner;
+			Vbwe.P_Dlg = (TDialog *)P_Owner;
 			Vbwe.FieldCtrlId = Id;
 			HWND hwnd = GetDlgItem(Parent, Vbwe.ButtonCtrlId);
 			Vbwe.PrevWndProc = (WNDPROC)TView::GetWindowProp(hwnd, GWLP_WNDPROC);

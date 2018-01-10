@@ -281,22 +281,18 @@ _cairo_xml_printf_start(cairo_xml_t *xml, const char * fmt, ...)
 	}
 }
 
-static void CAIRO_PRINTF_FORMAT(2, 3)
-_cairo_xml_printf_continue(cairo_xml_t *xml, const char * fmt, ...)
+static void CAIRO_PRINTF_FORMAT(2, 3) _cairo_xml_printf_continue(cairo_xml_t *xml, const char * fmt, ...)
 {
 	va_list ap;
-
 	va_start(ap, fmt);
 	_cairo_output_stream_vprintf(xml->stream, fmt, ap);
 	va_end(ap);
 }
 
-static void CAIRO_PRINTF_FORMAT(2, 3)
-_cairo_xml_printf_end(cairo_xml_t *xml, const char * fmt, ...)
+static void CAIRO_PRINTF_FORMAT(2, 3) _cairo_xml_printf_end(cairo_xml_t *xml, const char * fmt, ...)
 {
 	if(fmt != NULL) {
 		va_list ap;
-
 		va_start(ap, fmt);
 		_cairo_output_stream_vprintf(xml->stream, fmt, ap);
 		va_end(ap);
@@ -305,60 +301,40 @@ _cairo_xml_printf_end(cairo_xml_t *xml, const char * fmt, ...)
 	_cairo_output_stream_write(xml->stream, "\n", 1);
 }
 
-static cairo_surface_t * _cairo_xml_surface_create_similar(void * abstract_surface,
-    cairo_content_t content,
-    int width,
-    int height)
+static cairo_surface_t * _cairo_xml_surface_create_similar(void * abstract_surface, cairo_content_t content, int width, int height)
 {
 	cairo_rectangle_t extents;
-
 	extents.x = extents.y = 0;
 	extents.width  = width;
 	extents.height = height;
-
 	return cairo_recording_surface_create(content, &extents);
 }
 
-static cairo_bool_t _cairo_xml_surface_get_extents(void * abstract_surface,
-    CairoIRect * rectangle)
+static cairo_bool_t _cairo_xml_surface_get_extents(void * abstract_surface, CairoIRect * rectangle)
 {
 	cairo_xml_surface_t * surface = abstract_surface;
-
 	if(surface->width < 0 || surface->height < 0)
 		return FALSE;
-
 	rectangle->x = 0;
 	rectangle->y = 0;
 	rectangle->width  = surface->width;
 	rectangle->height = surface->height;
-
 	return TRUE;
 }
 
-static cairo_status_t _cairo_xml_move_to(void * closure,
-    const cairo_point_t * p1)
+static cairo_status_t _cairo_xml_move_to(void * closure, const cairo_point_t * p1)
 {
-	_cairo_xml_printf_continue(closure, " %f %f m",
-	    _cairo_fixed_to_double(p1->x),
-	    _cairo_fixed_to_double(p1->y));
-
+	_cairo_xml_printf_continue(closure, " %f %f m", _cairo_fixed_to_double(p1->x), _cairo_fixed_to_double(p1->y));
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_xml_line_to(void * closure,
-    const cairo_point_t * p1)
+static cairo_status_t _cairo_xml_line_to(void * closure, const cairo_point_t * p1)
 {
-	_cairo_xml_printf_continue(closure, " %f %f l",
-	    _cairo_fixed_to_double(p1->x),
-	    _cairo_fixed_to_double(p1->y));
-
+	_cairo_xml_printf_continue(closure, " %f %f l", _cairo_fixed_to_double(p1->x), _cairo_fixed_to_double(p1->y));
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_xml_curve_to(void * closure,
-    const cairo_point_t * p1,
-    const cairo_point_t * p2,
-    const cairo_point_t * p3)
+static cairo_status_t _cairo_xml_curve_to(void * closure, const cairo_point_t * p1, const cairo_point_t * p2, const cairo_point_t * p3)
 {
 	_cairo_xml_printf_continue(closure, " %f %f %f %f %f %f c",
 	    _cairo_fixed_to_double(p1->x),
@@ -374,36 +350,24 @@ static cairo_status_t _cairo_xml_curve_to(void * closure,
 static cairo_status_t _cairo_xml_close_path(void * closure)
 {
 	_cairo_xml_printf_continue(closure, " h");
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void _cairo_xml_emit_path(cairo_xml_t * xml,
-    const cairo_path_fixed_t * path)
+static void _cairo_xml_emit_path(cairo_xml_t * xml, const cairo_path_fixed_t * path)
 {
 	cairo_status_t status;
-
 	_cairo_xml_printf_start(xml, "<path>");
-	status = _cairo_path_fixed_interpret(path,
-	    _cairo_xml_move_to,
-	    _cairo_xml_line_to,
-	    _cairo_xml_curve_to,
-	    _cairo_xml_close_path,
-	    xml);
+	status = _cairo_path_fixed_interpret(path, _cairo_xml_move_to, _cairo_xml_line_to, _cairo_xml_curve_to, _cairo_xml_close_path, xml);
 	assert(status == CAIRO_STATUS_SUCCESS);
 	_cairo_xml_printf_end(xml, "</path>");
 }
 
-static void _cairo_xml_emit_string(cairo_xml_t * xml,
-    const char * node,
-    const char * data)
+static void _cairo_xml_emit_string(cairo_xml_t * xml, const char * node, const char * data)
 {
 	_cairo_xml_printf(xml, "<%s>%s</%s>", node, data, node);
 }
 
-static void _cairo_xml_emit_double(cairo_xml_t * xml,
-    const char * node,
-    double data)
+static void _cairo_xml_emit_double(cairo_xml_t * xml, const char * node, double data)
 {
 	_cairo_xml_printf(xml, "<%s>%f</%s>", node, data, node);
 }

@@ -9,8 +9,7 @@
  * Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice (including the next
- * paragraph) shall be included in all copies or substantial portions of the
- * Software.
+ * paragraph) shall be included in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -20,11 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- * Authors:
- *    Eric Anholt <eric@anholt.net>
- *    Chris Wilson <chris@chris-wilson.co.uk>
+ * Authors: Eric Anholt <eric@anholt.net> Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 #ifndef CAIRO_DRM_I915_PRIVATE_H
 #define CAIRO_DRM_I915_PRIVATE_H
 

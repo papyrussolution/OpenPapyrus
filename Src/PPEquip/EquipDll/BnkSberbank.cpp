@@ -576,7 +576,7 @@ int PPDrvSberTrmnl::Disconnect()
 
 int PPDrvSberTrmnl::Pay(double amount, SString & rSlip)
 {
-	rSlip = 0;
+	rSlip.Z();
 	int    ok = 1;
 	int    result = SBRBNK_ERR_OK;
 	AuthAnswerSt auth_answr;

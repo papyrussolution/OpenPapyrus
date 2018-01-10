@@ -616,8 +616,8 @@ unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b,
 void BN_RECP_CTX_init(BN_RECP_CTX * recp);
 void BN_MONT_CTX_init(BN_MONT_CTX * ctx);
 
-void bn_init(BIGNUM * a);
-void bn_mul_normal(BN_ULONG * r, BN_ULONG * a, int na, BN_ULONG * b, int nb);
+void FASTCALL bn_init(BIGNUM * a);
+void FASTCALL bn_mul_normal(BN_ULONG * r, BN_ULONG * a, int na, BN_ULONG * b, int nb);
 void bn_mul_comba8(BN_ULONG * r, BN_ULONG * a, BN_ULONG * b);
 void bn_mul_comba4(BN_ULONG * r, BN_ULONG * a, BN_ULONG * b);
 void bn_sqr_normal(BN_ULONG * r, const BN_ULONG * a, int n, BN_ULONG * tmp);

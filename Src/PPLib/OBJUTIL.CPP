@@ -1800,7 +1800,7 @@ int SLAPI ObjLinkFiles::At(uint i, SString & rPath) const
 	if(i < Files.getCount())
 		rPath = Files.at(i);
 	else {
-		rPath = 0;
+		rPath.Z();
 		ok = 0;
 	}
 	return ok;
@@ -2203,7 +2203,7 @@ int SLAPI PPGlobalAccRights::EditDialog(PPID tagID, SString & rLine)
 			if(tagID != PPTAG_GUA_SALOCRIGHTS) {
 				flags &= ~(PPGlobalAccRights::fAccessByID|PPGlobalAccRights::fAccessBySymb);
 			}
-			rLine = 0;
+			rLine.Z();
 			if(flags & PPGlobalAccRights::fAccess) rLine.CatChar('A');
 			if(flags & PPGlobalAccRights::fCreate) rLine.CatChar('C');
 			if(flags & PPGlobalAccRights::fEdit)   rLine.CatChar('E');

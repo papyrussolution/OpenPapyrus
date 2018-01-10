@@ -58,21 +58,21 @@
 	#define M_PI                   3.14159265358979323846
 #endif
 #ifdef _MSC_VER
-/* 'inline' is available only in C++ in MSVC */
-#   define inline __inline
-#   define force_inline __forceinline
-#   define noinline __declspec(noinline)
+	// 'inline' is available only in C++ in MSVC 
+	#define inline __inline
+	#define force_inline __forceinline
+	#define noinline __declspec(noinline)
 #elif defined __GNUC__ || (defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590))
-#   define inline __inline__
-#   define force_inline __inline__ __attribute__ ((__always_inline__))
-#   define noinline __attribute__((noinline))
+	#define inline __inline__
+	#define force_inline __inline__ __attribute__ ((__always_inline__))
+	#define noinline __attribute__((noinline))
 #else
-#   ifndef force_inline
-#      define force_inline inline
-#   endif
-#   ifndef noinline
-#      define noinline
-#   endif
+	#ifndef force_inline
+		#define force_inline inline
+	#endif
+	#ifndef noinline
+		#define noinline
+	#endif
 #endif
 
 /* GCC visibility */

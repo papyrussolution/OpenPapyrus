@@ -1,5 +1,5 @@
 // SECURDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -296,14 +296,12 @@ int SLAPI EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 			}
 		}
 	}
-	if(obj == PPOBJ_CONFIG)
-		dlg_id = DLG_CONFIG;
-	else if(obj == PPOBJ_USRGRP)
-		dlg_id = DLG_USRGRP;
-	else if(obj == PPOBJ_USR)
-		dlg_id = DLG_USR;
-	else if(obj == PPOBJ_USREXCLRIGHTS)
-		dlg_id = DLG_USRER;
+	switch(obj) {
+		case PPOBJ_CONFIG: dlg_id = DLG_CONFIG; break;
+		case PPOBJ_USRGRP: dlg_id = DLG_USRGRP; break;
+		case PPOBJ_USR: dlg_id = DLG_USR; break;
+		case PPOBJ_USREXCLRIGHTS: dlg_id = DLG_USRER; break;
+	}
 	if(dlg_id) {
 		THROW(CheckDialogPtr(&(dlg = new SecurDialog(dlg_id, obj, _id))));
 		dlg->setDTS(&spack);
@@ -575,7 +573,7 @@ int ActiveUserListDlg::GetDtm(PPID userID, PPID sessID, LDATETIME * pLoginDtm, S
 	int    ok = -1;
 	LDATETIME login_dtm;
 	login_dtm.SetZero();
-	rWorkDtm = 0;
+	rWorkDtm.Z();
 	if(DS.CheckExtFlag(ECF_USESJLOGINEVENT)) {
 		long   sec = 0, dd = 0;
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
@@ -591,7 +589,8 @@ int ActiveUserListDlg::GetDtm(PPID userID, PPID sessID, LDATETIME * pLoginDtm, S
 		{
 			int    h = 0, m = 0, s = 0;
 			SString buf;
-			PPGetWord(PPWORD_DAYS, 0, buf);
+			// @v9.8.12 PPGetWord(PPWORD_DAYS, 0, buf);
+			PPLoadString("days", buf); // @v9.8.12
 			h = sec / 3600;
 			sec %= 3600;
 			m = sec / 60;
@@ -605,8 +604,8 @@ int ActiveUserListDlg::GetDtm(PPID userID, PPID sessID, LDATETIME * pLoginDtm, S
 
 IMPL_CMPFUNC(PPSyncItem, i1, i2)
 {
-	PPSyncItem * p_i1 = (PPSyncItem*)i1;
-	PPSyncItem * p_i2 = (PPSyncItem*)i2;
+	const PPSyncItem * p_i1 = (const PPSyncItem *)i1;
+	const PPSyncItem * p_i2 = (const PPSyncItem *)i2;
 	return p_i1->MchnID.Cmp(p_i2->MchnID);
 }
 

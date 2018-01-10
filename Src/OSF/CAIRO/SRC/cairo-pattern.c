@@ -23,9 +23,7 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
- * Authors: David Reveman <davidr@novell.com>
- *	    Keith Packard <keithp@keithp.com>
- *	    Carl Worth <cworth@cworth.org>
+ * Authors: David Reveman <davidr@novell.com> Keith Packard <keithp@keithp.com> Carl Worth <cworth@cworth.org>
  */
 #include "cairoint.h"
 #pragma hdrstop
@@ -242,9 +240,7 @@ static cairo_status_t FASTCALL _cairo_mesh_pattern_init_copy(cairo_mesh_pattern_
 {
 	*pattern = *other;
 	_cairo_array_init(&pattern->patches,  sizeof(cairo_mesh_patch_t));
-	return _cairo_array_append_multiple(&pattern->patches,
-	    _cairo_array_index_const(&other->patches, 0),
-	    _cairo_array_num_elements(&other->patches));
+	return _cairo_array_append_multiple(&pattern->patches, _cairo_array_index_const(&other->patches, 0), _cairo_array_num_elements(&other->patches));
 }
 
 cairo_status_t _cairo_pattern_init_copy(cairo_pattern_t * pattern, const cairo_pattern_t * other)
@@ -2340,15 +2336,10 @@ void _cairo_gradient_pattern_box_to_parameter(const cairo_gradient_pattern_t * g
  * gradients.  The interpolated object is stored in out_circle, with
  * the radius being zero in the linear gradient case.
  **/
-void _cairo_gradient_pattern_interpolate(const cairo_gradient_pattern_t * gradient,
-    double t,
-    cairo_circle_double_t          * out_circle)
+void FASTCALL _cairo_gradient_pattern_interpolate(const cairo_gradient_pattern_t * gradient, double t, cairo_circle_double_t * out_circle)
 {
-	assert(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR ||
-	    gradient->base.type == CAIRO_PATTERN_TYPE_RADIAL);
-
+	assert(oneof2(gradient->base.type, CAIRO_PATTERN_TYPE_LINEAR, CAIRO_PATTERN_TYPE_RADIAL));
 #define lerp(a, b) (a)*(1-t) + (b)*t
-
 	if(gradient->base.type == CAIRO_PATTERN_TYPE_LINEAR) {
 		cairo_linear_pattern_t * linear = (cairo_linear_pattern_t*)gradient;
 		out_circle->center.x = lerp(linear->pd1.x, linear->pd2.x);
@@ -2361,7 +2352,6 @@ void _cairo_gradient_pattern_interpolate(const cairo_gradient_pattern_t * gradie
 		out_circle->center.y = lerp(radial->cd1.center.y, radial->cd2.center.y);
 		out_circle->radius   = lerp(radial->cd1.radius, radial->cd2.radius);
 	}
-
 #undef lerp
 }
 

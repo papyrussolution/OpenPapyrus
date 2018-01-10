@@ -119,7 +119,7 @@ static int GetNextToken(SStrScan & rScan, ReList & rRl, long * pVal, SString & r
 {
 	rScan.Skip(SStrScan::wsSpace|SStrScan::wsTab|SStrScan::wsComma);
 	if(oneof2(rScan[0], '/', '\\')) {
-		rBuf = '\\';
+		rBuf = "\\";
 		rScan.Incr();
 		return TOK_SLASH;
 	}
@@ -511,7 +511,7 @@ int SdRecord::GetDescription(SString & rDescr) const
 			ok = 1;
 	}
 	else
-		rDescr = 0;
+		rDescr.Z();
 	return ok;
 }
 
@@ -662,7 +662,7 @@ int SdRecord::SetText(uint * pPos, const char * pText)
 int SdRecord::GetText(uint pos, SString & rText) const
 {
 	int    ok = -1;
-	rText = 0;
+	rText.Z();
 	if(!pos || StringPool.get(pos, rText))
 		ok = 1;
 	return ok;

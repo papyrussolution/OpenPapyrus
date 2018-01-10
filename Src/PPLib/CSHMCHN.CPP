@@ -376,7 +376,8 @@ int SLAPI PPCashMachine::_SyncCloseBill(int ret, int use_ta)
 // static
 long SLAPI CSessionCore::GetUnitingPeriodSec()
 {
-	return ((CConfig.CSessUnitingPeriod > 0) ? CConfig.CSessUnitingPeriod : (60*12)) * 60;
+	const PPCommConfig & r_ccfg = CConfig;
+	return ((r_ccfg.CSessUnitingPeriod > 0) ? r_ccfg.CSessUnitingPeriod : (60*12)) * 60;
 }
 
 int SLAPI CSessionCore::SearchSuperCandidate(PPID nodeID, const LDATETIME & rDtm, PPIDArray * pList)
@@ -839,9 +840,8 @@ int SLAPI PPCashMachine::SyncSetPrintErrCode(int retCode, int updateNode)
 //
 //
 //
-CmLocking::CmLocking(const PPCashNode & rNodeRec) : R_NodeRec(rNodeRec)
+CmLocking::CmLocking(const PPCashNode & rNodeRec) : R_NodeRec(rNodeRec), Flags(0)
 {
-	Flags = 0;
 	int    r = PPObjCashNode::IsLocked(R_NodeRec.ID);
 	if(r == 0) {
 		r = PPObjCashNode::Lock(R_NodeRec.ID);
@@ -905,8 +905,8 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 						double amt = pPack->GetItemAmount(line_rec);
 						running_total += amt;
 						{
-							double s  = intmnytodbl(line_rec.Price) * line_rec.Quantity;
-							double ds = line_rec.Dscnt * line_rec.Quantity;
+							const double s  = intmnytodbl(line_rec.Price) * line_rec.Quantity;
+							const double ds = line_rec.Dscnt * line_rec.Quantity;
 							cc_amount = R2(cc_amount + s - ds);
 						}
 						out_buf.Tab(2).CatLongZ(line_rec.GoodsID, 5).Tab().
@@ -958,9 +958,8 @@ int SLAPI PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 					}
 					else if(running_total > amt) {
 						SString fmt_buf, msg_buf, added_buf;
-						PPLoadText(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf);
 						added_buf.Z().Cat(running_total, _mfmt).CatChar('>').Cat(amt, _mfmt);
-						msg_buf.Printf(fmt_buf, added_buf.cptr());
+						msg_buf.Printf(PPLoadTextS(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf), added_buf.cptr());
 						PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 					}
 					out_buf.Tab().CatChar('}').CR();

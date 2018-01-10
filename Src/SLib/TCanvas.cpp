@@ -1,5 +1,5 @@
 // TCANVAS.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -55,6 +55,10 @@ void TCanvas2::ColorReplacement::Set(SColor org, SColor rpl)
 //
 //
 //
+TCanvas2::Surface::Surface() : HCtx(0), P_Img(0)
+{
+}
+
 void TCanvas2::Init()
 {
 	S.HCtx = 0;
@@ -90,10 +94,8 @@ SLAPI TCanvas2::TCanvas2(SPaintToolBox & rTb, SImageBuffer & rBuf) : GdiObjStack
 SLAPI TCanvas2::~TCanvas2()
 {
 	SelectFont(0);
-	if(P_CrS)
-		cairo_surface_destroy(P_CrS);
-	if(P_Cr)
-		cairo_destroy(P_Cr);
+	cairo_surface_destroy(P_CrS);
+	cairo_destroy(P_Cr);
 	if(!(Flags & fOuterSurface)) {
 		if(S.P_Img) {
 			ZDELETE(S.P_Img);
@@ -504,9 +506,8 @@ int SLAPI TCanvas2::Implement_Stroke(SPaintToolBox * pTb, int paintObjIdent, int
 	return Helper_SelectPen(pTb, paintObjIdent) ?  Implement_Stroke(preserve) : 0;
 }
 
-TCanvas2::PatternWrapper::PatternWrapper()
+TCanvas2::PatternWrapper::PatternWrapper() : P(0)
 {
-	P = 0;
 }
 
 TCanvas2::PatternWrapper::~PatternWrapper()
@@ -1496,10 +1497,8 @@ int SLAPI TCanvas2::DrawFrame(const TRect & rR, int clFrame, int brushId)
 //
 //
 //
-SLAPI TCanvas::TCanvas(HDC hDc) : ObjStack(sizeof(HGDIOBJ))
+SLAPI TCanvas::TCanvas(HDC hDc) : ObjStack(sizeof(HGDIOBJ)), H_Dc(hDc), Flags(fOuterDC)
 {
-	H_Dc = hDc;
-	Flags |= fOuterDC;
 }
 
 SLAPI TCanvas::~TCanvas()
@@ -1636,10 +1635,8 @@ int SLAPI TCanvas::TextOut(TPoint p, const char * pText)
 //
 //
 //
-SPaintObj::Base::Base()
+SPaintObj::Base::Base() : Handle(0), Sys(dsysNone)
 {
-	Handle = 0;
-	Sys = dsysNone;
 }
 
 int SPaintObj::Base::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -1661,16 +1658,9 @@ int SPaintObj::Base::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 	return ok;
 }
 
-SPaintObj::Pen::Pen() : Base()
+SPaintObj::Pen::Pen() : Base(), W(1.0), S(SPaintObj::psSolid), LineCap(SPaintObj::lcButt), Join(SPaintObj::ljMiter), Reserve(0),
+	MiterLimit(SPaintObj::DefaultMiterLimit), DashOffs(0.0f), P_DashRule(0)
 {
-	W = 1.0;
-	S = SPaintObj::psSolid;
-	LineCap = SPaintObj::lcButt;
-	Join = SPaintObj::ljMiter;
-	Reserve = 0;
-	MiterLimit = SPaintObj::DefaultMiterLimit;
-	DashOffs = 0.0f;
-	P_DashRule = 0;
 }
 
 SPaintObj::Pen::~Pen()
@@ -1783,13 +1773,8 @@ int FASTCALL SPaintObj::Pen::SetSimple(SColor c)
 	return 1;
 }
 
-SPaintObj::Brush::Brush() : Base()
+SPaintObj::Brush::Brush() : Base(), S(bsSolid), Hatch(0), Rule(0), Reserve(0), IdPattern(0)
 {
-	S = bsSolid;
-	Hatch = 0;
-	Rule = 0;
-	Reserve = 0;
-	IdPattern = 0;
 }
 
 int FASTCALL SPaintObj::Brush::operator == (const Brush & rS) const
@@ -2054,9 +2039,8 @@ LOGFONTW * FASTCALL SFontDescr::MakeLogFont(LOGFONTW * pLf) const
 	return pLf;
 }
 
-SPaintObj::Font::Font() : SPaintObj::Base(), SFontDescr(0, 0, 0)
+SPaintObj::Font::Font() : SPaintObj::Base(), SFontDescr(0, 0, 0), LineAdv(0.0f)
 {
-	LineAdv = 0.0f;
 }
 
 SPaintObj::Font::~Font()
@@ -2066,11 +2050,8 @@ SPaintObj::Font::~Font()
 extern "C" void FASTCALL _cairo_scaled_font_reset_cache(cairo_scaled_font_t * scaled_font);
 
 struct InnerFontDescr {
-	InnerFontDescr()
+	InnerFontDescr() : Hf(0), P_CrFace(0), P_CrScFont(0)
 	{
-		Hf = 0;
-		P_CrFace = 0;
-		P_CrScFont = 0;
 	}
 	~InnerFontDescr()
 	{
@@ -2214,11 +2195,8 @@ int SPaintObj::Font::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 //
 //
 //
-SPaintObj::CStyle::CStyle() : SPaintObj::Base()
+SPaintObj::CStyle::CStyle() : SPaintObj::Base(), FontId(0), PenId(0), BrushId(0)
 {
-	FontId = 0;
-	PenId = 0;
-	BrushId = 0;
 	memzero(Reserve, sizeof(Reserve));
 }
 
@@ -2241,21 +2219,12 @@ int SPaintObj::CStyle::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pC
 //
 //
 //
-STextLayout::RenderGroup::RenderGroup()
+STextLayout::RenderGroup::RenderGroup() : P_Font(0), PenId(0), BrushId(0)
 {
-	P_Font = 0;
-	PenId = 0;
-	BrushId = 0;
 }
 
-STextLayout::STextLayout()
+STextLayout::STextLayout() : DefParaStyleIdent(0), DefCStyleIdent(0), Flags(0), State(0), Bounds(), EndPoint()
 {
-	DefParaStyleIdent = 0;
-	DefCStyleIdent = 0;
-	Flags = 0;
-	State = 0;
-	Bounds = 0.0f;
-	EndPoint = 0.0f;
 }
 
 int STextLayout::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -2281,7 +2250,7 @@ void STextLayout::Reset()
 	State = 0;
 	Bounds = FPoint(0.0f);
 	EndPoint = 0.0f;
-	Text = 0;
+	Text.Z();
 	CStyleList.clear();
 	ParaList.clear();
 	List.clear();
@@ -2461,12 +2430,8 @@ public:
 	TSStack <StkItem> Stk;
 	TSVector <STextLayout::Item> & R_List; // @v9.8.4 TSArray-->TSVector
 
-	TloRowState(TSVector <STextLayout::Item> & rList, const FRect & rBounds) : R_List(rList) // @v9.8.4 TSArray-->TSVector
+	TloRowState(TSVector <STextLayout::Item> & rList, const FRect & rBounds) : R_List(rList), N(0), S(0), Overflow(0), Bounds(rBounds) // @v9.8.4 TSArray-->TSVector
 	{
-		N = 0;
-		S = 0;
-		Overflow = 0;
-		Bounds = rBounds;
 	}
 	uint GetCount() const
 	{
@@ -2830,12 +2795,8 @@ int TCanvas2::DrawTextLayout(STextLayout * pTlo)
 //
 //
 //
-SPaintObj::Gradient::Gradient(int kind, int units)
+SPaintObj::Gradient::Gradient(int kind, int units) : Kind(kind), Spread(sPad), Unit(units), PctUf(0)
 {
-	Kind = kind;
-	Spread = sPad;
-	Unit = units;
-	PctUf = 0;
 	memzero(Coord, sizeof(Coord));
 }
 
@@ -3198,24 +3159,12 @@ int SPaintObj::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 			if(H) {
 				THROW(rBuf.Write(ind = 0));
 				switch(T) {
-					case tPen:
-						THROW(((SPaintObj::Pen *)H)->Serialize(dir, rBuf, pCtx));
-						break;
-					case tBrush:
-						THROW(((SPaintObj::Brush *)H)->Serialize(dir, rBuf, pCtx));
-						break;
-					case tFont:
-						THROW(((SPaintObj::Font *)H)->Serialize(dir, rBuf, pCtx));
-						break;
-					case tGradient:
-						THROW(((SPaintObj::Gradient *)H)->Serialize(dir, rBuf, pCtx));
-						break;
-					case tCStyle:
-						THROW(((SPaintObj::CStyle *)H)->Serialize(dir, rBuf, pCtx));
-						break;
-					case tParagraph:
-						THROW(((SPaintObj::Para *)H)->Serialize(dir, rBuf, pCtx));
-						break;
+					case tPen: THROW(((SPaintObj::Pen *)H)->Serialize(dir, rBuf, pCtx)); break;
+					case tBrush: THROW(((SPaintObj::Brush *)H)->Serialize(dir, rBuf, pCtx)); break;
+					case tFont: THROW(((SPaintObj::Font *)H)->Serialize(dir, rBuf, pCtx)); break;
+					case tGradient: THROW(((SPaintObj::Gradient *)H)->Serialize(dir, rBuf, pCtx)); break;
+					case tCStyle: THROW(((SPaintObj::CStyle *)H)->Serialize(dir, rBuf, pCtx)); break;
+					case tParagraph: THROW(((SPaintObj::Para *)H)->Serialize(dir, rBuf, pCtx)); break;
 				}
 			}
 			else {
@@ -4375,7 +4324,7 @@ HCURSOR FASTCALL SPaintToolBox::GetCursor(int ident) const
 	return p_obj ? (HCURSOR)*p_obj : 0;
 }
 
-struct __GlyphKey {
+struct __GlyphKey { // @flat
 	int32  I;
 	uint16 C;
 };

@@ -1,5 +1,5 @@
 // PPSMS.CPP
-// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <pp.h>
@@ -47,7 +47,7 @@
 //
 // Максимальные размеры полей запросов
 //
-#define MAX_PASSWORD_LEN				  9 // Вместе с символом конца строки
+#define MAX_PASSWORD_LEN				  9 // Вместе с символом конца строки // @attention изменение значения требует конвертации хранимого пароля
 #define MAX_SYSTEM_TYPE_LEN				 13 // Вместе с символом конца строки
 #define MAX_SYSTEM_ID_LEN				 16 // Вместе с символом конца строки
 #define MAX_SERVICE_TYPE_LEN			  6 // Вместе с символом конца строки
@@ -215,20 +215,20 @@ StConfig::StConfig()
 
 void StConfig::Clear()
 {
-	Host = 0;
+	Host.Z();
 	Port = 0;
-	SystemId = 0;
-	Login = 0;
-	Password = 0;
-	SystemType = 0;
+	SystemId.Z();
+	Login.Z();
+	Password.Z();
+	SystemType.Z();
 	SourceAddressTon = TON_UNKNOWN;
 	SourceAddressNpi = NPI_UNKNOWN;
 	DestAddressTon = TON_UNKNOWN;
 	DestAddressNpi = NPI_UNKNOWN;
 	DataCoding = SMSC_DEFAULT;
-	AddressRange = 0;
+	AddressRange.Z();
 	EsmClass = 0;
-	From = 0;
+	From.Z();
 	SplitLongMsg = 0;
 	ResponseTimeout = 0;
 	ResendMsgQueueTimeout = 0;
@@ -283,14 +283,9 @@ int StConfig::SetConfig_(const char * pHost, uint port, const char * pSystemId, 
 //
 //
 //
-SmsClient::StSMResults::StSMResults()
+SmsClient::StSMResults::StSMResults() : BindResult(NO_STATUS), UnbindResult(NO_STATUS), SubmitResult(NO_STATUS), 
+	DataResult(NO_STATUS), EnquireLinkResult(NO_STATUS), GenericNackResult(NO_STATUS)
 {
-	BindResult = NO_STATUS;
-	UnbindResult = NO_STATUS;
-	SubmitResult = NO_STATUS;
-	DataResult = NO_STATUS;
-	EnquireLinkResult = NO_STATUS;
-	GenericNackResult = NO_STATUS;
 };
 
 int SmsClient::StSMResults::GetResult(int kindOfResult)
@@ -374,7 +369,7 @@ SLAPI PPSmsAccPacket::PPSmsAccPacket()
 
 void SLAPI PPSmsAccPacket::Init()
 {
-	ExtStr = 0;
+	ExtStr.Z();
 	MEMSZERO(Rec);
 }
 
@@ -478,14 +473,9 @@ int SLAPI PPSmsAccPacket::GetPassword(SString & rBuf) const
 	return ok;
 }
 
-PPAutoSmsConfig::PPAutoSmsConfig()
+PPAutoSmsConfig::PPAutoSmsConfig() : AllowedWeekDays(0), Reserve2(0), AllowedStartTm(ZEROTIME), AllowedEndTm(ZEROTIME)
 {
 	MEMSZERO(Reserve);
-	TddoPath = 0;
-	AllowedWeekDays = 0;
-	Reserve2 = 0;
-	AllowedStartTm = ZEROTIME;
-	AllowedEndTm = ZEROTIME;
 }
 
 int PPAutoSmsConfig::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -519,7 +509,7 @@ void SLAPI PPSendSmsParam::Init()
 	ID = 0;
 	SymbolCount = 0;
 	SmsCount = 0;
-	ExtStr = 0;
+	ExtStr.Z();
 }
 
 int PPSendSmsParam::NotEmpty()
@@ -1298,7 +1288,7 @@ static SString & GetSmscErrorText(int error, SString & rErrorText)
 
 static SString & GetStatusText(int status, SString & rStatusText)
 {
-	rStatusText = 0;
+	rStatusText.Z();
 	for(size_t i = 0; i < SIZEOFARRAY(StatusTexts); i++)
 		if(StatusTexts[i].Id == status) {
 			rStatusText = StatusTexts[i].P_Status;
@@ -1414,27 +1404,17 @@ void SmsClient::StSubmitSMParam::Clear()
 	EsmClass = 3; // Store and Forward
 	ProtocolId = 0;
 	PriorityFlag = BULK;
-	SheduleDeliveryTime = 0;
-	ValidityPeriod = 0;
+	SheduleDeliveryTime.Z();
+	ValidityPeriod.Z();
 	ReplaceIfPresentFlag = 0;
 	DataCoding = SMSC_DEFAULT;
 	SmDefaultMsgId = 0;
 }
 
-SmsClient::SmsClient(PPLogger * pLogger)
+SmsClient::SmsClient(PPLogger * pLogger) : P_UhttCli(0), P_Logger(pLogger), ClientSocket(INVALID_SOCKET), ConnectionState(SMPP_SOCKET_DISCONNECTED),
+	ResendErrLenMsg(0), SequenceNumber(0), ReSendQueueMsgTryNums(0), MessageCount(0), AddStatusCodeNum(0), AddErrorSubmitNum(0), 
+	UndeliverableMessages(0), StartTime(getcurdatetime_())
 {
-	P_UhttCli = 0;
-	P_Logger = pLogger;
-    ClientSocket = INVALID_SOCKET;
-	StartTime = getcurdatetime_();
-	ConnectionState = SMPP_SOCKET_DISCONNECTED;
-	ResendErrLenMsg = 0;
-	SequenceNumber = 0;
-	ReSendQueueMsgTryNums = 0;
-	MessageCount = 0;
-	AddStatusCodeNum = 0;
-	AddErrorSubmitNum = 0;
-	UndeliverableMessages = 0;
 	// @v8.5.4 RecvTimeout = WAIT_PACKET_RESPONSE;
 }
 
@@ -2226,13 +2206,13 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 			}
 		}
 		{
-			rStatus = 0;
+			rStatus.Z();
 			SString status_msg;
 			SString dest_num;
 			SString status_text;
 			{
 				/*
-				rStatus = 0;
+				rStatus.Z();
 				for(uint pos = 0; GetStatusCode(dest_num, status_text, pos); pos++) {
 					if(rStatus.NotEmpty())
 						rStatus.Comma();
@@ -2240,8 +2220,8 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 				}
 				*/
 				for(uint pos = 0; pos < StatusCodesArr.getCount(); pos++) {
-					dest_num = 0;
-					status_text = 0;
+					dest_num.Z();
+					status_text.Z();
 					StatusCodesArr.Get(pos, status_msg);
 					status_msg.Divide(';', dest_num, status_text);
 					if(rStatus.NotEmpty())
@@ -2261,8 +2241,8 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 				*/
 				// @v9.5.11 {
 				for(uint pos = 0; pos < ErrorSubmitArr.getCount(); pos++) {
-					dest_num = 0;
-					status_text = 0;
+					dest_num.Z();
+					status_text.Z();
 					ErrorSubmitArr.Get(pos, status_msg);
 					status_msg.Divide(';', dest_num, status_text);
 					//
@@ -2690,10 +2670,8 @@ int SLAPI PPSmsSender::FormatMessage(const char * pTemplate, SString & rResult, 
 //
 //
 struct VerifyPhoneNumberBySmsParam {
-	VerifyPhoneNumberBySmsParam()
+	VerifyPhoneNumberBySmsParam() : CheckCode(0), SendSmsStatus(-1)
 	{
-		CheckCode = 0;
-		SendSmsStatus = -1;
 	}
 	SString Number;
 	SString Addendum;

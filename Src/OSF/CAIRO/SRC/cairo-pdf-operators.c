@@ -43,13 +43,10 @@
 
 #if CAIRO_HAS_PDF_OPERATORS
 
-static cairo_status_t _cairo_pdf_operators_end_text(cairo_pdf_operators_t    * pdf_operators);
+static cairo_status_t FASTCALL _cairo_pdf_operators_end_text(cairo_pdf_operators_t * pdf_operators);
 
-void _cairo_pdf_operators_init(cairo_pdf_operators_t        * pdf_operators,
-    cairo_output_stream_t        * stream,
-    cairo_matrix_t   * cairo_to_pdf,
-    cairo_scaled_font_subsets_t  * font_subsets,
-    cairo_bool_t ps)
+void _cairo_pdf_operators_init(cairo_pdf_operators_t * pdf_operators, cairo_output_stream_t * stream,
+    cairo_matrix_t * cairo_to_pdf, cairo_scaled_font_subsets_t  * font_subsets, cairo_bool_t ps)
 {
 	pdf_operators->stream = stream;
 	pdf_operators->cairo_to_pdf = *cairo_to_pdf;
@@ -111,16 +108,10 @@ cairo_private void _cairo_pdf_operators_enable_actual_text(cairo_pdf_operators_t
  * operations (eg changing patterns).
  *
  */
-cairo_status_t _cairo_pdf_operators_flush(cairo_pdf_operators_t        * pdf_operators)
+cairo_status_t FASTCALL _cairo_pdf_operators_flush(cairo_pdf_operators_t * pdf_operators)
 {
-	cairo_status_t status = CAIRO_STATUS_SUCCESS;
-
-	if(pdf_operators->in_text_object)
-		status = _cairo_pdf_operators_end_text(pdf_operators);
-
-	return status;
+	return (pdf_operators->in_text_object) ? _cairo_pdf_operators_end_text(pdf_operators) : CAIRO_STATUS_SUCCESS;
 }
-
 /* Reset the known graphics state of the PDF consumer. ie no
  * assumptions will be made about the state. The next time a
  * particular graphics state is required (eg line width) the state
@@ -131,7 +122,7 @@ cairo_status_t _cairo_pdf_operators_flush(cairo_pdf_operators_t        * pdf_ope
  * the 'Q' operator (where pdf-operators functions were called inside
  * the q/Q pair).
  */
-void _cairo_pdf_operators_reset(cairo_pdf_operators_t * pdf_operators)
+void FASTCALL _cairo_pdf_operators_reset(cairo_pdf_operators_t * pdf_operators)
 {
 	pdf_operators->has_line_style = FALSE;
 }
@@ -493,42 +484,29 @@ cairo_int_status_t _cairo_pdf_operators_clip(cairo_pdf_operators_t * pdf_operato
 static int _cairo_pdf_line_cap(cairo_line_cap_t cap)
 {
 	switch(cap) {
-		case CAIRO_LINE_CAP_BUTT:
-		    return 0;
-		case CAIRO_LINE_CAP_ROUND:
-		    return 1;
-		case CAIRO_LINE_CAP_SQUARE:
-		    return 2;
-		default:
-		    ASSERT_NOT_REACHED;
-		    return 0;
+		case CAIRO_LINE_CAP_BUTT: return 0;
+		case CAIRO_LINE_CAP_ROUND: return 1;
+		case CAIRO_LINE_CAP_SQUARE: return 2;
+		default: ASSERT_NOT_REACHED; return 0;
 	}
 }
 
 static int _cairo_pdf_line_join(cairo_line_join_t join)
 {
 	switch(join) {
-		case CAIRO_LINE_JOIN_MITER:
-		    return 0;
-		case CAIRO_LINE_JOIN_ROUND:
-		    return 1;
-		case CAIRO_LINE_JOIN_BEVEL:
-		    return 2;
-		default:
-		    ASSERT_NOT_REACHED;
-		    return 0;
+		case CAIRO_LINE_JOIN_MITER: return 0;
+		case CAIRO_LINE_JOIN_ROUND: return 1;
+		case CAIRO_LINE_JOIN_BEVEL: return 2;
+		default: ASSERT_NOT_REACHED; return 0;
 	}
 }
 
-cairo_int_status_t _cairo_pdf_operators_emit_stroke_style(cairo_pdf_operators_t           * pdf_operators,
-    const cairo_stroke_style_t      * style,
-    double scale)
+cairo_int_status_t _cairo_pdf_operators_emit_stroke_style(cairo_pdf_operators_t * pdf_operators, const cairo_stroke_style_t * style, double scale)
 {
 	double * dash = style->dash;
 	int num_dashes = style->num_dashes;
 	double dash_offset = style->dash_offset;
 	double line_width = style->line_width * scale;
-
 	/* PostScript has "special needs" when it comes to zero-length
 	 * dash segments with butt caps. It apparently (at least
 	 * according to ghostscript) draws hairlines for this
@@ -538,7 +516,6 @@ cairo_int_status_t _cairo_pdf_operators_emit_stroke_style(cairo_pdf_operators_t 
 	 */
 	if(num_dashes && style->line_cap == CAIRO_LINE_CAP_BUTT) {
 		int i;
-
 		/* If there's an odd number of dash values they will each get
 		 * interpreted as both on and off. So we first explicitly
 		 * expand the array to remove the duplicate usage so that we
@@ -552,7 +529,6 @@ cairo_int_status_t _cairo_pdf_operators_emit_stroke_style(cairo_pdf_operators_t 
 			memcpy(dash + num_dashes, style->dash, num_dashes * sizeof(double));
 			num_dashes *= 2;
 		}
-
 		for(i = 0; i < num_dashes; i += 2) {
 			if(dash[i] == 0.0) {
 				/* Do not modify the dashes in-place, as we may need to also
@@ -573,12 +549,10 @@ cairo_int_status_t _cairo_pdf_operators_emit_stroke_style(cairo_pdf_operators_t 
 				 */
 				if(i == 0) {
 					double last_two[2];
-
 					if(num_dashes == 2) {
 						SAlloc::F(dash);
 						return CAIRO_INT_STATUS_NOTHING_TO_DO;
 					}
-
 					/* The cases of num_dashes == 0, 1, or 3 elements
 					 * cannot exist, so the rotation of 2 elements
 					 * will always be safe */
@@ -625,7 +599,6 @@ cairo_int_status_t _cairo_pdf_operators_emit_stroke_style(cairo_pdf_operators_t 
 	}
 	if(dash != style->dash)
 		SAlloc::F(dash);
-
 	if(!pdf_operators->has_line_style || pdf_operators->miter_limit != style->miter_limit) {
 		_cairo_output_stream_printf(pdf_operators->stream, "%f M ", style->miter_limit < 1.0 ? 1.0 : style->miter_limit);
 		pdf_operators->miter_limit = style->miter_limit;
@@ -645,9 +618,7 @@ cairo_int_status_t _cairo_pdf_operators_emit_stroke_style(cairo_pdf_operators_t 
  */
 static void _cairo_matrix_factor_out_scale(cairo_matrix_t * m, double * scale)
 {
-	double s;
-
-	s = fabs(m->xx);
+	double s = fabs(m->xx);
 	if(fabs(m->xy) > s)
 		s = fabs(m->xy);
 	if(fabs(m->yx) > s)
@@ -670,22 +641,18 @@ static cairo_int_status_t _cairo_pdf_operators_emit_stroke(cairo_pdf_operators_t
 	cairo_matrix_t m, path_transform;
 	cairo_bool_t has_ctm = TRUE;
 	double scale = 1.0;
-
 	if(pdf_operators->in_text_object) {
 		status = _cairo_pdf_operators_end_text(pdf_operators);
 		if(unlikely(status))
 			return status;
 	}
-
 	/* Optimize away the stroke ctm when it does not affect the
 	 * stroke. There are other ctm cases that could be optimized
 	 * however this is the most common.
 	 */
-	if(fabs(ctm->xx) == 1.0 && fabs(ctm->yy) == 1.0 &&
-	    fabs(ctm->xy) == 0.0 && fabs(ctm->yx) == 0.0) {
+	if(fabs(ctm->xx) == 1.0 && fabs(ctm->yy) == 1.0 && fabs(ctm->xy) == 0.0 && fabs(ctm->yx) == 0.0) {
 		has_ctm = FALSE;
 	}
-
 	/* The PDF CTM is transformed to the user space CTM when stroking
 	 * so the corect pen shape will be used. This also requires that
 	 * the path be transformed to user space when emitted. The
@@ -1028,7 +995,7 @@ static cairo_status_t _cairo_pdf_operators_begin_text(cairo_pdf_operators_t    *
 	return _cairo_output_stream_get_status(pdf_operators->stream);
 }
 
-static cairo_status_t _cairo_pdf_operators_end_text(cairo_pdf_operators_t    * pdf_operators)
+static cairo_status_t FASTCALL _cairo_pdf_operators_end_text(cairo_pdf_operators_t    * pdf_operators)
 {
 	cairo_status_t status = _cairo_pdf_operators_flush_glyphs(pdf_operators);
 	if(unlikely(status))

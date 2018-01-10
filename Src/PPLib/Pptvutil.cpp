@@ -1697,7 +1697,7 @@ int SLAPI SetupSubstGoodsCombo(TDialog * dlg, uint ctlID, long initID)
 			}
 		}
 		{
-			PPObjectTag2 tag_rec;
+			PPObjectTag tag_rec;
 			for(SEnum en = PPRef->Enum(PPOBJ_TAG, 0); en.Next(&tag_rec) > 0;) {
 				if(tag_rec.ObjTypeID == PPOBJ_GOODS && tag_rec.TagDataType != OTTYP_GROUP) {
 					txt_buf.Z().Cat("Tag").CatDiv(':', 2).Cat(tag_rec.Name);
@@ -1740,19 +1740,16 @@ int SLAPI SetupSubstSCardCombo(TDialog * pDlg, uint ctlID, SubstGrpSCard sgc)
 CycleCtrlGroup::CycleCtrlGroup(uint ctlSelCycle, uint ctlNumCycles, uint ctlPeriod) : CtrlGroup(),
 	InpUpdLock(0), P_PrdDialog(0), CtlSelCycle(ctlSelCycle), CtlPdc(0), CtlNumCycles(ctlNumCycles), CtlPeriod(ctlPeriod)
 {
-
 }
 
 CycleCtrlGroup::CycleCtrlGroup(uint ctlSelCycle, uint ctlPdc, uint ctlNumCycles, uint ctlPeriod) : CtrlGroup(),
 	InpUpdLock(0), P_PrdDialog(0), CtlSelCycle(ctlSelCycle), CtlPdc(ctlPdc), CtlNumCycles(ctlNumCycles), CtlPeriod(ctlPeriod)
 {
-
 }
 
 CycleCtrlGroup::CycleCtrlGroup(uint ctlSelCycle, uint ctlNumCycles, TDialog * pPeriodDlg, uint ctlPeriod) : CtrlGroup(),
 	InpUpdLock(0), P_PrdDialog(pPeriodDlg), CtlSelCycle(ctlSelCycle), CtlPdc(0), CtlNumCycles(ctlNumCycles), CtlPeriod(ctlPeriod)
 {
-
 }
 
 int CycleCtrlGroup::setupCycleCombo(TDialog * pDlg, int cycleID)
@@ -1928,7 +1925,8 @@ int CycleCtrlGroup::getData(TDialog * pDlg, void * pData)
 static int SplitPath(const char * pDirNFile, SString & rDir, SString & rFile)
 {
 	int    ok = -1;
-	rDir = rFile = 0;
+	rDir.Z();
+	rFile.Z();
 	if(!isempty(pDirNFile)) {
 		SPathStruc  ps(pDirNFile);
 		ps.Merge(0, SPathStruc::fNam|SPathStruc::fExt, rDir);
@@ -2038,7 +2036,6 @@ void FileBrowseCtrlGroup::setInitPath(const char * pInitPath)
 int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 {
 	const char * WrSubKey_Dialog = "Software\\Papyrus\\Dialog";
-
 	int    ok = -1;
 	OPENFILENAME sofn;
 	char   file_name[1024];
@@ -2309,22 +2306,16 @@ int ExtOpenFileDialog(SString & rPath, StringSet * pPatterns, SString * pDefWait
 //
 //
 //
-ImageBrowseCtrlGroup::Rec::Rec(SString * pBuf)
+ImageBrowseCtrlGroup::Rec::Rec(SString * pBuf) : Flags(0)
 {
-	Flags = 0;
-	if(!RVALUEPTR(Path, pBuf))
-		Path = 0;
+	RVALUEPTR(Path, pBuf);
 }
 
 ImageBrowseCtrlGroup::ImageBrowseCtrlGroup(/* @v9.5.6 uint patternsID,*/ uint ctlImage,
-	uint cmChgImage, uint cmDeleteImage, int allowChangeImage /*=1*/, long flags /*=0*/)
+	uint cmChgImage, uint cmDeleteImage, int allowChangeImage /*=1*/, long flags /*=0*/) :
+	CtlImage(ctlImage), CmChgImage(cmChgImage), CmDelImage(cmDeleteImage), AllowChangeImage(allowChangeImage), Flags(flags)
 {
 	SString buf, name, ext;
-	CtlImage         = ctlImage;
-	CmChgImage       = cmChgImage;
-	CmDelImage       = cmDeleteImage;
-	AllowChangeImage = allowChangeImage;
-	Flags            = flags;
 	uint patterns_id = PPTXT_PICFILESEXTS; // can be PPTXT_FILPAT_PICT
 	PPLoadTextWin(/*patternsID*/patterns_id, buf);
 	StringSet ss(',', buf);
@@ -2344,7 +2335,7 @@ ImageBrowseCtrlGroup::ImageBrowseCtrlGroup(/* @v9.5.6 uint patternsID,*/ uint ct
 int ImageBrowseCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	if(!RVALUEPTR(Data, (Rec *)pData))
-		Data.Path = 0;
+		Data.Path.Z();
 	pDlg->setCtrlString(CtlImage, Data.Path);
 	if(CmChgImage)
 		pDlg->enableCommand(CmChgImage, AllowChangeImage);
@@ -3109,9 +3100,8 @@ void LocationCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 	else if(CmEditLoc && event.isCmd(CmEditLoc)) {
 		getData(pDlg, 0);
 		PPID single_id = Data.LocList.GetSingle();
-		if(single_id) {
+		if(single_id)
 			LocObj.Edit(&single_id, 0);
-		}
 	}
 }
 
@@ -3220,9 +3210,8 @@ int LocationCtrlGroup::getData(TDialog * pDlg, void * pData)
 //
 //
 //
-SCardSelExtra::SCardSelExtra(PPID serId) : WordSel_ExtraBlock(0, 0, 0, 0, 2)
+SCardSelExtra::SCardSelExtra(PPID serId) : WordSel_ExtraBlock(0, 0, 0, 0, 2), SerID(serId)
 {
-	SerID = serId;
 	SetTextMode(false); // @v8.4.8
 }
 
@@ -3269,13 +3258,9 @@ int SCardSelExtra::Search(long id, SString & rBuf)
 //
 //
 //
-ObjTagSelExtra::ObjTagSelExtra(PPID objType, PPID tagID) : WordSel_ExtraBlock(0, 0, 0, 0, 3)
+ObjTagSelExtra::ObjTagSelExtra(PPID objType, PPID tagID) : WordSel_ExtraBlock(0, 0, 0, 0, 3), ObjType(objType), TagID(tagID), Flags(0), LocID(0)
 {
 	CtrlTextMode = true;
-	ObjType = objType;
-	TagID = tagID;
-	Flags = 0;
-	LocID = 0;
 	if(objType == PPOBJ_LOT && tagID == PPTAG_LOT_SN) {
 	}
 	else {
@@ -3380,11 +3365,9 @@ int ObjTagSelExtra::Search(long id, SString & rBuf)
 //
 #define MIN_PHONE_LEN 5
 
-PersonSelExtra::PersonSelExtra(PPID accSheetID, PPID personKindID) : WordSel_ExtraBlock(0, 0, 0, 0, 2)
+PersonSelExtra::PersonSelExtra(PPID accSheetID, PPID personKindID) : WordSel_ExtraBlock(0, 0, 0, 0, 2), 
+	AccSheetID(accSheetID), PersonKindID(personKindID), SrchRegTypeID(0)
 {
-	AccSheetID    = accSheetID;
-	PersonKindID  = personKindID;
-	SrchRegTypeID = 0;
 	{
 		PPPersonRelTypePacket pack;
 		PPObjPersonRelType obj_relt;
@@ -3535,9 +3518,8 @@ int PersonSelExtra::Search(long id, SString & rBuf)
 //
 //
 //
-PhoneSelExtra::PhoneSelExtra(long localFlags) : WordSel_ExtraBlock(0, 0, 0, 0, 4)
+PhoneSelExtra::PhoneSelExtra(long localFlags) : WordSel_ExtraBlock(0, 0, 0, 0, 4), LocalFlags(localFlags)
 {
-	LocalFlags = localFlags;
 	SetTextMode(false);
 }
 
@@ -3639,20 +3621,13 @@ int PhoneSelExtra::SearchText(const char * pText, long * pID, SString & rBuf)
 //
 //
 //
-PersonCtrlGroup::Rec::Rec()
+PersonCtrlGroup::Rec::Rec() : PsnKindID(0), PersonID(0), SCardID(0), Flags(0)
 {
-	PsnKindID = 0;
-	PersonID = 0;
-	SCardID = 0;
-	Flags = 0;
 }
 
-PersonCtrlGroup::PersonCtrlGroup(uint ctlsel, uint ctlSCardCode, PPID psnKindID, long flags) : CtrlGroup()
+PersonCtrlGroup::PersonCtrlGroup(uint ctlsel, uint ctlSCardCode, PPID psnKindID, long flags) : 
+	CtrlGroup(), Flags(flags), Ctlsel(ctlsel), CtlSCardCode(ctlSCardCode), CtlAnonym(0)
 {
-	Flags = flags;
-	Ctlsel = ctlsel;
-	CtlSCardCode = ctlSCardCode; // @v7.7.12
-	CtlAnonym = 0; // @v7.9.1
 	Data.PsnKindID = psnKindID;
 }
 
@@ -3959,12 +3934,9 @@ void PersonListCtrlGroup::Rec::Init(PPID psnKindID, const PPIDArray * pPersonLis
 		List.freeAll();
 }
 
-PersonListCtrlGroup::PersonListCtrlGroup(uint ctlsel, uint ctlSelPsnKind, uint cmPsnList, long flags) : CtrlGroup()
+PersonListCtrlGroup::PersonListCtrlGroup(uint ctlsel, uint ctlSelPsnKind, uint cmPsnList, long flags) : 
+	CtrlGroup(), Ctlsel(ctlsel), CtlselPsnKind(ctlSelPsnKind), CmPsnList(cmPsnList), Flags(flags)
 {
-	Ctlsel        = ctlsel;
-	CtlselPsnKind = ctlSelPsnKind;
-	CmPsnList     = cmPsnList;
-	Flags         = flags;
 }
 
 PersonListCtrlGroup::~PersonListCtrlGroup()
@@ -4169,6 +4141,7 @@ void SCardCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		if(ser_id)
 			list.addUnique(ser_id);
 		ListToListData data(PPOBJ_SCARDSERIES, 0, &list);
+		data.Flags |= ListToListData::fIsTreeList; // @v9.8.12 @fix
 		data.TitleStrID = PPTXT_SELSCARDSERLIST;
 		if(ListToListDialog(&data) > 0) {
 			Data.SCardSerList = list;
@@ -4526,19 +4499,14 @@ int StaffCalCtrlGroup::getData(TDialog * pDlg, void * pData)
 //
 //
 //
-SLAPI PersonOpCtrlGroup::Rec::Rec(const ObjIdListFilt * pPsnOpList, PPID prmrID, PPID scndID)
+SLAPI PersonOpCtrlGroup::Rec::Rec(const ObjIdListFilt * pPsnOpList, PPID prmrID, PPID scndID) : PrmrID(prmrID), ScndID(scndID)
 {
-	PrmrID = prmrID;
-	ScndID = scndID;
 	RVALUEPTR(PsnOpList, pPsnOpList);
 }
 
-PersonOpCtrlGroup::PersonOpCtrlGroup(uint ctlselPsnOp, uint ctlselPsn1, uint ctlselPsn2, uint cmEditPsnOpList)
+PersonOpCtrlGroup::PersonOpCtrlGroup(uint ctlselPsnOp, uint ctlselPsn1, uint ctlselPsn2, uint cmEditPsnOpList) :
+	CtlselPsnOp(ctlselPsnOp), CtlselPsn1(ctlselPsn1), CtlselPsn2(ctlselPsn2), CmEditPsnOpList(cmEditPsnOpList)
 {
-	CtlselPsnOp     = ctlselPsnOp;
-	CtlselPsn1      = ctlselPsn1;
-	CtlselPsn2      = ctlselPsn2;
-	CmEditPsnOpList = cmEditPsnOpList;
 }
 
 int PersonOpCtrlGroup::EditList(TDialog * pDlg)
@@ -4657,15 +4625,9 @@ int PersonOpCtrlGroup::getData(TDialog * pDlg, void * pData)
 	return 1;
 }
 
-SpinCtrlGroup::SpinCtrlGroup(uint ctlEdit, uint cmdUp, uint ctlUp, uint cmdDown, uint ctlDown, long minVal, long maxVal)
+SpinCtrlGroup::SpinCtrlGroup(uint ctlEdit, uint cmdUp, uint ctlUp, uint cmdDown, uint ctlDown, long minVal, long maxVal) :
+	CtlEdit(ctlEdit), CmdUp(cmdUp), CtlUp(ctlUp), CmdDown(cmdDown), CtlDown(ctlDown), MinVal(minVal), MaxVal(maxVal)
 {
-	CtlEdit = ctlEdit;
-	CmdUp   = cmdUp;
-	CtlUp   = ctlUp;
-	CmdDown = cmdDown;
-	CtlDown = ctlDown;
-	MinVal  = minVal;
-	MaxVal  = maxVal;
 }
 
 // virtual
@@ -4731,10 +4693,8 @@ BrandCtrlGroup::Rec::Rec(const PPIDArray * pList)
 	RVALUEPTR(List, pList);
 }
 
-BrandCtrlGroup::BrandCtrlGroup(uint ctlsel, uint cmSelList)
+BrandCtrlGroup::BrandCtrlGroup(uint ctlsel, uint cmSelList) : Ctlsel(ctlsel), CmSelList(cmSelList)
 {
-	Ctlsel    = ctlsel;
-	CmSelList = cmSelList;
 }
 
 // virtual
@@ -4834,12 +4794,9 @@ static int InputStringDialog(const char * pTitle, const char * pInpTitle, int di
 	return ok;
 }
 
-SLAPI PPInputStringDialogParam::PPInputStringDialogParam(const char * pTitle, const char * pInputTitle)
+SLAPI PPInputStringDialogParam::PPInputStringDialogParam(const char * pTitle, const char * pInputTitle) :
+	Flags(0), Title(pTitle), InputTitle(pInputTitle), P_Wse(0)
 {
-	Flags = 0;
-	Title = pTitle;
-	InputTitle = pInputTitle;
-	P_Wse = 0;
 }
 
 SLAPI PPInputStringDialogParam::~PPInputStringDialogParam()
@@ -5217,7 +5174,6 @@ int ResolveGoodsDialog::CreateGoods(long id, PPID goodsGrpID, int editAfterAdd)
 		pack.Rec.ParentID = goodsGrpID;
 		name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
 		name.CopyTo(pack.Rec.Abbr, sizeof(pack.Rec.Abbr));
-		// @v7.0.0 {
 		if(r_item.ArID && r_item.ArCode[0] && (CConfig.Flags & CCFLG_USEARGOODSCODE)) {
 			PPObjArticle ar_obj;
 			ArticleTbl::Rec ar_rec;
@@ -5233,7 +5189,6 @@ int ResolveGoodsDialog::CreateGoods(long id, PPID goodsGrpID, int editAfterAdd)
 				}
 			}
 		}
-		// } @v7.0.0
 		if(name.Len() == 0 || editAfterAdd) {
 			ok = GObj.Helper_Edit(&goods_id, &pack, gpkndGoods, 1);
 			if(ok)

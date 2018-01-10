@@ -344,9 +344,7 @@ cairo_region_t * cairo_region_reference(cairo_region_t * region)
 {
 	if(region == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&region->ref_count))
 		return NULL;
-
 	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&region->ref_count));
-
 	_cairo_reference_count_inc(&region->ref_count);
 	return region;
 }
@@ -363,18 +361,15 @@ slim_hidden_def(cairo_region_reference);
  *
  * Since: 1.10
  **/
-void cairo_region_destroy(cairo_region_t * region)
+void FASTCALL cairo_region_destroy(cairo_region_t * region)
 {
-	if(region == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&region->ref_count))
-		return;
-
-	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&region->ref_count));
-
-	if(!_cairo_reference_count_dec_and_test(&region->ref_count))
-		return;
-
-	_cairo_region_fini(region);
-	SAlloc::F(region);
+	if(region && !CAIRO_REFERENCE_COUNT_IS_INVALID(&region->ref_count)) {
+		assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&region->ref_count));
+		if(_cairo_reference_count_dec_and_test(&region->ref_count)) {
+			_cairo_region_fini(region);
+			SAlloc::F(region);
+		}
+	}
 }
 
 slim_hidden_def(cairo_region_destroy);
@@ -391,10 +386,7 @@ slim_hidden_def(cairo_region_destroy);
  **/
 int cairo_region_num_rectangles(const cairo_region_t * region)
 {
-	if(region->status)
-		return 0;
-
-	return pixman_region32_n_rects(CONST_CAST &region->rgn);
+	return region->status ? 0 : pixman_region32_n_rects(CONST_CAST &region->rgn);
 }
 
 slim_hidden_def(cairo_region_num_rectangles);
@@ -409,24 +401,19 @@ slim_hidden_def(cairo_region_num_rectangles);
  *
  * Since: 1.10
  **/
-void cairo_region_get_rectangle(const cairo_region_t * region,
-    int nth,
-    CairoIRect * rectangle)
+void cairo_region_get_rectangle(const cairo_region_t * region, int nth, CairoIRect * rectangle)
 {
-	pixman_box32_t * pbox;
-
 	if(region->status) {
 		rectangle->x = rectangle->y = 0;
 		rectangle->width = rectangle->height = 0;
-		return;
 	}
-
-	pbox = pixman_region32_rectangles(CONST_CAST &region->rgn, NULL) + nth;
-
-	rectangle->x = pbox->x1;
-	rectangle->y = pbox->y1;
-	rectangle->width = pbox->x2 - pbox->x1;
-	rectangle->height = pbox->y2 - pbox->y1;
+	else {
+		pixman_box32_t * pbox = pixman_region32_rectangles(CONST_CAST &region->rgn, NULL) + nth;
+		rectangle->x = pbox->x1;
+		rectangle->y = pbox->y1;
+		rectangle->width = pbox->x2 - pbox->x1;
+		rectangle->height = pbox->y2 - pbox->y1;
+	}
 }
 
 slim_hidden_def(cairo_region_get_rectangle);
@@ -490,17 +477,12 @@ cairo_status_t cairo_region_subtract(cairo_region_t * dst, const cairo_region_t 
 {
 	if(dst->status)
 		return dst->status;
-
-	if(other->status)
+	else if(other->status)
 		return _cairo_region_set_error(dst, other->status);
-
-	if(!pixman_region32_subtract(&dst->rgn,
-		    &dst->rgn,
-		    CONST_CAST &other->rgn)) {
+	else if(!pixman_region32_subtract(&dst->rgn, &dst->rgn, CONST_CAST &other->rgn))
 		return _cairo_region_set_error(dst, CAIRO_STATUS_NO_MEMORY);
-	}
-
-	return CAIRO_STATUS_SUCCESS;
+	else
+		return CAIRO_STATUS_SUCCESS;
 }
 
 slim_hidden_def(cairo_region_subtract);
@@ -516,24 +498,18 @@ slim_hidden_def(cairo_region_subtract);
  *
  * Since: 1.10
  **/
-cairo_status_t cairo_region_subtract_rectangle(cairo_region_t * dst,
-    const CairoIRect * rectangle)
+cairo_status_t cairo_region_subtract_rectangle(cairo_region_t * dst, const CairoIRect * rectangle)
 {
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
-	pixman_region32_t region;
-
 	if(dst->status)
-		return dst->status;
-
-	pixman_region32_init_rect(&region,
-	    rectangle->x, rectangle->y,
-	    rectangle->width, rectangle->height);
-
-	if(!pixman_region32_subtract(&dst->rgn, &dst->rgn, &region))
-		status = _cairo_region_set_error(dst, CAIRO_STATUS_NO_MEMORY);
-
-	pixman_region32_fini(&region);
-
+		status = dst->status;
+	else {
+		pixman_region32_t region;
+		pixman_region32_init_rect(&region, rectangle->x, rectangle->y, rectangle->width, rectangle->height);
+		if(!pixman_region32_subtract(&dst->rgn, &dst->rgn, &region))
+			status = _cairo_region_set_error(dst, CAIRO_STATUS_NO_MEMORY);
+		pixman_region32_fini(&region);
+	}
 	return status;
 }
 
@@ -554,14 +530,12 @@ cairo_status_t cairo_region_intersect(cairo_region_t * dst, const cairo_region_t
 {
 	if(dst->status)
 		return dst->status;
-
-	if(other->status)
+	else if(other->status)
 		return _cairo_region_set_error(dst, other->status);
-
-	if(!pixman_region32_intersect(&dst->rgn, &dst->rgn, CONST_CAST &other->rgn))
+	else if(!pixman_region32_intersect(&dst->rgn, &dst->rgn, CONST_CAST &other->rgn))
 		return _cairo_region_set_error(dst, CAIRO_STATUS_NO_MEMORY);
-
-	return CAIRO_STATUS_SUCCESS;
+	else 
+		return CAIRO_STATUS_SUCCESS;
 }
 
 slim_hidden_def(cairo_region_intersect);
@@ -578,24 +552,18 @@ slim_hidden_def(cairo_region_intersect);
  *
  * Since: 1.10
  **/
-cairo_status_t cairo_region_intersect_rectangle(cairo_region_t * dst,
-    const CairoIRect * rectangle)
+cairo_status_t cairo_region_intersect_rectangle(cairo_region_t * dst, const CairoIRect * rectangle)
 {
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
-	pixman_region32_t region;
-
 	if(dst->status)
-		return dst->status;
-
-	pixman_region32_init_rect(&region,
-	    rectangle->x, rectangle->y,
-	    rectangle->width, rectangle->height);
-
-	if(!pixman_region32_intersect(&dst->rgn, &dst->rgn, &region))
-		status = _cairo_region_set_error(dst, CAIRO_STATUS_NO_MEMORY);
-
-	pixman_region32_fini(&region);
-
+		status = dst->status;
+	else {
+		pixman_region32_t region;
+		pixman_region32_init_rect(&region, rectangle->x, rectangle->y, rectangle->width, rectangle->height);
+		if(!pixman_region32_intersect(&dst->rgn, &dst->rgn, &region))
+			status = _cairo_region_set_error(dst, CAIRO_STATUS_NO_MEMORY);
+		pixman_region32_fini(&region);
+	}
 	return status;
 }
 
@@ -612,19 +580,16 @@ slim_hidden_def(cairo_region_intersect_rectangle);
  *
  * Since: 1.10
  **/
-cairo_status_t cairo_region_union(cairo_region_t * dst,
-    const cairo_region_t * other)
+cairo_status_t cairo_region_union(cairo_region_t * dst, const cairo_region_t * other)
 {
 	if(dst->status)
 		return dst->status;
-
-	if(other->status)
+	else if(other->status)
 		return _cairo_region_set_error(dst, other->status);
-
-	if(!pixman_region32_union(&dst->rgn, &dst->rgn, CONST_CAST &other->rgn))
+	else if(!pixman_region32_union(&dst->rgn, &dst->rgn, CONST_CAST &other->rgn))
 		return _cairo_region_set_error(dst, CAIRO_STATUS_NO_MEMORY);
-
-	return CAIRO_STATUS_SUCCESS;
+	else 
+		return CAIRO_STATUS_SUCCESS;
 }
 
 slim_hidden_def(cairo_region_union);
@@ -640,24 +605,18 @@ slim_hidden_def(cairo_region_union);
  *
  * Since: 1.10
  **/
-cairo_status_t cairo_region_union_rectangle(cairo_region_t * dst,
-    const CairoIRect * rectangle)
+cairo_status_t cairo_region_union_rectangle(cairo_region_t * dst, const CairoIRect * rectangle)
 {
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
-	pixman_region32_t region;
-
 	if(dst->status)
-		return dst->status;
-
-	pixman_region32_init_rect(&region,
-	    rectangle->x, rectangle->y,
-	    rectangle->width, rectangle->height);
-
-	if(!pixman_region32_union(&dst->rgn, &dst->rgn, &region))
-		status = _cairo_region_set_error(dst, CAIRO_STATUS_NO_MEMORY);
-
-	pixman_region32_fini(&region);
-
+		status = dst->status;
+	else {
+		pixman_region32_t region;
+		pixman_region32_init_rect(&region, rectangle->x, rectangle->y, rectangle->width, rectangle->height);
+		if(!pixman_region32_union(&dst->rgn, &dst->rgn, &region))
+			status = _cairo_region_set_error(dst, CAIRO_STATUS_NO_MEMORY);
+		pixman_region32_fini(&region);
+	}
 	return status;
 }
 
@@ -680,23 +639,17 @@ cairo_status_t cairo_region_xor(cairo_region_t * dst, const cairo_region_t * oth
 {
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	pixman_region32_t tmp;
-
 	if(dst->status)
 		return dst->status;
-
 	if(other->status)
 		return _cairo_region_set_error(dst, other->status);
-
 	pixman_region32_init(&tmp);
-
 	/* XXX: get an xor function into pixman */
 	if(!pixman_region32_subtract(&tmp, CONST_CAST &other->rgn, &dst->rgn) ||
 	    !pixman_region32_subtract(&dst->rgn, &dst->rgn, CONST_CAST &other->rgn) ||
 	    !pixman_region32_union(&dst->rgn, &dst->rgn, &tmp))
 		status = _cairo_region_set_error(dst, CAIRO_STATUS_NO_MEMORY);
-
 	pixman_region32_fini(&tmp);
-
 	return status;
 }
 
@@ -715,29 +668,21 @@ slim_hidden_def(cairo_region_xor);
  *
  * Since: 1.10
  **/
-cairo_status_t cairo_region_xor_rectangle(cairo_region_t * dst,
-    const CairoIRect * rectangle)
+cairo_status_t cairo_region_xor_rectangle(cairo_region_t * dst, const CairoIRect * rectangle)
 {
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	pixman_region32_t region, tmp;
-
 	if(dst->status)
 		return dst->status;
-
-	pixman_region32_init_rect(&region,
-	    rectangle->x, rectangle->y,
-	    rectangle->width, rectangle->height);
+	pixman_region32_init_rect(&region, rectangle->x, rectangle->y, rectangle->width, rectangle->height);
 	pixman_region32_init(&tmp);
-
 	/* XXX: get an xor function into pixman */
 	if(!pixman_region32_subtract(&tmp, &region, &dst->rgn) ||
 	    !pixman_region32_subtract(&dst->rgn, &dst->rgn, &region) ||
 	    !pixman_region32_union(&dst->rgn, &dst->rgn, &tmp))
 		status = _cairo_region_set_error(dst, CAIRO_STATUS_NO_MEMORY);
-
 	pixman_region32_fini(&tmp);
 	pixman_region32_fini(&region);
-
 	return status;
 }
 

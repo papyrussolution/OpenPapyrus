@@ -3828,6 +3828,11 @@ int SLAPI PrcssrDebtRate::Run()
 				for(SEnum en = dd_obj.ref->Enum(PPOBJ_DEBTDIM, Reference::eoIdName); en.Next(&dd_rec) > 0;)
 					debt_dim_list.add(dd_rec.ID);
 			}
+			// @v9.8.12 {
+			DateRange period;
+			period = Cfg.Period;
+			period.Actualize(ZERODATE);
+			// } @v9.8.12 
 			THROW(op_obj.GetPayableOpList(P.AccSheetID, &op_list));
 			THROW(ArObj.P_Tbl->GetListBySheet(P.AccSheetID, &ar_list, 0));
 			for(i = 0; i < ar_list.getCount(); i++) {
@@ -3846,7 +3851,7 @@ int SLAPI PrcssrDebtRate::Run()
 						dim_set_stop_list.clear();
 						if(r < 0 && P.Flags & Param::fReportAgtAbsence)
 							logger.LogString(PPTXT_ARHASNTAGREEMENT, ar_rec.Name);
-						BillObj->CalcClientDebt(ar_id, 0, update_stop_debtdim, blk.Reset());
+						BillObj->CalcClientDebt(ar_id, &period, update_stop_debtdim, blk.Reset()); // @v9.8.12 0-->&period
 						if(blk.Debt > 0.0) {
 							if(blk.MaxExpiry > P.Gandicap || P.Flags & Param::fAllowForMaxCredit && agt_rec.MaxCredit > 0.0 || update_stop_debtdim) {
 								AmtList amt_list, paym_list;

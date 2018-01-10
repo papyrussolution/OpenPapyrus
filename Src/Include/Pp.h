@@ -3297,9 +3297,9 @@ public:
 	int    FASTCALL Copy(const PPTagEnumList &);
 	int    SLAPI PutItem(PPID * pID, const char * pName, PPID parentID);
 	void   SLAPI SetEnumID(PPID enumID);
-	PPID   SLAPI GetEnumID() const;
+	PPID   SLAPI GetEnumID() const { return EnumID; }
 	void   SLAPI SetFlags(long flags);
-	long   SLAPI GetFlags() const;
+	long   SLAPI GetFlags() const { return Flags; }
 	//
 	// Descr: Считывает из базы данных все элементы перечисления объекта enumID
 	//
@@ -6090,7 +6090,7 @@ struct PPAdviseBlock {
 		evTSessChanged,         // Оповещать об изменениях технологических сессий
 		evPsnEvChanged,         // @v8.0.3  Оповещать об изменениях персональных операций
 		evPhoneRinging,         // @v9.8.11 Телефонный сервис: звонит телефон
-		evPhoneUp               // @v9.8.11 Телефонный сервис: поднята телефонная трубка      
+		evPhoneUp               // @v9.8.11 Телефонный сервис: поднята телефонная трубка
 	};
 	long   Cookie;     // for internal use
 	int    Kind;       // PPAdivseBlock::evXXX Тип извещения, для которого сформирован этот блок.
@@ -12998,7 +12998,8 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 		fUncondAsyncBasePrice      = 0x00004000, // @v7.1.3  Безусловная базовая цена для асинхронных узлов
 		fDisableAdjWrOffAmount     = 0x00008000, // @v8.6.6  Запрет на корректировку суммы документов списания для уравнивания с кассовой сессией
 		fUnifiedPaymentCfmBank     = 0x00010000, // @v8.6.6  Дополнительное подтверждение для оплаты по банку после унифицированной панели оплаты
-		fAutosaveSyncChecks        = 0x00020000  // @v8.7.7  Автоматически сохранять синхронные чеки при каждом изменении
+		fAutosaveSyncChecks        = 0x00020000, // @v8.7.7  Автоматически сохранять синхронные чеки при каждом изменении
+		fWrOffPartStrucs           = 0x00040000  // @v9.8.12 При списании кассовых сессий досписывать частичные структуры
 	};
 	PPID   Tag;             // Const=PPOBJ_CONFIG
 	PPID   ID;              // Const=PPCFG_MAIN
@@ -15581,7 +15582,7 @@ public:
 	int    SLAPI GetCode(PPID id, long * pCounter, char * pBuf, size_t buflen, PPID locID, int use_ta);
 	int    SLAPI UngetCounter(PPID id, long counter, PPID locID, int use_ta);
 	int    SLAPI PutPacket(PPID *pOpCntrID, const PPOpCounterPacket *, int use_ta);
-	int    SLAPI GetPacket(PPID opCntrID, PPOpCounterPacket *); // AHTOXA
+	int    SLAPI GetPacket(PPID opCntrID, PPOpCounterPacket *);
 private:
 	virtual int SLAPI MakeReserved(long flags);
 	int    SLAPI Helper_GetCounter(PPID id, PPID locID, long * pCounter, SString * pCodeBuf, int use_ta);
@@ -19255,6 +19256,7 @@ public:
 
 		int    Get(uint * pPos, SString & rTag, SString & rValue) const;
 		int    GetTag(const char * pTag, SString & rValue) const;
+		int    Parse(StrStrAssocArray & rTags) const;
 		int    Convert(SString & rBuf) const;
 		Message & Clear();
 		int    Add(const char * pTag, const char * pValue);
@@ -20729,7 +20731,7 @@ public:
 	int    SLAPI Search(PPID id, PPGoodsTaxEntry * pEntry);
 	int    SLAPI Search(PPID id, PPGoodsTax * pRec);
 	int    SLAPI AddBySample(PPID *, long sampleID);
-	int    SLAPI GetBySheme(PPID *, double vat, double excise, double stax, long flags);
+	int    SLAPI GetByScheme(PPID *, double vat, double excise, double stax, long flags, int use_ta);
 	int    SLAPI GetDefaultName(PPGoodsTax *, char * buf, size_t buflen);
 	//
 	// Descr: Ищет налоговую группу, аналогичную по схеме налогообложения записи pPattern.
@@ -21673,7 +21675,9 @@ public:
 			fImportAddrObj    = 0x0001,
 			fImportHouseObj   = 0x0002,
 			fIgnoreSavedState = 0x0004,
-			fDoDebugOutput    = 0x0008
+			fDoDebugOutput    = 0x0008,
+			fDontAcceptToPpDb = 0x0010, // @v9.8.12 Не акцептировать результаты в базу данных Papyrus
+			fAcceptToSartreDb = 0x0020  // @v9.8.12 Записывать результаты импорта в SartreDB
 		};
 		long   Flags;
 		SString Path;
@@ -21691,7 +21695,7 @@ private:
 	int    Import(int inpObject);
 	int    FASTCALL ToggleTransaction(ulong threshold);
 	int    ReadRecordFromXmlAttrList(const char ** ppAttrList);
-	int    ParseFiasFileName(const char * pFileName, SString & rObjName, LDATE & rDt, S_GUID & rUuid);
+	static int  ParseFiasFileName(const char * pFileName, SString & rObjName, LDATE & rDt, S_GUID & rUuid);
 	int    StartDocument();
 	int    EndDocument();
 	int    StartElement(const char * pName, const char ** ppAttrList);
@@ -21715,12 +21719,15 @@ private:
 		phaseCount = 1,
 		phaseUUID,
 		phaseText,
-		phaseData
+		phaseData,
+
+		phaseSartrePass1,
+		phaseSartrePass2
 	};
 
 	class ProcessState {
 	public:
-		SLAPI ProcessState();
+		SLAPI  ProcessState();
 		int    SLAPI Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 		int    SLAPI Store(int use_ta);
 		int    SLAPI Restore();
@@ -21762,8 +21769,8 @@ private:
 	TSVector <FiasAddrObjTbl::Rec> AddrRecChunk; // @v9.8.4 TSArray-->TSVector
 	TSVector <FiasHouseObjTbl::Rec> HouseRecChunk; // @v9.8.4 TSArray-->TSVector
 
-    //TextRefCore TrT;
     FiasObjCore FT;
+	SrDatabase * P_SrDb; // @v9.8.12
 };
 //
 // @ModuleDecl(PPObjRegister)
@@ -26002,6 +26009,10 @@ public:
 	int    SLAPI FetchCls(PPID goodsID, Goods2Tbl::Rec * pRec, PPGdsClsPacket * pGcPack);
 	int    SLAPI MultTaxFactor(PPID goodsID, double * pVal);
 	//
+	// Descr: Извлекает товарный тип goodsTypeID через кэш.
+	//
+	int    SLAPI FetchGoodsType(PPID goodsTypeID, PPGoodsType * pGtRec);
+	//
 	// Descr: Извлекает запись единицы измерения unitID из кэша.
 	//
 	int    SLAPI FetchUnit(PPID unitID, PPUnit * pUnitRec); // @>>PPObjUnit::Fetch
@@ -27085,6 +27096,7 @@ public:
     static int FASTCALL ReadConfig(Config * pCfg);
     static int FASTCALL WriteConfig(Config * pCfg, int use_ta);
 	static int SLAPI EditConfig();
+	static int SLAPI AutoConfigure(long flags);
 	//
 	// Descr: Функция определяет является ли строка pMark валидным номером алкогольной акцизной марки.
 	//   Если параметр pProcessedMark != 0, то при правильной длине и нахождении в коде pMark недопустимого
@@ -27348,7 +27360,7 @@ private:
 	int    SLAPI NextInnerIteration(int initList, GoodsViewItem *);
 
 	struct GoodsMoveParam {
-		GoodsMoveParam();
+		SLAPI  GoodsMoveParam();
 		enum {
 			aRemoveAll = 1,
 			aMoveToGroup,
@@ -27358,7 +27370,8 @@ private:
 			aChgMinStock,   // @v8.6.4
 			aSplitBarcodeItems, // @v8.6.9
 			aMergeDiezNames,    // @v8.6.9
-			aChgTaxGroup        // @v9.5.0
+			aChgTaxGroup,       // @v9.5.0
+			aChgGoodsType       // @v9.8.12
 		};
 		enum {
 			fMassOpAllowed  = 0x0001,
@@ -27817,6 +27830,7 @@ struct AsyncCashGoodsInfo { // @transient
 	double PhUPerU;        // @v9.8.6 ->Unit.ID Соотношение физических единиц к торговым
 	PPID   ManufID;        // ->Person.ID ИД производителя товара
 	PPID   GdsClsID;       // ->Ref(PPOBJ_GOODSCLASS) ИД класса товара
+	PPID   GoodsTypeID;    // @v9.8.12 ->Ref(PPOBJ_GOODSTYPE) ИД типа товара
 	char   BarCode[24];    // Штрихкод @v8.8.0 [16]-->[24]
 	char   PrefBarCode[24]; // Предпочтительный штрихкод @v8.8.0 [16]-->[24]
 	double UnitPerPack;    // Емкость упаковки
@@ -42907,6 +42921,7 @@ private:
 		SXml::WNode * P_Root;
 		PPIDArray NeededQkList;
 		PPIDArray UsedQkList;
+		AsyncCashGoodsIterator * P_Acgi; // @notowned
 	};
 	enum {
 		obUnkn = 0,
@@ -42998,15 +43013,32 @@ private:
 		double PhRatio;   // Соотношение вложенной физической единицей (для PHUNIT в блоке товара)
 	};
 	struct GoodsBlock : public ObjectBlock { // @flat
+		enum {
+			spcfUnlim          = 0x0001,
+			spcfLookBackPrices = 0x0002,
+			spcfDefault        = 0x0004  // Признак единственного товара, используемого в качестве default при продаже по цене.
+		};
 		SLAPI  GoodsBlock();
 		PPID   ParentBlkP;
 		long   InnerId;
-		long   GoodsFlags; // @v9.8.6
-		uint   UnitBlkP;   // @v9.8.6
-		uint   PhUnitBlkP; // @v9.8.6
-		double PhUPerU;    // @v9.8.6
+		long   GoodsFlags;   // @v9.8.6
+		long   SpecialFlags; // @v9.8.12 Специальные флаги, определяющие признаки товаров,
+			// не характерные для собственно товара (что-то определяется типом, что-то классом, что-то конфигурациями).
+		uint   UnitBlkP;     // @v9.8.6
+		uint   PhUnitBlkP;   // @v9.8.6
+		double PhUPerU;      // @v9.8.6
 		double Price;
 		double Rest;
+		long   AlcoProof;    // @v9.8.12 @fixedpoint2 Для алкоголя - крепость в %об
+		long   VatRate;      // @v9.8.12 @fixedpoint2 Ставка НДС в процентах
+		long   SalesTaxRate; // @v9.8.12 @fixedpoint2 Ставка налога с продаж в процентах
+		//
+		// Следующие 2 ИД необходимы на этапе разрешения элемента товара. На одной фазе они
+		// приобретают временные значения, ссылающиеся на специальные контейнеры, затем -
+		// становятся идентификаторами в акцептируемой БД.
+		//
+		long   TaxGrpID;     // @v9.8.12
+		long   GoodsTypeID;  // @v9.8.12
 	};
 	struct GoodsGroupBlock : public ObjectBlock { // @flat
 		SLAPI  GoodsGroupBlock();
@@ -43135,6 +43167,7 @@ private:
 		//
 		const  PersonBlock * FASTCALL SearchAnalog_Person(const PersonBlock & rBlk) const;
 		int    SLAPI GetRouteItem(const RouteObjectBlock & rO, RouteBlock & rR) const;
+		int    SLAPI IsTagValueBoolTrue() const;
 
 		xmlParserCtxt * P_SaxCtx;
 		//
@@ -43220,7 +43253,18 @@ private:
 	{
 		return RdB;
 	}
-	int    SLAPI ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int asRefOnly, PPID defParentID, PPID defUnitID, PPID srcArID, PPID locID, PPID * pNativeID);
+	struct ResolveGoodsParam {
+		SLAPI  ResolveGoodsParam();
+		void   SLAPI SetupGoodsPack(const GoodsBlock & rBlk, PPGoodsPacket & rPack) const;
+		PPID   DefParentID;
+		PPID   DefUnitID;
+		PPID   LocID;
+		PPID   SrcArID; // Статья аналитического учета, соответствующая источнику данных
+		PPID   AlcGdsClsID; // Класс алкогольных товаров
+		int    AlcProofDim; // Размерность класса алкогольных товаров, отвечающая за крепость
+		PPGdsClsPacket GcPack;
+	};
+	int    SLAPI ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int asRefOnly, const ResolveGoodsParam & rP, PPID * pNativeID);
 
 	const  SString & FASTCALL EncText(const char * pS);
 	uint   SLAPI PeekRefPos() const;
@@ -44736,7 +44780,7 @@ public:
 		void   InitParsing(const char * pFileName);
 		void   IncLineNo();
 		long   SetState(long st, int set);
-		long   GetState() const;
+		long   GetState() const { return State; }
 		uint   SearchTarget(const Replacer::Chain & rChain) const;
 		LongArray * SearchCortege(uint cortegeId) const;
 
@@ -44988,16 +45032,12 @@ public:
 	SLAPI ~PPObjectTokenizer();
 	int    SLAPI AddObject(PPObjID oi, const char * pName);
 	int    SLAPI SearchObjects(const char * pText, PPID objType, long flags, RAssocArray & rObjIdScoreList);
-
 	int    SLAPI ProcessSuprWare(PPID swType, PPID swCls);
 	int    SLAPI ProcessGoods(const GoodsFilt * pFilt);
-
 	int    SLAPI SearchGoodsAnalogs(PPID goodsID, PPIDArray & rList, SString * pTransitComponentBuf);
 private:
-	// Временные буферы для минимизации операций распределения памяти {
-	SString TextBuf;
-	SString IdentBuf;
-	// }
+	SString TextBuf;  // @allocreuse
+	SString IdentBuf; // @allocreuse
 };
 //
 //
@@ -45041,9 +45081,8 @@ public:
 	int    SLAPI Run();
 private:
 	struct SignalProcBlock {
-		SignalProcBlock()
+		SignalProcBlock() : State(0)
 		{
-			State = 0;
 		}
 		enum {
 			stOuterTransaction = 0x0001

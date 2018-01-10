@@ -103,7 +103,7 @@ int PPBnkTerminal::SetConfig(uint logNum)
 
 int PPBnkTerminal::Pay(double amount, SString & rSlip)
 {
-	rSlip = 0;
+	rSlip.Z();
 	int    ok = 1;
 	SString msg;
 	Arr_In.Clear();
@@ -122,7 +122,7 @@ int PPBnkTerminal::Pay(double amount, SString & rSlip)
 
 int PPBnkTerminal::Refund(double amount, SString & rSlip)
 {
-	rSlip = 0;
+	rSlip.Z();
 	int    ok = 1;
 	SString msg;
 	Arr_In.Clear();

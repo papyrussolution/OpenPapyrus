@@ -307,7 +307,7 @@ TView * FASTCALL TWindow::getCtrlView(ushort ctlID)
 		if(p_temp) {
 			const TView * p_term = P_Last;
 			do {
-				p_temp = p_temp->next;
+				p_temp = p_temp->P_Next;
 				if(p_temp && p_temp->IsConsistent()) {
 					if(p_temp->GetId_Unsafe() == ctlID)
 						return p_temp;
@@ -765,7 +765,7 @@ IMPL_HANDLE_EVENT(TWindow)
 {
 	TGroup::handleEvent(event);
 	if(event.isCmd(cmClose)) {
-		if(!TVINFOPTR || TVINFOPTR == this || TVINFOVIEW->owner == this) { // @v9.8.12 (|| TVINFOVIEW->owner == this)
+		if(!TVINFOPTR || TVINFOPTR == this || TVINFOVIEW->P_Owner == this) { // @v9.8.12 (|| TVINFOVIEW->owner == this)
 			if(IsInState(sfModal))
 				TView::messageCommand(this, cmCancel, this);
 			else

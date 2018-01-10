@@ -14,7 +14,7 @@ BDbDatabase::Txn::Txn() : TblList(/*16,*/aryPtrContainer /* not aryEachItem */),
 // static
 SString & BDbDatabase::MakeFileName(const char * pFile, const char * pTblName, SString & rFileName)
 {
-	rFileName = 0;
+	rFileName.Z();
 	if(!isempty(pFile)) {
 		(rFileName = pFile).Strip();
 		if(!isempty(pTblName))

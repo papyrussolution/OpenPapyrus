@@ -192,7 +192,7 @@ int SSvg::GetAttr(xmlNode * pNode, const char * pAttr, SString & rVal)
 		ok = 1;
 	}
 	else
-		rVal = 0;
+		rVal.Z();
 	return ok;
 }
 

@@ -61,17 +61,17 @@ cairo_damage_t * _cairo_damage_create(void)
 	return damage;
 }
 
-void _cairo_damage_destroy(cairo_damage_t * damage)
+void FASTCALL _cairo_damage_destroy(cairo_damage_t * damage)
 {
-	_cairo_damage::_cairo_damage_chunk * chunk, * next;
-	if(damage == (cairo_damage_t*)&__cairo_damage__nil)
-		return;
-	for(chunk = damage->chunks.next; chunk != NULL; chunk = next) {
-		next = chunk->next;
-		SAlloc::F(chunk);
+	if(damage != (cairo_damage_t*)&__cairo_damage__nil) {
+		_cairo_damage::_cairo_damage_chunk * next;
+		for(_cairo_damage::_cairo_damage_chunk * chunk = damage->chunks.next; chunk != NULL; chunk = next) {
+			next = chunk->next;
+			SAlloc::F(chunk);
+		}
+		cairo_region_destroy(damage->region);
+		SAlloc::F(damage);
 	}
-	cairo_region_destroy(damage->region);
-	SAlloc::F(damage);
 }
 
 static cairo_damage_t * _cairo_damage_add_boxes(cairo_damage_t * damage, const cairo_box_t * boxes, int count)

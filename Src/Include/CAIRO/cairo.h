@@ -1942,7 +1942,7 @@ cairo_public cairo_status_t cairo_surface_set_user_data(cairo_surface_t * surfac
 #define CAIRO_MIME_TYPE_JBIG2_GLOBAL "application/x-cairo.jbig2-global"
 #define CAIRO_MIME_TYPE_JBIG2_GLOBAL_ID "application/x-cairo.jbig2-global-id"
 
-cairo_public void cairo_surface_get_mime_data(cairo_surface_t * surface, const char * mime_type, const uchar ** data, ulong * length);
+cairo_public void FASTCALL cairo_surface_get_mime_data(cairo_surface_t * surface, const char * mime_type, const uchar ** data, ulong * length);
 cairo_public cairo_status_t cairo_surface_set_mime_data(cairo_surface_t * surface,
     const char * mime_type, const uchar * data, ulong length, cairo_destroy_func_t destroy, void * closure);
 cairo_public cairo_bool_t cairo_surface_supports_mime_type(cairo_surface_t * surface, const char * mime_type);
@@ -2300,7 +2300,7 @@ cairo_public cairo_region_t * cairo_region_create_rectangle(const CairoIRect * r
 cairo_public cairo_region_t * FASTCALL cairo_region_create_rectangles(const CairoIRect * rects, int count);
 cairo_public cairo_region_t * cairo_region_copy(const cairo_region_t * original);
 cairo_public cairo_region_t * cairo_region_reference(cairo_region_t * region);
-cairo_public void cairo_region_destroy(cairo_region_t * region);
+cairo_public void FASTCALL cairo_region_destroy(cairo_region_t * region);
 cairo_public cairo_bool_t cairo_region_equal(const cairo_region_t * a, const cairo_region_t * b);
 cairo_public cairo_status_t cairo_region_status(const cairo_region_t * region);
 cairo_public void FASTCALL cairo_region_get_extents(const cairo_region_t * region, CairoIRect * extents);

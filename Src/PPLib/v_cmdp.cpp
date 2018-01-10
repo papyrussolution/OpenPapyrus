@@ -96,7 +96,7 @@ IMPL_HANDLE_EVENT(CmdItemDialog)
 		if(f & USEDEFICON) {
 			long   cmd_id = getCtrlLong(CTLSEL_CMDITEM_CMD);
 			PPCommandDescr cmd_descr;
-			if(cmd_id && CmdSymbList.Search(cmd_id, 0) > 0 && cmd_descr.LoadResource(cmd_id) > 0) {
+			if(cmd_id && CmdSymbList.Search(cmd_id) > 0 && cmd_descr.LoadResource(cmd_id) > 0) {
 				SString icon;
 				icon.Cat(cmd_descr.IconId);
 				setCtrlString(CTL_CMDITEM_ICON, icon);
@@ -164,7 +164,7 @@ int CmdItemDialog::getDTS(PPCommand * pData)
 	THROW_PP(Data.Name.NotEmptyS(), PPERR_NAMENEEDED);
 	getCtrlData(CTLSEL_CMDITEM_CMD, &cmd_id);
 	getCtrlString(CTL_CMDITEM_ICON, Data.Icon);
-	THROW_PP(CmdSymbList.Search(cmd_id, 0), PPERR_INVJOBCMD);
+	THROW_PP(CmdSymbList.Search(cmd_id), PPERR_INVJOBCMD);
 	THROW(cmd_descr.LoadResource(cmd_id));
 	Data.CmdID  = cmd_id;
 	Data.Flags = 0;

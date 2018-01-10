@@ -241,7 +241,7 @@ struct __PosNodeExt {       // @persistent
 	PPID   CashNodeID;      // ИД кассового узла
 	PPID   Prop;            // Const = CNPRP_EXTRA
 	uint8  Reserve[56];     // @reserve @v9.7.5 [60]-->[56]
-	int32  ScfFlags;        // @v9.7.5  
+	int32  ScfFlags;        // @v9.7.5
 	uint16 ScfDaysPeriod;       // Параметр фильтрации отложенных чеков
 	int16  ScfDlvrItemsShowTag; // Параметр фильтрации отложенных чеков
 	uint16 BonusMaxPart;    //
@@ -259,28 +259,14 @@ int SLAPI PPSyncCashNode::SuspCheckFilt::IsEmpty() const
 	return BIN(DaysPeriod == 0 && DlvrItemsShowTag == 0 && Flags == 0);
 }
 
-SLAPI PPSyncCashNode::PPSyncCashNode() : PPGenCashNode()
+SLAPI PPSyncCashNode::PPSyncCashNode() : PPGenCashNode(), DownBill(0), CurDate(ZERODATE), CurSessID(0), TouchScreenID(0), ExtCashNodeID(0),
+	AlternateRegID(0), ScaleID(0), CustDispType(0), CustDispFlags(0), BnkTermType(0), BnkTermLogNum(0),
+	BnkTermFlags(0), ClearCDYTimeout(0), EgaisMode(0), SleepTimeout(0), LocalTouchScrID(0)
 {
 	memzero(Port, sizeof(Port));
-	DownBill  = 0;
-	CurDate   = ZERODATE;
-	CurSessID = 0;
-	TouchScreenID = 0;
-	ExtCashNodeID = 0;
 	// @v9.7.10 PapyrusNodeID_unused = 0;
-	AlternateRegID = 0; // @v9.7.10
-	ScaleID       = 0;
-	CustDispType  = 0;
-	CustDispFlags = 0;
 	memzero(CustDispPort, sizeof(CustDispPort));
-	BnkTermType	  = 0;
-	BnkTermLogNum = 0;
 	memzero(BnkTermPort, sizeof(BnkTermPort));
-	BnkTermFlags = 0;
-	ClearCDYTimeout = 0;
-	EgaisMode = 0; // @v9.0.9
-	SleepTimeout  = 0;
-	LocalTouchScrID = 0;
 }
 
 int SLAPI PPSyncCashNode::SetPropString(int propId, const char * pValue)
@@ -478,7 +464,7 @@ StrAssocArray * SLAPI PPObjCashNode::MakeStrAssocList(void * extraPtr)
 			SString name_buf;
 			for(uint i = 0; i < parent_list.getCount(); i++) {
 				const PPID parent_id = parent_list.get(i);
-				if(!p_ary->Search(parent_id, 0)) {
+				if(!p_ary->Search(parent_id)) {
 					PPCashNode cn_rec;
 					if(Fetch(parent_id, &cn_rec) > 0)
 						name_buf = cn_rec.Name;
@@ -1301,12 +1287,13 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			AddClusterAssoc(CTL_EXTDEV_EGAISMODE,  0, 1);
 			AddClusterAssocDef(CTL_EXTDEV_EGAISMODE, 1, 0);
 			AddClusterAssoc(CTL_EXTDEV_EGAISMODE,  2, 2);
+			AddClusterAssoc(CTL_EXTDEV_EGAISMODE,  3, 3); // @v9.8.12 
 			SetClusterData(CTL_EXTDEV_EGAISMODE, Data.EgaisMode);
 			// } @v9.0.9
 			// @v9.8.3 {
 			Data.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf);
 			setCtrlString(CTL_EXTDEV_HOSTICURL, temp_buf);
-			// } @v9.8.3 
+			// } @v9.8.3
 			return 1;
 		}
 		int    getDTS(PPSyncCashNode * pData)
@@ -1362,7 +1349,7 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			// @v9.8.3 {
 			getCtrlString(CTL_EXTDEV_HOSTICURL, temp_buf);
 			Data.SetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf);
-			// } @v9.8.3 
+			// } @v9.8.3
 			Data.EgaisMode = (int16)GetClusterData(CTL_EXTDEV_EGAISMODE); // @v9.0.9
 			ASSIGN_PTR(pData, Data);
 			CATCH
@@ -2767,12 +2754,12 @@ int EquipConfigDialog::setDTS(const PPEquipConfig * pData)
 	AddClusterAssoc(CTL_EQCFG_FLAGS, 12, PPEquipConfig::fRestrictQttyByUnitRnd);
 	AddClusterAssoc(CTL_EQCFG_FLAGS, 13, PPEquipConfig::fDisableManualSCardInput);
 	AddClusterAssoc(CTL_EQCFG_FLAGS, 14, PPEquipConfig::fDisableAdjWrOffAmount); // @v8.6.6
-
 	SetClusterData(CTL_EQCFG_FLAGS, Data.Flags);
+
 	AddClusterAssoc(CTL_EQCFG_FLAGS2, 0, PPEquipConfig::fUseQuotAsPrice);
 	AddClusterAssoc(CTL_EQCFG_FLAGS2, 1, PPEquipConfig::fUncondAsyncBasePrice);
 	AddClusterAssoc(CTL_EQCFG_FLAGS2, 2, PPEquipConfig::fAutosaveSyncChecks); // @v8.7.7
-
+	AddClusterAssoc(CTL_EQCFG_FLAGS2, 3, PPEquipConfig::fWrOffPartStrucs); // @v9.8.12
 	SetClusterData(CTL_EQCFG_FLAGS2, Data.Flags);
 	/*
 	{
@@ -3244,7 +3231,8 @@ int PPALDD_LocPrnTest::NextIteration(PPIterID iterId)
 	if(I.IterNo < TEST_ITERCOUNT) {
 		SString buf;
 		I.IterNo++;
-		PPGetWord(PPWORD_TEST, 0, buf);
+		// @v9.8.12 PPGetWord(PPWORD_TEST, 0, buf);
+		PPLoadString("test", buf); // @v9.8.12
 		buf.Cat(I.IterNo);
 		buf.CopyTo(I.TestIterText, sizeof(I.TestIterText));
 	}
@@ -3303,7 +3291,7 @@ int SLAPI PPObjLocPrinter::GetPrinterByLocation(PPID locID, SString & rPrnPort, 
 {
 	int    ok = -1;
 	PPLocPrinter lp_rec;
-	rPrnPort = 0;
+	rPrnPort.Z();
 	for(SEnum en = ref->Enum(Obj, 0); ok < 0 && en.Next(&lp_rec) > 0;) {
 		if(lp_rec.LocID == locID) {
 			rPrnPort = lp_rec.Port;

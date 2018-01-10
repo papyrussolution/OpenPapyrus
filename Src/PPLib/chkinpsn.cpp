@@ -1,5 +1,5 @@
 // CHKINPSN.CPP
-// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -72,7 +72,7 @@ PPCheckInPersonItem & SLAPI PPCheckInPersonItem::Clear()
 
 int SLAPI PPCheckInPersonItem::CalcPinCode(SString & rCode) const
 {
-    rCode = 0;
+    rCode.Z();
     SString temp_buf;
     temp_buf.Cat(PrmrID).CatChar('#').Cat(PersonID).CatChar('#').Cat(PlaceCode);
 	uint32 h = BobJencHash(temp_buf.cptr(), temp_buf.Len());

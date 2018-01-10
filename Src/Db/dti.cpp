@@ -1,5 +1,5 @@
 // DTI.CPP
-// Copyright (c) V.Antonov 2004, 2005, 2008, 2010, 2015, 2017
+// Copyright (c) V.Antonov 2004, 2005, 2008, 2010, 2015, 2017, 2018
 //
 // DTI
 //
@@ -118,7 +118,7 @@ int PervasiveDBCatalog::IsValid() const
 static int SLAPI GetServerNameFromUncPath(const char * pUncPath, SString & rServerName)
 {
 	int    start = 0;
-	rServerName = 0;
+	rServerName.Z();
 	for(const char * p = pUncPath; *p && start >= 0; p++) {
 		if(p[0] == '\\' && p[1] == '\\') {
 			p += 2;

@@ -438,7 +438,7 @@ SString & SLAPI PrjTaskFilt::GetStatusListText(SString & rDest) const
 {
 	PPIDArray id_list;
 	GetStatusList(&id_list);
-	rDest = 0;
+	rDest.Z();
 	SString temp_buf;
 	for(uint i = 0; i < id_list.getCount(); i++)
 		rDest.CatDivIfNotEmpty(';', 2).Cat(PPObjPrjTask::GetStatusText(id_list.get(i), temp_buf));
@@ -449,7 +449,7 @@ SString & SLAPI PrjTaskFilt::GetPriorListText(SString & rDest) const
 {
 	PPIDArray id_list;
 	GetPriorList(&id_list);
-	rDest = 0;
+	rDest.Z();
 	SString temp_buf;
 	for(uint i = 0; i < id_list.getCount(); i++)
 		rDest.CatDivIfNotEmpty(';', 2).Cat(PPObjPrjTask::GetPriorText(id_list.get(i), temp_buf));

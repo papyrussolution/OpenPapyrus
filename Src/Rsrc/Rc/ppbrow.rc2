@@ -1158,7 +1158,7 @@ browser ARTICLE north(100), 1, 0, "@{view_article} {%s}", OWNER|GRID, 0
 	"@id",           0, notype, 0, 14
 	"@number",       1, notype, 0, 10
 	"@appellation",  2, notype, 0, 40
-	"Закрыт",        3, notype, NMBF_NOZERO|ALIGN_CENTER, 7
+	"@{closed_mas}", 3, notype, NMBF_NOZERO|ALIGN_CENTER, 7
 	"@stop",         4, notype, ALIGN_CENTER,  4
 	toolbar ARTICLE
 }
@@ -1168,12 +1168,12 @@ browser ARTICLE_AGTSUPPL north(100), 3, 0, "@{view_article} {%s}", OWNER|GRID, 0
 	"@id",           0, notype, 0, 14
 	"@number",       1, notype, 0, 10
 	"@appellation",  2, notype, 0, 40
-	"Закрыт",        3, notype, NMBF_NOZERO|ALIGN_CENTER, 7
+	"@{closed_mas}", 3, notype, NMBF_NOZERO|ALIGN_CENTER, 7
 	"@stop",         4, notype, ALIGN_CENTER,  4
 	group "@agreement" {
 		"@beginning",         6, notype, 0,            6
 		"@ending",            7, notype, 0,            6
-		"Срок оплаты, дн",    8, notype, NMBF_NOZERO,  6
+		"@{paymentterm}, @{days}", 8, notype, NMBF_NOZERO,  6
 		"Срок отгрузки, дн",  9, notype, NMBF_NOZERO,  6
 		"@agent",             10, notype, 0,           12
 		"Автозаказ",          17, notype, 0,           6
@@ -1187,13 +1187,13 @@ browser ARTICLE_AGTCLI north(100), 3, 0, "@{view_article} {%s}", OWNER|GRID, 0
 	"@id",           0, notype, 0, 14
 	"@number",       1, notype, 0, 10
 	"@appellation",  2, notype, 0, 40
-	"Закрыт",        3, notype, NMBF_NOZERO|ALIGN_CENTER, 7
+	"@{closed_mas}", 3, notype, NMBF_NOZERO|ALIGN_CENTER, 7
 	"@stop",         4, notype, ALIGN_CENTER,  4
 	group "@agreement" {
 		"@number",           15, notype, 0,  8
 		"@beginning",         6, notype, 0,  6
 		"@ending",            7, notype, 0,  6
-		"Срок оплаты, дн",    8, notype, NMBF_NOZERO,  6
+		"@{paymentterm}, @{days}",    8, notype, NMBF_NOZERO,  6
 		"Срок отгрузки, дн",  9, notype, NMBF_NOZERO,  6
 		"@agent",            10, notype, 0, 12
 		"@discount",         11, notype, NMBF_NOZERO, 6.1

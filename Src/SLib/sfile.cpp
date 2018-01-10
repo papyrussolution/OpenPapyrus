@@ -2343,13 +2343,13 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 uint SFileFormat::GloBaseIdx = 0;
 
 //static
-int SFileFormat::Register(int id, const char * pExt, const char * pSign)
+int FASTCALL SFileFormat::Register(int id, const char * pExt, const char * pSign)
 {
 	return Register(id, 0, 0, pExt, pSign);
 }
 
 //static
-int SFileFormat::Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign)
+int FASTCALL SFileFormat::Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign)
 {
 	int    ok = 0;
 	if(!GloBaseIdx) {

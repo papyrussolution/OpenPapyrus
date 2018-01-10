@@ -91,7 +91,7 @@ SString & TProgram::MakeModalStackDebugText(SString & rBuf) const
 	for(uint i = 0; i < ModalStack.getPointer(); i++) {
 		HWND _hs = *(HWND *)ModalStack.at(i);
 		if(i)
-			rBuf.Cat(" >> ");
+			rBuf.Space().Cat(">>").Space();
 		if(::IsWindow(_hs))
 			TView::SGetWindowText(_hs, temp_buf);
 		else
@@ -203,10 +203,6 @@ int TProgram::PopModalWindow(TWindow * pV, HWND * pH)
 	ASSIGN_PTR(pH, h);
 	return ok;
 }
-//
-//
-//
-#define MAXCLUSTERITEMS 36
 //
 // Load Dialog
 //
@@ -335,7 +331,7 @@ int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long fl
 						help_ctx = rez->getUINT();
 						TCluster * p_cluster = new TCluster(r, (tag == TV_CHECKBOXES) ? CHECKBOXES : RADIOBUTTONS, 0);
 						while(rez->getUINT() != TV_END) {
-							assert(p_cluster->getNumItems() < MAXCLUSTERITEMS);
+							assert(p_cluster->getNumItems() < 36);
 							fseek(rez->getStream(), -((long)sizeof(uint16)), SEEK_CUR);
 							p_cluster->addItem(-1, rez->getString(buf));
 						}
@@ -380,9 +376,8 @@ int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long fl
 						rez->getString(buf);
                 		rez->getString(columns_buf);
 						rez->getString(temp_buf.Z(), 0); // image_symbol
-						if(sstreqi_ascii(columns_buf, "IMAGEVIEW")) {
+						if(sstreqi_ascii(columns_buf, "IMAGEVIEW"))
 							p_ctl = new TImageView(r, temp_buf);
-						}
 						else
 							p_ctl = new TStaticText(r, buf);
 					}
@@ -453,7 +448,7 @@ int SLAPI TDialog::GetSymbolBody(const char * pSymb, SString & rBodyBuf)
 {
 	int    ok = 1;
 	SString symb = pSymb;
-	rBodyBuf = 0;
+	rBodyBuf.Z();
 	if(symb.CmpPrefix("DLGW_", 1) == 0)
 		symb.Sub(5, symb.Len()-5, rBodyBuf);
 	else if(symb.CmpPrefix("DLG_", 1) == 0)
@@ -612,7 +607,7 @@ IMPL_HANDLE_EVENT(TDialog)
 				::SetForegroundWindow(H()); // @v8.2.6
 				::SetActiveWindow(H());     // @v8.2.6
 				::EnableWindow(PrevInStack, 0);
-				if(next && next->IsConsistent() && next->IsSubSign(TV_SUBSIGN_DIALOG) && ((TDialog*)next)->resourceID == -1) {
+				if(P_Next && P_Next->IsConsistent() && P_Next->IsSubSign(TV_SUBSIGN_DIALOG) && ((TDialog*)P_Next)->resourceID == -1) {
 					is_list_win = TRUE;
 					::EnableWindow(GetParent(PrevInStack), 0);
 				}
@@ -886,12 +881,11 @@ int TDialog::SetupInputLine(uint ctlID, TYPEID typ, long format)
 	return ok;
 }
 
-int TDialog::SetupSpin(uint ctlID, uint buddyCtlID, int low, int upp, int cur)
+void TDialog::SetupSpin(uint ctlID, uint buddyCtlID, int low, int upp, int cur)
 {
 	SendDlgItemMessage(H(), ctlID, UDM_SETBUDDY, (WPARAM)GetDlgItem(H(), buddyCtlID), 0);
 	SendDlgItemMessage(H(), ctlID, UDM_SETRANGE, 0, MAKELONG(upp, low));
 	SendDlgItemMessage(H(), ctlID, UDM_SETPOS, 0, MAKELONG(cur, 0));
-	return 1;
 }
 //
 //
@@ -1534,21 +1528,20 @@ int TDialog::ResizeDlgToRect(const RECT * pRect)
 int TDialog::ResizeDlgToFullScreen()
 {
 	RECT  new_dlg_rect;
-	new_dlg_rect.left   = -GetSystemMetrics((DlgFlags & fResizeable) ? SM_CXSIZEFRAME : SM_CXFIXEDFRAME);
-	new_dlg_rect.top    = -GetSystemMetrics((DlgFlags & fResizeable) ? SM_CYSIZEFRAME : SM_CYFIXEDFRAME);
-	new_dlg_rect.right  =  GetSystemMetrics(SM_CXFULLSCREEN) - new_dlg_rect.left;
-	new_dlg_rect.bottom =  GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYFULLSCREEN) - new_dlg_rect.top;
+	new_dlg_rect.left   = -::GetSystemMetrics((DlgFlags & fResizeable) ? SM_CXSIZEFRAME : SM_CXFIXEDFRAME);
+	new_dlg_rect.top    = -::GetSystemMetrics((DlgFlags & fResizeable) ? SM_CYSIZEFRAME : SM_CYFIXEDFRAME);
+	new_dlg_rect.right  =  ::GetSystemMetrics(SM_CXFULLSCREEN) - new_dlg_rect.left;
+	new_dlg_rect.bottom =  ::GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYFULLSCREEN) - new_dlg_rect.top;
 	::GetWindowRect(H(), &ResizedRect);
 	return Helper_ToResizeDlg(&new_dlg_rect);
 }
 
-int TDialog::SetDlgTrackingSize(MINMAXINFO * pMinMaxInfo)
+void TDialog::SetDlgTrackingSize(MINMAXINFO * pMinMaxInfo)
 {
 	if(DlgFlags & fResizeable) {
 		pMinMaxInfo->ptMinTrackSize.x = InitRect.width();
 		pMinMaxInfo->ptMinTrackSize.y = InitRect.height();
 	}
-	return 1;
 }
 
 void TDialog::SetCtrlState(uint ctlID, uint state, bool enable)

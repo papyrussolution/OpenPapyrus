@@ -37,7 +37,11 @@ int SLAPI Reference::Helper_DecodeOtherPw(const char * pEncPw, const char * pPw,
 	assert(buf_quant >= pwBufSize);
 	char   temp_pw[buf_quant], temp_str[buf_quant*3+8];
 	STRNSCPY(temp_str, pPw);
-	if(strlen(temp_str) == (pwBufSize*3)) {
+	const size_t sl = strlen(temp_str);
+	if(sl != (pwBufSize*3) && (pwBufSize == 64 && sl == (20*3))) { // @v9.8.12 Специальный случай для обратной совместимости
+		pwBufSize = 20;
+	}
+	if(sl == (pwBufSize*3)) {
 		for(size_t i = 0, p = 0; i < pwBufSize; i++) {
 			char   nmb[16];
 			nmb[0] = temp_str[p];
@@ -93,7 +97,7 @@ int SLAPI Reference::Helper_Decrypt_(int cryptMethod, const char * pEncPw, const
 {
 	int    ok = 1;
 	char   pw_buf[128];
-	rText = 0;
+	rText.Z();
 	if(cryptMethod == crymRef2) {
 		SString temp_buf;
 		size_t bin_pw_size = 0;
@@ -1970,7 +1974,7 @@ int FASTCALL UuidRefCore::UuidToText(const S_GUID & rUuid, SString & rText)
 {
 	int    ok = 1;
 	if(rUuid.IsZero()) {
-		rText = 0;
+		rText.Z();
 		ok = -1;
 	}
 	else {

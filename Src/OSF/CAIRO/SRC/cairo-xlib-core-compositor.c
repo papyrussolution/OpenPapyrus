@@ -80,7 +80,6 @@ static cairo_bool_t fill_box(cairo_box_t * box, void * closure)
 	int y = _cairo_fixed_integer_part(box->p1.y);
 	int width  = _cairo_fixed_integer_part(box->p2.x - box->p1.x);
 	int height = _cairo_fixed_integer_part(box->p2.y - box->p1.y);
-
 	XFillRectangle(data->dpy, data->drawable, data->gc, x, y, width, height);
 	return TRUE;
 }

@@ -3,8 +3,14 @@
 //
 #ifndef __TV_H
 #define __TV_H
-#define _TURBOVISION
-#define USE_CAIRO
+
+#include <slib.h>
+#include <tvdefs.h>
+#include <commctrl.h>
+#include <db.h>
+
+// @v9.8.12 #define _TURBOVISION
+// @v9.8.12 #define USE_CAIRO
 
 class  TView;
 class  TGroup;
@@ -20,11 +26,6 @@ class  WordSelector;
 class  SrDatabase; // @v9.2.0
 struct TDrawItemData;
 class  TWhatman;
-
-#include <slib.h>
-#include <tvdefs.h>
-#include <commctrl.h>
-#include <db.h>
 
 // @v9.2.0 typedef int ccIndex;
 // @v9.2.0 typedef bool (*ccTestFunc)(void *, void *);
@@ -675,7 +676,7 @@ public:
 		//
 		enum { rcCX = 0, rcCY, rcR, rcFX, rcFY, rcFR };
 
-		Gradient(int kind = kLinear, int units = uUserSpace);
+		explicit Gradient(int kind = kLinear, int units = uUserSpace);
 		Gradient & operator = (const Gradient & rS);
 		int    operator == (const Gradient &) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -738,7 +739,7 @@ public:
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	};
 
-	SPaintObj(int ident = 0);
+	explicit SPaintObj(int ident = 0);
 	~SPaintObj();
 	void   Destroy();
 	int    GetId() const { return Id; }
@@ -1062,11 +1063,7 @@ private:
 class TCanvas2 {
 public:
 	struct Surface {
-		Surface()
-		{
-			HCtx = 0;
-			P_Img = 0;
-		}
+		Surface();
 		uint32 HCtx;   // Контекст устройства
 		SImageBuffer * P_Img;
 	};
@@ -1474,9 +1471,18 @@ public:
 	//
 	static void FASTCALL PreprocessWindowCtrlText(HWND hWnd);
 
-	TView(const TRect & bounds);
+	explicit TView(const TRect & bounds);
 	TView();
 	virtual ~TView();
+	virtual int    FASTCALL valid(ushort command);
+	//
+	// Descr: Метод, используемый для передачи (извлечения) данных в (из)
+	//   экземпляр объекта. Кроме того, метод реализует возрат размера
+	//   данных объекта.
+	//
+	virtual int    TransmitData(int dir, void * pData);
+	virtual void   setState(uint aState, bool enable);
+	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	DECL_HANDLE_EVENT;
 	// @v9.0.1 TRect  getExtent() const;
 	void   setBounds(const TRect & bounds);
@@ -1490,16 +1496,21 @@ public:
 	//   из флагов, установленных в параметре s.
 	//
 	int    FASTCALL IsInState(uint s) const;
-	virtual int    FASTCALL valid(ushort command);
+	void * FASTCALL MessageCommandToOwner(uint command);
 	//
-	// Descr: Метод, используемый для передачи (извлечения) данных в (из)
-	//   экземпляр объекта. Кроме того, метод реализует возрат размера
-	//   данных объекта.
+	// @v9.8.12 @construction
+	// Descr: Функция вызывается для обработки Windows-сообщений, которые (по мнению централизованного
+	//   обработчика сообщений) могут или должны быть обработаны конкретным TView самостоятельно.
+	// Функция реализована в рамках работы по элиминированию виртуального метода TView::handlwWindowsMessage()
+	// с переносом его функциональности в метод handleEvent().
 	//
-	virtual int    TransmitData(int dir, void * pData);
+	int    HandleWinCmd(UINT uMsg, WPARAM wParam, LPARAM lParam)
+	{
+		TEvent event;
+		handleEvent(event.setWinCmd(uMsg, wParam, lParam));
+		return (event.what == TEvent::evNothing) ? 1 : 0;
+	}
 	// @v9.0.4 virtual void   endModal(ushort command);
-	virtual void setState(uint aState, bool enable);
-	virtual int  handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	// @v9.6.2 virtual void   draw();
 	void   Draw_(); // @v9.6.2
 	//
@@ -1525,28 +1536,23 @@ public:
 	TView * nextView() const;
 	TView * prevView() const;
 	TView * prev() const;
-	TView * next;
 	TView * TopView();
 	int    IsConsistent() const;
 	int    FASTCALL IsSubSign(uint) const;
-	uint   GetSubSign() const;
-	int    GetEndModalCmd() const;
+	uint   GetSubSign() const { return SubSign; }
+	int    GetEndModalCmd() const { return EndModalCmd; }
 	//
 	// Descr: Должна вызываться оконными (диалоговыми) функциями порожденных классов
 	//   для восстановления оригинальной оконной функции
 	//
 	int    OnDestroy(HWND);
 	void   SendToParent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
 	void   SetWordSelBlock(WordSel_ExtraBlock *);
 	int    hasWordSelector() const { return BIN(P_WordSelBlk); }
 	//
 	// Descr: Только для применения в функции TWindow::getCtrlView
 	//
-	uint16 GetId_Unsafe() const
-	{
-		return Id;
-	}
+	uint16 GetId_Unsafe() const { return Id; }
 private:
 	uint32 Sign;    // Подпись экземпляра класса. Используется для идентификации инвалидных экземпляров.
 protected:
@@ -1571,7 +1577,8 @@ public:
 	TPoint size;
 	TPoint origin;
 	uint32 options;
-	TGroup * owner;
+	TView  * P_Next;
+	TGroup * P_Owner;
 	HWND   Parent;
 	WNDPROC PrevWindowProc;
 protected:
@@ -1602,7 +1609,7 @@ protected:
 
 class TGroup : public TView {
 public:
-	SLAPI  TGroup(const TRect & bounds);
+	explicit SLAPI TGroup(const TRect & bounds);
 	SLAPI ~TGroup();
 	DECL_HANDLE_EVENT;
 	virtual void   Insert_(TView *p);
@@ -1771,7 +1778,6 @@ public:
 	//
 	int    FASTCALL setCtrlData(ushort ctl, void *);
 	int    FASTCALL getCtrlData(ushort ctl, void *);
-
 	uint16 FASTCALL getCtrlUInt16(uint ctlID);
 	long   FASTCALL getCtrlLong(uint ctl);
 	double FASTCALL getCtrlReal(uint ctl);
@@ -1779,7 +1785,6 @@ public:
 	LDATE  FASTCALL getCtrlDate(uint ctlID);
 	LTIME  FASTCALL getCtrlTime(uint ctlID);
 	int    SLAPI getCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME & rDtm);
-
 	int    FASTCALL setCtrlUInt16(uint ctlID, int s);
 	int    FASTCALL setCtrlLong(uint ctlID, long);
 	int    FASTCALL setCtrlReal(uint ctlID, double);
@@ -1793,7 +1798,6 @@ public:
 	//   с идентификатором ctlID (вызывает ListBoxDef::SetOption(option, 1)
 	//
 	int    SLAPI setSmartListBoxOption(uint ctlID, uint option);
-
 	void   FASTCALL drawCtrl(ushort ctlID);
 	void   SLAPI showCtrl(ushort ctl, int s /* 1 - show, 0 - hide */);
 	void   SLAPI showButton(uint cmd, int s /* 1 - show, 0 - hide */);
@@ -2017,7 +2021,7 @@ public:
 		coMaxSize = 0x0020  // Окно создавать с максимальными размерами, допускаемыми родительским окном
 	};
 
-	TWindowBase(int capability = 0);
+	explicit TWindowBase(int capability = 0);
 	~TWindowBase();
 	int    Create(long parent, long createOptions);
 	int    AddChild(TWindowBase *, long createOptions, long zone);
@@ -2076,7 +2080,7 @@ public:
 	// Descr: Пользовательское представление инструмента.
 	//
 	struct Item { // @transient [@wtmtoolitem]
-		Item(const TWhatmanToolArray * pOwner = 0);
+		explicit Item(const TWhatmanToolArray * pOwner = 0);
 		enum {
 			fDontEnlarge   = 0x0001, // Не увеличивать фигуру при изменении размеров объекта сверх предустановленного размере
 			fDontKeepRatio = 0x0002, // Не сохранять пропорции фигуры при изменении размера объекта
@@ -2190,19 +2194,9 @@ public:
 	// Descr: Параметры текста, сопоставленного объекту.
 	//
 	struct TextParam { // @persistent
-		TextParam()
-		{
-			SetDefault();
-		}
-		void   SetDefault()
-		{
-			Side = SIDE_BOTTOM;
-			Flags = 0;
-			AlongSize = -1.0f;
-			AcrossSize = -0.5f;
-			CStyleIdent = 0;
-			ParaIdent = 0;
-		}
+		SLAPI  TextParam();
+		void   SLAPI SetDefault();
+
 		int16  Side;        // SIDE_XXX Сторона объекта, с которой располагается текст.
 			// Если Side == SIDE_CENTER, то центр текста располагается по центру объекта.
 		uint16 Flags;       // @flags
@@ -2339,7 +2333,7 @@ public:
 		oMultSelectable = 0x0040  // Объект может быть включен в список множественного выбора объектов
 	};
 protected:
-	TWhatmanObject(const char * pSymb);
+	explicit TWhatmanObject(const char * pSymb);
 
 	SString Symb;   //
 	TextParam TextOptions;
@@ -2391,7 +2385,7 @@ public:
 		toolPenSubGrid
 	};
 
-	TWhatman(TWindow * pOwnerWin);
+	explicit TWhatman(TWindow * pOwnerWin);
 	~TWhatman();
 
 	TPoint FASTCALL TransformPointToScreen(TPoint p) const;
@@ -2603,7 +2597,7 @@ struct UiItemKind { // @transient
 	static int  GetTextList(StrAssocArray & rList);
 	static int  GetIdBySymb(const char * pSymb);
 
-	UiItemKind(int kind = kUnkn);
+	explicit UiItemKind(int kind = kUnkn);
 	int    Init(int kind);
 
 	int32  Id;
@@ -2649,7 +2643,7 @@ public:
 	int     SetCtrlToolTip(uint ctrlID, const char * pToolTipText);
 	SLAPI  TDialog(const TRect & bounds, const char * pTitle);
 	SLAPI  TDialog(uint resID, DialogPreProcFunc, long extraParam);
-	SLAPI  TDialog(uint resID);
+	explicit SLAPI TDialog(uint resID);
 
 	enum ConstructorOption {
 		coNothing = 0,
@@ -2682,7 +2676,7 @@ public:
 	int    SaveUserSettings();
 	int    RestoreUserSettings();
 #ifndef _WIN32_WCE // {
-	int    SetDlgTrackingSize(MINMAXINFO * pMinMaxInfo);
+	void   SetDlgTrackingSize(MINMAXINFO * pMinMaxInfo);
 #endif // } _WIN32_WCE
 	//int    SetRealRangeInput(uint ctlID, const RealRange *);
 	//int    GetRealRangeInput(uint ctlID, RealRange *);
@@ -2704,7 +2698,7 @@ public:
 	int    SetDefaultButton(uint ctlID, int setDefault);
 	int    SetCtrlBitmap(uint ctlID, uint bmID);
 	int    SetupInputLine(uint ctlID, TYPEID typ, long fmt);
-	int    SetupSpin(uint ctlID, uint buddyCtlID, int low, int upp, int cur);
+	void   SetupSpin(uint ctlID, uint buddyCtlID, int low, int upp, int cur);
 	int    SetupCalendar(uint calCtlID, uint inputCtlID, int kind);
 	int    SetupCalDate(uint calCtlID, uint inputCtlID);
 	int    SetupCalPeriod(uint calCtlID, uint inputCtlID);
@@ -2865,11 +2859,11 @@ public:
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	int    setupCombo(ComboBox *);
 	void   setFormat(long fmt);
-	long   getFormat() const;
+	long   getFormat() const { return format; }
 	void   setType(TYPEID typ);
-	TYPEID getType() const;
+	TYPEID getType() const { return type; }
 	const char * getText();
-	size_t getMaxLen() const;
+	size_t getMaxLen() const { return maxLen; }
 	void   setMaxLen(int newMaxLen);
 	size_t getCaret();
 	void   setCaret(size_t);
@@ -2901,7 +2895,7 @@ protected:
 	void   Implement_Draw();
 
 	SString Data;
-	size_t maxLen;
+	uint32 maxLen; // @v9.8.12 size_t-->uint32
 	TYPEID type;
 	long   format;
 	enum {
@@ -2947,7 +2941,7 @@ public:
 	TCalcInputLine(uint virtButtonId, uint buttonCtrlId, TRect& bounds, TYPEID aType, long fmt);
 	~TCalcInputLine();
 private:
-	virtual int  handleWindowsMessage(UINT, WPARAM, LPARAM);
+	virtual int    handleWindowsMessage(UINT, WPARAM, LPARAM);
 	DECL_HANDLE_EVENT;
 	VirtButtonWndEx Vbwe;
 	uint   VirtButtonId;
@@ -2957,10 +2951,10 @@ class TImageView : public TView {
 public:
 	TImageView(const TRect & rBounds, const char * pFigSymb);
 	~TImageView();
-	virtual int  TransmitData(int dir, void * pData);
+	virtual int    TransmitData(int dir, void * pData);
 private:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	virtual int  handleWindowsMessage(UINT, WPARAM, LPARAM);
+	virtual int    handleWindowsMessage(UINT, WPARAM, LPARAM);
 	void * P_Image;
 	SDrawFigure * P_Fig;
 	SString FigSymb; // @v9.5.6 Символ векторной фигуры для отображения //
@@ -2998,7 +2992,7 @@ private:
 
 class TCluster : public TView {
 public:
-	TCluster(const TRect& bounds, int aKind, const StringSet & rStrings);
+	TCluster(const TRect& bounds, int aKind, const StringSet * pStrings);
 	~TCluster();
 	virtual int  TransmitData(int dir, void * pData);
 	virtual void setState(uint aState, bool enable);
@@ -3022,16 +3016,13 @@ public:
 	int    setDataAssoc(long);
 	int    getDataAssoc(long *);
 	int    getItemByAssoc(long val, int * pItem) const;
-	//
-	//
-	//
 	int    getKind() const
 	{
 		return (int)Kind;
 	}
 	// @v9.1.3 virtual int Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 protected:
-	virtual int handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	int16  Kind;  // RADIOBUTTONS || CHECKBOXES
 	ushort Value;
 	int    Sel;
@@ -3046,9 +3037,9 @@ private:
 class TStaticText : public TView {
 public:
 	TStaticText(const TRect& bounds, const char * pText = 0);
+	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	SString & getText(SString & rBuf) const;
 	int    setText(const char *);
-	int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 protected:
 	SString Text;
 };
@@ -3067,7 +3058,7 @@ public:
 	~TInfoPane();
 	// @v9.6.2 virtual void draw();
 	void setText(char *);
-	int handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	virtual int handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 protected:
 	char * text;
 };
@@ -3097,10 +3088,15 @@ ushort messageBox(const char *msg, ushort aOptions);
 //
 #define lbSrchByID  0x0800
 //
-// Метки Sign 'кземпляров класса ListBoxDef
+// Метки Sign экземпляров класса ListBoxDef
 //
-#define LBDEFSIGN_INVALID 0x00000000 // Invalid (destroyed) instance
-#define LBDEFSIGN_DEFAULT 0x1234ABCD // Instance of base class ListBoxDef or subclass hasn't own Sign
+#define LBDEFSIGN_INVALID  0x00000000 // Invalid (destroyed) instance
+#define LBDEFSIGN_DEFAULT  0x1234ABCD // Instance of base class ListBoxDef or subclass hasn't own Sign
+#define LBDEFSIGN_STD      0xABCD0001 // StdListBoxDef
+#define LBDEFSIGN_STRASSOC 0xABCD0002 // StrAssocListBoxDef
+#define LBDEFSIGN_STDTREE  0xABCD0003 // StdTreeListBoxDef
+#define LBDEFSIGN_STRING   0xABCD0004 // StringListBoxDef
+#define LBDEFSIGN_DBQ      0xABCD0005 // DBQListBoxDef
 //
 // Descr: Абстрактный источник данных для списков
 //
@@ -3151,16 +3147,13 @@ public:
 	long   SLAPI _curItem() const;
 	int    SLAPI _isTreeList() const;
 	int    SLAPI SetOption(uint option, int set = 1);
-
 	int    SLAPI SetUserData(const void * pData, size_t size);
 	int    SLAPI GetUserData(void * pData, size_t * pSize) const;
-
 	int    SLAPI HasCapability(long c) const { return BIN(CFlags & c); }
 	int    SLAPI GetImageIdxByID(long id, long * pIDx);
 	HIMAGELIST SLAPI CreateImageList(HINSTANCE hInst);
 	int    SLAPI AddImageAssoc(long itemID, long imageID);
 	int    SLAPI ClearImageAssocList();
-
 	int    SLAPI SetItemColor(long itemID, SColor fgColor, SColor bckgColor);
 	int    SLAPI ResetItemColor(long itemID);
 	int    SLAPI HasItemColorSpec() const;
@@ -3198,8 +3191,6 @@ private:
 	TSVector <ColorItem> ColorAssoc; // @v9.8.4 TSArray-->TSVector
 };
 
-#define LBDEFSIGN_STD      0xABCD0001
-
 class StdListBoxDef : public ListBoxDef {
 public:
 	SLAPI  StdListBoxDef(SArray * pArray, uint aOptions, TYPEID);
@@ -3215,8 +3206,6 @@ public:
 //protected:
 	SArray * P_Data;
 };
-
-#define LBDEFSIGN_STRASSOC 0xABCD0002
 
 class StrAssocListBoxDef : public ListBoxDef {
 public:
@@ -3239,8 +3228,6 @@ protected:
 private:
 	SBaseBuffer OneItem; // Временный буфер, возвращаемый функцией getRow_()
 };
-
-#define LBDEFSIGN_STDTREE  0xABCD0003
 
 class StdTreeListBoxDef : public ListBoxDef {
 public:
@@ -3293,8 +3280,6 @@ private:
 	Item   TempItem;
 };
 
-#define LBDEFSIGN_STRING 0xABCD0004
-
 class StringListBoxDef : public StdListBoxDef {
 public:
 	SLAPI  StringListBoxDef(uint stringSize, uint aOptions);
@@ -3303,12 +3288,9 @@ public:
 	virtual void   SLAPI freeAll();
 };
 
-#define LBDEFSIGN_DBQ    0xABCD0005
-#define DEF_DBQLISTBOXDEF_FRAMESIZE 64
-
 class DBQListBoxDef : public ListBoxDef {
 public:
-	SLAPI  DBQListBoxDef(DBQuery & rQuery, uint aOptions, uint aBufSize = DEF_DBQLISTBOXDEF_FRAMESIZE);
+	SLAPI  DBQListBoxDef(DBQuery & rQuery, uint aOptions, uint aBufSize = 64);
 	SLAPI ~DBQListBoxDef();
 	virtual void   SLAPI setViewHight(int);
 	virtual void   SLAPI getScrollData(long * pScrollDelta, long * pScrollPos);
@@ -3343,15 +3325,13 @@ private:
 
 	HWND   H_Wnd; // SmartListBox window handle
 	uint   Id;    // SmartListBox control id
-	//char * P_Text;
-	SString Text;
 	int    IsBnClicked;
-	int    FirstLetter;  // Первый символ, по которому был вызван диалог, следует отправить в окно ввода посредством
-		// эмуляции нажатия клавиши.
+	int    LinkToList;  // Данный блок будет прилинкован непосредственно к списку, в некоторых случаях нужно для корректного отображения и фокусировки.
+	int    FirstLetter; // Первый символ, по которому был вызван диалог, следует отправить в окно ввода посредством эмуляции нажатия клавиши.
 	WordSel_ExtraBlock * P_WordSelBlk; // not owner
 	WordSelector * P_WordSel; //
 	WNDPROC PrevInputCtlProc;
-	int    LinkToList; // Данный блок будет прилинкован непосредственно к списку, в некоторых случаях нужно для корректного отображения и фокусировки.
+	SString Text;
 };
 //
 //
@@ -3580,8 +3560,7 @@ ListWindow * SLAPI CreateListWindow(SArray * pAry, uint options, TYPEID);
 ListWindow * SLAPI CreateListWindow(StrAssocArray * pAry, uint options);
 ListWindow * SLAPI CreateListWindow(uint sz, uint options);
 // WordSelector * SLAPI CreateWordSelector(StrAssocArray * pAry, uint optons, UiWordSel_Helper * pHelper);
-WordSelector * SLAPI CreateWordSelector(WordSel_ExtraBlock * pBlk);
-
+// @v9.8.12 (unused) WordSelector * SLAPI CreateWordSelector(WordSel_ExtraBlock * pBlk);
 
 class ComboBoxInputLine : public TInputLine {
 public:
@@ -3632,6 +3611,7 @@ private:
 
 	HWND   hScrollBar;
 	long   Range;
+	long   Top;
 	long   Flags; // cbxXXX
 	long   NoDefID; // сохраняется id для комбо бокса загружающего данные только при открытии окошка listbox
 	enum {
@@ -3641,13 +3621,12 @@ private:
 		stNoDefZero     = 0x0008
 	};
 	long   State;
+	CompFunc SrchFunc;
 	ListBoxDef * P_Def;
 	TInputLine * P_ILink;
 	ListWindow * P_ListWin;
-	long   Top;
 	SString SearchPattern;
 	SString Text;
-	CompFunc SrchFunc;
 };
 //
 // Descr: Структура, передаваемая с сообщением cmDrawItem
@@ -3695,7 +3674,7 @@ int SetWindowTransparent(HWND hWnd, int transparent /*0..100*/);
 BOOL    CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
 BOOL    CALLBACK ListSearchDialogProc(HWND, UINT, WPARAM, LPARAM);
 BOOL    CALLBACK PropertySheetDialogProc(HWND, UINT, WPARAM, LPARAM);
-BOOL    CALLBACK logListProc(HWND, UINT, WPARAM, LPARAM);
+// @v9.8.12 (unused) BOOL    CALLBACK logListProc(HWND, UINT, WPARAM, LPARAM);
 //
 // Toolbar
 // There's a mine born by Osolotkin, 2000
@@ -4413,14 +4392,15 @@ protected:
 //
 //
 //
-#define DEFDBQFRAMESIZE 100
-
 class DBQBrowserDef : public BrowserDef {
 public:
-	SLAPI  DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, uint aBufSize = DEFDBQFRAMESIZE);
+	enum {
+		defaultFrameSize = 100
+	};
+	SLAPI  DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, uint aBufSize = defaultFrameSize);
 	SLAPI ~DBQBrowserDef();
 	const  DBQuery * SLAPI getQuery() const { return query; }
-	int    SLAPI setQuery(DBQuery & rQuery, uint aBufSize = DEFDBQFRAMESIZE);
+	int    SLAPI setQuery(DBQuery & rQuery, uint aBufSize = defaultFrameSize);
 	virtual int   SLAPI insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID, long fmt, uint opt);
 	virtual int   SLAPI insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
 	virtual void  SLAPI setViewHight(int);
@@ -4440,7 +4420,7 @@ protected:
 	DBQuery * query;
 };
 
-#ifdef _TURBOVISION // {
+// @v9.8.12 #ifdef _TURBOVISION // {
 //
 // Messages
 //
@@ -5279,6 +5259,6 @@ extern int (SLAPI * getUserControl)(TVRez *, TDialog*);
 // @v9.5.10 HMENU  SLAPI LoadMenu(TVRez *, uint menuID);
 int    SLAPI LoadToolbar(TVRez *, uint tbType, uint tbID, ToolbarList *);
 
-#endif // } _TURBOVISION
+// @v9.8.12 #endif // } _TURBOVISION
 //
 #endif // } __TV_H

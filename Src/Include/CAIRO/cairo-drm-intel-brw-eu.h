@@ -25,8 +25,7 @@
 
  **********************************************************************/
 /*
- * Authors:
- *   Keith Whitwell <keith@tungstengraphics.com>
+ * Authors: Keith Whitwell <keith@tungstengraphics.com>
  */
 
 #ifndef CAIRO_DRM_INTEL_BRW_EU_H
@@ -34,9 +33,7 @@
 
 #include "cairo-drm-intel-brw-structs.h"
 #include "cairo-drm-intel-brw-defines.h"
-
 #include <assert.h>
-
 /*
  * Writemask values, 1 bit per component.
  */

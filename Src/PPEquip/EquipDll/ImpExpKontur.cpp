@@ -279,7 +279,7 @@ void SysLogMessage(const char * pMsg)
 
 void GetErrorMsg(SString & rMsg)
 {
-	rMsg = 0;
+	rMsg.Z();
 	for(size_t i = 0; i < SIZEOFARRAY(ErrMsg); i++) {
 		if(ErrMsg[i].Id == ErrorCode) {
 			rMsg.Cat(ErrMsg[i].P_Msg);
@@ -297,7 +297,7 @@ void FormatLoginToLogin(const char * login, SString & rStr)
 {
 	uint   exit_while = 0;
 	char   low_strip = '_';
-	rStr = 0;
+	rStr.Z();
 	if(login) {
 		while(!exit_while) {
 			if((*login == 0) || (*login == low_strip))

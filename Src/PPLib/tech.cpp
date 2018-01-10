@@ -1131,7 +1131,7 @@ int SLAPI PPObjTech::AddBySample(PPID * pID, PPID sampleID)
 int SLAPI PPObjTech::Helper_AddItemToList(StrAssocArray * pList, PPID techID, PPID parentID, const char * pCode)
 {
 	int    ok = 1;
-	if(pList && !pList->Search(techID, 0)) {
+	if(pList && !pList->Search(techID)) {
 		TechTbl::Rec parent_rec;
 		if(parentID) {
 			if(Fetch(parentID, &parent_rec) > 0) {
@@ -1140,7 +1140,7 @@ int SLAPI PPObjTech::Helper_AddItemToList(StrAssocArray * pList, PPID techID, PP
 			else
 				parentID = 0;
 		}
-		if(!pList->Search(techID, 0)) {
+		if(!pList->Search(techID)) {
 			//
 			// Во избежание бесконечной рекурсии еще раз проверяем, чтобы добавляемой записи не было в списке
 			// (после предыдущей проверки в список мог быть добавлен элемент techID)

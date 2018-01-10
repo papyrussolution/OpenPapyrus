@@ -1,5 +1,5 @@
 // OBJCSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -655,10 +655,8 @@ struct CChkItemTransm {
 
 class CSessTransmitPacket {
 public:
-	SLAPI  CSessTransmitPacket() : UseCclExt(BIN(CConfig.Flags & CCFLG_USECCHECKLINEEXT)), Method_700(1)
+	SLAPI  CSessTransmitPacket() : UseCclExt(BIN(CConfig.Flags & CCFLG_USECCHECKLINEEXT)), Method_700(1), Valid(1), ChecksCount(0)
 	{
-		Valid = 1;
-		ChecksCount = 0;
 	}
 	int    SLAPI IsValid() const { return Valid; }
 	int    SLAPI LoadSession(PPID sessID, ObjTransmContext * pCtx);

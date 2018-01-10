@@ -785,7 +785,7 @@ int ColorCtrlGroup::Rec::GetColorItem(uint pos, COLORREF & rC, SString & rNameBu
 	}
 	else {
 		rC = UndefC;
-		rNameBuf = 0;
+		rNameBuf.Z();
 		ok = 0;
 	}
 	return ok;

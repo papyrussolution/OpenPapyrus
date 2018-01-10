@@ -2244,36 +2244,24 @@ int SLAPI PPObjGoods::ValidateGoodsParent(PPID parentID)
 	return ok;
 }
 
-int SLAPI PPObjGoods::Fetch(PPID id, Goods2Tbl::Rec * rec)
-	{ return P_Tbl->Fetch(id, rec); }
-int SLAPI PPObjGoods::SearchByName(const char * pName, PPID * pID, Goods2Tbl::Rec * pRec)
-	{ return P_Tbl->SearchByName(Kind, pName, pID, pRec); }
-int SLAPI PPObjGoods::BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID)
-	{ return P_Tbl->BelongToGroup(id, grp, pSubGrpID); }
-int SLAPI PPObjGoods::IsAltGroup(PPID grpID)
-	{ return P_Tbl->IsAltGroup(grpID); }
-int SLAPI PPObjGoods::IsTempAltGroup(PPID grpID)
-	{ return P_Tbl->IsTempAltGroup(grpID); }
-int SLAPI PPObjGoods::IsDynamicAltGroup(PPID grpID)
-	{ return P_Tbl->IsDynamicAltGroup(grpID); }
-int SLAPI PPObjGoods::IsGoodsCompatibleByUnit(PPID id1, PPID id2, double * ratio)
-	{ return P_Tbl->IsCompatibleByUnit(id1, id2, ratio); }
-int SLAPI PPObjGoods::GetGenericList(PPID genID, PPIDArray * pList)
-	{ return P_Tbl->GetGenericList(genID, pList); }
-int SLAPI PPObjGoods::BelongToGen(PPID goodsID, PPID * gen, ObjAssocTbl::Rec * b)
-	{ return P_Tbl->BelongToGen(goodsID, gen, b); }
-int SLAPI PPObjGoods::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta)
-	{ return P_Tbl->AssignGoodsToGen(goodsID, genID, abbr, use_ta); }
-int SLAPI PPObjGoods::RemoveGoodsFromGen(PPID goodsID, PPID genID, int use_ta)
-	{ return P_Tbl->RemoveGoodsFromGen(goodsID, genID, use_ta); }
-int SLAPI PPObjGoods::AssignGoodsToAltGrp(PPID goodsID, PPID grp, long innerNum, int use_ta)
-	{ return P_Tbl->AssignGoodsToAltGrp(goodsID, grp, innerNum, use_ta); }
-int SLAPI PPObjGoods::ReadBarcodes(PPID id, BarcodeArray & rAry)
-	{ return P_Tbl->ReadBarcodes(id, rAry); }
-int SLAPI PPObjGoods::GetSingleBarcode(PPID id, SString & rBuf)
-	{ return P_Tbl->GetSingleBarcode(id, rBuf); }
-int SLAPI PPObjGoods::FetchSingleBarcode(PPID id, SString & rBuf)
-	{ return P_Tbl->FetchSingleBarcode(id, rBuf); }
+int SLAPI PPObjGoods::Fetch(PPID id, Goods2Tbl::Rec * rec) { return P_Tbl->Fetch(id, rec); }
+int SLAPI PPObjGoods::SearchByName(const char * pName, PPID * pID, Goods2Tbl::Rec * pRec) { return P_Tbl->SearchByName(Kind, pName, pID, pRec); }
+int SLAPI PPObjGoods::BelongToGroup(PPID id, PPID grp, PPID * pSubGrpID) { return P_Tbl->BelongToGroup(id, grp, pSubGrpID); }
+int SLAPI PPObjGoods::IsAltGroup(PPID grpID) { return P_Tbl->IsAltGroup(grpID); }
+int SLAPI PPObjGoods::IsTempAltGroup(PPID grpID) { return P_Tbl->IsTempAltGroup(grpID); }
+int SLAPI PPObjGoods::IsDynamicAltGroup(PPID grpID) { return P_Tbl->IsDynamicAltGroup(grpID); }
+int SLAPI PPObjGoods::IsGoodsCompatibleByUnit(PPID id1, PPID id2, double * ratio) { return P_Tbl->IsCompatibleByUnit(id1, id2, ratio); }
+int SLAPI PPObjGoods::GetGenericList(PPID genID, PPIDArray * pList) { return P_Tbl->GetGenericList(genID, pList); }
+int SLAPI PPObjGoods::BelongToGen(PPID goodsID, PPID * gen, ObjAssocTbl::Rec * b) { return P_Tbl->BelongToGen(goodsID, gen, b); }
+int SLAPI PPObjGoods::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta) { return P_Tbl->AssignGoodsToGen(goodsID, genID, abbr, use_ta); }
+int SLAPI PPObjGoods::RemoveGoodsFromGen(PPID goodsID, PPID genID, int use_ta) { return P_Tbl->RemoveGoodsFromGen(goodsID, genID, use_ta); }
+int SLAPI PPObjGoods::AssignGoodsToAltGrp(PPID goodsID, PPID grp, long innerNum, int use_ta) { return P_Tbl->AssignGoodsToAltGrp(goodsID, grp, innerNum, use_ta); }
+int SLAPI PPObjGoods::ReadBarcodes(PPID id, BarcodeArray & rAry) { return P_Tbl->ReadBarcodes(id, rAry); }
+int SLAPI PPObjGoods::GetSingleBarcode(PPID id, SString & rBuf) { return P_Tbl->GetSingleBarcode(id, rBuf); }
+int SLAPI PPObjGoods::FetchSingleBarcode(PPID id, SString & rBuf) { return P_Tbl->FetchSingleBarcode(id, rBuf); }
+int SLAPI PPObjGoods::IsAsset(PPID goodsID) { return CheckFlag(goodsID, GF_ASSETS); }
+int SLAPI PPObjGoods::IsGeneric(PPID goodsID) { return CheckFlag(goodsID, GF_GENERIC); }
+
 int SLAPI PPObjGoods::GetSingleBarcode(PPID id, char * pCode, size_t bufLen) // @obsolete
 {
 	SString temp_buf;
@@ -2312,15 +2300,15 @@ int SLAPI PPObjGoods::CheckFlag(PPID goodsID, long flag)
 	return BIN(Fetch(labs(goodsID), &goods_rec) > 0 && (goods_rec.Flags & flag) == flag);
 }
 
-int SLAPI PPObjGoods::IsAsset(PPID goodsID)
-	{ return CheckFlag(goodsID, GF_ASSETS); }
-int SLAPI PPObjGoods::IsGeneric(PPID goodsID)
-	{ return CheckFlag(goodsID, GF_GENERIC); }
-
 int SLAPI PPObjGoods::IsAssetType(PPID goodsTypeID)
 {
 	PPGoodsType gt_rec;
 	return BIN(goodsTypeID && GtObj.Fetch(goodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_ASSETS);
+}
+
+int SLAPI PPObjGoods::FetchGoodsType(PPID goodsTypeID, PPGoodsType * pGtRec)
+{
+	return GtObj.Fetch(goodsTypeID, pGtRec);
 }
 
 int SLAPI PPObjGoods::MultTaxFactor(PPID goodsID, double * pVal)

@@ -286,10 +286,7 @@ int TcpSocket::SslBlock::Shutdown()
 
 int TcpSocket::SslBlock::Accept()
 {
-	if(P_S)
-		LastError = SSL_accept((SSL *)P_S);
-	else
-		LastError = -1;
+	LastError = P_S ? SSL_accept((SSL *)P_S) : -1;
 	return LastError ? 0 : 1;
 }
 
@@ -2893,7 +2890,7 @@ int SHttpClient::GetHeaderTitle(int hdr, SString & rTitle)
 		ok = 1;
 	}
 	else {
-		rTitle = 0;
+		rTitle.Z();
 		ok = 0;
 	}
 	return ok;
@@ -4369,7 +4366,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 						has_wildcard = 1;
 					if(ps.Ext.Empty()) {
 						has_wildcard = 1;
-						ps.Ext = '*';
+						ps.Ext = "*";
 					}
 					else if(ps.Ext.HasChr('*') || ps.Ext.HasChr('?'))
 						has_wildcard = 1;

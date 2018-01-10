@@ -1,5 +1,5 @@
 // PPSTR2.TXT
-// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // Codepage=UTF-8
 //
 
@@ -965,6 +965,7 @@ PPERR_POSDIVISIONNEEDED         "Необходимо выбрать номер 
 PPERR_LINKOBJNEEDED             "Необходимо выбрать связанный объект"
 PPERR_ARTICLENEEDED             "Необходимо выбрать аналитическую статью"
 PPERR_TAXGROUPNEEDED            "Необходимо выбрать налоговую группу"
+PPERR_GOODSTYPENEEDED           "Необходимо выбрать тип товаров"
 PPERR_UNCLOSEDPERIOD            "Период должен быть либо пустым либо закрытым"
 PPERR_UNDEFSALARYFUNC           "Неизвестная функция '%s' в формуле начисления"
 PPERR_SALCHARGEFORM_WANTIDENT    "В формуле начисления после точки ожидается символ (%s)"
@@ -2473,74 +2474,38 @@ imp@kladr_status;imp@kladr_street;imp@kladr;pos_host;SyncPOS;AsyncPOS;Scale;Cust
 // Символы секций INI-файлов
 // note: Не менять, не переводить, подстановки не применять!
 //
-PPINISECT_PATH            "path"
-PPINISECT_DBNAME          "dbname"
-PPINISECT_BACKUP          "backup"
-PPINISECT_SYSTEM          "system"
-PPINISECT_RECOVER         "recover"
-PPINISECT_CONFIG          "config"
-PPINISECT_IMP_PERSON      "person"
-PPINISECT_IMP_GOODSGROUP  "goodsgroup"
-PPINISECT_IMP_GOODS       "goods"
-PPINISECT_IMP_QUOT        "quot"
-PPINISECT_PRICELIST       "plist"
-PPINISECT_CLIENTBANK      "client-bank"
-PPINISECT_IMP_BANK        "bank"
-PPINISECT_SERVER          "server"
-PPINISECT_IMP_SPECSER     "specserial"
-PPINISECT_IMP_COUNTRY     "country"
-PPINISECT_IMP_SCARD       "scard"
-PPINISECT_IMP_SUPPL       "suppl"
-PPINISECT_DRIVEMAPPING    "drivemapping"
-PPINISECT_IMPKLADR_STATUS "imp@kladr_status"
-PPINISECT_IMPKLADR_STREET "imp@kladr_street"
-PPINISECT_IMPKLADR        "imp@kladr"
-PPINISECT_POS_HOST        "pos_host"
-PPINISECT_DRV_SYNCPOS     "SyncPOS"
-PPINISECT_DRV_ASYNCPOS    "AsyncPOS"
-PPINISECT_DRV_SCALE       "Scale"
-PPINISECT_DRV_CUSTDISP    "CustomDisplay"
-PPINISECT_DRV_BNKTERM     "BnkTerminal"
-PPINISECT_GLOBALSECURE    "globalsecure"
-PPINISECT_DRV_TOGGLE      "Toggle"
-PPINISECT_DRV_READER      "Reader"
-PPINISECT_SELFBUILD       "selfbuild"
-
-/* @v9.3.10
-134 "sys;dat;arc;pack;temp;path;log;tradelic;invoice_footer_on_bottom;\
-label_file;file;code;name;supplid;groupcode;groupname;unitname;packqtty;\
-cost;price;rest;qcnmb;qcblank;qcdate;qcexpiry;qcmanufname;qcorgname;qcmanufdate;\
-qcetc;salestaxrate;vatrate;manufcountryname;clb;idbias;city;zip;addr;phone;inn;\
-okpo;okonh;kind;goodscode;goodsname;quotname;goodsrest_pack;trfritem_pack;\
-goodsbillfilt_showdebt;ecogoodssel;winrpt;locrpt;backupuser;usepackage;operdate;\
-orgname;business;nologinprompt;maillogin;mailpass;mailservaddr;390DisCalcMethodLockDate;\
-cashordincstax;pubmail;reportdatapath;holidays;fhmethod;backuptemp;bssfactor;\
-3918TDisCalcMethodLockDate;AlbSellerName;ExportCrukmSections;ShtrihFRPassword;\
-405TDisCalcMethodLocDate;418TDisCalcMethodLockDate;433OldGenBarcodeMethod;PhPerU;\
-regionfile;regionid;regionname;bic;corracc;at;at2;at3;at4;PricePublication;Backup;\
-TableFilling;Cache;Server;serial;barcode;manufname;infodate;infoid;petrovi4barcode;\
-AtlasExportOpTypes;AtolTimeout;format;destination;silent;CashNodeNoLocking;hierarchy;addedcode;addedcodeqtty;\
-personcodereg;seriesid;codenum;personcode;pctdis;setcode;manufcountrycode;memo;bankacc;bankname;debug;\
-codetohex;billcode;billdate;BarcodeLowPriority;ShtrihFRNoUseContPrn;ComPortReadCycling;\
-Use_DebtTrnovr_Cycle;Use_DebtTrnovr_ExtKind;GoodsRestTest;petrovi4bias;codepage;turnover;port;\
-DomainName;UseSysAuth;CashierTabNumSymb;ShtrihFRConnectParam;BizerbaWholeBarcode;\
-OnlyLastUpdatedGoodsToCash;UseCopyContinuous;PersonFolder;TwosizeBarcodeFormat;SupportMail;spii;\
-brand;ext_a;ext_b;ext_c;ext_d;ext_e;SCardPatterns;EGAISExportOpTypes;warehouse;matrix;subcode;group2name;\
-AtolQuantityWOSale;TimeServer;acgialg;SCardDefPerson;SupplExpBillFileMaxSize;SetR_AddTimeToFileNames;\
-UseGoodsLocAssocToExtCashNode;SetR_UseNewDscntCodeAlg;PSales_GoodsQuant;debug_trfr_error;SpecEncodeSymbs;barlabelprint_delay;\
-expiry;LikenessRate;jobserver_notify;modifdate;data;descr;ShtrihFRNotUseWeightSensor;AcceptDupTimeCheck;EnableCCheckGenerator;\
-average;BaltikaWeakAlcLocSymb;BaltikaWeakAlcGGrpCode;CloseAsyncSess_UseAltImport;BizScore_DbSymb;\
-BizScorePath;PreprocessBrowserFromChangeFilt;EnableBillGenerator;CliBnkGenParam;PSales_MaxTime;article;JobServerAddrPort;\
-TSGGroupsAsButtons;BaltikaWoTareBeerLocSymb;BaltikaWoTareBeerGGrpCode;BaltikaWeakAlcCode;BaltikaWoTareBeerCode;\
-report_force_ddf;Shtrih_MFRK_Timeout;BaltikaTareGGrpCode;status;codea2;vatfree;kpp;extname;3tier;parentseq;\
-EnableExcelImpExp;LogCCheck;BaltikaDlvrAddrExtFldId;BaltikaSpoilageLocSymb;FrontolImportDelay;BaltikaSaleChannelExtFldId;\
-GoodsClassAlc;KitchenBellCmd;AutoInputTolerance;pirit-petrogl;DrawerOpenCmd;uhtturl;uhtturn;TSGGroupListFlat;tddo;debug_mtx_dirty;FrontolCrdCardAsDsc;\
-Use_CDb;BuildRoot;BuildSrc;BuildSolution;BuildTarget;BuildNsis;BuildDistrib;BaltikaSaldoCode;RcptDlvrLocAsWarehouse;capath;cafile;\
-BaltikaExclSaldoContragents;DL600XMLEntity;sockettimeout;adjcpancclinetrans;GoodsClassTobacco;GoodsClassGiftCard;DetectDbtExistByOpen;\
-ClosedSocketTimeout;SuspendedSocketTimeout;SleepSocketTimeout;BtrNwLock;MaxLogFileSize;TextCommandTerminal;DontUse3TierGMtx;FrontolSkipDiscountSchemes;\
-UseSjLoginEvent;KeywordDataFile;BaltikaUnitKegId;CodePrefixedList;AcgiPriceLookBackPeriod;DisableAsyncAdvQueue;AdviseEventCollectorPeriod;\
-InvcMergeTaxCalcAlg2Since;PrefMsvsVer;UseGeoTracking;ClientSocketTimeout;UiLanguage"
-*/
+PPINISECT_PATH                         "path"
+PPINISECT_DBNAME                       "dbname"
+PPINISECT_BACKUP                       "backup"
+PPINISECT_SYSTEM                       "system"
+PPINISECT_RECOVER                      "recover"
+PPINISECT_CONFIG                       "config"
+PPINISECT_IMP_PERSON                   "person"
+PPINISECT_IMP_GOODSGROUP               "goodsgroup"
+PPINISECT_IMP_GOODS                    "goods"
+PPINISECT_IMP_QUOT                     "quot"
+PPINISECT_PRICELIST                    "plist"
+PPINISECT_CLIENTBANK                   "client-bank"
+PPINISECT_IMP_BANK                     "bank"
+PPINISECT_SERVER                       "server"
+PPINISECT_IMP_SPECSER                  "specserial"
+PPINISECT_IMP_COUNTRY                  "country"
+PPINISECT_IMP_SCARD                    "scard"
+PPINISECT_IMP_SUPPL                    "suppl"
+PPINISECT_DRIVEMAPPING                 "drivemapping"
+PPINISECT_IMPKLADR_STATUS              "imp@kladr_status"
+PPINISECT_IMPKLADR_STREET              "imp@kladr_street"
+PPINISECT_IMPKLADR                     "imp@kladr"
+PPINISECT_POS_HOST                     "pos_host"
+PPINISECT_DRV_SYNCPOS                  "SyncPOS"
+PPINISECT_DRV_ASYNCPOS                 "AsyncPOS"
+PPINISECT_DRV_SCALE                    "Scale"
+PPINISECT_DRV_CUSTDISP                 "CustomDisplay"
+PPINISECT_DRV_BNKTERM                  "BnkTerminal"
+PPINISECT_GLOBALSECURE                 "globalsecure"
+PPINISECT_DRV_TOGGLE                   "Toggle"
+PPINISECT_DRV_READER                   "Reader"
+PPINISECT_SELFBUILD                    "selfbuild"
 
 PPINIPARAM_SYS                         "sys"
 PPINIPARAM_DAT                         "dat"
@@ -2836,35 +2801,6 @@ Tech;\
 SCard;\
 SCardOp;\
 ObjTag"
-
-/* @v9.0.4
-143 "report.ini;import.ini;pprpt.res;local.res;dd.bin;pp.str;empty.zip;ppsync.bin;\
-dbxrecv.log;balance.log;loterr.log;lotsuppl.err;barlabel.lbl;trfranlz.dbf;\
-glabelh.dbf;glabel.dbf;warebase.dbf;goods.dbf;plucash.dbf;bar.dbf;cash.cng;cash.upd;\
-posload.btr;zreport.btr;cq??????.btr;tovars.dbf;otchet2.dbf;tovars2.dbf;\
-monarch.dbt;psnkeys.;head.btr;iter.btr;\
-PPCONFIG.DAT;PPGOODS.DAT;PPSUPPL.DAT;PPBILL.DAT;PPBLINE.DAT;PPINVENT.DAT;PPILINE.DAT;\
-PPRA.BIN;PLIST.CNF;PLIST.DBF;sp_goods.dbf;sp_ggrp.dbf;sp_cli.dbf;sp_bill.dbf;sp_bitem.dbf;\
-abslots.log;credopay.btr;repair.txt;accturn.log;trmcfg.trm;albdata.xml;absgoods.log;cchkerr.log;\
-cs_goods.dbf;cs_bar.dbf;cs_cash.upd;cs_chkhd.dbf;cs_chkln.dbf;cs_wait;stdrpt.ini;bnkorder;\
-mtdata.txt;mtout.txt;scaleaddress.ini;log.txt;&&trf!!.lz;&&trf!!.out;trf%i.in.log;trf.in;trf%i.in;\
-PPEBILL.DAT;PPEBLINE.DAT;cs_cards.dbf;cs_dscnt.dbf;cs_scale.dbf;cs_scale.upd;PPGOODS2.DAT;cs_dsccc.dbf;\
-atolimp.txt;atolimp.flg;atolexp.txt;atolexp.flg;pperror.log;ppinfo.log;debug.log;\
-art.txt;txt2log.exe;convert.exe;article.def;out.txt;wbh.dbf;wbc.dbf;cbadreck.log;cs_cshrs.dbf;acsexp.;clibnk.ini;\
-psales.log;cs_zrep.dbf;sp_quotk.dbf;sp_cliad.dbf;sp_clidb.dbf;sp_todo.dbf;sp_sell.dbf;sp_invh.dbf;sp_invl.dbf;\
-backup.log;profile.log;ss_suppl.dbf;ss_goods.dbf;ss_tsh.dbf;ss_tsl.dbf;ss_bill.dbf;ss_bitem.dbf;ss_invh.dbf;\
-ss_invl.dbf;ss_loc.dbf;ss_ebill.dbf;ss_ebitem.dbf;checkfmt.def;shtrih.log;scale.log;acs.log;dgimp000.dat;\
-cachstat.txt;jobpool.bin;jobstat.;cashiers.txt;paymlink.log;ppcmd.bin;ppdesk.bin;\
-ppygoods;ppybcods;ppyqknds;ppyquots;ppycards;ppycsess;ppycchks;ppycclns;pptsess.dbf;ccheck.log;\
-impexp.ini;pplock;ppverh.bin;verhist.log;pperrmsg.log;mailacct.acc;ppexp.bin;ppifc.bin;absacct.log;\
-cs_group.dbf;cs_gdsqd.dbf;cs_grpqd.dbf;stdslip.fmt;ie_cash.log;curresterr.log;sc%i.plu;ppdbs.bin;\
-pppcloth.bin;userprofile.log;export.cfg;goods.txt;getgoods.txt;bizscusr.bin;pp_upd.ini;PPOPLI.DBF;\
-PPSBILLS.DBF;PPSBROWS.DBF;tcpadevl.txt;backup.lck;lastback.txt;local.dl6;sp_brand.dbf;shtrhimp.txt;\
-shtrhexp.txt;shtrhfle;todo.vcs;todo.ics;cs_grps.dbf;cs_grpsi.dbf;PPLOC.DBF;sp_loc.dbf;sp_bmemo.dbf;\
-rfiddev.log;cs_gdsd.dbf;nfiltpool.bin;sp_quots.dbf;in.xml;out.xml;server.log;PPCBROWS.DBF;phnsvc.log;\
-mtxdirty.log;selfbuild.log;cs_addm.dbf;compsgoods.log;stylow.log;impexp.log;reporting.log;server-debug.log;\
-synclot.log;job.log;baltika.log;quotupd.log;egais.log"
-*/
 
 PPFILNAM_REPORT_INI            "report.ini"
 PPFILNAM_IMPORT_INI            "import.ini"
@@ -3182,47 +3118,6 @@ TaxDocDate;TaxPaymType;VatSum;PurposePlusVat;CorrName;CorrBIC;CorrINN;CorrPerson
 PaymMethod"
 */
 
-// @v9.0.2 PPWORD_WAREHOUSE           "Склад"
-// @v9.0.2 PPWORD_BARCODE             "Штрихкод"
-// @v9.2.1 PPWORD_LIST                "Список"
-// @v9.1.3 PPWORD_REST                "Остаток"
-// @v9.0.2 PPWORD_VAT                 "НДС"
-// @v9.1.11 PPWORD_MEMO                "Примечание"
-// @v9.2.1 PPWORD_DEBT                "Долг"
-// @v9.1.4 PPWORD_QTTY                "Количество"
-// @v9.1.11 PPWORD_DEFICIT             "Дефицит"
-// @v9.1.5 PPWORD_CURRENCY            "Валюта"
-// @v9.1.5 PPWORD_CYCLE               "Цикл"
-// @v9.1.11 PPWORD_DATE                "Дата"
-// @v9.0.2 PPWORD_PRC                 "Процессор"
-// @v9.1.11 PPWORD_STATUS              "Статус"
-// @v9.0.2 PPWORD_AR                  "Статья"
-// @v9.0.2 PPWORD_GOODS               "Товар"
-// @v9.0.2 PPWORD_CARD                "Карта"
-// @v9.1.4 PPWORD_PRICE               "Цена"
-// @v9.0.8 PPWORD_SALER               "Продавец"
-// @v9.0.8 PPWORD_CASHNODE            "Кассовый узел"
-// @v9.2.1 PPWORD_STRUC               "Структура"
-// @v9.0.8 PPWORD_SUPPL               "Поставщик"
-// @v9.2.1 PPWORD_CASHIER             "Кассир"
-// @v9.2.1 PPWORD_ORDER               "Заказ"
-// @v9.0.2 PPWORD_ID                  "Ид"
-// @v9.0.2 PPWORD_NAME                "Имя"
-// @v9.0.2 PPWORD_CODE                "Код"
-// PPWORD_ORDERER             "Заказчик"
-// PPWORD_ORDERED             "Заказано"
-// PPWORD_ORDERS              "Заказы"
-// @v9.1.5 PPWORD_ISVALIDBEFORE       "Действителен до"
-// @v9.2.1 PPWORD_DIFF                "Разница"
-// @v9.0.2 PPWORD_STOP                "Стоп"
-// @v9.1.4 PPWORD_EXTOBJECT           "Дополнительный объект"
-// @v9.1.11 PPWORD_DEFAULT             "По умолчанию"
-// PPWORD_SHIPPED             "Отгружено"
-// PPWORD_PAID                "Оплачено"
-// @v9.1.11 PPWORD_CHECKS              "Чеки"
-// @v9.1.11 PPWORD_OPERATIONS          "Операции"
-// @v9.0.2 PPWORD_PLAN                "План"
-// @v9.0.2 PPWORD_FACT                "Факт"
 PPWORD_LINKQTTY            "Связанное количество"
 PPWORD_TOTAL               "Итого:"
 PPWORD_DEFBASKET           "Корзина по умолчанию"
@@ -3280,7 +3175,7 @@ PPWORD_SUM_IN              "Сумма в ценах"
 PPWORD_MAIN                "Основной"
 PPWORD_ADDITIONAL          "Дополнительный"
 // @v9.2.7 PPWORD_PERIOD              "Период"
-PPWORD_DAYS                "Дней"
+// @v9.8.12 PPWORD_DAYS                "Дней"
 PPWORD_LOCSCOUNT           "Количество складов"
 PPWORD_TRNOVR_IN           "Оборот в ценах"
 // @v9.2.6 PPWORD_GIFT                "Подарок"
@@ -3300,7 +3195,7 @@ PPWORD_NOTLINKTRANSFER     "Не привязанная передача"
 // @v9.3.10 PPWORD_BILLCODE            "Номер документа"
 // @v9.4.12 PPWORD_TRANSFER            "Передача"
 // @v9.4.12 PPWORD_ALL                 "Все"
-PPWORD_TEST                "Тест"
+// @v9.8.12 PPWORD_TEST                "Тест"
 PPWORD_MISCELLANEOUS       "MISCELLANEOUS"
 PPWORD_WORK                "Работа"
 // @v9.3.10 PPWORD_ALLLOCS             "Все склады"
@@ -5465,6 +5360,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @doreject                "Отклонить"
 @disaccord               "Расхождение"
 
+@alcohol                 "Алкоголь"
+
 @new_fem                 "Новая"
 @prep_in                 "в"
 @nomatter                "Все равно"
@@ -5723,84 +5620,87 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @client            "Клиент"
 @client_pl         "Клиенты"
 @clientcode        "Код клиента"
-@buyer             "Покупатель"
-@buyer_pl          "Покупатели"
-@manufacturer      "Производитель"
-@manufacturer_pl   "Производители"
-@payer             "Плательщик"
-@orderer           "Заказчик"
-@agent             "Агент"
-@agent_pl          "Агенты"
-@supplagent        "Агент поставщика"
-@executor          "Исполнитель"
-@transport         "Транспорт"
-@freightagent      "Транспортный брокер"
-@bank              "Банк"
-@bank_pl           "Банки"
-@owner             "Владелец"
-@scardowner        "Владелец карты"
-@user              "Пользователь"
-@username          "Имя пользователя"
-@usergroup         "Группа пользователей"
-@userexclrights    "Исключения прав доступа"
-@director          "Директор"
-@chiefaccountant   "Главный бухгалтер"
-@cashier           "Кассир"
-@contact           "Контакт" // В смысле персоналия для контакта
-@agreement         "Соглашение"
-@person            "Персоналия"
-@person_pl         "Персоналии"
-@natural_person    "Физическое лицо"
-@legal_person      "Юридическое лицо"
-@person_prmr       "Первичная персоналия"
-@person_scnd       "Вторичная персоналия"
-@org               "Организация"
-@personnel         "Персонал" // В смысле сотрудники организации. Символ staff не применяем из-за его многозначности
-@mainorg           "Главная организация"
-@psnkind           "Вид персоналии"
-@psnkind_pl        "Виды персоналии"
-@address           "Адрес"
-@addrdbdiv         "Адрес раздела базы данных"
-@jaddress          "Юридический адрес"
-@paddress          "Фактический адрес"
-@daddress          "Адрес доставки"
-@daddress_pl       "Адреса доставки"
-@haddress          "Зависший адрес"
-@postzip           "Почтовый индекс"
-@inn               "ИНН"
-@kpp               "КПП"
-@bic               "БИК"
-@card              "Карта"
-@cardno            "Номер карты"
-@scard             "Персональная карта"
-@scard_pl          "Персональные карты"
-@discard           "Дисконтная карта"
-@crdcard           "Кредитная карта"
-@bonuscard         "Бонусная карта"
-@car               "Автомобиль"
-@ship              "Судно"
-@pixel             "Пиксель"
-@munit_s           "Единица"
-@munit             "Единица измерения"
-@munits            "Единицы измерения"
-@munit_meter       "Метр"
-@munit_kilogram    "Килограмм"
-@munit_second      "Секунда"
-@munit_inch        "Дюйм"
-@munit_mm          "мм"
-@munit_kg          "кг"
-@munit_liter       "Литр"
-@munit_l           "л"
-@munit_trade       "Торговая единица"
-@munit_ph          "Физическая единица"
-@munit_tr_sfx_s    "Торг ед" // Сокращенный суффикс для обозначения количества в торговых единицах. Например: где-то выше определено "Количество" и отдельная ячейка обозначается @munit_tr_sfx_s
-@munit_ph_sfx_s    "Физ ед"  // То же, что и @munit_tr_sfx_s только для физических единиц измерения
-@qtty              "Количество"
-@qtty_short        "Кол"
-@packqtty          "Количество упаковок"
-@packqtty_s        "Упаковок"
-@plucount          "Количество позиций" // Количество товарных позиций (PLU)
-@linecount         "Количество строк"
+@buyer                  "Покупатель"
+@buyer_pl               "Покупатели"
+@manufacturer           "Производитель"
+@manufacturer_pl        "Производители"
+@payer                  "Плательщик"
+@orderer                "Заказчик"
+@agent                  "Агент"
+@agent_pl               "Агенты"
+@supplagent             "Агент поставщика"
+@executor               "Исполнитель"
+@transport              "Транспорт"
+@freightagent           "Транспортный брокер"
+@bank                   "Банк"
+@bank_pl                "Банки"
+@owner                  "Владелец"
+@scardowner             "Владелец карты"
+@user                   "Пользователь"
+@username               "Имя пользователя"
+@usergroup              "Группа пользователей"
+@userexclrights         "Исключения прав доступа"
+@director               "Директор"
+@chiefaccountant        "Главный бухгалтер"
+@cashier                "Кассир"
+@contact                "Контакт" // В смысле персоналия для контакта
+@agreement              "Соглашение"
+@person                 "Персоналия"
+@person_pl              "Персоналии"
+@natural_person         "Физическое лицо"
+@legal_person           "Юридическое лицо"
+@person_prmr            "Первичная персоналия"
+@person_scnd            "Вторичная персоналия"
+@org                    "Организация"
+@personnel              "Персонал" // В смысле сотрудники организации. Символ staff не применяем из-за его многозначности
+@mainorg                "Главная организация"
+@psnkind                "Вид персоналии"
+@psnkind_pl             "Виды персоналии"
+@address                "Адрес"
+@addrdbdiv              "Адрес раздела базы данных"
+@jaddress               "Юридический адрес"
+@paddress               "Фактический адрес"
+@daddress               "Адрес доставки"
+@daddress_pl            "Адреса доставки"
+@haddress               "Зависший адрес"
+@postzip                "Почтовый индекс"
+@inn                    "ИНН"
+@kpp                    "КПП"
+@bic                    "БИК"
+@card                   "Карта"
+@cardno                 "Номер карты"
+@scard                  "Персональная карта"
+@scard_pl               "Персональные карты"
+@discard                "Дисконтная карта"
+@crdcard                "Кредитная карта"
+@bonuscard              "Бонусная карта"
+@car                    "Автомобиль"
+@ship                   "Судно"
+@meas_volume            "Емкость" // Размерность
+@meas_alcostrength      "Крепость"
+@pixel                  "Пиксель"
+@munit_s                "Единица"
+@munit                  "Единица измерения"
+@munits                 "Единицы измерения"
+@munit_meter            "Метр"
+@munit_kilogram         "Килограмм"
+@munit_second           "Секунда"
+@munit_inch             "Дюйм"
+@munit_mm               "мм"
+@munit_kg               "кг"
+@munit_liter            "Литр"
+@munit_l                "л"
+@munit_pctvol           "%об"
+@munit_trade            "Торговая единица"
+@munit_ph               "Физическая единица"
+@munit_tr_sfx_s         "Торг ед" // Сокращенный суффикс для обозначения количества в торговых единицах. Например: где-то выше определено "Количество" и отдельная ячейка обозначается @munit_tr_sfx_s
+@munit_ph_sfx_s         "Физ ед"  // То же, что и @munit_tr_sfx_s только для физических единиц измерения
+@qtty                   "Количество"
+@qtty_short             "Кол"
+@packqtty               "Количество упаковок"
+@packqtty_s             "Упаковок"
+@plucount               "Количество позиций" // Количество товарных позиций (PLU)
+@linecount              "Количество строк"
 @totalqtty              "Всего единиц"
 @qttytrunit             "Количество торговых единиц"
 @qttyphunit             "Количество физических единиц"
@@ -5908,6 +5808,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @description            "Описание"
 @billno                 "Номер документа"
 @billdate               "Дата документа"
+@paymentterm            "Срок оплаты"
 @counter                "Счетчик"
 @filter                 "Фильтр"
 @directory              "Каталог"
@@ -6002,6 +5903,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @srcasesens             "Учитывать регистр"
 @srwholewords           "Слова целиком"
 
+@test                   "Тест"
 @length                 "Длина"
 @width                  "Ширина"
 @height                 "Высота"
@@ -6175,6 +6077,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @close                  "Закрыть"
 @closed_fem             "Закрыта"
+@closed_mas             "Закрыт"
+@closed_pl              "Закрытые"
 @strnfound              "Строка '%s' не найдена"
 //
 // Опции товарных ограничений на статью в документе.
@@ -7215,7 +7119,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @barcode_code                             "@{barcode}"
 @barcode_flags                            "@{flags}"
 @barcode_goods                            "@{ware}"
-@barcode_qtty                             "Емкость  упаковки"
+@barcode_qtty                             "@{unitperpack}"
 
 @comportparams                            "Параметры COM-порта"
 @comportparams_baudrate                   "Скорость COM-порта"
@@ -7522,6 +7426,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashnode_egaismode_use                   "Использовать"
 @cashnode_egaismode_dontuse               "@{dontuse}"
 @cashnode_egaismode_testmode              "@{testmode}"
+@cashnode_egaismode_scanmarkonly          "Только сканировать марку"
 @cashnode_async_exppaths                  "Пути экспорта"
 @cashnode_async_impfiles                  "Файлы импорта"
 @cashnode_async_lognumlist                "Логические номера касс"
@@ -7562,6 +7467,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cashnode_sync_slipfmtpath                "Файл описания SLIP-отчетов"
 @cashnode_sync_extstring                  ""
 @cashnode_sync_ctbllist                   "Список номеров столов"
+@cashnode_sync_exchangeurl                "URL обмена с сервером"
 @cashnode_scn_rptprnport                  "Порт принтера отчетов"
 @cashnode_scn_manufserial                 "Заводской номер фискального принтера"
 @cashnode_scn_cashdrawer                  "Денежный ящик" // generic
@@ -7757,7 +7663,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgclientdeal_client                     "@{client}"
 @cfgclientdeal_code                       "Номер соглашения"
 @cfgclientdeal_defagent                   "Агент по умолчанию"
-@cfgclientdeal_defpayperiod               "Срок оплаты (@{days})"
+@cfgclientdeal_defpayperiod               "@{paymentterm} (@{days})"
 @cfgclientdeal_defquotkind                "@{quotkind}"
 @cfgclientdeal_dscnt                      "@{discount} (%)"
 @cfgclientdeal_expiry                     "Дата истечения срока"
@@ -7944,6 +7850,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgequip_funifiedpaymentcfmbank          "Подтверждать безналичную оплату при унифицированном расчете"
 @cfgequip_fusequotasprice                 "Цены товаров по котировкам"
 @cfgequip_fvalidatechecksonsessclose      "Тестировать чеки при закрытии кассовой сессии"
+@cfgequip_fwroffpartstrucs                "Досписывать частичные структуры"
 @cfgequip_fwritetochkopjrnl               "Вести журнал чековых операций"
 @cfgequip_id                              "@{id}"
 @cfgequip_opondfctothrloc                 "Операция покрытия дефицита для чужого склада"
@@ -8170,7 +8077,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgsuppldeal_costquotkind                "Вид котировки контрактных цен"
 @cfgsuppldeal_defagent                    "Агент по умолчанию"
 @cfgsuppldeal_defdlvrterm                 "Срок доставки (@{days})"
-@cfgsuppldeal_defpayperiod                "Срок оплаты (@{days})"
+@cfgsuppldeal_defpayperiod                "@{paymentterm} (@{days})"
 @cfgsuppldeal_devdnquotkind               "Вид котировки нижней границы"
 @cfgsuppldeal_devupquotkind               "Вид котировки верхней границы"
 @cfgsuppldeal_expiry                      "Срок действия"
@@ -8890,7 +8797,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @locprinter_tag                           "@{tag}"
 
 @lot_bill                                 "ИД документа"
-@lot_closed                               "Закрыт"
+@lot_closed                               "@{closed_mas}"
 @lot_closedate                            "Дата закрытия"
 @lot_cost                                 "@{termcost}"
 @lot_dt                                   "@{date}"
@@ -10117,10 +10024,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @armassupdparam_warn                      "@{attention} Эта операция реализует необратимые действия над справочником статей. Подумайте дважды прежде, чем нажмете кнопку [OK]"
 @armassupdparam_action                    ""
 @armassupdparam_aupdateall                "Изменить параметры выборки"
-@armassupdparam_aremoveall                "Удалить всю выборку"
+@armassupdparam_aremoveall                "@{doremoveall}"
 @armassupdparam_flags                     ""
 @armassupdparam_fcreatagt                 "Создавать соглашение, если нет"
-@armassupdparam_payperiod                 "Срок оплаты, дней"
+@armassupdparam_payperiod                 "@{paymentterm}, @{days}"
 @armassupdparam_deliveryperiod            "Срок доставки, дней"
 
 @goodsmoveparam                           "Обработка выборки товаров"
@@ -10135,6 +10042,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsmoveparam_asplitbarcodeitems        "Разбить товары с множественными штрихкодами"
 @goodsmoveparam_amergedieznames           "Объединить товары с #-наименованиями"
 @goodsmoveparam_achgtaxgroup              "Изменить налоговую группу выборки"
+@goodsmoveparam_achggoodstype             "Изменить тип товаров выборки"
 @goodsmoveparam_flags                     "@{flags}"
 @goodsmoveparam_fremoveexttexta           "@{doremovetxtext} A"
 @goodsmoveparam_fremoveexttextb           "@{doremovetxtext} B"
@@ -10738,7 +10646,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @debttrovrfilt_ckshipments                "Отгрузка по периодам"
 @debttrovrfilt_ckpayments                 "Оплаты по периодам"
 @debttrovrfilt_extkind                    "Вид расширения"
-@debttrovrfilt_extexpiryterm              "Срок оплаты, дней"
+@debttrovrfilt_extexpiryterm              "@{paymentterm}, @{days}"
 @debttrovrfilt_extexpiryminpart           "Мин процент задолженности"
 @debttrovrfilt_ekexpirypart               "Доля просроченных долгов"
 @debttrovrfilt_ekturnover                 "Оборачиваемость дебиторской задолженности"
@@ -11653,6 +11561,11 @@ PPHS_BCS_MSI                   "msi"
 PPHS_BCS_PLESSEY               "plessey"
 PPHS_BCS_POSTNET               "postnet"
 PPHS_BCS_LOGMARS               "logmars"
+PPHS_ALCOPROOF                 "alcoproof"
+PPHS_VATRATE                   "vatrate"
+PPHS_SALESTAXRATE              "salestaxrate"
+PPHS_UNLIMITED                 "unlimited"
+PPHS_LOOKBACKPRICES            "lookbackprices"
 
 #!}
 

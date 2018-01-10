@@ -141,8 +141,7 @@ int X509_print_ex(BIO * bp, X509 * x, unsigned long nmflags, unsigned long cflag
 	if(!(cflag & X509_FLAG_NO_SUBJECT)) {
 		if(BIO_printf(bp, "        Subject:%c", mlch) <= 0)
 			goto err;
-		if(X509_NAME_print_ex
-			    (bp, X509_get_subject_name(x), nmindent, nmflags) < 0)
+		if(X509_NAME_print_ex(bp, X509_get_subject_name(x), nmindent, nmflags) < 0)
 			goto err;
 		if(BIO_write(bp, "\n", 1) <= 0)
 			goto err;

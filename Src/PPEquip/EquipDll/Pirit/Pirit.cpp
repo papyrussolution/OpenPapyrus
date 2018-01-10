@@ -878,7 +878,7 @@ int Release()
 
 SString & PiritEquip::LastErrorText(SString & rMsg)
 {
-	rMsg = 0;
+	rMsg.Z();
 	SString status_str, cmd_str;
 	char str[16];
 	memzero(str, sizeof(str));
@@ -1537,7 +1537,7 @@ int PiritEquip::GetWhile(SString & rOutData, SString & rError)
 	const  uint max_tries = 10;
 	int    ok = 1;
 	uint   count = 0;
-	rError = 0;
+	rError.Z();
 	//while(rError.Empty() && count < max_tries) {
 		if(GetData(rOutData, rError) < 0) {
 			rError = "00";
@@ -1572,8 +1572,8 @@ int PiritEquip::GetWhile(SString & rOutData, SString & rError)
 
 int PiritEquip::GetData(SString & rData, SString & rError)
 {
-	rData = 0;
-	rError = 0;
+	rData.Z();
+	rError.Z();
 	int    ok = 1;
 	int    c = 0;
 	//

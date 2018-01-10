@@ -314,6 +314,17 @@ uint SLAPI StringSet::getDelimLen() const
 	return Delim[0] ? strlen(Delim) : 1;
 }
 
+int FASTCALL StringSet::add(const StringSet & rS)
+{
+	int    ok = 1;
+	SString temp_buf;
+	for(uint ssp = 0; rS.get(&ssp, temp_buf);) {
+		THROW(add(temp_buf));
+	}
+	CATCHZOK
+	return ok;
+}
+
 int FASTCALL StringSet::add(const char * pStr)
 {
 	return add(pStr, 0);
@@ -543,20 +554,9 @@ uint SLAPI StringSet::getCount() const
 	return count;
 }
 
-char * SLAPI StringSet::getBuf() const
-{
-	return P_Buf;
-}
-
-size_t SLAPI StringSet::getDataLen() const
-{
-	return DataLen;
-}
-
-size_t SLAPI StringSet::getSize() const
-{
-	return Size;
-}
+char * SLAPI StringSet::getBuf() const { return P_Buf; }
+size_t SLAPI StringSet::getDataLen() const { return DataLen; }
+size_t SLAPI StringSet::getSize() const { return Size; }
 //
 //
 //

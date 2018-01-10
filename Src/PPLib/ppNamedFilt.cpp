@@ -431,7 +431,7 @@ int FiltItemDialog::ChangeBaseFilter()
 	PPBaseFilt * p_filt = 0;
 	PPView * p_view = 0;
 	PPID   view_id = getCtrlLong(CTLSEL_FILTITEM_CMD);
-	if(view_id && CmdSymbList.Search(view_id, 0)) {
+	if(view_id && CmdSymbList.Search(view_id)) {
 		sav_offs = Data.Param.GetRdOffs();
 		THROW(PPView::CreateInstance(view_id, &p_view) > 0);
 		{

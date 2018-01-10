@@ -276,7 +276,7 @@ IMPL_HANDLE_EVENT(TButton)
 					break;
 				case cmCommandSetChanged:
 					{
-						bool   is_enabled = (owner ? owner->commandEnabled(command) : commandEnabled(command)) ? true : false;
+						bool   is_enabled = (P_Owner ? P_Owner->commandEnabled(command) : commandEnabled(command)) ? true : false;
 						if((is_enabled && IsInState(sfDisabled)) || (!is_enabled && !IsInState(sfDisabled))) {
 							setState(sfDisabled, !is_enabled);
 							EnableWindow(getHandle(), !IsInState(sfDisabled));
@@ -298,7 +298,7 @@ int TButton::makeDefault(int enable, int sendMsg)
 {
 	if(sendMsg) {
 		if(!(flags & bfDefault))
-			TView::messageBroadcast(owner, enable ? cmGrabDefault : cmReleaseDefault, this);
+			TView::messageBroadcast(P_Owner, enable ? cmGrabDefault : cmReleaseDefault, this);
 		if(enable)
 			::SendMessage(Parent, DM_SETDEFID, (WPARAM)Id, 0);
 	}
@@ -334,9 +334,9 @@ void TButton::press(ushort item)
 		// @v9.5.5 TView::message(owner, (flags & bfBroadcast) ? evBroadcast : evCommand, command, this);
 		// @v9.5.5 {
 		if(flags & bfBroadcast)
-			TView::messageBroadcast(owner, command, this);
+			TView::messageBroadcast(P_Owner, command, this);
 		else
-			TView::messageCommand(owner, command, this);
+			MessageCommandToOwner(command);
 		// } @v9.5.5
 	}
 }
@@ -416,8 +416,7 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 			}
 			break;
 		case WM_LBUTTONDBLCLK:
-			if(p_view)
-				TView::messageCommand(p_view->owner, cmInputDblClk, p_view);
+			CALLPTRMEMB(p_view, MessageCommandToOwner(cmInputDblClk));
 			break;
 		case WM_MBUTTONDOWN:
 			if(p_view->GetCombo() || p_view->hasWordSelector()) {
@@ -673,19 +672,19 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			break;
 		case WM_VKEYTOITEM:
 			if(wParam == VK_DOWN) {
-				if(owner) {
+				if(P_Owner) {
 					TEvent t;
 					t.what = TEvent::evKeyDown;
 					t.keyDown.keyCode = kbDown;
-					owner->handleEvent(t);
+					P_Owner->handleEvent(t);
 				}
 				CALLPTRMEMB(combo, handleWindowsMessage(WM_COMMAND, 0, 0));
 			}
-			else if(oneof3(wParam, VK_UP, VK_PRIOR, VK_NEXT) && owner) {
+			else if(oneof3(wParam, VK_UP, VK_PRIOR, VK_NEXT) && P_Owner) {
 				TEvent t;
 				t.what = TEvent::evKeyDown;
 				t.keyDown.keyCode = (wParam == VK_UP) ? kbUp : ((wParam == VK_PRIOR) ? kbPgUp : kbPgDn);
-				owner->handleEvent(t);
+				P_Owner->handleEvent(t);
 			}
 			else if(wParam == VK_DELETE) {
 				if(combo)
@@ -700,7 +699,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return -2;
 		case WM_KEYUP:
 			Implement_GetText();
-			TView::messageCommand(owner, cmInputUpdatedByBtn, this);
+			MessageCommandToOwner(cmInputUpdatedByBtn);
 			return 0;
 		case WM_CHAR:
 			if(combo)
@@ -731,7 +730,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					if(Data.Len() == 0)
 						InlSt &= ~stPaste;
 				}
-				TView::messageCommand(owner, cmInputUpdated, this);
+				MessageCommandToOwner(cmInputUpdated);
 			}
 			break;
 	 }
@@ -758,26 +757,14 @@ TInputLine::TInputLine(const TRect & bounds, TYPEID typ, long fmt) : TView(bound
 	type     = typ;
 }
 
-TInputLine::~TInputLine()
-	{ RestoreOnDestruction(); }
-long TInputLine::getFormat() const
-	{ return format; }
-TYPEID TInputLine::getType() const
-	{ return type; }
-const char * TInputLine::getText()
-	{ return Data.cptr(); }
-size_t TInputLine::getMaxLen() const
-	{ return maxLen; }
+TInputLine::~TInputLine() { RestoreOnDestruction(); }
+const char * TInputLine::getText() { return Data.cptr(); }
+ComboBox * TInputLine::GetCombo() { return combo; }
 
 void TInputLine::setMaxLen(int newMaxLen)
 {
 	maxLen = newMaxLen;
 	SendDlgItemMessage(Parent, Id, EM_SETLIMITTEXT, (maxLen > 0) ? (maxLen-1) : 0, 0);
-}
-
-ComboBox * TInputLine::GetCombo()
-{
-	return combo;
 }
 
 void TInputLine::selectAll(int enable)
@@ -1051,16 +1038,16 @@ static BOOL CALLBACK ClusterDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 	return CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam);
 }
 
-TCluster::TCluster(const TRect & bounds, int aClusterKind, const StringSet & rStrings) : TView(bounds), Value(0), Sel(0)
+TCluster::TCluster(const TRect & bounds, int aClusterKind, const StringSet * pStrings) : TView(bounds), Value(0), Sel(0), Kind(aClusterKind), DisableMask(0)
 {
 	assert(oneof2(aClusterKind, RADIOBUTTONS, CHECKBOXES));
-	Kind = aClusterKind;
 	SubSign = TV_SUBSIGN_CLUSTER;
-	DisableMask = 0;
 	options |= (ofSelectable|ofPreProcess|ofPostProcess);
-	SString temp_buf;
-	for(uint i = 0; rStrings.get(&i, temp_buf);)
-		addItem(-1, temp_buf);
+	if(pStrings) {
+		SString temp_buf;
+		for(uint i = 0; pStrings->get(&i, temp_buf);)
+			addItem(-1, temp_buf);
+	}
 }
 
 TCluster::~TCluster()
@@ -1293,7 +1280,7 @@ void TCluster::press(ushort item)
 {
 	const short citem = BUTTON_ID(item)-1;
 	Value = (Kind == RADIOBUTTONS) ? citem : Value ^ (1 << citem);
-	TView::messageCommand(owner, cmClusterClk, this);
+	MessageCommandToOwner(cmClusterClk);
 }
 
 int TCluster::isEnabled(ushort item) const
@@ -1659,7 +1646,7 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_USER_COMBO_CLEAR:
 			if(Flags & cbxAllowEmpty) {
 				TransmitData(+1, 0);
-				TView::messageCommand(owner, cmCBSelected, this);
+				MessageCommandToOwner(cmCBSelected);
 			}
 			break;
 		case WM_USER_COMBO_ACTIVATEBYCHAR:
@@ -1692,7 +1679,7 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					TransmitData(+1, (v > 0) ? &v : 0);
 					State &= ~stExecSemaphore;
 					if(res == cmOK)
-						TView::messageCommand(owner, cmCBSelected, this);
+						MessageCommandToOwner(cmCBSelected);
 				}
 			}
 			break;
@@ -1846,7 +1833,7 @@ IMPL_HANDLE_EVENT(ComboBox)
 
 void ComboBox::selectItem(long)
 {
-	TView::messageCommand(owner, cmLBItemSelected, this);
+	MessageCommandToOwner(cmLBItemSelected);
 }
 
 void ComboBox::setRange(long aRange)
@@ -1918,8 +1905,7 @@ LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 				SendMessage(APPL->H_TopOfStack, uMsg, wParam, lParam);
 			break;
 		case WM_LBUTTONDBLCLK:
-			if(p_view)
-				TView::messageCommand(p_view->owner, cmImageDblClk, p_view);
+			CALLPTRMEMB(p_view, MessageCommandToOwner(cmImageDblClk));
 			break;
 		case WM_PAINT:
 			if(p_view && p_view->IsSubSign(TV_SUBSIGN_IMAGEVIEW)) {

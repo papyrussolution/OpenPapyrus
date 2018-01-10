@@ -100,7 +100,8 @@ public:
 							}
 							else {
 								int    local_pos_no = 0;
-								PPID   src_ar_id = 0;
+								//PPID   src_ar_id = 0;
+								PPPosProtocol::ResolveGoodsParam rgp;
 								SCardTbl::Rec sc_rec;
 								const PPPosProtocol::CSessionBlock * p_cb = (const PPPosProtocol::CSessionBlock *)p_ib->GetItem(_csidx, &type);
 								const uint rc = p_ib->RefList.getCount();
@@ -176,7 +177,7 @@ public:
 																	goods_id = p_gb->NativeID;
 																}
 																else {
-																	THROW(Pp.ResolveGoodsBlock(*p_gb, p_clb->GoodsBlkP, 1, 0, 0, src_ar_id, 0, &goods_id));
+																	THROW(Pp.ResolveGoodsBlock(*p_gb, p_clb->GoodsBlkP, 1, rgp, &goods_id));
 																}
 															}
 															SetupTempCcLineRec(0, cc_id, p_cb->Code, cc_dtm.d, div_n, goods_id);
@@ -561,6 +562,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 				{
 					// Товары
 					AsyncCashGoodsInfo acgi_item;
+					wb.P_Acgi = &acgi;
 					while(acgi.Next(&acgi_item) > 0) {
 						qlist.clear();
 						goods_obj.GetQuotList(acgi_item.ID, cn_data.LocID, qlist);
@@ -577,6 +579,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 						THROW(WriteGoodsInfo(wb, "ware", acgi_item, &qlist));
 						PPWaitPercent(acgi.GetIterCounter());
 					}
+					wb.P_Acgi = 0;
 				}
 			}
 			{
@@ -659,7 +662,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 //
 //
 //
-SLAPI PPPosProtocol::WriteBlock::WriteBlock() : P_Xw(0), P_Xd(0), P_Root(0), LocID(0)
+SLAPI PPPosProtocol::WriteBlock::WriteBlock() : P_Xw(0), P_Xd(0), P_Root(0), LocID(0), P_Acgi(0)
 {
 }
 
@@ -674,6 +677,7 @@ void PPPosProtocol::WriteBlock::Destroy()
 	ZDELETE(P_Xd);
 	xmlFreeTextWriter(P_Xw);
 	P_Xw = 0;
+	P_Acgi = 0;
 	UsedQkList.freeAll();
 }
 
@@ -698,20 +702,12 @@ int SLAPI PPPosProtocol::RouteBlock::IsEmpty() const
 int FASTCALL PPPosProtocol::RouteBlock::IsEqual(const RouteBlock & rS) const
 {
 	int    yes = 1;
-	if(!Uuid.IsZero()) {
-		if(!rS.Uuid.IsZero())
-			yes = (Uuid == rS.Uuid);
-		else
-			yes = 0;
-	}
+	if(!Uuid.IsZero())
+		yes = rS.Uuid.IsZero() ? 0 : (Uuid == rS.Uuid);
 	else if(!rS.Uuid.IsZero())
 		yes = 0;
-	else if(Code.NotEmpty()) {
-		if(rS.Code.NotEmpty())
-			yes = (Code == rS.Code);
-		else
-			yes = 0;
-	}
+	else if(Code.NotEmpty())
+		yes = rS.Code.NotEmpty() ? (Code == rS.Code) : 0;
 	else if(rS.Code.NotEmpty())
 		yes = 0;
 	return yes;
@@ -739,8 +735,10 @@ SLAPI PPPosProtocol::UnitBlock::UnitBlock() : ObjectBlock(), CodeP(0), SymbP(0),
 {
 }
 
-SLAPI PPPosProtocol::GoodsBlock::GoodsBlock() : 
-	ObjectBlock(), ParentBlkP(0), InnerId(0),  GoodsFlags(0), UnitBlkP(0),  PhUnitBlkP(0),  PhUPerU(0.0), Price(0.0), Rest(0.0)
+SLAPI PPPosProtocol::GoodsBlock::GoodsBlock() :
+	ObjectBlock(), ParentBlkP(0), InnerId(0),  GoodsFlags(0), SpecialFlags(0), UnitBlkP(0),
+	PhUnitBlkP(0),  PhUPerU(0.0), Price(0.0), Rest(0.0), AlcoProof(0), VatRate(0), SalesTaxRate(0),
+	TaxGrpID(0), GoodsTypeID(0)
 {
 }
 
@@ -773,7 +771,7 @@ SLAPI PPPosProtocol::CCheckBlock::CCheckBlock() : ObjectBlock(), Code(0), CcFlag
 {
 }
 
-SLAPI PPPosProtocol::CcLineBlock::CcLineBlock() : ObjectBlock(), CcID(0), RByCheck(0), CclFlags(0), DivN(0), Queue(0), GoodsBlkP(0), 
+SLAPI PPPosProtocol::CcLineBlock::CcLineBlock() : ObjectBlock(), CcID(0), RByCheck(0), CclFlags(0), DivN(0), Queue(0), GoodsBlkP(0),
 	Qtty(0.0), Price(0.0), Discount(0.0), SumDiscount(0.0), Amount(0.0), CCheckBlkP(0), SerialP(0), EgaisMarkP(0)
 {
 }
@@ -940,6 +938,11 @@ int SLAPI PPPosProtocol::ReadBlock::GetRouteItem(const RouteObjectBlock & rO, Ro
 	GetS(rO.SystemP, rR.System);
 	GetS(rO.VersionP, rR.Version);
 	return ok;
+}
+
+int SLAPI PPPosProtocol::ReadBlock::IsTagValueBoolTrue() const
+{
+	return (TagValue.Empty() || TagValue.CmpNC("true") == 0 || TagValue.CmpNC("yes") == 0 || TagValue == "1");
 }
 
 void * SLAPI PPPosProtocol::ReadBlock::GetItemWithTest(uint refPos, int type) const
@@ -1422,8 +1425,27 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 				}
 			}
 		}
+		if(rInfo.VatRate > 0.0) {
+			w_s.PutInner("vatrate", temp_buf.Z().Cat(rInfo.VatRate, MKSFMTD(0, 1, NMBF_NOTRAILZ)));
+		}
+		if(rInfo.GdsClsID && rB.P_Acgi) {
+			PrcssrAlcReport::GoodsItem agi;
+			const  int is_spirit = BIN(rB.P_Acgi->GetAlcoGoodsExtension(rInfo.ID, 0, agi) > 0);
+			if(is_spirit && agi.Proof > 0.0) {
+				w_s.PutInner("alcoproof", temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 1, NMBF_NOTRAILZ)));
+			}
+		}
+		if(rInfo.GoodsTypeID) {
+			PPGoodsType gt_rec;
+			if(GObj.FetchGoodsType(rInfo.GoodsTypeID, &gt_rec) > 0) {
+				if(gt_rec.Flags & GTF_UNLIMITED)
+					w_s.PutInner("unlimited", 0);
+				if(gt_rec.Flags & GTF_LOOKBACKPRICES)
+					w_s.PutInner("lookbackprices", 0);
+			}
+		}
 		if(rInfo.NoDis > 0) { // Значение <0 имеет специальный смысл
-			w_s.PutInner("nodiscount", "yes");
+			w_s.PutInner("nodiscount", 0);
 		}
 		if(rInfo.Price > 0.0)
 			w_s.PutInner("price", temp_buf.Z().Cat(rInfo.Price, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
@@ -1968,6 +1990,11 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_RATIO: // unit
 				case PPHS_DEFAULT: // unit
 				case PPHS_NODISCOUNT: // goods
+				case PPHS_ALCOPROOF:
+				case PPHS_VATRATE:
+				case PPHS_SALESTAXRATE:
+				case PPHS_UNLIMITED:
+				case PPHS_LOOKBACKPRICES:
 					break;
 			}
 		}
@@ -2410,8 +2437,43 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_NODISCOUNT:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obGoods) {
-					if(RdB.TagValue.Empty() || RdB.TagValue.CmpNC("true") == 0 || RdB.TagValue.CmpNC("yes") == 0 || RdB.TagValue == "1")
+					if(RdB.IsTagValueBoolTrue())
 						((GoodsBlock *)p_item)->GoodsFlags |= GF_NODISCOUNT;
+				}
+				break;
+			case PPHS_VATRATE:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obGoods) {
+					const double _value = RdB.TagValue.ToReal();
+					((GoodsBlock *)p_item)->VatRate = dbltoint2(_value);
+				}
+				break;
+			case PPHS_SALESTAXRATE:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obGoods) {
+					const double _value = RdB.TagValue.ToReal();
+					((GoodsBlock *)p_item)->SalesTaxRate = dbltoint2(_value);
+				}
+				break;
+			case PPHS_ALCOPROOF:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obGoods) {
+					const double _value = RdB.TagValue.ToReal();
+					((GoodsBlock *)p_item)->AlcoProof = dbltoint2(_value);
+				}
+				break;
+			case PPHS_UNLIMITED:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obGoods) {
+					if(RdB.IsTagValueBoolTrue())
+						((GoodsBlock *)p_item)->SpecialFlags |= GoodsBlock::spcfUnlim;
+				}
+				break;
+			case PPHS_LOOKBACKPRICES:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obGoods) {
+					if(RdB.IsTagValueBoolTrue())
+						((GoodsBlock *)p_item)->SpecialFlags |= GoodsBlock::spcfLookBackPrices;
 				}
 				break;
 			case PPHS_SERIAL:
@@ -2498,7 +2560,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_PHYSICAL:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obUnit) {
-					if(RdB.TagValue.Empty() || RdB.TagValue.CmpNC("true") == 0 || RdB.TagValue.CmpNC("yes") == 0 || RdB.TagValue == "1")
+					if(RdB.IsTagValueBoolTrue())
 						((UnitBlock *)p_item)->UnitFlags |= PPUnit::Physical;
 					else
 						((UnitBlock *)p_item)->UnitFlags &= ~PPUnit::Physical;
@@ -2507,7 +2569,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_DEFAULT:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obUnit) {
-					if(RdB.TagValue.Empty() || RdB.TagValue.CmpNC("true") == 0 || RdB.TagValue.CmpNC("yes") == 0 || RdB.TagValue == "1")
+					if(RdB.IsTagValueBoolTrue())
 						((UnitBlock *)p_item)->UnitFlags |= PPUnit::Default;
 					else
 						((UnitBlock *)p_item)->UnitFlags &= ~PPUnit::Default;
@@ -2850,7 +2912,23 @@ int SLAPI PPPosProtocol::CreateParentGoodsGroup(const ParentBlock & rBlk, int is
 	return ok;
 }
 
-int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int asRefOnly, PPID defParentID, PPID defUnitID, PPID srcArID, PPID locID, PPID * pNativeID)
+SLAPI PPPosProtocol::ResolveGoodsParam::ResolveGoodsParam() : DefParentID(0), DefUnitID(0), LocID(0), SrcArID(0), AlcGdsClsID(0), AlcProofDim(0)
+{
+}
+
+void SLAPI PPPosProtocol::ResolveGoodsParam::SetupGoodsPack(const GoodsBlock & rBlk, PPGoodsPacket & rPack) const
+{
+	SETFLAGBYSAMPLE(rPack.Rec.Flags, GF_NODISCOUNT, rBlk.GoodsFlags);
+	rPack.Rec.GoodsTypeID = rBlk.GoodsTypeID;
+	rPack.Rec.TaxGrpID = rBlk.TaxGrpID;
+	if(rBlk.AlcoProof > 0 && AlcGdsClsID && AlcProofDim) {
+		rPack.Rec.GdsClsID = AlcGdsClsID;
+		rPack.ExtRec.GoodsClsID = AlcGdsClsID;
+		GcPack.RealToExtDim(inttodbl2(rBlk.AlcoProof), PPGdsCls::eX, rPack.ExtRec);
+	}
+}
+
+int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int asRefOnly, const ResolveGoodsParam & rP, PPID * pNativeID)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -2920,13 +2998,13 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 		PPID   goods_by_ar_id = 0;
 		if(rBlk.ID > 0) {
 			temp_buf.Z().Cat(rBlk.ID);
-			if(GObj.P_Tbl->SearchByArCode(srcArID, temp_buf, 0, &ex_goods_rec) > 0) {
+			if(GObj.P_Tbl->SearchByArCode(rP.SrcArID, temp_buf, 0, &ex_goods_rec) > 0) {
 				goods_by_ar_id = ex_goods_rec.ID;
 			}
 			else {
 				ArGoodsCodeTbl::Rec new_ar_code;
 				MEMSZERO(new_ar_code);
-				new_ar_code.ArID = srcArID;
+				new_ar_code.ArID = rP.SrcArID;
 				new_ar_code.Pack = 1000; // =1
 				STRNSCPY(new_ar_code.Code, temp_buf);
 				THROW_SL(goods_pack.ArCodes.insert(&new_ar_code));
@@ -2963,7 +3041,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				if(GgObj.Fetch(parent_id, &parent_rec) > 0 && parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_FOLDER|GF_EXCLALTFOLD)))
 					goods_pack.Rec.ParentID = parent_id;
 				else
-					goods_pack.Rec.ParentID = defParentID;
+					goods_pack.Rec.ParentID = rP.DefParentID;
 			}
 		}
 		if(rBlk.UnitBlkP) {
@@ -3007,7 +3085,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				}
 			}
 		}
-		SETFLAGBYSAMPLE(goods_pack.Rec.Flags, GF_NODISCOUNT, rBlk.GoodsFlags);
+		rP.SetupGoodsPack(rBlk, goods_pack);
 		pretend_obj_list.sortAndUndup();
 		if(use_ar_code) {
 			if(goods_by_ar_id) {
@@ -3033,13 +3111,13 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				ex_goods_pack.Rec.UnitID = goods_pack.Rec.UnitID;
 				ex_goods_pack.Rec.PhUnitID = goods_pack.Rec.PhUnitID;
 				ex_goods_pack.Rec.PhUPerU = goods_pack.Rec.PhUPerU;
-				SETFLAGBYSAMPLE(ex_goods_pack.Rec.Flags, GF_NODISCOUNT, goods_pack.Rec.Flags);
+				rP.SetupGoodsPack(rBlk, ex_goods_pack);
 				THROW(GObj.PutPacket(&ex_goods_id, &ex_goods_pack, 1));
 				native_id = ex_goods_id;
 			}
 			else if(pretend_obj_list.getCount() == 0) {
 				PPID   new_goods_id = 0;
-				SETIFZ(goods_pack.Rec.UnitID, defUnitID);
+				SETIFZ(goods_pack.Rec.UnitID, rP.DefUnitID);
 				THROW(GObj.PutPacket(&new_goods_id, &goods_pack, 1));
 				native_id = new_goods_id;
 			}
@@ -3071,7 +3149,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				ex_goods_pack.Rec.UnitID = goods_pack.Rec.UnitID;
 				ex_goods_pack.Rec.PhUnitID = goods_pack.Rec.PhUnitID;
 				ex_goods_pack.Rec.PhUPerU = goods_pack.Rec.PhUPerU;
-				SETFLAGBYSAMPLE(ex_goods_pack.Rec.Flags, GF_NODISCOUNT, goods_pack.Rec.Flags);
+				rP.SetupGoodsPack(rBlk, ex_goods_pack);
 				THROW(GObj.PutPacket(&ex_goods_id, &ex_goods_pack, 1));
 				native_id = ex_goods_id;
 			}
@@ -3079,7 +3157,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 		else {
 			if(pretend_obj_list.getCount() == 0) {
 				PPID   new_goods_id = 0;
-				SETIFZ(goods_pack.Rec.UnitID, defUnitID);
+				SETIFZ(goods_pack.Rec.UnitID, rP.DefUnitID);
 				THROW(GObj.PutPacket(&new_goods_id, &goods_pack, 1));
 				native_id = new_goods_id;
 			}
@@ -3099,7 +3177,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				ex_goods_pack.Rec.UnitID = goods_pack.Rec.UnitID;
 				ex_goods_pack.Rec.PhUnitID = goods_pack.Rec.PhUnitID;
 				ex_goods_pack.Rec.PhUPerU = goods_pack.Rec.PhUPerU;
-				SETFLAGBYSAMPLE(ex_goods_pack.Rec.Flags, GF_NODISCOUNT, goods_pack.Rec.Flags);
+				rP.SetupGoodsPack(rBlk, ex_goods_pack);
 				THROW(GObj.PutPacket(&ex_goods_id, &ex_goods_pack, 1));
 				native_id = ex_goods_id;
 			}
@@ -3138,7 +3216,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				}
 				THROW(GObj.PutQuotList(native_id, &quot_list, 1));
 			}
-			if(locID) {
+			if(rP.LocID) {
 				//
 				// Акцепт лотов
 				//
@@ -3162,7 +3240,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 							lot_rec.Flags |= LOTF_CLOSED;
 						}
 						lot_rec.Flags |= LOTF_SURROGATE;
-						lot_rec.LocID = locID;
+						lot_rec.LocID = rP.LocID;
 						THROW_SL(lot_list.insert(&lot_rec));
                         if(RdB.GetS(r_blk.SerailP, temp_buf) && temp_buf.NotEmptyS()) {
                             serial_list.Add((long)lot_list.getCount(), temp_buf);
@@ -3181,7 +3259,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 						lot_rec.Flags |= LOTF_CLOSED;
 					}
 					lot_rec.Flags |= LOTF_SURROGATE;
-					lot_rec.LocID = locID;
+					lot_rec.LocID = rP.LocID;
 					THROW_SL(lot_list.insert(&lot_rec));
 				}
 				{
@@ -3243,10 +3321,8 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 {
 	int    ok = 1;
-	PPID   loc_id = 0;
 	uint   qpb_list_idx = 0;
 	SString fmt_buf, msg_buf;
-	PPID   src_ar_id = 0; // Статья аналитического учета, соответствующая источнику данных
 	SString temp_buf;
 	SString code_buf;
 	SString name_buf;
@@ -3257,18 +3333,20 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 	PPObjUnit u_obj;
 	PPObjSCardSeries scs_obj;
 	PPObjPersonKind pk_obj;
-
-	PPID   def_unit_id = GObj.GetConfig().DefUnitID;
-	PPID   def_parent_id = GObj.GetConfig().DefGroupID;
+	ResolveGoodsParam rgp;
+	rgp.DefUnitID = GObj.GetConfig().DefUnitID;
+	rgp.DefParentID = GObj.GetConfig().DefGroupID;
+	//PPID   loc_id = 0;
+	//PPID   src_ar_id = 0; // Статья аналитического учета, соответствующая источнику данных
+	//PPID   def_unit_id = GObj.GetConfig().DefUnitID;
+	//PPID   def_parent_id = GObj.GetConfig().DefGroupID;
 	SString def_unit_name;
-
 	if(!silent)
 		PPWait(1);
 	if(posNodeID) {
 		PPCashNode cn_rec;
-		if(CnObj.Search(posNodeID, &cn_rec) > 0) {
-			loc_id = cn_rec.LocID;
-		}
+		if(CnObj.Search(posNodeID, &cn_rec) > 0)
+			rgp.LocID = cn_rec.LocID;
 	}
 	{
 		//
@@ -3357,16 +3435,16 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 	{
 		PPUnit u_rec;
 		LAssocArray unit_foreign_to_native_assoc;
-		if(def_unit_id && u_obj.Search(def_unit_id, &u_rec) > 0) {
+		if(rgp.DefUnitID && u_obj.Search(rgp.DefUnitID, &u_rec) > 0) {
 			; // @ok
 		}
 		else {
 			long   def_counter = 0;
-			def_unit_id = 0;
+			rgp.DefUnitID = 0;
 			def_unit_name = "default";
-			while(!def_parent_id && u_obj.SearchByName(def_unit_name, 0, &u_rec) > 0) {
+			while(!rgp.DefUnitID && u_obj.SearchByName(def_unit_name, 0, &u_rec) > 0) {
 				if(u_rec.Flags & PPUnit::Trade) {
-					def_unit_id = u_rec.ID;
+					rgp.DefUnitID = u_rec.ID;
 				}
 				else
 					(def_unit_name = "default").CatChar('-').CatLongZ(++def_counter, 3);
@@ -3425,7 +3503,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 						}
 						r_blk.NativeID = native_id;
 						if(is_default)
-							def_unit_id = native_id;
+							rgp.DefUnitID = native_id;
 						if(r_blk.NativeID && r_blk.ID) {
 							unit_foreign_to_native_assoc.Add(r_blk.ID, r_blk.NativeID);
 						}
@@ -3517,52 +3595,206 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 		PPQuotArray quot_list;
 		Goods2Tbl::Rec parent_rec;
 		SString def_parent_name;
-		if(def_parent_id && GgObj.Search(def_parent_id, &parent_rec) > 0 && parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER))) {
+		if(rgp.DefParentID && GgObj.Search(rgp.DefParentID, &parent_rec) > 0 && parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER))) {
 			; // @ok
 		}
 		else {
 			long   def_counter = 0;
-			def_parent_id = 0;
+			rgp.DefParentID = 0;
 			def_parent_name = "default";
-			while(!def_parent_id && GgObj.SearchByName(def_parent_name, 0, &parent_rec) > 0) {
+			while(!rgp.DefParentID && GgObj.SearchByName(def_parent_name, 0, &parent_rec) > 0) {
 				if(parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER))) {
-					def_parent_id = parent_rec.ID;
+					rgp.DefParentID = parent_rec.ID;
 				}
 				else
 					(def_parent_name = "default").CatChar('-').CatLongZ(++def_counter, 3);
 			}
 		}
-		if(!def_parent_id || def_parent_id != GObj.GetConfig().DefGroupID || !def_unit_id || def_unit_id != GObj.GetConfig().DefUnitID) {
+		if(!rgp.DefParentID || rgp.DefParentID != GObj.GetConfig().DefGroupID || !rgp.DefUnitID || rgp.DefUnitID != GObj.GetConfig().DefUnitID) {
 			PPTransaction tra(1);
 			THROW(tra);
-			if(!def_parent_id) {
-				THROW(GgObj.AddSimple(&def_parent_id, gpkndOrdinaryGroup, 0, def_parent_name, 0, 0, 0));
+			if(!rgp.DefParentID) {
+				THROW(GgObj.AddSimple(&rgp.DefParentID, gpkndOrdinaryGroup, 0, def_parent_name, 0, 0, 0));
 			}
-			if(!def_unit_id) {
-				THROW(u_obj.AddSimple(&def_unit_id, def_unit_name, PPUnit::Trade, 0));
+			if(!rgp.DefUnitID) {
+				THROW(u_obj.AddSimple(&rgp.DefUnitID, def_unit_name, PPUnit::Trade, 0));
 			}
-			if(def_parent_id != GObj.GetConfig().DefGroupID || def_unit_id != GObj.GetConfig().DefUnitID) {
+			if(rgp.DefParentID != GObj.GetConfig().DefGroupID || rgp.DefUnitID != GObj.GetConfig().DefUnitID) {
 				PPGoodsConfig new_cfg;
 				GObj.ReadConfig(&new_cfg);
-				new_cfg.DefGroupID = def_parent_id;
-				new_cfg.DefUnitID = def_unit_id;
+				new_cfg.DefGroupID = rgp.DefParentID;
+				new_cfg.DefUnitID = rgp.DefUnitID;
 				THROW(GObj.WriteConfig(&new_cfg, 0, 0));
 			}
 			THROW(tra.Commit());
 		}
-		assert(def_parent_id > 0);
-		assert(def_unit_id > 0);
+		assert(rgp.DefParentID > 0);
+		assert(rgp.DefUnitID > 0);
 		{
 			PPLoadText(PPTXT_IMPGOODS, wait_msg_buf);
 			const uint __count = RdB.GoodsBlkList.getCount();
-			for(uint i = 0; i < __count; i++) {
-				GoodsBlock & r_blk = RdB.GoodsBlkList.at(i);
-				uint   ref_pos = 0;
-				PPID   native_id = 0;
-				THROW_PP(RdB.SearchRef(obGoods, i, &ref_pos), PPERR_PPPP_INNERREFNF_G);
-				THROW(ResolveGoodsBlock(r_blk, ref_pos, 0, def_parent_id, def_unit_id, src_ar_id, loc_id, &native_id));
-				r_blk.NativeID = native_id;
-				PPWaitPercent(i+1, __count, wait_msg_buf);
+			int   is_there_alc = 0; // Если обнаружена ненулевая алкогольная крепость в каком-либо товаре, то !0
+			struct SurrGoodsTypeEntry {
+				SurrGoodsTypeEntry(long flags) : NativeID(0), Flags(flags)
+				{
+				}
+				long  NativeID;
+				long  Flags;
+			};
+			struct SurrTaxRateEntry {
+				SurrTaxRateEntry(long vatRate, long stRate) : NativeID(0), VatRate(vatRate), SalesTaxRate(stRate)
+				{
+				}
+				long   NativeID;
+				long   VatRate;      // @fixedpoint2 
+				long   SalesTaxRate; // @fixedpoint2
+			};
+			SVector gt_list(sizeof(SurrGoodsTypeEntry)); // Список обнаруженных комбинаций флагов, относящихся к типам товаров
+			SVector tax_rate_list(sizeof(SurrTaxRateEntry));
+			{
+				//
+				// Предварительный промотр списка товаров с целью идентификации
+				// необходимых типов и классов товаров, а так же налоговых групп,
+				// которые придется найти или создать.
+				//
+				for(uint i = 0; i < __count; i++) {
+					GoodsBlock & r_blk = RdB.GoodsBlkList.at(i);
+					//uint   ref_pos = 0;
+					//THROW_PP(RdB.SearchRef(obGoods, i, &ref_pos), PPERR_PPPP_INNERREFNF_G);
+					if(r_blk.AlcoProof > 0) {
+						is_there_alc = 1;
+					}
+					if(r_blk.SpecialFlags & (r_blk.spcfLookBackPrices|r_blk.spcfUnlim)) {
+						long gt_flags = 0;
+						if(r_blk.SpecialFlags & r_blk.spcfLookBackPrices)
+							gt_flags |= GTF_LOOKBACKPRICES;
+						if(r_blk.SpecialFlags & r_blk.spcfUnlim)
+							gt_flags |= GTF_UNLIMITED;
+						int    is_gt_found = 0;
+						for(uint j = 0; !is_gt_found && j < gt_list.getCount(); j++) {
+							const SurrGoodsTypeEntry * p_entry = (const SurrGoodsTypeEntry *)gt_list.at(j);
+							if(p_entry->Flags == gt_flags) {
+								r_blk.GoodsTypeID = j+1;
+								is_gt_found = 1;
+							}
+						}
+						if(!is_gt_found) {
+							SurrGoodsTypeEntry new_entry(gt_flags);
+							gt_list.insert(&new_entry);
+							r_blk.GoodsTypeID = gt_list.getCount();
+						}
+					}
+					if(r_blk.VatRate > 0 || r_blk.SalesTaxRate > 0) {
+						int    is_tg_found = 0;
+						for(uint j = 0; !is_tg_found && j < tax_rate_list.getCount(); j++) {
+							const SurrTaxRateEntry * p_entry = (const SurrTaxRateEntry *)tax_rate_list.at(j);
+							if(p_entry->VatRate == r_blk.VatRate && p_entry->SalesTaxRate == r_blk.SalesTaxRate) {
+								r_blk.TaxGrpID = j+1;
+								is_tg_found = 1;
+							}
+						}
+						if(!is_tg_found) {
+							SurrTaxRateEntry new_entry(r_blk.VatRate, r_blk.SalesTaxRate);
+							tax_rate_list.insert(&new_entry);
+							r_blk.TaxGrpID = tax_rate_list.getCount();
+						}
+					}
+					PPWaitPercent(i+1, __count, wait_msg_buf);
+				}
+			}
+			if(is_there_alc) {
+				THROW(PrcssrAlcReport::AutoConfigure(0));
+				{
+					PrcssrAlcReport::Config alccfg;
+					THROW(PrcssrAlcReport::ReadConfig(&alccfg) > 0);
+					{
+						PPObjGoodsClass gc_obj;
+						PPGdsClsPacket gc_pack;
+						THROW_PP(alccfg.E.AlcGoodsClsID && gc_obj.Fetch(alccfg.E.AlcGoodsClsID, &gc_pack) > 0, PPERR_ALCRCFG_INVALCGOODSCLS);
+						THROW_PP(oneof4(alccfg.E.ProofClsDim, PPGdsCls::eX, PPGdsCls::eY, PPGdsCls::eZ, PPGdsCls::eW), PPERR_ALCRCFG_INVPROOFDIM);
+						rgp.AlcGdsClsID = alccfg.E.AlcGoodsClsID;
+						rgp.AlcProofDim = alccfg.E.ProofClsDim;
+						rgp.GcPack = gc_pack;
+					}
+				}
+			}
+			if(tax_rate_list.getCount()) {
+				PPObjGoodsTax gt_obj;
+				for(uint j = 0; j < tax_rate_list.getCount(); j++) {
+					SurrTaxRateEntry * p_entry = (SurrTaxRateEntry *)tax_rate_list.at(j);
+					PPID   gt_id = 0;
+					if(gt_obj.GetByScheme(&gt_id, inttodbl2(p_entry->VatRate), 0.0, inttodbl2(p_entry->SalesTaxRate), 0/*flags*/, 1/*use_ta*/)) {
+						p_entry->NativeID = gt_id;
+					}
+				}
+			}
+			if(gt_list.getCount()) {
+				PPObjGoodsType gty_obj;
+				PPGoodsType gty_rec;
+				for(SEnum en = gty_obj.Enum(0); en.Next(&gty_rec) > 0;) {
+					for(uint j = 0; j < gt_list.getCount(); j++) {
+						SurrGoodsTypeEntry * p_entry = (SurrGoodsTypeEntry *)gt_list.at(j);
+						if(!p_entry->NativeID) {
+							if((p_entry->Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED)) == (gty_rec.Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED))) {
+								p_entry->NativeID = gty_rec.ID;
+							}
+						}
+					}
+				}
+				{
+					const char * p_gty_name_prefix = "Surrogate Type";
+					const char * p_gty_code_prefix = "SURRTYP";
+					for(uint j = 0; j < gt_list.getCount(); j++) {
+						SurrGoodsTypeEntry * p_entry = (SurrGoodsTypeEntry *)gt_list.at(j);
+						if(!p_entry->NativeID) {
+							long   sfx_val = 0;
+							name_buf = p_gty_name_prefix;
+							while(gty_obj.SearchByName(name_buf, 0, 0) > 0) {
+								(name_buf = p_gty_name_prefix).Space().CatChar('#').CatLongZ(++sfx_val, 2);
+							}
+							sfx_val = 0;
+							code_buf = p_gty_code_prefix;
+							while(gty_obj.SearchBySymb(code_buf, 0, 0) > 0) {
+								(code_buf = p_gty_code_prefix).Space().CatChar('#').CatLongZ(++sfx_val, 2);
+							}
+							MEMSZERO(gty_rec);
+							STRNSCPY(gty_rec.Name, name_buf);
+							STRNSCPY(gty_rec.Symb, code_buf);
+							gty_rec.Flags |= p_entry->Flags;
+							THROW(PPRef->AddItem(PPOBJ_GOODSTYPE, &p_entry->NativeID, &gty_rec, 1));
+						}
+					}
+				}
+			}
+			{
+				//
+				// Здесь мы расставляем разрешенные реальные идентификаторы налоговых групп и типов товаров
+				// в соответствующие товарные ячейки.
+				//
+				for(uint i = 0; i < __count; i++) {
+					GoodsBlock & r_blk = RdB.GoodsBlkList.at(i);
+					const uint gty_idx = r_blk.GoodsTypeID;
+					if(gty_idx) {
+						assert(gty_idx > 0 && gty_idx <= gt_list.getCount());
+						r_blk.GoodsTypeID = ((const SurrGoodsTypeEntry *)gt_list.at(gty_idx-1))->NativeID;
+					}
+					const uint tax_idx = r_blk.TaxGrpID;
+					if(tax_idx) {
+						assert(tax_idx > 0 && tax_idx <= tax_rate_list.getCount());
+						r_blk.TaxGrpID = ((const SurrTaxRateEntry *)tax_rate_list.at(tax_idx-1))->NativeID;
+					}
+				}
+			}
+			{
+				for(uint i = 0; i < __count; i++) {
+					GoodsBlock & r_blk = RdB.GoodsBlkList.at(i);
+					uint   ref_pos = 0;
+					PPID   native_id = 0;
+					THROW_PP(RdB.SearchRef(obGoods, i, &ref_pos), PPERR_PPPP_INNERREFNF_G);
+					THROW(ResolveGoodsBlock(r_blk, ref_pos, 0, rgp/*def_parent_id, def_unit_id, src_ar_id, loc_id*/, &native_id));
+					r_blk.NativeID = native_id;
+					PPWaitPercent(i+1, __count, wait_msg_buf);
+				}
 			}
 		}
 	}

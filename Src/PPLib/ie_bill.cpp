@@ -206,11 +206,10 @@ int PPBillImpExpParam::PreprocessImportFileName(const SString & rFileName, StrAs
 {
 	rResultList.Clear();
 	int    ok = 1;
-	SString templ, name;
 	SPathStruc ps(FileName);
-	templ = ps.Nam;
+	SString templ = ps.Nam;
 	ps.Split(rFileName);
-	name = ps.Nam;
+	SString name = ps.Nam;
 	StrAssocArray result_list;
 	ok = PPObjBill::ParseText(name, templ, rResultList, 0);
 	return ok;
@@ -267,18 +266,10 @@ int PPBillImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & r
 							ImpOpID = op_rec.ID;
 					}
 					break;
-				case IMPEXPPARAM_BILH_FLAGS:
-					Flags = temp_buf.ToLong();
-					break;
-				case IMPEXPPARAM_BILH_SRCHCODE1:
-					Object1SrchCode = temp_buf;
-					break;
-				case IMPEXPPARAM_BILH_SRCHCODE2:
-					Object2SrchCode = temp_buf;
-					break;
-				case IMPEXPPARAM_BILH_PREDEFFMT: // @v9.7.8
-					PredefFormat = temp_buf.ToLong();
-					break;
+				case IMPEXPPARAM_BILH_FLAGS: Flags = temp_buf.ToLong(); break;
+				case IMPEXPPARAM_BILH_SRCHCODE1: Object1SrchCode = temp_buf; break;
+				case IMPEXPPARAM_BILH_SRCHCODE2: Object2SrchCode = temp_buf; break;
+				case IMPEXPPARAM_BILH_PREDEFFMT: PredefFormat = temp_buf.ToLong(); break; // @v9.7.8
 			}
 		}
 	}
@@ -308,7 +299,6 @@ int PPBillImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 		else
 			param_val = 0;
 		pFile->AppendParam(pSect, fld_name, param_val, 1);
-
 		PPGetSubStr(params, IMPEXPPARAM_BILH_SRCHCODE1, fld_name);
 		pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(Object1SrchCode), 1);
 		PPGetSubStr(params, IMPEXPPARAM_BILH_SRCHCODE2, fld_name);
@@ -3154,9 +3144,8 @@ int SLAPI PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * p
 				if(acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
 					PPObjPersonKind pk_obj;
 					PPPersonKind pk_rec;
-					if(pk_obj.Fetch(acs_rec.ObjGroup, &pk_rec) > 0 && pk_rec.CodeRegTypeID) {
+					if(pk_obj.Fetch(acs_rec.ObjGroup, &pk_rec) > 0 && pk_rec.CodeRegTypeID)
 						ArObj.SearchByRegCode(acs_id, pk_rec.CodeRegTypeID, pBill->RegistryCode, &ar_id, 0);
-					}
 				}
 			}
 			if(!ar_id) {
@@ -3526,9 +3515,8 @@ int SignBillDialog::DrawList()
 	int    ok = 1;
 	StrAssocArray names_arr, files_arr;
 	SString signer_name, file_name;
-	SmartListBox * p_list = 0;
 	{
-		p_list = (SmartListBox*)getCtrlView(CTL_SIGNBILL_SIGNER);
+		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_SIGNBILL_SIGNER);
 		if(p_list) {
 			THROW(Eds.GetSignerNamesInStore(names_arr));
 			if(p_list) {
@@ -3541,7 +3529,7 @@ int SignBillDialog::DrawList()
 		}
 	}
 	{
-		p_list = (SmartListBox*)getCtrlView(CTL_SIGNBILL_SIGNFILE);
+		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_SIGNBILL_SIGNFILE);
 		if(p_list) {
 			THROW(Eds.GetSignFilesForDoc(FileName, files_arr));
 			if(p_list) {
@@ -3893,12 +3881,10 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 				//
 				// Запишем номер ТТН
 				//
-				if(ttn_tag_value.NotEmpty()) {
+				if(ttn_tag_value.NotEmpty())
 					STRNSCPY(brow.TTN, ttn_tag_value);
-				}
-				else if(!isempty(bill.Memo)) {
+				else if(!isempty(bill.Memo))
 					STRNSCPY(brow.TTN, bill.Memo);
-				}
 				//
 				// Запишем ГТД
 				//
@@ -3988,10 +3974,10 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 			}
 			brow.Expiry = p_ti->Expiry;
 			// @v9.8.11 pPack->SnL.GetNumber(i-1, &temp_buf);
-			pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, temp_buf); // @v9.8.11 
+			pPack->LTagL.GetNumber(PPTAG_LOT_SN, i-1, temp_buf); // @v9.8.11
 			STRNSCPY(brow.Serial, temp_buf);
 			// @v9.8.11 pPack->ClbL.GetNumber(i-1, &temp_buf);
-			pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, temp_buf); // @v9.8.11 
+			pPack->LTagL.GetNumber(PPTAG_LOT_CLB, i-1, temp_buf); // @v9.8.11
 			STRNSCPY(brow.CLB, temp_buf);
 			if(p_ti->QCert) {
 				QualityCertTbl::Rec qc_rec;
@@ -4066,12 +4052,7 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 			P_IEBRow->Pop();
 	}
 	CATCHZOK
-	if(P_IEBill) {
-		//
-		// Необходимо обнулить контекст выражений, так как мы передали объект со стека.
-		//
-		P_IEBill->SetExprContext(0);
-	}
+	CALLPTRMEMB(P_IEBill, SetExprContext(0)); // Необходимо обнулить контекст выражений, так как мы передали объект со стека.
 	return ok;
 }
 
@@ -4269,9 +4250,8 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 			//
 			S_GUID guid;
 			guid.SetZero();
-			if(P_BObj->GetGuid((temp_buf = pBill->ID).ToLong(), &guid) > 0) {
+			if(P_BObj->GetGuid((temp_buf = pBill->ID).ToLong(), &guid) > 0)
 				STRNSCPY(pBill->GUID, guid.ToStr(S_GUID::fmtIDL, temp_buf));
-			}
 		}
 		//
 		// Запишем номер и дату регистра контрагента
@@ -4296,7 +4276,7 @@ int SLAPI PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * p
 int SLAPI PPBillExporter::GetReg(PPID arID, PPID regTypeID, SString & rRegNum)
 {
 	int    ok = -1;
-	rRegNum = 0;
+	rRegNum.Z();
 	if(arID && regTypeID) {
 		RegisterTbl::Rec reg_rec;
 		if(PsnObj.GetRegister(ObjectToPerson(arID), regTypeID, &reg_rec) > 0) {

@@ -51,7 +51,7 @@ int DbLoginBlock::GetAttr(int attr, SString & rVal) const
 {
 	int    ok = -1;
 	long   offs = 0;
-	rVal = 0;
+	rVal.Z();
 	if(Items.Search(attr, &offs, 0)) {
 		const void * p_val_buf = (P_Buf+offs+sizeof(uint32));
 		uint32 len = *(uint32 *)(P_Buf+offs);

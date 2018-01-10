@@ -318,117 +318,116 @@ void _cairo_output_stream_vprintf(cairo_output_stream_t * stream, const char * f
 #define SINGLE_FMT_BUFFER_SIZE 32
 	char buffer[512], single_fmt[SINGLE_FMT_BUFFER_SIZE];
 	int single_fmt_length;
-	char * p;
-	const char * f, * start;
+	const char * start;
 	int length_modifier, width;
 	cairo_bool_t var_width;
-	if(stream->status)
-		return;
-	f = fmt;
-	p = buffer;
-	while(*f != '\0') {
-		if(p == buffer + sizeof(buffer)) {
-			_cairo_output_stream_write(stream, buffer, sizeof(buffer));
-			p = buffer;
-		}
-		if(*f != '%') {
-			*p++ = *f++;
-			continue;
-		}
-		start = f;
-		f++;
-		if(*f == '0')
-			f++;
-		var_width = FALSE;
-		if(*f == '*') {
-			var_width = TRUE;
-			f++;
-		}
-		while(isdec(*f))
-			f++;
-		length_modifier = 0;
-		if(*f == 'l') {
-			length_modifier = LENGTH_MODIFIER_LONG;
-			f++;
-		}
-		/* The only format strings exist in the cairo implementation
-		 * itself. So there's an internal consistency problem if any
-		 * of them is larger than our format buffer size. */
-		single_fmt_length = f - start + 1;
-		assert(single_fmt_length + 1 <= SINGLE_FMT_BUFFER_SIZE);
-		// Reuse the format string for this conversion. 
-		memcpy(single_fmt, start, single_fmt_length);
-		single_fmt[single_fmt_length] = '\0';
-		// Flush contents of buffer before snprintf()'ing into it. 
-		_cairo_output_stream_write(stream, buffer, p - buffer);
-		// We group signed and unsigned together in this switch, the
-		// only thing that matters here is the size of the arguments,
-		// since we're just passing the data through to sprintf(). */
-		switch(*f | length_modifier) {
-			case '%':
-			    buffer[0] = *f;
-			    buffer[1] = 0;
-			    break;
-			case 'd':
-			case 'u':
-			case 'o':
-			case 'x':
-			case 'X':
-			    if(var_width) {
-				    width = va_arg(ap, int);
-				    snprintf(buffer, sizeof buffer,
-				    single_fmt, width, va_arg(ap, int));
-			    }
-			    else {
-				    snprintf(buffer, sizeof buffer, single_fmt, va_arg(ap, int));
-			    }
-			    break;
-			case 'd' | LENGTH_MODIFIER_LONG:
-			case 'u' | LENGTH_MODIFIER_LONG:
-			case 'o' | LENGTH_MODIFIER_LONG:
-			case 'x' | LENGTH_MODIFIER_LONG:
-			case 'X' | LENGTH_MODIFIER_LONG:
-			    if(var_width) {
-				    width = va_arg(ap, int);
-				    snprintf(buffer, sizeof buffer,
-				    single_fmt, width, va_arg(ap, long int));
-			    }
-			    else {
-				    snprintf(buffer, sizeof buffer,
-				    single_fmt, va_arg(ap, long int));
-			    }
-			    break;
-			/* @v1.14.12 case 's':
-			    snprintf(buffer, sizeof buffer, single_fmt, va_arg(ap, const char *));
-			    break;*/
-			// @v1.14.12 {
-			case 's': 
-				{
-					// Write out strings as they may be larger than the buffer. 
-					const char * s = va_arg(ap, const char *);
-					int len = strlen(s);
-					_cairo_output_stream_write(stream, s, len);
-					buffer[0] = 0;
+	if(stream->status == 0) {
+		const char * f = fmt;
+		char * p = buffer;
+		while(*f != '\0') {
+			if(p == buffer + sizeof(buffer)) {
+				_cairo_output_stream_write(stream, buffer, sizeof(buffer));
+				p = buffer;
+			}
+			if(*f != '%')
+				*p++ = *f++;
+			else {
+				start = f;
+				f++;
+				if(*f == '0')
+					f++;
+				var_width = FALSE;
+				if(*f == '*') {
+					var_width = TRUE;
+					f++;
 				}
-				break;
-			// } @v1.14.12 
-			case 'f':
-			    _cairo_dtostr(buffer, sizeof buffer, va_arg(ap, double), FALSE);
-			    break;
-			case 'g':
-			    _cairo_dtostr(buffer, sizeof buffer, va_arg(ap, double), TRUE);
-			    break;
-			case 'c':
-			    buffer[0] = va_arg(ap, int);
-			    buffer[1] = 0;
-			    break;
-			default:
-			    ASSERT_NOT_REACHED;
+				while(isdec(*f))
+					f++;
+				length_modifier = 0;
+				if(*f == 'l') {
+					length_modifier = LENGTH_MODIFIER_LONG;
+					f++;
+				}
+				// The only format strings exist in the cairo implementation
+				// itself. So there's an internal consistency problem if any
+				// of them is larger than our format buffer size. 
+				single_fmt_length = f - start + 1;
+				assert(single_fmt_length + 1 <= SINGLE_FMT_BUFFER_SIZE);
+				// Reuse the format string for this conversion. 
+				memcpy(single_fmt, start, single_fmt_length);
+				single_fmt[single_fmt_length] = '\0';
+				// Flush contents of buffer before snprintf()'ing into it. 
+				_cairo_output_stream_write(stream, buffer, p - buffer);
+				// We group signed and unsigned together in this switch, the
+				// only thing that matters here is the size of the arguments,
+				// since we're just passing the data through to sprintf(). */
+				switch(*f | length_modifier) {
+					case '%':
+						buffer[0] = *f;
+						buffer[1] = 0;
+						break;
+					case 'd':
+					case 'u':
+					case 'o':
+					case 'x':
+					case 'X':
+						if(var_width) {
+							width = va_arg(ap, int);
+							snprintf(buffer, sizeof buffer,
+							single_fmt, width, va_arg(ap, int));
+						}
+						else {
+							snprintf(buffer, sizeof buffer, single_fmt, va_arg(ap, int));
+						}
+						break;
+					case 'd' | LENGTH_MODIFIER_LONG:
+					case 'u' | LENGTH_MODIFIER_LONG:
+					case 'o' | LENGTH_MODIFIER_LONG:
+					case 'x' | LENGTH_MODIFIER_LONG:
+					case 'X' | LENGTH_MODIFIER_LONG:
+						if(var_width) {
+							width = va_arg(ap, int);
+							snprintf(buffer, sizeof buffer,
+							single_fmt, width, va_arg(ap, long int));
+						}
+						else {
+							snprintf(buffer, sizeof buffer,
+							single_fmt, va_arg(ap, long int));
+						}
+						break;
+					/* @v1.14.12 case 's':
+						snprintf(buffer, sizeof buffer, single_fmt, va_arg(ap, const char *));
+						break;*/
+					// @v1.14.12 {
+					case 's': 
+						{
+							// Write out strings as they may be larger than the buffer. 
+							const char * s = va_arg(ap, const char *);
+							int len = strlen(s);
+							_cairo_output_stream_write(stream, s, len);
+							buffer[0] = 0;
+						}
+						break;
+					// } @v1.14.12 
+					case 'f':
+						_cairo_dtostr(buffer, sizeof buffer, va_arg(ap, double), FALSE);
+						break;
+					case 'g':
+						_cairo_dtostr(buffer, sizeof buffer, va_arg(ap, double), TRUE);
+						break;
+					case 'c':
+						buffer[0] = va_arg(ap, int);
+						buffer[1] = 0;
+						break;
+					default:
+						ASSERT_NOT_REACHED;
+				}
+				p = buffer + strlen(buffer);
+				f++;
+			}
 		}
-		p = buffer + strlen(buffer);
-		f++;
+		_cairo_output_stream_write(stream, buffer, p - buffer);
 	}
-	_cairo_output_stream_write(stream, buffer, p - buffer);
 }
 
 void _cairo_output_stream_printf(cairo_output_stream_t * stream, const char * fmt, ...)
@@ -491,19 +490,14 @@ typedef struct _stdio_stream {
 static cairo_status_t stdio_write(cairo_output_stream_t * base, const uchar * data, uint length)
 {
 	stdio_stream_t * stream = (stdio_stream_t*)base;
-	if(fwrite(data, 1, length, stream->file) != length)
-		return _cairo_error(CAIRO_STATUS_WRITE_ERROR);
-	return CAIRO_STATUS_SUCCESS;
+	return (fwrite(data, 1, length, stream->file) != length) ? _cairo_error(CAIRO_STATUS_WRITE_ERROR) : CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t stdio_flush(cairo_output_stream_t * base)
 {
 	stdio_stream_t * stream = (stdio_stream_t*)base;
 	fflush(stream->file);
-	if(ferror(stream->file))
-		return _cairo_error(CAIRO_STATUS_WRITE_ERROR);
-	else
-		return CAIRO_STATUS_SUCCESS;
+	return ferror(stream->file) ? _cairo_error(CAIRO_STATUS_WRITE_ERROR) : CAIRO_STATUS_SUCCESS;
 }
 
 static cairo_status_t stdio_close(cairo_output_stream_t * base)

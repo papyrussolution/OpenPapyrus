@@ -917,17 +917,13 @@ static cairo_status_t _cairo_win32_printing_surface_path_close_path(void * closu
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _cairo_win32_printing_surface_emit_path(cairo_win32_printing_surface_t    * surface,
-    const cairo_path_fixed_t * path)
+static cairo_status_t _cairo_win32_printing_surface_emit_path(cairo_win32_printing_surface_t * surface, const cairo_path_fixed_t * path)
 {
 	win32_path_info_t path_info;
 	path_info.surface = surface;
-	return _cairo_path_fixed_interpret(path,
-	    _cairo_win32_printing_surface_path_move_to,
-	    _cairo_win32_printing_surface_path_line_to,
-	    _cairo_win32_printing_surface_path_curve_to,
-	    _cairo_win32_printing_surface_path_close_path,
-	    &path_info);
+	return _cairo_path_fixed_interpret(path, _cairo_win32_printing_surface_path_move_to,
+	    _cairo_win32_printing_surface_path_line_to, _cairo_win32_printing_surface_path_curve_to,
+	    _cairo_win32_printing_surface_path_close_path, &path_info);
 }
 
 static cairo_int_status_t _cairo_win32_printing_surface_show_page(void * abstract_surface)

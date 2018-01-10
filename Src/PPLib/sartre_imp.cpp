@@ -273,7 +273,7 @@ static int ReadAncodeDescrLine_Ru(const char * pLine, SString & rAncode, SrWordF
 static int ReadAncodeDescrLine_En(const char * pLine, SString & rAncode, SrWordForm & rForm)
 {
 	int    ok = 1;
-	rAncode = 0;
+	rAncode.Z();
 
 	SString line_buf;
 	const char * p = pLine;
@@ -1070,6 +1070,7 @@ public:
 		tokDot,             // .
 		tokComma,           // ,
 		tokSharp,           // #
+		tokSlash,           // / @v9.8.12
 		tokBracketsDescr,   // [abc]
 		tokConcept,         // :concept
 		tokSubclassOf,      // ::concept
@@ -1081,7 +1082,9 @@ public:
 		tokTypeReal,        // #real
 		tokTypeStr,         // #str
 		tokTypeHDate,       // #hdate
-		tokTypeHPeriod      // #hperiod
+		tokTypeHPeriod,     // #hperiod
+		tokEqAbbrev,        // @v9.8.12 =$ кг=$килограмм 
+		tokEqAbbrevDot,     // @v9.8.12 =. ул=.улица    ул или ул.
 	};
 
 	static int FASTCALL _IsWordbreakChar(int c);
@@ -1095,9 +1098,10 @@ public:
 	int    FASTCALL _IsTypeToken(int token) const;
 	int    FASTCALL _GetTypeByToken(int token) const;
 	int    FASTCALL _IsIdent(const char * pText) const;
-	LEXID  FASTCALL RecognizeWord(const char *);
-	NGID   FASTCALL RecognizeNGram(const LongArray & rWordList);
-	CONCEPTID FASTCALL RecognizeConcept(const char *);
+	//LEXID  FASTCALL RecognizeWord(const char *);
+	//NGID   FASTCALL RecognizeNGram(const LongArray & rWordList);
+	int    GetWordOrNgConstruct(int & rTok, SString & rWordBuf, SString & rW, StringSet & rNg);
+	//CONCEPTID FASTCALL RecognizeConcept(const char *);
 	int    PostprocessOpList(Operator * pRoot);
 	int    ApplyConceptPropList(const StrAssocArray & rTokList, CONCEPTID cid);
 
@@ -1158,7 +1162,7 @@ SrConceptParser::Operator & SrConceptParser::Operator::Clear()
 
 int SrConceptParser::Operator::IsEmpty() const
 {
-	return (!CID && !CLexID && !NgID && !LangID && !P_Child) ? 1 : 0;
+	return BIN(!CID && !CLexID && !NgID && !LangID && !P_Child);
 }
 
 int SrConceptParser::Operator::Close(int ifNeeded)
@@ -1251,7 +1255,7 @@ int SrConceptParser::_ReadLine()
 //static
 int FASTCALL SrConceptParser::_IsWordbreakChar(int c)
 {
-	const char * p_wb = " \t{}[]()<>,.;:!@#%^&*=+`~'?№/|\\";
+	static const char * p_wb = " \t{}[]()<>,.;:!@#%^&*=+`~'?№/|\\";
 	return (c == 0 || strchr(p_wb, c));
 }
 
@@ -1422,8 +1426,16 @@ int FASTCALL SrConceptParser::_GetToken(SString & rExtBuf)
 						}
 						break;
 					case '=':
-						if(Scan[1] == ':') {
+						if(Scan[1] == ':') { // =:
 							tok = tokEqColon;
+							Scan.Incr(2);
+						}
+						else if(Scan[1] == '$') { // =$
+							tok = tokEqAbbrev;
+							Scan.Incr(2);
+						}
+						else if(Scan[1] == '.') { // =.
+							tok = tokEqAbbrevDot;
 							Scan.Incr(2);
 						}
 						else {
@@ -1437,6 +1449,10 @@ int FASTCALL SrConceptParser::_GetToken(SString & rExtBuf)
 						break;
 					case ']':
 						tok = tokRBracket;
+						Scan.Incr();
+						break;
+					case '/':
+						tok = tokSlash;
 						Scan.Incr();
 						break;
 					default:
@@ -1635,12 +1651,45 @@ int SrConceptParser::ApplyConceptPropList(const StrAssocArray & rTokList, CONCEP
 	return ok;
 }
 
+int SrConceptParser::GetWordOrNgConstruct(int & rTok, SString & rWordBuf, SString & rW, StringSet & rNg)
+{
+	int    ok = -1;
+	if(rTok == tokWord) {
+		int    prev_tok = 0;
+		do {
+			rNg.add(rWordBuf);
+			if(prev_tok == tokSlash) {
+				rW.CatChar('/');
+			}
+			else if(prev_tok == tokDot) {
+				rW.Dot();
+			}
+			rW.Cat(rWordBuf);
+			//
+			prev_tok = rTok;
+			rTok = _GetToken(rWordBuf);
+			if(rTok == tokSpace) {
+				prev_tok = rTok;
+				rTok = _GetToken(rWordBuf);
+			}
+			else if(rTok == tokSlash) {
+				prev_tok = rTok;
+				rTok = _GetToken(rWordBuf);
+			}
+			else if(rTok == tokDot) {
+				prev_tok = rTok;
+				rTok = _GetToken(rWordBuf);
+			}
+		} while(rTok == tokWord);
+	}
+	return ok;
+}
+
 int SrConceptParser::Run(const char * pFileName)
 {
 	int    ok = 1;
 	int    finish = 0;
 	int    lang_id = 0;
-	//TSVector <SrWordAssoc> wa_list;
 	TSVector <SrWordInfo> word_info; // @v9.8.4 TSArray-->TSVector
 	SString temp_buf, ident_buf;
 	SString msg_buf;
@@ -1656,6 +1705,8 @@ int SrConceptParser::Run(const char * pFileName)
 			int    prev_tok = 0; // Токен, непосредственно предшествующий текущему
 			int    lbrace_count = 0;
 			LongArray ngram;
+			Int64Array _clist;
+			Int64Array _hlist;
 			do {
 				ngram.clear();
 				prev_tok = tok;
@@ -1744,20 +1795,27 @@ int SrConceptParser::Run(const char * pFileName)
 							}
 							else if(prev_tok == tokWord) {
 								if(p_current->NgID && !p_current->CID) {
-									Int64Array _clist;
+									_clist.clear();
+									int   _cisdone = 0; // Концепция уже является членом иерархии, в которую входит cid
 									if(R_Db.GetNgConceptList(p_current->NgID, R_Db.ngclAnonymOnly, _clist) > 0) {
 										assert(_clist.getCount());
+										for(uint ci = 0; !_cisdone && ci < _clist.getCount(); ci++) {
+											if(R_Db.GetConceptHier(_clist.get(ci), _hlist) > 0 && _hlist.lsearch(cid)) {
+												p_current->CID = _clist.get(0);
+												_cisdone = 1;
+											}
+										}
 										p_current->CID = _clist.get(0);
 									}
-									else {
+									if(!_cisdone) {
 										THROW(R_Db.CreateAnonymConcept(&p_current->CID));
 										THROW(R_Db.P_CNgT->Set(p_current->CID, p_current->NgID));
+										p_current->InstanceOf = cid;
 									}
-									p_current->InstanceOf = cid;
 								}
 							}
 							else if(prev_tok == tokRBrace) {
-								Int64Array _clist;
+								_clist.clear();
 								for(Operator * p_child = p_current->P_Child; p_child; p_child = p_child->P_Next) {
 									if(!p_child->InstanceOf) {
 										if(p_child->NgID && !p_child->CID) {
@@ -1785,12 +1843,39 @@ int SrConceptParser::Run(const char * pFileName)
 						break;
 					case tokSubclassOf:
 						{
+							CONCEPTID cid = 0;
 							THROW_PP(!p_current->IsClosed(), PPERR_SR_C_CLOSEDCUR_2CC);
 							THROW_PP(!p_current->SubclassOf, PPERR_SR_C_HASSUBCLS_2CC);
-							THROW(R_Db.ResolveConcept(temp_buf, &p_current->SubclassOf));
-							assert(p_current->SubclassOf);
-							p_current->Close(0);
-							THROW(p_current = p_current->CreateNext());
+							THROW(R_Db.ResolveConcept(temp_buf, &cid));
+							assert(cid);
+							if(prev_tok == tokConcept) {
+								p_current->SubclassOf = cid;
+							}
+							else if(prev_tok == tokWord) {
+								if(p_current->NgID && !p_current->CID) {
+									_clist.clear();
+									int   _cisdone = 0; // Концепция уже является членом иерархии, в которую входит cid
+									if(R_Db.GetNgConceptList(p_current->NgID, R_Db.ngclAnonymOnly, _clist) > 0) {
+										assert(_clist.getCount());
+										for(uint ci = 0; !_cisdone && ci < _clist.getCount(); ci++) {
+											if(R_Db.GetConceptHier(_clist.get(ci), _hlist) > 0 && _hlist.lsearch(cid)) {
+												p_current->CID = _clist.get(0);
+												_cisdone = 1;
+											}
+										}
+									}
+									if(!_cisdone) {
+										THROW(R_Db.CreateAnonymConcept(&p_current->CID));
+										THROW(R_Db.P_CNgT->Set(p_current->CID, p_current->NgID));
+										p_current->SubclassOf = cid;
+									}
+								}
+							}
+							else {
+								if(p_current->Close(1) > 0) {
+									THROW(p_current = p_current->CreateNext());
+								}
+							}
 						}
 						break;
 					case tokLPar:
@@ -2094,10 +2179,7 @@ public:
 	int    AddItem(Entry & rItem)
 	{
 		int    ok = 1;
-		InnerEntry int_item;
-		MEMSZERO(int_item);
-		int_item.Gender = rItem.Gender;
-		int_item.NameP = 0;
+		InnerEntry int_item(rItem.Gender);
 		AddS(rItem.Name, &int_item.NameP);
 		L.insert(&int_item);
 		return ok;
@@ -2108,6 +2190,9 @@ public:
 	}
 private:
 	struct InnerEntry { // @flat
+		InnerEntry(uint gender) : NameP(0), Gender(gender)
+		{
+		}
 		uint   NameP;
 		int    Gender;
 	};
@@ -2287,10 +2372,8 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 							if(ngram_id) {
 								CONCEPTID prop_subclass = rDb.GetReservedConcept(rDb.rcSubclass);
 								SrCPropDeclList pdl;
-
 								CONCEPTID cid = 0;
 								Int64Array _clist;
-
 								SrCPropList cpl;
 								SrCProp cp, cp_gender;
 								THROW(prop_subclass);
@@ -2662,7 +2745,7 @@ int SLAPI PrcssrSartre::TestSearchWords()
 		PPGetFilePath(PPPATH_OUT, "Sartr_TestSearchWords.txt", temp_buf);
 		SFile out_file(temp_buf, SFile::mWrite);
 		{
-			const char * p_words[] = {
+			static const char * p_words[] = {
 				"ЧАЙКА",
 				"СЕМЬЮ",
 				"ЁЖИК",
@@ -2751,7 +2834,7 @@ int PrcssrSartre::TestConcept()
 	SString line_buf, temp_buf, symb;
 	SrDatabase * p_db = DS.GetTLA().GetSrDatabase();
 	if(p_db) {
-		const char * p_words[] = {
+		static const char * p_words[] = {
 			"zoheret",
 			"адавье",
 			"сергей",
@@ -2777,6 +2860,8 @@ int PrcssrSartre::TestConcept()
 			"atom_p",
 			"центральная африка",
 			"ling_cs",
+			"планировочный район",
+			"железнодорожная казарма"
 		};
 		PPGetFilePath(PPPATH_OUT, "Sartr_TestConcept.txt", temp_buf);
 		SFile out_file(temp_buf, SFile::mWrite);
@@ -2791,7 +2876,6 @@ int PrcssrSartre::TestConcept()
 			for(uint sp = 0; !unkn_word && tok_list.get(&sp, temp_buf);) {
 				temp_buf.ToUtf8();
 				LEXID word_id = 0;
-				//if(db.SearchWord(temp_buf, &word_id) > 0)
 				if(p_db->FetchWord(temp_buf, &word_id) > 0)
 					ng.add(word_id);
 				else
@@ -3407,9 +3491,8 @@ int FASTCALL SrSyntaxRuleSet::ResolveRuleBlock::PopInnerState(int dontRestoreTex
 	return ok;
 }
 
-SLAPI SrSyntaxRuleSet::ExprItem::ExprItem()
+SLAPI SrSyntaxRuleSet::ExprItem::ExprItem(uint16 kind) : K(kind), ArgCount(0), Op(0), RSymb(0)
 {
-	THISZERO();
 }
 
 SLAPI SrSyntaxRuleSet::ExprStack::ExprStack() : TSStack <ExprItem>()
@@ -3437,7 +3520,7 @@ int SLAPI SrSyntaxRuleSet::ExprItemTextToStr(const ExprItem & rI, SString & rBuf
 	switch(rI.K) {
 		case kLiteral:
 			GetS(rI.SymbP, temp_buf);
-			rBuf.CatChar('\"').Cat(temp_buf).CatChar('\"');
+			rBuf.CatQStr(temp_buf);
 			break;
 		case kConcept:
 			GetS(rI.SymbP, temp_buf);
@@ -3618,8 +3701,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 		rScan.Incr();
 		THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_CONCEPTIDEXPECTED); // @err Ожидается идент концепции
 		{
-			ExprItem item;
-			item.K = kConcept;
+			ExprItem item(kConcept);
 			AddS(temp_buf, &item.SymbP);
 			stack_temp.push(item);
 		}
@@ -3636,8 +3718,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 		THROW_PP(rScan.Is(']'), PPERR_SR_S_RBRACKEXPECTED); // @err Ожидается ]
 		rScan.Incr();
 		{
-			ExprItem item;
-			item.K = kMorph;
+			ExprItem item(kMorph);
 			temp_buf = ss.getBuf();
 			AddS(temp_buf, &item.SymbP);
 			stack_temp.push(item);
@@ -3647,8 +3728,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 		rScan.Incr();
 		THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_RULEIDEXPECTED); // @err Ожидается идент правила
 		{
-			ExprItem item;
-			item.K = kRule;
+			ExprItem item(kRule);
 			AddS(temp_buf, &item.SymbP);
 			stack_temp.push(item);
 		}
@@ -3656,8 +3736,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 	else if(k == kLiteral) { // literal
 		THROW_PP(rScan.GetQuotedString(temp_buf), PPERR_SR_S_LITERAL); // @err Ошибка считывания литерала
 		{
-			ExprItem item;
-			item.K = kLiteral;
+			ExprItem item(kLiteral);
 			AddS(temp_buf, &item.SymbP);
 			stack_temp.push(item);
 		}
@@ -3669,10 +3748,8 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 		{
 			SStrScan inner_scan(temp_buf);
 			SString tok_buf;
-			ExprItem op_item;
-			op_item.K = kOp;
+			ExprItem op_item(kOp);
 			op_item.Op = opOneof;
-			op_item.ArgCount = 0;
 			TSVector <ExprItem> arg_list; // @v9.8.6 TSArray-->TSVector
 			//
 			// Чтобы аргументы в стеке были в том же порядке, в каком их перечислили, сначала
@@ -3687,8 +3764,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
                     inner_scan.Incr();
                 }
 				if(tok_buf.NotEmptyS()) {
-					ExprItem item;
-					item.K = kLiteral;
+					ExprItem item(kLiteral);
 					AddS(tok_buf, &item.SymbP);
 					THROW_SL(arg_list.insert(&item));
 					op_item.ArgCount++;
@@ -3754,8 +3830,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 			THROW_PP(op, PPERR_SR_S_OPOROPDEXPECTED); // @err expected operator or operand
 			THROW_PP(stack_temp.getPointer(), PPERR_SR_S_UNEXPOPERATOR); // @err Unexpected operator (left operand is empty)
 			{
-				ExprItem op_item;
-				op_item.K = kOp;
+				ExprItem op_item(kOp);
 				op_item.Op = op;
 				op_item.ArgCount = 2;
 				//
@@ -4221,8 +4296,6 @@ int SLAPI PrcssrSartre::TestSyntax()
 			}
 		}
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }

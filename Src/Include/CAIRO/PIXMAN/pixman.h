@@ -39,8 +39,7 @@
    DIGITAL BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR
    ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
    WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
-   ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
-   SOFTWARE.
+   ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
  ******************************************************************/
 /*
@@ -132,7 +131,6 @@ typedef pixman_fixed_16_16_t pixman_fixed_t;
 #define pixman_fixed_mod_2(f)           ((f) & (pixman_fixed1 | pixman_fixed_1_minus_e))
 #define pixman_max_fixed_48_16          ((pixman_fixed_48_16_t)0x7fffffff)
 #define pixman_min_fixed_48_16          (-((pixman_fixed_48_16_t)1 << 31))
-
 /*
  * Misc structs
  */
@@ -435,14 +433,14 @@ pixman_bool_t pixman_region32_subtract(pixman_region32_t * reg_d, pixman_region3
 pixman_bool_t pixman_region32_inverse(pixman_region32_t * new_reg, pixman_region32_t * reg1, pixman_box32_t    * inv_rect);
 pixman_bool_t pixman_region32_contains_point(pixman_region32_t * region, int x, int y, pixman_box32_t * box);
 pixman_region_overlap_t pixman_region32_contains_rectangle(pixman_region32_t * region, pixman_box32_t * prect);
-pixman_bool_t           pixman_region32_not_empty(pixman_region32_t * region);
-pixman_box32_t *        pixman_region32_extents(pixman_region32_t * region);
-int                     pixman_region32_n_rects(pixman_region32_t * region);
-pixman_box32_t *        pixman_region32_rectangles(pixman_region32_t * region, int * n_rects);
-pixman_bool_t           pixman_region32_equal(pixman_region32_t * region1, pixman_region32_t * region2);
-pixman_bool_t           pixman_region32_selfcheck(pixman_region32_t * region);
-void                    pixman_region32_reset(pixman_region32_t * region, pixman_box32_t * box);
-void                    pixman_region32_clear(pixman_region32_t * region);
+pixman_bool_t pixman_region32_not_empty(pixman_region32_t * region);
+pixman_box32_t * pixman_region32_extents(pixman_region32_t * region);
+int    pixman_region32_n_rects(pixman_region32_t * region);
+pixman_box32_t * pixman_region32_rectangles(pixman_region32_t * region, int * n_rects);
+pixman_bool_t pixman_region32_equal(pixman_region32_t * region1, pixman_region32_t * region2);
+pixman_bool_t pixman_region32_selfcheck(pixman_region32_t * region);
+void   pixman_region32_reset(pixman_region32_t * region, pixman_box32_t * box);
+void   pixman_region32_clear(pixman_region32_t * region);
 
 /* Copy / Fill / Misc */
 pixman_bool_t pixman_blt(const uint32_t * src_bits, uint32_t * dst_bits, int src_stride, int dst_stride, int src_bpp, int dst_bpp, int src_x, int src_y, int dest_x, int dest_y, int width, int height);
@@ -619,60 +617,18 @@ typedef enum {
 /* Create the parameter list for a SEPARABLE_CONVOLUTION filter
  * with the given kernels and scale parameters.
  */
-pixman_fixed_t * pixman_filter_create_separable_convolution(int             * n_values,
-    pixman_fixed_t scale_x,
-    pixman_fixed_t scale_y,
-    pixman_kernel_t reconstruct_x,
-    pixman_kernel_t reconstruct_y,
-    pixman_kernel_t sample_x,
-    pixman_kernel_t sample_y,
-    int subsample_bits_x,
-    int subsample_bits_y);
-
+pixman_fixed_t * pixman_filter_create_separable_convolution(int * n_values, pixman_fixed_t scale_x, pixman_fixed_t scale_y, pixman_kernel_t reconstruct_x, 
+	pixman_kernel_t reconstruct_y, pixman_kernel_t sample_x, pixman_kernel_t sample_y, int subsample_bits_x, int subsample_bits_y);
 pixman_bool_t   pixman_image_fill_rectangles(pixman_op_t op, pixman_image_t * image, const pixman_color_t * color, int n_rects, const pixman_rectangle16_t * rects);
-pixman_bool_t   pixman_image_fill_boxes(pixman_op_t op,
-    pixman_image_t               * dest,
-    const pixman_color_t         * color,
-    int n_boxes,
-    const pixman_box32_t         * boxes);
+pixman_bool_t   pixman_image_fill_boxes(pixman_op_t op, pixman_image_t * dest, const pixman_color_t * color, int n_boxes, const pixman_box32_t * boxes);
 
 /* Composite */
-pixman_bool_t pixman_compute_composite_region(pixman_region16_t * region,
-    pixman_image_t    * src_image,
-    pixman_image_t    * mask_image,
-    pixman_image_t    * dest_image,
-    int16 src_x,
-    int16 src_y,
-    int16 mask_x,
-    int16 mask_y,
-    int16 dest_x,
-    int16 dest_y,
-    uint16 width,
-    uint16 height);
-void          pixman_image_composite(pixman_op_t op,
-    pixman_image_t    * src,
-    pixman_image_t    * mask,
-    pixman_image_t    * dest,
-    int16 src_x,
-    int16 src_y,
-    int16 mask_x,
-    int16 mask_y,
-    int16 dest_x,
-    int16 dest_y,
-    uint16 width,
-    uint16 height);
-void          pixman_image_composite32(pixman_op_t op,
-    pixman_image_t    * src,
-    pixman_image_t    * mask,
-    pixman_image_t    * dest,
-    int32_t src_x,
-    int32_t src_y,
-    int32_t mask_x,
-    int32_t mask_y,
-    int32_t dest_x,
-    int32_t dest_y,
-    int32_t width,
-    int32_t height);
+pixman_bool_t pixman_compute_composite_region(pixman_region16_t * region, pixman_image_t * src_image, pixman_image_t * mask_image, pixman_image_t * dest_image,
+    int16 src_x, int16 src_y, int16 mask_x, int16 mask_y, int16 dest_x, int16 dest_y, uint16 width, uint16 height);
+void pixman_image_composite(pixman_op_t op, pixman_image_t * src, pixman_image_t * mask, pixman_image_t * dest,
+    int16 src_x, int16 src_y, int16 mask_x, int16 mask_y, int16 dest_x, int16 dest_y, uint16 width, uint16 height);
+void pixman_image_composite32(pixman_op_t op, pixman_image_t * src, pixman_image_t * mask, pixman_image_t * dest,
+    int32_t src_x, int32_t src_y, int32_t mask_x, int32_t mask_y, int32_t dest_x, int32_t dest_y, int32_t width, int32_t height);
 
 /* Executive Summary: This function is a no-op that only exists
  * for historical reasons.
@@ -693,65 +649,32 @@ void          pixman_image_composite32(pixman_op_t op,
  * function is a no-op.
  */
 void pixman_disable_out_of_bounds_workaround(void);
-
 /*
  * Glyphs
  */
 typedef struct pixman_glyph_cache_t pixman_glyph_cache_t;
+
 typedef struct {
-	int x, y;
+	int x;
+	int y;
 	const void * glyph;
 } pixman_glyph_t;
 
 pixman_glyph_cache_t * pixman_glyph_cache_create(void);
-void                  pixman_glyph_cache_destroy(pixman_glyph_cache_t * cache);
-void                  pixman_glyph_cache_freeze(pixman_glyph_cache_t * cache);
-void                  pixman_glyph_cache_thaw(pixman_glyph_cache_t * cache);
-const void *          pixman_glyph_cache_lookup(pixman_glyph_cache_t * cache,
-    void * font_key,
-    void * glyph_key);
-const void *          pixman_glyph_cache_insert(pixman_glyph_cache_t * cache,
-    void * font_key,
-    void * glyph_key,
-    int origin_x,
-    int origin_y,
-    pixman_image_t       * glyph_image);
-void                  pixman_glyph_cache_remove(pixman_glyph_cache_t * cache,
-    void * font_key,
-    void * glyph_key);
-void                  pixman_glyph_get_extents(pixman_glyph_cache_t * cache,
-    int n_glyphs,
-    pixman_glyph_t       * glyphs,
-    pixman_box32_t       * extents);
-pixman_format_code_t  pixman_glyph_get_mask_format(pixman_glyph_cache_t * cache,
-    int n_glyphs,
-    const pixman_glyph_t * glyphs);
-void                  pixman_composite_glyphs(pixman_op_t op,
-    pixman_image_t       * src,
-    pixman_image_t       * dest,
-    pixman_format_code_t mask_format,
-    int32_t src_x,
-    int32_t src_y,
-    int32_t mask_x,
-    int32_t mask_y,
-    int32_t dest_x,
-    int32_t dest_y,
-    int32_t width,
-    int32_t height,
-    pixman_glyph_cache_t * cache,
-    int n_glyphs,
-    const pixman_glyph_t * glyphs);
-void                  pixman_composite_glyphs_no_mask(pixman_op_t op,
-    pixman_image_t       * src,
-    pixman_image_t       * dest,
-    int32_t src_x,
-    int32_t src_y,
-    int32_t dest_x,
-    int32_t dest_y,
-    pixman_glyph_cache_t * cache,
-    int n_glyphs,
-    const pixman_glyph_t * glyphs);
-
+void pixman_glyph_cache_destroy(pixman_glyph_cache_t * cache);
+void pixman_glyph_cache_freeze(pixman_glyph_cache_t * cache);
+void pixman_glyph_cache_thaw(pixman_glyph_cache_t * cache);
+const void * pixman_glyph_cache_lookup(pixman_glyph_cache_t * cache, void * font_key, void * glyph_key);
+const void * pixman_glyph_cache_insert(pixman_glyph_cache_t * cache, void * font_key, void * glyph_key,
+    int origin_x, int origin_y, pixman_image_t * glyph_image);
+void pixman_glyph_cache_remove(pixman_glyph_cache_t * cache, void * font_key, void * glyph_key);
+void pixman_glyph_get_extents(pixman_glyph_cache_t * cache, int n_glyphs, pixman_glyph_t * glyphs, pixman_box32_t * extents);
+pixman_format_code_t  pixman_glyph_get_mask_format(pixman_glyph_cache_t * cache, int n_glyphs, const pixman_glyph_t * glyphs);
+void pixman_composite_glyphs(pixman_op_t op, pixman_image_t * src, pixman_image_t * dest, pixman_format_code_t mask_format,
+    int32_t src_x, int32_t src_y, int32_t mask_x, int32_t mask_y, int32_t dest_x, int32_t dest_y, int32_t width, int32_t height,
+    pixman_glyph_cache_t * cache, int n_glyphs, const pixman_glyph_t * glyphs);
+void pixman_composite_glyphs_no_mask(pixman_op_t op, pixman_image_t * src, pixman_image_t * dest, int32_t src_x, int32_t src_y,
+    int32_t dest_x, int32_t dest_y, pixman_glyph_cache_t * cache, int n_glyphs, const pixman_glyph_t * glyphs);
 /*
  * Trapezoids
  */
@@ -760,7 +683,6 @@ typedef struct pixman_trapezoid pixman_trapezoid_t;
 typedef struct pixman_trap pixman_trap_t;
 typedef struct pixman_span_fix pixman_span_fix_t;
 typedef struct pixman_triangle pixman_triangle_t;
-
 /*
  * An edge structure.  This represents a single polygon edge
  * and can be quickly stepped across small or large gaps in the sample grid
@@ -772,7 +694,6 @@ struct pixman_edge {
 	pixman_fixed_t signdx;
 	pixman_fixed_t dy;
 	pixman_fixed_t dx;
-
 	pixman_fixed_t stepx_small;
 	pixman_fixed_t stepx_big;
 	pixman_fixed_t dx_small;
@@ -789,10 +710,7 @@ struct pixman_triangle {
 };
 
 /* whether 't' is a well defined not obviously empty trapezoid */
-#define pixman_trapezoid_valid(t)				   \
-	((t)->left.p1.y != (t)->left.p2.y &&			       \
-	    (t)->right.p1.y != (t)->right.p2.y &&			  \
-	    ((t)->bottom > (t)->top))
+#define pixman_trapezoid_valid(t) ((t)->left.p1.y != (t)->left.p2.y && (t)->right.p1.y != (t)->right.p2.y && ((t)->bottom > (t)->top))
 
 struct pixman_span_fix {
 	pixman_fixed_t l, r, y;
@@ -804,59 +722,19 @@ struct pixman_trap {
 
 pixman_fixed_t pixman_sample_ceil_y(pixman_fixed_t y, int bpp);
 pixman_fixed_t pixman_sample_floor_y(pixman_fixed_t y, int bpp);
-void           pixman_edge_step(pixman_edge_t * e, int n);
-void           pixman_edge_init(pixman_edge_t * e, int bpp,
+void pixman_edge_step(pixman_edge_t * e, int n);
+void pixman_edge_init(pixman_edge_t * e, int bpp,
     pixman_fixed_t y_start, pixman_fixed_t x_top, pixman_fixed_t y_top, pixman_fixed_t x_bot, pixman_fixed_t y_bot);
-void           pixman_line_fixed_edge_init(pixman_edge_t * e,
-    int bpp,
-    pixman_fixed_t y,
-    const pixman_line_fixed_t * line,
-    int x_off,
-    int y_off);
-void           pixman_rasterize_edges(pixman_image_t            * image,
-    pixman_edge_t             * l,
-    pixman_edge_t             * r,
-    pixman_fixed_t t,
-    pixman_fixed_t b);
-void           pixman_add_traps(pixman_image_t            * image,
-    int16 x_off,
-    int16 y_off,
-    int ntrap,
-    const pixman_trap_t * traps);
-void           pixman_add_trapezoids(pixman_image_t            * image,
-    int16 x_off,
-    int y_off,
-    int ntraps,
-    const pixman_trapezoid_t  * traps);
-void           pixman_rasterize_trapezoid(pixman_image_t            * image,
-    const pixman_trapezoid_t  * trap,
-    int x_off,
-    int y_off);
-void          pixman_composite_trapezoids(pixman_op_t op,
-    pixman_image_t *            src,
-    pixman_image_t *            dst,
-    pixman_format_code_t mask_format,
-    int x_src,
-    int y_src,
-    int x_dst,
-    int y_dst,
-    int n_traps,
-    const pixman_trapezoid_t *  traps);
-void          pixman_composite_triangles(pixman_op_t op,
-    pixman_image_t *             src,
-    pixman_image_t *             dst,
-    pixman_format_code_t mask_format,
-    int x_src,
-    int y_src,
-    int x_dst,
-    int y_dst,
-    int n_tris,
-    const pixman_triangle_t *    tris);
-void          pixman_add_triangles(pixman_image_t              * image,
-    int32_t x_off,
-    int32_t y_off,
-    int n_tris,
-    const pixman_triangle_t     * tris);
+void pixman_line_fixed_edge_init(pixman_edge_t * e, int bpp, pixman_fixed_t y, const pixman_line_fixed_t * line, int x_off, int y_off);
+void pixman_rasterize_edges(pixman_image_t * image, pixman_edge_t * l, pixman_edge_t * r, pixman_fixed_t t, pixman_fixed_t b);
+void pixman_add_traps(pixman_image_t * image, int16 x_off, int16 y_off, int ntrap, const pixman_trap_t * traps);
+void pixman_add_trapezoids(pixman_image_t * image, int16 x_off, int y_off, int ntraps, const pixman_trapezoid_t  * traps);
+void pixman_rasterize_trapezoid(pixman_image_t * image, const pixman_trapezoid_t  * trap, int x_off, int y_off);
+void pixman_composite_trapezoids(pixman_op_t op, pixman_image_t * src, pixman_image_t * dst,
+    pixman_format_code_t mask_format, int x_src, int y_src, int x_dst, int y_dst, int n_traps, const pixman_trapezoid_t *  traps);
+void pixman_composite_triangles(pixman_op_t op, pixman_image_t * src, pixman_image_t * dst,
+    pixman_format_code_t mask_format, int x_src, int y_src, int x_dst, int y_dst, int n_tris, const pixman_triangle_t * tris);
+void pixman_add_triangles(pixman_image_t * image, int32_t x_off, int32_t y_off, int n_tris, const pixman_triangle_t * tris);
 
 PIXMAN_END_DECLS
 

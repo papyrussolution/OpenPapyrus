@@ -838,7 +838,7 @@ int SXml::GetVal(uint32 id, SString & rVal)
 		ok = 1;
 	}
 	else
-		rVal = 0;
+		rVal.Z();
 	return ok;
 }
 

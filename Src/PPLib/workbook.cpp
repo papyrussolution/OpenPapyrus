@@ -523,7 +523,7 @@ int SLAPI PPObjWorkbook::Browse(void * extraPtr)
 
 int SLAPI PPObjWorkbook::SelectKeywordReverse(SString & rKeyword)
 {
-	rKeyword = 0;
+	rKeyword.Z();
 
 	int    ok = -1;
 	ObjTagCore & r_t = PPRef->Ot;
@@ -582,7 +582,7 @@ int SLAPI PPObjWorkbook::SelectKeywordReverse(SString & rKeyword)
 
 int SLAPI PPObjWorkbook::SelectKeyword(SString & rKeyword)
 {
-	rKeyword = 0;
+	rKeyword.Z();
 
 	int    ok = -1;
 	PPID   id = 0;
@@ -959,7 +959,7 @@ private:
 			ListToListData lst(&src_list, PPOBJ_WORKBOOK, &id_list);
 			lst.TitleStrID = 0; // PPTXT_XXX;
 			if(ListToListDialog(&lst) > 0) {
-				rList = 0;
+				rList.Z();
 				if(lst.P_List) {
 					for(uint i = 0; i < lst.P_List->getCount(); i++) {
 						kw_id = lst.P_List->get(i);
@@ -1793,7 +1793,7 @@ int SLAPI PPObjWorkbook::AddListItem(StrAssocArray * pList, const WorkbookTbl::R
 {
 	int    ok = 1, r;
 	PPIDArray local_recur_trace;
-	if(pList->Search(pRec->ID, 0))
+	if(pList->Search(pRec->ID))
 		ok = -1;
 	else {
 		PPID   par_id = pRec->ParentID;
@@ -1895,7 +1895,7 @@ int SLAPI PPObjWorkbook::SetupParentCombo(TDialog * dlg, uint ctlID, int itemTyp
 			// @v8.2.0 {
 			if(parentID == 0 && itemType == PPWBTYP_MEDIA) {
 				PPWorkbookConfig cfg;
-				if(PPObjWorkbook::ReadConfig(&cfg) > 0 && cfg.DefImageFolderID && p_list->Search(cfg.DefImageFolderID, 0)) {
+				if(PPObjWorkbook::ReadConfig(&cfg) > 0 && cfg.DefImageFolderID && p_list->Search(cfg.DefImageFolderID)) {
 					parentID = cfg.DefImageFolderID;
 				}
 			}
@@ -2022,7 +2022,7 @@ int SLAPI PPObjWorkbook::GetItemPath(PPID itemID, SString & rPath)
 	int   ok = 0;
 	WorkbookTbl::Rec rec;
 	SString temp_buf;
-	rPath = 0;
+	rPath.Z();
 	if(itemID > 0) {
 		for(PPID id = itemID; id && Fetch(id, &rec) > 0; id = rec.ParentID) {
 			temp_buf = rPath;
@@ -3150,10 +3150,9 @@ int PPALDD_UhttWorkbook::NextIteration(long iterId)
 			const ObjTagItem * p_item = r_blk.Pack.TagL.GetItemByPos(r_blk.TagPos);
 			I_TagList.TagTypeID = p_item->TagDataType;
 			{
-				PPObjectTag2 rec;
-				if(r_blk.TagObj.Fetch(p_item->TagID, &rec) > 0) {
+				PPObjectTag rec;
+				if(r_blk.TagObj.Fetch(p_item->TagID, &rec) > 0)
 					STRNSCPY(I_TagList.TagSymb, rec.Symb);
-				}
 			}
 			switch(p_item->TagDataType) {
 				case OTTYP_STRING:
@@ -3191,16 +3190,14 @@ int PPALDD_UhttWorkbook::NextIteration(long iterId)
 								if(f_name.Strip().C(0) == '#' && f_name.Len() > 1) {
 									PPID   kw_id = f_name.ShiftLeft().ToLong();
 									WorkbookTbl::Rec kw_rec;
-									if(r_blk.WbObj.Fetch(kw_id, &kw_rec) > 0) {
+									if(r_blk.WbObj.Fetch(kw_id, &kw_rec) > 0)
 										new_tag_text.CatDivIfNotEmpty(',', 0).Cat(kw_rec.Name);
-									}
 								}
 								else if(f_name.Strip().C(0) == '$' && f_name.Len() > 1) {
 									PPID   kw_id = 0;
 									WorkbookTbl::Rec kw_rec;
-									if(r_blk.WbObj.SearchBySymb(f_name+1, &kw_id, &kw_rec) > 0) {
+									if(r_blk.WbObj.SearchBySymb(f_name+1, &kw_id, &kw_rec) > 0)
 										new_tag_text.CatDivIfNotEmpty(',', 0).Cat(kw_rec.Name);
-									}
 								}
 								else
 									new_tag_text.CatDivIfNotEmpty(',', 0).Cat(f_name);

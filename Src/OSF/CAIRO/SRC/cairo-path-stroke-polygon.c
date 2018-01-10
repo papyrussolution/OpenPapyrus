@@ -1081,29 +1081,20 @@ cairo_status_t _cairo_path_fixed_stroke_to_polygon(const cairo_path_fixed_t * pa
 	stroker.spline_cusp_tolerance *= stroker.spline_cusp_tolerance;
 	stroker.spline_cusp_tolerance *= 2;
 	stroker.spline_cusp_tolerance -= 1;
-	stroker.ctm_det_positive =
-	    _cairo_matrix_compute_determinant(ctm) >= 0.0;
-
+	stroker.ctm_det_positive = _cairo_matrix_compute_determinant(ctm) >= 0.0;
 	stroker.pen.num_vertices = 0;
-	if(path->has_curve_to ||
-	    style->line_join == CAIRO_LINE_JOIN_ROUND ||
-	    style->line_cap == CAIRO_LINE_CAP_ROUND) {
-		status = _cairo_pen_init(&stroker.pen,
-		    stroker.half_line_width,
-		    tolerance, ctm);
+	if(path->has_curve_to || style->line_join == CAIRO_LINE_JOIN_ROUND || style->line_cap == CAIRO_LINE_CAP_ROUND) {
+		status = _cairo_pen_init(&stroker.pen, stroker.half_line_width, tolerance, ctm);
 		if(unlikely(status))
 			return status;
-
 		/* If the line width is so small that the pen is reduced to a
 		   single point, then we have nothing to do. */
 		if(stroker.pen.num_vertices <= 1)
 			return CAIRO_STATUS_SUCCESS;
 	}
-
 	stroker.has_current_face = FALSE;
 	stroker.has_first_face = FALSE;
 	stroker.has_initial_sub_path = FALSE;
-
 #if DEBUG
 	remove("contours.txt");
 	remove("polygons.txt");
@@ -1115,22 +1106,14 @@ cairo_status_t _cairo_path_fixed_stroke_to_polygon(const cairo_path_fixed_t * pa
 	tolerance *= tolerance;
 	stroker.contour_tolerance = (cairo_uint64_t)tolerance;
 	stroker.polygon = polygon;
-
-	status = _cairo_path_fixed_interpret(path,
-	    move_to,
-	    line_to,
-	    curve_to,
-	    close_path,
-	    &stroker);
+	status = _cairo_path_fixed_interpret(path, move_to, line_to, curve_to, close_path, &stroker);
 	/* Cap the start and end of the final sub path as needed */
 	if(likely(status == CAIRO_STATUS_SUCCESS))
 		add_caps(&stroker);
-
 	_cairo_contour_fini(&stroker.cw.contour);
 	_cairo_contour_fini(&stroker.ccw.contour);
 	if(stroker.pen.num_vertices)
 		_cairo_pen_fini(&stroker.pen);
-
 #if DEBUG
 	{
 		FILE * file = fopen("polygons.txt", "a");
@@ -1138,7 +1121,6 @@ cairo_status_t _cairo_path_fixed_stroke_to_polygon(const cairo_path_fixed_t * pa
 		fclose(file);
 	}
 #endif
-
 	return status;
 }
 

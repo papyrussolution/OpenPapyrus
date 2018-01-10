@@ -95,7 +95,7 @@ int SLAPI STab::Row::Get(uint pos, SString & rStr) const
 		Set.getnz(PosList.get(pos), rStr);
 	}
 	else {
-		rStr = 0;
+		rStr.Z();
 		ok = 0;
 	}
 	return ok;

@@ -1768,6 +1768,7 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					Rec.PhUPerU  = grec.PhUPerU;  // @v9.8.6
 					Rec.ManufID  = grec.ManufID;
 					Rec.GdsClsID = grec.GdsClsID;
+					Rec.GoodsTypeID = grec.GoodsTypeID; // @v9.8.12
 					Rec.Cost     = rtl_ext_item.Cost;
 					Rec.Price    = price_;
 					Rec.Precision = fpow10i(-3);
@@ -1929,6 +1930,7 @@ void SLAPI AsyncCashGoodsInfo::Init()
 	PhUPerU = 0.0; // @v9.8.6
 	ManufID = 0;
 	GdsClsID = 0;
+	GoodsTypeID = 0; // @v9.8.12
 	UnitPerPack = 0.0;
 	Cost = 0.0;
 	Price = 0.0;
@@ -1939,7 +1941,7 @@ void SLAPI AsyncCashGoodsInfo::Init()
 	Deleted_ = 0;
 	NoDis = 0;
 	DivN = 0;
-	VatRate = 0;
+	VatRate = 0.0;
 	LocPrnID = 0;
 	AsscPosNodeID = 0;
 	AddedMsgList.clear();

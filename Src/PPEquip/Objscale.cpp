@@ -4138,7 +4138,7 @@ $$$RPL
 		StringSet ext_lines;
 		line_buf.Cat("<D").Space();
         line_buf.Cat(pScalePLU->GoodsID).Semicol();                    // #1
-		temp_buf = pScalePLU->Barcode;
+		temp_buf.Cat(pScalePLU->Barcode); // @v9.8.12 (temp_buf = pScalePLU->Barcode)-->(temp_buf.Cat(pScalePLU->Barcode))
 		if(temp_buf.Len() > 5)
 			temp_buf.ShiftLeft(temp_buf.Len() - 5);
         line_buf.Cat(temp_buf).Semicol();                    // #2

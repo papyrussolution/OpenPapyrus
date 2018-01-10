@@ -1680,7 +1680,7 @@ int SLAPI PPGoodsImporter::PutTax(const Sdr_Goods2 & rRec, PPGoodsPacket * pPack
 	int    ok = -1;
 	if(UseTaxes && pPack) {
 		PPID   tax_grp_id = 0;
-		GTaxObj.GetBySheme(&pPack->Rec.TaxGrpID, rRec.Vat, 0, rRec.SalesTax, 0);
+		GTaxObj.GetByScheme(&pPack->Rec.TaxGrpID, rRec.Vat, 0, rRec.SalesTax, 0, 0/*use_ta*/);
 		ok = 1;
 	}
 	return ok;

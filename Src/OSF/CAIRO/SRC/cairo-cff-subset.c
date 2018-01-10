@@ -114,7 +114,6 @@ typedef struct _cff_index_element {
 
 typedef struct _cff_dict_operator {
 	cairo_hash_entry_t base;
-
 	ushort _Op;
 	uchar * operand;
 	int operand_length;
@@ -124,42 +123,39 @@ typedef struct _cff_dict_operator {
 typedef struct _cairo_cff_font {
 	cairo_scaled_font_subset_t * scaled_font_subset;
 	const cairo_scaled_font_backend_t * backend;
-
-	/* Font Data */
-	uchar       * data;
+	// Font Data 
+	uchar * data;
 	ulong data_length;
-	uchar       * current_ptr;
-	uchar       * data_end;
-	cff_header_t        * header;
-	char                * font_name;
-	char                * ps_name;
+	uchar * current_ptr;
+	uchar * data_end;
+	cff_header_t * header;
+	char * font_name;
+	char * ps_name;
 	cairo_hash_table_t  * top_dict;
 	cairo_hash_table_t  * private_dict;
 	cairo_array_t strings_index;
 	cairo_array_t charstrings_index;
 	cairo_array_t global_sub_index;
 	cairo_array_t local_sub_index;
-	uchar       * charset;
-	int num_glyphs;
+	uchar * charset;
+	int    num_glyphs;
 	cairo_bool_t is_cid;
 	cairo_bool_t is_opentype;
-	int units_per_em;
-	int global_sub_bias;
-	int local_sub_bias;
+	int    units_per_em;
+	int    global_sub_bias;
+	int    local_sub_bias;
 	double default_width;
 	double nominal_width;
-
-	/* CID Font Data */
-	int                 * fdselect;
+	// CID Font Data 
+	int * fdselect;
 	uint num_fontdicts;
 	cairo_hash_table_t ** fd_dict;
 	cairo_hash_table_t ** fd_private_dict;
-	cairo_array_t       * fd_local_sub_index;
-	int                 * fd_local_sub_bias;
-	double              * fd_default_width;
-	double              * fd_nominal_width;
-
-	/* Subsetted Font Data */
+	cairo_array_t * fd_local_sub_index;
+	int  * fd_local_sub_bias;
+	double * fd_default_width;
+	double * fd_nominal_width;
+	// Subsetted Font Data 
 	char                * subset_font_name;
 	cairo_array_t charstrings_subset_index;
 	cairo_array_t strings_subset_index;
@@ -173,13 +169,11 @@ typedef struct _cairo_cff_font {
 	cairo_bool_t        * local_subs_used;
 	cairo_bool_t       ** fd_local_subs_used;
 	cairo_array_t output;
-
-	/* Subset Metrics */
-	int                 * widths;
+	// Subset Metrics 
+	int * widths;
 	int x_min, y_min, x_max, y_max;
 	int ascent, descent;
-
-	/* Type 2 charstring data */
+	// Type 2 charstring data 
 	int type2_stack_size;
 	int type2_stack_top_value;
 	cairo_bool_t type2_stack_top_is_int;
@@ -447,22 +441,16 @@ static cairo_status_t FASTCALL cff_index_write(cairo_array_t * index, cairo_arra
 {
 	int offset_size;
 	int offset;
-	int num_elem;
 	int i;
 	cff_index_element_t * element;
-	uint16 count;
 	uchar buf[5];
-	cairo_status_t status;
-
-	num_elem = _cairo_array_num_elements(index);
-	count = cpu_to_be16((uint16)num_elem);
-	status = _cairo_array_append_multiple(output, &count, 2);
+	int num_elem = _cairo_array_num_elements(index);
+	uint16 count = cpu_to_be16((uint16)num_elem);
+	cairo_status_t status = _cairo_array_append_multiple(output, &count, 2);
 	if(unlikely(status))
 		return status;
-
 	if(num_elem == 0)
 		return CAIRO_STATUS_SUCCESS;
-
 	/* Find maximum offset to determine offset size */
 	offset = 1;
 	for(i = 0; i < num_elem; i++) {
@@ -497,9 +485,7 @@ static cairo_status_t FASTCALL cff_index_write(cairo_array_t * index, cairo_arra
 	for(i = 0; i < num_elem; i++) {
 		element = (cff_index_element_t *)_cairo_array_index(index, i);
 		if(element->length > 0) {
-			status = _cairo_array_append_multiple(output,
-			    element->data,
-			    element->length);
+			status = _cairo_array_append_multiple(output, element->data, element->length);
 		}
 		if(unlikely(status))
 			return status;
@@ -509,8 +495,7 @@ static cairo_status_t FASTCALL cff_index_write(cairo_array_t * index, cairo_arra
 
 static void FASTCALL cff_index_set_object(cairo_array_t * index, int obj_index, uchar * object, int length)
 {
-	cff_index_element_t * element;
-	element = (cff_index_element_t *)_cairo_array_index(index, obj_index);
+	cff_index_element_t * element = (cff_index_element_t *)_cairo_array_index(index, obj_index);
 	if(element->is_copy)
 		SAlloc::F(element->data);
 	element->data = object;
@@ -547,10 +532,8 @@ static cairo_status_t FASTCALL cff_index_append_copy(cairo_array_t * index, cons
 
 static void FASTCALL cff_index_fini(cairo_array_t * index)
 {
-	cff_index_element_t * element;
-	uint i;
-	for(i = 0; i < _cairo_array_num_elements(index); i++) {
-		element = (cff_index_element_t *)_cairo_array_index(index, i);
+	for(uint i = 0; i < _cairo_array_num_elements(index); i++) {
+		cff_index_element_t * element = (cff_index_element_t *)_cairo_array_index(index, i);
 		if(element->is_copy && element->data)
 			SAlloc::F(element->data);
 	}
@@ -598,14 +581,12 @@ static cairo_status_t cff_dict_create_operator(int _Op, uchar * operand, int siz
 
 static cairo_status_t cff_dict_read(cairo_hash_table_t * dict, uchar * p, int dict_size)
 {
-	uchar * end;
 	cairo_array_t operands;
 	cff_dict_operator_t * op;
 	ushort _Op;
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	int size;
-
-	end = p + dict_size;
+	uchar * end = p + dict_size;
 	_cairo_array_init(&operands, 1);
 	while(p < end) {
 		size = operand_length(p);
@@ -1842,48 +1823,35 @@ static void cairo_cff_font_set_topdict_operator_to_cur_pos(cairo_cff_font_t  * f
 
 static cairo_status_t cairo_cff_font_write_header(cairo_cff_font_t * font)
 {
-	return _cairo_array_append_multiple(&font->output,
-	    font->header,
-	    font->header->header_size);
+	return _cairo_array_append_multiple(&font->output, font->header, font->header->header_size);
 }
 
 static cairo_status_t cairo_cff_font_write_name(cairo_cff_font_t * font)
 {
 	cairo_status_t status = CAIRO_STATUS_SUCCESS;
 	cairo_array_t index;
-
 	cff_index_init(&index);
-
-	status = cff_index_append_copy(&index,
-	    (uchar*)font->ps_name,
-	    strlen(font->ps_name));
+	status = cff_index_append_copy(&index, (uchar*)font->ps_name, strlen(font->ps_name));
 	if(unlikely(status))
 		goto FAIL;
-
 	status = cff_index_write(&index, &font->output);
 	if(unlikely(status))
 		goto FAIL;
-
 FAIL:
 	cff_index_fini(&index);
-
 	return status;
 }
 
 static cairo_status_t cairo_cff_font_write_top_dict(cairo_cff_font_t * font)
 {
-	uint16 count;
 	uchar buf[10];
 	uchar * p;
 	int offset_index;
 	int dict_start, dict_size;
 	int offset_size = 4;
-	cairo_status_t status;
-
 	/* Write an index containing the top dict */
-
-	count = cpu_to_be16(1);
-	status = _cairo_array_append_multiple(&font->output, &count, 2);
+	uint16 count = cpu_to_be16(1);
+	cairo_status_t status = _cairo_array_append_multiple(&font->output, &count, 2);
 	if(unlikely(status))
 		return status;
 	buf[0] = offset_size;
@@ -1894,14 +1862,12 @@ static cairo_status_t cairo_cff_font_write_top_dict(cairo_cff_font_t * font)
 	status = _cairo_array_append_multiple(&font->output, buf, offset_size);
 	if(unlikely(status))
 		return status;
-
 	/* Reserve space for last element of offset array and update after
 	 * dict is written */
 	offset_index = _cairo_array_num_elements(&font->output);
 	status = _cairo_array_append_multiple(&font->output, buf, offset_size);
 	if(unlikely(status))
 		return status;
-
 	dict_start = _cairo_array_num_elements(&font->output);
 	status = cff_dict_write(font->top_dict, &font->output);
 	if(unlikely(status))
@@ -2382,7 +2348,6 @@ static cairo_int_status_t cairo_cff_font_generate(cairo_cff_font_t  * font,
 
 static cairo_int_status_t cairo_cff_font_create_set_widths(cairo_cff_font_t * font)
 {
-	ulong size;
 	ulong long_entry_size;
 	ulong short_entry_size;
 	uint i;
@@ -2390,26 +2355,18 @@ static cairo_int_status_t cairo_cff_font_create_set_widths(cairo_cff_font_t * fo
 	int num_hmetrics;
 	uint16 short_entry;
 	int glyph_index;
-	cairo_int_status_t status;
-
-	size = sizeof(tt_hhea_t);
-	status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font,
-	    TT_TAG_hhea, 0,
-	    (uchar*)&hhea, &size);
+	ulong size = sizeof(tt_hhea_t);
+	cairo_int_status_t status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font, TT_TAG_hhea, 0, (uchar*)&hhea, &size);
 	if(unlikely(status))
 		return status;
 	num_hmetrics = be16_to_cpu(hhea.num_hmetrics);
-
 	for(i = 0; i < font->scaled_font_subset->num_glyphs; i++) {
 		glyph_index = font->scaled_font_subset->glyphs[i];
 		long_entry_size = 2 * sizeof(int16);
 		short_entry_size = sizeof(int16);
 		if(glyph_index < num_hmetrics) {
 			status = font->backend->load_truetype_table(font->scaled_font_subset->scaled_font,
-			    TT_TAG_hmtx,
-			    glyph_index * long_entry_size,
-			    (uchar*)&short_entry,
-			    &short_entry_size);
+			    TT_TAG_hmtx, glyph_index * long_entry_size, (uchar*)&short_entry, &short_entry_size);
 			if(unlikely(status))
 				return status;
 		}

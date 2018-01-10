@@ -639,19 +639,16 @@ Drawable cairo_xlib_surface_get_drawable(cairo_surface_t * abstract_surface)
 		_cairo_error_throw(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
 		return 0;
 	}
-
 	return surface->xcb->drawable;
 }
 
 Screen * cairo_xlib_surface_get_screen(cairo_surface_t * abstract_surface)
 {
 	cairo_xlib_xcb_surface_t * surface = (cairo_xlib_xcb_surface_t*)abstract_surface;
-
 	if(surface->base.type != CAIRO_SURFACE_TYPE_XLIB) {
 		_cairo_error_throw(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
 		return NULL;
 	}
-
 	return surface->screen;
 }
 
@@ -663,14 +660,12 @@ Visual * cairo_xlib_surface_get_visual(cairo_surface_t * abstract_surface)
 		_cairo_error_throw(CAIRO_STATUS_SURFACE_TYPE_MISMATCH);
 		return NULL;
 	}
-
 	return surface->visual;
 }
 
 int cairo_xlib_surface_get_depth(cairo_surface_t * abstract_surface)
 {
 	cairo_xlib_xcb_surface_t * surface = (cairo_xlib_xcb_surface_t*)abstract_surface;
-
 	if(unlikely(abstract_surface->finished)) {
 		_cairo_error_throw(CAIRO_STATUS_SURFACE_FINISHED);
 		return 0;

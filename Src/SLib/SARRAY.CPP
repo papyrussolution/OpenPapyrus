@@ -854,11 +854,11 @@ SLAPI SVector::SVector(uint itemSize, /*uint aDelta,*/ uint o /*= O_ARRAY*/) : S
 	assert(!(o & aryEachItem));
 }
 
-SLAPI SVector::SVector(uint itemSize) : SVectorBase(itemSize, /*8,*/ O_ARRAY)
+SLAPI SVector::SVector(uint itemSize) : SVectorBase(itemSize, O_ARRAY)
 {
 }
 
-SLAPI SVector::SVector(void * pData, uint itemSize, uint aCount, uint o) : SVectorBase(itemSize, /*1,*/ o)
+SLAPI SVector::SVector(void * pData, uint itemSize, uint aCount, uint o) : SVectorBase(itemSize, o)
 {
 	assert(!(o & aryEachItem));
 	count = aCount;
@@ -866,10 +866,9 @@ SLAPI SVector::SVector(void * pData, uint itemSize, uint aCount, uint o) : SVect
 	data = (uint8 *)pData;
 }
 
-SLAPI SVector::SVector(const SVector & rS) : SVectorBase(rS.isize, /*rS.delta,*/ rS.flags)
+SLAPI SVector::SVector(const SVector & rS) : SVectorBase(rS.isize, rS.flags)
 {
 	assert(!(rS.flags & aryEachItem));
-	data = 0;
 	copy(rS);
 }
 
@@ -2119,7 +2118,7 @@ int FASTCALL StrAssocArray::IsEqual(const StrAssocArray & s) const
 			Item sb = s.Get(i);
 			if(b.Id == sb.Id && b.ParentId == sb.ParentId) {
 				if(b.Txt != 0 && sb.Txt != 0) {
-					if(strcmp(b.Txt, sb.Txt) != 0)
+					if(!sstreq(b.Txt, sb.Txt))
 						ok = 0;
 				}
 				else if(b.Txt || sb.Txt)
@@ -2136,7 +2135,7 @@ uint SLAPI StrAssocArray::incPointer() { return LAssocArray::incPointer(); }
 
 int FASTCALL StrAssocArray::HasChild(long id) const
 {
-	return (id == 0) ? (LAssocArray::getCount() ? 1 : 0) : ParentList.SearchByVal(id, 0, 0);
+	return (id == 0) ? BIN(LAssocArray::getCount()) : ParentList.SearchByVal(id, 0, 0);
 }
 
 int SLAPI StrAssocArray::GetParent(long id, long * pParentId) const
@@ -2492,6 +2491,11 @@ int SLAPI StrAssocArray::AtFree(uint pos)
 int SLAPI StrAssocArray::Search(long id, uint * pPos) const
 {
 	return LAssocArray::Search(id, 0, pPos);
+}
+
+int FASTCALL StrAssocArray::Search(long id) const
+{
+	return LAssocArray::Search(id, 0, 0);
 }
 
 int SLAPI StrAssocArray::SearchByText(const char * pTxt, int ignoreCase, uint * pPos) const

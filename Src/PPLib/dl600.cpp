@@ -68,7 +68,7 @@ int DlFunc::AddArg(uint typeId, const char * pName, uint argFlags)
 int DlFunc::GetArgName(uint argN, SString & rArgName) const
 {
 	int    ok = 1;
-	rArgName = 0;
+	rArgName.Z();
 	if(argN < ArgList.getCount()) {
 		const Arg * p_arg = (const Arg *)ArgList.at(argN);
 		ArgNamList.getnz(p_arg->NamePos, rArgName);
@@ -81,7 +81,7 @@ int DlFunc::GetArgName(uint argN, SString & rArgName) const
 // static
 int DlFunc::GetOpName(uint opID, SString & rName)
 {
-	static struct OpName { uint16 OpID; const char * P_Name; } OpNameList[] = {
+	static const struct OpName { uint16 OpID; const char * P_Name; } OpNameList[] = {
 		{dlopConstructor, "constructor" },
 		{dlopDestructor,  "destructor"  },
 		{dlopNew,         "@ new" },
@@ -123,7 +123,7 @@ int DlFunc::GetOpName(uint opID, SString & rName)
 			return 1;
 		}
 	} while(i);
-	rName = 0;
+	rName.Z();
 	return 0;
 }
 

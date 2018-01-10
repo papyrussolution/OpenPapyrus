@@ -484,11 +484,10 @@ int SLAPI PPObjReference::Edit(PPID * pID, void * extraPtr)
 	int    ok = cmCancel, is_new = 0;
 	ReferenceTbl::Rec rec;
 	THROW(EditPrereq(pID, 0, &is_new));
+	MEMSZERO(rec);
 	if(!is_new) {
-		THROW(ref->GetItem(Obj, *pID, &rec));
+		THROW(ref->GetItem(Obj, *pID, &rec) > 0); // @v9.8.12 (!=0)-->(>0)
 	}
-	else
-		MEMSZERO(rec);
 	{
 		PPCommObjEntry param(Obj, rec.ObjID, rec.ObjName, rec.Symb);
 		// @v8.2.3 {

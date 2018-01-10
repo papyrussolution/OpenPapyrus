@@ -358,16 +358,13 @@ BN_ULONG bn_add_words(BN_ULONG * r, const BN_ULONG * a, const BN_ULONG * b,
 
 #endif                          /* !BN_LLONG */
 
-BN_ULONG bn_sub_words(BN_ULONG * r, const BN_ULONG * a, const BN_ULONG * b,
-    int n)
+BN_ULONG bn_sub_words(BN_ULONG * r, const BN_ULONG * a, const BN_ULONG * b, int n)
 {
 	BN_ULONG t1, t2;
 	int c = 0;
-
 	assert(n >= 0);
 	if(n <= 0)
 		return ((BN_ULONG)0);
-
 #ifndef OPENSSL_SMALL_FOOTPRINT
 	while(n & ~3) {
 		t1 = a[0];

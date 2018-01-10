@@ -517,11 +517,11 @@ int ExportCls::GetContragInfo(Sdr_BRow * pBRow, TSCollection <ContragInfoSt> * p
 		p_new_item->RegionCode = pBRow->ManufRegionCode;
 		p_new_item->District = pBRow->ManufDistrict;
 		p_new_item->Town = pBRow->ManufCityName;
-		p_new_item->Community = 0;
+		p_new_item->Community.Z();
 		p_new_item->Street = pBRow->ManufStreet;
 		p_new_item->House = pBRow->ManufHouse;
-		p_new_item->Housing = pBRow->ManufHousing;
-		p_new_item->Letter = 0;
+		p_new_item->Housing.Z().Cat(pBRow->ManufHousing);
+		p_new_item->Letter.Z();
 		p_new_item->INN = pBRow->ManufINN;
 		p_new_item->KPP = pBRow->ManufKPP;
 		p_new_item->IsManuf = pBRow->IsManuf;

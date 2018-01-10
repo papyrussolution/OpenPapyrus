@@ -187,7 +187,7 @@ int SLAPI PPAlbatrosConfig::PutExtStrData(int fldID, const char * pStr)
 	return PPPutExtStrData(fldID, ExtString, pStr);
 }
 
-#define UHTT_PW_SIZE 20
+#define UHTT_PW_SIZE 20 // @attention изменение значения требует конвертации хранимого пароля
 
 int SLAPI PPAlbatrosConfig::SetPassword(int fld, const char * pPassword)
 {

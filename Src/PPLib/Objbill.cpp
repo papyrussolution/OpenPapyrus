@@ -762,7 +762,8 @@ int SLAPI PPObjBill::PosPrintByBill(PPID billID)
 			if(!(pack.Rec.Flags & BILLF_CHECK) || (PPMaster && PPMessage(mfConf|mfYesNo, PPCFM_BILLCHECKED) == cmYes)) {
 				int    sync_prn_err = 0;
 				Goods2Tbl::Rec goods_rec;
-				const  PPID prepay_goods_id = (CConfig.PrepayInvoiceGoodsID && GObj.Fetch(CConfig.PrepayInvoiceGoodsID, &goods_rec) > 0) ? goods_rec.ID : 0;
+				const  PPCommConfig & r_ccfg = CConfig;
+				const  PPID prepay_goods_id = (r_ccfg.PrepayInvoiceGoodsID && GObj.Fetch(r_ccfg.PrepayInvoiceGoodsID, &goods_rec) > 0) ? goods_rec.ID : 0;
 				_CcByBillParam param; // @v9.5.7
 				param.PosNodeID = node_id;
 				param.DivisionN = 0;
@@ -3511,7 +3512,7 @@ int SLAPI PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 			PPID   lot_id = lotID;
 			TransferTbl::Rec rec;
 			for(DateIter iter; trfr->EnumAssetOp(&lot_id, &iter, &op_code, &rec) > 0;) {
-				if(op_code == ASSTOPC_RCPT || op_code == ASSTOPC_RCPTEXPL) {
+				if(oneof2(op_code, ASSTOPC_RCPT, ASSTOPC_RCPTEXPL)) {
 					pCard->OrgLotID = lot_id;
 					pCard->OrgCost  = TR5(rec.Cost);
 					pCard->OrgPrice = TR5(rec.Price);
@@ -3528,7 +3529,7 @@ int SLAPI PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 						pCard->OrgPrice -= vect.GetValue(GTAXVF_VAT);
 					}
 				}
-				if(op_code == ASSTOPC_RCPTEXPL || op_code == ASSTOPC_EXPL) {
+				if(oneof2(op_code, ASSTOPC_RCPTEXPL, ASSTOPC_EXPL)) {
 					pCard->ExplBillID = rec.BillID;
 				}
 				if(oneof6(op_code, ASSTOPC_MOV, ASSTOPC_RCPT, ASSTOPC_RCPTEXPL, ASSTOPC_EXPEND, ASSTOPC_EXPL, ASSTOPC_EXPLOUT)) {

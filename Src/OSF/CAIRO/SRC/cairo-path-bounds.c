@@ -84,12 +84,8 @@ cairo_bool_t _cairo_path_bounder_extents(const cairo_path_fixed_t * path, cairo_
 	cairo_path_bounder_t bounder;
 	cairo_status_t status;
 	bounder.has_extents = FALSE;
-	status = _cairo_path_fixed_interpret(path,
-	    _cairo_path_bounder_move_to,
-	    _cairo_path_bounder_line_to,
-	    _cairo_path_bounder_curve_to,
-	    _cairo_path_bounder_close_path,
-	    &bounder);
+	status = _cairo_path_fixed_interpret(path, _cairo_path_bounder_move_to, _cairo_path_bounder_line_to, 
+		_cairo_path_bounder_curve_to, _cairo_path_bounder_close_path, &bounder);
 	assert(!status);
 	if(bounder.has_extents)
 		*extents = bounder.extents;
@@ -106,11 +102,9 @@ void _cairo_path_fixed_approximate_fill_extents(const cairo_path_fixed_t * path,
 	_cairo_path_fixed_fill_extents(path, CAIRO_FILL_RULE_WINDING, 0, extents);
 }
 
-void _cairo_path_fixed_fill_extents(const cairo_path_fixed_t * path,
-    CairoFillRule fill_rule, double tolerance, CairoIRect * extents)
+void _cairo_path_fixed_fill_extents(const cairo_path_fixed_t * path, CairoFillRule fill_rule, double tolerance, CairoIRect * extents)
 {
-	if(path->extents.p1.x < path->extents.p2.x &&
-	    path->extents.p1.y < path->extents.p2.y) {
+	if(path->extents.p1.x < path->extents.p2.x && path->extents.p1.y < path->extents.p2.y) {
 		_cairo_box_round_to_rectangle(&path->extents, extents);
 	}
 	else {
@@ -158,4 +152,3 @@ cairo_bool_t _cairo_path_fixed_extents(const cairo_path_fixed_t * path, cairo_bo
 	*box = path->extents;
 	return path->has_extents;
 }
-

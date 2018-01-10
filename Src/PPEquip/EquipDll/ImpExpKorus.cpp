@@ -439,7 +439,7 @@ int GetMsgTypeBySymb(const char * pSymb, int & rType)
 
 int GetMsgTypeSymb(uint msgType, SString & rSymb)
 {
-	rSymb = 0;
+	rSymb.Z();
 	for(size_t i = 0; i < SIZEOFARRAY(MsgSymbols); i++) {
 		if(MsgSymbols[i].Type == msgType) {
 			rSymb = MsgSymbols[i].P_Symb;
@@ -456,7 +456,7 @@ void FormatLoginToLogin(const char * login, SString & rStr)
 {
 	uint   exit_while = 0;
 	char   low_strip = '_';
-	rStr = 0;
+	rStr.Z();
 	if(login) {
 		while(!exit_while) {
 			if((*login == 0) || (*login == low_strip))

@@ -325,7 +325,9 @@ static void _GetEnterprise(VetisEnterprise & rDest, const ent__Enterprise * pSrc
 static void _GetBusinessEntity_activityLocation(VetisBusinessEntity_activityLocation & rDest, const _ent__BusinessEntity_activityLocation * pSrc)
 {
 	if(pSrc) {
-		rDest.GlobalID = pSrc->globalID ? *pSrc->globalID : 0;
+		rDest.GlobalID.clear();
+		if(pSrc->globalID)
+			rDest.GlobalID.add(*pSrc->globalID);
 		_GetEnterprise(rDest.Enterprise, pSrc->enterprise);
 	}
 }

@@ -3275,7 +3275,7 @@ int SLAPI PPUhttClient::GetGoodsByName(const char * pName, TSCollection <UhttGoo
 int SLAPI PPUhttClient::GetGoodsArCode(const char * pBarcode, const char * pPersonINN, SString & rArCode)
 {
 	int    ok = 0;
-	rArCode = 0;
+	rArCode.Z();
 	if(State & stAuth && P_Lib) {
 		PPSoapClientSession sess;
 		SString lib_path;

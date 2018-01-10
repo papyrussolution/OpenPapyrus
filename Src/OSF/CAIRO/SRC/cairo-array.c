@@ -111,8 +111,7 @@ cairo_status_t FASTCALL _cairo_array_grow_by(cairo_array_t * array, uint additio
  **/
 void FASTCALL _cairo_array_truncate(cairo_array_t * array, uint num_elements)
 {
-	if(num_elements < array->num_elements)
-		array->num_elements = num_elements;
+	SETMIN(array->num_elements, num_elements);
 }
 /**
  * _cairo_array_index:
@@ -206,7 +205,6 @@ void _cairo_array_copy_element(const cairo_array_t * array, uint index, void * d
 {
 	memcpy(dst, _cairo_array_index_const(array, index), array->element_size);
 }
-
 /**
  * _cairo_array_append:
  * @array: a #cairo_array_t
@@ -238,7 +236,7 @@ cairo_status_t FASTCALL _cairo_array_append(cairo_array_t * array, const void * 
  * %CAIRO_STATUS_NO_MEMORY if insufficient memory is available for the
  * operation.
  **/
-cairo_status_t _cairo_array_append_multiple(cairo_array_t * array, const void * elements, uint num_elements)
+cairo_status_t FASTCALL _cairo_array_append_multiple(cairo_array_t * array, const void * elements, uint num_elements)
 {
 	void * dest;
 	cairo_status_t status = _cairo_array_allocate(array, num_elements, &dest);
@@ -247,7 +245,6 @@ cairo_status_t _cairo_array_append_multiple(cairo_array_t * array, const void * 
 	memcpy(dest, elements, num_elements * array->element_size);
 	return CAIRO_STATUS_SUCCESS;
 }
-
 /**
  * _cairo_array_allocate:
  * @array: a #cairo_array_t
@@ -434,4 +431,3 @@ void _cairo_user_data_array_foreach(cairo_user_data_array_t * array,
 			func(slots[i].key, slots[i].user_data, closure);
 	}
 }
-

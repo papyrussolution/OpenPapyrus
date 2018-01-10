@@ -87,7 +87,7 @@ static int SLAPI ReadPStrFromFile(char ** ppStr, FILE * pStream)
 {
 	int    ok = 1;
 	uint16 s;
-	rStr = 0;
+	rStr.Z();
 	THROW_S(fread(&s, sizeof(s), 1, pStream) == 1, SLERR_READFAULT);
 	if(s) {
 		STempBuffer temp_buf(s);
@@ -1055,7 +1055,7 @@ int FASTCALL DL2_ObjList::GetObjToken(PPID objType, SString & rToken)
 	else if(objType == PPOBJ_GOODSGROUP)
 		rToken = "goodsgroup";
 	else {
-		rToken = 0;
+		rToken.Z();
 		ok = 0;
 	}
 	return ok;

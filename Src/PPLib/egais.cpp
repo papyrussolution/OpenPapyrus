@@ -406,7 +406,7 @@ int SLAPI PPEgaisProcessor::GetTempFileName(const char * pPath, const char * pSu
 {
 	int    ok = 1;
 	const  int is_cc = sstreqi_ascii(pSubPath, "cc");
-	rFn = 0;
+	rFn.Z();
 	SString temp_path;
 	if(!isempty(pPath)) {
 		(temp_path = pPath).SetLastSlash();
@@ -5920,7 +5920,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 
 int SLAPI PPEgaisProcessor::GetDebugPath(PPID locID, SString & rPath)
 {
-	rPath = 0;
+	rPath.Z();
     int    ok = 1;
     SString temp_buf;
     SString temp_path;
@@ -8293,7 +8293,7 @@ int SLAPI PPEgaisProcessor::InputMark(PrcssrAlcReport::GoodsItem * pAgi, SString
 		PrcssrAlcReport::EgaisMarkBlock Mb;
 	};
 
-	rMark = 0;
+	rMark.Z();
 
     int    ok = -1;
 	SString temp_buf;
@@ -8322,7 +8322,7 @@ int SLAPI PPEgaisProcessor::InputMark(PrcssrAlcReport::GoodsItem * pAgi, SString
 			PPErrorByDialog(dlg, CTL_EGAISMARK_INPUT);
 			TInputLine * p_il = (TInputLine *)dlg->getCtrlView(CTL_EGAISMARK_INPUT);
 			CALLPTRMEMB(p_il, selectAll(1));
-			rMark = 0;
+			rMark.Z();
 		}
     }
     CATCHZOKPPERR

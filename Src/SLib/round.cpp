@@ -1,5 +1,5 @@
 // ROUND.CPP
-// Copyright (c) A.Sobolev 1996-2000, 2001, 2003, 2004, 2007, 2009, 2010, 2016, 2017
+// Copyright (c) A.Sobolev 1996-2000, 2001, 2003, 2004, 2007, 2009, 2010, 2016, 2017, 2018
 // @threadsafe
 //
 #include <slib.h>
@@ -7,8 +7,30 @@
 #pragma hdrstop
 #include <float.h> // chgsign
 
+static const double _mizer = 1.0E-8; //0.00000001
+
+static FORCEINLINE double implement_round(double n, int prec)
+{
+	const  int sign = (fsign(n) - 1);
+	if(sign)
+		n = _chgsign(n);
+	if(prec == 0) {
+		const double f = floor(n);
+		n = ((n - f + _mizer) < 0.5) ? f : ceil(n);
+	}
+	else {
+		const double p = fpow10i(prec);
+		const double t = n * p;
+		const double f = floor(t);
+		n = (((t - f + _mizer) < 0.5) ? f : ceil(t)) / p;
+	}
+	return sign ? _chgsign(n) : n;
+}
+
 double FASTCALL round(double n, int prec)
 {
+	return implement_round(n, prec);
+	/*
 	static const double _mizer = 1.0E-8; //0.00000001
 	double p;
 	int    sign = (fsign(n) - 1);
@@ -19,16 +41,13 @@ double FASTCALL round(double n, int prec)
 		n = ((n - p + _mizer) < 0.5) ? p : ceil(n);
 	}
 	else {
-#ifdef _WIN32_WCE
-		p = pow(10, prec);
-#else
 		p = fpow10i(prec);
-#endif
 		double t = n * p;
 		double f = floor(t);
 		n = (((t - f + _mizer) < 0.5) ? f : ceil(t)) / p;
 	}
 	return sign ? _chgsign(n) : n;
+	*/
 }
 
 double FASTCALL round(double v, double prec, int dir)
@@ -46,13 +65,13 @@ double FASTCALL round(double v, double prec, int dir)
 	}
 }
 
-double FASTCALL R0(double v)  { return round(v, 0); }
-long   FASTCALL R0i(double v) { return (long)round(v, 0); }
-double FASTCALL R2(double v)  { return round(v, 2); }
-double FASTCALL R3(double v)  { return round(v, 3); }
-double FASTCALL R4(double v)  { return round(v, 4); }
-double FASTCALL R5(double v)  { return round(v, 5); }
-double FASTCALL R6(double v)  { return round(v, 6); }
+double FASTCALL R0(double v)  { return implement_round(v, 0); }
+long   FASTCALL R0i(double v) { return (long)implement_round(v, 0); }
+double FASTCALL R2(double v)  { return implement_round(v, 2); }
+double FASTCALL R3(double v)  { return implement_round(v, 3); }
+double FASTCALL R4(double v)  { return implement_round(v, 4); }
+double FASTCALL R5(double v)  { return implement_round(v, 5); }
+double FASTCALL R6(double v)  { return implement_round(v, 6); }
 
 double FASTCALL roundnev(double n, int prec)
 {
@@ -104,15 +123,31 @@ double SLAPI trunc(double n, int prec)
 	double f = floor(n * p);
 	return f / p;
 }
+//
+// Note about next 4 functions:
+// Функции intmnytodbl и dbltointmny идентичны соответственно inttodbl2 и dbltoint2
+// Исторически, intmnytodbl и dbltointmny появились раньше, давно и успешно работают.
+// Вполне возможно, что реализацию можно уточнить - тогда начинать следует с inttodbl2 и dbltoint2
+// так как они реже используются.
+//
+double FASTCALL inttodbl2(long v)
+{
+	return implement_round(((double)v) / 100.0, 2);
+}
+
+long   FASTCALL dbltoint2(double r)
+{
+	return (long)implement_round(r * 100.0, 0);
+}
 
 double FASTCALL intmnytodbl(long m)
 {
-	return round(((double)m) / 100., 2);
+	return implement_round(((double)m) / 100.0, 2);
 }
 
 long FASTCALL dbltointmny(double r)
 {
-	return (long)round(r * 100., 0);
+	return (long)implement_round(r * 100.0, 0);
 }
 //
 //

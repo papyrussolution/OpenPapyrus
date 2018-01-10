@@ -2079,7 +2079,6 @@ int PPALDD_TSessionCipView::NextIteration(long iterId)
 	START_PPVIEW_ALDD_ITER(TSession);
 	I.SessID = item.ID;
 	I.CipID  = item.CipItem.ID;
-
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
@@ -2196,11 +2195,8 @@ DL6_IC_CONSTRUCTION_EXTRA(PPFiltTSession, DL6ICLS_PPFiltTSession_VTab, TSessionF
 //
 // Interface IPpyFilt_TSession implementation
 //
-void DL6ICLS_PPFiltTSession::SetStPeriod(LDATE low, LDATE upp)
-	{ IMPL_PPIFC_EXTPTR(TSessionFilt)->StPeriod.Set(low, upp); }
-void DL6ICLS_PPFiltTSession::SetFnPeriod(LDATE low, LDATE upp)
-	{ IMPL_PPIFC_EXTPTR(TSessionFilt)->FnPeriod.Set(low, upp); }
-
+void DL6ICLS_PPFiltTSession::SetStPeriod(LDATE low, LDATE upp) { IMPL_PPIFC_EXTPTR(TSessionFilt)->StPeriod.Set(low, upp); }
+void DL6ICLS_PPFiltTSession::SetFnPeriod(LDATE low, LDATE upp) { IMPL_PPIFC_EXTPTR(TSessionFilt)->FnPeriod.Set(low, upp); }
 int32 DL6ICLS_PPFiltTSession::get_Order() { IMPL_PPIFC_GETPROP(TSessionFilt, Order); }
 void  DL6ICLS_PPFiltTSession::put_Order(int32 value) { IMPL_PPIFC_PUTPROP(TSessionFilt, Order); }
 int32 DL6ICLS_PPFiltTSession::get_SuperSessID() { IMPL_PPIFC_GETPROP(TSessionFilt, SuperSessID); }
@@ -2213,18 +2209,15 @@ int32 DL6ICLS_PPFiltTSession::get_ArID() { IMPL_PPIFC_GETPROP(TSessionFilt, ArID
 void  DL6ICLS_PPFiltTSession::put_ArID(int32 value) { IMPL_PPIFC_PUTPROP(TSessionFilt, ArID); }
 int32 DL6ICLS_PPFiltTSession::get_Ar2ID() { IMPL_PPIFC_GETPROP(TSessionFilt, Ar2ID); }
 void  DL6ICLS_PPFiltTSession::put_Ar2ID(int32 value) { IMPL_PPIFC_PUTPROP(TSessionFilt, Ar2ID); }
-SDateRange DL6ICLS_PPFiltTSession::get_StPeriod()
-	{ return DateRangeToOleDateRange(((TSessionFilt *)ExtraPtr)->StPeriod); }
+SDateRange DL6ICLS_PPFiltTSession::get_StPeriod() { return DateRangeToOleDateRange(((TSessionFilt *)ExtraPtr)->StPeriod); }
 LTIME DL6ICLS_PPFiltTSession::get_StTime() { IMPL_PPIFC_GETPROP(TSessionFilt, StTime); }
 void  DL6ICLS_PPFiltTSession::put_StTime(LTIME value) { IMPL_PPIFC_PUTPROP(TSessionFilt, StTime); }
-SDateRange DL6ICLS_PPFiltTSession::get_FnPeriod()
-	{ return DateRangeToOleDateRange(((TSessionFilt *)ExtraPtr)->FnPeriod); }
+SDateRange DL6ICLS_PPFiltTSession::get_FnPeriod() { return DateRangeToOleDateRange(((TSessionFilt *)ExtraPtr)->FnPeriod); }
 LTIME DL6ICLS_PPFiltTSession::get_FnTime() { IMPL_PPIFC_GETPROP(TSessionFilt, FnTime); }
 void  DL6ICLS_PPFiltTSession::put_FnTime(LTIME value) { IMPL_PPIFC_PUTPROP(TSessionFilt, FnTime); }
 int32 DL6ICLS_PPFiltTSession::get_StatusFlags() { IMPL_PPIFC_GETPROP(TSessionFilt, StatusFlags); }
 void  DL6ICLS_PPFiltTSession::put_StatusFlags(int32 value) { IMPL_PPIFC_PUTPROP(TSessionFilt, StatusFlags); }
-PpyVTSessionFlags DL6ICLS_PPFiltTSession::get_Flags()
-	{ IMPL_PPIFC_GETPROP_CAST(TSessionFilt, StatusFlags, PpyVTSessionFlags); }
+PpyVTSessionFlags DL6ICLS_PPFiltTSession::get_Flags() { IMPL_PPIFC_GETPROP_CAST(TSessionFilt, StatusFlags, PpyVTSessionFlags); }
 void  DL6ICLS_PPFiltTSession::put_Flags(PpyVTSessionFlags value) { IMPL_PPIFC_PUTPROP(TSessionFilt, StatusFlags); }
 int32 DL6ICLS_PPFiltTSession::get_Ft_Idle() { IMPL_PPIFC_GETPROP(TSessionFilt, Ft_Idle); }
 void  DL6ICLS_PPFiltTSession::put_Ft_Idle(int32 value) { IMPL_PPIFC_PUTPROP_CAST(TSessionFilt, Ft_Idle, int16); }
@@ -2336,7 +2329,7 @@ int SLAPI PPObjTSession::ConvertPacket(const UhttTSessionPacket * pSrc, long fla
         for(i = 0; i < pSrc->TagList.getCount(); i++) {
 			const UhttTagItem * p_uhtt_tag_item = pSrc->TagList.at(i);
 			PPID   tag_id = 0;
-			PPObjectTag2 tag_rec;
+			PPObjectTag tag_rec;
 			if(tag_obj.SearchBySymb(p_uhtt_tag_item->Symb, &tag_id, &tag_rec) > 0) {
 				assert(tag_id == tag_rec.ID); // @paranoic
 				ObjTagItem tag_item;

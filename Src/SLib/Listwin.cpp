@@ -15,7 +15,6 @@ ListWindow::ListWindow(ListBoxDef * pDef, const char * pTitle, int aNum) : TDial
 	setDef(pDef);
 	TButton * b = new TButton(TRect(0, 0, 20, 20), "OK", cmOK, bfDefault);
 	Insert_(&b->SetId(IDOK)); /*CTLID_LISTBOXOKBUTTON*/
-	TbId = 0;
 }
 
 ListWindow::ListWindow() : TDialog(_DefLwRect, 0), P_Def(0), PrepareSearchLetter(0), P_Lb(0), TbId(0)
@@ -39,8 +38,8 @@ void ListWindow::prepareForSearching(int firstLetter)
 
 void ListWindow::executeNM(HWND parent)
 {
-	HWND   hwnd_parent = (parent) ? parent : APPL->H_MainWnd;
-	TView::messageCommand(owner, cmLBLoadDef, this);
+	HWND   hwnd_parent = parent ? parent : APPL->H_MainWnd;
+	MessageCommandToOwner(cmLBLoadDef);
 	Id = (isTreeList()) ? DLGW_TREELBX : DLGW_LBX;
 	HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)DialogProc, (LPARAM)this);
 	TView::SetWindowProp(H(), GWL_STYLE, WS_CHILD);
@@ -83,11 +82,11 @@ int FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 		TView * p = first();
 		do {
 			if(p->TestId(P_Lb->GetId())) {
-				p_next = p->next;
+				p_next = p->P_Next;
 				remove(p);
 				found = 1;
 			}
-		} while(!found && p && (p = p->next));
+		} while(!found && p && (p = p->P_Next));
 		P_Lb->SetId(isTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST);
 		P_Lb->SetTreeListState(isTreeList());
 		if(found)
@@ -109,7 +108,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 		int    lw_dlg_id = (DlgFlags & fLarge) ? DLGW_LBX_L : DLGW_LBX;
 		ComboBox * p_combo = P_Lb ? P_Lb->combo : 0;
 		HWND   hwnd_parent = p_combo ? p_combo->link()->Parent : APPL->H_MainWnd;
-		TView::messageCommand(owner, cmLBLoadDef, this);
+		MessageCommandToOwner(cmLBLoadDef);
 		Id = isTreeList() ? DLGW_TREELBX : ((P_Def && P_Def->Options & lbtOwnerDraw) ? DLGW_OWNDRAWLBX : lw_dlg_id);
 		HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)DialogProc, (LPARAM)this);
 		if(oneof2(Id, DLGW_LBX, DLGW_TREELBX)) {
@@ -536,7 +535,7 @@ IMPL_HANDLE_EVENT(WordSelector)
 		ushort last_cmd = 0;
 		int    lw_dlg_id = DLGW_LBXFLAT;
 		HWND   hwnd_parent = P_Blk->H_InputDlg;
-		TView::messageCommand(owner, cmLBLoadDef, this);
+		MessageCommandToOwner(cmLBLoadDef);
 		Id = lw_dlg_id;
 		HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)DialogProc, (LPARAM)this);
 		APPL->SetWindowViewByKind(H(), TProgram::wndtypListDialog);
@@ -702,11 +701,11 @@ int FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 		TView * p = first();
 		do {
 			if(p->TestId(P_Lb->GetId())) {
-				p_next = p->next;
+				p_next = p->P_Next;
 				remove(p);
 				found = 1;
 			}
-		} while(!found && p && (p = p->next));
+		} while(!found && p && (p = p->P_Next));
 		P_Lb->SetId(isTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST);
 		P_Lb->SetTreeListState(isTreeList());
 		if(found)
@@ -719,13 +718,8 @@ int FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 //
 // Utils
 //
-ListWindow * SLAPI CreateListWindow(SArray * pAry, uint options, TYPEID type)
-	{ return new ListWindow(new StdListBoxDef(pAry, options, type), 0, 0); }
-ListWindow * SLAPI CreateListWindow(StrAssocArray * pAry, uint options)
-	{ return new ListWindow(new StrAssocListBoxDef(pAry, options), 0, 0); }
-ListWindow * SLAPI CreateListWindow(DBQuery & rQuery, uint options)
-	{ return new ListWindow(new DBQListBoxDef(rQuery, options, 32), 0, 0); }
-ListWindow * SLAPI CreateListWindow(uint sz, uint options)
-	{ return new ListWindow(new StringListBoxDef(sz, options), 0, 0); }
-WordSelector * SLAPI CreateWordSelector(WordSel_ExtraBlock * pBlk)
-	{ return new WordSelector(pBlk); }
+ListWindow * SLAPI CreateListWindow(SArray * pAry, uint options, TYPEID type) { return new ListWindow(new StdListBoxDef(pAry, options, type), 0, 0); }
+ListWindow * SLAPI CreateListWindow(StrAssocArray * pAry, uint options) { return new ListWindow(new StrAssocListBoxDef(pAry, options), 0, 0); }
+ListWindow * SLAPI CreateListWindow(DBQuery & rQuery, uint options) { return new ListWindow(new DBQListBoxDef(rQuery, options, 32), 0, 0); }
+ListWindow * SLAPI CreateListWindow(uint sz, uint options) { return new ListWindow(new StringListBoxDef(sz, options), 0, 0); }
+// @v9.8.12 (unused) WordSelector * SLAPI CreateWordSelector(WordSel_ExtraBlock * pBlk) { return new WordSelector(pBlk); }

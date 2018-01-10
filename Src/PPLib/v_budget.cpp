@@ -1004,8 +1004,8 @@ int SLAPI PPObjBudget::EditLine(PPID * pID, PPIDArray * pIdList, PPID budgetID, 
 
 int SLAPI PPObjBudget::FormatDate(PPID budgetID, int16 cycle, LDATE dt, SString & rText)
 {
-	int ok = -1;
-	rText = 0;
+	int    ok = -1;
+	rText.Z();
 	if(cycle == 0 && budgetID) {
 		PPBudget budg_rec;
 		MEMSZERO(budg_rec);

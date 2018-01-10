@@ -209,20 +209,13 @@ int operator == (const TCommandSet& tc1, const TCommandSet& tc2)
 	return (memcmp(tc1.cmds, tc2.cmds, sizeof(tc1.cmds)) == 0);
 }
 
-void TCommandSet::operator += (int cmd)
-	{ enableCmd(cmd, 1);  }
-void TCommandSet::operator -= (int cmd)
-	{ enableCmd(cmd, 0); }
-void TCommandSet::operator += (const TCommandSet & tc)
-	{ enableCmd(tc, 1); }
-void TCommandSet::operator -= (const TCommandSet & tc)
-	{ enableCmd(tc, 0); }
-int  TCommandSet::loc(int cmd)
-	{ return (cmd >> 3); }
-int  TCommandSet::mask(int cmd)
-	{ return (1 << (cmd & 0x07)); }
-int  operator != (const TCommandSet& tc1, const TCommandSet& tc2)
-	{ return !operator == (tc1, tc2); }
+void TCommandSet::operator += (int cmd) { enableCmd(cmd, 1);  }
+void TCommandSet::operator -= (int cmd) { enableCmd(cmd, 0); }
+void TCommandSet::operator += (const TCommandSet & tc) { enableCmd(tc, 1); }
+void TCommandSet::operator -= (const TCommandSet & tc) { enableCmd(tc, 0); }
+int  TCommandSet::loc(int cmd) { return (cmd >> 3); }
+int  TCommandSet::mask(int cmd) { return (1 << (cmd & 0x07)); }
+int  operator != (const TCommandSet& tc1, const TCommandSet& tc2) { return !operator == (tc1, tc2); }
 //
 //
 //
@@ -298,10 +291,9 @@ HBITMAP FASTCALL TBitmapHash::GetSystem(uint bmpId)
 //
 //
 //
-TView::EvBarrier::EvBarrier(TView * pV)
+TView::EvBarrier::EvBarrier(TView * pV) : P_V(pV)
 {
 	assert(pV);
-	P_V = pV;
 	Busy = P_V->EventBarrier(0);
 }
 
@@ -326,47 +318,21 @@ void TView::SendToParent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		handleWindowsMessage(uMsg, wParam, lParam);
 }
 
-TView::TView(const TRect & bounds)
+TView::TView(const TRect & bounds) : Sign(SIGN_TVIEW), SubSign(0), Id(0), Reserve(0), Sf(sfVisible | sfMsgToParent),
+	options(0), EndModalCmd(0), HelpCtx(0), P_Next(0), P_Owner(0), Parent(0), PrevWindowProc(0), P_CmdSet(0), P_WordSelBlk(0)
 {
-	Sign = SIGN_TVIEW;
-	SubSign = 0;
-	Id = 0;
-	Reserve = 0;
-	Sf = (sfVisible | sfMsgToParent);
-	options = 0;
-	EndModalCmd = 0;
-	HelpCtx = 0;
-	next = 0;
-	owner = 0;
-	Parent = 0;
-	PrevWindowProc = 0;
 	setBounds(bounds);
-	P_CmdSet = 0;
-	P_WordSelBlk = 0;
 }
 
-TView::TView()
+TView::TView() : Sign(SIGN_TVIEW), SubSign(0), Id(0), Reserve(0), Sf(sfVisible | sfMsgToParent),
+	options(0), EndModalCmd(0), HelpCtx(0), P_Next(0), P_Owner(0), Parent(0), PrevWindowProc(0), P_CmdSet(0), P_WordSelBlk(0)
 {
-	Sign = SIGN_TVIEW;
-	SubSign = 0;
-	Id = 0;
-	Reserve = 0;
-	Sf = (sfVisible | sfMsgToParent);
-	options = 0;
-	EndModalCmd = 0;
-	HelpCtx = 0;
-	next = 0;
-	owner = 0;
-	Parent = 0;
-	PrevWindowProc = 0;
-	P_CmdSet = 0;
-	P_WordSelBlk = 0;
 }
 
 TView::~TView()
 {
 	ZDELETE(P_WordSelBlk);
-	CALLPTRMEMB(owner, remove(this));
+	CALLPTRMEMB(P_Owner, remove(this));
 	Sign = 0;
 	Id = 0;
 	Parent = 0;
@@ -385,11 +351,6 @@ int FASTCALL TView::EventBarrier(int rmv)
 			Sf |= sfEventBarrier;
 		return 0;
 	}
-}
-
-int TView::GetEndModalCmd() const
-{
-	return EndModalCmd;
 }
 
 void TView::Draw_()
@@ -599,11 +560,6 @@ int FASTCALL TView::IsSubSign(uint sign) const
 	return BIN(SubSign == sign);
 }
 
-uint TView::GetSubSign() const
-{
-	return SubSign;
-}
-
 int TView::OnDestroy(HWND hWnd)
 {
 	int    ok = -1;
@@ -630,7 +586,7 @@ int TView::RestoreOnDestruction()
 int TView::SetupText(SString * pText)
 {
 	int    ok = -1;
-	if(owner && owner->IsSubSign(TV_SUBSIGN_DIALOG) && ((TDialog *)owner)->CheckFlag(TDialog::fExport))
+	if(P_Owner && P_Owner->IsSubSign(TV_SUBSIGN_DIALOG) && ((TDialog *)P_Owner)->CheckFlag(TDialog::fExport))
 		ok = -1;
 	else {
 		//char   temp_buf[1024];
@@ -651,14 +607,14 @@ int TView::SetupText(SString * pText)
 
 void TView::Show(int doShow)
 {
-	ShowWindow(getHandle(), doShow ? SW_SHOW : SW_HIDE);
+	::ShowWindow(getHandle(), doShow ? SW_SHOW : SW_HIDE);
 }
 
 TView * TView::prev() const
 {
 	TView * res = (TView *)this; // @badcast
-	while(res->next != this)
-		res = res->next;
+	while(res->P_Next != this)
+		res = res->P_Next;
 	return res;
 }
 
@@ -669,12 +625,12 @@ int TView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 TView * TView::nextView() const
 {
-	return (this == owner->P_Last) ? 0 : next;
+	return (this == P_Owner->P_Last) ? 0 : P_Next;
 }
 
 TView * TView::prevView() const
 {
-	return (this == owner->first()) ? 0 : prev();
+	return (this == P_Owner->first()) ? 0 : prev();
 }
 
 int TView::commandEnabled(ushort command) const
@@ -766,13 +722,13 @@ void TView::setCommands(const TCommandSet & cmds)
 
 void TView::select()
 {
-	CALLPTRMEMB(owner, setCurrent(this, normalSelect));
+	CALLPTRMEMB(P_Owner, setCurrent(this, normalSelect));
 }
 
 void TView::ResetOwnerCurrent()
 {
-	if(owner && owner->P_Current == this)
-		owner->setCurrent(0, TGroup::normalSelect);
+	if(P_Owner && P_Owner->P_Current == this)
+		P_Owner->setCurrent(0, TGroup::normalSelect);
 }
 
 /* @v9.0.1
@@ -801,6 +757,11 @@ int FASTCALL TView::TestId(uint id) const
 int FASTCALL TView::IsInState(uint s) const
 {
 	return BIN((Sf & s) == s);
+}
+
+void * FASTCALL TView::MessageCommandToOwner(uint command)
+{
+	return P_Owner ? TView::messageCommand(P_Owner, command, this) : 0;
 }
 
 uint TView::getHelpCtx()
@@ -847,18 +808,18 @@ void TView::setState(uint aState, bool enable)
 		SETFLAG(Sf, aState, enable);
 		if(aState & sfDisabled)
 			EnableWindow(getHandle(), !(Sf & sfDisabled));
-		if(owner) {
+		if(P_Owner) {
 			switch(aState) {
 				case sfVisible:
 					{
-						TView * p_label = (TView *)TView::messageBroadcast(owner, cmSearchLabel, this);
+						TView * p_label = (TView *)TView::messageBroadcast(P_Owner, cmSearchLabel, this);
 						CALLPTRMEMB(p_label, setState(aState, enable));
 						Show(enable);
 					}
 					break;
 				case sfSelected:
 				case sfFocused:
-					TView::messageBroadcast(owner, enable ? cmReceivedFocus : cmReleasedFocus, this);
+					TView::messageBroadcast(P_Owner, enable ? cmReceivedFocus : cmReleasedFocus, this);
 					break;
 			}
 		}
@@ -872,7 +833,7 @@ TView * TView::TopView()
 		p = APPL->P_TopView;
 	else {
 		for(p = this; p && !(p->Sf & sfModal);)
-			p = p->owner;
+			p = p->P_Owner;
 	}
 	return p;
 }
@@ -1482,7 +1443,7 @@ void TGroup::forEach(void (*func)(TView*, void *), void *args)
 	TView * p_term = P_Last;
 	TView * p_temp = P_Last;
 	if(p_temp) do {
-		p_temp = p_temp->next;
+		p_temp = p_temp->P_Next;
 		func(p_temp, args);
 	} while(p_temp != p_term);
 }
@@ -1492,14 +1453,14 @@ void TGroup::removeView(TView *p)
 	if(P_Last) {
 		TView * t = P_Last;
 		do {
-			if(t->next == p) {
-				t->next = p->next;
+			if(t->P_Next == p) {
+				t->P_Next = p->P_Next;
 				if(p != P_Last)
 					return;
-				P_Last = (p->next == p) ? 0 : t;
+				P_Last = (p->P_Next == p) ? 0 : t;
 				break;
 			}
-			t = t->next;
+			t = t->P_Next;
 		} while(t != P_Last);
 	}
 }
@@ -1528,8 +1489,8 @@ int TGroup::TransmitData(int dir, void * pData)
 void TGroup::remove(TView * p)
 {
 	removeView(p);
-	p->owner = 0;
-	p->next = 0;
+	p->P_Owner = 0;
+	p->P_Next = 0;
 }
 
 /* @v9.6.2
@@ -1556,7 +1517,7 @@ ushort TGroup::execView(TWindow * p)
 	ushort retval = cmCancel;
 	if(p) {
 		const uint32 save_options = p->options;
-		TGroup  * save_owner = p->owner;
+		TGroup  * save_owner = p->P_Owner;
 		TWindow * save_top_view = APPL->P_TopView;
 		TView   * save_current = P_Current;
 		TCommandSet save_commands;
@@ -1588,7 +1549,7 @@ ushort TGroup::execView(TWindow * p)
 
 TView * TGroup::first() const
 {
-	return P_Last ? P_Last->next : 0;
+	return P_Last ? P_Last->P_Next : 0;
 }
 
 struct handleStruct {
@@ -1655,24 +1616,24 @@ void TGroup::Insert_(TView * p)
 
 void TGroup::insertBefore(TView * p, TView * pTarget)
 {
-	if(p && !p->owner && (!pTarget || pTarget->owner == this))
+	if(p && !p->P_Owner && (!pTarget || pTarget->P_Owner == this))
 		insertView(p, pTarget);
 }
 
 void TGroup::insertView(TView * p, TView * Target)
 {
-	p->owner = this;
+	p->P_Owner = this;
 	if(Target) {
 		Target = Target->prev();
-		p->next = Target->next;
-		Target->next = p;
+		p->P_Next = Target->P_Next;
+		Target->P_Next = p;
 	}
 	else {
 		if(P_Last == 0)
-			p->next = p;
+			p->P_Next = p;
 		else {
-			p->next = P_Last->next;
-			P_Last->next = p;
+			p->P_Next = P_Last->P_Next;
+			P_Last->P_Next = p;
 		}
 		P_Last = p;
 	}
@@ -1732,7 +1693,7 @@ void TGroup::setState(uint aState, bool enable)
 		TView * p_temp = P_Last;
 		if(p_temp)
 			do {
-				p_temp = p_temp->next;
+				p_temp = p_temp->P_Next;
 				p_temp->setState(aState, enable);
 			} while(p_temp != p_term);
 	}
@@ -1756,7 +1717,7 @@ int FASTCALL TGroup::valid(ushort command)
 		TView * p_term = P_Last;
 		TView * p_temp = P_Last;
 		if(p_temp) do {
-			p_temp = p_temp->next;
+			p_temp = p_temp->P_Next;
 			if(!p_temp->valid(command)) {
 				ok = 0;
 			}

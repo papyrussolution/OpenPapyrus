@@ -7,6 +7,21 @@
 //
 //
 //
+SLAPI TWhatmanObject::TextParam::TextParam()
+{
+	SetDefault();
+}
+
+void SLAPI TWhatmanObject::TextParam::SetDefault()
+{
+	Side = SIDE_BOTTOM;
+	Flags = 0;
+	AlongSize = -1.0f;
+	AcrossSize = -0.5f;
+	CStyleIdent = 0;
+	ParaIdent = 0;
+}
+
 class WhatmanObjectRegTable : private SVector { // @v9.8.5 SArray-->SVector
 public:
 	struct Item {
@@ -159,7 +174,7 @@ int TWhatmanObject::GetRegSymbById(long id, SString & rSymb)
 		ok = 1;
 	}
 	else
-		rSymb = 0;
+		rSymb.Z();
 	return ok;
 }
 

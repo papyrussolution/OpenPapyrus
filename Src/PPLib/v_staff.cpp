@@ -958,7 +958,7 @@ StrAssocArray * FastEditSumByDivDlg::MakeDivList()
 				StrAssocArray::Item item = staff_entry_list.Get(i);
 				PPStaffEntry se;
 				if(ObjStaffL.Fetch(item.Id, &se) > 0) {
-					if(empl_list.getCount() <= 1 || empl_list.Search(se.OrgID, 0)) {
+					if(empl_list.getCount() <= 1 || empl_list.Search(se.OrgID)) {
 						p_ret_list->Add(se.ID + STAFF_OFFS, se.OrgID, se.Name);
 						staff_idlist.add(se.ID);
 					}

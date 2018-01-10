@@ -672,9 +672,8 @@ IMPL_INVARIANT_C(CCheckPacket)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SLAPI CCheckPacket::CCheckPacket()
+SLAPI CCheckPacket::CCheckPacket() : P_DlvrAddr(0)
 {
-	P_DlvrAddr = 0;
 	Init();
 }
 
@@ -692,7 +691,7 @@ void SLAPI CCheckPacket::Init()
 	_OrdPrepay  = 0.0;
 	MEMSZERO(Ext);
 	MEMSZERO(Rec);
-	UhttScHash = 0;
+	UhttScHash.Z();
 	Items_.clear();
 	ExtList.clear();
 	LnTextList.Clear();
@@ -4306,6 +4305,10 @@ int SLAPI CSessGrouping::TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int
 	if(pPack && pPack->GetTCount()) {
 		PPObjBill * p_bobj = BillObj;
 		pPack->SetQuantitySign(-1);
+		// @v9.8.12 {
+		if(EqCfg.Flags & EqCfg.fWrOffPartStrucs)
+			pPack->InsertPartitialStruc();
+		// } @v9.8.12 
 		p_bobj->SubstMemo(pPack); // @v8.5.10
 		if(p_bobj->__TurnPacket(pPack, 0, 1, 0)) {
 			if(pOad) {
@@ -4539,17 +4542,16 @@ int SLAPI CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pT
 			CSessDfctList dfct_list;
 			CSessDfctItem * p_item, item;
 			StrAssocArray goods_name_list;
+			Goods2Tbl::Rec goods_rec;
 			const  PPID assc_id = (cn_rec.GoodsLocAssocID && !(cn_rec.ExtFlags & CASHFX_GLASSOCPRINTONLY)) ? cn_rec.GoodsLocAssocID : PPASS_GOODS2LOC;
 			GoodsToObjAssoc g2la(assc_id, PPOBJ_LOCATION);
 			THROW(g2la.IsValid());
 			THROW(g2la.Load());
 			THROW(GL.GetDfctList(+1, sessID, 0, 0, CSessDfctList::uniteByDateGoods, &dfct_list, &date_list));
-			for(i = 0; dfct_list.enumItems(&i, (void **)&p_item);)
-				if(!goods_name_list.Search(p_item->GoodsID, 0)) {
-					Goods2Tbl::Rec goods_rec;
-					if(goods_obj.Fetch(p_item->GoodsID, &goods_rec) > 0)
-						THROW_SL(goods_name_list.Add(p_item->GoodsID, goods_rec.Name));
-				}
+			for(i = 0; dfct_list.enumItems(&i, (void **)&p_item);) {
+				if(!goods_name_list.Search(p_item->GoodsID) && goods_obj.Fetch(p_item->GoodsID, &goods_rec) > 0)
+					THROW_SL(goods_name_list.Add(p_item->GoodsID, goods_rec.Name));
+			}
 			goods_name_list.SortByText();
 			date_list.sort();
 			for(k = 0; k < date_list.getCount(); k++) {

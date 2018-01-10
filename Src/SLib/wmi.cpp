@@ -1,5 +1,5 @@
 // WMI.CPP
-// Copyright (c) A.Sobolev 2008, 2010, 2015
+// Copyright (c) A.Sobolev 2008, 2010, 2015, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -9,11 +9,8 @@
 //
 //
 //
-SLAPI SWmi::SWmi()
+SLAPI SWmi::SWmi() : State(0), P_Loc(0), P_Svc(0)
 {
-	State = 0;
-	P_Loc = 0;
-	P_Svc = 0;
 	CoInitializeEx(0, COINIT_APARTMENTTHREADED);
 }
 
@@ -177,14 +174,10 @@ int SLAPI SWmi::Method_CreateProcess(const char * pCmdLine)
 		THROW_V(r, SLERR_WMI_EXECMETHODRETVAL);
 	}
 	CATCHZOK
-	if(p_out)
-		p_out->Release();
-	if(p_inparams)
-		p_inparams->Release();
-	if(p_incls)
-		p_incls->Release();
-	if(p_process)
-		p_process->Release();
+	CALLPTRMEMB(p_out, Release());
+	CALLPTRMEMB(p_inparams, Release());
+	CALLPTRMEMB(p_incls, Release());
+	CALLPTRMEMB(p_process, Release());
 	return ok;
 }
 

@@ -1192,7 +1192,7 @@ int SLAPI PPObjWorld::AddItemToSelectorList(const WorldTbl::Rec & rRec, AislBloc
 int SLAPI PPObjWorld::AddItemToSelectorList(PPID id, StrAssocArray * pList, int useHierarchy, PPIDArray * pStack)
 {
 	int    ok = -1;
-	if(!pList->Search(id, 0)) {
+	if(!pList->Search(id)) {
 		WorldTbl::Rec rec;
 		if(Fetch(id, &rec) > 0) {
 			PPID   parent_id = useHierarchy ? NZOR(rec.ParentID, rec.CountryID) : 0;

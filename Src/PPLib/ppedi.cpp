@@ -1,5 +1,5 @@
 // PPEDI.CPP
-// Copyright (c) A.Sobolev 2015, 2016
+// Copyright (c) A.Sobolev 2015, 2016, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -104,7 +104,7 @@ int SEancomXmlSegment::GetText(SString & rText) const
 		ok = 1;
 	}
 	else {
-		rText = 0;
+		rText.Z();
 		ok = 0;
 	}
 	return ok;

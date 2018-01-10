@@ -1528,17 +1528,14 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 		}
 	}
 	i = 0;
-	rEncodedStr = 0;
+	rEncodedStr.Z();
 	while(i < enc_arr_size) {
 		char c = encode_vals[i++];
 		rEncodedStr.CatChar(c);
 	}
-
 	CATCHZOK;
-	if(vals)
-		ZDELETE(vals);
-	if(encode_vals)
-		ZDELETE(encode_vals);
+	ZDELETE(vals);
+	ZDELETE(encode_vals);
 	return ok;
 }
 

@@ -26,8 +26,7 @@
  * OF ANY KIND, either express or implied. See the LGPL or the MPL for
  * the specific language governing rights and limitations.
  *
- * Authors:
- *    Lukas Lalinsky <lukas@oxygene.sk>
+ * Authors: Lukas Lalinsky <lukas@oxygene.sk>
  *
  * Partially on code from xftdpy.c
  *

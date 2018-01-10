@@ -1,5 +1,5 @@
 // TREEWND.CPP
-// Modified by A.Starodub 2013, 2016
+// Modified by A.Starodub 2013, 2016, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -10,10 +10,8 @@
 #define MENU_TREELIST 1014
 #define BTN_CLOSE     1015
 
-TreeWindow::ListWindowItem::ListWindowItem(long cmd, ListWindow * pLw)
+TreeWindow::ListWindowItem::ListWindowItem(long cmd, ListWindow * pLw) : Cmd(cmd), P_Lw(pLw)
 {
-	Cmd = cmd;
-	P_Lw = pLw;
 }
 
 TreeWindow::ListWindowItem::~ListWindowItem()
@@ -21,14 +19,12 @@ TreeWindow::ListWindowItem::~ListWindowItem()
 	ZDELETE(P_Lw);
 }
 
-TreeWindow::TreeWindow(HWND parentWnd)
+TreeWindow::TreeWindow(HWND parentWnd) : P_CurLw(0), P_Toolbar(0)
 {
 	Hwnd = APPL->CreateDlg(4100, parentWnd, TreeWindow::WndProc, (long)this);
 	H_CmdList = GetDlgItem(Hwnd, MENU_TREELIST);
 	APPL->SetWindowViewByKind(Hwnd, TProgram::wndtypNone);
 	ShortcWnd.Create(Hwnd);
-	P_CurLw = 0;
-	P_Toolbar = 0;
 }
 
 TreeWindow::~TreeWindow()
@@ -291,7 +287,7 @@ int TreeWindow::OnCommand(WPARAM wParam, LPARAM lParam)
 {
 	int    r = 1;
 	if(P_CurLw && P_CurLw->listBox()) {
-		TView::messageCommand(P_CurLw->listBox()->owner, wParam, this);
+		TView::messageCommand(P_CurLw->listBox()->P_Owner, wParam, this);
 		r = 0;
 	}
 	return r;
@@ -431,5 +427,3 @@ int  TreeWindow::IsVisible() {return IsWindowVisible(Hwnd);}
 void TreeWindow::MoveWindow(const RECT &rRect) {::MoveWindow(Hwnd, rRect.left, rRect.top, rRect.right, rRect.bottom, 1);}
 void TreeWindow::GetRect(RECT &rRect) {GetWindowRect(Hwnd, &rRect);}
 void TreeWindow::Show(int show) {ShowWindow(Hwnd, (show) ? SW_SHOW : SW_HIDE);}
-
-

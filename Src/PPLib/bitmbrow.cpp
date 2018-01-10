@@ -1,5 +1,5 @@
 // BITMBROW.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 // Модуль, отвечающий за броузер строк товарных документов.
@@ -583,7 +583,7 @@ static int PriceDevColorFunc(const void * pData, long col, int paintAction, Brow
 		}
 		if(col == 0) {
 			const StrAssocArray & r_problems_list = p_brw->GetProblemsList();
-			if(r_problems_list.Search(pos, 0) > 0) {
+			if(r_problems_list.Search(pos) > 0) {
 				pStyle->Color2 = GetColorRef(SClrRed);
 				pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
 				ok = 1;

@@ -423,7 +423,7 @@ void GetErrorMsg(SString & rMsg)
 void FormatLoginToGLN(const char * login, SString & rStr)
 {
 	uint exit_while = 0;
-	rStr = 0;
+	rStr.Z();
 	if(login) {
 		while(!exit_while) {
 			if((*login == 0) || !isdec(*login))
@@ -442,7 +442,7 @@ void FormatLoginToLogin(const char * login, SString & rStr)
 {
 	uint exit_while = 0;
 	char low_strip = '_';
-	rStr = 0;
+	rStr.Z();
 	if(login) {
 		while(!exit_while) {
 			if((*login == 0) || (*login == low_strip))

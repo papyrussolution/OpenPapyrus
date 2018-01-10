@@ -540,13 +540,11 @@ int X509_up_ref(X509 *x);
 int X509_get_signature_type(const X509 *x);
 
 # if OPENSSL_API_COMPAT < 0x10100000L
-#define X509_get_notBefore X509_getm_notBefore
-#define X509_get_notAfter X509_getm_notAfter
-#define X509_set_notBefore X509_set1_notBefore
-#define X509_set_notAfter X509_set1_notAfter
+	#define X509_get_notBefore X509_getm_notBefore
+	#define X509_get_notAfter X509_getm_notAfter
+	#define X509_set_notBefore X509_set1_notBefore
+	#define X509_set_notAfter X509_set1_notAfter
 #endif
-
-
 /*
  * This one is only used so that a binary form can output, as in
  * i2d_X509_NAME(X509_get_X509_PUBKEY(x),&buf)

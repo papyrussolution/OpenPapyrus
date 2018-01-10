@@ -11,8 +11,8 @@ const char * SLBColumnDelim = "/^";
 
 IMPL_CMPFUNC(_PcharNoCase, i1, i2)
 {
-	const char * p = (char *)i1;
-	const char * c = (char *)i2;
+	const char * p = (const char *)i1;
+	const char * c = (const char *)i2;
 	while(*p && !isprint((uchar)*p) && !IsLetter866(*p))
 		p++;
 	if(*c == '*')
@@ -72,7 +72,7 @@ INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 					di.H_DC = (HDC)wParam;
 					GetClientRect(hWnd, &di.ItemRect);
 					di.P_View = p_view;
-					TView::messageCommand(p_view->owner, cmDrawItem, &di);
+					TView::messageCommand(p_view->P_Owner, cmDrawItem, &di);
 					if(di.ItemAction == 0)
 						return 1;
 				}
@@ -124,7 +124,7 @@ INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 				di.H_DC = (HDC)wParam;
 				GetClientRect(hWnd, &di.ItemRect);
 				di.P_View = p_view;
-				TView::messageCommand(p_view->owner, cmDrawItem, &di);
+				TView::messageCommand(p_view->P_Owner, cmDrawItem, &di);
 				if(di.ItemAction == 0)
 					return 1;
 			}
@@ -168,7 +168,7 @@ INT_PTR CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 			::SendMessage(GetParent(hWnd), WM_COMMAND, MAKEWPARAM((WORD)GetDlgCtrlID(hWnd), (WORD)LBN_DBLCLK), (LPARAM)hWnd);
 			return 0;
 		case WM_RBUTTONDOWN:
-			CALLPTRMEMB(p_view, handleWindowsMessage(WM_RBUTTONDOWN, wParam, lParam));
+			CALLPTRMEMB(p_view, handleWindowsMessage(uMsg, wParam, lParam));
 			// SendMessage(GetParent(hWnd), uMsg, MAKEWPARAM(LOWORD(wParam), 1), lParam);
 			break;
 		/*
@@ -710,22 +710,22 @@ int FASTCALL SmartListBox::onVKeyToItem(WPARAM wParam)
 		case VK_END:   nScrollCode = SB_BOTTOM;   break;
 		case VK_INSERT:
 			if(IsInState(sfSelected) || State & stTreeList) {
-				TView::messageCommand(owner, cmaInsert, this);
+				MessageCommandToOwner(cmaInsert);
 				sf = 1;
 			}
 			break;
 		case VK_DELETE:
 			if(IsInState(sfSelected) || State & stTreeList) {
-				TView::messageCommand(owner, cmaDelete, this);
+				MessageCommandToOwner(cmaDelete);
 				sf = 1;
 			}
 			break;
 		case VK_ADD:
-			TView::messageCommand(owner, cmaLevelDown, this);
+			MessageCommandToOwner(cmaLevelDown);
 			sf = 1;
 			break;
 		case VK_SUBTRACT:
-			TView::messageCommand(owner, cmaLevelUp, this);
+			MessageCommandToOwner(cmaLevelUp);
 			sf = 1;
 			break;
 		default:
@@ -760,7 +760,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_COMMAND: {
 			switch(HIWORD(wParam)) {
 				case LBN_DBLCLK:
-					TView::messageCommand(owner, cmLBDblClk, this);
+					MessageCommandToOwner(cmLBDblClk);
 					break;
 				case LBN_SELCHANGE:
 					{
@@ -773,10 +773,10 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							if(!Columns.getCount() && Top != prev_top_item)
 								Draw_();
 							if(def->Options & lbtFocNotify)
-								TView::messageCommand(owner, cmLBItemFocused, this);
+								MessageCommandToOwner(cmLBItemFocused);
 							Scroll(-1, 0);
 							if(def->Options & lbtSelNotify)
-								TView::messageCommand(owner, cmLBItemSelected, this);
+								MessageCommandToOwner(cmLBItemSelected);
 						}
 					}
 					break;
@@ -794,11 +794,11 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 						if(!Columns.getCount() && Top != prev_top_item)
 							Draw_();
 						if(def->Options & lbtFocNotify)
-							TView::messageCommand(owner, cmLBItemFocused, this);
+							MessageCommandToOwner(cmLBItemFocused);
 						Scroll(-1, 0);
 					}
 				}
-				TView::messageCommand(owner, cmRightClick, this);
+				MessageCommandToOwner(cmRightClick);
 			}
 			break;
 		case WM_VKEYTOITEM:
@@ -876,10 +876,10 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							LPNMTREEVIEW pnmtv = (LPNMTREEVIEW) lParam;
 							((StdTreeListBoxDef*)def)->GoByID(pnmtv->itemNew.lParam);
 							if(def->Options & lbtFocNotify)
-								TView::messageCommand(owner, cmLBItemFocused, this);
+								MessageCommandToOwner(cmLBItemFocused);
 							if(State & stLButtonDown) {
 								if(def->Options & lbtSelNotify)
-									TView::messageCommand(owner, cmLBItemSelected, this);
+									MessageCommandToOwner(cmLBItemSelected);
 								State &= ~stLButtonDown;
 							}
 						}
@@ -900,7 +900,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							TreeView_GetItem(h_tlist, &t_item);
 							((StdTreeListBoxDef*)def)->GoByID(t_item.lParam);
 							SelectTreeItem();
-							TView::messageCommand(owner, (p_nm->code == NM_RCLICK) ? cmRightClick : cmLBDblClk, this);
+							MessageCommandToOwner((p_nm->code == NM_RCLICK) ? cmRightClick : cmLBDblClk);
 						}
 						break;
 					case NM_CLICK:
@@ -1093,7 +1093,7 @@ void SmartListBox::Scroll(short Code, int value)
 			}
 		}
 		if(def->Options & lbtFocNotify)
-			TView::messageCommand(owner, cmLBItemFocused, this);
+			MessageCommandToOwner(cmLBItemFocused);
 	}
 }
 
@@ -1152,7 +1152,7 @@ void FASTCALL SmartListBox::focusItem(long item)
 				::SendMessage(h_lb, LB_SETCURSEL, def ? (def->_curItem()-def->_topItem()) : 0, 0);
 		}
 		if(def->Options & lbtFocNotify)
-			TView::messageCommand(owner, cmLBItemFocused, this);
+			MessageCommandToOwner(cmLBItemFocused);
 	}
 }
 
@@ -1485,8 +1485,8 @@ void SmartListBox::Implement_Draw()
 		long   i;
 		long   item;
 		SString buf, cell_buf;
-		buf.Space() = 0;
-		cell_buf.Space() = 0;
+		buf.Space().Z();
+		cell_buf.Space().Z();
 		const  HWND h_lb = getHandle();
 		if(Columns.getCount())
 			ListView_DeleteAllItems(h_lb);
@@ -1575,7 +1575,7 @@ void SmartListBox::Implement_Draw()
 
 void SmartListBox::selectItem(long)
 {
-	TView::messageCommand(owner, cmLBItemSelected, this);
+	MessageCommandToOwner(cmLBItemSelected);
 }
 
 void SmartListBox::setRange(long aRange)

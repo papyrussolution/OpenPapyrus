@@ -194,7 +194,7 @@ int SLAPI PPSupplExchange_Baltika::GetSerial(PPID lotID, PPID goodsID, SString &
 {
 	// @construction
 	int    ok = -1;
-    rSerial = 0;
+    rSerial.Z();
 	ObjTagItem tag;
     if(PPRef->Ot.GetTag(PPOBJ_LOT, lotID, PPTAG_LOT_MANUFTIME, &tag) > 0) { // @v9.7.11
 		SString temp_buf;
@@ -2035,7 +2035,7 @@ int SLAPI PPSupplExchange_Baltika::GetInfoFromMemo(const char * pMemo, LDATE * p
 int SLAPI PPSupplExchange_Baltika::GetConsigLocInfo(BillViewItem * pItem, PPID consigLocGrpID, LDATE * pParentDt, SString & rParentCode)
 {
 	int    ok = 0;
-	rParentCode = 0;
+	rParentCode.Z();
 	ASSIGN_PTR(pParentDt, ZERODATE);
 	if(pItem && consigLocGrpID) {
 		PPObjLocation obj_loc;
@@ -2189,7 +2189,7 @@ int SLAPI PPSupplExchange_Baltika::GetQtty(PPID goodsID, int calcByPhPerU, doubl
 
 int SLAPI PPSupplExchange_Baltika::GetDlvrAddrHorecaCode(PPID * pDlvrAddrID, SString & rCode)
 {
-	rCode = 0;
+	rCode.Z();
 	int    ok = -1;
 	PPID   dlvr_addr_id = (pDlvrAddrID && *pDlvrAddrID) ? *pDlvrAddrID : 0;
 	if(dlvr_addr_id) {
@@ -3715,14 +3715,14 @@ int SLAPI iSalesPepsi::SendStocks()
 
 void SLAPI iSalesPepsi::Helper_Make_iSalesIdent(const BillTbl::Rec & rRec, int outerDocType, SString & rIdent) const
 {
-	rIdent = 0;
+	rIdent.Z();
 	BillCore::GetCode(rIdent = rRec.Code);
 	rIdent.Space().Cat(rRec.Dt, DATF_GERMAN|DATF_CENTURY).Space().Cat(labs(outerDocType));
 }
 
 void SLAPI iSalesPepsi::Helper_Parse_iSalesIdent(const SString & rIdent, SString & rCode, LDATE * pDate) const
 {
-	rCode = 0;
+	rCode.Z();
 	LDATE   dt = ZERODATE;
 	const char * p = rIdent;
 	while(*p && *p != ' ') {

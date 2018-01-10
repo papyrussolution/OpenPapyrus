@@ -960,8 +960,8 @@ int SLAPI PPAccTurnTempl::SubstToString(SString & rBuf, int * lp, int skipzobj)
 int SLAPI PPAccTurnTempl::SubstToStrings(SString & rPrimStr, SString & rForeignStr)
 {
 	int    lp = 0;
-	rPrimStr = 0;
-	rForeignStr = 0;
+	rPrimStr.Z();
+	rForeignStr.Z();
 	if(!SubstToString(rPrimStr, &lp, BIN(Flags & ATTF_PSKIPONZOBJ)))
 		return 0;
 	if(Subst[lp++] == -1L) {
@@ -1255,7 +1255,7 @@ int SelAmtSymbDialog::getSelectedSymb(PPID * pID, int * pKind, SString & rSymbBu
 	else {
 		ASSIGN_PTR(pID, 0);
 		ASSIGN_PTR(pKind, 0);
-		rSymbBuf = 0;
+		rSymbBuf.Z();
 		return 0;
 	}
 }
@@ -1380,7 +1380,7 @@ int SLAPI SelectAmountSymb(PPID * pID, long options, int * pKind, SString & rSym
 {
 	int    ok = -1;
 	SelAmtSymbDialog * dlg = 0;
-	rSymbBuf = 0;
+	rSymbBuf.Z();
 	if(CheckDialogPtrErr(&(dlg = new SelAmtSymbDialog(options)))) {
 		if(ExecView(dlg) == cmOK)
 			ok = dlg->getSelectedSymb(pID, pKind, rSymbBuf) ? 1 : -1;

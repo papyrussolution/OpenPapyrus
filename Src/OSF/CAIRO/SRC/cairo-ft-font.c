@@ -147,14 +147,11 @@ typedef struct _cairo_ft_font_face cairo_ft_font_face_t;
 
 struct _cairo_ft_unscaled_font {
 	cairo_unscaled_font_t base;
-
 	cairo_bool_t from_face; /* was the FT_Face provided by user? */
 	FT_Face face;       /* provided or cached face */
-
 	/* only set if from_face is false */
 	char * filename;
 	int id;
-
 	/* We temporarily scale the unscaled font as needed */
 	cairo_bool_t have_scale;
 	cairo_matrix_t current_scale;
@@ -1392,8 +1389,7 @@ static cairo_status_t _render_glyph_bitmap(FT_Face face,
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static cairo_status_t _transform_glyph_bitmap(cairo_matrix_t         * shape,
-    cairo_image_surface_t ** surface)
+static cairo_status_t _transform_glyph_bitmap(cairo_matrix_t * shape, cairo_image_surface_t ** surface)
 {
 	cairo_matrix_t original_to_transformed;
 	cairo_matrix_t transformed_to_original;
@@ -1484,10 +1480,7 @@ static cairo_status_t _transform_glyph_bitmap(cairo_matrix_t         * shape,
 	old_image = (*surface);
 	(*surface) = (cairo_image_surface_t*)image;
 	cairo_surface_destroy(&old_image->base);
-
-	cairo_surface_set_device_offset(&(*surface)->base,
-	    _cairo_lround(origin_x),
-	    _cairo_lround(origin_y));
+	cairo_surface_set_device_offset(&(*surface)->base, _cairo_lround(origin_x), _cairo_lround(origin_y));
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -2188,38 +2181,26 @@ static cairo_int_status_t _cairo_ft_scaled_glyph_init(void * abstract_font, cair
 					fs_metrics.y_advance = DOUBLE_FROM_16_16(glyph->linearVertAdvance) * y_factor;
 			}
 		}
-
-		_cairo_scaled_glyph_set_metrics(scaled_glyph,
-		    &scaled_font->base,
-		    &fs_metrics);
+		_cairo_scaled_glyph_set_metrics(scaled_glyph, &scaled_font->base, &fs_metrics);
 	}
-
 	if((info & CAIRO_SCALED_GLYPH_INFO_SURFACE) != 0) {
-		cairo_image_surface_t   * surface;
-
+		cairo_image_surface_t * surface;
 		if(glyph->format == FT_GLYPH_FORMAT_OUTLINE) {
 			status = _render_glyph_outline(face, &scaled_font->ft_options.base,
 			    &surface);
 		}
 		else {
-			status = _render_glyph_bitmap(face, &scaled_font->ft_options.base,
-			    &surface);
-			if(likely(status == CAIRO_STATUS_SUCCESS) &&
-			    unscaled->have_shape) {
-				status = _transform_glyph_bitmap(&unscaled->current_shape,
-				    &surface);
+			status = _render_glyph_bitmap(face, &scaled_font->ft_options.base, &surface);
+			if(likely(status == CAIRO_STATUS_SUCCESS) && unscaled->have_shape) {
+				status = _transform_glyph_bitmap(&unscaled->current_shape, &surface);
 				if(unlikely(status))
 					cairo_surface_destroy(&surface->base);
 			}
 		}
 		if(unlikely(status))
 			goto FAIL;
-
-		_cairo_scaled_glyph_set_surface(scaled_glyph,
-		    &scaled_font->base,
-		    surface);
+		_cairo_scaled_glyph_set_surface(scaled_glyph, &scaled_font->base, surface);
 	}
-
 	if(info & CAIRO_SCALED_GLYPH_INFO_PATH) {
 		cairo_path_fixed_t * path = NULL; /* hide compiler warning */
 

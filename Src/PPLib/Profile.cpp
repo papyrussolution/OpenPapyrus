@@ -924,7 +924,7 @@ int SLAPI PPUserProfileCore::GetDbEntyList(TSArray <PPUserProfileCore::UfpDbEntr
 
 static int SLAPI ParseUfpFileName(const char * pFileName, S_GUID & rDbUuid, SString & rDbSymb)
 {
-	rDbSymb = 0;
+	rDbSymb.Z();
 
 	int    kind = 0;
 	SString temp_buf;
@@ -1224,7 +1224,7 @@ int SLAPI PPUserProfileCore::Load(const char * pPath)
 					UfpFileSet * p_set = file_set_list.at(i);
 					if(p_set && p_set->DbUuid == db_uuid) {
 						assert(fp == 0);
-						int    dup_fault = p_set->Set.Search(kind, 0);
+						int    dup_fault = p_set->Set.Search(kind);
 						// @v8.3.3 assert(!dup_fault);
 						if(!dup_fault) {
 							p_set->Set.AddFast(kind, sde.FileName);

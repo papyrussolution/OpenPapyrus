@@ -982,7 +982,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 	}
 	else if(TVBROADCAST) {
 		if(TVCMD == cmChangedFocus) {
-			if(event.isCtlEvent(CTL_LOT_PRICE) && (St & stGoodsByPrice) && owner)
+			if(event.isCtlEvent(CTL_LOT_PRICE) && (St & stGoodsByPrice) && P_Owner)
 				setupGoodsListByPrice();
 		}
 		else if(oneof2(TVCMD, cmReleasedFocus, cmCommitInput)) {
@@ -2700,21 +2700,15 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			Goods2Tbl::Rec goods_rec;
 			void * p_dest = pBlk->P_DestData;
 			switch(pBlk->ColumnN) {
-				case 0: // LotID
-					pBlk->Set(p_item->LotID);
-					break;
-				case 1: // Lot date
-					pBlk->Set(p_item->Dt);
-					break;
+				case 0: pBlk->Set(p_item->LotID); break; // LotID
+				case 1: pBlk->Set(p_item->Dt);    break; // Lot date
 				case 2: // Supplier Name
 					temp_buf.Z();
 					if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
 						GetArticleName(p_item->SupplID, temp_buf);
 					pBlk->Set(temp_buf);
 					break;
-				case 3: // Rest
-					pBlk->Set(p_item->Rest);
-					break;
+				case 3: pBlk->Set(p_item->Rest); break; // Rest
 				case 4: // Unit Name
 					temp_buf.Z();
 					{
@@ -2727,18 +2721,10 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					}
 					pBlk->Set(temp_buf);
 					break;
-				case 5: // Serial
-                    pBlk->Set(p_item->Serial);
-					break;
-				case 6: // Cost
-					pBlk->Set(p_item->Cost);
-					break;
-				case 7: // Price
-					pBlk->Set(p_item->Price);
-					break;
-				case 8: // Expiry
-					pBlk->Set(p_item->Expiry);
-					break;
+				case 5: pBlk->Set(p_item->Serial); break; // Serial
+				case 6: pBlk->Set(p_item->Cost);   break; // Cost
+				case 7: pBlk->Set(p_item->Price);  break; // Price
+				case 8: pBlk->Set(p_item->Expiry); break; // Expiry
 				case 9: // Goods Name
 					GetGoodsName(p_item->GoodsID, temp_buf);
 					pBlk->Set(temp_buf);

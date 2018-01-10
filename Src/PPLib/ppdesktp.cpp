@@ -1286,7 +1286,7 @@ int PPDesktop::GetDeskName(long deskId, SString & rDeskName)
 	DbProvider * p_dict = CurDict;
 	PPCommandMngr * p_mgr = 0;
 	PPCommandGroup * p_desk = 0;
-	rDeskName = 0;
+	rDeskName.Z();
 	if(deskId && p_dict) {
 		SString db_symb;
 		PPCommandGroup desk_list;

@@ -92,14 +92,7 @@
  * surface's canonical coordinate system, also known as the <firstterm>device
  * space</firstterm>.
  **/
-
-#define DEFINE_NIL_CONTEXT(status)					\
-	{								    \
-		CAIRO_REFERENCE_COUNT_INVALID, /* ref_count */		       \
-		status,                 /* status */			\
-		{ 0, 0, 0, NULL },      /* user_data */			\
-		NULL								\
-	}
+#define DEFINE_NIL_CONTEXT(status) { NULL, CAIRO_REFERENCE_COUNT_INVALID/* ref_count */, status /* status */, { 0, 0, 0, NULL }/* user_data *//*, NULL*/ }
 
 static const cairo_t _cairo_nil[] = {
 	DEFINE_NIL_CONTEXT(CAIRO_STATUS_NO_MEMORY),
@@ -266,12 +259,11 @@ void _cairo_fini(cairo_t * cr)
  **/
 void cairo_destroy(cairo_t * cr)
 {
-	if(cr == NULL || CAIRO_REFERENCE_COUNT_IS_INVALID(&cr->ref_count))
-		return;
-	assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&cr->ref_count));
-	if(!_cairo_reference_count_dec_and_test(&cr->ref_count))
-		return;
-	cr->backend->destroy(cr);
+	if(cr && !CAIRO_REFERENCE_COUNT_IS_INVALID(&cr->ref_count)) {
+		assert(CAIRO_REFERENCE_COUNT_HAS_REFERENCE(&cr->ref_count));
+		if(_cairo_reference_count_dec_and_test(&cr->ref_count))
+			cr->backend->destroy(cr);
+	}
 }
 
 slim_hidden_def(cairo_destroy);
@@ -3214,7 +3206,6 @@ cairo_line_cap_t cairo_get_line_cap(cairo_t * cr)
 {
 	return (unlikely(cr->status)) ? CAIRO_GSTATE_LINE_CAP_DEFAULT : cr->backend->get_line_cap(cr);
 }
-
 /**
  * cairo_get_line_join:
  * @cr: a cairo context
@@ -3229,7 +3220,6 @@ cairo_line_join_t cairo_get_line_join(cairo_t * cr)
 {
 	return (unlikely(cr->status)) ? CAIRO_GSTATE_LINE_JOIN_DEFAULT : cr->backend->get_line_join(cr);
 }
-
 /**
  * cairo_get_miter_limit:
  * @cr: a cairo context
@@ -3283,9 +3273,7 @@ slim_hidden_def(cairo_get_matrix);
  **/
 cairo_surface_t * cairo_get_target(cairo_t * cr)
 {
-	if(unlikely(cr->status))
-		return _cairo_surface_create_in_error(cr->status);
-	return cr->backend->get_original_target(cr);
+	return (unlikely(cr->status)) ? _cairo_surface_create_in_error(cr->status) : cr->backend->get_original_target(cr);
 }
 
 slim_hidden_def(cairo_get_target);
@@ -3312,11 +3300,8 @@ slim_hidden_def(cairo_get_target);
  **/
 cairo_surface_t * cairo_get_group_target(cairo_t * cr)
 {
-	if(unlikely(cr->status))
-		return _cairo_surface_create_in_error(cr->status);
-	return cr->backend->get_current_target(cr);
+	return (unlikely(cr->status)) ? _cairo_surface_create_in_error(cr->status) : cr->backend->get_current_target(cr);
 }
-
 /**
  * cairo_copy_path:
  * @cr: a cairo context
@@ -3347,9 +3332,7 @@ cairo_surface_t * cairo_get_group_target(cairo_t * cr)
  **/
 cairo_path_t * cairo_copy_path(cairo_t * cr)
 {
-	if(unlikely(cr->status))
-		return _cairo_path_create_in_error(cr->status);
-	return cr->backend->copy_path(cr);
+	return (unlikely(cr->status)) ? _cairo_path_create_in_error(cr->status) : cr->backend->copy_path(cr);
 }
 
 /**
@@ -3389,11 +3372,8 @@ cairo_path_t * cairo_copy_path(cairo_t * cr)
  **/
 cairo_path_t * cairo_copy_path_flat(cairo_t * cr)
 {
-	if(unlikely(cr->status))
-		return _cairo_path_create_in_error(cr->status);
-	return cr->backend->copy_path_flat(cr);
+	return (unlikely(cr->status)) ? _cairo_path_create_in_error(cr->status) : cr->backend->copy_path_flat(cr);
 }
-
 /**
  * cairo_append_path:
  * @cr: a cairo context
@@ -3417,21 +3397,18 @@ void cairo_append_path(cairo_t * cr, const cairo_path_t   * path)
 		return;
 	}
 	if(unlikely(path->status)) {
-		if(path->status > CAIRO_STATUS_SUCCESS && path->status <= CAIRO_STATUS_LAST_STATUS)
-			_cairo_set_error(cr, path->status);
-		else
-			_cairo_set_error(cr, CAIRO_STATUS_INVALID_STATUS);
+		_cairo_set_error(cr, (path->status > CAIRO_STATUS_SUCCESS && path->status <= CAIRO_STATUS_LAST_STATUS) ? path->status : CAIRO_STATUS_INVALID_STATUS);
 		return;
 	}
-	if(path->num_data == 0)
-		return;
-	if(unlikely(path->data == NULL)) {
-		_cairo_set_error(cr, CAIRO_STATUS_NULL_POINTER);
-		return;
+	if(path->num_data) {
+		if(unlikely(path->data == NULL))
+			_cairo_set_error(cr, CAIRO_STATUS_NULL_POINTER);
+		else {
+			cairo_status_t status = cr->backend->append_path(cr, path);
+			if(unlikely(status))
+				_cairo_set_error(cr, status);
+		}
 	}
-	cairo_status_t status = cr->backend->append_path(cr, path);
-	if(unlikely(status))
-		_cairo_set_error(cr, status);
 }
 /**
  * cairo_status:

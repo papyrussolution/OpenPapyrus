@@ -24,10 +24,7 @@
  * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
- * Authors: Peter Weilbacher <mozilla@weilbacher.org>
- *	    Vladimir Vukicevic <vladimir@pobox.com>
- *	    Carl Worth <cworth@cworth.org>
- *          Andrea Canciani <ranma42@gmail.com>
+ * Authors: Peter Weilbacher <mozilla@weilbacher.org> Vladimir Vukicevic <vladimir@pobox.com> Carl Worth <cworth@cworth.org> Andrea Canciani <ranma42@gmail.com>
  */
 #include "cairoint.h"
 #pragma hdrstop

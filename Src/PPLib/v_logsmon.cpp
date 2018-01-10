@@ -8,7 +8,7 @@
 int LogsMonitorFilt::Describe(long flags, SString & rBuff) const
 {
 	int    ok = 1;
-	rBuff = 0;
+	rBuff.Z();
 	for(uint i=0; i<Selected.getCount(); i++) {
 		if(i>2) {
 			rBuff.CatCharN('.', 3);

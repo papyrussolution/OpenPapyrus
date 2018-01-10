@@ -1,5 +1,5 @@
 // COMDISP.CPP
-// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2008, 2010, 2012, 2013, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Интерфейс IDispatch для работы с COM-приложениями (режим InProcServer) (only WIN32)
 //
@@ -7,11 +7,8 @@
 #pragma hdrstop
 #include <comdisp.h>
 
-SLAPI ComDispInterface::ComDispInterface()
+SLAPI ComDispInterface::ComDispInterface() : P_ParamsAry(0), P_Disp(0), HRes(S_OK)
 {
-	P_ParamsAry = 0;
-	P_Disp      = 0;
-	HRes        = S_OK;
 }
 
 SLAPI ComDispInterface::~ComDispInterface()
@@ -42,7 +39,7 @@ int SLAPI ComDispInterface::Init(const char * pProgID, int inProcServer /*=1*/)
 
 int SLAPI ComDispInterface::Init(const wchar_t * pProgID, int inProcServer)
 {
-	ProgIdent = 0;
+	ProgIdent.Z();
 
 	int    ok = 1;
 	CLSID  cls_id;
@@ -60,7 +57,7 @@ int SLAPI ComDispInterface::Init(const wchar_t * pProgID, int inProcServer)
 int SLAPI ComDispInterface::Init(IDispatch * pIDisp)
 {
 	int    ok = 1;
-	ProgIdent = 0;
+	ProgIdent.Z();
 	DispIDAry.freeAll();
 	P_Disp = pIDisp;
 	return ok;
@@ -704,15 +701,9 @@ int SLAPI ComExcelRange::Init(IDispatch * pIDisp)
 	return ok;
 }
 
-int SLAPI ComExcelRange::SetValue(const char * pValue)
-{
-	return SetProperty(Value, pValue) ? 1 : 0;
-}
-
-int SLAPI ComExcelRange::SetValue(double value)
-{
-	return SetProperty(Value, value) ? 1 : 0;
-}
+int SLAPI ComExcelRange::SetValue(const char * pValue) { return SetProperty(Value, pValue); }
+int SLAPI ComExcelRange::SetValue(double value) { return SetProperty(Value, value); }
+int SLAPI ComExcelRange::SetFormat(const char * pFormat) { return SetProperty(NumberFormat, pFormat); }
 
 int SLAPI ComExcelRange::GetValue(SString & rValue)
 {
@@ -721,11 +712,6 @@ int SLAPI ComExcelRange::GetValue(SString & rValue)
 	if((ok = GetProperty(Value, buf, sizeof(buf))) > 0)
 		rValue = buf;
 	return ok;
-}
-
-int SLAPI ComExcelRange::SetFormat(const char * pFormat)
-{
-	return SetProperty(NumberFormat, pFormat);
 }
 
 int SLAPI ComExcelRange::GetFormat(SString & rFormat)

@@ -84,7 +84,7 @@ int SLAPI SUnicodeTable::ParseDescription(SString & rDescr, SUnicodeTable::Item3
 {
     int    ok = 1; // 0 - error, 1 - normal, 2 - lower range bound, 3 - upper range bound
     if(rDescr.CmpNC("<control>") == 0) {
-		rDescr = 0;
+		rDescr.Z();
     }
     else {
 		if(rDescr.C(0) == '<' && rDescr.Last() == '>') {

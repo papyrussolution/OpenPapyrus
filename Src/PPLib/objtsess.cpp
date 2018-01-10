@@ -3193,7 +3193,7 @@ int SLAPI PPObjTSession::ConvertWrOffDeficit(PPID sessID, PPID locID, const PUGL
 			GoodsToObjAssoc g2la(PPASS_GOODS2LOC, PPOBJ_LOCATION);
 			THROW(g2la.Load());
 			for(i = 0; pDfctList->enumItems(&i, (void **)&p_pugi);)
-				if(!goods_name_list.Search(p_pugi->GoodsID, 0)) {
+				if(!goods_name_list.Search(p_pugi->GoodsID)) {
 					Goods2Tbl::Rec goods_rec;
 					if(GObj.Fetch(p_pugi->GoodsID, &goods_rec) > 0)
 						THROW_SL(goods_name_list.Add(p_pugi->GoodsID, goods_rec.Name));
@@ -5045,10 +5045,9 @@ int PPALDD_UhttTSession::NextIteration(long iterId)
 			const ObjTagItem * p_item = r_blk.Pack.TagL.GetItemByPos(r_blk.TagPos);
 			I_TagList.TagTypeID = p_item->TagDataType;
 			{
-				PPObjectTag2 rec;
-				if(r_blk.TagObj.Fetch(p_item->TagID, &rec) > 0) {
+				PPObjectTag rec;
+				if(r_blk.TagObj.Fetch(p_item->TagID, &rec) > 0)
 					STRNSCPY(I_TagList.TagSymb, rec.Symb);
-				}
 			}
 			switch(p_item->TagDataType) {
 				case OTTYP_STRING:
@@ -5176,23 +5175,15 @@ int PPALDD_UhttTSession::Set(long iterId, int commit)
 		else if(iterId == GetIterID("iter@TagList")) {
 			PPID   id = 0;
 			ObjTagItem item;
-			PPObjectTag2 rec;
+			PPObjectTag rec;
 			if(r_blk.TagObj.SearchBySymb(I_TagList.TagSymb, &id, &rec) > 0) {
 				item.TagID = rec.ID;
 				switch(rec.TagDataType) {
 					case OTTYP_STRING:
-					case OTTYP_GUID:
-						THROW(item.SetStr(item.TagID, I_TagList.StrVal));
-						break;
-					case OTTYP_NUMBER:
-						THROW(item.SetReal(item.TagID, I_TagList.RealVal));
-						break;
-					case OTTYP_INT:
-						THROW(item.SetInt(item.TagID, I_TagList.IntVal));
-						break;
-					case OTTYP_DATE:
-						THROW(item.SetDate(item.TagID, I_TagList.DateVal));
-						break;
+					case OTTYP_GUID: THROW(item.SetStr(item.TagID, I_TagList.StrVal)); break;
+					case OTTYP_NUMBER: THROW(item.SetReal(item.TagID, I_TagList.RealVal)); break;
+					case OTTYP_INT: THROW(item.SetInt(item.TagID, I_TagList.IntVal)); break;
+					case OTTYP_DATE: THROW(item.SetDate(item.TagID, I_TagList.DateVal)); break;
 				}
 				THROW(r_blk.Pack.TagL.PutItem(rec.ID, &item));
 			}

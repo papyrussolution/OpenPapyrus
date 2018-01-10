@@ -984,7 +984,7 @@ int SLAPI PPObjRegister::GetTabNumber(PPID personID, SString & rTabNum)
 	int   ok = -1;
 	PPPersonKind    psn_kind;
 	PPObjPersonKind pk_obj;
-	rTabNum = 0;
+	rTabNum.Z();
 	if(pk_obj.Fetch(PPPRK_EMPL, &psn_kind) > 0 && psn_kind.CodeRegTypeID) {
 		RegisterArray  reg_ary;
 		if(P_Tbl->GetByPerson(personID, &reg_ary) > 0) {

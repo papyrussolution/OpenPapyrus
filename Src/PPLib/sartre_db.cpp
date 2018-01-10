@@ -324,7 +324,7 @@ int SrWordAssocTbl::Search(int32 id, SrWordAssoc * pWa)
 	BDbTable::Buffer key_buf, data_buf;
 	SBuffer buf;
 	key_buf = id;
-	data_buf.Alloc(1024);
+	data_buf.Alloc(128);
 	if(BDbTable::Search(key_buf, data_buf)) {
 		if(pWa) {
 			buf.Clear();
@@ -376,17 +376,23 @@ int SrWordAssocTbl::SerializeRecBuf(int dir, SrWordAssoc * pWa, SBuffer & rBuf)
 	THROW_SL(p_sctx->Serialize(dir, pWa->Flags, rBuf));
 	THROW_SL(p_sctx->Serialize(dir, pWa->WordID, rBuf));
 	THROW_SL(p_sctx->Serialize(dir, pWa->BaseFormID, rBuf));
-	if(pWa->Flags & SrWordAssoc::fHasFlexiaModel) {
-		THROW_SL(p_sctx->Serialize(dir, pWa->FlexiaModelID, rBuf));
-	}
-	if(pWa->Flags & SrWordAssoc::fHasAccentModel) {
-		THROW_SL(p_sctx->Serialize(dir, pWa->AccentModelID, rBuf));
-	}
-	if(pWa->Flags & SrWordAssoc::fHasPrefix) {
-		THROW_SL(p_sctx->Serialize(dir, pWa->PrefixID, rBuf));
-	}
-	if(pWa->Flags & SrWordAssoc::fHasAffixModel) {
-		THROW_SL(p_sctx->Serialize(dir, pWa->AffixModelID, rBuf));
+	{
+		const long f = pWa->Flags;
+		if(f & SrWordAssoc::fHasFlexiaModel) {
+			THROW_SL(p_sctx->Serialize(dir, pWa->FlexiaModelID, rBuf));
+		}
+		if(f & SrWordAssoc::fHasAccentModel) {
+			THROW_SL(p_sctx->Serialize(dir, pWa->AccentModelID, rBuf));
+		}
+		if(f & SrWordAssoc::fHasPrefix) {
+			THROW_SL(p_sctx->Serialize(dir, pWa->PrefixID, rBuf));
+		}
+		if(f & SrWordAssoc::fHasAffixModel) {
+			THROW_SL(p_sctx->Serialize(dir, pWa->AffixModelID, rBuf));
+		}
+		if(f & SrWordAssoc::fHasAbbrExp) {
+			THROW_SL(p_sctx->Serialize(dir, pWa->AbbrExpID, rBuf));
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -1531,14 +1537,10 @@ void SrDatabase::Close()
 CONCEPTID FASTCALL SrDatabase::GetReservedConcept(int rc) const
 {
 	CONCEPTID prop = 0;
-	if(rc == rcInstance) {
-		prop = PropInstance;
-	}
-	else if(rc == rcSubclass) {
-		prop = PropSubclass;
-	}
-	else if(rc == rcType) {
-		prop = PropType;
+	switch(rc) {
+		case rcInstance: prop = PropInstance; break;
+		case rcSubclass: prop = PropSubclass; break;
+		case rcType: prop = PropType; break;
 	}
 	return prop;
 }
@@ -1625,7 +1627,7 @@ int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf)
 	return ok;
 }
 
-int SrDatabase::GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSVector <SrWordAssoc> & rWaList, TSVector <SrWordInfo> & rInfo) // @v9.8.4 TSArray-->TSVector
+int SrDatabase::GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSVector <SrWordAssoc> & rWaList, TSVector <SrWordInfo> & rInfo)
 {
 	int    ok = -1;
 	LongArray wf_list;
@@ -1647,6 +1649,7 @@ int SrDatabase::GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSVector
 						ii.BaseFormID = r_wa.BaseFormID;
 						ii.FormID = wf_list.get(j);
 						ii.WaID = r_wa.ID;
+						ii.AbbrExpID = r_wa.AbbrExpID; // @v9.8.12
 						rInfo.insert(&ii);
 						ok = 1;
 					}
@@ -2068,7 +2071,7 @@ int SrDatabase::GetPropDeclList(CONCEPTID cID, SrCPropDeclList & rPdl)
 
 int SrDatabase::GetConceptSymb(CONCEPTID cID, SString & rSymbUtf8)
 {
-	rSymbUtf8 = 0;
+	rSymbUtf8.Z();
 	int    ok = -1;
 	SrConcept c;
 	if(P_CT->SearchByID(cID, &c) > 0) {
@@ -2544,5 +2547,50 @@ int SrDatabase::StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSVecto
 	else
 		ok = -1;
 	CATCHZOK
+	return ok;
+}
+
+int SrDatabase::StoreFiasAddr(const Sdr_FiasRawAddrObj & rItem)
+{
+	/*
+		struct Sdr_FiasRawAddrObj
+			S_GUID AOGUID;
+			char   FORMALNAME[128];
+			char   REGIONCODE[16];
+			char   AUTOCODE[16];
+			char   AREACODE[16];
+			char   CITYCODE[16];
+			char   CTARCODE[16];
+			char   PLACECODE[16];
+			char   STREETCODE[16];
+			char   EXTRCODE[16];
+			char   SEXTCODE[16];
+			char   OFFNAME[128];
+			char   POSTALCODE[16];
+			char   IFNSFL[16];
+			char   TERRIFNSFL[16];
+			char   IFNSUL[16];
+			char   TERRIFNSUL[16];
+			char   OKATO[16];
+			char   OKTMO[16];
+			LDATE  UPDATEDATE;
+			char   SHORTNAME[16];
+			char   AOLEVEL[16];
+			S_GUID PARENTGUID;
+			S_GUID AOID;
+			S_GUID PREVID;
+			S_GUID NEXTID;
+			char   CODE[20];
+			char   PLAINCODE[20];
+			int32  ACTSTATUS;
+			int32  CENTSTATUS;
+			int32  OPERSTATUS;
+			int32  CURRSTATUS;
+			LDATE  STARTDATE;
+			LDATE  ENDDATE;
+			char   NORMDOC[40];
+			int32  LIVESTATUS;
+	*/
+	int    ok = -1;
 	return ok;
 }

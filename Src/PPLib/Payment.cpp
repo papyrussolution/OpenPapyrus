@@ -1705,9 +1705,8 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 								}
 								ufp_factor += 1.1;
 							}
-							else {
+							else
 								ufp_factor += 1.0;
-							}
 						}
 					}
 				}
@@ -1716,14 +1715,14 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 					q.select(p_t->ID, p_t->Dt, p_t->Flags, p_t->Amount, p_t->OpID, 0L).
 						where(p_t->Object == clientID && daterange(p_t->Dt,  &period));
 					if(use_conveyor) {
-						struct _BI {
+						struct _BI { // @flat
 							PPID   ID;
 							LDATE  Dt;
 							PPID   OpID;
 							long   Flags;
 							double Amount;
 						};
-						SArray bi_list(sizeof(_BI));
+						SVector bi_list(sizeof(_BI)); // @v9.8.12 SArray-->SVector
 						for(q.initIteration(0, &k, spGt); q.nextIteration() > 0;) {
 							if(op_list.bsearch(p_t->data.OpID)) {
 								_BI bi_item;
@@ -1792,9 +1791,8 @@ int SLAPI PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, in
 									}
 									ufp_factor += 1.1;
 								}
-								else {
+								else
 									ufp_factor += 1.0;
-								}
 							}
 						}
 					}

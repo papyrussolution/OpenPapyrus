@@ -84,7 +84,7 @@ const BIGNUM * BN_value_one(void)
 	return (&const_one);
 }
 
-int BN_num_bits_word(BN_ULONG l)
+int FASTCALL BN_num_bits_word(BN_ULONG l)
 {
 	static const uchar bits[256] = {
 		0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4,
@@ -165,17 +165,16 @@ int BN_num_bits_word(BN_ULONG l)
 	}
 }
 
-int BN_num_bits(const BIGNUM * a)
+int FASTCALL BN_num_bits(const BIGNUM * a)
 {
 	int i = a->top - 1;
 	bn_check_top(a);
-
 	if(BN_is_zero(a))
 		return 0;
 	return ((i * BN_BITS2) + BN_num_bits_word(a->d[i]));
 }
 
-static void bn_free_d(BIGNUM * a)
+static void FASTCALL bn_free_d(BIGNUM * a)
 {
 	if(BN_get_flags(a, BN_FLG_SECURE))
 		OPENSSL_secure_free(a->d);
@@ -200,27 +199,26 @@ void FASTCALL BN_clear_free(BIGNUM * a)
 		OPENSSL_free(a);
 }
 
-void BN_free(BIGNUM * a)
+void FASTCALL BN_free(BIGNUM * a)
 {
-	if(!a)
-		return;
-	bn_check_top(a);
-	if(!BN_get_flags(a, BN_FLG_STATIC_DATA))
-		bn_free_d(a);
-	if(a->flags & BN_FLG_MALLOCED)
-		OPENSSL_free(a);
-	else {
+	if(a) {
+		bn_check_top(a);
+		if(!BN_get_flags(a, BN_FLG_STATIC_DATA))
+			bn_free_d(a);
+		if(a->flags & BN_FLG_MALLOCED)
+			OPENSSL_free(a);
+		else {
 #if OPENSSL_API_COMPAT < 0x00908000L
-		a->flags |= BN_FLG_FREE;
+			a->flags |= BN_FLG_FREE;
 #endif
-		a->d = NULL;
+			a->d = NULL;
+		}
 	}
 }
 
-void bn_init(BIGNUM * a)
+void FASTCALL bn_init(BIGNUM * a)
 {
 	static BIGNUM nilbn;
-
 	*a = nilbn;
 	bn_check_top(a);
 }
@@ -228,7 +226,6 @@ void bn_init(BIGNUM * a)
 BIGNUM * BN_new(void)
 {
 	BIGNUM * ret;
-
 	if((ret = (BIGNUM*)OPENSSL_zalloc(sizeof(*ret))) == NULL) {
 		BNerr(BN_F_BN_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
@@ -253,9 +250,7 @@ static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
 	BN_ULONG * A, * a = NULL;
 	const BN_ULONG * B;
 	int i;
-
 	bn_check_top(b);
-
 	if(words > (INT_MAX / (4 * BN_BITS2))) {
 		BNerr(BN_F_BN_EXPAND_INTERNAL, BN_R_BIGNUM_TOO_LONG);
 		return NULL;
@@ -272,7 +267,6 @@ static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
 		BNerr(BN_F_BN_EXPAND_INTERNAL, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-
 #if 1
 	B = b->d;
 	/* Check if the previous number needs to be copied */
@@ -315,7 +309,6 @@ static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
 #endif
 	return (a);
 }
-
 /*
  * This is an internal function that should not be used in applications. It
  * ensures that 'b' has enough room for a 'words' word number and initialises
@@ -323,11 +316,9 @@ static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
  * various BIGNUM routines. If there is an error, NULL is returned. If not,
  * 'b' is returned.
  */
-
-BIGNUM * bn_expand2(BIGNUM * b, int words)
+BIGNUM * FASTCALL bn_expand2(BIGNUM * b, int words)
 {
 	bn_check_top(b);
-
 	if(words > b->dmax) {
 		BN_ULONG * a = bn_expand_internal(b, words);
 		if(!a)
@@ -339,19 +330,16 @@ BIGNUM * bn_expand2(BIGNUM * b, int words)
 		b->d = a;
 		b->dmax = words;
 	}
-
 	bn_check_top(b);
 	return b;
 }
 
-BIGNUM * BN_dup(const BIGNUM * a)
+BIGNUM * FASTCALL BN_dup(const BIGNUM * a)
 {
 	BIGNUM * t;
-
 	if(!a)
 		return NULL;
 	bn_check_top(a);
-
 	t = BN_get_flags(a, BN_FLG_SECURE) ? BN_secure_new() : BN_new();
 	if(t == NULL)
 		return NULL;
@@ -541,9 +529,7 @@ static int bn2binpad(const BIGNUM * a, uchar * to, int tolen)
 
 int BN_bn2binpad(const BIGNUM * a, uchar * to, int tolen)
 {
-	if(tolen < 0)
-		return -1;
-	return bn2binpad(a, to, tolen);
+	return (tolen < 0) ? -1 : bn2binpad(a, to, tolen);
 }
 
 int BN_bn2bin(const BIGNUM * a, uchar * to)
@@ -617,7 +603,7 @@ int BN_bn2lebinpad(const BIGNUM * a, uchar * to, int tolen)
 	return tolen;
 }
 
-int BN_ucmp(const BIGNUM * a, const BIGNUM * b)
+int FASTCALL BN_ucmp(const BIGNUM * a, const BIGNUM * b)
 {
 	int i;
 	BN_ULONG t1, t2, * ap, * bp;
@@ -637,7 +623,7 @@ int BN_ucmp(const BIGNUM * a, const BIGNUM * b)
 	return 0;
 }
 
-int BN_cmp(const BIGNUM * a, const BIGNUM * b)
+int FASTCALL BN_cmp(const BIGNUM * a, const BIGNUM * b)
 {
 	int i;
 	int gt, lt;
@@ -650,10 +636,8 @@ int BN_cmp(const BIGNUM * a, const BIGNUM * b)
 		else
 			return 0;
 	}
-
 	bn_check_top(a);
 	bn_check_top(b);
-
 	if(a->neg != b->neg) {
 		if(a->neg)
 			return (-1);
@@ -668,7 +652,6 @@ int BN_cmp(const BIGNUM * a, const BIGNUM * b)
 		gt = -1;
 		lt = 1;
 	}
-
 	if(a->top > b->top)
 		return (gt);
 	if(a->top < b->top)
@@ -687,10 +670,8 @@ int BN_cmp(const BIGNUM * a, const BIGNUM * b)
 int BN_set_bit(BIGNUM * a, int n)
 {
 	int i, j, k;
-
 	if(n < 0)
 		return 0;
-
 	i = n / BN_BITS2;
 	j = n % BN_BITS2;
 	if(a->top <= i) {
@@ -700,7 +681,6 @@ int BN_set_bit(BIGNUM * a, int n)
 			a->d[k] = 0;
 		a->top = i + 1;
 	}
-
 	a->d[i] |= (((BN_ULONG)1) << j);
 	bn_check_top(a);
 	return 1;
@@ -709,11 +689,9 @@ int BN_set_bit(BIGNUM * a, int n)
 int BN_clear_bit(BIGNUM * a, int n)
 {
 	int i, j;
-
 	bn_check_top(a);
 	if(n < 0)
 		return 0;
-
 	i = n / BN_BITS2;
 	j = n % BN_BITS2;
 	if(a->top <= i)
@@ -958,24 +936,22 @@ BN_GENCB * BN_GENCB_new(void)
 
 void BN_GENCB_free(BN_GENCB * cb)
 {
-	if(cb == NULL)
-		return;
-	OPENSSL_free(cb);
+	if(cb)
+		OPENSSL_free(cb);
 }
 
-void BN_set_flags(BIGNUM * b, int n)
+void FASTCALL BN_set_flags(BIGNUM * b, int n)
 {
 	b->flags |= n;
 }
 
-int BN_get_flags(const BIGNUM * b, int n)
+int FASTCALL BN_get_flags(const BIGNUM * b, int n)
 {
 	return b->flags & n;
 }
 
 /* Populate a BN_GENCB structure with an "old"-style callback */
-void BN_GENCB_set_old(BN_GENCB * gencb, void (* callback)(int, int, void *),
-    void * cb_arg)
+void BN_GENCB_set_old(BN_GENCB * gencb, void (* callback)(int, int, void *), void * cb_arg)
 {
 	BN_GENCB * tmp_gencb = gencb;
 	tmp_gencb->ver = 1;
@@ -984,8 +960,7 @@ void BN_GENCB_set_old(BN_GENCB * gencb, void (* callback)(int, int, void *),
 }
 
 /* Populate a BN_GENCB structure with a "new"-style callback */
-void BN_GENCB_set(BN_GENCB * gencb, int (* callback)(int, int, BN_GENCB *),
-    void * cb_arg)
+void BN_GENCB_set(BN_GENCB * gencb, int (* callback)(int, int, BN_GENCB *), void * cb_arg)
 {
 	BN_GENCB * tmp_gencb = gencb;
 	tmp_gencb->ver = 2;
@@ -998,16 +973,15 @@ void * BN_GENCB_get_arg(BN_GENCB * cb)
 	return cb->arg;
 }
 
-BIGNUM * bn_wexpand(BIGNUM * a, int words)
+BIGNUM * FASTCALL bn_wexpand(BIGNUM * a, int words)
 {
 	return (words <= a->dmax) ? a : bn_expand2(a, words);
 }
 
-void bn_correct_top(BIGNUM * a)
+void FASTCALL bn_correct_top(BIGNUM * a)
 {
 	BN_ULONG * ftl;
 	int tmp_top = a->top;
-
 	if(tmp_top > 0) {
 		for(ftl = &(a->d[tmp_top]); tmp_top > 0; tmp_top--) {
 			ftl--;

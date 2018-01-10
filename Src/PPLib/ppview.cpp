@@ -1280,7 +1280,7 @@ int SLAPI PPView::Refresh(PPJobSrvCmd & rCmd, PPJobSrvReply & rReply)
 int SLAPI PPView::ExecuteNF(const char * pNamedFiltSymb, const char * pDl600Name, SString & rResultFileName)
 {
 	int    ok = 1;
-	rResultFileName = 0;
+	rResultFileName.Z();
 	PPView * p_view = 0;
 	PPBaseFilt * p_filt = 0;
 	DlRtm  * p_rtm = 0;
@@ -2129,7 +2129,7 @@ int PPViewBrowser::Helper_SetupToolbarCombo(PPID objType, PPID id, uint flags, v
 		ZDELETE(P_ComboBox);
 		P_ComboBox  = new ComboBox(r, cbxAllowEmpty|cbxDisposeData|cbxListOnly);
 		P_InputLine = new TInputLine(r, S_ZSTRING, MKSFMT(128, 0));
-		P_ComboBox->owner = this;
+		P_ComboBox->P_Owner = this;
 		P_ComboBox->setState(sfMsgToParent, false);
 		P_InputLine->setState(sfMsgToParent, false);
 		P_InputLine->Parent = parent;

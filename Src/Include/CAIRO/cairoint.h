@@ -1068,7 +1068,8 @@ typedef struct _cairo_array cairo_array_t;
 typedef struct _cairo_backend cairo_backend_t;
 typedef struct _cairo_boxes_t cairo_boxes_t;
 typedef struct _cairo_cache cairo_cache_t;
-typedef struct _cairo_composite_rectangles cairo_composite_rectangles_t;
+//typedef struct _cairo_composite_rectangles cairo_composite_rectangles_t;
+struct cairo_composite_rectangles_t;
 typedef struct _cairo_clip cairo_clip_t;
 typedef struct _cairo_clip_path cairo_clip_path_t;
 typedef struct _cairo_color cairo_color_t;
@@ -1084,7 +1085,8 @@ typedef struct _cairo_gstate_backend cairo_gstate_backend_t;
 typedef struct _cairo_glyph_text_info cairo_glyph_text_info_t;
 typedef struct _cairo_hash_entry cairo_hash_entry_t;
 typedef struct _cairo_hash_table cairo_hash_table_t;
-typedef struct _cairo_image_surface cairo_image_surface_t;
+//typedef struct _cairo_image_surface cairo_image_surface_t;
+struct cairo_image_surface_t;
 typedef struct _cairo_mime_data cairo_mime_data_t;
 typedef struct _cairo_observer cairo_observer_t;
 typedef struct _cairo_output_stream cairo_output_stream_t;
@@ -1491,10 +1493,11 @@ cairo_private cairo_status_t FASTCALL _cairo_error(cairo_status_t status);
 //#include "cairo-private.h"
 //
 struct _cairo {
+    const cairo_backend_t * backend; // @firstmember
     cairo_reference_count_t ref_count;
     cairo_status_t status;
     cairo_user_data_array_t user_data;
-    const cairo_backend_t *backend;
+	//const cairo_backend_t * backend;
 };
 
 cairo_private cairo_t * _cairo_create_in_error (cairo_status_t status);
@@ -1933,7 +1936,8 @@ cairo_private cairo_status_t _cairo_path_append_to_context(const cairo_path_t * 
 //
 // The canonical image backend 
 //
-struct _cairo_image_surface {
+//typedef struct _cairo_image_surface cairo_image_surface_t;
+struct /*_cairo_image_surface*/cairo_image_surface_t {
 	cairo_surface_t base;
 	pixman_image_t * pixman_image;
 	const cairo_compositor_t * compositor;
@@ -2094,7 +2098,7 @@ cairo_private cairo_damage_t * _cairo_damage_add_box(cairo_damage_t * damage, co
 cairo_private cairo_damage_t * _cairo_damage_add_rectangle(cairo_damage_t * damage, const CairoIRect * rect);
 cairo_private cairo_damage_t * _cairo_damage_add_region(cairo_damage_t * damage, const cairo_region_t * region);
 cairo_private cairo_damage_t * _cairo_damage_reduce(cairo_damage_t * damage);
-cairo_private void _cairo_damage_destroy(cairo_damage_t * damage);
+cairo_private void FASTCALL _cairo_damage_destroy(cairo_damage_t * damage);
 //
 #if CAIRO_HAS_PDF_SURFACE || CAIRO_HAS_PS_SURFACE || CAIRO_HAS_SCRIPT_SURFACE || CAIRO_HAS_XML_SURFACE
 	#define CAIRO_HAS_DEFLATE_STREAM 1
@@ -4468,7 +4472,7 @@ cairo_private void _cairo_gradient_pattern_fit_to_range (const cairo_gradient_pa
 cairo_private cairo_bool_t _cairo_radial_pattern_focus_is_inside (const cairo_radial_pattern_t *radial);
 cairo_private void _cairo_gradient_pattern_box_to_parameter (const cairo_gradient_pattern_t *gradient,
 	double x0, double y0, double x1, double y1, double tolerance, double out_range[2]);
-cairo_private void _cairo_gradient_pattern_interpolate (const cairo_gradient_pattern_t *gradient, double t, cairo_circle_double_t * out_circle);
+cairo_private void FASTCALL _cairo_gradient_pattern_interpolate(const cairo_gradient_pattern_t *gradient, double t, cairo_circle_double_t * out_circle);
 cairo_private void _cairo_pattern_alpha_range (const cairo_pattern_t *pattern, double *out_min, double *out_max);
 cairo_private cairo_bool_t _cairo_mesh_pattern_coord_box (const cairo_mesh_pattern_t *mesh, double *out_xmin, double *out_ymin, double *out_xmax, double *out_ymax);
 cairo_private void _cairo_pattern_sampled_area (const cairo_pattern_t *pattern, const CairoIRect *extents, CairoIRect *sample);
@@ -4517,7 +4521,7 @@ cairo_private void _cairo_debug_print_pattern (FILE *file, const cairo_pattern_t
 // the operation may require. Whether or not the operation is actually bounded
 // is tracked in the is_bounded boolean.
 // 
-struct _cairo_composite_rectangles {
+struct /*_cairo_composite_rectangles*/cairo_composite_rectangles_t {
 	cairo_surface_t * surface;
 	cairo_operator_t op;
 	CairoIRect source;
@@ -5757,8 +5761,8 @@ cairo_private void _cairo_pdf_operators_set_font_subsets_callback(cairo_pdf_oper
 cairo_private void _cairo_pdf_operators_set_stream(cairo_pdf_operators_t * pdf_operators, cairo_output_stream_t * stream);
 cairo_private void _cairo_pdf_operators_set_cairo_to_pdf_matrix(cairo_pdf_operators_t * pdf_operators, cairo_matrix_t * cairo_to_pdf);
 cairo_private void _cairo_pdf_operators_enable_actual_text(cairo_pdf_operators_t * pdf_operators, cairo_bool_t enable);
-cairo_private cairo_status_t _cairo_pdf_operators_flush(cairo_pdf_operators_t * pdf_operators);
-cairo_private void _cairo_pdf_operators_reset(cairo_pdf_operators_t * pdf_operators);
+cairo_private cairo_status_t FASTCALL _cairo_pdf_operators_flush(cairo_pdf_operators_t * pdf_operators);
+cairo_private void FASTCALL _cairo_pdf_operators_reset(cairo_pdf_operators_t * pdf_operators);
 cairo_private cairo_int_status_t _cairo_pdf_operators_clip(cairo_pdf_operators_t * pdf_operators,
     const cairo_path_fixed_t * path, CairoFillRule fill_rule);
 cairo_private cairo_int_status_t _cairo_pdf_operators_emit_stroke_style(cairo_pdf_operators_t * pdf_operators,
@@ -6823,7 +6827,7 @@ cairo_private void FASTCALL _cairo_array_fini(cairo_array_t * array);
 cairo_private cairo_status_t FASTCALL _cairo_array_grow_by(cairo_array_t * array, uint additional);
 cairo_private void FASTCALL _cairo_array_truncate(cairo_array_t * array, uint num_elements);
 cairo_private cairo_status_t FASTCALL _cairo_array_append(cairo_array_t * array, const void * element);
-cairo_private cairo_status_t _cairo_array_append_multiple(cairo_array_t * array, const void * elements, uint num_elements);
+cairo_private cairo_status_t FASTCALL _cairo_array_append_multiple(cairo_array_t * array, const void * elements, uint num_elements);
 cairo_private cairo_status_t _cairo_array_allocate(cairo_array_t * array, uint num_elements, void ** elements);
 cairo_private void * FASTCALL _cairo_array_index(cairo_array_t * array, uint index);
 cairo_private const void * FASTCALL _cairo_array_index_const(const cairo_array_t * array, uint index);

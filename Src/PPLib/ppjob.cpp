@@ -2474,7 +2474,7 @@ int SLAPI PPObjRFIDDevice::ExecOper(PPAbstractDevice * pDvc, int cmd, StrAssocAr
 
 int SLAPI PPObjRFIDDevice::Test(const PPRFIDDevice & rRec, SString & rRetBuf)
 {
-	rRetBuf = 0;
+	rRetBuf.Z();
 #if 0 // {
 	int    ok = -1;
 

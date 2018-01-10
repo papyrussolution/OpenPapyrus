@@ -1210,7 +1210,8 @@ int SLAPI EditQuotVal(PPQuot * pQ, int quotCls)
 {
 	class SetQuotDialog : public TDialog {
 	public:
-		SetQuotDialog(int quotCls) : TDialog((quotCls == PPQuot::clsPredictCoeff) ? DLG_SETQUOTPC : DLG_SETQUOT), QuotCls(quotCls)
+		SetQuotDialog(int quotCls) : TDialog((quotCls == PPQuot::clsPredictCoeff) ? DLG_SETQUOTPC : DLG_SETQUOT), QuotCls(quotCls),
+			UseQuot2(BIN(CConfig.Flags2 & CCFLG2_QUOT2))
 		{
 			PPObjQuotKind qk_obj;
 			if(!qk_obj.CheckRights(QUOTRT_UPDQUOTS)) {
@@ -1218,7 +1219,7 @@ int SLAPI EditQuotVal(PPQuot * pQ, int quotCls)
 				PPLoadText(PPTXT_NOUPDRIGHTS, temp_buf);
 				setStaticText(CTL_SETQUOT_ST_INFO, temp_buf);
 			}
-			if(CConfig.Flags2 & CCFLG2_QUOT2)
+			if(UseQuot2)
 				SetupCalPeriod(CTLCAL_SETQUOT_PERIOD, CTL_SETQUOT_PERIOD);
 			else
 				disableCtrl(CTL_SETQUOT_PERIOD, 1);
@@ -1248,7 +1249,7 @@ int SLAPI EditQuotVal(PPQuot * pQ, int quotCls)
 			setCtrlLong(CTL_SETQUOT_QTTY, Data.MinQtty);
 			if(Data.Kind == PPQUOTK_BASE)
 				DisableClusterItem(CTL_SETQUOT_HOW, 3, 1);
-			if(CConfig.Flags2 & CCFLG2_QUOT2)
+			if(UseQuot2)
 				SetPeriodInput(this, CTL_SETQUOT_PERIOD, &Data.Period);
 			SetupVal();
 			return 1;
@@ -1276,7 +1277,7 @@ int SLAPI EditQuotVal(PPQuot * pQ, int quotCls)
 			Data.MinQtty = getCtrlLong(CTL_SETQUOT_QTTY);
 			if(Data.MinQtty < 0)
 				Data.MinQtty = 0;
-			if(CConfig.Flags2 & CCFLG2_QUOT2)
+			if(UseQuot2)
 				GetPeriodInput(this, CTL_SETQUOT_PERIOD, &Data.Period);
 			if(v == 0)
 				Data.Quot = fabs(Data.Quot);
@@ -1302,6 +1303,7 @@ int SLAPI EditQuotVal(PPQuot * pQ, int quotCls)
 			}
 		}
 		const int QuotCls;
+		const int UseQuot2;
 		PPQuot Data;
 	};
 	DIALOG_PROC_BODY_P1(SetQuotDialog, quotCls, pQ);
@@ -2953,7 +2955,7 @@ int PPObjGoods::SetupPreferredBarcodeTags()
 //static
 SString & FASTCALL PPBarcode::ConvertUpceToUpca(const char * pUpce, SString & rUpca)
 {
-	rUpca = 0;
+	rUpca.Z();
 	char   temp[64];
 	SUpceToUpca(pUpce, temp);
 	rUpca = temp;

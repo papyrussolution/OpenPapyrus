@@ -38,10 +38,8 @@ private:
 	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
 
 	struct TextEntry {
-		TextEntry(PPID textRefID, const PPIDArray & rList)
+		TextEntry(PPID textRefID, const PPIDArray & rList) : TextRefID(textRefID), AddrList(rList)
 		{
-			TextRefID = textRefID;
-			AddrList = rList;
 		}
         PPID   TextRefID;
         PPIDArray AddrList;
@@ -51,9 +49,8 @@ private:
 	PPFiasReference * P_T; // @notowned
 };
 
-SLAPI FiasAddrCache::FiasAddrCache() : ObjCacheHash(PPOBJ_FIAS, sizeof(Data), 16*1024*1024, 8)
+SLAPI FiasAddrCache::FiasAddrCache() : ObjCacheHash(PPOBJ_FIAS, sizeof(Data), 16*1024*1024, 8), P_T(0)
 {
-	P_T = 0;
 }
 
 SLAPI FiasAddrCache::~FiasAddrCache()
@@ -179,9 +176,9 @@ TLP_IMPL(PPObjLocation, LocationCore, P_Tbl);
 PPCountryBlock & PPCountryBlock::Clear()
 {
 	IsNative = 0;
-	Name = 0;
-	Code = 0;
-	Abbr = 0;
+	Name.Z();
+	Code.Z();
+	Abbr.Z();
 	return *this;
 }
 //
@@ -719,7 +716,7 @@ int PPObjLocation::AddListItem(StrAssocArray * pList, LocationTbl::Rec * pLocRec
 {
 	int    ok = 1, r;
 	PPIDArray local_recur_trace;
-	if(pList->Search(pLocRec->ID, 0))
+	if(pList->Search(pLocRec->ID))
 		ok = -1;
 	else {
 		PPID   par_id = pLocRec->ParentID;
@@ -4422,48 +4419,48 @@ int SLAPI PPLocAddrStruc::ProcessDescr(const AddrItemDescr & rDescr, DescrSelect
 	}
 	switch(rDescr.WorldObj) {
 		case tCity:
-			if(!Search(tCity, 0)) {
+			if(!Search(tCity)) {
 				rSel.T = tCity;
 				rSel.Kt = tCityKind;
 			}
 			break;
 		case tStreet:
-			if(!Search(tStreet, 0)) {
+			if(!Search(tStreet)) {
 				rSel.T = tStreet;
 				rSel.Kt = tStreetKind;
 			}
 			break;
 		case tLocalArea:
-			if(!Search(tLocalArea, 0)) {
+			if(!Search(tLocalArea)) {
 				rSel.T = tLocalArea;
 				rSel.Kt = tLocalAreaKind;
 			}
 			break;
 		case tHouse:
-			if(!Search(tHouse, 0)) {
+			if(!Search(tHouse)) {
 				rSel.T = tHouse;
 				rSel.Kt = tHouseKind;
 			}
 			break;
 		case tHouseAddendum:
-			if(!Search(tHouseAddendum, 0)) {
+			if(!Search(tHouseAddendum)) {
 				rSel.T = tHouseAddendum;
 				rSel.Kt = tHouseAddendumKind;
 			}
 			break;
 		case tApart:
-			if(!Search(tApart, 0)) {
+			if(!Search(tApart)) {
 				rSel.T = tApart;
 				rSel.Kt = tApartKind;
 			}
 			break;
 		case tFloor:
-			if(!Search(tFloor, 0)) {
+			if(!Search(tFloor)) {
 				rSel.T = tFloor;
 			}
 			break;
 		case tPostBox:
-			if(!Search(tPostBox, 0)) {
+			if(!Search(tPostBox)) {
 				rSel.T = tPostBox;
 			}
 			break;
@@ -4475,7 +4472,7 @@ int SLAPI PPLocAddrStruc::ProcessDescr(const AddrItemDescr & rDescr, DescrSelect
 
 int SLAPI PPLocAddrStruc::GetFiasAddrObjKind(PPID adrObjID, SString & rKind)
 {
-	rKind = 0;
+	rKind.Z();
 	int    ok = -1;
 	if(P_Fr) {
 		FiasAddrObjTbl::Rec rec;
@@ -4816,8 +4813,8 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 			}
 			{
 				SString addendum;
-				int    is_there_city = Search(tCity, 0);
-				int    is_there_street = Search(tStreet, 0);
+				int    is_there_city = Search(tCity);
+				int    is_there_street = Search(tStreet);
 				if(P_Fr) {
 					TSCollection <DetectBlock> dtb_list;
 					PPIDArray fias_city_list;
@@ -5741,10 +5738,9 @@ int PPALDD_UhttStore::NextIteration(long iterId)
 			const ObjTagItem * p_item = r_blk.Pack.TagL.GetItemByPos(r_blk.TagPos);
 			I_TagList.TagTypeID = p_item->TagDataType;
 			{
-				PPObjectTag2 rec;
-				if(r_blk.TagObj.Fetch(p_item->TagID, &rec) > 0) {
+				PPObjectTag rec;
+				if(r_blk.TagObj.Fetch(p_item->TagID, &rec) > 0)
 					STRNSCPY(I_TagList.TagSymb, rec.Symb);
-				}
 			}
 			switch(p_item->TagDataType) {
 				case OTTYP_STRING:
@@ -5752,16 +5748,10 @@ int PPALDD_UhttStore::NextIteration(long iterId)
 					p_item->GetStr(temp_buf.Z());
 					STRNSCPY(I_TagList.StrVal, temp_buf);
 					break;
-				case OTTYP_NUMBER:
-					p_item->GetReal(&I_TagList.RealVal);
-					break;
+				case OTTYP_NUMBER: p_item->GetReal(&I_TagList.RealVal); break;
 				case OTTYP_BOOL:
-				case OTTYP_INT:
-					p_item->GetInt(&I_TagList.IntVal);
-					break;
-				case OTTYP_DATE:
-					p_item->GetDate(&I_TagList.DateVal);
-					break;
+				case OTTYP_INT: p_item->GetInt(&I_TagList.IntVal); break;
+				case OTTYP_DATE: p_item->GetDate(&I_TagList.DateVal); break;
 			}
 			ok = DlRtm::NextIteration(iterId);
 		}
@@ -5792,23 +5782,15 @@ int PPALDD_UhttStore::Set(long iterId, int commit)
 		else if(iterId == GetIterID("iter@TagList")) {
 			PPID   id = 0;
 			ObjTagItem item;
-			PPObjectTag2 rec;
+			PPObjectTag rec;
 			if(r_blk.TagObj.SearchBySymb(I_TagList.TagSymb, &id, &rec) > 0) {
 				item.TagID = rec.ID;
 				switch(I_TagList.TagTypeID) {
 					case OTTYP_STRING:
-					case OTTYP_GUID:
-						THROW(item.SetStr(I_TagList.TagTypeID, I_TagList.StrVal));
-						break;
-					case OTTYP_NUMBER:
-						THROW(item.SetReal(I_TagList.TagTypeID, I_TagList.RealVal));
-						break;
-					case OTTYP_INT:
-						THROW(item.SetInt(I_TagList.TagTypeID, I_TagList.IntVal));
-						break;
-					case OTTYP_DATE:
-						THROW(item.SetDate(I_TagList.TagTypeID, I_TagList.DateVal));
-						break;
+					case OTTYP_GUID: THROW(item.SetStr(I_TagList.TagTypeID, I_TagList.StrVal)); break;
+					case OTTYP_NUMBER: THROW(item.SetReal(I_TagList.TagTypeID, I_TagList.RealVal)); break;
+					case OTTYP_INT: THROW(item.SetInt(I_TagList.TagTypeID, I_TagList.IntVal)); break;
+					case OTTYP_DATE: THROW(item.SetDate(I_TagList.TagTypeID, I_TagList.DateVal)); break;
 				}
 				THROW(r_blk.Pack.TagL.PutItem(rec.ID, &item));
 			}

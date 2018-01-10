@@ -919,7 +919,7 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 
 int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uint * pPicListPos, SString & rRef)
 {
-	rRef = 0;
+	rRef.Z();
 
 	int    ok = 0;
 	uint   pos = 0;

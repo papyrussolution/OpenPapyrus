@@ -173,7 +173,7 @@ int JobItemDialog::getDTS(PPJob * pData)
 	getCtrlData(sel = CTL_JOBITEM_SYMB, Data.Symb);
 	THROW(P_JobPool->CheckUniqueJob(&Data));
 	getCtrlData(sel = CTLSEL_JOBITEM_CMD, &cmd_id);
-	THROW_PP(CmdSymbList.Search(cmd_id, 0), PPERR_INVJOBCMD);
+	THROW_PP(CmdSymbList.Search(cmd_id), PPERR_INVJOBCMD);
 	THROW(P_Mngr->LoadResource(cmd_id, &Data.Descr));
 	getCtrlData(sel = CTLSEL_JOBITEM_NEXTJOB, &Data.NextJobID);
 	GetClusterData(CTL_JOBITEM_FLAGS, &Data.Flags);
@@ -469,7 +469,7 @@ public:
 		uint sel = 0;
 		getCtrlData(sel = CTLSEL_JOBFILT_CMD, &Data.CmdId);
 		if(Data.CmdId)
-			THROW_PP(CmdSymbList.Search(Data.CmdId, 0), PPERR_INVJOBCMD);
+			THROW_PP(CmdSymbList.Search(Data.CmdId), PPERR_INVJOBCMD);
 		GetClusterData(CTL_JOBFILT_FLAGS, &Data.Flags);
 		ASSIGN_PTR(pData, Data);
 		ok = 1;

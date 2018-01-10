@@ -982,13 +982,13 @@ SrCProp & FASTCALL SrCProp::operator = (double val)
 int FASTCALL SrCProp::Get(int64 & rIntVal) const
 {
 	size_t s = Value.ReadStatic(&rIntVal, sizeof(rIntVal));
-	return (s == sizeof(rIntVal)) ? 1 : 0;
+	return BIN(s == sizeof(rIntVal));
 }
 
 int FASTCALL SrCProp::Get(double & rRealVal) const
 {
 	size_t s = Value.ReadStatic(&rRealVal, sizeof(rRealVal));
-	return (s == sizeof(rRealVal)) ? 1 : 0;
+	return BIN(s == sizeof(rRealVal));
 }
 //
 //
@@ -1164,27 +1164,26 @@ SrWordInfo & SrWordInfo::Clear()
 	BaseFormID = 0;
 	FormID = 0;
 	WaID = 0;
+	AbbrExpID = 0; // @v9.8.12
 	Score = 0.0;
 	return *this;
 }
 //
 //
 //
-SLAPI SrWordAssoc::SrWordAssoc() : ID(0), WordID(0), Flags(0), BaseFormID(0), FlexiaModelID(0), AccentModelID(0), PrefixID(0), AffixModelID(0)
+SLAPI SrWordAssoc::SrWordAssoc() : ID(0), WordID(0), Flags(0), BaseFormID(0), FlexiaModelID(0), AccentModelID(0),
+	PrefixID(0), AffixModelID(0), AbbrExpID(0)
 {
 }
 
 SrWordAssoc & SLAPI SrWordAssoc::Normalize()
 {
-	Flags = 0;
-	if(FlexiaModelID)
-		Flags |= fHasFlexiaModel;
-	if(AccentModelID)
-		Flags |= fHasAccentModel;
-	if(PrefixID)
-		Flags |= fHasPrefix;
-	if(AffixModelID)
-		Flags |= fHasAffixModel;
+	//Flags = 0;
+	SETFLAG(Flags, fHasFlexiaModel, FlexiaModelID);
+	SETFLAG(Flags, fHasAccentModel, AccentModelID);
+	SETFLAG(Flags, fHasPrefix, PrefixID);
+	SETFLAG(Flags, fHasAffixModel, AffixModelID);
+	SETFLAG(Flags, fHasAbbrExp, AbbrExpID);
 	return *this;
 }
 
@@ -1192,7 +1191,7 @@ SString & FASTCALL SrWordAssoc::ToStr(SString & rBuf) const
 {
 	return rBuf.Z().CatChar('[').Cat(ID).CatDiv(',', 2).Cat(WordID).CatDiv(',', 2).Cat("0x").CatHex(Flags).CatDiv(',', 2).
 		Cat(BaseFormID).CatDiv(',', 2).Cat(FlexiaModelID).CatDiv(',', 2).Cat(AccentModelID).CatDiv(',', 2).
-		Cat(PrefixID).CatDiv(',', 2).Cat(AffixModelID).CatChar(']');
+		Cat(PrefixID).CatDiv(',', 2).Cat(AffixModelID).CatDiv(',', 2).Cat(AbbrExpID).CatChar(']');
 }
 //
 //

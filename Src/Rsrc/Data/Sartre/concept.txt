@@ -15,6 +15,16 @@
 // преимущественно, такие понятия обознаются этим символом с некоторым префиксом.
 // Например :ling_ru - русский язык (префикс ling и ISO-символ русского языка ru).
 //
+// Конструкции 
+//   1) ":concept_symb1:concep_symb2" - концепция с символом concept_symb1 является экземпляром концепции concept_symb2
+//   2) ":concept_symb1::concep_symb2" - концепция с символом concept_symb1 является субклассом концепции concept_symb2
+//   3) "concept_text:concep_symb2" - текст concept_text представляет n-gram который фиксируется как анонимная концепция, являющаяся экземпляром концепции concept_symb2
+//   4) "concept_text::concep_symb2" - текст concept_text представляет n-gram который фиксируется как анонимная концепция, являющаяся субклассом концепции concept_symb2
+//   5) "[lang]concept_text:concep_symb2" - то же, что и (3) но с уточнением языка
+//   6) "[lang]concept_text::concep_symb2" - то же, что и (4) но с уточнением языка
+//   7) "concept_text=:concep_symb2" - текст concept_text представляет n-gram который является естественно-языковым обозначением концепции concept_symb2
+//   8) "[lang]concept_text=:concep_symb2" - то же, что и (7) но с уточнением языка
+//
 // Порядковые номера (индексы перечислений) всегда начинаются с 1 (не с 0 как в c++).
 //
 
@@ -51,6 +61,9 @@
 :cregion+(:statu statu)::geoloc   // Регион государства
 :urbs+(:statu statu)::geoloc      // Город (населенный пункт)
 :gener_vici // Обобщенная улица (площадь, проспект и т.д.) как адресное подразделение населенного пункта
+:gener_geoplace // Обобщенное именованное географическое наименование 
+:gener_aedificium // Обобщенное понятие для здания (дом, сооружение, крепость и т.д.)
+:gener_apartment  // Обобщенное понятие для помещения внутри здания (квартира, комната, зал и т.д.)
 
 //:urbs+(:statu statu)
 //:person+(:cp_startdate birthdate, :person father, :person mother)
@@ -1946,12 +1959,162 @@ z39.50s:urischeme
 	воскресенье:dayofweek
 }
 //
+// Понятия на русском языке для географических объектов
+//
+[ru]республика::statu
+
+[ru]автономный округ::cregion
+[ru]автономная область::cregion
+[ru]республика::cregion
+[ru]край::cregion
+[ru]область::cregion
+[ru]округ::cregion
+[ru]район::cregion
+
+[ru]город::urbs
+[ru]городок::urbs
+[ru]город федерального значения::urbs
+[ru]деревня::urbs
+[ru]поселок::urbs
+[ru]поселок городского типа::urbs
+[ru]дачный поселок::urbs
+[ru]поселение::urbs
+[ru]село::urbs
+[ru]сельское поселение::urbs
+[ru]курортный поселок::urbs
+[ru]населенный пункт::urbs
+[ru]станция::urbs
+[ru]станица::urbs
+[ru]садовое товарищество::urbs
+[ru]аул::urbs
+[ru]аал::urbs
+[ru]арбан::urbs
+[ru]рабочий поселок::urbs
+[ru]городской поселок::urbs
+[ru]остров::urbs
+[ru]волость::urbs
+[ru]железнодорожная станция::urbs
+[ru]железнодорожная платформа::urbs
+[ru]железнодорожная будка::urbs
+[ru]железнодорожная казарма::urbs
+[ru]железнодорожный пост::urbs
+[ru]железнодорожный разъезд::urbs
+[ru]железнодорожная остановка обгонный пункт::urbs
+[ru]починок::urbs
+[ru]местечко::urbs
+[ru]казарма::urbs
+[ru]промышленная зона::urbs
+[ru]погост::urbs
+[ru]территория::urbs
+[ru]поселок при станции::urbs
+[ru]леспромхоз::urbs
+[ru]разъезд::urbs
+[ru]хутор::urbs
+[ru]слобода::urbs
+[ru]улус::urbs
+[ru]почтовое отделение::urbs
+[ru]планировочный район::urbs
+[ru]район::urbs
+[ru]жилой район::urbs
+
+[ru]аллея::gener_vici
+[ru]проспект::gener_vici
+[ru]улица::gener_vici
+[ru]бульвар::gener_vici
+[ru]шоссе::gener_vici
+[ru]набережная::gener_vici
+[ru]площадь::gener_vici
+[ru]переулок::gener_vici
+[ru]тракт::gener_vici
+[ru]тупик::gener_vici
+[ru]канал::gener_vici
+[ru]вал::gener_vici
+[ru]линия::gener_vici
+[ru]проезд::gener_vici
+[ru]берег::gener_vici
+[ru]гаражно-строительный кооператив::gener_vici
+[ru]заезд::gener_vici
+[ru]квартал::gener_vici
+[ru]километр::gener_vici
+[ru]микрорайон::gener_vici
+[ru]мост::gener_vici
+[ru]остров::gener_vici
+[ru]въезд::gener_vici
+[ru]кольцо::gener_vici
+[ru]железнодорожная станция::gener_vici
+[ru]железнодорожная платформа::gener_vici
+[ru]железнодорожная будка::gener_vici
+[ru]железнодорожная казарма::gener_vici
+[ru]железнодорожный пост::gener_vici
+[ru]железнодорожный разъезд::gener_vici
+[ru]железнодорожная остановка обгонный пункт::gener_vici
+[ru]сквер::gener_vici
+[ru]коса::gener_vici
+[ru]некоммерческое партнерство::gener_vici
+[ru]дачное некоммерческое партнерство::gener_vici
+[ru]местечко::gener_vici
+[ru]казарма::gener_vici
+[ru]платформа::gener_vici
+[ru]территория::gener_vici
+[ru]парк::gener_vici
+[ru]маяк::gener_vici
+[ru]животноводческая точка::gener_vici
+[ru]поселок при станции::gener_vici
+[ru]переезд::gener_vici
+[ru]магистраль::gener_vici
+[ru]балка::gener_vici
+[ru]местность::gener_vici
+[ru]проулок::gener_vici
+[ru]разъезд::gener_vici
+[ru]фермерское хозяйство::gener_vici
+[ru]хутор::gener_vici
+[ru]ферма::gener_vici
+[ru]полустанок::gener_vici
+[ru]сад::gener_vici
+[ru]слобода::gener_vici
+[ru]проселок::gener_vici
+[ru]просека::gener_vici
+[ru]городок::gener_vici
+[ru]почтовое отделение::gener_vici
+[ru]тоннель::gener_vici
+[ru]планировочный район::gener_vici
+[ru]просек::gener_vici
+[ru]спуск::gener_vici
+[ru]участок::gener_vici
+[ru]бугор::gener_vici
+[ru]дорога::gener_vici
+[ru]площадка::gener_vici
+
+[ru]дом::gener_aedificium
+[ru]здание::gener_aedificium
+[ru]корпус::gener_aedificium
+[ru]сооружение::gener_aedificium
+[ru]строение::gener_aedificium
+[ru]котельная::gener_aedificium
+[ru]гараж::gener_aedificium
+[ru]домовладение::gener_aedificium
+[ru]объект незавершенного строительства::gener_aedificium
+[ru]павильон::gener_aedificium
+[ru]владение::gener_aedificium
+[ru]почтовое отделение::gener_aedificium
+
+[ru]квартира::gener_apartment
+[ru]торговый зал::gener_apartment
+[ru]комната::gener_apartment
+[ru]офис::gener_apartment
+[ru]погреб::gener_apartment
+[ru]подвал::gener_apartment
+[ru]помещение::gener_apartment
+[ru]цех::gener_apartment
+[ru]склад::gener_apartment
+//
 // Примеры синтаксиса определения понятия на натуральном языке //
 //
 [ru]широта=:geolat
 [ru]долгота=:geolon
 
-[ru]петрозаводск:urbs(:statu_ru, lat=61.6, lon=34.5)
+//[ru]петрозаводск:urbs(:statu_ru, lat=61.6, lon=34.5)
+[ru]петрозаводск:urbs(:statu_ru)
 [ru]ростов-на-дону:urbs(:statu_ru)
 
 [ru]вологодская область:cregion(statu= :statu_ru)
@@ -1988,4 +2151,9 @@ z39.50s:urischeme
 	дмитрий:hum_fname(:gender_mas)
 }
 
-
+[ru]{
+	ф/х=$фермерское хозяйство
+	р-он=$район
+	р-н=$район
+	респ=.республика
+}

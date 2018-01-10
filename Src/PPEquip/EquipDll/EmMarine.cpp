@@ -132,7 +132,7 @@ int PPDrvReader::Listen(SString & rOutput)
 	while(CommPort.GetChr(&chr) && data_size < sizeof(data_buf))
 		data_buf[data_size++] = (uint8)chr;
 	//THROWERR(data_size, RDRERR_NOREPLY);
-	rOutput = 0;
+	rOutput.Z();
 	// Номер карты получается в виде 16-ой строки. Переводим в 10-ую. Символы берем попарно.
 	if(data_size) {
 		int    all_are_hex = 1;

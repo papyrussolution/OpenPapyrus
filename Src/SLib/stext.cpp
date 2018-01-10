@@ -669,7 +669,7 @@ int FASTCALL RecognizeLinguaSymb(const char * pSymb, int word)
 int FASTCALL GetLinguaCode(int ident, SString & rCode)
 {
 	int    ok = 0;
-	rCode = 0;
+	rCode.Z();
 	for(uint i = 0; !ok && i < SIZEOFARRAY(P_LinguaIdentList); i++) {
 		if(ident == (int)P_LinguaIdentList[i].Id) {
 			rCode = P_LinguaIdentList[i].P_Code;
@@ -805,7 +805,7 @@ int FASTCALL RecognizeSNScriptSymb(const char * pSymb, size_t * pLength)
 int FASTCALL GetSNScriptCode(int ident, SString & rCode)
 {
 	int    ok = 0;
-	rCode = 0;
+	rCode.Z();
 	for(uint i = 0; !ok && i < SIZEOFARRAY(P_SNScriptIdentList); i++) {
 		if(ident == (int)P_SNScriptIdentList[i].Id) {
 			rCode = P_SNScriptIdentList[i].P_Code;
@@ -861,7 +861,7 @@ int FASTCALL RecognizeSisSymb(const char * pSymb)
 int FASTCALL GetSisCode(int ident, SString & rCode)
 {
 	int    ok = 0;
-	rCode = 0;
+	rCode.Z();
 	for(uint i = 0; !ok && i < SIZEOFARRAY(P_SisIdentList); i++) {
 		if(ident == P_SisIdentList[i].Id) {
 			rCode = P_SisIdentList[i].P_Code;

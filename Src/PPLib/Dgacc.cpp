@@ -77,7 +77,7 @@ void AcctCtrlGroup::setup(TDialog * dlg, Acct * pAcct, int sheetChanged, int acc
 		dlg->disableCtrl(ctlsel_artname, !AccSheetID);
 		if(AccSheetID && (p = dlg->P_Current) != 0) {
 			do {
-				p = p->next;
+				p = p->P_Next;
 			} while(p != dlg->P_Current && !p->TestId(ctl_art));
 			if(p->TestId(ctl_art))
 				p->select();
@@ -214,7 +214,7 @@ int AcctCtrlGroup::processArtInput(TDialog * dlg)
 void AcctCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 {
 	int    rcv;
-	if(TVBROADCAST && TVCMD == cmChangedFocus && TVINFOVIEW && dlg->owner) {
+	if(TVBROADCAST && TVCMD == cmChangedFocus && TVINFOVIEW && dlg->P_Owner) {
 		if(event.isCtlEvent(ctl_acc))
 			processAccInput(dlg);
 		else if(event.isCtlEvent(ctl_art))

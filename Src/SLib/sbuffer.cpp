@@ -1,5 +1,5 @@
 // SBUFFER.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -131,21 +131,15 @@ void SBuffer::Destroy()
 
 SBuffer & SLAPI SBuffer::Clear()
 {
-	if(WrOffs || RdOffs)
-		WrOffs = RdOffs = 0;
+	WrOffs = RdOffs = 0;
 	return *this;
 }
 
-void * FASTCALL SBuffer::Ptr(size_t offs) const
-	{ return (((int8 *)P_Buf)+offs); }
-const void * FASTCALL SBuffer::GetBuf(size_t offs) const
-	{ return (const void *)Ptr(offs); }
-void FASTCALL SBuffer::SetRdOffs(size_t offs)
-	{ RdOffs = MIN(offs, WrOffs); }
-void FASTCALL SBuffer::SetWrOffs(size_t offs)
-	{ WrOffs = MAX(MIN(offs, Size), RdOffs); }
-size_t SLAPI SBuffer::GetAvailableSize() const
-	{ return (WrOffs > RdOffs) ? (WrOffs - RdOffs) : 0; }
+void * FASTCALL SBuffer::Ptr(size_t offs) const { return (((int8 *)P_Buf)+offs); }
+const  void * FASTCALL SBuffer::GetBuf(size_t offs) const { return (const void *)Ptr(offs); }
+void   FASTCALL SBuffer::SetRdOffs(size_t offs) { RdOffs = MIN(offs, WrOffs); }
+void   FASTCALL SBuffer::SetWrOffs(size_t offs) { WrOffs = MAX(MIN(offs, Size), RdOffs); }
+size_t SLAPI SBuffer::GetAvailableSize() const { return (WrOffs > RdOffs) ? (WrOffs - RdOffs) : 0; }
 
 int FASTCALL SBuffer::Write(const void * pBuf, size_t size)
 {
@@ -194,7 +188,7 @@ size_t FASTCALL SBuffer::ReadStatic(void * pBuf, size_t bufLen) const
 {
 	size_t sz = 0;
 	if(pBuf) {
-		size_t avl_size = GetAvailableSize();
+		const size_t avl_size = GetAvailableSize();
 		sz = bufLen ? MIN(avl_size, bufLen) : avl_size;
 		if(sz)
 			memcpy(pBuf, Ptr(RdOffs), sz);
@@ -212,7 +206,7 @@ size_t FASTCALL SBuffer::Read(void * pBuf, size_t bufLen)
 int FASTCALL SBuffer::ReadV(void * pBuf, size_t bufLen)
 {
 	int    ok = 1;
-	size_t sz = ReadStatic(pBuf, bufLen);
+	const  size_t sz = ReadStatic(pBuf, bufLen);
 	RdOffs += sz;
 	if(sz != bufLen) {
 		SString msg_buf;
@@ -316,7 +310,7 @@ size_t SLAPI SBuffer::ReadTermStr(const char * pTerm, SString & rBuf)
 	if(pTerm) {
 		size_t pos = 0;
 		if(Search(pTerm, &pos)) {
-			size_t avl_size = pos + strlen(pTerm) - RdOffs;
+			const size_t avl_size = pos + strlen(pTerm) - RdOffs;
 			sz = avl_size;
 			if(sz) {
 				rBuf.CopyFromN((const char *)Ptr(RdOffs), sz);
@@ -745,23 +739,23 @@ SLAPI STempBuffer::~STempBuffer()
 
 int FASTCALL STempBuffer::Alloc(size_t sz)
 {
+	int    ok = 1;
 	if(sz == 0) {
 		ZFREE(P_Buf);
 		Size = 0;
-		return 1;
 	}
 	else {
 		char * p = (char *)SAlloc::R(P_Buf, sz);
 		if(p) {
 			P_Buf = p;
 			Size = sz;
-			return 1;
 		}
 		else {
 			Size = 0;
-			return 0;
+			ok = 0;
 		}
 	}
+	return ok;
 }
 
 STempBuffer & FASTCALL STempBuffer::operator = (const STempBuffer & rS)
@@ -787,9 +781,8 @@ struct SscDbtItem {
 	BNFieldList Fields;
 };
 
-SLAPI SSerializeContext::SSerializeContext() : SymbTbl(2048, 1), TempDataBuf(0), LastSymbId(0), SuppDate(ZERODATE), State(0), Flags(0)
+SLAPI SSerializeContext::SSerializeContext() : SymbTbl(2048, 1), TempDataBuf(0), LastSymbId(0), SuppDate(ZERODATE), State(0), Flags(0), P_DbtDescrList(0)
 {
-	P_DbtDescrList = new TSCollection <SscDbtItem>;
 }
 
 SLAPI SSerializeContext::~SSerializeContext()
@@ -797,14 +790,13 @@ SLAPI SSerializeContext::~SSerializeContext()
 	ZDELETE(P_DbtDescrList);
 }
 
-int SLAPI SSerializeContext::Init(long flags, LDATE suppDate)
+void SLAPI SSerializeContext::Init(long flags, LDATE suppDate)
 {
 	Flags |= flags;
 	SuppDate = suppDate;
 	CALLPTRMEMB(P_DbtDescrList, freeAll());
 	LastSymbId = 0;
 	SymbTbl.Clear();
-	return 1;
 }
 
 int FASTCALL SSerializeContext::CheckFlag(long f) const
@@ -829,6 +821,7 @@ int SLAPI SSerializeContext::AddDbtDescr(const char * pName, const BNFieldList *
 		THROW_S(p_new_item, SLERR_NOMEM);
 		p_new_item->DbtID = dbt_id;
 		p_new_item->Fields = *pList;
+		THROW(SETIFZ(P_DbtDescrList, new TSCollection <SscDbtItem>));
 		THROW(P_DbtDescrList->insert(p_new_item));
 		ok = 1;
 	}
@@ -840,11 +833,13 @@ int SLAPI SSerializeContext::AddDbtDescr(const char * pName, const BNFieldList *
 int SLAPI SSerializeContext::GetDbtDescr(uint id, BNFieldList * pList) const
 {
 	int    ok = 0;
-	for(uint i = 0; !ok && i < P_DbtDescrList->getCount(); i++) {
-		const SscDbtItem * p_item = (const SscDbtItem *)P_DbtDescrList->at(i);
-		if(p_item->DbtID == id) {
-			ASSIGN_PTR(pList, p_item->Fields);
-			ok = 1;
+	if(P_DbtDescrList) {
+		for(uint i = 0; !ok && i < P_DbtDescrList->getCount(); i++) {
+			const SscDbtItem * p_item = (const SscDbtItem *)P_DbtDescrList->at(i);
+			if(p_item->DbtID == id) {
+				ASSIGN_PTR(pList, p_item->Fields);
+				ok = 1;
+			}
 		}
 	}
 	return ok;
@@ -909,12 +904,13 @@ int SLAPI SSerializeContext::SerializeState(int dir, SBuffer & rBuf)
 		blk.Flags = Flags;
 		blk.SuppDate = SuppDate;
 		blk.LastSymbId = LastSymbId;
-		blk.StructCount = P_DbtDescrList->getCount();
+		blk.StructCount = P_DbtDescrList ? P_DbtDescrList->getCount() : 0;
 
 		rBuf.Write(sign);
 		rBuf.Write(&blk, sizeof(blk));
 		if(Flags & fSeparateDataStruct) {
 			for(uint i = 0; i < blk.StructCount; i++) {
+				assert(P_DbtDescrList);
 				SscDbtItem * p_item = (SscDbtItem *)P_DbtDescrList->at(i);
 				SymbTbl.GetByAssoc(p_item->DbtID, TempBuf);
 				rBuf.Write(TempBuf);
@@ -934,15 +930,24 @@ int SLAPI SSerializeContext::SerializeState(int dir, SBuffer & rBuf)
 		LastSymbId = blk.LastSymbId;
 		if(Flags & fSeparateDataStruct) {
 			SymbTbl.Clear();
-			P_DbtDescrList->freeAll();
-			for(uint i = 0; i < blk.StructCount; i++) {
-				SscDbtItem * p_new_item = new SscDbtItem;
-				THROW(rBuf.Read(TempBuf));
-				THROW(rBuf.Read(p_new_item->DbtID));
-				THROW(SerializeFieldList(-1, &p_new_item->Fields, rBuf));
-				THROW(P_DbtDescrList->insert(p_new_item));
-				THROW(SymbTbl.Add(TempBuf, p_new_item->DbtID, 0));
+			if(blk.StructCount) {
+				if(P_DbtDescrList)
+					P_DbtDescrList->freeAll();
+				else {
+					THROW(P_DbtDescrList = new TSCollection <SscDbtItem>);
+				}
+				for(uint i = 0; i < blk.StructCount; i++) {
+					SscDbtItem * p_new_item = new SscDbtItem;
+					THROW(p_new_item);
+					THROW(rBuf.Read(TempBuf));
+					THROW(rBuf.Read(p_new_item->DbtID));
+					THROW(SerializeFieldList(-1, &p_new_item->Fields, rBuf));
+					THROW(P_DbtDescrList->insert(p_new_item));
+					THROW(SymbTbl.Add(TempBuf, p_new_item->DbtID, 0));
+				}
 			}
+			else
+				ZDELETE(P_DbtDescrList);
 		}
 	}
 	CATCHZOK

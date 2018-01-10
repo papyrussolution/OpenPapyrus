@@ -975,7 +975,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 			RptPrnPort.Strip();
 			// } @v8.8.3
 			// @v9.0.9 {
-			if(oneof3(cn_pack.EgaisMode, 0, 1, 2)) {
+			if(oneof4(cn_pack.EgaisMode, 0, 1, 2, 3)) { // @v9.8.12 (3)
 				EgaisMode = cn_pack.EgaisMode;
 				if(oneof2(EgaisMode, 1, 2) && !(Flags & fNoEdit)) {
 					long   egcf = PPEgaisProcessor::cfDirectFileLogging;
@@ -8397,7 +8397,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 					// } @v9.8.5
 				}
 				if(ok > 0) {
-                    if(oneof2(EgaisMode, 1, 2) && P_EgPrc && P_EgPrc->IsAlcGoods(goodsID)) {
+                    if(oneof3(EgaisMode, 1, 2, 3) && P_EgPrc && P_EgPrc->IsAlcGoods(goodsID)) { // @v9.8.12 (3)
 						PrcssrAlcReport::GoodsItem agi;
 						if(P_EgPrc->PreprocessGoodsItem(goodsID, 0, 0, 0, agi) && agi.StatusFlags & agi.stMarkWanted) {
 							SString egais_mark;
@@ -8706,7 +8706,7 @@ void CheckPaneDialog::AcceptQuantity()
 				//
 				// Маркированная алкогольная продукциия - строго по одной штуке на строку чека
 				//
-				if(oneof2(EgaisMode, 1, 2) && P_EgPrc && P_EgPrc->IsAlcGoods(goods_id)) {
+				if(oneof3(EgaisMode, 1, 2, 3) && P_EgPrc && P_EgPrc->IsAlcGoods(goods_id)) { // @v9.8.12 (3)
 					PrcssrAlcReport::GoodsItem agi;
 					if(P_EgPrc->PreprocessGoodsItem(goods_id, 0, 0, 0, agi) && agi.StatusFlags & agi.stMarkWanted) {
 						if(qtty != 1.0)

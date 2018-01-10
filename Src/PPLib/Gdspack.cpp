@@ -59,12 +59,9 @@ PPGoodsPacket & FASTCALL PPGoodsPacket::operator = (const PPGoodsPacket & src)
 	return *this;
 }
 
-int SLAPI PPGoodsPacket::GetExtStrData(int fldID, SString & rBuf) const
-	{ return PPGetExtStrData(fldID, ExtString, rBuf); }
-int SLAPI PPGoodsPacket::PutExtStrData(int fldID, const SString & rBuf/*const char * pBuf*/)
-	{ return PPPutExtStrData(fldID, ExtString, rBuf); }
-GoodsPacketKind SLAPI PPGoodsPacket::GetPacketKind() const
-	{ return PPObjGoods::GetRecKind(&Rec); }
+int SLAPI PPGoodsPacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int SLAPI PPGoodsPacket::PutExtStrData(int fldID, const SString & rBuf) { return PPPutExtStrData(fldID, ExtString, rBuf); }
+GoodsPacketKind SLAPI PPGoodsPacket::GetPacketKind() const { return PPObjGoods::GetRecKind(&Rec); }
 
 int SLAPI PPGoodsPacket::AddCode(const char * code, long codeType, double uPerP)
 {
@@ -277,9 +274,9 @@ int SLAPI PPGoodsPacket::PrepareAddedMsgStrings(const char * pSign, long flags, 
 //
 //
 //
-SLAPI PPGdsClsProp::PPGdsClsProp()
+SLAPI PPGdsClsProp::PPGdsClsProp() : ItemsListID(0)
 {
-	Init();
+	PTR32(Name)[0] = 0;
 }
 
 void SLAPI PPGdsClsProp::Init()
@@ -297,9 +294,9 @@ PPGdsClsProp & FASTCALL PPGdsClsProp::operator = (const PPGdsClsProp & s)
 //
 //
 //
-SLAPI PPGdsClsDim::PPGdsClsDim()
+SLAPI PPGdsClsDim::PPGdsClsDim() : Scale(0)
 {
-	Init();
+	PTR32(Name)[0] = 0;
 }
 
 void SLAPI PPGdsClsDim::Init()
@@ -479,65 +476,49 @@ int SLAPI PPGdsClsPacket::GetPropName(int prop, SString & rBuf) const
 	switch(prop) {
 		case PPGdsCls::eKind:
 			if(Rec.Flags & PPGdsCls::fUsePropKind) {
-				rBuf = PropKind.Name;
-				if(!rBuf)
-					rBuf = "gckind";
+				(rBuf = PropKind.Name).SetIfEmpty("gckind");
 				ok = 1;
 			}
 			break;
 		case PPGdsCls::eGrade:
 			if(Rec.Flags & PPGdsCls::fUsePropGrade) {
-				rBuf = PropGrade.Name;
-				if(!rBuf)
-					rBuf = "gcgrade";
+				(rBuf = PropGrade.Name).SetIfEmpty("gcgrade");
 				ok = 1;
 			}
 			break;
 		case PPGdsCls::eAdd:
 			if(Rec.Flags & PPGdsCls::fUsePropAdd) {
-				rBuf = PropAdd.Name;
-				if(!rBuf)
-					rBuf = "gcadd";
+				(rBuf = PropAdd.Name).SetIfEmpty("gcadd");
 				ok = 1;
 			}
 			break;
 		case PPGdsCls::eAdd2:
 			if(Rec.Flags & PPGdsCls::fUsePropAdd2) {
-				rBuf = PropAdd2.Name;
-				if(!rBuf)
-					rBuf = "gcadd2";
+				(rBuf = PropAdd2.Name).SetIfEmpty("gcadd2");
 				ok = 1;
 			}
 			break;
 		case PPGdsCls::eX:
 			if(Rec.Flags & PPGdsCls::fUseDimX) {
-				rBuf = DimX.Name;
-				if(!rBuf)
-					rBuf = "gcdimx";
+				(rBuf = DimX.Name).SetIfEmpty("gcdimx");
 				ok = 1;
 			}
 			break;
 		case PPGdsCls::eY:
 			if(Rec.Flags & PPGdsCls::fUseDimY) {
-				rBuf = DimY.Name;
-				if(!rBuf)
-					rBuf = "gcdimy";
+				(rBuf = DimY.Name).SetIfEmpty("gcdimy");
 				ok = 1;
 			}
 			break;
 		case PPGdsCls::eZ:
 			if(Rec.Flags & PPGdsCls::fUseDimZ) {
-				rBuf = DimZ.Name;
-				if(!rBuf)
-					rBuf = "gcdimz";
+				(rBuf = DimZ.Name).SetIfEmpty("gcdimz");
 				ok = 1;
 			}
 			break;
 		case PPGdsCls::eW:
 			if(Rec.Flags & PPGdsCls::fUseDimW) {
-				rBuf = DimW.Name;
-				if(!rBuf)
-					rBuf = "gcdimw";
+				(rBuf = DimW.Name).SetIfEmpty("gcdimw");
 				ok = 1;
 			}
 			break;
@@ -837,14 +818,12 @@ int SLAPI PPGdsClsPacket::PropSymbToID(int prop, const char * pSymb, PPID * pID)
 {
 	int    ok = -1;
 	PPID   obj_type = 0;
-	if(prop == PPGdsCls::eKind)
-		obj_type = PropKind.ItemsListID;
-	else if(prop == PPGdsCls::eGrade)
-		obj_type = PropGrade.ItemsListID;
-	else if(prop == PPGdsCls::eAdd)
-		obj_type = PropAdd.ItemsListID;
-	else if(prop == PPGdsCls::eAdd2)
-		obj_type = PropAdd2.ItemsListID;
+	switch(prop) {
+		case PPGdsCls::eKind: obj_type = PropKind.ItemsListID; break;
+		case PPGdsCls::eGrade: obj_type = PropGrade.ItemsListID; break;
+		case PPGdsCls::eAdd: obj_type = PropAdd.ItemsListID; break;
+		case PPGdsCls::eAdd2: obj_type = PropAdd2.ItemsListID; break;
+	}
 	if(obj_type && IS_REF_OBJTYPE(obj_type)) {
 		PPID   id = 0;
 		if(PPRef->SearchSymb(obj_type, &id, pSymb, 0) > 0) {
@@ -859,14 +838,12 @@ int SLAPI PPGdsClsPacket::PropNameToID(int prop, const char * pName, PPID * pID,
 {
 	int    ok = -1;
 	PPID   obj_type = 0;
-	if(prop == PPGdsCls::eKind)
-		obj_type = PropKind.ItemsListID;
-	else if(prop == PPGdsCls::eGrade)
-		obj_type = PropGrade.ItemsListID;
-	else if(prop == PPGdsCls::eAdd)
-		obj_type = PropAdd.ItemsListID;
-	else if(prop == PPGdsCls::eAdd2)
-		obj_type = PropAdd2.ItemsListID;
+	switch(prop) {
+		case PPGdsCls::eKind: obj_type = PropKind.ItemsListID; break;
+		case PPGdsCls::eGrade: obj_type = PropGrade.ItemsListID; break;
+		case PPGdsCls::eAdd: obj_type = PropAdd.ItemsListID; break;
+		case PPGdsCls::eAdd2: obj_type = PropAdd2.ItemsListID; break;
+	}
 	if(obj_type && IS_REF_OBJTYPE(obj_type)) {
 		PPID   id = 0;
 		Reference * p_ref = PPRef;

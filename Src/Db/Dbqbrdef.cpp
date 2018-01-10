@@ -1,14 +1,13 @@
 // DBQBRO.CPP
-// Copyright (c) Sobolev A. 1996, 1997-2000, 2003, 2005, 2008, 2010, 2011, 2013
+// Copyright (c) Sobolev A. 1996, 1997-2000, 2003, 2005, 2008, 2010, 2011, 2013, 2018
 //
 #include <db.h>
 #pragma hdrstop
 #include <tv.h>
 
 SLAPI DBQBrowserDef::DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, uint aBufSize) :
-	BrowserDef(captionHight, aOptions)
+	BrowserDef(captionHight, aOptions), query(0)
 {
-	query = 0;
 	setQuery(rQuery, aBufSize);
 }
 
@@ -70,10 +69,7 @@ int SLAPI DBQBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, 
 int SLAPI DBQBrowserDef::insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt)
 {
 	uint   fld_no = 0;
-	if(query->getFieldPosByName(pFldName, &fld_no) > 0)
-		return insertColumn(atPos, pTxt, fld_no, typ, fmt, opt);
-	else
-		return 0;
+	return (query->getFieldPosByName(pFldName, &fld_no) > 0) ? insertColumn(atPos, pTxt, fld_no, typ, fmt, opt) : 0;
 }
 
 void SLAPI DBQBrowserDef::setViewHight(int h)

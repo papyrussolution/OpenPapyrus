@@ -1504,7 +1504,7 @@ private:
 //
 //
 //
-struct S_GUID {    // @persistent @size=16
+struct S_GUID { // @persistent @noctr @size=16
 	S_GUID & FASTCALL Init(REFIID);
 	operator GUID & ();
 	enum {
@@ -2593,9 +2593,6 @@ public:
 	uint32 S; // Size or other specific data // @v9.8.11 size_t-->uint32
 };
 
-// @v8.7.2 SPTRDEF(DataType);
-// @v8.7.2 SREFDEF(DataType);
-
 inline TYPEID SLAPI GetSTypeID(char)   { return MKSTYPE(S_INT, 1); }
 inline TYPEID SLAPI GetSTypeID(int16)  { return MKSTYPE(S_INT, 2); }
 inline TYPEID SLAPI GetSTypeID(int)    { return MKSTYPE(S_INT, 4); }
@@ -3128,7 +3125,7 @@ public:
 	//
 	// Descr: Конструктор. Инициализирует X и Y в xy.
 	//
-	SLAPI  FPoint(float xy);
+	explicit SLAPI FPoint(float xy);
 	SLAPI  FPoint(float x, float y);
 	FPoint & FASTCALL operator = (const TPoint & p);
 	FPoint & FASTCALL operator = (float f);
@@ -3335,7 +3332,7 @@ class SString {
 public:
 	DECL_INVARIANT_C();
 	SLAPI  SString();
-	SLAPI  SString(size_t initSize);
+	explicit SLAPI SString(size_t initSize);
 	SLAPI  SString(const char *);
 	SLAPI  SString(const SString &);
 	SLAPI ~SString();
@@ -3812,6 +3809,15 @@ private:
 	int    FASTCALL Alloc(size_t);
 	void   FASTCALL Cat_(uint8 * pChr, size_t numChr);
 	SString & SLAPI ShiftRight(size_t n, int padChar);
+	//
+	// Descr: Преобразует символ c в Quoted-Printable-формат.
+	//   То есть, если c == ' ' или в диапазоне [33..126] (за исключением '=')
+	//   то символ добавляется "как есть". В противном случае в виде "=HH' где HH -
+	//   шестнадцатиричное представление значения c.
+	// Returns:
+	//   Реальное количество байт вставленных в строку this. То есть:
+	//   { prev_len = this->Len(); assert(this->Len() == this->CharToQp(c) + prev_len); }
+	//
 	size_t FASTCALL CharToQp(char c);
 
 	size_t L;     // @firstmember Длина строки вместе с завершающим нулем
@@ -3910,7 +3916,7 @@ wchar_t FASTCALL UToLowerCase(wchar_t code);
 //
 class StringSet {
 public:
-	SLAPI  StringSet(const char * pDelim = 0);
+	explicit SLAPI StringSet(const char * pDelim = 0);
 	SLAPI  StringSet(char delim, const char * pBuf);
 	SLAPI  StringSet(const StringSet &);
 	SLAPI ~StringSet();
@@ -3944,6 +3950,10 @@ public:
 	//   экономию в размере бинарного кода.
 	//
 	int    FASTCALL add(const char * pStr); // @>>StringSet::add(const char *, uint * pPos)
+	//
+	// Descr: Вставляет в конец набора this все строки из набора rS
+	//
+	int    FASTCALL add(const StringSet & rS);
 	//
 	// Descr: возвращает длину подстроки, начинающейся в позиции pos.
 	//
@@ -5410,6 +5420,9 @@ int    GetRandom(int min, int max);
 //
 double FASTCALL intmnytodbl(long m);
 long   FASTCALL dbltointmny(double r);
+
+double FASTCALL inttodbl2(long v);
+long   FASTCALL dbltoint2(double r);
 //
 // Bit string's operations
 //
@@ -5652,10 +5665,7 @@ public:
 	//
 	// Descr: Возвращает значение внутреннего указателя позиции
 	//
-	uint   SLAPI getPointer() const
-	{
-		return pointer;
-	}
+	uint   SLAPI getPointer() const { return pointer; }
 	//
 	// Descr: Устанавливает значение внутреннего указателя позиции
 	// Returns:
@@ -5748,7 +5758,6 @@ public:
 	//        либо (dir != 0 && pos == 0).
 	//
 	int    SLAPI moveItem(uint pos, int dir, uint * pNewPos); // @>>SArray::swap
-
 	int    SLAPI ordInsert(const void *, uint *, CompFunc, void * pExtraData = 0);
 	//
 	// Descr: осуществляет бинарный поиск по всем записям массива.
@@ -5767,7 +5776,7 @@ public:
 	void   SLAPI sort(CompFunc fcmp, void * pExtraData = 0);
 	void   SLAPI sort2(CompFunc fcmp, void * pExtraData = 0);
 protected:
-	SLAPI  SVectorBase(uint itemSize, /*uint aDelta,*/ uint o);
+	SLAPI  SVectorBase(uint itemSize, uint o);
 	SLAPI ~SVectorBase();
 	//
 	// Descr: Базовая функция копирования массива.
@@ -5789,19 +5798,16 @@ protected:
 	uint   isize;   // Размер одного элемента (bytes)
 	uint   Limit;   // Максимальное количество элементов, которое может вместить буфер
 	uint   flags;
-	//uint16 flags;   //
-	//uint16 delta;   //
 	uint8 * data;   //
 };
-#if 1 // @construction {
 //
 // Descr: Массив с "плоскими" элементами. Не имеет механизма индивидуального
 //   разрушения элементов (в отличии от SArray, который имеет виртуальную функцию freeItem()).
 //
 class SVector : public SVectorBase { // @novtbl
 public:
-	SLAPI  SVector(uint itemSize, /*uint aDelta,*/ uint o /*= O_ARRAY*/);
-	SLAPI  SVector(uint itemSize);
+	SLAPI  SVector(uint itemSize, uint o /*= O_ARRAY*/);
+	explicit SLAPI SVector(uint itemSize);
 	SLAPI  SVector(void * pData, uint itemSize, uint aCount, uint o = O_N_O_ARRAY);
 	SLAPI  SVector(const SVector & rS);
 	SLAPI ~SVector();
@@ -5878,7 +5884,6 @@ public:
 	TSVector(const TSVector & src) : SVector(src) {}
 	T &    FASTCALL at(uint pos) const { return *(T *)SVector::at(pos); }
 };
-#endif // } 0 @construction
 //
 // SArray
 //
@@ -5888,12 +5893,12 @@ public:
 //
 class SArray : public SVectorBase {
 public:
-	SLAPI  SArray(uint itemSize, /*uint aDelta,*/ uint o /*= O_ARRAY*/);
+	SLAPI  SArray(uint itemSize, uint o /*= O_ARRAY*/);
 	//
 	// Descr: Создает простой массив (O_ARRAY) со значением delta по умолчанию (8)
 	//   и размером элемента - itemSize.
 	//
-	SLAPI  SArray(uint itemSize);
+	explicit SLAPI SArray(uint itemSize);
 	SLAPI  SArray(void * pData, uint itemSize, uint aCount, uint o = O_N_O_ARRAY);
 	SLAPI  SArray(const SArray & rS);
 	SLAPI  SArray(const SVector & rS);
@@ -6054,7 +6059,7 @@ protected:
 
 template <class T> class TSArray : public SArray {
 public:
-	TSArray(uint o = O_ARRAY) : SArray(sizeof(T), /*8,*/ o) {}
+	explicit TSArray(uint o = O_ARRAY) : SArray(sizeof(T), /*8,*/ o) {}
 	TSArray(const TSArray & src) : SArray(src) {}
 	T &    FASTCALL at(uint pos) const { return *(T *)SArray::at(pos); }
 };
@@ -6145,7 +6150,7 @@ template <class T> int TSDupPtr(T ** ppDest, T * pSrc)
 
 template <class T> class TSStack : public SStack {
 public:
-	TSStack(/*uint aDelta = 8*/) : SStack(sizeof(T), /*aDelta,*/O_ARRAY) {}
+	TSStack() : SStack(sizeof(T), O_ARRAY) {}
 	void   FASTCALL push(const T & t) { SStack::push(&t); }
 	int    FASTCALL pop(T & t) { return SStack::pop(&t); }
 	T &    FASTCALL peek() const { return *(T *)SStack::peek(); }
@@ -6153,7 +6158,7 @@ public:
 
 template <class T> class TSRingStack : public SStack {
 public:
-	TSRingStack(uint cycle) : SStack(sizeof(T), /*aDelta,*/O_ARRAY|aryRing)
+	explicit TSRingStack(uint cycle) : SStack(sizeof(T), /*aDelta,*/O_ARRAY|aryRing)
 	{
 		assert(cycle > 1);
 		expand(cycle);
@@ -6167,7 +6172,7 @@ public:
 //
 template <class T> class TSQueue : public SQueue {
 public:
-	TSQueue(uint queueSize) : SQueue(sizeof(T), queueSize) {}
+	explicit TSQueue(uint queueSize) : SQueue(sizeof(T), queueSize) {}
 	TSQueue(const TSQueue & src) : SQueue(src) {}
 	int    FASTCALL push(const T & t) { return SQueue::push(&t); }
 	T &    FASTCALL pop() { return *(T *)SQueue::pop(); }
@@ -6679,6 +6684,7 @@ public:
 
 	int    SLAPI AtFree(uint pos);
 	int    SLAPI Search(long id, uint * pPos) const;
+	int    FASTCALL Search(long id) const;
 	//
 	// Descr: Ищет в массиве элемент, текст которого совпадает с параметром pTxt.
 	//   поиск не чувствителен к регистру.
@@ -7023,7 +7029,7 @@ struct STimeChunkAssoc {
 //
 class STimeChunkAssocArray : public STimeChunkArray {
 public:
-	SLAPI  STimeChunkAssocArray(long id);
+	explicit SLAPI STimeChunkAssocArray(long id);
 	int    SLAPI Add(long chunkId, const STimeChunk * pChunk, int checkForFree);
 	int    SLAPI Add(long chunkId, long status, const STimeChunk * pChunk, int checkForFree);
 	int    SLAPI Remove(long chunkId);
@@ -7225,7 +7231,7 @@ protected:
 //
 class SymbHashTable : public HashTableBase { // @persistent
 public:
-	SymbHashTable(size_t sz, int useAssoc = 0);
+	explicit SymbHashTable(size_t sz, int useAssoc = 0);
 	SymbHashTable & FASTCALL operator = (const SymbHashTable &);
 	//
 	// Descr: Копирует экземпляр rSrc в this.
@@ -7283,7 +7289,7 @@ private:
 //
 class GuidHashTable : public HashTableBase  { // @persistent
 public:
-	GuidHashTable(size_t sz, int useAssoc = 0);
+	explicit GuidHashTable(size_t sz, int useAssoc = 0);
 	GuidHashTable & FASTCALL operator = (const GuidHashTable &);
 	//
 	// Descr: Копирует экземпляр rSrc в this.
@@ -7325,7 +7331,7 @@ private:
 //
 class PtrHashTable : public HashTableBase  {
 public:
-	PtrHashTable(size_t sz, int useAssoc = 0);
+	explicit PtrHashTable(size_t sz, int useAssoc = 0);
 	PtrHashTable & FASTCALL operator = (const PtrHashTable &);
 	//
 	// Descr: Копирует экземпляр rSrc в this.
@@ -7442,7 +7448,7 @@ public:
 		friend class STree;
 
 		Iter();
-		Iter(uint32 parentP);
+		explicit Iter(uint32 parentP);
 		void * GetData() const;
 		uint32 GetCurrentPos() const;
 		uint32 GetParentPos() const;
@@ -7737,7 +7743,7 @@ public:
 
 	static int BigEndian();
 
-	SSystem(int imm);
+	explicit SSystem(int imm);
 	int    FASTCALL GetCpuInfo();
 	int    CpuId(int feature, uint32 * pA, uint32 * pB, uint32 * pC, uint32 * pD) const;
 
@@ -7818,10 +7824,7 @@ public:
 //
 //
 struct SFileSortProgressData {
-	SFileSortProgressData()
-	{
-		THISZERO();
-	}
+	SLAPI  SFileSortProgressData();
 	const  char * P_SrcFileName;
 	int64  TotalFileSize;
 	int    Phase; // 1 - splitting, 2 - merging
@@ -8285,8 +8288,8 @@ public:
 
 		FirstUser        = 10000
 	};
-	static int Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign);
-	static int Register(int id, const char * pExt, const char * pSign);
+	static int FASTCALL Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign);
+	static int FASTCALL Register(int id, const char * pExt, const char * pSign);
 	static int Register();
 	static int IdentifyContentTransferEnc(const char * pCte);
 	static int IdentifyMimeType(const char * pMimeType);
@@ -8366,22 +8369,10 @@ public:
 	int    SLAPI Add(const void * pData, size_t size);
 	int    SLAPI Finish();
 
-	SEOLFormat SLAPI GetEolFormat() const
-	{
-		return Eolf;
-	}
-	SCodepageIdent SLAPI GetCp() const
-	{
-		return Cp;
-	}
-	const char * SLAPI GetCpName() const
-	{
-		return CpName;
-	}
-	int    FASTCALL CheckFlag(long f) const
-	{
-		return BIN(Flags & f);
-	}
+	SEOLFormat SLAPI GetEolFormat() const { return Eolf; }
+	SCodepageIdent SLAPI GetCp() const { return Cp; }
+	const char * SLAPI GetCpName() const { return CpName; }
+	int    FASTCALL CheckFlag(long f) const { return BIN(Flags & f); }
 private:
 	long   Flags;
 	SCodepageIdent Cp;
@@ -8859,7 +8850,7 @@ public:
 class CRegExp {
 public:
 	CRegExp();
-	CRegExp(const char * s);
+	explicit CRegExp(const char * s);
 	CRegExp(const CRegExp &);
 	~CRegExp();
 	int    Compile(const char * pPattern);      // Compiles char* --> regexp
@@ -8956,7 +8947,7 @@ struct SStrScan : public SRegExpSet {
 		wsSemicol = 0x0010
 	};
 
-	SStrScan(const char * pBuf = 0, size_t offs = 0);
+	explicit SStrScan(const char * pBuf = 0, size_t offs = 0);
 	~SStrScan();
 	void   FASTCALL Set(const char * pBuf, size_t offs);
 	operator const char * () const { return P_Buf ? (P_Buf+Offs) : 0; }
@@ -10602,7 +10593,7 @@ public:
 	};
 	SLAPI  SSerializeContext();
 	SLAPI ~SSerializeContext();
-	int    SLAPI Init(long flags, LDATE suppDate);
+	void   SLAPI Init(long flags, LDATE suppDate);
 	int    FASTCALL CheckFlag(long f) const;
 	//
 	// Descr: Записывает (считывает) состояние объекта в (из) буфер rBuf.
@@ -12341,7 +12332,7 @@ struct SViewPort : public FRect {
 		fDontEnlarge   = 0x0008, // Не увеличивать объект (можно только уменьшать)
 	};
 
-	SViewPort(uint flags = 0);
+	explicit SViewPort(uint flags = 0);
 	enum {
 		fmtDefault = 0,
 		fmtSVG
@@ -12410,7 +12401,7 @@ public:
 		int32  S;
 	};
 	struct StoreParam {
-		StoreParam(int fmt);
+		explicit StoreParam(int fmt);
 
 		enum {
 			fInterlaced = 0x0001

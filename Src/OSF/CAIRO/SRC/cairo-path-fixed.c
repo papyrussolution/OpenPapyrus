@@ -593,19 +593,15 @@ static void _cairo_path_buf_add_points(cairo_path_buf_t * buf, const cairo_point
 	}
 }
 
-cairo_status_t _cairo_path_fixed_interpret(const cairo_path_fixed_t * path,
-    cairo_path_fixed_move_to_func_t    * move_to,
-    cairo_path_fixed_line_to_func_t    * line_to,
-    cairo_path_fixed_curve_to_func_t   * curve_to,
-    cairo_path_fixed_close_path_func_t * close_path,
-    void * closure)
+cairo_status_t _cairo_path_fixed_interpret(const cairo_path_fixed_t * path, cairo_path_fixed_move_to_func_t * move_to,
+    cairo_path_fixed_line_to_func_t * line_to, cairo_path_fixed_curve_to_func_t * curve_to,
+    cairo_path_fixed_close_path_func_t * close_path, void * closure)
 {
 	const cairo_path_buf_t * buf;
 	cairo_status_t status;
 	cairo_path_foreach_buf_start(buf, path) {
 		const cairo_point_t * points = buf->points;
-		uint i;
-		for(i = 0; i < buf->num_ops; i++) {
+		for(uint i = 0; i < buf->num_ops; i++) {
 			switch(buf->op[i]) {
 				case CAIRO_PATH_OP_MOVE_TO:
 				    status = (*move_to)(closure, &points[0]);
@@ -629,14 +625,12 @@ cairo_status_t _cairo_path_fixed_interpret(const cairo_path_fixed_t * path,
 				return status;
 		}
 	} cairo_path_foreach_buf_end(buf, path);
-	if(path->needs_move_to && path->has_current_point)
-		return (*move_to)(closure, &path->current_point);
-	return CAIRO_STATUS_SUCCESS;
+	return (path->needs_move_to && path->has_current_point) ? (*move_to)(closure, &path->current_point) : CAIRO_STATUS_SUCCESS;
 }
 
 typedef struct _cairo_path_fixed_append_closure {
 	cairo_point_t offset;
-	cairo_path_fixed_t      * path;
+	cairo_path_fixed_t * path;
 } cairo_path_fixed_append_closure_t;
 
 static cairo_status_t _append_move_to(void * abstract_closure, const cairo_point_t  * point)

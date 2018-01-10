@@ -2676,7 +2676,7 @@ int SLAPI PPObjSCard::UpdateBySeriesRule(PPID seriesID, int prevTrnovrPrd, PPLog
 // @Muxa @v7.3.9
 SString & SLAPI PPObjSCard::CalcSCardHash(const char * pNumber, SString & rHash)
 {
-	rHash = 0;
+	rHash.Z();
 #define SCARD_HASH_LEN   4
 	CRC32   crc32;
 	ulong   crc;

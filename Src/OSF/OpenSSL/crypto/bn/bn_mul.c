@@ -836,7 +836,7 @@ void bn_mul_high(BN_ULONG * r, BN_ULONG * a, BN_ULONG * b, BN_ULONG * l, int n2,
 
 #endif                          /* BN_RECURSION */
 
-int BN_mul(BIGNUM * r, const BIGNUM * a, const BIGNUM * b, BN_CTX * ctx)
+int FASTCALL BN_mul(BIGNUM * r, const BIGNUM * a, const BIGNUM * b, BN_CTX * ctx)
 {
 	int ret = 0;
 	int top, al, bl;
@@ -848,7 +848,6 @@ int BN_mul(BIGNUM * r, const BIGNUM * a, const BIGNUM * b, BN_CTX * ctx)
 	BIGNUM * t = NULL;
 	int j = 0, k;
 #endif
-
 	bn_check_top(a);
 	bn_check_top(b);
 	bn_check_top(r);
@@ -994,14 +993,12 @@ err:
 	return ret;
 }
 
-void bn_mul_normal(BN_ULONG * r, BN_ULONG * a, int na, BN_ULONG * b, int nb)
+void FASTCALL bn_mul_normal(BN_ULONG * r, BN_ULONG * a, int na, BN_ULONG * b, int nb)
 {
 	BN_ULONG * rr;
-
 	if(na < nb) {
 		int itmp;
 		BN_ULONG * ltmp;
-
 		itmp = na;
 		na = nb;
 		nb = itmp;
@@ -1016,7 +1013,6 @@ void bn_mul_normal(BN_ULONG * r, BN_ULONG * a, int na, BN_ULONG * b, int nb)
 	}
 	else
 		rr[0] = bn_mul_words(r, a, na, b[0]);
-
 	for(;; ) {
 		if(--nb <= 0)
 			return;

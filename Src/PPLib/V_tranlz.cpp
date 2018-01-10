@@ -3005,7 +3005,7 @@ void TrfrAnlzFiltDialog::SetSaldoInfo()
 	PPID  ar_id = 0;
 	GoodsFiltCtrlGroup::Rec  rec;
 	getCtrlData(CTLSEL_GTO_OBJECT, &ar_id);
-	if(getGroupData(ctlgroupGoodsFilt, &rec) && rec.GoodsGrpID && 
+	if(getGroupData(ctlgroupGoodsFilt, &rec) && rec.GoodsGrpID &&
 		((Data.Grp == TrfrAnlzFilt::gGoods && ar_id) || (Data.Grp == TrfrAnlzFilt::gCntragent && rec.GoodsID))
 		&& Data.Sgg == sggNone && Data.Sgp == sgpNone) {
 		SString temp_buf, txt_buf;
@@ -3767,12 +3767,12 @@ PrcssrAlcReport::GoodsItem & PrcssrAlcReport::GoodsItem::Clear()
 	OuterUnpackedTag = 0; // @v9.5.10
 	UnpackedVolume = 0.0;
 	CategoryCodePos = 0;
-	CategoryCode = 0;
-	CategoryName = 0;
-	MsgPool = 0;
-	EgaisCode = 0;
-	InformA = 0;
-	InformB = 0;
+	CategoryCode.Z();
+	CategoryName.Z();
+	MsgPool.Z();
+	EgaisCode.Z();
+	InformA.Z();
+	InformB.Z();
 
 	RefcInfA_ActualDate = ZERODATE;
 	RefcPr_ActualDate = ZERODATE;
@@ -3782,18 +3782,16 @@ PrcssrAlcReport::GoodsItem & PrcssrAlcReport::GoodsItem::Clear()
 	RefcInfAID = 0;
 	RefcVolume = 0.0;
 	RefcProof = 0.0;
-	RefcCategoryCode = 0;
-	RefcEgaisCode = 0;
-	RefcManufCode = 0;
-	RefcImporterCode = 0;
+	RefcCategoryCode.Z();
+	RefcEgaisCode.Z();
+	RefcManufCode.Z();
+	RefcImporterCode.Z();
 
 	return *this;
 }
 
-SLAPI PrcssrAlcReport::PrcssrAlcReport()
+SLAPI PrcssrAlcReport::PrcssrAlcReport() : P_RefC(0), P_BObj(BillObj)
 {
-	P_RefC = 0;
-	P_BObj = BillObj;
 	DS.FetchAlbatrosConfig(&ACfg);
 }
 
@@ -3835,6 +3833,59 @@ int SLAPI PrcssrAlcReport::Init()
 		if(Cfg.BeerGoodsGrpID) {
 			GoodsIterator::GetListByGroup(Cfg.BeerGoodsGrpID, &BeerGoodsList);
 			BeerGoodsList.sortAndUndup();
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+//static
+int SLAPI PrcssrAlcReport::AutoConfigure(long flags)
+{
+	int    ok = -1;
+	SString name_buf;
+	SString temp_buf;
+	PrcssrAlcReport::Config config;
+	int    rcr = ReadConfig(&config);
+	THROW(rcr);
+	if(!config.E.AlcGoodsClsID) {
+		PPGdsClsPacket gc_pack;
+		PPObjGoodsClass gc_obj;
+		THROW(PPLoadString("alcohol", temp_buf));
+		STRNSCPY(gc_pack.Rec.Name, temp_buf);
+		STRNSCPY(gc_pack.Rec.Symb, "ALCOHOL");
+		gc_pack.Rec.Flags = PPGdsCls::fDupCombine|PPGdsCls::fStdEditDlg;
+		// dim-x Крепость %об
+		// dim-y Емкость Л
+		PPLoadString("meas_alcostrength", name_buf);
+		PPLoadString("munit_pctvol", temp_buf);
+		name_buf.CatDiv(',', 2).Cat(temp_buf);
+		STRNSCPY(gc_pack.DimX.Name, name_buf);
+		gc_pack.DimX.Scale = 1;
+		gc_pack.Rec.Flags |= PPGdsCls::fUseDimX;
+		//
+		PPLoadString("meas_volume", name_buf);
+		PPLoadString("munit_l", temp_buf);
+		name_buf.CatDiv(',', 2).Cat(temp_buf);
+		STRNSCPY(gc_pack.DimY.Name, name_buf);
+		gc_pack.DimY.Scale = 3;
+		gc_pack.Rec.Flags |= PPGdsCls::fUseDimY;
+		{
+			PPID   ex_gc_id = 0;
+			PPTransaction tra(1);
+			THROW(tra);
+			if(gc_obj.SearchBySymb(gc_pack.Rec.Symb, &ex_gc_id, 0) > 0) {
+				config.E.AlcGoodsClsID = ex_gc_id;
+			}
+			else {
+				THROW(gc_obj.PutPacket(&config.E.AlcGoodsClsID, &gc_pack, 0));
+				config.E.ProofClsDim = PPGdsCls::eX;
+				config.VolumeClsDim = PPGdsCls::eY;
+			}
+			config.E.Flags |= (config.fDetectAlcByClass|config.fEgaisVer2Fmt);
+			THROW(WriteConfig(&config, 0));
+			THROW(tra.Commit());
+			ok = 1;
 		}
 	}
 	CATCHZOK
@@ -3890,7 +3941,7 @@ int SLAPI PrcssrAlcReport::ValidateConfig(const Config & rCfg, long flags)
 	THROW_PP(rCfg.E.AlcGoodsClsID && gc_obj.Fetch(rCfg.E.AlcGoodsClsID, &gc_pack) > 0, PPERR_ALCRCFG_INVALCGOODSCLS);
     THROW_PP(rCfg.CategoryClsDim || rCfg.CategoryTagID, PPERR_ALCRCFG_INVCATTAG);
     THROW_PP(oneof4(rCfg.VolumeClsDim, PPGdsCls::eX, PPGdsCls::eY, PPGdsCls::eZ, PPGdsCls::eW), PPERR_ALCRCFG_INVVOLDIM);
-    THROW_PP(oneof5(0, rCfg.E.ProofClsDim, PPGdsCls::eX, PPGdsCls::eY, PPGdsCls::eZ, PPGdsCls::eW), PPERR_ALCRCFG_INVPROOFDIM);
+    THROW_PP(oneof4(rCfg.E.ProofClsDim, PPGdsCls::eX, PPGdsCls::eY, PPGdsCls::eZ, PPGdsCls::eW), PPERR_ALCRCFG_INVPROOFDIM);
 	THROW_PP(!rCfg.E.ProofClsDim || rCfg.E.ProofClsDim != rCfg.VolumeClsDim, PPERR_ALCRCFG_EQCLSDIM);
 	THROW_PP(!rCfg.CategoryClsDim || (rCfg.CategoryClsDim != rCfg.VolumeClsDim && rCfg.CategoryClsDim != rCfg.E.ProofClsDim), PPERR_ALCRCFG_EQCLSDIM);
 	CATCHZOK

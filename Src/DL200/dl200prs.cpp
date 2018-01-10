@@ -525,7 +525,7 @@ int SLAPI DL2_Resolver::ResolveName(const char * pExpression, SString & rName)
 	uint   pos = 0;
 	long   id = -1;
 	SString buf;
-	rName = 0;
+	rName.Z();
 	if(NameVars.SearchByText(pExpression, 1, &pos) > 0)
 		id = NameVars.Get(pos).Id - 1;
 	switch(id) {

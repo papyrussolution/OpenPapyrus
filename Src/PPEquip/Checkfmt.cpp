@@ -162,17 +162,17 @@ public:
 	int    Parse(const char * pFileName, const char * pFormatName);
 	int    GetFormList(const char * pFileName, StrAssocArray * pList, int getSlipDocForms);
 
-	int    SetSource(const CCheckPacket *);
-	int    SetSource(const PPBillPacket *);
-	int    SetSource(const CSessInfo * pInfo);
+	void   SetSource(const CCheckPacket *);
+	void   SetSource(const PPBillPacket *);
+	void   SetSource(const CSessInfo * pInfo);
 
 	int    InitIteration(int zoneKind, Iter *);
 	int    NextIteration(Iter *, SString & rBuf);
 
 	int    Init(const char * pFileName, const char * pFormatName, SlipDocCommonParam * pParam);
-	int    InitIteration(const CCheckPacket *);
-	int    InitIteration(const PPBillPacket *);
-	int    InitIteration(const CSessInfo * pInfo);
+	void   InitIteration(const CCheckPacket *);
+	void   InitIteration(const PPBillPacket *);
+	void   InitIteration(const CSessInfo * pInfo);
 	int    NextIteration(SString & rBuf, SlipLineParam * pParam);
 private:
 	friend class SLTEST_CLS(PPSlipFormatLexer);
@@ -319,25 +319,22 @@ PPSlipFormat::~PPSlipFormat()
 	delete P_Od;
 }
 
-int PPSlipFormat::SetSource(const CCheckPacket * pCcPack)
+void PPSlipFormat::SetSource(const CCheckPacket * pCcPack)
 {
 	P_CcPack = pCcPack;
 	Src = pCcPack ? srcCCheck : 0;
-	return 1;
 }
 
-int PPSlipFormat::SetSource(const PPBillPacket * pBillPack)
+void PPSlipFormat::SetSource(const PPBillPacket * pBillPack)
 {
 	P_BillPack = pBillPack;
 	Src = pBillPack ? srcGoodsBill : 0;
-	return 1;
 }
 
-int PPSlipFormat::SetSource(const CSessInfo * pInfo)
+void PPSlipFormat::SetSource(const CSessInfo * pInfo)
 {
 	P_SessInfo = pInfo;
 	Src = pInfo ? srcCSession : 0;
-	return 1;
 }
 
 int PPSlipFormat::InitIteration(int zoneKind, Iter * pIter)
@@ -381,8 +378,6 @@ int PPSlipFormat::InitIteration(int zoneKind, Iter * pIter)
 			pIter->Amount = P_SessInfo->Rec.Amount;
 	return BIN(pIter->P_Zone);
 }
-
-
 
 int PPSlipFormat::GetCurCheckItem(const Iter * pIter, CCheckLineTbl::Rec * pRec, CCheckPacket::LineExt * pExtItem)
 {
@@ -1316,7 +1311,8 @@ int PPSlipFormat::CheckCondition(const Iter * pIter, const SString & rText, int 
 {
 	int    c = 0;
 	SString left, right, result;
-	double left_num = 0, right_num = 0;
+	double left_num = 0.0;
+	double right_num = 0.0;
 	int    is_left_num = 0, is_right_num = 0;
 	rText.Divide(';', left, right);
 	{
@@ -1395,8 +1391,8 @@ int PPSlipFormat::CheckCondition(const Iter * pIter, const SString & rText, int 
 int SLAPI PPSlipFormat::WrapText(const char * pText, uint maxLen, SString & rHead, SString & rTail, int * pWrapPos)
 {
 	int    ok = 1;
-	rHead = 0;
-	rTail = 0;
+	rHead.Z();
+	rTail.Z();
 	if(pText) {
 		const size_t len = sstrlen(pText);
 		size_t p = maxLen;
@@ -2064,11 +2060,11 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 		ok = 1;
 	else {
 		RegTo = 0;
-		Title = 0;
+		Title.Z();
 		PageWidth  = 0;
 		PageLength = 0;
 		HeadLines  = 0;
-		DocNumber  = 0;
+		DocNumber.Z();
 		LineNo = 0;
 		ZoneList.freeAll();
 		FontList.freeAll();
@@ -2261,8 +2257,8 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 		}
 		else {
 			PPSetError(PPERR_SLIPFMT_NOTFOUND, pFormatName);
-			LastFileName   = 0;
-			LastFormatName = 0;
+			LastFileName.Z();
+			LastFormatName.Z();
 		}
 	}
 	CATCH
@@ -2272,8 +2268,8 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 			(temp_buf = pFileName).CatChar('(').Cat(LineNo).CatChar(')').CatDiv(':', 0).Cat(msg_buf);
 			PPSetError(PPERR_SLIPFMT_PARSE, temp_buf);
 		}
-		LastFileName   = 0;
-		LastFormatName = 0;
+		LastFileName.Z();
+		LastFormatName.Z();
 		ok = 0;
 	ENDCATCH
 	delete p_zone;
@@ -2305,22 +2301,22 @@ void PPSlipFormat::Helper_InitIteration()
 	CurIter.Reset();
 }
 
-int PPSlipFormat::InitIteration(const CCheckPacket * pPack)
+void PPSlipFormat::InitIteration(const CCheckPacket * pPack)
 {
 	Helper_InitIteration();
-	return SetSource(pPack);
+	SetSource(pPack);
 }
 
-int PPSlipFormat::InitIteration(const PPBillPacket * pPack)
+void PPSlipFormat::InitIteration(const PPBillPacket * pPack)
 {
 	Helper_InitIteration();
-	return SetSource(pPack);
+	SetSource(pPack);
 }
 
-int PPSlipFormat::InitIteration(const CSessInfo * pInfo)
+void PPSlipFormat::InitIteration(const CSessInfo * pInfo)
 {
 	Helper_InitIteration();
-	return SetSource(pInfo);
+	SetSource(pInfo);
 }
 
 int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
@@ -2535,8 +2531,7 @@ SLTEST_R(PPSlipFormatOutput)
 //
 PPSlipFormatter::PPSlipFormatter(const char * pFmtFileName)
 {
-	SString file_name;
-	file_name = pFmtFileName;
+	SString file_name = pFmtFileName;
 	if(file_name.NotEmptyS() && fileExists(file_name))
 		SlipFmtPath = file_name;
 	else
@@ -2556,17 +2551,17 @@ int PPSlipFormatter::Init(const char * pFormatName, SlipDocCommonParam * pParam)
 
 int PPSlipFormatter::InitIteration(const CCheckPacket * pPack)
 {
-	return P_SlipFormat ? ((PPSlipFormat *)P_SlipFormat)->InitIteration(pPack) : -1;
+	return P_SlipFormat ? (((PPSlipFormat *)P_SlipFormat)->InitIteration(pPack), 1) : -1;
 }
 
 int PPSlipFormatter::InitIteration(const PPBillPacket * pPack)
 {
-	return P_SlipFormat ? ((PPSlipFormat *)P_SlipFormat)->InitIteration(pPack) : -1;
+	return P_SlipFormat ? (((PPSlipFormat *)P_SlipFormat)->InitIteration(pPack), 1) : -1;
 }
 
 int PPSlipFormatter::InitIteration(const CSessInfo * pInfo)
 {
-	return P_SlipFormat ? ((PPSlipFormat *)P_SlipFormat)->InitIteration(pInfo) : -1;
+	return P_SlipFormat ? (((PPSlipFormat *)P_SlipFormat)->InitIteration(pInfo), 1) : -1;
 }
 
 int PPSlipFormatter::NextIteration(SString & rBuf, SlipLineParam * pParam)

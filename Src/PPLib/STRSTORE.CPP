@@ -846,7 +846,7 @@ int SLAPI StringStore2::Compile(const char * pFileName, long flags, const char *
 							// Непосредственно до вызова функции автоперевода проверим нет ли уже готового перевода нашей строки
 							//
 							const LangStrCollItem * p_coll_item = GetList(auto_transl_lang);
-							if(p_coll_item && p_coll_item->List.Search(last_string_id, 0))
+							if(p_coll_item && p_coll_item->List.Search(last_string_id))
 								dont_translate = 1;
 						}
 						if(!dont_translate && local_auto_transl_lang && ActiveLanguage == 0) {

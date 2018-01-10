@@ -7,7 +7,7 @@
 //
 // Сопоставление полей импорта/экспорта со структурой SdRecord
 //
-int SLAPI SetupSdRecFieldCombo(TDialog * dlg, uint ctlID, uint id, const SdRecord * pRec)
+static int SLAPI SetupSdRecFieldCombo(TDialog * dlg, uint ctlID, uint id, const SdRecord * pRec) // @v9.8.12 static
 {
 	StrAssocArray list;
 	SdbField fld;
@@ -22,7 +22,7 @@ int SLAPI SetupSdRecFieldCombo(TDialog * dlg, uint ctlID, uint id, const SdRecor
 	return SetupStrAssocCombo(dlg, ctlID, &list, (long)id, 0);
 }
 
-int SLAPI SetupBaseSTypeCombo(TDialog * dlg, uint ctlID, int typ)
+static int SLAPI SetupBaseSTypeCombo(TDialog * dlg, uint ctlID, int typ) // @v9.8.12 static
 {
 	StrAssocArray list;
 	LongArray bt_list;
@@ -35,7 +35,7 @@ int SLAPI SetupBaseSTypeCombo(TDialog * dlg, uint ctlID, int typ)
 	return SetupStrAssocCombo(dlg, ctlID, &list, (long)typ, 0);
 }
 
-int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField)
+static int SLAPI EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField) // @v9.8.12 static
 {
 	class SdFieldCorrDialog : public TDialog {
 	public:
@@ -508,24 +508,13 @@ PPImpExpParam * FASTCALL PPImpExpParam::CreateInstance(const char * pSymb, long 
 	return p_param;
 }
 
-ImpExpParamDllStruct::ImpExpParamDllStruct()
+ImpExpParamDllStruct::ImpExpParamDllStruct() : BeerGrpID(0), AlcoGrpID(0), AlcoLicenseRegID(0), TTNTagID(0), ManufTagID(0), 
+	ManufKPPRegTagID(0), RcptTagID(0), ManufRegionCode(0), IsManufTagID(0), GoodsKindTagID(0), ManufINNID(0)
 {
-	BeerGrpID = 0;
-	AlcoGrpID = 0;
-	AlcoLicenseRegID = 0;
-	TTNTagID = 0;
-	ManufTagID = 0;
-	ManufKPPRegTagID = 0;
-	RcptTagID = 0;
-	ManufRegionCode = 0;
-	IsManufTagID = 0;
-	GoodsKindTagID = 0;
-	ManufINNID = 0;
 }
 
-PPImpExpParam::PPImpExpParam(uint recId, long flags) : OtrRec(SdRecord::fAllowDupID), XdfParam(0, 0, 0, 0)
+PPImpExpParam::PPImpExpParam(uint recId, long flags) : OtrRec(SdRecord::fAllowDupID), XdfParam(0, 0, 0, 0), RecId(recId)
 {
-	RecId = recId;
 	Init();
 }
 
@@ -1087,16 +1076,13 @@ int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	// } @v8.6.1
 	{
 		THROW(tsl_par.Retranslate(iefFormat, symb_buf));
-		if(DataFormat == dfText)
-			temp_buf = "TXT";
-		else if(DataFormat == dfDbf)
-			temp_buf = "DBF";
-		else if(DataFormat == dfXml)
-			temp_buf = "XML";
-		else if(DataFormat == dfExcel)
-			temp_buf = "XLS";
-		else
-			temp_buf.Z();
+		switch(DataFormat) {
+			case dfText: temp_buf = "TXT"; break;
+			case dfDbf: temp_buf = "DBF"; break;
+			case dfXml: temp_buf = "XML"; break;
+			case dfExcel: temp_buf = "XLS"; break;
+			default: temp_buf.Z(); break;
+		}
 		if(temp_buf.NotEmpty())
 			THROW(pFile->AppendParam(pSect, symb_buf, temp_buf, 1));
 	}
@@ -1468,7 +1454,6 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 	pFile->SetFlag(SIniFile::fWinCoding, preserve_win_coding);
 	return ok;
 }
-
 //
 //
 //
@@ -1587,6 +1572,7 @@ int ImpExpParamDialog::getDTS(PPImpExpParam * pData)
 		SETFLAG(Data.BaseFlags, PPImpExpParam::bfDeleteSrcFiles, _f & 0x0002);
 	}
 	getCtrlString(CTL_IMPEXP_FILENAME, Data.FileName);
+	Data.InetAccID = 0; // @v9.8.12 @fix(не возможно было очистить это поле)
 	// @v8.6.1 {
 	if(getCtrlView(CTLSEL_IMPEXP_FTPACC)) {
 		PPID   acc_id = 0;
@@ -1617,28 +1603,15 @@ int EditImpExpParam(PPImpExpParam * pData)
 //
 //
 //
-PPImpExp::StateBlock::StateBlock()
+PPImpExp::StateBlock::StateBlock() : Busy(0), RecNo(0)
 {
-	Busy = 0;
-	RecNo = 0;
 }
 
-PPImpExp::PPImpExp(const PPImpExpParam * pParam, const void * extraPtr)
+PPImpExp::PPImpExp(const PPImpExpParam * pParam, const void * extraPtr) : P_DbfT(0), P_TxtT(0), P_XmlT(0), P_SoapT(0), 
+	P_XlsT(0), State(0), R_RecNo(0), W_RecNo(0), P_ExprContext(0), P_HdrData(0), R_SaveRecNo(0), ExtractSubChild(0)
 {
-	P_DbfT  = 0;
-	P_TxtT  = 0;
-	P_XmlT  = 0;
-	P_SoapT = 0;
-	P_XlsT  = 0;
-	State = 0;
-	R_RecNo = 0;
-	W_RecNo = 0;
-	P_ExprContext = 0;
-	P_HdrData = 0;
 	RVALUEPTR(P, pParam);
-	R_SaveRecNo = 0;
 	// @v9.3.10 SaveParam.Init();
-	ExtractSubChild = 0;
 	P.FileName.Transf(CTRANSF_INNER_TO_OUTER);
 	PreserveOrgFileName = P.FileName; // @v9.3.10
 	if(P.Direction == 0) {
@@ -1988,8 +1961,8 @@ int FASTCALL PPImpExp::GetFileName(SString & rFileName) const
 		case PPImpExpParam::dfText: rFileName = P_TxtT ? P_TxtT->GetFileName() : 0; break;
 		case PPImpExpParam::dfXml: rFileName = P_XmlT ? P_XmlT->GetFileName() : 0; break;
 		case PPImpExpParam::dfExcel: rFileName = P_XlsT ? P_XlsT->GetFileName() : 0; break;
-		case PPImpExpParam::dfSoap: rFileName = P_SoapT ? 0 : 0; break;
-		default: rFileName = 0;
+		case PPImpExpParam::dfSoap: /*rFileName = P_SoapT ? 0 : 0*/rFileName.Z(); break;
+		default: rFileName.Z();
 	}
 	return 1;
 }
@@ -2781,8 +2754,7 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 			SetupStrListBox(p_box);
 			for(uint i = 0; i < CfgsList.getCount(); i++)
 				p_box->addItem(CfgsList.Get(i).Id, CfgsList.Get(i).Txt);
-			if(p_box->def)
-				p_box->def->top();
+			CALLPTRMEMB(p_box->def, top());
 			p_box->Draw_();
 		}
 	}

@@ -427,13 +427,13 @@ void SLAPI SfSortStringPool::Sort()
 	SPosList.sort(PTR_CMPFUNC(SfSortStringPool), this);
 }
 
-SLAPI SFile::SortParam::SortParam()
+SLAPI SFileSortProgressData::SFileSortProgressData()
 {
-	MaxChunkSize =(8*1024*1024);
-	MaxChunkCount = 8;
-	MaxThread = 0;
-	ProgressCbProc = 0;
-	ProgressCbExtraPtr = 0;
+	THISZERO();
+}
+
+SLAPI SFile::SortParam::SortParam() : MaxChunkSize(8*1024*1024), MaxChunkCount(8), MaxThread(0), ProgressCbProc(0), ProgressCbExtraPtr(0)
+{
 }
 
 // static

@@ -75,10 +75,8 @@ int SLAPI GoodsFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	if(ver == -23) {
 		class GoodsFilt_v23 : public PPBaseFilt {
 		public:
-			GoodsFilt_v23() : PPBaseFilt(PPFILT_GOODS, 0, -23)
+			GoodsFilt_v23() : PPBaseFilt(PPFILT_GOODS, 0, -23), P_SjF(0), P_TagF(0)
 			{
-				P_SjF = 0;
-				P_TagF = 0;
 				SetFlatChunk(offsetof(GoodsFilt_v23, ReserveStart), offsetof(GoodsFilt_v23, SrchStr_) - offsetof(GoodsFilt_v23, ReserveStart));
 				SetBranchSString(offsetof(GoodsFilt_v23, SrchStr_));
 				SetBranchSString(offsetof(GoodsFilt_v23, BarcodeLen));
@@ -170,10 +168,8 @@ int SLAPI GoodsFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	else if(ver == -22) {
 		class GoodsFilt_v22 : public PPBaseFilt {
 		public:
-			GoodsFilt_v22() : PPBaseFilt(PPFILT_GOODS, 0, -22)
+			GoodsFilt_v22() : PPBaseFilt(PPFILT_GOODS, 0, -22), P_SjF(0), P_TagF(0)
 			{
-				P_SjF = 0;
-				P_TagF = 0;
 				SetFlatChunk(offsetof(GoodsFilt_v22, ReserveStart), offsetof(GoodsFilt_v22, SrchStr_) - offsetof(GoodsFilt_v22, ReserveStart));
 				SetBranchSString(offsetof(GoodsFilt_v22, SrchStr_));
 				SetBranchSString(offsetof(GoodsFilt_v22, BarcodeLen));
@@ -316,8 +312,7 @@ int SLAPI GoodsFilt::Describe(long flags, SString & rBuf) const
 		if(Flags & fShowWoArCode)          flag_list.Add(id++, STRINGIZE(fShowWoArCode));
 		PutFlagsMembToBuf(&flag_list, STRINGIZE(Flags), rBuf);
 	}
-	if(P_SjF)
-		P_SjF->Describe(flags, rBuf);
+	CALLPTRMEMB(P_SjF, Describe(flags, rBuf));
 	return 1;
 }
 
@@ -1909,21 +1904,18 @@ int SLAPI PPViewGoods::DeleteItem(PPID id)
 //
 //
 //
-PPViewGoods::GoodsMoveParam::GoodsMoveParam()
+SLAPI PPViewGoods::GoodsMoveParam::GoodsMoveParam() : Action(aMoveToGroup), DestGrpID(0), Flags(0), ClsDimZeroFlags(0), RValue(0.0)
 {
-	Action = aMoveToGroup;
-	DestGrpID = 0;
-	Flags = 0;
-	ClsDimZeroFlags = 0;
-	RValue = 0.0;
 	MEMSZERO(Clssfr);
 }
 
 int SLAPI PPViewGoods::RemoveAll()
 {
-#define GRP_LOC 1
 	class GoodsMoveDialog : public TDialog {
 	public:
+		enum {
+			ctlgroupLoc = 1
+		};
 		GoodsMoveDialog::GoodsMoveDialog() : TDialog(DLG_GOODSRMVALL)
 		{
 		}
@@ -1933,12 +1925,13 @@ int SLAPI PPViewGoods::RemoveAll()
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 0, GoodsMoveParam::aMoveToGroup);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 1, GoodsMoveParam::aChgClssfr);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 2, GoodsMoveParam::aChgTaxGroup); // @v9.5.0
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 3, GoodsMoveParam::aRemoveAll);
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 4, GoodsMoveParam::aActionByFlags);
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 5, GoodsMoveParam::aActionByRule);
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 6, GoodsMoveParam::aChgMinStock); // @v8.6.4
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 7, GoodsMoveParam::aSplitBarcodeItems); // @v8.6.9
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 8, GoodsMoveParam::aMergeDiezNames); // @v8.6.9
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 3, GoodsMoveParam::aChgGoodsType); // @v9.8.12
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 4, GoodsMoveParam::aRemoveAll);
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 5, GoodsMoveParam::aActionByFlags);
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 6, GoodsMoveParam::aActionByRule);
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 7, GoodsMoveParam::aChgMinStock); // @v8.6.4
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 8, GoodsMoveParam::aSplitBarcodeItems); // @v8.6.9
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 9, GoodsMoveParam::aMergeDiezNames); // @v8.6.9
 
 			SetClusterData(CTL_REMOVEALL_WHAT, Data.Action);
 			AddClusterAssoc(CTL_REMOVEALL_FLAGS, 0, GoodsMoveParam::fRemoveExtTextA);
@@ -1965,9 +1958,10 @@ int SLAPI PPViewGoods::RemoveAll()
 			int    ok = 1;
 			uint   sel = 0;
 			GetClusterData(CTL_REMOVEALL_WHAT, &Data.Action);
-			THROW_PP(oneof9(Data.Action, GoodsMoveParam::aMoveToGroup, GoodsMoveParam::aChgClssfr, GoodsMoveParam::aRemoveAll,
+			THROW_PP(oneof10(Data.Action, GoodsMoveParam::aMoveToGroup, GoodsMoveParam::aChgClssfr, GoodsMoveParam::aRemoveAll,
 				GoodsMoveParam::aActionByFlags, GoodsMoveParam::aActionByRule, GoodsMoveParam::aChgMinStock,
-				GoodsMoveParam::aSplitBarcodeItems, GoodsMoveParam::aMergeDiezNames, GoodsMoveParam::aChgTaxGroup), PPERR_USERINPUT);
+				GoodsMoveParam::aSplitBarcodeItems, GoodsMoveParam::aMergeDiezNames, GoodsMoveParam::aChgTaxGroup,
+				GoodsMoveParam::aChgGoodsType), PPERR_USERINPUT);
 			GetClusterData(CTL_REMOVEALL_FLAGS, &Data.Flags);
 			getCtrlString(CTL_REMOVEALL_RULE, Data.Rule);
 			if(Data.Action == GoodsMoveParam::aChgClssfr) {
@@ -1992,9 +1986,15 @@ int SLAPI PPViewGoods::RemoveAll()
 				THROW_PP(Data.DestGrpID, PPERR_TAXGROUPNEEDED);
 			}
 			// } @v9.5.0
+			// @v9.8.12 {
+			else if(Data.Action == GoodsMoveParam::aChgGoodsType) {
+				getCtrlData(sel = CTLSEL_REMOVEALL_GRP, &Data.DestGrpID);
+				THROW_PP(Data.DestGrpID, PPERR_GOODSTYPENEEDED);
+			}
+			// } @v9.8.12
 			else if(Data.Action == GoodsMoveParam::aChgMinStock) {
 				LocationCtrlGroup::Rec loc_rec;
-				getGroupData(GRP_LOC, &loc_rec);
+				getGroupData(ctlgroupLoc, &loc_rec);
 				Data.LocList = loc_rec.LocList;
 				if(Data.LocList.IsExists() && Data.LocList.IsEmpty())
 					Data.LocList.Set(0);
@@ -2047,31 +2047,33 @@ int SLAPI PPViewGoods::RemoveAll()
 				disable_grp_combo = 0;
 				PPLoadString("warehouse", combo_label_buf);
 				PPLoadString("minrest", rule_label_buf);
-				addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_REMOVEALL_GRP, 0, 0, cmLocList, 0, 0, 0));
+				addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_REMOVEALL_GRP, 0, 0, cmLocList, 0, 0, 0));
 				LocationCtrlGroup::Rec loc_rec(&Data.LocList);
-				setGroupData(GRP_LOC, &loc_rec);
+				setGroupData(ctlgroupLoc, &loc_rec);
 			}
 			else {
 				PPLoadString("rule", rule_label_buf);
-				addGroup(GRP_LOC, 0);
+				addGroup(ctlgroupLoc, 0);
 				showButton(cmLocList, 0);
 				if(Data.Action == GoodsMoveParam::aMoveToGroup) {
-					//disableCtrl(CTLSEL_REMOVEALL_GRP, 0);
 					disable_grp_combo = 0;
 					PPLoadString("goodsgroup", combo_label_buf);
 					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSGROUP, Data.DestGrpID, 0, (void *)GGRTYP_SEL_NORMAL);
 				}
 				// @v9.5.0 {
 				else if(Data.Action == GoodsMoveParam::aChgTaxGroup) {
-					//disableCtrl(CTLSEL_REMOVEALL_GRP, 0);
 					disable_grp_combo = 0;
 					PPLoadString("taxgroup", combo_label_buf);
 					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSTAX, Data.DestGrpID, 0, 0);
 				}
 				// } @v9.5.0
-				else {
-					//disableCtrl(CTLSEL_REMOVEALL_GRP, 1);
+				// @v9.8.12 {
+				else if(Data.Action == GoodsMoveParam::aChgGoodsType) {
+					disable_grp_combo = 0;
+					PPLoadString("goods_type", combo_label_buf);
+					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSTYPE, Data.DestGrpID, 0, 0);
 				}
+				// } @v9.8.12
 			}
 			disableCtrl(CTLSEL_REMOVEALL_GRP, disable_grp_combo);
 			setLabelText(CTL_REMOVEALL_GRP, combo_label_buf);
@@ -2080,7 +2082,6 @@ int SLAPI PPViewGoods::RemoveAll()
 		}
 		GoodsMoveParam Data;
 	};
-#undef GRP_LOC
 	int    ok = -1;
 	GoodsMoveDialog * dlg = 0;
 	int    valid_data = 0;
@@ -2102,53 +2103,29 @@ int SLAPI PPViewGoods::RemoveAll()
 		long   success_count = 0, skip_count = 0;
 		PPWait(1);
 		GoodsViewItem item;
+		PPGoodsPacket pack;
 		PPLogger logger;
 		const long _flags = GmParam.Flags;
-		if(GmParam.Action == GoodsMoveParam::aMoveToGroup) {
+		if(oneof4(GmParam.Action, GoodsMoveParam::aMoveToGroup, GoodsMoveParam::aChgTaxGroup, GoodsMoveParam::aChgGoodsType, GoodsMoveParam::aChgMinStock)) {
 			for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
-				PPGoodsPacket pack;
 				if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
-					pack.Rec.ParentID = GmParam.DestGrpID;
-					if(GObj.PutPacket(&item.ID, &pack, 1))
-						success_count++;
-					else {
-						logger.LogLastError();
-						skip_count++;
-					}
-				}
-				PPWaitPercent(GetCounter());
-			}
-		}
-		// @v9.5.0 {
-		else if(GmParam.Action == GoodsMoveParam::aChgTaxGroup) {
-			for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
-				PPGoodsPacket pack;
-				if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
-					pack.Rec.TaxGrpID = GmParam.DestGrpID;
-					if(GObj.PutPacket(&item.ID, &pack, 1))
-						success_count++;
-					else {
-						logger.LogLastError();
-						skip_count++;
-					}
-				}
-				PPWaitPercent(GetCounter());
-			}
-		}
-		// } @v9.5.0
-		else if(GmParam.Action == GoodsMoveParam::aChgMinStock) {
-			GoodsStockExt gse;
-			for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
-				PPGoodsPacket pack;
-				if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
-					const uint loc_count = GmParam.LocList.GetCount();
-					if(loc_count) {
-                        for(uint i = 0; i < loc_count; i++) {
-                            pack.Stock.SetMinStock(GmParam.LocList.Get(i), GmParam.RValue);
-                        }
+					if(GmParam.Action == GoodsMoveParam::aMoveToGroup) 
+						pack.Rec.ParentID = GmParam.DestGrpID;
+					else if(GmParam.Action == GoodsMoveParam::aChgTaxGroup) 
+						pack.Rec.TaxGrpID = GmParam.DestGrpID;
+					else if(GmParam.Action == GoodsMoveParam::aChgGoodsType) 
+						pack.Rec.GoodsTypeID = GmParam.DestGrpID;
+					else if(GmParam.Action == GoodsMoveParam::aChgMinStock) {
+						const uint loc_count = GmParam.LocList.GetCount();
+						if(loc_count) {
+							for(uint i = 0; i < loc_count; i++)
+								pack.Stock.SetMinStock(GmParam.LocList.Get(i), GmParam.RValue);
+						}
+						else
+							pack.Stock.SetMinStock(0, GmParam.RValue);
 					}
 					else {
-						pack.Stock.SetMinStock(0, GmParam.RValue);
+						assert(0); // something went wrong!
 					}
 					if(GObj.PutPacket(&item.ID, &pack, 1))
 						success_count++;
@@ -2197,7 +2174,6 @@ int SLAPI PPViewGoods::RemoveAll()
             if(rule_is_ok) {
 				SString ext_fld_buf;
             	for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
-					PPGoodsPacket pack;
 					if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
 						ext_fld_buf = 0;
                         for(uint i = 0; i < src_fld_id_list.getCount(); i++) {
@@ -2235,7 +2211,6 @@ int SLAPI PPViewGoods::RemoveAll()
 					{ GoodsMoveParam::fRemoveExtTextE, GDSEXSTR_E },
 				};
 				for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
-					PPGoodsPacket pack;
 					if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
 						int do_update = 0;
 						for(uint i = 0; i < SIZEOFARRAY(_rmv_f_ext_f_assoc_list); i++) {
@@ -2273,7 +2248,6 @@ int SLAPI PPViewGoods::RemoveAll()
 				}
 				cntr.Init(id_list.getCount());
 				for(uint i = 0; i < id_list.getCount(); i++) {
-					PPGoodsPacket pack;
 					PPID goods_id = id_list.get(i);
 					if(GObj.GetPacket(goods_id, &pack, 0) > 0) {
 						int do_update = 0;
@@ -4730,10 +4704,9 @@ int PPALDD_UhttGoods::NextIteration(long iterId)
 			const ObjTagItem * p_item = r_blk.Pack.TagL.GetItemByPos(r_blk.TagIterCounter);
 			I_TagList.TagTypeID = p_item->TagDataType;
 			{
-				PPObjectTag2 rec;
-				if(r_blk.TagObj.Fetch(p_item->TagID, &rec) > 0) {
+				PPObjectTag rec;
+				if(r_blk.TagObj.Fetch(p_item->TagID, &rec) > 0)
 					STRNSCPY(I_TagList.TagSymb, rec.Symb);
-				}
 			}
 			switch(p_item->TagDataType) {
 				case OTTYP_STRING:
@@ -5461,4 +5434,3 @@ int PPALDD_GoodsLabel::NextIteration(PPIterID iterId)
 		return -1;
 	return DlRtm::NextIteration(iterId);
 }
-

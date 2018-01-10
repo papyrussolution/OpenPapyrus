@@ -398,8 +398,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 				p_view->CallFunc(SCI_RELEASEDOCUMENT, 0, (int)p_view->Doc.SciDoc); // @v9.7.5
 				SETIFZ(p_view->EndModalCmd, cmCancel);
 				APPL->DelItemFromMenu(p_view);
-				if(p_view->owner && p_view->owner->P_Current == p_view)
-					p_view->owner->setCurrent(0, TGroup::normalSelect);
+				p_view->ResetOwnerCurrent();
 				if(!p_view->IsInState(sfModal)) {
 					APPL->P_DeskTop->remove(p_view);
 					delete p_view;
@@ -429,8 +428,7 @@ LRESULT CALLBACK LogListWindowSCI::WndProc(HWND hWnd, UINT message, WPARAM wPara
 			p_view = (LogListWindowSCI *)TView::GetWindowUserData(hWnd);
 			if(p_view) {
 				TView::messageBroadcast(p_view, cmReleasedFocus);
-				if(p_view->owner && p_view->owner->P_Current == p_view)
-					p_view->owner->setCurrent(0, TGroup::normalSelect);
+				p_view->ResetOwnerCurrent();
 			}
 			break;
 		case WM_KEYDOWN:

@@ -3125,7 +3125,7 @@ int SLAPI XmlReader::GetGiftCard(xmlNode ** pPlugins, SString & rSerial, int isP
 	const char * p_gift_card      = (isPaym) ? "card.number" : "gift.card.number";
 	const char * p_plug_card_attr = "value;key";
 	SString val, serial;
-	rSerial = 0;
+	rSerial.Z();
 	if(pPlugins) {
 		for(xmlNode * p_plugins = *pPlugins; !is_gift_card && p_plugins; p_plugins = p_plugins->next) {
 			if(sstreqi_ascii((const char*)p_plugins->name, "plugin-property") && p_plugins->properties) {

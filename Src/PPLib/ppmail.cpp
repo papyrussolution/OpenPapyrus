@@ -183,7 +183,7 @@ int SLAPI PPInternetAccount::SetExtField(int fldID, const char * pBuf)
 	return PPPutExtStrData(fldID, ExtStr, pBuf);
 }
 
-#define POP3_PW_SIZE 20
+#define POP3_PW_SIZE 20 // @attention изменение значения требует конвертации хранимого пароля
 
 int SLAPI PPInternetAccount::SetPassword(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
 {

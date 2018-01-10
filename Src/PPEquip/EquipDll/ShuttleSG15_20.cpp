@@ -500,7 +500,7 @@ int PriceChecker::GetOption(const char * pOptionType, SString & rOptionVal)
 	}
 	else {
 		LogMessage(OPTIONNOTFOUND, pOptionType, "");
-		rOptionVal = 0;
+		rOptionVal.Z();
 		ok = 0;
 	}
 	return ok;
@@ -679,7 +679,7 @@ int PriceChecker::GetRequest(SString & rRequest)
 	int ok = -1;
 	SBuffer buf(BUF_SIZE);
 	size_t recv_bytes = 0;
-	rRequest = 0;
+	rRequest.Z();
 	memzero((void *)buf.GetBuf(), BUF_SIZE);
 	buf.Clear();
 	while((Socket.RecvBuf(buf, BUF_SIZE, &recv_bytes) && (recv_bytes != 0))) {

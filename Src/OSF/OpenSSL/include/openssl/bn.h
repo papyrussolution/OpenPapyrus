@@ -35,27 +35,24 @@
 #ifdef  __cplusplus
 extern "C" {
 #endif
-
 /*
  * 64-bit processor with LP64 ABI
  */
-# ifdef SIXTY_FOUR_BIT_LONG
-#define BN_ULONG        ulong
-#define BN_BYTES        8
-# endif
-
+#ifdef SIXTY_FOUR_BIT_LONG
+	#define BN_ULONG        ulong
+	#define BN_BYTES        8
+#endif
 /*
  * 64-bit processor other than LP64 ABI
  */
-# ifdef SIXTY_FOUR_BIT
-#define BN_ULONG        ulong long
-#define BN_BYTES        8
-# endif
-
-# ifdef THIRTY_TWO_BIT
-#define BN_ULONG        uint
-#define BN_BYTES        4
-# endif
+#ifdef SIXTY_FOUR_BIT
+	#define BN_ULONG        ulong long
+	#define BN_BYTES        8
+#endif
+#ifdef THIRTY_TWO_BIT
+	#define BN_ULONG        uint
+	#define BN_BYTES        4
+#endif
 
 #define BN_BITS2       (BN_BYTES * 8)
 #define BN_BITS        (BN_BITS2 * 2)
@@ -79,8 +76,8 @@ extern "C" {
 #define BN_FLG_FREE            0x8000 /* used for debugging */
 # endif
 
-void BN_set_flags(BIGNUM *b, int n);
-int BN_get_flags(const BIGNUM *b, int n);
+void FASTCALL BN_set_flags(BIGNUM *b, int n);
+int  FASTCALL BN_get_flags(const BIGNUM *b, int n);
 
 /* Values for |top| in BN_rand() */
 #define BN_RAND_TOP_ANY    -1
@@ -90,26 +87,24 @@ int BN_get_flags(const BIGNUM *b, int n);
 /* Values for |bottom| in BN_rand() */
 #define BN_RAND_BOTTOM_ANY  0
 #define BN_RAND_BOTTOM_ODD  1
-
 /*
  * get a clone of a BIGNUM with changed flags, for *temporary* use only (the
  * two BIGNUMs cannot be used in parallel!). Also only for *read only* use. The
  * value |dest| should be a newly allocated BIGNUM obtained via BN_new() that
  * has not been otherwise initialised or used.
  */
-void BN_with_flags(BIGNUM *dest, const BIGNUM *b, int flags);
+void   BN_with_flags(BIGNUM *dest, const BIGNUM *b, int flags);
 /* Wrapper function to make using BN_GENCB easier */
-int BN_GENCB_call(BN_GENCB *cb, int a, int b);
-BN_GENCB *BN_GENCB_new(void);
-void BN_GENCB_free(BN_GENCB *cb);
+int    BN_GENCB_call(BN_GENCB *cb, int a, int b);
+BN_GENCB * BN_GENCB_new(void);
+void   BN_GENCB_free(BN_GENCB *cb);
 /* Populate a BN_GENCB structure with an "old"-style callback */
-void BN_GENCB_set_old(BN_GENCB *gencb, void (*callback) (int, int, void *), void *cb_arg);
+void   BN_GENCB_set_old(BN_GENCB *gencb, void (*callback) (int, int, void *), void *cb_arg);
 /* Populate a BN_GENCB structure with a "new"-style callback */
-void BN_GENCB_set(BN_GENCB *gencb, int (*callback) (int, int, BN_GENCB *), void *cb_arg);
-void *BN_GENCB_get_arg(BN_GENCB *cb);
+void   BN_GENCB_set(BN_GENCB *gencb, int (*callback) (int, int, BN_GENCB *), void *cb_arg);
+void * BN_GENCB_get_arg(BN_GENCB *cb);
 
-#define BN_prime_checks 0      /* default: select number of iterations based
-                                 * on the size of the number */
+#define BN_prime_checks 0 // default: select number of iterations based on the size of the number 
 
 /*
  * number of Miller-Rabin iterations for an error rate of less than 2^-80 for
@@ -162,8 +157,8 @@ int      BN_rand(BIGNUM *rnd, int bits, int top, int bottom);
 int      BN_pseudo_rand(BIGNUM *rnd, int bits, int top, int bottom);
 int      BN_rand_range(BIGNUM *rnd, const BIGNUM *range);
 int      BN_pseudo_rand_range(BIGNUM *rnd, const BIGNUM *range);
-int      BN_num_bits(const BIGNUM *a);
-int      BN_num_bits_word(BN_ULONG l);
+int      FASTCALL BN_num_bits(const BIGNUM *a);
+int      FASTCALL BN_num_bits_word(BN_ULONG l);
 int      BN_security_bits(int L, int N);
 BIGNUM * BN_new(void);
 BIGNUM * BN_secure_new(void);
@@ -177,11 +172,11 @@ BIGNUM * BN_lebin2bn(const uchar *s, int len, BIGNUM *ret);
 int      BN_bn2lebinpad(const BIGNUM *a, uchar *to, int tolen);
 BIGNUM * BN_mpi2bn(const uchar *s, int len, BIGNUM *ret);
 int      BN_bn2mpi(const BIGNUM *a, uchar *to);
-int      BN_sub(BIGNUM *r, const BIGNUM *a, const BIGNUM *b);
-int      BN_usub(BIGNUM *r, const BIGNUM *a, const BIGNUM *b);
-int      BN_uadd(BIGNUM *r, const BIGNUM *a, const BIGNUM *b);
-int      BN_add(BIGNUM *r, const BIGNUM *a, const BIGNUM *b);
-int      BN_mul(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx);
+int      FASTCALL BN_sub(BIGNUM *r, const BIGNUM *a, const BIGNUM *b);
+int      FASTCALL BN_usub(BIGNUM *r, const BIGNUM *a, const BIGNUM *b);
+int      FASTCALL BN_uadd(BIGNUM *r, const BIGNUM *a, const BIGNUM *b);
+int      FASTCALL BN_add(BIGNUM *r, const BIGNUM *a, const BIGNUM *b);
+int      FASTCALL BN_mul(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx);
 int      BN_sqr(BIGNUM *r, const BIGNUM *a, BN_CTX *ctx);
 /** BN_set_negative sets sign of a BIGNUM
  * \param  b  pointer to the BIGNUM object
@@ -216,42 +211,41 @@ int FASTCALL BN_sub_word(BIGNUM *a, BN_ULONG w);
 int FASTCALL BN_set_word(BIGNUM *a, BN_ULONG w);
 BN_ULONG FASTCALL BN_get_word(const BIGNUM *a);
 
-int BN_cmp(const BIGNUM *a, const BIGNUM *b);
-void BN_free(BIGNUM *a);
-int BN_is_bit_set(const BIGNUM *a, int n);
-int BN_lshift(BIGNUM *r, const BIGNUM *a, int n);
-int BN_lshift1(BIGNUM *r, const BIGNUM *a);
-int BN_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, BN_CTX *ctx);
+int  FASTCALL BN_cmp(const BIGNUM *a, const BIGNUM *b);
+void FASTCALL BN_free(BIGNUM *a);
+int  BN_is_bit_set(const BIGNUM *a, int n);
+int  BN_lshift(BIGNUM *r, const BIGNUM *a, int n);
+int  BN_lshift1(BIGNUM *r, const BIGNUM *a);
+int  BN_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, BN_CTX *ctx);
 
-int BN_mod_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m, BN_CTX *ctx);
-int BN_mod_exp_mont(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m, BN_CTX *ctx, BN_MONT_CTX *m_ctx);
-int BN_mod_exp_mont_consttime(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m, BN_CTX *ctx, BN_MONT_CTX *in_mont);
-int BN_mod_exp_mont_word(BIGNUM *r, BN_ULONG a, const BIGNUM *p, const BIGNUM *m, BN_CTX *ctx, BN_MONT_CTX *m_ctx);
-int BN_mod_exp2_mont(BIGNUM *r, const BIGNUM *a1, const BIGNUM *p1, const BIGNUM *a2, const BIGNUM *p2, const BIGNUM *m, BN_CTX *ctx, BN_MONT_CTX *m_ctx);
-int BN_mod_exp_simple(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m, BN_CTX *ctx);
-
+int  BN_mod_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m, BN_CTX *ctx);
+int  BN_mod_exp_mont(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m, BN_CTX *ctx, BN_MONT_CTX *m_ctx);
+int  BN_mod_exp_mont_consttime(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m, BN_CTX *ctx, BN_MONT_CTX *in_mont);
+int  BN_mod_exp_mont_word(BIGNUM *r, BN_ULONG a, const BIGNUM *p, const BIGNUM *m, BN_CTX *ctx, BN_MONT_CTX *m_ctx);
+int  BN_mod_exp2_mont(BIGNUM *r, const BIGNUM *a1, const BIGNUM *p1, const BIGNUM *a2, const BIGNUM *p2, const BIGNUM *m, BN_CTX *ctx, BN_MONT_CTX *m_ctx);
+int  BN_mod_exp_simple(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m, BN_CTX *ctx);
 int BN_mask_bits(BIGNUM *a, int n);
-# ifndef OPENSSL_NO_STDIO
-int BN_print_fp(FILE *fp, const BIGNUM *a);
-# endif
+#ifndef OPENSSL_NO_STDIO
+	int BN_print_fp(FILE *fp, const BIGNUM *a);
+#endif
 int BN_print(BIO *bio, const BIGNUM *a);
 int BN_reciprocal(BIGNUM *r, const BIGNUM *m, int len, BN_CTX *ctx);
 int BN_rshift(BIGNUM *r, const BIGNUM *a, int n);
 int BN_rshift1(BIGNUM *r, const BIGNUM *a);
 void BN_clear(BIGNUM *a);
-BIGNUM *BN_dup(const BIGNUM *a);
-int BN_ucmp(const BIGNUM *a, const BIGNUM *b);
+BIGNUM * FASTCALL BN_dup(const BIGNUM *a);
+int FASTCALL BN_ucmp(const BIGNUM *a, const BIGNUM *b);
 int BN_set_bit(BIGNUM *a, int n);
 int BN_clear_bit(BIGNUM *a, int n);
-char *BN_bn2hex(const BIGNUM *a);
-char *BN_bn2dec(const BIGNUM *a);
+char * BN_bn2hex(const BIGNUM *a);
+char * BN_bn2dec(const BIGNUM *a);
 int BN_hex2bn(BIGNUM **a, const char *str);
 int BN_dec2bn(BIGNUM **a, const char *str);
 int BN_asc2bn(BIGNUM **a, const char *str);
 int BN_gcd(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx);
 int BN_kronecker(const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx); /* returns -2 for error */
-BIGNUM *BN_mod_inverse(BIGNUM *ret, const BIGNUM *a, const BIGNUM *n, BN_CTX *ctx);
-BIGNUM *BN_mod_sqrt(BIGNUM *ret, const BIGNUM *a, const BIGNUM *n, BN_CTX *ctx);
+BIGNUM * BN_mod_inverse(BIGNUM *ret, const BIGNUM *a, const BIGNUM *n, BN_CTX *ctx);
+BIGNUM * BN_mod_sqrt(BIGNUM *ret, const BIGNUM *a, const BIGNUM *n, BN_CTX *ctx);
 void BN_consttime_swap(BN_ULONG swap, BIGNUM *a, BIGNUM *b, int nwords);
 
 /* Deprecated versions */

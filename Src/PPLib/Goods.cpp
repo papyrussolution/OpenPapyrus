@@ -1567,7 +1567,7 @@ int SLAPI GoodsCore::SearchByArCode(PPID arID, const char * pBarcode, ArGoodsCod
 int SLAPI GoodsCore::GetArCode(PPID arID, PPID goodsID, SString & rCode, int32 * pPack)
 {
 	int    ok = -1;
-	rCode = 0;
+	rCode.Z();
 	ArGoodsCodeTbl::Key2 k2;
 	k2.ArID    = arID;
 	k2.GoodsID = goodsID;

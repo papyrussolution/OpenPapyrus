@@ -384,7 +384,7 @@ void GetErrorMsg(SString & rMsg)
 	if((ErrorCode == IEERR_FTP) || (ErrorCode == IEERR_IMPFILENOTFOUND) || (ErrorCode == IEERR_INVMESSAGEYTYPE) || (ErrorCode  == IEERR_NOCFGFORGLN)
 		|| (ErrorCode == IEERR_MSGSYMBNOTFOUND))
 		str.Cat(StrError);
-	(rMsg = 0).CopyFrom(str);
+	rMsg.Z().CopyFrom(str);
 }
 
 // @vmiller
@@ -396,7 +396,7 @@ void FormatLoginToLogin(const char * login, SString & rStr)
 {
 	uint exit_while = 0;
 	char low_strip = '_';
-	rStr = 0;
+	rStr.Z();
 	if(login) {
 		while(!exit_while) {
 			if((*login == 0) || (*login == low_strip))

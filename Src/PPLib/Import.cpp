@@ -1302,7 +1302,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 								double vat_rate = 0.0, stax_rate = 0.0;
 								rec.get(fldn_salestax, stax_rate);
 								rec.get(fldn_vat, vat_rate);
-								gt_obj.GetBySheme(&tax_grp_id, vat_rate, 0, stax_rate, 0);
+								gt_obj.GetByScheme(&tax_grp_id, vat_rate, 0, stax_rate, 0, 0/*use_ta*/);
 								pack.Rec.TaxGrpID = tax_grp_id;
 							}
 							if(PutPacket(&goods_id, &pack, 0)) {
@@ -1400,12 +1400,12 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 									if(rec.get(fldn_clb, temp_buf2, 1)) {
 										temp_buf2.ReplaceChar('\\', '/').ReplaceChar('-', ' ');
 										// @v9.8.11 THROW(p_pack->ClbL.AddNumber(p_pack->GetTCount()-1, temp_buf2));
-										THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, p_pack->GetTCount()-1, temp_buf2)); // @v9.8.11 
+										THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, p_pack->GetTCount()-1, temp_buf2)); // @v9.8.11
 									}
 									if(rec.get(fldn_serial, temp_buf2, 1)) {
 										temp_buf2.ReplaceChar('\\', '/').ReplaceChar('-', ' ');
 										// @v9.8.11 THROW(p_pack->SnL.AddNumber(p_pack->GetTCount()-1, temp_buf2));
-										THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, p_pack->GetTCount()-1, temp_buf2)); // @v9.8.11 
+										THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, p_pack->GetTCount()-1, temp_buf2)); // @v9.8.11
 									}
 								}
 							}
@@ -2408,10 +2408,9 @@ public:
 		long   Flags;
 		SString ParentCodeString;
 	};
-	SLAPI  PrcssrImportKLADR() : StatusList(sizeof(Status))
+	SLAPI  PrcssrImportKLADR() : StatusList(sizeof(Status)), P_TempTbl(0)
 	{
 		MEMSZERO(P);
-		P_TempTbl = 0;
 	}
 	SLAPI ~PrcssrImportKLADR()
 	{
@@ -2815,8 +2814,7 @@ int SLAPI PrcssrImportKLADR::Import()
 						STRNSCPY(pack.Rec.Name, kladr.Name);
 						STRNSCPY(pack.Rec.Code, kladr.Code);
 						STRNSCPY(pack.Rec.ZIP,  kladr.ZIP);
-						int    r = WObj.SearchMaxLike(&pack,
-							PPObjWorld::smlCode|PPObjWorld::smlName|PPObjWorld::smlCheckCountry, &id);
+						int    r = WObj.SearchMaxLike(&pack, PPObjWorld::smlCode|PPObjWorld::smlName|PPObjWorld::smlCheckCountry, &id);
 						THROW(r);
 						if(r < 0) {
 							THROW(WObj.PutPacket(&(id = 0), &pack, 0));
@@ -2864,13 +2862,9 @@ int SLAPI ImportKLADR()
 //
 IMPLEMENT_IMPEXP_HDL_FACTORY(PERSON, PPPersonImpExpParam);
 
-PPPersonImpExpParam::PPPersonImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags)
+PPPersonImpExpParam::PPPersonImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags),
+	DefKindID(0), DefCategoryID(0), DefCityID(0), SrchRegTypeID(0), Flags(0)
 {
-	DefKindID = 0;
-	DefCategoryID = 0;
-	DefCityID = 0;
-	SrchRegTypeID = 0;
-	Flags = 0;
 }
 
 #define IMPEXPPARAM_PERSON_DEFKINDID     1
@@ -3693,15 +3687,9 @@ int ReadDBSR25::GetNutrArr(TSArray <PPComps> & rArr)
 					left.TrimRightChr('~');
 					pos++;
 					switch(pos) {
-						case 1: // ИД компонента
-							nutr.ID = left.ToLong();
-							break;
-						case 2: // Единицы измерения
-							left.CopyTo(nutr.Unit, sizeof(nutr.Unit));
-							break;
-						case 4: // Название компонента
-							left.CopyTo(nutr.Descr, sizeof(nutr.Descr));
-							break;
+						case 1: nutr.ID = left.ToLong(); break; // ИД компонента
+						case 2: left.CopyTo(nutr.Unit, sizeof(nutr.Unit)); break; // Единицы измерения
+						case 4: left.CopyTo(nutr.Descr, sizeof(nutr.Descr)); break; // Название компонента
 					}
 				}
 				str = right;
@@ -3786,15 +3774,9 @@ int FASTCALL ReadDBSR25::NextIteration(PPSuprWareAssoc & rGoodComp)
 				left.TrimRightChr('~');
 				pos++;
 				switch(pos) {
-					case 1: // ИД продукта
-						food_nutr.FoodID = left.ToLong();
-						break;
-					case 2: // ИД компонента
-						food_nutr.NutrID = left.ToLong();
-						break;
-					case 3: // Содержание компонента в 100 граммах продукта
-						food_nutr.Qtty = left.ToReal();
-						break;
+					case 1: food_nutr.FoodID = left.ToLong(); break; // ИД продукта
+					case 2: food_nutr.NutrID = left.ToLong(); break; // ИД компонента
+					case 3: food_nutr.Qtty = left.ToReal(); break; // Содержание компонента в 100 граммах продукта
 				}
 			}
 			str = right;
@@ -4096,7 +4078,7 @@ int SLAPI ImportCompGS()
 				sw_item.Qtty = r_item.Qtty;
 				THROW_SL(sw_pack.Items.insert(&sw_item));
 			}
-			goods_name.ToOem().CopyTo(sw_pack.Rec.Name, sizeof(sw_pack.Rec.Name));
+			goods_name.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(sw_pack.Rec.Name, sizeof(sw_pack.Rec.Name));
 			sw_pack.Rec.SuprWareType = SUPRWARETYPE_GOODS;
 			sw_pack.Rec.SuprWareCat = SUPRWARECLASS_MEDICAL;
 			THROW(r = sw_obj.P_Tbl->SearchByName(PPGDSK_SUPRWARE, goods_name, &sw_id));
@@ -4240,32 +4222,15 @@ int SLAPI FiasImporter::ProcessState::SetItem(const char * pPath, int phase, uin
 	return ok;
 }
 
-//static
-void FiasImporter::Scb_StartDocument(void * ptr)
-{
-	CALLTYPEPTRMEMB(FiasImporter, ptr, StartDocument());
-}
-
-//static
-void FiasImporter::Scb_EndDocument(void * ptr)
-{
-	CALLTYPEPTRMEMB(FiasImporter, ptr, EndDocument());
-}
-
-//static
-void FiasImporter::Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList)
-{
-	CALLTYPEPTRMEMB(FiasImporter, ptr, StartElement((const char *)pName, (const char **)ppAttrList));
-}
-
-//static
-void FiasImporter::Scb_EndElement(void * ptr, const xmlChar * pName)
-{
-	CALLTYPEPTRMEMB(FiasImporter, ptr, EndElement((const char *)pName));
-}
+//static {
+void FiasImporter::Scb_StartDocument(void * ptr) { CALLTYPEPTRMEMB(FiasImporter, ptr, StartDocument()); }
+void FiasImporter::Scb_EndDocument(void * ptr) { CALLTYPEPTRMEMB(FiasImporter, ptr, EndDocument()); }
+void FiasImporter::Scb_StartElement(void * ptr, const xmlChar * pName, const xmlChar ** ppAttrList) { CALLTYPEPTRMEMB(FiasImporter, ptr, StartElement((const char *)pName, (const char **)ppAttrList)); }
+void FiasImporter::Scb_EndElement(void * ptr, const xmlChar * pName) { CALLTYPEPTRMEMB(FiasImporter, ptr, EndElement((const char *)pName)); }
+//} static
 
 FiasImporter::FiasImporter() : Tra(0), TextCache(4 * 1024 * 1024),
-	P_Sdr(0), P_DebugOutput(0), InputObject(0), RawRecN(0), P_SaxCtx(0), State(0), CurPsPos(-1)
+	P_Sdr(0), P_DebugOutput(0), InputObject(0), RawRecN(0), P_SaxCtx(0), State(0), CurPsPos(-1), P_SrDb(0)
 {
 }
 
@@ -4273,6 +4238,7 @@ FiasImporter::~FiasImporter()
 {
 	delete P_Sdr;
 	delete P_DebugOutput;
+	delete P_SrDb; // @v9.8.12
 }
 
 int FiasImporter::SaxParseFile(xmlSAXHandler *sax, const char * pFileName)
@@ -4308,11 +4274,12 @@ void FiasImporter::SaxStop()
 	xmlStopParser(P_SaxCtx);
 }
 
+// static
 int FiasImporter::ParseFiasFileName(const char * pFileName, SString & rObjName, LDATE & rDt, S_GUID & rUuid)
 {
 	int   ok = 1;
 	long  status = 0;
-	rObjName = 0;
+	rObjName.Z();
 	rDt = ZERODATE;
 	rUuid.SetZero();
 	SPathStruc ps(pFileName);
@@ -4564,42 +4531,16 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 					if(r_state.Phase == phaseCount) {
 						if(P_DebugOutput && P_DebugOutput->IsValid()) {
 							if(RawRecN == 1) {
-								line_buf.Cat("AOID").Semicol();
-								line_buf.Cat("PREVID").Semicol();
-								line_buf.Cat("NEXTID").Semicol();
-								line_buf.Cat("AOGUID").Semicol();
-								line_buf.Cat("PARENTGUID").Semicol();
-								line_buf.Cat("POSTALCODE").Semicol();
-								line_buf.Cat("SHORTNAME").Semicol();
-								line_buf.Cat("FORMALNAME").Semicol();
-								line_buf.Cat("OFFNAME").Semicol();
-								line_buf.Cat("REGIONCODE").Semicol();
-								line_buf.Cat("AUTOCODE").Semicol();
-								line_buf.Cat("AREACODE").Semicol();
-								line_buf.Cat("CITYCODE").Semicol();
-								line_buf.Cat("CTARCODE").Semicol();
-								line_buf.Cat("PLACECODE").Semicol();
-								line_buf.Cat("STREETCODE").Semicol();
-								line_buf.Cat("EXTRCODE").Semicol();
-								line_buf.Cat("SEXTCODE").Semicol();
-								line_buf.Cat("IFNSFL").Semicol();
-								line_buf.Cat("TERRIFNSFL").Semicol();
-								line_buf.Cat("IFNSUL").Semicol();
-								line_buf.Cat("TERRIFNSUL").Semicol();
-								line_buf.Cat("OKATO").Semicol();
-								line_buf.Cat("OKTMO").Semicol();
-								line_buf.Cat("UPDATEDATE").Semicol();
-								line_buf.Cat("AOLEVEL").Semicol();
-								line_buf.Cat("CODE").Semicol();
-								line_buf.Cat("PLAINCODE").Semicol();
-								line_buf.Cat("ACTSTATUS").Semicol();
-								line_buf.Cat("CENTSTATUS").Semicol();
-								line_buf.Cat("OPERSTATUS").Semicol();
-								line_buf.Cat("CURRSTATUS").Semicol();
-								line_buf.Cat("STARTDATE").Semicol();
-								line_buf.Cat("ENDDATE").Semicol();
-								line_buf.Cat("NORMDOC").Semicol();
-								line_buf.Cat("LIVESTATUS").Semicol();
+								static const char * p_titles[] = {
+									"AOID", "PREVID", "NEXTID", "AOGUID", "PARENTGUID", "POSTALCODE",
+									"SHORTNAME", "FORMALNAME", "OFFNAME", "REGIONCODE", "AUTOCODE",
+									"AREACODE", "CITYCODE", "CTARCODE", "PLACECODE", "STREETCODE",
+									"EXTRCODE", "SEXTCODE", "IFNSFL", "TERRIFNSFL", "IFNSUL",
+									"TERRIFNSUL", "OKATO", "OKTMO", "UPDATEDATE", "AOLEVEL",
+									"CODE", "PLAINCODE", "ACTSTATUS", "CENTSTATUS", "OPERSTATUS",
+									"CURRSTATUS", "STARTDATE", "ENDDATE", "NORMDOC", "LIVESTATUS" };
+								for(uint tidx = 0; tidx < SIZEOFARRAY(p_titles); tidx++)
+									line_buf.Cat(p_titles[tidx]).Semicol();
 								line_buf.CR();
 								P_DebugOutput->WriteLine(line_buf);
 							}
@@ -4666,6 +4607,11 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 							THROW(ProcessString(p_data->PLAINCODE,  &rec.KladrCodeTRef, line_buf, utext));
 							THROW(ToggleTransaction(10000));
 						}
+						else if(r_state.Phase == phaseSartrePass1) {
+							if(P_SrDb) {
+								THROW(P_SrDb->StoreFiasAddr(*p_data));
+							}
+						}
 						else {
 							THROW(FT.UrT.GetUuid(p_data->AOID, &rec.RecUuID, 0, 0));
 							THROW(sr = FT.SearchAddr(rec.RecUuID, &org_rec));
@@ -4714,17 +4660,11 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 			}
 			if((RawRecN % 1000) == 0) {
 				line_buf = "Address";
-				if(r_state.Phase == phaseCount) {
-					line_buf.Space().Cat("phaseCOUNT");
-				}
-				else if(r_state.Phase == phaseUUID) {
-					line_buf.Space().Cat("phaseUUID");
-				}
-				else if(r_state.Phase == phaseText) {
-					line_buf.Space().Cat("phaseTEXT");
-				}
-				else if(r_state.Phase == phaseData) {
-					line_buf.Space().Cat("phaseDATA");
+				switch(r_state.Phase) {
+					case phaseCount: line_buf.Space().Cat("phaseCOUNT"); break;
+					case phaseUUID: line_buf.Space().Cat("phaseUUID"); break;
+					case phaseText: line_buf.Space().Cat("phaseTEXT"); break;
+					case phaseData: line_buf.Space().Cat("phaseDATA"); break;
 				}
 				line_buf.Space().Cat(RawRecN);
 				PPWaitMsg(line_buf);
@@ -4743,27 +4683,13 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 					if(r_state.Phase == phaseCount) {
 						if(P_DebugOutput && P_DebugOutput->IsValid()) {
 							if(RawRecN == 1) {
-								line_buf.Cat("HOUSENUM").Semicol();
-								line_buf.Cat("BUILDNUM").Semicol();
-								line_buf.Cat("STRUCNUM").Semicol();
-								line_buf.Cat("POSTALCODE").Semicol();
-								line_buf.Cat("OKATO").Semicol();
-								line_buf.Cat("OKTMO").Semicol();
-								line_buf.Cat("ESTSTATUS").Semicol();
-								line_buf.Cat("STRSTATUS").Semicol();
-								line_buf.Cat("HOUSEID").Semicol();
-								line_buf.Cat("HOUSEGUID").Semicol();
-								line_buf.Cat("AOGUID").Semicol();
-								line_buf.Cat("IFNSFL").Semicol();
-								line_buf.Cat("TERRIFNSFL").Semicol();
-								line_buf.Cat("IFNSUL").Semicol();
-								line_buf.Cat("TERRIFNSUL").Semicol();
-								line_buf.Cat("UPDATEDATE").Semicol();
-								line_buf.Cat("STARTDATE").Semicol();
-								line_buf.Cat("ENDDATE").Semicol();
-								line_buf.Cat("STATSTATUS").Semicol();
-								line_buf.Cat("NORMDOC").Semicol();
-								line_buf.Cat("COUNTER").Semicol();
+								static const char * p_titles[] = {
+									"HOUSENUM", "BUILDNUM", "STRUCNUM", "POSTALCODE", "OKATO",
+									"OKTMO", "ESTSTATUS", "STRSTATUS", "HOUSEID", "HOUSEGUID",
+									"AOGUID", "IFNSFL", "TERRIFNSFL", "IFNSUL", "TERRIFNSUL",
+									"UPDATEDATE", "STARTDATE", "ENDDATE", "STATSTATUS", "NORMDOC", "COUNTER" };
+								for(uint tidx = 0; tidx < SIZEOFARRAY(p_titles); tidx++)
+									line_buf.Cat(p_titles[tidx]).Semicol();
 								line_buf.CR();
 								P_DebugOutput->WriteLine(line_buf);
 							}
@@ -4857,17 +4783,11 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 					}
 					if((RawRecN % 1000) == 0) {
 						line_buf = "Houses";
-						if(r_state.Phase == phaseCount) {
-							line_buf.Space().Cat("phaseCOUNT");
-						}
-						else if(r_state.Phase == phaseUUID) {
-							line_buf.Space().Cat("phaseUUID");
-						}
-						else if(r_state.Phase == phaseText) {
-							line_buf.Space().Cat("phaseTEXT");
-						}
-						else if(r_state.Phase == phaseData) {
-							line_buf.Space().Cat("phaseDATA");
+						switch(r_state.Phase) {
+							case phaseCount: line_buf.Space().Cat("phaseCOUNT"); break;
+							case phaseUUID: line_buf.Space().Cat("phaseUUID"); break;
+							case phaseText: line_buf.Space().Cat("phaseTEXT"); break;
+							case phaseData: line_buf.Space().Cat("phaseDATA"); break;
 						}
 						line_buf.Space().Cat(RawRecN);
 						PPWaitMsg(line_buf);
@@ -5022,6 +4942,13 @@ int SLAPI FiasImporter::Run(FiasImporter::Param & rP)
 {
 	int    ok = 1;
 	P = rP;
+	if(P.Flags & P.fAcceptToSartreDb) {
+		THROW_MEM(SETIFZ(P_SrDb, new SrDatabase()));
+		THROW(P_SrDb->Open(0, SrDatabase::oWriteStatOnClose));
+	}
+	else {
+		ZDELETE(P_SrDb);
+	}
 	if(P.Flags & P.fImportAddrObj) {
 		THROW(Import(FiasImporter::inpAddrObj));
 	}

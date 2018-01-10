@@ -281,8 +281,8 @@ int SLAPI SCardCore::AddTurnover_Test(PPID id, double add, int use_ta)
 int SLAPI SCardCore::GetCodeRange(const char * pTemplate, SString & rLow, SString & rUpp)
 {
 	int    ok = -1;
-	rLow = 0;
-	rUpp = 0;
+	rLow.Z();
+	rUpp.Z();
 	if(!isempty(pTemplate)) {
 		int    add_check_dig = 0;
 		double low = 0.0, upp = 0.0;
@@ -335,7 +335,7 @@ int SLAPI SCardCore::GetCodeRange(const char * pTemplate, SString & rLow, SStrin
 
 int SLAPI SCardCore::MakeCodeByTemplate(PPID seriesID, const char * pPattern, SString & rCode)
 {
-	rCode = 0;
+	rCode.Z();
 
 	int    ok = -1;
 	//

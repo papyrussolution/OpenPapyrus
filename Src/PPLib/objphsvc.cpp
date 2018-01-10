@@ -1,5 +1,5 @@
 // OBJPHSVC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -226,7 +226,7 @@ int SLAPI PPPhoneServicePacket::SetExField(int fldId, const char * pBuf)
 	return ok;
 }
 
-#define PHNSVC_PW_SIZE 64 // @v9.8.11 20-->64
+#define PHNSVC_PW_SIZE 64 // @v9.8.11 20-->64 // @attention изменение значения требует конвертации хранимого пароля
 
 int SLAPI PPPhoneServicePacket::GetPassword(SString & rBuf) const
 {
@@ -479,7 +479,7 @@ int FASTCALL PhnSvcChannelStatusPool::Get(uint idx, PhnSvcChannelStatus & rStatu
 		rStatus.Seconds = r_item.Seconds;
 		Pool.getnz(r_item.ChannelPos, rStatus.Channel);
 		Pool.getnz(r_item.CallerIdPos, rStatus.CallerId);
-		Pool.getnz(r_item.ConnectedLineNumPos, rStatus.ConnectedLineNum); // @v7.8.0
+		Pool.getnz(r_item.ConnectedLineNumPos, rStatus.ConnectedLineNum);
 	}
 	else
 		ok = 0;
@@ -520,7 +520,7 @@ int AsteriskAmiClient::GetStateVal(const char * pText, long * pState)
 	int    ok = 0;
 	long   _st = 0;
 	for(uint i = 0; !ok && i < SIZEOFARRAY(AsteriskAmiClient::StateList); i++) {
-		if(stricmp(AsteriskAmiClient::StateList[i].P_Str, pText) == 0) {
+		if(sstreqi_ascii(AsteriskAmiClient::StateList[i].P_Str, pText)) {
 			_st = AsteriskAmiClient::StateList[i].State;
 			ok = 1;
 		}
@@ -696,6 +696,19 @@ int AsteriskAmiClient::Message::Get(uint * pPos, SString & rTag, SString & rValu
 		rTag.Strip();
 		rValue.Strip();
 		ok = 1;
+	}
+	return ok;
+}
+
+int AsteriskAmiClient::Message::Parse(StrStrAssocArray & rTags) const
+{
+	int    ok = 0;
+	rTags.Clear();
+	SString temp_buf, tag, value;
+	for(uint p = 0; !ok && get(&p, temp_buf);) {
+		if(temp_buf.Divide(':', tag, value) > 0) {
+			rTags.Add(tag.Strip(), value.Strip(), 0);
+		}
 	}
 	return ok;
 }

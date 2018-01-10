@@ -465,7 +465,7 @@ int SLAPI PPViewSalary::GetSalChargeGroupItems(PPID salChargeGrpID, PPIDArray * 
 int SLAPI PPViewSalary::GetSalChargeName(PPID salChargeID, SString & rName)
 {
 	SString buf;
-	rName = 0;
+	rName.Z();
 	GetObjectName(PPOBJ_SALCHARGE, salChargeID, buf);
 	if(Filt.Flags & SalaryFilt::fCrosstab) {
 		uint pos = 0;

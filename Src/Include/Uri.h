@@ -3,22 +3,25 @@
 // Copyright (C) 2007, Sebastian Pipping <webmaster@hartwork.org>
 // All rights reserved.
 //
-#include <ctype.h>
-#include <string.h>
-#include <stdlib.h>
+//#include <ctype.h>
+//#include <string.h>
+//#include <stdlib.h>
 #include <slib.h>
-
-/* Version helper macro */
-#define URI_ANSI_TO_UNICODE(x) L ## x
-
-/* Version */
+//
+// Version helper macro 
+//
+#define URI_ANSI_TO_UNICODE(x) L ## x 
+//
+// Version 
+//
 #define URI_VER_MAJOR           0
 #define URI_VER_MINOR           7
 #define URI_VER_RELEASE         6
 #define URI_VER_SUFFIX_ANSI     ""
 #define URI_VER_SUFFIX_UNICODE  URI_ANSI_TO_UNICODE(URI_VER_SUFFIX_ANSI)
-
-/* More version helper macros */
+//
+// More version helper macros 
+//
 #define URI_INT_TO_ANSI_HELPER(x) # x
 #define URI_INT_TO_ANSI(x) URI_INT_TO_ANSI_HELPER(x)
 
@@ -26,18 +29,16 @@
 #define URI_INT_TO_UNICODE(x) URI_INT_TO_UNICODE_HELPER(x)
 #define URI_VER_ANSI_HELPER(ma, mi, r, s)    URI_INT_TO_ANSI(ma) "." URI_INT_TO_ANSI(mi) "." URI_INT_TO_ANSI(r) s
 #define URI_VER_UNICODE_HELPER(ma, mi, r, s) URI_INT_TO_UNICODE(ma) L"." URI_INT_TO_UNICODE(mi) L"." URI_INT_TO_UNICODE(r) s
-
-/* Full version strings */
+// Full version strings 
 #define URI_VER_ANSI     URI_VER_ANSI_HELPER(URI_VER_MAJOR, URI_VER_MINOR, URI_VER_RELEASE, URI_VER_SUFFIX_ANSI)
 #define URI_VER_UNICODE  URI_VER_UNICODE_HELPER(URI_VER_MAJOR, URI_VER_MINOR, URI_VER_RELEASE, URI_VER_SUFFIX_UNICODE)
 
-/* Unused parameter macro */
+// Unused parameter macro 
 #ifdef __GNUC__
 	#define URI_UNUSED(x) unused_ ## x __attribute__((unused))
 #else
 	#define URI_UNUSED(x) x
 #endif
-
 #if 0 // {
 // Shared errors 
 #define URI_SUCCESS                        0
@@ -55,22 +56,21 @@
 #define URI_ERROR_REMOVEBASE_REL_BASE      6 // Given base is not absolute 
 #define URI_ERROR_REMOVEBASE_REL_SOURCE    7 // Given base is not absolute 
 #endif // } 0
-/**
- * Holds an IPv4 address.
- */
+// 
+// Holds an IPv4 address.
+// 
 typedef struct UriIp4Struct {
 	uchar data[4]; /**< Each octet in one byte */
 } UriIp4; /**< @copydoc UriIp4Struct */
-/**
- * Holds an IPv6 address.
- */
+// 
+// Holds an IPv6 address.
+// 
 typedef struct UriIp6Struct {
 	uchar data[16]; /**< Each quad in two bytes */
 } UriIp6; /**< @copydoc UriIp6Struct */
-
-/**
- * Specifies a line break conversion mode
- */
+// 
+// Specifies a line break conversion mode
+// 
 typedef enum UriBreakConversionEnum {
 	URI_BR_TO_LF, /**< Convert to Unix line breaks ("\\x0a") */
 	URI_BR_TO_CRLF, /**< Convert to Windows line breaks ("\\x0d\\x0a") */
@@ -85,6 +85,7 @@ typedef enum UriBreakConversionEnum {
 //
 struct UriTextRange {
 	UriTextRange();
+	UriTextRange(const char * pFirst, const char * pAfterLast);
 	void   Clear();
 	UriTextRange & operator = (const UriTextRange & rS);
 	int    Len() const;
@@ -104,13 +105,7 @@ struct UriUri {
 	void   Destroy();
 
 	struct PathSegment {
-		PathSegment(const char * pFirst, const char * pAfterLast)
-		{
-			text.P_First = pFirst;
-			text.P_AfterLast = pAfterLast;
-			next = 0;
-			reserved = 0;
-		}
+		PathSegment(const char * pFirst, const char * pAfterLast);
 		UriTextRange text;     // Path segment name 
 		PathSegment * next;    // Pointer to the next path segment in the list, can be NULL if last already 
 		void * reserved;       // Reserved to the parser 
@@ -188,46 +183,43 @@ struct UriQueryList {
 };
 
 //int UriParseUriEx(UriParserState * state, const char * pFirst, const char * afterLast);
-int UriParseUri(UriParserState * state, const char * text);
+int    UriParseUri(UriParserState * state, const char * text);
 //void UriFreeUriMembers(UriUri*uri);
-char * UriEscapeEx(const char * inFirst, const char * inAfterLast, char * out, int spaceToPlus, int normalizeBreaks);
+char * FASTCALL UriEscapeEx(const char * inFirst, const char * inAfterLast, char * out, int spaceToPlus, int normalizeBreaks);
 char * UriEscape(const char * in, char * out, int spaceToPlus, int normalizeBreaks);
-const char * UriUnescapeInPlaceEx(char * inout, int plusToSpace, UriBreakConversion breakConversion);
-const char * UriUnescapeInPlace(char * inout);
-int UriAddBaseUri(UriUri * absoluteDest, const UriUri * relativeSource, const UriUri*absoluteBase);
-int UriRemoveBaseUri(UriUri * dest, const UriUri * absoluteSource, const UriUri * absoluteBase, int domainRootMode);
-int UriEqualsUri(const UriUri*a, const UriUri*b);
-int FASTCALL UriToStringCharsRequired(const UriUri*uri, int * charsRequired);
-int UriToString(char * dest, const UriUri * uri, int maxChars, int * charsWritten);
-uint FASTCALL UriNormalizeSyntaxMaskRequired(const UriUri * uri);
-int FASTCALL UriNormalizeSyntaxEx(UriUri * uri, uint mask);
-int FASTCALL UriNormalizeSyntax(UriUri * uri);
-int UriUnixFilenameToUriString(const char * filename, char * uriString);
-int UriWindowsFilenameToUriString(const char * filename, char * uriString);
-int UriUriStringToUnixFilename(const char * uriString, char * filename);
-int UriUriStringToWindowsFilename(const char * uriString, char * filename);
-int UriComposeQueryCharsRequired(const UriQueryList*queryList, int * charsRequired);
-int UriComposeQueryCharsRequiredEx(const UriQueryList*queryList, int * charsRequired, int spaceToPlus, int normalizeBreaks);
-int UriComposeQuery(char * dest, const UriQueryList*queryList, int maxChars, int * charsWritten);
-int UriComposeQueryEx(char * dest, const UriQueryList*queryList, int maxChars, int * charsWritten, int spaceToPlus, int normalizeBreaks);
-int UriComposeQueryMalloc(char ** dest, const UriQueryList*queryList);
-int UriComposeQueryMallocEx(char ** dest, const UriQueryList * queryList, int spaceToPlus, int normalizeBreaks);
-int UriDissectQueryMalloc(UriQueryList**dest, int * itemCount, const char * pFirst, const char * afterLast);
-int UriDissectQueryMallocEx(UriQueryList**dest, int * itemCount, const char * pFirst, const char * afterLast, int plusToSpace, UriBreakConversion breakConversion);
-void UriFreeQueryList(UriQueryList*queryList);
-int UriParseIpFourAddress(uchar * octetOutput, const char * pFirst, const char * afterLast);
-
-void UriResetUri(UriUri*uri);
-int UriRemoveDotSegmentsAbsolute(UriUri * uri);
-int UriRemoveDotSegments(UriUri * uri, int relative);
-int UriRemoveDotSegmentsEx(UriUri * uri, int relative, int pathOwned);
-uchar FASTCALL UriHexdigToInt(char hexdig);
-char FASTCALL UriHexToLetter(uint value);
-char FASTCALL UriHexToLetterEx(uint value, int uppercase);
-int UriIsHostSet(const UriUri * uri);
-int UriCopyPath(UriUri * dest, const UriUri * source);
-int UriCopyAuthority(UriUri * dest, const UriUri * source);
-int UriFixAmbiguity(UriUri * uri);
-void UriFixEmptyTrailSegment(UriUri * uri);
-
-
+const  char * UriUnescapeInPlaceEx(char * inout, int plusToSpace, UriBreakConversion breakConversion);
+const  char * UriUnescapeInPlace(char * inout);
+int    UriAddBaseUri(UriUri * absoluteDest, const UriUri * relativeSource, const UriUri*absoluteBase);
+int    UriRemoveBaseUri(UriUri * dest, const UriUri * absoluteSource, const UriUri * absoluteBase, int domainRootMode);
+int    UriEqualsUri(const UriUri*a, const UriUri*b);
+int    FASTCALL UriToStringCharsRequired(const UriUri*uri, int * charsRequired);
+int    UriToString(char * dest, const UriUri * uri, int maxChars, int * charsWritten);
+uint   FASTCALL UriNormalizeSyntaxMaskRequired(const UriUri * uri);
+int    FASTCALL UriNormalizeSyntaxEx(UriUri * uri, uint mask);
+int    FASTCALL UriNormalizeSyntax(UriUri * uri);
+int    UriUnixFilenameToUriString(const char * filename, char * uriString);
+int    UriWindowsFilenameToUriString(const char * filename, char * uriString);
+int    UriUriStringToUnixFilename(const char * uriString, char * filename);
+int    UriUriStringToWindowsFilename(const char * uriString, char * filename);
+int    UriComposeQueryCharsRequired(const UriQueryList*queryList, int * charsRequired);
+int    UriComposeQueryCharsRequiredEx(const UriQueryList*queryList, int * charsRequired, int spaceToPlus, int normalizeBreaks);
+int    UriComposeQuery(char * dest, const UriQueryList*queryList, int maxChars, int * charsWritten);
+int    UriComposeQueryEx(char * dest, const UriQueryList*queryList, int maxChars, int * charsWritten, int spaceToPlus, int normalizeBreaks);
+int    UriComposeQueryMalloc(char ** dest, const UriQueryList*queryList);
+int    UriComposeQueryMallocEx(char ** dest, const UriQueryList * queryList, int spaceToPlus, int normalizeBreaks);
+int    UriDissectQueryMalloc(UriQueryList**dest, int * itemCount, const char * pFirst, const char * afterLast);
+int    UriDissectQueryMallocEx(UriQueryList**dest, int * itemCount, const char * pFirst, const char * afterLast, int plusToSpace, UriBreakConversion breakConversion);
+void   UriFreeQueryList(UriQueryList*queryList);
+int    UriParseIpFourAddress(uchar * octetOutput, const char * pFirst, const char * afterLast);
+void   UriResetUri(UriUri*uri);
+int    UriRemoveDotSegmentsAbsolute(UriUri * uri);
+int    UriRemoveDotSegments(UriUri * uri, int relative);
+int    UriRemoveDotSegmentsEx(UriUri * uri, int relative, int pathOwned);
+uchar  FASTCALL UriHexdigToInt(char hexdig);
+char   FASTCALL UriHexToLetter(uint value);
+char   FASTCALL UriHexToLetterEx(uint value, int uppercase);
+int    UriIsHostSet(const UriUri * uri);
+int    UriCopyPath(UriUri * dest, const UriUri * source);
+int    UriCopyAuthority(UriUri * dest, const UriUri * source);
+int    UriFixAmbiguity(UriUri * uri);
+void   UriFixEmptyTrailSegment(UriUri * uri);

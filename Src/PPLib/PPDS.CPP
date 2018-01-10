@@ -1,5 +1,5 @@
 // PPDS.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2009, 2010, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2009, 2010, 2015, 2016, 2017, 2018
 //
 #pragma hdrstop
 #ifdef PPDSC
@@ -8,12 +8,8 @@
 #include <pp.h>
 #include <ppds.h>
 
-SLAPI PPDeclStruc::PPDeclStruc() : SArray(sizeof(PPDeclStrucItem))
+SLAPI PPDeclStruc::PPDeclStruc() : SArray(sizeof(PPDeclStrucItem)), Id(0), P_Outer(0), UpdateProtocol(0), P_Logger(0)
 {
-	Id = 0;
-	P_Outer = 0;
-	UpdateProtocol = 0;
-	P_Logger = 0;
 }
 
 SLAPI PPDeclStruc::~PPDeclStruc()
@@ -166,7 +162,7 @@ int SLAPI PPDeclStruc::TransferData(SString & rData, Tfd dir, SString & rBuf, in
 		rBuf.Transf(CTRANSF_INNER_TO_OUTER);
 	}
 	else if(dir == tfdBufToData) {
-		rData = 0;
+		rData.Z();
 		rBuf.ToOem();
 		for(uint i = 0; i < rBuf.Len(); i++) {
 			char c = rBuf.C(i);
