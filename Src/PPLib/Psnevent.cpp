@@ -1,5 +1,5 @@
 // PSNEVENT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2418,7 +2418,7 @@ int SLAPI PPObjPersonEvent::Helper_ProcessDeviceInput(ProcessDeviceInputBlock & 
 	rBlk.InfoText = 0;
 	if(rBlk.State & rBlk.stInitialized) {
 		rBlk.Ad.RunCmd("LISTEN", rBlk.Out.Clear());
-		if(rBlk.Out.Get(0, rBlk.TempBuf) > 0 && rBlk.TempBuf.NotEmptyS()) {
+		if(rBlk.Out.GetText(0, rBlk.TempBuf) > 0 && rBlk.TempBuf.NotEmptyS()) {
 			rBlk.InfoText = rBlk.TempBuf;
 
 			PPID   ev_id = 0;

@@ -737,7 +737,7 @@ int SLAPI PPObjBill::SearchPaymWOLinkBill()
 				ArticleTbl::Rec ar_rec;
 				MakeCodeString(&b_rec, 0, code);
 				msg_buf.Z();
-				op_name_ary.Get(b_rec.OpID, msg_buf);
+				op_name_ary.GetText(b_rec.OpID, msg_buf);
 				msg_buf.Space().Cat(code);
 				if(b_rec.Object && ar_obj.Fetch(b_rec.Object, &ar_rec) && ar_rec.Name[0])
 					msg_buf.Space().Cat(ar_rec.Name);

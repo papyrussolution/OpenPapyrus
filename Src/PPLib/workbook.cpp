@@ -2770,7 +2770,7 @@ static int SLAPI SelectWorkbookImpExpConfig(PPWorkbookImpExpParam * pParam, int 
 		PPIniFile ini_file(temp_buf, 0, 1, 1);
 		while(ok < 0 && ListBoxSelDialog(&list, import ? PPTXT_TITLE_WORKBOOKIMPCFG : PPTXT_TITLE_WORKBOOKEXPCFG, &id, 0) > 0) {
 			if(id) {
-				list.Get(id, temp_buf.Z());
+				list.GetText(id, temp_buf);
 				pParam->ProcessName(1, temp_buf);
 				pParam->ReadIni(&ini_file, temp_buf, 0);
 				ok = 1;

@@ -1308,7 +1308,7 @@ int LinkFilesDialog::addItem(long * pPos, long * pID)
 	}
 	if(selected) {
 		uint   pos = 0;
-		ext_list.Get(sel_id, ext);
+		ext_list.GetText(sel_id, ext);
 		THROW(LinksAry.AddNewByExt(ext, descr, &pos) > 0);
 		if((ok = LinksAry.Edit(pos)) > 0) {
 			ASSIGN_PTR(pPos, (long)pos);

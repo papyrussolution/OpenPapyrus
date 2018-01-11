@@ -1403,21 +1403,21 @@ int SLAPI PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pSco
 				w_a.PutInnerSkipEmpty("oref:city", EncText(temp_buf));
 				w_a.PutInnerSkipEmpty("oref:place", "");
 				if(P_Las) {
-					P_Las->Get(P_Las->tStreet, temp_buf);
+					P_Las->GetText(P_Las->tStreet, temp_buf);
 					temp_buf.Strip().Transf(CTRANSF_OUTER_TO_INNER);
 				}
 				else
 					temp_buf.Z();
 				w_a.PutInnerSkipEmpty("oref:street", EncText(temp_buf));
 				if(P_Las) {
-					P_Las->Get(P_Las->tHouse, temp_buf);
+					P_Las->GetText(P_Las->tHouse, temp_buf);
 					temp_buf.Strip().Transf(CTRANSF_OUTER_TO_INNER);
 				}
 				else
 					temp_buf.Z();
 				w_a.PutInnerSkipEmpty("oref:house", EncText(temp_buf));
 				if(P_Las) {
-					P_Las->Get(P_Las->tHouseAddendum, temp_buf);
+					P_Las->GetText(P_Las->tHouseAddendum, temp_buf);
 					temp_buf.Strip().Transf(CTRANSF_OUTER_TO_INNER);
 				}
 				else

@@ -243,7 +243,7 @@ int TDialog::SetCtlSymb(uint id, const char * pSymb)
 int TDialog::GetCtlSymb(uint id, SString & rBuf) const
 {
 	rBuf.Z();
-	return BIN(P_SymbList && P_SymbList->Get((long)id, rBuf) > 0);
+	return BIN(P_SymbList && P_SymbList->GetText((long)id, rBuf) > 0);
 }
 
 int TDialog::InsertCtl(TView * pCtl, uint id, const char * pSymb)

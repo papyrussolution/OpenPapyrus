@@ -308,7 +308,7 @@ int SLAPI PPViewStaffCal::AddItemToTimeGrid(const TempStaffCalTbl::Rec * pRec, i
 			if(row_id <= 0)
 				name_buf = "ALL";
 			else
-				ObjNameList.Get(row_id, name_buf);
+				ObjNameList.GetText(row_id, name_buf);
 			Grid.SetRowText(row_id, name_buf, 1);
 		}
 	}

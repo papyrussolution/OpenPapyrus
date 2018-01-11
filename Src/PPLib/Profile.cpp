@@ -1,5 +1,5 @@
 // PROFILE.CPP
-// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1271,7 +1271,7 @@ int SLAPI PPUserProfileCore::Load(const char * pPath)
 			}
 			PPLoadText(PPTXT_WAIT_UFPLOADPREPROC, msg_buf);
 			PPWaitMsg(msg_buf.Space().Cat(p_set->DbSymb).Space().Cat(p_set->DbUuid.ToStr(S_GUID::fmtIDL, temp_buf)));
-			if(p_set->Set.Get(Profile::fkSession, file_name)) {
+			if(p_set->Set.GetText(Profile::fkSession, file_name)) {
 				(temp_buf = path).Cat(file_name);
 				SFile _f;
 				THROW_SL(SFile::GetTime(temp_buf, &crtm, 0, 0));
@@ -1283,7 +1283,7 @@ int SLAPI PPUserProfileCore::Load(const char * pPath)
 				while(_f.ReadLine(line_buf))
 					line_count_sess++;
 			}
-			if(p_set->Set.Get(Profile::fkFinish, file_name)) {
+			if(p_set->Set.GetText(Profile::fkFinish, file_name)) {
 				(temp_buf = path).Cat(file_name);
 				SFile _f;
 				THROW_SL(SFile::GetTime(temp_buf, &crtm, 0, 0));
@@ -1295,7 +1295,7 @@ int SLAPI PPUserProfileCore::Load(const char * pPath)
 				while(_f.ReadLine(line_buf))
 					line_count_finish++;
 			}
-			if(p_set->Set.Get(Profile::fkStart, file_name)) {
+			if(p_set->Set.GetText(Profile::fkStart, file_name)) {
 				(temp_buf = path).Cat(file_name);
 				SFile _f;
 				THROW_SL(SFile::GetTime(temp_buf, &crtm, 0, 0));
@@ -1314,7 +1314,7 @@ int SLAPI PPUserProfileCore::Load(const char * pPath)
 				msg_buf.Space().Cat(p_set->DbSymb).Space().Cat(p_set->DbUuid.ToStr(S_GUID::fmtIDL, temp_buf));
 
 				StringSet ss(";");
-				if(p_set->Set.Get(Profile::fkSession, file_name)) {
+				if(p_set->Set.GetText(Profile::fkSession, file_name)) {
 					SFile _f;
 					THROW(OpenInputFile((temp_buf = path).Cat(file_name), sti.SessOffs, _f));
 					for(line_no = 0; line_no < line_count_sess && _f.ReadLine(line_buf); line_no++) {
@@ -1330,7 +1330,7 @@ int SLAPI PPUserProfileCore::Load(const char * pPath)
 				{
 					start_list.clear();
 					finish_list.clear();
-					if(p_set->Set.Get(Profile::fkStart, file_name)) {
+					if(p_set->Set.GetText(Profile::fkStart, file_name)) {
 						S_GUID db_uuid;
 						int    kind = ParseUfpFileName(file_name, db_uuid, dbsymb);
 						assert(kind == Profile::fkStart);
@@ -1355,7 +1355,7 @@ int SLAPI PPUserProfileCore::Load(const char * pPath)
 						sti.StartOffs = _f.Tell64();
 						start_list.sort(PTR_CMPFUNC(UserProfileLoadCacheEntry));
 					}
-					if(p_set->Set.Get(Profile::fkFinish, file_name)) {
+					if(p_set->Set.GetText(Profile::fkFinish, file_name)) {
 						S_GUID db_uuid;
 						int    kind = ParseUfpFileName(file_name, db_uuid, dbsymb);
 						assert(kind == Profile::fkFinish);

@@ -499,14 +499,10 @@ public:
 	//
 	enum {
 		psSolid       = PS_SOLID,      // The pen is solid. (==0)
-		psDash        = PS_DASH,       // The pen is dashed.
-			// This style is valid only when the pen width is one or less in device units.
-		psDot         = PS_DOT,        // The pen is dotted.
-			// This style is valid only when the pen width is one or less in device units.
-		psDashDot     = PS_DASHDOT,    // The pen has alternating dashes and dots.
-			// This style is valid only when the pen width is one or less in device units.
-		psDashDotDot  = PS_DASHDOTDOT, // The pen has alternating dashes and double dots.
-			// This style is valid only when the pen width is one or less in device units.
+		psDash        = PS_DASH,       // The pen is dashed. This style is valid only when the pen width is one or less in device units.
+		psDot         = PS_DOT,        // The pen is dotted. This style is valid only when the pen width is one or less in device units.
+		psDashDot     = PS_DASHDOT,    // The pen has alternating dashes and dots. This style is valid only when the pen width is one or less in device units.
+		psDashDotDot  = PS_DASHDOTDOT, // The pen has alternating dashes and double dots. This style is valid only when the pen width is one or less in device units.
 		psNull        = PS_NULL,       // The pen is invisible.
 		psInsideFrame = PS_INSIDEFRAME // The pen is solid. When this pen is used in any GDI drawing
 			// function that takes a bounding rectangle, the dimensions of the figure are shrunk so that
@@ -566,14 +562,8 @@ public:
 		friend int FASTCALL _SetPaintObjInnerHandle(SPaintObj::Base * pBase, SDrawSystem sys, void * h);
 
 		Base();
-		void * GetHandle() const
-		{
-			return Handle;
-		}
-		SDrawSystem GetSys() const
-		{
-			return Sys;
-		}
+		void * GetHandle() const { return Handle; }
+		SDrawSystem GetSys() const { return Sys; }
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	private:
 		void * Handle;
@@ -1156,10 +1146,7 @@ public:
 	//
 	operator const SImageBuffer * () const;
 	int    GetCapability(Capability * pCaps) const;
-	SPaintToolBox & GetToolBox()
-	{
-		return R_Tb;
-	}
+	SPaintToolBox & GetToolBox() { return R_Tb; }
 	// @v9.1.7 {
 	int    FASTCALL SelectObjectAndPush(HGDIOBJ);
 	int    SLAPI PopObject();
@@ -1210,7 +1197,6 @@ public:
 	//   предыдущего вызова BeginScope().
 	//
 	int    FASTCALL EndScope(SRegion & rR);
-
 	int    SLAPI Stroke(int paintObjIdent, int preserve);
 	int    SLAPI Fill(int paintObjIdent, int preserve);
 	int    SLAPI Fill(SColor c, int preseve);
@@ -3146,22 +3132,19 @@ public:
 	long   SLAPI _topItem() const;
 	long   SLAPI _curItem() const;
 	int    SLAPI _isTreeList() const;
-	int    SLAPI SetOption(uint option, int set = 1);
+	void   SLAPI SetOption(uint option, int set = 1);
 	int    SLAPI SetUserData(const void * pData, size_t size);
 	int    SLAPI GetUserData(void * pData, size_t * pSize) const;
 	int    SLAPI HasCapability(long c) const { return BIN(CFlags & c); }
 	int    SLAPI GetImageIdxByID(long id, long * pIDx);
 	HIMAGELIST SLAPI CreateImageList(HINSTANCE hInst);
 	int    SLAPI AddImageAssoc(long itemID, long imageID);
-	int    SLAPI ClearImageAssocList();
+	void   SLAPI ClearImageAssocList();
 	int    SLAPI SetItemColor(long itemID, SColor fgColor, SColor bckgColor);
 	int    SLAPI ResetItemColor(long itemID);
 	int    SLAPI HasItemColorSpec() const;
 	int    SLAPI GetItemColor(long itemID, SColor * pFgColor, SColor * pBckgColor) const;
-	long   SLAPI GetCapability() const
-	{
-		return CFlags;
-	}
+	long   SLAPI GetCapability() const { return CFlags; }
 	StrAssocArray * GetListByPattern(const char * pText);
 //protected:
 	uint   Options;
@@ -5162,17 +5145,12 @@ public:
 	STextBrowser();
 	STextBrowser(const char * pFileName, int toolbarId = -1);
 	~STextBrowser();
-
 	int    Init(const char * pFileName, int toolbarId = -1);
 	int    SetSpecialMode(int spcm);
 	int    WMHCreate();
-	HWND   GetSciWnd() const
-	{
-		return HwndSci;
-	}
+	HWND   GetSciWnd() const { return HwndSci; }
 	int    Resize();
 	int    CmpFileName(const char * pFileName);
-
 	int    FileLoad(const char * pFileName, SCodepage cp, long flags);
 	int    FileSave(const char * pFileName, long flags);
 	int    FileClose();

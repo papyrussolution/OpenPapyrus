@@ -433,7 +433,7 @@ int SLAPI SelectPriceListImportCfg(PPPriceListImpExpParam * pParam, int forExpor
 	if(ListBoxSelDialog(&list, forExport ? PPTXT_PLISTEXPORTCFG : PPTXT_PLISTIMPORTCFG, &id, 0) > 0 && id > 0) {
 		SString sect;
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
-		list.Get(id, sect);
+		list.GetText(id, sect);
 		param.ProcessName(1, sect);
 		param.ReadIni(&ini_file, sect, 0);
 		ok = 1;

@@ -614,7 +614,7 @@ int StyloBhtIICfgDialog::getDTS(StyloBhtIIOnHostCfg * pData)
 	Data.UserName = 0;
 	Data.Password = 0;
 	getCtrlData(CTL_SBIICFG_USER, &user_id);
-	UserList.Get(user_id, Data.UserName);
+	UserList.GetText(user_id, Data.UserName);
 	if(user_id) {
 		PPSecurPacket secur_pack;
 		PPRef->LoadSecur(PPOBJ_USR, user_id, &secur_pack);

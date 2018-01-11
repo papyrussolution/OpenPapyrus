@@ -1360,7 +1360,7 @@ int PrcssrInvImport::EditParam(Param * pParam)
 			long   cfg_id = getCtrlLong(sel = CTLSEL_IEINV_CFG);
 			SString temp_buf;
 			THROW_PP(cfg_id, PPERR_CFGNEEDED);
-			THROW_PP(CfgList.Get(cfg_id, Data.CfgName) > 0, PPERR_CFGNEEDED);
+			THROW_PP(CfgList.GetText(cfg_id, Data.CfgName) > 0, PPERR_CFGNEEDED);
 			Data.OpID = getCtrlLong(sel = CTLSEL_IEINV_OP);
 			THROW_PP(Data.OpID, PPERR_OPRKINDNEEDED);
 			Data.LocID = getCtrlLong(sel = CTLSEL_IEINV_LOC);

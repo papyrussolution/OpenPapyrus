@@ -2454,7 +2454,7 @@ int SFileFormat::GetMime(int id, SString & rMime)
 	int    ok = 0;
 	if(id == Unkn) { // @v9.7.12
 		rMime = "application/octet-stream";
-		ok = -1;
+		ok = 2; // @v9.8.12 -1-->2
 	}
 	else if(GloBaseIdx) {
 		const FileFormatRegBase * p_reg = (FileFormatRegBase *)SLS.GetGlobalObject(GloBaseIdx);

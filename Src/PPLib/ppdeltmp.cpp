@@ -1,5 +1,5 @@
 // PPDELTMP.CPP
-// Copyright (c) A.Osolotkin, A.Sobolev 2001-2003, 2005, 2007, 2013, 2015, 2016, 2017
+// Copyright (c) A.Osolotkin, A.Sobolev 2001-2003, 2005, 2007, 2013, 2015, 2016, 2017, 2018
 // Удаление временных файлов
 //
 #include <pp.h>
@@ -160,7 +160,7 @@ int SLAPI PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 		}
 	}
 	PPMsgLog::RemoveTempFiles();
-	CATCHZOK
+	//CATCHZOK
 	return ok;
 }
 

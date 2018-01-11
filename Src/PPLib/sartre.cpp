@@ -1207,5 +1207,5 @@ void SrImportParam::SetField(int fld, const char * pVal)
 
 int SrImportParam::GetField(int fld, SString & rVal) const
 {
-	return StrItems.Get(fld, rVal);
+	return StrItems.GetText(fld, rVal);
 }

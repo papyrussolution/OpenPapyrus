@@ -2530,7 +2530,7 @@ int SLAPI GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
 		if(!SbcList.DirtyTable.Has(goodsID)) {
 			if(SbcList.ExcTable.Has(goodsID))
 				ok = -1;
-			else if(SbcList.Get(goodsID, rBuf))
+			else if(SbcList.GetText(goodsID, rBuf))
 				ok = 1;
 		}
 		if(!ok) {
@@ -2543,7 +2543,7 @@ int SLAPI GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
 			if(!SbcList.DirtyTable.Has(goodsID)) {
 				if(SbcList.ExcTable.Has(goodsID))
 					ok = -1;
-				else if(SbcList.Get(goodsID, rBuf))
+				else if(SbcList.GetText(goodsID, rBuf))
 					ok = 1;
 			}
 			if(!ok) {

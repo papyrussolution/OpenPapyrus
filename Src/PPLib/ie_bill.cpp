@@ -625,7 +625,7 @@ public:
 			LoadSdRecord(PPREC_CLIBNKDATA, &cb_param.InrRec);
 			getCtrlData(CTLSEL_IEBILLSEL_BILL, &(id = 0));
 			THROW_PP(id, PPERR_INVBILLIMPEXPCFG);
-			HdrList.Get(id, sect);
+			HdrList.GetText(id, sect);
 			cb_param.ProcessName(1, sect);
 			P_Data->CfgNameBill = sect;
 		}
@@ -637,7 +637,7 @@ public:
 			if(!(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp)) {
 				getCtrlData(CTLSEL_IEBILLSEL_BILL, &(id = 0));
 				THROW_PP(id, PPERR_INVBILLIMPEXPCFG);
-				HdrList.Get(id, sect);
+				HdrList.GetText(id, sect);
 				if(!(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp)) {
 					if(!sect.CmpPrefix("DLL_", 1))
 						P_Data->BillParam.BaseFlags |= PPImpExpParam::bfDLL;
@@ -647,7 +647,7 @@ public:
 					if(!(P_Data->BillParam.BaseFlags & PPImpExpParam::bfDLL) && !P_Data->BillParam.PredefFormat) { // @v9.7.8 (!P_Data->BillParam.PredefFormat)
 						if(id || GetOpType(P_Data->OpID) != PPOPT_ACCTURN) { // @v8.4.10
 							THROW_PP(id, PPERR_INVBILLIMPEXPCFG);
-							LineList.Get(id, sect);
+							LineList.GetText(id, sect);
 							P_Data->BRowParam.ProcessName(1, sect);
 							THROW(P_Data->BRowParam.ReadIni(P_IniFile, sect, 0));
 						}
@@ -727,7 +727,7 @@ private:
 		else if(event.isCbSelected(CTLSEL_IEBILLSEL_BILL)) {
 			long   hdr_id = getCtrlLong(CTLSEL_IEBILLSEL_BILL);
 			SString sect;
-			HdrList.Get(hdr_id, sect);
+			HdrList.GetText(hdr_id, sect);
 			if(sect.NotEmpty()) {
 				uint p = 0;
 				if(LineList.SearchByText(sect, 1, &p) > 0)
@@ -744,7 +744,7 @@ private:
 			long row_id = getCtrlLong(CTLSEL_IEBILLSEL_BROW);
 			if(!getCtrlLong(CTLSEL_IEBILLSEL_BILL)) {
 				SString sect;
-				LineList.Get(row_id, sect);
+				LineList.GetText(row_id, sect);
 				if(sect.NotEmpty()) {
 					uint p = 0;
 					if(HdrList.SearchByText(sect, 1, &p) > 0)
@@ -3521,7 +3521,7 @@ int SignBillDialog::DrawList()
 			THROW(Eds.GetSignerNamesInStore(names_arr));
 			if(p_list) {
 				for(uint i = 0; i < names_arr.getCount(); i++) {
-					names_arr.Get(i, signer_name.Z());
+					names_arr.GetText(i, signer_name);
 					THROW_SL(p_list->addItem(i, signer_name.Transf(CTRANSF_OUTER_TO_INNER)));
 				}
 			}
@@ -3534,7 +3534,7 @@ int SignBillDialog::DrawList()
 			THROW(Eds.GetSignFilesForDoc(FileName, files_arr));
 			if(p_list) {
 				for(uint i = 0; i < files_arr.getCount(); i++) {
-					files_arr.Get(i, file_name.Z());
+					files_arr.GetText(i, file_name);
 					THROW_SL(p_list->addItem(i, file_name.Transf(CTRANSF_OUTER_TO_INNER)));
 				}
 			}
@@ -3807,24 +3807,24 @@ int SLAPI PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, Imp
 							PsnObj.GetAddress(manuf_id, address);
 							loc_addr_st.Recognize(address.Transf(CTRANSF_INNER_TO_OUTER));
 							if(world_rec.ZIP[0] == 0)
-								if(loc_addr_st.Get(PPLocAddrStruc::tZip, temp_buf.Z()))
+								if(loc_addr_st.GetText(PPLocAddrStruc::tZip, temp_buf))
 									temp_buf.CopyTo(world_rec.ZIP, sizeof(world_rec.ZIP));
 							STRNSCPY(brow.ManufIndex, world_rec.ZIP);
 							brow.ManufRegionCode = BillParam.ImpExpParamDll.ManufRegionCode; // Вытаскиваем из ini-файла
 							if(region_name.Empty())
-								if(loc_addr_st.Get(PPLocAddrStruc::tLocalArea, temp_buf))
+								if(loc_addr_st.GetText(PPLocAddrStruc::tLocalArea, temp_buf))
 									temp_buf.CopyTo(brow.ManufDistrict, sizeof(brow.ManufDistrict));
 							if(city_name.Empty()) {
-								if(loc_addr_st.Get(PPLocAddrStruc::tCity, temp_buf.Z()))
+								if(loc_addr_st.GetText(PPLocAddrStruc::tCity, temp_buf))
 									temp_buf.CopyTo(brow.ManufCityName, sizeof(brow.ManufCityName));
 							}
 							else
 								city_name.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.ManufCityName, sizeof(brow.ManufCityName));
-							if(loc_addr_st.Get(PPLocAddrStruc::tStreet, temp_buf.Z()))
+							if(loc_addr_st.GetText(PPLocAddrStruc::tStreet, temp_buf))
 								temp_buf.CopyTo(brow.ManufStreet, sizeof(brow.ManufStreet));
-							if(loc_addr_st.Get(PPLocAddrStruc::tHouse, temp_buf.Z()))
+							if(loc_addr_st.GetText(PPLocAddrStruc::tHouse, temp_buf))
 								brow.ManufHouse = temp_buf.ToLong();
-							if(loc_addr_st.Get(PPLocAddrStruc::tCorp, temp_buf.Z()))
+							if(loc_addr_st.GetText(PPLocAddrStruc::tCorp, temp_buf))
 								brow.ManufHousing = temp_buf.ToLong();
 							//
 							// Смотрим инфу о лицензии
@@ -4849,7 +4849,7 @@ int SLAPI Generator_DocNalogRu::WriteAddress(const PPLocationPacket & rP, int re
 		// Резидент
 		SXml::WNode n_i(P_X, GetToken(PPHSC_RU_ADDR_RF));
 		{
-			las.Get(PPLocAddrStruc::tZip, temp_buf);
+			las.GetText(PPLocAddrStruc::tZip, temp_buf);
 			if(temp_buf.Empty())
 				LocationCore::GetExField(&rP, LOCEXSTR_ZIP, temp_buf);
 			n_i.PutAttribSkipEmpty(GetToken(PPHSC_RU_INDEX), EncText(temp_buf));
@@ -4861,17 +4861,17 @@ int SLAPI Generator_DocNalogRu::WriteAddress(const PPLocationPacket & rP, int re
 			n_i.PutAttrib(GetToken(PPHSC_RU_CITY), EncText(temp_buf));
 			//n_i.PutAttrib("НаселПункт", "");
 		}
-		else if(las.Get(PPLocAddrStruc::tCity, temp_buf)) {
+		else if(las.GetText(PPLocAddrStruc::tCity, temp_buf)) {
 			n_i.PutAttrib(GetToken(PPHSC_RU_CITY), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
 		}
-		if(las.Get(PPLocAddrStruc::tStreet, temp_buf)) {
+		if(las.GetText(PPLocAddrStruc::tStreet, temp_buf)) {
 			n_i.PutAttrib(GetToken(PPHSC_RU_STREET), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
 		}
-		if(las.Get(PPLocAddrStruc::tHouse, temp_buf)) {
+		if(las.GetText(PPLocAddrStruc::tHouse, temp_buf)) {
 			n_i.PutAttrib(GetToken(PPHSC_RU_HOUSE), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
 		}
 		//n_i.PutAttrib("Корпус", "");
-		if(las.Get(PPLocAddrStruc::tApart, temp_buf))
+		if(las.GetText(PPLocAddrStruc::tApart, temp_buf))
 			n_i.PutAttrib(GetToken(PPHSC_RU_APARTM), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
 	}
 	return ok;

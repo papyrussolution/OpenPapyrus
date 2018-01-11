@@ -2606,7 +2606,12 @@ int SLAPI PPBillPacket::LoadTItem(const PPTransferItem * pItem, const char * pCl
 		THROW(ClbL.AddNumber(pos, pClb));
 	if(pSerial)
 		THROW(SnL.AddNumber(pos, pSerial)); */
-	// @v9.8.11 @todo
+	// @v9.8.12 {
+	if(pClb)
+		LTagL.AddNumber(PPTAG_LOT_CLB, pos, pClb); 
+	if(pSerial)
+		LTagL.AddNumber(PPTAG_LOT_SN, pos, pSerial);
+	// } @v9.8.12
 	CATCHZOK
 	return ok; // @v9.5.1 @fix 1-->ok
 }
@@ -4086,8 +4091,8 @@ int SLAPI PPBillPacket::GetComplete(PPID lotID, CompleteArray * pList)
 						item.Price   = p_ti->Price;
 						item.Flags  |= CompleteItem::fSource; // @v9.0.4
 						// @v9.8.11 SnL.GetNumber(p-1, &serial);
-						// @v9.8.11 serial.CopyTo(item.Serial, sizeof(item.Serial));
-						// @v9.8.11 @todo
+						LTagL.GetTagStr(p-1, PPTAG_LOT_SN, serial); // @v9.8.12
+						serial.CopyTo(item.Serial, sizeof(item.Serial));
 						THROW_SL(pList->insert(&item));
 						ok = 1;
 					}
@@ -4103,8 +4108,8 @@ int SLAPI PPBillPacket::GetComplete(PPID lotID, CompleteArray * pList)
 					item.Cost    = p_ti->Cost;
 					item.Price   = p_ti->Price;
 					// @v9.8.11 SnL.GetNumber(p-1, &serial);
-					// @v9.8.11 serial.CopyTo(item.Serial, sizeof(item.Serial));
-					// @v9.8.11 @todo
+					LTagL.GetTagStr(p-1, PPTAG_LOT_SN, serial); // @v9.8.12
+					serial.CopyTo(item.Serial, sizeof(item.Serial));
 					item.Flags  |= CompleteItem::fExclude;
 					THROW_SL(pList->insert(&item));
 					pList->RemoveExludedItems(p_ti->LotID);
@@ -4494,7 +4499,7 @@ int SLAPI PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemE
 						p_i->Seen.add(idx);
 						if(pExt) {
 							// @v9.8.11 ClbL.GetNumber(idx, &pExt->Clb);
-							// @v9.8.11 @todo
+							LTagL.GetTagStr(idx, PPTAG_LOT_CLB, pExt->Clb); // @v9.8.12
 							pExt->Pckg = p_pckg->Code;
 						}
 						return 1;
@@ -4552,7 +4557,7 @@ int SLAPI PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemE
 						pTI->Cost = 0.0;
 					if(pExt) {
 						// @v9.8.11 ClbL.GetNumber(_idx, &pExt->Clb);
-						// @v9.8.11 @todo
+						LTagL.GetTagStr(_idx, PPTAG_LOT_CLB, pExt->Clb); // @v9.8.12
 						if(p_i->Flags & ETIEF_DISPOSE && p_p->DisposePos >= 0 && p_p->DisposePos < (int)p_i->DispList.getCount())
 							pExt->LctRec = p_i->DispList.at(p_p->DisposePos);
 					}
@@ -4577,7 +4582,7 @@ int SLAPI PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemE
 						pTI->Cost = 0;
 					if(pExt) {
 						// @v9.8.11 ClbL.GetNumber(_idx, &pExt->Clb);
-						// @v9.8.11 @todo
+						LTagL.GetTagStr(_idx, PPTAG_LOT_CLB, pExt->Clb); // @v9.8.12
 					}
 					return 1;
 				}

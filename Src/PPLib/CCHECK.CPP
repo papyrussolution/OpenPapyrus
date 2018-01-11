@@ -939,7 +939,7 @@ int SLAPI CCheckPacket::Helper_SetLineTextExt(int pos /* 1.. */, int lnextId, St
 {
 	int    ok = 1;
 	SString common_buf;
-	rList.Get(pos, common_buf);
+	rList.GetText(pos, common_buf);
 	PPPutExtStrData(lnextId, common_buf, pText);
 	common_buf.Strip();
 	rList.Add(pos, common_buf, 1);
@@ -951,7 +951,7 @@ int SLAPI CCheckPacket::Helper_GetLineTextExt(int pos /* 1.. */, int lnextId, co
 {
 	int    ok = 0;
 	SString common_buf;
-	rList.Get(pos, common_buf);
+	rList.GetText(pos, common_buf);
 	if(common_buf.NotEmpty())
 		ok = PPGetExtStrData(lnextId, common_buf, rBuf);
 	return ok;

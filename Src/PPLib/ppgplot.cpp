@@ -156,7 +156,7 @@ int PPGpPlotItem::ToStr(SString & rBuf) const
 			if(idx > 0)
 				rBuf.Cat(idx);
 			else {
-				int r = StrIdxList.Get(idx, temp_buf);
+				int r = StrIdxList.GetText(idx, temp_buf);
 				assert(r);
 				rBuf.Cat(temp_buf);
 			}

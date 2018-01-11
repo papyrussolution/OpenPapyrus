@@ -839,7 +839,7 @@ int SLAPI DL200_Context::ResolveFunc(int funcId, FC & rFc)
 {
 	int    ok = 1;
 	SString func_name;
-	if(FuncList.Get(funcId, func_name)) {
+	if(FuncList.GetText(funcId, func_name)) {
 		func_name.Cat(rFc.StrArg);
 		DL2_Score sc;
 		sc.Init(P_Resolver);

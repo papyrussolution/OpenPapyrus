@@ -3054,7 +3054,6 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 								LDATETIME last_purge_time = getcurdatetime_();
 								LDATETIME last_sj_time = ZERODATETIME;
 								LDATETIME last_phnsvc_time = ZERODATETIME;
-								//TSVector <PPAdviseEvent> temp_list; // @v9.8.4 TSArray-->TSVector
 								PPAdviseEventVector temp_list;
 								PhnSvcChannelStatusPool chnl_status_list; // @v9.8.11
 								PhnSvcChannelStatus chnl_status; // @v9.8.11
@@ -3138,15 +3137,17 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 											r = (WAIT_OBJECT_0 + 2);
 										}
 										else
-											r = ::WaitForMultipleObjects(h_count, h_list, 0, /*CycleMs*/INFINITE);
+											r = ::WaitForMultipleObjects(h_count, h_list, 0, /*CycleMs*//*INFINITE*/60000);
 										switch(r) {
-											//if(r == WAIT_OBJECT_0 + 0) { // timer
 											case (WAIT_OBJECT_0 + 0): // stop event
 												stop = 1; // quit loop
 												break;
+											case WAIT_TIMEOUT: 
+												// Если по каким-то причинам сработал таймаут, то перезаряжаем цикл по-новой
+												// Предполагается, что это событие крайне маловероятно!
+												break;
 											case (WAIT_OBJECT_0 + 2): // timer_phsvc event
 												if(p_phnsvc_cli) {
-													//
 													PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
 													if(p_queue) {
 														temp_list.Clear();
@@ -3184,12 +3185,10 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 															p_queue->Push(temp_list);
 														}
 													}
-													//
 													last_phnsvc_time = getcurdatetime_();
 												}
 												break;
 											case (WAIT_OBJECT_0 + 1): // timer_sj event
-											//case WAIT_TIMEOUT:
 												{
 													LDATETIME last_ev_dtm = ZERODATETIME;
 													temp_list.Clear();
@@ -3233,7 +3232,18 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 															}
 														}
 													}
-													last_sj_time = getcurdatetime_();
+													{
+														dtm = getcurdatetime_();
+														// @v9.8.12 { 
+														// Если время последнего события превышает текущее время, то придется
+														// считать, что Since равно текущему времени.
+														// Такая ситуация возможна при сбое часов одного из компьютеров, генерирующего
+														// события в системном журнале.
+														if(cmp(Since, dtm) > 0)
+															Since = dtm;
+														// } @v9.8.12 
+														last_sj_time = dtm;
+													}
 												}
 												break;
 											case WAIT_FAILED:
@@ -3481,14 +3491,13 @@ int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAd
 
 			uint   dirty_call_count = 0;
 			PPAdviseList adv_list;
-			struct SjEntry {
+			struct SjEntry { // @flat
 				int16  Action;
 				int16  ObjType;
 				PPID   ObjID;
 				long   Extra;
 			};
-			SVector list(sizeof(SjEntry), /*64,*/O_ARRAY); // @v9.8.4 SArray-->SVector
-
+			SVector list(sizeof(SjEntry), O_ARRAY); // @v9.8.4 SArray-->SVector
 			//TSVector <PPAdviseEvent> evq_list; // @v9.8.4 TSArray-->TSVector
 			PPAdviseEventVector evq_list;
 			PPAdviseEventQueue * p_queue = (pCli && !CheckExtFlag(ECF_DISABLEASYNCADVQUEUE)) ? CMng.GetAdviseEventQueue(dbPathID) : 0;
@@ -4255,12 +4264,13 @@ int SLAPI PPAdviseList::Advise(long * pCookie, const PPAdviseBlock * pBlk)
 	return ok;
 }
 
-int SLAPI PPSession::Advise(long * pCookie, const PPAdviseBlock * pBlk)
-	{ return AdvList.Advise(pCookie, pBlk); }
-int SLAPI PPSession::Unadvise(long cookie)
-	{ return AdvList.Advise(&cookie, 0); }
-int SLAPI PPSession::GetAdviseList(int kind, PPID objType, PPAdviseList & rList)
-	{ return AdvList.CreateList(kind, GetConstTLA().GetThreadID(), DBS.GetDbPathID(), objType, rList); }
+int SLAPI PPSession::Advise(long * pCookie, const PPAdviseBlock * pBlk) { return AdvList.Advise(pCookie, pBlk); }
+int SLAPI PPSession::Unadvise(long cookie) { return AdvList.Advise(&cookie, 0); } 
+
+int SLAPI PPSession::GetAdviseList(int kind, PPID objType, PPAdviseList & rList) 
+{ 
+	return AdvList.CreateList(kind, GetConstTLA().GetThreadID(), DBS.GetDbPathID(), objType, rList); 
+}
 
 void SLAPI PPSession::ProcessIdle()
 {
@@ -4504,12 +4514,12 @@ int SLAPI PPSession::GetObjectTitle(PPID objType, SString & rBuf)
 	}
 	else if(P_ObjIdentBlk) {
 		if(objType >= PPOBJ_FIRST_CFG_OBJ && objType < PPOBJ_LAST_CFG_OBJ) {
-			if(P_ObjIdentBlk->TitleList.Get(objType, rBuf) > 0)
+			if(P_ObjIdentBlk->TitleList.GetText(objType, rBuf) > 0)
 				ok = 2;
 			else
 				rBuf.Z().Cat(objType);
 		}
-		else if(P_ObjIdentBlk->TitleList.Get(objType, rBuf) > 0)
+		else if(P_ObjIdentBlk->TitleList.GetText(objType, rBuf) > 0)
 			ok = 1;
 		else {
 			int    found = 0;
@@ -4871,7 +4881,7 @@ int PPAdviseEventQueue::Purge()
 					}
 				}
 			}
-			Pack(); // @v9.8.11
+			PPAdviseEventVector::Pack(); // @v9.8.11
 		}
 	}
 	return ok;

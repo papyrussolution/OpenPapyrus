@@ -4818,7 +4818,7 @@ static int SLAPI SelectSCardImportCfgs(PPSCardImpExpParam * pParam, int import)
 			// ¬ режиме автоматического тестировани€ конфигураци€ выбираетс€ автоматически по имени pParam->Name
 			//
 			for(int i = 1; ok < 0 && i < (int)list.getCount(); i++) {
-				list.Get(i, sect.Z());
+				list.GetText(i, sect);
 				if(strstr(sect, pParam->Name)) {
 					pParam->ProcessName(1, sect);
 					pParam->ReadIni(&ini_file, sect, 0);
@@ -4828,7 +4828,7 @@ static int SLAPI SelectSCardImportCfgs(PPSCardImpExpParam * pParam, int import)
 		#endif
 		while(ok < 0 && ListBoxSelDialog(&list, PPTXT_TITLE_SCARDIMPCFG, &id, 0) > 0) {
 			if(id) {
-				list.Get(id, sect.Z());
+				list.GetText(id, sect);
 				pParam->ProcessName(1, sect);
 				pParam->ReadIni(&ini_file, sect, 0);
 				valid_data = ok = 1;
@@ -4899,7 +4899,7 @@ int SLAPI PPSCardImporter::Run(const char * pCfgName, int use_ta)
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
 		SString sect;
 		for(int i = 1; i < (int)list.getCount(); i++) {
-			list.Get(i, sect);
+			list.GetText(i, sect);
 			if(strstr(sect, pCfgName)) {
 				Param.ProcessName(1, sect);
 				Param.ReadIni(&ini_file, sect, 0);

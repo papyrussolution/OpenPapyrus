@@ -68,7 +68,7 @@ int SLAPI ObjCache::ExtTextBlock::Fetch(PPID id, SString & rBuf, void * extraPtr
 		//Lock.ReadLock();
 		SRWLOCKER(Lock, SReadWriteLocker::Read);
 		if(!MissingList.Has(id)) {
-			if(List.Get(id, rBuf) > 0)
+			if(List.GetText(id, rBuf) > 0)
 				ok = 1;
 			else {
 				//Lock.Unlock();

@@ -2236,7 +2236,7 @@ int PPImpExp::ResolveFormula(const char * pFormula, const void * pInnerBuf, size
 	/*if(inner_expr_ctx)
 		delete p_expr_ctx;*/
 	if(P_ExprContext) {
-		p_expr_ctx->SetInnerContext(&own_expr_ctx);
+		p_expr_ctx->SetInnerContext(&own_expr_ctx); // @v9.8.12 @fix &own_expr_ctx-->0
 	}
 	return ok;
 }

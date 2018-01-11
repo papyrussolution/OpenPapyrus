@@ -732,7 +732,7 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 								THROW(SearchTypeID(arg_type_id, 0, &te));
 								const  size_t arg_sp = AllocStackType(arg_type_id, &te);
 								arg_pos_list.Add(arg_sp);
-								rArgList.Get(arg_no, arg_buf);
+								rArgList.GetText(arg_no, arg_buf);
 								if(te.T.IsZStr(&(slen = 0))) {
 									SString * p_str = *(SString **)S.GetPtr(arg_sp);
 									assert(p_str);

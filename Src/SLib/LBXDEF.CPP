@@ -62,10 +62,9 @@ int SLAPI ListBoxDef::GetUserData(void * pData, size_t * pSize) const
 	}
 }
 
-int SLAPI ListBoxDef::SetOption(uint option, int set)
+void SLAPI ListBoxDef::SetOption(uint option, int set)
 {
 	SETFLAG(Options, option, set);
-	return 1;
 }
 
 void SLAPI ListBoxDef::setViewHight(int vh)
@@ -264,11 +263,10 @@ int SLAPI ListBoxDef::AddImageAssoc(long itemID, long imageID)
 	return ImageAssoc.Add(itemID, imageID, 0);
 }
 
-int SLAPI ListBoxDef::ClearImageAssocList()
+void SLAPI ListBoxDef::ClearImageAssocList()
 {
 	ImageAssoc.freeAll();
 	ImageIdxAssoc.freeAll();
-	return 1;
 }
 
 int SLAPI ListBoxDef::ResetItemColor(long itemID)
@@ -791,7 +789,7 @@ int SLAPI StdTreeListBoxDef::GetStringByID(long id, SString & rBuf)
 	rBuf.Z();
 	if(valid()) {
 		if(P_SaList) {
-			ok = BIN(P_SaList->Get(id, rBuf));
+			ok = BIN(P_SaList->GetText(id, rBuf));
 		}
 	}
 	return ok;

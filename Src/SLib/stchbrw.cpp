@@ -196,7 +196,7 @@ int STimeChunkGrid::GetText(int item, long id, SString & rBuf)
 	int    ok = 1;
 	rBuf.Z();
 	if(item == iRow) {
-		if(NameList.Get(id, rBuf))
+		if(NameList.GetText(id, rBuf))
 			ok = 1;
 	}
 	return ok;
@@ -2245,7 +2245,7 @@ STimeChunk FASTCALL STimeChunkBrowser::GetBoundsTime(const Area & rArea) const
 int STimeChunkBrowser::GetChunkText(long chunkId, SString & rBuf)
 {
 	int    ok = -1;
-	if(ChunkTextCache.Get(chunkId, rBuf))
+	if(ChunkTextCache.GetText(chunkId, rBuf))
 		ok = 1;
 	else if(P_Data->GetText(STimeChunkGrid::iChunk, chunkId, rBuf) > 0) {
 		ChunkTextCache.Add(chunkId, rBuf./* @v8.9.10 ReplaceCR().*/ToChar(), 1);

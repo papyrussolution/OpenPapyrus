@@ -275,7 +275,7 @@ static int SLAPI SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 			// ¬ режиме автоматического тестировани€ конфигураци€ выбираетс€ автоматически по имени pParam->Name
 			//
 			for(int i = 1; ok < 0 && i < (int)list.getCount(); i++) {
-				list.Get(i, sect.Z());
+				list.GetText(i, sect);
 				if(strstr(sect, pParam->Name)) {
 					pParam->ProcessName(1, sect);
 					pParam->ReadIni(&ini_file, sect, 0);
@@ -285,7 +285,7 @@ static int SLAPI SelectQuotImportCfgs(PPQuotImpExpParam * pParam, int import)
 		#endif
 		while(ok < 0 && ListBoxSelDialog(&list, PPTXT_TITLE_QUOTIMPCFG, &id, 0) > 0) {
 			if(id) {
-				list.Get(id, sect.Z());
+				list.GetText(id, sect);
 				pParam->ProcessName(1, sect);
 				pParam->ReadIni(&ini_file, sect, 0);
 				valid_data = ok = 1;
@@ -318,7 +318,7 @@ int SLAPI PPQuotImporter::Run(const char * pCfgName, int use_ta)
 		THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
 		for(uint i = 1; i < list.getCount(); i++) {
-			list.Get(i, temp_buf.Z());
+			list.GetText(i, temp_buf);
 			if(temp_buf.CmpPrefix(pCfgName, 1) == 0) {
 				Param.ProcessName(1, temp_buf);
 				Param.ReadIni(&ini_file, temp_buf, 0);
@@ -819,7 +819,7 @@ int SLAPI SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 		// ¬ режиме тестировани€ - начало {
 		#if SLTEST_RUNNING
 			for(int i = 1; i < (int)list.getCount(); i++) {
-				list.Get(i, sect.Z());
+				list.GetText(i, sect);
 				if(strstr(sect, pParam->Name)) {
 					pParam->ProcessName(1, sect);
 					pParam->ReadIni(&ini_file, sect, 0);
@@ -836,7 +836,7 @@ int SLAPI SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			id = dlg->getCtrlLong(CTLSEL_IEGOODS_CFG);
 			if(id) {
-				list.Get(id, sect.Z());
+				list.GetText(id, sect);
 				pParam->ProcessName(1, sect);
 				pParam->ReadIni(&ini_file, sect, 0);
 				loc_id = dlg->getCtrlLong(CTLSEL_IEGOODS_LOC);
@@ -2154,7 +2154,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 			Param.Direction = 1;
 			THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_GOODS2, &param, &list, 2));
 			for(uint i = 1; i < list.getCount(); i++) {
-				list.Get(i, temp_buf2.Z());
+				list.GetText(i, temp_buf2);
 				if(strstr(temp_buf2, pCfgName)) {
 					Param.ProcessName(1, temp_buf2);
 					Param.ReadIni(&ini_file, temp_buf2, 0);

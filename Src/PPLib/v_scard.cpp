@@ -664,53 +664,53 @@ int SLAPI PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCar
 					//temp_buf.CopyTo(pDestRec->Address, sizeof(pDestRec->Address));
 					StrPool.AddS(temp_buf, &pDestRec->AddressP); // @v9.8.9
 					Las.Recognize(temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
-					if(Las.Get(PPLocAddrStruc::tZip, temp_buf)) {
+					if(Las.GetText(PPLocAddrStruc::tZip, temp_buf)) {
 						temp_buf.Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->ZIP, sizeof(pDestRec->ZIP));
 						StrPool.AddS(result_buf, &pDestRec->ZipP); // @v9.8.9
 					}
-					if(Las.Get(PPLocAddrStruc::tLocalArea, temp_buf)) {
+					if(Las.GetText(PPLocAddrStruc::tLocalArea, temp_buf)) {
 						result_buf.Z();
-						if(Las.Get(PPLocAddrStruc::tLocalAreaKind, temp_buf2))
+						if(Las.GetText(PPLocAddrStruc::tLocalAreaKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
 						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->LocalArea, sizeof(pDestRec->LocalArea));
 						StrPool.AddS(result_buf, &pDestRec->LocalAreaP); // @v9.8.9
 					}
-					if(Las.Get(PPLocAddrStruc::tCity, temp_buf)) {
+					if(Las.GetText(PPLocAddrStruc::tCity, temp_buf)) {
 						result_buf.Z();
-						if(Las.Get(PPLocAddrStruc::tCityKind, temp_buf2))
+						if(Las.GetText(PPLocAddrStruc::tCityKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
 						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->City, sizeof(pDestRec->City));
 						StrPool.AddS(result_buf, &pDestRec->CityP); // @v9.8.9
 					}
-					if(Las.Get(PPLocAddrStruc::tStreet, temp_buf)) {
+					if(Las.GetText(PPLocAddrStruc::tStreet, temp_buf)) {
 						result_buf.Z();
-						if(Las.Get(PPLocAddrStruc::tStreetKind, temp_buf2))
+						if(Las.GetText(PPLocAddrStruc::tStreetKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
 						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->Street, sizeof(pDestRec->Street));
 						StrPool.AddS(result_buf, &pDestRec->StreetP); // @v9.8.9
 					}
-					if(Las.Get(PPLocAddrStruc::tHouse, temp_buf)) {
+					if(Las.GetText(PPLocAddrStruc::tHouse, temp_buf)) {
 						result_buf.Z();
-						if(Las.Get(PPLocAddrStruc::tHouseKind, temp_buf2))
+						if(Las.GetText(PPLocAddrStruc::tHouseKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
 						result_buf.Cat(temp_buf);
-						if(Las.Get(PPLocAddrStruc::tHouseAddendum, temp_buf)) {
+						if(Las.GetText(PPLocAddrStruc::tHouseAddendum, temp_buf)) {
 							result_buf.Space();
-							if(Las.Get(PPLocAddrStruc::tHouseAddendumKind, temp_buf2))
+							if(Las.GetText(PPLocAddrStruc::tHouseAddendumKind, temp_buf2))
 								result_buf.Cat(temp_buf2).Space();
 							result_buf.Cat(temp_buf);
 						}
 						result_buf.Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->House, sizeof(pDestRec->House));
 						StrPool.AddS(result_buf, &pDestRec->HouseP); // @v9.8.9
 					}
-					if(Las.Get(PPLocAddrStruc::tApart, temp_buf)) {
+					if(Las.GetText(PPLocAddrStruc::tApart, temp_buf)) {
 						result_buf.Z();
-						if(Las.Get(PPLocAddrStruc::tApartKind, temp_buf2))
+						if(Las.GetText(PPLocAddrStruc::tApartKind, temp_buf2))
 							result_buf.Cat(temp_buf2).Space();
 						result_buf.Cat(temp_buf).Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->Apart, sizeof(pDestRec->Apart));
 						StrPool.AddS(result_buf, &pDestRec->ApartP); // @v9.8.9
 					}
-					if(Las.Get(PPLocAddrStruc::tAddendum, temp_buf)) {
+					if(Las.GetText(PPLocAddrStruc::tAddendum, temp_buf)) {
 						temp_buf.Transf(CTRANSF_OUTER_TO_INNER); //.CopyTo(pDestRec->AddrAddend, sizeof(pDestRec->AddrAddend));
 						StrPool.AddS(temp_buf, &pDestRec->AddrAddendP); // @v9.8.9
 					}

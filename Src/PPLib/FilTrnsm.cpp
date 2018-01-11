@@ -548,7 +548,7 @@ int SLAPI PutFilesToEmail2(const StringSet * pFileList, PPID mailAccID, const ch
 			msg.SetField(SMailMessage::fldTo,   pDestAddr);
 			if(pFileList) {
 				for(uint i = 0; pFileList->get(&i, file_path);) {
-					THROW(!::fileExists(file_path) || msg.AttachFile(0, SFileFormat::Unkn, file_path));
+					THROW_SL(!::fileExists(file_path) || msg.AttachFile(0, SFileFormat::Unkn, file_path));
 				}
 			}
 			mac_rec.GetExtField(MAEXSTR_SENDSERVER, temp_buf);

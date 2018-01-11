@@ -337,10 +337,10 @@ int SSvg::GetViewPortAttr(StrAssocArray & rAttrList, SViewPort & rVp)
 {
 	int    ok = 1;
 	SString temp_buf;
-	if(rAttrList.Get(tViewBox, temp_buf)) {
+	if(rAttrList.GetText(tViewBox, temp_buf)) {
 		THROW(rVp.FromStr(temp_buf, SViewPort::fmtSVG));
 	}
-	if(rAttrList.Get(tPreserveAspectRatio, temp_buf)) {
+	if(rAttrList.GetText(tPreserveAspectRatio, temp_buf)) {
 		THROW(rVp.FromStr(temp_buf, SViewPort::fmtSVG));
 	}
 	CATCHZOK
@@ -646,7 +646,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 					SDrawPath * p_path = new SDrawPath;
 					THROW_S(p_path, SLERR_NOMEM);
 					GetAttrList(p_node, attr_list);
-					if(attr_list.Get(tD, temp_buf) > 0)
+					if(attr_list.GetText(tD, temp_buf) > 0)
 						p_path->FromStr(temp_buf, SDrawPath::fmtSVG);
 					THROW(_GetCommonFigAttrAndInsert(attr_list, cfa, p_path, &rGroup));
 				}
@@ -797,7 +797,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 				{
 					FShape::Polygon polygon;
 					GetAttrList(p_node, attr_list);
-					if(attr_list.Get(tPoints, temp_buf) > 0) {
+					if(attr_list.GetText(tPoints, temp_buf) > 0) {
 						if(_GetPoints(rTempScan, temp_buf, polygon))
 							coord_ready |= 0x0001;
 						else {
@@ -815,7 +815,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 				{
 					FShape::Polyline polyline;
 					GetAttrList(p_node, attr_list);
-					if(attr_list.Get(tPoints, temp_buf) > 0) {
+					if(attr_list.GetText(tPoints, temp_buf) > 0) {
 						if(_GetPoints(rTempScan, temp_buf, polyline))
 							coord_ready |= 0x0001;
 						else {
@@ -847,7 +847,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 					int    units = 0;
 					const  SPaintObj::Gradient * p_prototype = 0;
 					GetAttrList(p_node, attr_list);
-					if(attr_list.Get(tGradientUnits, temp_buf)) {
+					if(attr_list.GetText(tGradientUnits, temp_buf)) {
 						if(temp_buf == "userSpaceOnUse")
 							units = SPaintObj::Gradient::uUserSpace;
 						else if(temp_buf == "objectBoundingBox")
@@ -858,9 +858,9 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 					}
 					SPaintObj::Gradient gradient(((token == tLinearGradient) ?
 						SPaintObj::Gradient::kLinear : SPaintObj::Gradient::kRadial), units);
-					if(attr_list.Get(tId, temp_buf))
+					if(attr_list.GetText(tId, temp_buf))
 						sid = temp_buf;
-					if(attr_list.Get(tHRef, temp_buf)) {
+					if(attr_list.GetText(tHRef, temp_buf)) {
 						if(p_tb) {
 							temp_buf.ShiftLeftChr('#');
 							SPaintObj * p_obj = p_tb->GetObjBySymb(MakePaintObjSymb(temp_buf), SPaintObj::tGradient);
@@ -878,7 +878,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 							}
 						}
 					}
-					if(attr_list.Get(tSpreadMethod, temp_buf)) {
+					if(attr_list.GetText(tSpreadMethod, temp_buf)) {
 						if(temp_buf == "pad")
 							gradient.Spread = gradient.sPad;
 						else if(temp_buf == "reflect")
@@ -889,7 +889,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 							; // @error
 						}
 					}
-					if(attr_list.Get(tGradientTransform, temp_buf)) {
+					if(attr_list.GetText(tGradientTransform, temp_buf)) {
 						if(!gradient.Tf.FromStr(temp_buf, LMatrix2D::fmtSVG)) {
 							gradient.Tf.InitUnit();
 							// @error
@@ -899,26 +899,26 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 						float f = 0.0f;
 						int   pct = 0;
 						if(token == tLinearGradient) {
-							if(attr_list.Get(tX1, temp_buf)) {
+							if(attr_list.GetText(tX1, temp_buf)) {
 								_GetGradientCoord(temp_buf, f, pct);
 								gradient.SetLinearCoord(SPaintObj::Gradient::lcX1, f, pct);
 							}
 							else if(!p_prototype)
 								gradient.SetLinearCoord(SPaintObj::Gradient::lcX1, 0.0f, 1);
 
-							if(attr_list.Get(tY1, temp_buf)) {
+							if(attr_list.GetText(tY1, temp_buf)) {
 								_GetGradientCoord(temp_buf, f, pct);
 								gradient.SetLinearCoord(SPaintObj::Gradient::lcY1, f, pct);
 							}
 							else if(!p_prototype)
 								gradient.SetLinearCoord(SPaintObj::Gradient::lcY1, 0.0f, 1);
-							if(attr_list.Get(tX2, temp_buf)) {
+							if(attr_list.GetText(tX2, temp_buf)) {
 								_GetGradientCoord(temp_buf, f, pct);
 								gradient.SetLinearCoord(SPaintObj::Gradient::lcX2, f, pct);
 							}
 							else if(!p_prototype)
 								gradient.SetLinearCoord(SPaintObj::Gradient::lcX2, 100.0f, 1);
-							if(attr_list.Get(tY2, temp_buf)) {
+							if(attr_list.GetText(tY2, temp_buf)) {
 								_GetGradientCoord(temp_buf, f, pct);
 								gradient.SetLinearCoord(SPaintObj::Gradient::lcY2, f, pct);
 							}
@@ -926,25 +926,25 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 								gradient.SetLinearCoord(SPaintObj::Gradient::lcY2, 0.0f, 1);
 						}
 						else if(token == tRadialGradient) {
-							if(attr_list.Get(tCx, temp_buf)) {
+							if(attr_list.GetText(tCx, temp_buf)) {
 								_GetGradientCoord(temp_buf, f, pct);
 								gradient.SetRadialCoord(SPaintObj::Gradient::rcCX, f, pct);
 							}
 							else if(!p_prototype)
 								gradient.SetRadialCoord(SPaintObj::Gradient::rcCX, 50.0f, 1);
-							if(attr_list.Get(tCy, temp_buf)) {
+							if(attr_list.GetText(tCy, temp_buf)) {
 								_GetGradientCoord(temp_buf, f, pct);
 								gradient.SetRadialCoord(SPaintObj::Gradient::rcCY, f, pct);
 							}
 							else if(!p_prototype)
 								gradient.SetRadialCoord(SPaintObj::Gradient::rcCY, 50.0f, 1);
-							if(attr_list.Get(tR, temp_buf)) {
+							if(attr_list.GetText(tR, temp_buf)) {
 								_GetGradientCoord(temp_buf, f, pct);
 								gradient.SetRadialCoord(SPaintObj::Gradient::rcR, f, pct);
 							}
 							else if(!p_prototype)
 								gradient.SetRadialCoord(SPaintObj::Gradient::rcR, 50.0f, 1);
-							if(attr_list.Get(tFx, temp_buf)) {
+							if(attr_list.GetText(tFx, temp_buf)) {
 								_GetGradientCoord(temp_buf, f, pct);
 								gradient.SetRadialCoord(SPaintObj::Gradient::rcFX, f, pct);
 							}
@@ -952,7 +952,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 								f = gradient.GetRadialCoord(SPaintObj::Gradient::rcCX, &pct);
 								gradient.SetRadialCoord(SPaintObj::Gradient::rcFX, f, pct);
 							}
-							if(attr_list.Get(tFy, temp_buf)) {
+							if(attr_list.GetText(tFy, temp_buf)) {
 								_GetGradientCoord(temp_buf, f, pct);
 								gradient.SetRadialCoord(SPaintObj::Gradient::rcFY, f, pct);
 							}
@@ -975,7 +975,7 @@ int SSvg::ParsePrimitivs(xmlNode * pParentNode, SDrawGroup & rGroup, SStrScan & 
 								StrAssocArray::Item item = attr_list.Get(i);
 								ProcessStyleItem(item.Id, temp_buf = item.Txt, sb);
 							}
-							if(attr_list.Get(tOffset, temp_buf)) {
+							if(attr_list.GetText(tOffset, temp_buf)) {
 								USize usz;
 								usz.FromStr(temp_buf);
 								if(usz.Unit == UNIT_PERCENT)
@@ -1053,10 +1053,10 @@ int SSvg::ParseFile(const char * pFileName, SDraw & rResult)
 				GetAttrList(p_node, attr_list);
 				{
 					FPoint sz;
-					if(attr_list.Get(tWidth, temp_buf)) {
+					if(attr_list.GetText(tWidth, temp_buf)) {
 						_GetUSize(temp_buf, DIREC_HORZ, sz.X);
 					}
-					if(attr_list.Get(tHeight, temp_buf)) {
+					if(attr_list.GetText(tHeight, temp_buf)) {
 						_GetUSize(temp_buf, DIREC_VERT, sz.Y);
 					}
 					rResult.SetSize(sz);

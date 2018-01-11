@@ -3961,7 +3961,7 @@ int SLAPI iSalesPepsi::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCol
 			for(TiIter tiiter(&pack, ETIEF_UNITEBYGOODS, 0); pack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 				tiiterpos++;
 				uint   pos_list_item_pos = 0;
-				if(ti_pos_list.Get(tiiterpos, temp_buf) > 0) {
+				if(ti_pos_list.GetText(tiiterpos, temp_buf) > 0) {
 					Goods2Tbl::Rec goods_rec;
 					if(GObj.Fetch(ti.GoodsID, &goods_rec) > 0) {
 						const iSalesGoodsPacket * p_goods_entry = SearchGoodsMappingEntry(temp_buf);
@@ -5088,7 +5088,7 @@ int SLAPI SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacke
 								for(TiIter tiiter(&pack, ETIEF_UNITEBYGOODS|ETIEF_FORCEUNITEGOODS, 0); pack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 									tiiterpos++;
 									uint   pos_list_item_pos = 0;
-									if(ti_pos_list.Get(tiiterpos, temp_buf) > 0 && GObj.Fetch(ti.GoodsID, &goods_rec) > 0) {
+									if(ti_pos_list.GetText(tiiterpos, temp_buf) > 0 && GObj.Fetch(ti.GoodsID, &goods_rec) > 0) {
 										SapEfesBillItem * p_new_row = p_new_item->Items.CreateNewItem();
 										THROW_SL(p_new_row);
 										p_new_row->PosN = tiiterpos;

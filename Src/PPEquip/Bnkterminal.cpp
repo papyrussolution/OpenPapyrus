@@ -114,7 +114,7 @@ int PPBnkTerminal::Pay(double amount, SString & rSlip)
 	PPWaitMsg(PPLoadTextS(PPTXT_BNKTRM_PAYMENT, msg));
 	ok = ExecOper(DVCCMD_PAY, Arr_In, Arr_Out);
 	if(ok) {
-		Arr_Out.Get(0, rSlip);
+		Arr_Out.GetText(0, rSlip);
 	}
 	PPWait(0);
 	return ok;
@@ -133,7 +133,7 @@ int PPBnkTerminal::Refund(double amount, SString & rSlip)
 	PPWaitMsg(PPLoadTextS(PPTXT_BNKTRM_RETURN, msg));
 	ok = ExecOper(DVCCMD_REFUND, Arr_In, Arr_Out);
 	if(ok) {
-		Arr_Out.Get(0, rSlip);
+		Arr_Out.GetText(0, rSlip);
 	}
 	PPWait(0);
 	return ok;
@@ -149,7 +149,7 @@ int PPBnkTerminal::GetSessReport(SString & rZCheck)
 	PPWait(1);
 	PPWaitMsg(msg.Transf(CTRANSF_OUTER_TO_INNER));
 	if(ok = ExecOper(DVCCMD_GETBANKREPORT, Arr_In, Arr_Out))
-		Arr_Out.Get(0, rZCheck);
+		Arr_Out.GetText(0, rZCheck);
 	PPWait(0);
 	return ok;
 }
@@ -162,7 +162,7 @@ int PPBnkTerminal::ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & rOut)
 		rOut.Clear();
 		SString err_msg;
 		if(P_AbstrDvc->RunCmd__(DVCCMD_GETLASTERRORTEXT, rIn, rOut))
-			rOut.Get(0, err_msg);
+			rOut.GetText(0, err_msg);
 		if(err_msg.NotEmpty())
 			PPSetError(PPERR_BNKTERM, err_msg.Transf(CTRANSF_OUTER_TO_INNER));
 		ok = 0;

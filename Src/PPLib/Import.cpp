@@ -2069,7 +2069,7 @@ int PrcssrPhoneListImport::EditParam(Param * pParam)
 			long   cfg_id = getCtrlLong(sel = CTLSEL_IEPHONE_CFG);
 			SString temp_buf;
 			THROW_PP(cfg_id, PPERR_CFGNEEDED);
-			THROW_PP(CfgList.Get(cfg_id, Data.CfgName) > 0, PPERR_CFGNEEDED);
+			THROW_PP(CfgList.GetText(cfg_id, Data.CfgName) > 0, PPERR_CFGNEEDED);
 			Data.DefCityID = getCtrlLong(sel = CTLSEL_IEPHONE_DEFCITY);
 			ASSIGN_PTR(pData, Data);
 			CATCH
@@ -3116,7 +3116,7 @@ int PersonImportDialog::getDTS(PrcssrPersonImport::Param * pData)
 	long   cfg_id = getCtrlLong(sel = CTLSEL_IEPERSON_CFG);
 	SString temp_buf;
 	THROW_PP(cfg_id, PPERR_CFGNEEDED);
-	THROW_PP(CfgList.Get(cfg_id, Data.CfgName) > 0, PPERR_CFGNEEDED);
+	THROW_PP(CfgList.GetText(cfg_id, Data.CfgName) > 0, PPERR_CFGNEEDED);
 	getCtrlData(CTLSEL_IEPERSON_CAT, &Data.CategoryID);
 	ASSIGN_PTR(pData, Data);
 	CATCH

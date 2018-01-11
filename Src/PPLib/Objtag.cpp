@@ -717,7 +717,7 @@ int TagEnumListDialog::editItem(long, long id)
 {
 	int    ok = -1;
 	SString name;
-	if(id && Data.Get(id, name) > 0) {
+	if(id && Data.GetText(id, name) > 0) {
 		PPCommObjEntry param(Data.GetEnumID(), id, name, 0);
 		if(PPObjReference::EditCommObjItem(&param) > 0) {
 			ok = Data.PutItem(&param.ID, param.Name, param.ParentID);

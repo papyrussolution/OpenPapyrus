@@ -2594,7 +2594,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 				SString buf;
 				TPoint point = *(TPoint *)event.message.infoPtr;
 				ItemByPoint(point, 0, &v);
-				if(ProblemsList.Get(v, buf) > 0)
+				if(ProblemsList.GetText(v, buf) > 0)
 					PPTooltipMessage(buf, 0, H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
 						SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|
 						SMessageWindow::fChildWindow);

@@ -1094,7 +1094,7 @@ int InetUrl::SetProtocol(int protocol)
 int InetUrl::GetComponent(int c, int urlDecode, SString & rBuf) const
 {
 	rBuf.Z();
-	int    ok = BIN(TermList.Get(c, rBuf) > 0);
+	int    ok = BIN(TermList.GetText(c, rBuf) > 0);
 	if(ok && urlDecode) {
 		SString temp_buf;
 		rBuf.DecodeUrl(temp_buf);
@@ -3030,11 +3030,11 @@ int SHttpClient::ReadResponse(Response & rRsp)
 		//
 		// ѕолучаем собственно содержание ответа
 		//
-		if(rRsp.Header.Get(hdrContentLen, temp_buf)) {
+		if(rRsp.Header.GetText(hdrContentLen, temp_buf)) {
 			rRsp.ContentLength = (size_t)temp_buf.ToLong();
 			rRsp.TransferType = rRsp.transftypContentLength;
 		}
-		else if(rRsp.Header.Get(hdrTransferEnc, temp_buf) && temp_buf == "chunked") {
+		else if(rRsp.Header.GetText(hdrTransferEnc, temp_buf) && temp_buf == "chunked") {
 			rRsp.ContentLength = 0;
 			rRsp.TransferType = rRsp.transftypChunked;
 		}
@@ -3042,7 +3042,7 @@ int SHttpClient::ReadResponse(Response & rRsp)
 			// Assume connection close
 			rRsp.TransferType = rRsp.transftypConnectionClose;
 		}
-		if(rRsp.Header.Get(hdrContentType, temp_buf) && temp_buf.NotEmpty()) {
+		if(rRsp.Header.GetText(hdrContentType, temp_buf) && temp_buf.NotEmpty()) {
 			// example: "Content-Type: text/html; charset=ISO-8859-4"
 			StringSet ss(';', temp_buf);
 			for(uint ss_pos = 0, ss_idx = 0; ss.get(&ss_pos, temp_buf); ss_idx++) {

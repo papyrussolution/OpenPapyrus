@@ -811,7 +811,7 @@ int PPDevice_Leader::Helper_RunCmd(int cmdId, const StrAssocArray & rIn, StrAsso
 				break;
 			case DVCCMD_SETTEXT:
 				{
-					if(rIn.Get(DVCCMDPAR_TEXT, temp_buf) > 0) {
+					if(rIn.GetText(DVCCMDPAR_TEXT, temp_buf) > 0) {
 						// Header
 						data_size = 0;
 						data_buf[data_size++] = 0xAA;
@@ -861,7 +861,7 @@ int PPDevice_Leader::Helper_RunCmd(int cmdId, const StrAssocArray & rIn, StrAsso
 					data_buf[data_size++] = (uint8)ConnP.DeviceNo;
 					data_buf[data_size++] = 0x03;
 					temp_buf.Z();
-					rIn.Get(DVCCMDPAR_TEXT, temp_buf);
+					rIn.GetText(DVCCMDPAR_TEXT, temp_buf);
 					// Line 1
 					temp_buf.Wrap(DispLineSize, head_buf, tail_buf);
 					for(i = 0; i < head_buf.Len(); i++)
@@ -876,7 +876,7 @@ int PPDevice_Leader::Helper_RunCmd(int cmdId, const StrAssocArray & rIn, StrAsso
 					for(; i < DispLineSize; i++)
 						data_buf[data_size++] = ' ';
 					//
-					if(rIn.Get(DVCCMDPAR_COUNT, temp_buf)) {
+					if(rIn.GetText(DVCCMDPAR_COUNT, temp_buf)) {
 						rele = temp_buf.ToLong();
 						if(rele < 0 || rele > 255)
 							rele = 0;
@@ -1049,10 +1049,10 @@ SLTEST_R(PPAbstractDevice)
 	in.Clear();
 	in.Add(DVCPARAM_TEXT, "Get error", 1);
 	THROW((r = dvc.RunCmd__(DVCCMD_TEST, in, out)) == -1); // Ошибка выполнения команды (код ошибки записывается в out). На этапе тестирования код равен 1
-	out.Get(0, answer);
+	out.GetText(0, answer);
 	THROW(answer == "1");
 	THROW((r = dvc.RunCmd__(DVCCMD_SOMETHING, in, out)) == -1); // Неизвестная команда (код ошибки - 2)
-	out.Get(0, answer);
+	out.GetText(0, answer);
 	THROW(answer == "2");
 	in.Clear();
 	THROW(dvc.RunCmd__(DVCCMD_RELEASE, in, out));

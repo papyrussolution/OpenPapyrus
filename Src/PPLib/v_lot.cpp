@@ -796,10 +796,8 @@ int SLAPI PPViewLot::ViewTotal()
 // PPViewLot::RecoverLots with helpers
 //
 struct LotRecoverParam {
-	LotRecoverParam()
+	LotRecoverParam() : Flags(0), MinusCompensOpID(0)
 	{
-		Flags = 0;
-		MinusCompensOpID = 0;
 	}
 	long   Flags;
 	PPID   MinusCompensOpID;
@@ -3100,7 +3098,7 @@ int SLAPI SelectLotImpExpCfgs(PPLotImpExpParam * pParam, int import)
 		//В режиме тестирования - начало
 		#if SLTEST_RUNNING
 			for(int i = 1; i < (int)list.getCount(); i++) {
-				list.Get(i, sect);
+				list.GetText(i, sect);
 				if(strstr(sect, pParam->Name)) {
 					pParam->ProcessName(1, sect);
 					pParam->ReadIni(&ini_file, sect, 0);
@@ -3113,7 +3111,7 @@ int SLAPI SelectLotImpExpCfgs(PPLotImpExpParam * pParam, int import)
 		while(!valid_data && ListBoxSelDialog(&list, import ? PPTXT_TITLE_LOTIMPCFG : PPTXT_TITLE_LOTEXPCFG, &id, 0) > 0) {
 			SString sect;
 			if(id) {
-				list.Get(id, sect);
+				list.GetText(id, sect);
 				pParam->ProcessName(1, sect);
 				pParam->ReadIni(&ini_file, sect, 0);
 				valid_data = ok = 1;

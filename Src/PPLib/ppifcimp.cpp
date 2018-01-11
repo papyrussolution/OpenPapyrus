@@ -4343,7 +4343,7 @@ SString & DL6ICLS_PPLocAddrStruc::Get(PpyLocAddrPart partId)
 	RetStrBuf.Z();
 	PPLocAddrStruc * p_las = (PPLocAddrStruc *)ExtraPtr;
 	if(p_las)
-		p_las->Get(partId, RetStrBuf);
+		p_las->GetText(partId, RetStrBuf);
 	else
 		AppError = 1;
 	return RetStrBuf.Transf(CTRANSF_OUTER_TO_INNER);

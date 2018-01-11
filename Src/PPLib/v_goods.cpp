@@ -3253,7 +3253,7 @@ int SLAPI PPViewGoods::ExportUhtt()
 					for(uint j = 0; j < uhtt_id_list.getCount(); j++) {
 						const PPID temp_uhtt_id = uhtt_id_list.get(j);
 						if(temp_uhtt_id) {
-							if(code_ref_list.Get(temp_uhtt_id, code_buf) > 0) {
+							if(code_ref_list.GetText(temp_uhtt_id, code_buf) > 0) {
 								if(code_buf[0] > '9') {
 									uint   cp = 0;
 									int    ccr = bc_list.SearchCode(code_buf, &cp);

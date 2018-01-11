@@ -1121,7 +1121,7 @@ int Lst2LstObjDialog::getDTS(PPIDArray * P_List)
 void Lst2LstObjDialog::GetItemText(long id, SString & rBuf)
 {
 	if(Data.P_SrcList) {
-		Data.P_SrcList->Get(id, rBuf);
+		Data.P_SrcList->GetText(id, rBuf);
 	}
 	else if(P_Object) {
 		rBuf.Z();
@@ -2939,7 +2939,7 @@ void SpecialInputCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 				if(RdTimer.Check(0) && !p_il->IsInState(sfDisabled|sfReadOnly)) {
 					P_Ad->RunCmd("LISTEN", Out.Clear());
 					SString temp_buf;
-					if(Out.Get(0, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+					if(Out.GetText(0, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 						temp_buf.Chomp();
 						pDlg->setCtrlString(CtlId, temp_buf);
 					}
@@ -5362,7 +5362,7 @@ int EditMemosDialog::editItem(long pos, long id)
 {
 	int ok = -1;
 	SString buf;
-	if(Memos.Get(id, buf) > 0) {
+	if(Memos.GetText(id, buf) > 0) {
 		if(InputStringDialog(0, 0, 0, 1, buf) > 0) {
 			Memos.Add(Memos.getCount(), 0, buf);
 			ok = 1;

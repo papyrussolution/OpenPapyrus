@@ -240,11 +240,11 @@ int SLAPI PPViewAccturn::CreateGrouping()
 				pRec->Count = r_item.Count;
 				pRec->Amount = r_item.Amount;
 				if(r_item.DbtNameIdx) {
-					NameList.Get(r_item.DbtNameIdx, TempBuf);
+					NameList.GetText(r_item.DbtNameIdx, TempBuf);
 					TempBuf.CopyTo(pRec->DbtAccName, sizeof(pRec->DbtAccName));
 				}
 				if(r_item.CrdNameIdx) {
-					NameList.Get(r_item.CrdNameIdx, TempBuf);
+					NameList.GetText(r_item.CrdNameIdx, TempBuf);
 					TempBuf.CopyTo(pRec->CrdAccName, sizeof(pRec->CrdAccName));
 				}
 				ok = 1;

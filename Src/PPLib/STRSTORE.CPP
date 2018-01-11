@@ -35,7 +35,7 @@ int StringStore2::LangStrCollItem::Get(long ident, SString & rBuf) const
 		if(P_PositionHash->Get(ident, &tpos))
 			ok = List.GetTextByPos((uint)tpos, rBuf);
 	}
-	else if(List.Get(ident, rBuf))
+	else if(List.GetText(ident, rBuf))
 		ok = 1;
 	return ok;
 }
@@ -1599,7 +1599,7 @@ int SLAPI StringStore2::GenerateHeaderFile(const char * pFileName, const char * 
 			long code = 0;
 			if(grp != last_grp) {
 				gen.Wr_Comment(0);
-				if(/*P_Pb->*/GrpSymbList.Get(grp, temp_buf) <= 0)
+				if(/*P_Pb->*/GrpSymbList.GetText(grp, temp_buf) <= 0)
 					temp_buf.Z().Cat(grp);
 				gen.Wr_Comment(temp_buf);
 				gen.Wr_Comment(0);

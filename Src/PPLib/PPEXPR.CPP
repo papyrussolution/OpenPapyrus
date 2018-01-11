@@ -1,5 +1,5 @@
 // PPEXPR.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // @Kernel
 // Трансляция формул
@@ -16,7 +16,7 @@ void SLAPI ExprEvalContext::FC::Init()
 	RetStr.Z();
 }
 
-SLAPI ExprEvalContext::ExprEvalContext() : ImplementFlags(0), P_Next(0)
+SLAPI ExprEvalContext::ExprEvalContext() : ImplementFlags(0), P_Next__(0)
 {
 }
 
@@ -31,22 +31,25 @@ int SLAPI ExprEvalContext::SetInnerContext(ExprEvalContext * pInner)
 		int    done = 0;
 		ExprEvalContext * p_last = this;
 		if(p_last != pInner) {
-			while(!done && p_last && p_last->P_Next) {
-				p_last = p_last->P_Next;
-				if(p_last == pInner)
+			while(!done && p_last && p_last->P_Next__) {
+				p_last = p_last->P_Next__;
+				if(p_last == pInner) {
+					assert(!p_last->P_Next__ || !p_last->P_Next__->P_Next__);
+					p_last->P_Next__ = 0; // @v9.8.12
 					done = 1;
+				}
 			}
 		}
 		else
 			done = 1;
-		assert(p_last != 0 && p_last->P_Next == 0);
+		assert(p_last != 0 && p_last->P_Next__ == 0);
 		if(!done) {
-			p_last->P_Next = pInner;
+			p_last->P_Next__ = pInner;
 			ok = 1;
 		}
 	}
 	else {
-		P_Next = 0;
+		P_Next__ = 0;
 		ok = 2;
 	}
 	return ok;
@@ -238,10 +241,9 @@ int SLAPI BillSymbCache::Fetch(const char * pSymb, PPID * pID, SString & rBuf)
 #define ARTSYMB_QTTY   1
 #define ARTSYMB_PHQTTY 2
 
-SLAPI BillContext::BillContext(const PPBillPacket * p, PPID curID, uint advLineIdx) : ExprEvalContext(), 
+SLAPI BillContext::BillContext(const PPBillPacket * p, PPID curID, uint advLineIdx) : ExprEvalContext(),
 	P_Pack(p), CurID(curID), LinkID(p ? p->Rec.LinkBillID : 0), ReckonID(p ? p->PaymBillID : 0), AdvLineIdx(advLineIdx)
 {
-	
 }
 
 int SLAPI BillContext::IsFunc(const char * pSymb, int * pFuncId)
@@ -599,7 +601,7 @@ void SLAPI PPExprParser::Skip()
 int SLAPI PPExprParser::ResolveContextName(const char * pSymb, double * pResult)
 {
 	int    ok = 0;
-	for(ExprEvalContext * p_ctx = P_Ctx; !ok && p_ctx; p_ctx = p_ctx->P_Next) {
+	for(ExprEvalContext * p_ctx = P_Ctx; !ok && p_ctx; p_ctx = p_ctx->P_Next__) {
 		if(p_ctx->Resolve(pSymb, pResult))
 			ok = 1;
 	}

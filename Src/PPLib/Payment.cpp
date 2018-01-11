@@ -271,7 +271,7 @@ int SLAPI PPViewLinkedBill::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				pBlk->Set(p_item->Rest);
 				break;
 			case 8: // @memo
-				MemoList.Get(bill_rec.ID, temp_buf);
+				MemoList.GetText(bill_rec.ID, temp_buf);
 				pBlk->Set(temp_buf);
 				break;
 		}

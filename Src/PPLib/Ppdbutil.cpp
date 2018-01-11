@@ -993,7 +993,7 @@ int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 		const TableEntry & r_entry = *(TableEntry *)TblEntryList.at(pos);
 		SBuffer buffer;
 		SString tbl_name;
-		TblNameList.Get(tblID, tbl_name);
+		TblNameList.GetText(tblID, tbl_name);
 		THROW_SL(FDump.Seek64(r_entry.Offs));
 		{
 			DbProvider * p_dict = CurDict;

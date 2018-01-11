@@ -601,7 +601,7 @@ void SendSmsDialog::CalcText()
 	setCtrlLong(CTL_SENDSMS_SMSCOUNT,  sms_count);
 	getDTS(&send_sms);
 	src_msg.Z().Cat(send_sms.ExtStr.Excise(0, 3));
-	PrsnIdArr.Get(0, prsn_id_str);
+	PrsnIdArr.GetText(0, prsn_id_str);
 	{
 		// @v8.5.4 {
 		PPSmsSender::FormatMessageBlock fmb;
@@ -813,12 +813,12 @@ int SendSmsDialog::SendSmsText()
 		PPLoadText(PPTXT_SMS_SENDINGSMS, str);
 		logger.Log(str);
 		for(size_t i = 0; i < PhoneArr.getCount(); i++) {
-			PrsnIdArr.Get(i, prsn_id_str);
+			PrsnIdArr.GetText(i, prsn_id_str);
 			prsn_id = prsn_id_str.ToLong();
-			PhoneArr.Get(i, phone);
+			PhoneArr.GetText(i, phone);
 			// Если через tddo
 			if(AutoSms) {
-				ObjIdArr.Get(i, obj_id_str);
+				ObjIdArr.GetText(i, obj_id_str);
 				obj_id = obj_id_str.ToLong();
 				THROW(GetAutoSmsText(prsn_id, obj_id, dest_msg));
 				client.SendingSms_(prsn_id, phone, dest_msg);
@@ -2222,7 +2222,7 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 				for(uint pos = 0; pos < StatusCodesArr.getCount(); pos++) {
 					dest_num.Z();
 					status_text.Z();
-					StatusCodesArr.Get(pos, status_msg);
+					StatusCodesArr.GetText(pos, status_msg);
 					status_msg.Divide(';', dest_num, status_text);
 					if(rStatus.NotEmpty())
 						rStatus.Comma();
@@ -2243,7 +2243,7 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 				for(uint pos = 0; pos < ErrorSubmitArr.getCount(); pos++) {
 					dest_num.Z();
 					status_text.Z();
-					ErrorSubmitArr.Get(pos, status_msg);
+					ErrorSubmitArr.GetText(pos, status_msg);
 					status_msg.Divide(';', dest_num, status_text);
 					//
 					if(rStatus.NotEmpty())

@@ -1957,7 +1957,7 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 		else if(event.isCbSelected(CTLSEL_BILLEXPFILT_CFG)) {
 			long   hdr_id = getCtrlLong(CTLSEL_BILLEXPFILT_CFG);
 			SString sect;
-			HdrList.Get(hdr_id, sect);
+			HdrList.GetText(hdr_id, sect);
 			if(sect.NotEmpty()) {
 				uint p = 0;
 				if(LineList.SearchByText(sect, 1, &p) > 0)
@@ -1968,7 +1968,7 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 			long row_id = getCtrlLong(CTLSEL_BILLEXPFILT_RCFG);
 			if(!getCtrlLong(CTLSEL_BILLEXPFILT_CFG)) {
 				SString sect;
-				LineList.Get(row_id, sect);
+				LineList.GetText(row_id, sect);
 				if(sect.NotEmpty()) {
 					uint p = 0;
 					if(HdrList.SearchByText(sect, 1, &p) > 0)
@@ -2080,14 +2080,14 @@ int ExportBillsFiltDialog::getDTS(ExpBillsFilt * pData)
 
 	getCtrlData(sel = CTLSEL_BILLEXPFILT_CFG, &id);
 	THROW_PP(id, PPERR_INVBILLIMPEXPCFG);
-	HdrList.Get(id, sect);
+	HdrList.GetText(id, sect);
 	Data.BillParam = sect;
 
 	if(!(Data.Flags & ExpBillsFilt::fEdi)) { // @vmiller
 		if(sect.CmpPrefix("DLL_", 1) != 0) { // @vmiller
 			getCtrlData(sel = CTLSEL_BILLEXPFILT_RCFG, &id);
 			THROW_PP(id, PPERR_INVBILLIMPEXPCFG);
-			LineList.Get(id, sect);
+			LineList.GetText(id, sect);
 			Data.BRowParam = sect;
 		} // @vmiller
 	} // @vmiller
@@ -2240,7 +2240,7 @@ public:
 		SString sect;
 		getCtrlData(sel = CTLSEL_GOODSEXPFILT_CFG, &id);
 		THROW_PP(id, PPERR_INVGOODSIMPEXPCFG);
-		CfgList.Get(id, sect);
+		CfgList.GetText(id, sect);
 		Data.ExpCfg = sect;
 		ASSIGN_PTR(pData, Data);
 		CATCH
@@ -2797,7 +2797,7 @@ int RFIDDevPrcssr::Run()
 				if(p_dvc->RunCmd(DVCCMD_PING, in_params, out_params)) {
 					int cmd = 0;
 					SString temp_buf;
-					if(out_params.Get(DVCCMDPAR_CARD, temp_buf)) {
+					if(out_params.GetText(DVCCMDPAR_CARD, temp_buf)) {
 						int8   rele_count = 0;
 						double price = 0;
 						SString msg;

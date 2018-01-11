@@ -426,16 +426,16 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\bio_ssl.c">
+				RelativePath="..\OSF\OpenSSL\ssl\bio_ssl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\d1_lib.c">
+				RelativePath="..\OSF\OpenSSL\ssl\d1_lib.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\ssl\d1_msg.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\d1_srtp.c">
+				RelativePath="..\OSF\OpenSSL\ssl\d1_srtp.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\ssl\record\dtls1_bitmap.c">
@@ -492,13 +492,13 @@
 				RelativePath="..\Osf\OpenSSL\ssl\record\rec_layer_s3.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\s3_cbc.c">
+				RelativePath="..\OSF\OpenSSL\ssl\s3_cbc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\s3_enc.c">
+				RelativePath="..\OSF\OpenSSL\ssl\s3_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\s3_lib.c">
+				RelativePath="..\OSF\OpenSSL\ssl\s3_lib.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\ssl\s3_msg.c">
@@ -510,40 +510,40 @@
 				RelativePath="..\Osf\OpenSSL\ssl\record\ssl3_record.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\ssl_asn1.c">
+				RelativePath="..\OSF\OpenSSL\ssl\ssl_asn1.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\ssl_cert.c">
+				RelativePath="..\OSF\OpenSSL\ssl\ssl_cert.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\ssl_ciph.c">
+				RelativePath="..\OSF\OpenSSL\ssl\ssl_ciph.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\ssl\ssl_conf.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\ssl_err.c">
+				RelativePath="..\OSF\OpenSSL\ssl\ssl_err.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\ssl\ssl_init.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\ssl_lib.c">
+				RelativePath="..\OSF\OpenSSL\ssl\ssl_lib.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\ssl\ssl_mcnf.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\ssl_rsa.c">
+				RelativePath="..\OSF\OpenSSL\ssl\ssl_rsa.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\ssl_sess.c">
+				RelativePath="..\OSF\OpenSSL\ssl\ssl_sess.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\ssl_stat.c">
+				RelativePath="..\OSF\OpenSSL\ssl\ssl_stat.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\ssl_txt.c">
+				RelativePath="..\OSF\OpenSSL\ssl\ssl_txt.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\ssl\ssl_utst.c">
@@ -564,22 +564,22 @@
 				RelativePath="..\Osf\OpenSSL\ssl\statem\statem_srvr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\t1_enc.c">
+				RelativePath="..\OSF\OpenSSL\ssl\t1_enc.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\ssl\t1_ext.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\t1_lib.c">
+				RelativePath="..\OSF\OpenSSL\ssl\t1_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\t1_reneg.c">
+				RelativePath="..\OSF\OpenSSL\ssl\t1_reneg.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\ssl\t1_trce.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\tls_srp.c">
+				RelativePath="..\OSF\OpenSSL\ssl\tls_srp.c">
 			</File>
 		</Filter>
 		<Filter
@@ -595,31 +595,31 @@
 				RelativePath="..\Osf\OpenSSL\include\openssl\asn1t.h">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\dtls1.h">
+				RelativePath="..\OSF\OpenSSL\ssl\dtls1.h">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\kssl.h">
+				RelativePath="..\OSF\OpenSSL\ssl\kssl.h">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\include\openssl\pem.h">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\srtp.h">
+				RelativePath="..\OSF\OpenSSL\ssl\srtp.h">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\ssl.h">
+				RelativePath="..\OSF\OpenSSL\ssl\ssl.h">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\ssl2.h">
+				RelativePath="..\OSF\OpenSSL\ssl\ssl2.h">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\ssl23.h">
+				RelativePath="..\OSF\OpenSSL\ssl\ssl23.h">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\ssl3.h">
+				RelativePath="..\OSF\OpenSSL\ssl\ssl3.h">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\ssl\tls1.h">
+				RelativePath="..\OSF\OpenSSL\ssl\tls1.h">
 			</File>
 		</Filter>
 	</Files>

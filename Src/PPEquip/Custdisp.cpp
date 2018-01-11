@@ -60,7 +60,7 @@ int SLAPI PPCustDisp::GetConfig()
 	THROW(State & stConnected);
 	THROW(ExecOper(DVCCMD_GETCONFIG, Arr_In, Arr_Out));
 	if(Arr_Out.getCount())
-		for(uint i = 0; Arr_Out.Get(i, buf) > 0; i++) {
+		for(uint i = 0; Arr_Out.GetText(i, buf) > 0; i++) {
 			buf.Divide('=', param_name, param_val);
 			if(strcmpi(param_name, "STRLEN") == 0)
 				DispStrLen = param_val.ToLong();
@@ -258,9 +258,9 @@ int SLAPI PPCustDisp::ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & rOu
 	int    ok = 1;
 	if((ok = P_AbstrDvc->RunCmd__(cmd, rIn, rOut)) != 1) {
 		SString err_msg;
-		rOut.Get(0, err_msg);
+		rOut.GetText(0, err_msg);
 		if(P_AbstrDvc->RunCmd__(DVCCMD_GETLASTERRORTEXT, rIn.Clear(), rOut.Clear()))
-			rOut.Get(0, err_msg);
+			rOut.GetText(0, err_msg);
 		if(err_msg.NotEmpty())
 			PPSetError(PPERR_CUSTDISP, err_msg.Transf(CTRANSF_OUTER_TO_INNER));
 		ok = 0;

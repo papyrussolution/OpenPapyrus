@@ -454,9 +454,12 @@ int SLAPI PPViewQuot::Init_(const PPBaseFilt * pFilt)
 			QuotKindList.Add(0, 0, temp_buf);
 		}
 		else if(Filt.QkCls == PPQuot::clsGeneral && Filt.QuotKindID != 0) {
-			for(long i = (long)QuotKindList.getCount(); i >= 0; i--)
-				if(QuotKindList.Get(i).Id != Filt.QuotKindID)
+			uint   i = QuotKindList.getCount();
+			if(i) do {
+				PPID   local_qk_id = QuotKindList.Get(--i).Id;
+				if(local_qk_id != Filt.QuotKindID)
 					QuotKindList.AtFree(i);
+			} while(i);
 		}
 	}
 	if(Filt.IsSeries() && P_Qc2) {
@@ -1395,7 +1398,7 @@ DBQuery * SLAPI PPViewQuot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 				if(QuotKindList.getCount() && !oneof2(Filt.QkCls, PPQuot::clsGeneral, PPQuot::clsSupplDeal))
 					pSubTitle->CopyFrom(QuotKindList.Get(0).Txt);
 				else if(Filt.QuotKindID)
-					QuotKindList.Get(Filt.QuotKindID, *pSubTitle);
+					QuotKindList.GetText(Filt.QuotKindID, *pSubTitle);
 			}
 			brw_id = BROWSER_QUOT_CROSSTAB;
 			q = PPView::CrosstabDbQueryStub;

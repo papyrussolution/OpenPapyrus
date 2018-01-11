@@ -422,8 +422,8 @@ int ReportFiltDlg::getDTS(ReportFilt * pData)
 {
 	int    ok = 1;
 	uint   pos = 0;
-	StdReportList.Get(getCtrlLong(CTLSEL_REPORTFLT_STDNAME), Data.StdName.Z());
-	StrucList.Get(getCtrlLong(CTLSEL_REPORTFLT_STRUC), Data.StrucName.Z());
+	StdReportList.GetText(getCtrlLong(CTLSEL_REPORTFLT_STDNAME), Data.StdName);
+	StrucList.GetText(getCtrlLong(CTLSEL_REPORTFLT_STRUC), Data.StrucName);
 	SetPeriodInput(this, CTL_REPORTFLT_PERIOD, &Data.Period);
 	GetClusterData(CTL_REPORTFLT_TYPE,  &Data.Type);
 	GetClusterData(CTL_REPORTFLT_ORDER, &Data.Order);
@@ -958,17 +958,16 @@ int ReportDlg::setDTS(const ReportViewItem * pData)
 
 int ReportDlg::getDTS(ReportViewItem * pData)
 {
-	int ok = -1;
-	uint sel = 0;
-	long _id = 0;
+	int    ok = -1;
+	uint   sel = 0;
+	long   _id = 0;
 	SString buf;
-
 	GetClusterData(CTL_REPORT_TYPE, &Data.Type);
 	THROW_PP(_id = getCtrlLong(sel = CTLSEL_REPORT_STDNAME), PPERR_INVRPTSTDNAME);
-	RptList.Get(_id, buf);
+	RptList.GetText(_id, buf);
 	buf.CopyTo(Data.StdName, sizeof(Data.StdName));
 	THROW_PP(_id = getCtrlLong(sel = CTLSEL_REPORT_STRUCNAME), PPERR_INVRPTSTRUCNAME);
-	StrucList.Get(_id, buf.Z());
+	StrucList.GetText(_id, buf);
 	buf.CopyTo(Data.StrucName, sizeof(Data.StrucName));
 	getCtrlData(CTL_REPORT_MODIFDATE, &Data.ModifDt);
 	if(Data.Type == ReportFilt::rpttLocal) {

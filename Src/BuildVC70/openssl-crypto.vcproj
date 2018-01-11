@@ -51,7 +51,7 @@
 				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
-				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"
+				AdditionalIncludeDirectories="..\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -70,7 +70,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR=\&quot;Debug\&quot;"
-				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"/>
+				AdditionalIncludeDirectories="..\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -123,7 +123,7 @@
 				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
-				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"
+				AdditionalIncludeDirectories="..\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -142,7 +142,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR=\&quot;Release\&quot;"
-				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"/>
+				AdditionalIncludeDirectories="..\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -190,7 +190,7 @@
 				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
-				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"
+				AdditionalIncludeDirectories="..\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -209,7 +209,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR=\&quot;Debug\&quot;"
-				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"/>
+				AdditionalIncludeDirectories="..\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -259,7 +259,7 @@
 				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
-				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"
+				AdditionalIncludeDirectories="..\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -278,7 +278,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR=\&quot;Release\&quot;"
-				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"/>
+				AdditionalIncludeDirectories="..\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -326,7 +326,7 @@
 				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
-				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"
+				AdditionalIncludeDirectories="..\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -345,7 +345,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR=\&quot;Debug\&quot;"
-				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"/>
+				AdditionalIncludeDirectories="..\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -395,7 +395,7 @@
 				OutputFile="$(OutDir)/$(ProjectName).lib"/>
 			<Tool
 				Name="VCMIDLTool"
-				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"
+				AdditionalIncludeDirectories="..\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"
 				MkTypLibCompatible="FALSE"
 				TargetEnvironment="1"
 				GenerateStublessProxies="TRUE"
@@ -414,7 +414,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;OPENSSL_THREADS;CMAKE_INTDIR=\&quot;Release\&quot;"
-				AdditionalIncludeDirectories="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"/>
+				AdditionalIncludeDirectories="..\OSF\OpenSSL\crypto\modes;D:\Papyrus\Src\OSF\OpenSSL\crypto\evp;D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1;D:\Papyrus\Src\Build-OpenSSL;D:\Papyrus\Src\OSF\OpenSSL\.;D:\Papyrus\Src\OSF\OpenSSL\crypto;D:\Papyrus\Src\Build-OpenSSL\ssl;D:\Papyrus\Src\Build-OpenSSL\crypto;"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -432,112 +432,112 @@
 			Name="Source Files"
 			Filter="">
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_bitstr.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_bitstr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_d2i_fp.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_d2i_fp.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_digest.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_digest.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_dup.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_dup.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_gentm.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_gentm.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_i2d_fp.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_i2d_fp.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_int.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_int.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_mbstr.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_mbstr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_object.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_object.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_octet.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_octet.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_print.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_print.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_sign.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_sign.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_strex.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_strex.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_strnid.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_strnid.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_time.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_time.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_type.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_type.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_utctm.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_utctm.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_utf8.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_utf8.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\a_verify.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\a_verify.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\aes\aes_cbc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\aes\aes_cbc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\aes\aes_cfb.c">
+				RelativePath="..\OSF\OpenSSL\crypto\aes\aes_cfb.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\aes\aes_core.c">
+				RelativePath="..\OSF\OpenSSL\crypto\aes\aes_core.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\aes\aes_ecb.c">
+				RelativePath="..\OSF\OpenSSL\crypto\aes\aes_ecb.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\aes\aes_ige.c">
+				RelativePath="..\OSF\OpenSSL\crypto\aes\aes_ige.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\aes\aes_misc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\aes\aes_misc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\aes\aes_ofb.c">
+				RelativePath="..\OSF\OpenSSL\crypto\aes\aes_ofb.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\aes\aes_wrap.c">
+				RelativePath="..\OSF\OpenSSL\crypto\aes\aes_wrap.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\ameth_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\ameth_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\asn1_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\asn1_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\asn1_gen.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\asn1_gen.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\asn1_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\asn1_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\asn1_par.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\asn1_par.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\asn_mime.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\asn_mime.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\asn_moid.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\asn_moid.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\asn1\asn_mstbl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\asn_pack.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\asn_pack.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\async\async.c">
@@ -561,73 +561,73 @@
 				RelativePath="..\Osf\OpenSSL\crypto\bio\b_addr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\b_dump.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\b_dump.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\b_print.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\b_print.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\b_sock.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\b_sock.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\bio\b_sock2.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bf_buff.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bf_buff.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bf\bf_cfb64.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bf\bf_cfb64.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bf\bf_ecb.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bf\bf_ecb.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bf\bf_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bf\bf_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bf_nbio.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bf_nbio.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bf_null.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bf_null.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bf\bf_ofb64.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bf\bf_ofb64.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bf\bf_skey.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bf\bf_skey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\bio_asn1.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\bio_asn1.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\bio_b64.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\bio_b64.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bio_cb.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bio_cb.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\bio_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\bio_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bio_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bio_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bio_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bio_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\bio_md.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\bio_md.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\bio\bio_meth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\bio_ndef.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\bio_ndef.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\bio_ok.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\bio_ok.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs7\bio_pk7.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs7\bio_pk7.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\blake2\blake2b.c">
@@ -636,295 +636,295 @@
 				RelativePath="..\Osf\OpenSSL\crypto\blake2\blake2s.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_add.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_add.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_asm.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_asm.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_blind.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_blind.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_const.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_const.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_ctx.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_ctx.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_depr.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_depr.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\bn\bn_dh.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_div.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_div.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_exp.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_exp.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_exp2.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_exp2.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_gcd.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_gcd.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_gf2m.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_gf2m.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\bn\bn_intern.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_kron.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_kron.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_mod.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_mod.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_mont.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_mont.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_mpi.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_mpi.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_mul.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_mul.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_nist.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_nist.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_prime.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_prime.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_print.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_print.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_rand.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_rand.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_recp.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_recp.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_shift.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_shift.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_sqr.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_sqr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_sqrt.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_sqrt.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\bn\bn_srp.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bn\bn_word.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bn\bn_word.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bss_acpt.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bss_acpt.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bss_bio.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bss_bio.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bss_conn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bss_conn.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bss_dgram.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bss_dgram.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bss_fd.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bss_fd.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bss_file.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bss_file.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bss_log.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bss_log.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bss_mem.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bss_mem.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bss_null.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bss_null.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\bio\bss_sock.c">
+				RelativePath="..\OSF\OpenSSL\crypto\bio\bss_sock.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\buffer\buf_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\buffer\buf_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\buffer\buffer.c">
+				RelativePath="..\OSF\OpenSSL\crypto\buffer\buffer.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\by_dir.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\by_dir.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\by_file.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\by_file.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\c_allc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\c_allc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\c_alld.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\c_alld.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cast\c_cfb64.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cast\c_cfb64.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cast\c_ecb.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cast\c_ecb.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cast\c_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cast\c_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cast\c_ofb64.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cast\c_ofb64.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cast\c_skey.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cast\c_skey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\comp\c_zlib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\comp\c_zlib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\camellia\camellia.c">
+				RelativePath="..\OSF\OpenSSL\crypto\camellia\camellia.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes\cbc128.c">
+				RelativePath="..\OSF\OpenSSL\crypto\modes\cbc128.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\cbc_cksm.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\cbc_cksm.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\cbc_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\cbc_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes\ccm128.c">
+				RelativePath="..\OSF\OpenSSL\crypto\modes\ccm128.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes\cfb128.c">
+				RelativePath="..\OSF\OpenSSL\crypto\modes\cfb128.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\cfb64ede.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\cfb64ede.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\cfb64enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\cfb64enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\cfb_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\cfb_enc.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\chacha\chacha_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cmac\cm_ameth.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cmac\cm_ameth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cmac\cm_pmeth.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cmac\cm_pmeth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cmac\cmac.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cmac\cmac.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\evp\cmeth_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\camellia\cmll_cbc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\camellia\cmll_cbc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\camellia\cmll_cfb.c">
+				RelativePath="..\OSF\OpenSSL\crypto\camellia\cmll_cfb.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\camellia\cmll_ctr.c">
+				RelativePath="..\OSF\OpenSSL\crypto\camellia\cmll_ctr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\camellia\cmll_ecb.c">
+				RelativePath="..\OSF\OpenSSL\crypto\camellia\cmll_ecb.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\camellia\cmll_misc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\camellia\cmll_misc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\camellia\cmll_ofb.c">
+				RelativePath="..\OSF\OpenSSL\crypto\camellia\cmll_ofb.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cms\cms_asn1.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cms\cms_asn1.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cms\cms_att.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cms\cms_att.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cms\cms_cd.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cms\cms_cd.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cms\cms_dd.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cms\cms_dd.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cms\cms_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cms\cms_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cms\cms_env.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cms\cms_env.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cms\cms_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cms\cms_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cms\cms_ess.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cms\cms_ess.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cms\cms_io.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cms\cms_io.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\cms\cms_kari.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cms\cms_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cms\cms_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cms\cms_pwri.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cms\cms_pwri.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cms\cms_sd.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cms\cms_sd.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cms\cms_smime.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cms\cms_smime.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\comp\comp_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\comp\comp_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\comp\comp_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\comp\comp_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\conf\conf_api.c">
+				RelativePath="..\OSF\OpenSSL\crypto\conf\conf_api.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\conf\conf_def.c">
+				RelativePath="..\OSF\OpenSSL\crypto\conf\conf_def.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\conf\conf_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\conf\conf_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\conf\conf_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\conf\conf_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\conf\conf_mall.c">
+				RelativePath="..\OSF\OpenSSL\crypto\conf\conf_mall.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\conf\conf_mod.c">
+				RelativePath="..\OSF\OpenSSL\crypto\conf\conf_mod.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\conf\conf_sap.c">
+				RelativePath="..\OSF\OpenSSL\crypto\conf\conf_sap.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cpt_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cpt_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cryptlib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cryptlib.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\ct\ct_b64.c">
@@ -957,247 +957,247 @@
 				RelativePath="..\Osf\OpenSSL\crypto\ct\ct_x509v3.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes\ctr128.c">
+				RelativePath="..\OSF\OpenSSL\crypto\modes\ctr128.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes\cts128.c">
+				RelativePath="..\OSF\OpenSSL\crypto\modes\cts128.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\ec\curve25519.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\cversion.c">
+				RelativePath="..\OSF\OpenSSL\crypto\cversion.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\d2i_pr.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\d2i_pr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\d2i_pu.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\d2i_pu.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\des_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\des_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dh\dh_ameth.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dh\dh_ameth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dh\dh_asn1.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dh\dh_asn1.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dh\dh_check.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dh\dh_check.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dh\dh_depr.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dh\dh_depr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dh\dh_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dh\dh_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dh\dh_gen.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dh\dh_gen.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\dh\dh_kdf.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dh\dh_key.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dh\dh_key.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dh\dh_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dh\dh_lib.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\dh\dh_meth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dh\dh_pmeth.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dh\dh_pmeth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dh\dh_prn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dh\dh_prn.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\dh\dh_rfc5114.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\digest.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\digest.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dsa\dsa_ameth.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dsa\dsa_ameth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dsa\dsa_asn1.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dsa\dsa_asn1.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dsa\dsa_depr.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dsa\dsa_depr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dsa\dsa_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dsa\dsa_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dsa\dsa_gen.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dsa\dsa_gen.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dsa\dsa_key.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dsa\dsa_key.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dsa\dsa_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dsa\dsa_lib.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\dsa\dsa_meth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dsa\dsa_ossl.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dsa\dsa_ossl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dsa\dsa_pmeth.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dsa\dsa_pmeth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dsa\dsa_prn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dsa\dsa_prn.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dsa\dsa_sign.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dsa\dsa_sign.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dsa\dsa_vrf.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dsa\dsa_vrf.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dso\dso_dl.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dso\dso_dl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dso\dso_dlfcn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dso\dso_dlfcn.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dso\dso_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dso\dso_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dso\dso_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dso\dso_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dso\dso_openssl.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dso\dso_openssl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dso\dso_vms.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dso\dso_vms.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\dso\dso_win32.c">
+				RelativePath="..\OSF\OpenSSL\crypto\dso\dso_win32.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_aes.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_aes.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_aes_cbc_hmac_sha1.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_aes_cbc_hmac_sha1.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\evp\e_aes_cbc_hmac_sha256.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_bf.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_bf.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_camellia.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_camellia.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\engines\e_capi.c">
+				RelativePath="..\OSF\OpenSSL\engines\e_capi.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_cast.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_cast.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\evp\e_chacha20_poly1305.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\engines\e_chil.c">
+				RelativePath="..\OSF\OpenSSL\engines\e_chil.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_des.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_des.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_des3.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_des3.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_idea.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_idea.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_null.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_null.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_old.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_old.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\engines\e_padlock.c">
+				RelativePath="..\OSF\OpenSSL\engines\e_padlock.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_rc2.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_rc2.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_rc4.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_rc4.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_rc4_hmac_md5.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_rc4_hmac_md5.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_rc5.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_rc5.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_seed.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_seed.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\e_xcbc_d.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\e_xcbc_d.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ebcdic.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ebcdic.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ec2_mult.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ec2_mult.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ec2_oct.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ec2_oct.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ec2_smpl.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ec2_smpl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ec_ameth.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ec_ameth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ec_asn1.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ec_asn1.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ec_check.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ec_check.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ec_curve.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ec_curve.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ec_cvt.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ec_cvt.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ec_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ec_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ec_key.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ec_key.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\ec\ec_kmeth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ec_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ec_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ec_mult.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ec_mult.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ec_oct.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ec_oct.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ec_pmeth.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ec_pmeth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ec_print.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ec_print.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\ecb3_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\ecb3_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\ecb_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\ecb_enc.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\ec\ecdh_kdf.c">
@@ -1215,13 +1215,13 @@
 				RelativePath="..\Osf\OpenSSL\crypto\ec\ecdsa_vrf.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\eck_prn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\eck_prn.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ecp_mont.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ecp_mont.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ecp_nist.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ecp_nist.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\ec\ecp_nistp224.c">
@@ -1239,142 +1239,142 @@
 				RelativePath="..\Osf\OpenSSL\crypto\ec\ecp_nistz256.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ecp_oct.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ecp_oct.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ec\ecp_smpl.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ec\ecp_smpl.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\ec\ecx_meth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\encode.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\encode.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\eng_all.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\eng_all.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\eng_cnf.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\eng_cnf.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\eng_cryptodev.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\eng_cryptodev.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\eng_ctrl.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\eng_ctrl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\eng_dyn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\eng_dyn.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\eng_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\eng_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\eng_fat.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\eng_fat.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\eng_init.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\eng_init.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\eng_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\eng_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\eng_list.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\eng_list.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\eng_openssl.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\eng_openssl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\eng_pkey.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\eng_pkey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\eng_rdrand.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\eng_rdrand.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\eng_table.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\eng_table.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\err\err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\err\err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\err\err_all.c">
+				RelativePath="..\OSF\OpenSSL\crypto\err\err_all.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\err\err_prn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\err\err_prn.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\evp_asn1.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\evp_asn1.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\evp_cnf.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\evp_cnf.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\evp_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\evp_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\evp_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\evp_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\evp_key.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\evp_key.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\evp_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\evp_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\evp_pbe.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\evp_pbe.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\evp_pkey.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\evp_pkey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ex_data.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ex_data.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\f_int.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\f_int.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\f_string.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\f_string.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\fcrypt.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\fcrypt.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\fcrypt_b.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\fcrypt_b.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes\gcm128.c">
+				RelativePath="..\OSF\OpenSSL\crypto\modes\gcm128.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\kdf\hkdf.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\hmac\hm_ameth.c">
+				RelativePath="..\OSF\OpenSSL\crypto\hmac\hm_ameth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\hmac\hm_pmeth.c">
+				RelativePath="..\OSF\OpenSSL\crypto\hmac\hm_pmeth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\hmac\hmac.c">
+				RelativePath="..\OSF\OpenSSL\crypto\hmac\hmac.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\i2d_pr.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\i2d_pr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\i2d_pu.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\i2d_pu.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\idea\i_cbc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\idea\i_cbc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\idea\i_cfb64.c">
+				RelativePath="..\OSF\OpenSSL\crypto\idea\i_cfb64.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\idea\i_ecb.c">
+				RelativePath="..\OSF\OpenSSL\crypto\idea\i_ecb.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\idea\i_ofb64.c">
+				RelativePath="..\OSF\OpenSSL\crypto\idea\i_ofb64.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\idea\i_skey.c">
+				RelativePath="..\OSF\OpenSSL\crypto\idea\i_skey.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\init.c">
@@ -1383,10 +1383,10 @@
 				RelativePath="..\Osf\OpenSSL\crypto\kdf\kdf_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\lhash\lh_stats.c">
+				RelativePath="..\OSF\OpenSSL\crypto\lhash\lh_stats.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\lhash\lhash.c">
+				RelativePath="..\OSF\OpenSSL\crypto\lhash\lhash.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\blake2\m_blake2b.c">
@@ -1395,79 +1395,79 @@
 				RelativePath="..\Osf\OpenSSL\crypto\blake2\m_blake2s.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\m_md2.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\m_md2.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\m_md4.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\m_md4.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\m_md5.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\m_md5.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\evp\m_md5_sha1.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\m_mdc2.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\m_mdc2.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\m_null.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\m_null.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\m_ripemd.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\m_ripemd.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\m_sha1.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\m_sha1.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\m_sigver.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\m_sigver.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\m_wp.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\m_wp.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\md4\md4_dgst.c">
+				RelativePath="..\OSF\OpenSSL\crypto\md4\md4_dgst.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\md4\md4_one.c">
+				RelativePath="..\OSF\OpenSSL\crypto\md4\md4_one.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\md5\md5_dgst.c">
+				RelativePath="..\OSF\OpenSSL\crypto\md5\md5_dgst.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\md5\md5_one.c">
+				RelativePath="..\OSF\OpenSSL\crypto\md5\md5_one.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rand\md_rand.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rand\md_rand.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\mdc2\mdc2_one.c">
+				RelativePath="..\OSF\OpenSSL\crypto\mdc2\mdc2_one.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\mdc2\mdc2dgst.c">
+				RelativePath="..\OSF\OpenSSL\crypto\mdc2\mdc2dgst.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\mem.c">
+				RelativePath="..\OSF\OpenSSL\crypto\mem.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\mem_clr.c">
+				RelativePath="..\OSF\OpenSSL\crypto\mem_clr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\mem_dbg.c">
+				RelativePath="..\OSF\OpenSSL\crypto\mem_dbg.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\mem_sec.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\n_pkey.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\n_pkey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\names.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\names.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\nsseq.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\nsseq.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\o_dir.c">
+				RelativePath="..\OSF\OpenSSL\crypto\o_dir.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\o_fips.c">
@@ -1476,70 +1476,70 @@
 				RelativePath="..\Osf\OpenSSL\crypto\o_fopen.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\o_init.c">
+				RelativePath="..\OSF\OpenSSL\crypto\o_init.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\objects\o_names.c">
+				RelativePath="..\OSF\OpenSSL\crypto\objects\o_names.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\o_str.c">
+				RelativePath="..\OSF\OpenSSL\crypto\o_str.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\o_time.c">
+				RelativePath="..\OSF\OpenSSL\crypto\o_time.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\objects\obj_dat.c">
+				RelativePath="..\OSF\OpenSSL\crypto\objects\obj_dat.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\objects\obj_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\objects\obj_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\objects\obj_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\objects\obj_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\objects\obj_xref.c">
+				RelativePath="..\OSF\OpenSSL\crypto\objects\obj_xref.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\modes\ocb128.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ocsp\ocsp_asn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ocsp\ocsp_asn.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ocsp\ocsp_cl.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ocsp\ocsp_cl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ocsp\ocsp_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ocsp\ocsp_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ocsp\ocsp_ext.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ocsp\ocsp_ext.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ocsp\ocsp_ht.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ocsp\ocsp_ht.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ocsp\ocsp_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ocsp\ocsp_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ocsp\ocsp_prn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ocsp\ocsp_prn.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ocsp\ocsp_srv.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ocsp\ocsp_srv.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ocsp\ocsp_vfy.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ocsp\ocsp_vfy.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes\ofb128.c">
+				RelativePath="..\OSF\OpenSSL\crypto\modes\ofb128.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\ofb64ede.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\ofb64ede.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\ofb64enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\ofb64enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\ofb_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\ofb_enc.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\openssl-crypto-pch.cpp">
@@ -1581,415 +1581,415 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs12\p12_add.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs12\p12_add.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs12\p12_asn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs12\p12_asn.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs12\p12_attr.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs12\p12_attr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs12\p12_crpt.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs12\p12_crpt.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs12\p12_crt.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs12\p12_crt.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs12\p12_decr.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs12\p12_decr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs12\p12_init.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs12\p12_init.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs12\p12_key.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs12\p12_key.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs12\p12_kiss.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs12\p12_kiss.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs12\p12_mutl.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs12\p12_mutl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs12\p12_npas.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs12\p12_npas.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs12\p12_p8d.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs12\p12_p8d.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs12\p12_p8e.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs12\p12_p8e.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs12\p12_utl.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs12\p12_utl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\p5_crpt.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\p5_crpt.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\p5_crpt2.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\p5_crpt2.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\p5_pbe.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\p5_pbe.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\p5_pbev2.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\p5_pbev2.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\asn1\p5_scrypt.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\p8_pkey.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\p8_pkey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\p_dec.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\p_dec.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\p_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\p_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\p_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\p_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\p_open.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\p_open.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\p_seal.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\p_seal.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\p_sign.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\p_sign.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\p_verify.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\p_verify.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\pcbc_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\pcbc_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\pcy_cache.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\pcy_cache.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\pcy_data.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\pcy_data.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\pcy_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\pcy_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\pcy_map.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\pcy_map.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\pcy_node.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\pcy_node.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\pcy_tree.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\pcy_tree.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pem\pem_all.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pem\pem_all.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pem\pem_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pem\pem_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pem\pem_info.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pem\pem_info.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pem\pem_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pem\pem_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pem\pem_oth.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pem\pem_oth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pem\pem_pk8.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pem\pem_pk8.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pem\pem_pkey.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pem\pem_pkey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pem\pem_sign.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pem\pem_sign.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pem\pem_x509.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pem\pem_x509.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pem\pem_xaux.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pem\pem_xaux.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs12\pk12err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs12\pk12err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs7\pk7_asn1.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs7\pk7_asn1.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs7\pk7_attr.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs7\pk7_attr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs7\pk7_doit.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs7\pk7_doit.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs7\pk7_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs7\pk7_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs7\pk7_mime.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs7\pk7_mime.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs7\pk7_smime.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs7\pk7_smime.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pkcs7\pkcs7err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pkcs7\pkcs7err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\pmeth_fn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\pmeth_fn.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\pmeth_gn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\pmeth_gn.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\evp\pmeth_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\evp\pmeth_lib.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\poly1305\poly1305.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\pem\pvkfmt.c">
+				RelativePath="..\OSF\OpenSSL\crypto\pem\pvkfmt.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\qud_cksm.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\qud_cksm.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rand\rand_egd.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rand\rand_egd.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rand\rand_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rand\rand_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\rand_key.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\rand_key.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rand\rand_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rand\rand_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rand\rand_unix.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rand\rand_unix.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rand\rand_win.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rand\rand_win.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rand\randfile.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rand\randfile.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rc2\rc2_cbc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rc2\rc2_cbc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rc2\rc2_ecb.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rc2\rc2_ecb.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rc2\rc2_skey.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rc2\rc2_skey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rc2\rc2cfb64.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rc2\rc2cfb64.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rc2\rc2ofb64.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rc2\rc2ofb64.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rc4\rc4_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rc4\rc4_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rc4\rc4_skey.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rc4\rc4_skey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rc5\rc5_ecb.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rc5\rc5_ecb.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rc5\rc5_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rc5\rc5_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rc5\rc5_skey.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rc5\rc5_skey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rc5\rc5cfb64.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rc5\rc5cfb64.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rc5\rc5ofb64.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rc5\rc5ofb64.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ripemd\rmd_dgst.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ripemd\rmd_dgst.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ripemd\rmd_one.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ripemd\rmd_one.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\rpc_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\rpc_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_ameth.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_ameth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_asn1.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_asn1.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_chk.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_chk.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_crpt.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_crpt.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_depr.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_depr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_gen.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_gen.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_lib.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\rsa\rsa_meth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_none.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_none.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_null.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_null.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_oaep.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_oaep.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\rsa\rsa_ossl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_pk1.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_pk1.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_pmeth.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_pmeth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_prn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_prn.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_pss.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_pss.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_saos.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_saos.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_sign.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_sign.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_ssl.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_ssl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\rsa\rsa_x931.c">
+				RelativePath="..\OSF\OpenSSL\crypto\rsa\rsa_x931.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\evp\scrypt.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\seed\seed.c">
+				RelativePath="..\OSF\OpenSSL\crypto\seed\seed.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\seed\seed_cbc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\seed\seed_cbc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\seed\seed_cfb.c">
+				RelativePath="..\OSF\OpenSSL\crypto\seed\seed_cfb.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\seed\seed_ecb.c">
+				RelativePath="..\OSF\OpenSSL\crypto\seed\seed_ecb.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\seed\seed_ofb.c">
+				RelativePath="..\OSF\OpenSSL\crypto\seed\seed_ofb.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\set_key.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\set_key.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\sha\sha1_one.c">
+				RelativePath="..\OSF\OpenSSL\crypto\sha\sha1_one.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\sha\sha1dgst.c">
+				RelativePath="..\OSF\OpenSSL\crypto\sha\sha1dgst.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\sha\sha256.c">
+				RelativePath="..\OSF\OpenSSL\crypto\sha\sha256.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\sha\sha512.c">
+				RelativePath="..\OSF\OpenSSL\crypto\sha\sha512.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\srp\srp_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\srp\srp_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\srp\srp_vfy.c">
+				RelativePath="..\OSF\OpenSSL\crypto\srp\srp_vfy.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\stack\stack.c">
+				RelativePath="..\OSF\OpenSSL\crypto\stack\stack.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\str2key.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\str2key.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\t_bitst.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\t_bitst.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\t_pkey.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\t_pkey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\t_spki.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\t_spki.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\x509\t_x509.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\tasn_dec.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\tasn_dec.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\tasn_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\tasn_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\tasn_fre.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\tasn_fre.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\tasn_new.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\tasn_new.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\tasn_prn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\tasn_prn.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\asn1\tasn_scn.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\tasn_typ.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\tasn_typ.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\tasn_utl.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\tasn_utl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\tb_asnmth.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\tb_asnmth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\tb_cipher.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\tb_cipher.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\tb_dh.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\tb_dh.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\tb_digest.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\tb_digest.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\tb_dsa.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\tb_dsa.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\engine\tb_eckey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\tb_pkmeth.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\tb_pkmeth.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\tb_rand.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\tb_rand.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\engine\tb_rsa.c">
+				RelativePath="..\OSF\OpenSSL\crypto\engine\tb_rsa.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\threads_win.c">
@@ -1998,232 +1998,232 @@
 				RelativePath="..\Osf\OpenSSL\crypto\kdf\tls1_prf.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ts\ts_asn1.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ts\ts_asn1.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ts\ts_conf.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ts\ts_conf.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ts\ts_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ts\ts_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ts\ts_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ts\ts_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ts\ts_req_print.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ts\ts_req_print.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ts\ts_req_utils.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ts\ts_req_utils.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ts\ts_rsp_print.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ts\ts_rsp_print.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ts\ts_rsp_sign.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ts\ts_rsp_sign.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ts\ts_rsp_utils.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ts\ts_rsp_utils.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ts\ts_rsp_verify.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ts\ts_rsp_verify.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ts\ts_verify_ctx.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ts\ts_verify_ctx.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\txt_db\txt_db.c">
+				RelativePath="..\OSF\OpenSSL\crypto\txt_db\txt_db.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ui\ui_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ui\ui_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ui\ui_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ui\ui_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ui\ui_openssl.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ui\ui_openssl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\ui\ui_util.c">
+				RelativePath="..\OSF\OpenSSL\crypto\ui\ui_util.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\uid.c">
+				RelativePath="..\OSF\OpenSSL\crypto\uid.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_addr.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_addr.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_akey.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_akey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_akeya.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_akeya.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_alt.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_alt.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_asid.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_asid.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_bcons.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_bcons.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_bitst.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_bitst.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_conf.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_conf.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_cpols.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_cpols.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_crld.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_crld.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_enum.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_enum.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_extku.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_extku.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_genn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_genn.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_ia5.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_ia5.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_info.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_info.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_int.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_int.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_lib.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_lib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_ncons.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_ncons.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\ocsp\v3_ocsp.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_pci.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_pci.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_pcia.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_pcia.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_pcons.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_pcons.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_pku.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_pku.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_pmaps.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_pmaps.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_prn.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_prn.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_purp.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_purp.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_skey.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_skey.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_sxnet.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_sxnet.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\x509v3\v3_tlsf.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3_utl.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3_utl.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509v3\v3err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509v3\v3err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\whrlpool\wp_block.c">
+				RelativePath="..\OSF\OpenSSL\crypto\whrlpool\wp_block.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\whrlpool\wp_dgst.c">
+				RelativePath="..\OSF\OpenSSL\crypto\whrlpool\wp_dgst.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\modes\wrap128.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_att.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_att.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_cmp.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_cmp.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_d2.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_d2.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_def.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_def.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_err.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_err.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_ext.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_ext.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_lu.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_lu.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_obj.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_obj.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_r2x.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_r2x.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_req.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_req.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_set.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_set.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_trs.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_trs.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_txt.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_txt.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_v3.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_v3.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_vfy.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_vfy.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509_vpm.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509_vpm.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509cset.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509cset.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509name.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509name.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509rset.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509rset.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509spki.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509spki.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x509type.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x509type.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\x_algor.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\x_algor.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\x509\x_all.c">
+				RelativePath="..\OSF\OpenSSL\crypto\x509\x_all.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\x509\x_attrib.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\x_bignum.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\x_bignum.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\x509\x_crl.c">
@@ -2232,16 +2232,16 @@
 				RelativePath="..\Osf\OpenSSL\crypto\x509\x_exten.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\x_info.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\x_info.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\x_long.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\x_long.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\x509\x_name.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\x_pkey.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\x_pkey.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\x509\x_pubkey.c">
@@ -2250,13 +2250,13 @@
 				RelativePath="..\Osf\OpenSSL\crypto\x509\x_req.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\x_sig.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\x_sig.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\x_spki.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\x_spki.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\asn1\x_val.c">
+				RelativePath="..\OSF\OpenSSL\crypto\asn1\x_val.c">
 			</File>
 			<File
 				RelativePath="..\Osf\OpenSSL\crypto\x509\x_x509.c">
@@ -2265,10 +2265,10 @@
 				RelativePath="..\Osf\OpenSSL\crypto\x509\x_x509a.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\des\xcbc_enc.c">
+				RelativePath="..\OSF\OpenSSL\crypto\des\xcbc_enc.c">
 			</File>
 			<File
-				RelativePath="D:\Papyrus\Src\OSF\OpenSSL\crypto\modes\xts128.c">
+				RelativePath="..\OSF\OpenSSL\crypto\modes\xts128.c">
 			</File>
 		</Filter>
 		<Filter

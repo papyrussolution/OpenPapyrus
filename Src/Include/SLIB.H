@@ -6706,7 +6706,7 @@ public:
 	//   <0 - элемент с идентификатором id найден, но соответствующая ему строка пустая.
 	//    0 - элемент с идентификатором id не найден (rBuf на выходе пуст)
 	//
-	int    SLAPI Get(long id, SString & rBuf) const;
+	int    SLAPI GetText(long id, SString & rBuf) const;
 	//
 	// Descr: Находит максимальное значение идентификатора элемента в массиве.
 	// Returns:

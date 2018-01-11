@@ -2548,7 +2548,7 @@ int SLAPI StrAssocArray::SearchByText(const char * pTxt, CompFunc fcmp, uint * p
 	return 0;
 }
 
-int SLAPI StrAssocArray::Get(long id, SString & rBuf) const
+int SLAPI StrAssocArray::GetText(long id, SString & rBuf) const
 {
 	int    ok = 0;
 	long   str_pos = 0;
@@ -4091,7 +4091,7 @@ int SLAPI TestSTree()
 			void * p_parent = tree.GetData(iter.GetParentPos());
 			if(p_parent)
 				parent_id_tree = *(long *)p_parent;
-			sa_list.Get(id, text_buf.Z());
+			sa_list.GetText(id, text_buf);
 			sa_list.GetParent(id, &parent_id_sa);
 
 			f_tree.WriteLine(out_buf.Z().Cat(id).CatDiv(';', 2).Cat(parent_id_tree).CatDiv(';', 2).Cat(text_buf).CR());

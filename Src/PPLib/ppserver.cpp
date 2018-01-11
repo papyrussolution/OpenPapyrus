@@ -157,7 +157,7 @@ int FASTCALL PPServerCmd::PutParam(int parid, const char * pVal)
 
 int FASTCALL PPServerCmd::GetParam(int parid, SString & rVal) const
 {
-	return ParamL.Get(parid, rVal);
+	return ParamL.GetText(parid, rVal);
 }
 
 int SLAPI PPServerCmd::GetWord(const char * pBuf, size_t * pPos)

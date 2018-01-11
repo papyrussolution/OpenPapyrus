@@ -1329,7 +1329,7 @@ int SLAPI CasCL5000J::CheckAck()
 		else if(recv_buf[0] == 'N') {
 			uint8  err_code = recv_buf[14];
 			SString msg;
-			ErrorCodes.Get((long)err_code, msg);
+			ErrorCodes.GetText((long)err_code, msg);
 			ok = PPSetError(PPERR_SCALE_NOACK_S, msg);
 		}
 		else

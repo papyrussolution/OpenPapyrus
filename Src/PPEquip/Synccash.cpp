@@ -645,7 +645,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, 0));
 		THROW(ExecPrintOper(DVCCMD_GETCHECKPARAM, Arr_In, Arr_Out));
 		if(Arr_Out.getCount()) {
-			for(uint i = 0; Arr_Out.Get(i, buf) > 0; i++) {
+			for(uint i = 0; Arr_Out.GetText(i, buf) > 0; i++) {
 				DestrStr(buf, param_name, param_val);
 				if(param_name.CmpNC("CHECKNUM") == 0)
 					pPack->Rec.Code = (int32)param_val.ToInt64();
@@ -694,7 +694,7 @@ int SLAPI SCS_SYNCCASH::GetSummator(double * val)
 	THROW(ArrAdd(Arr_In, DVCPARAM_CASHAMOUNT, 0));
 	THROW(ExecPrintOper(DVCCMD_GETCHECKPARAM, Arr_In, Arr_Out));
 	if(Arr_Out.getCount()) {
-		for(uint i = 0; Arr_Out.Get(i, buf) > 0; i++) {
+		for(uint i = 0; Arr_Out.GetText(i, buf) > 0; i++) {
 			DestrStr(buf, param_name, param_val);
 			if(param_name.CmpNC("CASHAMOUNT") == 0)
 				cash_amt = param_val.ToReal();
@@ -814,7 +814,7 @@ void SLAPI SCS_SYNCCASH::SetErrorMessage()
 	Arr_In.Clear();
 	if((Flags & sfConnected) && ResCode != RESCODE_NO_ERROR && ExecOper(DVCCMD_GETLASTERRORTEXT, Arr_In, Arr_Out) > 0) {
 		SString err_msg, err_buf;
-		for(uint i = 0; Arr_Out.Get(i, err_buf) > 0; i++)
+		for(uint i = 0; Arr_Out.GetText(i, err_buf) > 0; i++)
 			err_msg.Cat(err_buf);
 		PPSetError(PPERR_SYNCCASH, err_msg.Transf(CTRANSF_OUTER_TO_INNER));
 		ResCode = RESCODE_NO_ERROR;
@@ -855,7 +855,7 @@ int SLAPI SCS_SYNCCASH::ExchangeParams()
 	Arr_In.Clear();
 	THROW(ExecPrintOper(DVCCMD_GETCONFIG, Arr_In, Arr_Out));
 	if(Arr_Out.getCount()) {
-		for(uint i = 0; Arr_Out.Get(i, buf) > 0; i++) {
+		for(uint i = 0; Arr_Out.GetText(i, buf) > 0; i++) {
 			DestrStr(buf, param_name, param_val);
 			if(sstreqi_ascii(param_name, "CASHPASS"))
 				CashierPassword = param_val.ToLong();
@@ -921,7 +921,7 @@ int SLAPI SCS_SYNCCASH::CheckForSessionOver()
 	Arr_In.Clear();
 	THROW(ExecPrintOper(DVCCMD_CHECKSESSOVER, Arr_In, Arr_Out));
 	if(Arr_Out.getCount())
-		Arr_Out.Get(0, buf);
+		Arr_Out.GetText(0, buf);
 	if(buf == "1") // Сессия больше 24 часов
 		ok = 1;
 	CATCHZOK;
@@ -1029,7 +1029,7 @@ int SLAPI SCS_SYNCCASH::LineFeed(int lineCount, int useReceiptRibbon, int useJou
 	THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, 0));
 	THROW(ExecPrintOper(DVCCMD_GETCHECKPARAM, Arr_In, Arr_Out));
 	if(Arr_Out.getCount()) {
-		for(uint i = 0; Arr_Out.Get(i, buf) > 0; i++) {
+		for(uint i = 0; Arr_Out.GetText(i, buf) > 0; i++) {
 			DestrStr(buf, param_name, param_val);
 			if((param_name.CmpNC("RIBBONPARAM") == 0) && param_val.ToLong() == 0)
 				cur_receipt = 1;
@@ -1407,7 +1407,7 @@ int SCS_SYNCCASH::GetStatus(int & rStatus)
 	THROW(ExecOper(DVCCMD_GETECRSTATUS, arr_in, arr_out));
 	//THROW(ResCode == RESCODE_NO_ERROR);
 	if(arr_out.getCount()) {
-		for(uint i = 0; arr_out.Get(i, buf) > 0; i++) {
+		for(uint i = 0; arr_out.GetText(i, buf) > 0; i++) {
 			DestrStr(buf, param_name, param_val);
 			if(param_name.CmpNC("STATUS") == 0)
 				rStatus = param_val.ToLong();
@@ -1506,7 +1506,7 @@ int SLAPI SCS_SYNCCASH::ExecPrintOper(int cmd, StrAssocArray & rIn, StrAssocArra
 	do {
 		THROW(ok = P_AbstrDvc->RunCmd__(cmd, rIn, rOut));
 		if(ok == -1) {
-			THROW(rOut.Get(0, temp_buf));
+			THROW(rOut.GetText(0, temp_buf));
 			ResCode = temp_buf.ToLong();
 			ok = 0;
 		}
@@ -1537,7 +1537,7 @@ int SLAPI SCS_SYNCCASH::ExecOper(int cmd, StrAssocArray & rIn, StrAssocArray & r
 	THROW(ok = P_AbstrDvc->RunCmd__(cmd, rIn, rOut));
 	if(ok == -1) {
 		SString buf;
-		THROW(rOut.Get(0, buf));
+		THROW(rOut.GetText(0, buf));
 		ResCode = buf.ToLong();
 		ok = 0;
 	}

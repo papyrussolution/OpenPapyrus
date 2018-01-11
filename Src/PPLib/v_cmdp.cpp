@@ -1036,7 +1036,7 @@ int SelectMenu(long * pID, SString * pName, int selType, const PPCommandGroup * 
 		fseek(P_SlRez->getStream(), 0, SEEK_SET);
 		for(ulong pos = 0; P_SlRez->enumResources(0x04, &locm_id, &pos) > 0;) {
 			long _id = (long)locm_id + DEFAULT_MENUS_OFFS;
-			if(ary.Get(_id, buf) <= 0)
+			if(ary.GetText(_id, buf) <= 0)
 				ary.Add(_id, buf.Z().Cat(_id - DEFAULT_MENUS_OFFS));
 		}
 	}

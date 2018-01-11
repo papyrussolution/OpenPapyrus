@@ -3302,7 +3302,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
                         		ReceiptTbl::Key0 rk0;
 								MEMSZERO(rk0);
 								THROW_DB(r_rcpt.insertRecBuf(&lot_rec, 0, &rk0));
-								if(serial_list.Get(_lidx+1, temp_buf)) {
+								if(serial_list.GetText(_lidx+1, temp_buf)) {
 									THROW(P_BObj->SetSerialNumberByLot(rk0.ID, temp_buf, 0));
 								}
 							}

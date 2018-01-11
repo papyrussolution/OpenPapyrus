@@ -201,7 +201,7 @@ int PPDrvSession::GetErrText(int errCode, SString & rBuf)
 {
 	if(errCode < 0)
 		errCode = GetConstTLA().LastErr;
-	return ErrText.Get(errCode, rBuf);
+	return ErrText.GetText(errCode, rBuf);
 }
 
 void PPDrvSession::SetLogFileName(const char * pFileName)

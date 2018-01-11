@@ -7556,7 +7556,7 @@ int SLAPI PPObjBill::SetupSpecialAmounts(PPBillPacket * pPack)
 				if(P_OpObj->GetExAmountList(pPack->Rec.OpID, &op_at_list) > 0) {
 					for(uint i = 0; i < op_at_list.getCount(); i++) {
 						const PPID at_id = op_at_list.get(i);
-						if(fa_list.Get(at_id, formula) > 0) {
+						if(fa_list.GetText(at_id, formula) > 0) {
 							double value = 0.0;
 							THROW(PPCalcExpression(formula, &value, pPack, pPack->Rec.CurID, 0));
 							pPack->Amounts.Put(at_id, pPack->Rec.CurID, value, 0, 1);

@@ -752,7 +752,7 @@ int ColorCtrlGroup::Rec::AddUndefColorItem()
 	}
 	else
 		AddColorItem(UndefC, userdef);
-	return 1;
+	return ok;
 }
 
 void ColorCtrlGroup::Rec::SetupStdColorList()
