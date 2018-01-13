@@ -619,7 +619,8 @@ struct __GoodsStockExt {  // @persistent @store(PropertyTbl)
 	long    Brutto;       // Масса брутто, г (Если Package != 0, то масса упаковки)
 	PPDimention PckgDim;  // Габаритные размеры упаковки поставки
 	// @v9.5.10 double  MinStock;     // Минимальный запас товара
-	uint32  Reserve3[2];  // @v9.5.10
+	uint32  Reserve3;     // @v9.5.10 // @v9.8.12 [2]-->[1]
+	float   NettBruttCoeff; // @v9.8.12
 	double  Package;      // Емкость упаковки при поставке (торговых единиц)
 	int16   ExpiryPeriod;
 	int16   GseFlags;     //
@@ -647,6 +648,7 @@ int SLAPI GoodsCore::PutStockExt(PPID id, const GoodsStockExt * pData, int use_t
 		p_strg->Brutto   = pData->Brutto;
 		p_strg->PckgDim  = pData->PckgDim;
 		// @v9.5.10 p_strg->MinStock = 0; // @v6.1.11 AHTOXA больше не используется, храниться в массиве MinStockList с Ид склада = 0
+		p_strg->NettBruttCoeff = pData->NettBruttCoeff; // @v9.8.12
 		p_strg->Package  = pData->Package;
 		p_strg->ExpiryPeriod = pData->ExpiryPeriod;
 		p_strg->GseFlags = pData->GseFlags;
@@ -695,6 +697,7 @@ int SLAPI GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*
 			// }
 			pData->Brutto   = p_strg->Brutto;
 			pData->PckgDim  = p_strg->PckgDim;
+			pData->NettBruttCoeff = p_strg->NettBruttCoeff; // @v9.8.12
 			pData->Package  = (IsValidIEEE(p_strg->Package) && p_strg->Package > 0) ? R6(p_strg->Package) : 0;
 			pData->ExpiryPeriod = p_strg->ExpiryPeriod;
 			pData->GseFlags      = p_strg->GseFlags;
@@ -2646,7 +2649,7 @@ const StrAssocArray * SLAPI GoodsCache::GetFullList()
 		if(!err) {
 			#if SLTRACELOCKSTACK
 			SLS.LockPush(SLockStack::ltRW_R, __FILE__, __LINE__);
-			#endif		
+			#endif
 			FglLock.ReadLock_();
 			p_result = &FullGoodsList;
 		}
@@ -2660,7 +2663,7 @@ int GoodsCache::ReleaseFullList(const StrAssocArray * pList)
 		FglLock.Unlock_();
 		#if SLTRACELOCKSTACK
 		SLS.LockPop();
-		#endif		
+		#endif
 	}
 	return 1;
 }

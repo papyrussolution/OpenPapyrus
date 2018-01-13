@@ -57,19 +57,15 @@ uint32 TIFFGetTagListEntry(TIFF * tif, int tag_index)
 ** TIFF structure.
 */
 TIFFTagMethods * TIFFAccessTagMethods(TIFF * tif)
-
 {
 	return &(tif->tif_tagmethods);
 }
 
 void * TIFFGetClientInfo(TIFF * tif, const char * name)
-
 {
 	TIFFClientInfoLink * psLink = tif->tif_clientinfo;
-
-	while(psLink != NULL && strcmp(psLink->name, name) != 0)
+	while(psLink && !sstreq(psLink->name, name))
 		psLink = psLink->next;
-
 	if(psLink != NULL)
 		return psLink->data;
 	else
@@ -77,26 +73,18 @@ void * TIFFGetClientInfo(TIFF * tif, const char * name)
 }
 
 void TIFFSetClientInfo(TIFF * tif, void * data, const char * name)
-
 {
 	TIFFClientInfoLink * psLink = tif->tif_clientinfo;
-
-	/*
-	** Do we have an existing link with this name?  If so, just
-	** set it.
-	*/
-	while(psLink != NULL && strcmp(psLink->name, name) != 0)
+	// Do we have an existing link with this name?  If so, just set it.
+	while(psLink && !sstreq(psLink->name, name))
 		psLink = psLink->next;
-
 	if(psLink != NULL) {
 		psLink->data = data;
 		return;
 	}
-
 	/*
 	** Create a new link.
 	*/
-
 	psLink = (TIFFClientInfoLink*)SAlloc::M(sizeof(TIFFClientInfoLink));
 	assert(psLink != NULL);
 	psLink->next = tif->tif_clientinfo;
@@ -104,7 +92,6 @@ void TIFFSetClientInfo(TIFF * tif, void * data, const char * name)
 	assert(psLink->name != NULL);
 	strcpy(psLink->name, name);
 	psLink->data = data;
-
 	tif->tif_clientinfo = psLink;
 }
 

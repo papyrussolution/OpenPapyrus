@@ -440,7 +440,7 @@ void SLAPI PPObjGoods::InitInstance(SCtrLite sctr, void * extraPtr)
 	P_PsnObj = 0;
 	EcoSel = 0;
 	DoObjVer = BIN(CConfig.Flags & CCFLG_USEHISTGOODS);
-	/* @v9.8.11 
+	/* @v9.8.11
 	HistGoods = 0;
 	if(Sctr != SConstructorLite && DoObjVer) {
 		TLP_OPEN(HistGoods);
@@ -1592,7 +1592,7 @@ int SLAPI GoodsSubstList::Serialize(int dir, SBuffer & rBuf, SSerializeContext *
 	THROW_SL(pCtx->Serialize(dir, &List, rBuf));
 	THROW(AsscList.Serialize(dir, rBuf, pCtx));
 	// @v9.8.10 THROW(StrPool.Serialize(dir, rBuf, pCtx));
-	THROW(SerializeS(dir, rBuf, pCtx)); // @v9.8.10 
+	THROW(SerializeS(dir, rBuf, pCtx)); // @v9.8.10
 	CATCHZOK
 	return ok;
 }
@@ -1618,7 +1618,7 @@ IMPL_CMPFUNC(GoodsSubstItem_Srch, p1, p2)
 		if(i1->P_Text != 0 && i2->P_Text != 0) {
 			GoodsSubstList * p_gsl = (GoodsSubstList *)pExtraData;
 			// @v9.8.10 const char * p_text1 = p_gsl->StrPool.getBuf() + i1->StrP;
-			const char * p_text1 = p_gsl->GetTextPtr(i1->StrP); // @v9.8.10 
+			const char * p_text1 = p_gsl->GetTextPtr(i1->StrP); // @v9.8.10
 			return strcmp(p_text1, i2->P_Text);
 		}
 		else if(i1->P_Text == 0 && i2->P_Text)
@@ -1644,7 +1644,7 @@ int SLAPI GoodsSubstList::AddItem(const GoodsSubstItem & rItem, const AssocItem 
 		if(item.P_Text) {
 			uint text_pos = 0;
 			// @v9.8.10 StrPool.add(item.P_Text, &text_pos);
-			AddS(item.P_Text, &text_pos); // @v9.8.10 
+			AddS(item.P_Text, &text_pos); // @v9.8.10
 			item.StrP = text_pos;
 		}
 		else
@@ -1665,7 +1665,7 @@ int SLAPI GoodsSubstList::GetItem(PPID id, GoodsSubstItem * pItem) const
 			*pItem = List.at(pos);
 			if(pItem->StrP) {
 				// @v9.8.10 pItem->P_Text = StrPool.getBuf() + pItem->StrP;
-				pItem->P_Text = Pool.getBuf() + pItem->StrP; // @v9.8.10 
+				pItem->P_Text = Pool.getBuf() + pItem->StrP; // @v9.8.10
 			}
 			else
 				pItem->P_Text = 0;
@@ -3583,7 +3583,7 @@ int SLAPI PPObjGoods::SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & 
 	THROW(pPack->Stock.Serialize(dir, rBuf, pSCtx));
 	THROW(pPack->TagL.Serialize(dir, rBuf, pSCtx));
 	THROW(pPack->GenericList.Serialize(dir, rBuf, pSCtx));
-	THROW(pPack->LinkFiles.Serialize(dir, (GetConfig().Flags & GCF_XCHG_SENDATTACHMENT && 
+	THROW(pPack->LinkFiles.Serialize(dir, (GetConfig().Flags & GCF_XCHG_SENDATTACHMENT &&
 		!pSCtx->CheckFlag(SSerializeContext::fDontProcessAttachment)) ? 0 : 1, rBuf, pSCtx)); // @v8.2.3
 	{
 		PPQuotArray quot_list;
@@ -3848,6 +3848,11 @@ int SLAPI PPObjGoods::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 //
 //
 //
+int SLAPI GoodsStockExt::Pallet::IsValid() const
+{
+	return BIN(PalletTypeID && PacksPerLayer > 0 && MaxLayers > 0);
+}
+
 SLAPI GoodsStockExt::GoodsStockExt()
 {
 	Init();
@@ -3859,7 +3864,7 @@ int SLAPI GoodsStockExt::IsEmpty() const
 	uint   min_stock_count = MinStockList.getCount();
 	for(uint i = 0; min_stock_empty && i < min_stock_count; i++)
 		min_stock_empty = (MinStockList.at(i).Val != 0.0) ? 0 : 1;
-	return (min_stock_empty && !Brutto && !PckgDim && !RtlDim && !Package && !ExpiryPeriod && !MinShippmQtty && !PltList.getCount());
+	return (min_stock_empty && !Brutto && !PckgDim && !RtlDim && !Package && !ExpiryPeriod && !MinShippmQtty && !NettBruttCoeff && !PltList.getCount());
 }
 
 int FASTCALL GoodsStockExt::IsEqual(const GoodsStockExt & rS) const
@@ -3875,6 +3880,8 @@ int FASTCALL GoodsStockExt::IsEqual(const GoodsStockExt & rS) const
 	else if(GseFlags != rS.GseFlags)
 		return 0;
 	else if(MinShippmQtty != rS.MinShippmQtty)
+		return 0;
+	else if(NettBruttCoeff != rS.NettBruttCoeff) // @v9.8.12
 		return 0;
 	else if(RtlDim != rS.RtlDim)
 		return 0;
@@ -3893,10 +3900,11 @@ int SLAPI GoodsStockExt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * 
 	THROW(PckgDim.Serialize(dir, rBuf, pCtx));
 	THROW_SL(pCtx->Serialize(dir, Package, rBuf));
 	THROW_SL(pCtx->Serialize(dir, ExpiryPeriod, rBuf));
-	// @todo RtlDim, MinShippmQtty
+	// @todo RtlDim, MinShippmQtty, NettBruttCoeff
 	if(dir < 0) {
 		RtlDim.Reset();
 		MinShippmQtty = 0.0;
+		NettBruttCoeff = 0.0f; // @v9.8.12
 	}
 	THROW_SL(pCtx->Serialize(dir, &MinStockList, rBuf));
 	THROW_SL(pCtx->Serialize(dir, &PltList, rBuf));
@@ -3981,14 +3989,13 @@ double SLAPI GoodsStockExt::GetMinStock(PPID locID, int useZeroLoc /*=1*/)
 	return min_stock;
 }
 
-int SLAPI GoodsStockExt::SetMinStock(PPID locID, double qtty)
+void SLAPI GoodsStockExt::SetMinStock(PPID locID, double qtty)
 {
 	uint pos = 0;
 	if(MinStockList.Search(locID, 0, &pos, 1) > 0)
 		MinStockList.at(pos).Val = qtty;
 	else
 		MinStockList.Add(locID, qtty, 0, 1);
-	return 1;
 }
 
 int SLAPI GoodsStockExt::GetPalletEntry(PPID palletTypeID, Pallet * pEntry) const

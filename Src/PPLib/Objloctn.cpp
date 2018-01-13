@@ -1508,10 +1508,7 @@ int LocationExtFieldsDialog::getDTS(LocationTbl::Rec * pData)
 	return 1;
 }
 
-int SLAPI EditDlvrAddrExtFields(LocationTbl::Rec * pData)
-{
-	DIALOG_PROC_BODYERR(LocationExtFieldsDialog, pData);
-}
+int SLAPI EditDlvrAddrExtFields(LocationTbl::Rec * pData) { DIALOG_PROC_BODYERR(LocationExtFieldsDialog, pData); }
 
 class LocationDialog : public TDialog {
 public:

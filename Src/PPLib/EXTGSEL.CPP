@@ -600,7 +600,7 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 	else if(event.isCbSelected(CTLSEL_EXTGSEL_GGRP) || event.isCbSelected(CTLSEL_EXTGSEL_BRAND) || event.isCbSelected(CTLSEL_EXTGSEL_MODIFMODE))
 		updateList(0);
 	else if(event.isCmd(cmaInsert)) {
-		// @v9.6.12 if(IsCurrCtl(P_List)) {
+		// @v9.6.12 if(IsCurrentView(P_List)) {
 			grp_id = getCtrlLong(CTLSEL_EXTGSEL_GGRP);
 			if(GObj.Edit(&(c = 0), (void *)grp_id) == cmOK)
 				selectGoods(grp_id, c);
@@ -753,7 +753,7 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 			PPGoodsCalculator(c, 0, 0, 0, 0);
 	}
 	else if(event.isKeyDown(KB_CTRLENTER))
-		if(IsCurrCtl(P_List)) {
+		if(IsCurrentView(P_List)) {
 			if((c = getSelectedItem()) != 0 && GObj.Edit(&c, 0L) == cmOK)
 				updateList(-1);
 		}

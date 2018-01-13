@@ -1470,10 +1470,7 @@ PPALDD_CONSTRUCTOR(TestRel)
 	InitFixData(rscDefHdr, &H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(TestRel)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(TestRel) { Destroy(); }
 
 int PPALDD_TestRel::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -1493,10 +1490,7 @@ PPALDD_CONSTRUCTOR(Test)
 	InitFixData(rscDefHdr, &H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(Test)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(Test) { Destroy(); }
 
 int PPALDD_Test::InitData(PPFilt & rFilt, long rsrv)
 {

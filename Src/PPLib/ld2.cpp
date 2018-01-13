@@ -1,5 +1,5 @@
 // LD2.CPP
-// Copyright (c) A.Sobolev 1999-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2016
+// Copyright (c) A.Sobolev 1999-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2016, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -14,10 +14,7 @@ PPALDD_CONSTRUCTOR(CashBook)
 	}
 }
 
-PPALDD_DESTRUCTOR(CashBook)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(CashBook) { Destroy(); }
 
 int PPALDD_CashBook::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -46,10 +43,7 @@ PPALDD_CONSTRUCTOR(TransferBase)
 	}
 }
 
-PPALDD_DESTRUCTOR(TransferBase)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(TransferBase) { Destroy(); }
 
 int PPALDD_TransferBase::InitData(PPFilt & rFilt, long rsrv)
 {

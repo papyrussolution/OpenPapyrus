@@ -1289,7 +1289,7 @@ int __env_set_verbose(DB_ENV * dbenv, uint32 which, int on)
  * __db_mi_env --
  *	Method illegally called with public environment.
  *
- * PUBLIC: int __db_mi_env __P((ENV *, const char *));
+ * PUBLIC: int __db_mi_env(ENV *, const char *);
  */
 int __db_mi_env(ENV * env, const char * name)
 {
@@ -1300,9 +1300,9 @@ int __db_mi_env(ENV * env, const char * name)
  * __db_mi_open --
  *	Method illegally called after open.
  *
- * PUBLIC: int __db_mi_open __P((ENV *, const char *, int));
+ * PUBLIC: int __db_mi_open(ENV *, const char *, int);
  */
-int __db_mi_open(ENV * env, const char * name, int after)
+int FASTCALL __db_mi_open(ENV * env, const char * name, int after)
 {
 	__db_errx(env, DB_STR_A("1565", "%s: method not permitted %s handle's open method", "%s %s"), name, after ? DB_STR_P("after") : DB_STR_P("before"));
 	return EINVAL;
@@ -1311,9 +1311,9 @@ int __db_mi_open(ENV * env, const char * name, int after)
  * __env_not_config --
  *	Method or function called without required configuration.
  *
- * PUBLIC: int __env_not_config __P((ENV *, const char *, uint32));
+ * PUBLIC: int __env_not_config(ENV *, const char *, uint32);
  */
-int __env_not_config(ENV * env, const char * i, uint32 flags)
+int FASTCALL __env_not_config(ENV * env, const char * i, uint32 flags)
 {
 	char * sub;
 	int is_sub = 1;

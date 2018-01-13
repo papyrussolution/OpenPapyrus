@@ -421,7 +421,7 @@ sess_id_done:
 	if(s->s3->flags & TLS1_FLAGS_RECEIVED_EXTMS)
 		ss->flags |= SSL_SESS_FLAG_EXTMS;
 
-	return (1);
+	return 1;
 }
 
 /*-
@@ -806,7 +806,7 @@ long SSL_SESSION_set_timeout(SSL_SESSION * s, long t)
 	if(s == NULL)
 		return 0;
 	s->timeout = t;
-	return (1);
+	return 1;
 }
 
 long SSL_SESSION_get_timeout(const SSL_SESSION * s)
@@ -912,7 +912,7 @@ int SSL_set_session_secret_cb(SSL * s,
 		return 0;
 	s->tls_session_secret_cb = tls_session_secret_cb;
 	s->tls_session_secret_cb_arg = arg;
-	return (1);
+	return 1;
 }
 
 int SSL_set_session_ticket_ext_cb(SSL * s, tls_session_ticket_ext_cb_fn cb,
@@ -922,7 +922,7 @@ int SSL_set_session_ticket_ext_cb(SSL * s, tls_session_ticket_ext_cb_fn cb,
 		return 0;
 	s->tls_session_ticket_ext_cb = cb;
 	s->tls_session_ticket_ext_cb_arg = arg;
-	return (1);
+	return 1;
 }
 
 int SSL_set_session_ticket_ext(SSL * s, void * ext_data, int ext_len)
@@ -997,7 +997,7 @@ int ssl_clear_bad_session(SSL * s)
 	    !(s->shutdown & SSL_SENT_SHUTDOWN) &&
 	    !(SSL_in_init(s) || SSL_in_before(s))) {
 		SSL_CTX_remove_session(s->session_ctx, s->session);
-		return (1);
+		return 1;
 	}
 	else
 		return 0;

@@ -1915,10 +1915,7 @@ int DebtTrnovrCycleDialog::getDTS(DebtTrnovrFilt * pData)
 	return ok;
 }
 
-int DebtTrnovrFiltDialog::editCycles()
-{
-	DIALOG_PROC_BODY(DebtTrnovrCycleDialog, &Data);
-}
+int DebtTrnovrFiltDialog::editCycles() { DIALOG_PROC_BODY(DebtTrnovrCycleDialog, &Data); }
 //
 //
 //
@@ -2511,10 +2508,7 @@ int SLAPI PPViewDebtTrnovr::Print(const void *)
 	return 1;
 }
 
-int SLAPI ViewDebtTrnovr(const DebtTrnovrFilt * pFilt, int sellOrSuppl)
-{
-	return PPView::Execute(PPVIEW_DEBTTRNOVR, pFilt, 1, (void *)sellOrSuppl);
-}
+int SLAPI ViewDebtTrnovr(const DebtTrnovrFilt * pFilt, int sellOrSuppl) { return PPView::Execute(PPVIEW_DEBTTRNOVR, pFilt, 1, (void *)sellOrSuppl); }
 //
 // Implementation of PPALDD_DebtTrnovr
 //

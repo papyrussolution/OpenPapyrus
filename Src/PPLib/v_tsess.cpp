@@ -1299,15 +1299,8 @@ int SLAPI PPViewTSession::GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & 
 }
 
 
-int SLAPI ViewTSession(const TSessionFilt * pFilt)
-{
-	return PPView::Execute(PPVIEW_TSESSION, pFilt, 1, 0);
-}
-
-int SLAPI ViewManufPlan(const TSessionFilt * pFilt)
-{
-	return PPView::Execute(PPVIEW_TSESSION, pFilt, 1, (void *)TSESK_PLAN);
-}
+int SLAPI ViewTSession(const TSessionFilt * pFilt) { return PPView::Execute(PPVIEW_TSESSION, pFilt, 1, 0); }
+int SLAPI ViewManufPlan(const TSessionFilt * pFilt) { return PPView::Execute(PPVIEW_TSESSION, pFilt, 1, (void *)TSESK_PLAN); }
 //
 // @ModuleDef(PPViewTSessLine)
 //
@@ -2428,4 +2421,3 @@ int SLAPI PPObjTSession::ImportUHTT()
 	ENDCATCH
 	return ok;
 }
-

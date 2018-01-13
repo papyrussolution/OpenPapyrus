@@ -864,12 +864,9 @@ int SLAPI SUInt::fromstr(void * d, long, const char * buf) const
 	return r;
 }
 
-int SLAPI SUInt::tobase(const void * d, void * baseData) const
-	{ return ((*(long *)baseData = (long)_toulong(d, S)), 1); }
-int SLAPI SUInt::baseto(void * d, const void * baseData) const
-	{ return (_ulongto((ulong)*(long *)baseData, d, S), 1); }
-void SLAPI SUInt::minval(void * d) const
-	{ _ulongto(0L, d, S); }
+int SLAPI SUInt::tobase(const void * d, void * baseData) const { return ((*(long *)baseData = (long)_toulong(d, S)), 1); }
+int SLAPI SUInt::baseto(void * d, const void * baseData) const { return (_ulongto((ulong)*(long *)baseData, d, S), 1); }
+void SLAPI SUInt::minval(void * d) const { _ulongto(0L, d, S); }
 
 void SLAPI SUInt::maxval(void * d) const
 {

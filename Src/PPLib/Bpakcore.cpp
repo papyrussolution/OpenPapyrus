@@ -8,10 +8,7 @@
 //
 //
 //
-IMPL_CMPFUNC(PayPlanTblRec, i1, i2)
-{
-	return CMPSIGN(((PayPlanTbl::Rec *)i1)->PayDate, ((PayPlanTbl::Rec *)i2)->PayDate);
-}
+IMPL_CMPFUNC(PayPlanTblRec, i1, i2) { return CMPSIGN(((PayPlanTbl::Rec *)i1)->PayDate, ((PayPlanTbl::Rec *)i2)->PayDate); }
 
 PayPlanArray::PayPlanArray() : TSVector <PayPlanTbl::Rec>() // @v9.8.4 TSArray-->TSVector
 {

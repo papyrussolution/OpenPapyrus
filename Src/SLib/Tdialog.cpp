@@ -490,10 +490,10 @@ void SLAPI TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc,
 		// но делает неработоспособными некоторые функции (например, не срабатывает функция //
 		// TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c); в калькуляторе).
 		//
-		TView * preserve_current = APPL->P_DeskTop->P_Current;
-		HW = APPL->CreateDlg(resourceID, APPL->H_TopOfStack, (DLGPROC)DialogProc, (LPARAM)this);
+		TView * preserve_current = APPL->P_DeskTop->GetCurrentView();
+		HW = APPL->CreateDlg(resourceID, APPL->H_TopOfStack, (DLGPROC)TDialog::DialogProc, (LPARAM)this);
 		::ShowWindow(H(), SW_HIDE);
-		APPL->P_DeskTop->setCurrent(preserve_current, leaveSelect);
+		APPL->P_DeskTop->SetCurrentView(preserve_current, leaveSelect);
 	}
 }
 
@@ -840,10 +840,10 @@ int FASTCALL TDialog::GetClusterData(uint ctlID, int16 * pVal)
 	return r;
 }
 
-int TDialog::DisableClusterItem(uint ctlID, int itemNo, int toDisable)
+void TDialog::DisableClusterItem(uint ctlID, int itemNo, int toDisable)
 {
 	TCluster * p_clu = (TCluster *)getCtrlView(ctlID);
-	return p_clu ? p_clu->disableItem(itemNo, toDisable) : 0;
+	CALLPTRMEMB(p_clu, disableItem(itemNo, toDisable));
 }
 
 int TDialog::SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * pText)

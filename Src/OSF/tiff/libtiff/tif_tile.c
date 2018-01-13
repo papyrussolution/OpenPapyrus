@@ -83,7 +83,7 @@ int TIFFCheckTile(TIFF* tif, uint32 x, uint32 y, uint32 z, uint16 s)
 		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "%lu: Sample out of range, max %lu", (unsigned long)s, (unsigned long)(td->td_samplesperpixel - 1));
 		return 0;
 	}
-	return (1);
+	return 1;
 }
 /*
  * Compute how many tiles are in an image.
@@ -95,12 +95,11 @@ uint32 TIFFNumberOfTiles(TIFF* tif)
 	uint32 dy = td->td_tilelength;
 	uint32 dz = td->td_tiledepth;
 	uint32 ntiles;
-
-	if(dx == (uint32) -1)
+	if(dx == (uint32)-1)
 		dx = td->td_imagewidth;
-	if(dy == (uint32) -1)
+	if(dy == (uint32)-1)
 		dy = td->td_imagelength;
-	if(dz == (uint32) -1)
+	if(dz == (uint32)-1)
 		dz = td->td_imagedepth;
 	ntiles = (dx == 0 || dy == 0 || dz == 0) ? 0 :
 	    _TIFFMultiply32(tif, _TIFFMultiply32(tif, TIFFhowmany_32(td->td_imagewidth, dx), TIFFhowmany_32(td->td_imagelength, dy), "TIFFNumberOfTiles"),
@@ -147,15 +146,13 @@ uint64 TIFFTileRowSize64(TIFF* tif)
 tmsize_t TIFFTileRowSize(TIFF* tif)
 {
 	static const char module[] = "TIFFTileRowSize";
-	uint64 m;
-	tmsize_t n;
-	m = TIFFTileRowSize64(tif);
-	n = (tmsize_t)m;
+	uint64 m = TIFFTileRowSize64(tif);
+	tmsize_t n = (tmsize_t)m;
 	if((uint64)n!=m) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Integer overflow");
 		n = 0;
 	}
-	return(n);
+	return n;
 }
 
 /*
@@ -177,30 +174,23 @@ uint64 TIFFVTileSize64(TIFF* tif, uint32 nrows)
 		 * YCbCr data for the extended image.
 		 */
 		uint16 ycbcrsubsampling[2];
-		uint16 samplingblock_samples;
-		uint32 samplingblocks_hor;
-		uint32 samplingblocks_ver;
-		uint64 samplingrow_samples;
-		uint64 samplingrow_size;
-		TIFFGetFieldDefaulted(tif, TIFFTAG_YCBCRSUBSAMPLING, ycbcrsubsampling+0,
-		    ycbcrsubsampling+1);
+		TIFFGetFieldDefaulted(tif, TIFFTAG_YCBCRSUBSAMPLING, ycbcrsubsampling+0, ycbcrsubsampling+1);
 		if((ycbcrsubsampling[0] != 1 && ycbcrsubsampling[0] != 2 && ycbcrsubsampling[0] != 4)
 		    ||(ycbcrsubsampling[1] != 1 && ycbcrsubsampling[1] != 2 && ycbcrsubsampling[1] != 4)) {
-			TIFFErrorExt(tif->tif_clientdata, module,
-			    "Invalid YCbCr subsampling (%dx%d)",
-			    ycbcrsubsampling[0],
-			    ycbcrsubsampling[1]);
+			TIFFErrorExt(tif->tif_clientdata, module, "Invalid YCbCr subsampling (%dx%d)", ycbcrsubsampling[0], ycbcrsubsampling[1]);
 			return 0;
 		}
-		samplingblock_samples = ycbcrsubsampling[0]*ycbcrsubsampling[1]+2;
-		samplingblocks_hor = TIFFhowmany_32(td->td_tilewidth, ycbcrsubsampling[0]);
-		samplingblocks_ver = TIFFhowmany_32(nrows, ycbcrsubsampling[1]);
-		samplingrow_samples = _TIFFMultiply64(tif, samplingblocks_hor, samplingblock_samples, module);
-		samplingrow_size = TIFFhowmany8_64(_TIFFMultiply64(tif, samplingrow_samples, td->td_bitspersample, module));
-		return(_TIFFMultiply64(tif, samplingrow_size, samplingblocks_ver, module));
+		else {
+			uint16 samplingblock_samples = ycbcrsubsampling[0]*ycbcrsubsampling[1]+2;
+			uint32 samplingblocks_hor = TIFFhowmany_32(td->td_tilewidth, ycbcrsubsampling[0]);
+			uint32 samplingblocks_ver = TIFFhowmany_32(nrows, ycbcrsubsampling[1]);
+			uint64 samplingrow_samples = _TIFFMultiply64(tif, samplingblocks_hor, samplingblock_samples, module);
+			uint64 samplingrow_size = TIFFhowmany8_64(_TIFFMultiply64(tif, samplingrow_samples, td->td_bitspersample, module));
+			return _TIFFMultiply64(tif, samplingrow_size, samplingblocks_ver, module);
+		}
 	}
 	else
-		return(_TIFFMultiply64(tif, nrows, TIFFTileRowSize64(tif), module));
+		return _TIFFMultiply64(tif, nrows, TIFFTileRowSize64(tif), module);
 }
 
 tmsize_t TIFFVTileSize(TIFF* tif, uint32 nrows)
@@ -212,7 +202,7 @@ tmsize_t TIFFVTileSize(TIFF* tif, uint32 nrows)
 		TIFFErrorExt(tif->tif_clientdata, module, "Integer overflow");
 		n = 0;
 	}
-	return(n);
+	return n;
 }
 /*
  * Compute the # bytes in a row-aligned tile.
@@ -231,7 +221,7 @@ tmsize_t TIFFTileSize(TIFF* tif)
 		TIFFErrorExt(tif->tif_clientdata, module, "Integer overflow");
 		n = 0;
 	}
-	return(n);
+	return n;
 }
 
 /*

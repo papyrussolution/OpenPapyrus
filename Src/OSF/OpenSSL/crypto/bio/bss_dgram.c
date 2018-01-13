@@ -228,25 +228,19 @@ static void dgram_adjust_rcv_timeout(BIO * b)
 		else {
 			timeleft.tv_sec -= timenow.tv_sec;
 		}
-
 		/*
-		 * Adjust socket timeout if next handshake message timer will expire
-		 * earlier.
+		 * Adjust socket timeout if next handshake message timer will expire earlier.
 		 */
-		if((data->socket_timeout.tv_sec == 0
-			    && data->socket_timeout.tv_usec == 0)
-		    || (data->socket_timeout.tv_sec > timeleft.tv_sec)
-		    || (data->socket_timeout.tv_sec == timeleft.tv_sec
+		if((data->socket_timeout.tv_sec == 0 && data->socket_timeout.tv_usec == 0)
+		    || (data->socket_timeout.tv_sec > timeleft.tv_sec) || (data->socket_timeout.tv_sec == timeleft.tv_sec
 			    && data->socket_timeout.tv_usec >= timeleft.tv_usec)) {
 #  ifdef OPENSSL_SYS_WINDOWS
 			timeout = timeleft.tv_sec * 1000 + timeleft.tv_usec / 1000;
-			if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO,
-				    (const char*)&timeout, sizeof(timeout)) < 0) {
+			if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout)) < 0) {
 				perror("setsockopt");
 			}
 #  else
-			if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, &timeleft,
-				    sizeof(struct timeval)) < 0) {
+			if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, &timeleft, sizeof(struct timeval)) < 0) {
 				perror("setsockopt");
 			}
 #  endif
@@ -259,20 +253,15 @@ static void dgram_reset_rcv_timeout(BIO * b)
 {
 # if defined(SO_RCVTIMEO)
 	bio_dgram_data * data = (bio_dgram_data*)b->ptr;
-
 	/* Is a timer active? */
 	if(data->next_timeout.tv_sec > 0 || data->next_timeout.tv_usec > 0) {
 #  ifdef OPENSSL_SYS_WINDOWS
-		int timeout = data->socket_timeout.tv_sec * 1000 +
-		    data->socket_timeout.tv_usec / 1000;
-		if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO,
-			    (const char*)&timeout, sizeof(timeout)) < 0) {
+		int timeout = data->socket_timeout.tv_sec * 1000 + data->socket_timeout.tv_usec / 1000;
+		if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout)) < 0) {
 			perror("setsockopt");
 		}
 #  else
-		if(setsockopt
-			    (b->num, SOL_SOCKET, SO_RCVTIMEO, &(data->socket_timeout),
-			    sizeof(struct timeval)) < 0) {
+		if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, &(data->socket_timeout), sizeof(struct timeval)) < 0) {
 			perror("setsockopt");
 		}
 #  endif
@@ -285,22 +274,17 @@ static int dgram_read(BIO * b, char * out, int outl)
 	int ret = 0;
 	bio_dgram_data * data = (bio_dgram_data*)b->ptr;
 	int flags = 0;
-
 	BIO_ADDR peer;
 	socklen_t len = sizeof(peer);
-
 	if(out) {
 		clear_socket_error();
 		memzero(&peer, sizeof(peer));
 		dgram_adjust_rcv_timeout(b);
 		if(data->peekmode)
 			flags = MSG_PEEK;
-		ret = recvfrom(b->num, out, outl, flags,
-		    BIO_ADDR_sockaddr_noconst(&peer), &len);
-
+		ret = recvfrom(b->num, out, outl, flags, BIO_ADDR_sockaddr_noconst(&peer), &len);
 		if(!data->connected && ret >= 0)
 			BIO_ctrl(b, BIO_CTRL_DGRAM_SET_PEER, 0, &peer);
-
 		BIO_clear_retry_flags(b);
 		if(ret < 0) {
 			if(BIO_dgram_should_retry(ret)) {
@@ -308,7 +292,6 @@ static int dgram_read(BIO * b, char * out, int outl)
 				data->_errno = get_last_socket_error();
 			}
 		}
-
 		dgram_reset_rcv_timeout(b);
 	}
 	return ret;
@@ -323,16 +306,12 @@ static int dgram_write(BIO * b, const char * in, int inl)
 		ret = writesocket(b->num, in, inl);
 	else {
 		int peerlen = BIO_ADDR_sockaddr_size(&data->peer);
-
 # if defined(NETWARE_CLIB) && defined(NETWARE_BSDSOCK)
-		ret = sendto(b->num, (char*)in, inl, 0,
-		    BIO_ADDR_sockaddr(&data->peer), peerlen);
+		ret = sendto(b->num, (char*)in, inl, 0, BIO_ADDR_sockaddr(&data->peer), peerlen);
 # else
-		ret = sendto(b->num, in, inl, 0,
-		    BIO_ADDR_sockaddr(&data->peer), peerlen);
+		ret = sendto(b->num, in, inl, 0, BIO_ADDR_sockaddr(&data->peer), peerlen);
 # endif
 	}
-
 	BIO_clear_retry_flags(b);
 	if(ret <= 0) {
 		if(BIO_dgram_should_retry(ret)) {
@@ -346,7 +325,6 @@ static int dgram_write(BIO * b, const char * in, int inl)
 static long dgram_get_mtu_overhead(bio_dgram_data * data)
 {
 	long ret;
-
 	switch(BIO_ADDR_family(&data->peer)) {
 		case AF_INET:
 		    /*
@@ -452,15 +430,13 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    switch(addr.sa.sa_family) {
 			    case AF_INET:
 				sockopt_val = IP_PMTUDISC_DO;
-				if((ret = setsockopt(b->num, IPPROTO_IP, IP_MTU_DISCOVER,
-					    &sockopt_val, sizeof(sockopt_val))) < 0)
+				if((ret = setsockopt(b->num, IPPROTO_IP, IP_MTU_DISCOVER, &sockopt_val, sizeof(sockopt_val))) < 0)
 					perror("setsockopt");
 				break;
 #  if OPENSSL_USE_IPV6 && defined(IPV6_MTU_DISCOVER) && defined(IPV6_PMTUDISC_DO)
 			    case AF_INET6:
 				sockopt_val = IPV6_PMTUDISC_DO;
-				if((ret = setsockopt(b->num, IPPROTO_IPV6, IPV6_MTU_DISCOVER,
-					    &sockopt_val, sizeof(sockopt_val))) < 0)
+				if((ret = setsockopt(b->num, IPPROTO_IPV6, IPV6_MTU_DISCOVER, &sockopt_val, sizeof(sockopt_val))) < 0)
 					perror("setsockopt");
 				break;
 #  endif
@@ -591,8 +567,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    }
 		    }
 #  else
-		    if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, ptr,
-			    sizeof(struct timeval)) < 0) {
+		    if(setsockopt(b->num, SOL_SOCKET, SO_RCVTIMEO, ptr, sizeof(struct timeval)) < 0) {
 			    perror("setsockopt");
 			    ret = -1;
 		    }
@@ -647,8 +622,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    }
 		    }
 #  else
-		    if(setsockopt(b->num, SOL_SOCKET, SO_SNDTIMEO, ptr,
-			    sizeof(struct timeval)) < 0) {
+		    if(setsockopt(b->num, SOL_SOCKET, SO_SNDTIMEO, ptr, sizeof(struct timeval)) < 0) {
 			    perror("setsockopt");
 			    ret = -1;
 		    }
@@ -719,19 +693,15 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 # endif
 		case BIO_CTRL_DGRAM_SET_DONT_FRAG:
 		    sockopt_val = num ? 1 : 0;
-
 		    switch(data->peer.sa.sa_family) {
 			    case AF_INET:
 # if defined(IP_DONTFRAG)
-				if((ret = setsockopt(b->num, IPPROTO_IP, IP_DONTFRAG,
-					    &sockopt_val, sizeof(sockopt_val))) < 0) {
+				if((ret = setsockopt(b->num, IPPROTO_IP, IP_DONTFRAG, &sockopt_val, sizeof(sockopt_val))) < 0) {
 					perror("setsockopt");
 					ret = -1;
 				}
 # elif defined(OPENSSL_SYS_LINUX) && defined(IP_MTU_DISCOVER) && defined (IP_PMTUDISC_PROBE)
-				if((sockopt_val = num ? IP_PMTUDISC_PROBE : IP_PMTUDISC_DONT),
-			    (ret = setsockopt(b->num, IPPROTO_IP, IP_MTU_DISCOVER,
-					    &sockopt_val, sizeof(sockopt_val))) < 0) {
+				if((sockopt_val = num ? IP_PMTUDISC_PROBE : IP_PMTUDISC_DONT), (ret = setsockopt(b->num, IPPROTO_IP, IP_MTU_DISCOVER, &sockopt_val, sizeof(sockopt_val))) < 0) {
 					perror("setsockopt");
 					ret = -1;
 				}
@@ -752,9 +722,7 @@ static long dgram_ctrl(BIO * b, int cmd, long num, void * ptr)
 					ret = -1;
 				}
 #  elif defined(OPENSSL_SYS_LINUX) && defined(IPV6_MTUDISCOVER)
-				if((sockopt_val = num ? IP_PMTUDISC_PROBE : IP_PMTUDISC_DONT),
-			    (ret = setsockopt(b->num, IPPROTO_IPV6, IPV6_MTU_DISCOVER,
-					    &sockopt_val, sizeof(sockopt_val))) < 0) {
+				if((sockopt_val = num ? IP_PMTUDISC_PROBE : IP_PMTUDISC_DONT), (ret = setsockopt(b->num, IPPROTO_IPV6, IPV6_MTU_DISCOVER, &sockopt_val, sizeof(sockopt_val))) < 0) {
 					perror("setsockopt");
 					ret = -1;
 				}
@@ -819,25 +787,19 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 	if(bio == NULL)
 		return NULL;
 	BIO_set_fd(bio, fd, close_flag);
-
 	/* Activate SCTP-AUTH for DATA and FORWARD-TSN chunks */
 	auth.sauth_chunk = OPENSSL_SCTP_DATA_CHUNK_TYPE;
-	ret =
-	    setsockopt(fd, IPPROTO_SCTP, SCTP_AUTH_CHUNK, &auth,
-	    sizeof(struct sctp_authchunk));
+	ret = setsockopt(fd, IPPROTO_SCTP, SCTP_AUTH_CHUNK, &auth, sizeof(struct sctp_authchunk));
 	if(ret < 0) {
 		BIO_vfree(bio);
 		return NULL;
 	}
 	auth.sauth_chunk = OPENSSL_SCTP_FORWARD_CUM_TSN_CHUNK_TYPE;
-	ret =
-	    setsockopt(fd, IPPROTO_SCTP, SCTP_AUTH_CHUNK, &auth,
-	    sizeof(struct sctp_authchunk));
+	ret = setsockopt(fd, IPPROTO_SCTP, SCTP_AUTH_CHUNK, &auth, sizeof(struct sctp_authchunk));
 	if(ret < 0) {
 		BIO_vfree(bio);
 		return NULL;
 	}
-
 	/*
 	 * Test if activation was successful. When using accept(), SCTP-AUTH has
 	 * to be activated for the listening socket already, otherwise the
@@ -877,9 +839,7 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 	event.se_assoc_id = 0;
 	event.se_type = SCTP_AUTHENTICATION_EVENT;
 	event.se_on = 1;
-	ret =
-	    setsockopt(fd, IPPROTO_SCTP, SCTP_EVENT, &event,
-	    sizeof(struct sctp_event));
+	ret = setsockopt(fd, IPPROTO_SCTP, SCTP_EVENT, &event, sizeof(struct sctp_event));
 	if(ret < 0) {
 		BIO_vfree(bio);
 		return NULL;
@@ -891,31 +851,23 @@ BIO * BIO_new_dgram_sctp(int fd, int close_flag)
 		BIO_vfree(bio);
 		return NULL;
 	}
-
 	event.sctp_authentication_event = 1;
-
-	ret =
-	    setsockopt(fd, IPPROTO_SCTP, SCTP_EVENTS, &event,
-	    sizeof(struct sctp_event_subscribe));
+	ret = setsockopt(fd, IPPROTO_SCTP, SCTP_EVENTS, &event, sizeof(struct sctp_event_subscribe));
 	if(ret < 0) {
 		BIO_vfree(bio);
 		return NULL;
 	}
 #   endif
 #  endif
-
 	/*
 	 * Disable partial delivery by setting the min size larger than the max
 	 * record size of 2^14 + 2048 + 13
 	 */
-	ret =
-	    setsockopt(fd, IPPROTO_SCTP, SCTP_PARTIAL_DELIVERY_POINT, &optval,
-	    sizeof(optval));
+	ret = setsockopt(fd, IPPROTO_SCTP, SCTP_PARTIAL_DELIVERY_POINT, &optval, sizeof(optval));
 	if(ret < 0) {
 		BIO_vfree(bio);
 		return NULL;
 	}
-
 	return (bio);
 }
 
@@ -969,8 +921,7 @@ void dgram_sctp_handle_auth_free_key_event(BIO * b, union sctp_notification * sn
 		struct sctp_authkeyid authkeyid;
 		/* delete key */
 		authkeyid.scact_keynumber = authkeyevent->auth_keynumber;
-		ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_DELETE_KEY,
-		    &authkeyid, sizeof(struct sctp_authkeyid));
+		ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_DELETE_KEY, &authkeyid, sizeof(struct sctp_authkeyid));
 	}
 }
 
@@ -1079,25 +1030,20 @@ static int dgram_sctp_read(BIO * b, char * out, int outl)
 					event.se_assoc_id = 0;
 					event.se_type = SCTP_SENDER_DRY_EVENT;
 					event.se_on = 0;
-					i = setsockopt(b->num, IPPROTO_SCTP, SCTP_EVENT, &event,
-					    sizeof(struct sctp_event));
+					i = setsockopt(b->num, IPPROTO_SCTP, SCTP_EVENT, &event, sizeof(struct sctp_event));
 					if(i < 0) {
 						ret = i;
 						break;
 					}
 #  else
 					eventsize = sizeof(struct sctp_event_subscribe);
-					i = getsockopt(b->num, IPPROTO_SCTP, SCTP_EVENTS, &event,
-					    &eventsize);
+					i = getsockopt(b->num, IPPROTO_SCTP, SCTP_EVENTS, &event, &eventsize);
 					if(i < 0) {
 						ret = i;
 						break;
 					}
-
 					event.sctp_sender_dry_event = 0;
-
-					i = setsockopt(b->num, IPPROTO_SCTP, SCTP_EVENTS, &event,
-					    sizeof(struct sctp_event_subscribe));
+					i = setsockopt(b->num, IPPROTO_SCTP, SCTP_EVENTS, &event, sizeof(struct sctp_event_subscribe));
 					if(i < 0) {
 						ret = i;
 						break;
@@ -1108,7 +1054,6 @@ static int dgram_sctp_read(BIO * b, char * out, int outl)
 				if(snp->sn_header.sn_type == SCTP_AUTHENTICATION_EVENT)
 					dgram_sctp_handle_auth_free_key_event(b, snp);
 #  endif
-
 				if(data->handle_notifications != NULL)
 					data->handle_notifications(b, data->notification_context, (void*)out);
 				memzero(out, outl);
@@ -1116,12 +1061,9 @@ static int dgram_sctp_read(BIO * b, char * out, int outl)
 			else
 				ret += n;
 		}
-		while((msg.msg_flags & MSG_NOTIFICATION) && (msg.msg_flags & MSG_EOR)
-		    && (ret < outl));
-
+		while((msg.msg_flags & MSG_NOTIFICATION) && (msg.msg_flags & MSG_EOR) && (ret < outl));
 		if(ret > 0 && !(msg.msg_flags & MSG_EOR)) {
 			/* Partial message read, this should never happen! */
-
 			/*
 			 * The buffer was too small, this means the peer sent a message
 			 * that was larger than allowed.
@@ -1387,24 +1329,17 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    data->in_handshake = 1;
 		    else
 			    data->in_handshake = 0;
-
-		    ret =
-		    setsockopt(b->num, IPPROTO_SCTP, SCTP_NODELAY,
-		    &data->in_handshake, sizeof(int));
+		    ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_NODELAY, &data->in_handshake, sizeof(int));
 		    break;
 		case BIO_CTRL_DGRAM_SCTP_ADD_AUTH_KEY:
 		    /*
 		     * New shared key for SCTP AUTH. Returns 0 on success, -1 otherwise.
 		     */
-
 		    /* Get active key */
 		    sockopt_len = sizeof(struct sctp_authkeyid);
-		    ret =
-		    getsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_ACTIVE_KEY, &authkeyid,
-		    &sockopt_len);
+		    ret = getsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_ACTIVE_KEY, &authkeyid, &sockopt_len);
 		    if(ret < 0)
 			    break;
-
 		    /* Add new key */
 		    sockopt_len = sizeof(struct sctp_authkey) + 64 * sizeof(uint8_t);
 		    authkey = OPENSSL_malloc(sockopt_len);
@@ -1422,37 +1357,27 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    authkey->sca_keylength = 64;
 #  endif
 		    memcpy(&authkey->sca_key[0], ptr, 64 * sizeof(uint8_t));
-
-		    ret =
-		    setsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_KEY, authkey,
-		    sockopt_len);
+		    ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_KEY, authkey, sockopt_len);
 		    OPENSSL_free(authkey);
 		    authkey = NULL;
 		    if(ret < 0)
 			    break;
-
 		    /* Reset active key */
-		    ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_ACTIVE_KEY,
-		    &authkeyid, sizeof(struct sctp_authkeyid));
+		    ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_ACTIVE_KEY, &authkeyid, sizeof(struct sctp_authkeyid));
 		    if(ret < 0)
 			    break;
-
 		    break;
 		case BIO_CTRL_DGRAM_SCTP_NEXT_AUTH_KEY:
 		    /* Returns 0 on success, -1 otherwise. */
 
 		    /* Get active key */
 		    sockopt_len = sizeof(struct sctp_authkeyid);
-		    ret =
-		    getsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_ACTIVE_KEY, &authkeyid,
-		    &sockopt_len);
+		    ret = getsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_ACTIVE_KEY, &authkeyid, &sockopt_len);
 		    if(ret < 0)
 			    break;
-
 		    /* Set active key */
 		    authkeyid.scact_keynumber = authkeyid.scact_keynumber + 1;
-		    ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_ACTIVE_KEY,
-		    &authkeyid, sizeof(struct sctp_authkeyid));
+		    ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_ACTIVE_KEY, &authkeyid, sizeof(struct sctp_authkeyid));
 		    if(ret < 0)
 			    break;
 
@@ -1491,16 +1416,14 @@ static long dgram_sctp_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    authkeyid.scact_keynumber = authkeyid.scact_keynumber - 1;
 #  ifdef SCTP_AUTH_DEACTIVATE_KEY
 			    sockopt_len = sizeof(struct sctp_authkeyid);
-			    ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_DEACTIVATE_KEY,
-			    &authkeyid, sockopt_len);
+			    ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_DEACTIVATE_KEY, &authkeyid, sockopt_len);
 			    if(ret < 0)
 				    break;
 #  endif
 #  ifndef SCTP_AUTHENTICATION_EVENT
 			    if(authkeyid.scact_keynumber > 0) {
 				    authkeyid.scact_keynumber = authkeyid.scact_keynumber - 1;
-				    ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_DELETE_KEY,
-				    &authkeyid, sizeof(struct sctp_authkeyid));
+				    ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_AUTH_DELETE_KEY, &authkeyid, sizeof(struct sctp_authkeyid));
 				    if(ret < 0)
 					    break;
 			    }
@@ -1605,45 +1528,32 @@ int BIO_dgram_sctp_wait_for_dry(BIO * b)
 	int sockflags = 0;
 	int n, ret;
 	union sctp_notification snp;
-
 	struct msghdr msg;
-
 	struct iovec iov;
-
 #  ifdef SCTP_EVENT
 	struct sctp_event event;
-
 #  else
 	struct sctp_event_subscribe event;
-
 	socklen_t eventsize;
 #  endif
 	bio_dgram_sctp_data * data = (bio_dgram_sctp_data*)b->ptr;
-
 	/* set sender dry event */
 #  ifdef SCTP_EVENT
 	memzero(&event, sizeof(event));
 	event.se_assoc_id = 0;
 	event.se_type = SCTP_SENDER_DRY_EVENT;
 	event.se_on = 1;
-	ret =
-	    setsockopt(b->num, IPPROTO_SCTP, SCTP_EVENT, &event,
-	    sizeof(struct sctp_event));
+	ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_EVENT, &event, sizeof(struct sctp_event));
 #  else
 	eventsize = sizeof(struct sctp_event_subscribe);
 	ret = getsockopt(b->num, IPPROTO_SCTP, SCTP_EVENTS, &event, &eventsize);
 	if(ret < 0)
 		return -1;
-
 	event.sctp_sender_dry_event = 1;
-
-	ret =
-	    setsockopt(b->num, IPPROTO_SCTP, SCTP_EVENTS, &event,
-	    sizeof(struct sctp_event_subscribe));
+	ret = setsockopt(b->num, IPPROTO_SCTP, SCTP_EVENTS, &event, sizeof(struct sctp_event_subscribe));
 #  endif
 	if(ret < 0)
 		return -1;
-
 	/* peek for notification */
 	memzero(&snp, sizeof(snp));
 	iov.iov_base = (char*)&snp;

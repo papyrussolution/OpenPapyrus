@@ -103,10 +103,7 @@ IMPL_HANDLE_EVENT(BnkOrdTaxMarkersDialog)
 	}
 }
 
-int BnkOrdTaxMarkersDialog::selectPeriod()
-{
-	DIALOG_PROC_BODY(TaxPeriodDialog, &Data.Txm.Period);
-}
+int BnkOrdTaxMarkersDialog::selectPeriod() { DIALOG_PROC_BODY(TaxPeriodDialog, &Data.Txm.Period); }
 
 int BnkOrdTaxMarkersDialog::translateCode(int dir, uint strID, char * pCode, long * pID)
 {

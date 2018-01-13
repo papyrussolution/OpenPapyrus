@@ -1,5 +1,5 @@
 // DLGPROCS.CPP
-// Copyright (c) V.Antonov, A.Osolotkin 1999-2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2015, 2016
+// Copyright (c) V.Antonov, A.Osolotkin 1999-2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -100,7 +100,8 @@ int TView::HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType)
 #undef GETKEYCODE
 }
 
-static int PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+//static 
+int FASTCALL TDialog::PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int    ok = 0;
 	TDialog * p_dlg = (TDialog *)TView::GetWindowUserData(hwndDlg);
@@ -118,10 +119,10 @@ static int PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return ok;
 }
 
-static void RemoveUnusedControls(TDialog * pDlg)
+void SLAPI TDialog::RemoveUnusedControls()
 {
-	const HWND h_wnd = pDlg->H();
-	TView * v = pDlg->P_Last;
+	const HWND h_wnd = H();
+	TView * v = P_Last;
 	if(v) do {
 		while(v) {
 			const  uint ctl_id = v->GetId();
@@ -130,26 +131,25 @@ static void RemoveUnusedControls(TDialog * pDlg)
 			else {
 				TView * p_to_remove_view = v;
 				v = v->prev();
-				pDlg->remove(p_to_remove_view);
+				TGroup::remove(p_to_remove_view);
 				delete p_to_remove_view;
-				if(v == pDlg->P_Last)
+				if(v == P_Last)
 					return;
 			}
 		}
 		v = v->prev();
-	} while(v != pDlg->P_Last);
+	} while(v != P_Last);
 }
 
-static TView * FASTCALL CtrlIdToView(TDialog * pDlg, long id)
+TView * FASTCALL TDialog::CtrlIdToView(long id) const
 {
-	TView * v = pDlg->P_Last;
-	if(v)
-		do {
-			if(v->TestId(id))
-				return v;
-			else
-				v = v->prev();
-		} while(v != pDlg->P_Last);
+	TView * v = P_Last;
+	if(v) do {
+		if(v->TestId(id))
+			return v;
+		else
+			v = v->prev();
+	} while(v != P_Last);
 	return 0;
 }
 
@@ -169,7 +169,8 @@ static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam)
 	return TRUE;
 }
 
-BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+//static
+BOOL CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	TDialog * p_dlg;
 	TView * v;
@@ -182,7 +183,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				p_dlg->HW = hwndDlg;
 				TView::messageCommand(p_dlg, cmInit);
 				SetupCtrlTextProc(p_dlg->H(), 0);
-				RemoveUnusedControls(p_dlg);
+				p_dlg->RemoveUnusedControls();
 				if((v = p_dlg->P_Last) != 0) {
 					do {
 						HWND   ctrl = GetDlgItem(hwndDlg, v->GetId());
@@ -281,7 +282,7 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 								p_dlg->handleEvent(event);
 							}
 						}
-						v = CtrlIdToView(p_dlg, CLUSTER_ID(low));
+						v = p_dlg->CtrlIdToView(CLUSTER_ID(low));
 						CALLPTRMEMB(v, handleWindowsMessage(uMsg, wParam, lParam));
 					}
 				}
@@ -506,59 +507,3 @@ BOOL CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	return TRUE;
 }
-
-#if 0 // @v7.7.7 {
-
-#define WM_NOTIFY_MAIN_DIALOG WM_USER+1
-
-BOOL CALLBACK PropertySheetDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	TabbedDialog * t = (TabbedDialog *)TView::GetWindowUserData(GetParent(hwndDlg));
-	int    n = t ? t->findPageByHandle(hwndDlg) : -1;
-	switch(uMsg) {
-		case WM_INITDIALOG:
-			{
-				PROPSHEETPAGE * psp = (PROPSHEETPAGE*)lParam;
-				TView::SetWindowUserData(GetParent(hwndDlg), TabbedDialog::topTabbedDialog);
-				TabbedDialog::topTabbedDialog->pages[psp->lParam].hWnd = hwndDlg;
-				if(psp->lParam == 0)
-					DialogProc(hwndDlg, uMsg, wParam, (long)TabbedDialog::topTabbedDialog->pages[0].dialog);
-				return 1;
-			}
-		case WM_NOTIFY_MAIN_DIALOG:
-			TView::messageCommand((TDialog *)lParam, wParam, (TDialog *)lParam);
-			break;
-		case WM_NOTIFY:
-			switch(((NMHDR FAR *)lParam)->code) {
-				case PSN_KILLACTIVE:
-					if(t->P_Current)
-						t->lastCommand = cmOK;
-					TView::SetWindowProp(hwndDlg, DWL_MSGRESULT, 0L);
-					return TRUE;
-				case PSN_SETACTIVE:
-					if(n != 0 && n != -1) // open new child dialog
-						PostMessage(hwndDlg, WM_NOTIFY_MAIN_DIALOG, t->pages[n].command, (long)t->pages[0].dialog);
-					if(n == 0 && t->lastCommand == cmCancel)
-						::SendMessage(GetParent(hwndDlg), PSM_PRESSBUTTON, PSBTN_APPLYNOW, 0);
-					t->P_Current = n;
-					TView::SetWindowProp(hwndDlg, DWL_MSGRESULT, 0L);
-					return TRUE;
-				case PSN_APPLY:
-					t->lastCommand = cmOK;
-					TView::SetWindowProp(hwndDlg, DWL_MSGRESULT, PSNRET_NOERROR);
-					return TRUE;
-				case PSN_QUERYCANCEL:
-					t->lastCommand = cmCancel;
-					if(t->P_Current)
-						::SendMessage(GetParent(hwndDlg), PSM_SETCURSEL, 0, 0);
-					return FALSE;
-			}
-		default:
-			if(n != -1 && t->pages[n].dialog)
-				return DialogProc(hwndDlg, uMsg, wParam, lParam);
-	}
-	return FALSE;
-}
-
-#endif // } 0 @v7.7.7
-

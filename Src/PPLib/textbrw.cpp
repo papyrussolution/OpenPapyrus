@@ -620,10 +620,7 @@ private:
 	SSearchReplaceParam Data;
 };
 
-int SLAPI EditSearchReplaceParam(SSearchReplaceParam * pData)
-{
-	DIALOG_PROC_BODY(SearchReplaceDialog, pData);
-}
+int SLAPI EditSearchReplaceParam(SSearchReplaceParam * pData) { DIALOG_PROC_BODY(SearchReplaceDialog, pData); }
 //
 //
 //

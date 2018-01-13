@@ -148,10 +148,7 @@ struct CmpGenLots { // @flat
 	PPID   lotID;
 };
 
-static IMPL_CMPFUNC(CmpGenLots, i1, i2)
-{
-	return memcmp(i1, i2, sizeof(CmpGenLots));
-}
+static IMPL_CMPFUNC(CmpGenLots, i1, i2) { return memcmp(i1, i2, sizeof(CmpGenLots)); }
 
 static int SLAPI SetupTI(PPTransferItem * pTI, const PPBillPacket * pPack, PPID goodsID, PPID lotID)
 {

@@ -1190,7 +1190,6 @@ private:
 	BizScValByTemplFilt Data;
 };
 
-
 int SLAPI PPViewBizScValByTempl::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	DIALOG_PROC_BODYERR(BizScValByTemplFiltDialog, (BizScValByTemplFilt*)pFilt);

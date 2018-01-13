@@ -141,7 +141,7 @@ static int NeXTDecode(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 	}
 	tif->tif_rawcp = (uint8*)bp;
 	tif->tif_rawcc = cc;
-	return (1);
+	return 1;
 bad:
 	TIFFErrorExt(tif->tif_clientdata, module, "Not enough data for scanline %ld",
 	    (long)tif->tif_row);
@@ -157,7 +157,7 @@ static int NeXTPreDecode(TIFF* tif, uint16 s)
 		TIFFErrorExt(tif->tif_clientdata, module, "Unsupported BitsPerSample = %d", td->td_bitspersample);
 		return 0;
 	}
-	return (1);
+	return 1;
 }
 
 int TIFFInitNeXT(TIFF* tif, int scheme)
@@ -167,7 +167,7 @@ int TIFFInitNeXT(TIFF* tif, int scheme)
 	tif->tif_decoderow = NeXTDecode;
 	tif->tif_decodestrip = NeXTDecode;
 	tif->tif_decodetile = NeXTDecode;
-	return (1);
+	return 1;
 }
 
 #endif /* NEXT_SUPPORT */

@@ -6,13 +6,13 @@
 //
 //
 //
-SLAPI TGSArray::TGSArray() : SArray(sizeof(Item))
+SLAPI TGSArray::TGSArray() : SVector(sizeof(Item)) // @v9.8.12 SArray-->SVector
 {
 }
 
 uint SLAPI TGSArray::GetItemsCount() const
 {
-	return getCount();
+	return SVector::getCount();
 }
 
 int SLAPI TGSArray::GetGoodsList(PPIDArray * pList) const
@@ -79,10 +79,9 @@ int SLAPI PPObjTech::GenerateCode(int kind, SString & rBuf, int use_ta)
 	return ok;
 }
 
-SLAPI PPObjTech::PPObjTech(void * extraPtr) : PPObject(PPOBJ_TECH)
+SLAPI PPObjTech::PPObjTech(void * extraPtr) : PPObject(PPOBJ_TECH), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ExtraPtr = extraPtr;
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
@@ -325,10 +324,9 @@ int SLAPI PPObjTech::GetGoodsStrucList(PPID id, int useSubst, TGSArray * pList)
 	return ok;
 }
 
-int SLAPI PPObjTech::GetGoodsListByPrc(PPID prcID, PPIDArray * pList)
-	{ return AddItemsToList(0, 0, pList, prcID, 0); }
-int SLAPI PPObjTech::GetListByPrcGoods(PPID prcID, PPID goodsID, PPIDArray * pList)
-	{ return AddItemsToList(0, pList, 0, prcID, goodsID); }
+int SLAPI PPObjTech::GetGoodsListByPrc(PPID prcID, PPIDArray * pList) { return AddItemsToList(0, 0, pList, prcID, 0); }
+int SLAPI PPObjTech::GetListByPrcGoods(PPID prcID, PPID goodsID, PPIDArray * pList) { return AddItemsToList(0, pList, 0, prcID, goodsID); }
+int SLAPI PPObjTech::DeleteObj(PPID id) { return RemoveByID(P_Tbl, id, 0); }
 
 int SLAPI PPObjTech::GetChildList(PPID techID, PPIDArray & rList)
 {
@@ -370,11 +368,6 @@ int SLAPI PPObjTech::SetupCombo(TDialog * dlg, uint ctlID, PPID id, long flags, 
 	else
 		ok = -1;
 	return ok;
-}
-
-int SLAPI PPObjTech::DeleteObj(PPID id)
-{
-	return RemoveByID(P_Tbl, id, 0);
 }
 
 int SLAPI PPObjTech::GetPacket(PPID id, PPTechPacket * pPack)
@@ -450,11 +443,8 @@ int SLAPI PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 // обработанного за секунду.
 //
 struct CalcCapacity {
-	SLAPI  CalcCapacity()
+	SLAPI  CalcCapacity() : Flags(0), Unit(UNIT_SECOND), Val(0.0)
 	{
-		Flags = 0;
-		Unit = UNIT_SECOND;
-		Val = 0.0;
 	}
 	DECL_INVARIANT_C();
 	// Descr: возвращает нормализованное значение производительности
@@ -1768,10 +1758,7 @@ int SLAPI PPViewTech::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 	return ok;
 }
 
-int SLAPI ViewTech(const TechFilt * pFilt)
-{
-	return PPView::Execute(PPVIEW_TECH, pFilt, 1, 0);
-}
+int SLAPI ViewTech(const TechFilt * pFilt) { return PPView::Execute(PPVIEW_TECH, pFilt, 1, 0); }
 
 #if 0 // {
 int SLAPI ViewTech(const TechFilt * pFilt)
@@ -1861,10 +1848,7 @@ PPALDD_CONSTRUCTOR(TechView)
 	}
 }
 
-PPALDD_DESTRUCTOR(TechView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(TechView) { Destroy(); }
 
 int PPALDD_TechView::InitData(PPFilt & rFilt, long rsrv)
 {

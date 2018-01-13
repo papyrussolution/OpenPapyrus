@@ -3430,10 +3430,7 @@ PPALDD_CONSTRUCTOR(TagType)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(TagType)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(TagType) { Destroy(); }
 
 int PPALDD_TagType::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -3458,15 +3455,8 @@ int PPALDD_TagType::InitData(PPFilt & rFilt, long rsrv)
 //
 // Implementation of PPALDD_ObjectTag
 //
-PPALDD_CONSTRUCTOR(ObjectTag)
-{
-	InitFixData(rscDefHdr, &H, sizeof(H));
-}
-
-PPALDD_DESTRUCTOR(ObjectTag)
-{
-	Destroy();
-}
+PPALDD_CONSTRUCTOR(ObjectTag) { InitFixData(rscDefHdr, &H, sizeof(H)); }
+PPALDD_DESTRUCTOR(ObjectTag) { Destroy(); }
 
 int PPALDD_ObjectTag::InitData(PPFilt & rFilt, long rsrv)
 {

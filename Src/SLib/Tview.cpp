@@ -82,7 +82,7 @@ void * FASTCALL TView::messageCommand(TView * pReceiver, uint command)
 }
 
 //static 
-void * TView::messageCommand(TView * pReceiver, uint command, void * pInfoPtr)
+void * FASTCALL TView::messageCommand(TView * pReceiver, uint command, void * pInfoPtr)
 {
 	void * p_ret = 0;
 	if(pReceiver) {
@@ -113,7 +113,7 @@ void * FASTCALL TView::messageBroadcast(TView * pReceiver, uint command)
 }
 
 //static 
-void * TView::messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr)
+void * FASTCALL TView::messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr)
 {
 	void * p_ret = 0;
 	if(pReceiver) {
@@ -625,12 +625,12 @@ int TView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 TView * TView::nextView() const
 {
-	return (this == P_Owner->P_Last) ? 0 : P_Next;
+	return (this == P_Owner->GetLastView()) ? 0 : P_Next;
 }
 
 TView * TView::prevView() const
 {
-	return (this == P_Owner->first()) ? 0 : prev();
+	return (this == P_Owner->GetFirstView()) ? 0 : prev();
 }
 
 int TView::commandEnabled(ushort command) const
@@ -722,13 +722,13 @@ void TView::setCommands(const TCommandSet & cmds)
 
 void TView::select()
 {
-	CALLPTRMEMB(P_Owner, setCurrent(this, normalSelect));
+	CALLPTRMEMB(P_Owner, SetCurrentView(this, normalSelect));
 }
 
 void TView::ResetOwnerCurrent()
 {
-	if(P_Owner && P_Owner->P_Current == this)
-		P_Owner->setCurrent(0, TGroup::normalSelect);
+	if(P_Owner && P_Owner->IsCurrentView(this))
+		P_Owner->SetCurrentView(0, TGroup::normalSelect);
 }
 
 /* @v9.0.1
@@ -1393,12 +1393,9 @@ int SLAPI TEvent::wasFocusChanged3(uint ctl01, uint ctl02, uint ctl03) const
 //
 //
 //
-SLAPI TGroup::TGroup(const TRect & bounds) : TView(bounds)
+SLAPI TGroup::TGroup(const TRect & bounds) : TView(bounds), P_Last(0), P_Current(0), MsgLockFlags(0)
 {
-	P_Last = 0;
-	P_Current = 0;
 	// @v9.0.1 Phase_ = phFocused;
-	MsgLockFlags = 0;
 	options |= ofSelectable;
 }
 
@@ -1525,7 +1522,7 @@ ushort TGroup::execView(TWindow * p)
 		APPL->P_TopView = p;
 		p->options &= ~ofSelectable;
 		p->setState(sfModal, true);
-		setCurrent(p, enterSelect);
+		SetCurrentView(p, enterSelect);
 		if(save_owner == 0)
 			Insert_(p);
 		{
@@ -1538,7 +1535,7 @@ ushort TGroup::execView(TWindow * p)
 		}
 		if(save_owner == 0)
 			remove(p);
-		setCurrent(save_current, leaveSelect);
+		SetCurrentView(save_current, leaveSelect);
 		p->setState(sfModal, false);
 		p->options = save_options;
 		APPL->P_TopView = save_top_view;
@@ -1547,7 +1544,7 @@ ushort TGroup::execView(TWindow * p)
 	return retval;
 }
 
-TView * TGroup::first() const
+TView * TGroup::GetFirstView() const
 {
 	return P_Last ? P_Last->P_Next : 0;
 }
@@ -1611,7 +1608,7 @@ IMPL_HANDLE_EVENT(TGroup)
 
 void TGroup::Insert_(TView * p)
 {
-	insertBefore(p, first());
+	insertBefore(p, GetFirstView());
 }
 
 void TGroup::insertBefore(TView * p, TView * pTarget)
@@ -1641,7 +1638,7 @@ void TGroup::insertView(TView * p, TView * Target)
 
 void TGroup::redraw()
 {
-	for(TView * p = first(); p != 0; p = p->nextView())
+	for(TView * p = GetFirstView(); p != 0; p = p->nextView())
 		p->Draw_();
 }
 
@@ -1656,7 +1653,7 @@ void TGroup::selectNext(/*Boolean forwards*/ /*false*/)
 	}
 }
 
-void TGroup::setCurrent(TView * p, selectMode mode)
+void TGroup::SetCurrentView(TView * p, selectMode mode)
 {
 	if(P_Current != p || mode == forceSelect) {
 		TView * p_save_current = P_Current;
@@ -1727,20 +1724,15 @@ int FASTCALL TGroup::valid(ushort command)
 	// } @v9.0.1
 }
 
-void TGroup::lock()
-{
-}
-
-void TGroup::unlock()
-{
-}
+// @v9.8.12 void TGroup::lock() {}
+// @v9.8.12 void TGroup::unlock() {}
 
 uint TGroup::GetCurrId() const
 {
     return P_Current ? P_Current->GetId() : 0;
 }
 
-int FASTCALL TGroup::IsCurrCtl(const TView * pV) const
+int FASTCALL TGroup::IsCurrentView(const TView * pV) const
 {
 	return BIN(pV && P_Current == pV);
 }

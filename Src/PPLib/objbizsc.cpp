@@ -640,10 +640,7 @@ int SLAPI PPObjBizScore::AddBySample(PPID * pID, PPID sampleID)
 	return ok;
 }
 
-int SLAPI PPObjBizScore::Browse(void * extraPtr /*userID*/)
-{
-	return PPView::Execute(PPVIEW_BIZSCORE, 0, 1, extraPtr /*userID*/);
-}
+int SLAPI PPObjBizScore::Browse(void * extraPtr /*userID*/) { return PPView::Execute(PPVIEW_BIZSCORE, 0, 1, extraPtr /*userID*/); }
 //
 //
 //
@@ -2159,9 +2156,8 @@ PPALDD_CONSTRUCTOR(BizScore)
 }
 
 struct BizScoreSetBlock {
-	BizScoreSetBlock()
+	BizScoreSetBlock() : State(0)
 	{
-		State = 0;
 	}
 	enum {
 		stInited = 0x0001
@@ -2173,12 +2169,10 @@ struct BizScoreSetBlock {
 
 PPALDD_DESTRUCTOR(BizScore)
 {
-	// @v7.1.3 {
 	if(Extra[3].Ptr) {
 		delete (BizScoreSetBlock *)Extra[3].Ptr;
 		Extra[3].Ptr = 0;
 	}
-	// } @v7.1.3
 	Destroy();
 }
 
@@ -2256,10 +2250,7 @@ PPALDD_CONSTRUCTOR(BizScoreValView)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(BizScoreValView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(BizScoreValView) { Destroy(); }
 
 int PPALDD_BizScoreValView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2402,10 +2393,7 @@ PPALDD_CONSTRUCTOR(UhttStatistic)
 	InitFixData(rscDefHdr, &H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(UhttStatistic)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(UhttStatistic) { Destroy(); }
 
 int PPALDD_UhttStatistic::InitData(PPFilt & rFilt, long rsrv)
 {

@@ -1,5 +1,5 @@
 // PPDEFS.H
-// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 // Файл содержит только define-определения. Используется для включения в исходные файлы ресурсов
@@ -3672,6 +3672,7 @@
 	#define CTL_GSITEM_SYMB              (12 + WINDOWS_ID_BIAS)
 	#define CTL_GSITEM_FORMULA           (13 + WINDOWS_ID_BIAS)
 	#define CTL_GSITEM_GROUPONLY         (14 + WINDOWS_ID_BIAS)
+	#define CTL_GSITEM_NTBRTCOEF         (15 + WINDOWS_ID_BIAS)
 #define DLG_MSGNCMPL              287
 #define DLG_MSGZCMPL              288
 #define DLG_MSGNCMPL2             383
@@ -5299,6 +5300,7 @@
 	#define CTL_GOODSVAD_PLTLAYERC       (24 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSVAD_MINSHQTTY       (25 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSVAD_MULTMINSH       (26 + WINDOWS_ID_BIAS)
+	#define CTL_GOODSVAD_NTBRTCOEF       (27 + WINDOWS_ID_BIAS)
 
 #define DLG_SELQUOT               511 // Выбор котировки в диалоге строки товарного документа
 	#define CTL_SELQUOT_LIST             (1 + WINDOWS_ID_BIAS)
@@ -10768,35 +10770,6 @@
 #define PPERR_PRMRPSNNEEDED       338 // Необходимо задать первичную персоналию
 #define PPERR_INVPOCLAUSEVERB     339 // Недопустимый тип персонального действия //
 
-#define PPERR_RSTRDBIDNEEDED      371 // Для восстановления необходимо выбрать базу данных
-#define PPERR_LABELSYNTX          372 // Синтаксическая ошибка в файле описания этикеток
-#define PPERR_GGRPFOLDERNEEDED    373 // Для группы родительской группой может быть только папка
-#define PPERR_BILLHASPAYMPOOL     374 // Документ имеет связанные зачетные оплаты (%s) и не может быть удален
-#define PPERR_ALDD_READ           375 // Ошибка чтения файла описания данных
-#define PPERR_ALDD_FORMAT         376 // Неверный формат файла описания данных
-#define PPERR_ALDD_DATAFIND       377 // Данные не найдены в ALDD
-#define PPERR_GOODSGRPLOOP        378 // Группа не может иметь родительской группой саму себя //
-#define PPERR_CURRATEBASE         379 // Базовой валютой не должна быть та, по которой устанавливается курс
-#define PPERR_RACCSCURACC         380 // Внутренняя ошибка: попытка прямого доступа к скрытому валютному счету.
-#define PPERR_WACCSCURACC         381 // Внутренняя ошибка: попытка прямого изменения скрытого валютного счета.
-#define PPERR_BASEACCNFOUND       382 // Для валютного счета найден базовый счет
-#define PPERR_NOTCURACC           383 // Заданный балансовый счет не является валютным
-#define PPERR_INCOMPACCWITHCUR    384 // Заданный балансовый счет не совместим с валютой проводки
-#define PPERR_UPDBASEACCTURN      385 // Попытка изменения базовой проводки валютной операции
-#define PPERR_CURACCNFOUND        386 // Счет не может быть использован с заданной валютой
-#define PPERR_PPVIEWNOTINITED     387 // Внутренняя ошибка: объект PPView не инициализирован
-#define PPERR_CANTRMVCRATE        388 // Нельзя удалять валютный курс, когда существует валютная сумма, определяемая этим курсом
-#define PPERR_INCOMPPAYMCUR       389 // Несовместимые валюты платежного и долгового документов
-#define PPERR_UNDEFCTINCUR        390 // Неопределена входящая валюта транзитной операции
-#define PPERR_DUPCTINCUR          391 // Дублирование входящей валюты транзитной операции
-#define PPERR_UNDEFCTOUTCUR       392 // Неопределена исходящая валюта транзитной операции
-#define PPERR_DUPCTOUTCUR         393 // Дублирование исходящей валюты транзитной операции
-#define PPERR_EQCTCUR             394 // Идентичные валюты в транзитной операции
-#define PPERR_INVCTINAMT          395 // Недопустимая входящая сумма в транзитной операции
-#define PPERR_INVCTOUTAMT         396 // Недопустимая исходящая сумма в транзитной операции
-#define PPERR_INVCRATE            397 // Недопустимое значение валютного курса
-#define PPERR_SCALETYPENEEDED     398 // Необходимо указать тип электронных весов
-#define PPERR_ACCSHEETNEEDED      399 // Необходимо указать таблицу аналитических статей
 #define PPERR_VIEWBYFILTISEMPTY   411 // Фильтр дает пустую выборку
 #define PPERR_CANTRMVSUBSESS      412 // Нельзя удалять подчиненную кассовую сессию
 #define PPERR_ACCNGEN             413 // Счет не является группирующим

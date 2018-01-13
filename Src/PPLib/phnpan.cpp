@@ -31,7 +31,7 @@ public:
 	static PhonePaneDialog * FindAnalogue(const char * pChannel)
 	{
 		const long res_id = DLG_PHNCPANE;
-		for(TView * p = APPL->P_DeskTop->first(); p != 0; p = p->nextView()) {
+		for(TView * p = APPL->P_DeskTop->GetFirstView(); p != 0; p = p->nextView()) {
 			if(p->IsConsistent() && p->GetSubSign() == TV_SUBSIGN_DIALOG && ((TDialog *)p)->resourceID == res_id)
 				return (PhonePaneDialog *)p;
 		}

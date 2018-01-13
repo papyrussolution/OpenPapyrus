@@ -77,11 +77,13 @@ int UserProfileFiltDialog::getDTS(UserProfileFilt * pFilt)
 }
 
 // virtual
-int SLAPI PPViewUserProfile::EditBaseFilt(PPBaseFilt * pFilt)
+int SLAPI PPViewUserProfile::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
+	if(!Filt.IsA(pBaseFilt))
+		return 0;
 	TSArray <PPUserProfileCore::UfpDbEntry> ufp_db_list;
 	Tbl.GetDbEntyList(ufp_db_list);
-	DIALOG_PROC_BODY_P1ERR(UserProfileFiltDialog, ufp_db_list, (UserProfileFilt*)pFilt)
+	DIALOG_PROC_BODY_P1ERR(UserProfileFiltDialog, ufp_db_list, (UserProfileFilt*)pBaseFilt)
 }
 
 // virtual

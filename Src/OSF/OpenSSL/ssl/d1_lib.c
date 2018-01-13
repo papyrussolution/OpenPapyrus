@@ -105,7 +105,7 @@ int dtls1_new(SSL * s)
 
 	s->d1 = d1;
 	s->method->ssl_clear(s);
-	return (1);
+	return 1;
 }
 
 static void dtls1_clear_queues(SSL * s)

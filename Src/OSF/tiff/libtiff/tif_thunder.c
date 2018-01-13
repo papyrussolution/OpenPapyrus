@@ -77,7 +77,7 @@ static int ThunderSetupDecode(TIFF* tif)
 		return 0;
 	}
 
-	return (1);
+	return 1;
 }
 
 static int ThunderDecode(TIFF* tif, uint8* op, tmsize_t maxpixels)
@@ -152,7 +152,7 @@ static int ThunderDecode(TIFF* tif, uint8* op, tmsize_t maxpixels)
 		return 0;
 	}
 
-	return (1);
+	return 1;
 }
 
 static int ThunderDecodeRow(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
@@ -170,7 +170,7 @@ static int ThunderDecodeRow(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 		occ -= tif->tif_scanlinesize;
 		row += tif->tif_scanlinesize;
 	}
-	return (1);
+	return 1;
 }
 
 int TIFFInitThunderScan(TIFF* tif, int scheme)
@@ -180,7 +180,7 @@ int TIFFInitThunderScan(TIFF* tif, int scheme)
 	tif->tif_setupdecode = ThunderSetupDecode;
 	tif->tif_decoderow = ThunderDecodeRow;
 	tif->tif_decodestrip = ThunderDecodeRow;
-	return (1);
+	return 1;
 }
 
 #endif /* THUNDER_SUPPORT */

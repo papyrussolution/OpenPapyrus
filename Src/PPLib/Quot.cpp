@@ -431,10 +431,7 @@ int QuotUpdDialog::editAdvOptions()
 	DIALOG_PROC_BODY(QuotUpdAdvDialog, &Data);
 }
 
-int SLAPI EditQuotUpdDialog(QuotUpdFilt * pFilt)
-{
-	DIALOG_PROC_BODY(QuotUpdDialog, pFilt);
-}
+int SLAPI EditQuotUpdDialog(QuotUpdFilt * pFilt) { DIALOG_PROC_BODY(QuotUpdDialog, pFilt); }
 //
 //
 //

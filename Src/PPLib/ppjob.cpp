@@ -1171,10 +1171,7 @@ int CashNodeDialog::GetPeriod()
 	return ok;
 }
 
-static int SLAPI EditSessionParam(CashNodeParam * pParam)
-{
-	DIALOG_PROC_BODY(CashNodeDialog, pParam);
-}
+static int SLAPI EditSessionParam(CashNodeParam * pParam) { DIALOG_PROC_BODY(CashNodeDialog, pParam); }
 
 class JOB_HDL_CLS(CSESSCLOSE) : public PPJobHandler {
 public:
@@ -1543,10 +1540,7 @@ int LaunchAppDialog::getDTS(LaunchAppParam * pData)
 	return ok;
 }
 
-int EditLaunchAppParam(LaunchAppParam * pData)
-{
-	DIALOG_PROC_BODYERR(LaunchAppDialog, pData);
-}
+int EditLaunchAppParam(LaunchAppParam * pData) { DIALOG_PROC_BODYERR(LaunchAppDialog, pData); }
 
 class JOB_HDL_CLS(LAUNCHAPP) : public PPJobHandler {
 public:

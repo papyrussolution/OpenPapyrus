@@ -316,10 +316,9 @@ int SLAPI PPObjWorkbook::EditConfig()
 
 TLP_IMPL(PPObjWorkbook, WorkbookCore, P_Tbl);
 
-SLAPI PPObjWorkbook::PPObjWorkbook(void * extraPtr) : PPObject(PPOBJ_WORKBOOK)
+SLAPI PPObjWorkbook::PPObjWorkbook(void * extraPtr) : PPObject(PPOBJ_WORKBOOK), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ExtraPtr = extraPtr;
 	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
 }
 
@@ -608,17 +607,17 @@ int SLAPI PPObjWorkbook::SelectKeyword(SString & rKeyword)
 	return ok;
 }
 
-#define GRP_IBG 1
-
 class Workbook2Dialog : public TDialog {
 public:
-	Workbook2Dialog(uint dlgID) : TDialog(dlgID)
+	enum {
+		ctlgroupIBG = 1
+	};
+	Workbook2Dialog(uint dlgID) : TDialog(dlgID), DisableImage(0)
 	{
-		DisableImage = 0;
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_WORKBOOK_FILE, CTL_WORKBOOK_FILE, 1, 0, 0,
 			FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfSaveLastPath);
 		if(getCtrlView(CTL_WORKBOOK_IMAGE)) {
-			addGroup(GRP_IBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_WORKBOOK_IMAGE, cmAddImage, cmDelImage, 1));
+			addGroup(ctlgroupIBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_WORKBOOK_IMAGE, cmAddImage, cmDelImage, 1));
 		}
 		SetupCalDate(CTLCAL_WORKBOOK_DT, CTL_WORKBOOK_DT);
 		SetupTimePicker(this, CTL_WORKBOOK_TM, CTLTM_WORKBOOK_TM);
@@ -679,7 +678,7 @@ public:
 				else {
 					ImageBrowseCtrlGroup::Rec rec;
 					rec.Path = file_path;
-					setGroupData(GRP_IBG, &rec);
+					setGroupData(ctlgroupIBG, &rec);
 					disableCtrls(1, CTL_WORKBOOK_FILE, CTLBRW_WORKBOOK_FILE, 0);
 				}
 			}
@@ -782,7 +781,7 @@ public:
 		{
 			if(getCtrlView(CTL_WORKBOOK_IMAGE) && !DisableImage) {
 				ImageBrowseCtrlGroup::Rec rec;
-				if(getGroupData(GRP_IBG, &rec))
+				if(getGroupData(ctlgroupIBG, &rec))
 					if(rec.Path.Len()) {
 						THROW(Data.F.Replace(0, rec.Path));
 					}
@@ -1015,11 +1014,8 @@ public:
 	PPObjWorkbook::AddBlock Data;
 };
 
-SLAPI PPObjWorkbook::AddBlock::AddBlock()
+SLAPI PPObjWorkbook::AddBlock::AddBlock() : Type(0), ParentID(0), Flags(0)
 {
-	Type = 0;
-	ParentID = 0;
-	Flags = 0;
 }
 
 int SLAPI PPObjWorkbook::AddItem(PPID * pID, PPID parentID)
@@ -1199,11 +1195,8 @@ int SLAPI PPObjWorkbook::AttachFile(PPID id)
 	return ok;
 }
 
-PPObjWorkbook::SelectLinkBlock::SelectLinkBlock()
+PPObjWorkbook::SelectLinkBlock::SelectLinkBlock() : ID(0), AddendumID(0), Type(ltLink)
 {
-	ID = 0;
-	AddendumID = 0;
-	Type = ltLink;
 }
 
 int PPObjWorkbook::SelectLinkBlock::GetWbType(PPID * pType, PPID * pAddendumType) const
@@ -1292,7 +1285,6 @@ int SLAPI PPObjWorkbook::SelectLink(PPObjWorkbook::SelectLinkBlock * pData)
 		PPObjWorkbook    WbObj;
 		PPObjWorkbook::SelectLinkBlock Data;
 	};
-
 	DIALOG_PROC_BODY(SelectLinkItemDialog, pData);
 }
 

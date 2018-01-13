@@ -1,5 +1,5 @@
 // ADVBILL.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -598,7 +598,6 @@ int AdvBillItemBrowser::update(int pos)
 		}
 		TotalLinesStr(IsWarrant ? total.Memo : total.Account, count);
 		THROW_SL(p_list->insert(&total));
-		lock();
 		p_def->setArray(p_list, 0, 0);
 		view->setRange(p_list->getCount());
 		if(pos == pos_cur && c >= 0 && c < (int)p_list->getCount())
@@ -609,7 +608,6 @@ int AdvBillItemBrowser::update(int pos)
 			view->go(pos);
 		else
 			p_def->top();
-		unlock();
 	}
 	CATCHZOK
 	return ok;

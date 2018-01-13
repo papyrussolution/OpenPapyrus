@@ -128,26 +128,14 @@ private:
 	CSessCrDraftParam Data;
 };
 
-static int SLAPI SelectRule(CSessCrDraftParam * pData)
-{
-	DIALOG_PROC_BODY_P1(SelectRuleDialog, DLG_DFRULESEL, pData);
-}
-
+static int SLAPI SelectRule(CSessCrDraftParam * pData) { DIALOG_PROC_BODY_P1(SelectRuleDialog, DLG_DFRULESEL, pData); }
 // static
-int SLAPI PPViewCSess::EditCreateDraftParam(CSessCrDraftParam * pParam)
+int SLAPI PPViewCSess::EditCreateDraftParam(CSessCrDraftParam * pParam) { DIALOG_PROC_BODY_P1(SelectRuleDialog, DLG_CSESSCRDRAFT, pParam); }
+//
+//
+//
+SLAPI PPViewCSess::PPViewCSess() : PPView(0, &Filt), P_CSessIterQuery(0), P_TempTbl(0), P_TempOrd(0), P_SessAmtAry(0), CurrentViewOrder(ordByDefault)
 {
-	DIALOG_PROC_BODY_P1(SelectRuleDialog, DLG_CSESSCRDRAFT, pParam);
-}
-//
-//
-//
-SLAPI PPViewCSess::PPViewCSess() : PPView(0, &Filt)
-{
-	P_CSessIterQuery = 0;
-	P_TempTbl = 0;
-	P_TempOrd = 0;
-	P_SessAmtAry = 0;
-	CurrentViewOrder = ordByDefault;
 }
 
 SLAPI PPViewCSess::~PPViewCSess()
@@ -1339,10 +1327,7 @@ int SLAPI PPViewCSess::GetSessList(PPIDArray * pList)
 	return ok;
 }
 
-IMPL_CMPFUNC(CHKGOODSID, i1, i2)
-{
-	return cmp_long(((CCheckLineTbl::Rec*)i1)->GoodsID, ((CCheckLineTbl::Rec*)i2)->GoodsID);
-}
+IMPL_CMPFUNC(CHKGOODSID, i1, i2) { return cmp_long(((CCheckLineTbl::Rec*)i1)->GoodsID, ((CCheckLineTbl::Rec*)i2)->GoodsID); }
 
 struct _E {
 	PPID   LocID;

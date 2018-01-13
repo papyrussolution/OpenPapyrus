@@ -41,7 +41,7 @@ void ListWindow::executeNM(HWND parent)
 	HWND   hwnd_parent = parent ? parent : APPL->H_MainWnd;
 	MessageCommandToOwner(cmLBLoadDef);
 	Id = (isTreeList()) ? DLGW_TREELBX : DLGW_LBX;
-	HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)DialogProc, (LPARAM)this);
+	HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)TDialog::DialogProc, (LPARAM)this);
 	TView::SetWindowProp(H(), GWL_STYLE, WS_CHILD);
 	TView::SetWindowProp(H(), GWL_EXSTYLE, 0L);
 	SetParent(H(), hwnd_parent);
@@ -79,7 +79,7 @@ int FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 		P_Def->SetOption(lbtHSizeAlreadyDef, 1);
 	}
 	if(P_Lb) {
-		TView * p = first();
+		TView * p = GetFirstView();
 		do {
 			if(p->TestId(P_Lb->GetId())) {
 				p_next = p->P_Next;
@@ -110,7 +110,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 		HWND   hwnd_parent = p_combo ? p_combo->link()->Parent : APPL->H_MainWnd;
 		MessageCommandToOwner(cmLBLoadDef);
 		Id = isTreeList() ? DLGW_TREELBX : ((P_Def && P_Def->Options & lbtOwnerDraw) ? DLGW_OWNDRAWLBX : lw_dlg_id);
-		HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)DialogProc, (LPARAM)this);
+		HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)TDialog::DialogProc, (LPARAM)this);
 		if(oneof2(Id, DLGW_LBX, DLGW_TREELBX)) {
 			UserInterfaceSettings ui_cfg;
 			if(ui_cfg.Restore() > 0) {
@@ -185,7 +185,15 @@ IMPL_HANDLE_EVENT(ListWindow)
 				HWND   h_tlist = GetDlgItem(H(), CTL_TREELBX_TREELIST);
 				TreeView_Expand(h_tlist, TreeView_GetSelection(h_tlist), TVE_TOGGLE);
 			}
-			else if(TVCMD == cmLBDblClk || TVCMD == cmLBItemSelected)
+			// @v9.8.12 { 
+			//  Специальная предохранительная мера, препятствующая разрушению окна последующим вызовом 
+			//  TDialog::handleEvent
+			else if(TVCMD == cmCancel) {
+				if(!IsInState(sfModal))
+					clearEvent(event);
+			}
+			// } @v9.8.12 
+			else if(oneof2(TVCMD, cmLBDblClk, cmLBItemSelected))
 				event.setCmd(cmOK, 0);
 			else if(TVCMD == cmRightClick) {
 				TMenuPopup menu;
@@ -219,14 +227,12 @@ IMPL_HANDLE_EVENT(ListWindow)
 			}
 		}
 		else if(TVKEYDOWN) {
-			if(TVKEY == kbEsc)
-				TView::messageCommand(this, cmCancel);
-			else if(TVKEY == kbGrayPlus)
-				TView::messageCommand(this, cmaLevelDown);
-			else if(TVKEY == kbGrayMinus)
-				TView::messageCommand(this, cmaLevelUp);
-			else
-				return;
+			switch(TVKEY) {
+				case kbEsc: TView::messageCommand(this, cmCancel); break;
+				case kbGrayPlus: TView::messageCommand(this, cmaLevelDown); break;
+				case kbGrayMinus: TView::messageCommand(this, cmaLevelUp); break;
+				default: return;
+			}
 			clearEvent(event);
 		}
 		/*
@@ -537,7 +543,7 @@ IMPL_HANDLE_EVENT(WordSelector)
 		HWND   hwnd_parent = P_Blk->H_InputDlg;
 		MessageCommandToOwner(cmLBLoadDef);
 		Id = lw_dlg_id;
-		HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)DialogProc, (LPARAM)this);
+		HW = APPL->CreateDlg(Id, hwnd_parent, (DLGPROC)TDialog::DialogProc, (LPARAM)this);
 		APPL->SetWindowViewByKind(H(), TProgram::wndtypListDialog);
 		MoveWindow(P_Blk->H_InputDlg, 0);
 		if(APPL->PushModalWindow(this, H())) {
@@ -698,7 +704,7 @@ int FASTCALL WordSelector::setDef(ListBoxDef * pDef)
 		P_Def->SetOption(lbtHSizeAlreadyDef, 1);
 	}
 	if(P_Lb) {
-		TView * p = first();
+		TView * p = GetFirstView();
 		do {
 			if(p->TestId(P_Lb->GetId())) {
 				p_next = p->P_Next;

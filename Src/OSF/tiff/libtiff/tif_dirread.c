@@ -3605,7 +3605,7 @@ int TIFFReadDirectory(TIFF* tif)
 			return 0;
 		}
 	}
-	return (1);
+	return 1;
 bad:
 	SAlloc::F(dir);
 	return 0;
@@ -3892,9 +3892,9 @@ static int CheckDirCount(TIFF* tif, TIFFDirEntry* dir, uint32 count)
 		    "incorrect count for field \"%s\" (" TIFF_UINT64_FORMAT ", expecting %u); tag trimmed",
 		    fip ? fip->field_name : "unknown tagname", dir->tdir_count, count);
 		dir->tdir_count = count;
-		return (1);
+		return 1;
 	}
-	return (1);
+	return 1;
 }
 /*
  * Read IFD structure from the specified offset. If the pointer to

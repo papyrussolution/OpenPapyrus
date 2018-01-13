@@ -74,7 +74,7 @@ static int TIFFNoDecode(TIFF* tif, const char* method)
 static int _TIFFNoFixupTags(TIFF* tif)
 {
 	(void)tif;
-	return (1);
+	return 1;
 }
 
 int _TIFFNoRowDecode(TIFF* tif, uint8* pp, tmsize_t cc, uint16 s)
@@ -105,13 +105,13 @@ int _TIFFNoSeek(TIFF* tif, uint32 off)
 int _TIFFNoPreCode(TIFF* tif, uint16 s)
 {
 	(void)tif; (void)s;
-	return (1);
+	return 1;
 }
 
 static int _TIFFtrue(TIFF* tif) 
 {
 	(void)tif; 
-	return (1);
+	return 1;
 }
 
 static void _TIFFvoid(TIFF* tif) 

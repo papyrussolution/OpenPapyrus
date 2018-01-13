@@ -1,5 +1,5 @@
 // AUTOCMPL.CPP
-// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2016, 2017
+// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2016, 2017, 2018
 // @codepage windows-1251
 // Автоматическая комплектация //
 //
@@ -11,12 +11,8 @@ SLAPI PUGI::PUGI()
 	THISZERO();
 }
 
-PUGL::SupplSubstItem::SupplSubstItem(uint pos)
+PUGL::SupplSubstItem::SupplSubstItem(uint pos) : Position(pos), SupplID(0), Unit(uAbs), Qtty(0.0)
 {
-	Position = pos;
-	SupplID = 0;
-	Unit = uAbs;
-	Qtty = 0.0;
 }
 
 SString & FASTCALL PUGL::SupplSubstItem::QttyToStr(SString & rBuf) const
@@ -1184,10 +1180,7 @@ PPALDD_CONSTRUCTOR(PUGL)
 	}
 }
 
-PPALDD_DESTRUCTOR(PUGL)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PUGL) { Destroy(); }
 
 int PPALDD_PUGL::InitData(PPFilt & rFilt, long rsrv)
 {

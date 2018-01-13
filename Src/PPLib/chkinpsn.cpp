@@ -165,28 +165,27 @@ int SLAPI PPCheckInPersonItem::IsAnonym() const
 	return BIN(Flags & fAnonym);
 }
 
-int SLAPI PPCheckInPersonItem::Count(uint * pRegCount, uint * pCiCount, uint * pCanceledCount) const
+//int SLAPI PPCheckInPersonItem::Count(uint * pRegCount, uint * pCiCount, uint * pCanceledCount) const
+void SLAPI PPCheckInPersonItem::Count(Total & rT) const
 {
-	uint   reg_count = 0;
-	uint   ci_count = 0;
-	uint   canceled_count = 0;
-
+	//uint   reg_count = 0;
+	//uint   ci_count = 0;
+	//uint   canceled_count = 0;
 	const uint rc = (RegCount > 0) ? RegCount : 1;
 	const int  status = GetStatus();
 	if(status == statusCheckedIn) {
 		if(CiCount > 0)
-			ci_count += CiCount;
+			rT.CiCount += CiCount;
 		else
-			ci_count++;
+			rT.CiCount++;
 	}
 	else if(status == statusCanceled)
-		canceled_count += rc;
-	reg_count += rc;
-
-	ASSIGN_PTR(pRegCount, reg_count);
-	ASSIGN_PTR(pCiCount, ci_count);
-	ASSIGN_PTR(pCanceledCount, canceled_count);
-	return 1;
+		rT.CalceledCount += rc;
+	rT.RegCount += rc;
+	//ASSIGN_PTR(pRegCount, reg_count);
+	//ASSIGN_PTR(pCiCount, ci_count);
+	//ASSIGN_PTR(pCanceledCount, canceled_count);
+	//return 1;
 }
 
 int SLAPI PPCheckInPersonItem::CalcAmount(const PPCheckInPersonConfig * pCfg, double * pPrice, double * pAmount) const
@@ -296,12 +295,9 @@ IMPL_INVARIANT_C(PPCheckInPersonArray)
 }
 
 
-SLAPI PPCheckInPersonArray::PPCheckInPersonArray() : TSVector <PPCheckInPersonItem> (), MemoPool(SLBColumnDelim) // @v9.8.6 TSArray-->TSVector
+SLAPI PPCheckInPersonArray::PPCheckInPersonArray() : TSVector <PPCheckInPersonItem> (), MemoPool(SLBColumnDelim), // @v9.8.6 TSArray-->TSVector
+	Ver(DS.GetVersion()), Kind(0), PrmrID(0), LastAnonymN(0)
 {
-	Ver = DS.GetVersion();
-	Kind = 0;
-	PrmrID = 0;
-	LastAnonymN = 0;
 	MemoPool.add("$"); // zero index - is empty string
 }
 
@@ -379,12 +375,17 @@ int SLAPI PPCheckInPersonArray::AddItem(const PPCheckInPersonItem & rItem, const
 	PPCheckInPersonItem item;
 	item = rItem;
 	if(pCipCfg) {
-		uint   reg_count = 0, _reg_count = 0;
-		uint   ci_count = 0, _ci_count = 0;
-		uint   cnc_count = 0, _cnc_count = 0;
-		Count(&reg_count, &ci_count, &cnc_count);
-		rItem.Count(&_reg_count, &_ci_count, &_cnc_count);
-        THROW_PP_S(!pCipCfg->Capacity || (reg_count + _reg_count) <= (uint)pCipCfg->Capacity, PPERR_CHKINP_CAPACITYEXCESS, (long)pCipCfg->Capacity);
+		//uint   reg_count = 0, _reg_count = 0;
+		//uint   ci_count = 0, _ci_count = 0;
+		//uint   cnc_count = 0, _cnc_count = 0;
+		PPCheckInPersonItem::Total rcount;
+		PPCheckInPersonItem::Total _rcount;
+		//Count(&reg_count, &ci_count, &cnc_count);
+		Count(rcount);
+		//rItem.Count(&_reg_count, &_ci_count, &_cnc_count);
+		rItem.Count(_rcount);
+        //THROW_PP_S(!pCipCfg->Capacity || (reg_count + _reg_count) <= (uint)pCipCfg->Capacity, PPERR_CHKINP_CAPACITYEXCESS, (long)pCipCfg->Capacity);
+		THROW_PP_S(!pCipCfg->Capacity || (rcount.RegCount + _rcount.RegCount) <= (uint)pCipCfg->Capacity, PPERR_CHKINP_CAPACITYEXCESS, (long)pCipCfg->Capacity);
         if(rItem.PlaceCode[0]) {
 			SString place_code = rItem.PlaceCode;
 			SString temp_buf;
@@ -504,25 +505,27 @@ int FASTCALL PPCheckInPersonArray::NextIteration(PPCheckInPersonItem & rItem)
 	return ok;
 }
 
-int SLAPI PPCheckInPersonArray::Count(uint * pRegCount, uint * pCiCount, uint * pCanceledCount) const
+//int SLAPI PPCheckInPersonArray::Count(uint * pRegCount, uint * pCiCount, uint * pCanceledCount) const
+void SLAPI PPCheckInPersonArray::Count(PPCheckInPersonItem::Total & rT) const
 {
-	uint   reg_count = 0;
-	uint   ci_count = 0;
-	uint   canceled_count = 0;
+	//uint   reg_count = 0;
+	//uint   ci_count = 0;
+	//uint   canceled_count = 0;
 	for(uint i = 0; i < getCount(); i++) {
 		const PPCheckInPersonItem & r_item = at(i);
-		uint   reg_count_ = 0;
-		uint   ci_count_ = 0;
-		uint   canceled_count_ = 0;
-		r_item.Count(&reg_count_, &ci_count_, &canceled_count_);
-		reg_count += reg_count_;
-		ci_count += ci_count_;
-		canceled_count += canceled_count_;
+		//uint   reg_count_ = 0;
+		//uint   ci_count_ = 0;
+		//uint   canceled_count_ = 0;
+		//r_item.Count(&reg_count_, &ci_count_, &canceled_count_);
+		r_item.Count(rT);
+		//reg_count += reg_count_;
+		//ci_count += ci_count_;
+		//canceled_count += canceled_count_;
 	}
-	ASSIGN_PTR(pRegCount, reg_count);
-	ASSIGN_PTR(pCiCount, ci_count);
-	ASSIGN_PTR(pCanceledCount, canceled_count);
-	return 1;
+	//ASSIGN_PTR(pRegCount, reg_count);
+	//ASSIGN_PTR(pCiCount, ci_count);
+	//ASSIGN_PTR(pCanceledCount, canceled_count);
+	//return 1;
 }
 
 int SLAPI PPCheckInPersonArray::CalcAmount(const PPCheckInPersonConfig * pCfg, double * pAmount) const
@@ -1072,10 +1075,7 @@ private:
 	SString & R_MemoBuf;
 };
 
-int SLAPI EditCheckInPersonItem(const PPCheckInPersonConfig * pCfg, PPCheckInPersonItem * pData, SString & rMemo)
-{
-	DIALOG_PROC_BODY_P2(CheckInPersonDialog, pCfg, rMemo, pData);
-}
+int SLAPI EditCheckInPersonItem(const PPCheckInPersonConfig * pCfg, PPCheckInPersonItem * pData, SString & rMemo) { DIALOG_PROC_BODY_P2(CheckInPersonDialog, pCfg, rMemo, pData); }
 
 class CheckInPersonListDialog : public PPListDialog {
 public:
@@ -1263,21 +1263,23 @@ int CheckInPersonListDialog::setupList()
 			ok = 0;
 	}
 	{
-		uint   reg_count = 0;
-		uint   ci_count = 0;
-		uint   canceled_count = 0;
-		Data.Count(&reg_count, &ci_count, &canceled_count);
+		//uint   reg_count = 0;
+		//uint   ci_count = 0;
+		//uint   canceled_count = 0;
+		PPCheckInPersonItem::Total rcount;
+		//Data.Count(&reg_count, &ci_count, &canceled_count);
+		Data.Count(rcount);
 		temp_buf.Z();
-		if(reg_count) {
+		if(rcount.RegCount) {
 			PPLoadString("registered", word_buf);
-			temp_buf.CatEq(word_buf, (ulong)reg_count);
-			if(ci_count) {
+			temp_buf.CatEq(word_buf, (ulong)rcount.RegCount);
+			if(rcount.CiCount) {
 				PPLoadString("checkedin", word_buf);
-				temp_buf.CatDiv(';', 2).CatEq(word_buf, (ulong)ci_count);
+				temp_buf.CatDiv(';', 2).CatEq(word_buf, (ulong)rcount.CiCount);
 			}
-			if(canceled_count) {
+			if(rcount.CalceledCount) {
 				PPLoadString("canceled", word_buf);
-				temp_buf.CatDiv(';', 2).CatEq(word_buf, (ulong)canceled_count);
+				temp_buf.CatDiv(';', 2).CatEq(word_buf, (ulong)rcount.CalceledCount);
 			}
 		}
 		setStaticText(CTL_CHKINPLIST_ST_TOTAL, temp_buf);
@@ -1288,10 +1290,11 @@ int CheckInPersonListDialog::setupList()
 int CheckInPersonListDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
-	uint   reg_count = 0;
+	//uint   reg_count = 0;
 	SString added_msg;
-	Data.Count(&reg_count, 0, 0);
-	if(Cfg.Capacity > 0 && reg_count >= (uint)Cfg.Capacity) {
+	PPCheckInPersonItem::Total rcount;
+	Data.Count(rcount);
+	if(Cfg.Capacity > 0 && rcount.RegCount >= (uint)Cfg.Capacity) {
 		PPError(PPERR_CHKINP_CAPACITYEXCESS, added_msg.Cat(Cfg.Capacity));
 		ok = 0;
 	}
@@ -1300,8 +1303,9 @@ int CheckInPersonListDialog::addItem(long * pPos, long * pID)
 		PPCheckInPersonItem item;
 		Data.InitItem(item);
 		while(ok < 0 && EditCheckInPersonItem(&Cfg, &item, memo_buf) > 0) {
-			uint   reg_count_ = 0;
-			item.Count(&reg_count_, 0, 0);
+			//uint   reg_count_ = 0;
+			PPCheckInPersonItem::Total rcount_;
+			item.Count(rcount_);
 			uint   dup_pos = 0;
 			if(!item.GetPerson() && !item.IsAnonym()) {
 				PPError(PPERR_PERSONNEEDED);
@@ -1310,7 +1314,7 @@ int CheckInPersonListDialog::addItem(long * pPos, long * pID)
 				item.GetPersonName(added_msg);
 				PPError(PPERR_CHKINP_DUPITEM, added_msg);
 			}
-			else if(Cfg.Capacity > 0 && (reg_count + reg_count_) > (uint)Cfg.Capacity) {
+			else if(Cfg.Capacity > 0 && (rcount.RegCount + rcount_.RegCount) > (uint)Cfg.Capacity) {
 				PPError(PPERR_CHKINP_CAPACITYEXCESS, added_msg.Cat(Cfg.Capacity));
 			}
 			else {
@@ -1336,13 +1340,16 @@ int CheckInPersonListDialog::editItem(long pos, long id)
 		SString memo_buf;
 		PPCheckInPersonItem item = Data.Get(pos);
 		Data.GetMemo(pos, memo_buf);
-		uint   reg_count = 0;
-		Data.Count(&reg_count, 0, 0);
-		uint   prev_reg_count_ = 0;
-		item.Count(&prev_reg_count_, 0, 0);
+		//uint   reg_count = 0;
+		PPCheckInPersonItem::Total rcount;
+		PPCheckInPersonItem::Total prev_rcount_;
+		Data.Count(rcount);
+		//uint   prev_reg_count_ = 0;
+		item.Count(prev_rcount_);
 		while(ok < 0 && EditCheckInPersonItem(&Cfg, &item, memo_buf) > 0) {
-			uint   reg_count_ = 0;
-			item.Count(&reg_count_, 0, 0);
+			//uint   reg_count_ = 0;
+			PPCheckInPersonItem::Total rcount_;
+			item.Count(rcount_);
 			int    is_dup = 0;
 			if(!item.GetPerson() && !item.IsAnonym()) {
 				PPError(PPERR_PERSONNEEDED);
@@ -1356,17 +1363,15 @@ int CheckInPersonListDialog::editItem(long pos, long id)
 					}
 				}
 				if(!is_dup) {
-					if(Cfg.Capacity > 0 && (reg_count + reg_count_ - prev_reg_count_) > (uint)Cfg.Capacity) {
+					if(Cfg.Capacity > 0 && (rcount.RegCount + rcount_.RegCount - prev_rcount_.RegCount) > (uint)Cfg.Capacity) {
 						PPError(PPERR_CHKINP_CAPACITYEXCESS, added_msg.Cat(Cfg.Capacity));
 					}
-					else {
-						if(Data.UpdateItem(pos, item, &Cfg)) {
-							Data.SetMemo(pos, memo_buf);
-							ok = 1;
-						}
-						else
-							PPError();
+					else if(Data.UpdateItem(pos, item, &Cfg)) {
+						Data.SetMemo(pos, memo_buf);
+						ok = 1;
 					}
+					else
+						PPError();
 				}
 			}
 		}
@@ -1379,10 +1384,7 @@ int CheckInPersonListDialog::delItem(long pos, long id)
 	return Data.RemoveItem((uint)pos) ? 1 : -1;
 }
 
-int SLAPI EditCheckInPersonList(const PPCheckInPersonConfig * pCfg, PPCheckInPersonArray * pData)
-{
-	DIALOG_PROC_BODY_P1(CheckInPersonListDialog, pCfg, pData);
-}
+int SLAPI EditCheckInPersonList(const PPCheckInPersonConfig * pCfg, PPCheckInPersonArray * pData) { DIALOG_PROC_BODY_P1(CheckInPersonListDialog, pCfg, pData); }
 //
 // Implementation of PPALDD_CheckInPerson
 //
@@ -1391,10 +1393,7 @@ PPALDD_CONSTRUCTOR(CheckInPerson)
 	InitFixData(rscDefHdr, &H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(CheckInPerson)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(CheckInPerson) { Destroy(); }
 
 int PPALDD_CheckInPerson::InitData(PPFilt & rFilt, long rsrv)
 {

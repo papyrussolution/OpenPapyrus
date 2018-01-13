@@ -326,16 +326,11 @@ void SmartListBox::RemoveColumns()
 		RemoveColumn(i);
 }
 
-int FASTCALL SmartListBox::getCurID(long * pId)
-	{ return def ? def->getCurID(pId) : 0; }
-int FASTCALL SmartListBox::getCurData(void * pData)
-	{ return def ? def->getCurData(pData) : 0; }
-int FASTCALL SmartListBox::getCurString(SString & rBuf)
-	{ return def ? def->getCurString(rBuf) : (rBuf.Z(), 0); }
-int SmartListBox::isTreeList() const
-	{ return BIN(def && def->_isTreeList()); }
-void SmartListBox::setHorzRange(int)
-	{}
+int    FASTCALL SmartListBox::getCurID(long * pId) { return def ? def->getCurID(pId) : 0; }
+int    FASTCALL SmartListBox::getCurData(void * pData) { return def ? def->getCurData(pData) : 0; }
+int    FASTCALL SmartListBox::getCurString(SString & rBuf) { return def ? def->getCurString(rBuf) : (rBuf.Z(), 0); }
+int    SmartListBox::isTreeList() const { return BIN(def && def->_isTreeList()); }
+void   SmartListBox::setHorzRange(int) {}
 
 int SmartListBox::getText(long itemN  /* 0.. */, SString & rBuf)
 {
@@ -694,8 +689,7 @@ int SmartListBox::GetStringByID(long id, SString & rBuf)
 	return def ? ((StdTreeListBoxDef*)def)->GetStringByID(id, rBuf) : 0;
 }
 
-int SmartListBox::GetImageIdxByID(long id, long * pIdx)
-	{ return (def) ? ((StdListBoxDef*)def)->GetImageIdxByID(id, pIdx) : 0; }
+int SmartListBox::GetImageIdxByID(long id, long * pIdx) { return def ? ((StdListBoxDef*)def)->GetImageIdxByID(id, pIdx) : 0; }
 
 int FASTCALL SmartListBox::onVKeyToItem(WPARAM wParam)
 {
@@ -825,7 +819,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					return 0;
 			}
 			else
-				return 0;
+				return 1; // @v9.8.12 0-->1
 			break;
 		case WM_MOUSEWHEEL:
 			{
@@ -1103,25 +1097,10 @@ int SmartListBox::SetTreeListState(int yes)
 	return BIN(yes);
 }
 
-void SmartListBox::SetOwnerDrawState()
-{
-	State |= stOwnerDraw;
-}
-
-void SmartListBox::SetLBLnkToUISrchState()
-{
-	State |= stLBIsLinkedUISrchTextBlock;
-}
-
-void SmartListBox::SetOmitSearchByFirstChar()
-{
-	State |= stOmitSearchByFirstChar;
-}
-
-int SmartListBox::HasState(long s) const
-{
-	return BIN(State & s);
-}
+void   SmartListBox::SetOwnerDrawState() { State |= stOwnerDraw; }
+void   SmartListBox::SetLBLnkToUISrchState() { State |= stLBIsLinkedUISrchTextBlock; }
+void   SmartListBox::SetOmitSearchByFirstChar() { State |= stOmitSearchByFirstChar; }
+int    SmartListBox::HasState(long s) const { return BIN(State & s); }
 
 void SmartListBox::SelectTreeItem()
 {
@@ -1176,28 +1155,15 @@ int SmartListBox::search(void * pPattern, CompFunc fcmp, int srchMode)
 //
 #define UISEARCHTEXTBLOCK_MAXLEN 64
 
-UiSearchTextBlock::UiSearchTextBlock(HWND h, uint ctlId, char * pText, int firstLetter, WordSel_ExtraBlock * pBlk, int linkToList)
+UiSearchTextBlock::UiSearchTextBlock(HWND h, uint ctlId, char * pText, int firstLetter, WordSel_ExtraBlock * pBlk, int linkToList) :
+	H_Wnd(h), Id(ctlId), Text(pText), P_WordSel(0), P_WordSelBlk(pBlk), PrevInputCtlProc(0), LinkToList(linkToList), FirstLetter(firstLetter)
 {
-	H_Wnd = h;
-	Id = ctlId;
-	//P_Text = pText;
-	Text = pText;
-	if(firstLetter) {
-		// @construction P_Text[0] = 0;
-		FirstLetter = firstLetter;
-	}
-	else
-		FirstLetter = 0;
-	P_WordSel    = 0;
-	P_WordSelBlk = pBlk;
-	PrevInputCtlProc = 0;
-	LinkToList = linkToList;
 }
 
 UiSearchTextBlock::~UiSearchTextBlock()
 {
 	if(P_WordSel && P_WordSel->H())
-		EndDialog(P_WordSel->H(), cmCancel);
+		::EndDialog(P_WordSel->H(), cmCancel);
 	ZDELETE(P_WordSel);
 }
 
@@ -1279,7 +1245,6 @@ BOOL CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 				}
 			}
 			return 1;
-		// @v7.7.12 {
 		case WM_SHOWWINDOW:
 			if(wParam == 1) {
 				UiSearchTextBlock * p_slb = (UiSearchTextBlock *)TView::GetWindowUserData(hwndDlg);
@@ -1292,7 +1257,6 @@ BOOL CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 				}
 			}
 			break;
-		// } @v7.7.12
 		case WM_DESTROY:
 			{
 				UiSearchTextBlock * p_slb = (UiSearchTextBlock *)TView::GetWindowUserData(hwndDlg);

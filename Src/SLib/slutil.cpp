@@ -1,5 +1,5 @@
 // SLUTIL.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017
+// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>

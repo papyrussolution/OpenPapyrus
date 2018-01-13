@@ -317,7 +317,7 @@ static int TIFFSeek(TIFF* tif, uint32 row, uint16 sample)
 			return 0;
 		tif->tif_row = row;
 	}
-	return (1);
+	return 1;
 }
 
 int TIFFReadScanline(TIFF* tif, void* buf, uint32 row, uint16 sample)
@@ -1065,7 +1065,7 @@ int TIFFReadBufferSetup(TIFF* tif, void* bp, tmsize_t size)
 		tif->tif_rawdatasize = 0;
 		return 0;
 	}
-	return (1);
+	return 1;
 }
 /*
  * Set state to appear as if a
@@ -1145,7 +1145,7 @@ static int TIFFCheckRead(TIFF* tif, int tiles)
 		TIFFErrorExt(tif->tif_clientdata, tif->tif_name, tiles ? "Can not read tiles from a stripped image" : "Can not read scanlines from a tiled image");
 		return 0;
 	}
-	return (1);
+	return 1;
 }
 
 void _TIFFNoPostDecode(TIFF* tif, uint8* buf, tmsize_t cc)

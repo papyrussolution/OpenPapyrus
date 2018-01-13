@@ -106,12 +106,10 @@ static float LogK1, LogK2;
 
 #define REPEAT(n, op)   { int i; i = n; do { i--; op; } while(i>0); }
 
-static void horizontalAccumulateF(uint16 * wp, int n, int stride, float * op,
-    float * ToLinearF)
+static void horizontalAccumulateF(uint16 * wp, int n, int stride, float * op, float * ToLinearF)
 {
 	register unsigned int cr, cg, cb, ca, mask;
 	register float t0, t1, t2, t3;
-
 	if(n >= stride) {
 		mask = CODE_MASK;
 		if(stride == 3) {
@@ -657,7 +655,7 @@ static tmsize_t add_ms(tmsize_t m1, tmsize_t m2)
 static int PixarLogFixupTags(TIFF* tif)
 {
 	(void)tif;
-	return (1);
+	return 1;
 }
 
 static int PixarLogSetupDecode(TIFF* tif)
@@ -719,7 +717,7 @@ static int PixarLogSetupDecode(TIFF* tif)
 	}
 	else {
 		sp->state |= PLSTATE_INIT;
-		return (1);
+		return 1;
 	}
 }
 
@@ -889,7 +887,7 @@ static int PixarLogDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 		}
 	}
 
-	return (1);
+	return 1;
 }
 
 static int PixarLogSetupEncode(TIFF* tif)
@@ -925,7 +923,7 @@ static int PixarLogSetupEncode(TIFF* tif)
 	}
 	else {
 		sp->state |= PLSTATE_INIT;
-		return (1);
+		return 1;
 	}
 }
 
@@ -1204,7 +1202,7 @@ static int PixarLogEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 			                                                       made already in PixarLogPreEncode */
 		}
 	} while(sp->stream.avail_in > 0);
-	return (1);
+	return 1;
 }
 
 /*
@@ -1241,7 +1239,7 @@ static int PixarLogPostEncode(TIFF* tif)
 			    return 0;
 		}
 	} while(state != Z_STREAM_END);
-	return (1);
+	return 1;
 }
 
 static void PixarLogClose(TIFF* tif)
@@ -1321,7 +1319,7 @@ static int PixarLogVSetField(TIFF* tif, uint32 tag, va_list ap)
 				    return 0;
 			    }
 		    }
-		    return (1);
+		    return 1;
 		case TIFFTAG_PIXARLOGDATAFMT:
 		    sp->user_datafmt = (int)va_arg(ap, int);
 		    /* Tweak the TIFF header so that the rest of libtiff knows what
@@ -1379,7 +1377,7 @@ static int PixarLogVGetField(TIFF* tif, uint32 tag, va_list ap)
 		default:
 		    return (*sp->vgetparent)(tif, tag, ap);
 	}
-	return (1);
+	return 1;
 }
 
 static const TIFFField pixarlogFields[] = {
@@ -1454,7 +1452,7 @@ int TIFFInitPixarLog(TIFF* tif, int scheme)
 	 */
 	PixarLogMakeTables(sp);
 
-	return (1);
+	return 1;
 bad:
 	TIFFErrorExt(tif->tif_clientdata, module,
 	    "No space for PixarLog state block");

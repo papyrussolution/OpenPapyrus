@@ -540,10 +540,7 @@ PPALDD_CONSTRUCTOR(GoodsTurnovr)
 	}
 }
 
-PPALDD_DESTRUCTOR(GoodsTurnovr)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsTurnovr) { Destroy(); }
 
 int PPALDD_GoodsTurnovr::InitData(PPFilt & rFilt, long rsrv)
 {

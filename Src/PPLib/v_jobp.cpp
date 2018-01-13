@@ -202,10 +202,7 @@ int JobItemDialog::CheckRecursion(const PPJob * pData)
 	return ok;
 }
 
-int SLAPI EditJobItem(PPJobMngr * pMngr, PPJobPool * pJobPool, PPJob * pData)
-{
-	DIALOG_PROC_BODY_P2(JobItemDialog, pMngr, pJobPool, pData);
-}
+int SLAPI EditJobItem(PPJobMngr * pMngr, PPJobPool * pJobPool, PPJob * pData) { DIALOG_PROC_BODY_P2(JobItemDialog, pMngr, pJobPool, pData); }
 //
 //
 //

@@ -188,7 +188,7 @@ typedef void (*tileSeparateRoutine)(TIFFRGBAImage*, uint32*, uint32, uint32, uin
  * RGBA-reader state.
  */
 struct _TIFFRGBAImage {
-	TIFF* tif;                              /* image handle */
+	TIFF * tif;                             /* image handle */
 	int stoponerr;                          /* stop on read error */
 	int isContig;                           /* data is packed/separate */
 	int alpha;                              /* type of alpha data present */
@@ -424,15 +424,10 @@ extern TIFF* TIFFOpen(const char*, const char*);
 # ifdef __WIN32__
 extern TIFF* TIFFOpenW(const wchar_t*, const char*);
 # endif /* __WIN32__ */
-extern TIFF* TIFFFdOpen(int, const char*, const char*);
-extern TIFF* TIFFClientOpen(const char*, const char*,
-	    thandle_t,
-	    TIFFReadWriteProc, TIFFReadWriteProc,
-	    TIFFSeekProc, TIFFCloseProc,
-	    TIFFSizeProc,
-	    TIFFMapFileProc, TIFFUnmapFileProc);
-extern const char* TIFFFileName(TIFF*);
-extern const char* TIFFSetFileName(TIFF*, const char *);
+extern TIFF * TIFFFdOpen(int, const char*, const char*);
+extern TIFF * TIFFClientOpen(const char*, const char*, thandle_t, TIFFReadWriteProc, TIFFReadWriteProc, TIFFSeekProc, TIFFCloseProc, TIFFSizeProc, TIFFMapFileProc, TIFFUnmapFileProc);
+extern const char * TIFFFileName(TIFF*);
+extern const char * TIFFSetFileName(TIFF*, const char *);
 extern void TIFFError(const char*, const char*, ...) __attribute__((__format__ (__printf__,2,3)));
 extern void TIFFErrorExt(thandle_t, const char*, const char*, ...) __attribute__((__format__ (__printf__,3,4)));
 extern void TIFFWarning(const char*, const char*, ...) __attribute__((__format__ (__printf__,2,3)));
@@ -502,7 +497,7 @@ extern int TIFFCIELabToRGBInit(TIFFCIELabToRGB*, const TIFFDisplay *, float*);
 extern void TIFFCIELabToXYZ(TIFFCIELabToRGB *, uint32, int32, int32, float *, float *, float *);
 extern void TIFFXYZToRGB(TIFFCIELabToRGB *, float, float, float, uint32 *, uint32 *, uint32 *);
 extern int TIFFYCbCrToRGBInit(TIFFYCbCrToRGB*, float*, float*);
-extern void TIFFYCbCrtoRGB(TIFFYCbCrToRGB *, uint32, int32, int32, uint32 *, uint32 *, uint32 *);
+extern void FASTCALL TIFFYCbCrtoRGB(TIFFYCbCrToRGB *, uint32, int32, int32, uint32 *, uint32 *, uint32 *);
 
 /****************************************************************************
  *               O B S O L E T E D    I N T E R F A C E S

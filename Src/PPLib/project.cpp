@@ -271,10 +271,7 @@ int SLAPI PPObjProject::GetFullName(PPID id, SString & rBuf)
 	return ok;
 }
 
-int SLAPI PPObjProject::Browse(void * extraPtr)
-{
-	return PPView::Execute(PPVIEW_PROJECT, 0, PPView::exefModeless, 0);
-}
+int SLAPI PPObjProject::Browse(void * extraPtr) { return PPView::Execute(PPVIEW_PROJECT, 0, PPView::exefModeless, 0); }
 
 int SLAPI PPObjProject::InitPacket(ProjectTbl::Rec * pRec, int kind, PPID parentID, int use_ta)
 {
@@ -2481,10 +2478,7 @@ PPALDD_CONSTRUCTOR(ProjectView)
 	}
 }
 
-PPALDD_DESTRUCTOR(ProjectView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(ProjectView) { Destroy(); }
 
 int PPALDD_ProjectView::InitData(PPFilt & rFilt, long rsrv)
 {

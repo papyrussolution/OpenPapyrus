@@ -55,7 +55,7 @@ int ssl3_do_change_cipher_spec(SSL * s)
 	}
 	s->s3->tmp.peer_finish_md_len = i;
 
-	return (1);
+	return 1;
 }
 
 int ssl3_send_alert(SSL * s, int level, int desc)

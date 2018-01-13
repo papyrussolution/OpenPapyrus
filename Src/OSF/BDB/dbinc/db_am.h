@@ -215,13 +215,7 @@ struct __db_foreign_info {
  * DB_GET_BOTH flag on a secondary get).
  */
 // @v9.5.5 #include "dbinc/db_swap.h"
-
-#define	SWAP_IF_NEEDED(sdbp, pkey)					\
-	do {								\
-		if(((sdbp)->s_primary->type == DB_QUEUE || (sdbp)->s_primary->type == DB_RECNO) && F_ISSET((sdbp), DB_AM_SWAP)) \
-			P_32_SWAP((pkey)->data);			\
-	} while (0)
-
+#define	SWAP_IF_NEEDED(sdbp, pkey) do { if(oneof2((sdbp)->s_primary->type, DB_QUEUE, DB_RECNO) && F_ISSET((sdbp), DB_AM_SWAP)) P_32_SWAP((pkey)->data); } while (0)
 /*
  * Cursor adjustment:
  *	Return the first DB handle in the sorted ENV list of DB
@@ -245,13 +239,11 @@ struct __db_foreign_info {
 #define	SEQ_IS_OPEN(seq)	((seq)->seq_key.data != NULL)
 #define	SEQ_ILLEGAL_AFTER_OPEN(seq, name)  if(SEQ_IS_OPEN(seq)) return (__db_mi_open((seq)->seq_dbp->env, name, 1));
 #define	SEQ_ILLEGAL_BEFORE_OPEN(seq, name) if(!SEQ_IS_OPEN(seq)) return (__db_mi_open((seq)->seq_dbp->env, name, 0));
-
 /*
  * Flags to __db_chk_meta.
  */
-#define	DB_CHK_META	0x01	/* Checksum the meta page. */
-#define	DB_CHK_NOLSN	0x02	/* Don't check the LSN. */
-
+#define	DB_CHK_META     0x01 /* Checksum the meta page. */
+#define	DB_CHK_NOLSN    0x02 /* Don't check the LSN. */
 /*
  * Flags to __db_truncate_page.
  */

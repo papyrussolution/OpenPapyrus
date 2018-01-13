@@ -2529,10 +2529,7 @@ private:
 	PPOpCounterPacket Data;
 };
 
-int OpCntrDialog::editDiffCounters(LAssocArray * pData)
-{
-	DIALOG_PROC_BODY(DiffByLocCntrDlg, pData);
-}
+int OpCntrDialog::editDiffCounters(LAssocArray * pData) { DIALOG_PROC_BODY(DiffByLocCntrDlg, pData); }
 
 IMPL_HANDLE_EVENT(OpCntrDialog)
 {
@@ -3562,10 +3559,7 @@ PPALDD_CONSTRUCTOR(OprKind)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(OprKind)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(OprKind) { Destroy(); }
 
 int PPALDD_OprKind::InitData(PPFilt & rFilt, long rsrv)
 {

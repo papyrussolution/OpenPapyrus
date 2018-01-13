@@ -53,8 +53,7 @@
 #include "memdebug.h"
 
 #ifdef __SYMBIAN32__
-/* This isn't actually supported under Symbian OS */
-#undef SO_NOSIGPIPE
+	#undef SO_NOSIGPIPE // This isn't actually supported under Symbian OS 
 #endif
 
 static bool verifyconnect(curl_socket_t sockfd, int * error);
@@ -105,16 +104,14 @@ static void tcpkeepalive(struct Curl_easy * data, curl_socket_t sockfd)
 #ifdef TCP_KEEPIDLE
 		optval = curlx_sltosi(data->set.tcp_keepidle);
 		KEEPALIVE_FACTOR(optval);
-		if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE,
-			    (void*)&optval, sizeof(optval)) < 0) {
+		if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPIDLE, (void*)&optval, sizeof(optval)) < 0) {
 			infof(data, "Failed to set TCP_KEEPIDLE on fd %d\n", sockfd);
 		}
 #endif
 #ifdef TCP_KEEPINTVL
 		optval = curlx_sltosi(data->set.tcp_keepintvl);
 		KEEPALIVE_FACTOR(optval);
-		if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL,
-			    (void*)&optval, sizeof(optval)) < 0) {
+		if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPINTVL, (void*)&optval, sizeof(optval)) < 0) {
 			infof(data, "Failed to set TCP_KEEPINTVL on fd %d\n", sockfd);
 		}
 #endif
@@ -122,8 +119,7 @@ static void tcpkeepalive(struct Curl_easy * data, curl_socket_t sockfd)
 		/* Mac OS X style */
 		optval = curlx_sltosi(data->set.tcp_keepidle);
 		KEEPALIVE_FACTOR(optval);
-		if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE,
-			    (void*)&optval, sizeof(optval)) < 0) {
+		if(setsockopt(sockfd, IPPROTO_TCP, TCP_KEEPALIVE, (void*)&optval, sizeof(optval)) < 0) {
 			infof(data, "Failed to set TCP_KEEPALIVE on fd %d\n", sockfd);
 		}
 #endif

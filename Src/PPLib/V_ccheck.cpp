@@ -4024,10 +4024,7 @@ int SLAPI PPViewCCheck::Print(const void *)
 	return Helper_Print(rpt_id, 0);
 }
 
-int SLAPI ViewCCheck(const CCheckFilt * pFilt, int exeFlags)
-{
-	return PPView::Execute(PPVIEW_CCHECK, pFilt, exeFlags, 0);
-}
+int SLAPI ViewCCheck(const CCheckFilt * pFilt, int exeFlags) { return PPView::Execute(PPVIEW_CCHECK, pFilt, exeFlags, 0); }
 //
 // Implementation of PPALDD_CCheck
 //

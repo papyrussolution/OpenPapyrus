@@ -622,7 +622,7 @@ uint32 PNGAPI png_get_IHDR(png_const_structrp png_ptr, png_const_inforp info_ptr
 	 */
 	png_check_IHDR(png_ptr, info_ptr->width, info_ptr->height, info_ptr->bit_depth, info_ptr->color_type, info_ptr->interlace_type,
 	    info_ptr->compression_type, info_ptr->filter_type);
-	return (1);
+	return 1;
 }
 
 #ifdef PNG_oFFs_SUPPORTED

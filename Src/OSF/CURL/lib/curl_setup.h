@@ -29,13 +29,13 @@
 #if (defined(_WIN32) || defined(__WIN32__)) && !defined(WIN32) && !defined(__SYMBIAN32__)
 	#define WIN32
 #endif
-/*
- * Include configuration script results or hand-crafted
- * configuration file for platforms which lack config tool.
- */
+// 
+// Include configuration script results or hand-crafted
+// configuration file for platforms which lack config tool.
+// 
 #define USE_LIBSSH2 // @sobolev
 #define HAVE_LIBSSH2_H
-#define LIBSSH2_VERSION_NUM 0x010801
+// @sobolev #define LIBSSH2_VERSION_NUM 0x010801
 #ifdef HAVE_CONFIG_H
 	#include "curl_config.h"
 #else /* HAVE_CONFIG_H */
@@ -200,30 +200,30 @@
  * neither HAVE_WS2TCPIP_H when __CYGWIN__ is defined.
  */
 #ifdef HAVE_WINDOWS_H
-#  if defined(UNICODE) && !defined(_UNICODE)
-#    define _UNICODE
-#  endif
-#  if defined(_UNICODE) && !defined(UNICODE)
-#    define UNICODE
-#  endif
-#  ifndef WIN32_LEAN_AND_MEAN
-#    define WIN32_LEAN_AND_MEAN
-#  endif
-#include <windows.h>
-#  ifdef HAVE_WINSOCK2_H
-#    include <winsock2.h>
-#    ifdef HAVE_WS2TCPIP_H
-#      include <ws2tcpip.h>
-#    endif
-#  else
-#    ifdef HAVE_WINSOCK_H
-#      include <winsock.h>
-#    endif
-#  endif
-#include <tchar.h>
-#  ifdef UNICODE
-     typedef wchar_t *(*curl_wcsdup_callback)(const wchar_t *str);
-#  endif
+	#if defined(UNICODE) && !defined(_UNICODE)
+		#define _UNICODE
+	#endif
+	#if defined(_UNICODE) && !defined(UNICODE)
+		#define UNICODE
+	#endif
+	#ifndef WIN32_LEAN_AND_MEAN
+		#define WIN32_LEAN_AND_MEAN
+	#endif
+	#include <windows.h>
+	#ifdef HAVE_WINSOCK2_H
+		#include <winsock2.h>
+		#ifdef HAVE_WS2TCPIP_H
+			#include <ws2tcpip.h>
+		#endif
+	#else
+		#ifdef HAVE_WINSOCK_H
+			#include <winsock.h>
+		#endif
+	#endif
+	#include <tchar.h>
+	#ifdef UNICODE
+		 typedef wchar_t *(*curl_wcsdup_callback)(const wchar_t *str);
+	#endif
 #endif
 /*
  * Define USE_WINSOCK to 2 if we have and use WINSOCK2 API, else
@@ -313,9 +313,9 @@
 	#define struct_stat                struct _stati64
 	#define LSEEK_ERROR                (__int64)-1
 #endif
-/*
- * Small file (<2Gb) support using WIN32 functions.
- */
+// 
+// Small file (<2Gb) support using WIN32 functions.
+// 
 #ifdef USE_WIN32_SMALL_FILES
 #include <io.h>
 #include <sys/types.h>
@@ -650,7 +650,6 @@
 	#include <process.h>
 #endif
 #include <stddef.h>
-
 #include "warnless.h"
 #include "llist.h"
 #include "wildcard.h"

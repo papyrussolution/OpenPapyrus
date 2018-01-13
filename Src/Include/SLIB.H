@@ -349,16 +349,16 @@
 #define CALLPTRMEMB(ptr, memb)          if(ptr) ptr->memb;
 #define CALLTYPEPTRMEMB(typ, ptr, memb) if(ptr) ((typ *)ptr)->memb;
 
-#ifdef DECL_INTX
-	typedef signed char    int8;
-	typedef signed short   int16;
-	typedef signed long    int32;
-	typedef unsigned char  uint8;
-	typedef unsigned short uint16;
-	typedef unsigned long  uint32;
-	typedef __int64        int64;
-	typedef unsigned __int64 uint64;
-#endif
+// @v9.8.12 #ifdef DECL_INTX
+typedef signed char    int8;
+typedef signed short   int16;
+typedef signed long    int32;
+typedef unsigned char  uint8;
+typedef unsigned short uint16;
+typedef unsigned long  uint32;
+typedef __int64        int64;
+typedef unsigned __int64 uint64;
+// @v9.8.12 #endif
 typedef long double         LDBL;
 typedef unsigned char       uchar;
 typedef unsigned short      ushort;
@@ -2090,6 +2090,7 @@ public:
 #define CALLEXCEPT_S_S(val,s)  {SLS.SetError(val, s);goto __scatch;}
 #define CALLEXCEPTV(val)       {*__sexcept=val;goto __scatch;}
 #define THROW(expr)            {if(!(expr)){goto __scatch;}}
+#define THROWEC(expr)          {if(!!(expr)){goto __scatch;}}
 #define THROW_V(expr,val)      {if(!(expr)){*__sexcept=val;goto __scatch;}}
 #define THROW_S(expr,val)      {if(!(expr)){SLS.SetError(val);goto __scatch;}}
 #define THROW_S_S(expr,val,s)  {if(!(expr)){SLS.SetError(val, s);goto __scatch;}}
@@ -2497,30 +2498,30 @@ typedef int32 TYPEID;
 #define GETSSIZED(typ)        (((typ)&0x00ff0000)>>16)
 #define GETSPRECD(typ)        (((typ)&0xff000000)>>24)
 
-#ifdef COMPLEX_TYPES
-	#define T_CHAR             MKSTYPE(S_CHAR,1)
-	#define T_INT              MKSTYPE(S_INT,2)
-	#define T_UINT             MKSTYPE(S_UBINARY,2)
-	#define T_UINT16           MKSTYPE(S_UBINARY,2)
-	#define T_UINT32           MKSTYPE(S_UBINARY,4
-	#define T_INT32            MKSTYPE(S_INT,4)
-	#define T_LONG             MKSTYPE(S_INT,4)
-	#define T_ULONG            MKSTYPE(S_UBINARY,4)
-	#define T_FLOAT            MKSTYPE(S_FLOAT,4)
-	#define T_DOUBLE           MKSTYPE(S_FLOAT,8)
-	#define T_MONEY            MKSTYPED(S_DEC,8,2)
-	#define T_DATE             MKSTYPE(S_DATE,4)
-	#define T_TIME             MKSTYPE(S_TIME,4)
-	#define T_DATETIME         MKSTYPE(S_DATETIME,8)
-	#define T_ARRAY            MKSTYPE(S_ARRAY,0)
-	#define T_STRUCT           MKSTYPE(S_STRUCT,0)
-	#define T_VARIANT          MKSTYPE(S_VARIANT, sizeof(VARIANT))
-	#define T_ROWID            MKSTYPE(S_ROWID, sizeof(DBRowId))
-	#define T_IPOINT2          MKSTYPE(S_IPOINT2, 4)
-	#define T_FPOINT2          MKSTYPE(S_FPOINT2, 8)
-	#define T_BOOL             MKSTYPE(S_BOOL, 4)                  // @v8.1.2
-	#define T_GUID             MKSTYPE(S_UUID_, 16)                // @v8.6.2
-#endif
+// @v9.8.12 #ifdef COMPLEX_TYPES
+#define T_CHAR             MKSTYPE(S_CHAR,1)
+#define T_INT              MKSTYPE(S_INT,2)
+#define T_UINT             MKSTYPE(S_UBINARY,2)
+#define T_UINT16           MKSTYPE(S_UBINARY,2)
+#define T_UINT32           MKSTYPE(S_UBINARY,4
+#define T_INT32            MKSTYPE(S_INT,4)
+#define T_LONG             MKSTYPE(S_INT,4)
+#define T_ULONG            MKSTYPE(S_UBINARY,4)
+#define T_FLOAT            MKSTYPE(S_FLOAT,4)
+#define T_DOUBLE           MKSTYPE(S_FLOAT,8)
+#define T_MONEY            MKSTYPED(S_DEC,8,2)
+#define T_DATE             MKSTYPE(S_DATE,4)
+#define T_TIME             MKSTYPE(S_TIME,4)
+#define T_DATETIME         MKSTYPE(S_DATETIME,8)
+#define T_ARRAY            MKSTYPE(S_ARRAY,0)
+#define T_STRUCT           MKSTYPE(S_STRUCT,0)
+#define T_VARIANT          MKSTYPE(S_VARIANT, sizeof(VARIANT))
+#define T_ROWID            MKSTYPE(S_ROWID, sizeof(DBRowId))
+#define T_IPOINT2          MKSTYPE(S_IPOINT2, 4)
+#define T_FPOINT2          MKSTYPE(S_FPOINT2, 8)
+#define T_BOOL             MKSTYPE(S_BOOL, 4)                  // @v8.1.2
+#define T_GUID             MKSTYPE(S_UUID_, 16)                // @v8.6.2
+// @v9.8.12 #endif
 
 #if /* @v8.7.2 defined(__cplusplus) &&*/ !defined(RC_INVOKED) /* { */
 

@@ -1736,9 +1736,10 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 								if(tses_ext.GetExtStrData(PRCEXSTR_DETAILDESCR, temp_buf) > 0) {
 									json_insert_pair_into_object(p_jitem, "Detail", json_new_string(temp_buf.Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 								}
-								uint   reg_count = 0;
-								uint   ci_count = 0;
-								uint   cancel_count = 0;
+								//uint   reg_count = 0;
+								//uint   ci_count = 0;
+								//uint   cancel_count = 0;
+								PPCheckInPersonItem::Total rcount;
 								ss_places.clear();
 								ss_places_busy.clear();
 								//
@@ -1747,7 +1748,8 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 								json_insert_pair_into_object(p_jitem, "CipMax", json_new_string(temp_buf.Z().Cat(prc_rec.CipMax)));
 								ci_list.Clear();
 								if(ci_mgr.GetList(PPCheckInPersonItem::kTSession, tses_rec.ID, ci_list) > 0) {
-									ci_list.Count(&reg_count, &ci_count, &cancel_count);
+									//ci_list.Count(&reg_count, &ci_count, &cancel_count);
+									ci_list.Count(rcount);
 									const uint ci_count = ci_list.GetCount();
 									for(uint cii = 0; cii < ci_count; cii++) {
 										const  PPCheckInPersonItem & r_ci = ci_list.Get(cii);
@@ -1756,7 +1758,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 									}
 								}
 								//
-								json_insert_pair_into_object(p_jitem, "CipAvl", json_new_string(temp_buf.Z().Cat((long)prc_rec.CipMax - (long)reg_count)));
+								json_insert_pair_into_object(p_jitem, "CipAvl", json_new_string(temp_buf.Z().Cat((long)prc_rec.CipMax - (long)rcount.RegCount)));
 								json_insert_pair_into_object(p_jitem, "Places", json_new_string((temp_buf = ss_places.getBuf()).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 								json_insert_pair_into_object(p_jitem, "PlacesBusy", json_new_string((temp_buf = ss_places_busy.getBuf()).Transf(CTRANSF_INNER_TO_OUTER).Escape()));
 								//

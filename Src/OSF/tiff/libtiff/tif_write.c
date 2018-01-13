@@ -539,7 +539,7 @@ int TIFFSetupStrips(TIFF* tif)
 	memzero(td->td_stripbytecount, td->td_nstrips*sizeof(uint64));
 	TIFFSetFieldBit(tif, FIELD_STRIPOFFSETS);
 	TIFFSetFieldBit(tif, FIELD_STRIPBYTECOUNTS);
-	return (1);
+	return 1;
 }
 
 #undef isUnspecified
@@ -614,7 +614,7 @@ int TIFFWriteCheck(TIFF* tif, int tiles, const char* module)
 	if(tif->tif_scanlinesize == 0)
 		return 0;
 	tif->tif_flags |= TIFF_BEENWRITING;
-	return (1);
+	return 1;
 }
 
 /*
@@ -656,7 +656,7 @@ int TIFFWriteBufferSetup(TIFF* tif, void* bp, tmsize_t size)
 	tif->tif_rawcc = 0;
 	tif->tif_rawcp = tif->tif_rawdata;
 	tif->tif_flags |= TIFF_BUFFERSETUP;
-	return (1);
+	return 1;
 }
 
 /*
@@ -684,7 +684,7 @@ static int TIFFGrowStrips(TIFF* tif, uint32 delta, const char* module)
 	memzero(td->td_stripbytecount + td->td_nstrips, delta*sizeof(uint64));
 	td->td_nstrips += delta;
 	tif->tif_flags |= TIFF_DIRTYDIRECT;
-	return (1);
+	return 1;
 }
 
 /*
@@ -753,7 +753,7 @@ static int TIFFAppendToStrip(TIFF* tif, uint32 strip, uint8* data, tmsize_t cc)
 	if( (int64)td->td_stripbytecount[strip] != old_byte_count)
 		tif->tif_flags |= TIFF_DIRTYSTRIP;
 
-	return (1);
+	return 1;
 }
 
 /*
@@ -781,7 +781,7 @@ int TIFFFlushData1(TIFF* tif)
 		tif->tif_rawcc = 0;
 		tif->tif_rawcp = tif->tif_rawdata;
 	}
-	return (1);
+	return 1;
 }
 
 /*

@@ -1234,7 +1234,6 @@ int SLAPI PPViewPerson::EditTempRec(PPID id, int use_ta)
 	return ok;
 }
 
-
 int SLAPI PPViewPerson::InitPersonAttribIteration()
 {
 	int    ok = 1;
@@ -1489,11 +1488,8 @@ int SLAPI GetExtRegListIds(PPID psnKindID, PPID statusID, PPIDArray * pList)
 //
 // Фильтр по персоналиям
 //
-IMPLEMENT_PPFILT_FACTORY(Person); SLAPI PersonFilt::PersonFilt() : PPBaseFilt(PPFILT_PERSON, 0, 1) // @v8.0.1 ver 0-->1
+IMPLEMENT_PPFILT_FACTORY(Person); SLAPI PersonFilt::PersonFilt() : PPBaseFilt(PPFILT_PERSON, 0, 1), P_RegF(0), P_TagF(0), P_SjF(0) // @v8.0.1 ver 0-->1
 {
-	P_RegF = 0;
-	P_TagF = 0;
-	P_SjF = 0; // @v8.0.1
 	SetFlatChunk(offsetof(PersonFilt, ReserveStart),
 		offsetof(PersonFilt, P_RegF) - offsetof(PersonFilt, ReserveStart));
 	SetBranchBaseFiltPtr(PPFILT_REGISTER, offsetof(PersonFilt, P_RegF));
@@ -1507,8 +1503,7 @@ IMPLEMENT_PPFILT_FACTORY(Person); SLAPI PersonFilt::PersonFilt() : PPBaseFilt(PP
 int SLAPI PersonFilt::Setup()
 {
 	SrchStr_.Strip();
-	if(P_RegF && !P_RegF->SerPattern.NotEmptyS() && !P_RegF->NmbPattern.NotEmptyS() &&
-		P_RegF->RegPeriod.IsZero() && P_RegF->ExpiryPeriod.IsZero())
+	if(P_RegF && !P_RegF->SerPattern.NotEmptyS() && !P_RegF->NmbPattern.NotEmptyS() && P_RegF->RegPeriod.IsZero() && P_RegF->ExpiryPeriod.IsZero())
 		ZDELETE(P_RegF);
 	if(P_TagF && P_TagF->IsEmpty())
 		ZDELETE(P_TagF);
@@ -1558,10 +1553,8 @@ int SLAPI PersonFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 	int    ok = -1;
 	if(ver == 0) {
 		struct PersonFilt_v0 : public PPBaseFilt {
-			SLAPI  PersonFilt_v0() : PPBaseFilt(PPFILT_PERSON, 0, 0)
+			SLAPI  PersonFilt_v0() : PPBaseFilt(PPFILT_PERSON, 0, 0), P_RegF(0), P_TagF(0)
 			{
-				P_RegF = 0;
-				P_TagF = 0;
 				SetFlatChunk(offsetof(PersonFilt, ReserveStart), offsetof(PersonFilt, P_RegF) - offsetof(PersonFilt, ReserveStart));
 				SetBranchBaseFiltPtr(PPFILT_REGISTER, offsetof(PersonFilt, P_RegF));
 				SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(PersonFilt, P_TagF));
@@ -1663,7 +1656,6 @@ static int SLAPI EditRegFilt(PersonFilt * pFilt)
 		PersonFilt Data;
 		RegisterFilt Reg;
 	};
-
 	DIALOG_PROC_BODY(PersonFiltAdvDialog, pFilt);
 }
 //
@@ -1671,13 +1663,10 @@ static int SLAPI EditRegFilt(PersonFilt * pFilt)
 //
 int SLAPI PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 {
-	#define GRP_DIV  2
-
 	class PersonFiltDialog : public TDialog {
 	public:
-		PersonFiltDialog() : TDialog(DLG_PSNFLT)
+		PersonFiltDialog() : TDialog(DLG_PSNFLT), CluFlagsLock_(0)
 		{
-			CluFlagsLock_ = 0;
 			SetupCalPeriod(CTLCAL_PSNFLT_NEWCLIPERIOD, CTL_PSNFLT_NEWCLIPERIOD);
 			enableCommand(cmAdvOptions, 1);
 		}
@@ -2630,15 +2619,6 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 						ok = EditObjTagValList(obj_type, obj_id, 0);
 				}
 				break;
-			case PPVCMD_EVENTS:
-				ok = ViewPersonEvents(hdr.ID);
-				break;
-			case PPVCMD_FOLDER:
-				ok = OpenClientDir(hdr.ID);
-				break;
-			case PPVCMD_REGISTERS:
-				ok = EditRegs(hdr.ID, 0);
-				break;
 			case PPVCMD_CURREG:
 				if(Filt.IsLocAttr()) {
 					PPID   loc_id = (PPID)(pHdr ? PTR32(pHdr)[1] : 0);
@@ -2656,9 +2636,6 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 							PPError();
 				}
 				break;
-			case PPVCMD_AMOUNTS:
-				ok = PsnObj.EditAmountList(hdr.ID);
-				break;
 			case PPVCMD_RELATIONS:
 			case PPVCMD_REVERSEREL:
 				{
@@ -2669,15 +2646,6 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 						filt.ScndPersonID = hdr.ID;
 					ok = PPView::Execute(PPVIEW_PERSONREL, &filt, PPView::exefModeless, 0);
 				}
-				break;
-			case PPVCMD_ADDREL:
-				ok = AddRelation(hdr.ID);
-				break;
-			case PPVCMD_PRINT:
-				ok = Print(0);
-				break;
-			case PPVCMD_TOTAL:
-				ok = ViewTotal();
 				break;
 			case PPVCMD_EDITFIXSTAFF:
 				if(hdr.ID)
@@ -2699,21 +2667,6 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 					ViewSCard(&sc_flt, 1);
 				}
 				ok = -1;
-				break;
-			case PPVCMD_TASKS:
-				ok = ViewTasks(hdr.ID);
-				break;
-			case PPVCMD_TRANSMIT:
-				ok = Transmit(hdr.ID, 0);
-				break;
-			case PPVCMD_TRANSMKIND:
-				ok = Transmit(hdr.ID, 1);
-				break;
-			case PPVCMD_EXPORTVCARD:
-				ok = Transmit(hdr.ID, 2);
-				break;
-			case PPVCMD_EXPORTUHTT:
-				ok = ExportUhtt();
 				break;
 			case PPVCMD_SYSJ:
 				if(oneof2(Filt.AttribType, PPPSNATTR_STANDALONEADDR, PPPSNATTR_HANGEDADDR)) {
@@ -2755,12 +2708,6 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 					t_filt.OwnerID = hdr.ID;
 					PPView::Execute(PPVIEW_TRANSPORT, &t_filt, PPView::exefModeless, 0);
 				}
-				break;
-			case PPVCMD_RMVHANGEDITEMS:
-				ok = RemoveHangedAddr();
-				break;
-			case PPVCMD_DORECOVER:
-				ok = Recover();
 				break;
 			case PPVCMD_TB_CBX_SELECTED:
 				{
@@ -2846,6 +2793,20 @@ int SLAPI PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				ok = -1;
 				CreateAuthFile(hdr.ID);
 				break;
+			case PPVCMD_EVENTS: ok = ViewPersonEvents(hdr.ID); break;
+			case PPVCMD_FOLDER: ok = OpenClientDir(hdr.ID); break;
+			case PPVCMD_REGISTERS: ok = EditRegs(hdr.ID, 0); break;
+			case PPVCMD_AMOUNTS: ok = PsnObj.EditAmountList(hdr.ID); break;
+			case PPVCMD_ADDREL: ok = AddRelation(hdr.ID); break;
+			case PPVCMD_PRINT: ok = Print(0); break;
+			case PPVCMD_TOTAL: ok = ViewTotal(); break;
+			case PPVCMD_TASKS: ok = ViewTasks(hdr.ID); break;
+			case PPVCMD_TRANSMIT: ok = Transmit(hdr.ID, 0); break;
+			case PPVCMD_TRANSMKIND: ok = Transmit(hdr.ID, 1); break;
+			case PPVCMD_EXPORTVCARD: ok = Transmit(hdr.ID, 2); break;
+			case PPVCMD_EXPORTUHTT: ok = ExportUhtt(); break;
+			case PPVCMD_RMVHANGEDITEMS: ok = RemoveHangedAddr(); break;
+			case PPVCMD_DORECOVER: ok = Recover(); break;
 		}
 	}
 	return ok;
@@ -2876,9 +2837,7 @@ int SLAPI PPViewPerson::CreateAuthFile(PPID psnId)
 	{
 		SString path;
 		PPSecurPacket secur_pack;
-
 		PPRef->LoadSecur(PPOBJ_USR, DS.GetTLA().Lc.User, &secur_pack);
-
 		Reference::GetPassword(&secur_pack.Secur, rec.Password, sizeof(rec.Password));
 		(temp_buf = rec.Password).Transf(CTRANSF_INNER_TO_UTF8);
 		temp_buf.CopyTo(rec.Password, sizeof(rec.Password));
@@ -2891,9 +2850,7 @@ int SLAPI PPViewPerson::CreateAuthFile(PPID psnId)
 		THROW_SL(file.Open(path, SFile::mWrite));
 		THROW_SL(file.Write(&rec, sizeof(rec)));
 	}
-	CATCH
-		ok = (PPError(), 0);
-	ENDCATCH
+	CATCHZOKPPERR
 	file.Close();
 	return ok;
 }
@@ -2928,10 +2885,7 @@ int SLAPI PPViewPerson::GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & rP
 //
 //
 //
-int SLAPI ViewPerson(const PersonFilt * pFilt)
-{
-	return PPView::Execute(PPVIEW_PERSON, pFilt, PPView::exefModeless, 0);
-}
+int SLAPI ViewPerson(const PersonFilt * pFilt) { return PPView::Execute(PPVIEW_PERSON, pFilt, PPView::exefModeless, 0); }
 
 int SLAPI EditMainOrg()
 {

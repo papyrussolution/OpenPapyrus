@@ -2072,8 +2072,7 @@ int PPViewBrowser::Export()
 
 int PPViewBrowser::GetToolbarComboData(PPID * pID)
 {
-	CALLPTRMEMB(P_ComboBox, TransmitData(-1, pID));
-	return 1;
+	return P_ComboBox ? P_ComboBox->TransmitData(-1, pID) : 0;
 }
 
 int PPViewBrowser::GetToolbarComboRect(RECT * pRect)
@@ -2147,18 +2146,10 @@ int PPViewBrowser::Helper_SetupToolbarCombo(PPID objType, PPID id, uint flags, v
 					const PPID obj_id = pObjList->get(i);
 					if(obj_id) {
 						switch(objType) {
-							case PPOBJ_PERSON:
-								GetPersonName(obj_id, name_buf);
-								break;
-							case PPOBJ_ARTICLE:
-								GetArticleName(obj_id, name_buf);
-								break;
-							case PPOBJ_GOODS:
-								GetGoodsName(obj_id, name_buf);
-								break;
-							default:
-								GetObjectName(objType, obj_id, name_buf, 0);
-								break;
+							case PPOBJ_PERSON: GetPersonName(obj_id, name_buf); break;
+							case PPOBJ_ARTICLE: GetArticleName(obj_id, name_buf); break;
+							case PPOBJ_GOODS: GetGoodsName(obj_id, name_buf); break;
+							default: GetObjectName(objType, obj_id, name_buf, 0); break;
 						}
 						p_list->Add(obj_id, name_buf);
 					}
@@ -2399,6 +2390,7 @@ int PPTimeChunkBrowser::ExportToExcel()
 			column = 1;
 			for(long quant = 0; ; quant++, column++) {
 				const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
+				const long _col = column+1; // Первый столбец (column) - с заголовками, _col - столбец с данными
 				if(dt <= St.Bounds.Finish.d) {
 					row = 2;
 					STimeChunkGrid::Color clr;
@@ -2416,7 +2408,7 @@ int PPTimeChunkBrowser::ExportToExcel()
 							THROW(p_sheet->SetValue(row, column, temp_buf) > 0);
 							THROW(p_sheet->SetBold(row, column, 1) > 0);
 						}
-						else {
+						{
 							STimeChunk range;
 							range.Start.Set(dt, tm_start);
 							range.Finish.Set(dt, tm_end);
@@ -2429,14 +2421,14 @@ int PPTimeChunkBrowser::ExportToExcel()
 										if(i == 0 && p_last_chunk && p_last_chunk != p_chunk) {
 											GetChunkText(p_last_chunk->Id, temp_buf.Z());
 											ComExcelRange * p_range = 0;
-											if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, column, row-1, column)) != 0) { 
+											if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, _col, row-1, _col)) != 0) { 
 												p_range->DoMerge();
 												p_range->SetBgColor(GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
 												p_range->SetValue(temp_buf);
 											}
 											else {
-												p_sheet->SetBgColor(last_chunk_row, column, GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
-												THROW(p_sheet->SetValue(last_chunk_row, column, temp_buf) > 0);
+												p_sheet->SetBgColor(last_chunk_row, _col, GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
+												THROW(p_sheet->SetValue(last_chunk_row, _col, temp_buf) > 0);
 											}
 										}
 										if(p_last_chunk != p_chunk) {
@@ -2451,14 +2443,14 @@ int PPTimeChunkBrowser::ExportToExcel()
 					if(p_last_chunk) {
 						GetChunkText(p_last_chunk->Id, temp_buf.Z());
 						ComExcelRange * p_range = 0;
-						if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, column, row-1, column)) != 0) {
+						if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, _col, row-1, _col)) != 0) {
 							p_range->DoMerge();
 							p_range->SetBgColor(GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
 							p_range->SetValue(temp_buf);
 						}
 						else {
-							p_sheet->SetBgColor(last_chunk_row, column, GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
-							THROW(p_sheet->SetValue(last_chunk_row, column, temp_buf) > 0);
+							p_sheet->SetBgColor(last_chunk_row, _col, GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
+							THROW(p_sheet->SetValue(last_chunk_row, _col, temp_buf) > 0);
 						}
 					}
 				}

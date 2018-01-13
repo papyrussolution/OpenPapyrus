@@ -2003,10 +2003,7 @@ PPALDD_CONSTRUCTOR(PaymBillList)
 	}
 }
 
-PPALDD_DESTRUCTOR(PaymBillList)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PaymBillList) { Destroy(); }
 
 int PPALDD_PaymBillList::InitData(PPFilt & rFilt, long rsrv)
 {

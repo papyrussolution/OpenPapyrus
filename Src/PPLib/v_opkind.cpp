@@ -652,10 +652,7 @@ PPALDD_CONSTRUCTOR(OprKindList)
 	}
 }
 
-PPALDD_DESTRUCTOR(OprKindList)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(OprKindList) { Destroy(); }
 
 int PPALDD_OprKindList::InitData(PPFilt & rFilt, long rsrv)
 {

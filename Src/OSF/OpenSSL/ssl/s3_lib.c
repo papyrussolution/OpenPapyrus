@@ -2799,7 +2799,7 @@ int ssl3_new(SSL * s)
 		goto err;
 #endif
 	s->method->ssl_clear(s);
-	return (1);
+	return 1;
 err:
 	return 0;
 }
@@ -3469,7 +3469,7 @@ long ssl3_ctx_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 		default:
 		    return 0;
 	}
-	return (1);
+	return 1;
 }
 
 long ssl3_ctx_callback_ctrl(SSL_CTX * ctx, int cmd, void (* fp)(void))
@@ -3521,7 +3521,7 @@ long ssl3_ctx_callback_ctrl(SSL_CTX * ctx, int cmd, void (* fp)(void))
 		default:
 		    return 0;
 	}
-	return (1);
+	return 1;
 }
 
 /*
@@ -3746,7 +3746,7 @@ int ssl3_shutdown(SSL * s)
 	 */
 	if(s->quiet_shutdown || SSL_in_before(s)) {
 		s->shutdown = (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
-		return (1);
+		return 1;
 	}
 
 	if(!(s->shutdown & SSL_SENT_SHUTDOWN)) {
@@ -3783,7 +3783,7 @@ int ssl3_shutdown(SSL * s)
 
 	if((s->shutdown == (SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN)) &&
 	    !s->s3->alert_dispatch)
-		return (1);
+		return 1;
 	else
 		return 0;
 }
@@ -3836,13 +3836,13 @@ int ssl3_peek(SSL * s, void * buf, int len)
 int ssl3_renegotiate(SSL * s)
 {
 	if(s->handshake_func == NULL)
-		return (1);
+		return 1;
 
 	if(s->s3->flags & SSL3_FLAGS_NO_RENEGOTIATE_CIPHERS)
 		return 0;
 
 	s->s3->renegotiate = 1;
-	return (1);
+	return 1;
 }
 
 int ssl3_renegotiate_check(SSL * s)

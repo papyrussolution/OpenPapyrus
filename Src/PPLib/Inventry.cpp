@@ -311,10 +311,7 @@ int InventoryOptionsDialog::getDTS(PPInventoryOpEx * pData)
 	return ok;
 }
 
-int SLAPI EditInventoryOptionsDialog(PPInventoryOpEx * pData)
-{
-	DIALOG_PROC_BODY(InventoryOptionsDialog, pData);
-}
+int SLAPI EditInventoryOptionsDialog(PPInventoryOpEx * pData) { DIALOG_PROC_BODY(InventoryOptionsDialog, pData); }
 //
 // PPObjBill inventory methods
 //

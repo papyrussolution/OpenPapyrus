@@ -389,15 +389,8 @@ int SLAPI PPObjOpCounter::MakeReserved(long flags)
 //
 // Implementation of PPALDD_OpCounter
 //
-PPALDD_CONSTRUCTOR(OpCounter)
-{
-	InitFixData(rscDefHdr, &H, sizeof(H));
-}
-
-PPALDD_DESTRUCTOR(OpCounter)
-{
-	Destroy();
-}
+PPALDD_CONSTRUCTOR(OpCounter) { InitFixData(rscDefHdr, &H, sizeof(H)); }
+PPALDD_DESTRUCTOR(OpCounter) { Destroy(); }
 
 int PPALDD_OpCounter::InitData(PPFilt & rFilt, long rsrv)
 {

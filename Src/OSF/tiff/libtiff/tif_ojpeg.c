@@ -520,7 +520,7 @@ static int OJPEGVGetField(TIFF* tif, uint32 tag, va_list ap)
 		default:
 		    return (*sp->vgetparent)(tif, tag, ap);
 	}
-	return (1);
+	return 1;
 }
 
 static int OJPEGVSetField(TIFF* tif, uint32 tag, va_list ap)

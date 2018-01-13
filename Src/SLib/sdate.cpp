@@ -1756,11 +1756,7 @@ int64 SLAPI STimeChunk::GetDurationMs() const
 		return -1;
 }
 
-IMPL_CMPFUNC(STimeChunk, i1, i2)
-{
-	return pExtraData ? ((const STimeChunk *)i2)->cmp(*(const STimeChunk *)i1) :
-		((const STimeChunk *)i1)->cmp(*(const STimeChunk *)i2);
-}
+IMPL_CMPFUNC(STimeChunk, i1, i2) { return pExtraData ? ((const STimeChunk *)i2)->cmp(*(const STimeChunk *)i1) : ((const STimeChunk *)i1)->cmp(*(const STimeChunk *)i2); }
 //
 //
 //

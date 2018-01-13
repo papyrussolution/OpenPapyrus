@@ -389,7 +389,7 @@ void FASTCALL TWindow::selectCtrl(ushort ctlID)
 	if(ctlID) {
 		TView * p_v = getCtrlView(ctlID);
 		if(p_v)
-			setCurrent(p_v, normalSelect);
+			SetCurrentView(p_v, normalSelect);
 	}
 }
 
@@ -404,7 +404,7 @@ int SLAPI TWindow::selectButton(ushort cmd)
 	int    ok = 1;
 	TButton * p_view = SearchButton(cmd);
 	if(p_view)
-		setCurrent(p_view, forceSelect);
+		SetCurrentView(p_view, forceSelect);
 	else
 		ok = 0;
 	return ok;
@@ -572,20 +572,13 @@ int FASTCALL TWindow::getCtrlString(uint ctlID, SString & s)
 	return ok;
 }
 
-int FASTCALL TWindow::setCtrlLong(uint ctlID, long val)
-	{ return setCtrlData(ctlID, &val); }
-int FASTCALL TWindow::setCtrlReal(uint ctlID, double val)
-	{ return setCtrlData(ctlID, &val); }
-int FASTCALL TWindow::setCtrlDate(uint ctlID, LDATE val)
-	{ return setCtrlData(ctlID, &val); }
-int FASTCALL TWindow::setCtrlTime(uint ctlID, LTIME val)
-	{ return setCtrlData(ctlID, &val); }
-int SLAPI TWindow::setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME dtm)
-	{ return BIN(setCtrlData(dtCtlID, &dtm.d) && setCtrlData(tmCtlID, &dtm.t)); }
-int SLAPI TWindow::setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATE dt, LTIME tm)
-	{ return BIN(setCtrlData(dtCtlID, &dt) && setCtrlData(tmCtlID, &tm)); }
-int SLAPI TWindow::getCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME & rDtm)
-	{ return BIN(getCtrlData(dtCtlID, &rDtm.d) && getCtrlData(tmCtlID, &rDtm.t)); }
+int FASTCALL TWindow::setCtrlLong(uint ctlID, long val) { return setCtrlData(ctlID, &val); }
+int FASTCALL TWindow::setCtrlReal(uint ctlID, double val) { return setCtrlData(ctlID, &val); }
+int FASTCALL TWindow::setCtrlDate(uint ctlID, LDATE val) { return setCtrlData(ctlID, &val); }
+int FASTCALL TWindow::setCtrlTime(uint ctlID, LTIME val) { return setCtrlData(ctlID, &val); }
+int SLAPI TWindow::setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME dtm) { return BIN(setCtrlData(dtCtlID, &dtm.d) && setCtrlData(tmCtlID, &dtm.t)); }
+int SLAPI TWindow::setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATE dt, LTIME tm) { return BIN(setCtrlData(dtCtlID, &dt) && setCtrlData(tmCtlID, &tm)); }
+int SLAPI TWindow::getCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME & rDtm) { return BIN(getCtrlData(dtCtlID, &rDtm.d) && getCtrlData(tmCtlID, &rDtm.t)); }
 
 void SLAPI TWindow::setCtrlOption(ushort ctlID, ushort flags, int s)
 {

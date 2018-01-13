@@ -613,10 +613,7 @@ StrAssocArray * SLAPI PPObjQuotKind::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-IMPL_CMPFUNC(_QUOTK_LIST_ENTRY, i1, i2)
-{
-	return stricmp866(((PPObjQuotKind::ListEntry *)i1)->Name, ((PPObjQuotKind::ListEntry *)i2)->Name);
-}
+IMPL_CMPFUNC(_QUOTK_LIST_ENTRY, i1, i2) { return stricmp866(((PPObjQuotKind::ListEntry *)i1)->Name, ((PPObjQuotKind::ListEntry *)i2)->Name); }
 
 IMPL_CMPFUNC(PPQuotKind, i1, i2)
 {

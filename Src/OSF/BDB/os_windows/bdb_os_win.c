@@ -337,7 +337,7 @@ void __os_gettime(ENV * env, db_timespec * tp, int monotonic)
 int __os_is_winnt()
 {
 #ifdef DB_WINCE
-	return (1);
+	return 1;
 #else
 	static int __os_type = -1;
 	/*
@@ -360,7 +360,7 @@ int __os_is_winnt()
 int __os_fs_notzero()
 {
 #ifdef DB_WINCE
-	return (1);
+	return 1;
 #else
 	static int __os_notzero = -1;
 	OSVERSIONINFO osvi;
@@ -413,7 +413,7 @@ int __os_fs_notzero()
  */
 int __os_support_direct_io()
 {
-	return (1);
+	return 1;
 }
 /*
  * __os_support_db_register --

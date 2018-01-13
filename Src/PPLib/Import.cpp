@@ -3125,10 +3125,7 @@ int PersonImportDialog::getDTS(PrcssrPersonImport::Param * pData)
 	return ok;
 }
 
-int PrcssrPersonImport::EditParam(Param * pParam)
-{
-	DIALOG_PROC_BODY(PersonImportDialog, pParam);
-}
+int PrcssrPersonImport::EditParam(Param * pParam) { DIALOG_PROC_BODY(PersonImportDialog, pParam); }
 
 int PrcssrPersonImport::Init(const Param * pParam)
 {

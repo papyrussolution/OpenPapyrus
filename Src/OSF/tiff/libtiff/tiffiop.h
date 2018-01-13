@@ -37,10 +37,10 @@
 	#include <sys/types.h>
 #endif
 #ifdef HAVE_STRING_H
-	#include <string.h>
+	//#include <string.h>
 #endif
 #ifdef HAVE_ASSERT_H
-	#include <assert.h>
+	//#include <assert.h>
 #else
 	#define assert(x) 
 #endif
@@ -59,16 +59,15 @@
 #ifndef STRIP_SIZE_DEFAULT
 	#define STRIP_SIZE_DEFAULT 8192
 #endif
-#define    streq(a,b)      (strcmp(a,b) == 0)
-#ifndef TRUE
-	#define	TRUE	1
-	#define	FALSE	0
-#endif
-
-	typedef struct client_info {
-    struct client_info *next;
-    void *data;
-    char *name;
+// @sobolev #define    streq(a,b)      (strcmp(a,b) == 0)
+// @sobolev #ifndef TRUE
+	// @sobolev #define	TRUE	1
+	// @sobolev #define	FALSE	0
+// @sobolev #endif
+typedef struct client_info {
+    struct client_info * next;
+    void * data;
+    char * name;
 } TIFFClientInfoLink;
 /*
  * Typedefs for ``method pointers'' used internally.
@@ -235,10 +234,9 @@ struct tiff {
 /* Safe multiply which returns zero if there is an integer overflow */
 #define TIFFSafeMultiply(t,v,m) ((((t)(m) != (t)0) && (((t)(((v)*(m))/(m))) == (t)(v))) ? (t)((v)*(m)) : (t)0)
 
-#define TIFFmax(A,B) ((A)>(B)?(A):(B))
-#define TIFFmin(A,B) ((A)<(B)?(A):(B))
-
-#define TIFFArrayCount(a) (sizeof (a) / sizeof ((a)[0]))
+// @sobolev (replaced with MIN) #define TIFFmax(A,B) ((A)>(B)?(A):(B))
+// @sobolev (replaced with MIN) #define TIFFmin(A,B) ((A)<(B)?(A):(B))
+// @sobolev (replaced with SIZEOFARRAY) #define TIFFArrayCount(a) (sizeof (a) / sizeof ((a)[0]))
 
 /*
   Support for large files.
@@ -263,9 +261,7 @@ struct tiff {
 #  define ftell(stream,offset,whence)  ftello(stream,offset,whence)
 #endif
 #endif
-#if defined(__WIN32__) && \
-        !(defined(_MSC_VER) && _MSC_VER < 1400) && \
-        !(defined(__MSVCRT_VERSION__) && __MSVCRT_VERSION__ < 0x800)
+#if defined(__WIN32__) && !(defined(_MSC_VER) && _MSC_VER < 1400) && !(defined(__MSVCRT_VERSION__) && __MSVCRT_VERSION__ < 0x800)
 typedef unsigned int TIFFIOSize_t;
 #define _TIFF_lseek_f(fildes,offset,whence)  _lseeki64(fildes,/* __int64 */ offset,whence)
 /* #define _TIFF_tell_f(fildes) /\* __int64 *\/ _telli64(fildes) */
@@ -336,26 +332,17 @@ extern TIFFErrorHandler _TIFFerrorHandler;
 extern TIFFErrorHandlerExt _TIFFwarningHandlerExt;
 extern TIFFErrorHandlerExt _TIFFerrorHandlerExt;
 
-extern uint32 _TIFFMultiply32(TIFF*, uint32, uint32, const char*);
-extern uint64 _TIFFMultiply64(TIFF*, uint64, uint64, const char*);
-extern void* _TIFFCheckMalloc(TIFF*, tmsize_t, tmsize_t, const char*);
-extern void* _TIFFCheckRealloc(TIFF*, void*, tmsize_t, tmsize_t, const char*);
+extern uint32 FASTCALL _TIFFMultiply32(TIFF*, uint32, uint32, const char*);
+extern uint64 FASTCALL _TIFFMultiply64(TIFF*, uint64, uint64, const char*);
+extern void * FASTCALL _TIFFCheckMalloc(TIFF*, tmsize_t, tmsize_t, const char*);
+extern void * _TIFFCheckRealloc(TIFF*, void*, tmsize_t, tmsize_t, const char*);
 
 extern double _TIFFUInt64ToDouble(uint64);
 extern float _TIFFUInt64ToFloat(uint64);
 
-extern tmsize_t
-_TIFFReadEncodedStripAndAllocBuffer(TIFF* tif, uint32 strip,
-                                    void **buf, tmsize_t bufsizetoalloc,
-                                    tmsize_t size_to_read);
-extern tmsize_t
-_TIFFReadEncodedTileAndAllocBuffer(TIFF* tif, uint32 tile,
-                                    void **buf, tmsize_t bufsizetoalloc,
-                                    tmsize_t size_to_read);
-extern tmsize_t
-_TIFFReadTileAndAllocBuffer(TIFF* tif,
-                            void **buf, tmsize_t bufsizetoalloc,
-                            uint32 x, uint32 y, uint32 z, uint16 s);
+extern tmsize_t _TIFFReadEncodedStripAndAllocBuffer(TIFF* tif, uint32 strip, void **buf, tmsize_t bufsizetoalloc, tmsize_t size_to_read);
+extern tmsize_t _TIFFReadEncodedTileAndAllocBuffer(TIFF* tif, uint32 tile, void **buf, tmsize_t bufsizetoalloc, tmsize_t size_to_read);
+extern tmsize_t _TIFFReadTileAndAllocBuffer(TIFF* tif, void **buf, tmsize_t bufsizetoalloc, uint32 x, uint32 y, uint32 z, uint16 s);
 extern int _TIFFSeekOK(TIFF* tif, toff_t off);
 
 extern int TIFFInitDumpMode(TIFF*, int);

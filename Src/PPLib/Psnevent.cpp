@@ -1976,10 +1976,7 @@ PPALDD_CONSTRUCTOR(PsnEventItem)
 	}
 }
 
-PPALDD_DESTRUCTOR(PsnEventItem)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PsnEventItem) { Destroy(); }
 
 int PPALDD_PsnEventItem::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2302,15 +2299,11 @@ private:
 		}
 		Data.OpID = opID;
 	}
-
 	AddPersonEventFilt Data;
 	PPObjPsnOpKind PokObj;
 };
 
-int SLAPI AddPersonEventFilt::Edit()
-{
-	DIALOG_PROC_BODY(AddPersonEventFiltDialog, this);
-}
+int SLAPI AddPersonEventFilt::Edit() { DIALOG_PROC_BODY(AddPersonEventFiltDialog, this); }
 //
 //
 //

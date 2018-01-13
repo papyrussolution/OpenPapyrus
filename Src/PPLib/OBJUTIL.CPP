@@ -1040,10 +1040,7 @@ int SLAPI PPObject::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, 
 	return r;
 }
 
-IMPL_CMPFUNC(PPObjID, i1, i2)
-{
-	return memcmp(i1, i2, sizeof(PPObjID));
-}
+IMPL_CMPFUNC(PPObjID, i1, i2) { return memcmp(i1, i2, sizeof(PPObjID)); }
 
 // static
 int FASTCALL PPObject::ProcessObjRefInArray(PPID objTypeID, PPID * pObjID, PPObjIDArray * pArray, int replace)
@@ -2116,10 +2113,7 @@ PPALDD_CONSTRUCTOR(DataObject)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(DataObject)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(DataObject) { Destroy(); }
 
 int PPALDD_DataObject::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2290,10 +2284,7 @@ PPALDD_CONSTRUCTOR(StrAssocArray)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(StrAssocArray)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(StrAssocArray) { Destroy(); }
 
 int PPALDD_StrAssocArray::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2334,10 +2325,7 @@ PPALDD_CONSTRUCTOR(IntArray)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(IntArray)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(IntArray) { Destroy(); }
 
 int PPALDD_IntArray::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2375,10 +2363,7 @@ PPALDD_CONSTRUCTOR(QuotArray)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(QuotArray)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(QuotArray) { Destroy(); }
 
 int PPALDD_QuotArray::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2453,10 +2438,7 @@ PPALDD_CONSTRUCTOR(UhttStoreItemArray)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(UhttStoreItemArray)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(UhttStoreItemArray) { Destroy(); }
 
 int PPALDD_UhttStoreItemArray::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2511,10 +2493,7 @@ PPALDD_CONSTRUCTOR(UhttCurRateArray)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(UhttCurRateArray)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(UhttCurRateArray) { Destroy(); }
 
 int PPALDD_UhttCurRateArray::InitData(PPFilt & rFilt, long rsrv)
 {

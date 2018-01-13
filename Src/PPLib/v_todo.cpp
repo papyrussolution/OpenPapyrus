@@ -1939,10 +1939,7 @@ void SLAPI PPViewPrjTask::PreprocessBrowser(PPViewBrowser * pBrw)
 //
 //
 //
-int SLAPI ViewPrjTask(const PrjTaskFilt * pFilt)
-{
-	return PPView::Execute(PPVIEW_PRJTASK, pFilt, PPView::exefModeless, 0);
-}
+int SLAPI ViewPrjTask(const PrjTaskFilt * pFilt) { return PPView::Execute(PPVIEW_PRJTASK, pFilt, PPView::exefModeless, 0); }
 
 int SLAPI ViewPrjTask_ByStatus()
 {

@@ -1,14 +1,11 @@
 // OBJBSKT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
 #pragma hdrstop
 
-IMPL_CMPFUNC(ILTI, i1, i2)
-{
-	return cmp_long(((ILTI *)i1)->BillID, ((ILTI *)i2)->BillID);
-}
+IMPL_CMPFUNC(ILTI, i1, i2) { return cmp_long(((ILTI *)i1)->BillID, ((ILTI *)i2)->BillID); }
 
 IMPL_CMPFUNC(ILTIGGRP, i1, i2)
 {

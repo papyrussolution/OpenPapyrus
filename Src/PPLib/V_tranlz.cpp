@@ -3305,9 +3305,13 @@ IMPL_HANDLE_EVENT(TrfrAnlzFiltDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPViewTrfrAnlz::EditBaseFilt(PPBaseFilt * pFilt)
+int SLAPI PPViewTrfrAnlz::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
-	DIALOG_PROC_BODY(TrfrAnlzFiltDialog, (TrfrAnlzFilt *)pFilt);
+	if(Filt.IsA(pBaseFilt)) {
+		DIALOG_PROC_BODY(TrfrAnlzFiltDialog, (TrfrAnlzFilt *)pBaseFilt);
+	}
+	else
+		return 0;
 }
 
 int SLAPI PPViewTrfrAnlz::Export()
@@ -3494,10 +3498,7 @@ int SLAPI PPViewTrfrAnlz::NextIteration_AlcRep(TrfrAnlzViewItem_AlcRep * pItem)
 //
 //
 //
-int SLAPI ViewTrfrAnlz(const TrfrAnlzFilt * pFilt)
-{
-	return PPView::Execute(PPVIEW_TRFRANLZ, pFilt, PPView::exefModeless, 0);
-}
+int SLAPI ViewTrfrAnlz(const TrfrAnlzFilt * pFilt) { return PPView::Execute(PPVIEW_TRFRANLZ, pFilt, PPView::exefModeless, 0); }
 //
 // Implementation of PPALDD_TrfrAnlzBase
 //
@@ -3509,10 +3510,7 @@ PPALDD_CONSTRUCTOR(TrfrAnlzBase)
 	}
 }
 
-PPALDD_DESTRUCTOR(TrfrAnlzBase)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(TrfrAnlzBase) { Destroy(); }
 
 int PPALDD_TrfrAnlzBase::InitData(PPFilt & rFilt, long rsrv)
 {

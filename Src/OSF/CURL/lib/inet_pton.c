@@ -126,7 +126,7 @@ static int inet_pton4(const char * src, uchar * dst)
 	if(octets < 4)
 		return 0;
 	memcpy(dst, tmp, INADDRSZ);
-	return (1);
+	return 1;
 }
 
 #ifdef ENABLE_IPV6
@@ -223,7 +223,7 @@ static int inet_pton6(const char * src, uchar * dst)
 	if(tp != endp)
 		return 0;
 	memcpy(dst, tmp, IN6ADDRSZ);
-	return (1);
+	return 1;
 }
 
 #endif /* ENABLE_IPV6 */

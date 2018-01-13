@@ -2259,10 +2259,7 @@ int SLAPI PPViewAccAnlz::Print(const void *)
 //
 //
 //
-int SLAPI ViewAccAnlz(const AccAnlzFilt * pFilt, AccAnlzKind aak)
-{
-	return PPView::Execute(PPVIEW_ACCANLZ, pFilt, GetModelessStatus(), (void *)aak);
-}
+int SLAPI ViewAccAnlz(const AccAnlzFilt * pFilt, AccAnlzKind aak) { return PPView::Execute(PPVIEW_ACCANLZ, pFilt, GetModelessStatus(), (void *)aak); }
 //
 // Implementation of PPALDD_Account
 //
@@ -2367,10 +2364,7 @@ PPALDD_CONSTRUCTOR(AccAnlz)
 	}
 }
 
-PPALDD_DESTRUCTOR(AccAnlz)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(AccAnlz) { Destroy(); }
 
 int PPALDD_AccAnlz::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2471,10 +2465,7 @@ PPALDD_CONSTRUCTOR(AccturnList)
 	}
 }
 
-PPALDD_DESTRUCTOR(AccturnList)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(AccturnList) { Destroy(); }
 
 int PPALDD_AccturnList::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2538,10 +2529,7 @@ PPALDD_CONSTRUCTOR(AccountView)
 	}
 }
 
-PPALDD_DESTRUCTOR(AccountView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(AccountView) { Destroy(); }
 
 int PPALDD_AccountView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2577,10 +2565,7 @@ PPALDD_CONSTRUCTOR(Currency)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(Currency)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(Currency) { Destroy(); }
 
 int PPALDD_Currency::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2639,10 +2624,7 @@ PPALDD_CONSTRUCTOR(CurRateType)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(CurRateType)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(CurRateType) { Destroy(); }
 
 int PPALDD_CurRateType::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2698,10 +2680,7 @@ PPALDD_CONSTRUCTOR(CurRateView)
 	}
 }
 
-PPALDD_DESTRUCTOR(CurRateView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(CurRateView) { Destroy(); }
 
 int PPALDD_CurRateView::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2800,10 +2779,7 @@ PPALDD_CONSTRUCTOR(AccSheet)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(AccSheet)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(AccSheet) { Destroy(); }
 
 int PPALDD_AccSheet::InitData(PPFilt & rFilt, long rsrv)
 {

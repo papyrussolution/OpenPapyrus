@@ -403,10 +403,7 @@ static SString & FASTCALL _SfSortMakeFinishEvntName(const char * pSrcFileName, S
 	return rBuf;
 }
 
-IMPL_CMPFUNC(SfSortStringPool, i1, i2)
-{
-	return SfSortStringPool::Helper_CmpFunc_ByText((const uint *)i1, (const uint *)i2, (SfSortStringPool *)pExtraData);
-}
+IMPL_CMPFUNC(SfSortStringPool, i1, i2) { return SfSortStringPool::Helper_CmpFunc_ByText((const uint *)i1, (const uint *)i2, (SfSortStringPool *)pExtraData); }
 
 //static
 int SLAPI SfSortStringPool::Helper_CmpFunc_ByText(const uint * p1, const uint * p2, SfSortStringPool * pArray)

@@ -1,5 +1,5 @@
 // PPWG.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2010, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018
 //
 // Графики рабочего времени
 //
@@ -86,10 +86,7 @@ int SLAPI PPObjDateTimeRep::Edit(PPID * pID, void * extraPtr)
 //
 // @ModuleDef(PPObjDutySched)
 //
-IMPL_CMPFUNC(PPDutyCountPoint_Dt, i1, i2)
-{
-	return CMPFUNC(LDATE, &((PPDutyCountPoint *)i1)->Dtm.d, &((PPDutyCountPoint *)i2)->Dtm.d);
-}
+IMPL_CMPFUNC(PPDutyCountPoint_Dt, i1, i2) { return CMPFUNC(LDATE, &((PPDutyCountPoint *)i1)->Dtm.d, &((PPDutyCountPoint *)i2)->Dtm.d); }
 
 SLAPI PPDutySchedPacket::PPDutySchedPacket()
 {
@@ -453,7 +450,6 @@ void DutySchedDialog::updateCountPointList(long pos)
 	if(p_list) {
 		PPDutyCountPoint * p_point;
 		SString sub;
-		lock();
 		int    sav_pos = (int)p_list->def->_curItem();
 		p_list->freeAll();
 		for(uint i = 0; Data.CpList.enumItems(&i, (void **)&p_point);) {
@@ -462,7 +458,6 @@ void DutySchedDialog::updateCountPointList(long pos)
 		}
 	   	p_list->focusItem((pos < 0) ? sav_pos : pos);
 		p_list->Draw_();
-		unlock();
 	}
 }
 

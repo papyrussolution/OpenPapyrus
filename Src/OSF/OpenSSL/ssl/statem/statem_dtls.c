@@ -278,7 +278,7 @@ int dtls1_do_write(SSL * s, int type)
 					s->msg_callback(1, s->version, type, s->init_buf->data, (size_t)(s->init_off + s->init_num), s, s->msg_callback_arg);
 				s->init_off = 0; /* done writing this message */
 				s->init_num = 0;
-				return (1);
+				return 1;
 			}
 			s->init_off += ret;
 			s->init_num -= ret;

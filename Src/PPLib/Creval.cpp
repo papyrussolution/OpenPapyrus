@@ -1,5 +1,5 @@
 // CREVAL.CPP
-// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2006, 2007, 2008, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2006, 2007, 2008, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Валютная переоценка
 //
@@ -160,7 +160,6 @@ void CRevalDialog::updateCRateList()
 	AmtEntry * p_entry = 0;
 	SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_CREVAL_CRATELIST);
 	if(p_list) {
-		lock();
 		const int sav_pos = (int)p_list->def->_curItem();
 		StringSet ss(SLBColumnDelim);
 		p_list->freeAll();
@@ -180,7 +179,6 @@ void CRevalDialog::updateCRateList()
 		}
 		p_list->focusItem(sav_pos);
 		p_list->Draw_();
-		unlock();
 	}
 }
 
@@ -256,10 +254,7 @@ int CRevalDialog::delItem(long pos, long /*id*/)
 	return Data.AccList.atFree((uint)pos) ? 1 : -1;
 }
 
-int SLAPI EditCRevalParam(CurRevalParam * pData)
-{
-	DIALOG_PROC_BODY(CRevalDialog, pData);
-}
+int SLAPI EditCRevalParam(CurRevalParam * pData) { DIALOG_PROC_BODY(CRevalDialog, pData); }
 
 #define __HDR_DW_COUNT 9
 

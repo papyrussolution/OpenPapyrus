@@ -452,7 +452,7 @@ void TIFFPrintDirectory(TIFF* tif, FILE* fd, long flags)
 					value_count = td->td_samplesperpixel;
 				else
 					value_count = fip->field_readcount;
-				if(fip->field_tag == TIFFTAG_DOTRANGE && strcmp(fip->field_name, "DotRange") == 0) {
+				if(fip->field_tag == TIFFTAG_DOTRANGE && sstreq(fip->field_name, "DotRange")) {
 					/* TODO: This is an evil exception and should not have been
 					   handled this way ... likely best if we move it into
 					   the directory structure with an explicit field in

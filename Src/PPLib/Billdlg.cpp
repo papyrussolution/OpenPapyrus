@@ -753,10 +753,7 @@ int BillDialog::editPaymOrder(int forceUpdateRcvr)
 	return ok;
 }
 
-IMPL_CMPFUNC(PPLinkFile, i1, i2)
-{
-	return stricmp866(((PPLinkFile*)i1)->Path, ((PPLinkFile*)i2)->Path);
-}
+IMPL_CMPFUNC(PPLinkFile, i1, i2) { return stricmp866(((PPLinkFile*)i1)->Path, ((PPLinkFile*)i2)->Path); }
 
 SLAPI PPLinkFile::PPLinkFile()
 {
@@ -3378,10 +3375,7 @@ int PaymPlanDialog::delItem(long pos, long id)
 	return Data.atFree((uint)pos) ? 1 : -1;
 }
 
-int SLAPI EditPaymPlan(const PPBillPacket * pPack, PayPlanArray * pData)
-{
-	DIALOG_PROC_BODY_P1(PaymPlanDialog, pPack, pData);
-}
+int SLAPI EditPaymPlan(const PPBillPacket * pPack, PayPlanArray * pData) { DIALOG_PROC_BODY_P1(PaymPlanDialog, pPack, pData); }
 //
 //
 //

@@ -1206,10 +1206,7 @@ int SLAPI PPViewOpGrouping::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 	return ok;
 }
 
-int SLAPI ViewOpGrouping(const OpGroupingFilt * pFilt)
-{
-	return PPView::Execute(PPVIEW_OPGROUPING, pFilt, 1, 0);
-}
+int SLAPI ViewOpGrouping(const OpGroupingFilt * pFilt) { return PPView::Execute(PPVIEW_OPGROUPING, pFilt, 1, 0); }
 //
 // Implementation of PPALDD_OpGrouping
 //
@@ -1221,10 +1218,7 @@ PPALDD_CONSTRUCTOR(OpGrouping)
 	}
 }
 
-PPALDD_DESTRUCTOR(OpGrouping)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(OpGrouping) { Destroy(); }
 
 int PPALDD_OpGrouping::InitData(PPFilt & rFilt, long rsrv)
 {

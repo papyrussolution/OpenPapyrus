@@ -1,5 +1,5 @@
 // ATRNTMPL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 // Шаблон бухгалтерской проводки
@@ -1209,10 +1209,7 @@ int ATurnTmplDialog::getDTS(PPAccTurnTempl * pData)
 	return 1;
 }
 
-int SLAPI EditAccTurnTemplate(PPObjAccTurn * pObj, PPAccTurnTempl * pData)
-{
-	DIALOG_PROC_BODY_P2(ATurnTmplDialog, DLG_ATRNTMPL, pObj, pData);
-}
+int SLAPI EditAccTurnTemplate(PPObjAccTurn * pObj, PPAccTurnTempl * pData) { DIALOG_PROC_BODY_P2(ATurnTmplDialog, DLG_ATRNTMPL, pObj, pData); }
 //
 // Список сумм и формул
 //
@@ -1390,4 +1387,3 @@ int SLAPI SelectAmountSymb(PPID * pID, long options, int * pKind, SString & rSym
 		ok = 0;
 	return ok;
 }
-

@@ -74,9 +74,11 @@ int SpecSerFiltDlg::getDTS(SpecSeriesFilt * pData)
 }
 
 // virtual
-int SLAPI PPViewSpecSeries::EditBaseFilt(PPBaseFilt * pFilt)
+int SLAPI PPViewSpecSeries::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
-	DIALOG_PROC_BODYERR(SpecSerFiltDlg, (SpecSeriesFilt*)pFilt);
+	if(!Filt.IsA(pBaseFilt))
+		return 0;
+	DIALOG_PROC_BODYERR(SpecSerFiltDlg, (SpecSeriesFilt *)pBaseFilt);
 }
 
 // virtual

@@ -4080,10 +4080,7 @@ int SLAPI PPViewGoodsRest::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	return ok;
 }
 
-int SLAPI ViewGoodsRest(const GoodsRestFilt * pFilt, int calcPrognosis)
-{
-	return PPView::Execute(PPVIEW_GOODSREST, pFilt, 1, (void *)BIN(calcPrognosis));
-}
+int SLAPI ViewGoodsRest(const GoodsRestFilt * pFilt, int calcPrognosis) { return PPView::Execute(PPVIEW_GOODSREST, pFilt, 1, (void *)BIN(calcPrognosis)); }
 
 int SLAPI GoodsRestTest()
 {

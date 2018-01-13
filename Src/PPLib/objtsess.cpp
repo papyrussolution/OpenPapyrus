@@ -5208,10 +5208,7 @@ PPALDD_CONSTRUCTOR(UhttTSessPlaceStatusList)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(UhttTSessPlaceStatusList)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(UhttTSessPlaceStatusList) { Destroy(); }
 
 int PPALDD_UhttTSessPlaceStatusList::InitData(PPFilt & rFilt, long rsrv)
 {

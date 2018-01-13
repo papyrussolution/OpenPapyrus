@@ -3481,29 +3481,27 @@ again:
 			uchar ttl = soap->ipv4_multicast_ttl;
 			if(setsockopt(fd, IPPROTO_IP, IP_MULTICAST_TTL, (char*)&ttl, sizeof(ttl))) {
 				soap->errnum = soap_socket_errno(fd);
-				soap_set_sender_error(soap, tcp_error(soap), "setsockopt IP_MULTICAST_TTL failed in tcp_connect()",
-					    SOAP_TCP_ERROR);
+				soap_set_sender_error(soap, tcp_error(soap), "setsockopt IP_MULTICAST_TTL failed in tcp_connect()", SOAP_TCP_ERROR);
 				soap->fclosesocket(soap, fd);
 				return SOAP_INVALID_SOCKET;
 			}
 		}
 		if((soap->omode&SOAP_IO_UDP) && soap->ipv4_multicast_if && !soap->ipv6_multicast_if) {
-			if(setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, (char*)soap->ipv4_multicast_if,
-					    sizeof(struct in_addr)))
+			if(setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, (char*)soap->ipv4_multicast_if, sizeof(struct in_addr)))
     #ifndef WINDOWS
-			{ soap->errnum = soap_socket_errno(fd);
+			{ 
+				soap->errnum = soap_socket_errno(fd);
 			  soap_set_sender_error(soap, tcp_error(soap), "setsockopt IP_MULTICAST_IF failed in tcp_connect()", SOAP_TCP_ERROR);
 			  soap->fclosesocket(soap, fd);
-			  return SOAP_INVALID_SOCKET; }
+			  return SOAP_INVALID_SOCKET; 
+			}
     #else
      #ifndef IP_MULTICAST_IF
       #define IP_MULTICAST_IF 2
      #endif
-				if(setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, (char*)soap->ipv4_multicast_if,
-						    sizeof(struct in_addr))) {
+				if(setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, (char*)soap->ipv4_multicast_if, sizeof(struct in_addr))) {
 					soap->errnum = soap_socket_errno(fd);
-					soap_set_sender_error(soap, tcp_error(soap), "setsockopt IP_MULTICAST_IF failed in tcp_connect()",
-						    SOAP_TCP_ERROR);
+					soap_set_sender_error(soap, tcp_error(soap), "setsockopt IP_MULTICAST_IF failed in tcp_connect()", SOAP_TCP_ERROR);
 					soap->fclosesocket(soap, fd);
 					return SOAP_INVALID_SOCKET;
 				}
@@ -3526,12 +3524,14 @@ again:
 		}
 		soap->peer.sin_port = htons((short)soap->proxy_port);
 	}
-	else {if(soap->fresolve(soap, host, &soap->peer.sin_addr)) {
+	else {
+		if(soap->fresolve(soap, host, &soap->peer.sin_addr)) {
 		      soap_set_sender_error(soap, tcp_error(soap), "get host by name failed in tcp_connect()", SOAP_TCP_ERROR);
 		      soap->fclosesocket(soap, fd);
 		      return SOAP_INVALID_SOCKET;
 	      }
-	      soap->peer.sin_port = htons((short)port); }
+	      soap->peer.sin_port = htons((short)port); 
+	}
 	soap->errmode = 0;
    #ifndef WITH_LEAN
 	if((soap->omode&SOAP_IO_UDP))
@@ -3558,7 +3558,8 @@ again:
   #else
 		if(connect(fd, (struct sockaddr*)&soap->peer, sizeof(soap->peer)))
   #endif
-		{ err = soap_socket_errno(fd);
+		{ 
+			err = soap_socket_errno(fd);
   #ifndef WITH_LEAN
 		  if(err == SOAP_EADDRINUSE) {
 			  soap->fclosesocket(soap, fd);

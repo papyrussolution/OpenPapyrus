@@ -286,9 +286,11 @@ private:
 	PPPredictConfig PrCfg;
 };
 
-int SLAPI PPViewSStat::EditDlvrOrderFilt(SStatFilt * pFilt)
+int SLAPI PPViewSStat::EditDlvrOrderFilt(SStatFilt * pBaseFilt)
 {
-	DIALOG_PROC_BODY(SStatOrderFiltDialog, pFilt);
+	if(!Filt.IsA(pBaseFilt))
+		return 0;
+	DIALOG_PROC_BODY(SStatOrderFiltDialog, pBaseFilt);
 }
 
 PPBaseFilt * SLAPI PPViewSStat::CreateFilt(void * extraPtr) const

@@ -1487,7 +1487,6 @@ void BillItemBrowser::update(int pos)
 		BillGoodsBrwItemArray * a = 0;
 		PROFILE(a = (BillGoodsBrwItemArray *)MakeList());
 		if(a) {
-			lock();
 			p_def->SetUserProc(BillItemBrowser::GetDataForBrowser, this);
 			// {
             p_def->setArray(a, 0, 1);
@@ -1563,7 +1562,6 @@ void BillItemBrowser::update(int pos)
 			else if(pos >= 0 && pos < (int)a->getCount())
 				view->go(pos);
 			// }
-			unlock();
 		}
 	}
 }
@@ -3413,7 +3411,6 @@ void CompleteBrowser::update(int pos)
 		int    r = P_BObj->GetComplete(Data.LotID, PPObjBill::gcfGatherSources, &Data);
 		SArray * a = MakeList();
 		if(a) {
-			lock();
             p_def->setArray(a, 0, 1);
 			view->setRange(a->getCount());
 			if(pos == pos_cur && c >= 0)
@@ -3422,7 +3419,6 @@ void CompleteBrowser::update(int pos)
 				view->go(a->getCount() - 2);
 			else if(pos >= 0 && pos < (int)a->getCount())
 				view->go(pos);
-			unlock();
 		}
 	}
 }
@@ -3588,10 +3584,7 @@ PPALDD_CONSTRUCTOR(Complete)
 	}
 }
 
-PPALDD_DESTRUCTOR(Complete)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(Complete) { Destroy(); }
 
 int PPALDD_Complete::InitData(PPFilt & rFilt, long rsrv)
 {

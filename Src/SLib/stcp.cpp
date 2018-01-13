@@ -3745,8 +3745,8 @@ int ScURL::PrepareURL(InetUrl & rUrl, int defaultProt, ScURL::InnerUrlInfo & rIn
 {
 	int    ok = 1;
 	SString temp_buf;
-	rUrl.GetComponent(InetUrl::cUserName, 0, rInfo.User);
-	rUrl.GetComponent(InetUrl::cPassword, 0, rInfo.Password);
+	rUrl.GetComponent(InetUrl::cUserName, 1, rInfo.User); // @v9.8.12 decode 0-->1
+	rUrl.GetComponent(InetUrl::cPassword, 1, rInfo.Password); // @v9.8.12 decode 0-->1
 	if(rInfo.User.NotEmpty()) {
 		THROW(SetAuth(authServer, rInfo.User, rInfo.Password));
 	}

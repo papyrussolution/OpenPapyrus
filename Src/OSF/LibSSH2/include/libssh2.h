@@ -70,7 +70,6 @@
    comparisons with greater than and less than work.
  */
 #define LIBSSH2_VERSION_NUM 0x010800
-
 /*
  * This is the date and time when the full source package was created. The
  * timestamp is not stored in the source code repo, as the timestamp is

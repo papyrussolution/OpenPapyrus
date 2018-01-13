@@ -1077,10 +1077,7 @@ int MrpTabDialog::getDTS(MrpTabTbl::Rec * pData)
 	return ok;
 }
 
-int SLAPI PPObjMrpTab::EditDialog(MrpTabTbl::Rec * pRec)
-{
-	DIALOG_PROC_BODY(MrpTabDialog, pRec);
-}
+int SLAPI PPObjMrpTab::EditDialog(MrpTabTbl::Rec * pRec) { DIALOG_PROC_BODY(MrpTabDialog, pRec); }
 
 int SLAPI PPObjMrpTab::Edit(PPID * pID, void * extraPtr)
 {

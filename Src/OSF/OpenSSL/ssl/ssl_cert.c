@@ -488,7 +488,7 @@ static int add_client_CA(STACK_OF(X509_NAME) ** sk, X509 * x)
 		X509_NAME_free(name);
 		return 0;
 	}
-	return (1);
+	return 1;
 }
 
 int SSL_add_client_CA(SSL * ssl, X509 * x)

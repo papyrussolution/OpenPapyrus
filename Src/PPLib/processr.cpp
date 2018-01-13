@@ -1799,10 +1799,7 @@ StrAssocArray * SLAPI PPObjProcessor::MakeStrAssocList(void * extraPtr /*parentI
 	return p_list;
 }
 
-int SLAPI PPObjProcessor::Browse(void * extraPtr)
-{
-	return PPView::Execute(PPVIEW_PROCESSOR, 0, 1, extraPtr);
-}
+int SLAPI PPObjProcessor::Browse(void * extraPtr) { return PPView::Execute(PPVIEW_PROCESSOR, 0, 1, extraPtr); }
 //
 //
 //
@@ -2264,10 +2261,7 @@ PPALDD_CONSTRUCTOR(ProcessorView)
 	}
 }
 
-PPALDD_DESTRUCTOR(ProcessorView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(ProcessorView) { Destroy(); }
 
 int PPALDD_ProcessorView::InitData(PPFilt & rFilt, long rsrv)
 {

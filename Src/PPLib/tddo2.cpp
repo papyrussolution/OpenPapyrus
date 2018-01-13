@@ -3072,15 +3072,8 @@ uint SLAPI TddoContentGraph::AddBlock(int kind, uint exprP, const SString & rTex
 //
 // Implementation of PPALDD_HttpPreprocessBase
 //
-PPALDD_CONSTRUCTOR(HttpPreprocessBase)
-{
-	InitFixData(rscDefHdr, &H, sizeof(H));
-}
-
-PPALDD_DESTRUCTOR(HttpPreprocessBase)
-{
-	Destroy();
-}
+PPALDD_CONSTRUCTOR(HttpPreprocessBase) { InitFixData(rscDefHdr, &H, sizeof(H)); }
+PPALDD_DESTRUCTOR(HttpPreprocessBase) { Destroy(); }
 
 int PPALDD_HttpPreprocessBase::InitData(PPFilt & rFilt, long rsrv)
 {

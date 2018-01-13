@@ -182,7 +182,7 @@ static void cl_hash(LZWCodecState*);
 static int LZWFixupTags(TIFF* tif)
 {
 	(void)tif;
-	return (1);
+	return 1;
 }
 
 static int LZWSetupDecode(TIFF* tif)
@@ -229,7 +229,7 @@ static int LZWSetupDecode(TIFF* tif)
 		 */
 		memzero(&sp->dec_codetab[CODE_CLEAR], (CODE_FIRST - CODE_CLEAR) * sizeof(code_t));
 	}
-	return (1);
+	return 1;
 }
 
 /*
@@ -305,7 +305,7 @@ static int LZWPreDecode(TIFF* tif, uint16 s)
 	memzero(sp->dec_free_entp, (CSIZE-CODE_FIRST)*sizeof(code_t));
 	sp->dec_oldcodep = &sp->dec_codetab[-1];
 	sp->dec_maxcodep = &sp->dec_codetab[sp->dec_nbitsmask-1];
-	return (1);
+	return 1;
 }
 /*
  * Decode a "hunk of data".
@@ -374,7 +374,7 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 					codep = codep->next;
 				} while(--occ && codep);
 			}
-			return (1);
+			return 1;
 		}
 		/*
 		 * Residue satisfies only part of the decode request.
@@ -519,7 +519,7 @@ static int LZWDecode(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 #endif
 		return 0;
 	}
-	return (1);
+	return 1;
 }
 
 #ifdef LZW_COMPAT
@@ -579,7 +579,7 @@ static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 				*--tp = codep->value;
 				codep = codep->next;
 			} while(--occ);
-			return (1);
+			return 1;
 		}
 		/*
 		 * Residue satisfies only part of the decode request.
@@ -727,7 +727,7 @@ static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 #endif
 		return 0;
 	}
-	return (1);
+	return 1;
 }
 
 #endif /* LZW_COMPAT */
@@ -748,7 +748,7 @@ static int LZWSetupEncode(TIFF* tif)
 		    "No space for LZW hash table");
 		return 0;
 	}
-	return (1);
+	return 1;
 }
 
 /*
@@ -781,7 +781,7 @@ static int LZWPreEncode(TIFF* tif, uint16 s)
 	sp->enc_rawlimit = tif->tif_rawdata + tif->tif_rawdatasize-1 - 4;
 	cl_hash(sp);            /* clear hash table */
 	sp->enc_oldcode = (hcode_t)-1;  /* generates CODE_CLEAR in LZWEncode */
-	return (1);
+	return 1;
 }
 
 #define CALCRATIO(sp, rat) {					\
@@ -982,7 +982,7 @@ hit:
 	sp->lzw_maxcode = (unsigned short)maxcode;
 	sp->lzw_nbits = (unsigned short)nbits;
 	tif->tif_rawcp = op;
-	return (1);
+	return 1;
 }
 
 /*
@@ -1033,7 +1033,7 @@ static int LZWPostEncode(TIFF* tif)
 	if(nextbits > 0)
 		*op++ = (unsigned char)((nextdata << (8-nextbits))&0xff);
 	tif->tif_rawcc = (tmsize_t)(op - tif->tif_rawdata);
-	return (1);
+	return 1;
 }
 
 /*
@@ -1113,7 +1113,7 @@ int TIFFInitLZW(TIFF* tif, int scheme)
 	 * Setup predictor setup.
 	 */
 	(void)TIFFPredictorInit(tif);
-	return (1);
+	return 1;
 bad:
 	TIFFErrorExt(tif->tif_clientdata, module, "No space for LZW state block");
 	return 0;

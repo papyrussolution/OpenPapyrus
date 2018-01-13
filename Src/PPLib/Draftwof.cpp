@@ -439,10 +439,7 @@ int WrOffDraftParamDialog::getDTS(PrcssrWrOffDraftFilt * pData)
 	return ok;
 }
 
-int SLAPI PrcssrWrOffDraft::EditParam(PrcssrWrOffDraftFilt * pParam)
-{
-	DIALOG_PROC_BODY(WrOffDraftParamDialog, pParam);
-}
+int SLAPI PrcssrWrOffDraft::EditParam(PrcssrWrOffDraftFilt * pParam) { DIALOG_PROC_BODY(WrOffDraftParamDialog, pParam); }
 
 static int TestBillRec(const PPDraftWrOffEntry * pDwoEntry, const BillTbl::Rec & rRec, const PPIDArray * pDfctList)
 {

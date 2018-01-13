@@ -766,8 +766,7 @@ int ArGoodsCodeDialog::getDTS(ArGoodsCodeTbl::Rec * pData)
 	return ok;
 }
 
-static int SLAPI _EditArGoodsCodeItem(ArGoodsCodeTbl::Rec * pRec, int ownCode)
-	{ DIALOG_PROC_BODY_P1(ArGoodsCodeDialog, ownCode, pRec); }
+static int SLAPI _EditArGoodsCodeItem(ArGoodsCodeTbl::Rec * pRec, int ownCode) { DIALOG_PROC_BODY_P1(ArGoodsCodeDialog, ownCode, pRec); }
 
 class ArGoodsCodeListDialog : public PPListDialog {
 public:
@@ -1773,8 +1772,10 @@ int GoodsVadDialog::editItem(long pos, long id)
 		PPLoadString("qtty", input_title); // @v9.1.4
 		PPGetWord(PPWORD_MINSTOCK, 0, title);
 		qtty = Data.Stock.GetMinStock(id, 0);
-		if(InputQttyDialog(title, input_title, &qtty) > 0)
-			ok = Data.Stock.SetMinStock(id, qtty);
+		if(InputQttyDialog(title, input_title, &qtty) > 0) {
+			Data.Stock.SetMinStock(id, qtty);
+			ok = 1;
+		}
 	}
 	return ok;
 }
@@ -1944,6 +1945,7 @@ int GoodsVadDialog::setDTS(const PPGoodsPacket * pData)
 	setCtrlData(CTL_GOODSVAD_EXPIRYPRD, &Data.Stock.ExpiryPeriod);
 	setCtrlReal(CTL_GOODSVAD_MINSHQTTY,  Data.Stock.MinShippmQtty);
 	setCtrlUInt16(CTL_GOODSVAD_MULTMINSH, BIN(Data.Stock.GseFlags & GoodsStockExt::fMultMinShipm));
+	setCtrlData(CTL_GOODSVAD_NTBRTCOEF, &Data.Stock.NettBruttCoeff); // @v9.8.12
 	SetPalletData(-1);
 	updateList(-1);
 	return 1;
@@ -1951,6 +1953,8 @@ int GoodsVadDialog::setDTS(const PPGoodsPacket * pData)
 
 int GoodsVadDialog::getDTS(PPGoodsPacket * pData)
 {
+	int    ok = 1;
+	uint   sel = 0;
 	double brutto = 0.0;
 	Data.ExtString.Z();
 	getExtStrData(CTL_GOODSVAD_STORAGE);
@@ -1971,9 +1975,16 @@ int GoodsVadDialog::getDTS(PPGoodsPacket * pData)
 	getCtrlData(CTL_GOODSVAD_EXPIRYPRD, &Data.Stock.ExpiryPeriod);
 	getCtrlData(CTL_GOODSVAD_MINSHQTTY, &Data.Stock.MinShippmQtty);
 	SETFLAG(Data.Stock.GseFlags, GoodsStockExt::fMultMinShipm, getCtrlUInt16(CTL_GOODSVAD_MULTMINSH));
+	// @v9.8.12 {
+	getCtrlData(sel = CTL_GOODSVAD_NTBRTCOEF, &Data.Stock.NettBruttCoeff); 
+	THROW_PP(Data.Stock.NettBruttCoeff >= 0.0f && Data.Stock.NettBruttCoeff <= 1.0f, PPERR_INVNETTOBRUTTOCOEF);
+	// } @v9.8.12 
 	GetPalletData(-1);
 	ASSIGN_PTR(pData, Data);
-	return 1;
+	CATCH
+		ok = PPErrorByDialog(this, sel);
+	ENDCATCH
+	return ok;
 }
 
 IMPL_HANDLE_EVENT(GoodsVadDialog)
@@ -2516,7 +2527,7 @@ int GoodsCtrlGroup::setFlagExistsOnly(TDialog * dlg, int on)
 
 int isComboCurrent(TDialog * dlg, TView * cb)
 {
-	return BIN(cb && (dlg->IsCurrCtl(cb) || dlg->IsCurrCtl(((ComboBox*)cb)->link())) && !cb->IsInState(sfDisabled));
+	return BIN(cb && (dlg->IsCurrentView(cb) || dlg->IsCurrentView(((ComboBox*)cb)->link())) && !cb->IsInState(sfDisabled));
 }
 
 void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
@@ -2540,7 +2551,7 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 			dlg->clearEvent(event);
 		}
 	}
-	else if(TVKEYDOWN && TVKEY == kbF2 && dlg->P_Current) {
+	else if(TVKEYDOWN && TVKEY == kbF2 && dlg->GetCurrentView()) {
 		setupCtrls(dlg);
 		if(isComboCurrent(dlg, dlg->getCtrlView(CtlGrp)) || isComboCurrent(dlg, dlg->getCtrlView(CtlGoods))) {
 			PPObjGoods gobj;
@@ -3379,10 +3390,7 @@ int GoodsAdvOptDialog::getDTS(GoodsFilt * pData)
 	return 1;
 }
 
-int GoodsFiltDialog::editGoodsViewOptions()
-{
-	DIALOG_PROC_BODY(GoodsAdvOptDialog, &Data);
-}
+int GoodsFiltDialog::editGoodsViewOptions() { DIALOG_PROC_BODY(GoodsAdvOptDialog, &Data); }
 
 class EditExtParamsDlg : public TDialog {
 public:
@@ -3487,10 +3495,7 @@ int EditExtParamsDlg::getDTS(ClsdGoodsFilt * pData)
 	return ok;
 }
 
-int GoodsFiltDialog::EditExtParams()
-{
-	DIALOG_PROC_BODY(EditExtParamsDlg, &Data.Ep);
-}
+int GoodsFiltDialog::EditExtParams() { DIALOG_PROC_BODY(EditExtParamsDlg, &Data.Ep); }
 
 void GoodsFiltDialog::GroupList()
 {
@@ -3662,7 +3667,4 @@ int GoodsFiltDialog::getDTS(GoodsFilt * pFilt)
 	return 1;
 }
 
-int SLAPI GoodsFilterDialog(GoodsFilt * pFilt)
-{
-	DIALOG_PROC_BODY(GoodsFiltDialog, pFilt);
-}
+int SLAPI GoodsFilterDialog(GoodsFilt * pFilt) { DIALOG_PROC_BODY(GoodsFiltDialog, pFilt); }

@@ -652,10 +652,8 @@ int SLAPI CommLP15::SetConnection()
 		memzero(rcv_timeout,  sizeof(rcv_timeout));
 		itoa(Data.Put_Delay, send_timeout, 10);
 		itoa(Data.Get_Delay, rcv_timeout, 10);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout,
-			(int)strlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout,
-			(int)strlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, (int)strlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, (int)strlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP((res = connect(SocketHandle, (sockaddr*)&sin, sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		IsConnected = 1;
 		THROW(CheckSync_16());
@@ -1286,10 +1284,8 @@ int SLAPI CasCL5000J::SetConnection()
 		memzero(rcv_timeout,  sizeof(rcv_timeout));
 		itoa(Data.Put_Delay, send_timeout, 10);
 		itoa(Data.Get_Delay, rcv_timeout, 10);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout,
-			(int)strlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout,
-			(int)strlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, (int)strlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, (int)strlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP((res = connect(SocketHandle, (sockaddr*)&sin, sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		IsConnected   = 1;
 		THROW(CheckSync());
@@ -1791,7 +1787,6 @@ private:
 ComDispInterface * SLAPI COMMassaK::InitDriver()
 {
 	ComDispInterface * p_drv = 0;
-
 	THROW_MEM(p_drv = new ComDispInterface);
 	THROW(p_drv->Init("VP.Weigher.1"));
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Result) > 0);
@@ -1799,7 +1794,6 @@ ComDispInterface * SLAPI COMMassaK::InitDriver()
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Initialize) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Finalize) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, SetBasicGoodsParams) > 0);
-
 	CATCH
 		ZDELETE(p_drv);
 	ENDCATCH
@@ -1903,13 +1897,11 @@ int SLAPI COMMassaK::CloseConnection()
 //
 class COMMassaKVPN : public PPScaleDevice {
 public:
-	SLAPI  COMMassaKVPN(int p, const PPScale * pData) : PPScaleDevice(p, pData)
+	SLAPI  COMMassaKVPN(int p, const PPScale * pData) : PPScaleDevice(p, pData), P_DbfTbl(0), P_Csv(0)
 	{
 		PPGoodsConfig goods_cfg;
 		PPObjGoods::ReadConfig(&goods_cfg);
 		WghtPrefix = atol(goods_cfg.WghtPrefix);
-		P_DbfTbl = 0;
-		P_Csv = 0;
 	}
 	SLAPI ~COMMassaKVPN()
 	{
@@ -2121,7 +2113,6 @@ private:
 ComDispInterface * SLAPI COMMassaKVer1::InitDriver()
 {
 	ComDispInterface * p_drv = 0;
-
 	THROW_MEM(p_drv = new ComDispInterface);
 	THROW(p_drv->Init("ScalesMassaK.Scale"));
 	THROW(ASSIGN_ID_BY_NAME(p_drv, Connection) > 0);
@@ -2131,7 +2122,6 @@ ComDispInterface * SLAPI COMMassaKVer1::InitDriver()
 	THROW(ASSIGN_ID_BY_NAME(p_drv, OpenConnection) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, CloseConnection) > 0);
 	THROW(ASSIGN_ID_BY_NAME(p_drv, ReadWeight) > 0);
-
 	CATCH
 		ZDELETE(p_drv);
 	ENDCATCH
@@ -2331,10 +2321,8 @@ int SLAPI TCPIPMToledo::SetConnection()
 		memzero(rcv_timeout,  sizeof(rcv_timeout));
 		itoa(Data.Put_Delay, send_timeout, 10);
 		itoa(Data.Get_Delay, rcv_timeout, 10);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout,
-			(int)strlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout,
-			(int)strlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, (int)strlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, (int)strlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP((res = connect(SocketHandle, (sockaddr*)&sin, sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		IsConnected = 1;
 		PPSetAddedMsgString(CrcDLLPath);
@@ -3498,10 +3486,8 @@ int SLAPI Bizerba::SetConnection()
 		memzero(rcv_timeout,  sizeof(rcv_timeout));
 		itoa(Data.Put_Delay, send_timeout, 10);
 		itoa(Data.Get_Delay, rcv_timeout, 10);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout,
-			(int)strlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout,
-			(int)strlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, (int)strlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, (int)strlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP((res = connect(SocketHandle, (sockaddr*)&sin, sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		IsConnected = 1;
 	}
@@ -4370,12 +4356,11 @@ int ScaleDialog::editExpPaths()
 void ScaleDialog::ReplyScaleTypeSelection(PPID scaleTypeID)
 {
 	GetClusterData(CTL_SCALE_FLAGS, &Data.Flags);
-	int    use_exp_paths = BIN(scaleTypeID == PPSCLT_CRCSHSRV ||
-		(!(Data.Flags & SCALF_TCPIP) && scaleTypeID == PPSCLT_DIGI));
+	int    use_exp_paths = BIN(scaleTypeID == PPSCLT_CRCSHSRV || (!(Data.Flags & SCALF_TCPIP) && scaleTypeID == PPSCLT_DIGI));
 	TCluster * p_clu = (TCluster *)getCtrlView(CTL_SCALE_FLAGS);
 	if(p_clu) {
-		int    i, num_items = p_clu->getNumItems();
-		for(i = 0; i < num_items; i++)
+		const uint num_items = p_clu->getNumItems();
+		for(uint i = 0; i < num_items; i++)
 			p_clu->disableItem(i, oneof2(scaleTypeID, PPSCLT_WEIGHTTERM, PPSCLT_SCALEGROUP));
 		DisableClusterItem(CTL_SCALE_FLAGS, 4, 0);
 	}

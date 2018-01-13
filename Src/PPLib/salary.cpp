@@ -377,10 +377,7 @@ private:
 #undef GRP_DIV
 };
 
-int SLAPI PPViewSalary::EditItemDialog(SalaryTbl::Rec * pRec)
-{
-	DIALOG_PROC_BODY(SalaryDialog, pRec);
-}
+int SLAPI PPViewSalary::EditItemDialog(SalaryTbl::Rec * pRec) { DIALOG_PROC_BODY(SalaryDialog, pRec); }
 
 int SLAPI PPViewSalary::IsTempTblNeeded() const
 {
@@ -2312,10 +2309,7 @@ PPALDD_CONSTRUCTOR(Salary)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(Salary)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(Salary) { Destroy(); }
 
 int PPALDD_Salary::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -2387,10 +2381,7 @@ PPALDD_CONSTRUCTOR(SalaryByPost)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(SalaryByPost)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(SalaryByPost) { Destroy(); }
 
 int PPALDD_SalaryByPost::InitData(PPFilt & rFilt, long rsrv)
 {

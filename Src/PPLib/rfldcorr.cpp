@@ -268,10 +268,7 @@ int SdFieldCorrListDialog::setupList()
 	return ok;
 }
 
-int SLAPI EditFieldCorrList(const SdRecord * pInnerRec, SdRecord * pCorrRec)
-{
-	DIALOG_PROC_BODY_P1(SdFieldCorrListDialog, pInnerRec, pCorrRec);
-}
+int SLAPI EditFieldCorrList(const SdRecord * pInnerRec, SdRecord * pCorrRec) { DIALOG_PROC_BODY_P1(SdFieldCorrListDialog, pInnerRec, pCorrRec); }
 //
 //
 //
@@ -1596,10 +1593,7 @@ int ImpExpParamDialog::getDTS(PPImpExpParam * pData)
 	return ok;
 }
 
-int EditImpExpParam(PPImpExpParam * pData)
-{
-	DIALOG_PROC_BODY_P1(ImpExpParamDialog, DLG_IMPEXP, pData);
-}
+int EditImpExpParam(PPImpExpParam * pData) { DIALOG_PROC_BODY_P1(ImpExpParamDialog, DLG_IMPEXP, pData); }
 //
 //
 //

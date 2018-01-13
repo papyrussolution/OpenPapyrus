@@ -1393,10 +1393,7 @@ int PsnOpDialog::editPsnConstr(int scnd)
 	DIALOG_PROC_BODY_P1(PsnConstrDialog, scnd, pc);
 }
 
-int PsnOpDialog::editExtraVal()
-{
-	DIALOG_PROC_BODYERR(PsnOpExVDialog, &Data);
-}
+int PsnOpDialog::editExtraVal() { DIALOG_PROC_BODYERR(PsnOpExVDialog, &Data); }
 
 //
 //

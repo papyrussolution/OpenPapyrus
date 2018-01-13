@@ -1466,10 +1466,7 @@ int StaffCalDayDialog::getDTS(StaffCalendarTbl::Rec * pData)
 	return ok;
 }
 
-int SLAPI PPObjStaffCal::EditEntry(const PPStaffCalPacket * pPack, StaffCalendarTbl::Rec * pRec)
-{
-	DIALOG_PROC_BODY_P1(StaffCalDayDialog, pPack, pRec);
-}
+int SLAPI PPObjStaffCal::EditEntry(const PPStaffCalPacket * pPack, StaffCalendarTbl::Rec * pRec) { DIALOG_PROC_BODY_P1(StaffCalDayDialog, pPack, pRec); }
 
 int StaffCalDialog::addItem(long * pPos, long * pID)
 {
@@ -2381,15 +2378,8 @@ IMPL_OBJ_FETCH(PPObjStaffCal, PPStaffCal, StaffCalCache);
 //
 // Implementation of PPALDD_StaffCal
 //
-PPALDD_CONSTRUCTOR(StaffCal)
-{
-	InitFixData(rscDefHdr, &H, sizeof(H));
-}
-
-PPALDD_DESTRUCTOR(StaffCal)
-{
-	Destroy();
-}
+PPALDD_CONSTRUCTOR(StaffCal) { InitFixData(rscDefHdr, &H, sizeof(H)); }
+PPALDD_DESTRUCTOR(StaffCal) { Destroy(); }
 
 int PPALDD_StaffCal::InitData(PPFilt & rFilt, long rsrv)
 {

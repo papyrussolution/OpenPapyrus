@@ -1065,10 +1065,7 @@ int SLAPI PPViewGoodsTaxAnalyze::ViewTotal()
 	return ok;
 }
 
-int SLAPI ViewGoodsTaxAnalyze(const GoodsTaxAnalyzeFilt * pFilt)
-{
-	return PPView::Execute(PPVIEW_GOODSTAXANALYZE, pFilt, PPView::exefModeless, 0);
-}
+int SLAPI ViewGoodsTaxAnalyze(const GoodsTaxAnalyzeFilt * pFilt) { return PPView::Execute(PPVIEW_GOODSTAXANALYZE, pFilt, PPView::exefModeless, 0); }
 //
 // Implementation of PPALDD_GoodsTaxAnlz
 //
@@ -1080,10 +1077,7 @@ PPALDD_CONSTRUCTOR(GoodsTaxAnlz)
 	}
 }
 
-PPALDD_DESTRUCTOR(GoodsTaxAnlz)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(GoodsTaxAnlz) { Destroy(); }
 
 // AHTOXA {
 int SetInOutVAT(double * pVATRate, double * pInVATVal, double * pOutVATVal, double * pPTrnovr, double * pDscnt,

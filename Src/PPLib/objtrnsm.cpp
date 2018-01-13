@@ -2412,10 +2412,7 @@ int BillTransDialog::delItem()
 	return ok;
 }
 
-int SLAPI BillTransmitParam::Edit()
-{
-	DIALOG_PROC_BODY(BillTransDialog, this);
-}
+int SLAPI BillTransmitParam::Edit() { DIALOG_PROC_BODY(BillTransDialog, this); }
 
 // static
 int SLAPI PPObjectTransmit::TransmitBillsByDBDivList(BillTransmitParam * pParam)
@@ -3083,14 +3080,12 @@ int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 		char * p_fname = 0;
 		SString file_path, ack_file_path;
 		SStrCollection  flist;
-		//PPFileNameArray fary;
 		SFileEntryPool fep;
 		SFileEntryPool::Entry fe;
 		PPObjDBDiv dbdiv_obj;
 		PPWait(1);
 		PPObjectTransmit ot(PPObjectTransmit::tmReading, BIN(param.Flags & ObjReceiveParam::fSyncCmp), 0);
 		THROW(PPGetPath(PPPATH_IN, file_path));
-		//THROW(fary.Scan(file_path.SetLastSlash(), "*" PPSEXT));
 		THROW(fep.Scan(file_path.SetLastSlash(), "*" PPSEXT, 0));
 		do {
 			next_pass = 0;

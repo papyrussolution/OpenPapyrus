@@ -2417,10 +2417,7 @@ int SLAPI PPViewSCard::ViewOps(PPID cardID)
 		return -1;
 }
 
-int SLAPI ViewSCard(const SCardFilt * pFilt, int asModeless)
-{
-	return PPView::Execute(PPVIEW_SCARD, pFilt, (asModeless ? PPView::exefModeless : 0), 0);
-}
+int SLAPI ViewSCard(const SCardFilt * pFilt, int asModeless) { return PPView::Execute(PPVIEW_SCARD, pFilt, (asModeless ? PPView::exefModeless : 0), 0); }
 //
 // @ModuleDef(PPViewSCardOp)
 //

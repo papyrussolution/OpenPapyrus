@@ -226,14 +226,10 @@ private:
 		Data = ss.getBuf();
 		return 1;
 	}
-
 	SString Data;
 };
 
-static int EditDBDivAddrList(SString * pData)
-{
-	DIALOG_PROC_BODY(DBDivAddrListDialog, pData);
-}
+static int EditDBDivAddrList(SString * pData) { DIALOG_PROC_BODY(DBDivAddrListDialog, pData); }
 
 class DBDivDialog : public TDialog {
 public:
@@ -593,10 +589,7 @@ PPALDD_CONSTRUCTOR(DBDiv)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(DBDiv)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(DBDiv) { Destroy(); }
 
 int PPALDD_DBDiv::InitData(PPFilt & rFilt, long rsrv)
 {

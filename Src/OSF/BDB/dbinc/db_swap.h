@@ -146,20 +146,13 @@ extern "C" {
  * finding the real system functions isn't worth the effort.
  */
 #undef	DB_HTONL_SWAP
-#define	DB_HTONL_SWAP(env, p) do {					\
-	if(F_ISSET((env), ENV_LITTLEENDIAN))				\
-		P_32_SWAP(p);						\
-} while (0)
+#define	DB_HTONL_SWAP(env, p) do { if(F_ISSET((env), ENV_LITTLEENDIAN)) P_32_SWAP(p); } while (0)
 #undef	DB_NTOHL_SWAP
-#define	DB_NTOHL_SWAP(env, p) do {					\
-	if(F_ISSET((env), ENV_LITTLEENDIAN))				\
-		P_32_SWAP(p);						\
-} while (0)
+#define	DB_NTOHL_SWAP(env, p) do { if(F_ISSET((env), ENV_LITTLEENDIAN)) P_32_SWAP(p); } while (0)
 
 #undef	DB_NTOHL_COPYIN
 #define	DB_NTOHL_COPYIN(env, i, p) do {					\
-	uint8 *tmp;							\
-	tmp = (uint8 *)&(i);						\
+	uint8 * tmp = (uint8 *)&(i);						\
 	if(F_ISSET(env, ENV_LITTLEENDIAN)) {				\
 		tmp[3] = *p++;						\
 		tmp[2] = *p++;						\
@@ -173,8 +166,7 @@ extern "C" {
 
 #undef	DB_NTOHS_COPYIN
 #define	DB_NTOHS_COPYIN(env, i, p) do {					\
-	uint8 *tmp;							\
-	tmp = (uint8 *)&(i);						\
+	uint8 * tmp = (uint8 *)&(i);						\
 	if(F_ISSET(env, ENV_LITTLEENDIAN)) {				\
 		tmp[1] = *p++;						\
 		tmp[0] = *p++;						\
@@ -186,8 +178,7 @@ extern "C" {
 
 #undef	DB_HTONL_COPYOUT
 #define	DB_HTONL_COPYOUT(env, p, i) do {				\
-	uint8 *tmp;							\
-	tmp = (uint8 *)p;						\
+	uint8 * tmp = (uint8 *)p;						\
 	if(F_ISSET(env, ENV_LITTLEENDIAN)) {				\
 		*tmp++ = ((uint8 *)&(i))[3];				\
 		*tmp++ = ((uint8 *)&(i))[2];				\
@@ -200,8 +191,7 @@ extern "C" {
 
 #undef	DB_HTONS_COPYOUT
 #define	DB_HTONS_COPYOUT(env, p, i) do {				\
-	uint8 *tmp;							\
-	tmp = (uint8 *)p;						\
+	uint8 * tmp = (uint8 *)p;						\
 	if(F_ISSET(env, ENV_LITTLEENDIAN)) {				\
 		*tmp++ = ((uint8 *)&(i))[1];				\
 		*tmp++ = ((uint8 *)&(i))[0];				\
@@ -209,28 +199,14 @@ extern "C" {
 		memcpy(p, &i, sizeof(uint16));			\
 	p = (uint8 *)p + sizeof(uint16);				\
 } while (0)
-
 /*
  * Helper macros for swapped logs.  We write logs in little endian format to
  * minimize disruption on x86 when upgrading from native byte order to
  * platform-independent logs.
  */
 #define	LOG_SWAPPED(env) !F_ISSET(env, ENV_LITTLEENDIAN)
-
-#define	LOGCOPY_32(env, x, p) do {					\
-	if(LOG_SWAPPED(env))						\
-		P_32_COPYSWAP((p), (x));				\
-	else								\
-		memcpy((x), (p), sizeof(uint32));			\
-} while (0)
-
-#define	LOGCOPY_16(env, x, p) do {					\
-	if(LOG_SWAPPED(env))						\
-		P_16_COPYSWAP((p), (x));				\
-	else								\
-		memcpy((x), (p), sizeof(uint16));			\
-} while (0)
-
+#define	LOGCOPY_32(env, x, p) do { if(LOG_SWAPPED(env)) P_32_COPYSWAP((p), (x)); else memcpy((x), (p), sizeof(uint32)); } while (0)
+#define	LOGCOPY_16(env, x, p) do { if(LOG_SWAPPED(env)) P_16_COPYSWAP((p), (x)); else memcpy((x), (p), sizeof(uint16)); } while (0)
 #define	LOGCOPY_TOLSN(env, lsnp, p)   do { LOGCOPY_32((env), &(lsnp)->file, (p)); LOGCOPY_32((env), &(lsnp)->Offset_, (uint8 *)(p) + sizeof(uint32)); } while (0)
 #define	LOGCOPY_FROMLSN(env, p, lsnp) do { LOGCOPY_32((env), (p), &(lsnp)->file); LOGCOPY_32((env), (uint8 *)(p) + sizeof(uint32), &(lsnp)->Offset_); } while (0)
 

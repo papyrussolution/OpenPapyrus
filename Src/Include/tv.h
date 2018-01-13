@@ -313,12 +313,12 @@ struct TEvent {
 			WPARAM  WP;
 		};
 	};
+	uint   what; // @firstmember
 	union {
 		Message message;
 		Mouse mouse;
 		KeyDown keyDown;
 	};
-	uint   what;
 
 	TEvent();
 	TEvent & setCmd(uint msg, TView * pInfoView);
@@ -1411,9 +1411,9 @@ public:
 	//static void * message(TView * pReceiver, uint what, uint command, void * pInfoPtr);
 	// @v9.5.5 static void * message(TView * pReceiver, uint what, uint command, long infoVal);
 	static void * FASTCALL messageCommand(TView * pReceiver, uint command);
-	static void * messageCommand(TView * pReceiver, uint command, void * pInfoPtr);
+	static void * FASTCALL messageCommand(TView * pReceiver, uint command, void * pInfoPtr);
 	static void * FASTCALL messageBroadcast(TView * pReceiver, uint command);
-	static void * messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr);
+	static void * FASTCALL messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr);
 
 	enum phaseType {
 		phFocused,
@@ -1608,20 +1608,23 @@ public:
 	ushort execView(TWindow * p);
 	void   insertView(TView * p, TView * pTarget);
 	void   remove(TView * p);
-	void   removeView(TView *p);
-	void   setCurrent(TView *p, selectMode mode);
+	void   removeView(TView * p);
 	void   selectNext(/*Boolean forwards*/ /*false*/); // @v9.0.9 Все вызовы имеют парамет forward = False - убираем
 	// @v9.0.1 TView * firstThat(Boolean (*func)(TView *, void *), void *args);
 	void    forEach(void (*func)(TView *, void *), void *args);
 	void    insertBefore(TView *p, TView *Target);
 	// @v9.4.8 TView * FASTCALL at(short index) const;
-	TView * first() const;
+	TView * GetFirstView() const;
+	TView * GetCurrentView() const { return P_Current; }
+	TView * GetLastView() const { return P_Last; }
 	void   redraw();
-	void   lock();
-	void   unlock();
+	// @v9.8.12 void   lock();
+	// @v9.8.12 void   unlock();
 	uint   GetCurrId() const;
-	int    FASTCALL IsCurrCtl(const TView * pV) const;
+	int    FASTCALL IsCurrentView(const TView * pV) const;
 	int    FASTCALL isCurrCtlID(uint ctlID) const;
+	void   SetCurrentView(TView * p, selectMode mode);
+protected:
 	//
 	TView * P_Current;
 	TView * P_Last;
@@ -2621,7 +2624,8 @@ public:
 			// Необходим для идентификации проблемы спонтанной невозможности вывода окна диалога из модального режима при нажатии OK или Cancel.
 	};
 
-	friend  BOOL CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
+	//friend  BOOL CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
+	static  BOOL CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
 	static  void centerDlg(HWND);
 	int     SetCtrlFont(uint ctrlID, const char * pFontName, int height);
 	int     SetCtrlFont(uint ctlID, const SFontDescr & rFd);
@@ -2678,7 +2682,7 @@ public:
 	int    FASTCALL GetClusterData(uint ctlID, long *);
 	int    FASTCALL GetClusterData(uint ctlID, int16 *);
 	long   FASTCALL GetClusterData(uint ctlID);
-	int    DisableClusterItem(uint ctlID, int itemNo /* 0.. */, int toDisable = 1);
+	void   DisableClusterItem(uint ctlID, int itemNo /* 0.. */, int toDisable = 1);
 	int    SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * pText);
 	int    GetClusterItemByAssoc(uint ctlID, long val, int * pPos);
 	int    SetDefaultButton(uint ctlID, int setDefault);
@@ -2758,7 +2762,10 @@ protected:
 	long   DlgFlags;
 	void * P_PrevData;
 private:
+	static int  FASTCALL PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void   SLAPI Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, long extraParam, ConstructorOption co); // @<<TDialog::TDialog
+	void    SLAPI RemoveUnusedControls();
+	TView * FASTCALL CtrlIdToView(long id) const;
 	uint   GrpCount;
 	CtrlGroup ** PP_Groups;
 	SVector * P_FontsAry; // @v9.8.4 SArray-->SVector
@@ -2989,7 +2996,7 @@ public:
 	int    setText(int pos, const char *);
 	void   addItem(int, const char *);
 	void   deleteItem(int);
-	int    disableItem(int pos /* 0.. */, int disable);
+	void   disableItem(int pos /* 0.. */, int disable);
 	int    isItemEnabled(int item) const; // item = номер элемента в списке 0..
 	void   deleteAll();
 	int    isChecked(ushort item) const;  // item = (ushort)GetWindowLong(hWnd, GWL_ID);
@@ -3567,7 +3574,7 @@ public:
 	int    setDataByUndefID();
 	int    setListWindow(ListWindow * pListWin);
 	int    setListWindow(ListWindow * pListWin, long val);
-	ListWindow * getListWindow() const;
+	ListWindow * getListWindow() const { return P_ListWin; }
 	void   setInputLineText(const char *);
 	int    getInputLineText(char * pBuf, size_t bufLen);
 	ListBoxDef * listDef() const { return P_Def; }
@@ -3654,7 +3661,7 @@ struct TDrawCtrlData {
 
 int SetWindowTransparent(HWND hWnd, int transparent /*0..100*/);
 
-BOOL    CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
+//BOOL    CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
 BOOL    CALLBACK ListSearchDialogProc(HWND, UINT, WPARAM, LPARAM);
 BOOL    CALLBACK PropertySheetDialogProc(HWND, UINT, WPARAM, LPARAM);
 // @v9.8.12 (unused) BOOL    CALLBACK logListProc(HWND, UINT, WPARAM, LPARAM);

@@ -454,7 +454,6 @@ void SLAPI PPListDialog::updateList(long pos, int byPos /*= 1*/)
 {
 	SmartListBox * p_box = P_Box;
 	if(p_box) {
-		lock();
 		int    sav_pos = p_box->def ? (int)p_box->def->_curItem() : 0;
 		p_box->freeAll();
 		if(setupList()) {
@@ -466,7 +465,6 @@ void SLAPI PPListDialog::updateList(long pos, int byPos /*= 1*/)
 		}
 		else
 			PPError();
-		unlock();
 	}
 }
 

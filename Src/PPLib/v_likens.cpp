@@ -69,9 +69,11 @@ int ObjLikenessFiltDialog::getDTS(ObjLikenessFilt * pData)
 	return ok;
 }
 
-int SLAPI PPViewObjLikeness::EditBaseFilt(PPBaseFilt * pFilt)
+int SLAPI PPViewObjLikeness::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
-	DIALOG_PROC_BODYERR(ObjLikenessFiltDialog, (ObjLikenessFilt *)pFilt);
+	if(!Filt.IsA(pBaseFilt))
+		return 0;
+	DIALOG_PROC_BODYERR(ObjLikenessFiltDialog, (ObjLikenessFilt *)pBaseFilt);
 }
 
 int SLAPI PPViewObjLikeness::Init_(const PPBaseFilt * pFilt)

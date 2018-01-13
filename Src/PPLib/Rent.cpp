@@ -1,5 +1,5 @@
 // RENT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -19,13 +19,13 @@ int SLAPI CalcPercent(LDATE beg, LDATE end, double rest, double percent, double 
 //
 //
 //
-SLAPI PctChargeArray::PctChargeArray() : SArray(sizeof(PctChargeEntry))
+SLAPI PctChargeArray::PctChargeArray() : SVector(sizeof(PctChargeEntry)) // @v9.8.12 SArray-->SVector
 {
 }
 
 PctChargeEntry & FASTCALL PctChargeArray::at(uint i) const
 {
-	return *(PctChargeEntry *)SArray::at(i);
+	return *(PctChargeEntry *)SVector::at(i);
 }
 
 LDATE SLAPI PctChargeArray::GetFirstDate() const
@@ -40,14 +40,15 @@ int SLAPI PctChargeArray::EnumItems(uint * pIdx, PctChargeEntry * pEntry) const
 		(*pIdx)++;
 		return 1;
 	}
-	return 0;
+	else
+		return 0;
 }
 
 int SLAPI PctChargeArray::Add(LDATE dt, double amount)
 {
 	double rest = GetRest(dt);
 	uint   pos = 0;
-	if(SArray::bsearch(&dt, &pos, CMPF_LONG)) {
+	if(SVector::bsearch(&dt, &pos, CMPF_LONG)) {
 		at(pos).Rest += amount;
 		return 1;
 	}
@@ -55,7 +56,7 @@ int SLAPI PctChargeArray::Add(LDATE dt, double amount)
 		PctChargeEntry entry;
 		entry.Dt = dt;
 		entry.Rest = rest + amount;
-		return SArray::ordInsert(&entry, 0, CMPF_LONG) ? 1 : PPSetErrorSLib();
+		return SVector::ordInsert(&entry, 0, CMPF_LONG) ? 1 : PPSetErrorSLib();
 	}
 }
 
@@ -388,7 +389,4 @@ int RentChrgDlg::getDTS(RentChrgFilt * pFilt)
 	return ok;
 }
 
-int SLAPI RentChrgDialog(RentChrgFilt * pFlt)
-{
-	DIALOG_PROC_BODY(RentChrgDlg, pFlt);
-}
+int SLAPI RentChrgDialog(RentChrgFilt * pFlt) { DIALOG_PROC_BODY(RentChrgDlg, pFlt); }

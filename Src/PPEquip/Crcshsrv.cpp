@@ -9,9 +9,8 @@
 // CashiersArray
 //
 struct CashierEntry { // @flat
-	SLAPI  CashierEntry()
+	SLAPI  CashierEntry() : TabNum(0), Expiry(ZERODATE), PsnID(0)
 	{
-		THISZERO();
 	}
 	PPID   TabNum;
 	LDATE  Expiry;

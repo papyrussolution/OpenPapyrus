@@ -1069,10 +1069,7 @@ int SLAPI PPViewArticle::Print(const void * pHdr)
 //
 //
 //
-int SLAPI ViewArticle(const ArticleFilt * pFilt)
-{
-	return PPView::Execute(PPVIEW_ARTICLE, pFilt, PPView::exefModeless, 0);
-}
+int SLAPI ViewArticle(const ArticleFilt * pFilt) { return PPView::Execute(PPVIEW_ARTICLE, pFilt, PPView::exefModeless, 0); }
 //
 // Implementation of PPALDD_ArticleView
 //
@@ -1084,10 +1081,7 @@ PPALDD_CONSTRUCTOR(ArticleView)
 	}
 }
 
-PPALDD_DESTRUCTOR(ArticleView)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(ArticleView) { Destroy(); }
 
 int PPALDD_ArticleView::InitData(PPFilt & rFilt, long rsrv)
 {

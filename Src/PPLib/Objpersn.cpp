@@ -1,5 +1,5 @@
 // OBJPERSN.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -5567,10 +5567,7 @@ int PersonRelListDialog::editItem(long pos, long id)
 	return ok;
 }
 
-static int EditPersonRelList(PPPersonPacket * pData)
-{
-	DIALOG_PROC_BODY(PersonRelListDialog, pData);
-}
+static int EditPersonRelList(PPPersonPacket * pData) { DIALOG_PROC_BODY(PersonRelListDialog, pData); }
 //
 //
 //
@@ -7110,10 +7107,7 @@ PPALDD_CONSTRUCTOR(Global)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(Global)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(Global) { Destroy(); }
 
 int PPALDD_Global::InitData(PPFilt & rFilt, long rsrv)
 {

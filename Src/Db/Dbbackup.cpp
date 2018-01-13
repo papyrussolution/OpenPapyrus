@@ -26,15 +26,11 @@ int CallbackCompress(long, long, const char *, int);
 //
 #define DEFAULT_SPACE_SAFETY_FACTOR 1200
 
-SLAPI BCopySet::BCopySet(const char * pName) : TSCollection <BCopyData> ()
+SLAPI BCopySet::BCopySet(const char * pName) : TSCollection <BCopyData> (), Name(pName)
 {
-	Name = pName;
 }
 
-static IMPL_CMPFUNC(BCopyData_Dt, i1, i2)
-{
-	return cmp(((BCopyData *)i1)->Dtm, ((BCopyData *)i2)->Dtm);
-}
+static IMPL_CMPFUNC(BCopyData_Dt, i1, i2) { return cmp(((BCopyData *)i1)->Dtm, ((BCopyData *)i2)->Dtm); }
 
 static IMPL_CMPFUNC(BCopyData_DtDesc, i1, i2)
 {

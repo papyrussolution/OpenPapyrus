@@ -1449,10 +1449,7 @@ PPALDD_CONSTRUCTOR(LogList)
 	}
 }
 
-PPALDD_DESTRUCTOR(LogList)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(LogList) { Destroy(); }
 
 int PPALDD_LogList::InitData(PPFilt & rFilt, long rsrv)
 {

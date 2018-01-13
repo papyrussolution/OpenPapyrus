@@ -84,7 +84,7 @@ static int ZIPDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s);
 static int ZIPFixupTags(TIFF* tif)
 {
 	(void)tif;
-	return (1);
+	return 1;
 }
 
 static int ZIPSetupDecode(TIFF* tif)
@@ -107,7 +107,7 @@ static int ZIPSetupDecode(TIFF* tif)
 	}
 	else {
 		sp->state |= ZSTATE_INIT_DECODE;
-		return (1);
+		return 1;
 	}
 }
 
@@ -171,7 +171,7 @@ static int ZIPDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 	}
 	tif->tif_rawcp = sp->stream.next_in;
 	tif->tif_rawcc = sp->stream.avail_in;
-	return (1);
+	return 1;
 }
 
 static int ZIPSetupEncode(TIFF* tif)
@@ -189,7 +189,7 @@ static int ZIPSetupEncode(TIFF* tif)
 	}
 	else {
 		sp->state |= ZSTATE_INIT_ENCODE;
-		return (1);
+		return 1;
 	}
 }
 
@@ -244,7 +244,7 @@ static int ZIPEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 			sp->stream.avail_out = (uInt)tif->tif_rawdatasize; // this is a safe typecast, as check is made already in ZIPPreEncode
 		}
 	} while(sp->stream.avail_in > 0);
-	return (1);
+	return 1;
 }
 /*
  * Finish off an encoded strip by flushing the last
@@ -273,7 +273,7 @@ static int ZIPPostEncode(TIFF* tif)
 				return 0;
 		}
 	} while(state != Z_STREAM_END);
-	return (1);
+	return 1;
 }
 
 static void ZIPCleanup(TIFF* tif)
@@ -311,7 +311,7 @@ static int ZIPVSetField(TIFF* tif, uint32 tag, va_list ap)
 				    return 0;
 			    }
 		    }
-		    return (1);
+		    return 1;
 		default:
 		    return (*sp->vsetparent)(tif, tag, ap);
 	}
@@ -328,7 +328,7 @@ static int ZIPVGetField(TIFF* tif, uint32 tag, va_list ap)
 		default:
 		    return (*sp->vgetparent)(tif, tag, ap);
 	}
-	return (1);
+	return 1;
 }
 
 static const TIFFField zipFields[] = {
@@ -343,7 +343,7 @@ int TIFFInitZIP(TIFF* tif, int scheme)
 	/*
 	 * Merge codec-specific tag information.
 	 */
-	if(!_TIFFMergeFields(tif, zipFields, TIFFArrayCount(zipFields))) {
+	if(!_TIFFMergeFields(tif, zipFields, SIZEOFARRAY(zipFields))) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Merging Deflate codec-specific tags failed");
 		return 0;
 	}
@@ -388,7 +388,7 @@ int TIFFInitZIP(TIFF* tif, int scheme)
 	 * Setup predictor setup.
 	 */
 	(void)TIFFPredictorInit(tif);
-	return (1);
+	return 1;
 bad:
 	TIFFErrorExt(tif->tif_clientdata, module, "No space for ZIP state block");
 	return 0;

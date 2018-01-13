@@ -309,10 +309,7 @@ DBQuery * SLAPI PPViewMrpTab::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 //
 //
 //
-int SLAPI ViewMrpTab(const MrpTabFilt * pFilt)
-{
-	return PPView::Execute(PPVIEW_MRPTAB, pFilt, PPView::exefModeless, 0);
-}
+int SLAPI ViewMrpTab(const MrpTabFilt * pFilt) { return PPView::Execute(PPVIEW_MRPTAB, pFilt, PPView::exefModeless, 0); }
 //
 //
 //
@@ -323,10 +320,9 @@ IMPLEMENT_PPFILT_FACTORY(MrpLine); SLAPI MrpLineFilt::MrpLineFilt() : PPBaseFilt
 	Init(1, 0);
 }
 
-SLAPI PPViewMrpLine::PPViewMrpLine() : PPView(0, &Filt, PPVIEW_MRPLINE)
+SLAPI PPViewMrpLine::PPViewMrpLine() : PPView(0, &Filt, PPVIEW_MRPLINE), P_TempOrd(0)
 {
 	//!P_IterQuery = 0;
-	P_TempOrd = 0;
 	DefReportId = REPORT_MRPLINES;
 }
 
@@ -799,10 +795,7 @@ DBQuery * SLAPI PPViewMrpLine::CreateBrowserQuery(uint * pBrwId, SString * pSubT
 //
 //
 //
-int SLAPI ViewMrpLine(const MrpLineFilt * pFilt, PPID tabID)
-{
-	return PPView::Execute(PPVIEW_MRPLINE, pFilt, 1, (void *)tabID);
-}
+int SLAPI ViewMrpLine(const MrpLineFilt * pFilt, PPID tabID) { return PPView::Execute(PPVIEW_MRPLINE, pFilt, 1, (void *)tabID); }
 //
 // Implementation of PPALDD_MrpTab
 //

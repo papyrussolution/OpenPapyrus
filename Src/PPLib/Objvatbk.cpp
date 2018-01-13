@@ -332,10 +332,7 @@ const VATBCfg & FASTCALL PPObjVATBook::GetConfig(PPID kind) const
 	}
 }
 
-int SLAPI PPObjVATBook::Browse(void * extraPtr)
-{
-	return PPView::Execute(PPVIEW_VATBOOK, 0, PPView::exefModeless, 0);
-}
+int SLAPI PPObjVATBook::Browse(void * extraPtr) { return PPView::Execute(PPVIEW_VATBOOK, 0, PPView::exefModeless, 0); }
 //
 // @VATBookDialog {
 //
@@ -2566,10 +2563,7 @@ PPALDD_CONSTRUCTOR(VatBook)
 	}
 }
 
-PPALDD_DESTRUCTOR(VatBook)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(VatBook) { Destroy(); }
 
 int PPALDD_VatBook::InitData(PPFilt & rFilt, long rsrv)
 {

@@ -33,11 +33,11 @@
 #pragma hdrstop
 
 #ifdef HAVE_IEEEFP
-#define TIFFCvtNativeToIEEEFloat(tif, n, fp)
-#define TIFFCvtNativeToIEEEDouble(tif, n, dp)
+	#define TIFFCvtNativeToIEEEFloat(tif, n, fp)
+	#define TIFFCvtNativeToIEEEDouble(tif, n, dp)
 #else
-extern void TIFFCvtNativeToIEEEFloat(TIFF* tif, uint32 n, float* fp);
-extern void TIFFCvtNativeToIEEEDouble(TIFF* tif, uint32 n, double* dp);
+	extern void TIFFCvtNativeToIEEEFloat(TIFF* tif, uint32 n, float* fp);
+	extern void TIFFCvtNativeToIEEEDouble(TIFF* tif, uint32 n, double* dp);
 #endif
 
 static int TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone, uint64* pdiroff);
@@ -167,16 +167,7 @@ static int TIFFWriteDirectoryTagCheckedDouble(TIFF* tif, uint32* ndir, TIFFDirEn
 static int TIFFWriteDirectoryTagCheckedDoubleArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, double* value);
 static int TIFFWriteDirectoryTagCheckedIfdArray(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint32* value);
 static int TIFFWriteDirectoryTagCheckedIfd8Array(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint32 count, uint64* value);
-
-static int TIFFWriteDirectoryTagData(TIFF* tif,
-    uint32* ndir,
-    TIFFDirEntry* dir,
-    uint16 tag,
-    uint16 datatype,
-    uint32 count,
-    uint32 datalength,
-    void* data);
-
+static int FASTCALL TIFFWriteDirectoryTagData(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint16 datatype, uint32 count, uint32 datalength, void* data);
 static int TIFFLinkDirectory(TIFF*);
 /*
  * Write the contents of the current directory
@@ -332,7 +323,7 @@ static int TIFFWriteDirectorySec(TIFF* tif, int isimage, int imagedone, uint64* 
 	void* dirmem;
 	uint32 m;
 	if(tif->tif_mode == O_RDONLY)
-		return (1);
+		return 1;
 	_TIFFFillStriles(tif);
 	/*
 	 * Clear write state so that subsequent images with
@@ -2100,7 +2091,7 @@ static int TIFFWriteDirectoryTagCheckedIfd8Array(TIFF* tif, uint32* ndir, TIFFDi
 	return(TIFFWriteDirectoryTagData(tif, ndir, dir, tag, TIFF_IFD8, count, count*8, value));
 }
 
-static int TIFFWriteDirectoryTagData(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint16 datatype, uint32 count, uint32 datalength, void* data)
+static int FASTCALL TIFFWriteDirectoryTagData(TIFF* tif, uint32* ndir, TIFFDirEntry* dir, uint16 tag, uint16 datatype, uint32 count, uint32 datalength, void* data)
 {
 	static const char module[] = "TIFFWriteDirectoryTagData";
 	uint32 m = 0;
@@ -2185,7 +2176,7 @@ static int TIFFLinkDirectory(TIFF* tif)
 				tif->tif_subifdoff += 4;
 			else
 				tif->tif_flags &= ~TIFF_INSUBIFD;
-			return (1);
+			return 1;
 		}
 		else {
 			uint64 m = tif->tif_diroff;
@@ -2205,7 +2196,7 @@ static int TIFFLinkDirectory(TIFF* tif)
 				tif->tif_subifdoff += 8;
 			else
 				tif->tif_flags &= ~TIFF_INSUBIFD;
-			return (1);
+			return 1;
 		}
 	}
 	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
@@ -2223,7 +2214,7 @@ static int TIFFLinkDirectory(TIFF* tif)
 				TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Error writing TIFF header");
 				return 0;
 			}
-			return (1);
+			return 1;
 		}
 		/*
 		 * Not the first directory, search to the last and append.
@@ -2271,7 +2262,7 @@ static int TIFFLinkDirectory(TIFF* tif)
 				TIFFErrorExt(tif->tif_clientdata, tif->tif_name, "Error writing TIFF header");
 				return 0;
 			}
-			return (1);
+			return 1;
 		}
 		/*
 		 * Not the first directory, search to the last and append.
@@ -2310,7 +2301,7 @@ static int TIFFLinkDirectory(TIFF* tif)
 			nextdir = nextnextdir;
 		}
 	}
-	return (1);
+	return 1;
 }
 
 /************************************************************************/

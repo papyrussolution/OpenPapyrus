@@ -2818,7 +2818,7 @@ int ssl3_check_cert_and_algorithm(SSL * s)
 
 	/* we don't have a certificate */
 	if((alg_a & SSL_aNULL) || (alg_k & SSL_kPSK))
-		return (1);
+		return 1;
 
 	/* This is the passed certificate */
 
@@ -2872,7 +2872,7 @@ int ssl3_check_cert_and_algorithm(SSL * s)
 	}
 #endif
 
-	return (1);
+	return 1;
 f_err:
 	ssl3_send_alert(s, SSL3_AL_FATAL, al);
 	return 0;

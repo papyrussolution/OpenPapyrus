@@ -125,7 +125,7 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_SETFOCUS:
 		case WM_KILLFOCUS:
 			if(p_view->IsInState(sfMsgToParent))
-				DialogProc(GetParent(hWnd), uMsg, wParam, (long)hWnd);
+				TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, (long)hWnd);
 			break;
 		case WM_ERASEBKGND:
 			/*
@@ -433,7 +433,7 @@ LRESULT CALLBACK TInputLine::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 		case WM_SETFOCUS:
 		case WM_KILLFOCUS:
 			if(p_view->IsInState(sfMsgToParent))
-				DialogProc(GetParent(hWnd), uMsg, wParam, (long)hWnd);
+				TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, (long)hWnd);
 			if(oneof2(APPL->UICfg.WindowViewStyle, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector))
 				SetWindowPos(hWnd, 0, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE|SWP_FRAMECHANGED|SWP_DRAWFRAME);
 			break;
@@ -1015,7 +1015,7 @@ static BOOL CALLBACK ClusterDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			break;
 		case WM_SETFOCUS:
 		case WM_KILLFOCUS:
-			DialogProc(GetParent(hWnd), uMsg, wParam, (long)hWnd);
+			TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, (long)hWnd);
 			break;
 		case WM_NCPAINT:
 		case BM_SETCHECK:
@@ -1356,14 +1356,10 @@ void TCluster::deleteItem(int item)
 	size.y = Strings.getCount();
 }
 
-int TCluster::disableItem(int item, int disable)
+void TCluster::disableItem(int item, int disable)
 {
-	if(!disable)
-		DisableMask &= ~(1<<item);
-	else
-		DisableMask |= (1<<item);
+	SETFLAG(DisableMask, (1<<item), disable);
 	EnableWindow(GetDlgItem(Parent, MAKE_BUTTON_ID(Id, item+1)), disable == 0);
-	return 1;
 }
 
 int TCluster::getText(int pos, char * buf, uint bufLen)
@@ -1572,11 +1568,6 @@ int ComboBox::setListWindow(ListWindow * pListWin, long dataVal)
 	int    r = setListWindow(pListWin);
 	TransmitData(+1, &dataVal);
 	return r;
-}
-
-ListWindow * ComboBox::getListWindow() const
-{
-	return P_ListWin;
 }
 
 // static
@@ -1956,7 +1947,7 @@ LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 			return 0;
 		case WM_SETFOCUS:
 		case WM_KILLFOCUS:
-			DialogProc(GetParent(hWnd), uMsg, wParam, (long)hWnd);
+			TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, (long)hWnd);
 			break;
 	}
 	return CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam);

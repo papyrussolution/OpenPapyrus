@@ -34,7 +34,7 @@
 static int DumpFixupTags(TIFF* tif)
 {
 	(void)tif;
-	return (1);
+	return 1;
 }
 
 /*
@@ -66,7 +66,7 @@ static int DumpModeEncode(TIFF* tif, uint8* pp, tmsize_t cc, uint16 s)
 		    !TIFFFlushData1(tif))
 			return 0;
 	}
-	return (1);
+	return 1;
 }
 
 /*
@@ -94,7 +94,7 @@ static int DumpModeDecode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 		memcpy(buf, tif->tif_rawcp, cc);
 	tif->tif_rawcp += cc;
 	tif->tif_rawcc -= cc;
-	return (1);
+	return 1;
 }
 
 /*
@@ -104,7 +104,7 @@ static int DumpModeSeek(TIFF* tif, uint32 nrows)
 {
 	tif->tif_rawcp += nrows * tif->tif_scanlinesize;
 	tif->tif_rawcc -= nrows * tif->tif_scanlinesize;
-	return (1);
+	return 1;
 }
 
 /*
@@ -121,7 +121,7 @@ int TIFFInitDumpMode(TIFF* tif, int scheme)
 	tif->tif_encodestrip = DumpModeEncode;
 	tif->tif_encodetile = DumpModeEncode;
 	tif->tif_seek = DumpModeSeek;
-	return (1);
+	return 1;
 }
 
 /*

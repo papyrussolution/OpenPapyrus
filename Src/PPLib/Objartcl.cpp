@@ -2585,10 +2585,7 @@ PPALDD_CONSTRUCTOR(DebtDim)
 	InitFixData(rscDefHdr, &H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(DebtDim)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(DebtDim) { Destroy(); }
 
 int PPALDD_DebtDim::InitData(PPFilt & rFilt, long rsrv)
 {

@@ -584,10 +584,7 @@ int DebtLimListDialog::delItem(long pos, long id)
 	return ok;
 }
 
-int SLAPI EditDebtLimList(PPClientAgreement & rCliAgt)
-{
-	DIALOG_PROC_BODY(DebtLimListDialog, &rCliAgt.DebtLimList);
-}
+int SLAPI EditDebtLimList(PPClientAgreement & rCliAgt) { DIALOG_PROC_BODY(DebtLimListDialog, &rCliAgt.DebtLimList); }
 
 int SLAPI SetupPaymDateBaseCombo(TDialog * pDlg, uint ctlID, long initVal)
 {
@@ -2000,10 +1997,7 @@ int SupplAgtDialog::getDTS(PPSupplAgreement * pAgt)
 }
 
 // static
-int SLAPI PPObjArticle::EditSupplAgreement(PPSupplAgreement * pAgt)
-{
-	DIALOG_PROC_BODY_P1(SupplAgtDialog, pAgt ? pAgt->SupplID : 0, pAgt);
-}
+int SLAPI PPObjArticle::EditSupplAgreement(PPSupplAgreement * pAgt) { DIALOG_PROC_BODY_P1(SupplAgtDialog, pAgt ? pAgt->SupplID : 0, pAgt); }
 
 // static
 int SLAPI PPObjArticle::DefaultSupplAgreement()

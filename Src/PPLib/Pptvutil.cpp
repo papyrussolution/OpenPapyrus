@@ -3726,7 +3726,7 @@ void PersonCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(event.isKeyDown(kbF2)) {
 		ComboBox * p_combo = (ComboBox *)pDlg->getCtrlView(Ctlsel);
-		if(p_combo && pDlg->IsCurrCtl(p_combo->link())) {
+		if(p_combo && pDlg->IsCurrentView(p_combo->link())) {
 			SelectByCode(pDlg);
 			pDlg->clearEvent(event);
 		}
@@ -4051,7 +4051,7 @@ void PersonListCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 	}
 	else if(event.isKeyDown(kbF2)) {
 		ComboBox * p_combo = (ComboBox *)pDlg->getCtrlView(Ctlsel);
-		if(p_combo && pDlg->IsCurrCtl(p_combo->link())) {
+		if(p_combo && pDlg->IsCurrentView(p_combo->link())) {
 			SelectByCode(pDlg);
 			pDlg->clearEvent(event);
 		}

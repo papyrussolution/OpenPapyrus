@@ -1950,10 +1950,7 @@ void SLAPI TaggedStringArray::SortByID()
 	SArray::sort(CMPF_LONG);
 }
 
-IMPL_CMPFUNC(TaggedStringByName, i1, i2)
-{
-	return stricmp866(((char*)i1)+sizeof(long), ((char*)i2)+sizeof(long));
-}
+IMPL_CMPFUNC(TaggedStringByName, i1, i2) { return stricmp866(((char*)i1)+sizeof(long), ((char*)i2)+sizeof(long)); }
 
 void SLAPI TaggedStringArray::SortByText()
 {
@@ -2667,10 +2664,7 @@ int SLAPI StrAssocArray::Helper_CmpFunc_StrAssocByText(const LAssoc * p1, const 
 	}
 }
 
-IMPL_CMPFUNC(StrAssoc_ByText, i1, i2)
-{
-	return StrAssocArray::Helper_CmpFunc_StrAssocByText((LAssoc *)i1, (LAssoc *)i2, (StrAssocArray *)pExtraData, 0);
-}
+IMPL_CMPFUNC(StrAssoc_ByText, i1, i2) { return StrAssocArray::Helper_CmpFunc_StrAssocByText((LAssoc *)i1, (LAssoc *)i2, (StrAssocArray *)pExtraData, 0); }
 
 int SLAPI Helper_CmpFunc_StrAssocByID(long id1, long id2, StrAssocArray * pArray, LAssocArray * pRecurTracer)
 {
@@ -2694,10 +2688,7 @@ int SLAPI Helper_CmpFunc_StrAssocByID(long id1, long id2, StrAssocArray * pArray
 	}
 }
 
-IMPL_CMPFUNC(StrAssoc_ByID, i1, i2)
-{
-	return Helper_CmpFunc_StrAssocByID(*(long *)i1, *(long *)i2, (StrAssocArray *)pExtraData, 0);
-}
+IMPL_CMPFUNC(StrAssoc_ByID, i1, i2) { return Helper_CmpFunc_StrAssocByID(*(long *)i1, *(long *)i2, (StrAssocArray *)pExtraData, 0); }
 
 #if 0 // {
 

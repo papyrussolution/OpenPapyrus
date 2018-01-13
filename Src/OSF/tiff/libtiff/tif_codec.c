@@ -119,7 +119,7 @@ static int NotConfigured(TIFF* tif, int scheme)
 	tif->tif_setupdecode = _notConfigured;
 	tif->tif_encodestatus = FALSE;
 	tif->tif_setupencode = _notConfigured;
-	return (1);
+	return 1;
 }
 // 
 // TIFFIsCODECConfigured()

@@ -246,7 +246,7 @@ static int LogL16Decode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 	(*sp->tfunc)(sp, op, npixels);
 	tif->tif_rawcp = (uint8*)bp;
 	tif->tif_rawcc = cc;
-	return (1);
+	return 1;
 }
 
 /*
@@ -302,7 +302,7 @@ static int LogLuvDecode24(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 		return 0;
 	}
 	(*sp->tfunc)(sp, op, npixels);
-	return (1);
+	return 1;
 }
 
 /*
@@ -379,7 +379,7 @@ static int LogLuvDecode32(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 	(*sp->tfunc)(sp, op, npixels);
 	tif->tif_rawcp = (uint8*)bp;
 	tif->tif_rawcc = cc;
-	return (1);
+	return 1;
 }
 
 /*
@@ -517,7 +517,7 @@ static int LogL16Encode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	tif->tif_rawcp = op;
 	tif->tif_rawcc = tif->tif_rawdatasize - occ;
 
-	return (1);
+	return 1;
 }
 
 /*
@@ -568,7 +568,7 @@ static int LogLuvEncode24(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	tif->tif_rawcp = op;
 	tif->tif_rawcc = tif->tif_rawdatasize - occ;
 
-	return (1);
+	return 1;
 }
 
 /*
@@ -667,7 +667,7 @@ static int LogLuvEncode32(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	tif->tif_rawcp = op;
 	tif->tif_rawcc = tif->tif_rawdatasize - occ;
 
-	return (1);
+	return 1;
 }
 
 /*
@@ -1251,7 +1251,7 @@ static int LogL16InitState(TIFF* tif)
 		TIFFErrorExt(tif->tif_clientdata, module, "No space for SGILog translation buffer");
 		return 0;
 	}
-	return (1);
+	return 1;
 }
 
 static int LogLuvGuessDataFmt(TIFFDirectory * td)
@@ -1325,13 +1325,13 @@ static int LogLuvInitState(TIFF* tif)
 		TIFFErrorExt(tif->tif_clientdata, module, "No space for SGILog translation buffer");
 		return 0;
 	}
-	return (1);
+	return 1;
 }
 
 static int LogLuvFixupTags(TIFF* tif)
 {
 	(void)tif;
-	return (1);
+	return 1;
 }
 
 static int LogLuvSetupDecode(TIFF* tif)
@@ -1360,7 +1360,7 @@ static int LogLuvSetupDecode(TIFF* tif)
 				    case SGILOGDATAFMT_8BIT: sp->tfunc = Luv32toRGB; break;
 			    }
 		    }
-		    return (1);
+		    return 1;
 		case PHOTOMETRIC_LOGL:
 		    if(!LogL16InitState(tif))
 			    break;
@@ -1369,7 +1369,7 @@ static int LogLuvSetupDecode(TIFF* tif)
 			    case SGILOGDATAFMT_FLOAT: sp->tfunc = L16toY; break;
 			    case SGILOGDATAFMT_8BIT: sp->tfunc = L16toGry; break;
 		    }
-		    return (1);
+		    return 1;
 		default:
 		    TIFFErrorExt(tif->tif_clientdata, module, "Inappropriate photometric interpretation %d for SGILog compression; %s", td->td_photometric, "must be either LogLUV or LogL");
 		    break;
@@ -1422,7 +1422,7 @@ static int LogLuvSetupEncode(TIFF* tif)
 		    break;
 	}
 	sp->encoder_state = 1;
-	return (1);
+	return 1;
 notsupported:
 	TIFFErrorExt(tif->tif_clientdata, module, "SGILog compression supported only for %s, or raw data",
 	    td->td_photometric == PHOTOMETRIC_LOGL ? "Y, L" : "XYZ, Luv");
@@ -1492,14 +1492,14 @@ static int LogLuvVSetField(TIFF* tif, uint32 tag, va_list ap)
 		     */
 		    tif->tif_tilesize = isTiled(tif) ? TIFFTileSize(tif) : (tmsize_t)-1;
 		    tif->tif_scanlinesize = TIFFScanlineSize(tif);
-		    return (1);
+		    return 1;
 		case TIFFTAG_SGILOGENCODE:
 		    sp->encode_meth = (int)va_arg(ap, int);
 		    if(sp->encode_meth != SGILOGENCODE_NODITHER && sp->encode_meth != SGILOGENCODE_RANDITHER) {
 			    TIFFErrorExt(tif->tif_clientdata, module, "Unknown encoding %d for LogLuv compression", sp->encode_meth);
 			    return 0;
 		    }
-		    return (1);
+		    return 1;
 		default:
 		    return (*sp->vsetparent)(tif, tag, ap);
 	}
@@ -1511,17 +1511,15 @@ static int LogLuvVGetField(TIFF* tif, uint32 tag, va_list ap)
 	switch(tag) {
 		case TIFFTAG_SGILOGDATAFMT:
 		    *va_arg(ap, int*) = sp->user_datafmt;
-		    return (1);
+		    return 1;
 		default:
 		    return (*sp->vgetparent)(tif, tag, ap);
 	}
 }
 
 static const TIFFField LogLuvFields[] = {
-	{ TIFFTAG_SGILOGDATAFMT, 0, 0, TIFF_SHORT, 0, TIFF_SETGET_INT, TIFF_SETGET_UNDEFINED, FIELD_PSEUDO, TRUE, FALSE, "SGILogDataFmt",
-	  NULL},
-	{ TIFFTAG_SGILOGENCODE, 0, 0, TIFF_SHORT, 0, TIFF_SETGET_INT, TIFF_SETGET_UNDEFINED, FIELD_PSEUDO, TRUE, FALSE, "SGILogEncode",
-	  NULL}
+	{ TIFFTAG_SGILOGDATAFMT, 0, 0, TIFF_SHORT, 0, TIFF_SETGET_INT, TIFF_SETGET_UNDEFINED, FIELD_PSEUDO, TRUE, FALSE, "SGILogDataFmt", NULL},
+	{ TIFFTAG_SGILOGENCODE, 0, 0, TIFF_SHORT, 0, TIFF_SETGET_INT, TIFF_SETGET_UNDEFINED, FIELD_PSEUDO, TRUE, FALSE, "SGILogEncode", NULL}
 };
 
 int TIFFInitSGILog(TIFF* tif, int scheme)
@@ -1532,7 +1530,7 @@ int TIFFInitSGILog(TIFF* tif, int scheme)
 	/*
 	 * Merge codec-specific tag information.
 	 */
-	if(!_TIFFMergeFields(tif, LogLuvFields, TIFFArrayCount(LogLuvFields))) {
+	if(!_TIFFMergeFields(tif, LogLuvFields, SIZEOFARRAY(LogLuvFields))) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Merging SGILog codec-specific tags failed");
 		return 0;
 	}
@@ -1568,7 +1566,7 @@ int TIFFInitSGILog(TIFF* tif, int scheme)
 	tif->tif_tagmethods.vgetfield = LogLuvVGetField;   /* hook for codec tags */
 	sp->vsetparent = tif->tif_tagmethods.vsetfield;
 	tif->tif_tagmethods.vsetfield = LogLuvVSetField;   /* hook for codec tags */
-	return (1);
+	return 1;
 bad:
 	TIFFErrorExt(tif->tif_clientdata, module, "%s: No space for LogLuv state block", tif->tif_name);
 	return 0;

@@ -140,7 +140,7 @@ static int JBIGCopyEncodedData(TIFF* tif, unsigned char* pp, size_t cc, uint16 s
 		}
 	}
 
-	return (1);
+	return 1;
 }
 
 static void JBIGOutputBie(unsigned char* buffer, size_t len, void* userData)

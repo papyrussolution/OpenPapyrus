@@ -995,7 +995,7 @@ IMPL_HANDLE_EVENT(GoodsListDialog)
 		updateList();
 		selectCtrl(CTL_GDSLST_LIST); // @v9.1.1
 	}
-	else if(event.isCmd(cmaInsert) && IsCurrCtl(P_List)) {
+	else if(event.isCmd(cmaInsert) && IsCurrentView(P_List)) {
 		PPID   c = 0L;
 		PPID   grp_id = getCtrlLong(CTLSEL_GDSLST_GGRP);
 		if(GObj.Edit(&c, (void *)grp_id) == cmOK)
@@ -1013,7 +1013,7 @@ IMPL_HANDLE_EVENT(GoodsListDialog)
 			}
 		}
 	}
-	else if(event.isKeyDown(KB_CTRLENTER) && IsCurrCtl(P_List)) {
+	else if(event.isKeyDown(KB_CTRLENTER) && IsCurrentView(P_List)) {
 		PPID c = getSelectedItem();
 		if(c && GObj.Edit(&c, 0L) == cmOK)
 			updateList();

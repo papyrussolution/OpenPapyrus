@@ -45,14 +45,14 @@ static int PackBitsPreEncode(TIFF* tif, uint16 s)
 		*(tmsize_t*)tif->tif_data = TIFFTileRowSize(tif);
 	else
 		*(tmsize_t*)tif->tif_data = TIFFScanlineSize(tif);
-	return (1);
+	return 1;
 }
 
 static int PackBitsPostEncode(TIFF* tif)
 {
 	if(tif->tif_data)
 		SAlloc::F(tif->tif_data);
-	return (1);
+	return 1;
 }
 
 /*
@@ -183,7 +183,7 @@ again:
 	}
 	tif->tif_rawcc += (tmsize_t)(op - tif->tif_rawcp);
 	tif->tif_rawcp = op;
-	return (1);
+	return 1;
 }
 
 /*
@@ -208,7 +208,7 @@ static int PackBitsEncodeChunk(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 		bp += chunk;
 		cc -= chunk;
 	}
-	return (1);
+	return 1;
 }
 
 static int PackBitsDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
@@ -277,7 +277,7 @@ static int PackBitsDecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s)
 		    (unsigned long)tif->tif_row);
 		return 0;
 	}
-	return (1);
+	return 1;
 }
 
 int TIFFInitPackBits(TIFF* tif, int scheme)
@@ -291,7 +291,7 @@ int TIFFInitPackBits(TIFF* tif, int scheme)
 	tif->tif_encoderow = PackBitsEncode;
 	tif->tif_encodestrip = PackBitsEncodeChunk;
 	tif->tif_encodetile = PackBitsEncodeChunk;
-	return (1);
+	return 1;
 }
 
 #endif /* PACKBITS_SUPPORT */

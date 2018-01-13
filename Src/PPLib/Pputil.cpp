@@ -20,10 +20,7 @@ int FASTCALL dbl_cmp(double v1, double v2)
 		return 0;
 }
 
-IMPL_CMPFUNC(PPLBItem, i1, i2)
-{
-	return stricmp866(((char*)i1)+sizeof(long), ((char*)i2)+sizeof(long));
-}
+IMPL_CMPFUNC(PPLBItem, i1, i2) { return stricmp866(((char*)i1)+sizeof(long), ((char*)i2)+sizeof(long)); }
 
 IMPL_CMPFUNC(PPTLBItem, i1, i2)
 {

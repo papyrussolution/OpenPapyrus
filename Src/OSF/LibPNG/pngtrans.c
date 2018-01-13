@@ -92,7 +92,7 @@ int PNGAPI png_set_interlace_handling(png_structrp png_ptr)
 		png_ptr->transformations |= PNG_INTERLACE;
 		return (7);
 	}
-	return (1);
+	return 1;
 }
 
 #endif

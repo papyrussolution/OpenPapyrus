@@ -77,7 +77,7 @@ int TIFFFlush(TIFF* tif)
 	    && !TIFFRewriteDirectory(tif))
 		return 0;
 
-	return (1);
+	return 1;
 }
 
 /*
@@ -92,7 +92,7 @@ int TIFFFlush(TIFF* tif)
 int TIFFFlushData(TIFF* tif)
 {
 	if((tif->tif_flags & TIFF_BEENWRITING) == 0)
-		return (1);
+		return 1;
 	if(tif->tif_flags & TIFF_POSTENCODE) {
 		tif->tif_flags &= ~TIFF_POSTENCODE;
 		if(!(*tif->tif_postencode)(tif))

@@ -38,17 +38,18 @@ PPBaseFilt * PPViewPrcBusy::CreateFilt(void * extraPtr) const
 //
 //
 //
-#define GRP_PRC 1
-
 class PrcBusyFiltDialog : public TDialog {
 public:
+	enum {
+		ctlgroupPrc = 1
+	};
 	PrcBusyFiltDialog() : TDialog(DLG_PRCBUSYFLT)
 	{
 		SetupCalDate(CTLCAL_PRCBUSYFLT_STDT, CTL_PRCBUSYFLT_STDT);
-		SetupTimePicker(this, CTL_PRCBUSYFLT_STTM, CTLTM_PRCBUSYFLT_STTM); // @v6.8.2
+		SetupTimePicker(this, CTL_PRCBUSYFLT_STTM, CTLTM_PRCBUSYFLT_STTM);
 		SetupCalDate(CTLCAL_PRCBUSYFLT_FNDT, CTL_PRCBUSYFLT_FNDT);
-		SetupTimePicker(this, CTL_PRCBUSYFLT_FNTM, CTLTM_PRCBUSYFLT_FNTM); // @v6.8.2
-		addGroup(GRP_PRC, new PrcCtrlGroup(CTLSEL_PRCBUSYFLT_PRC));
+		SetupTimePicker(this, CTL_PRCBUSYFLT_FNTM, CTLTM_PRCBUSYFLT_FNTM);
+		addGroup(ctlgroupPrc, new PrcCtrlGroup(CTLSEL_PRCBUSYFLT_PRC));
 	}
 	int    setDTS(const PrcBusyFilt *);
 	int    getDTS(PrcBusyFilt *);
@@ -61,7 +62,7 @@ int PrcBusyFiltDialog::setDTS(const PrcBusyFilt * pData)
 	int    ok = 1;
 	Data = *pData;
 	PrcCtrlGroup::Rec prc_grp_rec(Data.PrcID);
-	setGroupData(GRP_PRC, &prc_grp_rec);
+	setGroupData(ctlgroupPrc, &prc_grp_rec);
 	setCtrlData(CTL_PRCBUSYFLT_STDT, &Data.Period.Start.d);
 	setCtrlData(CTL_PRCBUSYFLT_STTM, &Data.Period.Start.t);
 	if(Data.Period.Finish.IsFar())
@@ -70,7 +71,7 @@ int PrcBusyFiltDialog::setDTS(const PrcBusyFilt * pData)
 	setCtrlData(CTL_PRCBUSYFLT_FNTM,   &Data.Period.Finish.t);
 	setCtrlData(CTL_PRCBUSYFLT_MINDUR, &Data.MinDuration);
 	AddClusterAssoc(CTL_PRCBUSYFLT_FLAGS, 0, PrcBusyFilt::fFree);
-	AddClusterAssoc(CTL_PRCBUSYFLT_FLAGS, 1, PrcBusyFilt::fShowTimeGraph); // @v6.7.11
+	AddClusterAssoc(CTL_PRCBUSYFLT_FLAGS, 1, PrcBusyFilt::fShowTimeGraph);
 	SetClusterData(CTL_PRCBUSYFLT_FLAGS, Data.Flags);
 	return ok;
 }
@@ -80,7 +81,7 @@ int PrcBusyFiltDialog::getDTS(PrcBusyFilt * pData)
 	int    ok = 1;
 	uint   sel = 0;
 	PrcCtrlGroup::Rec prc_grp_rec;
-	getGroupData(GRP_PRC, &prc_grp_rec);
+	getGroupData(ctlgroupPrc, &prc_grp_rec);
 	Data.PrcID = prc_grp_rec.PrcID;
 	getCtrlData(CTL_PRCBUSYFLT_STDT, &Data.Period.Start.d);
 	getCtrlData(CTL_PRCBUSYFLT_STTM, &Data.Period.Start.t);
@@ -231,7 +232,7 @@ int SLAPI PPViewPrcBusy::Update(const PPIDArray & rPrcList)
 		for(uint i = 0; i < rPrcList.getCount(); i++) {
 			const PPID prc_id = rPrcList.at(i);
 			if(prc_obj.Fetch(prc_id, &prc_rec) > 0 && prc_rec.Kind == PPPRCK_PROCESSOR && !(prc_rec.Flags & PRCF_PASSIVE)) {
-				PPWaitMsg(prc_rec.Name); // @v7.0.6
+				PPWaitMsg(prc_rec.Name);
 				THROW(ProcessPrc(prc_id, &bei));
 			}
 		}
@@ -251,8 +252,8 @@ int SLAPI PPViewPrcBusy::Init_(const PPBaseFilt * pFilt)
 	PPObjProcessor prc_obj;
 	ProcessorTbl::Rec prc_rec;
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Start.d = Filt.Period.Start.d.getactual(ZERODATE);   // @v6.9.4
-	Filt.Period.Finish.d = Filt.Period.Finish.d.getactual(ZERODATE); // @v6.9.4
+	Filt.Period.Start.d = Filt.Period.Start.d.getactual(ZERODATE);
+	Filt.Period.Finish.d = Filt.Period.Finish.d.getactual(ZERODATE);
 	if(!Filt.Period.Finish.d) {
 		LDATE cur = getcurdate_();
 		Filt.Period.Finish.d = plusdate(MAX(cur, Filt.Period.Start.d), 30);
@@ -817,22 +818,24 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 					if(prc_rec.Flags & PRCF_ALLOWCIP) {
 						PPCheckInPersonArray cip_list;
 						cip_mgr.GetList(PPCheckInPersonItem::kTSession, id, cip_list);
-						uint   reg_count = 0, ci_count = 0, canceled_count = 0;
-						cip_list.Count(&reg_count, &ci_count, &canceled_count);
-						if(reg_count) {
+						//uint   reg_count = 0, ci_count = 0, canceled_count = 0;
+						PPCheckInPersonItem::Total rcount;
+						cip_list.Count(rcount);
+						if(rcount.RegCount) {
 							PPLoadString("registered", temp_buf);
 							rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf).CatDiv(':', 2);
-							temp_buf.Z().Cat((long)reg_count);
-							if(ci_count || canceled_count)
-								temp_buf.CatChar('/').Cat((long)ci_count);
-								if(canceled_count)
-									temp_buf.CatChar('/').Cat((long)canceled_count);
+							temp_buf.Z().Cat((long)rcount.RegCount);
+							if(rcount.CiCount || rcount.CalceledCount) {
+								temp_buf.CatChar('/').Cat((long)rcount.CiCount);
+								if(rcount.CalceledCount)
+									temp_buf.CatChar('/').Cat((long)rcount.CalceledCount);
+							}
 							rBuf.Cat(temp_buf);
 						}
 					}
 				}
 			}
-			if(ses_rec.Memo[0] != 0)
+			if(ses_rec.Memo[0])
 				rBuf.CatDivIfNotEmpty('\n', 0).Cat(ses_rec.Memo);
 			ok = 1;
 		}
@@ -872,7 +875,6 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 					temp_buf.Z();
 				if(temp_buf.NotEmptyS()) {
 					rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf);
-
 					const PPID psn_id = ObjectToPerson(ar_rec.ID, 0);
 					if(psn_id) {
 						PPELinkArray elnk_list;
@@ -886,16 +888,18 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 				if(prc_rec.Flags & PRCF_ALLOWCIP) {
 					PPCheckInPersonArray cip_list;
 					cip_mgr.GetList(PPCheckInPersonItem::kTSession, id, cip_list);
-					uint   reg_count = 0, ci_count = 0, canceled_count = 0;
-					cip_list.Count(&reg_count, &ci_count, &canceled_count);
-					if(reg_count) {
+					//uint   reg_count = 0, ci_count = 0, canceled_count = 0;
+					PPCheckInPersonItem::Total rcount;
+					cip_list.Count(rcount);
+					if(rcount.RegCount) {
 						PPLoadString("registered", temp_buf);
 						rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf).CatDiv(':', 2);
-						temp_buf.Z().Cat((long)reg_count);
-						if(ci_count || canceled_count)
-							temp_buf.CatChar('/').Cat((long)ci_count);
-							if(canceled_count)
-								temp_buf.CatChar('/').Cat((long)canceled_count);
+						temp_buf.Z().Cat((long)rcount.RegCount);
+						if(rcount.CiCount || rcount.CalceledCount) {
+							temp_buf.CatChar('/').Cat((long)rcount.CiCount);
+							if(rcount.CalceledCount)
+								temp_buf.CatChar('/').Cat((long)rcount.CalceledCount);
+						}
 						rBuf.Cat(temp_buf);
 					}
 				}
@@ -943,8 +947,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::Edit(int item, long rowID, const LDATET
 		ok = P_View->EditTimeGridItem(pID, rowID, rTm);
 	}
 	else if(item == iRow) {
-		LDATETIME dtm_zero;
-		dtm_zero.SetZero();
+		LDATETIME dtm_zero = ZERODATETIME;
 		PPID   id_zero = 0;
 		ok = P_View->EditTimeGridItem(&id_zero, rowID, dtm_zero);
 	}
@@ -954,13 +957,12 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::Edit(int item, long rowID, const LDATET
 int PPViewPrcBusy::PrcBusyTimeChunkGrid::MoveChunk(int mode, long id, long rowId, const STimeChunk & rNewChunk)
 {
 	int    ok = -1;
-	if(mode == mmCanResizeLeft || mode == mmCanResizeRight)
+	if(oneof2(mode, mmCanResizeLeft, mmCanResizeRight))
 		ok = 1;
 	else if(mode == mmCanMove)
 		ok = 1;
-	else if(mode == mmCommit) {
+	else if(mode == mmCommit)
 		ok = P_View->UpdateTimeGridItem(id, rowId, rNewChunk);
-	}
 	return ok;
 }
 
@@ -1050,8 +1052,8 @@ int SLAPI PPViewPrcBusy::TimeChunkBrowser()
 	p_brw->SetData(&Grid, 0);
 	p_brw->SetResID(((PPApp *)APPL)->LastCmd);
 	{
-		SString title_buf, temp_buf;
-		title_buf = GetDescr();
+		SString temp_buf;
+		SString title_buf = GetDescr();
 		if(Filt.PrcID) {
 			ProcessorTbl::Rec prc_rec;
 			if(TSesObj.GetPrc(Filt.PrcID, &prc_rec, 0, 1) > 0) {

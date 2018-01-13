@@ -558,10 +558,7 @@ int SLAPI ViewGoodsToLocAssoc(PPID locID, PPID asscType, const LocationFilt * pL
 	return PPView::Execute(PPVIEW_GOODSTOOBJASSOC, &flt, 1, 0);
 }
 
-int SLAPI ViewGoodsToObjAssoc(long extraParam)
-{
-	return PPView::Execute(PPVIEW_GOODSTOOBJASSOC, 0, 1, (void *)extraParam);
-}
+int SLAPI ViewGoodsToObjAssoc(long extraParam) { return PPView::Execute(PPVIEW_GOODSTOOBJASSOC, 0, 1, (void *)extraParam); }
 //
 //
 //

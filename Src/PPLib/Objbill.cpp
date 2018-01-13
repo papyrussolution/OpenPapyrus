@@ -2883,10 +2883,7 @@ private:
 	PPBillConfig Data;
 };
 
-static int EditBillCfgAddendum(PPBillConfig * pData)
-{
-	DIALOG_PROC_BODY(BillConfigAddednumDialog, pData);
-}
+static int EditBillCfgAddendum(PPBillConfig * pData) { DIALOG_PROC_BODY(BillConfigAddednumDialog, pData); }
 
 // static
 int SLAPI PPObjBill::EditConfig()

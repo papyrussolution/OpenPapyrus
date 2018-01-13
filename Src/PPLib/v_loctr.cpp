@@ -322,10 +322,7 @@ int LocTransfDialog::getDTS(LocTransfTbl::Rec * pData)
 	return ok;
 }
 
-int SLAPI EditLocTransf(const PPBillPacket * pPack, LocTransfTbl::Rec * pData)
-{
-	DIALOG_PROC_BODY_P1(LocTransfDialog, pPack, pData);
-}
+int SLAPI EditLocTransf(const PPBillPacket * pPack, LocTransfTbl::Rec * pData) { DIALOG_PROC_BODY_P1(LocTransfDialog, pPack, pData); }
 //
 //
 //

@@ -87,12 +87,10 @@ uint64 TIFFVStripSize64(TIFF* tif, uint32 nrows)
 			TIFFErrorExt(tif->tif_clientdata, module, "Invalid td_samplesperpixel value");
 			return 0;
 		}
-		TIFFGetFieldDefaulted(tif, TIFFTAG_YCBCRSUBSAMPLING, ycbcrsubsampling+0,
-		    ycbcrsubsampling+1);
+		TIFFGetFieldDefaulted(tif, TIFFTAG_YCBCRSUBSAMPLING, ycbcrsubsampling+0, ycbcrsubsampling+1);
 		if((ycbcrsubsampling[0] != 1 && ycbcrsubsampling[0] != 2 && ycbcrsubsampling[0] != 4)
 		    ||(ycbcrsubsampling[1] != 1 && ycbcrsubsampling[1] != 2 && ycbcrsubsampling[1] != 4)) {
-			TIFFErrorExt(tif->tif_clientdata, module, "Invalid YCbCr subsampling (%dx%d)",
-			    ycbcrsubsampling[0], ycbcrsubsampling[1]);
+			TIFFErrorExt(tif->tif_clientdata, module, "Invalid YCbCr subsampling (%dx%d)", ycbcrsubsampling[0], ycbcrsubsampling[1]);
 			return 0;
 		}
 		samplingblock_samples = ycbcrsubsampling[0]*ycbcrsubsampling[1]+2;
@@ -115,7 +113,7 @@ tmsize_t TIFFVStripSize(TIFF* tif, uint32 nrows)
 		TIFFErrorExt(tif->tif_clientdata, module, "Integer overflow");
 		n = 0;
 	}
-	return(n);
+	return n;
 }
 /*
  * Compute the # bytes in a raw strip.
@@ -151,7 +149,7 @@ tmsize_t TIFFRawStripSize(TIFF* tif, uint32 strip)
 			n = 0;
 		}
 	}
-	return(n);
+	return n;
 }
 
 /*
@@ -180,7 +178,7 @@ tmsize_t TIFFStripSize(TIFF* tif)
 		TIFFErrorExt(tif->tif_clientdata, module, "Integer overflow");
 		n = 0;
 	}
-	return(n);
+	return n;
 }
 
 /*
@@ -231,26 +229,20 @@ uint64 TIFFScanlineSize64(TIFF* tif)
 	TIFFDirectory * td = &tif->tif_dir;
 	uint64 scanline_size;
 	if(td->td_planarconfig==PLANARCONFIG_CONTIG) {
-		if((td->td_photometric==PHOTOMETRIC_YCBCR)&&
-		    (td->td_samplesperpixel==3)&&
-		    (!isUpSampled(tif))) {
+		if((td->td_photometric==PHOTOMETRIC_YCBCR) && (td->td_samplesperpixel==3) && (!isUpSampled(tif))) {
 			uint16 ycbcrsubsampling[2];
 			uint16 samplingblock_samples;
 			uint32 samplingblocks_hor;
 			uint64 samplingrow_samples;
 			uint64 samplingrow_size;
 			if(td->td_samplesperpixel!=3) {
-				TIFFErrorExt(tif->tif_clientdata, module,
-				    "Invalid td_samplesperpixel value");
+				TIFFErrorExt(tif->tif_clientdata, module, "Invalid td_samplesperpixel value");
 				return 0;
 			}
-			TIFFGetFieldDefaulted(tif, TIFFTAG_YCBCRSUBSAMPLING,
-			    ycbcrsubsampling+0,
-			    ycbcrsubsampling+1);
+			TIFFGetFieldDefaulted(tif, TIFFTAG_YCBCRSUBSAMPLING, ycbcrsubsampling+0, ycbcrsubsampling+1);
 			if(((ycbcrsubsampling[0]!=1)&&(ycbcrsubsampling[0]!=2)&&(ycbcrsubsampling[0]!=4)) ||
 			    ((ycbcrsubsampling[1]!=1)&&(ycbcrsubsampling[1]!=2)&&(ycbcrsubsampling[1]!=4))) {
-				TIFFErrorExt(tif->tif_clientdata, module,
-				    "Invalid YCbCr subsampling");
+				TIFFErrorExt(tif->tif_clientdata, module, "Invalid YCbCr subsampling");
 				return 0;
 			}
 			samplingblock_samples = ycbcrsubsampling[0]*ycbcrsubsampling[1]+2;
@@ -284,7 +276,7 @@ tmsize_t TIFFScanlineSize(TIFF* tif)
 		TIFFErrorExt(tif->tif_clientdata, module, "Integer arithmetic overflow");
 		n = 0;
 	}
-	return(n);
+	return n;
 }
 
 /*
@@ -315,7 +307,7 @@ tmsize_t TIFFRasterScanlineSize(TIFF* tif)
 		TIFFErrorExt(tif->tif_clientdata, module, "Integer arithmetic overflow");
 		n = 0;
 	}
-	return(n);
+	return n;
 }
 
 /* vim: set ts=8 sts=8 sw=8 noet: */

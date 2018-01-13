@@ -1,5 +1,5 @@
 // DGACC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Диалоговая группа ввода счета и аналитической статьи
 //
@@ -65,7 +65,6 @@ int AcctCtrlGroup::getData(TDialog * dlg, void * pData)
 void AcctCtrlGroup::setup(TDialog * dlg, Acct * pAcct, int sheetChanged, int accSelParamChanged)
 {
 	char   b[32];
-	TView    * p;
 	dlg->setCtrlData(ctl_acc, pAcct->ToStr(ACCF_DEFAULT|ACCF_BAL, b));
 	if(AccSheetID && pAcct->ar)
 		ltoa(pAcct->ar, b, 10);
@@ -75,12 +74,15 @@ void AcctCtrlGroup::setup(TDialog * dlg, Acct * pAcct, int sheetChanged, int acc
 		dlg->setCtrlData(ctl_art, b);
 		dlg->disableCtrl(ctl_art, !AccSheetID);
 		dlg->disableCtrl(ctlsel_artname, !AccSheetID);
-		if(AccSheetID && (p = dlg->P_Current) != 0) {
-			do {
-				p = p->P_Next;
-			} while(p != dlg->P_Current && !p->TestId(ctl_art));
-			if(p->TestId(ctl_art))
-				p->select();
+		if(AccSheetID) {
+			TView * p = dlg->GetCurrentView();
+			if(p) {
+				do {
+					p = p->P_Next;
+				} while(p != dlg->GetCurrentView() && !p->TestId(ctl_art));
+				if(p->TestId(ctl_art))
+					p->select();
+			}
 		}
 	}
 	ComboBox * p_combo = (ComboBox *)dlg->getCtrlView(ctlsel_accname);
@@ -425,7 +427,7 @@ void ArticleCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 	}
 	else if(event.isKeyDown(kbF2)) {
 		ComboBox * p_combo = (ComboBox *)pDlg->getCtrlView(CtlselAr);
-		if(p_combo && pDlg->IsCurrCtl(p_combo->link())) {
+		if(p_combo && pDlg->IsCurrentView(p_combo->link())) {
 			selectByCode(pDlg);
 			pDlg->clearEvent(event);
 		}

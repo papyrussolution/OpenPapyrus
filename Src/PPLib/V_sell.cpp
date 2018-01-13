@@ -592,10 +592,7 @@ int SLAPI TestPredictSales()
 	return ok;
 }
 
-int SLAPI ViewPredictSales(PredictSalesFilt * pFilt)
-{
-	return PPView::Execute(PPVIEW_PREDICTSALES, pFilt, PPView::exefModeless, 0);
-}
+int SLAPI ViewPredictSales(PredictSalesFilt * pFilt) { return PPView::Execute(PPVIEW_PREDICTSALES, pFilt, PPView::exefModeless, 0); }
 //
 // Implementation of PPALDD_PredictSales
 //
@@ -607,10 +604,7 @@ PPALDD_CONSTRUCTOR(PredictSales)
 	}
 }
 
-PPALDD_DESTRUCTOR(PredictSales)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(PredictSales) { Destroy(); }
 
 int PPALDD_PredictSales::InitData(PPFilt & rFilt, long rsrv)
 {

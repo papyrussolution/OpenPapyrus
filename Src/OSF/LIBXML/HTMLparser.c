@@ -1026,7 +1026,7 @@ static int htmlCheckAutoClose(const xmlChar * newtag, const xmlChar * oldtag)
 	i++;
 	while(htmlStartClose[i] != NULL) {
 		if(sstreq(BAD_CAST htmlStartClose[i], oldtag)) {
-			return (1);
+			return 1;
 		}
 		i++;
 	}

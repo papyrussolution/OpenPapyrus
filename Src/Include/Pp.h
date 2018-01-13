@@ -3124,7 +3124,17 @@ public:
 	};
 	int    FASTCALL IsEqual(const PPCheckInPersonItem & rS, long options) const;
 	int    FASTCALL operator == (const PPCheckInPersonItem & rS) const;
-	int    SLAPI Count(uint * pRegCount, uint * pCiCount, uint * pCanceledCount) const;
+
+	struct Total {
+		SLAPI  Total() : RegCount(0), CiCount(0), CalceledCount(0)
+		{
+		}
+		uint   RegCount;
+		uint   CiCount;
+		uint   CalceledCount;
+	};
+	void   SLAPI Count(Total & rT) const;
+	//int    SLAPI Count(uint * pRegCount, uint * pCiCount, uint * pCanceledCount) const;
 	int    SLAPI CalcAmount(const PPCheckInPersonConfig * pCfg, double * pPrice, double * pAmount) const;
 	PPCheckInPersonItem & SLAPI Clear();
 	int    SLAPI CalcPinCode(SString & rCode) const;
@@ -3190,8 +3200,8 @@ public:
 
 	void   SLAPI InitIteration();
 	int    FASTCALL NextIteration(PPCheckInPersonItem & rItem);
-
-	int    SLAPI Count(uint * pRegCount, uint * pCiCount, uint * pCanceledCount) const;
+	void   SLAPI Count(PPCheckInPersonItem::Total & rT) const;
+	//int    SLAPI Count(uint * pRegCount, uint * pCiCount, uint * pCanceledCount) const;
 	const  PPCheckInPersonItem & FASTCALL Get(uint pos) const;
 	int    SLAPI CalcAmount(const PPCheckInPersonConfig * pCfg, double * pAmount) const;
 	int    SLAPI SetMemo(uint rowPos, const char * pMemo);
@@ -4390,15 +4400,13 @@ typedef TSVector <ArGoodsCodeTbl::Rec> ArGoodsCodeArray; // @v9.8.4 TSArray-->TS
 // Descr: Параметры товара для заказа, транспортировки и хранения //
 //   Property {PPOBJ_GOODS, Goods2.ID, GDSPRP_STOCKDATA}
 //
-struct GoodsStockExt {     // @persistent(DBX) @size=28+2*sizeof(SArray)
+struct GoodsStockExt { // @persistent(DBX) @size=28+2*sizeof(SArray)
 	//
 	// Descr: Описание упаковки товара на паллете
 	//
 	struct Pallet { // @persistent @size=12
-		int    IsValid() const
-		{
-			return BIN(PalletTypeID && PacksPerLayer > 0 && MaxLayers > 0);
-		}
+		int    SLAPI IsValid() const;
+
 		PPID   PalletTypeID;   // ->Ref(PPOBJ_PALLET) Тип паллета
 		int16  PacksPerLayer;  // Количество упаковок поставки в одном слое
 		int16  MaxLayers;      // Максимальное число слоев на паллете
@@ -4435,9 +4443,9 @@ struct GoodsStockExt {     // @persistent(DBX) @size=28+2*sizeof(SArray)
 	//
 	double SLAPI GetMaxMinStock(PPID * pLocID);
 	//
-	// Устанавливает запас товара для склада locID.
+	// Descr: Устанавливает запас товара для склада locID.
 	//
-	int    SLAPI SetMinStock(PPID locID, double qtty);
+	void   SLAPI SetMinStock(PPID locID, double qtty);
 	int    SLAPI GetSinglePalletEntry(Pallet * pEntry) const;
 	int    SLAPI GetPalletEntry(PPID palletTypeID, Pallet * pEntry) const;
 	int    SLAPI ConvertCargoUnits(int fromCargoUnit, int toCargoUnit, PPID palletTypeID, double srcVal, double * pDestVal, long flags) const;
@@ -4451,6 +4459,7 @@ struct GoodsStockExt {     // @persistent(DBX) @size=28+2*sizeof(SArray)
 	int16  ExpiryPeriod;   // Срок годности товара (дней).
 	int16  GseFlags;       // @v7.4.5 Reserve-->GseFlags
 	double MinShippmQtty;  // @v7.2.7 Минимальное количество, которое можно отгрузить в одном документе
+	float  NettBruttCoeff; // @v9.8.12 Коэффициент пересчета брутто-массы в нетто (для товарных структур)
 	PPDimention RtlDim;    // @v7.2.7 Габаритные размеры торговой единицы, мм
 	RAssocArray MinStockList; // @anchor Минимальный запас товара по складам
 	TSVector <Pallet> PltList; // Список описаний укладки упаковок на паллете // @v9.8.4 TSArray-->TSVector
@@ -9345,12 +9354,12 @@ struct PPBillExt { // @persistent @store(PropertyTbl)
 // Descr: Массив движения по кредиту. Используется при начислении процентов по договору ренты.
 //   Извлекается из БД функцией BillCore::GetCreditList(PPID billID, PctChargeArray *);
 //
-struct PctChargeEntry {
+struct PctChargeEntry { // @flat
 	LDATE  Dt;
 	double Rest;
 };
 
-class PctChargeArray : private SArray {
+class PctChargeArray : private SVector { // @v9.8.12 SArray-->SVector
 public:
 	SLAPI  PctChargeArray();
 	int    SLAPI Add(LDATE, double amount);
@@ -25387,8 +25396,8 @@ enum GoodsPacketKind {
 #define GDSEXSTR_OKOF     10 // Код ОКОФ основного средства
 #define GDSEXSTR_INFOSYMB 11 // @v8.7.2 Специальный символ, идентифицирующий дополнительную информацию о товаре, отображаемую в диалоге товара
 //
-// Специализированная структура для переноса параметров лотов по товару из
-// одного раздела БД в другой
+// Descr: Специализированная структура для переноса параметров лотов по товару из
+//   одного раздела БД в другой
 //
 struct GoodsLotExtData {
 	PPID   QCertID;
@@ -25459,8 +25468,8 @@ public:
 		// Функция PPObjGoods::GetPacket не загружает данный список.
 };
 //
-// Структура, передаваемая в качестве параметра (PPFilt::Ptr)
-// при печати товарных этикеток (PPALDD_GoodsLabel).
+// Descr: Структура, передаваемая в качестве параметра (PPFilt::Ptr)
+//   при печати товарных этикеток (PPALDD_GoodsLabel).
 //
 struct GoodsLabelAlddParam {
 	PPID   GoodsID;
@@ -32048,7 +32057,7 @@ private:
 // Descr: Класс, управляющий списком товаров, которые могут быть обработаны технологической
 //   сессией, использующей заданную технологию.
 //
-class TGSArray : private SArray { // @defined(Tech.cpp)
+class TGSArray : private SVector { // @defined(Tech.cpp) // @v9.8.12 SArray-->SVector
 public:
 	SLAPI  TGSArray();
 	uint   SLAPI GetItemsCount() const;
@@ -32057,7 +32066,7 @@ public:
 	int    SLAPI AddItem(PPID goodsID, int sign);
 	void   SLAPI Destroy();
 private:
-	struct Item {
+	struct Item { // @flat
 		PPID   GoodsID;
 		int16  Sign;
 	};
@@ -43261,7 +43270,8 @@ private:
 		PPID   LocID;
 		PPID   SrcArID; // Статья аналитического учета, соответствующая источнику данных
 		PPID   AlcGdsClsID; // Класс алкогольных товаров
-		int    AlcProofDim; // Размерность класса алкогольных товаров, отвечающая за крепость
+		int    AlcProofDim;  // Размерность класса алкогольных товаров, отвечающая за крепость
+		int    AlcVolumeDim; // Размерность класса алкогольных товаров, отвечающая за емкость
 		PPGdsClsPacket GcPack;
 	};
 	int    SLAPI ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int asRefOnly, const ResolveGoodsParam & rP, PPID * pNativeID);
@@ -47906,7 +47916,7 @@ public:
 	virtual int    AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode);
 	virtual void   ClearCheck();
 	virtual void   ClearRow();
-	virtual int    OnUpdateList(int goBottom);
+	virtual void   OnUpdateList(int goBottom);
 	//
 	// Descr: Структура, обрабатываемая функцией CheckPaneDialog::PreprocessGoodsSelection
 	//   и передаваемая в CPosProcessorCPosProcessor::SetupNewRow()
@@ -48308,13 +48318,9 @@ public:
 
 	CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * = 0, int isTouchScreen = 0);
 	~CheckPaneDialog();
-	//
-	//
-	//
 	virtual int    AcceptCheck(const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode);
 	virtual void   ClearCheck();
-	virtual int    OnUpdateList(int goBottom);
-	//int    SetupModifier(PPID modGoodsID);
+	virtual void   OnUpdateList(int goBottom);
 	void   SetSCard(const char * pStr);
 	void   EnableBeep(int enbl);
 	void   SetInput(const char * pStr);
@@ -48348,7 +48354,7 @@ private:
 			// если необходимо отобразить все товары, содержащие строку, и не зависимо от остатка,
 			// но опции кассового узла предписывают показывать только то, что есть на остатке).
 	};
-	void   SelectGoods__(int mode);
+	void   FASTCALL SelectGoods__(int mode);
 	void   AddFromBasket();
 	void   AcceptQuantity();
 	void   AcceptSCard(int fromInput, PPID scardID, int ignoreRights = 0);

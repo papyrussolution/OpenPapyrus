@@ -2612,10 +2612,7 @@ int SLAPI ViewLots(PPID goods, PPID loc, PPID suppl, PPID qcert, int modeless)
 	return ViewLots(&flt, 0, modeless);
 }
 
-int SLAPI ViewLots(const LotFilt * pFilt, int asOrders, int asModeless)
-{
-	return PPView::Execute(PPVIEW_LOT, pFilt, asModeless, (void *)BIN(asOrders));
-}
+int SLAPI ViewLots(const LotFilt * pFilt, int asOrders, int asModeless) { return PPView::Execute(PPVIEW_LOT, pFilt, asModeless, (void *)BIN(asOrders)); }
 //
 // Implementation of PPALDD_Lot
 //
@@ -2625,10 +2622,7 @@ PPALDD_CONSTRUCTOR(Lot)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(Lot)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(Lot) { Destroy(); }
 
 int PPALDD_Lot::InitData(PPFilt & rFilt, long rsrv)
 {

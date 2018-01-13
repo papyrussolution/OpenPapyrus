@@ -262,10 +262,7 @@ int SLAPI PPObjQCert::HandleMsg(int msg, PPID objType, PPID objID, void * extraP
 	return DBRPL_OK;
 }
 
-int SLAPI PPObjQCert::Browse(void * extraPtr)
-{
-	return PPView::Execute(PPVIEW_QCERT, 0, PPView::exefModeless, 0);
-}
+int SLAPI PPObjQCert::Browse(void * extraPtr) { return PPView::Execute(PPVIEW_QCERT, 0, PPView::exefModeless, 0); }
 
 int SLAPI PPObjQCert::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {

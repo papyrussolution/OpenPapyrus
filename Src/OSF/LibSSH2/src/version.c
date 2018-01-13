@@ -44,9 +44,7 @@
     exit(1);
   }
 */
-LIBSSH2_API const char *libssh2_version(int req_version_num)
+LIBSSH2_API const char * libssh2_version(int req_version_num)
 {
-    if(req_version_num <= LIBSSH2_VERSION_NUM)
-        return LIBSSH2_VERSION;
-    return NULL; /* this is not a suitable library! */
+    return (req_version_num <= LIBSSH2_VERSION_NUM) ? LIBSSH2_VERSION : NULL/* this is not a suitable library! */;
 }

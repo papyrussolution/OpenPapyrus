@@ -2046,10 +2046,7 @@ int SvdtStrDialog::getDTS(SvdtStrDlgAns *pSsda)
 	return 1;
 }
 
-static int SLAPI GetSvdtStrOpt(SvdtStrDlgAns * pSsda)
-{
-	DIALOG_PROC_BODY_P1(SvdtStrDialog, DLG_SAVEDATA, pSsda);
-}
+static int SLAPI GetSvdtStrOpt(SvdtStrDlgAns * pSsda) { DIALOG_PROC_BODY_P1(SvdtStrDialog, DLG_SAVEDATA, pSsda); }
 
 int SLAPI SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName)
 {

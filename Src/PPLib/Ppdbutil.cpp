@@ -2609,10 +2609,7 @@ int DBMaintainDlg::getDTS(DBMaintainParam * pParam)
 	return 1;
 }
 
-int SLAPI DBMaintainDialog(DBMaintainParam * pParam)
-{
-	DIALOG_PROC_BODY(DBMaintainDlg, pParam);
-}
+int SLAPI DBMaintainDialog(DBMaintainParam * pParam) { DIALOG_PROC_BODY(DBMaintainDlg, pParam); }
 
 int SLAPI DoDBMaintain(DBMaintainParam * pParam)
 {

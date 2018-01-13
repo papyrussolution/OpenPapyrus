@@ -313,7 +313,7 @@ int tls1_change_cipher_state(SSL * s, int which)
 	OPENSSL_cleanse(tmp2, sizeof(tmp1));
 	OPENSSL_cleanse(iv1, sizeof(iv1));
 	OPENSSL_cleanse(iv2, sizeof(iv2));
-	return (1);
+	return 1;
 err:
 	SSLerr(SSL_F_TLS1_CHANGE_CIPHER_STATE, ERR_R_MALLOC_FAILURE);
 err2:
@@ -334,7 +334,7 @@ int tls1_setup_key_block(SSL * s)
 	int mac_type = NID_undef, mac_secret_size = 0;
 	int ret = 0;
 	if(s->s3->tmp.key_block_length != 0)
-		return (1);
+		return 1;
 	if(!ssl_cipher_get_evp(s->session, &c, &hash, &mac_type, &mac_secret_size, &comp, s->tlsext_use_etm)) {
 		SSLerr(SSL_F_TLS1_SETUP_KEY_BLOCK, SSL_R_CIPHER_OR_HASH_UNAVAILABLE);
 		return 0;

@@ -206,7 +206,7 @@ int /* PRIVATE */ png_crc_finish(png_structrp png_ptr, uint32 skip)
 		}
 		else
 			png_chunk_error(png_ptr, "CRC error");
-		return (1);
+		return 1;
 	}
 	return 0;
 }

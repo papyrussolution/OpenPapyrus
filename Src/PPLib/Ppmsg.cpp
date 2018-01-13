@@ -650,13 +650,13 @@ int SLAPI PPThreadLocalArea::WaitBlock::Start()
 		PrevPercent = -1;
 		IdleTimer.Restart(1000);
 		if(WaitDlg) {
-			TView * p_cur = APPL->P_DeskTop->P_Current;
+			TView * p_cur = APPL->P_DeskTop->GetCurrentView();
 			PrevView = (p_cur && p_cur->IsConsistent()) ? p_cur : 0;
 			AlignWaitDlg(WaitDlg);
-			ShowWindow(WaitDlg, SW_SHOWNA);
-			hwndPB = GetDlgItem(WaitDlg, 101);
-			hwndST = GetDlgItem(WaitDlg, CTL_WAIT_TEXT);
-			UpdateWindow(hwndST);
+			::ShowWindow(WaitDlg, SW_SHOWNA);
+			hwndPB = ::GetDlgItem(WaitDlg, 101);
+			hwndST = ::GetDlgItem(WaitDlg, CTL_WAIT_TEXT);
+			::UpdateWindow(hwndST);
 			if(WaitCur)
 				OrgCur = SetCursor(WaitCur);
 		}

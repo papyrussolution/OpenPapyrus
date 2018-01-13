@@ -1,5 +1,5 @@
 // SPIP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016, 2017, 2018
 // Program Interface Paradigm
 //
 #include <slib.h>
@@ -40,7 +40,7 @@ void S_GUID::SetZero()
 	memzero(Data, sizeof(Data));
 }
 
-static char * format_uuid_part(const uint8 * pData, size_t numBytes, int useLower, char * pBuf)
+static char * FASTCALL format_uuid_part(const uint8 * pData, size_t numBytes, int useLower, char * pBuf)
 {
 	if(useLower)
 		switch(numBytes) {

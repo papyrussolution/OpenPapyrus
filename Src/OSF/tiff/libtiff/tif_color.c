@@ -71,30 +71,30 @@ void TIFFXYZToRGB(TIFFCIELabToRGB * cielab, float X, float Y, float Z, uint32 * 
 	Yg =  matrix[3] * X + matrix[4] * Y + matrix[5] * Z;
 	Yb =  matrix[6] * X + matrix[7] * Y + matrix[8] * Z;
 	/* Clip input */
-	Yr = TIFFmax(Yr, cielab->display.d_Y0R);
-	Yg = TIFFmax(Yg, cielab->display.d_Y0G);
-	Yb = TIFFmax(Yb, cielab->display.d_Y0B);
+	Yr = MAX(Yr, cielab->display.d_Y0R);
+	Yg = MAX(Yg, cielab->display.d_Y0G);
+	Yb = MAX(Yb, cielab->display.d_Y0B);
 	/* Avoid overflow in case of wrong input values */
-	Yr = TIFFmin(Yr, cielab->display.d_YCR);
-	Yg = TIFFmin(Yg, cielab->display.d_YCG);
-	Yb = TIFFmin(Yb, cielab->display.d_YCB);
+	Yr = MIN(Yr, cielab->display.d_YCR);
+	Yg = MIN(Yg, cielab->display.d_YCG);
+	Yb = MIN(Yb, cielab->display.d_YCB);
 	/* Turn luminosity to colour value. */
 	i = (int)((Yr - cielab->display.d_Y0R) / cielab->rstep);
-	i = TIFFmin(cielab->range, i);
+	i = MIN(cielab->range, i);
 	*r = RINT(cielab->Yr2r[i]);
 
 	i = (int)((Yg - cielab->display.d_Y0G) / cielab->gstep);
-	i = TIFFmin(cielab->range, i);
+	i = MIN(cielab->range, i);
 	*g = RINT(cielab->Yg2g[i]);
 
 	i = (int)((Yb - cielab->display.d_Y0B) / cielab->bstep);
-	i = TIFFmin(cielab->range, i);
+	i = MIN(cielab->range, i);
 	*b = RINT(cielab->Yb2b[i]);
 
 	/* Clip output. */
-	*r = TIFFmin(*r, cielab->display.d_Vrwr);
-	*g = TIFFmin(*g, cielab->display.d_Vrwg);
-	*b = TIFFmin(*b, cielab->display.d_Vrwb);
+	*r = MIN(*r, cielab->display.d_Vrwr);
+	*g = MIN(*g, cielab->display.d_Vrwg);
+	*b = MIN(*b, cielab->display.d_Vrwb);
 }
 
 #undef RINT
@@ -145,10 +145,10 @@ int TIFFCIELabToRGBInit(TIFFCIELabToRGB* cielab, const TIFFDisplay * display, fl
 #define CLAMP(f, min, max)        ((f)<(min) ? (min) : (f)>(max) ? (max) : (f))
 #define HICLAMP(f, max)          ((f)>(max) ? (max) : (f))
 
-void TIFFYCbCrtoRGB(TIFFYCbCrToRGB * ycbcr, uint32 Y, int32 Cb, int32 Cr, uint32 * r, uint32 * g, uint32 * b)
+void FASTCALL TIFFYCbCrtoRGB(TIFFYCbCrToRGB * ycbcr, uint32 Y, int32 Cb, int32 Cr, uint32 * r, uint32 * g, uint32 * b)
 {
 	int32 i;
-	/* XXX: Only 8-bit YCbCr input supported for now */
+	// XXX: Only 8-bit YCbCr input supported for now 
 	Y = HICLAMP(Y, 255);
 	Cb = CLAMP(Cb, 0, 255);
 	Cr = CLAMP(Cr, 0, 255);

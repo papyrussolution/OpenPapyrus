@@ -525,7 +525,7 @@ static int TIFFjpeg_tables_dest(JPEGState* sp, TIFF* tif)
 	sp->dest.init_destination = tables_init_destination;
 	sp->dest.empty_output_buffer = tables_empty_output_buffer;
 	sp->dest.term_destination = tables_term_destination;
-	return (1);
+	return 1;
 }
 
 /*
@@ -658,7 +658,7 @@ static int alloc_downsampled_buffers(TIFF* tif, jpeg_component_info* comp_info,
 		sp->ds_buffer[ci] = buf;
 	}
 	sp->samplesperclump = samples_per_clump;
-	return (1);
+	return 1;
 }
 
 /*
@@ -991,7 +991,7 @@ static int JPEGSetupDecode(TIFF* tif)
 	/* Set up for reading normal data */
 	TIFFjpeg_data_src(sp);
 	tif->tif_postdecode = _TIFFNoPostDecode; /* override byte swapping */
-	return (1);
+	return 1;
 }
 
 /* Returns 1 if the full strip should be read, even when doing scanline per */
@@ -1249,7 +1249,7 @@ int TIFFJPEGIsFullStripRequired(TIFF* tif)
 			return 0;
 		sp->scancount = DCTSIZE;        /* mark buffer empty */
 	}
-	return (1);
+	return 1;
 }
 
 /*
@@ -1628,7 +1628,7 @@ static int prepare_JPEGTables(TIFF* tif)
 	if(!TIFFjpeg_write_tables(sp))
 		return 0;
 
-	return (1);
+	return 1;
 }
 
 static int JPEGSetupEncode(TIFF* tif)
@@ -1801,7 +1801,7 @@ static int JPEGSetupEncode(TIFF* tif)
 	/* Direct libjpeg output to libtiff's output buffer */
 	TIFFjpeg_data_dest(sp, tif);
 
-	return (1);
+	return 1;
 }
 
 /*
@@ -1938,7 +1938,7 @@ static int JPEGPreEncode(TIFF* tif, uint16 s)
 	}
 	sp->scancount = 0;
 
-	return (1);
+	return 1;
 }
 
 /*
@@ -2007,7 +2007,7 @@ static int JPEGEncode(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 		SAlloc::F(line16);
 	}
 
-	return (1);
+	return 1;
 }
 
 /*
@@ -2093,7 +2093,7 @@ static int JPEGEncodeRaw(TIFF* tif, uint8* buf, tmsize_t cc, uint16 s)
 		buf += bytesperclumpline;
 		nrows -= sp->v_sampling;
 	}
-	return (1);
+	return 1;
 }
 
 /*
@@ -2207,11 +2207,11 @@ static int JPEGVSetField(TIFF* tif, uint32 tag, va_list ap)
 		    break;
 		case TIFFTAG_JPEGQUALITY:
 		    sp->jpegquality = (int)va_arg(ap, int);
-		    return (1);                 /* pseudo tag */
+		    return 1;                 /* pseudo tag */
 		case TIFFTAG_JPEGCOLORMODE:
 		    sp->jpegcolormode = (int)va_arg(ap, int);
 		    JPEGResetUpsampled(tif);
-		    return (1);                 /* pseudo tag */
+		    return 1;                 /* pseudo tag */
 		case TIFFTAG_PHOTOMETRIC:
 	    {
 		    int ret_value = (*sp->vsetparent)(tif, tag, ap);
@@ -2220,7 +2220,7 @@ static int JPEGVSetField(TIFF* tif, uint32 tag, va_list ap)
 	    }
 		case TIFFTAG_JPEGTABLESMODE:
 		    sp->jpegtablesmode = (int)va_arg(ap, int);
-		    return (1);                 /* pseudo tag */
+		    return 1;                 /* pseudo tag */
 		case TIFFTAG_YCBCRSUBSAMPLING:
 		    /* mark the fact that we have a real ycbcrsubsampling! */
 		    sp->ycbcrsampling_fetched = 1;
@@ -2238,7 +2238,7 @@ static int JPEGVSetField(TIFF* tif, uint32 tag, va_list ap)
 	}
 
 	tif->tif_flags |= TIFF_DIRTYDIRECT;
-	return (1);
+	return 1;
 }
 
 static int JPEGVGetField(TIFF* tif, uint32 tag, va_list ap)
@@ -2264,7 +2264,7 @@ static int JPEGVGetField(TIFF* tif, uint32 tag, va_list ap)
 		default:
 		    return (*sp->vgetparent)(tif, tag, ap);
 	}
-	return (1);
+	return 1;
 }
 
 static void JPEGPrintDir(TIFF* tif, FILE* fd, long flags)
@@ -2369,33 +2369,25 @@ static int JPEGInitializeLibJPEG(TIFF * tif, int decompress)
 			}
 		}
 	}
-
 	sp->cinfo_initialized = TRUE;
-
 	return 1;
 }
 
 int TIFFInitJPEG(TIFF* tif, int scheme)
 {
-	JPEGState* sp;
-
+	JPEGState * sp;
 	assert(scheme == COMPRESSION_JPEG);
-
 	/*
 	 * Merge codec-specific tag information.
 	 */
-	if(!_TIFFMergeFields(tif, jpegFields, TIFFArrayCount(jpegFields))) {
-		TIFFErrorExt(tif->tif_clientdata,
-		    "TIFFInitJPEG",
-		    "Merging JPEG codec-specific tags failed");
+	if(!_TIFFMergeFields(tif, jpegFields, SIZEOFARRAY(jpegFields))) {
+		TIFFErrorExt(tif->tif_clientdata, "TIFFInitJPEG", "Merging JPEG codec-specific tags failed");
 		return 0;
 	}
-
 	/*
 	 * Allocate state block so tag methods have storage to record values.
 	 */
 	tif->tif_data = (uint8*)SAlloc::M(sizeof(JPEGState));
-
 	if(tif->tif_data == NULL) {
 		TIFFErrorExt(tif->tif_clientdata, "TIFFInitJPEG", "No space for JPEG state block");
 		return 0;

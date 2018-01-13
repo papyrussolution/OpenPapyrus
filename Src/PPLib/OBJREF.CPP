@@ -1114,10 +1114,7 @@ PPALDD_CONSTRUCTOR(Unit)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(Unit)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(Unit) { Destroy(); }
 
 int PPALDD_Unit::InitData(PPFilt & rFilt, long rsrv)
 {

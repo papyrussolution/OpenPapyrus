@@ -1451,9 +1451,8 @@ void CPosProcessor::SetupInfo(const char * pErrMsg)
 }
 
 //virtual
-int CPosProcessor::OnUpdateList(int goBottom)
+void CPosProcessor::OnUpdateList(int goBottom)
 {
-	return -1;
 }
 
 int CPosProcessor::SetupCTable(int tableNo, int guestCount)
@@ -4444,10 +4443,7 @@ int ComplexDinnerDialog::setupList()
 	return ok;
 }
 
-int CheckPaneDialog::InputComplexDinner(SaComplex & rComplex)
-{
-	DIALOG_PROC_BODY_P1(ComplexDinnerDialog, CnLocID, &rComplex);
-}
+int CheckPaneDialog::InputComplexDinner(SaComplex & rComplex) { DIALOG_PROC_BODY_P1(ComplexDinnerDialog, CnLocID, &rComplex); }
 //
 // SelCheckListDialog
 //
@@ -7991,7 +7987,7 @@ int CheckPaneDialog::RemoveRow()
 }
 
 //virtual
-int CheckPaneDialog::OnUpdateList(int goBottom)
+void CheckPaneDialog::OnUpdateList(int goBottom)
 {
 //@lbt_chkpan    "3,R,#;3,C,;70,L,Товар;16,L,Штрихкод;11,R,Цена;10,R,Кол-во;11,R,Сумма;12,L,Серия;9,R,Отдел;4,C,Q" // DLG_CHKPAN
 //@lbt_chkpan_ts "4,R,#;3,C,;60,L,Товар;12,R,Цена;12,R,Кол-во;12,R,Сумма;10,R,Отдел;4,C,Q"                         // DLG_CHKPAN_TS
@@ -8001,10 +7997,10 @@ int CheckPaneDialog::OnUpdateList(int goBottom)
 	if(p_list) {
 		const long column_egais_ident = 100;
 		CCheckItem * p_item;
-		long   cur = p_list->def ? p_list->def->_curItem() : 0;
+		ListBoxDef * p_def_ = p_list->def;
+		long   cur = p_def_ ? p_def_->_curItem() : 0;
 		uint   i;
 		int    do_show_egaismark = 0;
-		lock();
 		p_list->freeAll();
 		StringSet ss(SLBColumnDelim);
 		/*
@@ -8059,15 +8055,15 @@ int CheckPaneDialog::OnUpdateList(int goBottom)
 			}
 			else {
 				if(p_item->Flags & cifGift)
-					p_list->def->SetItemColor(i, SClrBlack, SClrGreen);
+					p_def_->SetItemColor(i, SClrBlack, SClrGreen);
 				else if(p_item->Flags & cifGrouped || (i < P.getCount() && P.at(i).Flags & cifGrouped))
-					p_list->def->SetItemColor(i, SClrBlack, SClrLightgrey);
+					p_def_->SetItemColor(i, SClrBlack, SClrLightgrey);
 				else if(p_item->Flags & cifIsPrinted)
-					p_list->def->SetItemColor(i, SClrBlack, SColor(0xFC, 0xD5, 0xB4));
+					p_def_->SetItemColor(i, SClrBlack, SColor(0xFC, 0xD5, 0xB4));
 				else if(p_item->Flags & cifPartOfComplex)
-					p_list->def->SetItemColor(i, SClrBlack, SColor(0xD7, 0xE4, 0xBC));
+					p_def_->SetItemColor(i, SClrBlack, SColor(0xD7, 0xE4, 0xBC));
 				else
-					p_list->def->ResetItemColor(i);
+					p_def_->ResetItemColor(i);
 			}
 		}
 		if(goBottom)
@@ -8085,10 +8081,8 @@ int CheckPaneDialog::OnUpdateList(int goBottom)
 				buf.Z();
 			setStaticText(CTL_CHKPAN_DISCOUNT, buf);
 		}
-		unlock();
 	}
 	SetupInfo(0);
-	return 1;
 }
 
 static void FASTCALL CatCharByFlag(long val, long flag, int chr, SString & rBuf, int inverse)
@@ -8432,7 +8426,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock
 	return ok;
 }
 
-void CheckPaneDialog::SelectGoods__(int mode)
+void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 {
 	int    r = 1;
 	Flags |= fSuspSleepTimeout;
@@ -11906,12 +11900,11 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 				if(GObj.Fetch(SelGoodsGrpID, &grp_rec) > 0)
 					PPGetWord(PPWORD_GROUP, 0, grp_name).CatDiv(':', 2).Cat(grp_rec.Name);
 				else
-					grp_name = 0;
+					grp_name.Z();
 				p_def = GObj.Selector((void *)SelGoodsGrpID);
 			}
 			p_list->setDef(p_def);
-			if(p_list->def)
-				p_list->def->SetOption(lbtSelNotify, 1);
+			CALLPTRMEMB(p_list->def, SetOption(lbtSelNotify, 1));
 			p_list->Draw_();
 			PPWait(0);
 		}

@@ -512,6 +512,12 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
                                     unit_list.add(unit_rec.BaseUnitID);
                             }
 						} while(i);
+						//
+						// Форсированно добавляем зарезервированную единицу LITER в список экспорта
+						// Она нам понадобиться для передачи алкогольных товаров.
+						//
+						if(!unit_list.lsearch(PPUNT_LITER) && goods_obj.FetchUnit(PPUNT_LITER, &unit_rec) > 0)
+							unit_list.add(PPUNT_LITER);
 						unit_list.sortAndUndup();
 						for(i = 0; i < unit_list.getCount(); i++) {
 							const PPID unit_id = unit_list.get(i);
@@ -1400,6 +1406,8 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 {
 	int    ok = 1;
 	SString temp_buf;
+	PrcssrAlcReport::GoodsItem agi;
+	const  int is_spirit = BIN(rInfo.GdsClsID && rB.P_Acgi && rB.P_Acgi->GetAlcoGoodsExtension(rInfo.ID, 0, agi) > 0);
 	{
 		SXml::WNode w_s(rB.P_Xw, pScopeXmlTag);
 		w_s.PutInner("id", temp_buf.Z().Cat(rInfo.ID));
@@ -1415,25 +1423,29 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 			w_p.PutInner("id", temp_buf.Z().Cat(rInfo.ParentID));
 		}
 		if(rInfo.UnitID) {
+			PPUnit unit_rec;
 			SXml::WNode w_u(rB.P_Xw, "unit");
 			w_u.PutInner("id", temp_buf.Z().Cat(rInfo.UnitID));
-			if(rInfo.PhUnitID) {
+			if(is_spirit && agi.Proof > 0.0 && agi.Volume > 0.0 && GObj.FetchUnit(PPUNT_LITER, &unit_rec) > 0) {
+				//
+				// Для алкоголя искусственно устанавливаем единицу измерения //
+				//
+				SXml::WNode w_pu(rB.P_Xw, "phunit");
+				w_pu.PutInner("id", temp_buf.Z().Cat(PPUNT_LITER));
+				w_pu.PutInner("ratio", temp_buf.Z().Cat(agi.Volume, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+			}
+			else if(rInfo.PhUnitID) {
 				SXml::WNode w_pu(rB.P_Xw, "phunit");
 				w_pu.PutInner("id", temp_buf.Z().Cat(rInfo.PhUnitID));
-				if(rInfo.PhUPerU > 0.0) {
+				if(rInfo.PhUPerU > 0.0)
 					w_pu.PutInner("ratio", temp_buf.Z().Cat(rInfo.PhUPerU, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
-				}
 			}
 		}
 		if(rInfo.VatRate > 0.0) {
 			w_s.PutInner("vatrate", temp_buf.Z().Cat(rInfo.VatRate, MKSFMTD(0, 1, NMBF_NOTRAILZ)));
 		}
-		if(rInfo.GdsClsID && rB.P_Acgi) {
-			PrcssrAlcReport::GoodsItem agi;
-			const  int is_spirit = BIN(rB.P_Acgi->GetAlcoGoodsExtension(rInfo.ID, 0, agi) > 0);
-			if(is_spirit && agi.Proof > 0.0) {
-				w_s.PutInner("alcoproof", temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 1, NMBF_NOTRAILZ)));
-			}
+		if(is_spirit && agi.Proof > 0.0) {
+			w_s.PutInner("alcoproof", temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 1, NMBF_NOTRAILZ)));
 		}
 		if(rInfo.GoodsTypeID) {
 			PPGoodsType gt_rec;
@@ -2912,7 +2924,7 @@ int SLAPI PPPosProtocol::CreateParentGoodsGroup(const ParentBlock & rBlk, int is
 	return ok;
 }
 
-SLAPI PPPosProtocol::ResolveGoodsParam::ResolveGoodsParam() : DefParentID(0), DefUnitID(0), LocID(0), SrcArID(0), AlcGdsClsID(0), AlcProofDim(0)
+SLAPI PPPosProtocol::ResolveGoodsParam::ResolveGoodsParam() : DefParentID(0), DefUnitID(0), LocID(0), SrcArID(0), AlcGdsClsID(0), AlcProofDim(0), AlcVolumeDim(0)
 {
 }
 
@@ -2924,7 +2936,10 @@ void SLAPI PPPosProtocol::ResolveGoodsParam::SetupGoodsPack(const GoodsBlock & r
 	if(rBlk.AlcoProof > 0 && AlcGdsClsID && AlcProofDim) {
 		rPack.Rec.GdsClsID = AlcGdsClsID;
 		rPack.ExtRec.GoodsClsID = AlcGdsClsID;
-		GcPack.RealToExtDim(inttodbl2(rBlk.AlcoProof), PPGdsCls::eX, rPack.ExtRec);
+		GcPack.RealToExtDim(inttodbl2(rBlk.AlcoProof), AlcProofDim, rPack.ExtRec);
+		if(/*rBlk.PhUPerU*/rPack.Rec.PhUPerU > 0.0 && AlcVolumeDim) { // Мы ожидаем здесь соотношение литры/единицу
+			GcPack.RealToExtDim(/*rBlk.PhUPerU*/rPack.Rec.PhUPerU, AlcVolumeDim, rPack.ExtRec);
+		}
 	}
 }
 
@@ -3646,7 +3661,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 				{
 				}
 				long   NativeID;
-				long   VatRate;      // @fixedpoint2 
+				long   VatRate;      // @fixedpoint2
 				long   SalesTaxRate; // @fixedpoint2
 			};
 			SVector gt_list(sizeof(SurrGoodsTypeEntry)); // Список обнаруженных комбинаций флагов, относящихся к типам товаров
@@ -3714,6 +3729,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 						THROW_PP(oneof4(alccfg.E.ProofClsDim, PPGdsCls::eX, PPGdsCls::eY, PPGdsCls::eZ, PPGdsCls::eW), PPERR_ALCRCFG_INVPROOFDIM);
 						rgp.AlcGdsClsID = alccfg.E.AlcGoodsClsID;
 						rgp.AlcProofDim = alccfg.E.ProofClsDim;
+						rgp.AlcVolumeDim = alccfg.VolumeClsDim; // @v9.8.12
 						rgp.GcPack = gc_pack;
 					}
 				}

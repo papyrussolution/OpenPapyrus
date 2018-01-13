@@ -4147,10 +4147,7 @@ int SLAPI PPViewGoodsOpAnalyze::Print(const void *)
 	return ok;
 }
 
-int SLAPI ViewGoodsOpAnalyze(const GoodsOpAnalyzeFilt * pFilt)
-{
-	return PPView::Execute(PPVIEW_GOODSOPANALYZE, pFilt, 1, 0);
-}
+int SLAPI ViewGoodsOpAnalyze(const GoodsOpAnalyzeFilt * pFilt) { return PPView::Execute(PPVIEW_GOODSOPANALYZE, pFilt, 1, 0); }
 //
 // Implementation of PPALDD_GoodsOpAnlz
 //

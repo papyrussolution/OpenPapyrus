@@ -149,10 +149,7 @@ int ObjReceiveParamDialog::getDTS(ObjReceiveParam * pParam)
 //
 //
 //
-int SLAPI EditObjReceiveParam(ObjReceiveParam * pParam, int editOptions)
-{
-	DIALOG_PROC_BODY_P1(ObjReceiveParamDialog, editOptions, pParam);
-}
+int SLAPI EditObjReceiveParam(ObjReceiveParam * pParam, int editOptions) { DIALOG_PROC_BODY_P1(ObjReceiveParamDialog, editOptions, pParam); }
 
 static int SLAPI IsEmailAddr(const char * pPath)
 {
@@ -216,6 +213,7 @@ int SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long f
 {
 	int    ok = 1;
 	SString temp_buf;
+	SString enc_buf;
 	PPID   mail_acc_id = mailAccID;
 	PPObjInternetAccount mac_obj;
 	PPInternetAccount mac_rec;
@@ -239,12 +237,16 @@ int SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long f
 			if(port)
 				url.SetPort(port);
 			mac_rec.GetExtField(MAEXSTR_RCVNAME, temp_buf);
-			url.SetComponent(url.cUserName, temp_buf);
+			enc_buf.EncodeUrl(temp_buf, 0); // @v9.8.12
+			url.SetComponent(url.cUserName, enc_buf);
 			{
 				char pw[128];
 				mac_rec.GetPassword(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
-				url.SetComponent(url.cPassword, pw);
+				enc_buf.EncodeUrl(temp_buf = pw, 0); // @v9.8.12
+				url.SetComponent(url.cPassword, enc_buf);
 				memzero(pw, sizeof(pw));
+				enc_buf.Obfuscate(); // @v9.8.12
+				temp_buf.Obfuscate(); // @v9.8.12
 			}
 		}
 		if(filtFlags & SMailMessage::fPpyObject) {

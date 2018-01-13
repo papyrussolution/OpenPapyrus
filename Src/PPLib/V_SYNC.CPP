@@ -783,10 +783,7 @@ PPALDD_CONSTRUCTOR(ObjSyncCmp)
 	}
 }
 
-PPALDD_DESTRUCTOR(ObjSyncCmp)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(ObjSyncCmp) { Destroy(); }
 
 int PPALDD_ObjSyncCmp::InitData(PPFilt & rFilt, long rsrv)
 {

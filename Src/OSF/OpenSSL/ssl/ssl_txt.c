@@ -157,7 +157,7 @@ int SSL_SESSION_print(BIO * bp, const SSL_SESSION * x)
 		goto err;
 	if(BIO_printf(bp, "    Extended master secret: %s\n", x->flags & SSL_SESS_FLAG_EXTMS ? "yes" : "no") <= 0)
 		goto err;
-	return (1);
+	return 1;
 err:
 	return 0;
 }
@@ -195,7 +195,7 @@ int SSL_SESSION_print_keylog(BIO * bp, const SSL_SESSION * x)
 	if(BIO_puts(bp, "\n") <= 0)
 		goto err;
 
-	return (1);
+	return 1;
 err:
 	return 0;
 }

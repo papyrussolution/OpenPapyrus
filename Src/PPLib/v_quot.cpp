@@ -1969,22 +1969,12 @@ int SLAPI PPViewQuot::Print(const void * pHdr)
 //
 //
 //
-int SLAPI ViewQuot(const QuotFilt * pFilt)
-{
-	return PPView::Execute(PPVIEW_QUOT, pFilt, 1, 0);
-}
+int SLAPI ViewQuot(const QuotFilt * pFilt) { return PPView::Execute(PPVIEW_QUOT, pFilt, 1, 0); }
 //
 // Implementation of PPALDD_UhttQuot
 //
-PPALDD_CONSTRUCTOR(UhttQuot)
-{
-	InitFixData(rscDefHdr, &H, sizeof(H));
-}
-
-PPALDD_DESTRUCTOR(UhttQuot)
-{
-	Destroy();
-}
+PPALDD_CONSTRUCTOR(UhttQuot) { InitFixData(rscDefHdr, &H, sizeof(H)); }
+PPALDD_DESTRUCTOR(UhttQuot) { Destroy(); }
 
 int PPALDD_UhttQuot::InitData(PPFilt & rFilt, long rsrv)
 {

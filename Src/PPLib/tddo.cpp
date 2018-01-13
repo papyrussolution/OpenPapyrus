@@ -1169,19 +1169,12 @@ private:
 //
 // Implementation of PPALDD_HttpPreprocessBase
 //
-PPALDD_CONSTRUCTOR(HttpPreprocessBase)
-{
-	InitFixData(rscDefHdr, &H, sizeof(H));
-}
+PPALDD_CONSTRUCTOR(HttpPreprocessBase) { InitFixData(rscDefHdr, &H, sizeof(H)); }
+PPALDD_DESTRUCTOR(HttpPreprocessBase) { Destroy(); }
 
-PPALDD_DESTRUCTOR(HttpPreprocessBase)
-{
-	Destroy();
-}
-
-int PPALDD_HttpPreprocessBase::InitData(PPFilt & rFilt, long rsrv)
-{
-	return DlRtm::InitData(rFilt, rsrv);
+int PPALDD_HttpPreprocessBase::InitData(PPFilt & rFilt, long rsrv) 
+{ 
+	return DlRtm::InitData(rFilt, rsrv); 
 }
 //
 //

@@ -246,7 +246,7 @@ static BOOL CALLBACK BrightViewProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 			break;
 		case WM_SETFOCUS:
 		case WM_KILLFOCUS:
-			DialogProc(GetParent(hWnd), uMsg, wParam, (long)hWnd);
+			TDialog::DialogProc(GetParent(hWnd), uMsg, wParam, (long)hWnd);
 			break;
 	}
 	return (prev_proc) ? CallWindowProc(prev_proc, hWnd, uMsg, wParam, lParam) : 0;

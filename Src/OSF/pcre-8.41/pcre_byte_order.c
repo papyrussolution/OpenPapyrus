@@ -54,15 +54,16 @@
 
    Returns:       the byte swapped value
  */
-static uint32 swap_uint32(uint32 value)
+static uint32 FASTCALL swap_uint32(uint32 value)
 {
 	return ((value & 0x000000ff) << 24) | ((value & 0x0000ff00) <<  8) | ((value & 0x00ff0000) >>  8) | (value >> 24);
 }
 
-static pcre_uint16 swap_uint16(pcre_uint16 value)
+/*static pcre_uint16 FASTCALL swap_uint16(pcre_uint16 value)
 {
 	return (value >> 8) | (value << 8);
-}
+}*/
+#define swap_uint16 swapw
 
 /*************************************************
 *       Test for a byte-flipped compiled regex   *

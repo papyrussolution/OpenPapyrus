@@ -557,7 +557,7 @@ int ssl_cipher_get_evp(const SSL_SESSION * s, const EVP_CIPHER ** enc, const EVP
 			*enc = evp, *md = NULL;
 		else if(c->algorithm_enc == SSL_AES256 && c->algorithm_mac == SSL_SHA256 && (evp = EVP_get_cipherbyname("AES-256-CBC-HMAC-SHA256")))
 			*enc = evp, *md = NULL;
-		return (1);
+		return 1;
 	}
 	else
 		return 0;
@@ -890,7 +890,7 @@ static int ssl_cipher_strength_sort(CIPHER_ORDER ** head_p, CIPHER_ORDER ** tail
 			    tail_p);
 
 	OPENSSL_free(number_uses);
-	return (1);
+	return 1;
 }
 
 static int ssl_cipher_process_rulestr(const char * rule_str, CIPHER_ORDER ** head_p, CIPHER_ORDER ** tail_p, const SSL_CIPHER ** ca_list, CERT * c)
@@ -1576,7 +1576,7 @@ int SSL_COMP_add_compression_method(int id, COMP_METHOD * cm)
 	if(comp == NULL) {
 		CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ENABLE);
 		SSLerr(SSL_F_SSL_COMP_ADD_COMPRESSION_METHOD, ERR_R_MALLOC_FAILURE);
-		return (1);
+		return 1;
 	}
 	comp->id = id;
 	comp->method = cm;
@@ -1585,13 +1585,13 @@ int SSL_COMP_add_compression_method(int id, COMP_METHOD * cm)
 		OPENSSL_free(comp);
 		CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ENABLE);
 		SSLerr(SSL_F_SSL_COMP_ADD_COMPRESSION_METHOD, SSL_R_DUPLICATE_COMPRESSION_ID);
-		return (1);
+		return 1;
 	}
 	if(ssl_comp_methods == NULL || !sk_SSL_COMP_push(ssl_comp_methods, comp)) {
 		OPENSSL_free(comp);
 		CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ENABLE);
 		SSLerr(SSL_F_SSL_COMP_ADD_COMPRESSION_METHOD, ERR_R_MALLOC_FAILURE);
-		return (1);
+		return 1;
 	}
 	CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ENABLE);
 	return 0;

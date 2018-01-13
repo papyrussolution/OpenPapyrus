@@ -726,10 +726,7 @@ private:
 	PPStockOpt::Item Data;
 };
 
-int SLAPI PPViewStockOpt::EditItem(PPStockOpt::Item * pItem)
-{
-	DIALOG_PROC_BODY(StockOptItemDialog, pItem);
-}
+int SLAPI PPViewStockOpt::EditItem(PPStockOpt::Item * pItem) { DIALOG_PROC_BODY(StockOptItemDialog, pItem); }
 
 int SLAPI PPViewStockOpt::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {

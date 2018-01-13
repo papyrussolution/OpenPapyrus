@@ -284,19 +284,11 @@ static const TIFFField
 	{ EXIFTAG_IMAGEUNIQUEID, 33, 33, TIFF_ASCII, 0, TIFF_SETGET_ASCII, TIFF_SETGET_UNDEFINED, FIELD_CUSTOM, 1, 0, "ImageUniqueID", NULL }
 };
 
-static const TIFFFieldArray tiffFieldArray = { tfiatImage, 0, TIFFArrayCount(tiffFields), (TIFFField*)tiffFields };
-static const TIFFFieldArray exifFieldArray = { tfiatExif, 0, TIFFArrayCount(exifFields), (TIFFField*)exifFields };
+static const TIFFFieldArray tiffFieldArray = { tfiatImage, 0, SIZEOFARRAY(tiffFields), (TIFFField*)tiffFields };
+static const TIFFFieldArray exifFieldArray = { tfiatExif, 0, SIZEOFARRAY(exifFields), (TIFFField*)exifFields };
 
-static const TIFFFieldArray * _GetTiffFieldArray()
-{
-	return &tiffFieldArray;
-}
-
-static const TIFFFieldArray * _GetExifFieldArray()
-{
-	return &exifFieldArray;
-}
-
+static const TIFFFieldArray * _GetTiffFieldArray() { return &tiffFieldArray; }
+static const TIFFFieldArray * _GetExifFieldArray() { return &exifFieldArray; }
 /*
  *  We have our own local lfind() equivalent to avoid subtle differences
  *  in types passed to lfind() on different systems.
@@ -482,31 +474,24 @@ const TIFFField* TIFFFindField(TIFF* tif, uint32 tag, TIFFDataType dt)
 	TIFFField key = {0, 0, 0, TIFF_NOTYPE, 0, (TIFFSetGetFieldType)0, (TIFFSetGetFieldType)0, 0, 0, 0, NULL, NULL};
 	TIFFField * pkey = &key;
 	const TIFFField ** ret;
-	if(tif->tif_foundfield && tif->tif_foundfield->field_tag == tag &&
-	    (dt == TIFF_ANY || dt == tif->tif_foundfield->field_type))
+	if(tif->tif_foundfield && tif->tif_foundfield->field_tag == tag && (dt == TIFF_ANY || dt == tif->tif_foundfield->field_type))
 		return tif->tif_foundfield;
-
 	/* If we are invoked with no field information, then just return. */
 	if(!tif->tif_fields)
 		return NULL;
-
 	/* NB: use sorted search (e.g. binary search) */
-
 	key.field_tag = tag;
 	key.field_type = dt;
-
-	ret = (const TIFFField**)bsearch(&pkey, tif->tif_fields,
-	    tif->tif_nfields,
-	    sizeof(TIFFField *), tagCompare);
+	ret = (const TIFFField**)bsearch(&pkey, tif->tif_fields, tif->tif_nfields, sizeof(TIFFField *), tagCompare);
 	return tif->tif_foundfield = (ret ? *ret : NULL);
 }
 
 static const TIFFField* _TIFFFindFieldByName(TIFF* tif, const char * field_name, TIFFDataType dt)
 {
 	TIFFField key = {0, 0, 0, TIFF_NOTYPE, 0, (TIFFSetGetFieldType)0, (TIFFSetGetFieldType)0, 0, 0, 0, NULL, NULL};
-	TIFFField* pkey = &key;
+	TIFFField * pkey = &key;
 	const TIFFField ** ret;
-	if(tif->tif_foundfield && streq(tif->tif_foundfield->field_name, field_name) && (dt == TIFF_ANY || dt == tif->tif_foundfield->field_type))
+	if(tif->tif_foundfield && sstreq(tif->tif_foundfield->field_name, field_name) && (dt == TIFF_ANY || dt == tif->tif_foundfield->field_type))
 		return (tif->tif_foundfield);
 	/* If we are invoked with no field information, then just return. */
 	if(!tif->tif_fields)

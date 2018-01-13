@@ -1849,10 +1849,7 @@ IMPL_HANDLE_EVENT(SyncCashNodeCfgDialog)
 	clearEvent(event);
 }
 
-int SLAPI PPObjCashNode::EditSync(PPSyncCashNode * pSCN)
-{
-	DIALOG_PROC_BODY(SyncCashNodeCfgDialog, pSCN);
-}
+int SLAPI PPObjCashNode::EditSync(PPSyncCashNode * pSCN) { DIALOG_PROC_BODY(SyncCashNodeCfgDialog, pSCN); }
 
 int SLAPI PPObjCashNode::EditGroup(PPGenCashNode * pGroup)
 {
@@ -2097,15 +2094,8 @@ private:
 	int    UseAltImport;      //
 };
 
-int AsyncCashNodeDialog::EditDivGrpAssoc(SArray * pList)
-{
-	DIALOG_PROC_BODY(DivGrpAsscListDialog, pList);
-}
-
-int AsyncCashNodeDialog::EditApnCorrList()
-{
-	DIALOG_PROC_BODY(ApnCorrListDialog, P_Data);
-}
+int AsyncCashNodeDialog::EditDivGrpAssoc(SArray * pList) { DIALOG_PROC_BODY(DivGrpAsscListDialog, pList); }
+int AsyncCashNodeDialog::EditApnCorrList() { DIALOG_PROC_BODY(ApnCorrListDialog, P_Data); }
 
 IMPL_HANDLE_EVENT(AsyncCashNodeDialog)
 {
@@ -3194,10 +3184,7 @@ PPALDD_CONSTRUCTOR(LocPrnTest)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(LocPrnTest)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(LocPrnTest) { Destroy(); }
 
 int PPALDD_LocPrnTest::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -3329,10 +3316,7 @@ PPALDD_CONSTRUCTOR(CashNode)
 		AssignHeadData(&H, sizeof(H));
 }
 
-PPALDD_DESTRUCTOR(CashNode)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(CashNode) { Destroy(); }
 
 int PPALDD_CashNode::InitData(PPFilt & rFilt, long rsrv)
 {
