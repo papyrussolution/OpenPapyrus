@@ -2669,7 +2669,7 @@ static const char * UriParseDecOctetOne(UriIp4Parser*parser, const char * first,
  * [decOctetTwo]-><8>
  * [decOctetTwo]-><9>
  */
-static const char * UriParseDecOctetTwo(UriIp4Parser*parser, const char * first, const char * afterLast)
+static const char * UriParseDecOctetTwo(UriIp4Parser * parser, const char * first, const char * afterLast)
 {
 	if(first >= afterLast)
 		return afterLast;
@@ -2707,8 +2707,7 @@ static const char * UriParseDecOctetThree(UriIp4Parser * parser, const char * fi
 	}
 	else {
 		switch(*first) {
-			case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'):
-			case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
+			case _UT('0'): case _UT('1'): case _UT('2'): case _UT('3'): case _UT('4'): case _UT('5'): case _UT('6'): case _UT('7'): case _UT('8'): case _UT('9'):
 				uriPushToStack(parser,(uchar)(9+*first-_UT('9')));
 				return first+1;
 			default:

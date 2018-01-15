@@ -12,8 +12,7 @@
 
 /* The old slow way */
 #if 0
-int BN_div(BIGNUM * dv, BIGNUM * rem, const BIGNUM * m, const BIGNUM * d,
-    BN_CTX * ctx)
+int BN_div(BIGNUM * dv, BIGNUM * rem, const BIGNUM * m, const BIGNUM * d, BN_CTX * ctx)
 {
 	int i, nm, nd;
 	int ret = 0;
@@ -135,8 +134,7 @@ end:
  *     rm->neg == num->neg                 (unless the remainder is zero)
  * If 'dv' or 'rm' is NULL, the respective value is not returned.
  */
-int BN_div(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num, const BIGNUM * divisor,
-    BN_CTX * ctx)
+int BN_div(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num, const BIGNUM * divisor, BN_CTX * ctx)
 {
 	int norm_shift, i, loop;
 	BIGNUM * tmp, wnum, * snum, * sdiv, * res;
@@ -144,26 +142,20 @@ int BN_div(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num, const BIGNUM * divisor,
 	BN_ULONG d0, d1;
 	int num_n, div_n;
 	int no_branch = 0;
-
 	/*
 	 * Invalid zero-padding would have particularly bad consequences so don't
 	 * just rely on bn_check_top() here (bn_check_top() works only for
 	 * BN_DEBUG builds)
 	 */
-	if((num->top > 0 && num->d[num->top - 1] == 0) ||
-	    (divisor->top > 0 && divisor->d[divisor->top - 1] == 0)) {
+	if((num->top > 0 && num->d[num->top - 1] == 0) || (divisor->top > 0 && divisor->d[divisor->top - 1] == 0)) {
 		BNerr(BN_F_BN_DIV, BN_R_NOT_INITIALIZED);
 		return 0;
 	}
-
 	bn_check_top(num);
 	bn_check_top(divisor);
-
-	if((BN_get_flags(num, BN_FLG_CONSTTIME) != 0)
-	    || (BN_get_flags(divisor, BN_FLG_CONSTTIME) != 0)) {
+	if((BN_get_flags(num, BN_FLG_CONSTTIME) != 0) || (BN_get_flags(divisor, BN_FLG_CONSTTIME) != 0)) {
 		no_branch = 1;
 	}
-
 	bn_check_top(dv);
 	bn_check_top(rm);
 	/*- bn_check_top(num); *//*
@@ -172,18 +164,16 @@ int BN_div(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num, const BIGNUM * divisor,
 	/*- bn_check_top(divisor); *//*
 	 * 'divisor' has been checked already
 	 */
-
 	if(BN_is_zero(divisor)) {
 		BNerr(BN_F_BN_DIV, BN_R_DIV_BY_ZERO);
 		return 0;
 	}
-
 	if(!no_branch && BN_ucmp(num, divisor) < 0) {
-		if(rm != NULL) {
+		if(rm) {
 			if(BN_copy(rm, num) == NULL)
 				return 0;
 		}
-		if(dv != NULL)
+		if(dv)
 			BN_zero(dv);
 		return 1;
 	}
@@ -198,8 +188,7 @@ int BN_div(BIGNUM * dv, BIGNUM * rm, const BIGNUM * num, const BIGNUM * divisor,
 		res = dv;
 	if(sdiv == NULL || res == NULL || tmp == NULL || snum == NULL)
 		goto err;
-
-	/* First we normalise the numbers */
+	// First we normalise the numbers 
 	norm_shift = BN_BITS2 - ((BN_num_bits(divisor)) % BN_BITS2);
 	if(!(BN_lshift(sdiv, divisor, norm_shift)))
 		goto err;

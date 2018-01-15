@@ -369,7 +369,7 @@ int SLAPI GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long fi
 	int    ok = 0;
 	SString dest_path;
 	PPGetPath(PPPATH_IN, dest_path);
-	PPMailPop3 mail(0); // 
+	PPMailPop3 mail(0); //
 	ok = mail.SaveAttachment(pMsgFile, 0, dest_path);
 	return ok;
 }*/
@@ -421,7 +421,7 @@ int SLAPI GetFilesFromFtp(PPID ftpAccID, const char * pSrcDir, const char * pDes
 		ext.Dot().Cat(sp.Ext);
 		(src_path = src_dir).Cat(file_item.Txt);
 		(dest_path = dest_dir).Cat(file_item.Txt);
-		if(((filtFlags & SMailMessage::fPpyObject) && ext.CmpNC(PPSEXT) == 0) || 
+		if(((filtFlags & SMailMessage::fPpyObject) && ext.CmpNC(PPSEXT) == 0) ||
 			((filtFlags & SMailMessage::fPpyCharry) && ext.CmpNC(ORDEXT) == 0) ||
 			((filtFlags & SMailMessage::fPpyOrder) && ext.CmpNC(CHARRYEXT) == 0)) {
 			THROW(ftp.SafeGet(dest_path, src_path, 0, CallbackFTPTransfer, 0));
@@ -503,6 +503,7 @@ int SLAPI PPSendEmail(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailC
 {
 	int    ok = 1;
 	SString temp_buf;
+	SString enc_buf;
 	InetUrl url;
 	ScURL curl;
 	{
@@ -513,12 +514,16 @@ int SLAPI PPSendEmail(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailC
 		if(port)
 			url.SetPort(port);
 		rAcc.GetExtField(MAEXSTR_RCVNAME, temp_buf);
-		url.SetComponent(url.cUserName, temp_buf);
+		enc_buf.EncodeUrl(temp_buf, 0); // @v9.8.12
+		url.SetComponent(url.cUserName, enc_buf);
 		{
 			char pw[128];
 			rAcc.GetPassword(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
-			url.SetComponent(url.cPassword, pw);
+			enc_buf.EncodeUrl(temp_buf = pw, 0); // @v9.8.12
+			url.SetComponent(url.cPassword, enc_buf);
 			memzero(pw, sizeof(pw));
+			enc_buf.Obfuscate(); // @v9.8.12
+			temp_buf.Obfuscate(); // @v9.8.12
 		}
 		THROW_SL(curl.SmtpSend(url, curl.mfVerbose|ScURL::mfDontVerifySslPeer, rMsg));
 	}
@@ -532,6 +537,7 @@ int SLAPI PutFilesToEmail2(const StringSet * pFileList, PPID mailAccID, const ch
 	PPID   mail_acc_id = mailAccID;
 	SString file_path;
 	SString temp_buf;
+	SString enc_buf;
 	PPObjInternetAccount mac_obj;
 	PPInternetAccount mac_rec;
 	{
@@ -565,12 +571,16 @@ int SLAPI PutFilesToEmail2(const StringSet * pFileList, PPID mailAccID, const ch
 					if(port)
 						url.SetPort(port);
 					mac_rec.GetExtField(MAEXSTR_RCVNAME, temp_buf);
-					url.SetComponent(url.cUserName, temp_buf);
+					enc_buf.EncodeUrl(temp_buf, 0); // @v9.8.12
+					url.SetComponent(url.cUserName, enc_buf);
 					{
 						char pw[128];
 						mac_rec.GetPassword(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
-						url.SetComponent(url.cPassword, pw);
+						enc_buf.EncodeUrl(temp_buf = pw, 0); // @v9.8.12
+						url.SetComponent(url.cPassword, enc_buf);
 						memzero(pw, sizeof(pw));
+						enc_buf.Obfuscate(); // @v9.8.12
+						temp_buf.Obfuscate(); // @v9.8.12
 					}
 					THROW_SL(curl.SmtpSend(url, curl.mfVerbose|ScURL::mfDontVerifySslPeer, msg));
 					if(trnsmFlags & TRNSMF_DELINFILES && pFileList) {

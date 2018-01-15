@@ -294,7 +294,7 @@ int SrWordAssocTbl::Add(SrWordAssoc * pWa, int32 * pID)
 	LEXID  id = 0;
 	BDbTable::Buffer key_buf, data_buf;
 	SBuffer buf;
-	SerializeRecBuf(+1, pWa, buf);
+	THROW(SerializeRecBuf(+1, pWa, buf));
 	key_buf = buf;
 	data_buf.Alloc(128);
 	if(BDbTable::Search(2, key_buf, data_buf)) {
@@ -318,6 +318,26 @@ int SrWordAssocTbl::Add(SrWordAssoc * pWa, int32 * pID)
 	return ok;
 }
 
+int SrWordAssocTbl::Update(SrWordAssoc & rRec)
+{
+	int    ok = 1;
+	SrWordAssoc org_rec;
+	THROW(Search(rRec.ID, &org_rec) > 0);
+	if(org_rec.IsEqual(rRec))
+		ok = -1;
+	else {
+		assert(rRec.ID == org_rec.ID);
+		BDbTable::Buffer key_buf, data_buf;
+		SBuffer buf;
+		THROW(SerializeRecBuf(+1, &rRec, buf));
+		key_buf = rRec.ID;
+		data_buf = buf;
+		THROW_DB(UpdateRec(key_buf, data_buf));
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SrWordAssocTbl::Search(int32 id, SrWordAssoc * pWa)
 {
 	int    ok = -1;
@@ -330,6 +350,7 @@ int SrWordAssocTbl::Search(int32 id, SrWordAssoc * pWa)
 			buf.Clear();
 			data_buf.Get(buf);
 			SerializeRecBuf(-1, pWa, buf);
+			key_buf.Get(&pWa->ID);
 		}
 		ok = 1;
 	}
@@ -378,21 +399,11 @@ int SrWordAssocTbl::SerializeRecBuf(int dir, SrWordAssoc * pWa, SBuffer & rBuf)
 	THROW_SL(p_sctx->Serialize(dir, pWa->BaseFormID, rBuf));
 	{
 		const long f = pWa->Flags;
-		if(f & SrWordAssoc::fHasFlexiaModel) {
-			THROW_SL(p_sctx->Serialize(dir, pWa->FlexiaModelID, rBuf));
-		}
-		if(f & SrWordAssoc::fHasAccentModel) {
-			THROW_SL(p_sctx->Serialize(dir, pWa->AccentModelID, rBuf));
-		}
-		if(f & SrWordAssoc::fHasPrefix) {
-			THROW_SL(p_sctx->Serialize(dir, pWa->PrefixID, rBuf));
-		}
-		if(f & SrWordAssoc::fHasAffixModel) {
-			THROW_SL(p_sctx->Serialize(dir, pWa->AffixModelID, rBuf));
-		}
-		if(f & SrWordAssoc::fHasAbbrExp) {
-			THROW_SL(p_sctx->Serialize(dir, pWa->AbbrExpID, rBuf));
-		}
+		if(f & SrWordAssoc::fHasFlexiaModel) { THROW_SL(p_sctx->Serialize(dir, pWa->FlexiaModelID, rBuf)); } else if(dir < 0) pWa->FlexiaModelID = 0;
+		if(f & SrWordAssoc::fHasAccentModel) { THROW_SL(p_sctx->Serialize(dir, pWa->AccentModelID, rBuf)); } else if(dir < 0) pWa->AccentModelID = 0;
+		if(f & SrWordAssoc::fHasPrefix)      { THROW_SL(p_sctx->Serialize(dir, pWa->PrefixID,      rBuf)); } else if(dir < 0) pWa->PrefixID = 0;
+		if(f & SrWordAssoc::fHasAffixModel)  { THROW_SL(p_sctx->Serialize(dir, pWa->AffixModelID,  rBuf)); } else if(dir < 0) pWa->AffixModelID = 0;
+		if(f & SrWordAssoc::fHasAbbrExp)     { THROW_SL(p_sctx->Serialize(dir, pWa->AbbrExpID,     rBuf)); } else if(dir < 0) pWa->AbbrExpID = 0;
 	}
 	CATCHZOK
 	return ok;
@@ -789,8 +800,8 @@ int SrConceptPropTbl::Set(SrCProp & rProp)
 	BDbTable::Buffer key_buf, data_buf;
 	SBuffer rec_buf;
 	SrCProp org_rec;
-	THROW(rProp.CID);
-	THROW(rProp.PropID);
+	THROW_PP_S(rProp.CID, PPERR_INVPARAM_EXT, "SrConceptPropTbl::Set CID");
+	THROW_PP_S(rProp.PropID, PPERR_INVPARAM_EXT, "SrConceptPropTbl::Set PropID");
 	EncodePrimeKey(key_buf, rProp);
 	data_buf.Alloc(512);
 	if(BDbTable::Search(key_buf, data_buf)) {
@@ -1541,6 +1552,7 @@ CONCEPTID FASTCALL SrDatabase::GetReservedConcept(int rc) const
 		case rcInstance: prop = PropInstance; break;
 		case rcSubclass: prop = PropSubclass; break;
 		case rcType: prop = PropType; break;
+		default: PPSetError(PPERR_SR_RSVRCONCEPTNFOUND, rc); break;
 	}
 	return prop;
 }
@@ -1573,10 +1585,11 @@ CONCEPTID FASTCALL SrDatabase::ResolveReservedConcept(int rc)
 	return prop;
 }
 
-int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf)
+int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf, int32 * pResultWaId)
 {
 	int    ok = -1;
 	int    r;
+	int32  result_wa_id = 0;
 	if(rWf.GetLength()) {
 		SrWordAssoc wa;
 		SString word_utf8;
@@ -1617,13 +1630,17 @@ int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf)
 					wa_id = r_wa.ID;
 				}
 			}
-			if(!wa_id) {
+			if(wa_id)
+				ok = 2;
+			else {
 				THROW(r = P_WaT->Add(&wa.Normalize(), &wa_id));
+				ok = 1;
 			}
-			ok = 1;
+			result_wa_id = wa_id;
 		}
 	}
 	CATCHZOK
+	ASSIGN_PTR(pResultWaId, result_wa_id);
 	return ok;
 }
 
@@ -1897,6 +1914,25 @@ int SrDatabase::WordInfoToStr(const SrWordInfo & rWi, SString & rBuf)
 	else
 		temp_buf.Z();
 	rBuf.CatBrackStr(temp_buf);
+	if(rWi.AbbrExpID) {
+		SString word_buf;
+		temp_buf.Z().Cat("abbr").CatChar('(');
+		SrNGram ng;
+		if(P_NgT->Search(rWi.AbbrExpID, &ng) > 0) {
+			for(uint i = 0; i < ng.WordIdList.getCount(); i++) {
+				if(i)
+					temp_buf.Space();
+				if(P_WdT->Search(ng.WordIdList.get(i), word_buf) > 0)
+					temp_buf.Cat(word_buf);
+				else
+					temp_buf.CatChar('#').Cat(ng.WordIdList.get(i));
+			}
+		}
+		else
+			temp_buf.Cat("#ng=").Cat(rWi.AbbrExpID);
+		temp_buf.CatChar(')');
+		rBuf.Space().Cat(temp_buf);
+	}
 	//
 	temp_buf.Z();
 	if(rWi.WaID) {

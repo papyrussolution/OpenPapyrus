@@ -232,11 +232,10 @@ ASN1_OBJECT * OBJ_nid2obj(int n)
 	}
 }
 
-const char * OBJ_nid2sn(int n)
+const char * FASTCALL OBJ_nid2sn(int n)
 {
 	ADDED_OBJ ad, * adp;
 	ASN1_OBJECT ob;
-
 	if((n >= 0) && (n < NUM_NID)) {
 		if((n != NID_undef) && (nid_objs[n].nid == NID_undef)) {
 			OBJerr(OBJ_F_OBJ_NID2SN, OBJ_R_UNKNOWN_NID);
@@ -260,11 +259,10 @@ const char * OBJ_nid2sn(int n)
 	}
 }
 
-const char * OBJ_nid2ln(int n)
+const char * FASTCALL OBJ_nid2ln(int n)
 {
 	ADDED_OBJ ad, * adp;
 	ASN1_OBJECT ob;
-
 	if((n >= 0) && (n < NUM_NID)) {
 		if((n != NID_undef) && (nid_objs[n].nid == NID_undef)) {
 			OBJerr(OBJ_F_OBJ_NID2LN, OBJ_R_UNKNOWN_NID);
@@ -290,11 +288,9 @@ const char * OBJ_nid2ln(int n)
 
 static int obj_cmp(const ASN1_OBJECT * const * ap, const uint * bp)
 {
-	int j;
 	const ASN1_OBJECT * a = *ap;
 	const ASN1_OBJECT * b = &nid_objs[*bp];
-
-	j = (a->length - b->length);
+	int j = (a->length - b->length);
 	if(j)
 		return (j);
 	if(a->length == 0)
@@ -304,19 +300,16 @@ static int obj_cmp(const ASN1_OBJECT * const * ap, const uint * bp)
 
 IMPLEMENT_OBJ_BSEARCH_CMP_FN(const ASN1_OBJECT *, uint, obj);
 
-int OBJ_obj2nid(const ASN1_OBJECT * a)
+int FASTCALL OBJ_obj2nid(const ASN1_OBJECT * a)
 {
 	const uint * op;
 	ADDED_OBJ ad, * adp;
-
 	if(!a)
 		return (NID_undef);
 	if(a->nid != 0)
 		return (a->nid);
-
 	if(a->length == 0)
 		return NID_undef;
-
 	if(added != NULL) {
 		ad.type = ADDED_DATA;
 		ad.obj = (ASN1_OBJECT*)a; /* XXX: ugly but harmless */
@@ -329,15 +322,13 @@ int OBJ_obj2nid(const ASN1_OBJECT * a)
 		return (NID_undef);
 	return (nid_objs[*op].nid);
 }
-
 /*
  * Convert an object name into an ASN1_OBJECT if "noname" is not set then
  * search for short and long names first. This will convert the "dotted" form
  * into an object: unlike OBJ_txt2nid it can be used with any objects, not
  * just registered ones.
  */
-
-ASN1_OBJECT * OBJ_txt2obj(const char * s, int no_name)
+ASN1_OBJECT * FASTCALL OBJ_txt2obj(const char * s, int no_name)
 {
 	int nid = NID_undef;
 	ASN1_OBJECT * op = NULL;
@@ -345,13 +336,10 @@ ASN1_OBJECT * OBJ_txt2obj(const char * s, int no_name)
 	uchar * p;
 	const uchar * cp;
 	int i, j;
-
 	if(!no_name) {
-		if(((nid = OBJ_sn2nid(s)) != NID_undef) ||
-		    ((nid = OBJ_ln2nid(s)) != NID_undef))
+		if(((nid = OBJ_sn2nid(s)) != NID_undef) || ((nid = OBJ_ln2nid(s)) != NID_undef))
 			return OBJ_nid2obj(nid);
 	}
-
 	/* Work out size of content octets */
 	i = a2d_ASN1_OBJECT(NULL, 0, s, -1);
 	if(i <= 0) {
@@ -365,16 +353,13 @@ ASN1_OBJECT * OBJ_txt2obj(const char * s, int no_name)
 	j = ASN1_object_size(0, i, V_ASN1_OBJECT);
 	if(j < 0)
 		return NULL;
-
 	if((buf = (uchar*)OPENSSL_malloc(j)) == NULL)
 		return NULL;
-
 	p = buf;
 	/* Write out tag+length */
 	ASN1_put_object(&p, 0, i, V_ASN1_OBJECT, V_ASN1_UNIVERSAL);
 	/* Write out contents */
 	a2d_ASN1_OBJECT(p, i, s, -1);
-
 	cp = buf;
 	op = d2i_ASN1_OBJECT(NULL, &cp, j);
 	OPENSSL_free(buf);

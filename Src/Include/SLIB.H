@@ -4972,6 +4972,7 @@ void   FASTCALL ExchangeToOrder(long * pA, long * pB);
 void   FASTCALL Exchange(ulong * pA, ulong * pB);
 void   FASTCALL Exchange(int16 * pA, int16 * pB);
 void   FASTCALL ExchangeToOrder(int16 * pA, int16 * pB);
+void   FASTCALL Exchange(int64 * pA, int64 * pB);
 void   FASTCALL Exchange(float * pA, float * pB);
 void   FASTCALL Exchange(double * pA, double * pB);
 //

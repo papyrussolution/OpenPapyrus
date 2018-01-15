@@ -341,7 +341,7 @@ int SLAPI PPViewGoodsMov2::ViewTotal()
 	return ok;
 }
 
-int SLAPI PPViewGoodsMov2::GetEditIds(const void * pRow, PPViewGoodsMov2::BrwHdr * pHdr, long col)
+void SLAPI PPViewGoodsMov2::GetEditIds(const void * pRow, PPViewGoodsMov2::BrwHdr * pHdr, long col)
 {
 	BrwHdr hdr;
 	MEMSZERO(hdr);
@@ -356,7 +356,6 @@ int SLAPI PPViewGoodsMov2::GetEditIds(const void * pRow, PPViewGoodsMov2::BrwHdr
 			hdr = *(BrwHdr*)pRow;
 	}
 	ASSIGN_PTR(pHdr, hdr);
-	return 1;
 }
 
 int SLAPI PPViewGoodsMov2::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)

@@ -311,6 +311,13 @@ void FASTCALL ExchangeToOrder(int16 * pA, int16 * pB)
 	}
 }
 
+void FASTCALL Exchange(int64 * pA, int64 * pB)
+{
+	int64  temp = *pA;
+	*pA = *pB;
+	*pB = temp;
+}
+
 void FASTCALL Exchange(float * pA, float * pB)
 {
 	memswap(pA, pB, sizeof(*pA));

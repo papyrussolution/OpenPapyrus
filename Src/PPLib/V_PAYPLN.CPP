@@ -1,5 +1,5 @@
 // V_PAYPLN.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // Plan of Payments View
 //
@@ -15,10 +15,8 @@ IMPLEMENT_PPFILT_FACTORY(PaymPlan); SLAPI PaymPlanFilt::PaymPlanFilt() : PPBaseF
 }
 
 
-SLAPI PPViewPaymPlan::PPViewPaymPlan() : PPView(0, &Filt, PPVIEW_PAYMPLAN)
+SLAPI PPViewPaymPlan::PPViewPaymPlan() : PPView(0, &Filt, PPVIEW_PAYMPLAN), P_BObj(BillObj), P_TempTbl(0)
 {
-	P_BObj = BillObj;
-	P_TempTbl = 0;
 }
 
 SLAPI PPViewPaymPlan::~PPViewPaymPlan()
@@ -36,23 +34,13 @@ static int IterProc_Count(PayPlanTbl::Rec * pRec, long extraParam)
 }
 
 struct IterProcParam_ProcessPeriod {
-	IterProcParam_ProcessPeriod(PPViewPaymPlan * pView, DateRange & rPeriod, IterCounter * pCntr)
+	IterProcParam_ProcessPeriod(PPViewPaymPlan * pView, DateRange & rPeriod, IterCounter * pCntr) :
+		P_V(pView), P_BillList(0), P_PaymList(0), Period(rPeriod), FiltObjID(0), P_Cntr(pCntr)
 	{
-		P_V = pView;
-		P_BillList = 0;
-		P_PaymList = 0;
-		Period = rPeriod;
-		FiltObjID = 0;
-		P_Cntr = pCntr;
 	}
-	IterProcParam_ProcessPeriod(PPViewPaymPlan * pView, ObjIdListFilt * pBillList, RPairArray * pPaymList, DateRange & rPeriod, PPID filtObjID)
+	IterProcParam_ProcessPeriod(PPViewPaymPlan * pView, ObjIdListFilt * pBillList, RPairArray * pPaymList, DateRange & rPeriod, PPID filtObjID) :
+		P_V(pView), P_BillList(pBillList), P_PaymList(pPaymList), Period(rPeriod), FiltObjID(filtObjID), P_Cntr(0)
 	{
-		P_V = pView;
-		P_BillList = pBillList;
-		P_PaymList = pPaymList;
-		Period = rPeriod;
-		FiltObjID = filtObjID;
-		P_Cntr = 0;
 	}
 	struct BillPaymItem {
 		PPID   BillID;
@@ -602,7 +590,7 @@ int SLAPI PPViewPaymPlan::ViewArticleInfo(const BrwHdr * pHdr, int what)
 	return ok;
 }
 
-int SLAPI PPViewPaymPlan::GetEditIds(const void * pRow, LDATE * pDt, PPID * pObjID, long col)
+void SLAPI PPViewPaymPlan::GetEditIds(const void * pRow, LDATE * pDt, PPID * pObjID, long col)
 {
 	LDATE dt = ZERODATE;
 	PPID  obj_id = 0;
@@ -621,7 +609,6 @@ int SLAPI PPViewPaymPlan::GetEditIds(const void * pRow, LDATE * pDt, PPID * pObj
 	}
 	ASSIGN_PTR(pDt, dt);
 	ASSIGN_PTR(pObjID, obj_id);
-	return 1;
 }
 
 int SLAPI PPViewPaymPlan::GetBillList(PPID objID, LDATE dt, ObjIdListFilt * pBillList, RPairArray * pPaymList, int allowZeroPeriod)

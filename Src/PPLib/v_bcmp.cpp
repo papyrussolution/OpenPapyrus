@@ -157,13 +157,24 @@ int SLAPI PPViewGoodsBillCmp::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int SLAPI PPViewGoodsBillCmp::PutBillToTempTable(PPID billID, int side /* 1 - lh, 2 - rh */, int isHistory)
+int SLAPI PPViewGoodsBillCmp::PutBillToTempTable(PPID billID, int side /* 1 - lh, 2 - rh */, int isHistory, const LDATETIME & rSjTime)
 {
 	int    ok = 1, r = 0;
 	PPBillPacket pack;
 	THROW_INVARG(oneof2(side, 1, 2));
 	if(isHistory) {
-		if(1) {
+		int   do_use_old_tech = 0;
+		if(!!rSjTime) {
+			LDATETIME moment;
+			PPIDArray acn_list;
+			acn_list.add(PPACN_EVENTTOKEN);
+			SysJournal * p_sj = DS.GetTLA().P_SysJ;
+			if(p_sj && p_sj->GetLastObjEvent(PPOBJ_EVENTTOKEN, PPEVTOK_OBJHIST9811, &acn_list, &moment) > 0) {
+				if(cmp(moment, rSjTime) > 0)
+					do_use_old_tech = 1;
+			}
+		}
+		if(!do_use_old_tech) {
 			SBuffer buf;
 			ObjVersioningCore * p_ovc = PPRef->P_OvT;
 			if(p_ovc && p_ovc->InitSerializeContext(1)) {
@@ -247,10 +258,12 @@ int SLAPI PPViewGoodsBillCmp::Init_(const PPBaseFilt * pBaseFilt)
 		PPTransaction tra(ppDbDependTransaction, 1);
 		THROW(tra);
 		for(i = 0; i < Filt.LhBillList.getCount(); i++) {
-			THROW(PutBillToTempTable(Filt.LhBillList.get(i), 1, oneof2(Filt.WhatBillIsHistory, ISHIST_LEFTBILL, ISHIST_BOTHBILL)));
+			LDATETIME ev_dtm = (Filt.LhBillList.getCount() == 1 && Filt.WhatBillIsHistory == ISHIST_LEFTBILL) ? Filt.LhSingleEvDtm : ZERODATETIME;
+			THROW(PutBillToTempTable(Filt.LhBillList.get(i), 1, oneof2(Filt.WhatBillIsHistory, ISHIST_LEFTBILL, ISHIST_BOTHBILL), ev_dtm));
 		}
 		for(i = 0; i < Filt.RhBillList.getCount(); i++) {
-			THROW(PutBillToTempTable(Filt.RhBillList.get(i), 2, oneof2(Filt.WhatBillIsHistory, ISHIST_RIGHTBILL, ISHIST_BOTHBILL)));
+			LDATETIME ev_dtm = (Filt.RhBillList.getCount() == 1 && Filt.WhatBillIsHistory == ISHIST_RIGHTBILL) ? Filt.RhSingleEvDtm : ZERODATETIME;
+			THROW(PutBillToTempTable(Filt.RhBillList.get(i), 2, oneof2(Filt.WhatBillIsHistory, ISHIST_RIGHTBILL, ISHIST_BOTHBILL), ev_dtm));
 		}
 		THROW(tra.Commit());
 	}
@@ -265,7 +278,6 @@ int SLAPI PPViewGoodsBillCmp::InitIteration()
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_PP(P_TempTbl, PPERR_PPVIEWNOTINITED);
 	Counter.Init();
-
 	if(Filt.Order == GoodsBillCmpFilt::ordByGoodsName)
 		IterIdx = 1;
 	else if(Filt.Order == GoodsBillCmpFilt::ordByDiffQtty)
@@ -461,13 +473,19 @@ int SLAPI PPViewGoodsBillCmp::ViewTotal()
 	return ok;
 }
 
-int SLAPI ViewGoodsBillCmp(PPID lhBillID, const PPIDArray & rRhBillList, int asModeless, int whatBillIsHistory)
+int SLAPI ViewGoodsBillCmp(PPID lhBillID, const PPIDArray & rRhBillList, int _modeless, int whatBillIsHistory, const LDATETIME * pLhEvDtm, const LDATETIME * pRhEvDtm)
 {
 	GoodsBillCmpFilt flt;
 	flt.LhBillList.add(lhBillID);
 	flt.RhBillList = rRhBillList;
 	flt.Order = GoodsBillCmpFilt::ordByGoodsName;
 	flt.WhatBillIsHistory = whatBillIsHistory;
+	if(whatBillIsHistory == ISHIST_LEFTBILL) {
+		RVALUEPTR(flt.LhSingleEvDtm, pLhEvDtm);
+	}
+	if(whatBillIsHistory == ISHIST_RIGHTBILL && flt.RhBillList.getCount() == 1) {
+		RVALUEPTR(flt.RhSingleEvDtm, pRhEvDtm);
+	}
 	return PPView::Execute(PPVIEW_GOODSBILLCMP, 0, 0, &flt);
 }
 //

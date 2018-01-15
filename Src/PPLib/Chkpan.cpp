@@ -977,7 +977,7 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 			// @v9.0.9 {
 			if(oneof4(cn_pack.EgaisMode, 0, 1, 2, 3)) { // @v9.8.12 (3)
 				EgaisMode = cn_pack.EgaisMode;
-				if(oneof2(EgaisMode, 1, 2) && !(Flags & fNoEdit)) {
+				if(oneof3(EgaisMode, 1, 2, 3) && !(Flags & fNoEdit)) { // @v9.8.12 oneof2(EgaisMode, 1, 2)-->oneof3(EgaisMode, 1, 2, 3)
 					long   egcf = PPEgaisProcessor::cfDirectFileLogging;
 					if(EgaisMode == 2)
 						egcf |= PPEgaisProcessor::cfDebugMode;

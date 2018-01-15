@@ -1463,7 +1463,7 @@ void SLAPI PPView::SetOuterTitle(const char * pOuterTitle)
 int SLAPI PPView::GetOuterTitle(SString * pBuf) const
 {
 	ASSIGN_PTR(pBuf, OuterTitle);
-	return OuterTitle.NotEmpty() ? 1 : 0;
+	return BIN(OuterTitle.NotEmpty());
 }
 
 int SLAPI PPView::EditBaseFilt(PPBaseFilt * pFilt) { return PPSetError(PPERR_BASEFILTUNSUPPORTED); }
@@ -2072,7 +2072,7 @@ int PPViewBrowser::Export()
 
 int PPViewBrowser::GetToolbarComboData(PPID * pID)
 {
-	return P_ComboBox ? P_ComboBox->TransmitData(-1, pID) : 0;
+	return P_ComboBox ? (P_ComboBox->TransmitData(-1, pID), 1) : 0;
 }
 
 int PPViewBrowser::GetToolbarComboRect(RECT * pRect)

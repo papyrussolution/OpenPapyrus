@@ -214,8 +214,7 @@ static void ColouriseSpecmanDoc(Sci_PositionU startPos, Sci_Position length, int
 // Store both the current line's fold level and the next lines in the
 // level store to make it easy to pick up with each increment
 // and to make it possible to fiddle the current level for "} else {".
-static void FoldNoBoxSpecmanDoc(Sci_PositionU startPos, Sci_Position length, int,
-    Accessor &styler)
+static void FoldNoBoxSpecmanDoc(Sci_PositionU startPos, Sci_Position length, int, Accessor &styler)
 {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;

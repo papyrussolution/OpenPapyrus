@@ -57,7 +57,7 @@ int xmlIsXHTML(const xmlChar * systemID, const xmlChar * publicID)
 
 #define TODO xmlGenericError(0, "Unimplemented block at %s:%d\n", __FILE__, __LINE__);
 
-struct _xmlSaveCtxt {
+struct xmlSaveCtxt {
 	void * _private;
 	int    type;
 	int    fd;
@@ -269,7 +269,6 @@ static int xmlEscapeEntities(uchar* out, int * outlen, const xmlChar* in, int * 
 				in++;
 				goto error;
 			}
-
 			/*
 			 * We could do multiple things here. Just save as a char ref
 			 */
@@ -305,45 +304,39 @@ error:
  *
  * Initialize a saving context
  */
-static void xmlSaveCtxtInit(xmlSaveCtxtPtr ctxt)
+static void FASTCALL xmlSaveCtxtInit(xmlSaveCtxtPtr ctxt)
 {
-	int i;
-	int len;
-	if(!ctxt) return;
-	if((ctxt->encoding == NULL) && (ctxt->escape == NULL))
-		ctxt->escape = xmlEscapeEntities;
-	len = sstrlen((xmlChar*)xmlTreeIndentString);
-	if((xmlTreeIndentString == NULL) || (len == 0)) {
-		memzero(&ctxt->indent[0], MAX_INDENT + 1);
-	}
-	else {
-		ctxt->indent_size = len;
-		ctxt->indent_nr = MAX_INDENT / ctxt->indent_size;
-		for(i = 0; i < ctxt->indent_nr; i++)
-			memcpy(&ctxt->indent[i * ctxt->indent_size], xmlTreeIndentString,
-			    ctxt->indent_size);
-		ctxt->indent[ctxt->indent_nr * ctxt->indent_size] = 0;
-	}
-	if(xmlSaveNoEmptyTags) {
-		ctxt->options |= XML_SAVE_NO_EMPTY;
+	if(ctxt) {
+		if(!ctxt->encoding && !ctxt->escape)
+			ctxt->escape = xmlEscapeEntities;
+		int len = sstrlen((xmlChar*)xmlTreeIndentString);
+		if((xmlTreeIndentString == NULL) || (len == 0)) {
+			memzero(&ctxt->indent[0], MAX_INDENT + 1);
+		}
+		else {
+			ctxt->indent_size = len;
+			ctxt->indent_nr = MAX_INDENT / ctxt->indent_size;
+			for(int i = 0; i < ctxt->indent_nr; i++)
+				memcpy(&ctxt->indent[i * ctxt->indent_size], xmlTreeIndentString, ctxt->indent_size);
+			ctxt->indent[ctxt->indent_nr * ctxt->indent_size] = 0;
+		}
+		if(xmlSaveNoEmptyTags)
+			ctxt->options |= XML_SAVE_NO_EMPTY;
 	}
 }
-
 /**
  * xmlFreeSaveCtxt:
  *
  * Free a saving context, destroying the ouptut in any remaining buffer
  */
-static void xmlFreeSaveCtxt(xmlSaveCtxtPtr ctxt)
+static void FASTCALL xmlFreeSaveCtxt(xmlSaveCtxtPtr ctxt)
 {
-	if(!ctxt) return;
-	if(ctxt->encoding != NULL)
+	if(ctxt) {
 		SAlloc::F((char*)ctxt->encoding);
-	if(ctxt->buf != NULL)
 		xmlOutputBufferClose(ctxt->buf);
-	SAlloc::F(ctxt);
+		SAlloc::F(ctxt);
+	}
 }
-
 /**
  * xmlNewSaveCtxt:
  *
@@ -2286,7 +2279,6 @@ int xmlDocFormatDump(FILE * f, xmlDoc * cur, int format)
 	xmlOutputBuffer * buf;
 	const char * encoding;
 	xmlCharEncodingHandler * handler = NULL;
-	int ret;
 	if(!cur) {
 #ifdef DEBUG_TREE
 		xmlGenericError(0, "xmlDocDump : document == NULL\n");
@@ -2314,8 +2306,7 @@ int xmlDocFormatDump(FILE * f, xmlDoc * cur, int format)
 	xmlSaveCtxtInit(&ctxt);
 	ctxt.options |= XML_SAVE_AS_XML;
 	xmlDocContentDumpOutput(&ctxt, cur);
-	ret = xmlOutputBufferClose(buf);
-	return ret;
+	return xmlOutputBufferClose(buf);
 }
 /**
  * xmlDocDump:

@@ -55,62 +55,21 @@ using namespace Scintilla;
 
 // Auxiliary functions:
 
-static bool FASTCALL endOfLine(Accessor &styler, Sci_PositionU i)
-{
-	return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
-}
-
-static bool FASTCALL isTeXzero(int ch)
-{
-	return (ch == '%');
-}
-
-static bool FASTCALL isTeXone(int ch)
-{
-	return (ch == '[') || (ch == ']') || (ch == '=') || (ch == '#') ||
-		(ch == '(') || (ch == ')') || (ch == '<') || (ch == '>') ||
-		(ch == '"');
-}
-
-static bool FASTCALL isTeXtwo(int ch)
-{
-	return (ch == '{') || (ch == '}') || (ch == '$');
-}
-
-static bool FASTCALL isTeXthree(int ch)
-{
-	return (ch == '~') || (ch == '^') || (ch == '_') || (ch == '&') ||
-		(ch == '-') || (ch == '+') || (ch == '\"') || (ch == '`') ||
-		(ch == '/') || (ch == '|') || (ch == '%');
-}
-
-static bool FASTCALL isTeXfour(int ch)
-{
-	return (ch == '\\');
-}
-
-static bool FASTCALL isTeXfive(int ch)
-{
-	return ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')) ||
-		(ch == '@') || (ch == '!') || (ch == '?');
-}
-
-static bool FASTCALL isTeXsix(int ch)
-{
-	return (ch == ' ');
-}
-
-static bool FASTCALL isTeXseven(int ch)
-{
-	return (ch == '^');
-}
+static bool FASTCALL endOfLine(Accessor &styler, Sci_PositionU i) { return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n')); }
+static bool FASTCALL isTeXzero(int ch) { return (ch == '%'); }
+static bool FASTCALL isTeXone(int ch) { return (ch == '[') || (ch == ']') || (ch == '=') || (ch == '#') || (ch == '(') || (ch == ')') || (ch == '<') || (ch == '>') || (ch == '"'); }
+static bool FASTCALL isTeXtwo(int ch) { return (ch == '{') || (ch == '}') || (ch == '$'); }
+static bool FASTCALL isTeXthree(int ch) { return (ch == '~') || (ch == '^') || (ch == '_') || (ch == '&') || (ch == '-') || (ch == '+') || (ch == '\"') || (ch == '`') || (ch == '/') || (ch == '|') || (ch == '%'); }
+static bool FASTCALL isTeXfour(int ch) { return (ch == '\\'); }
+static bool FASTCALL isTeXfive(int ch) { return ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')) || (ch == '@') || (ch == '!') || (ch == '?'); }
+static bool FASTCALL isTeXsix(int ch) { return (ch == ' '); }
+static bool FASTCALL isTeXseven(int ch) { return (ch == '^'); }
+static bool FASTCALL isWordChar(int ch) { return ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')); }
+// static bool FASTCALL isNumber(int ch) { return (ch == '0') || (ch == '1') || (ch == '2') || (ch == '3') || (ch == '4') || (ch == '5') || (ch == '6') || (ch == '7') || (ch == '8') || (ch == '9'); }
 
 // Interface determination
 
-static int CheckTeXInterface(Sci_PositionU startPos,
-    Sci_Position length,
-    Accessor &styler,
-    int defaultInterface)
+static int CheckTeXInterface(Sci_PositionU startPos, Sci_Position length, Accessor &styler, int defaultInterface)
 {
 	char lineBuffer[1024];
 	Sci_PositionU linePos = 0;
@@ -158,47 +117,33 @@ static int CheckTeXInterface(Sci_PositionU startPos,
 			}
 		}
 	}
-
 	return defaultInterface;
 }
 
-static void ColouriseTeXDoc(Sci_PositionU startPos,
-    Sci_Position length,
-    int,
-    WordList * keywordlists[],
-    Accessor &styler)
+static void ColouriseTeXDoc(Sci_PositionU startPos, Sci_Position length, int, WordList * keywordlists[], Accessor &styler)
 {
 	styler.StartAt(startPos);
 	styler.StartSegment(startPos);
-
 	bool processComment   = styler.GetPropertyInt("lexer.tex.comment.process",   0) == 1;
 	bool useKeywords      = styler.GetPropertyInt("lexer.tex.use.keywords",      1) == 1;
 	bool autoIf           = styler.GetPropertyInt("lexer.tex.auto.if",           1) == 1;
 	int defaultInterface = styler.GetPropertyInt("lexer.tex.interface.default", 1);
-
 	char key[100];
 	int k;
 	bool newifDone = false;
 	bool inComment = false;
-
 	int currentInterface = CheckTeXInterface(startPos, length, styler, defaultInterface);
-
 	if(currentInterface == 0) {
 		useKeywords = false;
 		currentInterface = 1;
 	}
-
 	WordList &keywords = *keywordlists[currentInterface-1];
-
 	StyleContext sc(startPos, length, SCE_TEX_TEXT, styler);
-
 	bool going = sc.More();  // needed because of a fuzzy end of file state
-
 	for(; going; sc.Forward()) {
 		if(!sc.More()) {
 			going = false;
 		}                                    // we need to go one behind the end of text
-
 		if(inComment) {
 			if(sc.atLineEnd) {
 				sc.SetState(SCE_TEX_TEXT);
@@ -233,8 +178,7 @@ static void ColouriseTeXDoc(Sci_PositionU startPos,
 							sc.SetState(SCE_TEX_COMMAND);
 							newifDone = (autoIf && sstreq(key, "newif"));
 						}
-						else if(autoIf && !newifDone && (key[0] == 'i') && (key[1] == 'f') &&
-						    keywords.InList("if")) {
+						else if(autoIf && !newifDone && (key[0] == 'i') && (key[1] == 'f') && keywords.InList("if")) {
 							sc.SetState(SCE_TEX_COMMAND);
 						}
 						else {
@@ -246,10 +190,8 @@ static void ColouriseTeXDoc(Sci_PositionU startPos,
 				}
 				if(isTeXzero(sc.ch)) {
 					sc.SetState(SCE_TEX_SYMBOL);
-
 					if(!endOfLine(styler, sc.currentPos + 1))
 						sc.ForwardSetState(SCE_TEX_DEFAULT);
-
 					inComment = !processComment;
 					newifDone = false;
 				}
@@ -293,40 +235,25 @@ static void ColouriseTeXDoc(Sci_PositionU startPos,
 	sc.Complete();
 }
 
-static bool FASTCALL isNumber(int ch)
-{
-	return
-		(ch == '0') || (ch == '1') || (ch == '2') ||
-		(ch == '3') || (ch == '4') || (ch == '5') ||
-		(ch == '6') || (ch == '7') || (ch == '8') || (ch == '9');
-}
-
-static bool FASTCALL isWordChar(int ch)
-{
-	return ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z'));
-}
-
 static int ParseTeXCommand(Sci_PositionU pos, Accessor &styler, char * command)
 {
 	Sci_Position length = 0;
 	char ch = styler.SafeGetCharAt(pos+1);
-
-	if(ch==',' || ch==':' || ch==';' || ch=='%') {
+	if(oneof4(ch, ',', ':', ';', '%')) {
 		command[0] = ch;
 		command[1] = 0;
 		return 1;
 	}
-
-	// find end
-	while(isWordChar(ch) && !isNumber(ch) && ch!='_' && ch!='.' && length<100) {
-		command[length] = ch;
-		length++;
-		ch = styler.SafeGetCharAt(pos+length+1);
+	else {
+		// find end
+		while(isWordChar(ch) && !isdec(ch) && ch!='_' && ch!='.' && length<100) {
+			command[length] = ch;
+			length++;
+			ch = styler.SafeGetCharAt(pos+length+1);
+		}
+		command[length] = '\0';
+		return length ? (length+1) : 0;
 	}
-
-	command[length] = '\0';
-	if(!length) return 0;
-	return length+1;
 }
 
 static int classifyFoldPointTeXPaired(const char* s)
@@ -362,18 +289,15 @@ static int classifyFoldPointTeXUnpaired(const char* s)
 
 static bool IsTeXCommentLine(Sci_Position line, Accessor &styler)
 {
-	Sci_Position pos = styler.LineStart(line);
-	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
-
-	Sci_Position startpos = pos;
-
-	while(startpos<eol_pos) {
-		char ch = styler[startpos];
-		if(ch!='%' && ch!=' ') return false;
-		else if(ch=='%') return true;
-		startpos++;
+	const Sci_Position pos = styler.LineStart(line);
+	const Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
+	for(Sci_Position startpos = pos; startpos < eol_pos; startpos++) {
+		const char ch = styler[startpos];
+		if(ch!='%' && ch!=' ') 
+			return false;
+		else if(ch=='%') 
+			return true;
 	}
-
 	return false;
 }
 
@@ -389,72 +313,46 @@ static void FoldTexDoc(Sci_PositionU startPos, Sci_Position length, int, WordLis
 	int levelCurrent = levelPrev;
 	char chNext = styler[startPos];
 	char buffer[100] = "";
-
 	for(Sci_PositionU i = startPos; i < endPos; i++) {
 		char ch = chNext;
 		chNext = styler.SafeGetCharAt(i+1);
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
-
 		if(ch=='\\') {
 			ParseTeXCommand(i, styler, buffer);
 			levelCurrent += classifyFoldPointTeXPaired(buffer)+classifyFoldPointTeXUnpaired(buffer);
 		}
-
 		if(levelCurrent > SC_FOLDLEVELBASE && ((ch == '\r' || ch=='\n') && (chNext == '\\'))) {
 			ParseTeXCommand(i+1, styler, buffer);
 			levelCurrent -= classifyFoldPointTeXUnpaired(buffer);
 		}
-
-		char chNext2;
-		char chNext3;
-		char chNext4;
-		char chNext5;
-		chNext2 = styler.SafeGetCharAt(i+2);
-		chNext3 = styler.SafeGetCharAt(i+3);
-		chNext4 = styler.SafeGetCharAt(i+4);
-		chNext5 = styler.SafeGetCharAt(i+5);
-
-		bool atEOfold = (ch == '%') &&
-		    (chNext == '%') && (chNext2=='}') &&
-		    (chNext3=='}')&& (chNext4=='-')&& (chNext5=='-');
-
-		bool atBOfold = (ch == '%') &&
-		    (chNext == '%') && (chNext2=='-') &&
-		    (chNext3=='-')&& (chNext4=='{')&& (chNext5=='{');
-
+		char chNext2 = styler.SafeGetCharAt(i+2);
+		char chNext3 = styler.SafeGetCharAt(i+3);
+		char chNext4 = styler.SafeGetCharAt(i+4);
+		char chNext5 = styler.SafeGetCharAt(i+5);
+		bool atEOfold = (ch == '%') && (chNext == '%') && (chNext2=='}') && (chNext3=='}')&& (chNext4=='-')&& (chNext5=='-');
+		bool atBOfold = (ch == '%') && (chNext == '%') && (chNext2=='-') && (chNext3=='-')&& (chNext4=='{')&& (chNext5=='{');
 		if(atBOfold) {
 			levelCurrent += 1;
 		}
-
 		if(atEOfold) {
 			levelCurrent -= 1;
 		}
-
 		if(ch=='\\' && chNext=='[') {
 			levelCurrent += 1;
 		}
-
 		if(ch=='\\' && chNext==']') {
 			levelCurrent -= 1;
 		}
-
 		bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
-
 		if(foldComment && atEOL && IsTeXCommentLine(lineCurrent, styler)) {
-			if(lineCurrent==0 && IsTeXCommentLine(lineCurrent + 1, styler)
-			    )
+			if(lineCurrent==0 && IsTeXCommentLine(lineCurrent + 1, styler))
 				levelCurrent++;
-			else if(lineCurrent!=0 && !IsTeXCommentLine(lineCurrent - 1, styler)
-			    && IsTeXCommentLine(lineCurrent + 1, styler)
-			    )
+			else if(lineCurrent!=0 && !IsTeXCommentLine(lineCurrent - 1, styler) && IsTeXCommentLine(lineCurrent + 1, styler))
 				levelCurrent++;
-			else if(lineCurrent!=0 && IsTeXCommentLine(lineCurrent - 1, styler) &&
-			    !IsTeXCommentLine(lineCurrent+1, styler))
+			else if(lineCurrent!=0 && IsTeXCommentLine(lineCurrent - 1, styler) && !IsTeXCommentLine(lineCurrent+1, styler))
 				levelCurrent--;
 		}
-
 //---------------------------------------------------------------------------------------------
-
 		if(atEOL) {
 			int lev = levelPrev;
 			if(visibleChars == 0 && foldCompact)

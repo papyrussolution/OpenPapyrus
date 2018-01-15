@@ -224,7 +224,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -269,7 +269,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -317,7 +317,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -365,7 +365,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -412,7 +412,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -460,7 +460,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -508,7 +508,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -555,7 +555,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -605,7 +605,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -655,7 +655,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -703,7 +703,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -752,7 +752,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\include\zlib;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\ssl;..\OSF\OpenSSL\include;..\OSF\OpenSSL\crypto;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\evp;..\OSF\OpenSSL\crypto\asn1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>

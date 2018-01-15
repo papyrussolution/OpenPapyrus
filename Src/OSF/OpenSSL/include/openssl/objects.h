@@ -927,7 +927,6 @@
 #define OBJ_BSEARCH_VALUE_ON_NOMATCH            0x01
 #define OBJ_BSEARCH_FIRST_VALUE_ON_MATCH        0x02
 
-
 #ifdef  __cplusplus
 extern "C" {
 #endif
@@ -941,47 +940,36 @@ typedef struct obj_name_st {
 
 #define         OBJ_create_and_add_object(a,b,c) OBJ_create(a,b,c)
 
-int OBJ_NAME_init(void);
-int OBJ_NAME_new_index(unsigned long (*hash_func) (const char *),
-                       int (*cmp_func) (const char *, const char *),
-                       void (*free_func) (const char *, int, const char *));
-const char *OBJ_NAME_get(const char *name, int type);
-int OBJ_NAME_add(const char *name, int type, const char *data);
-int OBJ_NAME_remove(const char *name, int type);
-void OBJ_NAME_cleanup(int type); /* -1 for everything */
-void OBJ_NAME_do_all(int type, void (*fn) (const OBJ_NAME *, void *arg),
-                     void *arg);
-void OBJ_NAME_do_all_sorted(int type,
-                            void (*fn) (const OBJ_NAME *, void *arg),
-                            void *arg);
+int    OBJ_NAME_init(void);
+int    OBJ_NAME_new_index(unsigned long (*hash_func) (const char *), int (*cmp_func) (const char *, const char *), void (*free_func) (const char *, int, const char *));
+const  char * OBJ_NAME_get(const char *name, int type);
+int    OBJ_NAME_add(const char *name, int type, const char *data);
+int    OBJ_NAME_remove(const char *name, int type);
+void   OBJ_NAME_cleanup(int type); /* -1 for everything */
+void   OBJ_NAME_do_all(int type, void (*fn) (const OBJ_NAME *, void *arg), void *arg);
+void   OBJ_NAME_do_all_sorted(int type, void (*fn) (const OBJ_NAME *, void *arg), void *arg);
 
-ASN1_OBJECT *OBJ_dup(const ASN1_OBJECT *o);
-ASN1_OBJECT *OBJ_nid2obj(int n);
-const char *OBJ_nid2ln(int n);
-const char *OBJ_nid2sn(int n);
-int OBJ_obj2nid(const ASN1_OBJECT *o);
-ASN1_OBJECT *OBJ_txt2obj(const char *s, int no_name);
-int OBJ_obj2txt(char *buf, int buf_len, const ASN1_OBJECT *a, int no_name);
-int OBJ_txt2nid(const char *s);
-int OBJ_ln2nid(const char *s);
-int OBJ_sn2nid(const char *s);
-int OBJ_cmp(const ASN1_OBJECT *a, const ASN1_OBJECT *b);
-const void *OBJ_bsearch_(const void *key, const void *base, int num, int size,
-                         int (*cmp) (const void *, const void *));
-const void *OBJ_bsearch_ex_(const void *key, const void *base, int num,
-                            int size,
-                            int (*cmp) (const void *, const void *),
-                            int flags);
+ASN1_OBJECT * OBJ_dup(const ASN1_OBJECT *o);
+ASN1_OBJECT * OBJ_nid2obj(int n);
+const char * FASTCALL OBJ_nid2ln(int n);
+const char * FASTCALL OBJ_nid2sn(int n);
+int    FASTCALL OBJ_obj2nid(const ASN1_OBJECT *o);
+ASN1_OBJECT * FASTCALL OBJ_txt2obj(const char *s, int no_name);
+int    OBJ_obj2txt(char *buf, int buf_len, const ASN1_OBJECT *a, int no_name);
+int    OBJ_txt2nid(const char *s);
+int    OBJ_ln2nid(const char *s);
+int    OBJ_sn2nid(const char *s);
+int    OBJ_cmp(const ASN1_OBJECT *a, const ASN1_OBJECT *b);
+const  void *OBJ_bsearch_(const void *key, const void *base, int num, int size, int (*cmp) (const void *, const void *));
+const  void *OBJ_bsearch_ex_(const void *key, const void *base, int num, int size, int (*cmp) (const void *, const void *), int flags);
 
 #define _DECLARE_OBJ_BSEARCH_CMP_FN(scope, type1, type2, nm)    \
   static int nm##_cmp_BSEARCH_CMP_FN(const void *, const void *); \
   static int nm##_cmp(type1 const *, type2 const *); \
   scope type2 * OBJ_bsearch_##nm(type1 *key, type2 const *base, int num)
 
-#define DECLARE_OBJ_BSEARCH_CMP_FN(type1, type2, cmp)   \
-  _DECLARE_OBJ_BSEARCH_CMP_FN(static, type1, type2, cmp)
-#define DECLARE_OBJ_BSEARCH_GLOBAL_CMP_FN(type1, type2, nm)     \
-  type2 * OBJ_bsearch_##nm(type1 *key, type2 const *base, int num)
+#define DECLARE_OBJ_BSEARCH_CMP_FN(type1, type2, cmp)       _DECLARE_OBJ_BSEARCH_CMP_FN(static, type1, type2, cmp)
+#define DECLARE_OBJ_BSEARCH_GLOBAL_CMP_FN(type1, type2, nm) type2 * OBJ_bsearch_##nm(type1 *key, type2 const *base, int num)
 
 /*-
  * Unsolved problem: if a type is actually a pointer type, like
@@ -1032,8 +1020,7 @@ const void *OBJ_bsearch_ex_(const void *key, const void *base, int num,
       } \
   type2 *OBJ_bsearch_##nm(type1 *key, type2 const *base, int num) \
       { \
-      return (type2 *)OBJ_bsearch_(key, base, num, sizeof(type2), \
-                                        nm##_cmp_BSEARCH_CMP_FN); \
+      return (type2 *)OBJ_bsearch_(key, base, num, sizeof(type2), nm##_cmp_BSEARCH_CMP_FN); \
       } \
       extern void dummy_prototype(void)
 

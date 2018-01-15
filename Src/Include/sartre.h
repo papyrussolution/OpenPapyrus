@@ -1,8 +1,7 @@
 // SARTRE.H
-// Copyright (c) A.Sobolev 2011, 2012, 2016, 2017
+// Copyright (c) A.Sobolev 2011, 2012, 2016, 2017, 2018
 // @codepage UTF-8
 //
-
 /*
 	<...> - металексемы
 
@@ -196,9 +195,9 @@
 //
 // --------------------------------------------------------
 //
-typedef uint32 LEXID;
-typedef int64  CONCEPTID;
-typedef int64  NGID;
+typedef uint32 LEXID;     // Идентификатор лексемы (слова)
+typedef int64  CONCEPTID; // Идентификатор концепции
+typedef int64  NGID;      // Идентификатор N-gram (последовательности лексем)
 //
 // Типы грамматических правил преобразования форм слова
 //
@@ -220,14 +219,8 @@ class SrSList : public SBaseBuffer {
 public:
 	SrSList(int type);
 	virtual ~SrSList();
-	int    GetType() const
-	{
-		return Type;
-	}
-	size_t GetLength() const
-	{
-		return Len;
-	}
+	int    GetType()   const { return Type; }
+	size_t GetLength() const { return Len; }
 	int FASTCALL Copy(const SrSList & rS);
 	virtual void Clear();
 	virtual int IsEqual(const SrSList & rS) const;
@@ -332,6 +325,7 @@ private:
 //
 struct SrWordAssoc { // @flat
 	SLAPI  SrWordAssoc();
+	int    FASTCALL IsEqual(const SrWordAssoc & rS) const;
 	SrWordAssoc & SLAPI Normalize();
 	SString & FASTCALL ToStr(SString & rBuf) const;
 
@@ -416,7 +410,7 @@ public:
 	SrWordAssocTbl(BDbDatabase * pDb);
 	~SrWordAssocTbl();
 	int    Add(SrWordAssoc * pWa, int32 * pID);
-	//int    Update(int32 id, SrWordAssoc * pWa);
+	int    Update(SrWordAssoc & rRec);
 	int    Search(int32 id, SrWordAssoc * pWa);
 	int    Search(LEXID wordID, TSVector <SrWordAssoc> & rList); // @v9.8.4 TSArray-->TSVector
 	int    SerializeRecBuf(int dir, SrWordAssoc * pWa, SBuffer & rBuf);
@@ -490,10 +484,7 @@ public:
 	SrCPropDeclList & FASTCALL operator = (const SrCPropDeclList & rS);
 	SrCPropDeclList & FASTCALL Copy(const SrCPropDeclList & rS);
 	SrCPropDeclList & Clear();
-	uint   GetCount() const
-	{
-		return D.getCount();
-	}
+	uint   GetCount() const { return D.getCount(); }
 	int    FASTCALL Add(const SrCPropDecl & rP);
 	int    Replace(uint pos, const SrCPropDecl & rP);
 	int    Get(uint idx, SrCPropDecl & rP) const;
@@ -560,7 +551,6 @@ public:
 	SrCProp & FASTCALL operator = (int);
 	SrCProp & FASTCALL operator = (int64);
 	SrCProp & FASTCALL operator = (double);
-
 	int    FASTCALL Get(int64 & rIntVal) const;
 	int    FASTCALL Get(double & rRealVal) const;
 
@@ -600,17 +590,15 @@ private:
 //
 class SrConceptPropTbl : public BDbTable {
 public:
+	static int FASTCALL EncodePrimeKey(BDbTable::Buffer & rKeyBuf, const SrCProp & rRec);
+	static int FASTCALL DecodePrimeKey(const BDbTable::Buffer & rKeyBuf, SrCProp & rRec);
 	SrConceptPropTbl(SrDatabase & rSr);
 	int    Set(SrCProp & rProp);
 	int    Search(SrCProp & rRec);
 	int    GetPropIdList(CONCEPTID cID, Int64Array & rPropIdList);
 	int    GetPropList(CONCEPTID cID, SrCPropList & rPropList);
 	int    Remove(CONCEPTID cID, CONCEPTID propID);
-
 	int    SerializeRecBuf(int dir, SrCProp * pRec, SBuffer & rBuf);
-
-	static int FASTCALL EncodePrimeKey(BDbTable::Buffer & rKeyBuf, const SrCProp & rRec);
-	static int FASTCALL DecodePrimeKey(const BDbTable::Buffer & rKeyBuf, SrCProp & rRec);
 private:
 	SrDatabase & R_Sr; // @notowned
 };
@@ -714,6 +702,13 @@ struct SrWordInfo { // @flat
 class SrDatabase {
 public:
 	//
+	// Descr: Формирует текст специальной лексемы с префиксом, определенным параметром spcTag.
+	// Returns:
+	//   >0 - специальная лексема успешно сформирована
+	//   0  - ошибка (не допустимое значение spcTag)
+	//
+	static int SLAPI MakeSpecialWord(int spcTag, const char * pWordUtf8, SString & rBuf);
+	//
 	// Descr: Квази-идентификаторы зарезервированных концепций.
 	// Реальные идентификаторы таких концепций могут быть получены вызовом SrDatabase::GetReservedConcept().
 	//
@@ -732,10 +727,7 @@ public:
 
 	int    Open(const char * pDbPath, long flags);
 	void   Close();
-	operator BDbDatabase *()
-	{
-		return P_Db;
-	}
+	operator BDbDatabase * () { return P_Db; }
 	//
 	// Descr: Возвращает реальный идентификатор зарезервированной концепции с квази-идентификатором rc.
 	//
@@ -757,8 +749,17 @@ public:
 	//   добавляет новый дескриптор, соответствующий rWf.
 	// Note: Функция высокоуровневая и ориентирована на завершенные слова. Дескрипторы словоформ, определенные
 	//   для составных конструкций ([prefix] [base] [suffix]) должны устанавливаются более сложными методами.
+	// ARG(wordID       IN): Идентификатор лексемы, для которой устанавливаются теги
+	// ARG(rWf          IN): Список тегов словоформы, которые должны быть ассоциированы с wordID
+	// ARG(pResultWaId OUT): @#{vptr0} Идентификатор найденной или созданной структуры SrWordAssoc
+	// Returns:
+	//   1 - теги успешно ассоциированы с wordID. При этом была созданная новая запись SrWordAssoc.
+	//   2 - теги уже ассоциированы с wordID. Запись SrWordAssoc не создана, по указателю pResultId 
+	//     присвоен ид существующей записи.
+	//  -1 - Список тегов rWf пустой
+	//   0 - ошибка
 	//
-	int    SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf);
+	int    SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf, int32 * pResultWaId);
 	//
 	// Descr: Реализует базовый механизм извлечения признаков слова wordID из базы данных.
 	//   При извлечении учитываются префикс (pfxID) и суффикс (afxID) слова (если не нулевые).
@@ -809,7 +810,6 @@ public:
 	int    GetConceptSymb(CONCEPTID cID, SString & rSymbUht8);
 	int    GetPropDeclList(CONCEPTID cID, SrCPropDeclList & rPdl);
 	int    GetConceptPropList(CONCEPTID cID, SrCPropList & rPl);
-
 	int    GetPropType(CONCEPTID propID);
 	//
 	// Descr: Ищет идентификатор концепции с символом pSymbUtf8.
@@ -846,25 +846,15 @@ public:
 	int    ResolveWord(const char * pWordUtf8, LEXID * pID);
 	int    ResolveNGram(const LongArray & rList, NGID * pID);
 	int    ResolveCPropSymb(const char * pSymbUtf8, LEXID * pID);
-
 	int    MakeConceptPropC(const SrCPropDeclList & rPdl, const char * pPropSymb, SrCProp & rProp, const char * pConceptSymb);
 	int    MakeConceptPropNg(const SrCPropDeclList & rPdl, const char * pPropSymb, SrCProp & rProp, const LongArray & rNg);
 	int    MakeConceptPropN(const SrCPropDeclList & rPdl, const char * pPropSymb, SrCProp & rProp, double value);
 	int    FormatProp(const SrCProp & rCp, long flags, SString & rBuf);
-
 	int    ImportFlexiaModel(const SrImportParam & rParam);
-
 	int    StoreGeoNodeList(const TSVector <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, int dontCheckExist, TSVector <PPOsm::NodeClusterStatEntry> * pStat);
 	int    StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSVector <PPOsm::WayStatEntry> * pStat);
 	int    StoreGeoNodeWayRefList(const LLAssocArray & rList);
 	int    StoreFiasAddr(const Sdr_FiasRawAddrObj & rItem);
-	//
-	// Descr: Формирует текст специальной лексемы с префиксом, определенным параметром spcTag.
-	// Returns:
-	//   >0 - специальная лексема успешно сформирована
-	//   0  - ошибка (не допустимое значение spcTag)
-	//
-	static int SLAPI MakeSpecialWord(int spcTag, const char * pWordUtf8, SString & rBuf);
 //private:
 public:
 	BDbDatabase      * P_Db;
@@ -886,7 +876,6 @@ private:
 	CONCEPTID PropInstance; // :crp_instance
 	CONCEPTID PropSubclass; // :crp_subclass
 	CONCEPTID PropType;     // :crp_type
-
 	SymbHashTable WordCache;
 };
 //
@@ -998,7 +987,6 @@ public:
 
 	int    SLAPI ProcessText(SrDatabase & rDb, SrSyntaxRuleTokenizer & rT, uint tidxFirst, uint tidxCount, TSCollection <Result> & rResultList) const;
 	int    SLAPI __ProcessText2(SrDatabase & rDb, const char * pResource, const SString & rTextUtf8, const char * pOutFileName) const;
-
 	int    SLAPI MatchListToStr(const TSVector <MatchEntry> & rML, const STokenizer & rT, SString & rBuf) const;
 
 	class ResolveRuleBlock {
@@ -1009,22 +997,16 @@ public:
 		void   FASTCALL SetupRule(const SrSyntaxRuleSet::Rule * pRule);
 		void   SLAPI PushInnerState();
 		int    FASTCALL PopInnerState(int dontRestoreTextIdx);
-
 		int    SLAPI PutMatchEntryOnSuccess(uint txtIdxStart, uint txtIdxEnd, CONCEPTID conceptId);
 		uint   SLAPI GetMatchListPreservedP();
 		void   FASTCALL TrimMatchListOnFailure(uint preservedP);
-
-		const TSVector <MatchEntry> & GetMatchList() const
-		{
-			return MatchList;
-		}
+		const  TSVector <MatchEntry> & GetMatchList() const { return MatchList; }
 
 		const  SrSyntaxRuleSet::Rule * P_Rule;
 		const  STokenizer & R_T;
 		SrDatabase & R_Db;
 		uint   StackP;
 		uint   TextIdx;
-
 		STokenizer::Item TItemBuf; // @allocreuse
 		SString TempBuf;           // @allocreuse
 	private:

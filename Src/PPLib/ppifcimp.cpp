@@ -1515,12 +1515,8 @@ SString & DL6ICLS_PPUtil::ReadPPIniParam(PpyIniSection section, PpyIniParam para
 	{
 		long   inner_param = 0;
 		switch(param) {
-			case SpecEncodeSymbs:
-				inner_param = PPINIPARAM_SPECENCODESYMBS;
-				break;
-			case BaltikaWoTareBeerGGrpCode:
-				inner_param = PPINIPARAM_BALTIKAWOTAREBEERGGRPCODE;
-				break;
+			case SpecEncodeSymbs: inner_param = PPINIPARAM_SPECENCODESYMBS; break;
+			case BaltikaWoTareBeerGGrpCode: inner_param = PPINIPARAM_BALTIKAWOTAREBEERGGRPCODE; break;
 		}
 		if(inner_param) {
 			PPIniFile ini_file;
@@ -1563,9 +1559,9 @@ int32 DL6ICLS_PPUtil::SendMail(int32 acctID, SString & rSubject, SString & rMess
 	if(p_attachments)
 		for(uint i = 0; i < p_attachments->getCount(); i++)
 			files_list.insert(newStr(p_attachments->Get(i).Txt));
-	rSubject.Transf(CTRANSF_INNER_TO_UTF8);
-	rMessage.Transf(CTRANSF_INNER_TO_UTF8);
-	rMail.Transf(CTRANSF_INNER_TO_UTF8);
+	rSubject.Transf(CTRANSF_OUTER_TO_UTF8); // @v9.8.12 @fix CTRANSF_INNER_TO_UTF8-->CTRANSF_OUTER_TO_UTF8
+	rMessage.Transf(CTRANSF_OUTER_TO_UTF8); // @v9.8.12 @fix CTRANSF_INNER_TO_UTF8-->CTRANSF_OUTER_TO_UTF8
+	rMail.Transf(CTRANSF_OUTER_TO_UTF8); // @v9.8.12 @fix CTRANSF_INNER_TO_UTF8-->CTRANSF_OUTER_TO_UTF8
 	// @v9.6.5 {
 	if(acctID == 0) {
 		PPAlbatrosConfig a_cfg;
@@ -2226,7 +2222,7 @@ int32 DL6ICLS_PPSession::LoginDialog(PPYHWND pParent, SString * pDbName, SString
 			if((ok = Login(db_name, param.UserName, param.Password)) <= 0) {
 				SString buf;
 				if(PPGetLastErrorMessage(DS.CheckExtFlag(ECF_SYSSERVICE), buf)) {
-					::MessageBox(parent, (const char*)buf.Transf(CTRANSF_INNER_TO_OUTER), "", MB_OK|MB_ICONERROR); // @unicodeproblem
+					::MessageBox(parent, buf.Transf(CTRANSF_INNER_TO_OUTER).cptr(), "", MB_OK|MB_ICONERROR); // @unicodeproblem
 					AppError = 0;
 				}
 			}

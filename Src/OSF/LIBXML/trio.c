@@ -738,8 +738,7 @@ static BOOLEAN_T TrioIsQualifier(const char character)
 {
 	/* QUALIFIER_POSITION is not included */
 	switch(character) {
-		case '0': case '1': case '2': case '3': case '4':
-		case '5': case '6': case '7': case '8': case '9':
+		case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
 		case QUALIFIER_PLUS:
 		case QUALIFIER_MINUS:
 		case QUALIFIER_SPACE:
@@ -1210,8 +1209,7 @@ static int TrioParse(int type, const char * format, trio_parameter_t * parameter
 					    if(!(flags & FLAGS_LEFTADJUST))
 						    flags |= FLAGS_NILPADDING;
 					// @fallthrough
-					case '1': case '2': case '3': case '4':
-					case '5': case '6': case '7': case '8': case '9':
+					case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
 					    flags |= FLAGS_WIDTH;
 					    /* &format[index - 1] is used to "rewind" the read
 					     * character from format

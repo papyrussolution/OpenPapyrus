@@ -133,54 +133,51 @@ int SLAPI BudgetItemCore::PutItem_(PPID * pID, BudgetItemTbl::Rec * pRec, int us
 
 int SLAPI BudgetItemCore::PutItem(PPID * pID, BudgetItemTbl::Rec * pRec, int useTa)
 {
-	int ok = 1, ta = 0;
+	int    ok = 1; //, ta = 0;
 	double prev_amt = 0.0;
 	PPObjAccount obj_acct;
-
 	if(pID) {
-		int del = BIN(*pID && pRec == 0);
+		int    del = BIN(*pID && pRec == 0);
 		BudgetItemTbl::Rec prev_rec;
-
 		MEMSZERO(prev_rec);
 		if(*pID)
 			Search(*pID, &prev_rec);
-
-		THROW(PPStartTransaction(&ta, useTa));
-		THROW(PutItem_(pID, pRec, 0));
-		if(del && prev_rec.ID) {
-			StrAssocArray child_list;
-			if(obj_acct.GetChildList(prev_rec.Acc, &child_list) > 0)
-				for(uint i = 0; i < child_list.getCount(); i++)
-					deleteFrom(this, 0, BudgetID == prev_rec.BudgetID && Kind == prev_rec.Kind && Dt == prev_rec.Dt && Acc == child_list.Get(i).Id);
-		}
 		{
-			StrAssocArray acc_list;
-			BudgetItemTbl::Rec * p_cur_rec = (pRec) ? pRec : &prev_rec;
-			if(obj_acct.GetParentList(p_cur_rec->Acc, &acc_list) > 0) {
-				for(uint i = 0; i < acc_list.getCount(); i++) {
-					PPID id = 0;
-					PPID parent_acc = acc_list.Get(i).Id;
-					BudgetItemTbl::Rec parent_bi_rec;
-					MEMSZERO(parent_bi_rec);
-					if(Search(p_cur_rec->BudgetID, parent_acc, p_cur_rec->Kind, p_cur_rec->Dt, &parent_bi_rec) > 0) {
-						double new_amt = parent_bi_rec.Amount - prev_rec.Amount;
-						parent_bi_rec.Amount = (pRec) ? new_amt + pRec->Amount : new_amt;
+			PPTransaction tra(useTa);
+			THROW(tra);
+			THROW(PutItem_(pID, pRec, 0));
+			if(del && prev_rec.ID) {
+				StrAssocArray child_list;
+				if(obj_acct.GetChildList(prev_rec.Acc, &child_list) > 0)
+					for(uint i = 0; i < child_list.getCount(); i++)
+						deleteFrom(this, 0, BudgetID == prev_rec.BudgetID && Kind == prev_rec.Kind && Dt == prev_rec.Dt && Acc == child_list.Get(i).Id);
+			}
+			{
+				StrAssocArray acc_list;
+				BudgetItemTbl::Rec * p_cur_rec = (pRec) ? pRec : &prev_rec;
+				if(obj_acct.GetParentList(p_cur_rec->Acc, &acc_list) > 0) {
+					for(uint i = 0; i < acc_list.getCount(); i++) {
+						PPID   id = 0;
+						PPID   parent_acc = acc_list.Get(i).Id;
+						BudgetItemTbl::Rec parent_bi_rec;
+						MEMSZERO(parent_bi_rec);
+						if(Search(p_cur_rec->BudgetID, parent_acc, p_cur_rec->Kind, p_cur_rec->Dt, &parent_bi_rec) > 0) {
+							double new_amt = parent_bi_rec.Amount - prev_rec.Amount;
+							parent_bi_rec.Amount = (pRec) ? new_amt + pRec->Amount : new_amt;
+						}
+						else {
+							parent_bi_rec     = *p_cur_rec;
+							parent_bi_rec.ID  = 0;
+							parent_bi_rec.Acc = parent_acc;
+						}
+						THROW(PutItem_(&(id = parent_bi_rec.ID), &parent_bi_rec, 0));
 					}
-					else {
-						parent_bi_rec     = *p_cur_rec;
-						parent_bi_rec.ID  = 0;
-						parent_bi_rec.Acc = parent_acc;
-					}
-					THROW(PutItem_(&(id = parent_bi_rec.ID), &parent_bi_rec, 0));
 				}
 			}
+			THROW(tra.Commit());
 		}
-		THROW(PPCommitWork(&ta));
 	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -259,7 +256,6 @@ int SLAPI PPObjBudget::GetPacket(PPID id, PPBudgetPacket * pPack)
 		{
 			SString buf;
 			PPBudget rec = pPack->Rec;
-
 			PPGetWord(PPWORD_BASE, 0, rec.Name, sizeof(rec.Name));
 			pPack->ScenList.insert(&rec);
 		}
@@ -306,47 +302,46 @@ int SLAPI PPObjBudget::PutRec(PPID * pID, PPBudget * pRec, int use_ta)
 
 int SLAPI PPObjBudget::PutPacket(PPID * pID, PPBudgetPacket * pPack, int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
 	PPBudgetPacket prev_pack;
-
-	THROW(PPStartTransaction(&ta, use_ta));
-	if(pID && *pID) {
-		if(!RVALUEPTR(prev_pack, pPack))
-			GetPacket(*pID, &prev_pack);
-	}
-	//
-	// Модифицируем запись бюджета
-	//
-	THROW(PutRec(pID, (pPack) ? &pPack->Rec : 0, 0));
-	//
-	// Модифицируем записи сценариев
-	//
-	for(uint i = 0; i < prev_pack.ScenList.getCount(); i++) {
-		PPBudget & r_scen_rec = prev_pack.ScenList.at(i);
-		if(i != 0) {
-			r_scen_rec.ParentID = prev_pack.Rec.ID;
-			THROW(PutRec(&r_scen_rec.ID, (pPack) ? &r_scen_rec : 0, 0));
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(pID && *pID) {
+			if(!RVALUEPTR(prev_pack, pPack))
+				GetPacket(*pID, &prev_pack);
 		}
-	}
-	//
-	// Модифицируем записи доходных/расходных статей
-	//
-	deleteFrom(&ItemsTbl, 0, ItemsTbl.BudgetID == *pID);
-	if(*pID && pPack != 0) {
-		PPID item_id = 0;
-		BudgetItemTbl::Rec item;
-		MEMSZERO(item);
-		for(uint i = 0; pPack->EnumItems(&i, &item) > 0;) {
-			item.BudgetID = *pID;
-			THROW(ItemsTbl.PutItem_(&item.ID, &item, 0));
-			pPack->UpdateItem(i-1, &item);
+		//
+		// Модифицируем запись бюджета
+		//
+		THROW(PutRec(pID, (pPack) ? &pPack->Rec : 0, 0));
+		//
+		// Модифицируем записи сценариев
+		//
+		for(uint i = 0; i < prev_pack.ScenList.getCount(); i++) {
+			PPBudget & r_scen_rec = prev_pack.ScenList.at(i);
+			if(i != 0) {
+				r_scen_rec.ParentID = prev_pack.Rec.ID;
+				THROW(PutRec(&r_scen_rec.ID, (pPack) ? &r_scen_rec : 0, 0));
+			}
 		}
+		//
+		// Модифицируем записи доходных/расходных статей
+		//
+		deleteFrom(&ItemsTbl, 0, ItemsTbl.BudgetID == *pID);
+		if(*pID && pPack != 0) {
+			PPID item_id = 0;
+			BudgetItemTbl::Rec item;
+			MEMSZERO(item);
+			for(uint i = 0; pPack->EnumItems(&i, &item) > 0;) {
+				item.BudgetID = *pID;
+				THROW(ItemsTbl.PutItem_(&item.ID, &item, 0));
+				pPack->UpdateItem(i-1, &item);
+			}
+		}
+		THROW(tra.Commit());
 	}
-	THROW(PPCommitWork(&ta));
-	CATCH
-		PPRollbackWork(&ta);
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -358,8 +353,7 @@ int SLAPI PPObjBudget::GetChildBudgets(PPID parentID, PPIDArray * pChildList)
 	for(ref->InitEnum(PPOBJ_BUDGET, 0, &h); ref->NextEnum(h, &budget) > 0;) {
 		if(budget.ParentID == parentID) {
 			ok = 1;
-			if(pChildList)
-				pChildList->add(budget.ID);
+			CALLPTRMEMB(pChildList, add(budget.ID));
 		}
 	}
 	return ok;
@@ -457,7 +451,6 @@ public:
 		SetupCalPeriod(CTLCAL_BUDGET_PERIOD, CTL_BUDGET_PERIOD);
 		disableCtrl(CTL_BUDGET_ID, 1);
 	}
-
 	int setDTS(const PPBudgetPacket *);
 	int getDTS(PPBudgetPacket *);
 private:
@@ -627,9 +620,8 @@ int SLAPI PPObjBudget::Edit(PPID * pID, void * extraPtr)
 
 class BudgetItemDialog : public TDialog {
 public:
-	BudgetItemDialog(PPObjBudget * pObj) : TDialog(DLG_BUDGITEM)
+	BudgetItemDialog(PPObjBudget * pObj) : TDialog(DLG_BUDGITEM), P_Obj(pObj)
 	{
-		P_Obj = pObj;
 		SetupCalDate(CTLCAL_BUDGITEM_DT, CTL_BUDGITEM_DT);
 	}
 	int setDTS(const BudgetItemTbl::Rec * pData);
@@ -751,19 +743,19 @@ IMPL_HANDLE_EVENT(BudgetItemsDialog)
 // virtual
 int BudgetItemsDialog::setupList()
 {
-	uint count = Data.getCount();
+	SString buf;
+	const uint count = Data.getCount();
 	for(uint i = 0; i < count; i++) {
-		SString buf;
-		BudgetItemTbl::Rec rec = Data.at(i);
+		const BudgetItemTbl::Rec & r_rec = Data.at(i);
 		StringSet ss(SLBColumnDelim);
-		if(P_Obj)
-			P_Obj->FormatDate(rec.BudgetID, 0, rec.Dt, buf);
+		buf.Z();
+		CALLPTRMEMB(P_Obj, FormatDate(r_rec.BudgetID, 0, r_rec.Dt, buf));
 		ss.add(buf, 0);
-		buf.Z().Cat(rec.Amount, SFMT_MONEY);
+		buf.Z().Cat(r_rec.Amount, SFMT_MONEY);
 		ss.add(buf, 0);
-		buf = rec.Memo;
+		buf = r_rec.Memo;
 		ss.add(buf, 0);
-		addStringToList(i + 1, ss.getBuf());
+		addStringToList(i+1, ss.getBuf());
 	}
 	return 1;
 }
@@ -783,13 +775,12 @@ int BudgetItemsDialog::delItem(long pos, long id)
 // virtual
 int BudgetItemsDialog::editItem(long pos, long id)
 {
-	int ok = -1;
+	int    ok = -1;
 	if(pos >= 0 && pos < (long)Data.getCount()) {
 		TDialog * p_dlg = new TDialog(DLG_BUDGICYCLEPAR);
 		if(CheckDialogPtrErr(&p_dlg) > 0) {
 			double amount = Data.at(pos).Amount;
-			SString memo;
-			memo = Data.at(pos).Memo;
+			SString memo = Data.at(pos).Memo;
 			p_dlg->setCtrlData(CTL_BUDGICYCLEPAR_AMT,    &amount);
 			p_dlg->setCtrlString(CTL_BUDGICYCLEPAR_MEMO, memo);
 			if(ExecView(p_dlg) == cmOK) {
@@ -1667,7 +1658,7 @@ int SLAPI PPViewBudget::Print(const void * pHdr)
 	return ok;
 }
 
-int SLAPI PPViewBudget::GetEditIds(const void * pRow, Hdr * pHdr, long col)
+void SLAPI PPViewBudget::GetEditIds(const void * pRow, Hdr * pHdr, long col)
 {
 	Hdr hdr;
 	MEMSZERO(hdr);
@@ -1702,7 +1693,6 @@ int SLAPI PPViewBudget::GetEditIds(const void * pRow, Hdr * pHdr, long col)
 			hdr = *(Hdr*)pRow;
 	}
 	ASSIGN_PTR(pHdr, hdr);
-	return 1;
 }
 
 int SLAPI PPViewBudget::OnExecBrowser(PPViewBrowser * pBrw)

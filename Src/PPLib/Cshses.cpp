@@ -1258,7 +1258,7 @@ int SLAPI AsyncCashGoodsIterator::__GetDifferentPricesForLookBackPeriod(PPID goo
 	int    ok = -1;
 	rList.clear();
     if(lookBackPeriod > 0) {
-		const double base_price = R3(basePrice);
+		// @v9.9.0 (unused) const double base_price = R3(basePrice);
 		const LDATE cd = getcurdate_();
 		const LDATE stop_date = plusdate(cd, -lookBackPeriod);
 		ReceiptCore & r_rc = BillObj->trfr->Rcpt;
@@ -1810,20 +1810,17 @@ int SLAPI AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 							Rec.DivN = default_div;
 						PROFILE_END
 					}
-					//
-					// Инициализируем (если необходимо) кассовый узел, ассоциированный с товаром
-					//
-					if(P_G2DAssoc) {
+					{
+						//
+						// Инициализируем (если необходимо) кассовый узел, ассоциированный с товаром
+						//
 						PPID   assoc_id = 0;
-						if(P_G2DAssoc->Get(grec.ID, &assoc_id) > 0) {
-							PPCashNode cn_rec;
-							if(assoc_id && CnObj.Fetch(assoc_id, &cn_rec) > 0) {
-								Rec.AsscPosNodeID = cn_rec.ID;
-								STRNSCPY(Rec.AsscPosNodeSymb, cn_rec.Symb);
-							}
+						PPCashNode cn_rec;
+						if(P_G2DAssoc && P_G2DAssoc->Get(grec.ID, &assoc_id) > 0 && assoc_id && CnObj.Fetch(assoc_id, &cn_rec) > 0) {
+							Rec.AsscPosNodeID = cn_rec.ID;
+							STRNSCPY(Rec.AsscPosNodeSymb, cn_rec.Symb);
 						}
 					}
-					//
 					PPGoodsTaxEntry gtx;
 					if(GObj.FetchTax(grec.ID, LConfig.OperDate, 0L, &gtx) > 0)
 						Rec.VatRate = gtx.GetVatRate();
@@ -2227,7 +2224,7 @@ void SLAPI AsyncCashGoodsGroupInfo::Init()
 	THISZERO();
 }
 
-SLAPI AsyncCashGoodsGroupIterator::AsyncCashGoodsGroupIterator(PPID cashNodeID, long flags, DeviceLoadingStat * pDls, const PPIDArray * pTermGrpList) : 
+SLAPI AsyncCashGoodsGroupIterator::AsyncCashGoodsGroupIterator(PPID cashNodeID, long flags, DeviceLoadingStat * pDls, const PPIDArray * pTermGrpList) :
 	P_GrpList(0)
 {
 	Init(cashNodeID, flags, pDls, pTermGrpList);

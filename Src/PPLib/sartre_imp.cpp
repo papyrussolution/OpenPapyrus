@@ -886,9 +886,8 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 												scan.IncrLen(1);
 												if(!(item_buf == "-")) {
 													temp_val = item_buf.ToLong();
-													if(temp_val >= 0) {
+													if(temp_val >= 0)
 														pfx_assoc.Search(temp_val, &wa.PrefixID, 0);
-													}
 												}
 											}
 										}
@@ -1015,32 +1014,42 @@ public:
 		//
 		// Descr: Извлекает идентификатор языка либо из данного элемента, либо, если здесь он не определен - из родительского.
 		//
-		int    GetLangID() const
-		{
-			int    lid = 0;
-			if(LangID)
-				lid = LangID;
-			else if(P_Parent)
-				lid = P_Parent->LangID; // Здесь рекурсии нет - если для родителя язык не определен, то все!
-			else if(P_Prev)
-				lid = P_Prev->GetLangID(); // @recursion
-			return lid;
-		}
+		int    GetLangID() const;
 		Operator * CreateNext();
 		Operator * CreateChild();
 		Operator * FindParent();
 
+		void   ResetAbbr()
+		{
+			Flags &= ~(fAbbr|fAbbrDot);
+		}
+		void   SetAbbr(int dot)
+		{
+			if(dot) {
+				Flags |= fAbbrDot;
+				Flags &= ~fAbbr;
+			}
+			else {
+				Flags |= fAbbr;
+				Flags &= ~fAbbrDot;
+			}
+		}
+
 		enum {
 			fClosed   = 0x0001, // Оператор закрыт (то есть считана полная конструкция оператора).
-			fAccepted = 0x0002  // Оператор учтен в базе данных вызовом SrConceptParser::PostprocessOpList(Operator *)
+			fAccepted = 0x0002, // Оператор учтен в базе данных вызовом SrConceptParser::PostprocessOpList(Operator *)
+			fAbbr     = 0x0004, // this - оператор аббревиатуры
+			fAbbrDot  = 0x0008  // this - оператор аббревиатуры с опциональной точкой в конце
 		};
 		SrConceptParser & R_Master; // @anchor
 		CONCEPTID  CID;
-		CONCEPTID  InstanceOf; // Концепция this является 'кземпляром концепции SubclassOf
+		CONCEPTID  InstanceOf; // Концепция this является экземпляром концепции SubclassOf
 		CONCEPTID  SubclassOf; // Концепция this является подклассом концепции SubclassOf
+		NGID   AbbrOf;         // Лексема this является аббревиатурой AbbrOf
 		int    CrType;         // Концепция this имеет тип CrType
 		LEXID  CLexID;
-		NGID   NgID;
+		int32  WaIdOfCLex;     // Ид ассоциации словоформ для CLexID, созданный или найденный при идентификации.
+		NGID   NgID__;
 		int16  LangID;
 		int16  Flags;
 		Int64Array EqToList;
@@ -1083,7 +1092,7 @@ public:
 		tokTypeStr,         // #str
 		tokTypeHDate,       // #hdate
 		tokTypeHPeriod,     // #hperiod
-		tokEqAbbrev,        // @v9.8.12 =$ кг=$килограмм 
+		tokEqAbbrev,        // @v9.8.12 =$ кг=$килограмм
 		tokEqAbbrevDot,     // @v9.8.12 =. ул=.улица    ул или ул.
 	};
 
@@ -1121,8 +1130,6 @@ public:
 	void CloseInput()
 	{
 		F.Close();
-		//LineBuf.Z();
-		//LineNo = 0;
 	}
 
 	SFile  F;
@@ -1146,9 +1153,11 @@ SrConceptParser::Operator & SrConceptParser::Operator::Clear()
 	CID = 0;
 	InstanceOf = 0;
 	SubclassOf = 0;
+	AbbrOf = 0;
 	CrType = 0;
 	CLexID = 0;
-	NgID = 0;
+	WaIdOfCLex = 0;
+	NgID__ = 0;
 	LangID = 0;
 	Flags = 0;
 	P_Parent = 0;
@@ -1162,7 +1171,7 @@ SrConceptParser::Operator & SrConceptParser::Operator::Clear()
 
 int SrConceptParser::Operator::IsEmpty() const
 {
-	return BIN(!CID && !CLexID && !NgID && !LangID && !P_Child);
+	return BIN(!CID && !CLexID && !NgID__ && !LangID && !P_Child);
 }
 
 int SrConceptParser::Operator::Close(int ifNeeded)
@@ -1179,6 +1188,18 @@ int SrConceptParser::Operator::Close(int ifNeeded)
 int SrConceptParser::Operator::IsClosed() const
 {
 	return BIN(Flags & fClosed);
+}
+
+int SrConceptParser::Operator::GetLangID() const
+{
+	int    lid = 0;
+	if(LangID)
+		lid = LangID;
+	else if(P_Parent)
+		lid = P_Parent->LangID; // Здесь рекурсии нет - если для родителя язык не определен, то все!
+	else if(P_Prev)
+		lid = P_Prev->GetLangID(); // @recursion
+	return lid;
 }
 
 SrConceptParser::Operator * SrConceptParser::Operator::CreateNext()
@@ -1327,7 +1348,7 @@ int FASTCALL SrConceptParser::_GetTypeByToken(int token) const
 		if(token == _CTypeSymbList[i].Token)
 			return _CTypeSymbList[i].Type;
 	}
-	return 0;
+	return PPSetError(PPERR_SR_TYPEBYTOKNFOUND, token);
 }
 
 int FASTCALL SrConceptParser::_GetToken(SString & rExtBuf)
@@ -1336,9 +1357,14 @@ int FASTCALL SrConceptParser::_GetToken(SString & rExtBuf)
 	int    tok = 0;
 	char   c = Scan[0];
 	switch(c) {
-		case 0:
-			tok = tokEnd;
-			break;
+		case 0: tok = tokEnd; break;
+		case '{': tok = tokLBrace; Scan.Incr(); break;
+		case '}': tok = tokRBrace; Scan.Incr(); break;
+		case '(': tok = tokLPar; Scan.Incr(); break;
+		case ')': tok = tokRPar; Scan.Incr(); break;
+		case ';': tok = tokSemicol; Scan.Incr(); break;
+		case '.': tok = tokDot; Scan.Incr(); break;
+		case ',': tok = tokComma; Scan.Incr(); break;
 		case ' ':
 		case '\t':
 			do {
@@ -1346,34 +1372,6 @@ int FASTCALL SrConceptParser::_GetToken(SString & rExtBuf)
 				c = Scan[0];
 			} while(oneof2(c, ' ', '\t'));
 			tok = tokSpace;
-			break;
-		case '{':
-			tok = tokLBrace;
-			Scan.Incr();
-			break;
-		case '}':
-			tok = tokRBrace;
-			Scan.Incr();
-			break;
-		case '(':
-			tok = tokLPar;
-			Scan.Incr();
-			break;
-		case ')':
-			tok = tokRPar;
-			Scan.Incr();
-			break;
-		case ';':
-			tok = tokSemicol;
-			Scan.Incr();
-			break;
-		case '.':
-			tok = tokDot;
-			Scan.Incr();
-			break;
-		case ',':
-			tok = tokComma;
-			Scan.Incr();
 			break;
 		case '#':
 			{
@@ -1387,6 +1385,27 @@ int FASTCALL SrConceptParser::_GetToken(SString & rExtBuf)
 				}
 				if(!tok)
 					tok = tokSharp;
+			}
+			break;
+		case '\"':
+			{
+				Scan.Incr();
+				SString temp_buf;
+				int    uc = Scan.GetUtf8(temp_buf);
+				while(uc != 0 && !(uc == 1 && temp_buf.Last() == '\"')) {
+					//if(uc == 1)
+					rExtBuf.Cat(temp_buf);
+					uc = Scan.GetUtf8(temp_buf);
+				}
+				if(uc == 0) {
+					tok = tokUnkn; // @error Не завершенное, обрамленное кавычками, слово.
+				}
+				else if(rExtBuf.NotEmpty()) {
+					tok = tokWord;
+				}
+				else {
+					tok = tokUnkn; // @error Пустое слово, обрамленное кавычками
+				}
 			}
 			break;
 		default:
@@ -1443,18 +1462,9 @@ int FASTCALL SrConceptParser::_GetToken(SString & rExtBuf)
 							Scan.Incr();
 						}
 						break;
-					case '[':
- 						tok = tokLBracket;
- 						Scan.Incr();
-						break;
-					case ']':
-						tok = tokRBracket;
-						Scan.Incr();
-						break;
-					case '/':
-						tok = tokSlash;
-						Scan.Incr();
-						break;
+					case '[': tok = tokLBracket; Scan.Incr(); break;
+					case ']': tok = tokRBracket; Scan.Incr(); break;
+					case '/': tok = tokSlash; Scan.Incr(); break;
 					default:
 						{
 							SString temp_buf;
@@ -1482,37 +1492,91 @@ int SrConceptParser::PostprocessOpList(Operator * pRoot)
 {
 	int    ok = 1;
 	SString temp_buf;
+	TSVector <SrWordAssoc> ex_wa_list;
 	for(Operator * p_current = pRoot; p_current; p_current = p_current->P_Next) {
 		if(p_current->Flags & p_current->fClosed && !(p_current->Flags & p_current->fAccepted)) {
-			if(p_current->CID) {
-				if(p_current->Pdl.GetCount()) {
-					SrConcept cp;
-					THROW(R_Db.P_CT->SearchByID(p_current->CID, &cp) > 0);
-					THROW(cp.Pdl.Merge(p_current->Pdl));
-					THROW(R_Db.P_CT->Update(cp));
+			if(p_current->AbbrOf) {
+				assert(p_current->Flags & (Operator::fAbbr|Operator::fAbbrDot));
+				assert(p_current->CLexID);
+				assert(!p_current->CID);
+				int    _done = 0;
+				if(p_current->WaIdOfCLex) {
+					//
+					// Если при разборе оператора мы создали упрощенный набо тегов лексемы, то в нем 
+					// и попытаемся указать что речь идет об аббревиатуре.
+					//
+					SrWordAssoc ex_wa;
+					THROW(R_Db.P_WaT->Search(p_current->WaIdOfCLex, &ex_wa) > 0);
+					if(ex_wa.AbbrExpID && ex_wa.AbbrExpID == p_current->AbbrOf)
+						_done = 1;
+					else if(ex_wa.AbbrExpID == 0) {
+						assert(ex_wa.WordID == p_current->CLexID);
+						ex_wa.AbbrExpID = p_current->AbbrOf;
+						ex_wa.Flags = SrWordAssoc::fHasAbbrExp;
+						if(p_current->Flags & Operator::fAbbrDot)
+							ex_wa.Flags |= SrWordAssoc::fAbbrDotOption;
+						THROW(R_Db.P_WaT->Update(ex_wa.Normalize()));
+						_done = 1;
+					}
 				}
-				if(p_current->InstanceOf) {
-					CONCEPTID prop_instance = R_Db.GetReservedConcept(R_Db.rcInstance);
-					THROW(prop_instance);
-					THROW(R_Db.SetConceptProp(p_current->CID, prop_instance, 0, p_current->InstanceOf));
+				else {
+					//
+					// Пытаемся выяснить, не является ли лексема уже той аббревиатурой, которую мы хотим установить
+					//
+					R_Db.P_WaT->Search(p_current->CLexID, ex_wa_list);
+					for(uint i = 0; i < ex_wa_list.getCount(); i++) {
+						const SrWordAssoc & r_ex_wa = ex_wa_list.at(i);
+						if(r_ex_wa.AbbrExpID && r_ex_wa.AbbrExpID == p_current->AbbrOf)
+							_done = 1;
+					}
 				}
-				if(p_current->SubclassOf) {
-					CONCEPTID prop_subclass = R_Db.GetReservedConcept(R_Db.rcSubclass);
-					THROW(prop_subclass);
-					THROW(R_Db.SetConceptProp(p_current->CID, prop_subclass, 0, p_current->SubclassOf));
+				if(!_done) {
+					//
+					// После всех стараний выяснилось, что лексема не определена как аббревиатура нашей ngram'ы.
+					// Что ж - создаем SrWordAssoc в котором укажем сей факт.
+					//
+					SrWordAssoc wa;
+					wa.WordID = p_current->CLexID;
+					wa.AbbrExpID = p_current->AbbrOf;
+					wa.Flags = SrWordAssoc::fHasAbbrExp;
+					if(p_current->Flags & Operator::fAbbrDot)
+						wa.Flags |= SrWordAssoc::fAbbrDotOption;
+					int32   wa_id = 0;
+					THROW(R_Db.P_WaT->Add(&wa.Normalize(), &wa_id));
 				}
-				if(p_current->CrType) {
-					CONCEPTID prop_crtype = R_Db.GetReservedConcept(R_Db.rcType);
-					THROW(prop_crtype);
-					THROW(R_Db.SetConceptProp(p_current->CID, prop_crtype, 0, p_current->CrType));
+			}
+			else {
+				assert(!(p_current->Flags & (Operator::fAbbr|Operator::fAbbrDot)));
+				if(p_current->CID) {
+					if(p_current->Pdl.GetCount()) {
+						SrConcept cp;
+						THROW(R_Db.P_CT->SearchByID(p_current->CID, &cp) > 0);
+						THROW(cp.Pdl.Merge(p_current->Pdl));
+						THROW(R_Db.P_CT->Update(cp));
+					}
+					if(p_current->InstanceOf) {
+						CONCEPTID prop_instance = R_Db.GetReservedConcept(R_Db.rcInstance);
+						THROW(prop_instance);
+						THROW(R_Db.SetConceptProp(p_current->CID, prop_instance, 0, p_current->InstanceOf));
+					}
+					if(p_current->SubclassOf) {
+						CONCEPTID prop_subclass = R_Db.GetReservedConcept(R_Db.rcSubclass);
+						THROW(prop_subclass);
+						THROW(R_Db.SetConceptProp(p_current->CID, prop_subclass, 0, p_current->SubclassOf));
+					}
+					if(p_current->CrType) {
+						CONCEPTID prop_crtype = R_Db.GetReservedConcept(R_Db.rcType);
+						THROW(prop_crtype);
+						THROW(R_Db.SetConceptProp(p_current->CID, prop_crtype, 0, p_current->CrType));
+					}
 				}
 			}
 			if(p_current->EqToList.getCount()) {
-				if(p_current->NgID) {
+				if(p_current->NgID__) {
 					for(uint i = 0; i < p_current->EqToList.getCount(); i++) {
 						CONCEPTID cid = p_current->EqToList.get(i);
 						if(cid) {
-							THROW(R_Db.P_CNgT->Set(cid, p_current->NgID));
+							THROW(R_Db.P_CNgT->Set(cid, p_current->NgID__));
 						}
 					}
 				}
@@ -1568,69 +1632,65 @@ int SrConceptParser::ApplyConceptPropList(const StrAssocArray & rTokList, CONCEP
 		}
 		else if(tok == tokWord) {
 			LEXID  symb_id = 0;
-			if(_IsIdent(temp_buf)) {
-				ident_buf = temp_buf;
-				{
-					THROW(i < rTokList.getCount()); // Неожиданное завершение файла
-					titem = rTokList.at_WithoutParent(i++);
-					tok = titem.Id;
-					temp_buf = titem.Txt;
-				}
-				if(tok == tokEq) {
-					if(R_Db.SearchSpecialWord(SrWordTbl::spcCPropSymb, ident_buf, &symb_id) > 0) {
-						{
-							THROW_PP(i < rTokList.getCount(), PPERR_SR_C_ENEXPECTEDEOF);
-							titem = rTokList.at_WithoutParent(i++);
-							tok = titem.Id;
-							temp_buf = titem.Txt;
-						}
-						if(tok == tokConcept) { // #1
-							THROW(R_Db.MakeConceptPropC(pdl, ident_buf, prop, temp_buf));
-							THROW(R_Db.P_CpT->Set(prop));
-						}
-						else if(tok == tokWord) {
-							ngram.clear();
-							do {
-								LEXID word_id = 0;
-								THROW(R_Db.ResolveWord(temp_buf, &word_id));
-								assert(word_id);
-								ngram.add(word_id);
-								{
-									THROW_PP(i < rTokList.getCount(), PPERR_SR_C_ENEXPECTEDEOF);
-									titem = rTokList.at_WithoutParent(i++);
-									tok = titem.Id;
-									temp_buf = titem.Txt;
-								}
-								if(tok == tokSpace) {
-									THROW_PP(i < rTokList.getCount(), PPERR_SR_C_ENEXPECTEDEOF);
-									titem = rTokList.at_WithoutParent(i++);
-									tok = titem.Id;
-									temp_buf = titem.Txt;
-								}
-							} while(tok == tokWord);
-							THROW(R_Db.MakeConceptPropNg(pdl, ident_buf, prop, ngram));
-							THROW(R_Db.P_CpT->Set(prop));
-						}
-						else if(tok == tokNumber) {
-							THROW(R_Db.MakeConceptPropN(pdl, ident_buf, prop, temp_buf.ToReal()));
-							THROW(R_Db.P_CpT->Set(prop));
-						}
+			THROW_PP_S(_IsIdent(temp_buf), PPERR_SR_C_PROPIDEXPECTED, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+			ident_buf = temp_buf;
+			{
+				THROW_PP(i < rTokList.getCount(), PPERR_SR_C_ENEXPECTEDEOF); // Неожиданное завершение файла
+				titem = rTokList.at_WithoutParent(i++);
+				tok = titem.Id;
+				temp_buf = titem.Txt;
+			}
+			if(tok == tokEq) {
+				if(R_Db.SearchSpecialWord(SrWordTbl::spcCPropSymb, ident_buf, &symb_id) > 0) {
+					{
+						THROW_PP(i < rTokList.getCount(), PPERR_SR_C_ENEXPECTEDEOF);
+						titem = rTokList.at_WithoutParent(i++);
+						tok = titem.Id;
+						temp_buf = titem.Txt;
 					}
-					else {
-						; // @error Символ 'ident_buf'  не является идентификатором свойства
+					if(tok == tokConcept) { // #1
+						THROW(R_Db.MakeConceptPropC(pdl, ident_buf, prop, temp_buf));
+						THROW(R_Db.P_CpT->Set(prop));
+					}
+					else if(tok == tokWord) {
+						ngram.clear();
+						do {
+							LEXID word_id = 0;
+							THROW(R_Db.ResolveWord(temp_buf, &word_id));
+							assert(word_id);
+							ngram.add(word_id);
+							{
+								THROW_PP(i < rTokList.getCount(), PPERR_SR_C_ENEXPECTEDEOF);
+								titem = rTokList.at_WithoutParent(i++);
+								tok = titem.Id;
+								temp_buf = titem.Txt;
+							}
+							if(tok == tokSpace) {
+								THROW_PP(i < rTokList.getCount(), PPERR_SR_C_ENEXPECTEDEOF);
+								titem = rTokList.at_WithoutParent(i++);
+								tok = titem.Id;
+								temp_buf = titem.Txt;
+							}
+						} while(tok == tokWord);
+						THROW(R_Db.MakeConceptPropNg(pdl, ident_buf, prop, ngram));
+						THROW(R_Db.P_CpT->Set(prop));
+					}
+					else if(tok == tokNumber) {
+						THROW(R_Db.MakeConceptPropN(pdl, ident_buf, prop, temp_buf.ToReal()));
+						THROW(R_Db.P_CpT->Set(prop));
 					}
 				}
-				else if(tok == tokExprOf) { // #2
-					THROW(R_Db.MakeConceptPropC(pdl, ident_buf, prop, temp_buf));
-					THROW(R_Db.P_CpT->Set(prop));
+				else {
+					; // @error Символ 'ident_buf'  не является идентификатором свойства
 				}
 			}
-			else {
-				; // @error Ожидается идентификатор свойства
+			else if(tok == tokExprOf) { // #2
+				THROW(R_Db.MakeConceptPropC(pdl, ident_buf, prop, temp_buf));
+				THROW(R_Db.P_CpT->Set(prop));
 			}
 		}
 		else {
-			; // @error Ожидается идентификатор свойства или концепт
+			CALLEXCEPT_PP_S(PPERR_SR_C_PROPIDORCONCEXPECTED, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 		}
 		{
 			THROW_PP(i < rTokList.getCount(), PPERR_SR_C_ENEXPECTEDEOF);
@@ -1644,44 +1704,10 @@ int SrConceptParser::ApplyConceptPropList(const StrAssocArray & rTokList, CONCEP
 			do_get_next_prop = 1;
 		}
 		else {
-			; // @error Ожидается скобка ')' или запятая ','
+			CALLEXCEPT_PP(PPERR_SR_C_RPARORCOMEXPECTED);
 		}
 	}
 	CATCHZOK
-	return ok;
-}
-
-int SrConceptParser::GetWordOrNgConstruct(int & rTok, SString & rWordBuf, SString & rW, StringSet & rNg)
-{
-	int    ok = -1;
-	if(rTok == tokWord) {
-		int    prev_tok = 0;
-		do {
-			rNg.add(rWordBuf);
-			if(prev_tok == tokSlash) {
-				rW.CatChar('/');
-			}
-			else if(prev_tok == tokDot) {
-				rW.Dot();
-			}
-			rW.Cat(rWordBuf);
-			//
-			prev_tok = rTok;
-			rTok = _GetToken(rWordBuf);
-			if(rTok == tokSpace) {
-				prev_tok = rTok;
-				rTok = _GetToken(rWordBuf);
-			}
-			else if(rTok == tokSlash) {
-				prev_tok = rTok;
-				rTok = _GetToken(rWordBuf);
-			}
-			else if(rTok == tokDot) {
-				prev_tok = rTok;
-				rTok = _GetToken(rWordBuf);
-			}
-		} while(rTok == tokWord);
-	}
 	return ok;
 }
 
@@ -1705,20 +1731,24 @@ int SrConceptParser::Run(const char * pFileName)
 			int    prev_tok = 0; // Токен, непосредственно предшествующий текущему
 			int    lbrace_count = 0;
 			LongArray ngram;
+			LongArray walist_of_ngram; // @#{walist_of_ngram.getCount() == ngram.getCount()} Список ассоциаций словоформ, соответствующих списку ngram
 			Int64Array _clist;
 			Int64Array _hlist;
 			do {
-				ngram.clear();
-				prev_tok = tok;
-				tok = _GetToken(temp_buf);
 				{
 					(msg_buf = "ImportConcept").Space().Cat(pFileName).CatChar('(').Cat(LineNo).CatChar(')');
 					PPWaitMsg(msg_buf);
 				}
+				prev_tok = tok;
+				tok = _GetToken(temp_buf);
+				int    can_use_ngram = 0;
 				if(tok == tokWord) {
+					ngram.clear();
+					walist_of_ngram.clear();
 					NGID   ngram_id = 0;
 					do {
 						LEXID word_id = 0;
+						int32  wa_id = 0;
 						{
 							THROW(R_Db.ResolveWord(temp_buf, &word_id));
 							assert(word_id);
@@ -1726,10 +1756,11 @@ int SrConceptParser::Run(const char * pFileName)
 							if(lang_id) {
 								SrWordForm wf;
 								wf.SetTag(SRWG_LANGUAGE, lang_id);
-								THROW(R_Db.SetSimpleWordFlexiaModel(word_id, wf));
+								THROW(R_Db.SetSimpleWordFlexiaModel(word_id, wf, &wa_id));
 							}
 						}
 						ngram.add(word_id);
+						walist_of_ngram.add(wa_id);
 						prev_tok = tok;
 						tok = _GetToken(temp_buf);
 						if(tok == tokSpace) {
@@ -1737,308 +1768,335 @@ int SrConceptParser::Run(const char * pFileName)
 							tok = _GetToken(temp_buf);
 						}
 					} while(tok == tokWord);
-					THROW(R_Db.ResolveNGram(ngram, &ngram_id));
-					assert(ngram_id);
-					p_current->NgID = ngram_id;
+					assert(ngram.getCount() == walist_of_ngram.getCount());
+					if(ngram.getCount() == 1) {
+						p_current->CLexID = ngram.get(0);
+						p_current->WaIdOfCLex = walist_of_ngram.get(0);
+					}
+					//
+					// Так как преобразование ngram в p_current->NgID__ нужно не всегда, отложим 
+					// принятие решения об этом до момента, когда это выяснится (обработаем по сигналу can_use_ngram)
+					//
+					can_use_ngram = 1;
 				}
-				switch(tok) {
-					case tokEnd:
-						if(p_current->Close(1) > 0) {
-							THROW(p_current = p_current->CreateNext());
-						}
-						if(!_ReadLine()) {
-							finish = 1;
-						}
-						break;
-					case tokSpace:
-						if(oneof2(prev_tok, tokWord, tokConcept)) {
+				if(oneof2(tok, tokEqAbbrev, tokEqAbbrevDot)) {
+					// LEX=$NGRAM
+					// кг=$килограмм
+					// "с/м"=$свеже-мороженый
+					THROW_PP(p_current->CLexID, PPERR_SR_C_NWORDBEFOREABBR);
+					//// До следующего токена сохраним текущее значение p_current->CLexID в p_current->AbbrOf
+					//// после получения очередной NG поменяем все местами.
+					//p_current->AbbrOf = p_current->CLexID;
+					//p_current->CLexID = 0; 
+					p_current->SetAbbr(tok == tokEqAbbrevDot);
+				}
+				else {
+					if(can_use_ngram) {
+						THROW(R_Db.ResolveNGram(ngram, &p_current->NgID__));
+						assert(p_current->NgID__);
+					}
+					if(p_current->Flags & (Operator::fAbbr|Operator::fAbbrDot)) {
+						THROW_PP(p_current->NgID__, PPERR_SR_C_NNGAFTERABBR);
+						//p_current->CLexID = (LEXID)p_current->AbbrOf;
+						p_current->AbbrOf = p_current->NgID__;
+					}
+					switch(tok) {
+						case tokEnd:
 							if(p_current->Close(1) > 0) {
 								THROW(p_current = p_current->CreateNext());
 							}
-						}
-						break;
-					case tokSemicol:
-						if(p_current->Close(1) > 0) {
-							THROW(p_current = p_current->CreateNext());
-						}
-						break;
-					case tokLBrace:
-						THROW(p_current = p_current->CreateChild());
-						break;
-					case tokRBrace:
-						{
-							Operator * p_par = p_current->FindParent();
-							THROW_PP(p_par, PPERR_SR_C_PAROPNFOUND);
-							p_current = p_par;
-							if(p_current->LangID) {
-								for(Operator * p_child = p_current->P_Child; p_child; p_child = p_child->P_Next) {
-									SETIFZ(p_child->LangID, p_current->LangID);
-								}
+							if(!_ReadLine()) {
+								finish = 1;
 							}
-						}
-						break;
-					case tokBracketsDescr:
-						{
-							if(p_current->Close(1) > 0) {
-								THROW(p_current = p_current->CreateNext());
-							}
-							THROW_SL(p_current->LangID = RecognizeLinguaSymb(temp_buf, 1));
-						}
-						break;
-					case tokConcept:
-						{
-							CONCEPTID cid = 0;
-							THROW(R_Db.ResolveConcept(temp_buf, &cid));
-							assert(cid);
-							if(prev_tok == tokConcept) {
-								p_current->InstanceOf = cid;
-							}
-							else if(prev_tok == tokWord) {
-								if(p_current->NgID && !p_current->CID) {
-									_clist.clear();
-									int   _cisdone = 0; // Концепция уже является членом иерархии, в которую входит cid
-									if(R_Db.GetNgConceptList(p_current->NgID, R_Db.ngclAnonymOnly, _clist) > 0) {
-										assert(_clist.getCount());
-										for(uint ci = 0; !_cisdone && ci < _clist.getCount(); ci++) {
-											if(R_Db.GetConceptHier(_clist.get(ci), _hlist) > 0 && _hlist.lsearch(cid)) {
-												p_current->CID = _clist.get(0);
-												_cisdone = 1;
-											}
-										}
-										p_current->CID = _clist.get(0);
-									}
-									if(!_cisdone) {
-										THROW(R_Db.CreateAnonymConcept(&p_current->CID));
-										THROW(R_Db.P_CNgT->Set(p_current->CID, p_current->NgID));
-										p_current->InstanceOf = cid;
-									}
-								}
-							}
-							else if(prev_tok == tokRBrace) {
-								_clist.clear();
-								for(Operator * p_child = p_current->P_Child; p_child; p_child = p_child->P_Next) {
-									if(!p_child->InstanceOf) {
-										if(p_child->NgID && !p_child->CID) {
-											_clist.clear();
-											if(R_Db.GetNgConceptList(p_child->NgID, R_Db.ngclAnonymOnly, _clist) > 0) {
-												assert(_clist.getCount());
-												p_child->CID = _clist.get(0);
-											}
-											else {
-												THROW(R_Db.CreateAnonymConcept(&p_child->CID));
-												THROW(R_Db.P_CNgT->Set(p_child->CID, p_child->NgID));
-											}
-										}
-										p_child->InstanceOf = cid;
-									}
-								}
-							}
-							else {
-								if(p_current->Close(1) > 0) {
-									THROW(p_current = p_current->CreateNext());
-								}
-								p_current->CID = cid;
-							}
-						}
-						break;
-					case tokSubclassOf:
-						{
-							CONCEPTID cid = 0;
-							THROW_PP(!p_current->IsClosed(), PPERR_SR_C_CLOSEDCUR_2CC);
-							THROW_PP(!p_current->SubclassOf, PPERR_SR_C_HASSUBCLS_2CC);
-							THROW(R_Db.ResolveConcept(temp_buf, &cid));
-							assert(cid);
-							if(prev_tok == tokConcept) {
-								p_current->SubclassOf = cid;
-							}
-							else if(prev_tok == tokWord) {
-								if(p_current->NgID && !p_current->CID) {
-									_clist.clear();
-									int   _cisdone = 0; // Концепция уже является членом иерархии, в которую входит cid
-									if(R_Db.GetNgConceptList(p_current->NgID, R_Db.ngclAnonymOnly, _clist) > 0) {
-										assert(_clist.getCount());
-										for(uint ci = 0; !_cisdone && ci < _clist.getCount(); ci++) {
-											if(R_Db.GetConceptHier(_clist.get(ci), _hlist) > 0 && _hlist.lsearch(cid)) {
-												p_current->CID = _clist.get(0);
-												_cisdone = 1;
-											}
-										}
-									}
-									if(!_cisdone) {
-										THROW(R_Db.CreateAnonymConcept(&p_current->CID));
-										THROW(R_Db.P_CNgT->Set(p_current->CID, p_current->NgID));
-										p_current->SubclassOf = cid;
-									}
-								}
-							}
-							else {
+							break;
+						case tokSpace:
+							if(oneof2(prev_tok, tokWord, tokConcept)) {
 								if(p_current->Close(1) > 0) {
 									THROW(p_current = p_current->CreateNext());
 								}
 							}
-						}
-						break;
-					case tokLPar:
-						{
-							temp_token_list.Clear();
-							for(int do_get_next_prop = 1; do_get_next_prop;) {
-								//
-								// (свойство, свойство, ..., свойство)
-								//
-								// Варианты свойства:
-								// prop_symb = :concept               // #1
-								// prop_symb =:concept                // #2
-								// prop_symb = word1 word2 ... wordN  // #3
-								// :concept                           // #4
-								// word1 word2 ... wordN              // #5
-								// prop_symb = number                 // #6
-								// #type                              // #7
-								//
-								do_get_next_prop = 0;
-								THROW(_SkipSpaces(&tok, temp_buf)); // @error Неожиданное завершение файла
-								temp_token_list.Add(tok, temp_buf, -1);
-								if(tok == tokConcept) { // #4
-									// @construction temp_token_list.Add(tok, temp_buf, -1);
+							break;
+						case tokSemicol:
+							if(p_current->Close(1) > 0) {
+								THROW(p_current = p_current->CreateNext());
+							}
+							break;
+						case tokLBrace:
+							THROW(p_current = p_current->CreateChild());
+							break;
+						case tokRBrace:
+							{
+								Operator * p_par = p_current->FindParent();
+								THROW_PP(p_par, PPERR_SR_C_PAROPNFOUND);
+								p_current = p_par;
+								if(p_current->LangID) {
+									for(Operator * p_child = p_current->P_Child; p_child; p_child = p_child->P_Next) {
+										SETIFZ(p_child->LangID, p_current->LangID);
+									}
 								}
-								else if(_IsTypeToken(tok)) { // #7
-									temp_token_list.Add(tok, temp_buf, -1);
+							}
+							break;
+						case tokBracketsDescr:
+							{
+								if(p_current->Close(1) > 0) {
+									THROW(p_current = p_current->CreateNext());
 								}
-								else if(tok == tokWord) {
-									THROW_PP_S(_IsIdent(temp_buf), PPERR_SR_C_PROPIDEXPECTED, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-									ident_buf = temp_buf;
-									THROW_PP(_SkipSpaces(&tok, temp_buf), PPERR_SR_C_ENEXPECTEDEOF);
+								THROW_SL(p_current->LangID = RecognizeLinguaSymb(temp_buf, 1));
+							}
+							break;
+						case tokConcept:
+							{
+								CONCEPTID cid = 0;
+								THROW(R_Db.ResolveConcept(temp_buf, &cid));
+								assert(cid);
+								if(prev_tok == tokConcept) {
+									p_current->InstanceOf = cid;
+								}
+								else if(prev_tok == tokWord) {
+									if(p_current->NgID__ && !p_current->CID) {
+										_clist.clear();
+										int   _cisdone = 0; // Концепция уже является членом иерархии, в которую входит cid
+										if(R_Db.GetNgConceptList(p_current->NgID__, R_Db.ngclAnonymOnly, _clist) > 0) {
+											assert(_clist.getCount());
+											for(uint ci = 0; !_cisdone && ci < _clist.getCount(); ci++) {
+												if(R_Db.GetConceptHier(_clist.get(ci), _hlist) > 0 && _hlist.lsearch(cid)) {
+													p_current->CID = _clist.get(0);
+													_cisdone = 1;
+												}
+											}
+											p_current->CID = _clist.get(0);
+										}
+										if(!_cisdone) {
+											THROW(R_Db.CreateAnonymConcept(&p_current->CID));
+											THROW(R_Db.P_CNgT->Set(p_current->CID, p_current->NgID__));
+											p_current->InstanceOf = cid;
+										}
+									}
+								}
+								else if(prev_tok == tokRBrace) {
+									_clist.clear();
+									for(Operator * p_child = p_current->P_Child; p_child; p_child = p_child->P_Next) {
+										if(!p_child->InstanceOf) {
+											if(p_child->NgID__ && !p_child->CID) {
+												_clist.clear();
+												if(R_Db.GetNgConceptList(p_child->NgID__, R_Db.ngclAnonymOnly, _clist) > 0) {
+													assert(_clist.getCount());
+													p_child->CID = _clist.get(0);
+												}
+												else {
+													THROW(R_Db.CreateAnonymConcept(&p_child->CID));
+													THROW(R_Db.P_CNgT->Set(p_child->CID, p_child->NgID__));
+												}
+											}
+											p_child->InstanceOf = cid;
+										}
+									}
+								}
+								else {
+									if(p_current->Close(1) > 0) {
+										THROW(p_current = p_current->CreateNext());
+									}
+									p_current->CID = cid;
+								}
+							}
+							break;
+						case tokSubclassOf:
+							{
+								CONCEPTID cid = 0;
+								THROW_PP(!p_current->IsClosed(), PPERR_SR_C_CLOSEDCUR_2CC);
+								THROW_PP(!p_current->SubclassOf, PPERR_SR_C_HASSUBCLS_2CC);
+								THROW(R_Db.ResolveConcept(temp_buf, &cid));
+								assert(cid);
+								if(prev_tok == tokConcept) {
+									p_current->SubclassOf = cid;
+								}
+								else if(prev_tok == tokWord) {
+									if(p_current->NgID__ && !p_current->CID) {
+										_clist.clear();
+										int   _cisdone = 0; // Концепция уже является членом иерархии, в которую входит cid
+										if(R_Db.GetNgConceptList(p_current->NgID__, R_Db.ngclAnonymOnly, _clist) > 0) {
+											assert(_clist.getCount());
+											for(uint ci = 0; !_cisdone && ci < _clist.getCount(); ci++) {
+												if(R_Db.GetConceptHier(_clist.get(ci), _hlist) > 0 && _hlist.lsearch(cid)) {
+													p_current->CID = _clist.get(0);
+													_cisdone = 1;
+												}
+											}
+										}
+										if(!_cisdone) {
+											THROW(R_Db.CreateAnonymConcept(&p_current->CID));
+											THROW(R_Db.P_CNgT->Set(p_current->CID, p_current->NgID__));
+											p_current->SubclassOf = cid;
+										}
+									}
+								}
+								else {
+									if(p_current->Close(1) > 0) {
+										THROW(p_current = p_current->CreateNext());
+									}
+								}
+							}
+							break;
+						case tokLPar:
+							{
+								temp_token_list.Clear();
+								for(int do_get_next_prop = 1; do_get_next_prop;) {
+									//
+									// (свойство, свойство, ..., свойство)
+									//
+									// Варианты свойства:
+									// prop_symb = :concept               // #1
+									// prop_symb =:concept                // #2
+									// prop_symb = word1 word2 ... wordN  // #3
+									// :concept                           // #4
+									// word1 word2 ... wordN              // #5
+									// prop_symb = number                 // #6
+									// #type                              // #7
+									//
+									do_get_next_prop = 0;
+									THROW(_SkipSpaces(&tok, temp_buf)); // @error Неожиданное завершение файла
 									temp_token_list.Add(tok, temp_buf, -1);
-									if(tok == tokEq) {
+									if(tok == tokConcept) { // #4
+										// @construction temp_token_list.Add(tok, temp_buf, -1);
+									}
+									else if(_IsTypeToken(tok)) { // #7
+										// @v9.9.0 @fix temp_token_list.Add(tok, temp_buf, -1);
+									}
+									else if(tok == tokWord) {
+										THROW_PP_S(_IsIdent(temp_buf), PPERR_SR_C_PROPIDEXPECTED, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+										ident_buf = temp_buf;
 										THROW_PP(_SkipSpaces(&tok, temp_buf), PPERR_SR_C_ENEXPECTEDEOF);
 										temp_token_list.Add(tok, temp_buf, -1);
-										if(tok == tokConcept) { // #1
-										}
-										else if(tok == tokWord) {
-											do {
-												tok = _GetToken(temp_buf);
-												temp_token_list.Add(tok, temp_buf, -1);
-												if(tok == tokSpace) {
+										if(tok == tokEq) {
+											THROW_PP(_SkipSpaces(&tok, temp_buf), PPERR_SR_C_ENEXPECTEDEOF);
+											temp_token_list.Add(tok, temp_buf, -1);
+											if(tok == tokConcept) { // #1
+											}
+											else if(tok == tokWord) {
+												do {
 													tok = _GetToken(temp_buf);
 													temp_token_list.Add(tok, temp_buf, -1);
-												}
-											} while(tok == tokWord);
+													if(tok == tokSpace) {
+														tok = _GetToken(temp_buf);
+														temp_token_list.Add(tok, temp_buf, -1);
+													}
+												} while(tok == tokWord);
+											}
+										}
+										else if(tok == tokExprOf) { // #2
 										}
 									}
-									else if(tok == tokExprOf) { // #2
+									else {
+										CALLEXCEPT_PP_S(PPERR_SR_C_PROPIDORCONCEXPECTED, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+									}
+									THROW_PP(_SkipSpaces(&tok, temp_buf), PPERR_SR_C_ENEXPECTEDEOF);
+									temp_token_list.Add(tok, temp_buf, -1);
+									if(tok == tokRPar)
+										do_get_next_prop = 0;
+									else if(tok == tokComma) {
+										do_get_next_prop = 1;
+									}
+									else {
+										CALLEXCEPT_PP(PPERR_SR_C_RPARORCOMEXPECTED);
 									}
 								}
-								else {
-									CALLEXCEPT_PP_S(PPERR_SR_C_PROPIDORCONCEXPECTED, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-								}
-								THROW_PP(_SkipSpaces(&tok, temp_buf), PPERR_SR_C_ENEXPECTEDEOF);
-								temp_token_list.Add(tok, temp_buf, -1);
-								if(tok == tokRPar)
-									do_get_next_prop = 0;
-								else if(tok == tokComma) {
-									do_get_next_prop = 1;
-								}
-								else {
-									CALLEXCEPT_PP(PPERR_SR_C_RPARORCOMEXPECTED);
-								}
-							}
-							{
-								//
-								// Так как присвоение свойств требует правильной идентификации иерархии объектов
-								// придется акцептировать разобранные компоненты в базу данных, предварительно
-								// закрыв оператор.
-								//
-								Operator * p_pc = p_current;
-								if(p_current->Close(1) > 0) {
-									THROW(p_current = p_current->CreateNext());
-								}
-								THROW(PostprocessOpList(&root));
-								//
-								if(p_pc->CID) {
-									THROW(ApplyConceptPropList(temp_token_list, p_pc->CID));
-								}
-								else {
-									for(Operator * p_child = p_pc->P_Child; p_child; p_child = p_child->P_Next) {
-										if(p_child->CID) {
-											THROW(ApplyConceptPropList(temp_token_list, p_child->CID));
-										}
-									}
-								}
-							}
-						}
-						break;
-					case tokPropDeclStart:
-						{
-							SrCPropDeclList pdl;
-							THROW_PP(p_current->CID, PPERR_SR_C_UNDEFCONCEPT_PROP);
-							for(int do_get_next_decl = 1; do_get_next_decl;) {
-								int    ss = 0;
-								do_get_next_decl = 0;
-								prev_tok = tok;
-								ss = _SkipSpaces(&tok, temp_buf);
-								THROW_PP(tok == tokConcept, PPERR_SR_C_CCONCEXPECTED);
 								{
-									SrCPropDecl pd;
-									THROW(R_Db.ResolveConcept(temp_buf, &pd.PropID));
+									//
+									// Так как присвоение свойств требует правильной идентификации иерархии объектов
+									// придется акцептировать разобранные компоненты в базу данных, предварительно
+									// закрыв оператор.
+									//
+									Operator * p_pc = p_current;
+									if(p_current->Close(1) > 0) {
+										THROW(p_current = p_current->CreateNext());
+									}
+									THROW(PostprocessOpList(&root));
+									//
+									if(p_pc->CID) {
+										THROW(ApplyConceptPropList(temp_token_list, p_pc->CID));
+									}
+									else {
+										for(Operator * p_child = p_pc->P_Child; p_child; p_child = p_child->P_Next) {
+											if(p_child->CID) {
+												THROW(ApplyConceptPropList(temp_token_list, p_child->CID));
+											}
+										}
+									}
+								}
+							}
+							break;
+						case tokPropDeclStart:
+							{
+								SrCPropDeclList pdl;
+								THROW_PP(p_current->CID, PPERR_SR_C_UNDEFCONCEPT_PROP);
+								for(int do_get_next_decl = 1; do_get_next_decl;) {
+									int    ss = 0;
+									do_get_next_decl = 0;
 									prev_tok = tok;
 									ss = _SkipSpaces(&tok, temp_buf);
-									if(ss) {
-										if(tok == tokWord) {
-											THROW_PP_S(_IsIdent(temp_buf), PPERR_SR_C_PROPIDEXPECTED, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-											THROW(R_Db.ResolveCPropSymb(temp_buf, &pd.SymbID));
-											THROW(pdl.Add(pd));
-											ss = _SkipSpaces(&tok, temp_buf);
-											if(tok == tokComma) {
+									THROW_PP(tok == tokConcept, PPERR_SR_C_CCONCEXPECTED);
+									{
+										SrCPropDecl pd;
+										THROW(R_Db.ResolveConcept(temp_buf, &pd.PropID));
+										prev_tok = tok;
+										ss = _SkipSpaces(&tok, temp_buf);
+										if(ss) {
+											if(tok == tokWord) {
+												THROW_PP_S(_IsIdent(temp_buf), PPERR_SR_C_PROPIDEXPECTED, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+												THROW(R_Db.ResolveCPropSymb(temp_buf, &pd.SymbID));
+												THROW(pdl.Add(pd));
+												ss = _SkipSpaces(&tok, temp_buf);
+												if(tok == tokComma) {
+													do_get_next_decl = 1;
+												}
+												else if(tok == tokRPar) {
+												}
+												else {
+													CALLEXCEPT_PP(PPERR_SR_C_RPARORCOMEXPECTED);
+												}
+											}
+											else if(tok == tokComma) {
+												THROW(pdl.Add(pd));
 												do_get_next_decl = 1;
 											}
 											else if(tok == tokRPar) {
+												THROW(pdl.Add(pd));
 											}
 											else {
-												CALLEXCEPT_PP(PPERR_SR_C_RPARORCOMEXPECTED);
+												; // @error
 											}
-										}
-										else if(tok == tokComma) {
-											THROW(pdl.Add(pd));
-											do_get_next_decl = 1;
-										}
-										else if(tok == tokRPar) {
-											THROW(pdl.Add(pd));
-										}
-										else {
-											; // @error
 										}
 									}
 								}
+								THROW(R_Db.P_CT->SetPropDeclList(p_current->CID, &pdl));
 							}
-							THROW(R_Db.P_CT->SetPropDeclList(p_current->CID, &pdl));
-						}
-						break;
-					case tokExprOf:
-						{
-							CONCEPTID cid = 0;
-							THROW_PP(!p_current->IsClosed(), PPERR_SR_C_CLOSEDCUR_2EC);
-							THROW(R_Db.ResolveConcept(temp_buf, &cid));
-							assert(cid);
-							if(prev_tok == tokWord) {
-								p_current->EqToList.add(cid);
-							}
-							else if(prev_tok == tokConcept) {
-								p_current->EqToList.add(cid);
-							}
-							else if(prev_tok == tokRBrace) {
-								for(Operator * p_child = p_current->P_Child; p_child; p_child = p_child->P_Next) {
-									p_child->EqToList.add(cid);
+							break;
+						case tokExprOf:
+							{
+								CONCEPTID cid = 0;
+								THROW_PP(!p_current->IsClosed(), PPERR_SR_C_CLOSEDCUR_2EC);
+								THROW(R_Db.ResolveConcept(temp_buf, &cid));
+								assert(cid);
+								if(prev_tok == tokWord)
+									p_current->EqToList.add(cid);
+								else if(prev_tok == tokConcept)
+									p_current->EqToList.add(cid);
+								else if(prev_tok == tokRBrace) {
+									for(Operator * p_child = p_current->P_Child; p_child; p_child = p_child->P_Next) {
+										p_child->EqToList.add(cid);
+									}
+								}
+								else if(prev_tok == tokSpace) {
+									Operator * p_parent = p_current->FindParent();
+									if(p_parent && (p_parent->NgID__ || p_parent->CID))
+										p_parent->EqToList.add(cid);
+								}
+								else {
+									CALLEXCEPT_PP(PPERR_SR_C_UNEXPAFTER_2EC);
 								}
 							}
-							else if(prev_tok == tokSpace) {
-								Operator * p_parent = p_current->FindParent();
-								if(p_parent && (p_parent->NgID || p_parent->CID))
-									p_parent->EqToList.add(cid);
-							}
-							else {
-								CALLEXCEPT_PP(PPERR_SR_C_UNEXPAFTER_2EC);
-							}
-						}
-						break;
+							break;
+					}
 				}
 			} while(!finish);
 			THROW(PostprocessOpList(&root));
@@ -2066,12 +2124,7 @@ PrcssrSartreFilt & FASTCALL PrcssrSartreFilt::operator = (const PrcssrSartreFilt
 
 int SLAPI PrcssrSartreFilt::IsEmpty() const
 {
-	if(Flags)
-		return 0;
-	else if(SrcPath.NotEmpty())
-		return 0;
-	else
-		return 1;
+	return BIN(!Flags && SrcPath.Empty());
 }
 
 class PrcssrSartreFiltDialog : public TDialog {
@@ -2306,10 +2359,10 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 					if(specialProcessing) {
 						//
 						// Специальная обработка файла русских фамилий.
-						// Так как в исходном файле пол фамилии часто не указан, то полагаемся на 
+						// Так как в исходном файле пол фамилии часто не указан, то полагаемся на
 						// правило, что если идут одна за другой две почти одинаковых фамилии, отличающиеся
 						// только тем, что у второй на конце русская 'а', то первая фамилия мужская, вторая - женская.
-						// Например: 
+						// Например:
 						//   Иванов
 						//   Иванова
 						//
@@ -2358,13 +2411,13 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 										wf.SetTag(SRWG_PROPERNAME, properNameType);
 									if(entry.Gender)
 										wf.SetTag(SRWG_GENDER, entry.Gender);
-									THROW(rDb.SetSimpleWordFlexiaModel(ngram.get(0), wf));
+									THROW(rDb.SetSimpleWordFlexiaModel(ngram.get(0), wf, 0));
 								}
 								else if(ngram.getCount() > 1) {
 									for(uint j = 0; j < ngram.getCount(); j++) {
 										SrWordForm wf;
 										wf.SetTag(SRWG_LANGUAGE, lang_id);
-										THROW(rDb.SetSimpleWordFlexiaModel(ngram.get(j), wf));
+										THROW(rDb.SetSimpleWordFlexiaModel(ngram.get(j), wf, 0));
 									}
 								}
 							}
@@ -2452,9 +2505,9 @@ int SLAPI PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFile
 }
 #if 0 // {
 //
-// Descr: Функция одноразового использования для формирования файлов 
+// Descr: Функция одноразового использования для формирования файлов
 //   country-intl.csv currency-intl.csv locale-intl.csv language-intl.csv
-//   содержащих наименования государств, валют, локалей и языков на очень многих языках. 
+//   содержащих наименования государств, валют, локалей и языков на очень многих языках.
 //   Формируется из репозитория https://github.com/umpirsky/country-list.git
 //   в котором добрый человек сложил все необходимые для этого данные.
 //
@@ -2519,7 +2572,7 @@ int SLAPI PrcssrSartre::PreprocessCurrencyNames(const char * pBaseSrcPath)
     	SDirEntry sde;
 		for(SDirec sd(temp_buf, 1); sd.Next(&sde) > 0;) {
             if(sde.IsFolder() && !sde.IsSelf() && !sde.IsUpFolder()) {
-                temp_buf.Z().Cat(pBaseSrcPath).SetLastSlash().Cat(sde.FileName).SetLastSlash().Cat("currency.csv");  
+                temp_buf.Z().Cat(pBaseSrcPath).SetLastSlash().Cat(sde.FileName).SetLastSlash().Cat("currency.csv");
                 if(fileExists(temp_buf)) {
 					PPWaitMsg(temp_buf);
                     SFile f_in(temp_buf, SFile::mRead);
@@ -2562,7 +2615,7 @@ int SLAPI PrcssrSartre::PreprocessLocaleNames(const char * pBaseSrcPath)
     	SDirEntry sde;
 		for(SDirec sd(temp_buf, 1); sd.Next(&sde) > 0;) {
             if(sde.IsFolder() && !sde.IsSelf() && !sde.IsUpFolder()) {
-                temp_buf.Z().Cat(pBaseSrcPath).SetLastSlash().Cat(sde.FileName).SetLastSlash().Cat("locales.csv");  
+                temp_buf.Z().Cat(pBaseSrcPath).SetLastSlash().Cat(sde.FileName).SetLastSlash().Cat("locales.csv");
                 if(fileExists(temp_buf)) {
 					PPWaitMsg(temp_buf);
                     SFile f_in(temp_buf, SFile::mRead);
@@ -2605,7 +2658,7 @@ int SLAPI PrcssrSartre::PreprocessLanguageNames(const char * pBaseSrcPath)
     	SDirEntry sde;
 		for(SDirec sd(temp_buf, 1); sd.Next(&sde) > 0;) {
             if(sde.IsFolder() && !sde.IsSelf() && !sde.IsUpFolder()) {
-                temp_buf.Z().Cat(pBaseSrcPath).SetLastSlash().Cat(sde.FileName).SetLastSlash().Cat("language.csv");  
+                temp_buf.Z().Cat(pBaseSrcPath).SetLastSlash().Cat(sde.FileName).SetLastSlash().Cat("language.csv");
                 if(fileExists(temp_buf)) {
 					PPWaitMsg(temp_buf);
                     SFile f_in(temp_buf, SFile::mRead);
@@ -2746,6 +2799,10 @@ int SLAPI PrcssrSartre::TestSearchWords()
 		SFile out_file(temp_buf, SFile::mWrite);
 		{
 			static const char * p_words[] = {
+				"ф/х",
+				"р-он",
+				"респ",
+				"пойду",
 				"ЧАЙКА",
 				"СЕМЬЮ",
 				"ЁЖИК",

@@ -3868,6 +3868,11 @@ int SLAPI PrcssrAlcReport::AutoConfigure(long flags)
 		STRNSCPY(gc_pack.DimY.Name, name_buf);
 		gc_pack.DimY.Scale = 3;
 		gc_pack.Rec.Flags |= PPGdsCls::fUseDimY;
+		//
+		PPLoadString("goodsalcocode", name_buf);
+		STRNSCPY(gc_pack.DimZ.Name, name_buf);
+		gc_pack.DimZ.Scale = 0;
+		gc_pack.Rec.Flags |= PPGdsCls::fUseDimZ;
 		{
 			PPID   ex_gc_id = 0;
 			PPTransaction tra(1);
@@ -3879,6 +3884,7 @@ int SLAPI PrcssrAlcReport::AutoConfigure(long flags)
 				THROW(gc_obj.PutPacket(&config.E.AlcGoodsClsID, &gc_pack, 0));
 				config.E.ProofClsDim = PPGdsCls::eX;
 				config.VolumeClsDim = PPGdsCls::eY;
+				config.CategoryClsDim = PPGdsCls::eZ;
 			}
 			config.E.Flags |= (config.fDetectAlcByClass|config.fEgaisVer2Fmt);
 			THROW(WriteConfig(&config, 0));

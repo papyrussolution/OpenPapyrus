@@ -1537,15 +1537,8 @@ PersonFilt & FASTCALL PersonFilt::operator = (const PersonFilt &src)
 	return *this;
 }
 
-int SLAPI PersonFilt::GetExtssData(int fldID, SString & rBuf) const
-{
-	return PPGetExtStrData(fldID, extssNameText, SrchStr_, rBuf);
-}
-
-int SLAPI PersonFilt::PutExtssData(int fldID, const char * pBuf)
-{
-	return PPPutExtStrData(fldID, SrchStr_, pBuf);
-}
+int SLAPI PersonFilt::GetExtssData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, extssNameText, SrchStr_, rBuf); }
+int SLAPI PersonFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, SrchStr_, pBuf); }
 
 //virtual
 int SLAPI PersonFilt::ReadPreviosVer(SBuffer & rBuf, int ver)

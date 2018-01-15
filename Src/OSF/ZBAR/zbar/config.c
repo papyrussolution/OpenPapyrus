@@ -101,13 +101,11 @@ int zbar_parse_config(const char * cfgstr, zbar_symbol_type_t * sym, zbar_config
 	else
 		*val = 1;  /* handle this here so we can override later */
 	negate = 0;
-
 	if(len > 3 && !strncmp(cfgstr, "no-", 3)) {
 		negate = 1;
 		cfgstr += 3;
 		len -= 3;
 	}
-
 	if(len < 1)
 		return 1;
 	else if(!strncmp(cfgstr, "y-density", len))

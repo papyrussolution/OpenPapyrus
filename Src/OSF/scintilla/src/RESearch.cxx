@@ -656,15 +656,7 @@ const char * RESearch::Compile(const char * pattern, int length, bool caseSensit
 						return badpat("Null pattern inside \\<\\>");
 					*mp++ = EOW;
 					break;
-				    case '1':
-				    case '2':
-				    case '3':
-				    case '4':
-				    case '5':
-				    case '6':
-				    case '7':
-				    case '8':
-				    case '9':
+				    case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
 					n = *p-'0';
 					if(tagi > 0 && tagstk[tagi] == n)
 						return badpat("Cyclical reference");

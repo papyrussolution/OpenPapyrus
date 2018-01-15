@@ -421,8 +421,7 @@ int htmlNodeDumpFileFormat(FILE * out, xmlDoc * doc, xmlNodePtr cur, const char 
 	if(!buf) 
 		return 0;
 	htmlNodeDumpFormatOutput(buf, doc, cur, encoding, format);
-	ret = xmlOutputBufferClose(buf);
-	return ret;
+	return xmlOutputBufferClose(buf);
 }
 
 /**
@@ -947,8 +946,7 @@ int htmlSaveFile(const char * filename, xmlDoc * cur)
 	if(!buf) 
 		return 0;
 	htmlDocContentDumpOutput(buf, cur, 0);
-	ret = xmlOutputBufferClose(buf);
-	return ret;
+	return xmlOutputBufferClose(buf);
 }
 /**
  * htmlSaveFileFormat:
@@ -996,10 +994,8 @@ int htmlSaveFileFormat(const char * filename, xmlDoc * cur, const char * encodin
 	if(!buf) 
 		return 0;
 	htmlDocContentDumpFormatOutput(buf, cur, encoding, format);
-	ret = xmlOutputBufferClose(buf);
-	return ret;
+	return xmlOutputBufferClose(buf);
 }
-
 /**
  * htmlSaveFileEnc:
  * @filename:  the filename

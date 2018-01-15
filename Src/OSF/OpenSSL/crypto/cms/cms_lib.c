@@ -48,48 +48,25 @@ BIO * cms_content_bio(CMS_ContentInfo * cms)
 
 BIO * CMS_dataInit(CMS_ContentInfo * cms, BIO * icont)
 {
-	BIO * cmsbio, * cont;
-	if(icont)
-		cont = icont;
-	else
-		cont = cms_content_bio(cms);
+	BIO * cmsbio;
+	BIO * cont = icont ? icont : cms_content_bio(cms);
 	if(!cont) {
 		CMSerr(CMS_F_CMS_DATAINIT, CMS_R_NO_CONTENT);
 		return NULL;
 	}
 	switch(OBJ_obj2nid(cms->contentType)) {
-		case NID_pkcs7_data:
-		    return cont;
-
-		case NID_pkcs7_signed:
-		    cmsbio = cms_SignedData_init_bio(cms);
-		    break;
-
-		case NID_pkcs7_digest:
-		    cmsbio = cms_DigestedData_init_bio(cms);
-		    break;
+		case NID_pkcs7_data: return cont;
+		case NID_pkcs7_signed: cmsbio = cms_SignedData_init_bio(cms); break;
+		case NID_pkcs7_digest: cmsbio = cms_DigestedData_init_bio(cms); break;
 #ifdef ZLIB
-		case NID_id_smime_ct_compressedData:
-		    cmsbio = cms_CompressedData_init_bio(cms);
-		    break;
+		case NID_id_smime_ct_compressedData: cmsbio = cms_CompressedData_init_bio(cms); break;
 #endif
-
-		case NID_pkcs7_encrypted:
-		    cmsbio = cms_EncryptedData_init_bio(cms);
-		    break;
-
-		case NID_pkcs7_enveloped:
-		    cmsbio = cms_EnvelopedData_init_bio(cms);
-		    break;
-
-		default:
-		    CMSerr(CMS_F_CMS_DATAINIT, CMS_R_UNSUPPORTED_TYPE);
-		    return NULL;
+		case NID_pkcs7_encrypted: cmsbio = cms_EncryptedData_init_bio(cms); break;
+		case NID_pkcs7_enveloped: cmsbio = cms_EnvelopedData_init_bio(cms); break;
+		default: CMSerr(CMS_F_CMS_DATAINIT, CMS_R_UNSUPPORTED_TYPE); return NULL;
 	}
-
 	if(cmsbio)
 		return BIO_push(cmsbio, cont);
-
 	if(!icont)
 		BIO_free(cont);
 	return NULL;
@@ -117,24 +94,14 @@ int CMS_dataFinal(CMS_ContentInfo * cms, BIO * cmsbio)
 		ASN1_STRING_set0(*pos, cont, contlen);
 		(*pos)->flags &= ~ASN1_STRING_FLAG_CONT;
 	}
-
 	switch(OBJ_obj2nid(cms->contentType)) {
 		case NID_pkcs7_data:
 		case NID_pkcs7_enveloped:
 		case NID_pkcs7_encrypted:
-		case NID_id_smime_ct_compressedData:
-		    /* Nothing to do */
-		    return 1;
-
-		case NID_pkcs7_signed:
-		    return cms_SignedData_final(cms, cmsbio);
-
-		case NID_pkcs7_digest:
-		    return cms_DigestedData_do_final(cms, cmsbio, 0);
-
-		default:
-		    CMSerr(CMS_F_CMS_DATAFINAL, CMS_R_UNSUPPORTED_TYPE);
-		    return 0;
+		case NID_id_smime_ct_compressedData: return 1; /* Nothing to do */
+		case NID_pkcs7_signed: return cms_SignedData_final(cms, cmsbio);
+		case NID_pkcs7_digest: return cms_DigestedData_do_final(cms, cmsbio, 0);
+		default: CMSerr(CMS_F_CMS_DATAFINAL, CMS_R_UNSUPPORTED_TYPE); return 0;
 	}
 }
 
@@ -146,107 +113,78 @@ int CMS_dataFinal(CMS_ContentInfo * cms, BIO * cmsbio)
 ASN1_OCTET_STRING ** CMS_get0_content(CMS_ContentInfo * cms)
 {
 	switch(OBJ_obj2nid(cms->contentType)) {
-		case NID_pkcs7_data:
-		    return &cms->d.data;
-
-		case NID_pkcs7_signed:
-		    return &cms->d.signedData->encapContentInfo->eContent;
-
-		case NID_pkcs7_enveloped:
-		    return &cms->d.envelopedData->encryptedContentInfo->encryptedContent;
-
-		case NID_pkcs7_digest:
-		    return &cms->d.digestedData->encapContentInfo->eContent;
-
-		case NID_pkcs7_encrypted:
-		    return &cms->d.encryptedData->encryptedContentInfo->encryptedContent;
-
-		case NID_id_smime_ct_authData:
-		    return &cms->d.authenticatedData->encapContentInfo->eContent;
-
-		case NID_id_smime_ct_compressedData:
-		    return &cms->d.compressedData->encapContentInfo->eContent;
-
+		case NID_pkcs7_data: return &cms->d.data;
+		case NID_pkcs7_signed: return &cms->d.signedData->encapContentInfo->eContent;
+		case NID_pkcs7_enveloped: return &cms->d.envelopedData->encryptedContentInfo->encryptedContent;
+		case NID_pkcs7_digest: return &cms->d.digestedData->encapContentInfo->eContent;
+		case NID_pkcs7_encrypted: return &cms->d.encryptedData->encryptedContentInfo->encryptedContent;
+		case NID_id_smime_ct_authData: return &cms->d.authenticatedData->encapContentInfo->eContent;
+		case NID_id_smime_ct_compressedData: return &cms->d.compressedData->encapContentInfo->eContent;
 		default:
 		    if(cms->d.other->type == V_ASN1_OCTET_STRING)
 			    return &cms->d.other->value.octet_string;
-		    CMSerr(CMS_F_CMS_GET0_CONTENT, CMS_R_UNSUPPORTED_CONTENT_TYPE);
-		    return NULL;
+			else {
+				CMSerr(CMS_F_CMS_GET0_CONTENT, CMS_R_UNSUPPORTED_CONTENT_TYPE);
+				return NULL;
+			}
 	}
 }
-
 /*
  * Return an ASN1_OBJECT pointer to content type. This allows it to be
  * accessed or set later.
  */
-
 static ASN1_OBJECT ** cms_get0_econtent_type(CMS_ContentInfo * cms)
 {
 	switch(OBJ_obj2nid(cms->contentType)) {
-		case NID_pkcs7_signed:
-		    return &cms->d.signedData->encapContentInfo->eContentType;
-
-		case NID_pkcs7_enveloped:
-		    return &cms->d.envelopedData->encryptedContentInfo->contentType;
-
-		case NID_pkcs7_digest:
-		    return &cms->d.digestedData->encapContentInfo->eContentType;
-
-		case NID_pkcs7_encrypted:
-		    return &cms->d.encryptedData->encryptedContentInfo->contentType;
-
-		case NID_id_smime_ct_authData:
-		    return &cms->d.authenticatedData->encapContentInfo->eContentType;
-
-		case NID_id_smime_ct_compressedData:
-		    return &cms->d.compressedData->encapContentInfo->eContentType;
-
-		default:
-		    CMSerr(CMS_F_CMS_GET0_ECONTENT_TYPE, CMS_R_UNSUPPORTED_CONTENT_TYPE);
-		    return NULL;
+		case NID_pkcs7_signed: return &cms->d.signedData->encapContentInfo->eContentType;
+		case NID_pkcs7_enveloped: return &cms->d.envelopedData->encryptedContentInfo->contentType;
+		case NID_pkcs7_digest: return &cms->d.digestedData->encapContentInfo->eContentType;
+		case NID_pkcs7_encrypted: return &cms->d.encryptedData->encryptedContentInfo->contentType;
+		case NID_id_smime_ct_authData: return &cms->d.authenticatedData->encapContentInfo->eContentType;
+		case NID_id_smime_ct_compressedData: return &cms->d.compressedData->encapContentInfo->eContentType;
+		default: CMSerr(CMS_F_CMS_GET0_ECONTENT_TYPE, CMS_R_UNSUPPORTED_CONTENT_TYPE); return NULL;
 	}
 }
 
 const ASN1_OBJECT * CMS_get0_eContentType(CMS_ContentInfo * cms)
 {
-	ASN1_OBJECT ** petype;
-	petype = cms_get0_econtent_type(cms);
-	if(petype)
-		return *petype;
-	return NULL;
+	ASN1_OBJECT ** petype = cms_get0_econtent_type(cms);
+	return petype ? *petype : 0;
 }
 
 int CMS_set1_eContentType(CMS_ContentInfo * cms, const ASN1_OBJECT * oid)
 {
-	ASN1_OBJECT ** petype, * etype;
-	petype = cms_get0_econtent_type(cms);
+	ASN1_OBJECT ** petype = cms_get0_econtent_type(cms);
 	if(!petype)
 		return 0;
-	if(!oid)
+	else if(!oid)
 		return 1;
-	etype = OBJ_dup(oid);
-	if(!etype)
-		return 0;
-	ASN1_OBJECT_free(*petype);
-	*petype = etype;
-	return 1;
+	else {
+		ASN1_OBJECT * etype = OBJ_dup(oid);
+		if(!etype)
+			return 0;
+		else {
+			ASN1_OBJECT_free(*petype);
+			*petype = etype;
+			return 1;
+		}
+	}
 }
 
 int CMS_is_detached(CMS_ContentInfo * cms)
 {
-	ASN1_OCTET_STRING ** pos;
-	pos = CMS_get0_content(cms);
+	ASN1_OCTET_STRING ** pos = CMS_get0_content(cms);
 	if(!pos)
 		return -1;
-	if(*pos)
+	else if(*pos)
 		return 0;
-	return 1;
+	else
+		return 1;
 }
 
 int CMS_set_detached(CMS_ContentInfo * cms, int detached)
 {
-	ASN1_OCTET_STRING ** pos;
-	pos = CMS_get0_content(cms);
+	ASN1_OCTET_STRING ** pos = CMS_get0_content(cms);
 	if(!pos)
 		return 0;
 	if(detached) {
@@ -547,4 +485,3 @@ int cms_set1_keyid(ASN1_OCTET_STRING ** pkeyid, X509 * cert)
 	*pkeyid = keyid;
 	return 1;
 }
-

@@ -36,7 +36,7 @@ typedef enum {
 	XML_SAVE_WSNONSIG   = 1<<7 /* format with non-significant whitespace */
 } xmlSaveOption;
 
-typedef struct _xmlSaveCtxt xmlSaveCtxt;
+struct xmlSaveCtxt;
 typedef xmlSaveCtxt * xmlSaveCtxtPtr;
 
 XMLPUBFUN xmlSaveCtxtPtr XMLCALL xmlSaveToFd(int fd, const char * encoding, int options);

@@ -1752,25 +1752,14 @@ public:
 private:
 	static int OnSysJ(int kind, const PPNotifyEvent * pEv, void * procExtPtr); // PPAdviseProc()
 
-	virtual int  SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData = 0)
-	{
-		return 0;
-	}
-	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
-	{
-	}
-	int    FASTCALL Search(PPID goodsID, uint * pPos) const
-	{
-		return P_Ary->bsearch(&goodsID, pPos, CMPF_LONG);
-	}
+	virtual int  SLAPI FetchEntry(PPID id, ObjCacheEntry * pEntry, long extraData = 0) { return 0; }
+	virtual void SLAPI EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const {}
+	int    FASTCALL Search(PPID goodsID, uint * pPos) const { return P_Ary->bsearch(&goodsID, pPos, CMPF_LONG); }
 	QuotationCore * P_Qc;
 };
 
-IMPL_CMPFUNC(GoodsQuotCacheEntry_UseCountDesc, i1, i2)
-{
-	// descending order
-	return cmp_long(((QuotCache::CacheEntry *)i2)->UseCount, ((QuotCache::CacheEntry *)i1)->UseCount);
-}
+// descending order
+IMPL_CMPFUNC(GoodsQuotCacheEntry_UseCountDesc, i1, i2) { return cmp_long(((QuotCache::CacheEntry *)i2)->UseCount, ((QuotCache::CacheEntry *)i1)->UseCount); }
 
 // typedef int (*PPAdviseProc)(int kind, const PPNotifyEvent * pEv, long procExtVal);
 //static
@@ -1828,8 +1817,7 @@ static long _AdviseQuotCacheUpdate(long acn, PPAdviseProc proc, void * extraPtr)
 	return cookie;
 }
 
-SLAPI QuotCache::QuotCache() :
-	ObjCache(PPOBJ_QUOT, sizeof(ObjCacheEntry), ObjCache::fOwnerArray), QuotCacheBase(1)
+SLAPI QuotCache::QuotCache() : ObjCache(PPOBJ_QUOT, sizeof(ObjCacheEntry), ObjCache::fOwnerArray), QuotCacheBase(1)
 {
 	P_Ary = new QuotCacheCollection();
 	long   cookie = 0;
@@ -2182,7 +2170,7 @@ SLAPI Quotation2Core::Quotation2Core() : Quotation2Tbl()
 {
 }
 
-int SLAPI Quotation2Core::RecToQuot(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot)
+void SLAPI Quotation2Core::RecToQuot(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot)
 {
 	rQuot.Clear();
 	if(pRec->RelID)
@@ -2195,10 +2183,9 @@ int SLAPI Quotation2Core::RecToQuot(const Quotation2Tbl::Rec * pRec, PPQuot & rQ
 	rQuot.RelID = pRec->RelID;
 	rQuot.QTaID = pRec->TaID;
 	rQuot.Quot = pRec->Quot;
-	return 1;
 }
 
-int SLAPI Quotation2Core::RecToQuotRel(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot)
+void SLAPI Quotation2Core::RecToQuotRel(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot)
 {
 	if(rQuot.RelID != pRec->RelID) {
 		rQuot.Clear();
@@ -2213,7 +2200,6 @@ int SLAPI Quotation2Core::RecToQuotRel(const Quotation2Tbl::Rec * pRec, PPQuot &
 		rQuot.Flags |= PPQuot::fActual;
 	rQuot.QTaID = pRec->TaID;
 	rQuot.Quot = pRec->Quot;
-	return 1;
 }
 
 int SLAPI Quotation2Core::GetMatrixRestrict(PPID mtxRestrQkID, PPID goodsGrpID, PPID locID, int srchNearest, long * pResult)
@@ -2271,7 +2257,7 @@ int SLAPI Quotation2Core::GetCurrList(PPID goodsID, PPID quotKindID, PPID locID,
 			k3.GoodsID = goodsID;
 			k3.RelID = rel_id;
 			if(search(3, &k3, spEq)) do {
-				THROW(RecToQuot(&data, quot));
+				RecToQuot(&data, quot);
 				if((!quotKindID || quot.Kind == quotKindID) && (!locID || quot.LocID == locID)) { // @paranoic
 					THROW_SL(rQuotList.insert(&quot));
 				}
@@ -2291,7 +2277,7 @@ int SLAPI Quotation2Core::GetCurrList(PPID goodsID, PPID quotKindID, PPID locID,
 			BExtQuery q(this, 3, 256); // @v7.7.4 default(32)-->256
 			q.selectAll().where(this->Actual == 1L && this->GoodsID == goodsID);
 			for(q.initIteration(0, &k3_, spGe); q.nextIteration() > 0;) {
-				THROW(RecToQuot(&data, quot));
+				RecToQuot(&data, quot);
 				if((!quotKindID || quot.Kind == quotKindID) && (!locID || quot.LocID == locID)) {
 					THROW_SL(rQuotList.insert(&quot));
 				}
@@ -2321,7 +2307,7 @@ int SLAPI Quotation2Core::GetCurrListByRelList(PPID goodsID, const PPIDArray & r
 		k3.GoodsID = goodsID;
 		k3.RelID = rel_id;
 		if(search(3, &k3, spEq)) do {
-			THROW(RecToQuot(&data, quot));
+			RecToQuot(&data, quot);
 			THROW_SL(rQuotList.insert(&quot));
 		} while(search(3, &k3, spNext) && data.Actual == 1 && data.GoodsID == goodsID && data.RelID == rel_id);
 	}
@@ -2414,9 +2400,8 @@ int SLAPI Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray * p
 {
 	class SellerLocWorldCritBlock {
 	public:
-		SellerLocWorldCritBlock(PPID sellerLocWorldID)
+		SellerLocWorldCritBlock(PPID sellerLocWorldID) : WorldID(sellerLocWorldID)
 		{
-			WorldID = sellerLocWorldID;
 		}
 		int    FASTCALL Check(PPID locID)
 		{

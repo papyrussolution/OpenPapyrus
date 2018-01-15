@@ -554,7 +554,7 @@ int SLAPI PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPVie
 				if(hdr.Id && hist_id) {
 					PPIDArray rh_bill_list;
 					rh_bill_list.add(hist_id);
-					if((ok = ViewGoodsBillCmp(hdr.Id, rh_bill_list, 1, ISHIST_RIGHTBILL)) == 0)
+					if((ok = ViewGoodsBillCmp(hdr.Id, rh_bill_list, 1, ISHIST_RIGHTBILL, 0, &hdr.Dtm)) == 0)
 						PPError();
 				}
 			}

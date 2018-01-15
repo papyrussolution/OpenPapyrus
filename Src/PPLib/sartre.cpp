@@ -1176,6 +1176,21 @@ SLAPI SrWordAssoc::SrWordAssoc() : ID(0), WordID(0), Flags(0), BaseFormID(0), Fl
 {
 }
 
+int FASTCALL SrWordAssoc::IsEqual(const SrWordAssoc & rS) const
+{
+#define CMPFLD(f) if(f != rS.f) return 0
+	CMPFLD(ID);
+	CMPFLD(WordID);
+	CMPFLD(Flags);
+	CMPFLD(BaseFormID);
+	CMPFLD(FlexiaModelID);
+	CMPFLD(AccentModelID);
+	CMPFLD(AffixModelID);
+	CMPFLD(AbbrExpID);
+#undef CMPFLD
+	return 1;
+}
+
 SrWordAssoc & SLAPI SrWordAssoc::Normalize()
 {
 	//Flags = 0;

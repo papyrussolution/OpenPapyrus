@@ -744,7 +744,7 @@ SLAPI PPPosProtocol::UnitBlock::UnitBlock() : ObjectBlock(), CodeP(0), SymbP(0),
 SLAPI PPPosProtocol::GoodsBlock::GoodsBlock() :
 	ObjectBlock(), ParentBlkP(0), InnerId(0),  GoodsFlags(0), SpecialFlags(0), UnitBlkP(0),
 	PhUnitBlkP(0),  PhUPerU(0.0), Price(0.0), Rest(0.0), AlcoProof(0), VatRate(0), SalesTaxRate(0),
-	TaxGrpID(0), GoodsTypeID(0)
+	TaxGrpID(0), GoodsTypeID(0), AlcoRuCatP(0)
 {
 }
 
@@ -1405,6 +1405,7 @@ int SLAPI PPPosProtocol::WriteRouteInfo(WriteBlock & rB, const char * pScopeXmlT
 int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashGoodsInfo & rInfo, const PPQuotArray * pQList)
 {
 	int    ok = 1;
+	int    use_lookbackprices = 0;
 	SString temp_buf;
 	PrcssrAlcReport::GoodsItem agi;
 	const  int is_spirit = BIN(rInfo.GdsClsID && rB.P_Acgi && rB.P_Acgi->GetAlcoGoodsExtension(rInfo.ID, 0, agi) > 0);
@@ -1444,16 +1445,21 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 		if(rInfo.VatRate > 0.0) {
 			w_s.PutInner("vatrate", temp_buf.Z().Cat(rInfo.VatRate, MKSFMTD(0, 1, NMBF_NOTRAILZ)));
 		}
-		if(is_spirit && agi.Proof > 0.0) {
-			w_s.PutInner("alcoproof", temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 1, NMBF_NOTRAILZ)));
+		if(is_spirit) {
+			if(agi.Proof > 0.0)
+				w_s.PutInner("alcoproof", temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 1, NMBF_NOTRAILZ)));
+			if(agi.CategoryCode.NotEmpty())
+				w_s.PutInner("alcorucat", agi.CategoryCode);
 		}
 		if(rInfo.GoodsTypeID) {
 			PPGoodsType gt_rec;
 			if(GObj.FetchGoodsType(rInfo.GoodsTypeID, &gt_rec) > 0) {
 				if(gt_rec.Flags & GTF_UNLIMITED)
 					w_s.PutInner("unlimited", 0);
-				if(gt_rec.Flags & GTF_LOOKBACKPRICES)
+				if(gt_rec.Flags & GTF_LOOKBACKPRICES) {
 					w_s.PutInner("lookbackprices", 0);
+					use_lookbackprices = 1;
+				}
 			}
 		}
 		if(rInfo.NoDis > 0) { // Значение <0 имеет специальный смысл
@@ -1464,11 +1470,66 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 		if(rInfo.Rest > 0.0)
 			w_s.PutInner("rest", temp_buf.Z().Cat(rInfo.Rest, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
         {
+			//static
+			/*
+			int SLAPI AsyncCashGoodsIterator::__GetDifferentPricesForLookBackPeriod(PPID goodsID, PPID locID, double basePrice, int lookBackPeriod, RealArray & rList)
+			{
+				int    ok = -1;
+				rList.clear();
+				if(lookBackPeriod > 0) {
+					// @v9.9.0 (unused) const double base_price = R3(basePrice);
+					const LDATE cd = getcurdate_();
+					const LDATE stop_date = plusdate(cd, -lookBackPeriod);
+					ReceiptCore & r_rc = BillObj->trfr->Rcpt;
+					ReceiptTbl::Rec lot_rec;
+					LDATE   enm_dt = MAXDATE;
+					long    enm_opn = MAXLONG;
+					while(r_rc.EnumLastLots(goodsID, locID, &enm_dt, &enm_opn, &lot_rec) > 0 && enm_dt >= stop_date) {
+						double price = R3(lot_rec.Price);
+						uint   p = 0;
+						if(price > 0.0 && price != basePrice && !rList.lsearch(&price, &p, PTR_CMPFUNC(double))) {
+							rList.insert(&price);
+							ok = 1;
+						}
+					}
+			#endif // }
+				}
+				return ok;
+			}
+			*/
         	//
         	// Лоты
         	//
+			ReceiptCore & r_rc = P_BObj->trfr->Rcpt;
 			LotArray lot_list;
-			if(P_BObj->trfr->Rcpt.GetListOfOpenedLots(+1, rInfo.ID, rB.LocID, MAXDATE, &lot_list) > 0) {
+			LotArray lbp_lot_list; // Список лотов с отличными от rInfo.Price ценами
+			const long lbpp = CsObj.GetEqCfg().LookBackPricePeriod;
+			if(use_lookbackprices && lbpp) {
+				// @v9.9.0 (unused) const double base_price = rInfo.Price;
+				const LDATE cd = getcurdate_();
+				const LDATE stop_date = plusdate(cd, -lbpp);
+				RealArray list_of_diffprices;
+				ReceiptTbl::Rec lot_rec;
+				LDATE   enm_dt = MAXDATE;
+				long    enm_opn = MAXLONG;
+				while(r_rc.EnumLastLots(rInfo.ID, rB.LocID, &enm_dt, &enm_opn, &lot_rec) > 0 && enm_dt >= stop_date) {
+					double price = R3(lot_rec.Price);
+					if(price > 0.0 && price != rInfo.Price && !list_of_diffprices.lsearch(&price, 0, PTR_CMPFUNC(double))) {
+						list_of_diffprices.insert(&price);
+						lbp_lot_list.insert(&lot_rec);
+					}
+				}
+			}
+			r_rc.GetListOfOpenedLots(+1, rInfo.ID, rB.LocID, MAXDATE, &lot_list);
+			if(lbp_lot_list.getCount()) {
+				for(uint i = 0; i < lbp_lot_list.getCount(); i++) {
+					const ReceiptTbl::Rec & r_lot_rec = lbp_lot_list.at(i);
+					if(!lot_list.lsearch(&r_lot_rec.ID, 0, CMPF_LONG))
+						lot_list.insert(&r_lot_rec);
+				}
+			}
+			lot_list.sort(PTR_CMPFUNC(Receipt_DtOprNo_Asc));
+			{
                 for(uint i = 0; i < lot_list.getCount(); i++) {
 					const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
 					SXml::WNode w_l(rB.P_Xw, "lot");
@@ -1480,9 +1541,8 @@ int SLAPI PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlT
 						w_l.PutInner("price", temp_buf.Z().Cat(r_lot_rec.Price, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
 					if(r_lot_rec.Rest > 0.0)
 						w_l.PutInner("rest", temp_buf.Z().Cat(r_lot_rec.Rest, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
-					if(P_BObj->GetSerialNumberByLot(r_lot_rec.ID, temp_buf, 1) > 0) {
+					if(P_BObj->GetSerialNumberByLot(r_lot_rec.ID, temp_buf, 1) > 0)
 						w_l.PutInnerSkipEmpty("serial", EncText(temp_buf));
-					}
                 }
 			}
         }
@@ -2003,6 +2063,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_DEFAULT: // unit
 				case PPHS_NODISCOUNT: // goods
 				case PPHS_ALCOPROOF:
+				case PPHS_ALCORUCAT:
 				case PPHS_VATRATE:
 				case PPHS_SALESTAXRATE:
 				case PPHS_UNLIMITED:
@@ -2474,6 +2535,12 @@ int PPPosProtocol::EndElement(const char * pName)
 					((GoodsBlock *)p_item)->AlcoProof = dbltoint2(_value);
 				}
 				break;
+			case PPHS_ALCORUCAT:
+				p_item = PeekRefItem(&ref_pos, &type);
+				if(type == obGoods) {
+					Helper_AddStringToPool(&((GoodsBlock *)p_item)->AlcoRuCatP);
+				}
+				break;
 			case PPHS_UNLIMITED:
 				p_item = PeekRefItem(&ref_pos, &type);
 				if(type == obGoods) {
@@ -2924,11 +2991,12 @@ int SLAPI PPPosProtocol::CreateParentGoodsGroup(const ParentBlock & rBlk, int is
 	return ok;
 }
 
-SLAPI PPPosProtocol::ResolveGoodsParam::ResolveGoodsParam() : DefParentID(0), DefUnitID(0), LocID(0), SrcArID(0), AlcGdsClsID(0), AlcProofDim(0), AlcVolumeDim(0)
+SLAPI PPPosProtocol::ResolveGoodsParam::ResolveGoodsParam() : DefParentID(0), DefUnitID(0), LocID(0), SrcArID(0),
+	AlcGdsClsID(0), AlcProofDim(0), AlcVolumeDim(0), AlcRuCatDim(0)
 {
 }
 
-void SLAPI PPPosProtocol::ResolveGoodsParam::SetupGoodsPack(const GoodsBlock & rBlk, PPGoodsPacket & rPack) const
+void SLAPI PPPosProtocol::ResolveGoodsParam::SetupGoodsPack(const PPPosProtocol::ReadBlock & rRB, const GoodsBlock & rBlk, PPGoodsPacket & rPack) const
 {
 	SETFLAGBYSAMPLE(rPack.Rec.Flags, GF_NODISCOUNT, rBlk.GoodsFlags);
 	rPack.Rec.GoodsTypeID = rBlk.GoodsTypeID;
@@ -2939,6 +3007,12 @@ void SLAPI PPPosProtocol::ResolveGoodsParam::SetupGoodsPack(const GoodsBlock & r
 		GcPack.RealToExtDim(inttodbl2(rBlk.AlcoProof), AlcProofDim, rPack.ExtRec);
 		if(/*rBlk.PhUPerU*/rPack.Rec.PhUPerU > 0.0 && AlcVolumeDim) { // Мы ожидаем здесь соотношение литры/единицу
 			GcPack.RealToExtDim(/*rBlk.PhUPerU*/rPack.Rec.PhUPerU, AlcVolumeDim, rPack.ExtRec);
+		}
+		if(rBlk.AlcoRuCatP && AlcRuCatDim) {
+			SString temp_buf;
+			rRB.GetS(rBlk.AlcoRuCatP, temp_buf);
+			if(temp_buf.NotEmptyS())
+				GcPack.RealToExtDim(temp_buf.ToReal(), AlcRuCatDim, rPack.ExtRec);
 		}
 	}
 }
@@ -3100,7 +3174,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				}
 			}
 		}
-		rP.SetupGoodsPack(rBlk, goods_pack);
+		rP.SetupGoodsPack(RdB, rBlk, goods_pack);
 		pretend_obj_list.sortAndUndup();
 		if(use_ar_code) {
 			if(goods_by_ar_id) {
@@ -3126,7 +3200,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				ex_goods_pack.Rec.UnitID = goods_pack.Rec.UnitID;
 				ex_goods_pack.Rec.PhUnitID = goods_pack.Rec.PhUnitID;
 				ex_goods_pack.Rec.PhUPerU = goods_pack.Rec.PhUPerU;
-				rP.SetupGoodsPack(rBlk, ex_goods_pack);
+				rP.SetupGoodsPack(RdB, rBlk, ex_goods_pack);
 				THROW(GObj.PutPacket(&ex_goods_id, &ex_goods_pack, 1));
 				native_id = ex_goods_id;
 			}
@@ -3164,7 +3238,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				ex_goods_pack.Rec.UnitID = goods_pack.Rec.UnitID;
 				ex_goods_pack.Rec.PhUnitID = goods_pack.Rec.PhUnitID;
 				ex_goods_pack.Rec.PhUPerU = goods_pack.Rec.PhUPerU;
-				rP.SetupGoodsPack(rBlk, ex_goods_pack);
+				rP.SetupGoodsPack(RdB, rBlk, ex_goods_pack);
 				THROW(GObj.PutPacket(&ex_goods_id, &ex_goods_pack, 1));
 				native_id = ex_goods_id;
 			}
@@ -3192,7 +3266,7 @@ int SLAPI PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos,
 				ex_goods_pack.Rec.UnitID = goods_pack.Rec.UnitID;
 				ex_goods_pack.Rec.PhUnitID = goods_pack.Rec.PhUnitID;
 				ex_goods_pack.Rec.PhUPerU = goods_pack.Rec.PhUPerU;
-				rP.SetupGoodsPack(rBlk, ex_goods_pack);
+				rP.SetupGoodsPack(RdB, rBlk, ex_goods_pack);
 				THROW(GObj.PutPacket(&ex_goods_id, &ex_goods_pack, 1));
 				native_id = ex_goods_id;
 			}
@@ -3730,6 +3804,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 						rgp.AlcGdsClsID = alccfg.E.AlcGoodsClsID;
 						rgp.AlcProofDim = alccfg.E.ProofClsDim;
 						rgp.AlcVolumeDim = alccfg.VolumeClsDim; // @v9.8.12
+						rgp.AlcRuCatDim = alccfg.CategoryClsDim; // @v9.9.0
 						rgp.GcPack = gc_pack;
 					}
 				}

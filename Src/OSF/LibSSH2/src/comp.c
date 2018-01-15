@@ -51,12 +51,7 @@
  *
  * Minimalist compression: Absolutely none
  */
-static int comp_method_none_comp(LIBSSH2_SESSION * session,
-    uchar * dest,
-    size_t * dest_len,
-    const uchar * src,
-    size_t src_len,
-    void ** abstract)
+static int comp_method_none_comp(LIBSSH2_SESSION * session, uchar * dest, size_t * dest_len, const uchar * src, size_t src_len, void ** abstract)
 {
 	(void)session;
 	(void)abstract;
@@ -64,21 +59,14 @@ static int comp_method_none_comp(LIBSSH2_SESSION * session,
 	(void)dest_len;
 	(void)src;
 	(void)src_len;
-
 	return 0;
 }
-
 /*
  * comp_method_none_decomp
  *
  * Minimalist decompression: Absolutely none
  */
-static int comp_method_none_decomp(LIBSSH2_SESSION * session,
-    uchar ** dest,
-    size_t * dest_len,
-    size_t payload_limit,
-    const uchar * src,
-    size_t src_len, void ** abstract)
+static int comp_method_none_decomp(LIBSSH2_SESSION * session, uchar ** dest, size_t * dest_len, size_t payload_limit, const uchar * src, size_t src_len, void ** abstract)
 {
 	(void)session;
 	(void)payload_limit;
@@ -111,7 +99,6 @@ static const LIBSSH2_COMP_METHOD comp_method_none = {
 static voidpf comp_method_zlib_alloc(voidpf opaque, uInt items, uInt size)
 {
 	LIBSSH2_SESSION * session = (LIBSSH2_SESSION*)opaque;
-
 	return (voidpf)LIBSSH2_ALLOC(session, items * size);
 }
 
@@ -135,12 +122,10 @@ static int comp_method_zlib_init(LIBSSH2_SESSION * session, int compr, void ** a
 	strm->zalloc = (alloc_func)comp_method_zlib_alloc;
 	strm->zfree = (free_func)comp_method_zlib_free;
 	if(compr) {
-		/* deflate */
-		status = deflateInit(strm, Z_DEFAULT_COMPRESSION);
+		status = deflateInit(strm, Z_DEFAULT_COMPRESSION); /* deflate */
 	}
 	else {
-		/* inflate */
-		status = inflateInit(strm);
+		status = inflateInit(strm); /* inflate */
 	}
 	if(status != Z_OK) {
 		LIBSSH2_FREE(session, strm);
@@ -148,10 +133,8 @@ static int comp_method_zlib_init(LIBSSH2_SESSION * session, int compr, void ** a
 		return LIBSSH2_ERROR_COMPRESS;
 	}
 	*abstract = strm;
-
 	return LIBSSH2_ERROR_NONE;
 }
-
 /*
  * libssh2_comp_method_zlib_comp
  *
@@ -304,4 +287,3 @@ const LIBSSH2_COMP_METHOD ** _libssh2_comp_methods(LIBSSH2_SESSION * session)
 	else
 		return no_comp_methods;
 }
-

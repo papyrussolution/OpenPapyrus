@@ -186,7 +186,7 @@ xmlParserInputBuffer * __xmlParserInputBufferCreateFilename(const char *URI, xml
 	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlOutputBufferWriteString(xmlOutputBuffer * out, const char *str);
 	XMLPUBFUN int XMLCALL xmlOutputBufferWriteEscape(xmlOutputBuffer * out, const xmlChar *str, xmlCharEncodingOutputFunc escaping);
 	XMLPUBFUN int XMLCALL xmlOutputBufferFlush(xmlOutputBuffer * out);
-	XMLPUBFUN int XMLCALL xmlOutputBufferClose(xmlOutputBuffer * out);
+	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlOutputBufferClose(xmlOutputBuffer * out);
 	XMLPUBFUN int XMLCALL xmlRegisterOutputCallbacks(xmlOutputMatchCallback matchFunc, xmlOutputOpenCallback openFunc, xmlOutputWriteCallback writeFunc, xmlOutputCloseCallback closeFunc);
 	xmlOutputBuffer * __xmlOutputBufferCreateFilename(const char *URI, xmlCharEncodingHandler * encoder, int compression);
 	#ifdef LIBXML_HTTP_ENABLED

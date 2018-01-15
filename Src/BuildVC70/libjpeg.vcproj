@@ -22,7 +22,7 @@
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
 				OptimizeForProcessor="0"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -82,7 +82,7 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="0"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -138,7 +138,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -197,7 +197,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -253,7 +253,7 @@
 				Optimization="0"
 				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -312,7 +312,7 @@
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\LIBPNG"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -364,7 +364,7 @@
 			ConfigurationType="4">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\ZLIB;..\INCLUDE\LIBPNG"/>
+				AdditionalIncludeDirectories="..\INCLUDE;..\INCLUDE\CAIRO;..\INCLUDE\LIBPNG"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

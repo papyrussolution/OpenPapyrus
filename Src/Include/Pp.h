@@ -4149,8 +4149,8 @@ public:
 	int    SLAPI GetAddressLocList(PPIDArray & rList);
 
 	int    SLAPI FetchRel(PPID relID, PPQuot * pVal);
-	int    SLAPI RecToQuot(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot);
-	int    SLAPI RecToQuotRel(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot);
+	void   SLAPI RecToQuot(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot);
+	void   SLAPI RecToQuotRel(const Quotation2Tbl::Rec * pRec, PPQuot & rQuot);
 	int    SLAPI FetchList(PPID goodsID, PPQuotArray & rList);
 	int    SLAPI GetMatrix(PPID mtxQkID, PPID locID, PPIDArray * pList);
 	int    SLAPI GetMatrixRestrict(PPID mtxRestrQkID, PPID goodsGrpID, PPID locID, int srchNearest, long * pResult);
@@ -5527,13 +5527,13 @@ public:
 	// Функции записи
 	//
 	int    SLAPI StartWriting();
-	int    SLAPI SetDataType(int dataType, const char * pDataTypeText);
+	void   SLAPI SetDataType(int dataType, const char * pDataTypeText);
 	int    FASTCALL WriteString(const SString & rStr);
 	int    SLAPI WriteFile(const char * pFileName);
 	int    FASTCALL FinishWriting(int hdrFlags = 0);
 
-	int    FASTCALL SetString(const char * pStr);
-	int    FASTCALL SetString(const SString & rStr);
+	void   FASTCALL SetString(const char * pStr);
+	void   FASTCALL SetString(const SString & rStr);
 	int    FASTCALL SetInformer(const char * pMsg);
 	//
 	// Descr: Устанавливает реплику в состояние ошибки.
@@ -5542,7 +5542,7 @@ public:
 	//
 	// Descr: Устанавливает реплику с состояние подтверждения усешного выполнения операции.
 	//
-	int    SLAPI SetAck();
+	void   SLAPI SetAck();
 	//
 	// Descr: Специальная функция, посылающая клиенту информационное
 	//   сообщение о ходе процесса. Сообщение посылается посредством
@@ -6531,16 +6531,13 @@ public:
 	static int FASTCALL GetKindText(int kind, SString & rBuf);
 
 	SLAPI  PPThread(int kind, const char * pText, void * pInitData);
-	int    SLAPI GetKind() const;
+	int    SLAPI GetKind() const { return Kind; }
 	void   FASTCALL SetText(const char * pTxt);
 	void   FASTCALL SetMessage(const char * pMsg);
 	void   FASTCALL GetInfo(PPThread::Info & rInfo) const;
 	void   FASTCALL LockStackToStr(SString & rBuf) const;
-	int32  SLAPI GetUniqueSessID() const;
-	virtual int SubstituteSock(TcpSocket & rSock, PPJobSrvReply * pReply)
-	{
-		return -1;
-	}
+	int32  SLAPI GetUniqueSessID() const { return UniqueSessID; }
+	virtual int SubstituteSock(TcpSocket & rSock, PPJobSrvReply * pReply) { return -1; }
 protected:
 	virtual void SLAPI Startup();
 	void   FASTCALL SetJobID(PPID jobID);
@@ -11042,6 +11039,13 @@ private:
 #define LOTSF_RESTRBOUNDS  0x0080 // Цена выходит за границы диапазона, определяемого ограничениями товарных величин
 
 typedef TSVector <ReceiptTbl::Rec> LotArray; // @v9.8.4 TSArray-->TSVector
+//
+// Декларация функций сортировки записей лотов (receipt.cpp)
+//
+DECL_CMPFUNC(Receipt_DtOprNo_Asc); // Дата/Номер_операции по возрастанию
+DECL_CMPFUNC(Receipt_DtOprNo_Desc); // Дата/Номер_операции по убыванию
+DECL_CMPFUNC(Receipt_DtOprNo_FEFO_Asc); // По возрастанию срока годности, либо (если сроки равны), Дата/Номер_операции по возрастанию
+DECL_CMPFUNC(Receipt_DtOprNo_FEFO_Desc); // По возрастанию срока годности, либо (если сроки равны), Дата/Номер_операции по убыванию
 
 class ReceiptCore : public ReceiptTbl {
 public:
@@ -28040,7 +28044,7 @@ public:
 	int    SLAPI Export();
 	int    SLAPI Recover();
 	int    SLAPI GetCtQuotVal(const void * pRow, long col, long aggrNum, double * pVal);
-	int    SLAPI GetEditIds(const void * pRow, PPViewQuot::BrwHdr * pHdr, long col);
+	void   SLAPI GetEditIds(const void * pRow, PPViewQuot::BrwHdr * pHdr, long col);
 	const  PPQuotItemArray * SLAPI GetQList() const;
 private:
 	static  int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
@@ -34683,7 +34687,9 @@ public:
 		ordByDiffPrice
 	};
 
-	uint8  ReserveStart[36]; // @anchor
+	uint8  ReserveStart[20]; // @anchor // @v9.9.0 [36]-->[20]
+	LDATETIME LhSingleEvDtm; // @v9.9.0 Если единственный ид в LhBillList - ид сохраненной версии документа, то здесь - момент изменения/удаления
+	LDATETIME RhSingleEvDtm; // @v9.9.0 Если единственный ид в RhBillList - ид сохраненной версии документа, то здесь - момент изменения/удаления
 	long   Flags;
 	long   Order;
 	int    WhatBillIsHistory;
@@ -34713,7 +34719,7 @@ private:
 	virtual int SLAPI ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int SLAPI ViewTotal();
 	virtual int SLAPI Print(const void * pHdr);
-	int    SLAPI PutBillToTempTable(PPID billID, int side /* 1 - lh, 2 - rh */, int isHistory);
+	int    SLAPI PutBillToTempTable(PPID billID, int side /* 1 - lh, 2 - rh */, int isHistory, const LDATETIME & rSjTime);
 	int    SLAPI GetBillCodes(const GoodsBillCmpFilt *, SString & rLhCode, SString & rRhCode);
 	int    SLAPI AddToBasketAll(int diffSign);
 
@@ -36115,7 +36121,7 @@ public:
 	int    SLAPI GetTotal(GoodsRestTotal *);
 	virtual int SLAPI Print(const void *);
 	int    SLAPI GetTabTitle(long tabID, SString & rBuf);
-	int    SLAPI GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col);
+	void   SLAPI GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col);
 	int    SLAPI ExportUhtt(int silent);
 	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle);
 private:
@@ -38294,13 +38300,12 @@ private:
 	virtual int  SLAPI Detail(const void * pHdr, PPViewBrowser * pBrw);
 
 	double SLAPI GetUnitsPerPack(PPID goodsID);
-	int    SLAPI GetEditIds(const void * pRow, PPViewGoodsMov2::BrwHdr * pHdr, long col);
+	void   SLAPI GetEditIds(const void * pRow, PPViewGoodsMov2::BrwHdr * pHdr, long col);
 
 	GoodsMovFilt Filt;
 	PPObjBill         * P_BObj;
 	TempGoodsMov2Tbl  * P_TempTbl;
 	GoodsMovTotal     Total;
-
 	SString InRestText;
 	SString OutRestText;
 };
@@ -39597,7 +39602,7 @@ public:
 	int    SLAPI InitUniq(const SArray * pUniq);
 	int    SLAPI CopyUniq(SArray * pUniq);
 	int    SLAPI GetTabTitle(long tabID, SString & rBuf);
-	int    SLAPI GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col);
+	void   SLAPI GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col);
 private:
 	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
@@ -40258,7 +40263,7 @@ private:
 	virtual int  SLAPI ViewTotal();
 	void   SLAPI NextInnerIteration(PaymPlanViewItem * pItem);
 	int    SLAPI GetBillList(PPID objID, LDATE dt, ObjIdListFilt * pBillList, RPairArray * pPaymList, int allowZeroPeriod);
-	int    SLAPI GetEditIds(const void * pRow, LDATE * pDt, PPID * pObjID, long col);
+	void   SLAPI GetEditIds(const void * pRow, LDATE * pDt, PPID * pObjID, long col);
 	int    SLAPI ViewArticleInfo(const BrwHdr * pHdr, int what);
 
 	IterCounter   InnerCounter;
@@ -41830,7 +41835,7 @@ private:
 	virtual int   SLAPI Print(const void *);
 	virtual int   SLAPI OnExecBrowser(PPViewBrowser * pBrw);
 
-	int    SLAPI GetEditIds(const void * pRow, Hdr * pHdr, long col);
+	void   SLAPI GetEditIds(const void * pRow, Hdr * pHdr, long col);
 	int    SLAPI UpdateTempTable(PPIDArray & rIdList);
 	void   SLAPI MakeTempRec(void * pRec, void * pTempRec);
 	int    SLAPI CheckForFilt(void * pRec);
@@ -43048,6 +43053,7 @@ private:
 		//
 		long   TaxGrpID;     // @v9.8.12
 		long   GoodsTypeID;  // @v9.8.12
+		uint   AlcoRuCatP;   // @v9.9.0 Код категории алкогольной продукции по версии РАР РФ
 	};
 	struct GoodsGroupBlock : public ObjectBlock { // @flat
 		SLAPI  GoodsGroupBlock();
@@ -43264,7 +43270,7 @@ private:
 	}
 	struct ResolveGoodsParam {
 		SLAPI  ResolveGoodsParam();
-		void   SLAPI SetupGoodsPack(const GoodsBlock & rBlk, PPGoodsPacket & rPack) const;
+		void   SLAPI SetupGoodsPack(const PPPosProtocol::ReadBlock & rRB, const GoodsBlock & rBlk, PPGoodsPacket & rPack) const;
 		PPID   DefParentID;
 		PPID   DefUnitID;
 		PPID   LocID;
@@ -43272,6 +43278,7 @@ private:
 		PPID   AlcGdsClsID; // Класс алкогольных товаров
 		int    AlcProofDim;  // Размерность класса алкогольных товаров, отвечающая за крепость
 		int    AlcVolumeDim; // Размерность класса алкогольных товаров, отвечающая за емкость
+		int    AlcRuCatDim;  // Размерность класса алкогольных товаров, отвечающая за категорию продукции
 		PPGdsClsPacket GcPack;
 	};
 	int    SLAPI ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int asRefOnly, const ResolveGoodsParam & rP, PPID * pNativeID);
@@ -49892,7 +49899,7 @@ int    SLAPI EditCounter(PPOpCounterPacket * pPack, uint resID, PPID * pOpcID = 
 #define ISHIST_RIGHTBILL 2
 #define ISHIST_BOTHBILL  3
 #define ISHIST_NOTHING   4
-int    SLAPI ViewGoodsBillCmp(PPID lhBillID, const PPIDArray & rRhBillList, int _modeless, int whatBillIsHistory = ISHIST_NOTHING);
+int    SLAPI ViewGoodsBillCmp(PPID lhBillID, const PPIDArray & rRhBillList, int _modeless, int whatBillIsHistory = ISHIST_NOTHING, const LDATETIME * pLhEvDtm = 0, const LDATETIME * pRhEvDtm = 0);
 int    SLAPI ViewPrjTask(const PrjTaskFilt *);
 int    SLAPI ViewPrjTask_ByStatus(); // Вызывается по двойному щелчку мыши в окне статуса (показать все непросмотренные задачи)
 int    SLAPI ViewPrjTask_ByReminder(); //  Вызывается по двойному щелчку мыши в окне статуса (показать все невыполненные задачи за определенный период)

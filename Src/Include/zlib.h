@@ -1,37 +1,511 @@
-/* zlib.h -- interface of the 'zlib' general purpose compression library
-   version 1.2.11, January 15th, 2017
-
-   Copyright (C) 1995-2017 Jean-loup Gailly and Mark Adler
-
-   This software is provided 'as-is', without any express or implied
-   warranty.  In no event will the authors be held liable for any damages
-   arising from the use of this software.
-
-   Permission is granted to anyone to use this software for any purpose,
-   including commercial applications, and to alter it and redistribute it
-   freely, subject to the following restrictions:
-
-   1. The origin of this software must not be misrepresented; you must not
-     claim that you wrote the original software. If you use this software
-     in a product, an acknowledgment in the product documentation would be
-     appreciated but is not required.
-   2. Altered source versions must be plainly marked as such, and must not be
-     misrepresented as being the original software.
-   3. This notice may not be removed or altered from any source distribution.
-
-   Jean-loup Gailly        Mark Adler
-   jloup@gzip.org          madler@alumni.caltech.edu
-
-
-   The data format used by the zlib library is described by RFCs (Request for
-   Comments) 1950 to 1952 in the files http://tools.ietf.org/html/rfc1950
-   (zlib format), rfc1951 (deflate format) and rfc1952 (gzip format).
- */
-
+// zlib.h -- interface of the 'zlib' general purpose compression library version 1.2.11, January 15th, 2017
+// Copyright (C) 1995-2017 Jean-loup Gailly and Mark Adler
+// 
+// This software is provided 'as-is', without any express or implied
+// warranty.  In no event will the authors be held liable for any damages
+// arising from the use of this software.
+// 
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+// 
+// 1. The origin of this software must not be misrepresented; you must not
+//   claim that you wrote the original software. If you use this software
+//   in a product, an acknowledgment in the product documentation would be
+//   appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//   misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+// 
+// Jean-loup Gailly        Mark Adler
+// jloup@gzip.org          madler@alumni.caltech.edu
+// 
+// The data format used by the zlib library is described by RFCs (Request for Comments) 1950 to 1952 
+// in the files http://tools.ietf.org/html/rfc1950 (zlib format), rfc1951 (deflate format) and rfc1952 (gzip format).
+// 
 #ifndef ZLIB_H
 #define ZLIB_H
 
-#include "zconf.h"
+//#include "zconf.h"
+// 
+// If you *really* need a unique prefix for all types and library functions,
+// compile with -DZ_PREFIX. The "standard" zlib should be compiled without it.
+// Even better than compiling with -DZ_PREFIX would be to use configure to set
+// this permanently in zconf.h using "./configure --zprefix".
+// 
+#ifdef Z_PREFIX // may be set to #if 1 by ./configure 
+	#define Z_PREFIX_SET
+	// all linked symbols and init macros 
+	#define _dist_code            z__dist_code
+	#define _length_code          z__length_code
+	#define _tr_align             z__tr_align
+	#define _tr_flush_bits        z__tr_flush_bits
+	#define _tr_flush_block       z__tr_flush_block
+	#define _tr_init              z__tr_init
+	#define _tr_stored_block      z__tr_stored_block
+	#define _tr_tally             z__tr_tally
+	#define adler32               z_adler32
+	#define adler32_combine       z_adler32_combine
+	#define adler32_combine64     z_adler32_combine64
+	#define adler32_z             z_adler32_z
+	#ifndef Z_SOLO
+		#define compress              z_compress
+		#define compress2             z_compress2
+		#define compressBound         z_compressBound
+	#endif
+	#define crc32                 z_crc32
+	#define crc32_combine         z_crc32_combine
+	#define crc32_combine64       z_crc32_combine64
+	#define crc32_z               z_crc32_z
+	#define deflate               z_deflate
+	#define deflateBound          z_deflateBound
+	#define deflateCopy           z_deflateCopy
+	#define deflateEnd            z_deflateEnd
+	#define deflateGetDictionary  z_deflateGetDictionary
+	#define deflateInit           z_deflateInit
+	#define deflateInit2          z_deflateInit2
+	#define deflateInit2_         z_deflateInit2_
+	#define deflateInit_          z_deflateInit_
+	#define deflateParams         z_deflateParams
+	#define deflatePending        z_deflatePending
+	#define deflatePrime          z_deflatePrime
+	#define deflateReset          z_deflateReset
+	#define deflateResetKeep      z_deflateResetKeep
+	#define deflateSetDictionary  z_deflateSetDictionary
+	#define deflateSetHeader      z_deflateSetHeader
+	#define deflateTune           z_deflateTune
+	#define deflate_copyright     z_deflate_copyright
+	#define get_crc_table         z_get_crc_table
+	#ifndef Z_SOLO
+		#define gz_error              z_gz_error
+		#define gz_intmax             z_gz_intmax
+		#define gz_strwinerror        z_gz_strwinerror
+		#define gzbuffer              z_gzbuffer
+		#define gzclearerr            z_gzclearerr
+		#define gzclose               z_gzclose
+		#define gzclose_r             z_gzclose_r
+		#define gzclose_w             z_gzclose_w
+		#define gzdirect              z_gzdirect
+		#define gzdopen               z_gzdopen
+		#define gzeof                 z_gzeof
+		#define gzerror               z_gzerror
+		#define gzflush               z_gzflush
+		#define gzfread               z_gzfread
+		#define gzfwrite              z_gzfwrite
+		#define gzgetc                z_gzgetc
+		#define gzgetc_               z_gzgetc_
+		#define gzgets                z_gzgets
+		#define gzoffset              z_gzoffset
+		#define gzoffset64            z_gzoffset64
+		#define gzopen                z_gzopen
+		#define gzopen64              z_gzopen64
+		#ifdef _WIN32
+			#define gzopen_w              z_gzopen_w
+		#endif
+		#define gzprintf              z_gzprintf
+		#define gzputc                z_gzputc
+		#define gzputs                z_gzputs
+		#define gzread                z_gzread
+		#define gzrewind              z_gzrewind
+		#define gzseek                z_gzseek
+		#define gzseek64              z_gzseek64
+		#define gzsetparams           z_gzsetparams
+		#define gztell                z_gztell
+		#define gztell64              z_gztell64
+		#define gzungetc              z_gzungetc
+		#define gzvprintf             z_gzvprintf
+		#define gzwrite               z_gzwrite
+	#endif
+	#define inflate               z_inflate
+	#define inflateBack           z_inflateBack
+	#define inflateBackEnd        z_inflateBackEnd
+	#define inflateBackInit       z_inflateBackInit
+	#define inflateBackInit_      z_inflateBackInit_
+	#define inflateCodesUsed      z_inflateCodesUsed
+	#define inflateCopy           z_inflateCopy
+	#define inflateEnd            z_inflateEnd
+	#define inflateGetDictionary  z_inflateGetDictionary
+	#define inflateGetHeader      z_inflateGetHeader
+	#define inflateInit           z_inflateInit
+	#define inflateInit2          z_inflateInit2
+	#define inflateInit2_         z_inflateInit2_
+	#define inflateInit_          z_inflateInit_
+	#define inflateMark           z_inflateMark
+	#define inflatePrime          z_inflatePrime
+	#define inflateReset          z_inflateReset
+	#define inflateReset2         z_inflateReset2
+	#define inflateResetKeep      z_inflateResetKeep
+	#define inflateSetDictionary  z_inflateSetDictionary
+	#define inflateSync           z_inflateSync
+	#define inflateSyncPoint      z_inflateSyncPoint
+	#define inflateUndermine      z_inflateUndermine
+	#define inflateValidate       z_inflateValidate
+	#define inflate_copyright     z_inflate_copyright
+	#define inflate_fast          z_inflate_fast
+	#define inflate_table         z_inflate_table
+		#ifndef Z_SOLO
+			#define uncompress            z_uncompress
+			#define uncompress2           z_uncompress2
+		#endif
+		#define zError                z_zError
+		#ifndef Z_SOLO
+			#define zcalloc               z_zcalloc
+			#define zcfree                z_zcfree
+		#endif
+	#define zlibCompileFlags      z_zlibCompileFlags
+	#define zlibVersion           z_zlibVersion
+
+	// all zlib typedefs in zlib.h and zconf.h 
+	#define Byte                  z_Byte
+	#define Bytef                 z_Bytef
+	#define alloc_func            z_alloc_func
+	#define charf                 z_charf
+	#define free_func             z_free_func
+		#ifndef Z_SOLO
+			#define gzFile                z_gzFile
+		#endif
+	#define gz_header             z_gz_header
+	#define gz_headerp            z_gz_headerp
+	#define in_func               z_in_func
+	#define intf                  z_intf
+	#define out_func              z_out_func
+	#define uInt                  z_uInt
+	#define uIntf                 z_uIntf
+	#define uLong                 z_uLong
+	#define uLongf                z_uLongf
+	#define voidp                 z_voidp
+	#define voidpc                z_voidpc
+	#define voidpf                z_voidpf
+	// all zlib structs in zlib.h and zconf.h 
+	#define gz_header_s           z_gz_header_s
+	#define internal_state        z_internal_state
+#endif
+#if defined(__MSDOS__) && !defined(MSDOS)
+	#define MSDOS
+#endif
+#if (defined(OS_2) || defined(__OS2__)) && !defined(OS2)
+	#define OS2
+#endif
+#if defined(_WINDOWS) && !defined(WINDOWS)
+	#define WINDOWS
+#endif
+#if defined(_WIN32) || defined(_WIN32_WCE) || defined(__WIN32__)
+	#ifndef WIN32
+		#define WIN32
+	#endif
+#endif
+#if (defined(MSDOS) || defined(OS2) || defined(WINDOWS)) && !defined(WIN32)
+	#if !defined(__GNUC__) && !defined(__FLAT__) && !defined(__386__)
+		#ifndef SYS16BIT
+			#define SYS16BIT
+		#endif
+	#endif
+#endif
+// 
+// Compile with -DMAXSEG_64K if the alloc function cannot allocate more
+// than 64k bytes at a time (needed on systems with 16-bit int).
+// 
+#ifdef SYS16BIT
+	#define MAXSEG_64K
+#endif
+#ifdef MSDOS
+	#define UNALIGNED_OK
+#endif
+#ifdef __STDC_VERSION__
+	#ifndef STDC
+		#define STDC
+	#endif
+	#if __STDC_VERSION__ >= 199901L
+		#ifndef STDC99
+			#define STDC99
+		#endif
+	#endif
+#endif
+#if !defined(STDC) && (defined(__STDC__) || defined(__cplusplus))
+	#define STDC
+#endif
+#if !defined(STDC) && (defined(__GNUC__) || defined(__BORLANDC__))
+	#define STDC
+#endif
+#if !defined(STDC) && (defined(MSDOS) || defined(WINDOWS) || defined(WIN32))
+	#define STDC
+#endif
+#if !defined(STDC) && (defined(OS2) || defined(__HOS_AIX__))
+	#define STDC
+#endif
+#if defined(__OS400__) && !defined(STDC)    /* iSeries (formerly AS/400). */
+	#define STDC
+#endif
+#ifndef STDC
+	#ifndef const /* cannot use !defined(STDC) && !defined(const) on Mac */
+		#define const       /* note: need a more gentle solution here */
+	#endif
+#endif
+#if defined(ZLIB_CONST) && !defined(z_const)
+	#define z_const const
+#else
+	#define z_const
+#endif
+#ifdef Z_SOLO
+	typedef unsigned long z_size_t_ReplacedWith_size_t;
+#else
+	#define z_longlong long long
+	#if defined(NO_SIZE_T)
+		typedef unsigned NO_SIZE_T z_size_t_ReplacedWith_size_t;
+	#elif defined(STDC)
+		#include <stddef.h>
+		typedef size_t z_size_t_ReplacedWith_size_t;
+	#else
+		typedef unsigned long z_size_t_ReplacedWith_size_t;
+	#endif
+	#undef z_longlong
+#endif
+// Maximum value for memLevel in deflateInit2 
+#ifndef MAX_MEM_LEVEL
+	#ifdef MAXSEG_64K
+		#define MAX_MEM_LEVEL 8
+	#else
+		#define MAX_MEM_LEVEL 9
+	#endif
+#endif
+// 
+// Maximum value for windowBits in deflateInit2 and inflateInit2.
+// WARNING: reducing MAX_WBITS makes minigzip unable to extract .gz files
+// created by gzip. (Files created by minigzip can still be extracted by gzip.)
+// 
+#ifndef MAX_WBITS
+	#define MAX_WBITS   15 /* 32K LZ77 window */
+#endif
+// 
+// The memory requirements for deflate are (in bytes): (1 << (windowBits+2)) +  (1 << (memLevel+9))
+// that is: 128K for windowBits=15  +  128K for memLevel = 8  (default values)
+// plus a few kilobytes for small objects. For example, if you want to reduce
+// the default memory requirements from 256K to 128K, compile with make CFLAGS="-O -DMAX_WBITS=14 -DMAX_MEM_LEVEL=7"
+// Of course this will generally degrade compression (there's no free lunch).
+// 
+// The memory requirements for inflate are (in bytes) 1 << windowBits
+// that is, 32K for windowBits=15 (default value) plus about 7 kilobytes for small objects.
+//
+// Type declarations 
+//
+#ifndef OF /* function prototypes */
+	#ifdef STDC
+		#define OF(args)  args
+	#else
+		#define OF(args)  ()
+	#endif
+#endif
+#ifndef Z_ARG /* function prototypes for stdarg */
+	#if defined(STDC) || defined(Z_HAVE_STDARG_H)
+		#define Z_ARG(args)  args
+	#else
+		#define Z_ARG(args)  ()
+	#endif
+#endif
+// 
+// The following definitions for FAR are needed only for MSDOS mixed
+// model programming (small or medium model with some far allocations).
+// This was tested only with MSC; for other MSDOS compilers you may have
+// to define NO_MEMCPY in zutil.h.  If you don't need the mixed model, just define FAR to be empty.
+// 
+#ifdef SYS16BIT
+	#if defined(M_I86SM) || defined(M_I86MM)
+		// MSC small or medium model 
+		#define SMALL_MEDIUM
+		#ifdef _MSC_VER
+			#define FAR _far
+		#else
+			#define FAR far
+		#endif
+	#endif
+	#if (defined(__SMALL__) || defined(__MEDIUM__))
+	// Turbo C small or medium model 
+		#define SMALL_MEDIUM
+		#ifdef __BORLANDC__
+			#define FAR _far
+		#else
+			#define FAR far
+		#endif
+	#endif
+#endif
+#if defined(WINDOWS) || defined(WIN32)
+	// If building or using zlib as a DLL, define ZLIB_DLL.
+	// This is not mandatory, but it offers a little performance increase.
+	#ifdef ZLIB_DLL
+		#if defined(WIN32) && (!defined(__BORLANDC__) || (__BORLANDC__ >= 0x500))
+			#ifdef ZLIB_INTERNAL
+				#define ZEXTERN extern __declspec(dllexport)
+			#else
+				#define ZEXTERN extern __declspec(dllimport)
+			#endif
+		#endif
+	#endif // ZLIB_DLL 
+	//
+	// If building or using zlib with the WINAPI/WINAPIV calling convention, define ZLIB_WINAPI.
+	// Caution: the standard ZLIB1.DLL is NOT compiled using ZLIB_WINAPI.
+	//
+	#ifdef ZLIB_WINAPI
+		#ifdef FAR
+			#undef FAR
+		#endif
+		#include <windows.h>
+		// No need for _export, use ZLIB.DEF instead. 
+		// For complete Windows compatibility, use WINAPI, not __stdcall. 
+		#define ZEXPORT WINAPI
+		#ifdef WIN32
+			#define ZEXPORTVA WINAPIV
+		#else
+			#define ZEXPORTVA FAR CDECL
+		#endif
+	#endif
+#endif
+#if defined (__BEOS__)
+	#ifdef ZLIB_DLL
+		#ifdef ZLIB_INTERNAL
+			#define ZEXPORT   __declspec(dllexport)
+			#define ZEXPORTVA __declspec(dllexport)
+		#else
+			#define ZEXPORT   __declspec(dllimport)
+			#define ZEXPORTVA __declspec(dllimport)
+		#endif
+	#endif
+#endif
+#ifndef ZEXTERN
+	#define ZEXTERN extern
+#endif
+#ifndef ZEXPORT
+	#define ZEXPORT
+#endif
+#ifndef ZEXPORTVA
+	#define ZEXPORTVA
+#endif
+#ifndef FAR
+	#define FAR
+#endif
+#if !defined(__MACTYPES__)
+	typedef unsigned char Byte;   /* 8 bits */
+#endif
+typedef unsigned int uInt;    /* 16 bits or more */
+typedef unsigned long uLong;  /* 32 bits or more */
+#ifdef SMALL_MEDIUM
+	#define Bytef Byte FAR // Borland C/C++ and some old MSC versions ignore FAR inside typedef 
+#else
+	typedef Byte Bytef;
+#endif
+typedef char charf;
+typedef int intf;
+typedef uInt uIntf;
+typedef uLong uLongf;
+#ifdef STDC
+	typedef void const * voidpc;
+	typedef void       * voidpf;
+	typedef void       * voidp;
+#else
+	typedef Byte const * voidpc;
+	typedef Byte       * voidpf;
+	typedef Byte       * voidp;
+#endif
+#if !defined(Z_U4) && !defined(Z_SOLO) && defined(STDC)
+	#include <limits.h>
+	#if (UINT_MAX == 0xffffffffUL)
+		#define Z_U4 unsigned
+	#elif (ULONG_MAX == 0xffffffffUL)
+		#define Z_U4 unsigned long
+	#elif (USHRT_MAX == 0xffffffffUL)
+		#define Z_U4 ushort
+	#endif
+#endif
+#ifdef Z_U4
+	typedef Z_U4 z_crc_t;
+#else
+	typedef unsigned long z_crc_t;
+#endif
+#ifdef HAVE_UNISTD_H    /* may be set to #if 1 by ./configure */
+	#define Z_HAVE_UNISTD_H
+#endif
+#ifdef HAVE_STDARG_H // may be set to #if 1 by ./configure 
+	#define Z_HAVE_STDARG_H
+#endif
+#ifdef STDC
+	#ifndef Z_SOLO
+		#include <sys/types.h> // for off_t 
+	#endif
+#endif
+#if defined(STDC) || defined(Z_HAVE_STDARG_H)
+	#ifndef Z_SOLO
+		#include <stdarg.h> // for va_list 
+	#endif
+#endif
+#ifdef _WIN32
+	#ifndef Z_SOLO
+		#include <stddef.h> // for wchar_t 
+	#endif
+#endif
+// 
+// a little trick to accommodate both "#define _LARGEFILE64_SOURCE" and "#define _LARGEFILE64_SOURCE 1" 
+// as requesting 64-bit operations, (even though the former does not conform to the LFS document), 
+// but considering both "#undef _LARGEFILE64_SOURCE" and "#define _LARGEFILE64_SOURCE 0" as equivalently requesting no 64-bit operations
+// 
+#if defined(_LARGEFILE64_SOURCE) && -_LARGEFILE64_SOURCE - -1 == 1
+	#undef _LARGEFILE64_SOURCE
+#endif
+#if defined(__WATCOMC__) && !defined(Z_HAVE_UNISTD_H)
+	#define Z_HAVE_UNISTD_H
+#endif
+#ifndef Z_SOLO
+	#if defined(Z_HAVE_UNISTD_H) || defined(_LARGEFILE64_SOURCE)
+		#include <unistd.h>         /* for SEEK_*, off_t, and _LFS64_LARGEFILE */
+		#ifdef VMS
+			#include <unixio.h>       /* for off_t */
+		#endif
+		#ifndef z_off_t
+			#define z_off_t off_t
+		#endif
+	#endif
+#endif
+#if defined(_LFS64_LARGEFILE) && _LFS64_LARGEFILE-0
+	#define Z_LFS64
+#endif
+#if defined(_LARGEFILE64_SOURCE) && defined(Z_LFS64)
+	#define Z_LARGE64
+#endif
+#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS-0 == 64 && defined(Z_LFS64)
+	#define Z_WANT64
+#endif
+#if !defined(SEEK_SET) && !defined(Z_SOLO)
+	#define SEEK_SET        0       /* Seek from beginning of file.  */
+	#define SEEK_CUR        1       /* Seek from current position.  */
+	#define SEEK_END        2       /* Set file pointer to EOF plus "offset" */
+#endif
+#ifndef z_off_t
+	#define z_off_t long
+#endif
+#if !defined(_WIN32) && defined(Z_LARGE64)
+	#define z_off64_t off64_t
+#else
+	#if defined(_WIN32) && !defined(__GNUC__) && !defined(Z_SOLO)
+		#define z_off64_t __int64
+	#else
+		#define z_off64_t z_off_t
+	#endif
+#endif
+// MVS linker does not support external names larger than 8 bytes 
+#if defined(__MVS__)
+	#pragma map(deflateInit_,"DEIN")
+	#pragma map(deflateInit2_,"DEIN2")
+	#pragma map(deflateEnd,"DEEND")
+	#pragma map(deflateBound,"DEBND")
+	#pragma map(inflateInit_,"ININ")
+	#pragma map(inflateInit2_,"ININ2")
+	#pragma map(inflateEnd,"INEND")
+	#pragma map(inflateSync,"INSY")
+	#pragma map(inflateSetDictionary,"INSEDI")
+	#pragma map(compressBound,"CMBND")
+	#pragma map(inflate_table,"INTABL")
+	#pragma map(inflate_fast,"INFA")
+	#pragma map(inflate_copyright,"INCOPY")
+#endif
+// 
 #ifdef ZLIB_INTERNAL
 	#include <slib.h>
 #endif
@@ -46,69 +520,63 @@ extern "C" {
 #define ZLIB_VER_MINOR 2
 #define ZLIB_VER_REVISION 11
 #define ZLIB_VER_SUBREVISION 0
-
-/*
-    The 'zlib' compression library provides in-memory compression and
-   decompression functions, including integrity checks of the uncompressed data.
-   This version of the library supports only one compression method (deflation)
-   but other algorithms will be added later and will have the same stream
-   interface.
-
-    Compression can be done in a single step if the buffers are large enough,
-   or can be done by repeated calls of the compression function.  In the latter
-   case, the application must provide more input and/or consume the output
-   (providing more output space) before each call.
-
-    The compressed data format used by default by the in-memory functions is
-   the zlib format, which is a zlib wrapper documented in RFC 1950, wrapped
-   around a deflate stream, which is itself documented in RFC 1951.
-
-    The library also supports reading and writing files in gzip (.gz) format
-   with an interface similar to that of stdio using the functions that start
-   with "gz".  The gzip format is different from the zlib format.  gzip is a
-   gzip wrapper, documented in RFC 1952, wrapped around a deflate stream.
-
-    This library can optionally read and write gzip and raw deflate streams in
-   memory as well.
-
-    The zlib format was designed to be compact and fast for use in memory
-   and on communications channels.  The gzip format was designed for single-
-   file compression on file systems, has a larger header than zlib to maintain
-   directory information, and uses a different, slower check method than zlib.
-
-    The library does not install any signal handler.  The decoder checks
-   the consistency of the compressed data, so the library should never crash
-   even in the case of corrupted input.
- */
-
+//
+// The 'zlib' compression library provides in-memory compression and
+// decompression functions, including integrity checks of the uncompressed data.
+// This version of the library supports only one compression method (deflation)
+// but other algorithms will be added later and will have the same stream interface.
+//
+// Compression can be done in a single step if the buffers are large enough,
+// or can be done by repeated calls of the compression function.  In the latter
+// case, the application must provide more input and/or consume the output
+// (providing more output space) before each call.
+//
+// The compressed data format used by default by the in-memory functions is
+// the zlib format, which is a zlib wrapper documented in RFC 1950, wrapped
+// around a deflate stream, which is itself documented in RFC 1951.
+//
+// The library also supports reading and writing files in gzip (.gz) format
+// with an interface similar to that of stdio using the functions that start
+// with "gz".  The gzip format is different from the zlib format.  gzip is a
+// gzip wrapper, documented in RFC 1952, wrapped around a deflate stream.
+//
+// This library can optionally read and write gzip and raw deflate streams in memory as well.
+//
+// The zlib format was designed to be compact and fast for use in memory
+// and on communications channels.  The gzip format was designed for single-
+// file compression on file systems, has a larger header than zlib to maintain
+// directory information, and uses a different, slower check method than zlib.
+//
+// The library does not install any signal handler.  The decoder checks
+// the consistency of the compressed data, so the library should never crash even in the case of corrupted input.
+//
 typedef voidpf (*alloc_func)(voidpf opaque, uInt items, uInt size);
 typedef void (*free_func)(voidpf opaque, voidpf address);
 
 struct internal_state;
 
 typedef struct z_stream_s {
-	z_const Bytef * next_in; /* next input byte */
-	uInt avail_in;  /* number of bytes available at next_in */
-	uLong total_in; /* total number of input bytes read so far */
-	Bytef    * next_out; /* next output byte will go here */
-	uInt avail_out; /* remaining free space at next_out */
-	uLong total_out; /* total number of bytes output so far */
-	z_const char * msg; /* last error message, NULL if no error */
-	struct internal_state  * state; /* not visible by applications */
-	alloc_func zalloc; /* used to allocate the internal state */
-	free_func zfree; /* used to free the internal state */
-	voidpf opaque;  /* private data object passed to zalloc and zfree */
-	int data_type;  /* best guess about the data type: binary or text for deflate, or the decoding state for inflate */
-	uLong adler;    /* Adler-32 or CRC-32 value of the uncompressed data */
-	uLong reserved; /* reserved for future use */
+	z_const Bytef * next_in; // next input byte 
+	uInt   avail_in;         // number of bytes available at next_in 
+	uLong  total_in;         // total number of input bytes read so far 
+	Bytef * next_out;        // next output byte will go here
+	uInt   avail_out;        // remaining free space at next_out
+	uLong  total_out;        // total number of bytes output so far 
+	z_const char * msg;      // last error message, NULL if no error 
+	struct internal_state * state; // not visible by applications 
+	alloc_func zalloc;       // used to allocate the internal state 
+	free_func  zfree;        // used to free the internal state 
+	voidpf opaque;           // private data object passed to zalloc and zfree 
+	int    data_type;        // best guess about the data type: binary or text for deflate, or the decoding state for inflate 
+	uLong  adler;            // Adler-32 or CRC-32 value of the uncompressed data 
+	uLong  reserved;         // reserved for future use 
 } z_stream;
 
 typedef z_stream  * z_streamp;
-
-/*
-     gzip header information passed to and from zlib routines.  See RFC 1952
-   for more details on the meanings of these fields.
- */
+// 
+// gzip header information passed to and from zlib routines.  See RFC 1952
+// for more details on the meanings of these fields.
+// 
 typedef struct gz_header_s {
 	int text;       /* true if compressed data believed to be text */
 	uLong time;     /* modification time */
@@ -127,39 +595,36 @@ typedef struct gz_header_s {
 } gz_header;
 
 typedef gz_header  * gz_headerp;
-
-/*
-     The application must update next_in and avail_in when avail_in has dropped
-   to zero.  It must update next_out and avail_out when avail_out has dropped
-   to zero.  The application must initialize zalloc, zfree and opaque before
-   calling the init function.  All other fields are set by the compression
-   library and must not be updated by the application.
-
-     The opaque value provided by the application will be passed as the first
-   parameter for calls of zalloc and zfree.  This can be useful for custom
-   memory management.  The compression library attaches no meaning to the
-   opaque value.
-
-     zalloc must return Z_NULL if there is not enough memory for the object.
-   If zlib is used in a multi-threaded application, zalloc and zfree must be
-   thread safe.  In that case, zlib is thread-safe.  When zalloc and zfree are
-   Z_NULL on entry to the initialization function, they are set to internal
-   routines that use the standard library functions SAlloc::M() and SAlloc::F().
-
-     On 16-bit systems, the functions zalloc and zfree must be able to allocate
-   exactly 65536 bytes, but will not be required to allocate more than this if
-   the symbol MAXSEG_64K is defined (see zconf.h).  WARNING: On MSDOS, pointers
-   returned by zalloc for objects of exactly 65536 bytes *must* have their
-   offset normalized to zero.  The default allocation function provided by this
-   library ensures this (see zutil.c).  To reduce memory requirements and avoid
-   any allocation of 64K objects, at the expense of compression ratio, compile
-   the library with -DMAX_WBITS=14 (see zconf.h).
-
-     The fields total_in and total_out can be used for statistics or progress
-   reports.  After compression, total_in holds the total size of the
-   uncompressed data and may be saved for use by the decompressor (particularly
-   if the decompressor wants to decompress everything in a single step).
- */
+// 
+// The application must update next_in and avail_in when avail_in has dropped
+// to zero.  It must update next_out and avail_out when avail_out has dropped
+// to zero.  The application must initialize zalloc, zfree and opaque before
+// calling the init function.  All other fields are set by the compression
+// library and must not be updated by the application.
+//
+// The opaque value provided by the application will be passed as the first
+// parameter for calls of zalloc and zfree.  This can be useful for custom
+// memory management.  The compression library attaches no meaning to the opaque value.
+//
+// zalloc must return Z_NULL if there is not enough memory for the object.
+// If zlib is used in a multi-threaded application, zalloc and zfree must be
+// thread safe.  In that case, zlib is thread-safe.  When zalloc and zfree are
+// Z_NULL on entry to the initialization function, they are set to internal
+// routines that use the standard library functions SAlloc::M() and SAlloc::F().
+//
+// On 16-bit systems, the functions zalloc and zfree must be able to allocate
+// exactly 65536 bytes, but will not be required to allocate more than this if
+// the symbol MAXSEG_64K is defined (see zconf.h).  WARNING: On MSDOS, pointers
+// returned by zalloc for objects of exactly 65536 bytes *must* have their
+// offset normalized to zero.  The default allocation function provided by this
+// library ensures this (see zutil.c).  To reduce memory requirements and avoid
+// any allocation of 64K objects, at the expense of compression ratio, compile
+// the library with -DMAX_WBITS=14 (see zconf.h).
+//
+// The fields total_in and total_out can be used for statistics or progress
+// reports.  After compression, total_in holds the total size of the
+// uncompressed data and may be saved for use by the decompressor (particularly
+// if the decompressor wants to decompress everything in a single step).
 //
 // constants 
 //
@@ -216,146 +681,133 @@ typedef gz_header  * gz_headerp;
 // basic functions 
 //
 ZEXTERN const char * ZEXPORT zlibVersion(void);
-/* The application can compare zlibVersion and ZLIB_VERSION for consistency.
-   If the first character differs, the library code actually used is not
-   compatible with the zlib.h header file used by the application.  This check
-   is automatically made by deflateInit and inflateInit.
- */
-
-/*
-   ZEXTERN int ZEXPORT deflateInit(z_streamp strm, int level);
-
-     Initializes the internal stream state for compression.  The fields
-   zalloc, zfree and opaque must be initialized before by the caller.  If
-   zalloc and zfree are set to Z_NULL, deflateInit updates them to use default
-   allocation functions.
-
-     The compression level must be Z_DEFAULT_COMPRESSION, or between 0 and 9:
-   1 gives best speed, 9 gives best compression, 0 gives no compression at all
-   (the input data is simply copied a block at a time).  Z_DEFAULT_COMPRESSION
-   requests a default compromise between speed and compression (currently
-   equivalent to level 6).
-
-     deflateInit returns Z_OK if success, Z_MEM_ERROR if there was not enough
-   memory, Z_STREAM_ERROR if level is not a valid compression level, or
-   Z_VERSION_ERROR if the zlib library version (zlib_version) is incompatible
-   with the version assumed by the caller (ZLIB_VERSION).  msg is set to null
-   if there is no error message.  deflateInit does not perform any compression:
-   this will be done by deflate().
- */
-
+// 
+// The application can compare zlibVersion and ZLIB_VERSION for consistency.
+// If the first character differs, the library code actually used is not
+// compatible with the zlib.h header file used by the application.  This check
+// is automatically made by deflateInit and inflateInit.
+// 
+// 
+// ZEXTERN int ZEXPORT deflateInit(z_streamp strm, int level);
+//
+// Initializes the internal stream state for compression.  The fields
+// zalloc, zfree and opaque must be initialized before by the caller.  If
+// zalloc and zfree are set to Z_NULL, deflateInit updates them to use default
+// allocation functions.
+//
+// The compression level must be Z_DEFAULT_COMPRESSION, or between 0 and 9:
+// 1 gives best speed, 9 gives best compression, 0 gives no compression at all
+// (the input data is simply copied a block at a time).  Z_DEFAULT_COMPRESSION
+// requests a default compromise between speed and compression (currently
+// equivalent to level 6).
+//
+// deflateInit returns Z_OK if success, Z_MEM_ERROR if there was not enough
+// memory, Z_STREAM_ERROR if level is not a valid compression level, or
+// Z_VERSION_ERROR if the zlib library version (zlib_version) is incompatible
+// with the version assumed by the caller (ZLIB_VERSION).  msg is set to null
+// if there is no error message.  deflateInit does not perform any compression:
+// this will be done by deflate().
+// 
 ZEXTERN int ZEXPORT deflate(z_streamp strm, int flush);
-/*
-    deflate compresses as much data as possible, and stops when the input
-   buffer becomes empty or the output buffer becomes full.  It may introduce
-   some output latency (reading input without producing any output) except when
-   forced to flush.
-
-    The detailed semantics are as follows.  deflate performs one or both of the
-   following actions:
-
-   - Compress more input starting at next_in and update next_in and avail_in
-    accordingly.  If not all input can be processed (because there is not
-    enough room in the output buffer), next_in and avail_in are updated and
-    processing will resume at this point for the next call of deflate().
-
-   - Generate more output starting at next_out and update next_out and avail_out
-    accordingly.  This action is forced if the parameter flush is non zero.
-    Forcing flush frequently degrades the compression ratio, so this parameter
-    should be set only when necessary.  Some output may be provided even if
-    flush is zero.
-
-    Before the call of deflate(), the application should ensure that at least
-   one of the actions is possible, by providing more input and/or consuming more
-   output, and updating avail_in or avail_out accordingly; avail_out should
-   never be zero before the call.  The application can consume the compressed
-   output when it wants, for example when the output buffer is full (avail_out
-   == 0), or after each call of deflate().  If deflate returns Z_OK and with
-   zero avail_out, it must be called again after making room in the output
-   buffer because there might be more output pending. See deflatePending(),
-   which can be used if desired to determine whether or not there is more ouput
-   in that case.
-
-    Normally the parameter flush is set to Z_NO_FLUSH, which allows deflate to
-   decide how much data to accumulate before producing output, in order to
-   maximize compression.
-
-    If the parameter flush is set to Z_SYNC_FLUSH, all pending output is
-   flushed to the output buffer and the output is aligned on a byte boundary, so
-   that the decompressor can get all input data available so far.  (In
-   particular avail_in is zero after the call if enough output space has been
-   provided before the call.) Flushing may degrade compression for some
-   compression algorithms and so it should be used only when necessary.  This
-   completes the current deflate block and follows it with an empty stored block
-   that is three bits plus filler bits to the next byte, followed by four bytes
-   (00 00 ff ff).
-
-    If flush is set to Z_PARTIAL_FLUSH, all pending output is flushed to the
-   output buffer, but the output is not aligned to a byte boundary.  All of the
-   input data so far will be available to the decompressor, as for Z_SYNC_FLUSH.
-   This completes the current deflate block and follows it with an empty fixed
-   codes block that is 10 bits long.  This assures that enough bytes are output
-   in order for the decompressor to finish the block before the empty fixed
-   codes block.
-
-    If flush is set to Z_BLOCK, a deflate block is completed and emitted, as
-   for Z_SYNC_FLUSH, but the output is not aligned on a byte boundary, and up to
-   seven bits of the current block are held to be written as the next byte after
-   the next deflate block is completed.  In this case, the decompressor may not
-   be provided enough bits at this point in order to complete decompression of
-   the data provided so far to the compressor.  It may need to wait for the next
-   block to be emitted.  This is for advanced applications that need to control
-   the emission of deflate blocks.
-
-    If flush is set to Z_FULL_FLUSH, all output is flushed as with
-   Z_SYNC_FLUSH, and the compression state is reset so that decompression can
-   restart from this point if previous compressed data has been damaged or if
-   random access is desired.  Using Z_FULL_FLUSH too often can seriously degrade
-   compression.
-
-    If deflate returns with avail_out == 0, this function must be called again
-   with the same value of the flush parameter and more output space (updated
-   avail_out), until the flush is complete (deflate returns with non-zero
-   avail_out).  In the case of a Z_FULL_FLUSH or Z_SYNC_FLUSH, make sure that
-   avail_out is greater than six to avoid repeated flush markers due to
-   avail_out == 0 on return.
-
-    If the parameter flush is set to Z_FINISH, pending input is processed,
-   pending output is flushed and deflate returns with Z_STREAM_END if there was
-   enough output space.  If deflate returns with Z_OK or Z_BUF_ERROR, this
-   function must be called again with Z_FINISH and more output space (updated
-   avail_out) but no more input data, until it returns with Z_STREAM_END or an
-   error.  After deflate has returned Z_STREAM_END, the only possible operations
-   on the stream are deflateReset or deflateEnd.
-
-    Z_FINISH can be used in the first deflate call after deflateInit if all the
-   compression is to be done in a single step.  In order to complete in one
-   call, avail_out must be at least the value returned by deflateBound (see
-   below).  Then deflate is guaranteed to return Z_STREAM_END.  If not enough
-   output space is provided, deflate will not return Z_STREAM_END, and it must
-   be called again as described above.
-
-    deflate() sets strm->adler to the Adler-32 checksum of all input read
-   so far (that is, total_in bytes).  If a gzip stream is being generated, then
-   strm->adler will be the CRC-32 checksum of the input read so far.  (See
-   deflateInit2 below.)
-
-    deflate() may update strm->data_type if it can make a good guess about
-   the input data type (Z_BINARY or Z_TEXT).  If in doubt, the data is
-   considered binary.  This field is only for information purposes and does not
-   affect the compression algorithm in any manner.
-
-    deflate() returns Z_OK if some progress has been made (more input
-   processed or more output produced), Z_STREAM_END if all input has been
-   consumed and all output has been produced (only when flush is set to
-   Z_FINISH), Z_STREAM_ERROR if the stream state was inconsistent (for example
-   if next_in or next_out was Z_NULL or the state was inadvertently written over
-   by the application), or Z_BUF_ERROR if no progress is possible (for example
-   avail_in or avail_out was zero).  Note that Z_BUF_ERROR is not fatal, and
-   deflate() can be called again with more input and more output space to
-   continue compressing.
- */
-
+// 
+// deflate compresses as much data as possible, and stops when the input
+// buffer becomes empty or the output buffer becomes full.  It may introduce
+// some output latency (reading input without producing any output) except when forced to flush.
+//
+// The detailed semantics are as follows.  deflate performs one or both of the
+// following actions:
+//
+// - Compress more input starting at next_in and update next_in and avail_in
+//   accordingly.  If not all input can be processed (because there is not
+//   enough room in the output buffer), next_in and avail_in are updated and
+//   processing will resume at this point for the next call of deflate().
+//
+// - Generate more output starting at next_out and update next_out and avail_out
+//   accordingly.  This action is forced if the parameter flush is non zero.
+//   Forcing flush frequently degrades the compression ratio, so this parameter
+//   should be set only when necessary.  Some output may be provided even if flush is zero.
+//
+// Before the call of deflate(), the application should ensure that at least
+// one of the actions is possible, by providing more input and/or consuming more
+// output, and updating avail_in or avail_out accordingly; avail_out should
+// never be zero before the call.  The application can consume the compressed
+// output when it wants, for example when the output buffer is full (avail_out == 0), 
+// or after each call of deflate().  If deflate returns Z_OK and with
+// zero avail_out, it must be called again after making room in the output
+// buffer because there might be more output pending. See deflatePending(),
+// which can be used if desired to determine whether or not there is more ouput in that case.
+//
+// Normally the parameter flush is set to Z_NO_FLUSH, which allows deflate to
+// decide how much data to accumulate before producing output, in order to maximize compression.
+//
+// If the parameter flush is set to Z_SYNC_FLUSH, all pending output is
+// flushed to the output buffer and the output is aligned on a byte boundary, so
+// that the decompressor can get all input data available so far.  (In
+// particular avail_in is zero after the call if enough output space has been
+// provided before the call.) Flushing may degrade compression for some
+// compression algorithms and so it should be used only when necessary.  This
+// completes the current deflate block and follows it with an empty stored block
+// that is three bits plus filler bits to the next byte, followed by four bytes (00 00 ff ff).
+//
+// If flush is set to Z_PARTIAL_FLUSH, all pending output is flushed to the
+// output buffer, but the output is not aligned to a byte boundary.  All of the
+// input data so far will be available to the decompressor, as for Z_SYNC_FLUSH.
+// This completes the current deflate block and follows it with an empty fixed
+// codes block that is 10 bits long.  This assures that enough bytes are output
+// in order for the decompressor to finish the block before the empty fixed codes block.
+//
+// If flush is set to Z_BLOCK, a deflate block is completed and emitted, as
+// for Z_SYNC_FLUSH, but the output is not aligned on a byte boundary, and up to
+// seven bits of the current block are held to be written as the next byte after
+// the next deflate block is completed.  In this case, the decompressor may not
+// be provided enough bits at this point in order to complete decompression of
+// the data provided so far to the compressor.  It may need to wait for the next
+// block to be emitted.  This is for advanced applications that need to control the emission of deflate blocks.
+//
+// If flush is set to Z_FULL_FLUSH, all output is flushed as with
+// Z_SYNC_FLUSH, and the compression state is reset so that decompression can
+// restart from this point if previous compressed data has been damaged or if
+// random access is desired.  Using Z_FULL_FLUSH too often can seriously degrade compression.
+//
+// If deflate returns with avail_out == 0, this function must be called again
+// with the same value of the flush parameter and more output space (updated avail_out), 
+// until the flush is complete (deflate returns with non-zero avail_out).  
+// In the case of a Z_FULL_FLUSH or Z_SYNC_FLUSH, make sure that avail_out is greater than 
+// six to avoid repeated flush markers due to avail_out == 0 on return.
+//
+// If the parameter flush is set to Z_FINISH, pending input is processed,
+// pending output is flushed and deflate returns with Z_STREAM_END if there was
+// enough output space.  If deflate returns with Z_OK or Z_BUF_ERROR, this
+// function must be called again with Z_FINISH and more output space (updated
+// avail_out) but no more input data, until it returns with Z_STREAM_END or an
+// error.  After deflate has returned Z_STREAM_END, the only possible operations
+// on the stream are deflateReset or deflateEnd.
+//
+// Z_FINISH can be used in the first deflate call after deflateInit if all the
+// compression is to be done in a single step.  In order to complete in one
+// call, avail_out must be at least the value returned by deflateBound (see
+// below).  Then deflate is guaranteed to return Z_STREAM_END.  If not enough
+// output space is provided, deflate will not return Z_STREAM_END, and it must
+// be called again as described above.
+//
+// deflate() sets strm->adler to the Adler-32 checksum of all input read
+// so far (that is, total_in bytes).  If a gzip stream is being generated, then
+// strm->adler will be the CRC-32 checksum of the input read so far.  (See deflateInit2 below.)
+//
+// deflate() may update strm->data_type if it can make a good guess about
+// the input data type (Z_BINARY or Z_TEXT).  If in doubt, the data is
+// considered binary.  This field is only for information purposes and does not
+// affect the compression algorithm in any manner.
+//
+// deflate() returns Z_OK if some progress has been made (more input
+// processed or more output produced), Z_STREAM_END if all input has been
+// consumed and all output has been produced (only when flush is set to
+// Z_FINISH), Z_STREAM_ERROR if the stream state was inconsistent (for example
+// if next_in or next_out was Z_NULL or the state was inadvertently written over
+// by the application), or Z_BUF_ERROR if no progress is possible (for example
+// avail_in or avail_out was zero).  Note that Z_BUF_ERROR is not fatal, and
+// deflate() can be called again with more input and more output space to continue compressing.
+// 
 ZEXTERN int ZEXPORT deflateEnd(z_streamp strm);
 /*
      All dynamically allocated data structures for this stream are freed.
@@ -2353,17 +2805,18 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 			// this are set to zero in order to avoid memory check warnings when
 			// longest match routines access bytes past the input.  This is then updated to the new high water mark.
 	} deflate_state;
-
-	/* Output a byte on the stream.
-	 * IN assertion: there is enough room in pending_buf.
-	 */
+	// 
+	// Output a byte on the stream.
+	// IN assertion: there is enough room in pending_buf.
+	// 
 	#define put_byte(s, c) { s->pending_buf[s->pending++] = (Bytef)(c); }
 
 	#define MIN_LOOKAHEAD (MAX_MATCH+MIN_MATCH+1) // Minimum amount of lookahead, except at the end of the input file. See deflate.c for comments about the MIN_MATCH+1.
 	#define MAX_DIST(s) ((s)->w_size-MIN_LOOKAHEAD) // In order to simplify the code, particularly on 16 bit machines, match distances are limited to MAX_DIST instead of WSIZE.
 	#define WIN_INIT    MAX_MATCH // Number of bytes after end of data in window to initialize in order to avoid memory checker errors from longest match routines 
-
-	/* in trees.c */
+	 //
+	// in trees.c 
+	//
 	void ZLIB_INTERNAL _tr_init(deflate_state *s);
 	int ZLIB_INTERNAL _tr_tally(deflate_state *s, unsigned dist, unsigned lc);
 	void ZLIB_INTERNAL _tr_flush_block(deflate_state *s, charf *buf, ulong stored_len, int last);
@@ -2372,40 +2825,37 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	void ZLIB_INTERNAL _tr_stored_block(deflate_state *s, charf *buf, ulong stored_len, int last);
 
 	#define d_code(dist) ((dist) < 256 ? _dist_code[dist] : _dist_code[256+((dist)>>7)])
-	/* Mapping from a distance to a distance code. dist is the distance - 1 and
-	 * must not have side effects. _dist_code[256] and _dist_code[257] are never used.
-	 */
-
+	// Mapping from a distance to a distance code. dist is the distance - 1 and
+	// must not have side effects. _dist_code[256] and _dist_code[257] are never used.
 	#ifndef ZLIB_DEBUG // Inline versions of _tr_tally for speed: 
-	#if defined(GEN_TREES_H) || !defined(STDC)
-		extern uchar ZLIB_INTERNAL _length_code[];
-		extern uchar ZLIB_INTERNAL _dist_code[];
-	#else
-		extern const uchar ZLIB_INTERNAL _length_code[];
-		extern const uchar ZLIB_INTERNAL _dist_code[];
-	#endif
-	#define _tr_tally_lit(s, c, flush) \
-		{ uchar cc = (c);	\
-		  s->d_buf[s->last_lit] = 0; \
-		  s->l_buf[s->last_lit++] = cc;	\
-		  s->dyn_ltree[cc].Freq++; \
-		  flush = (s->last_lit == s->lit_bufsize-1); \
-		}
-	#define _tr_tally_dist(s, distance, length, flush) \
-		{ uchar len = (uchar)(length); \
-		  ushort dist = (ushort)(distance); \
-		  s->d_buf[s->last_lit] = dist;	\
-		  s->l_buf[s->last_lit++] = len; \
-		  dist--; \
-		  s->dyn_ltree[_length_code[len]+LITERALS+1].Freq++; \
-		  s->dyn_dtree[d_code(dist)].Freq++; \
-		  flush = (s->last_lit == s->lit_bufsize-1); \
-		}
+		#if defined(GEN_TREES_H) || !defined(STDC)
+			extern uchar ZLIB_INTERNAL _length_code[];
+			extern uchar ZLIB_INTERNAL _dist_code[];
+		#else
+			extern const uchar ZLIB_INTERNAL _length_code[];
+			extern const uchar ZLIB_INTERNAL _dist_code[];
+		#endif
+		#define _tr_tally_lit(s, c, flush) \
+			{ uchar cc = (c);	\
+			  s->d_buf[s->last_lit] = 0; \
+			  s->l_buf[s->last_lit++] = cc;	\
+			  s->dyn_ltree[cc].Freq++; \
+			  flush = (s->last_lit == s->lit_bufsize-1); \
+			}
+		#define _tr_tally_dist(s, distance, length, flush) \
+			{ uchar len = (uchar)(length); \
+			  ushort dist = (ushort)(distance); \
+			  s->d_buf[s->last_lit] = dist;	\
+			  s->l_buf[s->last_lit++] = len; \
+			  dist--; \
+			  s->dyn_ltree[_length_code[len]+LITERALS+1].Freq++; \
+			  s->dyn_dtree[d_code(dist)].Freq++; \
+			  flush = (s->last_lit == s->lit_bufsize-1); \
+			}
 	#else
 		#define _tr_tally_lit(s, c, flush) flush = _tr_tally(s, 0, c)
 		#define _tr_tally_dist(s, distance, length, flush) flush = _tr_tally(s, distance, length)
 	#endif
-
 #endif
 
 #endif /* ZLIB_H */

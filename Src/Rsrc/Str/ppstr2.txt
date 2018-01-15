@@ -859,6 +859,7 @@ PPERR_NOTALTGRP            "Заданная группа товаров не я
 PPERR_INVBCODELEN          "Недопустимая длина штрихкода '%s'"
 PPERR_INVBCODEPRFX         "Недопустимый префикс штрихкода"
 PPERR_INVPARAM             "@{err_internal}: недопустимый параметр (обратитесь к сопровождению)"
+PPERR_INVPARAM_EXT         "@{err_internal}: недопустимый параметр '%s'"
 PPERR_OPNOTBELONGTOVATB    "Операция не принадлежит книге продаж/покупок"
 PPERR_INVVATBDT            "Неверная дата в записи книги продаж/покупок"
 PPERR_VATBCODENEEDED       "В записи книги продаж/покупок необходим номер счета-фактуры"
@@ -1963,6 +1964,8 @@ PPERR_SR_C_UNEXPAFTER_2EC        "SartreConcept: неожиданная конс
 PPERR_SR_C_RPARORCOMEXPECTED     "SartreConcept: ожидается ')' или ','"
 PPERR_SR_C_CCONCEXPECTED         "SartreConcept: ожидается :concept"
 PPERR_SR_C_UNDEFCONCEPT_PROP     "SartreConcept: не определенная концепция перед списком свойств +()"
+PPERR_SR_C_NWORDBEFOREABBR       "SartreConcept: аббревиатурной конструкции '=$ или =.' должно предшествовать слово"
+PPERR_SR_C_NNGAFTERABBR          "SartreConcept: вслед за аббревиатурной конструкцией '=$ или =.' должна следовать N-Gram"
 PPERR_SR_C_PROPIDEXPECTED        "Sartre: ожидается идентификатор свойства (%s)"
 PPERR_SR_C_PROPIDORCONCEXPECTED  "Sartre: ожидается идентификатор свойства или концепт (%s)"
 PPERR_SR_INVSPCWORDTAG           "Sartre: не допустимый специальный тег слова %s"
@@ -1980,6 +1983,8 @@ PPERR_SR_RULENAMEEXISTS          "Sartre: правило с именем '%s' у
 PPERR_SR_INVMORPHTOKEN           "Sartre: не допустимый морфологический признак '%s'"
 PPERR_SR_S_LITERALONEOFEXPECTED  "Sartre: после oneof ожидается литерал с перечислением вариантов"
 PPERR_SR_S_ONEOFEMPY             "Sartre: oneof должен содержать не менее одного аргумента"
+PPERR_SR_TYPEBYTOKNFOUND         "Sartre: не удалось идентифицировать тип со значение токена '%s'"
+PPERR_SR_RSVRCONCEPTNFOUND       "Sartre: не удалось идентифицировать зарезервированную концепцию по значению '%s'"
 // LastError
 
 [102] // confirmation
@@ -11593,6 +11598,7 @@ PPHS_BCS_PLESSEY               "plessey"
 PPHS_BCS_POSTNET               "postnet"
 PPHS_BCS_LOGMARS               "logmars"
 PPHS_ALCOPROOF                 "alcoproof"
+PPHS_ALCORUCAT                 "alcorucat"
 PPHS_VATRATE                   "vatrate"
 PPHS_SALESTAXRATE              "salestaxrate"
 PPHS_UNLIMITED                 "unlimited"

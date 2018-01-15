@@ -1444,7 +1444,8 @@ int PPViewQuot::CellStyleFunc(const void * pData, long col, int paintAction, Bro
 				ok = 1;
 			}
 		}
-		else if(p_view->GetEditIds(pData, &hdr, col)) {
+		else {
+			p_view->GetEditIds(pData, &hdr, col);
 			double val = 0.0;
 			p_view->GetCtQuotVal(pData, col, 0, &val);
 			if(val > 0) {
@@ -1495,7 +1496,7 @@ int SLAPI PPViewQuot::GetCtQuotVal(const void * pRow, long col, long aggrNum, do
 	return ok;
 }
 
-int SLAPI PPViewQuot::GetEditIds(const void * pRow, PPViewQuot::BrwHdr * pHdr, long col)
+void SLAPI PPViewQuot::GetEditIds(const void * pRow, PPViewQuot::BrwHdr * pHdr, long col)
 {
 	BrwHdr hdr;
 	MEMSZERO(hdr);
@@ -1529,7 +1530,6 @@ int SLAPI PPViewQuot::GetEditIds(const void * pRow, PPViewQuot::BrwHdr * pHdr, l
 		}
 	}
 	ASSIGN_PTR(pHdr, hdr);
-	return 1;
 }
 
 int SLAPI PPViewQuot::CheckDelFromMtx(PPID goodsID)

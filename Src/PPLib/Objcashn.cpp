@@ -701,7 +701,7 @@ int SLAPI PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 					pSCN->ClearCDYTimeout = 0;
 				// @v9.0.9 {
 				pSCN->EgaisMode    = p_ed->EgaisMode;
-				if(!oneof3(pSCN->EgaisMode, 0, 1, 2))
+				if(!oneof4(pSCN->EgaisMode, 0, 1, 2, 3))
 					pSCN->EgaisMode = 0;
 				// } @v9.0.9
 				pSCN->BnkTermType  = p_ed->BnkTermType;

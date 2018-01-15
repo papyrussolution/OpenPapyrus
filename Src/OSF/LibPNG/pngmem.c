@@ -37,13 +37,12 @@ void /* PRIVATE */ png_destroy_png_struct(png_structrp png_ptr)
 #endif
 	}
 }
-
-/* Allocate memory.  For reasonable files, size should never exceed
- * 64K.  However, zlib may allocate more than 64K if you don't tell
- * it not to.  See zconf.h and png.h for more information.  zlib does
- * need to allocate exactly 64K, so whatever you call here must
- * have the ability to do that.
- */
+// 
+// Allocate memory.  For reasonable files, size should never exceed 64K.  
+// However, zlib may allocate more than 64K if you don't tell it not to.  
+// See zconf.h and png.h for more information.  zlib does
+// need to allocate exactly 64K, so whatever you call here must have the ability to do that.
+// 
 PNG_ALLOCATED void * PNGAPI png_calloc(png_const_structrp png_ptr, png_alloc_size_t size)
 {
 	void * ret = png_malloc(png_ptr, size);

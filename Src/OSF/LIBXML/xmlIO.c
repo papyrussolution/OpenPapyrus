@@ -2307,33 +2307,36 @@ void FASTCALL xmlFreeParserInputBuffer(xmlParserInputBuffer * pIn)
  *
  * Returns the number of byte written or -1 in case of error.
  */
-int xmlOutputBufferClose(xmlOutputBuffer * out)
+int FASTCALL xmlOutputBufferClose(xmlOutputBuffer * out)
 {
-	int written;
-	int err_rc = 0;
-	if(out == NULL)
+	if(out) {
+		int err_rc = 0;
+		if(out->writecallback)
+			xmlOutputBufferFlush(out);
+		if(out->closecallback) {
+			err_rc = out->closecallback(out->context);
+		}
+		{
+			int written = out->written;
+			if(out->conv) {
+				xmlBufFree(out->conv);
+				out->conv = NULL;
+			}
+			if(out->encoder) {
+				xmlCharEncCloseFunc(out->encoder);
+			}
+			if(out->buffer) {
+				xmlBufFree(out->buffer);
+				out->buffer = NULL;
+			}
+			if(out->error)
+				err_rc = -1;
+			SAlloc::F(out);
+			return ((err_rc == 0) ? written : err_rc);
+		}
+	}
+	else
 		return -1;
-	if(out->writecallback)
-		xmlOutputBufferFlush(out);
-	if(out->closecallback) {
-		err_rc = out->closecallback(out->context);
-	}
-	written = out->written;
-	if(out->conv) {
-		xmlBufFree(out->conv);
-		out->conv = NULL;
-	}
-	if(out->encoder) {
-		xmlCharEncCloseFunc(out->encoder);
-	}
-	if(out->buffer) {
-		xmlBufFree(out->buffer);
-		out->buffer = NULL;
-	}
-	if(out->error)
-		err_rc = -1;
-	SAlloc::F(out);
-	return ((err_rc == 0) ? written : err_rc);
 }
 
 #endif /* LIBXML_OUTPUT_ENABLED */

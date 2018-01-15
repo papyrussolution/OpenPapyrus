@@ -20,7 +20,7 @@ int SLAPI InternetAccountFilter(void * pData, void * extraPtr)
 			//r = BIN(extra_param == INETACCT_ONLYFTP);
 			r = BIN(extra_param & PPObjInternetAccount::filtfFtp);
 		}
-		//else if(extra_param == INETACCT_ONLYMAIL) 
+		//else if(extra_param == INETACCT_ONLYMAIL)
 		else if(extra_param & PPObjInternetAccount::filtfMail)
 			r = 1;
 	return r;
@@ -1751,10 +1751,10 @@ int SLAPI SendMail(const char * pSubj, const char * pLetter, StrAssocArray * pMa
 		if(pFilesList) {
 			char * p_path = 0;
 			for(uint i = 0; pFilesList->enumItems(&i, (void **)&p_path);)
-				mail_msg.AttachFile(p_path);
+				mail_msg.AttachFile(0, SFileFormat::Unkn, p_path);
 		}
 		// @v9.8.11 THROW(PPMailSmtp::Send(*pAccount, mail_msg, SendMailCallback, msg_counter));
-		THROW(PPSendEmail(*pAccount, mail_msg, SendMailCallback, msg_counter)); // @v9.8.11 
+		THROW(PPSendEmail(*pAccount, mail_msg, SendMailCallback, msg_counter)); // @v9.8.11
 		buf.Printf(ok_msg.cptr(), mail_addr.cptr());
 		CALLPTRMEMB(pLogger, Log(buf));
 	}

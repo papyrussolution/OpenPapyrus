@@ -5,13 +5,10 @@
     <ClCompile Include="..\OSF\ZLIB\zlib-pch.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Include\ZLIB\inffixed.h">
+    <ClInclude Include="..\OSF\ZLIB\inffixed.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\ZLIB\zconf.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\ZLIB\zlib.h">
+    <ClInclude Include="..\Include\zlib.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

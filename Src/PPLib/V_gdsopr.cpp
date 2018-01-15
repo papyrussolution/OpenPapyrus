@@ -2041,7 +2041,7 @@ int SLAPI PPViewGoodsOpAnalyze::GetTabTitle(long tabID, SString & rBuf)
 	return 1;
 }
 
-int SLAPI PPViewGoodsOpAnalyze::GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col)
+void SLAPI PPViewGoodsOpAnalyze::GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col)
 {
 	PPID   loc_id   = 0;
 	PPID   goods_id = 0;
@@ -2063,7 +2063,6 @@ int SLAPI PPViewGoodsOpAnalyze::GetEditIds(const void * pRow, PPID * pLocID, PPI
 	}
 	ASSIGN_PTR(pLocID, loc_id);
 	ASSIGN_PTR(pGoodsID, goods_id);
-	return 1;
 }
 
 class GoodsOpAnlzCrosstab : public Crosstab {

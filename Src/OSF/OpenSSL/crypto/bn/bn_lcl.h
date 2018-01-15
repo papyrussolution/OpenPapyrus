@@ -55,27 +55,24 @@ extern "C" {
  * this should be on.  Again this in only really a problem on machines using
  * "long long's", are 32bit, and are not using my assembler code.
  */
-# if defined(OPENSSL_SYS_MSDOS) || defined(OPENSSL_SYS_WINDOWS) || \
-	defined(OPENSSL_SYS_WIN32) || defined(linux)
-#  define BN_DIV2W
-# endif
-
+#if defined(OPENSSL_SYS_MSDOS) || defined(OPENSSL_SYS_WINDOWS) || defined(OPENSSL_SYS_WIN32) || defined(linux)
+	#define BN_DIV2W
+#endif
 /*
  * 64-bit processor with LP64 ABI
  */
-# ifdef SIXTY_FOUR_BIT_LONG
-#  define BN_ULLONG       unsigned long long
-#  define BN_BITS4        32
-#  define BN_MASK2        (0xffffffffffffffffL)
-#  define BN_MASK2l       (0xffffffffL)
-#  define BN_MASK2h       (0xffffffff00000000L)
-#  define BN_MASK2h1      (0xffffffff80000000L)
-#  define BN_DEC_CONV     (10000000000000000000UL)
-#  define BN_DEC_NUM      19
-#  define BN_DEC_FMT1     "%lu"
-#  define BN_DEC_FMT2     "%019lu"
-# endif
-
+#ifdef SIXTY_FOUR_BIT_LONG
+	#define BN_ULLONG       unsigned long long
+	#define BN_BITS4        32
+	#define BN_MASK2        (0xffffffffffffffffL)
+	#define BN_MASK2l       (0xffffffffL)
+	#define BN_MASK2h       (0xffffffff00000000L)
+	#define BN_MASK2h1      (0xffffffff80000000L)
+	#define BN_DEC_CONV     (10000000000000000000UL)
+	#define BN_DEC_NUM      19
+	#define BN_DEC_FMT1     "%lu"
+	#define BN_DEC_FMT2     "%019lu"
+#endif
 /*
  * 64-bit processor other than LP64 ABI
  */
@@ -188,20 +185,17 @@ int RAND_bytes(unsigned char * buf, int num);
 		/* avoid unused variable warning with NDEBUG */	\
 		(void)(_bnum2);	\
 	} while(0)
-
-# else                          /* !BN_DEBUG */
-
-#  define bn_pollute(a)
-#  define bn_check_top(a)
-#  define bn_fix_top(a)           bn_correct_top(a)
-#  define bn_check_size(bn, bits)
-#  define bn_wcheck_size(bn, words)
-
-# endif
+#else // !BN_DEBUG 
+	#define bn_pollute(a)
+	#define bn_check_top(a)
+	#define bn_fix_top(a)           bn_correct_top(a)
+	#define bn_check_size(bn, bits)
+	#define bn_wcheck_size(bn, words)
+#endif
 
 BN_ULONG bn_mul_add_words(BN_ULONG * rp, const BN_ULONG * ap, int num, BN_ULONG w);
-BN_ULONG bn_mul_words(BN_ULONG * rp, const BN_ULONG * ap, int num, BN_ULONG w);
-void bn_sqr_words(BN_ULONG * rp, const BN_ULONG * ap, int num);
+BN_ULONG FASTCALL bn_mul_words(BN_ULONG * rp, const BN_ULONG * ap, int num, BN_ULONG w);
+void     bn_sqr_words(BN_ULONG * rp, const BN_ULONG * ap, int num);
 BN_ULONG bn_div_words(BN_ULONG h, BN_ULONG l, BN_ULONG d);
 BN_ULONG bn_add_words(BN_ULONG * rp, const BN_ULONG * ap, const BN_ULONG * bp, int num);
 BN_ULONG bn_sub_words(BN_ULONG * rp, const BN_ULONG * ap, const BN_ULONG * bp, int num);
@@ -274,19 +268,13 @@ struct bn_gencb_st {
  * (with draws in between).  Very small exponents are often selected
  * with low Hamming weight, so we use  w = 1  for b <= 23.
  */
-# define BN_window_bits_for_exponent_size(b) \
-	((b) > 671 ? 6 : \
-	    (b) > 239 ? 5 : \
-	    (b) >  79 ? 4 : \
-	    (b) >  23 ? 3 : 1)
-
+#define BN_window_bits_for_exponent_size(b) ((b) > 671 ? 6 : (b) > 239 ? 5 : (b) >  79 ? 4 : (b) >  23 ? 3 : 1)
 /*
  * BN_mod_exp_mont_conttime is based on the assumption that the L1 data cache
  * line width of the target processor is at least the following value.
  */
-# define MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH      ( 64 )
-# define MOD_EXP_CTIME_MIN_CACHE_LINE_MASK       (MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH - 1)
-
+#define MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH      ( 64 )
+#define MOD_EXP_CTIME_MIN_CACHE_LINE_MASK       (MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH - 1)
 /*
  * Window sizes optimized for fixed window size modular exponentiation
  * algorithm (BN_mod_exp_mont_consttime). To achieve the security goals of
@@ -296,25 +284,13 @@ struct bn_gencb_st {
  * log_2(32)=5 and log_2(64)=6 respectively. A window size of 7 should only be
  * used on processors that have a 128 byte or greater cache line size.
  */
-# if MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH == 64
-
-#  define BN_window_bits_for_ctime_exponent_size(b) \
-	((b) > 937 ? 6 : \
-	    (b) > 306 ? 5 : \
-	    (b) >  89 ? 4 : \
-	    (b) >  22 ? 3 : 1)
-#  define BN_MAX_WINDOW_BITS_FOR_CTIME_EXPONENT_SIZE    (6)
-
-# elif MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH == 32
-
-#  define BN_window_bits_for_ctime_exponent_size(b) \
-	((b) > 306 ? 5 : \
-	    (b) >  89 ? 4 : \
-	    (b) >  22 ? 3 : 1)
-#  define BN_MAX_WINDOW_BITS_FOR_CTIME_EXPONENT_SIZE    (5)
-
-# endif
-
+#if MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH == 64
+	#define BN_window_bits_for_ctime_exponent_size(b) ((b) > 937 ? 6 : (b) > 306 ? 5 : (b) >  89 ? 4 : (b) >  22 ? 3 : 1)
+	#define BN_MAX_WINDOW_BITS_FOR_CTIME_EXPONENT_SIZE    (6)
+#elif MOD_EXP_CTIME_MIN_CACHE_LINE_WIDTH == 32
+	#define BN_window_bits_for_ctime_exponent_size(b) ((b) > 306 ? 5 : (b) >  89 ? 4 : (b) >  22 ? 3 : 1)
+	#define BN_MAX_WINDOW_BITS_FOR_CTIME_EXPONENT_SIZE    (5)
+#endif
 /* Pentium pro 16,16,16,32,64 */
 /* Alpha       16,16,16,16.64 */
 # define BN_MULL_SIZE_NORMAL                     (16) /* 32 */
@@ -458,33 +434,14 @@ unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b,
 		for(; ind != 0; ind--) \
 			*(++ftl) = 0x0;	\
 	}
-# else
-#  define bn_clear_top2max(a)
-# endif
-
-# ifdef BN_LLONG
-#  define mul_add(r, a, w, c) {	\
-		BN_ULLONG t; \
-		t = (BN_ULLONG)w * (a) + (r) + (c); \
-		(r) = Lw(t); \
-		(c) = Hw(t); \
-}
-
-#  define mul(r, a, w, c) { \
-		BN_ULLONG t; \
-		t = (BN_ULLONG)w * (a) + (c); \
-		(r) = Lw(t); \
-		(c) = Hw(t); \
-}
-
-#  define sqr(r0, r1, a) { \
-		BN_ULLONG t; \
-		t = (BN_ULLONG)(a)*(a);	\
-		(r0) = Lw(t); \
-		(r1) = Hw(t); \
-}
-
-# elif defined(BN_UMULT_LOHI)
+#else
+	#define bn_clear_top2max(a)
+#endif
+#ifdef BN_LLONG
+	#define mul_add(r, a, w, c) { BN_ULLONG t = (BN_ULLONG)w * (a) + (r) + (c); (r) = Lw(t); (c) = Hw(t); }
+	#define mul(r, a, w, c) { BN_ULLONG t = (BN_ULLONG)w * (a) + (c); (r) = Lw(t); (c) = Hw(t); }
+	#define sqr(r0, r1, a) { BN_ULLONG t = (BN_ULLONG)(a)*(a); (r0) = Lw(t); (r1) = Hw(t); }
+#elif defined(BN_UMULT_LOHI)
 #  define mul_add(r, a, w, c) {		     \
 		BN_ULONG high, low, ret, tmp = (a);  \
 		ret =  (r);			\
@@ -541,7 +498,7 @@ unsigned __int64 _umul128(unsigned __int64 a, unsigned __int64 b,
 		(r1) = BN_UMULT_HIGH(tmp, tmp);	 \
 }
 
-# else
+#else
 /*************************************************************
  * No long long type
  */

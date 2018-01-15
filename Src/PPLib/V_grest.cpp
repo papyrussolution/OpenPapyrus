@@ -3273,7 +3273,7 @@ int SLAPI PPViewGoodsRest::OnExecBrowser(PPViewBrowser * pBrw)
 	return -1;
 }
 
-int SLAPI PPViewGoodsRest::GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col)
+void SLAPI PPViewGoodsRest::GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col)
 {
 	PPID   loc_id   = 0;
 	PPID   goods_id = 0;
@@ -3292,7 +3292,6 @@ int SLAPI PPViewGoodsRest::GetEditIds(const void * pRow, PPID * pLocID, PPID * p
 	}
 	ASSIGN_PTR(pLocID, loc_id);
 	ASSIGN_PTR(pGoodsID, goods_id);
-	return 1;
 }
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, void * extraPtr)
@@ -3311,7 +3310,8 @@ int SLAPI PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int pain
 			int    accept = 0;
 			PPID   goods_id = 0, loc_id = 0;
 			if((col == 0 && is_crosst == 0) || (col && is_crosst)) {
-				if(GetEditIds(pData, &loc_id, &goods_id, col) > 0 && goods_id && (!is_crosst || loc_id))
+				GetEditIds(pData, &loc_id, &goods_id, col);
+				if(goods_id && (!is_crosst || loc_id))
 					accept = 1;
 			}
 			if(accept) {

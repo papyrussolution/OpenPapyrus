@@ -558,6 +558,7 @@ int SLAPI ReceiptCore::EnumByGoods(PPID goodsID, DateIter * pIter, ReceiptTbl::R
 		return PPDbSearchError();
 }
 
+IMPL_CMPFUNC(Receipt_DtOprNo_Asc, i1, i2)  { RET_CMPCASCADE2((const ReceiptTbl::Rec *)i1, (const ReceiptTbl::Rec *)i2, Dt, OprNo); }
 IMPL_CMPFUNC(Receipt_DtOprNo_Desc, i1, i2) { RET_CMPCASCADE2((const ReceiptTbl::Rec *)i2, (const ReceiptTbl::Rec *)i1, Dt, OprNo); }
 
 IMPL_CMPFUNC(Receipt_DtOprNo_FEFO_Asc, i1, i2)

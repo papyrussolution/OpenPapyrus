@@ -399,25 +399,20 @@ int PEM_get_EVP_CIPHER_INFO(char * header, EVP_CIPHER_INFO * cipher)
 	const EVP_CIPHER * enc = NULL;
 	int ivlen;
 	char * dekinfostart, c;
-
 	cipher->cipher = NULL;
 	if((header == NULL) || (*header == '\0') || (*header == '\n'))
 		return 1;
-
 	if(strncmp(header, ProcType, sizeof(ProcType)-1) != 0) {
 		PEMerr(PEM_F_PEM_GET_EVP_CIPHER_INFO, PEM_R_NOT_PROC_TYPE);
 		return 0;
 	}
 	header += sizeof(ProcType)-1;
 	header += strspn(header, " \t");
-
 	if(*header++ != '4' || *header++ != ',')
 		return 0;
 	header += strspn(header, " \t");
-
 	/* We expect "ENCRYPTED" followed by optional white-space + line break */
-	if(strncmp(header, ENCRYPTED, sizeof(ENCRYPTED)-1) != 0 ||
-	    strspn(header+sizeof(ENCRYPTED)-1, " \t\r\n") == 0) {
+	if(strncmp(header, ENCRYPTED, sizeof(ENCRYPTED)-1) != 0 || strspn(header+sizeof(ENCRYPTED)-1, " \t\r\n") == 0) {
 		PEMerr(PEM_F_PEM_GET_EVP_CIPHER_INFO, PEM_R_NOT_ENCRYPTED);
 		return 0;
 	}
@@ -427,7 +422,6 @@ int PEM_get_EVP_CIPHER_INFO(char * header, EVP_CIPHER_INFO * cipher)
 		PEMerr(PEM_F_PEM_GET_EVP_CIPHER_INFO, PEM_R_SHORT_HEADER);
 		return 0;
 	}
-
 	/*-
 	 * https://tools.ietf.org/html/rfc1421#section-4.6.1.3
 	 * We expect "DEK-Info: algo[,hex-parameters]"
@@ -438,7 +432,6 @@ int PEM_get_EVP_CIPHER_INFO(char * header, EVP_CIPHER_INFO * cipher)
 	}
 	header += sizeof(DEKInfo)-1;
 	header += strspn(header, " \t");
-
 	/*
 	 * DEK-INFO is a comma-separated combination of algorithm name and optional
 	 * parameters.
