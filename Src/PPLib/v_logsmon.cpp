@@ -154,8 +154,7 @@ int LogsMonitorFiltDialog::getDTS(LogsMonitorFilt *pFilt)
 //
 // @implement SelectLogsDialog {
 //
-SelectLogsDialog::SelectLogsDialog(ListToListUIData *pData, SArray *pLList, SArray *pRList) :
-	Lst2LstAryDialog(DLG_SELECT_LOGS, pData, pLList, pRList)
+SelectLogsDialog::SelectLogsDialog(ListToListUIData *pData, SArray *pLList, SArray *pRList) : Lst2LstAryDialog(DLG_SELECT_LOGS, pData, pLList, pRList)
 {
 }
 //

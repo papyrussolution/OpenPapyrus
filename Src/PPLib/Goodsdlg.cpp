@@ -8,11 +8,6 @@
 #include <csoap.h>
 #include <ppsoapclient.h>
 
-#define max MAX // @v9.8.11
-#define min MIN // @v9.8.11
-#include <gdiplus.h>
-using namespace Gdiplus;
-
 struct UhttSearchGoodsParam {
 	UhttSearchGoodsParam() : Criterion(critBarcode)
 	{
@@ -2222,8 +2217,10 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 					GoodsVadDialog * dlg = new GoodsVadDialog;
 					if(CheckDialogPtrErr(&dlg)) {
 						dlg->setDTS(&Data);
-						if(ExecView(dlg) == cmOK)
-							dlg->getDTS(&Data);
+						for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
+							if(dlg->getDTS(&Data))
+								valid_data = 1;
+						}
 						delete dlg;
 					}
 				}

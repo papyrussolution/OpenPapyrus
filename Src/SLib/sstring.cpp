@@ -884,34 +884,22 @@ int SLAPI SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) cons
 //
 //
 //
-SLAPI STokenizer::Param::Param()
+SLAPI STokenizer::Param::Param() : Flags(0), Cp(0)
 {
-	Flags = 0;
-	Cp = 0;
 }
 
-SLAPI STokenizer::Param::Param(long flags, int cp, const char * pDelim) : Delim(pDelim)
+SLAPI STokenizer::Param::Param(long flags, int cp, const char * pDelim) : Delim(pDelim), Flags(flags), Cp(cp)
 {
-	Flags = flags;
-	Cp = cp;
 }
 
-SLAPI STokenizer::STokenizer() : T(1000000, 0)
+SLAPI STokenizer::STokenizer() : T(1000000, 0), Tc(0), RP(0), SO(0), P_ResourceIndex(0)
 {
-	Tc = 0;
-	RP = 0;
-	SO = 0;
-	P_ResourceIndex = 0;
 	SetParam(0);
 	//TokenBuf.setDelta(128);
 }
 
-SLAPI STokenizer::STokenizer(const Param & rParam) : T(1000000, 0)
+SLAPI STokenizer::STokenizer(const Param & rParam) : T(1000000, 0), Tc(0), RP(0), SO(0), P_ResourceIndex(0)
 {
-	Tc = 0;
-	RP = 0;
-	SO = 0;
-	P_ResourceIndex = 0;
 	SetParam(&rParam);
 	//TokenBuf.setDelta(128);
 }
@@ -1756,7 +1744,7 @@ SString & SLAPI SString::Z()
 	//
 	// Функция вызывается экстремально часто. Потому максимально оптимизирована.
 	//
-	if(sizeof(uint32) <= Size || Alloc(sizeof(uint32))) {
+	if(sizeof(uint32) <= Size || Alloc(sizeof(uint32))) { // 4 байта быстрее обнуляются, чем 1 поэтому требуем минимальную длину - 4 символа (4 байта)
 		*PTR32(P_Buf) = 0;
 		L = 1;
 	}
@@ -3980,11 +3968,16 @@ SStringU & FASTCALL SStringU::operator = (const wchar_t * pS) { return CopyFrom(
 
 SStringU & SLAPI SStringU::Z()
 {
-	const size_t new_len = 1;
-	if(new_len <= Size || Alloc(new_len)) {
+	if(2 <= Size || Alloc(2)) { // 4 байта быстрее обнуляются, чем 2 поэтому требуем минимальную длину - 2 символа (4 байта)
+		PTR32(P_Buf)[0] = 0;
+		L = 1;
+	}
+	else if(P_Buf) {
 		P_Buf[0] = 0;
 		L = 1;
 	}
+	else
+		L = 0;
 	return *this;
 }
 

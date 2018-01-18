@@ -664,6 +664,13 @@ SLAPI SrNGram::SrNGram() : ID(0), Ver(0)
 {
 }
 
+void SLAPI SrNGram::Z()
+{
+	ID = 0;
+	Ver = 0;
+	WordIdList.clear();
+}
+
 static IMPL_CMPCFUNC(SrNGram_ByLength, p1, p2)
 {
 	const SrNGram * p_ng1 = (const SrNGram *)p1;

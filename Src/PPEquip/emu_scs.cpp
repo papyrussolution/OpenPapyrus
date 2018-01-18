@@ -19,7 +19,7 @@ struct PrnLineStruc {
 	SlipLineParam Param;
 };
 
-typedef TSCollection<PrnLineStruc> PrnLinesArray;
+typedef TSCollection <PrnLineStruc> PrnLinesArray;
 
 class SCS_SYNCSYM : public PPSyncCashSession {
 public:

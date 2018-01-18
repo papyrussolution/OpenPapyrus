@@ -1,5 +1,5 @@
 // CRUKM.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу ККМ "Кристалл-УКМ" (ООО Кристалл Сервис)
 //
@@ -638,7 +638,7 @@ int SLAPI ACS_CRUKM::GetSessionData(int * pSessCount, int * pIsForwardSess, Date
 		sess_count = 0;
 	ENDCATCH
 	delete p_zr_tbl;
-	sess_count = P_TmpSessList ? P_TmpSessList->getCount() : 0;
+	sess_count = SVectorBase::GetCount(P_TmpSessList);
 	ASSIGN_PTR(pSessCount, sess_count);
 	ASSIGN_PTR(pIsForwardSess, is_forward);
 	return ok;

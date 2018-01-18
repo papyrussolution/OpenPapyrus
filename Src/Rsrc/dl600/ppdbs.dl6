@@ -1,5 +1,5 @@
 // PPDBS.DL6
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // Database structures
 //
@@ -4903,8 +4903,11 @@ table TempSysJournal {
 	long   ID;
 	long   ID2;
 	date   Dt;           // Дата
-	string DtSubst[32];  // Подстановка даты
-	string Name[128];    // Подстановка наименования // @v6.2.2 [48]-->[128]
+	// @v9.9.0 string DtSubst[32];  // Подстановка даты
+	// @v9.9.0 string Name[128];    // Подстановка наименования // @v6.2.2 [48]-->[128]
+	uint   DtSubstP;      // @v9.9.0
+	uint   NameP;         // @v9.9.0
+	uint   NameBeforeEvP; // @v9.9.0
 	long   Count;
 	long   AvgEvTime;
 index:

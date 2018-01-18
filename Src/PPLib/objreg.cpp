@@ -1,5 +1,5 @@
 // OBJREG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -18,19 +18,17 @@ int SLAPI PPObjRegister::InitPacket(RegisterTbl::Rec * pRec, PPID regTypeID, PPI
 			pRec->ObjType = objType;
 			pRec->ObjID = objID;
 		}
-		else if(objType != 0) {
+		else if(objType)
 			ok = PPSetError(PPERR_INVREGISTERLINKOBJTYPE);
-		}
 	}
 	else
 		ok = PPSetErrorInvParam();
 	return ok;
 }
 
-SLAPI PPObjRegister::PPObjRegister(void * extraPtr) : PPObject(PPOBJ_REGISTER)
+SLAPI PPObjRegister::PPObjRegister(void * extraPtr) : PPObject(PPOBJ_REGISTER), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ExtraPtr = extraPtr;
 	ImplementFlags |= implStrAssocMakeList;
 }
 
@@ -39,10 +37,9 @@ SLAPI PPObjRegister::~PPObjRegister()
 	TLP_CLOSE(P_Tbl);
 }
 
-int SLAPI PPObjRegister::Search(PPID id, void * b)
-{
-	return P_Tbl->Search(id, (RegisterTbl::Rec *)b);
-}
+int    SLAPI PPObjRegister::Search(PPID id, void * b) { return P_Tbl->Search(id, (RegisterTbl::Rec *)b); }
+const  char * SLAPI PPObjRegister::GetNamePtr() { return P_Tbl->data.Num; }
+int    SLAPI PPObjRegister::DeleteObj(PPID id) { return P_Tbl->Remove(id, 0); }
 
 StrAssocArray * SLAPI PPObjRegister::MakeStrAssocList(void * extraPtr /* (RegisterFilt*) */)
 {
@@ -65,8 +62,7 @@ StrAssocArray * SLAPI PPObjRegister::MakeStrAssocList(void * extraPtr /* (Regist
 	return p_list;
 }
 
-int SLAPI PPObjRegister::SearchByNumber(PPID * pID, PPID regTypeID,
-	const char * pSn, const char * pNmbr, RegisterTbl::Rec * pRec)
+int SLAPI PPObjRegister::SearchByNumber(PPID * pID, PPID regTypeID, const char * pSn, const char * pNmbr, RegisterTbl::Rec * pRec)
 {
 	return P_Tbl->SearchByNumber(pID, regTypeID, pSn, pNmbr, pRec);
 }
@@ -110,16 +106,6 @@ int SLAPI PPObjRegister::CheckUniqueNumber(const RegisterTbl::Rec * pRec, const 
 		}
 	}
 	return 1;
-}
-
-const char * SLAPI PPObjRegister::GetNamePtr()
-{
-	return P_Tbl->data.Num;
-}
-
-int SLAPI PPObjRegister::DeleteObj(PPID id)
-{
-	return P_Tbl->Remove(id, 0);
 }
 
 int SLAPI PPObjRegister::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
@@ -435,14 +421,9 @@ int SLAPI PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const Regist
 }
 
 int SLAPI PPObjRegister::EditDialog(RegisterTbl::Rec * pRec, const RegisterArray * pRegList, const PPPersonPacket * pOuterPack)
-{
-	return Helper_EditDialog(pRec, pRegList, PPOBJ_PERSON, pOuterPack);
-}
-
+	{ return Helper_EditDialog(pRec, pRegList, PPOBJ_PERSON, pOuterPack); }
 int SLAPI PPObjRegister::EditDialog(RegisterTbl::Rec * pRec, const RegisterArray * pRegList, const PPLocationPacket * pOuterPack)
-{
-	return Helper_EditDialog(pRec, pRegList, PPOBJ_LOCATION, pOuterPack);
-}
+	{ return Helper_EditDialog(pRec, pRegList, PPOBJ_LOCATION, pOuterPack); }
 
 int SLAPI PPObjRegister::Edit(PPID * pID, PPID objType, PPID objID, PPID regTypeID)
 {
@@ -502,8 +483,7 @@ int SLAPI PPObjRegister::Edit(PPID * pID, void * extraPtr /*personID*/)
 
 class RegisterListDialog : public PPListDialog {
 public:
-	RegisterListDialog(PPPersonPacket * pPsnPack, PPID eventID) : PPListDialog(DLG_REGLST, CTL_REGLST_LIST),
-		P_PsnPack(0), P_LocPack(0), P_Data(&StubData)
+	RegisterListDialog(PPPersonPacket * pPsnPack, PPID eventID) : PPListDialog(DLG_REGLST, CTL_REGLST_LIST), P_PsnPack(0), P_LocPack(0), P_Data(&StubData)
 	{
 		if(pPsnPack) {
 			P_PsnPack = pPsnPack;
@@ -520,8 +500,7 @@ public:
 		EventID  = eventID;
 		updateList(-1);
 	}
-	RegisterListDialog(PPLocationPacket * pLocPack) : PPListDialog(DLG_REGLST, CTL_REGLST_LIST),
-		P_PsnPack(0), P_LocPack(0), P_Data(&StubData)
+	RegisterListDialog(PPLocationPacket * pLocPack) : PPListDialog(DLG_REGLST, CTL_REGLST_LIST), P_PsnPack(0), P_LocPack(0), P_Data(&StubData)
 	{
 		if(pLocPack) {
 			Oid.Set(PPOBJ_LOCATION, pLocPack->ID);
@@ -633,24 +612,14 @@ private:
 
 int SLAPI PPObjRegister::EditList(PPPersonPacket * pPsnPack, PPID psnEventID)
 {
-	int    ok = -1;
 	RegisterListDialog * dlg = new RegisterListDialog(pPsnPack, psnEventID);
-	if(CheckDialogPtrErr(&dlg))
-		ok = (ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1;
-	else
-		ok = 0;
-	return ok;
+	return CheckDialogPtrErr(&dlg) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
 }
 
 int SLAPI PPObjRegister::EditList(PPLocationPacket * pLocPack)
 {
-	int    ok = -1;
 	RegisterListDialog * dlg = new RegisterListDialog(pLocPack);
-	if(CheckDialogPtrErr(&dlg))
-		ok = (ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1;
-	else
-		ok = 0;
-	return ok;
+	return CheckDialogPtrErr(&dlg) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
 }
 
 int SLAPI PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)

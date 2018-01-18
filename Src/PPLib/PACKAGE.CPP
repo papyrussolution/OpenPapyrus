@@ -177,10 +177,7 @@ SLAPI LPackageList::~LPackageList()
 }
 
 //virtual
-void FASTCALL LPackageList::freeItem(void * pItem)
-{
-	delete ((LPackage*)pItem);
-}
+void FASTCALL LPackageList::freeItem(void * pItem) { delete ((LPackage*)pItem); }
 
 int SLAPI LPackageList::Add(const LPackage * pItem)
 {

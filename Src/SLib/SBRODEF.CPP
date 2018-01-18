@@ -232,14 +232,10 @@ void SLAPI BrowserDef::ClearGroupIndexies()
 		P_Groups[i].index = 0;
 }
 
-uint * SLAPI BrowserDef::GetGroupIndexPtr(uint grpN)
-	{ return (grpN < NumGroups) ? &P_Groups[grpN].index : 0; }
-int SLAPI BrowserDef::IsBOQ() const
-	{ return isBOQ; }
-int SLAPI BrowserDef::IsEOQ() const
-	{ return isEOQ; }
-int SLAPI BrowserDef::CheckFlag(uint f) const
-	{ return (options & f) ? 1 : 0; }
+uint * SLAPI BrowserDef::GetGroupIndexPtr(uint grpN) { return (grpN < NumGroups) ? &P_Groups[grpN].index : 0; }
+int    SLAPI BrowserDef::IsBOQ() const { return isBOQ; }
+int    SLAPI BrowserDef::IsEOQ() const { return isEOQ; }
+int    SLAPI BrowserDef::CheckFlag(uint f) const { return (options & f) ? 1 : 0; }
 
 //virtual
 void FASTCALL BrowserDef::freeItem(void * pItem)

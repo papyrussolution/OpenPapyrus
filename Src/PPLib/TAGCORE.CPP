@@ -804,10 +804,7 @@ uint SLAPI ObjTagList::GetCount() const
 }
 
 //virtual
-void FASTCALL ObjTagList::freeItem(void * pItem)
-{
-	((ObjTagItem*)pItem)->Destroy();
-}
+void FASTCALL ObjTagList::freeItem(void * pItem) { ((ObjTagItem*)pItem)->Destroy(); }
 
 const ObjTagItem * FASTCALL ObjTagList::GetItem(PPID id) const
 {

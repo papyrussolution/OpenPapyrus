@@ -299,10 +299,7 @@ int SSuffixTree::StringArray::CreateNewItem(const SSuffixTree * pT, uint32 id, u
 }
 
 //virtual
-void FASTCALL SSuffixTree::StringArray::freeItem(void * pItem)
-{
-	((SSuffixTree::String *)pItem)->freeAll();
-}
+void FASTCALL SSuffixTree::StringArray::freeItem(void * pItem) { ((SSuffixTree::String *)pItem)->freeAll(); }
 //
 //
 //

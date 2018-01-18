@@ -6324,6 +6324,9 @@ public:
 	int    FASTCALL add(int64);
 	int    FASTCALL add(int32);
 	int    FASTCALL addUnique(int64);
+	int    FASTCALL add(const Int64Array *);
+	void   SLAPI sort();
+	void   SLAPI sortAndUndup();
 };
 //
 //
@@ -12052,7 +12055,7 @@ public:
 	const  SString & GetAddedMsgString() const;
 	int    SLAPI LogMessage(const char * pFileName, const char * pStr, ulong maxFileSize = 0);
 	int    SLAPI InitGdiplus();
-	int    SLAPI ShutdownGdiplus();
+	void   SLAPI ShutdownGdiplus();
 	int    SLAPI LoadString(const char * pSignature, SString & rBuf) const;
 	int    SLAPI ExpandString(SString & rBuf, int ctransf) const;
 	int    SLAPI SubstString(const char * pSrcStr, int ansiCoding, SString & rBuf); // @>>this->LoadString

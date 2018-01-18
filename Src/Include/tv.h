@@ -2948,7 +2948,7 @@ public:
 private:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual int    handleWindowsMessage(UINT, WPARAM, LPARAM);
-	void * P_Image;
+	void * P_Image_GDIP;
 	SDrawFigure * P_Fig;
 	SString FigSymb; // @v9.5.6 Символ векторной фигуры для отображения //
 	SColor ReplacedColor; // @v9.6.5 Замещаемый цвет в векторном изображении

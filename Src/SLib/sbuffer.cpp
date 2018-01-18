@@ -904,7 +904,7 @@ int SLAPI SSerializeContext::SerializeState(int dir, SBuffer & rBuf)
 		blk.Flags = Flags;
 		blk.SuppDate = SuppDate;
 		blk.LastSymbId = LastSymbId;
-		blk.StructCount = P_DbtDescrList ? P_DbtDescrList->getCount() : 0;
+		blk.StructCount = SVectorBase::GetCount(P_DbtDescrList);
 
 		rBuf.Write(sign);
 		rBuf.Write(&blk, sizeof(blk));

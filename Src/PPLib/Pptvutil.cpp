@@ -6,20 +6,9 @@
 
 //int    modeless = GetModelessStatus();
 
-int FASTCALL GetModelessStatus(int outerModeless)
-{
-	return BIN(outerModeless);
-}
-
-TView * SLAPI ValidView(TView * pView)
-{
-	return APPL->validView(pView);
-}
-
-ushort FASTCALL ExecView(TWindow * pView) // @v9.0.4 TView-->TWindow
-{
-	return pView ? APPL->P_DeskTop->execView(pView) : cmError;
-}
+int    FASTCALL GetModelessStatus(int outerModeless) { return BIN(outerModeless); }
+TView * SLAPI ValidView(TView * pView) { return APPL->validView(pView); }
+ushort FASTCALL ExecView(TWindow * pView) { return pView ? APPL->P_DeskTop->execView(pView) : cmError; } // @v9.0.4 TView-->TWindow 
 
 ushort FASTCALL ExecViewAndDestroy(TWindow * pView) // @v9.0.4 TView-->TWindow
 {
@@ -84,25 +73,10 @@ int SLAPI InitSTimeChunkBrowserParam(const char * pSymbol, STimeChunkBrowser::Pa
 // В следующих трех функциях проверка не ненулевой APPL сделана из-за того, что
 // функции эти могут вызываться в контексте JobServer'а
 //
-BrowserWindow * SLAPI PPFindLastBrowser()
-{
-	return APPL ? (BrowserWindow *)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 0) : 0;
-}
-
-STimeChunkBrowser * SLAPI PPFindLastTimeChunkBrowser()
-{
-	return APPL ? (STimeChunkBrowser *)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 1) : 0;
-}
-
-PPPaintCloth * SLAPI PPFindLastPaintCloth()
-{
-	return APPL ? (PPPaintCloth*)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 2) : 0;
-}
-
-static STextBrowser * SLAPI PPFindLastTextBrowser(const char * pFileName)
-{
-	return APPL ? (STextBrowser*)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 3, pFileName) : 0;
-}
+BrowserWindow * SLAPI PPFindLastBrowser() { return APPL ? (BrowserWindow *)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 0) : 0; }
+STimeChunkBrowser * SLAPI PPFindLastTimeChunkBrowser() { return APPL ? (STimeChunkBrowser *)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 1) : 0; }
+PPPaintCloth * SLAPI PPFindLastPaintCloth() { return APPL ? (PPPaintCloth*)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 2) : 0; }
+static STextBrowser * SLAPI PPFindLastTextBrowser(const char * pFileName) { return APPL ? (STextBrowser*)APPL->FindBrowser(((PPApp*)APPL)->LastCmd, 3, pFileName) : 0; }
 
 void SLAPI PPViewTextBrowser(const char * pFileName, const char * pTitle, int toolbarId)
 {
@@ -141,15 +115,8 @@ int FASTCALL PPOpenBrowser(BrowserWindow * pW, int modeless)
 	return ok;
 }
 
-void FASTCALL PPCloseBrowser(TBaseBrowserWindow * pW)
-{
-	CALLPTRMEMB(pW, endModal(cmCancel));
-}
-
-uint SLAPI GetComboBoxLinkID(TDialog * dlg, uint comboBoxCtlID)
-{
-	return dlg->getCtrlView(comboBoxCtlID)->GetId();
-}
+void FASTCALL PPCloseBrowser(TBaseBrowserWindow * pW) { CALLPTRMEMB(pW, endModal(cmCancel)); }
+uint SLAPI GetComboBoxLinkID(TDialog * dlg, uint comboBoxCtlID) { return dlg->getCtrlView(comboBoxCtlID)->GetId(); }
 
 int SLAPI SetComboBoxLinkText(TDialog * dlg, uint comboBoxCtlID, const char * pText)
 {
@@ -256,15 +223,8 @@ static int SLAPI Helper_GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pP
 	return ok;
 }
 
-int FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod)
-{
-	return Helper_GetPeriodInput(dlg, fldID, pPeriod, 0);
-}
-
-int FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags)
-{
-	return Helper_GetPeriodInput(dlg, fldID, pPeriod, strtoperiodFlags);
-}
+int    FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod) { return Helper_GetPeriodInput(dlg, fldID, pPeriod, 0); }
+int    FASTCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags) { return Helper_GetPeriodInput(dlg, fldID, pPeriod, strtoperiodFlags); }
 
 int SLAPI SetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, const TimeRange * pTimePeriod)
 {
@@ -354,11 +314,6 @@ int SLAPI SetRealRangeInput(TDialog * dlg, uint ctl, double lo, double up, int p
 	return 1;
 }
 
-int SLAPI SetRealRangeInput(TDialog * dlg, uint ctl, const RealRange * pRng, int prc)
-{
-	return SetRealRangeInput(dlg, ctl, pRng->low, pRng->upp, prc);
-}
-
 int SLAPI GetRealRangeInput(TDialog * dlg, uint ctl, double * pLow, double * pUpp)
 {
 	char   buf[256];
@@ -373,10 +328,8 @@ int SLAPI GetRealRangeInput(TDialog * dlg, uint ctl, double * pLow, double * pUp
 		return 0;
 }
 
-int SLAPI GetRealRangeInput(TDialog * dlg, uint ctl, RealRange * pRng)
-{
-	return GetRealRangeInput(dlg, ctl, pRng ? &pRng->low : 0, pRng ? &pRng->upp : 0);
-}
+int SLAPI SetRealRangeInput(TDialog * dlg, uint ctl, const RealRange * pRng, int prc) { return SetRealRangeInput(dlg, ctl, pRng->low, pRng->upp, prc); }
+int SLAPI GetRealRangeInput(TDialog * dlg, uint ctl, RealRange * pRng) { return GetRealRangeInput(dlg, ctl, pRng ? &pRng->low : 0, pRng ? &pRng->upp : 0); }
 
 int SLAPI SetIntRangeInput(TDialog * dlg, uint ctl, const IntRange * pR)
 {
@@ -510,8 +463,8 @@ int SLAPI ViewStatus()
 		p_dict->GetDataPath(datapath);
 	}
 	else {
-		sbuf = 0;
-		datapath = 0;
+		sbuf.Z();
+		datapath.Z();
 	}
 	dlg->setCtrlString(CTL_STATUS_DBSYMBOL, sbuf);
 	dlg->setCtrlString(CTL_STATUS_DATAPATH, datapath.Transf(CTRANSF_OUTER_TO_INNER));

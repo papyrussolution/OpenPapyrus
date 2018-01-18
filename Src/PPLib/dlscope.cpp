@@ -646,7 +646,7 @@ int SLAPI DlScope::AddIfaceBase(const IfaceBase * pEntry)
 
 uint SLAPI DlScope::GetIfaceBaseCount() const
 {
-	return P_IfaceBaseList ? P_IfaceBaseList->getCount() : 0;
+	return SVectorBase::GetCount(P_IfaceBaseList);
 }
 
 int SLAPI DlScope::GetIfaceBase(uint pos, IfaceBase * pEntry) const

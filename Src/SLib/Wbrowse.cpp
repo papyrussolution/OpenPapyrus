@@ -1915,7 +1915,7 @@ void BrowserWindow::ItemByPoint(TPoint point, long * pHorzPos, long * pVertPos)
 	}
 	ASSIGN_PTR(pHorzPos, (long)i);
 	long   vpos = 0;
-	uint   r_h_count = (P_RowsHeightAry && P_RowsHeightAry->getCount()) ? P_RowsHeightAry->getCount() : 0;
+	const  uint   r_h_count = SVectorBase::GetCount(P_RowsHeightAry);
 	if(r_h_count) {
 		uint   y = point.y - hdr_width;
 		for(uint row = 0; row < r_h_count; row++) {

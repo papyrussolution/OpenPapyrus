@@ -7,10 +7,6 @@
 #pragma hdrstop
 #include <ppsoapclient.h>
 
-#define max MAX // @v9.8.11
-#define min MIN // @v9.8.11
-#include <gdiplus.h>
-
 int SLAPI RunInputProcessThread(PPID posNodeID); // @prototype(PPPosProtocol.cpp)
 //
 // Команда для вызова звонка на принтере с кухонным звонком
@@ -201,16 +197,12 @@ int SaComplex::RecalcFinalPrice()
 	return ok;
 }
 
-int SaComplex::Subst(uint itemIdx, uint entryItemIdx)
-{
-	return (itemIdx < getCount() && at(itemIdx).Subst(entryItemIdx) > 0) ? RecalcFinalPrice() : 0;
+int SaComplex::Subst(uint itemIdx, uint entryItemIdx) 
+{ 
+	return (itemIdx < getCount() && at(itemIdx).Subst(entryItemIdx) > 0) ? RecalcFinalPrice() : 0; 
 }
-
 //virtual
-void FASTCALL SaComplex::freeItem(void * pItem)
-{
-	((SaComplexEntry *)pItem)->GenericList.freeAll();
-}
+void FASTCALL SaComplex::freeItem(void * pItem) { ((SaComplexEntry *)pItem)->GenericList.freeAll(); }
 //
 //
 //
@@ -3247,10 +3239,10 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 					log_font.lfCharSet = DEFAULT_CHARSET;
 					GoodsListEntryGap = ts_pack.Rec.GdsListEntryGap;
 					if(ts_pack.Rec.GdsListFontName[0]) {
-						HDC    dc = GetDC(0);
-						int    cy = GetDeviceCaps(dc, LOGPIXELSY);
+						HDC    dc = ::GetDC(0);
+						int    cy = ::GetDeviceCaps(dc, LOGPIXELSY);
 						int    height = labs(ts_pack.Rec.GdsListFontHight) * 72 / cy - ((UiFlags & uifTSGGroupsAsButtons) ? TSGGROUPSASITEMS_FONTDELTA : 0);
-						ReleaseDC(0, dc);
+						::ReleaseDC(0, dc);
 						log_font.lfHeight = height;
 						STRNSCPY(log_font.lfFaceName, ts_pack.Rec.GdsListFontName); // @unicodeproblem
 					}
@@ -5074,7 +5066,7 @@ int SelCheckListDialog::SplitCheck()
 								add_pack.Rec.Code = 1 + ((r_cc.GetLastCheckByCode(pack.Rec.CashID, &chk_rec) > 0) ? chk_rec.Code : pack.Rec.Code);
 							}
 							getcurdatetime(&add_pack.Rec.Dt, &add_pack.Rec.Tm);
-							THROW(pack.ClearLines());
+							pack.ClearLines();
 							for(uint pos = 0; left_list.enumItems(&pos, (void**)&p_item) > 0;) {
 								CCheckLineTbl::Rec chk_item;
 								MEMSZERO(chk_item);
@@ -7713,7 +7705,8 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 		PPLoadString("rest", word);
 		buf.Cat(word).CatDiv(':', 2).Cat(P.GetRest(), MKSFMTD(0, 3, NMBF_NOTRAILZ));
 	}
-	// @v9.8.11 {
+	setStaticText(CTL_CHKPAN_CAFE_STATUS, buf);
+	// @v9.9.0 {
 	if(Flags & fNoEdit) {
 		SmartListBox * p_list = (SmartListBox*)getCtrlView(CTL_CHKPAN_LIST);
 		if(p_list) {
@@ -7721,15 +7714,13 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 			if(cur >= 0 && cur < (long)P.getCount()) {
 				const CCheckItem & r_item = P.at(cur);
 				if(r_item.EgaisMark[0]) {
-					if(buf.NotEmpty())
-						buf.Space();
-					buf.Cat(r_item.EgaisMark);
+					buf = r_item.EgaisMark;
+					setStaticText(CTL_CHKPAN_INFO, buf);
 				}
 			}
 		}
 	}
-	// } @v9.8.11 
-	setStaticText(CTL_CHKPAN_CAFE_STATUS, buf);
+	// } @v9.9.0 
 }
 
 int CPosProcessor::PreprocessRowBeforeRemoving(/*IN*/long rowNo, /*OUT*/double * pResultQtty)

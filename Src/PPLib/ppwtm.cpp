@@ -1614,7 +1614,7 @@ int PPWhatmanWindow::Resize(int mode, TPoint p)
 			}
 			else if(St.Rsz.Kind == ResizeState::kMultObjMove) {
 				const LongArray * p_list = W.GetMultSelIdxList();
-				const uint c = p_list ? p_list->getCount() : 0;
+				const uint c = SVectorBase::GetCount(p_list);
 				const TPoint coffs = p - St.Rsz.StartPt;
 				for(uint i = 0; i < c; i++) {
 					TWhatmanObject * p_obj = W.GetObject(p_list->get(i));

@@ -33,10 +33,6 @@ void ListBoxDef::SetCapability(long c, uint32 sign)
 	Sign = sign;
 }
 
-long SLAPI ListBoxDef::_topItem() const { return TopItem; }
-long SLAPI ListBoxDef::_curItem() const { return CurItem; }
-int SLAPI ListBoxDef::_isTreeList() const { return BIN(CFlags & cTree); }
-
 int SLAPI ListBoxDef::SetUserData(const void * pData, size_t size)
 {
 	if(UserData.Alloc(size)) {
@@ -62,35 +58,10 @@ int SLAPI ListBoxDef::GetUserData(void * pData, size_t * pSize) const
 	}
 }
 
-void SLAPI ListBoxDef::SetOption(uint option, int set)
-{
-	SETFLAG(Options, option, set);
-}
-
-void SLAPI ListBoxDef::setViewHight(int vh)
-{
-	ViewHight = vh;
-}
-
 void SLAPI ListBoxDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 {
 	ASSIGN_PTR(pScrollDelta, ScrollDelta);
 	ASSIGN_PTR(pScrollPos, CurItem);
-}
-
-int SLAPI ListBoxDef::GetFrameSize()
-{
-	return -1;
-}
-
-int SLAPI ListBoxDef::GetFrameState()
-{
-	return 0;
-}
-
-int SLAPI ListBoxDef::getIdList(LongArray &)
-{
-	return -1;
 }
 
 const char * SLAPI ListBoxDef::getText(long item, SString & rBuf)
@@ -142,29 +113,28 @@ int SLAPI ListBoxDef::getCurData(void * b)
 		return 0;
 }
 
-int SLAPI ListBoxDef::search(const void *, CompFunc, int srchMode)
-{ 
-	return 0; 
-}
-
-int SLAPI ListBoxDef::valid()
-{ 
-	return 1; 
-}
-
-int SLAPI ListBoxDef::addItem(long id, const char *, long * pPos)
-{ 
-	return -1; 
-}
-
-int SLAPI ListBoxDef::removeItem(long pos)
-{ 
-	return -1; 
-}
-
-void SLAPI ListBoxDef::freeAll()
-{
-}
+void   SLAPI ListBoxDef::SetOption(uint option, int set) { SETFLAG(Options, option, set); }
+long   SLAPI ListBoxDef::_topItem() const { return TopItem; }
+long   SLAPI ListBoxDef::_curItem() const { return CurItem; }
+int    SLAPI ListBoxDef::_isTreeList() const { return BIN(CFlags & cTree); }
+void   SLAPI ListBoxDef::setViewHight(int vh) { ViewHight = vh; }
+int    SLAPI ListBoxDef::GetFrameSize() { return -1; }
+int    SLAPI ListBoxDef::GetFrameState() { return 0; }
+int    SLAPI ListBoxDef::getIdList(LongArray &) { return -1; }
+int    SLAPI ListBoxDef::search(const void *, CompFunc, int srchMode) { return 0; }
+int    SLAPI ListBoxDef::valid() { return 1; }
+int    SLAPI ListBoxDef::addItem(long id, const char *, long * pPos) { return -1; }
+int    SLAPI ListBoxDef::removeItem(long pos) { return -1; }
+void   SLAPI ListBoxDef::freeAll() {}
+int    SLAPI ListBoxDef::step(long delta) { return go(CurItem + delta); }
+int    SLAPI ListBoxDef::top() { return go(0); }
+int    SLAPI ListBoxDef::bottom() { return go(getRecsCount()-1); }
+long   SLAPI ListBoxDef::getRecsCount() { return 0; }
+void * FASTCALL ListBoxDef::getRow_(long) { return 0; }
+int    SLAPI ListBoxDef::refresh() { return 1; }
+int    SLAPI ListBoxDef::GetImageIdxByID(long id, long * pIDx) { return ImageIdxAssoc.Search(id, pIDx, 0); }
+int    SLAPI ListBoxDef::AddImageAssoc(long itemID, long imageID) { return ImageAssoc.Add(itemID, imageID, 0); }
+int    SLAPI ListBoxDef::HasItemColorSpec() const { return BIN(ColorAssoc.getCount()); }
 
 #define RANGE(val,min,max) ((val)<(min)?(min):((val)>(max)?(max):(val)))
 
@@ -183,19 +153,6 @@ int SLAPI ListBoxDef::go(long row)
 	}
 	return 0;
 }
-
-int SLAPI ListBoxDef::step(long delta)
-	{ return go(CurItem + delta); }
-int SLAPI ListBoxDef::top()
-	{ return go(0); }
-int SLAPI ListBoxDef::bottom()
-	{ return go(getRecsCount()-1); }
-long SLAPI ListBoxDef::getRecsCount()
-	{ return 0; }
-void * FASTCALL ListBoxDef::getRow_(long)
-	{ return 0; }
-int SLAPI ListBoxDef::refresh()
-	{ return 1; }
 
 int ListBoxDef::TransmitData(int dir, void * pData)
 {
@@ -229,11 +186,6 @@ int ListBoxDef::TransmitData(int dir, void * pData)
 	return s;
 }
 
-int SLAPI ListBoxDef::GetImageIdxByID(long id, long * pIDx)
-{
-	return ImageIdxAssoc.Search(id, pIDx, 0);
-}
-
 HIMAGELIST SLAPI ListBoxDef::CreateImageList(HINSTANCE hInst)
 {
 	HIMAGELIST himl = NULL;
@@ -256,11 +208,6 @@ HIMAGELIST SLAPI ListBoxDef::CreateImageList(HINSTANCE hInst)
 		}
 	}
 	return himl;
-}
-
-int SLAPI ListBoxDef::AddImageAssoc(long itemID, long imageID)
-{
-	return ImageAssoc.Add(itemID, imageID, 0);
 }
 
 void SLAPI ListBoxDef::ClearImageAssocList()
@@ -301,11 +248,6 @@ int SLAPI ListBoxDef::SetItemColor(long itemID, SColor fgColor, SColor bckgColor
 	return ok;
 }
 
-int SLAPI ListBoxDef::HasItemColorSpec() const
-{
-	return BIN(ColorAssoc.getCount());
-}
-
 int SLAPI ListBoxDef::GetItemColor(long itemID, SColor * pFgColor, SColor * pBckgColor) const
 {
 	int    ok = 0;
@@ -321,13 +263,11 @@ int SLAPI ListBoxDef::GetItemColor(long itemID, SColor * pFgColor, SColor * pBck
 
 StrAssocArray * ListBoxDef::GetListByPattern(const char * pText)
 {
-	StrAssocArray * p_list = 0;
 	int srch_mode = srchFirst;
 	uint prev_pos = _curItem();
 	long id = 0L;
 	SString buf;
-
-	p_list = new StrAssocArray();
+	StrAssocArray * p_list = new StrAssocArray();
 	while(search(pText, PTR_CMPFUNC(_PcharNoCase), srch_mode)) {
 		srch_mode = srchNext;
 		getCurID(&id);
@@ -352,15 +292,9 @@ SLAPI StdListBoxDef::~StdListBoxDef()
 		delete P_Data;
 }
 
-int SLAPI StdListBoxDef::GetFrameSize()
-{
-	return (int)getRecsCount();
-}
-
-int SLAPI StdListBoxDef::GetFrameState()
-{
-	return -1;
-}
+int    SLAPI StdListBoxDef::GetFrameSize() { return (int)getRecsCount(); }
+int    SLAPI StdListBoxDef::GetFrameState() { return -1; }
+int    SLAPI StdListBoxDef::valid() { return (P_Data != 0); }
 
 int SLAPI StdListBoxDef::setArray(SArray * pArray)
 {
@@ -369,11 +303,6 @@ int SLAPI StdListBoxDef::setArray(SArray * pArray)
 	P_Data = pArray;
 	top();
 	return 1;
-}
-
-int SLAPI StdListBoxDef::valid()
-{
-	return (P_Data != 0);
 }
 
 long SLAPI StdListBoxDef::getRecsCount()
@@ -557,8 +486,7 @@ void SLAPI StrAssocListBoxDef::freeAll()
 //
 // StdTreeListBoxDef
 //
-SLAPI StdTreeListBoxDef::StdTreeListBoxDef(StrAssocArray * pList, uint aOptions, TYPEID t) :
-	ListBoxDef(aOptions, t), T(sizeof(TreeItem)), P_SaList(0)
+SLAPI StdTreeListBoxDef::StdTreeListBoxDef(StrAssocArray * pList, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), T(sizeof(TreeItem)), P_SaList(0)
 {
 	SetCapability(ListBoxDef::cTree|ListBoxDef::cFullInMem, LBDEFSIGN_STDTREE);
 	setArray(pList);

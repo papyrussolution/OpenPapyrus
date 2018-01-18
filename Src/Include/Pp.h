@@ -12186,6 +12186,7 @@ public:
 	int    SLAPI DoMaintain(LDATE toDt, int recover, PPLogger * pLogger);
 	int    SLAPI Subst(SubstGrpSysJournal sgsj, PPID opID, PPID prmrID, PPID scndID, PPID * pID);
 	void   SLAPI GetSubstName(SubstGrpSysJournal sgsj, PPID id, char * pBuf, size_t bufLen);
+	void   SLAPI GetSubstName(SubstGrpSysJournal sgsj, PPID id, SString & rBuf);
 private:
 	int    SLAPI GetObjEventList(PPID objType, PPID objID, const PPIDArray * pActList, SArray * pResultList);
 	SjRsrvTbl * P_RsrvT;
@@ -13280,7 +13281,7 @@ struct CCheckItem { // @transient
 	CCheckItem & FASTCALL operator = (const CCheckItem & rS);
 	CCheckItem & FASTCALL operator = (const CCheckLineTbl::Rec & rS);
 	CCheckItem & FASTCALL operator = (const CCheckLineExtTbl::Rec & rS);
-	int    GetRec(CCheckLineTbl::Rec & rRec, int ret) const;
+	void   GetRec(CCheckLineTbl::Rec & rRec, int ret) const;
 	int    GetRec(CCheckLineExtTbl::Rec & rRec) const;
 	int    SplitByQtty(double restQtty, CCheckItem & rNewItem);
 
@@ -13467,7 +13468,7 @@ public:
 	// Note: В дальнейшем критерии объединения будут усложнены.
 	//
 	int    SLAPI MergeLines(long /*options*/);
-	int    SLAPI ClearLines();
+	void   SLAPI ClearLines();
 	int    SLAPI InsertItem_(const CCheckLineTbl::Rec *, const char * pSerial = 0, const char * pEgaisMark = 0);
 	int    SLAPI InsertItem(PPID goodsID, double qtty, double price, double dscnt, short div = 0, int isPrinted = 0);
 	int    SLAPI InsertItem(const CCheckItem & rItem);
@@ -13483,7 +13484,7 @@ public:
 		stdfPctDis      = 0x0001, // Параметр dis задает размер скидки в процентах. Иначе - абсолютное значение.
 		stdfPlus        = 0x0002  // Скидка увеличивает сумму чека
 	};
-	int    SLAPI SetTotalDiscount__(double dis, long flags);
+	void   SLAPI SetTotalDiscount__(double dis, long flags);
 	void   SLAPI CalcAmount(double * pAmt, double * pDscnt) const;
 	//
 	// Descr: Расчитывает суммы чека по строкам и устанавливает их в поля Rec.Amount
@@ -13618,7 +13619,7 @@ class CCheckGoodsArray : public TSVector <CCheckGoodsEntry> { // @v9.8.4 TSArray
 public:
 	SLAPI  CCheckGoodsArray();
 	int    SLAPI Add(LDATE dt, const CCheckLineTbl::Rec *, PPID serialID = 0);
-	int    SLAPI GetMaxDate(LDATE * pDt) const;
+	LDATE  SLAPI GetMaxDate() const;
 	int    SLAPI AdjustToSess(double sessAmount);
 private:
 	double Sum;
@@ -21784,6 +21785,7 @@ private:
 
     FiasObjCore FT;
 	SrDatabase * P_SrDb; // @v9.8.12
+	void * P_SrStoreFiasAddrBlock; // @v9.9.0
 };
 //
 // @ModuleDecl(PPObjRegister)
@@ -24654,10 +24656,18 @@ struct SysJournalViewItem : public SysJournalTbl::Rec {
 	void   Clear();
 
 	long   ID;
-	char   ObjName[64];
+	long   GrpCount;
+	// @v9.9.0 char   ObjName[64];
+	SString ObjName; // @v9.9.0
 	SString GrpText1;
 	SString AvgEvTime;
-	long   GrpCount;
+};
+//
+// Descr: Специализированная структура, используемя для индексации наименований
+//   объектов данных в строковых пулах.
+//
+struct PPObjNamePEntry : public PPObjID {
+	uint   NameP;
 };
 
 class PPViewSysJournal : public PPView {
@@ -24678,6 +24688,7 @@ public:
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(SysJournalViewItem *);
 	int    FASTCALL CheckRecForFilt(const SysJournalTbl::Rec * pRec);
+	int    SLAPI GetObjName(const PPObjID & rOid, SString & rBuf) const;
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
@@ -24692,15 +24703,19 @@ private:
 	int	   SLAPI ViewBillHistory(PPID histID, LDATETIME evDtm);
 	int    SLAPI Transmit();
 
+	static int DynFuncObjNameFromList;
+
 	SysJournalFilt  Filt;
 	SysJournal * P_Tbl;
 	SysJournalTbl     * P_TmpTbl;
 	TempSysJournalTbl * P_SubstTbl;
-	TempDoubleIDTbl * P_NamesTbl;
-	ObjCollection   * P_ObjColl;
+	// @v9.9.0 TempDoubleIDTbl * P_NamesTbl;
+	ObjCollection * P_ObjColl;
 	int    LockUpByNotify; // Семафор, блокирующий обновление данных по системному событию
 	LDATETIME LastRefreshDtm; // Время последнего обновления выборки. Используется для определения времени,
 		// начиная с которого следует извлекать события из журнала для последующего обновления.
+	SStrGroup StrPool; // @v9.9.0 Пул строковых полей, на который ссылаются поля в TempSysJournalTbl
+	TSVector <PPObjNamePEntry> ObjNameList; // @v9.9.0
 };
 //
 //
@@ -24748,6 +24763,7 @@ public:
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(GtaJournalViewItem *);
 	int    FASTCALL CheckRecForFilt(const GtaJournalTbl::Rec * pRec);
+	int    SLAPI GetObjName(const PPObjID & rOid, SString & rBuf) const;
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	//virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
@@ -24757,14 +24773,18 @@ private:
 	//virtual int SLAPI SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    SLAPI IsTempTblNeeded() const;
 
+	static int DynFuncObjNameFromList;
+
 	GtaJournalFilt  Filt;
 	GtaJournalCore  T;
 	GtaJournalTbl  * P_TmpTbl;
-	TempDoubleIDTbl * P_NamesTbl;
+	//TempDoubleIDTbl * P_NamesTbl;
 	ObjCollection  * P_ObjColl;
 	int    LockUpByNotify; // Семафор, блокирующий обновление данных по системному событию
 	LDATETIME LastRefreshDtm; // Время последнего обновления выборки. Используется для определения времени,
 		// начиная с которого следует извлекать события из журнала для последующего обновления.
+	SStrGroup StrPool; // @v9.9.0 Пул строковых полей
+	TSVector <PPObjNamePEntry> ObjNameList; // @v9.9.0
 };
 //
 // @ModuleDecl(PPViewLogsMonitor)
@@ -24780,10 +24800,10 @@ struct LogsMonitorFilt : public PPBaseFilt {
 	SLAPI		LogsMonitorFilt();
 	virtual int Describe(long flags, SString & rBuff) const;
 
-	char		ReserveStart[32];	// @anchor
-	long		Flags;
-	long		Reserve;			// @anchor
-	LogsArray	Selected;
+	char   ReserveStart[32]; // @anchor
+	long   Flags;
+	long   Reserve; // @anchor
+	LogsArray Selected;
 };
 //
 struct LogsMonitorViewItem;
@@ -30031,7 +30051,7 @@ public:
 	//
 	// Descr: Реализует предварительные операции для начисления по тарифицируемым транзакциям.
 	//
-	int    SLAPI InitGtaBlock();
+	void   SLAPI InitGtaBlock();
 	int    SLAPI InitGta(PPGta & rGta);
 	//
 	// Descr: Специализированная высокоуровневая функция, реализующая начисление или списание

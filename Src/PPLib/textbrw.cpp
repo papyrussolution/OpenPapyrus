@@ -1,5 +1,5 @@
 // TEXTBRW.CPP
-// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017, 2018
 // STextBrowser
 //
 #include <pp.h>
@@ -107,22 +107,14 @@ static int FASTCALL SScGetLexerIdByName(const char * pName)
 {
     for(uint i = 0; i < SIZEOFARRAY(SScLangEntryList); i++) {
 		const SScLangEntry & r_entry = SScLangEntryList[i];
-		if(sstreqi_ascii(r_entry.P_LangName, pName)) {
+		if(sstreqi_ascii(r_entry.P_LangName, pName))
 			return i+1;
-		}
     }
     return 0;
 }
 
-static const char * FASTCALL SScGetLexerNameById(int id)
-{
-	return (id > 0 && id <= SIZEOFARRAY(SScLangEntryList)) ? SScLangEntryList[id-1].P_LangName : 0;
-}
-
-static int FASTCALL SScGetLexerModelById(int id)
-{
-	return (id > 0 && id <= SIZEOFARRAY(SScLangEntryList)) ? SScLangEntryList[id-1].ScModuleId : 0;
-}
+static const char * FASTCALL SScGetLexerNameById(int id) { return (id > 0 && id <= SIZEOFARRAY(SScLangEntryList)) ? SScLangEntryList[id-1].P_LangName : 0; }
+static int FASTCALL SScGetLexerModelById(int id) { return (id > 0 && id <= SIZEOFARRAY(SScLangEntryList)) ? SScLangEntryList[id-1].ScModuleId : 0; }
 
 SLAPI SScEditorStyleSet::SScEditorStyleSet()
 {
@@ -458,21 +450,21 @@ static int GetKwClassFromName(const char * pStr, const char * pLexerName)
 {
 	if(sstreq(pStr, "instre1")) 
 		return LANG_INDEX_INSTR;
-	if(sstreq(pStr, "instre2")) 
+	else if(sstreq(pStr, "instre2")) 
 		return LANG_INDEX_INSTR2;
-	if(sstreq(pStr, "type1")) {
+	else if(sstreq(pStr, "type1")) {
 		if(sstreq(pLexerName, "cpp"))
 			return 1;
 		else
 			return LANG_INDEX_TYPE;
 	}
-	if(sstreq(pStr, "type2")) 
+	else if(sstreq(pStr, "type2")) 
 		return LANG_INDEX_TYPE2;
-	if(sstreq(pStr, "type3")) 
+	else if(sstreq(pStr, "type3")) 
 		return LANG_INDEX_TYPE3;
-	if(sstreq(pStr, "type4")) 
+	else if(sstreq(pStr, "type4")) 
 		return LANG_INDEX_TYPE4;
-	if(sstreq(pStr, "type5")) 
+	else if(sstreq(pStr, "type5")) 
 		return LANG_INDEX_TYPE5;
 	else if(pStr[1] == 0 && pStr[0] >= '0' && pStr[0] <= '8')
 		return (pStr[0] - '0');
@@ -678,8 +670,7 @@ int32 FASTCALL SScEditorBase::SetCurrentPos(int32 pos)
 
 int FASTCALL SScEditorBase::GetSelection(IntRange & rR)
 {
-	rR.low = CallFunc(SCI_GETSELECTIONSTART, 0, 0);
-	rR.upp = CallFunc(SCI_GETSELECTIONEND, 0, 0);
+	rR.Set(CallFunc(SCI_GETSELECTIONSTART, 0, 0), CallFunc(SCI_GETSELECTIONEND, 0, 0));
 	return 1;
 }
 
@@ -767,6 +758,7 @@ int SScEditorBase::SearchAndReplace(long flags)
 //
 //
 //
+#if 0 // unused {
 static int FASTCALL VkToScTranslate(int keyIn)
 {
 	switch(keyIn) {
@@ -824,6 +816,7 @@ static int FASTCALL ScToVkTranslate(int keyIn)
 		default: return keyIn;
 	}
 }
+#endif // } 0 unused
 
 STextBrowser::Document::Document() : Cp(cpANSI), Eolf(eolUndef), State(0), SciDoc(0)
 {

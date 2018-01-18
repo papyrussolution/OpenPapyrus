@@ -848,7 +848,6 @@ int SLAPI SVectorBase::ordInsert(const void * item, uint * idx, CompFunc fcmp, v
 //
 //
 //
-#if 1 // @construction {
 SLAPI SVector::SVector(uint itemSize, /*uint aDelta,*/ uint o /*= O_ARRAY*/) : SVectorBase(itemSize, /*aDelta,*/ o)
 {
 	assert(!(o & aryEachItem));
@@ -1015,7 +1014,6 @@ int SLAPI SVector::Read(SFile & rFile, long)
 	ENDCATCH
 	return ok;
 }
-#endif // } 0 @construction
 //
 //
 //
@@ -1027,8 +1025,7 @@ SLAPI SArray::SArray(uint itemSize) : SVectorBase(itemSize, O_ARRAY)
 {
 }
 
-SLAPI SArray::SArray(void * pData, uint itemSize, uint aCount, uint o) :
-	SVectorBase(itemSize, o)
+SLAPI SArray::SArray(void * pData, uint itemSize, uint aCount, uint o) : SVectorBase(itemSize, o)
 {
 	count = aCount;
 	Limit = aCount;
@@ -3020,18 +3017,8 @@ int SLAPIV LongArray::addzlist(long first, ...)
 
 int FASTCALL LongArray::add(const LongArray * pS)
 {
-	int    ok = 1;
-	//const  uint _c = pS ? pS->getCount() : 0;
 	const  uint _c = SVectorBase::GetCount(pS);
-	if(_c) {
-		/* @v9.0.0
-		for(uint i = 0; ok && i < _c; i++)
-			if(!add(pS->at(i)))
-				ok = 0;
-		*/
-		ok = insertChunk(_c, pS->dataPtr()); // @v9.0.0
-	}
-	return ok;
+	return _c ? insertChunk(_c, pS->dataPtr()) : 1;
 }
 
 int SLAPI LongArray::addExclusive(const LongArray * pS, const LongArray * pExcl)
@@ -3144,21 +3131,12 @@ int FASTCALL LongArray::setSingleNZ(long id)
 	return id ? add(id) : -1;
 }
 
-long SLAPI LongArray::getLast() const
-{
-	return (count ? at(count-1) : 0);
-}
-
-void SLAPI LongArray::sort()
-{
-	//SArray::sort(CMPF_LONG);
-	SVector::sort(CMPF_LONG);
-}
+long SLAPI LongArray::getLast() const { return (count ? at(count-1) : 0); }
+void SLAPI LongArray::sort() { SVector::sort(CMPF_LONG); }
 
 void SLAPI LongArray::sortAndUndup()
 {
 	uint   c = getCount();
-	//SArray::sort(CMPF_LONG);
 	SVector::sort(CMPF_LONG);
 	assert(c == getCount()); // @paranoic
 	if(c > 1) {
@@ -3248,16 +3226,6 @@ Int64Array & FASTCALL Int64Array::operator = (const Int64Array & rS)
 	return *this;
 }
 
-int FASTCALL Int64Array::operator == (const Int64Array & rS) const
-{
-	return IsEqual(&rS);
-}
-
-int FASTCALL Int64Array::operator != (const Int64Array & rS) const
-{
-	return BIN(!IsEqual(&rS));
-}
-
 int FASTCALL Int64Array::IsEqual(const Int64Array * pS) const
 {
 	if(pS) {
@@ -3272,20 +3240,13 @@ int FASTCALL Int64Array::IsEqual(const Int64Array * pS) const
 	return 0;
 }
 
-int64 FASTCALL Int64Array::get(uint pos) const
-{
-	return at(pos);
-}
-
-int Int64Array::lsearch(int64 k, uint * pIdx) const
-	{ return SVector::lsearch(&k, pIdx, PTR_CMPFUNC(int64)); } // @v9.8.4 SArray-->SVector
-int FASTCALL Int64Array::lsearch(int64 k) const
-	{ return SVector::lsearch(&k, 0, PTR_CMPFUNC(int64)); } // @v9.8.4 SArray-->SVector
-
-int FASTCALL Int64Array::add(int64 v)
-{
-	return insert(&v);
-}
+int    FASTCALL Int64Array::operator == (const Int64Array & rS) const { return IsEqual(&rS); }
+int    FASTCALL Int64Array::operator != (const Int64Array & rS) const { return BIN(!IsEqual(&rS)); }
+int64  FASTCALL Int64Array::get(uint pos) const { return at(pos); }
+int    Int64Array::lsearch(int64 k, uint * pIdx) const { return SVector::lsearch(&k, pIdx, PTR_CMPFUNC(int64)); }
+int    FASTCALL Int64Array::lsearch(int64 k) const { return SVector::lsearch(&k, 0, PTR_CMPFUNC(int64)); }
+int    FASTCALL Int64Array::addUnique(int64 v) { return lsearch(v) ? -1 : add(v); }
+int    FASTCALL Int64Array::add(int64 v) { return insert(&v); }
 
 int FASTCALL Int64Array::add(int32 v)
 {
@@ -3293,40 +3254,45 @@ int FASTCALL Int64Array::add(int32 v)
 	return insert(&v64);
 }
 
-int FASTCALL Int64Array::addUnique(int64 v)
+int FASTCALL Int64Array::add(const Int64Array * pS)
 {
-	return lsearch(v) ? -1 : add(v);
-}
-//
-//
-//
-SLAPI FloatArray::FloatArray() : TSVector <float>() // @v9.8.4 TSArray-->TSVector
-	{}
-
-int FASTCALL FloatArray::operator == (const FloatArray & rS) const
-{
-	return IsEqual(&rS);
+	const  uint _c = SVectorBase::GetCount(pS);
+	return _c ? insertChunk(_c, pS->dataPtr()) : 1;
 }
 
-int FASTCALL FloatArray::operator != (const FloatArray & rS) const
+void SLAPI Int64Array::sort() { SVector::sort(CMPF_INT64); }
+
+void SLAPI Int64Array::sortAndUndup()
 {
-	return BIN(!IsEqual(&rS));
+	uint   c = getCount();
+	SVector::sort(CMPF_INT64);
+	assert(c == getCount()); // @paranoic
+	if(c > 1) {
+		int64  prev = get(--c);
+		do {
+			const int64 t = get(--c);
+			if(t == prev)
+				atFree(c+1);
+			prev = t;
+		} while(c);
+	}
 }
+//
+//
+//
+SLAPI  FloatArray::FloatArray() : TSVector <float>() {} // @v9.8.4 TSArray-->TSVector
+int    FASTCALL FloatArray::operator == (const FloatArray & rS) const { return IsEqual(&rS); }
+int    FASTCALL FloatArray::operator != (const FloatArray & rS) const { return BIN(!IsEqual(&rS)); }
+int    FASTCALL FloatArray::add(float item) { return insert(&item); }
+int    FASTCALL FloatArray::add(FPoint p) { return insertChunk(2, &p); }
+float  FASTCALL FloatArray::get(uint i) const { return at(i); }
+float & FASTCALL FloatArray::operator [] (size_t i) const { return at(i); }
 
 int FASTCALL FloatArray::dim(uint numItems)
 {
     clear();
 	return insertChunk(numItems, 0);
 }
-
-int FASTCALL FloatArray::add(float item)
-	{ return insert(&item); }
-int FASTCALL FloatArray::add(FPoint p)
-	{ return insertChunk(2, &p); }
-float FASTCALL FloatArray::get(uint i) const
-	{ return at(i); }
-float & FASTCALL FloatArray::operator [] (size_t i) const
-	{ return at(i); }
 
 const FPoint & FASTCALL FloatArray::getPoint(uint i) const
 {

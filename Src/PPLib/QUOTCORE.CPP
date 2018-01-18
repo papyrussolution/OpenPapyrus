@@ -1420,7 +1420,7 @@ int SLAPI QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, PPI
 	uint   pos;
 	// @v7.1.4 (Блокировка вызывается в функции QuotationCore::DirtyMatrix()) Lock();
 	if(!pGoodsList) {
-		uint c = pMtxLocList ? pMtxLocList->getCount() : 0;
+		uint c = SVectorBase::GetCount(pMtxLocList);
 		if(c) {
 			do {
 				const PPID loc_id = pMtxLocList->get(--c);

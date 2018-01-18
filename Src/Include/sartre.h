@@ -423,6 +423,8 @@ private:
 class SrNGram {
 public:
 	SLAPI  SrNGram();
+	void   SLAPI Z();
+
 	NGID   ID;
 	int32  Ver;
 	LongArray WordIdList;
@@ -785,7 +787,6 @@ public:
 	// Descr: Трансформирует слово pWordUtf8 в форму, определенную параметром rDestForm
 	//
 	int    Transform_(const char * pWordUtf8, const SrWordForm & rDestForm, TSVector <SrWordInfo> & rResult);
-
 	int    SearchWord(const char * pWordUtf8, LEXID * pID);
 	int    SearchSpecialWord(int special, const char * pWordUtf8, LEXID * pID);
 	int    FetchWord(const char * pWordUtf8, LEXID * pID);
@@ -854,7 +855,10 @@ public:
 	int    StoreGeoNodeList(const TSVector <PPOsm::Node> & rList, const LLAssocArray * pNodeToWayAsscList, int dontCheckExist, TSVector <PPOsm::NodeClusterStatEntry> * pStat);
 	int    StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSVector <PPOsm::WayStatEntry> * pStat);
 	int    StoreGeoNodeWayRefList(const LLAssocArray & rList);
-	int    StoreFiasAddr(const Sdr_FiasRawAddrObj & rItem);
+
+	void * CreateStoreFiasAddrBlock();
+	void   DestroyStoreFiasAddrBlock(void * pBlk);
+	int    StoreFiasAddr(void * pStoreFiasAddrBlock, const TSVector <Sdr_FiasRawAddrObj> & rList);
 //private:
 public:
 	BDbDatabase      * P_Db;

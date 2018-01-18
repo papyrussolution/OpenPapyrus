@@ -277,12 +277,12 @@ int SLAPI SysJournal::GetLastObjEvent(PPID objType, PPID objID, const PPIDArray 
 		}
 	}
 	if(ok > 0) {
-		if(pMoment)
-			pMoment->Set(data.Dt, data.Tm);
+		CALLPTRMEMB(pMoment, Set(data.Dt, data.Tm));
 		copyBufTo(pRec);
 	}
-	else if(pMoment)
-		pMoment->SetZero();
+	else {
+		CALLPTRMEMB(pMoment, SetZero());
+	}
 	return ok;
 }
 
@@ -309,12 +309,11 @@ int SLAPI SysJournal::GetObjListByEventSince(PPID objType, const PPIDArray * pAc
 	return ok;
 }
 
-int SLAPI SysJournal::GetObjListByEventPeriod(PPID objType, PPID userID,
-	const PPIDArray * pActList, const DateRange * pPeriod, PPIDArray & rObjList)
+int SLAPI SysJournal::GetObjListByEventPeriod(PPID objType, PPID userID, const PPIDArray * pActList, const DateRange * pPeriod, PPIDArray & rObjList)
 {
 	rObjList.clear();
 	int    ok = -1;
-	const  uint acn_list_c = pActList ? pActList->getCount() : 0;
+	const  uint acn_list_c = SVectorBase::GetCount(pActList);
 	const  PPID single_acn = (acn_list_c == 1) ? pActList->get(0) : 0;
 	SysJournalTbl::Key0 k;
 	k.Dt = pPeriod ? pPeriod->low : ZERODATE;
@@ -411,35 +410,6 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 					data.ObjType = rsrv_rec.ObjType;
 					data.ObjID   = rsrv_rec.ObjID;
 					data.Extra   = rsrv_rec.Extra;
-	#if 0 // @v7.7.8 {
-					for(int i = 0; !r && i < 20; i++) {
-						if(insertRec()) {
-							THROW_DB(P_RsrvT->deleteRec()); // @sfu
-							r = 1;
-						}
-						else {
-							int    dberr = BtrError;
-							if(oneof3(dberr, BE_DUP, BE_RECLOCK, BE_DEADLOCK)) {
-								plusdatetime(dtm, 1, 4);
-								data.Dt = dtm.d;
-								data.Tm = dtm.t;
-							}
-							else
-								break;
-						}
-					}
-					if(!r) {
-						PPSetError(PPERR_DBENGINE);
-						PPGetLastErrorMessage(1, msg_buf);
-						added_buf.Z().Cat(rsrv_rec.Action).Semicol().Cat(rsrv_rec.ObjType).Semicol().Cat(rsrv_rec.ObjID).
-							Semicol().Cat(rsrv_rec.Extra).Semicol().Cat(msg_buf);
-						msg_buf.Z().Printf(PPLoadTextS(PPTXT_ERR_SYSJRECOVERING, fmt_buf), added_buf.cptr());
-						if(pLogger)
-							pLogger->Log(msg_buf);
-						else
-							PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
-					}
-	#else // }{
 					if(insertRec()) {
 						THROW_DB(P_RsrvT->deleteRec()); // @sfu
 					}
@@ -454,7 +424,6 @@ int SLAPI SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 						else
 							PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 					}
-	#endif // } @v7.7.8
 					PPWaitPercent(cntr.Increment());
 				} while(P_RsrvT->searchForUpdate(0, &rk0, spNext));
 			}
@@ -512,6 +481,23 @@ void SLAPI SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, char * pBu
 		GetObjectTitle(id, temp_buf);
 	temp_buf.CopyTo(pBuf, bufLen);
 }
+
+void SLAPI SysJournal::GetSubstName(SubstGrpSysJournal sgsj, PPID id, SString & rBuf)
+{
+	rBuf.Z();
+	if(sgsj == sgsjOp)
+		GetObjectName(PPOBJ_ACTION, id, rBuf);
+	else if(sgsj == sgsjUser) {
+		PPSecur rec;
+		PPObjSecur obj(PPOBJ_USR, 0);
+		if(obj.Fetch(id, &rec) > 0)
+			rBuf = rec.Name;
+		else
+			ideqvalstr(id, rBuf);
+	}
+	else if(sgsj == sgsjObjType)
+		GetObjectTitle(id, rBuf);
+}
 //
 //
 //
@@ -532,10 +518,9 @@ static SString & GetGoodsCodeForOp(int op, PPID objType, SString & rBuf)
 	return rBuf;
 }
 
-int SLAPI PPObjBill::InitGtaBlock()
+void SLAPI PPObjBill::InitGtaBlock()
 {
 	SETIFZ(P_ScObj, new PPObjSCard);
-	return 1;
 }
 
 PPID FASTCALL PPObjBill::GetGtaGoodsID(const PPGta & rGta)

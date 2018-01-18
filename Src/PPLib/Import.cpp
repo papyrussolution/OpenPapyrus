@@ -4227,7 +4227,7 @@ void FiasImporter::Scb_EndElement(void * ptr, const xmlChar * pName) { CALLTYPEP
 //} static
 
 FiasImporter::FiasImporter() : Tra(0), TextCache(4 * 1024 * 1024),
-	P_Sdr(0), P_DebugOutput(0), InputObject(0), RawRecN(0), P_SaxCtx(0), State(0), CurPsPos(-1), P_SrDb(0)
+	P_Sdr(0), P_DebugOutput(0), InputObject(0), RawRecN(0), P_SaxCtx(0), State(0), CurPsPos(-1), P_SrDb(0), P_SrStoreFiasAddrBlock(0)
 {
 }
 
@@ -4235,7 +4235,12 @@ FiasImporter::~FiasImporter()
 {
 	delete P_Sdr;
 	delete P_DebugOutput;
-	delete P_SrDb; // @v9.8.12
+	// @v9.9.0 {
+	if(P_SrDb) {
+		P_SrDb->DestroyStoreFiasAddrBlock(P_SrStoreFiasAddrBlock);
+		delete P_SrDb;
+	}
+	// } @v9.9.0 
 }
 
 int FiasImporter::SaxParseFile(xmlSAXHandler *sax, const char * pFileName)
@@ -4606,7 +4611,7 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 						}
 						else if(r_state.Phase == phaseSartrePass1) {
 							if(P_SrDb) {
-								THROW(P_SrDb->StoreFiasAddr(*p_data));
+								//THROW(P_SrDb->StoreFiasAddr(P_SrStoreFiasAddrBlock, *p_data));
 							}
 						}
 						else {
@@ -4942,6 +4947,7 @@ int SLAPI FiasImporter::Run(FiasImporter::Param & rP)
 	if(P.Flags & P.fAcceptToSartreDb) {
 		THROW_MEM(SETIFZ(P_SrDb, new SrDatabase()));
 		THROW(P_SrDb->Open(0, SrDatabase::oWriteStatOnClose));
+		THROW(P_SrStoreFiasAddrBlock = P_SrDb->CreateStoreFiasAddrBlock());
 	}
 	else {
 		ZDELETE(P_SrDb);

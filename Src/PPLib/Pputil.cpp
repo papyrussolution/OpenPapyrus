@@ -38,15 +38,8 @@ IMPL_CMPFUNC(PPTLBItem, i1, i2)
 	return 0;
 }
 
-long SLAPI CheckXORFlags(long v, long f1, long f2)
-{
-	return ((v & f1) ^ (v & f2)) ? ((v & f1) ? f1 : f2) : 0;
-}
-
-long SLAPI SetXORFlags(long v, long f1, long f2, long f)
-{
-	return ((v & ~(f1 | f2)) | f);
-}
+long SLAPI CheckXORFlags(long v, long f1, long f2) { return ((v & f1) ^ (v & f2)) ? ((v & f1) ? f1 : f2) : 0; }
+long SLAPI SetXORFlags(long v, long f1, long f2, long f) { return ((v & ~(f1 | f2)) | f); }
 
 int FASTCALL PPInitIterCounter(IterCounter & rCntr, DBTable * pTbl)
 {
@@ -88,15 +81,8 @@ SString & SLAPI MoneyToStr(double nmb, long fmt, SString & rBuf)
 	return rBuf.Space().CatLongZ(fraction, 2).Space().Cat(word);
 }
 
-double FASTCALL SalesTaxMult(double rate)
-{
-	return (rate / (100.0 + rate));
-}
-
-double FASTCALL CalcVATRate(double base, double vat_sum)
-{
-	return fdivnz(100.0 * vat_sum, base - vat_sum);
-}
+double FASTCALL SalesTaxMult(double rate) { return (rate / (100.0 + rate)); }
+double FASTCALL CalcVATRate(double base, double vat_sum) { return fdivnz(100.0 * vat_sum, base - vat_sum); }
 
 SString & SLAPI VatRateStr(double rate, SString & rBuf)
 {
@@ -181,12 +167,12 @@ int FASTCALL PPCmpSubStr(const char * pStr, int idx, const char * pTestStr, int 
 	return 0;
 }
 
-int FASTCALL PPGetSubStr(uint strID, int idx, SString & dest)
+int FASTCALL PPGetSubStr(uint strID, int idx, SString & rDest)
 {
 	SString temp;
-	int    ok = PPLoadText(strID, temp) ? PPGetSubStr(temp, idx, dest) : 0;
+	int    ok = PPLoadText(strID, temp) ? PPGetSubStr(temp, idx, rDest) : 0;
 	if(!ok)
-		dest = 0;
+		rDest.Z();
 	return ok;
 }
 
@@ -295,35 +281,12 @@ PPDimention & PPDimention::Reset()
 	return *this;
 }
 
-int PPDimention::operator !() const
-{
-	return BIN(Length == 0 && Width == 0 && Height == 0);
-}
-
-int FASTCALL PPDimention::IsEqual(const PPDimention & rS) const
-{
-	return BIN(Length == rS.Length && Width == rS.Width && Height == rS.Height);
-}
-
-int FASTCALL PPDimention::operator == (const PPDimention & rS) const
-{
-	return IsEqual(rS);
-}
-
-int FASTCALL PPDimention::operator != (const PPDimention & rS) const
-{
-	return !IsEqual(rS);
-}
-
-double SLAPI PPDimention::CalcVolumeM() const
-{
-	return (fdiv1000i(Width) * fdiv1000i(Length) * fdiv1000i(Height));
-}
-
-double SLAPI PPDimention::CalcVolumeMM() const
-{
-	return (Width * Length * Height);
-}
+int    PPDimention::operator !() const { return BIN(Length == 0 && Width == 0 && Height == 0); }
+int    FASTCALL PPDimention::IsEqual(const PPDimention & rS) const { return BIN(Length == rS.Length && Width == rS.Width && Height == rS.Height); }
+int    FASTCALL PPDimention::operator == (const PPDimention & rS) const { return IsEqual(rS); }
+int    FASTCALL PPDimention::operator != (const PPDimention & rS) const { return !IsEqual(rS); }
+double SLAPI PPDimention::CalcVolumeM() const { return (fdiv1000i(Width) * fdiv1000i(Length) * fdiv1000i(Height)); }
+double SLAPI PPDimention::CalcVolumeMM() const { return (Width * Length * Height); }
 
 int SLAPI PPDimention::SetVolumeM(double volume)
 {
@@ -383,15 +346,8 @@ int FASTCALL PPRollbackWork(int * pTa)
 	return 1;
 }
 
-PPTransaction::PPTransaction(PPDbDependTransaction dbDepend, int use_ta) : Ta(0), Err(0)
-{
-	Start(dbDepend, use_ta);
-}
-
-PPTransaction::PPTransaction(int use_ta) : Ta(0), Err(0)
-{
-	Start(use_ta);
-}
+PPTransaction::PPTransaction(PPDbDependTransaction dbDepend, int use_ta) : Ta(0), Err(0) { Start(dbDepend, use_ta); }
+PPTransaction::PPTransaction(int use_ta) : Ta(0), Err(0) { Start(use_ta); }
 
 PPTransaction::~PPTransaction()
 {
@@ -1544,34 +1500,12 @@ int FASTCALL PPPutExtStrData(int fldID, SString & rLine, const SString & rBuf)
 //
 //
 //
-SLAPI PPExtStrContainer::PPExtStrContainer()
-{
-}
-
-int SLAPI PPExtStrContainer::GetExtStrData(int fldID, SString & rBuf) const
-{
-	return PPGetExtStrData(fldID, ExtString, rBuf);
-}
-
-int SLAPI PPExtStrContainer::PutExtStrData(int fldID, const char * pStr)
-{
-	return PPPutExtStrData(fldID, ExtString, pStr);
-}
-
-int SLAPI PPExtStrContainer::SerializeB(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
-{
-    return pSCtx->Serialize(dir, ExtString, rBuf) ? 1 : PPSetErrorSLib();
-}
-
-void FASTCALL PPExtStrContainer::SetBuffer(const char * pSrc)
-{
-	ExtString = pSrc;
-}
-
-const SString & SLAPI PPExtStrContainer::GetBuffer() const
-{
-	return ExtString;
-}
+SLAPI  PPExtStrContainer::PPExtStrContainer() {}
+int    SLAPI PPExtStrContainer::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int    SLAPI PPExtStrContainer::PutExtStrData(int fldID, const char * pStr) { return PPPutExtStrData(fldID, ExtString, pStr); }
+int    SLAPI PPExtStrContainer::SerializeB(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) { return pSCtx->Serialize(dir, ExtString, rBuf) ? 1 : PPSetErrorSLib(); }
+void   FASTCALL PPExtStrContainer::SetBuffer(const char * pSrc) { ExtString = pSrc; }
+const  SString & SLAPI PPExtStrContainer::GetBuffer() const { return ExtString; }
 //
 //
 //
@@ -1605,7 +1539,6 @@ Article
 	Name[47]:    0
 }
 */
-
 static int SLAPI _F2_(const BillTbl::Rec * pBillRec, const ArticleTbl::Rec * pArRec, ReferenceTbl::Rec * pRefRec)
 {
 	const size_t ar_buf_offs = 10;
@@ -1788,15 +1721,8 @@ static int SLAPI ProcessDatabaseChain(PPObjBill * pBObj, Reference * pRef, int m
 	return ok;
 }
 
-int SLAPI PPUnchainDatabase(const char * pPassword)
-{
-	return ProcessDatabaseChain(BillObj, PPRef, pdbcmUnchain, pPassword, 0, 0, 1);
-}
-
-int SLAPI PPCheckDatabaseChain()
-{
-	return ProcessDatabaseChain(BillObj, PPRef, pdbcmVerify, 0, 0, 0, 1);
-}
+int SLAPI PPUnchainDatabase(const char * pPassword) { return ProcessDatabaseChain(BillObj, PPRef, pdbcmUnchain, pPassword, 0, 0, 1); }
+int SLAPI PPCheckDatabaseChain() { return ProcessDatabaseChain(BillObj, PPRef, pdbcmVerify, 0, 0, 0, 1); }
 
 int SLAPI PPReEncryptDatabaseChain(PPObjBill * pBObj, Reference * pRef, const char * pSrcEncPw, const char * pDestEncPw, int use_ta)
 {
@@ -4447,12 +4373,9 @@ typedef void * PPI_OBJECT;
 
 int    PPI_GetObjectType(PPI_OBJECT);
 int    PPI_List_GetCount(PPI_OBJECT, int * pCount);
-
 int    PPI_GetCapability(PPI_Capability * pCapability);
 int    PPI_ReqFunctional(int function, int * pReply);
-
 int    PPI_GetErrorMessage(char * pMsgBuf, uint * pBufLen);
-
 int    PPI_EDI_Init(const PPI_EDI_InitBlock * pBlk);
 PPI_OBJECT * PPI_EDI_GetMessageList(int ediMsgType);
 

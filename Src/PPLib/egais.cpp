@@ -5085,7 +5085,7 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 									const CCheckLineTbl::Rec & r_ccl = cc_pack.GetLine(clidx);
 									const PPID goods_id = labs(r_ccl.GoodsID);
 									if(alco_goods_list.bsearch(goods_id)) {
-										cc_pack.GetLineTextExt(clidx, CCheckPacket::lnextEgaisMark, /*temp_buf*/egais_mark);
+										cc_pack.GetLineTextExt(clidx+1, CCheckPacket::lnextEgaisMark, /*temp_buf*/egais_mark);
 										bc_list.clear();
 										if(egais_mark.NotEmpty() && ParseEgaisMark(egais_mark, emb) > 0) {
 											egais_code = emb.EgaisCode;
@@ -5094,6 +5094,8 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 										else {
 											GetEgaisCodeList(goods_id, bc_list);
 										}
+										// GetEgaisCodeList(goods_id, bc_list); // @v9.9.0
+
 										const double ccl_qtty = r_ccl.Quantity;
 										double ccl_rest = ccl_qtty;
 										for(uint bci = 0; bci < bc_list.getCount(); bci++) {
@@ -5134,8 +5136,13 @@ int SLAPI PPEgaisProcessor::Helper_CreateWriteOffShop(const PPBillPacket * pCurr
 														THROW(p_wroff_bp->CreateBlank2(wos_op_id, _cur_date, loc_id, 1));
 													}
 													if(ex_row_list.getCount()) {
-														PPTransferItem & r_ex_ti = p_wroff_bp->TI(ex_row_list.get(0));
+														const uint ex_pos = ex_row_list.get(0);
+														PPTransferItem & r_ex_ti = p_wroff_bp->TI(ex_pos);
 														r_ex_ti.Quantity_ -= wroff_qtty;
+														// @v9.9.0 {
+														if(use_lotxcode && egais_mark.NotEmpty())
+															p_wroff_bp->XcL.Add(ex_pos+1, egais_mark, 0);
+														// } @v9.0.0
 													}
 													else {
 														PPTransferItem ti;

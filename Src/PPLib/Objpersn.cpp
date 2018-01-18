@@ -1671,7 +1671,7 @@ int SLAPI PPObjPerson::SearchFirstByName(const char * pName, const PPIDArray * p
 {
 	int    ok = -1;
 	char   pattern[256];
-	const  uint kind_count = pKindList ? pKindList->getCount() : 0;
+	const  uint kind_count = SVectorBase::GetCount(pKindList);
 	PersonTbl::Key1 k;
 	strip(STRNSCPY(pattern, pName));
 	MEMSZERO(k);

@@ -481,6 +481,13 @@ int SrNGramTbl::Search(NGID id, SrNGram * pRec)
 		if(pRec) {
 			data_buf.Get(rec_buf);
 			THROW(SerializeRecBuf(-1, pRec, rec_buf));
+			// @v9.9.9 @paranoic {
+			{
+				NGID   temp_id;
+				key_buf.Get(&temp_id);
+				assert(temp_id == id);
+			}
+			// } @v9.9.9 @paranoic 
 			pRec->ID = id; // @v9.7.11 @fix
 		}
 		ok = 1;
@@ -1725,7 +1732,7 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSVector <Sr
 				inv_pfx = 1;
 		}
 		else
-			pfx_buf_u = 0;
+			pfx_buf_u.Z();
 		if(!inv_pfx) { // ≈сли префикс не пустой и не содержитс€ в Ѕƒ, то перебирать оставшуюс€ часть слова нет смысла
 			const  uint __len = len-pfx_len;
 			for(uint afx_len = 0; afx_len <= __len; afx_len++) {
@@ -1733,7 +1740,7 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSVector <Sr
 				LEXID  base_id = 0, afx_id = 0;
 				const  uint base_len = __len-afx_len;
 				if(base_len == 0) {
-					base_buf_u = 0;
+					base_buf_u.Z();
 					if(ZeroWordID)
 						base_id = ZeroWordID;
 					else if(FetchSpecialWord(SrWordTbl::spcEmpty, temp_buf, &base_id) > 0)
@@ -1766,32 +1773,6 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSVector <Sr
 				if(base_id && !inv_afx) {
 					if(GetBaseWordInfo(base_id, pfx_id, afx_id, wa_list, rInfo) > 0)
 						ok = 1;
-					/*
-					wa_list.clear();
-					P_WaT->Search(base_id, wa_list);
-					for(uint i = 0; i < wa_list.getCount(); i++) {
-						const SrWordAssoc & r_wa = wa_list.at(i);
-						if(r_wa.FlexiaModelID) {
-							fm.Clear();
-							if(P_GrT->Search(r_wa.FlexiaModelID, &fm) > 0) {
-								wf_list.clear();
-								if(fm.Search(afx_id, pfx_id, wf_list) > 0) {
-									for(uint j = 0; j < wf_list.getCount(); j++) {
-										SrWordInfo ii;
-										ii.BaseID = base_id;
-										ii.PrefixID = pfx_id;
-										ii.AffixID = afx_id;
-										ii.BaseFormID = r_wa.BaseDescrID;
-										ii.FormID = wf_list.get(j);
-										ii.WaID = r_wa.ID;
-										rInfo.insert(&ii);
-										ok = 1;
-									}
-								}
-							}
-						}
-					}
-					*/
 				}
 			}
 		}
@@ -2586,7 +2567,47 @@ int SrDatabase::StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSVecto
 	return ok;
 }
 
-int SrDatabase::StoreFiasAddr(const Sdr_FiasRawAddrObj & rItem)
+struct StoreFiasAddrBlock {
+	static const uint SignatureValue;
+	StoreFiasAddrBlock() : Signature(SignatureValue), CRegion(0), CUrbs(0), CVici(0), CAedificium(0), CApartment(0), ProcessedSymbols(4096, 1),
+		T(STokenizer::Param(STokenizer::fEachDelim, cpUTF8, " \t\n\r(){}[]<>,.:;\\-/&$#@!?*^\"+=%"))
+	{
+	}
+	const uint32 Signature;
+	CONCEPTID CRegion;
+	CONCEPTID CUrbs;
+	CONCEPTID CVici;
+	CONCEPTID CAedificium;
+	CONCEPTID CApartment;
+	SymbHashTable ProcessedSymbols;
+	STokenizer T;
+};
+
+//static 
+const uint StoreFiasAddrBlock::SignatureValue = 0x43a5e9b7;
+
+void * SrDatabase::CreateStoreFiasAddrBlock()
+{
+	StoreFiasAddrBlock * p_blk = new StoreFiasAddrBlock;
+	if(p_blk) {
+		assert(p_blk->Signature == StoreFiasAddrBlock::SignatureValue);
+		SearchConcept("cregion", &p_blk->CRegion);
+		SearchConcept("urbs", &p_blk->CUrbs);
+		SearchConcept("gener_vici", &p_blk->CVici);
+		SearchConcept("gener_aedificium", &p_blk->CAedificium);
+		SearchConcept("gener_apartment", &p_blk->CApartment);
+	}
+	return p_blk;
+}
+
+void SrDatabase::DestroyStoreFiasAddrBlock(void * pBlk)
+{
+	StoreFiasAddrBlock * p_blk = (StoreFiasAddrBlock *)pBlk;
+	if(p_blk && p_blk->Signature == StoreFiasAddrBlock::SignatureValue)
+		delete p_blk;
+}
+
+int SrDatabase::StoreFiasAddr(void * pBlk, const TSVector <Sdr_FiasRawAddrObj> & rList)
 {
 	/*
 		struct Sdr_FiasRawAddrObj
@@ -2610,8 +2631,8 @@ int SrDatabase::StoreFiasAddr(const Sdr_FiasRawAddrObj & rItem)
 			char   OKATO[16];
 			char   OKTMO[16];
 			LDATE  UPDATEDATE;
-			char   SHORTNAME[16];
-			char   AOLEVEL[16];
+			char   SHORTNAME[16]; // сокращение сущности (г, ул, etc)
+			char   AOLEVEL[16];   // 
 			S_GUID PARENTGUID;
 			S_GUID AOID;
 			S_GUID PREVID;
@@ -2628,5 +2649,121 @@ int SrDatabase::StoreFiasAddr(const Sdr_FiasRawAddrObj & rItem)
 			int32  LIVESTATUS;
 	*/
 	int    ok = -1;
+	SString temp_buf;
+	SString main_concept_symb;
+	StoreFiasAddrBlock * p_blk = (StoreFiasAddrBlock *)pBlk;
+	TSVector <SrWordInfo> info_list;
+	LongArray word_id_list;
+	Int64Array concept_list;
+	Int64Array candidate_concept_list;
+	Int64Array local_concept_list;
+	Int64Array concept_hier;
+	SrNGram ng;
+	THROW(p_blk && p_blk->Signature == StoreFiasAddrBlock::SignatureValue);
+	for(uint lidx = 0; lidx < rList.getCount(); lidx++) {
+		const Sdr_FiasRawAddrObj & r_item = rList.at(lidx);
+		CONCEPTID parent_cid = 0; //  онцепци€, экземпл€ром которой €вл€етс€ создаваема€ запись
+		const int is_actual = r_item.LIVESTATUS;
+		/*
+			”словно выделены следующие уровни адресных объектов:
+			1 Ц уровень региона
+			2 Ц уровень автономного округа (устаревшее)
+			3 Ц уровень района
+			35 Ц уровень городских и сельских поселений
+			4 Ц уровень города
+			5 Ц уровень внутригородской территории (устаревшее)
+			6 Ц уровень населенного пункта
+			65 Ц планировочна€ структура
+			7 Ц уровень улицы
+			75 Ц земельный участок
+			8 Ц здани€, сооружени€, объекта незавершенного строительства
+			9 Ц уровень помещени€ в пределах здани€, сооружени€
+			90 Ц уровень дополнительных территорий (устаревшее)
+			91 Ц уровень объектов на дополнительных территори€х (устаревшее)
+		*/
+		const int aolevel = atoi(r_item.AOLEVEL);
+		SString concept_abbr = r_item.SHORTNAME;
+		/*
+			:cregion
+			:urbs
+			:gener_vici
+			:gener_aedificium
+			:gener_apartment
+		*/
+		concept_abbr.Transf(CTRANSF_OUTER_TO_UTF8);
+		ng.Z();
+		info_list.clear();
+		word_id_list.clear();
+		concept_list.clear();
+		candidate_concept_list.clear();
+		local_concept_list.clear();
+		concept_hier.clear();
+		concept_abbr.TrimRightChr('.');
+		if(GetWordInfo(concept_abbr, 0, info_list) > 0) {
+			for(uint i = 0; i < info_list.getCount(); i++) {
+				const SrWordInfo & r_wi = info_list.at(i);
+				local_concept_list.clear();
+				word_id_list.clear();
+				if(r_wi.AbbrExpID) {
+					if(P_NgT->Search(r_wi.AbbrExpID, &ng) > 0) {
+						GetNgConceptList(ng.ID, 0, local_concept_list);
+						concept_list.add(&local_concept_list);
+					}
+				}
+			}
+		}
+		{
+			StringSet ss;
+			concept_abbr.Tokenize(" ", ss);
+			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+				if(temp_buf.NotEmptyS() && temp_buf.TrimRightChr('.').NotEmptyS()) {
+
+				}
+			}
+		}
+		candidate_concept_list.clear();
+		for(uint cidx = 0; cidx < concept_list.getCount(); cidx++) {
+			CONCEPTID item_id = concept_list.get(cidx);
+			if(GetConceptHier(item_id, concept_hier) > 0) {
+				switch(aolevel) {
+					case 1: case 2: case 3:
+						if(concept_hier.lsearch(p_blk->CRegion))
+							candidate_concept_list.add(item_id);
+						break;
+					case 4: case 6:
+						if(concept_hier.lsearch(p_blk->CUrbs))
+							candidate_concept_list.add(item_id);
+						break;
+					case 7:
+						if(concept_hier.lsearch(p_blk->CVici))
+							candidate_concept_list.add(item_id);
+						break;
+					case 8:
+						if(concept_hier.lsearch(p_blk->CAedificium))
+							candidate_concept_list.add(item_id);
+						break;
+					case 9:
+						if(concept_hier.lsearch(p_blk->CApartment))
+							candidate_concept_list.add(item_id);
+						break;
+				}
+			}
+		}
+		candidate_concept_list.sortAndUndup();
+		if(candidate_concept_list.getCount() == 0) {
+		}
+		else if(candidate_concept_list.getCount() == 1) {
+			CONCEPTID main_cid = 0;
+			temp_buf.Z().EncodeMime64(&r_item.AOGUID, sizeof(r_item.AOGUID));
+			main_concept_symb.Z().Cat("fias").Cat(temp_buf);
+			THROW(ResolveConcept(main_concept_symb, &main_cid));
+			//
+
+
+		}
+		else {
+		}
+	}
+	CATCHZOK
 	return ok;
 }

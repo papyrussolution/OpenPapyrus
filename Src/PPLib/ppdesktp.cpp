@@ -22,8 +22,8 @@ PPDesktopAssocCmd & PPDesktopAssocCmd::Clear()
 	CmdID = 0;
 	Flags = 0;
 	Code = 0;
-	DvcSerial = 0;
-	CmdParam = 0;
+	DvcSerial.Z();
+	CmdParam.Z();
 	return *this;
 }
 

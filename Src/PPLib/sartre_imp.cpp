@@ -1502,17 +1502,28 @@ int SrConceptParser::PostprocessOpList(Operator * pRoot)
 				int    _done = 0;
 				if(p_current->WaIdOfCLex) {
 					//
-					// Если при разборе оператора мы создали упрощенный набо тегов лексемы, то в нем 
+					// Если при разборе оператора мы создали упрощенный набор тегов лексемы, то в нем 
 					// и попытаемся указать что речь идет об аббревиатуре.
 					//
 					SrWordAssoc ex_wa;
 					THROW(R_Db.P_WaT->Search(p_current->WaIdOfCLex, &ex_wa) > 0);
-					if(ex_wa.AbbrExpID && ex_wa.AbbrExpID == p_current->AbbrOf)
+					if(ex_wa.AbbrExpID) {
+						if(ex_wa.AbbrExpID != p_current->AbbrOf) {
+							SrWordAssoc wa = ex_wa;
+							assert(wa.WordID == p_current->CLexID); // @paranoic
+							wa.AbbrExpID = p_current->AbbrOf;
+							wa.Flags |= SrWordAssoc::fHasAbbrExp;
+							if(p_current->Flags & Operator::fAbbrDot)
+								wa.Flags |= SrWordAssoc::fAbbrDotOption;
+							int32   wa_id = 0;
+							THROW(R_Db.P_WaT->Add(&wa.Normalize(), &wa_id));
+						}
 						_done = 1;
-					else if(ex_wa.AbbrExpID == 0) {
+					}
+					else {
 						assert(ex_wa.WordID == p_current->CLexID);
 						ex_wa.AbbrExpID = p_current->AbbrOf;
-						ex_wa.Flags = SrWordAssoc::fHasAbbrExp;
+						ex_wa.Flags |= SrWordAssoc::fHasAbbrExp;
 						if(p_current->Flags & Operator::fAbbrDot)
 							ex_wa.Flags |= SrWordAssoc::fAbbrDotOption;
 						THROW(R_Db.P_WaT->Update(ex_wa.Normalize()));
@@ -1769,7 +1780,12 @@ int SrConceptParser::Run(const char * pFileName)
 						}
 					} while(tok == tokWord);
 					assert(ngram.getCount() == walist_of_ngram.getCount());
-					if(ngram.getCount() == 1) {
+					//
+					// Если ngram содержит единственное слово и current->CLexID не занят предыдущей частью оператора,
+					// то присваиваем p_current->CLexID ид этого слова, а p_current->WaIdOfCLex - ассоциированную SrWordAssoc.
+					// Все это нужно для определения аббревиатур
+					//
+					if(ngram.getCount() == 1 && !p_current->CLexID) {
 						p_current->CLexID = ngram.get(0);
 						p_current->WaIdOfCLex = walist_of_ngram.get(0);
 					}
@@ -2108,6 +2124,7 @@ int SrConceptParser::Run(const char * pFileName)
 	CloseInput();
 	return ok;
 }
+
 IMPLEMENT_PPFILT_FACTORY(PrcssrSartre); SLAPI PrcssrSartreFilt::PrcssrSartreFilt() : PPBaseFilt(PPFILT_PRCSSRSARTREPARAM, 0, 0)
 {
 	SetFlatChunk(offsetof(PrcssrSartreFilt, ReserveStart),
@@ -2208,18 +2225,9 @@ public:
 	SrImpHumanNameList() : SStrGroup()
 	{
 	}
-	uint   GetCount() const
-	{
-		return L.getCount();
-	}
-	uint   GetItem(uint p, Entry & rItem) const
-	{
-		return Helper_GetItem(p, rItem);
-	}
-	int    GetGender(uint p) const
-	{
-		return (p < L.getCount()) ? L.at(p).Gender : 0;
-	}
+	uint   GetCount() const { return L.getCount(); }
+	uint   GetItem(uint p, Entry & rItem) const { return Helper_GetItem(p, rItem); }
+	int    GetGender(uint p) const { return (p < L.getCount()) ? L.at(p).Gender : 0; }
 	int    SetGender(uint p, int gender)
 	{
 		if(p < L.getCount()) {
@@ -2237,10 +2245,7 @@ public:
 		L.insert(&int_item);
 		return ok;
 	}
-	void   Sort()
-	{
-		L.sort(PTR_CMPCFUNC(SrImpHumanNameEntry), this);
-	}
+	void   Sort() { L.sort(PTR_CMPCFUNC(SrImpHumanNameEntry), this); }
 private:
 	struct InnerEntry { // @flat
 		InnerEntry(uint gender) : NameP(0), Gender(gender)
@@ -2799,9 +2804,9 @@ int SLAPI PrcssrSartre::TestSearchWords()
 		SFile out_file(temp_buf, SFile::mWrite);
 		{
 			static const char * p_words[] = {
+				"респ",
 				"ф/х",
 				"р-он",
-				"респ",
 				"пойду",
 				"ЧАЙКА",
 				"СЕМЬЮ",
@@ -2844,7 +2849,10 @@ int SLAPI PrcssrSartre::TestSearchWords()
 				"algorithms",
 				"management",
 				"going",
-				"damn"
+				"damn",
+				"ж/д_оп",
+				"ппс",
+				"мин"
 			};
 			for(uint i = 0; i < SIZEOFARRAY(p_words); i++) {
 				temp_buf = p_words[i];
@@ -2923,13 +2931,14 @@ int PrcssrSartre::TestConcept()
 		PPGetFilePath(PPPATH_OUT, "Sartr_TestConcept.txt", temp_buf);
 		SFile out_file(temp_buf, SFile::mWrite);
 		StringSet tok_list;
+		LongArray ng;
 		for(uint i = 0; i < SIZEOFARRAY(p_words); i++) {
 			temp_buf = p_words[i];
 			line_buf.Z().Cat(temp_buf).CR();
 			tok_list.clear();
 			temp_buf.Tokenize(0, tok_list);
 			int    unkn_word = 0;
-			LongArray ng;
+			ng.clear();
 			for(uint sp = 0; !unkn_word && tok_list.get(&sp, temp_buf);) {
 				temp_buf.ToUtf8();
 				LEXID word_id = 0;

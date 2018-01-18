@@ -1121,7 +1121,7 @@ int SLAPI DBTable::SerializeRecord(int dir, void * pRec, SBuffer & rBuf, SSerial
 int SLAPI DBTable::Helper_SerializeArrayOfRecords(int dir, SVectorBase * pList, SBuffer & rBuf, SSerializeContext * pCtx)
 {
 	int    ok = 1;
-	int32  c = pList ? pList->getCount() : 0; // @persistent
+	int32  c = SVectorBase::GetCount(pList); // @persistent
 	STempBuffer temp_buf(0);
 	// @v9.8.11 {
 	if(dir > 0) {

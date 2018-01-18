@@ -538,7 +538,7 @@ int SLAPI ObjIdListFilt::Sort()
 
 uint SLAPI ObjIdListFilt::GetCount() const
 {
-	return P_List ? P_List->getCount() : 0;
+	return SVectorBase::GetCount(P_List);
 }
 
 int SLAPI ObjIdListFilt::Search(PPID id, uint * pPos, int binary) const

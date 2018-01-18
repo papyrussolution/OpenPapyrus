@@ -1939,8 +1939,8 @@ LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 					canv.Draw(p_view->P_Fig);
 					canv.PopTransform();
 				}
-				else if(p_view->P_Image) {
-					((SImage*)p_view->P_Image)->Draw(hWnd, 0);
+				else if(p_view->P_Image_GDIP) {
+					((SImage*)p_view->P_Image_GDIP)->Draw(hWnd, 0);
 				}
 				EndPaint(hWnd, (LPPAINTSTRUCT)&ps);
 			}
@@ -1963,7 +1963,7 @@ int TImageView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	 return 1;
 }
 
-TImageView::TImageView(const TRect & rBounds, const char * pFigSymb) : TView(rBounds), P_Fig(0), P_Image(0), FigSymb(pFigSymb)
+TImageView::TImageView(const TRect & rBounds, const char * pFigSymb) : TView(rBounds), P_Fig(0), P_Image_GDIP(0), FigSymb(pFigSymb)
 {
 	SubSign = TV_SUBSIGN_IMAGEVIEW; // @v8.3.11
 	ReplacedColor.Set(0); // @v9.6.5
@@ -1987,9 +1987,9 @@ TImageView::TImageView(const TRect & rBounds, const char * pFigSymb) : TView(rBo
 TImageView::~TImageView()
 {
 	delete P_Fig;
-	if(P_Image) {
-		delete (SImage *)P_Image;
-		P_Image = 0;
+	if(P_Image_GDIP) {
+		delete (SImage *)P_Image_GDIP;
+		P_Image_GDIP = 0;
 	}
 	RestoreOnDestruction();
 }

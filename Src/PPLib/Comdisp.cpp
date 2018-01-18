@@ -505,7 +505,7 @@ int SLAPI ComDispInterface::CallMethod(long methodID, VARIANTARG * pVarArg)
 	DISPPARAMS params;
 	params.rgvarg = P_ParamsAry ? (VARIANTARG *)P_ParamsAry->dataPtr() : 0;
 	params.rgdispidNamedArgs = 0;
-	params.cArgs = P_ParamsAry ? P_ParamsAry->getCount() : 0;
+	params.cArgs = SVectorBase::GetCount(P_ParamsAry);
 	params.cNamedArgs = 0;
 	if(rcv_res)
 		VariantInit(&var_arg);

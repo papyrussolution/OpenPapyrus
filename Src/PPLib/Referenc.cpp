@@ -1,5 +1,5 @@
 // REFERENC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // @Kernel
 //
@@ -17,8 +17,8 @@ int SLAPI Reference::Helper_EncodeOtherPw(const char * pEncPw, const char * pPw,
 	char   temp_pw[buf_quant], temp_str[buf_quant*3+8];
 	STRNSCPY(temp_pw, pPw);
 	IdeaEncrypt(pEncPw, temp_pw, pwBufSize);
-	size_t i = 0, p = 0;
-	for(; i < pwBufSize; i++) {
+	size_t p = 0;
+	for(size_t i = 0; i < pwBufSize; i++) {
 		sprintf(temp_str+p, "%03u", (uint8)temp_pw[i]);
 		p += 3;
 	}
@@ -898,7 +898,7 @@ int SLAPI Reference::PutPropArray(PPID obj, PPID id, PPID prop, const SVectorBas
 	int    ok = 1;
 	PropPPIDArray * p_rec = 0;
 	uint   i;
-	uint   count = ary ? ary->getCount() : 0;
+	const  uint count = SVectorBase::GetCount(ary);
 	size_t sz = 0;
 	if(count > 0) {
 		const  uint minCount = (PROPRECFIXSIZE - sizeof(PropPPIDArray)) / ary->getItemSize();

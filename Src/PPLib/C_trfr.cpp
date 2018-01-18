@@ -2219,10 +2219,7 @@ int SLAPI RecoverTransfer()
 	if(bad_list.getCount()) {
 		BadTrfrEntryListDialog * dlg = new BadTrfrEntryListDialog(&bad_list);
 		if(CheckDialogPtrErr(&dlg)) {
-			if(ExecViewAndDestroy(dlg) == cmOK)
-				do_recover = 1;
-			else
-				do_recover = 0;
+			do_recover = BIN(ExecViewAndDestroy(dlg) == cmOK);
 		}
 	}
 #if 1 // {

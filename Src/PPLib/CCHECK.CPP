@@ -500,7 +500,7 @@ CCheckItem & FASTCALL CCheckItem::operator = (const CCheckLineExtTbl::Rec & rS)
 	return *this;
 }
 
-int CCheckItem::GetRec(CCheckLineTbl::Rec & rRec, int ret) const
+void CCheckItem::GetRec(CCheckLineTbl::Rec & rRec, int ret) const
 {
 	MEMSZERO(rRec);
 	rRec.DivID = Division;
@@ -520,7 +520,6 @@ int CCheckItem::GetRec(CCheckLineTbl::Rec & rRec, int ret) const
 		if(tamt != amount /* @v8.2.3 && (CConfig.Flags2 & CCFLG2_ADJCPANCCLINETRANS)*/)
 			rRec.Dscnt += (tamt - amount);
 	}
-	return 1;
 }
 
 int CCheckItem::GetRec(CCheckLineExtTbl::Rec & rRec) const
@@ -541,15 +540,8 @@ int CCheckItem::GetRec(CCheckLineExtTbl::Rec & rRec) const
 	return ok;
 }
 
-double CCheckItem::NetPrice() const
-{
-	return (Price - Discount);
-}
-
-double CCheckItem::GetAmount() const
-{
-	return R2((Price - Discount) * Quantity);
-}
+double CCheckItem::NetPrice() const { return (Price - Discount); }
+double CCheckItem::GetAmount() const { return R2((Price - Discount) * Quantity); }
 
 int CCheckItem::SetupGiftQuot(double quot, int forceZero)
 {
@@ -891,7 +883,7 @@ int SLAPI CCheckPacket::PackLineTextExt(SString & rResult) const
 		for(uint p = 0; ess.Enum(line_buf, &p, &fld_id, temp_buf) > 0;) {
 			if(temp_buf.NotEmptyS()) {
 				if(fld_id > 0 && fld_id < 100) {
-					PPPutExtStrData((i+1) * 100 + fld_id, rResult, temp_buf);
+					PPPutExtStrData(/*(i+1)*/item.Id * 100 + fld_id, rResult, temp_buf); // @v9.9.0 @fix (i+1)-->item.Id
 					ok = 1;
 				}
 				else {
@@ -949,6 +941,7 @@ int SLAPI CCheckPacket::Helper_SetLineTextExt(int pos /* 1.. */, int lnextId, St
 //static
 int SLAPI CCheckPacket::Helper_GetLineTextExt(int pos /* 1.. */, int lnextId, const StrAssocArray & rList, SString & rBuf)
 {
+	rBuf.Z();
 	int    ok = 0;
 	SString common_buf;
 	rList.GetText(pos, common_buf);
@@ -1044,12 +1037,11 @@ int SLAPI CCheckPacket::MergeLines(long /*options*/)
 	return ok;
 }
 
-int SLAPI CCheckPacket::ClearLines()
+void SLAPI CCheckPacket::ClearLines()
 {
 	Items_.clear();
 	ExtList.clear();
 	LnTextList.Clear();
-	return 1;
 }
 
 int SLAPI CCheckPacket::InsertItem_(const CCheckLineTbl::Rec * pItem, const char * pSerial, const char * pEgaisMark)
@@ -1083,7 +1075,7 @@ int SLAPI CCheckPacket::InsertItem(const CCheckItem & rItem)
 		}
 		// @v9.0.9 {
 		if(rItem.EgaisMark[0]) {
-			THROW(SetLineTextExt(idx, CCheckPacket::lnextEgaisMark, rItem.EgaisMark));
+			THROW(SetLineTextExt(idx, CCheckPacket::lnextEgaisMark, rItem.EgaisMark)); // @v9.9.0
 		}
 		// } @v9.0.9
 		{
@@ -1165,7 +1157,7 @@ int SLAPI CCheckPacket::SetupPaymList(const CcAmountList * pList)
 	return ok;
 }
 
-int SLAPI CCheckPacket::SetTotalDiscount__(double dis, long flags/*int pctdis, int plusDiscount*/)
+void SLAPI CCheckPacket::SetTotalDiscount__(double dis, long flags/*int pctdis, int plusDiscount*/)
 {
 	uint   i;
 	uint   last_index = 0;
@@ -1233,7 +1225,6 @@ int SLAPI CCheckPacket::SetTotalDiscount__(double dis, long flags/*int pctdis, i
 				p_item->Dscnt = d;
 		}
 	}
-	return 1;
 }
 
 double FASTCALL CCheckPacket::GetItemAmount(const CCheckLineTbl::Rec & rItem) const
@@ -1383,15 +1374,8 @@ int SLAPI CCheckPacket::SetDlvrAddr(const LocationTbl::Rec * pRec)
 	return ok;
 }
 
-const LocationTbl::Rec * SLAPI CCheckPacket::GetDlvrAddr() const
-{
-	return P_DlvrAddr;
-}
-
-SString & SLAPI CCheckPacket::MakeBarcodeIdent(SString & rBuf) const
-{
-    return rBuf.Z().Cat("CA").CatLongZ(Rec.CashID, 4).CatLongZ(Rec.Code, 6);
-}
+const LocationTbl::Rec * SLAPI CCheckPacket::GetDlvrAddr() const { return P_DlvrAddr; }
+SString & SLAPI CCheckPacket::MakeBarcodeIdent(SString & rBuf) const { return rBuf.Z().Cat("CA").CatLongZ(Rec.CashID, 4).CatLongZ(Rec.Code, 6); }
 
 //static
 int SLAPI CCheckPacket::ParseBarcodeIdent(const char * pIdent, BarcodeIdentStruc * pResult)
@@ -3247,13 +3231,11 @@ int SLAPI CCheckCore::IsLostJunkCheck(PPID id, S_GUID * pExtUuid, PPSession::Reg
 //
 IMPL_CMPFUNC(CCheckGoodsEntry, i1, i2) { RET_CMPCASCADE4((const CCheckGoodsEntry *)i1, (const CCheckGoodsEntry *)i2, Dt, Sign, GoodsID, SerialID); }
 
-SLAPI CCheckGoodsArray::CCheckGoodsArray() : TSVector <CCheckGoodsEntry> () // @v9.8.4 TSArray-->TSVector
+SLAPI CCheckGoodsArray::CCheckGoodsArray() : TSVector <CCheckGoodsEntry> (), Sum(0.0) // @v9.8.4 TSArray-->TSVector
 {
-	//setDelta(32);
-	Sum = 0.0;
 }
 
-int SLAPI CCheckGoodsArray::GetMaxDate(LDATE * pDt) const
+LDATE SLAPI CCheckGoodsArray::GetMaxDate() const
 {
 	LDATE  dt = ZERODATE;
 	uint   i = getCount();
@@ -3262,8 +3244,7 @@ int SLAPI CCheckGoodsArray::GetMaxDate(LDATE * pDt) const
 		if(cur_dt > dt)
 			dt = cur_dt;
 	} while(i);
-	ASSIGN_PTR(pDt, dt);
-	return 1;
+	return dt;
 }
 
 int SLAPI CCheckGoodsArray::Add(LDATE dt, const CCheckLineTbl::Rec * pRec, PPID serialID)
@@ -4223,7 +4204,7 @@ int SLAPI CSessGrouping::UndoGrouping(PPID sessID, LAssocArray * pSubstList, int
 	return ok;
 }
 
-struct CgBillCvtItem {
+struct CgBillCvtItem { // @flat
 	LDATE  Dt;
 	int16  Sign;
 	int16  PadSign;        // @alignment
@@ -4248,9 +4229,9 @@ IMPL_CMPFUNC(CgBillCvtItem_GoodsName, i1, i2)
 		return stricmp866(p1->GoodsName, p2->GoodsName);
 }
 
-class CgBillCvtList : public TSArray <CgBillCvtItem> {
+class CgBillCvtList : public TSVector <CgBillCvtItem> { // @v9.9.0 TSArray-->TSVector
 public:
-	SLAPI  CgBillCvtList() : TSArray <CgBillCvtItem> ()
+	SLAPI  CgBillCvtList() : TSVector <CgBillCvtItem> ()
 	{
 	}
 	int    SLAPI Add(const CGoodsLineTbl::Rec *);
@@ -4903,11 +4884,10 @@ int SLAPI CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPI
 				}
 				if(cg_list.getCount()) {
 					PPBillPacket pack;
-					LDATE  dt = ZERODATE;
 					LongArray rows;
 					SStringU temp_buf_u;
 					SString serial_buf;
-					cg_list.GetMaxDate(&dt);
+					const LDATE  dt = cg_list.GetMaxDate();
 					THROW(pack.CreateBlank2(EqCfg.OpOnTempSess, dt, locID, 0));
 					PPGetWord(PPWORD_AT_AUTO, 0, pack.Rec.Memo, sizeof(pack.Rec.Memo));
 					for(i = 0; i < cg_list.getCount(); i++) {
@@ -5059,7 +5039,7 @@ int SLAPI CSessGrouping::AttachSessToSupersess(PPID nodeID, PPID sessID, PPID * 
 	return ok;
 }
 
-struct __SessItem {
+struct __SessItem { // @flat
 	PPID   SessID;
 	LDATETIME Dtm;
 	uint   SuperGroup;
@@ -5092,7 +5072,8 @@ int SLAPI CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, 
 			//
 			__SessItem item, * p_item, * p_item2;
 			uint   last_super_num = 0;
-			SArray temp_list(sizeof(__SessItem));
+			PPIDArray super_member_list;
+			SVector temp_list(sizeof(__SessItem)); // @v9.9.0 SArray-->SVector
 			const  long uniting_period = CSessionCore::GetUnitingPeriodSec() / 60;
 			for(i = 0; i < pList->getCount(); i++) {
 				PPID   sess_id = pList->at(i);
@@ -5173,7 +5154,7 @@ int SLAPI CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, 
 			}
 			for(i = 1; i <= last_super_num; i++) {
 				PPID   super_id = 0;
-				PPIDArray super_member_list;
+				super_member_list.clear();
 				for(j = 0; temp_list.enumItems(&j, (void**)&p_item);) {
 					if(p_item->SuperGroup == i) {
 						THROW(super_member_list.add(p_item->SessID));
@@ -5352,11 +5333,8 @@ private:
 	ReadWriteLock CTableStatusRwl;
 };
 
-CCheckCache::CCheckCache() : ObjCache(PPOBJ_CCHECK, sizeof(ObjCacheEntry))
+CCheckCache::CCheckCache() : ObjCache(PPOBJ_CCHECK, sizeof(ObjCacheEntry)), CTableStatusRefreshTimeout(5), CTableStatusTime(ZERODATETIME), FirstActualDate(ZERODATE)
 {
-	CTableStatusRefreshTimeout = 5;
-	CTableStatusTime.SetZero();
-	FirstActualDate = ZERODATE;
 }
 
 int CCheckCache::GetCTableOrderList(TSVector <CTableStatus> & rList) // @v9.8.5 TSArray-->TSVector

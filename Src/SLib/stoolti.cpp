@@ -162,7 +162,8 @@ int SMessageWindow::SetFont(HWND hCtl)
 
 int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, long cmd, long timer, COLORREF color, long flags, long extra)
 {
-	int    ok = 0, font_init = 0;
+	int    ok = 0;
+	int    font_init = 0;
 	HWND   hwnd_parent = NZOR(parent, APPL->H_MainWnd);
 	HWND   h_focus = ::GetFocus();
 	Destroy();

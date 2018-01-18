@@ -21,13 +21,12 @@ int SLAPI SlSession::InitGdiplus()
 	return ok;
 }
 
-int SLAPI SlSession::ShutdownGdiplus()
+void SLAPI SlSession::ShutdownGdiplus()
 {
 	if(GdiplusToken) {
 		GdiplusShutdown(GdiplusToken);
 		GdiplusToken = 0;
 	}
-	return 1;
 }
 
 SImage::SImage() : P_Image(0), ClearColor(RGB(0xD4, 0xD0, 0xC8))
@@ -238,8 +237,7 @@ int SImage::LoadThumbnailImage(const char * pPicPath, int width, int height)
 
 SString & SImage::GetFileName(SString & rBuf)
 {
-	rBuf = FileName;
-	return rBuf;
+	return (rBuf = FileName);
 }
 
 int SImage::InsertBitmap(HWND hwnd, const char * pPath, COLORREF bkgnd)

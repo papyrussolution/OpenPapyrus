@@ -8184,8 +8184,9 @@ public:
 		int32  ID;
 		int32  ID2;
 		LDATE  Dt;
-		char   DtSubst[32];
-		char   Name[128];
+		uint32 DtSubstP;
+		uint32 NameP;
+		uint32 NameBeforeEvP;
 		int32  Count;
 		int32  AvgEvTime;
 	} data;
@@ -8201,8 +8202,9 @@ public:
 	DBField ID;
 	DBField ID2;
 	DBField Dt;
-	DBField DtSubst;
-	DBField Name;
+	DBField DtSubstP;
+	DBField NameP;
+	DBField NameBeforeEvP;
 	DBField Count;
 	DBField AvgEvTime;
 	};

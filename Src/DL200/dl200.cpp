@@ -1,5 +1,5 @@
 // DL200.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -11,7 +11,8 @@ static int SLAPI WriteSArrayToFile(const SArray * pAry, FILE * pStream)
 {
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
-	uint16 i, c = pAry ? pAry->getCount() : 0;
+	uint16 i;
+	const  uint16 c = (uint16)SVectorBase::GetCount(pAry);
 	size_t item_size = pAry ? pAry->getItemSize() : 0;
 	long   beg_pos = ftell(pStream);
 	THROW_V(fwrite(&c, sizeof(c), 1, pStream) == 1, SLERR_WRITEFAULT);
@@ -118,7 +119,7 @@ int FASTCALL PPSetError(int errCode, const char * pAddedMsg)
 
 static char * FASTCALL skipws(char * p)
 {
-	while(*p == ' ' || *p == '\t' || *p == '\n')
+	while(oneof3(*p, ' ', '\t', '\n'))
 		p++;
 	return p;
 }
@@ -290,9 +291,6 @@ DL2_CI * SLAPI DL2_Formula::ResolveOp(const DL2_CI * pOp, const DL2_Formula * pA
 {
 	DL2_CI * p_result = 0;
 	switch(pOp->CiType) {
-		case DL2CIT_OP_UPLUS:
-			p_result = DL2_CI::Copy(pArgList->GetByN(1));
-			break;
 		case DL2CIT_OP_UMINUS:
 			{
 				p_result = new DL2_CI;
@@ -307,18 +305,11 @@ DL2_CI * SLAPI DL2_Formula::ResolveOp(const DL2_CI * pOp, const DL2_Formula * pA
 					PPSetError(PPERR_DL200_INVPARAMTYPE);
 			}
 			break;
-		case DL2CIT_OP_PLUS:
-			p_result = _plus2(pArgList->GetByN(1), pArgList->GetByN(2));
-			break;
-		case DL2CIT_OP_MINUS:
-			p_result = _minus2(pArgList->GetByN(1), pArgList->GetByN(2));
-			break;
-		case DL2CIT_OP_MULT:
-			p_result = _mult2(pArgList->GetByN(1), pArgList->GetByN(2));
-			break;
-		case DL2CIT_OP_DIV:
-			p_result = _div2(pArgList->GetByN(1), pArgList->GetByN(2));
-			break;
+		case DL2CIT_OP_UPLUS: p_result = DL2_CI::Copy(pArgList->GetByN(1)); break;
+		case DL2CIT_OP_PLUS: p_result = _plus2(pArgList->GetByN(1), pArgList->GetByN(2)); break;
+		case DL2CIT_OP_MINUS: p_result = _minus2(pArgList->GetByN(1), pArgList->GetByN(2)); break;
+		case DL2CIT_OP_MULT: p_result = _mult2(pArgList->GetByN(1), pArgList->GetByN(2)); break;
+		case DL2CIT_OP_DIV: p_result = _div2(pArgList->GetByN(1), pArgList->GetByN(2)); break;
 		default:
 			PPSetError(PPERR_DL200_UNDEFOP);
 	}
@@ -658,7 +649,7 @@ int SLAPI DL2_Data::Write(DL2_Storage * pStrg) const
 {
 	int    ok = 1;
 	uint   i;
-	uint32 c = P_Columns ? P_Columns->getCount() : 0;
+	const  uint32 c = SVectorBase::GetCount(P_Columns);
 	FILE * f = pStrg->P_Stream;
 	THROW(DL2_Group::Write(pStrg));
 	SLibError = SLERR_WRITEFAULT;
@@ -729,7 +720,7 @@ int SLAPI DL2_Data::SearchColumnByName(const char * pName, uint * pPos, DL2_Colu
 
 uint SLAPI DL2_Data::GetColumnsCount() const
 {
-	return P_Columns ? P_Columns->getCount() : 0;
+	return SVectorBase::GetCount(P_Columns);
 }
 
 const DL2_Column * SLAPI DL2_Data::GetColumn(uint pos) const
@@ -1004,10 +995,7 @@ SLAPI DL2_ObjList::DL2_ObjList() : SCollection()
 }
 
 //virtual
-void FASTCALL DL2_ObjList::freeItem(void * ptr)
-{
-	delete ((Item *)ptr);
-}
+void FASTCALL DL2_ObjList::freeItem(void * ptr) { delete ((Item *)ptr); }
 
 int SLAPI DL2_ObjList::Set(PPID objType, StringSet * pSs, int32 * pId)
 {
