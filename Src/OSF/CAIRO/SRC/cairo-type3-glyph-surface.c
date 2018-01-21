@@ -45,7 +45,7 @@ static cairo_status_t _cairo_type3_glyph_surface_clipper_intersect_clip_path(cai
 {
 	cairo_type3_glyph_surface_t * surface = cairo_container_of(clipper, cairo_type3_glyph_surface_t, clipper);
 	if(path == NULL) {
-		_cairo_output_stream_printf(surface->stream, "Q q\n");
+		_cairo_output_stream_puts(surface->stream, "Q q\n");
 		return CAIRO_STATUS_SUCCESS;
 	}
 	return _cairo_pdf_operators_clip(&surface->pdf_operators, path, fill_rule);
@@ -92,7 +92,7 @@ static cairo_status_t _cairo_type3_glyph_surface_emit_image(cairo_type3_glyph_su
 	    image_matrix->xx, image_matrix->xy, image_matrix->yx, image_matrix->yy, image_matrix->x0, image_matrix->y0);
 	status = surface->emit_image(image, surface->stream);
 	cairo_surface_destroy(&image->base);
-	_cairo_output_stream_printf(surface->stream, "Q\n");
+	_cairo_output_stream_puts(surface->stream, "Q\n");
 	return status;
 }
 
@@ -366,12 +366,12 @@ cairo_status_t _cairo_type3_glyph_surface_emit_glyph(void * abstract_surface,
 		if(unlikely(status))
 			goto FAIL;
 		_cairo_type3_glyph_surface_set_stream(surface, mem_stream);
-		_cairo_output_stream_printf(surface->stream, "q\n");
+		_cairo_output_stream_puts(surface->stream, "q\n");
 		status = _cairo_recording_surface_replay(scaled_glyph->recording_surface, &surface->base);
 		status2 = _cairo_pdf_operators_flush(&surface->pdf_operators);
 		if(status == CAIRO_INT_STATUS_SUCCESS)
 			status = status2;
-		_cairo_output_stream_printf(surface->stream, "Q\n");
+		_cairo_output_stream_puts(surface->stream, "Q\n");
 		_cairo_type3_glyph_surface_set_stream(surface, stream);
 		if(status == CAIRO_INT_STATUS_SUCCESS)
 			_cairo_memory_stream_copy(mem_stream, stream);

@@ -250,28 +250,23 @@ int ENGINE_ctrl_cmd_string(ENGINE * e, const char * cmd_name, const char * arg,
 		return 0;
 	}
 	if(!ENGINE_cmd_is_executable(e, num)) {
-		ENGINEerr(ENGINE_F_ENGINE_CTRL_CMD_STRING,
-		    ENGINE_R_CMD_NOT_EXECUTABLE);
+		ENGINEerr(ENGINE_F_ENGINE_CTRL_CMD_STRING, ENGINE_R_CMD_NOT_EXECUTABLE);
 		return 0;
 	}
-
 	flags = ENGINE_ctrl(e, ENGINE_CTRL_GET_CMD_FLAGS, num, 0, 0);
 	if(flags < 0) {
 		/*
-		 * Shouldn't happen, given that ENGINE_cmd_is_executable() returned
-		 * success.
+		 * Shouldn't happen, given that ENGINE_cmd_is_executable() returned success.
 		 */
-		ENGINEerr(ENGINE_F_ENGINE_CTRL_CMD_STRING,
-		    ENGINE_R_INTERNAL_LIST_ERROR);
+		ENGINEerr(ENGINE_F_ENGINE_CTRL_CMD_STRING, ENGINE_R_INTERNAL_LIST_ERROR);
 		return 0;
 	}
 	/*
 	 * If the command takes no input, there must be no input. And vice versa.
 	 */
 	if(flags & ENGINE_CMD_FLAG_NO_INPUT) {
-		if(arg != NULL) {
-			ENGINEerr(ENGINE_F_ENGINE_CTRL_CMD_STRING,
-			    ENGINE_R_COMMAND_TAKES_NO_INPUT);
+		if(arg) {
+			ENGINEerr(ENGINE_F_ENGINE_CTRL_CMD_STRING, ENGINE_R_COMMAND_TAKES_NO_INPUT);
 			return 0;
 		}
 		/*
@@ -286,8 +281,7 @@ int ENGINE_ctrl_cmd_string(ENGINE * e, const char * cmd_name, const char * arg,
 	}
 	/* So, we require input */
 	if(!arg) {
-		ENGINEerr(ENGINE_F_ENGINE_CTRL_CMD_STRING,
-		    ENGINE_R_COMMAND_TAKES_INPUT);
+		ENGINEerr(ENGINE_F_ENGINE_CTRL_CMD_STRING, ENGINE_R_COMMAND_TAKES_INPUT);
 		return 0;
 	}
 	/* If it takes string input, that's easy */
@@ -316,8 +310,5 @@ int ENGINE_ctrl_cmd_string(ENGINE * e, const char * cmd_name, const char * arg,
 	 * Force the result of the control command to 0 or 1, for the reasons
 	 * mentioned before.
 	 */
-	if(ENGINE_ctrl(e, num, l, NULL, NULL) > 0)
-		return 1;
-	return 0;
+	return (ENGINE_ctrl(e, num, l, NULL, NULL) > 0) ? 1 : 0;
 }
-

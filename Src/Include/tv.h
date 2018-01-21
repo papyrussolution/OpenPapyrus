@@ -51,14 +51,8 @@ public:
 	//
 	virtual int SearchText(const char * pText, long * pID, SString & rBuf);
 	virtual StrAssocArray * GetList(const char * pText);
-	long   GetFlags() const
-	{
-		return Flags;
-	}
-	bool   IsTextMode() const
-	{
-		return CtrlTextMode;
-	}
+	long   GetFlags() const { return Flags; }
+	bool   IsTextMode() const { return CtrlTextMode; }
 	void   SetTextMode(bool v);
 	void   SetData(long id, const char * pText);
 	//
@@ -2940,6 +2934,8 @@ private:
 	uint   VirtButtonId;
 };
 
+#define TIMAGEVIEW_USE_FIG // @v9.5.6
+
 class TImageView : public TView {
 public:
 	TImageView(const TRect & rBounds, const char * pFigSymb);
@@ -2948,10 +2944,12 @@ public:
 private:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual int    handleWindowsMessage(UINT, WPARAM, LPARAM);
-	void * P_Image_GDIP;
 	SDrawFigure * P_Fig;
 	SString FigSymb; // @v9.5.6 Символ векторной фигуры для отображения //
 	SColor ReplacedColor; // @v9.6.5 Замещаемый цвет в векторном изображении
+#ifndef TIMAGEVIEW_USE_FIG
+	void * P_Image_GDIP;
+#endif
 };
 
 class TButton : public TView {
@@ -3009,10 +3007,7 @@ public:
 	int    setDataAssoc(long);
 	int    getDataAssoc(long *);
 	int    getItemByAssoc(long val, int * pItem) const;
-	int    getKind() const
-	{
-		return (int)Kind;
-	}
+	int    getKind() const { return (int)Kind; }
 	// @v9.1.3 virtual int Paint_(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 protected:
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -3343,7 +3338,7 @@ public:
 		stLButtonDown                = 0x0008,  // Левая кнопка мыши нажата на списке
 		stInited                     = 0x0010,  // Выставляется функцией SmartListBox::onInit.
 		stLBIsLinkedUISrchTextBlock  = 0x0020,  // Окно поиска будет прилинковано непосредственно к списку. При уничтожении фокус будет попадать на список.
-		stOmitSearchByFirstChar      = 0x0040   // @v9.8.11 Не обрабатывать ввод символа как сигнал к поиску 
+		stOmitSearchByFirstChar      = 0x0040   // @v9.8.11 Не обрабатывать ввод символа как сигнал к поиску
 	};
 
 	SmartListBox(const TRect & rRect, ListBoxDef * pDef, int isTree = 0);
@@ -4041,10 +4036,7 @@ public:
 	};
 
     int    InitUiToolBox();
-	/*const*/ SPaintToolBox & GetUiToolBox() /*const*/
-	{
-		return UiToolBox;
-	}
+	/*const*/ SPaintToolBox & GetUiToolBox() /*const*/ { return UiToolBox; }
 	const SDrawFigure * LoadDrawFigureBySymb(const char * pSymb, TWhatmanToolArray::Item * pInfo) const;
 
 	static TProgram * application;   // @global
@@ -4146,11 +4138,7 @@ public:
 	enum {
 		fShowOnCenter      = 0x00000001,
 		fShowOnCursor      = 0x00000002,
-		//
-		fTextAlignLeft     = 0x00000010,
-		//
-		//
-		//
+		fTextAlignLeft     = 0x00000010, // Текст выравнивается по левой границе окна. В противном случае - по центру.
 		fCloseOnMouseLeave = 0x00000100,
 		fOpaque            = 0x00000200, // Не прозрачный фон
 		fSizeByText        = 0x00000400,
@@ -4175,10 +4163,7 @@ public:
 	int    Paint();
 	int    Move();
 	int    DoCommand(TPoint p);
-	void * GetImage()
-	{
-		return P_Image;
-	}
+	void * GetImage() { return P_Image; }
 	COLORREF Color;
 	HBRUSH   Brush;
 	WNDPROC PrevImgProc;
@@ -4875,7 +4860,7 @@ protected:
 	virtual TBaseBrowserWindow::IdentBlock & GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk);
 	//
 	// Descr: Функция экспорта в Excel вынесена в виде виртуального метода из-за того, что
-	//   слой SLIB не имеет собственного механизма экспорта данных в Excel. 
+	//   слой SLIB не имеет собственного механизма экспорта данных в Excel.
 	//   Модуль верхнего уровня должен самостоятельно реализовать этот метод.
 	//
 	virtual int ExportToExcel();

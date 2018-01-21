@@ -48,8 +48,8 @@ typedef enum {
 } X509_LOOKUP_TYPE;
 
 #if OPENSSL_API_COMPAT < 0x10100000L
-#define X509_LU_RETRY   -1
-#define X509_LU_FAIL    0
+	#define X509_LU_RETRY   -1
+	#define X509_LU_FAIL    0
 #endif
 
 DEFINE_STACK_OF(X509_LOOKUP)
@@ -58,41 +58,30 @@ DEFINE_STACK_OF(X509_VERIFY_PARAM)
 
 int X509_STORE_set_depth(X509_STORE *store, int depth);
 
-typedef int (*X509_STORE_CTX_verify_cb)(int, X509_STORE_CTX *);
-typedef int (*X509_STORE_CTX_verify_fn)(X509_STORE_CTX *);
-typedef int (*X509_STORE_CTX_get_issuer_fn)(X509 **issuer,
-                                            X509_STORE_CTX *ctx, X509 *x);
-typedef int (*X509_STORE_CTX_check_issued_fn)(X509_STORE_CTX *ctx,
-                                              X509 *x, X509 *issuer);
-typedef int (*X509_STORE_CTX_check_revocation_fn)(X509_STORE_CTX *ctx);
-typedef int (*X509_STORE_CTX_get_crl_fn)(X509_STORE_CTX *ctx,
-                                         X509_CRL **crl, X509 *x);
-typedef int (*X509_STORE_CTX_check_crl_fn)(X509_STORE_CTX *ctx, X509_CRL *crl);
-typedef int (*X509_STORE_CTX_cert_crl_fn)(X509_STORE_CTX *ctx,
-                                          X509_CRL *crl, X509 *x);
-typedef int (*X509_STORE_CTX_check_policy_fn)(X509_STORE_CTX *ctx);
-typedef STACK_OF(X509) *(*X509_STORE_CTX_lookup_certs_fn)(X509_STORE_CTX *ctx,
-                                                          X509_NAME *nm);
-typedef STACK_OF(X509_CRL) *(*X509_STORE_CTX_lookup_crls_fn)(X509_STORE_CTX *ctx,
-                                                             X509_NAME *nm);
-typedef int (*X509_STORE_CTX_cleanup_fn)(X509_STORE_CTX *ctx);
+/*@funcdef*/typedef int (*X509_STORE_CTX_verify_cb)(int, X509_STORE_CTX *);
+/*@funcdef*/typedef int (*X509_STORE_CTX_verify_fn)(X509_STORE_CTX *);
+/*@funcdef*/typedef int (*X509_STORE_CTX_get_issuer_fn)(X509 **issuer, X509_STORE_CTX *ctx, X509 *x);
+/*@funcdef*/typedef int (*X509_STORE_CTX_check_issued_fn)(X509_STORE_CTX *ctx, X509 *x, X509 *issuer);
+/*@funcdef*/typedef int (*X509_STORE_CTX_check_revocation_fn)(X509_STORE_CTX *ctx);
+/*@funcdef*/typedef int (*X509_STORE_CTX_get_crl_fn)(X509_STORE_CTX *ctx, X509_CRL **crl, X509 *x);
+/*@funcdef*/typedef int (*X509_STORE_CTX_check_crl_fn)(X509_STORE_CTX *ctx, X509_CRL *crl);
+/*@funcdef*/typedef int (*X509_STORE_CTX_cert_crl_fn)(X509_STORE_CTX *ctx, X509_CRL *crl, X509 *x);
+/*@funcdef*/typedef int (*X509_STORE_CTX_check_policy_fn)(X509_STORE_CTX *ctx);
+/*@funcdef*/typedef STACK_OF(X509) *(*X509_STORE_CTX_lookup_certs_fn)(X509_STORE_CTX *ctx, X509_NAME *nm);
+/*@funcdef*/typedef STACK_OF(X509_CRL) *(*X509_STORE_CTX_lookup_crls_fn)(X509_STORE_CTX *ctx, X509_NAME *nm);
+/*@funcdef*/typedef int (*X509_STORE_CTX_cleanup_fn)(X509_STORE_CTX *ctx);
 
 
 void X509_STORE_CTX_set_depth(X509_STORE_CTX *ctx, int depth);
 
-#define X509_STORE_CTX_set_app_data(ctx,data) \
-        X509_STORE_CTX_set_ex_data(ctx,0,data)
-#define X509_STORE_CTX_get_app_data(ctx) \
-        X509_STORE_CTX_get_ex_data(ctx,0)
+#define X509_STORE_CTX_set_app_data(ctx,data) X509_STORE_CTX_set_ex_data(ctx,0,data)
+#define X509_STORE_CTX_get_app_data(ctx) X509_STORE_CTX_get_ex_data(ctx,0)
 
 #define X509_L_FILE_LOAD        1
 #define X509_L_ADD_DIR          2
 
-#define X509_LOOKUP_load_file(x,name,type) \
-                X509_LOOKUP_ctrl((x),X509_L_FILE_LOAD,(name),(long)(type),NULL)
-
-#define X509_LOOKUP_add_dir(x,name,type) \
-                X509_LOOKUP_ctrl((x),X509_L_ADD_DIR,(name),(long)(type),NULL)
+#define X509_LOOKUP_load_file(x,name,type) X509_LOOKUP_ctrl((x),X509_L_FILE_LOAD,(name),(long)(type),NULL)
+#define X509_LOOKUP_add_dir(x,name,type)   X509_LOOKUP_ctrl((x),X509_L_ADD_DIR,(name),(long)(type),NULL)
 
 #define         X509_V_OK                                       0
 #define         X509_V_ERR_UNSPECIFIED                          1

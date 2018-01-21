@@ -4572,6 +4572,7 @@ PPTXT_NALOGRU_UPDOPCONTENT        "Товары переданы и услуги
 
 PPTXT_ARMASSUPD_UPD               "Изменена статья аналитического учета '@zstr'"
 PPTXT_ARMASSUPD_UPD_CRAGT         "Изменена статья аналитического учета '@zstr' (создано соглашение)"
+PPTXT_DBINCONTINUOUSMODE          "Одна или более таблиц базы данных находятся в continuous-состоянии.\nПроконсультируйтесь с администратором системы."
 //
 // LastText
 

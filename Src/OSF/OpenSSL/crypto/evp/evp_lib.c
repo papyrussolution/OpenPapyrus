@@ -435,7 +435,7 @@ void EVP_MD_CTX_set_update_fn(EVP_MD_CTX * ctx,
 	ctx->update = update;
 }
 
-void EVP_MD_CTX_set_flags(EVP_MD_CTX * ctx, int flags)
+void FASTCALL EVP_MD_CTX_set_flags(EVP_MD_CTX * ctx, int flags)
 {
 	ctx->flags |= flags;
 }
@@ -445,7 +445,7 @@ void EVP_MD_CTX_clear_flags(EVP_MD_CTX * ctx, int flags)
 	ctx->flags &= ~flags;
 }
 
-int EVP_MD_CTX_test_flags(const EVP_MD_CTX * ctx, int flags)
+int FASTCALL EVP_MD_CTX_test_flags(const EVP_MD_CTX * ctx, int flags)
 {
 	return (ctx->flags & flags);
 }

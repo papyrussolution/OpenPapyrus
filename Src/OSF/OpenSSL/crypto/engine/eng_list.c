@@ -105,7 +105,6 @@ static int engine_list_add(ENGINE * e)
 static int engine_list_remove(ENGINE * e)
 {
 	ENGINE * iterator;
-
 	if(!e) {
 		ENGINEerr(ENGINE_F_ENGINE_LIST_REMOVE, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
@@ -115,8 +114,7 @@ static int engine_list_remove(ENGINE * e)
 	while(iterator && (iterator != e))
 		iterator = iterator->next;
 	if(iterator == NULL) {
-		ENGINEerr(ENGINE_F_ENGINE_LIST_REMOVE,
-		    ENGINE_R_ENGINE_IS_NOT_IN_LIST);
+		ENGINEerr(ENGINE_F_ENGINE_LIST_REMOVE, ENGINE_R_ENGINE_IS_NOT_IN_LIST);
 		return 0;
 	}
 	/* un-link e from the chain. */
@@ -137,12 +135,10 @@ static int engine_list_remove(ENGINE * e)
 ENGINE * ENGINE_get_first(void)
 {
 	ENGINE * ret;
-
 	if(!RUN_ONCE(&engine_lock_init, do_engine_lock_init)) {
 		ENGINEerr(ENGINE_F_ENGINE_GET_FIRST, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-
 	CRYPTO_THREAD_write_lock(global_engine_lock);
 	ret = engine_list_head;
 	if(ret) {
@@ -156,12 +152,10 @@ ENGINE * ENGINE_get_first(void)
 ENGINE * ENGINE_get_last(void)
 {
 	ENGINE * ret;
-
 	if(!RUN_ONCE(&engine_lock_init, do_engine_lock_init)) {
 		ENGINEerr(ENGINE_F_ENGINE_GET_LAST, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
-
 	CRYPTO_THREAD_write_lock(global_engine_lock);
 	ret = engine_list_tail;
 	if(ret) {

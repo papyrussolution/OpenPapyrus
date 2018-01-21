@@ -130,9 +130,8 @@ public:
 		expWeakAlc,
 		expWoTareBeer
 	};
-	SLAPI  PPSupplExchange_Baltika(PrcssrSupplInterchange::ExecuteBlock & rEb) : PrcssrSupplInterchange::ExecuteBlock(rEb)
+	SLAPI  PPSupplExchange_Baltika(PrcssrSupplInterchange::ExecuteBlock & rEb) : PrcssrSupplInterchange::ExecuteBlock(rEb), KegUnitID(-1)
 	{
-		KegUnitID = -1;
 	}
 	int    SLAPI Init(/*const SupplExpFilt * pFilt*/);
 	int    SLAPI Import(const char * pPath);
@@ -215,14 +214,8 @@ int SLAPI PPSupplExchange_Baltika::GetSerial(PPID lotID, PPID goodsID, SString &
 
 class SoapExporter {
 public:
-	SLAPI SoapExporter(bool flatStruc = false)
+	SLAPI SoapExporter(bool flatStruc = false) : HeaderRecCount(0), LinesRecCount(0), FilesCount(0), MaxTransmitSize(0), AddedRecType(0), FlatStruc(flatStruc)
 	{
-		HeaderRecCount = 0;
-		LinesRecCount = 0;
-		FilesCount = 0;
-		MaxTransmitSize = 0;
-		AddedRecType = 0;
-		FlatStruc = flatStruc;
 	}
 	void   SetMaxTransmitSize(uint32 maxTransmitSize)
 	{
@@ -1250,8 +1243,8 @@ int SLAPI PPSupplExchange_Baltika::GetBarcode(PPID goodsID, char * pBuf, size_t 
 
 IMPL_CMPFUNC(Sdr_BaltikaBillItemAttrs, i1, i2)
 {
-	Sdr_BaltikaBillItemAttrs * p_i1 = (Sdr_BaltikaBillItemAttrs*)i1;
-	Sdr_BaltikaBillItemAttrs * p_i2 = (Sdr_BaltikaBillItemAttrs*)i2;
+	const Sdr_BaltikaBillItemAttrs * p_i1 = (const Sdr_BaltikaBillItemAttrs*)i1;
+	const Sdr_BaltikaBillItemAttrs * p_i2 = (const Sdr_BaltikaBillItemAttrs*)i2;
 	int r = stricmp866(p_i1->DocumentNumber, p_i2->DocumentNumber);
 	if(r == 0)
 		r = stricmp866(p_i1->WareId, p_i2->WareId);
@@ -3300,7 +3293,16 @@ int SLAPI iSalesPepsi::ReceiveRouts(TSCollection <iSalesRoutePacket> & rResult)
 	TSCollection <iSalesRoutePacket> * p_result = 0;
 	ISALESGETROUTELIST_PROC func = 0;
 	DateRange period;
-	period.Set(encodedate(1, 1, 2016), encodedate(31, 12, 2030));
+	// @v9.9.0 period.Set(encodedate(1, 1, 2016), encodedate(31, 12, 2030));
+	// @v9.9.0 {
+	if(P.ExpPeriod.low && P.ExpPeriod.upp) {
+		period = P.ExpPeriod;
+	}
+	else {
+		const LDATE curdt = getcurdate_();
+		period.Set(curdt, curdt);
+	}
+	// } @v9.9.0
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
@@ -5446,21 +5448,13 @@ SupplInterchangeFilt & FASTCALL SupplInterchangeFilt::operator = (const SupplExp
 //
 //
 //
-SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock()
+SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock() : P_BObj(BillObj), SeqID(0), BaseState(0)
 {
-	P_BObj = BillObj;
-	SeqID = 0;
-	BaseState = 0;
 }
 
-SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock(const ExecuteBlock & rS)
+SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock(const ExecuteBlock & rS) : 
+	P_BObj(BillObj), Ep(rS.Ep), P(rS.P), SeqID(Ep.Fb.SequenceID), BaseState(rS.BaseState), GoodsList(rS.GoodsList)
 {
-	P_BObj = BillObj;
-	Ep = rS.Ep;
-	P = rS.P;
-	SeqID = Ep.Fb.SequenceID;
-	BaseState = rS.BaseState;
-	GoodsList = rS.GoodsList;
 }
 
 #if 0 // @v9.6.2 {
@@ -5575,10 +5569,8 @@ int SLAPI PrcssrSupplInterchange::ExecuteBlock::GetSequence(long * pSeq, int use
 //
 //
 //
-SLAPI PrcssrSupplInterchange::PrcssrSupplInterchange()
+SLAPI PrcssrSupplInterchange::PrcssrSupplInterchange() : State(0), P_Eb(0)
 {
-	State = 0;
-	P_Eb = 0;
 }
 
 SLAPI PrcssrSupplInterchange::~PrcssrSupplInterchange()

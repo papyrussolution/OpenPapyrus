@@ -104,6 +104,7 @@
 //                  (для того, чтобы программиста не смущала неспособность слишком "умной" IDE найти это определение)
 // @firstmember   - Помечается переменная-член структуры (класса), местонахождение которой на первой позиции
 //                  экспериментально обосновано.
+// @funcdef       - Помечаются typedef-определения функций.
 //
 // @todo Повторная загрузка на асинхронный узел всех объектов, начиная с заданной записи журнала загрузки
 // @todo В примитивы бизнес-показателей добавить фильтрацию по группам
@@ -42747,7 +42748,7 @@ public:
 	const  char * SLAPI ReadLine();
 	const  SMailMessage & SLAPI GetHeader() const { return Msg; }
 	int    SLAPI SaveAttachment(const char * pAttachName, const char * pDestPath);
-	int    SLAPI SaveOrder(const char * pDestPath);
+	// @v9.9.0 int SLAPI SaveOrder(const char * pDestPath);
 private:
 	int    SLAPI ReadHeader();
 	int    SLAPI ReadDisposition(SMailMessage & rMsg, SMailMessage::ContentDispositionBlock * pD);
@@ -42775,7 +42776,7 @@ public:
 	// Descr: Инициирует запись учетной записи.
 	//   Не реализует никаких действий по соединению.
 	//
-	int    SLAPI Init(const PPInternetAccount *);
+	void   SLAPI Init(const PPInternetAccount *);
 	int    SLAPI Connect();
 	int    SLAPI Disconnect();
 protected:
@@ -42802,13 +42803,8 @@ public:
 	int    SLAPI DeleteMsg(long msgN);                                   // cmd DELE
 
 	int    SLAPI SaveAttachment(const char * pMsgFileName, const char * pAttachName, const char * pDestPath);
-	int    SLAPI SaveOrder(const char * pMsgFileName, const char * pDestPath);
-	/*
-	int    SLAPI IsLogged()
-	{
-		return Logged;
-	}
-	*/
+	// @v9.9.0 int    SLAPI SaveOrder(const char * pMsgFileName, const char * pDestPath);
+	// int    SLAPI IsLogged() { return Logged; }
 protected:
 	virtual int SLAPI FinalizeServerUrl(InetUrl & rUrl);
 private:
@@ -46366,8 +46362,7 @@ public:
 		double BaseAmount;
 		LDATE  CRateDate;
 	};
-	CurAmtCtrlGroup(uint amtCID, uint curSelCID,
-		uint crateCID, uint baseAmtCID, uint dateCID, uint selCRateCmd, AmtList * pAmtList);
+	CurAmtCtrlGroup(uint amtCID, uint curSelCID, uint crateCID, uint baseAmtCID, uint dateCID, uint selCRateCmd, AmtList * pAmtList);
 	~CurAmtCtrlGroup();
 	virtual int setData(TDialog *, void *); // (CurAmtCtrlGroup::Rec *)
 	virtual int getData(TDialog *, void *); // (CurAmtCtrlGroup::Rec *)
@@ -46376,12 +46371,12 @@ private:
 	void   setupCurRate(TDialog *, int fromBase);
 	void   setupCurrencyCombo(TDialog *, PPIDArray *);
 
-	uint   AmtCID;
-	uint   CurSelCID;
-	uint   CRateCID;
-	uint   BaseAmtCID;
-	uint   SelCRateCmd;
-	uint   DateCID;
+	const uint AmtCID;
+	const uint CurSelCID;
+	const uint CRateCID;
+	const uint BaseAmtCID;
+	const uint SelCRateCmd;
+	const uint DateCID;
 	LDATE  CRateDate;
 	Rec    Data;
 	AmtList * P_AL;
@@ -49101,7 +49096,7 @@ SString & FASTCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, l
 //
 int    SLAPI PPRemoveFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList, uint * pSuccCount, uint * pErrCount);
 int    SLAPI PPRemoveFilesByExt(const char * pSrc, const char * pExt, uint * pSuccCount, uint * pErrCount);
-int    SLAPI GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long filtFlags, int clean, int deleMsg);
+// @v9.9.0 (replaced with GetFilesFromMailServer2) int    SLAPI GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long filtFlags, int clean, int deleMsg);
 int    SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long filtFlags, int clean, int deleMsg);
 //
 // Передает выборку файлов по адресу pDestAddr, используя учетную запись mailAccID

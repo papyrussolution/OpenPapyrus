@@ -865,7 +865,6 @@ int SLAPI PPViewLot::RecoverLots()
 	long   err_lot_count = 0;
 	int    modified = 0;
 	LotRecoverParam param;
-	LotViewItem  lv_item;
 	PPLogger logger;
 	UintHashTable goods_list;
 	PPIDArray loc_list;
@@ -878,6 +877,7 @@ int SLAPI PPViewLot::RecoverLots()
 		PPLoadText(PPTXT_CHECKLOTS, msg_buf);
 		logger.Log(msg_buf);
 		{
+			Transfer * p_trfr = P_BObj->trfr;
 			if(param.Flags) {
 				THROW(PPStartTransaction(&ta, 1));
 				THROW(P_BObj->atobj->P_Tbl->LockingFRR(1, &frrl_tag, 0));
@@ -885,35 +885,49 @@ int SLAPI PPViewLot::RecoverLots()
 					THROW(neg_rest_pack.CreateBlank2(param.MinusCompensOpID, getcurdate_(), Filt.LocID, 0));
 				}
 			}
-			for(InitIteration(); NextIteration(&lv_item) > 0;) {
-				PPLotFaultArray ary(lv_item.ID, logger);
-				THROW(r = P_BObj->trfr->CheckLot(lv_item.ID, 0, param.Flags, &ary));
-				if(r < 0) {
-					err_lot_count++;
-					ary.AddMessage();
-					if(param.Flags & (TLRF_REPAIR|TLRF_ADJUNUQSERIAL|TLRF_SETALCCODETOGOODS|TLRF_SETALCCODETOLOTS)) {
-						THROW(P_BObj->trfr->RecoverLot(lv_item.ID, &ary, param.Flags, 0));
-						modified = 1;
-					}
+			// @v9.9.0 {
+			PPIDArray lot_id_list;
+			{
+				LotViewItem  lv_item;
+				for(InitIteration(); NextIteration(&lv_item) > 0;) {
+					lot_id_list.add(lv_item.ID);
 				}
-				{
-					PPLotFault nf;
-					uint   nf_pos = 0;
-					if(neg_rest_pack.Rec.OpID && lv_item.GoodsID > 0 && lv_item.Rest < 0.0 && ary.HasFault(PPLotFault::NegativeRest, &nf, &nf_pos)) {
-						if(ary.getCount() == 1) {
-							PPTransferItem ti(&neg_rest_pack.Rec, TISIGN_UNDEF);
-							THROW(ti.SetupGoods(lv_item.GoodsID, 0));
-							THROW(ti.SetupLot(lv_item.ID, &lv_item, 0));
-							ti.Flags &= ~PPTFR_RECEIPT;
-							ti.Quantity_ = -lv_item.Rest;
-							ti.TFlags |= PPTransferItem::tfForceNoRcpt;
-							THROW(neg_rest_pack.InsertRow(&ti, 0, 0));
+			}
+			// } @v9.9.0
+			// @v9.9.0 for(InitIteration(); NextIteration(&lv_item) > 0;) {
+			for(uint ididx = 0; ididx < lot_id_list.getCount(); ididx++) { // @v9.9.0
+				const PPID _lot_id = lot_id_list.get(ididx);
+				ReceiptTbl::Rec lot_rec;
+				if(p_trfr->Rcpt.Search(_lot_id, &lot_rec) > 0) {
+					PPLotFaultArray ary(_lot_id, logger);
+					THROW(r = p_trfr->CheckLot(_lot_id, 0, param.Flags, &ary));
+					if(r < 0) {
+						err_lot_count++;
+						ary.AddMessage();
+						if(param.Flags & (TLRF_REPAIR|TLRF_ADJUNUQSERIAL|TLRF_SETALCCODETOGOODS|TLRF_SETALCCODETOLOTS)) {
+							THROW(p_trfr->RecoverLot(_lot_id, &ary, param.Flags, 0));
+							modified = 1;
 						}
 					}
+					{
+						PPLotFault nf;
+						uint   nf_pos = 0;
+						if(neg_rest_pack.Rec.OpID && lot_rec.GoodsID > 0 && lot_rec.Rest < 0.0 && ary.HasFault(PPLotFault::NegativeRest, &nf, &nf_pos)) {
+							if(ary.getCount() == 1) {
+								PPTransferItem ti(&neg_rest_pack.Rec, TISIGN_UNDEF);
+								THROW(ti.SetupGoods(lot_rec.GoodsID, 0));
+								THROW(ti.SetupLot(_lot_id, &lot_rec, 0));
+								ti.Flags &= ~PPTFR_RECEIPT;
+								ti.Quantity_ = -lot_rec.Rest;
+								ti.TFlags |= PPTransferItem::tfForceNoRcpt;
+								THROW(neg_rest_pack.InsertRow(&ti, 0, 0));
+							}
+						}
+					}
+					goods_list.Add((ulong)labs(lot_rec.GoodsID));
+					loc_list.addUnique(lot_rec.LocID);
 				}
-				goods_list.Add((ulong)labs(lv_item.GoodsID));
-				loc_list.addUnique(lv_item.LocID);
-				PPWaitPercent(GetCounter());
+				PPWaitPercent(ididx+1, lot_id_list.getCount());
 			}
 			if(neg_rest_pack.GetTCount()) {
 				neg_rest_pack.InitAmounts();
@@ -2690,7 +2704,7 @@ PPALDD_CONSTRUCTOR(Lots)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 

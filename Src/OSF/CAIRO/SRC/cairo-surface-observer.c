@@ -1216,9 +1216,9 @@ static const char * operator_names[] = {
 
 static void print_operators(cairo_output_stream_t * stream, uint * array)
 {
-	_cairo_output_stream_printf(stream, "  op:");
+	_cairo_output_stream_puts(stream, "  op:");
 	print_array(stream, array, operator_names, NUM_OPERATORS);
-	_cairo_output_stream_printf(stream, "\n");
+	_cairo_output_stream_puts(stream, "\n");
 }
 
 static const char * fill_rule_names[] = {
@@ -1228,9 +1228,9 @@ static const char * fill_rule_names[] = {
 
 static void print_fill_rule(cairo_output_stream_t * stream, uint * array)
 {
-	_cairo_output_stream_printf(stream, "  fill rule:");
+	_cairo_output_stream_puts(stream, "  fill rule:");
 	print_array(stream, array, fill_rule_names, SIZEOFARRAY(fill_rule_names));
-	_cairo_output_stream_printf(stream, "\n");
+	_cairo_output_stream_puts(stream, "\n");
 }
 
 static void print_line_caps(cairo_output_stream_t * stream, uint * array)
@@ -1240,9 +1240,9 @@ static void print_line_caps(cairo_output_stream_t * stream, uint * array)
 		"round", /* CAIRO_LINE_CAP_ROUND */
 		"square" /* CAIRO_LINE_CAP_SQUARE */
 	};
-	_cairo_output_stream_printf(stream, "  caps:");
+	_cairo_output_stream_puts(stream, "  caps:");
 	print_array(stream, array, cap_names, NUM_CAPS);
-	_cairo_output_stream_printf(stream, "\n");
+	_cairo_output_stream_puts(stream, "\n");
 }
 
 static void print_line_joins(cairo_output_stream_t * stream, uint * array)
@@ -1252,9 +1252,9 @@ static void print_line_joins(cairo_output_stream_t * stream, uint * array)
 		"round", /* CAIRO_LINE_JOIN_ROUND */
 		"bevel", /* CAIRO_LINE_JOIN_BEVEL */
 	};
-	_cairo_output_stream_printf(stream, "  joins:");
+	_cairo_output_stream_puts(stream, "  joins:");
 	print_array(stream, array, join_names, NUM_JOINS);
-	_cairo_output_stream_printf(stream, "\n");
+	_cairo_output_stream_puts(stream, "\n");
 }
 
 static const char * antialias_names[] = {
@@ -1269,9 +1269,9 @@ static const char * antialias_names[] = {
 
 static void print_antialias(cairo_output_stream_t * stream, uint * array)
 {
-	_cairo_output_stream_printf(stream, "  antialias:");
+	_cairo_output_stream_puts(stream, "  antialias:");
 	print_array(stream, array, antialias_names, NUM_ANTIALIAS);
-	_cairo_output_stream_printf(stream, "\n");
+	_cairo_output_stream_puts(stream, "\n");
 }
 
 static const char * pattern_names[] = {
@@ -1289,7 +1289,7 @@ static void print_pattern(cairo_output_stream_t * stream, const char * name, con
 {
 	_cairo_output_stream_printf(stream, "  %s:", name);
 	print_array(stream, p->type, pattern_names, SIZEOFARRAY(pattern_names));
-	_cairo_output_stream_printf(stream, "\n");
+	_cairo_output_stream_puts(stream, "\n");
 }
 
 static const char * path_names[] = {
@@ -1301,9 +1301,9 @@ static const char * path_names[] = {
 };
 static void print_path(cairo_output_stream_t * stream, const struct path * p)
 {
-	_cairo_output_stream_printf(stream, "  path:");
+	_cairo_output_stream_puts(stream, "  path:");
 	print_array(stream, p->type, path_names, SIZEOFARRAY(path_names));
-	_cairo_output_stream_printf(stream, "\n");
+	_cairo_output_stream_puts(stream, "\n");
 }
 
 static const char * clip_names[] = {
@@ -1317,9 +1317,9 @@ static const char * clip_names[] = {
 
 static void print_clip(cairo_output_stream_t * stream, const struct clip * c)
 {
-	_cairo_output_stream_printf(stream, "  clip:");
+	_cairo_output_stream_puts(stream, "  clip:");
 	print_array(stream, c->type, clip_names, SIZEOFARRAY(clip_names));
-	_cairo_output_stream_printf(stream, "\n");
+	_cairo_output_stream_puts(stream, "\n");
 }
 
 static void print_record(cairo_output_stream_t * stream, cairo_observation_record_t * r)
@@ -1397,9 +1397,9 @@ static void _cairo_observation_print(cairo_output_stream_t * stream, cairo_obser
 		print_clip(stream, &log->paint.clip);
 		_cairo_output_stream_printf(stream, "slowest paint: %f%%\n", percent(log->paint.slowest.elapsed, log->paint.elapsed));
 		print_record(stream, &log->paint.slowest);
-		_cairo_output_stream_printf(stream, "\n");
+		_cairo_output_stream_puts(stream, "\n");
 		if(replay_record(log, &log->paint.slowest, script))
-			_cairo_output_stream_printf(stream, "\n\n");
+			_cairo_output_stream_puts(stream, "\n\n");
 	}
 	_cairo_output_stream_printf(stream, "mask: count %d [no-op %d], elapsed %f [%f%%]\n",
 	    log->mask.count, log->mask.noop, _cairo_time_to_ns(log->mask.elapsed), percent(log->mask.elapsed, total));
@@ -1411,9 +1411,9 @@ static void _cairo_observation_print(cairo_output_stream_t * stream, cairo_obser
 		print_clip(stream, &log->mask.clip);
 		_cairo_output_stream_printf(stream, "slowest mask: %f%%\n", percent(log->mask.slowest.elapsed, log->mask.elapsed));
 		print_record(stream, &log->mask.slowest);
-		_cairo_output_stream_printf(stream, "\n");
+		_cairo_output_stream_puts(stream, "\n");
 		if(replay_record(log, &log->mask.slowest, script))
-			_cairo_output_stream_printf(stream, "\n\n");
+			_cairo_output_stream_puts(stream, "\n\n");
 	}
 	_cairo_output_stream_printf(stream, "fill: count %d [no-op %d], elaspsed %f [%f%%]\n",
 	    log->fill.count, log->fill.noop, _cairo_time_to_ns(log->fill.elapsed), percent(log->fill.elapsed, total));
@@ -1427,9 +1427,9 @@ static void _cairo_observation_print(cairo_output_stream_t * stream, cairo_obser
 		print_clip(stream, &log->fill.clip);
 		_cairo_output_stream_printf(stream, "slowest fill: %f%%\n", percent(log->fill.slowest.elapsed, log->fill.elapsed));
 		print_record(stream, &log->fill.slowest);
-		_cairo_output_stream_printf(stream, "\n");
+		_cairo_output_stream_puts(stream, "\n");
 		if(replay_record(log, &log->fill.slowest, script))
-			_cairo_output_stream_printf(stream, "\n\n");
+			_cairo_output_stream_puts(stream, "\n\n");
 	}
 	_cairo_output_stream_printf(stream, "stroke: count %d [no-op %d], elapsed %f [%f%%]\n",
 	    log->stroke.count, log->stroke.noop, _cairo_time_to_ns(log->stroke.elapsed), percent(log->stroke.elapsed, total));
@@ -1444,9 +1444,9 @@ static void _cairo_observation_print(cairo_output_stream_t * stream, cairo_obser
 		print_clip(stream, &log->stroke.clip);
 		_cairo_output_stream_printf(stream, "slowest stroke: %f%%\n", percent(log->stroke.slowest.elapsed, log->stroke.elapsed));
 		print_record(stream, &log->stroke.slowest);
-		_cairo_output_stream_printf(stream, "\n");
+		_cairo_output_stream_puts(stream, "\n");
 		if(replay_record(log, &log->stroke.slowest, script))
-			_cairo_output_stream_printf(stream, "\n\n");
+			_cairo_output_stream_puts(stream, "\n\n");
 	}
 	_cairo_output_stream_printf(stream, "glyphs: count %d [no-op %d], elasped %f [%f%%]\n",
 	    log->glyphs.count, log->glyphs.noop, _cairo_time_to_ns(log->glyphs.elapsed), percent(log->glyphs.elapsed, total));
@@ -1457,9 +1457,9 @@ static void _cairo_observation_print(cairo_output_stream_t * stream, cairo_obser
 		print_clip(stream, &log->glyphs.clip);
 		_cairo_output_stream_printf(stream, "slowest glyphs: %f%%\n", percent(log->glyphs.slowest.elapsed, log->glyphs.elapsed));
 		print_record(stream, &log->glyphs.slowest);
-		_cairo_output_stream_printf(stream, "\n");
+		_cairo_output_stream_puts(stream, "\n");
 		if(replay_record(log, &log->glyphs.slowest, script))
-			_cairo_output_stream_printf(stream, "\n\n");
+			_cairo_output_stream_puts(stream, "\n\n");
 	}
 	cairo_device_destroy(script);
 }

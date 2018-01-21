@@ -81,9 +81,7 @@ int FASTCALL CRYPTO_THREAD_run_once(CRYPTO_ONCE * once, void (* init)(void))
 int CRYPTO_THREAD_init_local(CRYPTO_THREAD_LOCAL * key, void (* cleanup)(void *))
 {
 	*key = TlsAlloc();
-	if(*key == TLS_OUT_OF_INDEXES)
-		return 0;
-	return 1;
+	return (*key == TLS_OUT_OF_INDEXES) ? 0 : 1;
 }
 
 void * CRYPTO_THREAD_get_local(CRYPTO_THREAD_LOCAL * key)
@@ -93,16 +91,12 @@ void * CRYPTO_THREAD_get_local(CRYPTO_THREAD_LOCAL * key)
 
 int CRYPTO_THREAD_set_local(CRYPTO_THREAD_LOCAL * key, void * val)
 {
-	if(TlsSetValue(*key, val) == 0)
-		return 0;
-	return 1;
+	return (TlsSetValue(*key, val) == 0) ? 0 : 1;
 }
 
 int CRYPTO_THREAD_cleanup_local(CRYPTO_THREAD_LOCAL * key)
 {
-	if(TlsFree(*key) == 0)
-		return 0;
-	return 1;
+	return (TlsFree(*key) == 0) ? 0 : 1;
 }
 
 CRYPTO_THREAD_ID CRYPTO_THREAD_get_current_id(void)
@@ -115,7 +109,7 @@ int CRYPTO_THREAD_compare_id(CRYPTO_THREAD_ID a, CRYPTO_THREAD_ID b)
 	return (a == b);
 }
 
-int CRYPTO_atomic_add(int * val, int amount, int * ret, CRYPTO_RWLOCK * lock)
+int FASTCALL CRYPTO_atomic_add(int * val, int amount, int * ret, CRYPTO_RWLOCK * lock)
 {
 	*ret = InterlockedExchangeAdd((LONG *)val, (LONG)amount) + amount;
 	return 1;

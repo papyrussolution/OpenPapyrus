@@ -59,33 +59,27 @@ DSO * DSO_new(void)
 	return DSO_new_method(NULL);
 }
 
-int DSO_free(DSO * dso)
+int FASTCALL DSO_free(DSO * dso)
 {
 	int i;
-
 	if(dso == NULL)
 		return 1;
-
 	if(CRYPTO_atomic_add(&dso->references, -1, &i, dso->lock) <= 0)
 		return 0;
-
 	REF_PRINT_COUNT("DSO", dso);
 	if(i > 0)
 		return 1;
 	REF_ASSERT_ISNT(i < 0);
-
 	if((dso->flags & DSO_FLAG_NO_UNLOAD_ON_FREE) == 0) {
 		if((dso->meth->dso_unload != NULL) && !dso->meth->dso_unload(dso)) {
 			DSOerr(DSO_F_DSO_FREE, DSO_R_UNLOAD_FAILED);
 			return 0;
 		}
 	}
-
 	if((dso->meth->finish != NULL) && !dso->meth->finish(dso)) {
 		DSOerr(DSO_F_DSO_FREE, DSO_R_FINISH_FAILED);
 		return 0;
 	}
-
 	sk_void_free(dso->meth_data);
 	OPENSSL_free(dso->filename);
 	OPENSSL_free(dso->loaded_filename);
@@ -102,7 +96,6 @@ int DSO_flags(DSO * dso)
 int DSO_up_ref(DSO * dso)
 {
 	int i;
-
 	if(dso == NULL) {
 		DSOerr(DSO_F_DSO_UP_REF, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;

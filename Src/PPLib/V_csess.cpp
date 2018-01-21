@@ -2835,7 +2835,7 @@ PPALDD_CONSTRUCTOR(CSessionView)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -2884,7 +2884,7 @@ PPALDD_CONSTRUCTOR(CSessExc)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 

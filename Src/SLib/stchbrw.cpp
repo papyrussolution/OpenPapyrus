@@ -72,9 +72,13 @@ int STimeChunkGrid::GetChunksByTime(const STimeChunk & rRange, STimeChunkAssocAr
 		const STimeChunkAssocArray * p_row = at(i);
 		for(uint j = 0; j < p_row->getCount(); j++) {
 			const STimeChunkAssoc * p_item = (const STimeChunkAssoc *)p_row->at(j);
-			if(p_item->Chunk.Intersect(rRange, 0) > 0) {
-				rList.Add(p_item->Id, p_item->Status, &p_item->Chunk, 0);
-				ok = 1;
+			STimeChunk intersection;
+			if(p_item->Chunk.Intersect(rRange, &intersection) > 0) {
+				const long _dur = intersection.GetDuration();
+				if(_dur != 0) {
+					rList.Add(p_item->Id, p_item->Status, &p_item->Chunk, 0);
+					ok = 1;
+				}
 			}
 		}
 	}
@@ -527,15 +531,11 @@ const STimeChunkBrowser::SRect * FASTCALL STimeChunkBrowser::SRectArray::SearchP
 	return 0;
 }
 
-STimeChunkBrowser::STimeChunkBrowser() : TBaseBrowserWindow(WndClsName)
+STimeChunkBrowser::STimeChunkBrowser() : TBaseBrowserWindow(WndClsName), BmpId_ModeGantt(0), BmpId_ModeHourDay(0), P_Tt(0), Flags(0)
 {
-	BmpId_ModeGantt = 0;
-	BmpId_ModeHourDay = 0;
-	P_Tt = 0;
 	P.Quant = 12 * 60;
 	P.PixQuant = 20;
-	P.PixRow   = 20;
-	Flags = 0;
+	P.PixRow = 20;
 	P_Data = &DataStub;
 	MEMSZERO(St);
 	Ptb.SetColor(colorHeader,     RGB(0x77, 0x88, 0x99) /*темно-темно-серый*/);  // Цвет отрисовки заголовка таблицы
@@ -662,11 +662,6 @@ int STimeChunkBrowser::RestoreParameters(STimeChunkBrowser::Param & rParam)
 	return ok;
 }
 
-TRect STimeChunkBrowser::GetMargin() const
-{
-	return TRect(2, 0, 2, 0);
-}
-
 int STimeChunkBrowser::SetData(STimeChunkGrid * pGrid, int takeAnOwnership)
 {
 	if(pGrid) {
@@ -684,10 +679,8 @@ int STimeChunkBrowser::SetData(STimeChunkGrid * pGrid, int takeAnOwnership)
 	return 1;
 }
 
-int FASTCALL STimeChunkBrowser::IsKeepingData(const STimeChunkGrid * pGrid) const
-{
-	return BIN(P_Data == pGrid);
-}
+TRect STimeChunkBrowser::GetMargin() const { return TRect(2, 0, 2, 0); }
+int FASTCALL STimeChunkBrowser::IsKeepingData(const STimeChunkGrid * pGrid) const { return BIN(P_Data == pGrid); }
 
 void STimeChunkBrowser::UpdateData()
 {
@@ -2085,15 +2078,8 @@ int STimeChunkBrowser::ChunkToRectX(uint leftEdge, const STimeChunk & rChunk, co
 		return 1;
 }
 
-int FASTCALL STimeChunkBrowser::SecToPix(long t) const
-{
-	return (((long)P.PixQuant) * t) / (long)P.Quant;
-}
-
-long FASTCALL STimeChunkBrowser::PixToSec(int  p) const
-{
-	return (((long)P.Quant) * p) / (long)P.PixQuant;
-}
+int FASTCALL STimeChunkBrowser::SecToPix(long t) const  { return (((long)P.PixQuant) * t) / (long)P.Quant; }
+long FASTCALL STimeChunkBrowser::PixToSec(int  p) const { return (((long)P.Quant) * p) / (long)P.PixQuant; }
 
 long STimeChunkBrowser::DiffTime(const LDATETIME & rEnd, const LDATETIME & rStart) const
 {
@@ -2390,7 +2376,7 @@ int STimeChunkBrowser::CopyToClipboard()
 							cell_buf.Z();
 							for(uint i = 0; i < chunk_list.getCount(); i++) {
 								const STimeChunkAssoc * p_chunk = (const STimeChunkAssoc *)chunk_list.at(i);
-								GetChunkText(p_chunk->Id, temp_buf.Z());
+								GetChunkText(p_chunk->Id, temp_buf);
 								if(cell_buf.NotEmpty())
 									cell_buf.CR();
 								cell_buf.Cat(temp_buf);

@@ -413,10 +413,8 @@ int SLAPI ViewGoodsMov(int modeless)
 {
 	int    ok = -1;
 	GoodsMovFilt  filt;
-	PPViewBrowser * p_prev_win = 0;
 	PPViewGoodsMov * p_v = new PPViewGoodsMov;
-	if(modeless)
-		p_prev_win = (PPViewBrowser *)PPFindLastBrowser();
+	PPViewBrowser * p_prev_win = modeless ? (PPViewBrowser *)PPFindLastBrowser() : 0;
 	if(p_prev_win) {
 		THROW(filt.Copy(p_prev_win->P_View->GetBaseFilt(), 1));
 	}

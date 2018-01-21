@@ -179,7 +179,7 @@ BroColumn::BroColumn()
 //
 //
 //
-TBaseBrowserWindow::TBaseBrowserWindow(LPCTSTR pWndClsName) : TWindow(TRect(1, 1, 50, 20), 0, 0), 
+TBaseBrowserWindow::TBaseBrowserWindow(LPCTSTR pWndClsName) : TWindow(TRect(1, 1, 50, 20), 0, 0),
 	ResourceID(0), ClsName(pWndClsName), ToolbarID(0), BbState(0)
 {
 	//WoScrollbars = false;
@@ -2114,7 +2114,7 @@ int BrowserWindow::WMHScrollMult(int sbEvent, int thumbPos, long * pOldTop)
 			recalc_heights = 0;
 	}
 	if(!recalc_heights) {
-		P_Def->getScrollData(&scrll_delta, (LPLONG) & VScrollPos);
+		P_Def->getScrollData(&scrll_delta, (LPLONG)&VScrollPos);
 		recalc_heights = scrll_delta ? 1 : 0;
 	}
 	//
@@ -2195,7 +2195,7 @@ int BrowserWindow::WMHScroll(int sbType, int sbEvent, int thumbPos)
 				default:;
 			}
 		}
-		P_Def->getScrollData(&scrll_delta, (LPLONG) & VScrollPos);
+		P_Def->getScrollData(&scrll_delta, (LPLONG)&VScrollPos);
 		if(res) {
 			// AHTOXA {
 			RECT prev_line_rect = RectCursors.LineCursor;
@@ -2739,6 +2739,7 @@ int BrowserWindow::RegWindowClass(HINSTANCE hInst)
 
 int BrowserWindow::search(void * pPattern, CompFunc fcmp, int srchMode)
 {
+	int    ok = 0;
 	if(P_Def && P_Def->search(pPattern, fcmp, srchMode, HScrollPos)) {
 		long   scrll_delta, scrll_pos;
 		P_Def->getScrollData(&scrll_delta, &scrll_pos);
@@ -2746,7 +2747,7 @@ int BrowserWindow::search(void * pPattern, CompFunc fcmp, int srchMode)
 		ItemRect(HScrollPos, VScrollPos, &RectCursors.CellCursor, TRUE);
 		LineRect(VScrollPos, &RectCursors.LineCursor, TRUE);
 		AdjustCursorsForHdr();
-		return 1;
+		ok = 1;
 	}
 	else if(fcmp == SrchFunc) {
 		SendMessage(H(), WM_KEYDOWN, VK_END, 0L);
@@ -2762,7 +2763,7 @@ int BrowserWindow::search(void * pPattern, CompFunc fcmp, int srchMode)
 			}
 		}
 	}
-	return 0;
+	return ok;
 }
 
 void BrowserWindow::search(char * pFirstLetter, int srchMode)

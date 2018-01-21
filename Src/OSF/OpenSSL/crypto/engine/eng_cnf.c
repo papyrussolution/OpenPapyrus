@@ -15,23 +15,19 @@
 
 /* ENGINE config module */
 
-static const char * skip_dot(const char * name)
+static const char * FASTCALL skip_dot(const char * name)
 {
 	const char * p = strchr(name, '.');
-
-	if(p != NULL)
-		return p + 1;
-	return name;
+	return p ? (p + 1) : name;
 }
 
-static STACK_OF(ENGINE) *initialized_engines = NULL;
+static STACK_OF(ENGINE) * initialized_engines = NULL;
 
 static int int_engine_init(ENGINE * e)
 {
 	if(!ENGINE_init(e))
 		return 0;
-	if(!initialized_engines)
-		initialized_engines = sk_ENGINE_new_null();
+	SETIFZ(initialized_engines, sk_ENGINE_new_null());
 	if(!initialized_engines || !sk_ENGINE_push(initialized_engines, e)) {
 		ENGINE_finish(e);
 		return 0;
@@ -49,20 +45,16 @@ static int int_engine_configure(const char * name, const char * value, const CON
 	const char * ctrlname, * ctrlvalue;
 	ENGINE * e = NULL;
 	int soft = 0;
-
 	name = skip_dot(name);
 #ifdef ENGINE_CONF_DEBUG
 	fprintf(stderr, "Configuring engine %s\n", name);
 #endif
 	/* Value is a section containing ENGINE commands */
 	ecmds = NCONF_get_section(cnf, value);
-
 	if(!ecmds) {
-		ENGINEerr(ENGINE_F_INT_ENGINE_CONFIGURE,
-		    ENGINE_R_ENGINE_SECTION_ERROR);
+		ENGINEerr(ENGINE_F_INT_ENGINE_CONFIGURE, ENGINE_R_ENGINE_SECTION_ERROR);
 		return 0;
 	}
-
 	for(i = 0; i < sk_CONF_VALUE_num(ecmds); i++) {
 		ecmd = sk_CONF_VALUE_value(ecmds, i);
 		ctrlname = skip_dot(ecmd->name);
@@ -117,8 +109,7 @@ static int int_engine_configure(const char * name, const char * value, const CON
 						goto err;
 				}
 				else if(do_init != 0) {
-					ENGINEerr(ENGINE_F_INT_ENGINE_CONFIGURE,
-					    ENGINE_R_INVALID_INIT_VALUE);
+					ENGINEerr(ENGINE_F_INT_ENGINE_CONFIGURE, ENGINE_R_INVALID_INIT_VALUE);
 					goto err;
 				}
 			}
@@ -151,31 +142,25 @@ static int int_engine_module_init(CONF_IMODULE * md, const CONF * cnf)
 	CONF_VALUE * cval;
 	int i;
 #ifdef ENGINE_CONF_DEBUG
-	fprintf(stderr, "Called engine module: name %s, value %s\n",
-	    CONF_imodule_get_name(md), CONF_imodule_get_value(md));
+	fprintf(stderr, "Called engine module: name %s, value %s\n", CONF_imodule_get_name(md), CONF_imodule_get_value(md));
 #endif
 	/* Value is a section containing ENGINEs to configure */
 	elist = NCONF_get_section(cnf, CONF_imodule_get_value(md));
-
 	if(!elist) {
-		ENGINEerr(ENGINE_F_INT_ENGINE_MODULE_INIT,
-		    ENGINE_R_ENGINES_SECTION_ERROR);
+		ENGINEerr(ENGINE_F_INT_ENGINE_MODULE_INIT, ENGINE_R_ENGINES_SECTION_ERROR);
 		return 0;
 	}
-
 	for(i = 0; i < sk_CONF_VALUE_num(elist); i++) {
 		cval = sk_CONF_VALUE_value(elist, i);
 		if(!int_engine_configure(cval->name, cval->value, cnf))
 			return 0;
 	}
-
 	return 1;
 }
 
 static void int_engine_module_finish(CONF_IMODULE * md)
 {
 	ENGINE * e;
-
 	while((e = sk_ENGINE_pop(initialized_engines)))
 		ENGINE_finish(e);
 	sk_ENGINE_free(initialized_engines);
@@ -184,7 +169,6 @@ static void int_engine_module_finish(CONF_IMODULE * md)
 
 void ENGINE_add_conf_module(void)
 {
-	CONF_module_add("engines",
-	    int_engine_module_init, int_engine_module_finish);
+	CONF_module_add("engines", int_engine_module_init, int_engine_module_finish);
 }
 

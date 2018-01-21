@@ -22,9 +22,9 @@ static int ipv4_from_asc(uchar * v4, const char * in);
 static int ipv6_from_asc(uchar * v6, const char * in);
 static int ipv6_cb(const char * elem, int len, void * usr);
 static int ipv6_hex(uchar * out, const char * in, int inlen);
-
-/* Add a CONF_VALUE name value pair to stack */
-
+//
+// Add a CONF_VALUE name value pair to stack 
+//
 int X509V3_add_value(const char * name, const char * value, STACK_OF(CONF_VALUE) ** extlist)
 {
 	CONF_VALUE * vtmp = NULL;
@@ -425,34 +425,31 @@ void X509_email_free(STACK_OF(OPENSSL_STRING) * sk)
 	sk_OPENSSL_STRING_pop_free(sk, str_free);
 }
 
-typedef int (*equal_fn)(const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, uint flags);
-
-/* Skip pattern prefix to match "wildcard" subject */
+/*@funcdef*/typedef int (*equal_fn)(const uchar * pattern, size_t pattern_len, const uchar * subject, size_t subject_len, uint flags);
+//
+// Skip pattern prefix to match "wildcard" subject 
+//
 static void skip_prefix(const uchar ** p, size_t * plen, size_t subject_len, uint flags)
 {
-	const uchar * pattern = *p;
-	size_t pattern_len = *plen;
-	/*
-	 * If subject starts with a leading '.' followed by more octets, and
-	 * pattern is longer, compare just an equal-length suffix with the
-	 * full subject (starting at the '.'), provided the prefix contains
-	 * no NULs.
-	 */
-	if((flags & _X509_CHECK_FLAG_DOT_SUBDOMAINS) == 0)
-		return;
-
-	while(pattern_len > subject_len && *pattern) {
-		if((flags & X509_CHECK_FLAG_SINGLE_LABEL_SUBDOMAINS) &&
-		    *pattern == '.')
-			break;
-		++pattern;
-		--pattern_len;
-	}
-
-	/* Skip if entire prefix acceptable */
-	if(pattern_len == subject_len) {
-		*p = pattern;
-		*plen = pattern_len;
+	// 
+	// If subject starts with a leading '.' followed by more octets, and
+	// pattern is longer, compare just an equal-length suffix with the
+	// full subject (starting at the '.'), provided the prefix contains no NULs.
+	// 
+	if(flags & _X509_CHECK_FLAG_DOT_SUBDOMAINS) {
+		const uchar * pattern = *p;
+		size_t pattern_len = *plen;
+		while(pattern_len > subject_len && *pattern) {
+			if((flags & X509_CHECK_FLAG_SINGLE_LABEL_SUBDOMAINS) && *pattern == '.')
+				break;
+			++pattern;
+			--pattern_len;
+		}
+		// Skip if entire prefix acceptable 
+		if(pattern_len == subject_len) {
+			*p = pattern;
+			*plen = pattern_len;
+		}
 	}
 }
 
@@ -688,8 +685,7 @@ static int do_x509_check(X509 * x, const char * chk, size_t chklen, uint flags, 
 	int san_present = 0;
 	int rv = 0;
 	equal_fn equal;
-
-	/* See below, this flag is internal-only */
+	// See below, this flag is internal-only 
 	flags &= ~_X509_CHECK_FLAG_DOT_SUBDOMAINS;
 	if(check_type == GEN_EMAIL) {
 		cnid = NID_pkcs9_emailAddress;
@@ -711,37 +707,32 @@ static int do_x509_check(X509 * x, const char * chk, size_t chklen, uint flags, 
 		alt_type = V_ASN1_OCTET_STRING;
 		equal = equal_case;
 	}
-
-	if(chklen == 0)
-		chklen = strlen(chk);
-
+	SETIFZ(chklen, strlen(chk));
 	gens = (GENERAL_NAMES*)X509_get_ext_d2i(x, NID_subject_alt_name, 0, 0);
 	if(gens) {
 		for(i = 0; i < sk_GENERAL_NAME_num(gens); i++) {
-			GENERAL_NAME * gen;
-			ASN1_STRING * cstr;
-			gen = sk_GENERAL_NAME_value(gens, i);
-			if(gen->type != check_type)
-				continue;
-			san_present = 1;
-			if(check_type == GEN_EMAIL)
-				cstr = gen->d.rfc822Name;
-			else if(check_type == GEN_DNS)
-				cstr = gen->d.dNSName;
-			else
-				cstr = gen->d.iPAddress;
-			/* Positive on success, negative on error! */
-			if((rv = do_check_string(cstr, alt_type, equal, flags,
-					    chk, chklen, peername)) != 0)
-				break;
+			GENERAL_NAME * gen = sk_GENERAL_NAME_value(gens, i);
+			if(gen->type == check_type) {
+				ASN1_STRING * cstr;
+				san_present = 1;
+				if(check_type == GEN_EMAIL)
+					cstr = gen->d.rfc822Name;
+				else if(check_type == GEN_DNS)
+					cstr = gen->d.dNSName;
+				else
+					cstr = gen->d.iPAddress;
+				// Positive on success, negative on error! 
+				if((rv = do_check_string(cstr, alt_type, equal, flags, chk, chklen, peername)) != 0)
+					break;
+			}
 		}
 		GENERAL_NAMES_free(gens);
-		if(rv != 0)
+		if(rv)
 			return rv;
-		if(san_present && !(flags & X509_CHECK_FLAG_ALWAYS_CHECK_SUBJECT))
+		else if(san_present && !(flags & X509_CHECK_FLAG_ALWAYS_CHECK_SUBJECT))
 			return 0;
 	}
-	/* We're done if CN-ID is not pertinent */
+	// We're done if CN-ID is not pertinent 
 	if(cnid == NID_undef || (flags & X509_CHECK_FLAG_NEVER_CHECK_SUBJECT))
 		return 0;
 	i = -1;
@@ -749,7 +740,7 @@ static int do_x509_check(X509 * x, const char * chk, size_t chklen, uint flags, 
 	while((i = X509_NAME_get_index_by_NID(name, cnid, i)) >= 0) {
 		const X509_NAME_ENTRY * ne = X509_NAME_get_entry(name, i);
 		const ASN1_STRING * str = X509_NAME_ENTRY_get_data(ne);
-		/* Positive on success, negative on error! */
+		// Positive on success, negative on error! 
 		if((rv = do_check_string(str, -1, equal, flags, chk, chklen, peername)) != 0)
 			return rv;
 	}
@@ -794,23 +785,19 @@ int X509_check_email(X509 * x, const char * chk, size_t chklen, uint flags)
 
 int X509_check_ip(X509 * x, const uchar * chk, size_t chklen, uint flags)
 {
-	if(chk == NULL)
-		return -2;
-	return do_x509_check(x, (char*)chk, chklen, flags, GEN_IPADD, 0);
+	return chk ? do_x509_check(x, (char*)chk, chklen, flags, GEN_IPADD, 0) : -2;
 }
 
 int X509_check_ip_asc(X509 * x, const char * ipasc, uint flags)
 {
-	uchar ipout[16];
-	size_t iplen;
 	if(ipasc == NULL)
 		return -2;
-	iplen = (size_t)a2i_ipadd(ipout, ipasc);
-	if(iplen == 0)
-		return -2;
-	return do_x509_check(x, (char*)ipout, iplen, flags, GEN_IPADD, 0);
+	else {
+		uchar ipout[16];
+		const size_t iplen = (size_t)a2i_ipadd(ipout, ipasc);
+		return iplen ? do_x509_check(x, (char*)ipout, iplen, flags, GEN_IPADD, 0) : -2;
+	}
 }
-
 /*
  * Convert IP addresses both IPv4 and IPv6 into an OCTET STRING compatible
  * with RFC3280.
@@ -894,14 +881,10 @@ static int ipv4_from_asc(uchar * v4, const char * in)
 }
 
 typedef struct {
-	/* Temporary store for IPV6 output */
-	uchar tmp[16];
-	/* Total number of bytes in tmp */
-	int total;
-	/* The position of a zero (corresponding to '::') */
-	int zero_pos;
-	/* Number of zeroes */
-	int zero_cnt;
+	uchar tmp[16]; /* Temporary store for IPV6 output */
+	int total; /* Total number of bytes in tmp */
+	int zero_pos; /* The position of a zero (corresponding to '::') */
+	int zero_cnt; /* Number of zeroes */
 } IPV6_STAT;
 
 static int ipv6_from_asc(uchar * v6, const char * in)
@@ -1062,4 +1045,3 @@ int X509V3_NAME_from_section(X509_NAME * nm, STACK_OF(CONF_VALUE) * dn_sk, ulong
 	}
 	return 1;
 }
-

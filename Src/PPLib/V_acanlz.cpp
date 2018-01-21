@@ -2360,7 +2360,7 @@ PPALDD_CONSTRUCTOR(AccAnlz)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -2461,7 +2461,7 @@ PPALDD_CONSTRUCTOR(AccturnList)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -2525,7 +2525,7 @@ PPALDD_CONSTRUCTOR(AccountView)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -2676,7 +2676,7 @@ PPALDD_CONSTRUCTOR(CurRateView)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 

@@ -9,9 +9,9 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 
-typedef int sk_cmp_fn_type (const char * const * a, const char * const * b);
+/*@funcdef*/typedef int sk_cmp_fn_type(const char * const * a, const char * const * b);
 
-static STACK_OF(EVP_PKEY_METHOD) *app_pkey_methods = NULL;
+static STACK_OF(EVP_PKEY_METHOD) * app_pkey_methods = NULL;
 
 static const EVP_PKEY_METHOD * standard_methods[] = {
 #ifndef OPENSSL_NO_RSA

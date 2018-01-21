@@ -85,22 +85,12 @@ void SLAPI DBQBrowserDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 	*pScrollPos = 500L;
 }
 
-int SLAPI DBQBrowserDef::valid()
-{
-	return !query->error;
-}
-
 void SLAPI DBQBrowserDef::setupView()
 {
 	topItem = query->P_Frame->top;
 	curItem = query->P_Frame->cur;
 	isBOQ = query->P_Frame->state & DBQuery::Frame::Top;
 	isEOQ = query->P_Frame->state & DBQuery::Frame::Bottom;
-}
-
-int FASTCALL DBQBrowserDef::go(long p)
-{
-	return step(p-curItem);
 }
 
 int FASTCALL DBQBrowserDef::step(long d)
@@ -131,22 +121,9 @@ int SLAPI DBQBrowserDef::refresh()
 	return r;
 }
 
-long  SLAPI DBQBrowserDef::getRecsCount()
-{
-	return query->P_Frame->srange+1;
-}
-
-void * FASTCALL DBQBrowserDef::getRow(long r)
-{
-	return query->getRecord((uint)r);
-}
-
-int FASTCALL DBQBrowserDef::getData(void *)
-{
-	return 1;
-}
-
-int FASTCALL DBQBrowserDef::setData(void *)
-{
-	return 1;
-}
+int    SLAPI DBQBrowserDef::valid() { return !query->error; }
+int    FASTCALL DBQBrowserDef::go(long p) { return step(p-curItem); }
+long   SLAPI DBQBrowserDef::getRecsCount() { return query->P_Frame->srange+1; }
+void * FASTCALL DBQBrowserDef::getRow(long r) { return query->getRecord((uint)r); }
+int    FASTCALL DBQBrowserDef::getData(void *) { return 1; }
+int    FASTCALL DBQBrowserDef::setData(void *) { return 1; }

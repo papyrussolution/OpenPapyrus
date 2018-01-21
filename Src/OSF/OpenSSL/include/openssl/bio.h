@@ -214,7 +214,7 @@ void FASTCALL BIO_clear_flags(BIO *b, int flags);
 #define BIO_cb_pre(a)   (!((a)&BIO_CB_RETURN))
 #define BIO_cb_post(a)  ((a)&BIO_CB_RETURN)
 
-typedef long (*BIO_callback_fn)(BIO *b, int oper, const char *argp, int argi, long argl, long ret);
+/*@funcdef*/typedef long (*BIO_callback_fn)(BIO *b, int oper, const char *argp, int argi, long argl, long ret);
 BIO_callback_fn BIO_get_callback(const BIO *b);
 void BIO_set_callback(BIO *b, BIO_callback_fn callback);
 char *BIO_get_callback_arg(const BIO *b);
@@ -222,15 +222,15 @@ void BIO_set_callback_arg(BIO *b, char *arg);
 
 struct bio_method_st;
 typedef struct bio_method_st BIO_METHOD;
-const char *BIO_method_name(const BIO *b);
+const char * BIO_method_name(const BIO *b);
 int BIO_method_type(const BIO *b);
 
-typedef void bio_info_cb(BIO *, int, const char *, int, long, long);
+/*@funcdef*/typedef void bio_info_cb(BIO *, int, const char *, int, long, long);
 
 DEFINE_STACK_OF(BIO)
 
 /* Prefix and suffix callback in ASN1 BIO */
-typedef int asn1_ps_func(BIO *b, uchar **pbuf, int *plen, void *parg);
+/*@funcdef*/typedef int asn1_ps_func(BIO *b, uchar **pbuf, int *plen, void *parg);
 
 # ifndef OPENSSL_NO_SCTP
 /* SCTP parameter structs */
@@ -493,9 +493,9 @@ int BIO_asn1_get_suffix(BIO *b, asn1_ps_func **psuffix, asn1_ps_func **psuffix_f
 
 const BIO_METHOD *BIO_s_file(void);
 BIO *BIO_new_file(const char *filename, const char *mode);
-# ifndef OPENSSL_NO_STDIO
-BIO *BIO_new_fp(FILE *stream, int close_flag);
-# endif
+#ifndef OPENSSL_NO_STDIO
+	BIO *BIO_new_fp(FILE *stream, int close_flag);
+#endif
 BIO * FASTCALL BIO_new(const BIO_METHOD *type);
 int FASTCALL BIO_free(BIO *a);
 void BIO_set_data(BIO *a, void *ptr);
@@ -512,7 +512,7 @@ int FASTCALL BIO_write(BIO *b, const void *data, int len);
 int FASTCALL BIO_puts(BIO *bp, const char *buf);
 int BIO_indent(BIO *b, int indent, int max);
 long FASTCALL BIO_ctrl(BIO *bp, int cmd, long larg, void *parg);
-long BIO_callback_ctrl(BIO *b, int cmd, void (*fp) (BIO *, int, const char *, int, long, long));
+long BIO_callback_ctrl(BIO *b, int cmd, void (*fp)(BIO *, int, const char *, int, long, long));
 void *BIO_ptr_ctrl(BIO *bp, int cmd, long larg);
 long BIO_int_ctrl(BIO *bp, int cmd, long larg, int iarg);
 BIO *BIO_push(BIO *b, BIO *append);
@@ -575,23 +575,19 @@ int BIO_sock_non_fatal_error(int error);
 
 int BIO_fd_should_retry(int i);
 int BIO_fd_non_fatal_error(int error);
-int BIO_dump_cb(int (*cb) (const void *data, size_t len, void *u),
-                void *u, const char *s, int len);
-int BIO_dump_indent_cb(int (*cb) (const void *data, size_t len, void *u),
-                       void *u, const char *s, int len, int indent);
+int BIO_dump_cb(int (*cb) (const void *data, size_t len, void *u), void *u, const char *s, int len);
+int BIO_dump_indent_cb(int (*cb) (const void *data, size_t len, void *u), void *u, const char *s, int len, int indent);
 int BIO_dump(BIO *b, const char *bytes, int len);
 int BIO_dump_indent(BIO *b, const char *bytes, int len, int indent);
-# ifndef OPENSSL_NO_STDIO
-int BIO_dump_fp(FILE *fp, const char *s, int len);
-int BIO_dump_indent_fp(FILE *fp, const char *s, int len, int indent);
-# endif
-int BIO_hex_string(BIO *out, int indent, int width, uchar *data,
-                   int datalen);
+#ifndef OPENSSL_NO_STDIO
+	int BIO_dump_fp(FILE *fp, const char *s, int len);
+	int BIO_dump_indent_fp(FILE *fp, const char *s, int len, int indent);
+#endif
+int BIO_hex_string(BIO *out, int indent, int width, uchar *data, int datalen);
 
-# ifndef OPENSSL_NO_SOCK
+#ifndef OPENSSL_NO_SOCK
 BIO_ADDR *BIO_ADDR_new(void);
-int BIO_ADDR_rawmake(BIO_ADDR *ap, int family,
-                     const void *where, size_t wherelen, unsigned short port);
+int BIO_ADDR_rawmake(BIO_ADDR *ap, int family, const void *where, size_t wherelen, unsigned short port);
 void BIO_ADDR_free(BIO_ADDR *);
 void BIO_ADDR_clear(BIO_ADDR *ap);
 int BIO_ADDR_family(const BIO_ADDR *ap);
@@ -616,16 +612,14 @@ int BIO_parse_hostserv(const char *hostserv, char **host, char **service,
 enum BIO_lookup_type {
     BIO_LOOKUP_CLIENT, BIO_LOOKUP_SERVER
 };
-int BIO_lookup(const char *host, const char *service,
-               enum BIO_lookup_type lookup_type,
-               int family, int socktype, BIO_ADDRINFO **res);
+int BIO_lookup(const char *host, const char *service, enum BIO_lookup_type lookup_type, int family, int socktype, BIO_ADDRINFO **res);
 int BIO_sock_error(int sock);
 int BIO_socket_ioctl(int fd, long type, void *arg);
 int BIO_socket_nbio(int fd, int mode);
 int BIO_sock_init(void);
-# if OPENSSL_API_COMPAT < 0x10100000L
-#define BIO_sock_cleanup() while(0) continue
-# endif
+#if OPENSSL_API_COMPAT < 0x10100000L
+	#define BIO_sock_cleanup() while(0) continue
+#endif
 int BIO_set_tcp_ndelay(int sock, int turn_on);
 
 DEPRECATEDIN_1_1_0(struct hostent *BIO_gethostbyname(const char *name))
@@ -640,8 +634,7 @@ union BIO_sock_info_u {
 enum BIO_sock_info_type {
     BIO_SOCK_INFO_ADDRESS
 };
-int BIO_sock_info(int sock,
-                  enum BIO_sock_info_type type, union BIO_sock_info_u *info);
+int BIO_sock_info(int sock, enum BIO_sock_info_type type, union BIO_sock_info_u *info);
 
 #define BIO_SOCK_REUSEADDR    0x01
 #define BIO_SOCK_V6_ONLY      0x02
@@ -661,9 +654,7 @@ BIO *BIO_new_accept(const char *host_port);
 # endif /* OPENSSL_NO_SOCK*/
 
 BIO *BIO_new_fd(int fd, int close_flag);
-
-int BIO_new_bio_pair(BIO **bio1, size_t writebuf1,
-                     BIO **bio2, size_t writebuf2);
+int BIO_new_bio_pair(BIO **bio1, size_t writebuf1, BIO **bio2, size_t writebuf2);
 /*
  * If successful, returns 1 and in *bio1, *bio2 two BIO pair endpoints.
  * Otherwise returns 0 and sets *bio1 and *bio2 to NULL. Size 0 uses default

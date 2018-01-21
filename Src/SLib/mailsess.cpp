@@ -1,10 +1,12 @@
 // MAILSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2010, 2011, 2012, 2013, 2014, 2016, 2017
+// Copyright (c) A.Sobolev 2003, 2005, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
 #include <snet.h>
+
+#if 0 // @v9.9.0 (obsolete) {
 
 #define DEF_RDBUFSIZ 16384
 #define DEF_TIMEOUT  0
@@ -35,10 +37,8 @@ MailSession::MailSession(SOCKET s, struct sockaddr_in r)
 	clisock = s;
 }
 
-MailSession::MailSession(const char * dest, int port, int timeout) : P_Buf(0), BufSize(0), RealBufSize(0), Timeout(DEF_TIMEOUT)
+MailSession::MailSession(const char * dest, int port, int timeout) : P_Buf(0), BufSize(0), RealBufSize(0), Timeout(timeout ? timeout : DEF_TIMEOUT)
 {
-	if(timeout)
-		Timeout = timeout;
 	HOSTENT * p_host = gethostbyname(dest);
 	if(!p_host) {
 		SString added_msg;
@@ -51,13 +51,8 @@ MailSession::MailSession(const char * dest, int port, int timeout) : P_Buf(0), B
 		doConnect(*(int*)p_host->h_addr, port);
 }
 
-MailSession::MailSession(u_long ip, int port, int timeout)
+MailSession::MailSession(u_long ip, int port, int timeout) : P_Buf(0), BufSize(0), RealBufSize(0), Timeout(timeout ? timeout : DEF_TIMEOUT)
 {
-	P_Buf = 0;
-	BufSize = RealBufSize = 0;
-	Timeout = DEF_TIMEOUT;
-	if(timeout)
-		Timeout = timeout;
 	doConnect(ip, port);
 }
 
@@ -158,7 +153,7 @@ int MailSession::putLine(const char * pStr)
 	return putBuffer(pStr, strlen(pStr));
 }
 
-static char * searcheol(char * p, size_t len)
+static char * FASTCALL searcheol(char * p, size_t len)
 {
 	for(size_t n = 1; n < len; n++)
 		if(p[n] == '\xA' && p[n-1] == '\xD')
@@ -243,6 +238,7 @@ int MailSession::getLine(SString & rBuf)
 	ENDCATCH
 	return ok;
 }
+#endif // } 0 @v9.9.0 (obsolete)
 //
 //
 //

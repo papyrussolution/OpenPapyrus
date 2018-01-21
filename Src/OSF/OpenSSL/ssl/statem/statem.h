@@ -18,42 +18,28 @@
  * sending or receiving a message
  */
 typedef enum {
-    /* Something went wrong */
-    WORK_ERROR,
-    /* We're done working and there shouldn't be anything else to do after */
-    WORK_FINISHED_STOP,
-    /* We're done working move onto the next thing */
-    WORK_FINISHED_CONTINUE,
-    /* We're working on phase A */
-    WORK_MORE_A,
-    /* We're working on phase B */
-    WORK_MORE_B
+    WORK_ERROR, /* Something went wrong */
+    WORK_FINISHED_STOP, /* We're done working and there shouldn't be anything else to do after */
+    WORK_FINISHED_CONTINUE, /* We're done working move onto the next thing */
+    WORK_MORE_A, /* We're working on phase A */
+    WORK_MORE_B /* We're working on phase B */
 } WORK_STATE;
 
 /* Write transition return codes */
 typedef enum {
-    /* Something went wrong */
-    WRITE_TRAN_ERROR,
-    /* A transition was successfully completed and we should continue */
-    WRITE_TRAN_CONTINUE,
-    /* There is no more write work to be done */
-    WRITE_TRAN_FINISHED
+    WRITE_TRAN_ERROR, /* Something went wrong */
+    WRITE_TRAN_CONTINUE, /* A transition was successfully completed and we should continue */
+    WRITE_TRAN_FINISHED /* There is no more write work to be done */
 } WRITE_TRAN;
 
 /* Message flow states */
 typedef enum {
-    /* No handshake in progress */
-    MSG_FLOW_UNINITED,
-    /* A permanent error with this connection */
-    MSG_FLOW_ERROR,
-    /* We are about to renegotiate */
-    MSG_FLOW_RENEGOTIATE,
-    /* We are reading messages */
-    MSG_FLOW_READING,
-    /* We are writing messages */
-    MSG_FLOW_WRITING,
-    /* Handshake has finished */
-    MSG_FLOW_FINISHED
+    MSG_FLOW_UNINITED, /* No handshake in progress */
+    MSG_FLOW_ERROR, /* A permanent error with this connection */
+    MSG_FLOW_RENEGOTIATE, /* We are about to renegotiate */
+    MSG_FLOW_READING, /* We are reading messages */
+    MSG_FLOW_WRITING, /* We are writing messages */
+    MSG_FLOW_FINISHED /* Handshake has finished */
 } MSG_FLOW_STATE;
 
 /* Read states */
@@ -98,14 +84,10 @@ struct ossl_statem_st {
 #endif
 };
 typedef struct ossl_statem_st OSSL_STATEM;
-
-/*****************************************************************************
- *                                                                           *
- * The following macros/functions represent the libssl internal API to the   *
- * state machine. Any libssl code may call these functions/macros            *
- *                                                                           *
- *****************************************************************************/
-
+// 
+// The following macros/functions represent the libssl internal API to the
+// state machine. Any libssl code may call these functions/macros
+// 
 __owur int ossl_statem_accept(SSL *s);
 __owur int ossl_statem_connect(SSL *s);
 void ossl_statem_clear(SSL *s);
@@ -118,6 +100,6 @@ void ossl_statem_set_in_handshake(SSL *s, int inhand);
 void ossl_statem_set_hello_verify_done(SSL *s);
 __owur int ossl_statem_app_data_allowed(SSL *s);
 #ifndef OPENSSL_NO_SCTP
-void ossl_statem_set_sctp_read_sock(SSL *s, int read_sock);
-__owur int ossl_statem_in_sctp_read_sock(SSL *s);
+	void ossl_statem_set_sctp_read_sock(SSL *s, int read_sock);
+	__owur int ossl_statem_in_sctp_read_sock(SSL *s);
 #endif

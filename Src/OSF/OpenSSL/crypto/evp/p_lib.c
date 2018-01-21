@@ -112,24 +112,24 @@ int EVP_PKEY_cmp(const EVP_PKEY * a, const EVP_PKEY * b)
 EVP_PKEY * EVP_PKEY_new(void)
 {
 	EVP_PKEY * ret = (EVP_PKEY*)OPENSSL_zalloc(sizeof(*ret));
-	if(!ret) {
+	if(!ret)
 		EVPerr(EVP_F_EVP_PKEY_NEW, ERR_R_MALLOC_FAILURE);
-		return NULL;
-	}
-	ret->type = EVP_PKEY_NONE;
-	ret->save_type = EVP_PKEY_NONE;
-	ret->references = 1;
-	ret->save_parameters = 1;
-	ret->lock = CRYPTO_THREAD_lock_new();
-	if(ret->lock == NULL) {
-		EVPerr(EVP_F_EVP_PKEY_NEW, ERR_R_MALLOC_FAILURE);
-		OPENSSL_free(ret);
-		return NULL;
+	else {
+		ret->type = EVP_PKEY_NONE;
+		ret->save_type = EVP_PKEY_NONE;
+		ret->references = 1;
+		ret->save_parameters = 1;
+		ret->lock = CRYPTO_THREAD_lock_new();
+		if(ret->lock == NULL) {
+			EVPerr(EVP_F_EVP_PKEY_NEW, ERR_R_MALLOC_FAILURE);
+			OPENSSL_free(ret);
+			return NULL;
+		}
 	}
 	return ret;
 }
 
-int EVP_PKEY_up_ref(EVP_PKEY * pkey)
+int FASTCALL EVP_PKEY_up_ref(EVP_PKEY * pkey)
 {
 	int i;
 	if(CRYPTO_atomic_add(&pkey->references, 1, &i, pkey->lock) <= 0)
@@ -210,14 +210,15 @@ void * EVP_PKEY_get0(const EVP_PKEY * pkey)
 
 const uchar * EVP_PKEY_get0_hmac(const EVP_PKEY * pkey, size_t * len)
 {
-	ASN1_OCTET_STRING * os = NULL;
 	if(pkey->type != EVP_PKEY_HMAC) {
 		EVPerr(EVP_F_EVP_PKEY_GET0_HMAC, EVP_R_EXPECTING_AN_HMAC_KEY);
 		return NULL;
 	}
-	os = (ASN1_OCTET_STRING*)EVP_PKEY_get0(pkey);
-	*len = os->length;
-	return os->data;
+	else {
+		ASN1_OCTET_STRING * os = (ASN1_OCTET_STRING*)EVP_PKEY_get0(pkey);
+		*len = os->length;
+		return os->data;
+	}
 }
 
 #ifndef OPENSSL_NO_RSA
@@ -360,20 +361,20 @@ int EVP_PKEY_base_id(const EVP_PKEY * pkey)
 	return EVP_PKEY_type(pkey->type);
 }
 
-void EVP_PKEY_free(EVP_PKEY * x)
+void FASTCALL EVP_PKEY_free(EVP_PKEY * x)
 {
-	int i;
-	if(!x)
-		return;
-	CRYPTO_atomic_add(&x->references, -1, &i, x->lock);
-	REF_PRINT_COUNT("EVP_PKEY", x);
-	if(i > 0)
-		return;
-	REF_ASSERT_ISNT(i < 0);
-	EVP_PKEY_free_it(x);
-	CRYPTO_THREAD_lock_free(x->lock);
-	sk_X509_ATTRIBUTE_pop_free(x->attributes, X509_ATTRIBUTE_free);
-	OPENSSL_free(x);
+	if(x) {
+		int i;
+		CRYPTO_atomic_add(&x->references, -1, &i, x->lock);
+		REF_PRINT_COUNT("EVP_PKEY", x);
+		if(i <= 0) {
+			REF_ASSERT_ISNT(i < 0);
+			EVP_PKEY_free_it(x);
+			CRYPTO_THREAD_lock_free(x->lock);
+			sk_X509_ATTRIBUTE_pop_free(x->attributes, X509_ATTRIBUTE_free);
+			OPENSSL_free(x);
+		}
+	}
 }
 
 static void EVP_PKEY_free_it(EVP_PKEY * x)
@@ -433,8 +434,7 @@ int EVP_PKEY_set1_tls_encodedpoint(EVP_PKEY * pkey, const uchar * pt, size_t ptl
 {
 	if(ptlen > INT_MAX)
 		return 0;
-	if(evp_pkey_asn1_ctrl(pkey, ASN1_PKEY_CTRL_SET1_TLS_ENCPT, ptlen,
-		    (void*)pt) <= 0)
+	if(evp_pkey_asn1_ctrl(pkey, ASN1_PKEY_CTRL_SET1_TLS_ENCPT, ptlen, (void*)pt) <= 0)
 		return 0;
 	return 1;
 }

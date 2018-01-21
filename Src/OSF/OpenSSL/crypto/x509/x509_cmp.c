@@ -130,7 +130,6 @@ int X509_cmp(const X509 * a, const X509 * b)
 	/* ensure hash is valid */
 	X509_check_purpose((X509*)a, -1, 0);
 	X509_check_purpose((X509*)b, -1, 0);
-
 	rv = memcmp(a->sha1_hash, b->sha1_hash, SHA_DIGEST_LENGTH);
 	if(rv)
 		return rv;
@@ -140,43 +139,33 @@ int X509_cmp(const X509 * a, const X509 * b)
 			return -1;
 		if(a->cert_info.enc.len > b->cert_info.enc.len)
 			return 1;
-		return memcmp(a->cert_info.enc.enc, b->cert_info.enc.enc,
-		    a->cert_info.enc.len);
+		return memcmp(a->cert_info.enc.enc, b->cert_info.enc.enc, a->cert_info.enc.len);
 	}
 	return rv;
 }
 
-int X509_NAME_cmp(const X509_NAME * a, const X509_NAME * b)
+int FASTCALL X509_NAME_cmp(const X509_NAME * a, const X509_NAME * b)
 {
 	int ret;
-
-	/* Ensure canonical encoding is present and up to date */
-
+	// Ensure canonical encoding is present and up to date 
 	if(!a->canon_enc || a->modified) {
 		ret = i2d_X509_NAME((X509_NAME*)a, 0);
 		if(ret < 0)
 			return -2;
 	}
-
 	if(!b->canon_enc || b->modified) {
 		ret = i2d_X509_NAME((X509_NAME*)b, 0);
 		if(ret < 0)
 			return -2;
 	}
-
 	ret = a->canon_enclen - b->canon_enclen;
-
-	if(ret)
-		return ret;
-
-	return memcmp(a->canon_enc, b->canon_enc, a->canon_enclen);
+	return (ret == 0) ? memcmp(a->canon_enc, b->canon_enc, a->canon_enclen) : ret;
 }
 
 ulong X509_NAME_hash(X509_NAME * x)
 {
 	ulong ret = 0;
 	uchar md[SHA_DIGEST_LENGTH];
-
 	/* Make sure X509_NAME structure contains valid cached encoding */
 	i2d_X509_NAME(x, 0);
 	if(!EVP_Digest(x->canon_enc, x->canon_enclen, md, NULL, EVP_sha1(),

@@ -6,26 +6,22 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 #ifndef HEADER_BUFFER_H
 #define HEADER_BUFFER_H
 
 #include <openssl/ossl_typ.h>
-# ifndef HEADER_CRYPTO_H
-#  include <openssl/crypto.h>
-# endif
-
+	#ifndef HEADER_CRYPTO_H
+		#include <openssl/crypto.h>
+#endif
 
 #ifdef  __cplusplus
 extern "C" {
 #endif
 
 #include <stddef.h>
-
-# if !defined(NO_SYS_TYPES_H)
-#  include <sys/types.h>
-# endif
-
+#if !defined(NO_SYS_TYPES_H)
+	#include <sys/types.h>
+#endif
 /*
  * These names are outdated as of OpenSSL 1.1; a future release
  * will move them to be deprecated.
@@ -46,11 +42,11 @@ struct buf_mem_st {
 
 #define BUF_MEM_FLAG_SECURE  0x01
 
-BUF_MEM *BUF_MEM_new(void);
-BUF_MEM *BUF_MEM_new_ex(unsigned long flags);
-void BUF_MEM_free(BUF_MEM *a);
-size_t BUF_MEM_grow(BUF_MEM *str, size_t len);
-size_t BUF_MEM_grow_clean(BUF_MEM *str, size_t len);
+BUF_MEM * BUF_MEM_new(void);
+BUF_MEM * BUF_MEM_new_ex(ulong flags);
+void   FASTCALL BUF_MEM_free(BUF_MEM *a);
+size_t FASTCALL BUF_MEM_grow(BUF_MEM *str, size_t len);
+size_t FASTCALL BUF_MEM_grow_clean(BUF_MEM *str, size_t len);
 void BUF_reverse(uchar *out, const uchar *in, size_t siz);
 
 /* BEGIN ERROR CODES */

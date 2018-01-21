@@ -34,18 +34,17 @@ BUF_MEM * BUF_MEM_new(void)
 	return ret;
 }
 
-void BUF_MEM_free(BUF_MEM * a)
+void FASTCALL BUF_MEM_free(BUF_MEM * a)
 {
-	if(!a)
-		return;
-
-	if(a->data != NULL) {
-		if(a->flags & BUF_MEM_FLAG_SECURE)
-			OPENSSL_secure_free(a->data);
-		else
-			OPENSSL_clear_free(a->data, a->max);
+	if(a) {
+		if(a->data != NULL) {
+			if(a->flags & BUF_MEM_FLAG_SECURE)
+				OPENSSL_secure_free(a->data);
+			else
+				OPENSSL_clear_free(a->data, a->max);
+		}
+		OPENSSL_free(a);
 	}
-	OPENSSL_free(a);
 }
 
 /* Allocate a block of secure memory; copy over old data if there
@@ -61,7 +60,7 @@ static char * sec_alloc_realloc(BUF_MEM * str, size_t len)
 	return ret;
 }
 
-size_t BUF_MEM_grow(BUF_MEM * str, size_t len)
+size_t FASTCALL BUF_MEM_grow(BUF_MEM * str, size_t len)
 {
 	char * ret;
 	size_t n;
@@ -98,7 +97,7 @@ size_t BUF_MEM_grow(BUF_MEM * str, size_t len)
 	return (len);
 }
 
-size_t BUF_MEM_grow_clean(BUF_MEM * str, size_t len)
+size_t FASTCALL BUF_MEM_grow_clean(BUF_MEM * str, size_t len)
 {
 	char * ret;
 	size_t n;

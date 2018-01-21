@@ -43,13 +43,13 @@ void FASTCALL EVP_MD_CTX_free(EVP_MD_CTX * ctx)
 	OPENSSL_free(ctx);
 }
 
-int EVP_DigestInit(EVP_MD_CTX * ctx, const EVP_MD * type)
+int FASTCALL EVP_DigestInit(EVP_MD_CTX * ctx, const EVP_MD * type)
 {
 	EVP_MD_CTX_reset(ctx);
 	return EVP_DigestInit_ex(ctx, type, 0);
 }
 
-int EVP_DigestInit_ex(EVP_MD_CTX * ctx, const EVP_MD * type, ENGINE * impl)
+int FASTCALL EVP_DigestInit_ex(EVP_MD_CTX * ctx, const EVP_MD * type, ENGINE * impl)
 {
 	EVP_MD_CTX_clear_flags(ctx, EVP_MD_CTX_FLAG_CLEANED);
 #ifndef OPENSSL_NO_ENGINE
@@ -135,13 +135,13 @@ skip_to_init:
 	return ctx->digest->init(ctx);
 }
 
-int EVP_DigestUpdate(EVP_MD_CTX * ctx, const void * data, size_t count)
+int FASTCALL EVP_DigestUpdate(EVP_MD_CTX * ctx, const void * data, size_t count)
 {
 	return ctx->update(ctx, data, count);
 }
 
 /* The caller can assume that this removes any secret data from the context */
-int EVP_DigestFinal(EVP_MD_CTX * ctx, uchar * md, uint * size)
+int FASTCALL EVP_DigestFinal(EVP_MD_CTX * ctx, uchar * md, uint * size)
 {
 	int ret = EVP_DigestFinal_ex(ctx, md, size);
 	EVP_MD_CTX_reset(ctx);
@@ -149,7 +149,7 @@ int EVP_DigestFinal(EVP_MD_CTX * ctx, uchar * md, uint * size)
 }
 
 /* The caller can assume that this removes any secret data from the context */
-int EVP_DigestFinal_ex(EVP_MD_CTX * ctx, uchar * md, uint * size)
+int FASTCALL EVP_DigestFinal_ex(EVP_MD_CTX * ctx, uchar * md, uint * size)
 {
 	int ret;
 	OPENSSL_assert(ctx->digest->md_size <= EVP_MAX_MD_SIZE);
@@ -163,7 +163,7 @@ int EVP_DigestFinal_ex(EVP_MD_CTX * ctx, uchar * md, uint * size)
 	return ret;
 }
 
-int EVP_MD_CTX_copy(EVP_MD_CTX * out, const EVP_MD_CTX * in)
+int FASTCALL EVP_MD_CTX_copy(EVP_MD_CTX * out, const EVP_MD_CTX * in)
 {
 	EVP_MD_CTX_reset(out);
 	return EVP_MD_CTX_copy_ex(out, in);
@@ -191,14 +191,12 @@ int EVP_MD_CTX_copy_ex(EVP_MD_CTX * out, const EVP_MD_CTX * in)
 		tmp_buf = NULL;
 	EVP_MD_CTX_reset(out);
 	memcpy(out, in, sizeof(*out));
-
 	/* Null these variables, since they are getting fixed up
 	 * properly below.  Anything else may cause a memleak and/or
 	 * double free if any of the memory allocations below fail
 	 */
 	out->md_data = NULL;
 	out->pctx = NULL;
-
 	if(in->md_data && out->digest->ctx_size) {
 		if(tmp_buf)
 			out->md_data = tmp_buf;
@@ -211,9 +209,7 @@ int EVP_MD_CTX_copy_ex(EVP_MD_CTX * out, const EVP_MD_CTX * in)
 		}
 		memcpy(out->md_data, in->md_data, out->digest->ctx_size);
 	}
-
 	out->update = in->update;
-
 	if(in->pctx) {
 		out->pctx = EVP_PKEY_CTX_dup(in->pctx);
 		if(!out->pctx) {
@@ -224,7 +220,7 @@ int EVP_MD_CTX_copy_ex(EVP_MD_CTX * out, const EVP_MD_CTX * in)
 	return (out->digest->copy) ? out->digest->copy(out, in) : 1;
 }
 
-int EVP_Digest(const void * data, size_t count, uchar * md, uint * size, const EVP_MD * type, ENGINE * impl)
+int FASTCALL EVP_Digest(const void * data, size_t count, uchar * md, uint * size, const EVP_MD * type, ENGINE * impl)
 {
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 	int ret;

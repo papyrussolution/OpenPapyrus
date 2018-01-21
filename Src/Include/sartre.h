@@ -509,6 +509,28 @@ private:
 
 class SrConcept {
 public:
+	enum {
+		surrsymbsrcUndef = 0, // Не определен
+		surrsymbsrcFIAS  = 1  // База данных ФИАС (российский классификатор адресов) 
+	};
+	//
+	// Descr: Создает суррогатный символ концепции, на опираясь на "естественный" уникальный идентификатор,
+	//   ассоциированный с источником, вызывающим доверие.
+	//   Источники определены в перечислении выше с префиксами surrsymbsrc
+	//
+	static int SLAPI MakeSurrogateSymb(int surrsymbpfx, const void * pData, uint dataSize, SString & rSymb);
+	//
+	// Descr: Идентифицирует символ концепции pSymb на предмет принадлежности к семейству суррогатных
+	//   символов. Если символ является суррогатным, то по адресу pData присваивается бинарное значение
+	//   оригинального идентификатора, ассоциированного с источником. По адресу pDataSize присваивается
+	//   реальный размер идентификатора. При этом входящее значение *pDataSize определяет максимальный
+	//   доступный размер буфера pData.
+	// Returns:
+	//   Внутренний дескриптор источника идентификации surrsymbsrcXXX (see enum above).
+	//   Если в символе pSymb не обнаружены признаки суррогатного, то surrsymbsrcUndef.
+	//
+	static int SLAPI IsSurrogateSymb(const char * pSymb, void * pData, uint * pDataSize);
+
 	SrConcept();
 	int    FASTCALL IsEqual(const SrConcept & rS) const;
 	SrConcept & Clear();
@@ -717,7 +739,8 @@ public:
 	enum {
 		rcInstance = 1, // Instance Of. Symbol: crp_instance
 		rcSubclass,     // Subclass Of. Symbol: crp_subclass
-		rcType          // Type (тип данных). Symbol: crp_type
+		rcType,         // Type (тип данных). Symbol: crp_type
+		rcHMember       // Hierarchical Member Of. Symbol: crp_hmember
 	};
 	SrDatabase();
 	~SrDatabase();
@@ -858,7 +881,7 @@ public:
 
 	void * CreateStoreFiasAddrBlock();
 	void   DestroyStoreFiasAddrBlock(void * pBlk);
-	int    StoreFiasAddr(void * pStoreFiasAddrBlock, const TSVector <Sdr_FiasRawAddrObj> & rList);
+	int    StoreFiasAddr(void * pStoreFiasAddrBlock, uint passN, TSVector <Sdr_FiasRawAddrObj> & rList);
 //private:
 public:
 	BDbDatabase      * P_Db;
@@ -880,6 +903,7 @@ private:
 	CONCEPTID PropInstance; // :crp_instance
 	CONCEPTID PropSubclass; // :crp_subclass
 	CONCEPTID PropType;     // :crp_type
+	CONCEPTID PropHMember;  // :crp_hmember
 	SymbHashTable WordCache;
 };
 //

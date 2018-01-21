@@ -984,7 +984,7 @@ int SLAPI PPMailFile::SaveAttachment(const char * pAttachName, const char * pDes
 	return ok;
 }
 
-int SLAPI PPMailFile::SaveOrder(const char * pDestFileName)
+/* @v9.9.0 int SLAPI PPMailFile::SaveOrder(const char * pDestFileName)
 {
 	int    ok = -1;
 	FILE * p_out = 0;
@@ -1017,7 +1017,7 @@ int SLAPI PPMailFile::SaveOrder(const char * pDestFileName)
 	CATCHZOK
 	SFile::ZClose(&p_out);
 	return ok;
-}
+}*/
 //
 // PPMail
 //
@@ -1033,10 +1033,9 @@ SLAPI PPMail::~PPMail()
 	delete P_FieldStrBuf;
 }
 
-int SLAPI PPMail::Init(const PPInternetAccount * pMailAcc)
+void SLAPI PPMail::Init(const PPInternetAccount * pMailAcc)
 {
 	RVALUEPTR(MailAcc, pMailAcc);
-	return 1;
 }
 
 int SLAPI PPMail::Connect()
@@ -1049,25 +1048,10 @@ int SLAPI PPMail::Connect()
 	return ok;
 }
 
-int SLAPI PPMail::Disconnect()
-{
-	return Sess.Disconnect() ? 1 : PPSetErrorSLib();
-}
-
-int SLAPI PPMail::PutLine(const char * pLine)
-{
-	return Sess.WriteLine(pLine, 0) ? 1 : PPSetErrorSLib();
-}
-
-int SLAPI PPMail::GetLine(SString & rBuf)
-{
-	return Sess.ReadLine(rBuf) ? 1 : PPSetErrorSLib();
-}
-
-int SLAPI PPMail::GetFieldTitle(uint id, SString & rBuf) const
-{
-	return P_FieldStrBuf ? PPGetSubStr(P_FieldStrBuf, id, rBuf) : 0;
-}
+int SLAPI PPMail::Disconnect() { return Sess.Disconnect() ? 1 : PPSetErrorSLib(); }
+int SLAPI PPMail::PutLine(const char * pLine) { return Sess.WriteLine(pLine, 0) ? 1 : PPSetErrorSLib(); }
+int SLAPI PPMail::GetLine(SString & rBuf) { return Sess.ReadLine(rBuf) ? 1 : PPSetErrorSLib(); }
+int SLAPI PPMail::GetFieldTitle(uint id, SString & rBuf) const { return P_FieldStrBuf ? PPGetSubStr(P_FieldStrBuf, id, rBuf) : 0; }
 
 static void PreprocessEncodedField(const char * pLine, SString & rResult)
 {
@@ -1331,7 +1315,7 @@ int SLAPI PPMailPop3::SaveAttachment(const char * pMsgFileName, const char * pAt
 	return ok;
 }
 
-int SLAPI PPMailPop3::SaveOrder(const char * pMsgFileName, const char * pDestPath)
+/* @v9.9.0 int SLAPI PPMailPop3::SaveOrder(const char * pMsgFileName, const char * pDestPath)
 {
 	int    ok = -1;
 	PPMailFile mail_file;
@@ -1341,7 +1325,7 @@ int SLAPI PPMailPop3::SaveOrder(const char * pMsgFileName, const char * pDestPat
 	THROW(ok = mail_file.SaveOrder(pDestPath));
 	CATCHZOK
 	return ok;
-}
+} */
 //
 //
 //

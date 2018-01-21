@@ -11,10 +11,10 @@
 #ifdef  __cplusplus
 extern "C" {
 #endif
-typedef void (*block128_f)(const uchar in[16], uchar out[16], const void * key);
-typedef void (*cbc128_f)(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], int enc);
-typedef void (*ctr128_f)(const uchar * in, uchar * out, size_t blocks, const void * key, const uchar ivec[16]);
-typedef void (*ccm128_f)(const uchar * in, uchar * out, size_t blocks, const void * key, const uchar ivec[16], uchar cmac[16]);
+/*@funcdef*/typedef void (*block128_f)(const uchar in[16], uchar out[16], const void * key);
+/*@funcdef*/typedef void (*cbc128_f)(const uchar * in, uchar * out, size_t len, const void * key, uchar ivec[16], int enc);
+/*@funcdef*/typedef void (*ctr128_f)(const uchar * in, uchar * out, size_t blocks, const void * key, const uchar ivec[16]);
+/*@funcdef*/typedef void (*ccm128_f)(const uchar * in, uchar * out, size_t blocks, const void * key, const uchar ivec[16], uchar cmac[16]);
 void   CRYPTO_cbc128_encrypt(const uchar *in, uchar *out, size_t len, const void * key, uchar ivec[16], block128_f block);
 void   CRYPTO_cbc128_decrypt(const uchar *in, uchar *out, size_t len, const void * key, uchar ivec[16], block128_f block);
 void   CRYPTO_ctr128_encrypt(const uchar *in, uchar *out, size_t len, const void * key, uchar ivec[16], uchar ecount_buf[16], uint *num, block128_f block);
@@ -68,7 +68,7 @@ size_t CRYPTO_128_unwrap_pad(void * key, const uchar * icv, uchar * out, const u
 #ifndef OPENSSL_NO_OCB
 	typedef struct ocb128_context OCB128_CONTEXT;
 
-	typedef void (*ocb128_f)(const uchar * in, uchar * out, size_t blocks, const void * key, size_t start_block_num, uchar offset_i[16],
+	/*@funcdef*/typedef void (*ocb128_f)(const uchar * in, uchar * out, size_t blocks, const void * key, size_t start_block_num, uchar offset_i[16],
 		const uchar L_[][16], uchar checksum[16]);
 
 	OCB128_CONTEXT * CRYPTO_ocb128_new(void * keyenc, void * keydec, block128_f encrypt, block128_f decrypt, ocb128_f stream);

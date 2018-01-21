@@ -700,65 +700,37 @@ int BN_mod_exp_mont_consttime(BIGNUM * rr, const BIGNUM * a, const BIGNUM * p, c
 
 #if defined(SPARC_T4_MONT)
 	if(t4) {
-		typedef int (*bn_pwr5_mont_f)(BN_ULONG * tp, const BN_ULONG * np,
-		    const BN_ULONG * n0, const void * table,
-		    int power, int bits);
-		int bn_pwr5_mont_t4_8(BN_ULONG * tp, const BN_ULONG * np,
-		    const BN_ULONG * n0, const void * table,
-		    int power, int bits);
-		int bn_pwr5_mont_t4_16(BN_ULONG * tp, const BN_ULONG * np,
-		    const BN_ULONG * n0, const void * table,
-		    int power, int bits);
-		int bn_pwr5_mont_t4_24(BN_ULONG * tp, const BN_ULONG * np,
-		    const BN_ULONG * n0, const void * table,
-		    int power, int bits);
-		int bn_pwr5_mont_t4_32(BN_ULONG * tp, const BN_ULONG * np,
-		    const BN_ULONG * n0, const void * table,
-		    int power, int bits);
+		/*@funcdef*/typedef int (*bn_pwr5_mont_f)(BN_ULONG * tp, const BN_ULONG * np, const BN_ULONG * n0, const void * table, int power, int bits);
+		int bn_pwr5_mont_t4_8(BN_ULONG * tp, const BN_ULONG * np, const BN_ULONG * n0, const void * table, int power, int bits);
+		int bn_pwr5_mont_t4_16(BN_ULONG * tp, const BN_ULONG * np, const BN_ULONG * n0, const void * table, int power, int bits);
+		int bn_pwr5_mont_t4_24(BN_ULONG * tp, const BN_ULONG * np, const BN_ULONG * n0, const void * table, int power, int bits);
+		int bn_pwr5_mont_t4_32(BN_ULONG * tp, const BN_ULONG * np, const BN_ULONG * n0, const void * table, int power, int bits);
 		static const bn_pwr5_mont_f pwr5_funcs[4] = {
 			bn_pwr5_mont_t4_8, bn_pwr5_mont_t4_16,
 			bn_pwr5_mont_t4_24, bn_pwr5_mont_t4_32
 		};
 		bn_pwr5_mont_f pwr5_worker = pwr5_funcs[top / 16 - 1];
 
-		typedef int (*bn_mul_mont_f)(BN_ULONG * rp, const BN_ULONG * ap,
-		    const void * bp, const BN_ULONG * np,
-		    const BN_ULONG * n0);
-		int bn_mul_mont_t4_8(BN_ULONG * rp, const BN_ULONG * ap, const void * bp,
-		    const BN_ULONG * np, const BN_ULONG * n0);
-		int bn_mul_mont_t4_16(BN_ULONG * rp, const BN_ULONG * ap,
-		    const void * bp, const BN_ULONG * np,
-		    const BN_ULONG * n0);
-		int bn_mul_mont_t4_24(BN_ULONG * rp, const BN_ULONG * ap,
-		    const void * bp, const BN_ULONG * np,
-		    const BN_ULONG * n0);
-		int bn_mul_mont_t4_32(BN_ULONG * rp, const BN_ULONG * ap,
-		    const void * bp, const BN_ULONG * np,
-		    const BN_ULONG * n0);
+		/*@funcdef*/typedef int (*bn_mul_mont_f)(BN_ULONG * rp, const BN_ULONG * ap, const void * bp, const BN_ULONG * np, const BN_ULONG * n0);
+		int bn_mul_mont_t4_8(BN_ULONG * rp, const BN_ULONG * ap, const void * bp, const BN_ULONG * np, const BN_ULONG * n0);
+		int bn_mul_mont_t4_16(BN_ULONG * rp, const BN_ULONG * ap, const void * bp, const BN_ULONG * np, const BN_ULONG * n0);
+		int bn_mul_mont_t4_24(BN_ULONG * rp, const BN_ULONG * ap, const void * bp, const BN_ULONG * np, const BN_ULONG * n0);
+		int bn_mul_mont_t4_32(BN_ULONG * rp, const BN_ULONG * ap, const void * bp, const BN_ULONG * np, const BN_ULONG * n0);
 		static const bn_mul_mont_f mul_funcs[4] = {
 			bn_mul_mont_t4_8, bn_mul_mont_t4_16,
 			bn_mul_mont_t4_24, bn_mul_mont_t4_32
 		};
 		bn_mul_mont_f mul_worker = mul_funcs[top / 16 - 1];
 
-		void bn_mul_mont_vis3(BN_ULONG * rp, const BN_ULONG * ap,
-		    const void * bp, const BN_ULONG * np,
-		    const BN_ULONG * n0, int num);
-		void bn_mul_mont_t4(BN_ULONG * rp, const BN_ULONG * ap,
-		    const void * bp, const BN_ULONG * np,
-		    const BN_ULONG * n0, int num);
-		void bn_mul_mont_gather5_t4(BN_ULONG * rp, const BN_ULONG * ap,
-		    const void * table, const BN_ULONG * np,
-		    const BN_ULONG * n0, int num, int power);
-		void bn_flip_n_scatter5_t4(const BN_ULONG * inp, size_t num,
-		    void * table, size_t power);
-		void bn_gather5_t4(BN_ULONG * out, size_t num,
-		    void * table, size_t power);
+		void bn_mul_mont_vis3(BN_ULONG * rp, const BN_ULONG * ap, const void * bp, const BN_ULONG * np, const BN_ULONG * n0, int num);
+		void bn_mul_mont_t4(BN_ULONG * rp, const BN_ULONG * ap, const void * bp, const BN_ULONG * np, const BN_ULONG * n0, int num);
+		void bn_mul_mont_gather5_t4(BN_ULONG * rp, const BN_ULONG * ap, const void * table, const BN_ULONG * np, const BN_ULONG * n0, int num, int power);
+		void bn_flip_n_scatter5_t4(const BN_ULONG * inp, size_t num, void * table, size_t power);
+		void bn_gather5_t4(BN_ULONG * out, size_t num, void * table, size_t power);
 		void bn_flip_t4(BN_ULONG * dst, BN_ULONG * src, size_t num);
 
 		BN_ULONG * np = mont->N.d, * n0 = mont->n0;
-		int stride = 5 * (6 - (top / 16 - 1)); /* multiple of 5, but less
-		                                        * than 32 */
+		int stride = 5 * (6 - (top / 16 - 1)); /* multiple of 5, but less * than 32 */
 
 		/*
 		 * BN_to_montgomery can contaminate words above .top [in

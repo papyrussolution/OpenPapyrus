@@ -59,8 +59,7 @@ extern "C" {
  */
 #define DSO_FLAG_GLOBAL_SYMBOLS                 0x20
 
-typedef void (*DSO_FUNC_TYPE) (void);
-
+/*@funcdef*/typedef void (*DSO_FUNC_TYPE) (void);
 typedef struct dso_st DSO;
 typedef struct dso_meth_st DSO_METHOD;
 
@@ -72,7 +71,7 @@ typedef struct dso_meth_st DSO_METHOD;
  * error condition) or a newly allocated string containing the transformed
  * form that the caller will need to free with OPENSSL_free() when done.
  */
-typedef char *(*DSO_NAME_CONVERTER_FUNC)(DSO *, const char *);
+/*@funcdef*/typedef char *(*DSO_NAME_CONVERTER_FUNC)(DSO *, const char *);
 /*
  * The function prototype used for method functions (or caller-provided
  * callbacks) that merge two file specifications. They are passed a DSO
@@ -88,14 +87,13 @@ typedef char *(*DSO_NAME_CONVERTER_FUNC)(DSO *, const char *);
  * it as the first specification is the one given by the user and the second
  * being a bunch of defaults to add on if they're missing in the first.
  */
-typedef char *(*DSO_MERGER_FUNC)(DSO *, const char *, const char *);
+/*@funcdef*/typedef char *(*DSO_MERGER_FUNC)(DSO *, const char *, const char *);
 
-DSO *DSO_new(void);
-int DSO_free(DSO *dso);
-int DSO_flags(DSO *dso);
-int DSO_up_ref(DSO *dso);
-long DSO_ctrl(DSO *dso, int cmd, long larg, void *parg);
-
+DSO  * DSO_new(void);
+int    FASTCALL DSO_free(DSO *dso);
+int    DSO_flags(DSO *dso);
+int    DSO_up_ref(DSO *dso);
+long   DSO_ctrl(DSO *dso, int cmd, long larg, void *parg);
 /*
  * These functions can be used to get/set the platform-independent filename
  * used for a DSO. NB: set will fail if the DSO is already loaded.

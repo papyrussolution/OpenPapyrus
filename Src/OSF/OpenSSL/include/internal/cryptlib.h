@@ -34,10 +34,10 @@
  * that also includes bio.h.
  */
 #ifdef HEADER_CRYPTLIB_H
-	//#error internal/cryptlib.h included before bio_lcl.h
+//#error internal/cryptlib.h included before bio_lcl.h
 #endif
 	#ifdef HEADER_BIO_H
-		//#error openssl/bio.h included before bio_lcl.h
+//#error openssl/bio.h included before bio_lcl.h
 	#endif
 /*
  * Undefine AF_UNIX on systems that define it but don't support it.
@@ -46,13 +46,13 @@
 	#undef AF_UNIX
 #endif
 #ifdef AI_PASSIVE
-	/*
-	* There's a bug in VMS C header file netdb.h, where struct addrinfo
-	* always is the P32 variant, but the functions that handle that structure,
-	* such as getaddrinfo() and freeaddrinfo() adapt to the initial pointer
-	* size.  The easiest workaround is to force struct addrinfo to be the
-	* 64-bit variant when compiling in P64 mode.
-	*/
+/*
+ * There's a bug in VMS C header file netdb.h, where struct addrinfo
+ * always is the P32 variant, but the functions that handle that structure,
+ * such as getaddrinfo() and freeaddrinfo() adapt to the initial pointer
+ * size.  The easiest workaround is to force struct addrinfo to be the
+ * 64-bit variant when compiling in P64 mode.
+ */
 	#if defined(OPENSSL_SYS_VMS) && __INITIAL_POINTER_SIZE == 64
 		#define addrinfo __addrinfo64
 	#endif
@@ -64,26 +64,33 @@
 	#define bai_addr        ai_addr
 	#define bai_next        ai_next
 #else
-	struct bio_addrinfo_st {
-		int bai_family;
-		int bai_socktype;
-		int bai_protocol;
-		size_t bai_addrlen;
-		struct sockaddr *bai_addr;
-		struct bio_addrinfo_st *bai_next;
-	};
+struct bio_addrinfo_st {
+	int bai_family;
+	int bai_socktype;
+	int bai_protocol;
+	size_t bai_addrlen;
+	struct sockaddr * bai_addr;
+
+	struct bio_addrinfo_st * bai_next;
+};
+
 #endif
 
 union bio_addr_st {
-    struct sockaddr sa;
+	struct sockaddr sa;
+
 #ifdef AF_INET6
-    struct sockaddr_in6 s_in6;
+	struct sockaddr_in6 s_in6;
+
 #endif
-    struct sockaddr_in s_in;
+	struct sockaddr_in s_in;
+
 #ifdef AF_UNIX
-    struct sockaddr_un s_un;
+	struct sockaddr_un s_un;
+
 #endif
 };
+
 #endif
 
 /* END BIO_ADDRINFO/BIO_ADDR stuff. */
@@ -91,82 +98,85 @@ union bio_addr_st {
 #include <internal/bio.h>
 
 typedef struct bio_f_buffer_ctx_struct {
-    /*-
-     * Buffers are setup like this:
-     *
-     * <---------------------- size ----------------------->
-     * +---------------------------------------------------+
-     * | consumed | remaining          | free space        |
-     * +---------------------------------------------------+
-     * <-- off --><------- len ------->
-     */
-    /*- BIO *bio; *//*
-     * this is now in the BIO struct
-     */
-    int ibuf_size;              /* how big is the input buffer */
-    int obuf_size;              /* how big is the output buffer */
-    char *ibuf;                 /* the char array */
-    int ibuf_len;               /* how many bytes are in it */
-    int ibuf_off;               /* write/read offset */
-    char *obuf;                 /* the char array */
-    int obuf_len;               /* how many bytes are in it */
-    int obuf_off;               /* write/read offset */
+	/*-
+	 * Buffers are setup like this:
+	 *
+	 * <---------------------- size ----------------------->
+	 * +---------------------------------------------------+
+	 * | consumed | remaining          | free space        |
+	 * +---------------------------------------------------+
+	 * <-- off --><------- len ------->
+	 */
+	/*- BIO *bio; *//*
+	 * this is now in the BIO struct
+	 */
+	int ibuf_size;          /* how big is the input buffer */
+	int obuf_size;          /* how big is the output buffer */
+	char * ibuf;            /* the char array */
+	int ibuf_len;           /* how many bytes are in it */
+	int ibuf_off;           /* write/read offset */
+	char * obuf;            /* the char array */
+	int obuf_len;           /* how many bytes are in it */
+	int obuf_off;           /* write/read offset */
 } BIO_F_BUFFER_CTX;
 
 struct bio_st {
-    const BIO_METHOD * method;
-    // bio, mode, argp, argi, argl, ret 
-    long (*callback) (struct bio_st *, int, const char *, int, long, long);
-    char * cb_arg; // first argument for the callback 
-    int init;
-    int shutdown;
-    int flags; // extra storage 
-    int retry_reason;
-    int num;
-    void *ptr;
-    struct bio_st * next_bio; // used by filter BIOs 
-    struct bio_st * prev_bio; // used by filter BIOs 
-    int references;
-    uint64_t num_read;
-    uint64_t num_write;
-    CRYPTO_EX_DATA ex_data;
-    CRYPTO_RWLOCK *lock;
+	const BIO_METHOD * method;
+	// bio, mode, argp, argi, argl, ret
+	long (* callback)(struct bio_st *, int, const char *, int, long, long);
+
+	char * cb_arg; // first argument for the callback
+	int init;
+	int shutdown;
+	int flags; // extra storage
+	int retry_reason;
+	int num;
+	void * ptr;
+	struct bio_st * next_bio; // used by filter BIOs
+
+	struct bio_st * prev_bio; // used by filter BIOs
+
+	int references;
+	uint64_t num_read;
+	uint64_t num_write;
+	CRYPTO_EX_DATA ex_data;
+	CRYPTO_RWLOCK * lock;
 };
 
 #ifndef OPENSSL_NO_SOCK
 	#ifdef OPENSSL_SYS_VMS
-		typedef uint socklen_t;
+typedef uint socklen_t;
 	#endif
-	extern CRYPTO_RWLOCK * bio_lookup_lock;
+extern CRYPTO_RWLOCK * bio_lookup_lock;
 
-	int BIO_ADDR_make(BIO_ADDR *ap, const struct sockaddr *sa);
-	const struct sockaddr *BIO_ADDR_sockaddr(const BIO_ADDR *ap);
-	struct sockaddr *BIO_ADDR_sockaddr_noconst(BIO_ADDR *ap);
-	socklen_t BIO_ADDR_sockaddr_size(const BIO_ADDR *ap);
-	socklen_t BIO_ADDRINFO_sockaddr_size(const BIO_ADDRINFO *bai);
-	const struct sockaddr *BIO_ADDRINFO_sockaddr(const BIO_ADDRINFO *bai);
+int BIO_ADDR_make(BIO_ADDR * ap, const struct sockaddr * sa);
+const struct sockaddr * BIO_ADDR_sockaddr(const BIO_ADDR * ap);
+struct sockaddr * BIO_ADDR_sockaddr_noconst(BIO_ADDR * ap);
+socklen_t BIO_ADDR_sockaddr_size(const BIO_ADDR * ap);
+socklen_t BIO_ADDRINFO_sockaddr_size(const BIO_ADDRINFO * bai);
+const struct sockaddr * BIO_ADDRINFO_sockaddr(const BIO_ADDRINFO * bai);
 #endif
 
-extern CRYPTO_RWLOCK *bio_type_lock;
+extern CRYPTO_RWLOCK * bio_type_lock;
 
 void bio_sock_cleanup_int(void);
 
 #if BIO_FLAGS_UPLINK==0
-	/* Shortcut UPLINK calls on most platforms... */
+/* Shortcut UPLINK calls on most platforms... */
 	#define UP_stdin        stdin
 	#define UP_stdout       stdout
 	#define UP_stderr       stderr
 	#define UP_fprintf      fprintf
-	#define UP_fgets(mp_str,mp_sz,mp_stream)       fgets((mp_str),(mp_sz),(FILE *)(mp_stream))
-	#define UP_fread(mp_ptr,mp_sz,mp_n,mp_stream)  fread((mp_ptr),(mp_sz),(mp_n),(FILE *)(mp_stream))
-	#define UP_fwrite(mp_ptr,mp_sz,mp_n,mp_stream) fwrite((mp_ptr),(mp_sz),(mp_n),(FILE *)(mp_stream))
+	#define UP_fgets(mp_str, mp_sz, mp_stream)       fgets((mp_str), (mp_sz), (FILE*)(mp_stream))
+	#define UP_fread(mp_ptr, mp_sz, mp_n, mp_stream)  fread((mp_ptr), (mp_sz), (mp_n), (FILE*)(mp_stream))
+	#define UP_fwrite(mp_ptr, mp_sz, mp_n, mp_stream) fwrite((mp_ptr), (mp_sz), (mp_n), (FILE*)(mp_stream))
 	#undef  UP_fsetmod
 	#define UP_feof         feof
-	#define UP_fclose(mp_stream) fclose((FILE *)(mp_stream))
+	#define UP_fclose(mp_stream) fclose((FILE*)(mp_stream))
 	#define UP_fopen        fopen
-	#define UP_fseek(mp_stream,mp_offs,mp_org)  fseek((FILE *)mp_stream,mp_offs,mp_org)
-	#define UP_ftell(mp_stream)  ftell((FILE *)(mp_stream))
-	#define UP_fflush(mp_stream) fflush((FILE *)(mp_stream))
+	#define UP_fseek(mp_stream, mp_offs, mp_org)  fseek((FILE*)mp_stream, mp_offs, mp_org)
+	#define UP_ftell(mp_stream)  ftell((FILE*)(mp_stream))
+	#define UP_fflush(mp_stream) fflush((FILE*)(mp_stream))
 	#define UP_ferror       ferror
 	#ifdef _WIN32
 		#define UP_fileno       _fileno
@@ -259,8 +269,8 @@ void bio_sock_cleanup_int(void);
 typedef struct poly1305_context POLY1305;
 
 size_t Poly1305_ctx_size(void);
-void Poly1305_Init(POLY1305 *ctx, const uchar key[32]);
-void Poly1305_Update(POLY1305 *ctx, const uchar *inp, size_t len);
+void Poly1305_Init(POLY1305 * ctx, const uchar key[32]);
+void Poly1305_Update(POLY1305 * ctx, const uchar * inp, size_t len);
 void Poly1305_Final(POLY1305 *ctx, uchar mac[16]);
 //
 #ifdef  __cplusplus
@@ -292,20 +302,20 @@ DEFINE_LHASH_OF(MEM);
 #define X509_CERT_FILE_EVP       "SSL_CERT_FILE"
 #define CTLOG_FILE_EVP           "CTLOG_FILE"
 
-// size of string representations 
+// size of string representations
 #define DECIMAL_SIZE(type)      ((sizeof(type)*8+2)/3+1)
 #define HEX_SIZE(type)          (sizeof(type)*2)
 
 void OPENSSL_cpuid_setup(void);
 extern uint OPENSSL_ia32cap_P[];
-void OPENSSL_showfatal(const char *fmta, ...);
+void OPENSSL_showfatal(const char * fmta, ...);
 extern int OPENSSL_NONPIC_relocated;
 void crypto_cleanup_all_ex_data_int(void);
-int openssl_strerror_r(int errnum, char *buf, size_t buflen);
+int openssl_strerror_r(int errnum, char * buf, size_t buflen);
 #if !defined(OPENSSL_NO_STDIO)
-	FILE *openssl_fopen(const char *filename, const char *mode);
+FILE * openssl_fopen(const char * filename, const char * mode);
 #else
-	void *openssl_fopen(const char *filename, const char *mode);
+void * openssl_fopen(const char * filename, const char * mode);
 #endif
 
 #ifdef  __cplusplus
@@ -318,7 +328,7 @@ int openssl_strerror_r(int errnum, char *buf, size_t buflen);
 extern "C" {
 #endif
 
-extern CRYPTO_RWLOCK *global_engine_lock;
+extern CRYPTO_RWLOCK * global_engine_lock;
 /*
  * If we compile with this symbol defined, then both reference counts in the
  * ENGINE structure will be monitored with a line of output on stderr for
@@ -329,8 +339,8 @@ extern CRYPTO_RWLOCK *global_engine_lock;
  */
 #ifdef ENGINE_REF_COUNT_DEBUG
 	#define engine_ref_debug(e, isfunct, diff) fprintf(stderr, "engine: %08x %s from %d to %d (%s:%d)\n", \
-			(uint)(e), (isfunct ? "funct" : "struct"), ((isfunct) ? ((e)->funct_ref - (diff)) : ((e)->struct_ref - (diff))), \
-			((isfunct) ? (e)->funct_ref : (e)->struct_ref), (OPENSSL_FILE), (OPENSSL_LINE))
+	    (uint)(e), (isfunct ? "funct" : "struct"), ((isfunct) ? ((e)->funct_ref - (diff)) : ((e)->struct_ref - (diff))), \
+	    ((isfunct) ? (e)->funct_ref : (e)->struct_ref), (OPENSSL_FILE), (OPENSSL_LINE))
 #else
 	#define engine_ref_debug(e, isfunct, diff)
 #endif
@@ -340,13 +350,13 @@ extern CRYPTO_RWLOCK *global_engine_lock;
  * callbacks in order. NB: both the "add" functions assume the engine lock to
  * already be held (in "write" mode).
  */
-typedef void (ENGINE_CLEANUP_CB) (void);
+typedef void (ENGINE_CLEANUP_CB)(void);
 typedef struct st_engine_cleanup_item {
-    ENGINE_CLEANUP_CB *cb;
+	ENGINE_CLEANUP_CB * cb;
 } ENGINE_CLEANUP_ITEM;
 DEFINE_STACK_OF(ENGINE_CLEANUP_ITEM)
-void engine_cleanup_add_first(ENGINE_CLEANUP_CB *cb);
-void engine_cleanup_add_last(ENGINE_CLEANUP_CB *cb);
+void engine_cleanup_add_first(ENGINE_CLEANUP_CB * cb);
+void engine_cleanup_add_last(ENGINE_CLEANUP_CB * cb);
 
 /* We need stacks of ENGINEs for use in eng_table.c */
 DEFINE_STACK_OF(ENGINE)
@@ -362,38 +372,38 @@ DEFINE_STACK_OF(ENGINE)
  * it as a (ENGINE_TABLE *) pointer value set initially to NULL.
  */
 typedef struct st_engine_table ENGINE_TABLE;
-int engine_table_register(ENGINE_TABLE **table, ENGINE_CLEANUP_CB *cleanup, ENGINE *e, const int *nids, int num_nids, int setdefault);
-void engine_table_unregister(ENGINE_TABLE **table, ENGINE *e);
-void engine_table_cleanup(ENGINE_TABLE **table);
+int engine_table_register(ENGINE_TABLE ** table, ENGINE_CLEANUP_CB * cleanup, ENGINE * e, const int * nids, int num_nids, int setdefault);
+void engine_table_unregister(ENGINE_TABLE ** table, ENGINE * e);
+void engine_table_cleanup(ENGINE_TABLE ** table);
 #ifndef ENGINE_TABLE_DEBUG
-	ENGINE *engine_table_select(ENGINE_TABLE **table, int nid);
+	/*@funcdef*/ENGINE * engine_table_select(ENGINE_TABLE ** table, int nid);
 #else
-	ENGINE *engine_table_select_tmp(ENGINE_TABLE **table, int nid, const char *f, int l);
-	#define engine_table_select(t,n) engine_table_select_tmp(t,n,OPENSSL_FILE,OPENSSL_LINE)
+	ENGINE * engine_table_select_tmp(ENGINE_TABLE ** table, int nid, const char * f, int l);
+	#define engine_table_select(t, n) engine_table_select_tmp(t, n, OPENSSL_FILE, OPENSSL_LINE)
 #endif
-typedef void (engine_table_doall_cb) (int nid, STACK_OF(ENGINE) *sk, ENGINE *def, void *arg);
-void engine_table_doall(ENGINE_TABLE *table, engine_table_doall_cb *cb, void *arg);
+/*@funcdef*/typedef void (engine_table_doall_cb)(int nid, STACK_OF(ENGINE) * sk, ENGINE * def, void * arg);
+void engine_table_doall(ENGINE_TABLE * table, engine_table_doall_cb * cb, void * arg);
 /*
  * Internal versions of API functions that have control over locking. These
  * are used between C files when functionality needs to be shared but the
  * caller may already be controlling of the engine lock.
  */
-int engine_unlocked_init(ENGINE *e);
-int engine_unlocked_finish(ENGINE *e, int unlock_for_handlers);
-int engine_free_util(ENGINE *e, int locked);
+int engine_unlocked_init(ENGINE * e);
+int engine_unlocked_finish(ENGINE * e, int unlock_for_handlers);
+int engine_free_util(ENGINE * e, int locked);
 /*
  * This function will reset all "set"able values in an ENGINE to NULL. This
  * won't touch reference counts or ex_data, but is equivalent to calling all
  * the ENGINE_set_***() functions with a NULL value.
  */
-void engine_set_all_null(ENGINE *e);
+void engine_set_all_null(ENGINE * e);
 /*
  * NB: Bitwise OR-able values for the "flags" variable in ENGINE are now
  * exposed in engine.h.
  */
 /* Free up dynamically allocated public key methods associated with ENGINE */
-void engine_pkey_meths_free(ENGINE *e);
-void engine_pkey_asn1_meths_free(ENGINE *e);
+void engine_pkey_meths_free(ENGINE * e);
+void engine_pkey_asn1_meths_free(ENGINE * e);
 /* Once initialisation function */
 extern CRYPTO_ONCE engine_lock_init;
 DECLARE_RUN_ONCE(do_engine_lock_init)
@@ -401,40 +411,40 @@ DECLARE_RUN_ONCE(do_engine_lock_init)
  * This is a structure for storing implementations of various crypto algorithms and functions.
  */
 struct engine_st {
-    const char *id;
-    const char *name;
-    const RSA_METHOD *rsa_meth;
-    const DSA_METHOD *dsa_meth;
-    const DH_METHOD *dh_meth;
-    const EC_KEY_METHOD *ec_meth;
-    const RAND_METHOD *rand_meth;
-    ENGINE_CIPHERS_PTR ciphers; /* Cipher handling is via this callback */
-    ENGINE_DIGESTS_PTR digests; /* Digest handling is via this callback */
-    ENGINE_PKEY_METHS_PTR pkey_meths; /* Public key handling via this callback */
-    ENGINE_PKEY_ASN1_METHS_PTR pkey_asn1_meths; /* ASN1 public key handling via this callback */
-    ENGINE_GEN_INT_FUNC_PTR destroy;
-    ENGINE_GEN_INT_FUNC_PTR init;
-    ENGINE_GEN_INT_FUNC_PTR finish;
-    ENGINE_CTRL_FUNC_PTR ctrl;
-    ENGINE_LOAD_KEY_PTR load_privkey;
-    ENGINE_LOAD_KEY_PTR load_pubkey;
-    ENGINE_SSL_CLIENT_CERT_PTR load_ssl_client_cert;
-    const ENGINE_CMD_DEFN *cmd_defns;
-    int flags;
-    int struct_ref; // reference count on the structure itself 
-    /*
-     * reference count on usability of the engine type. NB: This controls the
-     * loading and initialisation of any functionality required by this
-     * engine, whereas the previous count is simply to cope with
-     * (de)allocation of this structure. Hence, running_ref <= struct_ref at all times.
-     */
-    int funct_ref;
-    CRYPTO_EX_DATA ex_data; // A place to store per-ENGINE data 
+	const char * id;
+	const char * name;
+	const RSA_METHOD * rsa_meth;
+	const DSA_METHOD * dsa_meth;
+	const DH_METHOD * dh_meth;
+	const EC_KEY_METHOD * ec_meth;
+	const RAND_METHOD * rand_meth;
+	ENGINE_CIPHERS_PTR ciphers; /* Cipher handling is via this callback */
+	ENGINE_DIGESTS_PTR digests; /* Digest handling is via this callback */
+	ENGINE_PKEY_METHS_PTR pkey_meths; /* Public key handling via this callback */
+	ENGINE_PKEY_ASN1_METHS_PTR pkey_asn1_meths; /* ASN1 public key handling via this callback */
+	ENGINE_GEN_INT_FUNC_PTR destroy;
+	ENGINE_GEN_INT_FUNC_PTR init;
+	ENGINE_GEN_INT_FUNC_PTR finish;
+	ENGINE_CTRL_FUNC_PTR ctrl;
+	ENGINE_LOAD_KEY_PTR load_privkey;
+	ENGINE_LOAD_KEY_PTR load_pubkey;
+	ENGINE_SSL_CLIENT_CERT_PTR load_ssl_client_cert;
+	const ENGINE_CMD_DEFN * cmd_defns;
+	int flags;
+	int struct_ref; // reference count on the structure itself
+	/*
+	 * reference count on usability of the engine type. NB: This controls the
+	 * loading and initialisation of any functionality required by this
+	 * engine, whereas the previous count is simply to cope with
+	 * (de)allocation of this structure. Hence, running_ref <= struct_ref at all times.
+	 */
+	int funct_ref;
+	CRYPTO_EX_DATA ex_data; // A place to store per-ENGINE data
 	//
-    // Used to maintain the linked-list of engines.
+	// Used to maintain the linked-list of engines.
 	//
-    struct engine_st *prev;
-    struct engine_st *next;
+	struct engine_st * prev;
+	struct engine_st * next;
 };
 
 typedef struct st_engine_pile ENGINE_PILE;

@@ -57,8 +57,8 @@ DEFINE_STACK_OF(CONF_MODULE)
 DEFINE_STACK_OF(CONF_IMODULE)
 
 /* DSO module function typedefs */
-typedef int conf_init_func (CONF_IMODULE *md, const CONF *cnf);
-typedef void conf_finish_func (CONF_IMODULE *md);
+/*@funcdef*/typedef int conf_init_func(CONF_IMODULE *md, const CONF *cnf);
+/*@funcdef*/typedef void conf_finish_func(CONF_IMODULE *md);
 
 #define CONF_MFLAGS_IGNORE_ERRORS       0x1
 #define CONF_MFLAGS_IGNORE_RETURN_CODES 0x2

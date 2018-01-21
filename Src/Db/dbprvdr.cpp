@@ -1,5 +1,5 @@
 // DBPRVDR.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <db.h>
@@ -280,11 +280,6 @@ long DbLoginBlockArray::SetSelection(long id)
 	return SelId;
 }
 
-long DbLoginBlockArray::GetSelection() const
-{
-	return SelId;
-}
-
 int DbLoginBlockArray::MakeList(StrAssocArray * pList, long options) const
 {
 	int    ok = -1;
@@ -321,19 +316,16 @@ SLAPI DbProvider::~DbProvider()
 	delete P_Dict;
 }
 
+//virtual default-implementation
+int SLAPI DbProvider::GetDatabaseState(uint * pStateFlags) 
+{ 
+	ASSIGN_PTR(pStateFlags, 0);
+	return -1; 
+}
+
 int SLAPI DbProvider::IsValid() const
 {
 	return (State & stError) ? 0 : 1;
-}
-
-long SLAPI DbProvider::GetState() const
-{
-	return State;
-}
-
-long SLAPI DbProvider::GetCapability() const
-{
-	return Capability;
 }
 
 int SLAPI DbProvider::SetDbName(const char * pName, const char * pSymb)
@@ -525,29 +517,15 @@ int SLAPI DbProvider::DropTable(const char * pTblName, int inDictOnly)
 
 static char * SLAPI cryptPassword(char * p)
 {
-	p[2] = 'e';
-	p[3] = '$';
-	p[9] = 0;
-	p[1] = '8';
-	p[4] = 'g';
-	p[7] = '+';
-	p[0] = '-';
-	p[6] = '+';
-	p[5] = 'p';
-	p[8] = '+';
+	p[2] = 'e'; p[3] = '$'; p[9] = 0;   p[1] = '8'; p[4] = 'g'; 
+	p[7] = '+'; p[0] = '-'; p[6] = '+'; p[5] = 'p'; p[8] = '+'; 
 	return p;
 }
 
 static char * SLAPI protectFileName(char * p, const char * pDataPath)
 {
 	char   n[16];
-	n[2] = '[';
-	n[2] = 'P';
-	n[0] = 'D';
-	n[3] = '\x24';
-	n[3] = 'A';
-	n[4] = 0;
-	n[1] = 'B';
+	n[2] = '['; n[2] = 'P'; n[0] = 'D'; n[3] = '\x24'; n[3] = 'A'; n[4] = 0; n[1] = 'B';
 	if(pDataPath && pDataPath[0]) {
 		size_t len = strlen(strcpy(p, pDataPath));
 		if(p[len-1] != '\\') {
@@ -650,25 +628,10 @@ int SLAPI DbProvider::GetProtectData()
 //
 //
 //
-int SLAPI DbProvider::CreateTableSpec(DBTable * pTbl)
-{
-	return P_Dict->CreateTableSpec(pTbl);
-}
-
-int SLAPI DbProvider::GetTableID(const char * pTblName, long * pID, DbTableStat * pStat)
-{
-	return P_Dict->GetTableID(pTblName, pID, pStat);
-}
-
-int SLAPI DbProvider::GetTableInfo(long tblID, DbTableStat * pStat)
-{
-	return P_Dict->GetTableInfo(tblID, pStat);
-}
-
-int SLAPI DbProvider::GetListOfTables(long options, StrAssocArray * pList)
-{
-	return P_Dict->GetListOfTables(options, pList);
-}
+int SLAPI DbProvider::CreateTableSpec(DBTable * pTbl) { return P_Dict->CreateTableSpec(pTbl); }
+int SLAPI DbProvider::GetTableID(const char * pTblName, long * pID, DbTableStat * pStat) { return P_Dict->GetTableID(pTblName, pID, pStat); }
+int SLAPI DbProvider::GetTableInfo(long tblID, DbTableStat * pStat) { return P_Dict->GetTableInfo(tblID, pStat); }
+int SLAPI DbProvider::GetListOfTables(long options, StrAssocArray * pList) { return P_Dict->GetListOfTables(options, pList); }
 
 int SLAPI DbProvider::GetUniqueTableName(const char * pPrefix, DBTable * pTbl)
 {
@@ -689,28 +652,28 @@ int SLAPI DbProvider::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 //
 //
 //
-int SLAPI DbProvider::Common_Login(const DbLoginBlock * pBlk)
+void SLAPI DbProvider::Common_Login(const DbLoginBlock * pBlk)
 {
 	if(pBlk)
 		Lb.Copy(*pBlk);
 	State |= stLoggedIn;
-	return 1;
 }
 
-int SLAPI DbProvider::Common_Logout()
+void SLAPI DbProvider::Common_Logout()
 {
 	State &= ~stLoggedIn;
-	return 1;
 }
 
 int SLAPI DbProvider::Login(const DbLoginBlock * pBlk, long options)
 {
-	return Common_Login(pBlk);
+	Common_Login(pBlk);
+	return 1;
 }
 
 int SLAPI DbProvider::Logout()
 {
-	return Common_Logout();
+	Common_Logout();
+	return 1;
 }
 
 int SLAPI DbProvider::PostProcessAfterUndump(DBTable * pTbl)
@@ -724,40 +687,13 @@ int SLAPI DbProvider::Implement_GetPosition(DBTable * pTbl, DBRowId * pPos)
 	return 1;
 }
 
-int DbProvider::CreateStmt(SSqlStmt * pS, const char * pText, long flags)
-{
-	return 0;
-}
-
-int DbProvider::DestroyStmt(SSqlStmt * pS)
-{
-	return 0;
-}
-
-int DbProvider::Binding(SSqlStmt & rS, int dir)
-{
-	return 0;
-}
-
-int DbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind)
-{
-	return 0;
-}
-
-int DbProvider::Exec(SSqlStmt & rS, uint count, int mode)
-{
-	return 0;
-}
-
-int DbProvider::Describe(SSqlStmt & rS, SdRecord &)
-{
-	return 0;
-}
-
-int DbProvider::Fetch(SSqlStmt & rS, uint count, uint * pActualCount)
-{
-	return 0;
-}
+int DbProvider::CreateStmt(SSqlStmt * pS, const char * pText, long flags) { return 0; }
+int DbProvider::DestroyStmt(SSqlStmt * pS) { return 0; }
+int DbProvider::Binding(SSqlStmt & rS, int dir) { return 0; }
+int DbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind) { return 0; }
+int DbProvider::Exec(SSqlStmt & rS, uint count, int mode) { return 0; }
+int DbProvider::Describe(SSqlStmt & rS, SdRecord &) { return 0; }
+int DbProvider::Fetch(SSqlStmt & rS, uint count, uint * pActualCount) { return 0; }
 //
 //
 //

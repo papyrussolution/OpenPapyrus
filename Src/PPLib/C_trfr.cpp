@@ -1090,7 +1090,7 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 						}
 					}
 				}
-				// } @v9.7.8 
+				// } @v9.7.8
             }
             else {
 				pAry->AddFault(PPLotFault::RefGoods, &rec, 0, 0);
@@ -1427,7 +1427,7 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 				}
 			}
 		}
-		// } @v9.7.8 
+		// } @v9.7.8
 		if(flags & TLRF_REPAIR) {
 			{
 				GoodsStockExt gse;
@@ -1731,15 +1731,18 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 					}
 				}
 			}
-			if(err_lot) {
-				THROW(UpdateByID(&Rcpt, PPOBJ_LOT, lotID, &lot_rec, 0));
-				err_lot = 0;
-			}
-			else if(pFaultList->HasFault(PPLotFault::NoOps, &fault, &fault_pos) && flags & TLRF_RMVLOST) {
+			// @v9.9.0 Изменен порядок вызова следующих 2 блоков - не срабатывало удаление "пустых" лотов
+			if(pFaultList->HasFault(PPLotFault::NoOps, &fault, &fault_pos) && flags & TLRF_RMVLOST) {
 				THROW_DB(deleteFrom(&Rcpt, 0, Rcpt.ID == lotID));
 			}
-			if(P_LcrT && pFaultList->HasLcrFault()) {
-				THROW(Helper_RecalcLotCRest(lotID, 0, 1));
+			else {
+				if(err_lot) {
+					THROW(UpdateByID(&Rcpt, PPOBJ_LOT, lotID, &lot_rec, 0));
+					err_lot = 0;
+				}
+				if(P_LcrT && pFaultList->HasLcrFault()) {
+					THROW(Helper_RecalcLotCRest(lotID, 0, 1));
+				}
 			}
 		}
 		THROW(tra.Commit());

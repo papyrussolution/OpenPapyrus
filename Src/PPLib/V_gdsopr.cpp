@@ -4154,7 +4154,7 @@ PPALDD_CONSTRUCTOR(GoodsOpAnlz)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -4252,7 +4252,7 @@ PPALDD_CONSTRUCTOR(GoodsOpAnlzCmp)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 

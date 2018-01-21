@@ -80,8 +80,7 @@ static int ssl_module_init(CONF_IMODULE * md, const CONF * cnf)
 		STACK_OF(CONF_VALUE) *cmds = NCONF_get_section(cnf, sect->value);
 		if(sk_CONF_VALUE_num(cmds) <= 0) {
 			if(cmds == NULL)
-				SSLerr(SSL_F_SSL_MODULE_INIT,
-				    SSL_R_SSL_COMMAND_SECTION_NOT_FOUND);
+				SSLerr(SSL_F_SSL_MODULE_INIT, SSL_R_SSL_COMMAND_SECTION_NOT_FOUND);
 			else
 				SSLerr(SSL_F_SSL_MODULE_INIT, SSL_R_SSL_COMMAND_SECTION_EMPTY);
 			ERR_add_error_data(4, "name=", sect->name, ", value=", sect->value);

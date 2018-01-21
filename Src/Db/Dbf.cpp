@@ -1,5 +1,5 @@
 // DBF.CPP
-// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017
+// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018
 //
 #include <db.h>
 #pragma hdrstop
@@ -73,9 +73,8 @@ void SLAPI DBFCreateFld::Init(const char * pName, int typ, uint sz, uint prec)
 //
 // DbfRecord
 //
-SLAPI DbfRecord::DbfRecord(const DbfTable * pTbl)
+SLAPI DbfRecord::DbfRecord(const DbfTable * pTbl) : P_Tbl(pTbl)
 {
-	P_Tbl = pTbl;
 	P_Buffer = new char[BufSize = P_Tbl->getRecSize()];
 	empty();
 }
@@ -253,20 +252,9 @@ int SLAPI DbfRecord::put(int fld, double data)
 		return 0;
 }
 
-int SLAPI DbfRecord::put(int fld, float data)
-{
-	return put(fld, (double)data);
-}
-
-int SLAPI DbfRecord::put(int fld, long data)
-{
-	return put(fld, (double)data);
-}
-
-int SLAPI DbfRecord::put(int fld, int data)
-{
-	return put(fld, (double)data);
-}
+int SLAPI DbfRecord::put(int fld, float data) { return put(fld, (double)data); }
+int SLAPI DbfRecord::put(int fld, long data) { return put(fld, (double)data); }
+int SLAPI DbfRecord::put(int fld, int data) { return put(fld, (double)data); }
 
 int SLAPI DbfRecord::put(int fld, const DBFDate * data)
 {
@@ -477,17 +465,9 @@ int SLAPI DbfTable::releaseBuffer()
 	return 1;
 }
 
-SLAPI DbfTable::DbfTable(const char * pName)
+SLAPI DbfTable::DbfTable(const char * pName) : P_Buffer(0), Opened(0), Mod(0), Current(0),
+	P_Flds(0), NumFlds(0), Stream(0), BFirst(0), BLast(0), P_Name(newStr(pName))
 {
-	P_Buffer  = 0;
-	Opened  = 0;
-	Mod     = 0;
-	Current = 0;
-	P_Name  = newStr(pName);
-	P_Flds  = 0;
-	NumFlds = 0;
-	Stream  = 0;
-	BFirst  = BLast = 0;
 	open();
 }
 
@@ -618,10 +598,10 @@ static uint8 CpToLdId(SCodepage cp)
 	return ldid;
 }
 
-SCodepage SLAPI DbfTable::getCodePage() const
-{
-	return LdIdToCp(Head.LdID);
-}
+SCodepage SLAPI DbfTable::getCodePage() const { return LdIdToCp(Head.LdID); }
+ulong  SLAPI DbfTable::getNumRecs() const { return Head.NumRecs; }
+size_t SLAPI DbfTable::getRecSize() const { return Head.RecSize; }
+uint   SLAPI DbfTable::getNumFields() const { return NumFlds; }
 
 int SLAPI DbfTable::create(int aNumFlds, const DBFCreateFld * pFldDescr, SCodepage cp, int infoByte)
 {
@@ -631,7 +611,7 @@ int SLAPI DbfTable::create(int aNumFlds, const DBFCreateFld * pFldDescr, SCodepa
 	// @v9.3.5 {
 	if(!checkdate(cur_dt, 0))
 		cur_dt = encodedate(1, 1, 2016);
-	// } @v9.3.5 
+	// } @v9.3.5
 	close();
 	FILE * f = fopen(P_Name, "wb");
 	THROW_S_S(f, SLERR_OPENFAULT, P_Name);
@@ -785,21 +765,6 @@ int FASTCALL DbfTable::getField(uint fldN, DBFF * pField) const
 	}
 	else
 		return 0;
-}
-
-ulong  SLAPI DbfTable::getNumRecs() const
-{
-	return Head.NumRecs;
-}
-
-size_t SLAPI DbfTable::getRecSize() const
-{
-	return Head.RecSize;
-}
-
-uint SLAPI DbfTable::getNumFields() const
-{
-	return NumFlds;
 }
 
 int FASTCALL DbfTable::goToRec(ulong recNo)

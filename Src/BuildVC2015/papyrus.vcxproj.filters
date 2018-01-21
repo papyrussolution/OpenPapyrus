@@ -41,7 +41,6 @@
     <ClCompile Include="..\PPLib\Asstwrof.cpp" />
     <ClCompile Include="..\PPLib\At2eat.cpp" />
     <ClCompile Include="..\PPLib\Atrntmpl.cpp" />
-    <ClCompile Include="..\PPLib\Aturndlg.cpp" />
     <ClCompile Include="..\PPLib\Autocmpl.cpp" />
     <ClCompile Include="..\PPLib\Balance.cpp" />
     <ClCompile Include="..\PPLib\BILL.CPP" />

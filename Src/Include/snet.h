@@ -372,6 +372,7 @@ private:
 //
 //
 //
+#if 0 // @v9.9.0 (obsolete) {
 class MailSession {
 public:
 	MailSession(SOCKET s, struct sockaddr_in r);
@@ -405,6 +406,7 @@ private:
 	struct sockaddr_in remote;
 	int    Timeout;
 };
+#endif // } 0 @v9.9.0 (obsolete)
 //
 //
 //

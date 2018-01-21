@@ -2486,7 +2486,12 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 	};
 	int    ok = 1, r;
 	int    debug_r = 0;
-	SString dict_path, data_path, db_symb, msg_buf, temp_buf;
+	uint   db_state = 0; // @v9.9.0 Флаги состояния базы данных
+	SString dict_path;
+	SString data_path;
+	SString db_symb;
+	SString msg_buf;
+	SString temp_buf;
 	PPIniFile ini_file(0, 0, 0, 1);
 	PPDbEntrySet2 dbes;
 	DbLoginBlock blk;
@@ -2504,8 +2509,6 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 	{
 		PPThreadLocalArea & r_tla = GetTLA();
 		MACAddr machine_id;
-		//int    is_system_login = 0;
-		//int    is_service_login = 0;
 		int    logmode = logmOrdinary;
 		int    empty_secur_base = 0, is_demo = 0;
 		char   user_name[64];
@@ -2525,6 +2528,8 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 		PPUserFuncProfiler ufp(PPUPRF_LOGIN); // @v8.0.6 Профилирование собственно процесса авторизации в базе данных
 		const long db_path_id = DBS.GetDbPathID();
 		DbProvider * p_dict = CurDict;
+		assert(p_dict);
+		p_dict->GetDatabaseState(&db_state); // @v9.9.0
 		{
 			//
 			// Имя SYSTEM является встроенным аналогом имени MASTER и отличается //
@@ -2532,8 +2537,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			//
 			if(sstreqi_ascii(user_name, "SYSTEM")) {
 				STRNSCPY(user_name, "MASTER");
-				// @v9.4.8 is_system_login = 1;
-				logmode = logmSystem; // @v9.4.8
+				logmode = logmSystem;
 			}
 			else if(sstreqi_ascii(user_name, PPSession::P_JobLogin))
 				logmode = logmService;
@@ -2737,16 +2741,16 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 				r_tla.SupplDevUpQuotKindID       = suppl_agt.DevUpQuotKindID;
 				r_tla.SupplDevDnQuotKindID       = suppl_agt.DevDnQuotKindID;
 				r_tla.InvalidSupplDealQuotAction = suppl_agt.InvPriceAction;
-				SETFLAG(r_cc.Flags2, CCFLG2_USESDONPURCHOP, suppl_agt.Flags & AGTF_USESDONPURCHOP); // @v7.2.2
+				SETFLAG(r_cc.Flags2, CCFLG2_USESDONPURCHOP, suppl_agt.Flags & AGTF_USESDONPURCHOP);
 			}
 			if(!empty_secur_base)
 				THROW(r_tla.Paths.Get(PPOBJ_USR, r_lc.User));
 			SetPath(PPPATH_DAT, data_path, 0, 1);
 			SetPath(PPPATH_SYS, dict_path, 0, 1);
 			r_tla.UserName = user_name;
-			if(/*is_system_login*/logmode == logmSystem)
+			if(logmode == logmSystem)
 				r_lc.Menu = MENU_SYSTEM;
-			else if(/*is_service_login*/logmode == logmService)
+			else if(logmode == logmService)
 				r_lc.Menu = -1;
 			if(r_lc.User && r_lc.User != PPUSR_MASTER) {
 				PPAccessRestriction accsr;
@@ -3003,14 +3007,10 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 							}
 						}
 						CATCH
-							{
-								//PPTXT_LOG_DISPTHRCROK        "Диспетчерский поток сервера успешно создан"
-								//PPTXT_LOG_DISPTHRCRERR       "Ошибка создания диспетчерского потока сервера"
-								PPLoadText(PPTXT_LOG_DISPTHRCRERR, msg_buf);
-								PPGetLastErrorMessage(1, temp_buf);
-								msg_buf.Space().CatQStr(DbSymb).CatDiv(':', 2).Cat(temp_buf);
-								PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME);
-							}
+							PPLoadText(PPTXT_LOG_DISPTHRCRERR, msg_buf);
+							PPGetLastErrorMessage(1, temp_buf);
+							msg_buf.Space().CatQStr(DbSymb).CatDiv(':', 2).Cat(temp_buf);
+							PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME);
 						ENDCATCH
 						DS.Logout();
 						memzero(secret, sizeof(secret));
@@ -3328,6 +3328,15 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			r_tla.State |= PPThreadLocalArea::stAuth; // @v8.6.11
 			ufp.Commit();
 			// } @v8.1.12
+			// @v9.9.0 {
+#if !defined(_PPDLL) && !defined(_PPSERVER)
+			if(oneof2(logmode, logmOrdinary, logmSystem) && db_state & DbProvider::dbstContinuous) {
+				PPLoadText(PPTXT_DBINCONTINUOUSMODE, msg_buf);
+				PPTooltipMessage(msg_buf, 0, 0, 10000, GetColorRef(SClrOrangered), 
+					SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fTextAlignLeft);
+			}
+#endif
+			// } @v9.9.0
 		}
 	}
 	CATCH
@@ -3421,15 +3430,8 @@ const SrSyntaxRuleSet * SLAPI PPSession::GetSrSyntaxRuleSet()
 	return P_SrStxSet;
 }
 
-int SLAPI PPSession::SetDbCacheDeferredState(long dbPathID, int set)
-{
-	return CMng.SetDeferredState(dbPathID, set);
-}
-
-int FASTCALL PPSession::IsDbCacheDeferredState(long dbPathID)
-{
-	return CMng.IsDeferredState(dbPathID);
-}
+int    SLAPI PPSession::SetDbCacheDeferredState(long dbPathID, int set) { return CMng.SetDeferredState(dbPathID, set); }
+int    FASTCALL PPSession::IsDbCacheDeferredState(long dbPathID) { return CMng.IsDeferredState(dbPathID); }
 
 int SLAPI PPSession::DirtyDbCache(long dbPathID, /*int64 * pAdvQueueMarker*/PPAdviseEventQueue::Client * pCli)
 {
@@ -3658,11 +3660,6 @@ SVerT SLAPI PPSession::GetVersion() const
 	return _ver.GetVersion(0);
 }
 
-PPSync & SLAPI PPSession::GetSync()
-{
-	return GetTLA().Sync;
-}
-
 int SLAPI PPSession::SetLocation(PPID locID)
 {
 	int    ok = 1;
@@ -3684,21 +3681,6 @@ void SLAPI PPSession::SetOperDate(LDATE date)
 	int    d;
 	GetTLA().Lc.OperDate = date;
 	decodedate(&d, &DefaultMonth, &DefaultYear, &date);
-}
-
-void SLAPI PPSession::SetCurCashNodeID(PPID cashNodeID)
-{
-	GetTLA().Lc.Cash = cashNodeID;
-}
-
-void SLAPI PPSession::SetDefBillCashID(PPID billCashID)
-{
-	GetTLA().Lc.DefBillCashID = billCashID;
-}
-
-void SLAPI PPSession::SetMenu(short menuId)
-{
-	GetTLA().Lc.Menu = menuId;
 }
 
 int SLAPI PPSession::SetDemoMode(int s)
@@ -3843,21 +3825,6 @@ long SLAPI PPSession::SetExtFlag(long f, int set)
 	return prev;
 }
 
-void SLAPI PPSession::SetStateFlag(long f, int set)
-{
-	SETFLAG(GetTLA().Lc.State, f, set);
-}
-
-int SLAPI PPSession::CheckStateFlag(long f) const
-{
-	return BIN(GetConstTLA().Lc.State & f);
-}
-
-int SLAPI PPSession::SetPath(PPID pathID, const char * pBuf, short flags, int replace)
-{
-	return GetTLA().Paths.SetPath(pathID, pBuf, flags, replace);
-}
-
 PPDriveMapping::PPDriveMapping() : StringSet(";")
 {
 }
@@ -3913,13 +3880,6 @@ int SLAPI PPSession::GetLocalPath(SString & rBuf)
 	rBuf.SetLastSlash().Cat("LOCAL").SetLastSlash().Cat(comp_name);
 	return 1;
 }
-
-int SLAPI PPSession::LoadDriveMapping(PPIniFile * pIniFile)
-	{ return DrvMap.Load(pIniFile); }
-int SLAPI PPSession::GetDriveMapping(int drive, SString & rMapping) const
-	{ return DrvMap.Get(drive, rMapping); }
-int SLAPI PPSession::ConvertPathToUnc(SString & rPath) const
-	{ return DrvMap.ConvertPathToUnc(rPath); }
 
 int SLAPI PPSession::GetPath(PPID pathID, SString & rBuf)
 {
@@ -4017,8 +3977,8 @@ PPRFile & SLAPI PPRFile::Clear()
 	PathID = 0;
 	SrcPathID = 0;
 	Flags = 0;
-	Name = 0;
-	Descr = 0;
+	Name.Z();
+	Descr.Z();
 	return *this;
 }
 
@@ -4045,15 +4005,8 @@ static int FASTCALL Helper_GetRFileInfo(PPID fileId, PPRFile & rInfo)
 	return ok;
 }
 
-long SLAPI PPSession::GetMaxLogFileSize() const
-{
-	return MaxLogFileSize;
-}
-
-int SLAPI PPSession::GetRFileInfo(PPID fileId, PPRFile & rInfo)
-{
-	return Helper_GetRFileInfo(fileId, rInfo);
-}
+long SLAPI PPSession::GetMaxLogFileSize() const { return MaxLogFileSize; }
+int  SLAPI PPSession::GetRFileInfo(PPID fileId, PPRFile & rInfo) { return Helper_GetRFileInfo(fileId, rInfo); }
 
 SEnumImp * PPSession::EnumRFileInfo()
 {
@@ -4080,9 +4033,6 @@ SEnumImp * PPSession::EnumRFileInfo()
 	return new PPRFileEnum;
 }
 
-int SLAPI PPSession::SetDbLocalObjCache(ObjCache * pCache)
-	{ return CMng.AddCache(DBS.GetDbPathID(), pCache); }
-
 ObjCache * FASTCALL PPSession::GetDbLocalObjCache(PPID objType)
 {
 	const long db_path_id = DBS.GetDbPathID();
@@ -4106,10 +4056,8 @@ PPAdviseEventQueue * SLAPI PPSession::GetAdviseEventQueue(PPAdviseEventQueue::Cl
 	return p_queue;
 }
 
-void SLAPI PPSaveErrContext()
-	{ DS.GetTLA().PushErrContext(); }
-void SLAPI PPRestoreErrContext()
-	{ DS.GetTLA().PopErrContext(); }
+void SLAPI PPSaveErrContext() { DS.GetTLA().PushErrContext(); }
+void SLAPI PPRestoreErrContext() { DS.GetTLA().PopErrContext(); }
 
 DlContext * SLAPI PPSession::Helper_GetInterfaceContext(DlContext ** ppCtx, uint fileId, int crit)
 {
@@ -4263,9 +4211,6 @@ int SLAPI PPAdviseList::Advise(long * pCookie, const PPAdviseBlock * pBlk)
 	}
 	return ok;
 }
-
-int SLAPI PPSession::Advise(long * pCookie, const PPAdviseBlock * pBlk) { return AdvList.Advise(pCookie, pBlk); }
-int SLAPI PPSession::Unadvise(long cookie) { return AdvList.Advise(&cookie, 0); } 
 
 int SLAPI PPSession::GetAdviseList(int kind, PPID objType, PPAdviseList & rList) 
 { 
@@ -4545,21 +4490,6 @@ int SLAPI PPSession::GetObjectTitle(PPID objType, SString & rBuf)
 	return ok;
 }
 
-void SLAPI PPSession::SetTempLogFileName(const char * pFileName)
-{
-	GetTLA().TempLogFile = pFileName;
-}
-
-int SLAPI PPSession::SetPrivateBasket(PPBasketPacket * pPack, int use_ta)
-{
-	return GetTLA().Cart.Set(pPack, use_ta);
-}
-
-PPBasketPacket * SLAPI PPSession::GetPrivateBasket()
-{
-	return GetTLA().Cart.Get();
-}
-
 PPJobSrvClient * SLAPI PPSession::GetClientSession(int dontReconnect)
 {
 	PPJobSrvClient * p_cli = &GetTLA().SrvSess;
@@ -4590,10 +4520,23 @@ PPJobSrvClient * SLAPI PPSession::GetClientSession(int dontReconnect)
 	return p_cli;
 }
 
-int SLAPI PPSession::StopThread(ThreadID tId)
-{
-	return ThreadList.StopThread(tId);
-}
+PPSync & SLAPI PPSession::GetSync() { return GetTLA().Sync; }
+void   SLAPI PPSession::SetCurCashNodeID(PPID cashNodeID) { GetTLA().Lc.Cash = cashNodeID; }
+void   SLAPI PPSession::SetDefBillCashID(PPID billCashID) { GetTLA().Lc.DefBillCashID = billCashID; }
+void   SLAPI PPSession::SetMenu(short menuId) { GetTLA().Lc.Menu = menuId; }
+void   SLAPI PPSession::SetStateFlag(long f, int set) { SETFLAG(GetTLA().Lc.State, f, set); }
+int    SLAPI PPSession::CheckStateFlag(long f) const { return BIN(GetConstTLA().Lc.State & f); }
+int    SLAPI PPSession::SetPath(PPID pathID, const char * pBuf, short flags, int replace) { return GetTLA().Paths.SetPath(pathID, pBuf, flags, replace); }
+int    SLAPI PPSession::LoadDriveMapping(PPIniFile * pIniFile) { return DrvMap.Load(pIniFile); }
+int    SLAPI PPSession::GetDriveMapping(int drive, SString & rMapping) const { return DrvMap.Get(drive, rMapping); }
+int    SLAPI PPSession::ConvertPathToUnc(SString & rPath) const { return DrvMap.ConvertPathToUnc(rPath); }
+int    SLAPI PPSession::SetDbLocalObjCache(ObjCache * pCache) { return CMng.AddCache(DBS.GetDbPathID(), pCache); }
+int    SLAPI PPSession::Advise(long * pCookie, const PPAdviseBlock * pBlk) { return AdvList.Advise(pCookie, pBlk); }
+int    SLAPI PPSession::Unadvise(long cookie) { return AdvList.Advise(&cookie, 0); } 
+void   SLAPI PPSession::SetTempLogFileName(const char * pFileName) { GetTLA().TempLogFile = pFileName; }
+int    SLAPI PPSession::SetPrivateBasket(PPBasketPacket * pPack, int use_ta) { return GetTLA().Cart.Set(pPack, use_ta); }
+PPBasketPacket * SLAPI PPSession::GetPrivateBasket() { return GetTLA().Cart.Get(); }
+int    SLAPI PPSession::StopThread(ThreadID tId) { return ThreadList.StopThread(tId); }
 
 int SLAPI PPSession::IsThreadStopped()
 {

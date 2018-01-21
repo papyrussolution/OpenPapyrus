@@ -69,7 +69,7 @@ int    FASTCALL CRYPTO_THREAD_read_lock(CRYPTO_RWLOCK *lock);
 int    FASTCALL CRYPTO_THREAD_write_lock(CRYPTO_RWLOCK *lock);
 int    FASTCALL CRYPTO_THREAD_unlock(CRYPTO_RWLOCK *lock);
 void   FASTCALL CRYPTO_THREAD_lock_free(CRYPTO_RWLOCK *lock);
-int    CRYPTO_atomic_add(int *val, int amount, int *ret, CRYPTO_RWLOCK *lock);
+int    FASTCALL CRYPTO_atomic_add(int *val, int amount, int *ret, CRYPTO_RWLOCK *lock);
 /*
  * The following can be used to detect memory leaks in the library. If
  * used, it turns on malloc checking
@@ -130,8 +130,8 @@ int CRYPTO_mem_ctrl(int mode);
 #define OPENSSL_secure_actual_size(ptr) CRYPTO_secure_actual_size(ptr)
 
 size_t  OPENSSL_strlcpy(char *dst, const char *src, size_t siz);
-size_t  OPENSSL_strlcat(char *dst, const char *src, size_t siz);
-size_t  OPENSSL_strnlen(const char *str, size_t maxlen);
+size_t  FASTCALL OPENSSL_strlcat(char *dst, const char *src, size_t siz);
+size_t  FASTCALL OPENSSL_strnlen(const char *str, size_t maxlen);
 char  * OPENSSL_buf2hexstr(const uchar *buffer, long len);
 uchar * OPENSSL_hexstr2buf(const char *str, long *len);
 int     OPENSSL_hexchar2int(uchar c);
@@ -149,9 +149,9 @@ const char *OpenSSL_version(int type);
 
 int OPENSSL_issetugid(void);
 
-typedef void CRYPTO_EX_new(void *parent, void *ptr, CRYPTO_EX_DATA *ad, int idx, long argl, void *argp);
-typedef void CRYPTO_EX_free(void *parent, void *ptr, CRYPTO_EX_DATA *ad, int idx, long argl, void *argp);
-typedef int CRYPTO_EX_dup(CRYPTO_EX_DATA *to, const CRYPTO_EX_DATA *from, void *srcp, int idx, long argl, void *argp);
+/*@funcdef*/typedef void CRYPTO_EX_new(void *parent, void *ptr, CRYPTO_EX_DATA *ad, int idx, long argl, void *argp);
+/*@funcdef*/typedef void CRYPTO_EX_free(void *parent, void *ptr, CRYPTO_EX_DATA *ad, int idx, long argl, void *argp);
+/*@funcdef*/typedef int CRYPTO_EX_dup(CRYPTO_EX_DATA *to, const CRYPTO_EX_DATA *from, void *srcp, int idx, long argl, void *argp);
 __owur int CRYPTO_get_ex_new_index(int class_index, long argl, void *argp, CRYPTO_EX_new *new_func, CRYPTO_EX_dup *dup_func, CRYPTO_EX_free *free_func);
 /* No longer use an index. */
 int CRYPTO_free_ex_index(int class_index, int idx);

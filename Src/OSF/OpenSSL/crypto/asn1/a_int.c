@@ -475,29 +475,15 @@ static BIGNUM * asn1_string_to_bn(const ASN1_INTEGER * ai, BIGNUM * bn, int ityp
 }
 
 int FASTCALL ASN1_INTEGER_get_int64(int64_t * pr, const ASN1_INTEGER * a)
-{
-	return asn1_string_get_int64(pr, a, V_ASN1_INTEGER);
-}
-
+	{ return asn1_string_get_int64(pr, a, V_ASN1_INTEGER); }
 int FASTCALL ASN1_INTEGER_set_int64(ASN1_INTEGER * a, int64_t r)
-{
-	return asn1_string_set_int64(a, r, V_ASN1_INTEGER);
-}
-
+	{ return asn1_string_set_int64(a, r, V_ASN1_INTEGER); }
 int FASTCALL ASN1_INTEGER_get_uint64(uint64_t * pr, const ASN1_INTEGER * a)
-{
-	return asn1_string_get_uint64(pr, a, V_ASN1_INTEGER);
-}
-
+	{ return asn1_string_get_uint64(pr, a, V_ASN1_INTEGER); }
 int FASTCALL ASN1_INTEGER_set_uint64(ASN1_INTEGER * a, uint64_t r)
-{
-	return asn1_string_set_uint64(a, r, V_ASN1_INTEGER);
-}
-
+	{ return asn1_string_set_uint64(a, r, V_ASN1_INTEGER); }
 int FASTCALL ASN1_INTEGER_set(ASN1_INTEGER * a, long v)
-{
-	return ASN1_INTEGER_set_int64(a, v);
-}
+	{ return ASN1_INTEGER_set_int64(a, v); }
 
 long FASTCALL ASN1_INTEGER_get(const ASN1_INTEGER * a)
 {
@@ -514,29 +500,15 @@ long FASTCALL ASN1_INTEGER_get(const ASN1_INTEGER * a)
 }
 
 ASN1_INTEGER * FASTCALL BN_to_ASN1_INTEGER(const BIGNUM * bn, ASN1_INTEGER * ai)
-{
-	return bn_to_asn1_string(bn, ai, V_ASN1_INTEGER);
-}
-
+	{ return bn_to_asn1_string(bn, ai, V_ASN1_INTEGER); }
 BIGNUM * FASTCALL ASN1_INTEGER_to_BN(const ASN1_INTEGER * ai, BIGNUM * bn)
-{
-	return asn1_string_to_bn(ai, bn, V_ASN1_INTEGER);
-}
-
+	{ return asn1_string_to_bn(ai, bn, V_ASN1_INTEGER); }
 int FASTCALL ASN1_ENUMERATED_get_int64(int64_t * pr, const ASN1_ENUMERATED * a)
-{
-	return asn1_string_get_int64(pr, a, V_ASN1_ENUMERATED);
-}
-
+	{ return asn1_string_get_int64(pr, a, V_ASN1_ENUMERATED); }
 int FASTCALL ASN1_ENUMERATED_set_int64(ASN1_ENUMERATED * a, int64_t r)
-{
-	return asn1_string_set_int64(a, r, V_ASN1_ENUMERATED);
-}
-
+	{ return asn1_string_set_int64(a, r, V_ASN1_ENUMERATED); }
 int FASTCALL ASN1_ENUMERATED_set(ASN1_ENUMERATED * a, long v)
-{
-	return ASN1_ENUMERATED_set_int64(a, v);
-}
+	{ return ASN1_ENUMERATED_set_int64(a, v); }
 
 long FASTCALL ASN1_ENUMERATED_get(const ASN1_ENUMERATED * a)
 {
@@ -557,12 +529,7 @@ long FASTCALL ASN1_ENUMERATED_get(const ASN1_ENUMERATED * a)
 }
 
 ASN1_ENUMERATED * FASTCALL BN_to_ASN1_ENUMERATED(const BIGNUM * bn, ASN1_ENUMERATED * ai)
-{
-	return bn_to_asn1_string(bn, ai, V_ASN1_ENUMERATED);
-}
-
+	{ return bn_to_asn1_string(bn, ai, V_ASN1_ENUMERATED); }
 BIGNUM * FASTCALL ASN1_ENUMERATED_to_BN(const ASN1_ENUMERATED * ai, BIGNUM * bn)
-{
-	return asn1_string_to_bn(ai, bn, V_ASN1_ENUMERATED);
-}
+	{ return asn1_string_to_bn(ai, bn, V_ASN1_ENUMERATED); }
 

@@ -515,9 +515,9 @@ static const char * openssl_strnchr(const char * string, int c, size_t len)
 #define DLLNAME "KERNEL32.DLL"
 # endif
 
-typedef HANDLE (WINAPI *CREATETOOLHELP32SNAPSHOT)(DWORD, DWORD);
-typedef BOOL (WINAPI *CLOSETOOLHELP32SNAPSHOT)(HANDLE);
-typedef BOOL (WINAPI *MODULE32)(HANDLE, MODULEENTRY32 *);
+/*@funcdef*/typedef HANDLE (WINAPI *CREATETOOLHELP32SNAPSHOT)(DWORD, DWORD);
+/*@funcdef*/typedef BOOL (WINAPI *CLOSETOOLHELP32SNAPSHOT)(HANDLE);
+/*@funcdef*/typedef BOOL (WINAPI *MODULE32)(HANDLE, MODULEENTRY32 *);
 
 static void * win32_globallookup(const char * name)
 {

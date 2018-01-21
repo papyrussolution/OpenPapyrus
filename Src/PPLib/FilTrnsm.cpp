@@ -279,7 +279,7 @@ int SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long f
 	return ok;
 }
 
-
+/* @v9.9.0 (replaced with GetFilesFromMailServer2) {
 int SLAPI GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long filtFlags, int clean, int deleMsg)
 {
 	int    ok = 1;
@@ -363,6 +363,7 @@ int SLAPI GetFilesFromMailServer(PPID mailAccID, const char * pDestPath, long fi
 	CATCHZOK
 	return ok;
 }
+*/
 
 /* @v9.8.11 int SLAPI Debug_GetFilesFromMessage(const char * pMsgFile)
 {

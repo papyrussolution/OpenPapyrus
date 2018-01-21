@@ -170,18 +170,17 @@ int ossl_statem_accept(SSL * s)
 	return state_machine(s, 1);
 }
 
-typedef void (*info_cb)(const SSL *, int, int);
+/*@funcdef*/typedef void (*info_cb)(const SSL *, int, int);
 
 static info_cb get_callback(SSL * s)
 {
-	if(s->info_callback != NULL)
+	if(s->info_callback)
 		return s->info_callback;
-	else if(s->ctx->info_callback != NULL)
+	else if(s->ctx->info_callback)
 		return s->ctx->info_callback;
-
-	return NULL;
+	else
+		return NULL;
 }
-
 /*
  * The main message flow state machine. We start in the MSG_FLOW_UNINITED or
  * MSG_FLOW_RENEGOTIATE state and finish in MSG_FLOW_FINISHED. Valid states and
@@ -339,15 +338,12 @@ static int state_machine(SSL * s, int server)
 			if(st->state != MSG_FLOW_RENEGOTIATE) {
 				s->ctx->stats.sess_accept++;
 			}
-			else if(!s->s3->send_connection_binding &&
-			    !(s->options &
-				    SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION)) {
+			else if(!s->s3->send_connection_binding && !(s->options & SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION)) {
 				/*
 				 * Server attempting to renegotiate with client that doesn't
 				 * support secure renegotiation.
 				 */
-				SSLerr(SSL_F_STATE_MACHINE,
-				    SSL_R_UNSAFE_LEGACY_RENEGOTIATION_DISABLED);
+				SSLerr(SSL_F_STATE_MACHINE, SSL_R_UNSAFE_LEGACY_RENEGOTIATION_DISABLED);
 				ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_HANDSHAKE_FAILURE);
 				ossl_statem_set_error(s);
 				goto end;
@@ -358,7 +354,6 @@ static int state_machine(SSL * s, int server)
 				 */
 				s->ctx->stats.sess_accept_renegotiate++;
 			}
-
 			s->s3->tmp.cert_request = 0;
 		}
 		else {
@@ -371,12 +366,10 @@ static int state_machine(SSL * s, int server)
 				st->use_timer = 1;
 			}
 		}
-
 		st->state = MSG_FLOW_WRITING;
 		init_write_state_machine(s);
 		st->read_state_first_init = 1;
 	}
-
 	while(st->state != MSG_FLOW_FINISHED) {
 		if(st->state == MSG_FLOW_READING) {
 			ssret = read_state_machine(s);

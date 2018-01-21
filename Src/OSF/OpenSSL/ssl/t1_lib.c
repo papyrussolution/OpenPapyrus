@@ -2112,24 +2112,20 @@ static int ssl_scan_clienthello_tlsext(SSL * s, PACKET * pkt, int * al)
 			}
 		}
 		else if(type == TLSEXT_TYPE_status_request) {
-			if(!PACKET_get_1(&extension,
-				    (uint*)&s->tlsext_status_type)) {
+			if(!PACKET_get_1(&extension, (uint*)&s->tlsext_status_type)) {
 				return 0;
 			}
 #ifndef OPENSSL_NO_OCSP
 			if(s->tlsext_status_type == TLSEXT_STATUSTYPE_ocsp) {
 				const uchar * ext_data;
 				PACKET responder_id_list, exts;
-				if(!PACKET_get_length_prefixed_2
-					    (&extension, &responder_id_list))
+				if(!PACKET_get_length_prefixed_2(&extension, &responder_id_list))
 					return 0;
-
 				/*
 				 * We remove any OCSP_RESPIDs from a previous handshake
 				 * to prevent unbounded memory growth - CVE-2016-6304
 				 */
-				sk_OCSP_RESPID_pop_free(s->tlsext_ocsp_ids,
-				    OCSP_RESPID_free);
+				sk_OCSP_RESPID_pop_free(s->tlsext_ocsp_ids, OCSP_RESPID_free);
 				if(PACKET_remaining(&responder_id_list) > 0) {
 					s->tlsext_ocsp_ids = sk_OCSP_RESPID_new_null();
 					if(s->tlsext_ocsp_ids == NULL) {

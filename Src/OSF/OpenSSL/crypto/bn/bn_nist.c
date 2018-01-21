@@ -429,13 +429,10 @@ int BN_nist_mod_192(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 	 * 'tmp=result-modulus; if (!carry || !borrow) result=tmp;'
 	 * this is what happens below, but without explicit if:-) a.
 	 */
-	mask =
-	    0 - (PTR_SIZE_INT)bn_sub_words(c_d, r_d, _nist_p_192[0],
-	    BN_NIST_192_TOP);
+	mask = 0 - (PTR_SIZE_INT)bn_sub_words(c_d, r_d, _nist_p_192[0], BN_NIST_192_TOP);
 	mask &= 0 - (PTR_SIZE_INT)carry;
 	res = c_d;
-	res = (BN_ULONG*)
-	    (((PTR_SIZE_INT)res & ~mask) | ((PTR_SIZE_INT)r_d & mask));
+	res = (BN_ULONG*)(((PTR_SIZE_INT)res & ~mask) | ((PTR_SIZE_INT)r_d & mask));
 	nist_cp_bn(r_d, res, BN_NIST_192_TOP);
 	r->top = BN_NIST_192_TOP;
 	bn_correct_top(r);
@@ -443,8 +440,7 @@ int BN_nist_mod_192(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 	return 1;
 }
 
-typedef BN_ULONG (*bn_addsub_f)(BN_ULONG *, const BN_ULONG *,
-    const BN_ULONG *, int);
+/*@funcdef*/typedef BN_ULONG (*bn_addsub_f)(BN_ULONG *, const BN_ULONG *, const BN_ULONG *, int);
 
 #define nist_set_224(to, from, a1, a2, a3, a4, a5, a6, a7) \
 	{ \
@@ -457,16 +453,14 @@ typedef BN_ULONG (*bn_addsub_f)(BN_ULONG *, const BN_ULONG *,
 		bn_cp_32(to, 6, from, (a1) - 7)	\
 	}
 
-int BN_nist_mod_224(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
-    BN_CTX * ctx)
+int BN_nist_mod_224(BIGNUM * r, const BIGNUM * a, const BIGNUM * field, BN_CTX * ctx)
 {
 	int top = a->top, i;
 	int carry;
 	BN_ULONG * r_d, * a_d = a->d;
 	union {
 		BN_ULONG bn[BN_NIST_224_TOP];
-		uint ui[BN_NIST_224_TOP * sizeof(BN_ULONG) /
-		    sizeof(uint)];
+		uint ui[BN_NIST_224_TOP * sizeof(BN_ULONG) / sizeof(uint)];
 	} buf;
 
 	BN_ULONG c_d[BN_NIST_224_TOP], * res;
@@ -482,12 +476,9 @@ int BN_nist_mod_224(BIGNUM * r, const BIGNUM * a, const BIGNUM * field,
 		OSSL_NELEM(_nist_p_224_sqr),
 		0, BN_FLG_STATIC_DATA
 	};
-
 	field = &_bignum_nist_p_224; /* just to make sure */
-
 	if(BN_is_negative(a) || BN_ucmp(a, &_bignum_nist_p_224_sqr) >= 0)
 		return BN_nnmod(r, a, field, ctx);
-
 	i = BN_ucmp(field, a);
 	if(i == 0) {
 		BN_zero(r);

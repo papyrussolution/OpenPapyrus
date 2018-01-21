@@ -13,36 +13,37 @@
 
 int ASN1_digest(i2d_of_void * i2d, const EVP_MD * type, char * data, uchar * md, uint * len)
 {
-	uchar * str, * p;
-	int i = i2d(data, 0);
-	if((str = (uchar*)OPENSSL_malloc(i)) == NULL) {
+	int    ok = 1;
+	const  int i = i2d(data, 0);
+	uchar * str = (uchar*)OPENSSL_malloc(i);
+	if(!str) {
 		ASN1err(ASN1_F_ASN1_DIGEST, ERR_R_MALLOC_FAILURE);
-		return 0;
+		ok = 0;
 	}
-	p = str;
-	i2d(data, &p);
-	if(!EVP_Digest(str, i, md, len, type, NULL)) {
+	else {
+		uchar * p = str;
+		i2d(data, &p);
+		if(!EVP_Digest(str, i, md, len, type, NULL))
+			ok = 0;
 		OPENSSL_free(str);
-		return 0;
 	}
-	OPENSSL_free(str);
-	return 1;
+	return ok;
 }
 
 #endif
 
 int ASN1_item_digest(const ASN1_ITEM * it, const EVP_MD * type, void * asn, uchar * md, uint * len)
 {
-	int i;
+	int    ok = 1;
 	uchar * str = NULL;
-	i = ASN1_item_i2d((ASN1_VALUE*)asn, &str, it);
+	int i = ASN1_item_i2d((ASN1_VALUE*)asn, &str, it);
 	if(!str)
-		return 0;
-	if(!EVP_Digest(str, i, md, len, type, NULL)) {
+		ok = 0;
+	else {
+		if(!EVP_Digest(str, i, md, len, type, NULL))
+			ok = 0;
 		OPENSSL_free(str);
-		return 0;
 	}
-	OPENSSL_free(str);
-	return 1;
+	return ok;
 }
 

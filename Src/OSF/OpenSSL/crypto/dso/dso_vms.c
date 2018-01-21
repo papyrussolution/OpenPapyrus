@@ -64,11 +64,9 @@ static DSO_METHOD dso_meth_vms = {
  */
 typedef struct dso_internal_st {
 	/*
-	 * This should contain the name only, no directory, no extension, nothing
-	 * but a name.
+	 * This should contain the name only, no directory, no extension, nothing but a name.
 	 */
 	struct dsc$descriptor_s filename_dsc;
-
 	char filename[NAMX_MAXRSS + 1];
 	/*
 	 * This contains whatever is not in filename, if needed. Normally not

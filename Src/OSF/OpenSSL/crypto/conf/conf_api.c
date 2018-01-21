@@ -57,15 +57,15 @@ char * _CONF_get_string(const CONF * conf, const char * section, const char * na
 {
 	if(!name)
 		return NULL;
-	if(conf != NULL) {
+	else if(conf) {
 		CONF_VALUE * v, vv;
-		if(section != NULL) {
+		if(section) {
 			vv.name = (char*)name;
 			vv.section = (char*)section;
 			v = lh_CONF_VALUE_retrieve(conf->data, &vv);
 			if(v)
 				return (v->value);
-			if(strcmp(section, "ENV") == 0) {
+			if(sstreq(section, "ENV")) {
 				char * p = getenv(name);
 				if(p)
 					return (p);
@@ -93,7 +93,7 @@ static int conf_value_cmp(const CONF_VALUE * a, const CONF_VALUE * b)
 		if(i)
 			return (i);
 	}
-	if((a->name != NULL) && (b->name != NULL)) {
+	if(a->name && b->name) {
 		i = strcmp(a->name, b->name);
 		return (i);
 	}
@@ -105,38 +105,39 @@ static int conf_value_cmp(const CONF_VALUE * a, const CONF_VALUE * b)
 
 int _CONF_new_data(CONF * conf)
 {
-	if(!conf) {
+	if(!conf)
 		return 0;
+	else {
+		if(conf->data == NULL) {
+			conf->data = lh_CONF_VALUE_new(conf_value_hash, conf_value_cmp);
+			if(conf->data == NULL)
+				return 0;
+		}
+		return 1;
 	}
-	if(conf->data == NULL) {
-		conf->data = lh_CONF_VALUE_new(conf_value_hash, conf_value_cmp);
-		if(conf->data == NULL)
-			return 0;
-	}
-	return 1;
 }
 
-typedef LHASH_OF (CONF_VALUE) LH_CONF_VALUE;
+typedef LHASH_OF(CONF_VALUE) LH_CONF_VALUE;
 
 IMPLEMENT_LHASH_DOALL_ARG_CONST(CONF_VALUE, LH_CONF_VALUE);
 
 void _CONF_free_data(CONF * conf)
 {
-	if(conf == NULL || conf->data == NULL)
-		return;
-	/* evil thing to make sure the 'OPENSSL_free()' works as expected */
-	lh_CONF_VALUE_set_down_load(conf->data, 0);
-	lh_CONF_VALUE_doall_LH_CONF_VALUE(conf->data, value_free_hash, conf->data);
-	/*
-	 * We now have only 'section' entries in the hash table. Due to problems with
-	 */
-	lh_CONF_VALUE_doall(conf->data, value_free_stack_doall);
-	lh_CONF_VALUE_free(conf->data);
+	if(conf && conf->data) {
+		// evil thing to make sure the 'OPENSSL_free()' works as expected 
+		lh_CONF_VALUE_set_down_load(conf->data, 0);
+		lh_CONF_VALUE_doall_LH_CONF_VALUE(conf->data, value_free_hash, conf->data);
+		//
+		// We now have only 'section' entries in the hash table. Due to problems with
+		//
+		lh_CONF_VALUE_doall(conf->data, value_free_stack_doall);
+		lh_CONF_VALUE_free(conf->data);
+	}
 }
 
 static void value_free_hash(const CONF_VALUE * a, LHASH_OF(CONF_VALUE) * conf)
 {
-	if(a->name != NULL)
+	if(a->name)
 		(void)lh_CONF_VALUE_delete(conf, a);
 }
 

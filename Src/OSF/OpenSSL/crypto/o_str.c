@@ -57,7 +57,7 @@ void * CRYPTO_memdup(const void * data, size_t siz, const char* file, int line)
 	return memcpy(ret, data, siz);
 }
 
-size_t OPENSSL_strnlen(const char * str, size_t maxlen)
+size_t FASTCALL OPENSSL_strnlen(const char * str, size_t maxlen)
 {
 	const char * p;
 	for(p = str; maxlen-- != 0 && *p != '\0'; ++p) 
@@ -77,7 +77,7 @@ size_t OPENSSL_strlcpy(char * dst, const char * src, size_t size)
 	return l + strlen(src);
 }
 
-size_t OPENSSL_strlcat(char * dst, const char * src, size_t size)
+size_t FASTCALL OPENSSL_strlcat(char * dst, const char * src, size_t size)
 {
 	size_t l = 0;
 	for(; size > 0 && *dst; size--, dst++)

@@ -1436,16 +1436,13 @@ int SLAPI PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 			vrec.DueDtm.Set(item.EstFinishDt, item.EstFinishTm);
 			vrec.Sequence = (int16)item.OpenCount;
 			vrec.Priority = item.Priority;
-			if(item.Status == TODOSTTS_NEW)
-				vrec.Status = VCalendar::stAccepted;
-			else if(item.Status == TODOSTTS_REJECTED)
-				vrec.Status = VCalendar::stDeclined;
-			else if(item.Status == TODOSTTS_INPROGRESS)
-				vrec.Status = VCalendar::stConfirmed;
-			else if(item.Status == TODOSTTS_ONHOLD)
-				vrec.Status = VCalendar::stNeedsAction;
-			else if(item.Status == TODOSTTS_COMPLETED)
-				vrec.Status = VCalendar::stCompleted;
+			switch(item.Status) {
+				case TODOSTTS_NEW: vrec.Status = VCalendar::stAccepted; break;
+				case TODOSTTS_REJECTED: vrec.Status = VCalendar::stDeclined; break;
+				case TODOSTTS_INPROGRESS: vrec.Status = VCalendar::stConfirmed; break;
+				case TODOSTTS_ONHOLD: vrec.Status = VCalendar::stNeedsAction; break;
+				case TODOSTTS_COMPLETED: vrec.Status = VCalendar::stCompleted; break;
+			}
 			PPGetWord(PPWORD_MISCELLANEOUS, 0, vrec.Category);
 			vrec.Classification = VCalendar::clPublic;
 			GetObjectName(PPOBJ_PERSON, item.EmployerID, vrec.Owner);
@@ -2195,7 +2192,7 @@ PPALDD_CONSTRUCTOR(PrjTaskView)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -2256,7 +2253,7 @@ PPALDD_CONSTRUCTOR(PrjTaskViewCt)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 

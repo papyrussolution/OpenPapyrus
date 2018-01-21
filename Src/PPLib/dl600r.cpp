@@ -673,15 +673,9 @@ int FASTCALL DlRtm::IterProlog(PPIterID & rID, int doInit)
 	return (!doInit && prev_is_first) ? -1 : 1;
 }
 
-int FASTCALL DlRtm::AssignHeadData(void * pData, size_t dataSize)
-{
-	return InitFixData(rscDefHdr, pData, dataSize);
-}
-
-int FASTCALL DlRtm::AssignIterData(int one, void * pData, size_t dataSize)
-{
-	return InitFixData(rscDefIter, pData, dataSize);
-}
+int FASTCALL DlRtm::AssignHeadData(void * pData, size_t dataSize) { return InitFixData(rscDefHdr, pData, dataSize); }
+int FASTCALL DlRtm::AssignIterData(int one, void * pData, size_t dataSize) { return InitFixData(rscDefIter, pData, dataSize); }
+int FASTCALL DlRtm::AssignDefIterData(void * pData, size_t dataSize) { return InitFixData(rscDefIter, pData, dataSize); }
 
 int DlRtm::InitFixData(const char * pScopeName, void * pData, size_t dataSize)
 {

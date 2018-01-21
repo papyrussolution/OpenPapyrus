@@ -6052,7 +6052,7 @@ PPALDD_CONSTRUCTOR(GoodsBillBase)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -7188,7 +7188,7 @@ PPALDD_CONSTRUCTOR(GoodsBillModif)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -7357,7 +7357,7 @@ PPALDD_CONSTRUCTOR(GoodsReval)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -7584,7 +7584,7 @@ PPALDD_CONSTRUCTOR(BillPayPlan)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -7758,7 +7758,7 @@ PPALDD_CONSTRUCTOR(GoodsBillQCert)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -7858,7 +7858,7 @@ PPALDD_CONSTRUCTOR(BillList)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -7923,7 +7923,7 @@ PPALDD_CONSTRUCTOR(ContentBList)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -8112,7 +8112,7 @@ PPALDD_CONSTRUCTOR(AdvanceRep)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -8260,7 +8260,7 @@ PPALDD_CONSTRUCTOR(BillTotal)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -8333,7 +8333,7 @@ PPALDD_CONSTRUCTOR(AssetReceipt)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -8395,7 +8395,7 @@ PPALDD_CONSTRUCTOR(Warrant)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -8461,7 +8461,7 @@ PPALDD_CONSTRUCTOR(BillInfo)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -8532,7 +8532,7 @@ PPALDD_CONSTRUCTOR(BillInfoList)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 

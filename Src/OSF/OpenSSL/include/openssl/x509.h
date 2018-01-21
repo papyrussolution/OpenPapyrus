@@ -510,34 +510,34 @@ DECLARE_ASN1_FUNCTIONS(NETSCAPE_SPKI)
 DECLARE_ASN1_FUNCTIONS(NETSCAPE_SPKAC)
 DECLARE_ASN1_FUNCTIONS(NETSCAPE_CERT_SEQUENCE)
 
-X509_INFO *X509_INFO_new(void);
-void X509_INFO_free(X509_INFO *a);
-char *X509_NAME_oneline(const X509_NAME *a, char *buf, int size);
-int ASN1_verify(i2d_of_void *i2d, X509_ALGOR *algor1, ASN1_BIT_STRING *signature, char *data, EVP_PKEY *pkey);
-int ASN1_digest(i2d_of_void *i2d, const EVP_MD *type, char *data, uchar *md, uint *len);
-int ASN1_sign(i2d_of_void *i2d, X509_ALGOR *algor1, X509_ALGOR *algor2, ASN1_BIT_STRING *signature, char *data, EVP_PKEY *pkey, const EVP_MD *type);
-int ASN1_item_digest(const ASN1_ITEM *it, const EVP_MD *type, void *data, uchar *md, uint *len);
-int ASN1_item_verify(const ASN1_ITEM *it, X509_ALGOR *algor1, ASN1_BIT_STRING *signature, void *data, EVP_PKEY *pkey);
-int ASN1_item_sign(const ASN1_ITEM *it, X509_ALGOR *algor1, X509_ALGOR *algor2, ASN1_BIT_STRING *signature, void *data, EVP_PKEY *pkey, const EVP_MD *type);
-int ASN1_item_sign_ctx(const ASN1_ITEM *it, X509_ALGOR *algor1, X509_ALGOR *algor2, ASN1_BIT_STRING *signature, void *asn, EVP_MD_CTX *ctx);
-long X509_get_version(const X509 *x);
-int X509_set_version(X509 *x, long version);
-int X509_set_serialNumber(X509 *x, ASN1_INTEGER *serial);
+X509_INFO * X509_INFO_new(void);
+void   X509_INFO_free(X509_INFO *a);
+char * X509_NAME_oneline(const X509_NAME *a, char *buf, int size);
+int    ASN1_verify(i2d_of_void *i2d, X509_ALGOR *algor1, ASN1_BIT_STRING *signature, char *data, EVP_PKEY *pkey);
+int    ASN1_digest(i2d_of_void *i2d, const EVP_MD *type, char *data, uchar *md, uint *len);
+int    ASN1_sign(i2d_of_void *i2d, X509_ALGOR *algor1, X509_ALGOR *algor2, ASN1_BIT_STRING *signature, char *data, EVP_PKEY *pkey, const EVP_MD *type);
+int    ASN1_item_digest(const ASN1_ITEM *it, const EVP_MD *type, void *data, uchar *md, uint *len);
+int    ASN1_item_verify(const ASN1_ITEM *it, X509_ALGOR *algor1, ASN1_BIT_STRING *signature, void *data, EVP_PKEY *pkey);
+int    ASN1_item_sign(const ASN1_ITEM *it, X509_ALGOR *algor1, X509_ALGOR *algor2, ASN1_BIT_STRING *signature, void *data, EVP_PKEY *pkey, const EVP_MD *type);
+int    ASN1_item_sign_ctx(const ASN1_ITEM *it, X509_ALGOR *algor1, X509_ALGOR *algor2, ASN1_BIT_STRING *signature, void *asn, EVP_MD_CTX *ctx);
+long   X509_get_version(const X509 *x);
+int    X509_set_version(X509 *x, long version);
+int    X509_set_serialNumber(X509 *x, ASN1_INTEGER *serial);
 ASN1_INTEGER *X509_get_serialNumber(X509 *x);
 const ASN1_INTEGER *X509_get0_serialNumber(const X509 *x);
-int X509_set_issuer_name(X509 *x, X509_NAME *name);
+int    X509_set_issuer_name(X509 *x, X509_NAME *name);
 X509_NAME *X509_get_issuer_name(const X509 *a);
-int X509_set_subject_name(X509 *x, X509_NAME *name);
+int    X509_set_subject_name(X509 *x, X509_NAME *name);
 X509_NAME *X509_get_subject_name(const X509 *a);
 const ASN1_TIME * X509_get0_notBefore(const X509 *x);
 ASN1_TIME *X509_getm_notBefore(const X509 *x);
-int X509_set1_notBefore(X509 *x, const ASN1_TIME *tm);
-const ASN1_TIME *X509_get0_notAfter(const X509 *x);
-ASN1_TIME *X509_getm_notAfter(const X509 *x);
-int X509_set1_notAfter(X509 *x, const ASN1_TIME *tm);
-int X509_set_pubkey(X509 *x, EVP_PKEY *pkey);
-int X509_up_ref(X509 *x);
-int X509_get_signature_type(const X509 *x);
+int    X509_set1_notBefore(X509 *x, const ASN1_TIME *tm);
+const ASN1_TIME * X509_get0_notAfter(const X509 *x);
+ASN1_TIME * X509_getm_notAfter(const X509 *x);
+int    X509_set1_notAfter(X509 *x, const ASN1_TIME *tm);
+int    X509_set_pubkey(X509 *x, EVP_PKEY *pkey);
+int    FASTCALL X509_up_ref(X509 *x);
+int    X509_get_signature_type(const X509 *x);
 
 # if OPENSSL_API_COMPAT < 0x10100000L
 	#define X509_get_notBefore X509_getm_notBefore
@@ -638,10 +638,10 @@ ulong X509_issuer_name_hash_old(X509 *a);
 ulong X509_subject_name_hash_old(X509 *x);
 # endif
 
-int X509_cmp(const X509 *a, const X509 *b);
-int X509_NAME_cmp(const X509_NAME *a, const X509_NAME *b);
-ulong X509_NAME_hash(X509_NAME *x);
-ulong X509_NAME_hash_old(X509_NAME *x);
+int    X509_cmp(const X509 *a, const X509 *b);
+int    FASTCALL X509_NAME_cmp(const X509_NAME *a, const X509_NAME *b);
+ulong  X509_NAME_hash(X509_NAME *x);
+ulong  X509_NAME_hash_old(X509_NAME *x);
 
 int X509_CRL_cmp(const X509_CRL *a, const X509_CRL *b);
 int X509_CRL_match(const X509_CRL *a, const X509_CRL *b);

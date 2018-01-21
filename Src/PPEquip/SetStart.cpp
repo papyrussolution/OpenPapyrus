@@ -819,7 +819,7 @@ int SLAPI ACS_SETSTART::ImportFiles()
 				SString temp_fname;
 				SString dest_fname;
 
-				THROW(mail.Init(&mac_rec));
+				mail.Init(&mac_rec);
 				mac_rec.GetExtField(MAEXSTR_RCVSERVER, wait_msg);
 				PPWaitMsg(PPSTR_TEXT, PPTXT_WTMAILCONNECTION, wait_msg);
 				if(!mail_connected) {

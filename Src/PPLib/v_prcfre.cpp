@@ -728,7 +728,7 @@ PPALDD_CONSTRUCTOR(PrcBusyView)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 

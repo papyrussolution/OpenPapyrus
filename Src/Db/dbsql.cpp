@@ -166,19 +166,13 @@ IMPL_INVARIANT_C(SSqlStmt::Bind)
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SSqlStmt::BindArray::BindArray(uint dim) : TSVector <SSqlStmt::Bind>()
+SSqlStmt::BindArray::BindArray(uint dim) : TSVector <SSqlStmt::Bind>(), Dim(dim)
 {
-	Dim = dim;
 }
 
-SSqlStmt::SSqlStmt(DbProvider * pDb, const char * pText) : Descr(SdRecord::fAllowDupName)
+SSqlStmt::SSqlStmt(DbProvider * pDb, const char * pText) : P_Db(0), Descr(SdRecord::fAllowDupName), Flags(0), H(0), IndSubstPlus(0), IndSubstMinus(0), FslSubst(0)
 {
-	Flags = 0;
-	H = 0;
 	BS.Init();
-	IndSubstPlus = 0;
-	IndSubstMinus = 0;
-	FslSubst = 0;
 	InitBinding();
 	if(pDb) {
 		P_Db = pDb;
@@ -327,7 +321,7 @@ int SSqlStmt::Describe()
 
 int SSqlStmt::InitBinding()
 {
-	BL.freeAll();
+	BL.clear(); // @v9.9.0 freeAll-->clear
 	BL.Dim = 1;
 	BS.Destroy();
 	BS.Alloc(SKILOBYTE(16)); // @todo Указатель должен быть неперемещаемым. В дальнейшем надо
@@ -1255,20 +1249,9 @@ int FASTCALL SOraDbProvider::OdFree(OD & rO)
 	}
 }
 
-int SOraDbProvider::OhAttrSet(OH o, uint attr, void * pData, size_t size)
-{
-	return ProcessError(OCIAttrSet(o.H, o.T, pData, size, attr, Err));
-}
-
-int SOraDbProvider::OdAttrSet(OD o, uint attr, void * pData, size_t size)
-{
-	return ProcessError(OCIAttrSet(o.H, o.T, pData, size, attr, Err));
-}
-
-int SOraDbProvider::OhAttrGet(OH o, uint attr, void * pData, size_t * pSize)
-{
-	return ProcessError(OCIAttrGet(o.H, o.T, pData, (uint32 *)pSize, attr, Err));
-}
+int SOraDbProvider::OhAttrSet(OH o, uint attr, void * pData, size_t size) { return ProcessError(OCIAttrSet(o.H, o.T, pData, size, attr, Err)); }
+int SOraDbProvider::OdAttrSet(OD o, uint attr, void * pData, size_t size) { return ProcessError(OCIAttrSet(o.H, o.T, pData, size, attr, Err)); }
+int SOraDbProvider::OhAttrGet(OH o, uint attr, void * pData, size_t * pSize) { return ProcessError(OCIAttrGet(o.H, o.T, pData, (uint32 *)pSize, attr, Err)); }
 
 int SOraDbProvider::OhAttrGet(OH o, uint attr, SString & rBuf)
 {
@@ -1530,7 +1513,7 @@ void ConnectBase::MakeTNSString (std::string& str, const char* host, const char*
 	//
 	THROW(ProcessError(OCISessionBegin(Srvc, Err, Sess, OCI_CRED_RDBMS, OCI_DEFAULT)));
 	THROW(OhAttrSet(Srvc, OCI_ATTR_SESSION, Sess.H, 0));
-	THROW(Common_Login(pBlk));
+	Common_Login(pBlk);
 	CATCHZOK
 	return ok;
 }
@@ -1541,7 +1524,8 @@ void ConnectBase::MakeTNSString (std::string& str, const char* host, const char*
 	if(State & stLoggedIn) {
 		ok = ProcessError(OCISessionEnd(Srvc, Err, Sess, OCI_DEFAULT));
 	}
-	return Common_Logout();
+	Common_Logout();
+	return ok;
 }
 
 SString & SLAPI SOraDbProvider::MakeFileName_(const char * pTblName, SString & rBuf)

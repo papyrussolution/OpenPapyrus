@@ -21,19 +21,19 @@ extern "C" {
 /* Forward reference */
 struct v3_ext_method;
 struct v3_ext_ctx;
-
-/* Useful typedefs */
-
-typedef void *(*X509V3_EXT_NEW)(void);
-typedef void (*X509V3_EXT_FREE)(void *);
-typedef void *(*X509V3_EXT_D2I)(void *, const uchar **, long);
-typedef int (*X509V3_EXT_I2D)(void *, uchar **);
-typedef STACK_OF (CONF_VALUE) * (*X509V3_EXT_I2V)(const struct v3_ext_method * method, void * ext, STACK_OF(CONF_VALUE) * extlist);
-typedef void *(*X509V3_EXT_V2I)(const struct v3_ext_method * method, struct v3_ext_ctx * ctx, STACK_OF(CONF_VALUE) * values);
-typedef char *(*X509V3_EXT_I2S)(const struct v3_ext_method * method, void * ext);
-typedef void *(*X509V3_EXT_S2I)(const struct v3_ext_method * method, struct v3_ext_ctx * ctx, const char * str);
-typedef int (*X509V3_EXT_I2R)(const struct v3_ext_method * method, void * ext, BIO * out, int indent);
-typedef void *(*X509V3_EXT_R2I)(const struct v3_ext_method * method, struct v3_ext_ctx * ctx, const char * str);
+//
+// Useful typedefs 
+//
+/*@funcdef*/typedef void *(*X509V3_EXT_NEW)(void);
+/*@funcdef*/typedef void (*X509V3_EXT_FREE)(void *);
+/*@funcdef*/typedef void *(*X509V3_EXT_D2I)(void *, const uchar **, long);
+/*@funcdef*/typedef int (*X509V3_EXT_I2D)(void *, uchar **);
+/*@funcdef*/typedef STACK_OF (CONF_VALUE) * (*X509V3_EXT_I2V)(const struct v3_ext_method * method, void * ext, STACK_OF(CONF_VALUE) * extlist);
+/*@funcdef*/typedef void *(*X509V3_EXT_V2I)(const struct v3_ext_method * method, struct v3_ext_ctx * ctx, STACK_OF(CONF_VALUE) * values);
+/*@funcdef*/typedef char *(*X509V3_EXT_I2S)(const struct v3_ext_method * method, void * ext);
+/*@funcdef*/typedef void *(*X509V3_EXT_S2I)(const struct v3_ext_method * method, struct v3_ext_ctx * ctx, const char * str);
+/*@funcdef*/typedef int (*X509V3_EXT_I2R)(const struct v3_ext_method * method, void * ext, BIO * out, int indent);
+/*@funcdef*/typedef void *(*X509V3_EXT_R2I)(const struct v3_ext_method * method, struct v3_ext_ctx * ctx, const char * str);
 
 /* V3 extension structure */
 
@@ -616,35 +616,30 @@ void * X509V3_get_d2i(const STACK_OF(X509_EXTENSION) * x, int nid, int * crit,
     int * idx);
 
 X509_EXTENSION * X509V3_EXT_i2d(int ext_nid, int crit, void * ext_struc);
-int X509V3_add1_i2d(STACK_OF(X509_EXTENSION) **x, int nid, void * value,
-    int crit, ulong flags);
+int X509V3_add1_i2d(STACK_OF(X509_EXTENSION) **x, int nid, void * value, int crit, ulong flags);
 
 #if OPENSSL_API_COMPAT < 0x10100000L
-/* The new declarations are in crypto.h, but the old ones were here. */
-#define hex_to_string OPENSSL_buf2hexstr
-#define string_to_hex OPENSSL_hexstr2buf
+	/* The new declarations are in crypto.h, but the old ones were here. */
+	#define hex_to_string OPENSSL_buf2hexstr
+	#define string_to_hex OPENSSL_hexstr2buf
 #endif
 
-void X509V3_EXT_val_prn(BIO *out, STACK_OF(CONF_VALUE) *val, int indent,
-    int ml);
-int X509V3_EXT_print(BIO * out, X509_EXTENSION * ext, ulong flag,
-    int indent);
+void X509V3_EXT_val_prn(BIO *out, STACK_OF(CONF_VALUE) *val, int indent, int ml);
+int X509V3_EXT_print(BIO * out, X509_EXTENSION * ext, ulong flag, int indent);
 #ifndef OPENSSL_NO_STDIO
-int X509V3_EXT_print_fp(FILE * out, X509_EXTENSION * ext, int flag, int indent);
+	int X509V3_EXT_print_fp(FILE * out, X509_EXTENSION * ext, int flag, int indent);
 #endif
-int X509V3_extensions_print(BIO * out, const char * title,
-    const STACK_OF(X509_EXTENSION) * exts,
-    ulong flag, int indent);
+int X509V3_extensions_print(BIO * out, const char * title, const STACK_OF(X509_EXTENSION) * exts, ulong flag, int indent);
 
-int X509_check_ca(X509 * x);
-int X509_check_purpose(X509 * x, int id, int ca);
-int X509_supported_extension(X509_EXTENSION * ex);
-int X509_PURPOSE_set(int * p, int purpose);
-int X509_check_issued(X509 * issuer, X509 * subject);
-int X509_check_akid(X509 * issuer, AUTHORITY_KEYID * akid);
-void X509_set_proxy_flag(X509 * x);
-void X509_set_proxy_pathlen(X509 * x, long l);
-long X509_get_proxy_pathlen(X509 * x);
+int    X509_check_ca(X509 * x);
+int    FASTCALL X509_check_purpose(X509 * x, int id, int ca);
+int    X509_supported_extension(X509_EXTENSION * ex);
+int    X509_PURPOSE_set(int * p, int purpose);
+int    X509_check_issued(X509 * issuer, X509 * subject);
+int    X509_check_akid(X509 * issuer, AUTHORITY_KEYID * akid);
+void   X509_set_proxy_flag(X509 * x);
+void   X509_set_proxy_pathlen(X509 * x, long l);
+long   X509_get_proxy_pathlen(X509 * x);
 
 uint32_t X509_get_extension_flags(X509 * x);
 uint32_t X509_get_key_usage(X509 * x);
@@ -780,7 +775,7 @@ typedef struct IPAddressFamily_st {
 	IPAddressChoice * ipAddressChoice;
 } IPAddressFamily;
 
-typedef STACK_OF (IPAddressFamily) IPAddrBlocks;
+typedef STACK_OF(IPAddressFamily) IPAddrBlocks;
 DEFINE_STACK_OF(IPAddressFamily)
 
 DECLARE_ASN1_FUNCTIONS(IPAddressRange)

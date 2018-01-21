@@ -409,7 +409,7 @@ static cairo_status_t cairo_type1_font_subset_write_header(cairo_type1_font_subs
 		if(start + 5 < segment_end && memcmp(start, "known", 5) == 0) {
 			_cairo_output_stream_write(font->output, font->header_segment,
 			    start + 5 - font->header_segment);
-			_cairo_output_stream_printf(font->output, " pop false ");
+			_cairo_output_stream_puts(font->output, " pop false ");
 			end = start + 5;
 		}
 	}
@@ -427,7 +427,7 @@ static cairo_status_t cairo_type1_font_subset_write_header(cairo_type1_font_subs
 	if(start == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	_cairo_output_stream_write(font->output, end, start - end);
-	_cairo_output_stream_printf(font->output, "/Encoding 256 array\n0 1 255 {1 index exch /.notdef put} for\n");
+	_cairo_output_stream_puts(font->output, "/Encoding 256 array\n0 1 255 {1 index exch /.notdef put} for\n");
 	if(font->scaled_font_subset->is_latin) {
 		for(i = 1; i < 256; i++) {
 			int subset_glyph = font->scaled_font_subset->latin_to_subset_glyph_index[i];
@@ -442,7 +442,7 @@ static cairo_status_t cairo_type1_font_subset_write_header(cairo_type1_font_subs
 				_cairo_output_stream_printf(font->output, "dup %d /%s put\n", font->glyphs[i].subset_index, font->glyph_names[i]);
 		}
 	}
-	_cairo_output_stream_printf(font->output, "readonly def");
+	_cairo_output_stream_puts(font->output, "readonly def");
 	end = find_token(start, segment_end, "def");
 	if(end == NULL)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
@@ -1263,19 +1263,19 @@ static cairo_status_t cairo_type1_font_subset_write_trailer(cairo_type1_font_sub
 		 * that may come after 'cleartomark'. */
 		_cairo_output_stream_write(font->output, cleartomark_token, font->type1_end - cleartomark_token);
 		if(*(font->type1_end - 1) != '\n')
-			_cairo_output_stream_printf(font->output, "\n");
+			_cairo_output_stream_puts(font->output, "\n");
 	}
 	else if(!font->eexec_segment_is_ascii) {
 		/* Fonts embedded in PDF may omit the fixed-content portion
 		 * that includes the 'cleartomark' operator. Type 1 in PDF is
 		 * always binary. */
-		_cairo_output_stream_printf(font->output, "cleartomark\n");
+		_cairo_output_stream_puts(font->output, "cleartomark\n");
 	}
 	else {
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
 	/* some fonts do not have a newline at the end of the last line */
-	_cairo_output_stream_printf(font->output, "\n");
+	_cairo_output_stream_puts(font->output, "\n");
 	return CAIRO_STATUS_SUCCESS;
 }
 

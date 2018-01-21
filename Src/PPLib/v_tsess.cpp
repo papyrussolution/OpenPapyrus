@@ -1848,11 +1848,9 @@ int SLAPI ViewTSessLine(const TSessLineFilt * pFilt)
 {
 	int    ok = 1, view_in_use = 0;
 	int    modeless = GetModelessStatus();
-	PPViewBrowser * p_prev_win = 0;
 	TSessLineFilt flt;
 	PPViewTSessLine * p_v = new PPViewTSessLine;
-	if(modeless)
-		p_prev_win = (PPViewBrowser *)PPFindLastBrowser();
+	PPViewBrowser * p_prev_win = modeless ? (PPViewBrowser *)PPFindLastBrowser() : 0;
 	if(pFilt)
 		flt = *pFilt;
 	else if(p_prev_win)
@@ -1991,7 +1989,7 @@ PPALDD_CONSTRUCTOR(TSessionView)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -2133,7 +2131,7 @@ PPALDD_CONSTRUCTOR(TSessLineView)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 

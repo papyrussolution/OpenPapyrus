@@ -1,5 +1,5 @@
 // DL600.H
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016á 2017
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016á 2017, 2018
 //
 #ifndef __DL600_H
 #define __DL600_H
@@ -1241,6 +1241,7 @@ protected:
 		// @>>InitFixData
 	int    FASTCALL AssignIterData(int one, void * pData, size_t dataSize); // PPALDD compatibility
 		// @>>InitFixData
+	int    FASTCALL AssignDefIterData(void * pData, size_t dataSize); // @>>InitFixData
 	int    SLAPI FillXmlBuf(const DlScope * pScope, xmlTextWriter * pWriter, StringSet * pDtd, SCodepageIdent cp) const;
 	void   SLAPI FillDTDBuf(const DlScope * pScope, xmlTextWriter * pWriter, const char * pElemName) const;
 	//

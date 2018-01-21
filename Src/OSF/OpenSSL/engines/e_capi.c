@@ -113,22 +113,18 @@ static DSA_SIG * capi_dsa_do_sign(const uchar * digest, int dlen, DSA * dsa);
 static int capi_dsa_free(DSA * dsa);
 # endif
 
-static int capi_load_ssl_client_cert(ENGINE * e, SSL * ssl,
-    STACK_OF(X509_NAME) * ca_dn, X509 ** pcert,
-    EVP_PKEY ** pkey, STACK_OF(X509) ** pother,
-    UI_METHOD * ui_method,
-    void * callback_data);
+static int capi_load_ssl_client_cert(ENGINE * e, SSL * ssl, STACK_OF(X509_NAME) * ca_dn, X509 ** pcert,
+    EVP_PKEY ** pkey, STACK_OF(X509) ** pother, UI_METHOD * ui_method, void * callback_data);
 
 static int cert_select_simple(ENGINE * e, SSL * ssl, STACK_OF(X509) * certs);
-# ifdef OPENSSL_CAPIENG_DIALOG
-static int cert_select_dialog(ENGINE * e, SSL * ssl, STACK_OF(X509) * certs);
-# endif
+#ifdef OPENSSL_CAPIENG_DIALOG
+	static int cert_select_dialog(ENGINE * e, SSL * ssl, STACK_OF(X509) * certs);
+#endif
 
 void engine_load_capi_int(void);
 
-typedef PCCERT_CONTEXT (WINAPI *CERTDLG)(HCERTSTORE, HWND, LPCWSTR,
-    LPCWSTR, DWORD, DWORD, void *);
-typedef HWND (WINAPI *GETCONSWIN)(void);
+/*@funcdef*/typedef PCCERT_CONTEXT (WINAPI *CERTDLG)(HCERTSTORE, HWND, LPCWSTR, LPCWSTR, DWORD, DWORD, void *);
+/*@funcdef*/typedef HWND (WINAPI *GETCONSWIN)(void);
 
 /*
  * This structure contains CAPI ENGINE specific data: it contains various

@@ -17,13 +17,10 @@ static int tls1_prf_alg(const EVP_MD * md, const uchar * sec, size_t slen, const
 /* TLS KDF pkey context structure */
 
 typedef struct {
-	/* Digest to use for PRF */
-	const EVP_MD * md;
-	/* Secret value to use for PRF */
-	uchar * sec;
+	const EVP_MD * md; /* Digest to use for PRF */
+	uchar * sec; /* Secret value to use for PRF */
 	size_t seclen;
-	/* Buffer of concatenated seed data */
-	uchar seed[TLS1_PRF_MAXBUF];
+	uchar seed[TLS1_PRF_MAXBUF]; /* Buffer of concatenated seed data */
 	size_t seedlen;
 } TLS1_PRF_PKEY_CTX;
 

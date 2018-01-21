@@ -71,7 +71,6 @@ void SLAPI DebtTrnovrTotal::Init()
 	Debit.clear();
 	Credit.clear();
 	Debt.clear();
-
 	RPaym.clear();
 	Reckon.clear();
 	RDebt.clear();
@@ -907,7 +906,7 @@ PPViewDebtTrnovr::ProcessBlock & PPViewDebtTrnovr::ProcessBlock::ResetIter()
 	ResetStep();
 	IterPath = ProcessBlock::ipUndef;
 	IterN = 0;
-	IterMsgPrefix = 0;
+	IterMsgPrefix.Z();
 	ReckonOpID = 0;
 	ReckonAccSheetID = 0;
 	Cntr.Init();
@@ -1520,13 +1519,14 @@ int SLAPI PPViewDebtTrnovr::GetItem(PPID arID, PPID curID, long tabID, DebtTrnov
 //
 //
 //
-#define GRP_LOC  2
-
 class DebtTrnovrFiltDialog : public WLDialog {
 public:
+	enum {
+		ctlgroupLoc = 2
+	};
 	DebtTrnovrFiltDialog() : WLDialog(DLG_SLLTOFLT, CTL_SLLTOFLT_WL)
 	{
-		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_SLLTOFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
+		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_SLLTOFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
 		SetupCalPeriod(CTLCAL_SLLTOFLT_PERIOD, CTL_SLLTOFLT_PERIOD);
 		SetupCalPeriod(CTLCAL_SLLTOFLT_PAYMPERIOD, CTL_SLLTOFLT_PAYMPERIOD);
 		SetupCalPeriod(CTLCAL_SLLTOFLT_EXPIRYPRD, CTL_SLLTOFLT_EXPIRYPRD);
@@ -1560,7 +1560,7 @@ public:
 		SetupArCombo(this, CTLSEL_SLLTOFLT_CLIENT, Data.CliIDList.getSingle(), OLW_LOADDEFONOPEN, Data.AccSheetID, sacfDisableIfZeroSheet);
 		LocationCtrlGroup::Rec l_rec;
 		l_rec.LocList.Set(&Data.LocIDList);
-		setGroupData(GRP_LOC, &l_rec);
+		setGroupData(ctlgroupLoc, &l_rec);
 		SetupCurrencyCombo(this, CTLSEL_SLLTOFLT_CUR, Data.CurID, 0, 1, 0);
 		setCtrlUInt16(CTL_SLLTOFLT_ALLCUR, BIN(Data.Flags & DebtTrnovrFilt::fAllCurrencies));
 		SetupPPObjCombo(this, CTLSEL_SLLTOFLT_CITY, PPOBJ_WORLD, Data.CityID, OLW_LOADDEFONOPEN, 0);
@@ -1599,7 +1599,7 @@ public:
 		getCtrlData(CTLSEL_SLLTOFLT_OP, &Data.OpID);
 		getCtrlData(CTLSEL_SLLTOFLT_CLIENT, &cli_id);
 		Data.CliIDList.setSingleNZ(cli_id);
-		getGroupData(GRP_LOC, &l_rec);
+		getGroupData(ctlgroupLoc, &l_rec);
 		if(l_rec.LocList.GetCount())
 			Data.LocIDList = l_rec.LocList.Get();
 		else
@@ -2514,7 +2514,7 @@ PPALDD_CONSTRUCTOR(DebtTrnovr)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 
@@ -2591,17 +2591,13 @@ int PPALDD_DebtTrnovr::NextIteration(PPIterID iterId)
 	I._AvgPaym     = item._AvgPaym;
 	I.BillPayDate  = item.PayDate;
 	I.LastPaymDate = item.LastPaymDate;
-	const long cycle_kind = ((DebtTrnovrFilt *)p_v->GetBaseFilt())->CycleKind;
-	if(cycle_kind == DebtTrnovrFilt::ckNone)
-		I.CtVal = 0;
-	else if(cycle_kind == DebtTrnovrFilt::ckExpiry)
-		I.CtVal = item.Debt;
-	else if(cycle_kind == DebtTrnovrFilt::ckDelay)
-		I.CtVal = item.Debt;
-	else if(cycle_kind == DebtTrnovrFilt::ckShipments)
-		I.CtVal = item.Debit;
-	else if(cycle_kind == DebtTrnovrFilt::ckPayments)
-		I.CtVal = item.Credit;
+	switch(((DebtTrnovrFilt *)p_v->GetBaseFilt())->CycleKind) {
+		case DebtTrnovrFilt::ckNone: I.CtVal = 0; break;
+		case DebtTrnovrFilt::ckExpiry: I.CtVal = item.Debt; break;
+		case DebtTrnovrFilt::ckDelay: I.CtVal = item.Debt; break;
+		case DebtTrnovrFilt::ckShipments: I.CtVal = item.Debit; break;
+		case DebtTrnovrFilt::ckPayments: I.CtVal = item.Credit; break;
+	}
 	PPWaitPercent(p_v->GetCounter());
 	FINISH_PPVIEW_ALDD_ITER();
 }

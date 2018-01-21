@@ -976,16 +976,11 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 	 * we can resume, and later peek at the next handshake message to see if the
 	 * server wants to resume.
 	 */
-	if(s->version >= TLS1_VERSION && s->tls_session_secret_cb &&
-	    s->session->tlsext_tick) {
+	if(s->version >= TLS1_VERSION && s->tls_session_secret_cb && s->session->tlsext_tick) {
 		const SSL_CIPHER * pref_cipher = NULL;
 		s->session->master_key_length = sizeof(s->session->master_key);
-		if(s->tls_session_secret_cb(s, s->session->master_key,
-			    &s->session->master_key_length,
-			    NULL, &pref_cipher,
-			    s->tls_session_secret_cb_arg)) {
-			s->session->cipher = pref_cipher ?
-			    pref_cipher : ssl_get_cipher_by_char(s, cipherchars);
+		if(s->tls_session_secret_cb(s, s->session->master_key, &s->session->master_key_length, NULL, &pref_cipher, s->tls_session_secret_cb_arg)) {
+			s->session->cipher = pref_cipher ? pref_cipher : ssl_get_cipher_by_char(s, cipherchars);
 		}
 		else {
 			SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO, ERR_R_INTERNAL_ERROR);
@@ -993,16 +988,12 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 			goto f_err;
 		}
 	}
-
-	if(session_id_len != 0 && session_id_len == s->session->session_id_length
-	    && memcmp(PACKET_data(&session_id), s->session->session_id,
+	if(session_id_len != 0 && session_id_len == s->session->session_id_length && memcmp(PACKET_data(&session_id), s->session->session_id,
 		    session_id_len) == 0) {
-		if(s->sid_ctx_length != s->session->sid_ctx_length
-		    || memcmp(s->session->sid_ctx, s->sid_ctx, s->sid_ctx_length)) {
+		if(s->sid_ctx_length != s->session->sid_ctx_length || memcmp(s->session->sid_ctx, s->sid_ctx, s->sid_ctx_length)) {
 			/* actually a client application bug */
 			al = SSL_AD_ILLEGAL_PARAMETER;
-			SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO,
-			    SSL_R_ATTEMPT_TO_REUSE_SESSION_IN_DIFFERENT_CONTEXT);
+			SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO, SSL_R_ATTEMPT_TO_REUSE_SESSION_IN_DIFFERENT_CONTEXT);
 			goto f_err;
 		}
 		s->hit = 1;
@@ -1021,24 +1012,18 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 				goto f_err;
 			}
 		}
-
 		s->session->ssl_version = s->version;
 		s->session->session_id_length = session_id_len;
 		/* session_id_len could be 0 */
 		if(session_id_len > 0)
-			memcpy(s->session->session_id, PACKET_data(&session_id),
-			    session_id_len);
+			memcpy(s->session->session_id, PACKET_data(&session_id), session_id_len);
 	}
-
 	/* Session version and negotiated protocol version should match */
 	if(s->version != s->session->ssl_version) {
 		al = SSL_AD_PROTOCOL_VERSION;
-
-		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO,
-		    SSL_R_SSL_SESSION_VERSION_MISMATCH);
+		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO, SSL_R_SSL_SESSION_VERSION_MISMATCH);
 		goto f_err;
 	}
-
 	c = ssl_get_cipher_by_char(s, cipherchars);
 	if(c == NULL) {
 		/* unknown cipher */
@@ -1061,7 +1046,6 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO, SSL_R_WRONG_CIPHER_RETURNED);
 		goto f_err;
 	}
-
 	sk = ssl_get_ciphers_by_id(s);
 	i = sk_SSL_CIPHER_find(sk, c);
 	if(i < 0) {
@@ -1080,8 +1064,7 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 		s->session->cipher_id = s->session->cipher->id;
 	if(s->hit && (s->session->cipher_id != c->id)) {
 		al = SSL_AD_ILLEGAL_PARAMETER;
-		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO,
-		    SSL_R_OLD_SESSION_CIPHER_NOT_RETURNED);
+		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO, SSL_R_OLD_SESSION_CIPHER_NOT_RETURNED);
 		goto f_err;
 	}
 	s->s3->tmp.new_cipher = c;
@@ -1095,8 +1078,7 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 #ifdef OPENSSL_NO_COMP
 	if(compression != 0) {
 		al = SSL_AD_ILLEGAL_PARAMETER;
-		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO,
-		    SSL_R_UNSUPPORTED_COMPRESSION_ALGORITHM);
+		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO, SSL_R_UNSUPPORTED_COMPRESSION_ALGORITHM);
 		goto f_err;
 	}
 	/*
@@ -1110,8 +1092,7 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 #else
 	if(s->hit && compression != s->session->compress_meth) {
 		al = SSL_AD_ILLEGAL_PARAMETER;
-		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO,
-		    SSL_R_OLD_SESSION_COMPRESSION_ALGORITHM_NOT_RETURNED);
+		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO, SSL_R_OLD_SESSION_COMPRESSION_ALGORITHM_NOT_RETURNED);
 		goto f_err;
 	}
 	if(compression == 0)
@@ -1124,24 +1105,20 @@ MSG_PROCESS_RETURN tls_process_server_hello(SSL * s, PACKET * pkt)
 	else {
 		comp = ssl3_comp_find(s->ctx->comp_methods, compression);
 	}
-
 	if(compression != 0 && comp == NULL) {
 		al = SSL_AD_ILLEGAL_PARAMETER;
-		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO,
-		    SSL_R_UNSUPPORTED_COMPRESSION_ALGORITHM);
+		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO, SSL_R_UNSUPPORTED_COMPRESSION_ALGORITHM);
 		goto f_err;
 	}
 	else {
 		s->s3->tmp.new_compression = comp;
 	}
 #endif
-
 	/* TLS extensions */
 	if(!ssl_parse_serverhello_tlsext(s, pkt)) {
 		SSLerr(SSL_F_TLS_PROCESS_SERVER_HELLO, SSL_R_PARSE_TLSEXT);
 		goto err;
 	}
-
 	if(PACKET_remaining(pkt) != 0) {
 		/* wrong packet length */
 		al = SSL_AD_DECODE_ERROR;
@@ -1188,27 +1165,21 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 	const uchar * certstart, * certbytes;
 	STACK_OF(X509) *sk = NULL;
 	EVP_PKEY * pkey = NULL;
-
 	if((sk = sk_X509_new_null()) == NULL) {
 		SSLerr(SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
-	if(!PACKET_get_net_3(pkt, &cert_list_len)
-	    || PACKET_remaining(pkt) != cert_list_len) {
+	if(!PACKET_get_net_3(pkt, &cert_list_len) || PACKET_remaining(pkt) != cert_list_len) {
 		al = SSL_AD_DECODE_ERROR;
 		SSLerr(SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, SSL_R_LENGTH_MISMATCH);
 		goto f_err;
 	}
 	while(PACKET_remaining(pkt)) {
-		if(!PACKET_get_net_3(pkt, &cert_len)
-		    || !PACKET_get_bytes(pkt, &certbytes, cert_len)) {
+		if(!PACKET_get_net_3(pkt, &cert_len) || !PACKET_get_bytes(pkt, &certbytes, cert_len)) {
 			al = SSL_AD_DECODE_ERROR;
-			SSLerr(SSL_F_TLS_PROCESS_SERVER_CERTIFICATE,
-			    SSL_R_CERT_LENGTH_MISMATCH);
+			SSLerr(SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, SSL_R_CERT_LENGTH_MISMATCH);
 			goto f_err;
 		}
-
 		certstart = certbytes;
 		x = d2i_X509(NULL, (const uchar**)&certbytes, cert_len);
 		if(!x) {
@@ -1218,8 +1189,7 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 		}
 		if(certbytes != (certstart + cert_len)) {
 			al = SSL_AD_DECODE_ERROR;
-			SSLerr(SSL_F_TLS_PROCESS_SERVER_CERTIFICATE,
-			    SSL_R_CERT_LENGTH_MISMATCH);
+			SSLerr(SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, SSL_R_CERT_LENGTH_MISMATCH);
 			goto f_err;
 		}
 		if(!sk_X509_push(sk, x)) {
@@ -1228,7 +1198,6 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 		}
 		x = NULL;
 	}
-
 	i = ssl_verify_cert_chain(s, sk);
 	/*
 	 * The documented interface is that SSL_VERIFY_PEER should be set in order
@@ -1246,8 +1215,7 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 	 */
 	if(s->verify_mode != SSL_VERIFY_NONE && i <= 0) {
 		al = ssl_verify_alarm_type(s->verify_result);
-		SSLerr(SSL_F_TLS_PROCESS_SERVER_CERTIFICATE,
-		    SSL_R_CERTIFICATE_VERIFY_FAILED);
+		SSLerr(SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, SSL_R_CERTIFICATE_VERIFY_FAILED);
 		goto f_err;
 	}
 	ERR_clear_error();      /* but we keep s->verify_result */
@@ -1267,44 +1235,32 @@ MSG_PROCESS_RETURN tls_process_server_certificate(SSL * s, PACKET * pkt)
 	/*
 	 * VRS 19990621: possible memory leak; sk=null ==> !sk_pop_free() @end
 	 */
-
 	pkey = X509_get0_pubkey(x);
-
 	if(pkey == NULL || EVP_PKEY_missing_parameters(pkey)) {
 		x = NULL;
 		al = SSL3_AL_FATAL;
-		SSLerr(SSL_F_TLS_PROCESS_SERVER_CERTIFICATE,
-		    SSL_R_UNABLE_TO_FIND_PUBLIC_KEY_PARAMETERS);
+		SSLerr(SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, SSL_R_UNABLE_TO_FIND_PUBLIC_KEY_PARAMETERS);
 		goto f_err;
 	}
-
 	i = ssl_cert_type(x, pkey);
 	if(i < 0) {
 		x = NULL;
 		al = SSL3_AL_FATAL;
-		SSLerr(SSL_F_TLS_PROCESS_SERVER_CERTIFICATE,
-		    SSL_R_UNKNOWN_CERTIFICATE_TYPE);
+		SSLerr(SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, SSL_R_UNKNOWN_CERTIFICATE_TYPE);
 		goto f_err;
 	}
-
 	exp_idx = ssl_cipher_get_cert_index(s->s3->tmp.new_cipher);
-	if(exp_idx >= 0 && i != exp_idx
-	    && (exp_idx != SSL_PKEY_GOST_EC ||
-		    (i != SSL_PKEY_GOST12_512 && i != SSL_PKEY_GOST12_256
-			    && i != SSL_PKEY_GOST01))) {
+	if(exp_idx >= 0 && i != exp_idx && (exp_idx != SSL_PKEY_GOST_EC || (i != SSL_PKEY_GOST12_512 && i != SSL_PKEY_GOST12_256 && i != SSL_PKEY_GOST01))) {
 		x = NULL;
 		al = SSL_AD_ILLEGAL_PARAMETER;
-		SSLerr(SSL_F_TLS_PROCESS_SERVER_CERTIFICATE,
-		    SSL_R_WRONG_CERTIFICATE_TYPE);
+		SSLerr(SSL_F_TLS_PROCESS_SERVER_CERTIFICATE, SSL_R_WRONG_CERTIFICATE_TYPE);
 		goto f_err;
 	}
 	s->session->peer_type = i;
-
 	X509_free(s->session->peer);
 	X509_up_ref(x);
 	s->session->peer = x;
 	s->session->verify_result = s->verify_result;
-
 	x = NULL;
 	ret = MSG_PROCESS_CONTINUE_READING;
 	goto done;
@@ -1543,19 +1499,14 @@ static int tls_process_ske_ecdhe(SSL * s, PACKET * pkt, EVP_PKEY ** pkey, int * 
 		SSLerr(SSL_F_TLS_PROCESS_SKE_ECDHE, SSL_R_WRONG_CURVE);
 		return 0;
 	}
-
 	curve_nid = tls1_ec_curve_id2nid(*(ecparams + 2), &curve_flags);
-
 	if(curve_nid == 0) {
 		*al = SSL_AD_INTERNAL_ERROR;
-		SSLerr(SSL_F_TLS_PROCESS_SKE_ECDHE,
-		    SSL_R_UNABLE_TO_FIND_ECDH_PARAMETERS);
+		SSLerr(SSL_F_TLS_PROCESS_SKE_ECDHE, SSL_R_UNABLE_TO_FIND_ECDH_PARAMETERS);
 		return 0;
 	}
-
 	if((curve_flags & TLS_CURVE_TYPE) == TLS_CURVE_CUSTOM) {
 		EVP_PKEY * key = EVP_PKEY_new();
-
 		if(key == NULL || !EVP_PKEY_set_type(key, curve_nid)) {
 			*al = SSL_AD_INTERNAL_ERROR;
 			SSLerr(SSL_F_TLS_PROCESS_SKE_ECDHE, ERR_R_EVP_LIB);
@@ -1567,10 +1518,7 @@ static int tls_process_ske_ecdhe(SSL * s, PACKET * pkt, EVP_PKEY ** pkey, int * 
 	else {
 		/* Set up EVP_PKEY with named curve as parameters */
 		pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, 0);
-		if(pctx == NULL
-		    || EVP_PKEY_paramgen_init(pctx) <= 0
-		    || EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, curve_nid) <= 0
-		    || EVP_PKEY_paramgen(pctx, &s->s3->peer_tmp) <= 0) {
+		if(pctx == NULL || EVP_PKEY_paramgen_init(pctx) <= 0 || EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, curve_nid) <= 0 || EVP_PKEY_paramgen(pctx, &s->s3->peer_tmp) <= 0) {
 			*al = SSL_AD_INTERNAL_ERROR;
 			SSLerr(SSL_F_TLS_PROCESS_SKE_ECDHE, ERR_R_EVP_LIB);
 			EVP_PKEY_CTX_free(pctx);
@@ -1579,21 +1527,16 @@ static int tls_process_ske_ecdhe(SSL * s, PACKET * pkt, EVP_PKEY ** pkey, int * 
 		EVP_PKEY_CTX_free(pctx);
 		pctx = NULL;
 	}
-
 	if(!PACKET_get_length_prefixed_1(pkt, &encoded_pt)) {
 		*al = SSL_AD_DECODE_ERROR;
 		SSLerr(SSL_F_TLS_PROCESS_SKE_ECDHE, SSL_R_LENGTH_MISMATCH);
 		return 0;
 	}
-
-	if(!EVP_PKEY_set1_tls_encodedpoint(s->s3->peer_tmp,
-		    PACKET_data(&encoded_pt),
-		    PACKET_remaining(&encoded_pt))) {
+	if(!EVP_PKEY_set1_tls_encodedpoint(s->s3->peer_tmp, PACKET_data(&encoded_pt), PACKET_remaining(&encoded_pt))) {
 		*al = SSL_AD_DECODE_ERROR;
 		SSLerr(SSL_F_TLS_PROCESS_SKE_ECDHE, SSL_R_BAD_ECPOINT);
 		return 0;
 	}
-
 	/*
 	 * The ECC/TLS specification does not mention the use of DSA to sign
 	 * ECParameters in the server key exchange message. We do support RSA
@@ -1616,24 +1559,18 @@ static int tls_process_ske_ecdhe(SSL * s, PACKET * pkt, EVP_PKEY ** pkey, int * 
 MSG_PROCESS_RETURN tls_process_key_exchange(SSL * s, PACKET * pkt)
 {
 	int al = -1;
-	long alg_k;
 	EVP_PKEY * pkey = NULL;
-	PACKET save_param_start, signature;
-
-	alg_k = s->s3->tmp.new_cipher->algorithm_mkey;
-
-	save_param_start = *pkt;
-
+	PACKET signature;
+	long alg_k = s->s3->tmp.new_cipher->algorithm_mkey;
+	PACKET save_param_start = *pkt;
 #if !defined(OPENSSL_NO_EC) || !defined(OPENSSL_NO_DH)
 	EVP_PKEY_free(s->s3->peer_tmp);
 	s->s3->peer_tmp = NULL;
 #endif
-
 	if(alg_k & SSL_PSK) {
 		if(!tls_process_ske_psk_preamble(s, pkt, &al))
 			goto err;
 	}
-
 	/* Nothing else to do for plain PSK or RSAPSK */
 	if(alg_k & (SSL_kPSK | SSL_kRSAPSK)) {
 	}
@@ -1666,14 +1603,11 @@ MSG_PROCESS_RETURN tls_process_key_exchange(SSL * s, PACKET * pkt)
 		 * |pkt| now points to the beginning of the signature, so the difference
 		 * equals the length of the parameters.
 		 */
-		if(!PACKET_get_sub_packet(&save_param_start, &params,
-			    PACKET_remaining(&save_param_start) -
-			    PACKET_remaining(pkt))) {
+		if(!PACKET_get_sub_packet(&save_param_start, &params, PACKET_remaining(&save_param_start) - PACKET_remaining(pkt))) {
 			al = SSL_AD_INTERNAL_ERROR;
 			SSLerr(SSL_F_TLS_PROCESS_KEY_EXCHANGE, ERR_R_INTERNAL_ERROR);
 			goto err;
 		}
-
 		if(SSL_USE_SIGALGS(s)) {
 			const uchar * sigalgs;
 			int rv;
@@ -1701,9 +1635,7 @@ MSG_PROCESS_RETURN tls_process_key_exchange(SSL * s, PACKET * pkt)
 		else {
 			md = EVP_sha1();
 		}
-
-		if(!PACKET_get_length_prefixed_2(pkt, &signature)
-		    || PACKET_remaining(pkt) != 0) {
+		if(!PACKET_get_length_prefixed_2(pkt, &signature) || PACKET_remaining(pkt) != 0) {
 			al = SSL_AD_DECODE_ERROR;
 			SSLerr(SSL_F_TLS_PROCESS_KEY_EXCHANGE, SSL_R_LENGTH_MISMATCH);
 			goto err;
@@ -1714,7 +1646,6 @@ MSG_PROCESS_RETURN tls_process_key_exchange(SSL * s, PACKET * pkt)
 			SSLerr(SSL_F_TLS_PROCESS_KEY_EXCHANGE, ERR_R_INTERNAL_ERROR);
 			goto err;
 		}
-
 		/*
 		 * Check signature length
 		 */

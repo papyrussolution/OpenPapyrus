@@ -100,19 +100,38 @@ int SLAPI BDictionary::Init(const char * pDataPath, const char * pTempPath)
 	return IsValid();
 }
 
-SLAPI BDictionary::BDictionary(const char * pPath, const char * pDataPath, const char * pTempPath) :
-	DbProvider(DbDictionary::CreateInstance(pPath, 0), 0)
+SLAPI BDictionary::BDictionary(const char * pPath, const char * pDataPath, const char * pTempPath) : DbProvider(DbDictionary::CreateInstance(pPath, 0), 0)
 {
 	Init(pDataPath, pTempPath);
 }
 
-SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) :
-	DbProvider(new DbDict_Btrieve(pPath), 0)
+SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new DbDict_Btrieve(pPath), 0)
 {
 	Init(0, 0);
 }
 
-/*virtual*/ SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFileName)
+//virtual 
+int SLAPI BDictionary::GetDatabaseState(uint * pStateFlags)
+{
+	int    ok = 1;
+	uint   state = 0;
+	if(DataPath.NotEmpty()) {
+		SDirEntry de;
+		SString wc;
+		(wc = DataPath).SetLastSlash().CatChar('*').Dot().Cat("^^^");
+		for(SDirec sd(wc); sd.Next(&de) > 0;) {
+			if(de.IsFile()) {
+				state |= dbstContinuous;
+				break;
+			}
+		}
+	}
+	ASSIGN_PTR(pStateFlags, state);
+	return ok;
+}
+
+//virtual
+SString & SLAPI BDictionary::MakeFileName_(const char * pTblName, SString & rFileName)
 {
 	SPathStruc ps(rFileName);
 	if(ps.Dir.Empty()) {
@@ -270,7 +289,7 @@ SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) :
 	THROW(Btrieve::GetVersion(&b_major, &b_minor, &b_isnet));
 	DBS.SetAddedMsgString("Btrieve 6.15");
 	THROW_V(b_major >= 6, SDBERR_INCOMPATDBVER);
-	THROW(Common_Login(pBlk));
+	Common_Login(pBlk);
 	CATCHZOK
 	return ok;
 }
@@ -278,7 +297,8 @@ SLAPI BDictionary::BDictionary(int btrDict, const char * pPath) :
 /*virtual*/ int SLAPI BDictionary::Logout()
 {
 	Btrieve::Reset(0);
-	return Common_Logout();
+	Common_Logout();
+	return 1;
 }
 
 /*virtual*/ int SLAPI BDictionary::ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection)

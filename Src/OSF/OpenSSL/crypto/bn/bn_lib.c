@@ -460,7 +460,7 @@ int FASTCALL BN_set_word(BIGNUM * a, BN_ULONG w)
 	return 1;
 }
 
-BIGNUM * BN_bin2bn(const uchar * s, int len, BIGNUM * ret)
+BIGNUM * FASTCALL BN_bin2bn(const uchar * s, int len, BIGNUM * ret)
 {
 	uint i, m;
 	uint n;
@@ -496,10 +496,7 @@ BIGNUM * BN_bin2bn(const uchar * s, int len, BIGNUM * ret)
 			m = BN_BYTES - 1;
 		}
 	}
-	/*
-	 * need to call this due to clear byte at top if avoiding having the top
-	 * bit set (-ve number)
-	 */
+	// need to call this due to clear byte at top if avoiding having the top bit set (-ve number)
 	bn_correct_top(ret);
 	return ret;
 }
@@ -532,7 +529,7 @@ int BN_bn2binpad(const BIGNUM * a, uchar * to, int tolen)
 	return (tolen < 0) ? -1 : bn2binpad(a, to, tolen);
 }
 
-int BN_bn2bin(const BIGNUM * a, uchar * to)
+int FASTCALL BN_bn2bin(const BIGNUM * a, uchar * to)
 {
 	return bn2binpad(a, to, -1);
 }

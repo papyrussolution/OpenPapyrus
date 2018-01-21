@@ -2101,9 +2101,8 @@ public:
 	// Descr: Извлекает атрибут attr элемента с идентификатором id.
 	//
 	int    GetAttr(long id, int attr, SString & rVal) const;
-
 	long   SetSelection(long id);
-	long   GetSelection() const;
+	long   GetSelection() const { return SelId; }
 
 	enum {
 		loSkipNExDbPath   = 0x0001, // Пропускать элементы, путь attrDbPath в которых не существует либо пустой
@@ -2142,6 +2141,22 @@ public:
 		stLoggedIn = 0x0002
 	};
 	virtual SLAPI ~DbProvider();
+	//
+	// Descr: Опции состояния базы данных, возвращаемые функцией GetDatabaseState()
+	//
+	enum {
+		dbstNormal     = 0x0000,
+		dbstContinuous = 0x0001  // Одна или более таблиц базы данных находится в состоянии continuous-открытия (для резервного копирования)
+	};
+	//
+	// Descr: Возвращает флаги состояния базы данных по указателю pStateFlags.
+	//   Флаги могут иметь значения DbProvider::dbstXXX (see enum above).
+	// Returns:
+	//   >0 - состояние базы данных успешно идентифицировано и флаги присвоены по указателю pStateFlags
+	//   <0 - функция не поддерживается
+	//    0 - ошибка
+	//
+	virtual int SLAPI GetDatabaseState(uint * pStateFlags);
 	virtual SString & SLAPI MakeFileName_(const char * pTblName, SString & rBuf) = 0;
 	virtual int SLAPI IsFileExists_(const char * pFileName) = 0;
 	virtual SString & SLAPI GetTempFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath) = 0;
@@ -2150,15 +2165,12 @@ public:
 	//
 	virtual int SLAPI CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode) = 0;
 	virtual int SLAPI DropFile(const char * pFileName) = 0;
-
 	virtual int SLAPI Login(const DbLoginBlock * pBlk, long options);
 	virtual int SLAPI Logout();
 	virtual int SLAPI PostProcessAfterUndump(DBTable * pTbl);
-
 	virtual int SLAPI StartTransaction() = 0;
 	virtual int SLAPI CommitWork() = 0;
 	virtual int SLAPI RollbackWork() = 0;
-
 	virtual int SLAPI GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat) = 0;
 	//
 	// Descr: Реализует механизм открытия таблицы базы данных с именем pFileName.
@@ -2181,9 +2193,7 @@ public:
 	virtual int SLAPI Implement_DeleteRec(DBTable * pTbl) = 0;
 	virtual int SLAPI Implement_BExtInsert(BExtInsert * pBei) = 0;
 	virtual int SLAPI Implement_GetPosition(DBTable * pTbl, DBRowId * pPos);
-
 	virtual int SLAPI Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ);
-
 	virtual int SLAPI ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection) = 0;
 	virtual int SLAPI RecoverTable(BTBLID tblID, BRecoverParam * pParam);
 	//
@@ -2213,8 +2223,8 @@ public:
 	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
 
 	int    SLAPI IsValid() const;
-	long   SLAPI GetState() const;
-	long   SLAPI GetCapability() const;
+	long   SLAPI GetState() const { return State; }
+	long   SLAPI GetCapability() const { return Capability; }
 	int    SLAPI LoadTableSpec(DBTable * pTbl, const char * pTblName, const char * pFileName, int createIfNExists);
 	int    SLAPI RenewFile(DBTable & rTbl, int createMode, const char * pAltCode);
 	int    SLAPI DropTable(const char * pTblName, int inDictOnly);
@@ -2242,8 +2252,7 @@ public:
 	//
 	int    SLAPI AddTempFileName(const char * pFileName);
 	//
-	// Descr: Если имя файла pFileName находится в списке на удаление,
-	//   то убирает его из этого списка.
+	// Descr: Если имя файла pFileName находится в списке на удаление, то убирает его из этого списка.
 	//
 	int    SLAPI DelTempFileName(const char * pFileName);
 	//
@@ -2280,8 +2289,8 @@ protected:
 	SLAPI  DbProvider(DbDictionary * pDict, long capability);
 	int    SLAPI GetProtectData();
 	int    SLAPI GetProtectData(FILE * f, uint16 * buf);
-	int    SLAPI Common_Login(const DbLoginBlock * pBlk);
-	int    SLAPI Common_Logout();
+	void   SLAPI Common_Login(const DbLoginBlock * pBlk);
+	void   SLAPI Common_Logout();
 
 	long   State;
 	long   DbPathID; // Идентификатор каталога базы данных. Ссылается на таблицу DbSession::DbPathList
@@ -2311,6 +2320,7 @@ public:
 	SLAPI  BDictionary(const char * pPath, const char * pDataPath = 0, const char * pTempPath = 0);
 	SLAPI ~BDictionary();
 
+	virtual int SLAPI GetDatabaseState(uint * pStateFlags);
 	virtual SString & SLAPI MakeFileName_(const char * pTblName, SString & rBuf);
 	virtual int SLAPI IsFileExists_(const char * pFileName);
 	virtual SString & SLAPI GetTempFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);

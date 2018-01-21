@@ -3359,6 +3359,11 @@ public:
 	//   Если n больше длины строки, то возвращает 0.
 	//
 	int    FASTCALL C(size_t n) const;
+	//
+	// Descr: Если строка имеет длину 1 символ, то возврашает этот символ,
+	//   в противном случае возвращает 0.
+	//
+	int    SLAPI Single() const;
 	int    SLAPI Empty() const;
 	//int    SLAPI operator !() const { return Empty(); }
 	int    SLAPI NotEmpty() const;
@@ -7631,6 +7636,11 @@ public:
 	// ARG(sz        IN): Размер передаваемых данных в байтах
 	//
 	int    SLAPI Write(const char * pResource, int64 orgOffs, const void * pS, size_t sz);
+
+	struct ResultPosition {
+		uint   Start;
+		uint   Count;
+	};
 	//
 	// Descr: Запускает разбор входного потока, начиная с очередного символа входного буфера.
 	// ARG(pIdxFirst OUT): Индекс первого элемента результата разбора. Получить результат можно функцией Get(uint, Item &)
@@ -8956,27 +8966,13 @@ struct SStrScan : public SRegExpSet {
 	~SStrScan();
 	void   FASTCALL Set(const char * pBuf, size_t offs);
 	operator const char * () const { return P_Buf ? (P_Buf+Offs) : 0; }
-	const char * GetBuf() const
-	{
-		return P_Buf;
-	}
-	const char * GetBuf(size_t offs) const
-	{
-		return P_Buf ? (P_Buf + offs) : 0;
-	}
-	size_t GetOffs() const
-	{
-		return Offs;
-	}
-	size_t GetLen() const
-	{
-		return Len;
-	}
-
+	const char * GetBuf() const { return P_Buf; }
+	const char * GetBuf(size_t offs) const { return P_Buf ? (P_Buf + offs) : 0; }
+	size_t GetOffs() const { return Offs; }
+	size_t GetLen() const { return Len; }
 	int    FASTCALL Push(uint * pPrevPos = 0);
 	int    FASTCALL Pop();
 	int    FASTCALL Pop(uint prevPos);
-
 	int    IsEnd() const;
 	int    FASTCALL IsSpace(int ws) const;
 	int    IsNumber();
@@ -9002,7 +8998,6 @@ struct SStrScan : public SRegExpSet {
 	//      Текущая позиция смещена на начало новой строки.
 	//
 	int    FASTCALL GetEol(SEOLFormat eolf);
-
 	SString & FASTCALL Get(SString & rBuf) const;
 	int    FASTCALL GetQuotedString(SString & rBuf);
 	int    FASTCALL GetIdent(SString & rBuf);

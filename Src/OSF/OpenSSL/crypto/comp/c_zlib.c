@@ -63,14 +63,14 @@ static COMP_METHOD zlib_stateful_method = {
 #ifdef ZLIB_SHARED
 
 /* Function pointers */
-typedef int (*compress_ft)(Bytef * dest, uLongf * destLen, const Bytef * source, uLong sourceLen);
-typedef int (*inflateEnd_ft)(z_streamp strm);
-typedef int (*inflate_ft)(z_streamp strm, int flush);
-typedef int (*inflateInit__ft)(z_streamp strm, const char * version, int stream_size);
-typedef int (*deflateEnd_ft)(z_streamp strm);
-typedef int (*deflate_ft)(z_streamp strm, int flush);
-typedef int (*deflateInit__ft)(z_streamp strm, int level, const char * version, int stream_size);
-typedef const char *(*zError__ft)(int err);
+/*@funcdef*/typedef int (*compress_ft)(Bytef * dest, uLongf * destLen, const Bytef * source, uLong sourceLen);
+/*@funcdef*/typedef int (*inflateEnd_ft)(z_streamp strm);
+/*@funcdef*/typedef int (*inflate_ft)(z_streamp strm, int flush);
+/*@funcdef*/typedef int (*inflateInit__ft)(z_streamp strm, const char * version, int stream_size);
+/*@funcdef*/typedef int (*deflateEnd_ft)(z_streamp strm);
+/*@funcdef*/typedef int (*deflate_ft)(z_streamp strm, int flush);
+/*@funcdef*/typedef int (*deflateInit__ft)(z_streamp strm, int level, const char * version, int stream_size);
+/*@funcdef*/typedef const char *(*zError__ft)(int err);
 static compress_ft p_compress = NULL;
 static inflateEnd_ft p_inflateEnd = NULL;
 static inflate_ft p_inflate = NULL;

@@ -184,9 +184,9 @@ int FASTCALL SStrScan::IsTagBrace() const
 
 void FASTCALL SStrScan::Set(const char * pBuf, size_t offs)
 {
-	P_Buf = pBuf;
 	Offs = offs;
 	Len = 0;
+	P_Buf = pBuf;
 }
 
 SString & FASTCALL SStrScan::Get(SString & rBuf) const
@@ -764,15 +764,10 @@ size_t SLAPI SString::Len() const
 }
 */
 
-size_t SLAPI SString::Len() const
-{
-	return L ? (L-1) : 0;
-}
-
-size_t SLAPI SString::BufSize() const
-{
-	return Size;
-}
+size_t SLAPI SString::Len() const { return L ? (L-1) : 0; }
+size_t SLAPI SString::BufSize() const { return Size; }
+int    FASTCALL SString::C(size_t n) const { return (n < Len()) ? P_Buf[n] : 0; }
+int    SLAPI SString::Single() const { return (L == 2) ? P_Buf[0] : 0; }
 
 void SLAPI SString::Obfuscate()
 {
@@ -786,11 +781,6 @@ void SLAPI SString::Obfuscate()
 		else
 			P_Buf[L-1] = 0;
 	}
-}
-
-int FASTCALL SString::C(size_t n) const
-{
-	return (n < Len()) ? P_Buf[n] : 0;
 }
 
 const char * SLAPI SString::StrChr(int c, size_t * pPos) const
@@ -880,549 +870,6 @@ int SLAPI SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) cons
 	else
 		ok = -1;
 	return ok;
-}
-//
-//
-//
-SLAPI STokenizer::Param::Param() : Flags(0), Cp(0)
-{
-}
-
-SLAPI STokenizer::Param::Param(long flags, int cp, const char * pDelim) : Delim(pDelim), Flags(flags), Cp(cp)
-{
-}
-
-SLAPI STokenizer::STokenizer() : T(1000000, 0), Tc(0), RP(0), SO(0), P_ResourceIndex(0)
-{
-	SetParam(0);
-	//TokenBuf.setDelta(128);
-}
-
-SLAPI STokenizer::STokenizer(const Param & rParam) : T(1000000, 0), Tc(0), RP(0), SO(0), P_ResourceIndex(0)
-{
-	SetParam(&rParam);
-	//TokenBuf.setDelta(128);
-}
-
-SLAPI STokenizer::~STokenizer()
-{
-	delete P_ResourceIndex;
-}
-
-void SLAPI STokenizer::GetParam(Param * pParam) const
-{
-	ASSIGN_PTR(pParam, P);
-}
-
-int SLAPI STokenizer::SetParam(const Param * pParam)
-{
-	RVALUEPTR(P, pParam);
-	if(P.Cp == cpUTF8) {
-		SString temp_buf = P.Delim;
-		DelimU.CopyFromUtf8(temp_buf);
-	}
-	return 1;
-}
-
-STokenizer & SLAPI STokenizer::Reset(long options)
-{
-	RP = 0;
-	SO = 0;
-	S.Clear();
-	L.clear();
-	ZDELETE(P_ResourceIndex);
-	if(options & coClearSymbTab) {
-		T.Clear();
-		CL.clear();
-	}
-	return *this;
-}
-
-void SLAPI STokenizer::ClearInput()
-{
-	S.Clear();
-}
-
-int SLAPI STokenizer::Write(const char * pResource, int64 orgOffs, const void * pS, size_t sz)
-{
-	int    ok = 1;
-	THROW(S.Write(pS, sz));
-	SO = orgOffs;
-	RP = 0;
-	if(!isempty(pResource)) {
-		uint   tv = 0;
-		uint   tp = 0;
-		if(T.Search(pResource, &tv, &tp)) {
-			RP = tp;
-		}
-		else {
-			tv = ++Tc;
-			THROW(T.Add(pResource, tv, &tp));
-			RP = tp;
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
-uint16 SLAPI STokenizer::NextChr()
-{
-	uchar c;
-	uint16 result = 0;
-	if(S.Read(c)) {
-		if(P.Cp == cpUTF8) {
-			uint8  set[8];
-			uint32 ch = 0;
-			uint16 extra = SUtfConst::TrailingBytesForUTF8[c];
-			size_t actual_size = 0;
-			set[0] = c;
-			if(extra) {
-				assert(extra <= 5);
-				actual_size = S.Read(set+1, extra);
-			}
-			if(actual_size == extra) {
-				size_t i = 0;
-				if(SUnicode::IsLegalUtf8(set, extra+1)) {
-					switch(extra) {
-						case 5: ch += set[i++]; ch <<= 6; // remember, illegal UTF-8
-						case 4: ch += set[i++]; ch <<= 6; // remember, illegal UTF-8
-						case 3: ch += set[i++]; ch <<= 6;
-						case 2: ch += set[i++]; ch <<= 6;
-						case 1: ch += set[i++]; ch <<= 6;
-						case 0: ch += set[i++];
-					}
-					ch -= SUtfConst::OffsetsFromUTF8[extra];
-					if(ch <= UNI_MAX_BMP) { // Target is a character <= 0xFFFF
-						if(ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_LOW_END) // UTF-16 surrogate values are illegal in UTF-32
-							result = (wchar_t)UNI_REPLACEMENT_CHAR;
-						else
-							result = (wchar_t)ch; // normal case
-					}
-					else if(ch > UNI_MAX_UTF16)
-						result = (wchar_t)UNI_REPLACEMENT_CHAR;
-					else // target is a character in range 0xFFFF - 0x10FFFF.
-						result = (wchar_t)UNI_REPLACEMENT_CHAR;
-				}
-				else
-					result = (wchar_t)UNI_REPLACEMENT_CHAR;
-			}
-		}
-		else
-			result = (uint16)c;
-	}
-	return result;
-}
-
-int FASTCALL STokenizer::IsDelim(uint16 chr) const
-{
-	if(P.Delim.NotEmpty()) {
-		if(P.Cp == cpUTF8) {
-			if(DelimU.HasChr(chr))
-				return 1;
-		}
-		else {
-			if(P.Delim.HasChr(chr))
-				return 1;
-		}
-	}
-	else {
-		if(oneof4(chr, ' ', '\t', '\n', '\r'))
-			return 1;
-	}
-	return 0;
-}
-
-void SLAPI STokenizer::_CopySrcToAddTokenBuf(const TSVector <uint16> & rBuf)
-{
-	AddTokenBuf.Z();
-	const uint bc = rBuf.getCount();
-	if(P.Cp == cpUTF8) {
-		AddTokenBuf.CopyUtf8FromUnicode((const wchar_t *)rBuf.dataPtr(), bc, 1);
-	}
-	else {
-		for(uint i = 0; i < bc; i++) {
-			AddTokenBuf.CatChar(rBuf.at(i));
-		}
-	}
-}
-
-int FASTCALL STokenizer::AddToken(TSVector <uint16> & rBuf, int tokType)
-{
-	int    ok = 1;
-	const  uint bc = rBuf.getCount();
-	if(bc) {
-		Token  tok;
-		MEMSZERO(tok);
-		_CopySrcToAddTokenBuf(rBuf);
-		tok.T = tokType;
-		uint   tv = 0;
-		uint   tp = 0;
-		if(AddTokenBuf.NotEmpty()) {
-			if(T.Search(AddTokenBuf, &tv, &tp)) {
-				tok.PP = tp;
-			}
-			else {
-				tv = ++Tc;
-				THROW(T.Add(AddTokenBuf, tv, &tp));
-				tok.PP = tp;
-				{
-					CToken ct;
-					ct.T = tok.T;
-					ct.PP = tp;
-					THROW(CL.insert(&ct));
-				}
-			}
-		}
-		else {
-			//
-			// Неявный разделитель
-			//
-			assert(tokType == tokDelim);
-			tok.PP = 0;
-		}
-		tok.RP = RP;
-		THROW(L.insert(&tok));
-	}
-	CATCHZOK
-	rBuf.clear();
-	return ok;
-}
-
-int SLAPI STokenizer::IndexResources(int force)
-{
-	int    ok = 1;
-	if(!P_ResourceIndex || force) {
-		ZDELETE(P_ResourceIndex);
-		P_ResourceIndex = new TSCollection <ResourceIndexItem>;
-		uint   _pos_in_rtext = 0;
-		uint   _rp = 0;
-		for(uint i = 0; i < L.getCount(); i++) {
-			const Token & r_t = L.at(i);
-			if(r_t.RP) {
-				if(r_t.RP == _rp) {
-					_pos_in_rtext++;
-				}
-				else {
-					_rp = r_t.RP;
-					_pos_in_rtext = 0;
-				}
-				uint  _p = 0;
-				ResourceToken rt_item;
-				rt_item.RP = r_t.RP;
-				rt_item.PosInRText = _pos_in_rtext;
-				if(P_ResourceIndex->lsearch(&r_t.PP, &_p, CMPF_LONG)) {
-					P_ResourceIndex->at(_p)->RL.insert(&rt_item);
-				}
-				else {
-					ResourceIndexItem * p_new_item = P_ResourceIndex->CreateNewItem();
-					p_new_item->PP = r_t.PP;
-					p_new_item->RL.insert(&rt_item);
-				}
-			}
-		}
-		P_ResourceIndex->sort(CMPF_LONG);
-	}
-	else
-		ok = -1;
-	return ok;
-}
-
-int SLAPI STokenizer::ProcessSearchToken(TSVector <uint16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult)
-{
-	int    ok = -1;
-	if(tokType != tokDelim) {
-		const  uint bc = rBuf.getCount();
-		if(bc) {
-			Token  tok;
-			MEMSZERO(tok);
-			_CopySrcToAddTokenBuf(rBuf);
-			tok.T = tokType;
-			uint   tv = 0;
-			uint   tp = 0;
-			if(AddTokenBuf.NotEmpty()) {
-				if(T.Search(AddTokenBuf, &tv, &tp)) {
-					SearchBlockEntry * p_new_entry = new SearchBlockEntry;
-					p_new_entry->T = tp;
-					p_new_entry->P = 0;
-					if(P_ResourceIndex) {
-						uint _p = 0;
-						if(P_ResourceIndex->bsearch(&tp, &_p, CMPF_LONG)) {
-							const ResourceIndexItem * p_idx_item = P_ResourceIndex->at(_p);
-							if(p_idx_item)
-								p_new_entry->RL = p_idx_item->RL;
-						}
-					}
-					else {
-						for(uint _p = 0; L.lsearch(&tp, &_p, CMPF_LONG, offsetof(Token, PP)); _p++) {
-							const Token & r_tok = L.at(_p);
-							if(r_tok.RP) {
-								ResourceToken idx_item;
-								idx_item.RP = r_tok.RP;
-								idx_item.PosInRText = (uint)-1;
-								p_new_entry->RL.insert(&idx_item);
-							}
-						}
-					}
-					if(p_new_entry->RL.getCount()) {
-						p_new_entry->RL.sort(PTR_CMPFUNC(_2long));
-						rResult.insert(p_new_entry);
-						ok = 1;
-					}
-					else {
-						ZDELETE(p_new_entry);
-					}
-				}
-				else {
-					;
-				}
-			}
-			else {
-				//
-				// Неявный разделитель
-				//
-				assert(tokType == tokDelim);
-				tok.PP = 0;
-			}
-			tok.RP = RP;
-		}
-	}
-	rBuf.clear();
-	return ok;
-}
-
-int SLAPI STokenizer::Search(long flags, TSCollection <STokenizer::SearchBlockEntry> & rResult)
-{
-	int    ok = 1;
-	uint16 chr = 0;
-	uint16 prev_delim = 0;
-	TokenBuf.clear();
-	for(uint16  prev_chr = 0; (chr = NextChr()) != 0; prev_chr = chr) {
-		if(IsDelim(chr)) {
-			if(prev_delim) {
-				if(P.Flags & fEachDelim) {
-					THROW(ProcessSearchToken(TokenBuf, tokDelim, rResult));
-				}
-			}
-			else {
-				THROW(ProcessSearchToken(TokenBuf, tokWord, rResult));
-			}
-			TokenBuf.insert(&chr);
-			prev_delim = chr;
-		}
-		else {
-			if(prev_delim) {
-				THROW(ProcessSearchToken(TokenBuf, tokDelim, rResult));
-			}
-			else if(P.Flags & fDivAlNum && prev_chr) {
-				const int is_dig = BIN(isdigit((uint8)chr));
-				const int is_prev_dig = BIN(isdigit((uint8)prev_chr));
-				if(is_prev_dig != is_dig) {
-					THROW(ProcessSearchToken(TokenBuf, tokWord, rResult));
-					THROW(ProcessSearchToken(TokenBuf, tokDelim, rResult));
-				}
-			}
-			TokenBuf.insert(&chr);
-			prev_delim = 0;
-		}
-	}
-	THROW(ProcessSearchToken(TokenBuf, (prev_delim ? tokDelim : tokWord), rResult));
-	{
-		uint   i;
-		if(flags & sfAllInPatternOnly) {
-			LongArray rp_intersect_list, rp_temp_list;
-			for(i = 0; i < rResult.getCount(); i++) {
-				const SearchBlockEntry * p_entry = rResult.at(i);
-				const uint rl_c = p_entry->RL.getCount();
-				if(rl_c) {
-					rp_temp_list.clear();
-					for(uint j = 0; j < rl_c; j++)
-						rp_temp_list.add((long)p_entry->RL.at(j).RP);
-					if(i == 0)
-						rp_intersect_list = rp_temp_list;
-					else
-						rp_intersect_list.intersect(&rp_temp_list);
-				}
-				else {
-					rp_intersect_list.clear();
-					break;
-				}
-			}
-			if(rp_intersect_list.getCount()) {
-				rp_intersect_list.sortAndUndup();
-				i = rResult.getCount();
-				if(i) do {
-					SearchBlockEntry * p_entry = rResult.at(--i);
-					uint j = p_entry->RL.getCount();
-					if(j) do {
-						const long _rp = (long)p_entry->RL.at(--j).RP;
-						if(!rp_intersect_list.bsearch(_rp))
-							p_entry->RL.atFree(j);
-					} while(j);
-					if(p_entry->RL.getCount() == 0)
-						rResult.atFree(i);
-				} while(i);
-			}
-			else {
-				rResult.freeAll();
-			}
-		}
-		if(flags & sfFirstInTextOnly) {
-			LongArray rp_suit_list;
-			for(i = 0; i < rResult.getCount(); i++) {
-				const SearchBlockEntry * p_entry = rResult.at(i);
-				for(uint j = 0; j < p_entry->RL.getCount(); j++) {
-					if(p_entry->RL.at(j).PosInRText == 0) {
-						rp_suit_list.add((long)p_entry->RL.at(j).RP);
-					}
-				}
-			}
-			if(rp_suit_list.getCount()) {
-				rp_suit_list.sortAndUndup();
-				i = rResult.getCount();
-				if(i) do {
-					SearchBlockEntry * p_entry = rResult.at(--i);
-					uint j = p_entry->RL.getCount();
-					if(j) do {
-						const long _rp = (long)p_entry->RL.at(--j).RP;
-						if(!rp_suit_list.bsearch(_rp))
-							p_entry->RL.atFree(j);
-					} while(j);
-					if(p_entry->RL.getCount() == 0)
-						rResult.atFree(i);
-				} while(i);
-			}
-			else
-				rResult.freeAll();
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
-int SLAPI STokenizer::Run(uint * pIdxFirst, uint * pIdxCount)
-{
-	int    ok = 1;
-	const  uint preserve_count = L.getCount();
-	uint   idx_first = preserve_count;
-	uint   idx_count = 0;
-	uint16 chr = 0;
-	uint16 prev_delim = 0;
-	TokenBuf.clear();
-	for(uint16 prev_chr = 0; (chr = NextChr()) != 0; prev_chr = chr) {
-		if(IsDelim(chr)) {
-			if(prev_delim) {
-				if(P.Flags & fEachDelim) {
-					THROW(AddToken(TokenBuf, tokDelim));
-					idx_count++;
-				}
-			}
-			else {
-				THROW(AddToken(TokenBuf, tokWord));
-			}
-			TokenBuf.insert(&chr);
-			prev_delim = chr;
-		}
-		else {
-			if(prev_delim) {
-				THROW(AddToken(TokenBuf, tokDelim));
-			}
-			else if(P.Flags & fDivAlNum && prev_chr) {
-				int is_dig = 0;
-				int is_prev_dig = 0;
-				if(P.Cp == cpUTF8) {
-					is_dig = isdecw((wchar_t)chr);
-					is_prev_dig = isdecw((wchar_t)prev_chr);
-				}
-				else {
-					is_dig = isdec((char)chr);
-					is_prev_dig = isdec((char)prev_chr);
-				}
-				if(is_prev_dig != is_dig) {
-					THROW(AddToken(TokenBuf, tokWord));
-					THROW(AddToken(TokenBuf, tokDelim));
-				}
-			}
-			TokenBuf.insert(&chr);
-			prev_delim = 0;
-		}
-	}
-	THROW(AddToken(TokenBuf, prev_delim ? tokDelim : tokWord));
-	idx_count = L.getCount() - preserve_count;
-	CATCHZOK
-	ASSIGN_PTR(pIdxFirst, idx_first);
-	ASSIGN_PTR(pIdxCount, idx_count);
-	return ok;
-}
-
-int SLAPI STokenizer::RunSString(const char * pResource, int64 orgOffs, const SString & rS, uint * pIdxFirst, uint * pIdxCount)
-{
-	return BIN(Write(pResource, orgOffs, rS, rS.Len()+1) && Run(pIdxFirst, pIdxCount));
-}
-
-uint SLAPI STokenizer::GetCommCount() const
-{
-	return CL.getCount();
-}
-
-int SLAPI STokenizer::GetComm(uint idx, STokenizer::Item & rItem) const
-{
-	if(idx < CL.getCount()) {
-		const CToken & r_token = CL.at(idx);
-		rItem.Token = r_token.T;
-		rItem.TextId = r_token.PP;
-		rItem.OrgOffs = 0;
-		T.Get(r_token.PP, rItem.Text);
-		rItem.Resource.Z();
-		return 1;
-	}
-	else
-		return 0;
-}
-
-uint SLAPI STokenizer::GetCount() const
-{
-	return L.getCount();
-}
-
-int SLAPI STokenizer::GetTextById(uint txtId, SString & rBuf) const
-{
-	rBuf.Z();
-	return T.Get(txtId, rBuf);
-}
-
-int SLAPI STokenizer::GetSymbHashStat(SymbHashTable::Stat & rStat) const
-{
-	return T.CalcStat(rStat);
-}
-
-int SLAPI STokenizer::Get(uint idx, STokenizer::Item & rItem) const
-{
-	if(idx < L.getCount()) {
-		const Token & r_token = L.at(idx);
-		rItem.Token = r_token.T;
-		rItem.TextId = r_token.PP;
-		rItem.OrgOffs = r_token.SP;
-		T.Get(r_token.PP, rItem.Text);
-		T.Get(r_token.RP, rItem.Resource);
-		return 1;
-	}
-	else
-		return 0;
-}
-
-int SLAPI STokenizer::Get_WithoutText(uint idx, STokenizer::Item & rItem) const
-{
-	if(idx < L.getCount()) {
-		const Token & r_token = L.at(idx);
-		rItem.Token = r_token.T;
-		rItem.TextId = r_token.PP;
-		rItem.OrgOffs = r_token.SP;
-		rItem.Text.Z();
-		rItem.Resource.Z();
-		return 1;
-	}
-	else
-		return 0;
 }
 
 #ifndef _WIN32_WCE // {
@@ -2676,11 +2123,7 @@ SString & FASTCALL SString::CatChar(int chr)
 	return *this;
 }
 
-SString & FASTCALL SString::Tab(uint c)
-{
-    return (oneof2(c, 1, 0) || c > 1000) ? CatChar('\t') : CatCharN('\t', c);
-}
-
+SString & FASTCALL SString::Tab(uint c) { return (oneof2(c, 1, 0) || c > 1000) ? CatChar('\t') : CatCharN('\t', c); }
 SString & SLAPI SString::Tab()     { return CatChar('\t'); }
 SString & SLAPI SString::Space()   { return CatChar(' ');  }
 SString & SLAPI SString::Dot()     { return CatChar('.');  }
@@ -2826,25 +2269,10 @@ SString & FASTCALL SString::Cat(SBuffer & rS)
 	return *this;
 }
 
-SString & FASTCALL SString::CatQStr(const char * pStr)
-{
-	return CatChar('\"').Cat(pStr).CatChar('\"');
-}
-
-SString & FASTCALL SString::CatParStr(const char * pStr)
-{
-	return CatChar('(').Cat(pStr).CatChar(')');
-}
-
-SString & FASTCALL SString::CatParStr(long val)
-{
-	return CatChar('(').Cat(val).CatChar(')');
-}
-
-SString & FASTCALL SString::CatBrackStr(const char * pStr)
-{
-	return CatChar('[').Cat(pStr).CatChar(']');
-}
+SString & FASTCALL SString::CatQStr(const char * pStr) { return CatChar('\"').Cat(pStr).CatChar('\"'); }
+SString & FASTCALL SString::CatParStr(const char * pStr) { return CatChar('(').Cat(pStr).CatChar(')'); }
+SString & FASTCALL SString::CatParStr(long val) { return CatChar('(').Cat(val).CatChar(')'); }
+SString & FASTCALL SString::CatBrackStr(const char * pStr) { return CatChar('[').Cat(pStr).CatChar(']'); }
 
 SString & FASTCALL SString::CatDiv(int c, int addSpaces/*, int ifNotEmpty*/)
 {
@@ -2934,20 +2362,9 @@ SString & FASTCALL SString::CatLongZ(long val, uint numDigits)
 	return *this;
 }
 
-SString & FASTCALL SString::CatLongZ(int val, uint numDigits)
-{
-	return CatLongZ((long)val, numDigits);
-}
-
-SString & FASTCALL SString::CatLongZ(uint val, uint numDigits)
-{
-	return CatLongZ((long)val, numDigits);
-}
-
-SString & FASTCALL SString::CatLongZ(uint32 val, uint numDigits)
-{
-	return CatLongZ((long)val, numDigits);
-}
+SString & FASTCALL SString::CatLongZ(int    val, uint numDigits) { return CatLongZ((long)val, numDigits); }
+SString & FASTCALL SString::CatLongZ(uint   val, uint numDigits) { return CatLongZ((long)val, numDigits); }
+SString & FASTCALL SString::CatLongZ(uint32 val, uint numDigits) { return CatLongZ((long)val, numDigits); }
 
 SString & FASTCALL SString::CatLongZ(int64 val, uint numDigits)
 {
@@ -3127,60 +2544,17 @@ SString & SLAPI SString::CatXmlElem(const char * pName, int kind, StringSet * pL
 	return *this;
 }
 
-SString & SLAPI SString::CatEq(const char * pKey, const char * pVal)
-{
-	return Cat(pKey).CatChar('=').Cat(pVal);
-}
-
-SString & SLAPI SString::CatEqQ(const char * pKey, const char * pVal)
-{
-	return Cat(pKey).CatChar('=').CatChar('\"').Cat(pVal).CatChar('\"');
-}
-
-SString & SLAPI SString::CatEq(const char * pKey, uint16 val)
-{
-	return Cat(pKey).CatChar('=').Cat(val);
-}
-
-SString & SLAPI SString::CatEq(const char * pKey, uint val)
-{
-	return Cat(pKey).CatChar('=').Cat(val);
-}
-
-SString & SLAPI SString::CatEq(const char * pKey, long val)
-{
-	return Cat(pKey).CatChar('=').Cat(val);
-}
-
-SString & SLAPI SString::CatEq(const char * pKey, ulong val)
-{
-	return Cat(pKey).CatChar('=').Cat(val);
-}
-
-SString & SLAPI SString::CatEq(const char * pKey, int64 val)
-{
-	return Cat(pKey).CatChar('=').Cat(val);
-}
-
-SString & SLAPI SString::CatEq(const char * pKey, uint64 val)
-{
-	return Cat(pKey).CatChar('=').Cat(val);
-}
-
-SString & SLAPI SString::CatEq(const char * pKey, double val, long fmt)
-{
-	return Cat(pKey).CatChar('=').Cat(val, fmt);
-}
-
-SString & SLAPI SString::CatEq(const char * pKey, LTIME val, long fmt)
-{
-	return Cat(pKey).CatChar('=').Cat(val, fmt);
-}
-
-SString & SLAPI SString::CatEq(const char * pKey, LDATE val, long fmt)
-{
-	return Cat(pKey).CatChar('=').Cat(val, fmt);
-}
+SString & SLAPI SString::CatEq(const char * pKey,  const char * pVal) { return Cat(pKey).CatChar('=').Cat(pVal); }
+SString & SLAPI SString::CatEqQ(const char * pKey, const char * pVal) { return Cat(pKey).CatChar('=').CatChar('\"').Cat(pVal).CatChar('\"'); }
+SString & SLAPI SString::CatEq(const char * pKey, uint16 val) { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SLAPI SString::CatEq(const char * pKey, uint val)   { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SLAPI SString::CatEq(const char * pKey, long val)   { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SLAPI SString::CatEq(const char * pKey, ulong val)  { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SLAPI SString::CatEq(const char * pKey, int64 val)  { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SLAPI SString::CatEq(const char * pKey, uint64 val) { return Cat(pKey).CatChar('=').Cat(val); }
+SString & SLAPI SString::CatEq(const char * pKey, double val, long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
+SString & SLAPI SString::CatEq(const char * pKey, LTIME val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
+SString & SLAPI SString::CatEq(const char * pKey, LDATE val,  long fmt) { return Cat(pKey).CatChar('=').Cat(val, fmt); }
 
 SString & SLAPI SString::Insert(size_t pos, const char * pS)
 {
@@ -6239,20 +5613,10 @@ wchar_t FASTCALL u_to_case(wchar_t code, int c)
 // 1 - Lower case
 // 0 - Unknown code
 //
-int FASTCALL UGetCharCase(wchar_t code)
-{
-	return u_get_char_case(code, 0);
-}
+int    FASTCALL UGetCharCase(wchar_t code) { return u_get_char_case(code, 0); }
+wchar_t FASTCALL UToUpperCase(wchar_t code) { return u_to_case(code, 1); }
+wchar_t FASTCALL UToLowerCase(wchar_t code) { return u_to_case(code, 2); }
 
-wchar_t FASTCALL UToUpperCase(wchar_t code)
-{
-	return u_to_case(code, 1);
-}
-
-wchar_t FASTCALL UToLowerCase(wchar_t code)
-{
-	return u_to_case(code, 2);
-}
 #undef UCHR_STATUS_C
 #undef UCHR_STATUS_F
 #undef UCHR_STATUS_S
@@ -6260,6 +5624,546 @@ wchar_t FASTCALL UToLowerCase(wchar_t code)
 //
 // } @Muxa
 //
+SLAPI STokenizer::Param::Param() : Flags(0), Cp(0)
+{
+}
+
+SLAPI STokenizer::Param::Param(long flags, int cp, const char * pDelim) : Delim(pDelim), Flags(flags), Cp(cp)
+{
+}
+
+SLAPI STokenizer::STokenizer() : T(1000000, 0), Tc(0), RP(0), SO(0), P_ResourceIndex(0)
+{
+	SetParam(0);
+	//TokenBuf.setDelta(128);
+}
+
+SLAPI STokenizer::STokenizer(const Param & rParam) : T(1000000, 0), Tc(0), RP(0), SO(0), P_ResourceIndex(0)
+{
+	SetParam(&rParam);
+	//TokenBuf.setDelta(128);
+}
+
+SLAPI STokenizer::~STokenizer()
+{
+	delete P_ResourceIndex;
+}
+
+void SLAPI STokenizer::GetParam(Param * pParam) const
+{
+	ASSIGN_PTR(pParam, P);
+}
+
+int SLAPI STokenizer::SetParam(const Param * pParam)
+{
+	RVALUEPTR(P, pParam);
+	if(P.Cp == cpUTF8) {
+		SString temp_buf = P.Delim;
+		DelimU.CopyFromUtf8(temp_buf);
+	}
+	return 1;
+}
+
+STokenizer & SLAPI STokenizer::Reset(long options)
+{
+	RP = 0;
+	SO = 0;
+	S.Clear();
+	L.clear();
+	ZDELETE(P_ResourceIndex);
+	if(options & coClearSymbTab) {
+		T.Clear();
+		CL.clear();
+	}
+	return *this;
+}
+
+void SLAPI STokenizer::ClearInput()
+{
+	S.Clear();
+}
+
+int SLAPI STokenizer::Write(const char * pResource, int64 orgOffs, const void * pS, size_t sz)
+{
+	int    ok = 1;
+	THROW(S.Write(pS, sz));
+	SO = orgOffs;
+	RP = 0;
+	if(!isempty(pResource)) {
+		uint   tv = 0;
+		uint   tp = 0;
+		if(T.Search(pResource, &tv, &tp)) {
+			RP = tp;
+		}
+		else {
+			tv = ++Tc;
+			THROW(T.Add(pResource, tv, &tp));
+			RP = tp;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+uint16 SLAPI STokenizer::NextChr()
+{
+	uchar c;
+	uint16 result = 0;
+	if(S.Read(c)) {
+		if(P.Cp == cpUTF8) {
+			uint8  set[8];
+			uint32 ch = 0;
+			uint16 extra = SUtfConst::TrailingBytesForUTF8[c];
+			size_t actual_size = 0;
+			set[0] = c;
+			if(extra) {
+				assert(extra <= 5);
+				actual_size = S.Read(set+1, extra);
+			}
+			if(actual_size == extra) {
+				size_t i = 0;
+				if(SUnicode::IsLegalUtf8(set, extra+1)) {
+					switch(extra) {
+						case 5: ch += set[i++]; ch <<= 6; // remember, illegal UTF-8
+						case 4: ch += set[i++]; ch <<= 6; // remember, illegal UTF-8
+						case 3: ch += set[i++]; ch <<= 6;
+						case 2: ch += set[i++]; ch <<= 6;
+						case 1: ch += set[i++]; ch <<= 6;
+						case 0: ch += set[i++];
+					}
+					ch -= SUtfConst::OffsetsFromUTF8[extra];
+					if(ch <= UNI_MAX_BMP) { // Target is a character <= 0xFFFF
+						if(ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_LOW_END) // UTF-16 surrogate values are illegal in UTF-32
+							result = (wchar_t)UNI_REPLACEMENT_CHAR;
+						else
+							result = (wchar_t)ch; // normal case
+					}
+					else if(ch > UNI_MAX_UTF16)
+						result = (wchar_t)UNI_REPLACEMENT_CHAR;
+					else // target is a character in range 0xFFFF - 0x10FFFF.
+						result = (wchar_t)UNI_REPLACEMENT_CHAR;
+				}
+				else
+					result = (wchar_t)UNI_REPLACEMENT_CHAR;
+			}
+		}
+		else
+			result = (uint16)c;
+	}
+	return result;
+}
+
+int FASTCALL STokenizer::IsDelim(uint16 chr) const
+{
+	if(P.Delim.NotEmpty()) {
+		if(P.Cp == cpUTF8) {
+			if(DelimU.HasChr(chr))
+				return 1;
+		}
+		else {
+			if(P.Delim.HasChr(chr))
+				return 1;
+		}
+	}
+	else {
+		if(oneof4(chr, ' ', '\t', '\n', '\r'))
+			return 1;
+	}
+	return 0;
+}
+
+void SLAPI STokenizer::_CopySrcToAddTokenBuf(const TSVector <uint16> & rBuf)
+{
+	AddTokenBuf.Z();
+	const uint bc = rBuf.getCount();
+	if(P.Cp == cpUTF8) {
+		AddTokenBuf.CopyUtf8FromUnicode((const wchar_t *)rBuf.dataPtr(), bc, 1);
+	}
+	else {
+		for(uint i = 0; i < bc; i++) {
+			AddTokenBuf.CatChar(rBuf.at(i));
+		}
+	}
+}
+
+int FASTCALL STokenizer::AddToken(TSVector <uint16> & rBuf, int tokType)
+{
+	int    ok = 1;
+	const  uint bc = rBuf.getCount();
+	if(bc) {
+		Token  tok;
+		MEMSZERO(tok);
+		_CopySrcToAddTokenBuf(rBuf);
+		tok.T = tokType;
+		uint   tv = 0;
+		uint   tp = 0;
+		if(AddTokenBuf.NotEmpty()) {
+			if(T.Search(AddTokenBuf, &tv, &tp)) {
+				tok.PP = tp;
+			}
+			else {
+				tv = ++Tc;
+				THROW(T.Add(AddTokenBuf, tv, &tp));
+				tok.PP = tp;
+				{
+					CToken ct;
+					ct.T = tok.T;
+					ct.PP = tp;
+					THROW(CL.insert(&ct));
+				}
+			}
+		}
+		else {
+			//
+			// Неявный разделитель
+			//
+			assert(tokType == tokDelim);
+			tok.PP = 0;
+		}
+		tok.RP = RP;
+		THROW(L.insert(&tok));
+	}
+	CATCHZOK
+	rBuf.clear();
+	return ok;
+}
+
+int SLAPI STokenizer::IndexResources(int force)
+{
+	int    ok = 1;
+	if(!P_ResourceIndex || force) {
+		ZDELETE(P_ResourceIndex);
+		P_ResourceIndex = new TSCollection <ResourceIndexItem>;
+		uint   _pos_in_rtext = 0;
+		uint   _rp = 0;
+		for(uint i = 0; i < L.getCount(); i++) {
+			const Token & r_t = L.at(i);
+			if(r_t.RP) {
+				if(r_t.RP == _rp) {
+					_pos_in_rtext++;
+				}
+				else {
+					_rp = r_t.RP;
+					_pos_in_rtext = 0;
+				}
+				uint  _p = 0;
+				ResourceToken rt_item;
+				rt_item.RP = r_t.RP;
+				rt_item.PosInRText = _pos_in_rtext;
+				if(P_ResourceIndex->lsearch(&r_t.PP, &_p, CMPF_LONG)) {
+					P_ResourceIndex->at(_p)->RL.insert(&rt_item);
+				}
+				else {
+					ResourceIndexItem * p_new_item = P_ResourceIndex->CreateNewItem();
+					p_new_item->PP = r_t.PP;
+					p_new_item->RL.insert(&rt_item);
+				}
+			}
+		}
+		P_ResourceIndex->sort(CMPF_LONG);
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+int SLAPI STokenizer::ProcessSearchToken(TSVector <uint16> & rBuf, int tokType, TSCollection <STokenizer::SearchBlockEntry> & rResult)
+{
+	int    ok = -1;
+	if(tokType != tokDelim) {
+		const  uint bc = rBuf.getCount();
+		if(bc) {
+			Token  tok;
+			MEMSZERO(tok);
+			_CopySrcToAddTokenBuf(rBuf);
+			tok.T = tokType;
+			uint   tv = 0;
+			uint   tp = 0;
+			if(AddTokenBuf.NotEmpty()) {
+				if(T.Search(AddTokenBuf, &tv, &tp)) {
+					SearchBlockEntry * p_new_entry = new SearchBlockEntry;
+					p_new_entry->T = tp;
+					p_new_entry->P = 0;
+					if(P_ResourceIndex) {
+						uint _p = 0;
+						if(P_ResourceIndex->bsearch(&tp, &_p, CMPF_LONG)) {
+							const ResourceIndexItem * p_idx_item = P_ResourceIndex->at(_p);
+							if(p_idx_item)
+								p_new_entry->RL = p_idx_item->RL;
+						}
+					}
+					else {
+						for(uint _p = 0; L.lsearch(&tp, &_p, CMPF_LONG, offsetof(Token, PP)); _p++) {
+							const Token & r_tok = L.at(_p);
+							if(r_tok.RP) {
+								ResourceToken idx_item;
+								idx_item.RP = r_tok.RP;
+								idx_item.PosInRText = (uint)-1;
+								p_new_entry->RL.insert(&idx_item);
+							}
+						}
+					}
+					if(p_new_entry->RL.getCount()) {
+						p_new_entry->RL.sort(PTR_CMPFUNC(_2long));
+						rResult.insert(p_new_entry);
+						ok = 1;
+					}
+					else {
+						ZDELETE(p_new_entry);
+					}
+				}
+				else {
+					;
+				}
+			}
+			else {
+				//
+				// Неявный разделитель
+				//
+				assert(tokType == tokDelim);
+				tok.PP = 0;
+			}
+			tok.RP = RP;
+		}
+	}
+	rBuf.clear();
+	return ok;
+}
+
+int SLAPI STokenizer::Search(long flags, TSCollection <STokenizer::SearchBlockEntry> & rResult)
+{
+	int    ok = 1;
+	uint16 chr = 0;
+	uint16 prev_delim = 0;
+	TokenBuf.clear();
+	for(uint16  prev_chr = 0; (chr = NextChr()) != 0; prev_chr = chr) {
+		if(IsDelim(chr)) {
+			if(prev_delim) {
+				if(P.Flags & fEachDelim) {
+					THROW(ProcessSearchToken(TokenBuf, tokDelim, rResult));
+				}
+			}
+			else {
+				THROW(ProcessSearchToken(TokenBuf, tokWord, rResult));
+			}
+			TokenBuf.insert(&chr);
+			prev_delim = chr;
+		}
+		else {
+			if(prev_delim) {
+				THROW(ProcessSearchToken(TokenBuf, tokDelim, rResult));
+			}
+			else if(P.Flags & fDivAlNum && prev_chr) {
+				const int is_dig = BIN(isdigit((uint8)chr));
+				const int is_prev_dig = BIN(isdigit((uint8)prev_chr));
+				if(is_prev_dig != is_dig) {
+					THROW(ProcessSearchToken(TokenBuf, tokWord, rResult));
+					THROW(ProcessSearchToken(TokenBuf, tokDelim, rResult));
+				}
+			}
+			TokenBuf.insert(&chr);
+			prev_delim = 0;
+		}
+	}
+	THROW(ProcessSearchToken(TokenBuf, (prev_delim ? tokDelim : tokWord), rResult));
+	{
+		uint   i;
+		if(flags & sfAllInPatternOnly) {
+			LongArray rp_intersect_list, rp_temp_list;
+			for(i = 0; i < rResult.getCount(); i++) {
+				const SearchBlockEntry * p_entry = rResult.at(i);
+				const uint rl_c = p_entry->RL.getCount();
+				if(rl_c) {
+					rp_temp_list.clear();
+					for(uint j = 0; j < rl_c; j++)
+						rp_temp_list.add((long)p_entry->RL.at(j).RP);
+					if(i == 0)
+						rp_intersect_list = rp_temp_list;
+					else
+						rp_intersect_list.intersect(&rp_temp_list);
+				}
+				else {
+					rp_intersect_list.clear();
+					break;
+				}
+			}
+			if(rp_intersect_list.getCount()) {
+				rp_intersect_list.sortAndUndup();
+				i = rResult.getCount();
+				if(i) do {
+					SearchBlockEntry * p_entry = rResult.at(--i);
+					uint j = p_entry->RL.getCount();
+					if(j) do {
+						const long _rp = (long)p_entry->RL.at(--j).RP;
+						if(!rp_intersect_list.bsearch(_rp))
+							p_entry->RL.atFree(j);
+					} while(j);
+					if(p_entry->RL.getCount() == 0)
+						rResult.atFree(i);
+				} while(i);
+			}
+			else {
+				rResult.freeAll();
+			}
+		}
+		if(flags & sfFirstInTextOnly) {
+			LongArray rp_suit_list;
+			for(i = 0; i < rResult.getCount(); i++) {
+				const SearchBlockEntry * p_entry = rResult.at(i);
+				for(uint j = 0; j < p_entry->RL.getCount(); j++) {
+					if(p_entry->RL.at(j).PosInRText == 0) {
+						rp_suit_list.add((long)p_entry->RL.at(j).RP);
+					}
+				}
+			}
+			if(rp_suit_list.getCount()) {
+				rp_suit_list.sortAndUndup();
+				i = rResult.getCount();
+				if(i) do {
+					SearchBlockEntry * p_entry = rResult.at(--i);
+					uint j = p_entry->RL.getCount();
+					if(j) do {
+						const long _rp = (long)p_entry->RL.at(--j).RP;
+						if(!rp_suit_list.bsearch(_rp))
+							p_entry->RL.atFree(j);
+					} while(j);
+					if(p_entry->RL.getCount() == 0)
+						rResult.atFree(i);
+				} while(i);
+			}
+			else
+				rResult.freeAll();
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI STokenizer::Run(uint * pIdxFirst, uint * pIdxCount)
+{
+	int    ok = 1;
+	const  uint preserve_count = L.getCount();
+	uint   idx_first = preserve_count;
+	uint   idx_count = 0;
+	uint16 chr = 0;
+	uint16 prev_delim = 0;
+	TokenBuf.clear();
+	for(uint16 prev_chr = 0; (chr = NextChr()) != 0; prev_chr = chr) {
+		if(IsDelim(chr)) {
+			if(prev_delim) {
+				if(P.Flags & fEachDelim) {
+					THROW(AddToken(TokenBuf, tokDelim));
+					idx_count++;
+				}
+			}
+			else {
+				THROW(AddToken(TokenBuf, tokWord));
+			}
+			TokenBuf.insert(&chr);
+			prev_delim = chr;
+		}
+		else {
+			if(prev_delim) {
+				THROW(AddToken(TokenBuf, tokDelim));
+			}
+			else if(P.Flags & fDivAlNum && prev_chr) {
+				int is_dig = 0;
+				int is_prev_dig = 0;
+				if(P.Cp == cpUTF8) {
+					is_dig = isdecw((wchar_t)chr);
+					is_prev_dig = isdecw((wchar_t)prev_chr);
+				}
+				else {
+					is_dig = isdec((char)chr);
+					is_prev_dig = isdec((char)prev_chr);
+				}
+				if(is_prev_dig != is_dig) {
+					THROW(AddToken(TokenBuf, tokWord));
+					THROW(AddToken(TokenBuf, tokDelim));
+				}
+			}
+			TokenBuf.insert(&chr);
+			prev_delim = 0;
+		}
+	}
+	THROW(AddToken(TokenBuf, prev_delim ? tokDelim : tokWord));
+	idx_count = L.getCount() - preserve_count;
+	CATCHZOK
+	ASSIGN_PTR(pIdxFirst, idx_first);
+	ASSIGN_PTR(pIdxCount, idx_count);
+	return ok;
+}
+
+int SLAPI STokenizer::RunSString(const char * pResource, int64 orgOffs, const SString & rS, uint * pIdxFirst, uint * pIdxCount)
+{
+	return BIN(Write(pResource, orgOffs, rS, rS.Len()+1) && Run(pIdxFirst, pIdxCount));
+}
+
+uint SLAPI STokenizer::GetCommCount() const
+{
+	return CL.getCount();
+}
+
+int SLAPI STokenizer::GetComm(uint idx, STokenizer::Item & rItem) const
+{
+	if(idx < CL.getCount()) {
+		const CToken & r_token = CL.at(idx);
+		rItem.Token = r_token.T;
+		rItem.TextId = r_token.PP;
+		rItem.OrgOffs = 0;
+		T.Get(r_token.PP, rItem.Text);
+		rItem.Resource.Z();
+		return 1;
+	}
+	else
+		return 0;
+}
+
+uint SLAPI STokenizer::GetCount() const
+{
+	return L.getCount();
+}
+
+int SLAPI STokenizer::GetTextById(uint txtId, SString & rBuf) const
+{
+	rBuf.Z();
+	return T.Get(txtId, rBuf);
+}
+
+int SLAPI STokenizer::GetSymbHashStat(SymbHashTable::Stat & rStat) const
+{
+	return T.CalcStat(rStat);
+}
+
+int SLAPI STokenizer::Get(uint idx, STokenizer::Item & rItem) const
+{
+	if(idx < L.getCount()) {
+		const Token & r_token = L.at(idx);
+		rItem.Token = r_token.T;
+		rItem.TextId = r_token.PP;
+		rItem.OrgOffs = r_token.SP;
+		T.Get(r_token.PP, rItem.Text);
+		T.Get(r_token.RP, rItem.Resource);
+		return 1;
+	}
+	else
+		return 0;
+}
+
+int SLAPI STokenizer::Get_WithoutText(uint idx, STokenizer::Item & rItem) const
+{
+	if(idx < L.getCount()) {
+		const Token & r_token = L.at(idx);
+		rItem.Token = r_token.T;
+		rItem.TextId = r_token.PP;
+		rItem.OrgOffs = r_token.SP;
+		rItem.Text.Z();
+		rItem.Resource.Z();
+		return 1;
+	}
+	else
+		return 0;
+}
 //
 //
 // email regexp: (?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])

@@ -6,11 +6,9 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 /*
  * Header for dynamic hash table routines Author - Eric Young
  */
-
 #ifndef HEADER_LHASH_H
 #define HEADER_LHASH_H
 
@@ -22,12 +20,11 @@ extern "C" {
 #endif
 
 typedef struct lhash_node_st OPENSSL_LH_NODE;
-typedef int (*OPENSSL_LH_COMPFUNC) (const void *, const void *);
-typedef ulong (*OPENSSL_LH_HASHFUNC) (const void *);
-typedef void (*OPENSSL_LH_DOALL_FUNC) (void *);
-typedef void (*OPENSSL_LH_DOALL_FUNCARG) (void *, void *);
+/*@funcdef*/typedef int (*OPENSSL_LH_COMPFUNC)(const void *, const void *);
+/*@funcdef*/typedef ulong (*OPENSSL_LH_HASHFUNC)(const void *);
+/*@funcdef*/typedef void (*OPENSSL_LH_DOALL_FUNC)(void *);
+/*@funcdef*/typedef void (*OPENSSL_LH_DOALL_FUNCARG)(void *, void *);
 typedef struct lhash_st OPENSSL_LHASH;
-
 /*
  * Macros for declaring and implementing type-safe wrappers for LHASH
  * callbacks. This way, callbacks can be provided to LHASH structures without
@@ -38,55 +35,39 @@ typedef struct lhash_st OPENSSL_LHASH;
  */
 
 /* First: "hash" functions */
-#define DECLARE_LHASH_HASH_FN(name, o_type) \
-        ulong name##_LHASH_HASH(const void *);
-#define IMPLEMENT_LHASH_HASH_FN(name, o_type) \
-        ulong name##_LHASH_HASH(const void *arg) { \
-                const o_type *a = arg; \
-                return name##_hash(a); }
+#define DECLARE_LHASH_HASH_FN(name, o_type)   ulong name##_LHASH_HASH(const void *);
+#define IMPLEMENT_LHASH_HASH_FN(name, o_type) ulong name##_LHASH_HASH(const void *arg) { const o_type *a = arg; return name##_hash(a); }
 #define LHASH_HASH_FN(name) name##_LHASH_HASH
 
 /* Second: "compare" functions */
-#define DECLARE_LHASH_COMP_FN(name, o_type) \
-        int name##_LHASH_COMP(const void *, const void *);
-#define IMPLEMENT_LHASH_COMP_FN(name, o_type) \
-        int name##_LHASH_COMP(const void *arg1, const void *arg2) { \
-                const o_type *a = arg1;             \
-                const o_type *b = arg2; \
-                return name##_cmp(a,b); }
+#define DECLARE_LHASH_COMP_FN(name, o_type) int name##_LHASH_COMP(const void *, const void *);
+#define IMPLEMENT_LHASH_COMP_FN(name, o_type) int name##_LHASH_COMP(const void *arg1, const void *arg2) { const o_type *a = arg1; const o_type *b = arg2; return name##_cmp(a,b); }
 #define LHASH_COMP_FN(name) name##_LHASH_COMP
 
 /* Fourth: "doall_arg" functions */
-#define DECLARE_LHASH_DOALL_ARG_FN(name, o_type, a_type) \
-        void name##_LHASH_DOALL_ARG(void *, void *);
-#define IMPLEMENT_LHASH_DOALL_ARG_FN(name, o_type, a_type) \
-        void name##_LHASH_DOALL_ARG(void *arg1, void *arg2) { \
-                o_type *a = arg1; \
-                a_type *b = arg2; \
-                name##_doall_arg(a, b); }
+#define DECLARE_LHASH_DOALL_ARG_FN(name, o_type, a_type)   void name##_LHASH_DOALL_ARG(void *, void *);
+#define IMPLEMENT_LHASH_DOALL_ARG_FN(name, o_type, a_type) void name##_LHASH_DOALL_ARG(void *arg1, void *arg2) { o_type *a = arg1; a_type *b = arg2; name##_doall_arg(a, b); }
 #define LHASH_DOALL_ARG_FN(name) name##_LHASH_DOALL_ARG
-
 
 #define LH_LOAD_MULT    256
 
-int OPENSSL_LH_error(OPENSSL_LHASH *lh);
-OPENSSL_LHASH *OPENSSL_LH_new(OPENSSL_LH_HASHFUNC h, OPENSSL_LH_COMPFUNC c);
-void OPENSSL_LH_free(OPENSSL_LHASH *lh);
-void *OPENSSL_LH_insert(OPENSSL_LHASH *lh, void *data);
-void *OPENSSL_LH_delete(OPENSSL_LHASH *lh, const void *data);
-void *OPENSSL_LH_retrieve(OPENSSL_LHASH *lh, const void *data);
-void OPENSSL_LH_doall(OPENSSL_LHASH *lh, OPENSSL_LH_DOALL_FUNC func);
-void OPENSSL_LH_doall_arg(OPENSSL_LHASH *lh, OPENSSL_LH_DOALL_FUNCARG func, void *arg);
-ulong OPENSSL_LH_strhash(const char *c);
-ulong OPENSSL_LH_num_items(const OPENSSL_LHASH *lh);
-ulong OPENSSL_LH_get_down_load(const OPENSSL_LHASH *lh);
-void OPENSSL_LH_set_down_load(OPENSSL_LHASH *lh, ulong down_load);
-
-# ifndef OPENSSL_NO_STDIO
-void OPENSSL_LH_stats(const OPENSSL_LHASH *lh, FILE *fp);
-void OPENSSL_LH_node_stats(const OPENSSL_LHASH *lh, FILE *fp);
-void OPENSSL_LH_node_usage_stats(const OPENSSL_LHASH *lh, FILE *fp);
-# endif
+int    FASTCALL OPENSSL_LH_error(OPENSSL_LHASH *lh);
+OPENSSL_LHASH * FASTCALL OPENSSL_LH_new(OPENSSL_LH_HASHFUNC h, OPENSSL_LH_COMPFUNC c);
+void   FASTCALL OPENSSL_LH_free(OPENSSL_LHASH *lh);
+void * FASTCALL OPENSSL_LH_insert(OPENSSL_LHASH *lh, void *data);
+void * FASTCALL OPENSSL_LH_delete(OPENSSL_LHASH *lh, const void *data);
+void * FASTCALL OPENSSL_LH_retrieve(OPENSSL_LHASH *lh, const void *data);
+void   OPENSSL_LH_doall(OPENSSL_LHASH *lh, OPENSSL_LH_DOALL_FUNC func);
+void   OPENSSL_LH_doall_arg(OPENSSL_LHASH *lh, OPENSSL_LH_DOALL_FUNCARG func, void *arg);
+ulong  OPENSSL_LH_strhash(const char *c);
+ulong  FASTCALL OPENSSL_LH_num_items(const OPENSSL_LHASH *lh);
+ulong  OPENSSL_LH_get_down_load(const OPENSSL_LHASH *lh);
+void   OPENSSL_LH_set_down_load(OPENSSL_LHASH *lh, ulong down_load);
+#ifndef OPENSSL_NO_STDIO
+	void OPENSSL_LH_stats(const OPENSSL_LHASH *lh, FILE *fp);
+	void OPENSSL_LH_node_stats(const OPENSSL_LHASH *lh, FILE *fp);
+	void OPENSSL_LH_node_usage_stats(const OPENSSL_LHASH *lh, FILE *fp);
+#endif
 void OPENSSL_LH_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
 void OPENSSL_LH_node_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
 void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
@@ -174,21 +155,11 @@ void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
     } \
     LHASH_OF(type)
 
-#define IMPLEMENT_LHASH_DOALL_ARG_CONST(type, argtype) \
-    int_implement_lhash_doall(type, argtype, const type)
-
-#define IMPLEMENT_LHASH_DOALL_ARG(type, argtype) \
-    int_implement_lhash_doall(type, argtype, type)
-
-#define int_implement_lhash_doall(type, argtype, cbargtype) \
-    static ossl_inline void \
-        lh_##type##_doall_##argtype(LHASH_OF(type) *lh, \
-                                   void (*fn)(cbargtype *, argtype *), \
-                                   argtype *arg) \
-    { \
-        OPENSSL_LH_doall_arg((OPENSSL_LHASH *)lh, (OPENSSL_LH_DOALL_FUNCARG)fn, (void *)arg); \
-    } \
-    LHASH_OF(type)
+#define IMPLEMENT_LHASH_DOALL_ARG_CONST(type, argtype) int_implement_lhash_doall(type, argtype, const type)
+#define IMPLEMENT_LHASH_DOALL_ARG(type, argtype) int_implement_lhash_doall(type, argtype, type)
+#define int_implement_lhash_doall(type, argtype, cbargtype) static ossl_inline void \
+        lh_##type##_doall_##argtype(LHASH_OF(type) *lh, void (*fn)(cbargtype *, argtype *), argtype *arg) \
+	{ OPENSSL_LH_doall_arg((OPENSSL_LHASH *)lh, (OPENSSL_LH_DOALL_FUNCARG)fn, (void *)arg); } LHASH_OF(type)
 
 DEFINE_LHASH_OF(OPENSSL_STRING);
 // @sobolev DEFINE_LHASH_OF(OPENSSL_CSTRING);

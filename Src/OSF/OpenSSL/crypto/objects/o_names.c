@@ -137,12 +137,8 @@ static int obj_name_cmp(const OBJ_NAME * a, const OBJ_NAME * b)
 static ulong obj_name_hash(const OBJ_NAME * a)
 {
 	ulong ret;
-
-	if((name_funcs_stack != NULL)
-	    && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
-		ret =
-		    sk_NAME_FUNCS_value(name_funcs_stack,
-		    a->type)->hash_func(a->name);
+	if(name_funcs_stack && (sk_NAME_FUNCS_num(name_funcs_stack) > a->type)) {
+		ret = sk_NAME_FUNCS_value(name_funcs_stack, a->type)->hash_func(a->name);
 	}
 	else {
 		ret = OPENSSL_LH_strhash(a->name);
@@ -155,18 +151,14 @@ const char * OBJ_NAME_get(const char * name, int type)
 {
 	OBJ_NAME on, * ret;
 	int num = 0, alias;
-
 	if(!name)
 		return NULL;
 	if((names_lh == NULL) && !OBJ_NAME_init())
 		return NULL;
-
 	alias = type & OBJ_NAME_ALIAS;
 	type &= ~OBJ_NAME_ALIAS;
-
 	on.name = name;
 	on.type = type;
-
 	for(;; ) {
 		ret = lh_OBJ_NAME_retrieve(names_lh, &on);
 		if(!ret)
@@ -182,40 +174,32 @@ const char * OBJ_NAME_get(const char * name, int type)
 	}
 }
 
-int OBJ_NAME_add(const char * name, int type, const char * data)
+int FASTCALL OBJ_NAME_add(const char * name, int type, const char * data)
 {
 	OBJ_NAME * onp, * ret;
 	int alias;
-
 	if((names_lh == NULL) && !OBJ_NAME_init())
 		return 0;
-
 	alias = type & OBJ_NAME_ALIAS;
 	type &= ~OBJ_NAME_ALIAS;
-
 	onp = (OBJ_NAME*)OPENSSL_malloc(sizeof(*onp));
 	if(onp == NULL) {
 		/* ERROR */
 		return 0;
 	}
-
 	onp->name = name;
 	onp->alias = alias;
 	onp->type = type;
 	onp->data = data;
-
 	ret = lh_OBJ_NAME_insert(names_lh, onp);
 	if(ret) {
 		/* free things */
-		if((name_funcs_stack != NULL)
-		    && (sk_NAME_FUNCS_num(name_funcs_stack) > ret->type)) {
+		if(name_funcs_stack && (sk_NAME_FUNCS_num(name_funcs_stack) > ret->type)) {
 			/*
 			 * XXX: I'm not sure I understand why the free function should
 			 * get three arguments... -- Richard Levitte
 			 */
-			sk_NAME_FUNCS_value(name_funcs_stack,
-			    ret->type)->free_func(ret->name, ret->type,
-			    ret->data);
+			sk_NAME_FUNCS_value(name_funcs_stack, ret->type)->free_func(ret->name, ret->type, ret->data);
 		}
 		OPENSSL_free(ret);
 	}
@@ -229,21 +213,18 @@ int OBJ_NAME_add(const char * name, int type, const char * data)
 	return 1;
 }
 
-int OBJ_NAME_remove(const char * name, int type)
+int FASTCALL OBJ_NAME_remove(const char * name, int type)
 {
 	OBJ_NAME on, * ret;
-
 	if(names_lh == NULL)
 		return 0;
-
 	type &= ~OBJ_NAME_ALIAS;
 	on.name = name;
 	on.type = type;
 	ret = lh_OBJ_NAME_delete(names_lh, &on);
 	if(ret) {
 		/* free things */
-		if((name_funcs_stack != NULL)
-		    && (sk_NAME_FUNCS_num(name_funcs_stack) > ret->type)) {
+		if((name_funcs_stack != NULL) && (sk_NAME_FUNCS_num(name_funcs_stack) > ret->type)) {
 			/*
 			 * XXX: I'm not sure I understand why the free function should
 			 * get three arguments... -- Richard Levitte
@@ -273,15 +254,12 @@ static void do_all_fn(const OBJ_NAME * name, OBJ_DOALL * d)
 
 IMPLEMENT_LHASH_DOALL_ARG_CONST(OBJ_NAME, OBJ_DOALL);
 
-void OBJ_NAME_do_all(int type, void (* fn)(const OBJ_NAME *, void * arg),
-    void * arg)
+void OBJ_NAME_do_all(int type, void (* fn)(const OBJ_NAME *, void * arg), void * arg)
 {
 	OBJ_DOALL d;
-
 	d.type = type;
 	d.fn = fn;
 	d.arg = arg;
-
 	lh_OBJ_NAME_doall_OBJ_DOALL(names_lh, do_all_fn, &d);
 }
 
@@ -311,8 +289,8 @@ void OBJ_NAME_do_all_sorted(int type, void (* fn)(const OBJ_NAME *, void * arg),
 	int n;
 	d.type = type;
 	d.names = (const OBJ_NAME**)OPENSSL_malloc(sizeof(*d.names) * lh_OBJ_NAME_num_items(names_lh));
-	/* Really should return an error if !d.names...but its a void function! */
-	if(d.names != NULL) {
+	// Really should return an error if !d.names...but its a void function! 
+	if(d.names) {
 		d.n = 0;
 		OBJ_NAME_do_all(type, do_all_sorted_fn, &d);
 		qsort((void*)d.names, d.n, sizeof(*d.names), do_all_sorted_cmp);

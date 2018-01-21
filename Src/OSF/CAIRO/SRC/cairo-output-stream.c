@@ -119,7 +119,7 @@ static cairo_status_t closure_close(cairo_output_stream_t * stream)
 		return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_output_stream_t * _cairo_output_stream_create(cairo_write_func_t write_func, cairo_close_func_t close_func, void * closure)
+cairo_output_stream_t * FASTCALL _cairo_output_stream_create(cairo_write_func_t write_func, cairo_close_func_t close_func, void * closure)
 {
 	cairo_output_stream_with_closure_t * stream = (cairo_output_stream_with_closure_t *)SAlloc::M(sizeof(cairo_output_stream_with_closure_t));
 	if(unlikely(stream == NULL)) {
@@ -133,7 +133,7 @@ cairo_output_stream_t * _cairo_output_stream_create(cairo_write_func_t write_fun
 	return &stream->base;
 }
 
-cairo_output_stream_t * _cairo_output_stream_create_in_error(cairo_status_t status)
+cairo_output_stream_t * FASTCALL _cairo_output_stream_create_in_error(cairo_status_t status)
 {
 	cairo_output_stream_t * stream;
 	/* check for the common ones */
@@ -151,7 +151,7 @@ cairo_output_stream_t * _cairo_output_stream_create_in_error(cairo_status_t stat
 	return stream;
 }
 
-cairo_status_t _cairo_output_stream_flush(cairo_output_stream_t * stream)
+cairo_status_t FASTCALL _cairo_output_stream_flush(cairo_output_stream_t * stream)
 {
 	cairo_status_t status;
 	if(stream->closed)
@@ -299,6 +299,11 @@ static void _cairo_dtostr(char * buffer, size_t size, double d, cairo_bool_t lim
 			p--;
 		}
 	}
+}
+
+void FASTCALL _cairo_output_stream_puts(cairo_output_stream_t * stream, const char * pStr)
+{
+	_cairo_output_stream_write(stream, pStr, sstrlen(pStr));
 }
 
 enum {

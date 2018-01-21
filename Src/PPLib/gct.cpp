@@ -503,15 +503,13 @@ int SLAPI ViewGoodsTurnover(long)
 {
 	int    ok = 1, view_in_use = 0;
 	int    modeless = GetModelessStatus();
-	BrowserWindow * p_prev_win = 0;
 	GCTFilt flt;
 	PPViewGoodsTrnovr * p_v = new PPViewGoodsTrnovr;
-
-	flt.Period.SetDate(LConfig.OperDate);
-	if(modeless)
-		p_prev_win = PPFindLastBrowser();
+	BrowserWindow * p_prev_win = modeless ? PPFindLastBrowser() : 0;
 	if(p_prev_win)
 		flt = *(((GoodsTrnovrBrowser *)p_prev_win)->P_View->GetFilt());
+	else
+		flt.Period.SetDate(LConfig.OperDate);
 	while(p_v->EditFilt(&flt) > 0) {
 		PPWait(1);
 		flt.Flags |= (uint)OPG_IGNOREZERO;
@@ -536,7 +534,7 @@ PPALDD_CONSTRUCTOR(GoodsTurnovr)
 {
 	if(Valid) {
 		AssignHeadData(&H, sizeof(H));
-		AssignIterData(1, &I, sizeof(I));
+		AssignDefIterData(&I, sizeof(I));
 	}
 }
 

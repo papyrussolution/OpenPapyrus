@@ -400,10 +400,8 @@ static int dynamic_load(ENGINE * e, dynamic_data_ctx * ctx)
 	if(!ctx->DYNAMIC_LIBNAME) {
 		if(!ctx->engine_id)
 			return 0;
-		DSO_ctrl(ctx->dynamic_dso, DSO_CTRL_SET_FLAGS,
-		    DSO_FLAG_NAME_TRANSLATION_EXT_ONLY, 0);
-		ctx->DYNAMIC_LIBNAME =
-		    DSO_convert_filename(ctx->dynamic_dso, ctx->engine_id);
+		DSO_ctrl(ctx->dynamic_dso, DSO_CTRL_SET_FLAGS, DSO_FLAG_NAME_TRANSLATION_EXT_ONLY, 0);
+		ctx->DYNAMIC_LIBNAME = DSO_convert_filename(ctx->dynamic_dso, ctx->engine_id);
 	}
 	if(!int_load(ctx)) {
 		ENGINEerr(ENGINE_F_DYNAMIC_LOAD, ENGINE_R_DSO_NOT_FOUND);
@@ -412,10 +410,7 @@ static int dynamic_load(ENGINE * e, dynamic_data_ctx * ctx)
 		return 0;
 	}
 	/* We have to find a bind function otherwise it'll always end badly */
-	if(!
-	    (ctx->bind_engine =
-			    (dynamic_bind_engine)DSO_bind_func(ctx->dynamic_dso,
-			    ctx->DYNAMIC_F2))) {
+	if(!(ctx->bind_engine = (dynamic_bind_engine)DSO_bind_func(ctx->dynamic_dso, ctx->DYNAMIC_F2))) {
 		ctx->bind_engine = NULL;
 		DSO_free(ctx->dynamic_dso);
 		ctx->dynamic_dso = NULL;
@@ -429,9 +424,7 @@ static int dynamic_load(ENGINE * e, dynamic_data_ctx * ctx)
 		 * Now we try to find a version checking function and decide how to
 		 * cope with failure if/when it fails.
 		 */
-		ctx->v_check =
-		    (dynamic_v_check_fn)DSO_bind_func(ctx->dynamic_dso,
-		    ctx->DYNAMIC_F1);
+		ctx->v_check = (dynamic_v_check_fn)DSO_bind_func(ctx->dynamic_dso, ctx->DYNAMIC_F1);
 		if(ctx->v_check)
 			vcheck_res = ctx->v_check(OSSL_DYNAMIC_VERSION);
 		/*
@@ -445,8 +438,7 @@ static int dynamic_load(ENGINE * e, dynamic_data_ctx * ctx)
 			ctx->v_check = NULL;
 			DSO_free(ctx->dynamic_dso);
 			ctx->dynamic_dso = NULL;
-			ENGINEerr(ENGINE_F_DYNAMIC_LOAD,
-			    ENGINE_R_VERSION_INCOMPATIBILITY);
+			ENGINEerr(ENGINE_F_DYNAMIC_LOAD, ENGINE_R_VERSION_INCOMPATIBILITY);
 			return 0;
 		}
 	}

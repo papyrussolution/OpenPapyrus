@@ -1323,7 +1323,7 @@ int SrDatabase::MakeSpecialWord(int spcTag, const char * pWordUtf8, SString & rB
 	return ok;
 }
 
-SrDatabase::SrDatabase() : WordCache(128*1024, 0), PropInstance(0), PropSubclass(0), PropType(0),
+SrDatabase::SrDatabase() : WordCache(128*1024, 0), PropInstance(0), PropSubclass(0), PropType(0), PropHMember(0),
 	P_Db(0), P_WdT(0), P_GrT(0), P_WaT(0), P_CT(0), P_CpT(0), P_NgT(0), P_CNgT(0),
 	P_GnT(0), P_GwT(0), ZeroWordID(0), Flags(0)
 {
@@ -1379,9 +1379,11 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 			CONCEPTID prop_instance = ResolveReservedConcept(rcInstance);
 			CONCEPTID prop_subclass = ResolveReservedConcept(rcSubclass);
 			CONCEPTID prop_crtype   = ResolveReservedConcept(rcType);
+			CONCEPTID prop_hmember  = ResolveReservedConcept(rcHMember);
 			THROW(prop_instance);
 			THROW(prop_subclass);
 			THROW(prop_crtype);
+			THROW(prop_hmember);
 		}
 		{
 			SString err_file_name;
@@ -1539,6 +1541,8 @@ void SrDatabase::Close()
 {
 	PropInstance = 0;
 	PropSubclass = 0;
+	PropType = 0;
+	PropHMember = 0;
 	ZDELETE(P_WdT);
 	ZDELETE(P_GrT);
 	ZDELETE(P_WaT);
@@ -1559,6 +1563,7 @@ CONCEPTID FASTCALL SrDatabase::GetReservedConcept(int rc) const
 		case rcInstance: prop = PropInstance; break;
 		case rcSubclass: prop = PropSubclass; break;
 		case rcType: prop = PropType; break;
+		case rcHMember: prop = PropHMember; break;
 		default: PPSetError(PPERR_SR_RSVRCONCEPTNFOUND, rc); break;
 	}
 	return prop;
@@ -1568,23 +1573,11 @@ CONCEPTID FASTCALL SrDatabase::ResolveReservedConcept(int rc)
 {
 	CONCEPTID prop = 0;
 	SString temp_buf;
-	if(rc == rcInstance) {
-		if(!PropInstance) {
-			THROW(ResolveConcept((temp_buf = "crp_instance").ToUtf8(), &PropInstance));
-		}
-		prop = PropInstance;
-	}
-	else if(rc == rcSubclass) {
-		if(!PropSubclass) {
-			THROW(ResolveConcept((temp_buf = "crp_subclass").ToUtf8(), &PropSubclass));
-		}
-		prop = PropSubclass;
-	}
-	else if(rc == rcType) {
-		if(!PropType) {
-			THROW(ResolveConcept((temp_buf = "crp_type").ToUtf8(), &PropType));
-		}
-		prop = PropType;
+	switch(rc) {
+		case rcInstance: if(!PropInstance) { THROW(ResolveConcept((temp_buf = "crp_instance").ToUtf8(), &PropInstance)); } prop = PropInstance; break;
+		case rcSubclass: if(!PropSubclass) { THROW(ResolveConcept((temp_buf = "crp_subclass").ToUtf8(), &PropSubclass)); } prop = PropSubclass; break;
+		case rcType:     if(!PropType)     { THROW(ResolveConcept((temp_buf = "crp_type").ToUtf8(), &PropType)); } prop = PropType; break;
+		case rcHMember:  if(!PropHMember)  { THROW(ResolveConcept((temp_buf = "crp_hmember").ToUtf8(), &PropHMember)); } prop = PropHMember; break;
 	}
 	CATCH
 		prop = 0;
@@ -2570,7 +2563,7 @@ int SrDatabase::StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSVecto
 struct StoreFiasAddrBlock {
 	static const uint SignatureValue;
 	StoreFiasAddrBlock() : Signature(SignatureValue), CRegion(0), CUrbs(0), CVici(0), CAedificium(0), CApartment(0), ProcessedSymbols(4096, 1),
-		T(STokenizer::Param(STokenizer::fEachDelim, cpUTF8, " \t\n\r(){}[]<>,.:;\\-/&$#@!?*^\"+=%"))
+		T(STokenizer::Param(STokenizer::fEachDelim, cpUTF8, " \t\n\r(){}[]<>,.:;\\/&$#@!?*^\"+=%")) // "-" здесь не является разделителем
 	{
 	}
 	const uint32 Signature;
@@ -2607,7 +2600,16 @@ void SrDatabase::DestroyStoreFiasAddrBlock(void * pBlk)
 		delete p_blk;
 }
 
-int SrDatabase::StoreFiasAddr(void * pBlk, const TSVector <Sdr_FiasRawAddrObj> & rList)
+static IMPL_CMPFUNC(Sdr_FiasRawAddrObj_AOGUID_LIVESTATUS, p1, p2)
+{
+	const Sdr_FiasRawAddrObj * p_item1 = (const Sdr_FiasRawAddrObj *)p1;
+	const Sdr_FiasRawAddrObj * p_item2 = (const Sdr_FiasRawAddrObj *)p2;
+	int   s = memcmp(&p_item1->AOGUID, &p_item2->AOGUID, sizeof(p_item1->AOGUID));
+	SETIFZ(s, CMPSIGN(p_item2->LIVESTATUS, p_item1->LIVESTATUS)); // descending order
+	return s;
+}
+
+int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, TSVector <Sdr_FiasRawAddrObj> & rList)
 {
 	/*
 		struct Sdr_FiasRawAddrObj
@@ -2651,8 +2653,13 @@ int SrDatabase::StoreFiasAddr(void * pBlk, const TSVector <Sdr_FiasRawAddrObj> &
 	int    ok = -1;
 	SString temp_buf;
 	SString main_concept_symb;
+	SString text;
+	StringSet ss;
+	StringSet ss_name; // Коллекция вариантов наименований 
+	SrWordForm wordform;
 	StoreFiasAddrBlock * p_blk = (StoreFiasAddrBlock *)pBlk;
 	TSVector <SrWordInfo> info_list;
+	STokenizer::Item titem, titem_next;
 	LongArray word_id_list;
 	Int64Array concept_list;
 	Int64Array candidate_concept_list;
@@ -2660,6 +2667,8 @@ int SrDatabase::StoreFiasAddr(void * pBlk, const TSVector <Sdr_FiasRawAddrObj> &
 	Int64Array concept_hier;
 	SrNGram ng;
 	THROW(p_blk && p_blk->Signature == StoreFiasAddrBlock::SignatureValue);
+	// Сортируем входной массив так, чтобы все элементы с одинаковыми AOGUID были вместе и актуальный (LIVESTATUS=1) был самым первым
+	rList.sort(PTR_CMPFUNC(Sdr_FiasRawAddrObj_AOGUID_LIVESTATUS));
 	for(uint lidx = 0; lidx < rList.getCount(); lidx++) {
 		const Sdr_FiasRawAddrObj & r_item = rList.at(lidx);
 		CONCEPTID parent_cid = 0; // Концепция, экземпляром которой является создаваемая запись
@@ -2682,7 +2691,7 @@ int SrDatabase::StoreFiasAddr(void * pBlk, const TSVector <Sdr_FiasRawAddrObj> &
 			91 – уровень объектов на дополнительных территориях (устаревшее)
 		*/
 		const int aolevel = atoi(r_item.AOLEVEL);
-		SString concept_abbr = r_item.SHORTNAME;
+		;
 		/*
 			:cregion
 			:urbs
@@ -2690,7 +2699,31 @@ int SrDatabase::StoreFiasAddr(void * pBlk, const TSVector <Sdr_FiasRawAddrObj> &
 			:gener_aedificium
 			:gener_apartment
 		*/
-		concept_abbr.Transf(CTRANSF_OUTER_TO_UTF8);
+		(text = r_item.SHORTNAME).Transf(CTRANSF_OUTER_TO_UTF8);
+		(temp_buf = r_item.FORMALNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
+		const SString name_buf = temp_buf;
+		uint   last_identical_idx = lidx; // Индекс последнего элемента идентичного по AOGUID r_item
+		{
+			// ss_name будет хранить список имен объекта, отличающихся от name_buf
+			ss_name.clear();
+			ss_name.add(name_buf);
+			(temp_buf = r_item.OFFNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
+			if(temp_buf.NotEmpty() && temp_buf != name_buf)
+				ss_name.add(temp_buf);
+			for(uint inner_lidx = lidx+1; inner_lidx < rList.getCount(); inner_lidx++) {
+				const Sdr_FiasRawAddrObj & r_next_item = rList.at(inner_lidx);
+				if(r_next_item.AOGUID == r_item.AOGUID) {
+					(temp_buf = r_next_item.FORMALNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
+					if(temp_buf.NotEmpty() && temp_buf != name_buf)
+						ss_name.add(temp_buf);
+					(temp_buf = r_next_item.OFFNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
+					if(temp_buf.NotEmpty() && temp_buf != name_buf)
+						ss_name.add(temp_buf);
+					//
+					last_identical_idx = inner_lidx;
+				}
+			}
+		}
 		ng.Z();
 		info_list.clear();
 		word_id_list.clear();
@@ -2698,8 +2731,8 @@ int SrDatabase::StoreFiasAddr(void * pBlk, const TSVector <Sdr_FiasRawAddrObj> &
 		candidate_concept_list.clear();
 		local_concept_list.clear();
 		concept_hier.clear();
-		concept_abbr.TrimRightChr('.');
-		if(GetWordInfo(concept_abbr, 0, info_list) > 0) {
+		text.TrimRightChr('.');
+		if(GetWordInfo(text, 0, info_list) > 0) {
 			for(uint i = 0; i < info_list.getCount(); i++) {
 				const SrWordInfo & r_wi = info_list.at(i);
 				local_concept_list.clear();
@@ -2713,8 +2746,8 @@ int SrDatabase::StoreFiasAddr(void * pBlk, const TSVector <Sdr_FiasRawAddrObj> &
 			}
 		}
 		{
-			StringSet ss;
-			concept_abbr.Tokenize(" ", ss);
+			ss.clear();
+			text.Tokenize(" ", ss);
 			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 				if(temp_buf.NotEmptyS() && temp_buf.TrimRightChr('.').NotEmptyS()) {
 
@@ -2752,17 +2785,56 @@ int SrDatabase::StoreFiasAddr(void * pBlk, const TSVector <Sdr_FiasRawAddrObj> &
 		candidate_concept_list.sortAndUndup();
 		if(candidate_concept_list.getCount() == 0) {
 		}
-		else if(candidate_concept_list.getCount() == 1) {
+		else if(candidate_concept_list.getCount() > 1) {
+		}
+		else { // candidate_concept_list.getCount() exactly equal 1
 			CONCEPTID main_cid = 0;
-			temp_buf.Z().EncodeMime64(&r_item.AOGUID, sizeof(r_item.AOGUID));
-			main_concept_symb.Z().Cat("fias").Cat(temp_buf);
+			SrConcept::MakeSurrogateSymb(SrConcept::surrsymbsrcFIAS, &r_item.AOGUID, sizeof(r_item.AOGUID), main_concept_symb);
 			THROW(ResolveConcept(main_concept_symb, &main_cid));
-			//
-
-
+			for(uint namessp = 0; ss_name.get(&namessp, text);) {
+				word_id_list.clear();
+				uint   idx_first = 0;
+				uint   idx_count = 0;
+				p_blk->T.RunSString(0, 0, text, &idx_first, &idx_count);
+				for(uint tidx = 0; tidx < idx_count; tidx++) {
+					LEXID word_id = 0;
+					if(p_blk->T.Get(idx_first+tidx, titem)) {
+						if(titem.Token == STokenizer::tokWord) {
+							if(tidx < (idx_count-1) && p_blk->T.Get(idx_first+tidx+1, titem_next)) {
+								if(titem_next.Token == STokenizer::tokDelim && titem_next.Text.Single() == '.') {
+									tidx++; // Следующую за словом точку пропускаем (например "а.невского"-->"а" "невского")
+								}
+							}
+							const int rwr = ResolveWord(titem.Text, &word_id);
+							THROW(rwr);
+							assert(word_id);
+							if(rwr == 2) { // Было создано новое слово - добавим к нему извесные нам признаки (пока только язык)
+								wordform.Clear();
+								wordform.SetTag(SRWG_LANGUAGE, slangRU);
+								THROW(SetSimpleWordFlexiaModel(word_id, wordform, 0));
+							}
+						}
+						else if(titem.Token == STokenizer::tokDelim) {
+							const char dc = titem.Text.Single();
+							if(oneof4(dc, ' ', '\t', '\n', '\r'))
+								; // просто пропускаем
+							else if(titem.Text.Len()) {
+								THROW(ResolveWord(titem.Text, &word_id));
+								assert(word_id);								
+							}
+						}
+					}
+					word_id_list.addnz(word_id);
+				}
+				if(word_id_list.getCount()) {
+					NGID   ngram_id = 0;
+					THROW(ResolveNGram(word_id_list, &ngram_id));
+					assert(ngram_id);
+					THROW(P_CNgT->Set(main_cid, ngram_id));
+				}
+			}
 		}
-		else {
-		}
+		lidx = last_identical_idx;
 	}
 	CATCHZOK
 	return ok;

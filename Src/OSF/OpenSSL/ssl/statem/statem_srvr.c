@@ -1017,12 +1017,8 @@ MSG_PROCESS_RETURN tls_process_client_hello(SSL * s, PACKET * pkt)
 		 */
 		uint cipher_len, session_id_len, challenge_len;
 		PACKET challenge;
-
-		if(!PACKET_get_net_2(pkt, &cipher_len)
-		    || !PACKET_get_net_2(pkt, &session_id_len)
-		    || !PACKET_get_net_2(pkt, &challenge_len)) {
-			SSLerr(SSL_F_TLS_PROCESS_CLIENT_HELLO,
-			    SSL_R_RECORD_LENGTH_MISMATCH);
+		if(!PACKET_get_net_2(pkt, &cipher_len) || !PACKET_get_net_2(pkt, &session_id_len) || !PACKET_get_net_2(pkt, &challenge_len)) {
+			SSLerr(SSL_F_TLS_PROCESS_CLIENT_HELLO, SSL_R_RECORD_LENGTH_MISMATCH);
 			al = SSL_AD_DECODE_ERROR;
 			goto f_err;
 		}
@@ -1032,18 +1028,14 @@ MSG_PROCESS_RETURN tls_process_client_hello(SSL * s, PACKET * pkt)
 			SSLerr(SSL_F_TLS_PROCESS_CLIENT_HELLO, SSL_R_LENGTH_MISMATCH);
 			goto f_err;
 		}
-
-		if(!PACKET_get_sub_packet(pkt, &cipher_suites, cipher_len)
-		    || !PACKET_get_sub_packet(pkt, &session_id, session_id_len)
+		if(!PACKET_get_sub_packet(pkt, &cipher_suites, cipher_len) || !PACKET_get_sub_packet(pkt, &session_id, session_id_len)
 		    || !PACKET_get_sub_packet(pkt, &challenge, challenge_len)
 		    /* No extensions. */
 		    || PACKET_remaining(pkt) != 0) {
-			SSLerr(SSL_F_TLS_PROCESS_CLIENT_HELLO,
-			    SSL_R_RECORD_LENGTH_MISMATCH);
+			SSLerr(SSL_F_TLS_PROCESS_CLIENT_HELLO, SSL_R_RECORD_LENGTH_MISMATCH);
 			al = SSL_AD_DECODE_ERROR;
 			goto f_err;
 		}
-
 		/* Load the client random and compression list. */
 		challenge_len = challenge_len > SSL3_RANDOM_SIZE ? SSL3_RANDOM_SIZE : challenge_len;
 		memzero(s->s3->client_random, SSL3_RANDOM_SIZE);

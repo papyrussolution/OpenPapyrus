@@ -20,7 +20,7 @@ static int expand(OPENSSL_LHASH * lh);
 static void contract(OPENSSL_LHASH * lh);
 static OPENSSL_LH_NODE ** getrn(OPENSSL_LHASH * lh, const void * data, ulong * rhash);
 
-OPENSSL_LHASH * OPENSSL_LH_new(OPENSSL_LH_HASHFUNC h, OPENSSL_LH_COMPFUNC c)
+OPENSSL_LHASH * FASTCALL OPENSSL_LH_new(OPENSSL_LH_HASHFUNC h, OPENSSL_LH_COMPFUNC c)
 {
 	OPENSSL_LHASH * ret;
 	if((ret = (OPENSSL_LHASH*)OPENSSL_zalloc(sizeof(*ret))) == NULL)
@@ -42,38 +42,33 @@ err0:
 	return NULL;
 }
 
-void OPENSSL_LH_free(OPENSSL_LHASH * lh)
+void FASTCALL OPENSSL_LH_free(OPENSSL_LHASH * lh)
 {
 	uint i;
 	OPENSSL_LH_NODE * n, * nn;
-
-	if(lh == NULL)
-		return;
-
-	for(i = 0; i < lh->num_nodes; i++) {
-		n = lh->b[i];
-		while(n != NULL) {
-			nn = n->next;
-			OPENSSL_free(n);
-			n = nn;
+	if(lh) {
+		for(i = 0; i < lh->num_nodes; i++) {
+			n = lh->b[i];
+			while(n != NULL) {
+				nn = n->next;
+				OPENSSL_free(n);
+				n = nn;
+			}
 		}
+		OPENSSL_free(lh->b);
+		OPENSSL_free(lh);
 	}
-	OPENSSL_free(lh->b);
-	OPENSSL_free(lh);
 }
 
-void * OPENSSL_LH_insert(OPENSSL_LHASH * lh, void * data)
+void * FASTCALL OPENSSL_LH_insert(OPENSSL_LHASH * lh, void * data)
 {
 	ulong hash;
 	OPENSSL_LH_NODE * nn, ** rn;
 	void * ret;
-
 	lh->error = 0;
 	if((lh->up_load <= (lh->num_items * LH_LOAD_MULT / lh->num_nodes)) && !expand(lh))
 		return NULL;  /* 'lh->error++' already done in 'expand' */
-
 	rn = getrn(lh, data, &hash);
-
 	if(*rn == NULL) {
 		if((nn = (OPENSSL_LH_NODE*)OPENSSL_malloc(sizeof(*nn))) == NULL) {
 			lh->error++;
@@ -95,12 +90,11 @@ void * OPENSSL_LH_insert(OPENSSL_LHASH * lh, void * data)
 	return ret;
 }
 
-void * OPENSSL_LH_delete(OPENSSL_LHASH * lh, const void * data)
+void * FASTCALL OPENSSL_LH_delete(OPENSSL_LHASH * lh, const void * data)
 {
 	ulong hash;
 	OPENSSL_LH_NODE * nn, ** rn;
 	void * ret;
-
 	lh->error = 0;
 	rn = getrn(lh, data, &hash);
 	if(*rn == NULL) {
@@ -120,7 +114,7 @@ void * OPENSSL_LH_delete(OPENSSL_LHASH * lh, const void * data)
 	return ret;
 }
 
-void * OPENSSL_LH_retrieve(OPENSSL_LHASH * lh, const void * data)
+void * FASTCALL OPENSSL_LH_retrieve(OPENSSL_LHASH * lh, const void * data)
 {
 	ulong hash;
 	OPENSSL_LH_NODE ** rn;
@@ -314,7 +308,7 @@ ulong OPENSSL_LH_strhash(const char * c)
 	return ((ret >> 16) ^ ret);
 }
 
-ulong OPENSSL_LH_num_items(const OPENSSL_LHASH * lh)
+ulong FASTCALL OPENSSL_LH_num_items(const OPENSSL_LHASH * lh)
 {
 	return lh ? lh->num_items : 0;
 }
@@ -329,7 +323,7 @@ void OPENSSL_LH_set_down_load(OPENSSL_LHASH * lh, ulong down_load)
 	lh->down_load = down_load;
 }
 
-int OPENSSL_LH_error(OPENSSL_LHASH * lh)
+int FASTCALL OPENSSL_LH_error(OPENSSL_LHASH * lh)
 {
 	return lh->error;
 }

@@ -229,30 +229,23 @@ int ssl3_get_record(SSL * s)
 
 				if((version >> 8) != SSL3_VERSION_MAJOR) {
 					if(RECORD_LAYER_is_first_record(&s->rlayer)) {
-						/* Go back to start of packet, look at the five bytes
-						 * that we have. */
+						// Go back to start of packet, look at the five bytes that we have. 
 						p = RECORD_LAYER_get_packet(&s->rlayer);
-						if(strncmp((char*)p, "GET ", 4) == 0 ||
-						    strncmp((char*)p, "POST ", 5) == 0 ||
-						    strncmp((char*)p, "HEAD ", 5) == 0 ||
-						    strncmp((char*)p, "PUT ", 4) == 0) {
+						if(strncmp((char*)p, "GET ", 4) == 0 || strncmp((char*)p, "POST ", 5) == 0 ||
+						    strncmp((char*)p, "HEAD ", 5) == 0 || strncmp((char*)p, "PUT ", 4) == 0) {
 							SSLerr(SSL_F_SSL3_GET_RECORD, SSL_R_HTTP_REQUEST);
 							goto err;
 						}
 						else if(strncmp((char*)p, "CONNE", 5) == 0) {
-							SSLerr(SSL_F_SSL3_GET_RECORD,
-							    SSL_R_HTTPS_PROXY_REQUEST);
+							SSLerr(SSL_F_SSL3_GET_RECORD, SSL_R_HTTPS_PROXY_REQUEST);
 							goto err;
 						}
-
 						/* Doesn't look like TLS - don't send an alert */
-						SSLerr(SSL_F_SSL3_GET_RECORD,
-						    SSL_R_WRONG_VERSION_NUMBER);
+						SSLerr(SSL_F_SSL3_GET_RECORD, SSL_R_WRONG_VERSION_NUMBER);
 						goto err;
 					}
 					else {
-						SSLerr(SSL_F_SSL3_GET_RECORD,
-						    SSL_R_WRONG_VERSION_NUMBER);
+						SSLerr(SSL_F_SSL3_GET_RECORD, SSL_R_WRONG_VERSION_NUMBER);
 						al = SSL_AD_PROTOCOL_VERSION;
 						goto f_err;
 					}
@@ -450,8 +443,7 @@ int ssl3_get_record(SSL * s)
 		 * visible to an attacker (e.g. via a logfile)
 		 */
 		al = SSL_AD_BAD_RECORD_MAC;
-		SSLerr(SSL_F_SSL3_GET_RECORD,
-		    SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
+		SSLerr(SSL_F_SSL3_GET_RECORD, SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
 		goto f_err;
 	}
 

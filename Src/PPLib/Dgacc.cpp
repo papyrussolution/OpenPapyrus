@@ -433,3 +433,121 @@ void ArticleCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		}
 	}
 }
+//
+//
+//
+SLAPI CurAmtCtrlGroup::Rec::Rec()
+{
+	THISZERO();
+}
+
+CurAmtCtrlGroup::CurAmtCtrlGroup(uint amtCID, uint curSelCID, uint crateCID, uint baseAmtCID, uint dateCID, uint selCRateCmd, AmtList * pAmtList) : 
+	CtrlGroup(), AmtCID(amtCID), CurSelCID(curSelCID), CRateCID(crateCID), BaseAmtCID(baseAmtCID), DateCID(dateCID), SelCRateCmd(selCRateCmd), P_AL(pAmtList)
+{
+	MEMSZERO(Data);
+}
+
+CurAmtCtrlGroup::~CurAmtCtrlGroup()
+{
+}
+
+void CurAmtCtrlGroup::setupCurrencyCombo(TDialog * pDlg, PPIDArray * pCurList)
+{
+	PPID   cur_id = pDlg->getCtrlLong(CurSelCID);
+	SETIFZ(cur_id, Data.CurID);
+	if(pCurList && !pCurList->lsearch(cur_id))
+		cur_id = 0;
+	::SetupCurrencyCombo(pDlg, CurSelCID, cur_id, 0, 1, pCurList);
+	if(cur_id == 0)
+		setupCurRate(pDlg, 0);
+}
+
+void CurAmtCtrlGroup::setupCurRate(TDialog * pDlg, int fromBase)
+{
+	double crate = 0.0, base_amount = 0.0;
+	PPID   cur_id = pDlg->getCtrlLong(CurSelCID);
+	double amount = pDlg->getCtrlReal(AmtCID);
+	if(DateCID)
+		pDlg->getCtrlData(DateCID, &Data.CRateDate);
+	if(cur_id) {
+		pDlg->disableCtrl(CRateCID, 0);
+		if(fromBase) {
+			if(!P_AL || P_AL->Get(PPAMT_CRATE, cur_id, &crate) <= 0)
+				BillObj->GetCurRate(cur_id, &Data.CRateDate, &crate);
+			pDlg->setCtrlReal(CRateCID, crate);
+		}
+		else
+			crate = pDlg->getCtrlReal(CRateCID);
+		base_amount = R2(amount * crate);
+	}
+	else {
+		pDlg->setCtrlReal(CRateCID, crate);
+		pDlg->disableCtrl(CRateCID, 1);
+	}
+	if(SelCRateCmd)
+		pDlg->enableCommand(SelCRateCmd, BIN(cur_id));
+	pDlg->setCtrlReal(BaseAmtCID, base_amount);
+}
+
+int CurAmtCtrlGroup::setData(TDialog * pDlg, void * pData)
+{
+	int    use_same_crate = 0;
+	Data = *(Rec *)pData;
+	pDlg->disableCtrl(BaseAmtCID, 1);
+	SetupCurrencyCombo(pDlg, CurSelCID, Data.CurID, 0, 1, 0);
+	pDlg->setCtrlData(AmtCID, &Data.Amount);
+	if(Data.CRate > 0.0) {
+		pDlg->setCtrlReal(CRateCID, Data.CRate);
+		use_same_crate = 1;
+	}
+	setupCurRate(pDlg, use_same_crate ? 0 : 1);
+	return 1;
+}
+
+int CurAmtCtrlGroup::getData(TDialog * pDlg, void * pData)
+{
+	int    ok = 1;
+	pDlg->getCtrlData(CurSelCID,  &Data.CurID);
+	pDlg->getCtrlData(AmtCID,     &Data.Amount);
+	pDlg->getCtrlData(CRateCID,   &Data.CRate);
+	pDlg->getCtrlData(BaseAmtCID, &Data.BaseAmount);
+	if(pData)
+		*(Rec*)pData = Data;
+	return ok;
+}
+
+void CurAmtCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
+{
+	if(event.isCbSelected(CurSelCID))
+		setupCurRate(pDlg, 1);
+	else if(event.isCmd(cmCurAmtGrpSetupCurrencyCombo)) {
+		PPIDArray * p_cur_list = (PPIDArray *)event.message.infoPtr;
+		setupCurrencyCombo(pDlg, p_cur_list);
+	}
+	else if(SelCRateCmd && event.isCmd(SelCRateCmd)) {
+		double rate = 0.0;
+		PPID   cur_id = pDlg->getCtrlLong(CurSelCID);
+		if(cur_id && SelectCurRate(cur_id, LConfig.BaseRateTypeID, &rate) > 0) {
+			pDlg->setCtrlData(CRateCID, &rate);
+			setupCurRate(pDlg, 0);
+		}
+	}
+	else if(TVBROADCAST && TVCMD == cmChangedFocus && TVINFOVIEW) {
+		if(event.isCtlEvent(AmtCID) || event.isCtlEvent(CRateCID))
+			setupCurRate(pDlg, 0);
+		else if(event.isCtlEvent(DateCID))
+			setupCurRate(pDlg, 1);
+		return;
+	}
+	else if(event.isKeyDown(kbF2) && pDlg->isCurrCtlID(CRateCID)) {
+		double rate = 0.0;
+		PPID   cur_id = pDlg->getCtrlLong(CurSelCID);
+		if(SelectCurRate(cur_id, LConfig.BaseRateTypeID, &rate) > 0) {
+			pDlg->setCtrlData(CRateCID, &rate);
+			setupCurRate(pDlg, 0);
+		}
+	}
+	else
+		return;
+	pDlg->clearEvent(event);
+}

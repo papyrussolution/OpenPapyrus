@@ -910,6 +910,78 @@ int FASTCALL SrCPropDeclList::Merge(const SrCPropDeclList & rS)
 //
 //
 //
+struct SrConcept_SurrogatePrefix {
+	int    Surrsymbpfx;
+	const char * P_Prefix;
+};
+
+static const SrConcept_SurrogatePrefix SrConcept_SurrogatePrefix_List[] = {
+	{ SrConcept::surrsymbsrcFIAS, "fias" }
+};
+
+static const char * Get_SrConcept_SurrogatePrefix(int surrsymbpfx)
+{
+	for(uint i = 0; i < SIZEOFARRAY(SrConcept_SurrogatePrefix_List); i++) {
+		if(SrConcept_SurrogatePrefix_List[i].Surrsymbpfx == surrsymbpfx) {
+			return SrConcept_SurrogatePrefix_List[i].P_Prefix;
+		}
+	}
+	return 0;
+}
+
+//static 
+int SLAPI SrConcept::MakeSurrogateSymb(int surrsymbpfx, const void * pData, uint dataSize, SString & rSymb)
+{
+	int    ok = 0;
+	rSymb.Z();
+	if(surrsymbpfx == surrsymbsrcFIAS) {
+		if(pData && dataSize == sizeof(S_GUID)) {
+			const char * p_prefix = Get_SrConcept_SurrogatePrefix(surrsymbpfx);
+			assert(p_prefix);
+			SString temp_buf;
+			temp_buf.EncodeMime64(pData, dataSize);
+			rSymb.Cat(p_prefix).Cat(temp_buf);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+//static 
+int SLAPI SrConcept::IsSurrogateSymb(const char * pSymb, void * pData, uint * pDataSize)
+{
+	int    surrsymbpfx = surrsymbsrcUndef;
+	if(!isempty(pSymb)) {
+		SString temp_buf;
+		const char * p_prefix = Get_SrConcept_SurrogatePrefix(surrsymbpfx);
+		for(uint i = 0; i < SIZEOFARRAY(SrConcept_SurrogatePrefix_List); i++) {
+			const char * p_prefix = SrConcept_SurrogatePrefix_List[i].P_Prefix;
+			const size_t prefix_len = sstrlen(p_prefix);
+			if(strncmp(pSymb, p_prefix, prefix_len) == 0) {
+				temp_buf = pSymb+prefix_len;
+				if(SrConcept_SurrogatePrefix_List[i].Surrsymbpfx == surrsymbsrcFIAS) {
+					S_GUID uuid;
+					size_t real_len = 0;
+					temp_buf.DecodeMime64(&uuid, sizeof(uuid), &real_len);
+					if(real_len == sizeof(uuid)) {
+						surrsymbpfx = SrConcept_SurrogatePrefix_List[i].Surrsymbpfx;
+						if(pData && pDataSize) {
+							if(*pDataSize >= sizeof(uuid)) {
+								memcpy(pData, &uuid, sizeof(uuid));
+							}
+							else {
+								surrsymbpfx = surrsymbsrcUndef;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+	return surrsymbpfx;
+}
+
 SrConcept::SrConcept() : ID(0), SymbID(0), Ver(0)
 {
 }

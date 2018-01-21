@@ -42,7 +42,7 @@ static int send_fp_chars(void * arg, const void * buf, int len)
 }
 #endif
 
-typedef int char_io(void * arg, const void * buf, int len);
+/*@funcdef*/typedef int char_io(void * arg, const void * buf, int len);
 /*
  * This function handles display of strings, one character at a time. It is
  * passed an ulong for each character because it could come from 2 or

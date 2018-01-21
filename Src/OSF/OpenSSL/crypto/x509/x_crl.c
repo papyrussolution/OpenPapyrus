@@ -20,17 +20,9 @@ ASN1_SEQUENCE(X509_REVOKED) = {
 } ASN1_SEQUENCE_END(X509_REVOKED)
 
 static int def_crl_verify(X509_CRL * crl, EVP_PKEY * r);
-static int def_crl_lookup(X509_CRL * crl,
-    X509_REVOKED ** ret, ASN1_INTEGER * serial,
-    X509_NAME * issuer);
+static int def_crl_lookup(X509_CRL * crl, X509_REVOKED ** ret, ASN1_INTEGER * serial, X509_NAME * issuer);
 
-static X509_CRL_METHOD int_crl_meth = {
-	0,
-	0, 0,
-	def_crl_lookup,
-	def_crl_verify
-};
-
+static X509_CRL_METHOD int_crl_meth = { 0, 0, 0, def_crl_lookup, def_crl_verify };
 static const X509_CRL_METHOD * default_crl_method = &int_crl_meth;
 
 /*
@@ -38,11 +30,9 @@ static const X509_CRL_METHOD * default_crl_method = &int_crl_meth;
  * the original encoding the signature won't be affected by reordering of the
  * revoked field.
  */
-static int crl_inf_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it,
-    void * exarg)
+static int crl_inf_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it, void * exarg)
 {
 	X509_CRL_INFO * a = (X509_CRL_INFO*)*pval;
-
 	if(!a || !a->revoked)
 		return 1;
 	switch(operation) {
@@ -75,9 +65,9 @@ ASN1_SEQUENCE_enc(X509_CRL_INFO, enc, crl_inf_cb) = {
 static int crl_set_issuers(X509_CRL * crl)
 {
 	int i, j;
-	GENERAL_NAMES * gens, * gtmp;
+	GENERAL_NAMES * gtmp;
 	STACK_OF(X509_REVOKED) * revoked = X509_CRL_get_REVOKED(crl);
-	gens = NULL;
+	GENERAL_NAMES * gens = NULL;
 	for(i = 0; i < sk_X509_REVOKED_num(revoked); i++) {
 		X509_REVOKED * rev = sk_X509_REVOKED_value(revoked, i);
 		STACK_OF(X509_EXTENSION) *exts;
@@ -88,7 +78,6 @@ static int crl_set_issuers(X509_CRL * crl)
 			crl->flags |= EXFLAG_INVALID;
 			return 1;
 		}
-
 		if(gtmp) {
 			gens = gtmp;
 			if(!crl->issuers) {
@@ -105,18 +94,14 @@ static int crl_set_issuers(X509_CRL * crl)
 			crl->flags |= EXFLAG_INVALID;
 			return 1;
 		}
-
 		if(reason) {
 			rev->reason = ASN1_ENUMERATED_get(reason);
 			ASN1_ENUMERATED_free(reason);
 		}
 		else
 			rev->reason = CRL_REASON_NONE;
-
 		/* Check for critical CRL entry extensions */
-
 		exts = rev->extensions;
-
 		for(j = 0; j < sk_X509_EXTENSION_num(exts); j++) {
 			ext = sk_X509_EXTENSION_value(exts, j);
 			if(X509_EXTENSION_get_critical(ext)) {
@@ -127,22 +112,18 @@ static int crl_set_issuers(X509_CRL * crl)
 			}
 		}
 	}
-
 	return 1;
 }
-
 /*
  * The X509_CRL structure needs a bit of customisation. Cache some extensions
  * and hash of the whole CRL.
  */
-static int crl_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it,
-    void * exarg)
+static int crl_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it, void * exarg)
 {
 	X509_CRL * crl = (X509_CRL*)*pval;
 	STACK_OF(X509_EXTENSION) *exts;
 	X509_EXTENSION * ext;
 	int idx;
-
 	switch(operation) {
 		case ASN1_OP_NEW_POST:
 		    crl->idp = NULL;
@@ -175,9 +156,7 @@ static int crl_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it,
 		     * critical sets the flag. This code accesses the X509_CRL structure
 		     * directly: applications shouldn't do this.
 		     */
-
 		    exts = crl->crl.extensions;
-
 		    for(idx = 0; idx < sk_X509_EXTENSION_num(exts); idx++) {
 			    int nid;
 			    ext = sk_X509_EXTENSION_value(exts, idx);
@@ -186,26 +165,20 @@ static int crl_cb(int operation, ASN1_VALUE ** pval, const ASN1_ITEM * it,
 				    crl->flags |= EXFLAG_FRESHEST;
 			    if(X509_EXTENSION_get_critical(ext)) {
 				    /* We handle IDP and deltas */
-				    if((nid == NID_issuing_distribution_point)
-				    || (nid == NID_authority_key_identifier)
-				    || (nid == NID_delta_crl))
+				    if((nid == NID_issuing_distribution_point) || (nid == NID_authority_key_identifier) || (nid == NID_delta_crl))
 					    continue;
 				    crl->flags |= EXFLAG_CRITICAL;
 				    break;
 			    }
 		    }
-
 		    if(!crl_set_issuers(crl))
 			    return 0;
-
 		    if(crl->meth->crl_init) {
 			    if(crl->meth->crl_init(crl) == 0)
 				    return 0;
 		    }
-
 		    crl->flags |= EXFLAG_SET;
 		    break;
-
 		case ASN1_OP_FREE_POST:
 		    if(crl->meth->crl_free) {
 			    if(!crl->meth->crl_free(crl))
@@ -240,13 +213,10 @@ static void setup_idp(X509_CRL * crl, ISSUING_DIST_POINT * idp)
 		idp_only++;
 		crl->idp_flags |= IDP_ONLYATTR;
 	}
-
 	if(idp_only > 1)
 		crl->idp_flags |= IDP_INVALID;
-
 	if(idp->indirectCRL > 0)
 		crl->idp_flags |= IDP_INDIRECT;
-
 	if(idp->onlysomereasons) {
 		crl->idp_flags |= IDP_REASONS;
 		if(idp->onlysomereasons->length > 0)
@@ -255,7 +225,6 @@ static void setup_idp(X509_CRL * crl, ISSUING_DIST_POINT * idp)
 			crl->idp_reasons |= (idp->onlysomereasons->data[1] << 8);
 		crl->idp_reasons &= CRLDP_ALL_REASONS;
 	}
-
 	DIST_POINT_set_dpname(idp->distpoint, X509_CRL_get_issuer(crl));
 }
 
@@ -275,17 +244,14 @@ IMPLEMENT_ASN1_FUNCTIONS(X509_CRL)
 
 IMPLEMENT_ASN1_DUP_FUNCTION(X509_CRL)
 
-static int X509_REVOKED_cmp(const X509_REVOKED * const * a,
-    const X509_REVOKED * const * b)
+static int X509_REVOKED_cmp(const X509_REVOKED * const * a, const X509_REVOKED * const * b)
 {
-	return (ASN1_STRING_cmp((ASN1_STRING*)&(*a)->serialNumber,
-		    (ASN1_STRING*)&(*b)->serialNumber));
+	return (ASN1_STRING_cmp((ASN1_STRING*)&(*a)->serialNumber, (ASN1_STRING*)&(*b)->serialNumber));
 }
 
 int X509_CRL_add0_revoked(X509_CRL * crl, X509_REVOKED * rev)
 {
-	X509_CRL_INFO * inf;
-	inf = &crl->crl;
+	X509_CRL_INFO * inf = &crl->crl;
 	if(inf->revoked == NULL)
 		inf->revoked = sk_X509_REVOKED_new(X509_REVOKED_cmp);
 	if(inf->revoked == NULL || !sk_X509_REVOKED_push(inf->revoked, rev)) {
@@ -303,8 +269,7 @@ int X509_CRL_verify(X509_CRL * crl, EVP_PKEY * r)
 	return 0;
 }
 
-int X509_CRL_get0_by_serial(X509_CRL * crl,
-    X509_REVOKED ** ret, ASN1_INTEGER * serial)
+int X509_CRL_get0_by_serial(X509_CRL * crl, X509_REVOKED ** ret, ASN1_INTEGER * serial)
 {
 	if(crl->meth->crl_lookup)
 		return crl->meth->crl_lookup(crl, ret, serial, 0);
@@ -314,23 +279,18 @@ int X509_CRL_get0_by_serial(X509_CRL * crl,
 int X509_CRL_get0_by_cert(X509_CRL * crl, X509_REVOKED ** ret, X509 * x)
 {
 	if(crl->meth->crl_lookup)
-		return crl->meth->crl_lookup(crl, ret,
-		    X509_get_serialNumber(x),
-		    X509_get_issuer_name(x));
+		return crl->meth->crl_lookup(crl, ret, X509_get_serialNumber(x), X509_get_issuer_name(x));
 	return 0;
 }
 
 static int def_crl_verify(X509_CRL * crl, EVP_PKEY * r)
 {
-	return (ASN1_item_verify(ASN1_ITEM_rptr(X509_CRL_INFO),
-		    &crl->sig_alg, &crl->signature, &crl->crl, r));
+	return (ASN1_item_verify(ASN1_ITEM_rptr(X509_CRL_INFO), &crl->sig_alg, &crl->signature, &crl->crl, r));
 }
 
-static int crl_revoked_issuer_match(X509_CRL * crl, X509_NAME * nm,
-    X509_REVOKED * rev)
+static int crl_revoked_issuer_match(X509_CRL * crl, X509_NAME * nm, X509_REVOKED * rev)
 {
 	int i;
-
 	if(!rev->issuer) {
 		if(!nm)
 			return 1;
@@ -338,25 +298,21 @@ static int crl_revoked_issuer_match(X509_CRL * crl, X509_NAME * nm,
 			return 1;
 		return 0;
 	}
-
 	if(!nm)
 		nm = X509_CRL_get_issuer(crl);
-
 	for(i = 0; i < sk_GENERAL_NAME_num(rev->issuer); i++) {
 		GENERAL_NAME * gen = sk_GENERAL_NAME_value(rev->issuer, i);
-		if(gen->type != GEN_DIRNAME)
-			continue;
-		if(!X509_NAME_cmp(nm, gen->d.directoryName))
-			return 1;
+		if(gen->type == GEN_DIRNAME) {
+			if(!X509_NAME_cmp(nm, gen->d.directoryName))
+				return 1;
+		}
 	}
 	return 0;
 }
 
-static int def_crl_lookup(X509_CRL * crl,
-    X509_REVOKED ** ret, ASN1_INTEGER * serial,
-    X509_NAME * issuer)
+static int def_crl_lookup(X509_CRL * crl, X509_REVOKED ** ret, ASN1_INTEGER * serial, X509_NAME * issuer)
 {
-	X509_REVOKED rtmp, * rev;
+	X509_REVOKED rtmp;
 	int idx;
 	rtmp.serialNumber = *serial;
 	/*
@@ -369,19 +325,16 @@ static int def_crl_lookup(X509_CRL * crl,
 		CRYPTO_THREAD_unlock(crl->lock);
 	}
 	idx = sk_X509_REVOKED_find(crl->crl.revoked, &rtmp);
-	if(idx < 0)
-		return 0;
-	/* Need to look for matching name */
-	for(; idx < sk_X509_REVOKED_num(crl->crl.revoked); idx++) {
-		rev = sk_X509_REVOKED_value(crl->crl.revoked, idx);
-		if(ASN1_INTEGER_cmp(&rev->serialNumber, serial))
-			return 0;
-		if(crl_revoked_issuer_match(crl, issuer, rev)) {
-			if(ret)
-				*ret = rev;
-			if(rev->reason == CRL_REASON_REMOVE_FROM_CRL)
-				return 2;
-			return 1;
+	if(idx >= 0) {
+		// Need to look for matching name 
+		for(; idx < sk_X509_REVOKED_num(crl->crl.revoked); idx++) {
+			X509_REVOKED * rev = sk_X509_REVOKED_value(crl->crl.revoked, idx);
+			if(ASN1_INTEGER_cmp(&rev->serialNumber, serial))
+				return 0;
+			else if(crl_revoked_issuer_match(crl, issuer, rev)) {
+				ASSIGN_PTR(ret, rev);
+				return (rev->reason == CRL_REASON_REMOVE_FROM_CRL) ? 2 : 1;
+			}
 		}
 	}
 	return 0;
@@ -389,37 +342,28 @@ static int def_crl_lookup(X509_CRL * crl,
 
 void X509_CRL_set_default_method(const X509_CRL_METHOD * meth)
 {
-	if(meth == NULL)
-		default_crl_method = &int_crl_meth;
-	else
-		default_crl_method = meth;
+	default_crl_method = meth ? meth : &int_crl_meth;
 }
 
-X509_CRL_METHOD * X509_CRL_METHOD_new(int (* crl_init)(X509_CRL * crl),
-    int (* crl_free)(X509_CRL * crl),
-    int (* crl_lookup)(X509_CRL * crl,
-	    X509_REVOKED ** ret,
-	    ASN1_INTEGER * ser,
-	    X509_NAME * issuer),
-    int (* crl_verify)(X509_CRL * crl,
-	    EVP_PKEY * pk))
+X509_CRL_METHOD * X509_CRL_METHOD_new(int (* crl_init)(X509_CRL * crl), int (* crl_free)(X509_CRL * crl), 
+	int (* crl_lookup)(X509_CRL * crl, X509_REVOKED ** ret, ASN1_INTEGER * ser, X509_NAME * issuer),
+    int (* crl_verify)(X509_CRL * crl, EVP_PKEY * pk))
 {
 	X509_CRL_METHOD * m = (X509_CRL_METHOD *)OPENSSL_malloc(sizeof(*m));
-	if(m == NULL)
-		return NULL;
-	m->crl_init = crl_init;
-	m->crl_free = crl_free;
-	m->crl_lookup = crl_lookup;
-	m->crl_verify = crl_verify;
-	m->flags = X509_CRL_METHOD_DYNAMIC;
+	if(m) {
+		m->crl_init = crl_init;
+		m->crl_free = crl_free;
+		m->crl_lookup = crl_lookup;
+		m->crl_verify = crl_verify;
+		m->flags = X509_CRL_METHOD_DYNAMIC;
+	}
 	return m;
 }
 
 void X509_CRL_METHOD_free(X509_CRL_METHOD * m)
 {
-	if(m == NULL || !(m->flags & X509_CRL_METHOD_DYNAMIC))
-		return;
-	OPENSSL_free(m);
+	if(m && (m->flags & X509_CRL_METHOD_DYNAMIC))
+		OPENSSL_free(m);
 }
 
 void X509_CRL_set_meth_data(X509_CRL * crl, void * dat)
@@ -431,4 +375,3 @@ void * X509_CRL_get_meth_data(X509_CRL * crl)
 {
 	return crl->meth_data;
 }
-

@@ -71,10 +71,7 @@ int FASTCALL PPView::CreateFiltInstanceBySymb(const char * pSymb, PPBaseFilt ** 
 }
 
 //static
-int FASTCALL PPView::CreateInstance(int viewID, PPView ** ppV)
-{
-	return CreateInstance(viewID, 0, ppV);
-}
+int FASTCALL PPView::CreateInstance(int viewID, PPView ** ppV) { return CreateInstance(viewID, 0, ppV); }
 
 //static
 int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** ppV)
@@ -1908,10 +1905,8 @@ int PPViewBrowser::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, void *
 	return ok;
 }
 
-void PPViewBrowser::Update()
-{
-	updateView();
-}
+void PPViewBrowser::Update() { updateView(); }
+void PPViewBrowser::updateView() { CALLPTRMEMB(view, refresh()); }
 
 int PPViewBrowser::SetRefreshPeriod(long period)
 {
@@ -1931,11 +1926,6 @@ int PPViewBrowser::SetTempGoodsGrp(PPID grpID)
 		ok = 1;
 	}
 	return ok;
-}
-
-void PPViewBrowser::updateView()
-{
-	CALLPTRMEMB(view, refresh());
 }
 
 int PPViewBrowser::getCurHdr(void * pHdr)
@@ -2177,14 +2167,9 @@ int PPViewBrowser::Helper_SetupToolbarCombo(PPID objType, PPID id, uint flags, v
 }
 
 int PPViewBrowser::SetupToolbarCombo(PPID objType, PPID id, uint flags, void * extraPtr)
-{
-	return Helper_SetupToolbarCombo(objType, id, flags, extraPtr, 0);
-}
-
+	{ return Helper_SetupToolbarCombo(objType, id, flags, extraPtr, 0); }
 int PPViewBrowser::SetupToolbarCombo(PPID objType, PPID id, uint flags, const PPIDArray & rObjList)
-{
-	return Helper_SetupToolbarCombo(objType, id, flags, 0, &rObjList);
-}
+	{ return Helper_SetupToolbarCombo(objType, id, flags, 0, &rObjList); }
 
 IMPL_HANDLE_EVENT(PPViewBrowser)
 {
@@ -2394,7 +2379,7 @@ int PPTimeChunkBrowser::ExportToExcel()
 				if(dt <= St.Bounds.Finish.d) {
 					row = 2;
 					STimeChunkGrid::Color clr;
-					const STimeChunkAssoc * p_last_chunk = 0;
+					STimeChunkAssoc __last_chunk;
 					long   last_chunk_row = 0;
 					for(uint time_band = 0; time_band < 24 * 3600; time_band += time_quant, row++) {
 						LTIME   tm_start;
@@ -2415,24 +2400,28 @@ int PPTimeChunkBrowser::ExportToExcel()
 							chunk_list.clear();
 							if(P_Data->GetChunksByTime(range, chunk_list) > 0) {
 								cell_buf.Z();
-								for(uint i = 0; i < chunk_list.getCount(); i++) {
+								const uint _chunk_count = chunk_list.getCount();
+								if(_chunk_count > 1)
+									chunk_list.Sort(0);
+								for(uint i = 0; i < _chunk_count; i++) {
 									const STimeChunkAssoc * p_chunk = (const STimeChunkAssoc *)chunk_list.at(i);
 									if(p_chunk) {
-										if(i == 0 && p_last_chunk && p_last_chunk != p_chunk) {
-											GetChunkText(p_last_chunk->Id, temp_buf.Z());
+										if(i == 0 && __last_chunk.Id && __last_chunk.Id != p_chunk->Id) {
+											GetChunkText(__last_chunk.Id, temp_buf);
 											ComExcelRange * p_range = 0;
+											THROW(p_sheet->SetValue(last_chunk_row, _col, temp_buf) > 0);
 											if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, _col, row-1, _col)) != 0) { 
 												p_range->DoMerge();
-												p_range->SetBgColor(GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
-												p_range->SetValue(temp_buf);
+												p_range->SetBgColor(GetChunkColor(&__last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
+												//p_range->SetValue(temp_buf);
 											}
 											else {
-												p_sheet->SetBgColor(last_chunk_row, _col, GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
-												THROW(p_sheet->SetValue(last_chunk_row, _col, temp_buf) > 0);
+												p_sheet->SetBgColor(last_chunk_row, _col, GetChunkColor(&__last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
+												//THROW(p_sheet->SetValue(last_chunk_row, _col, temp_buf) > 0);
 											}
 										}
-										if(p_last_chunk != p_chunk) {
-											p_last_chunk = p_chunk;
+										if(i == (_chunk_count-1) && __last_chunk.Id != p_chunk->Id) {
+											__last_chunk = *p_chunk;
 											last_chunk_row = row;
 										}
 									}
@@ -2440,17 +2429,18 @@ int PPTimeChunkBrowser::ExportToExcel()
 							}
 						}
 					}
-					if(p_last_chunk) {
-						GetChunkText(p_last_chunk->Id, temp_buf.Z());
+					if(__last_chunk.Id) {
+						GetChunkText(__last_chunk.Id, temp_buf);
 						ComExcelRange * p_range = 0;
+						THROW(p_sheet->SetValue(last_chunk_row, _col, temp_buf) > 0);
 						if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, _col, row-1, _col)) != 0) {
 							p_range->DoMerge();
-							p_range->SetBgColor(GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
-							p_range->SetValue(temp_buf);
+							p_range->SetBgColor(GetChunkColor(&__last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
+							//p_range->SetValue(temp_buf);
 						}
 						else {
-							p_sheet->SetBgColor(last_chunk_row, _col, GetChunkColor(p_last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
-							THROW(p_sheet->SetValue(last_chunk_row, _col, temp_buf) > 0);
+							p_sheet->SetBgColor(last_chunk_row, _col, GetChunkColor(&__last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
+							//THROW(p_sheet->SetValue(last_chunk_row, _col, temp_buf) > 0);
 						}
 					}
 				}

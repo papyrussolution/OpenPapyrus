@@ -1879,8 +1879,6 @@ void ComboBox::SetLink(TInputLine * pLink)
 //
 //
 //
-#define TIMAGEVIEW_USE_FIG // @v9.5.6
-
 // static
 LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -1901,7 +1899,7 @@ LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 		case WM_PAINT:
 			if(p_view && p_view->IsSubSign(TV_SUBSIGN_IMAGEVIEW)) {
 				PAINTSTRUCT ps;
-				BeginPaint(hWnd, (LPPAINTSTRUCT)&ps);
+				::BeginPaint(hWnd, (LPPAINTSTRUCT)&ps);
 				//p_view->draw();
 				if(p_view->P_Fig) {
 					RECT rc;
@@ -1939,10 +1937,12 @@ LRESULT CALLBACK TImageView::DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
 					canv.Draw(p_view->P_Fig);
 					canv.PopTransform();
 				}
+#ifndef TIMAGEVIEW_USE_FIG
 				else if(p_view->P_Image_GDIP) {
 					((SImage*)p_view->P_Image_GDIP)->Draw(hWnd, 0);
 				}
-				EndPaint(hWnd, (LPPAINTSTRUCT)&ps);
+#endif
+				::EndPaint(hWnd, (LPPAINTSTRUCT)&ps);
 			}
 			return 0;
 		case WM_SETFOCUS:
@@ -1963,7 +1963,10 @@ int TImageView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	 return 1;
 }
 
-TImageView::TImageView(const TRect & rBounds, const char * pFigSymb) : TView(rBounds), P_Fig(0), P_Image_GDIP(0), FigSymb(pFigSymb)
+TImageView::TImageView(const TRect & rBounds, const char * pFigSymb) : TView(rBounds), P_Fig(0), FigSymb(pFigSymb)
+#ifndef TIMAGEVIEW_USE_FIG
+	, P_Image_GDIP(0)
+#endif
 {
 	SubSign = TV_SUBSIGN_IMAGEVIEW; // @v8.3.11
 	ReplacedColor.Set(0); // @v9.6.5
@@ -1987,10 +1990,12 @@ TImageView::TImageView(const TRect & rBounds, const char * pFigSymb) : TView(rBo
 TImageView::~TImageView()
 {
 	delete P_Fig;
+#ifndef TIMAGEVIEW_USE_FIG
 	if(P_Image_GDIP) {
 		delete (SImage *)P_Image_GDIP;
 		P_Image_GDIP = 0;
 	}
+#endif
 	RestoreOnDestruction();
 }
 
