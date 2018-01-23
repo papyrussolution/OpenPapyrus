@@ -2279,6 +2279,7 @@ int SLAPI PPBillImporter::ReadData()
 		BillsRows.freeAll(); // @v8.7.1
 		THROW(BillParam.PreprocessImportFileSpec(ss_files));
 		//for(uint fi = 0; file_list.Enum(&fi, 0, &filename.Z());) {
+		ss_files.sortAndUndup(); // @v9.9.1
 		for(uint ssp = 0, fi = 0; ss_files.get(&ssp, filename); fi++) {
 			StrAssocArray fn_fld_list;
 			BillParam.PreprocessImportFileName(filename, fn_fld_list);

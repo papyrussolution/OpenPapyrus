@@ -881,7 +881,7 @@ public:
 
 	void * CreateStoreFiasAddrBlock();
 	void   DestroyStoreFiasAddrBlock(void * pBlk);
-	int    StoreFiasAddr(void * pStoreFiasAddrBlock, uint passN, TSVector <Sdr_FiasRawAddrObj> & rList);
+	int    StoreFiasAddr(void * pStoreFiasAddrBlock, uint passN, const Sdr_FiasRawAddrObj & rEntry);
 //private:
 public:
 	BDbDatabase      * P_Db;

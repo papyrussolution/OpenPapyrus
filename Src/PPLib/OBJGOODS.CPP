@@ -4222,8 +4222,7 @@ int SLAPI PPObjGoods::CheckSpecQuot(PPID supplID, PPID goodsID, PPID locID, PPID
 	int    ok = 1;
 	if(supplID) {
 		PPSupplDeal sd;
-		QuotIdent qi(locID, 0, currID, supplID);
-		MEMSZERO(sd);
+		const QuotIdent qi(locID, 0, currID, supplID);
         if(GetSupplDeal(goodsID, qi, &sd, 1) > 0)
 			THROW_PP(!sd.IsDisabled, PPERR_GOODSRCPTDISABLED);
 	}

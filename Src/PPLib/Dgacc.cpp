@@ -255,8 +255,7 @@ SLAPI ArticleCtrlGroup::Rec::Rec(PPID acsID, PPID opID, const ObjIdListFilt * pA
 
 SLAPI ArticleCtrlGroup::Rec::Rec(PPID acsID, PPID opID, PPID arID) : AcsID(acsID), OpID(opID)
 {
-	if(arID)
-		ArList.Add(arID);
+	ArList.Add(arID); // ObjIdListFilt::Add(x) игнорирует нулевой аргумент
 }
 
 ArticleCtrlGroup::ArticleCtrlGroup(uint ctlselAcs, uint ctlselOp, uint ctlselAr, uint cmEditList, PPID accSheetID, long flags) :

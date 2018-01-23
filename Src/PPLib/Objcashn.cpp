@@ -269,15 +269,8 @@ SLAPI PPSyncCashNode::PPSyncCashNode() : PPGenCashNode(), DownBill(0), CurDate(Z
 	memzero(BnkTermPort, sizeof(BnkTermPort));
 }
 
-int SLAPI PPSyncCashNode::SetPropString(int propId, const char * pValue)
-{
-	return PPPutExtStrData(propId, ExtString, pValue);
-}
-
-int SLAPI PPSyncCashNode::GetPropString(int propId, SString & rBuf) const
-{
-	return PPGetExtStrData(propId, ExtString, rBuf);
-}
+int SLAPI PPSyncCashNode::SetPropString(int propId, const char * pValue) { return PPPutExtStrData(propId, ExtString, pValue); }
+int SLAPI PPSyncCashNode::GetPropString(int propId, SString & rBuf) const { return PPGetExtStrData(propId, ExtString, rBuf); }
 
 SString & SLAPI PPSyncCashNode::CTblListToString(SString & rBuf) const
 {

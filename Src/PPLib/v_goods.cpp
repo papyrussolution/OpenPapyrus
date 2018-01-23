@@ -419,15 +419,8 @@ int SLAPI GoodsFilt::IsEmpty() const
 		return 1;
 }
 
-int SLAPI GoodsFilt::GetExtssData(int fldID, SString & rBuf) const
-{
-	return PPGetExtStrData(fldID, extssNameText, SrchStr_, rBuf);
-}
-
-int SLAPI GoodsFilt::PutExtssData(int fldID, const char * pBuf)
-{
-	return PPPutExtStrData(fldID, SrchStr_, pBuf);
-}
+int SLAPI GoodsFilt::GetExtssData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, extssNameText, SrchStr_, rBuf); }
+int SLAPI GoodsFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, SrchStr_, pBuf); }
 
 int FASTCALL GoodsFilt::GetBarcodeLenList(PPIDArray & rList) const
 {

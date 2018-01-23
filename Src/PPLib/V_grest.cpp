@@ -891,7 +891,7 @@ void SLAPI PPViewGoodsRest::InitCache()
 	CacheBuf.Clear();
 }
 
-struct _lru_item_tag {
+struct _lru_item_tag { // @flat
 	uint   counter;
 	uint   pos;
 };
@@ -1259,8 +1259,8 @@ int SLAPI PPViewGoodsRest::FlashCacheItems(uint count)
 		BExtInsert bei(P_Tbl);
 		if(count) {
 			PROFILE_START
-			SArray lru_array(sizeof(_lru_item_tag));
-			SArray lru_pos_array(sizeof(uint));
+			SVector lru_array(sizeof(_lru_item_tag)); // @v9.9.1 SArray-->SVector
+			SVector lru_pos_array(sizeof(uint)); // @v9.9.1 SArray-->SVector
 			const uint _c = CacheBuf.getCount();
 			for(i = 0; i < _c; i++) {
 				_lru_item_tag lru_item;
@@ -4129,12 +4129,12 @@ int SLAPI PPViewGoodsRest::SetContractPrices()
 	int    ok = -1;
 	uint   cfm_msg = LocList.GetCount() ? PPCFM_SETCONTRACTPRICESSEL : PPCFM_SETCONTRACTPRICES;
 	if(Filt.SupplID && CONFIRMCRIT(cfm_msg)) {
-		struct _E {
+		struct _E { // @flat
 			PPID   GoodsID;
 			double Cost;
 		};
 		GoodsRestViewItem item;
-		SArray suppl_cost_ary(sizeof(_E));
+		SVector suppl_cost_ary(sizeof(_E)); // @v9.9.1 SArray-->SVector
 		PPIDArray locs_ary;
 		PPWait(1);
 		MEMSZERO(item);
@@ -4163,9 +4163,8 @@ int SLAPI PPViewGoodsRest::SetContractPrices()
 			_E   * p_e = (_E*)suppl_cost_ary.at(i);
 			if(p_e->Cost != 0.0) {
 				for(uint j = 0; j < locs_ary.getCount(); j++) {
-					QuotIdent qi(locs_ary.at(j), 0, 0, Filt.SupplID);
+					const QuotIdent qi(locs_ary.at(j), 0, 0, Filt.SupplID);
 					PPSupplDeal sd;
-					MEMSZERO(sd);
 					THROW(r = GObj.GetSupplDeal(p_e->GoodsID, qi, &sd, 1));
 					sd.Cost = p_e->Cost;
 					THROW(GObj.SetSupplDeal(p_e->GoodsID, qi, &sd, 1));

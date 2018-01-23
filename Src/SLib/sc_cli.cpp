@@ -449,9 +449,8 @@ int SCDBObjClientDebt::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 //
 //
 //
-SCDBObjSell::SCDBObjSell(SpiiExchgContext * pCtx) : SCDBObject(pCtx)
+SCDBObjSell::SCDBObjSell(SpiiExchgContext * pCtx) : SCDBObject(pCtx), P_Tbl(0)
 {
-	P_Tbl = 0;
 }
 
 SCDBObjSell::~SCDBObjSell()

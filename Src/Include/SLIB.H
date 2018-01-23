@@ -3375,6 +3375,7 @@ public:
 	int    FASTCALL IsEqual(const char * pS) const;
 	int    FASTCALL IsEqNC(const SString & rS) const;
 	int    FASTCALL IsEqNC(const char * pS) const;
+	int    FASTCALL IsEqiAscii(const char * pS) const;
 	operator const char * () const { return P_Buf; }
 	//
 	// Descr: Специализированное преобразование, сделанное главным образом ради (xmlChar *).
@@ -5667,7 +5668,7 @@ public:
 	uint   SLAPI getItemSize() const { return isize; }
 	uint   SLAPI getFlags() const;
 	void   SLAPI setFlag(uint val, int set);
-	void   SLAPI setLimit(uint);
+	//void   SLAPI setLimit(uint);
 	//void   SLAPI setDelta(uint);
 	//
 	// Descr: Возвращает значение внутреннего указателя позиции
@@ -7172,7 +7173,8 @@ private:
 	StrAssocArray NameList;
 };
 //
-//
+// Descr: Базовый класс для организации hash-таблиц.
+//   Хранит пары {long; long} в таблице фиксированного размера, заданного при создании экземпляра.
 //
 class HashTableBase {
 public:
@@ -7220,7 +7222,7 @@ protected:
 	void   DestroyTabItems();
 	int    FASTCALL InitIteration(Iter * pI) const;
 
-	uint32 Size;
+	uint32 Size; // Фиксированное количество слотов в хэше
 	Entry * P_Tab;
 	//
 	// Следующие компоненты являются общими для большинства порожденных

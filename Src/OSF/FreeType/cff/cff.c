@@ -38,5 +38,4 @@
 #include "cf2read.c"
 #include "cf2stack.c"
 
-
 /* END */

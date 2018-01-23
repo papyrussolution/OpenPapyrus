@@ -658,8 +658,9 @@ typedef int
     const struct curl_khkey * foundkey,                      /* found */
     enum curl_khmatch,                       /* libcurl's view on the keys */
     void * clientp);                      /* custom pointer passed from app */
-
-/* parameter for the CURLOPT_USE_SSL option */
+//
+// parameter for the CURLOPT_USE_SSL option
+//
 typedef enum {
 	CURLUSESSL_NONE, /* do not attempt to use SSL */
 	CURLUSESSL_TRY, /* try using SSL, proceed anyway otherwise */

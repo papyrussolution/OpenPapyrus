@@ -1,5 +1,5 @@
 // CROSSTAB.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -14,8 +14,7 @@ Crosstab::CalcSummaryBlock::CalcSummaryBlock(int dir)
 //
 //
 //
-Crosstab::Summary::Item::Item(uint32 aggrFldPosMask, const char * pTitle, uint entrySize) :
-	AggrFldPosMask(aggrFldPosMask), Title(pTitle), List(entrySize)
+Crosstab::Summary::Item::Item(uint32 aggrFldPosMask, const char * pTitle, uint entrySize) : AggrFldPosMask(aggrFldPosMask), Title(pTitle), List(entrySize)
 {
 }
 
@@ -23,20 +22,9 @@ Crosstab::Summary::Summary(size_t extSize, uint aggrFldCount) : ExtSize(extSize)
 {
 }
 
-size_t Crosstab::Summary::GetEntrySize() const
-{
-	return (ExtSize + (AggrFldCount * sizeof(double)));
-}
-
-uint Crosstab::Summary::GetCount() const
-{
-	return Data.getCount();
-}
-
-int Crosstab::Summary::IsAggrField(uint lineN, uint aggrPos) const
-{
-	return BIN(aggrPos < 32 && lineN < Data.getCount() && (Data.at(lineN)->AggrFldPosMask & (1 << aggrPos)));
-}
+size_t Crosstab::Summary::GetEntrySize() const { return (ExtSize + (AggrFldCount * sizeof(double))); }
+uint   Crosstab::Summary::GetCount() const { return Data.getCount(); }
+int    Crosstab::Summary::IsAggrField(uint lineN, uint aggrPos) const { return BIN(aggrPos < 32 && lineN < Data.getCount() && (Data.at(lineN)->AggrFldPosMask & (1 << aggrPos))); }
 
 int Crosstab::Summary::AddLine(uint32 aggrFldPosMask, const char * pTitle)
 {
@@ -160,37 +148,17 @@ SLAPI Crosstab::~Crosstab()
 	DestroyTable();
 }
 
-int SLAPI Crosstab::SetupFixFields(int initialCall)
-{
-	return -1;
-}
-
-DBTable * SLAPI Crosstab::GetResultTable()
-{
-	return P_RTbl;
-}
-
-uint SLAPI Crosstab::GetAggrCount() const
-{
-	return AggrFldList.GetCount();
-}
-
-uint SLAPI Crosstab::GetTotalRowsCount() const
-{
-	return P_TotalRows ? P_TotalRows->GetCount() : 0;
-}
-
-uint SLAPI Crosstab::GetTotalColsCount() const
-{
-	return P_TotalCols ? P_TotalCols->GetCount() : 0;
-}
+int    SLAPI Crosstab::SetupFixFields(int initialCall) { return -1; }
+DBTable * SLAPI Crosstab::GetResultTable() { return P_RTbl; }
+uint   SLAPI Crosstab::GetAggrCount() const { return AggrFldList.GetCount(); }
+uint   SLAPI Crosstab::GetTotalRowsCount() const { return P_TotalRows ? P_TotalRows->GetCount() : 0; }
+uint   SLAPI Crosstab::GetTotalColsCount() const { return P_TotalCols ? P_TotalCols->GetCount() : 0; }
 
 int SLAPI Crosstab::SetTable(DBTable * pTbl, const DBField & crssFld)
 {
 	P_Tbl = pTbl;
 	CrssFld = crssFld;
 	Flags = 0;
-
 	IdxFldList.Destroy();
 	AggrFldList.Destroy();
 	AggrFuncList.freeAll();
@@ -204,20 +172,9 @@ int SLAPI Crosstab::SetTable(DBTable * pTbl, const DBField & crssFld)
 	return 1;
 }
 
-int SLAPI Crosstab::AddIdxField(const DBField & fld)
-{
-	return IdxFldList.Add(fld);
-}
-
-int SLAPI Crosstab::AddFixField(const char * pName, TYPEID type)
-{
-	return FixFldList.addField(pName, type);
-}
-
-int SLAPI Crosstab::AddInheritedFixField(const DBField & fld)
-{
-	return InhFldList.Add(fld);
-}
+int SLAPI Crosstab::AddIdxField(const DBField & fld) { return IdxFldList.Add(fld); }
+int SLAPI Crosstab::AddFixField(const char * pName, TYPEID type) { return FixFldList.addField(pName, type); }
+int SLAPI Crosstab::AddInheritedFixField(const DBField & fld) { return InhFldList.Add(fld); }
 
 int SLAPIV Crosstab::SetSortIdx(const char * pFldName, ...)
 {
@@ -420,15 +377,8 @@ int SLAPI Crosstab::CreateTable()
 	return ok;
 }
 
-uint SLAPI Crosstab::GetFixFieldOffs() const
-{
-	return (1 + IdxFldList.GetCount() + InhFldList.GetCount());
-}
-
-uint SLAPI Crosstab::GetTabFldPos(uint ctValPos, uint aggrFldPos) const
-{
-	return (GetFixFieldOffs() + FixFldList.getCount() + ctValPos * AggrFldList.GetCount() + aggrFldPos);
-}
+uint SLAPI Crosstab::GetFixFieldOffs() const { return (1 + IdxFldList.GetCount() + InhFldList.GetCount()); }
+uint SLAPI Crosstab::GetTabFldPos(uint ctValPos, uint aggrFldPos) const { return (GetFixFieldOffs() + FixFldList.getCount() + ctValPos * AggrFldList.GetCount() + aggrFldPos); }
 
 int SLAPI Crosstab::CalcSummary(int action, CalcSummaryBlock & rBlk)
 {
@@ -634,7 +584,7 @@ int SLAPI Crosstab::Create(int use_ta)
 					P_RTbl->setFieldValue(start_fld_pos+i, buf);
 				}
 				for(i = 0; i < InhFldList.GetCount(); i++) {
-					uint   s_type = GETSTYPE(InhFldList.GetField(i).T);
+					const uint s_type = GETSTYPE(InhFldList.GetField(i).T);
 					memzero(buf, sizeof(buf));
 					if(i == 0 && s_type == S_ZSTRING) {
 						P_TotalRows->GetTitle(csb.TotalItemPos, title_buf);
@@ -643,10 +593,9 @@ int SLAPI Crosstab::Create(int use_ta)
 					P_RTbl->setFieldValue(start_fld_pos+idx_fld_count+i, buf);
 				}
 				{
-					uint   j = 0;
 					const  uint aggr_count = AggrFldList.GetCount();
 					for(csb.CtValPos = 0; csb.CtValPos < P_CtValList->getCount(); csb.CtValPos++) {
-						for(j = 0; j < aggr_count; j++) {
+						for(uint j = 0; j < aggr_count; j++) {
 							const uint fld_pos = GetTabFldPos(csb.CtValPos, j);
 							if(P_TotalRows->IsAggrField(csb.TotalItemPos, j)) {
 								csb.AggrPos = j;

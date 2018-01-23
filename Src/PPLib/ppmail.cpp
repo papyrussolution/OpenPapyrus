@@ -173,15 +173,8 @@ int PPInternetAccount::NotEmpty()
 	return ok;
 }
 
-int SLAPI PPInternetAccount::GetExtField(int fldID, SString & rBuf) const
-{
-	return PPGetExtStrData(fldID, ExtStr, rBuf);
-}
-
-int SLAPI PPInternetAccount::SetExtField(int fldID, const char * pBuf)
-{
-	return PPPutExtStrData(fldID, ExtStr, pBuf);
-}
+int SLAPI PPInternetAccount::GetExtField(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtStr, rBuf); }
+int SLAPI PPInternetAccount::SetExtField(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtStr, pBuf); }
 
 #define POP3_PW_SIZE 20 // @attention изменение значения требует конвертации хранимого пароля
 

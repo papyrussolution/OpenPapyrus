@@ -121,10 +121,7 @@ private:
 
 	struct Node {
 		Node();
-		int    IsLeaf() const
-		{
-			return (EdgeHubP == 0);
-		}
+		int    IsLeaf() const { return (EdgeHubP == 0); }
 		uint   UpEdgeP;      // Индекс в массиве SSuffixArray::EdgeL входящего ребра
 		uint   EdgeHubP;     // Позиция хаба исходящих ребер
 		uint   SfxLinkNodeP; // Индекс в массиве SSuffixArray::NodeL суффиксной связи
@@ -636,6 +633,7 @@ int FASTCALL SSuffixTree::UpdateEndIdx(SSuffixTree::IndexBase * pI, uint newPosi
 		ok = 0;
 	return ok;
 }
+
 uint FASTCALL SSuffixTree::CreateNode(/*int nodeIndex*/)
 {
 	uint   new_node_p = NodeL.getCount();
@@ -647,10 +645,12 @@ uint FASTCALL SSuffixTree::CreateNode(/*int nodeIndex*/)
 	ENDCATCH
 	return new_node_p;
 }
+
 uint SSuffixTree::CreateEdge(uint srcNodeP, uint destNodeP, uint strP, uint startIdx)
 {
 	return Helper_CreateEdge(srcNodeP, destNodeP, strP, startIdx, 0, SSuffixTree::IndexBase::fPhasePosRef);
 }
+
 uint SSuffixTree::CreateEdge(uint srcNodeP, uint destNodeP, uint strP, uint startIdx, uint endIdx)
 {
 	return Helper_CreateEdge(srcNodeP, destNodeP, strP, startIdx, endIdx, 0);

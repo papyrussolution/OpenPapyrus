@@ -1,5 +1,5 @@
 // GDSITER.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @Kernel
 //
 #include <pp.h>
@@ -210,7 +210,7 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 					else {
 						p_ref->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, grp_id, &id_list);
 						if(CS_SERVER) {
-							long _mc = (pList ? pList->getCount() : 0) + id_list.getCount();
+							long _mc = SVectorBase::GetCount(pList) + id_list.getCount();
 							(msg_buf = fmt_buf).Space().Cat(_mc);
 							PPWaitMsg(msg_buf);
 						}
@@ -234,7 +234,7 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 							else {
 								THROW(p_ref->Assc.GetListByPrmr(PPASS_ALTGOODSGRP, int_grp_id, &temp_alt_list));
 								if(CS_SERVER) {
-									long _mc = (pList ? pList->getCount() : 0) + temp_alt_list.getCount();
+									long _mc = SVectorBase::GetCount(pList) + temp_alt_list.getCount();
 									(msg_buf = fmt_buf).Space().Cat(_mc);
 									PPWaitMsg(msg_buf);
 								}
@@ -276,7 +276,7 @@ int SLAPI GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID
 									if(GObj.CheckForFilt(&Filt, 0, GOCFIF_GROUP|GOCFIF_BCLEN|GOCFIF_ARCODE|GOCFIF_SYSJ|GOCFIF_TAG)) {
 										THROW(id_list.add(id));
 										if(CS_SERVER) {
-											long _mc = (pList ? pList->getCount() : 0) + id_list.getCount();
+											long _mc = SVectorBase::GetCount(pList) + id_list.getCount();
 											if((_mc % 100) == 0) {
 												(msg_buf = fmt_buf).Space().Cat(_mc);
 												PPWaitMsg(msg_buf);

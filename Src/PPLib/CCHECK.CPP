@@ -951,14 +951,9 @@ int SLAPI CCheckPacket::Helper_GetLineTextExt(int pos /* 1.. */, int lnextId, co
 }
 
 int SLAPI CCheckPacket::SetLineTextExt(int pos /* 1.. */, int lnextId, const char * pText)
-{
-	return Helper_SetLineTextExt(pos, lnextId, LnTextList, pText);
-}
-
+	{ return Helper_SetLineTextExt(pos, lnextId, LnTextList, pText); }
 int SLAPI CCheckPacket::GetLineTextExt(int pos /* 1.. */, int lnextId, SString & rBuf) const
-{
-	return Helper_GetLineTextExt(pos, lnextId, LnTextList, rBuf);
-}
+	{ return Helper_GetLineTextExt(pos, lnextId, LnTextList, rBuf); }
 // } @v9.0.9
 
 #if 0 // @v9.0.9 {

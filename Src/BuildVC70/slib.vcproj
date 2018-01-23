@@ -997,9 +997,6 @@
 				RelativePath="..\SLib\sstorage.cpp">
 			</File>
 			<File
-				RelativePath="..\SLib\sstream.cpp">
-			</File>
-			<File
 				RelativePath="..\Slib\sstring.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">

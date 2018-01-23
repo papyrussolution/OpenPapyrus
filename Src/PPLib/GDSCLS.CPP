@@ -466,38 +466,14 @@ IMPL_HANDLE_EVENT(GoodsClassDialog)
 					uint   stru_f = 0;
 					uint   cmd_id = 0;
 					switch(f_ctl_id) {
-						case CTL_GDSCLS_E_KIND:
-							stru_f = PPGdsCls::fUsePropKind;
-							cmd_id = cmGdsClsKind;
-							break;
-						case CTL_GDSCLS_E_GRADE:
-							stru_f = PPGdsCls::fUsePropGrade;
-							cmd_id = cmGdsClsGrade;
-							break;
-						case CTL_GDSCLS_E_ADD:
-							stru_f = PPGdsCls::fUsePropAdd;
-							cmd_id = cmGdsClsAdd;
-							break;
-						case CTL_GDSCLS_E_ADD2:
-							stru_f = PPGdsCls::fUsePropAdd2;
-							cmd_id = cmGdsClsAdd2;
-							break;
-						case CTL_GDSCLS_E_X:
-							stru_f = PPGdsCls::fUseDimX;
-							cmd_id = cmGdsClsX;
-							break;
-						case CTL_GDSCLS_E_Y:
-							stru_f = PPGdsCls::fUseDimY;
-							cmd_id = cmGdsClsY;
-							break;
-						case CTL_GDSCLS_E_Z:
-							stru_f = PPGdsCls::fUseDimZ;
-							cmd_id = cmGdsClsZ;
-							break;
-						case CTL_GDSCLS_E_W:
-							stru_f = PPGdsCls::fUseDimW;
-							cmd_id = cmGdsClsW;
-							break;
+						case CTL_GDSCLS_E_KIND: stru_f = PPGdsCls::fUsePropKind; cmd_id = cmGdsClsKind; break;
+						case CTL_GDSCLS_E_GRADE: stru_f = PPGdsCls::fUsePropGrade; cmd_id = cmGdsClsGrade; break;
+						case CTL_GDSCLS_E_ADD: stru_f = PPGdsCls::fUsePropAdd; cmd_id = cmGdsClsAdd; break;
+						case CTL_GDSCLS_E_ADD2: stru_f = PPGdsCls::fUsePropAdd2; cmd_id = cmGdsClsAdd2; break;
+						case CTL_GDSCLS_E_X: stru_f = PPGdsCls::fUseDimX; cmd_id = cmGdsClsX; break;
+						case CTL_GDSCLS_E_Y: stru_f = PPGdsCls::fUseDimY; cmd_id = cmGdsClsY; break;
+						case CTL_GDSCLS_E_Z: stru_f = PPGdsCls::fUseDimZ; cmd_id = cmGdsClsZ; break;
+						case CTL_GDSCLS_E_W: stru_f = PPGdsCls::fUseDimW; cmd_id = cmGdsClsW; break;
 						case CTL_GDSCLS_FLAGS:
 							{
 								ushort v = 0;

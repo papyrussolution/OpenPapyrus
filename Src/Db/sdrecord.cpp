@@ -1,5 +1,5 @@
 // SDRECORD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018
 //
 #include <db.h>
 #pragma hdrstop
@@ -7,9 +7,9 @@
 //
 // @ModuleDef(SdRecord)
 //
-SdbField::SdbField()
+SdbField::SdbField() : ID(0), OuterFormat(0), InnerOffs(0)
 {
-	Init();
+	T.Init();
 }
 
 void SdbField::Init()
@@ -610,10 +610,17 @@ int SdRecord::SearchName(const char * pName, uint * pPos, uint excludePos) const
 	if(!isempty(pName)) {
 		F * p_item;
 		SString temp_buf;
+		const int is_ascii_ = sisascii(pName, strlen(pName));
 		for(uint i = 0; Items.enumItems(&i, (void **)&p_item);) {
 			if((i-1) != excludePos) {
 				StringPool.get(p_item->NamePos, temp_buf);
-				if(temp_buf.CmpNC(pName) == 0) {
+				if(is_ascii_) {
+					if(temp_buf.IsEqiAscii(pName)) {
+						ASSIGN_PTR(pPos, i-1);
+						return 1;
+					}
+				}
+				else if(temp_buf.CmpNC(pName) == 0) {
 					ASSIGN_PTR(pPos, i-1);
 					return 1;
 				}
@@ -799,6 +806,25 @@ int FASTCALL SdRecord::GetFieldByPos(uint pos, SdbField * pFld) const
 	return ok;
 }
 
+int FASTCALL SdRecord::GetFieldByPos_Fast(uint pos /*0..*/, SdbField * pFld) const
+{
+	int    ok = 1;
+	CALLPTRMEMB(pFld, Init());
+	if(pos < Items.getCount()) {
+		if(pFld) {
+			const F * p_item = (const F *)Items.at(pos);
+			pFld->ID  = p_item->ID;
+			pFld->T   = p_item->T;
+			pFld->T.Flags = p_item->T.Flags;
+			pFld->OuterFormat = p_item->OuterFormat;
+			pFld->InnerOffs = p_item->InnerOffs;
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
 int SdRecord::EnumFields(uint * pPos, SdbField * pFld) const
 {
 	int    ok = 0;
@@ -828,29 +854,22 @@ int SdRecord::GetFieldByID(uint id, uint * pPos, SdbField * pFld) const
 int SdRecord::GetFieldByName(const char * pName, SdbField * pFld) const
 {
 	uint   pos = 0;
-	//
-	// Переменную SdRecord::TempBuf не используем дабы сохранить
-	// спецификацию const для этой функции.
-	//
-	SString temp_buf = pName;
+	TempBuf = pName;
 	CALLPTRMEMB(pFld, Init());
-	return (SearchName(temp_buf, &pos) > 0) ? GetFieldByPos(pos, pFld) : 0;
+	return (SearchName(TempBuf, &pos) > 0) ? GetFieldByPos(pos, pFld) : 0;
 }
 
-TYPEID SdRecord::GetFieldType(uint pos /* 0.. */) const
+int SdRecord::GetFieldByName_Fast(const char * pName, SdbField * pFld) const
 {
-	return (pos < Items.getCount()) ? Get(pos)->T.Typ : 0;
+	uint   pos = 0;
+	TempBuf = pName;
+	CALLPTRMEMB(pFld, Init());
+	return (SearchName(TempBuf, &pos) > 0) ? GetFieldByPos_Fast(pos, pFld) : 0;
 }
 
-const STypEx * SdRecord::GetFieldExType(uint pos /*0..*/) const
-{
-	return (pos < Items.getCount()) ? &Get(pos)->T : 0;
-}
-
-long SdRecord::GetFieldOuterFormat(uint pos /*0..*/) const
-{
-	return (pos < Items.getCount()) ? Get(pos)->OuterFormat : 0;
-}
+TYPEID SdRecord::GetFieldType(uint pos /* 0.. */) const { return (pos < Items.getCount()) ? Get(pos)->T.Typ : 0; }
+const  STypEx * SdRecord::GetFieldExType(uint pos /*0..*/) const { return (pos < Items.getCount()) ? &Get(pos)->T : 0; }
+long   SdRecord::GetFieldOuterFormat(uint pos /*0..*/) const { return (pos < Items.getCount()) ? Get(pos)->OuterFormat : 0; }
 
 void SdRecord::CreateRecFromDbfTable(const DbfTable * pTbl)
 {
@@ -878,7 +897,9 @@ int SdRecord::ConvertDataFields(int cvt, void * pBuf) const
 	if(pBuf && oneof4(cvt, CTRANSF_INNER_TO_OUTER, CTRANSF_OUTER_TO_INNER, CTRANSF_UTF8_TO_OUTER, CTRANSF_UTF8_TO_INNER)) {
 		SdbField fld;
 		SString temp_buf;
-		for(uint i = 0; EnumFields(&i, &fld);) {
+		const uint _c = GetCount();
+		for(uint i = 0; i < _c; i++) {
+			GetFieldByPos_Fast(i, &fld);
 			void * p_fld_data = PTR8(pBuf) + fld.InnerOffs;
 			size_t len;
 			if(fld.T.IsZStr(&len)) {

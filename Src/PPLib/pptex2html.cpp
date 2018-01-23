@@ -160,25 +160,13 @@ PPTex2HtmlPrcssr::Param & FASTCALL PPTex2HtmlPrcssr::Param::operator = (const PP
 	return *this;
 }
 
-int SLAPI PPTex2HtmlPrcssr::Param::GetExtStrData(int fldID, SString & rBuf) const
-{
-	return PPGetExtStrData(fldID, ExtString, rBuf);
-}
-
-int SLAPI PPTex2HtmlPrcssr::Param::PutExtStrData(int fldID, const char * pBuf)
-{
-	return PPPutExtStrData(fldID, ExtString, pBuf);
-}
+int SLAPI PPTex2HtmlPrcssr::Param::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int SLAPI PPTex2HtmlPrcssr::Param::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 //
 //
 //
-PPTex2HtmlPrcssr::TextBlock::TextBlock(int type)
+PPTex2HtmlPrcssr::TextBlock::TextBlock(int type) : Type(type), Flags(0), P_ArgBrc(0), P_ArgBrk(0), P_Next(0)
 {
-	Type = type;
-	Flags = 0;
-	P_ArgBrc = 0;
-	P_ArgBrk = 0;
-	P_Next = 0;
 }
 
 PPTex2HtmlPrcssr::TextBlock::~TextBlock()
@@ -212,7 +200,7 @@ const char * PPTex2HtmlPrcssr::TextBlock::GetInnerLabel() const
 	const char * p_label = 0;
 	if(P_ArgBrc) {
 		const TextBlock * p_next = P_ArgBrc->P_Next;
-		if(p_next && p_next->Type == TextBlock::tCommand && strcmp(p_next->Text, "label") == 0 && p_next->P_ArgBrc)
+		if(p_next && p_next->Type == TextBlock::tCommand && sstreq(p_next->Text, "label") && p_next->P_ArgBrc)
 			p_label = p_next->P_ArgBrc->Text;
 	}
 	return p_label;
@@ -718,9 +706,9 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 	for(const TextBlock * p_blk = pBlk; p_blk; p_blk = p_blk->P_Next) {
 		if(p_blk->Type == TextBlock::tCommand) {
 			int    env_tag = 0;
-			if(p_blk->Text.CmpNC("begin") == 0)
+			if(p_blk->Text == "begin")
 				env_tag = 1;
-			else if(p_blk->Text.CmpNC("end") == 0)
+			else if(p_blk->Text == "end")
 				env_tag = 2;
 			const TextBlock * p_first_brc_arg = p_blk->P_ArgBrc;
 			const TextBlock * p_arg = p_blk->P_ArgBrc;
@@ -760,7 +748,7 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 				}
 			}
 			else {
-				if(p_blk->Text.CmpNC("ppypict") == 0 || p_blk->Text.CmpNC("ppypictsc") == 0) {
+				if(p_blk->Text == "ppypict" || p_blk->Text == "ppypictsc") {
 					if(p_first_brc_arg) {
 						if(isDir(in_pic_path) && isDir(out_pic_path)) {
 							(temp_buf = in_pic_path).SetLastSlash().Cat(p_first_brc_arg->Text).CatChar('.').Cat("png");
@@ -812,7 +800,7 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 						}
 					}
 				}
-				else if(p_blk->Text.CmpNC("frac") == 0) {
+				else if(p_blk->Text == "frac") {
 					if(p_first_brc_arg) {
 						long _thf = _thfDisablePara|_thfSingle;
 						if(flags & _thfFormula)
@@ -823,32 +811,32 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 						}
 					}
 				}
-				else if(p_blk->Text.CmpNC("underline") == 0) {
+				else if(p_blk->Text == "underline") {
 					if(p_first_brc_arg) {
 						THROW(Helper_PreprocessOutput(p_first_brc_arg, _thfDisablePara)); // @recursion
 					}
 				}
-				else if(p_blk->Text.CmpNC("trademark") == 0) {
+				else if(p_blk->Text == "trademark") {
 					if(p_first_brc_arg) {
 						THROW(Helper_PreprocessOutput(p_first_brc_arg, _thfDisablePara)); // @recursion
 					}
 				}
-				else if(p_blk->Text.CmpNC("ppymenu") == 0) {
+				else if(p_blk->Text == "ppymenu") {
 					if(p_first_brc_arg) {
 						THROW(Helper_PreprocessOutput(p_first_brc_arg, _thfDisablePara)); // @recursion
 					}
 				}
-				else if(p_blk->Text.CmpNC("ppynote") == 0) {
+				else if(p_blk->Text == "ppynote") {
 					if(p_first_brc_arg) {
 						THROW(Helper_PreprocessOutput(p_first_brc_arg, 0)); // @recursion
 					}
 				}
-				else if(p_blk->Text.CmpNC("ppyexample") == 0 || p_blk->Text.CmpNC("ppyexampletitle") == 0) {
+				else if(p_blk->Text == "ppyexample" || p_blk->Text == "ppyexampletitle") {
 					if(p_first_brc_arg) {
 						THROW(Helper_PreprocessOutput(p_first_brc_arg, 0)); // @recursion
 					}
 				}
-				else if(p_blk->Text.CmpNC("label") == 0) {
+				else if(p_blk->Text == "label") {
 					if(p_first_brc_arg) {
 						if(St.ChapterNo) {
 							for(uint i = 0; i < St.OutPartList.getCount(); i++) {
@@ -862,14 +850,14 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 						}
 					}
 				}
-				else if(p_blk->Text.CmpNC("ref") == 0 || p_blk->Text.CmpNC("pageref") == 0) {
+				else if(p_blk->Text == "ref" || p_blk->Text == "pageref") {
 					if(p_first_brc_arg) {
 						//temp_buf.Z().CatChar('\"').CatChar('#').Cat(p_first_brc_arg->Text).CatChar('\"');
 						//line_buf.Z().CatChar('<').Cat("a").Space().CatEq("href", temp_buf).CatChar('>').Cat("link").CatTagBrace("a", 1);
 						//WriteText(rOut, line_buf);
 					}
 				}
-				else if(p_blk->Text.CmpNC("item") == 0) {
+				else if(p_blk->Text == "item") {
 					if(list_item) {
 						list_item = 0;
 					}
@@ -883,7 +871,7 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 				}
 				else {
 					const _TexToHtmlEntry * p = SearchTexToHtmlEntry(_texCmd, p_blk->Text);
-					if(p && strcmp(p->P_TexSymb, "chapter") == 0) {
+					if(p && sstreq(p->P_TexSymb, "chapter")) {
 						const char * p_chapter_symb = p_blk->GetInnerLabel();
 						const char * p_chapter_text = p_blk->GetInnerText();
 						St.ChapterNo++;
@@ -1025,8 +1013,7 @@ int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uin
 					}
 				}
 				else {
-                    rel_path.CatChar('/').Cat("dispatcher").CatChar('/').Cat("workbook").CatChar('/').Cat("content").
-						CatChar('?').CatEq("code", wb_rec.Symb);
+                    rel_path.CatChar('/').Cat("dispatcher").CatChar('/').Cat("workbook").CatChar('/').Cat("content").CatChar('?').CatEq("code", wb_rec.Symb);
 				}
             }
 		}
@@ -1035,8 +1022,7 @@ int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uin
 		}
 		if(rel_path.NotEmpty()) {
 			temp_buf.Z().Cat("pic").CatChar('-').Cat(org_symb);
-			rRef.CatChar('<').Cat("a").Space().CatEqQ("name", temp_buf).CatChar('>').
-				CatChar('<').Cat("img").Space().CatEqQ("src", rel_path);
+			rRef.CatChar('<').Cat("a").Space().CatEqQ("name", temp_buf).CatChar('>').CatChar('<').Cat("img").Space().CatEqQ("src", rel_path);
 			// line_buf.Space().CatEq("align", temp_buf.Z().CatQStr("left"));
 			if(!isempty(pName))
 				rRef.Space().CatEqQ("alt", pName).Space().CatEqQ("title", pName);
@@ -1063,9 +1049,9 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 	for(const TextBlock * p_blk = pBlk; p_blk; p_blk = p_blk->P_Next) {
 		if(p_blk->Type == TextBlock::tCommand) {
 			int    env_tag = 0;
-			if(p_blk->Text.CmpNC("begin") == 0)
+			if(p_blk->Text == "begin")
 				env_tag = 1;
-			else if(p_blk->Text.CmpNC("end") == 0)
+			else if(p_blk->Text == "end")
 				env_tag = 2;
 			const TextBlock * p_first_brc_arg = p_blk->P_ArgBrc;
 			const TextBlock * p_arg = p_blk->P_ArgBrc;
@@ -1115,7 +1101,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 				}
 			}
 			else {
-				if(p_blk->Text.CmpNC("ppypict") == 0 || p_blk->Text.CmpNC("ppypictsc") == 0) {
+				if(p_blk->Text == "ppypict" || p_blk->Text == "ppypictsc") {
 					if(p_first_brc_arg) {
 						uint pic_list_pos = 0;
                         SString ref_buf;
@@ -1124,7 +1110,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 							WriteText(rOut, ref_buf);
 					}
 				}
-				else if(p_blk->Text.CmpNC("ref") == 0 || p_blk->Text.CmpNC("pageref") == 0) {
+				else if(p_blk->Text == "ref" || p_blk->Text == "pageref") {
 					if(p_first_brc_arg) {
 						temp_buf.Z().CatChar('\"');
 						uint i;
@@ -1190,19 +1176,19 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 						WriteText(rOut, line_buf.Z().CatTagBrace("strong", 1).CatTagBrace("i", 1));
 					}
 				}
-				else if(p_blk->Text.CmpNC("ppybrand") == 0) {
+				else if(p_blk->Text == "ppybrand") {
 					WriteText(rOut, (line_buf = "Papyrus").Space());
 				}
-				else if(p_blk->Text.CmpNC("newline") == 0) {
+				else if(p_blk->Text == "newline") {
 					WriteText(rOut, line_buf.Z().CatTagBrace("br", 0));
 				}
-				else if(p_blk->Text.CmpNC("indent") == 0) {
+				else if(p_blk->Text == "indent") {
 					WriteText(rOut, line_buf.Z().Tab());
 				}
-				else if(p_blk->Text.CmpNC("sum") == 0) {
+				else if(p_blk->Text == "sum") {
 					WriteText(rOut, line_buf = "&Sigma;");
 				}
-				else if(p_blk->Text.CmpNC("frac") == 0) {
+				else if(p_blk->Text == "frac") {
 					if(p_first_brc_arg) {
 						long _thf = _thfDisablePara|_thfSingle;
 						if(flags & _thfFormula)
@@ -1214,35 +1200,35 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 						}
 					}
 				}
-				else if(p_blk->Text.CmpNC("underline") == 0) {
+				else if(p_blk->Text == "underline") {
 					if(p_first_brc_arg) {
 						WriteText(rOut, line_buf.Z().CatTagBrace("u", 0));
 						THROW(Helper_Output(rOut, p_first_brc_arg, _thfDisablePara)); // @recursion
 						WriteText(rOut, line_buf.Z().CatTagBrace("u", 1));
 					}
 				}
-				else if(p_blk->Text.CmpNC("trademark") == 0) {
+				else if(p_blk->Text == "trademark") {
 					if(p_first_brc_arg) {
 						THROW(Helper_Output(rOut, p_first_brc_arg, _thfDisablePara)); // @recursion
 						WriteText(rOut, line_buf.Z().CatTagBrace("sup", 0).Cat("&trade;").CatTagBrace("sup", 1));
 					}
 				}
-				else if(p_blk->Text.CmpNC("rdir") == 0) {
+				else if(p_blk->Text == "rdir") {
 					WriteText(rOut, line_buf.Z().Cat("&#8594;"));
 				}
-				else if(p_blk->Text.CmpNC("symbol") == 0) {
+				else if(p_blk->Text == "symbol") {
 					if(p_first_brc_arg) {
 						long sc = p_first_brc_arg->Text.ToLong();
 						line_buf.Z().CatChar('&').CatChar('#').Cat(sc).Semicol();
 						WriteText(rOut, line_buf);
 					}
 				}
-				else if(p_blk->Text.CmpNC("ppymenu") == 0) {
+				else if(p_blk->Text == "ppymenu") {
 					if(p_first_brc_arg) {
 						THROW(Helper_Output(rOut, p_first_brc_arg, _thfDisablePara)); // @recursion
 					}
 				}
-				else if(p_blk->Text.CmpNC("ppynote") == 0) {
+				else if(p_blk->Text == "ppynote") {
 					if(p_first_brc_arg) {
 						temp_buf.Z().CatQStr("ppynote");
 						line_buf.Z().CatChar('<').Cat("div").Space().CatEq("class", temp_buf).CatChar('>');
@@ -1252,7 +1238,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 						WriteText(rOut, line_buf);
 					}
 				}
-				else if(p_blk->Text.CmpNC("ppyexample") == 0 || p_blk->Text.CmpNC("ppyexampletitle") == 0) {
+				else if(p_blk->Text == "ppyexample" || p_blk->Text == "ppyexampletitle") {
 					if(p_first_brc_arg) {
 						temp_buf.Z().CatQStr("ppyexample");
 						line_buf.Z().CatChar('<').Cat("div").Space().CatEq("class", temp_buf).CatChar('>');
@@ -1262,55 +1248,55 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 						WriteText(rOut, line_buf);
 					}
 				}
-				else if(p_blk->Text.CmpNC("keyb") == 0) {
+				else if(p_blk->Text == "keyb") {
 					if(p_first_brc_arg) {
 						line_buf.Z().CatTagBrace("kbd", 0).Cat("&lt;").Cat(p_first_brc_arg->Text).Cat("&gt;").CatTagBrace("kbd", 1).Space();
 						WriteText(rOut, line_buf);
 					}
 				}
-				else if(p_blk->Text.CmpNC("dlgbutton") == 0) {
+				else if(p_blk->Text == "dlgbutton") {
 					if(p_first_brc_arg) {
 						line_buf.Z().CatTagBrace("em", 0).CatChar('[').Cat(p_first_brc_arg->Text).CatChar(']').CatTagBrace("em", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
-				else if(p_blk->Text.CmpNC("dlgcombo") == 0) {
+				else if(p_blk->Text == "dlgcombo") {
 					if(p_first_brc_arg) {
 						line_buf.Z().CatTagBrace("em", 0).Cat("&#9660;").Cat(p_first_brc_arg->Text).CatTagBrace("em", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
-				else if(p_blk->Text.CmpNC("dlgflag") == 0) {
+				else if(p_blk->Text == "dlgflag") {
 					if(p_first_brc_arg) {
 						line_buf.Z().CatTagBrace("em", 0).Cat("&#10003;").Cat(p_first_brc_arg->Text).CatTagBrace("em", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
-				else if(p_blk->Text.CmpNC("dlgradioi") == 0) {
+				else if(p_blk->Text == "dlgradioi") {
 					if(p_first_brc_arg) {
 						line_buf.Z().CatTagBrace("em", 0).Cat("&#9675;").Cat(p_first_brc_arg->Text).CatTagBrace("em", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
-				else if(p_blk->Text.CmpNC("ppysyntax") == 0) {
+				else if(p_blk->Text == "ppysyntax") {
 					if(p_first_brc_arg) {
 						line_buf.Z().CatTagBrace("em", 0).Cat(p_first_brc_arg->Text).CatTagBrace("em", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
-				else if(p_blk->Text.CmpNC("ppyterm") == 0) {
+				else if(p_blk->Text == "ppyterm") {
 					if(p_first_brc_arg) {
 						line_buf.Z().CatTagBrace("dfn", 0).Cat(p_first_brc_arg->Text).CatTagBrace("dfn", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
-				else if(p_blk->Text.CmpNC("ppyrsrv") == 0) {
+				else if(p_blk->Text == "ppyrsrv") {
 					if(p_first_brc_arg) {
 						line_buf.Z().CatTagBrace("dfn", 0).Cat(p_first_brc_arg->Text).CatTagBrace("dfn", 1);
 						WriteText(rOut, line_buf);
 					}
 				}
-				else if(p_blk->Text.CmpNC("qu") == 0) {
+				else if(p_blk->Text == "qu") {
 					if(p_first_brc_arg) {
 						line_buf.Z().Cat("&ldquo;").Cat(p_first_brc_arg->Text).Cat("&rdquo;");
 						WriteText(rOut, line_buf);
@@ -1323,7 +1309,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 						WriteText(rOut, line_buf);
 					}
 				}
-				else if(p_blk->Text.CmpNC("item") == 0) {
+				else if(p_blk->Text == "item") {
 					if(list_item) {
 						if(list_item == 2) {
 							WriteText(rOut, line_buf.Z().CatTagBrace("dd", 1));
@@ -1347,7 +1333,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 				}
 				else {
 					const _TexToHtmlEntry * p = SearchTexToHtmlEntry(_texCmd, p_blk->Text);
-					if(p && strcmp(p->P_TexSymb, "chapter") == 0) {
+					if(p && sstreq(p->P_TexSymb, "chapter")) {
 						const char * p_chapter_symb = p_blk->GetInnerLabel();
 						const char * p_chapter_text = p_blk->GetInnerText();
 						St.ChapterNo++;
@@ -1820,16 +1806,12 @@ public:
 	int     Run();
 
 	struct Paragraph {
-		Paragraph(int type, long flags)
+		Paragraph(int type, long flags) : Type(type), Flags(flags), P_Next(0)
 		{
-			Type = type;
-			Flags = flags;
-			P_Next = 0;
 		}
 		~Paragraph()
 		{
-			if(P_Next)
-				ZDELETE(P_Next);
+			ZDELETE(P_Next);
 		}
         enum {
         	tRegular = 1,
@@ -1851,11 +1833,8 @@ public:
         Paragraph * P_Next;
 	};
 	struct VersionEntry {
-		VersionEntry(LDATE dt, SVerT ver)
+		VersionEntry(LDATE dt, SVerT ver) : Dt(dt), Ver(ver), P_Body(0)
 		{
-			Dt = dt;
-			Ver = ver;
-			P_Body = 0;
 		}
 		~VersionEntry()
 		{
@@ -1908,9 +1887,8 @@ private:
 	int     WriteText(SFile & rF, const SString & rLineBuf)
 	{
 		SString temp_buf = rLineBuf;
-		if(P.Flags & Param::fUtf8Codepage) {
-			temp_buf.ToUtf8();
-		}
+		if(P.Flags & Param::fUtf8Codepage)
+			temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
 		return rF.WriteLine(temp_buf) ? 1 : PPSetErrorSLib();
 	}
 	Param  P;
@@ -1948,15 +1926,8 @@ PPVer2HtmlPrcssr::Param & FASTCALL PPVer2HtmlPrcssr::Param::operator = (const PP
 	return *this;
 }
 
-int SLAPI PPVer2HtmlPrcssr::Param::GetExtStrData(int fldID, SString & rBuf) const
-{
-	return PPGetExtStrData(fldID, ExtString, rBuf);
-}
-
-int SLAPI PPVer2HtmlPrcssr::Param::PutExtStrData(int fldID, const char * pBuf)
-{
-	return PPPutExtStrData(fldID, ExtString, pBuf);
-}
+int SLAPI PPVer2HtmlPrcssr::Param::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int SLAPI PPVer2HtmlPrcssr::Param::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 
 class Ver2HtmlParamDialog : public TDialog {
 public:
@@ -2026,15 +1997,8 @@ int PPVer2HtmlPrcssr::EditParam(PPVer2HtmlPrcssr::Param * pParam)
     return PPDialogProcBody <Ver2HtmlParamDialog, PPVer2HtmlPrcssr::Param> (pParam);
 }
 
-PPVer2HtmlPrcssr::PPVer2HtmlPrcssr()
+PPVer2HtmlPrcssr::PPVer2HtmlPrcssr() : ReH_Ver(0), ReH_Para(0), ReH_ParaFix(0), ReH_ParaDev(0), ReH_ParaMan(0), ReH_Topic(0), ReH_ListItem(0)
 {
-	ReH_Ver = 0;
-	ReH_Para = 0;
-	ReH_ParaFix = 0;
-	ReH_ParaDev = 0;
-	ReH_ParaMan = 0;
-	ReH_Topic = 0;
-	ReH_ListItem = 0;
 	Scan.RegisterRe("^[v]?[0-9][0-9]?\\.[0-9][0-9]?\\.[0-9][0-9]?", &ReH_Ver);
 	Scan.RegisterRe("^[!]?-[^\\-]", &ReH_Para);
 	Scan.RegisterRe("^--", &ReH_ListItem);
@@ -2487,9 +2451,7 @@ int PPVer2HtmlPrcssr::Parse(const char * pSrcFileName)
 		p_cur_entry = 0;
     }
     Entries.sort(PTR_CMPFUNC(PPVer2HtmlPrcssr_VersionEntry));
-    CATCH
-    	ok = 0;
-    ENDCATCH
+    CATCHZOK
     return ok;
 }
 

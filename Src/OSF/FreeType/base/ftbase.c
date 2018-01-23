@@ -35,5 +35,4 @@
 #include "fttrigon.c"
 #include "ftutil.c"
 
-
 /* END */

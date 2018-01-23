@@ -94,17 +94,14 @@ int ossl_statem_server_read_transition(SSL * s, int mt)
 		    if(mt == SSL3_MT_CLIENT_KEY_EXCHANGE) {
 			    if(s->s3->tmp.cert_request) {
 				    if(s->version == SSL3_VERSION) {
-					    if((s->verify_mode & SSL_VERIFY_PEER)
-					    && (s->verify_mode & SSL_VERIFY_FAIL_IF_NO_PEER_CERT)) {
+					    if((s->verify_mode & SSL_VERIFY_PEER) && (s->verify_mode & SSL_VERIFY_FAIL_IF_NO_PEER_CERT)) {
 						    /*
 						     * This isn't an unexpected message as such - we're just
 						     * not going to accept it because we require a client
 						     * cert.
 						     */
-						    ssl3_send_alert(s, SSL3_AL_FATAL,
-						    SSL3_AD_HANDSHAKE_FAILURE);
-						    SSLerr(SSL_F_OSSL_STATEM_SERVER_READ_TRANSITION,
-						    SSL_R_PEER_DID_NOT_RETURN_A_CERTIFICATE);
+						    ssl3_send_alert(s, SSL3_AL_FATAL, SSL3_AD_HANDSHAKE_FAILURE);
+						    SSLerr(SSL_F_OSSL_STATEM_SERVER_READ_TRANSITION, SSL_R_PEER_DID_NOT_RETURN_A_CERTIFICATE);
 						    return 0;
 					    }
 					    st->hand_state = TLS_ST_SR_KEY_EXCH;
@@ -123,14 +120,12 @@ int ossl_statem_server_read_transition(SSL * s, int mt)
 			    }
 		    }
 		    break;
-
 		case TLS_ST_SR_CERT:
 		    if(mt == SSL3_MT_CLIENT_KEY_EXCHANGE) {
 			    st->hand_state = TLS_ST_SR_KEY_EXCH;
 			    return 1;
 		    }
 		    break;
-
 		case TLS_ST_SR_KEY_EXCH:
 		    /*
 		     * We should only process a CertificateVerify message if we have
@@ -166,7 +161,6 @@ int ossl_statem_server_read_transition(SSL * s, int mt)
 			    return 1;
 		    }
 		    break;
-
 		case TLS_ST_SR_CHANGE:
 #ifndef OPENSSL_NO_NEXTPROTONEG
 		    if(s->s3->next_proto_neg_seen) {
@@ -185,7 +179,6 @@ int ossl_statem_server_read_transition(SSL * s, int mt)
 	}
 #endif
 		    break;
-
 #ifndef OPENSSL_NO_NEXTPROTONEG
 		case TLS_ST_SR_NEXT_PROTO:
 		    if(mt == SSL3_MT_FINISHED) {
@@ -194,7 +187,6 @@ int ossl_statem_server_read_transition(SSL * s, int mt)
 		    }
 		    break;
 #endif
-
 		case TLS_ST_SW_FINISHED:
 		    if(mt == SSL3_MT_CHANGE_CIPHER_SPEC) {
 			    st->hand_state = TLS_ST_SR_CHANGE;
@@ -205,7 +197,6 @@ int ossl_statem_server_read_transition(SSL * s, int mt)
 		default:
 		    break;
 	}
-
 	/* No valid transition found */
 	ssl3_send_alert(s, SSL3_AL_FATAL, SSL3_AD_UNEXPECTED_MESSAGE);
 	SSLerr(SSL_F_OSSL_STATEM_SERVER_READ_TRANSITION, SSL_R_UNEXPECTED_MESSAGE);
@@ -222,7 +213,6 @@ int ossl_statem_server_read_transition(SSL * s, int mt)
 static int send_server_key_exchange(SSL * s)
 {
 	unsigned long alg_k = s->s3->tmp.new_cipher->algorithm_mkey;
-
 	/*
 	 * only send a ServerKeyExchange if DH or fortezza but we have a
 	 * sign only certificate PSK: may send PSK identity hints For
@@ -233,13 +223,11 @@ static int send_server_key_exchange(SSL * s)
 	 */
 	if(alg_k & (SSL_kDHE | SSL_kECDHE)
 	    /*
-	     * PSK: send ServerKeyExchange if PSK identity hint if
-	     * provided
+	     * PSK: send ServerKeyExchange if PSK identity hint if provided
 	     */
 #ifndef OPENSSL_NO_PSK
 	    /* Only send SKE if we have identity hint for plain PSK */
-	    || ((alg_k & (SSL_kPSK | SSL_kRSAPSK))
-		    && s->cert->psk_identity_hint)
+	    || ((alg_k & (SSL_kPSK | SSL_kRSAPSK)) && s->cert->psk_identity_hint)
 	    /* For other PSK always send SKE */
 	    || (alg_k & (SSL_PSK & (SSL_kDHEPSK | SSL_kECDHEPSK)))
 #endif
@@ -270,8 +258,7 @@ static int send_certificate_request(SSL * s)
 	     * if SSL_VERIFY_CLIENT_ONCE is set, don't request cert
 	     * during re-negotiation:
 	     */
-	    && (s->s3->tmp.finish_md_len == 0 ||
-		    !(s->verify_mode & SSL_VERIFY_CLIENT_ONCE))
+	    && (s->s3->tmp.finish_md_len == 0 || !(s->verify_mode & SSL_VERIFY_CLIENT_ONCE))
 	    /*
 	     * never request cert in anonymous ciphersuites (see
 	     * section "Certificate request" in SSL 3 drafts and in
@@ -304,33 +291,26 @@ static int send_certificate_request(SSL * s)
 WRITE_TRAN ossl_statem_server_write_transition(SSL * s)
 {
 	OSSL_STATEM * st = &s->statem;
-
 	switch(st->hand_state) {
 		case TLS_ST_BEFORE:
 		    /* Just go straight to trying to read from the client */
 		    return WRITE_TRAN_FINISHED;
-
 		case TLS_ST_OK:
 		    /* We must be trying to renegotiate */
 		    st->hand_state = TLS_ST_SW_HELLO_REQ;
 		    return WRITE_TRAN_CONTINUE;
-
 		case TLS_ST_SW_HELLO_REQ:
 		    st->hand_state = TLS_ST_OK;
 		    ossl_statem_set_in_init(s, 0);
 		    return WRITE_TRAN_CONTINUE;
-
 		case TLS_ST_SR_CLNT_HELLO:
-		    if(SSL_IS_DTLS(s) && !s->d1->cookie_verified
-		    && (SSL_get_options(s) & SSL_OP_COOKIE_EXCHANGE))
+		    if(SSL_IS_DTLS(s) && !s->d1->cookie_verified && (SSL_get_options(s) & SSL_OP_COOKIE_EXCHANGE))
 			    st->hand_state = DTLS_ST_SW_HELLO_VERIFY_REQUEST;
 		    else
 			    st->hand_state = TLS_ST_SW_SRVR_HELLO;
 		    return WRITE_TRAN_CONTINUE;
-
 		case DTLS_ST_SW_HELLO_VERIFY_REQUEST:
 		    return WRITE_TRAN_FINISHED;
-
 		case TLS_ST_SW_SRVR_HELLO:
 		    if(s->hit) {
 			    if(s->tlsext_ticket_expected)
@@ -356,35 +336,29 @@ WRITE_TRAN ossl_statem_server_write_transition(SSL * s)
 			    }
 		    }
 		    return WRITE_TRAN_CONTINUE;
-
 		case TLS_ST_SW_CERT:
 		    if(s->tlsext_status_expected) {
 			    st->hand_state = TLS_ST_SW_CERT_STATUS;
 			    return WRITE_TRAN_CONTINUE;
 		    }
 		/* Fall through */
-
 		case TLS_ST_SW_CERT_STATUS:
 		    if(send_server_key_exchange(s)) {
 			    st->hand_state = TLS_ST_SW_KEY_EXCH;
 			    return WRITE_TRAN_CONTINUE;
 		    }
 		/* Fall through */
-
 		case TLS_ST_SW_KEY_EXCH:
 		    if(send_certificate_request(s)) {
 			    st->hand_state = TLS_ST_SW_CERT_REQ;
 			    return WRITE_TRAN_CONTINUE;
 		    }
 		/* Fall through */
-
 		case TLS_ST_SW_CERT_REQ:
 		    st->hand_state = TLS_ST_SW_SRVR_DONE;
 		    return WRITE_TRAN_CONTINUE;
-
 		case TLS_ST_SW_SRVR_DONE:
 		    return WRITE_TRAN_FINISHED;
-
 		case TLS_ST_SR_FINISHED:
 		    if(s->hit) {
 			    st->hand_state = TLS_ST_OK;
@@ -398,15 +372,12 @@ WRITE_TRAN ossl_statem_server_write_transition(SSL * s)
 			    st->hand_state = TLS_ST_SW_CHANGE;
 		    }
 		    return WRITE_TRAN_CONTINUE;
-
 		case TLS_ST_SW_SESSION_TICKET:
 		    st->hand_state = TLS_ST_SW_CHANGE;
 		    return WRITE_TRAN_CONTINUE;
-
 		case TLS_ST_SW_CHANGE:
 		    st->hand_state = TLS_ST_SW_FINISHED;
 		    return WRITE_TRAN_CONTINUE;
-
 		case TLS_ST_SW_FINISHED:
 		    if(s->hit) {
 			    return WRITE_TRAN_FINISHED;
@@ -414,13 +385,11 @@ WRITE_TRAN ossl_statem_server_write_transition(SSL * s)
 		    st->hand_state = TLS_ST_OK;
 		    ossl_statem_set_in_init(s, 0);
 		    return WRITE_TRAN_CONTINUE;
-
 		default:
 		    /* Shouldn't happen */
 		    return WRITE_TRAN_ERROR;
 	}
 }
-
 /*
  * Perform any pre work that needs to be done prior to sending a message from
  * the server to the client.
@@ -428,7 +397,6 @@ WRITE_TRAN ossl_statem_server_write_transition(SSL * s)
 WORK_STATE ossl_statem_server_pre_work(SSL * s, WORK_STATE wst)
 {
 	OSSL_STATEM * st = &s->statem;
-
 	switch(st->hand_state) {
 		case TLS_ST_SW_HELLO_REQ:
 		    s->shutdown = 0;
@@ -1779,11 +1747,8 @@ int tls_construct_server_key_exchange(SSL * s)
 #endif                          /* !OPENSSL_NO_EC */
 #ifndef OPENSSL_NO_SRP
 	if(type & SSL_kSRP) {
-		if((s->srp_ctx.N == NULL) ||
-		    (s->srp_ctx.g == NULL) ||
-		    (s->srp_ctx.s == NULL) || (s->srp_ctx.B == NULL)) {
-			SSLerr(SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE,
-			    SSL_R_MISSING_SRP_PARAM);
+		if((s->srp_ctx.N == NULL) || (s->srp_ctx.g == NULL) || (s->srp_ctx.s == NULL) || (s->srp_ctx.B == NULL)) {
+			SSLerr(SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE, SSL_R_MISSING_SRP_PARAM);
 			goto err;
 		}
 		r[0] = s->srp_ctx.N;
@@ -1795,8 +1760,7 @@ int tls_construct_server_key_exchange(SSL * s)
 #endif
 	{
 		al = SSL_AD_HANDSHAKE_FAILURE;
-		SSLerr(SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE,
-		    SSL_R_UNKNOWN_KEY_EXCHANGE_TYPE);
+		SSLerr(SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE, SSL_R_UNKNOWN_KEY_EXCHANGE_TYPE);
 		goto f_err;
 	}
 	for(i = 0; i < 4 && r[i] != NULL; i++) {
@@ -1837,7 +1801,6 @@ int tls_construct_server_key_exchange(SSL * s)
 		pkey = NULL;
 		kn = 0;
 	}
-
 	if(!BUF_MEM_grow_clean(buf, n + SSL_HM_HEADER_LENGTH(s) + kn)) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE, ERR_LIB_BUF);
 		goto err;
@@ -1854,8 +1817,7 @@ int tls_construct_server_key_exchange(SSL * s)
 				 * Should not happen - we already checked this when we set
 				 * the identity hint
 				 */
-				SSLerr(SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE,
-				    ERR_R_INTERNAL_ERROR);
+				SSLerr(SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE, ERR_R_INTERNAL_ERROR);
 				goto err;
 			}
 			s2n(len, p);
@@ -1931,8 +1893,7 @@ int tls_construct_server_key_exchange(SSL * s)
 				if(!tls12_get_sigandhash(p, pkey, md)) {
 					/* Should never happen */
 					al = SSL_AD_INTERNAL_ERROR;
-					SSLerr(SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE,
-					    ERR_R_INTERNAL_ERROR);
+					SSLerr(SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE, ERR_R_INTERNAL_ERROR);
 					goto f_err;
 				}
 				p += 2;
@@ -1940,14 +1901,9 @@ int tls_construct_server_key_exchange(SSL * s)
 #ifdef SSL_DEBUG
 			fprintf(stderr, "Using hash %s\n", EVP_MD_name(md));
 #endif
-			if(EVP_SignInit_ex(md_ctx, md, NULL) <= 0
-			    || EVP_SignUpdate(md_ctx, &(s->s3->client_random[0]),
-				    SSL3_RANDOM_SIZE) <= 0
-			    || EVP_SignUpdate(md_ctx, &(s->s3->server_random[0]),
-				    SSL3_RANDOM_SIZE) <= 0
-			    || EVP_SignUpdate(md_ctx, d, n) <= 0
-			    || EVP_SignFinal(md_ctx, &(p[2]),
-				    (uint*)&i, pkey) <= 0) {
+			if(EVP_SignInit_ex(md_ctx, md, NULL) <= 0 || EVP_SignUpdate(md_ctx, &(s->s3->client_random[0]), SSL3_RANDOM_SIZE) <= 0 || 
+				EVP_SignUpdate(md_ctx, &(s->s3->server_random[0]), SSL3_RANDOM_SIZE) <= 0 || 
+				EVP_SignUpdate(md_ctx, d, n) <= 0 || EVP_SignFinal(md_ctx, &(p[2]), (uint*)&i, pkey) <= 0) {
 				SSLerr(SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE, ERR_LIB_EVP);
 				al = SSL_AD_INTERNAL_ERROR;
 				goto f_err;
@@ -1960,18 +1916,15 @@ int tls_construct_server_key_exchange(SSL * s)
 		else {
 			/* Is this error check actually needed? */
 			al = SSL_AD_HANDSHAKE_FAILURE;
-			SSLerr(SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE,
-			    SSL_R_UNKNOWN_PKEY_TYPE);
+			SSLerr(SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE, SSL_R_UNKNOWN_PKEY_TYPE);
 			goto f_err;
 		}
 	}
-
 	if(!ssl_set_handshake_header(s, SSL3_MT_SERVER_KEY_EXCHANGE, n)) {
 		al = SSL_AD_HANDSHAKE_FAILURE;
 		SSLerr(SSL_F_TLS_CONSTRUCT_SERVER_KEY_EXCHANGE, ERR_R_INTERNAL_ERROR);
 		goto f_err;
 	}
-
 	EVP_MD_CTX_free(md_ctx);
 	return 1;
 f_err:
@@ -3000,16 +2953,15 @@ int tls_construct_new_session_ticket(SSL * s)
 	HMAC_CTX * hctx = NULL;
 	uchar * p, * macstart;
 	const uchar * const_p;
-	int len, slen_full, slen;
+	int len, slen;
 	SSL_SESSION * sess;
 	uint hlen;
 	SSL_CTX * tctx = s->session_ctx;
 	uchar iv[EVP_MAX_IV_LENGTH];
 	uchar key_name[TLSEXT_KEYNAME_LENGTH];
 	int iv_len;
-
 	/* get session encoding length */
-	slen_full = i2d_SSL_SESSION(s->session, 0);
+	int slen_full = i2d_SSL_SESSION(s->session, 0);
 	/*
 	 * Some length values are 16 bits, so forget it if session is too
 	 * long
@@ -3023,14 +2975,12 @@ int tls_construct_new_session_ticket(SSL * s)
 		ossl_statem_set_error(s);
 		return 0;
 	}
-
 	ctx = EVP_CIPHER_CTX_new();
 	hctx = HMAC_CTX_new();
 	if(ctx == NULL || hctx == NULL) {
 		SSLerr(SSL_F_TLS_CONSTRUCT_NEW_SESSION_TICKET, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	p = senc;
 	if(!i2d_SSL_SESSION(s->session, &p))
 		goto err;
@@ -3043,7 +2993,6 @@ int tls_construct_new_session_ticket(SSL * s)
 	if(sess == NULL)
 		goto err;
 	sess->session_id_length = 0; /* ID is irrelevant for the ticket */
-
 	slen = i2d_SSL_SESSION(sess, 0);
 	if(slen == 0 || slen > slen_full) { /* shouldn't ever happen */
 		SSL_SESSION_free(sess);

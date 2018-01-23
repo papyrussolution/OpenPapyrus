@@ -1038,14 +1038,9 @@ int SLAPI PPSupplAgreement::ExchangeParam::IsEmpty() const
 }
 
 int SLAPI PPSupplAgreement::ExchangeParam::GetExtStrData(int fldID, SString & rBuf) const
-{
-	return PPGetExtStrData(fldID, ExtString, rBuf);
-}
-
+	{ return PPGetExtStrData(fldID, ExtString, rBuf); }
 int SLAPI PPSupplAgreement::ExchangeParam::PutExtStrData(int fldID, const char * pStr)
-{
-	return PPPutExtStrData(fldID, ExtString, pStr);
-}
+	{ return PPPutExtStrData(fldID, ExtString, pStr); }
 
 SLAPI PPSupplAgreement::OrderParamEntry::OrderParamEntry()
 {

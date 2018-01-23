@@ -52,15 +52,16 @@ PPBaseFilt * SLAPI PPViewPriceAnlz::CreateFilt(void * extraPtr) const
 	return p_filt;
 }
 
-#define GRP_GOODSFILT 1
-#define GRP_LOC       2
-
 class PriceAnlzFiltDialog : public TDialog {
 public:
+	enum {
+		ctlgroupGoodsFilt = 1,
+		ctlgroupLoc       = 2
+	};
 	PriceAnlzFiltDialog() : TDialog(DLG_PANLZFLT)
 	{
-		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_PANLZFLT_GOODSGRP, cmGoodsFilt));
-		addGroup(GRP_LOC, new LocationCtrlGroup(CTLSEL_PANLZFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
+		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(0, CTLSEL_PANLZFLT_GOODSGRP, cmGoodsFilt));
+		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_PANLZFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
 		SetupCalPeriod(CTLCAL_PANLZFLT_PERIOD, CTL_PANLZFLT_PERIOD);
 	}
 	int    setDTS(const PriceAnlzFilt *);
@@ -94,9 +95,9 @@ int PriceAnlzFiltDialog::setDTS(const PriceAnlzFilt * pData)
 	SetPeriodInput(this, CTL_PANLZFLT_PERIOD, &Data.Period);
 	SetupArCombo(this, CTLSEL_PANLZFLT_SUPPL, Data.SupplID, 0, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 	GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
-	setGroupData(GRP_GOODSFILT, &gf_rec);
+	setGroupData(ctlgroupGoodsFilt, &gf_rec);
 	LocationCtrlGroup::Rec loc_rec(&Data.LocList);
-	setGroupData(GRP_LOC, &loc_rec);
+	setGroupData(ctlgroupLoc, &loc_rec);
 	AddClusterAssoc(CTL_PANLZFLT_COSTALG,  0, PriceAnlzFilt::caByFirstLot);
 	AddClusterAssoc(CTL_PANLZFLT_COSTALG,  1, PriceAnlzFilt::caByAverageLot);
 	AddClusterAssocDef(CTL_PANLZFLT_COSTALG,  2, PriceAnlzFilt::caByLastLot);
@@ -123,15 +124,14 @@ int PriceAnlzFiltDialog::getDTS(PriceAnlzFilt * pData)
 	uint   sel = 0;
 	GoodsFiltCtrlGroup::Rec gf_rec;
 	LocationCtrlGroup::Rec loc_rec;
-
 	GetClusterData(CTL_PANLZFLT_BASE, &Data.BaseCost);
 	getCtrlData(sel = CTLSEL_PANLZFLT_BASELOC, &Data.BaseLoc);
 	THROW_PP(Data.BaseCost != PriceAnlzFilt::bcByLoc || Data.BaseLoc != 0, PPERR_LOCNEEDED);
 	THROW(GetPeriodInput(this, sel = CTL_PANLZFLT_PERIOD, &Data.Period));
 	getCtrlData(CTLSEL_PANLZFLT_SUPPL,    &Data.SupplID);
-	THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
+	THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 	Data.GoodsGrpID = gf_rec.GoodsGrpID;
-	THROW(getGroupData(GRP_LOC, &loc_rec));
+	THROW(getGroupData(ctlgroupLoc, &loc_rec));
 	Data.LocList = loc_rec.LocList;
 	GetClusterData(CTL_PANLZFLT_COSTALG, &Data.CostAlg);
 	GetClusterData(CTL_PANLZFLT_FLAGS,    &Data.Flags);
@@ -281,7 +281,7 @@ int SLAPI PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 							const PPID suppl_id = suppl_list.get(i);
 							for(j = 0; cost_ary.enumItems(&j, (void **)&p_e);) {
 								if(p_e->SupplID == suppl_id) {
-									QuotIdent qi(p_e->LocID, suppl_deal_qk_id, 0, suppl_id);
+									const QuotIdent qi(p_e->LocID, suppl_deal_qk_id, 0, suppl_id);
 									PPSupplDeal sd;
 									int    r;
 									THROW(r = GObj.GetSupplDeal(goods_rec.ID, qi, &sd, 1));
@@ -299,7 +299,7 @@ int SLAPI PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 								const PPID suppl_id = suppl_list.get(i);
 								for(j = 0; cost_ary.enumItems(&j, (void **)&p_e);) {
 									if(p_e->SupplID == suppl_id) {
-										QuotIdent qi(p_e->LocID, suppl_deal_qk_id, 0, suppl_id);
+										const QuotIdent qi(p_e->LocID, suppl_deal_qk_id, 0, suppl_id);
 										PPSupplDeal sd;
 										int    r;
 										THROW(r = GObj.GetSupplDeal(goods_rec.ID, qi, &sd, 1));
@@ -570,9 +570,8 @@ int SLAPI PPViewPriceAnlz::SetContractPrices()
 			_E   * p_e = (_E*)suppl_cost_ary.at(i);
 			if(p_e->Cost != 0.0) {
 				for(uint j = 0; j < locs_ary.getCount(); j++) {
-					QuotIdent qi(locs_ary.at(j), 0, 0, p_e->SupplID);
+					const QuotIdent qi(locs_ary.at(j), 0, 0, p_e->SupplID);
 					PPSupplDeal sd;
-					MEMSZERO(sd);
 					THROW(r = GObj.GetSupplDeal(p_e->GoodsID, qi, &sd, 1));
 					sd.Cost = p_e->Cost;
 					THROW(GObj.SetSupplDeal(p_e->GoodsID, qi, &sd, 1));

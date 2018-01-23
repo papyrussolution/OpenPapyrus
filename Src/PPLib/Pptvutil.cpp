@@ -2741,7 +2741,8 @@ int UICfgDialog::setDTS(const UserInterfaceSettings * pUICfg)
 	AddClusterAssoc(CTL_UICFG_FLAGS,  7, UserInterfaceSettings::fDisableBeep);   // @v8.1.6
 	AddClusterAssoc(CTL_UICFG_FLAGS,  8, UserInterfaceSettings::fBasketItemFocusPckg); // @v8.3.7
 	AddClusterAssoc(CTL_UICFG_FLAGS,  9, UserInterfaceSettings::fOldModifSignSelection); // @v8.5.0
-	AddClusterAssoc(CTL_UICFG_FLAGS, 10, UserInterfaceSettings::fPollVoipService); // @v9.8.11
+	AddClusterAssoc(CTL_UICFG_FLAGS, 10, UserInterfaceSettings::fExtGoodsSelMainName); // @v9.9.1
+	AddClusterAssoc(CTL_UICFG_FLAGS, 11, UserInterfaceSettings::fPollVoipService); // @v9.8.11
 	INVERSEFLAG(UICfg.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
 	SetClusterData(CTL_UICFG_FLAGS, UICfg.Flags);
 	{

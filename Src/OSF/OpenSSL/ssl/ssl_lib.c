@@ -1003,7 +1003,7 @@ int SSL_get_rfd(const SSL * s)
 	int ret = -1;
 	BIO * b = SSL_get_rbio(s);
 	BIO * r = BIO_find_type(b, BIO_TYPE_DESCRIPTOR);
-	if(r != NULL)
+	if(r)
 		BIO_get_fd(r, &ret);
 	return ret;
 }
@@ -1013,7 +1013,7 @@ int SSL_get_wfd(const SSL * s)
 	int ret = -1;
 	BIO * b = SSL_get_wbio(s);
 	BIO * r = BIO_find_type(b, BIO_TYPE_DESCRIPTOR);
-	if(r != NULL)
+	if(r)
 		BIO_get_fd(r, &ret);
 	return ret;
 }
@@ -2664,7 +2664,6 @@ int SSL_get_error(const SSL * s, int i)
 		else
 			return (SSL_ERROR_SSL);
 	}
-
 	if(i < 0) {
 		if(SSL_want_read(s)) {
 			bio = SSL_get_rbio(s);
@@ -2746,15 +2745,11 @@ int SSL_do_handshake(SSL * s)
 		SSLerr(SSL_F_SSL_DO_HANDSHAKE, SSL_R_CONNECTION_TYPE_NOT_SET);
 		return -1;
 	}
-
 	s->method->ssl_renegotiate_check(s);
-
 	if(SSL_in_init(s) || SSL_in_before(s)) {
 		if((s->mode & SSL_MODE_ASYNC) && ASYNC_get_current_job() == NULL) {
 			struct ssl_async_args args;
-
 			args.s = s;
-
 			ret = ssl_start_async_job(s, &args, ssl_do_handshake_intern);
 		}
 		else {

@@ -81,12 +81,12 @@ uint qr_ihypot(int _x, int _y)
 		int r;
 		u = (x+1)>>2;
 		r = (1<<2*i)>>1;
-		v = _y + r>>2*i;
+		v = (_y + r) >> (2*i);
 		mask = -(_y<0);
 		x += v+mask^mask;
 		_y = (_y-(u+mask^mask))<<1;
 	}
-	return x+((1U<<shift)>>1)>>shift;
+	return (x+((1U<<shift)>>1)) >> shift;
 }
 
 #if defined(__GNUC__) && defined(HAVE_FEATURES_H)

@@ -406,15 +406,12 @@ int SLAPI StrAssocListBoxDef::search(const void * pPattern, CompFunc fcmp, int s
 	return r;
 }
 
-int SLAPI StrAssocListBoxDef::valid()
-{
-	return (P_Data != 0);
-}
-
-long SLAPI StrAssocListBoxDef::getRecsCount()
-{
-	return P_Data ? P_Data->getCount() : 0;
-}
+int    SLAPI StrAssocListBoxDef::valid() { return (P_Data != 0); }
+long   SLAPI StrAssocListBoxDef::getRecsCount() { return P_Data ? P_Data->getCount() : 0; }
+int    SLAPI StrAssocListBoxDef::GetFrameSize() { return P_Data ? P_Data->getCount() : 0; }
+int    SLAPI StrAssocListBoxDef::GetFrameState() { return -1; }
+int    SLAPI StrAssocListBoxDef::removeItem(long pos) { return (P_Data && pos >= 0) ? P_Data->AtFree((uint)pos) : 0; }
+void   SLAPI StrAssocListBoxDef::freeAll() { CALLPTRMEMB(P_Data, Clear()); }
 
 int SLAPI StrAssocListBoxDef::getIdList(LongArray & rList)
 {
@@ -444,16 +441,6 @@ void * FASTCALL StrAssocListBoxDef::getRow_(long r)
 	return p_row;
 }
 
-int SLAPI StrAssocListBoxDef::GetFrameSize()
-{
-	return P_Data ? P_Data->getCount() : 0;
-}
-
-int SLAPI StrAssocListBoxDef::GetFrameState()
-{
-	return -1;
-}
-
 int SLAPI StrAssocListBoxDef::setArray(StrAssocArray * pData)
 {
 	if(Options & lbtDisposeData)
@@ -472,16 +459,6 @@ int SLAPI StrAssocListBoxDef::addItem(long id, const char * pStr, long * pPos)
 	}
 	else
 		return -1;
-}
-
-int SLAPI StrAssocListBoxDef::removeItem(long pos)
-{
-	return (P_Data && pos >= 0) ? P_Data->AtFree((uint)pos) : 0;
-}
-
-void SLAPI StrAssocListBoxDef::freeAll()
-{
-	CALLPTRMEMB(P_Data, Clear());
 }
 //
 // StdTreeListBoxDef

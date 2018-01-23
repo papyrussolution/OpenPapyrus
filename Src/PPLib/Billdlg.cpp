@@ -29,13 +29,11 @@ AccTurnDialog::AccTurnDialog(uint rezID, PPObjBill * pBObj) : TDialog(rezID), P_
 	MEMSZERO(Data);
 	setCtrlOption(CTL_ATURN_DTEXT, ofFramed, 1);
 	setCtrlOption(CTL_ATURN_CTEXT, ofFramed, 1);
-	AcctCtrlGroup * p_ac_grp = new AcctCtrlGroup(CTL_ATURN_DACC,
-		CTL_ATURN_DART, CTLSEL_ATURN_DACCNAME, CTLSEL_ATURN_DARTNAME);
+	AcctCtrlGroup * p_ac_grp = new AcctCtrlGroup(CTL_ATURN_DACC, CTL_ATURN_DART, CTLSEL_ATURN_DACCNAME, CTLSEL_ATURN_DARTNAME);
 	addGroup(GRP_DBT, p_ac_grp);
 	p_ac_grp = new AcctCtrlGroup(CTL_ATURN_CACC, CTL_ATURN_CART, CTLSEL_ATURN_CACCNAME, CTLSEL_ATURN_CARTNAME);
 	addGroup(GRP_CRD, p_ac_grp);
-	CurAmtCtrlGroup * p_ca_grp = new CurAmtCtrlGroup(CTL_ATURN_AMOUNT,
-		CTLSEL_ATURN_CUR, CTL_ATURN_CRATE, CTL_ATURN_BASEAMT, CTL_ATURN_DATE, 0, 0);
+	CurAmtCtrlGroup * p_ca_grp = new CurAmtCtrlGroup(CTL_ATURN_AMOUNT, CTLSEL_ATURN_CUR, CTL_ATURN_CRATE, CTL_ATURN_BASEAMT, CTL_ATURN_DATE, 0, 0);
 	addGroup(GRP_CURAMT, p_ca_grp);
 	SetupCalDate(CTLCAL_ATURN_DATE, CTL_ATURN_DATE);
 	setDTS(0, 0);
@@ -298,10 +296,7 @@ public:
 		}
 		enableCommand(cmTags, IsTagList);
 	}
-	const ObjTagList * GetTagList() const
-	{
-		return IsTagList ? &TagL : 0;
-	}
+	const ObjTagList * GetTagList() const { return IsTagList ? &TagL : 0; }
 	int    SetInlineTags()
 	{
 		int    ok = 1;

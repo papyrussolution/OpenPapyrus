@@ -1,5 +1,5 @@
 // SLSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -49,30 +49,17 @@ void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
 //
 //
 //
-SLAPI SlThreadLocalArea::SlThreadLocalArea() : Prf(1)
+SLAPI SlThreadLocalArea::SlThreadLocalArea() : Prf(1), Id(0), LastErr(0), LastOsErr(0), LastSockErr(0), LastCurlErr(0), 
+	BinDateFmt_(DEFAULT_BIN_DATE_FORMAT), TxtDateFmt_(DEFAULT_TXT_DATE_FORMAT), CurrentCp(cpUndef), UiFlags(0), UiLanguageId(-1),
+	SAry_OrgFCMP(0), SAry_PtrContainer(0), SAry_SortExtraData(0), FontDc(0), P_Rez(0)
 {
-	Id = 0;
-	LastErr = 0;
-	LastOsErr = 0;
-	LastSockErr = 0;
-	LastCurlErr = 0;
-	BinDateFmt_ = DEFAULT_BIN_DATE_FORMAT;
-	TxtDateFmt_ = DEFAULT_TXT_DATE_FORMAT;
+	const LDATE _cd = getcurdate_();
 	{
-		LDATE c = getcurdate_();
-		DefaultYear_  = c.year();
-		DefaultMonth_ = c.month();
+		DefaultYear_  = _cd.year();
+		DefaultMonth_ = _cd.month();
 	}
-	CurrentCp = cpUndef;
-	UiFlags = 0;
-	UiLanguageId = -1; // @v8.9.10
 	// @v9.6.5 memzero(OneCStrBuf, sizeof(OneCStrBuf));
-	SAry_OrgFCMP = 0;
-	SAry_PtrContainer = 0;
-	SAry_SortExtraData = 0;
-	FontDc = 0;
-	P_Rez = 0;
-	Rg.Set(getcurdate_().v ^ getcurtime_().v);
+	Rg.Set(_cd.v ^ getcurtime_().v);
 	NextDialogLuPos.Set(-1, -1);
 }
 
@@ -257,8 +244,7 @@ static void InitTest()
 #ifndef NDEBUG // {
 	{
 		//
-		// Эта проверка нужна мне для успокоения.
-		// Ибо меня преследует фобия, что такое равенство не выполняется.
+		// @paranoic (Эта проверка нужна мне для успокоения, ибо меня преследует фобия, что такое равенство не выполняется)
 		//
 		char   temp_buf[32];
 		assert((void *)temp_buf == (void *)&temp_buf);
@@ -290,6 +276,13 @@ static void InitTest()
 		p_x = &rx;
 		assert((p_x == &rx) == 1);
 		assert((p_x != &rx) == 0);
+	}
+	{
+		// @paranoic (Защита от классической шутки)
+		assert(TRUE == 1);
+		assert(FALSE == 0);
+		assert(true == 1);
+		assert(false == 0);
 	}
 	{
 		//
@@ -346,6 +339,7 @@ static void InitTest()
 		};
 		assert(SIZEOFARRAY(test_array) == 5);
 	}
+	assert(sizeof(bool) == 1);
 	assert(sizeof(char) == 1);
 	assert(sizeof(int) == 4);
 	assert(sizeof(unsigned int) == 4);
@@ -385,8 +379,7 @@ static void InitTest()
 		// Проверка макроса SETIFZ для даты
 		//
 		const LDATE cdt = getcurdate_();
-		LDATE dt;
-		dt = ZERODATE;
+		LDATE dt = ZERODATE;
 		SETIFZ(dt, cdt);
 		assert(dt == cdt);
 		dt = encodedate(7, 11, 2017);
@@ -398,8 +391,7 @@ static void InitTest()
 		// Проверка макроса SETIFZ для LDATETIME
 		//
 		const LDATETIME cdtm = getcurdatetime_();
-		LDATETIME dtm;
-		dtm = ZERODATETIME;
+		LDATETIME dtm = ZERODATETIME;
 		SETIFZ(dtm, cdtm);
 		assert(dtm == cdtm);
 		dtm.d = encodedate(7, 11, 2017);
@@ -502,15 +494,8 @@ void * FASTCALL SGetTls(const long idx)
 #endif
 }
 
-SlThreadLocalArea & SLAPI SlSession::GetTLA()
-{
-	return *(SlThreadLocalArea *)SGetTls(TlsIdx);
-}
-
-const SlThreadLocalArea & SLAPI SlSession::GetConstTLA() const
-{
-	return *(SlThreadLocalArea *)SGetTls(TlsIdx);
-}
+SlThreadLocalArea & SLAPI SlSession::GetTLA() { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
+const SlThreadLocalArea & SLAPI SlSession::GetConstTLA() const { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
 
 int FASTCALL SlSession::SetError(int errCode, const char * pAddedMsg)
 {
@@ -559,14 +544,11 @@ int FASTCALL SlSession::SetOsError(const char * pAddedMsg)
 	return 0; // @v8.7.8 1-->0
 }
 
-int SLAPI SlSession::GetOsError() const
-	{ return GetConstTLA().LastOsErr; }
-const SString & SlSession::GetAddedMsgString() const
-	{ return GetConstTLA().AddedMsgString; }
-const SString & SLAPI SlSession::GetExePath() const
-	{ return ExePath; }
-const SString & SLAPI SlSession::GetAppName() const
-	{ return AppName; }
+int    SLAPI SlSession::GetOsError() const { return GetConstTLA().LastOsErr; }
+const  SString & SlSession::GetAddedMsgString() const { return GetConstTLA().AddedMsgString; }
+const  SString & SLAPI SlSession::GetExePath() const { return ExePath; }
+const  SString & SLAPI SlSession::GetAppName() const { return AppName; }
+void   FASTCALL SlSession::SetAddedMsgString(const char * pStr) { GetTLA().AddedMsgString = pStr; }
 
 void SLAPI SlSession::SetUiLanguageId(int languageId, int currentThreadOnly)
 {
@@ -586,9 +568,6 @@ int  SLAPI SlSession::GetUiLanguageId() const
 	return (lid < 0) ? UiLanguageId : lid;
 }
 
-void FASTCALL SlSession::SetAddedMsgString(const char * pStr)
-	{ GetTLA().AddedMsgString = pStr; }
-
 SString & SlSession::GetStopEventName(SString & rBuf) const
 {
 	// @v8.1.11 return rBuf.Z().Cat(AppName).CatChar('_').Cat("Stop").CatChar('_').Cat((long)H_Inst);
@@ -599,21 +578,10 @@ SString & SlSession::GetStopEventName(SString & rBuf) const
 	// } @v8.1.11
 }
 
-int SLAPI SlSession::RegisterTempFileName(const char * pFileName)
-	{ return GetTLA().RegisterTempFileName(pFileName); }
-void SLAPI SlSession::RemoveTempFiles()
-	{ GetTLA().RemoveTempFiles(); }
-
-void SLAPI SlSession::SetLogPath(const char * pPath)
-{
-	GetTLA().LogPath = pPath;
-}
-
-SString & SLAPI SlSession::GetLogPath(SString & rPath) const
-{
-	rPath = GetConstTLA().LogPath;
-	return rPath;
-}
+int    SLAPI SlSession::RegisterTempFileName(const char * pFileName) { return GetTLA().RegisterTempFileName(pFileName); }
+void   SLAPI SlSession::RemoveTempFiles() { GetTLA().RemoveTempFiles(); }
+void   SLAPI SlSession::SetLogPath(const char * pPath) { GetTLA().LogPath = pPath; }
+SString & SLAPI SlSession::GetLogPath(SString & rPath) const { return (rPath = GetConstTLA().LogPath); }
 //
 //
 //
@@ -719,19 +687,11 @@ void * FASTCALL SlSession::GlobalObjectArray::GetObject(uint idx)
 	return ptr;
 }
 
-uint SLAPI SlSession::CreateGlobalObject(SClassWrapper & rCls)
-	{ return GlobObjList.CreateObject(rCls); }
-int SLAPI SlSession::DestroyGlobalObject(uint idx)
-	{ return GlobObjList.DestroyObject(idx); }
-void * FASTCALL SlSession::GetGlobalObject(uint idx)
-	{ return GlobObjList.GetObject(idx); }
-int64 SLAPI SlSession::GetSequenceValue()
-	{ return SeqValue.Incr(); }
-
-uint64 SLAPI SlSession::GetProfileTime()
-{
-	return GetTLA().Prf.GetAbsTimeMicroseconds();
-}
+uint   SLAPI SlSession::CreateGlobalObject(SClassWrapper & rCls) { return GlobObjList.CreateObject(rCls); }
+int    SLAPI SlSession::DestroyGlobalObject(uint idx) { return GlobObjList.DestroyObject(idx); }
+void * FASTCALL SlSession::GetGlobalObject(uint idx) { return GlobObjList.GetObject(idx); }
+int64  SLAPI SlSession::GetSequenceValue() { return SeqValue.Incr(); }
+uint64 SLAPI SlSession::GetProfileTime() { return GetTLA().Prf.GetAbsTimeMicroseconds(); }
 
 long SLAPI SlSession::GetGlobalSymbol(const char * pSymb, long ident, SString * pRetSymb) // @cs
 {
@@ -778,16 +738,11 @@ long  SLAPI SlSession::SetUiFlag(long f, int set)
     return prev_ui_flags;
 }
 
-int   FASTCALL SlSession::CheckUiFlag(long f) const
-{
-	return BIN((GetConstTLA().UiFlags & f) == f);
-}
+int   FASTCALL SlSession::CheckUiFlag(long f) const { return BIN((GetConstTLA().UiFlags & f) == f); }
 
 struct DdoEntry {
-	DdoEntry()
+	DdoEntry() : Type(0), P_Obj(0)
 	{
-		Type = 0;
-		P_Obj = 0;
 	}
 	int    Type;
 	void * P_Obj;
@@ -835,10 +790,7 @@ SLAPI SGlobalSecureConfig::SGlobalSecureConfig() : Flags(0)
 {
 }
 
-int SLAPI SGlobalSecureConfig::IsEmpty() const
-{
-	return BIN(Flags == 0 && CaFile.Empty() && CaPath.Empty());
-}
+int SLAPI SGlobalSecureConfig::IsEmpty() const { return BIN(Flags == 0 && CaFile.Empty() && CaPath.Empty()); }
 
 const SGlobalSecureConfig & SLAPI SlSession::GetGlobalSecureConfig()
 {

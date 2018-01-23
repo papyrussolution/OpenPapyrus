@@ -840,6 +840,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 				};
 				PPGetPath(PPPATH_IN, uftp.DestPath);
 				uftp.SrcPath = uni_url_buf;
+				uftp.Flags |= uftp.fRenameExistantFiles; // @v9.9.1
 				THROW_SL(uftp.Run(ProgressInfo::Proc, 0));
 				//temp_buf = uftp.Reply;
 				for(uint i = 0; i < uftp.ResultList.getCount(); i++) {

@@ -8,7 +8,6 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 #define CONF_NUMBER             1
 #define CONF_UPPER              2
 #define CONF_LOWER              4
@@ -24,38 +23,33 @@
 #define CONF_HIGHBIT            4096
 #define CONF_ALPHA              (CONF_UPPER|CONF_LOWER)
 #define CONF_ALPHA_NUMERIC      (CONF_ALPHA|CONF_NUMBER|CONF_UNDER)
-#define CONF_ALPHA_NUMERIC_PUNCT (CONF_ALPHA|CONF_NUMBER|CONF_UNDER| \
-                                        CONF_PUNCTUATION)
+#define CONF_ALPHA_NUMERIC_PUNCT (CONF_ALPHA|CONF_NUMBER|CONF_UNDER|CONF_PUNCTUATION)
 
 #define KEYTYPES(c)             ((const unsigned short *)((c)->meth_data))
 #ifndef CHARSET_EBCDIC
-# define IS_COMMENT(c,a)         (KEYTYPES(c)[(a)&0xff]&CONF_COMMENT)
-# define IS_FCOMMENT(c,a)        (KEYTYPES(c)[(a)&0xff]&CONF_FCOMMENT)
-# define IS_EOF(c,a)             (KEYTYPES(c)[(a)&0xff]&CONF_EOF)
-# define IS_ESC(c,a)             (KEYTYPES(c)[(a)&0xff]&CONF_ESC)
-# define IS_NUMBER(c,a)          (KEYTYPES(c)[(a)&0xff]&CONF_NUMBER)
-# define IS_WS(c,a)              (KEYTYPES(c)[(a)&0xff]&CONF_WS)
-# define IS_ALPHA_NUMERIC(c,a)   (KEYTYPES(c)[(a)&0xff]&CONF_ALPHA_NUMERIC)
-# define IS_ALPHA_NUMERIC_PUNCT(c,a) \
-                                (KEYTYPES(c)[(a)&0xff]&CONF_ALPHA_NUMERIC_PUNCT)
-# define IS_QUOTE(c,a)           (KEYTYPES(c)[(a)&0xff]&CONF_QUOTE)
-# define IS_DQUOTE(c,a)          (KEYTYPES(c)[(a)&0xff]&CONF_DQUOTE)
-# define IS_HIGHBIT(c,a)         (KEYTYPES(c)[(a)&0xff]&CONF_HIGHBIT)
-
+	#define IS_COMMENT(c,a)         (KEYTYPES(c)[(a)&0xff]&CONF_COMMENT)
+	#define IS_FCOMMENT(c,a)        (KEYTYPES(c)[(a)&0xff]&CONF_FCOMMENT)
+	#define IS_EOF(c,a)             (KEYTYPES(c)[(a)&0xff]&CONF_EOF)
+	#define IS_ESC(c,a)             (KEYTYPES(c)[(a)&0xff]&CONF_ESC)
+	#define IS_NUMBER(c,a)          (KEYTYPES(c)[(a)&0xff]&CONF_NUMBER)
+	#define IS_WS(c,a)              (KEYTYPES(c)[(a)&0xff]&CONF_WS)
+	#define IS_ALPHA_NUMERIC(c,a)   (KEYTYPES(c)[(a)&0xff]&CONF_ALPHA_NUMERIC)
+	#define IS_ALPHA_NUMERIC_PUNCT(c,a) (KEYTYPES(c)[(a)&0xff]&CONF_ALPHA_NUMERIC_PUNCT)
+	#define IS_QUOTE(c,a)           (KEYTYPES(c)[(a)&0xff]&CONF_QUOTE)
+	#define IS_DQUOTE(c,a)          (KEYTYPES(c)[(a)&0xff]&CONF_DQUOTE)
+	#define IS_HIGHBIT(c,a)         (KEYTYPES(c)[(a)&0xff]&CONF_HIGHBIT)
 #else                           /* CHARSET_EBCDIC */
-
-# define IS_COMMENT(c,a)         (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_COMMENT)
-# define IS_FCOMMENT(c,a)        (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_FCOMMENT)
-# define IS_EOF(c,a)             (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_EOF)
-# define IS_ESC(c,a)             (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_ESC)
-# define IS_NUMBER(c,a)          (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_NUMBER)
-# define IS_WS(c,a)              (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_WS)
-# define IS_ALPHA_NUMERIC(c,a)   (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_ALPHA_NUMERIC)
-# define IS_ALPHA_NUMERIC_PUNCT(c,a) \
-                                (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_ALPHA_NUMERIC_PUNCT)
-# define IS_QUOTE(c,a)           (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_QUOTE)
-# define IS_DQUOTE(c,a)          (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_DQUOTE)
-# define IS_HIGHBIT(c,a)         (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_HIGHBIT)
+	#define IS_COMMENT(c,a)         (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_COMMENT)
+	#define IS_FCOMMENT(c,a)        (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_FCOMMENT)
+	#define IS_EOF(c,a)             (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_EOF)
+	#define IS_ESC(c,a)             (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_ESC)
+	#define IS_NUMBER(c,a)          (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_NUMBER)
+	#define IS_WS(c,a)              (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_WS)
+	#define IS_ALPHA_NUMERIC(c,a)   (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_ALPHA_NUMERIC)
+	#define IS_ALPHA_NUMERIC_PUNCT(c,a) (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_ALPHA_NUMERIC_PUNCT)
+	#define IS_QUOTE(c,a)           (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_QUOTE)
+	#define IS_DQUOTE(c,a)          (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_DQUOTE)
+	#define IS_HIGHBIT(c,a)         (KEYTYPES(c)[os_toascii[a & 0xff]]&CONF_HIGHBIT)
 #endif                          /* CHARSET_EBCDIC */
 
 static const unsigned short CONF_type_default[256] = {

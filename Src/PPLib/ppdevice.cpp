@@ -16,15 +16,8 @@ SLAPI PPGenericDevicePacket::PPGenericDevicePacket()
 {
 }
 
-int SLAPI PPGenericDevicePacket::GetExtStrData(int fldID, SString & rBuf) const
-{
-	return PPGetExtStrData(fldID, ExtString, rBuf);
-}
-
-int SLAPI PPGenericDevicePacket::PutExtStrData(int fldID, const char * pBuf)
-{
-	return PPPutExtStrData(fldID, ExtString, pBuf);
-}
+int SLAPI PPGenericDevicePacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int SLAPI PPGenericDevicePacket::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 
 SLAPI PPObjGenericDevice::PPObjGenericDevice(void * extraPtr) : PPObjReference(PPOBJ_GENERICDEVICE, extraPtr)
 {

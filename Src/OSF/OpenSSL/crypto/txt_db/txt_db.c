@@ -231,7 +231,7 @@ int TXT_DB_insert(TXT_DB * db, OPENSSL_STRING * row)
 			if((db->qual[i] != NULL) && (db->qual[i] (row) == 0))
 				continue;
 			r = lh_OPENSSL_STRING_retrieve(db->index[i], row);
-			if(r != NULL) {
+			if(r) {
 				db->error = DB_ERROR_INDEX_CLASH;
 				db->arg1 = i;
 				db->arg_row = r;

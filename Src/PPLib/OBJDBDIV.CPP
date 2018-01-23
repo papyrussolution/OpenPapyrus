@@ -78,15 +78,8 @@ void SLAPI DBDivPack::Init()
 	ExtString.Z();
 }
 
-int SLAPI DBDivPack::PutExtStrData(int fldID, const char * pBuf)
-{
-	return PPPutExtStrData(fldID, ExtString, pBuf);
-}
-
-int SLAPI DBDivPack::GetExtStrData(int fldID, SString & rBuf) const
-{
-	return PPGetExtStrData(fldID, DBDIVEXSTR_ACCLIST, ExtString, rBuf);
-}
+int SLAPI DBDivPack::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
+int SLAPI DBDivPack::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, DBDIVEXSTR_ACCLIST, ExtString, rBuf); }
 
 int SLAPI DBDivPack::ResponsibleForLoc(PPID locID, int forQuot) const
 {

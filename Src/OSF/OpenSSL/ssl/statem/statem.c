@@ -94,7 +94,6 @@ void ossl_statem_clear(SSL * s)
 	s->statem.in_init = 1;
 	s->statem.no_cert_verify = 0;
 }
-
 /*
  * Set the state machine up ready for a renegotiation handshake
  */
@@ -103,16 +102,14 @@ void ossl_statem_set_renegotiate(SSL * s)
 	s->statem.state = MSG_FLOW_RENEGOTIATE;
 	s->statem.in_init = 1;
 }
-
 /*
  * Put the state machine into an error state. This is a permanent error for
  * the current connection.
  */
-void ossl_statem_set_error(SSL * s)
+void FASTCALL ossl_statem_set_error(SSL * s)
 {
 	s->statem.state = MSG_FLOW_ERROR;
 }
-
 /*
  * Discover whether the current connection is in the error state.
  *
@@ -122,18 +119,15 @@ void ossl_statem_set_error(SSL * s)
  */
 int ossl_statem_in_error(const SSL * s)
 {
-	if(s->statem.state == MSG_FLOW_ERROR)
-		return 1;
-
-	return 0;
+	return (s->statem.state == MSG_FLOW_ERROR) ? 1 : 0;
 }
 
-void ossl_statem_set_in_init(SSL * s, int init)
+void FASTCALL ossl_statem_set_in_init(SSL * s, int init)
 {
 	s->statem.in_init = init;
 }
 
-int ossl_statem_get_in_handshake(SSL * s)
+int FASTCALL ossl_statem_get_in_handshake(SSL * s)
 {
 	return s->statem.in_handshake;
 }

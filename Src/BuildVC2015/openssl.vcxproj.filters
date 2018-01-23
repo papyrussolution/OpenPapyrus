@@ -85,6 +85,12 @@
     <ClInclude Include="..\OSF\OpenSSL\ssl\ssl_locl.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\ssl\statem\statem.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\ssl\statem\statem_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">

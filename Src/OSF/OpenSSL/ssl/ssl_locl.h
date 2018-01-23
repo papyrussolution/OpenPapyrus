@@ -1665,7 +1665,7 @@ __owur int ssl3_setup_key_block(SSL * s);
 __owur int ssl3_change_cipher_state(SSL * s, int which);
 void ssl3_cleanup_key_block(SSL * s);
 __owur int ssl3_do_write(SSL * s, int type);
-int ssl3_send_alert(SSL * s, int level, int desc);
+int    FASTCALL ssl3_send_alert(SSL * s, int level, int desc);
 __owur int ssl3_generate_master_secret(SSL * s, unsigned char * out, unsigned char * p, int len);
 __owur int ssl3_get_req_cert_type(SSL * s, unsigned char * p);
 __owur int ssl3_num_ciphers(void);

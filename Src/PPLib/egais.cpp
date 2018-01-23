@@ -2603,6 +2603,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							n_h.PutInner("awr:TypeWriteOff", EncText(temp_buf));
 						}
 						{
+							StringSet ss_ext_codes;
 							SXml::WNode n_c(_doc, "awr:Content");
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
@@ -2619,6 +2620,13 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									const ObjTagList * p_ti_tag_list = p_bp->LTagL.Get(tidx);
 									THROW(WriteProductInfo(_doc, "awr:Product", r_ti.GoodsID, 0, wpifPutManufInfo|wpifVersion2, p_ti_tag_list))
 									w_p.PutInner("awr:Quantity", EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
+									// @v9.9.1 {
+									if(p_bp->XcL.Get(tidx+1, 0, ss_ext_codes) > 0) {
+										SXml::WNode w_mc(_doc, "awr:MarkCodeInfo");
+										for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);)
+											w_mc.PutInner("awr:MarkCode", temp_buf);
+									}
+									// } @v9.9.1
 								}
 							}
 						}
@@ -2824,11 +2832,12 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										}
 										w_p.PutInner("awr:Quantity", EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
 										// @v9.8.11 {
+										/* @v9.9.1 Не туда воткнул блок!
 										if(doc_type == PPEDIOP_EGAIS_ACTWRITEOFF_V2 && p_bp->XcL.Get(tidx+1, 0, ss_ext_codes) > 0) {
 											SXml::WNode w_mc(_doc, "awr:MarkCodeInfo");
 											for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);)
 												w_mc.PutInner("awr:MarkCode", temp_buf);
-										}
+										}*/
 										// } @v9.8.11
 									}
 									{

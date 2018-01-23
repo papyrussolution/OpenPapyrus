@@ -843,36 +843,26 @@ err:
  *
  * Return values are as per SSL_write()
  */
-int ssl3_write_pending(SSL * s, int type, const uchar * buf,
-    uint len)
+int ssl3_write_pending(SSL * s, int type, const uchar * buf, uint len)
 {
 	int i;
 	SSL3_BUFFER * wb = s->rlayer.wbuf;
 	uint currbuf = 0;
-
 /* XXXX */
-	if((s->rlayer.wpend_tot > (int)len)
-	    || ((s->rlayer.wpend_buf != buf) &&
-		    !(s->mode & SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER))
-	    || (s->rlayer.wpend_type != type)) {
+	if((s->rlayer.wpend_tot > (int)len) || ((s->rlayer.wpend_buf != buf) && !(s->mode & SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER)) || (s->rlayer.wpend_type != type)) {
 		SSLerr(SSL_F_SSL3_WRITE_PENDING, SSL_R_BAD_WRITE_RETRY);
 		return (-1);
 	}
-
 	for(;; ) {
 		/* Loop until we find a buffer we haven't written out yet */
-		if(SSL3_BUFFER_get_left(&wb[currbuf]) == 0
-		    && currbuf < s->rlayer.numwpipes - 1) {
+		if(SSL3_BUFFER_get_left(&wb[currbuf]) == 0 && currbuf < s->rlayer.numwpipes - 1) {
 			currbuf++;
 			continue;
 		}
 		clear_sys_error();
 		if(s->wbio != NULL) {
 			s->rwstate = SSL_WRITING;
-			i = BIO_write(s->wbio, (char*)
-			    &(SSL3_BUFFER_get_buf(&wb[currbuf])
-				    [SSL3_BUFFER_get_offset(&wb[currbuf])]),
-			    (uint)SSL3_BUFFER_get_left(&wb[currbuf]));
+			i = BIO_write(s->wbio, (char*)&(SSL3_BUFFER_get_buf(&wb[currbuf])[SSL3_BUFFER_get_offset(&wb[currbuf])]), (uint)SSL3_BUFFER_get_left(&wb[currbuf]));
 		}
 		else {
 			SSLerr(SSL_F_SSL3_WRITE_PENDING, SSL_R_BIO_NOT_SET);
@@ -900,7 +890,6 @@ int ssl3_write_pending(SSL * s, int type, const uchar * buf,
 		SSL3_BUFFER_add_left(&wb[currbuf], -i);
 	}
 }
-
 /*-
  * Return up to 'len' payload bytes received in 'type' records.
  * 'type' is one of the following:
@@ -930,37 +919,27 @@ int ssl3_write_pending(SSL * s, int type, const uchar * buf,
  *     Application data protocol
  *             none of our business
  */
-int ssl3_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf,
-    int len, int peek)
+int ssl3_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf, int len, int peek)
 {
 	int al, i, j, ret;
 	uint n, curr_rec, num_recs, read_bytes;
 	SSL3_RECORD * rr;
-	SSL3_BUFFER * rbuf;
 	void (* cb)(const SSL * ssl, int type2, int val) = NULL;
-
-	rbuf = &s->rlayer.rbuf;
-
+	SSL3_BUFFER * rbuf = &s->rlayer.rbuf;
 	if(!SSL3_BUFFER_is_initialised(rbuf)) {
 		/* Not initialized yet */
 		if(!ssl3_setup_read_buffer(s))
 			return (-1);
 	}
-
-	if((type && (type != SSL3_RT_APPLICATION_DATA)
-		    && (type != SSL3_RT_HANDSHAKE)) || (peek
-		    && (type !=
-			    SSL3_RT_APPLICATION_DATA))) {
+	if((type && (type != SSL3_RT_APPLICATION_DATA) && (type != SSL3_RT_HANDSHAKE)) || (peek && (type != SSL3_RT_APPLICATION_DATA))) {
 		SSLerr(SSL_F_SSL3_READ_BYTES, ERR_R_INTERNAL_ERROR);
 		return -1;
 	}
-
 	if((type == SSL3_RT_HANDSHAKE) && (s->rlayer.handshake_fragment_len > 0)) {
 		/* (partially) satisfy request from storage */
 		uchar * src = s->rlayer.handshake_fragment;
 		uchar * dst = buf;
 		uint k;
-
 		/* peek == 0 */
 		n = 0;
 		while((len > 0) && (s->rlayer.handshake_fragment_len > 0)) {
@@ -972,17 +951,12 @@ int ssl3_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf,
 		/* move any remaining fragment bytes: */
 		for(k = 0; k < s->rlayer.handshake_fragment_len; k++)
 			s->rlayer.handshake_fragment[k] = *src++;
-
-		if(recvd_type != NULL)
-			*recvd_type = SSL3_RT_HANDSHAKE;
-
+		ASSIGN_PTR(recvd_type, SSL3_RT_HANDSHAKE);
 		return n;
 	}
-
 	/*
 	 * Now s->rlayer.handshake_fragment_len == 0 if type == SSL3_RT_HANDSHAKE.
 	 */
-
 	if(!ossl_statem_get_in_handshake(s) && SSL_in_init(s)) {
 		/* type == SSL3_RT_APPLICATION_DATA */
 		i = s->handshake_func(s);
@@ -995,7 +969,6 @@ int ssl3_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf,
 	}
 start:
 	s->rwstate = SSL_NOTHING;
-
 	/*-
 	 * For each record 'i' up to |num_recs]
 	 * rr[i].type     - is the type of record
@@ -1005,7 +978,6 @@ start:
 	 */
 	rr = s->rlayer.rrec;
 	num_recs = RECORD_LAYER_get_numrpipes(&s->rlayer);
-
 	do {
 		/* get new records if necessary */
 		if(num_recs == 0) {
@@ -1021,9 +993,7 @@ start:
 			}
 		}
 		/* Skip over any records we have already read */
-		for(curr_rec = 0;
-		    curr_rec < num_recs && SSL3_RECORD_is_read(&rr[curr_rec]);
-		    curr_rec++) ;
+		for(curr_rec = 0; curr_rec < num_recs && SSL3_RECORD_is_read(&rr[curr_rec]); curr_rec++) ;
 		if(curr_rec == num_recs) {
 			RECORD_LAYER_set_numrpipes(&s->rlayer, 0);
 			num_recs = 0;
@@ -1031,25 +1001,19 @@ start:
 		}
 	} while(num_recs == 0);
 	rr = &rr[curr_rec];
-
 	/*
 	 * Reset the count of consecutive warning alerts if we've got a non-empty
 	 * record that isn't an alert.
 	 */
-	if(SSL3_RECORD_get_type(rr) != SSL3_RT_ALERT
-	    && SSL3_RECORD_get_length(rr) != 0)
+	if(SSL3_RECORD_get_type(rr) != SSL3_RT_ALERT && SSL3_RECORD_get_length(rr) != 0)
 		s->rlayer.alert_count = 0;
-
 	/* we now have a packet which can be read and processed */
-
-	if(s->s3->change_cipher_spec /* set when we receive ChangeCipherSpec,
-	                              * reset by ssl3_get_finished */
+	if(s->s3->change_cipher_spec /* set when we receive ChangeCipherSpec, reset by ssl3_get_finished */
 	    && (SSL3_RECORD_get_type(rr) != SSL3_RT_HANDSHAKE)) {
 		al = SSL_AD_UNEXPECTED_MESSAGE;
 		SSLerr(SSL_F_SSL3_READ_BYTES, SSL_R_DATA_BETWEEN_CCS_AND_FINISHED);
 		goto f_err;
 	}
-
 	/*
 	 * If the other end has shut down, throw anything we read away (even in
 	 * 'peek' mode)
@@ -1124,7 +1088,6 @@ start:
 	 * then it was unexpected (Hello Request or Client Hello) or invalid (we
 	 * were actually expecting a CCS).
 	 */
-
 	/*
 	 * Lets just double check that we've not got an SSLv2 record
 	 */
@@ -1325,27 +1288,22 @@ start:
 		goto start;
 	}
 
-	if(s->shutdown & SSL_SENT_SHUTDOWN) { /* but we have not received a
-		                               * shutdown */
+	if(s->shutdown & SSL_SENT_SHUTDOWN) { // but we have not received a shutdown 
 		s->rwstate = SSL_NOTHING;
 		SSL3_RECORD_set_length(rr, 0);
 		SSL3_RECORD_set_read(rr);
 		return 0;
 	}
-
 	if(SSL3_RECORD_get_type(rr) == SSL3_RT_CHANGE_CIPHER_SPEC) {
 		al = SSL_AD_UNEXPECTED_MESSAGE;
 		SSLerr(SSL_F_SSL3_READ_BYTES, SSL_R_CCS_RECEIVED_EARLY);
 		goto f_err;
 	}
-
 	/*
 	 * Unexpected handshake message (Client Hello, or protocol violation)
 	 */
-	if((s->rlayer.handshake_fragment_len >= 4)
-	    && !ossl_statem_get_in_handshake(s)) {
-		if(SSL_is_init_finished(s) &&
-		    !(s->s3->flags & SSL3_FLAGS_NO_RENEGOTIATE_CIPHERS)) {
+	if((s->rlayer.handshake_fragment_len >= 4) && !ossl_statem_get_in_handshake(s)) {
+		if(SSL_is_init_finished(s) && !(s->s3->flags & SSL3_FLAGS_NO_RENEGOTIATE_CIPHERS)) {
 			ossl_statem_set_in_init(s, 1);
 			s->renegotiate = 1;
 			s->new_session = 1;
@@ -1357,7 +1315,6 @@ start:
 			SSLerr(SSL_F_SSL3_READ_BYTES, SSL_R_SSL_HANDSHAKE_FAILURE);
 			return (-1);
 		}
-
 		if(!(s->mode & SSL_MODE_AUTO_RETRY)) {
 			if(SSL3_BUFFER_get_left(rbuf) == 0) {
 				/* no read-ahead left? */
@@ -1377,7 +1334,6 @@ start:
 		}
 		goto start;
 	}
-
 	switch(SSL3_RECORD_get_type(rr)) {
 		default:
 		    /*
@@ -1420,7 +1376,6 @@ start:
 		    }
 	}
 	/* not reached */
-
 f_err:
 	ssl3_send_alert(s, SSL3_AL_FATAL, al);
 	return (-1);
@@ -1428,15 +1383,12 @@ f_err:
 
 void ssl3_record_sequence_update(uchar * seq)
 {
-	int i;
-
-	for(i = 7; i >= 0; i--) {
+	for(int i = 7; i >= 0; i--) {
 		++seq[i];
 		if(seq[i] != 0)
 			break;
 	}
 }
-
 /*
  * Returns true if the current rrec was sent in SSLv2 backwards compatible
  * format and false otherwise.
@@ -1445,7 +1397,6 @@ int RECORD_LAYER_is_sslv2_record(RECORD_LAYER * rl)
 {
 	return SSL3_RECORD_is_sslv2_record(&rl->rrec[0]);
 }
-
 /*
  * Returns the length in bytes of the current rrec
  */
@@ -1453,4 +1404,3 @@ uint RECORD_LAYER_get_rrec_length(RECORD_LAYER * rl)
 {
 	return SSL3_RECORD_get_length(&rl->rrec[0]);
 }
-

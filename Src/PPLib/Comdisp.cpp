@@ -122,12 +122,7 @@ int SLAPI ComDispInterface::_GetProperty(long propertyID, VARIANTARG * pVarArg, 
 	VARIANTARG var_arg;
 	VARTYPE    vt;
 	DISPPARAMS null_params = {NULL, NULL, 0, 0};
-	DISPPARAMS params = {
-		P_ParamsAry ? (VARIANTARG *)P_ParamsAry->dataPtr() : NULL,
-		NULL,
-		P_ParamsAry ? P_ParamsAry->getCount() : 0,
-		0
-	};
+	DISPPARAMS params = { P_ParamsAry ? (VARIANTARG *)P_ParamsAry->dataPtr() : NULL, NULL, SVectorBase::GetCount(P_ParamsAry), 0 };
 	THROW_INVARG(P_Disp);
 	THROW(p_die = GetDispIDEntry(propertyID));
 	VariantInit(&var_arg);
@@ -252,12 +247,7 @@ int SLAPI ComDispInterface::SetPropertyByParams(long propertyID)
 	int    ok = 1;
 	const  DispIDEntry * p_die = 0;
 	VARIANTARG var_arg;
-	DISPPARAMS params = {
-		P_ParamsAry ? (VARIANTARG *)P_ParamsAry->dataPtr() : NULL,
-		NULL,
-		P_ParamsAry ? P_ParamsAry->getCount() : 0,
-		0
-	};
+	DISPPARAMS params = { P_ParamsAry ? (VARIANTARG *)P_ParamsAry->dataPtr() : NULL, NULL, SVectorBase::GetCount(P_ParamsAry), 0 };
 	VariantInit(&var_arg);
 	THROW_INVARG(P_Disp);
 	THROW(p_die = GetDispIDEntry(propertyID));

@@ -15712,7 +15712,7 @@ struct PPGdsClsPacket {
 	int    SLAPI CompleteGoodsPacket(PPGoodsPacket *);
 	int    SLAPI GetPropName(int prop, SString & rBuf) const;
 	int    SLAPI FormatProp(const PPGdsClsProp *, PPID propVal, SString & rBuf) const;
-	int    SLAPI FormatDim(const PPGdsClsDim *, long dimVal, SString & rBuf) const;
+	void   SLAPI FormatDim(const PPGdsClsDim *, long dimVal, SString & rBuf) const;
 	int    SLAPI GetNameByTemplate(PPGoodsPacket *, const char * pTemplate, char * pBuf, size_t bufLen, SubstGrpGoods sgg = sggNone) const;
 	int    SLAPI PropNameToID(int prop, const char * pName, PPID * pID, int forceCreate, int use_ta);
 	int    SLAPI PropSymbToID(int prop, const char * pSymb, PPID * pID);
@@ -21708,6 +21708,7 @@ public:
 	int    Run(Param & rP);
 private:
 	int    Import(int inpObject);
+	int    DoPhase(int inpObject, int phase, const SString & rFileName, xmlSAXHandler & rSaxH);
 	int    FASTCALL ToggleTransaction(ulong threshold);
 	int    ReadRecordFromXmlAttrList(const char ** ppAttrList);
 	static int  ParseFiasFileName(const char * pFileName, SString & rObjName, LDATE & rDt, S_GUID & rUuid);
@@ -45458,10 +45459,7 @@ public:
 	int    SLAPI GetSymbByID(uint id, SString & rSymb) const;
 	int    SLAPI BuildHashAssoc();
 	int    SLAPI LoadGeoGrid();
-	const  SGeoGridTab & SLAPI GetGrid() const
-	{
-		return Grid;
-	}
+	const  SGeoGridTab & SLAPI GetGrid() const { return Grid; }
 	//
 	int    SLAPI OpenDatabase(const char * pDbPath);
 	SrDatabase * SLAPI GetDb();
@@ -46088,10 +46086,10 @@ private:
 	PPID   OpID;
 	PPID   AccSheetID;
 	long   Flags;
-	uint   CtlselAcs;
-	uint   CtlselOp;
-	uint   CtlselAr;
-	uint   CmEditList;
+	const uint   CtlselAcs;
+	const uint   CtlselOp;
+	const uint   CtlselAr;
+	const uint   CmEditList;
 };
 
 class SCardSelExtra : public WordSel_ExtraBlock {

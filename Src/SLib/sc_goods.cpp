@@ -115,10 +115,8 @@ IMPL_CMPFUNC(GOODSGRPIDCODE, i1, i2)
 	return cmp;
 }
 
-SCDBObjGoods::SCDBObjGoods(SpiiExchgContext * pCtx) : SCDBObject(pCtx)
+SCDBObjGoods::SCDBObjGoods(SpiiExchgContext * pCtx) : SCDBObject(pCtx), P_GoodsTbl(0), P_QkTbl(0)
 {
-	P_GoodsTbl = 0;
-	P_QkTbl = 0;
 }
 
 SCDBObjGoods::~SCDBObjGoods()

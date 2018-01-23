@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147489577
+LastSignatureCode=2147489604
 LastAutoCodeList=1,11142;102,10162;103,10071;110,10000;111,11652;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10078;120,10005;1001,10000;121,10000;122,10000;123,10306;1002,10000;1003,10000;1004,10000;1005,10000;124,10073
 
 [SignatureList]
@@ -5650,6 +5650,7 @@ uicfg_fdisablebeep=2147489426
 uicfg_fbasketitemfocuspckg=2147489427
 uicfg_foldmodifsignselection=2147489428
 uicfg_fpollvoipservice=2147489429
+uicfg_fextgoodsselmainname=2147489587
 uicfg_wndvkdefault=2147489430
 uicfg_wndvkflat=2147489431
 uicfg_wndvkvector=2147489432

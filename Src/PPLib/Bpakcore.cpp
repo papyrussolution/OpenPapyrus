@@ -1551,7 +1551,7 @@ int SLAPI PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 				THROW(CheckGoodsForRestrictions((int)i, r_ti.GoodsID, TISIGN_UNDEF, r_ti.Qtty(), cgrfObject, 0));
 				if(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
 					PPSupplDeal sd;
-					QuotIdent qi(r_ti.LocID, 0, r_ti.CurID, arID);
+					const QuotIdent qi(r_ti.LocID, 0, r_ti.CurID, arID);
 					goods_obj.GetSupplDeal(r_ti.GoodsID, qi, &sd, 1);
 					THROW_PP(!sd.IsDisabled, PPERR_GOODSRCPTDISABLED);
 					if(invp_act == PPSupplAgreement::invpaRestrict &&

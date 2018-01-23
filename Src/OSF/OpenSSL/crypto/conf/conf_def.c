@@ -88,11 +88,9 @@ static int def_init_default(CONF * conf)
 {
 	if(!conf)
 		return 0;
-
 	conf->meth = &default_method;
 	conf->meth_data = (void*)CONF_type_default;
 	conf->data = NULL;
-
 	return 1;
 }
 
@@ -100,11 +98,9 @@ static int def_init_WIN32(CONF * conf)
 {
 	if(!conf)
 		return 0;
-
 	conf->meth = &WIN32_method;
 	conf->meth_data = (void*)CONF_type_win32;
 	conf->data = NULL;
-
 	return 1;
 }
 
@@ -129,7 +125,6 @@ static int def_load(CONF * conf, const char * name, long * line)
 {
 	int ret;
 	BIO * in = NULL;
-
 #ifdef OPENSSL_SYS_VMS
 	in = BIO_new_file(name, "r");
 #else
@@ -142,10 +137,8 @@ static int def_load(CONF * conf, const char * name, long * line)
 			CONFerr(CONF_F_DEF_LOAD, ERR_R_SYS_LIB);
 		return 0;
 	}
-
 	ret = def_load_bio(conf, in, line);
 	BIO_free(in);
-
 	return ret;
 }
 
@@ -164,23 +157,19 @@ static int def_load_bio(CONF * conf, BIO * in, long * line)
 	char * section = NULL, * buf;
 	char * start, * psection, * pname;
 	void * h = (void*)(conf->data);
-
 	if((buff = BUF_MEM_new()) == NULL) {
 		CONFerr(CONF_F_DEF_LOAD_BIO, ERR_R_BUF_LIB);
 		goto err;
 	}
-
 	section = OPENSSL_strdup("default");
 	if(section == NULL) {
 		CONFerr(CONF_F_DEF_LOAD_BIO, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	if(_CONF_new_data(conf) == 0) {
 		CONFerr(CONF_F_DEF_LOAD_BIO, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	sv = _CONF_new_section(conf, section);
 	if(sv == NULL) {
 		CONFerr(CONF_F_DEF_LOAD_BIO, CONF_R_UNABLE_TO_CREATE_NEW_SECTION);
@@ -247,7 +236,6 @@ static int def_load_bio(CONF * conf, BIO * in, long * line)
 			continue;  /* blank line */
 		if(*s == '[') {
 			char * ss;
-
 			s++;
 			start = eat_ws(conf, s);
 			ss = start;
@@ -259,8 +247,7 @@ again:
 					ss = p;
 					goto again;
 				}
-				CONFerr(CONF_F_DEF_LOAD_BIO,
-				    CONF_R_MISSING_CLOSE_SQUARE_BRACKET);
+				CONFerr(CONF_F_DEF_LOAD_BIO, CONF_R_MISSING_CLOSE_SQUARE_BRACKET);
 				goto err;
 			}
 			*end = '\0';
@@ -269,8 +256,7 @@ again:
 			if((sv = _CONF_get_section(conf, section)) == NULL)
 				sv = _CONF_new_section(conf, section);
 			if(sv == NULL) {
-				CONFerr(CONF_F_DEF_LOAD_BIO,
-				    CONF_R_UNABLE_TO_CREATE_NEW_SECTION);
+				CONFerr(CONF_F_DEF_LOAD_BIO, CONF_R_UNABLE_TO_CREATE_NEW_SECTION);
 				goto err;
 			}
 			continue;
@@ -301,7 +287,6 @@ again:
 				p--;
 			p++;
 			*p = '\0';
-
 			if((v = (CONF_VALUE*)OPENSSL_malloc(sizeof(*v))) == NULL) {
 				CONFerr(CONF_F_DEF_LOAD_BIO, ERR_R_MALLOC_FAILURE);
 				goto err;
@@ -317,14 +302,11 @@ again:
 			OPENSSL_strlcpy(v->name, pname, strlen(pname) + 1);
 			if(!str_copy(conf, psection, &(v->value), start))
 				goto err;
-
 			if(strcmp(psection, section) != 0) {
-				if((tv = _CONF_get_section(conf, psection))
-				    == NULL)
+				if((tv = _CONF_get_section(conf, psection)) == NULL)
 					tv = _CONF_new_section(conf, psection);
 				if(tv == NULL) {
-					CONFerr(CONF_F_DEF_LOAD_BIO,
-					    CONF_R_UNABLE_TO_CREATE_NEW_SECTION);
+					CONFerr(CONF_F_DEF_LOAD_BIO, CONF_R_UNABLE_TO_CREATE_NEW_SECTION);
 					goto err;
 				}
 			}
@@ -370,7 +352,6 @@ static void clear_comments(CONF * conf, char * p)
 		}
 		p++;
 	}
-
 	for(;; ) {
 		if(IS_COMMENT(conf, *p)) {
 			*p = '\0';
@@ -509,8 +490,7 @@ static int str_copy(CONF * conf, char * section, char ** pto, char * from)
 				CONFerr(CONF_F_STR_COPY, CONF_R_VARIABLE_HAS_NO_VALUE);
 				goto err;
 			}
-			if(!BUF_MEM_grow_clean(buf,
-				    (strlen(p) + buf->length - (e - from)))) {
+			if(!BUF_MEM_grow_clean(buf, (strlen(p) + buf->length - (e - from)))) {
 				CONFerr(CONF_F_STR_COPY, ERR_R_MALLOC_FAILURE);
 				goto err;
 			}
@@ -567,7 +547,6 @@ static char * eat_alpha_numeric(CONF * conf, char * p)
 static char * scan_quote(CONF * conf, char * p)
 {
 	int q = *p;
-
 	p++;
 	while(!(IS_EOF(conf, *p)) && (*p != q)) {
 		if(IS_ESC(conf, *p)) {
@@ -585,7 +564,6 @@ static char * scan_quote(CONF * conf, char * p)
 static char * scan_dquote(CONF * conf, char * p)
 {
 	int q = *p;
-
 	p++;
 	while(!(IS_EOF(conf, *p))) {
 		if(*p == q) {
@@ -628,4 +606,3 @@ static int def_to_int(const CONF * conf, char c)
 {
 	return c - '0';
 }
-

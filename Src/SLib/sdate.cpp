@@ -1,5 +1,5 @@
 // SDATE.CPP
-// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -265,15 +265,8 @@ int FASTCALL GetDayOfWeekText(int options, int dayOfWeek /* 1..7 */, SString & r
 // @v7.9.5 int16-->int (faster)
 static const int16 __dpm[11] = { 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334/*, 365*/ };
 
-static inline int FASTCALL getDays360(int mon, int leap)
-{
-	return (mon > 1 && mon <= 12) ? ((mon-1) * 30) : 0;
-}
-
-static inline int FASTCALL getDays(int mon, int leap)
-{
-	return (mon > 1 && mon <= 12) ? ((leap && mon > 2) ? __dpm[mon-2]+1 : __dpm[mon-2]) : 0;
-}
+static inline int FASTCALL getDays360(int mon, int leap) { return (mon > 1 && mon <= 12) ? ((mon-1) * 30) : 0; }
+static inline int FASTCALL getDays(int mon, int leap) { return (mon > 1 && mon <= 12) ? ((leap && mon > 2) ? __dpm[mon-2]+1 : __dpm[mon-2]) : 0; }
 
 static int FASTCALL getMon(int * d, int leap)
 {
@@ -740,9 +733,7 @@ LTIME & FASTCALL LTIME::addhs(long n)
 	return *this;
 }
 
-#define __ENCODEDATE(h, m, s, ts, pTm) \
-	PTR8(pTm)[0] = ts; PTR8(pTm)[1] = s; PTR8(pTm)[2] = m; PTR8(pTm)[3] = h;
-
+#define __ENCODEDATE(h, m, s, ts, pTm) PTR8(pTm)[0] = ts; PTR8(pTm)[1] = s; PTR8(pTm)[2] = m; PTR8(pTm)[3] = h;
 
 int FASTCALL encodetime(int h, int m, int s, int ts, void * tm)
 {
@@ -902,15 +893,8 @@ int FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm)
 	return 1;
 }
 
-int FASTCALL getcurdate(LDATE * dt)
-{
-	return getcurdatetime(dt, 0);
-}
-
-int FASTCALL getcurtime(LTIME * tm)
-{
-	return getcurdatetime(0, tm);
-}
+int FASTCALL getcurdate(LDATE * dt) { return getcurdatetime(dt, 0); }
+int FASTCALL getcurtime(LTIME * tm) { return getcurdatetime(0, tm); }
 
 LDATE FASTCALL getcurdate_()
 {
@@ -949,10 +933,7 @@ int gettimezone()
 //
 LDATE WorkDate::InitDate = {0x07CB0C1FL}; // 31/12/1995
 
-int WorkDate::GetVal() const
-{
-	return V;
-}
+int WorkDate::GetVal() const { return V; }
 
 // static
 int FASTCALL WorkDate::ShrinkDate(LDATE dt)
@@ -1013,20 +994,10 @@ int WorkDate::SetDayOfYear(int day, int mon)
 		return 0;
 }
 
-LDATE WorkDate::IsDate() const
-{
-	return (V > 0) ? ExpandDate(V) : ZERODATE;
-}
-
-int WorkDate::IsDayOfWeek() const
-{
-	return (V >= -7 && V <= -1) ? -V : 0;
-}
-
-LDATE WorkDate::IsDayOfYear() const
-{
-	return (V <= -100) ? ExpandDate(-V) : ZERODATE;
-}
+LDATE  WorkDate::IsDate() const { return (V > 0) ? ExpandDate(V) : ZERODATE; }
+int    WorkDate::IsDayOfWeek() const { return (V >= -7 && V <= -1) ? -V : 0; }
+LDATE  WorkDate::IsDayOfYear() const { return (V <= -100) ? ExpandDate(-V) : ZERODATE; }
+int    FASTCALL WorkDate::IsEqual(WorkDate wd) const { return (wd.V == V); }
 
 int FASTCALL WorkDate::IsEqual(LDATE dt) const
 {
@@ -1044,11 +1015,6 @@ int FASTCALL WorkDate::IsEqual(LDATE dt) const
 		}
 	}
 	return 0;
-}
-
-int FASTCALL WorkDate::IsEqual(WorkDate wd) const
-{
-	return (wd.V == V);
 }
 //
 // LDATETIME
@@ -1105,25 +1071,10 @@ LDATETIME & SLAPI LDATETIME::Set(LDATE _d, LTIME _t)
 	return *this;
 }
 
-int SLAPI LDATETIME::Set(const char * pText, long datf, long timf)
-{
-	return strtodatetime(pText, this, datf, timf);
-}
-
-int LDATETIME::operator !() const
-{
-	return (d == ZERODATE && t == ZEROTIME);
-}
-
-int FASTCALL LDATETIME::operator == (const LDATETIME & s) const
-{
-	return (d == s.d && t == s.t);
-}
-
-int FASTCALL LDATETIME::operator != (const LDATETIME & s) const
-{
-	return (d != s.d || t != s.t);
-}
+int SLAPI LDATETIME::Set(const char * pText, long datf, long timf) { return strtodatetime(pText, this, datf, timf); }
+int LDATETIME::operator !() const { return (d == ZERODATE && t == ZEROTIME); }
+int FASTCALL LDATETIME::operator == (const LDATETIME & s) const { return (d == s.d && t == s.t); }
+int FASTCALL LDATETIME::operator != (const LDATETIME & s) const { return (d != s.d || t != s.t); }
 
 #ifndef _WIN32_WCE // {
 
@@ -1550,15 +1501,8 @@ LDATE SLAPI LDATE::Helper_GetActual(LDATE rel, LDATE cmp) const
 	return result;
 }
 
-LDATE SLAPI LDATE::getactualcmp(LDATE rel, LDATE cmp) const
-{
-	return Helper_GetActual(rel, cmp);
-}
-
-LDATE FASTCALL LDATE::getactual(LDATE rel) const
-{
-	return Helper_GetActual(rel, ZERODATE);
-}
+LDATE SLAPI LDATE::getactualcmp(LDATE rel, LDATE cmp) const { return Helper_GetActual(rel, cmp); }
+LDATE FASTCALL LDATE::getactual(LDATE rel) const { return Helper_GetActual(rel, ZERODATE); }
 //
 //
 //
@@ -1628,20 +1572,13 @@ SString & CALDATE::Format(int options, SString & rBuf) const
 	return rBuf;
 }
 
-int CALDATE::SetDate(LDATE dt)
-{
-	return checkdate(dt, 1) ? ((*this = dt), 1) : 0;
-}
+int CALDATE::SetDate(LDATE dt) { return checkdate(dt, 1) ? ((*this = dt), 1) : 0; }
+int CALDATE::SetDayOfWeek(int dayOfWeek) { return (dayOfWeek >= 1 && dayOfWeek <= 7) ? ((*this = encodedate(dayOfWeek, 0, 0)), 1) : 0; }
 
 int CALDATE::SetCalDate(int day, int mon)
 {
 	const LDATE temp_date = encodedate(day, mon, 2000);
 	return checkdate(temp_date, 0) ? ((*this = encodedate(day, mon, 0).v), 1) : 0;
-}
-
-int CALDATE::SetDayOfWeek(int dayOfWeek)
-{
-	return (dayOfWeek >= 1 && dayOfWeek <= 7) ? ((*this = encodedate(dayOfWeek, 0, 0)), 1) : 0;
 }
 //
 //
@@ -1694,10 +1631,7 @@ int FASTCALL STimeChunk::ContainsIn(const STimeChunk & rDur) const
 	return BIN(Intersect(rDur, &result) && *this == result);
 }
 
-int FASTCALL STimeChunk::Has(const LDATETIME & rTm) const
-{
-	return BIN(::cmp(rTm, Start) >= 0 && ::cmp(rTm, Finish) <= 0);
-}
+int FASTCALL STimeChunk::Has(const LDATETIME & rTm) const { return BIN(::cmp(rTm, Start) >= 0 && ::cmp(rTm, Finish) <= 0); }
 
 int FASTCALL STimeChunk::Intersect(const STimeChunk & test, STimeChunk * pResult) const
 {
@@ -1736,14 +1670,9 @@ SString & SLAPI STimeChunk::ToStr(SString & rBuf, long fmt) const
 }
 
 long SLAPI STimeChunk::GetDurationDays() const
-{
-	return (Start.d && Finish.d && !Finish.IsFar()) ? (diffdate(Finish.d, Start.d)+1) : -1;
-}
-
+	{ return (Start.d && Finish.d && !Finish.IsFar()) ? (diffdate(Finish.d, Start.d)+1) : -1; }
 long SLAPI STimeChunk::GetDuration() const
-{
-	return (Start.d && Finish.d && !Finish.IsFar()) ? diffdatetimesec(Finish, Start) : -1;
-}
+	{ return (Start.d && Finish.d && !Finish.IsFar()) ? diffdatetimesec(Finish, Start) : -1; }
 
 int64 SLAPI STimeChunk::GetDurationMs() const
 {
@@ -1762,24 +1691,13 @@ IMPL_CMPFUNC(STimeChunk, i1, i2) { return pExtraData ? ((const STimeChunk *)i2)-
 //
 //static
 int FASTCALL DateRepeating::IsValidPrd(int prd)
-{
-	return oneof6(prd, PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUART, PRD_SEMIAN, PRD_ANNUAL);
-}
-
+	{ return oneof6(prd, PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUART, PRD_SEMIAN, PRD_ANNUAL); }
 static inline int FASTCALL DateRepeating_IsEqual(const DateRepeating & rS1, const DateRepeating & rS2)
-{
-	return (rS1.Prd == rS2.Prd && rS1.RepeatKind == rS2.RepeatKind && *PTR32(&rS1.Dtl) == *PTR32(&rS2.Dtl));
-}
-
+	{ return (rS1.Prd == rS2.Prd && rS1.RepeatKind == rS2.RepeatKind && *PTR32(&rS1.Dtl) == *PTR32(&rS2.Dtl)); }
 int FASTCALL DateRepeating::operator == (const DateRepeating & rS) const
-{
-	return DateRepeating_IsEqual(*this, rS);
-}
-
+	{ return DateRepeating_IsEqual(*this, rS); }
 int FASTCALL DateRepeating::operator != (const DateRepeating & rS) const
-{
-	return !DateRepeating_IsEqual(*this, rS);
-}
+	{ return !DateRepeating_IsEqual(*this, rS); }
 
 int SLAPI DateRepeating::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {

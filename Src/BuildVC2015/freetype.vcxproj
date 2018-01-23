@@ -284,7 +284,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>..\..\..\objs\freetype242.lib</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <ResourceCompile>
@@ -321,7 +321,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>..\..\..\objs\freetype242.lib</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <ResourceCompile>
@@ -357,7 +357,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>..\..\..\objs\freetype242_D.lib</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <ResourceCompile>
@@ -394,7 +394,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>..\..\..\objs\freetype242_D.lib</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <ResourceCompile>
@@ -429,7 +429,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>..\..\..\objs\freetype242MT_D.lib</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <ResourceCompile>
@@ -465,7 +465,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>..\..\..\objs\freetype242MT_D.lib</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <ResourceCompile>
@@ -500,7 +500,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>..\..\..\objs\freetype242MT.lib</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <ResourceCompile>
@@ -536,7 +536,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>..\..\..\objs\freetype242MT.lib</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <ResourceCompile>
@@ -571,7 +571,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>..\..\..\objs\freetype242MT_D.lib</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <ResourceCompile>
@@ -607,7 +607,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>..\..\..\objs\freetype242MT_D.lib</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <ResourceCompile>
@@ -642,7 +642,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>..\..\..\objs\freetype242MT.lib</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <ResourceCompile>
@@ -678,7 +678,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Lib>
-      <OutputFile>..\..\..\objs\freetype242MT.lib</OutputFile>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Lib>
     <ResourceCompile>

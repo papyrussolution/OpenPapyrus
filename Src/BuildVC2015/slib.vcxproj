@@ -1104,7 +1104,6 @@
     <ClCompile Include="..\SLib\srng.cpp" />
     <ClCompile Include="..\SLib\Sstack.cpp" />
     <ClCompile Include="..\SLib\sstorage.cpp" />
-    <ClCompile Include="..\SLib\sstream.cpp" />
     <ClCompile Include="..\Slib\sstring.cpp">
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

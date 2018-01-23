@@ -259,7 +259,15 @@ public:
 	// Descr: Возвращает размер бинарного представления записи.
 	//
 	size_t GetRecSize() const;
-	int    FASTCALL GetFieldByPos(uint pos /*0..*/, SdbField *) const;
+	int    FASTCALL GetFieldByPos(uint pos /*0..*/, SdbField * pFld) const;
+	//
+	// Descr: То же самое, что и GetFieldByPos() но не заполняет текстовые значения pFld (Name, Descr, Formula)
+	// Note: Пользоваться функцией следует с большой осторожностью и уверенностью, что (Name, Descr, Formula)
+	//   вам для использования не важны!
+	//   Функция реализована для ускорения в экстремальных ситуациях, где обрабатывается значительное
+	//   число записей.
+	//
+	int    FASTCALL GetFieldByPos_Fast(uint pos /*0..*/, SdbField * pFld) const;
 	//
 	// Descr: функция перечисления полей записи. Возвращает поле по индексу *pPos
 	//   и увеличивает значение *pPos на единицу.
@@ -277,8 +285,14 @@ public:
 	//   }
 	//
 	int    EnumFields(uint * pPos, SdbField * pFld) const;
-	int    GetFieldByID(uint id, uint * pPos, SdbField *) const;
-	int    GetFieldByName(const char * pName, SdbField *) const;
+	int    GetFieldByID(uint id, uint * pPos, SdbField * pFld) const;
+	int    GetFieldByName(const char * pName, SdbField * pFld) const;
+	//
+	// Descr: То же самое, что и GetFieldByName(), но для извлечения 
+	//   SdbField применяется GetFieldByPos_Fast() что ускоряет вызов.
+	// Note: see comments to GetFieldByPos_Fast.
+	//
+	int    GetFieldByName_Fast(const char * pName, SdbField * pFld) const;
 	TYPEID GetFieldType(uint pos /*0..*/) const;
 	const  STypEx * GetFieldExType(uint pos /*0..*/) const;
 	long   GetFieldOuterFormat(uint pos /*0..*/) const;
@@ -372,7 +386,7 @@ private:
 	SVector Items;           // @persistent // @v9.8.4 SArray-->SVector
 	StringSet StringPool;    // @persistent
 	size_t RecSize;          // @transient
-	SString TempBuf;         // @transient @allocreuse
+	mutable SString TempBuf; // @transient @allocreuse
 	void * P_DataBuf;        // @transient
 	size_t OuterDataBufSize; // @transient
 	int    IsDataBufOwner;   // @transient Если !0, то экземпляр является владельцем буфера данных

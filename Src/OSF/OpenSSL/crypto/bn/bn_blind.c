@@ -120,20 +120,16 @@ int BN_BLINDING_convert_ex(BIGNUM * n, BIGNUM * r, BN_BLINDING * b, BN_CTX * ctx
 		BNerr(BN_F_BN_BLINDING_CONVERT_EX, BN_R_NOT_INITIALIZED);
 		return 0;
 	}
-	if(b->counter == -1)
-		/* Fresh blinding, doesn't need updating. */
+	if(b->counter == -1) // Fresh blinding, doesn't need updating. 
 		b->counter = 0;
 	else if(!BN_BLINDING_update(b, ctx))
 		return 0;
-
-	if(r != NULL) {
+	if(r) {
 		if(!BN_copy(r, b->Ai))
 			ret = 0;
 	}
-
 	if(!BN_mod_mul(n, n, b->A, b->mod, ctx))
 		ret = 0;
-
 	return ret;
 }
 
@@ -146,7 +142,7 @@ int BN_BLINDING_invert_ex(BIGNUM * n, const BIGNUM * r, BN_BLINDING * b, BN_CTX 
 {
 	int ret;
 	bn_check_top(n);
-	if(r != NULL)
+	if(r)
 		ret = BN_mod_mul(n, n, r, b->mod, ctx);
 	else {
 		if(b->Ai == NULL) {

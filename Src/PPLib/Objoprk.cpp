@@ -297,15 +297,8 @@ PPOprKindPacket & FASTCALL PPOprKindPacket::operator = (const PPOprKindPacket & 
 	return *this;
 }
 
-int SLAPI PPOprKindPacket::GetExtStrData(int fldID, SString & rBuf) const
-{
-	return PPGetExtStrData(fldID, OPKEXSTR_MEMO, ExtString, rBuf);
-}
-
-int SLAPI PPOprKindPacket::PutExtStrData(int fldID, const char * pBuf)
-{
-	return PPPutExtStrData(fldID, ExtString, pBuf);
-}
+int SLAPI PPOprKindPacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, OPKEXSTR_MEMO, ExtString, rBuf); }
+int SLAPI PPOprKindPacket::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 //
 //
 //
@@ -629,15 +622,8 @@ int SLAPI PPObjOprKind::GetExtStrData(PPID opID, int fldID, SString & rBuf)
 	return -1;
 }
 
-int SLAPI PPObjOprKind::GetExAmountList(PPID id, PPIDArray * pList)
-{
-	return ref->GetPropArray(Obj, id, OPKPRP_EXAMTLIST, pList);
-}
-
-int SLAPI PPObjOprKind::GetGenericList(PPID id, ObjRestrictArray * pList)
-{
-	return ref->GetPropArray(Obj, id, OPKPRP_GENLIST2, pList);
-}
+int SLAPI PPObjOprKind::GetExAmountList(PPID id, PPIDArray * pList) { return ref->GetPropArray(Obj, id, OPKPRP_EXAMTLIST, pList); }
+int SLAPI PPObjOprKind::GetGenericList(PPID id, ObjRestrictArray * pList) { return ref->GetPropArray(Obj, id, OPKPRP_GENLIST2, pList); }
 
 int SLAPI PPObjOprKind::GetGenericList(PPID id, PPIDArray * pList)
 {

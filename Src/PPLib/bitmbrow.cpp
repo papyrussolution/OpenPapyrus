@@ -3103,9 +3103,12 @@ void BillItemBrowser::addItemExt(int mode)
 			}
 			else {
 				long   egsd_flags = 0;
+				UserInterfaceSettings uis;
+				const int uis_r = uis.Restore();
+				if(uis_r > 0 && uis.Flags & UserInterfaceSettings::fExtGoodsSelMainName)
+					egsd_flags |= ExtGoodsSelDialog::fByName;
 				if(op_type_id == PPOPT_GOODSMODIF) {
-					UserInterfaceSettings uis;
-					if(uis.Restore() <= 0 || !(uis.Flags & UserInterfaceSettings::fOldModifSignSelection))
+					if(uis_r <= 0 || !(uis.Flags & UserInterfaceSettings::fOldModifSignSelection))
 						egsd_flags |= ExtGoodsSelDialog::fSelectModifMode;
 				}
 				THROW(CheckDialogPtr(&(dlg = new ExtGoodsSelDialog(op_id, NewGoodsGrpID, egsd_flags))));

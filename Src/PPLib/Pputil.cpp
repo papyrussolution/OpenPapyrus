@@ -1460,8 +1460,15 @@ int SLAPI PPExtStringStorage::Enum(const SString & rLine, uint * pPos, int * pFl
 int FASTCALL PPGetExtStrData(int fldID, int defFldID, const SString & rLine, SString & rBuf)
 {
 	int    ok = -1;
-	PPExtStringStorage ess;
-	const int  r = ess.Get(rLine, fldID, rBuf);
+	int    r = 0;
+	if(rLine.NotEmpty()) {
+		PPExtStringStorage ess;
+		r = ess.Get(rLine, fldID, rBuf);
+	}
+	else {
+		rBuf.Z();
+		r = -2;
+	}
 	if(r > 0)
 		ok = 1;
 	else if(r == -2 && fldID == defFldID) {

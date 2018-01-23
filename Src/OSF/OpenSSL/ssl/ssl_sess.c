@@ -36,7 +36,7 @@
 #include "ssl_locl.h"
 #pragma hdrstop
 //#include <stdio.h>
-#include <openssl/lhash.h>
+//#include <openssl/lhash.h>
 //#include <openssl/rand.h>
 //#include <openssl/engine.h>
 //#include "ssl_locl.h"
@@ -589,11 +589,9 @@ int ssl_get_prev_session(SSL * s, const PACKET * ext, const PACKET * session_id)
 	s->session = ret;
 	s->verify_result = s->session->verify_result;
 	return 1;
-
 err:
 	if(ret) {
 		SSL_SESSION_free(ret);
-
 		if(!try_session_cache) {
 			/*
 			 * The session was from a ticket, so we should issue a ticket for
@@ -602,17 +600,13 @@ err:
 			s->tlsext_ticket_expected = 1;
 		}
 	}
-	if(fatal)
-		return -1;
-	else
-		return 0;
+	return fatal ? -1 : 0;
 }
 
 int SSL_CTX_add_session(SSL_CTX * ctx, SSL_SESSION * c)
 {
 	int ret = 0;
 	SSL_SESSION * s;
-
 	/*
 	 * add just 1 reference count for the SSL_CTX's session cache even though
 	 * it has two ways of access: each session is in a doubly linked list and
@@ -696,8 +690,7 @@ static int remove_session_lock(SSL_CTX * ctx, SSL_SESSION * c, int lck)
 {
 	SSL_SESSION * r;
 	int ret = 0;
-
-	if((c != NULL) && (c->session_id_length != 0)) {
+	if(c && (c->session_id_length != 0)) {
 		if(lck)
 			CRYPTO_THREAD_write_lock(ctx->lock);
 		if((r = lh_SSL_SESSION_retrieve(ctx->sessions, c)) == c) {
@@ -706,14 +699,11 @@ static int remove_session_lock(SSL_CTX * ctx, SSL_SESSION * c, int lck)
 			SSL_SESSION_list_remove(ctx, c);
 		}
 		c->not_resumable = 1;
-
 		if(lck)
 			CRYPTO_THREAD_unlock(ctx->lock);
-
 		if(ret)
 			SSL_SESSION_free(r);
-
-		if(ctx->remove_session_cb != NULL)
+		if(ctx->remove_session_cb)
 			ctx->remove_session_cb(ctx, c);
 	}
 	else
@@ -724,18 +714,14 @@ static int remove_session_lock(SSL_CTX * ctx, SSL_SESSION * c, int lck)
 void SSL_SESSION_free(SSL_SESSION * ss)
 {
 	int i;
-
 	if(ss == NULL)
 		return;
-
 	CRYPTO_atomic_add(&ss->references, -1, &i, ss->lock);
 	REF_PRINT_COUNT("SSL_SESSION", ss);
 	if(i > 0)
 		return;
 	REF_ASSERT_ISNT(i < 0);
-
 	CRYPTO_free_ex_data(CRYPTO_EX_INDEX_SSL_SESSION, ss, &ss->ex_data);
-
 	OPENSSL_cleanse(ss->master_key, sizeof ss->master_key);
 	OPENSSL_cleanse(ss->session_id, sizeof ss->session_id);
 	X509_free(ss->peer);
@@ -763,10 +749,8 @@ void SSL_SESSION_free(SSL_SESSION * ss)
 int SSL_SESSION_up_ref(SSL_SESSION * ss)
 {
 	int i;
-
 	if(CRYPTO_atomic_add(&ss->references, 1, &i, ss->lock) <= 0)
 		return 0;
-
 	REF_PRINT_COUNT("SSL_SESSION", ss);
 	REF_ASSERT_ISNT(i < 2);
 	return ((i > 1) ? 1 : 0);
@@ -779,14 +763,12 @@ int SSL_set_session(SSL * s, SSL_SESSION * session)
 		if(!SSL_set_ssl_method(s, s->ctx->method))
 			return 0;
 	}
-
-	if(session != NULL) {
+	if(session) {
 		SSL_SESSION_up_ref(session);
 		s->verify_result = session->verify_result;
 	}
 	SSL_SESSION_free(s->session);
 	s->session = session;
-
 	return 1;
 }
 
@@ -811,16 +793,12 @@ long SSL_SESSION_set_timeout(SSL_SESSION * s, long t)
 
 long SSL_SESSION_get_timeout(const SSL_SESSION * s)
 {
-	if(s == NULL)
-		return 0;
-	return (s->timeout);
+	return s ? s->timeout : 0;
 }
 
 long SSL_SESSION_get_time(const SSL_SESSION * s)
 {
-	if(s == NULL)
-		return 0;
-	return (s->time);
+	return s ? s->time : 0;
 }
 
 long SSL_SESSION_set_time(SSL_SESSION * s, long t)
@@ -856,8 +834,7 @@ unsigned long SSL_SESSION_get_ticket_lifetime_hint(const SSL_SESSION * s)
 	return s->tlsext_tick_lifetime_hint;
 }
 
-void SSL_SESSION_get0_ticket(const SSL_SESSION * s, const uchar ** tick,
-    size_t * len)
+void SSL_SESSION_get0_ticket(const SSL_SESSION * s, const uchar ** tick, size_t * len)
 {
 	*len = s->tlsext_ticklen;
 	if(tick != NULL)
@@ -892,21 +869,11 @@ long SSL_CTX_set_timeout(SSL_CTX * s, long t)
 
 long SSL_CTX_get_timeout(const SSL_CTX * s)
 {
-	if(s == NULL)
-		return 0;
-	return (s->session_timeout);
+	return s ? s->session_timeout : 0;
 }
 
-int SSL_set_session_secret_cb(SSL * s,
-    int (* tls_session_secret_cb)(SSL * s,
-	    void * secret,
-	    int * secret_len,
-	    STACK_OF(SSL_CIPHER)
-	    * peer_ciphers,
-	    const SSL_CIPHER
-	    ** cipher,
-	    void * arg),
-    void * arg)
+int SSL_set_session_secret_cb(SSL * s, int (* tls_session_secret_cb)(SSL * s, void * secret, int * secret_len, 
+	STACK_OF(SSL_CIPHER) * peer_ciphers, const SSL_CIPHER ** cipher, void * arg), void * arg)
 {
 	if(s == NULL)
 		return 0;
@@ -915,8 +882,7 @@ int SSL_set_session_secret_cb(SSL * s,
 	return 1;
 }
 
-int SSL_set_session_ticket_ext_cb(SSL * s, tls_session_ticket_ext_cb_fn cb,
-    void * arg)
+int SSL_set_session_ticket_ext_cb(SSL * s, tls_session_ticket_ext_cb_fn cb, void * arg)
 {
 	if(s == NULL)
 		return 0;
@@ -977,25 +943,22 @@ void SSL_CTX_flush_sessions(SSL_CTX * s, long t)
 {
 	unsigned long i;
 	TIMEOUT_PARAM tp;
-
 	tp.ctx = s;
 	tp.cache = s->sessions;
-	if(tp.cache == NULL)
-		return;
-	tp.time = t;
-	CRYPTO_THREAD_write_lock(s->lock);
-	i = lh_SSL_SESSION_get_down_load(s->sessions);
-	lh_SSL_SESSION_set_down_load(s->sessions, 0);
-	lh_SSL_SESSION_doall_TIMEOUT_PARAM(tp.cache, timeout_cb, &tp);
-	lh_SSL_SESSION_set_down_load(s->sessions, i);
-	CRYPTO_THREAD_unlock(s->lock);
+	if(tp.cache) {
+		tp.time = t;
+		CRYPTO_THREAD_write_lock(s->lock);
+		i = lh_SSL_SESSION_get_down_load(s->sessions);
+		lh_SSL_SESSION_set_down_load(s->sessions, 0);
+		lh_SSL_SESSION_doall_TIMEOUT_PARAM(tp.cache, timeout_cb, &tp);
+		lh_SSL_SESSION_set_down_load(s->sessions, i);
+		CRYPTO_THREAD_unlock(s->lock);
+	}
 }
 
 int ssl_clear_bad_session(SSL * s)
 {
-	if((s->session != NULL) &&
-	    !(s->shutdown & SSL_SENT_SHUTDOWN) &&
-	    !(SSL_in_init(s) || SSL_in_before(s))) {
+	if(s->session && !(s->shutdown & SSL_SENT_SHUTDOWN) && !(SSL_in_init(s) || SSL_in_before(s))) {
 		SSL_CTX_remove_session(s->session_ctx, s->session);
 		return 1;
 	}
@@ -1008,7 +971,6 @@ static void SSL_SESSION_list_remove(SSL_CTX * ctx, SSL_SESSION * s)
 {
 	if((s->next == NULL) || (s->prev == NULL))
 		return;
-
 	if(s->next == (SSL_SESSION*)&(ctx->session_cache_tail)) {
 		/* last element in list */
 		if(s->prev == (SSL_SESSION*)&(ctx->session_cache_head)) {
@@ -1054,62 +1016,53 @@ static void SSL_SESSION_list_add(SSL_CTX * ctx, SSL_SESSION * s)
 	}
 }
 
-void SSL_CTX_sess_set_new_cb(SSL_CTX * ctx,
-    int (* cb)(struct ssl_st * ssl, SSL_SESSION * sess))
+void SSL_CTX_sess_set_new_cb(SSL_CTX * ctx, int (* cb)(struct ssl_st * ssl, SSL_SESSION * sess))
 {
 	ctx->new_session_cb = cb;
 }
 
-int(*SSL_CTX_sess_get_new_cb(SSL_CTX *ctx)) (SSL *ssl, SSL_SESSION *sess) {
+int(*SSL_CTX_sess_get_new_cb(SSL_CTX *ctx)) (SSL *ssl, SSL_SESSION *sess) 
+{
 	return ctx->new_session_cb;
 }
 
-void SSL_CTX_sess_set_remove_cb(SSL_CTX * ctx,
-    void (* cb)(SSL_CTX * ctx, SSL_SESSION * sess))
+void SSL_CTX_sess_set_remove_cb(SSL_CTX * ctx, void (* cb)(SSL_CTX * ctx, SSL_SESSION * sess))
 {
 	ctx->remove_session_cb = cb;
 }
 
-void(*SSL_CTX_sess_get_remove_cb(SSL_CTX *ctx)) (SSL_CTX *ctx,
-    SSL_SESSION *sess) {
+void(*SSL_CTX_sess_get_remove_cb(SSL_CTX *ctx)) (SSL_CTX *ctx, SSL_SESSION *sess) 
+{
 	return ctx->remove_session_cb;
 }
 
-void SSL_CTX_sess_set_get_cb(SSL_CTX * ctx,
-    SSL_SESSION *(*cb)(struct ssl_st * ssl,
-	    const uchar * data,
-	    int len, int * copy))
+void SSL_CTX_sess_set_get_cb(SSL_CTX * ctx, SSL_SESSION *(*cb)(struct ssl_st * ssl, const uchar * data, int len, int * copy))
 {
 	ctx->get_session_cb = cb;
 }
 
-SSL_SESSION *(*SSL_CTX_sess_get_get_cb(SSL_CTX *ctx))(SSL *ssl,
-    const uchar
-    * data, int len,
-    int * copy) {
+SSL_SESSION *(*SSL_CTX_sess_get_get_cb(SSL_CTX *ctx))(SSL *ssl, const uchar * data, int len, int * copy) 
+{
 	return ctx->get_session_cb;
 }
 
-void SSL_CTX_set_info_callback(SSL_CTX * ctx,
-    void (* cb)(const SSL * ssl, int type, int val))
+void SSL_CTX_set_info_callback(SSL_CTX * ctx, void (* cb)(const SSL * ssl, int type, int val))
 {
 	ctx->info_callback = cb;
 }
 
-void(*SSL_CTX_get_info_callback(SSL_CTX *ctx)) (const SSL *ssl, int type,
-    int val) {
+void(*SSL_CTX_get_info_callback(SSL_CTX *ctx))(const SSL *ssl, int type, int val) 
+{
 	return ctx->info_callback;
 }
 
-void SSL_CTX_set_client_cert_cb(SSL_CTX * ctx,
-    int (* cb)(SSL * ssl, X509 ** x509,
-	    EVP_PKEY ** pkey))
+void SSL_CTX_set_client_cert_cb(SSL_CTX * ctx, int (* cb)(SSL * ssl, X509 ** x509, EVP_PKEY ** pkey))
 {
 	ctx->client_cert_cb = cb;
 }
 
-int(*SSL_CTX_get_client_cert_cb(SSL_CTX *ctx)) (SSL *ssl, X509 **x509,
-    EVP_PKEY **pkey) {
+int(*SSL_CTX_get_client_cert_cb(SSL_CTX *ctx)) (SSL *ssl, X509 **x509, EVP_PKEY **pkey) 
+{
 	return ctx->client_cert_cb;
 }
 

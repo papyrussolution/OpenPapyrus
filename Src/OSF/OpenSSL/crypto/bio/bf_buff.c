@@ -176,11 +176,9 @@ start:
 		}
 		/* we now have a full buffer needing flushing */
 		for(;; ) {
-			i = BIO_write(b->next_bio, &(ctx->obuf[ctx->obuf_off]),
-			    ctx->obuf_len);
+			i = BIO_write(b->next_bio, &(ctx->obuf[ctx->obuf_off]), ctx->obuf_len);
 			if(i <= 0) {
 				BIO_copy_next_retry(b);
-
 				if(i < 0)
 					return ((num > 0) ? num : i);
 				if(i == 0)
@@ -433,4 +431,3 @@ static int buffer_puts(BIO * b, const char * str)
 {
 	return (buffer_write(b, str, strlen(str)));
 }
-

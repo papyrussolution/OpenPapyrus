@@ -1921,6 +1921,30 @@ int FASTCALL SString::Cmp(const char * pS, int ignoreCase) const
 int FASTCALL SString::IsEqNC(const SString & rS) const { return (CmpNC(rS) == 0); }
 int FASTCALL SString::IsEqNC(const char * pS) const { return (CmpNC(pS) == 0); }
 
+int FASTCALL SString::IsEqiAscii(const char * pS) const
+{
+	if(P_Buf != pS) {
+        const size_t len = Len();
+        if(len != sstrlen(pS))
+			return 0;
+		else if(len) {
+            for(size_t i = 0; i < len; i++) {
+				/*char*/uint c1 = P_Buf[i];
+				/*char*/uint c2 = pS[i];
+				if(c1 != c2) {
+					if(c1 >= 'A' && c1 <= 'Z')
+						c1 += ('a' - 'A');
+					if(c2 >= 'A' && c2 <= 'Z')
+						c2 += ('a' - 'A');
+					if(c1 != c2)
+						return 0;
+				}
+            }
+		}
+	}
+	return 1;
+}
+
 int FASTCALL SString::CmpNC(const char * pS) const
 {
 	const int this_empty = Empty();

@@ -1,5 +1,5 @@
 // OBJCACHE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016б 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016б 2017, 2018
 // @Kernel
 //
 #include <pp.h>
@@ -99,7 +99,7 @@ int SLAPI ObjCache::ExtTextBlock::Implement_Get(PPID id, SString & rBuf, void * 
 //
 SLAPI ObjCache::ObjCache(PPID objType, size_t entrySize, long flags) : ObjType(objType), EntrySize(entrySize), UnusedNameSpace(0), Flags(flags), LastPackNamesClock(0)
 {
-	P_Ary = (flags & fOwnerArray) ? 0 : new SArray(EntrySize, /*128,*/ O_ARRAY); // @v8.1.6 1-->128
+	P_Ary = (flags & fOwnerArray) ? 0 : new SArray(EntrySize, O_ARRAY); // @v8.1.6 1-->128
 	PPLoadText(PPTXT_STATLOG_OBJCACHE, StatLogMsg);
 	MEMSZERO(StatData);
 	Ss.add("$"); // zero index - is empty string
@@ -551,8 +551,7 @@ uint FASTCALL ObjCacheHash::Hash(PPID id, uint n) const
 	// @v7.8.3 return (uint)((id + (long)(n * n)) % (long)MaxItems);
 }
 
-uint SLAPI ObjCacheHash::GetCount() const
-	{ return MaxItems; }
+uint SLAPI ObjCacheHash::GetCount() const { return MaxItems; }
 
 ObjCacheEntry * FASTCALL ObjCacheHash::SearchByPos(uint pos, int incr) const
 {
@@ -633,8 +632,7 @@ int SLAPI ObjCacheHash::AddItem(const ObjCacheEntry * pEntry, uint * pPos)
 //
 // Менеджер локальных по отношению к базе данных объектных кэшей
 //
-SLAPI DbLocalCacheMng::DbLocalCacheMng() :
-	TSArray <DbLocalCacheEntry> (aryDataOwner | aryEachItem), DbEntryList(sizeof(CDbEntry))
+SLAPI DbLocalCacheMng::DbLocalCacheMng() : TSArray <DbLocalCacheEntry> (aryDataOwner | aryEachItem), DbEntryList(sizeof(CDbEntry))
 {
 }
 
@@ -824,8 +822,8 @@ int SLAPI ObjCacheStat::Init()
 	DirtyEntries = 0;
 	MaxCounter = 0;
 	MinCounter = 0;
-	DbPath = 0;
-	ObjTypeName = 0;
+	DbPath.Z();
+	ObjTypeName.Z();
 	return 1;
 }
 
@@ -911,7 +909,7 @@ int SLAPI DbLocalCacheMng::LogCacheStat()
 			for(uint i = 0; i < getCount(); i++) {
 				ObjCacheStat stat;
 				if(GetCacheStat(i, &stat) > 0) {
-					out_buf = 0;
+					out_buf.Z();
 					out_buf.Cat(dtm_buf).Semicol();
 					out_buf.Cat(stat.DbPath).Semicol();
 					out_buf.Cat(stat.ObjType).Semicol();

@@ -83,14 +83,8 @@ void ObjViewDialog::removeItem()
 	}
 }
 
-void ObjViewDialog::extraProc(long)
-{
-}
-
-int ObjViewDialog::Print()
-{
-	return -1;
-}
+void   ObjViewDialog::extraProc(long) {}
+int    ObjViewDialog::Print() { return -1; }
 
 int ObjViewDialog::transmit(PPID)
 {
@@ -233,20 +227,9 @@ SLAPI PPObjReference::PPObjReference(PPID aObj, /*long extraData*/void * extraPt
 	// } @v8.2.3
 }
 
-int SLAPI PPObjReference::Search(PPID id, void * b)
-{
-	return ref->GetItem(Obj, id, b);
-}
-
-const char * SLAPI PPObjReference::GetNamePtr()
-{
-	return ref->data.ObjName;
-}
-
-int SLAPI PPObjReference::SearchByName(const char * pName, PPID * pID, void * pRec)
-{
-	return ref->SearchName(Obj, pID, pName, pRec);
-}
+int    SLAPI PPObjReference::Search(PPID id, void * b) { return ref->GetItem(Obj, id, b); }
+const  char * SLAPI PPObjReference::GetNamePtr() { return ref->data.ObjName; }
+int    SLAPI PPObjReference::SearchByName(const char * pName, PPID * pID, void * pRec) { return ref->SearchName(Obj, pID, pName, pRec); }
 
 int SLAPI PPObjReference::SearchBySymb(const char * pSymb, PPID * pID, void * pRec)
 {
@@ -302,20 +285,9 @@ int SLAPI PPObjReference::SearchBySymb(const char * pSymb, PPID * pID, void * pR
 	return r;
 }
 
-int SLAPI PPObjReference::EnumItems(PPID * pID, void * b)
-{
-	return ref->EnumItems(Obj, pID, b);
-}
-
-SEnumImp * FASTCALL PPObjReference::Enum(int options)
-{
-    return ref->Enum(Obj, options);
-}
-
-SEnumImp * SLAPI PPObjReference::EnumByIdxVal(int valN, long val)
-{
-	return ref->EnumByIdxVal(Obj, valN, val);
-}
+int SLAPI PPObjReference::EnumItems(PPID * pID, void * b) { return ref->EnumItems(Obj, pID, b); }
+SEnumImp * FASTCALL PPObjReference::Enum(int options) { return ref->Enum(Obj, options); }
+SEnumImp * SLAPI PPObjReference::EnumByIdxVal(int valN, long val) { return ref->EnumByIdxVal(Obj, valN, val); }
 
 int SLAPI PPObjReference::CheckDupName(PPID objID, const char * pName)
 {
@@ -3540,15 +3512,9 @@ int SLAPI PPUhttStoreSelDescr::GetDefaultEntryTitle(uint pos, SString & rBuf) co
 	if(pos < L.getCount()) {
 		const InnerEntry & r_item = L.at(pos);
 		switch(r_item.Attr) {
-			case attrGroup:
-				PPLoadString("goodsgroup", rBuf);
-				break;
-			case attrBrand:
-				PPLoadString("brand", rBuf);
-				break;
-			case attrName:
-				PPLoadString("appellation", rBuf);
-				break;
+			case attrGroup: PPLoadString("goodsgroup", rBuf); break;
+			case attrBrand: PPLoadString("brand", rBuf); break;
+			case attrName:  PPLoadString("appellation", rBuf); break;
 			case attrTag:
 				if(r_item.ExtID) {
 					PPObjTag tag_obj;
@@ -3627,15 +3593,8 @@ SLAPI PPEdiProviderPacket::~PPEdiProviderPacket()
 {
 }
 
-int SLAPI PPEdiProviderPacket::GetExtStrData(int fldID, SString & rBuf) const
-{
-	return PPGetExtStrData(fldID, ExtString, rBuf);
-}
-
-int SLAPI PPEdiProviderPacket::PutExtStrData(int fldID, const char * pBuf)
-{
-	return PPPutExtStrData(fldID, ExtString, pBuf);
-}
+int SLAPI PPEdiProviderPacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int SLAPI PPEdiProviderPacket::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 
 int FASTCALL PPEdiProviderPacket::IsEqual(const PPEdiProviderPacket & rS) const
 {

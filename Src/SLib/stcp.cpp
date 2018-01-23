@@ -4232,7 +4232,7 @@ int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, SMailMessage & rMsg)
 			}
 			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_MAIL_RCPT, p_recipients)));
 		}
-		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL)));
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_USE_SSL, (long)CURLUSESSL_TRY))); // @v9.9.1 CURLUSESSL_ALL-->CURLUSESSL_TRY
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_READFUNCTION, CbRead_EMailMessage)));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_READDATA, &rd_blk)));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_UPLOAD, 1L)));

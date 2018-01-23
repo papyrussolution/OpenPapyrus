@@ -36,5 +36,4 @@
 #include "afshaper.c"
 #include "afwarp.c"
 
-
 /* END */

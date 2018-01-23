@@ -1,27 +1,27 @@
 // BNKEY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <db.h>
 #pragma hdrstop
 
-struct BNKeyHeader {
+struct BNKeyHeader { // @flat
 	int32  numSeg;
 	int16  keyNumber;
 	int16  acsNumber;
 };
 
-struct BNKeySeg {
+struct BNKeySeg { // @flat
 	int32  fldID;          // Field index in DBTable::fields
 	int32  flags;
 };
 
-struct BNIndexHeader {
+struct BNIndexHeader { // @flat
 	int32  numKeys;
 	uint32 tblBackOffset; // offsetof(DBTable, indexes)
 };
 
-union BNKeyCell {
+union BNKeyCell { // @flat
 	BNIndexHeader ih;
 	BNKeyHeader   h;
 	BNKeySeg      s;
@@ -34,9 +34,8 @@ union BNKeyCell {
 #define NUMCELLS (data ? (HEAD.numSeg + 1) : 0)
 #define DATALEN  (NUMCELLS * sizeof(BNKeyCell))
 
-SLAPI BNKey::BNKey()
+SLAPI BNKey::BNKey() : data(0)
 {
-	data = 0;
 }
 
 void SLAPI BNKey::destroy()
@@ -96,25 +95,10 @@ int SLAPI BNKey::setKeyParams(int keyNumber, int acsNumber)
 	return 0;
 }
 
-int SLAPI BNKey::getNumSeg() const
-{
-	return data ? HEAD.numSeg : 0;
-}
-
-int SLAPI BNKey::getKeyNumber() const
-{
-	return data ? HEAD.keyNumber : UNDEF;
-}
-
-int SLAPI BNKey::getACSNumber() const
-{
-	return data ? HEAD.acsNumber : UNDEF;
-}
-
-int SLAPI BNKey::getFieldID(int seg) const
-{
-	return (data && seg >= 0 && seg < HEAD.numSeg) ? SEG(seg).fldID : UNDEF;
-}
+int SLAPI BNKey::getNumSeg() const { return data ? HEAD.numSeg : 0; }
+int SLAPI BNKey::getKeyNumber() const { return data ? HEAD.keyNumber : UNDEF; }
+int SLAPI BNKey::getACSNumber() const { return data ? HEAD.acsNumber : UNDEF; }
+int SLAPI BNKey::getFieldID(int seg) const { return (data && seg >= 0 && seg < HEAD.numSeg) ? SEG(seg).fldID : UNDEF; }
 
 int SLAPI BNKey::getFlags(int seg) const
 {

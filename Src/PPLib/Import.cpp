@@ -4326,6 +4326,7 @@ int FiasImporter::ReadRecordFromXmlAttrList(const char ** ppAttrList)
 	if(P_Sdr) {
 		SdbField fld;
 		SFormatParam fp;
+		SString temp_buf;
 		fp.FDate = DATF_YMD|DATF_CENTURY;
 		fp.FTime = TIMF_HMS;
 		P_Sdr->ClearDataBuf();
@@ -4334,8 +4335,8 @@ int FiasImporter::ReadRecordFromXmlAttrList(const char ** ppAttrList)
 		for(uint i = 0; ppAttrList[i] != 0; i += 2) {
 			const char * p_text_data = ppAttrList[i+1];
 			if(p_text_data != 0) {
-				if(P_Sdr->GetFieldByName(ppAttrList[i], &fld) > 0) {
-					fld.PutFieldDataToBuf(p_text_data, p_data_buf, fp);
+				if(P_Sdr->GetFieldByName_Fast(ppAttrList[i], &fld) > 0) {
+					fld.PutFieldDataToBuf((temp_buf = p_text_data), p_data_buf, fp);
 				}
 			}
 		}
@@ -4528,7 +4529,7 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 				THROW(ReadRecordFromXmlAttrList(ppAttrList));
 				const Sdr_FiasRawAddrObj * p_data = (const Sdr_FiasRawAddrObj *)P_Sdr->GetDataC();
 				assert(p_data);
-				if(p_data && p_data->LIVESTATUS) {
+				if(p_data) {
 					line_buf.Z();
 					if(r_state.Phase == phaseCount) {
 						if(P_DebugOutput && P_DebugOutput->IsValid()) {
@@ -4593,68 +4594,83 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 						SStringU utext;
 						int    sr = 0;
 						if(r_state.Phase == phaseUUID) {
-							THROW(CollectUuid(p_data->AOID));
-							THROW(CollectUuid(p_data->PREVID));
-							THROW(CollectUuid(p_data->NEXTID));
-							THROW(CollectUuid(p_data->AOGUID));
-							THROW(CollectUuid(p_data->PARENTGUID));
-							THROW(FlashUuidChunk(1024, 1));
-						}
-						else if(r_state.Phase == phaseText) {
-							THROW(ProcessString(p_data->FORMALNAME, &rec.NameTRef, line_buf, utext));
-							THROW(ProcessString(p_data->OFFNAME,    &rec.OfcNameTRef, line_buf, utext));
-							THROW(ProcessString(p_data->SHORTNAME,  &rec.SnTRef, line_buf, utext));
-							THROW(ProcessString(p_data->OKATO,      &rec.OkatoTRef, line_buf, utext));
-							THROW(ProcessString(p_data->OKTMO,      &rec.OktmoTRef, line_buf, utext));
-							THROW(ProcessString(p_data->PLAINCODE,  &rec.KladrCodeTRef, line_buf, utext));
-							THROW(ToggleTransaction(10000));
-						}
-						else if(r_state.Phase == phaseSartrePass1) {
-							if(P_SrDb) {
-								//THROW(P_SrDb->StoreFiasAddr(P_SrStoreFiasAddrBlock, *p_data));
+							if(p_data->LIVESTATUS) {
+								THROW(CollectUuid(p_data->AOID));
+								THROW(CollectUuid(p_data->PREVID));
+								THROW(CollectUuid(p_data->NEXTID));
+								THROW(CollectUuid(p_data->AOGUID));
+								THROW(CollectUuid(p_data->PARENTGUID));
+								THROW(FlashUuidChunk(1024, 1));
 							}
 						}
-						else {
-							THROW(FT.UrT.GetUuid(p_data->AOID, &rec.RecUuID, 0, 0));
-							THROW(sr = FT.SearchAddr(rec.RecUuID, &org_rec));
-							if(sr < 0) {
-								THROW(FT.UrT.GetUuid(p_data->PREVID, &rec.PrevRecUuRef, 0, 0));
-								THROW(FT.UrT.GetUuid(p_data->NEXTID, &rec.NextRecUuRef, 0, 0));
-								THROW(FT.UrT.GetUuid(p_data->AOGUID, &rec.IdUuRef, UuidRefCore::sgoHash, 0));
-								THROW(FT.UrT.GetUuid(p_data->PARENTGUID, &rec.ParentUuRef, UuidRefCore::sgoHash, 0));
-								//
+						else if(r_state.Phase == phaseText) {
+							if(p_data->LIVESTATUS) {
 								THROW(ProcessString(p_data->FORMALNAME, &rec.NameTRef, line_buf, utext));
 								THROW(ProcessString(p_data->OFFNAME,    &rec.OfcNameTRef, line_buf, utext));
 								THROW(ProcessString(p_data->SHORTNAME,  &rec.SnTRef, line_buf, utext));
 								THROW(ProcessString(p_data->OKATO,      &rec.OkatoTRef, line_buf, utext));
 								THROW(ProcessString(p_data->OKTMO,      &rec.OktmoTRef, line_buf, utext));
 								THROW(ProcessString(p_data->PLAINCODE,  &rec.KladrCodeTRef, line_buf, utext));
-								rec.PostalCode = atoi(p_data->POSTALCODE);
-								rec.IfnsJ = atoi(p_data->IFNSUL);
-								rec.IfnsI = atoi(p_data->IFNSFL);
-								rec.TerrIfnsJ = atoi(p_data->TERRIFNSUL);
-								rec.TerrIfnsI = atoi(p_data->TERRIFNSFL);
+								THROW(ToggleTransaction(10000));
+							}
+						}
+						// Следующие 2 фазы перебирают не только актуальные записи {
+						else if(r_state.Phase == phaseSartrePass1) {
+							if(P_SrDb) {
+								THROW(P_SrDb->StoreFiasAddr(P_SrStoreFiasAddrBlock, 1, *p_data));
+							}
+						}
+						else if(r_state.Phase == phaseSartrePass2) {
+							if(P_SrDb) {
+								THROW(P_SrDb->StoreFiasAddr(P_SrStoreFiasAddrBlock, 2, *p_data));
+							}
+						}
+						// }
+						else {
+							if(p_data->LIVESTATUS) {
+								THROW(FT.UrT.GetUuid(p_data->AOID, &rec.RecUuID, 0, 0));
+								THROW(sr = FT.SearchAddr(rec.RecUuID, &org_rec));
+								if(sr < 0) {
+									THROW(FT.UrT.GetUuid(p_data->PREVID, &rec.PrevRecUuRef, 0, 0));
+									THROW(FT.UrT.GetUuid(p_data->NEXTID, &rec.NextRecUuRef, 0, 0));
+									THROW(FT.UrT.GetUuid(p_data->AOGUID, &rec.IdUuRef, UuidRefCore::sgoHash, 0));
+									THROW(FT.UrT.GetUuid(p_data->PARENTGUID, &rec.ParentUuRef, UuidRefCore::sgoHash, 0));
+									//
+									THROW(ProcessString(p_data->FORMALNAME, &rec.NameTRef, line_buf, utext));
+									THROW(ProcessString(p_data->OFFNAME,    &rec.OfcNameTRef, line_buf, utext));
+									THROW(ProcessString(p_data->SHORTNAME,  &rec.SnTRef, line_buf, utext));
+									THROW(ProcessString(p_data->OKATO,      &rec.OkatoTRef, line_buf, utext));
+									THROW(ProcessString(p_data->OKTMO,      &rec.OktmoTRef, line_buf, utext));
+									THROW(ProcessString(p_data->PLAINCODE,  &rec.KladrCodeTRef, line_buf, utext));
+									rec.PostalCode = atoi(p_data->POSTALCODE);
+									rec.IfnsJ = atoi(p_data->IFNSUL);
+									rec.IfnsI = atoi(p_data->IFNSFL);
+									rec.TerrIfnsJ = atoi(p_data->TERRIFNSUL);
+									rec.TerrIfnsI = atoi(p_data->TERRIFNSFL);
 
-								rec.LevelStatus = atoi(p_data->AOLEVEL);
-								rec.CenterStatus = (int16)p_data->CENTSTATUS;
-								rec.ActionStatus = (int16)p_data->ACTSTATUS;
-								rec.KladrCurStatus = (int16)p_data->CURRSTATUS;
+									rec.LevelStatus = atoi(p_data->AOLEVEL);
+									rec.CenterStatus = (int16)p_data->CENTSTATUS;
+									rec.ActionStatus = (int16)p_data->ACTSTATUS;
+									rec.KladrCurStatus = (int16)p_data->CURRSTATUS;
 
-								rec.StartDt = p_data->STARTDATE;
-								rec.EndDt = p_data->ENDDATE;
-								rec.UpdateDt = p_data->UPDATEDATE;
+									rec.StartDt = p_data->STARTDATE;
+									rec.EndDt = p_data->ENDDATE;
+									rec.UpdateDt = p_data->UPDATEDATE;
 
-								SETFLAG(rec.Flags, FIASADRF_ACTUAL, p_data->LIVESTATUS);
-								if(r_state.Phase == phaseData) {
-									THROW_SL(AddrRecChunk.insert(&rec));
-									THROW(FlashAddrChunk(1024, 1));
-								}
-								else {
-									THROW_DB(FT.AdrT.insertRecBuf(&rec));
+									SETFLAG(rec.Flags, FIASADRF_ACTUAL, p_data->LIVESTATUS);
+									if(r_state.Phase == phaseData) {
+										THROW_SL(AddrRecChunk.insert(&rec));
+										THROW(FlashAddrChunk(1024, 1));
+									}
+									else {
+										THROW_DB(FT.AdrT.insertRecBuf(&rec));
+									}
 								}
 							}
 							if(r_state.Phase != phaseData) {
-								THROW(ToggleTransaction(1000));
+								if(p_data->LIVESTATUS) {
+									THROW(ToggleTransaction(1000));
+								}
 							}
 						}
 					}
@@ -4667,6 +4683,8 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 					case phaseUUID: line_buf.Space().Cat("phaseUUID"); break;
 					case phaseText: line_buf.Space().Cat("phaseTEXT"); break;
 					case phaseData: line_buf.Space().Cat("phaseDATA"); break;
+					case phaseSartrePass1: line_buf.Space().Cat("phaseSartrePass1"); break;
+					case phaseSartrePass2: line_buf.Space().Cat("phaseSartrePass2"); break;
 				}
 				line_buf.Space().Cat(RawRecN);
 				PPWaitMsg(line_buf);
@@ -4812,15 +4830,41 @@ int FiasImporter::EndElement(const char * pName)
 	return ok;
 }
 
+int FiasImporter::DoPhase(int inpObject, int phase, const SString & rFileName, xmlSAXHandler & rSaxH)
+{
+	int    ok = 1;
+	SString nfn;
+	uint   ps_pos = 0;
+	PPWait(1);
+	if(!(P.Flags & Param::fIgnoreSavedState)) {
+		THROW(Ps.Restore());
+	}
+	THROW(Ps.SetItem(rFileName, phase, &ps_pos, nfn));
+	CurPsPos = (int)ps_pos;
+	if(!oneof4(phase, phaseUUID, phaseData, phaseSartrePass1, phaseSartrePass2)) {
+		THROW(Tra.Start(1));
+	}
+	InputObject = inpObject;
+	SaxParseFile(&rSaxH, rFileName);
+	THROW(Ps.Store(-1));
+	if(phase == phaseUUID) {
+		THROW(FlashUuidChunk(0, 1));
+	}
+	else if(phase == phaseData) {
+		THROW(FlashAddrChunk(0, 1));
+		THROW(FlashHouseChunk(0, 1));
+	}
+	else {
+		THROW(Tra.Commit());
+	}
+	THROW(!(State & stError));
+	CATCHZOK
+	PPWait(0);
+	return ok;
+}
+
 int FiasImporter::Import(int inpObject)
 {
-	const  int  phase_list[] = {
-		phaseCount,
-		phaseUUID,
-		phaseText,
-		phaseData
-	};
-
 	int    ok = 1;
 	SString file_name, wildcard;
 	SString dest_file_obj_name;
@@ -4856,34 +4900,17 @@ int FiasImporter::Import(int inpObject)
 			saxh_addr_obj.endDocument = Scb_EndDocument;
 			saxh_addr_obj.startElement = Scb_StartElement;
 			saxh_addr_obj.endElement = Scb_EndElement;
-			for(uint phn = 0; phn < SIZEOFARRAY(phase_list); phn++) {
-				const int phase = phase_list[phn];
-				SString nfn;
-				uint   ps_pos = 0;
-				PPWait(1);
-				if(!(P.Flags & Param::fIgnoreSavedState)) {
-					THROW(Ps.Restore());
+			if(P.Flags & P.fAcceptToSartreDb) {
+				const  int  phase_list[] = { /*phaseCount,*/ phaseSartrePass1, phaseSartrePass2 };
+				for(uint phn = 0; phn < SIZEOFARRAY(phase_list); phn++) {
+					THROW(DoPhase(inpObject, phase_list[phn], file_name, saxh_addr_obj));
 				}
-				THROW(Ps.SetItem(file_name, phase, &ps_pos, nfn));
-				CurPsPos = (int)ps_pos;
-				if(!oneof2(phase, phaseUUID, phaseData)) {
-					THROW(Tra.Start(1));
+			}
+			else {
+				const  int  phase_list[] = { phaseCount, phaseUUID, phaseText, phaseData };
+				for(uint phn = 0; phn < SIZEOFARRAY(phase_list); phn++) {
+					THROW(DoPhase(inpObject, phase_list[phn], file_name, saxh_addr_obj));
 				}
-				InputObject = inpObject;
-				SaxParseFile(&saxh_addr_obj, file_name);
-				THROW(Ps.Store(-1));
-				if(phase == phaseUUID) {
-					THROW(FlashUuidChunk(0, 1));
-				}
-				else if(phase == phaseData) {
-					THROW(FlashAddrChunk(0, 1));
-					THROW(FlashHouseChunk(0, 1));
-				}
-				else {
-					THROW(Tra.Commit());
-				}
-				PPWait(0);
-				THROW(!(State & stError));
 			}
 		}
 	}
@@ -4907,6 +4934,7 @@ int FiasImporter::EditParam(Param & rP)
 			AddClusterAssoc(CTL_FIASIMP_FLAGS, 0, FiasImporter::Param::fImportAddrObj);
 			AddClusterAssoc(CTL_FIASIMP_FLAGS, 1, FiasImporter::Param::fImportHouseObj);
 			AddClusterAssoc(CTL_FIASIMP_FLAGS, 2, FiasImporter::Param::fIgnoreSavedState);
+			AddClusterAssoc(CTL_FIASIMP_FLAGS, 3, FiasImporter::Param::fAcceptToSartreDb);
 			SetClusterData(CTL_FIASIMP_FLAGS, Data.Flags);
 			return ok;
 		}
@@ -4950,7 +4978,11 @@ int SLAPI FiasImporter::Run(FiasImporter::Param & rP)
 		THROW(P_SrStoreFiasAddrBlock = P_SrDb->CreateStoreFiasAddrBlock());
 	}
 	else {
-		ZDELETE(P_SrDb);
+		if(P_SrDb) {
+			P_SrDb->DestroyStoreFiasAddrBlock(P_SrStoreFiasAddrBlock);
+			P_SrStoreFiasAddrBlock = 0;
+			ZDELETE(P_SrDb);
+		}
 	}
 	if(P.Flags & P.fImportAddrObj) {
 		THROW(Import(FiasImporter::inpAddrObj));
@@ -4959,6 +4991,11 @@ int SLAPI FiasImporter::Run(FiasImporter::Param & rP)
 		THROW(Import(FiasImporter::inpHouse));
 	}
 	CATCHZOK
+	if(P_SrDb) {
+		P_SrDb->DestroyStoreFiasAddrBlock(P_SrStoreFiasAddrBlock);
+		P_SrStoreFiasAddrBlock = 0;
+		ZDELETE(P_SrDb);
+	}
 	return ok;
 }
 //
@@ -4998,61 +5035,15 @@ int SLAPI PrcssrOsm::StatBlock::Serialize(int dir, SBuffer & rBuffer, SSerialize
 	return ok;
 }
 
-uint64 SLAPI PrcssrOsm::StatBlock::GetNcActualCount() const
-{
-	uint64 result = 0;
-	for(uint i = 0; i < NcList.getCount(); i++)
-		result += NcList.at(i).ActualCount;
-	return result;
-}
-
-uint64 SLAPI PrcssrOsm::StatBlock::GetNcProcessedCount() const
-{
-	uint64 result = 0;
-	for(uint i = 0; i < NcList.getCount(); i++)
-		result += NcList.at(i).ProcessedCount;
-	return result;
-}
-
-uint64 SLAPI PrcssrOsm::StatBlock::GetNcClusterCount() const
-{
-	uint64 result = 0;
-	for(uint i = 0; i < NcList.getCount(); i++)
-		result += NcList.at(i).ClusterCount;
-	return result;
-}
-
-uint64 SLAPI PrcssrOsm::StatBlock::GetNcSize() const
-{
-	uint64 result = 0;
-	for(uint i = 0; i < NcList.getCount(); i++)
-		result += NcList.at(i).Size;
-	return result;
-}
-
-uint64 SLAPI PrcssrOsm::StatBlock::GetWsCount() const
-{
-	uint64 result = 0;
-	for(uint i = 0; i < WayList.getCount(); i++)
-		result += WayList.at(i).WayCount;
-	return result;
-}
-
-uint64 SLAPI PrcssrOsm::StatBlock::GetWsProcessedCount() const
-{
-	uint64 result = 0;
-	for(uint i = 0; i < WayList.getCount(); i++)
-		result += WayList.at(i).ProcessedCount;
-	return result;
-}
-
-uint64 SLAPI PrcssrOsm::StatBlock::GetWsSize() const
-{
-	uint64 result = 0;
-	for(uint i = 0; i < WayList.getCount(); i++)
-		result += WayList.at(i).Size;
-	return result;
-}
+#define _SUM_OF_VECTORMEMBER(_type, _vect, _memb) _type t = 0; for(uint i = 0; i < _vect.getCount(); i++) { t += _vect.at(i)._memb; } return t
+	uint64 SLAPI PrcssrOsm::StatBlock::GetNcActualCount() const { _SUM_OF_VECTORMEMBER(uint64, NcList, ActualCount); }
+	uint64 SLAPI PrcssrOsm::StatBlock::GetNcProcessedCount() const { _SUM_OF_VECTORMEMBER(uint64, NcList, ProcessedCount); }
+	uint64 SLAPI PrcssrOsm::StatBlock::GetNcClusterCount() const { _SUM_OF_VECTORMEMBER(uint64, NcList, ClusterCount); }
+	uint64 SLAPI PrcssrOsm::StatBlock::GetNcSize() const { _SUM_OF_VECTORMEMBER(uint64, NcList, Size); }
+	uint64 SLAPI PrcssrOsm::StatBlock::GetWsCount() const { _SUM_OF_VECTORMEMBER(uint64, WayList, WayCount); }
+	uint64 SLAPI PrcssrOsm::StatBlock::GetWsProcessedCount() const { _SUM_OF_VECTORMEMBER(uint64, WayList, ProcessedCount); }
+	uint64 SLAPI PrcssrOsm::StatBlock::GetWsSize() const { _SUM_OF_VECTORMEMBER(uint64, WayList, Size); }
+#undef _SUM_OF_VECTORMEMBER
 
 SLAPI PrcssrOsm::RoadStone::RoadStone() : Phase(phaseUnkn)
 {
@@ -5110,7 +5101,7 @@ void SLAPI PrcssrOsm::CommonAttrSet::Reset()
 	TypeSymbID = 0;
 	RoleSymbID = 0;
 	RefID = 0;
-	User = 0;
+	User.Z();
 }
 
 SLAPI PrcssrOsm::PrcssrOsm(const char * pDbPath) : O(pDbPath), GgtFinder(O.GetGrid()),

@@ -290,15 +290,8 @@ SString & DL6ICLS_PapyrusTextAnalyzer::ReplaceString(SString & inputText)
 //
 //
 //
-DL6_IC_CONSTRUCTOR(LongList, DL6ICLS_LongList_VTab)
-{
-	ExtraPtr = new LongArray;
-}
-
-DL6_IC_DESTRUCTOR(LongList)
-{
-	delete (LongArray *)ExtraPtr;
-}
+DL6_IC_CONSTRUCTOR(LongList, DL6ICLS_LongList_VTab) { ExtraPtr = new LongArray; }
+DL6_IC_DESTRUCTOR(LongList) { delete (LongArray *)ExtraPtr; }
 //
 // Interface ILongList implementation
 //
@@ -378,10 +371,8 @@ void DL6ICLS_LongList::SortAndUndup()
 //
 // StrAssocList
 //
-DL6_IC_CONSTRUCTOR(StrAssocList, DL6ICLS_StrAssocList_VTab)
-	{ ExtraPtr = new StrAssocArray; }
-DL6_IC_DESTRUCTOR(StrAssocList)
-	{ delete (StrAssocArray *)ExtraPtr; }
+DL6_IC_CONSTRUCTOR(StrAssocList, DL6ICLS_StrAssocList_VTab) { ExtraPtr = new StrAssocArray; }
+DL6_IC_DESTRUCTOR(StrAssocList) { delete (StrAssocArray *)ExtraPtr; }
 //
 // Interface IStrAssocList implementation
 //
@@ -748,8 +739,7 @@ DL6_IC_CONSTRUCTOR(PPDbfCreateFlds, DL6ICLS_PPDbfCreateFlds_VTab)
 DL6_IC_DESTRUCTOR(PPDbfCreateFlds)
 {
 	InnerExtraDbfCreateFlds * p_e = (InnerExtraDbfCreateFlds*)ExtraPtr;
-	if(p_e)
-		p_e->Init();
+	CALLPTRMEMB(p_e, Init());
 	ZDELETE(p_e);
 }
 //
@@ -779,10 +769,8 @@ int32 DL6ICLS_PPDbfCreateFlds::GetCount()
 	return (p_e) ? p_e->GetCount() : 0;
 }
 
-DL6_IC_CONSTRUCTOR(PPDbfRecord, DL6ICLS_PPDbfRecord_VTab)
-	{ ExtraPtr = 0; }
-DL6_IC_DESTRUCTOR(PPDbfRecord)
-	{ delete (DbfRecord *)ExtraPtr; }
+DL6_IC_CONSTRUCTOR(PPDbfRecord, DL6ICLS_PPDbfRecord_VTab) { ExtraPtr = 0; }
+DL6_IC_DESTRUCTOR(PPDbfRecord) { delete (DbfRecord *)ExtraPtr; }
 //
 // Interface ISDbfRecord implementation
 //
@@ -845,8 +833,7 @@ double DL6ICLS_PPDbfRecord::GetDouble(int32 fldN)
 {
 	double val = 0;
 	DbfRecord * p_rec = (DbfRecord*)ExtraPtr;
-	if(p_rec)
-		p_rec->get(fldN, val);
+	CALLPTRMEMB(p_rec, get(fldN, val));
 	return val;
 }
 
@@ -854,8 +841,7 @@ int32 DL6ICLS_PPDbfRecord::GetLong(int32 fldN)
 {
 	long val = 0;
 	DbfRecord * p_rec = (DbfRecord*)ExtraPtr;
-	if(p_rec)
-		p_rec->get(fldN, val);
+	CALLPTRMEMB(p_rec, get(fldN, val));
 	return val;
 }
 
@@ -904,10 +890,8 @@ SDbfFldType DL6ICLS_PPDbfRecord::GetFieldType(uint32 fldN)
 	return (SDbfFldType)type;
 }
 
-DL6_IC_CONSTRUCTOR(PPDbfTable, DL6ICLS_PPDbfTable_VTab)
-	{ ExtraPtr = 0; }
-DL6_IC_DESTRUCTOR(PPDbfTable)
-	{ delete (DbfTable *)ExtraPtr; }
+DL6_IC_CONSTRUCTOR(PPDbfTable, DL6ICLS_PPDbfTable_VTab) { ExtraPtr = 0; }
+DL6_IC_DESTRUCTOR(PPDbfTable) { delete (DbfTable *)ExtraPtr; }
 //
 // Interface ISDbfTable implementation
 //
@@ -984,8 +968,7 @@ uint32 DL6ICLS_PPDbfTable::GetPosition()
 {
 	ulong pos = 0;
 	DbfTable * p_tbl = (DbfTable*)ExtraPtr;
-	if(p_tbl)
-		p_tbl->getPosition(&pos);
+	CALLPTRMEMB(p_tbl, getPosition(&pos));
 	return pos;
 }
 
@@ -1157,10 +1140,8 @@ int32 DL6ICLS_PPDbfTable::IsDeletedRec()
 //
 // PPFtp
 //
-DL6_IC_CONSTRUCTOR(PPFtp, DL6ICLS_PPFtp_VTab)
-	{ ExtraPtr = 0; }
-DL6_IC_DESTRUCTOR(PPFtp)
-	{ delete (WinInetFTP*)ExtraPtr; }
+DL6_IC_CONSTRUCTOR(PPFtp, DL6ICLS_PPFtp_VTab) { ExtraPtr = 0; }
+DL6_IC_DESTRUCTOR(PPFtp) { delete (WinInetFTP*)ExtraPtr; }
 //
 // Interface ISDbfTable implementation
 //
@@ -1217,38 +1198,26 @@ int32 DL6ICLS_PPFtp::Connect(SFtpAccount * pAcct)
 
 int32 DL6ICLS_PPFtp::Get(SString & rLocalPath, SString & rFtpPath)
 {
-	int ok = 0;
 	WinInetFTP * p_ftp = (WinInetFTP*)ExtraPtr;
-	if(p_ftp)
-		ok = p_ftp->SafeGet(rLocalPath, rFtpPath, 0, 0, 0);
-	return ok;
+	return p_ftp ? p_ftp->SafeGet(rLocalPath, rFtpPath, 0, 0, 0) : 0;
 }
 
 int32 DL6ICLS_PPFtp::Put(SString & rLocalPath, SString & rFtpPath)
 {
-	int    ok = 0;
 	WinInetFTP * p_ftp = (WinInetFTP*)ExtraPtr;
-	if(p_ftp)
-		ok = p_ftp->SafePut(rLocalPath, rFtpPath, 0, 0, 0);
-	return ok;
+	return p_ftp ? p_ftp->SafePut(rLocalPath, rFtpPath, 0, 0, 0) : 0;
 }
 
 int32 DL6ICLS_PPFtp::Delete(SString & rFtpPath)
 {
-	int    ok = 0;
 	WinInetFTP * p_ftp = (WinInetFTP*)ExtraPtr;
-	if(p_ftp)
-		ok = p_ftp->SafeDelete(rFtpPath, 0);
-	return ok;
+	return p_ftp ? p_ftp->SafeDelete(rFtpPath, 0) : 0;
 }
 
 int32 DL6ICLS_PPFtp::DeleteWOCD(SString & rFtpPath)
 {
-	int    ok = 0;
 	WinInetFTP * p_ftp = (WinInetFTP*)ExtraPtr;
-	if(p_ftp)
-		ok = p_ftp->SafeDeleteWOCD(rFtpPath, 0);
-	return ok;
+	return p_ftp ? p_ftp->SafeDeleteWOCD(rFtpPath, 0) : 0;
 }
 
 IStrAssocList * DL6ICLS_PPFtp::GetFileList(SString & rDir, SString & rMask)
@@ -1281,11 +1250,8 @@ int32 DL6ICLS_PPFtp::CD(SString & rFtpPath, int32 isFullPath)
 //
 // PPUtil
 //
-DL6_IC_CONSTRUCTOR(PPUtil, DL6ICLS_PPUtil_VTab)
-	{}
-DL6_IC_DESTRUCTOR(PPUtil)
-	{}
-
+DL6_IC_CONSTRUCTOR(PPUtil, DL6ICLS_PPUtil_VTab) {}
+DL6_IC_DESTRUCTOR(PPUtil) {}
 //
 // Interface IPapyrusUtil implementation
 //
@@ -1347,7 +1313,7 @@ ILongList * DL6ICLS_PPUtil::SearchObjectsByTagStrExactly(PpyObjectIdent objType,
 	ObjTagCore & r_tc = PPRef->Ot;
 	THROW(CreateInnerInstance("LongList", "ILongList", (void **)&p));
 	THROW(p_id_list = (LongArray *)SCoClass::GetExtraPtrByInterface(p));
-	PPRef->Ot.SearchObjectsByStrExactly(objType, tagID, pattern, p_id_list);
+	r_tc.SearchObjectsByStrExactly(objType, tagID, pattern, p_id_list);
 	CATCH
 		ReleaseUnknObj(&p);
 		AppError = 1;
@@ -1355,60 +1321,17 @@ ILongList * DL6ICLS_PPUtil::SearchObjectsByTagStrExactly(PpyObjectIdent objType,
 	return (ILongList*)p;
 }
 
-SString & DL6ICLS_PPUtil::ToChar(SString & rBuf)
-{
-	return rBuf.Transf(CTRANSF_INNER_TO_OUTER);
-}
-
-SString & DL6ICLS_PPUtil::ToOem(SString & rBuf)
-{
-	return rBuf.ToOem();
-}
-
-SString & DL6ICLS_PPUtil::UTF8ToOem(SString & rBuf)
-{
-	return rBuf.Utf8ToOem();
-}
-
-SString & DL6ICLS_PPUtil::UTF8ToChar(SString & rBuf)
-{
-	return rBuf.Utf8ToChar();
-}
-
-int32 DL6ICLS_PPUtil::ToLong(SString & rBuf)
-{
-	return rBuf.ToLong();
-}
-
-double DL6ICLS_PPUtil::ToDouble(SString & rBuf)
-{
-	return rBuf.ToReal();
-}
-
-int32 DL6ICLS_PPUtil::CheckFlag(int32 flags, int32 flag)
-{
-	return ((flags & flag) == flag) ? 1 : 0;
-}
-
-int32 DL6ICLS_PPUtil::GetSellAccSheet()
-{
-	return IfcImpCheckDictionary() ? ::GetSellAccSheet() : 0;
-}
-
-int32 DL6ICLS_PPUtil::GetAgentAccSheet()
-{
-	return IfcImpCheckDictionary() ? ::GetAgentAccSheet() : 0;
-}
-
-int32 DL6ICLS_PPUtil::GetSupplAccSheet()
-{
-	return IfcImpCheckDictionary() ? ::GetSupplAccSheet() : 0;
-}
-
-int32 DL6ICLS_PPUtil::ObjectToPerson(int32 articleID)
-{
-	return IfcImpCheckDictionary() ? ::ObjectToPerson(articleID) : 0;
-}
+SString & DL6ICLS_PPUtil::ToChar(SString & rBuf) { return rBuf.Transf(CTRANSF_INNER_TO_OUTER); }
+SString & DL6ICLS_PPUtil::ToOem(SString & rBuf) { return rBuf.ToOem(); }
+SString & DL6ICLS_PPUtil::UTF8ToOem(SString & rBuf) { return rBuf.Utf8ToOem(); }
+SString & DL6ICLS_PPUtil::UTF8ToChar(SString & rBuf) { return rBuf.Utf8ToChar(); }
+int32  DL6ICLS_PPUtil::ToLong(SString & rBuf) { return rBuf.ToLong(); }
+double DL6ICLS_PPUtil::ToDouble(SString & rBuf) { return rBuf.ToReal(); }
+int32  DL6ICLS_PPUtil::CheckFlag(int32 flags, int32 flag) { return ((flags & flag) == flag) ? 1 : 0; }
+int32  DL6ICLS_PPUtil::GetSellAccSheet() { return IfcImpCheckDictionary() ? ::GetSellAccSheet() : 0; }
+int32  DL6ICLS_PPUtil::GetAgentAccSheet() { return IfcImpCheckDictionary() ? ::GetAgentAccSheet() : 0; }
+int32  DL6ICLS_PPUtil::GetSupplAccSheet() { return IfcImpCheckDictionary() ? ::GetSupplAccSheet() : 0; }
+int32  DL6ICLS_PPUtil::ObjectToPerson(int32 articleID) { return IfcImpCheckDictionary() ? ::ObjectToPerson(articleID) : 0; }
 
 int32 DL6ICLS_PPUtil::PersonToObject(int32 personID, int32 accSheetID)
 {
@@ -1559,9 +1482,9 @@ int32 DL6ICLS_PPUtil::SendMail(int32 acctID, SString & rSubject, SString & rMess
 	if(p_attachments)
 		for(uint i = 0; i < p_attachments->getCount(); i++)
 			files_list.insert(newStr(p_attachments->Get(i).Txt));
-	rSubject.Transf(CTRANSF_OUTER_TO_UTF8); // @v9.8.12 @fix CTRANSF_INNER_TO_UTF8-->CTRANSF_OUTER_TO_UTF8
-	rMessage.Transf(CTRANSF_OUTER_TO_UTF8); // @v9.8.12 @fix CTRANSF_INNER_TO_UTF8-->CTRANSF_OUTER_TO_UTF8
-	rMail.Transf(CTRANSF_OUTER_TO_UTF8); // @v9.8.12 @fix CTRANSF_INNER_TO_UTF8-->CTRANSF_OUTER_TO_UTF8
+	rSubject.Transf(CTRANSF_INNER_TO_UTF8);
+	rMessage.Transf(CTRANSF_INNER_TO_UTF8);
+	rMail.Transf(CTRANSF_INNER_TO_UTF8);
 	// @v9.6.5 {
 	if(acctID == 0) {
 		PPAlbatrosConfig a_cfg;
@@ -1773,13 +1696,8 @@ int32 DL6ICLS_PPUtil::UniformFileTransm(SString & srcUrl, SString & destUrl, int
 //
 //
 //
-DL6_IC_CONSTRUCTOR(PPSysJournal, DL6ICLS_PPSysJournal_VTab)
-{
-}
-
-DL6_IC_DESTRUCTOR(PPSysJournal)
-{
-}
+DL6_IC_CONSTRUCTOR(PPSysJournal, DL6ICLS_PPSysJournal_VTab) {}
+DL6_IC_DESTRUCTOR(PPSysJournal) {}
 //
 // Interface IPapyrusSysJournal implementation
 //
@@ -1888,12 +1806,9 @@ int32 DL6ICLS_PPSession::GetDatabaseInfo(int32 id, SPpyDatabaseInfo* pInfo)
 	return !AppError;
 }
 
-int32 DL6ICLS_PPSession::Login(SString & dbName, SString & userName, SString & password)
-	{ return DS.Login(dbName, userName, password) ? 1 : RaiseAppError(); }
-int32 DL6ICLS_PPSession::Logout()
-	{ return DS.Logout() ? 1 : RaiseAppError(); }
-SString & DL6ICLS_PPSession::GetObjectTitle(PpyObjectIdent objType)
-	{ return ::GetObjectTitle(objType, RetStrBuf); }
+int32  DL6ICLS_PPSession::Login(SString & dbName, SString & userName, SString & password) { return DS.Login(dbName, userName, password) ? 1 : RaiseAppError(); }
+int32  DL6ICLS_PPSession::Logout() { return DS.Logout() ? 1 : RaiseAppError(); }
+SString & DL6ICLS_PPSession::GetObjectTitle(PpyObjectIdent objType) { return ::GetObjectTitle(objType, RetStrBuf); }
 
 IPapyrusObject * DL6ICLS_PPSession::CreateObject(PpyObjectIdent objType)
 {
@@ -1966,37 +1881,14 @@ IUnknown * DL6ICLS_PPSession::CreateSpecClass(PpySpecClassIdent clsType)
 	SString msg_buf;
 	THROW(IfcImpCheckDictionary());
 	switch(clsType) {
-		case spclsUtil:
-			p_cls_name = "PPUtil";
-			p_ifc_name = "IPapyrusUtil";
-			break;
-		case spclsRtlPriceExtr:
-			p_cls_name = "PPRtlPriceExtractor";
-			p_ifc_name = "IPapyrusRtlPriceExtractor";
-			break;
-		case spclsDL200Resolver:
-			p_cls_name = "PPDL200Resolver";
-			p_ifc_name = "IPapyrusDL200Resolver";
-			break;
-		case spclsQuotation:
-			p_cls_name = "PPQuotation";
-			p_ifc_name = "IPapyrusQuot";
-			break;
-		case spclsAlcRepOpList:
-			p_cls_name = "AlcRepOpList";
-			p_ifc_name = "IAlcRepOpList";
-			break;
-		case spclsPrcssrAlcReport:
-			p_cls_name = "PrcssrAlcReport";
-			p_ifc_name = "IPrcssrAlcReport";
-			break;
-		case spclsCCheck: // @v8.7.1
-			p_cls_name = "PPObjCCheck";
-			p_ifc_name = "IPapyrusObjCCheck";
-			break;
-		default:
-			msg_buf.Z().Cat(clsType);
-			break;
+		case spclsUtil:            p_cls_name = "PPUtil";              p_ifc_name = "IPapyrusUtil"; break;
+		case spclsRtlPriceExtr:    p_cls_name = "PPRtlPriceExtractor"; p_ifc_name = "IPapyrusRtlPriceExtractor"; break;
+		case spclsDL200Resolver:   p_cls_name = "PPDL200Resolver";     p_ifc_name = "IPapyrusDL200Resolver"; break;
+		case spclsQuotation:       p_cls_name = "PPQuotation";         p_ifc_name = "IPapyrusQuot"; break;
+		case spclsAlcRepOpList:    p_cls_name = "AlcRepOpList";        p_ifc_name = "IAlcRepOpList"; break;
+		case spclsPrcssrAlcReport: p_cls_name = "PrcssrAlcReport";     p_ifc_name = "IPrcssrAlcReport"; break;
+		case spclsCCheck:          p_cls_name = "PPObjCCheck";         p_ifc_name = "IPapyrusObjCCheck"; break;
+		default: msg_buf.Z().Cat(clsType); break;
 	}
 	THROW_PP_S(p_cls_name && p_ifc_name, PPERR_UNDEFCLSTYPE, msg_buf);
 	THROW(CreateInnerInstance(p_cls_name, p_ifc_name, &p_ifc));
@@ -2243,15 +2135,8 @@ int32 DL6ICLS_PPSession::LoginDialog(PPYHWND pParent, SString * pDbName, SString
 // } PPSession
 // PPDL200Resolver {
 //
-DL6_IC_CONSTRUCTOR(PPDL200Resolver, DL6ICLS_PPDL200Resolver_VTab)
-{
-	ExtraPtr = new DL2_Resolver;
-}
-
-DL6_IC_DESTRUCTOR(PPDL200Resolver)
-{
-	delete ((DL2_Resolver *)ExtraPtr);
-}
+DL6_IC_CONSTRUCTOR(PPDL200Resolver, DL6ICLS_PPDL200Resolver_VTab) { ExtraPtr = new DL2_Resolver; }
+DL6_IC_DESTRUCTOR(PPDL200Resolver) { delete ((DL2_Resolver *)ExtraPtr); }
 //
 // Interface IPapyrusDL200Resolver implementation
 //
@@ -2432,15 +2317,8 @@ IStrAssocList* DL6ICLS_PPObjTag::GetSelector(int32 extraParam)
 	return p;
 }
 
-int32 DL6ICLS_PPObjTag::Create(PPYOBJREC pRec, int32 flags, int32* pID)
-{
-	return FuncNotSupported();
-}
-
-int32 DL6ICLS_PPObjTag::Update(int32 id, int32 flags, PPYOBJREC rec)
-{
-	return FuncNotSupported();
-}
+int32 DL6ICLS_PPObjTag::Create(PPYOBJREC pRec, int32 flags, int32* pID) { return FuncNotSupported(); }
+int32 DL6ICLS_PPObjTag::Update(int32 id, int32 flags, PPYOBJREC rec) { return FuncNotSupported(); }
 //
 // } PPObjTag
 // PPObjUnit {
@@ -9022,7 +8900,7 @@ int32 DL6ICLS_PPQuotation::SetSupplDeal(int32 goodsID, int32 locID, int32 curID,
 	PPObjGoods * p_obj = (PPObjGoods*)ExtraPtr;
 	if(p_obj && pDeal) {
 		PPSupplDeal sd;
-		QuotIdent qi(locID, 0, curID, supplID);
+		const QuotIdent qi(locID, 0, curID, supplID);
 		MEMSZERO(sd);
 		sd.DnDev      = pDeal->LowBound;
 		sd.UpDev      = pDeal->UppBound;

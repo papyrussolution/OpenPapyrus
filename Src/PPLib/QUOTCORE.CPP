@@ -248,7 +248,7 @@ int SLAPI PPQuot::IsEqual(const PPQuot & rS, long flags) const
 
 int SLAPI PPQuot::IsRelative() const
 {
-	return BIN(Flags & (fPctOnCost | fPctOnPrice | fPctOnAddition | fPctOnBase));
+	return BIN(Flags & (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctOnBase));
 }
 
 int SLAPI PPQuot::IsEmpty() const
@@ -266,7 +266,7 @@ double SLAPI PPQuot::CalcPrice(double cost, double price) const
 	else if(Flags & fPctOnAddition)
 		val = RoundUpPrice(price + ((price - cost) * fdiv100r(Quot)));
 	else
-		val = R5(Quot); // @v7.7.0 R2-->R5
+		val = R5(Quot);
 	return val;
 }
 
@@ -944,7 +944,7 @@ int SLAPI QuotationCore::SetCurrList(PPQuotArray & rQuotList, const PPQuotArray 
 			GetCurrList(rQuotList.GoodsID, 0, 0, templ);
 		}
 		for(i = 0; rQuotList.enumItems(&i, (void**)&p_quot);) {
-			p_quot->Flags &= ~PPQuot::fDbUpd; // @v7.2.1
+			p_quot->Flags &= ~PPQuot::fDbUpd;
 			if((p_quot->Flags & (PPQuot::fPctDisabled|PPQuot::fZero)) || R2(p_quot->Quot) != 0.0) {
 				if(rQuotList.CanUpdateQuot(*p_quot) > 0) {
 					p_quot->GoodsID = rQuotList.GoodsID;
@@ -962,7 +962,7 @@ int SLAPI QuotationCore::SetCurrList(PPQuotArray & rQuotList, const PPQuotArray 
 						THROW(r = SetCurr(&p_quot->ID, p_quot, 0, 0));
 					}
 					if(r > 0) {
-						p_quot->Flags |= PPQuot::fDbUpd; // @v7.2.1
+						p_quot->Flags |= PPQuot::fDbUpd;
 						is_updated = 1;
 						if(r == 1000) {
 							mtx_loc_list.addUnique(loc_id);
@@ -2586,7 +2586,7 @@ int SLAPI Quotation2Core::Set(PPQuotArray & rQList, long qtaID, const PPQuotArra
 	}
 	for(i = 0; i < rQList.getCount(); i++) {
 		PPQuot & r_quot = rQList.at(i);
-		r_quot.Flags &= ~PPQuot::fDbUpd; // @v7.2.1
+		r_quot.Flags &= ~PPQuot::fDbUpd;
 		if((r_quot.Flags & (PPQuot::fPctDisabled|PPQuot::fZero)) || R2(r_quot.Quot) != 0.0) {
 			if(r_quot.Kind == 0) {
 				; // Инвалидное значение с нулевым видом котировки - должно быть удалено
@@ -2597,17 +2597,14 @@ int SLAPI Quotation2Core::Set(PPQuotArray & rQList, long qtaID, const PPQuotArra
 				const PPID ar_id = r_quot.ArID;
 				{
 					QuotIdent qi(loc_id, r_quot.Kind, r_quot.CurID, ar_id);
-					// @v7.6.0 {
-					// @v7.8.6 if(!r_quot.Period.IsZero())
-						qi.SetIdentPeriod(&r_quot.Period);
-					// } @v7.6.0
-					qi.SetIdentQtty(&r_quot.MinQtty); // @v7.6.7
+					qi.SetIdentPeriod(&r_quot.Period);
+					qi.SetIdentQtty(&r_quot.MinQtty);
 					if(templ.SearchQi(qi, &(pos = 0)) > 0)
 						templ.atFree(pos);
 				}
 				THROW(r = Set(r_quot, qtaID, 0, 0));
 				if(r > 0) {
-					r_quot.Flags |= PPQuot::fDbUpd; // @v7.2.1
+					r_quot.Flags |= PPQuot::fDbUpd;
 					is_updated = 1;
 					if(r == 1000) {
 						mtx_loc_list.addUnique(loc_id);
@@ -2829,7 +2826,8 @@ int SLAPI Quotation2Core::Set(const PPQuot & rQ, long qtaID, int logSj, int use_
 		else
 			ok = qk_obj.CheckRights(QUOTRT_UPDQUOTS) ? 1 : LogDeclineMsg(&rQ, PPQC_PRICE);
 		if(ok > 0) {
-			const long mask = (PPQuot::fZero|PPQuot::fPctOnCost|PPQuot::fPctOnPrice|PPQuot::fPctOnAddition|PPQuot::fPctOnBase);
+			// @v9.9.1 @fix const long mask = (PPQuot::fZero|PPQuot::fPctOnCost|PPQuot::fPctOnPrice|PPQuot::fPctOnAddition|PPQuot::fPctOnBase);
+			const long mask = PPQuot::fDbMask; // @v9.9.1 @fix
 			if((rec.Flags & mask) || rec.Quot != 0.0) {
 				THROW(AdjustTime(rec));
 				THROW_DB(insertRecBuf(&rec));

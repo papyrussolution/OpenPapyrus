@@ -2561,6 +2561,93 @@ int SrDatabase::StoreGeoWayList(const TSCollection <PPOsm::Way> & rList, TSVecto
 }
 
 struct StoreFiasAddrBlock {
+	class TextHash : public SymbHashTable {
+	public:
+		enum {
+			fUndefType = 0x0001, // Символ не удалось идентифицировать как тип объекта
+			fAmbigType = 0x0002  // Символ не однозначно идентифицируется как тип объекта
+		};
+		struct LocTypeEntry {
+			LocTypeEntry() : FiasLevel(0), Flags(0), SrTypeID(0)
+			{
+			}
+			uint16  FiasLevel;
+			uint16  Flags;
+			CONCEPTID SrTypeID;
+		};
+		struct ExtData {
+			ExtData()
+			{
+			}
+			int    SetEntryByFiasLevel(uint level, uint16 flags, CONCEPTID srTypeID)
+			{
+				int    ok = 0;
+				uint   first_empty_slot_incd = 0;
+				for(uint i = 0; i < SIZEOFARRAY(LTL); i++) {
+					if(LTL[i].FiasLevel == level) {
+						LTL[i].Flags |= flags;
+						LTL[i].SrTypeID = srTypeID;
+						ok = 1;
+					}
+					else if(LTL[i].FiasLevel == 0 && !first_empty_slot_incd)
+						first_empty_slot_incd = i+1;
+				}
+				if(!ok && first_empty_slot_incd) {
+					LTL[first_empty_slot_incd-1].FiasLevel |= level;
+					LTL[first_empty_slot_incd-1].Flags |= flags;
+					LTL[first_empty_slot_incd-1].SrTypeID = srTypeID;
+					ok = 1;
+				}
+				return ok;
+			}
+			const  LocTypeEntry * FASTCALL GetEntryByFiasLevel(uint level) const
+			{
+				for(uint i = 0; i < SIZEOFARRAY(LTL); i++) {
+					if(LTL[i].FiasLevel == level)
+						return &LTL[i];
+				}
+				return 0;
+			}
+			LocTypeEntry LTL[4];
+		};
+		TextHash() : SymbHashTable(SKILOBYTE(8))
+		{
+		}
+		int    Add(const char * pSymb, const ExtData * pData)
+		{
+			assert(pData);
+			int    ok = -1;
+			ExtData ex_blk;
+			uint   ex_blk_pos = 0;
+			if(SymbHashTable::Search(pSymb, &ex_blk_pos, 0)) {
+				assert(ex_blk_pos < ExtVect.getCount());
+				ExtVect.at(ex_blk_pos) = *pData;
+				ok = 2;
+			}
+			else {
+				uint   pos = ExtVect.getCount();
+				THROW_SL(ExtVect.insert(pData));
+				THROW_SL(SymbHashTable::Add(pSymb, pos));
+				ok = 1;
+			}
+			CATCHZOK
+			return ok;
+		}
+		int    Search(const char * pSymb, ExtData * pData) const
+		{
+			int    ok = 0;
+			uint   ex_blk_pos = 0;
+			if(SymbHashTable::Search(pSymb, &ex_blk_pos, 0)) {
+				assert(ex_blk_pos < ExtVect.getCount());
+				ASSIGN_PTR(pData, ExtVect.at(ex_blk_pos));
+				ok = 1;
+			}
+			return ok;
+		}
+	private:
+		TSVector <ExtData> ExtVect;
+	};
+
 	static const uint SignatureValue;
 	StoreFiasAddrBlock() : Signature(SignatureValue), CRegion(0), CUrbs(0), CVici(0), CAedificium(0), CApartment(0), ProcessedSymbols(4096, 1),
 		T(STokenizer::Param(STokenizer::fEachDelim, cpUTF8, " \t\n\r(){}[]<>,.:;\\/&$#@!?*^\"+=%")) // "-" здесь не является разделителем
@@ -2572,8 +2659,10 @@ struct StoreFiasAddrBlock {
 	CONCEPTID CVici;
 	CONCEPTID CAedificium;
 	CONCEPTID CApartment;
+	TSVector <Sdr_FiasRawAddrObj> SrcList;
 	SymbHashTable ProcessedSymbols;
 	STokenizer T;
+	TextHash   H;
 };
 
 //static 
@@ -2609,232 +2698,284 @@ static IMPL_CMPFUNC(Sdr_FiasRawAddrObj_AOGUID_LIVESTATUS, p1, p2)
 	return s;
 }
 
-int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, TSVector <Sdr_FiasRawAddrObj> & rList)
+int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj & rEntry)
 {
-	/*
-		struct Sdr_FiasRawAddrObj
-			S_GUID AOGUID;
-			char   FORMALNAME[128];
-			char   REGIONCODE[16];
-			char   AUTOCODE[16];
-			char   AREACODE[16];
-			char   CITYCODE[16];
-			char   CTARCODE[16];
-			char   PLACECODE[16];
-			char   STREETCODE[16];
-			char   EXTRCODE[16];
-			char   SEXTCODE[16];
-			char   OFFNAME[128];
-			char   POSTALCODE[16];
-			char   IFNSFL[16];
-			char   TERRIFNSFL[16];
-			char   IFNSUL[16];
-			char   TERRIFNSUL[16];
-			char   OKATO[16];
-			char   OKTMO[16];
-			LDATE  UPDATEDATE;
-			char   SHORTNAME[16]; // сокращение сущности (г, ул, etc)
-			char   AOLEVEL[16];   // 
-			S_GUID PARENTGUID;
-			S_GUID AOID;
-			S_GUID PREVID;
-			S_GUID NEXTID;
-			char   CODE[20];
-			char   PLAINCODE[20];
-			int32  ACTSTATUS;
-			int32  CENTSTATUS;
-			int32  OPERSTATUS;
-			int32  CURRSTATUS;
-			LDATE  STARTDATE;
-			LDATE  ENDDATE;
-			char   NORMDOC[40];
-			int32  LIVESTATUS;
-	*/
-	int    ok = -1;
-	SString temp_buf;
-	SString main_concept_symb;
-	SString text;
-	StringSet ss;
-	StringSet ss_name; // Коллекция вариантов наименований 
-	SrWordForm wordform;
+	int    ok = 1;
 	StoreFiasAddrBlock * p_blk = (StoreFiasAddrBlock *)pBlk;
-	TSVector <SrWordInfo> info_list;
-	STokenizer::Item titem, titem_next;
-	LongArray word_id_list;
-	Int64Array concept_list;
-	Int64Array candidate_concept_list;
-	Int64Array local_concept_list;
-	Int64Array concept_hier;
-	SrNGram ng;
 	THROW(p_blk && p_blk->Signature == StoreFiasAddrBlock::SignatureValue);
-	// Сортируем входной массив так, чтобы все элементы с одинаковыми AOGUID были вместе и актуальный (LIVESTATUS=1) был самым первым
-	rList.sort(PTR_CMPFUNC(Sdr_FiasRawAddrObj_AOGUID_LIVESTATUS));
-	for(uint lidx = 0; lidx < rList.getCount(); lidx++) {
-		const Sdr_FiasRawAddrObj & r_item = rList.at(lidx);
-		CONCEPTID parent_cid = 0; // Концепция, экземпляром которой является создаваемая запись
-		const int is_actual = r_item.LIVESTATUS;
-		/*
-			Условно выделены следующие уровни адресных объектов:
-			1 – уровень региона
-			2 – уровень автономного округа (устаревшее)
-			3 – уровень района
-			35 – уровень городских и сельских поселений
-			4 – уровень города
-			5 – уровень внутригородской территории (устаревшее)
-			6 – уровень населенного пункта
-			65 – планировочная структура
-			7 – уровень улицы
-			75 – земельный участок
-			8 – здания, сооружения, объекта незавершенного строительства
-			9 – уровень помещения в пределах здания, сооружения
-			90 – уровень дополнительных территорий (устаревшее)
-			91 – уровень объектов на дополнительных территориях (устаревшее)
-		*/
-		const int aolevel = atoi(r_item.AOLEVEL);
-		;
-		/*
-			:cregion
-			:urbs
-			:gener_vici
-			:gener_aedificium
-			:gener_apartment
-		*/
-		(text = r_item.SHORTNAME).Transf(CTRANSF_OUTER_TO_UTF8);
-		(temp_buf = r_item.FORMALNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
-		const SString name_buf = temp_buf;
-		uint   last_identical_idx = lidx; // Индекс последнего элемента идентичного по AOGUID r_item
-		{
-			// ss_name будет хранить список имен объекта, отличающихся от name_buf
-			ss_name.clear();
-			ss_name.add(name_buf);
-			(temp_buf = r_item.OFFNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
-			if(temp_buf.NotEmpty() && temp_buf != name_buf)
-				ss_name.add(temp_buf);
-			for(uint inner_lidx = lidx+1; inner_lidx < rList.getCount(); inner_lidx++) {
-				const Sdr_FiasRawAddrObj & r_next_item = rList.at(inner_lidx);
-				if(r_next_item.AOGUID == r_item.AOGUID) {
-					(temp_buf = r_next_item.FORMALNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
-					if(temp_buf.NotEmpty() && temp_buf != name_buf)
-						ss_name.add(temp_buf);
-					(temp_buf = r_next_item.OFFNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
-					if(temp_buf.NotEmpty() && temp_buf != name_buf)
-						ss_name.add(temp_buf);
-					//
-					last_identical_idx = inner_lidx;
+	THROW(p_blk->SrcList.insert(&rEntry));
+	const uint src_list_count = p_blk->SrcList.getCount();
+	if(src_list_count >= SKILOBYTE(128)) {
+		SString temp_buf;
+		SString main_concept_symb;
+		SString text;
+		StringSet ss;
+		StringSet ss_name; // Коллекция вариантов наименований 
+		SrWordForm wordform;
+		TSVector <SrWordInfo> info_list;
+		STokenizer::Item titem, titem_next;
+		//LongArray word_id_list;
+		Int64Array concept_list;
+		Int64Array candidate_concept_list;
+		Int64Array local_concept_list;
+		Int64Array concept_hier;
+		SrNGram ng;
+		// Сортируем входной массив так, чтобы все элементы с одинаковыми AOGUID были вместе и актуальный (LIVESTATUS=1) был самым первым
+		p_blk->SrcList.sort(PTR_CMPFUNC(Sdr_FiasRawAddrObj_AOGUID_LIVESTATUS));
+		for(uint lidx = 0; lidx < src_list_count; lidx++) {
+			const Sdr_FiasRawAddrObj & r_item = p_blk->SrcList.at(lidx);
+			/*
+				struct Sdr_FiasRawAddrObj
+					S_GUID AOGUID;
+					char   FORMALNAME[128];
+					char   REGIONCODE[16];
+					char   AUTOCODE[16];
+					char   AREACODE[16];
+					char   CITYCODE[16];
+					char   CTARCODE[16];
+					char   PLACECODE[16];
+					char   STREETCODE[16];
+					char   EXTRCODE[16];
+					char   SEXTCODE[16];
+					char   OFFNAME[128];
+					char   POSTALCODE[16];
+					char   IFNSFL[16];
+					char   TERRIFNSFL[16];
+					char   IFNSUL[16];
+					char   TERRIFNSUL[16];
+					char   OKATO[16];
+					char   OKTMO[16];
+					LDATE  UPDATEDATE;
+					char   SHORTNAME[16]; // сокращение сущности (г, ул, etc)
+					char   AOLEVEL[16];   // 
+					S_GUID PARENTGUID;
+					S_GUID AOID;
+					S_GUID PREVID;
+					S_GUID NEXTID;
+					char   CODE[20];
+					char   PLAINCODE[20];
+					int32  ACTSTATUS;
+					int32  CENTSTATUS;
+					int32  OPERSTATUS;
+					int32  CURRSTATUS;
+					LDATE  STARTDATE;
+					LDATE  ENDDATE;
+					char   NORMDOC[40];
+					int32  LIVESTATUS;
+			*/
+			CONCEPTID parent_cid = 0; // Концепция, экземпляром которой является создаваемая запись
+			const int is_actual = r_item.LIVESTATUS;
+			/*
+				Условно выделены следующие уровни адресных объектов:
+				1 – уровень региона
+				2 – уровень автономного округа (устаревшее)
+				3 – уровень района
+				35 – уровень городских и сельских поселений
+				4 – уровень города
+				5 – уровень внутригородской территории (устаревшее)
+				6 – уровень населенного пункта
+				65 – планировочная структура
+				7 – уровень улицы
+				75 – земельный участок
+				8 – здания, сооружения, объекта незавершенного строительства
+				9 – уровень помещения в пределах здания, сооружения
+				90 – уровень дополнительных территорий (устаревшее)
+				91 – уровень объектов на дополнительных территориях (устаревшее)
+			*/
+			const int aolevel = atoi(r_item.AOLEVEL);
+			;
+			/*
+				:cregion
+				:urbs
+				:gener_vici
+				:gener_aedificium
+				:gener_apartment
+			*/
+			(text = r_item.SHORTNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
+			(temp_buf = r_item.FORMALNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
+			const SString name_buf = temp_buf;
+			uint   last_identical_idx = lidx; // Индекс последнего элемента идентичного по AOGUID r_item
+			{
+				// ss_name будет хранить список имен объекта, отличающихся от name_buf
+				ss_name.clear();
+				ss_name.add(name_buf);
+				(temp_buf = r_item.OFFNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
+				if(temp_buf.NotEmpty() && temp_buf != name_buf)
+					ss_name.add(temp_buf);
+				for(uint inner_lidx = lidx+1; inner_lidx < src_list_count; inner_lidx++) {
+					const Sdr_FiasRawAddrObj & r_next_item = p_blk->SrcList.at(inner_lidx);
+					if(r_next_item.AOGUID == r_item.AOGUID) {
+						(temp_buf = r_next_item.FORMALNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
+						if(temp_buf.NotEmpty() && temp_buf != name_buf)
+							ss_name.add(temp_buf);
+						(temp_buf = r_next_item.OFFNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
+						if(temp_buf.NotEmpty() && temp_buf != name_buf)
+							ss_name.add(temp_buf);
+						//
+						last_identical_idx = inner_lidx;
+					}
 				}
 			}
-		}
-		ng.Z();
-		info_list.clear();
-		word_id_list.clear();
-		concept_list.clear();
-		candidate_concept_list.clear();
-		local_concept_list.clear();
-		concept_hier.clear();
-		text.TrimRightChr('.');
-		if(GetWordInfo(text, 0, info_list) > 0) {
-			for(uint i = 0; i < info_list.getCount(); i++) {
-				const SrWordInfo & r_wi = info_list.at(i);
-				local_concept_list.clear();
-				word_id_list.clear();
-				if(r_wi.AbbrExpID) {
-					if(P_NgT->Search(r_wi.AbbrExpID, &ng) > 0) {
-						GetNgConceptList(ng.ID, 0, local_concept_list);
+			ng.Z();
+			info_list.clear();
+			concept_list.clear();
+			candidate_concept_list.clear();
+			local_concept_list.clear();
+			concept_hier.clear();
+			text.TrimRightChr('.').Strip();
+
+			CONCEPTID sr_type_cid = 0; // ИД концепции-типа локации (город, улица, поселок и т.д.)
+			StoreFiasAddrBlock::TextHash::ExtData hed;
+			StoreFiasAddrBlock::TextHash::LocTypeEntry __lte;
+			if(p_blk->H.Search(text, &hed)) {
+				const StoreFiasAddrBlock::TextHash::LocTypeEntry * p_lte = hed.GetEntryByFiasLevel(aolevel);
+				RVALUEPTR(__lte, p_lte);
+			}
+			if(__lte.SrTypeID) {
+				assert(__lte.FiasLevel == aolevel);
+				sr_type_cid = __lte.SrTypeID;
+			}
+			else if(__lte.FiasLevel && __lte.Flags & StoreFiasAddrBlock::TextHash::fUndefType) {
+				;
+			}
+			else if(__lte.FiasLevel && __lte.Flags & StoreFiasAddrBlock::TextHash::fAmbigType) {
+				;
+			}
+			else {
+				assert(__lte.FiasLevel == 0);
+				LEXID single_word_id = 0;
+				if(FetchWord(text, &single_word_id) > 0) {
+					ng.Z();
+					ng.WordIdList.add(single_word_id);
+					NGID local_ng_id = 0;
+					if(P_NgT->Search(ng, &local_ng_id) > 0) {
+						local_concept_list.clear();
+						GetNgConceptList(local_ng_id, 0, local_concept_list);
 						concept_list.add(&local_concept_list);
 					}
 				}
-			}
-		}
-		{
-			ss.clear();
-			text.Tokenize(" ", ss);
-			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-				if(temp_buf.NotEmptyS() && temp_buf.TrimRightChr('.').NotEmptyS()) {
-
-				}
-			}
-		}
-		candidate_concept_list.clear();
-		for(uint cidx = 0; cidx < concept_list.getCount(); cidx++) {
-			CONCEPTID item_id = concept_list.get(cidx);
-			if(GetConceptHier(item_id, concept_hier) > 0) {
-				switch(aolevel) {
-					case 1: case 2: case 3:
-						if(concept_hier.lsearch(p_blk->CRegion))
-							candidate_concept_list.add(item_id);
-						break;
-					case 4: case 6:
-						if(concept_hier.lsearch(p_blk->CUrbs))
-							candidate_concept_list.add(item_id);
-						break;
-					case 7:
-						if(concept_hier.lsearch(p_blk->CVici))
-							candidate_concept_list.add(item_id);
-						break;
-					case 8:
-						if(concept_hier.lsearch(p_blk->CAedificium))
-							candidate_concept_list.add(item_id);
-						break;
-					case 9:
-						if(concept_hier.lsearch(p_blk->CApartment))
-							candidate_concept_list.add(item_id);
-						break;
-				}
-			}
-		}
-		candidate_concept_list.sortAndUndup();
-		if(candidate_concept_list.getCount() == 0) {
-		}
-		else if(candidate_concept_list.getCount() > 1) {
-		}
-		else { // candidate_concept_list.getCount() exactly equal 1
-			CONCEPTID main_cid = 0;
-			SrConcept::MakeSurrogateSymb(SrConcept::surrsymbsrcFIAS, &r_item.AOGUID, sizeof(r_item.AOGUID), main_concept_symb);
-			THROW(ResolveConcept(main_concept_symb, &main_cid));
-			for(uint namessp = 0; ss_name.get(&namessp, text);) {
-				word_id_list.clear();
-				uint   idx_first = 0;
-				uint   idx_count = 0;
-				p_blk->T.RunSString(0, 0, text, &idx_first, &idx_count);
-				for(uint tidx = 0; tidx < idx_count; tidx++) {
-					LEXID word_id = 0;
-					if(p_blk->T.Get(idx_first+tidx, titem)) {
-						if(titem.Token == STokenizer::tokWord) {
-							if(tidx < (idx_count-1) && p_blk->T.Get(idx_first+tidx+1, titem_next)) {
-								if(titem_next.Token == STokenizer::tokDelim && titem_next.Text.Single() == '.') {
-									tidx++; // Следующую за словом точку пропускаем (например "а.невского"-->"а" "невского")
-								}
-							}
-							const int rwr = ResolveWord(titem.Text, &word_id);
-							THROW(rwr);
-							assert(word_id);
-							if(rwr == 2) { // Было создано новое слово - добавим к нему извесные нам признаки (пока только язык)
-								wordform.Clear();
-								wordform.SetTag(SRWG_LANGUAGE, slangRU);
-								THROW(SetSimpleWordFlexiaModel(word_id, wordform, 0));
-							}
-						}
-						else if(titem.Token == STokenizer::tokDelim) {
-							const char dc = titem.Text.Single();
-							if(oneof4(dc, ' ', '\t', '\n', '\r'))
-								; // просто пропускаем
-							else if(titem.Text.Len()) {
-								THROW(ResolveWord(titem.Text, &word_id));
-								assert(word_id);								
+				if(GetWordInfo(text, 0, info_list) > 0) {
+					for(uint i = 0; i < info_list.getCount(); i++) {
+						const SrWordInfo & r_wi = info_list.at(i);
+						local_concept_list.clear();
+						if(r_wi.AbbrExpID) {
+							if(P_NgT->Search(r_wi.AbbrExpID, &ng) > 0) {
+								GetNgConceptList(ng.ID, 0, local_concept_list);
+								concept_list.add(&local_concept_list);
 							}
 						}
 					}
-					word_id_list.addnz(word_id);
 				}
-				if(word_id_list.getCount()) {
-					NGID   ngram_id = 0;
-					THROW(ResolveNGram(word_id_list, &ngram_id));
-					assert(ngram_id);
-					THROW(P_CNgT->Set(main_cid, ngram_id));
+				{
+					ss.clear();
+					text.Tokenize(" ", ss);
+					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+						if(temp_buf.NotEmptyS() && temp_buf.TrimRightChr('.').NotEmptyS()) {
+
+						}
+					}
+				}
+				candidate_concept_list.clear();
+				concept_list.sortAndUndup();
+				for(uint cidx = 0; cidx < concept_list.getCount(); cidx++) {
+					CONCEPTID item_id = concept_list.get(cidx);
+					if(GetConceptHier(item_id, concept_hier) > 0) {
+						switch(aolevel) {
+							case 1: case 2: case 3:
+								if(concept_hier.lsearch(p_blk->CRegion))
+									candidate_concept_list.add(item_id);
+								break;
+							case 4: case 6:
+								if(concept_hier.lsearch(p_blk->CUrbs))
+									candidate_concept_list.add(item_id);
+								break;
+							case 7:
+								if(concept_hier.lsearch(p_blk->CVici))
+									candidate_concept_list.add(item_id);
+								break;
+							case 8:
+								if(concept_hier.lsearch(p_blk->CAedificium))
+									candidate_concept_list.add(item_id);
+								break;
+							case 9:
+								if(concept_hier.lsearch(p_blk->CApartment))
+									candidate_concept_list.add(item_id);
+								break;
+						}
+					}
+				}
+				candidate_concept_list.sortAndUndup();
+				{
+					const StoreFiasAddrBlock::TextHash::LocTypeEntry * p_lte = hed.GetEntryByFiasLevel(aolevel);
+					RVALUEPTR(__lte, p_lte);
+					assert(!__lte.FiasLevel || __lte.FiasLevel == aolevel);
+					__lte.FiasLevel = aolevel;
+					if(candidate_concept_list.getCount() == 0) {
+						// @todo logmessage
+						THROW(hed.SetEntryByFiasLevel(aolevel, StoreFiasAddrBlock::TextHash::fUndefType, 0));
+					}
+					else if(candidate_concept_list.getCount() > 1) {
+						// @todo logmessage
+						THROW(hed.SetEntryByFiasLevel(aolevel, StoreFiasAddrBlock::TextHash::fAmbigType, 0));
+					}
+					else { // candidate_concept_list.getCount() exactly equal 1
+						sr_type_cid = candidate_concept_list.get(0);
+						THROW(hed.SetEntryByFiasLevel(aolevel, 0, sr_type_cid));
+					}
+					THROW(p_blk->H.Add(text, &hed));
 				}
 			}
+			if(sr_type_cid) {
+				//
+				CONCEPTID main_cid = 0;
+				SrConcept::MakeSurrogateSymb(SrConcept::surrsymbsrcFIAS, &r_item.AOGUID, sizeof(r_item.AOGUID), main_concept_symb);
+				THROW(ResolveConcept(main_concept_symb, &main_cid));
+				for(uint namessp = 0; ss_name.get(&namessp, text);) {
+					uint   idx_first = 0;
+					uint   idx_count = 0;
+					ng.Z();
+					p_blk->T.RunSString(0, 0, text, &idx_first, &idx_count);
+					for(uint tidx = 0; tidx < idx_count; tidx++) {
+						LEXID word_id = 0;
+						if(p_blk->T.Get(idx_first+tidx, titem)) {
+							if(titem.Token == STokenizer::tokWord) {
+								if(tidx < (idx_count-1) && p_blk->T.Get(idx_first+tidx+1, titem_next)) {
+									if(titem_next.Token == STokenizer::tokDelim && titem_next.Text.Single() == '.') {
+										tidx++; // Следующую за словом точку пропускаем (например "а.невского"-->"а" "невского")
+									}
+								}
+								const int rwr = ResolveWord(titem.Text, &word_id);
+								THROW(rwr);
+								assert(word_id);
+								if(rwr == 2) { // Было создано новое слово - добавим к нему извесные нам признаки (пока только язык)
+									wordform.Clear();
+									wordform.SetTag(SRWG_LANGUAGE, slangRU);
+									THROW(SetSimpleWordFlexiaModel(word_id, wordform, 0));
+								}
+							}
+							else if(titem.Token == STokenizer::tokDelim) {
+								const char dc = titem.Text.Single();
+								if(oneof4(dc, ' ', '\t', '\n', '\r'))
+									; // просто пропускаем
+								else if(titem.Text.Len()) {
+									THROW(ResolveWord(titem.Text, &word_id));
+									assert(word_id);								
+								}
+							}
+						}
+						ng.WordIdList.addnz(word_id);
+					}
+					if(ng.WordIdList.getCount()) {
+						NGID   ngram_id = 0;
+						THROW(ResolveNGram(ng.WordIdList, &ngram_id));
+						assert(ngram_id);
+						THROW(P_CNgT->Set(main_cid, ngram_id));
+					}
+				}
+			}
+			lidx = last_identical_idx;
 		}
-		lidx = last_identical_idx;
+		p_blk->SrcList.clear();
 	}
 	CATCHZOK
 	return ok;

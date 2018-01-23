@@ -210,16 +210,13 @@ int SLAPI PPGoodsPacket::PrepareAddedMsgStrings(const char * pSign, long flags, 
 				}
 			}
 			else {
-				if(c == 'A')
-					fld_id = GDSEXSTR_A;
-				else if(c == 'B')
-					fld_id = GDSEXSTR_B;
-				else if(c == 'C')
-					fld_id = GDSEXSTR_C;
-				else if(c == 'D')
-					fld_id = GDSEXSTR_D;
-				else if(c == 'E')
-					fld_id = GDSEXSTR_E;
+				switch(c) {
+					case 'A': fld_id = GDSEXSTR_A; break;
+					case 'B': fld_id = GDSEXSTR_B; break;
+					case 'C': fld_id = GDSEXSTR_C; break;
+					case 'D': fld_id = GDSEXSTR_D; break;
+					case 'E': fld_id = GDSEXSTR_E; break;
+				}
 				if(fld_id) {
 					GetExtStrData(fld_id, temp_buf.Z());
 					PreprocessDataStr(temp_buf.Strip());
@@ -248,25 +245,12 @@ int SLAPI PPGoodsPacket::PrepareAddedMsgStrings(const char * pSign, long flags, 
 		}
 	}
 	else /*if()*/ {
-		if(GetExtStrData(GDSEXSTR_A, temp_buf) > 0) {
-			rSet.add(PreprocessDataStr(temp_buf));
-			ok = 2;
-		}
-		if(GetExtStrData(GDSEXSTR_B, temp_buf) > 0) {
-			rSet.add(PreprocessDataStr(temp_buf));
-			ok = 2;
-		}
-		if(GetExtStrData(GDSEXSTR_C, temp_buf) > 0) {
-			rSet.add(PreprocessDataStr(temp_buf));
-			ok = 2;
-		}
-		if(GetExtStrData(GDSEXSTR_D, temp_buf) > 0) {
-			rSet.add(PreprocessDataStr(temp_buf));
-			ok = 2;
-		}
-		if(GetExtStrData(GDSEXSTR_E, temp_buf) > 0) {
-			rSet.add(PreprocessDataStr(temp_buf));
-			ok = 2;
+		static const uint8 gesidlist[] = {GDSEXSTR_A, GDSEXSTR_B, GDSEXSTR_C, GDSEXSTR_D, GDSEXSTR_E};
+		for(uint i = 0; i < SIZEOFARRAY(gesidlist); i++) {
+			if(GetExtStrData(gesidlist[i], temp_buf) > 0) {
+				rSet.add(PreprocessDataStr(temp_buf));
+				ok = 2;
+			}
 		}
 	}
 	return ok;
@@ -371,15 +355,8 @@ int SLAPI PPGdsCls::IsEqByDynGenMask(long mask, const GoodsExtTbl::Rec * p1, con
 #undef M
 }
 
-void SLAPI PPGdsCls::SetDynGenMask(int fld, int val)
-{
-	DynGenMask |= (1 << (fld-1));
-}
-
-int FASTCALL PPGdsCls::GetDynGenMask(int fld) const
-{
-	return (DynGenMask & (1 << (fld-1))) ? 1 : 0;
-}
+void   SLAPI PPGdsCls::SetDynGenMask(int fld, int val) { DynGenMask |= (1 << (fld-1)); }
+int    FASTCALL PPGdsCls::GetDynGenMask(int fld) const { return (DynGenMask & (1 << (fld-1))) ? 1 : 0; }
 
 //static
 long FASTCALL PPGdsCls::UseFlagToE(long useFlag)
@@ -473,55 +450,16 @@ int SLAPI PPGdsClsPacket::GetPropName(int prop, SString & rBuf) const
 {
 	int    ok = 0;
 	rBuf.Z();
+	const long uf = PPGdsCls::EToUseFlag(prop);
 	switch(prop) {
-		case PPGdsCls::eKind:
-			if(Rec.Flags & PPGdsCls::fUsePropKind) {
-				(rBuf = PropKind.Name).SetIfEmpty("gckind");
-				ok = 1;
-			}
-			break;
-		case PPGdsCls::eGrade:
-			if(Rec.Flags & PPGdsCls::fUsePropGrade) {
-				(rBuf = PropGrade.Name).SetIfEmpty("gcgrade");
-				ok = 1;
-			}
-			break;
-		case PPGdsCls::eAdd:
-			if(Rec.Flags & PPGdsCls::fUsePropAdd) {
-				(rBuf = PropAdd.Name).SetIfEmpty("gcadd");
-				ok = 1;
-			}
-			break;
-		case PPGdsCls::eAdd2:
-			if(Rec.Flags & PPGdsCls::fUsePropAdd2) {
-				(rBuf = PropAdd2.Name).SetIfEmpty("gcadd2");
-				ok = 1;
-			}
-			break;
-		case PPGdsCls::eX:
-			if(Rec.Flags & PPGdsCls::fUseDimX) {
-				(rBuf = DimX.Name).SetIfEmpty("gcdimx");
-				ok = 1;
-			}
-			break;
-		case PPGdsCls::eY:
-			if(Rec.Flags & PPGdsCls::fUseDimY) {
-				(rBuf = DimY.Name).SetIfEmpty("gcdimy");
-				ok = 1;
-			}
-			break;
-		case PPGdsCls::eZ:
-			if(Rec.Flags & PPGdsCls::fUseDimZ) {
-				(rBuf = DimZ.Name).SetIfEmpty("gcdimz");
-				ok = 1;
-			}
-			break;
-		case PPGdsCls::eW:
-			if(Rec.Flags & PPGdsCls::fUseDimW) {
-				(rBuf = DimW.Name).SetIfEmpty("gcdimw");
-				ok = 1;
-			}
-			break;
+		case PPGdsCls::eKind:  if(Rec.Flags & uf) { (rBuf = PropKind.Name).SetIfEmpty("gckind"); ok = 1; } break;
+		case PPGdsCls::eGrade: if(Rec.Flags & uf) { (rBuf = PropGrade.Name).SetIfEmpty("gcgrade"); ok = 1; } break;
+		case PPGdsCls::eAdd:   if(Rec.Flags & uf) { (rBuf = PropAdd.Name).SetIfEmpty("gcadd"); ok = 1; } break;
+		case PPGdsCls::eAdd2:  if(Rec.Flags & uf) { (rBuf = PropAdd2.Name).SetIfEmpty("gcadd2"); ok = 1; } break;
+		case PPGdsCls::eX:     if(Rec.Flags & uf) { (rBuf = DimX.Name).SetIfEmpty("gcdimx"); ok = 1; } break;
+		case PPGdsCls::eY:     if(Rec.Flags & uf) { (rBuf = DimY.Name).SetIfEmpty("gcdimy"); ok = 1; } break;
+		case PPGdsCls::eZ:     if(Rec.Flags & uf) { (rBuf = DimZ.Name).SetIfEmpty("gcdimz"); ok = 1; } break;
+		case PPGdsCls::eW:     if(Rec.Flags & uf) { (rBuf = DimW.Name).SetIfEmpty("gcdimw"); ok = 1; } break;
 	}
 	return ok;
 }
@@ -535,12 +473,11 @@ int SLAPI PPGdsClsPacket::FormatProp(const PPGdsClsProp * pProp, PPID propVal, S
 	return -1;
 }
 
-int SLAPI PPGdsClsPacket::FormatDim(const PPGdsClsDim * pDim, long dimVal, SString & rBuf) const
+void SLAPI PPGdsClsPacket::FormatDim(const PPGdsClsDim * pDim, long dimVal, SString & rBuf) const
 {
-	int    scale = (int)pDim->Scale;
+	const int scale = (int)pDim->Scale;
 	double v = round(((double)dimVal) / fpow10i(scale), scale);
 	rBuf.Z().Cat(v, MKSFMTD(0, scale, NMBF_NOTRAILZ));
-	return 1;
 }
 
 int SLAPI PPGdsClsPacket::GetExtDim(const GoodsExtTbl::Rec * pRec, int dim, double * pVal) const

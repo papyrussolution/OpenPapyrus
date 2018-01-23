@@ -866,6 +866,8 @@
     <ClInclude Include="..\OSF\OpenSSL\ssl\ssl23.h" />
     <ClInclude Include="..\OSF\OpenSSL\ssl\ssl3.h" />
     <ClInclude Include="..\OSF\OpenSSL\ssl\ssl_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\ssl\statem\statem.h" />
+    <ClInclude Include="..\OSF\OpenSSL\ssl\statem\statem_locl.h" />
     <ClInclude Include="..\OSF\OpenSSL\ssl\tls1.h" />
   </ItemGroup>
   <ItemGroup>

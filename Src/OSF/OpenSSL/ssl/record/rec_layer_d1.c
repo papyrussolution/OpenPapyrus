@@ -254,8 +254,7 @@ int dtls1_process_buffered_records(SSL * s)
 				 * current record is from a different epoch. But that cannot
 				 * be the case because we already checked the epoch above
 				 */
-				SSLerr(SSL_F_DTLS1_PROCESS_BUFFERED_RECORDS,
-				    ERR_R_INTERNAL_ERROR);
+				SSLerr(SSL_F_DTLS1_PROCESS_BUFFERED_RECORDS, ERR_R_INTERNAL_ERROR);
 				return 0;
 			}
 #ifndef OPENSSL_NO_SCTP
@@ -278,9 +277,7 @@ int dtls1_process_buffered_records(SSL * s)
 				RECORD_LAYER_reset_packet_length(&s->rlayer);
 				continue;
 			}
-
-			if(dtls1_buffer_record(s, &(s->rlayer.d->processed_rcds),
-				    SSL3_RECORD_get_seq_num(s->rlayer.rrec)) < 0)
+			if(dtls1_buffer_record(s, &(s->rlayer.d->processed_rcds), SSL3_RECORD_get_seq_num(s->rlayer.rrec)) < 0)
 				return 0;
 		}
 	}
@@ -324,27 +321,21 @@ int dtls1_process_buffered_records(SSL * s)
  *     Application data protocol
  *             none of our business
  */
-int dtls1_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf,
-    int len, int peek)
+int dtls1_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf, int len, int peek)
 {
 	int al, i, j, ret;
 	uint n;
 	SSL3_RECORD * rr;
 	void (* cb)(const SSL * ssl, int type2, int val) = NULL;
-
 	if(!SSL3_BUFFER_is_initialised(&s->rlayer.rbuf)) {
 		/* Not initialized yet */
 		if(!ssl3_setup_buffers(s))
 			return (-1);
 	}
-
-	if((type && (type != SSL3_RT_APPLICATION_DATA) &&
-		    (type != SSL3_RT_HANDSHAKE)) ||
-	    (peek && (type != SSL3_RT_APPLICATION_DATA))) {
+	if((type && (type != SSL3_RT_APPLICATION_DATA) && (type != SSL3_RT_HANDSHAKE)) || (peek && (type != SSL3_RT_APPLICATION_DATA))) {
 		SSLerr(SSL_F_DTLS1_READ_BYTES, ERR_R_INTERNAL_ERROR);
 		return -1;
 	}
-
 	/*
 	 * check whether there's a handshake message (client hello?) waiting
 	 */
@@ -352,21 +343,17 @@ int dtls1_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf,
 		*recvd_type = SSL3_RT_HANDSHAKE;
 		return ret;
 	}
-
 	/*
 	 * Now s->rlayer.d->handshake_fragment_len == 0 if
 	 * type == SSL3_RT_HANDSHAKE.
 	 */
-
 #ifndef OPENSSL_NO_SCTP
 	/*
 	 * Continue handshake if it had to be interrupted to read app data with
 	 * SCTP.
 	 */
-	if((!ossl_statem_get_in_handshake(s) && SSL_in_init(s)) ||
-	    (BIO_dgram_is_sctp(SSL_get_rbio(s))
-		    && ossl_statem_in_sctp_read_sock(s)
-		    && s->s3->in_read_app_data != 2))
+	if((!ossl_statem_get_in_handshake(s) && SSL_in_init(s)) || (BIO_dgram_is_sctp(SSL_get_rbio(s)) && 
+		ossl_statem_in_sctp_read_sock(s) && s->s3->in_read_app_data != 2))
 #else
 	if(!ossl_statem_get_in_handshake(s) && SSL_in_init(s))
 #endif
@@ -380,10 +367,8 @@ int dtls1_read_bytes(SSL * s, int type, int * recvd_type, uchar * buf,
 			return (-1);
 		}
 	}
-
 start:
 	s->rwstate = SSL_NOTHING;
-
 	/*-
 	 * s->s3->rrec.type         - is the type of record
 	 * s->s3->rrec.data,    - data
@@ -759,11 +744,7 @@ start:
 
 				n2s(p, seq);
 				n2l3(p, frag_off);
-
-				dtls1_retransmit_message(s,
-				    dtls1_get_queue_priority
-					    (frag->msg_header.seq, 0), frag_off,
-				    &found);
+				dtls1_retransmit_message(s, dtls1_get_queue_priority(frag->msg_header.seq, 0), frag_off, &found);
 				if(!found && SSL_in_init(s)) {
 					/*
 					 * fprintf( stderr,"in init = %d\n", SSL_in_init(s));
@@ -772,15 +753,13 @@ start:
 					 * requested a message not yet sent, send an alert
 					 * ourselves
 					 */
-					ssl3_send_alert(s, SSL3_AL_WARNING,
-					    DTLS1_AD_MISSING_HANDSHAKE_MESSAGE);
+					ssl3_send_alert(s, SSL3_AL_WARNING, DTLS1_AD_MISSING_HANDSHAKE_MESSAGE);
 				}
 			}
 #endif
 		}
 		else if(alert_level == SSL3_AL_FATAL) {
 			char tmp[16];
-
 			s->rwstate = SSL_NOTHING;
 			s->s3->fatal_alert = alert_descr;
 			SSLerr(SSL_F_DTLS1_READ_BYTES, SSL_AD_REASON_OFFSET + alert_descr);
