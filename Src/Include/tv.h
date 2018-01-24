@@ -97,14 +97,8 @@ struct KeyDownCommand { // @flat @noctr @size=4
 		State = 0;
 		Code = 0;
 	}
-	int    FASTCALL operator == (const KeyDownCommand & rS) const
-	{
-		return (State == rS.State && Code == rS.Code);
-	}
-	operator long() const
-	{
-		return *(long *)this;
-	}
+	int    FASTCALL operator == (const KeyDownCommand & rS) const { return (State == rS.State && Code == rS.Code); }
+	operator long() const { return *(long *)this; }
 	int    SLAPI GetKeyName(SString & rBuf, int onlySpecKeys = 0) const;
 	int    SLAPI SetKeyName(const char * pStr, uint * pLen);
 	void   FASTCALL SetWinMsgCode(uint32 wParam);

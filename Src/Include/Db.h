@@ -4489,6 +4489,7 @@ public:
 	BDbTransaction(BDbDatabase * pDb, int use_ta);
 	~BDbTransaction();
 	int    operator !() const;
+	int    Start(int use_ta);
 	int    Commit();
 private:
 	int    Ta;

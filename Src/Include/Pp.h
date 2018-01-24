@@ -9645,6 +9645,7 @@ public:
 	void   SLAPI Release();
 	int    FASTCALL IsEqual(const PPLotExtCodeContainer & rS) const;
     int    SLAPI Add(int rowIdx, const char * pCode, uint * pIdx);
+	int    SLAPI Delete(int rowIdx, uint itemIdx);
     int    SLAPI Set(int rowIdx, StringSet * pSsCode);
     int    SLAPI Get(int rowIdx, LongArray * pIdxList, StringSet & rSsCode) const;
 	int    SLAPI GetByIdx(uint idx, int * pRowIdx, SString & rCode) const;
@@ -47291,8 +47292,8 @@ private:
 		brushInvalidNumber
 	};
 
-	int PayerValidCode;
-	int RcvrValidCode;
+	int    PayerValidCode;
+	int    RcvrValidCode;
 	SPaintToolBox  Ptb;
 	PPBankingOrder Data;
 	PPObjPerson PsnObj;

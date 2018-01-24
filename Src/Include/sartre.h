@@ -614,8 +614,8 @@ private:
 //
 class SrConceptPropTbl : public BDbTable {
 public:
-	static int FASTCALL EncodePrimeKey(BDbTable::Buffer & rKeyBuf, const SrCProp & rRec);
-	static int FASTCALL DecodePrimeKey(const BDbTable::Buffer & rKeyBuf, SrCProp & rRec);
+	static void FASTCALL EncodePrimeKey(BDbTable::Buffer & rKeyBuf, const SrCProp & rRec);
+	static void FASTCALL DecodePrimeKey(const BDbTable::Buffer & rKeyBuf, SrCProp & rRec);
 	SrConceptPropTbl(SrDatabase & rSr);
 	int    Set(SrCProp & rProp);
 	int    Search(SrCProp & rRec);
@@ -881,7 +881,7 @@ public:
 
 	void * CreateStoreFiasAddrBlock();
 	void   DestroyStoreFiasAddrBlock(void * pBlk);
-	int    StoreFiasAddr(void * pStoreFiasAddrBlock, uint passN, const Sdr_FiasRawAddrObj & rEntry);
+	int    StoreFiasAddr(void * pStoreFiasAddrBlock, uint passN, const Sdr_FiasRawAddrObj * pEntry);
 //private:
 public:
 	BDbDatabase      * P_Db;

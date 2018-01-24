@@ -1697,11 +1697,8 @@ int BDbCursor::Delete()
 //
 //
 //
-BDbTransaction::BDbTransaction(BDbDatabase * pDb, int use_ta)
+BDbTransaction::BDbTransaction(BDbDatabase * pDb, int use_ta) : Ta(0), Err(0), P_Db(pDb)
 {
-	Ta = 0;
-	Err = 0;
-	P_Db = pDb;
 	if(use_ta && P_Db) {
 		int    r = P_Db->StartTransaction();
 		if(r > 0)
@@ -1721,6 +1718,25 @@ BDbTransaction::~BDbTransaction()
 int BDbTransaction::operator !() const
 {
 	return BIN(Err);
+}
+
+int BDbTransaction::Start(int use_ta)
+{
+	int    ok = 1;
+	if(Ta)
+		ok = -1;
+	else if(Err)
+		ok = 0;
+	else if(use_ta && P_Db) {
+		int    r = P_Db->StartTransaction();
+		if(r > 0)
+			Ta = 1;
+		else if(r == 0) {
+			ok = 0;
+			Err = 1;
+		}
+	}
+	return ok;
 }
 
 int BDbTransaction::Commit()

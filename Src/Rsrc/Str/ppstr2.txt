@@ -4569,10 +4569,12 @@ PPTXT_PREDEFIMPEXPBILLFMT         "1,Nalog.ru Счет-фактура (ON_SFAKT)
 PPTXT_NALOGRU_WORKSWERETRANSFERED "Результаты работ переданы (услуги оказаны)"
 PPTXT_NALOGRU_SHIPPINGBILL        "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)"
 PPTXT_NALOGRU_UPDOPCONTENT        "Товары переданы и услуги оказаны в полном объеме"
-
 PPTXT_ARMASSUPD_UPD               "Изменена статья аналитического учета '@zstr'"
 PPTXT_ARMASSUPD_UPD_CRAGT         "Изменена статья аналитического учета '@zstr' (создано соглашение)"
 PPTXT_DBINCONTINUOUSMODE          "Одна или более таблиц базы данных находятся в continuous-состоянии.\nПроконсультируйтесь с администратором системы."
+PPTXT_FIASTOSR_UNKNOBJTYPE        "ФИАС->Sartre: не удалось идентифицировать тип объекта '@zstr' (@int)"
+PPTXT_FIASTOSR_AMBIGOBJTYPE       "ФИАС->Sartre: тип объекта '@zstr' (@int) идентифицирован неоднозначно"
+PPTXT_FIASTOSR_OBJSKIPPED_TYPE    "ФИАС->Sartre: объект '@zstr' не акцептирован из-за неопределенного типа '@zstr' (@int)"
 //
 // LastText
 

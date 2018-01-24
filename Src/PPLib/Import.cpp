@@ -4617,12 +4617,12 @@ int FiasImporter::StartElement(const char * pName, const char ** ppAttrList)
 						// Следующие 2 фазы перебирают не только актуальные записи {
 						else if(r_state.Phase == phaseSartrePass1) {
 							if(P_SrDb) {
-								THROW(P_SrDb->StoreFiasAddr(P_SrStoreFiasAddrBlock, 1, *p_data));
+								THROW(P_SrDb->StoreFiasAddr(P_SrStoreFiasAddrBlock, 1, p_data));
 							}
 						}
 						else if(r_state.Phase == phaseSartrePass2) {
 							if(P_SrDb) {
-								THROW(P_SrDb->StoreFiasAddr(P_SrStoreFiasAddrBlock, 2, *p_data));
+								THROW(P_SrDb->StoreFiasAddr(P_SrStoreFiasAddrBlock, 2, p_data));
 							}
 						}
 						// }
@@ -4853,6 +4853,11 @@ int FiasImporter::DoPhase(int inpObject, int phase, const SString & rFileName, x
 	else if(phase == phaseData) {
 		THROW(FlashAddrChunk(0, 1));
 		THROW(FlashHouseChunk(0, 1));
+	}
+	else if(oneof2(phase, phaseSartrePass1, phaseSartrePass2)) {
+		if(P_SrDb) {
+			THROW(P_SrDb->StoreFiasAddr(P_SrStoreFiasAddrBlock, (phase - phaseSartrePass1 + 1), 0));
+		}
 	}
 	else {
 		THROW(Tra.Commit());

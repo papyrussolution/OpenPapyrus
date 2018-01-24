@@ -906,6 +906,16 @@ int SLAPI PPLotExtCodeContainer::Add(int rowIdx, const char * pCode, uint * pIdx
 	return ok;
 }
 
+int SLAPI PPLotExtCodeContainer::Delete(int rowIdx, uint itemIdx)
+{
+	int    ok = 1;
+    THROW(rowIdx >= 0);
+	THROW(itemIdx < SVector::getCount());
+	SVector::atFree(itemIdx);
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI PPLotExtCodeContainer::Set(int rowIdx, StringSet * pSsCode)
 {
 	int    ok = -1;

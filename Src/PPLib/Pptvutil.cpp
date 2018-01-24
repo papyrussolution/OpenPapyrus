@@ -427,8 +427,15 @@ int SLAPI ViewStatus()
 {
 	class StatusDialog : public TDialog {
 	public:
+		enum {
+			dummyFirst = 1,
+			brushValidPath,
+			brushInvalidPath
+		};
 		StatusDialog() : TDialog(DLG_STATUS)
 		{
+			Ptb.SetBrush(brushValidPath,   SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
+			Ptb.SetBrush(brushInvalidPath, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
 			SetCtrlBitmap(CTL_STATUS_IMG, BM_PICT_STATUS);
 			PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
 			enableCommand(cmAeqStat, BIN(p_queue));
@@ -441,12 +448,38 @@ int SLAPI ViewStatus()
 				ViewAsyncEventQueueStat();
 				clearEvent(event);
 			}
+			else if(event.isCmd(cmCtlColor)) {
+				TDrawCtrlData * p_dc = (TDrawCtrlData *)TVINFOPTR;
+				if(p_dc) {
+					static const uint16 ctl_list[] = {CTL_STATUS_BINPATH, CTL_STATUS_INPATH, CTL_STATUS_OUTPATH, CTL_STATUS_TEMPPATH};
+					SString path;
+					for(uint i = 0; i < SIZEOFARRAY(ctl_list); i++) {
+						uint16 ctl_id = ctl_list[i];
+						if(p_dc->H_Ctl == getCtrlHandle(ctl_id)) {
+							getCtrlString(ctl_id, path);
+							if(isDir(path.RmvLastSlash())) {
+								::SetBkMode(p_dc->H_DC, TRANSPARENT);
+								p_dc->H_Br = (HBRUSH)Ptb.Get(brushValidPath);
+							}
+							else {
+								::SetBkMode(p_dc->H_DC, TRANSPARENT);
+								p_dc->H_Br = (HBRUSH)Ptb.Get(brushInvalidPath);
+							}
+							clearEvent(event);
+							break;
+						}
+					}
+				}
+			}
 		}
+		SPaintToolBox  Ptb;
 	};
 	int    ok = 1;
 	DbProvider * p_dict = CurDict;
 	PPID   main_org_id = 0;
-	SString sbuf, accbuf, accbufno, datapath;
+	SString sbuf, datapath;
+	//SString accbuf;
+	//SString accbufno;
 	LDATE  oper_dt = LConfig.OperDate;
 	StatusDialog * dlg = new StatusDialog();
 	THROW(CheckDialogPtr(&dlg));
@@ -469,24 +502,24 @@ int SLAPI ViewStatus()
 	dlg->setCtrlString(CTL_STATUS_DBSYMBOL, sbuf);
 	dlg->setCtrlString(CTL_STATUS_DATAPATH, datapath.Transf(CTRANSF_OUTER_TO_INNER));
 
-	PPLoadText(PPTXT_PATHACCESS, accbuf);
-	PPLoadText(PPTXT_PATHACCESSNO, accbufno);
+	//PPLoadText(PPTXT_PATHACCESS, accbuf);
+	//PPLoadText(PPTXT_PATHACCESSNO, accbufno);
 
 	PPGetPath(PPPATH_BIN, datapath);
 	dlg->setCtrlString(CTL_STATUS_BINPATH, (sbuf = datapath).Transf(CTRANSF_OUTER_TO_INNER));
-	dlg->setCtrlString(CTL_STATUS_ACCESSBIN, fileExists(datapath) ? accbuf : accbufno);
+	//dlg->setCtrlString(CTL_STATUS_ACCESSBIN, fileExists(datapath) ? accbuf : accbufno);
 
 	PPGetPath(PPPATH_IN, datapath);
     dlg->setCtrlString(CTL_STATUS_INPATH, (sbuf = datapath).Transf(CTRANSF_OUTER_TO_INNER));
-	dlg->setCtrlString(CTL_STATUS_ACCESSIN, fileExists(datapath) ? accbuf : accbufno);
+	//dlg->setCtrlString(CTL_STATUS_ACCESSIN, fileExists(datapath) ? accbuf : accbufno);
 
 	PPGetPath(PPPATH_OUT, datapath);
 	dlg->setCtrlString(CTL_STATUS_OUTPATH, (sbuf = datapath).Transf(CTRANSF_OUTER_TO_INNER));
-	dlg->setCtrlString(CTL_STATUS_ACCESSOUT, fileExists(datapath) ? accbuf : accbufno);
+	//dlg->setCtrlString(CTL_STATUS_ACCESSOUT, fileExists(datapath) ? accbuf : accbufno);
 
 	PPGetPath(PPPATH_TEMP, datapath);
 	dlg->setCtrlString(CTL_STATUS_TEMPPATH, (sbuf = datapath).Transf(CTRANSF_OUTER_TO_INNER));
-	dlg->setCtrlString(CTL_STATUS_ACCESSTEMP, fileExists(datapath) ? accbuf : accbufno);
+	//dlg->setCtrlString(CTL_STATUS_ACCESSTEMP, fileExists(datapath) ? accbuf : accbufno);
 	if(LConfig.Flags & CFGFLG_USEGOODSMATRIX) {
 		PPLoadText(PPTXT_GOODSMATRIX_IS_USED, sbuf);
 		dlg->setStaticText(CTL_STATUS_USEGDSMATRIX, sbuf);
@@ -804,40 +837,13 @@ Lst2LstDialogUI::Lst2LstDialogUI(uint rezID, ListToListUIData * pData) : TDialog
 	setup();
 }
 
-int Lst2LstDialogUI::addItem()
-{
-	return -1;
-}
-
-int Lst2LstDialogUI::addNewItem()
-{
-	return -1;
-}
-
-int Lst2LstDialogUI::removeItem()
-{
-	return -1;
-}
-
-int Lst2LstDialogUI::addAll()
-{
-	return -1;
-}
-
-int Lst2LstDialogUI::removeAll()
-{
-	return -1;
-}
-
-SmartListBox * Lst2LstDialogUI::GetLeftList()
-{
-	return (SmartListBox*)getCtrlView(Data.LeftCtlId);
-}
-
-SmartListBox * Lst2LstDialogUI::GetRightList()
-{
-	return (SmartListBox *)getCtrlView(Data.RightCtlId);
-}
+int    Lst2LstDialogUI::addItem() { return -1; }
+int    Lst2LstDialogUI::addNewItem() { return -1; }
+int    Lst2LstDialogUI::removeItem() { return -1; }
+int    Lst2LstDialogUI::addAll() { return -1; }
+int    Lst2LstDialogUI::removeAll() { return -1; }
+SmartListBox * Lst2LstDialogUI::GetLeftList() { return (SmartListBox*)getCtrlView(Data.LeftCtlId); }
+SmartListBox * Lst2LstDialogUI::GetRightList() { return (SmartListBox *)getCtrlView(Data.RightCtlId); }
 
 int Lst2LstDialogUI::setup()
 {
@@ -956,16 +962,11 @@ Lst2LstAryDialog::Lst2LstAryDialog(uint rezID, ListToListUIData * pData, SArray 
 	setupRightList();
 }
 
-SArray * Lst2LstAryDialog::GetRight() const
-	{ return P_Right; }
-SArray * Lst2LstAryDialog::GetLeft() const
-	{ return P_Left; }
-int Lst2LstAryDialog::getDTS(SArray * pList)
-	{ return pList->copy(*P_Right); }
-int Lst2LstAryDialog::setupRightList()
-	{ return SetupList(P_Right, GetRightList()); }
-int Lst2LstAryDialog::setupLeftList()
-	{ return SetupList(P_Left, GetLeftList()); }
+SArray * Lst2LstAryDialog::GetRight() const { return P_Right; }
+SArray * Lst2LstAryDialog::GetLeft() const { return P_Left; }
+int    Lst2LstAryDialog::getDTS(SArray * pList) { return pList->copy(*P_Right); }
+int    Lst2LstAryDialog::setupRightList() { return SetupList(P_Right, GetRightList()); }
+int    Lst2LstAryDialog::setupLeftList() { return SetupList(P_Left, GetLeftList()); }
 
 int Lst2LstAryDialog::SetupList(SArray *pA, SmartListBox * pL)
 {
@@ -1335,15 +1336,8 @@ WLDialog::WLDialog(uint rezID, uint _wlCtlID) : TDialog(rezID), wlCtlID(_wlCtlID
 {
 }
 
-void WLDialog::setWL(int s)
-{
-	toggleWL(s);
-}
-
-int WLDialog::getWL() const
-{
-	return BIN(wl);
-}
+void   WLDialog::setWL(int s) { toggleWL(s); }
+int    WLDialog::getWL() const { return BIN(wl); }
 
 void WLDialog::toggleWL(int s)
 {
@@ -3585,15 +3579,8 @@ PersonCtrlGroup::PersonCtrlGroup(uint ctlsel, uint ctlSCardCode, PPID psnKindID,
 	Data.PsnKindID = psnKindID;
 }
 
-void PersonCtrlGroup::SetAnonymCtrlId(uint ctl)
-{
-	CtlAnonym = ctl;
-}
-
-void PersonCtrlGroup::SetPersonKind(long psnKindID)
-{
-	Data.PsnKindID = psnKindID;
-}
+void   PersonCtrlGroup::SetAnonymCtrlId(uint ctl) { CtlAnonym = ctl; }
+void   PersonCtrlGroup::SetPersonKind(long psnKindID) { Data.PsnKindID = psnKindID; }
 
 int PersonCtrlGroup::setData(TDialog * pDlg, void * pData)
 {

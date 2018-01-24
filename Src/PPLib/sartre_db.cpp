@@ -96,10 +96,8 @@ int SrGrammarTbl::Helper_Search(long id, SrSList * pL)
 	return ok;
 }
 
-int SrGrammarTbl::Add(SrWordForm * pWf, long * pID)
-{
-	return Helper_Add(pWf, pID);
-}
+int SrGrammarTbl::Add(SrWordForm * pWf, long * pID) { return Helper_Add(pWf, pID); }
+int SrGrammarTbl::Add(SrFlexiaModel * pFm, long * pID) { return Helper_Add(pFm, pID); }
 
 int SrGrammarTbl::Search(long id, SrWordForm * pWf)
 {
@@ -108,11 +106,6 @@ int SrGrammarTbl::Search(long id, SrWordForm * pWf)
 		assert(pWf->GetType() == SRGRAMTYP_WORDFORM);
 	}
 	return ok;
-}
-
-int SrGrammarTbl::Add(SrFlexiaModel * pFm, long * pID)
-{
-	return Helper_Add(pFm, pID);
 }
 
 int SrGrammarTbl::Search(long id, SrFlexiaModel * pFm)
@@ -705,18 +698,11 @@ int SrConceptTbl::SetPropDeclList(CONCEPTID id, SrCPropDeclList * pPdl)
 }
 
 //static
-int FASTCALL SrConceptPropTbl::EncodePrimeKey(BDbTable::Buffer & rKeyBuf, const SrCProp & rRec)
-{
-	rKeyBuf.Set(&rRec.CID, sizeof(rRec.CID)+sizeof(rRec.PropID));
-	return 1;
-}
-
+void FASTCALL SrConceptPropTbl::EncodePrimeKey(BDbTable::Buffer & rKeyBuf, const SrCProp & rRec)
+	{ rKeyBuf.Set(&rRec.CID, sizeof(rRec.CID)+sizeof(rRec.PropID)); }
 //static
-int FASTCALL SrConceptPropTbl::DecodePrimeKey(const BDbTable::Buffer & rKeyBuf, SrCProp & rRec)
-{
-	rKeyBuf.Get(&rRec.CID, sizeof(rRec.CID)+sizeof(rRec.PropID));
-	return 1;
-}
+void FASTCALL SrConceptPropTbl::DecodePrimeKey(const BDbTable::Buffer & rKeyBuf, SrCProp & rRec)
+	{ rKeyBuf.Get(&rRec.CID, sizeof(rRec.CID)+sizeof(rRec.PropID)); }
 
 SrConceptPropTbl::SrConceptPropTbl(SrDatabase & rSr) : BDbTable(BDbTable::ConfigHash("concept.db->conceptprop", 0, 0, 0), rSr.P_Db), R_Sr(rSr)
 {
@@ -1107,14 +1093,9 @@ int SLAPI SrGeoNodeTbl::GetWayNodes(const PPOsm::Way & rWay, TSVector <PPOsm::No
 }
 
 int SLAPI SrGeoNodeTbl::Search(uint64 id, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID)
-{
-	return Helper_Search(id, 0, pNode, pNrList, pLogicalID);
-}
-
+	{ return Helper_Search(id, 0, pNode, pNrList, pLogicalID); }
 int SLAPI SrGeoNodeTbl::Search(uint64 id, PPOsm::NodeCluster * pCluster, uint64 * pLogicalID)
-{
-	return Helper_Search(id, pCluster, 0, 0, pLogicalID);
-}
+	{ return Helper_Search(id, pCluster, 0, 0, pLogicalID); }
 
 int SLAPI SrGeoNodeTbl::Helper_Search(uint64 id, PPOsm::NodeCluster * pCluster, PPOsm::Node * pNode, PPOsm::NodeRefs * pNrList, uint64 * pLogicalID)
 {
@@ -1225,15 +1206,8 @@ int SLAPI SrGeoNodeTbl::Helper_Set(PPOsm::NodeCluster & rNc, uint64 outerID, int
 	return ok;
 }
 
-int SLAPI SrGeoNodeTbl::Add(PPOsm::NodeCluster & rNc, uint64 outerID)
-{
-	return Helper_Set(rNc, outerID, 0);
-}
-
-int SLAPI SrGeoNodeTbl::Update(PPOsm::NodeCluster & rNc, uint64 outerID)
-{
-	return Helper_Set(rNc, outerID, 1);
-}
+int SLAPI SrGeoNodeTbl::Add(PPOsm::NodeCluster & rNc, uint64 outerID) { return Helper_Set(rNc, outerID, 0); }
+int SLAPI SrGeoNodeTbl::Update(PPOsm::NodeCluster & rNc, uint64 outerID) { return Helper_Set(rNc, outerID, 1); }
 //
 //
 //
@@ -1447,7 +1421,6 @@ int SrDatabase::SearchConcept(const char * pSymbUtf8, CONCEPTID * pID)
 	ASSIGN_PTR(pID, cid);
 	return ok;
 }
-
 
 int SrDatabase::ResolveConcept(const char * pSymbUtf8, CONCEPTID * pID)
 {
@@ -2649,7 +2622,7 @@ struct StoreFiasAddrBlock {
 	};
 
 	static const uint SignatureValue;
-	StoreFiasAddrBlock() : Signature(SignatureValue), CRegion(0), CUrbs(0), CVici(0), CAedificium(0), CApartment(0), ProcessedSymbols(4096, 1),
+	StoreFiasAddrBlock() : Signature(SignatureValue), CRegion(0), CUrbs(0), CVici(0), CAedificium(0), CApartment(0), CRussia(0), ProcessedSymbols(4096, 1),
 		T(STokenizer::Param(STokenizer::fEachDelim, cpUTF8, " \t\n\r(){}[]<>,.:;\\/&$#@!?*^\"+=%")) // "-" здесь не является разделителем
 	{
 	}
@@ -2659,6 +2632,7 @@ struct StoreFiasAddrBlock {
 	CONCEPTID CVici;
 	CONCEPTID CAedificium;
 	CONCEPTID CApartment;
+	CONCEPTID CRussia; // Концепция, представляющая государство Россия (:statu_ru)
 	TSVector <Sdr_FiasRawAddrObj> SrcList;
 	SymbHashTable ProcessedSymbols;
 	STokenizer T;
@@ -2678,6 +2652,7 @@ void * SrDatabase::CreateStoreFiasAddrBlock()
 		SearchConcept("gener_vici", &p_blk->CVici);
 		SearchConcept("gener_aedificium", &p_blk->CAedificium);
 		SearchConcept("gener_apartment", &p_blk->CApartment);
+		SearchConcept("statu_ru", &p_blk->CRussia);
 	}
 	return p_blk;
 }
@@ -2698,15 +2673,22 @@ static IMPL_CMPFUNC(Sdr_FiasRawAddrObj_AOGUID_LIVESTATUS, p1, p2)
 	return s;
 }
 
-int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj & rEntry)
+int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj * pEntry)
 {
+	const  uint max_entries_per_tx = SKILOBYTE(2);
+	assert(oneof2(passN, 1, 2));
 	int    ok = 1;
+	BDbTransaction * p_ta = 0;
 	StoreFiasAddrBlock * p_blk = (StoreFiasAddrBlock *)pBlk;
 	THROW(p_blk && p_blk->Signature == StoreFiasAddrBlock::SignatureValue);
-	THROW(p_blk->SrcList.insert(&rEntry));
+	if(pEntry) {
+		THROW(p_blk->SrcList.insert(pEntry));
+	}
 	const uint src_list_count = p_blk->SrcList.getCount();
-	if(src_list_count >= SKILOBYTE(128)) {
+	if(!pEntry || src_list_count >= SKILOBYTE(128)) {
+		uint   cur_entries_per_tx = 0; // Текущее количество элементов, обработанных внутри одной транзакции
 		SString temp_buf;
+		SString msg_buf;
 		SString main_concept_symb;
 		SString text;
 		StringSet ss;
@@ -2714,7 +2696,6 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 		SrWordForm wordform;
 		TSVector <SrWordInfo> info_list;
 		STokenizer::Item titem, titem_next;
-		//LongArray word_id_list;
 		Int64Array concept_list;
 		Int64Array candidate_concept_list;
 		Int64Array local_concept_list;
@@ -2783,7 +2764,6 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 				91 – уровень объектов на дополнительных территориях (устаревшее)
 			*/
 			const int aolevel = atoi(r_item.AOLEVEL);
-			;
 			/*
 				:cregion
 				:urbs
@@ -2814,6 +2794,8 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 						//
 						last_identical_idx = inner_lidx;
 					}
+					else
+						break;
 				}
 			}
 			ng.Z();
@@ -2825,158 +2807,200 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 			text.TrimRightChr('.').Strip();
 
 			CONCEPTID sr_type_cid = 0; // ИД концепции-типа локации (город, улица, поселок и т.д.)
+			CONCEPTID main_cid = 0; // Ид концепции, соответствующей текущей записи (AOGUID)
 			StoreFiasAddrBlock::TextHash::ExtData hed;
 			StoreFiasAddrBlock::TextHash::LocTypeEntry __lte;
-			if(p_blk->H.Search(text, &hed)) {
-				const StoreFiasAddrBlock::TextHash::LocTypeEntry * p_lte = hed.GetEntryByFiasLevel(aolevel);
-				RVALUEPTR(__lte, p_lte);
+			if(!p_ta) {
+				THROW(p_ta = new BDbTransaction(this->P_Db, 1));
 			}
-			if(__lte.SrTypeID) {
-				assert(__lte.FiasLevel == aolevel);
-				sr_type_cid = __lte.SrTypeID;
+			if(cur_entries_per_tx++ >= max_entries_per_tx) {
+				THROW_DB(p_ta->Commit());
+				THROW_DB(p_ta->Start(1));
 			}
-			else if(__lte.FiasLevel && __lte.Flags & StoreFiasAddrBlock::TextHash::fUndefType) {
-				;
-			}
-			else if(__lte.FiasLevel && __lte.Flags & StoreFiasAddrBlock::TextHash::fAmbigType) {
-				;
-			}
-			else {
-				assert(__lte.FiasLevel == 0);
-				LEXID single_word_id = 0;
-				if(FetchWord(text, &single_word_id) > 0) {
-					ng.Z();
-					ng.WordIdList.add(single_word_id);
-					NGID local_ng_id = 0;
-					if(P_NgT->Search(ng, &local_ng_id) > 0) {
-						local_concept_list.clear();
-						GetNgConceptList(local_ng_id, 0, local_concept_list);
-						concept_list.add(&local_concept_list);
-					}
-				}
-				if(GetWordInfo(text, 0, info_list) > 0) {
-					for(uint i = 0; i < info_list.getCount(); i++) {
-						const SrWordInfo & r_wi = info_list.at(i);
-						local_concept_list.clear();
-						if(r_wi.AbbrExpID) {
-							if(P_NgT->Search(r_wi.AbbrExpID, &ng) > 0) {
-								GetNgConceptList(ng.ID, 0, local_concept_list);
-								concept_list.add(&local_concept_list);
-							}
+			SrConcept::MakeSurrogateSymb(SrConcept::surrsymbsrcFIAS, &r_item.AOGUID, sizeof(r_item.AOGUID), main_concept_symb);
+			if(passN == 2) {
+				if(PropHMember) {
+					if(SearchConcept(main_concept_symb, &main_cid) > 0) {
+						CONCEPTID parent_cid = 0;
+						if(!r_item.PARENTGUID.IsZero()) {
+							SrConcept::MakeSurrogateSymb(SrConcept::surrsymbsrcFIAS, &r_item.PARENTGUID, sizeof(r_item.PARENTGUID), temp_buf);
+							SearchConcept(temp_buf, &parent_cid);
+						}
+						else {
+							parent_cid = p_blk->CRussia;
+						}
+						if(parent_cid) {
+							THROW(SetConceptProp(main_cid, PropHMember, 0, parent_cid));
 						}
 					}
 				}
-				{
-					ss.clear();
-					text.Tokenize(" ", ss);
-					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-						if(temp_buf.NotEmptyS() && temp_buf.TrimRightChr('.').NotEmptyS()) {
-
-						}
-					}
-				}
-				candidate_concept_list.clear();
-				concept_list.sortAndUndup();
-				for(uint cidx = 0; cidx < concept_list.getCount(); cidx++) {
-					CONCEPTID item_id = concept_list.get(cidx);
-					if(GetConceptHier(item_id, concept_hier) > 0) {
-						switch(aolevel) {
-							case 1: case 2: case 3:
-								if(concept_hier.lsearch(p_blk->CRegion))
-									candidate_concept_list.add(item_id);
-								break;
-							case 4: case 6:
-								if(concept_hier.lsearch(p_blk->CUrbs))
-									candidate_concept_list.add(item_id);
-								break;
-							case 7:
-								if(concept_hier.lsearch(p_blk->CVici))
-									candidate_concept_list.add(item_id);
-								break;
-							case 8:
-								if(concept_hier.lsearch(p_blk->CAedificium))
-									candidate_concept_list.add(item_id);
-								break;
-							case 9:
-								if(concept_hier.lsearch(p_blk->CApartment))
-									candidate_concept_list.add(item_id);
-								break;
-						}
-					}
-				}
-				candidate_concept_list.sortAndUndup();
-				{
+			}
+			else if(passN == 1) {
+				if(p_blk->H.Search(text, &hed)) {
 					const StoreFiasAddrBlock::TextHash::LocTypeEntry * p_lte = hed.GetEntryByFiasLevel(aolevel);
 					RVALUEPTR(__lte, p_lte);
-					assert(!__lte.FiasLevel || __lte.FiasLevel == aolevel);
-					__lte.FiasLevel = aolevel;
-					if(candidate_concept_list.getCount() == 0) {
-						// @todo logmessage
-						THROW(hed.SetEntryByFiasLevel(aolevel, StoreFiasAddrBlock::TextHash::fUndefType, 0));
-					}
-					else if(candidate_concept_list.getCount() > 1) {
-						// @todo logmessage
-						THROW(hed.SetEntryByFiasLevel(aolevel, StoreFiasAddrBlock::TextHash::fAmbigType, 0));
-					}
-					else { // candidate_concept_list.getCount() exactly equal 1
-						sr_type_cid = candidate_concept_list.get(0);
-						THROW(hed.SetEntryByFiasLevel(aolevel, 0, sr_type_cid));
-					}
-					THROW(p_blk->H.Add(text, &hed));
 				}
-			}
-			if(sr_type_cid) {
-				//
-				CONCEPTID main_cid = 0;
-				SrConcept::MakeSurrogateSymb(SrConcept::surrsymbsrcFIAS, &r_item.AOGUID, sizeof(r_item.AOGUID), main_concept_symb);
-				THROW(ResolveConcept(main_concept_symb, &main_cid));
-				for(uint namessp = 0; ss_name.get(&namessp, text);) {
-					uint   idx_first = 0;
-					uint   idx_count = 0;
-					ng.Z();
-					p_blk->T.RunSString(0, 0, text, &idx_first, &idx_count);
-					for(uint tidx = 0; tidx < idx_count; tidx++) {
-						LEXID word_id = 0;
-						if(p_blk->T.Get(idx_first+tidx, titem)) {
-							if(titem.Token == STokenizer::tokWord) {
-								if(tidx < (idx_count-1) && p_blk->T.Get(idx_first+tidx+1, titem_next)) {
-									if(titem_next.Token == STokenizer::tokDelim && titem_next.Text.Single() == '.') {
-										tidx++; // Следующую за словом точку пропускаем (например "а.невского"-->"а" "невского")
-									}
-								}
-								const int rwr = ResolveWord(titem.Text, &word_id);
-								THROW(rwr);
-								assert(word_id);
-								if(rwr == 2) { // Было создано новое слово - добавим к нему извесные нам признаки (пока только язык)
-									wordform.Clear();
-									wordform.SetTag(SRWG_LANGUAGE, slangRU);
-									THROW(SetSimpleWordFlexiaModel(word_id, wordform, 0));
-								}
-							}
-							else if(titem.Token == STokenizer::tokDelim) {
-								const char dc = titem.Text.Single();
-								if(oneof4(dc, ' ', '\t', '\n', '\r'))
-									; // просто пропускаем
-								else if(titem.Text.Len()) {
-									THROW(ResolveWord(titem.Text, &word_id));
-									assert(word_id);								
+				if(__lte.SrTypeID) {
+					assert(__lte.FiasLevel == aolevel);
+					sr_type_cid = __lte.SrTypeID;
+				}
+				else if(__lte.FiasLevel && __lte.Flags & StoreFiasAddrBlock::TextHash::fUndefType) {
+					;
+				}
+				else if(__lte.FiasLevel && __lte.Flags & StoreFiasAddrBlock::TextHash::fAmbigType) {
+					;
+				}
+				else {
+					assert(__lte.FiasLevel == 0);
+					LEXID single_word_id = 0;
+					if(FetchWord(text, &single_word_id) > 0) {
+						ng.Z();
+						ng.WordIdList.add(single_word_id);
+						NGID local_ng_id = 0;
+						if(P_NgT->Search(ng, &local_ng_id) > 0) {
+							local_concept_list.clear();
+							GetNgConceptList(local_ng_id, 0, local_concept_list);
+							concept_list.add(&local_concept_list);
+						}
+					}
+					if(GetWordInfo(text, 0, info_list) > 0) {
+						for(uint i = 0; i < info_list.getCount(); i++) {
+							const SrWordInfo & r_wi = info_list.at(i);
+							local_concept_list.clear();
+							if(r_wi.AbbrExpID) {
+								if(P_NgT->Search(r_wi.AbbrExpID, &ng) > 0) {
+									GetNgConceptList(ng.ID, 0, local_concept_list);
+									concept_list.add(&local_concept_list);
 								}
 							}
 						}
-						ng.WordIdList.addnz(word_id);
 					}
-					if(ng.WordIdList.getCount()) {
-						NGID   ngram_id = 0;
-						THROW(ResolveNGram(ng.WordIdList, &ngram_id));
-						assert(ngram_id);
-						THROW(P_CNgT->Set(main_cid, ngram_id));
+					{
+						ss.clear();
+						text.Tokenize(" ", ss);
+						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+							if(temp_buf.NotEmptyS() && temp_buf.TrimRightChr('.').NotEmptyS()) {
+
+							}
+						}
 					}
+					candidate_concept_list.clear();
+					concept_list.sortAndUndup();
+					for(uint cidx = 0; cidx < concept_list.getCount(); cidx++) {
+						CONCEPTID item_id = concept_list.get(cidx);
+						if(GetConceptHier(item_id, concept_hier) > 0) {
+							switch(aolevel) {
+								case 1: case 2: case 3:
+									if(concept_hier.lsearch(p_blk->CRegion))
+										candidate_concept_list.add(item_id);
+									break;
+								case 4: case 6:
+									if(concept_hier.lsearch(p_blk->CUrbs))
+										candidate_concept_list.add(item_id);
+									break;
+								case 7:
+									if(concept_hier.lsearch(p_blk->CVici))
+										candidate_concept_list.add(item_id);
+									break;
+								case 8:
+									if(concept_hier.lsearch(p_blk->CAedificium))
+										candidate_concept_list.add(item_id);
+									break;
+								case 9:
+									if(concept_hier.lsearch(p_blk->CApartment))
+										candidate_concept_list.add(item_id);
+									break;
+							}
+						}
+					}
+					candidate_concept_list.sortAndUndup();
+					{
+						const StoreFiasAddrBlock::TextHash::LocTypeEntry * p_lte = hed.GetEntryByFiasLevel(aolevel);
+						RVALUEPTR(__lte, p_lte);
+						assert(!__lte.FiasLevel || __lte.FiasLevel == aolevel);
+						__lte.FiasLevel = aolevel;
+						if(candidate_concept_list.getCount() == 0) {
+							(temp_buf = r_item.SHORTNAME).Transf(CTRANSF_OUTER_TO_INNER);
+							PPLogMessage(PPFILNAM_IMPEXP_LOG, PPFormatS(PPSTR_TEXT, PPTXT_FIASTOSR_UNKNOBJTYPE, &msg_buf, temp_buf.cptr(), aolevel), /*LOGMSGF_TIME*/0);
+							THROW(hed.SetEntryByFiasLevel(aolevel, StoreFiasAddrBlock::TextHash::fUndefType, 0));
+						}
+						else if(candidate_concept_list.getCount() > 1) {
+							(temp_buf = r_item.SHORTNAME).Transf(CTRANSF_OUTER_TO_INNER);
+							PPLogMessage(PPFILNAM_IMPEXP_LOG, PPFormatS(PPSTR_TEXT, PPTXT_FIASTOSR_AMBIGOBJTYPE, &msg_buf, temp_buf.cptr(), aolevel), /*LOGMSGF_TIME*/0);
+							THROW(hed.SetEntryByFiasLevel(aolevel, StoreFiasAddrBlock::TextHash::fAmbigType, 0));
+						}
+						else { // candidate_concept_list.getCount() exactly equal 1
+							sr_type_cid = candidate_concept_list.get(0);
+							THROW(hed.SetEntryByFiasLevel(aolevel, 0, sr_type_cid));
+						}
+						THROW(p_blk->H.Add(text, &hed));
+					}
+				}
+				if(sr_type_cid) {
+					THROW(ResolveConcept(main_concept_symb, &main_cid));
+					for(uint namessp = 0; ss_name.get(&namessp, text);) {
+						uint   idx_first = 0;
+						uint   idx_count = 0;
+						ng.Z();
+						p_blk->T.RunSString(0, 0, text, &idx_first, &idx_count);
+						for(uint tidx = 0; tidx < idx_count; tidx++) {
+							LEXID word_id = 0;
+							if(p_blk->T.Get(idx_first+tidx, titem)) {
+								if(titem.Token == STokenizer::tokWord) {
+									if(tidx < (idx_count-1) && p_blk->T.Get(idx_first+tidx+1, titem_next)) {
+										if(titem_next.Token == STokenizer::tokDelim && titem_next.Text.Single() == '.') {
+											tidx++; // Следующую за словом точку пропускаем (например "а.невского"-->"а" "невского")
+										}
+									}
+									if(FetchWord(titem.Text, &word_id) < 0) {
+										THROW(P_WdT->Add(titem.Text, &word_id));
+										// Было создано новое слово - добавим к нему извесные нам признаки (пока только язык)
+										wordform.Clear();
+										wordform.SetTag(SRWG_LANGUAGE, slangRU);
+										THROW(SetSimpleWordFlexiaModel(word_id, wordform, 0));
+									}
+									assert(word_id);
+								}
+								else if(titem.Token == STokenizer::tokDelim) {
+									const char dc = titem.Text.Single();
+									if(oneof4(dc, ' ', '\t', '\n', '\r'))
+										; // просто пропускаем
+									else if(titem.Text.Len()) {
+										if(FetchWord(titem.Text, &word_id) < 0) {
+											THROW(P_WdT->Add(titem.Text, &word_id));
+										}
+										assert(word_id);
+									}
+								}
+							}
+							ng.WordIdList.addnz(word_id);
+						}
+						if(ng.WordIdList.getCount()) {
+							NGID   ngram_id = 0;
+							THROW(ResolveNGram(ng.WordIdList, &ngram_id));
+							assert(ngram_id);
+							THROW(P_CNgT->Set(main_cid, ngram_id));
+							{
+								assert(PropInstance);
+								assert(sr_type_cid);
+								THROW(SetConceptProp(main_cid, PropInstance, 0, sr_type_cid));
+							}
+						}
+					}
+				}
+				else {
+					//PPTXT_FIASTOSR_OBJSKIPPED_TYPE    "ФИАС->Sartre: объект '@zstr' не акцептирован из-за неопределенного типа '@zstr'"
+					(temp_buf = r_item.FORMALNAME).Transf(CTRANSF_OUTER_TO_INNER);
+					(text = r_item.SHORTNAME).Transf(CTRANSF_OUTER_TO_INNER);
+					PPLogMessage(PPFILNAM_IMPEXP_LOG, PPFormatS(PPSTR_TEXT, PPTXT_FIASTOSR_OBJSKIPPED_TYPE, &msg_buf, temp_buf.cptr(), text.cptr(), aolevel), /*LOGMSGF_TIME*/0);
 				}
 			}
 			lidx = last_identical_idx;
+			PPWaitPercent(lidx, src_list_count, "Storage");
 		}
 		p_blk->SrcList.clear();
 	}
 	CATCHZOK
+	delete p_ta;
 	return ok;
 }

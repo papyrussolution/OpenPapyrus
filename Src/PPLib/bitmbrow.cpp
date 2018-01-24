@@ -2444,6 +2444,8 @@ int SLAPI BillItemBrowser::EditExtCodeList(int rowIdx)
 		virtual int delItem(long pos, long id)
 		{
 			int    ok = -1;
+			if(Data.Delete(RowIdx, id))
+				ok = 1;
 			return ok;
 		}
 		int SLAPI EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar)

@@ -266,10 +266,10 @@ void SLAPI StringSet::sortAndUndup()
 		temp_list.Add(++id, str);
 	temp_list.SortByText();
 	clear();
-	str = 0;
+	str.Z();
 	for(i = 0; i < temp_list.getCount(); i++) {
 		const char * p_item = temp_list.Get(i).Txt;
-		if(i && str != p_item) {
+		if(!i || str != p_item) {
 			add(p_item);
 		}
 		str = p_item;
