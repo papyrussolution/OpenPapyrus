@@ -210,15 +210,8 @@ int SLAPI PPViewCCheck::GetTabTitle(long tabID, SString & rBuf) const
 	return 1;
 }
 
-const BVATAccmArray * PPViewCCheck::GetInOutVATList() const
-{
-	return P_InOutVATList;
-}
-
-CCheckCore * SLAPI PPViewCCheck::GetCc()
-{
-	return P_CC;
-}
+const BVATAccmArray * PPViewCCheck::GetInOutVATList() const { return P_InOutVATList; }
+CCheckCore * SLAPI PPViewCCheck::GetCc() { return P_CC; }
 
 int SLAPI PPViewCCheck::SerializeState(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
@@ -346,17 +339,18 @@ int CCheckFiltCtDialog::ToggleFlag(long itemId)
 		return -1;
 }
 
-#define GRP_GOODSFILT  1
-#define GRP_POSNODE    2
-#define GRP_SCARD      3
-
 class CCheckFiltDialog : public TDialog {
 public:
+	enum {
+		ctlgroupGoodsFilt = 1,
+		ctlgroupPosNode   = 2,
+		ctlgroupSCard     = 3
+	};
 	CCheckFiltDialog(int hasExt) : TDialog(DLG_CCHECKFLT), HasExt(hasExt)
 	{
-		addGroup(GRP_POSNODE, new PosNodeCtrlGroup(CTLSEL_CCHECKFLT_NODE, cmPosNodeList));
-		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(CTLSEL_CCHECKFLT_GOODS, CTLSEL_GOODSREST_GGRP, cmGoodsFilt)); // @fix CTLSEL_GOODSREST_GGRP-->CTLSEL_CCHECKFLT_GGRP
-		addGroup(GRP_SCARD,  new SCardCtrlGroup(CTLSEL_CCHECKFLT_SCSER, CTL_CCHECKFLT_SCARD, cmSCardSerList));
+		addGroup(ctlgroupPosNode, new PosNodeCtrlGroup(CTLSEL_CCHECKFLT_NODE, cmPosNodeList));
+		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(CTLSEL_CCHECKFLT_GOODS, CTLSEL_GOODSREST_GGRP, cmGoodsFilt)); // @fix CTLSEL_GOODSREST_GGRP-->CTLSEL_CCHECKFLT_GGRP
+		addGroup(ctlgroupSCard,  new SCardCtrlGroup(CTLSEL_CCHECKFLT_SCSER, CTL_CCHECKFLT_SCARD, cmSCardSerList));
 	}
 	int    setDTS(const CCheckFilt *);
 	int    getDTS(CCheckFilt *);
@@ -461,7 +455,7 @@ int CCheckFiltDialog::setDTS(const CCheckFilt * pFilt)
 				Data.NodeList.Add(eq_cfg.DefCashNodeID);
 			}
 			PosNodeCtrlGroup::Rec cn_rec(&Data.NodeList);
-			setGroupData(GRP_POSNODE, &cn_rec);
+			setGroupData(ctlgroupPosNode, &cn_rec);
 		}
 		setCtrlData(CTL_CCHECKFLT_CASHN, &Data.CashNumber);
 		SetIntRangeInput(this, CTL_CCHECKFLT_CODERANGE, &Data.CodeR);
@@ -481,13 +475,13 @@ int CCheckFiltDialog::setDTS(const CCheckFilt * pFilt)
 		AddClusterAssoc(CTL_CCHECKFLT_FLAGS, 13, CCheckFilt::fNotSpFinished); // @v9.7.5
 		SetClusterData(CTL_CCHECKFLT_FLAGS, Data.Flags);
 		grp_rec.Flags |= GoodsCtrlGroup::enableSelUpLevel;
-		setGroupData(GRP_GOODSFILT, &grp_rec);
+		setGroupData(ctlgroupGoodsFilt, &grp_rec);
 		{
 			SCardCtrlGroup::Rec screc;
 			const PPIDArray * p_temp_list = &Data.ScsList.Get();
 			RVALUEPTR(screc.SCardSerList, p_temp_list);
 			screc.SCardID = Data.SCardID;
-			setGroupData(GRP_SCARD, &screc);
+			setGroupData(ctlgroupSCard, &screc);
 		}
 		SetupArCombo(this, CTLSEL_CCHECKFLT_AGENT, Data.AgentID, OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 		setCtrlData(CTL_CCHECKFLT_TABLECODE, &Data.TableCode);
@@ -529,19 +523,19 @@ int CCheckFiltDialog::getDTS(CCheckFilt * pFilt)
 		Data.Flags &= ~CCheckFilt::fStartOrderPeriod;
 	{
 		PosNodeCtrlGroup::Rec cn_rec;
-		getGroupData(GRP_POSNODE, &cn_rec);
+		getGroupData(ctlgroupPosNode, &cn_rec);
 		Data.NodeList = cn_rec.List;
 	}
 	getCtrlData(CTL_CCHECKFLT_CASHN, &Data.CashNumber);
 	Data.CodeR.Set(0); // @v9.6.8 при пустой строке диапазон не меняется
 	GetIntRangeInput(this, CTL_CCHECKFLT_CODERANGE, &Data.CodeR);
 	GetClusterData(CTL_CCHECKFLT_FLAGS, &Data.Flags);
-	getGroupData(GRP_GOODSFILT, &grp_rec);
+	getGroupData(ctlgroupGoodsFilt, &grp_rec);
 	Data.GoodsGrpID = grp_rec.GoodsGrpID;
 	Data.GoodsID = grp_rec.GoodsID;
 	{
 		SCardCtrlGroup::Rec screc;
-		getGroupData(GRP_SCARD, &screc);
+		getGroupData(ctlgroupSCard, &screc);
 		Data.ScsList.Set(&screc.SCardSerList);
 		Data.SCardID = screc.SCardID;
 	}
@@ -1324,27 +1318,22 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 				total_amount += ccgitem.Amount;
 				total_qtty   += ccgitem.Qtty;
 				switch(Filt.Grp) {
-					case CCheckFilt::gTime:
-						ccgitem.Tm = encodetime(item.Tm.hour(), 0, 0, 0);
-						break;
-					case CCheckFilt::gDate:
-						ccgitem.Dt = item.Dt;
-						break;
-					case CCheckFilt::gDayOfWeek:
-						ccgitem.Dt.setday((uint)dayofweek(&item.Dt, 1));
-						break;
+					case CCheckFilt::gTime:       ccgitem.Tm = encodetime(item.Tm.hour(), 0, 0, 0); break;
+					case CCheckFilt::gDate:       ccgitem.Dt = item.Dt; break;
+					case CCheckFilt::gDayOfWeek:  ccgitem.Dt.setday((uint)dayofweek(&item.Dt, 1)); break;
+					case CCheckFilt::gCash:       ccgitem.CashID = item.CashID; break;
+					case CCheckFilt::gCashNode:   ccgitem.CashID = item.CashNodeID; break;
+					case CCheckFilt::gCard:       ccgitem.SCardID = item.SCardID; break;
+					case CCheckFilt::gGuestCount: ccgitem.CashID = item.GuestCount; break;
+					case CCheckFilt::gTableNo:    ccgitem.CashID = item.TableCode; break;
+					case CCheckFilt::gDiv:        ccgitem.CashID = item.Div; break;
+					case CCheckFilt::gDlvrAddr:   ccgitem.CashID = item.AddrID; break;
+					case CCheckFilt::gCashiers:   ccgitem.CashID = item.UserID; break;
+					case CCheckFilt::gAgents:     ccgitem.CashID = item.AgentID; break;
+					case CCheckFilt::gLinesCount: ccgitem.CashID = item.LinesCount; break;
 					case CCheckFilt::gDowNTime:
 						ccgitem.Dt.setday((uint)dayofweek(&item.Dt, 1));
 						ccgitem.Tm = encodetime(item.Tm.hour(), 0, 0, 0);
-						break;
-					case CCheckFilt::gCash:
-						ccgitem.CashID = item.CashID;
-						break;
-					case CCheckFilt::gCashNode:
-						ccgitem.CashID= item.CashNodeID;
-						break;
-					case CCheckFilt::gCard:
-						ccgitem.SCardID = item.SCardID;
 						break;
 					case CCheckFilt::gDscntPct:
 						ccgitem.CashID = (long)ceil(fabs(fdivnz(ccgitem.Discount, ccgitem.Amount+ccgitem.Discount)) * 400); // @pctdis
@@ -1401,27 +1390,6 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								ccgitem.CashID = (long)fabs(ccgitem.Amount / Filt.AmountQuant);
 						}
 						// } @v8.4.8
-						break;
-					case CCheckFilt::gGuestCount:
-						ccgitem.CashID = item.GuestCount;
-						break;
-					case CCheckFilt::gTableNo:
-						ccgitem.CashID = item.TableCode;
-						break;
-					case CCheckFilt::gDiv:
-						ccgitem.CashID = item.Div;
-						break;
-					case CCheckFilt::gDlvrAddr:
-						ccgitem.CashID = item.AddrID;
-						break;
-					case CCheckFilt::gCashiers:
-						ccgitem.CashID = item.UserID;
-						break;
-					case CCheckFilt::gAgents:
-						ccgitem.CashID = item.AgentID;
-						break;
-					case CCheckFilt::gLinesCount:
-						ccgitem.CashID = item.LinesCount;
 						break;
 					case CCheckFilt::gAgentsNHour:
 						ccgitem.CashID = item.AgentID;
@@ -1510,15 +1478,10 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								GdsObj.FetchNameR(rec.GoodsID, temp_buf); // @v9.5.5
 							}
 							break;
-						case CCheckFilt::gGuestCount:
-							temp_buf.CatLongZ(rec.CashID, 3);
-							break;
-						case CCheckFilt::gTableNo:
-							temp_buf.CatLongZ(rec.CashID, 3);
-							break;
-						case CCheckFilt::gDiv:
-							temp_buf.CatLongZ(rec.CashID, 3);
-							break;
+						case CCheckFilt::gGuestCount: temp_buf.CatLongZ(rec.CashID, 3); break;
+						case CCheckFilt::gTableNo: temp_buf.CatLongZ(rec.CashID, 3); break;
+						case CCheckFilt::gDiv: temp_buf.CatLongZ(rec.CashID, 3); break;
+						case CCheckFilt::gLinesCount: temp_buf.CatLongZ(rec.CashID, 4); break;
 						case CCheckFilt::gCashiers:
 							if(rec.CashID)
 								GetPersonName(rec.CashID, temp_buf);
@@ -1541,9 +1504,6 @@ int SLAPI PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 										temp_buf.CatDivIfNotEmpty(',', 2).Cat(name_buf);
 								}
 							}
-							break;
-						case CCheckFilt::gLinesCount:
-							temp_buf.CatLongZ(rec.CashID, 4);
 							break;
 						case CCheckFilt::gAgentsNHour:
 							if(rec.CashID)
@@ -2527,9 +2487,9 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 				ok = 1;
 				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 				if(p_row->Flags & CCHKF_ORDER)
-					pStyle->Color = (p_row->Flags & CCHKF_SKIP) ? DarkenColor(GetColorRef(SClrBlue), 0.1) : LightenColor(GetColorRef(SClrBlue), 0.3);
+					pStyle->Color = (p_row->Flags & CCHKF_SKIP) ? DarkenColor(GetColorRef(SClrBlue), 0.1f) : LightenColor(GetColorRef(SClrBlue), 0.3f);
 				else if(p_row->Flags & CCHKF_ZCHECK)
-					pStyle->Color = LightenColor(GetColorRef(SClrYellow), 0.3);
+					pStyle->Color = LightenColor(GetColorRef(SClrYellow), 0.3f);
 				else if(p_row->Flags & CCHKF_JUNK)
 					pStyle->Color = GetColorRef(SClrBrown);
 				else if(p_row->Flags & CCHKF_SUSPENDED)
@@ -2592,24 +2552,25 @@ void SLAPI PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 				p_def->AddCrosstab(&ct_col);
 
 				p_def->FreeAllCrosstab();
+				const long dfmt = MKSFMTD(col_width, 2, NMBF_NOZERO);
 				if(Filt.CtValList.CheckID(CCheckFilt::ctvChecksSum) > 0) {
 					GetCtColumnTitle(CCheckFilt::ctvChecksSum, title);
-					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(col_width, 2, NMBF_NOZERO), 0, col_width);
+					ADDCTCOLUMN(T_DOUBLE, title, dfmt, 0, col_width);
 				}
 				if(Filt.CtValList.CheckID(CCheckFilt::ctvChecksCount) > 0) {
 					GetCtColumnTitle(CCheckFilt::ctvChecksCount, title);
-					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(col_width, 2, NMBF_NOZERO), 0, col_width);
+					ADDCTCOLUMN(T_DOUBLE, title, dfmt, 0, col_width);
 				}
 				if(Filt.CtValList.CheckID(CCheckFilt::ctvSKUCount) > 0) {
 					GetCtColumnTitle(CCheckFilt::ctvSKUCount, title);
-					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(col_width, 2, NMBF_NOZERO), 0, col_width);
+					ADDCTCOLUMN(T_DOUBLE, title, dfmt, 0, col_width);
 				}
 				P_Ct->SetupBrowserCtColumns(pBrw);
 			}
 		}
 		else {
 			if(Filt.Grp == 0) {
-				SLS.LoadString("scardowner", buf);
+				PPLoadString("scardowner", buf);
 				pBrw->insertColumn(-1, buf, P_TmpTbl ? 12 : 10, 0, MKSFMT(20, 0), 0);
 			}
 			if(DoProcessLines() && Filt.Grp == 0) {
@@ -4243,10 +4204,8 @@ PPALDD_CONSTRUCTOR(CCheckViewDetail)
 	InitFixData(rscDefIter, &I, sizeof(I));
 }
 
-PPALDD_DESTRUCTOR(CCheckViewDetail)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(CCheckViewDetail) { Destroy(); }
+void PPALDD_CCheckViewDetail::Destroy() { DESTROY_PPVIEW_ALDD(CCheck); }
 
 int PPALDD_CCheckViewDetail::InitData(PPFilt & rFilt, long rsrv)
 {
@@ -4295,11 +4254,6 @@ int PPALDD_CCheckViewDetail::NextIteration(long iterId)
 	PPWaitPercent(p_v->GetCounter());
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_CCheckViewDetail::Destroy()
-{
-	DESTROY_PPVIEW_ALDD(CCheck);
-}
 //
 // Implementation of PPALDD_CCheckDetail
 //
@@ -4311,10 +4265,7 @@ PPALDD_CONSTRUCTOR(CCheckDetail)
 	}
 }
 
-PPALDD_DESTRUCTOR(CCheckDetail)
-{
-	Destroy();
-}
+PPALDD_DESTRUCTOR(CCheckDetail) { Destroy(); }
 
 int PPALDD_CCheckDetail::InitData(PPFilt & rFilt, long rsrv)
 {

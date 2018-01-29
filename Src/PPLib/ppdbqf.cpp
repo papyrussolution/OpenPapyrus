@@ -1,5 +1,5 @@
 // PPDBQF.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1409,9 +1409,9 @@ static IMPL_DBE_PROC(dbqf_transptypename_i)
 	else {
 		SString temp_buf;
 		if(params[0].lval == PPTRTYP_CAR)
-			SLS.LoadString("car", temp_buf);
+			PPLoadString("car", temp_buf);
 		else
-			SLS.LoadString("ship", temp_buf);
+			PPLoadString("ship", temp_buf);
 		temp_buf.CopyTo(buf, sizeof(buf));
 		result->init(buf);
 	}

@@ -1255,7 +1255,7 @@ int SLAPI DBQuery::searchOnPage(const void * pPattern, uint * pPos, CompFunc fcm
 //
 //
 //
-int deleteFrom(DBTable * pTbl, int useTa, DBQ & query)
+int FASTCALL deleteFrom(DBTable * pTbl, int useTa, DBQ & query)
 {
 	return pTbl ? pTbl->deleteByQuery(useTa, query) : 0;
 }
@@ -1374,7 +1374,7 @@ int updateForCb(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet, Upda
 	return ok;
 }
 
-int updateFor(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet)
+int FASTCALL updateFor(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet)
 {
 	return updateForCb(pTbl, useTA, query, rSet, 0, 0);
 }

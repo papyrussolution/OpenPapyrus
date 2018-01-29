@@ -1,5 +1,5 @@
 // TRECT.CPP
-// ..2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017
+// ..2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -1608,9 +1608,9 @@ COLORREF FASTCALL GetGrayColorRef(float whitePart)
 	return (COLORREF)c;
 }
 
-COLORREF FASTCALL LightenColor(COLORREF col, double factor)
+COLORREF FASTCALL LightenColor(COLORREF col, float factor)
 {
-	if(factor > 0.0 && factor <= 1.0){
+	if(factor > 0.0f && factor <= 1.0f){
 		uint8  x = GetRValue(col);
 		uint8  r = (uint8)((factor*(255-x)) + x);
 		x = GetGValue(col);
@@ -1623,9 +1623,9 @@ COLORREF FASTCALL LightenColor(COLORREF col, double factor)
 		return col;
 }
 
-COLORREF FASTCALL DarkenColor(COLORREF col, double factor)
+COLORREF FASTCALL DarkenColor(COLORREF col, float factor)
 {
-	if(factor > 0.0 && factor <= 1.0) {
+	if(factor > 0.0f && factor <= 1.0f) {
 		uint8  x = GetRValue(col);
 		uint8  r = (uint8)(x-(factor*x));
 		x = GetGValue(col);
@@ -1686,12 +1686,12 @@ int UiRelRect::IsEmpty() const
 //
 //
 //
-SRegion::SRegion() 
+SRegion::SRegion()
 {
 	H = (void *)0;
 }
 
-SRegion::SRegion(const TRect & rR)
+SRegion::SRegion(const TRect & rR) 
 {
 	H = (void *)::CreateRectRgn(rR.a.x, rR.a.y, rR.b.x, rR.b.y);
 }

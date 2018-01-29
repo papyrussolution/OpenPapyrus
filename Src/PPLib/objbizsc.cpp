@@ -1509,11 +1509,11 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 			if(bs_obj.Fetch(p_item->ScoreID, &bs_pack) > 0) {
 				if(!bs_pack.Rec.Bounds.CheckVal(p_item->Val)) {
 					if(p_item->Val < bs_pack.Rec.Bounds.low) {
-						pCellStyle->Color = LightenColor(GetColorRef(SClrGreen), 0.5);
+						pCellStyle->Color = LightenColor(GetColorRef(SClrGreen), 0.5f);
 						ok = 1;
 					}
 					else if(p_item->Val > bs_pack.Rec.Bounds.upp) {
-						pCellStyle->Color = LightenColor(GetColorRef(SClrRed), 0.5);
+						pCellStyle->Color = LightenColor(GetColorRef(SClrRed), 0.5f);
 						ok = 1;
 					}
 				}

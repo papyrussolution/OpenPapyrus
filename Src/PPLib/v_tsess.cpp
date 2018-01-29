@@ -2222,7 +2222,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPViewTSession, DL6ICLS_PPViewTSession_VTab, PPViewTSe
 IUnknown* DL6ICLS_PPViewTSession::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltTSession", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppError();
+	return CreateInnerInstance("PPFiltTSession", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
 }
 
 int32 DL6ICLS_PPViewTSession::Init(IUnknown* pFilt)

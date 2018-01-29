@@ -700,12 +700,12 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 					long total_sign = 0;
 					stcast(q->flds[fp].type, T_INT32, PTR8(pData)+offs, &total_sign, 0);
 					if(total_sign > 0) {
-						pStyle->Color = LightenColor(GetColorRef(SClrGreen), 0.7);
+						pStyle->Color = LightenColor(GetColorRef(SClrGreen), 0.7f);
 						pStyle->Flags = 0;
 						ok = 1;
 					}
 					else {
-						pStyle->Color = LightenColor(GetColorRef(SClrRed), 0.7);
+						pStyle->Color = LightenColor(GetColorRef(SClrRed), 0.7f);
 						pStyle->Flags = 0;
 						ok = 1;
 					}

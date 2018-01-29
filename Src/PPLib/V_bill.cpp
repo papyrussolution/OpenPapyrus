@@ -2364,7 +2364,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 						}
 						if(P_BObj->GetConfig().Flags & BCF_PAINTSHIPPEDBILLS) {
 							if(bill_rec.Flags & BILLF_SHIPPED) {
-								pStyle->Color = LightenColor(GetColorRef(SClrBlue), 0.7);
+								pStyle->Color = LightenColor(GetColorRef(SClrBlue), 0.7f);
 								ok = 1;
 							}
 						}
@@ -5130,7 +5130,7 @@ static int SLAPI SCardInfoDlg(PPSCardPacket & rScPack, PPID * pOpID, long flags,
 	PPAccSheet acs_rec;
 	PPObjPerson psn_obj;
 	PPPersonPacket psn_pack;
-	PPObjSCard sc_obj;  // SCardCore
+	PPObjSCard sc_obj;
 	TDialog * p_dlg = 0;
 
 	if(flags & BillFilt::fDraftOnly)
@@ -5175,15 +5175,15 @@ static int SLAPI SCardInfoDlg(PPSCardPacket & rScPack, PPID * pOpID, long flags,
 		if(sc_obj.IsCreditCard(rScPack.Rec.ID) > 0) {
 			double rest = 0.0;
 			sc_obj.P_Tbl->GetRest(rScPack.Rec.ID, ZERODATE, &rest);
-			SLS.LoadString("crdcard", temp_buf);
+			PPLoadString("crdcard", temp_buf);
 			info_buf.Cat(temp_buf).CatDiv('.', 2);
-			SLS.LoadString("rest", temp_buf);
+			PPLoadString("rest", temp_buf);
 			info_buf.Cat(temp_buf).CatDiv('=', 1).Cat(rest);
 		}
 		else {
-			SLS.LoadString("discard", temp_buf);
+			PPLoadString("discard", temp_buf);
 			info_buf.Cat(temp_buf).CatDiv('.', 2);
-			SLS.LoadString("discount", temp_buf);
+			PPLoadString("discount", temp_buf);
 			info_buf.Cat(temp_buf).CatDiv('=', 1).Cat(fdiv100i(rScPack.Rec.PDis)).CatChar('%');
 		}
 		p_dlg->setStaticText(CTL_SCARDINFO_ST_INFO, info_buf);

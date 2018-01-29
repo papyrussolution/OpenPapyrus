@@ -745,14 +745,8 @@ public:
 		CATCHZOK
 		return ok;
 	}
-	DLSYMBID GetScopeID() const
-	{
-		return ID;
-	}
-	void * GetBuffer() const
-	{
-		return P_Curr ? P_Curr->GetFixDataPtr(0) : 0;
-	}
+	DLSYMBID GetScopeID() const { return ID; }
+	void * GetBuffer() const { return P_Curr ? P_Curr->GetFixDataPtr(0) : 0; }
 private:
 	DlRtm    * P_Rtm;
 	DlScope  * P_Root;

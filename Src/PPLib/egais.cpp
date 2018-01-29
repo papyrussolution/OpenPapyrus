@@ -2623,8 +2623,9 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									// @v9.9.1 {
 									if(p_bp->XcL.Get(tidx+1, 0, ss_ext_codes) > 0) {
 										SXml::WNode w_mc(_doc, "awr:MarkCodeInfo");
-										for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);)
-											w_mc.PutInner("awr:MarkCode", temp_buf);
+										for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
+											w_mc.PutInner("MarkCode", temp_buf); // @v9.9.2 "awr:MarkCode"-->"MarkCode"
+										}
 									}
 									// } @v9.9.1
 								}

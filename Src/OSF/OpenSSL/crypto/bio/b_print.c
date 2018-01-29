@@ -22,27 +22,25 @@
  * It may be used for any purpose as long as this notice remains intact
  * on all source code distributions.
  */
-
 #ifdef HAVE_LONG_DOUBLE
-#define LDOUBLE long double
+	#define LDOUBLE long double
 #else
-#define LDOUBLE double
+	#define LDOUBLE double
 #endif
-
 #ifdef HAVE_LONG_LONG
-# if defined(_WIN32) && !defined(__GNUC__)
-#define LLONG __int64
-# else
-#define LLONG long long
-# endif
+	#if defined(_WIN32) && !defined(__GNUC__)
+		#define LLONG __int64
+	#else
+		#define LLONG long long
+	#endif
 #else
-#define LLONG long
+	#define LLONG long
 #endif
 
 static int fmtstr(char **, char **, size_t *, size_t *, const char *, int, int, int);
 static int fmtint(char **, char **, size_t *, size_t *, LLONG, int, int, int, int);
 static int fmtfp(char **, char **, size_t *, size_t *, LDOUBLE, int, int, int, int);
-static int doapr_outch(char **, char **, size_t *, size_t *, int);
+static int FASTCALL doapr_outch(char **, char **, size_t *, size_t *, int);
 static int _dopr(char ** sbuffer, char ** buffer, size_t * maxlen, size_t * retlen, int * truncated, const char * format, va_list args);
 
 /* format read states */
@@ -340,10 +338,9 @@ static int _dopr(char ** sbuffer, char ** buffer, size_t * maxlen, size_t * retl
 			    break;
 		}
 	}
-	/*
-	 * We have to truncate if there is no dynamic buffer and we have filled the
-	 * static buffer.
-	 */
+	// 
+	// We have to truncate if there is no dynamic buffer and we have filled the static buffer.
+	// 
 	if(!buffer) {
 		*truncated = (currlen > *maxlen - 1);
 		if(*truncated)
@@ -377,7 +374,6 @@ static int fmtstr(char ** sbuffer, char ** buffer, size_t * currlen, size_t * ma
 	}
 	if(flags & DP_F_MINUS)
 		padlen = -padlen;
-
 	while((padlen > 0) && (max < 0 || cnt < max)) {
 		if(!doapr_outch(sbuffer, buffer, currlen, maxlen, ' '))
 			return 0;
@@ -399,8 +395,7 @@ static int fmtstr(char ** sbuffer, char ** buffer, size_t * currlen, size_t * ma
 	return 1;
 }
 
-static int fmtint(char ** sbuffer, char ** buffer, size_t * currlen,
-    size_t * maxlen, LLONG value, int base, int min, int max, int flags)
+static int fmtint(char ** sbuffer, char ** buffer, size_t * currlen, size_t * maxlen, LLONG value, int base, int min, int max, int flags)
 {
 	int signvalue = 0;
 	const char * prefix = "";
@@ -505,8 +500,7 @@ static LDOUBLE pow_10(int in_exp)
 
 static long roundv(LDOUBLE value)
 {
-	long intpart;
-	intpart = (long)value;
+	long intpart = (long)value;
 	value = value - intpart;
 	if(value >= 0.5)
 		intpart++;
@@ -531,39 +525,31 @@ static int fmtfp(char ** sbuffer, char ** buffer, size_t * currlen, size_t * max
 	ulong fracpart;
 	ulong max10;
 	int realstyle;
-
 	if(max < 0)
 		max = 6;
-
 	if(fvalue < 0)
 		signvalue = '-';
 	else if(flags & DP_F_PLUS)
 		signvalue = '+';
 	else if(flags & DP_F_SPACE)
 		signvalue = ' ';
-
 	/*
 	 * G_FORMAT sometimes prints like E_FORMAT and sometimes like F_FORMAT
 	 * depending on the number to be printed. Work out which one it is and use
 	 * that from here on.
 	 */
 	if(style == G_FORMAT) {
-		if(fvalue == 0.0) {
+		if(fvalue == 0.0)
 			realstyle = F_FORMAT;
-		}
-		else if(fvalue < 0.0001) {
+		else if(fvalue < 0.0001)
 			realstyle = E_FORMAT;
-		}
-		else if((max == 0 && fvalue >= 10) || (max > 0 && fvalue >= pow_10(max))) {
+		else if((max == 0 && fvalue >= 10) || (max > 0 && fvalue >= pow_10(max)))
 			realstyle = E_FORMAT;
-		}
-		else {
+		else
 			realstyle = F_FORMAT;
-		}
 	}
-	else {
+	else
 		realstyle = style;
-	}
 	if(style != F_FORMAT) {
 		tmpvalue = fvalue;
 		/* Calculate the exponent */
@@ -733,8 +719,7 @@ static int fmtfp(char ** sbuffer, char ** buffer, size_t * currlen, size_t * max
 				return 0;
 		}
 		while(eplace > 0) {
-			if(!doapr_outch(sbuffer, buffer, currlen, maxlen,
-				    econvert[--eplace]))
+			if(!doapr_outch(sbuffer, buffer, currlen, maxlen, econvert[--eplace]))
 				return 0;
 		}
 	}
@@ -748,11 +733,11 @@ static int fmtfp(char ** sbuffer, char ** buffer, size_t * currlen, size_t * max
 
 #define BUFFER_INC  1024
 
-static int doapr_outch(char ** sbuffer, char ** buffer, size_t * currlen, size_t * maxlen, int c)
+static int FASTCALL doapr_outch(char ** sbuffer, char ** buffer, size_t * currlen, size_t * maxlen, int c)
 {
-	/* If we haven't at least one buffer, someone has doe a big booboo */
+	// If we haven't at least one buffer, someone has doe a big booboo 
 	OPENSSL_assert(*sbuffer != NULL || buffer != NULL);
-	/* |currlen| must always be <= |*maxlen| */
+	// |currlen| must always be <= |*maxlen| 
 	OPENSSL_assert(*currlen <= *maxlen);
 	if(buffer && *currlen == *maxlen) {
 		if(*maxlen > INT_MAX - BUFFER_INC)
@@ -781,7 +766,6 @@ static int doapr_outch(char ** sbuffer, char ** buffer, size_t * currlen, size_t
 		else
 			(*buffer)[(*currlen)++] = (char)c;
 	}
-
 	return 1;
 }
 

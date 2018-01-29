@@ -953,7 +953,7 @@ xmlChar * xmlSaveUri(xmlURIPtr uri)
 	const char * p;
 	int len = 0;
 	int max = 80;
-	if(uri == NULL)
+	if(!uri)
 		return 0;
 	ret = (xmlChar*)SAlloc::M((max + 1) * sizeof(xmlChar));
 	if(!ret) {
@@ -2216,7 +2216,7 @@ path_processing:
 	 * Create a URI structure
 	 */
 	uri = xmlCreateURI();
-	if(uri == NULL) {       /* Guard against 'out of memory' */
+	if(!uri) {       /* Guard against 'out of memory' */
 		return 0;
 	}
 	len = sstrlen(path);

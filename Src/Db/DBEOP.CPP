@@ -1,5 +1,5 @@
 // DBEOP.CPP
-// Copyright (c) Sobolev A. 1995-2001, 2005, 2007, 2008, 2009, 2010, 2014, 2016, 2017
+// Copyright (c) Sobolev A. 1995-2001, 2005, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018
 //
 #include <db.h>
 #pragma hdrstop
@@ -150,7 +150,6 @@ DBE & __stdcall operator / (DBItem & i,  double  r)  { return binary_op(i,  r,  
 DBE & __stdcall operator % (DBItem & i,  long    l)  { return binary_op(i,  l,  op_rem);   }
 DBE & __stdcall operator & (DBItem & i,  long    l)  { return binary_op(i,  l,  op_bw_and); }
 DBE & __stdcall operator & (DBItem & i1, DBItem & i2) { return binary_op(i1, i2, op_bw_and); }
-
 DBE & __stdcall operator + (double  r,  DBItem & i) { return binary_op(r,  i,  op_plus);  }
 DBE & __stdcall operator - (double  r,  DBItem & i) { return binary_op(r,  i,  op_minus); }
 DBE & __stdcall operator * (double  r,  DBItem & i) { return binary_op(r,  i,  op_mult);  }
@@ -296,7 +295,6 @@ DBQ & __stdcall operator  < (DBItem & i1, DBItem & i2) { return _newdbq(i1, _LT_
 DBQ & __stdcall operator <= (DBItem & i1, DBItem & i2) { return _newdbq(i1, _LE_, i2); }
 DBQ & __stdcall operator  > (DBItem & i1, DBItem & i2) { return _newdbq(i1, _GT_, i2); }
 DBQ & __stdcall operator >= (DBItem & i1, DBItem & i2) { return _newdbq(i1, _GE_, i2); }
-
 DBQ & __stdcall operator == (DBItem & i, double d) { return _newdbq(i, _EQ_, d); }
 DBQ & __stdcall operator != (DBItem & i, double d) { return _newdbq(i, _NE_, d); }
 DBQ & __stdcall operator  < (DBItem & i, double d) { return _newdbq(i, _LT_, d); }
@@ -308,35 +306,30 @@ DBQ & __stdcall operator <  (DBItem & i, long v)   { return _newdbq(i, _LT_, v);
 DBQ & __stdcall operator >  (DBItem & i, long v)   { return _newdbq(i, _GT_, v); }
 DBQ & __stdcall operator <= (DBItem & i, long v)   { return _newdbq(i, _LE_, v); }
 DBQ & __stdcall operator >= (DBItem & i, long v)   { return _newdbq(i, _GE_, v); }
-
 DBQ & __stdcall operator == (DBItem & i, LDATE d) { return _newdbq(i, _EQ_, d); }
 DBQ & __stdcall operator != (DBItem & i, LDATE d) { return _newdbq(i, _NE_, d); }
 DBQ & __stdcall operator  < (DBItem & i, LDATE d) { return _newdbq(i, _LT_, d); }
 DBQ & __stdcall operator <= (DBItem & i, LDATE d) { return _newdbq(i, _LE_, d); }
 DBQ & __stdcall operator  > (DBItem & i, LDATE d) { return _newdbq(i, _GT_, d); }
 DBQ & __stdcall operator >= (DBItem & i, LDATE d) { return _newdbq(i, _GE_, d); }
-
 DBQ & __stdcall operator == (DBItem & i, LTIME t) { return _newdbq(i, _EQ_, t); }
 DBQ & __stdcall operator != (DBItem & i, LTIME t) { return _newdbq(i, _NE_, t); }
 DBQ & __stdcall operator  < (DBItem & i, LTIME t) { return _newdbq(i, _LT_, t); }
 DBQ & __stdcall operator <= (DBItem & i, LTIME t) { return _newdbq(i, _LE_, t); }
 DBQ & __stdcall operator  > (DBItem & i, LTIME t) { return _newdbq(i, _GT_, t); }
 DBQ & __stdcall operator >= (DBItem & i, LTIME t) { return _newdbq(i, _GE_, t); }
-
 DBQ & __stdcall operator == (DBItem & i, LDATETIME t) { return _newdbq(i, _EQ_, t); }
 DBQ & __stdcall operator != (DBItem & i, LDATETIME t) { return _newdbq(i, _NE_, t); }
 DBQ & __stdcall operator  < (DBItem & i, LDATETIME t) { return _newdbq(i, _LT_, t); }
 DBQ & __stdcall operator <= (DBItem & i, LDATETIME t) { return _newdbq(i, _LE_, t); }
 DBQ & __stdcall operator  > (DBItem & i, LDATETIME t) { return _newdbq(i, _GT_, t); }
 DBQ & __stdcall operator >= (DBItem & i, LDATETIME t) { return _newdbq(i, _GE_, t); }
-
 DBQ & __stdcall operator == (DBItem & i, const char * s) { return _newdbq(i, _EQ_, s); }
 DBQ & __stdcall operator != (DBItem & i, const char * s) { return _newdbq(i, _NE_, s); }
 DBQ & __stdcall operator  < (DBItem & i, const char * s) { return _newdbq(i, _LT_, s); }
 DBQ & __stdcall operator <= (DBItem & i, const char * s) { return _newdbq(i, _LE_, s); }
 DBQ & __stdcall operator  > (DBItem & i, const char * s) { return _newdbq(i, _GT_, s); }
 DBQ & __stdcall operator >= (DBItem & i, const char * s) { return _newdbq(i, _GE_, s); }
-
 DBQ &  __stdcall operator && (DBQ & left, DBQ & right)
 	{ return ((&left) == 0) ? right : (((&right) == 0) ? left : *new DBQ(_AND___, left, right)); }
 DBQ &  __stdcall operator || (DBQ & l, DBQ & r)
@@ -455,12 +448,7 @@ IMPL_DBE_PROC(_rem_ii) { RES(IPAR(0)%IPAR(1)); }
 IMPL_DBE_PROC(_add_rr) { RES(RPAR(0)+RPAR(1)); }
 IMPL_DBE_PROC(_sub_rr) { RES(RPAR(0)-RPAR(1)); }
 IMPL_DBE_PROC(_mul_rr) { RES(RPAR(0)*RPAR(1)); }
-
-IMPL_DBE_PROC(_div_rr)
-{
-	RES(fdivnz(RPAR(0), RPAR(1)));
-}
-
+IMPL_DBE_PROC(_div_rr) { RES(fdivnz(RPAR(0), RPAR(1))); }
 IMPL_DBE_PROC(_and_ii) { RES(IPAR(0) & IPAR(1)); }
 IMPL_DBE_PROC(_or_ii)  { RES(IPAR(0) | IPAR(1)); }
 IMPL_DBE_PROC(_xor_ii) { RES(IPAR(0) ^ IPAR(1)); }
@@ -610,14 +598,9 @@ IMPL_DBE_PROC(_sub_dd) { RES((long)diffdate(&DPAR(0), &DPAR(1), 0)); }
 IMPL_DBE_PROC(_count_v)
 {
 	switch(option) {
-		case AGGR_BEGIN:
-			RES((long)0L);
-			break;
-		case AGGR_NEXT:
-			IRES++;
-			break;
-		case AGGR_END:
-			break;
+		case AGGR_BEGIN: RES((long)0L); break;
+		case AGGR_NEXT: IRES++; break;
+		case AGGR_END: break;
 	}
 }
 
@@ -626,28 +609,18 @@ IMPL_DBE_PROC(_count_v)
 IMPL_DBE_PROC(_sum_i)
 {
 	switch(option) {
-		case AGGR_BEGIN:
-			RES((long)0L);
-			break;
-		case AGGR_NEXT:
-			IRES+=IPAR(0);
-			break;
-		case AGGR_END:
-			break;
+		case AGGR_BEGIN: RES((long)0L); break;
+		case AGGR_NEXT: IRES+=IPAR(0); break;
+		case AGGR_END: break;
 	}
 }
 
 IMPL_DBE_PROC(_sum_r)
 {
 	switch(option) {
-		case AGGR_BEGIN:
-			RES(0.0);
-			break;
-		case AGGR_NEXT:
-			RRES+=RPAR(0);
-			break;
-		case AGGR_END:
-			break;
+		case AGGR_BEGIN: RES(0.0); break;
+		case AGGR_NEXT: RRES+=RPAR(0); break;
+		case AGGR_END: break;
 	}
 }
 
@@ -869,23 +842,19 @@ int SLAPI DbqFuncTab::PreRegister()
 	RegisterFunc(dbq_ltoa,    0, BTS_STRING, _ltoa_i, 1, BTS_INT);
 	RegisterFunc(dbq_enumtoa, 0, BTS_STRING, _enumtoa_iii, 3, BTS_INT, BTS_INT, BTS_INT);
 	RegisterFunc(dbq_flagtoa, 0, BTS_STRING, _flagtoa_iii, 3, BTS_INT, BTS_INT, BTS_INT);
-
 	RegisterFunc(dbq_add_ii, 0, BTS_INT, _add_ii, 2, BTS_INT, BTS_INT);
 	RegisterFunc(dbq_sub_ii, 0, BTS_INT, _sub_ii, 2, BTS_INT, BTS_INT);
 	RegisterFunc(dbq_mul_ii, 0, BTS_INT, _mul_ii, 2, BTS_INT, BTS_INT);
 	RegisterFunc(dbq_div_ii, 0, BTS_INT, _div_ii, 2, BTS_INT, BTS_INT);
 	RegisterFunc(dbq_rem_ii, 0, BTS_INT, _rem_ii, 2, BTS_INT, BTS_INT);
-
 	RegisterFunc(dbq_add_rr, 0, BTS_REAL, _add_rr, 2, BTS_REAL, BTS_REAL);
 	RegisterFunc(dbq_sub_rr, 0, BTS_REAL, _sub_rr, 2, BTS_REAL, BTS_REAL);
 	RegisterFunc(dbq_mul_rr, 0, BTS_REAL, _mul_rr, 2, BTS_REAL, BTS_REAL);
 	RegisterFunc(dbq_div_rr, 0, BTS_REAL, _div_rr, 2, BTS_REAL, BTS_REAL);
-
 	RegisterFunc(dbq_and, 0, BTS_INT, _and_ii, 2, BTS_INT, BTS_INT);
 	RegisterFunc(dbq_or,  0, BTS_INT, _or_ii , 2, BTS_INT, BTS_INT);
 	RegisterFunc(dbq_xor, 0, BTS_INT, _xor_ii, 2, BTS_INT, BTS_INT);
 	RegisterFunc(dbq_not, 0, BTS_INT, _not_ii, 1, BTS_INT);
-
 	RegisterFunc(dbq_add_ss, 0, BTS_STRING, _add_ss,   2, BTS_STRING, BTS_STRING);
 	RegisterFunc(dbq_left,   0, BTS_STRING, _left_si,  2, BTS_STRING, BTS_INT);
 	RegisterFunc(dbq_right,  0, BTS_STRING, _right_si, 2, BTS_STRING, BTS_INT);
@@ -895,25 +864,21 @@ int SLAPI DbqFuncTab::PreRegister()
 	RegisterFunc(dbq_lower,  0, BTS_STRING, _lower_s,  1, BTS_STRING);
 	RegisterFunc(dbq_upper,  0, BTS_STRING, _upper_s,  1, BTS_STRING);
 	RegisterFunc(dbq_contains, 0, BTS_INT,  _contains_s, 2, BTS_STRING, BTS_STRING);
-
 	RegisterFunc(dbq_day,     0, BTS_INT, _day_d,     1, BTS_DATE);
 	RegisterFunc(dbq_mon,     0, BTS_INT, _mon_d,     1, BTS_DATE);
 	RegisterFunc(dbq_year,    0, BTS_INT, _year_d,    1, BTS_DATE);
 	RegisterFunc(dbq_weekday, 0, BTS_INT, _weekday_d, 1, BTS_DATE);
 	RegisterFunc(dbq_add_di,  0, BTS_DATE, _add_di,   2, BTS_DATE, BTS_INT);
 	RegisterFunc(dbq_sub_dd,  0, BTS_INT, _sub_dd,    2, BTS_DATE, BTS_DATE);
-
 	//RegisterFunc(dbq_hour,    0, BTS_INT, _hour_t,   1, BTS_TIME);
 	//RegisterFunc(dbq_minute,  0, BTS_INT, _minute_t, 1, BTS_TIME);
 	//RegisterFunc(dbq_millisecond, 0, BTS_INT, _millisecond_t, 1, BTS_TIME);
 	//RegisterFunc(dbq_sub_tt,  0, BTS_TIME, _sub_tt, 2, BTS_TIME, BTS_TIME);
-
 	//RegisterFunc(dbq_count,   1, BTS_INT,  _count_v, 0);
 	//RegisterFunc(dbq_sum_i,   1, BTS_INT,  _sum_i,   1, BTS_INT);
 	//RegisterFunc(dbq_sum_r,   1, BTS_REAL, _sum_r,   1, BTS_REAL);
 	//RegisterFunc(dbq_avg,     1, BTS_REAL, _avg_r,   1, BTS_REAL);
 	//RegisterFunc(dbq_min,     1, BTS_VOID, _min_v,   1, BTS_VOID);
 	//RegisterFunc(dbq_max,     1, BTS_VOID, _max_v,   1, BTS_VOID);
-
 	return 1;
 }

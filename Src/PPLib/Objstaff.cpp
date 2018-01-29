@@ -1553,7 +1553,7 @@ SString & DL6ICLS_PPObjStaff::GetName(int32 id)
 			ideqvalstr(id, RetStrBuf);
 	}
 	else {
-		RetStrBuf = 0;
+		RetStrBuf.Z();
 		AppError = 1;
 	}
 	return RetStrBuf;
@@ -1591,8 +1591,7 @@ int32 DL6ICLS_PPObjStaff::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	THROW(p_obj->PutPacket(&id, &pack, (flags & 0x0001) ? 0 : 1));
 	ASSIGN_PTR(pID, id);
 	CATCH
-		AppError = 1;
-		ok = 0;
+		ok = RaiseAppError();
 	ENDCATCH
 	return ok;
 }
@@ -1618,8 +1617,7 @@ int32 DL6ICLS_PPObjStaff::Update(int32 id, long flags, PPYOBJREC rec)
 	temp_buf.CopyFromOleStr(p_outer_rec->Name).CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
 	THROW(p_obj->PutPacket(&id, &pack, (flags & 0x0001) ? 0 : 1));
 	CATCH
-		AppError = 1;
-		ok = 0;
+		ok = RaiseAppError();
 	ENDCATCH
 	return ok;
 }

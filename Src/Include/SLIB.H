@@ -1474,10 +1474,6 @@ enum SEOLFormat {
 //
 class SHandle {
 public:
-	int operator !() const
-	{
-		return (P == 0);
-	}
 	SHandle & operator = (void * ptr)
 	{
 		P = ptr;
@@ -1489,14 +1485,9 @@ public:
 		I = i;
 		return *this;
 	}
-	operator void * () const
-	{
-		return P;
-	}
-	operator uint32 () const
-	{
-		return I;
-	}
+	int operator !() const { return (P == 0); }
+	operator void * () const { return P; }
+	operator uint32 () const { return I; }
 private:
 	void * P;
 	uint32 I;
@@ -10567,8 +10558,8 @@ extern const SColor ZEROCOLOR;
 
 COLORREF FASTCALL GetColorRef(SColourCollection);
 COLORREF FASTCALL GetGrayColorRef(float whitePart);
-COLORREF FASTCALL LightenColor(COLORREF col, double factor);
-COLORREF FASTCALL DarkenColor(COLORREF col, double factor);
+COLORREF FASTCALL LightenColor(COLORREF col, float factor);
+COLORREF FASTCALL DarkenColor(COLORREF col, float factor);
 
 #define MULTALPHA(a,c) (uint8)(((((a)*(c))+0x80)+((((a)*(c))+0x80)>>8))>>8)
 #define PREMULTIPLY_ALPHA_ARGB32(c) { uint32 a = (((c)&0xff000000)>>24); \
@@ -11791,10 +11782,7 @@ public:
 	//
 	void   FASTCALL Sleep(uint milliseconds);
 	void   SLAPI SetStopState();
-	ThreadID SLAPI GetThreadID() const
-	{
-		return ID;
-	}
+	ThreadID SLAPI GetThreadID() const { return ID; }
 	int    SLAPI IsRunning() const;
 	int    SLAPI IsIdle() const;
 	//
@@ -12100,18 +12088,12 @@ public:
 	//   Если бы функций было 2, пришлось бы держать отдельный объект критической сессии.
 	//
 	long   SLAPI GetGlobalSymbol(const char * pSymb, long ident, SString * pRetSymb); // @cs
-	const  S_GUID & GetSessUuid() const
-	{
-		return SessUuid;
-	}
+	const  S_GUID & GetSessUuid() const { return SessUuid; }
 	//
 	// Descr: Возвращает инкрементируемое целочисленное значение, уникальное в пределах данного процесса.
 	//
 	int64  GetSequenceValue();
-	const  SSystem & GetSSys() const
-	{
-		return SSys;
-	}
+	const  SSystem & GetSSys() const { return SSys; }
 	//
 	// Descr: Возвращает абсолютное время в микросекундах для целей профилирования //
 	// Note: использует локальный для потока объект SlThreadLocalArea::Prf

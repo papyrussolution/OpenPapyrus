@@ -9,22 +9,16 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "pcy_int.h"
-/*
- * Enable this to print out the complete policy tree at various point during
- * evaluation.
- */
-
-/*
- * #define OPENSSL_POLICY_DEBUG
- */
+//
+// Enable this to print out the complete policy tree at various point during evaluation.
+//
+//#define OPENSSL_POLICY_DEBUG
 
 #ifdef OPENSSL_POLICY_DEBUG
 
-static void expected_print(BIO * err, X509_POLICY_LEVEL * lev,
-    X509_POLICY_NODE * node, int indent)
+static void expected_print(BIO * err, X509_POLICY_LEVEL * lev, X509_POLICY_NODE * node, int indent)
 {
-	if((lev->flags & X509_V_FLAG_INHIBIT_MAP)
-	    || !(node->data->flags & POLICY_DATA_FLAG_MAP_MASK))
+	if((lev->flags & X509_V_FLAG_INHIBIT_MAP) || !(node->data->flags & POLICY_DATA_FLAG_MAP_MASK))
 		BIO_puts(err, "  Not Mapped\n");
 	else {
 		int i;
@@ -41,29 +35,23 @@ static void expected_print(BIO * err, X509_POLICY_LEVEL * lev,
 	}
 }
 
-static void tree_print(char * str, X509_POLICY_TREE * tree,
-    X509_POLICY_LEVEL * curr)
+static void tree_print(char * str, X509_POLICY_TREE * tree, X509_POLICY_LEVEL * curr)
 {
 	BIO * err = BIO_new_fp(stderr, BIO_NOCLOSE);
 	X509_POLICY_LEVEL * plev;
-
 	if(err == NULL)
 		return;
 	if(!curr)
 		curr = tree->levels + tree->nlevel;
 	else
 		curr++;
-
 	BIO_printf(err, "Level print after %s\n", str);
 	BIO_printf(err, "Printing Up to Level %ld\n", curr - tree->levels);
 	for(plev = tree->levels; plev != curr; plev++) {
 		int i;
-
-		BIO_printf(err, "Level %ld, flags = %x\n",
-		    (long)(plev - tree->levels), plev->flags);
+		BIO_printf(err, "Level %ld, flags = %x\n", (long)(plev - tree->levels), plev->flags);
 		for(i = 0; i < sk_X509_POLICY_NODE_num(plev->nodes); i++) {
 			X509_POLICY_NODE * node = sk_X509_POLICY_NODE_value(plev->nodes, i);
-
 			X509_POLICY_NODE_print(err, node, 2);
 			expected_print(err, plev, node, 2);
 			BIO_printf(err, "  Flags: %x\n", node->data->flags);
@@ -83,8 +71,7 @@ static void tree_print(char * str, X509_POLICY_TREE * tree,
  * X509_PCY_TREE_EMPTY: empty tree (including bare TA case)
  * X509_PCY_TREE_EXPLICIT: explicit policy required
  */
-static int tree_init(X509_POLICY_TREE ** ptree, STACK_OF(X509) * certs,
-    uint flags)
+static int tree_init(X509_POLICY_TREE ** ptree, STACK_OF(X509) * certs, uint flags)
 {
 	X509_POLICY_TREE * tree;
 	X509_POLICY_LEVEL * level;

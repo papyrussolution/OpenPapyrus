@@ -16,31 +16,31 @@
 void OPENSSL_LH_stats(const OPENSSL_LHASH * lh, FILE * fp)
 {
 	BIO * bp = BIO_new(BIO_s_file());
-	if(bp == NULL)
-		return;
-	BIO_set_fp(bp, fp, BIO_NOCLOSE);
-	OPENSSL_LH_stats_bio(lh, bp);
-	BIO_free(bp);
+	if(bp) {
+		BIO_set_fp(bp, fp, BIO_NOCLOSE);
+		OPENSSL_LH_stats_bio(lh, bp);
+		BIO_free(bp);
+	}
 }
 
 void OPENSSL_LH_node_stats(const OPENSSL_LHASH * lh, FILE * fp)
 {
 	BIO * bp = BIO_new(BIO_s_file());
-	if(bp == NULL)
-		return;
-	BIO_set_fp(bp, fp, BIO_NOCLOSE);
-	OPENSSL_LH_node_stats_bio(lh, bp);
-	BIO_free(bp);
+	if(bp) {
+		BIO_set_fp(bp, fp, BIO_NOCLOSE);
+		OPENSSL_LH_node_stats_bio(lh, bp);
+		BIO_free(bp);
+	}
 }
 
 void OPENSSL_LH_node_usage_stats(const OPENSSL_LHASH * lh, FILE * fp)
 {
 	BIO * bp = BIO_new(BIO_s_file());
-	if(bp == NULL)
-		return;
-	BIO_set_fp(bp, fp, BIO_NOCLOSE);
-	OPENSSL_LH_node_usage_stats_bio(lh, bp);
-	BIO_free(bp);
+	if(bp) {
+		BIO_set_fp(bp, fp, BIO_NOCLOSE);
+		OPENSSL_LH_node_usage_stats_bio(lh, bp);
+		BIO_free(bp);
+	}
 }
 
 # endif
@@ -53,8 +53,7 @@ void OPENSSL_LH_stats_bio(const OPENSSL_LHASH * lh, BIO * out)
 	BIO_printf(out, "num_expands           = %lu\n", lh->num_expands);
 	BIO_printf(out, "num_expand_reallocs   = %lu\n", lh->num_expand_reallocs);
 	BIO_printf(out, "num_contracts         = %lu\n", lh->num_contracts);
-	BIO_printf(out, "num_contract_reallocs = %lu\n",
-	    lh->num_contract_reallocs);
+	BIO_printf(out, "num_contract_reallocs = %lu\n", lh->num_contract_reallocs);
 	BIO_printf(out, "num_hash_calls        = %lu\n", lh->num_hash_calls);
 	BIO_printf(out, "num_comp_calls        = %lu\n", lh->num_comp_calls);
 	BIO_printf(out, "num_insert            = %lu\n", lh->num_insert);
@@ -93,11 +92,8 @@ void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH * lh, BIO * out)
 	}
 	BIO_printf(out, "%lu nodes used out of %u\n", n_used, lh->num_nodes);
 	BIO_printf(out, "%lu items\n", total);
-	if(n_used == 0)
-		return;
-	BIO_printf(out, "load %d.%02d  actual load %d.%02d\n",
-	    (int)(total / lh->num_nodes),
-	    (int)((total % lh->num_nodes) * 100 / lh->num_nodes),
-	    (int)(total / n_used), (int)((total % n_used) * 100 / n_used));
+	if(n_used)
+		BIO_printf(out, "load %d.%02d  actual load %d.%02d\n", (int)(total / lh->num_nodes),
+		    (int)((total % lh->num_nodes) * 100 / lh->num_nodes), (int)(total / n_used), (int)((total % n_used) * 100 / n_used));
 }
 

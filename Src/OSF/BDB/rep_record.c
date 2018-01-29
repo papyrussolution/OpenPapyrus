@@ -16,7 +16,7 @@ static int __rep_lsn_cmp(const void *, const void *);
 static int __rep_newfile(ENV*, __rep_control_args*, DBT *);
 static int __rep_process_rec(ENV*, DB_THREAD_INFO*, __rep_control_args*, DBT*, db_timespec*, DB_LSN *);
 static int __rep_remfirst(ENV*, DB_THREAD_INFO*, DBT*, DBT *);
-static int __rep_skip_msg(ENV*, REP*, int, uint32);
+static int FASTCALL __rep_skip_msg(ENV*, REP*, int, uint32);
 
 /* Used to consistently designate which messages ought to be received where. */
 
@@ -34,10 +34,8 @@ static int __rep_skip_msg(ENV*, REP*, int, uint32);
 		if(!F_ISSET(rep, REP_F_CLIENT)) {                              \
 			RPRINT(env, (env, DB_VERB_REP_MSGS, "Client record received on master")); \
 			/* \
-			 * Only broadcast DUPMASTER if leases are not \
-			 * in effect.  If I am an old master, using \
-			 * leases and I get a newer message, my leases \
-			 * had better all be expired. \
+			 * Only broadcast DUPMASTER if leases are not in effect.  If I am an old master, using \
+			 * leases and I get a newer message, my leases had better all be expired. \
 			 */                                                                                                                                                                                                           \
 			if(IS_USING_LEASES(env))                               \
 				DB_ASSERT(env, __rep_lease_check(env, 0) == DB_REP_LEASE_EXPIRED); \
@@ -861,14 +859,12 @@ int __rep_process_message_int(ENV*env, DBT * control, DBT * rec, int eid, DB_LSN
 			 * If this is not the verify record I want, skip it.
 			 */
 			if(cmp != 0) {
-				ret = __rep_skip_msg(
-					env, rep, eid, rp->rectype);
+				ret = __rep_skip_msg(env, rep, eid, rp->rectype);
 				break;
 			}
 		}
 		CLIENT_ONLY(rep, rp);
-		if((ret = __rep_verify(env, rp, rec, eid, savetime)) ==
-		   DB_REP_WOULDROLLBACK && ret_lsnp != NULL)
+		if((ret = __rep_verify(env, rp, rec, eid, savetime)) == DB_REP_WOULDROLLBACK && ret_lsnp != NULL)
 			*ret_lsnp = rp->lsn;
 		break;
 	    case REP_VERIFY_FAIL:
@@ -1974,7 +1970,7 @@ int __rep_check_doreq(ENV*env, REP * rep)
  *	If we're in recovery we want to skip/ignore the message, but
  *	we also need to see if we need to re-request any retransmissions.
  */
-static int __rep_skip_msg(ENV*env, REP * rep, int eid, uint32 rectype)
+static int FASTCALL __rep_skip_msg(ENV*env, REP * rep, int eid, uint32 rectype)
 {
 	int do_req;
 	int ret = 0;

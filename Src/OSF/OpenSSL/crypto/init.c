@@ -167,9 +167,7 @@ static const char * appname;
 DEFINE_RUN_ONCE_STATIC(ossl_init_config)
 {
 #ifdef OPENSSL_INIT_DEBUG
-	fprintf(stderr,
-	    "OPENSSL_INIT: ossl_init_config: openssl_config(%s)\n",
-	    appname == NULL ? "NULL" : appname);
+	fprintf(stderr, "OPENSSL_INIT: ossl_init_config: openssl_config(%s)\n", appname == NULL ? "NULL" : appname);
 #endif
 	openssl_config_int(appname);
 	config_inited = 1;
@@ -426,10 +424,9 @@ void OPENSSL_cleanup(void)
  * called prior to any threads making calls to any OpenSSL functions,
  * i.e. passing a non-null settings value is assumed to be single-threaded.
  */
-int OPENSSL_init_crypto(uint64_t opts, const OPENSSL_INIT_SETTINGS * settings)
+int FASTCALL OPENSSL_init_crypto(uint64_t opts, const OPENSSL_INIT_SETTINGS * settings)
 {
 	static int stoperrset = 0;
-
 	if(stopped) {
 		if(!stoperrset) {
 			/*

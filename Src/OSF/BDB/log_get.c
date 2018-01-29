@@ -48,9 +48,9 @@ int __log_cursor_pp(DB_ENV * dbenv, DB_LOGC ** logcp, uint32 flags)
  * __log_cursor --
  *	Create a log cursor.
  *
- * PUBLIC: int __log_cursor __P((ENV *, DB_LOGC **));
+ * PUBLIC: int __log_cursor(ENV *, DB_LOGC **);
  */
-int __log_cursor(ENV * env, DB_LOGC ** logcp)
+int FASTCALL __log_cursor(ENV * env, DB_LOGC ** logcp)
 {
 	DB_LOGC * logc;
 	int ret;
@@ -91,7 +91,7 @@ static int __logc_close_pp(DB_LOGC * logc, uint32 flags)
 	return ret;
 }
 
-int __logc_close(DB_LOGC * logc)
+int FASTCALL __logc_close(DB_LOGC * logc)
 {
 	if(logc) {
 		ENV * env = logc->env;
@@ -200,9 +200,9 @@ static int __logc_get_pp(DB_LOGC * logc, DB_LSN * alsn, DBT * dbt, uint32 flags)
  * __logc_get --
  *	DB_LOGC->get.
  *
- * PUBLIC: int __logc_get __P((DB_LOGC *, DB_LSN *, DBT *, uint32));
+ * PUBLIC: int __logc_get(DB_LOGC *, DB_LSN *, DBT *, uint32);
  */
-int __logc_get(DB_LOGC * logc, DB_LSN * alsn, DBT * dbt, uint32 flags)
+int FASTCALL __logc_get(DB_LOGC * logc, DB_LSN * alsn, DBT * dbt, uint32 flags)
 {
 	LOGP * persist;
 	int ret;
@@ -1134,7 +1134,7 @@ done:
  * PUBLIC: int __log_read_record  __P((ENV *, DB **, void *, void *,
  * PUBLIC:     DB_LOG_RECSPEC *, uint32, void **));
  */
-int __log_read_record(ENV * env, DB ** dbpp, void * td, void * recbuf, DB_LOG_RECSPEC * spec, uint32 size, void ** argpp)
+int FASTCALL __log_read_record(ENV * env, DB ** dbpp, void * td, void * recbuf, DB_LOG_RECSPEC * spec, uint32 size, void ** argpp)
 {
 	DB_LOG_RECSPEC * sp, * np;
 	DB_TXN * txnp;

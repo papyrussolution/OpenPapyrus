@@ -57,7 +57,7 @@
 	#define in_addr_t ulong
 #endif
 #include "imap.h"
-// The last 3 #include files should be in this order 
+// The last 3 #include files should be in this order
 #include "curl_printf.h"
 #include "memdebug.h"
 
@@ -761,13 +761,11 @@ static CURLcode imap_state_capability_resp(struct connectdata * conn, int imapco
 	}
 	else if(imapcode == 'O') {
 		if(data->set.use_ssl && !conn->ssl[FIRSTSOCKET].use) {
-			/* We don't have a SSL/TLS connection yet, but SSL is requested */
+			// We don't have a SSL/TLS connection yet, but SSL is requested
 			if(imapc->tls_supported)
-				/* Switch to TLS connection now */
-				result = imap_perform_starttls(conn);
+				result = imap_perform_starttls(conn); // Switch to TLS connection now
 			else if(data->set.use_ssl == CURLUSESSL_TRY)
-				/* Fallback and carry on with authentication */
-				result = imap_perform_authentication(conn);
+				result = imap_perform_authentication(conn); // Fallback and carry on with authentication
 			else {
 				failf(data, "STARTTLS not supported.");
 				result = CURLE_USE_SSL_FAILED;
@@ -1006,7 +1004,7 @@ static CURLcode imap_state_fetch_final_resp(struct connectdata * conn, int imapc
 	if(imapcode != 'O')
 		result = CURLE_WEIRD_SERVER_REPLY;
 	else
-		state(conn, IMAP_STOP); // End of DONE phase 
+		state(conn, IMAP_STOP); // End of DONE phase
 	return result;
 }
 
@@ -1038,7 +1036,7 @@ static CURLcode imap_state_append_final_resp(struct connectdata * conn, int imap
 	if(imapcode != 'O')
 		result = CURLE_UPLOAD_FAILED;
 	else
-		state(conn, IMAP_STOP); // End of DONE phase 
+		state(conn, IMAP_STOP); // End of DONE phase
 	return result;
 }
 
@@ -1082,7 +1080,7 @@ static CURLcode imap_statemach_act(struct connectdata * conn)
 			case IMAP_SEARCH: result = imap_state_listsearch_resp(conn, imapcode, imapc->state); break;
 			case IMAP_LOGOUT:
 			/* fallthrough, just stop! */
-			default: // internal error 
+			default: // internal error
 			    state(conn, IMAP_STOP);
 			    break;
 		}
@@ -1114,7 +1112,7 @@ static CURLcode imap_block_statemach(struct connectdata * conn)
 	return result;
 }
 //
-// Allocate and initialize the struct IMAP for the current Curl_easy if required 
+// Allocate and initialize the struct IMAP for the current Curl_easy if required
 //
 static CURLcode imap_init(struct connectdata * conn)
 {
@@ -1301,10 +1299,10 @@ static CURLcode imap_do(struct connectdata * conn, bool * done)
 {
 	CURLcode result = CURLE_OK;
 	*done = FALSE; /* default to false */
-	// Parse the URL path 
+	// Parse the URL path
 	result = imap_parse_url_path(conn);
 	if(result == 0) {
-		// Parse the custom request 
+		// Parse the custom request
 		result = imap_parse_custom_request(conn);
 		SETIFZ(result, imap_regular_transfer(conn, done));
 	}

@@ -2348,9 +2348,7 @@ static int X509V3_ext(struct Curl_easy * data,
 	return 0; /* all is fine */
 }
 
-static CURLcode get_cert_chain(struct connectdata * conn,
-    struct ssl_connect_data * connssl)
-
+static CURLcode get_cert_chain(struct connectdata * conn, struct ssl_connect_data * connssl)
 {
 	CURLcode result;
 	STACK_OF(X509) *sk;
@@ -2358,21 +2356,16 @@ static CURLcode get_cert_chain(struct connectdata * conn,
 	struct Curl_easy * data = conn->data;
 	int numcerts;
 	BIO * mem;
-
 	sk = SSL_get_peer_cert_chain(connssl->handle);
 	if(!sk) {
 		return CURLE_OUT_OF_MEMORY;
 	}
-
 	numcerts = sk_X509_num(sk);
-
 	result = Curl_ssl_init_certinfo(data, numcerts);
 	if(result) {
 		return result;
 	}
-
 	mem = BIO_new(BIO_s_mem());
-
 	for(i = 0; i < numcerts; i++) {
 		ASN1_INTEGER * num;
 		X509 * x = sk_X509_value(sk, i);
@@ -2380,23 +2373,18 @@ static CURLcode get_cert_chain(struct connectdata * conn,
 		int j;
 		char * ptr;
 		CONST_ASN1_BIT_STRING ASN1_BIT_STRING * psig = NULL;
-
 		X509_NAME_print_ex(mem, X509_get_subject_name(x), 0, XN_FLAG_ONELINE);
 		push_certinfo("Subject", i);
-
 		X509_NAME_print_ex(mem, X509_get_issuer_name(x), 0, XN_FLAG_ONELINE);
 		push_certinfo("Issuer", i);
-
 		BIO_printf(mem, "%lx", X509_get_version(x));
 		push_certinfo("Version", i);
-
 		num = X509_get_serialNumber(x);
 		if(num->type == V_ASN1_NEG_INTEGER)
 			BIO_puts(mem, "-");
 		for(j = 0; j < num->length; j++)
 			BIO_printf(mem, "%02x", num->data[j]);
 		push_certinfo("Serial Number", i);
-
 #if defined(HAVE_X509_GET0_SIGNATURE) && defined(HAVE_X509_GET0_EXTENSIONS)
 		{
 			const X509_ALGOR * palg = NULL;
@@ -2405,7 +2393,6 @@ static CURLcode get_cert_chain(struct connectdata * conn,
 				X509_get0_signature(&psig, &palg, x);
 				X509_signature_print(mem, palg, a);
 				ASN1_STRING_free(a);
-
 				if(palg) {
 					i2a_ASN1_OBJECT(mem, palg->algorithm);
 					push_certinfo("Public Key Algorithm", i);
@@ -2453,7 +2440,6 @@ static CURLcode get_cert_chain(struct connectdata * conn,
 				    {
 					    const BIGNUM * n;
 					    const BIGNUM * e;
-
 					    RSA_get0_key(rsa, &n, &e, 0);
 					    BN_print(mem, n);
 					    push_certinfo("RSA Public Key", i);

@@ -880,24 +880,21 @@ int __db_open_pp(DB * dbp, DB_TXN * txn, const char * fname, const char * dname,
 	 * rename and remove so we can be sure they're fully sync'ed, so
 	 * we provide an override flag for the purpose.
 	 */
-	if(dname == NULL && !IS_RECOVERING(env) && !LF_ISSET(DB_RDONLY) && !LF_ISSET(DB_RDWRMASTER) && F_ISSET(dbp, DB_AM_SUBDB)) {
+	if(!dname && !IS_RECOVERING(env) && !LF_ISSET(DB_RDONLY) && !LF_ISSET(DB_RDWRMASTER) && F_ISSET(dbp, DB_AM_SUBDB)) {
 		__db_errx(env, DB_STR("0590", "files containing multiple databases may only be opened read-only"));
 		ret = EINVAL;
 		goto txnerr;
 	}
-	/*
-	 * Success: file creations have to be synchronous, otherwise we don't
-	 * care.
-	 */
+	//
+	// Success: file creations have to be synchronous, otherwise we don't care.
+	//
 	if(F_ISSET(dbp, DB_AM_CREATED|DB_AM_CREATED_MSTR))
 		nosync = 0;
 	/* Success: don't discard the file on close. */
 	F_CLR(dbp, DB_AM_DISCARD|DB_AM_CREATED|DB_AM_CREATED_MSTR);
-
 	/*
 	 * If not transactional, remove the databases/subdatabases if it is
-	 * persistent.  If we're transactional, the child transaction abort
-	 * cleans up.
+	 * persistent.  If we're transactional, the child transaction abort cleans up.
 	 */
 txnerr:
 	if(ret && !IS_REAL_TXN(txn)) {

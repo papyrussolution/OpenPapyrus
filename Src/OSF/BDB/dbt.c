@@ -46,7 +46,7 @@ err:
  * __dbt_userfree --
  *	Free a copy of the user's data, if necessary.
  */
-void __dbt_userfree(ENV * env, DBT * key, DBT * pkey, DBT * data)
+void FASTCALL __dbt_userfree(ENV * env, DBT * key, DBT * pkey, DBT * data)
 {
 	if(key && F_ISSET(key, DB_DBT_USERCOPY) && key->data) {
 		__os_ufree(env, key->data);

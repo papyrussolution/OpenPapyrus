@@ -1,5 +1,6 @@
 // SARTRE_DB.CPP
 // Copyright (c) A.Sobolev 2017, 2018
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -10,7 +11,7 @@
 //
 //
 //
-SrGrammarTbl::SrGrammarTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->gramm", 0, 0, 0), pDb), SeqID(0)
+SrGrammarTbl::SrGrammarTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->gramm", 0, SKILOBYTE(16), 0), pDb), SeqID(0)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -21,7 +22,7 @@ SrGrammarTbl::SrGrammarTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("w
 			return 0;
 		}
 	};
-	new BDbTable(BDbTable::ConfigHash("words.db->gramm_idx01", 0, 0, 0), pDb, new Idx01, this);
+	new BDbTable(BDbTable::ConfigHash("words.db->gramm_idx01", 0, SKILOBYTE(16), 0), pDb, new Idx01, this);
 	if(P_Db)
 		THROW(P_Db->CreateSequence("seq_gramm_id", 0, &SeqID));
 	CATCH
@@ -142,7 +143,7 @@ public:
 	SrWordGrammarTbl(BDbDatabase * pDb);
 };*/
 
-SrWordTbl::SrWordTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->word", 0, 0, 0), pDb), SeqID(0)
+SrWordTbl::SrWordTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->word", 0, SKILOBYTE(16), 0), pDb), SeqID(0)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -153,7 +154,7 @@ SrWordTbl::SrWordTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.d
 			return 0;
 		}
 	};
-	new BDbTable(BDbTable::ConfigHash("words.db->word_idx01", 0, 0, 0), pDb, new Idx01, this);
+	new BDbTable(BDbTable::ConfigHash("words.db->word_idx01", 0, SKILOBYTE(16), 0), pDb, new Idx01, this);
 	if(P_Db)
 		THROW(P_Db->CreateSequence("seq_word_id", 0, &SeqID));
 	CATCH
@@ -238,10 +239,10 @@ int SrWordTbl::Search(LEXID id, SString & rBuf)
 //
 //
 //
-SrWordAssocTbl::SrWordAssocTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->wordassoc", 0, 0, 0), pDb), SeqID(0)
+SrWordAssocTbl::SrWordAssocTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->wordassoc", 0, SKILOBYTE(16), 0), pDb), SeqID(0)
 {
 	//
-	// Индекс по идентификатору лексемы. Неуникальный.
+	// РРЅРґРµРєСЃ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ Р»РµРєСЃРµРјС‹. РќРµСѓРЅРёРєР°Р»СЊРЅС‹Р№.
 	//
 	class Idx01 : public SecondaryIndex {
 	public:
@@ -256,7 +257,7 @@ SrWordAssocTbl::SrWordAssocTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHas
 		}
 	};
 	//
-	// Индекс по полной записи (без ее идентификатора). Уникальный.
+	// РРЅРґРµРєСЃ РїРѕ РїРѕР»РЅРѕР№ Р·Р°РїРёСЃРё (Р±РµР· РµРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°). РЈРЅРёРєР°Р»СЊРЅС‹Р№.
 	//
 	class Idx02 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -267,8 +268,8 @@ SrWordAssocTbl::SrWordAssocTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHas
 			return 0;
 		}
 	};
-	THROW_SL(new BDbTable(BDbTable::ConfigHash("words.db->wordassoc_idx01", cfDup, 0, 0), pDb, new Idx01, this));
-	THROW_SL(new BDbTable(BDbTable::ConfigHash("words.db->wordassoc_idx02", 0, 0, 0), pDb, new Idx02, this));
+	THROW_SL(new BDbTable(BDbTable::ConfigHash("words.db->wordassoc_idx01", cfDup, SKILOBYTE(16), 0), pDb, new Idx01, this));
+	THROW_SL(new BDbTable(BDbTable::ConfigHash("words.db->wordassoc_idx02", 0, SKILOBYTE(16), 0), pDb, new Idx02, this));
 	if(P_Db)
 		THROW_DB(P_Db->CreateSequence("seq_wordassoc_id", 0, &SeqID));
 	CATCH
@@ -404,7 +405,7 @@ int SrWordAssocTbl::SerializeRecBuf(int dir, SrWordAssoc * pWa, SBuffer & rBuf)
 //
 //
 //
-SrNGramTbl::SrNGramTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->ngram", 0, 0, 0), pDb), SeqID(0)
+SrNGramTbl::SrNGramTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words.db->ngram", 0, SKILOBYTE(16), 0), pDb), SeqID(0)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -418,7 +419,7 @@ SrNGramTbl::SrNGramTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("words
 			return 0;
 		}
 	};
-	new BDbTable(BDbTable::ConfigBTree("words.db->ngram_idx01", 0, 0, 0), pDb, new Idx01, this);
+	new BDbTable(BDbTable::ConfigBTree("words.db->ngram_idx01", 0, SKILOBYTE(16), 0), pDb, new Idx01, this);
 	if(P_Db)
 		THROW(P_Db->CreateSequence("seq_ngram_id", 0, &SeqID));
 	CATCH
@@ -437,7 +438,6 @@ int SrNGramTbl::SerializeRecBuf(int dir, SrNGram * pRec, SBuffer & rBuf)
 	uint32 _c = 0;
 	SSerializeContext * p_sctx = GetSCtx();
 	THROW_DB(p_sctx);
-	//THROW(p_sctx->Serialize(dir, pRec->ID, rBuf));
 	THROW_SL(p_sctx->Serialize(dir, pRec->Ver, rBuf));
 	THROW_SL(p_sctx->Serialize(dir, &pRec->WordIdList, rBuf));
 	CATCHZOK
@@ -452,7 +452,14 @@ int SrNGramTbl::Add(SrNGram & rRec)
 	int64 __id = 0;
 	THROW_DB(P_Db->GetSequence(SeqID, &__id));
 	rRec.ID = __id;
-	key_buf = __id;
+	// @v9.9.2 key_buf = __id;
+	// @v9.9.2 {
+	{
+		uint8  _key[16];
+		size_t _key_sz = sshrinkuint64(__id, _key);
+		key_buf.Set(_key, _key_sz);
+	}
+	// } @v9.9.2
 	THROW(SerializeRecBuf(+1, &rRec, rec_buf));
 	data_buf = rec_buf;
 	THROW_DB(InsertRec(key_buf, data_buf));
@@ -468,7 +475,14 @@ int SrNGramTbl::Search(NGID id, SrNGram * pRec)
 	int    ok = -1;
 	SBuffer rec_buf;
 	BDbTable::Buffer key_buf, data_buf;
-	key_buf = id;
+	// @v9.9.2 key_buf = id;
+	// @v9.9.2 {
+	{
+		uint8  _key[16];
+		size_t _key_sz = sshrinkuint64(id, _key);
+		key_buf.Set(_key, _key_sz);
+	}
+	// } @v9.9.2
 	data_buf.Alloc(512);
 	if(BDbTable::Search(key_buf, data_buf)) {
 		if(pRec) {
@@ -476,8 +490,15 @@ int SrNGramTbl::Search(NGID id, SrNGram * pRec)
 			THROW(SerializeRecBuf(-1, pRec, rec_buf));
 			// @v9.9.9 @paranoic {
 			{
-				NGID   temp_id;
-				key_buf.Get(&temp_id);
+				NGID   temp_id = 0;
+				// @v9.9.2 key_buf.Get(&temp_id);
+				// @v9.9.2 {
+				{
+					size_t dbsz = 0;
+					const void * p_dbptr = key_buf.GetPtr(&dbsz);
+					temp_id = sexpanduint64(p_dbptr, dbsz);
+				}
+				// } @v9.9.2 
 				assert(temp_id == id);
 			}
 			// } @v9.9.9 @paranoic 
@@ -500,7 +521,14 @@ int SrNGramTbl::Search(const SrNGram & rKey, NGID * pID)
 	}
 	data_buf.Alloc(512);
 	if(BDbTable::Search(1, key_buf, data_buf)) {
-		key_buf.Get(pID);
+		// @v9.9.2 key_buf.Get(pID);
+		// @v9.9.2 {
+		if(pID) {
+			size_t dbsz = 0;
+			const void * p_dbptr = key_buf.GetPtr(&dbsz);
+			*pID = sexpanduint64(p_dbptr, dbsz);
+		}
+		// } @v9.9.2 
 		ok = 1;
 	}
 	return ok;
@@ -528,8 +556,15 @@ int SrNGramTbl::SearchByPrefix(const SrNGram & rKey, TSVector <NGID> & rList) //
 							eq_prefix = 0;
 					}
 					if(eq_prefix) {
-						NGID id;
-						key_buf.Get(&id);
+						NGID id = 0;
+						// @v9.9.2 key_buf.Get(&id);
+						// @v9.9.2 {
+						{
+							size_t dbsz = 0;
+							const void * p_dbptr = key_buf.GetPtr(&dbsz);
+							id = sexpanduint64(p_dbptr, dbsz);
+						}
+						// } @v9.9.2 
 						rList.insert(&id);
 						ok = 1;
 					}
@@ -547,7 +582,7 @@ int SrNGramTbl::SearchByPrefix(const SrNGram & rKey, TSVector <NGID> & rList) //
 //
 //
 //
-SrConceptTbl::SrConceptTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("concept.db->concept", 0, 0, 0), pDb), SeqID(0)
+SrConceptTbl::SrConceptTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("concept.db->concept", 0, SKILOBYTE(16), 0), pDb), SeqID(0)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -558,12 +593,12 @@ SrConceptTbl::SrConceptTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("c
 			((SrConceptTbl *)P_MainT)->SerializeRecBuf(-1, &rec, rec_buf);
 			rResult = rec.SymbID;
 			//
-			// Нулевой сидентификатор символа (аноминая концепция) не индексируем
+			// РќСѓР»РµРІРѕР№ СЃРёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРёРјРІРѕР»Р° (Р°РЅРѕРјРёРЅР°СЏ РєРѕРЅС†РµРїС†РёСЏ) РЅРµ РёРЅРґРµРєСЃРёСЂСѓРµРј
 			//
 			return (rec.SymbID == 0) ? DB_DONOTINDEX : 0;
 		}
 	};
-	new BDbTable(BDbTable::ConfigHash("concept.db->concept_idx01", 0, 0, 0), pDb, new Idx01, this);
+	new BDbTable(BDbTable::ConfigHash("concept.db->concept_idx01", 0, SKILOBYTE(16), 0), pDb, new Idx01, this);
 	if(P_Db)
 		THROW(P_Db->CreateSequence("seq_concept_id", 0, &SeqID));
 	CATCH
@@ -582,7 +617,6 @@ int SrConceptTbl::SerializeRecBuf(int dir, SrConcept * pRec, SBuffer & rBuf)
 	uint32 _c = 0;
 	SSerializeContext * p_sctx = GetSCtx();
 	THROW_DB(p_sctx);
-	//THROW(p_sctx->Serialize(dir, pRec->ID, rBuf));
 	THROW_SL(p_sctx->Serialize(dir, pRec->SymbID, rBuf));
 	THROW_SL(p_sctx->Serialize(dir, pRec->Ver, rBuf));
 	THROW(pRec->Pdl.Serialize(dir, rBuf, p_sctx));
@@ -595,13 +629,27 @@ int SrConceptTbl::SearchByID(CONCEPTID id, SrConcept * pRec)
 	int    ok = -1;
 	SBuffer rec_buf;
 	BDbTable::Buffer key_buf, data_buf;
-	key_buf = id;
+	// @v9.9.2 key_buf = id;
+	// @v9.9.2 {
+	{
+		uint8  _key[16];
+		size_t _key_sz = sshrinkuint64(id, _key);
+		key_buf.Set(_key, _key_sz);
+	}
+	// } @v9.9.2
 	data_buf.Alloc(512);
 	if(BDbTable::Search(key_buf, data_buf)) {
 		if(pRec) {
 			data_buf.Get(rec_buf);
 			THROW(SerializeRecBuf(-1, pRec, rec_buf));
-			key_buf.Get(&pRec->ID);
+			// @v9.9.2 key_buf.Get(&pRec->ID);
+			// @v9.9.2 {
+			{
+				size_t dbsz = 0;
+				const void * p_dbptr = key_buf.GetPtr(&dbsz);
+				pRec->ID = sexpanduint64(p_dbptr, dbsz);
+			}
+			// } @v9.9.2 
 			assert(pRec->ID == id);
 		}
 		ok = 1;
@@ -621,7 +669,14 @@ int SrConceptTbl::SearchBySymb(LEXID symbId, SrConcept * pRec)
 		if(pRec) {
 			data_buf.Get(rec_buf);
 			THROW(SerializeRecBuf(-1, pRec, rec_buf));
-			key_buf.Get(&pRec->ID);
+			// @v9.9.2 key_buf.Get(&pRec->ID);
+			// @v9.9.2 {
+			{
+				size_t dbsz = 0;
+				const void * p_dbptr = key_buf.GetPtr(&dbsz);
+				pRec->ID = sexpanduint64(p_dbptr, dbsz);
+			}
+			// } @v9.9.2 
 		}
 		ok = 1;
 	}
@@ -637,7 +692,14 @@ int SrConceptTbl::Add(SrConcept & rRec)
 	int64 __id = 0;
 	THROW_DB(P_Db->GetSequence(SeqID, &__id));
 	rRec.ID = __id;
-	key_buf = __id;
+	// @v9.9.2 key_buf = __id;
+	// @v9.9.2 {
+	{
+		uint8  _key[16];
+		size_t _key_sz = sshrinkuint64(__id, _key);
+		key_buf.Set(_key, _key_sz);
+	}
+	// } @v9.9.2
 	THROW(SerializeRecBuf(+1, &rRec, rec_buf));
 	data_buf = rec_buf;
 	THROW_DB(InsertRec(key_buf, data_buf));
@@ -654,7 +716,14 @@ int SrConceptTbl::Update(SrConcept & rRec)
 	SrConcept org_rec;
 	SBuffer rec_buf;
 	BDbTable::Buffer key_buf, data_buf;
-	key_buf = rRec.ID;
+	// @v9.9.2 key_buf = rRec.ID;
+	// @v9.9.2 {
+	{
+		uint8  _key[16];
+		size_t _key_sz = sshrinkuint64(rRec.ID, _key);
+		key_buf.Set(_key, _key_sz);
+	}
+	// } @v9.9.2 
 	data_buf.Alloc(512);
 	THROW_DB(BDbTable::Search(key_buf, data_buf));
 	data_buf.Get(rec_buf);
@@ -676,7 +745,14 @@ int SrConceptTbl::Remove(CONCEPTID id)
 {
 	int    ok = 1;
 	BDbTable::Buffer key_buf;
-	key_buf = id;
+	// @v9.9.2 key_buf = id;
+	// @v9.9.2 {
+	{
+		uint8  _key[16];
+		size_t _key_sz = sshrinkuint64(id, _key);
+		key_buf.Set(_key, _key_sz);
+	}
+	// } @v9.9.2 
 	THROW(DeleteRec(key_buf));
 	CATCHZOK
 	return ok;
@@ -704,7 +780,7 @@ void FASTCALL SrConceptPropTbl::EncodePrimeKey(BDbTable::Buffer & rKeyBuf, const
 void FASTCALL SrConceptPropTbl::DecodePrimeKey(const BDbTable::Buffer & rKeyBuf, SrCProp & rRec)
 	{ rKeyBuf.Get(&rRec.CID, sizeof(rRec.CID)+sizeof(rRec.PropID)); }
 
-SrConceptPropTbl::SrConceptPropTbl(SrDatabase & rSr) : BDbTable(BDbTable::ConfigHash("concept.db->conceptprop", 0, 0, 0), rSr.P_Db), R_Sr(rSr)
+SrConceptPropTbl::SrConceptPropTbl(SrDatabase & rSr) : BDbTable(BDbTable::ConfigHash("concept.db->conceptprop", 0, SKILOBYTE(16), 0), rSr.P_Db), R_Sr(rSr)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -715,7 +791,7 @@ SrConceptPropTbl::SrConceptPropTbl(SrDatabase & rSr) : BDbTable(BDbTable::Config
 			return 0;
 		}
 	};
-	new BDbTable(BDbTable::ConfigHash("concept.db->conceptprop_idx01", BDbTable::cfDup, 0, 0), rSr.P_Db, new Idx01, this);
+	new BDbTable(BDbTable::ConfigHash("concept.db->conceptprop_idx01", BDbTable::cfDup, SKILOBYTE(16), 0), rSr.P_Db, new Idx01, this);
 }
 
 int SrConceptPropTbl::Search(SrCProp & rRec)
@@ -890,7 +966,7 @@ struct SrConceptNg {
 	NGID   NGID;
 };
 
-SrConceptNgTbl::SrConceptNgTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("concept.db->conceptng", 0, 0, 0), pDb)
+SrConceptNgTbl::SrConceptNgTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("concept.db->conceptng", 0, SKILOBYTE(16), 0), pDb)
 {
 	class Idx01 : public SecondaryIndex {
 		virtual int Cb(const BDbTable::Buffer & rKey, const BDbTable::Buffer & rData, BDbTable::Buffer & rResult)
@@ -910,8 +986,8 @@ SrConceptNgTbl::SrConceptNgTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHas
 			return 0;
 		}
 	};
-	new BDbTable(BDbTable::ConfigHash("concept.db->conceptng_idx01", BDbTable::cfDup, 0, 0), pDb, new Idx01, this);
-	new BDbTable(BDbTable::ConfigHash("concept.db->conceptng_idx02", BDbTable::cfDup, 0, 0), pDb, new Idx02, this);
+	new BDbTable(BDbTable::ConfigHash("concept.db->conceptng_idx01", BDbTable::cfDup, SKILOBYTE(16), 0), pDb, new Idx01, this);
+	new BDbTable(BDbTable::ConfigHash("concept.db->conceptng_idx02", BDbTable::cfDup, SKILOBYTE(16), 0), pDb, new Idx02, this);
 }
 
 int SrConceptNgTbl::Set(CONCEPTID cID, NGID ngID)
@@ -991,7 +1067,7 @@ uint FASTCALL SrGeoNodeTbl::Implement_PartitionFunc(DBT * pKey)
 // page-size = 2048
 // ffactor = (2048 - 32) / (4.1 + 42.2 + 8) = 37.12
 //
-SrGeoNodeTbl::SrGeoNodeTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("geomap.db->node", 0, /*2048*/16*1024, 0), pDb)
+SrGeoNodeTbl::SrGeoNodeTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("geomap.db->node", 0, SKILOBYTE(16), 0), pDb)
 {
 	/*
 	class Idx01 : public SecondaryIndex {
@@ -1054,7 +1130,7 @@ int SLAPI SrGeoNodeTbl::GetWayNodes(const PPOsm::Way & rWay, TSVector <PPOsm::No
 	TSVector <PPOsm::Node> clu_node_list; // @v9.8.4 TSArray-->TSVector
 	UintHashTable processed_pos_list;
 	//
-	// Для замкнутого контура последняя точка равна первой - просто добавим ее в список в самом конце функции
+	// Р”Р»СЏ Р·Р°РјРєРЅСѓС‚РѕРіРѕ РєРѕРЅС‚СѓСЂР° РїРѕСЃР»РµРґРЅСЏСЏ С‚РѕС‡РєР° СЂР°РІРЅР° РїРµСЂРІРѕР№ - РїСЂРѕСЃС‚Рѕ РґРѕР±Р°РІРёРј РµРµ РІ СЃРїРёСЃРѕРє РІ СЃР°РјРѕРј РєРѕРЅС†Рµ С„СѓРЅРєС†РёРё
 	//
 	const int is_contur = BIN(_c > 1 && rWay.NodeRefs.get(_c-1) == rWay.NodeRefs.get(0));
 	if(is_contur)
@@ -1081,7 +1157,7 @@ int SLAPI SrGeoNodeTbl::GetWayNodes(const PPOsm::Way & rWay, TSVector <PPOsm::No
     }
     rNodeList.sort(PTR_CMPCFUNC(PPOsm_Node_ByWay), (void *)&rWay); // @badcast
 	//
-	// Последнюю точку контура вставляем после сортировки - иначе сортировка сбойнет (вда одинаковых идентификатора)
+	// РџРѕСЃР»РµРґРЅСЋСЋ С‚РѕС‡РєСѓ РєРѕРЅС‚СѓСЂР° РІСЃС‚Р°РІР»СЏРµРј РїРѕСЃР»Рµ СЃРѕСЂС‚РёСЂРѕРІРєРё - РёРЅР°С‡Рµ СЃРѕСЂС‚РёСЂРѕРІРєР° СЃР±РѕР№РЅРµС‚ (РІРґР° РѕРґРёРЅР°РєРѕРІС‹С… РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°)
 	//
 	if(is_contur) {
 		const PPOsm::Node & r_first_node = clu_node_list.at(0);
@@ -1211,7 +1287,7 @@ int SLAPI SrGeoNodeTbl::Update(PPOsm::NodeCluster & rNc, uint64 outerID) { retur
 //
 //
 //
-SLAPI SrGeoWayTbl::SrGeoWayTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("geomap.db->way", 0, 2048, 0), pDb)
+SLAPI SrGeoWayTbl::SrGeoWayTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("geomap.db->way", 0, SKILOBYTE(2), 0), pDb)
 {
 }
 
@@ -1297,7 +1373,7 @@ int SrDatabase::MakeSpecialWord(int spcTag, const char * pWordUtf8, SString & rB
 	return ok;
 }
 
-SrDatabase::SrDatabase() : WordCache(128*1024, 0), PropInstance(0), PropSubclass(0), PropType(0), PropHMember(0),
+SrDatabase::SrDatabase() : WordCache(SKILOBYTE(1024), 0), PropInstance(0), PropSubclass(0), PropType(0), PropHMember(0),
 	P_Db(0), P_WdT(0), P_GrT(0), P_WaT(0), P_CT(0), P_CpT(0), P_NgT(0), P_CNgT(0),
 	P_GnT(0), P_GwT(0), ZeroWordID(0), Flags(0)
 {
@@ -1312,12 +1388,12 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 {
 	int    ok = 1;
 	BDbDatabase::Config cfg;
-	cfg.CacheSize   = 256 * 1024 * 1024;
+	cfg.CacheSize   = SMEGABYTE(256);
 	cfg.CacheCount  = 1; // @v9.6.4 20-->
-	cfg.MaxLockers  = 256*1024; // @v9.6.2 20000-->256*1024
-	cfg.MaxLocks    = 128*1024; // @v9.6.4
-	cfg.MaxLockObjs = 128*1024; // @v9.6.4
-	cfg.LogBufSize  = 8*1024*1024;
+	cfg.MaxLockers  = SKILOBYTE(256); // @v9.6.2 20000-->256*1024
+	cfg.MaxLocks    = SKILOBYTE(128); // @v9.6.4
+	cfg.MaxLockObjs = SKILOBYTE(128); // @v9.6.4
+	cfg.LogBufSize  = SMEGABYTE(8);
 	//cfg.LogFileSize = 256*1024*1024;
 	//cfg.LogSubDir = "LOG";
 	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6
@@ -1570,7 +1646,7 @@ int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf, i
 		wa.WordID = wordID;
 		{
 			//
-			// Находим или создаем словоформу по содержанию и получаем ее идентификатор
+			// РќР°С…РѕРґРёРј РёР»Рё СЃРѕР·РґР°РµРј СЃР»РѕРІРѕС„РѕСЂРјСѓ РїРѕ СЃРѕРґРµСЂР¶Р°РЅРёСЋ Рё РїРѕР»СѓС‡Р°РµРј РµРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
 			//
 			SrWordForm wf_key = rWf;
 			wf_key.Normalize();
@@ -1580,7 +1656,7 @@ int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf, i
 		}
 		{
 			//
-			// Находим или создаем модель по содержанию и получаем ее идентификатор
+			// РќР°С…РѕРґРёРј РёР»Рё СЃРѕР·РґР°РµРј РјРѕРґРµР»СЊ РїРѕ СЃРѕРґРµСЂР¶Р°РЅРёСЋ Рё РїРѕР»СѓС‡Р°РµРј РµРµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
 			//
 			SrFlexiaModel fm;
 			SrFlexiaModel::Item fmi;
@@ -1686,7 +1762,7 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSVector <Sr
 	StrAssocArray afx_list;
 	TSVector <SrWordAssoc> wa_list; // @v9.8.4 TSArray-->TSVector
 	for(uint pfx_len = 0; pfx_len < len; pfx_len++) {
-		int    inv_pfx = 0; // Если !0, то префикс не допустимый
+		int    inv_pfx = 0; // Р•СЃР»Рё !0, С‚Рѕ РїСЂРµС„РёРєСЃ РЅРµ РґРѕРїСѓСЃС‚РёРјС‹Р№
 		LEXID  pfx_id = 0;
 		if(pfx_len) {
 			word_buf.Sub(0, pfx_len, pfx_buf_u);
@@ -1699,10 +1775,10 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSVector <Sr
 		}
 		else
 			pfx_buf_u.Z();
-		if(!inv_pfx) { // Если префикс не пустой и не содержится в БД, то перебирать оставшуюся часть слова нет смысла
+		if(!inv_pfx) { // Р•СЃР»Рё РїСЂРµС„РёРєСЃ РЅРµ РїСѓСЃС‚РѕР№ Рё РЅРµ СЃРѕРґРµСЂР¶РёС‚СЃСЏ РІ Р‘Р”, С‚Рѕ РїРµСЂРµР±РёСЂР°С‚СЊ РѕСЃС‚Р°РІС€СѓСЋСЃСЏ С‡Р°СЃС‚СЊ СЃР»РѕРІР° РЅРµС‚ СЃРјС‹СЃР»Р°
 			const  uint __len = len-pfx_len;
 			for(uint afx_len = 0; afx_len <= __len; afx_len++) {
-				int    inv_afx = 0; // Если !0, то аффикс не допустимый
+				int    inv_afx = 0; // Р•СЃР»Рё !0, С‚Рѕ Р°С„С„РёРєСЃ РЅРµ РґРѕРїСѓСЃС‚РёРјС‹Р№
 				LEXID  base_id = 0, afx_id = 0;
 				const  uint base_len = __len-afx_len;
 				if(base_len == 0) {
@@ -1727,7 +1803,7 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSVector <Sr
 						afx_id = afx_list.Get(afx_pos).Id;
 					else if(pfx_len == 0 && FetchSpecialWord(SrWordTbl::spcAffix, temp_buf, &afx_id) > 0) {
 						//
-						// Для pfx_len > 0 все возможные окончания уже найдены на итерации (pfx == 0)
+						// Р”Р»СЏ pfx_len > 0 РІСЃРµ РІРѕР·РјРѕР¶РЅС‹Рµ РѕРєРѕРЅС‡Р°РЅРёСЏ СѓР¶Рµ РЅР°Р№РґРµРЅС‹ РЅР° РёС‚РµСЂР°С†РёРё (pfx == 0)
 						//
 						afx_list.Add(afx_id, temp_buf);
 					}
@@ -2087,7 +2163,7 @@ int SrDatabase::Helper_MakeConceptProp(const SrCPropDeclList & rPdl, const char 
 			rProp = cID;
 		}
 		else {
-			ok = -1; // Значение не соответствует типу свойства
+			ok = -1; // Р—РЅР°С‡РµРЅРёРµ РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ С‚РёРїСѓ СЃРІРѕР№СЃС‚РІР°
 		}
 	}
 	else {
@@ -2101,7 +2177,7 @@ int SrDatabase::Helper_MakeConceptProp(const SrCPropDeclList & rPdl, const char 
 					prop_id = pd.PropID;
 				}
 				else {
-					ok = -1; // Неоднозначность в определении свойства концепции по значению
+					ok = -1; // РќРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚СЊ РІ РѕРїСЂРµРґРµР»РµРЅРёРё СЃРІРѕР№СЃС‚РІР° РєРѕРЅС†РµРїС†РёРё РїРѕ Р·РЅР°С‡РµРЅРёСЋ
 				}
 			}
 		}
@@ -2111,7 +2187,7 @@ int SrDatabase::Helper_MakeConceptProp(const SrCPropDeclList & rPdl, const char 
 				rProp = cID;
 			}
 			else {
-				ok = -1; // Не удалось идентифицировать свойство по значению
+				ok = -1; // РќРµ СѓРґР°Р»РѕСЃСЊ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ СЃРІРѕР№СЃС‚РІРѕ РїРѕ Р·РЅР°С‡РµРЅРёСЋ
 			}
 		}
 	}
@@ -2140,12 +2216,12 @@ int SrDatabase::MakeConceptPropN(const SrCPropDeclList & rPdl, const char * pPro
 				rProp = (int64)value;
 			}
 			else
-				ok = -1; // Попытка установить вещественное значение для свойства, имеющего тип #int
+				ok = -1; // РџРѕРїС‹С‚РєР° СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РІРµС‰РµСЃС‚РІРµРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ СЃРІРѕР№СЃС‚РІР°, РёРјРµСЋС‰РµРіРѕ С‚РёРї #int
 		}
 		else if(cp_type == 0)
-			ok = -1; // Неопределенный тип свойства
+			ok = -1; // РќРµРѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ С‚РёРї СЃРІРѕР№СЃС‚РІР°
 		else
-			ok = -1; // Значение не соответствует типу свойства
+			ok = -1; // Р—РЅР°С‡РµРЅРёРµ РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ С‚РёРїСѓ СЃРІРѕР№СЃС‚РІР°
 	}
 	else {
 		uint   suited_pd_idx = 0;
@@ -2159,7 +2235,7 @@ int SrDatabase::MakeConceptPropN(const SrCPropDeclList & rPdl, const char * pPro
 					prop_id = pd.PropID;
 				}
 				else {
-					ok = -1; // Неоднозначность в определении свойства концепции по значению
+					ok = -1; // РќРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚СЊ РІ РѕРїСЂРµРґРµР»РµРЅРёРё СЃРІРѕР№СЃС‚РІР° РєРѕРЅС†РµРїС†РёРё РїРѕ Р·РЅР°С‡РµРЅРёСЋ
 				}
 			}
 		}
@@ -2169,7 +2245,7 @@ int SrDatabase::MakeConceptPropN(const SrCPropDeclList & rPdl, const char * pPro
 				rProp = value;
 			}
 			else {
-				ok = -1; // Не удалось идентифицировать свойство по значению
+				ok = -1; // РќРµ СѓРґР°Р»РѕСЃСЊ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ СЃРІРѕР№СЃС‚РІРѕ РїРѕ Р·РЅР°С‡РµРЅРёСЋ
 			}
 		}
 	}
@@ -2425,7 +2501,7 @@ int SrDatabase::StoreGeoNodeWayRefList(const LLAssocArray & rList)
 			const uint _local_finish = MIN(_count, (_current_pos + max_entries_per_tx));
 			for(uint i = _current_pos; i < _local_finish;) {
 				const LLAssoc & r_assoc = rList.at(i);
-				assert(!i || r_assoc.Key >= prev_node_id); // Тест на упорядоченность входящего массива
+				assert(!i || r_assoc.Key >= prev_node_id); // РўРµСЃС‚ РЅР° СѓРїРѕСЂСЏРґРѕС‡РµРЅРЅРѕСЃС‚СЊ РІС…РѕРґСЏС‰РµРіРѕ РјР°СЃСЃРёРІР°
 				uint64 _logical_id = 0;
 				ref_list.Clear();
 				node_list.clear();
@@ -2474,7 +2550,7 @@ int SrDatabase::StoreGeoNodeWayRefList(const LLAssocArray & rList)
 					THROW(P_GnT->Update(nc, _logical_id));
 				}
 				else {
-					// @todo log message (точка не найдена)
+					// @todo log message (С‚РѕС‡РєР° РЅРµ РЅР°Р№РґРµРЅР°)
 				}
 			}
 			_current_pos = _local_finish;
@@ -2537,8 +2613,8 @@ struct StoreFiasAddrBlock {
 	class TextHash : public SymbHashTable {
 	public:
 		enum {
-			fUndefType = 0x0001, // Символ не удалось идентифицировать как тип объекта
-			fAmbigType = 0x0002  // Символ не однозначно идентифицируется как тип объекта
+			fUndefType = 0x0001, // РЎРёРјРІРѕР» РЅРµ СѓРґР°Р»РѕСЃСЊ РёРґРµРЅС‚РёС„РёС†РёСЂРѕРІР°С‚СЊ РєР°Рє С‚РёРї РѕР±СЉРµРєС‚Р°
+			fAmbigType = 0x0002  // РЎРёРјРІРѕР» РЅРµ РѕРґРЅРѕР·РЅР°С‡РЅРѕ РёРґРµРЅС‚РёС„РёС†РёСЂСѓРµС‚СЃСЏ РєР°Рє С‚РёРї РѕР±СЉРµРєС‚Р°
 		};
 		struct LocTypeEntry {
 			LocTypeEntry() : FiasLevel(0), Flags(0), SrTypeID(0)
@@ -2571,6 +2647,7 @@ struct StoreFiasAddrBlock {
 					LTL[first_empty_slot_incd-1].SrTypeID = srTypeID;
 					ok = 1;
 				}
+				assert(ok);
 				return ok;
 			}
 			const  LocTypeEntry * FASTCALL GetEntryByFiasLevel(uint level) const
@@ -2581,7 +2658,7 @@ struct StoreFiasAddrBlock {
 				}
 				return 0;
 			}
-			LocTypeEntry LTL[4];
+			LocTypeEntry LTL[8];
 		};
 		TextHash() : SymbHashTable(SKILOBYTE(8))
 		{
@@ -2622,8 +2699,7 @@ struct StoreFiasAddrBlock {
 	};
 
 	static const uint SignatureValue;
-	StoreFiasAddrBlock() : Signature(SignatureValue), CRegion(0), CUrbs(0), CVici(0), CAedificium(0), CApartment(0), CRussia(0), ProcessedSymbols(4096, 1),
-		T(STokenizer::Param(STokenizer::fEachDelim, cpUTF8, " \t\n\r(){}[]<>,.:;\\/&$#@!?*^\"+=%")) // "-" здесь не является разделителем
+	StoreFiasAddrBlock() : Signature(SignatureValue), CRegion(0), CUrbs(0), CVici(0), CAedificium(0), CApartment(0), CRussia(0), ProcessedSymbols(4096, 1)
 	{
 	}
 	const uint32 Signature;
@@ -2632,10 +2708,10 @@ struct StoreFiasAddrBlock {
 	CONCEPTID CVici;
 	CONCEPTID CAedificium;
 	CONCEPTID CApartment;
-	CONCEPTID CRussia; // Концепция, представляющая государство Россия (:statu_ru)
+	CONCEPTID CRussia; // РљРѕРЅС†РµРїС†РёСЏ, РїСЂРµРґСЃС‚Р°РІР»СЏСЋС‰Р°СЏ РіРѕСЃСѓРґР°СЂСЃС‚РІРѕ Р РѕСЃСЃРёСЏ (:statu_ru)
 	TSVector <Sdr_FiasRawAddrObj> SrcList;
 	SymbHashTable ProcessedSymbols;
-	STokenizer T;
+	//STokenizer T;
 	TextHash   H;
 };
 
@@ -2675,24 +2751,25 @@ static IMPL_CMPFUNC(Sdr_FiasRawAddrObj_AOGUID_LIVESTATUS, p1, p2)
 
 int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj * pEntry)
 {
-	const  uint max_entries_per_tx = SKILOBYTE(2);
+	const  uint max_entries_per_tx = 256;
 	assert(oneof2(passN, 1, 2));
 	int    ok = 1;
 	BDbTransaction * p_ta = 0;
 	StoreFiasAddrBlock * p_blk = (StoreFiasAddrBlock *)pBlk;
+	assert(p_blk && p_blk->Signature == StoreFiasAddrBlock::SignatureValue);
 	THROW(p_blk && p_blk->Signature == StoreFiasAddrBlock::SignatureValue);
 	if(pEntry) {
-		THROW(p_blk->SrcList.insert(pEntry));
+		THROW_SL(p_blk->SrcList.insert(pEntry));
 	}
 	const uint src_list_count = p_blk->SrcList.getCount();
 	if(!pEntry || src_list_count >= SKILOBYTE(128)) {
-		uint   cur_entries_per_tx = 0; // Текущее количество элементов, обработанных внутри одной транзакции
+		uint   cur_entries_per_tx = 0; // РўРµРєСѓС‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ, РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹С… РІРЅСѓС‚СЂРё РѕРґРЅРѕР№ С‚СЂР°РЅР·Р°РєС†РёРё
 		SString temp_buf;
 		SString msg_buf;
 		SString main_concept_symb;
 		SString text;
 		StringSet ss;
-		StringSet ss_name; // Коллекция вариантов наименований 
+		StringSet ss_name; // РљРѕР»Р»РµРєС†РёСЏ РІР°СЂРёР°РЅС‚РѕРІ РЅР°РёРјРµРЅРѕРІР°РЅРёР№ 
 		SrWordForm wordform;
 		TSVector <SrWordInfo> info_list;
 		STokenizer::Item titem, titem_next;
@@ -2701,7 +2778,8 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 		Int64Array local_concept_list;
 		Int64Array concept_hier;
 		SrNGram ng;
-		// Сортируем входной массив так, чтобы все элементы с одинаковыми AOGUID были вместе и актуальный (LIVESTATUS=1) был самым первым
+		STokenizer tknz(STokenizer::Param(STokenizer::fEachDelim, cpUTF8, " \t\n\r(){}[]<>,.:;\\/&$#@!?*^\"+=%")); // "-" Р·РґРµСЃСЊ РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЂР°Р·РґРµР»РёС‚РµР»РµРј
+		// РЎРѕСЂС‚РёСЂСѓРµРј РІС…РѕРґРЅРѕР№ РјР°СЃСЃРёРІ С‚Р°Рє, С‡С‚РѕР±С‹ РІСЃРµ СЌР»РµРјРµРЅС‚С‹ СЃ РѕРґРёРЅР°РєРѕРІС‹РјРё AOGUID Р±С‹Р»Рё РІРјРµСЃС‚Рµ Рё Р°РєС‚СѓР°Р»СЊРЅС‹Р№ (LIVESTATUS=1) Р±С‹Р» СЃР°РјС‹Рј РїРµСЂРІС‹Рј
 		p_blk->SrcList.sort(PTR_CMPFUNC(Sdr_FiasRawAddrObj_AOGUID_LIVESTATUS));
 		for(uint lidx = 0; lidx < src_list_count; lidx++) {
 			const Sdr_FiasRawAddrObj & r_item = p_blk->SrcList.at(lidx);
@@ -2727,7 +2805,7 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 					char   OKATO[16];
 					char   OKTMO[16];
 					LDATE  UPDATEDATE;
-					char   SHORTNAME[16]; // сокращение сущности (г, ул, etc)
+					char   SHORTNAME[16]; // СЃРѕРєСЂР°С‰РµРЅРёРµ СЃСѓС‰РЅРѕСЃС‚Рё (Рі, СѓР», etc)
 					char   AOLEVEL[16];   // 
 					S_GUID PARENTGUID;
 					S_GUID AOID;
@@ -2744,24 +2822,24 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 					char   NORMDOC[40];
 					int32  LIVESTATUS;
 			*/
-			CONCEPTID parent_cid = 0; // Концепция, экземпляром которой является создаваемая запись
+			CONCEPTID parent_cid = 0; // РљРѕРЅС†РµРїС†РёСЏ, СЌРєР·РµРјРїР»СЏСЂРѕРј РєРѕС‚РѕСЂРѕР№ СЏРІР»СЏРµС‚СЃСЏ СЃРѕР·РґР°РІР°РµРјР°СЏ Р·Р°РїРёСЃСЊ
 			const int is_actual = r_item.LIVESTATUS;
 			/*
-				Условно выделены следующие уровни адресных объектов:
-				1 – уровень региона
-				2 – уровень автономного округа (устаревшее)
-				3 – уровень района
-				35 – уровень городских и сельских поселений
-				4 – уровень города
-				5 – уровень внутригородской территории (устаревшее)
-				6 – уровень населенного пункта
-				65 – планировочная структура
-				7 – уровень улицы
-				75 – земельный участок
-				8 – здания, сооружения, объекта незавершенного строительства
-				9 – уровень помещения в пределах здания, сооружения
-				90 – уровень дополнительных территорий (устаревшее)
-				91 – уровень объектов на дополнительных территориях (устаревшее)
+				РЈСЃР»РѕРІРЅРѕ РІС‹РґРµР»РµРЅС‹ СЃР»РµРґСѓСЋС‰РёРµ СѓСЂРѕРІРЅРё Р°РґСЂРµСЃРЅС‹С… РѕР±СЉРµРєС‚РѕРІ:
+				1 вЂ“ СѓСЂРѕРІРµРЅСЊ СЂРµРіРёРѕРЅР°
+				2 вЂ“ СѓСЂРѕРІРµРЅСЊ Р°РІС‚РѕРЅРѕРјРЅРѕРіРѕ РѕРєСЂСѓРіР° (СѓСЃС‚Р°СЂРµРІС€РµРµ)
+				3 вЂ“ СѓСЂРѕРІРµРЅСЊ СЂР°Р№РѕРЅР°
+				35 вЂ“ СѓСЂРѕРІРµРЅСЊ РіРѕСЂРѕРґСЃРєРёС… Рё СЃРµР»СЊСЃРєРёС… РїРѕСЃРµР»РµРЅРёР№
+				4 вЂ“ СѓСЂРѕРІРµРЅСЊ РіРѕСЂРѕРґР°
+				5 вЂ“ СѓСЂРѕРІРµРЅСЊ РІРЅСѓС‚СЂРёРіРѕСЂРѕРґСЃРєРѕР№ С‚РµСЂСЂРёС‚РѕСЂРёРё (СѓСЃС‚Р°СЂРµРІС€РµРµ)
+				6 вЂ“ СѓСЂРѕРІРµРЅСЊ РЅР°СЃРµР»РµРЅРЅРѕРіРѕ РїСѓРЅРєС‚Р°
+				65 вЂ“ РїР»Р°РЅРёСЂРѕРІРѕС‡РЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР°
+				7 вЂ“ СѓСЂРѕРІРµРЅСЊ СѓР»РёС†С‹
+				75 вЂ“ Р·РµРјРµР»СЊРЅС‹Р№ СѓС‡Р°СЃС‚РѕРє
+				8 вЂ“ Р·РґР°РЅРёСЏ, СЃРѕРѕСЂСѓР¶РµРЅРёСЏ, РѕР±СЉРµРєС‚Р° РЅРµР·Р°РІРµСЂС€РµРЅРЅРѕРіРѕ СЃС‚СЂРѕРёС‚РµР»СЊСЃС‚РІР°
+				9 вЂ“ СѓСЂРѕРІРµРЅСЊ РїРѕРјРµС‰РµРЅРёСЏ РІ РїСЂРµРґРµР»Р°С… Р·РґР°РЅРёСЏ, СЃРѕРѕСЂСѓР¶РµРЅРёСЏ
+				90 вЂ“ СѓСЂРѕРІРµРЅСЊ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… С‚РµСЂСЂРёС‚РѕСЂРёР№ (СѓСЃС‚Р°СЂРµРІС€РµРµ)
+				91 вЂ“ СѓСЂРѕРІРµРЅСЊ РѕР±СЉРµРєС‚РѕРІ РЅР° РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… С‚РµСЂСЂРёС‚РѕСЂРёСЏС… (СѓСЃС‚Р°СЂРµРІС€РµРµ)
 			*/
 			const int aolevel = atoi(r_item.AOLEVEL);
 			/*
@@ -2774,9 +2852,9 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 			(text = r_item.SHORTNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
 			(temp_buf = r_item.FORMALNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
 			const SString name_buf = temp_buf;
-			uint   last_identical_idx = lidx; // Индекс последнего элемента идентичного по AOGUID r_item
+			uint   last_identical_idx = lidx; // РРЅРґРµРєСЃ РїРѕСЃР»РµРґРЅРµРіРѕ СЌР»РµРјРµРЅС‚Р° РёРґРµРЅС‚РёС‡РЅРѕРіРѕ РїРѕ AOGUID r_item
 			{
-				// ss_name будет хранить список имен объекта, отличающихся от name_buf
+				// ss_name Р±СѓРґРµС‚ С…СЂР°РЅРёС‚СЊ СЃРїРёСЃРѕРє РёРјРµРЅ РѕР±СЉРµРєС‚Р°, РѕС‚Р»РёС‡Р°СЋС‰РёС…СЃСЏ РѕС‚ name_buf
 				ss_name.clear();
 				ss_name.add(name_buf);
 				(temp_buf = r_item.OFFNAME).Strip().ToLower1251().Transf(CTRANSF_OUTER_TO_UTF8);
@@ -2806,16 +2884,18 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 			concept_hier.clear();
 			text.TrimRightChr('.').Strip();
 
-			CONCEPTID sr_type_cid = 0; // ИД концепции-типа локации (город, улица, поселок и т.д.)
-			CONCEPTID main_cid = 0; // Ид концепции, соответствующей текущей записи (AOGUID)
+			CONCEPTID sr_type_cid = 0; // РР” РєРѕРЅС†РµРїС†РёРё-С‚РёРїР° Р»РѕРєР°С†РёРё (РіРѕСЂРѕРґ, СѓР»РёС†Р°, РїРѕСЃРµР»РѕРє Рё С‚.Рґ.)
+			CONCEPTID main_cid = 0; // РРґ РєРѕРЅС†РµРїС†РёРё, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµР№ С‚РµРєСѓС‰РµР№ Р·Р°РїРёСЃРё (AOGUID)
 			StoreFiasAddrBlock::TextHash::ExtData hed;
 			StoreFiasAddrBlock::TextHash::LocTypeEntry __lte;
 			if(!p_ta) {
-				THROW(p_ta = new BDbTransaction(this->P_Db, 1));
+				THROW_MEM(p_ta = new BDbTransaction(this->P_Db, 1));
 			}
 			if(cur_entries_per_tx++ >= max_entries_per_tx) {
 				THROW_DB(p_ta->Commit());
+				THROW_DB(P_Db->TransactionCheckPoint());
 				THROW_DB(p_ta->Start(1));
+				cur_entries_per_tx = 0;
 			}
 			SrConcept::MakeSurrogateSymb(SrConcept::surrsymbsrcFIAS, &r_item.AOGUID, sizeof(r_item.AOGUID), main_concept_symb);
 			if(passN == 2) {
@@ -2836,6 +2916,18 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 				}
 			}
 			else if(passN == 1) {
+				//
+				// РЎРїРµС†РёР°Р»СЊРЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° СЃРёС‚СѓР°С†РёР№, РІС‹Р·С‹РІР°СЋС‰РёС… РЅРµРѕРґРЅРѕР·РЅР°С‡РЅРѕСЃС‚СЊ
+				// Note: СЌС‚РѕС‚ РёСЃС…РѕРґРЅС‹Р№ С„Р°Р№Р» - РІ РєРѕРґРёСЂРѕРІРєРµ UTF-8
+				//
+				if(text == "Рї") {
+					if(aolevel == 3) {
+						text = "РїРѕСЃРµР»РµРЅРёРµ";
+					}
+					else {
+						text = "РїРѕСЃРµР»РѕРє";
+					}
+				}
 				if(p_blk->H.Search(text, &hed)) {
 					const StoreFiasAddrBlock::TextHash::LocTypeEntry * p_lte = hed.GetEntryByFiasLevel(aolevel);
 					RVALUEPTR(__lte, p_lte);
@@ -2875,6 +2967,7 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 							}
 						}
 					}
+					/*
 					{
 						ss.clear();
 						text.Tokenize(" ", ss);
@@ -2884,30 +2977,46 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 							}
 						}
 					}
+					*/
 					candidate_concept_list.clear();
 					concept_list.sortAndUndup();
 					for(uint cidx = 0; cidx < concept_list.getCount(); cidx++) {
 						CONCEPTID item_id = concept_list.get(cidx);
 						if(GetConceptHier(item_id, concept_hier) > 0) {
+							assert(concept_hier.getCount());
+							const CONCEPTID first_hier_cid = concept_hier.get(0);
 							switch(aolevel) {
-								case 1: case 2: case 3:
-									if(concept_hier.lsearch(p_blk->CRegion))
+								case 1: 
+									//if(concept_hier.lsearch(p_blk->CUrbs)) {
+									if(first_hier_cid == p_blk->CUrbs) {
+										candidate_concept_list.add(item_id);
+										break;
+									}
+									// @fallthrough
+								case 2: 
+								case 3:
+									//if(concept_hier.lsearch(p_blk->CRegion))
+									if(first_hier_cid == p_blk->CRegion)
 										candidate_concept_list.add(item_id);
 									break;
 								case 4: case 6:
-									if(concept_hier.lsearch(p_blk->CUrbs))
+									//if(concept_hier.lsearch(p_blk->CUrbs))
+									if(first_hier_cid == p_blk->CUrbs)
 										candidate_concept_list.add(item_id);
 									break;
 								case 7:
-									if(concept_hier.lsearch(p_blk->CVici))
+									//if(concept_hier.lsearch(p_blk->CVici))
+									if(first_hier_cid == p_blk->CVici)
 										candidate_concept_list.add(item_id);
 									break;
 								case 8:
-									if(concept_hier.lsearch(p_blk->CAedificium))
+									//if(concept_hier.lsearch(p_blk->CAedificium))
+									if(first_hier_cid == p_blk->CAedificium)
 										candidate_concept_list.add(item_id);
 									break;
 								case 9:
-									if(concept_hier.lsearch(p_blk->CApartment))
+									//if(concept_hier.lsearch(p_blk->CApartment))
+									if(first_hier_cid == p_blk->CApartment)
 										candidate_concept_list.add(item_id);
 									break;
 							}
@@ -2927,6 +3036,19 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 						else if(candidate_concept_list.getCount() > 1) {
 							(temp_buf = r_item.SHORTNAME).Transf(CTRANSF_OUTER_TO_INNER);
 							PPLogMessage(PPFILNAM_IMPEXP_LOG, PPFormatS(PPSTR_TEXT, PPTXT_FIASTOSR_AMBIGOBJTYPE, &msg_buf, temp_buf.cptr(), aolevel), /*LOGMSGF_TIME*/0);
+							for(uint ai = 0; ai < candidate_concept_list.getCount(); ai++) {
+								CONCEPTID ccid = candidate_concept_list.get(ai);
+								GetConceptSymb(ccid, temp_buf);
+								msg_buf.Z().Tab().Cat(temp_buf);
+								if(GetConceptHier(ccid, concept_hier) > 0) {
+									for(uint hi = 0; hi < concept_hier.getCount(); hi++) {
+										GetConceptSymb(concept_hier.get(hi), temp_buf);
+										msg_buf.Cat("->").Cat(temp_buf);
+									}
+								}
+								msg_buf.Transf(CTRANSF_UTF8_TO_INNER);
+								PPLogMessage(PPFILNAM_IMPEXP_LOG, msg_buf, 0);
+							}
 							THROW(hed.SetEntryByFiasLevel(aolevel, StoreFiasAddrBlock::TextHash::fAmbigType, 0));
 						}
 						else { // candidate_concept_list.getCount() exactly equal 1
@@ -2942,19 +3064,19 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 						uint   idx_first = 0;
 						uint   idx_count = 0;
 						ng.Z();
-						p_blk->T.RunSString(0, 0, text, &idx_first, &idx_count);
+						tknz.RunSString(0, 0, text, &idx_first, &idx_count);
 						for(uint tidx = 0; tidx < idx_count; tidx++) {
 							LEXID word_id = 0;
-							if(p_blk->T.Get(idx_first+tidx, titem)) {
+							if(tknz.Get(idx_first+tidx, titem)) {
 								if(titem.Token == STokenizer::tokWord) {
-									if(tidx < (idx_count-1) && p_blk->T.Get(idx_first+tidx+1, titem_next)) {
+									if(tidx < (idx_count-1) && tknz.Get(idx_first+tidx+1, titem_next)) {
 										if(titem_next.Token == STokenizer::tokDelim && titem_next.Text.Single() == '.') {
-											tidx++; // Следующую за словом точку пропускаем (например "а.невского"-->"а" "невского")
+											tidx++; // РЎР»РµРґСѓСЋС‰СѓСЋ Р·Р° СЃР»РѕРІРѕРј С‚РѕС‡РєСѓ РїСЂРѕРїСѓСЃРєР°РµРј (РЅР°РїСЂРёРјРµСЂ "Р°.РЅРµРІСЃРєРѕРіРѕ"-->"Р°" "РЅРµРІСЃРєРѕРіРѕ")
 										}
 									}
 									if(FetchWord(titem.Text, &word_id) < 0) {
 										THROW(P_WdT->Add(titem.Text, &word_id));
-										// Было создано новое слово - добавим к нему извесные нам признаки (пока только язык)
+										// Р‘С‹Р»Рѕ СЃРѕР·РґР°РЅРѕ РЅРѕРІРѕРµ СЃР»РѕРІРѕ - РґРѕР±Р°РІРёРј Рє РЅРµРјСѓ РёР·РІРµСЃРЅС‹Рµ РЅР°Рј РїСЂРёР·РЅР°РєРё (РїРѕРєР° С‚РѕР»СЊРєРѕ СЏР·С‹Рє)
 										wordform.Clear();
 										wordform.SetTag(SRWG_LANGUAGE, slangRU);
 										THROW(SetSimpleWordFlexiaModel(word_id, wordform, 0));
@@ -2964,7 +3086,7 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 								else if(titem.Token == STokenizer::tokDelim) {
 									const char dc = titem.Text.Single();
 									if(oneof4(dc, ' ', '\t', '\n', '\r'))
-										; // просто пропускаем
+										; // РїСЂРѕСЃС‚Рѕ РїСЂРѕРїСѓСЃРєР°РµРј
 									else if(titem.Text.Len()) {
 										if(FetchWord(titem.Text, &word_id) < 0) {
 											THROW(P_WdT->Add(titem.Text, &word_id));
@@ -2989,7 +3111,7 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 					}
 				}
 				else {
-					//PPTXT_FIASTOSR_OBJSKIPPED_TYPE    "ФИАС->Sartre: объект '@zstr' не акцептирован из-за неопределенного типа '@zstr'"
+					//PPTXT_FIASTOSR_OBJSKIPPED_TYPE    "Р¤РРђРЎ->Sartre: РѕР±СЉРµРєС‚ '@zstr' РЅРµ Р°РєС†РµРїС‚РёСЂРѕРІР°РЅ РёР·-Р·Р° РЅРµРѕРїСЂРµРґРµР»РµРЅРЅРѕРіРѕ С‚РёРїР° '@zstr'"
 					(temp_buf = r_item.FORMALNAME).Transf(CTRANSF_OUTER_TO_INNER);
 					(text = r_item.SHORTNAME).Transf(CTRANSF_OUTER_TO_INNER);
 					PPLogMessage(PPFILNAM_IMPEXP_LOG, PPFormatS(PPSTR_TEXT, PPTXT_FIASTOSR_OBJSKIPPED_TYPE, &msg_buf, temp_buf.cptr(), text.cptr(), aolevel), /*LOGMSGF_TIME*/0);
@@ -2999,6 +3121,10 @@ int SrDatabase::StoreFiasAddr(void * pBlk, uint passN, const Sdr_FiasRawAddrObj 
 			PPWaitPercent(lidx, src_list_count, "Storage");
 		}
 		p_blk->SrcList.clear();
+		if(p_ta) {
+			ZDELETE(p_ta);
+			THROW(P_Db->TransactionCheckPoint());
+		}
 	}
 	CATCHZOK
 	delete p_ta;

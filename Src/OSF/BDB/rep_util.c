@@ -236,16 +236,14 @@ int __rep_bulk_free(ENV * env, REP_BULK * bulkp, uint32 flags)
 	__os_free(env, bulkp->addr);
 	return ret;
 }
-
 /*
  * __rep_send_message --
  *	This is a wrapper for sending a message.  It takes care of constructing
  * the control structure and calling the user's specified send function.
  *
- * PUBLIC: int __rep_send_message __P((ENV *, int,
- * PUBLIC:     uint32, DB_LSN *, const DBT *, uint32, uint32));
+ * PUBLIC: int __rep_send_message(ENV *, int, uint32, DB_LSN *, const DBT *, uint32, uint32);
  */
-int __rep_send_message(ENV * env, int eid, uint32 rtype, DB_LSN * lsnp, const DBT * dbt, uint32 ctlflags, uint32 repflags)
+int FASTCALL __rep_send_message(ENV * env, int eid, uint32 rtype, DB_LSN * lsnp, const DBT * dbt, uint32 ctlflags, uint32 repflags)
 {
 	DBT cdbt, scrap_dbt;
 	REP_46_CONTROL cntrl46;
@@ -890,18 +888,12 @@ int __env_rep_enter(ENV*env, int checklock)
 
 static int __rep_show_progress(ENV*env, const char * which, int mins)
 {
-	DB_LOG * dblp;
-	LOG * lp;
-	REP * rep;
 	DB_LSN ready_lsn;
-
-	rep = env->rep_handle->region;
-	dblp = env->lg_handle;
-	lp = (dblp == NULL) ? NULL : (LOG *)dblp->reginfo.primary;
-
+	REP * rep = env->rep_handle->region;
+	DB_LOG * dblp = env->lg_handle;
+	LOG * lp = (dblp == NULL) ? NULL : (LOG *)dblp->reginfo.primary;
 #define WAITING_MSG  DB_STR_A("3505", "%s waiting %d minutes for replication lockout to complete", "%s %d")
 #define WAITING_ARGS WAITING_MSG, which, mins
-
 	__db_errx(env, WAITING_ARGS);
 	RPRINT(env, (env, DB_VERB_REP_SYNC, WAITING_ARGS));
 	if(lp == NULL)
@@ -946,7 +938,7 @@ static int __rep_show_progress(ENV*env, const char * which, int mins)
  *
  * PUBLIC: int __env_db_rep_exit(ENV *);
  */
-int __env_db_rep_exit(ENV*env)
+int FASTCALL __env_db_rep_exit(ENV * env)
 {
 	// Check if locks have been globally turned off
 	if(!F_ISSET(env->dbenv, DB_ENV_NOLOCKING)) {
@@ -958,7 +950,6 @@ int __env_db_rep_exit(ENV*env)
 	}
 	return 0;
 }
-
 /*
  * __db_rep_enter --
  *	Called in replicated environments to keep track of in-use handles
@@ -975,19 +966,17 @@ int __env_db_rep_exit(ENV*env)
  * We want to return immediately because we want the txn to abort ASAP
  * so that the lockout can proceed.
  *
- * PUBLIC: int __db_rep_enter __P((DB *, int, int, int));
+ * PUBLIC: int __db_rep_enter(DB *, int, int, int);
  */
-int __db_rep_enter(DB*dbp, int checkgen, int checklock, int return_now)
+int FASTCALL __db_rep_enter(DB*dbp, int checkgen, int checklock, int return_now)
 {
 	DB_REP * db_rep;
-	ENV * env;
 	REGENV * renv;
 	REGINFO * infop;
 	REP * rep;
 	__time64_t timestamp;
-
-	env = dbp->env;
-	/* Check if locks have been globally turned off. */
+	ENV * env = dbp->env;
+	// Check if locks have been globally turned off. 
 	if(F_ISSET(env->dbenv, DB_ENV_NOLOCKING))
 		return 0;
 	db_rep = env->rep_handle;
@@ -997,10 +986,9 @@ int __db_rep_enter(DB*dbp, int checkgen, int checklock, int return_now)
 	if(checklock && F_ISSET(renv, DB_REGENV_REPLOCKED)) {
 		_time64(&timestamp);
 		TIMESTAMP_CHECK(env, timestamp, renv);
-		/*
-		 * Check if we're still locked out after checking
-		 * the timestamp.
-		 */
+		// 
+		// Check if we're still locked out after checking the timestamp.
+		// 
 		if(F_ISSET(renv, DB_REGENV_REPLOCKED))
 			return EINVAL;
 	}
@@ -1028,10 +1016,8 @@ int __db_rep_enter(DB*dbp, int checkgen, int checklock, int return_now)
 	}
 	rep->handle_cnt++;
 	REP_SYSTEM_UNLOCK(env);
-
 	return 0;
 }
-
 /*
  * Check for permission to increment handle_cnt, and do so if possible.  Used in
  * cases where we want to count an operation in the context of a transaction,

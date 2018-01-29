@@ -3726,15 +3726,11 @@ static int ssl_check_ca_name(STACK_OF(X509_NAME) * names, X509 * x)
 
 /* Flags which need to be set for a certificate when stict mode not set */
 
-#define CERT_PKEY_VALID_FLAGS \
-	(CERT_PKEY_EE_SIGNATURE|CERT_PKEY_EE_PARAM)
+#define CERT_PKEY_VALID_FLAGS (CERT_PKEY_EE_SIGNATURE|CERT_PKEY_EE_PARAM)
 /* Strict mode flags */
-#define CERT_PKEY_STRICT_FLAGS \
-	(CERT_PKEY_VALID_FLAGS|CERT_PKEY_CA_SIGNATURE|CERT_PKEY_CA_PARAM \
-	    | CERT_PKEY_ISSUER_NAME|CERT_PKEY_CERT_TYPE)
+#define CERT_PKEY_STRICT_FLAGS (CERT_PKEY_VALID_FLAGS|CERT_PKEY_CA_SIGNATURE|CERT_PKEY_CA_PARAM|CERT_PKEY_ISSUER_NAME|CERT_PKEY_CERT_TYPE)
 
-int tls1_check_chain(SSL * s, X509 * x, EVP_PKEY * pk, STACK_OF(X509) * chain,
-    int idx)
+int FASTCALL tls1_check_chain(SSL * s, X509 * x, EVP_PKEY * pk, STACK_OF(X509) * chain, int idx)
 {
 	int i;
 	int rv = 0;
@@ -3768,14 +3764,12 @@ int tls1_check_chain(SSL * s, X509 * x, EVP_PKEY * pk, STACK_OF(X509) * chain,
 		if(idx == -1)
 			return 0;
 		pvalid = s->s3->tmp.valid_flags + idx;
-
 		if(c->cert_flags & SSL_CERT_FLAGS_CHECK_TLS_STRICT)
 			check_flags = CERT_PKEY_STRICT_FLAGS;
 		else
 			check_flags = CERT_PKEY_VALID_FLAGS;
 		strict_mode = 1;
 	}
-
 	if(suiteb_flags) {
 		int ok;
 		if(check_flags)
@@ -3786,7 +3780,6 @@ int tls1_check_chain(SSL * s, X509 * x, EVP_PKEY * pk, STACK_OF(X509) * chain,
 		else if(!check_flags)
 			goto end;
 	}
-
 	/*
 	 * Check all signature algorithms are consistent with signature
 	 * algorithms extension if TLS 1.2 or later and strict mode.
@@ -3804,7 +3797,6 @@ int tls1_check_chain(SSL * s, X509 * x, EVP_PKEY * pk, STACK_OF(X509) * chain,
 				    rsign = TLSEXT_signature_rsa;
 				    default_nid = NID_sha1WithRSAEncryption;
 				    break;
-
 				case SSL_PKEY_DSA_SIGN:
 				    rsign = TLSEXT_signature_dsa;
 				    default_nid = NID_dsaWithSHA1;
@@ -4129,4 +4121,3 @@ int ssl_security_cert_chain(SSL * s, STACK_OF(X509) * sk, X509 * x, int vfy)
 	}
 	return 1;
 }
-

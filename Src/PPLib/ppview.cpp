@@ -1857,7 +1857,7 @@ int PPViewBrowser::InsColumn(int atPos, const char * pText, uint fldNo, TYPEID t
 {
 	SString temp_buf;
 	if(pText && pText[0] == '@')
-		SLS.LoadString(pText+1, temp_buf);
+		PPLoadString(pText+1, temp_buf);
 	else
 		temp_buf = pText;
 	return insertColumn(atPos, temp_buf, fldNo, typ, fmt, opt);
@@ -2381,6 +2381,7 @@ int PPTimeChunkBrowser::ExportToExcel()
 					STimeChunkGrid::Color clr;
 					STimeChunkAssoc __last_chunk;
 					long   last_chunk_row = 0;
+					long   last_chunk_finish_row = 0;
 					for(uint time_band = 0; time_band < 24 * 3600; time_band += time_quant, row++) {
 						LTIME   tm_start;
 						LTIME   tm_end;
@@ -2398,7 +2399,7 @@ int PPTimeChunkBrowser::ExportToExcel()
 							range.Start.Set(dt, tm_start);
 							range.Finish.Set(dt, tm_end);
 							chunk_list.clear();
-							if(P_Data->GetChunksByTime(range, chunk_list) > 0) {
+							if(P_Data->GetChunksByTime(range, chunk_list) > 0 && chunk_list.getCount()) {
 								cell_buf.Z();
 								const uint _chunk_count = chunk_list.getCount();
 								if(_chunk_count > 1)
@@ -2410,7 +2411,7 @@ int PPTimeChunkBrowser::ExportToExcel()
 											GetChunkText(__last_chunk.Id, temp_buf);
 											ComExcelRange * p_range = 0;
 											THROW(p_sheet->SetValue(last_chunk_row, _col, temp_buf) > 0);
-											if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, _col, row-1, _col)) != 0) { 
+											if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, _col, /*row-1*/last_chunk_finish_row, _col)) != 0) { 
 												p_range->DoMerge();
 												p_range->SetBgColor(GetChunkColor(&__last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
 												//p_range->SetValue(temp_buf);
@@ -2420,9 +2421,12 @@ int PPTimeChunkBrowser::ExportToExcel()
 												//THROW(p_sheet->SetValue(last_chunk_row, _col, temp_buf) > 0);
 											}
 										}
-										if(i == (_chunk_count-1) && __last_chunk.Id != p_chunk->Id) {
-											__last_chunk = *p_chunk;
-											last_chunk_row = row;
+										if(i == (_chunk_count-1)) {
+											if(__last_chunk.Id != p_chunk->Id) {
+												__last_chunk = *p_chunk;
+												last_chunk_row = row;
+											}
+											last_chunk_finish_row = row;
 										}
 									}
 								}
@@ -2433,7 +2437,7 @@ int PPTimeChunkBrowser::ExportToExcel()
 						GetChunkText(__last_chunk.Id, temp_buf);
 						ComExcelRange * p_range = 0;
 						THROW(p_sheet->SetValue(last_chunk_row, _col, temp_buf) > 0);
-						if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, _col, row-1, _col)) != 0) {
+						if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, _col, /*row-1*/last_chunk_finish_row, _col)) != 0) {
 							p_range->DoMerge();
 							p_range->SetBgColor(GetChunkColor(&__last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
 							//p_range->SetValue(temp_buf);

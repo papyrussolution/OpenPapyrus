@@ -62,22 +62,9 @@ int BDbDatabase::SetupErrLog(const char * pFileName)
 	return ok;
 }
 
-BDbDatabase::Config::Config()
+BDbDatabase::Config::Config() : Flags(0), CacheSize(0), CacheCount(0), PageSize(0), MaxLockers(0), MaxLocks(0), MaxLockObjs(0), 
+	LogBufSize(0), LogFileSize(0), MutexCountInit(0), MutexCountMax(0), MutexCountIncr(0)
 {
-	Flags = 0;
-	CacheSize = 0;
-	CacheCount = 0;
-	PageSize = 0; // @v9.6.4
-	MaxLockers = 0;
-	MaxLocks = 0;    // @v9.6.4
-	MaxLockObjs = 0;  // @v9.6.4
-	LogBufSize = 0;
-	LogFileSize = 0;
-	// @v8.3.5 {
-	MutexCountInit = 0;
-	MutexCountMax = 0;
-	MutexCountIncr = 0;
-	// } @v8.3.5
 }
 
 int BDbDatabase::GetCurrentConfig(Config & rCfg)
@@ -87,53 +74,53 @@ int BDbDatabase::GetCurrentConfig(Config & rCfg)
 		{
 			uint32 gb = 0, b = 0;
 			int    n = 0;
-			THROW(ProcessError(E->get_cachesize(E, &gb, &b, &n), 0, 0));
+			THROW(ProcessError(E->get_cachesize(E, &gb, &b, &n)));
 			rCfg.CacheSize = SGIGABYTE((int64)gb) + b;
 			rCfg.CacheCount = (uint)n;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->get_memory_init(E, DB_MEM_LOCK, &v), 0, 0));
+			THROW(ProcessError(E->get_memory_init(E, DB_MEM_LOCK, &v)));
 			rCfg.MaxLocks = v;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->get_memory_init(E, DB_MEM_LOCKOBJECT, &v), 0, 0));
+			THROW(ProcessError(E->get_memory_init(E, DB_MEM_LOCKOBJECT, &v)));
 			rCfg.MaxLockObjs = v;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->get_memory_init(E, DB_MEM_LOCKER, &v), 0, 0));
+			THROW(ProcessError(E->get_memory_init(E, DB_MEM_LOCKER, &v)));
 			rCfg.MaxLockers = v;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->mutex_get_init(E, &v), 0, 0));
+			THROW(ProcessError(E->mutex_get_init(E, &v)));
 			rCfg.MutexCountInit = v;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->mutex_get_max(E, &v), 0, 0));
+			THROW(ProcessError(E->mutex_get_max(E, &v)));
 			rCfg.MutexCountMax = v;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->mutex_get_increment(E, &v), 0, 0));
+			THROW(ProcessError(E->mutex_get_increment(E, &v)));
 			rCfg.MutexCountIncr = v;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->get_lg_bsize(E, &v), 0, 0));
+			THROW(ProcessError(E->get_lg_bsize(E, &v)));
 			rCfg.LogBufSize = v;
 		}
 		{
 			uint32 v = 0;
-			THROW(ProcessError(E->get_lg_max(E, &v), 0, 0));
+			THROW(ProcessError(E->get_lg_max(E, &v)));
 			rCfg.LogFileSize = v;
 		}
 		{
 			const char * p_log_dir = 0;
-			THROW(ProcessError(E->get_lg_dir(E, &p_log_dir), 0, 0));
+			THROW(ProcessError(E->get_lg_dir(E, &p_log_dir)));
 			rCfg.LogSubDir = p_log_dir;
 		}
 		{
@@ -159,7 +146,7 @@ int BDbDatabase::Helper_SetConfig(const char * pHomeDir, Config & rCfg)
 			int    n_ = 0, n = 0;
 			uint32 gb_ = 0, gb = 0;
 			uint32 b_ = 0, b = 0;
-			THROW(ProcessError(E->get_cachesize(E, &gb_, &b_, &n_), 0, 0));
+			THROW(ProcessError(E->get_cachesize(E, &gb_, &b_, &n_)));
 			if(rCfg.CacheSize != 0) {
 				gb = (uint32)(rCfg.CacheSize / SGIGABYTE(1));
 				b = (uint32)(rCfg.CacheSize % SGIGABYTE(1));
@@ -169,39 +156,39 @@ int BDbDatabase::Helper_SetConfig(const char * pHomeDir, Config & rCfg)
 				b = b_;
 			}
 			n = (int)NZOR(rCfg.CacheCount, n_);
-			THROW(ProcessError(E->set_cachesize(E, gb, b, n), 0, 0));
+			THROW(ProcessError(E->set_cachesize(E, gb, b, n)));
 		}
 		if(rCfg.MaxLockers) {
-			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCKER, rCfg.MaxLockers), 0, 0));
+			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCKER, rCfg.MaxLockers)));
 		}
 		// @v9.6.4 {
 		if(rCfg.MaxLocks) {
-			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCK, rCfg.MaxLocks), 0, 0));
+			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCK, rCfg.MaxLocks)));
 		}
 		if(rCfg.MaxLockObjs) {
-			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCKOBJECT, rCfg.MaxLockObjs), 0, 0));
+			THROW(ProcessError(E->set_memory_init(E, DB_MEM_LOCKOBJECT, rCfg.MaxLockObjs)));
 		}
 		// } @v9.6.4
 		if(rCfg.MutexCountInit) {
-			THROW(ProcessError(E->mutex_set_init(E, rCfg.MutexCountInit), 0, 0));
+			THROW(ProcessError(E->mutex_set_init(E, rCfg.MutexCountInit)));
 		}
 		if(rCfg.MutexCountMax) {
-			THROW(ProcessError(E->mutex_set_max(E, rCfg.MutexCountMax), 0, 0));
+			THROW(ProcessError(E->mutex_set_max(E, rCfg.MutexCountMax)));
 		}
 		if(rCfg.MutexCountIncr) {
-			THROW(ProcessError(E->mutex_set_increment(E, rCfg.MutexCountIncr), 0, 0));
+			THROW(ProcessError(E->mutex_set_increment(E, rCfg.MutexCountIncr)));
 		}
 		if(rCfg.LogBufSize) {
-			THROW(ProcessError(E->set_lg_bsize(E, (uint32)rCfg.LogBufSize), 0, 0));
+			THROW(ProcessError(E->set_lg_bsize(E, (uint32)rCfg.LogBufSize)));
 		}
 		if(rCfg.LogFileSize) {
-			THROW(ProcessError(E->set_lg_max(E, rCfg.LogFileSize), 0, 0));
+			THROW(ProcessError(E->set_lg_max(E, rCfg.LogFileSize)));
 		}
 		if(rCfg.LogSubDir.NotEmpty()) {
 			const char * p_log_dir = 0;
 			(temp_buf = pHomeDir).SetLastSlash().Cat(rCfg.LogSubDir);
 			THROW(::createDir(temp_buf));
-			THROW(ProcessError(E->set_lg_dir(E, temp_buf), 0, 0));
+			THROW(ProcessError(E->set_lg_dir(E, temp_buf)));
 		}
 		if(rCfg.Flags & (rCfg.fLogNoSync | rCfg.fLogAutoRemove | rCfg.fLogInMemory)) {
 			E->log_set_config(E, DB_LOG_NOSYNC,      BIN(rCfg.Flags & rCfg.fLogNoSync));
@@ -216,14 +203,13 @@ int BDbDatabase::Helper_SetConfig(const char * pHomeDir, Config & rCfg)
 BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options)
 {
 	int    r = 0;
-	SString temp_buf;
 	State = 0;
 	E = 0;
 	P_SeqT = 0;
 	P_SCtx = new SSerializeContext;
 	HomePathPos = 0;
 	StrPool.add("$"); // zero index - is empty string
-	temp_buf = pHomeDir;
+	SString temp_buf = pHomeDir;
 	if(temp_buf.NotEmptyS())
 		StrPool.add(temp_buf, &HomePathPos);
 	THROW(ProcessError(db_env_create(&E, 0), 0, pHomeDir));
@@ -279,20 +265,12 @@ BDbDatabase::~BDbDatabase()
 	ErrF.Close();
 }
 
-int BDbDatabase::operator ! () const
-{
-	return BIN(State & stError);
-}
+int BDbDatabase::operator ! () const { return BIN(State & stError); }
+BDbDatabase::operator DB_ENV * () { return E; }
+BDbDatabase::operator DB_TXN * () { return T.T; }
 
-BDbDatabase::operator DB_ENV * ()
-{
-	return E;
-}
-
-BDbDatabase::operator DB_TXN * ()
-{
-	return T.T;
-}
+//static 
+int FASTCALL BDbDatabase::ProcessError(int bdbErrCode) { return bdbErrCode ? BDbDatabase::ProcessError(bdbErrCode, 0, 0) : 1; }
 
 // static
 int FASTCALL BDbDatabase::ProcessError(int bdbErrCode, const DB * pDb, const char * pAddedMsg)
@@ -381,7 +359,7 @@ int BDbDatabase::RemoveUnusedLogs()
 {
 	int    ok = 1;
 	THROW(E);
-	THROW(ProcessError(E->log_archive(E, 0, DB_ARCH_REMOVE), 0, 0));
+	THROW(ProcessError(E->log_archive(E, 0, DB_ARCH_REMOVE)));
 	CATCHZOK
 	return ok;
 }
@@ -394,7 +372,7 @@ int BDbDatabase::StartTransaction()
 	{
 		const uint32 ta_flags = DB_TXN_SNAPSHOT | DB_TXN_BULK;
 		int r = E->txn_begin(E, 0, &T.T, ta_flags);
-		THROW(ProcessError(r, 0, 0));
+		THROW(ProcessError(r));
 	}
 	CATCHZOK
 	return ok;
@@ -414,7 +392,7 @@ int BDbDatabase::RollbackWork()
 		}
 		T.TblList.freeAll();
 		//
-		THROW(ProcessError(r, 0, 0));
+		THROW(ProcessError(r));
 	}
 	else
 		ok = -1;
@@ -437,7 +415,7 @@ int BDbDatabase::CommitWork()
 		}
 		T.TblList.freeAll();
 		//
-		THROW(ProcessError(r, 0, 0));
+		THROW(ProcessError(r));
 	}
 	else
 		ok = -1;
@@ -448,7 +426,7 @@ int BDbDatabase::CommitWork()
 int BDbDatabase::TransactionCheckPoint()
 {
 	int    ok = 1;
-	THROW(ProcessError(E->txn_checkpoint(E, 0/*kbyte*/, 0/*min*/, 0/*flags*/), 0, 0));
+	THROW(ProcessError(E->txn_checkpoint(E, 0/*kbyte*/, 0/*min*/, 0/*flags*/)));
 	CATCHZOK
 	return ok;
 }
@@ -458,9 +436,9 @@ int BDbDatabase::LockDetect()
 	int    ok = -1;
 	int    rejected = 0, rej_ = 0;
 	THROW(E);
-	THROW(ProcessError(E->lock_detect(E, 0, DB_LOCK_DEFAULT, &rej_), 0, 0));
+	THROW(ProcessError(E->lock_detect(E, 0, DB_LOCK_DEFAULT, &rej_)));
 	rejected += rej_;
-	THROW(ProcessError(E->lock_detect(E, 0, DB_LOCK_EXPIRE, &(rej_ = 0)), 0, 0));
+	THROW(ProcessError(E->lock_detect(E, 0, DB_LOCK_EXPIRE, &(rej_ = 0))));
 	rejected += rej_;
 	ok = (rejected > 0) ? 1 : -1;
 	CATCHZOK
@@ -686,12 +664,12 @@ int BDbDatabase::CreateSequence(const char * pName, int64 initVal, long * pSeqID
 				BDbTable::Buffer key;
 				THROW(ProcessError(db_sequence_create(&p_seq, P_SeqT->H, 0), P_SeqT->H, pName));
 				SETIFZ(initVal, 1);
-				THROW(ProcessError(p_seq->initial_value(p_seq, initVal), 0, 0));
+				THROW(ProcessError(p_seq->initial_value(p_seq, initVal)));
 				key = pName;
 				{
 					int    opf = DB_CREATE;
 					opf |= DB_THREAD;
-					THROW(ProcessError(p_seq->open(p_seq, 0/*TXN*/, key, opf), 0, 0));
+					THROW(ProcessError(p_seq->open(p_seq, 0/*TXN*/, key, opf)));
 				}
 				{
 					Seq seq_item;
@@ -725,7 +703,7 @@ int FASTCALL BDbDatabase::Helper_CloseSequence(uint pos)
 	if(pos < SeqList.getCount()) {
 		Seq  & r_item = SeqList.at(pos);
 		if(r_item.H) {
-			THROW(ProcessError(r_item.H->close(r_item.H, 0), 0, 0));
+			THROW(ProcessError(r_item.H->close(r_item.H, 0)));
 		}
 		SeqList.atFree(pos);
 	}
@@ -756,7 +734,7 @@ int BDbDatabase::GetSequence(long seqId, int64 * pVal)
 			DB_SEQUENCE * p_seq = SeqList.at(i).H;
 			if(p_seq) {
 				db_seq_t _v = 0;
-				THROW(ProcessError(p_seq->get(p_seq, T.T, 1, &_v, DB_TXN_NOSYNC), 0, 0));
+				THROW(ProcessError(p_seq->get(p_seq, T.T, 1, &_v, DB_TXN_NOSYNC)));
 				val = (int64)_v;
 				ok = 1;
 			}
@@ -928,25 +906,10 @@ BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const wchar_t * pUStr)
 	return *this;
 }
 
-BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const int32 & rVal)
-{
-	return Set(&rVal, sizeof(rVal));
-}
-
-BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const uint32 & rVal)
-{
-	return Set(&rVal, sizeof(rVal));
-}
-
-BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const int64 & rVal)
-{
-	return Set(&rVal, sizeof(rVal));
-}
-
-BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const uint64 & rVal)
-{
-	return Set(&rVal, sizeof(rVal));
-}
+BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const int32 & rVal) { return Set(&rVal, sizeof(rVal)); }
+BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const uint32 & rVal) { return Set(&rVal, sizeof(rVal)); }
+BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const int64 & rVal) { return Set(&rVal, sizeof(rVal)); }
+BDbTable::Buffer & FASTCALL BDbTable::Buffer::operator = (const uint64 & rVal) { return Set(&rVal, sizeof(rVal)); }
 
 BDbTable::Buffer & FASTCALL BDbTable::Buffer::Set(const void * pData, size_t sz)
 {
@@ -964,11 +927,6 @@ BDbTable::Buffer & FASTCALL BDbTable::Buffer::Set(const void * pData, size_t sz)
 	else
 		Reset();
 	return *this;
-}
-
-size_t BDbTable::Buffer::GetSize() const
-{
-	return Size;
 }
 
 const void * FASTCALL BDbTable::Buffer::GetPtr(size_t * pSize) const
@@ -1022,20 +980,9 @@ int BDbTable::Buffer::Get(void * pBuf, size_t bufSize) const
 	return ok;
 }
 
-int FASTCALL BDbTable::Buffer::Get(int32 * pBuf) const
-{
-	return Get(pBuf, sizeof(*pBuf));
-}
-
-int FASTCALL BDbTable::Buffer::Get(uint32 * pBuf) const
-{
-	return Get(pBuf, sizeof(*pBuf));
-}
-
-int FASTCALL BDbTable::Buffer::Get(int64 * pBuf) const
-{
-	return Get(pBuf, sizeof(*pBuf));
-}
+int FASTCALL BDbTable::Buffer::Get(int32 * pBuf) const { return Get(pBuf, sizeof(*pBuf)); }
+int FASTCALL BDbTable::Buffer::Get(uint32 * pBuf) const { return Get(pBuf, sizeof(*pBuf)); }
+int FASTCALL BDbTable::Buffer::Get(int64 * pBuf) const { return Get(pBuf, sizeof(*pBuf)); }
 //
 //
 //
@@ -1067,9 +1014,8 @@ void BDbTable::Config::Clear()
 //
 //
 //
-BDbTable::SecondaryIndex::SecondaryIndex()
+BDbTable::SecondaryIndex::SecondaryIndex() : P_MainT(0)
 {
-	P_MainT = 0;
 }
 
 BDbTable::SecondaryIndex::~SecondaryIndex()
@@ -1088,12 +1034,8 @@ BDbTable::Statistics::Statistics()
 {
 }
 
-BDbTable::Statistics::ISz::ISz()
+BDbTable::Statistics::ISz::ISz() : Count(0), Total(0), Min(UINT_MAX), Max(0)
 {
-	Count = 0;
-	Total = 0;
-	Min = UINT_MAX;
-	Max = 0;
 }
 
 void FASTCALL BDbTable::Statistics::ISz::Put(const BDbTable::Buffer & rB)
@@ -1105,12 +1047,8 @@ void FASTCALL BDbTable::Statistics::ISz::Put(const BDbTable::Buffer & rB)
     SETMAX(Max, _s);
 }
 
-BDbTable::Statistics::ICt::ICt()
+BDbTable::Statistics::ICt::ICt() : Count(0), TmTotal(0), TmMin(ULLONG_MAX), TmMax(0)
 {
-	Count = 0;
-	TmTotal = 0;
-	TmMin = ULLONG_MAX;
-	TmMax = 0;
 }
 
 void FASTCALL BDbTable::Statistics::ICt::Put(uint64 t)
@@ -1244,9 +1182,7 @@ int BDbTable::InitInstance(BDbDatabase * pDb, int flags)
 	//
 	// Инициализируем контекст сериализации // {
 	//
-	P_SCtx = 0;
-	if(P_Db)
-		P_SCtx = P_Db->GetSCtx();
+	P_SCtx = P_Db ? P_Db->GetSCtx() : 0;
 	if(Cfg.Flags & cfNeedSCtx && !P_SCtx) {
 		P_SCtx = new SSerializeContext;
 		State |= stOwnSCtx;
@@ -1264,9 +1200,8 @@ int BDbTable::InitInstance(BDbDatabase * pDb, int flags)
 
 #define BDBT_SIGNATURE 0x3a0491f2U
 
-BDbTable::BDbTable(const Config & rCfg, BDbDatabase * pDb) : Cfg(rCfg)
+BDbTable::BDbTable(const Config & rCfg, BDbDatabase * pDb) : Cfg(rCfg), Sign(BDBT_SIGNATURE)
 {
-	Sign = BDBT_SIGNATURE;
 	InitInstance(pDb, 0); // @todo Режим открытия
 }
 
@@ -1299,35 +1234,12 @@ BDbTable::~BDbTable()
 		delete P_SCtx;
 }
 
-int BDbTable::operator ! () const
-{
-	return !GetState(stOpened);
-}
-
-BDbTable::operator DB * ()
-{
-	return H;
-}
-
-BDbTable::operator DB_TXN * ()
-{
-	return P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0;
-}
-
-TSCollection <BDbTable> & BDbTable::GetIdxList()
-{
-	return IdxList;
-}
-
-int FASTCALL BDbTable::GetState(long stateFlag) const
-{
-	return BIN(State & stateFlag);
-}
-
-int BDbTable::IsConsistent() const
-{
-	return (Sign == BDBT_SIGNATURE) ? 1 : DBS.SetError(BE_BDB_INVALID_TABLE, 0);
-}
+BDbTable::operator DB * () { return H; }
+BDbTable::operator DB_TXN * () { return P_Db ? (DB_TXN *)*P_Db : (DB_TXN *)0; }
+int    BDbTable::operator ! () const { return !GetState(stOpened); }
+int    FASTCALL BDbTable::GetState(long stateFlag) const { return BIN(State & stateFlag); }
+int    BDbTable::IsConsistent() const { return (Sign == BDBT_SIGNATURE) ? 1 : DBS.SetError(BE_BDB_INVALID_TABLE, 0); }
+TSCollection <BDbTable> & BDbTable::GetIdxList() { return IdxList; }
 
 //virtual
 int BDbTable::Implement_Cmp(const BDbTable::Buffer * pKey1, const BDbTable::Buffer * pKey2)
@@ -1499,15 +1411,8 @@ int BDbTable::Helper_Search(Buffer & rKey, Buffer & rData, uint32 flags)
 	return r;
 }
 
-int BDbTable::Search(Buffer & rKey, Buffer & rData)
-{
-	return Helper_Search(rKey, rData, 0);
-}
-
-int BDbTable::SearchPair(Buffer & rKey, Buffer & rData)
-{
-	return Helper_Search(rKey, rData, DB_GET_BOTH);
-}
+int BDbTable::Search(Buffer & rKey, Buffer & rData) { return Helper_Search(rKey, rData, 0); }
+int BDbTable::SearchPair(Buffer & rKey, Buffer & rData) { return Helper_Search(rKey, rData, DB_GET_BOTH); }
 
 int BDbTable::Search(int idx, Buffer & rKey, Buffer & rData)
 {
@@ -1560,15 +1465,8 @@ int BDbTable::Helper_Put(Buffer & rKey, Buffer & rData, uint32 flags)
 	return ok;
 }
 
-int BDbTable::InsertRec(Buffer & rKey, Buffer & rData)
-{
-	return Helper_Put(rKey, rData, DB_NOOVERWRITE);
-}
-
-int BDbTable::UpdateRec(Buffer & rKey, Buffer & rData)
-{
-	return Helper_Put(rKey, rData, 0);
-}
+int BDbTable::InsertRec(Buffer & rKey, Buffer & rData) { return Helper_Put(rKey, rData, DB_NOOVERWRITE); }
+int BDbTable::UpdateRec(Buffer & rKey, Buffer & rData) { return Helper_Put(rKey, rData, 0); }
 
 int BDbTable::DeleteRec(Buffer & rKey)
 {
@@ -1601,10 +1499,8 @@ DB * FASTCALL BDbCursor::GetIntTbl(int idx)
 	return p_db;
 }
 
-BDbCursor::BDbCursor(BDbTable & rT, int idx) : R_Tbl(rT)
+BDbCursor::BDbCursor(BDbTable & rT, int idx) : R_Tbl(rT), C(0), Idx(idx)
 {
-	C = 0;
-	Idx = idx;
 	if(R_Tbl.IsConsistent()) {
 		DB_TXN * p_txn = (DB_TXN *)R_Tbl;
 		DB * p_db = GetIntTbl(idx);

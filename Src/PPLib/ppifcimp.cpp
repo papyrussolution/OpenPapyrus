@@ -198,6 +198,8 @@ int Use001()
 #define USE_IMPL_DL6ICLS_PPViewOpGrouping
 #define USE_IMPL_DL6ICLS_PPFiltDebtTrnovr
 #define USE_IMPL_DL6ICLS_PPViewDebtTrnovr
+#define USE_IMPL_DL6ICLS_PPFiltLot
+#define USE_IMPL_DL6ICLS_PPViewLot
 #define USE_IMPL_DL6ICLS_PPFiltLotOp
 #define USE_IMPL_DL6ICLS_PPViewLotOp
 #define USE_IMPL_DL6ICLS_PPObjDebtDim
@@ -216,29 +218,14 @@ int Use001()
 //
 //
 //
-/*
-struct __ITextAnalyzerBlock {
-	__ITextAnalyzerBlock() : R(), Fb(R)
-	{
-		Inited = 0;
-	}
-	PPTextAnalyzer A;
-	PPTextAnalyzer::Replacer R;
-	PPTextAnalyzer::FindBlock Fb;
-	int    Inited;
-};
-*/
-
 DL6_IC_CONSTRUCTOR(PapyrusTextAnalyzer, DL6ICLS_PapyrusTextAnalyzer_VTab)
 {
 	SLS.SetCodepage(cp1251);
-	//ExtraPtr = new __ITextAnalyzerBlock;
 	ExtraPtr = new PPTextAnalyzerWrapper;
 }
 
 DL6_IC_DESTRUCTOR(PapyrusTextAnalyzer)
 {
-	//delete (__ITextAnalyzerBlock *)ExtraPtr;
 	delete (PPTextAnalyzerWrapper *)ExtraPtr;
 }
 //
@@ -939,10 +926,9 @@ SString & DL6ICLS_PPDbfTable::GetFieldName(uint32 fldN)
 
 int32 DL6ICLS_PPDbfTable::GetFieldNumber(SString & rFldName)
 {
-	int fldn = -1;
+	int    fldn = -1;
 	DbfTable * p_tbl = (DbfTable*)ExtraPtr;
-	if(p_tbl)
-		p_tbl->getFieldNumber(rFldName, &fldn);
+	CALLPTRMEMB(p_tbl, getFieldNumber(rFldName, &fldn));
 	return fldn;
 }
 
@@ -1072,8 +1058,7 @@ ISDbfRecord * DL6ICLS_PPDbfTable::MakeRec()
 		SCoClass::SetExtraPtrByInterface(p_ifc, p_tbl->makeRec());
 	}
 	CATCH
-		AppError = 1;
-		p_ifc = 0;
+		p_ifc = RaiseAppErrorPtr();
 	ENDCATCH
 	return (ISDbfRecord*)p_ifc;
 }
@@ -1538,8 +1523,7 @@ int32 DL6ICLS_PPUtil::GetTagGUID(PpyObjectIdent objType, int32 objID, int32 tagI
         }
 	}
 	CATCH
-		ok = 0;
-		AppError = 1;
+		ok = RaiseAppError();
 	ENDCATCH
 	ASSIGN_PTR(pValue, tagv);
 	return ok;
@@ -1856,8 +1840,7 @@ IPapyrusObject * DL6ICLS_PPSession::CreateObject(PpyObjectIdent objType)
 	THROW_PP_S(p_cls_name, PPERR_UNDEFPPOBJTYPE, msg_buf);
 	THROW(CreateInnerInstance(p_cls_name, "IPapyrusObject", &p_ifc));
 	CATCH
-		AppError = 1;
-		p_ifc = 0;
+		p_ifc = RaiseAppErrorPtr();
 	ENDCATCH
 	return (IPapyrusObject *)p_ifc;
 }
@@ -1868,8 +1851,7 @@ IPapyrusUtil * DL6ICLS_PPSession::CreateUtil()
 	THROW(IfcImpCheckDictionary());
 	THROW(CreateInnerInstance("PPUtil", "IPapyrusUtil", &p_ifc));
 	CATCH
-		AppError = 1;
-		p_ifc = 0;
+		p_ifc = RaiseAppErrorPtr();
 	ENDCATCH
 	return (IPapyrusUtil*)p_ifc;
 }
@@ -1893,8 +1875,7 @@ IUnknown * DL6ICLS_PPSession::CreateSpecClass(PpySpecClassIdent clsType)
 	THROW_PP_S(p_cls_name && p_ifc_name, PPERR_UNDEFCLSTYPE, msg_buf);
 	THROW(CreateInnerInstance(p_cls_name, p_ifc_name, &p_ifc));
 	CATCH
-		AppError = 1;
-		p_ifc = 0;
+		p_ifc = RaiseAppErrorPtr();
 	ENDCATCH
 	return (IUnknown*)p_ifc;
 }
@@ -1926,8 +1907,7 @@ IPapyrusView * DL6ICLS_PPSession::CreateView(PpyViewIdent viewID)
 	THROW_PP_S(p_cls_name, PPERR_UNKNOWNVIEWID, msg_buf);
 	THROW(CreateInnerInstance(p_cls_name, "IPapyrusView", &p_ifc));
 	CATCH
-		AppError = 1;
-		p_ifc = 0;
+		p_ifc = RaiseAppErrorPtr();
 	ENDCATCH
 	return (IPapyrusView *)p_ifc;
 }
@@ -2737,8 +2717,7 @@ int32 DL6ICLS_PPObjArticle::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	temp_buf.CopyFromOleStr(p_rec->Name);
 	THROW(p_obj->AddSimple(pID, p_rec->AccSheetID, temp_buf, p_rec->Article, (flags & 0x0001) ? 0 : 1));
 	CATCH
-		ok = 0;
-		AppError = 1;
+		ok = RaiseAppError();
 	ENDCATCH
 	return ok;
 }
@@ -2796,8 +2775,7 @@ int32 DL6ICLS_PPObjArticle::Update(int32 id, int32 flags, PPYOBJREC rec)
 		THROW(tra.Commit());
 	}
 	CATCH
-		ok = 0;
-		AppError = 1;
+		ok = RaiseAppError();
 	ENDCATCH
 	return ok;
 }
@@ -3167,8 +3145,7 @@ int32 DL6ICLS_PPObjStyloPalm::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	THROW(p_obj->PutPacket(&id, &pack, (flags & 0x0001) ? 0 : 1));
 	ASSIGN_PTR(pID, (int32)id);
 	CATCH
-		ok = 0;
-		AppError = 1;
+		ok = RaiseAppError();
 	ENDCATCH
 	return ok;
 }
@@ -3185,8 +3162,7 @@ int32 DL6ICLS_PPObjStyloPalm::Update(int32 id, int32 flags, PPYOBJREC rec)
 	FillStyloPalmPack(p_rec, &pack);
 	THROW(p_obj->PutPacket(&id, &pack, (flags & 0x0001) ? 0 : 1));
 	CATCH
-		ok = 0;
-		AppError = 1;
+		ok = RaiseAppError();
 	ENDCATCH
 	return ok;
 }
@@ -3455,8 +3431,7 @@ int32 DL6ICLS_PPObjGoodsClass::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	THROW(p_obj->PutPacket(&id, &pack, (flags & 0x0001) ? 0 : 1));
 	ASSIGN_PTR(pID, (int32)id);
 	CATCH
-		ok = 0;
-		AppError = 1;
+		ok = RaiseAppError();
 	ENDCATCH
 	return ok;
 }
@@ -3474,8 +3449,7 @@ int32 DL6ICLS_PPObjGoodsClass::Update(int32 id, int32 flags, PPYOBJREC pRec)
 	pack.Rec.ID = id;
 	THROW(p_obj->PutPacket(&id, &pack, (flags & 0x0001) ? 0 : 1));
 	CATCH
-		ok = 0;
-		AppError = 1;
+		ok = RaiseAppError();
 	ENDCATCH
 	return ok;
 }
@@ -3720,8 +3694,7 @@ int32 DL6ICLS_PPObjGoods::Update(int32 id, int32 flags, PPYOBJREC rec)
 		}
 	}
 	CATCH
-		ok = 0;
-		AppError = 1;
+		ok = RaiseAppError();
 	ENDCATCH
 	return ok;
 }
@@ -4103,8 +4076,7 @@ int32 DL6ICLS_PPObjGoodsGroup::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 		ASSIGN_PTR(pID, id);
 	}
 	CATCH
-		ok = 0;
-		AppError = 1;
+		ok = RaiseAppError();
 	ENDCATCH
 	return ok;
 }
@@ -4209,7 +4181,7 @@ DL6_IC_DESTRUCTOR(PPLocAddrStruc)
 int32 DL6ICLS_PPLocAddrStruc::Recognize(SString & addr)
 {
 	PPLocAddrStruc * p_las = (PPLocAddrStruc *)ExtraPtr;
-	return p_las ? p_las->Recognize(addr.Transf(CTRANSF_INNER_TO_OUTER)) : ((AppError = 1), 0);
+	return p_las ? p_las->Recognize(addr.Transf(CTRANSF_INNER_TO_OUTER)) : RaiseAppError();
 }
 
 SString & DL6ICLS_PPLocAddrStruc::Get(PpyLocAddrPart partId)
@@ -4620,8 +4592,7 @@ SString & DL6ICLS_PPObjPerson::GetName(int32 id)
 
 IStrAssocList* DL6ICLS_PPObjPerson::GetSelector(int32 extraParam)
 {
-	AppError = 1;
-	return 0;
+	return (IStrAssocList *)RaiseAppErrorPtr();
 }
 
 int32 DL6ICLS_PPObjPerson::Create(PPYOBJREC pRec, int32 flags, int32* pID)
@@ -4939,8 +4910,7 @@ int32 DL6ICLS_PPObjPerson::SetRegNumber(long psnID, long regTypeID, SString & rN
 		}
 	}
 	CATCH
-		AppError = 1;
-		ok = 0;
+		ok = RaiseAppError();
 	ENDCATCH
 	return ok;
 }
@@ -4964,8 +4934,7 @@ int32 DL6ICLS_PPObjPerson::SetTag(int32 psnID, int32 tagID, SString & rValue)
 		}
 	}
 	CATCH
-		AppError = 1;
-		ok = 0;
+		ok = RaiseAppError();
 	ENDCATCH
 	return ok;
 }
@@ -5306,10 +5275,9 @@ SString & DL6ICLS_PPObjBill::GetName(int32 id)
 	return (RetStrBuf = name_buf);
 }
 
-IStrAssocList* DL6ICLS_PPObjBill::GetSelector(int32 extraParam)
+IStrAssocList * DL6ICLS_PPObjBill::GetSelector(int32 extraParam)
 {
-	AppError = 1;
-	return 0;
+	return (IStrAssocList *)RaiseAppErrorPtr();
 }
 
 int32 DL6ICLS_PPObjBill::Create(PPYOBJREC pRec, int32 flags, int32* pID)
@@ -5681,10 +5649,8 @@ void FillLotRec(const SPpyO_Lot * pInner, ReceiptTbl::Rec * pOuter)
 	pOuter->Flags = (long)pInner->Flags;
 }
 
-DL6_IC_CONSTRUCTOR(PPLotList, DL6ICLS_PPLotList_VTab)
-	{ ExtraPtr = new SArray(sizeof(ReceiptTbl::Rec), /*128,*/O_ARRAY); }
-DL6_IC_DESTRUCTOR(PPLotList)
-	{ delete (SArray*)ExtraPtr; }
+DL6_IC_CONSTRUCTOR(PPLotList, DL6ICLS_PPLotList_VTab) { ExtraPtr = new SArray(sizeof(ReceiptTbl::Rec), /*128,*/O_ARRAY); }
+DL6_IC_DESTRUCTOR(PPLotList) { delete (SArray*)ExtraPtr; }
 //
 // Interface ILotList implementation
 //
@@ -5717,15 +5683,11 @@ int32 DL6ICLS_PPLotList::SearchById(int32 id, SPpyO_Lot * pLot, int32 bSearch)
 		uint pos = 0;
 		ReceiptTbl::Rec lot;
 		MEMSZERO(lot);
-		if(bSearch)
-			ok = p_data->bsearch(&id, &pos, PTR_CMPFUNC(long));
-		else
-			ok = p_data->lsearch(&id, &pos, PTR_CMPFUNC(long));
-		if(ok > 0)
+		ok = bSearch ? p_data->bsearch(&id, &pos, CMPF_LONG) : p_data->lsearch(&id, &pos, CMPF_LONG);
+		if(ok)
 			FillLotRec((ReceiptTbl::Rec*)p_data->at((uint)pos), pLot);
 		else
 			memzero(pLot, sizeof(SPpyO_Lot));
-
 	}
 	else
 		AppError = 1;
@@ -5782,7 +5744,7 @@ void DL6ICLS_PPLotList::Sort()
 {
 	SArray * p_data = (SArray*)ExtraPtr;
 	if(p_data)
-		p_data->sort(PTR_CMPFUNC(long));
+		p_data->sort(CMPF_LONG);
 	else
 		AppError = 1;
 }
@@ -5812,8 +5774,7 @@ int32 DL6ICLS_PPObjBill::EnumBillRows(long billID, SPpyO_TrfrItem * pRow)
 	if(p_e->P_BObj) {
 		int inited = 1;
 		if(!p_e->P_Pack || billID != p_e->P_Pack->Rec.ID) {
-			if(!p_e->P_Pack)
-				p_e->P_Pack = new PPBillPacket;
+			SETIFZ(p_e->P_Pack, new PPBillPacket);
 			if(p_e->P_Pack && p_e->P_BObj->ExtractPacket(billID, p_e->P_Pack) > 0)
 				p_e->P_Pack->InitExtTIter(ETIEF_UNITEBYGOODS);
 			else
@@ -5836,8 +5797,7 @@ IPapyrusBillPacket* DL6ICLS_PPObjBill::CreatePacket()
 	THROW(IfcImpCheckDictionary());
 	THROW(CreateInnerInstance("PPBillPacket", "IPapyrusBillPacket", &p_ifc));
 	CATCH
-		AppError = 1;
-		p_ifc = 0;
+		p_ifc = RaiseAppErrorPtr();
 	ENDCATCH
 	return (IPapyrusBillPacket*)p_ifc;
 }
@@ -6281,7 +6241,6 @@ ILotList * DL6ICLS_PPObjBill::GetCurLotList(LDATE lowDt, LDATE uppDt, int32 good
 			loc_list.Sort();
 		}
 	}
-
 	if(CConfig.LcrUsage == 2 && (r = trfr.GetLcrList(lowDt, &lcr_lot_list, &lcr_rest_list)) > 0) {
 		THROW(r);
 		{
@@ -6661,10 +6620,9 @@ SString & DL6ICLS_PPObjRegister::GetName(int32 id)
 	return RetStrBuf.Z();
 }
 
-IStrAssocList* DL6ICLS_PPObjRegister::GetSelector(int32 extraParam)
+IStrAssocList * DL6ICLS_PPObjRegister::GetSelector(int32 extraParam)
 {
-	AppError = 1;
-	return 0;
+	return (IStrAssocList *)RaiseAppErrorPtr();
 }
 
 int32 DL6ICLS_PPObjRegister::Create(PPYOBJREC pRec, int32 flags, int32* pID)
@@ -6886,8 +6844,7 @@ IPapyrusPersonRelTypePacket * DL6ICLS_PPObjPersonRelType::CreatePacket()
 	THROW(IfcImpCheckDictionary());
 	THROW(CreateInnerInstance("PPPersonRelTypePacket", "IPapyrusPersonRelTypePacket", &p_ifc));
 	CATCH
-		AppError = 1;
-		p_ifc = 0;
+		p_ifc = RaiseAppErrorPtr();
 	ENDCATCH
 	return (IPapyrusPersonRelTypePacket*)p_ifc;
 }
@@ -7446,7 +7403,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPViewCCheck, DL6ICLS_PPViewCCheck_VTab, PPViewCCheck)
 IUnknown * DL6ICLS_PPViewCCheck::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltCCheck", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppError();
+	return CreateInnerInstance("PPFiltCCheck", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
 }
 
 int32 DL6ICLS_PPViewCCheck::Init(IUnknown* pFilt)
@@ -7598,7 +7555,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPViewTrfrAnlz, DL6ICLS_PPViewTrfrAnlz_VTab, PPViewTrf
 IUnknown* DL6ICLS_PPViewTrfrAnlz::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltTrfrAnlz", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppError();
+	return CreateInnerInstance("PPFiltTrfrAnlz", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
 }
 
 int32 DL6ICLS_PPViewTrfrAnlz::Init(IUnknown* pFilt)
@@ -8266,18 +8223,11 @@ DL6_IC_CONSTRUCTION_EXTRA(PPViewGoods, DL6ICLS_PPViewGoods_VTab, PPViewGoods);
 IUnknown* DL6ICLS_PPViewGoods::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltGoods", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppError();
+	return CreateInnerInstance("PPFiltGoods", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
 }
 
-int32 DL6ICLS_PPViewGoods::Init(IUnknown* pFilt)
-{
-	IMPL_PPIFC_PPVIEWINIT(Goods);
-}
-
-int32 DL6ICLS_PPViewGoods::InitIteration(int32 order)
-{
-	return ((PPViewGoods *)ExtraPtr)->InitIteration((PPViewGoods::IterOrder)order);
-}
+int32 DL6ICLS_PPViewGoods::Init(IUnknown* pFilt) { IMPL_PPIFC_PPVIEWINIT(Goods); }
+int32 DL6ICLS_PPViewGoods::InitIteration(int32 order) { return ((PPViewGoods *)ExtraPtr)->InitIteration((PPViewGoods::IterOrder)order); }
 
 int32 DL6ICLS_PPViewGoods::NextIteration(PPYVIEWITEM item)
 {
@@ -8320,15 +8270,8 @@ int32 DL6ICLS_PPViewGoods::NextIteration(PPYVIEWITEM item)
 	return ok;
 }
 
-SIterCounter DL6ICLS_PPViewGoods::GetIterCounter()
-{
-	return GetPPViewIterCounter(ExtraPtr, &AppError);
-}
-
-int32 DL6ICLS_PPViewGoods::GetTotal(PPYVIEWTOTAL total)
-{
-	return FuncNotSupported();
-}
+SIterCounter DL6ICLS_PPViewGoods::GetIterCounter() { return GetPPViewIterCounter(ExtraPtr, &AppError); }
+int32 DL6ICLS_PPViewGoods::GetTotal(PPYVIEWTOTAL total) { return FuncNotSupported(); }
 //
 // } PPViewGoods
 //
@@ -8359,18 +8302,8 @@ PpyVGoodsRestFlags DL6ICLS_PPFiltGoodsRest::get_Flags()                       { 
 void  DL6ICLS_PPFiltGoodsRest::put_Flags(PpyVGoodsRestFlags value)            { IMPL_PPIFC_PUTPROP(GoodsRestFilt, Flags); }
 int32 DL6ICLS_PPFiltGoodsRest::get_AmtType()             		              { IMPL_PPIFC_GETPROP(GoodsRestFilt, AmtType); }
 void  DL6ICLS_PPFiltGoodsRest::put_AmtType(int32 value)                       { IMPL_PPIFC_PUTPROP(GoodsRestFilt, AmtType); }
-
-int32 DL6ICLS_PPFiltGoodsRest::get_CalcPrognosis()
-{
-	// @v9.5.8 IMPL_PPIFC_GETPROP(GoodsRestFilt, CalcPrognosis);
-	return BIN(((GoodsRestFilt *)ExtraPtr)->Flags2 & GoodsRestFilt::f2CalcPrognosis); // @v9.5.8
-}
-void  DL6ICLS_PPFiltGoodsRest::put_CalcPrognosis(int32 value)
-{
-	// @v9.5.8 IMPL_PPIFC_PUTPROP(GoodsRestFilt, CalcPrognosis);
-	SETFLAG(((GoodsRestFilt *)ExtraPtr)->Flags2, GoodsRestFilt::f2CalcPrognosis, value); // @v9.5.8
-}
-
+int32 DL6ICLS_PPFiltGoodsRest::get_CalcPrognosis()                            { return BIN(((GoodsRestFilt *)ExtraPtr)->Flags2 & GoodsRestFilt::f2CalcPrognosis); }
+void  DL6ICLS_PPFiltGoodsRest::put_CalcPrognosis(int32 value)                 { SETFLAG(((GoodsRestFilt *)ExtraPtr)->Flags2, GoodsRestFilt::f2CalcPrognosis, value); }
 LDATE DL6ICLS_PPFiltGoodsRest::get_Date()                                     { IMPL_PPIFC_GETPROP(GoodsRestFilt, Date); }
 void  DL6ICLS_PPFiltGoodsRest::put_Date(LDATE value)                          { IMPL_PPIFC_PUTPROP(GoodsRestFilt, Date); }
 int32 DL6ICLS_PPFiltGoodsRest::get_SupplID()                                  { IMPL_PPIFC_GETPROP(GoodsRestFilt, SupplID); }
@@ -8387,24 +8320,19 @@ PpyVSubstGrpGoods DL6ICLS_PPFiltGoodsRest::get_Sgg()                          { 
 void  DL6ICLS_PPFiltGoodsRest::put_Sgg(PpyVSubstGrpGoods value)               { IMPL_PPIFC_PUTPROP_CAST(GoodsRestFilt, Sgg, SubstGrpGoods); }
 LDATE DL6ICLS_PPFiltGoodsRest::get_DeficitDt()                                { IMPL_PPIFC_GETPROP(GoodsRestFilt, DeficitDt); }
 void  DL6ICLS_PPFiltGoodsRest::put_DeficitDt(LDATE value)                     { IMPL_PPIFC_PUTPROP(GoodsRestFilt, DeficitDt); }
+PpyVGoodsRestDiffParam DL6ICLS_PPFiltGoodsRest::get_DiffParam()               { IMPL_PPIFC_GETPROP_CAST(GoodsRestFilt, DiffParam, PpyVGoodsRestDiffParam); }
+void DL6ICLS_PPFiltGoodsRest::put_DiffParam(PpyVGoodsRestDiffParam value)     { IMPL_PPIFC_PUTPROP_CAST(GoodsRestFilt, DiffParam, PpyVGoodsRestDiffParam); }
 //
 // Interface IPapyrusView implementation
 //
 IUnknown* DL6ICLS_PPViewGoodsRest::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltGoodsRest", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppError();
+	return CreateInnerInstance("PPFiltGoodsRest", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
 }
 
-int32 DL6ICLS_PPViewGoodsRest::Init(IUnknown* pFilt)
-{
-	IMPL_PPIFC_PPVIEWINIT(GoodsRest);
-}
-
-int32 DL6ICLS_PPViewGoodsRest::InitIteration(int32 order)
-{
-	return ((PPViewGoodsRest *)ExtraPtr)->InitIteration((PPViewGoodsRest::IterOrder)order);
-}
+int32 DL6ICLS_PPViewGoodsRest::Init(IUnknown* pFilt) { IMPL_PPIFC_PPVIEWINIT(GoodsRest); }
+int32 DL6ICLS_PPViewGoodsRest::InitIteration(int32 order) { return ((PPViewGoodsRest *)ExtraPtr)->InitIteration((PPViewGoodsRest::IterOrder)order); }
 
 int32 DL6ICLS_PPViewGoodsRest::NextIteration(PPYVIEWITEM item)
 {
@@ -8436,10 +8364,15 @@ int32 DL6ICLS_PPViewGoodsRest::NextIteration(PPYVIEWITEM item)
 		FLD(SupplOrder);
 		FLD(SubstAsscCount);
 		FLD(DraftRcpt);
+		FLD(SStatSales); // @v9.9.2
+		FLD(LastSellDate); // @v9.9.2
+		FLD(Expiry); // @v9.9.2
+		FLD(LotID); // @v9.9.2
 #undef FLD
 		(temp_buf = inner_item.GoodsGrpName).CopyToOleStr(&p_item->GoodsGrpName); // @v8.1.3 inner_item.P_GoodsGrpName-->inner_item.GoodsGrpName
 		(temp_buf = inner_item.GoodsName).CopyToOleStr(&p_item->GoodsName);
 		(temp_buf = inner_item.UnitName).CopyToOleStr(&p_item->UnitName);
+		(temp_buf = inner_item.Serial).CopyToOleStr(&p_item->Serial); // @v9.9.2
 		ok = 1;
 	}
 	return ok;
@@ -8509,11 +8442,8 @@ void  DL6ICLS_PPFiltBill::put_Tag(int32 value) {IMPL_PPIFC_PUTPROP(BillFilt, Tag
 PpyVBrowseBillsType DL6ICLS_PPFiltBill::get_Bbt() {IMPL_PPIFC_GETPROP_CAST(BillFilt, Bbt, PpyVBrowseBillsType);}
 void  DL6ICLS_PPFiltBill::put_Bbt(PpyVBrowseBillsType value) {IMPL_PPIFC_PUTPROP_CAST(BillFilt, Bbt, BrowseBillsType);}
 
-SDateRange DL6ICLS_PPFiltBill::get_Period()
-	{ return DateRangeToOleDateRange(((BillFilt *)ExtraPtr)->Period); }
-
-SDateRange DL6ICLS_PPFiltBill::get_PaymPeriod()
-	{ return DateRangeToOleDateRange(((BillFilt *)ExtraPtr)->PaymPeriod); }
+SDateRange DL6ICLS_PPFiltBill::get_Period() { return DateRangeToOleDateRange(((BillFilt *)ExtraPtr)->Period); }
+SDateRange DL6ICLS_PPFiltBill::get_PaymPeriod() { return DateRangeToOleDateRange(((BillFilt *)ExtraPtr)->PaymPeriod); }
 
 int32 DL6ICLS_PPFiltBill::get_MainOrgID() {IMPL_PPIFC_GETPROP(BillFilt, MainOrgID);}
 void  DL6ICLS_PPFiltBill::put_MainOrgID(int32 value) {IMPL_PPIFC_PUTPROP(BillFilt, MainOrgID);}
@@ -8588,7 +8518,7 @@ void DL6ICLS_PPFiltBill::put_Sel(int32 value) {IMPL_PPIFC_PUTPROP(BillFilt, Sel)
 IUnknown* DL6ICLS_PPViewBill::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltBill", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppError();
+	return CreateInnerInstance("PPFiltBill", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
 }
 
 int32 DL6ICLS_PPViewBill::Init(IUnknown* pFilt)
@@ -9040,7 +8970,7 @@ void  DL6ICLS_PPFiltGoodsOpAnlz::put_ABCGroupBy(PpyVGoodsOpAnlzABCGrp value) { (
 IUnknown * DL6ICLS_PPViewGoodsOpAnlz::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltGoodsOpAnlz", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppError();
+	return CreateInnerInstance("PPFiltGoodsOpAnlz", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
 }
 
 int32 DL6ICLS_PPViewGoodsOpAnlz::Init(IUnknown* pFilt)
@@ -9682,7 +9612,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPViewPrjTask, DL6ICLS_PPViewPrjTask_VTab, PPViewPrjTa
 IUnknown* DL6ICLS_PPViewPrjTask::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltPrjTask", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppError();
+	return CreateInnerInstance("PPFiltPrjTask", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
 }
 
 int32 DL6ICLS_PPViewPrjTask::Init(IUnknown* pFilt)
@@ -9756,37 +9686,20 @@ DL6_IC_CONSTRUCTION_EXTRA(PPFiltProject, DL6ICLS_PPFiltProject_VTab, ProjectFilt
 //
 // Interface IPpyFilt_Project implementation
 //
-void DL6ICLS_PPFiltProject::SetStartPeriod(LDATE low, LDATE upp)
-	{ ((ProjectFilt *)ExtraPtr)->StartPeriod.Set(low, upp); }
-
-void DL6ICLS_PPFiltProject::SetEstFinishPeriod(LDATE low, LDATE upp)
-	{ ((ProjectFilt *)ExtraPtr)->EstFinishPeriod.Set(low, upp); }
-
+void DL6ICLS_PPFiltProject::SetStartPeriod(LDATE low, LDATE upp) { ((ProjectFilt *)ExtraPtr)->StartPeriod.Set(low, upp); }
+void DL6ICLS_PPFiltProject::SetEstFinishPeriod(LDATE low, LDATE upp) { ((ProjectFilt *)ExtraPtr)->EstFinishPeriod.Set(low, upp); }
 int32 DL6ICLS_PPFiltProject::get_ParentID() { return ((ProjectFilt*)ExtraPtr)->ParentID; }
-
 void DL6ICLS_PPFiltProject::put_ParentID(int32 value) { IMPL_PPIFC_PUTPROP(ProjectFilt, ParentID); }
-
 int32 DL6ICLS_PPFiltProject::get_ClientID() { return ((ProjectFilt*)ExtraPtr)->ClientID; }
-
 void DL6ICLS_PPFiltProject::put_ClientID(int32 value) { IMPL_PPIFC_PUTPROP(ProjectFilt, ClientID); }
-
 int32 DL6ICLS_PPFiltProject::get_MngrID() { return ((ProjectFilt*)ExtraPtr)->MngrID; }
-
 void DL6ICLS_PPFiltProject::put_MngrID(int32 value) { IMPL_PPIFC_PUTPROP(ProjectFilt, MngrID); }
-
 PpyVProjectFlags DL6ICLS_PPFiltProject::get_Flags() { return (PpyVProjectFlags)((ProjectFilt*)ExtraPtr)->Flags; }
-
 void DL6ICLS_PPFiltProject::put_Flags(PpyVProjectFlags value) { IMPL_PPIFC_PUTPROP(ProjectFilt, Flags); }
-
 PpyVProjectSortOrder DL6ICLS_PPFiltProject::get_SortOrd() { return (PpyVProjectSortOrder)((ProjectFilt*)ExtraPtr)->SortOrd; }
-
 void DL6ICLS_PPFiltProject::put_SortOrd(PpyVProjectSortOrder value) { IMPL_PPIFC_PUTPROP(ProjectFilt, SortOrd); }
-
-SDateRange DL6ICLS_PPFiltProject::get_StartPeriod()
-	{ return DateRangeToOleDateRange(((ProjectFilt *)ExtraPtr)->StartPeriod); }
-
-SDateRange DL6ICLS_PPFiltProject::get_EstFinishPeriod()
-	{ return DateRangeToOleDateRange(((ProjectFilt *)ExtraPtr)->EstFinishPeriod); }
+SDateRange DL6ICLS_PPFiltProject::get_StartPeriod() { return DateRangeToOleDateRange(((ProjectFilt *)ExtraPtr)->StartPeriod); }
+SDateRange DL6ICLS_PPFiltProject::get_EstFinishPeriod() { return DateRangeToOleDateRange(((ProjectFilt *)ExtraPtr)->EstFinishPeriod); }
 //
 //
 //
@@ -9797,7 +9710,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPViewProject, DL6ICLS_PPViewProject_VTab, PPViewProje
 IUnknown* DL6ICLS_PPViewProject::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltProject", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppError();
+	return CreateInnerInstance("PPFiltProject", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
 }
 
 int32 DL6ICLS_PPViewProject::Init(IUnknown* pFilt)
@@ -9843,15 +9756,8 @@ int32 DL6ICLS_PPViewProject::NextIteration(PPYVIEWITEM item)
 	return ok;
 }
 
-SIterCounter DL6ICLS_PPViewProject::GetIterCounter()
-{
-	return GetPPViewIterCounter(ExtraPtr, &AppError);
-}
-
-int32 DL6ICLS_PPViewProject::GetTotal(PPYVIEWTOTAL total)
-{
-	return FuncNotSupported();
-}
+SIterCounter DL6ICLS_PPViewProject::GetIterCounter() { return GetPPViewIterCounter(ExtraPtr, &AppError); }
+int32 DL6ICLS_PPViewProject::GetTotal(PPYVIEWTOTAL total) { return FuncNotSupported(); }
 //
 //
 // PPViewOpGrouping {
@@ -9941,7 +9847,7 @@ void  DL6ICLS_PPFiltOpGrouping::put_NumCycles(int32 value) {((OpGroupingFilt*)Ex
 IUnknown * DL6ICLS_PPViewOpGrouping::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltOpGrouping", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppError();
+	return CreateInnerInstance("PPFiltOpGrouping", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
 }
 
 int32 DL6ICLS_PPViewOpGrouping::Init(IUnknown* pFilt)
@@ -10004,15 +9910,8 @@ int32 DL6ICLS_PPViewOpGrouping::NextIteration(PPYVIEWITEM item)
 	return ok;
 }
 
-SIterCounter DL6ICLS_PPViewOpGrouping::GetIterCounter()
-{
-	return GetPPViewIterCounter(ExtraPtr, &AppError);
-}
-
-int32 DL6ICLS_PPViewOpGrouping::GetTotal(PPYVIEWTOTAL total)
-{
-	return FuncNotSupported();
-}
+SIterCounter DL6ICLS_PPViewOpGrouping::GetIterCounter() { return GetPPViewIterCounter(ExtraPtr, &AppError); }
+int32 DL6ICLS_PPViewOpGrouping::GetTotal(PPYVIEWTOTAL total) { return FuncNotSupported(); }
 //
 // } PPViewOpGrouping
 //
@@ -10067,54 +9966,35 @@ void DL6ICLS_PPFiltDebtTrnovr::FreeContragentList()
 		p_filt->CliIDList.freeAll();
 }
 
-SDateRange DL6ICLS_PPFiltDebtTrnovr::get_Period()
-	{ return DateRangeToOleDateRange(((DebtTrnovrFilt *)ExtraPtr)->Period); }
-
-SDateRange DL6ICLS_PPFiltDebtTrnovr::get_PaymPeriod()
-	{ return DateRangeToOleDateRange(((DebtTrnovrFilt *)ExtraPtr)->PaymPeriod); }
-
-SDateRange DL6ICLS_PPFiltDebtTrnovr::get_ExpiryPeriod()
-	{ return DateRangeToOleDateRange(((DebtTrnovrFilt *)ExtraPtr)->ExpiryPeriod); }
-
+SDateRange DL6ICLS_PPFiltDebtTrnovr::get_Period() { return DateRangeToOleDateRange(((DebtTrnovrFilt *)ExtraPtr)->Period); }
+SDateRange DL6ICLS_PPFiltDebtTrnovr::get_PaymPeriod() { return DateRangeToOleDateRange(((DebtTrnovrFilt *)ExtraPtr)->PaymPeriod); }
+SDateRange DL6ICLS_PPFiltDebtTrnovr::get_ExpiryPeriod() { return DateRangeToOleDateRange(((DebtTrnovrFilt *)ExtraPtr)->ExpiryPeriod); }
 int32 DL6ICLS_PPFiltDebtTrnovr::get_AccSheetID() {IMPL_PPIFC_GETPROP(DebtTrnovrFilt, AccSheetID);}
 void  DL6ICLS_PPFiltDebtTrnovr::put_AccSheetID(int32 value) {IMPL_PPIFC_PUTPROP(DebtTrnovrFilt, AccSheetID);}
-
 int32 DL6ICLS_PPFiltDebtTrnovr::get_CurID() {IMPL_PPIFC_GETPROP(DebtTrnovrFilt, CurID);}
 void  DL6ICLS_PPFiltDebtTrnovr::put_CurID(int32 value) {IMPL_PPIFC_PUTPROP(DebtTrnovrFilt, CurID);}
-
 int32 DL6ICLS_PPFiltDebtTrnovr::get_AgentID() {IMPL_PPIFC_GETPROP(DebtTrnovrFilt, AgentID);}
 void  DL6ICLS_PPFiltDebtTrnovr::put_AgentID(int32 value) {IMPL_PPIFC_PUTPROP(DebtTrnovrFilt, AgentID);}
-
 int32 DL6ICLS_PPFiltDebtTrnovr::get_PayerID() {IMPL_PPIFC_GETPROP(DebtTrnovrFilt, PayerID);}
 void  DL6ICLS_PPFiltDebtTrnovr::put_PayerID(int32 value) {IMPL_PPIFC_PUTPROP(DebtTrnovrFilt, PayerID);}
-
 int32 DL6ICLS_PPFiltDebtTrnovr::get_CityID() {IMPL_PPIFC_GETPROP(DebtTrnovrFilt, CityID);}
 void  DL6ICLS_PPFiltDebtTrnovr::put_CityID(int32 value) {IMPL_PPIFC_PUTPROP(DebtTrnovrFilt, CityID);}
-
 int32 DL6ICLS_PPFiltDebtTrnovr::get_CategoryID() {IMPL_PPIFC_GETPROP(DebtTrnovrFilt, CategoryID);}
 void  DL6ICLS_PPFiltDebtTrnovr::put_CategoryID(int32 value) {IMPL_PPIFC_PUTPROP(DebtTrnovrFilt, CategoryID);}
-
 int32 DL6ICLS_PPFiltDebtTrnovr::get_AccSheet2ID() {IMPL_PPIFC_GETPROP(DebtTrnovrFilt, AccSheet2ID);}
 void  DL6ICLS_PPFiltDebtTrnovr::put_AccSheet2ID(int32 value) {IMPL_PPIFC_PUTPROP(DebtTrnovrFilt, AccSheet2ID);}
-
 int32 DL6ICLS_PPFiltDebtTrnovr::get_Article2ID() {IMPL_PPIFC_GETPROP(DebtTrnovrFilt, Article2ID);}
 void  DL6ICLS_PPFiltDebtTrnovr::put_Article2ID(int32 value) {IMPL_PPIFC_PUTPROP(DebtTrnovrFilt, Article2ID);}
-
 int32 DL6ICLS_PPFiltDebtTrnovr::get_ExtExpiryTerm() {IMPL_PPIFC_GETPROP(DebtTrnovrFilt, ExtExpiryTerm);}
 void  DL6ICLS_PPFiltDebtTrnovr::put_ExtExpiryTerm(int32 value) {IMPL_PPIFC_PUTPROP(DebtTrnovrFilt, ExtExpiryTerm);}
-
 double DL6ICLS_PPFiltDebtTrnovr::get_ExtExpiryMinPart() {IMPL_PPIFC_GETPROP(DebtTrnovrFilt, ExtExpiryMinPart);}
 void  DL6ICLS_PPFiltDebtTrnovr::put_ExtExpiryMinPart(double value) {IMPL_PPIFC_PUTPROP(DebtTrnovrFilt, ExtExpiryMinPart);}
-
 int32 DL6ICLS_PPFiltDebtTrnovr::get_Cycle() {return ((DebtTrnovrFilt*)ExtraPtr)->Cf.Cycle;}
 void  DL6ICLS_PPFiltDebtTrnovr::put_Cycle(int32 value) {((DebtTrnovrFilt*)ExtraPtr)->Cf.Cycle = (int16)value;}
-
 int32 DL6ICLS_PPFiltDebtTrnovr::get_NumCycles() { return ((DebtTrnovrFilt*)ExtraPtr)->Cf.NumCycles; }
 void  DL6ICLS_PPFiltDebtTrnovr::put_NumCycles(int32 value) { ((DebtTrnovrFilt*)ExtraPtr)->Cf.NumCycles = (int16)value; }
-
 PpyVDebtTrnovrSortOrder DL6ICLS_PPFiltDebtTrnovr::get_SortOrder() {IMPL_PPIFC_GETPROP_CAST(DebtTrnovrFilt, InitOrder, PpyVDebtTrnovrSortOrder);}
 void  DL6ICLS_PPFiltDebtTrnovr::put_SortOrder(PpyVDebtTrnovrSortOrder value) {IMPL_PPIFC_PUTPROP(DebtTrnovrFilt, InitOrder);}
-
 PpyVDebtTrnovrFlags DL6ICLS_PPFiltDebtTrnovr::get_Flags() {IMPL_PPIFC_GETPROP_CAST(DebtTrnovrFilt, Flags, PpyVDebtTrnovrFlags);}
 void  DL6ICLS_PPFiltDebtTrnovr::put_Flags(PpyVDebtTrnovrFlags value) {IMPL_PPIFC_PUTPROP(DebtTrnovrFilt, Flags);}
 
@@ -10144,7 +10024,7 @@ void  DL6ICLS_PPFiltDebtTrnovr::put_ExtKind(PpyVDebtTrnovrExtKind value) {IMPL_P
 IUnknown * DL6ICLS_PPViewDebtTrnovr::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltDebtTrnovr", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppError();
+	return CreateInnerInstance("PPFiltDebtTrnovr", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
 }
 
 int32 DL6ICLS_PPViewDebtTrnovr::Init(IUnknown* pFilt)
@@ -10205,18 +10085,157 @@ int32 DL6ICLS_PPViewDebtTrnovr::NextIteration(PPYVIEWITEM item)
 	return ok;
 }
 
-SIterCounter DL6ICLS_PPViewDebtTrnovr::GetIterCounter()
-{
-	return GetPPViewIterCounter(ExtraPtr, &AppError);
-}
-
-int32 DL6ICLS_PPViewDebtTrnovr::GetTotal(PPYVIEWTOTAL total)
-{
-	return FuncNotSupported();
-}
+SIterCounter DL6ICLS_PPViewDebtTrnovr::GetIterCounter() { return GetPPViewIterCounter(ExtraPtr, &AppError); }
+int32 DL6ICLS_PPViewDebtTrnovr::GetTotal(PPYVIEWTOTAL total) { return FuncNotSupported(); }
 //
 // } PPViewDebtTrnovr
 //
+// PPViewLot {
+//
+DL6_IC_CONSTRUCTION_EXTRA(PPFiltLot, DL6ICLS_PPFiltLot_VTab, LotFilt);
+//
+// Interface IPpyFilt_Lot implementation
+//
+void DL6ICLS_PPFiltLot::SetPeriod(LDATE low, LDATE upp) { ((LotFilt *)ExtraPtr)->Period.Set(low, upp); }
+void DL6ICLS_PPFiltLot::SetOperationPeriod(LDATE low, LDATE upp) { ((LotFilt *)ExtraPtr)->Operation.Set(low, upp); }
+void DL6ICLS_PPFiltLot::SetExpiryPeriod(LDATE low, LDATE upp) { ((LotFilt *)ExtraPtr)->ExpiryPrd.Set(low, upp); }
+void DL6ICLS_PPFiltLot::SetQcExpiryPeriod(LDATE low, LDATE upp) { ((LotFilt *)ExtraPtr)->QcExpiryPrd.Set(low, upp); }
+SDateRange DL6ICLS_PPFiltLot::get_Period() { return DateRangeToOleDateRange(((LotFilt *)ExtraPtr)->Period); }
+SDateRange DL6ICLS_PPFiltLot::get_OperationPeriod() { return DateRangeToOleDateRange(((LotFilt *)ExtraPtr)->Operation); }
+SDateRange DL6ICLS_PPFiltLot::get_ExpiryPeriod() { return DateRangeToOleDateRange(((LotFilt *)ExtraPtr)->ExpiryPrd); }
+SDateRange DL6ICLS_PPFiltLot::get_QcExpiryPeriod() { return DateRangeToOleDateRange(((LotFilt *)ExtraPtr)->QcExpiryPrd); }
+int32  DL6ICLS_PPFiltLot::get_LocID()                 { IMPL_PPIFC_GETPROP(LotFilt, LocID); }
+void   DL6ICLS_PPFiltLot::put_LocID(int32 value)      { IMPL_PPIFC_PUTPROP(LotFilt, LocID); }
+int32  DL6ICLS_PPFiltLot::get_SupplID()               { IMPL_PPIFC_GETPROP(LotFilt, SupplID); }
+void   DL6ICLS_PPFiltLot::put_SupplID(int32 value)    { IMPL_PPIFC_PUTPROP(LotFilt, SupplID); }
+int32  DL6ICLS_PPFiltLot::get_GoodsGrpID()            { IMPL_PPIFC_GETPROP(LotFilt, GoodsGrpID); }
+void   DL6ICLS_PPFiltLot::put_GoodsGrpID(int32 value) { IMPL_PPIFC_PUTPROP(LotFilt, GoodsGrpID); }
+int32  DL6ICLS_PPFiltLot::get_GoodsID()               { IMPL_PPIFC_GETPROP(LotFilt, GoodsID); }
+void   DL6ICLS_PPFiltLot::put_GoodsID(int32 value)    { IMPL_PPIFC_PUTPROP(LotFilt, GoodsID); }
+int32  DL6ICLS_PPFiltLot::get_QCertID()               { IMPL_PPIFC_GETPROP(LotFilt, QCertID); }
+void   DL6ICLS_PPFiltLot::put_QCertID(int32 value)    { IMPL_PPIFC_PUTPROP(LotFilt, QCertID); }
+int32  DL6ICLS_PPFiltLot::get_InTaxGrpID()            { IMPL_PPIFC_GETPROP(LotFilt, InTaxGrpID); }
+void   DL6ICLS_PPFiltLot::put_InTaxGrpID(int32 value) { IMPL_PPIFC_PUTPROP(LotFilt, InTaxGrpID); }
+PpyVLotFlags DL6ICLS_PPFiltLot::get_Flags()           { IMPL_PPIFC_GETPROP_CAST(LotFilt, Flags, PpyVLotFlags); }
+void   DL6ICLS_PPFiltLot::put_Flags(PpyVLotFlags value) { IMPL_PPIFC_PUTPROP(LotFilt, Flags); }
+int32  DL6ICLS_PPFiltLot::get_ClosedTag()             { IMPL_PPIFC_GETPROP(LotFilt, ClosedTag); }
+void   DL6ICLS_PPFiltLot::put_ClosedTag(int32 value)   { IMPL_PPIFC_PUTPROP(LotFilt, ClosedTag); }
+double DL6ICLS_PPFiltLot::get_CostLow()              { return ((LotFilt *)ExtraPtr)->CostRange.low; }
+void   DL6ICLS_PPFiltLot::put_CostLow(double value)  { ((LotFilt *)ExtraPtr)->CostRange.low = value; }
+double DL6ICLS_PPFiltLot::get_CostUpp()              { return ((LotFilt *)ExtraPtr)->CostRange.upp; }
+void   DL6ICLS_PPFiltLot::put_CostUpp(double value)  { ((LotFilt *)ExtraPtr)->CostRange.upp = value; }
+double DL6ICLS_PPFiltLot::get_PriceLow()             { return ((LotFilt *)ExtraPtr)->PriceRange.low; }
+void   DL6ICLS_PPFiltLot::put_PriceLow(double value) { ((LotFilt *)ExtraPtr)->PriceRange.low = value; }
+double DL6ICLS_PPFiltLot::get_PriceUpp()             { return ((LotFilt *)ExtraPtr)->PriceRange.upp; }
+void   DL6ICLS_PPFiltLot::put_PriceUpp(double value) { ((LotFilt *)ExtraPtr)->PriceRange.upp = value; }
+
+SString & DL6ICLS_PPFiltLot::get_Serial()
+{
+	((LotFilt *)ExtraPtr)->GetExtssData(LotFilt::extssSerialText, RetStrBuf);
+	return RetStrBuf;
+}
+
+void DL6ICLS_PPFiltLot::put_Serial(SString & value)
+{
+	((LotFilt *)ExtraPtr)->PutExtssData(LotFilt::extssSerialText, value);
+}
+//
+//
+//
+DL6_IC_CONSTRUCTION_EXTRA(PPViewLot, DL6ICLS_PPViewLot_VTab, PPViewLot);
+//
+// Interface IPapyrusView implementation
+//
+IUnknown* DL6ICLS_PPViewLot::CreateFilt(int32 param)
+{
+	IUnknown * p_filt = 0;
+	return CreateInnerInstance("PPFiltLot", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
+}
+
+int32 DL6ICLS_PPViewLot::Init(IUnknown* pFilt)
+{
+	IMPL_PPIFC_PPVIEWINIT(Lot);
+}
+
+int32 DL6ICLS_PPViewLot::InitIteration(int32 order)
+{
+	return ((PPViewLot*)ExtraPtr)->InitIteration((PPViewLot::IterOrder)order);
+}
+
+int32 DL6ICLS_PPViewLot::NextIteration(PPYVIEWITEM item)
+{
+	int    ok = -1;
+	SPpyVI_Lot * p_item = (SPpyVI_Lot *)item;
+	LotViewItem inner_item;
+	if(((PPViewLot *)ExtraPtr)->NextIteration(&inner_item) > 0) {
+		SString temp_buf;
+		p_item->RecTag = PPVIEWITEM_LOT;
+#define FLD(f) p_item->f = inner_item.f
+		FLD(ID);
+		FLD(BillID);
+		FLD(LocID);
+		p_item->Dt = (OleDate)inner_item.Dt;
+		FLD(OprNo);
+		FLD(Closed);
+		FLD(GoodsID);
+		FLD(QCertID);
+		FLD(UnitPerPack);
+		FLD(Quantity);
+		FLD(WtQtty);
+		FLD(WtRest);
+		FLD(Cost);
+		FLD(ExtCost);
+		FLD(Price);
+		FLD(Rest);
+		FLD(PrevLotID);
+		FLD(SupplID);
+		p_item->CloseDate = (OleDate)inner_item.CloseDate;
+		p_item->Expiry    = (OleDate)inner_item.Expiry;
+		FLD(InTaxGrpID);
+		FLD(Flags);
+		FLD(BegRest);
+		FLD(EndRest);
+		FLD(QttyPlus);
+		FLD(QttyMinus);
+		p_item->OrgLotDt = (OleDate)inner_item.OrgLotDt;
+		(temp_buf = inner_item.Serial).CopyToOleStr(&p_item->Serial);
+#undef FLD
+		ok = 1;
+	}
+	return ok;
+}
+
+SIterCounter DL6ICLS_PPViewLot::GetIterCounter() { return GetPPViewIterCounter(ExtraPtr, &AppError); }
+
+int32 DL6ICLS_PPViewLot::GetTotal(PPYVIEWTOTAL total)
+{
+	PPViewLot * p_v = (PPViewLot *)ExtraPtr;
+	if(p_v && total) {
+		LotTotal inner_total;
+		SPpyVT_Lot * p_total = (SPpyVT_Lot *)total;
+		if(p_v->CalcTotal(LotTotal::Extended, &inner_total)) {
+			p_total->RecTag = 0;
+#define FLD(f) p_total->f = inner_total.f
+			FLD(Count);
+			FLD(Qtty);
+			FLD(Rest);
+			FLD(Cost);
+			FLD(Price);
+			FLD(DCount);
+			FLD(InCost);
+			FLD(InPrice);
+			FLD(DRest);
+			FLD(DCost);
+			FLD(DPrice);
+#undef FLD
+		}
+		else
+			AppError = 1;
+	}
+	return !AppError;
+}
+//
+// } PPViewDebtTrnovr
 //
 // PPViewLotOp {
 //
@@ -10237,7 +10256,7 @@ void  DL6ICLS_PPFiltLotOp::put_Flags(PpyVLotOpFlags value) {IMPL_PPIFC_PUTPROP(L
 IUnknown * DL6ICLS_PPViewLotOp::CreateFilt(int32 param)
 {
 	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltLotOp", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppError();
+	return CreateInnerInstance("PPFiltLotOp", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
 }
 
 int32 DL6ICLS_PPViewLotOp::Init(IUnknown* pFilt)
@@ -10294,15 +10313,8 @@ int32 DL6ICLS_PPViewLotOp::NextIteration(PPYVIEWITEM item)
 	return ok;
 }
 
-SIterCounter DL6ICLS_PPViewLotOp::GetIterCounter()
-{
-	return GetPPViewIterCounter(ExtraPtr, &AppError);
-}
-
-int32 DL6ICLS_PPViewLotOp::GetTotal(PPYVIEWTOTAL total)
-{
-	return FuncNotSupported();
-}
+SIterCounter DL6ICLS_PPViewLotOp::GetIterCounter() { return GetPPViewIterCounter(ExtraPtr, &AppError); }
+int32 DL6ICLS_PPViewLotOp::GetTotal(PPYVIEWTOTAL total) { return FuncNotSupported(); }
 //
 // } PPViewLotOp
 //
@@ -10344,32 +10356,20 @@ int32 DL6ICLS_PPObjDebtDim::Search(int32 id, PPYOBJREC rec)
 	return ok;
 }
 
-int32 DL6ICLS_PPObjDebtDim::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
-{
-	return FuncNotSupported();
-}
-
 SString & DL6ICLS_PPObjDebtDim::GetName(int32 id)
 {
 	AppError = 1;
 	return RetStrBuf.Z();
 }
 
-IStrAssocList* DL6ICLS_PPObjDebtDim::GetSelector(int32 extraParam)
+IStrAssocList * DL6ICLS_PPObjDebtDim::GetSelector(int32 extraParam)
 {
-	AppError = 1;
-	return 0;
+	return (IStrAssocList *)RaiseAppErrorPtr();
 }
 
-int32 DL6ICLS_PPObjDebtDim::Create(PPYOBJREC pRec, int32 flags, int32* pID)
-{
-	return FuncNotSupported();
-}
-
-int32 DL6ICLS_PPObjDebtDim::Update(int32 id, int32 flags, PPYOBJREC rec)
-{
-	return FuncNotSupported();
-}
+int32 DL6ICLS_PPObjDebtDim::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec) { return FuncNotSupported(); }
+int32 DL6ICLS_PPObjDebtDim::Create(PPYOBJREC pRec, int32 flags, int32* pID) { return FuncNotSupported(); }
+int32 DL6ICLS_PPObjDebtDim::Update(int32 id, int32 flags, PPYOBJREC rec) { return FuncNotSupported(); }
 // } PPObjDebtDim
 //
 //
@@ -10646,11 +10646,6 @@ int32 DL6ICLS_PPCCheckPacket::Init()
 	return p_pack ? (p_pack->Init(), 1) : 0;
 }
 
-int32 DL6ICLS_PPCCheckPacket::PutHeader(SPpyO_CCheck* pHeader)
-{
-	return FuncNotSupported();
-}
-
 int32 DL6ICLS_PPCCheckPacket::GetHeader(SPpyO_CCheck* pHeader)
 {
 	int    ok = -1;
@@ -10660,11 +10655,6 @@ int32 DL6ICLS_PPCCheckPacket::GetHeader(SPpyO_CCheck* pHeader)
 		ok = 1;
 	}
 	return ok;
-}
-
-int32 DL6ICLS_PPCCheckPacket::AddItem(SPpyO_CCheckLine* pItem)
-{
-	return FuncNotSupported();
 }
 
 int32 DL6ICLS_PPCCheckPacket::GetItemsCount()
@@ -10715,11 +10705,6 @@ int32 DL6ICLS_PPCCheckPacket::EnumItems(int32* pIdx, SPpyO_CCheckLine* pItem)
 	return ok;
 }
 
-int32 DL6ICLS_PPCCheckPacket::AddPaymItem(SPpyO_CCheckPaym* pPaymItem)
-{
-	return FuncNotSupported();
-}
-
 int32 DL6ICLS_PPCCheckPacket::GetPaymItemsCount()
 {
 	int    _c = 0;
@@ -10733,10 +10718,10 @@ int32 DL6ICLS_PPCCheckPacket::GetPaymItemsCount()
 	return _c;
 }
 
-int32 DL6ICLS_PPCCheckPacket::GetPaymItem(int32 position, SPpyO_CCheckPaym* pPaymItem)
-{
-	return FuncNotSupported();
-}
+int32 DL6ICLS_PPCCheckPacket::PutHeader(SPpyO_CCheck* pHeader) { return FuncNotSupported(); }
+int32 DL6ICLS_PPCCheckPacket::AddItem(SPpyO_CCheckLine* pItem) { return FuncNotSupported(); }
+int32 DL6ICLS_PPCCheckPacket::AddPaymItem(SPpyO_CCheckPaym* pPaymItem) { return FuncNotSupported(); }
+int32 DL6ICLS_PPCCheckPacket::GetPaymItem(int32 position, SPpyO_CCheckPaym* pPaymItem) { return FuncNotSupported(); }
 //
 //
 //
@@ -10778,8 +10763,7 @@ ICCheckPacket* DL6ICLS_PPObjCCheck::CreatePacket()
 	THROW(IfcImpCheckDictionary());
 	THROW(CreateInnerInstance("PPCCheckPacket", "ICCheckPacket", &p_ifc));
 	CATCH
-		AppError = 1;
-		p_ifc = 0;
+		p_ifc = RaiseAppErrorPtr();
 	ENDCATCH
 	return (ICCheckPacket*)p_ifc;
 }
@@ -10889,16 +10873,8 @@ IStrAssocList* DL6ICLS_PPObjSCardSeries::GetSelector(int32 extraParam)
 	return p;
 }
 
-int32 DL6ICLS_PPObjSCardSeries::Create(PPYOBJREC pRec, int32 flags, int32* pID)
-{
-	return FuncNotSupported();
-}
-
-int32 DL6ICLS_PPObjSCardSeries::Update(int32 id, int32 flags, PPYOBJREC rec)
-{
-	return FuncNotSupported();
-}
-
+int32 DL6ICLS_PPObjSCardSeries::Create(PPYOBJREC pRec, int32 flags, int32* pID) { return FuncNotSupported(); }
+int32 DL6ICLS_PPObjSCardSeries::Update(int32 id, int32 flags, PPYOBJREC rec) { return FuncNotSupported(); }
 
 DL6_IC_CONSTRUCTION_EXTRA(PPObjSCard, DL6ICLS_PPObjSCard_VTab, PPObjSCard)
 //
@@ -10981,22 +10957,12 @@ IStrAssocList* DL6ICLS_PPObjSCard::GetSelector(int32 extraParam)
 	return p;
 }
 
-int32 DL6ICLS_PPObjSCard::Create(PPYOBJREC pRec, int32 flags, int32* pID)
-{
-	return FuncNotSupported();
-}
-
-int32 DL6ICLS_PPObjSCard::Update(int32 id, int32 flags, PPYOBJREC rec)
-{
-	return FuncNotSupported();
-}
+int32 DL6ICLS_PPObjSCard::Create(PPYOBJREC pRec, int32 flags, int32* pID) { return FuncNotSupported(); }
+int32 DL6ICLS_PPObjSCard::Update(int32 id, int32 flags, PPYOBJREC rec) { return FuncNotSupported(); }
 //
 // Interface IPapyrusObjSCard implementation
 //
-int32 DL6ICLS_PPObjSCard::GetPacket(int32 id, SPpyO_SCard* pPack)
-{
-	return Search(id, pPack);
-}
+int32 DL6ICLS_PPObjSCard::GetPacket(int32 id, SPpyO_SCard* pPack) { return Search(id, pPack); }
 
 int32 DL6ICLS_PPObjSCard::PutPacket(int32* pID, SPpyO_SCard* pPack, int32 useTa)
 {
@@ -11032,7 +10998,4 @@ int32 DL6ICLS_PPObjSCard::PutPacket(int32* pID, SPpyO_SCard* pPack, int32 useTa)
 	return ok;
 }
 
-int32 DL6ICLS_PPObjSCard::SetFreezingPeriod(int32 id, SDateRange* pDateRange, int32 useTa)
-{
-	return FuncNotSupported();
-}
+int32 DL6ICLS_PPObjSCard::SetFreezingPeriod(int32 id, SDateRange* pDateRange, int32 useTa) { return FuncNotSupported(); }

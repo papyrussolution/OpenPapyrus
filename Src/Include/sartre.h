@@ -450,7 +450,6 @@ public:
 	int    Search(NGID id, SrNGram * pNGram);
 	int    Search(const SrNGram & rNGram, NGID * pID);
 	int    SearchByPrefix(const SrNGram & rNGram, TSVector <NGID> & rList); // @v9.8.4 TSArray-->TSVect
-
 	int    SerializeRecBuf(int dir, SrNGram * pRec, SBuffer & rBuf);
 private:
 	long   SeqID;

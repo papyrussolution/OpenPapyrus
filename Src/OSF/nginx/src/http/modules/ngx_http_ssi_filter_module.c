@@ -1446,7 +1446,7 @@ static ngx_int_t ngx_http_ssi_include(ngx_http_request_t * r, ngx_http_ssi_ctx_t
 		return NGX_HTTP_SSI_ERROR;
 	}
 	if(wait) {
-		if(uri == NULL) {
+		if(!uri) {
 			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "\"wait\" cannot be used with file=\"%V\"", file);
 			return NGX_HTTP_SSI_ERROR;
 		}
@@ -1458,7 +1458,7 @@ static ngx_int_t ngx_http_ssi_include(ngx_http_request_t * r, ngx_http_ssi_ctx_t
 			return NGX_HTTP_SSI_ERROR;
 		}
 	}
-	if(uri == NULL) {
+	if(!uri) {
 		uri = file;
 		wait = (ngx_str_t*)-1;
 	}

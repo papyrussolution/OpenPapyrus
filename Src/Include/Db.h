@@ -2394,7 +2394,7 @@ public:
 		ordByDate = 1,
 		ordByDateDesc = 2
 	};
-	SLAPI  BCopySet(const char * pName);
+	explicit SLAPI BCopySet(const char * pName);
 	int    SLAPI Sort(Order);
 	SString Name;
 };
@@ -2422,7 +2422,7 @@ typedef int (*BackupLogFunc)(int, const char *, long initParam);
 //
 class TablePartsEnum {
 public:
-	SLAPI  TablePartsEnum(const char * pPath);
+	explicit SLAPI TablePartsEnum(const char * pPath);
 	int    SLAPI Init(const char * pPath);
 	int    SLAPI Next(SString & rPath, int * pFirst = 0);
 	int    SLAPI ReplaceExt(int first, const SString & rIn, SString & rOut);
@@ -2715,42 +2715,15 @@ private:
 			T = 0;
 		}
 		operator uint32 () const;
-		operator void * () const
-		{
-			return H;
-		}
-		operator OCIEnv * () const
-		{
-			return Env;
-		}
-		operator OCIError * () const
-		{
-			return Err;
-		}
-		operator OCIServer * () const
-		{
-			return Svr;
-		}
-		operator OCISvcCtx * () const
-		{
-			return Srvc;
-		}
-		operator OCISession * () const
-		{
-			return Sess;
-		}
-		operator OCIStmt * () const
-		{
-			return Stmt;
-		}
-		operator OCIBind * () const
-		{
-			return Bind;
-		}
-		operator OCITrans * () const
-		{
-			return Trans;
-		}
+		operator void * () const { return H; }
+		operator OCIEnv * () const { return Env; }
+		operator OCIError * () const { return Err; }
+		operator OCIServer * () const { return Svr; }
+		operator OCISvcCtx * () const { return Srvc; }
+		operator OCISession * () const { return Sess; }
+		operator OCIStmt * () const { return Stmt; }
+		operator OCIBind * () const { return Bind; }
+		operator OCITrans * () const { return Trans; }
 		union {
 			void      * H;     // Сам манипулятор
 			OCIEnv    * Env;   // OCI_HTYPE_ENV
@@ -2872,10 +2845,7 @@ public:
 	SLAPI  DbThreadLocalArea();
 	SLAPI ~DbThreadLocalArea();
 	void   SLAPI Init();
-	long   GetState() const
-	{
-		return State;
-	}
+	long   GetState() const { return State; }
 	int    FASTCALL AddTableEntry(DBTable *);
 	int    FASTCALL FreeTableEntry(int handle);
 	uint   GetTabEntriesCount() const;
@@ -2885,14 +2855,8 @@ public:
 	// Descr: Временная функция (до завершения разработки интерфейса с BerkeleyDB).
 	//   Возвращает ссылку на таблицу открытых BDB-файлов.
 	//
-	DbRegList & GetBDbRegList()
-	{
-		return BDbTableReg;
-	}
-	const DbRegList & GetBDbRegList_Const() const
-	{
-		return BDbTableReg;
-	}
+	DbRegList & GetBDbRegList() { return BDbTableReg; }
+	const DbRegList & GetBDbRegList_Const() const { return BDbTableReg; }
 	//
 	void   FASTCALL InitErrFileName(const char * pFileName);
 	const  char * SLAPI GetLastErrFileName() const;
@@ -3294,7 +3258,7 @@ struct DBField : public DBItem {
 
 class DBFieldList {
 public:
-	SLAPI  DBFieldList(uint n = 0);
+	explicit SLAPI DBFieldList(uint n = 0);
 	SLAPI ~DBFieldList();
 	DBFieldList & FASTCALL operator = (const DBFieldList &);
 	void   SLAPI Destroy();
@@ -3451,7 +3415,7 @@ struct DBQ {
 #define NOKEY 0x0001
 
 struct DBTree {
-	SLAPI  DBTree(DBQ * pOwner = 0);
+	explicit SLAPI DBTree(DBQ * pOwner = 0);
 	void   FASTCALL init(DBQ * pOwner);
 	int    SLAPI addNode(int link, int left, int right, int * pPos);
 	int    SLAPI addLeaf(int term, int flags, int * pPos);
@@ -3738,7 +3702,6 @@ public:
 DBE & __stdcall ltoa(DBItem &);
 DBE & __stdcall enumtoa(DBItem &, int, char **);
 DBE & __stdcall flagtoa(DBItem & i, long mask, char ** str_array);
-
 DBE & __stdcall operator + (DBItem &, DBItem &);
 DBE & __stdcall operator - (DBItem &, DBItem &);
 DBE & __stdcall operator * (DBItem &, DBItem &);
@@ -3763,7 +3726,6 @@ DBE & __stdcall operator - (LTIME,   DBItem &);
 DBE & __stdcall operator - (DBItem &, LTIME);
 DBE & __stdcall operator & (DBItem &, long);
 DBE & __stdcall operator & (DBItem &, DBItem &);
-
 DBE & __stdcall ltrim(DBItem &);
 DBE & __stdcall rtrim(DBItem &);
 DBE & __stdcall left(DBItem &, int);
@@ -3772,15 +3734,12 @@ DBE & __stdcall strlen(DBItem &);
 DBE & __stdcall lower(DBItem &);
 DBE & __stdcall upper(DBItem &);
 DBE & __stdcall contains(DBItem & i, const char * s);
-
 DBE & __stdcall day(DBItem &);
 DBE & __stdcall month(DBItem &);
 DBE & __stdcall year(DBItem &);
-
 DBE & __stdcall hour(DBItem &);
 DBE & __stdcall minute(DBItem &);
 DBE & __stdcall millisecond(DBItem &);
-
 DBQ & __stdcall operator == (DBItem &, DBItem &);
 DBQ & __stdcall operator += (DBItem &, DBItem &); // Outer join
 DBQ & __stdcall operator != (DBItem &, DBItem &);
@@ -3823,12 +3782,10 @@ DBQ & __stdcall operator <  (DBItem &, LDATETIME);
 DBQ & __stdcall operator >  (DBItem &, LDATETIME);
 DBQ & __stdcall operator <= (DBItem &, LDATETIME);
 DBQ & __stdcall operator >= (DBItem &, LDATETIME);
-
 DBQ & __stdcall operator && (DBQ &, DBQ &);
 DBQ & __stdcall operator &= (DBQ &, DBQ &);
 DBQ * __stdcall operator &= (DBQ *, DBQ &);
 DBQ & __stdcall operator || (DBQ &, DBQ &);
-
 DBQ & __stdcall daterange(DBItem & i, LDATE, LDATE);
 DBQ & __stdcall daterange(DBItem & i, const DateRange *);
 DBQ & __stdcall timerange(DBItem & i, LTIME, LTIME);
@@ -3942,10 +3899,7 @@ public:
 	int    SLAPI nextIteration();
 	long   SLAPI countIterations(int reverse, void * pInitKey = 0, int initSpMode = spFirst);
 	int    FASTCALL getRecPosition(DBRowId * pPos);
-	uint   SLAPI getActualCount() const
-	{
-		return ActCount;
-	}
+	uint   SLAPI getActualCount() const { return ActCount; }
 	int    SLAPI CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pInitKey, int initSpMode) const;
 private:
 	void   SLAPI Init(DBTable * pTbl, int idx, uint aBufSize);
@@ -4028,8 +3982,8 @@ DBUpdateSet & FASTCALL set(DBField f, DBItem & val);
 //
 typedef int (*UpdateDbTable_CbProc)(DBTable * pTbl, const void * pRecBefore, const void * pRecAfter, long extraParam);
 
-int deleteFrom(DBTable * pTbl, int useTA, DBQ & query);
-int updateFor(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet);
+int FASTCALL deleteFrom(DBTable * pTbl, int useTA, DBQ & query);
+int FASTCALL updateFor(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet);
 int updateForCb(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet, UpdateDbTable_CbProc cbProc, long extraParam);
 //
 // Descr: Класс для работы с базами данных BerkeyDB
@@ -4046,7 +4000,6 @@ class BDbTable {
 public:
 	friend class BDbDatabase;
 	friend class BDbCursor;
-
 	//
 	// Descr: Типы индексов, используемые при создании таблиц
 	//
@@ -4086,14 +4039,11 @@ public:
 		uint32 DataChunk;    //
 		//uint32 CacheSize;    // @v9.6.4 Размер кэша таблицы (kilobytes!!!). 0 - default
 		uint32 PageSize;     // @v9.6.4 Размер страницы данных (bytes). 0 - default
-
 		uint32 HashNElem;    // @v9.7.12 Для хэш-таблиц: ожидаемый размер хэш-таблицы
 		uint32 HashFFactor;  // @v9.7.12 Для хэш-таблиц: fill-factor. Reasonable rule: (pagesize - 32) / (average_key_size + average_data_size + 8)
-
 		uint   PartitionCount; // @v9.8.2 Количество partitions. Если параметр не нулевой, то
 			// класс таблицы обязан переопределить виртуальную функцию Implement_PartitionFunc(DBT * pKey)
 			// таким образом, чтобы она возвращала номер [0..PartitionCount-1] в зависимости от значения ключа pKey.
-
 		SString Name;        // Имя файла
 	protected:
 		Config(const char * pName, int idxType, long flags, uint32 pageSize, uint32 cacheSizeKb, uint partitionCount);
@@ -4192,7 +4142,7 @@ public:
 
 		DECL_INVARIANT_C();
 
-		Buffer(size_t initSize = 128);
+		explicit Buffer(size_t initSize = 128);
 		Buffer(const DBT * pB);
 		void   Reset();
 		operator DBT * () const;
@@ -4211,8 +4161,9 @@ public:
 		Buffer & FASTCALL operator = (const int64 & rVal);
 		Buffer & FASTCALL operator = (const uint64 & rVal);
 		Buffer & FASTCALL Set(const void * pData, size_t size);
+		// @construction Buffer & FASTCALL SetShrinked(uint64 val);
 
-		size_t GetSize() const;
+		size_t GetSize() const { return Size; }
 		const  void * FASTCALL GetPtr(size_t * pSize) const;
 		DBT *  FASTCALL Get(DBT * pD) const;
 		int    FASTCALL Get(SBuffer & rBuf) const;
@@ -4223,9 +4174,6 @@ public:
 		int    FASTCALL Get(uint32 * pBuf) const;
 		int    FASTCALL Get(int64 * pBuf) const;
 	private:
-		//
-		//
-		//
 		void * P_Data;
 		uint32 Size;
 		uint32 ULen;
@@ -4414,10 +4362,10 @@ public:
 	static SString & MakeFileName(const char * pFile, const char * pTblName, SString & rFileName);
 	static int SplitFileName(const char * pFileName, SString & rFile, SString & rTbl);
 	static int FASTCALL ProcessError(int bdbErrCode, const DB * pDb, const char * pAddedMsg);
+	static int FASTCALL ProcessError(int bdbErrCode);
 
 	BDbDatabase(const char * pHomeDir, Config * pCfg = 0, long options = 0);
 	~BDbDatabase();
-
 	int    operator ! () const;
 	operator DB_ENV * ();
 	operator DB_TXN * ();
@@ -4430,18 +4378,14 @@ public:
 	int    WriteStat(const BDbTable * pTbl);
 	int    RemoveUnusedLogs();
 	int    FASTCALL CheckInTxnTable(BDbTable * pTbl);
-
 	int    StartTransaction();
 	int    RollbackWork();
 	int    CommitWork();
 	int    TransactionCheckPoint();
-
 	int    LockDetect();
-
 	int    CreateSequence(const char * pName, int64 initVal, long * pSeqID);
 	int    CloseSequence(long seqId);
 	int    GetSequence(long seqId, int64 * pVal);
-
 	SSerializeContext * GetSCtx() const;
 private:
 	int    Helper_Create(const char * pFileName, int createMode, BDbTable::Config * pCfg);

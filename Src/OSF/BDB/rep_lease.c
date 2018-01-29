@@ -236,7 +236,7 @@ static void __rep_find_entry(ENV*env, REP * rep, int eid, REP_LEASE_ENTRY ** lep
  *
  * PUBLIC: int __rep_lease_check __P((ENV *, int));
  */
-int __rep_lease_check(ENV*env, int refresh)
+int FASTCALL __rep_lease_check(ENV * env, int refresh)
 {
 	DB_LSN lease_lsn;
 	REP_LEASE_ENTRY * le, * table;

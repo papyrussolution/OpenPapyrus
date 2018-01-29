@@ -293,11 +293,7 @@ void boxDestroy(BOX  ** pbox)
  * \param[out]   px, py, pw, ph [optional]  each can be null
  * \return  0 if OK, 1 on error
  */
-int32 boxGetGeometry(BOX      * box,
-    int32  * px,
-    int32  * py,
-    int32  * pw,
-    int32  * ph)
+int32 boxGetGeometry(BOX * box, int32  * px, int32  * py, int32  * pw, int32  * ph)
 {
 	PROCNAME("boxGetGeometry");
 
@@ -321,11 +317,7 @@ int32 boxGetGeometry(BOX      * box,
  * \param[in]    x, y, w, h  [optional]  use -1 to leave unchanged
  * \return  0 if OK, 1 on error
  */
-int32 boxSetGeometry(BOX     * box,
-    int32 x,
-    int32 y,
-    int32 w,
-    int32 h)
+int32 boxSetGeometry(BOX * box, int32 x, int32 y, int32 w, int32 h)
 {
 	PROCNAME("boxSetGeometry");
 
@@ -648,18 +640,13 @@ int32 boxaExtendArray(BOXA  * boxa)
  *      (1) If necessary, reallocs new boxa ptr array to %size.
  * </pre>
  */
-int32 boxaExtendArrayToSize(BOXA    * boxa,
-    int32 size)
+int32 boxaExtendArrayToSize(BOXA * boxa, int32 size)
 {
 	PROCNAME("boxaExtendArrayToSize");
-
 	if(!boxa)
 		return ERROR_INT("boxa not defined", procName, 1);
-
 	if(size > boxa->nalloc) {
-		if((boxa->box = (BOX**)reallocNew((void**)&boxa->box,
-				    sizeof(BOX *) * boxa->nalloc,
-				    size * sizeof(BOX *))) == NULL)
+		if((boxa->box = (BOX**)reallocNew((void**)&boxa->box, sizeof(BOX *) * boxa->nalloc, size * sizeof(BOX *))) == NULL)
 			return ERROR_INT("new ptr array not returned", procName, 1);
 		boxa->nalloc = size;
 	}
@@ -678,7 +665,6 @@ int32 boxaExtendArrayToSize(BOXA    * boxa,
 int32 boxaGetCount(BOXA  * boxa)
 {
 	PROCNAME("boxaGetCount");
-
 	if(!boxa)
 		return ERROR_INT("boxa not defined", procName, 0);
 	return boxa->n;
@@ -695,10 +681,8 @@ int32 boxaGetValidCount(BOXA  * boxa)
 	int32 n, i, w, h, count;
 
 	PROCNAME("boxaGetValidCount");
-
 	if(!boxa)
 		return ERROR_INT("boxa not defined", procName, 0);
-
 	n = boxaGetCount(boxa);
 	for(i = 0, count = 0; i < n; i++) {
 		boxaGetBoxGeometry(boxa, i, NULL, NULL, &w, &h);
@@ -716,12 +700,9 @@ int32 boxaGetValidCount(BOXA  * boxa)
  * \param[in]    accessflag  L_COPY or L_CLONE
  * \return  box, or NULL on error
  */
-BOX * boxaGetBox(BOXA    * boxa,
-    int32 index,
-    int32 accessflag)
+BOX * boxaGetBox(BOXA * boxa, int32 index, int32 accessflag)
 {
 	PROCNAME("boxaGetBox");
-
 	if(!boxa)
 		return (BOX*)ERROR_PTR("boxa not defined", procName, NULL);
 	if(index < 0 || index >= boxa->n)
@@ -1360,7 +1341,6 @@ int32 boxaaExtendArrayToSize(BOXAA   * baa,
 int32 boxaaGetCount(BOXAA  * baa)
 {
 	PROCNAME("boxaaGetCount");
-
 	if(!baa)
 		return ERROR_INT("baa not defined", procName, 0);
 	return baa->n;
@@ -1478,14 +1458,11 @@ BOX * boxaaGetBox(BOXAA   * baa,
  *          something else, such as a pixa.
  * </pre>
  */
-int32 boxaaInitFull(BOXAA  * baa,
-    BOXA   * boxa)
+int32 boxaaInitFull(BOXAA  * baa, BOXA   * boxa)
 {
 	int32 i, n;
 	BOXA    * boxat;
-
 	PROCNAME("boxaaInitFull");
-
 	if(!baa)
 		return ERROR_INT("baa not defined", procName, 1);
 	if(!boxa)
@@ -2036,14 +2013,11 @@ BOXA * boxaReadStream(FILE  * fp)
  * \param[in]    size  of data in bytes; can use strlen to get it
  * \return  boxa, or NULL on error
  */
-BOXA * boxaReadMem(const uint8  * data,
-    size_t size)
+BOXA * boxaReadMem(const uint8  * data, size_t size)
 {
 	FILE  * fp;
 	BOXA  * boxa;
-
 	PROCNAME("boxaReadMem");
-
 	if(!data)
 		return (BOXA*)ERROR_PTR("data not defined", procName, NULL);
 	if((fp = fopenReadFromMemory(data, size)) == NULL)
@@ -2062,13 +2036,10 @@ BOXA * boxaReadMem(const uint8  * data,
  * \param[in]    boxa
  * \return  0 if OK, 1 on error
  */
-int32 boxaWrite(const char  * filename,
-    BOXA        * boxa)
+int32 boxaWrite(const char  * filename, BOXA * boxa)
 {
 	FILE  * fp;
-
 	PROCNAME("boxaWrite");
-
 	if(!filename)
 		return ERROR_INT("filename not defined", procName, 1);
 	if(!boxa)
@@ -2184,11 +2155,9 @@ int32 boxaWriteMem(uint8  ** pdata,
  *          write to file if you want to read the data back.
  * </pre>
  */
-int32 boxPrintStreamInfo(FILE  * fp,
-    BOX   * box)
+int32 boxPrintStreamInfo(FILE  * fp, BOX   * box)
 {
 	PROCNAME("boxPrintStreamInfo");
-
 	if(!fp)
 		return ERROR_INT("stream not defined", procName, 1);
 	if(!box)

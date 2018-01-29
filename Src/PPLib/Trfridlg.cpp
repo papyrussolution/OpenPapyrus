@@ -1,6 +1,6 @@
 // TRFRIDLG.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
-// @codepage windows-1251
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -55,8 +55,8 @@ private:
 	int    GetPriceRestrictions(RealRange * pRange);
 	void   SetupQttyByLotDimTag();
 	//
-	// Descr: Возвращает !0 если с редактируемой строкой может быть сопоставлен серийный номер или иные теги.
-	//   Применяется для определения возможности редактировать серийный номер или иные теги.
+	// Descr: Р’РѕР·РІСЂР°С‰Р°РµС‚ !0 РµСЃР»Рё СЃ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕР№ СЃС‚СЂРѕРєРѕР№ РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃРѕРїРѕСЃС‚Р°РІР»РµРЅ СЃРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ РёР»Рё РёРЅС‹Рµ С‚РµРіРё.
+	//   РџСЂРёРјРµРЅСЏРµС‚СЃСЏ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё СЂРµРґР°РєС‚РёСЂРѕРІР°С‚СЊ СЃРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ РёР»Рё РёРЅС‹Рµ С‚РµРіРё.
 	//
 	int    IsTaggedItem() const
 	{
@@ -72,23 +72,23 @@ private:
 	PPObjTag       TagObj;
 	PPBillPacket * P_Pack;
 	PPTransferItem Item;
-	const PPTransferItem * P_OrderItem; // Указатель на строку заказа. Передается извне и не изменяется методами класса.
+	const PPTransferItem * P_OrderItem; // РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂРѕРєСѓ Р·Р°РєР°Р·Р°. РџРµСЂРµРґР°РµС‚СЃСЏ РёР·РІРЅРµ Рё РЅРµ РёР·РјРµРЅСЏРµС‚СЃСЏ РјРµС‚РѕРґР°РјРё РєР»Р°СЃСЃР°.
 	int    ItemNo;
 	int    EditMode;
 	enum {
 		stModified      = 0x0001,
-		stGoodsByPrice  = 0x0002, // Признак выбора товара по цене
-		stAllowSupplSel = 0x0004, // Позволяет выбор поставщика
-		stGoodsFixed    = 0x0008, // Фиксированный товар (выбран до входа в диалог)
+		stGoodsByPrice  = 0x0002, // РџСЂРёР·РЅР°Рє РІС‹Р±РѕСЂР° С‚РѕРІР°СЂР° РїРѕ С†РµРЅРµ
+		stAllowSupplSel = 0x0004, // РџРѕР·РІРѕР»СЏРµС‚ РІС‹Р±РѕСЂ РїРѕСЃС‚Р°РІС‰РёРєР°
+		stGoodsFixed    = 0x0008, // Р¤РёРєСЃРёСЂРѕРІР°РЅРЅС‹Р№ С‚РѕРІР°СЂ (РІС‹Р±СЂР°РЅ РґРѕ РІС…РѕРґР° РІ РґРёР°Р»РѕРі)
 		stWasCostInput  = 0x0010
 	};
 	long   St;
 	enum {
 		dummyFirst = 1,
-		brushChangedCost,    // Цвет поля цены поступления, если значение было изменено по сравнению с последним лотом
-		brushQuotedPrice,    // Цвет поля цены реализации, если на строку установлена котировка
-		brushPriceBelowCost, // Цвет поля цены реализации, если цена не по котировке и ниже цены поступления //
-		brushQuotedPriceNoCancel // // Цвет поля цены реализации, если на строку установлена котировка без права отмены пользователем
+		brushChangedCost,    // Р¦РІРµС‚ РїРѕР»СЏ С†РµРЅС‹ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ, РµСЃР»Рё Р·РЅР°С‡РµРЅРёРµ Р±С‹Р»Рѕ РёР·РјРµРЅРµРЅРѕ РїРѕ СЃСЂР°РІРЅРµРЅРёСЋ СЃ РїРѕСЃР»РµРґРЅРёРј Р»РѕС‚РѕРј
+		brushQuotedPrice,    // Р¦РІРµС‚ РїРѕР»СЏ С†РµРЅС‹ СЂРµР°Р»РёР·Р°С†РёРё, РµСЃР»Рё РЅР° СЃС‚СЂРѕРєСѓ СѓСЃС‚Р°РЅРѕРІР»РµРЅР° РєРѕС‚РёСЂРѕРІРєР°
+		brushPriceBelowCost, // Р¦РІРµС‚ РїРѕР»СЏ С†РµРЅС‹ СЂРµР°Р»РёР·Р°С†РёРё, РµСЃР»Рё С†РµРЅР° РЅРµ РїРѕ РєРѕС‚РёСЂРѕРІРєРµ Рё РЅРёР¶Рµ С†РµРЅС‹ РїРѕСЃС‚СѓРїР»РµРЅРёСЏ //
+		brushQuotedPriceNoCancel // // Р¦РІРµС‚ РїРѕР»СЏ С†РµРЅС‹ СЂРµР°Р»РёР·Р°С†РёРё, РµСЃР»Рё РЅР° СЃС‚СЂРѕРєСѓ СѓСЃС‚Р°РЅРѕРІР»РµРЅР° РєРѕС‚РёСЂРѕРІРєР° Р±РµР· РїСЂР°РІР° РѕС‚РјРµРЅС‹ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј
 	};
 	SPaintToolBox Ptb;     //
 	PPID   InitGoodsGrpID; //
@@ -100,24 +100,24 @@ private:
 	double TotalRest;
 	double NumPacks;
 	double Price;
-	double OrdRest;        // Заказанное количество товара
-	double OrdReserved;    // Зарезервированное количество (OrdReserved <= OrdRest)
-	double MinQtty;        // Минимальное количество, которое может быть введено
-	double MaxQtty;        // Максимальное количество, которое может быть введено
-	double OrgQtty;        // @v7.8.10 Для корректирующего документа (Item.Flags & PPTFR_CORRECTION) - количество,
-		// поступившее в оригинальном документе.
-	double OrgPrice;       // @v9.4.3 Для корректирующего документа (Item.Flags & PPTFR_CORRECTION) - Чистая цена реализации
-		// в оригинальном документе
-	PPSupplDeal Sd;        // Контрактная цена по поставщику
+	double OrdRest;        // Р—Р°РєР°Р·Р°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ С‚РѕРІР°СЂР°
+	double OrdReserved;    // Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ (OrdReserved <= OrdRest)
+	double MinQtty;        // РњРёРЅРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ, РєРѕС‚РѕСЂРѕРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РІРІРµРґРµРЅРѕ
+	double MaxQtty;        // РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ, РєРѕС‚РѕСЂРѕРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РІРІРµРґРµРЅРѕ
+	double OrgQtty;        // @v7.8.10 Р”Р»СЏ РєРѕСЂСЂРµРєС‚РёСЂСѓСЋС‰РµРіРѕ РґРѕРєСѓРјРµРЅС‚Р° (Item.Flags & PPTFR_CORRECTION) - РєРѕР»РёС‡РµСЃС‚РІРѕ,
+		// РїРѕСЃС‚СѓРїРёРІС€РµРµ РІ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕРј РґРѕРєСѓРјРµРЅС‚Рµ.
+	double OrgPrice;       // @v9.4.3 Р”Р»СЏ РєРѕСЂСЂРµРєС‚РёСЂСѓСЋС‰РµРіРѕ РґРѕРєСѓРјРµРЅС‚Р° (Item.Flags & PPTFR_CORRECTION) - Р§РёСЃС‚Р°СЏ С†РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё
+		// РІ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕРј РґРѕРєСѓРјРµРЅС‚Рµ
+	PPSupplDeal Sd;        // РљРѕРЅС‚СЂР°РєС‚РЅР°СЏ С†РµРЅР° РїРѕ РїРѕСЃС‚Р°РІС‰РёРєСѓ
 	enum {
 		strNoVAT     = 0,
 		strComplete  = 1,
 		strOrderQtty = 2
 	};
 	SString Strings;
-	ObjTagList InheritedLotTagList; // @v7.4.5 Список тегов, унаследованных от предыдущего лота того же товара
-		// Список необходимо отделить от общего пула тегов из-за необходимость отличать создаваемые в ручную
-		// теги от тегов унаследованных.
+	ObjTagList InheritedLotTagList; // @v7.4.5 РЎРїРёСЃРѕРє С‚РµРіРѕРІ, СѓРЅР°СЃР»РµРґРѕРІР°РЅРЅС‹С… РѕС‚ РїСЂРµРґС‹РґСѓС‰РµРіРѕ Р»РѕС‚Р° С‚РѕРіРѕ Р¶Рµ С‚РѕРІР°СЂР°
+		// РЎРїРёСЃРѕРє РЅРµРѕР±С…РѕРґРёРјРѕ РѕС‚РґРµР»РёС‚СЊ РѕС‚ РѕР±С‰РµРіРѕ РїСѓР»Р° С‚РµРіРѕРІ РёР·-Р·Р° РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚СЊ РѕС‚Р»РёС‡Р°С‚СЊ СЃРѕР·РґР°РІР°РµРјС‹Рµ РІ СЂСѓС‡РЅСѓСЋ
+		// С‚РµРіРё РѕС‚ С‚РµРіРѕРІ СѓРЅР°СЃР»РµРґРѕРІР°РЅРЅС‹С….
 
 	int    readQttyFld(uint master, uint ctl, double * val);
 	int    checkQuantityForIntVal();
@@ -196,7 +196,7 @@ int TrfrItemDialog::ProcessRevalOnAllLots(const PPTransferItem * pItem)
 	return ok;
 }
 //
-// Если itemNo == -1, то добавляется новая строка
+// Р•СЃР»Рё itemNo == -1, С‚Рѕ РґРѕР±Р°РІР»СЏРµС‚СЃСЏ РЅРѕРІР°СЏ СЃС‚СЂРѕРєР°
 //
 int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pInitData, const PPTransferItem * pOrder, int sign)
 {
@@ -231,6 +231,9 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 		case PPOPT_DRAFTEXPEND: dlg_id = DLG_SELLITEMDRAFT; break;
 		case PPOPT_GOODSORDER:  dlg_id = DLG_ORDLOTITEM;    break;
 		case PPOPT_GOODSACK:    dlg_id = DLG_ACKITEM;       break;
+		case PPOPT_DRAFTRECEIPT:
+		case PPOPT_DRAFTTRANSIT: dlg_id = /*allow_suppl_sel ? DLG_SLOTITEM :*/ DLG_LOTITEM; break;
+		case PPOPT_GOODSREVAL:   dlg_id = (GetOpSubType(op_id) == OPSUBT_ASSETEXPL) ? DLG_ASSETEXPLITEM : DLG_REVALITEM; break;
 		case PPOPT_GOODSEXPEND:
 			if(IsIntrOp(op_id))
 				dlg_id = DLG_INTRITEM;
@@ -239,25 +242,13 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 			else
 				dlg_id = DLG_SELLITEM;
 			break;
-		case PPOPT_DRAFTRECEIPT:
-		case PPOPT_DRAFTTRANSIT:
-			dlg_id = /*allow_suppl_sel ? DLG_SLOTITEM :*/ DLG_LOTITEM;
-			break;
 		case PPOPT_GOODSRECEIPT:
 			if(GetOpSubType(op_id) == OPSUBT_ASSETRCV)
 				dlg_id = DLG_ASSETLOTITEM;
 			else
 				dlg_id = /*allow_suppl_sel ? DLG_SLOTITEM :*/ DLG_LOTITEM;
 			break;
-		case PPOPT_CORRECTION: // @v7.8.10
-			dlg_id = DLG_REVALITEM;
-			break;
-		case PPOPT_GOODSREVAL:
-			if(GetOpSubType(op_id) == OPSUBT_ASSETEXPL)
-				dlg_id = DLG_ASSETEXPLITEM;
-			else
-				dlg_id = DLG_REVALITEM;
-			break;
+		case PPOPT_CORRECTION: dlg_id = DLG_REVALITEM; break;
 		case PPOPT_GOODSMODIF:
 			if(itemNo >= 0)
 				sign = pPack->ConstTI(itemNo).GetSign(pPack->Rec.OpID);
@@ -329,7 +320,6 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 	pattern           = *p_item;
 	p_item->GoodsID   = labs(p_item->GoodsID);
 	dlg->P_OrderItem  = pOrder;
-
 	THROW(dlg->setDTS(p_item));
 	if(itemNo < 0 && pInitData && pInitData->Quantity >= 0.0 && dlg->Item.Quantity_ == 0.0) {
 		uint ctl_set = (r_cfg.Flags & CFGFLG_USEPACKAGE && (pInitData->Quantity == 0.0 || pInitData->Flags & TIDIF_PACKS)) ? CTL_LOT_PACKS : CTL_LOT_QUANTITY;
@@ -340,7 +330,7 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 	}
 	else {
 		//
-		// Устанавливаем текущим управляющим первый элемент, который не заблокирован и имеет статус остановки по TAB (WS_TABSTOP)
+		// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј С‚РµРєСѓС‰РёРј СѓРїСЂР°РІР»СЏСЋС‰РёРј РїРµСЂРІС‹Р№ СЌР»РµРјРµРЅС‚, РєРѕС‚РѕСЂС‹Р№ РЅРµ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ Рё РёРјРµРµС‚ СЃС‚Р°С‚СѓСЃ РѕСЃС‚Р°РЅРѕРІРєРё РїРѕ TAB (WS_TABSTOP)
 		//
 		for(TView * p_cur = dlg->P_Current; p_cur;) {
 			long   wnd_style = TView::GetWindowStyle(p_cur->getHandle());
@@ -354,8 +344,8 @@ int SLAPI EditTransferItem(PPBillPacket * pPack, int itemNo, TIDlgInitData * pIn
 	}
 	if(pPack->GetSyncStatus() > 0) {
 		//
-		// Если у пользователя нет прав на изменение синхронизированного документа,
-		// то менять скидку на весь документ он не может - это приведет к изменению сумм по строкам.
+		// Р•СЃР»Рё Сѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЅРµС‚ РїСЂР°РІ РЅР° РёР·РјРµРЅРµРЅРёРµ СЃРёРЅС…СЂРѕРЅРёР·РёСЂРѕРІР°РЅРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°,
+		// С‚Рѕ РјРµРЅСЏС‚СЊ СЃРєРёРґРєСѓ РЅР° РІРµСЃСЊ РґРѕРєСѓРјРµРЅС‚ РѕРЅ РЅРµ РјРѕР¶РµС‚ - СЌС‚Рѕ РїСЂРёРІРµРґРµС‚ Рє РёР·РјРµРЅРµРЅРёСЋ СЃСѓРјРј РїРѕ СЃС‚СЂРѕРєР°Рј.
 		//
 		if(oneof6(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF,
 			PPOPT_GOODSRETURN, PPOPT_GOODSORDER)) {
@@ -426,7 +416,7 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 	NumPacks(0.0), OrgQtty(0.0), OrgPrice(0.0), EditMode(0), ItemNo(0), P_Pack(0), P_OrderItem(0), St(0)
 {
 	P_Trfr = P_BObj->trfr;
-	Ptb.SetBrush(brushChangedCost, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrBlue), 0.3), 0);
+	Ptb.SetBrush(brushChangedCost, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrBlue), 0.3f), 0);
 	Ptb.SetBrush(brushQuotedPrice, SPaintObj::bsSolid, GetColorRef(SClrYellow), 0);
 	Ptb.SetBrush(brushQuotedPriceNoCancel, SPaintObj::bsSolid, GetColorRef(SClrLime), 0);
 	Ptb.SetBrush(brushPriceBelowCost, SPaintObj::bsSolid, GetColorRef(SClrAqua), 0);
@@ -472,29 +462,29 @@ void TrfrItemDialog::setupCtrls() // Called from TrfrItemDialog::setDTS
 	else if(!(Item.Flags & PPTFR_RECEIPT) && OpTypeID != PPOPT_DRAFTRECEIPT)
 		disableCtrl(CTL_LOT_UNITPERPACK, 1);
 	//
-	// Переоценка допускает ввод и цены и скидки (у скидки другое значение)
+	// РџРµСЂРµРѕС†РµРЅРєР° РґРѕРїСѓСЃРєР°РµС‚ РІРІРѕРґ Рё С†РµРЅС‹ Рё СЃРєРёРґРєРё (Сѓ СЃРєРёРґРєРё РґСЂСѓРіРѕРµ Р·РЅР°С‡РµРЅРёРµ)
 	//
 	if(!(Item.Flags & PPTFR_REVAL)) {
 		//
-		// Полагаемся на то, что флаг BILLF_TOTALDISCOUNT может быть установлен
-		// только для операций продажи и возврата товара от покупателя //
-		// Кроме того, продажа по котировке тоже запрешает модификацию
-		// цены реализации и скидки
+		// РџРѕР»Р°РіР°РµРјСЃСЏ РЅР° С‚Рѕ, С‡С‚Рѕ С„Р»Р°Рі BILLF_TOTALDISCOUNT РјРѕР¶РµС‚ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ
+		// С‚РѕР»СЊРєРѕ РґР»СЏ РѕРїРµСЂР°С†РёР№ РїСЂРѕРґР°Р¶Рё Рё РІРѕР·РІСЂР°С‚Р° С‚РѕРІР°СЂР° РѕС‚ РїРѕРєСѓРїР°С‚РµР»СЏ //
+		// РљСЂРѕРјРµ С‚РѕРіРѕ, РїСЂРѕРґР°Р¶Р° РїРѕ РєРѕС‚РёСЂРѕРІРєРµ С‚РѕР¶Рµ Р·Р°РїСЂРµС€Р°РµС‚ РјРѕРґРёС„РёРєР°С†РёСЋ
+		// С†РµРЅС‹ СЂРµР°Р»РёР·Р°С†РёРё Рё СЃРєРёРґРєРё
 		//
 		if(P_Pack->Rec.Flags & BILLF_TOTALDISCOUNT || Item.Flags & PPTFR_QUOT)
 			disableCtrls(1, CTL_LOT_DISCOUNT, CTL_LOT_PRICE, 0);
-		else if(!(Item.Flags & PPTFR_ORDER)) { // @v9.2.10 Для заказа разрешается менять и цену реализации и скидку
+		else if(!(Item.Flags & PPTFR_ORDER)) { // @v9.2.10 Р”Р»СЏ Р·Р°РєР°Р·Р° СЂР°Р·СЂРµС€Р°РµС‚СЃСЏ РјРµРЅСЏС‚СЊ Рё С†РµРЅСѓ СЂРµР°Р»РёР·Р°С†РёРё Рё СЃРєРёРґРєСѓ
 			//
-			// Флаг конфигурации CFGFLG_DISCOUNTBYSUM запрещает ввод скидки
-			// @v9.2.9 Для заказа разрешается вводить скидку
+			// Р¤Р»Р°Рі РєРѕРЅС„РёРіСѓСЂР°С†РёРё CFGFLG_DISCOUNTBYSUM Р·Р°РїСЂРµС‰Р°РµС‚ РІРІРѕРґ СЃРєРёРґРєРё
+			// @v9.2.9 Р”Р»СЏ Р·Р°РєР°Р·Р° СЂР°Р·СЂРµС€Р°РµС‚СЃСЏ РІРІРѕРґРёС‚СЊ СЃРєРёРґРєСѓ
 			//
 			if(r_cfg.Flags & CFGFLG_DISCOUNTBYSUM)
 				disableCtrl(CTL_LOT_DISCOUNT, 1);
 			//
-			// Поступление товара (с генерацией лота) однозначно допускает
-			// ввод цены реализации. С другой стороны внутреннее перемещение товара
-			// косвенно генерирует лот, но его цена может отличаться от цены
-			// родительского лота только если установлен флаг CFGFLG_FREEPRICE.
+			// РџРѕСЃС‚СѓРїР»РµРЅРёРµ С‚РѕРІР°СЂР° (СЃ РіРµРЅРµСЂР°С†РёРµР№ Р»РѕС‚Р°) РѕРґРЅРѕР·РЅР°С‡РЅРѕ РґРѕРїСѓСЃРєР°РµС‚
+			// РІРІРѕРґ С†РµРЅС‹ СЂРµР°Р»РёР·Р°С†РёРё. РЎ РґСЂСѓРіРѕР№ СЃС‚РѕСЂРѕРЅС‹ РІРЅСѓС‚СЂРµРЅРЅРµРµ РїРµСЂРµРјРµС‰РµРЅРёРµ С‚РѕРІР°СЂР°
+			// РєРѕСЃРІРµРЅРЅРѕ РіРµРЅРµСЂРёСЂСѓРµС‚ Р»РѕС‚, РЅРѕ РµРіРѕ С†РµРЅР° РјРѕР¶РµС‚ РѕС‚Р»РёС‡Р°С‚СЊСЃСЏ РѕС‚ С†РµРЅС‹
+			// СЂРѕРґРёС‚РµР»СЊСЃРєРѕРіРѕ Р»РѕС‚Р° С‚РѕР»СЊРєРѕ РµСЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ С„Р»Р°Рі CFGFLG_FREEPRICE.
 			//
 			else if(!(Item.Flags & PPTFR_RECEIPT) && !(IsIntrExpndOp(OpID) && r_cfg.Flags & CFGFLG_FREEPRICE))
 				disableCtrl(CTL_LOT_PRICE, 1);
@@ -529,7 +519,7 @@ void TrfrItemDialog::setupCtrls() // Called from TrfrItemDialog::setDTS
 	else
 		disableCtrl(CTL_LOT_CURPRICE, 1);
 	//
-	// В переоценке количество изменять не допускается //
+	// Р’ РїРµСЂРµРѕС†РµРЅРєРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РёР·РјРµРЅСЏС‚СЊ РЅРµ РґРѕРїСѓСЃРєР°РµС‚СЃСЏ //
 	//
 	if(Item.Flags & PPTFR_REVAL) {
 		if(!(Item.Flags & PPTFR_CORRECTION))
@@ -815,7 +805,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 			messageToCtrl(CTLSEL_LOT_GOODSGRP, cmCBActivate, 0);
 		else if(Item.Flags & PPTFR_ONORDER && Item.LotID == 0)
 			replyGoodsSelection();
-		// Далее управление передается базовому классу
+		// Р”Р°Р»РµРµ СѓРїСЂР°РІР»РµРЅРёРµ РїРµСЂРµРґР°РµС‚СЃСЏ Р±Р°Р·РѕРІРѕРјСѓ РєР»Р°СЃСЃСѓ
 	}
 	else if(event.isCmd(cmOK)) {
 		setupValuation();
@@ -926,8 +916,8 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 				case cmInputUpdated:
 					if(event.isCtlEvent(CTL_LOT_PRICE) || event.isCtlEvent(CTL_LOT_DISCOUNT)) {
 						//
-						// При изменении поля цены реализации либо скидки необходимо перерисовать его
-						// дабы его цвет изменился (см. ниже cmCtlColor)
+						// РџСЂРё РёР·РјРµРЅРµРЅРёРё РїРѕР»СЏ С†РµРЅС‹ СЂРµР°Р»РёР·Р°С†РёРё Р»РёР±Рѕ СЃРєРёРґРєРё РЅРµРѕР±С…РѕРґРёРјРѕ РїРµСЂРµСЂРёСЃРѕРІР°С‚СЊ РµРіРѕ
+						// РґР°Р±С‹ РµРіРѕ С†РІРµС‚ РёР·РјРµРЅРёР»СЃСЏ (СЃРј. РЅРёР¶Рµ cmCtlColor)
 						//
 						drawCtrl(CTL_LOT_PRICE);
 					}
@@ -1270,7 +1260,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		CALLEXCEPT();
 	}
 	//
-	// Защита от несоответствия лота товару
+	// Р—Р°С‰РёС‚Р° РѕС‚ РЅРµСЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ Р»РѕС‚Р° С‚РѕРІР°СЂСѓ
 	//
 	if(Item.LotID && (P_Trfr->Rcpt.Search(Item.LotID, &lot_rec) <= 0 || labs(lot_rec.GoodsID) != labs(Item.GoodsID)))
 		Item.LotID = 0;
@@ -1325,9 +1315,9 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		Item.LotID = 0; // quot.ID; //0;
 	}
 	//
-	// В случае прихода товара от поставщика, заказа или подтверждения надо
-	// просто найти (или не найти) последний лот (хоть открытый, хоть закрытый)
-	// чтобы скопировать из него некоторые параметры.
+	// Р’ СЃР»СѓС‡Р°Рµ РїСЂРёС…РѕРґР° С‚РѕРІР°СЂР° РѕС‚ РїРѕСЃС‚Р°РІС‰РёРєР°, Р·Р°РєР°Р·Р° РёР»Рё РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РЅР°РґРѕ
+	// РїСЂРѕСЃС‚Рѕ РЅР°Р№С‚Рё (РёР»Рё РЅРµ РЅР°Р№С‚Рё) РїРѕСЃР»РµРґРЅРёР№ Р»РѕС‚ (С…РѕС‚СЊ РѕС‚РєСЂС‹С‚С‹Р№, С…РѕС‚СЊ Р·Р°РєСЂС‹С‚С‹Р№)
+	// С‡С‚РѕР±С‹ СЃРєРѕРїРёСЂРѕРІР°С‚СЊ РёР· РЅРµРіРѕ РЅРµРєРѕС‚РѕСЂС‹Рµ РїР°СЂР°РјРµС‚СЂС‹.
 	//
 	else if(oneof3(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSACK, PPOPT_GOODSORDER) || P_Pack->IsDraft() || isModifPlus()) {
 		const  PPID  lid = Item.LocID;
@@ -1382,7 +1372,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 				}
 				else {
 					//
-					// При выборе товара по цене останавливаемся на том лоте, который имеет выбранную цену.
+					// РџСЂРё РІС‹Р±РѕСЂРµ С‚РѕРІР°СЂР° РїРѕ С†РµРЅРµ РѕСЃС‚Р°РЅР°РІР»РёРІР°РµРјСЃСЏ РЅР° С‚РѕРј Р»РѕС‚Рµ, РєРѕС‚РѕСЂС‹Р№ РёРјРµРµС‚ РІС‹Р±СЂР°РЅРЅСѓСЋ С†РµРЅСѓ.
 					//
 					double p = R5(lot_rec.Price);
 					if(St & stGoodsByPrice && p != Item.Price) {
@@ -1391,8 +1381,8 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 					}
 					else {
 						//
-						// Если документ привязан к конкретному поставщику (кроме прихода),
-						// то проверяем чтобы товар был оприходован от этого поставщика.
+						// Р•СЃР»Рё РґРѕРєСѓРјРµРЅС‚ РїСЂРёРІСЏР·Р°РЅ Рє РєРѕРЅРєСЂРµС‚РЅРѕРјСѓ РїРѕСЃС‚Р°РІС‰РёРєСѓ (РєСЂРѕРјРµ РїСЂРёС…РѕРґР°),
+						// С‚Рѕ РїСЂРѕРІРµСЂСЏРµРј С‡С‚РѕР±С‹ С‚РѕРІР°СЂ Р±С‹Р» РѕРїСЂРёС…РѕРґРѕРІР°РЅ РѕС‚ СЌС‚РѕРіРѕ РїРѕСЃС‚Р°РІС‰РёРєР°.
 						//
 						if(OpID == _PPOPK_SUPPLRET || (P_Pack->OpTypeID == PPOPT_GOODSREVAL && P_Pack->Rec.Object))
 							if(lot_rec.SupplID != P_Pack->Rec.Object) {
@@ -1438,13 +1428,11 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 			}
 			if(suppl_deal_cost > 0.0) {
 				PPOprKind op_rec;
-				if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_USESUPPLDEAL) {
+				if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_USESUPPLDEAL)
 					Item.Cost = suppl_deal_cost;
-					//setCtrlCost();
-				}
 			}
 			//
-			// Наследуем теги из предыдущего лота данного товара
+			// РќР°СЃР»РµРґСѓРµРј С‚РµРіРё РёР· РїСЂРµРґС‹РґСѓС‰РµРіРѕ Р»РѕС‚Р° РґР°РЅРЅРѕРіРѕ С‚РѕРІР°СЂР°
 			//
 			if(ItemNo < 0 && Item.LotID && Item.Flags & PPTFR_RECEIPT) {
 				ObjTagList inh_tag_list;
@@ -1542,7 +1530,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 				PPError();
 			setCtrlLong(CTLSEL_LOT_GOODS, Item.GoodsID = 0);
 			if(again && !(Item.Flags & PPTFR_ONORDER))
-				messageToCtrl(CTLSEL_LOT_GOODS, cmCBActivate, 0); // Этот вызов приводит к рекурсивному входу в текущую функцию.
+				messageToCtrl(CTLSEL_LOT_GOODS, cmCBActivate, 0); // Р­С‚РѕС‚ РІС‹Р·РѕРІ РїСЂРёРІРѕРґРёС‚ Рє СЂРµРєСѓСЂСЃРёРІРЅРѕРјСѓ РІС…РѕРґСѓ РІ С‚РµРєСѓС‰СѓСЋ С„СѓРЅРєС†РёСЋ.
 		}
 	ENDCATCH
 	return ok;
@@ -1928,9 +1916,9 @@ int TrfrItemDialog::checkQuantityVal(double * pExtraQtty)
 	}
 	if(OrdReserved > 0 && P_BObj->Cfg.Flags & BCF_CHECKRESERVEDORDERS && !(Item.Flags & (PPTFR_UNLIM|PPTFR_ACK|PPTFR_DRAFT|PPTFR_ORDER|PPTFR_PLUS))) {
 		//
-		// Если редактируется существующая строка и количество по ней уменьшается, то не
-		// проверяем нарушение зарезервированного заказа, поскольку такая операция приведет к увеличению
-		// доступного остатка для зарезервированного заказа.
+		// Р•СЃР»Рё СЂРµРґР°РєС‚РёСЂСѓРµС‚СЃСЏ СЃСѓС‰РµСЃС‚РІСѓСЋС‰Р°СЏ СЃС‚СЂРѕРєР° Рё РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕ РЅРµР№ СѓРјРµРЅСЊС€Р°РµС‚СЃСЏ, С‚Рѕ РЅРµ
+		// РїСЂРѕРІРµСЂСЏРµРј РЅР°СЂСѓС€РµРЅРёРµ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅРѕРіРѕ Р·Р°РєР°Р·Р°, РїРѕСЃРєРѕР»СЊРєСѓ С‚Р°РєР°СЏ РѕРїРµСЂР°С†РёСЏ РїСЂРёРІРµРґРµС‚ Рє СѓРІРµР»РёС‡РµРЅРёСЋ
+		// РґРѕСЃС‚СѓРїРЅРѕРіРѕ РѕСЃС‚Р°С‚РєР° РґР»СЏ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅРѕРіРѕ Р·Р°РєР°Р·Р°.
 		//
 		int    skip_rsrv_test = 0;
 		if(Item.BillID && Item.RByBill) {
@@ -1992,9 +1980,9 @@ int SLAPI PPObjBill::GetPriceRestrictions(PPBillPacket & rPack, const PPTransfer
 				if(gvr_pack.UppBoundFormula.NotEmptyS()) {
 					double bound = 0.0;
 					//
-					// При редактировании строки приходного документа LotID
-					// "затирается". Поэтому создаем временный PPTransferItem и
-					// устанавливаем в нем LotID равный тому, что в пакете.
+					// РџСЂРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРё СЃС‚СЂРѕРєРё РїСЂРёС…РѕРґРЅРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р° LotID
+					// "Р·Р°С‚РёСЂР°РµС‚СЃСЏ". РџРѕСЌС‚РѕРјСѓ СЃРѕР·РґР°РµРј РІСЂРµРјРµРЅРЅС‹Р№ PPTransferItem Рё
+					// СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РІ РЅРµРј LotID СЂР°РІРЅС‹Р№ С‚РѕРјСѓ, С‡С‚Рѕ РІ РїР°РєРµС‚Рµ.
 					//
 					rPack.SetTPointer(itemPos);
 					GdsClsCalcExprContext ctx(&rTi, &rPack);
@@ -2122,8 +2110,8 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	if(Item.Flags & PPTFR_RECEIPT && oneof2(op_subtype, OPSUBT_ASSETRCV, OPSUBT_ASSETMODIF)) {
 		GetClusterData(CTL_LOT_IMMASSETEXPL, &Item.Flags);
 		if(op_subtype != OPSUBT_ASSETMODIF) {
-			pc = Item.Cost; // Цена реализации (балансовая стоимость) для основных средств
-				// автомататически равна цене поступлени (если речь не идет о модификации основных средств)
+			pc = Item.Cost; // Р¦РµРЅР° СЂРµР°Р»РёР·Р°С†РёРё (Р±Р°Р»Р°РЅСЃРѕРІР°СЏ СЃС‚РѕРёРјРѕСЃС‚СЊ) РґР»СЏ РѕСЃРЅРѕРІРЅС‹С… СЃСЂРµРґСЃС‚РІ
+				// Р°РІС‚РѕРјР°С‚Р°С‚РёС‡РµСЃРєРё СЂР°РІРЅР° С†РµРЅРµ РїРѕСЃС‚СѓРїР»РµРЅРё (РµСЃР»Рё СЂРµС‡СЊ РЅРµ РёРґРµС‚ Рѕ РјРѕРґРёС„РёРєР°С†РёРё РѕСЃРЅРѕРІРЅС‹С… СЃСЂРµРґСЃС‚РІ)
 			ds = 0.0;
 		}
 	}
@@ -2169,19 +2157,19 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 		}
 		else {
 			//
-			// Если это - не ввод в эксплуатацию объекта основных средств
+			// Р•СЃР»Рё СЌС‚Рѕ - РЅРµ РІРІРѕРґ РІ СЌРєСЃРїР»СѓР°С‚Р°С†РёСЋ РѕР±СЉРµРєС‚Р° РѕСЃРЅРѕРІРЅС‹С… СЃСЂРµРґСЃС‚РІ
 			//
 			if(Item.Flags & PPTFR_ASSETEXPL) {
 				pc = Item.Cost;
 			}
 			else if(!Item.IsRecomplete()) {
 				//
-				// Если изменилась цена поступления, то должен быть указан поставщик
+				// Р•СЃР»Рё РёР·РјРµРЅРёР»Р°СЃСЊ С†РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ, С‚Рѕ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓРєР°Р·Р°РЅ РїРѕСЃС‚Р°РІС‰РёРє
 				//
 				if(!(P_BObj->Cfg.Flags & BCF_ALLOWZSUPPLINCOSTREVAL))
 					THROW_PP(P_Pack->Rec.Object || Item.Cost == Item.RevalCost, PPERR_REVALWOSUPPL);
 				//
-				// В любом случае должна измениться цена поступления или реализации
+				// Р’ Р»СЋР±РѕРј СЃР»СѓС‡Р°Рµ РґРѕР»Р¶РЅР° РёР·РјРµРЅРёС‚СЊСЃСЏ С†РµРЅР° РїРѕСЃС‚СѓРїР»РµРЅРёСЏ РёР»Рё СЂРµР°Р»РёР·Р°С†РёРё
 				//
 				THROW_PP(pc != ds || Item.Cost != Item.RevalCost, PPERR_ZEROREVAL);
 			}
@@ -2211,9 +2199,9 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	THROW(CheckPrice());
 	//
 	// @v4.3.7 {
-	// Это временный код. Попытка исправить проблему с драфтами,
-	// возникшую в предыдущих версиях, когда скидка становилась равной
-	// цене реализации в документах с типом PPOPT_DRAFTRECEIPT.
+	// Р­С‚Рѕ РІСЂРµРјРµРЅРЅС‹Р№ РєРѕРґ. РџРѕРїС‹С‚РєР° РёСЃРїСЂР°РІРёС‚СЊ РїСЂРѕР±Р»РµРјСѓ СЃ РґСЂР°С„С‚Р°РјРё,
+	// РІРѕР·РЅРёРєС€СѓСЋ РІ РїСЂРµРґС‹РґСѓС‰РёС… РІРµСЂСЃРёСЏС…, РєРѕРіРґР° СЃРєРёРґРєР° СЃС‚Р°РЅРѕРІРёР»Р°СЃСЊ СЂР°РІРЅРѕР№
+	// С†РµРЅРµ СЂРµР°Р»РёР·Р°С†РёРё РІ РґРѕРєСѓРјРµРЅС‚Р°С… СЃ С‚РёРїРѕРј PPOPT_DRAFTRECEIPT.
 	if(P_Pack->OpTypeID == PPOPT_DRAFTRECEIPT)
 		Item.Discount = 0.0;
 	// }
@@ -2412,8 +2400,8 @@ int TrfrItemDialog::setupLot()
 		if(!(fl & TISL_IGNPRICE))
 			Price = Item.Price;
 		if(Item.Flags & PPTFR_REVAL) {
-			// Предварительная попытка разрешить рекомплектацию лотов, которые не были перед этим
-			// скомплектованы. Это оказалось актуально при учете ОС.
+			// РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅР°СЏ РїРѕРїС‹С‚РєР° СЂР°Р·СЂРµС€РёС‚СЊ СЂРµРєРѕРјРїР»РµРєС‚Р°С†РёСЋ Р»РѕС‚РѕРІ, РєРѕС‚РѕСЂС‹Рµ РЅРµ Р±С‹Р»Рё РїРµСЂРµРґ СЌС‚РёРј
+			// СЃРєРѕРјРїР»РµРєС‚РѕРІР°РЅС‹. Р­С‚Рѕ РѕРєР°Р·Р°Р»РѕСЃСЊ Р°РєС‚СѓР°Р»СЊРЅРѕ РїСЂРё СѓС‡РµС‚Рµ РћРЎ.
 			for(uint pos = 0; P_Pack->SearchLot(Item.LotID, &pos) > 0; pos++) {
 				THROW_PP(pos == (uint)ItemNo, PPERR_DUPLOTREVAL);
 			}
@@ -2438,12 +2426,12 @@ int TrfrItemDialog::setupLot()
 						in_expl = 0;
 				}
 				if(in_expl) {
-					// Объект находится в эксплуатации, следовательно это - вывод из эксплуатации
+					// РћР±СЉРµРєС‚ РЅР°С…РѕРґРёС‚СЃСЏ РІ СЌРєСЃРїР»СѓР°С‚Р°С†РёРё, СЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ СЌС‚Рѕ - РІС‹РІРѕРґ РёР· СЌРєСЃРїР»СѓР°С‚Р°С†РёРё
 					Item.Flags |= (PPTFR_ASSETEXPL | PPTFR_MODIF);
 					v = 1;
 				}
 				else {
-					// Объект находится вне эксплуатации, следовательно это - ввод в эксплуатацию
+					// РћР±СЉРµРєС‚ РЅР°С…РѕРґРёС‚СЃСЏ РІРЅРµ СЌРєСЃРїР»СѓР°С‚Р°С†РёРё, СЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ СЌС‚Рѕ - РІРІРѕРґ РІ СЌРєСЃРїР»СѓР°С‚Р°С†РёСЋ
 					Item.Flags |= PPTFR_ASSETEXPL;
 					Item.Flags &= ~PPTFR_MODIF;
 					v = 0;
@@ -2471,7 +2459,7 @@ int TrfrItemDialog::setupLot()
 	enableCommand(cmQCert, (Item.QCert && Item.LotID) || (Item.Flags & PPTFR_DRAFT));
 	setupQuantity(0, 0);
 	setCtrlData(CTL_LOT_EXPIRY, &Item.Expiry);
-	setCtrlCost(); // Установка COST должна предшествовать установке PRICE (следующая строка)
+	setCtrlCost(); // РЈСЃС‚Р°РЅРѕРІРєР° COST РґРѕР»Р¶РЅР° РїСЂРµРґС€РµСЃС‚РІРѕРІР°С‚СЊ СѓСЃС‚Р°РЅРѕРІРєРµ PRICE (СЃР»РµРґСѓСЋС‰Р°СЏ СЃС‚СЂРѕРєР°)
 	if(fl & TISL_ADJPRICE && isDiscountInSum()) {
 		setCtrlReal(CTL_LOT_PRICE,  Item.NetPrice());
 		setCtrlReal(CTL_LOT_DISCOUNT, 0.0);
@@ -2543,22 +2531,25 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 	}
 	else if(Item.GoodsID && oneof3(OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
 		double quot = 0.0, dis;
-		PPID   loc_id = GetQuotLocID();
+		int    gqr = 0; // @v9.9.2 Р РµР·СѓР»СЊС‚Р°С‚ РёР·РІР»РµС‡РµРЅРёСЏ РєРѕС‚РёСЂРѕРІРєРё (РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРё РЅСѓР»РµРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РєРѕС‚РёСЂРѕРІРєРё)
+		const  PPID loc_id = GetQuotLocID();
 		if(loc_id) {
 			quot = Item.Price;
-			if(P_BObj->SelectQuotKind(P_Pack, &Item, (autoQuot && P_Pack->AgtQuotKindID) ? 0 : 1, 0, &quot) > 0) {
+			gqr = P_BObj->SelectQuotKind(P_Pack, &Item, (autoQuot && P_Pack->AgtQuotKindID) ? 0 : 1, 0, &quot);
+			if(gqr > 0) {
 				;
 			}
 			else if(autoQuot) {
 				quot = 0.0;
 				if(Item.CurID) {
-					QuotIdent qi(loc_id, PPQUOTK_BASE, Item.CurID, P_Pack->Rec.Object);
-					if(GObj.GetQuot(Item.GoodsID, qi, 0L, 0L, &quot, 1) <= 0)
+					const QuotIdent qi(loc_id, PPQUOTK_BASE, Item.CurID, P_Pack->Rec.Object);
+					gqr = GObj.GetQuot(Item.GoodsID, qi, 0L, 0L, &quot, 1);
+					if(gqr <= 0)
 						quot = 0.0;
 				}
 			}
 		}
-		if(quot == 0.0 && !autoQuot && r_cfg.Flags & CFGFLG_ENABLEFIXDIS && !(Item.Flags & PPTFR_QUOT)) {
+		if(gqr <= 0 && !autoQuot && r_cfg.Flags & CFGFLG_ENABLEFIXDIS && !(Item.Flags & PPTFR_QUOT)) { // @v9.9.2 (quot == 0.0)-->(gqr <= 0)
 			if(r_cfg.Flags & CFGFLG_DISCOUNTBYSUM)
 				getCtrlData(CTL_LOT_PRICE, &quot);
 			else {
@@ -2567,13 +2558,13 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 			}
 			quot = R2(quot);
 		}
-		if(quot > 0.0) {
+		if(quot > 0.0 || (quot == 0.0 && gqr > 0)) {
 			PPObjArticle ar_obj;
 			PPClientAgreement cliagt;
 			// @v9.2.9 {
 			//
-			// Специальный случай - для отгрузки, привязанной к заказу, принятому из некоторых
-			// систем, требуется поправлять конечную цену на величину процентной скидки из заказа
+			// РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЃР»СѓС‡Р°Р№ - РґР»СЏ РѕС‚РіСЂСѓР·РєРё, РїСЂРёРІСЏР·Р°РЅРЅРѕР№ Рє Р·Р°РєР°Р·Сѓ, РїСЂРёРЅСЏС‚РѕРјСѓ РёР· РЅРµРєРѕС‚РѕСЂС‹С…
+			// СЃРёСЃС‚РµРј, С‚СЂРµР±СѓРµС‚СЃСЏ РїРѕРїСЂР°РІР»СЏС‚СЊ РєРѕРЅРµС‡РЅСѓСЋ С†РµРЅСѓ РЅР° РІРµР»РёС‡РёРЅСѓ РїСЂРѕС†РµРЅС‚РЅРѕР№ СЃРєРёРґРєРё РёР· Р·Р°РєР°Р·Р°
 			//
 			TransferTbl::Rec ord_item;
 			double ord_pct_dis = 0.0;
@@ -2767,11 +2758,8 @@ int SLAPI SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long flags) :
-	//BrowserWindow(pSerial ? BROWSER_GOODSLOT_SERIAL : BROWSER_GOODSLOT, pAry)
-	BrowserWindow(BROWSER_SELECTLOT, pAry), State(0), Flags(flags)
+SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long flags) : BrowserWindow(BROWSER_SELECTLOT, pAry), State(0), Flags(flags)
 {
-	//GoodsID = goodsID;
 	PPID   single_goods_id = 0;
 	SString single_serial;
 	SString temp_buf;
@@ -2797,15 +2785,15 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 			}
 		}
 		if(State & stMultipleGoods) {
-			SLS.LoadString("ware", temp_buf);
+			PPLoadString("ware", temp_buf);
 			insertColumn(0, temp_buf, 9, MKSTYPE(S_ZSTRING, 128), 0, BCO_CAPLEFT|BCO_USERPROC);
 		}
 		if(Flags & fShowEgaisTags) {
-			SLS.LoadString("egaiscode", temp_buf);
+			PPLoadString("egaiscode", temp_buf);
 			insertColumn(-1, temp_buf, 10, MKSTYPE(S_ZSTRING, 20), 0, BCO_CAPLEFT|BCO_USERPROC);
-			SLS.LoadString("egaisrefa", temp_buf);
+			PPLoadString("egaisrefa", temp_buf);
 			insertColumn(-1, temp_buf, 11, MKSTYPE(S_ZSTRING, 20), 0, BCO_CAPLEFT|BCO_USERPROC);
-			SLS.LoadString("egaisrefb", temp_buf);
+			PPLoadString("egaisrefb", temp_buf);
 			insertColumn(-1, temp_buf, 12, MKSTYPE(S_ZSTRING, 20), 0, BCO_CAPLEFT|BCO_USERPROC);
 		}
 	}
@@ -2879,8 +2867,7 @@ void TrfrItemDialog::selectLot()
 		diter.Init(0, Item.Date);
 		while((r = P_Trfr->Rcpt.EnumLots(Item.GoodsID, Item.LocID, &diter)) > 0) {
 			//
-			// Для некоторых операций отбираем только те лоты, которые
-			// поступили от специфицированного поставщика
+			// Р”Р»СЏ РЅРµРєРѕС‚РѕСЂС‹С… РѕРїРµСЂР°С†РёР№ РѕС‚Р±РёСЂР°РµРј С‚РѕР»СЊРєРѕ С‚Рµ Р»РѕС‚С‹, РєРѕС‚РѕСЂС‹Рµ РїРѕСЃС‚СѓРїРёР»Рё РѕС‚ СЃРїРµС†РёС„РёС†РёСЂРѕРІР°РЅРЅРѕРіРѕ РїРѕСЃС‚Р°РІС‰РёРєР°
 			//
 			if(p_lot_rec->SupplID == P_Pack->Rec.Object || (op_id != _PPOPK_SUPPLRET && (P_Pack->OpTypeID != PPOPT_GOODSREVAL || !P_Pack->Rec.Object))) {
 				THROW(addLotEntry(p_ary, p_lot_rec));
@@ -2909,13 +2896,13 @@ void TrfrItemDialog::selectLot()
 		}
 		THROW_MEM(p_brw = new SelLotBrowser(P_BObj, p_ary, s, 0));
 		if(ExecView(p_brw) == cmOK && (p_sel = (SelLotBrowser::Entry *)p_brw->view->getCurItem()) != 0)
-			if(p_sel->LotID != Item.LotID && !(Item.Flags & (PPTFR_RECEIPT|PPTFR_CORRECTION))) { // @v7.8.10 PPTFR_CORRECTION
+			if(p_sel->LotID != Item.LotID && !(Item.Flags & (PPTFR_RECEIPT|PPTFR_CORRECTION))) {
 				Item.LotID = p_sel->LotID;
 				Item.Cost  = 0.0;
 				Item.Price = 0.0;
 				Item.Rest_ = 0.0;
 				Rest = 0.0;
-				Item.Expiry = ZERODATE; // @v7.3.4
+				Item.Expiry = ZERODATE;
 				if(P_Pack->OpTypeID == PPOPT_GOODSREVAL)
 					Item.RevalCost = Item.Discount = 0.0;
 				THROW(setupLot());

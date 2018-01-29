@@ -652,12 +652,9 @@ enum curl_khmatch {
 	CURLKHMATCH_LAST /* not for use, only a marker for last-in-list */
 };
 
-typedef int
-(*curl_sshkeycallback)(CURL * easy,       /* easy handle */
-    const struct curl_khkey * knownkey,                      /* known */
-    const struct curl_khkey * foundkey,                      /* found */
-    enum curl_khmatch,                       /* libcurl's view on the keys */
-    void * clientp);                      /* custom pointer passed from app */
+typedef int (*curl_sshkeycallback)(CURL * easy/* easy handle */,
+    const struct curl_khkey * knownkey/* known */, const struct curl_khkey * foundkey/* found */,
+    enum curl_khmatch/* libcurl's view on the keys */, void * clientp/* custom pointer passed from app */);
 //
 // parameter for the CURLOPT_USE_SSL option
 //

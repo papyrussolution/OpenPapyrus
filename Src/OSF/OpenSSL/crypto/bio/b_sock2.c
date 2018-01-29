@@ -225,12 +225,11 @@ int BIO_accept_ex(int accept_sock, BIO_ADDR * addr_, int options)
 	else
 		return accepted_sock;
 }
-
 /*-
  * BIO_closesocket - Close a socket
  * @sock: the socket to close
  */
-int BIO_closesocket(int sock)
+int FASTCALL BIO_closesocket(int sock)
 {
 	return (closesocket(sock) >= 0) ? 1 : 0;
 }

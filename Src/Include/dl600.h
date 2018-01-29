@@ -1173,24 +1173,12 @@ public:
 	virtual int  Set(long iterId, int commit);
 	virtual void Destroy(); // @v9.6.4 int-->void
 	virtual void EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS);
-	DlContext * GetContext() const
-	{
-		return P_Ctx;
-	}
-	const  DlScope * GetData() const
-	{
-		return P_Data;
-	}
-	const  DlScope * GetHdrScope() const
-	{
-		return P_HdrScope;
-	}
+	DlContext * GetContext() const { return P_Ctx; }
+	const  DlScope * GetData() const { return P_Data; }
+	const  DlScope * GetHdrScope() const { return P_HdrScope; }
 	void * GetFixFieldData(const DlScope * pScope, uint fldPos);
 	long   FASTCALL GetIterID(const char * pIterName = 0) const;
-	DLSYMBID GetDataId() const
-	{
-		return DataId;
-	}
+	DLSYMBID GetDataId() const { return DataId; }
 	int    SetByJSON(json_t * pJSONDoc, long & ObjId);           // @Muxa
 	int    SetByJSON_Helper(json_t * pNode, SetScopeBlk & rBlk); // @Muxa
 
@@ -1438,6 +1426,7 @@ public:
 
 	int    SLAPI CreateInnerInstance(const char * pClsName, const char * pIfcName, void ** ppIfc);
 	int    SLAPI RaiseAppError();
+	void * SLAPI RaiseAppErrorPtr();
 	int    FASTCALL SetAppError(int assertion);
 
 	long   AppFlags; // Может использоваться реализациями для хранения бинарных флагов
@@ -1485,10 +1474,8 @@ private:
 	QI_##ifn=&SCoClass::QueryInterface; \
 	AR_##ifn=&SCoClass::AddRef; \
 	R_##ifn=&SCoClass::Release
-#define ISUPERRINFO_METHOD_PTRS(ifn) \
-	HRESULT (__stdcall SCoClass::*ISEI_##ifn)(REFIID)
-#define ISUPERRINFO_METHOD_PTRS_ASSIGN(ifn) \
-	ISEI_##ifn=&SCoClass::InterfaceSupportsErrorInfo
+#define ISUPERRINFO_METHOD_PTRS(ifn)        HRESULT (__stdcall SCoClass::*ISEI_##ifn)(REFIID)
+#define ISUPERRINFO_METHOD_PTRS_ASSIGN(ifn) ISEI_##ifn=&SCoClass::InterfaceSupportsErrorInfo
 #define IFACE_METHOD_PROLOG(cls) /*TRACE_FUNC();*/ cls * __tp = (cls *)((TabEntry *)this)->ThisPtr; __tp->AppError=0;
 //#define IFACE_METHOD_EPILOG return __tp->AppError ? MAKE_HRESULT(1, FACILITY_ITF, 0) : S_OK
 #define IFACE_METHOD_EPILOG /*TRACE_FUNC();*/ return __tp->Epilog()

@@ -1897,7 +1897,7 @@ static int FASTCALL UriMakeOwner(UriUri * uri, uint * doneMask)
 static int FASTCALL UriNormalizeSyntaxEngine(UriUri * uri, uint inMask, uint * outMask)
 {
 	uint doneMask = URI_NORMALIZED;
-	if(uri == NULL) {
+	if(!uri) {
 		if(outMask) {
 			*outMask = URI_NORMALIZED;
 			return SLERR_SUCCESS;

@@ -2770,176 +2770,12 @@ void PPALDD_Lots::Destroy()
 	DESTROY_PPVIEW_ALDD(Lot);
 }
 //
-//
-//
-#define USE_IMPL_DL6ICLS_PPFiltLot
-#define USE_IMPL_DL6ICLS_PPViewLot
-#include "..\rsrc\dl600\ppifc_auto.cpp"
-
-DL6_IC_CONSTRUCTION_EXTRA(PPFiltLot, DL6ICLS_PPFiltLot_VTab, LotFilt);
-//
-// Interface IPpyFilt_Lot implementation
-//
-void DL6ICLS_PPFiltLot::SetPeriod(LDATE low, LDATE upp)
-	{ ((LotFilt *)ExtraPtr)->Period.Set(low, upp); }
-void DL6ICLS_PPFiltLot::SetOperationPeriod(LDATE low, LDATE upp)
-	{ ((LotFilt *)ExtraPtr)->Operation.Set(low, upp); }
-void DL6ICLS_PPFiltLot::SetExpiryPeriod(LDATE low, LDATE upp)
-	{ ((LotFilt *)ExtraPtr)->ExpiryPrd.Set(low, upp); }
-void DL6ICLS_PPFiltLot::SetQcExpiryPeriod(LDATE low, LDATE upp)
-	{ ((LotFilt *)ExtraPtr)->QcExpiryPrd.Set(low, upp); }
-SDateRange DL6ICLS_PPFiltLot::get_Period()
-	{ return DateRangeToOleDateRange(((LotFilt *)ExtraPtr)->Period); }
-SDateRange DL6ICLS_PPFiltLot::get_OperationPeriod()
-	{ return DateRangeToOleDateRange(((LotFilt *)ExtraPtr)->Operation); }
-SDateRange DL6ICLS_PPFiltLot::get_ExpiryPeriod()
-	{ return DateRangeToOleDateRange(((LotFilt *)ExtraPtr)->ExpiryPrd); }
-SDateRange DL6ICLS_PPFiltLot::get_QcExpiryPeriod()
-	{ return DateRangeToOleDateRange(((LotFilt *)ExtraPtr)->QcExpiryPrd); }
-
-int32 DL6ICLS_PPFiltLot::get_LocID()                 { IMPL_PPIFC_GETPROP(LotFilt, LocID); }
-void  DL6ICLS_PPFiltLot::put_LocID(int32 value)      { IMPL_PPIFC_PUTPROP(LotFilt, LocID); }
-int32 DL6ICLS_PPFiltLot::get_SupplID()               { IMPL_PPIFC_GETPROP(LotFilt, SupplID); }
-void  DL6ICLS_PPFiltLot::put_SupplID(int32 value)    { IMPL_PPIFC_PUTPROP(LotFilt, SupplID); }
-int32 DL6ICLS_PPFiltLot::get_GoodsGrpID()            { IMPL_PPIFC_GETPROP(LotFilt, GoodsGrpID); }
-void  DL6ICLS_PPFiltLot::put_GoodsGrpID(int32 value) { IMPL_PPIFC_PUTPROP(LotFilt, GoodsGrpID); }
-int32 DL6ICLS_PPFiltLot::get_GoodsID()               { IMPL_PPIFC_GETPROP(LotFilt, GoodsID); }
-void  DL6ICLS_PPFiltLot::put_GoodsID(int32 value)    { IMPL_PPIFC_PUTPROP(LotFilt, GoodsID); }
-int32 DL6ICLS_PPFiltLot::get_QCertID()               { IMPL_PPIFC_GETPROP(LotFilt, QCertID); }
-void  DL6ICLS_PPFiltLot::put_QCertID(int32 value)    { IMPL_PPIFC_PUTPROP(LotFilt, QCertID); }
-int32 DL6ICLS_PPFiltLot::get_InTaxGrpID()            { IMPL_PPIFC_GETPROP(LotFilt, InTaxGrpID); }
-void  DL6ICLS_PPFiltLot::put_InTaxGrpID(int32 value) { IMPL_PPIFC_PUTPROP(LotFilt, InTaxGrpID); }
-
-PpyVLotFlags DL6ICLS_PPFiltLot::get_Flags()           { IMPL_PPIFC_GETPROP_CAST(LotFilt, Flags, PpyVLotFlags); }
-void DL6ICLS_PPFiltLot::put_Flags(PpyVLotFlags value) { IMPL_PPIFC_PUTPROP(LotFilt, Flags); }
-uint32 DL6ICLS_PPFiltLot::get_ClosedTag()             { IMPL_PPIFC_GETPROP(LotFilt, ClosedTag); }
-void DL6ICLS_PPFiltLot::put_ClosedTag(uint32 value)   { IMPL_PPIFC_PUTPROP(LotFilt, ClosedTag); }
-
-double DL6ICLS_PPFiltLot::get_CostLow()              { return ((LotFilt *)ExtraPtr)->CostRange.low; }
-void   DL6ICLS_PPFiltLot::put_CostLow(double value)  { ((LotFilt *)ExtraPtr)->CostRange.low = value; }
-double DL6ICLS_PPFiltLot::get_CostUpp()              { return ((LotFilt *)ExtraPtr)->CostRange.upp; }
-void   DL6ICLS_PPFiltLot::put_CostUpp(double value)  { ((LotFilt *)ExtraPtr)->CostRange.upp = value; }
-double DL6ICLS_PPFiltLot::get_PriceLow()             { return ((LotFilt *)ExtraPtr)->PriceRange.low; }
-void   DL6ICLS_PPFiltLot::put_PriceLow(double value) { ((LotFilt *)ExtraPtr)->PriceRange.low = value; }
-double DL6ICLS_PPFiltLot::get_PriceUpp()             { return ((LotFilt *)ExtraPtr)->PriceRange.upp; }
-void   DL6ICLS_PPFiltLot::put_PriceUpp(double value) { ((LotFilt *)ExtraPtr)->PriceRange.upp = value; }
-
-SString & DL6ICLS_PPFiltLot::get_Serial()
-{
-	((LotFilt *)ExtraPtr)->GetExtssData(LotFilt::extssSerialText, RetStrBuf);
-	return RetStrBuf;
-}
-
-void DL6ICLS_PPFiltLot::put_Serial(SString & value)
-{
-	((LotFilt *)ExtraPtr)->PutExtssData(LotFilt::extssSerialText, value);
-}
-//
-//
-//
-DL6_IC_CONSTRUCTION_EXTRA(PPViewLot, DL6ICLS_PPViewLot_VTab, PPViewLot);
-//
-// Interface IPapyrusView implementation
-//
-IUnknown* DL6ICLS_PPViewLot::CreateFilt(int32 param)
-{
-	IUnknown * p_filt = 0;
-	return CreateInnerInstance("PPFiltLot", 0, (void **)&p_filt) ? p_filt : (AppError = 1, 0);
-}
-
-int32 DL6ICLS_PPViewLot::Init(IUnknown* pFilt)
-{
-	IMPL_PPIFC_PPVIEWINIT(Lot);
-}
-
-int32 DL6ICLS_PPViewLot::InitIteration(int32 order)
-{
-	return ((PPViewLot*)ExtraPtr)->InitIteration((PPViewLot::IterOrder)order);
-}
-
-int32 DL6ICLS_PPViewLot::NextIteration(PPYVIEWITEM item)
-{
-	int    ok = -1;
-	SPpyVI_Lot * p_item = (SPpyVI_Lot *)item;
-	LotViewItem inner_item;
-	if(((PPViewLot *)ExtraPtr)->NextIteration(&inner_item) > 0) {
-		SString temp_buf;
-		p_item->RecTag = PPVIEWITEM_LOT;
-		#define FLD(f) p_item->f = inner_item.f
-		FLD(ID);
-		FLD(BillID);
-		FLD(LocID);
-		p_item->Dt = (OleDate)inner_item.Dt;
-		FLD(OprNo);
-		FLD(Closed);
-		FLD(GoodsID);
-		FLD(QCertID);
-		FLD(UnitPerPack);
-		FLD(Quantity);
-		FLD(WtQtty);
-		FLD(WtRest);
-		FLD(Cost);
-		FLD(ExtCost);
-		FLD(Price);
-		FLD(Rest);
-		FLD(PrevLotID);
-		FLD(SupplID);
-		p_item->CloseDate = (OleDate)inner_item.CloseDate;
-		p_item->Expiry    = (OleDate)inner_item.Expiry;
-		FLD(InTaxGrpID);
-		FLD(Flags);
-		FLD(BegRest);
-		FLD(EndRest);
-		FLD(QttyPlus);
-		FLD(QttyMinus);
-		p_item->OrgLotDt = (OleDate)inner_item.OrgLotDt;
-		(temp_buf = inner_item.Serial).CopyToOleStr(&p_item->Serial);
-		#undef FLD
-		ok = 1;
-	}
-	return ok;
-}
-
-SIterCounter DL6ICLS_PPViewLot::GetIterCounter()
-{
-	return GetPPViewIterCounter(ExtraPtr, &AppError);
-}
-
-int32 DL6ICLS_PPViewLot::GetTotal(PPYVIEWTOTAL total)
-{
-	PPViewLot * p_v = (PPViewLot *)ExtraPtr;
-	if(p_v && total) {
-		LotTotal inner_total;
-		SPpyVT_Lot * p_total = (SPpyVT_Lot *)total;
-		if(p_v->CalcTotal(LotTotal::Extended, &inner_total)) {
-			p_total->RecTag = 0;
-			#define FLD(f) p_total->f = inner_total.f
-			FLD(Count);
-			FLD(Qtty);
-			FLD(Rest);
-			FLD(Cost);
-			FLD(Price);
-			FLD(DCount);
-			FLD(InCost);
-			FLD(InPrice);
-			FLD(DRest);
-			FLD(DCost);
-			FLD(DPrice);
-		}
-		else
-			AppError = 1;
-	}
-	return !AppError;
-}
-//
 // Import/Export
 //
 IMPLEMENT_IMPEXP_HDL_FACTORY(LOT, PPLotImpExpParam);
 
-SLAPI PPLotImpExpParam::PPLotImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags)
+SLAPI PPLotImpExpParam::PPLotImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), Flags(0), UhttGoodsCodeArID(0)
 {
-	Flags = 0;
-	UhttGoodsCodeArID = 0;
 }
 
 //virtual
@@ -3133,9 +2969,8 @@ int SLAPI SelectLotImpExpCfgs(PPLotImpExpParam * pParam, int import)
 	return ok;
 }
 
-SLAPI PPLotExporter::PPLotExporter() : Param(0, 0)
+SLAPI PPLotExporter::PPLotExporter() : Param(0, 0), P_IE(0)
 {
-	P_IE = 0;
 }
 
 SLAPI PPLotExporter::~PPLotExporter()

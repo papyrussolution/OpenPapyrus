@@ -5485,8 +5485,8 @@ TimePickerDialog::TimePickerDialog() : TDialog(DLG_TMPICKR)
 	Ptb.SetBrush(brClear,         SPaintObj::psSolid, Ptb.GetColor(clrClear), 0);
 	Ptb.SetBrush(brSelected,      SPaintObj::psSolid, GetColorRef(SClrBlack), 0);
 	Ptb.SetBrush(brMainRect,      SPaintObj::psSolid, RGB(0xC0, 0xC0, 0xC0), 0);
-	Ptb.SetBrush(brWhiteRect,     SPaintObj::psSolid, LightenColor(GetColorRef(SClrGrey), 0.8), 0);
-	Ptb.SetBrush(brSquare,        SPaintObj::psSolid, LightenColor(GetColorRef(SClrBrown), 0.5), 0);
+	Ptb.SetBrush(brWhiteRect,     SPaintObj::psSolid, LightenColor(GetColorRef(SClrGrey), 0.8f), 0);
+	Ptb.SetBrush(brSquare,        SPaintObj::psSolid, LightenColor(GetColorRef(SClrBrown), 0.5f), 0);
 	Ptb.SetPen(penWhite,          SPaintObj::psSolid, 1, GetColorRef(SClrWhite));
 	Ptb.SetPen(penSquare,         SPaintObj::psSolid, 2, GetColorRef(SClrBlue));
 	Ptb.SetPen(penBlack,          SPaintObj::psSolid, 1, GetColorRef(SClrBlack));

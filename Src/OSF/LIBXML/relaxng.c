@@ -5735,7 +5735,7 @@ static void xmlRelaxNGCleanupAttributes(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * 
 				if(val) {
 					if(val[0] != 0) {
 						xmlURI * uri = xmlParseURI((const char*)val);
-						if(uri == NULL) {
+						if(!uri) {
 							xmlRngPErr(ctxt, P_Node, XML_RNGP_INVALID_URI, "Attribute %s contains invalid URI %s\n", cur->name, val);
 						}
 						else {
@@ -5814,7 +5814,7 @@ static void xmlRelaxNGCleanupTree(xmlRelaxNGParserCtxtPtr ctxt, xmlNode * root)
 						goto skip_children;
 					}
 					uri = xmlParseURI((const char*)href);
-					if(uri == NULL) {
+					if(!uri) {
 						xmlRngPErr(ctxt, cur, XML_RNGP_HREF_ERROR, "Incorrect URI for externalRef %s\n", href, 0);
 						SAlloc::F(ns);
 						SAlloc::F(href);

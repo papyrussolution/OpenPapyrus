@@ -634,7 +634,7 @@ static ngx_int_t ngx_parse_inet_url(ngx_pool_t * pool, ngx_url_t * u)
 		last = port - 1;
 	}
 	else {
-		if(uri == NULL) {
+		if(!uri) {
 			if(u->listen) {
 				// test value as port only 
 				n = ngx_atoi(host, last - host);

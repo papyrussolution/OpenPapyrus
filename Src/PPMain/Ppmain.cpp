@@ -196,12 +196,9 @@ STDAPI DllCanUnloadNow()
 	return SCoClass::Helper_DllCanUnloadNow();
 }
 
-STDAPI DllGetClassObject(const CLSID & clsid, const IID & iID, void ** ppV)
-	{ return SCoClass::Helper_DllGetClassObject(clsid, iID, ppV); }
-STDAPI DllRegisterServer()
-	{ return SCoClass::Helper_DllRegisterServer(0) ? S_OK : E_UNEXPECTED; }
-STDAPI DllUnregisterServer()
-	{ return SCoClass::Helper_DllRegisterServer(1) ? S_OK : E_UNEXPECTED; }
+STDAPI DllGetClassObject(const CLSID & clsid, const IID & iID, void ** ppV) { return SCoClass::Helper_DllGetClassObject(clsid, iID, ppV); }
+STDAPI DllRegisterServer() { return SCoClass::Helper_DllRegisterServer(0) ? S_OK : E_UNEXPECTED; }
+STDAPI DllUnregisterServer() { return SCoClass::Helper_DllRegisterServer(1) ? S_OK : E_UNEXPECTED; }
 
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 {

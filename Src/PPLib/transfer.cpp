@@ -528,6 +528,8 @@ double FASTCALL GoodsRestParam::GetRestByLoc(PPID locID) const
 	return rest;
 }
 
+PPID SLAPI GoodsRestParam::DiffByTag() const { return (DiffParam == _diffLotTag && DiffLotTagID) ? DiffLotTagID : 0; }
+
 int FASTCALL GoodsRestParam::CanMerge(const GoodsRestVal * v, const GoodsRestVal * a) const
 {
 	// @v8.1.0 {

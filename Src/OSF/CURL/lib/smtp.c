@@ -607,14 +607,11 @@ static CURLcode smtp_state_ehlo_resp(struct connectdata * conn, int smtpcode, sm
 	else {
 		line += 4;
 		len -= 4;
-		/* Does the server support the STARTTLS capability? */
-		if(len >= 8 && !memcmp(line, "STARTTLS", 8))
+		if(len >= 8 && !memcmp(line, "STARTTLS", 8)) // Does the server support the STARTTLS capability?
 			smtpc->tls_supported = TRUE;
-		/* Does the server support the SIZE capability? */
-		else if(len >= 4 && !memcmp(line, "SIZE", 4))
+		else if(len >= 4 && !memcmp(line, "SIZE", 4)) // Does the server support the SIZE capability?
 			smtpc->size_supported = TRUE;
-		/* Does the server support authentication? */
-		else if(len >= 5 && !memcmp(line, "AUTH ", 5)) {
+		else if(len >= 5 && !memcmp(line, "AUTH ", 5)) { // Does the server support authentication?
 			smtpc->auth_supported = TRUE;
 			/* Advance past the AUTH keyword */
 			line += 5;

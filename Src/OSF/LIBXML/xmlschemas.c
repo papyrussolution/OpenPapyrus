@@ -9131,7 +9131,7 @@ static int xmlSchemaParseIncludeOrRedefineAttrs(xmlSchemaParserCtxtPtr pctxt, xm
 			uri = xmlBuildURI(*schemaLocation, base);
 			SAlloc::F(base);
 		}
-		if(uri == NULL) {
+		if(!uri) {
 			PERROR_INT("xmlSchemaParseIncludeOrRedefine", "could not build an URI from the schemaLocation")
 			goto exit_failure;
 		}
@@ -24380,7 +24380,7 @@ int xmlSchemaValidateStream(xmlSchemaValidCtxtPtr ctxt, xmlParserInputBuffer * i
 	pctxt->linenumbers = 1;
 	xmlSchemaValidateSetLocator(ctxt, xmlSchemaValidateStreamLocator, pctxt);
 	inputStream = xmlNewIOInputStream(pctxt, input, enc);
-	if(inputStream == NULL) {
+	if(!inputStream) {
 		ret = -1;
 		goto done;
 	}

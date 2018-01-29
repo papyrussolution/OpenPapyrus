@@ -2638,7 +2638,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value, 
 			    }
 			    uri = xmlParseURI((const char*)tmpval);
 			    SAlloc::F(tmpval);
-			    if(uri == NULL)
+			    if(!uri)
 				    goto return1;
 			    xmlFreeURI(uri);
 		    }

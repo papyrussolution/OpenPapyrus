@@ -4379,7 +4379,7 @@ else {
 			if(!buf) 
 				return -1;
 			inputStream = xmlNewInputStream(reader->ctxt);
-			if(inputStream == NULL) {
+			if(!inputStream) {
 				xmlFreeParserInputBuffer(buf);
 				return -1;
 			}

@@ -385,7 +385,7 @@ static xmlDocPtr xmlXIncludeParseFile(xmlXIncludeCtxtPtr ctxt, const char * URL)
 	}
 	xmlCtxtUseOptions(pctxt, ctxt->parseFlags | XML_PARSE_DTDLOAD);
 	inputStream = xmlLoadExternalEntity(URL, NULL, pctxt);
-	if(inputStream == NULL) {
+	if(!inputStream) {
 		xmlFreeParserCtxt(pctxt);
 		return 0;
 	}
@@ -491,7 +491,7 @@ static int xmlXIncludeAddNode(xmlXIncludeCtxtPtr ctxt, xmlNode * cur)
 	 * Check the URL and remove any fragment identifier
 	 */
 	uri = xmlParseURI((const char*)URI);
-	if(uri == NULL) {
+	if(!uri) {
 		xmlXIncludeErr(ctxt, cur, XML_XINCLUDE_HREF_URI, "invalid value URI %s\n", URI);
 		SAlloc::F(fragment);
 		SAlloc::F(URI);
@@ -1298,7 +1298,7 @@ static int xmlXIncludeLoadDoc(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	 * Check the URL and remove any fragment identifier
 	 */
 	uri = xmlParseURI((const char*)url);
-	if(uri == NULL) {
+	if(!uri) {
 		xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_HREF_URI, "invalid value URI %s\n", url);
 		return -1;
 	}
@@ -1628,7 +1628,7 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	 * Check the URL and remove any fragment identifier
 	 */
 	xmlURI * uri = xmlParseURI((const char*)url);
-	if(uri == NULL) {
+	if(!uri) {
 		xmlXIncludeErr(ctxt, ctxt->incTab[nr]->ref, XML_XINCLUDE_HREF_URI, "invalid value URI %s\n", url);
 		return -1;
 	}
@@ -1689,7 +1689,7 @@ static int xmlXIncludeLoadTxt(xmlXIncludeCtxtPtr ctxt, const xmlChar * url, int 
 	 */
 	pctxt = xmlNewParserCtxt();
 	inputStream = xmlLoadExternalEntity((const char*)URL, NULL, pctxt);
-	if(inputStream == NULL) {
+	if(!inputStream) {
 		xmlFreeParserCtxt(pctxt);
 		SAlloc::F(URL);
 		return -1;

@@ -550,7 +550,7 @@ int SLAPI PPViewAccAnlz::ViewGraph(PPViewBrowser * pBrw)
 				PPLoadString("debit", temp_buf);
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				PPGpPlotItem item(plot.GetDataFileName(), temp_buf, PPGpPlotItem::sLines);
-				item.Style.SetLine(LightenColor(GetColorRef(SClrRed), 0.5), 2);
+				item.Style.SetLine(LightenColor(GetColorRef(SClrRed), 0.5f), 2);
 				item.AddDataIndex(1);
 				item.AddDataIndex(4);
 				plot.AddPlotItem(item);
@@ -559,7 +559,7 @@ int SLAPI PPViewAccAnlz::ViewGraph(PPViewBrowser * pBrw)
 				PPLoadString("credit", temp_buf);
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				PPGpPlotItem item(0, temp_buf, PPGpPlotItem::sLines);
-				item.Style.SetLine(LightenColor(GetColorRef(SClrBlue), 0.5), 2);
+				item.Style.SetLine(LightenColor(GetColorRef(SClrBlue), 0.5f), 2);
 				item.AddDataIndex(1);
 				item.AddDataIndex(5);
 				plot.AddPlotItem(item);

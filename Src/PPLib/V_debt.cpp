@@ -2871,8 +2871,8 @@ static int SLAPI GetDebtorRatingColor(const char * pRating, COLORREF * pColor)
 		if(f >= 'A' && f <= 'E' && s >= 'A' && s <= 'E') {
 			COLORREF cf = GetColorRef(SClrRed);
 			COLORREF cs = GetColorRef(SClrGreen);
-			double rf = 1.0 - ((f - 'A')+1) * 0.15;
-			double rs = 1.0 - ((s - 'A')+1) * 0.15;
+			float rf = 1.0f - ((f - 'A')+1.0f) * 0.15f;
+			float rs = 1.0f - ((s - 'A')+1.0f) * 0.15f;
 			cf = LightenColor(cf, rf);
 			cs = LightenColor(cs, rs);
 			uint8 r = (uint8)(GetRValue(cf) + GetRValue(cs));
@@ -4694,12 +4694,12 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 		}
 		else if(col == 0) {
 			if(p_item->Flags & PPDebtorStat::fAgent) {
-				pCellStyle->Color = LightenColor(GetColorRef(SClrBlue), 0.7);
+				pCellStyle->Color = LightenColor(GetColorRef(SClrBlue), 0.7f);
 				pCellStyle->Flags = 0;
 				ok = 1;
 			}
 			else if(p_item->Flags & PPDebtorStat::fHolding) {
-				pCellStyle->Color = LightenColor(GetColorRef(SClrBlue), 0.9);
+				pCellStyle->Color = LightenColor(GetColorRef(SClrBlue), 0.9f);
 				pCellStyle->Flags = 0;
 				ok = 1;
 			}

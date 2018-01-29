@@ -57,11 +57,8 @@ int __txn_begin_pp(DB_ENV * dbenv, DB_TXN * parent, DB_TXN ** txnpp, uint32 flag
 	int rep_check, ret;
 	ENV * env = dbenv->env;
 	ENV_REQUIRES_CONFIG(env, env->tx_handle, "txn_begin", DB_INIT_TXN);
-	if((ret = __db_fchk(env, "txn_begin", flags,
-		    DB_IGNORE_LEASE|DB_READ_COMMITTED|DB_READ_UNCOMMITTED|
-		    DB_TXN_FAMILY|DB_TXN_NOSYNC|DB_TXN_SNAPSHOT|DB_TXN_SYNC|
-		    DB_TXN_WAIT|DB_TXN_WRITE_NOSYNC|DB_TXN_NOWAIT|
-		    DB_TXN_BULK)) != 0)
+	if((ret = __db_fchk(env, "txn_begin", flags, DB_IGNORE_LEASE|DB_READ_COMMITTED|DB_READ_UNCOMMITTED|
+		DB_TXN_FAMILY|DB_TXN_NOSYNC|DB_TXN_SNAPSHOT|DB_TXN_SYNC|DB_TXN_WAIT|DB_TXN_WRITE_NOSYNC|DB_TXN_NOWAIT|DB_TXN_BULK)) != 0)
 		return ret;
 	if((ret = __db_fcchk(env, "txn_begin", flags, DB_TXN_WRITE_NOSYNC|DB_TXN_NOSYNC, DB_TXN_SYNC)) != 0)
 		return ret;
@@ -505,8 +502,7 @@ int __txn_commit(DB_TXN*txn, uint32 flags)
 	 * the LSN history system database in rep_start() (with IGNORE_LEASE
 	 * set).
 	 */
-	if(txn->parent == NULL && IS_REP_MASTER(env) && IS_USING_LEASES(env) &&
-		!F_ISSET(txn, TXN_IGNORE_LEASE) && (ret = __rep_lease_check(env, 1)) != 0) {
+	if(!txn->parent && IS_REP_MASTER(env) && IS_USING_LEASES(env) && !F_ISSET(txn, TXN_IGNORE_LEASE) && (ret = __rep_lease_check(env, 1)) != 0) {
 		DB_ASSERT(env, ret != DB_NOTFOUND);
 		goto err;
 	}
@@ -2422,27 +2418,25 @@ int __txn_get_prepared(ENV*env, XID * xids, DB_PREPLIST * txns, long count, long
 	MAX_LSN(min);
 	prepp = txns;
 	xidp = xids;
-	/*
-	 * If we are starting a scan, then we traverse the active transaction
-	 * list once making sure that all transactions are marked as not having
-	 * been collected.  Then on each pass, we mark the ones we collected
-	 * so that if we cannot collect them all at once, we can finish up
-	 * next time with a continue.
-	 */
+	// 
+	// If we are starting a scan, then we traverse the active transaction
+	// list once making sure that all transactions are marked as not having
+	// been collected.  Then on each pass, we mark the ones we collected
+	// so that if we cannot collect them all at once, we can finish up
+	// next time with a continue.
+	// 
 	mgr = env->tx_handle;
 	region = (DB_TXNREGION *)mgr->reginfo.primary;
-
-	/*
-	 * During this pass we need to figure out if we are going to need
-	 * to open files.  We need to open files if we've never collected
-	 * before (in which case, none of the COLLECTED bits will be set)
-	 * and the ones that we are collecting are restored (if they aren't
-	 * restored, then we never crashed; just the main server did).
-	 */
+	// 
+	// During this pass we need to figure out if we are going to need
+	// to open files.  We need to open files if we've never collected
+	// before (in which case, none of the COLLECTED bits will be set)
+	// and the ones that we are collecting are restored (if they aren't
+	// restored, then we never crashed; just the main server did).
+	// 
 	TXN_SYSTEM_LOCK(env);
 	ENV_GET_THREAD_INFO(env, ip);
-
-	/* Now begin collecting active transactions. */
+	// Now begin collecting active transactions. 
 	for(td = SH_TAILQ_FIRST(&region->active_txn, __txn_detail); td && *retp < count; td = SH_TAILQ_NEXT(td, links, __txn_detail)) {
 		if(td->status != TXN_PREPARED || (flags != DB_FIRST && F_ISSET(td, TXN_DTL_COLLECTED)))
 			continue;
@@ -2450,10 +2444,10 @@ int __txn_get_prepared(ENV*env, XID * xids, DB_PREPLIST * txns, long count, long
 			restored = 1;
 		if(xids) {
 			xidp->formatID = td->format;
-			/*
-			 * XID structure uses longs; use use uint32's as we
-			 * log them to disk. Cast them to make the conversion explicit.
-			 */
+			// 
+			// XID structure uses longs; use use uint32's as we
+			// log them to disk. Cast them to make the conversion explicit.
+			// 
 			xidp->gtrid_length = (long)td->gtrid;
 			xidp->bqual_length = (long)td->bqual;
 			memcpy(xidp->data, td->gid, sizeof(td->gid));
@@ -2495,17 +2489,16 @@ int __txn_get_prepared(ENV*env, XID * xids, DB_PREPLIST * txns, long count, long
 			TAILQ_INSERT_TAIL(&mgr->txn_chain, txns[i].txn, links);
 		}
 		MUTEX_UNLOCK(env, mgr->mutex);
-		/*
-		 * If we are restoring, update our count of outstanding
-		 * transactions.
-		 */
+		// 
+		// If we are restoring, update our count of outstanding transactions.
+		// 
 		if(REP_ON(env)) {
 			REP_SYSTEM_LOCK(env);
 			env->rep_handle->region->op_cnt += (ulong)*retp;
 			REP_SYSTEM_UNLOCK(env);
 		}
 	}
-	/* If recovery already opened the files for us, don't do it here. */
+	// If recovery already opened the files for us, don't do it here. 
 	if(restored != 0 && flags == DB_FIRST && !F_ISSET(env->lg_handle, DBLOG_OPENFILES))
 		ret = __txn_openfiles(env, ip, &min, 0);
 	if(0) {

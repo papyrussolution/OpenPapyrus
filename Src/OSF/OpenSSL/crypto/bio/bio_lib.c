@@ -67,42 +67,7 @@ int FASTCALL BIO_free(BIO * a)
 	}
 }
 
-void BIO_set_data(BIO * a, void * ptr)
-{
-	a->ptr = ptr;
-}
-
-void * BIO_get_data(BIO * a)
-{
-	return a->ptr;
-}
-
-void BIO_set_init(BIO * a, int init)
-{
-	a->init = init;
-}
-
-int BIO_get_init(BIO * a)
-{
-	return a->init;
-}
-
-void BIO_set_shutdown(BIO * a, int shut)
-{
-	a->shutdown = shut;
-}
-
-int BIO_get_shutdown(BIO * a)
-{
-	return a->shutdown;
-}
-
-void BIO_vfree(BIO * a)
-{
-	BIO_free(a);
-}
-
-int BIO_up_ref(BIO * a)
+int FASTCALL BIO_up_ref(BIO * a)
 {
 	int i;
 	if(CRYPTO_atomic_add(&a->references, 1, &i, a->lock) <= 0)
@@ -112,50 +77,22 @@ int BIO_up_ref(BIO * a)
 	return ((i > 1) ? 1 : 0);
 }
 
-void FASTCALL BIO_clear_flags(BIO * b, int flags)
-{
-	b->flags &= ~flags;
-}
-
-int FASTCALL BIO_test_flags(const BIO * b, int flags)
-{
-	return (b->flags & flags);
-}
-
-void FASTCALL BIO_set_flags(BIO * b, int flags)
-{
-	b->flags |= flags;
-}
-
-long(*BIO_get_callback(const BIO *b)) (struct bio_st *, int, const char *, int, long, long) 
-{
-	return b->callback;
-}
-
-void BIO_set_callback(BIO * b, long (* cb)(struct bio_st *, int, const char *, int, long, long))
-{
-	b->callback = cb;
-}
-
-void BIO_set_callback_arg(BIO * b, char * arg)
-{
-	b->cb_arg = arg;
-}
-
-char * BIO_get_callback_arg(const BIO * b)
-{
-	return b->cb_arg;
-}
-
-const char * BIO_method_name(const BIO * b)
-{
-	return b->method->name;
-}
-
-int BIO_method_type(const BIO * b)
-{
-	return b->method->type;
-}
+void   FASTCALL BIO_set_data(BIO * a, void * ptr) { a->ptr = ptr; }
+void * FASTCALL BIO_get_data(BIO * a) { return a->ptr; }
+void   FASTCALL BIO_set_init(BIO * a, int init) { a->init = init; }
+int    FASTCALL BIO_get_init(BIO * a) { return a->init; }
+void   BIO_set_shutdown(BIO * a, int shut) { a->shutdown = shut; }
+int    BIO_get_shutdown(BIO * a) { return a->shutdown; }
+void   BIO_vfree(BIO * a) { BIO_free(a); }
+void   FASTCALL BIO_clear_flags(BIO * b, int flags) { b->flags &= ~flags; }
+int    FASTCALL BIO_test_flags(const BIO * b, int flags) { return (b->flags & flags); }
+void   FASTCALL BIO_set_flags(BIO * b, int flags) { b->flags |= flags; }
+long   (*BIO_get_callback(const BIO *b))(struct bio_st *, int, const char *, int, long, long) { return b->callback; }
+void   BIO_set_callback(BIO * b, long (* cb)(struct bio_st *, int, const char *, int, long, long)) { b->callback = cb; }
+void   BIO_set_callback_arg(BIO * b, char * arg) { b->cb_arg = arg; }
+char * BIO_get_callback_arg(const BIO * b) { return b->cb_arg; }
+const  char * BIO_method_name(const BIO * b) { return b->method->name; }
+int    BIO_method_type(const BIO * b) { return b->method->type; }
 
 int FASTCALL BIO_read(BIO * b, void * out, int outl)
 {
@@ -209,12 +146,12 @@ int FASTCALL BIO_puts(BIO * b, const char * in)
 {
 	int i;
 	long (* cb)(BIO *, int, const char *, int, long, long);
-	if((b == NULL) || (b->method == NULL) || (b->method->bputs == NULL)) {
+	if(!b || !b->method || !b->method->bputs) {
 		BIOerr(BIO_F_BIO_PUTS, BIO_R_UNSUPPORTED_METHOD);
 		return (-2);
 	}
 	cb = b->callback;
-	if((cb != NULL) && ((i = (int)cb(b, BIO_CB_PUTS, in, 0, 0L, 1L)) <= 0))
+	if(cb && ((i = (int)cb(b, BIO_CB_PUTS, in, 0, 0L, 1L)) <= 0))
 		return (i);
 	if(!b->init) {
 		BIOerr(BIO_F_BIO_PUTS, BIO_R_UNINITIALIZED);
@@ -237,7 +174,7 @@ int FASTCALL BIO_gets(BIO * b, char * in, int inl)
 		return (-2);
 	}
 	cb = b->callback;
-	if((cb != NULL) && ((i = (int)cb(b, BIO_CB_GETS, in, inl, 0L, 1L)) <= 0))
+	if(cb && ((i = (int)cb(b, BIO_CB_GETS, in, inl, 0L, 1L)) <= 0))
 		return (i);
 	if(!b->init) {
 		BIOerr(BIO_F_BIO_GETS, BIO_R_UNINITIALIZED);
@@ -249,7 +186,7 @@ int FASTCALL BIO_gets(BIO * b, char * in, int inl)
 	return (i);
 }
 
-int BIO_indent(BIO * b, int indent, int max)
+int FASTCALL BIO_indent(BIO * b, int indent, int max)
 {
 	SETMAX(indent, 0);
 	SETMIN(indent, max);
@@ -467,7 +404,7 @@ err:
 	return NULL;
 }
 
-void BIO_copy_next_retry(BIO * b)
+void FASTCALL BIO_copy_next_retry(BIO * b)
 {
 	BIO_set_flags(b, BIO_get_retry_flags(b->next_bio));
 	b->retry_reason = b->next_bio->retry_reason;

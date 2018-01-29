@@ -1170,7 +1170,7 @@ static int xmlC14NCheckForRelativeNamespaces(xmlC14NCtxPtr ctx, xmlNode * cur)
 		for(xmlNs * ns = cur->nsDef; ns; ns = ns->next) {
 			if(sstrlen(ns->href)) {
 				xmlURIPtr uri = xmlParseURI((const char*)ns->href);
-				if(uri == NULL) {
+				if(!uri) {
 					xmlC14NErrInternal("parsing namespace uri");
 					return -1;
 				}

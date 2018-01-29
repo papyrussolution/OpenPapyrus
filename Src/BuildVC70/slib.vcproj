@@ -417,7 +417,8 @@
 				BufferSecurityCheck="FALSE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough=""
-				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"/>
+				PrecompiledHeaderFile="$(IntDir)/$(ProjectName).pch"
+				WarningLevel="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

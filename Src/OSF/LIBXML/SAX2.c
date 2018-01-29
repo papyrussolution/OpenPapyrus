@@ -937,7 +937,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 		}
 		if(val[0] != 0) {
 			xmlURIPtr uri = xmlParseURI((const char*)val);
-			if(uri == NULL) {
+			if(!uri) {
 				if(ctxt->sax && ctxt->sax->warning)
 					ctxt->sax->warning(ctxt->userData, "xmlns: %s not a valid URI\n", val);
 			}
@@ -987,7 +987,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 		}
 		if((ctxt->pedantic != 0) && (val[0] != 0)) {
 			xmlURIPtr uri = xmlParseURI((const char*)val);
-			if(uri == NULL) {
+			if(!uri) {
 				xmlNsWarnMsg(ctxt, XML_WAR_NS_URI, "xmlns:%s: %s not a valid URI\n", name, value);
 			}
 			else {

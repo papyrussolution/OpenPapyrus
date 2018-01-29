@@ -265,12 +265,9 @@ int X509_supported_extension(X509_EXTENSION * ex)
 		NID_policy_mappings, /* 747 */
 		NID_inhibit_any_policy /* 748 */
 	};
-
 	int ex_nid = OBJ_obj2nid(X509_EXTENSION_get_object(ex));
-
 	if(ex_nid == NID_undef)
 		return 0;
-
 	if(OBJ_bsearch_nid(&ex_nid, supported_nids, OSSL_NELEM(supported_nids)))
 		return 1;
 	return 0;
@@ -313,12 +310,9 @@ static void setup_crldp(X509 * x)
 }
 
 #define V1_ROOT (EXFLAG_V1|EXFLAG_SS)
-#define ku_reject(x, usage) \
-	(((x)->ex_flags & EXFLAG_KUSAGE) && !((x)->ex_kusage & (usage)))
-#define xku_reject(x, usage) \
-	(((x)->ex_flags & EXFLAG_XKUSAGE) && !((x)->ex_xkusage & (usage)))
-#define ns_reject(x, usage) \
-	(((x)->ex_flags & EXFLAG_NSCERT) && !((x)->ex_nscert & (usage)))
+#define ku_reject(x, usage) (((x)->ex_flags & EXFLAG_KUSAGE) && !((x)->ex_kusage & (usage)))
+#define xku_reject(x, usage) (((x)->ex_flags & EXFLAG_XKUSAGE) && !((x)->ex_xkusage & (usage)))
+#define ns_reject(x, usage) (((x)->ex_flags & EXFLAG_NSCERT) && !((x)->ex_nscert & (usage)))
 
 static void x509v3_cache_extensions(X509 * x)
 {
@@ -341,8 +335,7 @@ static void x509v3_cache_extensions(X509 * x)
 		if(bs->ca)
 			x->ex_flags |= EXFLAG_CA;
 		if(bs->pathlen) {
-			if((bs->pathlen->type == V_ASN1_NEG_INTEGER)
-			    || !bs->ca) {
+			if((bs->pathlen->type == V_ASN1_NEG_INTEGER) || !bs->ca) {
 				x->ex_flags |= EXFLAG_INVALID;
 				x->ex_pathlen = 0;
 			}
@@ -356,9 +349,7 @@ static void x509v3_cache_extensions(X509 * x)
 	}
 	/* Handle proxy certificates */
 	if((pci = (PROXY_CERT_INFO_EXTENSION*)X509_get_ext_d2i(x, NID_proxyCertInfo, NULL, NULL))) {
-		if(x->ex_flags & EXFLAG_CA
-		    || X509_get_ext_by_NID(x, NID_subject_alt_name, -1) >= 0
-		    || X509_get_ext_by_NID(x, NID_issuer_alt_name, -1) >= 0) {
+		if(x->ex_flags & EXFLAG_CA || X509_get_ext_by_NID(x, NID_subject_alt_name, -1) >= 0 || X509_get_ext_by_NID(x, NID_issuer_alt_name, -1) >= 0) {
 			x->ex_flags |= EXFLAG_INVALID;
 		}
 		if(pci->pcPathLengthConstraint) {
@@ -386,47 +377,20 @@ static void x509v3_cache_extensions(X509 * x)
 		x->ex_flags |= EXFLAG_XKUSAGE;
 		for(i = 0; i < sk_ASN1_OBJECT_num(extusage); i++) {
 			switch(OBJ_obj2nid(sk_ASN1_OBJECT_value(extusage, i))) {
-				case NID_server_auth:
-				    x->ex_xkusage |= XKU_SSL_SERVER;
-				    break;
-
-				case NID_client_auth:
-				    x->ex_xkusage |= XKU_SSL_CLIENT;
-				    break;
-
-				case NID_email_protect:
-				    x->ex_xkusage |= XKU_SMIME;
-				    break;
-
-				case NID_code_sign:
-				    x->ex_xkusage |= XKU_CODE_SIGN;
-				    break;
-
+				case NID_server_auth: x->ex_xkusage |= XKU_SSL_SERVER; break;
+				case NID_client_auth: x->ex_xkusage |= XKU_SSL_CLIENT; break;
+				case NID_email_protect: x->ex_xkusage |= XKU_SMIME; break;
+				case NID_code_sign: x->ex_xkusage |= XKU_CODE_SIGN; break;
 				case NID_ms_sgc:
-				case NID_ns_sgc:
-				    x->ex_xkusage |= XKU_SGC;
-				    break;
-
-				case NID_OCSP_sign:
-				    x->ex_xkusage |= XKU_OCSP_SIGN;
-				    break;
-
-				case NID_time_stamp:
-				    x->ex_xkusage |= XKU_TIMESTAMP;
-				    break;
-
-				case NID_dvcs:
-				    x->ex_xkusage |= XKU_DVCS;
-				    break;
-
-				case NID_anyExtendedKeyUsage:
-				    x->ex_xkusage |= XKU_ANYEKU;
-				    break;
+				case NID_ns_sgc: x->ex_xkusage |= XKU_SGC; break;
+				case NID_OCSP_sign: x->ex_xkusage |= XKU_OCSP_SIGN; break;
+				case NID_time_stamp: x->ex_xkusage |= XKU_TIMESTAMP; break;
+				case NID_dvcs: x->ex_xkusage |= XKU_DVCS; break;
+				case NID_anyExtendedKeyUsage: x->ex_xkusage |= XKU_ANYEKU; break;
 			}
 		}
 		sk_ASN1_OBJECT_pop_free(extusage, ASN1_OBJECT_free);
 	}
-
 	if((ns = (ASN1_BIT_STRING*)X509_get_ext_d2i(x, NID_netscape_cert_type, NULL, NULL))) {
 		if(ns->length > 0)
 			x->ex_nscert = ns->data[0];
@@ -441,8 +405,7 @@ static void x509v3_cache_extensions(X509 * x)
 	if(!X509_NAME_cmp(X509_get_subject_name(x), X509_get_issuer_name(x))) {
 		x->ex_flags |= EXFLAG_SI;
 		/* If SKID matches AKID also indicate self signed */
-		if(X509_check_akid(x, x->akid) == X509_V_OK &&
-		    !ku_reject(x, KU_KEY_CERT_SIGN))
+		if(X509_check_akid(x, x->akid) == X509_V_OK && !ku_reject(x, KU_KEY_CERT_SIGN))
 			x->ex_flags |= EXFLAG_SS;
 	}
 	x->altname = (STACK_OF(GENERAL_NAME) *)X509_get_ext_d2i(x, NID_subject_alt_name, 0, 0);
@@ -450,15 +413,13 @@ static void x509v3_cache_extensions(X509 * x)
 	if(!x->nc && (i != -1))
 		x->ex_flags |= EXFLAG_INVALID;
 	setup_crldp(x);
-
 #ifndef OPENSSL_NO_RFC3779
 	x->rfc3779_addr = (STACK_OF(IPAddressFamily) *)X509_get_ext_d2i(x, NID_sbgp_ipAddrBlock, 0, 0);
 	x->rfc3779_asid = (struct ASIdentifiers_st*)X509_get_ext_d2i(x, NID_sbgp_autonomousSysNum, 0, 0);
 #endif
 	for(i = 0; i < X509_get_ext_count(x); i++) {
 		ex = X509_get_ext(x, i);
-		if(OBJ_obj2nid(X509_EXTENSION_get_object(ex))
-		    == NID_freshest_crl)
+		if(OBJ_obj2nid(X509_EXTENSION_get_object(ex)) == NID_freshest_crl)
 			x->ex_flags |= EXFLAG_FRESHEST;
 		if(!X509_EXTENSION_get_critical(ex))
 			continue;
@@ -735,12 +696,10 @@ static int no_check(const X509_PURPOSE * xp, const X509 * x, int ca)
 
 int X509_check_issued(X509 * issuer, X509 * subject)
 {
-	if(X509_NAME_cmp(X509_get_subject_name(issuer),
-		    X509_get_issuer_name(subject)))
+	if(X509_NAME_cmp(X509_get_subject_name(issuer), X509_get_issuer_name(subject)))
 		return X509_V_ERR_SUBJECT_ISSUER_MISMATCH;
 	x509v3_cache_extensions(issuer);
 	x509v3_cache_extensions(subject);
-
 	if(subject->akid) {
 		int ret = X509_check_akid(issuer, subject->akid);
 		if(ret != X509_V_OK)
@@ -760,14 +719,11 @@ int X509_check_akid(X509 * issuer, AUTHORITY_KEYID * akid)
 {
 	if(!akid)
 		return X509_V_OK;
-
 	/* Check key ids (if present) */
-	if(akid->keyid && issuer->skid &&
-	    ASN1_OCTET_STRING_cmp(akid->keyid, issuer->skid))
+	if(akid->keyid && issuer->skid && ASN1_OCTET_STRING_cmp(akid->keyid, issuer->skid))
 		return X509_V_ERR_AKID_SKID_MISMATCH;
 	/* Check serial number */
-	if(akid->serial &&
-	    ASN1_INTEGER_cmp(X509_get_serialNumber(issuer), akid->serial))
+	if(akid->serial && ASN1_INTEGER_cmp(X509_get_serialNumber(issuer), akid->serial))
 		return X509_V_ERR_AKID_ISSUER_SERIAL_MISMATCH;
 	/* Check issuer name */
 	if(akid->issuer) {
@@ -805,18 +761,14 @@ uint32_t X509_get_key_usage(X509 * x)
 {
 	/* Call for side-effect of computing hash and caching extensions */
 	X509_check_purpose(x, -1, -1);
-	if(x->ex_flags & EXFLAG_KUSAGE)
-		return x->ex_kusage;
-	return UINT32_MAX;
+	return (x->ex_flags & EXFLAG_KUSAGE) ? x->ex_kusage : UINT32_MAX;
 }
 
 uint32_t X509_get_extended_key_usage(X509 * x)
 {
 	/* Call for side-effect of computing hash and caching extensions */
 	X509_check_purpose(x, -1, -1);
-	if(x->ex_flags & EXFLAG_XKUSAGE)
-		return x->ex_xkusage;
-	return UINT32_MAX;
+	return (x->ex_flags & EXFLAG_XKUSAGE) ? x->ex_xkusage : UINT32_MAX;
 }
 
 const ASN1_OCTET_STRING * X509_get0_subject_key_id(X509 * x)
@@ -829,8 +781,7 @@ const ASN1_OCTET_STRING * X509_get0_subject_key_id(X509 * x)
 long X509_get_pathlen(X509 * x)
 {
 	/* Called for side effect of caching extensions */
-	if(X509_check_purpose(x, -1, -1) != 1
-	    || (x->ex_flags & EXFLAG_BCONS) == 0)
+	if(X509_check_purpose(x, -1, -1) != 1 || (x->ex_flags & EXFLAG_BCONS) == 0)
 		return -1;
 	return x->ex_pathlen;
 }
@@ -838,9 +789,7 @@ long X509_get_pathlen(X509 * x)
 long X509_get_proxy_pathlen(X509 * x)
 {
 	/* Called for side effect of caching extensions */
-	if(X509_check_purpose(x, -1, -1) != 1
-	    || (x->ex_flags & EXFLAG_PROXY) == 0)
+	if(X509_check_purpose(x, -1, -1) != 1 || (x->ex_flags & EXFLAG_PROXY) == 0)
 		return -1;
 	return x->ex_pcpathlen;
 }
-

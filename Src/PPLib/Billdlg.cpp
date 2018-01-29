@@ -2495,15 +2495,15 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 			if(sc_obj.IsCreditCard(sc_rec.ID) > 0) {
 				double rest = 0.0;
 				sc_obj.P_Tbl->GetRest(sc_rec.ID, P_Pack->Rec.Dt, &rest);
-				SLS.LoadString("crdcard", temp_buf);
+				PPLoadString("crdcard", temp_buf);
 				info_buf.Cat(temp_buf).CatDiv(':', 2).Cat(sc_rec.Code).CatDiv('.', 2);
-				SLS.LoadString("rest", temp_buf);
+				PPLoadString("rest", temp_buf);
 				info_buf.Cat(temp_buf).CatDiv('=', 1).Cat(rest);
 			}
 			else {
-				SLS.LoadString("discard", temp_buf);
+				PPLoadString("discard", temp_buf);
 				info_buf.Cat(temp_buf).CatDiv(':', 2).Cat(sc_rec.Code).CatDiv('.', 2);
-				SLS.LoadString("discount", temp_buf);
+				PPLoadString("discount", temp_buf);
 				info_buf.Cat(temp_buf).CatDiv('=', 1).Cat(fdiv100i(sc_rec.PDis)).CatChar('%');
 			}
 			setStaticText(CTL_BILL_ST_SCARD, info_buf);

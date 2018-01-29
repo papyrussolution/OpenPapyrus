@@ -1,5 +1,5 @@
 // SCOCLASS.CPP
-// Copyright (c) A.Sobolev 2007, 2015, 2016
+// Copyright (c) A.Sobolev 2007, 2015, 2016, 2018
 //
 #pragma hdrstop
 #define DL600R
@@ -25,32 +25,16 @@ int SLAPI SCoClass::SetExtraPtrByInterface(const void * pIfc, void * extraPtr)
 	return ok;
 }
 
-SCoClass::SCoClass(const DlContext * pCtx, const DlScope * pScope, void * pVt)
+SCoClass::SCoClass(const DlContext * pCtx, const DlScope * pScope, void * pVt) : P_Ctx(pCtx), P_Scope(pScope), TabCount(0), P_Tab(0), 
+	Flags(0), AppFlags(0), AppError(0), ExtraPtr(0)
 {
-	P_Ctx = pCtx;
-	P_Scope = 0;
-	TabCount = 0;
-	P_Tab = 0;
-	Flags = 0;
-	AppFlags = 0;
-	AppError = 0;
-	ExtraPtr = 0;
-	P_Scope = pScope;
 	Ref.Assign(1);
 	InitVTable(pVt);
 }
 
-SCoClass::SCoClass(SCoClassConstructor ccc, void * pVt)
+SCoClass::SCoClass(SCoClassConstructor ccc, void * pVt) : P_Ctx(DS.GetInterfaceContext(PPSession::ctxtInterface)), 
+	P_Scope(0), TabCount(0), P_Tab(0), Flags(fFactory), AppFlags(0), AppError(0), ExtraPtr(0)
 {
-	P_Ctx = DS.GetInterfaceContext(PPSession::ctxtInterface);
-	P_Scope = 0;
-	TabCount = 0;
-	P_Tab = 0;
-	Flags = fFactory;
-	AppFlags = 0;
-	AppError = 0;
-	ExtraPtr = 0;
-	P_Scope = 0;
 	Ref.Assign(1);
 	InitVTable(pVt);
 }
@@ -86,6 +70,12 @@ int SLAPI SCoClass::CreateInnerInstance(const char * pClsName, const char * pIfc
 }
 
 int SLAPI SCoClass::RaiseAppError()
+{
+	AppError = 1;
+	return 0; // @important!
+}
+
+void * SLAPI SCoClass::RaiseAppErrorPtr()
 {
 	AppError = 1;
 	return 0; // @important!
@@ -298,20 +288,9 @@ HRESULT __stdcall SCoClass::QueryInterface(REFIID rIID, void ** ppObject)
 	return (((TabEntry *)this)->ThisPtr)->ImpQueryInterface(rIID, ppObject);
 }
 
-uint32 __stdcall SCoClass::AddRef()
-{
-	return (((TabEntry *)this)->ThisPtr)->ImpAddRef();
-}
-
-uint32 __stdcall SCoClass::Release()
-{
-	return (((TabEntry *)this)->ThisPtr)->ImpRelease();
-}
-
-HRESULT __stdcall SCoClass::InterfaceSupportsErrorInfo(REFIID rIID)
-{
-	return (((TabEntry *)this)->ThisPtr)->ImpInterfaceSupportsErrorInfo(rIID);
-}
+uint32 __stdcall SCoClass::AddRef() { return (((TabEntry *)this)->ThisPtr)->ImpAddRef(); }
+uint32 __stdcall SCoClass::Release() { return (((TabEntry *)this)->ThisPtr)->ImpRelease(); }
+HRESULT __stdcall SCoClass::InterfaceSupportsErrorInfo(REFIID rIID) { return (((TabEntry *)this)->ThisPtr)->ImpInterfaceSupportsErrorInfo(rIID); }
 //
 //
 //

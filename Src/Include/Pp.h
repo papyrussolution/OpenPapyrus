@@ -375,6 +375,7 @@ class  PPViewPersonEvent;
 class  PPGoodsImpExpParam;
 class  TSessAnlzList;
 class  PhoneServiceEventResponder;
+struct StTspResponse; // Описание в ppeds.cpp
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -11230,10 +11231,7 @@ public:
 	void   SLAPI Init();
 	void   SLAPI InitVal();
 	void   SLAPI Set(const GoodsRestFilt & rF);
-	PPID   SLAPI DiffByTag() const
-	{
-		return (DiffParam == _diffLotTag && DiffLotTagID) ? DiffLotTagID : 0;
-	}
+	PPID   SLAPI DiffByTag() const;
 	int    FASTCALL CanMerge(const GoodsRestVal *, const GoodsRestVal *) const;
 	int    SLAPI AddToItem(int p, LDATE dt, long opn, GoodsRestVal *);
 	int    SLAPI AddLot(Transfer *, const ReceiptTbl::Rec *, double rest, LDATE orgLotDate);
@@ -11382,7 +11380,6 @@ struct PPLotFault { // @flat
 };
 
 // Класс для работы с ЭЦП
-struct StTspResponse; // Описание в ppeds.cpp
 
 class PPEds {
 public:
@@ -24635,7 +24632,9 @@ public:
 //
 struct SysJournalFilt : public PPBaseFilt {
 	enum {
-		fShowObjects  = 0x0001
+		fShowObjects    = 0x0001, // Отображать наименования объектов, связанными с событиями
+		fShowHistoryObj = 0x0002  // Отображать дополнительную информацию, связанную с предшествующим
+			// событию состоянием объектов (только для тех, для которых хранятся версии).
 	};
 
 	SLAPI  SysJournalFilt();
@@ -24682,6 +24681,15 @@ public:
 		PPID   Action;
 		LDATETIME Dtm; // @v9.8.11
 	};
+	struct EvVerEntry : public PPObjID {
+		enum {
+			fAmtUp = 0x0001,
+			fAmtDn = 0x0002
+		};
+		LDATETIME Dtm;
+		uint   Flags;
+		uint   NameP;
+	};
 	SLAPI  PPViewSysJournal();
 	SLAPI ~PPViewSysJournal();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
@@ -24692,6 +24700,8 @@ public:
 	int    FASTCALL NextIteration(SysJournalViewItem *);
 	int    FASTCALL CheckRecForFilt(const SysJournalTbl::Rec * pRec);
 	int    SLAPI GetObjName(const PPObjID & rOid, SString & rBuf) const;
+	int    SLAPI GetEvVerText(const EvVerEntry & rKey, SString & rBuf) const;
+	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 private:
 	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
@@ -24707,6 +24717,7 @@ private:
 	int    SLAPI Transmit();
 
 	static int DynFuncObjNameFromList;
+	static int DynFuncEvVerTextFromList;
 
 	SysJournalFilt  Filt;
 	SysJournal * P_Tbl;
@@ -24719,6 +24730,7 @@ private:
 		// начиная с которого следует извлекать события из журнала для последующего обновления.
 	SStrGroup StrPool; // @v9.9.0 Пул строковых полей, на который ссылаются поля в TempSysJournalTbl
 	TSVector <PPObjNamePEntry> ObjNameList; // @v9.9.0
+	TSVector <EvVerEntry> EvVerList; // @v9.9.2
 };
 //
 //
@@ -25666,6 +25678,15 @@ public:
 	virtual int  SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int  SLAPI DeleteObj(PPID);
 	virtual int  SLAPI RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
+	//
+	// Методу PPObjGoods::Selector в качестве дополнительного
+	// параметра передается ID родительской группы.
+	// Если этот параметр меньше нуля, то выбираются только те
+	// товары, которые есть в наличии на текущей позиции.
+	//
+	virtual ListBoxDef * SLAPI Selector(void * extraPtr);
+	virtual int SLAPI UpdateSelector(ListBoxDef * pDef, void * extraPtr);
+	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr);
 
 	const  PPGoodsConfig & SLAPI GetConfig() const;
 	//
@@ -25712,14 +25733,7 @@ public:
 	//
 	int    SLAPI UpdateFlags(PPID goodsID, long setF, long resetF, int use_ta);
 	int    SLAPI AddBySample(PPID *, PPID sampleID);
-	//
-	// Методу PPObjGoods::Selector в качестве дополнительного
-	// параметра передается ID родительской группы.
-	// Если этот параметр меньше нуля, то выбираются только те
-	// товары, которые есть в наличии на текущей позиции.
-	//
-	virtual ListBoxDef * SLAPI Selector(void * extraPtr);
-	virtual int SLAPI UpdateSelector(ListBoxDef * pDef, void * extraPtr);
+
 	enum {
 		selfByName       = 0x0001, // В списке показывать наименования //
 		selfHidePassive  = 0x0002, // Не показывать пассивные товары
@@ -26131,7 +26145,6 @@ public:
 	int    SLAPI SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods sgg, SubstBlock * pBlk, GoodsSubstList *);
 	//int    SLAPI SubstGoods(PPID srcID, PPID * pDestID, SubstGrpGoods, PPID exclParentID, PPID supplID, PPID locID, GoodsSubstList *);
 	int    SLAPI GetSubstText(PPID id, SubstGrpGoods, const GoodsSubstList *, SString & rBuf);
-	//
 	int    SLAPI ReplaceName(PPGoodsPacket *, const PPGoodsReplaceNameParam *);
 	int    SLAPI ShowGoodsAsscInfo(PPID goodsID);
 	//
@@ -26162,8 +26175,7 @@ public:
 	int    SLAPI SetupPreferredBarcodeTags();
 	int    SLAPI GetTagList(PPID goodsID, ObjTagList * pTagList);
 	int    SLAPI SetTagList(PPID goodsID, const ObjTagList * pTagList, int use_ta);
-
-	virtual StrAssocArray * SLAPI MakeStrAssocList(void * extraPtr);
+	int    SLAPI SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx, const DBDivPack * pDestDbDiv);
 
 	struct ProcessNameBlock {
 		long   Flags;
@@ -26182,8 +26194,6 @@ protected:
 	virtual int  SLAPI Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  SLAPI Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  SLAPI ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-	// @v9.8.11 int    SLAPI SerializePacket_(int toBuf, PPGoodsPacket * pPack, SBuffer * pBuf);
-	int    SLAPI SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx, const DBDivPack * pDestDbDiv);
 
 	PPID   Kind; // PPGDSK_XXX (Initialized by constructor)
 private:
@@ -26200,12 +26210,9 @@ private:
 	//
 	// Descr: Записывает принятый из другого раздела пакет в БД.
 	//
-	int    SLAPI AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext * pCtx);
-		// @<<PPObjGoods::Write
-	int    SLAPI AcceptQuot(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext * pCtx);
-		// @<<PPObjGoods::AcceptPacket
-	int    SLAPI Helper_ImportHier(PPIniFile *, DbfTable *, PPID defUnitID, HierArray * pHierList);
-		// @<<PPObjGoods::Import
+	int    SLAPI AcceptPacket(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext * pCtx); // @<<PPObjGoods::Write
+	int    SLAPI AcceptQuot(PPID * pID, PPGoodsPacket * pPack, ObjTransmContext * pCtx); // @<<PPObjGoods::AcceptPacket
+	int    SLAPI Helper_ImportHier(PPIniFile *, DbfTable *, PPID defUnitID, HierArray * pHierList); // @<<PPObjGoods::Import
 	void   SLAPI Helper_AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID, LDATE lotDate,
 		double qtty, double * pCost /* In, Out */, double * pVatSum, int withOrWithout, int vatFreeSuppl, int roundPrec);
 	int    SLAPI Unite(PPID destID, PPID srcID); // @<<PPObjGoods::HandleMsg
@@ -26215,6 +26222,7 @@ private:
 	int    SLAPI Helper_GetQuotExt(PPID goodsID, const QuotIdent & rQi, double cost, double price, double * pResult, int useCache);
 	int    SLAPI Helper_GetRetailGoodsInfo(PPID goodsID, PPID locID, const RetailPriceExtractor::ExtQuotBlock * pEqBlk,
 		PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags);
+
 	PPGoodsConfig * P_Cfg;
 	SCtrLite Sctr;
 	int16  EcoSel;         // if !0 && !__WIN32__ then 'exists only' selection uses DBQuery, not SArray
@@ -26224,7 +26232,6 @@ private:
 	PPIDArray Locks;
 	// @v9.8.11 (заменено общей технологией) TLP_MEMB(HistGoodsCore, HistGoods);
 public:
-	//TLP_MEMB(GoodsCore, tbl);
 	TLP_MEMB(GoodsCore, P_Tbl);
 	void * ExtraPtr; // @v8.9.10 long Extra --> void * ExtraPtr
 };

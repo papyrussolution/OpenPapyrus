@@ -141,12 +141,10 @@ int OCSP_RESPONSE_print(BIO * bp, OCSP_RESPONSE * o, ulong flags)
 	OCSP_REVOKEDINFO * rev = NULL;
 	OCSP_SINGLERESP * single = NULL;
 	OCSP_RESPBYTES * rb = o->responseBytes;
-
 	if(BIO_puts(bp, "OCSP Response Data:\n") <= 0)
 		goto err;
 	l = ASN1_ENUMERATED_get(o->responseStatus);
-	if(BIO_printf(bp, "    OCSP Response Status: %s (0x%lx)\n",
-		    OCSP_response_status_str(l), l) <= 0)
+	if(BIO_printf(bp, "    OCSP Response Status: %s (0x%lx)\n", OCSP_response_status_str(l), l) <= 0)
 		goto err;
 	if(rb == NULL)
 		return 1;
@@ -158,7 +156,6 @@ int OCSP_RESPONSE_print(BIO * bp, OCSP_RESPONSE * o, ulong flags)
 		BIO_puts(bp, " (unknown response type)\n");
 		return 1;
 	}
-
 	if((br = OCSP_response_get1_basic(o)) == NULL)
 		goto err;
 	rd = &br->tbsResponseData;
@@ -167,17 +164,11 @@ int OCSP_RESPONSE_print(BIO * bp, OCSP_RESPONSE * o, ulong flags)
 		goto err;
 	if(BIO_puts(bp, "    Responder Id: ") <= 0)
 		goto err;
-
 	rid = &rd->responderId;
 	switch(rid->type) {
-		case V_OCSP_RESPID_NAME:
-		    X509_NAME_print_ex(bp, rid->value.byName, 0, XN_FLAG_ONELINE);
-		    break;
-		case V_OCSP_RESPID_KEY:
-		    i2a_ASN1_STRING(bp, rid->value.byKey, 0);
-		    break;
+		case V_OCSP_RESPID_NAME: X509_NAME_print_ex(bp, rid->value.byName, 0, XN_FLAG_ONELINE); break;
+		case V_OCSP_RESPID_KEY: i2a_ASN1_STRING(bp, rid->value.byKey, 0); break;
 	}
-
 	if(BIO_printf(bp, "\n    Produced At: ") <= 0)
 		goto err;
 	if(!ASN1_GENERALIZEDTIME_print(bp, rd->producedAt))
@@ -192,8 +183,7 @@ int OCSP_RESPONSE_print(BIO * bp, OCSP_RESPONSE * o, ulong flags)
 		if(ocsp_certid_print(bp, cid, 4) <= 0)
 			goto err;
 		cst = single->certStatus;
-		if(BIO_printf(bp, "    Cert Status: %s",
-			    OCSP_cert_status_str(cst->type)) <= 0)
+		if(BIO_printf(bp, "    Cert Status: %s", OCSP_cert_status_str(cst->type)) <= 0)
 			goto err;
 		if(cst->type == V_OCSP_CERTSTATUS_REVOKED) {
 			rev = cst->value.revoked;
@@ -203,9 +193,7 @@ int OCSP_RESPONSE_print(BIO * bp, OCSP_RESPONSE * o, ulong flags)
 				goto err;
 			if(rev->revocationReason) {
 				l = ASN1_ENUMERATED_get(rev->revocationReason);
-				if(BIO_printf(bp,
-					    "\n    Revocation Reason: %s (0x%lx)",
-					    OCSP_crl_reason_str(l), l) <= 0)
+				if(BIO_printf(bp, "\n    Revocation Reason: %s (0x%lx)", OCSP_crl_reason_str(l), l) <= 0)
 					goto err;
 			}
 		}
@@ -221,24 +209,19 @@ int OCSP_RESPONSE_print(BIO * bp, OCSP_RESPONSE * o, ulong flags)
 		}
 		if(BIO_write(bp, "\n", 1) <= 0)
 			goto err;
-		if(!X509V3_extensions_print(bp,
-			    "Response Single Extensions",
-			    single->singleExtensions, flags, 8))
+		if(!X509V3_extensions_print(bp, "Response Single Extensions", single->singleExtensions, flags, 8))
 			goto err;
 		if(BIO_write(bp, "\n", 1) <= 0)
 			goto err;
 	}
-	if(!X509V3_extensions_print(bp, "Response Extensions",
-		    rd->responseExtensions, flags, 4))
+	if(!X509V3_extensions_print(bp, "Response Extensions", rd->responseExtensions, flags, 4))
 		goto err;
 	if(X509_signature_print(bp, &br->signatureAlgorithm, br->signature) <= 0)
 		goto err;
-
 	for(i = 0; i < sk_X509_num(br->certs); i++) {
 		X509_print(bp, sk_X509_value(br->certs, i));
 		PEM_write_bio_X509(bp, sk_X509_value(br->certs, i));
 	}
-
 	ret = 1;
 err:
 	OCSP_BASICRESP_free(br);

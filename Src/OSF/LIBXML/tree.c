@@ -4581,7 +4581,7 @@ void xmlNodeSetBase(xmlNode * cur, const xmlChar* uri)
 		case XML_HTML_DOCUMENT_NODE: {
 		    xmlDocPtr doc = (xmlDoc *)cur;
 		    SAlloc::F((xmlChar*)doc->URL);
-		    if(uri == NULL)
+		    if(!uri)
 			    doc->URL = NULL;
 		    else
 			    doc->URL = xmlPathToURI(uri);

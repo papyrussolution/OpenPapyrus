@@ -17,11 +17,10 @@ static void __db_msgfile(const DB_ENV*, const char *, va_list);
  *
  * PUBLIC: int __db_fchk __P((ENV *, const char *, uint32, uint32));
  */
-int __db_fchk(ENV * env, const char * name, uint32 flags, uint32 ok_flags)
+int FASTCALL __db_fchk(ENV * env, const char * name, uint32 flags, uint32 ok_flags)
 {
 	return LF_ISSET(~ok_flags) ? __db_ferr(env, name, 0) : 0;
 }
-
 /*
  * __db_fcchk --
  *	General combination flags checking routine.
@@ -29,7 +28,7 @@ int __db_fchk(ENV * env, const char * name, uint32 flags, uint32 ok_flags)
  * PUBLIC: int __db_fcchk
  * PUBLIC:    __P((ENV *, const char *, uint32, uint32, uint32));
  */
-int __db_fcchk(ENV * env, const char * name, uint32 flags, uint32 flag1, uint32 flag2)
+int FASTCALL __db_fcchk(ENV * env, const char * name, uint32 flags, uint32 flag1, uint32 flag2)
 {
 	return LF_ISSET(flag1) && LF_ISSET(flag2) ? __db_ferr(env, name, 1) : 0;
 }
@@ -51,7 +50,7 @@ int FASTCALL __db_ferr(const ENV * env, const char * name, int iscombo)
  *
  * PUBLIC: int __db_fnl __P((const ENV *, const char *));
  */
-int __db_fnl(const ENV * env, const char * name)
+int FASTCALL __db_fnl(const ENV * env, const char * name)
 {
 	__db_errx(env, DB_STR_A("0056", "%s: DB_READ_COMMITTED, DB_READ_UNCOMMITTED and DB_RMW require locking", "%s"), name);
 	return EINVAL;
@@ -436,13 +435,12 @@ static void __db_msgfile(const DB_ENV * dbenv, const char * fmt, va_list ap)
 	fprintf(fp, "\n");
 	fflush(fp);
 }
-
 /*
  * __db_unknown_flag -- report internal error
  *
  * PUBLIC: int __db_unknown_flag __P((ENV *, char *, uint32));
  */
-int __db_unknown_flag(ENV * env, char * routine, uint32 flag)
+int FASTCALL __db_unknown_flag(ENV * env, char * routine, uint32 flag)
 {
 	__db_errx(env, DB_STR_A("0093", "%s: Unknown flag: %#x", "%s %#x"), routine, (uint)flag);
 #ifdef DIAGNOSTIC
@@ -451,13 +449,12 @@ int __db_unknown_flag(ENV * env, char * routine, uint32 flag)
 #endif
 	return EINVAL;
 }
-
 /*
  * __db_unknown_type -- report internal database type error
  *
  * PUBLIC: int __db_unknown_type __P((ENV *, char *, DBTYPE));
  */
-int __db_unknown_type(ENV * env, char * routine, DBTYPE type)
+int FASTCALL __db_unknown_type(ENV * env, char * routine, DBTYPE type)
 {
 	__db_errx(env, DB_STR_A("0094", "%s: Unexpected database type: %s", "%s %s"), routine, __db_dbtype_to_string(type));
 #ifdef DIAGNOSTIC
@@ -471,7 +468,7 @@ int __db_unknown_type(ENV * env, char * routine, DBTYPE type)
  *
  * PUBLIC: int __db_unknown_path __P((ENV *, char *));
  */
-int __db_unknown_path(ENV * env, char * routine)
+int FASTCALL __db_unknown_path(ENV * env, char * routine)
 {
 	__db_errx(env, DB_STR_A("0095", "%s: Unexpected code path error", "%s"), routine);
 #ifdef DIAGNOSTIC
@@ -480,14 +477,13 @@ int __db_unknown_path(ENV * env, char * routine)
 #endif
 	return EINVAL;
 }
-
 /*
  * __db_check_txn --
  *	Check for common transaction errors.
  *
  * PUBLIC: int __db_check_txn __P((DB *, DB_TXN *, DB_LOCKER *, int));
  */
-int __db_check_txn(DB * dbp, DB_TXN * txn, DB_LOCKER * assoc_locker, int read_op)
+int FASTCALL __db_check_txn(DB * dbp, DB_TXN * txn, DB_LOCKER * assoc_locker, int read_op)
 {
 	int related, ret;
 	ENV * env = dbp->env;
@@ -584,23 +580,20 @@ int __db_txn_deadlock_err(ENV * env, DB_TXN * txn)
 {
 	const char * name = NULL;
 	__txn_get_name(txn, &name);
-	__db_errx(env, DB_STR_A("0102", "%s%sprevious transaction deadlock return not resolved",
-		"%s %s"), name == NULL ? "" : name, name == NULL ? "" : ": ");
+	__db_errx(env, DB_STR_A("0102", "%s%sprevious transaction deadlock return not resolved", "%s %s"), name == NULL ? "" : name, name == NULL ? "" : ": ");
 	return EINVAL;
 }
-
 /*
  * __db_not_txn_env --
  *	DB handle must be in an environment that supports transactions.
  *
  * PUBLIC: int __db_not_txn_env(ENV *);
  */
-int __db_not_txn_env(ENV * env)
+int FASTCALL __db_not_txn_env(ENV * env)
 {
 	__db_errx(env, DB_STR("0103", "DB environment not configured for transactions"));
 	return EINVAL;
 }
-
 /*
  * __db_rec_toobig --
  *	Fixed record length exceeded error message.
@@ -612,7 +605,6 @@ int __db_rec_toobig(ENV * env, uint32 data_len, uint32 fixed_rec_len)
 	__db_errx(env, DB_STR_A("0104", "%lu larger than database's maximum record length %lu", "%lu %lu"), (ulong)data_len, (ulong)fixed_rec_len);
 	return EINVAL;
 }
-
 /*
  * __db_rec_repl --
  *	Fixed record replacement length error message.
@@ -679,7 +671,6 @@ err:
 	return ret;
 }
 #endif
-
 /*
  * __db_check_lsn --
  *	Display the log sequence error message.
@@ -692,7 +683,6 @@ int __db_check_lsn(ENV * env, DB_LSN * lsn, DB_LSN * prev)
 		"%lu %lu %lu %lu"), (ulong)(lsn)->file, (ulong)(lsn)->Offset_, (ulong)(prev)->file, (ulong)(prev)->Offset_);
 	return EINVAL;
 }
-
 /*
  * __db_rdonly --
  *	Common readonly message.
@@ -703,7 +693,6 @@ int __db_rdonly(const ENV * env, const char * name)
 	__db_errx(env, DB_STR_A("0111", "%s: attempt to modify a read-only database", "%s"), name);
 	return EACCES;
 }
-
 /*
  * __db_space_err --
  *	Common out of space message.
@@ -714,7 +703,6 @@ int __db_space_err(const DB * dbp)
 	__db_errx(dbp->env, DB_STR_A("0112", "%s: file limited to %lu pages", "%s %lu"), dbp->fname, (ulong)dbp->mpf->mfp->maxpgno);
 	return ENOSPC;
 }
-
 /*
  * __db_failed --
  *	Common failed thread  message.

@@ -189,12 +189,12 @@ int X509_EXTENSION_set_data(X509_EXTENSION * ex, ASN1_OCTET_STRING * data)
 	return 1;
 }
 
-ASN1_OBJECT * X509_EXTENSION_get_object(X509_EXTENSION * ex)
+ASN1_OBJECT * FASTCALL X509_EXTENSION_get_object(X509_EXTENSION * ex)
 {
 	return ex ? ex->object : 0;
 }
 
-ASN1_OCTET_STRING * X509_EXTENSION_get_data(X509_EXTENSION * ex)
+ASN1_OCTET_STRING * FASTCALL X509_EXTENSION_get_data(X509_EXTENSION * ex)
 {
 	return ex ? &ex->value : 0;
 }
@@ -203,8 +203,9 @@ int X509_EXTENSION_get_critical(const X509_EXTENSION * ex)
 {
 	if(ex == NULL)
 		return 0;
-	if(ex->critical > 0)
+	else if(ex->critical > 0)
 		return 1;
-	return 0;
+	else
+		return 0;
 }
 

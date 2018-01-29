@@ -1,5 +1,5 @@
 // PPBROW.RC2
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Part of project Papyrus
 //
@@ -3195,6 +3195,7 @@ browser SYSJ north(100), 1, 1, "@{view_sysjournal}", OWNER|GRID, 0
 		RESTOREGOODS     : kbCtrlR, TBBM_NOICON,    "Восстановление товара\tCtrl-R"
 		PRINT            : kbF7,    TBBM_PRINT,     "@{print}\tF7"
 		separator
+		TRANSMIT         : kbCtrlH, TBBM_SENDOBJ,   "@{dotransmit}\tCtrl-H"
 		CHANGEFILT       : kbCtrlV, TBBM_FILTER,    "@{filter}\tCtrl-V"
 		SPCFUNC          : kbCtrlX, TBBM_NOICON, hidden, "Специальная функция\tCtrl-X"
 	}

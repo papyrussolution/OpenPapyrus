@@ -534,7 +534,7 @@ int main(int argc, char ** argv)
 		for(i++; i < argc; i++) {
 			xmlChar * ans;
 			xmlURIPtr uri = xmlParseURI(argv[i]);
-			if(uri == NULL) {
+			if(!uri) {
 				ans = xmlCatalogResolvePublic((const xmlChar*)argv[i]);
 				if(ans == NULL) {
 					printf("No entry for PUBLIC %s\n", argv[i]);

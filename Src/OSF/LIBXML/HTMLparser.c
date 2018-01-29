@@ -5409,7 +5409,7 @@ htmlParserCtxtPtr htmlCreateFileParserCtxt(const char * filename, const char * e
 	}
 	inputStream = xmlLoadExternalEntity(canonicFilename, NULL, ctxt);
 	SAlloc::F(canonicFilename);
-	if(inputStream == NULL) {
+	if(!inputStream) {
 		xmlFreeParserCtxt(ctxt);
 		return NULL;
 	}

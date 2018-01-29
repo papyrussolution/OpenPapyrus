@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 
-int EVP_add_cipher(const EVP_CIPHER * c)
+int FASTCALL EVP_add_cipher(const EVP_CIPHER * c)
 {
 	int r;
 	if(c == NULL)
@@ -21,17 +21,15 @@ int EVP_add_cipher(const EVP_CIPHER * c)
 	return (r);
 }
 
-int EVP_add_digest(const EVP_MD * md)
+int FASTCALL EVP_add_digest(const EVP_MD * md)
 {
-	int r;
 	const char * name = OBJ_nid2sn(md->type);
-	r = OBJ_NAME_add(name, OBJ_NAME_TYPE_MD_METH, (const char*)md);
+	int r = OBJ_NAME_add(name, OBJ_NAME_TYPE_MD_METH, (const char*)md);
 	if(r == 0)
 		return 0;
 	r = OBJ_NAME_add(OBJ_nid2ln(md->type), OBJ_NAME_TYPE_MD_METH, (const char*)md);
 	if(r == 0)
 		return 0;
-
 	if(md->pkey_type && md->type != md->pkey_type) {
 		r = OBJ_NAME_add(OBJ_nid2sn(md->pkey_type), OBJ_NAME_TYPE_MD_METH | OBJ_NAME_ALIAS, name);
 		if(r == 0)
@@ -43,20 +41,12 @@ int EVP_add_digest(const EVP_MD * md)
 
 const EVP_CIPHER * EVP_get_cipherbyname(const char * name)
 {
-	const EVP_CIPHER * cp;
-	if(!OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS, NULL))
-		return NULL;
-	cp = (const EVP_CIPHER*)OBJ_NAME_get(name, OBJ_NAME_TYPE_CIPHER_METH);
-	return (cp);
+	return OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS, NULL) ? (const EVP_CIPHER *)OBJ_NAME_get(name, OBJ_NAME_TYPE_CIPHER_METH) : 0;
 }
 
 const EVP_MD * FASTCALL EVP_get_digestbyname(const char * name)
 {
-	const EVP_MD * cp;
-	if(!OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_DIGESTS, NULL))
-		return NULL;
-	cp = (const EVP_MD*)OBJ_NAME_get(name, OBJ_NAME_TYPE_MD_METH);
-	return (cp);
+	return OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_DIGESTS, NULL) ? (const EVP_MD *)OBJ_NAME_get(name, OBJ_NAME_TYPE_MD_METH) : 0;
 }
 
 void evp_cleanup_int(void)

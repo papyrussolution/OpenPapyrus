@@ -1,5 +1,5 @@
 // PPIFC.DL6
-// Copytight (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copytight (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // Описание интерфейсов системы Papyrus
 //
@@ -4174,7 +4174,7 @@ library PapyrusInterfaceLib version(1.1) {
 			long   QCertID;             // ->PPOBJ_QCERT  Только лоты, к которым привязан этот сертификат
 			long   InTaxGrpID;          // Налоговая группа, ассоциированная с лотом
 			PpyVLotFlags Flags;         // Флаги
-			uint   ClosedTag;           // 0 - all, 1 - только открытые, 2 - только закрытые
+			/*uint*/long ClosedTag;           // 0 - all, 1 - только открытые, 2 - только закрытые
 			double CostLow;             // Диапазон цен поступления //
 			double CostUpp;             //   Нулевое значение интерпретируется как отсутствие границы
 			double PriceLow;            // Диапазон цен реализации  //
@@ -4393,6 +4393,21 @@ library PapyrusInterfaceLib version(1.1) {
 		grvpcmMostRecent = 5  // @v4.4.11 По самому последнему лоту (не смотря на остаток)
 	}
 	//
+	// Descr: Параметры дифференциации отчета об остатках товаров
+	// @v9.9.2
+	//
+	enum PpyVGoodsRestDiffParam {
+		grvdiffNone     = 0x0000,
+		grvdiffCost     = 0x0001,
+		grvdiffPrice    = 0x0002,
+		grvdiffPack     = 0x0004,
+		grvdiffSerial   = 0x0008,
+		grvdiffLoc      = 0x0010,
+		grvdiffLotTag   = 0x0020,
+		grvdiffLotID    = 0x0040,
+		grvdiffExpiry   = 0x0080
+	}
+	//
 	// Descr: Интерфейс фильтра по остаткам товаров
 	//
 	interface IPpyFilt_GoodsRest {
@@ -4408,6 +4423,7 @@ library PapyrusInterfaceLib version(1.1) {
 		property {
 			PpyVGoodsRestCalcMethod CalcMethod;
 			PpyVGoodsRestFlags  Flags; //
+			PpyVGoodsRestDiffParam DiffParam; // @v9.9.2 Параметр дифференциации записей отчета
 			long  AmtType;             // 0 - в обеих ценах, 1 - поступления, 2 - реализации
 			long  CalcPrognosis;       // если 1, то вычисляем прогноз иначе - нет
 			out   SDateRange PrgnPeriod; // период прогноза
@@ -4461,6 +4477,11 @@ library PapyrusInterfaceLib version(1.1) {
 		double SupplOrder;     // Предлагаемый заказ поставщику
 		long   SubstAsscCount; //
 		double DraftRcpt;      //
+		double SStatSales;     // @v9.9.2 Среднедневные продажи из статистики продаж
+		date   LastSellDate;   // @v9.9.2 Дата последней продажи
+		date   Expiry;         // @v9.9.2 Дата срока годности
+		long   LotID;          // @v9.9.2
+		string Serial;         // @v9.9.2
 	}
 	// }
 	//

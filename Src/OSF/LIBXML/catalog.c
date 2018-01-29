@@ -772,7 +772,7 @@ xmlDocPtr xmlParseCatalogFile(const char * filename)
 		return 0;
 	}
 	inputStream = xmlNewInputStream(ctxt);
-	if(inputStream == NULL) {
+	if(!inputStream) {
 		xmlFreeParserCtxt(ctxt);
 		return 0;
 	}

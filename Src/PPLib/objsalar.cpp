@@ -1,5 +1,5 @@
 // OBJSALAR.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -13,7 +13,7 @@ SLAPI PPSalChargePacket::PPSalChargePacket()
 int SLAPI PPSalChargePacket::Init()
 {
 	MEMSZERO(Rec);
-	Formula = 0;
+	Formula.Z();
 	GrpList.freeAll();
 	return 1;
 }
@@ -609,7 +609,7 @@ SString & DL6ICLS_PPObjSalCharge::GetName(int32 id)
 			ideqvalstr(id, RetStrBuf);
 	}
 	else {
-		RetStrBuf = 0;
+		RetStrBuf.Z();
 		AppError = 1;
 	}
 	return RetStrBuf;
@@ -642,8 +642,7 @@ int32 DL6ICLS_PPObjSalCharge::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 	THROW(p_obj->PutPacket(&id, &pack, (flags & 0x0001) ? 0 : 1));
 	ASSIGN_PTR(pID, id);
 	CATCH
-		AppError = 1;
-		ok = 0;
+		ok = RaiseAppError();
 	ENDCATCH
 	return ok;
 }
@@ -666,8 +665,7 @@ int32 DL6ICLS_PPObjSalCharge::Update(int32 id, long flags, PPYOBJREC rec)
 	pack.Formula.CopyFromOleStr(p_outer_rec->Formula);
 	THROW(p_obj->PutPacket(&id, &pack, (flags & 0x0001) ? 0 : 1));
 	CATCH
-		AppError = 1;
-		ok = 0;
+		ok = RaiseAppError();
 	ENDCATCH
 	return ok;
 }
@@ -1097,14 +1095,15 @@ StrAssocArray * SLAPI PPObjStaffCal::MakeStrAssocList(void * extraPtr)
 	return p_list;
 }
 
-#define GRP_COLOR 1
-
 class StaffCalDialog : public PPListDialog {
 public:
+	enum {
+		ctrgroupColor = 1
+	};
 	StaffCalDialog() : PPListDialog(DLG_STAFFCAL, CTL_STAFFCAL_LIST)
 	{
 		PPLoadText(PPTXT_WEEKDAYS, WeekDays);
-		addGroup(GRP_COLOR, new ColorCtrlGroup(CTL_STAFFCAL_COLOR, CTLSEL_STAFFCAL_COLOR, cmSelColor, CTL_STAFFCAL_SELCOLOR));
+		addGroup(ctrgroupColor, new ColorCtrlGroup(CTL_STAFFCAL_COLOR, CTLSEL_STAFFCAL_COLOR, cmSelColor, CTL_STAFFCAL_SELCOLOR));
 	}
 	int    setDTS(const PPStaffCalPacket * pData);
 	int    getDTS(PPStaffCalPacket * pData);
@@ -1131,7 +1130,7 @@ IMPL_HANDLE_EVENT(StaffCalDialog)
 			Data.Rec.Flags &= PPStaffCal::fInherited;
 		DisableClusterItem(CTL_STAFFCAL_FLAGS, 0, !Data.Rec.LinkCalID);
 		DisableClusterItem(CTL_STAFFCAL_FLAGS, 1, Data.Rec.LinkCalID);
-		DisableClusterItem(CTL_STAFFCAL_FLAGS, 2, Data.Rec.LinkCalID); // @v7.7.12
+		DisableClusterItem(CTL_STAFFCAL_FLAGS, 2, Data.Rec.LinkCalID);
 		setupSymbols();
 		clearEvent(event);
 	}
@@ -1192,7 +1191,7 @@ int StaffCalDialog::setDTS(const PPStaffCalPacket * pData)
 		ColorCtrlGroup::Rec color_rec;
 		color_rec.SetupStdColorList();
 		color_rec.C = NZOR(Data.Rec.Color, GetColorRef(SClrCoral));
-		setGroupData(GRP_COLOR, &color_rec);
+		setGroupData(ctrgroupColor, &color_rec);
 	}
 	updateList(-1);
     return 1;
@@ -1219,7 +1218,7 @@ int StaffCalDialog::getDTS(PPStaffCalPacket * pData)
 	GetClusterData(CTL_STAFFCAL_FLAGS, &Data.Rec.Flags);
 	{
 		ColorCtrlGroup::Rec color_rec;
-		getGroupData(GRP_COLOR, &color_rec);
+		getGroupData(ctrgroupColor, &color_rec);
 		Data.Rec.Color = color_rec.C;
 	}
 	THROW_PP(Data.Rec.InvariantC(&invp), PPERR_PARENTCALNOTFOUND);
@@ -2151,9 +2150,8 @@ int SLAPI PPObjStaffCal::Helper_CheckInEntry(LDATE dt, int proj_r, int inverse,
 		proj_chunk_list = inverse_chunk_list;
 	}
 	{
-		if(proj_chunk_list.getCount()) {
+		if(proj_chunk_list.getCount())
 			proj_chunk_list.Intersect(&cal_chunk_list, &list);
-		}
 		else
 			list = cal_chunk_list;
 	}

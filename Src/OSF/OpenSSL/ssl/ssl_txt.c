@@ -106,8 +106,7 @@ int SSL_SESSION_print(BIO * bp, const SSL_SESSION * x)
 		goto err;
 	if(BIO_puts(bp, "\n    PSK identity hint: ") <= 0)
 		goto err;
-	if(BIO_printf
-		    (bp, "%s", x->psk_identity_hint ? x->psk_identity_hint : "None") <= 0)
+	if(BIO_printf(bp, "%s", x->psk_identity_hint ? x->psk_identity_hint : "None") <= 0)
 		goto err;
 #endif
 #ifndef OPENSSL_NO_SRP

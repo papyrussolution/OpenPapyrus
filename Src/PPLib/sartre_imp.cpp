@@ -2855,8 +2855,7 @@ int SLAPI PrcssrSartre::TestSearchWords()
 				"мин"
 			};
 			for(uint i = 0; i < SIZEOFARRAY(p_words); i++) {
-				temp_buf = p_words[i];
-				temp_buf.ToUtf8();
+				(temp_buf = p_words[i]).ToUtf8();
 				info_list.clear();
 				if(p_db->GetWordInfo(temp_buf, 0, info_list) > 0) {
 					for(uint j = 0; j < info_list.getCount(); j++) {
@@ -2926,7 +2925,9 @@ int PrcssrSartre::TestConcept()
 			"центральная африка",
 			"ling_cs",
 			"планировочный район",
-			"железнодорожная казарма"
+			"железнодорожная казарма",
+			"лисициной",
+			"воздвиженка"
 		};
 		PPGetFilePath(PPPATH_OUT, "Sartr_TestConcept.txt", temp_buf);
 		SFile out_file(temp_buf, SFile::mWrite);

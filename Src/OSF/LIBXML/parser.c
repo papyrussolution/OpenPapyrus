@@ -4801,7 +4801,7 @@ void xmlParseEntityDecl(xmlParserCtxt * ctxt)
 				}
 				if(URI) {
 					xmlURIPtr uri = xmlParseURI((const char*)URI);
-					if(uri == NULL) {
+					if(!uri) {
 						xmlErrMsgStr(ctxt, XML_ERR_INVALID_URI, "Invalid URI: %s\n", URI);
 						/*
 						 * This really ought to be a well formedness error
@@ -4850,7 +4850,7 @@ void xmlParseEntityDecl(xmlParserCtxt * ctxt)
 				}
 				if(URI) {
 					xmlURIPtr uri = xmlParseURI((const char*)URI);
-					if(uri == NULL) {
+					if(!uri) {
 						xmlErrMsgStr(ctxt, XML_ERR_INVALID_URI, "Invalid URI: %s\n", URI);
 						/*
 						 * This really ought to be a well formedness error
@@ -8177,7 +8177,7 @@ reparse:
 				}
 				if(*URL != 0) {
 					uri = xmlParseURI((const char*)URL);
-					if(uri == NULL) {
+					if(!uri) {
 						xmlNsErr(ctxt, XML_WAR_NS_URI, "xmlns: '%s' is not a valid URI\n", URL, 0, 0);
 					}
 					else {
@@ -8871,7 +8871,6 @@ void FASTCALL xmlParseElement(xmlParserCtxt * ctxt)
 	else
 		xmlParseEndTag1(ctxt, line);
 #endif /* LIBXML_SAX1_ENABLED */
-
 	/*
 	 * Capture end position and add node
 	 */
@@ -8938,7 +8937,6 @@ xmlChar * xmlParseVersionNum(xmlParserCtxt * ctxt)
 	buf[len] = 0;
 	return buf;
 }
-
 /**
  * xmlParseVersionInfo:
  * @ctxt:  an XML parser context
@@ -8951,7 +8949,6 @@ xmlChar * xmlParseVersionNum(xmlParserCtxt * ctxt)
  *
  * Returns the version string, e.g. "1.0"
  */
-
 xmlChar * xmlParseVersionInfo(xmlParserCtxt * ctxt)
 {
 	xmlChar * version = NULL;
@@ -8988,7 +8985,6 @@ xmlChar * xmlParseVersionInfo(xmlParserCtxt * ctxt)
 	}
 	return(version);
 }
-
 /**
  * xmlParseEncName:
  * @ctxt:  an XML parser context
@@ -9043,7 +9039,6 @@ xmlChar * xmlParseEncName(xmlParserCtxt * ctxt)
 	}
 	return buf;
 }
-
 /**
  * xmlParseEncodingDecl:
  * @ctxt:  an XML parser context
@@ -9056,7 +9051,6 @@ xmlChar * xmlParseEncName(xmlParserCtxt * ctxt)
  *
  * Returns the encoding value or NULL
  */
-
 const xmlChar * xmlParseEncodingDecl(xmlParserCtxt * ctxt)
 {
 	xmlChar * encoding = NULL;
@@ -9136,9 +9130,8 @@ const xmlChar * xmlParseEncodingDecl(xmlParserCtxt * ctxt)
 			}
 		}
 	}
-	return(encoding);
+	return encoding;
 }
-
 /**
  * xmlParseSDDecl:
  * @ctxt:  an XML parser context
@@ -9169,7 +9162,6 @@ const xmlChar * xmlParseEncodingDecl(xmlParserCtxt * ctxt)
  *	  (A standalone value of -2 means that the XML declaration was found,
  *	   but no value was specified for the standalone attribute).
  */
-
 int xmlParseSDDecl(xmlParserCtxt * ctxt)
 {
 	int standalone = -2;
@@ -9208,8 +9200,7 @@ int xmlParseSDDecl(xmlParserCtxt * ctxt)
 				standalone = 0;
 				SKIP(2);
 			}
-			else if((RAW == 'y') && (NXT(1) == 'e') &&
-			    (NXT(2) == 's')) {
+			else if((RAW == 'y') && (NXT(1) == 'e') && (NXT(2) == 's')) {
 				standalone = 1;
 				SKIP(3);
 			}
@@ -9228,7 +9219,6 @@ int xmlParseSDDecl(xmlParserCtxt * ctxt)
 	}
 	return(standalone);
 }
-
 /**
  * xmlParseXMLDecl:
  * @ctxt:  an XML parser context
@@ -9237,36 +9227,35 @@ int xmlParseSDDecl(xmlParserCtxt * ctxt)
  *
  * [23] XMLDecl ::= '<?xml' VersionInfo EncodingDecl? SDDecl? S? '?>'
  */
-
 void xmlParseXMLDecl(xmlParserCtxt * ctxt)
 {
 	xmlChar * version;
-	/*
-	 * This value for standalone indicates that the document has an
-	 * XML declaration but it does not have a standalone attribute.
-	 * It will be overwritten later if a standalone attribute is found.
-	 */
+	// 
+	// This value for standalone indicates that the document has an
+	// XML declaration but it does not have a standalone attribute.
+	// It will be overwritten later if a standalone attribute is found.
+	// 
 	ctxt->input->standalone = -2;
-	/*
-	 * We know that '<?xml' is here.
-	 */
+	// 
+	// We know that '<?xml' is here.
+	// 
 	SKIP(5);
 	if(!IS_BLANK_CH(RAW)) {
 		xmlFatalErrMsg(ctxt, XML_ERR_SPACE_REQUIRED, "Blank needed after '<?xml'\n");
 	}
 	SKIP_BLANKS;
-	/*
-	 * We must have the VersionInfo here.
-	 */
+	// 
+	// We must have the VersionInfo here.
+	// 
 	version = xmlParseVersionInfo(ctxt);
 	if(version == NULL) {
 		xmlFatalErr(ctxt, XML_ERR_VERSION_MISSING, 0);
 	}
 	else {
 		if(!sstreq(version, (const xmlChar*)XML_DEFAULT_VERSION)) {
-			/*
-			 * Changed here for XML-1.0 5th edition
-			 */
+			// 
+			// Changed here for XML-1.0 5th edition
+			// 
 			if(ctxt->options & XML_PARSE_OLD10) {
 				xmlFatalErrMsgStr(ctxt, XML_ERR_UNKNOWN_VERSION, "Unsupported version '%s'\n", version);
 			}
@@ -9294,10 +9283,7 @@ void xmlParseXMLDecl(xmlParserCtxt * ctxt)
 	}
 	xmlParseEncodingDecl(ctxt);
 	if(ctxt->errNo == XML_ERR_UNSUPPORTED_ENCODING) {
-		/*
-		 * The XML REC instructs us to stop parsing right here
-		 */
-		return;
+		return; // The XML REC instructs us to stop parsing right here
 	}
 	/*
 	 * We may have the standalone status.
@@ -9309,15 +9295,12 @@ void xmlParseXMLDecl(xmlParserCtxt * ctxt)
 		}
 		xmlFatalErrMsg(ctxt, XML_ERR_SPACE_REQUIRED, "Blank needed here\n");
 	}
-
 	/*
 	 * We can grow the input buffer freely at that point
 	 */
 	GROW;
-
 	SKIP_BLANKS;
 	ctxt->input->standalone = xmlParseSDDecl(ctxt);
-
 	SKIP_BLANKS;
 	if((RAW == '?') && (NXT(1) == '>')) {
 		SKIP(2);
@@ -9333,7 +9316,6 @@ void xmlParseXMLDecl(xmlParserCtxt * ctxt)
 		NEXT;
 	}
 }
-
 /**
  * xmlParseMisc:
  * @ctxt:  an XML parser context
@@ -9367,7 +9349,6 @@ void xmlParseMisc(xmlParserCtxt * ctxt)
  *
  * Returns 0, -1 in case of error. the parser context is augmented as a result of the parsing.
  */
-
 int xmlParseDocument(xmlParserCtxt * ctxt)
 {
 	xmlChar start[4];
@@ -9404,12 +9385,12 @@ int xmlParseDocument(xmlParserCtxt * ctxt)
 	if(CUR == 0) {
 		xmlFatalErr(ctxt, XML_ERR_DOCUMENT_EMPTY, 0);
 	}
-	/*
-	 * Check for the XMLDecl in the Prolog.
-	 * do not GROW here to avoid the detected encoder to decode more
-	 * than just the first line, unless the amount of data is really
-	 * too small to hold "<?xml version="1.0" encoding="foo"
-	 */
+	// 
+	// Check for the XMLDecl in the Prolog.
+	// do not GROW here to avoid the detected encoder to decode more
+	// than just the first line, unless the amount of data is really
+	// too small to hold "<?xml version="1.0" encoding="foo"
+	// 
 	if((ctxt->input->end - ctxt->input->cur) < 35) {
 		GROW;
 	}
@@ -9431,14 +9412,14 @@ int xmlParseDocument(xmlParserCtxt * ctxt)
 	if(ctxt->myDoc && ctxt->input && ctxt->input->buf && ctxt->input->buf->compressed >= 0) {
 		ctxt->myDoc->compression = ctxt->input->buf->compressed;
 	}
-	/*
-	 * The Misc part of the Prolog
-	 */
+	// 
+	// The Misc part of the Prolog
+	// 
 	GROW;
 	xmlParseMisc(ctxt);
-	/*
-	 * Then possibly doc type declaration(s) and more Misc (doctypedecl Misc*)?
-	 */
+	// 
+	// Then possibly doc type declaration(s) and more Misc (doctypedecl Misc*)?
+	// 
 	GROW;
 	if(CMP9(CUR_PTR, '<', '!', 'D', 'O', 'C', 'T', 'Y', 'P', 'E')) {
 		ctxt->inSubset = 1;
@@ -9449,9 +9430,9 @@ int xmlParseDocument(xmlParserCtxt * ctxt)
 			if(ctxt->instate == XML_PARSER_EOF)
 				return -1;
 		}
-		/*
-		 * Create and update the external subset.
-		 */
+		// 
+		// Create and update the external subset.
+		// 
 		ctxt->inSubset = 2;
 		if(ctxt->sax && ctxt->sax->externalSubset && !ctxt->disableSAX)
 			ctxt->sax->externalSubset(ctxt->userData, ctxt->intSubName, ctxt->extSubSystem, ctxt->extSubURI);
@@ -9462,9 +9443,9 @@ int xmlParseDocument(xmlParserCtxt * ctxt)
 		ctxt->instate = XML_PARSER_PROLOG;
 		xmlParseMisc(ctxt);
 	}
-	/*
-	 * Time to start parsing the tree itself
-	 */
+	// 
+	// Time to start parsing the tree itself
+	// 
 	GROW;
 	if(RAW != '<') {
 		xmlFatalErrMsg(ctxt, XML_ERR_DOCUMENT_EMPTY, "Start tag expected, '<' not found\n");
@@ -9473,23 +9454,22 @@ int xmlParseDocument(xmlParserCtxt * ctxt)
 		ctxt->instate = XML_PARSER_CONTENT;
 		xmlParseElement(ctxt);
 		ctxt->instate = XML_PARSER_EPILOG;
-		/*
-		 * The Misc part at the end
-		 */
+		// 
+		// The Misc part at the end
+		// 
 		xmlParseMisc(ctxt);
-		if(RAW != 0) {
+		if(RAW != 0)
 			xmlFatalErr(ctxt, XML_ERR_DOCUMENT_END, 0);
-		}
 		ctxt->instate = XML_PARSER_EOF;
 	}
-	/*
-	 * SAX: end of the document processing.
-	 */
+	// 
+	// SAX: end of the document processing.
+	// 
 	if(ctxt->sax && ctxt->sax->endDocument)
 		ctxt->sax->endDocument(ctxt->userData);
-	/*
-	 * Remove locally kept entity definitions if the tree was not built
-	 */
+	// 
+	// Remove locally kept entity definitions if the tree was not built
+	// 
 	if(ctxt->myDoc && sstreq(ctxt->myDoc->version, SAX_COMPAT_MODE)) {
 		xmlFreeDoc(ctxt->myDoc);
 		ctxt->myDoc = NULL;
@@ -9510,7 +9490,6 @@ int xmlParseDocument(xmlParserCtxt * ctxt)
 	else
 		return 0;
 }
-
 /**
  * xmlParseExtParsedEnt:
  * @ctxt:  an XML parser context
@@ -10945,7 +10924,7 @@ xmlParserCtxt * xmlCreatePushParserCtxt(xmlSAXHandler * sax, void * user_data, c
 	}
 	ctxt->directory = filename ? xmlParserGetDirectory(filename) : 0;
 	inputStream = xmlNewInputStream(ctxt);
-	if(inputStream == NULL) {
+	if(!inputStream) {
 		xmlFreeParserCtxt(ctxt);
 		xmlFreeParserInputBuffer(buf);
 		return 0;
@@ -11060,7 +11039,7 @@ xmlParserCtxt * xmlCreateIOParserCtxt(xmlSAXHandler * sax, void * user_data, xml
 			ctxt->userData = user_data;
 	}
 	inputStream = xmlNewIOInputStream(ctxt, buf, enc);
-	if(inputStream == NULL) {
+	if(!inputStream) {
 		xmlFreeParserCtxt(ctxt);
 		return 0;
 	}
@@ -12266,7 +12245,6 @@ int xmlParseBalancedChunkMemoryRecover(xmlDoc * doc, xmlSAXHandler * sax, void *
 	}
 	return ret;
 }
-
 /**
  * xmlSAXParseEntity:
  * @sax:  the SAX handler block
@@ -12282,7 +12260,6 @@ int xmlParseBalancedChunkMemoryRecover(xmlDoc * doc, xmlSAXHandler * sax, void *
  *
  * Returns the resulting document tree
  */
-
 xmlDoc * xmlSAXParseEntity(xmlSAXHandler * sax, const char * filename)
 {
 	xmlDoc * ret = 0;
@@ -12307,7 +12284,6 @@ xmlDoc * xmlSAXParseEntity(xmlSAXHandler * sax, const char * filename)
 	}
 	return ret;
 }
-
 /**
  * xmlParseEntity:
  * @filename:  the filename
@@ -12324,7 +12300,6 @@ xmlDoc * xmlParseEntity(const char * filename)
 {
 	return(xmlSAXParseEntity(NULL, filename));
 }
-
 #endif /* LIBXML_SAX1_ENABLED */
 
 /**
@@ -12344,17 +12319,16 @@ static xmlParserCtxt * xmlCreateEntityParserCtxtInternal(const xmlChar * URL, co
 {
 	xmlParserCtxt * ctxt = xmlNewParserCtxt();
 	if(ctxt) {
-		xmlParserInput * inputStream;
 		char * directory = NULL;
 		xmlChar * uri;
-		if(pctx != NULL) {
+		if(pctx) {
 			ctxt->options = pctx->options;
 			ctxt->_private = pctx->_private;
 		}
 		uri = xmlBuildURI(URL, base);
-		if(uri == NULL) {
-			inputStream = xmlLoadExternalEntity((char*)URL, (char*)ID, ctxt);
-			if(inputStream == NULL) {
+		if(!uri) {
+			xmlParserInput * inputStream = xmlLoadExternalEntity((char*)URL, (char*)ID, ctxt);
+			if(!inputStream) {
 				xmlFreeParserCtxt(ctxt);
 				return 0;
 			}
@@ -12365,8 +12339,8 @@ static xmlParserCtxt * xmlCreateEntityParserCtxtInternal(const xmlChar * URL, co
 				ctxt->directory = directory;
 		}
 		else {
-			inputStream = xmlLoadExternalEntity((char*)uri, (char*)ID, ctxt);
-			if(inputStream == NULL) {
+			xmlParserInput * inputStream = xmlLoadExternalEntity((char*)uri, (char*)ID, ctxt);
+			if(!inputStream) {
 				SAlloc::F(uri);
 				xmlFreeParserCtxt(ctxt);
 				return 0;
@@ -12429,7 +12403,7 @@ xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options)
 			xmlCtxtUseOptionsInternal(ctxt, options, 0);
 		ctxt->linenumbers = 1;
 		inputStream = xmlLoadExternalEntity(filename, NULL, ctxt);
-		if(inputStream == NULL) {
+		if(!inputStream) {
 			xmlFreeParserCtxt(ctxt);
 			ctxt = 0;
 		}
@@ -12774,7 +12748,6 @@ xmlDoc * xmlParseMemory(const char * buffer, int size)
 {
 	return xmlSAXParseMemory(NULL, buffer, size, 0);
 }
-
 /**
  * xmlRecoverMemory:
  * @buffer:  an pointer to a char array
@@ -12786,7 +12759,6 @@ xmlDoc * xmlParseMemory(const char * buffer, int size)
  *
  * Returns the resulting document tree or NULL in case of error
  */
-
 xmlDoc * xmlRecoverMemory(const char * buffer, int size)
 {
 	return xmlSAXParseMemory(NULL, buffer, size, 1);
@@ -13171,7 +13143,7 @@ int xmlCtxtResetPush(xmlParserCtxt * ctxt, const char * chunk, int size, const c
 	}
 	ctxt->directory = filename ? xmlParserGetDirectory(filename) : 0;
 	inputStream = xmlNewInputStream(ctxt);
-	if(inputStream == NULL) {
+	if(!inputStream) {
 		xmlFreeParserInputBuffer(buf);
 		return 1;
 	}

@@ -593,23 +593,20 @@ static int ssl_print_hexbuf(BIO * bio, int indent,
 	return 1;
 }
 
-static int ssl_print_version(BIO * bio, int indent, const char * name,
-    const uchar ** pmsg, size_t * pmsglen)
+static int ssl_print_version(BIO * bio, int indent, const char * name, const uchar ** pmsg, size_t * pmsglen)
 {
 	int vers;
 	if(*pmsglen < 2)
 		return 0;
 	vers = ((*pmsg)[0] << 8) | (*pmsg)[1];
 	BIO_indent(bio, indent, 80);
-	BIO_printf(bio, "%s=0x%x (%s)\n",
-	    name, vers, ssl_trace_str(vers, ssl_version_tbl));
+	BIO_printf(bio, "%s=0x%x (%s)\n", name, vers, ssl_trace_str(vers, ssl_version_tbl));
 	*pmsg += 2;
 	*pmsglen -= 2;
 	return 1;
 }
 
-static int ssl_print_random(BIO * bio, int indent,
-    const uchar ** pmsg, size_t * pmsglen)
+static int ssl_print_random(BIO * bio, int indent, const uchar ** pmsg, size_t * pmsglen)
 {
 	uint tm;
 	const uchar * p = *pmsg;
@@ -627,30 +624,25 @@ static int ssl_print_random(BIO * bio, int indent,
 	return 1;
 }
 
-static int ssl_print_signature(BIO * bio, int indent, SSL * s,
-    const uchar ** pmsg, size_t * pmsglen)
+static int ssl_print_signature(BIO * bio, int indent, SSL * s, const uchar ** pmsg, size_t * pmsglen)
 {
 	if(*pmsglen < 2)
 		return 0;
 	if(SSL_USE_SIGALGS(s)) {
 		const uchar * p = *pmsg;
 		BIO_indent(bio, indent, 80);
-		BIO_printf(bio, "Signature Algorithm %s+%s (%d+%d)\n",
-		    ssl_trace_str(p[0], ssl_md_tbl),
-		    ssl_trace_str(p[1], ssl_sig_tbl), p[0], p[1]);
+		BIO_printf(bio, "Signature Algorithm %s+%s (%d+%d)\n", ssl_trace_str(p[0], ssl_md_tbl), ssl_trace_str(p[1], ssl_sig_tbl), p[0], p[1]);
 		*pmsg += 2;
 		*pmsglen -= 2;
 	}
 	return ssl_print_hexbuf(bio, indent, "Signature", 2, pmsg, pmsglen);
 }
 
-static int ssl_print_extension(BIO * bio, int indent, int server, int extype,
-    const uchar * ext, size_t extlen)
+static int ssl_print_extension(BIO * bio, int indent, int server, int extype, const uchar * ext, size_t extlen)
 {
 	size_t xlen;
 	BIO_indent(bio, indent, 80);
-	BIO_printf(bio, "extension_type=%s(%d), length=%d\n",
-	    ssl_trace_str(extype, ssl_exts_tbl), extype, (int)extlen);
+	BIO_printf(bio, "extension_type=%s(%d), length=%d\n", ssl_trace_str(extype, ssl_exts_tbl), extype, (int)extlen);
 	switch(extype) {
 		case TLSEXT_TYPE_ec_point_formats:
 		    if(extlen < 1)
@@ -659,7 +651,6 @@ static int ssl_print_extension(BIO * bio, int indent, int server, int extype,
 		    if(extlen != xlen + 1)
 			    return 0;
 		    return ssl_trace_list(bio, indent + 2, ext + 1, xlen, 1, ssl_point_tbl);
-
 		case TLSEXT_TYPE_elliptic_curves:
 		    if(extlen < 2)
 			    return 0;
@@ -667,9 +658,7 @@ static int ssl_print_extension(BIO * bio, int indent, int server, int extype,
 		    if(extlen != xlen + 2)
 			    return 0;
 		    return ssl_trace_list(bio, indent + 2, ext + 2, xlen, 2, ssl_curve_tbl);
-
 		case TLSEXT_TYPE_signature_algorithms:
-
 		    if(extlen < 2)
 			    return 0;
 		    xlen = (ext[0] << 8) | ext[1];
@@ -680,14 +669,11 @@ static int ssl_print_extension(BIO * bio, int indent, int server, int extype,
 		    ext += 2;
 		    while(xlen > 0) {
 			    BIO_indent(bio, indent + 2, 80);
-			    BIO_printf(bio, "%s+%s (%d+%d)\n",
-			    ssl_trace_str(ext[0], ssl_md_tbl),
-			    ssl_trace_str(ext[1], ssl_sig_tbl), ext[0], ext[1]);
+			    BIO_printf(bio, "%s+%s (%d+%d)\n", ssl_trace_str(ext[0], ssl_md_tbl), ssl_trace_str(ext[1], ssl_sig_tbl), ext[0], ext[1]);
 			    xlen -= 2;
 			    ext += 2;
 		    }
 		    break;
-
 		case TLSEXT_TYPE_renegotiate:
 		    if(extlen < 1)
 			    return 0;
@@ -717,23 +703,19 @@ static int ssl_print_extension(BIO * bio, int indent, int server, int extype,
 		    if(extlen != 1)
 			    return 0;
 		    BIO_indent(bio, indent + 2, 80);
-		    BIO_printf(bio, "HeartbeatMode: %s\n",
-		    ssl_trace_str(ext[0], ssl_hb_tbl));
+		    BIO_printf(bio, "HeartbeatMode: %s\n", ssl_trace_str(ext[0], ssl_hb_tbl));
 		    break;
-
 		case TLSEXT_TYPE_session_ticket:
 		    if(extlen != 0)
 			    ssl_print_hex(bio, indent + 4, "ticket", ext, extlen);
 		    break;
-
 		default:
 		    BIO_dump_indent(bio, (const char*)ext, extlen, indent + 2);
 	}
 	return 1;
 }
 
-static int ssl_print_extensions(BIO * bio, int indent, int server,
-    const uchar * msg, size_t msglen)
+static int ssl_print_extensions(BIO * bio, int indent, int server, const uchar * msg, size_t msglen)
 {
 	size_t extslen;
 	BIO_indent(bio, indent, 80);
@@ -792,8 +774,7 @@ static int ssl_print_client_hello(BIO * bio, SSL * ssl, int indent,
 	while(len > 0) {
 		cs = (msg[0] << 8) | msg[1];
 		BIO_indent(bio, indent + 2, 80);
-		BIO_printf(bio, "{0x%02X, 0x%02X} %s\n",
-		    msg[0], msg[1], ssl_trace_str(cs, ssl_ciphers_tbl));
+		BIO_printf(bio, "{0x%02X, 0x%02X} %s\n", msg[0], msg[1], ssl_trace_str(cs, ssl_ciphers_tbl));
 		msg += 2;
 		msglen -= 2;
 		len -= 2;
@@ -809,8 +790,7 @@ static int ssl_print_client_hello(BIO * bio, SSL * ssl, int indent,
 	BIO_printf(bio, "compression_methods (len=%d)\n", (int)len);
 	while(len > 0) {
 		BIO_indent(bio, indent + 2, 80);
-		BIO_printf(bio, "%s (0x%02X)\n",
-		    ssl_trace_str(msg[0], ssl_comp_tbl), msg[0]);
+		BIO_printf(bio, "%s (0x%02X)\n", ssl_trace_str(msg[0], ssl_comp_tbl), msg[0]);
 		msg++;
 		msglen--;
 		len--;
@@ -830,8 +810,7 @@ static int dtls_print_hello_vfyrequest(BIO * bio, int indent,
 	return 1;
 }
 
-static int ssl_print_server_hello(BIO * bio, int indent,
-    const uchar * msg, size_t msglen)
+static int ssl_print_server_hello(BIO * bio, int indent, const uchar * msg, size_t msglen)
 {
 	uint cs;
 	if(!ssl_print_version(bio, indent, "server_version", &msg, &msglen))
@@ -844,15 +823,13 @@ static int ssl_print_server_hello(BIO * bio, int indent,
 		return 0;
 	cs = (msg[0] << 8) | msg[1];
 	BIO_indent(bio, indent, 80);
-	BIO_printf(bio, "cipher_suite {0x%02X, 0x%02X} %s\n",
-	    msg[0], msg[1], ssl_trace_str(cs, ssl_ciphers_tbl));
+	BIO_printf(bio, "cipher_suite {0x%02X, 0x%02X} %s\n", msg[0], msg[1], ssl_trace_str(cs, ssl_ciphers_tbl));
 	msg += 2;
 	msglen -= 2;
 	if(msglen < 1)
 		return 0;
 	BIO_indent(bio, indent, 80);
-	BIO_printf(bio, "compression_method: %s (0x%02X)\n",
-	    ssl_trace_str(msg[0], ssl_comp_tbl), msg[0]);
+	BIO_printf(bio, "compression_method: %s (0x%02X)\n", ssl_trace_str(msg[0], ssl_comp_tbl), msg[0]);
 	msg++;
 	msglen--;
 	if(!ssl_print_extensions(bio, indent, 1, msg, msglen))
@@ -903,12 +880,10 @@ static int ssl_get_keyex(const char ** pname, SSL * ssl)
 	return 0;
 }
 
-static int ssl_print_client_keyex(BIO * bio, int indent, SSL * ssl,
-    const uchar * msg, size_t msglen)
+static int ssl_print_client_keyex(BIO * bio, int indent, SSL * ssl, const uchar * msg, size_t msglen)
 {
 	const char * algname;
-	int id;
-	id = ssl_get_keyex(&algname, ssl);
+	int id = ssl_get_keyex(&algname, ssl);
 	BIO_indent(bio, indent, 80);
 	BIO_printf(bio, "KeyExchangeAlgorithm=%s\n", algname);
 	if(id & SSL_PSK) {
@@ -946,8 +921,7 @@ static int ssl_print_client_keyex(BIO * bio, int indent, SSL * ssl,
 	return !msglen;
 }
 
-static int ssl_print_server_keyex(BIO * bio, int indent, SSL * ssl,
-    const uchar * msg, size_t msglen)
+static int ssl_print_server_keyex(BIO * bio, int indent, SSL * ssl, const uchar * msg, size_t msglen)
 {
 	const char * algname;
 	int id;
@@ -955,20 +929,16 @@ static int ssl_print_server_keyex(BIO * bio, int indent, SSL * ssl,
 	BIO_indent(bio, indent, 80);
 	BIO_printf(bio, "KeyExchangeAlgorithm=%s\n", algname);
 	if(id & SSL_PSK) {
-		if(!ssl_print_hexbuf(bio, indent + 2,
-			    "psk_identity_hint", 2, &msg, &msglen))
+		if(!ssl_print_hexbuf(bio, indent + 2, "psk_identity_hint", 2, &msg, &msglen))
 			return 0;
 	}
 	switch(id) {
 		case SSL_kRSA:
-
 		    if(!ssl_print_hexbuf(bio, indent + 2, "rsa_modulus", 2, &msg, &msglen))
 			    return 0;
-		    if(!ssl_print_hexbuf(bio, indent + 2, "rsa_exponent", 2,
-			    &msg, &msglen))
+		    if(!ssl_print_hexbuf(bio, indent + 2, "rsa_exponent", 2, &msg, &msglen))
 			    return 0;
 		    break;
-
 		case SSL_kDHE:
 		case SSL_kDHEPSK:
 		    if(!ssl_print_hexbuf(bio, indent + 2, "dh_p", 2, &msg, &msglen))
@@ -994,8 +964,7 @@ static int ssl_print_server_keyex(BIO * bio, int indent, SSL * ssl,
 			    if(msglen < 3)
 				    return 0;
 			    curve = (msg[1] << 8) | msg[2];
-			    BIO_printf(bio, "named_curve: %s (%d)\n",
-			    ssl_trace_str(curve, ssl_curve_tbl), curve);
+			    BIO_printf(bio, "named_curve: %s (%d)\n", ssl_trace_str(curve, ssl_curve_tbl), curve);
 			    msg += 3;
 			    msglen -= 3;
 			    if(!ssl_print_hexbuf(bio, indent + 2, "point", 1, &msg, &msglen))
@@ -1070,8 +1039,7 @@ static int ssl_print_certificates(BIO * bio, int indent,
 	return 1;
 }
 
-static int ssl_print_cert_request(BIO * bio, int indent, SSL * s,
-    const uchar * msg, size_t msglen)
+static int ssl_print_cert_request(BIO * bio, int indent, SSL * s, const uchar * msg, size_t msglen)
 {
 	size_t xlen;
 	if(msglen < 1)
@@ -1098,9 +1066,7 @@ static int ssl_print_cert_request(BIO * bio, int indent, SSL * s,
 	BIO_printf(bio, "signature_algorithms (len=%d)\n", (int)xlen);
 	while(xlen > 0) {
 		BIO_indent(bio, indent + 2, 80);
-		BIO_printf(bio, "%s+%s (%d+%d)\n",
-		    ssl_trace_str(msg[0], ssl_md_tbl),
-		    ssl_trace_str(msg[1], ssl_sig_tbl), msg[0], msg[1]);
+		BIO_printf(bio, "%s+%s (%d+%d)\n", ssl_trace_str(msg[0], ssl_md_tbl), ssl_trace_str(msg[1], ssl_sig_tbl), msg[0], msg[1]);
 		xlen -= 2;
 		msg += 2;
 	}
@@ -1143,8 +1109,7 @@ skip_sig:
 	return 1;
 }
 
-static int ssl_print_ticket(BIO * bio, int indent,
-    const uchar * msg, size_t msglen)
+static int ssl_print_ticket(BIO * bio, int indent, const uchar * msg, size_t msglen)
 {
 	uint tick_life;
 	if(msglen == 0) {
@@ -1166,9 +1131,7 @@ static int ssl_print_ticket(BIO * bio, int indent,
 	return 1;
 }
 
-static int ssl_print_handshake(BIO * bio, SSL * ssl,
-    const uchar * msg, size_t msglen,
-    int indent)
+static int ssl_print_handshake(BIO * bio, SSL * ssl, const uchar * msg, size_t msglen, int indent)
 {
 	size_t hlen;
 	uchar htype;
@@ -1177,19 +1140,15 @@ static int ssl_print_handshake(BIO * bio, SSL * ssl,
 	htype = msg[0];
 	hlen = (msg[1] << 16) | (msg[2] << 8) | msg[3];
 	BIO_indent(bio, indent, 80);
-	BIO_printf(bio, "%s, Length=%d\n",
-	    ssl_trace_str(htype, ssl_handshake_tbl), (int)hlen);
+	BIO_printf(bio, "%s, Length=%d\n", ssl_trace_str(htype, ssl_handshake_tbl), (int)hlen);
 	msg += 4;
 	msglen -= 4;
 	if(SSL_IS_DTLS(ssl)) {
 		if(msglen < 8)
 			return 0;
 		BIO_indent(bio, indent, 80);
-		BIO_printf(bio, "message_seq=%d, fragment_offset=%d, "
-		    "fragment_length=%d\n",
-		    (msg[0] << 8) | msg[1],
-		    (msg[2] << 16) | (msg[3] << 8) | msg[4],
-		    (msg[5] << 16) | (msg[6] << 8) | msg[7]);
+		BIO_printf(bio, "message_seq=%d, fragment_offset=%d, fragment_length=%d\n", (msg[0] << 8) | msg[1],
+		    (msg[2] << 16) | (msg[3] << 8) | msg[4], (msg[5] << 16) | (msg[6] << 8) | msg[7]);
 		msg += 8;
 		msglen -= 8;
 	}
@@ -1249,7 +1208,6 @@ static int ssl_print_handshake(BIO * bio, SSL * ssl,
 		    if(!ssl_print_ticket(bio, indent + 2, msg, msglen))
 			    return 0;
 		    break;
-
 		default:
 		    BIO_indent(bio, indent + 2, 80);
 		    BIO_puts(bio, "Unsupported, hex dump follows:\n");
@@ -1258,14 +1216,12 @@ static int ssl_print_handshake(BIO * bio, SSL * ssl,
 	return 1;
 }
 
-static int ssl_print_heartbeat(BIO * bio, int indent,
-    const uchar * msg, size_t msglen)
+static int ssl_print_heartbeat(BIO * bio, int indent, const uchar * msg, size_t msglen)
 {
 	if(msglen < 3)
 		return 0;
 	BIO_indent(bio, indent, 80);
-	BIO_printf(bio, "HeartBeatMessageType: %s\n",
-	    ssl_trace_str(msg[0], ssl_hb_type_tbl));
+	BIO_printf(bio, "HeartBeatMessageType: %s\n", ssl_trace_str(msg[0], ssl_hb_type_tbl));
 	msg++;
 	msglen--;
 	if(!ssl_print_hexbuf(bio, indent, "payload", 2, &msg, &msglen))
@@ -1279,16 +1235,13 @@ const char * SSL_CIPHER_standard_name(const SSL_CIPHER * c)
 	return ssl_trace_str(c->id & 0xFFFF, ssl_ciphers_tbl);
 }
 
-void SSL_trace(int write_p, int version, int content_type,
-    const void * buf, size_t msglen, SSL * ssl, void * arg)
+void SSL_trace(int write_p, int version, int content_type, const void * buf, size_t msglen, SSL * ssl, void * arg)
 {
 	const uchar * msg = buf;
 	BIO * bio = arg;
-
 	if(write_p == 2) {
 		BIO_puts(bio, "Session ");
-		ssl_print_hex(bio, 0,
-		    ssl_trace_str(content_type, ssl_crypto_tbl), msg, msglen);
+		ssl_print_hex(bio, 0, ssl_trace_str(content_type, ssl_crypto_tbl), msg, msglen);
 		return;
 	}
 	switch(content_type) {
@@ -1296,46 +1249,34 @@ void SSL_trace(int write_p, int version, int content_type,
 	    {
 		    int hvers = msg[1] << 8 | msg[2];
 		    BIO_puts(bio, write_p ? "Sent" : "Received");
-		    BIO_printf(bio, " Record\nHeader:\n  Version = %s (0x%x)\n",
-			    ssl_trace_str(hvers, ssl_version_tbl), hvers);
+		    BIO_printf(bio, " Record\nHeader:\n  Version = %s (0x%x)\n", ssl_trace_str(hvers, ssl_version_tbl), hvers);
 		    if(SSL_IS_DTLS(ssl)) {
-			    BIO_printf(bio,
-				    "  epoch=%d, sequence_number=%04x%04x%04x\n",
-				    (msg[3] << 8 | msg[4]),
-				    (msg[5] << 8 | msg[6]),
-				    (msg[7] << 8 | msg[8]), (msg[9] << 8 | msg[10]));
+			    BIO_printf(bio, "  epoch=%d, sequence_number=%04x%04x%04x\n",
+				    (msg[3] << 8 | msg[4]), (msg[5] << 8 | msg[6]), (msg[7] << 8 | msg[8]), (msg[9] << 8 | msg[10]));
 		    }
-
-		    BIO_printf(bio, "  Content Type = %s (%d)\n  Length = %d",
-			    ssl_trace_str(msg[0], ssl_content_tbl), msg[0],
-			    msg[msglen - 2] << 8 | msg[msglen - 1]);
+		    BIO_printf(bio, "  Content Type = %s (%d)\n  Length = %d", ssl_trace_str(msg[0], ssl_content_tbl), msg[0], msg[msglen - 2] << 8 | msg[msglen - 1]);
 	    }
 	    break;
 		case SSL3_RT_HANDSHAKE:
 		    if(!ssl_print_handshake(bio, ssl, msg, msglen, 4))
 			    BIO_printf(bio, "Message length parse error!\n");
 		    break;
-
 		case SSL3_RT_CHANGE_CIPHER_SPEC:
 		    if(msglen == 1 && msg[0] == 1)
 			    BIO_puts(bio, "    change_cipher_spec (1)\n");
 		    else
 			    ssl_print_hex(bio, 4, "unknown value", msg, msglen);
 		    break;
-
 		case SSL3_RT_ALERT:
 		    if(msglen != 2)
 			    BIO_puts(bio, "    Illegal Alert Length\n");
 		    else {
-			    BIO_printf(bio, "    Level=%s(%d), description=%s(%d)\n",
-			    SSL_alert_type_string_long(msg[0] << 8),
-			    msg[0], SSL_alert_desc_string_long(msg[1]), msg[1]);
+			    BIO_printf(bio, "    Level=%s(%d), description=%s(%d)\n", SSL_alert_type_string_long(msg[0] << 8), msg[0], SSL_alert_desc_string_long(msg[1]), msg[1]);
 		    }
 		case DTLS1_RT_HEARTBEAT:
 		    ssl_print_heartbeat(bio, 4, msg, msglen);
 		    break;
 	}
-
 	BIO_puts(bio, "\n");
 }
 
