@@ -742,18 +742,14 @@ void BrowserWindow::SetCellStyleFunc(CellStyleFunc func, void * extraPtr)
 	CellStyleFuncExtraPtr = extraPtr;
 }
 
-void * BrowserWindow::getItemByPos(long pos)
-	{ return (P_Def) ? P_Def->getRow(/*P_Def->_topItem() + */pos) : 0; }
-void * BrowserWindow::getCurItem()
-	{ return P_Def ? P_Def->getRow(P_Def->_curItem()) : 0; }
-const UserInterfaceSettings * BrowserWindow::GetUIConfig() const
-	{ return &UICfg; }
-long BrowserWindow::CalcHdrWidth(int plusToolbar) const
-	{ return (P_Header ? (P_Header->size.y * ChrSz.y) : 0) + (plusToolbar ? ToolBarWidth : 0); }
+void * BrowserWindow::getItemByPos(long pos) { return (P_Def) ? P_Def->getRow(/*P_Def->_topItem() + */pos) : 0; }
+void * BrowserWindow::getCurItem() { return P_Def ? P_Def->getRow(P_Def->_curItem()) : 0; }
+const  UserInterfaceSettings * BrowserWindow::GetUIConfig() const { return &UICfg; }
+long   BrowserWindow::CalcHdrWidth(int plusToolbar) const { return (P_Header ? (P_Header->size.y * ChrSz.y) : 0) + (plusToolbar ? ToolBarWidth : 0); }
 
 void BrowserWindow::AdjustCursorsForHdr()
 {
-	long   hdr_width = CalcHdrWidth(1);
+	const long hdr_width = CalcHdrWidth(1);
 	RectCursors.CellCursor.top    += hdr_width;
 	RectCursors.CellCursor.bottom += hdr_width;
 	RectCursors.LineCursor.top    += hdr_width;
@@ -769,26 +765,22 @@ void BrowserWindow::Insert_(TView *p)
 }
 
 SLAPI BrowserWindow::BrowserWindow(uint _rezID, DBQuery * pQuery, uint broDefOptions /*=0*/) :
-	TBaseBrowserWindow(BrowserWindow::WndClsName)
+	TBaseBrowserWindow(BrowserWindow::WndClsName), P_RowsHeightAry(0), P_Header(0)
 {
-	P_RowsHeightAry = 0;
 	init();
 	initWin();
 	RezID = ResourceID = _rezID;
-	P_Header = 0;
 	LoadResource(_rezID, pQuery, 2, broDefOptions);
 	options |= ofSelectable;
 	HelpCtx = _rezID; // @Muxa
 }
 
 SLAPI BrowserWindow::BrowserWindow(uint _rezID, SArray * pAry, uint broDefOptions /*=0*/) :
-	TBaseBrowserWindow(BrowserWindow::WndClsName)
+	TBaseBrowserWindow(BrowserWindow::WndClsName), P_RowsHeightAry(0), P_Header(0)
 {
-	P_RowsHeightAry = 0;
 	init();
 	initWin();
 	RezID = ResourceID = _rezID;
-	P_Header = 0;
 	LoadResource(_rezID, pAry, 1, broDefOptions);
 	options |= ofSelectable;
 	HelpCtx = _rezID; // @Muxa

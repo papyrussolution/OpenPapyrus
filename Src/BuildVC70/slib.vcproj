@@ -1112,6 +1112,12 @@
 				RelativePath="..\SLib\Tdialog.cpp">
 			</File>
 			<File
+				RelativePath="..\SLib\test-cairo.cpp">
+			</File>
+			<File
+				RelativePath="..\SLib\test-openssl.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\Toolbar.cpp">
 			</File>
 			<File

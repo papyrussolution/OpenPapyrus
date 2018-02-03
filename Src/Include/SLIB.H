@@ -6179,6 +6179,41 @@ public:
 	T &    FASTCALL get(uint p) const { return *(T *)SQueue::get(p); }
 };
 
+template <class T> class TSRevolver {
+public:
+	explicit TSRevolver(uint c) : Count(c), P_List(new T[c]), P(0)
+	{
+	}
+	~TSRevolver()
+	{
+		delete [] P_List;
+	}
+protected:
+	T & Implement_Get()
+	{
+        assert(P <= Count);
+        if(P == Count)
+			P = 0;
+		return P_List[P++];
+	}
+private:
+	uint   P;
+	T    * P_List;
+	const uint Count;
+};
+
+class SRevolver_SString : public TSRevolver <SString> {
+public:
+	explicit SRevolver_SString(uint c);
+	SString & Get();
+};
+
+class SRevolver_SStringU : public TSRevolver <SStringU> {
+public:
+	explicit SRevolver_SStringU(uint c);
+	SStringU & Get();
+};
+
 DECL_CMPFUNC(PcharNoCase);
 DECL_CMPFUNC(_PcharNoCase);
 DECL_CMPFUNC(Pchar);
@@ -7611,7 +7646,7 @@ public:
 		SString Text;
 	};
 	SLAPI  STokenizer();
-	SLAPI  STokenizer(const Param & rParam);
+	explicit SLAPI STokenizer(const Param & rParam);
 	SLAPI ~STokenizer();
 	void   SLAPI GetParam(Param * pParam) const;
 	int    SLAPI SetParam(const Param * pParam);
@@ -11961,8 +11996,9 @@ public:
 	StringSet TempFileList;
 	SRandGenerator Rg;      // Генератор случайных чисел общего пользования. Инициализируется по моменту создания потока.
 	SGlobalSecureConfig Gsc; // Конфигурация SSL, шифрования и др. для секьюритизации глобального обмена данными
+	//SRevolver_SString  RvlSStA; // @v9.9.3 Револьверная коллекция shortlived-строк
+	//SRevolver_SStringU RvlSStW  // @v9.9.3 Револьверная коллекция shortlived-строк(unicode)
 	SProfile Prf;            // @v9.7.11 Локальный по отношению к потоку профайлер
-
 	SLockStack LckStk;       // @v9.8.1 Отладочный стэк блокировок
 private:
 	TVRez * P_Rez;

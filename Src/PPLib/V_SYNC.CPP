@@ -1,5 +1,5 @@
 // V_SYNC.CPP
-// Copyright (c) A.Sobolev 2001-2003, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2001-2003, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -50,11 +50,8 @@ int SLAPI ObjSyncFilt::IsEqual(const PPBaseFilt * pS, int deep) const
 //
 //
 //
-SLAPI PPViewObjSync::PPViewObjSync() : PPView(0, &Filt, PPVIEW_OBJSYNC)
+SLAPI PPViewObjSync::PPViewObjSync() : PPView(0, &Filt, PPVIEW_OBJSYNC), P_Tbl(DS.GetTLA().P_ObjSync), P_TmpTbl(0)
 {
-	P_Tbl = DS.GetTLA().P_ObjSync;
-	P_TmpTbl = 0;
-
 }
 
 SLAPI PPViewObjSync::~PPViewObjSync()
@@ -447,10 +444,8 @@ IMPLEMENT_PPFILT_FACTORY(ObjSyncCmp); SLAPI ObjSyncCmpFilt::ObjSyncCmpFilt() : P
 //
 //
 //
-SLAPI PPViewObjSyncCmp::PPViewObjSyncCmp() : PPView(0, &Filt, PPVIEW_OBJSYNCCMP)
+SLAPI PPViewObjSyncCmp::PPViewObjSyncCmp() : PPView(0, &Filt, PPVIEW_OBJSYNCCMP), P_TmpTbl(0), P_Ot(0)
 {
-	P_TmpTbl = 0;
-	P_Ot = 0;
 	DefReportId = REPORT_OBJSYNCCMP;
 }
 

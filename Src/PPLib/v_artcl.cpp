@@ -19,7 +19,7 @@ ArticleFilt & FASTCALL ArticleFilt::operator = (const ArticleFilt & s)
 	return *this;
 }
 
-SLAPI PPViewArticle::PPViewArticle() : PPView(&ArObj, &Filt), P_TempTbl(0), AgtProp(0), P_DebtDimList(0), LimitTerm(0), AddedLimitTerm(0), CtrlX(0)
+SLAPI PPViewArticle::PPViewArticle() : PPView(&ArObj, &Filt, 0), P_TempTbl(0), AgtProp(0), P_DebtDimList(0), LimitTerm(0), AddedLimitTerm(0), CtrlX(0)
 {
 }
 

@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147489671
+LastSignatureCode=2147489728
 LastAutoCodeList=1,11142;102,10162;103,10071;110,10000;111,11655;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10078;120,10005;1001,10000;121,10000;122,10000;123,10306;1002,10000;1003,10000;1004,10000;1005,10000;124,10073
 
 [SignatureList]
@@ -5360,6 +5360,18 @@ priceanlzfilt_fexclwocostorequalbasecost=2147488978
 priceanlzfilt_fdividebysuppl=2147488979
 priceanlzfilt_baseloc=2147488980
 priceanlzfilt_loclist=2147488981
+gsfilt=2147489712
+gsfilt_prmr=2147489713
+gsfilt_prmrgoodsgrp=2147489714
+gsfilt_prmrgoods=2147489715
+gsfilt_scnd=2147489716
+gsfilt_scndgoodsgrp=2147489717
+gsfilt_scndgoods=2147489718
+gsfilt_order=2147489719
+gsfilt_ordbydefault=2147489720
+gsfilt_ordbyprmrgoodsname=2147489721
+gsfilt_ordbyscndgoodsname=2147489722
+gsfilt_ordbystructypeprmrgoodsname=2147489723
 objtransm=2147488371
 objtransmmod=2147488386
 objtransm_destdbdivlist=2147488372

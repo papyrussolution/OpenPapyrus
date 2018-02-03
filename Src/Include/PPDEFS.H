@@ -10281,6 +10281,23 @@
 #define DLG_LOTXCLIST             1334
 	#define CTL_LOTXCLIST_LIST        (1 + WINDOWS_ID_BIAS)
 	#define CTL_LOTXCLIST_INFO        (2 + WINDOWS_ID_BIAS)
+#define DLG_GSFILT                1335
+	#define cmPGoodsFilt              101
+	#define cmSGoodsFilt              102
+	#define CTL_GSFILT_PGOODS         (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_GSFILT_PGOODS      (2 + WINDOWS_ID_BIAS)
+	#define CTL_GSFILT_PGGRP          (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_GSFILT_PGGRP       (4 + WINDOWS_ID_BIAS)
+	#define CTL_GSFILT_SGOODS         (5 + WINDOWS_ID_BIAS)
+	#define CTLSEL_GSFILT_SGOODS      (6 + WINDOWS_ID_BIAS)
+	#define CTL_GSFILT_SGGRP          (7 + WINDOWS_ID_BIAS)
+	#define CTLSEL_GSFILT_SGGRP       (8 + WINDOWS_ID_BIAS)
+	#define CTL_GSFILT_FLAGS          (9 + WINDOWS_ID_BIAS)
+	#define CTL_GSFILT_ORDER          (10 + WINDOWS_ID_BIAS)
+	#define CTL_GSFILT_HSFLAGS        (11 + WINDOWS_ID_BIAS)
+	#define CTL_GSFILT_HRFLAGS        (12 + WINDOWS_ID_BIAS)
+	#define CTL_GSFILT_ISFLAGS        (13 + WINDOWS_ID_BIAS)
+	#define CTL_GSFILT_IRFLAGS        (14 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

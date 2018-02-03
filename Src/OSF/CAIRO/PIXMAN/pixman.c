@@ -138,10 +138,9 @@ static pixman_op_t optimize_operator(pixman_op_t op, uint32_t src_flags, uint32_
  */
 static inline pixman_bool_t clip_general_image(pixman_region32_t * region, pixman_region32_t * clip, int dx, int dy)
 {
-	if(pixman_region32_n_rects(region) == 1 &&
-	    pixman_region32_n_rects(clip) == 1) {
-		pixman_box32_t *  rbox = pixman_region32_rectangles(region, 0);
-		pixman_box32_t *  cbox = pixman_region32_rectangles(clip, 0);
+	if(pixman_region32_n_rects(region) == 1 && pixman_region32_n_rects(clip) == 1) {
+		pixman_box32_t * rbox = pixman_region32_rectangles(region, 0);
+		pixman_box32_t * cbox = pixman_region32_rectangles(clip, 0);
 		int v;
 		if(rbox->x1 < (v = cbox->x1 + dx))
 			rbox->x1 = v;

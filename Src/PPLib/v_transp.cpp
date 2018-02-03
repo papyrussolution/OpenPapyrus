@@ -1,5 +1,5 @@
 // V_TRANSP.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2009, 2010, 2012, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -39,7 +39,6 @@ int SLAPI TransportFilt::Describe(long flags, SString & rBuf) const
 	}
 	return 1;
 }
-// } @v6.1.11 AHTOXA
 
 int SLAPI TransportFilt::IsEmpty() const
 {
@@ -49,9 +48,8 @@ int SLAPI TransportFilt::IsEmpty() const
 // Storing format for GoodsFilt
 //
 //
-SLAPI PPViewTransport::PPViewTransport() : PPView(0, &Filt, PPVIEW_TRANSPORT)
+SLAPI PPViewTransport::PPViewTransport() : PPView(0, &Filt, PPVIEW_TRANSPORT), P_TempTbl(0)
 {
-	P_TempTbl   = 0;
 	DefReportId = REPORT_TRANSPORTVIEW;
 }
 

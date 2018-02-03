@@ -4,7 +4,8 @@
 //
 // Спасибо за проделанную работу:
 //   Насонову Вадиму (VADIM), Стародубу Антону (AHTOXA), Казакову Михаилу (Muxa), Миллер Владиславе (vmiller),
-//   Осолоткину Алексею [rip], Антонову Валерию, Симанову Александру [rip], Курилову Андрею (Andrew), Кретову Алексею.
+//   Осолоткину Алексею [rip], Антонову Валерию, Симанову Александру [rip], Курилову Андрею (Andrew), Кретову Алексею,
+//   Ванаг Светлане.
 //
 //  Соглашение об обозначениях:
 //
@@ -362,7 +363,6 @@ class  Backend_SelectObjectBlock;
 class  CPosNodeBlock;
 class  PersonCache;
 class  BhtTSess;
-//class  VQuotCache;
 class  ExtGoodsSelDialog;
 struct StyloBhtIIConfig;
 class  SrSyntaxRuleSet;
@@ -376,6 +376,7 @@ class  PPGoodsImpExpParam;
 class  TSessAnlzList;
 class  PhoneServiceEventResponder;
 struct StTspResponse; // Описание в ppeds.cpp
+struct LotViewItem;
 
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -12178,6 +12179,16 @@ public:
 	int    SLAPI GetLastObjModifEvent(PPID objType, PPID objID, LDATETIME *, int * pCreation, SysJournalTbl::Rec * pRec = 0);
 	int    SLAPI GetLastObjEvent(PPID objType, PPID objID, const PPIDArray * pActAry, LDATETIME * pDtm, SysJournalTbl::Rec * pRec = 0);
 	int    SLAPI GetLastObjUnifyEvent(PPID objType, PPID objID, PPID * pDestID, SysJournalTbl::Rec * pRec);
+	//
+	// Descr: Находит событие по объекту {objType; objID}, следующее за моментом времени rSince (не включая его).
+	//   Если pActAry != 0 и pActAry->getCount(), то принимает в расчет только события, относящиеся к этому списку.
+	//   Результат возвращается по указателю pRec.
+	// Returns:
+	//   >0 - найдено искомое событие
+	//   <0 - не найдено ни одного события
+	//   0  - ошибка
+	//
+	int    SLAPI GetNextObjEvent(PPID objType, PPID objID, const PPIDArray * pActAry, const LDATETIME & rSince, SysJournalTbl::Rec * pRec);
 	int    SLAPI GetObjListByEventSince(PPID objType, const PPIDArray * pActList, const LDATETIME & rSince, PPIDArray & rObjList);
 	int    SLAPI GetObjListByEventPeriod(PPID objType, PPID userID, const PPIDArray * pActList, const DateRange * pPeriod, PPIDArray & rObjList);
 	int    SLAPI IsEventExists(PPID objType, PPID objID, PPID userID, const PPIDArray * pActList);
@@ -14100,7 +14111,7 @@ public:
 	//
 	static int SLAPI LoadResource(int kind, int id, PPView::Rc & rRc);
 
-	SLAPI  PPView(PPObject * pObj = 0, PPBaseFilt * pFilt = 0, int viewId = 0);
+	SLAPI  PPView(PPObject * pObj /*= 0*/, PPBaseFilt * pFilt /*= 0*/, int viewId /*= 0*/);
 	virtual SLAPI ~PPView();
 	int    SLAPI IsConsistent() const;
 	//
@@ -20381,12 +20392,18 @@ struct PPGoodsStrucHeader2 { // @persistent @store(Reference2Tbl+)
 #define GSIF_QUERYEXPLOT 0x0400L // @v9.0.4 При автоматическом внесении компонента в документ как расходной строки запрашивать выбор лота
 
 struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
+	//
+	// Descr: Статическая реализация определения эффективного количества компонента на complQtty
+	//   результирующего товара.
+	//
+	static int FASTCALL GetEffectiveQuantity(double complQtty, PPID goodsID, double median, double denom, long flags, double * pItemQtty);
+	static SString & FASTCALL MakeEstimationString(double median, double denom, SString & rBuf, long format = 0);
 	SLAPI  PPGoodsStrucItem();
 	int    FASTCALL operator == (const PPGoodsStrucItem & rS) const;
 	int    FASTCALL operator != (const PPGoodsStrucItem & rS) const;
 	int    FASTCALL IsEqual(const PPGoodsStrucItem & rS) const;
 	int    SLAPI SetEstimationString(const char *);
-	SString & SLAPI GetEstimationString(SString &, long format = 0);
+	SString & SLAPI GetEstimationString(SString &, long format = 0) const;
 	int    SLAPI SetFormula(const char * pStr, const PPGoodsStruc * pStruc);
 	int    SLAPI GetQtty(double complQtty, double * pItemQtty) const;
 	int    SLAPI GetQttyAsPrice(double complPriceSum, double * pItemPrice) const;
@@ -20425,7 +20442,9 @@ public:
 		kComplex    // Комплекс                        GSF_COMPLEX
 	};
 
-	static int SLAPI IsSimpleQttyString(const char * pStr);
+	static int FASTCALL IsSimpleQttyString(const char * pStr);
+	static int FASTCALL GetStrucKind(long flags);
+	static SString & SLAPI MakeTypeString(PPID strucID, long flags, PPID parentStrucID, SString & rBuf);
 
 	SLAPI  PPGoodsStruc();
 	void   SLAPI Init();
@@ -24972,8 +24991,9 @@ public:
 	};
 	*/
 	enum {
-		fUseGrpList        = 0x00000001L,
-		fUseUnitMask       = 0x00000004L,
+		// @v9.9.3 fUseGrpList        = 0x00000001L,
+		fWithStrucOnly     = 0x00000002L, // @v9.9.3 Только товары, с которыми связаны структуры
+		// @v9.9.3 fUseUnitMask       = 0x00000004L,
 		fIntUnitOnly       = 0x00000008L,
 		fFloatUnitOnly     = 0x00000010L,
 		fNegation          = 0x00000020L, // Отрицание фильтра
@@ -24991,8 +25011,7 @@ public:
 		fGenGoodsOnly      = 0x00010000L, // Показывать только обобщенные товары
 		fWOTaxGdsOnly      = 0x00020000L, // Показывать только товары с ценой без налогов
 			// @#{fPassiveOnly^fGenGoodsOnly^fWOTaxGdsOnly}
-		fNoZeroRestOnLotPeriod = 0x00040000L, // Если товар не удовлетворяет ограничению LotPeriod,
-			// но есть на остатке, то попадает в выборку
+		fNoZeroRestOnLotPeriod = 0x00040000L, // Если товар не удовлетворяет ограничению LotPeriod, но есть на остатке, то попадает в выборку
 		fNoDisOnly         = 0x00080000L, // Показывать только товары с признаком без скидки
 		fShowStrucType     = 0x00100000L, // Показывать признак наличия структуры AHTOXA
 		fNotUseViewOptions = 0x00200000L, // Не показывать в товарном фильтре кнопку опции просмотра
@@ -25007,7 +25026,7 @@ public:
 			// Этот флаг имеет более низкий приоритет, чем fRestrictByMatrix. То есть, если установлены оба
 			// флага (что программа не должна допускать), то применяется fRestrictByMatrix
 		fActualOnly        = 0x20000000L, // Показывать только те товары, по которым есть не нулевые остатки по одному из складов LocList
-		fHasImages         = 0x40000000L, // @v7.3.x Только с картинками
+		fHasImages         = 0x40000000L, // Только с картинками
 		fUseIndepWtOnly    = 0x80000000L  // @v8.3.9 Только с флагом GF_USEINDEPWT
 	};
 	enum { // @persistent
@@ -27450,15 +27469,62 @@ private:
 //
 // @ModuleDecl(PPViewGoodsStruc)
 //
-typedef TempGoodsStrucTbl::Rec GoodsStrucViewItem;
+class GoodsStrucFilt : public PPBaseFilt {
+public:
+	SLAPI  GoodsStrucFilt();
+	enum {
+		fShowComplDecompl = 0x0001, // Показывать структуры комплектации/декомплектации
+		fShowPartitial    = 0x0002, // Показывать частичные структуры
+		fShowSubst        = 0x0004, // Показывать подстановочные структуры
+		fShowGift         = 0x0008, // Показывать подарочные структуры
+		fShowComplex      = 0x0010  // Показывать комплексные структуры
+	};
+	char   ReserveStart[32]; // @anchor
+	PPID   PrmrGoodsGrpID;
+	PPID   PrmrGoodsID;
+	PPID   ScndGoodsGrpID;
+	PPID   ScndGoodsID;
+	long   StrucFlagSet;
+	long   StrucFlagReset;
+	long   ItemFlagSet;
+	long   ItemFlagReset;
+	long   Flags;            // @flags
+	long   InitOrder;        // Порядок сортировки PPViewGoodsStruc::OrdXXX
+	long   ReserveEnd;       // @anchor
+};
+
+//typedef TempGoodsStrucTbl::Rec GoodsStrucViewItem;
+
+struct GoodsStrucViewItem {
+	PPID   GStrucID;
+	PPID   PrmrGoodsID;
+	long   StrucFlags;
+	PPID   ParentStrucID;
+	PPID   GiftQuotKindID;
+	PPID   VariedPropObjType;
+	char   StrucName[48];
+	char   StrucSymb[20];
+	DateRange Period;
+	float  GiftLimit;
+	double GiftAmtRestrict;
+	double CommDenom;
+	PPID   GoodsID;
+	long   ItemFlags;
+	double Median;
+	double Denom;
+	double Netto;
+};
 
 class PPViewGoodsStruc : public PPView {
 public:
-	struct BrwHdr {
-		PPID   GoodsID;
-		PPID   StrucID;
-		PPID   ItemID;
+	enum IterOrder {
+		OrdByDefault = 0,
+		OrdByPrmrGoodsName,
+		OrdByScndGoodsName,
+		OrdByStrucTypePrmrGoodsName
 	};
+	static int FASTCALL Cmp_ItemEntry(PPViewGoodsStruc * pView, int order, const void * p1, const void * p2);
+
 	SLAPI  PPViewGoodsStruc();
 	SLAPI ~PPViewGoodsStruc();
 	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
@@ -27467,16 +27533,50 @@ public:
 	virtual int  SLAPI ViewTotal();
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(GoodsStrucViewItem *);
+	int    SLAPI GetCurrentViewOrder() const { return CurrentViewOrder; }
+	int    SLAPI CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 private:
-	virtual DBQuery * SLAPI CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	int    SLAPI UpdateTempTable(PPID goodsID, PPID parentStrucID, PPID strucID, int goodsIsItem, int use_ta);
-	int    SLAPI AddItem(PPID goodsID, PPID strucID, BExtInsert * pBei);
+	static int GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual int  SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual void SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	int    SLAPI FASTCALL _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	//int    SLAPI UpdateTempTable(PPID goodsID, PPID parentStrucID, PPID strucID, int goodsIsItem, int use_ta);
+	int    SLAPI AddItem(PPID goodsID, PPID strucID, int checkExistance);
 
-	GoodsFilt Filt;
+	struct StrucEntry { 
+		PPID   GStrucID;
+		PPID   PrmrGoodsID;
+		long   Flags;
+		PPID   ParentStrucID;
+		PPID   GiftQuotKindID;
+		PPID   VariedPropObjType;
+		uint   NameP;
+		uint   SymbP;
+		DateRange Period;
+		float  GiftLimit;
+		double GiftAmtRestrict;
+		double CommDenom;
+	};
+	struct ItemEntry { 
+		PPID   GStrucID;
+		PPID   GoodsID;
+		long   ItemNo; // Порядковый номер элемента в структуре [1..]
+		long   Flags;
+		long   StrucFlags; // Для быстрого доступа (дублирует StrucEntry::Flags)
+		uint   StrucEntryP;
+		double Median;
+		double Denom;
+		double Netto;
+	};
+	uint    IterIdx;
+	IterOrder CurrentViewOrder;
+	GoodsStrucFilt Filt;
 	PPObjGoodsStruc GSObj;
 	PPObjGoods GObj;
-	TempGoodsStrucTbl * P_TempTbl;
+	TSVector <StrucEntry> StrucList;
+	TSArray  <ItemEntry> ItemList; // must be SArray (not SVector), because it'l be handed to AryBrowserDef
+	SStrGroup StrPool; // @v9.9.3 Пул строковых полей, на который ссылаются поля в StrucEntry и ItemEntry
 };
 //
 // @ModuleDecl(PPViewGoodsToObjAssoc)
@@ -27568,7 +27668,7 @@ private:
 	TSCollection <PPBillPacket> * P_PackList;
 };
 
-class HierArray : public SArray {
+class HierArray : public SVector { // @v9.9.3 SArray-->SVector
 public:
 	struct Item {
 		char   Code[24];       // @v8.8.0 [16]-->[24]
@@ -27706,8 +27806,6 @@ public:
 //
 //
 //
-struct LotViewItem;
-
 class PPLotImpExpParam : public PPImpExpParam {
 public:
 	SLAPI  PPLotImpExpParam(uint recId = 0, long flags = 0);
@@ -27733,8 +27831,6 @@ private:
 	PPUhttClient UhttCli;
 	PPImpExp * P_IE;
 };
-//
-//
 //
 // Descr: Класс, управляющий информацией о загрузке данных на кассы, весы и, возможно,
 //   другие устройства.
@@ -27775,10 +27871,7 @@ public:
 	int    SLAPI RegisterSCard(PPID statID, const SCardInfo *);
 	int    SLAPI FinishLoading(PPID statID, int status, int use_ta);
 	int    SLAPI Search(PPID statID, DvcLoadingStatTbl::Rec *);
-	PPID   SLAPI GetCurStatID() const
-	{
-		return StatID;
-	}
+	PPID   SLAPI GetCurStatID() const { return StatID; }
 	//
 	// Descr: Ищет последнюю запись по устройству типа dvcType с идентификатором dvcID,
 	//   имеющую статус !0.
@@ -38977,23 +39070,6 @@ private:
 //
 class TrfrAnlzFilt : public PPBaseFilt {
 public:
-	int    SLAPI HasCntragentGrouping() const
-	{
-		return oneof6(Grp, gCntragent, gCntragentDate, gGoodsCntragent, gGoodsCntragentDate, gDateCntragentAgentGoods, gBillCntragent);
-	}
-	int    SLAPI HasGoodsGrouping() const
-	{
-		return oneof6(Grp, gGoods, gGoodsCntragent, gGoodsCntragentDate, gGoodsBill, gDateCntragentAgentGoods, gGoodsDate);
-	}
-	int    SLAPI HasDateGrouping() const
-	{
-		return oneof4(Grp, gCntragentDate, gGoodsCntragentDate, gDateCntragentAgentGoods, gGoodsDate);
-	}
-	int    SLAPI HasBillGrouping() const
-	{
-		return oneof2(Grp, gGoodsBill, gBillCntragent);
-	}
-
 	enum Grouping {
 		gNone = 0,
 		gGoods,
@@ -39067,6 +39143,10 @@ public:
 	//
 	SLAPI  TrfrAnlzFilt();
 	TrfrAnlzFilt & FASTCALL operator = (const TrfrAnlzFilt & rS);
+	int    SLAPI HasCntragentGrouping() const;
+	int    SLAPI HasGoodsGrouping() const;
+	int    SLAPI HasDateGrouping() const;
+	int    SLAPI HasBillGrouping() const;
 	enum {
 		eqxOrder    = 0x0001,
 		eqxCrosstab = 0x0002
@@ -45798,7 +45878,7 @@ private:
 
 	int    KBF10;
 	SCycleTimer RefreshTimer;
-	PPIDArray TempGoodsGrpList;  // Список временных товарных групп, которые должны быть разрушены при разрушении броузера
+	PPIDArray TempGoodsGrpList;  // Список временных товарных групп, которые должны быть разрушены при разрушении браузера
 	TInputLine * P_InputLine;    //
 	ComboBox   * P_ComboBox;     //
 	HFONT        H_ComboFont;    //

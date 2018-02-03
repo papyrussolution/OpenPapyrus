@@ -652,7 +652,7 @@ SLAPI DLSDetailFilt::DLSDetailFilt()
 	THISZERO();
 }
 
-SLAPI PPViewDLSDetail::PPViewDLSDetail() : PPView(0), P_DlsObjTbl(0)
+SLAPI PPViewDLSDetail::PPViewDLSDetail() : PPView(0, 0, 0), P_DlsObjTbl(0)
 {
 }
 

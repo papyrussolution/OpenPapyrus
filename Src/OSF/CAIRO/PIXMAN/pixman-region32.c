@@ -31,7 +31,8 @@ typedef pixman_region32_t region_type_t;
 typedef int64_t overflow_int_t;
 
 typedef struct {
-	int x, y;
+	int    x;
+	int    y;
 } point_type_t;
 
 #define PREFIX(x) pixman_region32 ## x

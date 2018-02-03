@@ -491,7 +491,7 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_invert(struct pixman_transform * ds
 	return TRUE;
 }
 
-static pixman_bool_t within_epsilon(pixman_fixed_t a, pixman_fixed_t b, pixman_fixed_t epsilon)
+static pixman_bool_t FASTCALL within_epsilon(pixman_fixed_t a, pixman_fixed_t b, pixman_fixed_t epsilon)
 {
 	pixman_fixed_t t = a - b;
 	if(t < 0)
@@ -509,45 +509,23 @@ static pixman_bool_t within_epsilon(pixman_fixed_t a, pixman_fixed_t b, pixman_f
 
 PIXMAN_EXPORT pixman_bool_t pixman_transform_is_identity(const struct pixman_transform * t)
 {
-	return (IS_SAME(t->matrix[0][0], t->matrix[1][1]) &&
-	    IS_SAME(t->matrix[0][0], t->matrix[2][2]) &&
-	    !IS_ZERO(t->matrix[0][0]) &&
-	    IS_ZERO(t->matrix[0][1]) &&
-	    IS_ZERO(t->matrix[0][2]) &&
-	    IS_ZERO(t->matrix[1][0]) &&
-	    IS_ZERO(t->matrix[1][2]) &&
-	    IS_ZERO(t->matrix[2][0]) &&
-	    IS_ZERO(t->matrix[2][1]));
+	return (IS_SAME(t->matrix[0][0], t->matrix[1][1]) && IS_SAME(t->matrix[0][0], t->matrix[2][2]) &&
+	    !IS_ZERO(t->matrix[0][0]) && IS_ZERO(t->matrix[0][1]) && IS_ZERO(t->matrix[0][2]) &&
+	    IS_ZERO(t->matrix[1][0]) && IS_ZERO(t->matrix[1][2]) && IS_ZERO(t->matrix[2][0]) && IS_ZERO(t->matrix[2][1]));
 }
 
 PIXMAN_EXPORT pixman_bool_t pixman_transform_is_scale(const struct pixman_transform * t)
 {
-	return (!IS_ZERO(t->matrix[0][0]) &&
-	    IS_ZERO(t->matrix[0][1]) &&
-	    IS_ZERO(t->matrix[0][2]) &&
-
-	    IS_ZERO(t->matrix[1][0]) &&
-	    !IS_ZERO(t->matrix[1][1]) &&
-	    IS_ZERO(t->matrix[1][2]) &&
-
-	    IS_ZERO(t->matrix[2][0]) &&
-	    IS_ZERO(t->matrix[2][1]) &&
-	    !IS_ZERO(t->matrix[2][2]));
+	return (!IS_ZERO(t->matrix[0][0]) && IS_ZERO(t->matrix[0][1]) && IS_ZERO(t->matrix[0][2]) &&
+	    IS_ZERO(t->matrix[1][0]) && !IS_ZERO(t->matrix[1][1]) && IS_ZERO(t->matrix[1][2]) &&
+	    IS_ZERO(t->matrix[2][0]) && IS_ZERO(t->matrix[2][1]) && !IS_ZERO(t->matrix[2][2]));
 }
 
 PIXMAN_EXPORT pixman_bool_t pixman_transform_is_int_translate(const struct pixman_transform * t)
 {
-	return (IS_ONE(t->matrix[0][0]) &&
-	    IS_ZERO(t->matrix[0][1]) &&
-	    IS_INT(t->matrix[0][2]) &&
-
-	    IS_ZERO(t->matrix[1][0]) &&
-	    IS_ONE(t->matrix[1][1]) &&
-	    IS_INT(t->matrix[1][2]) &&
-
-	    IS_ZERO(t->matrix[2][0]) &&
-	    IS_ZERO(t->matrix[2][1]) &&
-	    IS_ONE(t->matrix[2][2]));
+	return (IS_ONE(t->matrix[0][0]) && IS_ZERO(t->matrix[0][1]) && IS_INT(t->matrix[0][2]) &&
+	    IS_ZERO(t->matrix[1][0]) && IS_ONE(t->matrix[1][1]) && IS_INT(t->matrix[1][2]) &&
+	    IS_ZERO(t->matrix[2][0]) && IS_ZERO(t->matrix[2][1]) && IS_ONE(t->matrix[2][2]));
 }
 
 PIXMAN_EXPORT pixman_bool_t pixman_transform_is_inverse(const struct pixman_transform * a, const struct pixman_transform * b)
@@ -558,18 +536,16 @@ PIXMAN_EXPORT pixman_bool_t pixman_transform_is_inverse(const struct pixman_tran
 
 PIXMAN_EXPORT void pixman_f_transform_from_pixman_transform(struct pixman_f_transform * ft, const struct pixman_transform * t)
 {
-	int i, j;
-	for(j = 0; j < 3; j++) {
-		for(i = 0; i < 3; i++)
+	for(int j = 0; j < 3; j++) {
+		for(int i = 0; i < 3; i++)
 			ft->m[j][i] = pixman_fixed_to_double(t->matrix[j][i]);
 	}
 }
 
 PIXMAN_EXPORT pixman_bool_t pixman_transform_from_pixman_f_transform(struct pixman_transform * t, const struct pixman_f_transform * ft)
 {
-	int i, j;
-	for(j = 0; j < 3; j++) {
-		for(i = 0; i < 3; i++) {
+	for(int j = 0; j < 3; j++) {
+		for(int i = 0; i < 3; i++) {
 			double d = ft->m[j][i];
 			if(d < -32767.0 || d > 32767.0)
 				return FALSE;
@@ -585,9 +561,8 @@ PIXMAN_EXPORT pixman_bool_t pixman_f_transform_invert(struct pixman_f_transform 
 	static const int a[3] = { 2, 2, 1 };
 	static const int b[3] = { 1, 0, 0 };
 	pixman_f_transform_t d;
-	double det;
 	int i, j;
-	det = 0;
+	double det = 0.0;
 	for(i = 0; i < 3; i++) {
 		double p;
 		int ai = a[i];
@@ -623,9 +598,8 @@ PIXMAN_EXPORT pixman_bool_t pixman_f_transform_point(const struct pixman_f_trans
 {
 	struct pixman_f_vector result;
 	int i, j;
-	double a;
 	for(j = 0; j < 3; j++) {
-		a = 0;
+		double a = 0.0;
 		for(i = 0; i < 3; i++)
 			a += t->m[j][i] * v->v[i];
 		result.v[j] = a;
@@ -641,11 +615,9 @@ PIXMAN_EXPORT pixman_bool_t pixman_f_transform_point(const struct pixman_f_trans
 PIXMAN_EXPORT void pixman_f_transform_point_3d(const struct pixman_f_transform * t, struct pixman_f_vector * v)
 {
 	struct pixman_f_vector result;
-	int i, j;
-	double a;
-	for(j = 0; j < 3; j++) {
-		a = 0;
-		for(i = 0; i < 3; i++)
+	for(int j = 0; j < 3; j++) {
+		double a = 0.0;
+		for(int i = 0; i < 3; i++)
 			a += t->m[j][i] * v->v[i];
 		result.v[j] = a;
 	}
@@ -655,12 +627,10 @@ PIXMAN_EXPORT void pixman_f_transform_point_3d(const struct pixman_f_transform *
 PIXMAN_EXPORT void pixman_f_transform_multiply(struct pixman_f_transform * dst, const struct pixman_f_transform * l, const struct pixman_f_transform * r)
 {
 	struct pixman_f_transform d;
-	int dx, dy;
-	int o;
-	for(dy = 0; dy < 3; dy++) {
-		for(dx = 0; dx < 3; dx++) {
+	for(int dy = 0; dy < 3; dy++) {
+		for(int dx = 0; dx < 3; dx++) {
 			double v = 0;
-			for(o = 0; o < 3; o++)
+			for(int o = 0; o < 3; o++)
 				v += l->m[dy][o] * r->m[o][dx];
 			d.m[dy][dx] = v;
 		}
@@ -710,8 +680,7 @@ PIXMAN_EXPORT void pixman_f_transform_init_rotate(struct pixman_f_transform * t,
 	t->m[2][2] = 1;
 }
 
-PIXMAN_EXPORT pixman_bool_t pixman_f_transform_rotate(struct pixman_f_transform * forward,
-    struct pixman_f_transform * reverse, double c, double s)
+PIXMAN_EXPORT pixman_bool_t pixman_f_transform_rotate(struct pixman_f_transform * forward, struct pixman_f_transform * reverse, double c, double s)
 {
 	struct pixman_f_transform t;
 	if(forward) {
@@ -794,8 +763,8 @@ PIXMAN_EXPORT pixman_bool_t pixman_f_transform_bounds(const struct pixman_f_tran
 
 PIXMAN_EXPORT void pixman_f_transform_init_identity(struct pixman_f_transform * t)
 {
-	for(size_t j = 0; j < 3; j++) {
-		for(size_t i = 0; i < 3; i++)
+	for(uint j = 0; j < 3; j++) {
+		for(uint i = 0; i < 3; i++)
 			t->m[j][i] = (i == j) ? 1 : 0;
 	}
 }

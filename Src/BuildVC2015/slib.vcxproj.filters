@@ -120,6 +120,8 @@
     <ClCompile Include="..\SLib\suc.cpp" />
     <ClCompile Include="..\SLib\curl-parsedate.cpp" />
     <ClCompile Include="..\SLib\uchardet.cpp" />
+    <ClCompile Include="..\SLib\test-cairo.cpp" />
+    <ClCompile Include="..\SLib\test-openssl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\fann.h">

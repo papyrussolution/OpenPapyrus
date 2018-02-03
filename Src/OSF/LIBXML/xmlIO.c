@@ -14,12 +14,6 @@
 #ifdef HAVE_SYS_TYPES_H
 	#include <sys/types.h>
 #endif
-#ifdef HAVE_SYS_STAT_H
-	//#include <sys/stat.h>
-#endif
-#ifdef HAVE_FCNTL_H
-	//#include <fcntl.h>
-#endif
 #ifdef HAVE_UNISTD_H
 	#include <unistd.h>
 #endif
@@ -3356,7 +3350,7 @@ int FASTCALL xmlOutputBufferWriteString(xmlOutputBuffer * out, const char * str)
 int xmlOutputBufferFlush(xmlOutputBuffer * out)
 {
 	int nbchars = 0, ret = 0;
-	if((out == NULL) || (out->error))
+	if(!out || out->error)
 		return -1;
 	/*
 	 * first handle encoding stuff.
@@ -3696,13 +3690,9 @@ xmlParserInput * xmlLoadExternalEntity(const char * URL, const char * ID, xmlPar
 	else
 		return xmlCurrentExternalEntityLoader(URL, ID, ctxt);
 }
-
-/************************************************************************
-*									*
-*		Disabling Network access				*
-*									*
-************************************************************************/
-
+// 
+// Disabling Network access
+// 
 /**
  * xmlNoNetExternalEntityLoader:
  * @URL:  the URL for the entity to load

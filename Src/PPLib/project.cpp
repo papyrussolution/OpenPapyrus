@@ -33,11 +33,8 @@ static int SLAPI PutCounter(PPID * pID, PPObjOpCounter * pOpcObj, PPOpCounterPac
 	return BIN(pOpcObj->PutPacket(pID, pCntr, 0));
 }
 
-static int SLAPI PPObjProject_WriteConfig(PPProjectConfig * pCfg,
-	PPOpCounterPacket * pPrjCntr,
-	PPOpCounterPacket * pPhsCntr,
-	PPOpCounterPacket * pTodoCntr,
-	PPOpCounterPacket * pTemplCntr)
+static int SLAPI PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPacket * pPrjCntr, PPOpCounterPacket * pPhsCntr,
+	PPOpCounterPacket * pTodoCntr, PPOpCounterPacket * pTemplCntr)
 {
 	int    ok = 1, ta = 0;
 	int    is_new = 1;
@@ -200,11 +197,10 @@ SString & FASTCALL PPObjProject::MakeCodeString(const ProjectTbl::Rec * pRec, SS
 
 TLP_IMPL(PPObjProject, ProjectTbl, P_Tbl);
 
-SLAPI PPObjProject::PPObjProject(void * extraPtr) : PPObject(PPOBJ_PROJECT)
+SLAPI PPObjProject::PPObjProject(void * extraPtr) : PPObject(PPOBJ_PROJECT), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= implStrAssocMakeList;
-	ExtraPtr = extraPtr;
 }
 
 SLAPI PPObjProject::~PPObjProject()
@@ -529,7 +525,7 @@ IMPLEMENT_PPFILT_FACTORY(Project); SLAPI ProjectFilt::ProjectFilt() : PPBaseFilt
 //
 //
 //
-SLAPI PPViewProject::PPViewProject() : PPView(&PrjObj, &Filt), P_PrjTaskView(0)
+SLAPI PPViewProject::PPViewProject() : PPView(&PrjObj, &Filt, PPVIEW_PROJECT), P_PrjTaskView(0)
 {
 	DefReportId = REPORT_PROJECTVIEW;
 }
@@ -821,11 +817,9 @@ int SLAPI PPViewProject::Export()
 // PrjTaskCore
 //
 //static 
-int FASTCALL PrjTaskCore::IsValidStatus(int s) 
-	{ return (s >= 1 && s <= 5) ? 1 : PPSetError(PPERR_INVTODOSTATUS); }
+int FASTCALL PrjTaskCore::IsValidStatus(int s) { return (s >= 1 && s <= 5) ? 1 : PPSetError(PPERR_INVTODOSTATUS); }
 //static 
-int FASTCALL PrjTaskCore::IsValidPrior(int p) 
-	{ return (p >= 1 && p <= 5); }
+int FASTCALL PrjTaskCore::IsValidPrior(int p) { return (p >= 1 && p <= 5); }
 
 SLAPI PrjTaskCore::PrjTaskCore() : PrjTaskTbl()
 {
@@ -1256,11 +1250,10 @@ int SLAPI PPObjPrjTask::ImportFromVCal()
 
 TLP_IMPL(PPObjPrjTask, PrjTaskCore, P_Tbl);
 
-SLAPI PPObjPrjTask::PPObjPrjTask(void * extraPtr) : PPObject(PPOBJ_PRJTASK)
+SLAPI PPObjPrjTask::PPObjPrjTask(void * extraPtr) : PPObject(PPOBJ_PRJTASK), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
 	ImplementFlags |= implStrAssocMakeList;
-	ExtraPtr = extraPtr;
 }
 
 SLAPI PPObjPrjTask::~PPObjPrjTask()

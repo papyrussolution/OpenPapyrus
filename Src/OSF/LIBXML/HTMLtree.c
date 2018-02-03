@@ -399,7 +399,6 @@ int htmlNodeDumpFileFormat(FILE * out, xmlDoc * doc, xmlNodePtr cur, const char 
 {
 	xmlOutputBuffer * buf;
 	xmlCharEncodingHandler * handler = NULL;
-	int ret;
 	xmlInitParser();
 	if(encoding) {
 		xmlCharEncoding enc = xmlParseCharEncoding(encoding);
@@ -607,13 +606,12 @@ static void htmlAttrDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlAttrPtr c
 					}
 					/* Escape the whole string, or until start (set to '\0'). */
 					escaped = xmlURIEscapeStr(tmp, BAD_CAST "@/:=?;#%&,+");
-					if(escaped != NULL) {
+					if(escaped) {
 						xmlBufCat(buf->buffer, escaped);
 						SAlloc::F(escaped);
 					}
-					else {
+					else
 						xmlBufCat(buf->buffer, tmp);
-					}
 					if(end == NULL) { /* Everything has been written. */
 						break;
 					}
@@ -633,12 +631,10 @@ static void htmlAttrDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlAttrPtr c
 			}
 			SAlloc::F(value);
 		}
-		else {
+		else
 			xmlOutputBufferWriteString(buf, "=\"\"");
-		}
 	}
 }
-
 /**
  * htmlAttrListDumpOutput:
  * @buf:  the HTML buffer output
@@ -668,7 +664,6 @@ static void htmlNodeListDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodeP
 	for(; cur; cur = cur->next)
 		htmlNodeDumpFormatOutput(buf, doc, cur, encoding, format);
 }
-
 /**
  * htmlNodeDumpFormatOutput:
  * @buf:  the HTML buffer output
@@ -917,7 +912,6 @@ int htmlSaveFile(const char * filename, xmlDoc * cur)
 	xmlOutputBuffer * buf;
 	xmlCharEncodingHandler * handler = NULL;
 	const char * encoding;
-	int ret;
 	if(!cur || (filename == NULL))
 		return -1;
 	xmlInitParser();
@@ -963,7 +957,6 @@ int htmlSaveFileFormat(const char * filename, xmlDoc * cur, const char * encodin
 {
 	xmlOutputBuffer * buf;
 	xmlCharEncodingHandler * handler = NULL;
-	int ret;
 	if(!cur || !filename)
 		return -1;
 	xmlInitParser();

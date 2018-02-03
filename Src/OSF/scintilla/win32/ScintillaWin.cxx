@@ -77,7 +77,7 @@ const TCHAR callClassName[] = TEXT("CallTip");
 static HMODULE commctrl32 = 0;
 
 #ifdef SCI_NAMESPACE
-using namespace Scintilla;
+	using namespace Scintilla;
 #endif
 
 static void * PointerFromWindow(HWND hWnd)

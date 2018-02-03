@@ -283,8 +283,8 @@ int SLAPI GoodsFilt::Describe(long flags, SString & rBuf) const
 	{
 		long id = 1;
 		StrAssocArray flag_list;
-		if(Flags & fUseGrpList)            flag_list.Add(id++, STRINGIZE(fUseGrpList));
-		if(Flags & fUseUnitMask)           flag_list.Add(id++, STRINGIZE(fIntUnitOnly));
+		// @v9.9.3 if(Flags & fUseGrpList)            flag_list.Add(id++, STRINGIZE(fUseGrpList));
+		// @v9.9.3 if(Flags & fUseUnitMask)           flag_list.Add(id++, STRINGIZE(fIntUnitOnly));
 		if(Flags & fIntUnitOnly)           flag_list.Add(id++, STRINGIZE(fIntUnitOnly));
 		if(Flags & fFloatUnitOnly)         flag_list.Add(id++, STRINGIZE(fFloatUnitOnly));
 		if(Flags & fNegation)              flag_list.Add(id++, STRINGIZE(fNegation));
@@ -355,8 +355,8 @@ int SLAPI GoodsFilt::Setup()
 
 int SLAPI GoodsFilt::IsEmpty() const
 {
-	const long nemp_fl = (fIntUnitOnly | fFloatUnitOnly | fHidePassive |
-		fPassiveOnly | fGenGoodsOnly | fWOTaxGdsOnly | fNoDisOnly | fRestrictByMatrix | fOutOfMatrix | fActualOnly | fHasImages | fUseIndepWtOnly);
+	const long nemp_fl = (fWithStrucOnly|fIntUnitOnly|fFloatUnitOnly|fHidePassive|
+		fPassiveOnly|fGenGoodsOnly|fWOTaxGdsOnly|fNoDisOnly|fRestrictByMatrix|fOutOfMatrix|fActualOnly|fHasImages|fUseIndepWtOnly);
 	// Setup();
 	/*
 	return !(GrpID || ManufID || UnitID || SupplID || GoodsTypeID || BrandID || PhUnitID ||
@@ -1073,10 +1073,8 @@ void GoodsListDialog::updateList()
 //
 //
 //
-SLAPI PPViewGoods::PPViewGoods() : PPView(0, &Filt, PPVIEW_GOODS)
+SLAPI PPViewGoods::PPViewGoods() : PPView(0, &Filt, PPVIEW_GOODS), P_TempTbl(0), P_Iter(0)
 {
-	P_TempTbl = 0;
-	P_Iter = 0;
 	Filt.GrpID = 0;
 	//CurrentViewOrder = OrdByDefault;
 }

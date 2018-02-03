@@ -152,20 +152,9 @@ struct FormatAndMetrics {
 	{
 	}
 #if defined(USE_D2D)
-	FormatAndMetrics(IDWriteTextFormat * pTextFormat_,
-	    int extraFontFlag_,
-	    int characterSet_,
-	    FLOAT yAscent_,
-	    FLOAT yDescent_,
-	    FLOAT yInternalLeading_) :
-		technology(SCWIN_TECH_DIRECTWRITE),
-		hfont(0),
-		pTextFormat(pTextFormat_),
-		extraFontFlag(extraFontFlag_),
-		characterSet(characterSet_),
-		yAscent(yAscent_),
-		yDescent(yDescent_),
-		yInternalLeading(yInternalLeading_)
+	FormatAndMetrics(IDWriteTextFormat * pTextFormat_, int extraFontFlag_, int characterSet_, FLOAT yAscent_, FLOAT yDescent_, FLOAT yInternalLeading_) :
+		technology(SCWIN_TECH_DIRECTWRITE), hfont(0), pTextFormat(pTextFormat_), extraFontFlag(extraFontFlag_), characterSet(characterSet_),
+		yAscent(yAscent_), yDescent(yDescent_), yInternalLeading(yInternalLeading_)
 	{
 	}
 #endif
@@ -555,18 +544,11 @@ public:
 	void SetDBCSMode(int codePage_);
 };
 
-SurfaceGDI::SurfaceGDI() :
-	unicodeMode(false),
-	hdc(0),         hdcOwned(false),
-	pen(0),         penOld(0),
-	brush(0), brushOld(0),
-	font(0),        fontOld(0),
-	bitmap(0), bitmapOld(0)
+SurfaceGDI::SurfaceGDI() : unicodeMode(false), hdc(0), hdcOwned(false), pen(0), penOld(0), brush(0), brushOld(0), font(0), fontOld(0), bitmap(0), bitmapOld(0)
 {
 	maxWidthMeasure = INT_MAX;
 	// There appears to be a 16 bit string length limit in GDI on NT.
 	maxLenText = 65535;
-
 	codePage = 0;
 }
 

@@ -188,7 +188,7 @@ PP_CREATE_TEMP_FILE_PROC(CreateSubstFile, TempSysJournal);
 
 int SLAPI PPViewSysJournal::IsTempTblNeeded() const
 {
-	return BIN(Filt.ActionIDList.isList() || (Filt.Flags & SysJournalFilt::fShowObjects) || Filt.Sgsj != sgsjNone || Filt.Sgd != sgdNone);
+	return BIN(Filt.ActionIDList.isList() || (Filt.Flags & (SysJournalFilt::fShowObjects|SysJournalFilt::fShowHistoryObj)) || Filt.Sgsj != sgsjNone || Filt.Sgd != sgdNone);
 }
 
 int FASTCALL PPViewSysJournal::CheckRecForFilt(const SysJournalTbl::Rec * pRec)
@@ -219,9 +219,11 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 	SString msg_buf;
 	SString temp_buf;
 	BExtInsert * p_bei = 0;
+	PPIDArray modrmv_acn_list;
 	AverageEventTimePrcssr * p_avg_ev_prcssr = 0;
 	ObjVersioningCore * p_ovc = 0; // @v9.9.2
 	SBuffer ov_buf; // @v9.9.2
+	SysJournal * p_sj = DS.GetTLA().P_SysJ;
 	Counter.Init();
 	ZDELETE(P_TmpTbl);
 	// @v9.9.0 ZDELETE(P_NamesTbl);
@@ -230,7 +232,9 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 	// @v9.9.2 {
 	if(Filt.Flags & Filt.fShowHistoryObj) {
 		p_ovc = PPRef->P_OvT; 
-		if(!p_ovc->InitSerializeContext(1))
+		if(p_ovc->InitSerializeContext(1))
+			modrmv_acn_list.addzlist(PPACN_OBJUPD, PPACN_OBJRMV, PPACN_UPDBILL, PPACN_RMVBILL, 0);
+		else
 			p_ovc = 0;
 	}
 	// } @v9.9.2 
@@ -337,12 +341,31 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 										PPObjBill * p_bobj = (PPObjBill *)ppobj;
 										if(p_bobj->SerializePacket__(-1, &pack, ov_buf, &r_sctx)) {
 											PPObjBill::MakeCodeString(&pack.Rec, PPObjBill::mcsAddObjName|PPObjBill::mcsAddOpName, temp_buf);
-											if(r_rec.Action != PPACN_RMVBILL) {
-												BillTbl::Rec curr_bill_rec;
-												if(p_bobj->Fetch(r_rec.ObjID, &curr_bill_rec) > 0) {
-													if(curr_bill_rec.Amount < pack.Rec.Amount)
+											if(r_rec.Action == PPACN_RMVBILL)
+												ev_entry.Flags |= ev_entry.fAmtDn;
+											else {
+												BillTbl::Rec next_bill_rec;
+												next_bill_rec.ID = 0;
+												SysJournalTbl::Rec next_rec;
+												if(p_sj && p_sj->GetNextObjEvent(ev_entry.Obj, ev_entry.Id, &modrmv_acn_list, ev_entry.Dtm, &next_rec) > 0) {
+													assert(next_rec.ObjType == r_rec.ObjType && next_rec.ObjID == r_rec.ObjID);
+													PPBillPacket next_pack;
+													EvVerEntry next_ev_entry;
+													MEMSZERO(next_ev_entry);
+													ov_buf.Clear();
+													if(p_ovc->Search(next_rec.Extra, &next_ev_entry, &vv, &ov_buf) > 0 && ev_entry.IsEqual(next_rec.ObjType, next_rec.ObjID)) {
+														if(p_bobj->SerializePacket__(-1, &next_pack, ov_buf, &r_sctx))
+															next_bill_rec = next_pack.Rec;
+													}
+												}
+												else if(r_rec.Action != PPACN_RMVBILL) {
+													if(p_bobj->Fetch(r_rec.ObjID, &next_bill_rec) <= 0)
+														next_bill_rec.ID = 0;
+												}
+												if(next_bill_rec.ID) {
+													if(next_bill_rec.Amount < pack.Rec.Amount)
 														ev_entry.Flags |= ev_entry.fAmtDn;
-													else if(curr_bill_rec.Amount > pack.Rec.Amount)
+													else if(next_bill_rec.Amount > pack.Rec.Amount)
 														ev_entry.Flags |= ev_entry.fAmtUp;
 												}
 											}

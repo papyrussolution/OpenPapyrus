@@ -435,14 +435,15 @@ PPBaseFilt * PPViewLot::CreateFilt(void * extraPtr) const
 // LotFiltDialog
 // PPViewLot::EditFilt with helpers
 //
-#define GRP_GOODS     1
-#define GRP_GOODSFILT 2
-
 class LotFiltDialog : public TDialog {
 public:
+	enum {
+		ctlgroupGoods     = 1,
+		ctlgroupGoodsFilt = 2
+	};
  	LotFiltDialog(uint dlgID) : TDialog(dlgID)
 	{
-		addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(CTLSEL_FLTLOT_GOODS, CTLSEL_FLTLOT_GGRP, cmGoodsFilt));
+		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(CTLSEL_FLTLOT_GOODS, CTLSEL_FLTLOT_GGRP, cmGoodsFilt));
 		SetupCalPeriod(CTLCAL_FLTLOT_PERIOD, CTL_FLTLOT_PERIOD);
 		SetupCalPeriod(CTLCAL_FLTLOT_OPERAT, CTL_FLTLOT_OPERAT);
 	}
@@ -540,7 +541,7 @@ int LotFiltDialog::setDTS(const LotFilt * pFilt)
 	if(BillObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
 		SetupArCombo(this, CTLSEL_FLTLOT_SUPPL, Data.SupplID, OLW_LOADDEFONOPEN, suppl_acs_id, sacfDisableIfZeroSheet);
 	GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, Data.GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
-	setGroupData(GRP_GOODSFILT, &gf_rec);
+	setGroupData(ctlgroupGoodsFilt, &gf_rec);
 	if(Data.Flags & LotFilt::fOrders) {
 		AddClusterAssoc(CTL_FLTLOT_FLAGS, 0, LotFilt::fShowBillStatus);
 		AddClusterAssoc(CTL_FLTLOT_FLAGS, 1, LotFilt::fShowSerialN);
@@ -576,7 +577,7 @@ int LotFiltDialog::getDTS(LotFilt * pFilt)
 	getCtrlData(CTL_FLTLOT_CLOSED,   &Data.ClosedTag);
 	getCtrlData(CTLSEL_FLTLOT_LOC,   &Data.LocID);
 	getCtrlData(CTLSEL_FLTLOT_SUPPL, &Data.SupplID);
-	THROW(getGroupData(GRP_GOODSFILT, &gf_rec));
+	THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
 	Data.GoodsGrpID = gf_rec.GoodsGrpID;
 	Data.GoodsID    = gf_rec.GoodsID;
 	GetClusterData(CTL_FLTLOT_FLAGS, &Data.Flags);
@@ -738,9 +739,8 @@ int SLAPI PPViewLot::ViewTotal()
 {
 	class LotTotalDialog : public TDialog {
 	public:
-		LotTotalDialog(PPViewLot * lv) : TDialog(DLG_LOTTOTAL)
+		LotTotalDialog(PPViewLot * lv) : TDialog(DLG_LOTTOTAL), LV(lv)
 		{
-			LV = lv;
 		}
 		int    setup()
 		{
@@ -1870,8 +1870,7 @@ int SLAPI PPViewLot::InitIteration(IterOrder order)
 			dbq = &(*dbq && P_Tbl->QCertID == Filt.QCertID);
 		if(oneof2(Filt.ClosedTag, 1, 2))
 			dbq = &(*dbq && P_Tbl->Closed == ((Filt.ClosedTag == 1) ? 0L : 1L));
-		dbq = &(*dbq && realrange(P_Tbl->Cost, Filt.CostRange.low, Filt.CostRange.upp) &&
-			realrange(P_Tbl->Price, Filt.PriceRange.low, Filt.PriceRange.upp));
+		dbq = &(*dbq && realrange(P_Tbl->Cost, Filt.CostRange.low, Filt.CostRange.upp) && realrange(P_Tbl->Price, Filt.PriceRange.low, Filt.PriceRange.upp));
 		if(Filt.Flags & LotFilt::fWithoutExpiry) {
 			//
 			// @v4.6.11

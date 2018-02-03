@@ -48,6 +48,15 @@ IMPLEMENT_PPFILT_FACTORY(TrfrAnlz); SLAPI TrfrAnlzFilt::TrfrAnlzFilt() : PPBaseF
 	Init(1, 0);
 }
 
+int SLAPI TrfrAnlzFilt::HasCntragentGrouping() const
+	{ return oneof6(Grp, gCntragent, gCntragentDate, gGoodsCntragent, gGoodsCntragentDate, gDateCntragentAgentGoods, gBillCntragent); }
+int SLAPI TrfrAnlzFilt::HasGoodsGrouping() const
+	{ return oneof6(Grp, gGoods, gGoodsCntragent, gGoodsCntragentDate, gGoodsBill, gDateCntragentAgentGoods, gGoodsDate); }
+int SLAPI TrfrAnlzFilt::HasDateGrouping() const
+	{ return oneof4(Grp, gCntragentDate, gGoodsCntragentDate, gDateCntragentAgentGoods, gGoodsDate); }
+int SLAPI TrfrAnlzFilt::HasBillGrouping() const
+	{ return oneof2(Grp, gGoodsBill, gBillCntragent); }
+
 int SLAPI TrfrAnlzFilt::ReadPreviosVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;

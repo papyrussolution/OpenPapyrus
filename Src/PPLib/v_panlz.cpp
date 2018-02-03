@@ -35,7 +35,7 @@ PriceAnlzFilt & FASTCALL PriceAnlzFilt::operator = (const PriceAnlzFilt & s)
 //
 //
 //
-SLAPI PPViewPriceAnlz::PPViewPriceAnlz() : PPView(0, &Filt), P_TempTbl(0)
+SLAPI PPViewPriceAnlz::PPViewPriceAnlz() : PPView(0, &Filt, 0), P_TempTbl(0)
 {
 	DefReportId = REPORT_PRICEANLZ;
 }

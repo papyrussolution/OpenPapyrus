@@ -12,7 +12,7 @@
 #define _USERPTR_C(ptr)  ((flags&aryPtrContainer)?(*(const void **)(ptr)):(ptr))
 #define _INTRPTR(ptr)    ((flags&aryPtrContainer)?&(ptr):(ptr))
 
-//static 
+//static
 uint FASTCALL SVectorBase::GetCount(const SVectorBase * pB)
 {
 	return pB ? pB->getCount() : 0;

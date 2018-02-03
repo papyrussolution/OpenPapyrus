@@ -3,9 +3,6 @@
 // @codepage UTF-8
 // TimeChunkBrowser
 //
-// @todo
-// Расцветка
-//
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop

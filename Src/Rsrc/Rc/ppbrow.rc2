@@ -1316,6 +1316,28 @@ browser GOODSWITHSTRUC north(100), 3, 1, "Товары {%s} со структурами", OWNER|GRI
 	toolbar GOODS
 }
 
+browser GOODSSTRUC2 north(100), 3, 1, "Товарные структуры {%s}", OWNER|GRID, 0
+{
+	"@id",                 0, long, 0,             10, BCO_USERPROC
+	"N",                   7, long, 0,              4, BCO_USERPROC
+	"@ware",               1, zstring(128), 0,     60, BCO_USERPROC|BCO_DONTSHOWDUPL
+	"Компонент структуры", 2, zstring(128), 0,     60, BCO_USERPROC
+	"Общий делитель",      6, double,      NMBF_NOZERO, 10.3, BCO_USERPROC
+	"@qtty",               3, zstring(20), ALIGN_RIGHT, 10, BCO_USERPROC
+	"@netto",              5, double,      NMBF_NOZERO, 10.3, BCO_USERPROC
+	"@type",               4, zstring(48),  0,     10, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		EDITITEM       : kbEnter,   TBBM_EDIT,   "@{edit}\tEnter"
+		EDITGOODS      : kbF2,      TBBM_GOODS,  "@{ware}\tF2"
+		EDITITEMGOODS  : kbShiftF2, TBBM_GOODS,  "@{component}\tShift-F2"
+		PRINT          : kbF7,      TBBM_PRINT,  "Печать списка\tF7"
+		separator
+		CHANGEFILT : kbCtrlV,   TBBM_FILTER, "@{filter}\tCtrl-V"
+		separator
+		TOTAL      : kbF9,      TBBM_SIGM,   "@{totals}\tF9"
+	}
+}
+
 browser GOODSSTRUC north(100), 3, 1, "Товарные структуры {%s}", OWNER|GRID, 0
 {
 	"@id",                 1, notype, 0, 10

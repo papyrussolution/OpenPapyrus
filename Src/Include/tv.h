@@ -2799,36 +2799,6 @@ public:
 	int    DefInputLine;
 };
 
-#if 0 // @v7.7.7 {
-
-struct TabbedDialogPage {
-	long   id;
-	TDialog * dialog;
-	char * tabName;
-	ushort command;
-	HWND   hWnd;
-};
-
-class TabbedDialog {
-public:
-	static TabbedDialog * topTabbedDialog; // @global
-
-	TabbedDialog(char *, TabbedDialogPage *, int);
-	~TabbedDialog();
-	HWND   setupPage(int,TDialog *);
-	void   clearPage(int);
-	int    findPageByHandle(HWND);
-	int    findPageByID(long);
-	int    current;
-	TabbedDialogPage * pages;
-	int    num;
-	TabbedDialog * prevTabbedDialog;
-	char * name;
-	ushort lastCommand;
-};
-
-#endif // } 0 @v7.7.7
-
 class TInputLine : public TView {
 public:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -3019,10 +2989,11 @@ private:
 class TStaticText : public TView {
 public:
 	TStaticText(const TRect& bounds, const char * pText = 0);
-	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	SString & getText(SString & rBuf) const;
 	int    setText(const char *);
 protected:
+	virtual int handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 	SString Text;
 };
 
@@ -3479,15 +3450,9 @@ public:
 	ListWindowSmartListBox * listBox() const;
 	int    MoveWindow(HWND linkHwnd, long right);
 	int    MoveWindow(RECT & rRect);
-	ListBoxDef * getDef() const
-	{
-		return P_Def;
-	}
+	ListBoxDef * getDef() const { return P_Def; }
 	void   SetToolbar(uint tbId);
-	uint   GetToolbar() const
-	{
-		return TbId;
-	}
+	uint   GetToolbar() const { return TbId; }
 protected:
 	void   prepareForSearching(int firstLetter);
 	ListBoxDef * P_Def;
@@ -4154,13 +4119,13 @@ public:
 
 	SMessageWindow();
 	~SMessageWindow();
-
 	int    Open(SString & rText, const char * pImgPath, HWND parent, long cmd, long timer, COLORREF color, long flags, long extra);
 	int    Destroy();
 	int    Paint();
 	int    Move();
 	int    DoCommand(TPoint p);
 	void * GetImage() { return P_Image; }
+
 	COLORREF Color;
 	HBRUSH   Brush;
 	WNDPROC PrevImgProc;
@@ -4178,20 +4143,10 @@ private:
 	HFONT  Font;
 	void * P_Image;
 };
-
 //
 //
 //
 #define MIN_COLUMN_WIDTH  8 // @v6.2.10 2-->8
-
-// @v8.7.2 SPTR2DEF(SArray);
-// @v8.7.2 SCLASSDEF(DBQuery);
-// @v8.7.2 SCLASSDEF(TVRez);
-// @v8.7.2 SSTRUCTDEF(BroColumn);
-// @v8.7.2 SSTRUCTDEF(BroGroup);
-// @v8.7.2 SCLASSDEF(BrowserDef);
-// @v8.7.2 SCLASSDEF(BrowserView);
-
 #define CLASSNAME_DESKTOPWINDOW "PPYDESKTOPWINDOW"
 
 struct SBrowserDataProcBlock {
@@ -4305,28 +4260,19 @@ public:
 	void   SLAPI VerifyCapHeight();
 	uint   SLAPI GetGroupCount() const;
 	const  BroGroup * FASTCALL GetGroup(uint) const;
-
 	void   SLAPI ClearGroupIndexies();
 	uint * SLAPI GetGroupIndexPtr(uint grpN);
-
 	int    SLAPI AddCrosstab(BroCrosstab *);
 	uint   SLAPI GetCrosstabCount() const;
 	const  BroCrosstab * SLAPI GetCrosstab(uint) const;
 	int    SLAPI FreeAllCrosstab();
-
 	int    SLAPI IsBOQ() const;
 	int    SLAPI IsEOQ() const;
 	int    SLAPI CheckFlag(uint) const;
-
-	void   SLAPI SetUserProc(SBrowserDataProc proc, void * extraPtr)
-	{
-		UserProc = proc;
-		ExtraPtr = extraPtr;
-	}
+	void   SLAPI SetUserProc(SBrowserDataProc proc, void * extraPtr);
 protected:
 	SBrowserDataProc UserProc;
 	void * ExtraPtr;
-
 	int    capHight;
 	uint   NumGroups;
 	BroGroup * P_Groups;
@@ -4337,12 +4283,12 @@ protected:
 	long   topItem;
 	long   curItem;
 private:
+	virtual void FASTCALL freeItem(void *);
+
 	SArray * P_CtList;         // Список кросс-таб столбцов
 	SBrowserDataProcBlock DpB;
 public:
 	uint   options;
-
-	void   FASTCALL freeItem(void *);
 };
 
 class AryBrowserDef : public BrowserDef {

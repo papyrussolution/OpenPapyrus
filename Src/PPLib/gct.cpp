@@ -1,45 +1,30 @@
 // GCT.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017
-// @codepage windows-1251
-// Построение перекрестной отчетности по товарным операциям
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018
+// @codepage UTF-8
+// РџРѕСЃС‚СЂРѕРµРЅРёРµ РїРµСЂРµРєСЂРµСЃС‚РЅРѕР№ РѕС‚С‡РµС‚РЅРѕСЃС‚Рё РїРѕ С‚РѕРІР°СЂРЅС‹Рј РѕРїРµСЂР°С†РёСЏРј
 //
 #include <pp.h>
 #pragma hdrstop
 //
-// Отчет о товарообороте
+// РћС‚С‡РµС‚ Рѕ С‚РѕРІР°СЂРѕРѕР±РѕСЂРѕС‚Рµ
 //
 //
 // GoodsTrnovrBrowser
 //
-/* @v8.9.12
-#define TMPALTGRP_SETOWNER(ViewTypNam, owner)                                                \
-	const ViewTypNam##Filt * p_filt = P_View ? ((PPView##ViewTypNam*)P_View)->GetFilt() : 0; \
-	if(p_filt) PPObjGoodsGroup::SetOwner(p_filt->GoodsGrpID, 0, owner);
-#define TMPALTGRP_DELETE(ViewTypNam, owner)                                                  \
-	const ViewTypNam##Filt * p_filt = P_View ? ((PPView##ViewTypNam*)P_View)->GetFilt() : 0; \
-	if(p_filt) PPObjGoodsGroup::RemoveTempAlt(p_filt->GoodsGrpID, owner);
-*/
-
 class GoodsTrnovrBrowser : public BrowserWindow {
 public:
 	GoodsTrnovrBrowser(uint rezID, SArray * a, PPViewGoodsTrnovr *pView, GCTFilt * f, int dataOwner) :
 		BrowserWindow(rezID, a), P_View(pView), IsDataOwner(dataOwner)
 	{
-		// @v8.9.12 TMPALTGRP_SETOWNER(GoodsTrnovr, (long)this)
-		// @v8.9.12 {
 		const GoodsTrnovrFilt * p_filt = P_View ? ((PPViewGoodsTrnovr *)P_View)->GetFilt() : 0;
 		if(p_filt)
 			PPObjGoodsGroup::SetOwner(p_filt->GoodsGrpID, 0, (long)this);
-		// } @v8.9.12
 	}
 	~GoodsTrnovrBrowser()
 	{
-		// @v8.9.12 TMPALTGRP_DELETE(GoodsTrnovr, (long)this)
-		// @v8.9.12 {
 		const GoodsTrnovrFilt * p_filt = P_View ? ((PPViewGoodsTrnovr *)P_View)->GetFilt() : 0;
 		if(p_filt)
 			PPObjGoodsGroup::RemoveTempAlt(p_filt->GoodsGrpID, (long)this);
-		// } @v8.9.12
 		if(IsDataOwner)
 			delete P_View;
 	}
@@ -113,8 +98,6 @@ const GoodsTrnovrFilt * SLAPI PPViewGoodsTrnovr::GetFilt() const
 
 int SLAPI PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 {
-	//#define GRP_GOODSFILT 1
-	//#define GRP_LOC       2
 	class GCTFiltDialog : public WLDialog {
 	public:
 		enum {
@@ -270,7 +253,7 @@ int SLAPI PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 		}
 		if(entry.RcptSuppl)
 			zero = 0, total.RcptSuppl += entry.RcptSuppl;
-		// @todo 01/05/2005 Внутренняя передача на списке складов
+		// @todo 01/05/2005 Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РїРµСЂРµРґР°С‡Р° РЅР° СЃРїРёСЃРєРµ СЃРєР»Р°РґРѕРІ
 		if(f.LocList.GetCount() && entry.RcptIntr)
 			zero = 0, total.RcptIntr += entry.RcptIntr;
 		if(entry.RetRetail)
@@ -283,7 +266,7 @@ int SLAPI PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 			zero = 0, total.XpndRetail += entry.XpndRetail;
 		if(entry.XpndClient)
 			zero = 0, total.XpndClient += entry.XpndClient;
-		// @todo 01/05/2005 Внутренняя передача на списке складов
+		// @todo 01/05/2005 Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РїРµСЂРµРґР°С‡Р° РЅР° СЃРїРёСЃРєРµ СЃРєР»Р°РґРѕРІ
 		if(f.LocList.GetCount() && entry.XpndIntr)
 			zero = 0, total.XpndIntr += entry.XpndIntr;
 		if(entry.PayClient)
@@ -430,7 +413,7 @@ SArray * SLAPI PPViewGoodsTrnovr::MakeGoodsTurnover()
 		}
 		if(entry.RcptSuppl)
 			zero = 0, total.RcptSuppl += entry.RcptSuppl;
-		// @todo 01/05/2005 Внутренняя передача на списке складов
+		// @todo 01/05/2005 Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РїРµСЂРµРґР°С‡Р° РЅР° СЃРїРёСЃРєРµ СЃРєР»Р°РґРѕРІ
 		if(f.LocList.GetCount() && entry.RcptIntr)
 			zero = 0, total.RcptIntr += entry.RcptIntr;
 		if(entry.RetRetail)
@@ -443,7 +426,7 @@ SArray * SLAPI PPViewGoodsTrnovr::MakeGoodsTurnover()
 			zero = 0, total.XpndRetail += entry.XpndRetail;
 		if(entry.XpndClient)
 			zero = 0, total.XpndClient += entry.XpndClient;
-		// @todo 01/05/2005 Внутренняя передача на списке складов
+		// @todo 01/05/2005 Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РїРµСЂРµРґР°С‡Р° РЅР° СЃРїРёСЃРєРµ СЃРєР»Р°РґРѕРІ
 		if(f.LocList.GetCount() && entry.XpndIntr)
 			zero = 0, total.XpndIntr += entry.XpndIntr;
 		if(entry.PayClient)

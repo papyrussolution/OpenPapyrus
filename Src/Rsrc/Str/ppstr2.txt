@@ -10864,6 +10864,37 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @priceanlzfilt_baseloc                    "Склад для расчета базовой цены"
 @priceanlzfilt_loclist                    "@{warehouse}"
 
+class GoodsStrucFilt : public PPBaseFilt {
+public:
+	SLAPI  GoodsStrucFilt();
+
+	char   ReserveStart[32]; // @anchor
+	PPID   PrmrGoodsGrpID;
+	PPID   PrmrGoodsID;
+	PPID   ScndGoodsGrpID;
+	PPID   ScndGoodsID;
+	long   StrucFlagSet;
+	long   StrucFlagReset;
+	long   ItemFlagSet;
+	long   ItemFlagReset;
+	long   Flags;            // @flags
+	long   InitOrder;        // Порядок сортировки PPViewGoodsStruc::OrdXXX
+	long   ReserveEnd;       // @anchor
+};
+
+@gsfilt                                   "Фильтр по товарным структурам"
+@gsfilt_prmr                              "Первичный товар" // generic
+@gsfilt_prmrgoodsgrp                      "@{group}"
+@gsfilt_prmrgoods                         "@{ware}"
+@gsfilt_scnd                              "Вторичный товар" // generic
+@gsfilt_scndgoodsgrp                      "@{group}"
+@gsfilt_scndgoods                         "@{ware}"
+@gsfilt_order                             "Сортировать"
+@gsfilt_ordbydefault                      "@{bydefault}"
+@gsfilt_ordbyprmrgoodsname                "По наименованию первичного товара"
+@gsfilt_ordbyscndgoodsname                "По наименованию вторичного товара"
+@gsfilt_ordbystructypeprmrgoodsname       "По типу структуры"
+
 @objtransm                                "Перенос объектов"
 @objtransmmod                             "Перенос измененных объектов"
 @objtransm_destdbdivlist                  "@{dbdiv_pl}"

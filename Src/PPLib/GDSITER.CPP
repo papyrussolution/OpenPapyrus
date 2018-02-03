@@ -482,6 +482,17 @@ int SLAPI GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 			THROW(GObj.P_Tbl->GetListByAr(Filt.CodeArID, &temp_list));
 			THROW(IntersectByTempList(P_List, &temp_list, &do_intersect));
 		}
+		if(Filt.Flags & Filt.fWithStrucOnly) {
+			temp_list.clear();
+			Goods2Tbl::Key5 k5;
+			Goods2Tbl * t = GObj.P_Tbl;
+			MEMSZERO(k5);
+			BExtQuery q(t, 5);
+			q.select(t->ID, 0L).where(t->Kind == PPGDSK_GOODS && t->StrucID > 0L);
+			for(q.initIteration(0, &k5, spGe); q.nextIteration() > 0;)
+				THROW_SL(temp_list.add(t->data.ID));
+			THROW(IntersectByTempList(P_List, &temp_list, &do_intersect));
+		}
 		{
 			const ObjIdListFilt & r_brand_list = Filt.GetResultBrandList();
 			if(r_brand_list.GetCount()) {

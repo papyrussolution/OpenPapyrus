@@ -9,6 +9,14 @@
 //
 //
 //
+SRevolver_SString::SRevolver_SString(uint c) : TSRevolver <SString> (c) {}
+SString & SRevolver_SString::Get() { return Implement_Get().Z(); }
+
+SRevolver_SStringU::SRevolver_SStringU(uint c) : TSRevolver <SStringU> (c) {}
+SStringU & SRevolver_SStringU::Get() { return Implement_Get().Z(); }
+//
+//
+//
 SRegExpSet::SRegExpSet() : P_ReQuotedStr(0), P_ReNumber(0), P_ReHex(0), P_ReIdent(0), P_ReDigits(0), P_ReEMail(0), P_ReDate(0)
 {
 }
@@ -6513,7 +6521,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 
 #if SLTEST_RUNNING // {
 
-class SRevolver_SString : public TSRingStack <SString> {
+/*class SRevolver_SString : public TSRingStack <SString> {
 public:
 	SLAPI  SRevolver_SString(size_t s) : TSRingStack <SString> (s)
 	{
@@ -6525,13 +6533,12 @@ public:
 
 		}
 	}
-};
+};*/
 
 struct SlTestFixtureSString {
 public:
-	SlTestFixtureSString()
+	SlTestFixtureSString() : P_StrList(0)
 	{
-		P_StrList = 0;
 	}
 	~SlTestFixtureSString()
 	{
@@ -6567,7 +6574,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	// benchmark: benchmark=stack;sstring;revolver
 	int    ok = 1;
 	int    bm = -1;
-	const  uint max_bm_phase = 1000;
+	const  uint max_bm_phase = 5000;
 	uint32 line_no = 0;
 	SBaseBuffer temp_buf;
 	SBaseBuffer test_buf;
@@ -6957,6 +6964,15 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 		}
 	}
 	else if(bm == 3) {
+		SRevolver_SString rvl(1024);
+		uint64 total_len = 0;
+		for(uint phase = 0; phase < max_bm_phase; phase++) {
+			for(uint i = 0; i < F.P_StrList->getCount(); i++) {
+				SString & r_buffer = rvl.Get();
+				r_buffer = F.P_StrList->at(i);
+				total_len += strlen(r_buffer.cptr());
+			}
+		}
 	}
 	CATCH
 		CurrentStatus = ok = 0;

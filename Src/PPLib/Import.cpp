@@ -656,13 +656,13 @@ static int SLAPI GetHierarchyFields(PPIniFile * pIniFile, DbfTable * pTbl,
 	return ok;
 }
 
-SLAPI HierArray::HierArray() : SArray(sizeof(HierArray::Item))
+SLAPI HierArray::HierArray() : SVector(sizeof(HierArray::Item)) // @v9.9.3 SArray-->SVector
 {
 }
 
 const HierArray::Item & SLAPI HierArray::at(uint i) const
 {
-	return *(HierArray::Item *)SArray::at(i);
+	return *(HierArray::Item *)SVector::at(i); // @v9.9.3 SArray-->SVector
 }
 
 int SLAPI HierArray::Add(const char * pCode, const char * pParentCode)

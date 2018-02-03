@@ -1,7 +1,8 @@
 // V_JOBP.CPP
 // Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
+// @codepage UTF-8
 //
-// Редактирование списка процессорных задач
+// Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ СЃРїРёСЃРєР° РїСЂРѕС†РµСЃСЃРѕСЂРЅС‹С… Р·Р°РґР°С‡
 //
 #include <pp.h>
 #pragma hdrstop
@@ -235,7 +236,7 @@ private:
 
 	PPJobMngr * P_Mngr;
 	PPJobPool * P_Data;
-	int    ForAllDb;    // Показывать задачи для всех баз данных
+	int    ForAllDb;    // РџРѕРєР°Р·С‹РІР°С‚СЊ Р·Р°РґР°С‡Рё РґР»СЏ РІСЃРµС… Р±Р°Р· РґР°РЅРЅС‹С…
 };
 
 int JobPoolDialog::setupList()
@@ -650,7 +651,7 @@ int SLAPI PPViewJob::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 				break;
 			case PPVCMD_SAVE:
 				ok = -1;
-				LoadPool(); // внутри вызывается функция SavePool
+				LoadPool(); // РІРЅСѓС‚СЂРё РІС‹Р·С‹РІР°РµС‚СЃСЏ С„СѓРЅРєС†РёСЏ SavePool
 				break;
 			case PPVCMD_PRINT:
 				ok = -1;

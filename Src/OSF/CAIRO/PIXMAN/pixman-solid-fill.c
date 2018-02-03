@@ -25,7 +25,7 @@
 
 static uint32_t FASTCALL color_to_uint32(const pixman_color_t * color)
 {
-	return (color->alpha >> 8 << 24) | (color->red >> 8 << 16) | (color->green & 0xff00) | (color->blue >> 8);
+	return ((uint)color->alpha >> 8 << 24) | ((uint)color->red >> 8 << 16) | ((uint)color->green & 0xff00) | ((uint)color->blue >> 8);
 }
 
 static argb_t FASTCALL color_to_float(const pixman_color_t * color)

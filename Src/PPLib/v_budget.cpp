@@ -1077,14 +1077,10 @@ BudgetFilt & FASTCALL BudgetFilt::operator = (const BudgetFilt & s)
 	return *this;
 }
 
-SLAPI PPViewBudget::PPViewBudget() : PPView(0, &Filt, PPVIEW_BUDGET)
+SLAPI PPViewBudget::PPViewBudget() : PPView(0, &Filt, PPVIEW_BUDGET), P_TempBudgTbl(0), P_TempBudgItemTbl(0), UpdateID(0)
 {
 	ImplementFlags |= implDontEditNullFilter;
-	P_IterQuery = 0;
 	DefReportId = REPORT_ACCOUNTVIEW;
-	P_TempBudgTbl     = 0;
-	P_TempBudgItemTbl = 0;
-	UpdateID = 0;
 }
 
 SLAPI PPViewBudget::~PPViewBudget()

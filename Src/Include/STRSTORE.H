@@ -1,5 +1,5 @@
 // STRSTORE.H
-// Copyright (c) A.Sobolev 1996-1999, 2005, 2007, 2016
+// Copyright (c) A.Sobolev 1996-1999, 2005, 2007, 2016, 2018
 // @codepage windows-1251
 //
 #ifndef __STRSTORE_H
@@ -48,7 +48,7 @@ class StringStore2 {
 public:
 	SLAPI  StringStore2();
 	SLAPI ~StringStore2();
-	int    SLAPI SetActiveLanguage(int slang);
+	void   SLAPI SetActiveLanguage(int slang);
 	int    SLAPI Load(const char * pFileName, int selfTest);
 	int    SLAPI GetString(int group, int code, SString & rBuf) const;
 	int    SLAPI GetString(const char * pSignature, SString & rBuf) const;
@@ -204,10 +204,8 @@ private:
 	// Descr: Предварительно загруженая хэш-таблица символов
 	//
 	struct PreloadedHashGroupEntry {
-		PreloadedHashGroupEntry()
+		PreloadedHashGroupEntry() : Group(0), P_Tab(0)
 		{
-			Group = 0;
-			P_Tab = 0;
 		}
 		~PreloadedHashGroupEntry()
 		{

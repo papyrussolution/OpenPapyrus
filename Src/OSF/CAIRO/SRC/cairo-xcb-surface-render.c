@@ -179,41 +179,29 @@ static int _render_operator(cairo_operator_t op)
 	}
 }
 
-static cairo_status_t _cairo_xcb_surface_set_clip_region(cairo_xcb_surface_t * surface,
-    cairo_region_t      * region)
+static cairo_status_t _cairo_xcb_surface_set_clip_region(cairo_xcb_surface_t * surface, cairo_region_t * region)
 {
 	xcb_rectangle_t stack_rects[CAIRO_STACK_ARRAY_LENGTH(xcb_rectangle_t)];
 	xcb_rectangle_t * rects = stack_rects;
-	int i, num_rects;
-
-	num_rects = cairo_region_num_rectangles(region);
-
+	int i;
+	int num_rects = cairo_region_num_rectangles(region);
 	if(num_rects > SIZEOFARRAY(stack_rects)) {
 		rects = _cairo_malloc_ab(num_rects, sizeof(xcb_rectangle_t));
 		if(unlikely(rects == NULL)) {
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		}
 	}
-
 	for(i = 0; i < num_rects; i++) {
 		CairoIRect rect;
-
 		cairo_region_get_rectangle(region, i, &rect);
-
 		rects[i].x = rect.x;
 		rects[i].y = rect.y;
 		rects[i].width  = rect.width;
 		rects[i].height = rect.height;
 	}
-
-	_cairo_xcb_connection_render_set_picture_clip_rectangles(surface->connection,
-	    surface->picture,
-	    0, 0,
-	    num_rects, rects);
-
+	_cairo_xcb_connection_render_set_picture_clip_rectangles(surface->connection, surface->picture, 0, 0, num_rects, rects);
 	if(rects != stack_rects)
 		SAlloc::F(rects);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

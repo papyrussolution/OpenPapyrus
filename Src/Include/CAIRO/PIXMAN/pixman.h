@@ -134,26 +134,27 @@ typedef pixman_fixed_16_16_t pixman_fixed_t;
 /*
  * Misc structs
  */
-typedef struct pixman_color pixman_color_t;
-typedef struct pixman_point_fixed pixman_point_fixed_t;
-typedef struct pixman_line_fixed pixman_line_fixed_t;
+//typedef struct pixman_color pixman_color_t;
+//typedef struct pixman_point_fixed pixman_point_fixed_t;
+//typedef struct pixman_line_fixed pixman_line_fixed_t;
 typedef struct pixman_vector pixman_vector_t;
 typedef struct pixman_transform pixman_transform_t;
 
-struct pixman_color {
+struct pixman_color_t {
 	uint16 red;
 	uint16 green;
 	uint16 blue;
 	uint16 alpha;
 };
 
-struct pixman_point_fixed {
+struct pixman_point_fixed_t {
 	pixman_fixed_t x;
 	pixman_fixed_t y;
 };
 
-struct pixman_line_fixed {
-	pixman_point_fixed_t p1, p2;
+struct pixman_line_fixed_t {
+	pixman_point_fixed_t p1;
+	pixman_point_fixed_t p2;
 };
 /*
  * Fixed point matrices
@@ -172,15 +173,15 @@ struct pixman_box16;
 typedef  union pixman_image pixman_image_t;
 
 void          pixman_transform_init_identity(struct pixman_transform * matrix);
-pixman_bool_t pixman_transform_point_3d(const struct pixman_transform * transform, struct pixman_vector          * vector);
-pixman_bool_t pixman_transform_point(const struct pixman_transform * transform, struct pixman_vector          * vector);
-pixman_bool_t pixman_transform_multiply(struct pixman_transform       * dst, const struct pixman_transform * l, const struct pixman_transform * r);
-void          pixman_transform_init_scale(struct pixman_transform       * t, pixman_fixed_t sx, pixman_fixed_t sy);
-pixman_bool_t pixman_transform_scale(struct pixman_transform       * forward, struct pixman_transform       * reverse, pixman_fixed_t sx, pixman_fixed_t sy);
-void          pixman_transform_init_rotate(struct pixman_transform       * t, pixman_fixed_t cos, pixman_fixed_t sin);
-pixman_bool_t pixman_transform_rotate(struct pixman_transform       * forward, struct pixman_transform * reverse, pixman_fixed_t c, pixman_fixed_t s);
+pixman_bool_t pixman_transform_point_3d(const struct pixman_transform * transform, struct pixman_vector * vector);
+pixman_bool_t pixman_transform_point(const struct pixman_transform * transform, struct pixman_vector * vector);
+pixman_bool_t pixman_transform_multiply(struct pixman_transform * dst, const struct pixman_transform * l, const struct pixman_transform * r);
+void          pixman_transform_init_scale(struct pixman_transform * t, pixman_fixed_t sx, pixman_fixed_t sy);
+pixman_bool_t pixman_transform_scale(struct pixman_transform * forward, struct pixman_transform * reverse, pixman_fixed_t sx, pixman_fixed_t sy);
+void          pixman_transform_init_rotate(struct pixman_transform * t, pixman_fixed_t cos, pixman_fixed_t sin);
+pixman_bool_t pixman_transform_rotate(struct pixman_transform * forward, struct pixman_transform * reverse, pixman_fixed_t c, pixman_fixed_t s);
 void          pixman_transform_init_translate(struct pixman_transform * t, pixman_fixed_t tx, pixman_fixed_t ty);
-pixman_bool_t pixman_transform_translate(struct pixman_transform       * forward, struct pixman_transform * reverse, pixman_fixed_t tx, pixman_fixed_t ty);
+pixman_bool_t pixman_transform_translate(struct pixman_transform * forward, struct pixman_transform * reverse, pixman_fixed_t tx, pixman_fixed_t ty);
 pixman_bool_t pixman_transform_bounds(const struct pixman_transform * matrix, struct pixman_box16 * b);
 pixman_bool_t pixman_transform_invert(struct pixman_transform * dst, const struct pixman_transform * src);
 pixman_bool_t pixman_transform_is_identity(const struct pixman_transform * t);
@@ -335,12 +336,17 @@ struct pixman_region16_data {
 };
 
 struct pixman_rectangle16 {
-	int16 x, y;
-	uint16 width, height;
+	int16  x;
+	int16  y;
+	uint16 width;
+	uint16 height;
 };
 
 struct pixman_box16 {
-	int16 x1, y1, x2, y2;
+	int16  x1;
+	int16  y1;
+	int16  x2;
+	int16  y2;
 };
 
 struct pixman_region16 {
@@ -446,7 +452,7 @@ void   pixman_region32_clear(pixman_region32_t * region);
 pixman_bool_t pixman_blt(const uint32_t * src_bits, uint32_t * dst_bits, int src_stride, int dst_stride, int src_bpp, int dst_bpp, int src_x, int src_y, int dest_x, int dest_y, int width, int height);
 pixman_bool_t pixman_fill(uint32_t * bits, int stride, int bpp, int x, int y, int width, int height, uint32_t _xor);
 int           pixman_version(void);
-const char*   pixman_version_string(void);
+const char *  pixman_version_string(void);
 /*
  * Images
  */
@@ -678,16 +684,16 @@ void pixman_composite_glyphs_no_mask(pixman_op_t op, pixman_image_t * src, pixma
 /*
  * Trapezoids
  */
-typedef struct pixman_edge pixman_edge_t;
-typedef struct pixman_trapezoid pixman_trapezoid_t;
-typedef struct pixman_trap pixman_trap_t;
-typedef struct pixman_span_fix pixman_span_fix_t;
-typedef struct pixman_triangle pixman_triangle_t;
+//typedef struct pixman_edge pixman_edge_t;
+//typedef struct pixman_trapezoid pixman_trapezoid_t;
+//typedef struct pixman_trap pixman_trap_t;
+//typedef struct pixman_span_fix pixman_span_fix_t;
+//typedef struct pixman_triangle pixman_triangle_t;
 /*
  * An edge structure.  This represents a single polygon edge
  * and can be quickly stepped across small or large gaps in the sample grid
  */
-struct pixman_edge {
+struct pixman_edge_t {
 	pixman_fixed_t x;
 	pixman_fixed_t e;
 	pixman_fixed_t stepx;
@@ -700,31 +706,37 @@ struct pixman_edge {
 	pixman_fixed_t dx_big;
 };
 
-struct pixman_trapezoid {
-	pixman_fixed_t top, bottom;
-	pixman_line_fixed_t left, right;
+struct pixman_trapezoid_t {
+	pixman_fixed_t top;
+	pixman_fixed_t bottom;
+	pixman_line_fixed_t left;
+	pixman_line_fixed_t right;
 };
 
-struct pixman_triangle {
-	pixman_point_fixed_t p1, p2, p3;
+struct pixman_triangle_t {
+	pixman_point_fixed_t p1;
+	pixman_point_fixed_t p2;
+	pixman_point_fixed_t p3;
 };
 
 /* whether 't' is a well defined not obviously empty trapezoid */
 #define pixman_trapezoid_valid(t) ((t)->left.p1.y != (t)->left.p2.y && (t)->right.p1.y != (t)->right.p2.y && ((t)->bottom > (t)->top))
 
-struct pixman_span_fix {
-	pixman_fixed_t l, r, y;
+struct pixman_span_fix_t {
+	pixman_fixed_t l;
+	pixman_fixed_t r;
+	pixman_fixed_t y;
 };
 
-struct pixman_trap {
-	pixman_span_fix_t top, bot;
+struct pixman_trap_t {
+	pixman_span_fix_t top;
+	pixman_span_fix_t bot;
 };
 
 pixman_fixed_t pixman_sample_ceil_y(pixman_fixed_t y, int bpp);
 pixman_fixed_t pixman_sample_floor_y(pixman_fixed_t y, int bpp);
 void pixman_edge_step(pixman_edge_t * e, int n);
-void pixman_edge_init(pixman_edge_t * e, int bpp,
-    pixman_fixed_t y_start, pixman_fixed_t x_top, pixman_fixed_t y_top, pixman_fixed_t x_bot, pixman_fixed_t y_bot);
+void pixman_edge_init(pixman_edge_t * e, int bpp, pixman_fixed_t y_start, pixman_fixed_t x_top, pixman_fixed_t y_top, pixman_fixed_t x_bot, pixman_fixed_t y_bot);
 void pixman_line_fixed_edge_init(pixman_edge_t * e, int bpp, pixman_fixed_t y, const pixman_line_fixed_t * line, int x_off, int y_off);
 void pixman_rasterize_edges(pixman_image_t * image, pixman_edge_t * l, pixman_edge_t * r, pixman_fixed_t t, pixman_fixed_t b);
 void pixman_add_traps(pixman_image_t * image, int16 x_off, int16 y_off, int ntrap, const pixman_trap_t * traps);

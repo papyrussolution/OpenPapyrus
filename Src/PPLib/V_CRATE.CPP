@@ -1,5 +1,5 @@
 // V_CRATE.CPP
-// Copyright (c) A.Sobolev 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -15,7 +15,7 @@ IMPLEMENT_PPFILT_FACTORY(CurRate); SLAPI CurRateFilt::CurRateFilt() : PPBaseFilt
 //
 //
 //
-SLAPI PPViewCurRate::PPViewCurRate() : PPView(0, &Filt)
+SLAPI PPViewCurRate::PPViewCurRate() : PPView(0, &Filt, 0)
 {
 }
 
@@ -122,7 +122,8 @@ int SLAPI PPViewCurRate::GetRate(const CurRateIdent * pIdent, double * pRate)
 		ASSIGN_PTR(pRate, rec.Rate);
 		return 1;
 	}
-	return -1;
+	else
+		return -1;
 }
 
 int SLAPI PPViewCurRate::AddItem(CurRateIdent * pIdent)

@@ -12,7 +12,7 @@ IMPLEMENT_PPFILT_FACTORY(UserProfile); SLAPI UserProfileFilt::UserProfileFilt() 
 	Init(1, 0);
 }
 
-SLAPI PPViewUserProfile::PPViewUserProfile() : PPView(0, &Filt), ParserBusy(0)
+SLAPI PPViewUserProfile::PPViewUserProfile() : PPView(0, &Filt, 0), ParserBusy(0)
 {
 	ImplementFlags |= implDontEditNullFilter; // @v8.1.4
 }

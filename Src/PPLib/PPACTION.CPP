@@ -249,6 +249,23 @@ int SLAPI SysJournal::GetLastObjModifEvent(PPID objType, PPID objID, LDATETIME *
 	return ok;
 }
 
+int SLAPI SysJournal::GetNextObjEvent(PPID objType, PPID objID, const PPIDArray * pActAry, const LDATETIME & rSince, SysJournalTbl::Rec * pRec)
+{
+	int    ok = -1;
+	SysJournalTbl::Key1 k;
+	k.ObjType = objType;
+	k.ObjID = objID;
+	k.Dt    = rSince.d;
+	k.Tm    = rSince.t;
+	if(search(1, &k, spGt) && data.ObjType == objType && data.ObjID == objID) do {
+		if(!SVectorBase::GetCount(pActAry) || pActAry->lsearch(data.Action)) {
+			copyBufTo(pRec);
+			ok = 1;
+		}
+	} while(ok < 0 && search(1, &k, spNext) && data.ObjType == objType && data.ObjID == objID);
+	return ok;
+}
+
 int SLAPI SysJournal::GetLastObjEvent(PPID objType, PPID objID, const PPIDArray * pActAry, LDATETIME * pMoment, SysJournalTbl::Rec * pRec)
 {
 	int    ok = -1;
@@ -376,7 +393,7 @@ int SLAPI SysJournal::IsEventExists(PPID objType, PPID objID, PPID userID, const
 	k.Tm    = MAXTIME;
 	if(search(1, &k, spLt) && k.ObjType == objType && k.ObjID == objID) {
 		do {
-			if((!userID || userID == data.UserID) && (!pActList || pActList->getCount() == 0 || pActList->lsearch(data.Action) > 0))
+			if((!userID || userID == data.UserID) && (!SVectorBase::GetCount(pActList) || pActList->lsearch(data.Action) > 0))
 				ok = 1;
 		} while(ok < 0 && search(1, &k, spPrev) && k.ObjType == objType && k.ObjID == objID);
 	}

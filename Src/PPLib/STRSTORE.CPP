@@ -101,19 +101,14 @@ void SLAPI StringStore2::ParseItem::Clear()
 	Code = 0;
 	SLang = 0;
 	Scope = 0;
-	GroupSymb = 0;
-	CodeSymb = 0;
-	Signature = 0;
-	Str = 0;
+	GroupSymb.Z();
+	CodeSymb.Z();
+	Signature.Z();
+	Str.Z();
 }
 
-SLAPI StringStore2::StringStore2()
+SLAPI StringStore2::StringStore2() : P_Pb(0), Flags(0), ErrCode(0), ActiveLanguage(0), P_SignatureHash(0)
 {
-	P_Pb = 0;
-	Flags = 0;
-	ErrCode = 0;
-	ActiveLanguage = 0;
-	P_SignatureHash = 0;
 }
 
 SLAPI StringStore2::~StringStore2()
@@ -122,10 +117,9 @@ SLAPI StringStore2::~StringStore2()
 	delete P_SignatureHash;
 }
 
-int SLAPI StringStore2::SetActiveLanguage(int slang)
+void SLAPI StringStore2::SetActiveLanguage(int slang)
 {
 	ActiveLanguage = slang;
-	return 1;
 }
 
 #ifndef SC2C // {

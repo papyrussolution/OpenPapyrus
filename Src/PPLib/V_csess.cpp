@@ -1,5 +1,5 @@
 // V_CSESS.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -23,12 +23,10 @@ CSessFilt & FASTCALL CSessFilt::operator = (const CSessFilt & src)
 //
 //
 //
-SLAPI CSessCrDraftParam::CSessCrDraftParam()
+SLAPI CSessCrDraftParam::CSessCrDraftParam() : Ver(0), RuleGrpID(0), RuleID(0), Flags(0)
 {
-	Ver = 0;
 	memzero(Reserve, sizeof(Reserve));
 	Period.SetZero();
-	RuleGrpID = RuleID = Flags = 0;
 }
 
 int SLAPI CSessCrDraftParam::Write(SBuffer & rBuf, long)
@@ -134,7 +132,7 @@ int SLAPI PPViewCSess::EditCreateDraftParam(CSessCrDraftParam * pParam) { DIALOG
 //
 //
 //
-SLAPI PPViewCSess::PPViewCSess() : PPView(0, &Filt), P_CSessIterQuery(0), P_TempTbl(0), P_TempOrd(0), P_SessAmtAry(0), CurrentViewOrder(ordByDefault)
+SLAPI PPViewCSess::PPViewCSess() : PPView(0, &Filt, PPVIEW_CSESS), P_CSessIterQuery(0), P_TempTbl(0), P_TempOrd(0), P_SessAmtAry(0), CurrentViewOrder(ordByDefault)
 {
 }
 
@@ -2125,9 +2123,8 @@ IMPLEMENT_PPFILT_FACTORY(CSessExc); SLAPI CSessExcFilt::CSessExcFilt() : PPBaseF
 	Init(1, 0);
 }
 
-SLAPI PPViewCSessExc::PPViewCSessExc() : PPView(0, &Filt, PPVIEW_CSESSEXC)
+SLAPI PPViewCSessExc::PPViewCSessExc() : PPView(0, &Filt, PPVIEW_CSESSEXC), P_TempTbl(0)
 {
-	P_TempTbl = 0;
 }
 
 SLAPI PPViewCSessExc::~PPViewCSessExc()

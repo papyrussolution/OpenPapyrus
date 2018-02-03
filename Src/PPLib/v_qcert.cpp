@@ -1,5 +1,5 @@
 // V_QCERT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -12,10 +12,8 @@ IMPLEMENT_PPFILT_FACTORY(QCert); SLAPI QCertFilt::QCertFilt() : PPBaseFilt(PPFIL
 	Init(1, 0);
 }
 
-SLAPI PPViewQCert::PPViewQCert() : PPView(&QcObj, &Filt)
+SLAPI PPViewQCert::PPViewQCert() : PPView(&QcObj, &Filt, 0), P_TempTbl(0), P_RcptT(&BillObj->trfr->Rcpt)
 {
-	P_RcptT = & BillObj->trfr->Rcpt;
-	P_TempTbl = 0;
 }
 
 SLAPI PPViewQCert::~PPViewQCert()

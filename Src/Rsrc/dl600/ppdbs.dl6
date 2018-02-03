@@ -4531,6 +4531,7 @@ file:
 //
 //
 //
+/* @v9.9.3
 table TempGoodsStruc { // Size=328
 	long   GoodsID;
 	long   StrucID;
@@ -4547,6 +4548,7 @@ file:
 	temporary;
 	acstable = "rusncase.alt";
 }
+*/
 //
 //
 //

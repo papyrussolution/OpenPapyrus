@@ -4291,6 +4291,7 @@ data OpGrouping {
 }
 //
 // GoodsStruc
+// @v9.9.3 Verification needed
 //
 data GoodsStruc {
 	declare "Destroy"
@@ -4300,20 +4301,35 @@ data GoodsStruc {
 	link   Global    Glb;
 	link   Goods     GoodsID; // Идентификатор товара, к которому относится структура
 	link   Warehouse LocID;   // Склад, для которого рассчитываются ожидаемые цены
-	string Name[30];          // Наименование структуры
+	link   GoodsStruc ParentID; // @v9.9.3 Родительская структура
+	string Name[48];          // Наименование структуры // @v9.9.3 [30]-->[48]
+	string Symb[20];          // @v9.9.3 Символ структуры
 	long   Flags;
 	int16  fAllowCompl;       // Допускает комплектацию
 	int16  fAllowDecompl;     // Допускает разукомплектацию
 	int16  fPartitial;        // Частичная структура
 	int16  fNamed;            // Именованная структура
-	int16  fUncertainPrice;   // Цена EstPrice не может быть вычислена правильно
-	// поскольку не известны цены на один или более компонентов структуры
+	int16  fUncertainPrice;   // Цена EstPrice не может быть вычислена правильно поскольку не известны цены на один или более компонентов структуры.
+	int16  fOutpWoVat;        // @v9.9.3 Выход без НДС
+	int16  fFolder;           // @v9.9.3 Структура верхнего уровня.
+	int16  fChild;            // @v9.9.3 Дочерняя структура (не может быть именованной)
+	int16  fAutoWrOff;        // @v9.9.3 Автоматическое списание в техн сессиях (исключен ручной ввод)
+	int16  fSubst;            // @v9.9.3 Структура подстановки (позиции, которые можно использовать вместо той, к которой относится структура)
+	int16  fPresent;          // @v9.9.3 Подарок
+	int16  fGiftPotential;    // @v9.9.3 Информировать кассира о близкой возможности предоставления подарка
+	int16  fComplex;          // @v9.9.3 Комплекс
+	int16  fPosModifier;      // @v9.9.3 POS-модификаторы (только в комбинации с fPartitial)
+	int16  fOverlapGift;      // @v9.9.3 Подарок с "перекрытием": такой подарок назначается независимо от того,
+		// что по некоторым позициям были выданы другие подарки. При этом два и более подарка с перекрытием взаимно исключаются.
+	int16  Reserve;           // @v9.9.3 @alignment
 	double CommDenom;         // Общий делитель для количества компонентов
 	long   ItemsCount;        // Количество элементов структуры
 	double EstPrice;          // Ожидаемая цена реализации товара,
 		// вычисленная исходя из цен компонентов
 	long   VariedPropObjType; // Тип объекта изменяющейся характиристики заголовочного
 		// товара структуры и элементов структуры.
+	date   PeriodLow;         // @v9.9.3 Начало периода действия структуры
+	date   PeriodUpp;         // @v9.9.3 Конец периода действия структуры
 	CurDt        = Glb.CurDate;
 	OrgName      = Glb.MainOrgName;
 	LocName      = LocID.Name;
@@ -4331,14 +4347,20 @@ data GoodsStruc {
 		int16  fRoundDown;      // Отбрасывать дробную часть в количестве
 		int16  fPhUnitVal;      // Количество задано в физических единицах
 		int16  fUncertainPrice; // Цена компонента не определена
+		int16  fAutoTsWrOff;    // @v9.9.3 Автосписание в технологических сессиях в случае, если этот товар не присутствует в строках сессии.
+		int16  fQttyAsPrice;    // @v9.9.3 Только для нелимитированных ресурсов. Количество устанавливать в 1, а цену в процентах от суммы основного товара.
+		int16  fMainItem;       // @v9.9.3 Основной компонент структуры (используется в производственных отчетах)
+		int16  fFormula;        // @v9.9.3 Компонент содержит формулу для расчета количества
+		int16  fSubPartStr;     // @v9.9.3 Вычитать количество этого компонента из количества основного товара применяя частичную структуру.
+		int16  fGoodsGroup;     // @v9.9.3 Вместо товара в поле PPGoodsStrucItem::GoodsID установлена товарная группа (для подарков)
+		int16  fIdentical;      // @v9.9.3 Для подарочных структур: заданное количество применимо только для одинаковых позиций.
+		int16  fQueryExpLot;    // @v9.9.3 При автоматическом внесении компонента в документ как расходной строки запрашивать выбор лота.
 		double Netto;           // Нетто (без отходов) количество компонента в составе структуры
 		double Median;          // Количество единиц компонента
 		double PerUnit;         // на PerUnit единиц составного товара
 		string CMedian[32];     //
-
 		double Price;           // Цена единицы компонента
 		double SumPerUnit;      // Стоимость компонента на единицу составного товара
-
 		ItemName       = ItemID.Name;          // Наименование компонента
 		ItemUnitName   = ItemID.UnitID.Name;   // Наименование торговой единицы измерения компонента
 		ItemPhUnitName = ItemID.PhUnitID.Name; // Наименование физической единицы измерения компонента
@@ -4347,6 +4369,7 @@ data GoodsStruc {
 //
 // PPViewGoodsStruc
 // Список товарных структур
+// @v9.9.3 Verification needed
 //
 data GoodsStrucList {
 	declare "Destroy"
@@ -4355,13 +4378,28 @@ data GoodsStrucList {
 	long   ID;                // Идентификатор структуры
 	link   Global    Glb;
 	link   Warehouse LocID;   // Склад, для которого рассчитываются ожидаемые цены
+	link   GoodsGroup FltPrmrGroupID; // @v9.9.3
+	link   Goods FltPrmrGoodsID;      // @v9.9.3
+	link   GoodsGroup FltScndGroupID; // @v9.9.3
+	link   Goods FltScndGoodsID;      // @v9.9.3
+	long   FltFlags; // @v9.9.3
 	CurDt   = Glb.CurDate;
 	OrgName = Glb.MainOrgName;
 	LocName = LocID.Name;
 	iteration {
 		link   GoodsStruc GsID;      // @v9.5.0
+		link   GoodsStruc ParentID;  // @v9.9.3 Родительская структура
 		link   Goods     GoodsID;    // Идентификатор товара, к которому относится структура
 		link   Goods     ItemID;
+		link   QuotKind  GiftQuotKindID; // @v9.9.3
+        double CommDenom;  // @v9.9.3
+        double GiftLimit;  // @v9.9.3
+        double GiftAmtRestrict; // @v9.9.3
+        double Median;     // @v9.9.3
+        double Denom;      // @v9.9.3
+        double Netto;      // @v9.9.3
+        long   StrucFlags; // @v9.9.3
+        long   ItemFlags;  // @v9.9.3
 		string GoodsName[128];
 		ItemName = ItemID.Name;      // Имя компонента
 		string SQtty[32];            //

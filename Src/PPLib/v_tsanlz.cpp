@@ -32,15 +32,8 @@ void SLAPI TSessAnlzFilt::SetOuterTSessFilt(const TSessionFilt * pTSesFilt)
 		ZDELETE(P_TSesFilt);
 }
 
-const TSessionFilt * SLAPI TSessAnlzFilt::GetOuterTSessFilt() const
-{
-	return P_TSesFilt;
-}
-
-int SLAPI TSessAnlzFilt::IsDiffFlag() const
-{
-	return (DiffPrc || DiffMg || DiffDt);
-}
+const TSessionFilt * SLAPI TSessAnlzFilt::GetOuterTSessFilt() const { return P_TSesFilt; }
+int SLAPI TSessAnlzFilt::IsDiffFlag() const { return (DiffPrc || DiffMg || DiffDt); }
 //
 //
 //
@@ -253,8 +246,7 @@ int SLAPI TSessAnlzList::SetRest(long dtVal, PPID prcID, PPID goodsID, double re
 	return ok;
 }
 
-int SLAPI TSessAnlzList::SetEntryVal(TSessAnlzEntry * pEntry, int planned, int sign,
-	double qtty, double compPart, int planPhUnit)
+int SLAPI TSessAnlzList::SetEntryVal(TSessAnlzEntry * pEntry, int planned, int sign, double qtty, double compPart, int planPhUnit)
 {
 	if(sign > 0)
 		if(planned == 1)
@@ -279,8 +271,7 @@ int SLAPI TSessAnlzList::SetEntryVal(TSessAnlzEntry * pEntry, int planned, int s
 	return 1;
 }
 
-int SLAPI TSessAnlzList::AddQtty(const AddQttyBlock & rBlk, int planned, int sign,
-	double qtty, double compPart, int planPhUnit)
+int SLAPI TSessAnlzList::AddQtty(const AddQttyBlock & rBlk, int planned, int sign, double qtty, double compPart, int planPhUnit)
 {
 	int    ok = 1;
 	uint   pos = 0;
@@ -325,9 +316,9 @@ int SLAPI TSessAnlzList::ProcessCompParts()
 		double Out;
 	};
 	uint   i, pos;
-	SArray total_list(sizeof(E));
+	SVector total_list(sizeof(E)); // @v9.9.3 SArray-->SVector
 	TSessAnlzEntry * p_entry;
-	for(i = 0; enumItems(&i, (void **)&p_entry);)
+	for(i = 0; enumItems(&i, (void **)&p_entry);) {
 		if(total_list.lsearch(&p_entry->PrmrGoodsID, &(pos = 0), CMPF_LONG)) {
 			E * p_e = (E *)total_list.at(pos);
 			p_e->In  += p_entry->InCompPart;
@@ -340,6 +331,7 @@ int SLAPI TSessAnlzList::ProcessCompParts()
 			e.Out = p_entry->OutCompPart;
 			total_list.insert(&e);
 		}
+	}
 	for(i = 0; enumItems(&i, (void **)&p_entry);) {
 		if(total_list.lsearch(&p_entry->PrmrGoodsID, &(pos = 0), CMPF_LONG)) {
 			E * p_e2 = (E *)total_list.at(pos);
@@ -354,9 +346,8 @@ int SLAPI TSessAnlzList::ProcessCompParts()
 //
 //
 //
-SLAPI PPViewTSessAnlz::PPViewTSessAnlz() : PPView(0, &Filt)
+SLAPI PPViewTSessAnlz::PPViewTSessAnlz() : PPView(0, &Filt, PPVIEW_TSESSANLZ), P_TempTbl(0)
 {
-	P_TempTbl = 0;
 }
 
 SLAPI PPViewTSessAnlz::~PPViewTSessAnlz()

@@ -4189,8 +4189,7 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 					dlg->getCtrlData(CTLSEL_SELQUOT2_KIND, &qk_id);
 					valid_data = 1;
 				}
-				delete dlg;
-				dlg = 0;
+				ZDELETE(dlg);
 				def = 0;
 				p_qbo_ary = 0;
 			}
@@ -4247,11 +4246,10 @@ int SLAPI PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 	CATCHZOKPPERR
 	if(dlg)
 		delete dlg;
+	else if(def)
+		delete def;
 	else
-		if(def)
-			delete def;
-		else
-			delete p_qbo_ary;
+		delete p_qbo_ary;
 	return ok;
 }
 //
@@ -4275,8 +4273,7 @@ public:
 	};
 	SLAPI  BillCache() : ObjCacheHash(PPOBJ_BILL, sizeof(Data),
 		(DS.CheckExtFlag(ECF_SYSSERVICE) ? (12*1024*1024) : (4*1024U*1024U)),
-		(DS.CheckExtFlag(ECF_SYSSERVICE) ? 16 : 12)),
-		FullSerialList(1)
+		(DS.CheckExtFlag(ECF_SYSSERVICE) ? 16 : 12)), FullSerialList(1)
 	{
 	}
 	virtual int FASTCALL Dirty(PPID id); // @sync_w
@@ -5181,15 +5178,8 @@ int PPObjBill::PplBlock::AddPaymOpList(const PPIDArray & rOpList)
 		return -1;
 }
 
-int FASTCALL PPObjBill::PplBlock::CheckOp(PPID opID) const
-{
-	return BIN(!(Flags & fUseOpList) || OpList.lsearch(opID));
-}
-
-int FASTCALL PPObjBill::PplBlock::CheckPaymOp(PPID opID) const
-{
-	return BIN(!(Flags & fUsePaymOpList) || PaymOpList.lsearch(opID));
-}
+int FASTCALL PPObjBill::PplBlock::CheckOp(PPID opID) const { return BIN(!(Flags & fUseOpList) || OpList.lsearch(opID)); }
+int FASTCALL PPObjBill::PplBlock::CheckPaymOp(PPID opID) const { return BIN(!(Flags & fUsePaymOpList) || PaymOpList.lsearch(opID)); }
 
 void FASTCALL PPObjBill::PplBlock::AddPaym(const BillTbl::Rec & rRec)
 {

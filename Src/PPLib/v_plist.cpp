@@ -21,20 +21,9 @@ SLAPI PriceListCore::PriceListCore() : PriceListTbl()
 {
 }
 
-int SLAPI PriceListCore::Search(PPID id, void * b)
-{
-	return SearchByID(this, PPOBJ_PRICELIST, id, b);
-}
-
-int SLAPI PriceListCore::Add(PPID * pID, void * b, int use_ta)
-{
-	return AddByID(this, pID, b, use_ta);
-}
-
-int SLAPI PriceListCore::Update(PPID id, void * b, int use_ta)
-{
-	return UpdateByID(this, 0, id, b, use_ta);
-}
+int SLAPI PriceListCore::Search(PPID id, void * b) { return SearchByID(this, PPOBJ_PRICELIST, id, b); }
+int SLAPI PriceListCore::Add(PPID * pID, void * b, int use_ta) { return AddByID(this, pID, b, use_ta); }
+int SLAPI PriceListCore::Update(PPID id, void * b, int use_ta) { return UpdateByID(this, 0, id, b, use_ta); }
 
 int SLAPI PriceListCore::Remove(PPID id, int use_ta)
 {
@@ -235,7 +224,7 @@ int SLAPI PriceListFilt::Setup()
 //   LocID = LConfig.Location
 //   UserID = -1;
 //
-SLAPI PPViewPriceList::PPViewPriceList() : PPView(0, &Filt), P_BObj(BillObj), P_GGIter(0), P_TempTbl(0), State(0), NewGoodsGrpID(0)
+SLAPI PPViewPriceList::PPViewPriceList() : PPView(0, &Filt, PPVIEW_PRICELIST), P_BObj(BillObj), P_GGIter(0), P_TempTbl(0), State(0), NewGoodsGrpID(0)
 {
 	MEMSZERO(Cfg);
 }

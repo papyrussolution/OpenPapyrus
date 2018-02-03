@@ -261,8 +261,8 @@ cairo_box_t * _cairo_region_get_boxes(const cairo_region_t * region, int * nbox)
 		nbox = 0;
 		return NULL;
 	}
-
-	return (cairo_box_t*)pixman_region32_rectangles(CONST_CAST &region->rgn, nbox);
+	else
+		return (cairo_box_t*)pixman_region32_rectangles(CONST_CAST &region->rgn, nbox);
 }
 
 /**
@@ -309,20 +309,15 @@ slim_hidden_def(cairo_region_create_rectangle);
 cairo_region_t * cairo_region_copy(const cairo_region_t * original)
 {
 	cairo_region_t * copy;
-
-	if(original != NULL && original->status)
+	if(original && original->status)
 		return (cairo_region_t*)&_cairo_region_nil;
-
 	copy = cairo_region_create();
 	if(unlikely(copy->status))
 		return copy;
-
-	if(original != NULL &&
-	    !pixman_region32_copy(&copy->rgn, CONST_CAST &original->rgn)) {
+	if(original && !pixman_region32_copy(&copy->rgn, CONST_CAST &original->rgn)) {
 		cairo_region_destroy(copy);
 		return (cairo_region_t*)&_cairo_region_nil;
 	}
-
 	return copy;
 }
 

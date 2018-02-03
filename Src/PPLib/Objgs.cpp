@@ -43,10 +43,12 @@ void SLAPI PPGoodsStruc::Init()
 	Childs.freeAll();
 }
 
-int SLAPI PPGoodsStruc::IsEmpty() const
-{
-	return (Items.getCount() || Childs.getCount()) ? 0 : 1;
-}
+int    SLAPI PPGoodsStruc::IsEmpty() const { return (Items.getCount() || Childs.getCount()) ? 0 : 1; }
+int    SLAPI PPGoodsStruc::IsNamed() const { return BIN(Rec.Flags & GSF_NAMED); }
+int    SLAPI PPGoodsStruc::CanExpand() const { return (Rec.Flags & (GSF_CHILD|GSF_FOLDER)) ? 0 : 1; }
+int    SLAPI PPGoodsStruc::CanReduce() const { return (Rec.Flags & GSF_FOLDER && Childs.getCount() <= 1) ? 1 : 0; }
+double SLAPI PPGoodsStruc::GetDenom() const { return (Rec.CommDenom != 0.0 && Rec.CommDenom != 1.0) ? Rec.CommDenom : 1.0; }
+int    SLAPI PPGoodsStruc::MoveItem(uint pos, int dir  /* 0 - down, 1 - up */, uint * pNewPos) { return Items.moveItem(pos, dir, pNewPos); }
 
 int FASTCALL PPGoodsStruc::IsEqual(const PPGoodsStruc & rS) const
 {
@@ -100,11 +102,6 @@ int FASTCALL PPGoodsStruc::IsEqual(const PPGoodsStruc & rS) const
 	return eq;
 }
 
-int SLAPI PPGoodsStruc::IsNamed() const
-{
-	return BIN(Rec.Flags & GSF_NAMED);
-}
-
 int SLAPI PPGoodsStruc::SetKind(int kind)
 {
 	int    ok = 1;
@@ -144,9 +141,27 @@ int SLAPI PPGoodsStruc::SetKind(int kind)
 	return ok;
 }
 
+//static 
+int FASTCALL PPGoodsStruc::GetStrucKind(long flags)
+{
+	if(flags & GSF_COMPLEX)
+		return kComplex;
+	else if(flags & GSF_PRESENT)
+		return kGift;
+	else if(flags & GSF_SUBST)
+		return kSubst;
+	else if(flags & GSF_PARTITIAL)
+		return kPart;
+	else if(flags & (GSF_COMPL|GSF_DECOMPL))
+		return kBOM;
+	else
+		return kUndef;
+}
+
 int SLAPI PPGoodsStruc::GetKind() const
 {
-	if(Rec.Flags & GSF_COMPLEX)
+	return PPGoodsStruc::GetStrucKind(Rec.Flags);
+	/*if(Rec.Flags & GSF_COMPLEX)
 		return kComplex;
 	else if(Rec.Flags & GSF_PRESENT)
 		return kGift;
@@ -157,12 +172,34 @@ int SLAPI PPGoodsStruc::GetKind() const
 	else if(Rec.Flags & (GSF_COMPL|GSF_DECOMPL))
 		return kBOM;
 	else
-		return kUndef;
+		return kUndef;*/
+}
+
+//static 
+SString & SLAPI PPGoodsStruc::MakeTypeString(PPID strucID, long flags, PPID parentStrucID, SString & rBuf)
+{
+	rBuf.Z();
+	if(strucID)
+		rBuf.CatChar('E');
+	if(flags & GSF_COMPL)
+		rBuf.CatChar('C');
+	if(flags & GSF_DECOMPL)
+		rBuf.CatChar('D');
+	if(flags & GSF_PARTITIAL)
+		rBuf.CatChar('P');
+	if(flags & GSF_SUBST)
+		rBuf.CatChar('S');
+	if(flags & GSF_PRESENT)
+		rBuf.CatChar('G');
+	if(parentStrucID)
+		rBuf.CatChar('F');
+	return rBuf;
 }
 
 SString & FASTCALL PPGoodsStruc::GetTypeString(SString & rBuf) const
 {
-	rBuf.Z();
+	return PPGoodsStruc::MakeTypeString(Rec.ID, Rec.Flags, Rec.ParentID, rBuf);
+	/*rBuf.Z();
 	if(Rec.ID)
 		rBuf.CatChar('E');
 	if(Rec.Flags & GSF_COMPL)
@@ -177,17 +214,7 @@ SString & FASTCALL PPGoodsStruc::GetTypeString(SString & rBuf) const
 		rBuf.CatChar('G');
 	if(Rec.ParentID)
 		rBuf.CatChar('F');
-	return rBuf;
-}
-
-int SLAPI PPGoodsStruc::CanExpand() const
-{
-	return (Rec.Flags & (GSF_CHILD|GSF_FOLDER)) ? 0 : 1;
-}
-
-int SLAPI PPGoodsStruc::CanReduce() const
-{
-	return (Rec.Flags & GSF_FOLDER && Childs.getCount() <= 1) ? 1 : 0;
+	return rBuf;*/
 }
 
 int SLAPI PPGoodsStruc::Select(const Ident * pIdent, PPGoodsStruc * pGs) const
@@ -449,11 +476,6 @@ int SLAPI PPGoodsStruc::CopyItemsFrom(const PPGoodsStruc * pS)
 	return ok;
 }
 
-int SLAPI PPGoodsStruc::MoveItem(uint pos, int dir  /* 0 - down, 1 - up */, uint * pNewPos)
-{
-	return Items.moveItem(pos, dir, pNewPos);
-}
-
 int SLAPI PPGoodsStruc::SubstVariedProp(PPID parentGoodsID, PPGoodsStrucItem * pItem) const
 {
 	int    ok = -1;
@@ -520,11 +542,6 @@ int SLAPI PPGoodsStruc::SubstVariedProp(PPID parentGoodsID, PPGoodsStrucItem * p
 	return ok;
 }
 
-double SLAPI PPGoodsStruc::GetDenom() const
-{
-	return (Rec.CommDenom != 0.0 && Rec.CommDenom != 1.0) ? Rec.CommDenom : 1.0;
-}
-
 int SLAPI PPGoodsStruc::EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID parentGoodsID, double srcQtty, double * pQtty) const
 {
 	int    ok = -1;
@@ -546,8 +563,7 @@ int SLAPI PPGoodsStruc::EnumItemsExt(uint * pPos, PPGoodsStrucItem * pItem, PPID
 
 SString & SLAPI PPGoodsStruc::MakeChildDefaultName(SString & rBuf) const
 {
-	rBuf.Z().Cat("BOM").Space().CatChar('#').Cat(Childs.getCount()+1);
-	return rBuf;
+	return rBuf.Z().Cat("BOM").Space().CatChar('#').Cat(Childs.getCount()+1);
 }
 
 int SLAPI PPGoodsStruc::Expand()
@@ -656,7 +672,7 @@ static int SLAPI IsNumber(const char * pStr, size_t * pPos)
 }
 
 //static
-int SLAPI PPGoodsStruc::IsSimpleQttyString(const char * pStr)
+int FASTCALL PPGoodsStruc::IsSimpleQttyString(const char * pStr)
 {
 	size_t pos = 0;
 	if(IsNumber(pStr, &pos)) {
@@ -701,15 +717,8 @@ int FASTCALL PPGoodsStrucItem::IsEqual(const PPGoodsStrucItem & rS) const
 	return 1;
 }
 
-int FASTCALL PPGoodsStrucItem::operator == (const PPGoodsStrucItem & rS) const
-{
-	return IsEqual(rS);
-}
-
-int FASTCALL PPGoodsStrucItem::operator != (const PPGoodsStrucItem & rS) const
-{
-	return !IsEqual(rS);
-}
+int FASTCALL PPGoodsStrucItem::operator == (const PPGoodsStrucItem & rS) const { return IsEqual(rS); }
+int FASTCALL PPGoodsStrucItem::operator != (const PPGoodsStrucItem & rS) const { return !IsEqual(rS); }
 
 int SLAPI PPGoodsStrucItem::SetFormula(const char * pStr, const PPGoodsStruc * pStruc)
 {
@@ -752,14 +761,15 @@ int SLAPI PPGoodsStrucItem::SetEstimationString(const char * pStr)
 	return ok;
 }
 
-SString & SLAPI PPGoodsStrucItem::GetEstimationString(SString & rBuf, long format)
+SString & SLAPI PPGoodsStrucItem::GetEstimationString(SString & rBuf, long format) const
 {
-	rBuf.Z();
+	return PPGoodsStrucItem::MakeEstimationString(Median, Denom, rBuf, format);
+	/*rBuf.Z();
 	long   fmt = NZOR(format, MKSFMTD(0, 6, NMBF_NOTRAILZ));
 	rBuf.Cat(Median, fmt);
 	if(Denom != 0 && Denom != 1)
 		rBuf.CatChar('/').Cat(Denom, fmt);
-	return rBuf;
+	return rBuf;*/
 }
 
 int SLAPI PPGoodsStrucItem::GetQttyAsPrice(double complPriceSum, double * pItemPrice) const
@@ -779,8 +789,46 @@ int SLAPI PPGoodsStrucItem::GetQttyAsPrice(double complPriceSum, double * pItemP
 	return ok;
 }
 
+// static
+int FASTCALL PPGoodsStrucItem::GetEffectiveQuantity(double complQtty, PPID goodsID, double median, double denom, long flags, double * pItemQtty)
+{
+	int    ok = 1;
+	double qtty = complQtty * median;
+	if(denom != 0.0 && denom != 1.0)
+		qtty /= denom;
+	if(flags & GSIF_PCTVAL)
+		qtty = fdiv100r(qtty);
+	else if(flags & GSIF_PHUVAL) {
+		PPObjGoods goods_obj;
+		double phuperu;
+		if(goods_obj.GetPhUPerU(goodsID, 0, &phuperu) > 0)
+			qtty /= phuperu;
+	}
+	else if(flags & GSIF_QTTYASPRICE) {
+		qtty = 1.0;
+		ok = 2;
+	}
+	if(flags & GSIF_ROUNDDOWN)
+		qtty = floor(qtty);
+	ASSIGN_PTR(pItemQtty, R6(qtty));
+	return ok;
+}
+
+//static 
+SString & FASTCALL PPGoodsStrucItem::MakeEstimationString(double median, double denom, SString & rBuf, long format)
+{
+	rBuf.Z();
+	long   fmt = NZOR(format, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+	rBuf.Cat(median, fmt);
+	if(denom != 0.0 && denom != 1.0)
+		rBuf.CatChar('/').Cat(denom, fmt);
+	return rBuf;
+}
+
 int SLAPI PPGoodsStrucItem::GetQtty(double complQtty, double * pItemQtty) const
 {
+	return GetEffectiveQuantity(complQtty, GoodsID, Median, Denom, Flags, pItemQtty);
+	/*
 	int    ok = 1;
 	double qtty = complQtty * Median;
 	if(Denom != 0.0 && Denom != 1.0)
@@ -801,6 +849,7 @@ int SLAPI PPGoodsStrucItem::GetQtty(double complQtty, double * pItemQtty) const
 		qtty = floor(qtty);
 	ASSIGN_PTR(pItemQtty, R6(qtty));
 	return ok;
+	*/
 }
 //
 //
@@ -2745,15 +2794,8 @@ int FASTCALL SaGiftArray::Gift::IsEqualForResult(const Gift & rS) const
 	return eq;
 }
 
-void FASTCALL SaGiftArray::Gift::PreservePotential(SaGiftArray::Potential & rS) const
-{
-	rS = Pot;
-}
-
-void FASTCALL SaGiftArray::Gift::RestorePotential(const SaGiftArray::Potential & rS)
-{
-	Pot = rS;
-}
+void FASTCALL SaGiftArray::Gift::PreservePotential(SaGiftArray::Potential & rS) const { rS = Pot; }
+void FASTCALL SaGiftArray::Gift::RestorePotential(const SaGiftArray::Potential & rS) { Pot = rS; }
 
 SaGiftArray::SaGiftArray() : TSCollection <SaGiftItem>()
 {
@@ -3003,9 +3045,8 @@ int SLAPI PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 //
 class GoodsStrucCache : public ObjCache {
 public:
-	SLAPI  GoodsStrucCache() : ObjCache(PPOBJ_GOODSSTRUC, sizeof(D))
+	SLAPI  GoodsStrucCache() : ObjCache(PPOBJ_GOODSSTRUC, sizeof(D)), P_GiftList(0)
 	{
-		P_GiftList = 0;
 	}
 	SLAPI ~GoodsStrucCache()
 	{

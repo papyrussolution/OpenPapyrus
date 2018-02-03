@@ -86,7 +86,7 @@ PPViewTSession::IterBlock & FASTCALL PPViewTSession::IterBlock::Init(int order)
 	return *this;
 }
 //
-SLAPI PPViewTSession::PPViewTSession() : PPView(&TSesObj, &Filt), P_TempTbl(0), P_LastAnlzFilt(0), P_UhttsPack(0), State(0)
+SLAPI PPViewTSession::PPViewTSession() : PPView(&TSesObj, &Filt, PPVIEW_TSESSION), P_TempTbl(0), P_LastAnlzFilt(0), P_UhttsPack(0), State(0)
 {
 	ImplementFlags |= implOnAddSetupPos;
 }
@@ -1318,7 +1318,7 @@ int SLAPI TSessLineFilt::Init()
 	return 1;
 }
 
-SLAPI PPViewTSessLine::PPViewTSessLine() : P_TempTbl(0), NewGoodsGrpID(0)
+SLAPI PPViewTSessLine::PPViewTSessLine() : PPView(0, 0, 0), P_TempTbl(0), NewGoodsGrpID(0)
 {
 }
 

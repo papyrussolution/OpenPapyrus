@@ -75,21 +75,20 @@ COLORREF HSV::ToRGB()
 HSV RGBToHSV(COLORREF rgb)
 {
 	int    r = GetRValue(rgb), g = GetGValue(rgb), b = GetBValue(rgb);
-	double min = 0, max = 0, delta = 0, temp = 0;
+	double temp = 0.0;
 	HSV    hsv;
-	min = __min(r, __min(g, b));
-	max = __max(r, __max(g, b));
-	delta = max - min;
-
-	hsv.V = (int)max;
+	const double min_comp = MIN(r, MIN(g, b));
+	const double max_comp = MAX(r, MAX(g, b));
+	const double delta = max_comp - min_comp;
+	hsv.V = (int)max_comp;
 	if(!delta)
 		hsv.H = hsv.S = 0;
 	else {
-		temp = (max != 0) ? delta / max : 0;
+		temp = (max_comp != 0) ? delta / max_comp : 0;
 		hsv.S = (int)(temp * 255);
-		if(r == (int)max)
+		if(r == (int)max_comp)
 			temp = (double)(g - b)/delta;
-		else if(g == (int)max)
+		else if(g == (int)max_comp)
 			temp = 2.0 + ((double)(b - r)/delta);
 		else
 			temp = 4.0 + ((double)(r - g)/delta);
@@ -129,15 +128,14 @@ POINT PointOnLine(POINT pt1, POINT pt2, int len, int maxlen)
 {
 	POINT ret;
 	if(pt1.x != pt2.x) {
-		double x = 0, k = (double)CALC_LINE_K(pt1, pt2), y = 0, b = CALC_LINE_B(pt1, k), D = 0, A = 0, C = 0, B = 0;
+		double k = (double)CALC_LINE_K(pt1, pt2), b = CALC_LINE_B(pt1, k);
 		double x1 = (double)pt1.x, y1 = (double)pt1.y;
-
-		A = k * k + 1;
-		B = 2 * k * b - 2 * k * y1 - 2 * x1;
-		C = b * b - 2 * b * y1 + y1 * y1 + x1 * x1 - len * len;
-		D = round(B * B - 4 * A * C, 4);
-		x = (-B + sqrt(D)) / (2 * A);
-		y = k * x + b;
+		double A = k * k + 1;
+		double B = 2 * k * b - 2 * k * y1 - 2 * x1;
+		double C = b * b - 2 * b * y1 + y1 * y1 + x1 * x1 - len * len;
+		double D = round(B * B - 4 * A * C, 4);
+		double x = (-B + sqrt(D)) / (2 * A);
+		double y = k * x + b;
 		ret.x = (long)x;
 		ret.y = (long)y;
 		if(DISTANCE(ret, pt1) > maxlen || DISTANCE(ret, pt2) > maxlen) {
@@ -308,7 +306,6 @@ void PPColorPickerDialog::SetRGBCtrls(COLORREF c)
 
 int PPColorPickerDialog::setDTS(const long * pColor)
 {
-	SString path;
 	Data = pColor ? ((COLORREF)*pColor) : GetColorRef(SClrWhite);
 	OldColor = Data;
 	SetRGBCtrls(Data);
