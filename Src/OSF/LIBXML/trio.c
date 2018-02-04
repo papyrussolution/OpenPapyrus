@@ -125,13 +125,13 @@ typedef unsigned long trio_flags_t;
 // Platform specific definitions
 // 
 #if defined(TRIO_PLATFORM_UNIX) || defined(TRIO_PLATFORM_OS400)
-	#include <unistd.h>
+	//#include <unistd.h>
 	#include <signal.h>
 	#include <locale.h>
 	#define USE_LOCALE
 #endif
 #if defined(TRIO_PLATFORM_VMS)
-	#include <unistd.h>
+	//#include <unistd.h>
 #endif
 #if defined(TRIO_PLATFORM_WIN32)
 	#if defined(_WIN32_WCE)

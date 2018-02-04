@@ -1,5 +1,5 @@
 // LOCATION.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018
 // @Kernel
 //
 // Implementation of class LocationCore
@@ -9,17 +9,6 @@
 //
 //
 //
-/* @v8.1.9
-SLAPI LocationFilt::LocationFilt(PPID locType, PPID ownerID, PPID parentID)
-{
-	LocType = locType;
-	Owner = ownerID;
-	Parent = parentID;
-	CurrID = 0;
-	GoodsID = 0;
-}
-*/
-
 IMPLEMENT_PPFILT_FACTORY(Location); SLAPI LocationFilt::LocationFilt(PPID locType, PPID ownerID, PPID parentID) : PPBaseFilt(PPFILT_LOCATION, 0, 0)
 {
 	SetFlatChunk(offsetof(LocationFilt, ReserveStart),
@@ -115,9 +104,9 @@ int FASTCALL LocationCore::IsEqualRec(const LocationTbl::Rec & rRec1, const Loca
 	CMP_FLD(X);
 	CMP_FLD(Y);
 	CMP_FLD(Z);
-	if(strcmp(rRec1.Name, rRec2.Name) != 0)
+	if(!sstreq(rRec1.Name, rRec2.Name))
 		return 0;
-	if(strcmp(rRec1.Code, rRec2.Code) != 0)
+	if(!sstreq(rRec1.Code, rRec2.Code))
 		return 0;
 	{
 		SString buf1, buf2;
@@ -147,9 +136,11 @@ int FASTCALL LocationCore::GetExField(const LocationTbl::Rec * pRec, int fldId, 
 {
 	int    ok = -1;
 	rBuf.Z();
-	if(oneof6(fldId, LOCEXSTR_ZIP, LOCEXSTR_SHORTADDR, LOCEXSTR_FULLADDR, LOCEXSTR_EMAIL, LOCEXSTR_PHONE, LOCEXSTR_CONTACT) || fldId > LOCEXSTR_EXTFLDSOFFS) {
-		const SString temp_buf = pRec->Tail;
-		ok = PPGetExtStrData(fldId, temp_buf, rBuf);
+	if(pRec && pRec->Tail[0]) {
+		if(oneof6(fldId, LOCEXSTR_ZIP, LOCEXSTR_SHORTADDR, LOCEXSTR_FULLADDR, LOCEXSTR_EMAIL, LOCEXSTR_PHONE, LOCEXSTR_CONTACT) || fldId > LOCEXSTR_EXTFLDSOFFS) {
+			const SString temp_buf = pRec->Tail;
+			ok = PPGetExtStrData(fldId, temp_buf, rBuf);
+		}
 	}
 	return ok;
 }
@@ -252,7 +243,7 @@ int SLAPI LocationCore::Helper_GetCodeByTempl(const char * pPrfx, const char * p
 	q.select(this->Code, 0).where(this->Code >= k_low.Code && this->Code <= k_upp.Code);
 	k5 = k_low;
 	for(q.initIteration(0, &k5, spGe); !ok && q.nextIteration() > 0;) {
-		char   temp_buf[32];
+		char   temp_buf[128];
 		STRNSCPY(temp_buf, data.Code);
 		if(strlen(temp_buf) == (code_len+BIN(addChkDig))) {
 			val_str = temp_buf+strlen(pPrfx);
@@ -384,7 +375,6 @@ int SLAPI LocationCore::Add(PPID * pID, LocationTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
 	{
-		SString temp_buf;
 		PPTransaction tra(use_ta);
 		long   c = MAXLONG;
 		THROW(tra);
@@ -395,6 +385,7 @@ int SLAPI LocationCore::Add(PPID * pID, LocationTbl::Rec * pRec, int use_ta)
 		pRec->Counter = c;
 		THROW(AddObjRecByID(this, PPOBJ_LOCATION, pID, pRec, 0));
 		if(CConfig.Flags2 & CCFLG2_INDEXEADDR) {
+			SString temp_buf;
 			GetExField(pRec, LOCEXSTR_PHONE, temp_buf);
 			PPObjID objid;
 			objid.Set(PPOBJ_LOCATION, *pID);
@@ -445,33 +436,25 @@ int SLAPI LocationCore::GetTypeDescription(int locType, LocTypeDescr * pDescr)
 	d.Flags = 0;
 	d.Name = 0;
 	switch(locType) {
-		case LOCTYP_WAREHOUSE:
-			d.ParentLocType = LOCTYP_WAREHOUSEGROUP;
-			break;
+		case LOCTYP_WAREHOUSE: d.ParentLocType = LOCTYP_WAREHOUSEGROUP; break;
+		case LOCTYP_DIVISION: d.ParentLocType = LOCTYP_WAREHOUSE; break;
+		case LOCTYP_WAREHOUSEGROUP: d.ParentLocType = LOCTYP_WAREHOUSEGROUP; break;
+		case LOCTYP_ADDRESS: d.ParentLocType = 0; break;
 		case LOCTYP_WHZONE:
 			d.ParentLocType = LOCTYP_WAREHOUSE;
-			d.Flags |= (LocTypeDescr::fParentRequired | LocTypeDescr::fCodeRequired);
+			d.Flags |= (LocTypeDescr::fParentRequired|LocTypeDescr::fCodeRequired);
 			break;
 		case LOCTYP_WHCOLUMN:
 			d.ParentLocType = LOCTYP_WHZONE;
-			d.Flags |= (LocTypeDescr::fParentRequired | LocTypeDescr::fCodeRequired);
+			d.Flags |= (LocTypeDescr::fParentRequired|LocTypeDescr::fCodeRequired);
 			break;
 		case LOCTYP_WHCELL:
 			d.ParentLocType = LOCTYP_WHCOLUMN;
-			d.Flags |= (LocTypeDescr::fParentRequired | LocTypeDescr::fCodeRequired);
+			d.Flags |= (LocTypeDescr::fParentRequired|LocTypeDescr::fCodeRequired);
 			break;
 		case LOCTYP_WHCELLAUTOGEN:
 			d.ParentLocType = LOCTYP_WHCOLUMN;
 			d.Flags |= (LocTypeDescr::fParentRequired);
-			break;
-		case LOCTYP_DIVISION:
-			d.ParentLocType = LOCTYP_WAREHOUSE;
-			break;
-		case LOCTYP_WAREHOUSEGROUP:
-			d.ParentLocType = LOCTYP_WAREHOUSEGROUP;
-			break;
-		case LOCTYP_ADDRESS:
-			d.ParentLocType = 0;
 			break;
 		default:
 			ok = PPSetError(PPERR_INVLOCTYP);
@@ -601,24 +584,13 @@ int SLAPI LocationCore::IndexPhone(const char * pPhone, const PPObjID * pObjId, 
 }
 
 int SLAPI LocationCore::SearchPhoneIndex(const char * pPhone, long options, LongArray & rResultList)
-{
-	return P_Eac ? P_Eac->SearchPhone(pPhone, options, rResultList) : -1;
-}
-
+	{ return P_Eac ? P_Eac->SearchPhone(pPhone, options, rResultList) : -1; }
 int SLAPI LocationCore::GetEAddr(PPID id, EAddrTbl::Rec * pRec)
-{
-	return P_Eac ? P_Eac->Search(id, pRec) : -1;
-}
-
+	{ return P_Eac ? P_Eac->Search(id, pRec) : -1; }
 int SLAPI LocationCore::SearchEAddrByLink(PPID objType, PPID objID, PPIDArray & rResultList)
-{
-	return P_Eac ? P_Eac->SearchLink(objType, objID, rResultList) : -1;
-}
-
+	{ return P_Eac ? P_Eac->SearchLink(objType, objID, rResultList) : -1; }
 int SLAPI LocationCore::SearchEAddrMaxLikePhone(const char * pPhonePattern, long options, LongArray & rResult)
-{
-    return P_Eac ? P_Eac->SearchMaxLikePhone(pPhonePattern, options, rResult) : -1;
-}
+	{ return P_Eac ? P_Eac->SearchMaxLikePhone(pPhonePattern, options, rResult) : -1; }
 
 int SLAPI LocationCore::GetFullEaList(StrAssocArray & rList)
 {
@@ -631,11 +603,9 @@ int SLAPI LocationCore::GetFullEaList(StrAssocArray & rList)
 		q.select(P_Eac->ID, P_Eac->LinkObjType, P_Eac->LinkObjID, P_Eac->Addr, 0L);
 		MEMSZERO(k1);
 		for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
-			phone_buf = 0;
 			((PPEAddr *)P_Eac->data.Addr)->GetPhone(phone_buf);
-			if(phone_buf.NotEmpty()) {
+			if(phone_buf.NotEmpty())
 				THROW_SL(rList.AddFast(P_Eac->data.ID, phone_buf));
-			}
 		}
 	}
 	else
@@ -763,7 +733,7 @@ SString & FASTCALL PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, SString 
 			rResult.CatChar('+');
 		else if(!oneof9(c, ' ', '-', '(', ')', 't', 'T', 'w', 'W', '+')) {
 			//
-			//  ак только встречаем символ, отличный от перечилсенных - выходим: далее может следовать текст
+			//  ак только встречаем символ, отличный от перечисленных - выходим: далее может следовать текст
 			// комментари€ к телефону.
 			//
 			break;
@@ -777,16 +747,16 @@ int FASTCALL PPEAddr::Phone::FromStr(const char * pStr)
 	assert(EADDR_PHONE_MAXCHAR % 2 == 0);
 
 	int    ok = 1;
-	SString temp_buf;
-	NormalizeStr(pStr, temp_buf);
-	size_t diff = temp_buf.Strip().Len();
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	NormalizeStr(pStr, r_temp_buf);
+	size_t diff = r_temp_buf.Strip().Len();
 	diff = (EADDR_PHONE_MAXCHAR > diff) ? (EADDR_PHONE_MAXCHAR - diff) : 0;
 	if(diff)
-		temp_buf.PadLeft(diff, '0');
-	assert(temp_buf.Len() == EADDR_PHONE_MAXCHAR);
+		r_temp_buf.PadLeft(diff, '0');
+	assert(r_temp_buf.Len() == EADDR_PHONE_MAXCHAR);
 	for(size_t i = 0; i < EADDR_PHONE_MAXCHAR; i+=2) {
-		const char c1 = temp_buf.C(i);
-		const char c2 = temp_buf.C(i+1);
+		const char c1 = r_temp_buf.C(i);
+		const char c2 = r_temp_buf.C(i+1);
 		const uint8 d1 = isdec(c1) ? (c1 - '0') : ((c1 == '+') ? 0x0A : ((c1 == 't') ? 0x0B : 0x0F));
 		const uint8 d2 = isdec(c2) ? (c2 - '0') : ((c2 == '+') ? 0x0A : ((c2 == 't') ? 0x0B : 0x0F));
 		assert(d1 != 0x0F && d2 != 0x0F);
@@ -797,7 +767,7 @@ int FASTCALL PPEAddr::Phone::FromStr(const char * pStr)
 //
 //
 //
-int PPEAddr::Init(int type)
+int FASTCALL PPEAddr::Init(int type)
 {
 	int    ok = 1;
 	if(oneof6(type, tUndef, tIpV4, tIpV4Range, tIpV6, tIpV6Range, tPhone)) {
@@ -811,7 +781,7 @@ int PPEAddr::Init(int type)
 	return ok;
 }
 
-int PPEAddr::Set(uint32 ip4)
+int FASTCALL PPEAddr::Set(uint32 ip4)
 {
 	int    ok = 1;
 	if(Init(tIpV4))
@@ -833,12 +803,12 @@ int PPEAddr::Set(uint32 ip4Low, uint32 ip4Upp)
 	return ok;
 }
 
-int PPEAddr::SetPhone(const char * pPhone)
+int FASTCALL PPEAddr::SetPhone(const char * pPhone)
 {
 	return Init(tPhone) ? U.P.FromStr(pPhone) : 0;
 }
 
-int PPEAddr::GetPhone(SString & rBuf) const
+int FASTCALL PPEAddr::GetPhone(SString & rBuf) const
 {
 	int    ok = 1;
 	rBuf.Z();
@@ -913,15 +883,15 @@ int PPEAddr::IsEmpty() const
 //
 //
 //
-SLAPI PPEAddrArray::PPEAddrArray() : TSArray <PPEAddr> ()
+SLAPI PPEAddrArray::PPEAddrArray() : TSVector <PPEAddr> () // @v9.9.3 TSArray-->TSVector
 {
 }
 
-int SLAPI PPEAddrArray::AddPhone(const char * pPhone)
+int FASTCALL PPEAddrArray::AddPhone(const char * pPhone)
 {
 	int    ok = 1;
 	if(!isempty(pPhone)) {
-		PPEAddr    pattern;
+		PPEAddr pattern;
 		pattern.SetPhone(pPhone);
 		insert(&pattern);
 	}
@@ -934,7 +904,7 @@ int SLAPI PPEAddrArray::SearchPhone(const char * pPhone, long options, LongArray
 {
 	int    ok = 0;
 	if(getCount()) {
-		PPEAddr    pattern;
+		PPEAddr pattern;
 		pattern.SetPhone(pPhone);
 		for(uint i = 0; i < getCount(); i++) {
 			const PPEAddr & r_item = at(i);

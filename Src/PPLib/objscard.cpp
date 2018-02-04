@@ -4591,10 +4591,9 @@ int SLAPI PPObjSCard::FetchExtText(PPID id, int fldId, SString & rBuf)
 	rBuf.Z();
 	SCardCache * p_cache = GetDbLocalCachePtr <SCardCache> (PPOBJ_SCARD);
 	if(p_cache) {
-		SString ext_text;
-        if(p_cache->FetchExtText(id, ext_text) > 0) {
-			PPGetExtStrData(fldId, ext_text, rBuf);
-        }
+		SString & r_ext_text = SLS.AcquireRvlStr();
+        if(p_cache->FetchExtText(id, r_ext_text) > 0)
+			PPGetExtStrData(fldId, r_ext_text, rBuf);
 	}
 	return rBuf.NotEmpty() ? 1 : -1;
 }

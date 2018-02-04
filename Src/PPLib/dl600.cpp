@@ -20,15 +20,13 @@ int DlFunc::IsEqual(const DlFunc & rPat) const
 	THROW(Name.Cmp(rPat.Name, 0) == 0);
 	uint c = ArgList.getCount();
 	THROW(c == rPat.ArgList.getCount());
-	if(c) {
-		do {
-			--c;
-			const Arg * p_arg = (const Arg *)ArgList.at(c);
-			const Arg * p_pat_arg = (const Arg *)rPat.ArgList.at(c);
-			THROW(p_arg->TypID == p_pat_arg->TypID);
-			THROW(p_arg->Flags == p_pat_arg->Flags);
-		} while(c);
-	}
+	if(c) do {
+		--c;
+		const Arg * p_arg = (const Arg *)ArgList.at(c);
+		const Arg * p_pat_arg = (const Arg *)rPat.ArgList.at(c);
+		THROW(p_arg->TypID == p_pat_arg->TypID);
+		THROW(p_arg->Flags == p_pat_arg->Flags);
+	} while(c);
 	CATCHZOK
 	return ok;
 }
@@ -570,9 +568,9 @@ int CtmExpr::Unpack(SBuffer * pBuf)
 	pBuf->Read(&TypID, sizeof(TypID));
 	pBuf->Read(&ToTypStdCvt, sizeof(ToTypStdCvt));
 	if(oneof2(Kind, kFuncName, kVarName)) {
-		SString temp_buf;
-		pBuf->Read(temp_buf);
-		U.S = newStr(temp_buf);
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		pBuf->Read(r_temp_buf);
+		U.S = newStr(r_temp_buf);
 	}
 	else
 		pBuf->Read(&U, sizeof(U));
@@ -585,7 +583,7 @@ int CtmExpr::Unpack(SBuffer * pBuf)
 		pBuf->Unread(sizeof(sign));
 		P_Next = new CtmExpr;
 		P_Next->Init();
-		THROW(P_Next->Unpack(pBuf));
+		THROW(P_Next->Unpack(pBuf)); // @recursion
 	}
 	else if(sign == CTM_EXPR_EMPTY_SIGN)
 		P_Next = 0;
@@ -598,7 +596,7 @@ int CtmExpr::Unpack(SBuffer * pBuf)
 		pBuf->Unread(sizeof(sign));
 		P_Arg = new CtmExpr;
 		P_Arg->Init();
-		P_Arg->Unpack(pBuf);
+		P_Arg->Unpack(pBuf); // @recursion
 	}
 	else if(sign == CTM_EXPR_EMPTY_SIGN)
 		P_Arg = 0;

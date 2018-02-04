@@ -68,9 +68,9 @@ static IMPL_DBE_PROC(dbqf_scardextstring_ii)
 		PPID   id = params[0].lval;
 		PPID   fldid = params[1].lval;
         PPObjSCard sc_obj;
-        SString temp_buf;
-        if(sc_obj.FetchExtText(id, fldid, temp_buf) > 0) {
-			STRNSCPY(name_buf, temp_buf);
+        SString & r_temp_buf = SLS.AcquireRvlStr();
+        if(sc_obj.FetchExtText(id, fldid, r_temp_buf) > 0) {
+			STRNSCPY(name_buf, r_temp_buf);
         }
 		result->init(name_buf);
 	}
@@ -348,8 +348,8 @@ static IMPL_DBE_PROC(dbqf_datetime_dt)
 	else {
 		LDATETIME dtm;
 		dtm.Set(params[0].dval, params[1].tval);
-		SString temp_buf;
-		result->init(temp_buf.Cat(dtm).Trim(field_len));
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		result->init(r_temp_buf.Cat(dtm).Trim(field_len));
 	}
 }
 
@@ -362,10 +362,10 @@ static IMPL_DBE_PROC(dbqf_durationtotime_dt)
 		LDATETIME dtm;
 		dtm.SetZero();
 		long days = dtm.settotalsec(params[0].lval);
-		SString temp_buf;
+		SString & r_temp_buf = SLS.AcquireRvlStr();
 		if(days)
-			temp_buf.Cat(days).CatChar('d').Space();
-		result->init(temp_buf.Cat(dtm.t, TIMF_HMS).Trim(field_len-1));
+			r_temp_buf.Cat(days).CatChar('d').Space();
+		result->init(r_temp_buf.Cat(dtm.t, TIMF_HMS).Trim(field_len-1));
 	}
 }
 
@@ -420,9 +420,9 @@ static IMPL_DBE_PROC(dbqf_strbystrgrouppos_ip)
 	else {
 		const SStrGroup * p_pool = (const SStrGroup *)params[1].ptrval;
 		if(p_pool) {
-			SString temp_buf;
-			p_pool->GetS(params[0].lval, temp_buf);
-			STRNSCPY(text_buf, temp_buf);
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			p_pool->GetS(params[0].lval, r_temp_buf);
+			STRNSCPY(text_buf, r_temp_buf);
 		}
 		else
 			PTR32(text_buf)[0] = 0;
@@ -711,9 +711,9 @@ static IMPL_DBE_PROC(dbqf_scardownername_i)
 			PPObjSCard sc_obj;
 			SCardTbl::Rec rec;
 			if(sc_obj.Fetch(id, &rec) > 0 && rec.PersonID) {
-				SString temp_buf;
-				GetPersonName(rec.PersonID, temp_buf);
-				temp_buf.CopyTo(psn_name, sizeof(psn_name));
+				SString & r_temp_buf = SLS.AcquireRvlStr();
+				GetPersonName(rec.PersonID, r_temp_buf);
+				r_temp_buf.CopyTo(psn_name, sizeof(psn_name));
 			}
 		}
 		result->init(psn_name);
@@ -731,9 +731,9 @@ static IMPL_DBE_PROC(dbqf_locownername_i)
 			PPObjLocation loc_obj;
 			LocationTbl::Rec rec;
 			if(loc_obj.Fetch(id, &rec) > 0 && rec.OwnerID) {
-				SString temp_buf;
-				GetPersonName(rec.OwnerID, temp_buf);
-				temp_buf.CopyTo(psn_name, sizeof(psn_name));
+				SString & r_temp_buf = SLS.AcquireRvlStr();
+				GetPersonName(rec.OwnerID, r_temp_buf);
+				r_temp_buf.CopyTo(psn_name, sizeof(psn_name));
 			}
 		}
 		result->init(psn_name);
@@ -1327,10 +1327,10 @@ static IMPL_DBE_PROC(dbqf_goodssinglebarcode_i)
 		result->init((long)sizeof(buf));
 	}
 	else {
-		SString temp_buf;
 		PPObjGoods goods_obj;
-		goods_obj.FetchSingleBarcode(params[0].lval, temp_buf);
-		temp_buf.CopyTo(buf, sizeof(buf));
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		goods_obj.FetchSingleBarcode(params[0].lval, r_temp_buf);
+		r_temp_buf.CopyTo(buf, sizeof(buf));
 		result->init(buf);
 	}
 }

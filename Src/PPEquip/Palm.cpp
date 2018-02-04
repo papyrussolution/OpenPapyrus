@@ -3162,7 +3162,7 @@ int SLAPI PPObjStyloPalm::XmlCmpDtm(LDATE dt, LTIME tm, const char * pXmlPath)
 			if(p_doc) {
 				xmlNodePtr p_root = xmlDocGetRootElement(p_doc);
 				if(p_root && /* p_items->type == XML_ELEMENT_NODE && */ p_root->properties) {
-					xmlAttrPtr p_attr = p_root->properties;
+					xmlAttr * p_attr = p_root->properties;
 					for(; p_attr; p_attr = p_attr->next) {
 						if(p_attr->children && p_attr->children->content) {
 							if(sstreqi_ascii("CreateDt", (const char*)p_attr->name))

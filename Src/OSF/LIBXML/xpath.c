@@ -16,9 +16,9 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#ifdef HAVE_SYS_TYPES_H
-	#include <sys/types.h>
-#endif
+//#ifdef HAVE_SYS_TYPES_H
+	//#include <sys/types.h>
+//#endif
 #ifdef HAVE_MATH_H
 	#include <math.h>
 #endif
@@ -7323,7 +7323,7 @@ xmlNode * xmlXPathNextParent(xmlXPathParserContextPtr ctxt, xmlNode * cur)
 				    return 0;
 			    return(ctxt->context->P_Node->parent);
 			case XML_ATTRIBUTE_NODE: {
-			    xmlAttrPtr att = (xmlAttr *)ctxt->context->P_Node;
+			    xmlAttr * att = (xmlAttr *)ctxt->context->P_Node;
 			    return(att->parent);
 		    }
 			case XML_DOCUMENT_NODE:
@@ -7391,9 +7391,8 @@ xmlNode * xmlXPathNextAncestor(xmlXPathParserContextPtr ctxt, xmlNode * cur)
 				    return 0;
 			    return(ctxt->context->P_Node->parent);
 			case XML_ATTRIBUTE_NODE: {
-			    xmlAttrPtr tmp = (xmlAttr *)ctxt->context->P_Node;
-
-			    return(tmp->parent);
+			    xmlAttr * tmp = (xmlAttr *)ctxt->context->P_Node;
+			    return tmp->parent;
 		    }
 			case XML_DOCUMENT_NODE:
 			case XML_DOCUMENT_TYPE_NODE:
@@ -7439,9 +7438,8 @@ xmlNode * xmlXPathNextAncestor(xmlXPathParserContextPtr ctxt, xmlNode * cur)
 			    return 0;
 		    return(cur->parent);
 		case XML_ATTRIBUTE_NODE: {
-		    xmlAttrPtr att = (xmlAttr *)ctxt->context->P_Node;
-
-		    return(att->parent);
+		    xmlAttr * att = (xmlAttr *)ctxt->context->P_Node;
+		    return att->parent;
 	    }
 		case XML_NAMESPACE_DECL: {
 		    xmlNs * ns = (xmlNs *)ctxt->context->P_Node;
@@ -8537,19 +8535,18 @@ void xmlXPathSubstringBeforeFunction(xmlXPathParserContextPtr ctxt, int nargs)
  * string. For example, substring-after("1999/04/01","/") returns 04/01,
  * and substring-after("1999/04/01","19") returns 99/04/01.
  */
-void xmlXPathSubstringAfterFunction(xmlXPathParserContextPtr ctxt, int nargs) {
+void xmlXPathSubstringAfterFunction(xmlXPathParserContextPtr ctxt, int nargs) 
+{
 	xmlXPathObjectPtr str;
 	xmlXPathObjectPtr find;
 	xmlBufPtr target;
 	const xmlChar * point;
 	int offset;
-
 	CHECK_ARITY(2);
 	CAST_TO_STRING;
 	find = valuePop(ctxt);
 	CAST_TO_STRING;
 	str = valuePop(ctxt);
-
 	target = xmlBufCreate();
 	if(target) {
 		point = xmlStrstr(str->stringval, find->stringval);
@@ -8563,7 +8560,6 @@ void xmlXPathSubstringAfterFunction(xmlXPathParserContextPtr ctxt, int nargs) {
 	xmlXPathReleaseObject(ctxt->context, str);
 	xmlXPathReleaseObject(ctxt->context, find);
 }
-
 /**
  * xmlXPathNormalizeFunction:
  * @ctxt:  the XPath Parser context
@@ -8983,13 +8979,9 @@ void xmlXPathRoundFunction(xmlXPathParserContextPtr ctxt, int nargs)
 			ctxt->value->floatval = f + 1;
 	}
 }
-
-/************************************************************************
-*									*
-*			The Parser					*
-*									*
-************************************************************************/
-
+// 
+// The Parser
+// 
 /*
  * a few forward declarations since we use a recursive call based
  * implementation.
@@ -8999,7 +8991,6 @@ static void xmlXPathCompPredicate(xmlXPathParserContextPtr ctxt, int filter);
 static void xmlXPathCompLocationPath(xmlXPathParserContextPtr ctxt);
 static void xmlXPathCompRelativeLocationPath(xmlXPathParserContextPtr ctxt);
 static xmlChar * xmlXPathParseNameComplex(xmlXPathParserContextPtr ctxt, int qualified);
-
 /**
  * xmlXPathCurrentChar:
  * @ctxt:  the XPath parser context
@@ -9083,7 +9074,6 @@ encoding_error:
 	*len = 0;
 	XP_ERROR0(XPATH_ENCODING_ERROR);
 }
-
 /**
  * xmlXPathParseNCName:
  * @ctxt:  the XPath Parser context
@@ -9108,19 +9098,12 @@ xmlChar * xmlXPathParseNCName(xmlXPathParserContextPtr ctxt) {
 	 * Accelerator for simple ASCII names
 	 */
 	in = ctxt->cur;
-	if(((*in >= 0x61) && (*in <= 0x7A)) ||
-	    ((*in >= 0x41) && (*in <= 0x5A)) ||
-	    (*in == '_')) {
+	if(((*in >= 0x61) && (*in <= 0x7A)) || ((*in >= 0x41) && (*in <= 0x5A)) || (*in == '_')) {
 		in++;
-		while(((*in >= 0x61) && (*in <= 0x7A)) ||
-		    ((*in >= 0x41) && (*in <= 0x5A)) ||
-		    ((*in >= 0x30) && (*in <= 0x39)) ||
-		    (*in == '_') || (*in == '.') ||
-		    (*in == '-'))
+		while(((*in >= 0x61) && (*in <= 0x7A)) || ((*in >= 0x41) && (*in <= 0x5A)) || ((*in >= 0x30) && (*in <= 0x39)) ||
+		    (*in == '_') || (*in == '.') || (*in == '-'))
 			in++;
-		if((*in == ' ') || (*in == '>') || (*in == '/') ||
-		    (*in == '[') || (*in == ']') || (*in == ':') ||
-		    (*in == '@') || (*in == '*')) {
+		if((*in == ' ') || (*in == '>') || (*in == '/') || (*in == '[') || (*in == ']') || (*in == ':') || (*in == '@') || (*in == '*')) {
 			count = in - ctxt->cur;
 			if(count == 0)
 				return 0;
@@ -9131,7 +9114,6 @@ xmlChar * xmlXPathParseNCName(xmlXPathParserContextPtr ctxt) {
 	}
 	return(xmlXPathParseNameComplex(ctxt, 0));
 }
-
 /**
  * xmlXPathParseQName:
  * @ctxt:  the XPath Parser context
@@ -9148,10 +9130,9 @@ xmlChar * xmlXPathParseNCName(xmlXPathParserContextPtr ctxt) {
  * Returns the function returns the local part, and prefix is updated
  *   to get the Prefix if any.
  */
-
-static xmlChar * xmlXPathParseQName(xmlXPathParserContextPtr ctxt, xmlChar ** prefix) {
+static xmlChar * xmlXPathParseQName(xmlXPathParserContextPtr ctxt, xmlChar ** prefix) 
+{
 	xmlChar * ret = NULL;
-
 	*prefix = NULL;
 	ret = xmlXPathParseNCName(ctxt);
 	if(ret && CUR == ':') {
@@ -9161,7 +9142,6 @@ static xmlChar * xmlXPathParseQName(xmlXPathParserContextPtr ctxt, xmlChar ** pr
 	}
 	return ret;
 }
-
 /**
  * xmlXPathParseName:
  * @ctxt:  the XPath Parser context
@@ -9175,26 +9155,20 @@ static xmlChar * xmlXPathParseQName(xmlXPathParserContextPtr ctxt, xmlChar ** pr
  *
  * Returns the namespace name or NULL
  */
-
-xmlChar * xmlXPathParseName(xmlXPathParserContextPtr ctxt) {
+xmlChar * xmlXPathParseName(xmlXPathParserContextPtr ctxt) 
+{
 	const xmlChar * in;
 	xmlChar * ret;
 	size_t count = 0;
-
 	if(!ctxt || (ctxt->cur == NULL)) return 0;
 	/*
 	 * Accelerator for simple ASCII names
 	 */
 	in = ctxt->cur;
-	if(((*in >= 0x61) && (*in <= 0x7A)) ||
-	    ((*in >= 0x41) && (*in <= 0x5A)) ||
-	    (*in == '_') || (*in == ':')) {
+	if(((*in >= 0x61) && (*in <= 0x7A)) || ((*in >= 0x41) && (*in <= 0x5A)) || (*in == '_') || (*in == ':')) {
 		in++;
-		while(((*in >= 0x61) && (*in <= 0x7A)) ||
-		    ((*in >= 0x41) && (*in <= 0x5A)) ||
-		    ((*in >= 0x30) && (*in <= 0x39)) ||
-		    (*in == '_') || (*in == '-') ||
-		    (*in == ':') || (*in == '.'))
+		while(((*in >= 0x61) && (*in <= 0x7A)) || ((*in >= 0x41) && (*in <= 0x5A)) || ((*in >= 0x30) && (*in <= 0x39)) ||
+		    (*in == '_') || (*in == '-') || (*in == ':') || (*in == '.'))
 			in++;
 		if((*in > 0) && (*in < 0x80)) {
 			count = in - ctxt->cur;
@@ -9210,11 +9184,11 @@ xmlChar * xmlXPathParseName(xmlXPathParserContextPtr ctxt) {
 	return(xmlXPathParseNameComplex(ctxt, 1));
 }
 
-static xmlChar * xmlXPathParseNameComplex(xmlXPathParserContextPtr ctxt, int qualified) {
+static xmlChar * xmlXPathParseNameComplex(xmlXPathParserContextPtr ctxt, int qualified) 
+{
 	xmlChar buf[XML_MAX_NAMELEN + 5];
 	int len = 0, l;
 	int c;
-
 	/*
 	 * Handler for more complex cases
 	 */
@@ -9222,8 +9196,7 @@ static xmlChar * xmlXPathParseNameComplex(xmlXPathParserContextPtr ctxt, int qua
 	if((c == ' ') || (c == '>') || (c == '/') || /* accelerators */
 	    (c == '[') || (c == ']') || (c == '@') || /* accelerators */
 	    (c == '*') || /* accelerators */
-	    (!IS_LETTER(c) && (c != '_') &&
-		    ((qualified) && (c != ':')))) {
+	    (!IS_LETTER(c) && (c != '_') && ((qualified) && (c != ':')))) {
 		return 0;
 	}
 
@@ -9313,7 +9286,8 @@ static double my_pow10[MAX_FRAC+1] = {
  *
  * Returns the double value.
  */
-double xmlXPathStringEvalNumber(const xmlChar * str) {
+double xmlXPathStringEvalNumber(const xmlChar * str) 
+{
 	const xmlChar * cur = str;
 	double ret;
 	int ok = 0;
@@ -10004,17 +9978,13 @@ static void xmlXPathCompUnionExpr(xmlXPathParserContextPtr ctxt)
 	while(CUR == '|') {
 		int op1 = ctxt->comp->last;
 		PUSH_LEAVE_EXPR(XPATH_OP_NODE, 0, 0);
-
 		NEXT;
 		SKIP_BLANKS;
 		xmlXPathCompPathExpr(ctxt);
-
 		PUSH_BINARY_EXPR(XPATH_OP_UNION, op1, ctxt->comp->last, 0, 0);
-
 		SKIP_BLANKS;
 	}
 }
-
 /**
  * xmlXPathCompUnaryExpr:
  * @ctxt:  the XPath Parser context
@@ -10045,7 +10015,6 @@ static void xmlXPathCompUnaryExpr(xmlXPathParserContextPtr ctxt)
 			PUSH_UNARY_EXPR(XPATH_OP_PLUS, ctxt->comp->last, 3, 0);
 	}
 }
-
 /**
  * xmlXPathCompMultiplicativeExpr:
  * @ctxt:  the XPath Parser context
@@ -10058,17 +10027,14 @@ static void xmlXPathCompUnaryExpr(xmlXPathParserContextPtr ctxt)
  *
  * Compile an Additive expression.
  */
-
-static void xmlXPathCompMultiplicativeExpr(xmlXPathParserContextPtr ctxt) {
+static void xmlXPathCompMultiplicativeExpr(xmlXPathParserContextPtr ctxt) 
+{
 	xmlXPathCompUnaryExpr(ctxt);
 	CHECK_ERROR;
 	SKIP_BLANKS;
-	while((CUR == '*') ||
-	    ((CUR == 'd') && (NXT(1) == 'i') && (NXT(2) == 'v')) ||
-	    ((CUR == 'm') && (NXT(1) == 'o') && (NXT(2) == 'd'))) {
+	while((CUR == '*') || ((CUR == 'd') && (NXT(1) == 'i') && (NXT(2) == 'v')) || ((CUR == 'm') && (NXT(1) == 'o') && (NXT(2) == 'd'))) {
 		int op = -1;
 		int op1 = ctxt->comp->last;
-
 		if(CUR == '*') {
 			op = 0;
 			NEXT;
@@ -10088,7 +10054,6 @@ static void xmlXPathCompMultiplicativeExpr(xmlXPathParserContextPtr ctxt) {
 		SKIP_BLANKS;
 	}
 }
-
 /**
  * xmlXPathCompAdditiveExpr:
  * @ctxt:  the XPath Parser context
@@ -10099,17 +10064,18 @@ static void xmlXPathCompMultiplicativeExpr(xmlXPathParserContextPtr ctxt) {
  *
  * Compile an Additive expression.
  */
-
-static void xmlXPathCompAdditiveExpr(xmlXPathParserContextPtr ctxt) {
+static void xmlXPathCompAdditiveExpr(xmlXPathParserContextPtr ctxt) 
+{
 	xmlXPathCompMultiplicativeExpr(ctxt);
 	CHECK_ERROR;
 	SKIP_BLANKS;
 	while((CUR == '+') || (CUR == '-')) {
 		int plus;
 		int op1 = ctxt->comp->last;
-
-		if(CUR == '+') plus = 1;
-		else plus = 0;
+		if(CUR == '+') 
+			plus = 1;
+		else 
+			plus = 0;
 		NEXT;
 		SKIP_BLANKS;
 		xmlXPathCompMultiplicativeExpr(ctxt);
@@ -10118,7 +10084,6 @@ static void xmlXPathCompAdditiveExpr(xmlXPathParserContextPtr ctxt) {
 		SKIP_BLANKS;
 	}
 }
-
 /**
  * xmlXPathCompRelationalExpr:
  * @ctxt:  the XPath Parser context
@@ -10136,24 +10101,25 @@ static void xmlXPathCompAdditiveExpr(xmlXPathParserContextPtr ctxt) {
  * Compile a Relational expression, then push the result
  * on the stack
  */
-
-static void xmlXPathCompRelationalExpr(xmlXPathParserContextPtr ctxt) {
+static void xmlXPathCompRelationalExpr(xmlXPathParserContextPtr ctxt) 
+{
 	xmlXPathCompAdditiveExpr(ctxt);
 	CHECK_ERROR;
 	SKIP_BLANKS;
-	while((CUR == '<') ||
-	    (CUR == '>') ||
-	    ((CUR == '<') && (NXT(1) == '=')) ||
-	    ((CUR == '>') && (NXT(1) == '='))) {
+	while((CUR == '<') || (CUR == '>') || ((CUR == '<') && (NXT(1) == '=')) || ((CUR == '>') && (NXT(1) == '='))) {
 		int inf, strict;
 		int op1 = ctxt->comp->last;
-
-		if(CUR == '<') inf = 1;
-		else inf = 0;
-		if(NXT(1) == '=') strict = 0;
-		else strict = 1;
+		if(CUR == '<') 
+			inf = 1;
+		else 
+			inf = 0;
+		if(NXT(1) == '=') 
+			strict = 0;
+		else 
+			strict = 1;
 		NEXT;
-		if(!strict) NEXT;
+		if(!strict) 
+			NEXT;
 		SKIP_BLANKS;
 		xmlXPathCompAdditiveExpr(ctxt);
 		CHECK_ERROR;
@@ -10161,7 +10127,6 @@ static void xmlXPathCompRelationalExpr(xmlXPathParserContextPtr ctxt) {
 		SKIP_BLANKS;
 	}
 }
-
 /**
  * xmlXPathCompEqualityExpr:
  * @ctxt:  the XPath Parser context
@@ -10178,18 +10143,21 @@ static void xmlXPathCompRelationalExpr(xmlXPathParserContextPtr ctxt) {
  * Compile an Equality expression.
  *
  */
-static void xmlXPathCompEqualityExpr(xmlXPathParserContextPtr ctxt) {
+static void xmlXPathCompEqualityExpr(xmlXPathParserContextPtr ctxt) 
+{
 	xmlXPathCompRelationalExpr(ctxt);
 	CHECK_ERROR;
 	SKIP_BLANKS;
 	while((CUR == '=') || ((CUR == '!') && (NXT(1) == '='))) {
 		int eq;
 		int op1 = ctxt->comp->last;
-
-		if(CUR == '=') eq = 1;
-		else eq = 0;
+		if(CUR == '=') 
+			eq = 1;
+		else 
+			eq = 0;
 		NEXT;
-		if(!eq) NEXT;
+		if(!eq) 
+			NEXT;
 		SKIP_BLANKS;
 		xmlXPathCompRelationalExpr(ctxt);
 		CHECK_ERROR;
@@ -10197,7 +10165,6 @@ static void xmlXPathCompEqualityExpr(xmlXPathParserContextPtr ctxt) {
 		SKIP_BLANKS;
 	}
 }
-
 /**
  * xmlXPathCompAndExpr:
  * @ctxt:  the XPath Parser context
@@ -10223,7 +10190,6 @@ static void xmlXPathCompAndExpr(xmlXPathParserContextPtr ctxt)
 		SKIP_BLANKS;
 	}
 }
-
 /**
  * xmlXPathCompileExpr:
  * @ctxt:  the XPath Parser context
@@ -10351,13 +10317,11 @@ static xmlChar * xmlXPathCompNodeTest(xmlXPathParserContextPtr ctxt, xmlXPathTes
 		*test = NODE_TEST_ALL;
 		return 0;
 	}
-
 	if(!name)
 		name = xmlXPathParseNCName(ctxt);
 	if(!name) {
 		XP_ERRORNULL(XPATH_EXPR_ERROR);
 	}
-
 	blanks = IS_BLANK_CH(CUR);
 	SKIP_BLANKS;
 	if(CUR == '(') {
@@ -10457,7 +10421,8 @@ static xmlChar * xmlXPathCompNodeTest(xmlXPathParserContextPtr ctxt, xmlXPathTes
  *
  * Returns the axis or 0
  */
-static xmlXPathAxisVal xmlXPathIsAxisName(const xmlChar * name) {
+static xmlXPathAxisVal xmlXPathIsAxisName(const xmlChar * name) 
+{
 	xmlXPathAxisVal ret = (xmlXPathAxisVal)0;
 	switch(name[0]) {
 		case 'a':
@@ -10503,7 +10468,6 @@ static xmlXPathAxisVal xmlXPathIsAxisName(const xmlChar * name) {
 	}
 	return ret;
 }
-
 /**
  * xmlXPathCompStep:
  * @ctxt:  the XPath Parser context
@@ -10536,12 +10500,12 @@ static xmlXPathAxisVal xmlXPathIsAxisName(const xmlChar * name) {
  * and so will select the title children of the parent of the context
  * node.
  */
-static void xmlXPathCompStep(xmlXPathParserContextPtr ctxt) {
+static void xmlXPathCompStep(xmlXPathParserContextPtr ctxt) 
+{
 #ifdef LIBXML_XPTR_ENABLED
 	int rangeto = 0;
 	int op2 = -1;
 #endif
-
 	SKIP_BLANKS;
 	if((CUR == '.') && (NXT(1) == '.')) {
 		SKIP(2);
@@ -11646,7 +11610,7 @@ static int xmlXPathNodeCollectAndTest(xmlXPathParserContextPtr ctxt, xmlXPathSte
 							    }
 							    break;
 							case XML_ATTRIBUTE_NODE: {
-							    xmlAttrPtr attr = (xmlAttr *)cur;
+							    xmlAttr * attr = (xmlAttr *)cur;
 							    if(sstreq(name, attr->name)) {
 								    if(prefix == NULL) {
 									    if((attr->ns == NULL) || (attr->ns->prefix == NULL)) {

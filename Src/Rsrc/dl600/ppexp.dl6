@@ -4400,7 +4400,8 @@ data GoodsStrucList {
         double Netto;      // @v9.9.3
         long   StrucFlags; // @v9.9.3
         long   ItemFlags;  // @v9.9.3
-		string GoodsName[128];
+		//string GoodsName[128];
+		GoodsName = GoodsID.Name;
 		ItemName = ItemID.Name;      // Имя компонента
 		string SQtty[32];            //
 		string Type[16];             //

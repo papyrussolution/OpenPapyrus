@@ -14,12 +14,12 @@
 #else
 	#define XML_DIR_SEP '/'
 #endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
-#ifdef HAVE_ZLIB_H
-	#include <zlib.h>
-#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
+//#ifdef HAVE_ZLIB_H
+	//#include <zlib.h>
+//#endif
 /*
  * Various global defaults for parsing
  */
@@ -697,9 +697,7 @@ encoding_error:
 	 */
 	{
 		char buffer[150];
-		snprintf(buffer, 149, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n",
-		    ctxt->input->cur[0], ctxt->input->cur[1],
-		    ctxt->input->cur[2], ctxt->input->cur[3]);
+		snprintf(buffer, 149, "Bytes: 0x%02X 0x%02X 0x%02X 0x%02X\n", ctxt->input->cur[0], ctxt->input->cur[1], ctxt->input->cur[2], ctxt->input->cur[3]);
 		__xmlErrEncoding(ctxt, XML_ERR_INVALID_CHAR, "Input is not proper UTF-8, indicate encoding !\n%s", BAD_CAST buffer, 0);
 	}
 	*len = 1;
@@ -762,14 +760,15 @@ int FASTCALL xmlCopyCharMultiByte(xmlChar * out, int val)
  */
 int FASTCALL xmlCopyChar(int len ATTRIBUTE_UNUSED, xmlChar * out, int val) 
 {
+	// the len parameter is ignored 
 	if(out == NULL) 
 		return 0;
-	// the len parameter is ignored 
-	if(val >= 0x80) {
+	else if(val >= 0x80)
 		return xmlCopyCharMultiByte(out, val);
+	else {
+		*out = (xmlChar)val;
+		return 1;
 	}
-	*out = (xmlChar)val;
-	return 1;
 }
 
 /************************************************************************
@@ -923,8 +922,10 @@ int xmlSwitchEncoding(xmlParserCtxt * ctxt, xmlCharEncoding enc)
 	}
 	if(handler == NULL)
 		return -1;
-	ctxt->charset = XML_CHAR_ENCODING_UTF8;
-	return(xmlSwitchToEncodingInt(ctxt, handler, len));
+	else {
+		ctxt->charset = XML_CHAR_ENCODING_UTF8;
+		return xmlSwitchToEncodingInt(ctxt, handler, len);
+	}
 }
 
 /**
@@ -1059,7 +1060,6 @@ int xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInput * input, xmlChar
 {
 	return xmlSwitchInputEncodingInt(ctxt, input, handler, -1);
 }
-
 /**
  * xmlSwitchToEncodingInt:
  * @ctxt:  the parser context
@@ -1075,25 +1075,18 @@ int xmlSwitchInputEncoding(xmlParserCtxt * ctxt, xmlParserInput * input, xmlChar
  */
 static int xmlSwitchToEncodingInt(xmlParserCtxt * ctxt, xmlCharEncodingHandler * handler, int len)
 {
-	int ret = 0;
+	int ret = -1;
 	if(handler) {
 		if(ctxt->input) {
 			ret = xmlSwitchInputEncodingInt(ctxt, ctxt->input, handler, len);
+			// The parsing is now done in UTF8 natively
+			ctxt->charset = XML_CHAR_ENCODING_UTF8;
 		}
-		else {
+		else
 			xmlErrInternal(ctxt, "xmlSwitchToEncoding : no input\n", 0);
-			return -1;
-		}
-		/*
-		 * The parsing is now done in UTF8 natively
-		 */
-		ctxt->charset = XML_CHAR_ENCODING_UTF8;
 	}
-	else
-		return -1;
 	return ret;
 }
-
 /**
  * xmlSwitchToEncoding:
  * @ctxt:  the parser context
@@ -1106,7 +1099,7 @@ static int xmlSwitchToEncodingInt(xmlParserCtxt * ctxt, xmlCharEncodingHandler *
  */
 int xmlSwitchToEncoding(xmlParserCtxt * ctxt, xmlCharEncodingHandler * handler)
 {
-	return (xmlSwitchToEncodingInt(ctxt, handler, -1));
+	return xmlSwitchToEncodingInt(ctxt, handler, -1);
 }
 
 /************************************************************************
@@ -1134,7 +1127,6 @@ void FASTCALL xmlFreeInputStream(xmlParserInput * input)
 		SAlloc::F(input);
 	}
 }
-
 /**
  * xmlNewInputStream:
  * @ctxt:  an XML parser context
@@ -1561,9 +1553,8 @@ void FASTCALL xmlFreeParserCtxt(xmlParserCtxt * ctxt)
 xmlParserCtxt * xmlNewParserCtxt()
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)SAlloc::M(sizeof(xmlParserCtxt));
-	if(!ctxt) {
+	if(!ctxt)
 		xmlErrMemory(NULL, "cannot allocate parser context\n");
-	}
 	else {
 		memzero(ctxt, sizeof(xmlParserCtxt));
 		if(xmlInitParserCtxt(ctxt) < 0) {
@@ -1586,7 +1577,6 @@ xmlParserCtxt * xmlNewParserCtxt()
  *
  * Clear (release owned resources) and reinitialize a parser context
  */
-
 void xmlClearParserCtxt(xmlParserCtxt * ctxt)
 {
 	if(ctxt) {
@@ -1594,7 +1584,6 @@ void xmlClearParserCtxt(xmlParserCtxt * ctxt)
 		xmlCtxtReset(ctxt);
 	}
 }
-
 /**
  * xmlParserFindNodeInfo:
  * @ctx:  an XML parser context
@@ -1657,28 +1646,26 @@ void xmlClearNodeInfoSeq(xmlParserNodeInfoSeqPtr seq)
  */
 ulong xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeq * seq, const xmlNode * P_Node)
 {
-	unsigned long upper, lower, middle;
-	int found = 0;
 	if(!seq || !P_Node)
 		return ((unsigned long)-1);
-	/* Do a binary search for the key */
-	lower = 1;
-	upper = seq->length;
-	middle = 0;
-	while(lower <= upper && !found) {
-		middle = lower + (upper - lower) / 2;
-		if(P_Node == seq->buffer[middle - 1].P_Node)
-			found = 1;
-		else if(P_Node < seq->buffer[middle - 1].P_Node)
-			upper = middle - 1;
-		else
-			lower = middle + 1;
+	else {
+		// Do a binary search for the key 
+		ulong lower = 1;
+		ulong upper = seq->length;
+		ulong middle = 0;
+		int   found = 0;
+		while(lower <= upper && !found) {
+			middle = lower + (upper - lower) / 2;
+			if(P_Node == seq->buffer[middle - 1].P_Node)
+				found = 1;
+			else if(P_Node < seq->buffer[middle - 1].P_Node)
+				upper = middle - 1;
+			else
+				lower = middle + 1;
+		}
+		// Return position 
+		return (middle == 0 || seq->buffer[middle-1].P_Node < P_Node) ? middle : (middle - 1);
 	}
-	/* Return position */
-	if(middle == 0 || seq->buffer[middle - 1].P_Node < P_Node)
-		return middle;
-	else
-		return middle - 1;
 }
 /**
  * xmlParserAddNodeInfo:
@@ -1691,7 +1678,7 @@ void xmlParserAddNodeInfo(xmlParserCtxt * ctxt, const xmlParserNodeInfoPtr info)
 {
 	if(ctxt && info) {
 		/* Find pos and check to see if node is already in the sequence */
-		unsigned long pos = xmlParserFindNodeInfoIndex(&ctxt->node_seq, (xmlNode *)info->P_Node);
+		ulong pos = xmlParserFindNodeInfoIndex(&ctxt->node_seq, (xmlNode *)info->P_Node);
 		if((pos < ctxt->node_seq.length) && (ctxt->node_seq.buffer != NULL) && (ctxt->node_seq.buffer[pos].P_Node == info->P_Node)) {
 			ctxt->node_seq.buffer[pos] = *info;
 		}
@@ -1710,13 +1697,12 @@ void xmlParserAddNodeInfo(xmlParserCtxt * ctxt, const xmlParserNodeInfoPtr info)
 				ctxt->node_seq.buffer = tmp_buffer;
 				ctxt->node_seq.maximum *= 2;
 			}
-			/* If position is not at end, move elements out of the way */
+			// If position is not at end, move elements out of the way 
 			if(pos != ctxt->node_seq.length) {
-				unsigned long i;
-				for(i = ctxt->node_seq.length; i > pos; i--)
+				for(ulong i = ctxt->node_seq.length; i > pos; i--)
 					ctxt->node_seq.buffer[i] = ctxt->node_seq.buffer[i - 1];
 			}
-			/* Copy element and increase length */
+			// Copy element and increase length 
 			ctxt->node_seq.buffer[pos] = *info;
 			ctxt->node_seq.length++;
 		}
@@ -1736,14 +1722,12 @@ void xmlParserAddNodeInfo(xmlParserCtxt * ctxt, const xmlParserNodeInfoPtr info)
  *
  * Returns the last value for 0 for no substitution, 1 for substitution.
  */
-
 int xmlPedanticParserDefault(int val)
 {
 	int old = xmlPedanticParserDefaultValue;
 	xmlPedanticParserDefaultValue = val;
 	return old;
 }
-
 /**
  * xmlLineNumbersDefault:
  * @val:  int 0 or 1
@@ -1753,14 +1737,12 @@ int xmlPedanticParserDefault(int val)
  *
  * Returns the last value for 0 for no substitution, 1 for substitution.
  */
-
 int xmlLineNumbersDefault(int val)
 {
 	int old = xmlLineNumbersDefaultValue;
 	xmlLineNumbersDefaultValue = val;
 	return old;
 }
-
 /**
  * xmlSubstituteEntitiesDefault:
  * @val:  int 0 or 1
@@ -1774,14 +1756,12 @@ int xmlLineNumbersDefault(int val)
  *
  * Returns the last value for 0 for no substitution, 1 for substitution.
  */
-
 int xmlSubstituteEntitiesDefault(int val)
 {
 	int old = xmlSubstituteEntitiesDefaultValue;
 	xmlSubstituteEntitiesDefaultValue = val;
 	return old;
 }
-
 /**
  * xmlKeepBlanksDefault:
  * @val:  int 0 or 1
@@ -1805,7 +1785,6 @@ int xmlSubstituteEntitiesDefault(int val)
  *
  * Returns the last value for 0 for no substitution, 1 for substitution.
  */
-
 int xmlKeepBlanksDefault(int val)
 {
 	int old = xmlKeepBlanksDefaultValue;

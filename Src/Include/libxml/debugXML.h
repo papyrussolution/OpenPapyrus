@@ -25,8 +25,8 @@ extern "C" {
  * The standard Dump routines.
  */
 XMLPUBFUN void XMLCALL xmlDebugDumpString(FILE * output, const xmlChar * str);
-XMLPUBFUN void XMLCALL xmlDebugDumpAttr(FILE * output, xmlAttrPtr attr, int depth);
-XMLPUBFUN void XMLCALL xmlDebugDumpAttrList(FILE * output, xmlAttrPtr attr, int depth);
+XMLPUBFUN void XMLCALL xmlDebugDumpAttr(FILE * output, xmlAttr * attr, int depth);
+XMLPUBFUN void XMLCALL xmlDebugDumpAttrList(FILE * output, xmlAttr * attr, int depth);
 XMLPUBFUN void XMLCALL xmlDebugDumpOneNode(FILE * output, xmlNode * P_Node, int depth);
 XMLPUBFUN void XMLCALL xmlDebugDumpNode(FILE * output, xmlNode * P_Node, int depth);
 XMLPUBFUN void XMLCALL xmlDebugDumpNodeList(FILE * output, xmlNode * P_Node, int depth);

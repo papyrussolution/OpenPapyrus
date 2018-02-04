@@ -674,11 +674,11 @@ void WordSelector::DrawListItem2(TDrawItemData * pDrawItem)
 				canv.SetBkColor(Ptb.GetColor(_clr_id));
 				canv.Rect(_rc, 0, _clr_id);
 				{
-					SString temp_buf;
+					SString & r_temp_buf = SLS.AcquireRvlStr();
 					SmartListBox * p_lbx = (SmartListBox *)pDrawItem->P_View;
-					p_lbx->getText((long)pDrawItem->ItemData, temp_buf);
-					temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
-					canv._DrawText(_rc, temp_buf.cptr(), DT_LEFT|DT_VCENTER|DT_SINGLELINE);
+					p_lbx->getText((long)pDrawItem->ItemData, r_temp_buf);
+					r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+					canv._DrawText(_rc, r_temp_buf.cptr(), DT_LEFT|DT_VCENTER|DT_SINGLELINE);
 				}
 			}
 		}

@@ -55,12 +55,9 @@ XMLPUBFUN xmlParserInputBufferCreateFilenameFunc
 XMLCALL xmlParserInputBufferCreateFilenameDefault (xmlParserInputBufferCreateFilenameFunc func);
 XMLPUBFUN xmlOutputBufferCreateFilenameFunc
 XMLCALL xmlOutputBufferCreateFilenameDefault (xmlOutputBufferCreateFilenameFunc func);
-
 /*
- * Externally global symbols which need to be protected for backwards
- * compatibility support.
+ * Externally global symbols which need to be protected for backwards compatibility support.
  */
-
 #undef docbDefaultSAXHandler
 #undef htmlDefaultSAXHandler
 #undef oldXMLWDcompatibility
@@ -94,7 +91,6 @@ XMLCALL xmlOutputBufferCreateFilenameDefault (xmlOutputBufferCreateFilenameFunc 
 #undef  xmlLastError
 #undef  xmlParserInputBufferCreateFilenameValue
 #undef  xmlOutputBufferCreateFilenameValue
-
 /**
  * xmlRegisterNodeFunc:
  * @node: the current node
@@ -110,10 +106,9 @@ typedef void (*xmlRegisterNodeFunc)(xmlNode * P_Node);
  */
 typedef void (*xmlDeregisterNodeFunc)(xmlNode * P_Node);
 
-typedef struct _xmlGlobalState xmlGlobalState;
-typedef xmlGlobalState *xmlGlobalStatePtr;
+//typedef struct _xmlGlobalState xmlGlobalState;
 
-struct _xmlGlobalState {
+struct xmlGlobalState {
 	const char *xmlParserVersion;
 	xmlSAXLocator xmlDefaultSAXLocator;
 	xmlSAXHandlerV1 xmlDefaultSAXHandler;
@@ -149,6 +144,8 @@ struct _xmlGlobalState {
 	void * xmlStructuredErrorContext;
 };
 
+//typedef xmlGlobalState * xmlGlobalStatePtr;
+
 #ifdef __cplusplus
 }
 #endif
@@ -156,7 +153,7 @@ struct _xmlGlobalState {
 extern "C" {
 #endif
 
-XMLPUBFUN void XMLCALL xmlInitializeGlobalState(xmlGlobalStatePtr gs);
+XMLPUBFUN void XMLCALL xmlInitializeGlobalState(xmlGlobalState * gs);
 XMLPUBFUN void XMLCALL xmlThrDefSetGenericErrorFunc(void *ctx, xmlGenericErrorFunc handler);
 XMLPUBFUN void XMLCALL xmlThrDefSetStructuredErrorFunc(void *ctx, xmlStructuredErrorFunc handler);
 XMLPUBFUN xmlRegisterNodeFunc XMLCALL xmlRegisterNodeDefault(xmlRegisterNodeFunc func);

@@ -846,13 +846,13 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 						{
 							LPNMTVDISPINFO lptvdi = (LPNMTVDISPINFO)lParam;
 							if(lptvdi->item.mask & TVIF_TEXT) {
-								SString temp_buf;
-								GetStringByID(lptvdi->item.lParam, temp_buf);
+								SString & r_temp_buf = SLS.AcquireRvlStr();
+								GetStringByID(lptvdi->item.lParam, r_temp_buf);
 								// @debug {
-								if(!temp_buf.NotEmptyS())
-									temp_buf.Z().CatChar('#').Cat(lptvdi->item.lParam);
+								if(!r_temp_buf.NotEmptyS())
+									r_temp_buf.Z().CatChar('#').Cat(lptvdi->item.lParam);
 								// } @debug
-								temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(lptvdi->item.pszText, 0);
+								r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(lptvdi->item.pszText, 0);
 							}
 							if(lptvdi->item.mask & (TVIF_IMAGE|TVIF_SELECTEDIMAGE)) {
 								long idx = 0;

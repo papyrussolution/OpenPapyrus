@@ -28,7 +28,7 @@ EditView::PrintParameters::PrintParameters() : magnification(0), colourMode(SC_P
 namespace Scintilla {
 #endif
 
-bool ValidStyledText(const ViewStyle &vs, size_t styleOffset, const StyledText &st)
+bool ValidStyledText(const ViewStyle &vs, size_t styleOffset, const Document::StyledText &st)
 {
 	if(st.multipleStyles) {
 		for(size_t iStyle = 0; iStyle<st.length; iStyle++) {
@@ -59,7 +59,7 @@ static int WidthStyledText(Surface * surface, const ViewStyle &vs, int styleOffs
 	return width;
 }
 
-int WidestLineWidth(Surface * surface, const ViewStyle &vs, int styleOffset, const StyledText &st)
+int WidestLineWidth(Surface * surface, const ViewStyle &vs, int styleOffset, const Document::StyledText & st)
 {
 	int widthMax = 0;
 	for(size_t start = 0; start < st.length;) {
@@ -96,7 +96,7 @@ void DrawTextNoClipPhase(Surface * surface, PRectangle rc, const Style &style, X
 }
 
 void DrawStyledText(Surface * surface, const ViewStyle &vs, int styleOffset, PRectangle rcText,
-    const StyledText &st, size_t start, size_t length, DrawPhase phase)
+    const Document::StyledText &st, size_t start, size_t length, DrawPhase phase)
 {
 	if(st.multipleStyles) {
 		int x = static_cast<int>(rcText.left);
@@ -1083,7 +1083,7 @@ void EditView::DrawAnnotation(Surface * surface, const EditModel &model, const V
 	int indent = static_cast<int>(model.pdoc->GetLineIndentation(line) * vsDraw.spaceWidth);
 	PRectangle rcSegment = rcLine;
 	int annotationLine = subLine - ll->lines;
-	const StyledText stAnnotation = model.pdoc->AnnotationStyledText(line);
+	const Document::StyledText stAnnotation = model.pdoc->AnnotationStyledText(line);
 	if(stAnnotation.text && ValidStyledText(vsDraw, vsDraw.annotationStyleOffset, stAnnotation)) {
 		if(phase & drawBack) {
 			surface->FillRectangle(rcSegment, vsDraw.styles[0].back);
@@ -1110,12 +1110,10 @@ void EditView::DrawAnnotation(Surface * surface, const EditModel &model, const V
 		}
 		PRectangle rcText = rcSegment;
 		if((phase & drawBack) && AnnotationBoxedOrIndented(vsDraw.annotationVisible)) {
-			surface->FillRectangle(rcText,
-			    vsDraw.styles[stAnnotation.StyleAt(start) + vsDraw.annotationStyleOffset].back);
+			surface->FillRectangle(rcText, vsDraw.styles[stAnnotation.StyleAt(start) + vsDraw.annotationStyleOffset].back);
 			rcText.left += vsDraw.spaceWidth;
 		}
-		DrawStyledText(surface, vsDraw, vsDraw.annotationStyleOffset, rcText,
-		    stAnnotation, start, lengthAnnotation, phase);
+		DrawStyledText(surface, vsDraw, vsDraw.annotationStyleOffset, rcText, stAnnotation, start, lengthAnnotation, phase);
 		if((phase & drawBack) && (vsDraw.annotationVisible == ANNOTATION_BOXED)) {
 			surface->PenColour(vsDraw.styles[vsDraw.annotationStyleOffset].fore);
 			surface->MoveTo(static_cast<int>(rcSegment.left), static_cast<int>(rcSegment.top));

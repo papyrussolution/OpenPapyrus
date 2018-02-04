@@ -10,12 +10,12 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#ifdef HAVE_SYS_TYPES_H
-	#include <sys/types.h>
-#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
+//#ifdef HAVE_SYS_TYPES_H
+	//#include <sys/types.h>
+//#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
 #ifdef HAVE_PTHREAD_H
 	#include <pthread.h>
 #elif defined HAVE_WIN32_THREADS
@@ -516,7 +516,6 @@ static void xmlFreeGlobalState(void * state)
 	xmlResetError(&(gs->xmlLastError));
 	SAlloc::F(state);
 }
-
 /**
  * xmlNewGlobalState:
  *
@@ -524,9 +523,9 @@ static void xmlFreeGlobalState(void * state)
  * hold all data for use by a thread when supporting backwards compatibility
  * of libxml2 to pre-thread-safe behaviour.
  *
- * Returns the newly allocated xmlGlobalStatePtr or NULL in case of error
+ * Returns the newly allocated xmlGlobalState * or NULL in case of error
  */
-static xmlGlobalStatePtr xmlNewGlobalState()
+static xmlGlobalState *xmlNewGlobalState()
 {
 	xmlGlobalState * gs = (xmlGlobalState *)malloc(sizeof(xmlGlobalState));
 	if(gs == NULL)
@@ -537,7 +536,6 @@ static xmlGlobalStatePtr xmlNewGlobalState()
 	}
 	return (gs);
 }
-
 #endif /* LIBXML_THREAD_ENABLED */
 
 #ifdef HAVE_PTHREAD_H
@@ -591,7 +589,6 @@ void xmlGlobalStateCleanup(void * data)
 }
 
 #endif
-
 /**
  * xmlGetGlobalState:
  *
@@ -599,7 +596,7 @@ void xmlGlobalStateCleanup(void * data)
  *
  * Returns the thread global state or NULL in case of error
  */
-xmlGlobalStatePtr xmlGetGlobalState()
+xmlGlobalState * xmlGetGlobalState()
 {
 #ifdef HAVE_PTHREAD_H
 	xmlGlobalState * globalval;

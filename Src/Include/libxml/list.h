@@ -10,8 +10,6 @@
 #ifndef __XML_LINK_INCLUDE__
 #define __XML_LINK_INCLUDE__
 
-//#include <libxml/xmlversion.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -84,10 +82,8 @@ XMLPUBFUN xmlList * XMLCALL xmlListDup(const xmlList * old);
 XMLPUBFUN int XMLCALL xmlListCopy(xmlList * cur, const xmlList * old);
 // Link operators 
 XMLPUBFUN void * /*XMLCALL*/FASTCALL xmlLinkGetData(xmlLink * lk);
-
 /* xmlListUnique() */
 /* xmlListSwap */
-
 #ifdef __cplusplus
 }
 #endif

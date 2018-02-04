@@ -6217,14 +6217,8 @@ public:
 	//   чем какой-либо иной механизм.
 	//
 	int    SLAPI GetBySrchFunc(const void * pKey, CompFunc f, void * pDataRec); // @sync_r
-	PPID   SLAPI GetObjType() const
-	{
-		return ObjType;
-	}
-	size_t SLAPI GetEntrySize() const
-	{
-		return EntrySize;
-	}
+	PPID   SLAPI GetObjType() const { return ObjType; }
+	size_t SLAPI GetEntrySize() const { return EntrySize; }
 	int    SLAPI GetStat(ObjCacheStat *);
 protected:
 	//
@@ -6297,7 +6291,7 @@ protected:
 		int    FASTCALL Get(char * pBuf, size_t bufLen);
 		int    FASTCALL Get(SString & rBuf);
 	private:
-		int    RdMode;
+		const  int RdMode;
 		uint   CurPos;
 		StringSet Ss;
 	};
@@ -8337,13 +8331,13 @@ private:
 //
 //
 //
-struct PPEAddr { // @persistent size=16
+struct PPEAddr { // @persistent @flat size=16
 	DECL_INVARIANT_C();
-	int    Init(int type = tUndef);
-	int    Set(uint32 ip4);
+	int    FASTCALL Init(int type = tUndef);
+	int    FASTCALL Set(uint32 ip4);
 	int    Set(uint32 ip4Low, uint32 ip4Upp);
-	int    SetPhone(const char * pPhone);
-	int    GetPhone(SString & rBuf) const;
+	int    FASTCALL SetPhone(const char * pPhone);
+	int    FASTCALL GetPhone(SString & rBuf) const;
 	int    FASTCALL operator == (const PPEAddr & rS) const;
 	int    IsEmpty() const;
 
@@ -8397,10 +8391,10 @@ struct PPEAddr { // @persistent size=16
 	} U;
 };
 
-class PPEAddrArray : public TSArray <PPEAddr> {
+class PPEAddrArray : public TSVector <PPEAddr> { // @v9.9.3 TSArray-->TSVector
 public:
 	SLAPI  PPEAddrArray();
-	int    SLAPI AddPhone(const char * pPhone);
+	int    FASTCALL AddPhone(const char * pPhone);
 	int    SLAPI SearchPhone(const char * pPhone, long options, LongArray * pPosList) const;
 };
 

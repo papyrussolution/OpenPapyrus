@@ -59,12 +59,12 @@ void DrawWrapMarker(Surface * surface, PRectangle rcPlace, bool isEndMarker, Col
 	rel.LineTo(xa - 1 /* on windows lineto is exclusive endpoint, perhaps GTK not... */, y - 2 * dy);
 }
 
-HighlightDelimiter::HighlightDelimiter() : isEnabled(false)
+Document::HighlightDelimiter::HighlightDelimiter() : isEnabled(false)
 {
 	Clear();
 }
 
-void HighlightDelimiter::Clear()
+void Document::HighlightDelimiter::Clear()
 {
 	beginFoldBlock = -1;
 	endFoldBlock = -1;
@@ -72,30 +72,16 @@ void HighlightDelimiter::Clear()
 	firstChangeableLineAfter = -1;
 }
 
-bool HighlightDelimiter::NeedsDrawing(int line) const
-{
-	return isEnabled && (line <= firstChangeableLineBefore || line >= firstChangeableLineAfter);
-}
-
-bool HighlightDelimiter::IsFoldBlockHighlighted(int line) const
-{
-	return isEnabled && beginFoldBlock != -1 && beginFoldBlock <= line && line <= endFoldBlock;
-}
-
-bool HighlightDelimiter::IsHeadOfFoldBlock(int line) const
-{
-	return beginFoldBlock == line && line < endFoldBlock;
-}
-
-bool HighlightDelimiter::IsBodyOfFoldBlock(int line) const
-{
-	return beginFoldBlock != -1 && beginFoldBlock < line && line < endFoldBlock;
-}
-
-bool HighlightDelimiter::IsTailOfFoldBlock(int line) const
-{
-	return beginFoldBlock != -1 && beginFoldBlock < line && line == endFoldBlock;
-}
+bool FASTCALL Document::HighlightDelimiter::NeedsDrawing(int line) const
+	{ return isEnabled && (line <= firstChangeableLineBefore || line >= firstChangeableLineAfter); }
+bool FASTCALL Document::HighlightDelimiter::IsFoldBlockHighlighted(int line) const
+	{ return isEnabled && beginFoldBlock != -1 && beginFoldBlock <= line && line <= endFoldBlock; }
+bool FASTCALL Document::HighlightDelimiter::IsHeadOfFoldBlock(int line) const
+	{ return beginFoldBlock == line && line < endFoldBlock; }
+bool FASTCALL Document::HighlightDelimiter::IsBodyOfFoldBlock(int line) const
+	{ return beginFoldBlock != -1 && beginFoldBlock < line && line < endFoldBlock; }
+bool FASTCALL Document::HighlightDelimiter::IsTailOfFoldBlock(int line) const
+	{ return beginFoldBlock != -1 && beginFoldBlock < line && line == endFoldBlock; }
 
 Editor::MarginView::MarginView() : pixmapSelMargin(0), pixmapSelPattern(0), pixmapSelPatternOffset1(0), wrapMarkerPaddingRight(3), customDrawWrapMarker(0)
 {
@@ -368,8 +354,8 @@ void Editor::MarginView::PaintMargin(Surface * surface, int topLine, PRectangle 
 						}
 					}
 				}
-				else if(vs.ms[margin].style == SC_MARGIN_TEXT || vs.ms[margin].style == SC_MARGIN_RTEXT) {
-					const StyledText stMargin = model.pdoc->MarginStyledText(lineDoc);
+				else if(oneof2(vs.ms[margin].style, SC_MARGIN_TEXT, SC_MARGIN_RTEXT)) {
+					const Document::StyledText stMargin = model.pdoc->MarginStyledText(lineDoc);
 					if(stMargin.text && ValidStyledText(vs, vs.marginStyleOffset, stMargin)) {
 						if(firstSubLine) {
 							surface->FillRectangle(rcMarker, vs.styles[stMargin.StyleAt(0) + vs.marginStyleOffset].back);

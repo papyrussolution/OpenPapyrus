@@ -12,8 +12,8 @@
 #pragma hdrstop
 
 #ifdef LIBXML_DEBUG_ENABLED
-#include <libxml/HTMLtree.h>
-#include <libxml/HTMLparser.h>
+//#include <libxml/HTMLtree.h>
+//#include <libxml/HTMLparser.h>
 //#include <libxml/xpathInternals.h>
 #ifdef LIBXML_SCHEMAS_ENABLED
 	#include <libxml/relaxng.h>
@@ -446,7 +446,7 @@ static void xmlCtxtDumpAttrDecl(xmlDebugCtxt * ctxt, xmlAttribute * attr)
 	xmlCtxtGenericNodeCheck(ctxt, (xmlNode *)attr);
 }
 
-static void xmlCtxtDumpElemDecl(xmlDebugCtxt * ctxt, xmlElementPtr elem)
+static void xmlCtxtDumpElemDecl(xmlDebugCtxt * ctxt, xmlElement * elem)
 {
 	xmlCtxtDumpSpaces(ctxt);
 	if(elem == NULL) {
@@ -626,7 +626,7 @@ static void xmlCtxtDumpEntity(xmlDebugCtxt * ctxt, xmlEntity * ent)
  *
  * Dumps debug information for the attribute
  */
-static void xmlCtxtDumpAttr(xmlDebugCtxt * ctxt, xmlAttrPtr attr)
+static void xmlCtxtDumpAttr(xmlDebugCtxt * ctxt, xmlAttr * attr)
 {
 	xmlCtxtDumpSpaces(ctxt);
 	if(!attr) {
@@ -661,7 +661,7 @@ static void xmlCtxtDumpAttr(xmlDebugCtxt * ctxt, xmlAttrPtr attr)
  *
  * Dumps debug information for the attribute list
  */
-static void xmlCtxtDumpAttrList(xmlDebugCtxt * ctxt, xmlAttrPtr attr)
+static void xmlCtxtDumpAttrList(xmlDebugCtxt * ctxt, xmlAttr * attr)
 {
 	for(; attr; attr = attr->next)
 		xmlCtxtDumpAttr(ctxt, attr);
@@ -783,7 +783,7 @@ static void xmlCtxtDumpOneNode(xmlDebugCtxt * ctxt, xmlNode * P_Node)
 				xmlCtxtDumpDtdNode(ctxt, (xmlDtd *)P_Node);
 				return;
 			case XML_ELEMENT_DECL:
-				xmlCtxtDumpElemDecl(ctxt, (xmlElementPtr)P_Node);
+				xmlCtxtDumpElemDecl(ctxt, (xmlElement *)P_Node);
 				return;
 			case XML_ATTRIBUTE_DECL:
 				xmlCtxtDumpAttrDecl(ctxt, (xmlAttribute *)P_Node);
@@ -1102,7 +1102,7 @@ void xmlDebugDumpString(FILE * output, const xmlChar * str)
  *
  * Dumps debug information for the attribute
  */
-void xmlDebugDumpAttr(FILE * output, xmlAttrPtr attr, int depth) 
+void xmlDebugDumpAttr(FILE * output, xmlAttr * attr, int depth) 
 {
 	if(output) {
 		xmlDebugCtxt ctxt(output);
@@ -1127,7 +1127,6 @@ void xmlDebugDumpEntities(FILE * output, xmlDoc * doc)
 		xmlCtxtDumpCleanCtxt(&ctxt);
 	}
 }
-
 /**
  * xmlDebugDumpAttrList:
  * @output:  the FILE * for the output
@@ -1136,7 +1135,7 @@ void xmlDebugDumpEntities(FILE * output, xmlDoc * doc)
  *
  * Dumps debug information for the attribute list
  */
-void xmlDebugDumpAttrList(FILE * output, xmlAttrPtr attr, int depth)
+void xmlDebugDumpAttrList(FILE * output, xmlAttr * attr, int depth)
 {
 	if(output) {
 		xmlDebugCtxt ctxt(output);

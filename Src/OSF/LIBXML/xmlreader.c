@@ -216,7 +216,7 @@ static void xmlFreeID(xmlIDPtr id)
  *
  * Returns -1 if the lookup failed and 0 otherwise
  */
-static int xmlTextReaderRemoveID(xmlDoc * doc, xmlAttrPtr attr)
+static int xmlTextReaderRemoveID(xmlDoc * doc, xmlAttr * attr)
 {
 	xmlIDTablePtr table;
 	xmlIDPtr id;
@@ -247,7 +247,7 @@ static int xmlTextReaderRemoveID(xmlDoc * doc, xmlAttrPtr attr)
  *
  * Free a node.
  */
-static void xmlTextReaderFreeProp(xmlTextReader * reader, xmlAttrPtr cur)
+static void xmlTextReaderFreeProp(xmlTextReader * reader, xmlAttr * cur)
 {
 	if(cur) {
 		xmlDict * dict = (reader && reader->ctxt) ? reader->ctxt->dict : NULL;
@@ -276,7 +276,7 @@ static void xmlTextReaderFreeProp(xmlTextReader * reader, xmlAttrPtr cur)
  *
  * Free a property and all its siblings, all the children are freed too.
  */
-static void xmlTextReaderFreePropList(xmlTextReader * reader, xmlAttrPtr cur) 
+static void xmlTextReaderFreePropList(xmlTextReader * reader, xmlAttr * cur) 
 {
 	while(cur) {
 		xmlAttr * next = cur->next;
@@ -2001,7 +2001,7 @@ xmlChar * xmlTextReaderGetAttributeNo(xmlTextReader * reader, int no)
 {
 	xmlChar * ret;
 	int i;
-	xmlAttrPtr cur;
+	xmlAttr * cur;
 	xmlNs * ns;
 	if(!reader || !reader->P_Node)
 		return 0;
@@ -2207,7 +2207,7 @@ xmlChar * xmlTextReaderLookupNamespace(xmlTextReader * reader, const xmlChar * p
 int xmlTextReaderMoveToAttributeNo(xmlTextReader * reader, int no) 
 {
 	int i;
-	xmlAttrPtr cur;
+	xmlAttr * cur;
 	xmlNs * ns;
 	if(!reader || !reader->P_Node)
 		return -1;
@@ -2250,7 +2250,7 @@ int xmlTextReaderMoveToAttribute(xmlTextReader * reader, const xmlChar * name)
 {
 	xmlChar * prefix = NULL;
 	xmlChar * localname = 0;
-	xmlAttrPtr prop;
+	xmlAttr * prop;
 	if(!reader || !name || !reader->P_Node)
 		return -1;
 	// @todo handle the xmlDecl 
@@ -2333,7 +2333,7 @@ found:
  */
 int xmlTextReaderMoveToAttributeNs(xmlTextReader * reader, const xmlChar * localName, const xmlChar * namespaceURI) 
 {
-	xmlAttrPtr prop;
+	xmlAttr * prop;
 	xmlNode * P_Node;
 	xmlNs * ns;
 	xmlChar * prefix = NULL;
@@ -3084,7 +3084,7 @@ const xmlChar * xmlTextReaderConstValue(xmlTextReader * reader)
 		case XML_NAMESPACE_DECL:
 		    return(((xmlNs *)P_Node)->href);
 		case XML_ATTRIBUTE_NODE: {
-		    xmlAttrPtr attr = (xmlAttr *)P_Node;
+		    xmlAttr * attr = (xmlAttr *)P_Node;
 		    if(attr->children && (attr->children->type == XML_TEXT_NODE) && (attr->children->next == NULL))
 			    return (attr->children->content);
 		    else {

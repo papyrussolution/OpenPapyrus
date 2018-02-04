@@ -11,18 +11,18 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#ifdef HAVE_SYS_TYPES_H
-	#include <sys/types.h>
-#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
-#ifdef HAVE_ZLIB_H
-	#include <zlib.h>
-#endif
-#ifdef HAVE_LZMA_H
-	#include <lzma.h>
-#endif
+//#ifdef HAVE_SYS_TYPES_H
+	//#include <sys/types.h>
+//#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
+//#ifdef HAVE_ZLIB_H
+	//#include <zlib.h>
+//#endif
+//#ifdef HAVE_LZMA_H
+	//#include <lzma.h>
+//#endif
 #if defined(_WIN32_WCE)
 	#include <winnls.h> /* for CP_UTF8 */
 #endif

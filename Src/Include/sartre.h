@@ -928,10 +928,12 @@ public:
 	};
 	enum {
 		kOp = 1,
-		kLiteral,
-		kConcept,
-		kMorph,
-		kRule
+		kLiteral,         // "abc"
+		kConcept,         // :abc
+		kConceptInstance, // :&abc
+		kConceptSubclass, // ::&abc
+		kMorph,           // []
+		kRule             // #abc
 	};
 
 	struct ExprItem { // @flat
@@ -943,7 +945,7 @@ public:
 			uint   SymbP; // Позиция символа в R_Set.Pool (для oneof(K, kLiteral, kConcept, kMorph, kRule))
 			uint32 Op;    // Ид операции (для K == kOp)
 		};
-		uint64 RSymb; // Идентификатор разрешенного символа SymbP в базе данных (для K == kConcept)
+		uint64 RSymb; // Идентификатор разрешенного символа SymbP в базе данных (для oneof3(K, kConcept, kConceptInstance, kConceptSubclass))
 	};
 
 	class ExprStack : public TSStack <ExprItem> {

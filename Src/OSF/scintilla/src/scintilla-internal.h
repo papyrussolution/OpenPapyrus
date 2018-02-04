@@ -607,10 +607,10 @@ public:
 	virtual void InsertLine(int line);
 	virtual void RemoveLine(int line);
 
-	bool MultipleStyles(int line) const;
-	int Style(int line) const;
-	const char *Text(int line) const;
-	const uchar *Styles(int line) const;
+	bool   FASTCALL MultipleStyles(int line) const;
+	int    FASTCALL Style(int line) const;
+	const  char  * FASTCALL Text(int line) const;
+	const  uchar * FASTCALL Styles(int line) const;
 	void SetText(int line, const char *text);
 	void ClearAll();
 	void SetStyle(int line, int style);
@@ -946,35 +946,7 @@ public:
 /// Factory function for RegexSearchBase
 extern RegexSearchBase * CreateRegexSearch(CharClassify * charClassTable);
 
-struct StyledText {
-	StyledText(size_t length_, const char * text_, bool multipleStyles_, int style_, const uchar * styles_) :
-		length(length_), text(text_), multipleStyles(multipleStyles_), style(style_), styles(styles_)
-	{
-	}
-	// Return number of bytes from start to before '\n' or end of text.
-	// Return 1 when start is outside text
-	size_t LineLength(size_t start) const
-	{
-		size_t cur = start;
-		while((cur < length) && (text[cur] != '\n'))
-			cur++;
-		return (cur-start);
-	}
-	size_t StyleAt(size_t i) const
-	{
-		return multipleStyles ? styles[i] : style;
-	}
-	size_t length;
-	const  char * text;
-	size_t style;
-	const  uchar * styles;
-	bool   multipleStyles;
-};
-
-inline int LevelNumber(int level)
-{
-	return level & SC_FOLDLEVELNUMBERMASK;
-}
+inline int LevelNumber(int level) { return level & SC_FOLDLEVELNUMBERMASK; }
 
 class LexInterface {
 public:
@@ -1001,24 +973,6 @@ struct RegexError : public std::runtime_error {
 	{
 	}
 };
-
-class HighlightDelimiter {
-public:
-	HighlightDelimiter();
-	void   Clear();
-	bool   NeedsDrawing(int line) const;
-	bool   IsFoldBlockHighlighted(int line) const;
-	bool   IsHeadOfFoldBlock(int line) const;
-	bool   IsBodyOfFoldBlock(int line) const;
-	bool   IsTailOfFoldBlock(int line) const;
-
-	int    beginFoldBlock;     // Begin of current fold block
-	int    endFoldBlock;       // End of current fold block
-	int    firstChangeableLineBefore;  // First line that triggers repaint before starting line that determined current fold block
-	int    firstChangeableLineAfter;   // First line that triggers repaint after starting line that determined current fold block
-	bool   isEnabled;
-	uint8  Reserve[3]; // @alignment
-};
 //
 //
 //
@@ -1038,6 +992,21 @@ public:
 		DocWatcher * watcher;
 		void * userData;
 	};
+	struct StyledText {
+		//StyledText(size_t length_, const char * text_, bool multipleStyles_, int style_, const uchar * styles_);
+		StyledText(const LineAnnotation & rLA, int line);
+		// Return number of bytes from start to before '\n' or end of text.
+		// Return 1 when start is outside text
+		size_t FASTCALL LineLength(size_t start) const;
+		size_t FASTCALL StyleAt(size_t i) const;
+
+		size_t length;
+		const  char * text;
+		size_t style;
+		const  uchar * styles;
+		bool   multipleStyles;
+		uint8  Reserve[3]; // @alignment
+	};
 	enum {
 		dfInsertionSet       = 0x0001,
 		dfMatchesValid       = 0x0002,
@@ -1045,14 +1014,8 @@ public:
 		dfTabIndents         = 0x0008,
 		dfBackspaceUnindents = 0x0010
 	};
-	bool   IsDocFlag(uint f) const
-	{
-		return (DocFlags & f) ? true : false;
-	}
-	void   SetDocFlag(uint f, int set)
-	{
-		SETFLAG(DocFlags, f, set);
-	}
+	bool   IsDocFlag(uint f) const { return (DocFlags & f) ? true : false; }
+	void   SetDocFlag(uint f, int set) { SETFLAG(DocFlags, f, set); }
 private:
 	int    refCount;
 	CellBuffer cb;
@@ -1098,6 +1061,23 @@ public:
 			return CharacterExtracted((lead << 8) | trail, 2);
 		}
 	};
+	class HighlightDelimiter {
+	public:
+		HighlightDelimiter();
+		void   Clear();
+		bool   FASTCALL NeedsDrawing(int line) const;
+		bool   FASTCALL IsFoldBlockHighlighted(int line) const;
+		bool   FASTCALL IsHeadOfFoldBlock(int line) const;
+		bool   FASTCALL IsBodyOfFoldBlock(int line) const;
+		bool   FASTCALL IsTailOfFoldBlock(int line) const;
+
+		int    beginFoldBlock;     // Begin of current fold block
+		int    endFoldBlock;       // End of current fold block
+		int    firstChangeableLineBefore;  // First line that triggers repaint before starting line that determined current fold block
+		int    firstChangeableLineAfter;   // First line that triggers repaint after starting line that determined current fold block
+		bool   isEnabled;
+		uint8  Reserve[3]; // @alignment
+	};
 
 	LexInterface * pli;
 	int    eolMode;
@@ -1122,26 +1102,14 @@ public:
 
 	int LineEndTypesSupported() const;
 	bool SetDBCSCodePage(int dbcsCodePage_);
-	int GetLineEndTypesAllowed() const
-	{
-		return cb.GetLineEndTypes();
-	}
+	int GetLineEndTypesAllowed() const { return cb.GetLineEndTypes(); }
 	bool SetLineEndTypesAllowed(int lineEndBitSet_);
-	int GetLineEndTypesActive() const
-	{
-		return cb.GetLineEndTypes();
-	}
-	int SCI_METHOD Version() const
-	{
-		return dvLineEnd;
-	}
+	int GetLineEndTypesActive() const { return cb.GetLineEndTypes(); }
+	int SCI_METHOD Version() const { return dvLineEnd; }
 	void SCI_METHOD SetErrorStatus(int status);
 	Sci_Position SCI_METHOD LineFromPosition(Sci_Position pos) const;
 	int  FASTCALL ClampPositionIntoDocument(int pos) const;
-	bool ContainsLineEnd(const char * s, int length) const
-	{
-		return cb.ContainsLineEnd(s, length);
-	}
+	bool ContainsLineEnd(const char * s, int length) const { return cb.ContainsLineEnd(s, length); }
 	bool FASTCALL IsCrLf(int pos) const;
 	int  FASTCALL LenChar(int pos);
 	bool InGoodUTF8(int pos, int &start, int &end) const;
@@ -1168,68 +1136,23 @@ public:
 	void * SCI_METHOD ConvertToDocument();
 	int  Undo();
 	int  Redo();
-	bool CanUndo() const
-	{
-		return cb.CanUndo();
-	}
-	bool CanRedo() const
-	{
-		return cb.CanRedo();
-	}
-	void DeleteUndoHistory()
-	{
-		cb.DeleteUndoHistory();
-	}
-	bool SetUndoCollection(bool collectUndo)
-	{
-		return cb.SetUndoCollection(collectUndo);
-	}
-	bool IsCollectingUndo() const
-	{
-		return cb.IsCollectingUndo();
-	}
-	void BeginUndoAction()
-	{
-		cb.BeginUndoAction();
-	}
-	void EndUndoAction()
-	{
-		cb.EndUndoAction();
-	}
-	void AddUndoAction(int token, bool mayCoalesce)
-	{
-		cb.AddUndoAction(token, mayCoalesce);
-	}
+	bool CanUndo() const { return cb.CanUndo(); }
+	bool CanRedo() const { return cb.CanRedo(); }
+	void DeleteUndoHistory() { cb.DeleteUndoHistory(); }
+	bool SetUndoCollection(bool collectUndo) { return cb.SetUndoCollection(collectUndo); }
+	bool IsCollectingUndo() const { return cb.IsCollectingUndo(); }
+	void BeginUndoAction() { cb.BeginUndoAction(); }
+	void EndUndoAction() { cb.EndUndoAction(); }
+	void AddUndoAction(int token, bool mayCoalesce) { cb.AddUndoAction(token, mayCoalesce); }
 	void SetSavePoint();
-	bool IsSavePoint() const
-	{
-		return cb.IsSavePoint();
-	}
-	void TentativeStart()
-	{
-		cb.TentativeStart();
-	}
-	void TentativeCommit()
-	{
-		cb.TentativeCommit();
-	}
+	bool IsSavePoint() const { return cb.IsSavePoint(); }
+	void TentativeStart() { cb.TentativeStart(); }
+	void TentativeCommit() { cb.TentativeCommit(); }
 	void TentativeUndo();
-	bool TentativeActive() const
-	{
-		return cb.TentativeActive();
-	}
-	const char * SCI_METHOD BufferPointer()
-	{
-		return cb.BufferPointer();
-	}
-	const char * RangePointer(int position, int rangeLength)
-	{
-		return cb.RangePointer(position, rangeLength);
-	}
-	int GapPosition() const
-	{
-		return cb.GapPosition();
-	}
+	bool TentativeActive() const { return cb.TentativeActive(); }
+	const char * SCI_METHOD BufferPointer() { return cb.BufferPointer(); }
+	const char * RangePointer(int position, int rangeLength) { return cb.RangePointer(position, rangeLength); }
+	int GapPosition() const { return cb.GapPosition(); }
 	int SCI_METHOD GetLineIndentation(Sci_Position line);
 	int SetLineIndentation(int line, int indent);
 	int GetLineIndentPosition(int line) const;
@@ -1240,20 +1163,11 @@ public:
 	void Indent(bool forwards, int lineBottom, int lineTop);
 	static std::string TransformLineEnds(const char * s, size_t len, int eolModeWanted);
 	void ConvertLineEnds(int eolModeSet);
-	void SetReadOnly(bool set)
-	{
-		cb.SetReadOnly(set);
-	}
-	bool IsReadOnly() const
-	{
-		return cb.IsReadOnly();
-	}
+	void SetReadOnly(bool set) { cb.SetReadOnly(set); }
+	bool IsReadOnly() const { return cb.IsReadOnly(); }
 	void DelChar(int pos);
 	void DelCharBack(int pos);
-	char FASTCALL CharAt(int position) const
-	{
-		return cb.CharAt(position);
-	}
+	char FASTCALL CharAt(int position) const { return cb.CharAt(position); }
 	void SCI_METHOD GetCharRange(char * buffer, Sci_Position position, Sci_Position lengthRetrieve) const
 	{
 		cb.GetCharRange(buffer, position, lengthRetrieve);
@@ -1270,39 +1184,33 @@ public:
 	{
 		cb.GetStyleRange(buffer, position, lengthRetrieve);
 	}
-	int GetMark(int line);
-	int MarkerNext(int lineStart, int mask) const;
-	int AddMark(int line, int markerNum);
-	void AddMarkSet(int line, int valueSet);
-	void DeleteMark(int line, int markerNum);
-	void DeleteMarkFromHandle(int markerHandle);
-	void DeleteAllMarks(int markerNum);
-	int LineFromHandle(int markerHandle);
+	int    GetMark(int line);
+	int    MarkerNext(int lineStart, int mask) const;
+	int    AddMark(int line, int markerNum);
+	void   AddMarkSet(int line, int valueSet);
+	void   DeleteMark(int line, int markerNum);
+	void   DeleteMarkFromHandle(int markerHandle);
+	void   DeleteAllMarks(int markerNum);
+	int    LineFromHandle(int markerHandle);
 	Sci_Position SCI_METHOD LineStart(Sci_Position line) const;
-	bool IsLineStartPosition(int position) const;
+	bool   IsLineStartPosition(int position) const;
 	Sci_Position SCI_METHOD LineEnd(Sci_Position line) const;
-	int LineEndPosition(int position) const;
-	bool FASTCALL IsLineEndPosition(int position) const;
-	bool FASTCALL IsPositionInLineEnd(int position) const;
-	int VCHomePosition(int position) const;
-	int SCI_METHOD SetLevel(Sci_Position line, int level);
-	int SCI_METHOD GetLevel(Sci_Position line) const;
-	void ClearLevels();
-	int GetLastChild(int lineParent, int level = -1, int lastLine = -1);
-	int GetFoldParent(int line) const;
-	void GetHighlightDelimiters(HighlightDelimiter & hDelimiter, int line, int lastLine);
-	void Indent(bool forwards);
-	int ExtendWordSelect(int pos, int delta, bool onlyWordCharacters = false) const;
-	int NextWordStart(int pos, int delta) const;
-	int NextWordEnd(int pos, int delta) const;
-	Sci_Position SCI_METHOD Length() const
-	{
-		return cb.Length();
-	}
-	void FASTCALL Allocate(int newSize)
-	{
-		cb.Allocate(newSize);
-	}
+	int    LineEndPosition(int position) const;
+	bool   FASTCALL IsLineEndPosition(int position) const;
+	bool   FASTCALL IsPositionInLineEnd(int position) const;
+	int    VCHomePosition(int position) const;
+	int    SCI_METHOD SetLevel(Sci_Position line, int level);
+	int    SCI_METHOD GetLevel(Sci_Position line) const;
+	void   ClearLevels();
+	int    GetLastChild(int lineParent, int level = -1, int lastLine = -1);
+	int    GetFoldParent(int line) const;
+	void   GetHighlightDelimiters(Document::HighlightDelimiter & hDelimiter, int line, int lastLine);
+	void   Indent(bool forwards);
+	int    ExtendWordSelect(int pos, int delta, bool onlyWordCharacters = false) const;
+	int    NextWordStart(int pos, int delta) const;
+	int    NextWordEnd(int pos, int delta) const;
+	Sci_Position SCI_METHOD Length() const { return cb.Length(); }
+	void FASTCALL Allocate(int newSize) { cb.Allocate(newSize); }
 	CharacterExtracted ExtractCharacter(int position) const;
 	bool IsWordStartAt(int pos) const;
 	bool IsWordEndAt(int pos) const;
@@ -1319,22 +1227,13 @@ public:
 	void SCI_METHOD StartStyling(Sci_Position position, char mask);
 	bool SCI_METHOD SetStyleFor(Sci_Position length, char style);
 	bool SCI_METHOD SetStyles(Sci_Position length, const char * styles);
-	int GetEndStyled() const
-	{
-		return endStyled;
-	}
+	int GetEndStyled() const { return endStyled; }
 	void EnsureStyledTo(int pos);
 	void StyleToAdjustingLineDuration(int pos);
 	void LexerChanged();
-	int GetStyleClock() const
-	{
-		return styleClock;
-	}
+	int GetStyleClock() const { return styleClock; }
 	void IncrementStyleClock();
-	void SCI_METHOD DecorationSetCurrentIndicator(int indicator)
-	{
-		decorations.SetCurrentIndicator(indicator);
-	}
+	void SCI_METHOD DecorationSetCurrentIndicator(int indicator) { decorations.SetCurrentIndicator(indicator); }
 	void SCI_METHOD DecorationFillRange(Sci_Position position, int value, Sci_Position fillLength);
 	int SCI_METHOD SetLineState(Sci_Position line, int state);
 	int SCI_METHOD GetLineState(Sci_Position line) const;
@@ -1362,10 +1261,7 @@ public:
 	bool FASTCALL IsWhiteLine(int line) const;
 	int  FASTCALL ParaUp(int pos) const;
 	int  FASTCALL ParaDown(int pos) const;
-	int  IndentSize() const
-	{
-		return actualIndentInChars;
-	}
+	int  IndentSize() const { return actualIndentInChars; }
 	int BraceMatch(int position, int maxReStyle);
 private:
 	void NotifyModifyAttempt();
@@ -1487,14 +1383,13 @@ public:
 	int maxLineLength;
 	int numCharsInLine;
 	int numCharsBeforeEOL;
-
 	int xHighlightGuide;
-	bool highlightColumn;
-	bool containsCaret;
 	int edgeColumn;
 	char * chars;
 	uchar * styles;
 	XYPOSITION * positions;
+	bool highlightColumn;
+	bool containsCaret;
 	char bracePreviousStyles[2];
 	Range hotspot; // Hotspot support
 	// Wrapped line support
@@ -2229,10 +2124,10 @@ enum DrawPhase {
 	drawAll = 0x1FF
 };
 
-bool   ValidStyledText(const ViewStyle &vs, size_t styleOffset, const StyledText &st);
-int    WidestLineWidth(Surface *surface, const ViewStyle &vs, int styleOffset, const StyledText &st);
+bool   ValidStyledText(const ViewStyle &vs, size_t styleOffset, const Document::StyledText &st);
+int    WidestLineWidth(Surface *surface, const ViewStyle &vs, int styleOffset, const Document::StyledText &st);
 void   DrawTextNoClipPhase(Surface *surface, PRectangle rc, const Style &style, XYPOSITION ybase, const char *s, int len, DrawPhase phase);
-void   DrawStyledText(Surface *surface, const ViewStyle &vs, int styleOffset, PRectangle rcText, const StyledText &st, size_t start, size_t length, DrawPhase phase);
+void   DrawStyledText(Surface *surface, const ViewStyle &vs, int styleOffset, PRectangle rcText, const Document::StyledText &st, size_t start, size_t length, DrawPhase phase);
 
 typedef void (*DrawTabArrowFn)(Surface *surface, PRectangle rcTab, int ymid);
 // 
@@ -2575,7 +2470,7 @@ protected: // ScintillaBase subclass needs access to much of Editor
 		Surface * pixmapSelMargin;
 		Surface * pixmapSelPattern;
 		Surface * pixmapSelPatternOffset1;
-		HighlightDelimiter highlightDelimiter; // Highlight current folding block
+		Document::HighlightDelimiter highlightDelimiter; // Highlight current folding block
 		int    wrapMarkerPaddingRight; // right-most pixel padding of wrap markers
 		// 
 		// Descr: Some platforms, notably PLAT_CURSES, do not support Scintilla's native

@@ -14,8 +14,8 @@
 #include <libxml/tree.h>
 #include <libxml/xmlIO.h>
 #ifdef LIBXML_SCHEMAS_ENABLED
-#include <libxml/relaxng.h>
-#include <libxml/xmlschemas.h>
+	#include <libxml/relaxng.h>
+	#include <libxml/xmlschemas.h>
 #endif
 
 #ifdef __cplusplus
@@ -232,7 +232,6 @@ XMLPUBFUN int XMLCALL xmlReaderNewIO(xmlTextReader * reader, xmlInputReadCallbac
  * Error handling extensions
  */
 typedef void *  xmlTextReaderLocatorPtr;
-
 /**
  * xmlTextReaderErrorFunc:
  * @arg: the user argument

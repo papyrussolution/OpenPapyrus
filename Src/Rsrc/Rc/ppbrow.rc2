@@ -1338,24 +1338,24 @@ browser GOODSSTRUC2 north(100), 3, 1, "Товарные структуры {%s}", OWNER|GRID, 0
 	}
 }
 
-browser GOODSSTRUC north(100), 3, 1, "Товарные структуры {%s}", OWNER|GRID, 0
-{
-	"@id",                 1, notype, 0, 10
-	"@ware",               3, notype, 0, 60, BCO_DONTSHOWDUPL
-	"Компонент структуры", 4, notype, 0, 40
-	"@qtty",               5, notype, ALIGN_RIGHT, 10
-	"@type",               6, notype, 0, 10
-	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM       : kbEnter,   TBBM_EDIT,   "@{edit}\tEnter"
-		EDITGOODS      : kbF2,      TBBM_GOODS,  "@{ware}\tF2"
-		EDITITEMGOODS  : kbShiftF2, TBBM_GOODS,  "@{component}\tShift-F2"
-		PRINT          : kbF7,      TBBM_PRINT,  "Печать списка\tF7"
-		separator
-		CHANGEFILT : kbCtrlV,   TBBM_FILTER, "@{filter}\tCtrl-V"
-		separator
-		TOTAL      : kbF9,      TBBM_SIGM,   "@{totals}\tF9"
-	}
-}
+//browser GOODSSTRUC north(100), 3, 1, "Товарные структуры {%s}", OWNER|GRID, 0
+//{
+//	"@id",                 1, notype, 0, 10
+//	"@ware",               3, notype, 0, 60, BCO_DONTSHOWDUPL
+//	"Компонент структуры", 4, notype, 0, 40
+//	"@qtty",               5, notype, ALIGN_RIGHT, 10
+//	"@type",               6, notype, 0, 10
+//	toolbar TB_FIRST_TOOLBAR {
+//		EDITITEM       : kbEnter,   TBBM_EDIT,   "@{edit}\tEnter"
+//		EDITGOODS      : kbF2,      TBBM_GOODS,  "@{ware}\tF2"
+//		EDITITEMGOODS  : kbShiftF2, TBBM_GOODS,  "@{component}\tShift-F2"
+//		PRINT          : kbF7,      TBBM_PRINT,  "Печать списка\tF7"
+//		separator
+//		CHANGEFILT : kbCtrlV,   TBBM_FILTER, "@{filter}\tCtrl-V"
+//		separator
+//		TOTAL      : kbF9,      TBBM_SIGM,   "@{totals}\tF9"
+//	}
+//}
 
 browser TRANSPORT north(100), 3, 0, "@{view_transport}", OWNER|GRID, 0
 {

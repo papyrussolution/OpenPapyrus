@@ -3986,7 +3986,7 @@ public:
 	//
 	// Descr: Возвращает размер данных в буфере.
 	//
-	size_t SLAPI getDataLen() const;
+	size_t SLAPI getDataLen() const { return DataLen; }
 	size_t SLAPI getSize() const;
 	//
 	// Descr: Записывает в буфер rBuf состояние экземпляра.
@@ -11996,8 +11996,8 @@ public:
 	StringSet TempFileList;
 	SRandGenerator Rg;      // Генератор случайных чисел общего пользования. Инициализируется по моменту создания потока.
 	SGlobalSecureConfig Gsc; // Конфигурация SSL, шифрования и др. для секьюритизации глобального обмена данными
-	//SRevolver_SString  RvlSStA; // @v9.9.3 Револьверная коллекция shortlived-строк
-	//SRevolver_SStringU RvlSStW  // @v9.9.3 Револьверная коллекция shortlived-строк(unicode)
+	SRevolver_SString  RvlSStA; // @v9.9.3 Револьверная коллекция shortlived-строк
+	SRevolver_SStringU RvlSStW; // @v9.9.3 Револьверная коллекция shortlived-строк(unicode)
 	SProfile Prf;            // @v9.7.11 Локальный по отношению к потоку профайлер
 	SLockStack LckStk;       // @v9.8.1 Отладочный стэк блокировок
 private:
@@ -12161,14 +12161,12 @@ public:
 
 	void   SLAPI SetLogPath(const char *);
 	SString & SLAPI GetLogPath(SString & rPath) const;
-	//
-	//
-	//
 	void   SLAPI GetExtraProcBlock(SlExtraProcBlock * pBlk) const;
 	void   SLAPI SetExtraProcBlock(const SlExtraProcBlock * pBlk);
-	//
 	void   SLAPI LockPush(int lockType, const char * pSrcFileName, uint srcLineNo);
 	void   SLAPI LockPop();
+	SString  & SLAPI AcquireRvlStr();
+	SStringU & SLAPI AcquireRvlStrU();
 private:
 	long   Id;              // @anchor
 	long   TlsIdx;          // @anchor

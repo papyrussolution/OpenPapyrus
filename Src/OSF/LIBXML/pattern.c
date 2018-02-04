@@ -33,7 +33,7 @@
 /* #define DEBUG_STREAMING */
 
 #ifdef ERROR
-#undef ERROR
+	#undef ERROR
 #endif
 #define ERROR(a, b, c, d)
 #define ERROR5(a, b, c, d, e)

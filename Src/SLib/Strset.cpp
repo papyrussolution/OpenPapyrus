@@ -83,7 +83,8 @@ SLAPI StringSet::StringSet(const StringSet & rS)
 
 SLAPI StringSet::~StringSet()
 {
-	SAlloc::F(P_Buf);
+	if(P_Buf)
+		SAlloc::F(P_Buf);
 }
 
 StringSet & FASTCALL StringSet::operator = (const StringSet & rS)
@@ -555,7 +556,6 @@ uint SLAPI StringSet::getCount() const
 }
 
 char * SLAPI StringSet::getBuf() const { return P_Buf; }
-size_t SLAPI StringSet::getDataLen() const { return DataLen; }
 size_t SLAPI StringSet::getSize() const { return Size; }
 //
 //
@@ -628,8 +628,7 @@ int SLAPI SStrGroup::GetS(uint pos, SString & rStr) const
 void * SLAPI SStrGroup::Pack_Start() const
 {
 	StringSet * p_handle = new StringSet;
-	if(p_handle)
-		p_handle->add("$", 0);
+	CALLPTRMEMB(p_handle, add("$", 0));
 	return p_handle;
 }
 

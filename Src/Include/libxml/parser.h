@@ -156,19 +156,16 @@ typedef enum {
 	XML_PARSE_PUSH_SAX = 4,
 	XML_PARSE_READER = 5
 } xmlParserMode;
-
-/**
- * xmlParserCtxt:
- *
- * The parser context.
- * NOTE This doesn't completely define the parser state, the (current ?)
- *      design of the parser uses recursive function calls since this allow
- *      and easy mapping from the production rules of the specification
- *      to the actual code. The drawback is that the actual function call
- *      also reflect the parser state. However most of the parsing routines
- *      takes as the only argument the parser context pointer, so migrating
- *      to a state based parser for progressive parsing shouldn't be too hard.
- */
+// 
+// Descr: The parser context.
+// NOTE This doesn't completely define the parser state, the (current ?)
+//   design of the parser uses recursive function calls since this allow
+//   and easy mapping from the production rules of the specification
+//   to the actual code. The drawback is that the actual function call
+//   also reflect the parser state. However most of the parsing routines
+//   takes as the only argument the parser context pointer, so migrating
+//   to a state based parser for progressive parsing shouldn't be too hard.
+//   
 struct xmlParserCtxt {
 	xmlParserInput * input;          // Current input stream
 	struct xmlSAXHandler * sax;      // The SAX handler
@@ -277,18 +274,17 @@ struct xmlParserCtxt {
 	int    input_id;                 // we need to label inputs
 	ulong  sizeentcopy;    // volume of entity copy
 };
-/**
- * xmlSAXLocator:
- *
- * A SAX Locator.
- */
+
+typedef xmlParserCtxt htmlParserCtxt;
+//
+// Descr: A SAX Locator
+//
 struct xmlSAXLocator {
 	const xmlChar *(*getPublicId)(void* ctx);
 	const xmlChar *(*getSystemId)(void* ctx);
 	int (* getLineNumber)(void * ctx);
 	int (* getColumnNumber)(void * ctx);
 };
-
 /**
  * xmlSAXHandler:
  *
@@ -663,13 +659,12 @@ struct xmlSAXHandler {
 	endElementNsSAX2Func endElementNs;
 	xmlStructuredErrorFunc serror;
 };
-
 /*
  * SAX Version 1
  */
-typedef struct _xmlSAXHandlerV1 xmlSAXHandlerV1;
-typedef xmlSAXHandlerV1 * xmlSAXHandlerV1Ptr;
-struct _xmlSAXHandlerV1 {
+//typedef struct _xmlSAXHandlerV1 xmlSAXHandlerV1;
+
+struct xmlSAXHandlerV1 {
 	internalSubsetSAXFunc internalSubset;
 	isStandaloneSAXFunc isStandalone;
 	hasInternalSubsetSAXFunc hasInternalSubset;
@@ -699,6 +694,7 @@ struct _xmlSAXHandlerV1 {
 	externalSubsetSAXFunc externalSubset;
 	uint initialized;
 };
+//typedef xmlSAXHandlerV1 * xmlSAXHandlerV1Ptr;
 /**
  * xmlExternalEntityLoader:
  * @URL: The System ID of the resource requested

@@ -12,12 +12,12 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#ifdef HAVE_ZLIB_H
-	#include <zlib.h>
-#endif
-#ifdef LIBXML_HTML_ENABLED
-	#include <libxml/HTMLtree.h>
-#endif
+//#ifdef HAVE_ZLIB_H
+	//#include <zlib.h>
+//#endif
+//#ifdef LIBXML_HTML_ENABLED
+	//#include <libxml/HTMLtree.h>
+//#endif
 #include "save.h"
 
 int __xmlRegisterCallbacks = 0;
@@ -1576,9 +1576,9 @@ xmlChar * xmlNodeListGetRawString(const xmlDoc * doc, const xmlNode * list, int 
 
 #endif /* LIBXML_TREE_ENABLED */
 
-static xmlAttrPtr xmlNewPropInternal(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value, int eatname)
+static xmlAttr * xmlNewPropInternal(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value, int eatname)
 {
-	xmlAttrPtr cur;
+	xmlAttr * cur;
 	xmlDocPtr doc = NULL;
 	if(P_Node && P_Node->type != XML_ELEMENT_NODE) {
 		if((eatname == 1) && ((P_Node->doc == NULL) || (!(xmlDictOwns(P_Node->doc->dict, name)))))
@@ -1654,7 +1654,7 @@ static xmlAttrPtr xmlNewPropInternal(xmlNode * P_Node, xmlNs * ns, const xmlChar
  * Create a new property carried by a node.
  * Returns a pointer to the attribute
  */
-xmlAttrPtr xmlNewProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * value)
+xmlAttr * xmlNewProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * value)
 {
 	if(!name) {
 #ifdef DEBUG_TREE
@@ -1666,7 +1666,6 @@ xmlAttrPtr xmlNewProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * va
 }
 
 #endif /* LIBXML_TREE_ENABLED */
-
 /**
  * xmlNewNsProp:
  * @node:  the holding node
@@ -1677,7 +1676,7 @@ xmlAttrPtr xmlNewProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * va
  * Create a new property tagged with a namespace and carried by a node.
  * Returns a pointer to the attribute
  */
-xmlAttrPtr xmlNewNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value)
+xmlAttr * xmlNewNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value)
 {
 	if(!name) {
 #ifdef DEBUG_TREE
@@ -1687,7 +1686,6 @@ xmlAttrPtr xmlNewNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, cons
 	}
 	return xmlNewPropInternal(P_Node, ns, name, value, 0);
 }
-
 /**
  * xmlNewNsPropEatName:
  * @node:  the holding node
@@ -1698,7 +1696,7 @@ xmlAttrPtr xmlNewNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, cons
  * Create a new property tagged with a namespace and carried by a node.
  * Returns a pointer to the attribute
  */
-xmlAttrPtr xmlNewNsPropEatName(xmlNode * P_Node, xmlNs * ns, xmlChar * name, const xmlChar * value)
+xmlAttr * xmlNewNsPropEatName(xmlNode * P_Node, xmlNs * ns, xmlChar * name, const xmlChar * value)
 {
 	if(!name) {
 #ifdef DEBUG_TREE
@@ -1759,7 +1757,7 @@ xmlAttr * FASTCALL xmlNewDocProp(xmlDoc * doc, const xmlChar * name, const xmlCh
  *
  * Free a property and all its siblings, all the children are freed too.
  */
-void xmlFreePropList(xmlAttrPtr cur)
+void xmlFreePropList(xmlAttr * cur)
 {
 	while(cur) {
 		xmlAttr * next = cur->next;
@@ -1796,7 +1794,7 @@ void FASTCALL xmlFreeProp(xmlAttr * cur)
  *
  * Returns 0 if success and -1 in case of error.
  */
-int xmlRemoveProp(xmlAttrPtr cur)
+int xmlRemoveProp(xmlAttr * cur)
 {
 	if(!cur) {
 #ifdef DEBUG_TREE
@@ -3430,7 +3428,7 @@ xmlNs * xmlCopyNamespaceList(xmlNs * cur)
 
 static xmlNode * xmlStaticCopyNodeList(xmlNode * P_Node, xmlDoc * doc, xmlNode * parent);
 
-static xmlAttrPtr xmlCopyPropInternal(xmlDoc * doc, xmlNode * target, xmlAttrPtr cur)
+static xmlAttr * xmlCopyPropInternal(xmlDoc * doc, xmlNode * target, xmlAttr * cur)
 {
 	xmlAttr * ret;
 	if(!cur)
@@ -3515,7 +3513,6 @@ static xmlAttrPtr xmlCopyPropInternal(xmlDoc * doc, xmlNode * target, xmlAttrPtr
 	}
 	return ret;
 }
-
 /**
  * xmlCopyProp:
  * @target:  the element where the attribute will be grafted
@@ -3525,11 +3522,10 @@ static xmlAttrPtr xmlCopyPropInternal(xmlDoc * doc, xmlNode * target, xmlAttrPtr
  *
  * Returns: a new #xmlAttrPtr, or NULL in case of error.
  */
-xmlAttrPtr xmlCopyProp(xmlNode * target, xmlAttrPtr cur)
+xmlAttr * xmlCopyProp(xmlNode * target, xmlAttr * cur)
 {
 	return xmlCopyPropInternal(NULL, target, cur);
 }
-
 /**
  * xmlCopyPropList:
  * @target:  the element where the attributes will be grafted
@@ -3539,10 +3535,11 @@ xmlAttrPtr xmlCopyProp(xmlNode * target, xmlAttrPtr cur)
  *
  * Returns: a new #xmlAttrPtr, or NULL in case of error.
  */
-xmlAttrPtr xmlCopyPropList(xmlNode * target, xmlAttrPtr cur)
+xmlAttr * xmlCopyPropList(xmlNode * target, xmlAttr * cur)
 {
-	xmlAttrPtr ret = NULL;
-	xmlAttrPtr p = NULL, q;
+	xmlAttr * ret = NULL;
+	xmlAttr * p = NULL;
+	xmlAttr * q;
 	if(target && (target->type != XML_ELEMENT_NODE))
 		return 0;
 	while(cur) {
@@ -3881,7 +3878,7 @@ xmlDtdPtr xmlCopyDtd(xmlDtdPtr dtd)
 			}
 		}
 		else if(cur->type == XML_ELEMENT_DECL) {
-			xmlElementPtr tmp = (xmlElementPtr)cur;
+			xmlElement * tmp = (xmlElement *)cur;
 			q = (xmlNode *)xmlGetDtdQElementDesc(ret, tmp->name, tmp->prefix);
 		}
 		else if(cur->type == XML_ATTRIBUTE_DECL) {
@@ -4789,7 +4786,7 @@ int FASTCALL xmlBufGetNodeContent(xmlBuf * buf, const xmlNode * cur)
 				break;
 			}
 		case XML_ATTRIBUTE_NODE: {
-		    xmlAttrPtr attr = (xmlAttr *)cur;
+		    xmlAttr * attr = (xmlAttr *)cur;
 		    for(xmlNode * tmp = attr->children; tmp; tmp = tmp->next) {
 			    if(tmp->type == XML_TEXT_NODE)
 				    xmlBufCat(buf, tmp->content);
@@ -5834,9 +5831,9 @@ static xmlChar * xmlGetPropNodeValueInternal(const xmlAttr * prop)
  * Returns the attribute or the attribute declaration or NULL if
  *         neither was found.
  */
-xmlAttrPtr FASTCALL xmlHasProp(const xmlNode * P_Node, const xmlChar * name) 
+xmlAttr * FASTCALL xmlHasProp(const xmlNode * P_Node, const xmlChar * name) 
 {
-	xmlAttrPtr prop;
+	xmlAttr * prop;
 	xmlDocPtr doc;
 	if(!P_Node || P_Node->type != XML_ELEMENT_NODE || !name)
 		return 0;
@@ -5887,7 +5884,7 @@ xmlAttrPtr FASTCALL xmlHasProp(const xmlNode * P_Node, const xmlChar * name)
  * Returns the attribute or the attribute declaration or NULL
  *     if neither was found.
  */
-xmlAttrPtr xmlHasNsProp(const xmlNode * P_Node, const xmlChar * name, const xmlChar * nameSpace) 
+xmlAttr * xmlHasNsProp(const xmlNode * P_Node, const xmlChar * name, const xmlChar * nameSpace) 
 {
 	return xmlGetPropNodeInternal(P_Node, name, nameSpace, xmlCheckDTD);
 }
@@ -5909,7 +5906,7 @@ xmlAttrPtr xmlHasNsProp(const xmlNode * P_Node, const xmlChar * name, const xmlC
  */
 xmlChar * FASTCALL xmlGetProp(const xmlNode * P_Node, const xmlChar * name) 
 {
-	xmlAttrPtr prop = xmlHasProp(P_Node, name);
+	xmlAttr * prop = xmlHasProp(P_Node, name);
 	return prop ? xmlGetPropNodeValueInternal(prop) : 0;
 }
 /**
@@ -6010,7 +6007,7 @@ int xmlUnsetNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name)
  * Returns the attribute pointer.
  *
  */
-xmlAttrPtr xmlSetProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * value) 
+xmlAttr * xmlSetProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * value) 
 {
 	int len;
 	const xmlChar * nqname;
@@ -6041,9 +6038,9 @@ xmlAttrPtr xmlSetProp(xmlNode * P_Node, const xmlChar * name, const xmlChar * va
  *
  * Returns the attribute pointer.
  */
-xmlAttrPtr xmlSetNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value)
+xmlAttr * xmlSetNsProp(xmlNode * P_Node, xmlNs * ns, const xmlChar * name, const xmlChar * value)
 {
-	xmlAttrPtr prop;
+	xmlAttr * prop;
 	if(ns && (ns->href == NULL))
 		return 0;
 	prop = xmlGetPropNodeInternal(P_Node, name, ns ? ns->href : NULL, 0);
@@ -8696,8 +8693,8 @@ exit:
  *
  * Returns 0 if succeeded, -1 otherwise and on API/internal errors.
  */
-static int xmlDOMWrapAdoptAttr(xmlDOMWrapCtxtPtr ctxt, xmlDocPtr sourceDoc, xmlAttrPtr attr,
-    xmlDocPtr destDoc, xmlNode * destParent, int options ATTRIBUTE_UNUSED)
+static int xmlDOMWrapAdoptAttr(xmlDOMWrapCtxtPtr ctxt, xmlDoc * sourceDoc, xmlAttr * attr,
+    xmlDoc * destDoc, xmlNode * destParent, int options ATTRIBUTE_UNUSED)
 {
 	xmlNode * cur;
 	int adoptStr = 1;

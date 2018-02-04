@@ -9,3 +9,6 @@
 
 humname = (#humname_f #humname_p #humname_s) | (#humname_s #humname_f #humname_p) | (#humname_s #humname_f) | (#humname_f #humname_s) | (#humname_f #humname_p) | #humname_f | #humname_s;
 
+//#street = ({!::gener_vici\v1} !:\v1) | (!:\v2 {!::gener_vici\v2}) | !:gener_vici
+//#town   = ({!::urbs\u1} !:\u1) | (!:\u2 {!::urbs\u2}) | !:urbs
+//address = (#town #street)

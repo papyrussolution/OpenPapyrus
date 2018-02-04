@@ -937,9 +937,7 @@
     <ClInclude Include="..\include\libxml\debugXML.h" />
     <ClInclude Include="..\include\libxml\DOCBparser.h" />
     <ClInclude Include="..\include\libxml\encoding.h" />
-    <ClInclude Include="..\include\libxml\entities.h" />
     <ClInclude Include="..\include\libxml\globals.h" />
-    <ClInclude Include="..\include\libxml\hash.h" />
     <ClInclude Include="..\include\libxml\HTMLparser.h" />
     <ClInclude Include="..\include\libxml\HTMLtree.h" />
     <ClInclude Include="..\include\libxml\list.h" />

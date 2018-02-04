@@ -11,23 +11,22 @@
 #pragma hdrstop
 
 #ifdef HAVE_LZMA_H
-
-#ifdef HAVE_SYS_TYPES_H
-	#include <sys/types.h>
-#endif
-#ifdef HAVE_SYS_STAT_H
+//#ifdef HAVE_SYS_TYPES_H
+	//#include <sys/types.h>
+//#endif
+//#ifdef HAVE_SYS_STAT_H
 	//#include <sys/stat.h>
-#endif
-#ifdef HAVE_FCNTL_H
+//#endif
+//#ifdef HAVE_FCNTL_H
 	//#include <fcntl.h>
-#endif
-#ifdef HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
-#ifdef HAVE_ZLIB_H
-	#include <zlib.h>
-#endif
-#include <lzma.h>
+//#endif
+//#ifdef HAVE_UNISTD_H
+	//#include <unistd.h>
+//#endif
+//#ifdef HAVE_ZLIB_H
+	//#include <zlib.h>
+//#endif
+//#include <lzma.h>
 #include "xzlib.h"
 
 /* values for xz_state how */

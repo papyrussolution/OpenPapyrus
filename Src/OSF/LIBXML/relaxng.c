@@ -265,9 +265,8 @@ struct _xmlRelaxNGValidState {
 	int nbAttrLeft;         /* the number of attributes left to validate */
 	xmlChar * value;        /* the value when operating on string */
 	xmlChar * endvalue;     /* the end value when operating on string */
-	xmlAttrPtr * attrs;     /* the array of attributes */
+	xmlAttr ** attrs;     /* the array of attributes */
 };
-
 /**
  * xmlRelaxNGStates:
  *
@@ -980,7 +979,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGNewValidState(xmlRelaxNGValidCtxtPtr ct
 {
 	xmlRelaxNGValidStatePtr ret;
 	xmlAttr * attr;
-	xmlAttrPtr attrs[MAX_ATTR];
+	xmlAttr * attrs[MAX_ATTR];
 	int nbAttrs = 0;
 	xmlNode * root = NULL;
 
@@ -1028,15 +1027,14 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGNewValidState(xmlRelaxNGValidCtxtPtr ct
 				ret->maxAttrs = 4;
 			else
 				ret->maxAttrs = nbAttrs;
-			ret->attrs = (xmlAttrPtr*)SAlloc::M(ret->maxAttrs *
-			    sizeof(xmlAttr *));
+			ret->attrs = (xmlAttr **)SAlloc::M(ret->maxAttrs * sizeof(xmlAttr*));
 			if(ret->attrs == NULL) {
 				xmlRngVErrMemory(ctxt, "allocating states\n");
 				return ret;
 			}
 		}
 		else if(ret->maxAttrs < nbAttrs) {
-			xmlAttrPtr * tmp = (xmlAttrPtr*)SAlloc::R(ret->attrs, nbAttrs * sizeof(xmlAttr *));
+			xmlAttr ** tmp = (xmlAttr **)SAlloc::R(ret->attrs, nbAttrs * sizeof(xmlAttr *));
 			if(!tmp) {
 				xmlRngVErrMemory(ctxt, "allocating states\n");
 				return ret;
@@ -1074,7 +1072,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGCopyValidState(xmlRelaxNGValidCtxtPtr c
 {
 	xmlRelaxNGValidStatePtr ret;
 	uint maxAttrs;
-	xmlAttrPtr * attrs;
+	xmlAttr ** attrs;
 	if(state == NULL)
 		return 0;
 	if(ctxt->freeState && (ctxt->freeState->nbState > 0)) {
@@ -1097,8 +1095,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGCopyValidState(xmlRelaxNGValidCtxtPtr c
 	if(state->nbAttrs > 0) {
 		if(ret->attrs == NULL) {
 			ret->maxAttrs = state->maxAttrs;
-			ret->attrs = (xmlAttrPtr*)SAlloc::M(ret->maxAttrs *
-			    sizeof(xmlAttr *));
+			ret->attrs = (xmlAttr **)SAlloc::M(ret->maxAttrs * sizeof(xmlAttr *));
 			if(ret->attrs == NULL) {
 				xmlRngVErrMemory(ctxt, "allocating states\n");
 				ret->nbAttrs = 0;
@@ -1106,10 +1103,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGCopyValidState(xmlRelaxNGValidCtxtPtr c
 			}
 		}
 		else if(ret->maxAttrs < state->nbAttrs) {
-			xmlAttrPtr * tmp;
-
-			tmp = (xmlAttrPtr*)SAlloc::R(ret->attrs, state->maxAttrs *
-			    sizeof(xmlAttr *));
+			xmlAttr ** tmp = (xmlAttr **)SAlloc::R(ret->attrs, state->maxAttrs * sizeof(xmlAttr *));
 			if(!tmp) {
 				xmlRngVErrMemory(ctxt, "allocating states\n");
 				ret->nbAttrs = 0;
@@ -1118,8 +1112,7 @@ static xmlRelaxNGValidStatePtr xmlRelaxNGCopyValidState(xmlRelaxNGValidCtxtPtr c
 			ret->maxAttrs = state->maxAttrs;
 			ret->attrs = tmp;
 		}
-		memcpy(ret->attrs, state->attrs,
-		    state->nbAttrs * sizeof(xmlAttr *));
+		memcpy(ret->attrs, state->attrs, state->nbAttrs * sizeof(xmlAttr *));
 	}
 	return ret;
 }
@@ -7527,7 +7520,7 @@ static int xmlRelaxNGValidateValueContent(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxN
  *
  * Returns 1 if the attribute matches, 0 if no, or -1 in case of error
  */
-static int xmlRelaxNGAttributeMatch(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefinePtr define, xmlAttrPtr prop)
+static int xmlRelaxNGAttributeMatch(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefinePtr define, xmlAttr * prop)
 {
 	int ret;
 	if(define->name) {
@@ -7588,7 +7581,8 @@ static int xmlRelaxNGValidateAttribute(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDe
 {
 	int ret = 0, i;
 	xmlChar * value, * oldvalue;
-	xmlAttrPtr prop = NULL, tmp;
+	xmlAttr * prop = NULL;
+	xmlAttr * tmp;
 	xmlNode * oldseq;
 	if(ctxt->state->nbAttrLeft <= 0)
 		return -1;

@@ -8,7 +8,7 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#include <libxml/HTMLtree.h>
+//#include <libxml/HTMLtree.h>
 
 /* Define SIZE_T_MAX unless defined through <limits.h>. */
 #ifndef SIZE_T_MAX
@@ -631,7 +631,7 @@ void xmlSAX2AttributeDecl(void * ctx, const xmlChar * elem, const xmlChar * full
 void xmlSAX2ElementDecl(void * ctx, const xmlChar * name, int type, xmlElementContent * content)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlElementPtr elem = NULL;
+	xmlElement * elem = NULL;
 	if(!ctxt || (ctxt->myDoc == NULL))
 		return;
 #ifdef DEBUG_SAX
@@ -858,7 +858,7 @@ void xmlSAX2EndDocument(void * ctx)
 static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const xmlChar * value, const xmlChar * prefix ATTRIBUTE_UNUSED)
 {
 	xmlParserCtxt * ctxt = (xmlParserCtxt *)ctx;
-	xmlAttrPtr ret;
+	xmlAttr * ret;
 	xmlChar * name;
 	xmlChar * ns;
 	xmlChar * nval;
@@ -1020,7 +1020,7 @@ static void xmlSAX2AttributeInternal(void * ctx, const xmlChar * fullname, const
 			xmlNsErrMsg(ctxt, XML_NS_ERR_UNDEFINED_NAMESPACE, "Namespace prefix %s of attribute %s is not defined\n", ns, name);
 		}
 		else {
-			xmlAttrPtr prop = ctxt->P_Node->properties;
+			xmlAttr * prop = ctxt->P_Node->properties;
 			while(prop) {
 				if(prop->ns) {
 					if((sstreq(name, prop->name)) && ((namespace__ == prop->ns) || (sstreq(namespace__->href, prop->ns->href)))) {
@@ -1127,7 +1127,7 @@ error:
  */
 static void xmlCheckDefaultedAttributes(xmlParserCtxt * ctxt, const xmlChar * name,
     const xmlChar * prefix, const xmlChar ** atts) {
-	xmlElementPtr elemDecl;
+	xmlElement * elemDecl;
 	const xmlChar * att;
 	int internal = 1;
 	int i;
@@ -1587,7 +1587,7 @@ decode:
  */
 static void xmlSAX2AttributeNs(xmlParserCtxt * ctxt, const xmlChar * localname, const xmlChar * prefix, const xmlChar * value, const xmlChar * valueend)
 {
-	xmlAttrPtr ret;
+	xmlAttr * ret;
 	xmlNs * namespace__ = NULL;
 	xmlChar * dup = NULL;
 	/*

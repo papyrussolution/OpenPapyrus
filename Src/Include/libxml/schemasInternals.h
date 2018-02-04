@@ -127,23 +127,20 @@ typedef enum {
 
 struct xmlSchemaVal;
 typedef xmlSchemaVal * xmlSchemaValPtr;
-
 typedef struct _xmlSchemaType xmlSchemaType;
 typedef xmlSchemaType *xmlSchemaTypePtr;
-
 typedef struct _xmlSchemaFacet xmlSchemaFacet;
 typedef xmlSchemaFacet *xmlSchemaFacetPtr;
-
 /**
  * Annotation
  */
-typedef struct _xmlSchemaAnnot xmlSchemaAnnot;
-typedef xmlSchemaAnnot *xmlSchemaAnnotPtr;
-struct _xmlSchemaAnnot {
-    struct _xmlSchemaAnnot *next;
-    xmlNode * content;         /* the annotation */
+//typedef struct _xmlSchemaAnnot xmlSchemaAnnot;
+struct xmlSchemaAnnot {
+    xmlSchemaAnnot * next;
+    xmlNode * content; // the annotation 
 };
 
+typedef xmlSchemaAnnot * xmlSchemaAnnotPtr;
 /**
  * XML_SCHEMAS_ANYATTR_SKIP:
  *

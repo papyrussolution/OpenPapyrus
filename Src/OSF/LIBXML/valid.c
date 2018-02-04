@@ -10,7 +10,7 @@
 #include "libxml.h"
 #pragma hdrstop
 
-static xmlElementPtr xmlGetDtdElementDesc2(xmlDtdPtr dtd, const xmlChar * name, int create);
+static xmlElement * xmlGetDtdElementDesc2(xmlDtdPtr dtd, const xmlChar * name, int create);
 /* #define DEBUG_VALID_ALGO */
 /* #define DEBUG_REGEXP_ALGO */
 
@@ -190,12 +190,12 @@ static void xmlErrValidWarning(xmlValidCtxtPtr ctxt,
  */
 
 typedef struct _xmlValidState {
-	xmlElementPtr elemDecl;         /* pointer to the content model */
+	xmlElement * elemDecl;         /* pointer to the content model */
 	xmlNode * P_Node;                /* pointer to the current node */
 	xmlRegExecCtxtPtr exec;         /* regexp runtime */
 } _xmlValidState;
 
-static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElementPtr elemDecl, xmlNode * P_Node) 
+static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElement * elemDecl, xmlNode * P_Node) 
 {
 	if((ctxt->vstateMax == 0) || (ctxt->vstateTab == NULL)) {
 		ctxt->vstateMax = 10;
@@ -236,10 +236,11 @@ static int vstateVPush(xmlValidCtxtPtr ctxt, xmlElementPtr elemDecl, xmlNode * P
 	return(ctxt->vstateNr++);
 }
 
-static int vstateVPop(xmlValidCtxtPtr ctxt) {
-	xmlElementPtr elemDecl;
-
-	if(ctxt->vstateNr < 1) return -1;
+static int vstateVPop(xmlValidCtxtPtr ctxt) 
+{
+	xmlElement * elemDecl;
+	if(ctxt->vstateNr < 1) 
+		return -1;
 	ctxt->vstateNr--;
 	elemDecl = ctxt->vstateTab[ctxt->vstateNr].elemDecl;
 	ctxt->vstateTab[ctxt->vstateNr].elemDecl = NULL;
@@ -248,11 +249,8 @@ static int vstateVPop(xmlValidCtxtPtr ctxt) {
 		xmlRegFreeExecCtxt(ctxt->vstateTab[ctxt->vstateNr].exec);
 	}
 	ctxt->vstateTab[ctxt->vstateNr].exec = NULL;
-	if(ctxt->vstateNr >= 1)
-		ctxt->vstate = &ctxt->vstateTab[ctxt->vstateNr - 1];
-	else
-		ctxt->vstate = NULL;
-	return(ctxt->vstateNr);
+	ctxt->vstate = (ctxt->vstateNr >= 1) ? &ctxt->vstateTab[ctxt->vstateNr-1] : 0;
+	return ctxt->vstateNr;
 }
 
 #else /* not LIBXML_REGEXP_ENABLED */
@@ -710,7 +708,7 @@ static int xmlValidBuildAContentModel(xmlElementContent * content, xmlValidCtxtP
  *
  * Returns 1 in case of success, 0 in case of error
  */
-int xmlValidBuildContentModel(xmlValidCtxtPtr ctxt, xmlElementPtr elem) 
+int xmlValidBuildContentModel(xmlValidCtxtPtr ctxt, xmlElement * elem) 
 {
 	if(!ctxt || (elem == NULL))
 		return 0;
@@ -1224,9 +1222,9 @@ static void xmlFreeElement(xmlElement * pElem)
  *
  * Returns NULL if not, otherwise the entity
  */
-xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlChar * name, xmlElementTypeVal type, xmlElementContent * content)
+xmlElement * xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlChar * name, xmlElementTypeVal type, xmlElementContent * content)
 {
-	xmlElementPtr ret;
+	xmlElement * ret;
 	xmlElementTablePtr table;
 	xmlAttribute * oldAttributes = NULL;
 	xmlChar * ns, * uqname;
@@ -1286,7 +1284,7 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 	// lookup old attributes inserted on an undefined element in the internal subset.
 	// 
 	if(dtd->doc && dtd->doc->intSubset) {
-		ret = (xmlElementPtr)xmlHashLookup2((xmlHashTable *)dtd->doc->intSubset->elements, name, ns);
+		ret = (xmlElement *)xmlHashLookup2((xmlHashTable *)dtd->doc->intSubset->elements, name, ns);
 		if(ret && (ret->etype == XML_ELEMENT_TYPE_UNDEFINED)) {
 			oldAttributes = ret->attributes;
 			ret->attributes = NULL;
@@ -1297,7 +1295,7 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 	// 
 	// The element may already be present if one of its attribute was registered first
 	// 
-	ret = (xmlElementPtr)xmlHashLookup2(table, name, ns);
+	ret = (xmlElement *)xmlHashLookup2(table, name, ns);
 	if(ret) {
 		if(ret->etype != XML_ELEMENT_TYPE_UNDEFINED) {
 #ifdef LIBXML_VALID_ENABLED
@@ -1311,7 +1309,7 @@ xmlElementPtr xmlAddElementDecl(xmlValidCtxtPtr ctxt, xmlDtdPtr dtd, const xmlCh
 		ZFREE(ns);
 	}
 	else {
-		ret = (xmlElementPtr)SAlloc::M(sizeof(xmlElement));
+		ret = (xmlElement *)SAlloc::M(sizeof(xmlElement));
 		if(!ret) {
 			xmlVErrMemory(ctxt, "malloc failed");
 			SAlloc::F(uqname);
@@ -1399,7 +1397,7 @@ void xmlFreeElementTable(xmlElementTablePtr table)
  *
  * Returns the new xmlElementPtr or NULL in case of error.
  */
-static xmlElementPtr xmlCopyElement(xmlElementPtr elem) 
+static xmlElement * xmlCopyElement(xmlElement * elem) 
 {
 	xmlElement * cur = (xmlElement *)SAlloc::M(sizeof(xmlElement));
 	if(!cur) {
@@ -1441,7 +1439,8 @@ xmlElementTablePtr xmlCopyElementTable(xmlElementTablePtr table) {
  * This will dump the content of the element declaration as an XML
  * DTD definition
  */
-void xmlDumpElementDecl(xmlBuffer * buf, xmlElementPtr elem) {
+void xmlDumpElementDecl(xmlBuffer * buf, xmlElement * elem) 
+{
 	if(!buf || (elem == NULL))
 		return;
 	switch(elem->etype) {
@@ -1489,7 +1488,6 @@ void xmlDumpElementDecl(xmlBuffer * buf, xmlElementPtr elem) {
 		    xmlErrValid(NULL, XML_ERR_INTERNAL_ERROR, "Internal: ELEMENT struct corrupted invalid type\n", 0);
 	}
 }
-
 /**
  * xmlDumpElementDeclScan:
  * @elem:  An element table
@@ -1498,7 +1496,7 @@ void xmlDumpElementDecl(xmlBuffer * buf, xmlElementPtr elem) {
  * This routine is used by the hash scan function.  It just reverses
  * the arguments.
  */
-static void xmlDumpElementDeclScan(xmlElementPtr elem, xmlBuffer * buf) 
+static void xmlDumpElementDeclScan(xmlElement * elem, xmlBuffer * buf) 
 {
 	xmlDumpElementDecl(buf, elem);
 }
@@ -1605,7 +1603,7 @@ static void xmlDumpEnumeration(xmlBuffer * buf, xmlEnumeration * cur)
  *
  * Returns the number of ID attributes found.
  */
-static int xmlScanIDAttributeDecl(xmlValidCtxtPtr ctxt, xmlElementPtr elem, int err) 
+static int xmlScanIDAttributeDecl(xmlValidCtxtPtr ctxt, xmlElement * elem, int err) 
 {
 	int ret = 0;
 	if(elem) {
@@ -2241,7 +2239,7 @@ static void xmlFreeID(xmlID * pID)
  *
  * Returns NULL if not, otherwise the new xmlIDPtr
  */
-xmlIDPtr xmlAddID(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xmlAttrPtr attr)
+xmlIDPtr xmlAddID(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xmlAttr * attr)
 {
 	xmlIDPtr ret = 0;
 	if(doc && value && attr) {
@@ -2318,7 +2316,7 @@ void xmlFreeIDTable(xmlIDTablePtr table)
  *
  * Returns 0 or 1 depending on the lookup result
  */
-int xmlIsID(xmlDoc * doc, xmlNode * elem, xmlAttrPtr attr)
+int xmlIsID(xmlDoc * doc, xmlNode * elem, xmlAttr * attr)
 {
 	if(!attr || (attr->name == NULL))
 		return 0;
@@ -2366,7 +2364,7 @@ int xmlIsID(xmlDoc * doc, xmlNode * elem, xmlAttrPtr attr)
  *
  * Returns -1 if the lookup failed and 0 otherwise
  */
-int xmlRemoveID(xmlDoc * doc, xmlAttrPtr attr)
+int xmlRemoveID(xmlDoc * doc, xmlAttr * attr)
 {
 	xmlIDTablePtr table;
 	xmlIDPtr id;
@@ -2391,7 +2389,6 @@ int xmlRemoveID(xmlDoc * doc, xmlAttrPtr attr)
 	attr->atype = (xmlAttributeType)0;
 	return 0;
 }
-
 /**
  * xmlGetID:
  * @doc:  pointer to the document
@@ -2401,7 +2398,7 @@ int xmlRemoveID(xmlDoc * doc, xmlAttrPtr attr)
  *
  * Returns NULL if not found, otherwise the xmlAttrPtr defining the ID
  */
-xmlAttrPtr xmlGetID(xmlDoc * doc, const xmlChar * ID)
+xmlAttr * xmlGetID(xmlDoc * doc, const xmlChar * ID)
 {
 	xmlIDTablePtr table;
 	xmlIDPtr id;
@@ -2481,8 +2478,8 @@ static void xmlFreeRefList(xmlList * list_ref)
  */
 static int xmlWalkRemoveRef(const void * data, const void * user)
 {
-	xmlAttrPtr attr0 = ((xmlRefPtr)data)->attr;
-	xmlAttrPtr attr1 = ((xmlRemoveMemoPtr)user)->ap;
+	xmlAttr * attr0 = ((xmlRefPtr)data)->attr;
+	xmlAttr * attr1 = ((xmlRemoveMemoPtr)user)->ap;
 	xmlList * ref_list = ((xmlRemoveMemoPtr)user)->l;
 	if(attr0 == attr1) { /* Matched: remove and terminate walk */
 		xmlListRemoveFirst(ref_list, (void*)data);
@@ -2515,7 +2512,7 @@ static int xmlDummyCompare(const void * data0 ATTRIBUTE_UNUSED,
  *
  * Returns NULL if not, otherwise the new xmlRefPtr
  */
-xmlRefPtr xmlAddRef(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xmlAttrPtr attr)
+xmlRefPtr xmlAddRef(xmlValidCtxtPtr ctxt, xmlDoc * doc, const xmlChar * value, xmlAttr * attr)
 {
 	xmlRefPtr ret = 0;
 	xmlList * ref_list;
@@ -2608,7 +2605,7 @@ void FASTCALL xmlFreeRefTable(xmlRefTable * table)
  *
  * Returns 0 or 1 depending on the lookup result
  */
-int xmlIsRef(xmlDoc * doc, xmlNode * elem, xmlAttrPtr attr) 
+int xmlIsRef(xmlDoc * doc, xmlNode * elem, xmlAttr * attr) 
 {
 	if(attr) {
 		if(!doc) {
@@ -2645,7 +2642,7 @@ int xmlIsRef(xmlDoc * doc, xmlNode * elem, xmlAttrPtr attr)
  *
  * Returns -1 if the lookup failed and 0 otherwise
  */
-int xmlRemoveRef(xmlDoc * doc, xmlAttrPtr attr)
+int xmlRemoveRef(xmlDoc * doc, xmlAttr * attr)
 {
 	xmlList * ref_list;
 	xmlRefTablePtr table;
@@ -2700,12 +2697,9 @@ xmlList * xmlGetRefs(xmlDoc * doc, const xmlChar * pID)
 	xmlRefTable * table = doc ? (xmlRefTable *)doc->refs : 0;
 	return (table && pID) ? (xmlList *)xmlHashLookup(table, pID) : 0;
 }
-
-/************************************************************************
-*									*
-*		Routines for validity checking				*
-*									*
-************************************************************************/
+//
+// Routines for validity checking
+//
 /**
  * xmlGetDtdElementDesc:
  * @dtd:  a pointer to the DtD to search
@@ -2740,10 +2734,9 @@ xmlElement * FASTCALL xmlGetDtdElementDesc(xmlDtd * dtd, const xmlChar * name)
  *
  * returns the xmlElementPtr if found or NULL
  */
-
-static xmlElementPtr xmlGetDtdElementDesc2(xmlDtdPtr dtd, const xmlChar * name, int create)
+static xmlElement * xmlGetDtdElementDesc2(xmlDtdPtr dtd, const xmlChar * name, int create)
 {
-	xmlElementPtr cur = 0;
+	xmlElement * cur = 0;
 	xmlChar * uqname = NULL;
 	xmlChar * prefix = NULL;
 	xmlElementTablePtr table;
@@ -2771,9 +2764,9 @@ static xmlElementPtr xmlGetDtdElementDesc2(xmlDtdPtr dtd, const xmlChar * name, 
 		uqname = xmlSplitQName2(name, &prefix);
 		if(uqname)
 			name = uqname;
-		cur = (xmlElementPtr)xmlHashLookup2(table, name, prefix);
+		cur = (xmlElement *)xmlHashLookup2(table, name, prefix);
 		if((cur == NULL) && (create)) {
-			cur = (xmlElementPtr)SAlloc::M(sizeof(xmlElement));
+			cur = (xmlElement *)SAlloc::M(sizeof(xmlElement));
 			if(!cur) {
 				xmlVErrMemory(NULL, "malloc failed");
 				return 0;
@@ -2793,7 +2786,6 @@ static xmlElementPtr xmlGetDtdElementDesc2(xmlDtdPtr dtd, const xmlChar * name, 
 	}
 	return cur;
 }
-
 /**
  * xmlGetDtdQElementDesc:
  * @dtd:  a pointer to the DtD to search
@@ -2804,14 +2796,13 @@ static xmlElementPtr xmlGetDtdElementDesc2(xmlDtdPtr dtd, const xmlChar * name, 
  *
  * returns the xmlElementPtr if found or NULL
  */
-
-xmlElementPtr xmlGetDtdQElementDesc(xmlDtdPtr dtd, const xmlChar * name, const xmlChar * prefix)
+xmlElement * xmlGetDtdQElementDesc(xmlDtdPtr dtd, const xmlChar * name, const xmlChar * prefix)
 {
 	xmlElementTablePtr table;
 	if(dtd == NULL) return 0;
 	if(dtd->elements == NULL) return 0;
 	table = (xmlElementTablePtr)dtd->elements;
-	return (xmlElementPtr)xmlHashLookup2(table, name, prefix);
+	return (xmlElement *)xmlHashLookup2(table, name, prefix);
 }
 /**
  * xmlGetDtdAttrDesc:
@@ -3643,7 +3634,7 @@ int xmlValidateAttributeDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlAttribute * 
 	if(attr->atype == XML_ATTRIBUTE_ID) {
 		int nbId;
 		/* the trick is that we parse DtD as their own internal subset */
-		xmlElementPtr elem = xmlGetDtdElementDesc(doc->intSubset, attr->elem);
+		xmlElement * elem = xmlGetDtdElementDesc(doc->intSubset, attr->elem);
 		if(elem) {
 			nbId = xmlScanIDAttributeDecl(NULL, elem, 0);
 		}
@@ -3704,11 +3695,10 @@ int xmlValidateAttributeDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlAttribute * 
  *
  * returns 1 if valid or 0 otherwise
  */
-
-int xmlValidateElementDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlElementPtr elem) 
+int xmlValidateElementDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlElement * elem) 
 {
 	int ret = 1;
-	xmlElementPtr tst;
+	xmlElement * tst;
 	CHECK_DTD;
 	if(elem == NULL) 
 		return 1;
@@ -3808,7 +3798,7 @@ int xmlValidateElementDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlElementPtr ele
  * returns 1 if valid or 0 otherwise
  */
 
-int xmlValidateOneAttribute(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, xmlAttrPtr attr, const xmlChar * value)
+int xmlValidateOneAttribute(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, xmlAttr * attr, const xmlChar * value)
 {
 	xmlAttribute * attrDecl =  NULL;
 	int val;
@@ -3948,7 +3938,7 @@ int xmlValidateOneAttribute(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, 
 
 int xmlValidateOneNamespace(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, const xmlChar * prefix, xmlNs * ns, const xmlChar * value) 
 {
-	/* xmlElementPtr elemDecl; */
+	/* xmlElement * elemDecl; */
 	xmlAttribute * attrDecl =  NULL;
 	int val;
 	int ret = 1;
@@ -4614,7 +4604,7 @@ static void xmlSnprintfElements(char * buf, int size, xmlNode * P_Node, int glob
  * returns 1 if valid or 0 if not and -1 in case of error
  */
 
-static int xmlValidateElementContent(xmlValidCtxtPtr ctxt, xmlNode * child, xmlElementPtr elemDecl, int warn, xmlNode * parent) 
+static int xmlValidateElementContent(xmlValidCtxtPtr ctxt, xmlNode * child, xmlElement * elemDecl, int warn, xmlNode * parent) 
 {
 	int ret = 1;
 #ifndef  LIBXML_REGEXP_ENABLED
@@ -5015,9 +5005,9 @@ static int xmlValidateCheckMixed(xmlValidCtxtPtr ctxt, xmlElementContent * cont,
  *
  * returns the pointer to the declaration or NULL if not found.
  */
-static xmlElementPtr xmlValidGetElemDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, int * extsubset) 
+static xmlElement * xmlValidGetElemDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, int * extsubset) 
 {
-	xmlElementPtr elemDecl = NULL;
+	xmlElement * elemDecl = NULL;
 	const xmlChar * prefix = NULL;
 	if(!ctxt || (doc == NULL) ||
 	    (elem == NULL) || (elem->name == NULL))
@@ -5076,15 +5066,14 @@ static xmlElementPtr xmlValidGetElemDecl(xmlValidCtxtPtr ctxt, xmlDoc * doc, xml
 int xmlValidatePushElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem, const xmlChar * qname) 
 {
 	int ret = 1;
-	xmlElementPtr eDecl;
+	xmlElement * eDecl;
 	int extsubset = 0;
 	if(!ctxt)
 		return 0;
-/* printf("PushElem %s\n", qname); */
-	if((ctxt->vstateNr > 0) && (ctxt->vstate != NULL)) {
+	/* printf("PushElem %s\n", qname); */
+	if(ctxt->vstateNr > 0 && ctxt->vstate) {
 		xmlValidStatePtr state = ctxt->vstate;
-		xmlElementPtr elemDecl;
-
+		xmlElement * elemDecl;
 		/*
 		 * Check the new element agaisnt the content model of the new elem.
 		 */
@@ -5160,7 +5149,7 @@ int xmlValidatePushCData(xmlValidCtxtPtr ctxt, const xmlChar * data, int len) {
 		return ret;
 	if((ctxt->vstateNr > 0) && (ctxt->vstate != NULL)) {
 		xmlValidStatePtr state = ctxt->vstate;
-		xmlElementPtr elemDecl;
+		xmlElement * elemDecl;
 		/*
 		 * Check the new element agaisnt the content model of the new elem.
 		 */
@@ -5223,7 +5212,7 @@ int xmlValidatePopElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc ATTRIBUTE_UNUSED, 
 /* printf("PopElem %s\n", qname); */
 	if((ctxt->vstateNr > 0) && (ctxt->vstate != NULL)) {
 		xmlValidStatePtr state = ctxt->vstate;
-		xmlElementPtr elemDecl;
+		xmlElement * elemDecl;
 
 		/*
 		 * Check the new element agaisnt the content model of the new elem.
@@ -5273,7 +5262,7 @@ int xmlValidatePopElement(xmlValidCtxtPtr ctxt, xmlDocPtr doc ATTRIBUTE_UNUSED, 
  */
 int xmlValidateOneElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem) 
 {
-	xmlElementPtr elemDecl = NULL;
+	xmlElement * elemDecl = NULL;
 	xmlElementContent * cont;
 	xmlAttribute * attr;
 	xmlNode * child;
@@ -5682,11 +5671,10 @@ int xmlValidateElement(xmlValidCtxtPtr ctxt, xmlDoc * doc, xmlNode * elem)
  * @name:  Name of ID we are searching for
  *
  */
-static void xmlValidateRef(xmlRefPtr ref, xmlValidCtxtPtr ctxt,
-    const xmlChar * name) {
-	xmlAttrPtr id;
+static void xmlValidateRef(xmlRefPtr ref, xmlValidCtxtPtr ctxt, const xmlChar * name) 
+{
+	xmlAttr * id;
 	xmlAttr * attr;
-
 	if(ref == NULL)
 		return;
 	if((ref->attr == NULL) && (ref->name == NULL))
@@ -5892,7 +5880,7 @@ static void xmlValidateAttributeCallback(xmlAttribute * cur, xmlValidCtxtPtr ctx
 {
 	int ret;
 	xmlDocPtr doc;
-	xmlElementPtr elem = NULL;
+	xmlElement * elem = NULL;
 	if(cur) {
 		switch(cur->atype) {
 			case XML_ATTRIBUTE_CDATA:

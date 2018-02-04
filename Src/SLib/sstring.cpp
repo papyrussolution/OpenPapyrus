@@ -1758,7 +1758,7 @@ SString & SLAPI SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 		return *this;
 	}
 	else {
-		SString temp_buf;
+		SString & r_temp_buf = SLS.AcquireRvlStr();
 		const size_t len = Len();
 		for(size_t offs = 0; offs < len;) {
 			size_t s = MIN((len-offs), middle_buf_len/2);
@@ -1773,16 +1773,16 @@ SString & SLAPI SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 						// Отдельная проверка на окончание цикла для того, чтобы
 						// избежать лишнего копирования во временный буфер.
 						//
-						return CopyFrom(temp_buf).CatN(text, (size_t)ret);
+						return CopyFrom(r_temp_buf).CatN(text, (size_t)ret);
 					}
 					else
-						temp_buf.CatN(text, (size_t)ret);
+						r_temp_buf.CatN(text, (size_t)ret);
 				}
 			}
 			else
 				break;
 		}
-		return CopyFrom(temp_buf);
+		return CopyFrom(r_temp_buf);
 	}
 }
 
@@ -6574,7 +6574,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	// benchmark: benchmark=stack;sstring;revolver
 	int    ok = 1;
 	int    bm = -1;
-	const  uint max_bm_phase = 5000;
+	const  uint max_bm_phase = 10000;
 	uint32 line_no = 0;
 	SBaseBuffer temp_buf;
 	SBaseBuffer test_buf;
@@ -6590,6 +6590,8 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 		bm = 2;
 	else if(sstreqi_ascii(pBenchmark, "revolver"))
 		bm = 3;
+	else if(sstreqi_ascii(pBenchmark, "revolver-tla"))
+		bm = 4;
 	else
 		SetInfo("invalid benchmark");
 	if(bm == 0) {
@@ -6969,6 +6971,16 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 		for(uint phase = 0; phase < max_bm_phase; phase++) {
 			for(uint i = 0; i < F.P_StrList->getCount(); i++) {
 				SString & r_buffer = rvl.Get();
+				r_buffer = F.P_StrList->at(i);
+				total_len += strlen(r_buffer.cptr());
+			}
+		}
+	}
+	else if(bm == 4) {
+		uint64 total_len = 0;
+		for(uint phase = 0; phase < max_bm_phase; phase++) {
+			for(uint i = 0; i < F.P_StrList->getCount(); i++) {
+				SString & r_buffer = SLS.AcquireRvlStr();
 				r_buffer = F.P_StrList->at(i);
 				total_len += strlen(r_buffer.cptr());
 			}

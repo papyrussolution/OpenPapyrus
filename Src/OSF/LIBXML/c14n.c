@@ -730,11 +730,10 @@ static int xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, in
  */
 
 /* todo: make it a define? */
-static int xmlC14NIsXmlAttr(xmlAttrPtr attr)
+static int xmlC14NIsXmlAttr(xmlAttr * attr)
 {
 	return (attr->ns && (xmlC14NIsXmlNs(attr->ns) != 0));
 }
-
 /**
  * xmlC14NAttrsCompare:
  * @attr1:		the pointer tls o first attr
@@ -744,10 +743,9 @@ static int xmlC14NIsXmlAttr(xmlAttrPtr attr)
  *
  * Returns -1 if attr1 < attr2, 0 if attr1 == attr2 or 1 if attr1 > attr2.
  */
-static int xmlC14NAttrsCompare(xmlAttrPtr attr1, xmlAttrPtr attr2)
+static int xmlC14NAttrsCompare(xmlAttr * attr1, xmlAttr * attr2)
 {
 	int ret = 0;
-
 	/*
 	 * Simple cases
 	 */
@@ -793,7 +791,7 @@ static int xmlC14NAttrsCompare(xmlAttrPtr attr1, xmlAttrPtr attr2)
  *
  * Returns 1 on success or 0 on fail.
  */
-static int xmlC14NPrintAttrs(const xmlAttrPtr attr, xmlC14NCtxPtr ctx)
+static int xmlC14NPrintAttrs(const xmlAttr * attr, xmlC14NCtxPtr ctx)
 {
 	xmlChar * value;
 	xmlChar * buffer;
@@ -825,7 +823,6 @@ static int xmlC14NPrintAttrs(const xmlAttrPtr attr, xmlC14NCtxPtr ctx)
 	xmlOutputBufferWriteString(ctx->buf, "\"");
 	return 1;
 }
-
 /**
  * xmlC14NFindHiddenParentAttr:
  *
@@ -833,9 +830,9 @@ static int xmlC14NPrintAttrs(const xmlAttrPtr attr, xmlC14NCtxPtr ctx)
  *
  * Returns a pointer to the attribute node (if found) or NULL otherwise.
  */
-static xmlAttrPtr xmlC14NFindHiddenParentAttr(xmlC14NCtxPtr ctx, xmlNodePtr cur, const xmlChar * name, const xmlChar * ns)
+static xmlAttr * xmlC14NFindHiddenParentAttr(xmlC14NCtxPtr ctx, xmlNodePtr cur, const xmlChar * name, const xmlChar * ns)
 {
-	xmlAttrPtr res;
+	xmlAttr * res;
 	while(cur && (!xmlC14NIsVisible(ctx, cur, cur->parent))) {
 		res = xmlHasNsProp(cur, name, ns);
 		if(res) {
@@ -845,7 +842,6 @@ static xmlAttrPtr xmlC14NFindHiddenParentAttr(xmlC14NCtxPtr ctx, xmlNodePtr cur,
 	}
 	return NULL;
 }
-
 /**
  * xmlC14NFixupBaseAttr:
  *
@@ -853,7 +849,7 @@ static xmlAttrPtr xmlC14NFindHiddenParentAttr(xmlC14NCtxPtr ctx, xmlNodePtr cur,
  *
  * Returns the newly created attribute or NULL
  */
-static xmlAttrPtr xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttrPtr xml_base_attr)
+static xmlAttr * xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttr * xml_base_attr)
 {
 	xmlChar * res = NULL;
 	xmlNode * cur;
@@ -968,11 +964,11 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent
 {
 	xmlAttr * attr;
 	xmlList * list;
-	xmlAttrPtr attrs_to_delete = NULL;
+	xmlAttr * attrs_to_delete = NULL;
 	/* special processing for 1.1 spec */
-	xmlAttrPtr xml_base_attr = NULL;
-	xmlAttrPtr xml_lang_attr = NULL;
-	xmlAttrPtr xml_space_attr = NULL;
+	xmlAttr * xml_base_attr = NULL;
+	xmlAttr * xml_lang_attr = NULL;
+	xmlAttr * xml_space_attr = NULL;
 	if(!ctx || (cur == NULL) || (cur->type != XML_ELEMENT_NODE)) {
 		xmlC14NErrParam("processing attributes axis");
 		return -1;

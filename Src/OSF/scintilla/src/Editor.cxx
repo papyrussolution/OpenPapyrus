@@ -7278,48 +7278,36 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		    InvalidateStyleRedraw();
 		    break;
 		case SCI_MARGINGETSTYLEOFFSET: return vs.marginStyleOffset;
-		case SCI_SETMARGINOPTIONS:
-		    marginOptions = static_cast<int>(wParam);
-		    break;
+		case SCI_SETMARGINOPTIONS: marginOptions = static_cast<int>(wParam); break;
 		case SCI_GETMARGINOPTIONS: return marginOptions;
-		case SCI_MARGINSETTEXT:
-		    pdoc->MarginSetText(static_cast<int>(wParam), CharPtrFromSPtr(lParam));
-		    break;
+		case SCI_MARGINSETTEXT: pdoc->MarginSetText(static_cast<int>(wParam), CharPtrFromSPtr(lParam)); break;
 		case SCI_MARGINGETTEXT: 
 			{
-				const StyledText st = pdoc->MarginStyledText(static_cast<int>(wParam));
+				const Document::StyledText st = pdoc->MarginStyledText(static_cast<int>(wParam));
 				return BytesResult(lParam, reinterpret_cast<const uchar *>(st.text), st.length);
 			}
-		case SCI_MARGINSETSTYLE:
-		    pdoc->MarginSetStyle(static_cast<int>(wParam), static_cast<int>(lParam));
-		    break;
+		case SCI_MARGINSETSTYLE: pdoc->MarginSetStyle(static_cast<int>(wParam), static_cast<int>(lParam)); break;
 		case SCI_MARGINGETSTYLE: 
 			{
-				const StyledText st = pdoc->MarginStyledText(static_cast<int>(wParam));
+				const Document::StyledText st = pdoc->MarginStyledText(static_cast<int>(wParam));
 				return st.style;
 			}
-		case SCI_MARGINSETSTYLES:
-		    pdoc->MarginSetStyles(static_cast<int>(wParam), reinterpret_cast<const uchar *>(lParam));
-		    break;
+		case SCI_MARGINSETSTYLES: pdoc->MarginSetStyles(static_cast<int>(wParam), reinterpret_cast<const uchar *>(lParam)); break;
 		case SCI_MARGINGETSTYLES: 
 			{
-				const StyledText st = pdoc->MarginStyledText(static_cast<int>(wParam));
+				const Document::StyledText st = pdoc->MarginStyledText(static_cast<int>(wParam));
 				return BytesResult(lParam, st.styles, st.length);
 			}
-		case SCI_MARGINTEXTCLEARALL:
-		    pdoc->MarginClearAll();
-		    break;
-		case SCI_ANNOTATIONSETTEXT:
-		    pdoc->AnnotationSetText(static_cast<int>(wParam), CharPtrFromSPtr(lParam));
-		    break;
+		case SCI_MARGINTEXTCLEARALL: pdoc->MarginClearAll(); break;
+		case SCI_ANNOTATIONSETTEXT: pdoc->AnnotationSetText(static_cast<int>(wParam), CharPtrFromSPtr(lParam)); break;
 		case SCI_ANNOTATIONGETTEXT: 
 			{
-				const StyledText st = pdoc->AnnotationStyledText(static_cast<int>(wParam));
+				const Document::StyledText st = pdoc->AnnotationStyledText(static_cast<int>(wParam));
 				return BytesResult(lParam, reinterpret_cast<const uchar *>(st.text), st.length);
 			}
 		case SCI_ANNOTATIONGETSTYLE: 
 			{
-				const StyledText st = pdoc->AnnotationStyledText(static_cast<int>(wParam));
+				const Document::StyledText st = pdoc->AnnotationStyledText(static_cast<int>(wParam));
 				return st.style;
 			}
 		case SCI_ANNOTATIONSETSTYLE:
@@ -7328,27 +7316,20 @@ sptr_t Editor::WndProc(uint iMessage, uptr_t wParam, sptr_t lParam)
 		case SCI_ANNOTATIONSETSTYLES:
 		    pdoc->AnnotationSetStyles(static_cast<int>(wParam), reinterpret_cast<const uchar *>(lParam));
 		    break;
-		case SCI_ANNOTATIONGETSTYLES: {
-		    const StyledText st = pdoc->AnnotationStyledText(static_cast<int>(wParam));
-		    return BytesResult(lParam, st.styles, st.length);
-	    }
-		case SCI_ANNOTATIONGETLINES:
-		    return pdoc->AnnotationLines(static_cast<int>(wParam));
-		case SCI_ANNOTATIONCLEARALL:
-		    pdoc->AnnotationClearAll();
-		    break;
-		case SCI_ANNOTATIONSETVISIBLE:
-		    SetAnnotationVisible(static_cast<int>(wParam));
-		    break;
-		case SCI_ANNOTATIONGETVISIBLE:
-		    return vs.annotationVisible;
+		case SCI_ANNOTATIONGETSTYLES: 
+			{
+				const Document::StyledText st = pdoc->AnnotationStyledText(static_cast<int>(wParam));
+				return BytesResult(lParam, st.styles, st.length);
+			}
+		case SCI_ANNOTATIONGETLINES: return pdoc->AnnotationLines(static_cast<int>(wParam));
+		case SCI_ANNOTATIONCLEARALL: pdoc->AnnotationClearAll(); break;
+		case SCI_ANNOTATIONSETVISIBLE: SetAnnotationVisible(static_cast<int>(wParam)); break;
+		case SCI_ANNOTATIONGETVISIBLE: return vs.annotationVisible;
 		case SCI_ANNOTATIONSETSTYLEOFFSET:
 		    vs.annotationStyleOffset = static_cast<int>(wParam);
 		    InvalidateStyleRedraw();
 		    break;
-		case SCI_RELEASEALLEXTENDEDSTYLES:
-		    vs.ReleaseAllExtendedStyles();
-		    break;
+		case SCI_RELEASEALLEXTENDEDSTYLES: vs.ReleaseAllExtendedStyles(); break;
 		case SCI_ADDUNDOACTION:
 		    pdoc->AddUndoAction(static_cast<int>(wParam), lParam & UNDO_MAY_COALESCE);
 		    break;

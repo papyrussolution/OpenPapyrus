@@ -603,12 +603,12 @@ int PPALDD_GoodsStrucList::NextIteration(PPIterID iterId)
 	I.Median = item.Median;
 	I.Denom = item.Denom;
 	I.Netto = item.Netto;
+	{
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		PPGoodsStrucItem::MakeEstimationString(item.Median, item.Denom, r_temp_buf, MKSFMTD(0, 3, ALIGN_RIGHT));
+		STRNSCPY(I.SQtty, r_temp_buf);
+	}
 	/*
-	I.GsID = item.StrucID; // @v9.5.0
-	I.GoodsID = item.GoodsID;
-	I.ItemID  = item.ItemID;
-	STRNSCPY(I.GoodsName, item.GoodsName);
-	STRNSCPY(I.SQtty,     item.Qtty);
 	STRNSCPY(I.Type,      item.Type);
 	*/
 	PPWaitPercent(p_v->GetCounter());

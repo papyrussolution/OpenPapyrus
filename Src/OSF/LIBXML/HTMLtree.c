@@ -10,8 +10,8 @@
 #include "libxml.h"
 #pragma hdrstop
 #ifdef LIBXML_HTML_ENABLED
-#include <libxml/HTMLparser.h>
-#include <libxml/HTMLtree.h>
+//#include <libxml/HTMLparser.h>
+//#include <libxml/HTMLtree.h>
 
 /************************************************************************
 *									*
@@ -75,7 +75,7 @@ found_meta:
 	while(cur) {
 		if((cur->type == XML_ELEMENT_NODE) && cur->name) {
 			if(sstreq(cur->name, "meta")) {
-				xmlAttrPtr attr = cur->properties;
+				xmlAttr * attr = cur->properties;
 				int http = 0;
 				const xmlChar * value;
 				content = NULL;
@@ -189,7 +189,7 @@ found_meta:
 	while(cur) {
 		if((cur->type == XML_ELEMENT_NODE) && cur->name) {
 			if(sstreqi_ascii(cur->name, BAD_CAST "meta")) {
-				xmlAttrPtr attr = cur->properties;
+				xmlAttr * attr = cur->properties;
 				int http = 0;
 				const xmlChar * value;
 				content = NULL;
@@ -564,7 +564,7 @@ static void htmlDtdDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, const char * 
  *
  * Dump an HTML attribute
  */
-static void htmlAttrDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlAttrPtr cur, const char * encoding ATTRIBUTE_UNUSED) 
+static void htmlAttrDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlAttr * cur, const char * encoding ATTRIBUTE_UNUSED) 
 {
 	xmlChar * value;
 	/*
@@ -644,7 +644,7 @@ static void htmlAttrDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlAttrPtr c
  *
  * Dump a list of HTML attributes
  */
-static void htmlAttrListDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlAttrPtr cur, const char * encoding) 
+static void htmlAttrListDumpOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlAttr * cur, const char * encoding) 
 {
 	for(; cur; cur = cur->next)
 		htmlAttrDumpOutput(buf, doc, cur, encoding);

@@ -10,7 +10,7 @@
 #define IN_LIBXML
 #include "libxml.h"
 #pragma hdrstop
-#include <libxml/HTMLtree.h>
+//#include <libxml/HTMLtree.h>
 
 #ifdef LIBXML_WRITER_ENABLED
 

@@ -12,7 +12,7 @@
 
 #define MAX_INDENT 60
 
-#include <libxml/HTMLtree.h>
+ //#include <libxml/HTMLtree.h>
 #include "save.h"
 
 /************************************************************************
@@ -392,7 +392,7 @@ static xmlSaveCtxt * FASTCALL xmlNewSaveCtxt(const char * encoding, int options)
  *
  * Serialize the attribute in the buffer
  */
-static void xmlAttrSerializeContent(xmlOutputBuffer * buf, xmlAttrPtr attr)
+static void xmlAttrSerializeContent(xmlOutputBuffer * buf, xmlAttr * attr)
 {
 	for(xmlNode * children = attr->children; children; children = children->next) {
 		switch(children->type) {
@@ -433,7 +433,7 @@ void xmlBufDumpNotationTable(xmlBufPtr buf, xmlNotationTablePtr table)
  * This will dump the content of the element declaration as an XML
  * DTD definition
  */
-void xmlBufDumpElementDecl(xmlBufPtr buf, xmlElementPtr elem) 
+void xmlBufDumpElementDecl(xmlBufPtr buf, xmlElement * elem) 
 {
 	xmlBuffer * buffer = xmlBufferCreate();
 	if(!buffer) {
@@ -475,12 +475,9 @@ void xmlBufDumpEntityDecl(xmlBufPtr buf, xmlEntity * ent)
 	xmlDumpEntityDecl(buffer, ent);
 	xmlBufMergeBuffer(buf, buffer);
 }
-/************************************************************************
-*									*
-*		Dumping XML tree content to an I/O output buffer	*
-*									*
-************************************************************************/
-
+// 
+// Dumping XML tree content to an I/O output buffer	
+// 
 static int FASTCALL xmlSaveSwitchEncoding(xmlSaveCtxtPtr ctxt, const char * encoding)
 {
 	xmlOutputBuffer * buf = ctxt->buf;
@@ -666,7 +663,6 @@ static void xmlDtdDumpOutput(xmlSaveCtxtPtr ctxt, xmlDtdPtr dtd)
 	ctxt->doc = doc;
 	xmlOutputBufferWrite(buf, 2, "]>");
 }
-
 /**
  * xmlAttrDumpOutput:
  * @buf:  the XML buffer output
@@ -674,7 +670,7 @@ static void xmlDtdDumpOutput(xmlSaveCtxtPtr ctxt, xmlDtdPtr dtd)
  *
  * Dump an XML attribute
  */
-static void xmlAttrDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) 
+static void xmlAttrDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttr * cur) 
 {
 	xmlOutputBuffer * buf;
 	if(!cur) return;
@@ -703,14 +699,15 @@ static void xmlAttrDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur)
  *
  * Dump a list of XML attributes
  */
-static void xmlAttrListDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
-	if(!cur) return;
+static void xmlAttrListDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttr * cur) 
+{
+	if(!cur) 
+		return;
 	while(cur) {
 		xmlAttrDumpOutput(ctxt, cur);
 		cur = cur->next;
 	}
 }
-
 /**
  * xmlNodeListDumpOutput:
  * @cur:  the first node
@@ -815,7 +812,7 @@ static void xmlNodeDumpOutputInternal(xmlSaveCtxtPtr ctxt, xmlNode * cur)
 		else if(cur->type == XML_DOCUMENT_FRAG_NODE)
 			xmlNodeListDumpOutput(ctxt, cur->children);
 		else if(cur->type == XML_ELEMENT_DECL)
-			xmlBufDumpElementDecl(p_buf->buffer, (xmlElementPtr)cur);
+			xmlBufDumpElementDecl(p_buf->buffer, (xmlElement *)cur);
 		else if(cur->type == XML_ATTRIBUTE_DECL)
 			xmlBufDumpAttributeDecl(p_buf->buffer, (xmlAttribute *)cur);
 		else if(cur->type == XML_ENTITY_DECL)
@@ -1172,11 +1169,12 @@ static int xhtmlIsEmpty(xmlNodePtr P_Node)
  *
  * Dump a list of XML attributes
  */
-static void xhtmlAttrListDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttrPtr cur) {
-	xmlAttrPtr xml_lang = NULL;
-	xmlAttrPtr lang = NULL;
-	xmlAttrPtr name = NULL;
-	xmlAttrPtr id = NULL;
+static void xhtmlAttrListDumpOutput(xmlSaveCtxtPtr ctxt, xmlAttr * cur) 
+{
+	xmlAttr * xml_lang = NULL;
+	xmlAttr * lang = NULL;
+	xmlAttr * name = NULL;
+	xmlAttr * id = NULL;
 	xmlNodePtr parent;
 	xmlOutputBuffer * buf;
 	if(!cur) 
@@ -1308,7 +1306,7 @@ static void xhtmlNodeDumpOutput(xmlSaveCtxtPtr ctxt, xmlNode * cur)
 	}
 	buf = ctxt->buf;
 	if(cur->type == XML_ELEMENT_DECL) {
-		xmlBufDumpElementDecl(buf->buffer, (xmlElementPtr)cur);
+		xmlBufDumpElementDecl(buf->buffer, (xmlElement *)cur);
 		return;
 	}
 	if(cur->type == XML_ATTRIBUTE_DECL) {
@@ -1819,7 +1817,7 @@ int xmlSaveSetAttrEscape(xmlSaveCtxtPtr ctxt, xmlCharEncodingOutputFunc escape)
  *
  * Serialize text attribute values to an xmlBufPtr
  */
-void xmlBufAttrSerializeTxtContent(xmlBufPtr buf, xmlDoc * doc, xmlAttrPtr attr, const xmlChar * string)
+void xmlBufAttrSerializeTxtContent(xmlBufPtr buf, xmlDoc * doc, xmlAttr * attr, const xmlChar * string)
 {
 	xmlChar * base, * cur;
 	if(string) {
@@ -1945,7 +1943,6 @@ void xmlBufAttrSerializeTxtContent(xmlBufPtr buf, xmlDoc * doc, xmlAttrPtr attr,
 			xmlBufAdd(buf, base, cur - base);
 	}
 }
-
 /**
  * xmlAttrSerializeTxtContent:
  * @buf:  the XML buffer output
@@ -1955,10 +1952,10 @@ void xmlBufAttrSerializeTxtContent(xmlBufPtr buf, xmlDoc * doc, xmlAttrPtr attr,
  *
  * Serialize text attribute values to an xml simple buffer
  */
-void xmlAttrSerializeTxtContent(xmlBuffer * buf, xmlDoc * doc, xmlAttrPtr attr, const xmlChar * string)
+void xmlAttrSerializeTxtContent(xmlBuffer * buf, xmlDoc * doc, xmlAttr * attr, const xmlChar * string)
 {
 	if(buf && string) {
-		xmlBufPtr buffer = xmlBufFromBuffer(buf);
+		xmlBuf * buffer = xmlBufFromBuffer(buf);
 		if(buffer) {
 			xmlBufAttrSerializeTxtContent(buffer, doc, attr, string);
 			xmlBufBackToBuffer(buffer);

@@ -2487,7 +2487,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value, 
 			    }
 		    }
 		    if((ret == 0) && pNode && (pNode->type == XML_ATTRIBUTE_NODE)) {
-			    xmlAttrPtr attr = (xmlAttr *)pNode;
+			    xmlAttr * attr = (xmlAttr *)pNode;
 			    /*
 			     * NOTE: the IDness might have already be declared in the DTD
 			     */
@@ -2519,7 +2519,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value, 
 			    *val = v;
 		    }
 		    if((ret == 0) && pNode && (pNode->type == XML_ATTRIBUTE_NODE)) {
-			    xmlAttrPtr attr = (xmlAttr *)pNode;
+			    xmlAttr * attr = (xmlAttr *)pNode;
 			    xmlChar * strip = xmlSchemaStrip(value);
 			    if(strip) {
 				    xmlAddRef(NULL, pNode->doc, strip, attr);
@@ -2537,7 +2537,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value, 
 		    else
 			    ret = 0;
 		    if((ret == 0) && pNode && (pNode->type == XML_ATTRIBUTE_NODE)) {
-			    xmlAttrPtr attr = (xmlAttr *)pNode;
+			    xmlAttr * attr = (xmlAttr *)pNode;
 			    attr->atype = XML_ATTRIBUTE_IDREFS;
 		    }
 		    goto done;
@@ -2577,7 +2577,7 @@ static int xmlSchemaValAtomicType(xmlSchemaTypePtr type, const xmlChar * value, 
 		    else
 			    ret = 0;
 		    if((ret == 0) && pNode && (pNode->type == XML_ATTRIBUTE_NODE)) {
-			    xmlAttrPtr attr = (xmlAttr *)pNode;
+			    xmlAttr * attr = (xmlAttr *)pNode;
 			    attr->atype = XML_ATTRIBUTE_ENTITIES;
 		    }
 		    goto done;

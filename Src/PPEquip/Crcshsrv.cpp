@@ -3128,7 +3128,7 @@ int SLAPI XmlReader::GetGiftCard(xmlNode ** pPlugins, SString & rSerial, int isP
 	if(pPlugins) {
 		for(xmlNode * p_plugins = *pPlugins; !is_gift_card && p_plugins; p_plugins = p_plugins->next) {
 			if(sstreqi_ascii((const char*)p_plugins->name, "plugin-property") && p_plugins->properties) {
-				xmlAttrPtr p_fld = p_plugins->properties;
+				xmlAttr * p_fld = p_plugins->properties;
 				is_gift_card = 0;
 				serial = 0;
 				for(; p_fld; p_fld = p_fld->next) {
@@ -3172,7 +3172,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 			// Read header
 			tag_name.Set(P_CurRec->name).ToLower();
 			if(P_CurRec->properties) {
-				for(xmlAttrPtr p_fld = P_CurRec->properties; p_fld; p_fld = p_fld->next) {
+				for(xmlAttr * p_fld = P_CurRec->properties; p_fld; p_fld = p_fld->next) {
 					if(p_fld->children && p_fld->children->content) {
 						attr_name.Set(p_fld->name).ToLower();
 						val.Set(p_fld->children->content).ToLower();
@@ -3241,7 +3241,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 				if(p_items->type == XML_ELEMENT_NODE && p_items->properties) { // @v7.9.7 (p_item->type == XML_ELEMENT_NODE &&)
 					Item item;
 					MEMSZERO(item);
-					for(xmlAttrPtr p_fld = p_items->properties; p_fld; p_fld = p_fld->next) {
+					for(xmlAttr * p_fld = p_items->properties; p_fld; p_fld = p_fld->next) {
 						if(p_fld->children && p_fld->children->content) {
 							attr_name.Set(p_fld->name).ToLower();
 							val.Set(p_fld->children->content).ToLower();
@@ -3293,7 +3293,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 						/*
 						for(xmlNode * p_plugins = p_items->children; !is_gift_card && p_plugins; p_plugins = p_plugins->next) {
 							if(stricmp((const char*)p_plugins->name, "plugin-property") == 0 && p_plugins->properties) {
-								xmlAttrPtr p_fld = p_plugins->properties;
+								xmlAttr * p_fld = p_plugins->properties;
 								is_gift_card = 0;
 								serial = 0;
 								for(; p_fld; p_fld = p_fld->next) {
@@ -3341,7 +3341,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 							int    amount_type = CCAMTTYP_CASH;
 							double amount  = 0.0;
 							gift_card_code = 0;
-							for(xmlAttrPtr p_props = p_paym_fld->properties; p_props; p_props = p_props->next) {
+							for(xmlAttr * p_props = p_paym_fld->properties; p_props; p_props = p_props->next) {
 								if(p_props->children && p_props->children->content) {
 									attr_name.Set(p_props->name).ToLower();
 									val.Set(p_props->children->content).ToLower();
@@ -3418,7 +3418,7 @@ int SLAPI XmlReader::Next(Packet * pPack)
 						int16  banking = -1;
 						long   pos = -1;
 						double discount = 0.0;
-						for(xmlAttrPtr p_props = p_dis_fld->properties; p_props; p_props = p_props->next) {
+						for(xmlAttr * p_props = p_dis_fld->properties; p_props; p_props = p_props->next) {
 							if(p_props->children && p_props->children->content) {
 								int idx = 0;
 								val = (const char*)p_props->children->content;

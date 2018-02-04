@@ -630,15 +630,8 @@ SLAPI PPThreadLocalArea::WaitBlock::~WaitBlock()
 	DestroyCursor(WaitCur);
 }
 
-int PPThreadLocalArea::WaitBlock::IsValid() const
-{
-	return BIN(State & stValid);
-}
-
-HWND PPThreadLocalArea::WaitBlock::GetWindowHandle() const
-{
-	return WaitDlg;
-}
+int PPThreadLocalArea::WaitBlock::IsValid() const { return BIN(State & stValid); }
+HWND PPThreadLocalArea::WaitBlock::GetWindowHandle() const { return WaitDlg; }
 
 int SLAPI PPThreadLocalArea::WaitBlock::Start()
 {
@@ -826,20 +819,10 @@ int FASTCALL PPWait(int begin)
 	return ok;
 }
 
-int FASTCALL PPWaitMsg(const char * pMsg)
-{
-	return __WD.SetMessage(pMsg);
-}
-
-int FASTCALL PPWaitPercent(ulong p, ulong t, const char * pMsg)
-{
-	return __WD.SetPercent(p, t, pMsg);
-}
-
-int FASTCALL PPWaitPercent(const IterCounter & cntr, const char * pMsg)
-	{ return PPWaitPercent(cntr, cntr.GetTotal(), pMsg); }
-int FASTCALL PPWaitPercent(ulong v, const char * pMsg)
-	{ return PPWaitPercent(v, 100UL, pMsg); }
+int FASTCALL PPWaitMsg(const char * pMsg) { return __WD.SetMessage(pMsg); }
+int FASTCALL PPWaitPercent(ulong p, ulong t, const char * pMsg) { return __WD.SetPercent(p, t, pMsg); }
+int FASTCALL PPWaitPercent(const IterCounter & cntr, const char * pMsg) { return PPWaitPercent(cntr, cntr.GetTotal(), pMsg); }
+int FASTCALL PPWaitPercent(ulong v, const char * pMsg) { return PPWaitPercent(v, 100UL, pMsg); }
 
 int FASTCALL PPWaitMsg(int msgGrpID, int msgID, const char * addInfo)
 {
@@ -850,8 +833,7 @@ int FASTCALL PPWaitMsg(int msgGrpID, int msgID, const char * addInfo)
 		if(addInfo) {
 			//sprintf(p = buf, msg, addInfo);
 			SString msg_buf;
-			msg_buf.Printf(fmt_buf, addInfo);
-			ok = PPWaitMsg(msg_buf);
+			ok = PPWaitMsg(msg_buf.Printf(fmt_buf, addInfo));
 		}
 		else {
 			//p = msg;

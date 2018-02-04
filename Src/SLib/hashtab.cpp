@@ -1,5 +1,5 @@
 // HASHTAB.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -434,7 +434,7 @@ int SymbHashTable::Search(const char * pSymb, uint * pVal, uint * pPos) const
 				ASSIGN_PTR(pPos, pos);
 				ok = 1;
 			}
-			else
+			else {
 				for(uint i = 1; !ok && i < r_entry.Count; i++) {
 					pos = (uint)r_entry.P_Ext[i-1].Key;
 					if(NamePool.get(pos, temp_buf) && temp_buf.Cmp(pSymb, 0) == 0) {
@@ -443,6 +443,7 @@ int SymbHashTable::Search(const char * pSymb, uint * pVal, uint * pPos) const
 						ok = 1;
 					}
 				}
+			}
 		}
 	}
 	return ok;

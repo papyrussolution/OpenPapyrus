@@ -402,7 +402,7 @@ void LineAnnotation::RemoveLine(int line)
 	}
 }
 
-bool LineAnnotation::MultipleStyles(int line) const
+bool FASTCALL LineAnnotation::MultipleStyles(int line) const
 {
 	if(annotations.Length() && (line >= 0) && (line < annotations.Length()) && annotations[line])
 		return reinterpret_cast<AnnotationHeader *>(annotations[line])->style == IndividualStyles;
@@ -410,7 +410,7 @@ bool LineAnnotation::MultipleStyles(int line) const
 		return 0;
 }
 
-int LineAnnotation::Style(int line) const
+int FASTCALL LineAnnotation::Style(int line) const
 {
 	if(annotations.Length() && (line >= 0) && (line < annotations.Length()) && annotations[line])
 		return reinterpret_cast<AnnotationHeader *>(annotations[line])->style;
@@ -418,7 +418,7 @@ int LineAnnotation::Style(int line) const
 		return 0;
 }
 
-const char * LineAnnotation::Text(int line) const
+const char * FASTCALL LineAnnotation::Text(int line) const
 {
 	if(annotations.Length() && (line >= 0) && (line < annotations.Length()) && annotations[line])
 		return annotations[line]+sizeof(AnnotationHeader);
@@ -426,7 +426,7 @@ const char * LineAnnotation::Text(int line) const
 		return 0;
 }
 
-const uchar * LineAnnotation::Styles(int line) const
+const uchar * FASTCALL LineAnnotation::Styles(int line) const
 {
 	if(annotations.Length() && (line >= 0) && (line < annotations.Length()) && annotations[line] && MultipleStyles(line))
 		return reinterpret_cast<uchar *>(annotations[line] + sizeof(AnnotationHeader) + Length(line));

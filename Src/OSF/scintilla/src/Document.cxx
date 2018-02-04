@@ -509,7 +509,7 @@ int Document::GetFoldParent(int line) const
 	return ((GetLevel(lineLook) & SC_FOLDLEVELHEADERFLAG) && (LevelNumber(GetLevel(lineLook)) < level)) ? lineLook : -1;
 }
 
-void Document::GetHighlightDelimiters(HighlightDelimiter & highlightDelimiter, int line, int lastLine)
+void Document::GetHighlightDelimiters(Document::HighlightDelimiter & highlightDelimiter, int line, int lastLine)
 {
 	int level = GetLevel(line);
 	int lookLastLine = smax(line, lastLine) + 1;
@@ -2218,10 +2218,34 @@ void SCI_METHOD Document::ChangeLexerState(Sci_Position start, Sci_Position end)
 	NotifyModified(mh);
 }
 
-StyledText Document::MarginStyledText(int line) const
+/*Document::StyledText::StyledText(size_t length_, const char * text_, bool multipleStyles_, int style_, const uchar * styles_) :
+	length(length_), text(text_), multipleStyles(multipleStyles_), style(style_), styles(styles_)
+{
+}*/
+
+Document::StyledText::StyledText(const LineAnnotation & rLA, int line) :
+	length(rLA.Length(line)), text(rLA.Text(line)), multipleStyles(rLA.MultipleStyles(line)), style(rLA.Style(line)), styles(rLA.Styles(line))
+{
+}
+
+size_t FASTCALL Document::StyledText::LineLength(size_t start) const
+{
+	size_t cur = start;
+	while((cur < length) && (text[cur] != '\n'))
+		cur++;
+	return (cur-start);
+}
+
+size_t FASTCALL Document::StyledText::StyleAt(size_t i) const
+{
+	return multipleStyles ? styles[i] : style;
+}
+
+Document::StyledText Document::MarginStyledText(int line) const
 {
 	LineAnnotation * pla = static_cast<LineAnnotation *>(perLineData[ldMargin]);
-	return StyledText(pla->Length(line), pla->Text(line), pla->MultipleStyles(line), pla->Style(line), pla->Styles(line));
+	//return StyledText(pla->Length(line), pla->Text(line), pla->MultipleStyles(line), pla->Style(line), pla->Styles(line));
+	return StyledText(*pla, line);
 }
 
 void Document::MarginSetText(int line, const char * text)
@@ -2252,10 +2276,11 @@ void Document::MarginClearAll()
 	static_cast<LineAnnotation *>(perLineData[ldMargin])->ClearAll();
 }
 
-StyledText Document::AnnotationStyledText(int line) const
+Document::StyledText Document::AnnotationStyledText(int line) const
 {
 	LineAnnotation * pla = static_cast<LineAnnotation *>(perLineData[ldAnnotation]);
-	return StyledText(pla->Length(line), pla->Text(line), pla->MultipleStyles(line), pla->Style(line), pla->Styles(line));
+	//return StyledText(pla->Length(line), pla->Text(line), pla->MultipleStyles(line), pla->Style(line), pla->Styles(line));
+	return StyledText(*pla, line);
 }
 
 void Document::AnnotationSetText(int line, const char * text)

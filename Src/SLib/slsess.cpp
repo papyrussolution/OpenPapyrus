@@ -51,7 +51,7 @@ void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
 //
 SLAPI SlThreadLocalArea::SlThreadLocalArea() : Prf(1), Id(0), LastErr(0), LastOsErr(0), LastSockErr(0), LastCurlErr(0), 
 	BinDateFmt_(DEFAULT_BIN_DATE_FORMAT), TxtDateFmt_(DEFAULT_TXT_DATE_FORMAT), CurrentCp(cpUndef), UiFlags(0), UiLanguageId(-1),
-	SAry_OrgFCMP(0), SAry_PtrContainer(0), SAry_SortExtraData(0), FontDc(0), P_Rez(0)
+	SAry_OrgFCMP(0), SAry_PtrContainer(0), SAry_SortExtraData(0), FontDc(0), P_Rez(0), RvlSStA(1024), RvlSStW(1024)
 {
 	const LDATE _cd = getcurdate_();
 	{
@@ -926,6 +926,16 @@ void SLAPI SlSession::LockPop()
 	SlThreadLocalArea & r_tla = GetTLA();
 	if(&r_tla)
 		r_tla.LckStk.Pop();
+}
+
+SString  & SLAPI SlSession::AcquireRvlStr()
+{
+	return GetTLA().RvlSStA.Get();
+}
+
+SStringU & SLAPI SlSession::AcquireRvlStrU()
+{
+	return GetTLA().RvlSStW.Get();
 }
 
 #if 0 // @v9.1.2 replaced by SetExtraProcBlock() {

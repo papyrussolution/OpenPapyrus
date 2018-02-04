@@ -13,28 +13,12 @@
 /*
  * The XML predefined entities.
  */
-static xmlEntity xmlEntityLt = {
-	NULL, XML_ENTITY_DECL, BAD_CAST "lt", NULL, NULL, NULL, NULL, NULL, NULL, BAD_CAST "<", BAD_CAST "<", 1,
-	XML_INTERNAL_PREDEFINED_ENTITY, NULL, NULL, NULL, NULL, 0, 1
-};
-static xmlEntity xmlEntityGt = {
-	NULL, XML_ENTITY_DECL, BAD_CAST "gt", NULL, NULL, NULL, NULL, NULL, NULL, BAD_CAST ">", BAD_CAST ">", 1,
-	XML_INTERNAL_PREDEFINED_ENTITY, NULL, NULL, NULL, NULL, 0, 1
-};
-static xmlEntity xmlEntityAmp = {
-	NULL, XML_ENTITY_DECL, BAD_CAST "amp", NULL, NULL, NULL, NULL, NULL, NULL, BAD_CAST "&", BAD_CAST "&", 1,
-	XML_INTERNAL_PREDEFINED_ENTITY, NULL, NULL, NULL, NULL, 0, 1
-};
-static xmlEntity xmlEntityQuot = {
-	NULL, XML_ENTITY_DECL, BAD_CAST "quot", NULL, NULL, NULL, NULL, NULL, NULL, BAD_CAST "\"", BAD_CAST "\"", 1,
-	XML_INTERNAL_PREDEFINED_ENTITY, NULL, NULL, NULL, NULL, 0, 1
-};
-static xmlEntity xmlEntityApos = {
-	NULL, XML_ENTITY_DECL, BAD_CAST "apos", NULL, NULL, NULL, NULL, NULL, NULL, BAD_CAST "'", BAD_CAST "'", 1,
-	XML_INTERNAL_PREDEFINED_ENTITY, NULL, NULL, NULL, NULL, 0, 1
-};
+static xmlEntity xmlEntityLt   = { 0, XML_ENTITY_DECL, BAD_CAST "lt", 0, 0, 0, 0, 0, 0, BAD_CAST "<", BAD_CAST "<", 1, XML_INTERNAL_PREDEFINED_ENTITY, 0, 0, 0, 0, 0, 1 };
+static xmlEntity xmlEntityGt   = { 0, XML_ENTITY_DECL, BAD_CAST "gt", 0, 0, 0, 0, 0, 0, BAD_CAST ">", BAD_CAST ">", 1, XML_INTERNAL_PREDEFINED_ENTITY, 0, 0, 0, 0, 0, 1 };
+static xmlEntity xmlEntityAmp  = { 0, XML_ENTITY_DECL, BAD_CAST "amp", 0, 0, 0, 0, 0, 0, BAD_CAST "&", BAD_CAST "&", 1, XML_INTERNAL_PREDEFINED_ENTITY, 0, 0, 0, 0, 0, 1 };
+static xmlEntity xmlEntityQuot = { 0, XML_ENTITY_DECL, BAD_CAST "quot", 0, 0, 0, 0, 0, 0, BAD_CAST "\"", BAD_CAST "\"", 1, XML_INTERNAL_PREDEFINED_ENTITY, 0, 0, 0, 0, 0, 1 };
+static xmlEntity xmlEntityApos = { 0, XML_ENTITY_DECL, BAD_CAST "apos", 0, 0, 0, 0, 0, 0, BAD_CAST "'", BAD_CAST "'", 1, XML_INTERNAL_PREDEFINED_ENTITY, 0, 0, 0, 0, 0, 1 };
 /**
- * xmlEntitiesErrMemory:
  * @extra:  extra informations
  *
  * Handle an out of memory condition
@@ -44,7 +28,6 @@ static void FASTCALL xmlEntitiesErrMemory(const char * extra)
 	__xmlSimpleError(XML_FROM_TREE, XML_ERR_NO_MEMORY, NULL, NULL, extra);
 }
 /**
- * xmlEntitiesErr:
  * @code:  the error code
  * @msg:  the message
  *

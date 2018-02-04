@@ -1480,8 +1480,19 @@ int FASTCALL PPGetExtStrData(int fldID, int defFldID, const SString & rLine, SSt
 
 int FASTCALL PPGetExtStrData(int fldID, const SString & rLine, SString & rBuf)
 {
-	PPExtStringStorage ess;
-	return (ess.Get(rLine, fldID, rBuf) > 0) ? 1 : -1;
+	int    ok = -1;
+	int    r = 0;
+	if(rLine.NotEmpty()) {
+		PPExtStringStorage ess;
+		r = ess.Get(rLine, fldID, rBuf);
+	}
+	else {
+		rBuf.Z();
+		r = -2;
+	}
+	if(r > 0)
+		ok = 1;
+	return ok;
 }
 
 int FASTCALL PPCmpExtStrData(int fldID, const SString & rLine1, const SString & rLine2, long options)
