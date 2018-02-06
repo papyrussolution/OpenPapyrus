@@ -2,7 +2,7 @@
  * jfdctfst.c
  *
  * Copyright (C) 1994-1996, Thomas G. Lane.
- * Modified 2003-2015 by Guido Vollbeding.
+ * Modified 2003-2017 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -30,6 +30,7 @@
  * precise the scaled value, so this implementation does worse with high-
  * quality-setting files than with low-quality ones.
  */
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
@@ -40,7 +41,7 @@
  * This module is specialized to the case DCTSIZE = 8.
  */
 #if DCTSIZE != 8
-	Sorry, this code only copes with 8x8 DCTs.   /* deliberate syntax err */
+	Sorry, this code only copes with 8x8 DCT blocks. /* deliberate syntax err */
 #endif
 
 /* Scaling decisions are generally the same as in the LL&M algorithm;
@@ -86,24 +87,20 @@
  * by omitting the addition in a descaling shift.  This yields an incorrectly
  * rounded result half the time...
  */
-
 #ifndef USE_ACCURATE_ROUNDING
-#undef DESCALE
-#define DESCALE(x, n)  RIGHT_SHIFT(x, n)
+	#undef DESCALE
+	#define DESCALE(x, n)  RIGHT_SHIFT(x, n)
 #endif
 
 /* Multiply a DCTELEM variable by an INT32 constant, and immediately
  * descale to yield a DCTELEM result.
  */
-
 #define MULTIPLY(var, const)  ((DCTELEM)DESCALE((var) * (const), CONST_BITS))
-
 /*
  * Perform the forward DCT on one block of samples.
  *
  * cK represents cos(K*pi/16).
  */
-
 GLOBAL(void) jpeg_fdct_ifast(DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col)
 {
 	DCTELEM tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;

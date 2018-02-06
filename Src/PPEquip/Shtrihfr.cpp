@@ -1,5 +1,5 @@
 // SHTRIHFR.CPP
-// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) V.Nasonov 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Интерфейс (синхронный) с ККМ Штрих-ФР
 //
@@ -1770,7 +1770,7 @@ int SLAPI SCS_SHTRIHFRF::SetupTables()
 	long   cshr_pssw;
 	SString temp_buf;//cshr_name;
 	SString cshr_str;
-	if(GetCurUserPerson(0, &temp_buf) == -1) {
+	if(PPObjPerson::GetCurUserPerson(0, &temp_buf) == -1) {
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
 		PPSecur sec_rec;
 		if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)

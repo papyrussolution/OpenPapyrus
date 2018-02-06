@@ -1941,7 +1941,7 @@ int SLAPI ViewPrjTask(const PrjTaskFilt * pFilt) { return PPView::Execute(PPVIEW
 int SLAPI ViewPrjTask_ByStatus()
 {
 	PrjTaskFilt filt;
-	GetCurUserPerson(&filt.EmployerID, 0);
+	PPObjPerson::GetCurUserPerson(&filt.EmployerID, 0);
 	filt.Flags = PrjTaskFilt::fUnviewedEmployerOnly;
 	filt.Kind  = TODOKIND_TASK;
 	for(uint i = 0; i < 5; i++) {
@@ -1964,7 +1964,7 @@ int SLAPI ViewPrjTask_ByReminder()
 		plusdate(&filt.StartPeriod.upp, abs(cfg.RemindPrd.low), 0);
 		if(cfg.RemindPrd.low != cfg.RemindPrd.upp)
 			plusdate(&filt.StartPeriod.low, -abs(cfg.RemindPrd.upp), 0);
-		GetCurUserPerson(&filt.EmployerID, 0);
+		PPObjPerson::GetCurUserPerson(&filt.EmployerID, 0);
 		filt.Kind  = TODOKIND_TASK;
 		for(uint i = 0; i < 5; i++) {
 			filt.PriorList[i]  = i + 1;

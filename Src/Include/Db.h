@@ -3278,11 +3278,12 @@ private:
 struct DBConst : public DBItem {
 	void   FASTCALL init(long l);
 	void   FASTCALL init(double d);
-	void   FASTCALL init(const char * s);
+	void   FASTCALL init(const char * s); 
 	void   FASTCALL init(LDATE d);
 	void   FASTCALL init(LTIME t);
 	void   FASTCALL init(LDATETIME t);
 	void   FASTCALL init(const void * ptr);
+	void   FASTCALL InitForeignStr(const char *); // @v9.9.3
 	int    FASTCALL copy(const DBConst &);
 	void   FASTCALL destroy();
 	int    FASTCALL convert(TYPEID, void *) const;

@@ -11,12 +11,13 @@
  * and inter-pass control (determining the number of passes and the work
  * to be done in each pass).
  */
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-
-/* Private state */
-
+//
+// Private state 
+//
 typedef enum {
 	main_pass,              /* input data, also do first output step */
 	huff_opt_pass,          /* Huffman code optimization pass */
@@ -32,17 +33,15 @@ typedef struct {
 } my_comp_master;
 
 typedef my_comp_master * my_master_ptr;
-
 /*
  * Support routines that do various essential calculations.
  */
-
+#if 0 // @v9c {
 /*
  * Compute JPEG image dimensions and related values.
  * NOTE: this is exported for possible use by application.
  * Hence it mustn't do anything that can't be done twice.
  */
-
 GLOBAL(void) jpeg_calc_jpeg_dimensions(j_compress_ptr cinfo)
 /* Do computations that are needed before master selection phase */
 {
@@ -171,7 +170,6 @@ GLOBAL(void) jpeg_calc_jpeg_dimensions(j_compress_ptr cinfo)
 		cinfo->min_DCT_v_scaled_size = 16;
 	}
 #else /* !DCT_SCALING_SUPPORTED */
-
 	/* Hardwire it to "no scaling" */
 	cinfo->jpeg_width = cinfo->image_width;
 	cinfo->jpeg_height = cinfo->image_height;
@@ -187,17 +185,18 @@ static void jpeg_calc_trans_dimensions(j_compress_ptr cinfo)
 		ERREXIT2(cinfo, JERR_BAD_DCTSIZE, cinfo->min_DCT_h_scaled_size, cinfo->min_DCT_v_scaled_size);
 	cinfo->block_size = cinfo->min_DCT_h_scaled_size;
 }
+#endif // } 0 @v9c
 //
 // Do computations that are needed before master selection phase 
 //
-static void initial_setup(j_compress_ptr cinfo, boolean transcode_only)
+static void initial_setup(j_compress_ptr cinfo/*v9c, boolean transcode_only*/)
 {
 	int ci, ssize;
 	jpeg_component_info * compptr;
-	if(transcode_only)
+	/* @v9c if(transcode_only)
 		jpeg_calc_trans_dimensions(cinfo);
 	else
-		jpeg_calc_jpeg_dimensions(cinfo);
+		jpeg_calc_jpeg_dimensions(cinfo); */
 	// Sanity check on block_size 
 	if(cinfo->block_size < 1 || cinfo->block_size > 16)
 		ERREXIT2(cinfo, JERR_BAD_DCTSIZE, cinfo->block_size, cinfo->block_size);
@@ -345,13 +344,13 @@ static void validate_script(j_compress_ptr cinfo)
 			 * out-of-range reconstructed DC values during the first DC scan,
 			 * which might cause problems for some decoders.
 			 */
-#if BITS_IN_JSAMPLE == 8
-#define MAX_AH_AL 10
-#else
-#define MAX_AH_AL 13
-#endif
-			if(Ss < 0 || Ss >= DCTSIZE2 || Se < Ss || Se >= DCTSIZE2 ||
-			    Ah < 0 || Ah > MAX_AH_AL || Al < 0 || Al > MAX_AH_AL)
+			/*v9c #if BITS_IN_JSAMPLE == 8
+				#define MAX_AH_AL 10
+			#else
+				#define MAX_AH_AL 13
+			#endif*/
+			// @v9c if(Ss < 0 || Ss >= DCTSIZE2 || Se < Ss || Se >= DCTSIZE2 || Ah < 0 || Ah > MAX_AH_AL || Al < 0 || Al > MAX_AH_AL)
+			if(Ss < 0 || Ss >= DCTSIZE2 || Se < Ss || Se >= DCTSIZE2 || Ah < 0 || Ah > (cinfo->data_precision > 8 ? 13 : 10) || Al < 0 || Al > (cinfo->data_precision > 8 ? 13 : 10)) // @v9c
 				ERREXIT1(cinfo, JERR_BAD_PROG_SCRIPT, scanno);
 			if(Ss == 0) {
 				if(Se != 0) /* DC and AC together not OK */
@@ -701,8 +700,9 @@ GLOBAL(void) jinit_c_master_control(j_compress_ptr cinfo, boolean transcode_only
 	master->pub.pass_startup = pass_startup;
 	master->pub.finish_pass = finish_pass_master;
 	master->pub.is_last_pass = FALSE;
-	/* Validate parameters, determine derived values */
-	initial_setup(cinfo, transcode_only);
+	// Validate parameters, determine derived values 
+	// @v9c initial_setup(cinfo, transcode_only);
+	initial_setup(cinfo); // @v9c 
 	if(cinfo->scan_info) {
 #ifdef C_MULTISCAN_FILES_SUPPORTED
 		validate_script(cinfo);

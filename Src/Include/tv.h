@@ -4087,7 +4087,7 @@ public:
 	STooltip();
 	~STooltip();
 	int    Init(HWND parent);
-	int    Destroy();
+	void   Destroy();
 	int    Add(const char * pText, const RECT * pRect, long id);
 	int    Remove(long id);
 private:

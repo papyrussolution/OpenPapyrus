@@ -610,7 +610,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					}
 					else if(oneof3(Src, srcCCheck, srcGoodsBill, srcCSession)) {
 						PPID   psn_id = 0;
-						if(GetCurUserPerson(&psn_id, &temp_buf) > 0)
+						if(PPObjPerson::GetCurUserPerson(&psn_id, &temp_buf) > 0)
 							rResult.Cat(temp_buf);
 						else {
 							GetCurUserName(temp_buf);

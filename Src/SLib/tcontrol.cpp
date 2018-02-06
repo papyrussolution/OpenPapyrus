@@ -2007,8 +2007,7 @@ int TImageView::TransmitData(int dir, void * pData)
 		{
 			HWND hw = getHandle();
 #ifdef TIMAGEVIEW_USE_FIG
-			delete P_Fig;
-			P_Fig = SDrawFigure::CreateFromFile(p_path, 0);
+			DELETEANDASSIGN(P_Fig, SDrawFigure::CreateFromFile(p_path, 0));
 #else
 			((SImage*)P_Image)->LoadImage(p_path);
 #endif

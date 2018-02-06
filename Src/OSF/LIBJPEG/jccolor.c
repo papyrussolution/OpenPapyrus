@@ -388,14 +388,9 @@ GLOBAL(void) jinit_color_converter(j_compress_ptr cinfo)
 			    ERREXIT(cinfo, JERR_BAD_J_COLORSPACE);
 		    if(cinfo->in_color_space == cinfo->jpeg_color_space) {
 			    switch(cinfo->color_transform) {
-				    case JCT_NONE:
-						cconvert->pub.color_convert = rgb_convert;
-						break;
-				    case JCT_SUBTRACT_GREEN:
-						cconvert->pub.color_convert = rgb_rgb1_convert;
-						break;
-				    default:
-						ERREXIT(cinfo, JERR_CONVERSION_NOTIMPL);
+				    case JCT_NONE: cconvert->pub.color_convert = rgb_convert; break;
+				    case JCT_SUBTRACT_GREEN: cconvert->pub.color_convert = rgb_rgb1_convert; break;
+				    default: ERREXIT(cinfo, JERR_CONVERSION_NOTIMPL);
 			    }
 		    }
 		    else

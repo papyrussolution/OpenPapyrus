@@ -2126,6 +2126,7 @@ browser OPSBYGOODS north(100), 1, 0, "Операции по товару {%s}", OWNER|GRID, 0
 
 browser LOT2 north(100), 1, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 {
+	"@id",             0, notype, 0, 8 // @v9.9.3
 	"@date",           1, notype, DATF_DMY, 8
 	"@warehouse",      3, notype, 0, 16
 	"@ware",           4, notype, 0, 20

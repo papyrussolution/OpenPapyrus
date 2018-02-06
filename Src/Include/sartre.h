@@ -930,8 +930,8 @@ public:
 		kOp = 1,
 		kLiteral,         // "abc"
 		kConcept,         // :abc
-		kConceptInstance, // :&abc
-		kConceptSubclass, // ::&abc
+		kConceptInstance, // !:abc
+		kConceptSubclass, // !::abc
 		kMorph,           // []
 		kRule             // #abc
 	};

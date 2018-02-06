@@ -48,21 +48,20 @@ GLOBAL(void) jpeg_start_compress(j_compress_ptr cinfo, boolean write_all_tables)
 	cinfo->next_scanline = 0;
 	cinfo->global_state = (cinfo->raw_data_in ? CSTATE_RAW_OK : CSTATE_SCANNING);
 }
-
-/*
- * Write some scanlines of data to the JPEG compressor.
- *
- * The return value will be the number of lines actually written.
- * This should be less than the supplied num_lines only in case that
- * the data destination module has requested suspension of the compressor,
- * or if more than image_height scanlines are passed in.
- *
- * Note: we warn about excess calls to jpeg_write_scanlines() since
- * this likely signals an application programmer error.  However,
- * excess scanlines passed in the last valid call are *silently* ignored,
- * so that the application need not adjust num_lines for end-of-image
- * when using a multiple-scanline buffer.
- */
+//
+// Descr: Write some scanlines of data to the JPEG compressor.
+//
+//  The return value will be the number of lines actually written.
+//  This should be less than the supplied num_lines only in case that
+//  the data destination module has requested suspension of the compressor,
+//  or if more than image_height scanlines are passed in.
+//
+// Note: we warn about excess calls to jpeg_write_scanlines() since
+//   this likely signals an application programmer error.  However,
+//   excess scanlines passed in the last valid call are *silently* ignored,
+//   so that the application need not adjust num_lines for end-of-image
+//   when using a multiple-scanline buffer.
+//
 GLOBAL(JDIMENSION) jpeg_write_scanlines(j_compress_ptr cinfo, JSAMPARRAY scanlines, JDIMENSION num_lines)
 {
 	JDIMENSION row_ctr, rows_left;
@@ -70,18 +69,17 @@ GLOBAL(JDIMENSION) jpeg_write_scanlines(j_compress_ptr cinfo, JSAMPARRAY scanlin
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
 	if(cinfo->next_scanline >= cinfo->image_height)
 		WARNMS(cinfo, JWRN_TOO_MUCH_DATA);
-	/* Call progress monitor hook if present */
+	// Call progress monitor hook if present 
 	if(cinfo->progress) {
 		cinfo->progress->pass_counter = (long)cinfo->next_scanline;
 		cinfo->progress->pass_limit = (long)cinfo->image_height;
 		(*cinfo->progress->progress_monitor)((j_common_ptr)cinfo);
 	}
-
-	/* Give master control module another chance if this is first call to
-	 * jpeg_write_scanlines.  This lets output of the frame/scan headers be
-	 * delayed so that application can write COM, etc, markers between
-	 * jpeg_start_compress and jpeg_write_scanlines.
-	 */
+	// 
+	// Give master control module another chance if this is first call to jpeg_write_scanlines.  
+	// This lets output of the frame/scan headers be delayed so that application can write COM, etc, 
+	// markers between jpeg_start_compress and jpeg_write_scanlines.
+	// 
 	if(cinfo->master->call_pass_startup)
 		(*cinfo->master->pass_startup)(cinfo);
 	// Ignore any extra scanlines at bottom of image. 

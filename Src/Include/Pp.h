@@ -7201,23 +7201,6 @@ int    FASTCALL GetMainEmployerID(PPID *);
 //   2  - город идентифицирован по юридическому адресу
 //
 int    FASTCALL GetMainCityID(PPID * pCityID);
-//
-// Descr: Извлекает информацию о персоналии, ассоциированной с текущим пользователем (LConfig.User).
-// ARG(pPersonID      OUT): @#{vptr0} Указатель, по которому функция присваивает идентификатор искомой
-//   персоналии. Если pPersonID == 0, то функция не пытается ничего присвоить по этму адресу.
-//   Если с пользователем не связана действительная запись персоналии, то по указателю присваивается 0.
-// ARG(pPersonName IN/OUT): @#{vptr0} Указатель на строку, в которую, если указатель не нулевой,
-//   функция записывает наименование найденной персоналии. Если указатель нулевой, то функция не пытается //
-//   извлекать запись персоналии, связанной с пользователем.
-//   Если с пользователем не связана действительная запись персоналии, то по указателю присваивается пустая строка.
-// Returns:
-//   >0 - с текущим пользователем связана действительная запись персоналии.
-//   -2 - не найдена запись текущего пользователя //
-//   -1 - с текущим польователем либо не связана персоналия, либо по связанному идентификатору не найдена
-//        запись персоналии.
-//   0  - ошибка
-//
-int    FASTCALL GetCurUserPerson(PPID * pPersonID, SString * pPersonName);
 int    SLAPI GetUserByPerson(PPID psnID, PPID * pUserID);
 int    FASTCALL GetLocationName(PPID locID, SString &);
 int    SLAPI SearchDlvrAddr();
@@ -18384,18 +18367,9 @@ public:
 	// На данный момент эта функция используется в универсальном драйвере АТОЛ
 	// для редактирования и выбора кассы
 	//
-	virtual int SLAPI EditParam(void *)
-	{
-		return -1;
-	}
-	const  char * GetName() const
-	{
-		return Name;
-	}
-	PPSlipFormatter * GetSlipFormatter()
-	{
-		return P_SlipFmt;
-	}
+	virtual int SLAPI EditParam(void *) { return -1; }
+	const  char * GetName() const { return Name; }
+	PPSlipFormatter * GetSlipFormatter() { return P_SlipFmt; }
 	int    SLAPI CompleteSession(PPID sessID);
 protected:
 	enum {
@@ -22081,7 +22055,8 @@ public:
 	int    SLAPI ResolveWhCell(PPID locID, PPIDArray & rDestList, PPIDArray * pRecurTrace, int useCache);
 	int    SLAPI GetRegister(PPID locID, PPID regType, LDATE actualDate, int iheritFromOwner, RegisterTbl::Rec * pRec);
 private:
-	friend class LocationCache;
+	friend class LocationCache; // Только для использования PPObjLocation(SCtrLite)
+	friend class PPObjPerson;   // Только для использования PPObjLocation(SCtrLite)
 
 	void   SLAPI InitInstance(SCtrLite sctr, void * extraPtr);
 	SLAPI  PPObjLocation(SCtrLite);
@@ -22616,6 +22591,23 @@ public:
 	static int SLAPI ReplacePerson(PPID srcID = 0, PPID srcKindID = 0);
 	static int SLAPI ReplaceDlvrAddr(PPID srcID);
 	static int SLAPI TestSearchEmail();
+	//
+	// Descr: Извлекает информацию о персоналии, ассоциированной с текущим пользователем (LConfig.User).
+	// ARG(pPersonID      OUT): @#{vptr0} Указатель, по которому функция присваивает идентификатор искомой
+	//   персоналии. Если pPersonID == 0, то функция не пытается ничего присвоить по этму адресу.
+	//   Если с пользователем не связана действительная запись персоналии, то по указателю присваивается 0.
+	// ARG(pPersonName IN/OUT): @#{vptr0} Указатель на строку, в которую, если указатель не нулевой,
+	//   функция записывает наименование найденной персоналии. Если указатель нулевой, то функция не пытается //
+	//   извлекать запись персоналии, связанной с пользователем.
+	//   Если с пользователем не связана действительная запись персоналии, то по указателю присваивается пустая строка.
+	// Returns:
+	//   >0 - с текущим пользователем связана действительная запись персоналии.
+	//   -2 - не найдена запись текущего пользователя //
+	//   -1 - с текущим польователем либо не связана персоналия, либо по связанному идентификатору не найдена
+	//        запись персоналии.
+	//   0  - ошибка
+	//
+	static int FASTCALL GetCurUserPerson(PPID * pPersonID, SString * pPersonName);
 
 	explicit SLAPI PPObjPerson(void * extraPtr = 0);
 	SLAPI ~PPObjPerson();
@@ -22892,6 +22884,10 @@ public:
 	//
 	int    SLAPI IndexPhones(int use_ta);
 private:
+	friend class PersonCache;
+	friend int FASTCALL GetPersonName(PPID id, SString & rBuf);
+
+	SLAPI  PPObjPerson(SCtrLite);
 	virtual ListBoxDef * SLAPI Selector(void * extraPtr);
 	virtual int  SLAPI UpdateSelector(ListBoxDef * pDef, void * extraPtr);
 	virtual int  SLAPI DeleteObj(PPID id);
@@ -22918,8 +22914,9 @@ private:
 	int    SLAPI Helper_GetAddrID(const PersonTbl::Rec *, PPID psnID, PPID dlvrAddrID, int option, PPID * pAddrID);
 	int    SLAPI Helper_PutSCard(PPID personID, PPPersonPacket * pPack, PPObjSCard * pScObj);
 
+	SCtrLite Sctr;
 	PPObjArticle * P_ArObj;    //
-	PPObjProcessor * P_PrcObj; // @v7.9.4 Скрытый 'кземпляр для быстрой обработки сообщений DBMSG_PERSONACQUIREKIND
+	PPObjProcessor * P_PrcObj; // @v7.9.4 Скрытый экземпляр для быстрой обработки сообщений DBMSG_PERSONACQUIREKIND
 	PPPersonConfig Cfg;        // Использовать только через PPObjPerson::GetConfig()
 public:
 	TLP_MEMB(PersonCore, P_Tbl);
@@ -24738,6 +24735,7 @@ private:
 	TempSysJournalTbl * P_SubstTbl;
 	// @v9.9.0 TempDoubleIDTbl * P_NamesTbl;
 	ObjCollection * P_ObjColl;
+	PPObjPerson PsnObj; // @fastreuse
 	int    LockUpByNotify; // Семафор, блокирующий обновление данных по системному событию
 	LDATETIME LastRefreshDtm; // Время последнего обновления выборки. Используется для определения времени,
 		// начиная с которого следует извлекать события из журнала для последующего обновления.

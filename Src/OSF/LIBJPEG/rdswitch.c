@@ -17,11 +17,11 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-//#include <ctype.h>		/* to declare isdigit(), isspace() */
-
+// 
+// Descr: Read next char, skipping over any comments (# to end of line) 
+//   A comment/newline sequence is returned as a newline 
+// 
 static int FASTCALL text_getc(FILE * file)
-/* Read next char, skipping over any comments (# to end of line) */
-/* A comment/newline sequence is returned as a newline */
 {
 	int ch = getc(file);
 	if(ch == '#') {
@@ -31,10 +31,11 @@ static int FASTCALL text_getc(FILE * file)
 	}
 	return ch;
 }
-
-LOCAL(boolean) read_text_integer(FILE * file, long * result, int * termchar)
-/* Read an unsigned decimal integer from a file, store it in result */
-/* Reads one trailing character after the integer; returns it in termchar */
+//
+// Descr: Read an unsigned decimal integer from a file, store it in result 
+//   Reads one trailing character after the integer; returns it in termchar 
+//
+static boolean read_text_integer(FILE * file, long * result, int * termchar)
 {
 	int ch;
 	long val;
@@ -61,17 +62,17 @@ LOCAL(boolean) read_text_integer(FILE * file, long * result, int * termchar)
 	*termchar = ch;
 	return TRUE;
 }
-
-GLOBAL(boolean) read_quant_tables(j_compress_ptr cinfo, char * filename, boolean force_baseline)
-/* Read a set of quantization tables from the specified file.
- * The file is plain ASCII text: decimal numbers with whitespace between.
- * Comments preceded by '#' may be included in the file.
- * There may be one to NUM_QUANT_TBLS tables in the file, each of 64 values.
- * The tables are implicitly numbered 0,1,etc.
- * NOTE: does not affect the qslots mapping, which will default to selecting
- * table 0 for luminance (or primary) components, 1 for chrominance components.
- * You must use -qslots if you want a different component->table mapping.
- */
+// 
+// Descr: Read a set of quantization tables from the specified file.
+//   The file is plain ASCII text: decimal numbers with whitespace between.
+//   Comments preceded by '#' may be included in the file.
+//   There may be one to NUM_QUANT_TBLS tables in the file, each of 64 values.
+//   The tables are implicitly numbered 0,1,etc.
+// NOTE: does not affect the qslots mapping, which will default to selecting
+//   table 0 for luminance (or primary) components, 1 for chrominance components.
+//   You must use -qslots if you want a different component->table mapping.
+// 
+boolean read_quant_tables(j_compress_ptr cinfo, char * filename, boolean force_baseline)
 {
 	FILE * fp;
 	int tblno, i, termchar;
@@ -110,50 +111,49 @@ GLOBAL(boolean) read_quant_tables(j_compress_ptr cinfo, char * filename, boolean
 }
 
 #ifdef C_MULTISCAN_FILES_SUPPORTED
-
-LOCAL(boolean) FASTCALL read_scan_integer(FILE * file, long * result, int * termchar)
-/* Variant of read_text_integer that always looks for a non-space termchar;
- * this simplifies parsing of punctuation in scan scripts.
- */
+// 
+// Descr: Variant of read_text_integer that always looks for a non-space termchar;
+//   this simplifies parsing of punctuation in scan scripts.
+// 
+static boolean FASTCALL read_scan_integer(FILE * file, long * result, int * termchar)
 {
-	register int ch;
+	int ch;
 	if(!read_text_integer(file, result, termchar))
 		return FALSE;
 	ch = *termchar;
 	while(ch != EOF && isspace(ch))
 		ch = text_getc(file);
-	if(isdigit(ch)) {       /* oops, put it back */
+	if(isdigit(ch)) { // oops, put it back 
 		if(ungetc(ch, file) == EOF)
 			return FALSE;
 		ch = ' ';
 	}
 	else {
-		/* Any separators other than ';' and ':' are ignored;
-		 * this allows user to insert commas, etc, if desired.
-		 */
+		// Any separators other than ';' and ':' are ignored;
+		// this allows user to insert commas, etc, if desired.
 		if(ch != EOF && ch != ';' && ch != ':')
 			ch = ' ';
 	}
 	*termchar = ch;
 	return TRUE;
 }
-
-GLOBAL(boolean) read_scan_script(j_compress_ptr cinfo, char * filename)
-/* Read a scan script from the specified text file.
- * Each entry in the file defines one scan to be emitted.
- * Entries are separated by semicolons ';'.
- * An entry contains one to four component indexes,
- * optionally followed by a colon ':' and four progressive-JPEG parameters.
- * The component indexes denote which component(s) are to be transmitted
- * in the current scan.  The first component has index 0.
- * Sequential JPEG is used if the progressive-JPEG parameters are omitted.
- * The file is free format text: any whitespace may appear between numbers
- * and the ':' and ';' punctuation marks.  Also, other punctuation (such
- * as commas or dashes) can be placed between numbers if desired.
- * Comments preceded by '#' may be included in the file.
- * Note: we do very little validity checking here;
- * jcmaster.c will validate the script parameters.
- */
+//
+// Descr: Read a scan script from the specified text file.
+//   Each entry in the file defines one scan to be emitted.
+//   Entries are separated by semicolons ';'.
+//   An entry contains one to four component indexes,
+//   optionally followed by a colon ':' and four progressive-JPEG parameters.
+//   The component indexes denote which component(s) are to be transmitted
+//   in the current scan.  The first component has index 0.
+//   Sequential JPEG is used if the progressive-JPEG parameters are omitted.
+//   The file is free format text: any whitespace may appear between numbers
+//   and the ':' and ';' punctuation marks.  Also, other punctuation (such
+//   as commas or dashes) can be placed between numbers if desired.
+//   Comments preceded by '#' may be included in the file.
+// Note: we do very little validity checking here;
+//   jcmaster.c will validate the script parameters.
+//
+boolean read_scan_script(j_compress_ptr cinfo, char * filename)
 {
 	FILE * fp;
 	int scanno, ncomps, termchar;
@@ -234,20 +234,17 @@ bogus:
 	fclose(fp);
 	return TRUE;
 }
-
 #endif /* C_MULTISCAN_FILES_SUPPORTED */
-
-GLOBAL(boolean) set_quality_ratings(j_compress_ptr cinfo, char * arg, boolean force_baseline)
-/* Process a quality-ratings parameter string, of the form
- *     N[,N,...]
- * If there are more q-table slots than parameters, the last value is replicated.
- */
+// 
+// Descr: Process a quality-ratings parameter string, of the form N[,N,...]
+//   If there are more q-table slots than parameters, the last value is replicated.
+// 
+boolean set_quality_ratings(j_compress_ptr cinfo, char * arg, boolean force_baseline)
 {
-	int val = 75;           /* default value */
-	char ch;
+	int val = 75; // default value 
 	for(int tblno = 0; tblno < NUM_QUANT_TBLS; tblno++) {
 		if(*arg) {
-			ch = ','; /* if not set by sscanf, will be ',' */
+			char ch = ','; /* if not set by sscanf, will be ',' */
 			if(sscanf(arg, "%d%c", &val, &ch) < 1)
 				return FALSE;
 			if(ch != ',') /* syntax check */
@@ -265,46 +262,39 @@ GLOBAL(boolean) set_quality_ratings(j_compress_ptr cinfo, char * arg, boolean fo
 	jpeg_default_qtables(cinfo, force_baseline);
 	return TRUE;
 }
-
-GLOBAL(boolean) set_quant_slots(j_compress_ptr cinfo, char * arg)
-/* Process a quantization-table-selectors parameter string, of the form
- *     N[,N,...]
- * If there are more components than parameters, the last value is replicated.
- */
+// 
+// Process a quantization-table-selectors parameter string, of the form N[,N,...]
+// If there are more components than parameters, the last value is replicated.
+// 
+boolean set_quant_slots(j_compress_ptr cinfo, char * arg)
 {
-	int val = 0;            /* default table # */
-	int ci;
-	char ch;
-
-	for(ci = 0; ci < MAX_COMPONENTS; ci++) {
+	int val = 0; // default table # 
+	for(int ci = 0; ci < MAX_COMPONENTS; ci++) {
 		if(*arg) {
-			ch = ','; /* if not set by sscanf, will be ',' */
+			char ch = ','; // if not set by sscanf, will be ',' 
 			if(sscanf(arg, "%d%c", &val, &ch) < 1)
 				return FALSE;
 			if(ch != ',') /* syntax check */
 				return FALSE;
 			if(val < 0 || val >= NUM_QUANT_TBLS) {
-				fprintf(stderr, "JPEG quantization tables are numbered 0..%d\n",
-				    NUM_QUANT_TBLS-1);
+				fprintf(stderr, "JPEG quantization tables are numbered 0..%d\n", NUM_QUANT_TBLS-1);
 				return FALSE;
 			}
 			cinfo->comp_info[ci].quant_tbl_no = val;
 			while(*arg && *arg++ != ',') /* advance to next segment of arg string */
 				;
 		}
-		else {
-			/* reached end of parameter, set remaining components to last table */
+		else { // reached end of parameter, set remaining components to last table 
 			cinfo->comp_info[ci].quant_tbl_no = val;
 		}
 	}
 	return TRUE;
 }
-
-GLOBAL(boolean) set_sample_factors(j_compress_ptr cinfo, char * arg)
-/* Process a sample-factors parameter string, of the form
- *     HxV[,HxV,...]
- * If there are more components than parameters, "1x1" is assumed for the rest.
- */
+// 
+// Descr: Process a sample-factors parameter string, of the form HxV[,HxV,...]
+// If there are more components than parameters, "1x1" is assumed for the rest.
+// 
+boolean set_sample_factors(j_compress_ptr cinfo, char * arg)
 {
 	int val1, val2;
 	char ch1, ch2;

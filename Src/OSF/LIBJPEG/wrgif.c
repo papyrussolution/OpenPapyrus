@@ -2,7 +2,7 @@
  * wrgif.c
  *
  * Copyright (C) 1991-1997, Thomas G. Lane.
- * Modified 2015 by Guido Vollbeding.
+ * Modified 2015-2017 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -18,7 +18,6 @@
  * specialized applications.  As they stand, they assume output to
  * an ordinary stdio stream.
  */
-
 /*
  * This code is loosely based on ppmtogif from the PBMPLUS distribution
  * of Feb. 1991.  That file contains the following copyright notice:
@@ -37,6 +36,7 @@
  *    CompuServe Incorporated. GIF(sm) is a Service Mark property of
  *    CompuServe Incorporated."
  */
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
@@ -299,9 +299,9 @@ METHODDEF(void) put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo, JDI
 		compress_pixel(dest, GETJSAMPLE(*ptr++));
 	}
 }
-/*
- * Finish up at the end of the file.
- */
+//
+// Finish up at the end of the file.
+//
 METHODDEF(void) finish_output_gif(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
 	gif_dest_ptr dest = (gif_dest_ptr)dinfo;
@@ -312,14 +312,15 @@ METHODDEF(void) finish_output_gif(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 	// Write the GIF terminator mark 
 	putc(';', dest->pub.output_file);
 	// Make sure we wrote the output file OK 
-	fflush(dest->pub.output_file);
-	if(ferror(dest->pub.output_file))
+	// @v9c fflush(dest->pub.output_file);
+	// @v9c if(ferror(dest->pub.output_file))
+	JFFLUSH(dest->pub.output_file); // @v9c 
+	if(JFERROR(dest->pub.output_file)) // @v9c 
 		ERREXIT(cinfo, JERR_FILE_WRITE);
 }
-
-/*
- * The module selection routine for GIF format output.
- */
+//
+// The module selection routine for GIF format output.
+//
 GLOBAL(djpeg_dest_ptr) jinit_write_gif(j_decompress_ptr cinfo)
 {
 	// Create module interface object, fill in method pointers 

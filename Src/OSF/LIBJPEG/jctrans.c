@@ -10,6 +10,7 @@
  * that is, writing raw DCT coefficient arrays to an output JPEG file.
  * The routines in jcapimin.c will also be needed by a transcoder.
  */
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
@@ -72,18 +73,21 @@ GLOBAL(void) jpeg_copy_critical_parameters(j_decompress_ptr srcinfo, j_compress_
 	dstinfo->jpeg_height = srcinfo->output_height;
 	dstinfo->min_DCT_h_scaled_size = srcinfo->min_DCT_h_scaled_size;
 	dstinfo->min_DCT_v_scaled_size = srcinfo->min_DCT_v_scaled_size;
-	/* Initialize all parameters to default values */
+	// Initialize all parameters to default values 
 	jpeg_set_defaults(dstinfo);
-	/* jpeg_set_defaults may choose wrong colorspace, eg YCbCr if input is RGB.
-	 * Fix it to get the right header markers for the image colorspace.
-	 * Note: Entropy table assignment in jpeg_set_colorspace depends
-	 * on color_transform.
-	 */
+	// 
+	// jpeg_set_defaults may choose wrong colorspace, eg YCbCr if input is RGB.
+	// Fix it to get the right header markers for the image colorspace.
+	// Note: Entropy table assignment in jpeg_set_colorspace depends on color_transform.
+	// Adaption is also required for setting the appropriate
+	// entropy coding mode dependent on image data precision.
+	// 
 	dstinfo->color_transform = srcinfo->color_transform;
 	jpeg_set_colorspace(dstinfo, srcinfo->jpeg_color_space);
 	dstinfo->data_precision = srcinfo->data_precision;
+	dstinfo->arith_code = srcinfo->data_precision > 8 ? TRUE : FALSE; // @v9c
 	dstinfo->CCIR601_sampling = srcinfo->CCIR601_sampling;
-	/* Copy the source's quantization tables. */
+	// Copy the source's quantization tables. 
 	for(tblno = 0; tblno < NUM_QUANT_TBLS; tblno++) {
 		if(srcinfo->quant_tbl_ptrs[tblno]) {
 			qtblptr = &dstinfo->quant_tbl_ptrs[tblno];
@@ -142,16 +146,25 @@ GLOBAL(void) jpeg_copy_critical_parameters(j_decompress_ptr srcinfo, j_compress_
 		dstinfo->Y_density = srcinfo->Y_density;
 	}
 }
-/*
- * Master selection of compression modules for transcoding.
- * This substitutes for jcinit.c's initialization of the full compressor.
- */
+
+// Do computations that are needed before master selection phase 
+LOCAL(void) jpeg_calc_trans_dimensions (j_compress_ptr cinfo)
+{
+	if(cinfo->min_DCT_h_scaled_size != cinfo->min_DCT_v_scaled_size)
+		ERREXIT2(cinfo, JERR_BAD_DCTSIZE, cinfo->min_DCT_h_scaled_size, cinfo->min_DCT_v_scaled_size);
+	cinfo->block_size = cinfo->min_DCT_h_scaled_size;
+}
+// 
+// Master selection of compression modules for transcoding.
+// This substitutes for jcinit.c's initialization of the full compressor.
+// 
 static void transencode_master_selection(j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays)
 {
-	/* Initialize master control (includes parameter checking/processing) */
+	// Do computations that are needed before master selection phase 
+	jpeg_calc_trans_dimensions(cinfo); // @v9c
+	// Initialize master control (includes parameter checking/processing) 
 	jinit_c_master_control(cinfo, TRUE /* transcode only */);
-
-	/* Entropy encoding: either Huffman or arithmetic coding. */
+	// Entropy encoding: either Huffman or arithmetic coding. 
 	if(cinfo->arith_code)
 		jinit_arith_encoder(cinfo);
 	else {
@@ -168,7 +181,6 @@ static void transencode_master_selection(j_compress_ptr cinfo, jvirt_barray_ptr 
 	 */
 	(*cinfo->marker->write_file_header)(cinfo);
 }
-
 /*
  * The rest of this file is a special implementation of the coefficient
  * buffer controller.  This is similar to jccoefct.c, but it handles only
@@ -176,7 +188,6 @@ static void transencode_master_selection(j_compress_ptr cinfo, jvirt_barray_ptr 
  * dummy padding blocks on-the-fly rather than expecting them to be present
  * in the arrays.
  */
-
 /* Private buffer controller object */
 
 typedef struct {

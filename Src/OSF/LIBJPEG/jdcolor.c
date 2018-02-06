@@ -2,27 +2,30 @@
  * jdcolor.c
  *
  * Copyright (C) 1991-1997, Thomas G. Lane.
- * Modified 2011-2015 by Guido Vollbeding.
+ * Modified 2011-2017 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
  * This file contains output colorspace conversion routines.
  */
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-
-/* Private subobject */
-
+#if RANGE_BITS < 2
+	// Deliberate syntax err 
+	Sorry, this code requires 2 or more range extension bits.
+#endif
+//
+// Private subobject 
+//
 typedef struct {
 	struct jpeg_color_deconverter pub; /* public fields */
-
 	/* Private state for YCbCr->RGB and BG_YCC->RGB conversion */
 	int * Cr_r_tab;         /* => table for Cr to R conversion */
 	int * Cb_b_tab;         /* => table for Cb to B conversion */
 	INT32 * Cr_g_tab;       /* => table for Cr to G conversion */
 	INT32 * Cb_g_tab;       /* => table for Cb to G conversion */
-
 	/* Private state for RGB->Y conversion */
 	INT32 * rgb_y_tab;      /* => table for RGB to Y conversion */
 } my_color_deconverter;
@@ -84,7 +87,6 @@ typedef my_color_deconverter * my_cconvert_ptr;
  * values for the G calculation are left scaled up, since we must add them
  * together before rounding.
  */
-
 #define SCALEBITS       16      /* speediest right-shift on some machines */
 #define ONE_HALF        ((INT32)1 << (SCALEBITS-1))
 #define FIX(x)          ((INT32)((x) * (1L<<SCALEBITS) + 0.5))
@@ -92,15 +94,12 @@ typedef my_color_deconverter * my_cconvert_ptr;
 /* We allocate one big table for RGB->Y conversion and divide it up into
  * three parts, instead of doing three alloc_small requests.  This lets us
  * use a single table base address, which can be held in a register in the
- * inner loops on many machines (more than can hold all three addresses,
- * anyway).
+ * inner loops on many machines (more than can hold all three addresses, anyway).
  */
-
 #define R_Y_OFF         0                       /* offset to R => Y section */
 #define G_Y_OFF         (1*(MAXJSAMPLE+1))      /* offset to G => Y section */
 #define B_Y_OFF         (2*(MAXJSAMPLE+1))      /* etc. */
 #define TABLE_SIZE      (3*(MAXJSAMPLE+1))
-
 /*
  * Initialize tables for YCbCr->RGB and BG_YCC->RGB colorspace conversion.
  */
@@ -380,37 +379,30 @@ METHODDEF(void) grayscale_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, 
 {
 	jcopy_sample_rows(input_buf[0], (int)input_row, output_buf, 0, num_rows, cinfo->output_width);
 }
-
 /*
  * Convert grayscale to RGB: just duplicate the graylevel three times.
  * This is provided to support applications that don't want to cope
  * with grayscale as a separate case.
  */
-
 METHODDEF(void) gray_rgb_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
-	JSAMPROW outptr;
-	JSAMPROW inptr;
-	JDIMENSION col;
-	JDIMENSION num_cols = cinfo->output_width;
+	const JDIMENSION num_cols = cinfo->output_width;
 	while(--num_rows >= 0) {
-		inptr = input_buf[0][input_row++];
-		outptr = *output_buf++;
-		for(col = 0; col < num_cols; col++) {
+		JSAMPROW inptr = input_buf[0][input_row++];
+		JSAMPROW outptr = *output_buf++;
+		for(JDIMENSION col = 0; col < num_cols; col++) {
 			/* We can dispense with GETJSAMPLE() here */
 			outptr[RGB_RED] = outptr[RGB_GREEN] = outptr[RGB_BLUE] = inptr[col];
 			outptr += RGB_PIXELSIZE;
 		}
 	}
 }
-
 /*
  * Adobe-style YCCK->CMYK conversion.
  * We convert YCbCr to R=1-C, G=1-M, and B=1-Y using the same
  * conversion as above, while passing K (black) unchanged.
  * We assume build_ycc_rgb_table has been called.
  */
-
 METHODDEF(void) ycck_cmyk_convert(j_decompress_ptr cinfo, JSAMPIMAGE input_buf, JDIMENSION input_row, JSAMPARRAY output_buf, int num_rows)
 {
 	my_cconvert_ptr cconvert = (my_cconvert_ptr)cinfo->cconvert;
@@ -478,7 +470,6 @@ GLOBAL(void) jinit_color_deconverter(j_decompress_ptr cinfo)
 		    if(cinfo->num_components != 3)
 			    ERREXIT(cinfo, JERR_BAD_J_COLORSPACE);
 		    break;
-
 		case JCS_CMYK:
 		case JCS_YCCK:
 		    if(cinfo->num_components != 4)
@@ -511,14 +502,9 @@ GLOBAL(void) jinit_color_deconverter(j_decompress_ptr cinfo)
 				break;
 			    case JCS_RGB:
 				switch(cinfo->color_transform) {
-					case JCT_NONE:
-					    cconvert->pub.color_convert = rgb_gray_convert;
-					    break;
-					case JCT_SUBTRACT_GREEN:
-					    cconvert->pub.color_convert = rgb1_gray_convert;
-					    break;
-					default:
-					    ERREXIT(cinfo, JERR_CONVERSION_NOTIMPL);
+					case JCT_NONE: cconvert->pub.color_convert = rgb_gray_convert; break;
+					case JCT_SUBTRACT_GREEN: cconvert->pub.color_convert = rgb1_gray_convert; break;
+					default: ERREXIT(cinfo, JERR_CONVERSION_NOTIMPL);
 				}
 				build_rgb_y_table(cinfo);
 				break;

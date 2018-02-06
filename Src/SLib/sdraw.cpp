@@ -1,5 +1,5 @@
 // SDRAW.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -218,7 +218,7 @@ template <class F> SDrawFigure * DupDrawFigure(const SDrawFigure * pThis)
 }
 
 // static
-int SDrawFigure::CheckKind(int kind)
+int FASTCALL SDrawFigure::CheckKind(int kind)
 {
 	if(oneof5(kind, kShape, kPath, kGroup, kImage, kText))
 		return 1;
@@ -351,7 +351,7 @@ void SDrawFigure::SetSize(FPoint sz)
 	}
 }
 
-int SDrawFigure::GetViewPort(SViewPort * pVp) const
+int FASTCALL SDrawFigure::GetViewPort(SViewPort * pVp) const
 {
 	int    ok = -1;
 	SViewPort vp = Vp;
@@ -419,30 +419,15 @@ void SDrawFigure::SetStyle(int identPen, int identBrush, long flags)
 		Flags |= fNullBrush;
 }
 
-int SDrawFigure::GetKind() const
-{
-	return Kind;
-}
-
-long SDrawFigure::GetFlags() const
-{
-	return Flags;
-}
-
-const SString & SDrawFigure::GetSid() const
-	{ return Sid; }
-const FPoint & SDrawFigure::GetSize() const
-	{ return Size; }
-const SViewPort & SDrawFigure::GetViewPort() const
-	{ return Vp; }
-void SDrawFigure::SetSid(const char * pSid)
-	{ Sid = pSid; }
-int SDrawFigure::GetPen() const
-	{ return IdPen; }
-int SDrawFigure::GetBrush() const
-	{ return IdBrush; }
-const LMatrix2D & SDrawFigure::GetTransform() const
-	{ return Tf; }
+int    SDrawFigure::GetKind() const { return Kind; }
+long   SDrawFigure::GetFlags() const { return Flags; }
+const  SString & SDrawFigure::GetSid() const { return Sid; }
+const  FPoint & SDrawFigure::GetSize() const { return Size; }
+const  SViewPort & SDrawFigure::GetViewPort() const { return Vp; }
+void   SDrawFigure::SetSid(const char * pSid) { Sid = pSid; }
+int    SDrawFigure::GetPen() const { return IdPen; }
+int    SDrawFigure::GetBrush() const { return IdBrush; }
+const  LMatrix2D & SDrawFigure::GetTransform() const { return Tf; }
 
 SPaintToolBox * SDrawFigure::GetToolBox() const
 {
@@ -601,10 +586,8 @@ int SDrawGroup::Remove(const char * pSid, int recur)
 	return ok;
 }
 
-uint SDrawGroup::GetCount() const
-	{ return SCollection::getCount(); }
-const SDrawFigure * SDrawGroup::Get(uint pos) const
-	{ return (pos < getCount()) ? at(pos) : 0; }
+uint   SDrawGroup::GetCount() const { return SCollection::getCount(); }
+const  SDrawFigure * SDrawGroup::Get(uint pos) const { return (pos < getCount()) ? at(pos) : 0; }
 
 const SDrawFigure * SDrawGroup::Find(const char * pSid, int recur) const
 {
@@ -695,10 +678,9 @@ const FPoint & SDrawPath::GetCurrent()
 	return Cur;
 }
 
-int SDrawPath::IsEmpty() const
-	{ return (OpList.getCount() == 0); }
-uint SDrawPath::GetCount() const
-	{ return OpList.getCount(); }
+int    SDrawPath::IsEmpty() const { return (OpList.getCount() == 0); }
+uint   SDrawPath::GetCount() const { return OpList.getCount(); }
+int    FASTCALL SDrawPath::CheckOp(int op) const { return BIN(oneof7(op, opNop, opMove, opLine, opCurve, opQuad, opArcSvg, opClose)); }
 
 const SDrawPath::Item * FASTCALL SDrawPath::Get(uint i, SDrawPath::Item & rItem) const
 {
@@ -714,11 +696,6 @@ const SDrawPath::Item * FASTCALL SDrawPath::Get(uint i, SDrawPath::Item & rItem)
 	}
 	else
 		return 0;
-}
-
-int FASTCALL SDrawPath::CheckOp(int op) const
-{
-	return BIN(oneof7(op, opNop, opMove, opLine, opCurve, opQuad, opArcSvg, opClose));
 }
 
 uint FASTCALL SDrawPath::GetOpArgCount(int op) const
@@ -1358,6 +1335,28 @@ int SImageBuffer::PixF::SetUniform(const void * pUniformBuf, void * pDest, uint 
 				{
 					switch(S) {
 						case s24RGB:
+							{
+								uint8 * p = (uint8 *)pDest;
+								const uint dq = width / 8;
+								const uint dr = width % 8;
+								uint32 uf;
+								#define OP uf = p_ufb[0]; p[0] = (uint8)((uf>>16)&0xff); p[1] = (uint8)((uf>>8)&0xff); p[2] = (uint8)(uf&0xff);
+								for(uint i = 0; i < dq; ++i) {
+									OP; p += 3; p_ufb++;
+									OP; p += 3; p_ufb++;
+									OP; p += 3; p_ufb++;
+									OP; p += 3; p_ufb++;
+									OP; p += 3; p_ufb++;
+									OP; p += 3; p_ufb++;
+									OP; p += 3; p_ufb++;
+									OP; p += 3; p_ufb++;
+								}
+								for(uint i = 0; i < dr; ++i) {
+									OP; p += 3; p_ufb++;
+								}
+								#undef OP
+								ok = 1;
+							}
 							break;
 						default:
 							ok = 0;
@@ -1681,7 +1680,7 @@ int SImageBuffer::PixF::GetUniform(const void * pSrc, void * pUniformBuf, uint w
 	return ok;
 }
 
-SImageBuffer::StoreParam::StoreParam(int fmt) : Fmt(fmt), Flags(0)
+SImageBuffer::StoreParam::StoreParam(int fmt) : Fmt(fmt), Flags(0), Quality(100)
 {
 }
 
@@ -1821,18 +1820,12 @@ int FASTCALL SImageBuffer::IsEqual(const SImageBuffer & rS) const
 	return 1;
 }
 
-SImageBuffer::PixF SImageBuffer::GetFormat() const
-	{ return F; }
-uint SImageBuffer::GetWidth() const
-	{ return (uint)S.x; }
-uint SImageBuffer::GetHeight() const
-	{ return (uint)S.y; }
-TPoint SImageBuffer::GetDim() const
-	{ return S; }
-FPoint SImageBuffer::GetDimF() const
-	{ return (FPoint)S; }
-const  uint8 * SImageBuffer::GetData() const
-	{ return (const uint8 *)P_Buf; }
+SImageBuffer::PixF SImageBuffer::GetFormat() const { return F; }
+uint   SImageBuffer::GetWidth() const { return (uint)S.x; }
+uint   SImageBuffer::GetHeight() const { return (uint)S.y; }
+TPoint SImageBuffer::GetDim() const { return S; }
+FPoint SImageBuffer::GetDimF() const { return (FPoint)S; }
+const  uint8 * SImageBuffer::GetData() const { return (const uint8 *)P_Buf; }
 
 int SImageBuffer::Store(const StoreParam & rP, SFile & rF)
 {
@@ -1840,6 +1833,9 @@ int SImageBuffer::Store(const StoreParam & rP, SFile & rF)
 	THROW(rF.IsValid());
 	if(rP.Fmt == SFileFormat::Png) {
 		THROW(StorePng(rP, rF));
+	}
+	else if(rP.Fmt == SFileFormat::Jpeg) {
+		THROW(StoreJpeg(rP, rF));
 	}
 	else {
 		CALLEXCEPT_S(SLERR_UNSUPPIMGFILEFORMAT);
@@ -2457,6 +2453,74 @@ int SImageBuffer::LoadJpeg(SFile & rF, int fileFmt)
 	SAlloc::F(p_row_buf);
 	return ok;
 }
+
+int SImageBuffer::StoreJpeg(const StoreParam & rP, SFile & rF)
+{
+	struct JpegErr {
+		static void ExitFunc(j_common_ptr pCInfo)
+		{
+			int    err_code = 0;
+			JpegErr * p_err = (JpegErr *)pCInfo->err;
+			// Are there any other error codes we might care about?
+			switch(p_err->pub.msg_code) {
+	    		case JERR_NO_SOI: err_code = SLERR_IMAGEFILENOTJPEG; break;
+	    		default: err_code = SLERR_JPEGLOADFAULT; break;
+			}
+			longjmp(p_err->setjmp_buf, err_code);
+		}
+		JpegErr()
+		{
+			pub.error_exit = ExitFunc;
+		}
+		struct jpeg_error_mgr pub; // "public" fields
+		jmp_buf setjmp_buf;        // for return to caller
+	};
+	int    ok = 1;
+	int    err_code = 0;
+	JpegErr jpeg_err;
+	struct jpeg_compress_struct cinfo;
+	uchar * p_outbuf = 0;
+	ulong  outbuf_size = 0;
+	JSAMPROW row_pointer[1];
+	STempBuffer row_buf(0);
+	STempBuffer uniform_buf(0);
+	int    row_stride;
+	THROW(S.x > 0 && S.y > 0); // no image
+	THROW(row_buf.Alloc(S.x * 3));
+	THROW(uniform_buf.Alloc(S.x * 4));
+	row_pointer[0] = (JSAMPROW)(char *)row_buf;
+	cinfo.err = jpeg_std_error(&jpeg_err.pub);
+	jpeg_err.pub.error_exit = JpegErr::ExitFunc;
+	err_code = setjmp(jpeg_err.setjmp_buf);
+	if(err_code) {
+		SLS.SetAddedMsgString(rF.GetName());
+		CALLEXCEPT();
+	}
+	else {
+		PixF   px(PixF::s24RGB);
+		jpeg_create_compress(&cinfo);
+		jpeg_mem_dest(&cinfo, &p_outbuf, &outbuf_size);
+		cinfo.image_width = S.x; // image width and height, in pixels 
+		cinfo.image_height = S.y;
+		cinfo.input_components = 3; // # of color components per pixel 
+		cinfo.in_color_space = JCS_RGB; // colorspace of input image 
+		jpeg_set_defaults(&cinfo);
+		jpeg_set_quality(&cinfo, NZOR(rP.Quality, 75), TRUE /* limit to baseline-JPEG values */);
+		jpeg_start_compress(&cinfo, TRUE);
+		row_stride = S.x * 3; // JSAMPLEs per row in image_buffer 
+		while(cinfo.next_scanline < cinfo.image_height) {
+			THROW(F.GetUniform(GetScanline(cinfo.next_scanline), uniform_buf, S.x, 0));
+			THROW(px.SetUniform(uniform_buf, row_buf, S.x, 0));
+			(void)jpeg_write_scanlines(&cinfo, row_pointer, 1);
+		}
+		jpeg_finish_compress(&cinfo);
+		THROW(rF.Write(p_outbuf, (size_t)outbuf_size));
+	}
+	CATCHZOK
+	jpeg_destroy_compress(&cinfo);
+	SAlloc::F(p_outbuf);
+	return ok;
+}
 //
 //
 //
@@ -2620,7 +2684,7 @@ int SImageBuffer::StorePng(const StoreParam & rP, SFile & rF)
 	png_info * p_info = 0;
 	uint8 ** volatile pp_rows = 0;
 	const uint stride = F.GetStride(S.x);
-	THROW(S.x && S.y); // no image
+	THROW(S.x > 0 && S.y > 0); // no image
 	THROW(pp_rows = (uint8 **)SAlloc::M(S.y * sizeof(uint8*)));
 	for(int i = 0; i < S.y; i++) {
 		pp_rows[i] = (uint8 *)P_Buf+i*stride;
@@ -2644,11 +2708,11 @@ int SImageBuffer::StorePng(const StoreParam & rP, SFile & rF)
 			white.gray = (1<<depth)-1;
 			white.red = white.blue = white.green = white.gray;
 			png_set_bKGD(p_png, p_info, &white);
-			/*
-				We have to call png_write_info() before setting up the write
-	 			transformation, since it stores data internally in 'png'
-	 			that is needed for the write transformation functions to work.
-	 		*/
+			// 
+			// We have to call png_write_info() before setting up the write
+			// transformation, since it stores data internally in 'png'
+			// that is needed for the write transformation functions to work.
+			// 
 			png_write_info(p_png, p_info);
 			png_set_write_user_transform_fn(p_png, PngSupport::UnpremultiplyDataFunc);
 			png_write_image(p_png, pp_rows);
@@ -2887,6 +2951,11 @@ SLTEST_R(SDraw)
 			THROW(SLTEST_CHECK_NZ(p_buf));
 			THROW(SLTEST_CHECK_NZ(img_buf2.Load(SFileFormat::Png, *p_buf)));
 			THROW(SLTEST_CHECK_NZ(img_buf2.IsEqual(img_buf)));
+		}
+		{
+			SImageBuffer::StoreParam sp_jpeg(SFileFormat::Jpeg);
+			SFile out_file_jpeg(MakeInputFilePath("test24.jpg"), SFile::mWrite);
+			THROW(SLTEST_CHECK_NZ(img_buf.Store(sp_jpeg, out_file_jpeg)))
 		}
 	}
 	CATCHZOK

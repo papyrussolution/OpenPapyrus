@@ -13,13 +13,12 @@
  * NOTE: this file is NOT intended to be included by applications using the
  * JPEG library.  Most applications need only include jpeglib.h.
  */
-
+// @v9c(done)
 
 /* Include auto-config file to find out which system include files we need. */
 
 #include "jconfig.h"		/* auto configuration options */
 #define JCONFIG_INCLUDED	/* so that jpeglib.h doesn't do it again */
-
 /*
  * We need the NULL macro and size_t typedef.
  * On an ANSI-conforming system it is sufficient to include <stddef.h>.
@@ -30,7 +29,6 @@
  * But we must pull it in because of the references to FILE in jpeglib.h.
  * You can remove those references if you want to compile without <stdio.h>.
  */
-
 #ifdef HAVE_STDDEF_H
 	#include <stddef.h>
 #endif
@@ -74,10 +72,15 @@
  * we always use this SIZEOF() macro in place of using sizeof() directly.
  */
 #define SIZEOF(object)	((size_t)sizeof(object))
-/*
- * The modules that use fread() and fwrite() always invoke them through
- * these macros.  On some systems you may need to twiddle the argument casts.
- * CAUTION: argument order is different from underlying functions!
- */
+// 
+// The modules that use fread() and fwrite() always invoke them through
+// these macros.  On some systems you may need to twiddle the argument casts.
+// CAUTION: argument order is different from underlying functions!
+// 
+// Furthermore, macros are provided for fflush() and ferror() in order
+// to facilitate adaption by applications using an own FILE class.
+// 
 #define JFREAD(file,buf,sizeofbuf)  ((size_t) fread((void *) (buf), (size_t) 1, (size_t) (sizeofbuf), (file)))
 #define JFWRITE(file,buf,sizeofbuf) ((size_t) fwrite((const void *) (buf), (size_t) 1, (size_t) (sizeofbuf), (file)))
+#define JFFLUSH(file) fflush(file) // @v9c
+#define JFERROR(file) ferror(file) // @v9c

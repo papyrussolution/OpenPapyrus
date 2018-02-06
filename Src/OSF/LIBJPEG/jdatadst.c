@@ -14,17 +14,13 @@
  * JOCTETs into 8-bit-wide elements on external storage.  If char is wider
  * than 8 bits on your machine, you may need to do some tweaking.
  */
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-
-#ifndef HAVE_STDLIB_H           /* <stdlib.h> should declare SAlloc::M(),free() */
-	extern void * malloc(size_t size);
-	extern void free(void* ptr);
-#endif
-
-/* Expanded data destination object for stdio output */
-
+//
+// Expanded data destination object for stdio output 
+//
 typedef struct {
 	struct jpeg_destination_mgr pub; /* public fields */
 	FILE * outfile;         /* target stream */
@@ -34,9 +30,9 @@ typedef struct {
 typedef my_destination_mgr * my_dest_ptr;
 
 #define OUTPUT_BUF_SIZE  4096   /* choose an efficiently fwrite'able size */
-
-/* Expanded data destination object for memory output */
-
+//
+// Expanded data destination object for memory output 
+//
 typedef struct {
 	struct jpeg_destination_mgr pub; /* public fields */
 	uchar ** outbuffer; /* target buffer */
@@ -47,12 +43,10 @@ typedef struct {
 } my_mem_destination_mgr;
 
 typedef my_mem_destination_mgr * my_mem_dest_ptr;
-
 /*
  * Initialize destination --- called by jpeg_start_compress
  * before any data is actually written.
  */
-
 METHODDEF(void) init_destination(j_compress_ptr cinfo)
 {
 	my_dest_ptr dest = (my_dest_ptr)cinfo->dest;
@@ -66,7 +60,6 @@ METHODDEF(void) init_mem_destination(j_compress_ptr cinfo)
 {
 	/* no work necessary here */
 }
-
 /*
  * Empty the output buffer --- called whenever buffer fills up.
  *
@@ -89,7 +82,6 @@ METHODDEF(void) init_mem_destination(j_compress_ptr cinfo)
  * Data beyond this point will be regenerated after resumption, so do not
  * write it out when emptying the buffer externally.
  */
-
 METHODDEF(boolean) empty_output_buffer(j_compress_ptr cinfo)
 {
 	my_dest_ptr dest = (my_dest_ptr)cinfo->dest;
@@ -119,7 +111,6 @@ METHODDEF(boolean) empty_mem_output_buffer(j_compress_ptr cinfo)
 	dest->bufsize = nextsize;
 	return TRUE;
 }
-
 /*
  * Terminate destination --- called by jpeg_finish_compress
  * after all data has been written.  Usually needs to flush buffer.
@@ -128,40 +119,37 @@ METHODDEF(boolean) empty_mem_output_buffer(j_compress_ptr cinfo)
  * application must deal with any cleanup that should happen even
  * for error exit.
  */
-
 METHODDEF(void) term_destination(j_compress_ptr cinfo)
 {
 	my_dest_ptr dest = (my_dest_ptr)cinfo->dest;
 	size_t datacount = OUTPUT_BUF_SIZE - dest->pub.free_in_buffer;
-	/* Write any data remaining in the buffer */
+	// Write any data remaining in the buffer 
 	if(datacount > 0) {
 		if(JFWRITE(dest->outfile, dest->buffer, datacount) != datacount)
 			ERREXIT(cinfo, JERR_FILE_WRITE);
 	}
-	fflush(dest->outfile);
-	/* Make sure we wrote the output file OK */
-	if(ferror(dest->outfile))
+	// @v9c fflush(dest->outfile);
+	JFFLUSH(dest->outfile); // @v9c
+	// Make sure we wrote the output file OK 
+	// @v9c if(ferror(dest->outfile))
+	if(JFERROR(dest->outfile)) // @v9c
 		ERREXIT(cinfo, JERR_FILE_WRITE);
 }
 
 METHODDEF(void) term_mem_destination(j_compress_ptr cinfo)
 {
 	my_mem_dest_ptr dest = (my_mem_dest_ptr)cinfo->dest;
-
 	*dest->outbuffer = dest->buffer;
 	*dest->outsize = dest->bufsize - dest->pub.free_in_buffer;
 }
-
-/*
- * Prepare for output to a stdio stream.
- * The caller must have already opened the stream, and is responsible
- * for closing it after finishing compression.
- */
-
-GLOBAL(void) jpeg_stdio_dest(j_compress_ptr cinfo, FILE * outfile)
+// 
+// Descr: Prepare for output to a stdio stream.
+//   The caller must have already opened the stream, and is responsible
+//   for closing it after finishing compression.
+// 
+void jpeg_stdio_dest(j_compress_ptr cinfo, FILE * outfile)
 {
 	my_dest_ptr dest;
-
 	/* The destination object is made permanent so that multiple JPEG images
 	 * can be written to the same file without re-executing jpeg_stdio_dest.
 	 * This makes it dangerous to use this manager and a different destination
@@ -177,13 +165,12 @@ GLOBAL(void) jpeg_stdio_dest(j_compress_ptr cinfo, FILE * outfile)
 	dest->pub.term_destination = term_destination;
 	dest->outfile = outfile;
 }
-
 /*
  * Prepare for output to a memory buffer.
  * The caller may supply an own initial buffer with appropriate size.
  * Otherwise, or when the actual data output exceeds the given size,
  * the library adapts the buffer size as necessary.
- * The standard library functions SAlloc::M/free are used for allocating
+ * The standard library functions malloc/free are used for allocating
  * larger memory, so the buffer is available to the application after
  * finishing compression, and then the application is responsible for
  * freeing the requested memory.
@@ -191,19 +178,16 @@ GLOBAL(void) jpeg_stdio_dest(j_compress_ptr cinfo, FILE * outfile)
  * managed by the application.  The library does not free such buffer
  * when allocating a larger buffer.
  */
-
-GLOBAL(void) jpeg_mem_dest(j_compress_ptr cinfo, uchar ** outbuffer, ulong * outsize)
+void jpeg_mem_dest(j_compress_ptr cinfo, uchar ** outbuffer, ulong * outsize)
 {
 	my_mem_dest_ptr dest;
 	if(outbuffer == NULL || outsize == NULL) /* sanity check */
 		ERREXIT(cinfo, JERR_BUFFER_SIZE);
-	/* The destination object is made permanent so that multiple JPEG images
-	 * can be written to the same buffer without re-executing jpeg_mem_dest.
-	 */
+	// The destination object is made permanent so that multiple JPEG images
+	// can be written to the same buffer without re-executing jpeg_mem_dest.
 	if(cinfo->dest == NULL) { /* first time for this JPEG object? */
 		cinfo->dest = (struct jpeg_destination_mgr*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_PERMANENT, SIZEOF(my_mem_destination_mgr));
 	}
-
 	dest = (my_mem_dest_ptr)cinfo->dest;
 	dest->pub.init_destination = init_mem_destination;
 	dest->pub.empty_output_buffer = empty_mem_output_buffer;
@@ -211,9 +195,8 @@ GLOBAL(void) jpeg_mem_dest(j_compress_ptr cinfo, uchar ** outbuffer, ulong * out
 	dest->outbuffer = outbuffer;
 	dest->outsize = outsize;
 	dest->newbuffer = NULL;
-
 	if(*outbuffer == NULL || *outsize == 0) {
-		/* Allocate initial buffer */
+		// Allocate initial buffer 
 		dest->newbuffer = *outbuffer = (uchar*)SAlloc::M(OUTPUT_BUF_SIZE);
 		if(dest->newbuffer == NULL)
 			ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 10);

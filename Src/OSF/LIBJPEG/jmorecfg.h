@@ -10,8 +10,6 @@
  * JPEG software for special applications or support machine-dependent
  * optimizations.  Most users will not need to touch this file.
  */
-
-
 /*
  * Define BITS_IN_JSAMPLE as either
  *   8   for 8-bit sample values (the usual setting)
@@ -29,10 +27,7 @@
  * not sample values.  The DCT coefficients are of the same type (16 bits)
  * in all cases (see below).
  */
-
 #define BITS_IN_JSAMPLE  8	/* use 8, 9, 10, 11, or 12 */
-
-
 /*
  * Maximum number of components (color channels) allowed in JPEG image.
  * To meet the letter of the JPEG spec, set this to 255.  However, darn
@@ -41,10 +36,7 @@
  * really short on memory.  (Each allowed component costs a hundred or so
  * bytes of storage, whether actually used in an image or not.)
  */
-
 #define MAX_COMPONENTS  10	/* maximum number of image components */
-
-
 /*
  * Basic data types.
  * You may need to change these if you have a machine with unusual data
@@ -77,47 +69,29 @@
 	#define CENTERJSAMPLE	128
 #endif /* BITS_IN_JSAMPLE == 8 */
 #if BITS_IN_JSAMPLE == 9
-/* JSAMPLE should be the smallest type that will hold the values 0..511.
- * On nearly all machines "short" will do nicely.
- */
-
-typedef short JSAMPLE;
-#define GETJSAMPLE(value)  ((int) (value))
-
-#define MAXJSAMPLE	511
-#define CENTERJSAMPLE	256
-
+	// JSAMPLE should be the smallest type that will hold the values 0..511.
+	// On nearly all machines "short" will do nicely.
+	typedef short JSAMPLE;
+	#define GETJSAMPLE(value)  ((int) (value))
+	#define MAXJSAMPLE	511
+	#define CENTERJSAMPLE	256
 #endif /* BITS_IN_JSAMPLE == 9 */
-
-
 #if BITS_IN_JSAMPLE == 10
-/* JSAMPLE should be the smallest type that will hold the values 0..1023.
- * On nearly all machines "short" will do nicely.
- */
-
-typedef short JSAMPLE;
-#define GETJSAMPLE(value)  ((int) (value))
-
-#define MAXJSAMPLE	1023
-#define CENTERJSAMPLE	512
-
+	// JSAMPLE should be the smallest type that will hold the values 0..1023.
+	// On nearly all machines "short" will do nicely.
+	typedef short JSAMPLE;
+	#define GETJSAMPLE(value)  ((int) (value))
+	#define MAXJSAMPLE	1023
+	#define CENTERJSAMPLE	512
 #endif /* BITS_IN_JSAMPLE == 10 */
-
-
 #if BITS_IN_JSAMPLE == 11
-/* JSAMPLE should be the smallest type that will hold the values 0..2047.
- * On nearly all machines "short" will do nicely.
- */
-
-typedef short JSAMPLE;
-#define GETJSAMPLE(value)  ((int) (value))
-
-#define MAXJSAMPLE	2047
-#define CENTERJSAMPLE	1024
-
+	// JSAMPLE should be the smallest type that will hold the values 0..2047.
+	// On nearly all machines "short" will do nicely.
+	typedef short JSAMPLE;
+	#define GETJSAMPLE(value)  ((int) (value))
+	#define MAXJSAMPLE	2047
+	#define CENTERJSAMPLE	1024
 #endif /* BITS_IN_JSAMPLE == 11 */
-
-
 #if BITS_IN_JSAMPLE == 12
 	/* JSAMPLE should be the smallest type that will hold the values 0..4095.
 	 * On nearly all machines "short" will do nicely.
@@ -139,49 +113,47 @@ typedef short JCOEF;
  * external storage.  Note that when using the stdio data source/destination
  * managers, this is also the data type passed to fread/fwrite.
  */
-
 #ifdef HAVE_UNSIGNED_CHAR
 	typedef uchar JOCTET;
 	#define GETJOCTET(value)  (value)
-#else /* not HAVE_UNSIGNED_CHAR */
+#else
 	typedef char JOCTET;
 	#ifdef CHAR_IS_UNSIGNED
 		#define GETJOCTET(value)  (value)
 	#else
 		#define GETJOCTET(value)  ((value) & 0xFF)
 	#endif /* CHAR_IS_UNSIGNED */
-#endif /* HAVE_UNSIGNED_CHAR */
-
-/* These typedefs are used for various table entries and so forth.
- * They must be at least as wide as specified; but making them too big
- * won't cost a huge amount of memory, so we don't provide special
- * extraction code like we did for JSAMPLE.  (In other words, these
- * typedefs live at a different point on the speed/space tradeoff curve.)
- */
-
-/* uint8 must hold at least the values 0..255. */
-
+#endif
+// 
+// These typedefs are used for various table entries and so forth.
+// They must be at least as wide as specified; but making them too big
+// won't cost a huge amount of memory, so we don't provide special
+// extraction code like we did for JSAMPLE.  (In other words, these
+// typedefs live at a different point on the speed/space tradeoff curve.)
+// 
+// uint8 must hold at least the values 0..255. 
+// 
 #ifdef HAVE_UNSIGNED_CHAR
-typedef uchar uint8;
-#else /* not HAVE_UNSIGNED_CHAR */
-#ifdef CHAR_IS_UNSIGNED
-typedef char uint8;
-#else /* not CHAR_IS_UNSIGNED */
-typedef short uint8;
-#endif /* CHAR_IS_UNSIGNED */
-#endif /* HAVE_UNSIGNED_CHAR */
-
-/* uint16 must hold at least the values 0..65535. */
-
+	typedef uchar uint8;
+#else
+	#ifdef CHAR_IS_UNSIGNED
+		typedef char uint8;
+	#else
+		typedef short uint8;
+	#endif
+#endif
+//
+// uint16 must hold at least the values 0..65535. 
+//
 #ifdef HAVE_UNSIGNED_SHORT
-	typedef ushort UINT16_Removed;
-#else /* not HAVE_UNSIGNED_SHORT */
-	typedef uint UINT16_Removed;
-#endif /* HAVE_UNSIGNED_SHORT */
-
-/* int16 must hold at least the values -32768..32767. */
-
-#ifndef XMD_H			/* X11/xmd.h correctly defines int16 */
+	typedef unsigned short UINT16_Removed;
+#else
+	typedef unsigned int UINT16_Removed;
+#endif
+// 
+// int16 must hold at least the values -32768..32767. 
+// 
+#ifndef XMD_H /* X11/xmd.h correctly defines int16 */
 	typedef short INT16_Removed;
 #endif
 //
@@ -196,17 +168,16 @@ typedef short uint8;
 		#endif
 	#endif
 #endif
-
-/* Datatype used for image dimensions.  The JPEG standard only supports
- * images up to 64K*64K due to 16-bit fields in SOF markers.  Therefore
- * "uint" is sufficient on all machines.  However, if you need to
- * handle larger images and you don't mind deviating from the spec, you
- * can change this datatype.
- */
-typedef uint JDIMENSION;
+// 
+// Datatype used for image dimensions.  The JPEG standard only supports
+// images up to 64K*64K due to 16-bit fields in SOF markers.  Therefore
+// "uint" is sufficient on all machines.  However, if you need to
+// handle larger images and you don't mind deviating from the spec, you
+// can change this datatype.
+// 
+typedef unsigned int JDIMENSION;
 
 #define JPEG_MAX_DIMENSION  65500L  /* a tad under 64K to prevent overflows */
-
 
 /* These macros are used in all function definitions and extern declarations.
  * You could modify them if you need to change function linkage conventions;
@@ -214,7 +185,6 @@ typedef uint JDIMENSION;
  * Another application is to make all functions global for use with debuggers
  * or code profilers that require it.
  */
-
 #define METHODDEF(type) static type // a function called through method pointers: 
 #define LOCAL(type)     static type // a function used only in its module: 
 #define GLOBAL(type)    type // a function referenced thru EXTERNs: 
@@ -285,7 +255,6 @@ typedef uint JDIMENSION;
  * To minimize application namespace pollution, the symbols won't be
  * defined unless JPEG_INTERNALS or JPEG_INTERNAL_OPTIONS has been defined.
  */
-
 #ifdef JPEG_INTERNALS
 	#define JPEG_INTERNAL_OPTIONS
 #endif
@@ -297,9 +266,7 @@ typedef uint JDIMENSION;
  * compilation/linking process if you've #undef'd the corresponding symbols.
  * (You may HAVE to do that if your compiler doesn't like null source files.)
  */
-
-/* Capability options common to encoder and decoder: */
-
+// Capability options common to encoder and decoder: 
 #define DCT_ISLOW_SUPPORTED	/* slow but accurate integer algorithm */
 #define DCT_IFAST_SUPPORTED	/* faster, less accurate integer method */
 #define DCT_FLOAT_SUPPORTED	/* floating-point: accurate, fast on fast HW */
@@ -321,9 +288,9 @@ typedef uint JDIMENSION;
  * don't work for progressive mode.  (This may get fixed, however.)
  */
 #define INPUT_SMOOTHING_SUPPORTED   /* Input image smoothing option? */
-
-/* Decoder capability options: */
-
+// 
+// Decoder capability options:
+// 
 #define D_ARITH_CODING_SUPPORTED    /* Arithmetic coding back end? */
 #define D_MULTISCAN_FILES_SUPPORTED /* Multiple-scan JPEG files? */
 #define D_PROGRESSIVE_SUPPORTED	    /* Progressive JPEG? (Requires MULTISCAN)*/
@@ -334,10 +301,9 @@ typedef uint JDIMENSION;
 #define UPSAMPLE_MERGING_SUPPORTED  /* Fast path for sloppy upsampling? */
 #define QUANT_1PASS_SUPPORTED	    /* 1-pass color quantization? */
 #define QUANT_2PASS_SUPPORTED	    /* 2-pass color quantization? */
-
-/* more capability options later, no doubt */
-
-
+// 
+// more capability options later, no doubt 
+// 
 /*
  * Ordering of RGB data in scanlines passed to or from the application.
  * If your application wants to deal with data in the order B,G,R, just
@@ -350,16 +316,13 @@ typedef uint JDIMENSION;
  *    is not 3 (they don't understand about dummy color components!).  So you
  *    can't use color quantization if you change that value.
  */
-
 #define RGB_RED		0	/* Offset of Red in an RGB scanline element */
 #define RGB_GREEN	1	/* Offset of Green */
 #define RGB_BLUE	2	/* Offset of Blue */
 #define RGB_PIXELSIZE	3	/* JSAMPLEs per RGB scanline element */
-
-
-/* Definitions for speed-related optimizations. */
-
-
+// 
+// Definitions for speed-related optimizations. 
+// 
 /* If your compiler supports inline functions, define INLINE
  * as the inline keyword; otherwise define it as empty.
  */
@@ -371,18 +334,13 @@ typedef uint JDIMENSION;
 		#define INLINE			/* default is to define it as empty */
 	#endif
 #endif
-
-
 /* On some machines (notably 68000 series) "int" is 32 bits, but multiplying
  * two 16-bit shorts is faster than multiplying two ints.  Define MULTIPLIER
  * as short on such a machine.  MULTIPLIER must be at least 16 bits wide.
  */
-
 #ifndef MULTIPLIER
 	#define MULTIPLIER  int		/* type for fastest integer multiply */
 #endif
-
-
 /* FAST_FLOAT should be either float or double, whichever is done faster
  * by your compiler.  (Note that this type is only used in the floating point
  * DCT routines, so it only matters if you've defined DCT_FLOAT_SUPPORTED.)
@@ -390,7 +348,6 @@ typedef uint JDIMENSION;
  * pre-ANSI compilers (because they insist on converting to double anyway).
  * The code below therefore chooses float if we have ANSI-style prototypes.
  */
-
 #ifndef FAST_FLOAT
 	#ifdef HAVE_PROTOTYPES
 		#define FAST_FLOAT  float
@@ -398,5 +355,4 @@ typedef uint JDIMENSION;
 		#define FAST_FLOAT  double
 	#endif
 #endif
-
 #endif /* JPEG_INTERNAL_OPTIONS */

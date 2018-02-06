@@ -2,7 +2,7 @@
  * jidctflt.c
  *
  * Copyright (C) 1994-1998, Thomas G. Lane.
- * Modified 2010-2015 by Guido Vollbeding.
+ * Modified 2010-2017 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -36,6 +36,7 @@
  * scaled quantization values.  However, that problem does not arise if
  * we use floating point arithmetic.
  */
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
@@ -45,13 +46,11 @@
 #include "jdct.h"               /* Private declarations for DCT subsystem */
 
 #ifdef DCT_FLOAT_SUPPORTED
-
 /*
  * This module is specialized to the case DCTSIZE = 8.
  */
-
 #if DCTSIZE != 8
-Sorry, this code only copes with 8x8 DCTs.   /* deliberate syntax err */
+	Sorry, this code only copes with 8x8 DCT blocks. /* deliberate syntax err */
 #endif
 
 /* Dequantize a coefficient by multiplying it by the multiplier-table

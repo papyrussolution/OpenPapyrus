@@ -900,7 +900,7 @@ int	 SLAPI SCS_SYNCCASH::GetDevParam(/*const PPCashNode * pIn,*/ StrAssocArray &
 	str.Divide(',', str1, str2);
 	THROW(ArrAdd(rOut, DVCPARAM_ADMINPASSWORD, str1));
 	// Определяем имя кассира
-	if(GetCurUserPerson(0, &str) == -1) {
+	if(PPObjPerson::GetCurUserPerson(0, &str) == -1) {
 		PPObjSecur sec_obj(PPOBJ_USR, 0);
 		if(sec_obj.Fetch(LConfig.User, &sec_rec) > 0)
 			str = sec_rec.Name;

@@ -1,7 +1,7 @@
 /*
  * wrrle.c
- *
  * Copyright (C) 1991-1996, Thomas G. Lane.
+ * Modified 2017 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -15,37 +15,32 @@
  * Based on code contributed by Mike Lijewski,
  * with updates from Robert Hutchinson.
  */
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
 
 #ifdef RLE_SUPPORTED
 
-/* rle.h is provided by the Utah Raster Toolkit. */
-
+// rle.h is provided by the Utah Raster Toolkit. 
 #include <rle.h>
-
 /*
  * We assume that JSAMPLE has the same representation as rle_pixel,
  * to wit, "uchar".  Hence we can't cope with 12- or 16-bit samples.
  */
-
 #if BITS_IN_JSAMPLE != 8
-Sorry, this code only copes with 8-bit JSAMPLEs.   /* deliberate syntax err */
+	Sorry, this code only copes with 8-bit JSAMPLEs.   /* deliberate syntax err */
 #endif
-
 /*
  * Since RLE stores scanlines bottom-to-top, we have to invert the image
  * from JPEG's top-to-bottom order.  To do this, we save the outgoing data
  * in a virtual array during put_pixel_row calls, then actually emit the
  * RLE file during finish_output.
  */
-
 /*
  * For now, if we emit an RLE color map then it is always 256 entries long,
  * though not all of the entries need be used.
  */
-
 #define CMAPBITS        8
 #define CMAPLENGTH      (1<<(CMAPBITS))
 
@@ -65,7 +60,6 @@ METHODDEF(void) rle_put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
  *
  * In this module it's easier to wait till finish_output to write anything.
  */
-
 METHODDEF(void) start_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
 	rle_dest_ptr dest = (rle_dest_ptr)dinfo;
@@ -74,7 +68,6 @@ METHODDEF(void) start_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 #ifdef PROGRESS_REPORT
 	cd_progress_ptr progress = (cd_progress_ptr)cinfo->progress;
 #endif
-
 	/*
 	 * Make sure the image can be stored in RLE format.
 	 *
@@ -133,13 +126,11 @@ METHODDEF(void) rle_put_pixel_rows(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo,
 		dest->pub.buffer = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, dest->image, cinfo->output_scanline, (JDIMENSION)1, TRUE);
 	}
 }
-
 /*
  * Finish up at the end of the file.
  *
  * Here is where we really output the RLE file.
  */
-
 METHODDEF(void) finish_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
 	rle_dest_ptr dest = (rle_dest_ptr)dinfo;
@@ -218,35 +209,36 @@ METHODDEF(void) finish_output_rle(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 #endif
 		}
 	}
-
 #ifdef PROGRESS_REPORT
 	if(progress)
 		progress->completed_extra_passes++;
 #endif
-	/* Emit file trailer */
+	// Emit file trailer 
 	rle_puteof(&header);
-	fflush(dest->pub.output_file);
-	if(ferror(dest->pub.output_file))
+	// @v9c fflush(dest->pub.output_file);
+	// @v9c if(ferror(dest->pub.output_file))
+	JFFLUSH(dest->pub.output_file); // @v9c
+	if(JFERROR(dest->pub.output_file)) // @v9c
 		ERREXIT(cinfo, JERR_FILE_WRITE);
 }
-
-/*
- * The module selection routine for RLE format output.
- */
+//
+// The module selection routine for RLE format output.
+//
 GLOBAL(djpeg_dest_ptr) jinit_write_rle(j_decompress_ptr cinfo)
 {
-	/* Create module interface object, fill in method pointers */
+	// Create module interface object, fill in method pointers 
 	rle_dest_ptr dest = (rle_dest_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(rle_dest_struct));
 	dest->pub.start_output = start_output_rle;
 	dest->pub.finish_output = finish_output_rle;
-	/* Calculate output image dimensions so we can allocate space */
+	// Calculate output image dimensions so we can allocate space 
 	jpeg_calc_output_dimensions(cinfo);
-	/* Allocate a work array for output to the RLE library. */
+	// Allocate a work array for output to the RLE library. 
 	dest->rle_row = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, cinfo->output_width, (JDIMENSION)cinfo->output_components);
-	/* Allocate a virtual array to hold the image. */
+	// Allocate a virtual array to hold the image. 
 	dest->image = (*cinfo->mem->request_virt_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE, (JDIMENSION)(cinfo->output_width * cinfo->output_components),
 	    cinfo->output_height, (JDIMENSION)1);
-	return (djpeg_dest_ptr)dest;
+	// @v9c return (djpeg_dest_ptr)dest;
+	return &dest->pub; // @v9c 
 }
 
 #endif /* RLE_SUPPORTED */

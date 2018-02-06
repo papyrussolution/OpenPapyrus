@@ -19,12 +19,10 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-
 /*
  * Initialization of a JPEG compression object.
  * The error manager must already be set up (in case memory manager fails).
  */
-
 GLOBAL(void) jpeg_CreateCompress(j_compress_ptr cinfo, int version, size_t structsize)
 {
 	int i;
@@ -114,24 +112,23 @@ GLOBAL(void) jpeg_suppress_tables(j_compress_ptr cinfo, boolean suppress)
 			htbl->sent_table = suppress;
 	}
 }
-/*
- * Finish JPEG compression.
- *
- * If a multipass operating mode was selected, this may do a great deal of
- * work including most of the actual output.
- */
+// 
+// Descr: Finish JPEG compression.
+//   If a multipass operating mode was selected, this may do a great deal of
+//   work including most of the actual output.
+// 
 GLOBAL(void) jpeg_finish_compress(j_compress_ptr cinfo)
 {
 	JDIMENSION iMCU_row;
 	if(cinfo->global_state == CSTATE_SCANNING || cinfo->global_state == CSTATE_RAW_OK) {
-		/* Terminate first pass */
+		// Terminate first pass 
 		if(cinfo->next_scanline < cinfo->image_height)
 			ERREXIT(cinfo, JERR_TOO_LITTLE_DATA);
 		(*cinfo->master->finish_pass)(cinfo);
 	}
 	else if(cinfo->global_state != CSTATE_WRCOEFS)
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
-	/* Perform any remaining passes */
+	// Perform any remaining passes 
 	while(!cinfo->master->is_last_pass) {
 		(*cinfo->master->prepare_for_pass)(cinfo);
 		for(iMCU_row = 0; iMCU_row < cinfo->total_iMCU_rows; iMCU_row++) {
@@ -140,18 +137,17 @@ GLOBAL(void) jpeg_finish_compress(j_compress_ptr cinfo)
 				cinfo->progress->pass_limit = (long)cinfo->total_iMCU_rows;
 				(*cinfo->progress->progress_monitor)((j_common_ptr)cinfo);
 			}
-			/* We bypass the main controller and invoke coef controller directly;
-			 * all work is being done from the coefficient buffer.
-			 */
+			// We bypass the main controller and invoke coef controller directly;
+			// all work is being done from the coefficient buffer.
 			if(!(*cinfo->coef->compress_data)(cinfo, (JSAMPIMAGE)NULL))
 				ERREXIT(cinfo, JERR_CANT_SUSPEND);
 		}
 		(*cinfo->master->finish_pass)(cinfo);
 	}
-	/* Write EOI, do final cleanup */
+	// Write EOI, do final cleanup 
 	(*cinfo->marker->write_file_trailer)(cinfo);
 	(*cinfo->dest->term_destination)(cinfo);
-	/* We can use jpeg_abort to release memory and reset global_state */
+	// We can use jpeg_abort to release memory and reset global_state 
 	jpeg_abort((j_common_ptr)cinfo);
 }
 /*
@@ -206,21 +202,16 @@ GLOBAL(void) jpeg_write_m_byte(j_compress_ptr cinfo, int val)
  * (same as jpeg_suppress_tables(..., TRUE)).  Thus a subsequent start_compress
  * will not re-emit the tables unless it is passed write_all_tables=TRUE.
  */
-
 GLOBAL(void) jpeg_write_tables(j_compress_ptr cinfo)
 {
 	if(cinfo->global_state != CSTATE_START)
 		ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
-
 	/* (Re)initialize error mgr and destination modules */
 	(*cinfo->err->reset_error_mgr)((j_common_ptr)cinfo);
 	(*cinfo->dest->init_destination)(cinfo);
-	/* Initialize the marker writer ... bit of a crock to do it here. */
-	jinit_marker_writer(cinfo);
-	/* Write them tables! */
-	(*cinfo->marker->write_tables_only)(cinfo);
-	/* And clean up. */
-	(*cinfo->dest->term_destination)(cinfo);
+	jinit_marker_writer(cinfo); /* Initialize the marker writer ... bit of a crock to do it here. */
+	(*cinfo->marker->write_tables_only)(cinfo); /* Write them tables! */
+	(*cinfo->dest->term_destination)(cinfo); /* And clean up. */
 	/*
 	 * In library releases up through v6a, we called jpeg_abort() here to free
 	 * any working memory allocated by the destination manager and marker

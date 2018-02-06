@@ -2531,6 +2531,19 @@ int SLAPI StrAssocArray::GetText(long id, SString & rBuf) const
 	return ok;
 }
 
+int SLAPI StrAssocArray::GetTextBinary(long id, SString & rBuf) const
+{
+	int    ok = 0;
+	long   str_pos = 0;
+	uint   pos;
+	rBuf.Z();
+	if(LAssocArray::BSearch(id, &str_pos, &pos)) {
+		GetS(str_pos, rBuf);
+		ok = rBuf.NotEmpty() ? 1 : -1;
+	}
+	return ok;
+}
+
 int SLAPI StrAssocArray::GetMaxID(long * pId) const
 {
 	const uint c = LAssocArray::getCount();

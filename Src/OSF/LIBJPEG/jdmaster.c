@@ -2,7 +2,7 @@
  * jdmaster.c
  *
  * Copyright (C) 1991-1997, Thomas G. Lane.
- * Modified 2002-2015 by Guido Vollbeding.
+ * Modified 2002-2017 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -11,6 +11,7 @@
  * and with determining the number of passes and the work to be done in each
  * pass.
  */
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
@@ -49,12 +50,8 @@ LOCAL(boolean) use_merged_upsample(j_decompress_ptr cinfo)
 	if(cinfo->CCIR601_sampling)
 		return FALSE;
 	/* jdmerge.c only supports YCC=>RGB color conversion */
-	if((cinfo->jpeg_color_space != JCS_YCbCr &&
-		    cinfo->jpeg_color_space != JCS_BG_YCC) ||
-	    cinfo->num_components != 3 ||
-	    cinfo->out_color_space != JCS_RGB ||
-	    cinfo->out_color_components != RGB_PIXELSIZE ||
-	    cinfo->color_transform)
+	if((cinfo->jpeg_color_space != JCS_YCbCr && cinfo->jpeg_color_space != JCS_BG_YCC) || cinfo->num_components != 3 ||
+	    cinfo->out_color_space != JCS_RGB || cinfo->out_color_components != RGB_PIXELSIZE || cinfo->color_transform)
 		return FALSE;
 	/* and it only handles 2h1v or 2h2v sampling ratios */
 	if(cinfo->comp_info[0].h_samp_factor != 2 ||
@@ -151,22 +148,14 @@ GLOBAL(void) jpeg_calc_output_dimensions(j_decompress_ptr cinfo)
 	/* Report number of components in selected colorspace. */
 	/* Probably this should be in the color conversion module... */
 	switch(cinfo->out_color_space) {
-		case JCS_GRAYSCALE:
-		    cinfo->out_color_components = 1;
-		    break;
+		case JCS_GRAYSCALE: cinfo->out_color_components = 1; break;
 		case JCS_RGB:
-		case JCS_BG_RGB:
-		    cinfo->out_color_components = RGB_PIXELSIZE;
-		    break;
+		case JCS_BG_RGB: cinfo->out_color_components = RGB_PIXELSIZE; break;
 		case JCS_YCbCr:
-		case JCS_BG_YCC:
-		    cinfo->out_color_components = 3;
-		    break;
+		case JCS_BG_YCC: cinfo->out_color_components = 3; break;
 		case JCS_CMYK:
-		case JCS_YCCK:
-		    cinfo->out_color_components = 4;
-		    break;
-		default:        /* else must be same colorspace as in file */
+		case JCS_YCCK: cinfo->out_color_components = 4; break;
+		default: // else must be same colorspace as in file 
 		    cinfo->out_color_components = cinfo->num_components;
 		    break;
 	}
@@ -209,24 +198,40 @@ GLOBAL(void) jpeg_calc_output_dimensions(j_decompress_ptr cinfo)
  * Note that the table is allocated in near data space on PCs; it's small
  * enough and used often enough to justify this.
  */
-
-static void prepare_range_limit_table(j_decompress_ptr cinfo)
-/* Allocate and fill in the sample_range_limit table */
+/* @v9c static void prepare_range_limit_table(j_decompress_ptr cinfo)
+// Allocate and fill in the sample_range_limit table 
 {
 	int i;
 	JSAMPLE * table = (JSAMPLE*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, 5 * (MAXJSAMPLE+1) * SIZEOF(JSAMPLE));
-	/* First segment of range limit table: limit[x] = 0 for x < 0 */
+	// First segment of range limit table: limit[x] = 0 for x < 0 
 	memzero(table, 2 * (MAXJSAMPLE+1) * SIZEOF(JSAMPLE));
-	table += 2 * (MAXJSAMPLE+1); /* allow negative subscripts of table */
+	table += 2 * (MAXJSAMPLE+1); // allow negative subscripts of table 
 	cinfo->sample_range_limit = table;
-	/* Main part of range limit table: limit[x] = x */
+	// Main part of range limit table: limit[x] = x 
 	for(i = 0; i <= MAXJSAMPLE; i++)
 		table[i] = (JSAMPLE)i;
-	/* End of range limit table: limit[x] = MAXJSAMPLE for x > MAXJSAMPLE */
+	// End of range limit table: limit[x] = MAXJSAMPLE for x > MAXJSAMPLE 
 	for(; i < 3 * (MAXJSAMPLE+1); i++)
 		table[i] = MAXJSAMPLE;
+}*/
+// @v9c {
+LOCAL(void) prepare_range_limit_table (j_decompress_ptr cinfo)
+// Allocate and fill in the sample_range_limit table */
+{
+	int i;
+	JSAMPLE * table = (JSAMPLE *)(*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE, (RANGE_CENTER * 2 + MAXJSAMPLE + 1) * SIZEOF(JSAMPLE));
+	// First segment of range limit table: limit[x] = 0 for x < 0 
+	memzero(table, RANGE_CENTER * SIZEOF(JSAMPLE));
+	table += RANGE_CENTER;	/* allow negative subscripts of table */
+	cinfo->sample_range_limit = table;
+	// Main part of range limit table: limit[x] = x 
+	for(i = 0; i <= MAXJSAMPLE; i++)
+		table[i] = (JSAMPLE) i;
+	// End of range limit table: limit[x] = MAXJSAMPLE for x > MAXJSAMPLE 
+	for(; i <=  MAXJSAMPLE + RANGE_CENTER; i++)
+		table[i] = MAXJSAMPLE;
 }
-
+// } @v9c
 /*
  * Master selection of decompression modules.
  * This is done once at jpeg_start_decompress time.  We determine

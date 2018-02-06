@@ -366,10 +366,8 @@ METHODDEF(JSAMPARRAY) alloc_sarray(j_common_ptr cinfo, int pool_id, JDIMENSION s
 	JSAMPROW workspace;
 	JDIMENSION rowsperchunk, currow, i;
 	long ltemp;
-
 	/* Calculate max # of rows allowed in one allocation chunk */
-	ltemp = (MAX_ALLOC_CHUNK-SIZEOF(large_pool_hdr)) /
-	    ((long)samplesperrow * SIZEOF(JSAMPLE));
+	ltemp = (MAX_ALLOC_CHUNK-SIZEOF(large_pool_hdr)) / ((long)samplesperrow * SIZEOF(JSAMPLE));
 	if(ltemp <= 0)
 		ERREXIT(cinfo, JERR_WIDTH_OVERFLOW);
 	if(ltemp < (long)numrows)
@@ -377,27 +375,20 @@ METHODDEF(JSAMPARRAY) alloc_sarray(j_common_ptr cinfo, int pool_id, JDIMENSION s
 	else
 		rowsperchunk = numrows;
 	mem->last_rowsperchunk = rowsperchunk;
-
 	/* Get space for row pointers (small object) */
-	result = (JSAMPARRAY)alloc_small(cinfo, pool_id,
-	    (size_t)(numrows * SIZEOF(JSAMPROW)));
-
+	result = (JSAMPARRAY)alloc_small(cinfo, pool_id, (size_t)(numrows * SIZEOF(JSAMPROW)));
 	/* Get the rows themselves (large objects) */
 	currow = 0;
 	while(currow < numrows) {
 		rowsperchunk = MIN(rowsperchunk, numrows - currow);
-		workspace = (JSAMPROW)alloc_large(cinfo, pool_id,
-		    (size_t)((size_t)rowsperchunk * (size_t)samplesperrow
-			    * SIZEOF(JSAMPLE)));
+		workspace = (JSAMPROW)alloc_large(cinfo, pool_id, (size_t)((size_t)rowsperchunk * (size_t)samplesperrow * SIZEOF(JSAMPLE)));
 		for(i = rowsperchunk; i > 0; i--) {
 			result[currow++] = workspace;
 			workspace += samplesperrow;
 		}
 	}
-
 	return result;
 }
-
 /*
  * Creation of 2-D coefficient-block arrays.
  * This is essentially the same as the code for sample arrays, above.
@@ -410,10 +401,8 @@ METHODDEF(JBLOCKARRAY) alloc_barray(j_common_ptr cinfo, int pool_id, JDIMENSION 
 	JBLOCKROW workspace;
 	JDIMENSION rowsperchunk, currow, i;
 	long ltemp;
-
 	/* Calculate max # of rows allowed in one allocation chunk */
-	ltemp = (MAX_ALLOC_CHUNK-SIZEOF(large_pool_hdr)) /
-	    ((long)blocksperrow * SIZEOF(JBLOCK));
+	ltemp = (MAX_ALLOC_CHUNK-SIZEOF(large_pool_hdr)) / ((long)blocksperrow * SIZEOF(JBLOCK));
 	if(ltemp <= 0)
 		ERREXIT(cinfo, JERR_WIDTH_OVERFLOW);
 	if(ltemp < (long)numrows)
@@ -421,27 +410,20 @@ METHODDEF(JBLOCKARRAY) alloc_barray(j_common_ptr cinfo, int pool_id, JDIMENSION 
 	else
 		rowsperchunk = numrows;
 	mem->last_rowsperchunk = rowsperchunk;
-
 	/* Get space for row pointers (small object) */
-	result = (JBLOCKARRAY)alloc_small(cinfo, pool_id,
-	    (size_t)(numrows * SIZEOF(JBLOCKROW)));
-
+	result = (JBLOCKARRAY)alloc_small(cinfo, pool_id, (size_t)(numrows * SIZEOF(JBLOCKROW)));
 	/* Get the rows themselves (large objects) */
 	currow = 0;
 	while(currow < numrows) {
 		rowsperchunk = MIN(rowsperchunk, numrows - currow);
-		workspace = (JBLOCKROW)alloc_large(cinfo, pool_id,
-		    (size_t)((size_t)rowsperchunk * (size_t)blocksperrow
-			    * SIZEOF(JBLOCK)));
+		workspace = (JBLOCKROW)alloc_large(cinfo, pool_id, (size_t)((size_t)rowsperchunk * (size_t)blocksperrow * SIZEOF(JBLOCK)));
 		for(i = rowsperchunk; i > 0; i--) {
 			result[currow++] = workspace;
 			workspace += blocksperrow;
 		}
 	}
-
 	return result;
 }
-
 /*
  * About virtual array management:
  *
@@ -483,15 +465,11 @@ METHODDEF(jvirt_sarray_ptr) request_virt_sarray(j_common_ptr cinfo, int pool_id,
 {
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
 	jvirt_sarray_ptr result;
-
 	/* Only IMAGE-lifetime virtual arrays are currently supported */
 	if(pool_id != JPOOL_IMAGE)
 		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id);  /* safety check */
-
 	/* get control block */
-	result = (jvirt_sarray_ptr)alloc_small(cinfo, pool_id,
-	    SIZEOF(struct jvirt_sarray_control));
-
+	result = (jvirt_sarray_ptr)alloc_small(cinfo, pool_id, SIZEOF(struct jvirt_sarray_control));
 	result->mem_buffer = NULL; /* marks array not yet realized */
 	result->rows_in_array = numrows;
 	result->samplesperrow = samplesperrow;
@@ -500,7 +478,6 @@ METHODDEF(jvirt_sarray_ptr) request_virt_sarray(j_common_ptr cinfo, int pool_id,
 	result->b_s_open = FALSE; /* no associated backing-store object */
 	result->next = mem->virt_sarray_list; /* add to list of virtual arrays */
 	mem->virt_sarray_list = result;
-
 	return result;
 }
 
@@ -510,15 +487,11 @@ METHODDEF(jvirt_barray_ptr) request_virt_barray(j_common_ptr cinfo, int pool_id,
 {
 	my_mem_ptr mem = (my_mem_ptr)cinfo->mem;
 	jvirt_barray_ptr result;
-
 	/* Only IMAGE-lifetime virtual arrays are currently supported */
 	if(pool_id != JPOOL_IMAGE)
 		ERREXIT1(cinfo, JERR_BAD_POOL_ID, pool_id);  /* safety check */
-
 	/* get control block */
-	result = (jvirt_barray_ptr)alloc_small(cinfo, pool_id,
-	    SIZEOF(struct jvirt_barray_control));
-
+	result = (jvirt_barray_ptr)alloc_small(cinfo, pool_id, SIZEOF(struct jvirt_barray_control));
 	result->mem_buffer = NULL; /* marks array not yet realized */
 	result->rows_in_array = numrows;
 	result->blocksperrow = blocksperrow;
@@ -527,7 +500,6 @@ METHODDEF(jvirt_barray_ptr) request_virt_barray(j_common_ptr cinfo, int pool_id,
 	result->b_s_open = FALSE; /* no associated backing-store object */
 	result->next = mem->virt_barray_list; /* add to list of virtual arrays */
 	mem->virt_barray_list = result;
-
 	return result;
 }
 
@@ -548,28 +520,20 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 	maximum_space = 0;
 	for(sptr = mem->virt_sarray_list; sptr; sptr = sptr->next) {
 		if(sptr->mem_buffer == NULL) { /* if not realized yet */
-			space_per_minheight += (long)sptr->maxaccess *
-			    (long)sptr->samplesperrow * SIZEOF(JSAMPLE);
-			maximum_space += (long)sptr->rows_in_array *
-			    (long)sptr->samplesperrow * SIZEOF(JSAMPLE);
+			space_per_minheight += (long)sptr->maxaccess * (long)sptr->samplesperrow * SIZEOF(JSAMPLE);
+			maximum_space += (long)sptr->rows_in_array * (long)sptr->samplesperrow * SIZEOF(JSAMPLE);
 		}
 	}
 	for(bptr = mem->virt_barray_list; bptr; bptr = bptr->next) {
 		if(bptr->mem_buffer == NULL) { /* if not realized yet */
-			space_per_minheight += (long)bptr->maxaccess *
-			    (long)bptr->blocksperrow * SIZEOF(JBLOCK);
-			maximum_space += (long)bptr->rows_in_array *
-			    (long)bptr->blocksperrow * SIZEOF(JBLOCK);
+			space_per_minheight += (long)bptr->maxaccess * (long)bptr->blocksperrow * SIZEOF(JBLOCK);
+			maximum_space += (long)bptr->rows_in_array * (long)bptr->blocksperrow * SIZEOF(JBLOCK);
 		}
 	}
-
 	if(space_per_minheight <= 0)
 		return;         /* no unrealized arrays, no work */
-
 	/* Determine amount of memory to actually use; this is system-dependent. */
-	avail_mem = jpeg_mem_available(cinfo, space_per_minheight, maximum_space,
-	    mem->total_space_allocated);
-
+	avail_mem = jpeg_mem_available(cinfo, space_per_minheight, maximum_space, mem->total_space_allocated);
 	/* If the maximum space needed is available, make all the buffers full
 	 * height; otherwise parcel it out with the same number of minheights
 	 * in each buffer.
@@ -595,14 +559,10 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 			else {
 				/* It doesn't fit in memory, create backing store. */
 				sptr->rows_in_mem = (JDIMENSION)(max_minheights * sptr->maxaccess);
-				jpeg_open_backing_store(cinfo, &sptr->b_s_info,
-				    (long)sptr->rows_in_array *
-				    (long)sptr->samplesperrow *
-				    (long)SIZEOF(JSAMPLE));
+				jpeg_open_backing_store(cinfo, &sptr->b_s_info, (long)sptr->rows_in_array * (long)sptr->samplesperrow * (long)SIZEOF(JSAMPLE));
 				sptr->b_s_open = TRUE;
 			}
-			sptr->mem_buffer = alloc_sarray(cinfo, JPOOL_IMAGE,
-			    sptr->samplesperrow, sptr->rows_in_mem);
+			sptr->mem_buffer = alloc_sarray(cinfo, JPOOL_IMAGE, sptr->samplesperrow, sptr->rows_in_mem);
 			sptr->rowsperchunk = mem->last_rowsperchunk;
 			sptr->cur_start_row = 0;
 			sptr->first_undef_row = 0;
@@ -619,14 +579,10 @@ METHODDEF(void) realize_virt_arrays(j_common_ptr cinfo)
 			else {
 				/* It doesn't fit in memory, create backing store. */
 				bptr->rows_in_mem = (JDIMENSION)(max_minheights * bptr->maxaccess);
-				jpeg_open_backing_store(cinfo, &bptr->b_s_info,
-				    (long)bptr->rows_in_array *
-				    (long)bptr->blocksperrow *
-				    (long)SIZEOF(JBLOCK));
+				jpeg_open_backing_store(cinfo, &bptr->b_s_info, (long)bptr->rows_in_array * (long)bptr->blocksperrow * (long)SIZEOF(JBLOCK));
 				bptr->b_s_open = TRUE;
 			}
-			bptr->mem_buffer = alloc_barray(cinfo, JPOOL_IMAGE,
-			    bptr->blocksperrow, bptr->rows_in_mem);
+			bptr->mem_buffer = alloc_barray(cinfo, JPOOL_IMAGE, bptr->blocksperrow, bptr->rows_in_mem);
 			bptr->rowsperchunk = mem->last_rowsperchunk;
 			bptr->cur_start_row = 0;
 			bptr->first_undef_row = 0;
@@ -916,21 +872,16 @@ METHODDEF(void) free_pool(j_common_ptr cinfo, int pool_id)
 
 METHODDEF(void) self_destruct(j_common_ptr cinfo)
 {
-	int pool;
-
-	/* Close all backing store, release all memory.
-	 * Releasing pools in reverse order might help avoid fragmentation
-	 * with some (brain-damaged) SAlloc::M libraries.
-	 */
-	for(pool = JPOOL_NUMPOOLS-1; pool >= JPOOL_PERMANENT; pool--) {
+	// Close all backing store, release all memory.
+	// Releasing pools in reverse order might help avoid fragmentation
+	// with some (brain-damaged) SAlloc::M libraries.
+	for(int pool = JPOOL_NUMPOOLS-1; pool >= JPOOL_PERMANENT; pool--) {
 		free_pool(cinfo, pool);
 	}
-
-	/* Release the memory manager control block too. */
+	// Release the memory manager control block too. 
 	jpeg_free_small(cinfo, (void*)cinfo->mem, SIZEOF(my_memory_mgr));
-	cinfo->mem = NULL;      /* ensures I will be called only once */
-
-	jpeg_mem_term(cinfo);   /* system-dependent cleanup */
+	cinfo->mem = NULL; // ensures I will be called only once 
+	jpeg_mem_term(cinfo); // system-dependent cleanup 
 }
 /*
  * Memory manager initialization.
@@ -958,15 +909,11 @@ GLOBAL(void) jinit_memory_mgr(j_common_ptr cinfo)
 	 * But a "constant too large" warning means you need to fix MAX_ALLOC_CHUNK.
 	 */
 	test_mac = (size_t)MAX_ALLOC_CHUNK;
-	if((long)test_mac != MAX_ALLOC_CHUNK ||
-	    (MAX_ALLOC_CHUNK % SIZEOF(ALIGN_TYPE)) != 0)
+	if((long)test_mac != MAX_ALLOC_CHUNK || (MAX_ALLOC_CHUNK % SIZEOF(ALIGN_TYPE)) != 0)
 		ERREXIT(cinfo, JERR_BAD_ALLOC_CHUNK);
-
 	max_to_use = jpeg_mem_init(cinfo); /* system-dependent initialization */
-
 	/* Attempt to allocate memory manager's control block */
 	mem = (my_mem_ptr)jpeg_get_small(cinfo, SIZEOF(my_memory_mgr));
-
 	if(mem == NULL) {
 		jpeg_mem_term(cinfo); /* system-dependent cleanup */
 		ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 0);

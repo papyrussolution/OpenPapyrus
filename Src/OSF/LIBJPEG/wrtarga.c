@@ -2,7 +2,7 @@
  * wrtarga.c
  *
  * Copyright (C) 1991-1996, Thomas G. Lane.
- * Modified 2015 by Guido Vollbeding.
+ * Modified 2015-2017 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -14,6 +14,7 @@
  *
  * Based on code contributed by Lee Daniel Crocker.
  */
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
@@ -24,9 +25,8 @@
  * This is not yet implemented.
  */
 #if BITS_IN_JSAMPLE != 8
-Sorry, this code only copes with 8-bit JSAMPLEs.   /* deliberate syntax err */
+	Sorry, this code only copes with 8-bit JSAMPLEs.   /* deliberate syntax err */
 #endif
-
 /*
  * The output buffer needs to be writable by fwrite().  On PCs, we must
  * allocate the buffer in near data space, because we are assuming small-data
@@ -174,19 +174,21 @@ METHODDEF(void) start_output_tga(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 		ERREXIT(cinfo, JERR_TGA_COLORSPACE);
 	}
 }
-/*
- * Finish up at the end of the file.
- */
+// 
+// Finish up at the end of the file.
+// 
 METHODDEF(void) finish_output_tga(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 {
-	/* Make sure we wrote the output file OK */
-	fflush(dinfo->output_file);
-	if(ferror(dinfo->output_file))
+	// Make sure we wrote the output file OK 
+	// @v9c fflush(dinfo->output_file);
+	// @v9c if(ferror(dinfo->output_file))
+	JFFLUSH(dinfo->output_file); // @v9c
+	if(JFERROR(dinfo->output_file)) // @v9c
 		ERREXIT(cinfo, JERR_FILE_WRITE);
 }
-/*
- * The module selection routine for Targa format output.
- */
+// 
+// The module selection routine for Targa format output.
+// 
 GLOBAL(djpeg_dest_ptr) jinit_write_targa(j_decompress_ptr cinfo)
 {
 	/* Create module interface object, fill in method pointers */

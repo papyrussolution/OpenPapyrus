@@ -27,6 +27,7 @@
 	#include <fcntl.h> // @v9.8.2
 	#include <sys\stat.h> // @v9.8.2
 	#include <tchar.h>
+	#include <wchar.h>
 #endif
 //
 //#include <port.h>
@@ -2427,8 +2428,7 @@ typedef int32 TYPEID;
 #define BTS_TIME         5    // 4 byte LTIME
 #define BTS_DATETIME     6    // 8 byte LDATETIME
 #define BTS_POINT2       7    // 16 byte RPoint
-#define BTS_BOOL         8    // 4 byte Специализированный вариант. Фактически не применяется как базовый тип,
-	// но испольузется в локальных ситуациях.
+#define BTS_BOOL         8    // 4 byte Специализированный вариант. Фактически не применяется как базовый тип, но испольузется в локальных ситуациях.
 #define BTS_PTR          9    // Указатель. Важно, что размер его зависим от архитектуры (4 или 8 байт)
 //
 // Data types
@@ -6744,6 +6744,17 @@ public:
 	//    0 - элемент с идентификатором id не найден (rBuf на выходе пуст)
 	//
 	int    SLAPI GetText(long id, SString & rBuf) const;
+	//
+	// Descr: Функционально то же самое, что и GetText, но осуществляет поиск
+	//   в расчете на то, что список пар {id, position} отсортирован по возрастанию
+	//   идентификаторов.
+	//   Работает значительно быстрее, чем GetText но требует ответственности вызывающего
+	//   модуля за то, что список предварительно отсортирован.
+	// Note: SortByID отсортирует список адвекватно этому методу только в случае,
+	//   когда внутрений список родительских ссылок пуст (то есть данный экземляр не
+	//   является иерархическим).
+	//
+	int    SLAPI GetTextBinary(long id, SString & rBuf) const;
 	//
 	// Descr: Находит максимальное значение идентификатора элемента в массиве.
 	// Returns:
@@ -12426,6 +12437,7 @@ public:
 		};
 		int   Fmt;
 		long  Flags;
+		uint  Quality; // [1..100]
 	};
 
 	static int IsSupportedFormat(int fm);
@@ -12474,6 +12486,7 @@ private:
 	int    Helper_Load(SFile & rF, SFileFormat ff);
 	int    Helper_LoadBmp(SBuffer & rBuf, const char * pAddedErrorInfo);
 	int    StorePng(const StoreParam & rP, SFile & rF);
+	int    StoreJpeg(const StoreParam & rP, SFile & rF);
 	int    Flip();
 	int    PremultiplyAlpha();
 	uint8 * FASTCALL GetScanline(uint lineNo) const;
@@ -12488,7 +12501,7 @@ class SDrawFigure { // @persistent @store(SSerializeContext)
 public:
 	friend class SDrawGroup;
 
-	static int CheckKind(int kind);
+	static int FASTCALL CheckKind(int kind);
 	//
 	// Descr: Создает экземпляр фигуры из файла pFileName.
 	//   Допускаются следующие форматы файлов: svg, jpeg, bmp, png, ico, cur, gif.
@@ -12545,7 +12558,7 @@ public:
 	// Descr: Присваивает по адресу pVp структуру эффективного порта вывода
 	//   (с учетом контекста).
 	//
-	int    GetViewPort(SViewPort * pVp) const;
+	int    FASTCALL GetViewPort(SViewPort * pVp) const;
 	const  FPoint   & GetSize() const;
 	const  LMatrix2D & GetTransform() const;
 	SPaintToolBox * GetToolBox() const;
@@ -12603,10 +12616,7 @@ public:
 		opClose     // arg_count=0
 	};
 	struct Item {
-		const  FPoint & Pnt(uint p)
-		{
-			return *(const FPoint *)(P_ArgList+p);
-		}
+		const  FPoint & Pnt(uint p) const { return *(const FPoint *)(P_ArgList+p); }
 		int    Op;
 		uint   ArgCount;
 		const  float * P_ArgList;

@@ -291,7 +291,7 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack) con
 			pPack->Rec.UserID = OrgUserID;
 		}
 		else {
-			GetCurUserPerson(&pPack->Rec.UserID, 0);
+			PPObjPerson::GetCurUserPerson(&pPack->Rec.UserID, 0);
 		}
 		// } @v8.2.11
 		// @v8.2.11 pPack->Rec.UserID = NZOR(OrgUserID, LConfig.User); // @v8.2.5 OrgUserID-->NZOR(OrgUserID, LConfig.User)
@@ -1205,20 +1205,10 @@ int CPosProcessor::SetupState(int st)
 	return ok;
 }
 
-int FASTCALL CPosProcessor::IsState(int s) const
-{
-	return BIN(State_p == s);
-}
-
 // virtual
 void CPosProcessor::SetPrintedFlag(int set)
 {
 	SETFLAG(Flags, fPrinted, set);
-}
-
-int FASTCALL CPosProcessor::F(long f) const
-{
-	return BIN(Flags & f);
 }
 
 int CPosProcessor::SetupExt(const CCheckPacket * pPack)
@@ -1253,11 +1243,6 @@ int CPosProcessor::SetupExt(const CCheckPacket * pPack)
 		P.AmL = pPack->AL_Const(); // @v8.0.0
 	}
 	return 1;
-}
-
-void CPosProcessor::SetupSessUuid(const S_GUID & rUuid)
-{
-	SessUUID = rUuid;
 }
 
 int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent)
@@ -1400,26 +1385,6 @@ PPID FASTCALL CPosProcessor::GetChargeGoodsID(PPID scardID)
 	return NZOR(id, UNDEF_CHARGEGOODSID);
 }
 
-PPID CPosProcessor::GetPosNodeID() const
-{
-	return CashNodeID;
-}
-
-long CPosProcessor::GetTableCode() const
-{
-	return P.TableCode;
-}
-
-int CPosProcessor::GetGuestCount() const
-{
-	return P.GuestCount;
-}
-
-PPID CPosProcessor::GetCnLocID(PPID goodsID) const
-{
-	return (ExtCashNodeID && ExtCnLocID && BelongToExtCashNode(goodsID)) ? ExtCnLocID : CnLocID;
-}
-
 PPID CPosProcessor::GetAuthAgentID() const
 {
 	if(!AuthAgentID)
@@ -1427,15 +1392,17 @@ PPID CPosProcessor::GetAuthAgentID() const
 	return AuthAgentID;
 }
 
-int CPosProcessor::InitIteration()
-{
-	return P.InitIteration();
-}
-
-int FASTCALL CPosProcessor::NextIteration(CCheckItem * pItem)
-{
-	return P.NextIteration(pItem);
-}
+int    FASTCALL CPosProcessor::IsState(int s) const { return BIN(State_p == s); }
+int    FASTCALL CPosProcessor::F(long f) const { return BIN(Flags & f); }
+void   CPosProcessor::SetupSessUuid(const S_GUID & rUuid) { SessUUID = rUuid; }
+PPID   CPosProcessor::GetPosNodeID() const { return CashNodeID; }
+long   CPosProcessor::GetTableCode() const { return P.TableCode; }
+int    CPosProcessor::GetGuestCount() const { return P.GuestCount; }
+PPID   CPosProcessor::GetCnLocID(PPID goodsID) const { return (ExtCashNodeID && ExtCnLocID && BelongToExtCashNode(goodsID)) ? ExtCnLocID : CnLocID; }
+int    CPosProcessor::InitIteration() { return P.InitIteration(); }
+int    FASTCALL CPosProcessor::NextIteration(CCheckItem * pItem) { return P.NextIteration(pItem); }
+double CPosProcessor::GetUsableBonus() const { return (Flags & fSCardBonus) ? CSt.UsableBonus : 0.0; }
+double CPosProcessor::RoundDis(double d) const { return Round(d, R.DisRoundPrec, R.DisRoundDir); }
 
 //virtual
 void CPosProcessor::SetupInfo(const char * pErrMsg)
@@ -1657,16 +1624,6 @@ void CPosProcessor::CalcTotal(double * pTotal, double * pDiscount) const
 	ASSIGN_PTR(pDiscount, discount);
 }
 
-double CPosProcessor::GetUsableBonus() const
-{
-	return (Flags & fSCardBonus) ? CSt.UsableBonus : 0.0;
-}
-
-double CPosProcessor::RoundDis(double d) const
-{
-	return Round(d, R.DisRoundPrec, R.DisRoundDir);
-}
-
 void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distributeGiftDiscount)
 {
 	//
@@ -1709,53 +1666,59 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 			}
 			if(is_rounding || (p_item->Flags & cifFixedPrice) || (P.Eccd.Flags & P.Eccd.fFixedPrice)) // @v8.7.7 (p_item->Flags & cifFixedPrice)
 				no_calcprice = 1;
-			if(!no_calcprice) {
-				double price_by_serial = 0.0;
-				if(p_item->Serial[0]) {
-					PPIDArray  lot_list;
-					PPObjBill * p_bobj = BillObj;
-					if(p_bobj->SearchLotsBySerial(p_item->Serial, &lot_list) > 0) {
-						ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
-						LDATE  last_date = ZERODATE;
-						const  PPID  loc_id = GetCnLocID(goods_id);
-						for(uint j = 0; j < lot_list.getCount(); j++) {
+			{
+				RetailGoodsInfo rgi;
+				long   ext_rgi_flags = 0;
+				if(!no_calcprice) {
+					double price_by_serial = 0.0;
+					if(p_item->Serial[0]) {
+						PPIDArray  lot_list;
+						PPObjBill * p_bobj = BillObj;
+						if(p_bobj->SearchLotsBySerial(p_item->Serial, &lot_list) > 0) {
+							ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
+							LDATE  last_date = ZERODATE;
 							ReceiptTbl::Rec lot_rec;
-							if(r_rcpt.Search(lot_list.get(j), &lot_rec) > 0 && lot_rec.GoodsID == goods_id && lot_rec.LocID == loc_id) {
-								if(last_date < lot_rec.Dt) {
-									price_by_serial = lot_rec.Price;
-									last_date = lot_rec.Dt;
+							const  PPID  loc_id = GetCnLocID(goods_id);
+							for(uint j = 0; j < lot_list.getCount(); j++) {
+								if(r_rcpt.Search(lot_list.get(j), &lot_rec) > 0 && lot_rec.GoodsID == goods_id && lot_rec.LocID == loc_id) {
+									if(last_date < lot_rec.Dt) {
+										price_by_serial = lot_rec.Price;
+										last_date = lot_rec.Dt;
+									}
 								}
 							}
 						}
 					}
-				}
-				RetailGoodsInfo rgi;
-				long   ext_rgi_flags = 0;
-				if(price_by_serial > 0.0) {
-					ext_rgi_flags |= PPObjGoods::rgifUseOuterPrice;
-					rgi.OuterPrice = price_by_serial;
-				}
-				const int _gpr = GetRgi(goods_id, qtty, ext_rgi_flags, rgi);
-				if(rgi.Flags & RetailGoodsInfo::fNoDiscount)
-					no_discount = 1;
-				//
-				if(_gpr > 0) {
-					p_item->Price = rgi.Price;
-				}
-				if(_gpr > 0 && (rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0)) { // @v8.7.11 (rgi.ExtPrice)-->(rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0)
-					if(rgi.Flags & rgi.fDisabledQuot) { // @v8.7.12 Исключительная ситуация: ExtPrice перебивает по приоритету блокированную котировку
-						p_item->Price = rgi.ExtPrice;
+					if(price_by_serial > 0.0) {
+						ext_rgi_flags |= PPObjGoods::rgifUseOuterPrice;
+						rgi.OuterPrice = price_by_serial;
+					}
+					const int _gpr = GetRgi(goods_id, qtty, ext_rgi_flags, rgi);
+					if(rgi.Flags & RetailGoodsInfo::fNoDiscount)
+						no_discount = 1;
+					//
+					if(_gpr > 0)
+						p_item->Price = rgi.Price;
+					if(_gpr > 0 && (rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0)) { // @v8.7.11 (rgi.ExtPrice)-->(rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0)
+						if(rgi.Flags & rgi.fDisabledQuot) { // @v8.7.12 Исключительная ситуация: ExtPrice перебивает по приоритету блокированную котировку
+							p_item->Price = rgi.ExtPrice;
+							p_item->Discount = 0.0;
+						}
+						else
+							p_item->Discount = (p_item->Price - rgi.ExtPrice);
+						no_discount = 1;
+					}
+					else {
+						const RetailPriceExtractor::ExtQuotBlock * p_eqb = GetCStEqbND(no_discount);
+						if(p_eqb && p_eqb->QkList.getCount() && !(CSt.Flags & CardState::fUseDscntIfNQuot))
+							no_discount = 1;
 						p_item->Discount = 0.0;
 					}
-					else
-						p_item->Discount = (p_item->Price - rgi.ExtPrice);
-					no_discount = 1;
 				}
-				else {
-					const RetailPriceExtractor::ExtQuotBlock * p_eqb = GetCStEqbND(no_discount);
-					if(p_eqb && p_eqb->QkList.getCount() && !(CSt.Flags & CardState::fUseDscntIfNQuot))
+				else if(!no_discount) { // @v9.9.3 Дополнительный блок для правильной идентификации блокировки скидки
+					const int _gpr = GetRgi(goods_id, qtty, ext_rgi_flags, rgi);
+					if(rgi.Flags & RetailGoodsInfo::fNoDiscount)
 						no_discount = 1;
-					p_item->Discount = 0.0;
 				}
 			}
 			if(no_discount) {
@@ -1787,14 +1750,15 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 		if(is_rounding)
 			discount = roundingDiscount;
 		else {
-			double _dis = CSt.GetDiscount(amount);
+			const double _dis = CSt.GetDiscount(amount);
 			discount = _dis * fdiv100r(amount);
 			CSt.SettledDiscount = _dis;
 		}
-		double part_dis = 0.0, part_amount = 0.0;
+		double part_dis = 0.0;
+		double part_amount = 0.0;
 		if(!is_rounding) {
 			if(discount != 0.0) {
-				double temp_dis = this->RoundDis(discount);
+				const double temp_dis = this->RoundDis(discount);
 				if(temp_dis < amount)
 					discount = temp_dis;
 			}

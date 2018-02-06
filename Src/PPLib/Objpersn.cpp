@@ -113,7 +113,8 @@ int FASTCALL GetMainEmployerID(PPID * pID)
 	return 0;
 }
 
-int FASTCALL GetCurUserPerson(PPID * pID, SString * pBuf)
+//static
+int FASTCALL PPObjPerson::GetCurUserPerson(PPID * pID, SString * pBuf)
 {
 	int    ok = -1;
 	PPObjSecur sec_obj(PPOBJ_USR, 0);
@@ -124,7 +125,7 @@ int FASTCALL GetCurUserPerson(PPID * pID, SString * pBuf)
 		if(secur.PersonID) {
 			ASSIGN_PTR(pID, secur.PersonID);
 			if(pBuf) {
-				PPObjPerson psn_obj;
+				PPObjPerson psn_obj(SConstructorLite);
 				PersonTbl::Rec psn_rec;
 				if(psn_obj.Fetch(secur.PersonID, &psn_rec) > 0) {
 					*pBuf = psn_rec.Name;
@@ -348,10 +349,7 @@ SLAPI PPObjPerson::SrchAnalogPattern::SrchAnalogPattern(const char * pNamePatter
 const char * PersonAddImageFolder = "PersonAddImageFolder";
 
 struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
-	size_t GetSize() const
-	{
-		return (sizeof(*this) + ExtStrSize);
-	}
+	size_t GetSize() const { return (sizeof(*this) + ExtStrSize); }
 	PPID   Tag;               // Const=PPOBJ_CONFIG
 	PPID   ID;                // Const=PPCFG_MAIN
 	PPID   Prop;              // Const=PPPRP_PERSONCFG
@@ -1002,10 +1000,15 @@ int SLAPI PPObjPerson::EditConfig()
 
 TLP_IMPL(PPObjPerson, PersonCore, P_Tbl);
 
-SLAPI PPObjPerson::PPObjPerson(void * extraPtr) : PPObject(PPOBJ_PERSON), P_ArObj(new PPObjArticle), P_PrcObj(new PPObjProcessor)
+SLAPI PPObjPerson::PPObjPerson(SCtrLite sctr) : PPObject(PPOBJ_PERSON), LocObj(sctr), P_ArObj(0), P_PrcObj(0), ExtraPtr(0)
 {
 	TLP_OPEN(P_Tbl);
-	ExtraPtr = extraPtr;
+	Cfg.Flags &= ~PPPersonConfig::fValid;
+}
+
+SLAPI PPObjPerson::PPObjPerson(void * extraPtr) : PPObject(PPOBJ_PERSON), LocObj(), P_ArObj(new PPObjArticle), P_PrcObj(new PPObjProcessor), ExtraPtr(extraPtr)
+{
+	TLP_OPEN(P_Tbl);
 	Cfg.Flags &= ~PPPersonConfig::fValid;
 }
 
@@ -5868,7 +5871,7 @@ int SLAPI PersonCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 {
 	int    ok = 1;
 	PersonData * p_cache_rec = (PersonData *)pEntry;
-	PPObjPerson psn_obj;
+	PPObjPerson psn_obj(SConstructorLite);
 	PersonTbl::Rec rec;
 	if(psn_obj.Search(id, &rec) > 0) {
 	   	p_cache_rec->MainLocID = rec.MainLoc;
@@ -5900,11 +5903,8 @@ void SLAPI PersonCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRe
 int SLAPI PersonCache::GetConfig(PPPersonConfig * pCfg, int enforce)
 {
 	{
-		//CfgLock.ReadLock();
 		SRWLOCKER(CfgLock, SReadWriteLocker::Read);
 		if(!(Cfg.Flags & PPPersonConfig::fValid) || enforce) {
-			//CfgLock.Unlock();
-			//CfgLock.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(!(Cfg.Flags & PPPersonConfig::fValid) || enforce) {
 				PPObjPerson::ReadConfig(&Cfg);
@@ -5912,7 +5912,6 @@ int SLAPI PersonCache::GetConfig(PPPersonConfig * pCfg, int enforce)
 			}
 		}
 		ASSIGN_PTR(pCfg, Cfg);
-		//CfgLock.Unlock();
 	}
 	return 1;
 }
@@ -6176,7 +6175,7 @@ int FASTCALL GetPersonName(PPID id, SString & rBuf)
 	int    ok = -1;
 	rBuf.Z();
 	if(id) {
-		PPObjPerson psn_obj;
+		PPObjPerson psn_obj(SConstructorLite);
 		PersonTbl::Rec rec;
 		if(psn_obj.Fetch(id, &rec) > 0) {
 			rBuf = rec.Name;
@@ -7137,7 +7136,7 @@ int PPALDD_Global::InitData(PPFilt & rFilt, long rsrv)
 		STRNSCPY(H.MainOrgBnkName, req.BnkAcct.Bnk.ExtName[0] ? req.BnkAcct.Bnk.ExtName : req.BnkAcct.Bnk.Name);
 		STRNSCPY(H.MainOrgBnkAccN, req.BnkAcct.Acct);
 		H.CurDate = getcurdate_();
-		GetCurUserPerson(0, &temp_buf);
+		PPObjPerson::GetCurUserPerson(0, &temp_buf);
 		temp_buf.CopyTo(H.Cashier, sizeof(H.Cashier));
 		if(psnobj.Fetch(H.ID, &psn_rec) > 0)
 			H.IsPrivateEnt = BIN(psn_rec.Status == PPPRS_FREE);

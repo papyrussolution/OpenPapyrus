@@ -1494,7 +1494,7 @@ int SLAPI PPObjPrjTask::InitPacket(PrjTaskTbl::Rec * pRec, int kind, PPID prjID,
 	pRec->Priority   = TODOPRIOR_NORMAL;
 	pRec->Status     = TODOSTTS_NEW;
 	pRec->LinkTaskID = LinkTaskID;
-	GetCurUserPerson(&pRec->CreatorID, 0);
+	PPObjPerson::GetCurUserPerson(&pRec->CreatorID, 0);
 	getcurdatetime(&pRec->Dt, &pRec->Tm);
 	return 1;
 }
@@ -1937,7 +1937,7 @@ int SLAPI PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 		//
 		int    output_to_status_win = 0;
 		int    employer_changed = BIN(prev_employer && prev_employer != rec.EmployerID);
-		GetCurUserPerson(&employer, 0);
+		PPObjPerson::GetCurUserPerson(&employer, 0);
 		int    employer_equal = BIN(employer && employer == rec.EmployerID);
 		if(is_new && ok == cmOK && employer_equal) {
 			rec.Flags |= TODOF_OPENEDBYEMPL;
@@ -2007,7 +2007,7 @@ int SLAPI PPObjPrjTask::AddBySample(PPID * pID, PPID sampleID)
 		rec.ID = 0;
 		rec.Status = TODOSTTS_NEW;
 		rec.LinkTaskID = LinkTaskID;
-		GetCurUserPerson(&rec.CreatorID, 0);
+		PPObjPerson::GetCurUserPerson(&rec.CreatorID, 0);
 		getcurdatetime(&rec.Dt, &rec.Tm);
 		// @v8.5.12 {
 		{

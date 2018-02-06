@@ -1741,13 +1741,13 @@ SString & SLAPI SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 		// исказить конвертируемую строку на конце отдельного отрезка:
 		// размер символа UTF8 - не фиксированный.
 		//
-		SStringU temp_ustr;
-		temp_ustr.CopyFromUtf8(P_Buf, Len());
-		const size_t len = temp_ustr.Len();
+		SStringU & r_temp_ustr = SLS.AcquireRvlStrU();
+		r_temp_ustr.CopyFromUtf8(P_Buf, Len());
+		const size_t len = r_temp_ustr.Len();
 		Trim(0);
 		for(size_t offs = 0; offs < len;) {
 			size_t s = MIN((len-offs), middle_buf_len/2);
-			int ret = WideCharToMultiByte(destCodepage, 0, ((const wchar_t *)temp_ustr)+offs, (int)s, text, (int)sizeof(text), 0, 0);
+			int ret = WideCharToMultiByte(destCodepage, 0, ((const wchar_t *)r_temp_ustr)+offs, (int)s, text, (int)sizeof(text), 0, 0);
 			if(ret > 0) {
 				offs += s;
 				CatN(text, (size_t)ret);

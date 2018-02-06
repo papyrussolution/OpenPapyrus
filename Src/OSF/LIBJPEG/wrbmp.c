@@ -2,6 +2,7 @@
  * wrbmp.c
  *
  * Copyright (C) 1994-1996, Thomas G. Lane.
+ * Modified 2017 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -16,21 +17,19 @@
  *
  * This code contributed by James Arthur Boucher.
  */
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
 
 #ifdef BMP_SUPPORTED
-
 /*
  * To support 12-bit JPEG data, we'd have to scale output down to 8 bits.
  * This is not yet implemented.
  */
-
 #if BITS_IN_JSAMPLE != 8
-Sorry, this code only copes with 8-bit JSAMPLEs.   /* deliberate syntax err */
+	Sorry, this code only copes with 8-bit JSAMPLEs.   /* deliberate syntax err */
 #endif
-
 /*
  * Since BMP stores scanlines bottom-to-top, we have to invert the image
  * from JPEG's top-to-bottom order.  To do this, we save the outgoing data
@@ -43,9 +42,7 @@ Sorry, this code only copes with 8-bit JSAMPLEs.   /* deliberate syntax err */
 
 typedef struct {
 	struct djpeg_dest_struct pub; /* public fields */
-
 	boolean is_os2;         /* saves the OS2 format request flag */
-
 	jvirt_sarray_ptr whole_image; /* needed to reverse row order */
 	JDIMENSION data_width;  /* JSAMPLEs per row */
 	JDIMENSION row_width;   /* physical width of one row in the BMP file */
@@ -316,26 +313,23 @@ METHODDEF(void) finish_output_bmp(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 	bmp_dest_ptr dest = (bmp_dest_ptr)dinfo;
 	register FILE * outfile = dest->pub.output_file;
 	JSAMPARRAY image_ptr;
-	register JSAMPROW data_ptr;
+	JSAMPROW data_ptr;
 	JDIMENSION row;
-	register JDIMENSION col;
+	JDIMENSION col;
 	cd_progress_ptr progress = (cd_progress_ptr)cinfo->progress;
-
-	/* Write the header and colormap */
+	// Write the header and colormap 
 	if(dest->is_os2)
 		write_os2_header(cinfo, dest);
 	else
 		write_bmp_header(cinfo, dest);
-
-	/* Write the file body from our virtual array */
+	// Write the file body from our virtual array 
 	for(row = cinfo->output_height; row > 0; row--) {
 		if(progress) {
 			progress->pub.pass_counter = (long)(cinfo->output_height - row);
 			progress->pub.pass_limit = (long)cinfo->output_height;
 			(*progress->pub.progress_monitor)((j_common_ptr)cinfo);
 		}
-		image_ptr = (*cinfo->mem->access_virt_sarray)
-			    ((j_common_ptr)cinfo, dest->whole_image, row-1, (JDIMENSION)1, FALSE);
+		image_ptr = (*cinfo->mem->access_virt_sarray)((j_common_ptr)cinfo, dest->whole_image, row-1, (JDIMENSION)1, FALSE);
 		data_ptr = image_ptr[0];
 		for(col = dest->row_width; col > 0; col--) {
 			putc(GETJSAMPLE(*data_ptr), outfile);
@@ -344,27 +338,24 @@ METHODDEF(void) finish_output_bmp(j_decompress_ptr cinfo, djpeg_dest_ptr dinfo)
 	}
 	if(progress)
 		progress->completed_extra_passes++;
-
-	/* Make sure we wrote the output file OK */
-	fflush(outfile);
-	if(ferror(outfile))
+	// Make sure we wrote the output file OK 
+	// @v9c fflush(outfile);
+	// @v9c if(ferror(outfile))
+	JFFLUSH(outfile); // @v9c 
+	if(JFERROR(outfile)) // @v9c 
 		ERREXIT(cinfo, JERR_FILE_WRITE);
 }
-/*
- * The module selection routine for BMP format output.
- */
+//
+// The module selection routine for BMP format output.
+//
 GLOBAL(djpeg_dest_ptr) jinit_write_bmp(j_decompress_ptr cinfo, boolean is_os2)
 {
-	bmp_dest_ptr dest;
 	JDIMENSION row_width;
-	/* Create module interface object, fill in method pointers */
-	dest = (bmp_dest_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(bmp_dest_struct));
+	// Create module interface object, fill in method pointers 
+	bmp_dest_ptr dest = (bmp_dest_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(bmp_dest_struct));
 	dest->pub.start_output = start_output_bmp;
 	dest->pub.finish_output = finish_output_bmp;
 	dest->is_os2 = is_os2;
-
 	if(cinfo->out_color_space == JCS_GRAYSCALE) {
 		dest->pub.put_pixel_rows = put_gray_rows;
 	}
@@ -377,33 +368,27 @@ GLOBAL(djpeg_dest_ptr) jinit_write_bmp(j_decompress_ptr cinfo, boolean is_os2)
 	else {
 		ERREXIT(cinfo, JERR_BMP_COLORSPACE);
 	}
-
-	/* Calculate output image dimensions so we can allocate space */
+	// Calculate output image dimensions so we can allocate space 
 	jpeg_calc_output_dimensions(cinfo);
-
-	/* Determine width of rows in the BMP file (padded to 4-byte boundary). */
+	// Determine width of rows in the BMP file (padded to 4-byte boundary). 
 	row_width = cinfo->output_width * cinfo->output_components;
 	dest->data_width = row_width;
-	while((row_width & 3) != 0) row_width++;
+	while((row_width & 3) != 0) 
+		row_width++;
 	dest->row_width = row_width;
 	dest->pad_bytes = (int)(row_width - dest->data_width);
-
 	/* Allocate space for inversion array, prepare for write pass */
-	dest->whole_image = (*cinfo->mem->request_virt_sarray)
-		    ((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE,
-	    row_width, cinfo->output_height, (JDIMENSION)1);
+	dest->whole_image = (*cinfo->mem->request_virt_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, FALSE, row_width, cinfo->output_height, (JDIMENSION)1);
 	dest->cur_output_row = 0;
 	if(cinfo->progress) {
 		cd_progress_ptr progress = (cd_progress_ptr)cinfo->progress;
 		progress->total_extra_passes++; /* count file input as separate pass */
 	}
-
 	/* Create decompressor output buffer. */
-	dest->pub.buffer = (*cinfo->mem->alloc_sarray)
-		    ((j_common_ptr)cinfo, JPOOL_IMAGE, row_width, (JDIMENSION)1);
+	dest->pub.buffer = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, row_width, (JDIMENSION)1);
 	dest->pub.buffer_height = 1;
-
-	return (djpeg_dest_ptr)dest;
+	// @v9c return (djpeg_dest_ptr)dest;
+	return &dest->pub; // @v9c
 }
 
 #endif /* BMP_SUPPORTED */

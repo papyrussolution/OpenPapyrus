@@ -2,7 +2,7 @@
  * jidctfst.c
  *
  * Copyright (C) 1994-1998, Thomas G. Lane.
- * Modified 2015 by Guido Vollbeding.
+ * Modified 2015-2017 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -32,6 +32,7 @@
  * precise the scaled value, so this implementation does worse with high-
  * quality-setting files than with low-quality ones.
  */
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
@@ -41,15 +42,12 @@
 #include "jdct.h"               /* Private declarations for DCT subsystem */
 
 #ifdef DCT_IFAST_SUPPORTED
-
 /*
  * This module is specialized to the case DCTSIZE = 8.
  */
-
 #if DCTSIZE != 8
-Sorry, this code only copes with 8x8 DCTs.   /* deliberate syntax err */
+	Sorry, this code only copes with 8x8 DCT blocks. /* deliberate syntax err */
 #endif
-
 /* Scaling decisions are generally the same as in the LL&M algorithm;
  * see jidctint.c for more details.  However, we choose to descale
  * (right shift) multiplication products as soon as they are formed,

@@ -2,7 +2,7 @@
  * jdhuff.c
  *
  * Copyright (C) 1991-1997, Thomas G. Lane.
- * Modified 2006-2013 by Guido Vollbeding.
+ * Modified 2006-2016 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -15,6 +15,7 @@
  * into local working storage, and update them back to the permanent
  * storage only upon successful completion of an MCU.
  */
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
@@ -699,7 +700,6 @@ METHODDEF(boolean) decode_mcu_DC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 	entropy->restarts_to_go--;
 	return TRUE;
 }
-
 /*
  * MCU decoding for AC initial scan (either spectral selection,
  * or first pass of successive approximation).
@@ -720,28 +720,27 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 			if(!process_restart(cinfo))
 				return FALSE;
 	}
-
 	/* If we've run out of data, just leave the MCU set to zeroes.
 	 * This way, we return uniform gray for the remainder of the segment.
 	 */
 	if(!entropy->insufficient_data) {
-		Se = cinfo->Se;
-		Al = cinfo->Al;
-		natural_order = cinfo->natural_order;
+		// @v9c Se = cinfo->Se;
+		// @v9c Al = cinfo->Al;
+		// @v9c natural_order = cinfo->natural_order;
 		/* Load up working state.
 		 * We can avoid loading/saving bitread state if in an EOB run.
 		 */
 		EOBRUN = entropy->saved.EOBRUN; /* only part of saved state we need */
-
 		/* There is always only one block per MCU */
-
 		if(EOBRUN)      /* if it's a band of zeroes... */
 			EOBRUN--;  /* ...process it now (we do nothing) */
 		else {
 			BITREAD_LOAD_STATE(cinfo, entropy->bitstate);
+			Se = cinfo->Se; // @v9c
+			Al = cinfo->Al; // @v9c
+			natural_order = cinfo->natural_order; // @v9c
 			block = MCU_data[0];
 			tbl = entropy->ac_derived_tbl;
-
 			for(k = cinfo->Ss; k <= Se; k++) {
 				HUFF_DECODE(s, br_state, tbl, return FALSE, label2);
 				r = s >> 4;
@@ -768,17 +767,13 @@ METHODDEF(boolean) decode_mcu_AC_first(j_decompress_ptr cinfo, JBLOCKROW *MCU_da
 					k += 15; /* ZRL: skip 15 zeroes in band */
 				}
 			}
-
 			BITREAD_SAVE_STATE(cinfo, entropy->bitstate);
 		}
-
 		/* Completed MCU, so update state */
 		entropy->saved.EOBRUN = EOBRUN; /* only part of saved state we need */
 	}
-
 	/* Account for restart interval (no-op if not using restarts) */
 	entropy->restarts_to_go--;
-
 	return TRUE;
 }
 
@@ -1418,42 +1413,32 @@ bad:
 			}
 		}
 	}
-
 	/* Initialize bitread state variables */
 	entropy->bitstate.bits_left = 0;
 	entropy->bitstate.get_buffer = 0; /* unnecessary, but keeps Purify quiet */
 	entropy->insufficient_data = FALSE;
-
 	/* Initialize restart counter */
 	entropy->restarts_to_go = cinfo->restart_interval;
 }
-
 /*
  * Module initialization routine for Huffman entropy decoding.
  */
-
 GLOBAL(void) jinit_huff_decoder(j_decompress_ptr cinfo)
 {
 	huff_entropy_ptr entropy;
 	int i;
-	entropy = (huff_entropy_ptr)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    SIZEOF(huff_entropy_decoder));
+	entropy = (huff_entropy_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(huff_entropy_decoder));
 	cinfo->entropy = &entropy->pub;
 	entropy->pub.start_pass = start_pass_huff_decoder;
 	entropy->pub.finish_pass = finish_pass_huff;
-
 	if(cinfo->progressive_mode) {
 		/* Create progression status table */
 		int * coef_bit_ptr, ci;
-		cinfo->coef_bits = (int (*)[DCTSIZE2])
-			    (*cinfo->mem->alloc_small) ((j_common_ptr)cinfo, JPOOL_IMAGE,
-		    cinfo->num_components*DCTSIZE2*SIZEOF(int));
+		cinfo->coef_bits = (int (*)[DCTSIZE2])(*cinfo->mem->alloc_small) ((j_common_ptr)cinfo, JPOOL_IMAGE, cinfo->num_components*DCTSIZE2*SIZEOF(int));
 		coef_bit_ptr = &cinfo->coef_bits[0][0];
 		for(ci = 0; ci < cinfo->num_components; ci++)
 			for(i = 0; i < DCTSIZE2; i++)
 				*coef_bit_ptr++ = -1;
-
 		/* Mark derived tables unallocated */
 		for(i = 0; i < NUM_HUFF_TBLS; i++) {
 			entropy->derived_tbls[i] = NULL;

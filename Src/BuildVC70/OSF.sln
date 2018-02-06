@@ -71,6 +71,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7z", "7z.vcproj", "{A8F087D
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7z-Alone", "7z-alone.vcproj", "{B742E28B-5EB0-4808-B5C6-0E55A030E605}"
 	ProjectSection(ProjectDependencies) = postProject
+		{D507E468-21FC-4209-A5A8-DE1F055866DC} = {D507E468-21FC-4209-A5A8-DE1F055866DC}
 	EndProjectSection
 EndProject
 Global

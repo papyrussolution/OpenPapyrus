@@ -1186,21 +1186,18 @@ METHODDEF(void) start_pass_2_quant(j_decompress_ptr cinfo, boolean is_pre_scan)
 	/* Zero the histogram or inverse color map, if necessary */
 	if(cquantize->needs_zeroed) {
 		for(i = 0; i < HIST_C0_ELEMS; i++) {
-			FMEMZERO((void FAR*)histogram[i],
-			    HIST_C1_ELEMS*HIST_C2_ELEMS * SIZEOF(histcell));
+			FMEMZERO((void FAR*)histogram[i], HIST_C1_ELEMS*HIST_C2_ELEMS * SIZEOF(histcell));
 		}
 		cquantize->needs_zeroed = FALSE;
 	}
 }
-
 /*
  * Switch to a new external colormap between output passes.
  */
 METHODDEF(void) new_color_map_2_quant(j_decompress_ptr cinfo)
 {
 	my_cquantize_ptr cquantize = (my_cquantize_ptr)cinfo->cquantize;
-	/* Reset the inverse color map */
-	cquantize->needs_zeroed = TRUE;
+	cquantize->needs_zeroed = TRUE; // Reset the inverse color map 
 }
 /*
  * Module initialization routine for 2-pass color quantization.
@@ -1214,18 +1211,13 @@ GLOBAL(void) jinit_2pass_quantizer(j_decompress_ptr cinfo)
 	cquantize->pub.new_color_map = new_color_map_2_quant;
 	cquantize->fserrors = NULL; /* flag optional arrays not allocated */
 	cquantize->error_limiter = NULL;
-
 	/* Make sure jdmaster didn't give me a case I can't handle */
 	if(cinfo->out_color_components != 3)
 		ERREXIT(cinfo, JERR_NOTIMPL);
-
 	/* Allocate the histogram/inverse colormap storage */
-	cquantize->histogram = (hist3d)(*cinfo->mem->alloc_small)
-		    ((j_common_ptr)cinfo, JPOOL_IMAGE, HIST_C0_ELEMS * SIZEOF(hist2d));
+	cquantize->histogram = (hist3d)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, HIST_C0_ELEMS * SIZEOF(hist2d));
 	for(i = 0; i < HIST_C0_ELEMS; i++) {
-		cquantize->histogram[i] = (hist2d)(*cinfo->mem->alloc_large)
-			    ((j_common_ptr)cinfo, JPOOL_IMAGE,
-		    HIST_C1_ELEMS*HIST_C2_ELEMS * SIZEOF(histcell));
+		cquantize->histogram[i] = (hist2d)(*cinfo->mem->alloc_large)((j_common_ptr)cinfo, JPOOL_IMAGE, HIST_C1_ELEMS*HIST_C2_ELEMS * SIZEOF(histcell));
 	}
 	cquantize->needs_zeroed = TRUE; /* histogram is garbage now */
 
@@ -1242,27 +1234,22 @@ GLOBAL(void) jinit_2pass_quantizer(j_decompress_ptr cinfo)
 		/* Make sure colormap indexes can be represented by JSAMPLEs */
 		if(desired > MAXNUMCOLORS)
 			ERREXIT1(cinfo, JERR_QUANT_MANY_COLORS, MAXNUMCOLORS);
-		cquantize->sv_colormap = (*cinfo->mem->alloc_sarray)
-			    ((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)desired, (JDIMENSION)3);
+		cquantize->sv_colormap = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE, (JDIMENSION)desired, (JDIMENSION)3);
 		cquantize->desired = desired;
 	}
 	else
 		cquantize->sv_colormap = NULL;
-
 	/* Only F-S dithering or no dithering is supported. */
 	/* If user asks for ordered dither, give him F-S. */
 	if(cinfo->dither_mode != JDITHER_NONE)
 		cinfo->dither_mode = JDITHER_FS;
-
 	/* Allocate Floyd-Steinberg workspace if necessary.
 	 * This isn't really needed until pass 2, but again it is FAR storage.
 	 * Although we will cope with a later change in dither_mode,
 	 * we do not promise to honor max_memory_to_use if dither_mode changes.
 	 */
 	if(cinfo->dither_mode == JDITHER_FS) {
-		cquantize->fserrors = (FSERRPTR)(*cinfo->mem->alloc_large)
-			    ((j_common_ptr)cinfo, JPOOL_IMAGE,
-		    (size_t)((cinfo->output_width + 2) * (3 * SIZEOF(FSERROR))));
+		cquantize->fserrors = (FSERRPTR)(*cinfo->mem->alloc_large)((j_common_ptr)cinfo, JPOOL_IMAGE, (size_t)((cinfo->output_width + 2) * (3 * SIZEOF(FSERROR))));
 		/* Might as well create the error-limiting table too. */
 		init_error_limit(cinfo);
 	}

@@ -225,7 +225,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 				const  int rmnd_incompl_task = BIN(prj_cfg.Flags & PRJCFGF_INCOMPLETETASKREMIND);
 				if(check_new_task || rmnd_incompl_task) {
 					PPID   employer = 0;
-					GetCurUserPerson(&employer, 0);
+					PPObjPerson::GetCurUserPerson(&employer, 0);
 					if(employer) {
 						SETIFZ(r_tla.P_TodoObj, new PPObjPrjTask);
 						PPObjPrjTask * p_todo_obj = DS.GetTLA().P_TodoObj;
@@ -4239,15 +4239,16 @@ PPSession::ObjIdentBlock::ObjIdentBlock() /*: SymbList(256, 1)*/ : P_ShT(0)
 	for(uint i = 0; i < obj_type_list.getCount(); i++) {
 		const PPID obj_type = obj_type_list.get(i);
 		if(PPLoadString(PPSTR_OBJNAMES, (uint)obj_type, name_buf))
-			TitleList.Add(obj_type, name_buf);
+			TitleList.AddFast(obj_type, name_buf); // @v9.9.3 Add-->AddFast
 	}
 	{
 		SString name_list;
 		PPLoadText(PPTXT_CFGNAMES, name_list);
 		StringSet ss(';', name_list);
 		for(uint i = 0, j = 1; ss.get(&i, name_buf) > 0; j++)
-			TitleList.Add(PPOBJ_FIRST_CFG_OBJ + j, name_buf);
+			TitleList.AddFast(PPOBJ_FIRST_CFG_OBJ + j, name_buf); // @v9.9.3 Add-->AddFast
 	}
+	TitleList.SortByID(); // @v9.9.3
 	{
 		P_ShT = PPGetStringHash(PPSTR_HASHTOKEN);
 		/*
@@ -4477,7 +4478,8 @@ int SLAPI PPSession::GetObjectTitle(PPID objType, SString & rBuf)
 				ENTER_CRITICAL_SECTION
 				SString name_buf;
 				if(PPLoadString(PPSTR_OBJNAMES, (uint)objType, name_buf)) {
-					P_ObjIdentBlk->TitleList.Add(objType, name_buf);
+					P_ObjIdentBlk->TitleList.AddFast(objType, name_buf); // @v9.9.3 Add-->AddFast
+					P_ObjIdentBlk->TitleList.SortByID(); // @v9.9.3
 					rBuf = name_buf;
 					found = 1;
 				}

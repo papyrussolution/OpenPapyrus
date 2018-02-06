@@ -3746,7 +3746,11 @@ int FASTCALL SrSyntaxRuleSet::IsOperand(SStrScan & rScan)
 {
 	int    k = 0;
 	ScanSkip(rScan);
-	if(rScan.Is(':')) // concept
+	if(rScan.Is("!::"))
+		k = kConceptSubclass;
+	else if(rScan.Is("!:"))
+		k = kConceptInstance;
+	else if(rScan.Is(':')) // concept
 		k = kConcept;
 	else if(rScan.Is('[')) // morph
 		k = kMorph;
@@ -3764,11 +3768,11 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 	SString temp_buf;
 	ExprStack stack_temp;
 	int    k = IsOperand(rScan);
-	if(k == kConcept) { // concept
+	if(oneof3(k, kConcept, kConceptInstance, kConceptSubclass)) { // concept
 		rScan.Incr();
 		THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_CONCEPTIDEXPECTED); // @err Ожидается идент концепции
 		{
-			ExprItem item(kConcept);
+			ExprItem item(k);
 			AddS(temp_buf, &item.SymbP);
 			stack_temp.push(item);
 		}

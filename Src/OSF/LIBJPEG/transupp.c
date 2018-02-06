@@ -1,7 +1,7 @@
 /*
  * transupp.c
  *
- * Copyright (C) 1997-2013, Thomas G. Lane, Guido Vollbeding.
+ * Copyright (C) 1997-2017, Thomas G. Lane, Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -11,10 +11,11 @@
  * ease the task of maintaining jpegtran-like programs that have other user
  * interfaces.
  */
-
-/* Although this file really shouldn't have access to the library internals,
- * it's helpful to let it call jround_up() and jcopy_block_row().
- */
+// 
+// Although this file really shouldn't have access to the library internals,
+// it's helpful to let it call jround_up() and jcopy_block_row().
+// 
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
@@ -22,7 +23,6 @@
 //#include <ctype.h>		/* to declare isdigit() */
 
 #if TRANSFORMS_SUPPORTED
-
 /*
  * Lossless image transformation routines.  These routines work on DCT
  * coefficient arrays and thus do not require any lossy decompression
@@ -100,10 +100,7 @@ static void do_crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, JDIMENSION
 	}
 }
 
-static void do_crop_ext(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
-    JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
-    jvirt_barray_ptr *src_coef_arrays,
-    jvirt_barray_ptr *dst_coef_arrays)
+static void do_crop_ext(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, JDIMENSION x_crop_offset, JDIMENSION y_crop_offset, jvirt_barray_ptr *src_coef_arrays, jvirt_barray_ptr *dst_coef_arrays)
 /* Crop.  This is only used when no rotate/flip is requested with the crop.
  * Extension: If the destination size is larger than the source, we fill in
  * the extra area with zero (neutral gray).  Note we also have to zero partial
@@ -158,11 +155,8 @@ static void do_crop_ext(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 	}
 }
 
-static void do_wipe(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
-    JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
-    jvirt_barray_ptr *src_coef_arrays,
-    JDIMENSION drop_width, JDIMENSION drop_height)
-/* Wipe - drop content of specified area, fill with zero (neutral gray) */
+/* @v9c static void do_wipe(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
+    jvirt_barray_ptr *src_coef_arrays, JDIMENSION drop_width, JDIMENSION drop_height)
 {
 	JDIMENSION comp_width, comp_height;
 	JDIMENSION blk_y, x_wipe_blocks, y_wipe_blocks;
@@ -183,11 +177,76 @@ static void do_wipe(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
 			}
 		}
 	}
+}*/
+// @v9c {
+//
+// Wipe - drop content of specified area, fill with zero (neutral gray) 
+//
+static void do_wipe(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, JDIMENSION x_crop_offset, JDIMENSION y_crop_offset,
+    jvirt_barray_ptr *src_coef_arrays, JDIMENSION drop_width, JDIMENSION drop_height)
+{
+	for(int ci = 0; ci < dstinfo->num_components; ci++) {
+		jpeg_component_info * compptr = dstinfo->comp_info + ci;
+		JDIMENSION x_wipe_blocks = x_crop_offset * compptr->h_samp_factor;
+		JDIMENSION wipe_width = drop_width * compptr->h_samp_factor;
+		JDIMENSION y_wipe_blocks = y_crop_offset * compptr->v_samp_factor;
+		JDIMENSION wipe_bottom = drop_height * compptr->v_samp_factor + y_wipe_blocks;
+		for(; y_wipe_blocks < wipe_bottom; y_wipe_blocks += compptr->v_samp_factor) {
+			JBLOCKARRAY buffer = (*srcinfo->mem->access_virt_barray)((j_common_ptr) srcinfo, src_coef_arrays[ci], y_wipe_blocks, (JDIMENSION)compptr->v_samp_factor, TRUE);
+			for(int offset_y = 0; offset_y < compptr->v_samp_factor; offset_y++) {
+				FMEMZERO(buffer[offset_y] + x_wipe_blocks,
+				wipe_width * SIZEOF(JBLOCK));
+			}
+		}
+	}
 }
+//
+// Flatten - drop content of specified area, similar to wipe,
+// but fill with average of adjacent blocks, instead of zero.
+//
+LOCAL(void) do_flatten(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
+	JDIMENSION x_crop_offset, JDIMENSION y_crop_offset, jvirt_barray_ptr *src_coef_arrays, JDIMENSION drop_width, JDIMENSION drop_height)
+{
+	for(int ci = 0; ci < dstinfo->num_components; ci++) {
+		jpeg_component_info * compptr = dstinfo->comp_info + ci;
+		JDIMENSION x_wipe_blocks = x_crop_offset * compptr->h_samp_factor;
+		JDIMENSION wipe_width = drop_width * compptr->h_samp_factor;
+		JDIMENSION wipe_right = wipe_width + x_wipe_blocks;
+		JDIMENSION y_wipe_blocks = y_crop_offset * compptr->v_samp_factor;
+		JDIMENSION wipe_bottom = drop_height * compptr->v_samp_factor + y_wipe_blocks;
+		for(; y_wipe_blocks < wipe_bottom; y_wipe_blocks += compptr->v_samp_factor) {
+			JBLOCKARRAY buffer = (*srcinfo->mem->access_virt_barray)
+			((j_common_ptr) srcinfo, src_coef_arrays[ci], y_wipe_blocks,
+			(JDIMENSION) compptr->v_samp_factor, TRUE);
+			for(int offset_y = 0; offset_y < compptr->v_samp_factor; offset_y++) {
+				int average;
+				FMEMZERO(buffer[offset_y] + x_wipe_blocks,
+				wipe_width * SIZEOF(JBLOCK));
+				if(x_wipe_blocks > 0) {
+					int dc_left_value = buffer[offset_y][x_wipe_blocks - 1][0];
+					if(wipe_right < compptr->width_in_blocks) {
+						int dc_right_value = buffer[offset_y][wipe_right][0];
+						average = (dc_left_value + dc_right_value) >> 1;
+					} 
+					else {
+						average = dc_left_value;
+					}
+				} 
+				else if(wipe_right < compptr->width_in_blocks) {
+					average = buffer[offset_y][wipe_right][0];
+				} 
+				else 
+					continue;
+				for(JDIMENSION blk_x = x_wipe_blocks; blk_x < wipe_right; blk_x++) {
+					buffer[offset_y][blk_x][0] = (JCOEF)average;
+				}
+			}
+		}
+	}
+}
+// } @v9c
 
-static void do_flip_h_no_crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
-    JDIMENSION x_crop_offset,
-    jvirt_barray_ptr *src_coef_arrays)
+static void do_flip_h_no_crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, JDIMENSION x_crop_offset, jvirt_barray_ptr *src_coef_arrays)
 /* Horizontal flip; done in-place, so no separate dest array is required.
  * NB: this only works when y_crop_offset is zero.
  */
@@ -1400,22 +1459,20 @@ GLOBAL(jvirt_barray_ptr *) jtransform_adjust_parameters(j_decompress_ptr srcinfo
 		return info->workspace_coef_arrays;
 	return src_coef_arrays;
 }
-
-/* Execute the actual transformation, if any.
- *
- * This must be called *after* jpeg_write_coefficients, because it depends
- * on jpeg_write_coefficients to have computed subsidiary values such as
- * the per-component width and height fields in the destination object.
- *
- * Note that some transformations will modify the source data arrays!
- */
-GLOBAL(void) jtransform_execute_transform(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
-    jvirt_barray_ptr *src_coef_arrays, jpeg_transform_info *info)
+// 
+// Execute the actual transformation, if any.
+// 
+// This must be called *after* jpeg_write_coefficients, because it depends
+// on jpeg_write_coefficients to have computed subsidiary values such as
+// the per-component width and height fields in the destination object.
+// 
+// Note that some transformations will modify the source data arrays!
+// 
+GLOBAL(void) jtransform_execute_transform(j_decompress_ptr srcinfo, j_compress_ptr dstinfo, jvirt_barray_ptr *src_coef_arrays, jpeg_transform_info *info)
 {
 	jvirt_barray_ptr * dst_coef_arrays = info->workspace_coef_arrays;
-	/* Note: conditions tested here should match those in switch statement
-	 * in jtransform_request_workspace()
-	 */
+	// Note: conditions tested here should match those in switch statement
+	// in jtransform_request_workspace()
 	switch(info->transform) {
 		case JXFORM_NONE:
 		    if(info->output_width > srcinfo->output_width || info->output_height > srcinfo->output_height)
@@ -1448,31 +1505,35 @@ GLOBAL(void) jtransform_execute_transform(j_decompress_ptr srcinfo, j_compress_p
 		    do_rot_270(srcinfo, dstinfo, info->x_crop_offset, info->y_crop_offset, src_coef_arrays, dst_coef_arrays);
 		    break;
 		case JXFORM_WIPE:
-		    do_wipe(srcinfo, dstinfo, info->x_crop_offset, info->y_crop_offset, src_coef_arrays, info->drop_width, info->drop_height);
+		    // @v9c do_wipe(srcinfo, dstinfo, info->x_crop_offset, info->y_crop_offset, src_coef_arrays, info->drop_width, info->drop_height);
+			// @v9c {
+			if(info->crop_width_set != JCROP_FORCE)
+				do_wipe(srcinfo, dstinfo, info->x_crop_offset, info->y_crop_offset, src_coef_arrays, info->drop_width, info->drop_height);
+			else
+				do_flatten(srcinfo, dstinfo, info->x_crop_offset, info->y_crop_offset, src_coef_arrays, info->drop_width, info->drop_height);
+			// } @v9c 
 		    break;
 	}
 }
-
-/* jtransform_perfect_transform
- *
- * Determine whether lossless transformation is perfectly
- * possible for a specified image and transformation.
- *
- * Inputs:
- *   image_width, image_height: source image dimensions.
- *   MCU_width, MCU_height: pixel dimensions of MCU.
- *   transform: transformation identifier.
- * Parameter sources from initialized jpeg_struct
- * (after reading source header):
- *   image_width = cinfo.image_width
- *   image_height = cinfo.image_height
- *   MCU_width = cinfo.max_h_samp_factor * cinfo.block_size
- *   MCU_height = cinfo.max_v_samp_factor * cinfo.block_size
- * Result:
- *   TRUE = perfect transformation possible
- *   FALSE = perfect transformation not possible
- *           (may use custom action then)
- */
+// 
+// jtransform_perfect_transform
+// 
+// Determine whether lossless transformation is perfectly
+// possible for a specified image and transformation.
+// 
+// Inputs:
+//   image_width, image_height: source image dimensions.
+//   MCU_width, MCU_height: pixel dimensions of MCU.
+//   transform: transformation identifier.
+// Parameter sources from initialized jpeg_struct (after reading source header):
+//   image_width = cinfo.image_width
+//   image_height = cinfo.image_height
+//   MCU_width = cinfo.max_h_samp_factor * cinfo.block_size
+//   MCU_height = cinfo.max_v_samp_factor * cinfo.block_size
+// Result:
+//   TRUE = perfect transformation possible
+//   FALSE = perfect transformation not possible (may use custom action then)
+// 
 GLOBAL(boolean) jtransform_perfect_transform(JDIMENSION image_width, JDIMENSION image_height, int MCU_width, int MCU_height, JXFORM_CODE transform)
 {
 	boolean result = TRUE; /* initialize TRUE */

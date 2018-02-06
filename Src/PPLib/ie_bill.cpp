@@ -1412,7 +1412,7 @@ int SLAPI PPBillImporter::RunUhttImport()
 							cc_pack.Rec.Tm = p_uhtt_pack->Dtm;
 							SETIFZ(cc_pack.Rec.Dt, getcurdate_());
 							SETIFZ(cc_pack.Rec.Tm, getcurtime_());
-							GetCurUserPerson(&cc_pack.Rec.UserID, 0);
+							PPObjPerson::GetCurUserPerson(&cc_pack.Rec.UserID, 0);
 							cc_pack.Rec.Flags |= (CCHKF_DELIVERY|CCHKF_SYNC|CCHKF_SUSPENDED|CCHKF_IMPORTED);
 							{
 								CCheckTbl::Rec last_chk_rec;

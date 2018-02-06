@@ -60,7 +60,6 @@ GLOBAL(long) jpeg_mem_available(j_common_ptr cinfo, long min_bytes_needed, long 
 {
 	return max_bytes_needed;
 }
-
 /*
  * Backing store (temporary file) management.
  * Since jpeg_mem_available always promised the moon,

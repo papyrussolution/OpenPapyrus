@@ -2,7 +2,7 @@
  * jpeglib.h
  *
  * Copyright (C) 1991-1998, Thomas G. Lane.
- * Modified 2002-2015 by Guido Vollbeding.
+ * Modified 2002-2017 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -10,6 +10,7 @@
  * Most applications using the library need only include this file,
  * and perhaps jerror.h if they want to know the exact error codes.
  */
+// @v9c(done)
 #ifndef JPEGLIB_H
 #define JPEGLIB_H
 /*
@@ -33,7 +34,7 @@
 // 
 #define JPEG_LIB_VERSION        90      /* Compatibility version 9.0 */
 #define JPEG_LIB_VERSION_MAJOR  9
-#define JPEG_LIB_VERSION_MINOR  2
+#define JPEG_LIB_VERSION_MINOR  3 // @v9c 2-->3
 // 
 // Various constants determining the sizes of things.
 // All of these are specified by the JPEG standard,
@@ -364,10 +365,10 @@ struct jpeg_compress_struct {
 	int min_DCT_v_scaled_size; /* smallest DCT_v_scaled_size of any component */
 	JDIMENSION total_iMCU_rows; /* # of iMCU rows to be input to coef ctlr */
 	/* The coefficient controller receives data in units of MCU rows as defined
-	 * for fully interleaved scans (whether the JPEG file is interleaved or not).
-	 * There are v_samp_factor * DCTSIZE sample rows of each component in an
-	 * "iMCU" (interleaved MCU) row.
-	 */
+	* for fully interleaved scans (whether the JPEG file is interleaved or not).
+	* There are v_samp_factor * DCT_v_scaled_size sample rows of each component
+	* in an "iMCU" (interleaved MCU) row.
+	*/
 	/*
 	 * These fields are valid during any one scan.
 	 * They describe the components and MCUs actually appearing in the scan.
@@ -944,32 +945,31 @@ EXTERN(boolean) jpeg_resync_to_restart(j_decompress_ptr cinfo, int desired);
 // supplying dummy definitions for the various substructures.
 // 
 #ifdef INCOMPLETE_TYPES_BROKEN
-#ifndef JPEG_INTERNALS          /* will be defined in jpegint.h */
-struct jvirt_sarray_control { long dummy; };
-struct jvirt_barray_control { long dummy; };
-struct jpeg_comp_master { long dummy; };
-struct jpeg_c_main_controller { long dummy; };
-struct jpeg_c_prep_controller { long dummy; };
-struct jpeg_c_coef_controller { long dummy; };
-struct jpeg_marker_writer { long dummy; };
-struct jpeg_color_converter { long dummy; };
-struct jpeg_downsampler { long dummy; };
-struct jpeg_forward_dct { long dummy; };
-struct jpeg_entropy_encoder { long dummy; };
-struct jpeg_decomp_master { long dummy; };
-struct jpeg_d_main_controller { long dummy; };
-struct jpeg_d_coef_controller { long dummy; };
-struct jpeg_d_post_controller { long dummy; };
-struct jpeg_input_controller { long dummy; };
-struct jpeg_marker_reader { long dummy; };
-struct jpeg_entropy_decoder { long dummy; };
-struct jpeg_inverse_dct { long dummy; };
-struct jpeg_upsampler { long dummy; };
-struct jpeg_color_deconverter { long dummy; };
-struct jpeg_color_quantizer { long dummy; };
-
-#endif /* JPEG_INTERNALS */
-#endif /* INCOMPLETE_TYPES_BROKEN */
+	#ifndef JPEG_INTERNALS          /* will be defined in jpegint.h */
+		struct jvirt_sarray_control { long dummy; };
+		struct jvirt_barray_control { long dummy; };
+		struct jpeg_comp_master { long dummy; };
+		struct jpeg_c_main_controller { long dummy; };
+		struct jpeg_c_prep_controller { long dummy; };
+		struct jpeg_c_coef_controller { long dummy; };
+		struct jpeg_marker_writer { long dummy; };
+		struct jpeg_color_converter { long dummy; };
+		struct jpeg_downsampler { long dummy; };
+		struct jpeg_forward_dct { long dummy; };
+		struct jpeg_entropy_encoder { long dummy; };
+		struct jpeg_decomp_master { long dummy; };
+		struct jpeg_d_main_controller { long dummy; };
+		struct jpeg_d_coef_controller { long dummy; };
+		struct jpeg_d_post_controller { long dummy; };
+		struct jpeg_input_controller { long dummy; };
+		struct jpeg_marker_reader { long dummy; };
+		struct jpeg_entropy_decoder { long dummy; };
+		struct jpeg_inverse_dct { long dummy; };
+		struct jpeg_upsampler { long dummy; };
+		struct jpeg_color_deconverter { long dummy; };
+		struct jpeg_color_quantizer { long dummy; };
+	#endif
+#endif
 // 
 // The JPEG library modules define JPEG_INTERNALS before including this file.
 // The internal structure declarations are read only when that is true.

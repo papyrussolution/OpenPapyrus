@@ -1,9 +1,11 @@
 // STOOLTI.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2010, 2011, 2016, 2017
+// Copyright (c) A.Starodub 2008, 2009, 2010, 2011, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
 #pragma hdrstop
+
+#define STOOLTIP_USE_FIG
 
 STooltip::STooltip() : HwndTT(0), Parent(0)
 {
@@ -24,13 +26,12 @@ int STooltip::Init(HWND parent)
 	return BIN(HwndTT);
 }
 
-int STooltip::Destroy()
+void STooltip::Destroy()
 {
 	if(HwndTT)
-		DestroyWindow(HwndTT);
+		::DestroyWindow(HwndTT);
 	HwndTT = 0;
 	Parent = 0;
-	return 1;
 }
 
 int STooltip::Add(const char * pText, const RECT * pRect, long id)
@@ -68,9 +69,8 @@ int STooltip::Remove(long id)
 
 SMessageWindow::SMessageWindow() : HWnd(0), Cmd(0), Extra(0), Brush(0), Font(0), P_Image(0), PrevImgProc(0)
 {
-	PrevMouseCoord.x = 0; // @v9.0.6
-	PrevMouseCoord.y = 0; // @v9.0.6
-	MEMSZERO(PrevMouseCoord);
+	PrevMouseCoord.x = 0;
+	PrevMouseCoord.y = 0;
 }
 
 SMessageWindow::~SMessageWindow()
@@ -105,8 +105,7 @@ BOOL CALLBACK FindWindowByID(HWND hwnd, LPARAM lParam)
 
 static BOOL CALLBACK CloseTooltipWnd(HWND hwnd, LPARAM lParam)
 {
-	HWND parent = GetParent(hwnd);
-	if(!lParam || GetParent(hwnd) == (HWND)lParam)
+	if(!lParam || ::GetParent(hwnd) == (HWND)lParam)
 		SendMessage(hwnd, WM_USER_CLOSE_TOOLTIPMSGWIN, (WPARAM)0, (LPARAM)0);
 	return TRUE;
 }
@@ -132,9 +131,42 @@ LRESULT CALLBACK ImgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_PAINT:
 			{
 				PAINTSTRUCT ps;
-				BeginPaint(hWnd, (LPPAINTSTRUCT)&ps);
+				::BeginPaint(hWnd, (LPPAINTSTRUCT)&ps);
+#ifdef STOOLTIP_USE_FIG
+				SDrawFigure * p_fig = (SDrawFigure *)p_wnd->GetImage();
+				if(p_fig) {
+					RECT rc;
+					::GetClientRect(hWnd, &rc);
+					const  TRect rect_elem_i = rc;
+					const  FRect rect_elem = rc;
+					FRect pic_bounds = rect_elem;
+					APPL->InitUiToolBox();
+					SPaintToolBox & r_tb = APPL->GetUiToolBox();
+					TCanvas2 canv(r_tb, ps.hdc);
+					LMatrix2D mtx;
+					SViewPort vp;
+					canv.PushTransform();
+					p_fig->GetViewPort(&vp);
+					{
+                        pic_bounds.a.X = 0.0f;
+                        pic_bounds.a.Y = 0.0f;
+						if(vp.GetSize().X <= rect_elem.Width() && vp.GetSize().Y <= rect_elem.Height()) {
+							pic_bounds.b.X = vp.GetSize().X;
+							pic_bounds.b.Y = vp.GetSize().Y;
+							pic_bounds.MoveCenterTo(rect_elem.GetCenter());
+						}
+						else {
+
+						}
+					}
+					canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
+					canv.Draw(p_fig);
+					canv.PopTransform();
+				}
+#else
 				((SImage*)p_wnd->GetImage())->Draw(hWnd, 0);
-				EndPaint(hWnd, (LPPAINTSTRUCT)&ps);
+#endif
+				::EndPaint(hWnd, (LPPAINTSTRUCT)&ps);
 			}
 			return 0;
 	}
@@ -190,6 +222,18 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 			h_img = 0;
 		}
 		else {
+#ifdef STOOLTIP_USE_FIG
+			SDrawFigure * p_fig = SDrawFigure::CreateFromFile(ImgPath, 0);
+			P_Image = p_fig;
+			if(p_fig) {
+				SViewPort vp;
+				p_fig->GetViewPort(&vp);
+				img_height = vp.Height();
+				img_width = vp.Width();
+				TView::SetWindowProp(h_img, GWLP_USERDATA, this);
+				PrevImgProc = (WNDPROC)TView::SetWindowProp(h_img, GWLP_WNDPROC, ImgProc);
+			}
+#else
 			SImage * p_img = new SImage();
 			P_Image = p_img;
 			p_img->Init();
@@ -197,9 +241,7 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 			img_height = p_img->GetHeight(); // @v9.5.10 
 			img_width = p_img->GetWidth(); // @v9.5.10
 			p_img->SetClearColor(Color);
-			// @v9.1.11 SetWindowLong(h_img, GWLP_USERDATA, (long)this);
-			TView::SetWindowProp(h_img, GWLP_USERDATA, this); // @v9.1.11
-			// @v9.1.11 PrevImgProc = (WNDPROC)SetWindowLong(h_img, GWLP_WNDPROC, (long)ImgProc);
+			TView::SetWindowProp(h_img, GWLP_USERDATA, this);
 			PrevImgProc = (WNDPROC)TView::SetWindowProp(h_img, GWLP_WNDPROC, ImgProc);
 			// @v9.5.10 @construction {
 			if(flags & SMessageWindow::fMaxImgSize && img_height > 0.0 && img_width > 0.0) {
@@ -212,6 +254,7 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 				}
 			}
 			// } @v9.5.10 @construction 
+#endif
 		}
 		if(h_ctl) {
 			if(Flags & SMessageWindow::fTextAlignLeft) {
@@ -272,7 +315,11 @@ int SMessageWindow::Destroy()
 		HWND h_img = GetDlgItem(HWnd, 1202/*CTL_TOOLTIP_IMAGE*/);
 		// @v9.1.11 SetWindowLong(h_img, GWLP_WNDPROC, (long)PrevImgProc);
 		TView::SetWindowProp(h_img, GWLP_WNDPROC, PrevImgProc); // @v9.1.11
-		delete (SImage*)P_Image;
+#ifdef STOOLTIP_USE_FIG
+		delete (SDrawFigure *)P_Image;
+#else
+		delete (SImage *)P_Image;
+#endif
 	}
 	HWnd  = 0;
 	Text  = 0;
@@ -286,7 +333,6 @@ int SMessageWindow::Destroy()
 int SMessageWindow::Move()
 {
 	if(HWnd) {
-		int    toolt_h = 0, toolt_w = 0;
 		RECT   toolt_rect;
 		RECT   parent_rect;
 		RECT   img_rect;
@@ -297,10 +343,9 @@ int SMessageWindow::Move()
 		::GetWindowRect(GetParent(HWnd), &parent_rect);
 		::GetWindowRect(h_img, &img_rect);
 
-		int top_delta = h_img ? (img_rect.bottom - img_rect.top) : 0;
-
-		toolt_h = toolt_rect.bottom - toolt_rect.top;
-		toolt_w = toolt_rect.right  - toolt_rect.left;
+		int    top_delta = h_img ? (img_rect.bottom - img_rect.top) : 0;
+		int    toolt_h = toolt_rect.bottom - toolt_rect.top;
+		int    toolt_w = toolt_rect.right  - toolt_rect.left;
 		if(h_img == 0) {
 			toolt_h = 100;
 			toolt_w = 100;

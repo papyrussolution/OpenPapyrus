@@ -2,7 +2,7 @@
  * rdppm.c
  *
  * Copyright (C) 1991-1997, Thomas G. Lane.
- * Modified 2009 by Bill Allombert, Guido Vollbeding.
+ * Modified 2009-2017 by Bill Allombert, Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -18,6 +18,7 @@
  * user interface has already read some data (e.g., to determine that
  * the file is indeed PPM format).
  */
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
@@ -39,20 +40,18 @@
 /* Macros to deal with unsigned chars as efficiently as compiler allows */
 
 #ifdef HAVE_UNSIGNED_CHAR
-typedef uchar U_CHAR;
-#define UCH(x)  ((int)(x))
+	typedef uchar U_CHAR;
+	#define UCH(x)  ((int)(x))
 #else /* !HAVE_UNSIGNED_CHAR */
-#ifdef CHAR_IS_UNSIGNED
-typedef char U_CHAR;
-#define UCH(x)  ((int)(x))
-#else
-typedef char U_CHAR;
-#define UCH(x)  ((int)(x) & 0xFF)
-#endif
+	#ifdef CHAR_IS_UNSIGNED
+		typedef char U_CHAR;
+		#define UCH(x)  ((int)(x))
+	#else
+		typedef char U_CHAR;
+		#define UCH(x)  ((int)(x) & 0xFF)
+	#endif
 #endif /* HAVE_UNSIGNED_CHAR */
-
 #define ReadOK(file, buffer, len) (JFREAD(file, buffer, len) == ((size_t)(len)))
-
 /*
  * On most systems, reading individual bytes with getc() is drastically less
  * efficient than buffering a row at a time with fread().  On PCs, we must
@@ -71,6 +70,7 @@ typedef struct {
 	JSAMPROW pixrow;        /* FAR pointer to same */
 	size_t buffer_width;    /* width of I/O buffer */
 	JSAMPLE * rescale;      /* => maxval-remapping array, or NULL */
+	unsigned int maxval; // @v9c
 } ppm_source_struct;
 
 typedef ppm_source_struct * ppm_source_ptr;
@@ -120,25 +120,42 @@ LOCAL(uint) read_pbm_integer(j_compress_ptr cinfo, FILE * infile)
  * A really fast path is provided for reading byte/sample raw files with
  * maxval = MAXJSAMPLE, which is the normal case for 8-bit data.
  */
-
-METHODDEF(JDIMENSION) get_text_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
-/* This version is for reading text-format PGM files with any maxval */
+/* @v9c METHODDEF(JDIMENSION) get_text_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+// This version is for reading text-format PGM files with any maxval 
 {
 	ppm_source_ptr source = (ppm_source_ptr)sinfo;
 	FILE * infile = source->pub.input_file;
 	register JSAMPROW ptr;
 	register JSAMPLE * rescale = source->rescale;
 	JDIMENSION col;
-
 	ptr = source->pub.buffer[0];
 	for(col = cinfo->image_width; col > 0; col--) {
 		*ptr++ = rescale[read_pbm_integer(cinfo, infile)];
 	}
 	return 1;
+}*/
+// @v9c {
+METHODDEF(JDIMENSION) get_text_gray_row (j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+// This version is for reading text-format PGM files with any maxval */
+{
+	ppm_source_ptr source = (ppm_source_ptr) sinfo;
+	FILE * infile = source->pub.input_file;
+	JSAMPLE *rescale = source->rescale;
+	unsigned int maxval = source->maxval;
+	JDIMENSION col;
+	JSAMPROW ptr = source->pub.buffer[0];
+	for(col = cinfo->image_width; col > 0; col--) {
+		unsigned int temp = read_pbm_integer(cinfo, infile);
+		if(temp > maxval)
+			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
+		*ptr++ = rescale[temp];
+	}
+	return 1;
 }
+// } @v9c 
 
-METHODDEF(JDIMENSION) get_text_rgb_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
-/* This version is for reading text-format PPM files with any maxval */
+/* @v9c METHODDEF(JDIMENSION) get_text_rgb_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+// This version is for reading text-format PPM files with any maxval 
 {
 	ppm_source_ptr source = (ppm_source_ptr)sinfo;
 	FILE * infile = source->pub.input_file;
@@ -151,10 +168,37 @@ METHODDEF(JDIMENSION) get_text_rgb_row(j_compress_ptr cinfo, cjpeg_source_ptr si
 		*ptr++ = rescale[read_pbm_integer(cinfo, infile)];
 	}
 	return 1;
+}*/
+// @v9c {
+METHODDEF(JDIMENSION) get_text_rgb_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+// This version is for reading text-format PPM files with any maxval 
+{
+	ppm_source_ptr source = (ppm_source_ptr) sinfo;
+	FILE * infile = source->pub.input_file;
+	JSAMPLE *rescale = source->rescale;
+	unsigned int maxval = source->maxval;
+	JDIMENSION col;
+	JSAMPROW ptr = source->pub.buffer[0];
+	for(col = cinfo->image_width; col > 0; col--) {
+		unsigned int temp = read_pbm_integer(cinfo, infile);
+		if(temp > maxval)
+			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
+		*ptr++ = rescale[temp];
+		temp = read_pbm_integer(cinfo, infile);
+		if(temp > maxval)
+			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
+		*ptr++ = rescale[temp];
+		temp = read_pbm_integer(cinfo, infile);
+		if(temp > maxval)
+			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
+		*ptr++ = rescale[temp];
+	}
+	return 1;
 }
+// } @v9c 
 
-METHODDEF(JDIMENSION) get_scaled_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
-/* This version is for reading raw-byte-format PGM files with any maxval */
+/* @v9c METHODDEF(JDIMENSION) get_scaled_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+// This version is for reading raw-byte-format PGM files with any maxval 
 {
 	ppm_source_ptr source = (ppm_source_ptr)sinfo;
 	JSAMPROW ptr;
@@ -169,10 +213,34 @@ METHODDEF(JDIMENSION) get_scaled_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr
 		*ptr++ = rescale[UCH(*bufferptr++)];
 	}
 	return 1;
-}
+}*/
 
-METHODDEF(JDIMENSION) get_scaled_rgb_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
-/* This version is for reading raw-byte-format PPM files with any maxval */
+// @v9c {
+METHODDEF(JDIMENSION) get_scaled_gray_row (j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+// This version is for reading raw-byte-format PGM files with any maxval 
+{
+	ppm_source_ptr source = (ppm_source_ptr) sinfo;
+	JSAMPROW ptr;
+	U_CHAR * bufferptr;
+	JSAMPLE *rescale = source->rescale;
+	unsigned int maxval = source->maxval;
+	JDIMENSION col;
+	if(!ReadOK(source->pub.input_file, source->iobuffer, source->buffer_width))
+		ERREXIT(cinfo, JERR_INPUT_EOF);
+	ptr = source->pub.buffer[0];
+	bufferptr = source->iobuffer;
+	for(col = cinfo->image_width; col > 0; col--) {
+		unsigned int temp = (unsigned int)UCH(*bufferptr++);
+		if(temp > maxval)
+			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
+		*ptr++ = rescale[temp];
+	}
+	return 1;
+}
+// } @v9c 
+
+/* @v9c METHODDEF(JDIMENSION) get_scaled_rgb_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+// This version is for reading raw-byte-format PPM files with any maxval 
 {
 	ppm_source_ptr source = (ppm_source_ptr)sinfo;
 	JSAMPROW ptr;
@@ -189,7 +257,38 @@ METHODDEF(JDIMENSION) get_scaled_rgb_row(j_compress_ptr cinfo, cjpeg_source_ptr 
 		*ptr++ = rescale[UCH(*bufferptr++)];
 	}
 	return 1;
+}*/
+// @v9c {
+METHODDEF(JDIMENSION) get_scaled_rgb_row (j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+// This version is for reading raw-byte-format PPM files with any maxval 
+{
+	ppm_source_ptr source = (ppm_source_ptr) sinfo;
+	JSAMPROW ptr;
+	U_CHAR * bufferptr;
+	JSAMPLE *rescale = source->rescale;
+	unsigned int maxval = source->maxval;
+	JDIMENSION col;
+	if(!ReadOK(source->pub.input_file, source->iobuffer, source->buffer_width))
+		ERREXIT(cinfo, JERR_INPUT_EOF);
+	ptr = source->pub.buffer[0];
+	bufferptr = source->iobuffer;
+	for(col = cinfo->image_width; col > 0; col--) {
+		unsigned int temp = (unsigned int) UCH(*bufferptr++);
+		if(temp > maxval)
+			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
+		*ptr++ = rescale[temp];
+		temp = (unsigned int) UCH(*bufferptr++);
+		if(temp > maxval)
+			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
+		*ptr++ = rescale[temp];
+		temp = (unsigned int) UCH(*bufferptr++);
+		if(temp > maxval)
+			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
+		*ptr++ = rescale[temp];
+	}
+	return 1;
 }
+// } @v9c 
 
 METHODDEF(JDIMENSION) get_raw_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 /* This version is for reading raw-byte-format files with maxval = MAXJSAMPLE.
@@ -203,8 +302,8 @@ METHODDEF(JDIMENSION) get_raw_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	return 1;
 }
 
-METHODDEF(JDIMENSION) get_word_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
-/* This version is for reading raw-word-format PGM files with any maxval */
+/* @v9c METHODDEF(JDIMENSION) get_word_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+// This version is for reading raw-word-format PGM files with any maxval 
 {
 	ppm_source_ptr source = (ppm_source_ptr)sinfo;
 	JSAMPROW ptr;
@@ -222,10 +321,34 @@ METHODDEF(JDIMENSION) get_word_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr s
 		*ptr++ = rescale[temp];
 	}
 	return 1;
+}*/
+// @v9c {
+METHODDEF(JDIMENSION) get_word_gray_row (j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+// This version is for reading raw-word-format PGM files with any maxval 
+{
+	ppm_source_ptr source = (ppm_source_ptr) sinfo;
+	JSAMPROW ptr;
+	U_CHAR * bufferptr;
+	JSAMPLE *rescale = source->rescale;
+	unsigned int maxval = source->maxval;
+	JDIMENSION col;
+	if(!ReadOK(source->pub.input_file, source->iobuffer, source->buffer_width))
+		ERREXIT(cinfo, JERR_INPUT_EOF);
+	ptr = source->pub.buffer[0];
+	bufferptr = source->iobuffer;
+	for(col = cinfo->image_width; col > 0; col--) {
+		unsigned int temp = ((unsigned int) UCH(*bufferptr++)) << 8;
+		temp |= (unsigned int) UCH(*bufferptr++);
+		if(temp > maxval)
+			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
+		*ptr++ = rescale[temp];
+	}
+	return 1;
 }
+// } @v9c 
 
-METHODDEF(JDIMENSION) get_word_rgb_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
-/* This version is for reading raw-word-format PPM files with any maxval */
+/* @v9c METHODDEF(JDIMENSION) get_word_rgb_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+// This version is for reading raw-word-format PPM files with any maxval 
 {
 	ppm_source_ptr source = (ppm_source_ptr)sinfo;
 	JSAMPROW ptr;
@@ -249,7 +372,41 @@ METHODDEF(JDIMENSION) get_word_rgb_row(j_compress_ptr cinfo, cjpeg_source_ptr si
 		*ptr++ = rescale[temp];
 	}
 	return 1;
+}*/
+// @v9c {
+METHODDEF(JDIMENSION) get_word_rgb_row (j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
+// This version is for reading raw-word-format PPM files with any maxval 
+{
+	ppm_source_ptr source = (ppm_source_ptr) sinfo;
+	JSAMPROW ptr;
+	U_CHAR * bufferptr;
+	JSAMPLE *rescale = source->rescale;
+	unsigned int maxval = source->maxval;
+	JDIMENSION col;
+	if(! ReadOK(source->pub.input_file, source->iobuffer, source->buffer_width))
+		ERREXIT(cinfo, JERR_INPUT_EOF);
+	ptr = source->pub.buffer[0];
+	bufferptr = source->iobuffer;
+	for(col = cinfo->image_width; col > 0; col--) {
+		unsigned int temp = ((unsigned int) UCH(*bufferptr++)) << 8;
+		temp |= (unsigned int) UCH(*bufferptr++);
+		if(temp > maxval)
+			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
+		*ptr++ = rescale[temp];
+		temp = ((unsigned int) UCH(*bufferptr++)) << 8;
+		temp |= (unsigned int) UCH(*bufferptr++);
+		if(temp > maxval)
+			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
+		*ptr++ = rescale[temp];
+		temp = ((unsigned int) UCH(*bufferptr++)) << 8;
+		temp |= (unsigned int) UCH(*bufferptr++);
+		if(temp > maxval)
+			ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
+		*ptr++ = rescale[temp];
+	}
+	return 1;
 }
+// } @v9c 
 /*
  * Read the file header; return image size and component count.
  */
@@ -262,7 +419,7 @@ METHODDEF(void) start_input_ppm(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	if(getc(source->pub.input_file) != 'P')
 		ERREXIT(cinfo, JERR_PPM_NOT);
 	c = getc(source->pub.input_file); /* subformat discriminator character */
-	/* detect unsupported variants (ie, PBM) before trying to read header */
+	// detect unsupported variants (ie, PBM) before trying to read header 
 	switch(c) {
 		case '2':       /* it's a text-format PGM file */
 		case '3':       /* it's a text-format PPM file */
@@ -273,20 +430,21 @@ METHODDEF(void) start_input_ppm(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 		    ERREXIT(cinfo, JERR_PPM_NOT);
 		    break;
 	}
-
-	/* fetch the remaining header info */
+	// fetch the remaining header info 
 	w = read_pbm_integer(cinfo, source->pub.input_file);
 	h = read_pbm_integer(cinfo, source->pub.input_file);
 	maxval = read_pbm_integer(cinfo, source->pub.input_file);
-
 	if(w <= 0 || h <= 0 || maxval <= 0) /* error check */
 		ERREXIT(cinfo, JERR_PPM_NOT);
-
+	// @v9c {
+	if(((long) w >> 24) || /* sanity check for buffer allocation below */ ((long) maxval >> 16)) /* support max 16-bit (2-byte) sample values */
+		ERREXIT(cinfo, JERR_PPM_OUTOFRANGE);
+	// } @v9c 
 	cinfo->data_precision = BITS_IN_JSAMPLE; /* we always rescale data to this */
 	cinfo->image_width = (JDIMENSION)w;
 	cinfo->image_height = (JDIMENSION)h;
-
-	/* initialize flags to most common settings */
+	source->maxval = maxval; // @v9c
+	// initialize flags to most common settings 
 	need_iobuffer = TRUE;   /* do we need an I/O buffer? */
 	use_raw_buffer = FALSE; /* do we map input buffer onto I/O buffer? */
 	need_rescale = TRUE;    /* do we need a rescale array? */
@@ -342,17 +500,13 @@ METHODDEF(void) start_input_ppm(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 		    }
 		    break;
 	}
-
-	/* Allocate space for I/O buffer: 1 or 3 bytes or words/pixel. */
+	// Allocate space for I/O buffer: 1 or 3 bytes or words/pixel. 
 	if(need_iobuffer) {
-		source->buffer_width = (size_t)w * cinfo->input_components *
-		    ((maxval<=255) ? SIZEOF(U_CHAR) : (2*SIZEOF(U_CHAR)));
-		source->iobuffer = (U_CHAR*)
-		    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-		    source->buffer_width);
+		source->buffer_width = (size_t)w * cinfo->input_components * ((maxval<=255) ? SIZEOF(U_CHAR) : (2*SIZEOF(U_CHAR)));
+		// @v9c source->iobuffer = (U_CHAR*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, source->buffer_width);
+		source->iobuffer = (U_CHAR *)(*cinfo->mem->alloc_small)((j_common_ptr) cinfo, JPOOL_IMAGE, source->buffer_width); // @v9c
 	}
-
-	/* Create compressor input buffer. */
+	// Create compressor input buffer. 
 	if(use_raw_buffer) {
 		/* For unscaled raw-input case, we can just map it onto the I/O buffer. */
 		/* Synthesize a JSAMPARRAY pointer structure */
@@ -369,8 +523,9 @@ METHODDEF(void) start_input_ppm(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	/* Compute the rescaling array if required. */
 	if(need_rescale) {
 		INT32 val, half_maxval;
-		/* On 16-bit-int machines we have to be careful of maxval = 65535 */
-		source->rescale = (JSAMPLE*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (size_t)(((long)maxval + 1L) * SIZEOF(JSAMPLE)));
+		// On 16-bit-int machines we have to be careful of maxval = 65535 
+		// @v9c source->rescale = (JSAMPLE*)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (size_t)(((long)maxval + 1L) * SIZEOF(JSAMPLE)));
+		source->rescale = (JSAMPLE *)(*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE, (size_t) (((long) maxval + 1L) * SIZEOF(JSAMPLE))); // @v9c
 		half_maxval = maxval / 2;
 		for(val = 0; val <= (INT32)maxval; val++) {
 			/* The multiplication here must be done in 32 bits to avoid overflow */
@@ -390,12 +545,13 @@ METHODDEF(void) finish_input_ppm(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
  */
 GLOBAL(cjpeg_source_ptr) jinit_read_ppm(j_compress_ptr cinfo)
 {
-	/* Create module interface object */
+	// Create module interface object 
 	ppm_source_ptr source = (ppm_source_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(ppm_source_struct));
 	/* Fill in method ptrs, except get_pixel_rows which start_input sets */
 	source->pub.start_input = start_input_ppm;
 	source->pub.finish_input = finish_input_ppm;
-	return (cjpeg_source_ptr)source;
+	// @v9c return (cjpeg_source_ptr)source;
+	return &source->pub; // @v9c
 }
 
 #endif /* PPM_SUPPORTED */

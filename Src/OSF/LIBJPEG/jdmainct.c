@@ -2,7 +2,7 @@
  * jdmainct.c
  *
  * Copyright (C) 1994-1996, Thomas G. Lane.
- * Modified 2002-2012 by Guido Vollbeding.
+ * Modified 2002-2016 by Guido Vollbeding.
  * This file is part of the Independent JPEG Group's software.
  * For conditions of distribution and use, see the accompanying README file.
  *
@@ -13,101 +13,103 @@
  * Note that this code is bypassed in raw-data mode, since the application
  * supplies the equivalent of the main buffer in that case.
  */
+// @v9c(done)
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
 /*
- * In the current system design, the main buffer need never be a full-image
- * buffer; any full-height buffers will be found inside the coefficient or
- * postprocessing controllers.  Nonetheless, the main controller is not
- * trivial.  Its responsibility is to provide context rows for upsampling/
- * rescaling, and doing this in an efficient fashion is a bit tricky.
- *
- * Postprocessor input data is counted in "row groups".  A row group
- * is defined to be (v_samp_factor * DCT_scaled_size / min_DCT_scaled_size)
- * sample rows of each component.  (We require DCT_scaled_size values to be
- * chosen such that these numbers are integers.  In practice DCT_scaled_size
- * values will likely be powers of two, so we actually have the stronger
- * condition that DCT_scaled_size / min_DCT_scaled_size is an integer.)
- * Upsampling will typically produce max_v_samp_factor pixel rows from each
- * row group (times any additional scale factor that the upsampler is
- * applying).
- *
- * The coefficient controller will deliver data to us one iMCU row at a time;
- * each iMCU row contains v_samp_factor * DCT_scaled_size sample rows, or
- * exactly min_DCT_scaled_size row groups.  (This amount of data corresponds
- * to one row of MCUs when the image is fully interleaved.)  Note that the
- * number of sample rows varies across components, but the number of row
- * groups does not.  Some garbage sample rows may be included in the last iMCU
- * row at the bottom of the image.
- *
- * Depending on the vertical scaling algorithm used, the upsampler may need
- * access to the sample row(s) above and below its current input row group.
- * The upsampler is required to set need_context_rows TRUE at global selection
- * time if so.  When need_context_rows is FALSE, this controller can simply
- * obtain one iMCU row at a time from the coefficient controller and dole it
- * out as row groups to the postprocessor.
- *
- * When need_context_rows is TRUE, this controller guarantees that the buffer
- * passed to postprocessing contains at least one row group's worth of samples
- * above and below the row group(s) being processed.  Note that the context
- * rows "above" the first passed row group appear at negative row offsets in
- * the passed buffer.  At the top and bottom of the image, the required
- * context rows are manufactured by duplicating the first or last real sample
- * row; this avoids having special cases in the upsampling inner loops.
- *
- * The amount of context is fixed at one row group just because that's a
- * convenient number for this controller to work with.  The existing
- * upsamplers really only need one sample row of context.  An upsampler
- * supporting arbitrary output rescaling might wish for more than one row
- * group of context when shrinking the image; tough, we don't handle that.
- * (This is justified by the assumption that downsizing will be handled mostly
- * by adjusting the DCT_scaled_size values, so that the actual scale factor at
- * the upsample step needn't be much less than one.)
- *
- * To provide the desired context, we have to retain the last two row groups
- * of one iMCU row while reading in the next iMCU row.  (The last row group
- * can't be processed until we have another row group for its below-context,
- * and so we have to save the next-to-last group too for its above-context.)
- * We could do this most simply by copying data around in our buffer, but
- * that'd be very slow.  We can avoid copying any data by creating a rather
- * strange pointer structure.  Here's how it works.  We allocate a workspace
- * consisting of M+2 row groups (where M = min_DCT_scaled_size is the number
- * of row groups per iMCU row).  We create two sets of redundant pointers to
- * the workspace.  Labeling the physical row groups 0 to M+1, the synthesized
- * pointer lists look like this:
- *                   M+1                          M-1
- * master pointer --> 0         master pointer --> 0
- *                    1                            1
- *                   ...                          ...
- *                   M-3                          M-3
- *                   M-2                           M
- *                   M-1                          M+1
- *                    M                           M-2
- *                   M+1                          M-1
- *                    0                            0
- * We read alternate iMCU rows using each master pointer; thus the last two
- * row groups of the previous iMCU row remain un-overwritten in the workspace.
- * The pointer lists are set up so that the required context rows appear to
- * be adjacent to the proper places when we pass the pointer lists to the
- * upsampler.
- *
- * The above pictures describe the normal state of the pointer lists.
- * At top and bottom of the image, we diddle the pointer lists to duplicate
- * the first or last sample row as necessary (this is cheaper than copying
- * sample rows around).
- *
- * This scheme breaks down if M < 2, ie, min_DCT_scaled_size is 1.  In that
- * situation each iMCU row provides only one row group so the buffering logic
- * must be different (eg, we must read two iMCU rows before we can emit the
- * first row group).  For now, we simply do not support providing context
- * rows when min_DCT_scaled_size is 1.  That combination seems unlikely to
- * be worth providing --- if someone wants a 1/8th-size preview, they probably
- * want it quick and dirty, so a context-free upsampler is sufficient.
- */
-
-/* Private buffer controller object */
-
+* In the current system design, the main buffer need never be a full-image
+* buffer; any full-height buffers will be found inside the coefficient or
+* postprocessing controllers.  Nonetheless, the main controller is not
+* trivial.  Its responsibility is to provide context rows for upsampling/
+* rescaling, and doing this in an efficient fashion is a bit tricky.
+*
+* Postprocessor input data is counted in "row groups".  A row group is
+* defined to be (v_samp_factor * DCT_v_scaled_size / min_DCT_v_scaled_size)
+* sample rows of each component.  (We require DCT_scaled_size values to be
+* chosen such that these numbers are integers.  In practice DCT_scaled_size
+* values will likely be powers of two, so we actually have the stronger
+* condition that DCT_scaled_size / min_DCT_scaled_size is an integer.)
+* Upsampling will typically produce max_v_samp_factor pixel rows from each
+* row group (times any additional scale factor that the upsampler is
+* applying).
+*
+* The coefficient controller will deliver data to us one iMCU row at a time;
+* each iMCU row contains v_samp_factor * DCT_v_scaled_size sample rows, or
+* exactly min_DCT_v_scaled_size row groups.  (This amount of data corresponds
+* to one row of MCUs when the image is fully interleaved.)  Note that the
+* number of sample rows varies across components, but the number of row
+* groups does not.  Some garbage sample rows may be included in the last iMCU
+* row at the bottom of the image.
+*
+* Depending on the vertical scaling algorithm used, the upsampler may need
+* access to the sample row(s) above and below its current input row group.
+* The upsampler is required to set need_context_rows TRUE at global selection
+* time if so.  When need_context_rows is FALSE, this controller can simply
+* obtain one iMCU row at a time from the coefficient controller and dole it
+* out as row groups to the postprocessor.
+*
+* When need_context_rows is TRUE, this controller guarantees that the buffer
+* passed to postprocessing contains at least one row group's worth of samples
+* above and below the row group(s) being processed.  Note that the context
+* rows "above" the first passed row group appear at negative row offsets in
+* the passed buffer.  At the top and bottom of the image, the required
+* context rows are manufactured by duplicating the first or last real sample
+* row; this avoids having special cases in the upsampling inner loops.
+*
+* The amount of context is fixed at one row group just because that's a
+* convenient number for this controller to work with.  The existing
+* upsamplers really only need one sample row of context.  An upsampler
+* supporting arbitrary output rescaling might wish for more than one row
+* group of context when shrinking the image; tough, we don't handle that.
+* (This is justified by the assumption that downsizing will be handled mostly
+* by adjusting the DCT_scaled_size values, so that the actual scale factor at
+* the upsample step needn't be much less than one.)
+*
+* To provide the desired context, we have to retain the last two row groups
+* of one iMCU row while reading in the next iMCU row.  (The last row group
+* can't be processed until we have another row group for its below-context,
+* and so we have to save the next-to-last group too for its above-context.)
+* We could do this most simply by copying data around in our buffer, but
+* that'd be very slow.  We can avoid copying any data by creating a rather
+* strange pointer structure.  Here's how it works.  We allocate a workspace
+* consisting of M+2 row groups (where M = min_DCT_v_scaled_size is the number
+* of row groups per iMCU row).  We create two sets of redundant pointers to
+* the workspace.  Labeling the physical row groups 0 to M+1, the synthesized
+* pointer lists look like this:
+*                   M+1                          M-1
+* master pointer --> 0         master pointer --> 0
+*                    1                            1
+*                   ...                          ...
+*                   M-3                          M-3
+*                   M-2                           M
+*                   M-1                          M+1
+*                    M                           M-2
+*                   M+1                          M-1
+*                    0                            0
+* We read alternate iMCU rows using each master pointer; thus the last two
+* row groups of the previous iMCU row remain un-overwritten in the workspace.
+* The pointer lists are set up so that the required context rows appear to
+* be adjacent to the proper places when we pass the pointer lists to the
+* upsampler.
+*
+* The above pictures describe the normal state of the pointer lists.
+* At top and bottom of the image, we diddle the pointer lists to duplicate
+* the first or last sample row as necessary (this is cheaper than copying
+* sample rows around).
+*
+* This scheme breaks down if M < 2, ie, min_DCT_v_scaled_size is 1.  In that
+* situation each iMCU row provides only one row group so the buffering logic
+* must be different (eg, we must read two iMCU rows before we can emit the
+* first row group).  For now, we simply do not support providing context
+* rows when min_DCT_v_scaled_size is 1.  That combination seems unlikely to
+* be worth providing --- if someone wants a 1/8th-size preview, they probably
+* want it quick and dirty, so a context-free upsampler is sufficient.
+*/
+//
+// Private buffer controller object 
+//
+#if 0 // @v9c {
 typedef struct {
 	struct jpeg_d_main_controller pub; /* public fields */
 	/* Pointer to allocated workspace (M or M+2 row groups). */
@@ -122,7 +124,23 @@ typedef struct {
 	JDIMENSION rowgroups_avail; /* row groups available to postprocessor */
 	JDIMENSION iMCU_row_ctr; /* counts iMCU rows to detect image top/bot */
 } my_main_controller;
-
+#endif // } 0 @v9c
+// @v9c {
+typedef struct {
+	struct jpeg_d_main_controller pub; // public fields 
+	// Pointer to allocated workspace (M or M+2 row groups). 
+	JSAMPARRAY buffer[MAX_COMPONENTS];
+	JDIMENSION rowgroup_ctr;	// counts row groups output to postprocessor 
+	JDIMENSION rowgroups_avail;	// row groups available to postprocessor 
+	// Remaining fields are only used in the context case. 
+	boolean buffer_full;		// Have we gotten an iMCU row from decoder? 
+	// These are the master pointers to the funny-order pointer lists. 
+	JSAMPIMAGE xbuffer[2];	// pointers to weird pointer lists 
+	int whichptr;			// indicates which pointer set is now in use 
+	int context_state;		// process_data state machine status 
+	JDIMENSION iMCU_row_ctr; // counts iMCU rows to detect image top/bot 
+} my_main_controller;
+// } @v9c 
 typedef my_main_controller * my_main_ptr;
 
 /* context_state values: */
@@ -167,8 +185,8 @@ static void alloc_funny_pointers(j_decompress_ptr cinfo)
 
 static void make_funny_pointers(j_decompress_ptr cinfo)
 /* Create the funny pointer lists discussed in the comments above.
- * The actual workspace is already allocated (in main->buffer),
- * and the space for the pointer lists is allocated too.
+ * The actual workspace is already allocated (in mainp->buffer),
+  * and the space for the pointer lists is allocated too.
  * This routine just fills in the curiously ordered lists.
  * This will be repeated at the beginning of each pass.
  */
@@ -274,17 +292,19 @@ METHODDEF(void) start_pass_main(j_decompress_ptr cinfo, J_BUF_MODE pass_mode)
 			    mainp->whichptr = 0; /* Read first iMCU row into xbuffer[0] */
 			    mainp->context_state = CTX_PREPARE_FOR_IMCU;
 			    mainp->iMCU_row_ctr = 0;
+				mainp->buffer_full = FALSE; // Mark buffer empty // @v9c
 		    }
 		    else {
-			    /* Simple case with no context needed */
+			    // Simple case with no context needed 
 			    mainp->pub.process_data = process_data_simple_main;
+				mainp->rowgroup_ctr = mainp->rowgroups_avail; // Mark buffer empty // @v9c
 		    }
-		    mainp->buffer_full = FALSE; /* Mark buffer empty */
-		    mainp->rowgroup_ctr = 0;
+		    // @v9c mainp->buffer_full = FALSE; // Mark buffer empty 
+		    // @v9c mainp->rowgroup_ctr = 0;
 		    break;
 #ifdef QUANT_2PASS_SUPPORTED
 		case JBUF_CRANK_DEST:
-		    /* For last pass of 2-pass quantization, just crank the postprocessor */
+		    // For last pass of 2-pass quantization, just crank the postprocessor 
 		    mainp->pub.process_data = process_data_crank_post;
 		    break;
 #endif
@@ -300,26 +320,31 @@ METHODDEF(void) start_pass_main(j_decompress_ptr cinfo, J_BUF_MODE pass_mode)
 METHODDEF(void) process_data_simple_main(j_decompress_ptr cinfo, JSAMPARRAY output_buf, JDIMENSION *out_row_ctr, JDIMENSION out_rows_avail)
 {
 	my_main_ptr mainp = (my_main_ptr)cinfo->main;
-	JDIMENSION rowgroups_avail;
-	/* Read input data if we haven't filled the main buffer yet */
-	if(!mainp->buffer_full) {
+	// @v9c JDIMENSION rowgroups_avail;
+	// Read input data if we haven't filled the main buffer yet 
+	// @v9c if(!mainp->buffer_full) {
+	if(mainp->rowgroup_ctr >= mainp->rowgroups_avail) { // @v9c 
 		if(!(*cinfo->coef->decompress_data)(cinfo, mainp->buffer))
 			return;  /* suspension forced, can do nothing more */
-		mainp->buffer_full = TRUE; /* OK, we have an iMCU row to work with */
+		// @v9c mainp->buffer_full = TRUE; /* OK, we have an iMCU row to work with */
+		mainp->rowgroup_ctr = 0; // OK, we have an iMCU row to work with // @v9c
 	}
-	/* There are always min_DCT_scaled_size row groups in an iMCU row. */
-	rowgroups_avail = (JDIMENSION)cinfo->min_DCT_v_scaled_size;
-	/* Note: at the bottom of the image, we may pass extra garbage row groups
-	 * to the postprocessor.  The postprocessor has to check for bottom
-	 * of image anyway (at row resolution), so no point in us doing it too.
-	 */
-	/* Feed the postprocessor */
-	(*cinfo->post->post_process_data)(cinfo, mainp->buffer, &mainp->rowgroup_ctr, rowgroups_avail, output_buf, out_row_ctr, out_rows_avail);
-	/* Has postprocessor consumed all the data yet? If so, mark buffer empty */
+	// @v9c // There are always min_DCT_scaled_size row groups in an iMCU row. 
+	// @v9c rowgroups_avail = (JDIMENSION)cinfo->min_DCT_v_scaled_size;
+	// Note: at the bottom of the image, we may pass extra garbage row groups
+	// to the postprocessor.  The postprocessor has to check for bottom
+	// of image anyway (at row resolution), so no point in us doing it too.
+	// 
+	// Feed the postprocessor 
+	// @v9c (*cinfo->post->post_process_data)(cinfo, mainp->buffer, &mainp->rowgroup_ctr, rowgroups_avail, output_buf, out_row_ctr, out_rows_avail);
+	(*cinfo->post->post_process_data) (cinfo, mainp->buffer, &mainp->rowgroup_ctr, mainp->rowgroups_avail, output_buf, out_row_ctr, out_rows_avail); // @v9c
+	/* @v9c
+	// Has postprocessor consumed all the data yet? If so, mark buffer empty 
 	if(mainp->rowgroup_ctr >= rowgroups_avail) {
 		mainp->buffer_full = FALSE;
 		mainp->rowgroup_ctr = 0;
-	}
+	} 
+	*/
 }
 /*
  * Process some data.
@@ -379,20 +404,16 @@ METHODDEF(void) process_data_context_main(j_decompress_ptr cinfo, JSAMPARRAY out
 		    mainp->context_state = CTX_POSTPONED_ROW;
 	}
 }
-
 /*
  * Process some data.
  * Final pass of two-pass quantization: just call the postprocessor.
  * Source data will be the postprocessor controller's internal buffer.
  */
-
 #ifdef QUANT_2PASS_SUPPORTED
-
-METHODDEF(void) process_data_crank_post(j_decompress_ptr cinfo, JSAMPARRAY output_buf, JDIMENSION *out_row_ctr, JDIMENSION out_rows_avail)
-{
-	(*cinfo->post->post_process_data)(cinfo, (JSAMPIMAGE)NULL, (JDIMENSION*)NULL, (JDIMENSION)0, output_buf, out_row_ctr, out_rows_avail);
-}
-
+	METHODDEF(void) process_data_crank_post(j_decompress_ptr cinfo, JSAMPARRAY output_buf, JDIMENSION *out_row_ctr, JDIMENSION out_rows_avail)
+	{
+		(*cinfo->post->post_process_data)(cinfo, (JSAMPIMAGE)NULL, (JDIMENSION*)NULL, (JDIMENSION)0, output_buf, out_row_ctr, out_rows_avail);
+	}
 #endif /* QUANT_2PASS_SUPPORTED */
 /*
  * Initialize main buffer controller.
@@ -406,9 +427,9 @@ GLOBAL(void) jinit_d_main_controller(j_decompress_ptr cinfo, boolean need_full_b
 	mainp->pub.start_pass = start_pass_main;
 	if(need_full_buffer)    /* shouldn't happen */
 		ERREXIT(cinfo, JERR_BAD_BUFFER_MODE);
-	/* Allocate the workspace.
-	 * ngroups is the number of row groups we need.
-	 */
+	// Allocate the workspace.
+ 	// ngroups is the number of row groups we need.
+	// 
 	if(cinfo->upsample->need_context_rows) {
 		if(cinfo->min_DCT_v_scaled_size < 2) /* unsupported, see comments above */
 			ERREXIT(cinfo, JERR_NOTIMPL);
@@ -416,7 +437,9 @@ GLOBAL(void) jinit_d_main_controller(j_decompress_ptr cinfo, boolean need_full_b
 		ngroups = cinfo->min_DCT_v_scaled_size + 2;
 	}
 	else {
+		// There are always min_DCT_v_scaled_size row groups in an iMCU row. 
 		ngroups = cinfo->min_DCT_v_scaled_size;
+		mainp->rowgroups_avail = (JDIMENSION)ngroups; // @v9c
 	}
 	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components; ci++, compptr++) {
 		rgroup = (compptr->v_samp_factor * compptr->DCT_v_scaled_size) / cinfo->min_DCT_v_scaled_size; /* height of a row group of component */

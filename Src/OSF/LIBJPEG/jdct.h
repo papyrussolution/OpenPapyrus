@@ -12,7 +12,7 @@
  * The individual DCT algorithms are kept in separate files to ease
  * machine-dependent tuning (e.g., assembly coding).
  */
-
+// @v9c(done)
 /*
  * A forward DCT routine is given a pointer to an input sample array and
  * a pointer to a work area of type DCTELEM[]; the DCT is to be performed
@@ -30,16 +30,13 @@
  * work in floating-point ones.
  * Quantization of the output coefficients is done by jcdctmgr.c.
  */
-
 #if BITS_IN_JSAMPLE == 8
 	typedef int DCTELEM;            /* 16 or 32 bits is fine */
 #else
 	typedef INT32 DCTELEM;          /* must have 32 bits */
 #endif
-
 typedef JMETHOD (void, forward_DCT_method_ptr, (DCTELEM * data, JSAMPARRAY sample_data, JDIMENSION start_col));
 typedef JMETHOD (void, float_DCT_method_ptr, (FAST_FLOAT * data, JSAMPARRAY sample_data, JDIMENSION start_col));
-
 /*
  * An inverse DCT routine is given a pointer to the input JBLOCK and a pointer
  * to an output sample array.  The routine must dequantize the input data as
@@ -52,11 +49,9 @@ typedef JMETHOD (void, float_DCT_method_ptr, (FAST_FLOAT * data, JSAMPARRAY samp
  */
 
 /* typedef inverse_DCT_method_ptr is declared in jpegint.h */
-
 /*
  * Each IDCT routine has its own ideas about the best dct_table element type.
  */
-
 typedef MULTIPLIER ISLOW_MULT_TYPE; /* short or int, whichever is faster */
 #if BITS_IN_JSAMPLE == 8
 typedef MULTIPLIER IFAST_MULT_TYPE; /* 16 bits is OK, use short if faster */
@@ -66,19 +61,18 @@ typedef INT32 IFAST_MULT_TYPE;  /* need 32 bits for scaled quantizers */
 #define IFAST_SCALE_BITS  13    /* fractional bits in scale factors */
 #endif
 typedef FAST_FLOAT FLOAT_MULT_TYPE; /* preferred floating type */
-
-/*
- * Each IDCT routine is responsible for range-limiting its results and
- * converting them to unsigned form (0..MAXJSAMPLE).  The raw outputs could
- * be quite far out of range if the input data is corrupt, so a bulletproof
- * range-limiting step is required.  We use a mask-and-table-lookup method
- * to do the combined operations quickly, assuming that MAXJSAMPLE+1
- * is a power of 2.  See the comments with prepare_range_limit_table
- * (in jdmaster.c) for more info.
- */
-
-#define RANGE_MASK  (MAXJSAMPLE * 4 + 3) /* 2 bits wider than legal samples */
-#define RANGE_CENTER  (MAXJSAMPLE * 2 + 2)
+// 
+// Each IDCT routine is responsible for range-limiting its results and
+// converting them to unsigned form (0..MAXJSAMPLE).  The raw outputs could
+// be quite far out of range if the input data is corrupt, so a bulletproof
+// range-limiting step is required.  We use a mask-and-table-lookup method
+// to do the combined operations quickly, assuming that RANGE_CENTER
+// (defined in jpegint.h) is a power of 2.  See the comments with
+// prepare_range_limit_table (in jdmaster.c) for more info.
+// 
+// @v9c #define RANGE_MASK  (MAXJSAMPLE * 4 + 3) // 2 bits wider than legal samples 
+#define RANGE_MASK    (RANGE_CENTER * 2 - 1) // @v9c 
+// @v9c #define RANGE_CENTER  (MAXJSAMPLE * 2 + 2)
 #define RANGE_SUBSET  (RANGE_CENTER - CENTERJSAMPLE)
 
 #define IDCT_range_limit(cinfo)  ((cinfo)->sample_range_limit - RANGE_SUBSET)
