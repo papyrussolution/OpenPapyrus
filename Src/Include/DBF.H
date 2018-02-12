@@ -1,5 +1,5 @@
 // DBF.H
-// Copyright (c) A.Sobolev 1993, 1997-2001, 2003, 2006, 2008, 2009, 2011
+// Copyright (c) A.Sobolev 1993, 1997-2001, 2003, 2006, 2008, 2009, 2011, 2018
 // @codepage windows-1251
 // Номера записей и полей идут от 1 и далее
 //
@@ -11,6 +11,8 @@
 #endif
 
 #define DEFSWAPBUFSIZE 8
+
+class DbfTable;
 //
 // Нулевой заголовочный байт
 //
@@ -96,8 +98,6 @@ struct DBFDate {
 	int8   month;
 	int8   day;
 };
-
-class DbfTable;
 
 class DbfRecord {
 public:

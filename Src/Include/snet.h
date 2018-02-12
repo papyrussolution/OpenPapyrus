@@ -912,10 +912,7 @@ public:
 	};
     ScURL();
     ~ScURL();
-	int    operator !() const
-	{
-		return (H == 0);
-	}
+	int    operator !() const { return (H == 0); }
 
 	enum {
 		authServer = 1
@@ -1002,7 +999,7 @@ public:
 
 	enum {
 		fRenameExistantFiles = 0x0001,
-		fDeleteAfter         = 0x0002       
+		fDeleteAfter         = 0x0002
 	};
 	long   Flags;
 	int    Format; // SFileFormat::XXX

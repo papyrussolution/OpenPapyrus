@@ -439,7 +439,7 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 				THROW(tbl.open(tbl_name, path, omReadOnly));
 				tbl.setDataBuf(rec_buf, (RECORDSIZE)rec_buf.GetSize());
 				tbl.getNumRecs(&pParam->OrgNumRecs);
-				tbl.getRecSize(&fix_rec_size);
+				fix_rec_size = tbl.getRecSize();
 				if(pParam->P_DestPath && pParam->P_DestPath[0]) {
 					(dest = pParam->P_DestPath).Strip().SetLastSlash();
 					dest.Cat(ts.Location);
@@ -467,13 +467,13 @@ int SLAPI BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 					if(newtbl.GetLobCount())
 						newtbl.GetLobField(newtbl.GetLobCount()-1, &lob_fld);
 					else
-						lob_fld.id = 0;
+						lob_fld.Id = 0;
 					pParam->callbackProc(BREV_START, (long)path.cptr(), (long)dest.cptr());
 					if(tbl.step(sp_first) || BtrError == BE_VLRPAGE) {
 						do {
 							RECORDSIZE retBufLen = tbl.getRetBufLen();
 							THROW(tbl.getPosition(&pos));
-							if(lob_fld.id) {
+							if(lob_fld.Id) {
 								newtbl.setDataBuf(tbl.getDataBuf(), fix_rec_size);
 								newtbl.setLobSize(lob_fld, (retBufLen > fix_rec_size) ? (retBufLen-fix_rec_size) : 0);
 							}

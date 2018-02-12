@@ -749,7 +749,8 @@ int SLAPI PPJobSession::MailNotify(const char * pTmpLogFileName)
 		}
 	}
 	if(inet_acc.ID) {
-		SMailMessage	mail_msg;
+		// @todo @v9.9.4 Скорректировать на новую технику отправки почты
+		SMailMessage mail_msg;
 		IterCounter	mail_counter;
 		uint   line_count = 0; // Количество строк считанных из временного файла журналов
 		//
@@ -772,7 +773,8 @@ int SLAPI PPJobSession::MailNotify(const char * pTmpLogFileName)
 				line_count++;
 			}
 			msg_buf.Transf(CTRANSF_OUTER_TO_UTF8);
-			mail_msg.SetField(SMailMessage::fldText, msg_buf);
+			// @v9.9.4 mail_msg.SetField(SMailMessage::fldText, msg_buf);
+			mail_msg.AttachContent(0, SFileFormat::Txt, cpUTF8, msg_buf, msg_buf.Len()); // @v9.9.4
 		}
 		if(!(Job.Flags & Job.fSkipEmptyNotification) || line_count) {
 			SString subscribed_list_buff, addr_line;
@@ -800,7 +802,7 @@ int SLAPI PPJobSession::MailNotify(const char * pTmpLogFileName)
 					mail_msg.SetField(SMailMessage::fldTo, addr_line);
 					mail_counter.Init(1);
 					// @v9.8.11  if(!PPMailSmtp::Send(inet_acc, mail_msg, SendMailCallback, mail_counter))
-					if(!PPSendEmail(inet_acc, mail_msg, SendMailCallback, mail_counter)) // @v9.8.11 
+					if(!PPSendEmail(inet_acc, mail_msg, SendMailCallback, mail_counter)) // @v9.8.11
 						PPError();
 				}
 			}
@@ -918,7 +920,7 @@ public:
 	SLAPI  PPJobServer();
 	SLAPI ~PPJobServer();
 private:
-	struct StatItem {
+	struct StatItem { // @flat
 		long   JobID;
 		LDATETIME LastRunningTime;
 		long   Count;       // Общее количество запусков
@@ -936,7 +938,7 @@ private:
 	PPJobMngr Mngr;
 	SString StatFilePath;
 	SString LogFileName;
-	SArray * P_Stat;
+	SVector * P_Stat; // @v9.9.4 SArray-->SVector
 };
 
 SLAPI PPJobServer::PPJobServer() : PPThread(PPThread::kJobServer, 0, 0), P_Stat(0)
@@ -1015,7 +1017,7 @@ int SLAPI PPJobServer::AddStat(PPID jobID, const LDATETIME & lastTime, long dura
 		new_item.AvgDuration = duration;
 	}
 	if(!P_Stat) {
-		THROW_MEM(P_Stat = new SArray(sizeof(StatItem)));
+		THROW_MEM(P_Stat = new SVector(sizeof(StatItem))); // @v9.9.4 SArray-->SVector
 	}
 	THROW_SL(P_Stat->insert(&new_item));
 	CATCHZOK
@@ -1031,9 +1033,7 @@ int SLAPI PPJobServer::SaveStat()
 		StatItem * p_item;
 		THROW_SL(f.Open(StatFilePath, SFile::mWrite));
 		for(uint i = 0; P_Stat->enumItems(&i, (void **)&p_item);) {
-			buf = 0;
-			buf.Cat(p_item->JobID).Semicol().Cat(p_item->LastRunningTime).Semicol().
-				Cat(p_item->Count).Semicol().Cat(p_item->AvgDuration).CR();
+			buf.Z().Cat(p_item->JobID).Semicol().Cat(p_item->LastRunningTime).Semicol().Cat(p_item->Count).Semicol().Cat(p_item->AvgDuration).CR();
 			THROW_SL(f.WriteLine(buf));
 		}
 		ok = 1;
@@ -1064,7 +1064,7 @@ int SLAPI PPJobServer::LoadStat()
 				item.AvgDuration = field.ToLong();
 		}
 		if(!P_Stat)
-			THROW_MEM(P_Stat = new SArray(sizeof(StatItem)));
+			THROW_MEM(P_Stat = new SVector(sizeof(StatItem))); // @v9.9.4 SArray-->SVector
 		THROW_SL(P_Stat->insert(&item));
 	}
 	ok = 1;
@@ -3774,7 +3774,7 @@ int SLAPI PPJobSrvProtocol::StopThreadBlock::Serialize(int dir, SBuffer & rBuf, 
 	return ok;
 }
 
-SLAPI PPJobSrvProtocol::TransmitFileBlock::TransmitFileBlock() : CrtTime(ZERODATETIME), AccsTime(ZERODATETIME), ModTime(ZERODATETIME), 
+SLAPI PPJobSrvProtocol::TransmitFileBlock::TransmitFileBlock() : CrtTime(ZERODATETIME), AccsTime(ZERODATETIME), ModTime(ZERODATETIME),
 	Size(0), Format(SFileFormat::Unkn), Flags(0), Cookie(0), PartSize(0), TransmType(ttGeneric), Reserve(0), ObjType(0), ObjID(0)
 {
 	memzero(Hash, sizeof(Hash));
@@ -4108,12 +4108,12 @@ void SLAPI PPServerSession::Run()
 			int    msg_id;
 			switch(waiting_mode) {
 				case wmodActiveSession:
-				case wmodActiveSession_AfterReconnection: 
+				case wmodActiveSession_AfterReconnection:
 				case wmodStyloBhtII: msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_ACTV; break; // @v8.3.6
 				case wmodActiveSession_TransportError: msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_ACTV; break;
 				case wmodSuspended: msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_SUSP; break;
 				case wmodDisconnected: msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_DSCN; break;
-				default: 
+				default:
 					msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_ACTV;
 					assert(INTERNAL_ERR_INVALID_WAITING_MODE);
 					break;

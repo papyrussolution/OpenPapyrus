@@ -23,9 +23,8 @@
  * context rows should be compiled only if needed.
  */
 #ifdef INPUT_SMOOTHING_SUPPORTED
-#define CONTEXT_ROWS_SUPPORTED
+	#define CONTEXT_ROWS_SUPPORTED
 #endif
-
 /*
  * For the simple (no-context-row) case, we just need to buffer one
  * row group's worth of pixels for the downsampling step.  At the bottom of
@@ -61,18 +60,14 @@ typedef struct {
 } my_prep_controller;
 
 typedef my_prep_controller * my_prep_ptr;
-
 /*
  * Initialize for a processing pass.
  */
-
 METHODDEF(void) start_pass_prep(j_compress_ptr cinfo, J_BUF_MODE pass_mode)
 {
 	my_prep_ptr prep = (my_prep_ptr)cinfo->prep;
-
 	if(pass_mode != JBUF_PASS_THRU)
 		ERREXIT(cinfo, JERR_BAD_BUFFER_MODE);
-
 	/* Initialize total-height counter for detecting bottom of image */
 	prep->rows_to_go = cinfo->image_height;
 	/* Mark the conversion buffer empty */
@@ -96,7 +91,6 @@ static void expand_bottom_edge(JSAMPARRAY image_data, JDIMENSION num_cols, int i
 		jcopy_sample_rows(image_data, input_rows-1, image_data, row, 1, num_cols);
 	}
 }
-
 /*
  * Process some data in the simple no-context case.
  *
@@ -105,20 +99,15 @@ static void expand_bottom_edge(JSAMPARRAY image_data, JDIMENSION num_cols, int i
  * Downsampling will produce this much data from each max_v_samp_factor
  * input rows.
  */
-
-METHODDEF(void) pre_process_data(j_compress_ptr cinfo,
-    JSAMPARRAY input_buf, JDIMENSION *in_row_ctr,
-    JDIMENSION in_rows_avail,
-    JSAMPIMAGE output_buf, JDIMENSION *out_row_group_ctr,
-    JDIMENSION out_row_groups_avail)
+METHODDEF(void) pre_process_data(j_compress_ptr cinfo, JSAMPARRAY input_buf, JDIMENSION *in_row_ctr,
+    JDIMENSION in_rows_avail, JSAMPIMAGE output_buf, JDIMENSION *out_row_group_ctr, JDIMENSION out_row_groups_avail)
 {
 	my_prep_ptr prep = (my_prep_ptr)cinfo->prep;
 	int numrows, ci;
 	JDIMENSION inrows;
 	jpeg_component_info * compptr;
-
 	while(*in_row_ctr < in_rows_avail && *out_row_group_ctr < out_row_groups_avail) {
-		/* Do color conversion to fill the conversion buffer. */
+		// Do color conversion to fill the conversion buffer. 
 		inrows = in_rows_avail - *in_row_ctr;
 		numrows = cinfo->max_v_samp_factor - prep->next_buf_row;
 		numrows = (int)MIN((JDIMENSION)numrows, inrows);
@@ -142,10 +131,8 @@ METHODDEF(void) pre_process_data(j_compress_ptr cinfo,
 		/* If at bottom of image, pad the output to a full iMCU height.
 		 * Note we assume the caller is providing a one-iMCU-height output buffer!
 		 */
-		if(prep->rows_to_go == 0 &&
-		    *out_row_group_ctr < out_row_groups_avail) {
-			for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components;
-			    ci++, compptr++) {
+		if(prep->rows_to_go == 0 && *out_row_group_ctr < out_row_groups_avail) {
+			for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components; ci++, compptr++) {
 				numrows = (compptr->v_samp_factor * compptr->DCT_v_scaled_size) / cinfo->min_DCT_v_scaled_size;
 				expand_bottom_edge(output_buf[ci], compptr->width_in_blocks * compptr->DCT_h_scaled_size, (int)(*out_row_group_ctr * numrows), (int)(out_row_groups_avail * numrows));
 			}
@@ -156,16 +143,11 @@ METHODDEF(void) pre_process_data(j_compress_ptr cinfo,
 }
 
 #ifdef CONTEXT_ROWS_SUPPORTED
-
 /*
  * Process some data in the context case.
  */
-
-METHODDEF(void) pre_process_context(j_compress_ptr cinfo,
-    JSAMPARRAY input_buf, JDIMENSION *in_row_ctr,
-    JDIMENSION in_rows_avail,
-    JSAMPIMAGE output_buf, JDIMENSION *out_row_group_ctr,
-    JDIMENSION out_row_groups_avail)
+METHODDEF(void) pre_process_context(j_compress_ptr cinfo, JSAMPARRAY input_buf, JDIMENSION *in_row_ctr,
+    JDIMENSION in_rows_avail, JSAMPIMAGE output_buf, JDIMENSION *out_row_group_ctr, JDIMENSION out_row_groups_avail)
 {
 	my_prep_ptr prep = (my_prep_ptr)cinfo->prep;
 	int numrows, ci;
@@ -216,7 +198,6 @@ METHODDEF(void) pre_process_context(j_compress_ptr cinfo,
 		}
 	}
 }
-
 /*
  * Create the wrapped-around downsampling input buffer needed for context mode.
  */
@@ -227,24 +208,17 @@ static void create_context_buffer(j_compress_ptr cinfo)
 	int ci, i;
 	jpeg_component_info * compptr;
 	JSAMPARRAY true_buffer, fake_buffer;
-
 	/* Grab enough space for fake row pointers for all the components;
 	 * we need five row groups' worth of pointers for each component.
 	 */
-	fake_buffer = (JSAMPARRAY)
-	    (*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE,
-	    (cinfo->num_components * 5 * rgroup_height) *
-	    SIZEOF(JSAMPROW));
-
-	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components;
-	    ci++, compptr++) {
+	fake_buffer = (JSAMPARRAY)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, (cinfo->num_components * 5 * rgroup_height) * SIZEOF(JSAMPROW));
+	for(ci = 0, compptr = cinfo->comp_info; ci < cinfo->num_components; ci++, compptr++) {
 		/* Allocate the actual buffer space (3 row groups) for this component.
 		 * We make the buffer wide enough to allow the downsampler to edge-expand
 		 * horizontally within the buffer, if it so chooses.
 		 */
 		true_buffer = (*cinfo->mem->alloc_sarray)((j_common_ptr)cinfo, JPOOL_IMAGE,
-		    (JDIMENSION)(((long)compptr->width_in_blocks * cinfo->min_DCT_h_scaled_size * cinfo->max_h_samp_factor) / compptr->h_samp_factor),
-		    (JDIMENSION)(3 * rgroup_height));
+		    (JDIMENSION)(((long)compptr->width_in_blocks * cinfo->min_DCT_h_scaled_size * cinfo->max_h_samp_factor) / compptr->h_samp_factor), (JDIMENSION)(3 * rgroup_height));
 		/* Copy true buffer row pointers into the middle of the fake row array */
 		MEMCOPY(fake_buffer + rgroup_height, true_buffer, 3 * rgroup_height * SIZEOF(JSAMPROW));
 		/* Fill in the above and below wraparound pointers */
@@ -256,13 +230,11 @@ static void create_context_buffer(j_compress_ptr cinfo)
 		fake_buffer += 5 * rgroup_height; /* point to space for next component */
 	}
 }
-
 #endif /* CONTEXT_ROWS_SUPPORTED */
 
 /*
  * Initialize preprocessing controller.
  */
-
 GLOBAL(void) jinit_c_prep_controller(j_compress_ptr cinfo, boolean need_full_buffer)
 {
 	my_prep_ptr prep;
@@ -273,7 +245,6 @@ GLOBAL(void) jinit_c_prep_controller(j_compress_ptr cinfo, boolean need_full_buf
 	prep = (my_prep_ptr)(*cinfo->mem->alloc_small)((j_common_ptr)cinfo, JPOOL_IMAGE, SIZEOF(my_prep_controller));
 	cinfo->prep = (struct jpeg_c_prep_controller*)prep;
 	prep->pub.start_pass = start_pass_prep;
-
 	/* Allocate the color conversion buffer.
 	 * We make the buffer wide enough to allow the downsampler to edge-expand
 	 * horizontally within the buffer, if it so chooses.

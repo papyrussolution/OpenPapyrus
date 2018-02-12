@@ -598,8 +598,7 @@ int SLAPI Reference::ReadPropBuf(void * b, size_t s, size_t * pActualSize)
 	int    ok = 1;
 	size_t actual_size = 0;
 	SBuffer temp_buf;
-	RECORDSIZE fix_rec_size = 0;
-	Prop.getRecSize(&fix_rec_size);
+	const  RECORDSIZE fix_rec_size = Prop.getRecSize();
 	temp_buf.Write(&Prop.data, fix_rec_size);
 	Prop.readLobData(Prop.VT, temp_buf);
 	actual_size = temp_buf.GetAvailableSize();
@@ -611,8 +610,7 @@ int SLAPI Reference::ReadPropBuf(void * b, size_t s, size_t * pActualSize)
 int SLAPI Reference::PreparePropBuf(PPID obj, PPID id, PPID prop, const void * b, uint s)
 {
 	int    ok = 1;
-	RECORDSIZE fix_rec_size = 0;
-	Prop.getRecSize(&fix_rec_size);
+	RECORDSIZE fix_rec_size = Prop.getRecSize();
 	if(b) {
 		Prop.copyBufFrom(b, fix_rec_size);
 		if(s)
@@ -742,8 +740,7 @@ int SLAPI Reference::GetPropVlrString(PPID obj, PPID id, PPID prop, SString & rB
 	k.Prop    = prop;
 	if(Prop.search(0, &k, spEq)) {
 		size_t actual_size = 0, test_actual_size = 0;
-		RECORDSIZE fix_size = 0;
-		Prop.getRecSize(&fix_size);
+		RECORDSIZE fix_size = Prop.getRecSize();
 		Prop.getLobSize(Prop.VT, &actual_size);
 		actual_size += fix_size;
 		THROW_MEM(pm = (PropVlrString*)SAlloc::M(actual_size + 32)); // +32 - страховка
@@ -800,9 +797,8 @@ int FASTCALL Reference::GetPropSBuffer_Current(SBuffer & rBuf)
 {
 	int    ok = 1;
 	size_t actual_size = 0, test_actual_size = 0;
-	RECORDSIZE fix_size = 0;
 	PropVlrString * pm = 0;
-	Prop.getRecSize(&fix_size);
+	RECORDSIZE fix_size = Prop.getRecSize();
 	Prop.getLobSize(Prop.VT, &actual_size);
 	actual_size += fix_size;
 	THROW_MEM(pm = (PropVlrString*)SAlloc::M(actual_size + 32)); // +32 - страховка
@@ -848,8 +844,7 @@ int SLAPI Reference::GetPropArrayFromRecBuf(SVectorBase * pAry)
 	if(pAry) {
 		const uint item_size = pAry->getItemSize();
 		size_t actual_size = 0, test_actual_size = 0;
-		RECORDSIZE fix_size = 0;
-		Prop.getRecSize(&fix_size);
+		RECORDSIZE fix_size = Prop.getRecSize();
 		Prop.getLobSize(Prop.VT, &actual_size);
 		actual_size += fix_size;
 

@@ -274,19 +274,7 @@ static void FASTCALL state(struct connectdata * conn, smtpstate newstate)
 	struct smtp_conn * smtpc = &conn->proto.smtpc;
 #if defined(DEBUGBUILD) && !defined(CURL_DISABLE_VERBOSE_STRINGS)
 	static const char * const names[] = { // for debug purposes
-		"STOP",
-		"SERVERGREET",
-		"EHLO",
-		"HELO",
-		"STARTTLS",
-		"UPGRADETLS",
-		"AUTH",
-		"COMMAND",
-		"MAIL",
-		"RCPT",
-		"DATA",
-		"POSTDATA",
-		"QUIT",
+		"STOP", "SERVERGREET", "EHLO", "HELO", "STARTTLS", "UPGRADETLS", "AUTH", "COMMAND", "MAIL", "RCPT", "DATA", "POSTDATA", "QUIT",
 		// LAST
 	};
 	if(smtpc->state != newstate)
@@ -741,9 +729,7 @@ static CURLcode smtp_state_mail_resp(struct connectdata * conn, int smtpcode, sm
 		result = CURLE_SEND_ERROR;
 	}
 	else
-		/* Start the RCPT TO command */
-		result = smtp_perform_rcpt_to(conn);
-
+		result = smtp_perform_rcpt_to(conn); // Start the RCPT TO command 
 	return result;
 }
 
@@ -761,10 +747,9 @@ static CURLcode smtp_state_rcpt_resp(struct connectdata * conn, int smtpcode, sm
 	else {
 		smtp->rcpt = smtp->rcpt->next;
 		if(smtp->rcpt)
-			/* Send the next RCPT TO command */
-			result = smtp_perform_rcpt_to(conn);
+			result = smtp_perform_rcpt_to(conn); // Send the next RCPT TO command 
 		else {
-			/* Send the DATA command */
+			// Send the DATA command 
 			result = Curl_pp_sendf(&conn->proto.smtpc.pp, "%s", "DATA");
 			if(!result)
 				state(conn, SMTP_DATA);

@@ -1289,6 +1289,7 @@
     <ClCompile Include="..\PPLib\ppdevice.cpp" />
     <ClCompile Include="..\PPLib\PPDS.CPP" />
     <ClCompile Include="..\PPLib\PPDSP.CPP" />
+    <ClCompile Include="..\PPLib\ppedi-base.cpp" />
     <ClCompile Include="..\PPLib\ppedi.cpp" />
     <ClCompile Include="..\PPLib\ppeds.cpp" />
     <ClCompile Include="..\PPLib\Ppexport.cpp" />

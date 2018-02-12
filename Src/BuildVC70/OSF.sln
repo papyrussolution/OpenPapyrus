@@ -61,10 +61,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LzmaLib", "LzmaLib.vcproj",
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LzmaUtil", "LzmaUtil.vcproj", "{98181115-44FD-4F52-9230-8D46F577721D}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7z", "7z.vcproj", "{A8F087D9-5CBA-4252-AEB9-64A84C259743}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -382,26 +378,6 @@ Global
 		{11C0CEBB-5F2C-4135-96BD-36551C93206B}.ServerDebug.Build.0 = Debug|Win32
 		{11C0CEBB-5F2C-4135-96BD-36551C93206B}.ServerRelease.ActiveCfg = Release|Win32
 		{11C0CEBB-5F2C-4135-96BD-36551C93206B}.ServerRelease.Build.0 = Release|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.Debug.ActiveCfg = Debug|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.Debug.Build.0 = Debug|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.DebugU.ActiveCfg = Debug|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.DebugU.Build.0 = Debug|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.MinSizeRel.ActiveCfg = Release|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.MinSizeRel.Build.0 = Release|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.MtDllDebug.ActiveCfg = Debug|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.MtDllDebug.Build.0 = Debug|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.MtDllRelease.ActiveCfg = Release|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.MtDllRelease.Build.0 = Release|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.Release.ActiveCfg = Release|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.Release.Build.0 = Release|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.ReleaseU.ActiveCfg = Release|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.ReleaseU.Build.0 = Release|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.RelWithDebInfo.ActiveCfg = Release|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.RelWithDebInfo.Build.0 = Release|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.ServerDebug.ActiveCfg = Debug|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.ServerDebug.Build.0 = Debug|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.ServerRelease.ActiveCfg = Release|Win32
-		{98181115-44FD-4F52-9230-8D46F577721D}.ServerRelease.Build.0 = Release|Win32
 		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.Debug.ActiveCfg = Debug|Win32
 		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.Debug.Build.0 = Debug|Win32
 		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.DebugU.ActiveCfg = Debug|Win32

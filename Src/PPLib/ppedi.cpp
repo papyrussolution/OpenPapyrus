@@ -4,277 +4,147 @@
 #include <pp.h>
 #pragma hdrstop
 
-SEancomXmlSegment::SEancomXmlSegment(const xmlNode * pNode)
-{
-	Set(pNode);
-}
-
-int SEancomXmlSegment::operator !() const
-{
-	return (P_Node == 0);
-}
-
-int SEancomXmlSegment::GetNext(SEancomXmlSegment & rSeg)
-{
-	const xmlNode * p_cur = P_Cur;
-	if(P_Cur)
-		P_Cur = P_Cur->next;
-	return rSeg.Set(p_cur);
-}
-
-int SEancomXmlSegment::Is(const char * pName) const
-{
-	return P_Node ? IsText((const char *)P_Node->name, pName) : 0;
-}
-
-int SEancomXmlSegment::IsContent(const char * pText) const
-{
-	return P_Node ? IsText((const char *)P_Node->content, pText) : 0;
-}
-
-SString & SEancomXmlSegment::GetContent(SString & rBuf) const
-{
-	rBuf = P_Node ? (const char *)P_Node->content : 0;
-	return rBuf;
-}
-
-int SEancomXmlSegment::GetMsgTypeName() const
-{
-	return P_Node ? GetMsgType((const char *)P_Node->name) : 0;
-}
-
-int SEancomXmlSegment::GetMsgTypeContent() const
-{
-	return P_Node ? GetMsgType((const char *)P_Node->content) : 0;
-}
-
-int SEancomXmlSegment::GetMsgType(const char * pText) const
-{
-	int    msg_type = 0;
-	if(pText) {
-		if(IsText(pText, "DESADV"))
-			msg_type = PPEDIOP_DESADV;
-		else if(IsText(pText, "ORDRSP"))
-			msg_type = PPEDIOP_ORDERRSP;
-		else if(IsText(pText, "ALCDES"))
-			msg_type = PPEDIOP_ALCODESADV;
-		else if(IsText(pText, "ORDERS"))
-			msg_type = PPEDIOP_ORDER;
-		else if(IsText(pText, "RECADV"))
-			msg_type = PPEDIOP_RECADV;
-		else if(IsText(pText, "APERAK"))
-			msg_type = PPEDIOP_APERAK;
-	}
-	return msg_type;
-}
-
-int SEancomXmlSegment::GetInt(int & rVal) const
-{
-	int    ok = 0;
-	if(P_Node && P_Node->content) {
-		rVal = atoi((const char *)P_Node->content);
-		ok = 1;
-	}
-	else {
-		rVal = 0;
-		ok = 0;
-	}
-	return ok;
-}
-
-int SEancomXmlSegment::GetReal(double & rVal) const
-{
-	int    ok = 0;
-	if(P_Node && P_Node->content) {
-		rVal = atof((const char *)P_Node->content);
-		ok = 1;
-	}
-	else {
-		rVal = 0.0;
-		ok = 0;
-	}
-	return ok;
-}
-
-int SEancomXmlSegment::GetText(SString & rText) const
-{
-	int    ok = 0;
-	if(P_Node && P_Node->content) {
-		rText.Set(P_Node->content);
-		ok = 1;
-	}
-	else {
-		rText.Z();
-		ok = 0;
-	}
-	return ok;
-}
-
-int SEancomXmlSegment::GetREF(REF & rR)
-{
-	int    ok = 0;
-	rR.Clear();
-	if(Is("RFF")) {
-		SEancomXmlSegment seg;
-		while(GetNext(seg)) {
-			if(seg.Is("S506")) {
-				SEancomXmlSegment seg2;
-				while(seg.GetNext(seg2)) {
-					if(seg2.Is("E1153")) { // Reference code qualifier
-						if(seg2.IsContent("ON")) {
-							rR.Type = refON;
-						}
-						else if(seg2.IsContent("IT")) {
-							rR.Type = refIT;
-						}
-						else if(seg2.IsContent("YC1")) {
-							rR.Type = refYC1;
-						}
-						else if(seg2.IsContent("ABT")) {
-							rR.Type = refABT;
-						}
-						else if(seg2.IsContent("IV")) {
-							rR.Type = refIV;
-						}
-					}
-					else if(seg2.Is("E1154")) { // Reference identifier
-						seg2.GetText(rR.Text);
-					}
-				}
-			}
+class PPEdiProcessor {
+public:
+	struct Packet {
+		Packet(int docType);
+		~Packet();
+		int    DocType;
+		long   Flags;
+		void * P_Data;
+	};
+	struct DocumentInfo {
+		SLAPI  DocumentInfo();
+		enum {
+			statusUnkn = 0,
+			statusNew  = 1
+		};
+		int    ID;          // Идентификатор сообщения, инициализируемый дравером конкретного провайдера (не зависимо от провайдера)
+		int    EdiOp;       // Тип EDI-операции
+		LDATETIME Time;     // Время создания/модификации сообщения
+		S_GUID Uuid;        // GUID сообщения
+		long   Status;      // DocumentInfo::statusXXX
+		long   Flags;       // Флаги
+		long   PrvFlags;    // Флаги, специфичные для конкретного провайдера
+		SString Code;       // Код сообщения (номер документа)
+		SString SenderCode; // Код отправителя
+		SString RcvrCode;   // Код получателя  
+		SString Box;        // Если хранение сообщений дифференцировано по боксам, то здесь может быть имя бокса для сообщения
+		SString SId;        // Символьный идентификатор (может быть именем файла)
+	};
+	class DocumentInfoList : private SStrGroup {
+	public:
+		SLAPI  DocumentInfoList();
+		uint   SLAPI GetCount() const;
+		int    SLAPI GetByIdx(uint idx, DocumentInfo & rItem) const;
+		int    SLAPI Add(const DocumentInfo & rItem, uint * pIdx);
+	private:
+		struct Entry {
+			int    ID;
+			int    EdiOp;
+			LDATETIME Dtm;
+			S_GUID Uuid;
+			long   Status;
+			long   Flags;
+			long   PrvFlags;
+			uint   CodeP;
+			uint   SenderCodeP;
+			uint   RcvrCodeP;
+			uint   BoxP;
+			uint   SIdP;
+		};
+		TSVector <Entry> L;
+	};
+	class ProviderImplementation {
+	public:
+		SLAPI  ProviderImplementation(const PPEdiProviderPacket & rEpp) : Epp(rEpp)
+		{
 		}
-		ok = 1;
-	}
-	return ok;
-}
-
-int SEancomXmlSegment::GetDate(DTM & rD)
-{
-	int    ok = 0;
-	rD.Clear();
-	if(Is("DTM")) { // Date/time/period
-		SEancomXmlSegment seg;
-		SString value;
-		//
-		// 102   = CCYYMMDD
-		// 203   = CCYYMMDDHHMM
-		int    format = 0;
-		//
-		while(GetNext(seg)) {
-			if(seg.Is("S507")) {
-				SEancomXmlSegment seg2;
-				while(seg.GetNext(seg2)) {
-					if(seg2.Is("E2005")) { // Date or time or period function code qualifier
-						seg2.GetInt(rD.Type);
-					}
-					else if(seg2.Is("E2380")) { // Date or time or period value
-						seg2.GetText(value);
-					}
-					else if(seg2.Is("E2379")) { // Date or time or period format code
-						seg2.GetInt(format);
-					}
-				}
-				if(format == 102) {
-					strtodate(value.Trim(8), DATF_YMD|DATF_CENTURY, &rD.Dtm.d);
-					rD.Dtm.t = ZEROTIME;
-					ok = 1;
-				}
-				else if(format == 203) {
-					SString temp_buf;
-					(temp_buf = value).ShiftLeft(8);
-					int  _t = temp_buf.ToLong();
-					int  hh = _t / 100;
-					int  mm = _t % 100;
-					rD.Dtm.t = encodetime(hh, mm, 0, 0);
-					strtodate(value.Trim(8), DATF_YMD|DATF_CENTURY, &rD.Dtm.d);
-					ok = 1;
-				}
-			}
+		virtual SLAPI ~ProviderImplementation()
+		{
 		}
-	}
-	return ok;
-}
-
-int SEancomXmlSegment::GetMOA(MOA & rM)
-{
-	int    ok = 0;
-	rM.Clear();
-	if(Is("MOA")) {
-		SEancomXmlSegment seg;
-		SString value;
-		while(GetNext(seg)) {
-			if(seg.Is("S516")) {
-				SEancomXmlSegment seg2;
-				while(seg.GetNext(seg2)) {
-					if(seg2.Is("E5025")) { // Monetary amount type code qualifier
-						seg2.GetInt(rM.Type);
-					}
-					else if(seg2.Is("E5004")) { // Value
-						seg2.GetReal(rM.Value);
-					}
-					else if(seg2.Is("E6345")) { // Currency ISO 4217 three alpha
-						SString temp_buf;
-						seg2.GetText(temp_buf);
-						STRNSCPY(rM.CurrencySymb, temp_buf);
-					}
-				}
-				ok = 1;
-			}
+		virtual int    SLAPI  GetDocumentList(DocumentInfoList & rList)
+		{
+			return -1;
 		}
-	}
-	return ok;
-}
-
-int SEancomXmlSegment::GetNAD(NAD & rN)
-{
-	int    ok = 0;
-	rN.Clear();
-	if(Is("NAD")) {
-		SEancomXmlSegment seg;
-		SString temp_buf;
-		while(GetNext(seg)) {
-			if(seg.Is("E3035")) { // Party function code qualifier
-				if(seg.IsContent("SU")) {
-					rN.Type = nadSU;
-				}
-				else if(seg.IsContent("BY")) {
-					rN.Type = nadBY;
-				}
-				else if(seg.IsContent("DP")) {
-					rN.Type = nadDP;
-				}
-				else if(seg.IsContent("UD")) {
-					rN.Type = nadUD;
-				}
-				else if(seg.IsContent("IV")) {
-					rN.Type = nadIV;
-				}
-			}
-			else if(seg.Is("C082")) { // PARTY IDENTIFICATION DETAILS
-				SEancomXmlSegment seg2;
-				while(seg.GetNext(seg2)) { //
-					if(seg2.Is("E3039")) { // Party identifier GLN -Format n13
-						seg2.GetText(temp_buf);
-						STRNSCPY(rN.GLN, temp_buf);
-					}
-					else if(seg2.Is("E3055")) { // Code list responsible agency code 9 = EAN
-					}
-				}
-				ok = 1;
-			}
+		virtual int    SLAPI  ReceiveDocument(const DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
+		{
+			return -1;
 		}
+		virtual int    SLAPI  SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
+		{
+			return -1;
+		}
+	protected:
+		PPEdiProviderPacket Epp;
+	};
+	SLAPI  PPEdiProcessor();
+	SLAPI ~PPEdiProcessor();
+	int    SLAPI SendBills(const PPBillExportFilt & rP);
+};
+
+class EdiProviderImplementation_Kontur : public PPEdiProcessor::ProviderImplementation {
+public:
+	SLAPI  EdiProviderImplementation_Kontur(const PPEdiProviderPacket & rEpp);
+	virtual SLAPI ~EdiProviderImplementation_Kontur();
+	virtual int    SLAPI  GetDocumentList(PPEdiProcessor::DocumentInfoList & rList);
+	virtual int    SLAPI  ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
+	virtual int    SLAPI  SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
+};
+
+PPEdiProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), P_Data(0)
+{
+}
+
+PPEdiProcessor::Packet::~Packet()
+{
+}
+
+SLAPI PPEdiProcessor::PPEdiProcessor()
+{
+}
+
+SLAPI PPEdiProcessor::~PPEdiProcessor()
+{
+}
+
+int SLAPI PPEdiProcessor::SendBills(const PPBillExportFilt & rP)
+{
+	int    ok = -1;
+	return ok;
+}
+//
+//
+//
+SLAPI EdiProviderImplementation_Kontur::EdiProviderImplementation_Kontur(const PPEdiProviderPacket & rEpp) : PPEdiProcessor::ProviderImplementation(rEpp)
+{
+}
+
+SLAPI EdiProviderImplementation_Kontur::~EdiProviderImplementation_Kontur()
+{
+}
+
+int SLAPI EdiProviderImplementation_Kontur::GetDocumentList(PPEdiProcessor::DocumentInfoList & rList)
+{
+	int    ok = -1;
+	SString temp_buf;
+	ScURL  curl;
+	Epp.GetExtStrData(Epp.extssAddr, temp_buf);
+	if(!temp_buf.NotEmptyS()) {
+		Epp.GetExtStrData(Epp.extssAddr2, temp_buf);
 	}
+	THROW(temp_buf.NotEmptyS());
+
+	CATCHZOK
 	return ok;
 }
 
-int SEancomXmlSegment::IsText(const char * pContent, const char * pText) const
+int SLAPI EdiProviderImplementation_Kontur::ReceiveDocument(const PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
 {
-	return BIN(pContent && pText && _stricmp(pContent, pText) == 0);
+	return -1;
 }
 
-int SEancomXmlSegment::Set(const xmlNode * pNode)
+int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
 {
-	P_Node = pNode;
-	P_Cur = P_Node ? P_Node->children : 0;
-	return BIN(P_Node);
+	return -1;
 }

@@ -461,6 +461,9 @@
     <ClInclude Include="..\OSF\CAIRO\PIXMAN\pixman-region.c">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\slcairo.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">

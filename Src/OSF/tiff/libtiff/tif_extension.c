@@ -34,23 +34,19 @@
 #pragma hdrstop
 
 int TIFFGetTagListCount(TIFF * tif)
-
 {
 	TIFFDirectory* td = &tif->tif_dir;
 	return td->td_customValueCount;
 }
 
 uint32 TIFFGetTagListEntry(TIFF * tif, int tag_index)
-
 {
 	TIFFDirectory* td = &tif->tif_dir;
-
 	if(tag_index < 0 || tag_index >= td->td_customValueCount)
 		return (uint32)(-1);
 	else
 		return td->td_customValues[tag_index].info->field_tag;
 }
-
 /*
 ** This provides read/write access to the TIFFTagMethods within the TIFF
 ** structure to application code without giving access to the private
@@ -66,10 +62,7 @@ void * TIFFGetClientInfo(TIFF * tif, const char * name)
 	TIFFClientInfoLink * psLink = tif->tif_clientinfo;
 	while(psLink && !sstreq(psLink->name, name))
 		psLink = psLink->next;
-	if(psLink != NULL)
-		return psLink->data;
-	else
-		return NULL;
+	return psLink ? psLink->data : NULL;
 }
 
 void TIFFSetClientInfo(TIFF * tif, void * data, const char * name)
@@ -78,23 +71,23 @@ void TIFFSetClientInfo(TIFF * tif, void * data, const char * name)
 	// Do we have an existing link with this name?  If so, just set it.
 	while(psLink && !sstreq(psLink->name, name))
 		psLink = psLink->next;
-	if(psLink != NULL) {
+	if(psLink) {
 		psLink->data = data;
-		return;
 	}
-	/*
-	** Create a new link.
-	*/
-	psLink = (TIFFClientInfoLink*)SAlloc::M(sizeof(TIFFClientInfoLink));
-	assert(psLink != NULL);
-	psLink->next = tif->tif_clientinfo;
-	psLink->name = (char*)SAlloc::M((tmsize_t)(strlen(name)+1));
-	assert(psLink->name != NULL);
-	strcpy(psLink->name, name);
-	psLink->data = data;
-	tif->tif_clientinfo = psLink;
+	else {
+		/*
+		** Create a new link.
+		*/
+		psLink = (TIFFClientInfoLink*)SAlloc::M(sizeof(TIFFClientInfoLink));
+		assert(psLink != NULL);
+		psLink->next = tif->tif_clientinfo;
+		psLink->name = (char*)SAlloc::M((tmsize_t)(strlen(name)+1));
+		assert(psLink->name != NULL);
+		strcpy(psLink->name, name);
+		psLink->data = data;
+		tif->tif_clientinfo = psLink;
+	}
 }
-
 /*
  * Local Variables:
  * mode: c

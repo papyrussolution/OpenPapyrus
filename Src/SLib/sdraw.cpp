@@ -1680,7 +1680,7 @@ int SImageBuffer::PixF::GetUniform(const void * pSrc, void * pUniformBuf, uint w
 	return ok;
 }
 
-SImageBuffer::StoreParam::StoreParam(int fmt) : Fmt(fmt), Flags(0), Quality(100)
+SImageBuffer::StoreParam::StoreParam(int fmt) : Fmt(fmt), Flags(0), Quality(0)
 {
 }
 
@@ -1866,6 +1866,9 @@ int SImageBuffer::Helper_Load(SFile & rF, SFileFormat ff)
 		case SFileFormat::Cur:
 			THROW(LoadIco(rF, 0));
 			break;
+		case SFileFormat::Tiff:
+			//THROW(LoadTiff(rF, ff));
+			//break;
 		default:
 			CALLEXCEPT_S_S(SLERR_UNSUPPIMGFILEFORMAT, 0);
 	}
@@ -1952,7 +1955,7 @@ int SImageBuffer::Init(uint w, uint h, SImageBuffer::PixF f)
 uint8 * FASTCALL SImageBuffer::GetScanline(uint lineNo) const
 {
 	uint8 * p_ret = 0;
-	if((int)lineNo < S.x) {
+	if((int)lineNo < S.y) {
 		uint   stride = F.GetStride(S.x);
 		if(stride)
 			p_ret = PTR8(P_Buf)+(stride*lineNo);
@@ -2485,7 +2488,7 @@ int SImageBuffer::StoreJpeg(const StoreParam & rP, SFile & rF)
 	STempBuffer row_buf(0);
 	STempBuffer uniform_buf(0);
 	int    row_stride;
-	THROW(S.x > 0 && S.y > 0); // no image
+	THROW_S((S.x >= 1 && S.x <= 30000) && (S.y >= 1 && S.y <= 30000), SLERR_INVIMAGESIZE); // no image
 	THROW(row_buf.Alloc(S.x * 3));
 	THROW(uniform_buf.Alloc(S.x * 4));
 	row_pointer[0] = (JSAMPROW)(char *)row_buf;
@@ -2684,7 +2687,7 @@ int SImageBuffer::StorePng(const StoreParam & rP, SFile & rF)
 	png_info * p_info = 0;
 	uint8 ** volatile pp_rows = 0;
 	const uint stride = F.GetStride(S.x);
-	THROW(S.x > 0 && S.y > 0); // no image
+	THROW_S((S.x >= 1 && S.x <= 30000) && (S.y >= 1 && S.y <= 30000), SLERR_INVIMAGESIZE); // no image
 	THROW(pp_rows = (uint8 **)SAlloc::M(S.y * sizeof(uint8*)));
 	for(int i = 0; i < S.y; i++) {
 		pp_rows[i] = (uint8 *)P_Buf+i*stride;
@@ -2841,6 +2844,35 @@ int SImageBuffer::LoadGif(SFile & rF)
 //
 //
 //
+/*
+#include <..\OSF\tiff\libtiff\tiffio.h>
+
+int SImageBuffer::LoadTiff(SFile & rF, int fileFmt)
+{
+	int    ok = 0;
+	TIFF * tif = TIFFOpen(argv[1], "r");
+	if(tif) {
+		uint32 w, h;
+		size_t npixels;
+		uint32* raster;
+		TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
+		TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
+		npixels = w * h;
+		raster = (uint32*) _TIFFmalloc(npixels * sizeof (uint32));
+		if(raster != NULL) {
+			if(TIFFReadRGBAImage(tif, w, h, raster, 0)) {
+				...process raster data...
+			}
+			_TIFFfree(raster);
+		}
+		TIFFClose(tif);
+	}
+	return ok;
+}
+*/
+//
+//
+//
 SDrawImage::SDrawImage(const char * pSid) : SDrawFigure(SDrawFigure::kImage, pSid)
 {
 	Buf.Init(0, 0);
@@ -2953,8 +2985,10 @@ SLTEST_R(SDraw)
 			THROW(SLTEST_CHECK_NZ(img_buf2.IsEqual(img_buf)));
 		}
 		{
+			THROW(SLTEST_CHECK_NZ(img_buf.Load(MakeInputFilePath("test10.jpg"))));
 			SImageBuffer::StoreParam sp_jpeg(SFileFormat::Jpeg);
-			SFile out_file_jpeg(MakeInputFilePath("test24.jpg"), SFile::mWrite);
+			sp_jpeg.Quality = 50;
+			SFile out_file_jpeg(MakeInputFilePath("test10-out.jpg"), SFile::mWrite|SFile::mBinary);
 			THROW(SLTEST_CHECK_NZ(img_buf.Store(sp_jpeg, out_file_jpeg)))
 		}
 	}
@@ -2963,3 +2997,4 @@ SLTEST_R(SDraw)
 }
 
 #endif // } SLTEST_RUNNING
+	

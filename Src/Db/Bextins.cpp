@@ -1,5 +1,5 @@
 // BEXTINS.CPP
-// Copyright (c) A.Sobolev 1997-1999, 2000, 2004, 2008, 2009, 2010, 2015, 2017
+// Copyright (c) A.Sobolev 1997-1999, 2000, 2004, 2008, 2009, 2010, 2015, 2017, 2018
 // @codepage UTF-8
 // Поддержка операции расширенной вставки записей
 //
@@ -12,11 +12,12 @@ SLAPI BExtInsert::BExtInsert(DBTable * pTbl, size_t aBufSize) : SdRecordBuffer(N
 {
 	if(!GetBuf().P_Buf)
 		State &= ~stValid;
-	if(!P_Tbl || !P_Tbl->getRecSize(&FixRecSize)) {
+	if(!P_Tbl) {
 		FixRecSize = 0;
 		State &= ~stValid;
 	}
 	else {
+		FixRecSize = P_Tbl->getRecSize();
 		if(P_Tbl->HasNote(0) > 0)
 			State |= stHasNote;
 	}

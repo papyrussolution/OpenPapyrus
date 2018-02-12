@@ -1377,19 +1377,19 @@ SCodepageIdent & FASTCALL SCodepageIdent::operator = (SCodepage cp)
 int SCodepageIdent::FromStr(const char * pStr)
 {
 	int    ok = 0;
-	SString inp_buf = pStr;
-	inp_buf.Strip();
+	SString & r_inp_buf = SLS.AcquireRvlStr(); // @v9.9.4
+	(r_inp_buf = pStr).Strip();
 	for(uint i = 0; !ok && i < SIZEOFARRAY(__SCpL); i++) {
 		const SCpEntry & r_entry = __SCpL[i];
-		if(!isempty(r_entry.P_Xml) && inp_buf.CmpNC(r_entry.P_Xml) == 0) {
+		if(!isempty(r_entry.P_Xml) && r_inp_buf.CmpNC(r_entry.P_Xml) == 0) {
 			Cp = r_entry.Cp;
 			ok = 1;
 		}
-		else if(!isempty(r_entry.P_Canonical) && inp_buf.CmpNC(r_entry.P_Canonical) == 0) {
+		else if(!isempty(r_entry.P_Canonical) && r_inp_buf.CmpNC(r_entry.P_Canonical) == 0) {
 			Cp = r_entry.Cp;
 			ok = 2;
 		}
-		else if(!isempty(r_entry.P_CLibLocale) && inp_buf.CmpNC(r_entry.P_CLibLocale) == 0) {
+		else if(!isempty(r_entry.P_CLibLocale) && r_inp_buf.CmpNC(r_entry.P_CLibLocale) == 0) {
 			Cp = r_entry.Cp;
 			ok = 3;
 		}
@@ -1431,25 +1431,10 @@ int SCodepageIdent::ToStr(int fmt, SString & rBuf) const
 //
 //
 //
-int FASTCALL ishex(char c)
-{
-	return BIN((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'));
-}
-
-int FASTCALL isdec(char c)
-{
-	return BIN(c >= '0' && c <= '9');
-}
-
-int FASTCALL isdecw(wchar_t c)
-{
-	return BIN(c >= L'0' && c <= L'9');
-}
-
-uint FASTCALL hex(char c)
-{
-	return (c >= '0' && c <= '9') ? (c-'0') : ((c >= 'A' && c <= 'F') ? (c-'A'+10) : ((c >= 'a' && c <= 'f') ? (c-'a'+10) : 0));
-}
+int    FASTCALL ishex(char c) { return BIN((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')); }
+int    FASTCALL isdec(char c) { return BIN(c >= '0' && c <= '9'); }
+int    FASTCALL isdecw(wchar_t c) { return BIN(c >= L'0' && c <= L'9'); }
+uint   FASTCALL hex(char c) { return (c >= '0' && c <= '9') ? (c-'0') : ((c >= 'A' && c <= 'F') ? (c-'A'+10) : ((c >= 'a' && c <= 'f') ? (c-'a'+10) : 0)); }
 
 uint8 FASTCALL hextobyte(const char * pBuf)
 {
@@ -1923,42 +1908,20 @@ int QuotedStringToStr(char **pStr, char * pBuf, int maxBytes, char dStr)
 //
 char * FASTCALL stpcpy(char *to, const char *from)
 {
-	size_t len = strlen(from);
-	memcpy(to, from, len+1);
+	size_t len = sstrlen(from);
+	if(len)
+		memcpy(to, from, len+1);
 	return (to+len);
 }
 //
 //
 //
-int FASTCALL isempty(const char * pStr)
-{
-	return BIN(pStr == 0 || pStr[0] == 0);
-}
-
-int FASTCALL isempty(const uchar * pStr)
-{
-	return BIN(pStr == 0 || pStr[0] == 0);
-}
-
-int FASTCALL isempty(const wchar_t * pStr)
-{
-	return BIN(pStr == 0 || pStr[0] == 0);
-}
-
-size_t FASTCALL sstrlen(const char * pStr)
-{
-	return (pStr && pStr[0]) ? strlen(pStr) : 0;
-}
-
-size_t FASTCALL sstrlen(const uchar * pStr)
-{
-	return (pStr && pStr[0]) ? strlen((const char *)pStr) : 0;
-}
-
-size_t FASTCALL sstrlen(const wchar_t * pStr)
-{
-	return (pStr && pStr[0]) ? wcslen(pStr) : 0;
-}
+int    FASTCALL isempty(const char * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
+int    FASTCALL isempty(const uchar * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
+int    FASTCALL isempty(const wchar_t * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
+size_t FASTCALL sstrlen(const char * pStr) { return (pStr && pStr[0]) ? strlen(pStr) : 0; }
+size_t FASTCALL sstrlen(const uchar * pStr) { return (pStr && pStr[0]) ? strlen((const char *)pStr) : 0; }
+size_t FASTCALL sstrlen(const wchar_t * pStr) { return (pStr && pStr[0]) ? wcslen(pStr) : 0; }
 
 char * FASTCALL sstrdup(const char * pStr)
 {
@@ -2101,25 +2064,10 @@ char * SLAPI wstrcpy(char * pDest, char * pSrc, size_t maxlen)
 	return pDest;
 }
 
-char * FASTCALL sstrcpy(char * pDest, const char * pSrc)
-{
-	return strcpy(pDest, pSrc);
-}
-
-uchar * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc)
-{
-	return (uchar *)strcpy((char *)pDest, (const char *)pSrc);
-}
-
-wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc)
-{
-	return wcscpy(pDest, pSrc);
-}
-
-char * FASTCALL strnzcpy(char * dest, const uchar * src, size_t maxlen)
-{
-	return strnzcpy(dest, (const char *)src, maxlen);
-}
+char * FASTCALL sstrcpy(char * pDest, const char * pSrc) { return strcpy(pDest, pSrc); }
+uchar * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc) { return (uchar *)strcpy((char *)pDest, (const char *)pSrc); }
+wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc) { return wcscpy(pDest, pSrc); }
+char * FASTCALL strnzcpy(char * dest, const uchar * src, size_t maxlen) { return strnzcpy(dest, (const char *)src, maxlen); }
 
 char * FASTCALL strnzcpy(char * dest, const char * src, size_t maxlen)
 {
@@ -2551,9 +2499,7 @@ const char SUtfConst::TrailingBytesForUTF8[256] = {
 // This table contains as many values as there might be trailing bytes
 // in a UTF-8 sequence.
 //
-const uint32 SUtfConst::OffsetsFromUTF8[6] = {
-	0x00000000UL, 0x00003080UL, 0x000E2080UL, 0x03C82080UL, 0xFA082080UL, 0x82082080UL
-};
+const uint32 SUtfConst::OffsetsFromUTF8[6] = { 0x00000000UL, 0x00003080UL, 0x000E2080UL, 0x03C82080UL, 0xFA082080UL, 0x82082080UL };
 //
 // Once the bits are split out into bytes of UTF-8, this is a mask OR-ed
 // into the first byte, depending on how many bytes follow.  There are
@@ -2561,9 +2507,7 @@ const uint32 SUtfConst::OffsetsFromUTF8[6] = {
 // (I.e., one byte sequence, two byte... etc.). Remember that sequencs
 // for *legal* UTF-8 will be 4 or fewer bytes total.
 //
-const uint8 SUtfConst::FirstByteMark[7] = {
-	0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC
-};
+const uint8 SUtfConst::FirstByteMark[7] = { 0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
 
 const uint32 SUtfConst::HalfBase = 0x0010000UL;
 const uint32 SUtfConst::HalfMask = 0x3FFUL;
@@ -2643,24 +2587,16 @@ struct dist_components {
 
 class HighestScore {
 public:
-	HighestScore(double weight)
+	HighestScore(double weight) : Weight(weight), Score(0.0), S1(0), S2(0)
 	{
-		Weight = weight;
-		Score = 0.0;
 	}
 	void Clear()
 	{
 		Score = 0.0;
 	}
-	int GetFirst() const
-	{
-		return S1;
-	}
-	int GetSecond() const
-	{
-		return S2;
-	}
-	double WeighedScore(const char *s1, const char *s2)
+	int GetFirst() const { return S1; }
+	int GetSecond() const { return S2; }
+	double FASTCALL WeighedScore(const char *s1, const char *s2) const
 	{
 		if(Weight == 1.0) {
 			long si = 0;
@@ -2710,40 +2646,20 @@ private:
 	int    S2;
 };
 
-inline double ApproxStrComparator::Distance()
-{
-	return MIN(Del1 + Del2 + Swaps + Subs, MaxSize);
-}
-
-inline double ApproxStrComparator::Score()
-{
-	return (MaxSize - Distance()) / MaxSize;
-}
+inline double ApproxStrComparator::Distance() { return MIN(Del1 + Del2 + Swaps + Subs, MaxSize); }
+inline double ApproxStrComparator::Score() { return (MaxSize - Distance()) / MaxSize; }
 
 inline double FASTCALL ApproxStrComparator::Distance(const dist_weights & w)
-{
-	return MIN(w.Del1 * Del1 + w.Del2 * Del2 + w.Swaps * Swaps + w.Subs * Subs, MaxSize);
-}
-
+	{ return MIN(w.Del1 * Del1 + w.Del2 * Del2 + w.Swaps * Swaps + w.Subs * Subs, MaxSize); }
 inline double FASTCALL ApproxStrComparator::Score(const dist_weights & w)
-{
-	return (MaxSize - Distance(w)) / MaxSize;
-}
-
+	{ return (MaxSize - Distance(w)) / MaxSize; }
 inline void FASTCALL ApproxStrComparator::Distance(dist_components & c)
-{
-	c.set(Del1, Del2, Swaps, Subs);
-}
+	{ c.set(Del1, Del2, Swaps, Subs); }
 
-ApproxStrComparator::ApproxStrComparator(const char * pPattern, const ApproxStrSrchParam * param)
+ApproxStrComparator::ApproxStrComparator(const char * pPattern, const ApproxStrSrchParam * param) : 
+	Del1(0), Del2(0), Swaps(0), Subs(0), MaxSize(0), Pattern(pPattern)
 {
-	Del1 = 0;
-	Del2 = 0;
-	Swaps = 0;
-	Subs = 0;
-	MaxSize = 0;
 	P = *param;
-	Pattern = pPattern;
 	if(P.no_case)
 		Pattern.ToLower();
 }
@@ -2751,11 +2667,13 @@ ApproxStrComparator::ApproxStrComparator(const char * pPattern, const ApproxStrS
 double FASTCALL ApproxStrComparator::Next(const char * b2)
 {
 	double result = 1.0;
+	SString & r_temp = SLS.AcquireRvlStr(); // @v9.9.4 
+	r_temp = b2;
 	if(P.no_case) {
-		(Temp = b2).ToLower();
-		b2 = (const char *)Temp;
+		r_temp.ToLower();
+		b2 = (const char *)r_temp;
 	}
-	if(Pattern.Cmp(Temp, 0) != 0) {
+	if(Pattern != r_temp) {
 		HighestScore higest(P.weight);
 		Del1 = Del2 = Swaps = Subs = 0;
 		MaxSize = 0;
@@ -2949,7 +2867,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern)
 				if(*p_srch_str == '(') {
 					int i, j;
 					for(i = j = 0, p_srch_str++; i < 2 && *p_srch_str != ')'; i++, p_srch_str++)
-						if(isdigit(*p_srch_str))
+						if(isdec(*p_srch_str))
 							j = j * 10 + *p_srch_str - '0';
 						else {
 							ok = 0;

@@ -3929,7 +3929,7 @@ PPTXT_COMSTOPBITS            "1,1;2,1.5;3,2"
 PPTXT_COMBYTESIZE            "4,4;5,5;6,6;7,7;8,8"
 PPTXT_COMPARITY              "0,None;1,Odd;2,Even;3,Mark;4,Space"
 PPTXT_SLIPFMT_KEYW           "slip;if;else;endif;title;number;pagewidth;pagelength;space;align;left;right;center;paper;regular;\
-journal;font;fiscal;headlines;wrap;picture;textoutput;barcode;signbarcode;fakeccqrcode"
+journal;font;fiscal;headlines;wrap;picture;textoutput;barcode;signbarcode;fakeccqrcode;elseif"
 #!}
 PPTXT_CHKPAN_GIFTNOTE        "Для получения подарка '%s'\nосталось купить товар '%s'"
 PPTXT_CHKPAN_GIFTNOTEAMT     "Для получения подарка '%s'\nосталось купить товар '%s' на сумму %.2lf"
@@ -4873,6 +4873,7 @@ PPSSYM_FORMAT "int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit;acc;a
 455 "Ошибка библиотеки cURL"
 456 "Ошибка библиотеки LIBXML: %s"
 457 "Дублирование символа '%s' элемента с отличным идентификатором"
+458 "Недопустимый размер изображения"
 
 500 "Unable to open configuration file for reading"
 501 "Unable to open configuration file for writing"

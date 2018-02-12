@@ -818,6 +818,13 @@ private:
 //
 //
 //
+SLAPI PPBillExportFilt::PPBillExportFilt() : LocID(0)
+{
+	Period.SetZero();
+}
+//
+//
+//
 PPBillImpExpBaseProcessBlock::TransmitParam::TransmitParam() : InetAccID(0)
 {
 }
@@ -2769,8 +2776,15 @@ int SLAPI PPBillImporter::Import(int useTa)
 								new_item_pos = pack.GetTCount()-1;
 								if(pack.OpTypeID == PPOPT_GOODSRECEIPT) {
 									ObjTagList * p_tag_list = TagC.Get(r_row.LineId);
-									if(p_tag_list && p_tag_list->GetCount())
+									if(p_tag_list && p_tag_list->GetCount()) {
 										pack.LTagL.Set(new_item_pos, p_tag_list);
+										// @v9.9.4 {
+										if(temp_buf.NotEmpty())
+											pack.LTagL.AddNumber(PPTAG_LOT_CLB, new_item_pos, temp_buf); 
+										if(serial.NotEmpty())
+											pack.LTagL.AddNumber(PPTAG_LOT_SN, new_item_pos, serial);
+										// } @v9.9.4 
+									}
 								}
 								if(need_price_restrict) {
 									RealRange price_range;
@@ -3381,7 +3395,7 @@ int SLAPI PPBillImporter::Run()
 			ep.SetNonRvmTagMode(1);
 		THROW(ep.CheckLic());
 		{
-			PPEgaisProcessor::SendBillsParam sbp;
+			PPBillExportFilt sbp;
 			sbp.LocID = LocID;
 			sbp.Period = Period;
 			TSVector <PPEgaisProcessor::UtmEntry> utm_list; // @v9.8.11 TSArray-->TSVector

@@ -1,15 +1,13 @@
 // PSALES.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
 //
 // PredictSalesStat
 //
-SLAPI PredictSalesStat::PredictSalesStat(PPID coeffQkID, const  PPQuotArray * pCoeffQList) : CoeffQkID(coeffQkID)
+SLAPI PredictSalesStat::PredictSalesStat(PPID coeffQkID, const  PPQuotArray * pCoeffQList) : CoeffQkID(coeffQkID), P_CoeffQList(pCoeffQList), P_List(0)
 {
-	P_CoeffQList = pCoeffQList;
-	P_List = 0;
 	memzero(&LocID, offsetof(PredictSalesStat, Flags) - offsetof(PredictSalesStat, LocID) + sizeof(Flags));
 }
 
@@ -18,11 +16,10 @@ SLAPI PredictSalesStat::~PredictSalesStat()
 	delete P_List;
 }
 
-int SLAPI PredictSalesStat::Init()
+void SLAPI PredictSalesStat::Init()
 {
 	ZDELETE(P_List);
 	memzero(&LocID, offsetof(PredictSalesStat, Flags) - offsetof(PredictSalesStat, LocID) + sizeof(Flags));
-	return 1;
 }
 
 PredictSalesStat & FASTCALL PredictSalesStat::operator = (const PredictSalesStat & s)
@@ -31,38 +28,28 @@ PredictSalesStat & FASTCALL PredictSalesStat::operator = (const PredictSalesStat
 	memcpy(this, &s, sizeof(*this));
 	P_List = 0;
 	if(s.P_List)
-		P_List = new SArray(*s.P_List);
+		P_List = new SVector(*s.P_List); // @v9.9.4 SArray-->SVector
 	return *this;
 }
-
-struct LsEntry {
-	int16  Day;
-	int16  Reserve; // @alignment
-	double Qtty;
-	double Amt;
-};
 
 int FASTCALL PredictSalesStat::Step(const PredictSalesItem * pItem)
 {
 	int    ok = 1;
-	// @v7.8.12 {
 	int    skip = 0;
 	double coeff = 1.0;
 	if(P_CoeffQList && CoeffQkID && P_CoeffQList->getCount()) {
 		uint   qpos = 0;
-		QuotIdent qi(pItem->Dt, LocID, CoeffQkID, 0, 0);
+		const  QuotIdent qi(pItem->Dt, LocID, CoeffQkID, 0, 0);
 		if(P_CoeffQList->SearchNearest(qi, &qpos) > 0) {
 			const PPQuot & r_q = P_CoeffQList->at(qpos);
 			if(!r_q.Period.IsZero()) {
 				if(r_q.Flags & PPQuot::fZero)
 					skip = 1;
-				else if(r_q.Quot > 0.0 && r_q.Quot <= 10.0) {
+				else if(r_q.Quot > 0.0 && r_q.Quot <= 10.0)
 					coeff = r_q.Quot;
-				}
 			}
 		}
 	}
-	// } @v7.8.12
 	if(!skip) {
 		Count++;
 		if(!FirstPointDate || diffdate(FirstPointDate, pItem->Dt) > 0)
@@ -74,7 +61,7 @@ int FASTCALL PredictSalesStat::Step(const PredictSalesItem * pItem)
 		AmtSum    += amt;
 		AmtSqSum  += amt * amt;
 		if(Flags & PSSF_USELSSLIN) {
-			SETIFZ(P_List, new SArray(sizeof(LsEntry), /*32,*/O_ARRAY));
+			SETIFZ(P_List, new SVector(sizeof(LsEntry))); // @v9.9.4 SArray-->SVector
 			THROW_MEM(P_List);
 			LsEntry entry;
 			PredictSalesCore::ShrinkDate(pItem->Dt, &entry.Day);
@@ -158,24 +145,13 @@ double FASTCALL PredictSalesStat::GetSigma(int pssValType) const
 	return 0;
 }
 
-double FASTCALL PredictSalesStat::GetVar(int pssValType) const
-{
-	return fdivnz(GetSigma(pssValType), GetAverage(pssValType));
-}
-
-double FASTCALL PredictSalesStat::GetTrnovr(int pssValType) const
-{
-	return fdivnz(1, GetAverage(pssValType));
-}
+double FASTCALL PredictSalesStat::GetVar(int pssValType) const { return fdivnz(GetSigma(pssValType), GetAverage(pssValType)); }
+double FASTCALL PredictSalesStat::GetTrnovr(int pssValType) const { return fdivnz(1, GetAverage(pssValType)); }
 //
 // PredictSalesCore
 //
-SLAPI PredictSalesCore::PredictSalesCore() : PredictSalesTbl()
+SLAPI PredictSalesCore::PredictSalesCore() : PredictSalesTbl(), IsLocTabUpdated(0), IsHldTabUpdated(0), P_HldTab(0), P_SaveHldTab(0)
 {
-	IsLocTabUpdated = 0;
-	IsHldTabUpdated = 0;
-	P_HldTab = 0;
-	P_SaveHldTab = 0;
 	ReadLocTab();
 	ReadHolidays();
 }
@@ -189,9 +165,8 @@ SLAPI PredictSalesCore::~PredictSalesCore()
 int SLAPI PredictSalesCore::CheckTableStruct()
 {
 	int    ok = 1;
-	RECORDSIZE sz = 0;
 	int16  num_keys = 0;
-	THROW_DB(StT.getRecSize(&sz));
+	const  RECORDSIZE sz = StT.getRecSize();
 	THROW_PP(sz == sizeof(GoodsStatTbl::Rec), PPERR_GOODSSTATTBLINVSTRUCT);
 	THROW_DB(StT.getNumKeys(&num_keys));
 	THROW_PP(num_keys == 2, PPERR_GOODSSTATTBLINVSTRUCT);
@@ -203,7 +178,7 @@ int SLAPI PredictSalesCore::SaveHolidays()
 {
 	ZDELETE(P_SaveHldTab);
 	if(P_HldTab)
-		P_SaveHldTab = new SArray(*P_HldTab);
+		P_SaveHldTab = new SVector(*P_HldTab); // @v9.9.4 SArray-->SVector
 	return 1;
 }
 
@@ -211,7 +186,7 @@ int SLAPI PredictSalesCore::RestoreHolidays()
 {
 	ZDELETE(P_HldTab);
 	if(P_SaveHldTab)
-		P_HldTab = new SArray(*P_SaveHldTab);
+		P_HldTab = new SVector(*P_SaveHldTab); // @v9.9.4 SArray-->SVector
 	return 1;
 }
 
@@ -231,7 +206,7 @@ int FASTCALL PredictSalesCore::SearchHoliday(HldTabEntry entry) const
 int SLAPI PredictSalesCore::SetHldEntry(const HldTabEntry * pEntry, int rmv)
 {
 	int    ok = -1;
-	SETIFZ(P_HldTab, new SArray(sizeof(HldTabEntry)));
+	SETIFZ(P_HldTab, new SVector(sizeof(HldTabEntry))); // @v9.9.4 SArray-->SVector
 	if(P_HldTab) {
 		uint   pos = 0;
 		if(SearchHoliday(pEntry->LocIdx, pEntry->Day, &pos)) {
@@ -494,7 +469,7 @@ int SLAPI PredictSalesCore::WriteHolidays(int use_ta)
 int SLAPI PredictSalesCore::ReadHolidays()
 {
 	int    ok = 1;
-	SETIFZ(P_HldTab, new SArray(sizeof(HldTabEntry)));
+	SETIFZ(P_HldTab, new SVector(sizeof(HldTabEntry))); // @v9.9.4 SArray-->SVector
 	PredictSalesTbl::Key0 k0;
 	BExtQuery q(this, 0, 128);
 	THROW_MEM(P_HldTab);

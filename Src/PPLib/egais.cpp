@@ -201,11 +201,6 @@ SLAPI PPEgaisProcessor::UtmEntry::UtmEntry()
 	THISZERO();
 }
 
-SLAPI PPEgaisProcessor::SendBillsParam::SendBillsParam() : LocID(0)
-{
-	Period.SetZero();
-}
-
 PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), IntrBillID(0), P_Data(0), SrcReplyPos(0)
 {
 	switch(DocType) {
@@ -7001,7 +6996,7 @@ int SLAPI PPEgaisProcessor::ExpandBaseOpList(const PPIDArray & rBaseOpList, PPID
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::GetAcceptedBillList(const SendBillsParam & rP, long flags, PPIDArray & rList)
+int SLAPI PPEgaisProcessor::GetAcceptedBillList(const PPBillExportFilt & rP, long flags, PPIDArray & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -7102,7 +7097,7 @@ int SLAPI PPEgaisProcessor::GetAcceptedBillList(const SendBillsParam & rP, long 
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::SendBillActs(const SendBillsParam & rP)
+int SLAPI PPEgaisProcessor::SendBillActs(const PPBillExportFilt & rP)
 {
 	int    ok = -1;
 	PPIDArray accepted_bill_list;
@@ -7133,7 +7128,7 @@ int SLAPI PPEgaisProcessor::SendBillActs(const SendBillsParam & rP)
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::SendBillRepeals(const SendBillsParam & rP)
+int SLAPI PPEgaisProcessor::SendBillRepeals(const PPBillExportFilt & rP)
 {
 	int    ok = -1;
 	PPIDArray accepted_bill_list;
@@ -7162,7 +7157,7 @@ int SLAPI PPEgaisProcessor::SendBillRepeals(const SendBillsParam & rP)
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::GetBillListForTransmission(const SendBillsParam & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList)
+int SLAPI PPEgaisProcessor::GetBillListForTransmission(const PPBillExportFilt & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -7314,7 +7309,7 @@ int SLAPI PPEgaisProcessor::CheckBillForMainOrgID(const BillTbl::Rec & rRec, con
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::GetBillListForConfirmTicket(const SendBillsParam & rP, long flags, PPIDArray & rList)
+int SLAPI PPEgaisProcessor::GetBillListForConfirmTicket(const PPBillExportFilt & rP, long flags, PPIDArray & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -7417,7 +7412,7 @@ int SLAPI PPEgaisProcessor::Helper_SendBills(PPID billID, int ediOp, PPID locID,
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::Helper_SendBillsByPattern(const SendBillsParam & rP, const PPEgaisProcessor::BillTransmissionPattern & rPattern)
+int SLAPI PPEgaisProcessor::Helper_SendBillsByPattern(const PPBillExportFilt & rP, const PPEgaisProcessor::BillTransmissionPattern & rPattern)
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
@@ -7499,7 +7494,7 @@ int SLAPI PPEgaisProcessor::Helper_SendBillsByPattern(const SendBillsParam & rP,
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::SendBills(const SendBillsParam & rP)
+int SLAPI PPEgaisProcessor::SendBills(const PPBillExportFilt & rP)
 {
 	int    ok = -1;
 	const  int __v2 = BIN(Cfg.E.Flags & Cfg.fEgaisVer2Fmt);

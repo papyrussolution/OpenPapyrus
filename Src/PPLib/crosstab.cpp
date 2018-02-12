@@ -946,11 +946,11 @@ int SLAPI Crosstab::Read(DBTable * pTbl, SBuffer & rBuf, SSerializeContext * pCt
 		int32 f = 0;
 		THROW_SL(pCtx->Serialize(-1, f, rBuf));
 		if(P_Tbl) {
-			CrssFld.id = P_Tbl->GetHandle();
+			CrssFld.Id = P_Tbl->GetHandle();
 			CrssFld.fld = f;
 		}
 		else {
-			CrssFld.id = 0;
+			CrssFld.Id = 0;
 			CrssFld.fld = 0;
 		}
 		THROW(ReadDbFieldList(P_Tbl, IdxFldList, rBuf, pCtx));
@@ -1002,7 +1002,7 @@ int SLAPI Crosstab::ReadDbFieldList(DBTable * pTbl, DBFieldList & rList, SBuffer
 		THROW_SL(pCtx->Serialize(-1, f, rBuf));
 		if(pTbl) {
 			DBField fld;
-			fld.id = pTbl->GetHandle();
+			fld.Id = pTbl->GetHandle();
 			fld.fld = f;
 			rList.Add(fld);
 		}

@@ -1,5 +1,5 @@
 // DBTABLEC.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // Классы и функции DBTable, не зависящие от провайдера DBMS
 //
@@ -17,20 +17,9 @@ DBTable * FASTCALL _GetTable(int handle)
 // static members of DBTable {
 const char * DBTable::CrTempFileNamePtr = (const char *)0x0003;
 
-void FASTCALL DBTable::InitErrFileName(const char * pFileName)
-{
-	DBS.GetTLA().InitErrFileName(pFileName);
-}
-
-const char * SLAPI DBTable::GetLastErrorFileName()
-{
-	return DBS.GetConstTLA().GetLastErrFileName();
-}
-
-void SLAPI DBTable::InitErrFileName()
-{
-	DBS.GetTLA().InitErrFileName(OpenedFileName);
-}
+void   FASTCALL DBTable::InitErrFileName(const char * pFileName) { DBS.GetTLA().InitErrFileName(pFileName); }
+const  char * SLAPI DBTable::GetLastErrorFileName() { return DBS.GetConstTLA().GetLastErrFileName(); }
+void   SLAPI DBTable::InitErrFileName() { DBS.GetTLA().InitErrFileName(OpenedFileName); }
 // } static members of DBTable
 //
 //
@@ -523,7 +512,7 @@ int SLAPI DBTable::getField(uint fldN, DBField * pFld) const
 {
 	if(fldN < fields.getCount()) {
 		DBField fld;
-		fld.id = handle;
+		fld.Id = handle;
 		fld.fld = fldN;
 		ASSIGN_PTR(pFld, fld);
 		return 1;
@@ -538,7 +527,7 @@ int SLAPI DBTable::getFieldByName(const char * pName, DBField * pFld) const
 	const  BNField * f = &fields.getField(pName, &pos);
 	if(f) {
 		DBField fld;
-		fld.id = handle;
+		fld.Id = handle;
 		fld.fld = pos;
 		ASSIGN_PTR(pFld, fld);
 		return 1;
@@ -764,14 +753,14 @@ int SLAPI DBTable::GetLobField(uint n, DBField * pFld) const
 {
 	int    ok = 0;
 	if(pFld) {
-		pFld->id = 0;
+		pFld->Id = 0;
 		pFld->fld = 0;
 	}
 	if(n < LobB.getCount()) {
 		uint fld_n = ((DBLobItem *)LobB.at(n))->FldN;
 		if(fld_n < fields.getCount()) {
 			if(pFld) {
-				pFld->id = handle;
+				pFld->Id = handle;
 				pFld->fld = (int)fld_n;
 			}
 			ok = 1;
@@ -900,10 +889,9 @@ int SLAPI DBTable::RestoreLob()
 	return ok;
 }
 
-int FASTCALL DBTable::getRecSize(RECORDSIZE * pRecSize) const
+RECORDSIZE FASTCALL DBTable::getRecSize() const
 {
-	ASSIGN_PTR(pRecSize, FixRecSize);
-	return 1;
+	return FixRecSize;
 }
 
 int FASTCALL DBTable::insertRecBuf(const void * pData)

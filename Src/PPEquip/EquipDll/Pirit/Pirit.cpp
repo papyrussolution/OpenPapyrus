@@ -98,17 +98,6 @@ char FS = 0x1C;
 #define CHECK_OPENED_STR		"Чек открыт"
 #define CHECK_CLOSED_STR		"Чек закрыт"
 
-// Описание команд (для описания ошибки) // new
-#define	CHECKSESSOVER_STR		"Проверка на длительность открытой сессии"
-#define	ZREPORT_STR				"Печать Z-отчета"
-#define	XREPORT_STR				"Печать X-отчета"
-#define	OPENCHECK_STR			"Открытие чека"
-#define	CLOSECHECK_STR			"Закрытие чека"
-#define	PRINTFISCAL_STR			"Печать фискальной строки"
-#define	PRINTTEXT_STR			"Печать текстовой строки"
-#define	ANNULATE_STR			"Аннулирование чека"
-#define	INCASHMENT_STR			"Внесение/изъятие денег"
-
 struct ErrMessage {
 	uint Id;
 	const char * P_Msg;
@@ -116,16 +105,8 @@ struct ErrMessage {
 
 struct Config
 {
-	Config()
+	Config() : CashID(0), Name(0), LogNum(0), Port(0), BaudRate(0), DateTm(MAXDATETIME), Flags(0), ConnPass("PIRI")
 	{
-		CashID = 0;
-		Name = 0;
-		LogNum = 0;
-		Port = 0;
-		BaudRate = 0;
-		DateTm = MAXDATETIME;
-		Flags = 0;
-		ConnPass = "PIRI";
 		ReadCycleCount = 10; // @v9.6.9 0-->10
 		ReadCycleDelay = 10; // @v9.6.9 0-->10
 	};
@@ -164,8 +145,10 @@ struct CheckStruct {
 		Price = 0.0;
 		Department = 0;
 		Tax = 0;
-		if(Text.NotEmpty())
-			Text.Destroy();
+		// @v9.9.4 if(Text.NotEmpty())
+		// @v9.9.4 	Text.Destroy();
+		Text.Z(); // @v9.9.4
+		Code.Z(); // @v9.9.4
 		PaymCash = 0.0;
 		PaymCard = 0.0;
 		IncassAmt = 0.0;
@@ -186,17 +169,8 @@ struct CheckStruct {
 
 class PiritEquip {
 public:
-	SLAPI  PiritEquip()
+	SLAPI  PiritEquip() : SessID(0), LastError(0), FatalFlags(0), LastStatus(0)
 	{
-		SessID = 0;
-		LastError = 0;
-		FatalFlags = 0;
-		OrgAddr = 0;
-		CshrName = 0;
-		CashDateTime = 0;
-		LastCmd = 0;
-		LastParams = 0;
-		LastStatus = 0;
 		Check.Clear();
 		{
 			SString exe_file_name = SLS.GetExePath();
@@ -253,11 +227,10 @@ public:
 private:
 	class  OpLogBlock {
 	public:
-		OpLogBlock(const char * pLogFileName, const char * pOp, const char * pExtMsg) : StartClk(clock())
+		OpLogBlock(const char * pLogFileName, const char * pOp, const char * pExtMsg) : StartClk(clock()), Op(pOp), ExtMsg(pExtMsg)
 		{
 			LogFileName = 0/*pLogFileName*/; // @v9.7.1 pLogFileName-->0
-			Op = pOp;
-			ExtMsg = pExtMsg;
+			//LogFileName = pLogFileName;
 			if(LogFileName.NotEmpty() && Op.NotEmpty()) {
 				SString line_buf;
 				line_buf.Cat(getcurdatetime_(), DATF_DMY|DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("start");
@@ -369,25 +342,10 @@ int Release();
 
 #define	FS_STR	"\x1C"	// Символ-разделитель пар параметров
 
-void CreateStr(const char * pValue, SString & dst)
-{
-	dst.Cat(pValue).Cat(FS_STR);
-}
-
-void CreateStr(int value, SString & dst)
-{
-	dst.Cat(value).Cat(FS_STR);
-}
-
-void CreateStr(int64 value, SString & dst)
-{
-	dst.Cat(value).Cat(FS_STR);
-}
-
-void CreateStr(double value, SString & dst)
-{
-	dst.Cat(value).Cat(FS_STR);
-}
+static void FASTCALL CreateStr(const char * pValue, SString & dst) { dst.Cat(pValue).Cat(FS_STR); }
+static void FASTCALL CreateStr(int value, SString & dst) { dst.Cat(value).Cat(FS_STR); }
+static void FASTCALL CreateStr(int64 value, SString & dst) { dst.Cat(value).Cat(FS_STR); }
+static void FASTCALL CreateStr(double value, SString & dst) { dst.Cat(value).Cat(FS_STR); }
 
 EXPORT int /*STDAPICALLTYPE*/ RunCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize)
 {
@@ -420,14 +378,6 @@ void PiritEquip::SetLastItems(const char * pCmd, const char * pParam)
 int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize)
 {
 	int    ok = 0, val = 0;
-	//uint   disc_count = 0;
-	//uint   tax_count = 0;
-	//uint   paym_count = 0;
-	//uint   depart_count = 0;
-	//uint   is_tax = 0;
-	//uint   is_disc = 0;
-	//uint   is_paym = 0;
-	//uint   is_depart = 0;
 	SString s_pair;
 	SString s_param;
 	SString param_val;
@@ -440,8 +390,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		if((LastCmd.CmpNC("PRINTFISCAL") != 0) && (LastCmd.CmpNC("PRINTTEXT") != 0)) { // new
 			cmd = LastCmd;
 			params = LastParams;
-			LastCmd = 0;
-			LastParams = 0;
+			LastCmd.Z();
+			LastParams.Z();
 		}
 	}
 	else {
@@ -454,13 +404,13 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		LastError = 0;
 	}
 	else { // if(LastError != NOTENOUGHMEM)
-		if(sstreqi_ascii(cmd, "CONNECT")){
+		if(cmd.IsEqiAscii("CONNECT")){
 			SetLastItems(0, 0);
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;){
 				s_pair.Divide('=', s_param, param_val);
-				if(s_param.CmpNC("PORT") == 0)
+				if(s_param.IsEqiAscii("PORT"))
 					Cfg.Port = param_val.ToLong();
-				else if(s_param.CmpNC("BAUDRATE") == 0)
+				else if(s_param.IsEqiAscii("BAUDRATE"))
 					Cfg.BaudRate = param_val.ToLong();
 			}
 			int    flag = 0;
@@ -472,49 +422,49 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			THROWERR(!(flag & 0x100), PIRIT_SESSOPENEDTRYAGAIN); // Не было завершено закрытие смены, необходимо повторить операцию
 			GetTaxTab(); // @v9.7.1
 		}
-		else if(sstreqi_ascii(cmd, "CHECKSESSOVER")){
+		else if(cmd.IsEqiAscii("CHECKSESSOVER")){
 			SetLastItems(cmd, pInputData);
 			int    flag = 0;
 			THROW(GetCurFlags(2, flag));
 			strcpy(pOutputData, (flag & 0x8) ? "1" : "0");
 		}
-		else if(sstreqi_ascii(cmd, "DISCONNECT")) {
+		else if(cmd.IsEqiAscii("DISCONNECT")) {
 			SetLastItems(0, 0);
 			THROW(CloseConnection())
 		}
-		else if(sstreqi_ascii(cmd, "SETCONFIG")) {
+		else if(cmd.IsEqiAscii("SETCONFIG")) {
 			SetLastItems(0, 0);
 			THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;){
 				s_pair.Divide('=', s_param, param_val);
-				if(s_param.CmpNC("LOGNUM") == 0)
+				if(s_param.IsEqiAscii("LOGNUM"))
 					Cfg.LogNum = param_val.ToLong();
-				else if(s_param.CmpNC("FLAGS") == 0)
+				else if(s_param.IsEqiAscii("FLAGS"))
 					Cfg.Flags = param_val.ToLong();
-				else if(s_param.CmpNC("CSHRNAME") == 0)
+				else if(s_param.IsEqiAscii("CSHRNAME"))
 					CshrName = param_val;
-				else if(s_param.CmpNC("PRINTLOGO") == 0)
+				else if(s_param.IsEqiAscii("PRINTLOGO"))
 					Cfg.Logo.Print = param_val.ToLong();
 			}
 			THROW(SetCfg());
 		}
-		else if(sstreqi_ascii(cmd, "SETLOGOTYPE")) {
+		else if(cmd.IsEqiAscii("SETLOGOTYPE")) {
 			SetLastItems(0, 0);
 			THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;){
 				s_pair.Divide('=', s_param, param_val);
-				if(s_param.CmpNC("LOGOTYPE") == 0)
+				if(s_param.IsEqiAscii("LOGOTYPE"))
 					Cfg.Logo.Path = param_val;
-				else if(s_param.CmpNC("LOGOSIZE") == 0)
+				else if(s_param.IsEqiAscii("LOGOSIZE"))
 					Cfg.Logo.Size = param_val.ToLong();
-				else if(s_param.CmpNC("LOGOHEIGHT") == 0)
+				else if(s_param.IsEqiAscii("LOGOHEIGHT"))
 					Cfg.Logo.Height = param_val.ToLong();
-				else if(s_param.CmpNC("LOGOWIDTH") == 0)
+				else if(s_param.IsEqiAscii("LOGOWIDTH"))
 					Cfg.Logo.Width = param_val.ToLong();
 			}
 			THROW(SetLogotype(Cfg.Logo.Path, Cfg.Logo.Size, Cfg.Logo.Height, Cfg.Logo.Width));
 		}
-		else if(sstreqi_ascii(cmd, "GETCONFIG")) {
+		else if(cmd.IsEqiAscii("GETCONFIG")) {
 			SetLastItems(0, 0);
 			str.Z().CatEq("CHECKSTRLEN", "130"); // @v9.1.8 44-->130
 			if(outSize < str.BufSize()){
@@ -525,7 +475,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			else
 				memcpy(pOutputData, str, str.BufSize());
 		}
-		else if(sstreqi_ascii(cmd, "ZREPORT")) {
+		else if(cmd.IsEqiAscii("ZREPORT")) {
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
 			CreateStr(CshrName, str);
@@ -543,7 +493,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			if(!(flag & 0x4))  // Проверяем флаг "смена открыта"
 				ok = 0;
 		}
-		else if(sstreqi_ascii(cmd, "XREPORT")) {
+		else if(cmd.IsEqiAscii("XREPORT")) {
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
 			CreateStr(CshrName, str);
@@ -553,7 +503,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				THROW(GetWhile(out_data, r_error));
 			}
 		}
-		else if(sstreqi_ascii(cmd, "OPENCHECK")) {
+		else if(cmd.IsEqiAscii("OPENCHECK")) {
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
@@ -574,7 +524,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			}
 			THROW(RunCheck(0));
 		}
-		else if(sstreqi_ascii(cmd, "CLOSECHECK")) {
+		else if(cmd.IsEqiAscii("CLOSECHECK")) {
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
@@ -586,13 +536,11 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			}
 			THROW(RunCheck(1));
 		}
-		else if(sstreqi_ascii(cmd, "PRINTFISCAL")) {
+		else if(cmd.IsEqiAscii("PRINTFISCAL")) {
 			int   tax_entry_id_result = -1;
 			double _vat_rate = 0.0;
 			int   is_vat_free = 0;
 			SetLastItems(cmd, 0);
-			//LastParams = pInputData;
-			//LastCmd = 0;
 			THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;) {
 				s_pair.Divide('=', s_param, param_val);
@@ -611,12 +559,18 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					_vat_rate = R2(param_val.ToReal());
 				}
 				else if(s_param == "VATFREE") { // @v9.8.9
-					if(param_val.Empty() || param_val.CmpNC("yes") == 0 || param_val.CmpNC("true") == 0 || param_val == "1") 
+					if(param_val.Empty() || param_val.IsEqiAscii("yes") || param_val.IsEqiAscii("true") || param_val == "1") 
 						is_vat_free = 1;
 				}
 			}
 			{
 				Check.Tax = 0;
+				// @v9.9.4 {
+				if(Check.Price <= 0.0) {
+					Check.Price = 0.0;
+					is_vat_free = 1;
+				}
+				// } @v9.9.4 
 				if(is_vat_free)
 					_vat_rate = 0.0;
 				tax_entry_id_result = 0;
@@ -685,21 +639,18 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			}
 			// @debug {
 			if(LogFileName.NotEmpty()) {
-				if(tax_entry_id_result < 0) {
+				if(tax_entry_id_result < 0)
 					(str = "TaxEntry isn't identified").CatDiv(':', 2).Cat(_vat_rate);
-				}
-				else if(tax_entry_id_result == 0) {
+				else if(tax_entry_id_result == 0)
 					(str = "TaxEntry isn't found").CatDiv(':', 2).Cat(_vat_rate);
-				}
-				else if(tax_entry_id_result > 0) {
+				else if(tax_entry_id_result > 0)
 					(str = "TaxEntry is found").CatDiv(':', 2).Cat(tax_entry_id_result-1).CatDiv(',', 2).Cat(_vat_rate);
-				}
 				SLS.LogMessage(LogFileName, str);
 			}
 			// } @debug 
 			THROW(RunCheck(2));
 		}
-		else if(sstreqi_ascii(cmd, "PRINTTEXT")) {
+		else if(cmd.IsEqiAscii("PRINTTEXT")) {
 			SetLastItems(cmd, 0);
 			//LastParams = pInputData;
 			//LastCmd = 0;
@@ -713,14 +664,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			}
 			THROW(RunCheck(3));
 		}
-		else if(sstreqi_ascii(cmd, "PRINTBARCODE")) {
+		else if(cmd.IsEqiAscii("PRINTBARCODE")) {
 			struct PiritBarcodeEntry {
-				PiritBarcodeEntry()
+				PiritBarcodeEntry() : Width(0), Height(0), Std(0), TextParam(0)
 				{
-					Width = 0;
-					Height = 0;
-					Std = 0;
-					TextParam = 0;
 				}
 				int    Width;
 				int    Height;
@@ -757,22 +704,21 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					else if(param_val == "codabar")
 						bc_entry.Std = 6; // !
 				}
-				else if(s_param.CmpNC("WIDTH") == 0) {
+				else if(s_param.IsEqiAscii("WIDTH")) {
 					bc_entry.Width = param_val.ToLong();
 				}
-				else if(s_param.CmpNC("HEIGHT") == 0) {
+				else if(s_param.IsEqiAscii("HEIGHT")) {
 					bc_entry.Height = param_val.ToLong();
 				}
-				else if(s_param.CmpNC("LABEL") == 0) {
-					if(param_val.CmpNC("above") == 0)
+				else if(s_param.IsEqiAscii("LABEL")) {
+					if(param_val.IsEqiAscii("above"))
 						bc_entry.TextParam = 1;
-					else if(param_val.CmpNC("below") == 0)
+					else if(param_val.IsEqiAscii("below"))
 						bc_entry.TextParam = 2;
 				}
-				else if(s_param.CmpNC("TEXT") == 0) {
+				else if(s_param.IsEqiAscii("TEXT")) {
 					(bc_entry.Code = param_val).Strip();
 				}
-
 			}
 			{
 				SString in_data;
@@ -789,42 +735,42 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				}
 			}
 		}
-		else if(sstreqi_ascii(cmd, "GETCHECKPARAM")) {
+		else if(cmd.IsEqiAscii("GETCHECKPARAM")) {
 			SetLastItems(0, 0);
 			str = 0;
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;){
 				s_pair.Divide('=', s_param, param_val);
-				if(s_param.CmpNC("AMOUNT") == 0)
+				if(s_param.IsEqiAscii("AMOUNT"))
 					str.Cat(s_param).Semicol();
-				else if(s_param.CmpNC("CHECKNUM") == 0)
+				else if(s_param.IsEqiAscii("CHECKNUM"))
 					str.Cat(s_param).Semicol();
-				else if(s_param.CmpNC("CASHAMOUNT") == 0)
+				else if(s_param.IsEqiAscii("CASHAMOUNT"))
 					str.Cat(s_param).Semicol();
-				else if(s_param.CmpNC("RIBBONPARAM") == 0)
+				else if(s_param.IsEqiAscii("RIBBONPARAM"))
 					str.Cat(s_param).Semicol();
 			}
 			ok = ReturnCheckParam(str, pOutputData, outSize); // Здесь может быть переполнение буфера
 		}
-		else if(sstreqi_ascii(cmd, "ANNULATE")) {
+		else if(cmd.IsEqiAscii("ANNULATE")) {
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
 			THROW(RunCheck(4));
 		}
-		else if(sstreqi_ascii(cmd, "INCASHMENT")) {
+		else if(cmd.IsEqiAscii("INCASHMENT")) {
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;){
 				s_pair.Divide('=', s_param, param_val);
-				if(s_param.CmpNC("AMOUNT") == 0)
+				if(s_param.IsEqiAscii("AMOUNT"))
 					Check.IncassAmt = param_val.ToReal();
 			}
 			THROW(RunCheck(5));
 		}
-		else if(sstreqi_ascii(cmd, "OPENBOX")) {
+		else if(cmd.IsEqiAscii("OPENBOX")) {
 			SetLastItems(0, 0);
 			THROW(OpenBox());
 		}
-		else if(sstreqi_ascii(cmd, "GETECRSTATUS")) {
+		else if(cmd.IsEqiAscii("GETECRSTATUS")) {
 			THROW(GetStatus(str));
 			if(outSize < str.BufSize()) {
 				NotEnoughBuf(str);
@@ -834,7 +780,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			else
 				memcpy(pOutputData, str, str.BufSize());
 		}
-		else if(sstreqi_ascii(cmd, "GETLASTERRORTEXT")) {
+		else if(cmd.IsEqiAscii("GETLASTERRORTEXT")) {
 			LastErrorText(str);
 			if(outSize < (str.Len()+1)){
 				NotEnoughBuf(str);
@@ -926,11 +872,10 @@ int PiritEquip::SetConnection()
 	int    r = 0;
 	int    is_ready = 0;
 	CommPortParams port_params;
-	SString in_data;
-	SString out_data;
-	SString r_error;
-	SString log_str;
-
+	//SString in_data;
+	//SString out_data;
+	//SString r_error;
+	//SString log_str;
 	CommPort.GetParams(&port_params);
 	port_params.ByteSize = 8;
 	port_params.Parity = NOPARITY;
@@ -1042,7 +987,11 @@ int PiritEquip::SetCfg()
 	int    err_code = 0;
 	int    flag = 0;
 	uint   i = 0;
-	SString out, subdata, in_data, out_data, r_error;
+	//SString out;
+	//SString subdata;
+	SString in_data;
+	SString out_data;
+	SString r_error;
 	// Логический номер кассы
 	CreateStr(10, in_data);
 	CreateStr(0, in_data);
@@ -1053,7 +1002,7 @@ int PiritEquip::SetCfg()
 		THROW(GetWhile(out_data, r_error));
 	}
 	{
-		in_data = 0;
+		in_data.Z();
 		// Нумерация чеков ККМ
 		CreateStr(2, in_data);
 		CreateStr(0, in_data);
@@ -1066,7 +1015,7 @@ int PiritEquip::SetCfg()
 		flag &= ~128; // Устанавливаем бит нумерации чеков ККМ
 	}
 	{
-		in_data = 0;
+		in_data.Z();
 		CreateStr(2, in_data);
 		CreateStr(0, in_data);
 		CreateStr(flag, in_data);
@@ -1082,12 +1031,12 @@ int PiritEquip::SetCfg()
 		OpLogBlock __oplb(LogFileName, "01", 0);
 		THROWERR(PutData("01", in_data), PIRIT_NOTSENT); // Запрос номера текущей сессии(смены)
 		THROW(GetWhile(out_data, r_error));
-	}
-	{
-		StringSet delim_out(FS, out_data);
-		delim_out.get(&i, out); // В out считан номер запроса
-		delim_out.get(&i, out); // В out считан номер текущей сессии(смены)
-		SessID = out.ToLong();
+		{
+			StringSet delim_out(FS, out_data);
+			delim_out.get(&i, out_data); // В out считан номер запроса
+			delim_out.get(&i, out_data); // В out считан номер текущей сессии(смены)
+			SessID = out_data.ToLong();
+		}
 	}
 	// Установка/снятие флага печати логотипа
 	if(Cfg.Logo.Print == 1)
@@ -1101,11 +1050,10 @@ int PiritEquip::SetCfg()
 int PiritEquip::StartWork()
 {
 	int    ok = 1, flag = 0;
-	SString datetime, in_data, out_data, r_error;
-	SYSTEMTIME sys_dt_tm;
 	THROW(GetCurFlags(2, flag)); // Проверяем флаг "не была вызвана функция начало работы"
 	if(flag & 0x1) {
-		in_data = 0;
+		SString datetime, in_data, out_data, r_error;
+		SYSTEMTIME sys_dt_tm;
 		SString date, time;
 		{
 			OpLogBlock __oplb(LogFileName, "13", 0);
@@ -1114,7 +1062,7 @@ int PiritEquip::StartWork()
 		}
 		out_data.Divide(FS, date, time);
 		CashDateTime.Z().Cat("Текущая дата на ККМ: ").Cat(date).Cat(" Текущее время на ККМ: ").Cat(time);
-		in_data = 0;
+		in_data.Z();
 		GetLocalTime(&sys_dt_tm);
 		GetDateTime(sys_dt_tm, datetime, 0);
 		CreateStr(datetime, in_data);
@@ -1127,7 +1075,7 @@ int PiritEquip::StartWork()
 		}
 		THROW(GetCurFlags(2, flag));
 		if(!(flag & 0x4) && (r_error.CmpNC("0B") == 0)) {  // Проверяем что смена закрыта и код ошибки "дата и время отличаются от текущих даты и времени ККМ более чем на 8 минут"
-			in_data = 0;
+			in_data.Z();
 			GetLocalTime(&sys_dt_tm);
 			GetDateTime(sys_dt_tm, datetime, 0);
 			CreateStr(datetime, in_data);
@@ -1148,7 +1096,7 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 {
 	const  uint max_tries = 10;
 	int    ok = 1;
-	SString out_data, r_error, s_flags;
+	SString out_data, r_error;
 	uint count = 0;
 	rFlags = 0;
 	{
@@ -1164,12 +1112,13 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 			count++;
 		}
 		{
+			// @v9.9.4 SString s_flags;
 			StringSet fl_pack(FS, out_data);
 			int    fc = 0; // Считанное количество значений
 			// @v9.6.10 {
-			for(uint sp = 0; fl_pack.get(&sp, s_flags);) {
+			for(uint sp = 0; fl_pack.get(&sp, /*s_flags*/out_data);) {
 				if(++fc == numFlags)
-					rFlags = s_flags.ToLong();
+					rFlags = /*s_flags*/out_data.ToLong();
 			}
 			ok = fc;
 			// } @v9.6.10
@@ -1260,7 +1209,7 @@ int PiritEquip::RunCheck(int opertype)
 			// } new
 			break;
 		case 2: // Печать фискальной строки
-			in_data = 0;
+			in_data.Z();
 			THROW(GetCurFlags(3, flag));
 			(str = Check.Text).Trim(220); // [0..224]
 			CreateStr(str, in_data); // Название товара      // @v9.5.7 ""-->Check.Text 
@@ -1274,26 +1223,27 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr((int)Check.Tax, in_data); // @v9.5.7 Номер налоговой ставки // @v9.7.1 0-->Check.Tax
 			CreateStr((int)0, in_data); // @v9.5.7 Номер товарной позиции
 			CreateStr(Check.Department, in_data); // @v9.5.7 Номер секции
-			Check.Clear();
 			{
-				OpLogBlock __oplb(LogFileName, "42", 0);
-				THROWERR(PutData("42", in_data), PIRIT_NOTSENT);
+				// @v9.9.4 const int do_check_ret = 0;
+				const int do_check_ret = BIN(Check.Price == 0.0); // @v9.9.4
+				Check.Clear();
 				{
-					const int do_check_ret = 0;
+					OpLogBlock __oplb(LogFileName, "42", 0);
+					THROWERR(PutData("42", in_data), PIRIT_NOTSENT);
 					if(do_check_ret) {
 						THROW(GetWhile(out_data, r_error));
 					}
 					else {
-						out_data = 0;
+						out_data.Z();
 						r_error = "00";
 					}
 				}
+				Check.Clear();
 			}
-			Check.Clear();
 			break;
 		case 3: // Печать текстовой строки
 			{
-				in_data = 0;
+				in_data.Z();
 				THROW(gcf_result = GetCurFlags(3, flag));
 				const uint8 hb1 = (flag & 0x0F);
 				if(hb1 == 1) { // Текстовая строка для сервисного документа
@@ -1320,14 +1270,14 @@ int PiritEquip::RunCheck(int opertype)
 								THROW(GetWhile(out_data, r_error));
 							}
 							else {
-								out_data = 0;
+								out_data.Z();
 								r_error = "00";
 							}
 						}
 					}
 				}
 				else if(oneof2(hb1, 2, 3) || (gcf_result < 3)) { // Текстовая строка для чека
-					in_data = 0;
+					in_data.Z();
 					text_attr = 0;
 					CreateStr(0, in_data);
 					if(oneof2(Check.FontSize, 1, 2))
@@ -1355,7 +1305,7 @@ int PiritEquip::RunCheck(int opertype)
 								THROW(GetWhile(out_data, r_error));
 							}
 							else {
-								out_data = 0;
+								out_data.Z();
 								r_error = "00";
 							}
 						}
@@ -1382,7 +1332,7 @@ int PiritEquip::RunCheck(int opertype)
 		case 5: // Внесение/изъятие наличности
 			{
 				SString str, b_point, a_point;
-				in_data = 0;
+				in_data.Z();
 				CreateStr("", in_data);
 				FormatPaym(Check.IncassAmt, str);
 				CreateStr(str, in_data);
@@ -1405,8 +1355,8 @@ int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
 	SString buf, in_data, out_data, r_error, str, s_output;
 	StringSet params(';', rInput);
 	for(uint i = 0; params.get(&i, buf) > 0;) {
-		in_data = 0;
-		out_data = 0;
+		in_data.Z();
+		out_data.Z();
 		if(buf.CmpNC("AMOUNT") == 0) {
 			CreateStr(1, in_data);
 			{
@@ -1580,9 +1530,10 @@ int PiritEquip::GetData(SString & rData, SString & rError)
 	// Получаем пакет ответа
 	//
 	if(CommPort.GetChr(&c)) {
-		SString buf;
+		// @v9.9.4 SString buf;
+		SString & r_buf = SLS.AcquireRvlStr(); // @v9.9.4 
 		do {
-			buf.CatChar(c);
+			r_buf.CatChar(c);
 			c = CommPort.GetChr();
 		} while(c != ETX && c != 0);
 		{
@@ -1590,27 +1541,28 @@ int PiritEquip::GetData(SString & rData, SString & rError)
 			char   str_crc2[2];
 			size_t p = 0;
 			uint   i;
-			SString str_crc1;
-			buf.CatChar(c); // Добавили байт конца пакета
+			// @v9.9.4 SString str_crc1;
+			SString & r_str_crc1 = SLS.AcquireRvlStr(); // @v9.9.4
+			r_buf.CatChar(c); // Добавили байт конца пакета
 			c = CommPort.GetChr(); // Получили 1-й байт контрольной суммы
-			buf.CatChar(c);
+			r_buf.CatChar(c);
 			c = CommPort.GetChr(); // Получили 2-й байт контрольной суммы
-			buf.CatChar(c);
-			THROW(buf.C(0) == STX);
+			r_buf.CatChar(c);
+			THROW(r_buf.C(0) == STX);
 			// Выделяем байты с информацией об ошибке
-			buf.Sub(4, 2, rError);
+			r_buf.Sub(4, 2, rError);
 			//
 			// Считываем данные
 			//
-			for(i = 6; buf.C(i) != ETX; i++)
-				rData.CatChar(buf.C(i));
+			for(i = 6; r_buf.C(i) != ETX; i++)
+				rData.CatChar(r_buf.C(i));
 			// Считаем контрольную сумму
-			for(i = 1; i < buf.Len()-2; i++)
-				crc ^= ((uchar)buf.C(i));
-			buf.Sub((buf.Len()-2),2,str_crc1);
+			for(i = 1; i < r_buf.Len()-2; i++)
+				crc ^= ((uchar)r_buf.C(i));
+			r_buf.Sub(r_buf.Len()-2, 2, r_str_crc1);
 			_itoa(crc, str_crc2, 16);
 			// Сверяем полученную и посчитанную контрольные суммы
-			THROW(str_crc1.Cmp(str_crc2,1) == 0);
+			THROW(r_str_crc1.CmpNC(str_crc2) == 0);
 		}
 	}
 	else
@@ -1625,17 +1577,18 @@ int PiritEquip::PutData(const char * pCommand, const char * pData)
 	int    crc = 0;
 	char   buf[2];
 	int    id_pack = 0x31;
-	SString pack;
+	// @v9.9.4 SString pack;
+	SString & r_pack = SLS.AcquireRvlStr(); // @v9.9.4
 	size_t p = 0;
 	// Формируем пакет (без байтов начала и конца пакета)
 	// Пароль связи (4 байта)
-	pack.Cat(Cfg.ConnPass);
-	pack.CatChar(id_pack); // ИД пакета
-	pack.Cat(pCommand); // Код команды (2 байта)
-	pack.Cat(pData); // Данные
+	r_pack.Cat(Cfg.ConnPass);
+	r_pack.CatChar(id_pack); // ИД пакета
+	r_pack.Cat(pCommand); // Код команды (2 байта)
+	r_pack.Cat(pData); // Данные
 	// Считаем контрольную сумму пакета
-	for(p = 0; p < pack.Len(); p++) {// STX в контрольную сумму не входит
-		crc ^= ((uchar)pack.C(p));
+	for(p = 0; p < r_pack.Len(); p++) {// STX в контрольную сумму не входит
+		crc ^= ((uchar)r_pack.C(p));
 	}
 	crc ^= ((uchar)ETX); // Учитываем в контрольной сумме байт конца пакета
 	_itoa(crc, buf, 16); // @vmiler comment
@@ -1645,8 +1598,8 @@ int PiritEquip::PutData(const char * pCommand, const char * pData)
 	}
 	// Отправляем пакет на ККМ
 	THROW(CommPort.PutChr(STX));
-	for(p = 0; p < pack.Len(); p++)
-		THROW(CommPort.PutChr(pack.C(p)));
+	for(p = 0; p < r_pack.Len(); p++)
+		THROW(CommPort.PutChr(r_pack.C(p)));
 	THROW(CommPort.PutChr(ETX));
 	THROW(CommPort.PutChr(buf[0]));
 	THROW(CommPort.PutChr(buf[1]));
@@ -1790,34 +1743,32 @@ int PiritEquip::PrintLogo(int print)
 int PiritEquip::GetDateTime(SYSTEMTIME sysDtTm, SString & rDateTime, int dt)
 {
 	switch(dt) {
-		case 0:
-			rDateTime.Z().CatLongZ(sysDtTm.wDay, 2).CatLongZ(sysDtTm.wMonth, 2).Cat(sysDtTm.wYear % 100);
-			break;
-		case 1:
-			rDateTime.Z().CatLongZ(sysDtTm.wHour, 2).CatLongZ(sysDtTm.wMinute, 2).CatLongZ(sysDtTm.wSecond, 2);
-			break;
+		case 0: rDateTime.Z().CatLongZ(sysDtTm.wDay, 2).CatLongZ(sysDtTm.wMonth, 2).Cat(sysDtTm.wYear % 100); break;
+		case 1: rDateTime.Z().CatLongZ(sysDtTm.wHour, 2).CatLongZ(sysDtTm.wMinute, 2).CatLongZ(sysDtTm.wSecond, 2); break;
 	}
 	return 1;
 }
 
 void PiritEquip::GetLastCmdName(SString & rName)
 {
-	if(LastCmd.CmpNC("CHECKSESSOVER") == 0)
-		rName.Z().Cat(CHECKSESSOVER_STR);
-	else if(LastCmd.CmpNC("ZREPORT") == 0)
-		rName.Z().Cat(ZREPORT_STR);
-	else if(LastCmd.CmpNC("XREPORT") == 0)
-		rName.Z().Cat(XREPORT_STR);
-	else if(LastCmd.CmpNC("OPENCHECK") == 0)
-		rName.Z().Cat(OPENCHECK_STR);
-	else if(LastCmd.CmpNC("CLOSECHECK") == 0)
-		rName.Z().Cat(CLOSECHECK_STR);
-	else if(LastCmd.CmpNC("PRINTFISCAL") == 0)
-		rName.Z().Cat(PRINTFISCAL_STR);
-	else if(LastCmd.CmpNC("PRINTTEXT") == 0)
-		rName.Z().Cat(PRINTTEXT_STR);
-	else if(LastCmd.CmpNC("ANNULATE") == 0)
-		rName.Z().Cat(ANNULATE_STR);
-	else if(LastCmd.CmpNC("INCASHMENT") == 0)
-		rName.Z().Cat(INCASHMENT_STR);
+	if(LastCmd.IsEqiAscii("CHECKSESSOVER"))
+		rName = "Проверка на длительность открытой сессии";
+	else if(LastCmd.IsEqiAscii("ZREPORT"))
+		rName = "Печать Z-отчета";
+	else if(LastCmd.IsEqiAscii("XREPORT"))
+		rName = "Печать X-отчета";
+	else if(LastCmd.IsEqiAscii("OPENCHECK"))
+		rName = "Открытие чека";
+	else if(LastCmd.IsEqiAscii("CLOSECHECK"))
+		rName = "Закрытие чека";
+	else if(LastCmd.IsEqiAscii("PRINTFISCAL"))
+		rName = "Печать фискальной строки";
+	else if(LastCmd.IsEqiAscii("PRINTTEXT"))
+		rName = "Печать текстовой строки";
+	else if(LastCmd.IsEqiAscii("ANNULATE"))
+		rName = "Аннулирование чека";
+	else if(LastCmd.IsEqiAscii("INCASHMENT"))
+		rName = "Внесение/изъятие денег";
+	else
+		rName = LastCmd;
 }

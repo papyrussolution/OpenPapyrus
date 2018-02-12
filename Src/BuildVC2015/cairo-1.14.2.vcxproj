@@ -784,6 +784,7 @@
   <ItemGroup>
     <ClCompile Include="..\Osf\Cairo\Pixman\pixman-access-accessors.c" />
     <ClCompile Include="..\Osf\Cairo\Pixman\pixman-access-standalone.c" />
+    <ClInclude Include="..\Include\slcairo.h" />
     <ClInclude Include="..\OSF\CAIRO\PIXMAN\pixman-access.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>

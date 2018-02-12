@@ -1,5 +1,5 @@
 // BEXTQRY.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2004, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2004, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2017, 2018
 // @codepage UTF-8
 // Интерфейс к расширенным операциям поиска Btrieve
 //
@@ -461,7 +461,7 @@ BExtQuery & SLAPIV BExtQuery::select(DBField first_arg, ...)
 	DBField f;
 	list = (va_list)&first_arg;
 	Fields.Destroy();
-	while((f = va_arg(list, DBField)).id != 0)
+	while((f = va_arg(list, DBField)).Id != 0)
 		Fields.Add(f);
 	va_end(list);
 	return *this;
@@ -507,14 +507,14 @@ int FASTCALL BExtQuery::add_term(int link, int n)
 	char   val[1024];
 	const  BNField * fld = 0;
 	DBQ::T & t = P_Restrict->items[n];
-	assert(t.left.i.id == P_Tbl->GetHandle() || t.right.i.id == P_Tbl->GetHandle());
-	if(t.left.i.id == P_Tbl->GetHandle()) {
-		fld = &t.left.f.getField();
+	assert(t.left.GetId() == P_Tbl->GetHandle() || t.right.GetId() == P_Tbl->GetHandle());
+	if(t.left.GetId() == P_Tbl->GetHandle()) {
+		fld = &t.left.F.getField();
 		cmp = t.cmp;
 		t.right.getValue(fld->T, val);
 	}
-	else if(t.right.i.id == P_Tbl->GetHandle()) {
-		fld = &t.right.f.getField();
+	else if(t.right.GetId() == P_Tbl->GetHandle()) {
+		fld = &t.right.F.getField();
 		cmp = _invertComp(t.cmp);
 		t.left.getValue(fld->T, val);
 	}

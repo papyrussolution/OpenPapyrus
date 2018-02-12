@@ -2603,10 +2603,9 @@ private:
 };
 
 
-SLAPI iSalesPepsi::iSalesPepsi(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger)
+SLAPI iSalesPepsi::iSalesPepsi(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) :
+	PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), State(0), P_DestroyFunc(0)
 {
-	State = 0;
-	P_DestroyFunc = 0;
 	PPGetFilePath(PPPATH_LOG, "isalespepsi.log", LogFileName);
  	{
 		SString lib_path;
@@ -3382,9 +3381,7 @@ int SLAPI iSalesPepsi::SendDebts()
 	PPSoapClientSession sess;
 	SString temp_buf;
 	TSCollection <iSalesBillDebt> outer_debt_list;
-	{
-		THROW(ReceiveUnclosedInvoices(outer_debt_list));
-	}
+	THROW(ReceiveUnclosedInvoices(outer_debt_list));
 	if(outer_debt_list.getCount()) {
 		int    result = 0;
 		int    do_send = 0;
@@ -3413,10 +3410,7 @@ int SLAPI iSalesPepsi::SendDebts()
 									THROW_SL(p_new_item);
 									*p_new_item = *p_temp_item;
 									p_new_item->Code.Transf(CTRANSF_INNER_TO_UTF8);
-									if(payment >= p_new_item->Amount)
-										p_new_item->Debt = 0.0;
-									else
-										p_new_item->Debt = p_new_item->Amount - payment;
+									p_new_item->Debt = (payment >= p_new_item->Amount) ? 0.0 : (p_new_item->Amount - payment);
 									found = 1;
 								}
 							}
@@ -5452,7 +5446,7 @@ SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock() : P_BObj(BillObj), Se
 {
 }
 
-SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock(const ExecuteBlock & rS) : 
+SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock(const ExecuteBlock & rS) :
 	P_BObj(BillObj), Ep(rS.Ep), P(rS.P), SeqID(Ep.Fb.SequenceID), BaseState(rS.BaseState), GoodsList(rS.GoodsList)
 {
 }

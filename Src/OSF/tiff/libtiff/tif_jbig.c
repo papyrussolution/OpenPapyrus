@@ -75,9 +75,7 @@ static int JBIGDecode(TIFF* tif, uint8* buffer, tmsize_t size, uint16 s)
 	 * BIE header jbg_dec_in should succeed.
 	 */
 #endif /* HAVE_JBG_NEWLEN */
-
-	decodeStatus = jbg_dec_in(&decoder, (unsigned char*)tif->tif_rawdata,
-				  (size_t)tif->tif_rawdatasize, NULL);
+	decodeStatus = jbg_dec_in(&decoder, (unsigned char*)tif->tif_rawdata, (size_t)tif->tif_rawdatasize, NULL);
 	if (JBG_EOK != decodeStatus)
 	{
 		/*
@@ -85,9 +83,7 @@ static int JBIGDecode(TIFF* tif, uint8* buffer, tmsize_t size, uint16 s)
 		 * JBIG-KIT. Since the 2.0 the error reporting functions were
 		 * changed. We will handle both cases here.
 		 */
-		TIFFErrorExt(tif->tif_clientdata,
-			     "JBIG", "Error (%d) decoding: %s",
-			     decodeStatus,
+		TIFFErrorExt(tif->tif_clientdata, "JBIG", "Error (%d) decoding: %s", decodeStatus,
 #if defined(JBG_EN)
 			     jbg_strerror(decodeStatus, JBG_EN)
 #else

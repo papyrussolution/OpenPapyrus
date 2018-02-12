@@ -999,10 +999,9 @@ int SLAPI PrcssrDbDump::Helper_Undump(long tblID)
 			DbProvider * p_dict = CurDict;
 			IterCounter cntr;
 			DBTable tbl(tbl_name);
-			RECORDSIZE fix_rec_size = 0;
 			int    has_lob = 0;
 			DBField lob_fld;
-			tbl.getRecSize(&fix_rec_size);
+			RECORDSIZE fix_rec_size = tbl.getRecSize();
 			THROW(tbl.allocOwnBuffer(16*1024));
 			if(tbl.HasLob(&lob_fld) > 0) {
 				has_lob = 1;

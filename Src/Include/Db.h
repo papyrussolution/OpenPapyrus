@@ -1766,7 +1766,7 @@ public:
 	//
 	// Descr: Возвращает размер фиксированной части записи (без "хвостов" переменной длины)
 	//
-	int    FASTCALL getRecSize(RECORDSIZE * pRecSize) const;
+	RECORDSIZE FASTCALL getRecSize() const;
 	int    SLAPI GetFileStat(long reqItems, DbTableStat * pStat);
 
 	int    SLAPI SerializeSpec(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -3241,15 +3241,15 @@ struct DBItem {
 	TYPEID SLAPI stype() const;
 	int    SLAPI typeOfItem() const;
 
-	int    id;
+	int    Id;
 };
 
 struct DBField : public DBItem {
-	DBTable * SLAPI getTable() const { return _GetTable(id); }
-	const BNField & SLAPI getField() const { return _GetTable(id)->fields[fld]; }
+	DBTable * SLAPI getTable() const;
+	const BNField & SLAPI getField() const;
 	int    FASTCALL getValue(void *, size_t * pSize) const;
 	int    SLAPI putValue(const void *) const;
-	void * SLAPI getValuePtr();
+	void * SLAPI getValuePtr() const;
 	// if !*k then getFirst index, else getNext index
 	int    SLAPI getIndex(BNKey * pK, int * pKeyPos, int * pSeg);
 
@@ -3290,7 +3290,10 @@ struct DBConst : public DBItem {
 	int    FASTCALL fromfld(DBField);
 	char * FASTCALL tostring(long fmt, char * pBuf) const;
 
-	enum   _tag {
+	enum {
+		fNotOwner = 0x0001 // Экземпляр не владеет объектом, на который указывает sptr (или иной) в union
+	};
+	enum {
 		lv   = BTS_INT,
 		rv   = BTS_REAL,
 		sp   = BTS_STRING,
@@ -3298,7 +3301,7 @@ struct DBConst : public DBItem {
 		tv   = BTS_TIME,
 		dtv  = BTS_DATETIME,
 		ptrv = BTS_PTR // @v8.9.10
-	} tag;
+	};
 	union {
 		long   lval;
 		double rval;
@@ -3308,6 +3311,8 @@ struct DBConst : public DBItem {
 		LTIME  tval;
 		LDATETIME dtval;
 	};
+	int16  Flags;
+	int16  Tag;
 };
 
 DBConst FASTCALL dbconst(long);
@@ -3374,6 +3379,7 @@ union DBDataCell {
 	SLAPI  DBDataCell(DBConst & r);
 	SLAPI  DBDataCell(DBE & r);
 	SLAPI  DBDataCell(DBField & r);
+	int    SLAPI GetId() const { return I.Id; }
 	int    FASTCALL containsTblRef(int tblID) const;
 		// @<<DBQ::testForKey(int itm, int tblID, int * pIsDyn)
 	int    FASTCALL getValue(TYPEID, void *);
@@ -3381,10 +3387,10 @@ union DBDataCell {
 	int    SLAPI toString(SString & rBuf, long options) const;
 	int    SLAPI CreateSqlExpr(Generator_SQL * pGen) const;
 
-	DBItem  i;
-	DBConst c;
-	DBE     e;
-	DBField f;
+	DBItem  I;
+	DBConst C;
+	DBE     E;
+	DBField F;
 };
 
 struct DBQ {

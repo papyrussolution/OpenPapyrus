@@ -314,17 +314,11 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(needConversion) {
-			RECORDSIZE recsz = 0;
-			if(tbl->getRecSize(&recsz))
-				if(recsz < sizeof(ReceiptTbl::Rec))
-					*needConversion = 1;
-				else
-					*needConversion = 0;
-			else {
+			RECORDSIZE recsz = tbl->getRecSize();
+			if(recsz < sizeof(ReceiptTbl::Rec))
+				*needConversion = 1;
+			else
 				*needConversion = 0;
-				ZDELETE(tbl);
-				PPSetErrorDB();
-			}
 		}
 		return tbl;
 	}
@@ -341,9 +335,7 @@ int SLAPI Convert229()
 {
 	int ok = 1;
 	PPWait(1);
-	if(BillObj) {
-		ZDELETE(BillObj);
-	}
+	ZDELETE(BillObj);
 	PPCvtReceipt229 cvt;
 	ok = cvt.Convert() ? 1 : PPErrorZ();
 	BillObj = new PPObjBill(0);
@@ -482,15 +474,14 @@ int SLAPI GoodsConvertion270::ConvertGoods()
 	int ok = 1;
 	RECORDNUMBER num_recs = 0, count = 0;
 	GTbl.getNumRecs(&num_recs);
-	if(GTbl.step(spFirst))
-		do {
-			Goods2Tbl::Rec g2rec;
-			if(ConvertGoodsRec(&GTbl.data, &g2rec) > 0) {
-				CheckDupName(PPGDSK_GOODS, g2rec.Name, sizeof(g2rec.Name));
-				THROW_DB(G2Tbl.insertRecBuf(&g2rec));
-			}
-			PPWaitPercent(++count, num_recs);
-		} while(GTbl.step(spNext));
+	if(GTbl.step(spFirst)) do {
+		Goods2Tbl::Rec g2rec;
+		if(ConvertGoodsRec(&GTbl.data, &g2rec) > 0) {
+			CheckDupName(PPGDSK_GOODS, g2rec.Name, sizeof(g2rec.Name));
+			THROW_DB(G2Tbl.insertRecBuf(&g2rec));
+		}
+		PPWaitPercent(++count, num_recs);
+	} while(GTbl.step(spNext));
 	THROW_DB(BTROKORNFOUND);
 	CATCHZOK
 	return ok;
@@ -604,14 +595,8 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(needConversion) {
-			RECORDSIZE recsz = 0;
-			if(tbl->getRecSize(&recsz))
-				*needConversion = BIN(recsz > sizeof(PPAccount));
-			else {
-				*needConversion = 0;
-				ZDELETE(tbl);
-				PPSetErrorDB();
-			}
+			RECORDSIZE recsz = tbl->getRecSize();
+			*needConversion = BIN(recsz > sizeof(PPAccount));
 		}
 		return tbl;
 	}
@@ -647,14 +632,8 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(needConversion) {
-			RECORDSIZE recsz = 0;
-			if(tbl->getRecSize(&recsz))
-				*needConversion = BIN(recsz > sizeof(AcctRelTbl::Rec));
-			else {
-				*needConversion = 0;
-				ZDELETE(tbl);
-				PPSetErrorDB();
-			}
+			RECORDSIZE recsz = tbl->getRecSize();
+			*needConversion = BIN(recsz > sizeof(AcctRelTbl::Rec));
 		}
 		return tbl;
 	}
@@ -687,14 +666,8 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(needConversion) {
-			RECORDSIZE recsz = 0;
-			if(tbl->getRecSize(&recsz))
-				*needConversion = BIN(recsz > sizeof(BalanceTbl::Rec));
-			else {
-				*needConversion = 0;
-				ZDELETE(tbl);
-				PPSetErrorDB();
-			}
+			RECORDSIZE recsz = tbl->getRecSize();
+			*needConversion = BIN(recsz > sizeof(BalanceTbl::Rec));
 		}
 		return tbl;
 	}
@@ -719,14 +692,8 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(needConversion) {
-			RECORDSIZE recsz = 0;
-			if(tbl->getRecSize(&recsz))
-				*needConversion = BIN(recsz < (sizeof(BillTbl::Rec) - sizeof( ((BillTbl::Rec*)0)->Memo)));
-			else {
-				*needConversion = 0;
-				ZDELETE(tbl);
-				PPSetErrorDB();
-			}
+			RECORDSIZE recsz = tbl->getRecSize();
+			*needConversion = BIN(recsz < (sizeof(BillTbl::Rec) - sizeof( ((BillTbl::Rec*)0)->Memo)));
 		}
 		return tbl;
 	}
@@ -764,14 +731,8 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(needConversion) {
-			RECORDSIZE recsz = 0;
-			if(tbl->getRecSize(&recsz))
-				*needConversion = BIN(recsz < sizeof(BillAmountTbl::Rec));
-			else {
-				*needConversion = 0;
-				ZDELETE(tbl);
-				PPSetErrorDB();
-			}
+			RECORDSIZE recsz = tbl->getRecSize();
+			*needConversion = BIN(recsz < sizeof(BillAmountTbl::Rec));
 		}
 		return tbl;
 	}
@@ -797,14 +758,8 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(needConversion) {
-			RECORDSIZE recsz = 0;
-			if(tbl->getRecSize(&recsz))
-				*needConversion = BIN(recsz < sizeof(ArticleTbl::Rec));
-			else {
-				*needConversion = 0;
-				ZDELETE(tbl);
-				PPSetErrorDB();
-			}
+			RECORDSIZE recsz = tbl->getRecSize();
+			*needConversion = BIN(recsz < sizeof(ArticleTbl::Rec));
 		}
 		return tbl;
 	}
@@ -829,14 +784,8 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(needConversion) {
-			RECORDSIZE recsz = 0;
-			if(tbl->getRecSize(&recsz))
-				*needConversion = BIN(recsz < sizeof(ReceiptTbl::Rec));
-			else {
-				*needConversion = 0;
-				ZDELETE(tbl);
-				PPSetErrorDB();
-			}
+			RECORDSIZE recsz = tbl->getRecSize();
+			*needConversion = BIN(recsz < sizeof(ReceiptTbl::Rec));
 		}
 		return tbl;
 	}
@@ -860,14 +809,8 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(needConversion) {
-			RECORDSIZE recsz = 0;
-			if(tbl->getRecSize(&recsz))
-				*needConversion = BIN(recsz < sizeof(TransferTbl::Rec));
-			else {
-				*needConversion = 0;
-				ZDELETE(tbl);
-				PPSetErrorDB();
-			}
+			RECORDSIZE recsz = tbl->getRecSize();
+			*needConversion = BIN(recsz < sizeof(TransferTbl::Rec));
 		}
 		return tbl;
 	}
@@ -1259,9 +1202,8 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(p_tbl->getRecSize(&recsz))
-				*pNeedConversion = (recsz == sizeof(SysJournalTbl::Rec)) ? 0 : 1;
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = (recsz == sizeof(SysJournalTbl::Rec)) ? 0 : 1;
 		}
 		return p_tbl;
 	}
@@ -1306,9 +1248,8 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(p_tbl->getRecSize(&recsz))
-				*pNeedConversion = (recsz == sizeof(RegisterTbl::Rec)) ? 0 : 1;
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = (recsz == sizeof(RegisterTbl::Rec)) ? 0 : 1;
 		}
 		return p_tbl;
 	}
@@ -1354,9 +1295,8 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(p_tbl->getRecSize(&recsz))
-				*pNeedConversion = BIN(recsz < sizeof(CCheckTbl::Rec));
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(CCheckTbl::Rec));
 		}
 		return p_tbl;
 	}
@@ -1404,9 +1344,8 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(p_tbl->getRecSize(&recsz))
-				*pNeedConversion = BIN(recsz < sizeof(PPAccount));
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(PPAccount));
 		}
 		return p_tbl;
 	}
@@ -1531,17 +1470,11 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(tbl->getRecSize(&recsz))
-				if(recsz < (sizeof(BillTbl::Rec) - sizeof( ((BillTbl::Rec*)0)->Memo)))
-					*pNeedConversion = 1;
-				else
-					*pNeedConversion = 0;
-			else {
+			RECORDSIZE recsz = tbl->getRecSize();
+			if(recsz < (sizeof(BillTbl::Rec) - sizeof( ((BillTbl::Rec*)0)->Memo)))
+				*pNeedConversion = 1;
+			else
 				*pNeedConversion = 0;
-				ZDELETE(tbl);
-				PPSetErrorDB();
-			}
 		}
 		return tbl;
 	}
@@ -1605,13 +1538,11 @@ DBTable * SLAPI PPCvtCCheckLine4108::CreateTableInstance(int * pNeedConversion)
 	if(!p_tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = 0;
-		if(p_tbl->getRecSize(&recsz)) {
-			//
-			// В новом формате запись короче (28 байтов вместо 40)
-			//
-			*pNeedConversion = BIN(recsz > sizeof(CCheckLineTbl::Rec));
-		}
+		RECORDSIZE recsz = p_tbl->getRecSize();
+		//
+		// В новом формате запись короче (28 байтов вместо 40)
+		//
+		*pNeedConversion = BIN(recsz > sizeof(CCheckLineTbl::Rec));
 	}
 	return p_tbl;
 }
@@ -1652,13 +1583,11 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(p_tbl->getRecSize(&recsz)) {
-				//
-				// В новом формате запись короче (48 байтов вместо 56)
-				//
-				*pNeedConversion = BIN(recsz > sizeof(SCardOpTbl::Rec));
-			}
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			//
+			// В новом формате запись короче (48 байтов вместо 56)
+			//
+			*pNeedConversion = BIN(recsz > sizeof(SCardOpTbl::Rec));
 		}
 		return p_tbl;
 	}
@@ -1747,9 +1676,8 @@ DBTable * SLAPI PPCvtVatBook4402::CreateTableInstance(int * pNeedConversion)
 		//
 		int    num_seg = 0;
 		DBIdxSpec * p_is = p_tbl->getIndexSpec(1, &num_seg);
-		RECORDSIZE recsz = 0;
-		if(p_tbl->getRecSize(&recsz))
-			*pNeedConversion = BIN(recsz < sizeof(VATBookTbl::Rec) || (p_is && num_seg == 1));
+		RECORDSIZE recsz = p_tbl->getRecSize();
+		*pNeedConversion = BIN(recsz < sizeof(VATBookTbl::Rec) || (p_is && num_seg == 1));
 		SAlloc::F(p_is);
 	}
 	return p_tbl;
@@ -1919,14 +1847,13 @@ DBTable * SLAPI PPCvtPriceLine4405::CreateTableInstance(int * pNeedConversion)
 	if(!p_tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = 0;
-		if(p_tbl->getRecSize(&recsz))
-			if(recsz < (sizeof(PriceLineTbl::Rec)-sizeof(((PriceLineTbl::Rec*)0)->Memo))) {
-				*pNeedConversion = 1;
-				_pre380format = BIN(recsz < 152);
-			}
-			else
-				*pNeedConversion = 0;
+		RECORDSIZE recsz = p_tbl->getRecSize();
+		if(recsz < (sizeof(PriceLineTbl::Rec)-sizeof(((PriceLineTbl::Rec*)0)->Memo))) {
+			*pNeedConversion = 1;
+			_pre380format = BIN(recsz < 152);
+		}
+		else
+			*pNeedConversion = 0;
 	}
 	return p_tbl;
 }
@@ -2025,15 +1952,14 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(p_tbl->getRecSize(&recsz))
-				if(recsz != sizeof(RegisterTbl::Rec))
-					*pNeedConversion = 1;
-				else {
-					int    num_seg = 0;
-					DBIdxSpec * p_is = p_tbl->getIndexSpec(3, &num_seg);
-					*pNeedConversion = BIN(p_is && num_seg == 3);
-				}
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			if(recsz != sizeof(RegisterTbl::Rec))
+				*pNeedConversion = 1;
+			else {
+				int    num_seg = 0;
+				DBIdxSpec * p_is = p_tbl->getIndexSpec(3, &num_seg);
+				*pNeedConversion = BIN(p_is && num_seg == 3);
+			}
 		}
 		return p_tbl;
 	}
@@ -2109,9 +2035,8 @@ DBTable * SLAPI PPCvtHistBill4515::CreateTableInstance(int * pNeedConversion)
 	if(!p_tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = 0;
-		if(p_tbl->getRecSize(&recsz))
-			*pNeedConversion = BIN(recsz < sizeof(HistBillTbl::Rec));
+		RECORDSIZE recsz = p_tbl->getRecSize();
+		*pNeedConversion = BIN(recsz < sizeof(HistBillTbl::Rec));
 	}
 	return p_tbl;
 }
@@ -2175,14 +2100,8 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(tbl->getRecSize(&recsz))
-				*pNeedConversion = BIN(recsz < sizeof(ReceiptTbl::Rec));
-			else {
-				*pNeedConversion = 0;
-				ZDELETE(tbl);
-				PPSetErrorDB();
-			}
+			RECORDSIZE recsz = tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(ReceiptTbl::Rec));
 		}
 		return tbl;
 	}
@@ -2296,14 +2215,8 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(tbl->getRecSize(&recsz))
-				*pNeedConversion = BIN(recsz < sizeof(DlsObjTbl::Rec));
-			else {
-				*pNeedConversion = 0;
-				ZDELETE(tbl);
-				PPSetErrorDB();
-			}
+			RECORDSIZE recsz = tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(DlsObjTbl::Rec));
 		}
 		return tbl;
 	}
@@ -2340,14 +2253,8 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(tbl->getRecSize(&recsz))
-				*pNeedConversion = BIN(recsz < (sizeof(BillTbl::Rec) - sizeof( ((BillTbl::Rec*)0)->Memo)));
-			else {
-				*pNeedConversion = 0;
-				ZDELETE(tbl);
-				PPSetErrorDB();
-			}
+			RECORDSIZE recsz = tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < (sizeof(BillTbl::Rec) - sizeof( ((BillTbl::Rec*)0)->Memo)));
 		}
 		return tbl;
 	}
@@ -2405,14 +2312,8 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(tbl->getRecSize(&recsz))
-				*pNeedConversion = BIN(recsz < sizeof(PayPlanTbl::Rec));
-			else {
-				*pNeedConversion = 0;
-				ZDELETE(tbl);
-				PPSetErrorDB();
-			}
+			RECORDSIZE recsz = tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(PayPlanTbl::Rec));
 		}
 		return tbl;
 	}
@@ -2446,14 +2347,8 @@ DBTable * SLAPI PPCvtTransfer4911::CreateTableInstance(int * pNeedConversion)
 	if(!tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = 0;
-		if(tbl->getRecSize(&recsz))
-			*pNeedConversion = BIN(recsz < sizeof(TransferTbl::Rec));
-		else {
-			*pNeedConversion = 0;
-			ZDELETE(tbl);
-			PPSetErrorDB();
-		}
+		RECORDSIZE recsz = tbl->getRecSize();
+		*pNeedConversion = BIN(recsz < sizeof(TransferTbl::Rec));
 	}
 	return tbl;
 }
@@ -2867,18 +2762,16 @@ DBTable * SLAPI PPCvtCCheckLine5207::CreateTableInstance(int * pNeedConversion)
 	if(!p_tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = 0;
-		if(p_tbl->getRecSize(&recsz)) {
-			if(recsz == 40)
-				ver = 2; // 4.1.8
-			else if(recsz == 28)
-				ver = 1;
-			else if(recsz == 32)
-				ver = 0;
-			else
-				ver = 0; // @error
-			*pNeedConversion = BIN(ver);
-		}
+		const RECORDSIZE recsz = p_tbl->getRecSize();
+		if(recsz == 40)
+			ver = 2; // 4.1.8
+		else if(recsz == 28)
+			ver = 1;
+		else if(recsz == 32)
+			ver = 0;
+		else
+			ver = 0; // @error
+		*pNeedConversion = BIN(ver);
 	}
 	return p_tbl;
 }
@@ -3067,9 +2960,8 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(p_tbl->getRecSize(&recsz))
-				*pNeedConversion = BIN(recsz > sizeof(PersonPostTbl::Rec)); // Новый размер меньше предыдущего
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz > sizeof(PersonPostTbl::Rec)); // Новый размер меньше предыдущего
 		}
 		return p_tbl;
 	}
@@ -3293,17 +3185,11 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(tbl->getRecSize(&recsz))
-				if(recsz > sizeof(ObjSyncTbl::Rec))
-					*pNeedConversion = 1;
-				else
-					*pNeedConversion = 0;
-			else {
+			RECORDSIZE recsz = tbl->getRecSize();
+			if(recsz > sizeof(ObjSyncTbl::Rec))
+				*pNeedConversion = 1;
+			else
 				*pNeedConversion = 0;
-				ZDELETE(tbl);
-				PPSetErrorDB();
-			}
 		}
 		return tbl;
 	}
@@ -3914,20 +3800,13 @@ DBTable * SLAPI PPCvtCGoodsLine5810::CreateTableInstance(int * pNeedConversion)
 	if(!tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = 0;
-		if(tbl->getRecSize(&recsz)) {
-			if(recsz < sizeof(CGoodsLineTbl::Rec)) {
-				C4911 = BIN(recsz < 48);
-				*pNeedConversion = 1;
-			}
-			else
-				*pNeedConversion = 0;
+		RECORDSIZE recsz = tbl->getRecSize();
+		if(recsz < sizeof(CGoodsLineTbl::Rec)) {
+			C4911 = BIN(recsz < 48);
+			*pNeedConversion = 1;
 		}
-		else {
+		else
 			*pNeedConversion = 0;
-			ZDELETE(tbl);
-			PPSetErrorDB();
-		}
 	}
 	return tbl;
 }
@@ -4004,15 +3883,8 @@ DBTable * SLAPI PPCvtBankAccount5810::CreateTableInstance(int * pNeedConversion)
 	if(!tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = 0;
-		if(tbl->getRecSize(&recsz)) {
-			*pNeedConversion = BIN(recsz < sizeof(BankAccount_Pre9004Tbl::Rec));
-		}
-		else {
-			*pNeedConversion = 0;
-			ZDELETE(tbl);
-			PPSetErrorDB();
-		}
+		RECORDSIZE recsz = tbl->getRecSize();
+		*pNeedConversion = BIN(recsz < sizeof(BankAccount_Pre9004Tbl::Rec));
 	}
 	return tbl;
 }
@@ -4076,15 +3948,8 @@ DBTable * SLAPI PPCvtSpecSeries6109::CreateTableInstance(int * pNeedConversion)
 	if(!tbl)
 		PPSetError(PPERR_NOMEM);
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = 0;
-		if(tbl->getRecSize(&recsz)) {
-			*pNeedConversion = BIN(recsz < sizeof(SpecSeriesTbl::Rec));
-		}
-		else {
-			*pNeedConversion = 0;
-			ZDELETE(tbl);
-			PPSetErrorDB();
-		}
+		RECORDSIZE recsz = tbl->getRecSize();
+		*pNeedConversion = BIN(recsz < sizeof(SpecSeriesTbl::Rec));
 	}
 	return tbl;
 }
@@ -5224,8 +5089,7 @@ public:
 	{
 		int    ok = 1;
 		PropertyTbl * p_tbl = (PropertyTbl *)pNewTbl;
-		RECORDSIZE fix_rec_size = 0;
-		p_tbl->getRecSize(&fix_rec_size);
+		RECORDSIZE fix_rec_size = p_tbl->getRecSize();
 		PropertyTbl::Rec * p_rec = (PropertyTbl::Rec*)p_tbl->getDataBuf();
 		PropertyTbl::Rec * p_rec_old = (PropertyTbl::Rec*)pOldRec;
 		PropertyTbl::Rec temp_rec = *p_rec_old;
@@ -5911,10 +5775,8 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(p_tbl->getRecSize(&recsz)) {
-				*pNeedConversion = BIN(recsz < sizeof(SCardOpTbl::Rec));
-			}
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(SCardOpTbl::Rec));
 		}
 		return p_tbl;
 	}
@@ -6006,10 +5868,8 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(p_tbl->getRecSize(&recsz)) {
-				*pNeedConversion = BIN(recsz < sizeof(CheckOpJrnlTbl::Rec));
-			}
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(CheckOpJrnlTbl::Rec));
 		}
 		return p_tbl;
 	}
@@ -6294,12 +6154,10 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
 			int16  num_keys;
 			p_tbl->getNumKeys(&num_keys);
-			if(p_tbl->getRecSize(&recsz)) {
-				*pNeedConversion = BIN(recsz < sizeof(RegisterTbl::Rec) || num_keys < 5);
-			}
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(RegisterTbl::Rec) || num_keys < 5);
 		}
 		return p_tbl;
 	}
@@ -6359,9 +6217,8 @@ DBTable * SLAPI PPCvtBarcode8800::CreateTableInstance(int * pNeedConversion)
 	if(!p_tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = 0;
-		if(p_tbl->getRecSize(&recsz))
-			*pNeedConversion = BIN(recsz < sizeof(BarcodeTbl::Rec)); // Новый размер =38 bytes
+		RECORDSIZE recsz = p_tbl->getRecSize();
+		*pNeedConversion = BIN(recsz < sizeof(BarcodeTbl::Rec)); // Новый размер =38 bytes
 	}
 	return p_tbl;
 }
@@ -6397,9 +6254,8 @@ DBTable * SLAPI PPCvtArGoodsCode8800::CreateTableInstance(int * pNeedConversion)
 	if(!p_tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = 0;
-		if(p_tbl->getRecSize(&recsz))
-			*pNeedConversion = BIN(recsz < sizeof(ArGoodsCodeTbl::Rec)); // Новый размер =38 bytes
+		RECORDSIZE recsz = p_tbl->getRecSize();
+		*pNeedConversion = BIN(recsz < sizeof(ArGoodsCodeTbl::Rec)); // Новый размер =38 bytes
 	}
 	return p_tbl;
 }
@@ -6447,10 +6303,8 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(p_tbl->getRecSize(&recsz)) {
-				*pNeedConversion = BIN(recsz > (sizeof(CpTransfTbl::Rec) - sizeof(((CpTransfTbl::Rec*)0)->Tail)));
-			}
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz > (sizeof(CpTransfTbl::Rec) - sizeof(((CpTransfTbl::Rec*)0)->Tail)));
 		}
 		return p_tbl;
 	}
@@ -6818,9 +6672,8 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(p_tbl->getRecSize(&recsz))
-				*pNeedConversion = BIN(recsz < sizeof(CCheckPaymTbl::Rec)); // Новый размер =38 bytes
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(CCheckPaymTbl::Rec)); // Новый размер =38 bytes
 		}
 		return p_tbl;
 	}
@@ -6872,10 +6725,8 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(p_tbl->getRecSize(&recsz)) {
-				*pNeedConversion = BIN(recsz != sizeof(GoodsDebtTbl::Rec));
-			}
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz != sizeof(GoodsDebtTbl::Rec));
 		}
 		return p_tbl;
 	}
@@ -6915,10 +6766,8 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(p_tbl->getRecSize(&recsz)) {
-				*pNeedConversion = BIN(recsz < sizeof(EgaisProductTbl::Rec));
-			}
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz < sizeof(EgaisProductTbl::Rec));
 		}
 		return p_tbl;
 	}
@@ -7102,10 +6951,8 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = 0;
-			if(p_tbl->getRecSize(&recsz)) {
-				*pNeedConversion = BIN(recsz != sizeof(LotExtCodeTbl::Rec));
-			}
+			RECORDSIZE recsz = p_tbl->getRecSize();
+			*pNeedConversion = BIN(recsz != sizeof(LotExtCodeTbl::Rec));
 		}
 		return p_tbl;
 	}

@@ -87,34 +87,24 @@ METHODDEF(void) start_pass_main(j_compress_ptr cinfo, J_BUF_MODE pass_mode)
 		    break;
 	}
 }
-
 /*
  * Process some data.
  * This routine handles the simple pass-through mode,
  * where we have only a strip buffer.
  */
-
-METHODDEF(void) process_data_simple_main(j_compress_ptr cinfo,
-    JSAMPARRAY input_buf, JDIMENSION *in_row_ctr,
-    JDIMENSION in_rows_avail)
+METHODDEF(void) process_data_simple_main(j_compress_ptr cinfo, JSAMPARRAY input_buf, JDIMENSION *in_row_ctr, JDIMENSION in_rows_avail)
 {
 	my_main_ptr mainp = (my_main_ptr)cinfo->main;
-
 	while(mainp->cur_iMCU_row < cinfo->total_iMCU_rows) {
 		/* Read input data if we haven't filled the main buffer yet */
 		if(mainp->rowgroup_ctr < (JDIMENSION)cinfo->min_DCT_v_scaled_size)
-			(*cinfo->prep->pre_process_data)(cinfo,
-			    input_buf, in_row_ctr, in_rows_avail,
-			    mainp->buffer, &mainp->rowgroup_ctr,
-			    (JDIMENSION)cinfo->min_DCT_v_scaled_size);
-
+			(*cinfo->prep->pre_process_data)(cinfo, input_buf, in_row_ctr, in_rows_avail, mainp->buffer, &mainp->rowgroup_ctr, (JDIMENSION)cinfo->min_DCT_v_scaled_size);
 		/* If we don't have a full iMCU row buffered, return to application for
 		 * more data.  Note that preprocessor will always pad to fill the iMCU row
 		 * at the bottom of the image.
 		 */
 		if(mainp->rowgroup_ctr != (JDIMENSION)cinfo->min_DCT_v_scaled_size)
 			return;
-
 		/* Send the completed row to the compressor */
 		if(!(*cinfo->coef->compress_data)(cinfo, mainp->buffer)) {
 			/* If compressor did not consume the whole row, then we must need to
@@ -147,16 +137,12 @@ METHODDEF(void) process_data_simple_main(j_compress_ptr cinfo,
  * Process some data.
  * This routine handles all of the modes that use a full-size buffer.
  */
-
-METHODDEF(void) process_data_buffer_main(j_compress_ptr cinfo,
-    JSAMPARRAY input_buf, JDIMENSION *in_row_ctr,
-    JDIMENSION in_rows_avail)
+METHODDEF(void) process_data_buffer_main(j_compress_ptr cinfo, JSAMPARRAY input_buf, JDIMENSION *in_row_ctr, JDIMENSION in_rows_avail)
 {
 	my_main_ptr mainp = (my_main_ptr)cinfo->main;
 	int ci;
 	jpeg_component_info * compptr;
 	boolean writing = (mainp->pass_mode != JBUF_CRANK_DEST);
-
 	while(mainp->cur_iMCU_row < cinfo->total_iMCU_rows) {
 		/* Realign the virtual buffers if at the start of an iMCU row. */
 		if(mainp->rowgroup_ctr == 0) {

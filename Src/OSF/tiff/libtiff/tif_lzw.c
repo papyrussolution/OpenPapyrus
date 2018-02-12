@@ -99,7 +99,6 @@ typedef struct {
 #define lzw_free_ent    base.free_ent
 #define lzw_nextdata    base.nextdata
 #define lzw_nextbits    base.nextbits
-
 /*
  * Encoding-specific state.
  */
@@ -739,32 +738,26 @@ static int LZWDecodeCompat(TIFF* tif, uint8* op0, tmsize_t occ0, uint16 s)
 static int LZWSetupEncode(TIFF* tif)
 {
 	static const char module[] = "LZWSetupEncode";
-	LZWCodecState* sp = EncoderState(tif);
-
+	LZWCodecState * sp = EncoderState(tif);
 	assert(sp != NULL);
 	sp->enc_hashtab = (hash_t*)SAlloc::M(HSIZE*sizeof(hash_t));
 	if(sp->enc_hashtab == NULL) {
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "No space for LZW hash table");
+		TIFFErrorExt(tif->tif_clientdata, module, "No space for LZW hash table");
 		return 0;
 	}
 	return 1;
 }
-
 /*
  * Reset encoding state at the start of a strip.
  */
 static int LZWPreEncode(TIFF* tif, uint16 s)
 {
 	LZWCodecState * sp = EncoderState(tif);
-
 	(void)s;
 	assert(sp != NULL);
-
 	if(sp->enc_hashtab == NULL) {
 		tif->tif_setupencode(tif);
 	}
-
 	sp->lzw_nbits = BITS_MIN;
 	sp->lzw_maxcode = MAXCODE(BITS_MIN);
 	sp->lzw_free_ent = CODE_FIRST;
@@ -804,7 +797,6 @@ static int LZWPreEncode(TIFF* tif, uint16 s)
 		}							\
 		outcount += nbits;					\
 }
-
 /*
  * Encode a chunk of pixels.
  *
@@ -821,10 +813,10 @@ static int LZWPreEncode(TIFF* tif, uint16 s)
  */
 static int LZWEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 {
-	register LZWCodecState * sp = EncoderState(tif);
-	register long fcode;
-	register hash_t * hp;
-	register int h, c;
+	LZWCodecState * sp = EncoderState(tif);
+	long fcode;
+	hash_t * hp;
+	int h, c;
 	hcode_t ent;
 	long disp;
 	long incount, outcount, checkpoint;
@@ -833,13 +825,10 @@ static int LZWEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	int free_ent, maxcode, nbits;
 	uint8* op;
 	uint8* limit;
-
 	(void)s;
 	if(sp == NULL)
 		return 0;
-
 	assert(sp->enc_hashtab != NULL);
-
 	/*
 	 * Load local state.
 	 */
@@ -854,7 +843,6 @@ static int LZWEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 	op = tif->tif_rawcp;
 	limit = sp->enc_rawlimit;
 	ent = (hcode_t)sp->enc_oldcode;
-
 	if(ent == (hcode_t)-1 && cc > 0) {
 		/*
 		 * NB: This is safe because it can only happen
@@ -968,7 +956,6 @@ static int LZWEncode(TIFF* tif, uint8* bp, tmsize_t cc, uint16 s)
 hit:
 		;
 	}
-
 	/*
 	 * Restore global state.
 	 */
@@ -984,20 +971,18 @@ hit:
 	tif->tif_rawcp = op;
 	return 1;
 }
-
 /*
  * Finish off an encoded strip by flushing the last
  * string and tacking on an End Of Information code.
  */
 static int LZWPostEncode(TIFF* tif)
 {
-	register LZWCodecState * sp = EncoderState(tif);
-	uint8* op = tif->tif_rawcp;
+	LZWCodecState * sp = EncoderState(tif);
+	uint8 * op = tif->tif_rawcp;
 	long nextbits = sp->lzw_nextbits;
 	unsigned long nextdata = sp->lzw_nextdata;
 	long outcount = sp->enc_outcount;
 	int nbits = sp->lzw_nbits;
-
 	if(op > sp->enc_rawlimit) {
 		tif->tif_rawcc = (tmsize_t)(op - tif->tif_rawdata);
 		if(!TIFFFlushData1(tif) )
@@ -1006,7 +991,6 @@ static int LZWPostEncode(TIFF* tif)
 	}
 	if(sp->enc_oldcode != (hcode_t)-1) {
 		int free_ent = sp->lzw_free_ent;
-
 		PutNextCode(op, sp->enc_oldcode);
 		sp->enc_oldcode = (hcode_t)-1;
 		free_ent++;
@@ -1035,15 +1019,13 @@ static int LZWPostEncode(TIFF* tif)
 	tif->tif_rawcc = (tmsize_t)(op - tif->tif_rawdata);
 	return 1;
 }
-
 /*
  * Reset encoding hash table.
  */
 static void cl_hash(LZWCodecState* sp)
 {
-	register hash_t * hp = &sp->enc_hashtab[HSIZE-1];
-	register long i = HSIZE-8;
-
+	hash_t * hp = &sp->enc_hashtab[HSIZE-1];
+	long i = HSIZE-8;
 	do {
 		i -= 8;
 		hp[-7].hash = -1;
@@ -1063,18 +1045,13 @@ static void cl_hash(LZWCodecState* sp)
 static void LZWCleanup(TIFF* tif)
 {
 	(void)TIFFPredictorCleanup(tif);
-
 	assert(tif->tif_data != 0);
-
 	if(DecoderState(tif)->dec_codetab)
 		SAlloc::F(DecoderState(tif)->dec_codetab);
-
 	if(EncoderState(tif)->enc_hashtab)
 		SAlloc::F(EncoderState(tif)->enc_hashtab);
-
 	SAlloc::F(tif->tif_data);
 	tif->tif_data = NULL;
-
 	_TIFFSetDefaultCompressionState(tif);
 }
 
@@ -1092,7 +1069,6 @@ int TIFFInitLZW(TIFF* tif, int scheme)
 	DecoderState(tif)->dec_decode = NULL;
 	EncoderState(tif)->enc_hashtab = NULL;
 	LZWState(tif)->rw_mode = tif->tif_mode;
-
 	/*
 	 * Install codec methods.
 	 */

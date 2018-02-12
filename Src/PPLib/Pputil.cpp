@@ -1405,11 +1405,11 @@ int SLAPI PPExtStringStorage::Get(const SString & rLine, int fldID, SString & rB
 	rBuf.Z();
 	if(rLine.NotEmpty()) {
 		SStrScan scan(rLine);
-		SString temp_buf;
+		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.4
 		while(ok <= 0 && Re.Find(&scan)) {
-			scan.Get(temp_buf).TrimRight().ShiftLeft();
+			scan.Get(r_temp_buf).TrimRight().ShiftLeft();
 			size_t tag_offs = scan.IncrLen();
-			if(temp_buf.ToLong() == fldID) {
+			if(r_temp_buf.ToLong() == fldID) {
 				size_t start = scan.Offs;
 				if(Re.Find(&scan))
 					rBuf.CopyFromN(rLine+start, scan.Offs-start);

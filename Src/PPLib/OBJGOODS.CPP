@@ -21,7 +21,7 @@ int SLAPI HistGoodsCore::Insert(PPID * pHistID, SBuffer * pBuf, int use_ta)
 		{
 			PPTransaction tra(use_ta);
 			THROW(tra);
-			getRecSize(&fix_rec_size);
+			fix_rec_size = getRecSize();
 			copyBufFrom(p_data_buf, fix_rec_size);
 			THROW(writeLobData(this->Data, PTR8(p_data_buf)+fix_rec_size, (data_len > fix_rec_size) ? (data_len-fix_rec_size) : 0));
 			THROW_DB(insertRec(0, pHistID));
@@ -61,8 +61,7 @@ int SLAPI HistGoodsCore::Search(PPID histID, SBuffer * pBuf)
 	k.ID = histID;
 	if(search(0, &k, spEq) > 0) {
 		if(pBuf) {
-			RECORDSIZE fix_rec_size = 0;
-			getRecSize(&fix_rec_size);
+			RECORDSIZE fix_rec_size = getRecSize();
 			pBuf->Write(&data, fix_rec_size);
 			readLobData(this->Data, *pBuf);
 		}

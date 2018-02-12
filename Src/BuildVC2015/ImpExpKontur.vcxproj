@@ -132,7 +132,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\PPEquip\EquipDll\ImpExpKontur.cpp" />
-    <ClCompile Include="..\PPLib\ppedi.cpp" />
+    <ClCompile Include="..\PPLib\ppedi-base.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="libxml.vcxproj">

@@ -47,9 +47,8 @@
 //   Sync_BillTaxArray
 //
 struct Sync_BillTaxEntry { // @flat
-	SLAPI  Sync_BillTaxEntry()
+	SLAPI  Sync_BillTaxEntry() : VAT(0), SalesTax(0), Amount(0.0)
 	{
-		THISZERO();
 	}
 	long   VAT;      // prec 0.01
 	long   SalesTax; // prec 0.01
@@ -60,10 +59,6 @@ class Sync_BillTaxArray : public SVector { // @v9.8.4 SArray-->SVector
 public:
 	SLAPI  Sync_BillTaxArray() : SVector(sizeof(Sync_BillTaxEntry))
 	{
-	}
-	SLAPI ~Sync_BillTaxArray()
-	{
-		freeAll();
 	}
 	int    SLAPI Search(long VAT, long salesTax, uint * p = 0);
 	int    SLAPI Insert(Sync_BillTaxEntry * e, uint * p = 0);
@@ -259,19 +254,19 @@ SLAPI SCS_SYNCCASH::~SCS_SYNCCASH()
 	ZDELETE(P_AbstrDvc);
 }
 
-int ArrAdd(StrAssocArray & rArr, int pos, int val)
+static int FASTCALL ArrAdd(StrAssocArray & rArr, int pos, int val)
 {
-	SString str;
-	return rArr.Add(pos, str.Z().Cat(val), 1) ? 1 : PPSetErrorSLib();
+	SString & r_str = SLS.AcquireRvlStr(); // @v9.9.4 SLS.AcquireRvlStr
+	return rArr.Add(pos, r_str.Z().Cat(val), 1) ? 1 : PPSetErrorSLib();
 }
 
-int ArrAdd(StrAssocArray & rArr, int pos, double val)
+static int FASTCALL ArrAdd(StrAssocArray & rArr, int pos, double val)
 {
-	SString str;
-	return rArr.Add(pos, str.Z().Cat(val), 1) ? 1 : PPSetErrorSLib();
+	SString & r_str = SLS.AcquireRvlStr(); // @v9.9.4 SLS.AcquireRvlStr
+	return rArr.Add(pos, r_str.Z().Cat(val), 1) ? 1 : PPSetErrorSLib();
 }
 
-int ArrAdd(StrAssocArray & rArr, int pos, const char * str)
+static int FASTCALL ArrAdd(StrAssocArray & rArr, int pos, const char * str)
 {
 	return rArr.Add(pos, str, 1) ? 1 : PPSetErrorSLib();
 }
@@ -366,7 +361,7 @@ int  SLAPI SCS_SYNCCASH::AnnulateCheck()
 	return ok;
 }
 
-static void DestrStr(const SString & rStr, SString & rParamName, SString & rParamVal)
+static void FASTCALL DestrStr(const SString & rStr, SString & rParamName, SString & rParamVal)
 {
 	rParamName.Z();
 	rParamVal.Z();
@@ -660,8 +655,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 				SString no_print_txt;
 				PPLoadText(PPTXT_CHECK_NOT_PRINTED, no_print_txt);
 				ErrCode = (Flags & sfOpenCheck) ? SYNCPRN_CANCEL_WHILE_PRINT : SYNCPRN_CANCEL;
-				PPLogMessage(PPFILNAM_SHTRIH_LOG, CCheckCore::MakeCodeString(&pPack->Rec, no_print_txt),
-					LOGMSGF_TIME|LOGMSGF_USER);
+				PPLogMessage(PPFILNAM_SHTRIH_LOG, CCheckCore::MakeCodeString(&pPack->Rec, no_print_txt), LOGMSGF_TIME|LOGMSGF_USER);
 				ok = 0;
 			}
 		}
@@ -1386,8 +1380,7 @@ int SLAPI SCS_SYNCCASH::OpenBox()
 			SetErrorMessage();
 			if(Flags & sfOpenCheck)
 				ErrCode = SYNCPRN_ERROR_WHILE_PRINT;
-			PPError();
-			ok = 0;
+			ok = PPErrorZ();
 		}
 	ENDCATCH
 	return ok;
@@ -1403,13 +1396,13 @@ int SCS_SYNCCASH::GetStatus(int & rStatus)
 	int    ok = 1;
 	SString param_name, param_val, buf;
 	StrAssocArray arr_in, arr_out;
-	arr_in.Clear();
+	// @v9.9.4 arr_in.Clear();
 	THROW(ExecOper(DVCCMD_GETECRSTATUS, arr_in, arr_out));
 	//THROW(ResCode == RESCODE_NO_ERROR);
 	if(arr_out.getCount()) {
 		for(uint i = 0; arr_out.GetText(i, buf) > 0; i++) {
 			DestrStr(buf, param_name, param_val);
-			if(param_name.CmpNC("STATUS") == 0)
+			if(param_name.IsEqiAscii("STATUS"))
 				rStatus = param_val.ToLong();
 		}
 	}

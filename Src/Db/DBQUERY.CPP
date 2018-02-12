@@ -1,5 +1,5 @@
 // DBQUERY.CPP
-// Copyright (c) Sobolev A. 1995, 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2016, 2017
+// Copyright (c) Sobolev A. 1995, 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <db.h>
@@ -38,7 +38,7 @@ SLAPI DBQuery::~DBQuery()
 	if(flds) {
 		i = fldCount;
 		if(i) do {
-			flds[--i].cell.i.destroy();
+			flds[--i].cell.I.destroy();
 		} while(i);
 		SAlloc::F(flds);
 	}
@@ -67,17 +67,19 @@ static int FASTCALL _search_item(int count, int * array, int item)
 
 int SLAPI DBQuery::_max_hdl(DBDataCell * c, int * list, int _max)
 {
-	int    tmp, h;
-	if(c->i.id > 0) {
-		tmp = _search_item(tblCount, list, c->i.id);
+	if(c->GetId() > 0) {
+		const int tmp = _search_item(tblCount, list, c->GetId());
 		_max = MAX(_max, tmp);
 	}
-	else if(c->i.id == DBE_ID)
-		for(int i = 0; i < c->e.Count; i++)
-			if((h = c->e.getTblHandle(i)) > 0) {
-				tmp = _search_item(tblCount, list, h);
+	else if(c->GetId() == DBE_ID) {
+		for(int i = 0; i < c->E.Count; i++) {
+			const int h = c->E.getTblHandle(i);
+			if(h > 0) {
+				const int tmp = _search_item(tblCount, list, h);
 				_max = MAX(_max, tmp);
 			}
+		}
+	}
 	return _max;
 }
 
@@ -305,7 +307,7 @@ int FASTCALL DBQuery::addField(DBConst & r)
 {
 	flds = (DBQuery::Fld*)SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1));
 	if(flds) {
-		flds[fldCount].cell.c = r;
+		flds[fldCount].cell.C = r;
 		flds[fldCount].type = ((DBItem *)&r)->stype();
 		fldCount++;
 		calcRecSize();
@@ -319,7 +321,7 @@ int FASTCALL DBQuery::addField(DBE & r)
 {
 	flds = (DBQuery::Fld*)SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1));
 	if(flds) {
-		flds[fldCount].cell.e = r;
+		flds[fldCount].cell.E = r;
 		flds[fldCount].type = ((DBItem *)&r)->stype();
 		fldCount++;
 		calcRecSize();
@@ -333,7 +335,7 @@ int FASTCALL DBQuery::addField(DBField & r)
 {
 	flds = (DBQuery::Fld*)SAlloc::R(flds, sizeof(DBQuery::Fld) * (fldCount+1));
 	if(flds) {
-		flds[fldCount].cell.f = r;
+		flds[fldCount].cell.F = r;
 		flds[fldCount].type = ((DBItem *)&r)->stype();
 		fldCount++;
 		calcRecSize();
@@ -350,7 +352,7 @@ DBQuery & FASTCALL select(const DBFieldList & list)
 		if((q.flds = (DBQuery::Fld*)SAlloc::M(sizeof(DBQuery::Fld) * list.GetCount())) != 0) {
 			for(uint i = 0; i < list.GetCount(); i++) {
 				DBQuery::Fld & fld = q.flds[i];
-				fld.cell.f = list.Get(i);
+				fld.cell.F = list.Get(i);
 				fld.type   = list.Get(i).stype();
 			}
 			q.fldCount = list.GetCount();
@@ -372,7 +374,7 @@ DBQuery & FASTCALL selectbycell(int count, DBDataCell * pList)
 			for(int i = 0; i < count; i++) {
 				DBQuery::Fld & fld = q.flds[i];
 				fld.cell = pList[i];
-				fld.type = pList[i].i.stype();
+				fld.type = pList[i].I.stype();
 			}
 		else {
 			q.error = 1;
@@ -401,15 +403,15 @@ DBQuery & SLAPIV select(DBField first_arg, ...)
 			DBQuery::Fld & fld = q.flds[i];
 			if(id == DBConst_ID) {
 				delta = sizeof(DBConst);
-				fld.cell.c = *(DBConst *)list;
+				fld.cell.C = *(DBConst *)list;
 			}
 			else if(id == DBE_ID) {
 				delta = sizeof(DBE);
-				fld.cell.e = *(DBE *)list;
+				fld.cell.E = *(DBE *)list;
 			}
 			else if(id > 0) {
 				delta = sizeof(DBField);
-				fld.cell.f = *(DBField *)list;
+				fld.cell.F = *(DBField *)list;
 			}
 			else {
 				;//CHECK(Invalid_DBItem);
@@ -501,7 +503,7 @@ DBQuery & SLAPIV DBQuery::orderBy(DBField first_arg, ...)
 	list = (va_list)&first_arg;
 	ordCount = 0;
 	DBField f;
-	while((f = va_arg(list, DBField)).id != 0) {
+	while((f = va_arg(list, DBField)).Id != 0) {
 		order = (DBField *)SAlloc::R(order, sizeof(DBField) * (ordCount+1));
 		if(order == 0) {
 			ordCount = 0;
@@ -559,8 +561,7 @@ int SLAPI DBQuery::calcRecSize()
 	recSize  = 0;
 	if(syntax & t_all) {
 		for(uint i = 0; i < tblCount;) {
-			RECORDSIZE rs;
-			tbls[i++].tbl->getRecSize(&rs);
+			const RECORDSIZE rs = tbls[i++].tbl->getRecSize();
 			recSize += rs;
 		}
 	}
@@ -574,7 +575,7 @@ int SLAPI DBQuery::calcRecSize()
 int SLAPI DBQuery::getFieldPosByName(const char * pFldName, uint * pPos) const
 {
 	for(uint i = 0; i < fldCount; i++)
-		if(flds[i].cell.i.id > 0 && sstreqi_ascii(flds[i].cell.f.getField().Name, pFldName)) {
+		if(flds[i].cell.GetId() > 0 && sstreqi_ascii(flds[i].cell.F.getField().Name, pFldName)) {
 			ASSIGN_PTR(pPos, i);
 			return 1;
 		}
@@ -1285,7 +1286,7 @@ DBUpdateSetItem & DBUpdateSet::Get(uint pos) const
 void FASTCALL DBUpdateSet::freeItem(void * pItem)
 {
 	DBUpdateSetItem * p_item = (DBUpdateSetItem *)pItem;
-	p_item->Val.i.destroy();
+	p_item->Val.I.destroy();
 }
 
 DBUpdateSet & FASTCALL set(DBField f, DBItem & val)
@@ -1301,18 +1302,18 @@ DBUpdateSet & FASTCALL DBUpdateSet::set(DBField f, DBItem & val)
 	MEMSZERO(item);
 	item.Fld = f;
 	// DBItem
-	if(val.id == DBConst_ID) {
-		item.Val.c = *(DBConst *)&val;
+	if(val.Id == DBConst_ID) {
+		item.Val.C = *(DBConst *)&val;
 	}
-	else if(val.id == DBE_ID) {
-		item.Val.e = *(DBE *)&val;
+	else if(val.Id == DBE_ID) {
+		item.Val.E = *(DBE *)&val;
 		delete (DBE *)&val;
 	}
-	else if(val.id > 0) {
-		item.Val.f = *(DBField *)&val;
+	else if(val.Id > 0) {
+		item.Val.F = *(DBField *)&val;
 	}
 	else {
-		// @assert
+		assert(0);
 	}
 	insert(&item);
 	return *this;
@@ -1338,7 +1339,7 @@ int updateForCb(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet, Upda
 			}
 			for(uint i = 0; i < c; i++) {
 				DBUpdateSetItem & r_item = rSet.Get(i);
-				if(r_item.Fld.id == pTbl->GetHandle()) {
+				if(r_item.Fld.Id == pTbl->GetHandle()) {
 					void * p_data = r_item.Fld.getValuePtr();
 					const BNField & r_fld = r_item.Fld.getField();
 					DBConst val;

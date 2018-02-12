@@ -51,22 +51,20 @@ typedef struct {
 	int mode;                        /* operating mode */
 	tmsize_t rowbytes;               /* bytes in a decoded scanline */
 	uint32 rowpixels;                /* pixels in a scanline */
-
 	uint16 cleanfaxdata;             /* CleanFaxData tag */
 	uint32 badfaxrun;                /* BadFaxRun tag */
 	uint32 badfaxlines;              /* BadFaxLines tag */
 	uint32 groupoptions;             /* Group 3/4 options tag */
-
 	TIFFVGetMethod vgetparent;       /* super-class method */
 	TIFFVSetMethod vsetparent;       /* super-class method */
 	TIFFPrintMethod printdir;        /* super-class method */
 } Fax3BaseState;
-#define Fax3State(tif)          ((Fax3BaseState*)(tif)->tif_data)
+
+#define Fax3State(tif) ((Fax3BaseState*)(tif)->tif_data)
 
 typedef enum { G3_1D, G3_2D } Ttag;
 typedef struct {
 	Fax3BaseState b;
-
 	/* Decoder state info */
 	const unsigned char* bitmap;    /* bit reversal table */
 	uint32 data;                    /* current i/o byte/word */
@@ -76,25 +74,21 @@ typedef struct {
 	uint32* runs;                   /* b&w runs for current/previous row */
 	uint32* refruns;                /* runs for reference line */
 	uint32* curruns;                /* runs for current line */
-
 	/* Encoder state info */
 	Ttag tag;                       /* encoding state */
 	unsigned char*  refline;        /* reference line for 2d decoding */
 	int k;                          /* #rows left that can be 2d encoded */
 	int maxk;                       /* max #rows that can be 2d encoded */
-
 	int line;
 } Fax3CodecState;
+
 #define DecoderState(tif) ((Fax3CodecState*)Fax3State(tif))
 #define EncoderState(tif) ((Fax3CodecState*)Fax3State(tif))
-
 #define is2DEncoding(sp) (sp->b.groupoptions & GROUP3OPT_2DENCODING)
 #define isAligned(p, t) ((((size_t)(p)) & (sizeof(t)-1)) == 0)
-
 /*
  * Group 3 and Group 4 Decoding.
  */
-
 /*
  * These macros glue the TIFF library state to
  * the state expected by Frank's decoder.
@@ -138,14 +132,12 @@ typedef struct {
 		tif->tif_rawcc -= (tmsize_t)((uint8*)cp - tif->tif_rawcp);	   \
 		tif->tif_rawcp = (uint8*)cp;					   \
 } while(0)
-
 /*
  * Setup state for decoding a strip.
  */
 static int Fax3PreDecode(TIFF* tif, uint16 s)
 {
 	Fax3CodecState* sp = DecoderState(tif);
-
 	(void)s;
 	assert(sp != NULL);
 	sp->bit = 0;                    /* force initial read */
@@ -158,8 +150,7 @@ static int Fax3PreDecode(TIFF* tif, uint16 s)
 	 * and then re-decode the image.  Otherwise they'd need to close
 	 * and open the image to get the state reset.
 	 */
-	sp->bitmap =
-	    TIFFGetBitRevTable(tif->tif_dir.td_fillorder != FILLORDER_LSB2MSB);
+	sp->bitmap = TIFFGetBitRevTable(tif->tif_dir.td_fillorder != FILLORDER_LSB2MSB);
 	if(sp->refruns) {               /* init reference line to white */
 		sp->refruns[0] = (uint32)sp->b.rowpixels;
 		sp->refruns[1] = 0;
@@ -167,13 +158,11 @@ static int Fax3PreDecode(TIFF* tif, uint16 s)
 	sp->line = 0;
 	return 1;
 }
-
 /*
  * Routine for handling various errors/conditions.
  * Note how they are "glued into the decoder" by
  * overriding the definitions used by the decoder.
  */
-
 static void Fax3Unexpected(const char* module, TIFF* tif, uint32 line, uint32 a0)
 {
 	TIFFErrorExt(tif->tif_clientdata, module, "Bad code word at line %u of %s %u (x %u)",
@@ -206,9 +195,7 @@ static void Fax3PrematureEOF(const char* module, TIFF* tif, uint32 line, uint32 
 }
 
 #define prematureEOF(a0)        Fax3PrematureEOF(module, tif, sp->line, a0)
-
 #define Nop
-
 /*
  * Decode the requested amount of G3 1D-encoded data.
  */
@@ -375,7 +362,6 @@ EOF2Da:                                 /* premature EOF */
 		case 0:;		  \
 	}
 #endif
-
 /*
  * Bit-fill a row according to the white/black
  * runs generated during G3/G4 decoding.
@@ -476,7 +462,6 @@ static int Fax3FixupTags(TIFF* tif)
 	(void)tif;
 	return 1;
 }
-
 /*
  * Setup G3/G4-related compression/decompression state
  * before data is processed.  This routine is called once
@@ -553,16 +538,13 @@ static int Fax3SetupState(TIFF* tif)
 			return 0;
 		}
 	}
-	else                                    /* 1d encoding */
+	else /* 1d encoding */
 		EncoderState(tif)->refline = NULL;
-
 	return 1;
 }
-
 /*
  * CCITT Group 3 FAX Encoding.
  */
-
 #define Fax3FlushBits(tif, sp) {				\
 		if((tif)->tif_rawcc >= (tif)->tif_rawdatasize)	       \
 			(void)TIFFFlushData1(tif);		       \
@@ -577,8 +559,7 @@ static int Fax3SetupState(TIFF* tif)
 		(tif)->tif_rawcc++;					\
 		data = 0, bit = 8;					\
 }
-static const int _msbmask[9] =
-{ 0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff };
+static const int _msbmask[9] = { 0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff };
 #define _PutBits(tif, bits, length) {				\
 		while(length > bit) {				       \
 			data |= bits >> (length - bit);			\
@@ -591,28 +572,24 @@ static const int _msbmask[9] =
 		if(bit == 0)					       \
 			_FlushBits(tif);				\
 }
-
 /*
  * Write a variable-length bit-value to
  * the output stream.  Values are
  * assumed to be at most 16 bits.
  */
-static void Fax3PutBits(TIFF* tif, unsigned int bits, unsigned int length)
+static void FASTCALL Fax3PutBits(TIFF * tif, unsigned int bits, unsigned int length)
 {
 	Fax3CodecState* sp = EncoderState(tif);
 	unsigned int bit = sp->bit;
 	int data = sp->data;
-
 	_PutBits(tif, bits, length);
-
 	sp->data = data;
 	sp->bit = bit;
 }
-
 /*
  * Write a code to the output stream.
  */
-#define putcode(tif, te)        Fax3PutBits(tif, (te)->code, (te)->length)
+#define putcode(tif, te) Fax3PutBits(tif, (te)->code, (te)->length)
 
 #ifdef FAX3_DEBUG
 #define DEBUG_COLOR(w) (tab == TIFFFaxWhiteCodes ? w "W" : w "B")
@@ -1183,27 +1160,14 @@ static int Fax3VGetField(TIFF* tif, uint32 tag, va_list ap)
 	Fax3BaseState* sp = Fax3State(tif);
 	assert(sp != 0);
 	switch(tag) {
-		case TIFFTAG_FAXMODE:
-		    *va_arg(ap, int*) = sp->mode;
-		    break;
-		case TIFFTAG_FAXFILLFUNC:
-		    *va_arg(ap, TIFFFaxFillFunc*) = DecoderState(tif)->fill;
-		    break;
+		case TIFFTAG_FAXMODE: *va_arg(ap, int*) = sp->mode; break;
+		case TIFFTAG_FAXFILLFUNC: *va_arg(ap, TIFFFaxFillFunc*) = DecoderState(tif)->fill; break;
 		case TIFFTAG_GROUP3OPTIONS:
-		case TIFFTAG_GROUP4OPTIONS:
-		    *va_arg(ap, uint32*) = sp->groupoptions;
-		    break;
-		case TIFFTAG_BADFAXLINES:
-		    *va_arg(ap, uint32*) = sp->badfaxlines;
-		    break;
-		case TIFFTAG_CLEANFAXDATA:
-		    *va_arg(ap, uint16*) = sp->cleanfaxdata;
-		    break;
-		case TIFFTAG_CONSECUTIVEBADFAXLINES:
-		    *va_arg(ap, uint32*) = sp->badfaxrun;
-		    break;
-		default:
-		    return (*sp->vgetparent)(tif, tag, ap);
+		case TIFFTAG_GROUP4OPTIONS: *va_arg(ap, uint32*) = sp->groupoptions; break;
+		case TIFFTAG_BADFAXLINES: *va_arg(ap, uint32*) = sp->badfaxlines; break;
+		case TIFFTAG_CLEANFAXDATA: *va_arg(ap, uint16*) = sp->cleanfaxdata; break;
+		case TIFFTAG_CONSECUTIVEBADFAXLINES: *va_arg(ap, uint32*) = sp->badfaxrun; break;
+		default: return (*sp->vgetparent)(tif, tag, ap);
 	}
 	return 1;
 }
@@ -1306,7 +1270,6 @@ static int InitCCITTFax3(TIFF* tif)
 	tif->tif_encodetile = Fax3Encode;
 	tif->tif_close = Fax3Close;
 	tif->tif_cleanup = Fax3Cleanup;
-
 	return 1;
 }
 
@@ -1384,7 +1347,6 @@ BADG4:
 }
 
 #undef  SWAP
-
 /*
  * Encode the requested amount of data.
  */
@@ -1444,12 +1406,10 @@ int TIFFInitCCITTFax4(TIFF* tif, int scheme)
 	else
 		return 0;
 }
-
 /*
  * CCITT Group 3 1-D Modified Huffman RLE Compression Support.
  * (Compression algorithms 2 and 32771)
  */
-
 /*
  * Decode the requested amount of RLE-encoded data.
  */
@@ -1511,8 +1471,7 @@ int TIFFInitCCITTRLE(TIFF* tif, int scheme)
 		/*
 		 * Suppress RTC+EOLs when encoding and byte-align data.
 		 */
-		return TIFFSetField(tif, TIFFTAG_FAXMODE,
-		    FAXMODE_NORTC|FAXMODE_NOEOL|FAXMODE_BYTEALIGN);
+		return TIFFSetField(tif, TIFFTAG_FAXMODE, FAXMODE_NORTC|FAXMODE_NOEOL|FAXMODE_BYTEALIGN);
 	}
 	else
 		return 0;
@@ -1528,8 +1487,7 @@ int TIFFInitCCITTRLEW(TIFF* tif, int scheme)
 		/*
 		 * Suppress RTC+EOLs when encoding and word-align data.
 		 */
-		return TIFFSetField(tif, TIFFTAG_FAXMODE,
-		    FAXMODE_NORTC|FAXMODE_NOEOL|FAXMODE_WORDALIGN);
+		return TIFFSetField(tif, TIFFTAG_FAXMODE, FAXMODE_NORTC|FAXMODE_NOEOL|FAXMODE_WORDALIGN);
 	}
 	else
 		return 0;

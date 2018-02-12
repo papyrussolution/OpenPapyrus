@@ -56,16 +56,20 @@ struct PPSlipFormatEntry {
 		cGt,
 		cGe,
 		cLt,
-		cLe
+		cLe,
+
+		cElse // Специальное условие для терминальной "else" зоны
 	};
 	long   Flags;
-	int    Condition;
+	//int    Condition;
+	int    WrapLen;
 	int    FontId;
 	int    PictId;
 	int    BarcodeId;
 	SString Text;
-	PPSlipFormatZone * P_TrueZone;
-	PPSlipFormatZone * P_FalseZone;
+	PPSlipFormatZone * P_ConditionZone;
+	//PPSlipFormatZone * P_TrueZone;
+	//PPSlipFormatZone * P_FalseZone;
 };
 
 class PPSlipFormatZone : public TSCollection <PPSlipFormatEntry> {
@@ -77,30 +81,22 @@ public:
 		kDetail,
 		kPaymDetail
 	};
-	PPSlipFormatZone(int kind);
-
+	explicit PPSlipFormatZone(int kind) : TSCollection <PPSlipFormatEntry> (), Kind(kind), Condition(0), P_Next(0)
+	{
+		assert(oneof5(kind, kInner, kHeader, kFooter, kDetail, kPaymDetail)); // @v8.4.1 kPaymDetail
+	}
+	~PPSlipFormatZone()
+	{
+		delete P_Next;
+	}
 	int    Kind;
+	int    Condition;
+	SString ConditionText;
+	PPSlipFormatZone * P_Next;
 };
 //
 //
 //
-PPSlipFormatEntry::PPSlipFormatEntry() : Flags(0), Condition(0), FontId(0), PictId(0), BarcodeId(0), P_TrueZone(0), P_FalseZone(0)
-{
-}
-
-PPSlipFormatEntry::~PPSlipFormatEntry()
-{
-	delete P_TrueZone;
-	delete P_FalseZone;
-}
-//
-//
-//
-PPSlipFormatZone::PPSlipFormatZone(int kind) : TSCollection <PPSlipFormatEntry> (), Kind(kind)
-{
-	assert(oneof5(kind, kInner, kHeader, kFooter, kDetail, kPaymDetail)); // @v8.4.1 kPaymDetail
-}
-
 class PPSlipFormat {
 public:
 	struct Iter {
@@ -126,7 +122,6 @@ public:
 			}
 			return zone_kind;
 		}
-
 		long   SrcItemNo;
 		long   EntryNo;
 		//
@@ -180,6 +175,7 @@ private:
 	void   Helper_InitIteration();
 	int    NextToken(SFile & rFile, SString & rResult);
 	int    ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSlipFormatZone * pZone);
+	int    ParseCondition(SFile & rFile, SString & rTokResult, int * pCondition, SString & rText);
 	void   AddZone(PPSlipFormatZone * pZone);
 	int    ResolveString(const Iter * pIter, const char * pExpr, SString & rResult, int * pSplitPos, int * pSplitChr);
 	int    CheckCondition(const Iter * pIter, const SString & rText, int condition);
@@ -237,6 +233,7 @@ private:
 		tokBarcode,         // barcode width height [textabove|textbelow|textnone]
 		tokSignBarcode,     // signbarcode std width height [textabove|textbelow|textnone]
 		tokFakeCcQrCode,    // fakeccqrcode // @v9.6.11
+		tokElseIf,          // @v9.9.4 elseif 
 		_tokLastWordToken   // @anchor
 	};
 
@@ -306,6 +303,18 @@ private:
 	SString LastFileName;
 	SString LastFormatName;
 };
+
+PPSlipFormatEntry::PPSlipFormatEntry() : Flags(0), FontId(0), PictId(0), BarcodeId(0), P_ConditionZone(0), WrapLen(0)
+	//Condition(0), P_TrueZone(0), P_FalseZone(0)
+{
+}
+
+PPSlipFormatEntry::~PPSlipFormatEntry()
+{
+	//delete P_TrueZone;
+	//delete P_FalseZone;
+	delete P_ConditionZone;
+}
 
 PPSlipFormat::PPSlipFormat() : LineNo(0), PageWidth(0), PageLength(0), LastPictId(0), Src(0), 
 	P_CcPack(0), P_Od(0), RegTo(0), IsWrap(0), RunningTotal(0.0), CurZone(0), TextOutput(0)
@@ -1506,8 +1515,22 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 					}
 				}
 				if(p_entry->Flags & PPSlipFormatEntry::fIfElse) {
-					int    c = CheckCondition(pIter, p_entry->Text, p_entry->Condition);
-					const  PPSlipFormatZone * p_branch_zone = c ? p_entry->P_TrueZone : p_entry->P_FalseZone;
+					PPSlipFormatZone * p_czone = p_entry->P_ConditionZone;
+					const  PPSlipFormatZone * p_branch_zone = 0;
+					if(p_czone) {
+						do {
+							int    c = CheckCondition(pIter, p_czone->ConditionText, p_czone->Condition);
+							if(c) {
+								p_branch_zone = p_czone;
+							}
+							else {
+								p_czone = p_czone->P_Next;
+								if(p_czone && p_czone->Condition == PPSlipFormatEntry::cElse) {
+									p_branch_zone = p_czone;
+								}
+							}
+						} while(p_czone && !p_branch_zone);
+					}
 					if(p_branch_zone) {
 						Iter::SI si;
 						si.P_Zone = p_zone;
@@ -1574,7 +1597,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 						int    wrap_pos = -1;
 						SString buf = result;
 						if(IsWrap) {
-							if(WrapText(buf, p_entry->Condition, temp_buf, result, &wrap_pos) > 0) {
+							if(WrapText(buf, p_entry->WrapLen, temp_buf, result, &wrap_pos) > 0) {
 								IsWrap = 0;
 								if(split_pos >= 0) {
 									if(split_pos > wrap_pos)
@@ -1585,7 +1608,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							}
 						}
 						else {
-							if(WrapText(buf, p_entry->Condition, result, temp_buf, &wrap_pos) > 0) {
+							if(WrapText(buf, p_entry->WrapLen, result, temp_buf, &wrap_pos) > 0) {
 								IsWrap = 1;
 								if(split_pos >= 0) {
 									if(split_pos <= wrap_pos)
@@ -1786,6 +1809,52 @@ int PPSlipFormat::NextToken(SFile & rFile, SString & rResult)
 	return token;
 }
 
+int PPSlipFormat::ParseCondition(SFile & rFile, SString & rTokResult, /*PPSlipFormatEntry * pEntry*/int * pCondition, SString & rText)
+{
+	int    token = 0;
+	int    condition = 0;
+	rText.Z();
+	{
+		// Разбираем конструкцию: "( left_part condition right_part )"
+		THROW(token = NextToken(rFile, rTokResult));
+		THROW_PP_S(token == tokLPar, PPERR_TOKENEXPECTED, "(");
+		THROW(token = NextToken(rFile, rTokResult));
+		if(oneof2(token, tokString, tokNumber))
+			rText.Cat(rTokResult);
+		else if(token == tokMetavar)
+			rText.Cat(rTokResult);
+		else
+			CALLEXCEPT_PP_S(PPERR_TOKENEXPECTED, "string or number or metavar");
+		THROW(token = NextToken(rFile, rTokResult));
+		{
+			switch(token) {
+				case tokEq:  condition = PPSlipFormatEntry::cEq; break;
+				case tokEq2: condition = PPSlipFormatEntry::cEq; break;
+				case tokNEq: condition = PPSlipFormatEntry::cNEq; break;
+				case tokLt:  condition = PPSlipFormatEntry::cLt; break;
+				case tokLe:  condition = PPSlipFormatEntry::cLe; break;
+				case tokGt:  condition = PPSlipFormatEntry::cGt; break;
+				case tokGe:  condition = PPSlipFormatEntry::cGe; break;
+				default:
+					CALLEXCEPT_PP_S(PPERR_TOKENEXPECTED, "condition operator");
+			}
+		}
+		THROW(token = NextToken(rFile, rTokResult));
+		rText.Semicol();
+		if(oneof2(token, tokString, tokNumber))
+			rText.Cat(rTokResult);
+		else if(token == tokMetavar)
+			rText.Cat(rTokResult);
+		else
+			CALLEXCEPT_PP_S(PPERR_TOKENEXPECTED, "string or number or metavar");
+	}
+	CATCH
+		token = 0;
+	ENDCATCH
+	ASSIGN_PTR(pCondition, condition);
+	return token;
+}
+
 int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSlipFormatZone * pZone)
 {
 	int    token = 0;
@@ -1820,7 +1889,7 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 						THROW_PP_S(token == tokEq, PPERR_TOKENEXPECTED, "=");
 						token = NextToken(rFile, rTokResult);
 						THROW_PP_S(token == tokNumber, PPERR_TOKENEXPECTED, "number");
-						p_entry->Condition = (uint16)rTokResult.ToLong();
+						p_entry->WrapLen = (uint16)rTokResult.ToLong();
 						break;
 					default:
 						CALLEXCEPT_PP_S(PPERR_SLIPFMT_INVTOKEN, rTokResult);
@@ -1844,61 +1913,54 @@ int PPSlipFormat::ParseZone(SFile & rFile, SString & rTokResult, int prec, PPSli
 			p_entry = 0;
 		}
 		else if(token == tokIf) {
+			int    condition = 0;
+			SString condition_text;
 			assert(p_zone == 0);
 			ZDELETE(p_zone);
 			THROW_MEM(p_entry = new PPSlipFormatEntry);
 			p_entry->Flags |= PPSlipFormatEntry::fIfElse;
-			{
-				// Разбираем конструкцию: "( left_part condition right_part )"
-				THROW(token = NextToken(rFile, rTokResult));
-				THROW_PP_S(token == tokLPar, PPERR_TOKENEXPECTED, "(");
-				THROW(token = NextToken(rFile, rTokResult));
-				if(oneof2(token, tokString, tokNumber))
-					p_entry->Text.Cat(rTokResult);
-				else if(token == tokMetavar)
-					p_entry->Text.Cat(rTokResult);
-				else
-					CALLEXCEPT_PP_S(PPERR_TOKENEXPECTED, "string or number or metavar");
-				THROW(token = NextToken(rFile, rTokResult));
-				switch(token) {
-					case tokEq:  p_entry->Condition = PPSlipFormatEntry::cEq; break;
-					case tokEq2: p_entry->Condition = PPSlipFormatEntry::cEq; break;
-					case tokNEq: p_entry->Condition = PPSlipFormatEntry::cNEq; break;
-					case tokLt:  p_entry->Condition = PPSlipFormatEntry::cLt; break;
-					case tokLe:  p_entry->Condition = PPSlipFormatEntry::cLe; break;
-					case tokGt:  p_entry->Condition = PPSlipFormatEntry::cGt; break;
-					case tokGe:  p_entry->Condition = PPSlipFormatEntry::cGe; break;
-					default:
-						CALLEXCEPT_PP_S(PPERR_TOKENEXPECTED, "condition operator");
-				}
-				THROW(token = NextToken(rFile, rTokResult));
-				p_entry->Text.Semicol();
-				if(oneof2(token, tokString, tokNumber))
-					p_entry->Text.Cat(rTokResult);
-				else if(token == tokMetavar)
-					p_entry->Text.Cat(rTokResult);
-				else
-					CALLEXCEPT_PP_S(PPERR_TOKENEXPECTED, "string or number or metavar");
-			}
+			THROW(token = ParseCondition(rFile, rTokResult, &condition, condition_text));
 			p_zone = new PPSlipFormatZone(PPSlipFormatZone::kInner);
 			THROW(token = ParseZone(rFile, rTokResult, tokIf, p_zone)); // @recursion
-			p_entry->P_TrueZone = p_zone;
-			p_zone = 0;
-			if(token == tokElse) {
-				p_zone = new PPSlipFormatZone(PPSlipFormatZone::kInner);
-				THROW(token = ParseZone(rFile, rTokResult, tokElse, p_zone)); // @recursion
-				p_entry->P_FalseZone = p_zone;
+			p_zone->Condition = condition;
+			p_zone->ConditionText = condition_text;
+			{
+				PPSlipFormatZone * p_condition_zone = p_zone;
+				p_entry->P_ConditionZone = p_condition_zone;
 				p_zone = 0;
+				if(token == tokElseIf) {
+					do {
+						THROW(token = ParseCondition(rFile, rTokResult, &condition, condition_text));
+						p_zone = new PPSlipFormatZone(PPSlipFormatZone::kInner);
+						THROW(token = ParseZone(rFile, rTokResult, tokIf, p_zone)); // @recursion
+						p_zone->Condition = condition;
+						p_zone->ConditionText = condition_text;
+						p_condition_zone->P_Next = p_zone;
+						p_condition_zone = p_zone;
+						p_zone = 0;
+					} while(token == tokElseIf);
+				}
+				if(token == tokElse) {
+					p_zone = new PPSlipFormatZone(PPSlipFormatZone::kInner);
+					THROW(token = ParseZone(rFile, rTokResult, tokElse, p_zone)); // @recursion
+					p_zone->Condition = PPSlipFormatEntry::cElse;
+					p_condition_zone->P_Next = p_zone;
+					p_zone = 0;
+				}
+				pZone->insert(p_entry);
 			}
-			pZone->insert(p_entry);
 			p_entry = 0;
 		}
+		else if(token == tokElseIf) {
+			THROW_PP(oneof2(prec, tokIf, tokElseIf), PPERR_MISPLACEDELSE);
+			break; // @end_of_loop
+		}
 		else if(token == tokElse) {
-			THROW_PP(prec == tokIf, PPERR_MISPLACEDELSE);
+			THROW_PP(oneof2(prec, tokIf, tokElseIf), PPERR_MISPLACEDELSE);
 			break; // @end_of_loop
 		}
 		else if(token == tokEndif) {
-			THROW_PP(oneof2(prec, tokIf, tokElse), PPERR_MISPLACEDENDIF);
+			THROW_PP(oneof3(prec, tokIf, tokElseIf, tokElse), PPERR_MISPLACEDENDIF);
 			break; // @end_of_loop
 		}
 		else if(token == tokZone) {
@@ -2437,15 +2499,20 @@ SLTEST_R(PPSlipFormatLexer)
 		for(uint j = 0; j < p_zone->getCount(); j++) {
 			PPSlipFormatEntry * p_entry = p_zone->at(j);
 			result._CATFLD((long)p_entry->Flags);
-			result._CATFLD((long)p_entry->Condition);
 			result._CATFLD((long)p_entry->FontId);
 			result._CATFLD(p_entry->Text);
+			// @v9.9.4 @todo {
+			if(p_entry->P_ConditionZone) {
+
+			}
+			// } @v9.9.4 @todo 
+			/* @v9.9.4 result._CATFLD((long)p_entry->Condition);
 			if(p_entry->P_TrueZone) {
 				result.Cat("TrueZone").CR();
 			}
 			if(p_entry->P_FalseZone) {
 				result.Cat("FalseZone").CR();
-			}
+			}*/
 		}
 		result.CatChar('}').CR();
 	}
@@ -2545,31 +2612,14 @@ PPSlipFormatter::~PPSlipFormatter()
 }
 
 int PPSlipFormatter::Init(const char * pFormatName, SlipDocCommonParam * pParam)
-{
-	return P_SlipFormat ? ((PPSlipFormat *)P_SlipFormat)->Init(SlipFmtPath, pFormatName, pParam) : -1;
-}
-
+	{ return P_SlipFormat ? ((PPSlipFormat *)P_SlipFormat)->Init(SlipFmtPath, pFormatName, pParam) : -1; }
 int PPSlipFormatter::InitIteration(const CCheckPacket * pPack)
-{
-	return P_SlipFormat ? (((PPSlipFormat *)P_SlipFormat)->InitIteration(pPack), 1) : -1;
-}
-
+	{ return P_SlipFormat ? (((PPSlipFormat *)P_SlipFormat)->InitIteration(pPack), 1) : -1; }
 int PPSlipFormatter::InitIteration(const PPBillPacket * pPack)
-{
-	return P_SlipFormat ? (((PPSlipFormat *)P_SlipFormat)->InitIteration(pPack), 1) : -1;
-}
-
+	{ return P_SlipFormat ? (((PPSlipFormat *)P_SlipFormat)->InitIteration(pPack), 1) : -1; }
 int PPSlipFormatter::InitIteration(const CSessInfo * pInfo)
-{
-	return P_SlipFormat ? (((PPSlipFormat *)P_SlipFormat)->InitIteration(pInfo), 1) : -1;
-}
-
+	{ return P_SlipFormat ? (((PPSlipFormat *)P_SlipFormat)->InitIteration(pInfo), 1) : -1; }
 int PPSlipFormatter::NextIteration(SString & rBuf, SlipLineParam * pParam)
-{
-	return P_SlipFormat ? ((PPSlipFormat *)P_SlipFormat)->NextIteration(rBuf, pParam) : -1;
-}
-
+	{ return P_SlipFormat ? ((PPSlipFormat *)P_SlipFormat)->NextIteration(rBuf, pParam) : -1; }
 int PPSlipFormatter::GetFormList(StrAssocArray * pList, int getSlipDocForms /* = 0*/)
-{
-	return P_SlipFormat ? ((PPSlipFormat *)P_SlipFormat)->GetFormList(SlipFmtPath, pList, getSlipDocForms) : -1;
-}
+	{ return P_SlipFormat ? ((PPSlipFormat *)P_SlipFormat)->GetFormList(SlipFmtPath, pList, getSlipDocForms) : -1; }

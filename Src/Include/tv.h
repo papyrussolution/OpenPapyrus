@@ -2869,7 +2869,7 @@ protected:
 		double TmSqSum;
 	};
 	InputStat Stat;
-	ComboBox * combo;
+	ComboBox * P_Combo;
 private:
 	void   Init();
 	int    OnMouseWheel(int delta);

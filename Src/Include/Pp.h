@@ -12632,7 +12632,7 @@ struct PredictSalesStat {
 	SLAPI  PredictSalesStat(PPID coeffQkID = 0, const  PPQuotArray * pCoeffQList = 0);
 	SLAPI ~PredictSalesStat();
 	PredictSalesStat & FASTCALL operator = (const PredictSalesStat &);
-	int    SLAPI Init();
+	void   SLAPI Init();
 	int    FASTCALL Step(const PredictSalesItem *);
 	int    SLAPI Step(const PsiArray *, const DateRange * = 0);
 	int    SLAPI Finish();
@@ -12667,9 +12667,15 @@ struct PredictSalesStat {
 	LssLin AmtLss;         // Параметры линейной аппроксимации по сумме
 	long   Flags;          // @anchor PSSF_XXX
 private:
+	struct LsEntry { // @flat
+		int16  Day;
+		int16  Reserve; // @alignment
+		double Qtty;
+		double Amt;
+	};
 	const  PPID  CoeffQkID;            // @v7.8.12
 	const  PPQuotArray * P_CoeffQList; // @notowned @v7.8.12
-	SArray * P_List;
+	SVector * P_List; // @v9.9.4 SArray-->SVector
 };
 
 typedef int (FASTCALL * EnumPredictSalesProc)(PredictSalesItem *, long);
@@ -12791,7 +12797,7 @@ private:
 		PPID   LocID;
 		int16  LocIdx;
 	};
-	struct HldTabEntry {
+	struct HldTabEntry { // @flat
 		int16  LocIdx;
 		int16  Day;
 	};
@@ -12818,6 +12824,7 @@ private:
 
 	TSVector <LocTabEntry> LocTab; // @v9.8.4 TSArray-->TSVector
 	int    IsLocTabUpdated;
+	int    IsHldTabUpdated;
 	//
 	// Descr: Таблица P_HldTab содержит записи выходных дней по каждому складу.
 	//   Если запись имеет индекс склада равный нулю, то соответствующий ей выходной
@@ -12837,9 +12844,8 @@ private:
 	//   6. Если предыдущий пункт не привел к успеху, то ищется запись {0, -(день/месяц/1996)-100}
 	//   7. Если предыдущий пункт не привел к успеху, заданный день - рабочий
 	//
-	SArray * P_HldTab;
-	int    IsHldTabUpdated;
-	SArray * P_SaveHldTab;
+	SVector * P_HldTab; // @v9.9.4 SArray-->SVector
+	SVector * P_SaveHldTab; // @v9.9.4 SArray-->SVector
 };
 //
 // Descr: Флаги операция по персональным картам
@@ -16807,6 +16813,8 @@ public:
 		extssTempPath      =  2,
 		extssAddr          = 11,
 		extssAddr2         = 12,
+		extssLogin         = 13,
+		extssPassword      = 14
 	};
 
 	SLAPI  PPEdiProviderPacket();
@@ -27536,7 +27544,7 @@ private:
 	//int    SLAPI UpdateTempTable(PPID goodsID, PPID parentStrucID, PPID strucID, int goodsIsItem, int use_ta);
 	int    SLAPI AddItem(PPID goodsID, PPID strucID, int checkExistance);
 
-	struct StrucEntry { 
+	struct StrucEntry {
 		PPID   GStrucID;
 		PPID   PrmrGoodsID;
 		long   Flags;
@@ -27550,7 +27558,7 @@ private:
 		double GiftAmtRestrict;
 		double CommDenom;
 	};
-	struct ItemEntry { 
+	struct ItemEntry {
 		PPID   GStrucID;
 		PPID   GoodsID;
 		long   ItemNo; // Порядковый номер элемента в структуре [1..]
@@ -29149,8 +29157,17 @@ public:
 	PPInventoryImpExpParam(uint recId = 0, long flags = 0);
 };
 //
+// Descr: Вспомогательная стурктура, используемая в специализиованных
+//   модулях экспорта документов (ЕГАИС, EDI)
 //
-//
+struct PPBillExportFilt {
+	SLAPI  PPBillExportFilt();
+
+	PPID   LocID;
+	DateRange Period;
+	PPIDArray IdList;
+};
+
 class PPBillImpExpBaseProcessBlock {
 public:
 	PPBillImpExpBaseProcessBlock();
@@ -29214,14 +29231,8 @@ public:
 	int    SLAPI PutPacket(PPBillPacket * pPack, int sessId = 0, ImpExpDll * pImpExpDll = 0);
 	int    SLAPI SignBill(); // @vmiller
 	int    SLAPI CheckBillsWasExported(ImpExpDll * pExpDll); // @vmiller // Получает от dll список успешно экспортированных документов и ставит в них соответствующую пометку
-	PPImpExp * SLAPI GetIEBill() const
-	{
-		return P_IEBill;
-	}
-	PPImpExp * SLAPI GetIEBRow() const
-	{
-		return P_IEBRow;
-	}
+	PPImpExp * SLAPI GetIEBill() const { return P_IEBill; }
+	PPImpExp * SLAPI GetIEBRow() const { return P_IEBRow; }
 private:
 	int    SLAPI BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * pBill);
 	int    SLAPI GetInn(PPID arID, SString & rINN);
@@ -37027,7 +37038,7 @@ private:
 
 struct DebtTrnovrViewItem { // @transient
 	long   ID_;            // Ведущий идентификатор элемента. Это может быть как ид статьи, так и ид иного
-		// типа объекта. Для выяснения к какому типу отностися данный идентификатор необъодимо
+		// типа объекта. Для выяснения к какому типу отностися данный идентификатор необходимо
 		// воспользоваться функцией PPObjBill::GetSubstObjType().
 	PPID   ObjType;        // Тип объекта, которым представляется поле ID_
 	long   Ar;             //
@@ -37117,10 +37128,7 @@ public:
 		// @>>PPViewDebtTrnovr::GetPayableBillList_
 	int    SLAPI GetTabTitle(long tabID, SString & rBuf) const;
 	int    SLAPI GetTotal(DebtTrnovrTotal * pTotal);
-	const  PPObjBill::SubstParam & GetBillSubstBlock() const
-	{
-		return Bsp;
-	}
+	const  PPObjBill::SubstParam & GetBillSubstBlock() const { return Bsp; }
 
 	LDATE  ExpiryDate;
 private:
@@ -43732,18 +43740,9 @@ public:
 		bilstfV1               = 0x4000, // @v9.7.5  Специальный флаг, явно указывающий на 1-ю версию формата ЕГАИС
 		bilstfV2               = 0x8000, // @v9.7.5  Документы 2-й версии ЕГАИС
 	};
-
-	struct SendBillsParam {
-		SLAPI  SendBillsParam();
-
-		PPID   LocID;
-		DateRange Period;
-		PPIDArray IdList;
-	};
-
-	int    SLAPI GetAcceptedBillList(const SendBillsParam & rP, long flags, PPIDArray & rList);
-	int    SLAPI GetBillListForTransmission(const SendBillsParam & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList);
-	int    SLAPI GetBillListForConfirmTicket(/*PPID locID, const DateRange & rPeriod*/const SendBillsParam & rP, long flags, PPIDArray & rList);
+	int    SLAPI GetAcceptedBillList(const PPBillExportFilt & rP, long flags, PPIDArray & rList);
+	int    SLAPI GetBillListForTransmission(const PPBillExportFilt & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList);
+	int    SLAPI GetBillListForConfirmTicket(/*PPID locID, const DateRange & rPeriod*/const PPBillExportFilt & rP, long flags, PPIDArray & rList);
 	int    SLAPI GetTempFileName(const char * pPath, const char * pSubPath, const char * pPrefix, SString & rFn);
 
 	enum {
@@ -43757,9 +43756,9 @@ public:
 
 	//int    SLAPI SendBillActs(PPID locID, const DateRange * pPeriod);
 	//int    SLAPI SendBills(PPID locID, const DateRange * pPeriod);
-	int    SLAPI SendBillActs(const SendBillsParam & rP);
-	int    SLAPI SendBillRepeals(const SendBillsParam & rP);
-	int    SLAPI SendBills(const SendBillsParam & rP);
+	int    SLAPI SendBillActs(const PPBillExportFilt & rP);
+	int    SLAPI SendBillRepeals(const PPBillExportFilt & rP);
+	int    SLAPI SendBills(const PPBillExportFilt & rP);
 	int    SLAPI CreateActChargeOnBill(PPID * pBillID, int ediOp, PPID locID, LDATE restDate, const PPIDArray & rLotList, int use_ta);
 
 	int    SLAPI CollectRefs();
@@ -43769,7 +43768,7 @@ private:
 		int    EdiOp;
 		const  char * P_UrlSuffix;
 	};
-	int    SLAPI Helper_SendBillsByPattern(const SendBillsParam & rP, const BillTransmissionPattern & rPattern);
+	int    SLAPI Helper_SendBillsByPattern(const PPBillExportFilt & rP, const BillTransmissionPattern & rPattern);
     int    SLAPI GetReplyList(void * pCtx, PPID locID, int direction /* +1 out, -1 - in */, TSCollection <PPEgaisProcessor::Reply> & rList);
 	int    SLAPI Helper_Read(void * pCtx, const char * pFileName, long flags,
 		PPID locID, const DateRange * pPeriod, uint srcReplyPos, TSCollection <PPEgaisProcessor::Packet> * pPackList, PrcssrAlcReport::RefCollection * pRefC);

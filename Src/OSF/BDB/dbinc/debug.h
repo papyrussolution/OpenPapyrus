@@ -5,28 +5,24 @@
  *
  * $Id$
  */
-
 #ifndef _DB_DEBUG_H_
 #define	_DB_DEBUG_H_
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
 /*
  * Turn on additional error checking in gcc 3.X.
  */
 #if !defined(__GNUC__) || __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 5)
-#define	__attribute__(s)
+	#define	__attribute__(s)
 #endif
-
 /*
  * When running with #DIAGNOSTIC defined, we smash memory and do memory
  * guarding with a special byte value.
  */
 #define	CLEAR_BYTE	0xdb
 #define	GUARD_BYTE	0xdc
-
 /*
  * DB assertions.
  *
@@ -37,7 +33,6 @@ extern "C" {
 #else
 	#define	DB_ASSERT(env, e)   // @sobolev NOP_STATEMENT
 #endif
-
 /*
  * "Shut that bloody compiler up!"
  *
@@ -66,7 +61,6 @@ typedef enum {
 	DB_ERROR_SET=1,
 	DB_ERROR_SYSTEM=2
 } db_error_set_t;
-
 /*
  * Message handling.  Use a macro instead of a function because va_list
  * references to variadic arguments cannot be reset to the beginning of the
@@ -81,7 +75,6 @@ typedef enum {
 	if((dbenv) != NULL && (dbenv)->db_errcall != NULL)		\
 		__db_errcall(dbenv, error, error_set, fmt, __ap);	\
 	va_end(__ap);							\
-									\
 	/*								\
 	 * If the application specified a file descriptor, write to it.	\
 	 * If we wrote to neither the application's callback routine or	\
@@ -98,13 +91,11 @@ typedef enum {
 #else
 #define	DB_REAL_ERR(dbenv, error, error_set, app_call, fmt) {		\
 	va_list __ap;							\
-									\
 	/* Call the application's callback function, if specified. */	\
 	va_start(__ap);							\
 	if((dbenv) != NULL && (dbenv)->db_errcall != NULL)		\
 		__db_errcall(dbenv, error, error_set, fmt, __ap);	\
 	va_end(__ap);							\
-									\
 	/*								\
 	 * If the application specified a file descriptor, write to it.	\
 	 * If we wrote to neither the application's callback routine or	\
@@ -121,13 +112,11 @@ typedef enum {
 #if defined(STDC_HEADERS) || defined(__cplusplus)
 #define	DB_REAL_MSG(dbenv, fmt) {					\
 	va_list __ap;							\
-									\
 	/* Call the application's callback function, if specified. */	\
 	va_start(__ap, fmt);						\
 	if((dbenv) != NULL && (dbenv)->db_msgcall != NULL)		\
 		__db_msgcall(dbenv, fmt, __ap);				\
 	va_end(__ap);							\
-									\
 	/*								\
 	 * If the application specified a file descriptor, write to it.	\
 	 * If we wrote to neither the application's callback routine or	\
@@ -147,7 +136,6 @@ typedef enum {
 	if((dbenv) != NULL && (dbenv)->db_msgcall != NULL)		\
 		__db_msgcall(dbenv, fmt, __ap);				\
 	va_end(__ap);							\
-									\
 	/*								\
 	 * If the application specified a file descriptor, write to it.	\
 	 * If we wrote to neither the application's callback routine or	\
@@ -160,7 +148,6 @@ typedef enum {
 	va_end(__ap);							\
 }
 #endif
-
 /*
  * Debugging macro to log operations.
  *	If DEBUG_WOP is defined, log operations that modify the database.
@@ -193,58 +180,58 @@ typedef enum {
 #else
 	#define	DEBUG_LWRITE(C, T, O, K, A, F)
 #endif
-/*
- * Hook for testing recovery at various places in the create/delete paths.
- * Hook for testing subdb locks.
- */
+// 
+// Hook for testing recovery at various places in the create/delete paths.
+// Hook for testing subdb locks.
+// 
 #if CONFIG_TEST
-#define	DB_TEST_SUBLOCKS(env, flags) do { if((env)->test_abort == DB_TEST_SUBDB_LOCKS) (flags) |= DB_LOCK_NOWAIT; } while (0)
+	#define	DB_TEST_SUBLOCKS(env, flags) do { if((env)->test_abort == DB_TEST_SUBDB_LOCKS) (flags) |= DB_LOCK_NOWAIT; } while (0)
 
-#define	DB_ENV_TEST_RECOVERY(env, val, ret, name) do {			\
-	int __ret;							\
-	PANIC_CHECK((env));						\
-	if((env)->test_copy == (val)) {				\
-		/* COPY the FILE */					\
-		if((__ret = __db_testcopy((env), NULL, (name))) != 0)	\
-			(ret) = __env_panic((env), __ret);		\
-	}								\
-	if((env)->test_abort == (val)) {				\
-		/* ABORT the TXN */					\
-		(env)->test_abort = 0;					\
-		(ret) = EINVAL;						\
-		goto db_tr_err;						\
-	}								\
-} while (0)
+	#define	DB_ENV_TEST_RECOVERY(env, val, ret, name) do {			\
+		int __ret;							\
+		PANIC_CHECK((env));						\
+		if((env)->test_copy == (val)) {				\
+			/* COPY the FILE */					\
+			if((__ret = __db_testcopy((env), NULL, (name))) != 0)	\
+				(ret) = __env_panic((env), __ret);		\
+		}								\
+		if((env)->test_abort == (val)) {				\
+			/* ABORT the TXN */					\
+			(env)->test_abort = 0;					\
+			(ret) = EINVAL;						\
+			goto db_tr_err;						\
+		}								\
+	} while (0)
 
-#define	DB_TEST_RECOVERY(dbp, val, ret, name) do {			\
-	ENV *__env = (dbp)->env;					\
-	int __ret;							\
-	PANIC_CHECK(__env);						\
-	if(__env->test_copy == (val)) {				\
-		/* Copy the file. */					\
-		if(F_ISSET((dbp), DB_AM_OPEN_CALLED) && (dbp)->mpf != NULL) \
-			__db_sync(dbp);				\
-		if((__ret = __db_testcopy(__env, (dbp), (name))) != 0) \
-			(ret) = __env_panic(__env, __ret);		\
-	}								\
-	if(__env->test_abort == (val)) {				\
-		/* Abort the transaction. */				\
-		__env->test_abort = 0;					\
-		(ret) = EINVAL;						\
-		goto db_tr_err;						\
-	}								\
-} while (0)
+	#define	DB_TEST_RECOVERY(dbp, val, ret, name) do {			\
+		ENV *__env = (dbp)->env;					\
+		int __ret;							\
+		PANIC_CHECK(__env);						\
+		if(__env->test_copy == (val)) {				\
+			/* Copy the file. */					\
+			if(F_ISSET((dbp), DB_AM_OPEN_CALLED) && (dbp)->mpf != NULL) \
+				__db_sync(dbp);				\
+			if((__ret = __db_testcopy(__env, (dbp), (name))) != 0) \
+				(ret) = __env_panic(__env, __ret);		\
+		}								\
+		if(__env->test_abort == (val)) {				\
+			/* Abort the transaction. */				\
+			__env->test_abort = 0;					\
+			(ret) = EINVAL;						\
+			goto db_tr_err;						\
+		}								\
+	} while (0)
 
-#define	DB_TEST_RECOVERY_LABEL	db_tr_err:
-#define	DB_TEST_SET(field, val) do { if(field == (val)) goto db_tr_err; } while (0)
-#define	DB_TEST_WAIT(env, val)  if((val) != 0) __os_yield((env), (ulong)(val), 0)
+	#define	DB_TEST_RECOVERY_LABEL	db_tr_err:
+	#define	DB_TEST_SET(field, val) do { if(field == (val)) goto db_tr_err; } while (0)
+	#define	DB_TEST_WAIT(env, val)  if((val) != 0) __os_yield((env), (ulong)(val), 0)
 #else
-#define	DB_TEST_SUBLOCKS(env, flags)
-#define	DB_ENV_TEST_RECOVERY(env, val, ret, name)
-#define	DB_TEST_RECOVERY(dbp, val, ret, name)
-#define	DB_TEST_RECOVERY_LABEL
-#define	DB_TEST_SET(env, val)
-#define	DB_TEST_WAIT(env, val)
+	#define	DB_TEST_SUBLOCKS(env, flags)
+	#define	DB_ENV_TEST_RECOVERY(env, val, ret, name)
+	#define	DB_TEST_RECOVERY(dbp, val, ret, name)
+	#define	DB_TEST_RECOVERY_LABEL
+	#define	DB_TEST_SET(env, val)
+	#define	DB_TEST_WAIT(env, val)
 #endif
 
 #if defined(__cplusplus)

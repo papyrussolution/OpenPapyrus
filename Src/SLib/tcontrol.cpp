@@ -678,7 +678,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					t.keyDown.keyCode = kbDown;
 					P_Owner->handleEvent(t);
 				}
-				CALLPTRMEMB(combo, handleWindowsMessage(WM_COMMAND, 0, 0));
+				CALLPTRMEMB(P_Combo, handleWindowsMessage(WM_COMMAND, 0, 0));
 			}
 			else if(oneof3(wParam, VK_UP, VK_PRIOR, VK_NEXT) && P_Owner) {
 				TEvent t;
@@ -687,8 +687,8 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				P_Owner->handleEvent(t);
 			}
 			else if(wParam == VK_DELETE) {
-				if(combo)
-					combo->handleWindowsMessage(WM_USER_COMBO_CLEAR, wParam, lParam);
+				if(P_Combo)
+					P_Combo->handleWindowsMessage(WM_USER_COMBO_CLEAR, wParam, lParam);
 				else if(hasWordSelector())
 					P_WordSelBlk->SetupData(0);
 				else
@@ -702,8 +702,8 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			MessageCommandToOwner(cmInputUpdatedByBtn);
 			return 0;
 		case WM_CHAR:
-			if(combo)
-				combo->handleWindowsMessage(WM_USER_COMBO_ACTIVATEBYCHAR, wParam, lParam);
+			if(P_Combo)
+				P_Combo->handleWindowsMessage(WM_USER_COMBO_ACTIVATEBYCHAR, wParam, lParam);
 			else if(hasWordSelector()) {
 				SString symb;
 				symb.CatChar((char)wParam);
@@ -745,7 +745,7 @@ void TInputLine::Init()
 	options |= ofSelectable;
 	format   = 0;
 	type     = 0;
-	combo = 0;
+	P_Combo = 0;
 	InlSt = stValidStr;
 }
 
@@ -759,7 +759,7 @@ TInputLine::TInputLine(const TRect & bounds, TYPEID typ, long fmt) : TView(bound
 
 TInputLine::~TInputLine() { RestoreOnDestruction(); }
 const char * TInputLine::getText() { return Data.cptr(); }
-ComboBox * TInputLine::GetCombo() { return combo; }
+ComboBox * TInputLine::GetCombo() { return P_Combo; }
 
 void TInputLine::setMaxLen(int newMaxLen)
 {
@@ -774,7 +774,7 @@ void TInputLine::selectAll(int enable)
 
 int TInputLine::setupCombo(ComboBox * pCombo)
 {
-	combo = pCombo;
+	P_Combo = pCombo;
 	CALLPTRMEMB(pCombo, SetLink(this));
 	return 1;
 }
@@ -823,25 +823,23 @@ int TInputLine::TransmitData(int dir, void * pData)
 	if(dir > 0) {
 		char   temp[4096]; // @v8.3.11 [1024]-->[4096]
 		if(hasWordSelector() && !P_WordSelBlk->IsTextMode()) {
-			SString buf;
 			P_WordSelBlk->SetupData(pData ? *(long*)pData : 0);
 		}
 		else {
 			if(pData == 0)
 				temp[0] = 0;
 			else {
-				long f = 0;
-				f = MKSFMTD(0, SFMTPRC(format), SFMTFLAG(format)) & ~(SFALIGNMASK|STRF_PASSWORD);
+				long f = MKSFMTD(0, SFMTPRC(format), SFMTFLAG(format)) & ~(SFALIGNMASK|STRF_PASSWORD);
 				sttostr(type, pData, f, temp);
 			}
 			setText(temp);
 		}
 	}
 	else if(dir < 0) {
-		if(combo)
-			s = combo->TransmitData(dir, pData);
+		if(P_Combo)
+			s = P_Combo->TransmitData(dir, pData);
 		else if(hasWordSelector() && !P_WordSelBlk->IsTextMode()) {
-			long id = 0L;
+			long   id = 0L;
 			SString buf;
 			P_WordSelBlk->GetData(&id, buf);
 			s = 4;

@@ -64,19 +64,18 @@ static tmsize_t _tiffReadProc(thandle_t fd, void* buf, tmsize_t size)
 		errno = EINVAL;
 		return (tmsize_t)-1;
 	}
-	fdh.h = fd;
-	for(bytes_read = 0; bytes_read < bytes_total; bytes_read += count) {
-		char * buf_offset = (char*)buf+bytes_read;
-		size_t io_size = bytes_total-bytes_read;
-		if(io_size > TIFF_IO_MAX)
-			io_size = TIFF_IO_MAX;
-		count = _read(fdh.fd, buf_offset, (TIFFIOSize_t)io_size);
-		if(count <= 0)
-			break;
+	else {
+		fdh.h = fd;
+		for(bytes_read = 0; bytes_read < bytes_total; bytes_read += count) {
+			char * buf_offset = (char*)buf+bytes_read;
+			size_t io_size = bytes_total-bytes_read;
+			SETMIN(io_size, TIFF_IO_MAX);
+			count = _read(fdh.fd, buf_offset, (TIFFIOSize_t)io_size);
+			if(count <= 0)
+				break;
+		}
+		return (count >= 0) ? (tmsize_t)bytes_read : (tmsize_t)-1;
 	}
-	if(count < 0)
-		return (tmsize_t)-1;
-	return (tmsize_t)bytes_read;
 }
 
 static tmsize_t _tiffWriteProc(thandle_t fd, void* buf, tmsize_t size)
@@ -89,20 +88,19 @@ static tmsize_t _tiffWriteProc(thandle_t fd, void* buf, tmsize_t size)
 		errno = EINVAL;
 		return (tmsize_t)-1;
 	}
-	fdh.h = fd;
-	for(bytes_written = 0; bytes_written < bytes_total; bytes_written += count) {
-		const char * buf_offset = (char*)buf+bytes_written;
-		size_t io_size = bytes_total-bytes_written;
-		if(io_size > TIFF_IO_MAX)
-			io_size = TIFF_IO_MAX;
-		count = _write(fdh.fd, buf_offset, (TIFFIOSize_t)io_size);
-		if(count <= 0)
-			break;
+	else {
+		fdh.h = fd;
+		for(bytes_written = 0; bytes_written < bytes_total; bytes_written += count) {
+			const char * buf_offset = (char*)buf+bytes_written;
+			size_t io_size = bytes_total-bytes_written;
+			SETMIN(io_size, TIFF_IO_MAX);
+			count = _write(fdh.fd, buf_offset, (TIFFIOSize_t)io_size);
+			if(count <= 0)
+				break;
+		}
+		return (count >= 0) ? (tmsize_t)bytes_written : (tmsize_t)-1;
+		/* return ((tmsize_t) write(fdh.fd, buf, bytes_total)); */
 	}
-	if(count < 0)
-		return (tmsize_t)-1;
-	return (tmsize_t)bytes_written;
-	/* return ((tmsize_t) write(fdh.fd, buf, bytes_total)); */
 }
 
 static uint64 _tiffSeekProc(thandle_t fd, uint64 off, int whence)
@@ -111,7 +109,7 @@ static uint64 _tiffSeekProc(thandle_t fd, uint64 off, int whence)
 	_TIFF_off_t off_io = (_TIFF_off_t)off;
 	if((uint64)off_io != off) {
 		errno = EINVAL;
-		return (uint64) -1; /* this is really gross */
+		return (uint64)-1; /* this is really gross */
 	}
 	fdh.h = fd;
 	return((uint64)_TIFF_lseek_f(fdh.fd, off_io, whence));
@@ -129,10 +127,10 @@ static uint64 _tiffSizeProc(thandle_t fd)
 	_TIFF_stat_s sb;
 	fd_as_handle_union_t fdh;
 	fdh.h = fd;
-	if(_TIFF_fstat_f(fdh.fd, &sb)<0)
+	if(_TIFF_fstat_f(fdh.fd, &sb) < 0)
 		return 0;
 	else
-		return((uint64)sb.st_size);
+		return (uint64)sb.st_size;
 }
 
 #ifdef HAVE_MMAP
@@ -145,8 +143,7 @@ static int _tiffMapProc(thandle_t fd, void** pbase, toff_t* psize)
 	if((uint64)sizem==size64) {
 		fd_as_handle_union_t fdh;
 		fdh.h = fd;
-		*pbase = (void*)
-		    mmap(0, (size_t)sizem, PROT_READ, MAP_SHARED, fdh.fd, 0);
+		*pbase = (void*)mmap(0, (size_t)sizem, PROT_READ, MAP_SHARED, fdh.fd, 0);
 		if(*pbase != (void*)-1) {
 			*psize = (tmsize_t)sizem;
 			return 1;
@@ -172,28 +169,20 @@ static void _tiffUnmapProc(thandle_t fd, void* base, toff_t size)
 {
 	(void)fd; (void)base; (void)size;
 }
-
 #endif /* !HAVE_MMAP */
-
 /*
  * Open a TIFF file descriptor for read/writing.
  */
 TIFF* TIFFFdOpen(int fd, const char* name, const char* mode)
 {
 	TIFF* tif;
-
 	fd_as_handle_union_t fdh;
 	fdh.fd = fd;
-	tif = TIFFClientOpen(name, mode,
-	    fdh.h,
-	    _tiffReadProc, _tiffWriteProc,
-	    _tiffSeekProc, _tiffCloseProc, _tiffSizeProc,
-	    _tiffMapProc, _tiffUnmapProc);
+	tif = TIFFClientOpen(name, mode, fdh.h, _tiffReadProc, _tiffWriteProc, _tiffSeekProc, _tiffCloseProc, _tiffSizeProc, _tiffMapProc, _tiffUnmapProc);
 	if(tif)
 		tif->tif_fd = fd;
 	return (tif);
 }
-
 /*
  * Open a TIFF file for read/writing.
  */

@@ -727,15 +727,9 @@ int FASTCALL CtmExpr::AddArg(const CtmExpr & a)
 	return ok;
 }
 
-uint CtmExpr::GetListCount() const
-{
-	return P_Next ? (1 + P_Next->GetListCount()) : 1;
-}
-
-uint CtmExpr::GetArgCount() const
-{
-	return P_Arg ? P_Arg->GetListCount() : 0;
-}
+DLSYMBID CtmExpr::GetTypeID() const { return NZOR(ToTypStdCvt, TypID); }
+uint   CtmExpr::GetListCount() const { return P_Next ? (1 + P_Next->GetListCount()) : 1; }
+uint   CtmExpr::GetArgCount() const { return P_Arg ? P_Arg->GetListCount() : 0; }
 
 CtmExpr * FASTCALL CtmExpr::GetArg(uint pos) const
 {
@@ -743,11 +737,6 @@ CtmExpr * FASTCALL CtmExpr::GetArg(uint pos) const
 	for(uint c = 0; p_expr && c < pos; c++)
 		p_expr = p_expr->P_Next;
 	return p_expr;
-}
-
-DLSYMBID CtmExpr::GetTypeID() const
-{
-	return NZOR(ToTypStdCvt, TypID);
 }
 
 int FASTCALL CtmExpr::SetImplicitCast(DLSYMBID toTypID)
@@ -786,10 +775,9 @@ int FASTCALL CtmExpr::SetResolvedFunc(const CtmFunc & rFunc)
 //
 //
 //
-RtmStack::RtmStack()
+RtmStack::RtmStack() : P(0)
 {
 	B.Init();
-	P = 0;
 }
 
 RtmStack::~RtmStack()
@@ -1499,14 +1487,9 @@ _skip_switch:
 	#undef CTONLY
 }
 
-SLAPI DlContext::DlContext(int toCompile) :
-	Tab(8192, 1), ScopeStack(sizeof(DLSYMBID)), Sc(0, DlScope::kGlobal, "global", 0)
+SLAPI DlContext::DlContext(int toCompile) : Tab(8192, 1), ScopeStack(sizeof(DLSYMBID)), Sc(0, DlScope::kGlobal, "global", 0),
+	LastSymbId(0), UniqCntr(0), CurScopeID(0), Flags(0), P_M(0)
 {
-	LastSymbId  = 0;
-	UniqCntr = 0;
-	CurScopeID = 0;
-	Flags = 0;
-	P_M = 0;
 	MEMSZERO(F_Dot);
 	MEMSZERO(F_Ref); // @v7.1.10
 	getExecPath(LogFileName).SetLastSlash().Cat("dl600.log");

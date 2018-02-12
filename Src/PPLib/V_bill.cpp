@@ -4636,7 +4636,6 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 			if(b_e.GetIEBRow())
 				brow_param.FileName = b_e.GetIEBRow()->GetPreservedOrgFileName();
 			if(b_e.BillParam.PredefFormat) {
-				// @construction {
 				if(oneof3(b_e.BillParam.PredefFormat, PPBillImpExpParam::pfNalogR_Invoice, PPBillImpExpParam::pfNalogR_REZRUISP, PPBillImpExpParam::pfNalogR_SCHFDOPPR)) {
 					PPWait(1);
 					for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
@@ -4661,7 +4660,6 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 					}
 					PPWait(0);
 				}
-				// } @construction
 			}
 			else if(b_e.Flags & PPBillImpExpBaseProcessBlock::fPaymOrdersExp) {
 				THROW(Helper_ExportBnkOrder(b_e.CfgNameBill, logger));
@@ -4671,7 +4669,7 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 				THROW(ep);
 				THROW(ep.CheckLic());
 				{
-					PPEgaisProcessor::SendBillsParam sbp;
+					PPBillExportFilt sbp;
 					sbp.IdList = bill_id_list;
 					sbp.LocID = (single_loc_id > 0) ? single_loc_id : Filt.LocList.GetSingle();
 					TSVector <PPEgaisProcessor::UtmEntry> utm_list; // @v9.8.11 TSArray-->TSVector

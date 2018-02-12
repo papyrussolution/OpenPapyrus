@@ -818,8 +818,6 @@ int SLAPI SlSession::LogMessage(const char * pFileName, const char * pStr, ulong
 	long   current_size = 0;
 	FILE * f = 0;
 	SString file_name = pFileName;
-	SString msg_buf;
-	(msg_buf = pStr).CR();
 	{
 		SPathStruc ps;
 		if(file_name.NotEmptyS())
@@ -854,6 +852,8 @@ int SLAPI SlSession::LogMessage(const char * pFileName, const char * pStr, ulong
 			ok = 0;
 	}
 	if(ok) {
+		SString msg_buf;
+		(msg_buf = pStr).CR();
 		ENTER_CRITICAL_SECTION
 			int    counter;
 			if(maxFileSize && (current_size + msg_buf.Len()) > maxFileSize*1024) {

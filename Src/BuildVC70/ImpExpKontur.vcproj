@@ -141,7 +141,7 @@
 				RelativePath="..\PPEquip\EquipDll\ImpExpKontur.cpp">
 			</File>
 			<File
-				RelativePath="..\PPLib\ppedi.cpp">
+				RelativePath="..\PPLib\ppedi-base.cpp">
 			</File>
 		</Filter>
 		<Filter

@@ -2321,6 +2321,7 @@ public:
 #define SLERR_CURL                     455 // Ошибка библиотеки libcurl
 #define SLERR_LIBXML                   456 // Ошибка библиотеки libxml
 #define SLERR_DUPSYMBWITHUNEQID        457 // Дублирование символа '%s' элемента с отличным идентификатором
+#define SLERR_INVIMAGESIZE             458 // @v9.9.4 Недопустимый размер изображения ([1..30000], [1..30000])
 
 #define SLERR_FANN_CANT_OPEN_CONFIG_R          500 // Unable to open configuration file for reading
 #define SLERR_FANN_CANT_OPEN_CONFIG_W          501 // Unable to open configuration file for writing
@@ -9218,7 +9219,7 @@ private:
 	int    Swaps;
 	int    Subs;
 	SString Pattern;
-	SString Temp;
+	// @v9.9.4 SString Temp__;
 	BitArray Track1;
 	BitArray Track2;
 	ApproxStrSrchParam P;
@@ -12483,6 +12484,7 @@ private:
 	int    LoadIco(SFile & rF, uint pageIdx);
 	int    LoadBmp(SFile & rF);
 	int    LoadGif(SFile & rF);
+	int    LoadTiff(SFile & rF, int fileFmt);
 	int    Helper_Load(SFile & rF, SFileFormat ff);
 	int    Helper_LoadBmp(SBuffer & rBuf, const char * pAddedErrorInfo);
 	int    StorePng(const StoreParam & rP, SFile & rF);

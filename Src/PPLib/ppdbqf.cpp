@@ -31,7 +31,10 @@ template <class objcls, class objrec> inline void dbqf_objname_i(int option, DBC
 			if(rec.Name[0] == 0)
 				ideqvalstr(id, rec.Name, sizeof(rec.Name));
 		}
-		result->init(rec.Name);
+		// @v9.9.4 
+		//result->init(rec.Name);
+		
+		result->InitForeignStr(SLS.AcquireRvlStr() = rec.Name); // @v9.9.4 
 	}
 }
 
@@ -295,9 +298,9 @@ static IMPL_DBE_PROC(dbqf_cqtty_rrii)
 		result->init((long)24);
 	else {
 		double rest = 0.0;
-		if(params[0].tag == DBConst::lv)
+		if(params[0].Tag == DBConst::lv)
 			rest = params[0].lval;
-		else if(params[0].tag == DBConst::rv)
+		else if(params[0].Tag == DBConst::rv)
 			rest = params[0].rval;
 		double upp   = params[1].rval;
 		long   trust = params[2].lval;
@@ -468,8 +471,7 @@ static IMPL_DBE_PROC(dbqf_checkwmsloc_ii)
 // @vmiller
 static IMPL_DBE_PROC(dbqf_strexistsub_ss)
 {
-	long   r = 0;
-	r = ExtStrSrch(params[0].sptr, params[1].sptr);
+	long   r = ExtStrSrch(params[0].sptr, params[1].sptr);
 	result->init(r);
 }
 
@@ -597,11 +599,6 @@ static IMPL_DBE_PROC(dbqf_objname_bizscore_i)
 	}
 }
 
-static IMPL_DBE_PROC(dbqf_objname_billstatus_i)
-	{ dbqf_objname_i <PPObjBillStatus, PPBillStatus> (option, result, params); }
-static IMPL_DBE_PROC(dbqf_objname_ar_i)
-	{ dbqf_objname_i <PPObjArticle, ArticleTbl::Rec> (option, result, params); }
-
 static IMPL_DBE_PROC(dbqf_objname_arbyacc_i)
 {
 	if(option == CALC_SIZE || ObjRts.CheckAccID(params[1].lval, PPR_READ))
@@ -629,19 +626,24 @@ static IMPL_DBE_PROC(dbqf_objname_loc_i)
 					if(rec.Code[0])
 						STRNSCPY(rec.Name, rec.Code);
 					else {
-						SString temp_buf;
-						if(LocationCore::GetExField(&rec, LOCEXSTR_CONTACT, temp_buf) > 0 && temp_buf.NotEmptyS())
-							STRNSCPY(rec.Name, temp_buf);
+						SString & r_temp_buf = SLS.AcquireRvlStr();
+						if(LocationCore::GetExField(&rec, LOCEXSTR_CONTACT, r_temp_buf) > 0 && r_temp_buf.NotEmptyS())
+							STRNSCPY(rec.Name, r_temp_buf);
 					}
 				}
 				if(rec.Name[0] == 0)
 					ideqvalstr(id, rec.Name, sizeof(rec.Name));
 			}
 		}
-		result->init(rec.Name);
+		// @v9.9.4 result->init(rec.Name);
+		result->InitForeignStr(rec.Name); // @v9.9.4
 	}
 }
 
+static IMPL_DBE_PROC(dbqf_objname_billstatus_i)
+	{ dbqf_objname_i <PPObjBillStatus, PPBillStatus> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_ar_i)
+	{ dbqf_objname_i <PPObjArticle, ArticleTbl::Rec> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_unit_i)
 	{ dbqf_objname_i <PPObjUnit, PPUnit> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_prc_i)
@@ -696,7 +698,8 @@ static IMPL_DBE_PROC(dbqf_objcode_scard_i)
 			if(rec.Code[0] == 0)
 				ideqvalstr(id, rec.Code, sizeof(rec.Code));
 		}
-		result->init(rec.Code);
+		// @v9.9.4 result->init(rec.Code);
+		result->InitForeignStr(rec.Code); // @v9.9.4
 	}
 }
 
@@ -949,20 +952,10 @@ static IMPL_DBE_PROC(dbqf_objname_acctrel_i)
 	}
 }
 
-static IMPL_DBE_PROC(dbqf_percent_rr)
-{
-	result->init(fdivnz(100.0 * params[0].rval, params[1].rval));
-}
-
-static IMPL_DBE_PROC(dbqf_percentincdiv_rr)
-{
-	result->init(fdivnz(100.0 * params[0].rval, params[1].rval+params[0].rval));
-}
-
-static IMPL_DBE_PROC(dbqf_percentaddendum_rr)
-{
-	result->init(fdivnz(100.0 * (params[0].rval-params[1].rval), params[1].rval));
-}
+static IMPL_DBE_PROC(dbqf_percent_rr) { result->init(fdivnz(100.0 * params[0].rval, params[1].rval)); }
+static IMPL_DBE_PROC(dbqf_percentincdiv_rr) { result->init(fdivnz(100.0 * params[0].rval, params[1].rval+params[0].rval)); }
+static IMPL_DBE_PROC(dbqf_percentaddendum_rr) { result->init(fdivnz(100.0 * (params[0].rval-params[1].rval), params[1].rval)); }
+static IMPL_DBE_PROC(dbqf_lotclosedate_d) { result->init((params[0].dval != MAXDATE) ? params[0].dval : ZERODATE); }
 
 static IMPL_DBE_PROC(dbqf_invent_diffqtty_i)
 {
@@ -1262,11 +1255,6 @@ static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 		temp_buf.CopyTo(buf, sizeof(buf));
 		result->init(buf);
 	}
-}
-
-static IMPL_DBE_PROC(dbqf_lotclosedate_d)
-{
-	result->init((params[0].dval != MAXDATE) ? params[0].dval : ZERODATE);
 }
 
 static IMPL_DBE_PROC(dbqf_goodsstockbrutto_i)
@@ -1624,9 +1612,9 @@ void FASTCALL PPDbqFuncPool::InitStrPoolRefFunc(DBE & rDbe, DBField & rFld, SStr
 PPID FASTCALL PPDbqFuncPool::helper_dbq_name(const DBConst * params, char * pNameBuf)
 {
 	PPID   id = 0;
-	if(params[0].tag == DBConst::lv)
+	if(params[0].Tag == DBConst::lv)
 		id = params[0].lval;
-	else if(params[0].tag == DBConst::rv)
+	else if(params[0].Tag == DBConst::rv)
 		id = (long)params[0].rval;
 	pNameBuf[0] = 0;
 	return id;

@@ -2263,73 +2263,71 @@ DBQuery * SLAPI PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		THROW(CheckTblPtr(tt = new TempLotTbl(P_TempTbl->GetName())));
 		dbq = &(rcp->ID == tt->LotID);
 
-		fld_list[c++].f = rcp->ID;        // #00
-		fld_list[c++].f = (Filt.Flags & LotFilt::fCheckOriginLotDate) ? tt->OrgDt : rcp->Dt; // #01
-		fld_list[c++].f = tt->SFlags;     // #02
-		fld_list[c++].e = dbe_loc;        // #03
-		fld_list[c++].f = tt->GoodsName;  // #04
-		fld_list[c++].e = dbe_ar;         // #05
-		fld_list[c++].f = rcp->Quantity;  // #06
-		fld_list[c++].f = rcp->Rest;      // #07
+		fld_list[c++].F = rcp->ID;        // #00
+		fld_list[c++].F = (Filt.Flags & LotFilt::fCheckOriginLotDate) ? tt->OrgDt : rcp->Dt; // #01
+		fld_list[c++].F = tt->SFlags;     // #02
+		fld_list[c++].E = dbe_loc;        // #03
+		fld_list[c++].F = tt->GoodsName;  // #04
+		fld_list[c++].E = dbe_ar;         // #05
+		fld_list[c++].F = rcp->Quantity;  // #06
+		fld_list[c++].F = rcp->Rest;      // #07
 		if(State & stAccsCost)
-			fld_list[c++].f = rcp->Cost;  // #08
+			fld_list[c++].F = rcp->Cost;  // #08
 		else
-			fld_list[c++].c.init(0.0);    // #08
-		fld_list[c++].f = rcp->Price;     // #09
-		fld_list[c++].f = rcp->Expiry;    // #10
-		fld_list[c++].e = dbe_closedate;  // #11
-		fld_list[c++].f = tt->BegRest;    // #12
-		fld_list[c++].f = tt->EndRest;    // #13
+			fld_list[c++].C.init(0.0);    // #08
+		fld_list[c++].F = rcp->Price;     // #09
+		fld_list[c++].F = rcp->Expiry;    // #10
+		fld_list[c++].E = dbe_closedate;  // #11
+		fld_list[c++].F = tt->BegRest;    // #12
+		fld_list[c++].F = tt->EndRest;    // #13
 		// @v8.4.11 {
 		if(Filt.Flags & LotFilt::fShowSerialN) {
 			dbe_serial.init();
 			dbe_serial.push(dbconst(PPTAG_LOT_SN));
 			dbe_serial.push(tt->LotID);
 			dbe_serial.push((DBFunc)PPDbqFuncPool::IdObjTagText);
-			fld_list[c++].e = dbe_serial; // #14
+			fld_list[c++].E = dbe_serial; // #14
 		}
 		else {
-			fld_list[c++].c.init((const char *)0); // #14 @stub
+			fld_list[c++].C.init((const char *)0); // #14 @stub
 		}
 		// } @v8.4.11
 		// @v8.4.11 fld_list[c++].f = tt->Serial;     // #14
-		fld_list[c++].f = tt->BillStatus; // #15
+		fld_list[c++].F = tt->BillStatus; // #15
 
 		q = &selectbycell(c, fld_list);
 		q->from(tt, rcp, 0L).where(*dbq).orderBy(tt->Dt, tt->OprNo, 0L);
 	}
 	else {
 		PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, rcp->GoodsID);
-		fld_list[c++].f = rcp->ID;        // #00
-		fld_list[c++].f = rcp->Dt;        // #01
-
-		fld_list[c++].c.init(0L);         // #02
-
-		fld_list[c++].e = dbe_loc;        // #03
-		fld_list[c++].e = dbe_goods;      // #04
+		fld_list[c++].F = rcp->ID;        // #00
+		fld_list[c++].F = rcp->Dt;        // #01
+		fld_list[c++].C.init(0L);         // #02
+		fld_list[c++].E = dbe_loc;        // #03
+		fld_list[c++].E = dbe_goods;      // #04
 		if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1) || (Filt.Flags & LotFilt::fOrders)) // @v9.5.3 (|| (Filt.Flags & LotFilt::fOrders))
-			fld_list[c++].e = dbe_ar;     // #05
+			fld_list[c++].E = dbe_ar;     // #05
 		else
-			fld_list[c++].c.init((const char *)0); // #05 DBConst
-		fld_list[c++].f = rcp->Quantity;  // #06
-		fld_list[c++].f = rcp->Rest;      // #07
+			fld_list[c++].C.init((const char *)0); // #05 DBConst
+		fld_list[c++].F = rcp->Quantity;  // #06
+		fld_list[c++].F = rcp->Rest;      // #07
 		if(State & stAccsCost)
-			fld_list[c++].f = rcp->Cost;  // #08
+			fld_list[c++].F = rcp->Cost;  // #08
 		else
-			fld_list[c++].c.init(0.0);    // #08
-		fld_list[c++].f = rcp->Price;     // #09
-		fld_list[c++].f = rcp->Expiry;    // #10
-		fld_list[c++].e = dbe_closedate;  // #11
+			fld_list[c++].C.init(0.0);    // #08
+		fld_list[c++].F = rcp->Price;     // #09
+		fld_list[c++].F = rcp->Expiry;    // #10
+		fld_list[c++].E = dbe_closedate;  // #11
 		// @v8.4.11 {
 		if(Filt.Flags & LotFilt::fShowSerialN) {
 			dbe_serial.init();
 			dbe_serial.push(dbconst(PPTAG_LOT_SN));
 			dbe_serial.push(rcp->ID);
 			dbe_serial.push((DBFunc)PPDbqFuncPool::IdObjTagText);
-			fld_list[c++].e = dbe_serial; // #12
+			fld_list[c++].E = dbe_serial; // #12
 		}
 		else {
-			fld_list[c++].c.init((const char *)0); // #12 @stub
+			fld_list[c++].C.init((const char *)0); // #12 @stub
 		}
 		// } @v8.4.11
 		if(Filt.QCertID || (Filt.Flags & LotFilt::fWithoutQCert))

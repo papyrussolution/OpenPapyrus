@@ -77,7 +77,6 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 	TIFFDirectory* td = &tif->tif_dir;
 	uint16 photometric;
 	int colorchannels;
-
 	if(!tif->tif_decodestatus) {
 		sprintf(emsg, "Sorry, requested compression method is not configured");
 		return 0;
@@ -90,8 +89,7 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 		case 16:
 		    break;
 		default:
-		    sprintf(emsg, "Sorry, can not handle images with %d-bit samples",
-		    td->td_bitspersample);
+		    sprintf(emsg, "Sorry, can not handle images with %d-bit samples", td->td_bitspersample);
 		    return 0;
 	}
 	if(td->td_sampleformat == SAMPLEFORMAT_IEEEFP) {
@@ -101,30 +99,18 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 	colorchannels = td->td_samplesperpixel - td->td_extrasamples;
 	if(!TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photometric)) {
 		switch(colorchannels) {
-			case 1:
-			    photometric = PHOTOMETRIC_MINISBLACK;
-			    break;
-			case 3:
-			    photometric = PHOTOMETRIC_RGB;
-			    break;
-			default:
-			    sprintf(emsg, "Missing needed %s tag", photoTag);
-			    return 0;
+			case 1: photometric = PHOTOMETRIC_MINISBLACK; break;
+			case 3: photometric = PHOTOMETRIC_RGB; break;
+			default: sprintf(emsg, "Missing needed %s tag", photoTag); return 0;
 		}
 	}
 	switch(photometric) {
 		case PHOTOMETRIC_MINISWHITE:
 		case PHOTOMETRIC_MINISBLACK:
 		case PHOTOMETRIC_PALETTE:
-		    if(td->td_planarconfig == PLANARCONFIG_CONTIG
-		    && td->td_samplesperpixel != 1
-		    && td->td_bitspersample < 8) {
-			    sprintf(emsg,
-			    "Sorry, can not handle contiguous data with %s=%d, "
-			    "and %s=%d and Bits/Sample=%d",
-			    photoTag, photometric,
-			    "Samples/pixel", td->td_samplesperpixel,
-			    td->td_bitspersample);
+		    if(td->td_planarconfig == PLANARCONFIG_CONTIG && td->td_samplesperpixel != 1 && td->td_bitspersample < 8) {
+			    sprintf(emsg, "Sorry, can not handle contiguous data with %s=%d, and %s=%d and Bits/Sample=%d",
+					photoTag, photometric, "Samples/pixel", td->td_samplesperpixel, td->td_bitspersample);
 			    return 0;
 		    }
 		    /*
@@ -168,32 +154,22 @@ int TIFFRGBAImageOK(TIFF* tif, char emsg[1024])
 		    }
 		    break;
 		case PHOTOMETRIC_LOGLUV:
-		    if(td->td_compression != COMPRESSION_SGILOG &&
-		    td->td_compression != COMPRESSION_SGILOG24) {
-			    sprintf(emsg, "Sorry, LogLuv data must have %s=%d or %d",
-			    "Compression", COMPRESSION_SGILOG, COMPRESSION_SGILOG24);
+		    if(td->td_compression != COMPRESSION_SGILOG && td->td_compression != COMPRESSION_SGILOG24) {
+			    sprintf(emsg, "Sorry, LogLuv data must have %s=%d or %d", "Compression", COMPRESSION_SGILOG, COMPRESSION_SGILOG24);
 			    return 0;
 		    }
 		    if(td->td_planarconfig != PLANARCONFIG_CONTIG) {
-			    sprintf(emsg, "Sorry, can not handle LogLuv images with %s=%d",
-			    "Planarconfiguration", td->td_planarconfig);
+			    sprintf(emsg, "Sorry, can not handle LogLuv images with %s=%d", "Planarconfiguration", td->td_planarconfig);
 			    return 0;
 		    }
 		    if(td->td_samplesperpixel != 3 || colorchannels != 3) {
-			    sprintf(emsg,
-			    "Sorry, can not handle image with %s=%d, %s=%d",
-			    "Samples/pixel", td->td_samplesperpixel,
-			    "colorchannels", colorchannels);
+			    sprintf(emsg, "Sorry, can not handle image with %s=%d, %s=%d", "Samples/pixel", td->td_samplesperpixel, "colorchannels", colorchannels);
 			    return 0;
 		    }
 		    break;
 		case PHOTOMETRIC_CIELAB:
 		    if(td->td_samplesperpixel != 3 || colorchannels != 3 || td->td_bitspersample != 8) {
-			    sprintf(emsg,
-			    "Sorry, can not handle image with %s=%d, %s=%d and %s=%d",
-			    "Samples/pixel", td->td_samplesperpixel,
-			    "colorchannels", colorchannels,
-			    "Bits/sample", td->td_bitspersample);
+			    sprintf(emsg, "Sorry, can not handle image with %s=%d, %s=%d and %s=%d", "Samples/pixel", td->td_samplesperpixel, "colorchannels", colorchannels, "Bits/sample", td->td_bitspersample);
 			    return 0;
 		    }
 		    break;
@@ -237,10 +213,8 @@ int TIFFRGBAImageBegin(TIFFRGBAImage* img, TIFF* tif, int stop, char emsg[1024])
 	int colorchannels;
 	uint16 * red_orig, * green_orig, * blue_orig;
 	int n_color;
-
 	if(!TIFFRGBAImageOK(tif, emsg) )
 		return 0;
-
 	/* Initialize to normal values */
 	img->row_offset = 0;
 	img->col_offset = 0;
@@ -255,7 +229,6 @@ int TIFFRGBAImageBegin(TIFFRGBAImage* img, TIFF* tif, int stop, char emsg[1024])
 	img->UaToAa = NULL;
 	img->Bitdepth16To8 = NULL;
 	img->req_orientation = ORIENTATION_BOTLEFT;     /* It is the default */
-
 	img->tif = tif;
 	img->stoponerr = stop;
 	TIFFGetFieldDefaulted(tif, TIFFTAG_BITSPERSAMPLE, &img->bitspersample);
@@ -267,8 +240,7 @@ int TIFFRGBAImageBegin(TIFFRGBAImage* img, TIFF* tif, int stop, char emsg[1024])
 		case 16:
 		    break;
 		default:
-		    sprintf(emsg, "Sorry, can not handle images with %d-bit samples",
-		    img->bitspersample);
+		    sprintf(emsg, "Sorry, can not handle images with %d-bit samples", img->bitspersample);
 		    goto fail_return;
 	}
 	img->alpha = 0;
@@ -290,7 +262,6 @@ int TIFFRGBAImageBegin(TIFFRGBAImage* img, TIFF* tif, int stop, char emsg[1024])
 #ifdef DEFAULT_EXTRASAMPLE_AS_ALPHA
 	if(!TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &img->photometric))
 		img->photometric = PHOTOMETRIC_MINISWHITE;
-
 	if(extrasamples == 0 && img->samplesperpixel == 4 && img->photometric == PHOTOMETRIC_RGB) {
 		img->alpha = EXTRASAMPLE_ASSOCALPHA;
 		extrasamples = 1;

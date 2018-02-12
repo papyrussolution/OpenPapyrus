@@ -874,9 +874,9 @@ PPViewDebtTrnovr::ProcessBlock::ProcessBlock(const DebtTrnovrFilt & rF) : TSColl
 					if(rF.Sgb.S == SubstGrpBill::sgbObject && rF.Sgb.S2.Sgp > sgpFirstRelation) {
 						temp_list.clear();
 						ar_obj.GetRelPersonList(ar_id, (rF.Sgb.S2.Sgp - sgpFirstRelation), 1, &temp_list);
-						ArList.addUnique(&temp_list);
+						ArList.add(&temp_list); // @v9.9.4 addUnique-->add
 					}
-					ArList.addUnique(ar_id);
+					ArList.add(ar_id); // @v9.9.4 addUnique-->add
 				}
 			}
 		}
@@ -886,12 +886,12 @@ PPViewDebtTrnovr::ProcessBlock::ProcessBlock(const DebtTrnovrFilt & rF) : TSColl
 			const PPID ar_id = full_ar_list.get(i);
 			if(ar_obj.Fetch(ar_id, &ar_rec) > 0) {
 				if(!(rF.Flags & DebtTrnovrFilt::fSkipPassive) || !ar_rec.Closed)
-					ArList.addUnique(ar_id);
+					ArList.add(ar_id); // @v9.9.4 addUnique-->add
 			}
 		}
 	}
 	FullArListCount = full_ar_list.getCount();
-	ArList.sort();
+	ArList.sortAndUndup(); // @v9.9.4 sort-->sortAndUndup
 	IterPath = ProcessBlock::ipUndef;
 	IterN = 0;
 }
@@ -1082,16 +1082,10 @@ int SLAPI PPViewDebtTrnovr::PreprocessBill(const BillTbl::Rec & rRec, const Proc
 		THROW(rBlk.ArList.bsearch(ar_id));
 		THROW(PayableOpList.lsearch(rRec.OpID));
 	}
-	else if(rBlk.IterPath == ProcessBlock::ipOp) {
-		//
-		// При переборе по операциям необходимо проверить принадлежность статьи фильтрующему списку
-		//
+	else if(rBlk.IterPath == ProcessBlock::ipOp) { // При переборе по операциям необходимо проверить принадлежность статьи фильтрующему списку
 		THROW(rBlk.ArList.bsearch(ar_id));
 	}
-	else if(rBlk.IterPath == ProcessBlock::ipArticle) {
-		//
-		// При переборе по статьям необходимо проверить принадлежность операции списку оплачиваемых
-		//
+	else if(rBlk.IterPath == ProcessBlock::ipArticle) { // При переборе по статьям необходимо проверить принадлежность операции списку оплачиваемых
 		THROW(PayableOpList.lsearch(rRec.OpID));
 	}
 	else if(oneof2(rBlk.IterPath, ProcessBlock::ipReckonOp, ProcessBlock::ipReckonBillList)) {
@@ -2047,7 +2041,7 @@ int SLAPI PPViewDebtTrnovr::Detail(const BrwHdr * pHdr, int mode)
 	int    ok = -1;
 	if(pHdr /*&& pHdr->ArID*/) {
 		PPIDArray bill_list;
-		if(0 /*Filt.Sgb.S2.Sgp*/) { // Пока непонятно как быть с детализацией подстановки.
+		if(0/*Filt.Sgb.S2.Sgp*/) { // Пока непонятно как быть с детализацией подстановки.
 			DebtTrnovrViewItem item;
 			if(GetItem(pHdr->ArID, pHdr->CurID, pHdr->TabID, &item) > 0) {
 				DebtTrnovrFilt temp_filt = Filt;
@@ -4214,22 +4208,16 @@ void SLAPI PPViewDebtorStat::MakeTempRec(long order, const DebtorStatViewItem * 
 	else
 		temp_buf.CatChar('Z');
 	temp_buf.Space();
-	if(order == DebtorStatFilt::ordByArName)
-		temp_buf.Cat(ar_name);
-	else if(order == DebtorStatFilt::ordByDelayMean)
-		temp_buf.Cat(pItem->DelayMean, MKSFMTD(16, 5, 0)).Cat(ar_name);
-	else if(order == DebtorStatFilt::ordByDelaySd)
-		temp_buf.Cat(pItem->DelaySd, MKSFMTD(16, 5, 0)).Cat(ar_name);
-	else if(order == DebtorStatFilt::ordByDelayGammaTest)
-		temp_buf.Cat(pItem->DelayTestGamma, MKSFMTD(16, 5, 0)).Cat(ar_name);
-	else if(order == DebtorStatFilt::ordByPaymPeriod)
-		temp_buf.CatLongZ(pItem->PaymPeriod, 6).Cat(ar_name);
-	else if(order == DebtorStatFilt::ordByPaymDensity)
-		temp_buf.Cat(pItem->PaymDensity, MKSFMTD(16, 5, 0)).Cat(ar_name);
-	else if(order == DebtorStatFilt::ordByRating)
-		temp_buf.Cat(pItem->Rating).Cat(ar_name);
-	else
-		temp_buf.Cat(ar_name);
+	switch(order) {
+		case DebtorStatFilt::ordByArName: temp_buf.Cat(ar_name); break;
+		case DebtorStatFilt::ordByDelayMean: temp_buf.Cat(pItem->DelayMean, MKSFMTD(16, 5, 0)).Cat(ar_name); break;
+		case DebtorStatFilt::ordByDelaySd: temp_buf.Cat(pItem->DelaySd, MKSFMTD(16, 5, 0)).Cat(ar_name); break;
+		case DebtorStatFilt::ordByDelayGammaTest: temp_buf.Cat(pItem->DelayTestGamma, MKSFMTD(16, 5, 0)).Cat(ar_name); break;
+		case DebtorStatFilt::ordByPaymPeriod: temp_buf.CatLongZ(pItem->PaymPeriod, 6).Cat(ar_name); break;
+		case DebtorStatFilt::ordByPaymDensity: temp_buf.Cat(pItem->PaymDensity, MKSFMTD(16, 5, 0)).Cat(ar_name); break;
+		case DebtorStatFilt::ordByRating: temp_buf.Cat(pItem->Rating).Cat(ar_name); break;
+		default: temp_buf.Cat(ar_name); break;
+	}
 	pRec->ID = pItem->ArID;
 	temp_buf.CopyTo(pRec->Name, sizeof(pRec->Name));
 }

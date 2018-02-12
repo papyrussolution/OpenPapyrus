@@ -383,14 +383,8 @@ public:
 		stDisconnected = 0,
 		stConnected
 	};
-	FtpClient(const char * pLogin, const char * pPass)
+	FtpClient(const char * pLogin, const char * pPass) : Status(stDisconnected), Login(pLogin), Password(pPass), HInternet(0), HFtpSession(0), HFtpFind(0)
 	{
-		Status = stDisconnected;
-		Login = pLogin;
-		Password = pPass;
-		HInternet = 0;
-		HFtpSession = 0;
-		HFtpFind = 0;
 	}
 	~FtpClient()
 	{
@@ -488,11 +482,8 @@ SEnumImp * FtpClient::Enum(const char * pWildcard)
 {
 	class FtpEnum : public SEnumImp {
 	public:
-		FtpEnum(HINTERNET hSess, const char * pWildcard)
+		FtpEnum(HINTERNET hSess, const char * pWildcard) : H(0), HSess(hSess), Wildcard(pWildcard)
 		{
-			H = 0;
-			HSess = hSess;
-			Wildcard = pWildcard;
 		}
 		virtual int Next(void * pRec)
 		{
@@ -568,24 +559,12 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 //
 class ExportCls : public ImportExportCls {
 public:
-	ExportCls()
+	ExportCls() : ImportExportCls(), Id(0), ObjId(0), ObjType(0), MessageType(0), Inited(0), SegNum(0), ReadReceiptNum(0), BillSumWithoutVat(0.0),
+		P_XmlWriter(0), TotalGoodsCount(0), Declined(0)
 	{
-		Id = 0;
-		ObjId = 0;
-		ObjType = 0;
-		MessageType = 0;
-		Inited = 0;
-		SegNum = 0;
-		ReadReceiptNum = 0;
-		BillSumWithoutVat = 0.0;
-		ExpFileName = 0;
-		LogName = 0;
-		P_XmlWriter = 0;
 		ErrorCode = 0;
 		WebServcErrorCode = 0;
-		TotalGoodsCount = 0;
-		TTN = 0;
-		Declined = 0;
+		LogName.Z();
 	}
 	~ExportCls()
 	{
@@ -1450,17 +1429,10 @@ struct AperakInfoSt {
 
 class ImportCls : public ImportExportCls {
 public:
-	ImportCls()
+	ImportCls() : P_FtpCli(0), GoodsCount(0), Id(0), ObjType(0), MessageType(0), State(0), BillSumWithoutVat(0.0)
 	{
-		P_FtpCli = 0;
-		GoodsCount = 0;
-		Id = 0;
 		//ObjId = 0;
-		ObjType = 0;
-		MessageType = 0;
-		State = 0;
 		//InboxReadIndex = 0;
-		BillSumWithoutVat = 0.0;
 		ErrorCode = 0;
 		WebServcErrorCode = 0;
 		AperakInfo.Clear();

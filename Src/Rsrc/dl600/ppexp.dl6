@@ -6760,7 +6760,6 @@ data TSession {
 }
 
 data TSessionData : TSession {
-
 	CurDt   = Glb.CurDate;
 	OrgName = Glb.MainOrgName;
 	PrcName     = PrcID.Name;

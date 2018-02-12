@@ -69,7 +69,7 @@ static DBE & __stdcall newDBE()
 
 static int __stdcall adjust_type(DBItem & i, int baseTyp, int paramTyp)
 {
-	if(i.id == DBConst_ID && paramTyp != baseTyp) {
+	if(i.Id == DBConst_ID && paramTyp != baseTyp) {
 		DBConst & c = *(DBConst *)&i;
 		if(baseTyp == BTS_REAL && paramTyp == BTS_INT) {
 			c.init((double)c.lval);
@@ -424,7 +424,7 @@ DBQ & __stdcall intrange(DBItem & i, const IntRange & rR)
 #define SRES           result->sptr
 #define DRES           result->dval
 #define TRES           result->tval
-#define RPAR(no)       ((params[no].tag == DBConst::rv) ? params[no].rval : params[no].lval)
+#define RPAR(no)       ((params[no].Tag == DBConst::rv) ? params[no].rval : params[no].lval)
 #define IPAR(no)       (long)(params[no].lval)
 #define SPAR(no)       params[no].sptr
 #define DPAR(no)       params[no].dval
@@ -648,7 +648,7 @@ IMPL_DBE_PROC(_avg_r)
 
 IMPL_DBE_PROC(_min_v)
 {
-	int    bt = params[0].tag;
+	int    bt = params[0].Tag;
 	int    st = bt2st(bt);
 	void * p;
 	void * rp;
@@ -658,8 +658,9 @@ IMPL_DBE_PROC(_min_v)
 				RES(IPAR(0));
 			break;
 		case AGGR_BEGIN:
-			result->id  = DBConst_ID;
-			result->tag = (DBConst::_tag)bt;
+			result->Id  = DBConst_ID;
+			result->Flags = 0;
+			result->Tag = /*(DBConst::_tag)*/bt;
 			if(bt == BTS_STRING)
 				rp = result->sptr = newStr(" ");
 			else
@@ -681,7 +682,7 @@ IMPL_DBE_PROC(_min_v)
 
 IMPL_DBE_PROC(_max_v)
 {
-	int    bt = params[0].tag;
+	int    bt = params[0].Tag;
 	int    st = bt2st(bt);
 	void * p;
 	void * rp;
@@ -691,8 +692,9 @@ IMPL_DBE_PROC(_max_v)
 				RES(IPAR(0));
 			break;
 		case AGGR_BEGIN:
-			result->id  = DBConst_ID;
-			result->tag = (DBConst::_tag)bt;
+			result->Id  = DBConst_ID;
+			result->Flags = 0;
+			result->Tag = /*(DBConst::_tag)*/bt;
 			if(bt == BTS_STRING)
 				rp = result->sptr = newStr(" ");
 			else

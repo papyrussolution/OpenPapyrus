@@ -393,7 +393,6 @@ static void validate_script(j_compress_ptr cinfo)
 			}
 		}
 	}
-
 	/* Now verify that everything got sent. */
 	if(cinfo->progressive_mode) {
 #ifdef C_PROGRESSIVE_SUPPORTED
@@ -425,18 +424,13 @@ static void reduce_script(j_compress_ptr cinfo)
 	jpeg_scan_info * scanptr = (jpeg_scan_info*)cinfo->scan_info;
 	int idxout = 0;
 	for(int idxin = 0; idxin < cinfo->num_scans; idxin++) {
-		/* After skipping, idxout becomes smaller than idxin */
+		// After skipping, idxout becomes smaller than idxin 
 		if(idxin != idxout)
-			/* Copy rest of data;
-			 * note we stay in given chunk of allocated memory.
-			 */
-			scanptr[idxout] = scanptr[idxin];
+			scanptr[idxout] = scanptr[idxin]; // Copy rest of data; note we stay in given chunk of allocated memory.
 		if(scanptr[idxout].Ss > cinfo->lim_Se)
-			/* Entire scan out of range - skip this entry */
-			continue;
+			continue; /* Entire scan out of range - skip this entry */
 		if(scanptr[idxout].Se > cinfo->lim_Se)
-			/* Limit scan to end of block */
-			scanptr[idxout].Se = cinfo->lim_Se;
+			scanptr[idxout].Se = cinfo->lim_Se; /* Limit scan to end of block */
 		idxout++;
 	}
 	cinfo->num_scans = idxout;
@@ -548,7 +542,6 @@ static void per_scan_setup(j_compress_ptr cinfo)
 		cinfo->restart_interval = (uint)MIN(nominal, 65535L);
 	}
 }
-
 /*
  * Per-pass setup.
  * This is called at the beginning of each pass.  We determine which modules
@@ -556,11 +549,9 @@ static void per_scan_setup(j_compress_ptr cinfo)
  * We also set is_last_pass to indicate whether any more passes will be
  * required.
  */
-
 METHODDEF(void) prepare_for_pass(j_compress_ptr cinfo)
 {
 	my_master_ptr master = (my_master_ptr)cinfo->master;
-
 	switch(master->pass_type) {
 		case main_pass:
 		    /* Initial pass: will collect input data, and do either Huffman
@@ -575,9 +566,7 @@ METHODDEF(void) prepare_for_pass(j_compress_ptr cinfo)
 		    }
 		    (*cinfo->fdct->start_pass)(cinfo);
 		    (*cinfo->entropy->start_pass)(cinfo, cinfo->optimize_coding);
-		    (*cinfo->coef->start_pass)(cinfo,
-		    (master->total_passes > 1 ?
-			    JBUF_SAVE_AND_PASS : JBUF_PASS_THRU));
+		    (*cinfo->coef->start_pass)(cinfo, (master->total_passes > 1 ? JBUF_SAVE_AND_PASS : JBUF_PASS_THRU));
 		    (*cinfo->main->start_pass)(cinfo, JBUF_PASS_THRU);
 		    if(cinfo->optimize_coding) {
 			    /* No immediate data output; postpone writing frame/scan headers */
@@ -624,9 +613,7 @@ METHODDEF(void) prepare_for_pass(j_compress_ptr cinfo)
 		default:
 		    ERREXIT(cinfo, JERR_NOT_COMPILED);
 	}
-
 	master->pub.is_last_pass = (master->pass_number == master->total_passes-1);
-
 	/* Set up progress monitor's pass info if present */
 	if(cinfo->progress) {
 		cinfo->progress->completed_passes = master->pass_number;
@@ -647,24 +634,19 @@ METHODDEF(void) prepare_for_pass(j_compress_ptr cinfo)
 METHODDEF(void) pass_startup(j_compress_ptr cinfo)
 {
 	cinfo->master->call_pass_startup = FALSE; /* reset flag so call only once */
-
 	(*cinfo->marker->write_frame_header)(cinfo);
 	(*cinfo->marker->write_scan_header)(cinfo);
 }
-
 /*
  * Finish up at end of pass.
  */
-
 METHODDEF(void) finish_pass_master(j_compress_ptr cinfo)
 {
 	my_master_ptr master = (my_master_ptr)cinfo->master;
-
 	/* The entropy coder always needs an end-of-pass call,
 	 * either to analyze statistics or to flush its output buffer.
 	 */
 	(*cinfo->entropy->finish_pass)(cinfo);
-
 	/* Update state for next pass */
 	switch(master->pass_type) {
 		case main_pass:
@@ -686,7 +668,6 @@ METHODDEF(void) finish_pass_master(j_compress_ptr cinfo)
 		    master->scan_number++;
 		    break;
 	}
-
 	master->pass_number++;
 }
 /*

@@ -194,9 +194,9 @@ struct jpeg_marker_struct {
 	JOCTET FAR * data;      /* the data contained in the marker */
 	/* the marker length word is not counted in data_length or original_length */
 };
-
-/* Known color spaces. */
-
+//
+// Known color spaces. 
+//
 typedef enum {
 	JCS_UNKNOWN,            /* error/unspecified */
 	JCS_GRAYSCALE,          /* monochrome */
@@ -207,16 +207,16 @@ typedef enum {
 	JCS_BG_RGB,             /* big gamut red/green/blue, bg-sRGB */
 	JCS_BG_YCC              /* big gamut Y/Cb/Cr, bg-sYCC */
 } J_COLOR_SPACE;
-
-/* Supported color transforms. */
-
+//
+// Supported color transforms. 
+//
 typedef enum {
 	JCT_NONE           = 0,
 	JCT_SUBTRACT_GREEN = 1
 } J_COLOR_TRANSFORM;
-
-/* DCT/IDCT algorithm options. */
-
+//
+// DCT/IDCT algorithm options. 
+//
 typedef enum {
 	JDCT_ISLOW,             /* slow but accurate integer algorithm */
 	JDCT_IFAST,             /* faster, less accurate integer method */

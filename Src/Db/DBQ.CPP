@@ -1,5 +1,5 @@
 // DBQ.CPP
-// Copyright (c) Sobolev A. 1996-2001, 2002, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016
+// Copyright (c) Sobolev A. 1996-2001, 2002, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2018
 //
 #include <db.h>
 #pragma hdrstop
@@ -8,25 +8,21 @@
 //
 void SLAPI DBItem::destroy()
 {
-	if(id == DBQ_ID)
-		((DBQ *)this)->destroy();
-	else if(id == DBConst_ID)
-		((DBConst *)this)->destroy();
-	else if(id == DBE_ID)
-		((DBE *)this)->destroy();
+	switch(Id) {
+		case DBQ_ID: ((DBQ *)this)->destroy(); break;
+		case DBConst_ID: ((DBConst *)this)->destroy(); break;
+		case DBE_ID: ((DBE *)this)->destroy(); break;
+	}
 }
 
 int SLAPI DBItem::typeOfItem() const
 {
-	switch(id) {
-		case DBQ_ID:
-			return DBQ_ID;
-		case DBConst_ID:
-			return DBConst_ID;
-		case DBE_ID:
-			return DBE_ID;
+	switch(Id) {
+		case DBQ_ID: return DBQ_ID;
+		case DBConst_ID: return DBConst_ID;
+		case DBE_ID: return DBE_ID;
 		default:
-			if(id > 0)
+			if(Id > 0)
 				return DBField_ID;
 	}
 	//CHECK(Invalid_DBItem);
@@ -37,9 +33,9 @@ TYPEID SLAPI DBItem::stype() const
 {
 	int    bt;
 	TYPEID st = 0;
-	if(id > 0)
+	if(Id > 0)
 		st = ((DBField *)this)->getField().T;
-	else if(id == DBE_ID) {
+	else if(Id == DBE_ID) {
 		if(((DBE *)this)->Count) {
 			DBE::T & t = ((DBE *)this)->P_Terms[((DBE *)this)->Count-1];
 			//CHECK(t.tag == DBE::T::func);
@@ -54,8 +50,8 @@ TYPEID SLAPI DBItem::stype() const
 				st = bt2st(bt);
 		}
 	}
-	else if(id == DBConst_ID) {
-		bt = ((DBConst *)this)->tag;
+	else if(Id == DBConst_ID) {
+		bt = ((DBConst *)this)->Tag;
 		if(bt == BTS_STRING) {
 			const char * p = ((DBConst *)this)->sptr;
 			st = MKSTYPE(S_ZSTRING, (p ? strlen(p) : 0) + 1);
@@ -69,17 +65,17 @@ TYPEID SLAPI DBItem::stype() const
 int SLAPI DBItem::baseType() const
 {
 	int    bt = BTS_VOID;
-	if(id > 0)
+	if(Id > 0)
 		bt = stbase(((DBField *)this)->getField().T);
-	else if(id == DBE_ID) {
+	else if(Id == DBE_ID) {
 		if(((DBE *)this)->Count) {
 			DBE::T & t = ((DBE *)this)->P_Terms[((DBE *)this)->Count-1];
 			//CHECK(t.tag == DBE::T::func);
 			bt = DbqFuncTab::Get(t.function)->typ;
 		}
 	}
-	else if(id == DBConst_ID)
-		bt = ((DBConst *)this)->tag;
+	else if(Id == DBConst_ID)
+		bt = ((DBConst *)this)->Tag;
 	return bt;
 }
 //
@@ -143,83 +139,100 @@ DBConst FASTCALL dbconst(LTIME v)
 
 void FASTCALL DBConst::init(long l)
 {
-	id = DBConst_ID;
-	tag = lv;
+	Id = DBConst_ID;
+	Flags = 0;
+	Tag = lv;
 	lval = l;
 }
 
 void FASTCALL DBConst::init(double d)
 {
-	id = DBConst_ID;
-	tag = rv;
+	Id = DBConst_ID;
+	Flags = 0;
+	Tag = rv;
 	rval = d;
 }
 
 void FASTCALL DBConst::init(const char * s)
 {
-	id = DBConst_ID;
-	tag = sp;
+	Id = DBConst_ID;
+	Flags = 0;
+	Tag = sp;
 	sptr = newStr(s);
+}
+
+void FASTCALL DBConst::InitForeignStr(const char * pS) // @v9.9.3
+{
+	Id = DBConst_ID;
+	Flags = fNotOwner;
+	Tag = sp;
+	//sptr
+	ptrval = pS;
+	assert(sptr == ptrval);
 }
 
 void FASTCALL DBConst::init(LDATE d)
 {
-	id = DBConst_ID;
-	tag = dv;
+	Id = DBConst_ID;
+	Flags = 0;
+	Tag = dv;
 	dval = d;
 }
 
 void FASTCALL DBConst::init(LTIME t)
 {
-	id = DBConst_ID;
-	tag = tv;
+	Id = DBConst_ID;
+	Flags = 0;
+	Tag = tv;
 	tval = t;
 }
 
 void FASTCALL DBConst::init(LDATETIME t)
 {
-	id = DBConst_ID;
-	tag = dtv;
+	Id = DBConst_ID;
+	Flags = 0;
+	Tag = dtv;
 	dtval = t;
 }
 
 void FASTCALL DBConst::init(const void * ptr)
 {
-	id = DBConst_ID;
-	tag = ptrv;
+	Id = DBConst_ID;
+	Flags = 0;
+	Tag = ptrv;
 	ptrval = ptr;
 }
 
 void FASTCALL DBConst::destroy()
 {
-	if(tag == sp)
+	if(Tag == sp && !(Flags & fNotOwner))
 		ZDELETE(sptr);
 }
 
 int FASTCALL DBConst::copy(const DBConst & src)
 {
 	memcpy(this, &src, sizeof(DBConst));
-	return !(src.tag == sp && src.sptr && (sptr = newStr(src.sptr)) == 0);
+	return !(src.Tag == sp && !(Flags & fNotOwner) && src.sptr && (sptr = newStr(src.sptr)) == 0);
 }
 
 int FASTCALL DBConst::convert(TYPEID type, void * d) const
 {
-	return stcast(bt2st(tag), type, ((tag == sp) ? (void *)sptr : (void *)&lval), d, 0L);
+	return stcast(bt2st(Tag), type, ((Tag == sp) ? (void *)sptr : (void *)&lval), d, 0L);
 }
 
 char * FASTCALL DBConst::tostring(long fmt, char * pBuf) const
 {
-	return sttostr(bt2st(tag), ((tag == sp) ? (void *)sptr : (void *)&lval), fmt, pBuf);
+	return sttostr(bt2st(Tag), ((Tag == sp) ? (void *)sptr : (void *)&lval), fmt, pBuf);
 }
 
 int FASTCALL DBConst::fromfld(DBField f)
 {
 	TYPEID t = f.getField().T;
 	void * v = f.getValuePtr();
-	tag = (DBConst::_tag)stbase(t);
-	if(tag == BTS_VOID)
+	Tag = /*(DBConst::_tag)*/stbase(t);
+	if(Tag == BTS_VOID)
 		return 0;
-	else if(tag == BTS_STRING) {
+	else if(Tag == BTS_STRING) {
 		char   b[4096];
 		sttobase(t, v, b);
 		return BIN((sptr = newStr(b)) != 0);
@@ -234,10 +247,10 @@ int FASTCALL DBConst::fromfld(DBField f)
 int FASTCALL compare(DBConst * c1, DBConst * c2)
 {
 	double  d1, d2;
-	if(c1->tag != c2->tag) {
-		if(btnumber(c1->tag) && btnumber(c2->tag)) {
-			stcast(bt2st(c1->tag), bt2st(BTS_REAL), &c1->rval, &d1, 0);
-			stcast(bt2st(c2->tag), bt2st(BTS_REAL), &c2->rval, &d2, 0);
+	if(c1->Tag != c2->Tag) {
+		if(btnumber(c1->Tag) && btnumber(c2->Tag)) {
+			stcast(bt2st(c1->Tag), bt2st(BTS_REAL), &c1->rval, &d1, 0);
+			stcast(bt2st(c2->Tag), bt2st(BTS_REAL), &c2->rval, &d2, 0);
 			c1->init(d1);
 			c2->init(d2);
 		}
@@ -246,17 +259,17 @@ int FASTCALL compare(DBConst * c1, DBConst * c2)
 			CHECK(INCOMPATIBLE_DBCONST_COMPARE);
 		*/
 	}
-	if(c1->tag == BTS_STRING)
-		return stcomp(bt2st(c1->tag), c1->sptr, c2->sptr);
+	if(c1->Tag == BTS_STRING)
+		return stcomp(bt2st(c1->Tag), c1->sptr, c2->sptr);
 	else
-		return stcomp(bt2st(c1->tag), &c1->lval, &c2->lval);
+		return stcomp(bt2st(c1->Tag), &c1->lval, &c2->lval);
 }
 //
 // DBE
 //
 void DBE::init()
 {
-	id = DBE_ID;
+	Id = DBE_ID;
 	P_Terms = 0;
 	Count = 0;
 	Pointer = 0;
@@ -280,7 +293,7 @@ void DBE::destroy()
 int FASTCALL DBE::getTblHandle(int n)
 {
 	assert(n >= 0 && n < Count);
-	return (P_Terms[n].tag == T::fld) ? P_Terms[n].field.id : 0;
+	return (P_Terms[n].tag == T::fld) ? P_Terms[n].field.Id : 0;
 }
 
 int FASTCALL DBE::evaluate(int option, DBConst * r)
@@ -314,18 +327,18 @@ int FASTCALL DBE::push(DBItem & item)
 {
 	T      t;
 	int    ok = 1;
-	if(item.id > 0) {
+	if(item.Id > 0) {
 		t.tag = T::fld;
 		t.field = *(DBField *)&item;
 		ok = push(&t);
 	}
-	else if(item.id == DBConst_ID) {
+	else if(item.Id == DBConst_ID) {
 		DBConst * c = (DBConst *)&item;
-		t.tag = (DBE::T::_tag)c->tag;
+		t.tag = (DBE::T::_tag)c->Tag;
 		memcpy(&t.rval, &c->rval, sizeof(t.rval));
 		ok = push(&t);
 	}
-	else if(item.id == DBE_ID) {
+	else if(item.Id == DBE_ID) {
 		DBE * p_e = (DBE *)&item;
 		for(int i = 0; ok && i < p_e->Count; i++)
 			ok = push(p_e->P_Terms+i);
@@ -374,38 +387,45 @@ int FASTCALL DBE::call(int option, DBConst * r)
 		for(i = cnt - 1; i >= 0; i--) {
 			pop();
 			DBConst & c = p_par[i];
-			c.id = DBConst_ID;
+			c.Id = DBConst_ID;
 			t = &P_Terms[Pointer];
 			switch(t->tag) {
 				case T::lv:
-					c.tag  = DBConst::lv;
+					c.Flags = 0;
+					c.Tag  = DBConst::lv;
 					c.lval = t->lval;
 					break;
 				case T::rv:
-					c.tag  = DBConst::rv;
+					c.Flags = 0;
+					c.Tag  = DBConst::rv;
 					c.rval = t->rval;
 					break;
 				case T::sp:
 					if(option == CALC_SIZE) {
-						c.tag  = DBConst::lv;
+						c.Flags = 0;
+						c.Tag  = DBConst::lv;
 						c.lval = strlen(t->sptr)+1;
 					}
 					else {
-						c.tag  = DBConst::sp;
+						c.Flags = 0;
+						c.Tag  = DBConst::sp;
 						c.sptr = newStr(t->sptr);
 					}
 					break;
 				case T::dv:
-					c.tag  = DBConst::dv;
+					c.Flags = 0;
+					c.Tag  = DBConst::dv;
 					c.dval = t->dval;
 					break;
 				case T::tv:
-					c.tag  = DBConst::tv;
+					c.Flags = 0;
+					c.Tag  = DBConst::tv;
 					c.tval = t->tval;
 					break;
 				// @v8.9.10 {
 				case T::ptrv:
-					c.tag = DBConst::ptrv;
+					c.Flags = 0;
+					c.Tag = DBConst::ptrv;
 					c.ptrval = t->ptrval;
 					break;
 				// } @v8.9.10
@@ -413,7 +433,7 @@ int FASTCALL DBE::call(int option, DBConst * r)
 					if(!c.fromfld(t->field))
 						return 0;
 					if(option == CALC_SIZE)
-						if(c.tag == DBConst::sp) {
+						if(c.Tag == DBConst::sp) {
 							int    len = strlen(c.sptr)+1;
 							c.destroy();
 							c.init((long)len);
@@ -442,7 +462,7 @@ int FASTCALL DBE::call(int option, DBConst * r)
 //
 int SLAPI DBField::getIndex(BNKey * pKey, int * pKeyPos, int * pSeg)
 {
-	BNKeyList & key_list = _GetTable(id)->indexes;
+	BNKeyList & key_list = _GetTable(Id)->indexes;
 	uint   nk = key_list.getNumKeys();
 	int    key_num = (!*pKey) ? -1 : pKey->getKeyNumber();
 	uint   i = 0;
@@ -459,21 +479,24 @@ int SLAPI DBField::getIndex(BNKey * pKey, int * pKeyPos, int * pSeg)
 	return 0;
 }
 
-void * SLAPI DBField::getValuePtr()
+void * SLAPI DBField::getValuePtr() const
 {
-	DBTable * tbl = _GetTable(id);
+	DBTable * tbl = _GetTable(Id);
 	return tbl ? (tbl->getDataBuf() + tbl->fields[fld].Offs) : 0;
 }
 
+DBTable * SLAPI DBField::getTable() const { return _GetTable(Id); }
+const  BNField & SLAPI DBField::getField() const { return _GetTable(Id)->fields[fld]; }
+
 int FASTCALL DBField::getValue(void * d, size_t * pSize) const
 {
-	DBTable * tbl = _GetTable(id);
+	DBTable * tbl = _GetTable(Id);
 	return tbl ? tbl->fields[fld].getValue(tbl->getDataBuf(), d, pSize) : 0;
 }
 
 int SLAPI DBField::putValue(const void * pBuf) const
 {
-	DBTable * tbl = _GetTable(id);
+	DBTable * tbl = _GetTable(Id);
 	return tbl ? tbl->fields[fld].setValue(tbl->getDataBuf(), pBuf) : 0;
 }
 //
@@ -504,7 +527,7 @@ void SLAPI DBFieldList::Destroy()
 int SLAPI DBFieldList::Search(const DBField & rFld, uint * pPos) const
 {
 	for(uint i = 0; i < Count; i++)
-		if(P_Flds[i].id == rFld.id && P_Flds[i].fld == rFld.fld) {
+		if(P_Flds[i].Id == rFld.Id && P_Flds[i].fld == rFld.fld) {
 			ASSIGN_PTR(pPos, i);
 			return 1;
 		}
@@ -548,14 +571,10 @@ int FASTCALL DBFieldList::Add(const DBFieldList & s)
 	return 1;
 }
 
-uint SLAPI DBFieldList::GetCount() const
-	{ return Count; }
-const DBField & FASTCALL DBFieldList::Get(uint fldN) const
-	{ return (fldN < Count) ? P_Flds[fldN] : *(DBField *)0; }
-const BNField & FASTCALL DBFieldList::GetField(uint fldN) const
-	{ return (fldN < Count) ? P_Flds[fldN].getField() : *(BNField *)0; }
-int SLAPI DBFieldList::GetValue(uint fldN, void * pBuf, size_t * pSize) const
-	{ return (fldN < Count) ? P_Flds[fldN].getValue(pBuf, pSize) : 0; }
+uint   SLAPI DBFieldList::GetCount() const { return Count; }
+const  DBField & FASTCALL DBFieldList::Get(uint fldN) const { return (fldN < Count) ? P_Flds[fldN] : *(DBField *)0; }
+const  BNField & FASTCALL DBFieldList::GetField(uint fldN) const { return (fldN < Count) ? P_Flds[fldN].getField() : *(BNField *)0; }
+int    SLAPI DBFieldList::GetValue(uint fldN, void * pBuf, size_t * pSize) const { return (fldN < Count) ? P_Flds[fldN].getValue(pBuf, pSize) : 0; }
 //
 // DBDataCell
 //
@@ -564,29 +583,29 @@ SLAPI DBDataCell::DBDataCell()
 	THISZERO();
 }
 
-SLAPI DBDataCell::DBDataCell(DBConst & r)
+SLAPI DBDataCell::DBDataCell(DBConst & r) : C(r)
 {
-	c = r;
 }
 
-SLAPI DBDataCell::DBDataCell(DBE & r)
+SLAPI DBDataCell::DBDataCell(DBE & r) : E(r)
 {
-	e = r;
 }
 
-SLAPI DBDataCell::DBDataCell(DBField & r)
+SLAPI DBDataCell::DBDataCell(DBField & r) : F(r)
 {
-	f = r;
 }
 
 int FASTCALL DBDataCell::containsTblRef(int tid) const
 {
-	if(i.id > 0)
-		return (i.id == tid);
-	if(i.id == DBE_ID)
-		for(int i = 0; i < e.Count; i++)
-			if(e.P_Terms[i].tag == DBE::T::fld && e.P_Terms[i].field.id == tid)
+	const int _id = GetId();
+	if(_id > 0)
+		return (_id == tid);
+	else if(_id == DBE_ID) {
+		for(int i = 0; i < E.Count; i++) {
+			if(E.P_Terms[i].tag == DBE::T::fld && E.P_Terms[i].field.Id == tid)
 				return 1;
+		}
+	}
 	return 0;
 }
 
@@ -594,16 +613,16 @@ int FASTCALL DBDataCell::containsTblRef(int tid) const
 
 int FASTCALL DBDataCell::getValue(TYPEID typ, void * val)
 {
-	int    id = i.id;
+	int    _id = GetId();
 	//CHECK(id > 0 || id == DBConst_ID || id == DBE_ID);
-	if(id > 0)
-		return f.getValue(val, 0);
-	else if(id == DBConst_ID)
-		return c.convert(typ, val);
-	else if(id == DBE_ID) {
+	if(_id > 0)
+		return F.getValue(val, 0);
+	else if(_id == DBConst_ID)
+		return C.convert(typ, val);
+	else if(_id == DBE_ID) {
 		DBConst cnst;
-		cnst.id = DBConst_ID;
-		int    r = e.evaluate(0, &cnst) ? cnst.convert(typ, val) : 0;
+		cnst.Id = DBConst_ID;
+		int    r = E.evaluate(0, &cnst) ? cnst.convert(typ, val) : 0;
 		cnst.destroy();
 		return r;
 	}
@@ -615,25 +634,25 @@ int FASTCALL DBDataCell::getValue(TYPEID typ, void * val)
 
 int FASTCALL DBDataCell::getValue(DBConst * val)
 {
-	int    id = i.id;
+	int    _id = GetId();
 	//CHECK(id > 0 || id == DBConst_ID || id == DBE_ID);
-	if(id > 0)
-		return val->fromfld(f);
-	else if(id == DBConst_ID)
-		return val->copy(c);
+	if(_id > 0)
+		return val->fromfld(F);
+	else if(_id == DBConst_ID)
+		return val->copy(C);
 	else
-		return e.evaluate(0, val); // Expression (id == DBE_ID)
+		return E.evaluate(0, val); // Expression (id == DBE_ID)
 }
 
 int SLAPI DBDataCell::toString(SString & rBuf, long options) const
 {
 	rBuf.Z();
-	if(i.id > 0) {
-		rBuf.Cat(f.getTable()->GetName()).Dot().Cat(f.getField().Name);
+	if(GetId() > 0) {
+		rBuf.Cat(F.getTable()->GetName()).Dot().Cat(F.getField().Name);
 	}
-	else if(i.id == DBConst_ID) {
+	else if(GetId() == DBConst_ID) {
 		char   temp[512];
-		c.tostring(0, temp);
+		C.tostring(0, temp);
 		rBuf.Cat(temp);
 	}
 	else
@@ -652,14 +671,14 @@ SLAPI DBQ::DBQ(DBItem & left, int cmp, DBItem & right) : count(1), items(new T)
 	}
 	items[0].cmp = cmp;
 	switch(left.typeOfItem()) {
-		case DBConst_ID: items[0].left.c  = *(DBConst *)&left;  break;
-		case DBE_ID:     items[0].left.e  = *(DBE *)&left; break;
-		case DBField_ID: items[0].left.f  = *(DBField *)&left;  break;
+		case DBConst_ID: items[0].left.C  = *(DBConst *)&left;  break;
+		case DBE_ID:     items[0].left.E  = *(DBE *)&left; break;
+		case DBField_ID: items[0].left.F  = *(DBField *)&left;  break;
 	}
 	switch(right.typeOfItem()) {
-		case DBConst_ID: items[0].right.c = *(DBConst *)&right; break;
-		case DBE_ID:     items[0].right.e = *(DBE *)&right;     break;
-		case DBField_ID: items[0].right.f = *(DBField *)&right; break;
+		case DBConst_ID: items[0].right.C = *(DBConst *)&right; break;
+		case DBE_ID:     items[0].right.E = *(DBE *)&right;     break;
+		case DBField_ID: items[0].right.F = *(DBField *)&right; break;
 	}
 	tree = new DBTree(this);
 	tree->addLeaf(0, 0, &tree->Root);
@@ -711,8 +730,8 @@ int FASTCALL _invertComp(int cmp);
 
 int SLAPI DBQ::testForKey(int itm, int tblID, int * pIsDyn)
 {
-	int    l = items[itm].left.i.id;
-	int    r = items[itm].right.i.id;
+	const int l = items[itm].left.GetId();
+	const int r = items[itm].right.GetId();
 	//
 	// Ключ можно составить только из ограничений типа (thisTable.fld cmp const) или (thisTable.fld cmp prevTable.fld)
 	// где cmp - знак сравнения (==, <, >, <=, >=)
@@ -752,7 +771,7 @@ int SLAPI DBQ::getPotentialKey(int itm, int tblID, int segment, KR * kr)
 	int    dyn = 0;
 	if(kr->P_h == 0 || testForKey(itm, tblID, &dyn) == 0)
 		return 0;
-	int    l   = items[itm].left.i.id;
+	int    l   = items[itm].left.GetId();
 	int    cmp = items[itm].cmp;
 	int    seg;
 	int    keyPos;
@@ -762,11 +781,11 @@ int SLAPI DBQ::getPotentialKey(int itm, int tblID, int segment, KR * kr)
 	DBField f;
 	DBDataCell * s;
 	if(l > 0 && l == tblID) {
-		f = items[itm].left.f;
+		f = items[itm].left.F;
 		s = &items[itm].right;
 	}
 	else {
-		f = items[itm].right.f;
+		f = items[itm].right.F;
 		s = &items[itm].left;
 		cmp = _invertComp(cmp);
 	}
@@ -1039,17 +1058,16 @@ int SLAPI DBTree::CreateSqlExpr(Generator_SQL * pGen, int node) const
 
 int SLAPI DBDataCell::CreateSqlExpr(Generator_SQL * pGen) const
 {
-	if(i.id > 0) {
-		pGen->/*Text(f.getTable()->tableName).Text(".").*/Text(f.getField().Name);
+	if(GetId() > 0) {
+		pGen->/*Text(f.getTable()->tableName).Text(".").*/Text(F.getField().Name);
 	}
-	else if(i.id == DBConst_ID) {
+	else if(GetId() == DBConst_ID) {
 		char   temp[512];
-		c.tostring(COMF_SQL, temp);
+		C.tostring(COMF_SQL, temp);
 		pGen->Text(temp);
 	}
-	else if(i.id == DBE_ID) {
+	else if(GetId() == DBE_ID)
 		pGen->Text("(DBE)");
-	}
 	else
 		pGen->Text("err");
 	return 1;

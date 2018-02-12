@@ -349,19 +349,23 @@ int SLAPI StringStore2::ExpandString(SString & rBuf, int ctransf /*CTRANSF_XXX*/
 	int    ok = -1;
 	if(rBuf.Len() > 3 && rBuf.HasChr('@')) {
 		size_t ips = 0, ipe = 0;
-		SString temp_buf, inner_signature;
 		while(rBuf.Search("@{", ips, 0, &ips) && rBuf.Search("}", ips+2, 0, &ipe)) {
-            rBuf.Sub(ips+2, ipe-(ips+2), inner_signature);
-			if(inner_signature.NotEmpty() && GetString(inner_signature, temp_buf)) {
-				if(ctransf)
-                    temp_buf.Transf(ctransf);
-				rBuf.Excise(ips, ipe-ips+1);
-				rBuf.Insert(ips, temp_buf);
-				ok = 1;
+			SString & r_inner_signature = SLS.AcquireRvlStr(); // @v9.9.4
+            rBuf.Sub(ips+2, ipe-(ips+2), r_inner_signature);
+			if(r_inner_signature.NotEmpty()) {
+				SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.4
+				if(GetString(r_inner_signature, r_temp_buf)) {
+					if(ctransf)
+						r_temp_buf.Transf(ctransf);
+					rBuf.Excise(ips, ipe-ips+1);
+					rBuf.Insert(ips, r_temp_buf);
+					ok = 1;
+				}
+				else
+					ips = ips+2;
 			}
-			else {
+			else
 				ips = ips+2;
-			}
 		}
 	}
 	return ok;

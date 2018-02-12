@@ -1,5 +1,5 @@
 // STR2DATE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2008, 2010, 2013, 2015, 2016, 2017
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2008, 2010, 2013, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -7,7 +7,7 @@
 
 int FASTCALL _decode_date_fmt(int style, int * pDiv);
 
-static int * pascal getnmb(int cnt, int ord, int * d, int * m, int * y)
+static int * FASTCALL getnmb(int cnt, int ord, int * d, int * m, int * y)
 {
 	switch(cnt) {
 		case 0: return (ord == 0) ? m : ((ord == 1) ? d : y);

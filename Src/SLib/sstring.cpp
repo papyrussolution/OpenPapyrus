@@ -1794,10 +1794,10 @@ SString & FASTCALL SString::Utf8ToCp(SCodepageIdent cp) { return Helper_MbToMb(C
 SString & SLAPI SString::Utf8ToLower()
 {
 	if(L > 1) {
-		SStringU us;
-		if(us.CopyFromUtf8Strict(P_Buf, L-1)) {
-			us.ToLower();
-			us.CopyToUtf8(*this, 1);
+		SStringU & r_us = SLS.AcquireRvlStrU(); // @v9.9.4
+		if(r_us.CopyFromUtf8Strict(P_Buf, L-1)) {
+			r_us.ToLower();
+			r_us.CopyToUtf8(*this, 1);
 		}
 	}
 	return *this;
@@ -1806,10 +1806,10 @@ SString & SLAPI SString::Utf8ToLower()
 SString & SLAPI SString::Utf8ToUpper()
 {
 	if(L > 1) {
-		SStringU us;
-		if(us.CopyFromUtf8Strict(P_Buf, L-1)) {
-			us.ToUpper();
-			us.CopyToUtf8(*this, 1);
+		SStringU & r_us = SLS.AcquireRvlStrU(); // @v9.9.4
+		if(r_us.CopyFromUtf8Strict(P_Buf, L-1)) {
+			r_us.ToUpper();
+			r_us.CopyToUtf8(*this, 1);
 		}
 	}
 	return *this;
@@ -2383,11 +2383,11 @@ char * FASTCALL longfmtz(long val, int numDigits, char * pBuf, size_t bufLen)
 SString & FASTCALL SString::CatLongZ(long val, uint numDigits)
 {
 	if(numDigits > 0 && numDigits <= 512) {
-		SString temp_buf;
-		const size_t _slen = temp_buf.Cat(val).Len();
+		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.4
+		const size_t _slen = r_temp_buf.Cat(val).Len();
 		if(_slen < numDigits)
-			temp_buf.PadLeft(numDigits - _slen, '0');
-		Cat(temp_buf);
+			r_temp_buf.PadLeft(numDigits - _slen, '0');
+		Cat(r_temp_buf);
 	}
 	else
 		Cat(val);
@@ -2401,11 +2401,11 @@ SString & FASTCALL SString::CatLongZ(uint32 val, uint numDigits) { return CatLon
 SString & FASTCALL SString::CatLongZ(int64 val, uint numDigits)
 {
 	if(numDigits > 0 && numDigits <= 512) {
-		SString temp_buf;
-		const size_t _slen = temp_buf.Cat(val).Len();
+		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.4
+		const size_t _slen = r_temp_buf.Cat(val).Len();
 		if(_slen < numDigits)
-			temp_buf.PadLeft(numDigits - _slen, '0');
-		Cat(temp_buf);
+			r_temp_buf.PadLeft(numDigits - _slen, '0');
+		Cat(r_temp_buf);
 	}
 	else
 		Cat(val);
@@ -2540,8 +2540,8 @@ SString & FASTCALL SString::Cat(const DateRange & rPeriod, int ext)
 
 SString & FASTCALL SString::Cat(const S_GUID & rUuid, int fmt)
 {
-	SString temp_buf;
-    return Cat(rUuid.ToStr(fmt, temp_buf));
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.4
+    return Cat(rUuid.ToStr(fmt, r_temp_buf));
 }
 
 SString & SLAPI SString::CatTag(const char * pTag, const char * pData)
@@ -6244,7 +6244,7 @@ int FASTCALL STokenRecognizer::IsUtf8(const uchar * p, size_t restLen)
 	russia: 8(999)999-99-99 (8 9999)99-99-99
 */
 
-static int FASTCALL _ProbeDate(SString & rText)
+static int FASTCALL _ProbeDate(const SString & rText)
 {
 	int    ok = 0;
 	LDATE  probe_dt = strtodate_(rText, DATF_DMY);
