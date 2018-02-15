@@ -92,11 +92,11 @@ PNG_NORETURN void PNGAPI png_err(png_const_structrp png_ptr)
 	png_default_error(png_ptr, "");
 }
 #endif /* ERROR_TEXT */
-
-/* Utility to safely appends strings to a buffer.  This never errors out so
- * error checking is not required in the caller.
- */
-size_t png_safecat(char * buffer, size_t bufsize, size_t pos, const char * string)
+// 
+// Utility to safely appends strings to a buffer.  This never errors out so
+// error checking is not required in the caller.
+// 
+size_t FASTCALL png_safecat(char * buffer, size_t bufsize, size_t pos, const char * string)
 {
 	if(buffer && pos < bufsize) {
 		if(string)

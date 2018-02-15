@@ -120,102 +120,41 @@ void _zbar_symbol_free(zbar_symbol_t * sym)
 	SAlloc::F(sym);
 }
 
-void zbar_symbol_ref(const zbar_symbol_t * sym,
-    int refs)
+void zbar_symbol_ref(const zbar_symbol_t * sym, int refs)
 {
 	zbar_symbol_t * ncsym = (zbar_symbol_t*)sym;
 	_zbar_symbol_refcnt(ncsym, refs);
 }
 
-zbar_symbol_type_t zbar_symbol_get_type(const zbar_symbol_t * sym)
-{
-	return(sym->type);
-}
-
-uint zbar_symbol_get_configs(const zbar_symbol_t * sym)
-{
-	return(sym->configs);
-}
-
-uint zbar_symbol_get_modifiers(const zbar_symbol_t * sym)
-{
-	return(sym->modifiers);
-}
-
-const char * zbar_symbol_get_data(const zbar_symbol_t * sym)
-{
-	return sym->P_Data_;
-}
-
-uint zbar_symbol_get_data_length(const zbar_symbol_t * sym)
-{
-	return sym->datalen;
-}
-
-int zbar_symbol_get_count(const zbar_symbol_t * sym)
-{
-	return(sym->cache_count);
-}
-
-int zbar_symbol_get_quality(const zbar_symbol_t * sym)
-{
-	return(sym->quality);
-}
-
-uint zbar_symbol_get_loc_size(const zbar_symbol_t * sym)
-{
-	return(sym->npts);
-}
-
-int zbar_symbol_get_loc_x(const zbar_symbol_t * sym, uint idx)
-{
-	if(idx < sym->npts)
-		return(sym->pts[idx].x);
-	else
-		return -1;
-}
-
-int zbar_symbol_get_loc_y(const zbar_symbol_t * sym, uint idx)
-{
-	if(idx < sym->npts)
-		return(sym->pts[idx].y);
-	else
-		return -1;
-}
-
-zbar_orientation_t zbar_symbol_get_orientation(const zbar_symbol_t * sym)
-{
-	return(sym->orient);
-}
-
-const zbar_symbol_t * zbar_symbol_next(const zbar_symbol_t * sym)
-{
-	return((sym) ? sym->next : NULL);
-}
-
-const zbar_symbol_set_t* zbar_symbol_get_components(const zbar_symbol_t * sym)
-{
-	return(sym->syms);
-}
-
-const zbar_symbol_t * zbar_symbol_first_component(const zbar_symbol_t * sym)
-{
-	return((sym && sym->syms) ? sym->syms->head : NULL);
-}
+zbar_symbol_type_t zbar_symbol_get_type(const zbar_symbol_t * sym) { return sym->type; }
+uint  zbar_symbol_get_configs(const zbar_symbol_t * sym) { return sym->configs; }
+uint  zbar_symbol_get_modifiers(const zbar_symbol_t * sym) { return sym->modifiers; }
+const char * zbar_symbol_get_data(const zbar_symbol_t * sym) { return sym->P_Data_; }
+uint  zbar_symbol_get_data_length(const zbar_symbol_t * sym) { return sym->datalen; }
+int   zbar_symbol_get_count(const zbar_symbol_t * sym) { return(sym->cache_count); }
+int   zbar_symbol_get_quality(const zbar_symbol_t * sym) { return sym->quality; }
+uint  zbar_symbol_get_loc_size(const zbar_symbol_t * sym) { return sym->npts; }
+int   zbar_symbol_get_loc_x(const zbar_symbol_t * sym, uint idx) { return (idx < sym->npts) ? sym->pts[idx].x :  -1; }
+int   zbar_symbol_get_loc_y(const zbar_symbol_t * sym, uint idx) { return (idx < sym->npts) ? sym->pts[idx].y : -1; }
+zbar_orientation_t zbar_symbol_get_orientation(const zbar_symbol_t * sym) { return(sym->orient); }
+const zbar_symbol_t * zbar_symbol_next(const zbar_symbol_t * sym) { return((sym) ? sym->next : NULL); }
+const zbar_symbol_set_t* zbar_symbol_get_components(const zbar_symbol_t * sym) { return(sym->syms); }
+const zbar_symbol_t * zbar_symbol_first_component(const zbar_symbol_t * sym) { return ((sym && sym->syms) ? sym->syms->head : NULL); }
 
 uint base64_encode(char * dst, const char * src, uint srclen)
 {
-	static const char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	// static const char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	const char * p_basis = STextConst::Get(STextConst::cBasis64, 0);
 	char * start = dst;
 	int nline = 19;
 	for(; srclen; srclen -= 3) {
 		uint buf = *(src++) << 16;
 		if(srclen > 1) buf |= *(src++) << 8;
 		if(srclen > 2) buf |= *(src++);
-		*(dst++) = alphabet[(buf >> 18) & 0x3f];
-		*(dst++) = alphabet[(buf >> 12) & 0x3f];
-		*(dst++) = (srclen > 1) ? alphabet[(buf >> 6) & 0x3f] : '=';
-		*(dst++) = (srclen > 2) ? alphabet[buf & 0x3f] : '=';
+		*(dst++) = p_basis[(buf >> 18) & 0x3f];
+		*(dst++) = p_basis[(buf >> 12) & 0x3f];
+		*(dst++) = (srclen > 1) ? p_basis[(buf >> 6) & 0x3f] : '=';
+		*(dst++) = (srclen > 2) ? p_basis[buf & 0x3f] : '=';
 		if(srclen < 3) break;
 		if(!--nline) {
 			*(dst++) = '\n'; nline = 19;

@@ -741,13 +741,14 @@ typedef struct {
 	uchar src[3];
 } base64_write_closure_t;
 
-static char const base64_table[/*64*/] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+//static char const base64_table[/*64*/] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 static cairo_status_t base64_write_func(void * closure, const uchar * data, uint length)
 {
 	base64_write_closure_t * info = (base64_write_closure_t*)closure;
 	uint i;
 	uchar * src = info->src;
+	const char * p_basis = STextConst::Get(STextConst::cBasis64, 0);
 	if(info->in_mem + length < 3) {
 		for(i = 0; i < length; i++) {
 			src[i + info->in_mem] = *data++;
@@ -762,10 +763,10 @@ static cairo_status_t base64_write_func(void * closure, const uchar * data, uint
 			length--;
 		}
 		info->in_mem = 0;
-		dst[0] = base64_table[src[0] >> 2];
-		dst[1] = base64_table[(src[0] & 0x03) << 4 | src[1] >> 4];
-		dst[2] = base64_table[(src[1] & 0x0f) << 2 | src[2] >> 6];
-		dst[3] = base64_table[src[2] & 0xfc >> 2];
+		dst[0] = p_basis[src[0] >> 2];
+		dst[1] = p_basis[(src[0] & 0x03) << 4 | src[1] >> 4];
+		dst[2] = p_basis[(src[1] & 0x0f) << 2 | src[2] >> 6];
+		dst[3] = p_basis[src[2] & 0xfc >> 2];
 		/* Special case for the last missing bits */
 		switch(info->trailing) {
 			case 2: dst[2] = '=';

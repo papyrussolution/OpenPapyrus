@@ -372,4 +372,42 @@
       <UniqueIdentifier>{7623d283-94b8-455d-8d0d-2d87af64d135}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\OSF\XEOS\xeos-memchr-32.asm">
+      <Filter>ASM</Filter>
+    </None>
+    <None Include="..\OSF\XEOS\xeos-memcpy-32.asm">
+      <Filter>ASM</Filter>
+    </None>
+    <None Include="..\OSF\XEOS\xeos-memset-32.asm">
+      <Filter>ASM</Filter>
+    </None>
+    <None Include="..\OSF\XEOS\xeos-strcat-32.asm">
+      <Filter>ASM</Filter>
+    </None>
+    <None Include="..\OSF\XEOS\xeos-strchr-32.asm">
+      <Filter>ASM</Filter>
+    </None>
+    <None Include="..\OSF\XEOS\xeos-strlen-32.asm">
+      <Filter>ASM</Filter>
+    </None>
+    <None Include="..\OSF\XEOS\xeos-memchr-64.asm">
+      <Filter>ASM64</Filter>
+    </None>
+    <None Include="..\OSF\XEOS\xeos-memcpy-64.asm">
+      <Filter>ASM64</Filter>
+    </None>
+    <None Include="..\OSF\XEOS\xeos-memset-64.asm">
+      <Filter>ASM64</Filter>
+    </None>
+    <None Include="..\OSF\XEOS\xeos-strcat-64.asm">
+      <Filter>ASM64</Filter>
+    </None>
+    <None Include="..\OSF\XEOS\xeos-strchr-64.asm">
+      <Filter>ASM64</Filter>
+    </None>
+    <None Include="..\OSF\XEOS\xeos-strlen-64.asm">
+      <Filter>ASM64</Filter>
+    </None>
+  </ItemGroup>
 </Project>

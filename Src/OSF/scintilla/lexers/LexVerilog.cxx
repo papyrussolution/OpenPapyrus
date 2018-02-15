@@ -161,12 +161,12 @@ class LexerVerilog : public ILexerWithSubStyles {
 	WordList keywords5;
 	WordList ppDefinitions;
 	PPStates vlls;
-	std::vector<PPDefinition> ppDefineHistory;
+	std::vector <PPDefinition> ppDefineHistory;
 	struct SymbolValue {
 		SymbolValue(const std::string &value_ = "", const std::string &arguments_ = "") : value(value_), arguments(arguments_)
 		{
 		}
-		SymbolValue &operator =(const std::string &value_)
+		SymbolValue & operator = (const std::string &value_)
 		{
 			value = value_;
 			arguments.clear();
@@ -209,34 +209,13 @@ public:
 	virtual ~LexerVerilog()
 	{
 	}
-	int SCI_METHOD Version() const
-	{
-		return lvSubStyles;
-	}
-	void SCI_METHOD Release()
-	{
-		delete this;
-	}
-	const char* SCI_METHOD PropertyNames()
-	{
-		return osVerilog.PropertyNames();
-	}
-	int SCI_METHOD PropertyType(const char* name)
-	{
-		return osVerilog.PropertyType(name);
-	}
-	const char* SCI_METHOD DescribeProperty(const char* name)
-	{
-		return osVerilog.DescribeProperty(name);
-	}
-	Sci_Position SCI_METHOD PropertySet(const char* key, const char* val)
-	{
-		return osVerilog.PropertySet(&options, key, val);
-	}
-	const char* SCI_METHOD DescribeWordListSets()
-	{
-		return osVerilog.DescribeWordListSets();
-	}
+	int SCI_METHOD Version() const { return lvSubStyles; }
+	void SCI_METHOD Release() { delete this; }
+	const char* SCI_METHOD PropertyNames() { return osVerilog.PropertyNames(); }
+	int SCI_METHOD PropertyType(const char* name) { return osVerilog.PropertyType(name); }
+	const char* SCI_METHOD DescribeProperty(const char* name) { return osVerilog.DescribeProperty(name); }
+	Sci_Position SCI_METHOD PropertySet(const char* key, const char* val) { return osVerilog.PropertySet(&options, key, val); }
+	const char* SCI_METHOD DescribeWordListSets() { return osVerilog.DescribeWordListSets(); }
 	Sci_Position SCI_METHOD WordListSet(int n, const char* wl);
 	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
 	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument * pAccess);
@@ -348,15 +327,8 @@ Sci_Position SCI_METHOD LexerVerilog::WordListSet(int n, const char * wl)
 	return firstModification;
 }
 
-static bool FASTCALL IsAWordChar(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '\''|| ch == '$');
-}
-
-static bool FASTCALL IsAWordStart(const int ch)
-{
-	return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '$');
-}
+static bool FASTCALL IsAWordChar(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '\''|| ch == '$'); }
+static bool FASTCALL IsAWordStart(const int ch) { return (ch < 0x80) && (isalnum(ch) || ch == '_' || ch == '$'); }
 
 static bool FASTCALL AllUpperCase(const char * a)
 {

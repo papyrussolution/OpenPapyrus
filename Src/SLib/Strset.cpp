@@ -83,7 +83,7 @@ SLAPI StringSet::StringSet(const StringSet & rS)
 
 SLAPI StringSet::~StringSet()
 {
-	if(P_Buf)
+	if(P_Buf) // @speedcritical
 		SAlloc::F(P_Buf);
 }
 
@@ -243,6 +243,12 @@ void SLAPI StringSet::clear(/*int dontFreeBuf*/)
 	DataLen = 0;
 }
 
+StringSet & SLAPI StringSet::Z()
+{
+	DataLen = 0;
+	return *this;
+}
+
 void SLAPI StringSet::sort()
 {
 	StrAssocArray temp_list;
@@ -306,8 +312,12 @@ int SLAPI StringSet::reverse()
 void FASTCALL StringSet::setDelim(const char * pDelim)
 {
 	Delim[0] = 0;
-	if(pDelim)
-		STRNSCPY(Delim, pDelim);
+	if(pDelim) {
+		size_t dl = strlen(pDelim);
+		assert(dl < sizeof(Delim));
+		memcpy(Delim, pDelim, dl+1);
+		//STRNSCPY(Delim, pDelim);
+	}
 }
 
 uint SLAPI StringSet::getDelimLen() const
@@ -318,9 +328,9 @@ uint SLAPI StringSet::getDelimLen() const
 int FASTCALL StringSet::add(const StringSet & rS)
 {
 	int    ok = 1;
-	SString temp_buf;
-	for(uint ssp = 0; rS.get(&ssp, temp_buf);) {
-		THROW(add(temp_buf));
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.5
+	for(uint ssp = 0; rS.get(&ssp, r_temp_buf);) {
+		THROW(add(r_temp_buf));
 	}
 	CATCHZOK
 	return ok;
@@ -651,10 +661,10 @@ int SLAPI SStrGroup::Pack_Replace(void * pHandle, uint & rPos) const
 	StringSet * p_handle = (StringSet *)pHandle;
 	if(p_handle) {
 		uint   new_pos = rPos;
-		SString temp_buf;
-		Pool.getnz(rPos, temp_buf);
-		if(temp_buf.NotEmpty()) {
-			p_handle->add(temp_buf, &new_pos);
+		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.5
+		Pool.getnz(rPos, r_temp_buf);
+		if(r_temp_buf.NotEmpty()) {
+			p_handle->add(r_temp_buf, &new_pos);
 		}
 		rPos = new_pos;
 	}

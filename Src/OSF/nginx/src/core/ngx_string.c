@@ -849,14 +849,16 @@ u_char * ngx_hex_dump(u_char * dst, const u_char * src, size_t len)
 
 void FASTCALL ngx_encode_base64(ngx_str_t * dst, const ngx_str_t * src)
 {
-	static u_char basis64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-	ngx_encode_base64_internal(dst, src, basis64, 1);
+	//static u_char basis64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	const uchar * p_basis = (const uchar *)STextConst::Get(STextConst::cBasis64, 0);
+	ngx_encode_base64_internal(dst, src, p_basis, 1);
 }
 
 void FASTCALL ngx_encode_base64url(ngx_str_t * dst, const ngx_str_t * src)
 {
-	static u_char basis64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-	ngx_encode_base64_internal(dst, src, basis64, 0);
+	//static u_char basis64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+	const uchar * p_basis = (const uchar *)STextConst::Get(STextConst::cBasis64Url, 0);
+	ngx_encode_base64_internal(dst, src, p_basis, 0);
 }
 
 static void ngx_encode_base64_internal(ngx_str_t * dst, const ngx_str_t * src, const u_char * basis, ngx_uint_t padding)

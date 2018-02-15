@@ -1032,7 +1032,8 @@ extern "C" int isinf(double);
 
 union soap_double_nan {struct {unsigned int n1, n2; } iv; double dv; float fv; };
 extern const union soap_double_nan soap_double_nan;
-extern const char soap_base64o[], soap_base64i[];
+//extern const char soap_base64o[];
+extern const char soap_base64i[];
 
  #ifdef VXWORKS
   #ifndef FLT_MAX
@@ -2225,8 +2226,8 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_track_free(struct soap *, const char *, int, voi
 #ifndef WITH_NOIDREF
 	SOAP_FMAC1 int /*SOAP_FMAC2*/ FASTCALL soap_lookup_type(struct soap *, const char * id);
 	SOAP_FMAC1 void * /*SOAP_FMAC2*/FASTCALL soap_id_lookup(struct soap *, const char * id, void ** p, int t, size_t n, unsigned int k);
-	SOAP_FMAC1 void * SOAP_FMAC2 soap_id_forward(struct soap *, const char * id, void * p, size_t len, int st, int tt,
-		size_t n, unsigned int k, void (* fcopy)(struct soap *, int, int, void *, size_t, const void *, size_t));
+	SOAP_FMAC1 void * /*SOAP_FMAC2*/FASTCALL soap_id_forward(struct soap *, const char * id, void * p, size_t len, int st, int tt,
+		size_t n, uint k, void (* fcopy)(struct soap *, int, int, void *, size_t, const void *, size_t));
 #endif
 SOAP_FMAC1 void * /*SOAP_FMAC2*/FASTCALL soap_id_enter(struct soap *, const char * id, void * p, int t, size_t n, unsigned int k,
     const char * type, const char * arrayType, void *(*finstantiate)(struct soap *, int, const char *, const char *, size_t *));
@@ -2287,7 +2288,7 @@ SOAP_FMAC1 void /*SOAP_FMAC2*/ FASTCALL soap_revert(struct soap *);
 SOAP_FMAC1 char * /*SOAP_FMAC2*/ FASTCALL soap_strdup(struct soap *, const char *);
 SOAP_FMAC1 wchar_t * SOAP_FMAC2 soap_wstrdup(struct soap *, const wchar_t *);
 SOAP_FMAC1 const char * SOAP_FMAC2 soap_tagsearch(const char * big, const char * little);
-SOAP_FMAC1 int SOAP_FMAC2 soap_string_out(struct soap *, const char * s, int flag);
+SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_string_out(struct soap *, const char * s, int flag);
 SOAP_FMAC1 char * SOAP_FMAC2 soap_string_in(struct soap *, int, long, long);
 #ifndef WITH_LEANER
 	SOAP_FMAC1 int SOAP_FMAC2 soap_wstring_out(struct soap *, const wchar_t * s, int flag);
@@ -2305,10 +2306,10 @@ SOAP_FMAC1 int /*SOAP_FMAC2*/FASTCALL soap_append_lab(struct soap *, const char 
 SOAP_FMAC1 struct soap_blist * /*SOAP_FMAC2*/ FASTCALL soap_new_block(struct soap *);
 SOAP_FMAC1 void * /*SOAP_FMAC2*/ FASTCALL soap_push_block(struct soap *, struct soap_blist *, size_t);
 SOAP_FMAC1 void /*SOAP_FMAC2*/ FASTCALL soap_pop_block(struct soap *, struct soap_blist *);
-SOAP_FMAC1 size_t SOAP_FMAC2 soap_size_block(struct soap *, struct soap_blist *, size_t);
-SOAP_FMAC1 char * SOAP_FMAC2 soap_first_block(struct soap *, struct soap_blist *);
-SOAP_FMAC1 char * SOAP_FMAC2 soap_next_block(struct soap *, struct soap_blist *);
-SOAP_FMAC1 size_t SOAP_FMAC2 soap_block_size(struct soap *, struct soap_blist *);
+SOAP_FMAC1 size_t /*SOAP_FMAC2*/FASTCALL soap_size_block(struct soap *, struct soap_blist *, size_t);
+SOAP_FMAC1 char * /*SOAP_FMAC2*/FASTCALL soap_first_block(struct soap *, struct soap_blist *);
+SOAP_FMAC1 char * /*SOAP_FMAC2*/FASTCALL soap_next_block(struct soap *, struct soap_blist *);
+SOAP_FMAC1 size_t /*SOAP_FMAC2*/FASTCALL soap_block_size(struct soap *, struct soap_blist *);
 SOAP_FMAC1 char * SOAP_FMAC2 soap_save_block(struct soap *, struct soap_blist *, char *, int);
 SOAP_FMAC1 void /*SOAP_FMAC2*/ FASTCALL soap_end_block(struct soap *, struct soap_blist *);
 SOAP_FMAC1 void SOAP_FMAC2 soap_update_pointers(struct soap * soap, char * start, char * end, char * p1, char * p2);
@@ -2363,7 +2364,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_s2QName(struct soap *, const char *, char **, lon
 SOAP_FMAC1 const char * SOAP_FMAC2 soap_byte2s(struct soap *, char);
 SOAP_FMAC1 const char * SOAP_FMAC2 soap_short2s(struct soap *, short);
 SOAP_FMAC1 const char * SOAP_FMAC2 soap_int2s(struct soap *, int);
-SOAP_FMAC1 const char * SOAP_FMAC2 soap_long2s(struct soap *, long);
+SOAP_FMAC1 const char * /*SOAP_FMAC2*/FASTCALL soap_long2s(struct soap *, long);
 SOAP_FMAC1 const char * SOAP_FMAC2 soap_LONG642s(struct soap *, LONG64);
 SOAP_FMAC1 const char * SOAP_FMAC2 soap_float2s(struct soap *, float);
 SOAP_FMAC1 const char * SOAP_FMAC2 soap_double2s(struct soap *, double);

@@ -1971,6 +1971,7 @@ PPERR_SR_C_PROPIDORCONCEXPECTED  "Sartre: ожидается идентифик�
 PPERR_SR_INVSPCWORDTAG           "Sartre: не допустимый специальный тег слова %s"
 
 PPERR_SR_S_CONCEPTIDEXPECTED     "Sartre: ожидается идент концепции"
+PPERR_SR_S_VARSYMBEXPECTED       "Sartre: После '/' ожидается идент переменной"
 PPERR_SR_S_RULEIDEXPECTED        "Sartre: ожидается идент правила"
 PPERR_SR_S_OPOROPDEXPECTED       "Sartre: ожидается оператор или операнд"
 PPERR_SR_S_LITERAL               "Sartre: ошибка считывания литерала"

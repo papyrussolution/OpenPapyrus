@@ -223,7 +223,7 @@ int SLAPI PPObjGoodsClass::GetPacket(PPID id, PPGdsClsPacket * pPack)
 		{
 			pPack->FormulaList.freeAll();
 			if(ref->GetPropVlrString(Obj, id, GDCPRP_FORMLIST, line_buf) > 0) {
-				StringSet form_list("/&");
+				PPStringSetSCD form_list;
 				form_list.setBuf(line_buf, line_buf.Len()+1);
 				for(uint pos = 0; form_list.get(&pos, form_buf);)
 					pPack->FormulaList.insert(newStr(form_buf));
@@ -264,7 +264,7 @@ int SLAPI PPObjGoodsClass::PutPacket(PPID * pID, PPGdsClsPacket * pPack, int use
 				THROW(PutDim(id, GDCPRP_DIMZ, &pPack->DimZ));
 				THROW(PutDim(id, GDCPRP_DIMW, &pPack->DimW));
 				{
-					StringSet form_list("/&");
+					PPStringSetSCD form_list;
 					for(uint i = 1; i <= pPack->FormulaList.getCount(); i++) {
 						PPGdsClsFormula form;
 						pPack->GetFormula(i, &form);
@@ -938,7 +938,7 @@ int SLAPI GoodsClassCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_cache_rec->ScaleZ  = (int16)gc_pack.DimZ.Scale;
 		p_cache_rec->ScaleW  = (int16)gc_pack.DimW.Scale;
 
-		StringSet ss("/&");
+		PPStringSetSCD ss;
 		ss.add(gc_pack.Rec.Name);
 		ss.add(gc_pack.Rec.Symb);
 		ss.add(gc_pack.NameConv);
@@ -984,7 +984,7 @@ void SLAPI GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDa
 
 	char   temp_buf[1024];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
-	StringSet ss("/&");
+	PPStringSetSCD ss;
 	ss.setBuf(temp_buf, strlen(temp_buf)+1);
 	uint   p = 0;
 	ss.get(&p, p_data_pack->Rec.Name, sizeof(p_data_pack->Rec.Name));

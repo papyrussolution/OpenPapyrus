@@ -2338,7 +2338,7 @@ int SLAPI StaffCalCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		FLD(Flags);
 		FLD(Color);
 #undef FLD
-		StringSet ss("/&");
+		PPStringSetSCD ss;
 		ss.add(rec.Name, 0);
 		ss.add(rec.Symb, 0);
 		PutName(ss.getBuf(), p_cache_rec);
@@ -2365,7 +2365,7 @@ void SLAPI StaffCalCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 #undef FLD
 	char   temp_buf[2048];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
-	StringSet ss("/&");
+	PPStringSetSCD ss;
 	ss.setBuf(temp_buf, strlen(temp_buf)+1);
 	uint   p = 0;
 	ss.get(&p, p_data_rec->Name, sizeof(p_data_rec->Name));

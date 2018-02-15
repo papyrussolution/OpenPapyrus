@@ -744,7 +744,7 @@ int FASTCALL STempBuffer::Alloc(size_t sz)
 		ZFREE(P_Buf);
 		Size = 0;
 	}
-	else {
+	else if(Size != sz) {
 		char * p = (char *)SAlloc::R(P_Buf, sz);
 		if(p) {
 			P_Buf = p;
@@ -755,6 +755,8 @@ int FASTCALL STempBuffer::Alloc(size_t sz)
 			ok = 0;
 		}
 	}
+	else
+		ok = -1;
 	return ok;
 }
 

@@ -5330,7 +5330,7 @@ void Editor::SetDocPointer(Document * document)
 	//Platform::DebugPrintf("** %x setdoc to %x\n", pdoc, document);
 	pdoc->RemoveWatcher(this, 0);
 	pdoc->Release();
-	pdoc = document ? document : new Document();
+	pdoc = NZOR(document, new Document());
 	pdoc->AddRef();
 	// Ensure all positions within document
 	sel.Clear();

@@ -28,15 +28,16 @@
 #include "memdebug.h"
 
 // ---- Base64 Encoding/Decoding Table --- 
-static const char base64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+//static const char base64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 // The Base 64 encoding with an URL and filename safe alphabet, RFC 4648 section 5 
-static const char base64url[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+//static const char base64url[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
 static size_t decodeQuantum(uchar * dest, const char * src)
 {
 	size_t padding = 0;
 	const char * s, * p;
 	ulong i, x = 0;
+	const char * p_basis = STextConst::Get(STextConst::cBasis64, 0);
 	for(i = 0, s = src; i < 4; i++, s++) {
 		ulong v = 0;
 		if(*s == '=') {
@@ -44,7 +45,7 @@ static size_t decodeQuantum(uchar * dest, const char * src)
 			padding++;
 		}
 		else {
-			p = base64;
+			p = p_basis;
 			while(*p && (*p != *s)) {
 				v++;
 				p++;
@@ -213,9 +214,9 @@ static CURLcode base64_encode(const char * table64, struct Curl_easy * data, con
  */
 CURLcode Curl_base64_encode(struct Curl_easy * data, const char * inputbuff, size_t insize, char ** outptr, size_t * outlen)
 {
-	return base64_encode(base64, data, inputbuff, insize, outptr, outlen);
+	const char * p_basis = STextConst::Get(STextConst::cBasis64, 0);
+	return base64_encode(p_basis, data, inputbuff, insize, outptr, outlen);
 }
-
 /*
  * Curl_base64url_encode()
  *
@@ -235,6 +236,7 @@ CURLcode Curl_base64_encode(struct Curl_easy * data, const char * inputbuff, siz
  */
 CURLcode Curl_base64url_encode(struct Curl_easy * data, const char * inputbuff, size_t insize, char ** outptr, size_t * outlen)
 {
-	return base64_encode(base64url, data, inputbuff, insize, outptr, outlen);
+	const char * p_basis = STextConst::Get(STextConst::cBasis64Url, 0);
+	return base64_encode(p_basis, data, inputbuff, insize, outptr, outlen);
 }
 

@@ -320,6 +320,9 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 	return ok;
 }
 
+PPRevolver_StringSetSCD::PPRevolver_StringSetSCD(uint c) : TSRevolver <PPStringSetSCD>(c) {}
+StringSet & PPRevolver_StringSetSCD::Get() { return Implement_Get().Z(); }
+
 #define SIGN_PPTLA 0x7D08E311L
 
 PPThreadLocalArea::IdleCommand::IdleCommand(long repeatEachSeconds) : SCycleTimer(repeatEachSeconds * 1000)
@@ -335,7 +338,7 @@ int FASTCALL PPThreadLocalArea::IdleCommand::Run(const LDATETIME & rPrevRunTime)
 	return -1;
 }
 
-SLAPI PPThreadLocalArea::PPThreadLocalArea() : Prf(1), UfpSess(0)
+SLAPI PPThreadLocalArea::PPThreadLocalArea() : Prf(1), UfpSess(0), RvlSsSCD(256)
 {
 	memzero(this, offsetof(PPThreadLocalArea, Rights));
 	Sign = SIGN_PPTLA;
@@ -4215,6 +4218,11 @@ int SLAPI PPAdviseList::Advise(long * pCookie, const PPAdviseBlock * pBlk)
 int SLAPI PPSession::GetAdviseList(int kind, PPID objType, PPAdviseList & rList) 
 { 
 	return AdvList.CreateList(kind, GetConstTLA().GetThreadID(), DBS.GetDbPathID(), objType, rList); 
+}
+
+StringSet & SLAPI PPSession::AcquireRvlSsSCD()
+{
+	return GetTLA().RvlSsSCD.Get();
 }
 
 void SLAPI PPSession::ProcessIdle()

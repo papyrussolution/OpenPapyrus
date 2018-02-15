@@ -772,6 +772,16 @@ private:
 	long   LastId;
 };
 //
+// Descr: Специализированный потомок StringSet использующий предопределенный разделитель "/&"
+//   и применяемый для хранения списков строк в кэшах и для некоторых пакетов данных.
+// Note: Учитывая то, что применяется для persistent-объектов, разделитель не может быть
+//   произвольным образом модифицирован.
+//
+class PPStringSetSCD : public StringSet {
+public:
+	SLAPI  PPStringSetSCD();
+};
+//
 //
 //
 struct PPCalcFuncEntry {
@@ -5825,6 +5835,14 @@ private:
 		// Необходим для определения маркера, ниже которого записи очереди уже не нужны.
 };
 //
+//
+//
+class PPRevolver_StringSetSCD : public TSRevolver <PPStringSetSCD> {
+public:
+	explicit PPRevolver_StringSetSCD(uint c);
+	StringSet & Get();
+};
+//
 // Descr: Класс, обеспечивающий хранение глобальных данных, привязанных к потоку.
 //
 class PPThreadLocalArea {
@@ -5839,18 +5857,12 @@ public:
 	void   SLAPI PushErrContext();
 	void   SLAPI PopErrContext();
 	int    SLAPI IsConsistent() const;
-	long   SLAPI GetId() const
-	{
-		return Id;
-	}
+	long   SLAPI GetId() const { return Id; }
 	//
 	// Descr: Возвращает !0 если поток авторизован в базе данных Papyrus
 	//
 	int    SLAPI IsAuth() const;
-	ThreadID SLAPI GetThreadID() const
-	{
-		return TId;
-	}
+	ThreadID SLAPI GetThreadID() const { return TId; }
 	PPView * SLAPI GetPPViewPtr(int32 id) const;
 	int32  SLAPI CreatePPViewPtr(PPView *);
 	int    SLAPI ReleasePPViewPtr(int32 id);
@@ -6031,6 +6043,7 @@ private:
 	TSCollection <PPView> SrvViewList;
 	StrStrAssocArray IfcConfig; // Параметры конфигурации интерфейсов.
 		// Устанавливаются вызовом PPUtil::SetConfigParam
+	PPRevolver_StringSetSCD RvlSsSCD; // @v9.9.5 Револьверная коллекция shortlived-stringset'ов для использования в кэшах
 };
 
 class __PPThrLocPtr {
@@ -6293,7 +6306,8 @@ protected:
 	private:
 		const  int RdMode;
 		uint   CurPos;
-		StringSet Ss;
+		//PPStringSetSCD Ss;
+		StringSet & R_Ss; // Инициализируется DS().AcquireRvlSsSCD()
 	};
 
 	int    FASTCALL PutTextBlock(MultTextBlock & rBlk, ObjCacheEntry * pEntry);
@@ -6816,10 +6830,7 @@ public:
 	//
 	// Really const function: don't modify result object
 	//
-	const PPVersionInfo & SLAPI GetVersionInfo() const
-	{
-		return Ver;
-	}
+	const  PPVersionInfo & SLAPI GetVersionInfo() const { return Ver; }
 	SVerT  SLAPI GetVersion() const;
 	//
 	// Descr: Возвращает номер версии системы, минимально допустимый для совместимости
@@ -6837,6 +6848,11 @@ public:
 	int    SLAPI Advise(long * pCookie, const PPAdviseBlock * pBlk);
 	int    SLAPI Unadvise(long cookie);
 	int    SLAPI GetAdviseList(int kind, PPID objType, PPAdviseList & rList);
+	//
+	// Descr: Получает револьверный экземпляр PPStringSetSCD для использования в кэшах 
+	//   (для ускорения работы путем обхода необходимости в динамическом выделении памяти).
+	//
+	StringSet & SLAPI AcquireRvlSsSCD();
 	int    SLAPI GetObjectTitle(PPID objType, SString & rBuf);
 	PPID   SLAPI GetObjectTypeBySymb(const char * pSymb, long * pExtraParam);
 	int    SLAPI GetObjectTypeSymb(PPID objType, SString & rBuf);

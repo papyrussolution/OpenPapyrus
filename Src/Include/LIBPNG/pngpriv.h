@@ -1384,7 +1384,8 @@ PNG_INTERNAL_FUNCTION(void, png_check_IHDR, (png_const_structrp png_ptr, uint32 
  * the end.  Always leaves the buffer nul terminated.  Never errors out (and
  * there is no error code.)
  */
-PNG_INTERNAL_FUNCTION(size_t, png_safecat, (char * buffer, size_t bufsize, size_t pos, const char * string), PNG_EMPTY);
+//PNG_INTERNAL_FUNCTION(size_t, png_safecat, (char * buffer, size_t bufsize, size_t pos, const char * string), PNG_EMPTY);
+extern size_t FASTCALL png_safecat(char * buffer, size_t bufsize, size_t pos, const char * string);
 //
 // Various internal functions to handle formatted warning messages, currently only implemented for warnings.
 //

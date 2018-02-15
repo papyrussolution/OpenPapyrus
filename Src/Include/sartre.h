@@ -933,7 +933,7 @@ public:
 		kConceptInstance, // !:abc
 		kConceptSubclass, // !::abc
 		kMorph,           // []
-		kRule             // #abc
+		kRule,            // #abc
 	};
 
 	struct ExprItem { // @flat
@@ -945,7 +945,9 @@ public:
 			uint   SymbP; // Позиция символа в R_Set.Pool (для oneof(K, kLiteral, kConcept, kMorph, kRule))
 			uint32 Op;    // Ид операции (для K == kOp)
 		};
-		uint64 RSymb; // Идентификатор разрешенного символа SymbP в базе данных (для oneof3(K, kConcept, kConceptInstance, kConceptSubclass))
+		uint64 RSymb;  // Идентификатор разрешенного символа SymbP в базе данных (для oneof3(K, kConcept, kConceptInstance, kConceptSubclass))
+		uint   VarP;   // Если !0 то с конструкцией ассоциирован символ переменной, на который можно ссылаться из других операндов
+			// Если SymbP == 0 && VarP != 0, то вместо символа подставляется переменная.
 	};
 
 	class ExprStack : public TSStack <ExprItem> {

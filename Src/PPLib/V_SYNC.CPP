@@ -44,8 +44,7 @@ int SLAPI ObjSyncFilt::Copy(const PPBaseFilt * pS, int deep)
 
 int SLAPI ObjSyncFilt::IsEqual(const PPBaseFilt * pS, int deep) const
 {
-	return (PPBaseFilt::IsEqual(pS, deep) && ObjIDList.IsEqual(&((ObjSyncFilt *)pS)->ObjIDList)
-		&& CommIDList.IsEqual(((ObjSyncFilt *)pS)->CommIDList)) ? 1 : 0;
+	return BIN(PPBaseFilt::IsEqual(pS, deep) && ObjIDList.IsEqual(&((ObjSyncFilt *)pS)->ObjIDList) && CommIDList.IsEqual(((ObjSyncFilt *)pS)->CommIDList));
 }
 //
 //
@@ -249,8 +248,7 @@ int SLAPI PPViewObjSync::InitIteration()
 	ObjSyncTbl::Key0 k;
 	MEMSZERO(k);
 	BExtQuery::ZDelete(&P_IterQuery);
-
-	P_IterQuery = new BExtQuery(p_sync_tbl, 0);
+	THROW_MEM(P_IterQuery = new BExtQuery(p_sync_tbl, 0));
 	P_IterQuery->selectAll();
 	if(Filt.ObjType) {
 		dbq = & (*dbq && p_sync_tbl->ObjType == Filt.ObjType);
@@ -260,6 +258,7 @@ int SLAPI PPViewObjSync::InitIteration()
 		dbq = & (*dbq && p_sync_tbl->DBID == Filt.DbDivID);
 	P_IterQuery->where(*dbq);
 	P_IterQuery->initIteration(0, &k, spGe);
+	CATCHZOK
 	return ok;
 }
 
@@ -270,7 +269,8 @@ int FASTCALL PPViewObjSync::NextIteration(ObjSyncViewItem * pItem)
 		p_sync_tbl->copyBufTo(pItem);
 		return 1;
 	}
-	return -1;
+	else
+		return -1;
 }
 
 int SLAPI PPViewObjSync::EditRecord(ObjSyncTbl::Rec * pRec)

@@ -6145,6 +6145,711 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</ExcludedFromBuild>
     </CustomBuild>
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\XEOS\xeos-memchr-32.asm">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">yasm %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\XEOS\xeos-memchr-64.asm">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">yasm %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\XEOS\xeos-memcpy-32.asm">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">yasm %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\XEOS\xeos-memcpy-64.asm">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">yasm %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\XEOS\xeos-memset-32.asm">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">yasm %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\XEOS\xeos-memset-64.asm">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">yasm %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\XEOS\xeos-strcat-32.asm">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">yasm %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\XEOS\xeos-strcat-64.asm">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">yasm %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\XEOS\xeos-strchr-32.asm">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">yasm %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\XEOS\xeos-strchr-64.asm">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">yasm %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\XEOS\xeos-strlen-32.asm">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">true</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">yasm %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\XEOS\xeos-strlen-64.asm">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">false</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\yasm -fwin64 -DWINDOWS -Worphan-labels -l $(OutDir)%(Filename)w.lst -o $(OutDir)%(Filename).obj %(FullPath)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">yasm %(FullPath)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">yasm %(FullPath)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">$(OutDir)%(Filename).obj;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

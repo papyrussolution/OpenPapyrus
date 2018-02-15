@@ -1189,12 +1189,12 @@ int SLAPI SFile::InvariantC(SInvariantParam * pInvP) const
 	S_INVARIANT_EPILOG(pInvP);
 }
 
-SLAPI SFile::SFile()
+SLAPI SFile::SFile() : LB(0)
 {
 	Init();
 }
 
-SLAPI SFile::SFile(const char * pName, long mode)
+SLAPI SFile::SFile(const char * pName, long mode) : LB(0)
 {
 	Init();
 	if(mode & mNullWrite)
@@ -1203,7 +1203,7 @@ SLAPI SFile::SFile(const char * pName, long mode)
 		Open(pName, mode);
 }
 
-SLAPI SFile::SFile(SBuffer & rBuf, long mode)
+SLAPI SFile::SFile(SBuffer & rBuf, long mode) : LB(0)
 {
 	Init();
 	Open(rBuf, mode);
@@ -1264,7 +1264,7 @@ int SLAPI SFile::Open(SBuffer & rBuf, long mode)
 	THROW_S(P_Sb = new SBuffer(rBuf), SLERR_NOMEM);
 	T = tSBuffer;
 	{
-		long   m = (mode & ~(mBinary | mDenyRead | mDenyWrite | mNoStd));
+		const long m = (mode & ~(mBinary | mDenyRead | mDenyWrite | mNoStd));
 		Mode = mode;
 		if(m == mReadWriteTrunc)
 			P_Sb->SetWrOffs(0);
@@ -1655,24 +1655,25 @@ int FASTCALL SFile::ReadLine(SString & rBuf)
 	if(T == tStdFile) {
 		THROW_S(F, SLERR_FILENOTOPENED);
 		{
-			STempBuffer temp_buf(1024);
-			THROW(temp_buf.IsValid());
+			// @v9.9.5 STempBuffer temp_buf(1024);
+			// @v9.9.5 THROW(temp_buf.IsValid());
+			THROW(LB.Alloc(1024)); // @v9.9.5
 			//
 			// На случай, если строка в файле длиннее, чем buf_size
 			// считываем ее в цикле до тех пор, пока в конце строки не появится //
 			// перевод каретки.
 			//
 			char * p = 0;
-			while((p = fgets(temp_buf, temp_buf.GetSize(), F)) != 0) {
-				rBuf.Cat(temp_buf);
-				size_t len = strlen(temp_buf);
-				if(temp_buf[len-1] == '\n' || (temp_buf[len-2] == 0x0D && temp_buf[len-1] == 0x0A))
+			while((p = fgets(LB, LB.GetSize(), F)) != 0) {
+				rBuf.Cat(LB);
+				size_t len = strlen(LB);
+				if(LB[len-1] == '\n' || (LB[len-2] == 0x0D && LB[len-1] == 0x0A))
 					break;
 			}
 			THROW_S_S(rBuf.Len() || p, SLERR_READFAULT, Name);
 		}
 	}
-	else if(T == tSBuffer || T == tFile) {
+	else if(oneof2(T, tSBuffer, tFile)) {
 		THROW_S(T != tFile || IH >= 0, SLERR_FILENOTOPENED);
 		if(IH >= 0 && Mode & SFile::mBuffRd) {
 			int   rr = 0;
@@ -1692,17 +1693,18 @@ int FASTCALL SFile::ReadLine(SString & rBuf)
 		else {
 			int64  last_pos = Tell64();
 			char * p = 0;
-			STempBuffer temp_buf(1024+2);
-			THROW(temp_buf.IsValid());
+			// @v9.9.5 STempBuffer temp_buf(1024+2);
+			// @v9.9.5 THROW(temp_buf.IsValid());
+			THROW(LB.Alloc(1024+2)); // @v9.9.5
 			size_t act_size = 0;
-			temp_buf[temp_buf.GetSize()-2] = 0;
-			while(Read(temp_buf, temp_buf.GetSize()-2, &act_size) && act_size) {
-				p = (char *)memchr(temp_buf, '\n', act_size);
+			LB[LB.GetSize()-2] = 0;
+			while(Read(LB, LB.GetSize()-2, &act_size) && act_size) {
+				p = (char *)memchr(LB, '\n', act_size);
 				if(p) {
 					p[1] = 0;
 				}
 				else {
-					p = (char *)memchr(temp_buf, 0x0D, act_size);
+					p = (char *)memchr(LB, 0x0D, act_size);
 					if(p && p[1] == 0x0A) {
 						p[2] = 0;
 					}
@@ -1711,15 +1713,15 @@ int FASTCALL SFile::ReadLine(SString & rBuf)
 					}
 				}
 				if(p) {
-					const size_t _len = sstrlen((char *)temp_buf);
-					rBuf.CatN(temp_buf, _len);
+					const size_t _len = sstrlen((char *)LB);
+					rBuf.CatN(LB, _len);
 					Seek64(last_pos + _len); // @v9.5.9
 					break;
 				}
 				else {
-					temp_buf[act_size] = 0;
-					rBuf.Cat(temp_buf);
-					if(act_size < (temp_buf.GetSize()-2))
+					LB[act_size] = 0;
+					rBuf.Cat(LB);
+					if(act_size < (LB.GetSize()-2))
 						break;
 				}
 				last_pos = Tell64();
@@ -2136,14 +2138,9 @@ int FileFormatRegBase::Helper_Register(int id, int mimeType, const char * pMimeS
 }
 
 int FileFormatRegBase::Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign)
-{
-	return Helper_Register(id, mimeType, pMimeSubtype, pExt, pSign, 0);
-}
-
+	{ return Helper_Register(id, mimeType, pMimeSubtype, pExt, pSign, 0); }
 int FileFormatRegBase::Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, FileFormatSignatureFunc signFunc)
-{
-	return Helper_Register(id, mimeType, pMimeSubtype, pExt, 0, signFunc);
-}
+	{ return Helper_Register(id, mimeType, pMimeSubtype, pExt, 0, signFunc); }
 
 int FileFormatRegBase::IdentifyMime(const char * pMime, int * pFmtId) const
 {
@@ -2184,8 +2181,12 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 		SPathStruc ps(pFileName);
 		int    entry_mime_type;
 		SString ext = ps.Ext;
-		SString entry_ext, entry_sign, entry_mime_subtype;
-		SString temp_buf, left_buf, right_buf;
+		SString entry_ext;
+		SString entry_sign;
+		SString entry_mime_subtype;
+		SString temp_buf;
+		SString left_buf;
+		SString right_buf;
 		StringSet ss_subsigns;
 		LongArray used_offs_list;
 		StrAssocArray binary_chunk_list;
@@ -2485,15 +2486,8 @@ SFileFormat::SFileFormat(int f) : Id(f)
 {
 }
 
-SFileFormat::operator int () const
-{
-	return Id;
-}
-
-int SFileFormat::operator !() const
-{
-	return (Id == 0);
-}
+SFileFormat::operator int () const { return Id; }
+int SFileFormat::operator !() const { return (Id == 0); }
 
 int SFileFormat::Identify(const char * pFileName, SString * pExt)
 {

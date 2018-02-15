@@ -670,7 +670,7 @@ int SLAPI BizScoreCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		CPY_FLD(UserID);
 		CPY_FLD(Bounds);
 #undef CPY_FLD
-		StringSet ss("/&");
+		PPStringSetSCD ss;
 		ss.add(pack.Rec.Name);
 		ss.add(pack.Rec.Symb);
 		ss.add(pack.Descr);
@@ -695,7 +695,7 @@ void SLAPI BizScoreCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 #undef CPY_FLD
 	char   temp_buf[2048];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
-	StringSet ss("/&");
+	PPStringSetSCD ss;
 	ss.setBuf(temp_buf, strlen(temp_buf)+1);
 	uint   p = 0;
 	ss.get(&p, p_data_pack->Rec.Name, sizeof(p_data_pack->Rec.Name));

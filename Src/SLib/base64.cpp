@@ -18,14 +18,14 @@ static const char index_64[128] = {
 	41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1
 };
 
-static void FASTCALL makebasis64(char * pBuf)
+/*static void FASTCALL makebasis64(char * pBuf)
 {
-/*
-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
-????????????????????????????????????????????????????????????????
-????????????????????????????????????????????????????????????????
-???????????
-*/
+// 
+// ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
+// ????????????????????????????????????????????????????????????????
+// ????????????????????????????????????????????????????????????????
+// ???????????
+// 
 	const size_t count = 203;
 	size_t p = 0;
 	char   i;
@@ -40,38 +40,39 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
 	while(p < count)
 		pBuf[p++] = '?';
 	pBuf[p] = 0;
-}
+}*/
 
 int SLAPI encode64(const char * pIn, size_t inLen, char * pOut, size_t outMax, size_t * pOutLen)
 {
 	int    ok = 1;
-	char   basis_64[256];
+	//char   basis_64[256];
 	uchar * out = (uchar *)pOut;
 	uchar  oval;
 	const  uchar * in = (const uchar *)pIn;
 	size_t olen = (inLen + 2) / 3 * 4;
 	size_t real_len = 0;
 	ASSIGN_PTR(pOutLen, olen);
-	makebasis64(basis_64);
+	//makebasis64(basis_64);
+	const char * p_basis = STextConst::Get(STextConst::cBasis64, 0);
 	THROW(outMax >= olen);
 	while(inLen >= 3) {
 		THROW(real_len < (outMax-4)); // user provided max buffer size; make sure we don't go over it
-		*out++ = basis_64[in[0] >> 2];
-		*out++ = basis_64[((in[0] << 4) & 0x30) | (in[1] >> 4)];
-		*out++ = basis_64[((in[1] << 2) & 0x3c) | (in[2] >> 6)];
-		*out++ = basis_64[in[2] & 0x3f];
+		*out++ = p_basis[in[0] >> 2];
+		*out++ = p_basis[((in[0] << 4) & 0x30) | (in[1] >> 4)];
+		*out++ = p_basis[((in[1] << 2) & 0x3c) | (in[2] >> 6)];
+		*out++ = p_basis[in[2] & 0x3f];
 		real_len += 4;
 		in += 3;
 		inLen -= 3;
 	}
 	if(inLen > 0) {
 		THROW(real_len < (outMax-4)); // user provided max buffer size; make sure we don't go over it
-		*out++ = basis_64[in[0] >> 2];
+		*out++ = p_basis[in[0] >> 2];
 		oval = (in[0] << 4) & 0x30;
 		if(inLen > 1)
 			oval |= in[1] >> 4;
-		*out++ = basis_64[oval];
-		*out++ = (inLen < 2) ? '=' : basis_64[(in[1] << 2) & 0x3c];
+		*out++ = p_basis[oval];
+		*out++ = (inLen < 2) ? '=' : p_basis[(in[1] << 2) & 0x3c];
 		*out++ = '=';
 		real_len += 4;
 	}
@@ -91,11 +92,11 @@ int SLAPI decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen
 	size_t len = 0, lup = 0;
 	char * p_out = pOut;
 	const  char * p_in = pIn;
-	char   basis_64[256];
+	//char   basis_64[256];
 	if(p_in[0] == '+' && p_in[1] == ' ')
 		p_in += 2;
 	THROW(*p_in != 0);
-	makebasis64(basis_64);
+	// makebasis64(basis_64);
 	for(lup = 0; lup < inLen / 4; lup++) {
 		c1 = p_in[0];
 		THROW(CHAR64(c1) != -1);
@@ -129,7 +130,7 @@ int SLAPI decode64(const char * pIn, size_t inLen, char * pOut, size_t * pOutLen
 //
 MIME64::MIME64()
 {
-	makebasis64(Basis64);
+	// @v9.9.5 makebasis64(Basis64);
 }
 
 int MIME64::Encode(const void * pIn, size_t inLen, char * pOut, size_t outBufLen, size_t * pOutDataLen) const
@@ -140,23 +141,24 @@ int MIME64::Encode(const void * pIn, size_t inLen, char * pOut, size_t outBufLen
 	size_t olen = (inLen + 2) / 3 * 4;
 	ASSIGN_PTR(pOutDataLen, olen);
 	if(outBufLen >= olen) {
+		const char * p_basis = STextConst::Get(STextConst::cBasis64, 0);
 		while(inLen >= 3) {
 			// user provided max buffer size; make sure we don't go over it
-			*out++ = Basis64[in[0] >> 2];
-			*out++ = Basis64[((in[0] << 4) & 0x30) | (in[1] >> 4)];
-			*out++ = Basis64[((in[1] << 2) & 0x3c) | (in[2] >> 6)];
-			*out++ = Basis64[in[2] & 0x3f];
+			*out++ = p_basis[in[0] >> 2];
+			*out++ = p_basis[((in[0] << 4) & 0x30) | (in[1] >> 4)];
+			*out++ = p_basis[((in[1] << 2) & 0x3c) | (in[2] >> 6)];
+			*out++ = p_basis[in[2] & 0x3f];
 			in += 3;
 			inLen -= 3;
 		}
 		if(inLen > 0) {
 			// user provided max buffer size; make sure we don't go over it
-			*out++ = Basis64[in[0] >> 2];
+			*out++ = p_basis[in[0] >> 2];
 			uchar  oval = (in[0] << 4) & 0x30;
 			if(inLen > 1)
 				oval |= in[1] >> 4;
-			*out++ = Basis64[oval];
-			*out++ = (inLen < 2) ? '=' : Basis64[(in[1] << 2) & 0x3c];
+			*out++ = p_basis[oval];
+			*out++ = (inLen < 2) ? '=' : p_basis[(in[1] << 2) & 0x3c];
 			*out++ = '=';
 		}
 		if(olen < outBufLen)

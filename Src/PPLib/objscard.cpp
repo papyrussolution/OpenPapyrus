@@ -4170,11 +4170,12 @@ int SLAPI SCardSeriesCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		CPY_FLD(BonusChrgExtRule); // @v8.2.10
 		CPY_FLD(ParentID); // @v9.8.9
 #undef CPY_FLD
-		StringSet ss("/&");
-		ss.add(rec.Name);
-		ss.add(rec.Symb);
+		// @v9.9.5 PPStringSetSCD ss;
+		StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
+		r_ss.add(rec.Name);
+		r_ss.add(rec.Symb);
 		// @v9.8.9 ss.add(rec.CodeTempl);
-		ok = PutName(ss.getBuf(), p_cache_rec);
+		ok = PutName(r_ss.getBuf(), p_cache_rec);
 	}
 	return ok;
 }
@@ -4203,11 +4204,12 @@ void SLAPI SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pD
 #undef CPY_FLD
 	char   temp_buf[1024];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
-	StringSet ss("/&");
-	ss.setBuf(temp_buf, strlen(temp_buf)+1);
+	// @v9.9.5 PPStringSetSCD ss;
+	StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
+	r_ss.setBuf(temp_buf, strlen(temp_buf)+1);
 	uint   p = 0;
-	ss.get(&p, p_data_rec->Name, sizeof(p_data_rec->Name));
-	ss.get(&p, p_data_rec->Symb, sizeof(p_data_rec->Symb));
+	r_ss.get(&p, p_data_rec->Name, sizeof(p_data_rec->Name));
+	r_ss.get(&p, p_data_rec->Symb, sizeof(p_data_rec->Symb));
 	// @v9.8.9 ss.get(&p, p_data_rec->CodeTempl, sizeof(p_data_rec->CodeTempl));
 }
 

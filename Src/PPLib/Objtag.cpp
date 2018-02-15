@@ -3278,8 +3278,7 @@ int SLAPI TagCache::FetchTag(PPID objID, PPID tagID, ObjTagItem * pItem)
 
 int SLAPI TagCache::DirtyTag(PPID objType, PPID objID, PPID tagID)
 {
-	if(P_Ic)
-		P_Ic->Dirty(objType, objID, tagID);
+	CALLPTRMEMB(P_Ic, Dirty(objType, objID, tagID));
 	return 1;
 }
 
@@ -3303,10 +3302,11 @@ int SLAPI TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		else
 			p_tag_name = "UNKNOWN";
 
-		StringSet ss("/&");
-		ss.add(p_tag_name);
-		ss.add(p_tag_name);
-		ok = PutName(ss.getBuf(), p_rec);
+		// @v9.9.5 PPStringSetSCD ss;
+		StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
+		r_ss.add(p_tag_name);
+		r_ss.add(p_tag_name);
+		ok = PutName(r_ss.getBuf(), p_rec);
 	}
 	else if(id == PPTAG_FLOAT_SERIAL) {
 		p_rec->Flags       = OTF_NOZERO;
@@ -3316,10 +3316,11 @@ int SLAPI TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_rec->ObjTypeID   = PPOBJ_SERIAL;
 		p_rec->TagGroupID  = 0;
 		const char * p_tag_name = "FREE_SERIAL";
-		StringSet ss("/&");
-		ss.add(p_tag_name);
-		ss.add(p_tag_name);
-		ok = PutName(ss.getBuf(), p_rec);
+		// @v9.9.5 PPStringSetSCD ss;
+		StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
+		r_ss.add(p_tag_name);
+		r_ss.add(p_tag_name);
+		ok = PutName(r_ss.getBuf(), p_rec);
 	}
 	else if(oneof4(id, PPTAG_BILL_CREATEDTM, PPTAG_BILL_CREATEDTMEND, PPTAG_BILL_GPSCOORD, PPTAG_BILL_GPSCOORDEND)) {
 		p_rec->Flags       = OTF_NOZERO;
@@ -3340,10 +3341,11 @@ int SLAPI TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		else
 			p_tag_name = "UNKNOWN";
 
-		StringSet ss("/&");
-		ss.add(p_tag_name);
-		ss.add(p_tag_name);
-		ok = PutName(ss.getBuf(), p_rec);
+		// @v9.9.5 PPStringSetSCD ss;
+		StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
+		r_ss.add(p_tag_name);
+		r_ss.add(p_tag_name);
+		ok = PutName(r_ss.getBuf(), p_rec);
 	}
 	else if((ok = PPRef->GetItem(PPOBJ_TAG, id, &tag)) > 0) {
 	   	p_rec->Flags       = (int16)tag.Flags;
@@ -3353,10 +3355,11 @@ int SLAPI TagCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 		p_rec->ObjTypeID   = tag.ObjTypeID;
 		p_rec->TagGroupID  = tag.TagGroupID;
 
-		StringSet ss("/&");
-		ss.add(tag.Name);
-		ss.add(tag.Symb);
-		ok = PutName(ss.getBuf(), p_rec);
+		// @v9.9.5 PPStringSetSCD ss;
+		StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
+		r_ss.add(tag.Name);
+		r_ss.add(tag.Symb);
+		ok = PutName(r_ss.getBuf(), p_rec);
 	}
 	return ok;
 }
@@ -3377,11 +3380,12 @@ void SLAPI TagCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) 
 	//
 	char   temp_buf[2048];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
-	StringSet ss("/&");
-	ss.setBuf(temp_buf, strlen(temp_buf)+1);
+	// @v9.9.5 PPStringSetSCD ss;
+	StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
+	r_ss.setBuf(temp_buf, strlen(temp_buf)+1);
 	uint   p = 0;
-	ss.get(&p, p_tag->Name, sizeof(p_tag->Name));
-	ss.get(&p, p_tag->Symb, sizeof(p_tag->Symb));
+	r_ss.get(&p, p_tag->Name, sizeof(p_tag->Name));
+	r_ss.get(&p, p_tag->Symb, sizeof(p_tag->Symb));
 }
 
 int SLAPI PPObjTag::Fetch(PPID id, PPObjectTag * pRec)

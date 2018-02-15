@@ -1,5 +1,5 @@
 // PPARRAY.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018
 // @Kernel
 //
 #include <pp.h>
@@ -526,25 +526,11 @@ int SLAPI ObjIdListFilt::Remove(PPID id, int binary /*= 0 */)
 	return (Search(id, &p, binary) > 0) ? P_List->atFree(p) : -1;
 }
 
-void SLAPI ObjIdListFilt::FreeAll()
-{
-	CALLPTRMEMB(P_List, freeAll());
-}
-
-int SLAPI ObjIdListFilt::Sort()
-{
-	return P_List ? (P_List->sort(), 1) : -1;
-}
-
-uint SLAPI ObjIdListFilt::GetCount() const
-{
-	return SVectorBase::GetCount(P_List);
-}
-
+void SLAPI ObjIdListFilt::FreeAll() { CALLPTRMEMB(P_List, freeAll()); }
+int SLAPI ObjIdListFilt::Sort() { return P_List ? (P_List->sort(), 1) : -1; }
+uint SLAPI ObjIdListFilt::GetCount() const { return SVectorBase::GetCount(P_List); }
 int SLAPI ObjIdListFilt::Search(PPID id, uint * pPos, int binary) const
-{
-	return P_List ? (binary ? P_List->bsearch(id, pPos) : P_List->lsearch(id, pPos)) : 0;
-}
+	{ return P_List ? (binary ? P_List->bsearch(id, pPos) : P_List->lsearch(id, pPos)) : 0; }
 
 int SLAPI ObjIdListFilt::Intersect(const ObjIdListFilt * pList, int binary /*=0*/)
 {
@@ -641,25 +627,10 @@ PPObjID PPObjID::Set(PPID objType, PPID objID)
 	return *this;
 }
 
-int SLAPI PPObjID::IsEqual(PPID objType, PPID objID) const
-{
-	return (Obj == objType && Id == objID);
-}
-
-int FASTCALL PPObjID::operator == (PPObjID s) const
-{
-	return (Obj == s.Obj && Id == s.Id);
-}
-
-int FASTCALL PPObjID::operator != (PPObjID s) const
-{
-	return (Obj != s.Obj || Id != s.Id);
-}
-
-PPObjID::operator double() const
-{
-	return ((Obj * 4.0E+9) + (double)Id);
-}
+int SLAPI PPObjID::IsEqual(PPID objType, PPID objID) const { return (Obj == objType && Id == objID); }
+int FASTCALL PPObjID::operator == (PPObjID s) const { return (Obj == s.Obj && Id == s.Id); }
+int FASTCALL PPObjID::operator != (PPObjID s) const { return (Obj != s.Obj || Id != s.Id); }
+PPObjID::operator double() const { return ((Obj * 4.0E+9) + (double)Id); }
 
 PPObjID & FASTCALL PPObjID::operator = (double oid)
 {
@@ -833,4 +804,10 @@ const void * SurKeyArray::Get(long id, size_t * pDataLen) const
 		ASSIGN_PTR(pDataLen, 0);
 		return 0;
 	}
+}
+//
+//
+//
+SLAPI PPStringSetSCD::PPStringSetSCD() : StringSet("/&")
+{
 }

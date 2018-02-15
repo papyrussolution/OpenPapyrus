@@ -3352,6 +3352,360 @@
 							Outputs="$(OutDir)\$(InputName).obj"/>
 					</FileConfiguration>
 				</File>
+				<File
+					RelativePath="..\Osf\Xeos\xeos-memchr-32.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="ServerDebug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="ServerRelease|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="MtDllDebug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="MtDllRelease|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Universe-HTT|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\Xeos\xeos-memcpy-32.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="ServerDebug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="ServerRelease|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="MtDllDebug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="MtDllRelease|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Universe-HTT|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\Xeos\xeos-memset-32.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="ServerDebug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="ServerRelease|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="MtDllDebug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="MtDllRelease|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Universe-HTT|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\Xeos\xeos-strcat-32.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="ServerDebug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="ServerRelease|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="MtDllDebug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="MtDllRelease|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Universe-HTT|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\Xeos\xeos-strchr-32.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="ServerDebug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="ServerRelease|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="MtDllDebug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="MtDllRelease|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Universe-HTT|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Osf\Xeos\xeos-strlen-32.asm">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="ServerDebug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="ServerRelease|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="MtDllDebug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="MtDllRelease|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Universe-HTT|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							Description="yasm $(InputPath)"
+							CommandLine="..\..\TOOLS\yasm -fwin32 -DWINDOWS -Worphan-labels -l $(OutDir)\$(InputName)w.lst -o $(OutDir)\$(InputName).obj $(InputPath)"
+							Outputs="$(OutDir)\$(InputName).obj"/>
+					</FileConfiguration>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter

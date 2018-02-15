@@ -643,9 +643,10 @@ static inline int64 SLAPI getprofiletime(HANDLE thrId)
 static inline int64 SLAPI getprofilesystime()
 {
 	FILETIME tm;
-	SYSTEMTIME stm;
-	GetSystemTime(&stm);
-	SystemTimeToFileTime(&stm, &tm);
+	// @v9.9.5 SYSTEMTIME stm;
+	// @v9.9.5 GetSystemTime(&stm);
+	// @v9.9.5 SystemTimeToFileTime(&stm, &tm);
+	GetSystemTimeAsFileTime(&tm); // @v9.9.5
 	return FILE_TIME_TO_QWORD(tm);
 }
 

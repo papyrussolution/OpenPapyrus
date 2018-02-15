@@ -3558,7 +3558,7 @@ int FASTCALL SrSyntaxRuleSet::ResolveRuleBlock::PopInnerState(int dontRestoreTex
 	return ok;
 }
 
-SLAPI SrSyntaxRuleSet::ExprItem::ExprItem(uint16 kind) : K(kind), ArgCount(0), Op(0), RSymb(0)
+SLAPI SrSyntaxRuleSet::ExprItem::ExprItem(uint16 kind) : K(kind), ArgCount(0), Op(0), RSymb(0), VarP(0)
 {
 }
 
@@ -3584,14 +3584,38 @@ int SLAPI SrSyntaxRuleSet::ExprItemTextToStr(const ExprItem & rI, SString & rBuf
 {
 	int    ok = 1;
 	SString temp_buf;
+	SString var_buf;
 	switch(rI.K) {
 		case kLiteral:
 			GetS(rI.SymbP, temp_buf);
 			rBuf.CatQStr(temp_buf);
 			break;
 		case kConcept:
-			GetS(rI.SymbP, temp_buf);
+			if(rI.SymbP)
+				GetS(rI.SymbP, temp_buf);
+			if(rI.VarP) {
+				GetS(rI.VarP, var_buf);
+				temp_buf.CatChar('/').Cat(var_buf);
+			}
 			rBuf.CatChar(':').Cat(temp_buf).Space();
+			break;
+		case kConceptInstance:
+			if(rI.SymbP)
+				GetS(rI.SymbP, temp_buf);
+			if(rI.VarP) {
+				GetS(rI.VarP, var_buf);
+				temp_buf.CatChar('/').Cat(var_buf);
+			}
+			rBuf.Cat("!:").Cat(temp_buf).Space();
+			break;
+		case kConceptSubclass:
+			if(rI.SymbP)
+				GetS(rI.SymbP, temp_buf);
+			if(rI.VarP) {
+				GetS(rI.VarP, var_buf);
+				temp_buf.CatChar('/').Cat(var_buf);
+			}
+			rBuf.Cat("!::").Cat(temp_buf).Space();
 			break;
 		case kMorph:
 			GetS(rI.SymbP, temp_buf);
@@ -3769,13 +3793,23 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 	ExprStack stack_temp;
 	int    k = IsOperand(rScan);
 	if(oneof3(k, kConcept, kConceptInstance, kConceptSubclass)) { // concept
+		ExprItem item(k);
 		rScan.Incr();
-		THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_CONCEPTIDEXPECTED); // @err Ожидается идент концепции
-		{
-			ExprItem item(k);
-			AddS(temp_buf, &item.SymbP);
-			stack_temp.push(item);
+		if(rScan[0] == '/') {
+			rScan.Incr();
+			THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_VARSYMBEXPECTED); // @err После '/' ожидается идент переменной
+			AddS(temp_buf, &item.VarP);
 		}
+		else {
+			THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_CONCEPTIDEXPECTED); // @err Ожидается идент концепции
+			AddS(temp_buf, &item.SymbP);
+			if(rScan[0] == '/') {
+				rScan.Incr();
+				THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_VARSYMBEXPECTED); // @err После '/' ожидается идент переменной
+				AddS(temp_buf, &item.VarP);
+			}
+		}
+		stack_temp.push(item);
 	}
 	else if(k == kMorph) { // morph
 		rScan.Incr();

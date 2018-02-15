@@ -1318,7 +1318,7 @@ int SLAPI AccountCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, long)
 #undef CPY_FLD
 		p_cache_rec->Ac = rec.A.Ac;
 		p_cache_rec->Sb = rec.A.Sb;
-		StringSet ss("/&");
+		PPStringSetSCD ss;
 		ss.add(rec.Code);
 		ss.add(rec.Name);
 		PutName(ss.getBuf(), p_cache_rec);
@@ -1347,7 +1347,7 @@ void SLAPI AccountCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 	p_data_rec->A.Sb = p_cache_rec->Sb;
 	char   temp_buf[2048];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
-	StringSet ss("/&");
+	PPStringSetSCD ss;
 	ss.setBuf(temp_buf, strlen(temp_buf)+1);
 	uint   p = 0;
 	ss.get(&p, p_data_rec->Code, sizeof(p_data_rec->Code));

@@ -53,9 +53,10 @@ int FASTCALL PPView::CreateFiltInstanceBySymb(const char * pSymb, PPBaseFilt ** 
 	int    ok = 0;
 	PPBaseFilt * p_filt = 0;
 	if(pSymb && pSymb[0]) {
-		SString ffn;
+		/* @v9.9.5 SString ffn;
 		ffn.Cat("BFF").CatChar('_').Cat(pSymb);
-		FN_PPFILT_FACTORY f = (FN_PPFILT_FACTORY)GetProcAddress(SLS.GetHInst(), ffn);
+		FN_PPFILT_FACTORY f = (FN_PPFILT_FACTORY)GetProcAddress(SLS.GetHInst(), ffn);*/
+		FN_PPFILT_FACTORY f = (FN_PPFILT_FACTORY)GetProcAddress(SLS.GetHInst(), SLS.AcquireRvlStr().Cat("BFF").CatChar('_').Cat(pSymb)); // @v9.9.5
 		if(f) {
 			p_filt = f();
 			if(p_filt)
@@ -1154,15 +1155,8 @@ SLAPI PPView::~PPView()
 	delete P_Ct;
 }
 
-int SLAPI PPView::IsConsistent() const
-{
-	return BIN(Sign == SIGN_PPVIEW);
-}
-
-const PPBaseFilt * SLAPI PPView::GetBaseFilt() const
-{
-	return P_F ? P_F : (PPSetError(PPERR_BASEFILTUNSUPPORTED), 0);
-}
+int    SLAPI PPView::IsConsistent() const { return BIN(Sign == SIGN_PPVIEW); }
+const  PPBaseFilt * SLAPI PPView::GetBaseFilt() const { return P_F ? P_F : (PPSetError(PPERR_BASEFILTUNSUPPORTED), 0); }
 
 int FASTCALL PPView::Helper_InitBaseFilt(const PPBaseFilt * pFilt)
 {

@@ -13,39 +13,39 @@
 //
 //
 //
-SLAPI ObjCache::MultTextBlock::MultTextBlock() : Ss("/&"), RdMode(0), CurPos(0)
+SLAPI ObjCache::MultTextBlock::MultTextBlock() : /*Ss("/&")*/R_Ss(DS.AcquireRvlSsSCD()), RdMode(0), CurPos(0)
 {
 }
 
-SLAPI ObjCache::MultTextBlock::MultTextBlock(const ObjCache * pCache, const ObjCacheEntry * pEntry) : Ss("/&"), RdMode(1), CurPos(0)
+SLAPI ObjCache::MultTextBlock::MultTextBlock(const ObjCache * pCache, const ObjCacheEntry * pEntry) : /*Ss("/&")*/R_Ss(DS.AcquireRvlSsSCD()), RdMode(1), CurPos(0)
 {
 	char   temp_buf[4096];
 	pCache->GetName(pEntry, temp_buf, sizeof(temp_buf));
-	Ss.setBuf(temp_buf, strlen(temp_buf)+1);
+	R_Ss.setBuf(temp_buf, strlen(temp_buf)+1);
 }
 
 int FASTCALL ObjCache::MultTextBlock::Add(const char * pStr)
 {
 	assert(RdMode == 0);
-	return RdMode ? 0 : Ss.add(pStr);
+	return RdMode ? 0 : R_Ss.add(pStr);
 }
 
 int FASTCALL ObjCache::MultTextBlock::Get(char * pBuf, size_t bufLen)
 {
 	assert(RdMode);
-	return RdMode ? Ss.get(&CurPos, pBuf, bufLen) : 0;
+	return RdMode ? R_Ss.get(&CurPos, pBuf, bufLen) : 0;
 }
 
 int FASTCALL ObjCache::MultTextBlock::Get(SString & rBuf)
 {
 	assert(RdMode);
-	return RdMode ? Ss.get(&CurPos, rBuf) : 0;
+	return RdMode ? R_Ss.get(&CurPos, rBuf) : 0;
 }
 
 int FASTCALL ObjCache::PutTextBlock(MultTextBlock & rBlk, ObjCacheEntry * pEntry)
 {
 	assert(rBlk.RdMode == 0);
-	return rBlk.RdMode ? 0 : PutName(rBlk.Ss.getBuf(), pEntry);
+	return rBlk.RdMode ? 0 : PutName(rBlk.R_Ss.getBuf(), pEntry);
 }
 //
 //

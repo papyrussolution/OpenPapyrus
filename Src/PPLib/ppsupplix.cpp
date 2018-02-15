@@ -3398,7 +3398,7 @@ int SLAPI iSalesPepsi::SendDebts()
 				if(i == _c || (prev_date && p_outer_bill->Dtm.d != prev_date)) {
 					BillTbl::Rec bill_rec;
 					for(DateIter di(prev_date, prev_date); P_BObj->P_Tbl->EnumByDate(&di, &bill_rec) > 0;) {
-                        if(GetOpType(bill_rec.OpID) != PPOPT_GOODSORDER) { // @v9.3.2
+                        if(bill_rec.Amount > 0.0 && GetOpType(bill_rec.OpID) != PPOPT_GOODSORDER) { // @v9.3.2 // @v9.9.4 (bill_rec.Amount > 0.0)
 							BillCore::GetCode(temp_buf = bill_rec.Code);
 							int    found = 0;
 							for(uint j = first_idx_by_date; !found && j < i; j++) {

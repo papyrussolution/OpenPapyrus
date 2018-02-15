@@ -3236,10 +3236,12 @@ int  SLAPI XMLWriteSpecSymbEntities(void * pWriter);
 class STextConst {
 public:
 	enum {
-        cMon_En_Sh = 1, // [12] Наименования месяцев (en сокращенные)
-        cDow_En_Sh = 2, // [7]  Наименования дней недели (en сокращенные) [0] = "Mon", [6] = "Sun"
-		cDow_En    = 3, // [7]  Наименования дней недели (en полные) [0] = "Mon", [6] = "Sun"
-		cAsciiCtrl = 4  // [32] Мнемоники управляющих символов ASCII кодировки [0..31] "NUL", "SOH", "STX", "ETX", "EOT", "ENQ" eg.
+        cMon_En_Sh  = 1, // [12] Наименования месяцев (en сокращенные)
+        cDow_En_Sh  = 2, // [7]  Наименования дней недели (en сокращенные) [0] = "Mon", [6] = "Sun"
+		cDow_En     = 3, // [7]  Наименования дней недели (en полные) [0] = "Mon", [6] = "Sun"
+		cAsciiCtrl  = 4, // [32] Мнемоники управляющих символов ASCII кодировки [0..31] "NUL", "SOH", "STX", "ETX", "EOT", "ENQ" eg.
+		cBasis64    = 5, // [1] Таблица кодировки base64
+		cBasis64Url = 6  // [1] Таблица кодировки base64-url (в отличии от cBase64 последние два байта "-_")
 	};
 	//
 	// Descr: Возвращает текст группы c с индексом idx.
@@ -3930,6 +3932,11 @@ public:
 	//   (распределенный ранее буфер улучшит производительность).
 	//
 	void   SLAPI clear(/*int dontFreeBuf = 0*/);
+	//
+	// Descr: Функционально идентична clear(), семантически же, соответствует SString::Z()
+	//   (не освобождает память и возвращает *this)
+	//
+	StringSet & SLAPI Z();
 	int    FASTCALL copy(const StringSet & rS);
 	int    SLAPI setBuf(const void * b, size_t len);
 	int    FASTCALL setBuf(const SString & rBuf);
@@ -4013,7 +4020,7 @@ protected:
 	size_t DataLen; // @#{DataLen<=BufLen} Length of data with delimiters and trailings
 	size_t Size;    // @#{BufLen>=DataLen} Length of buffer
 	char * P_Buf;
-	char   Delim[32];
+	char   Delim[12]; // @v9.9.5 [32]-->[12]
 };
 //
 //
@@ -5475,7 +5482,7 @@ public:
 	int    Encode(const void * pIn, size_t inLen, char * pOut, size_t outBufLen, size_t * pOutDataLen) const;
 	int    Decode(const char * pIn, size_t inLen, char * pOut, size_t * pOutDataLen) const;
 private:
-	char   Basis64[256];
+	// @v9.9.5 char   Basis64[256];
 };
 //
 // Punycode
@@ -6182,7 +6189,7 @@ public:
 
 template <class T> class TSRevolver {
 public:
-	explicit TSRevolver(uint c) : Count(c), P_List(new T[c]), P(0)
+	explicit TSRevolver(uint c) : Count(c), P_List(new T[c]), P(0), AccsCount(0)
 	{
 	}
 	~TSRevolver()
@@ -6195,12 +6202,14 @@ protected:
         assert(P <= Count);
         if(P == Count)
 			P = 0;
+		AccsCount++;
 		return P_List[P++];
 	}
 private:
 	uint   P;
 	T    * P_List;
 	const uint Count;
+	uint64 AccsCount; // Общее количество обращений
 };
 
 class SRevolver_SString : public TSRevolver <SString> {
@@ -8132,6 +8141,7 @@ private:
 	int    IH;
 	SString Name;
 	SBuffer BufR; // Буфер чтения ((Mode&mNoStd)&&(Mode&mBuffRd))
+	STempBuffer LB; // @v9.5.5 Временный буфер для чтения строк и т.д.
 	//
 	// Таблица дескрипторов блокировок. Таблица в течении жизни объекта никогда не уменьшается в размере.
 	// Дескриптором блокировки является индекс позиции блока LckChunk в массиве, увеличенный на 1.

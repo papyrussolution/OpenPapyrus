@@ -323,17 +323,16 @@ int SSrchPattern::Search(const char * pText, size_t start, size_t end, size_t * 
 					size_t s8 = text_len / 8;
 					size_t r8 = text_len % 8;
 					p = p_text;
-					if(s8)
-						do {
-							if(*p == pat0 || *p == U) goto __succ; ++p;
-							if(*p == pat0 || *p == U) goto __succ; ++p;
-							if(*p == pat0 || *p == U) goto __succ; ++p;
-							if(*p == pat0 || *p == U) goto __succ; ++p;
-							if(*p == pat0 || *p == U) goto __succ; ++p;
-							if(*p == pat0 || *p == U) goto __succ; ++p;
-							if(*p == pat0 || *p == U) goto __succ; ++p;
-							if(*p == pat0 || *p == U) goto __succ; ++p;
-						} while(--s8);
+					if(s8) do {
+						if(*p == pat0 || *p == U) goto __succ; ++p;
+						if(*p == pat0 || *p == U) goto __succ; ++p;
+						if(*p == pat0 || *p == U) goto __succ; ++p;
+						if(*p == pat0 || *p == U) goto __succ; ++p;
+						if(*p == pat0 || *p == U) goto __succ; ++p;
+						if(*p == pat0 || *p == U) goto __succ; ++p;
+						if(*p == pat0 || *p == U) goto __succ; ++p;
+						if(*p == pat0 || *p == U) goto __succ; ++p;
+					} while(--s8);
 					if(r8-- == 0) goto __fail; if(*p == pat0 || *p == U) goto __succ; ++p;
 					if(r8-- == 0) goto __fail; if(*p == pat0 || *p == U) goto __succ; ++p;
 					if(r8-- == 0) goto __fail; if(*p == pat0 || *p == U) goto __succ; ++p;

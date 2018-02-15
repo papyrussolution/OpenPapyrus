@@ -860,17 +860,17 @@ int SLAPI SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) cons
 		if(delim_len == 0)
 			rResult.add(*this);
 		else {
-			SString temp_buf;
+			SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.5
 			uint   i = 0;
 			do {
-				temp_buf.Z();
-				while(i < len && !strchr(pDelimChrSet, P_Buf[i]))
-					temp_buf.CatChar(P_Buf[i++]);
-				if(temp_buf.NotEmpty()) {
-					rResult.add(temp_buf);
+				r_temp_buf.Z();
+				while(i < len && /*!strchr(pDelimChrSet, P_Buf[i])*/!memchr(pDelimChrSet, P_Buf[i], delim_len))
+					r_temp_buf.CatChar(P_Buf[i++]);
+				if(r_temp_buf.NotEmpty()) {
+					rResult.add(r_temp_buf);
 					ok = 2;
 				}
-				while(i < len && strchr(pDelimChrSet, P_Buf[i]))
+				while(i < len && /*strchr(pDelimChrSet, P_Buf[i])*/memchr(pDelimChrSet, P_Buf[i], delim_len))
 					i++;
 			} while(i < len);
 		}
@@ -1033,8 +1033,11 @@ int FASTCALL SString::Alloc(size_t sz)
 			// @v9.4.9 {
 			if(L)
 				P_Buf[L-1] = 0;
-			else
-				P_Buf[0] = 0;
+			else {
+				// @v9.9.5 P_Buf[0] = 0;
+				assert(Size >= 4);
+				PTR32(P_Buf)[0] = 0; // @speedcritical @v9.9.5
+			}
 			// } @v9.4.9
 		}
 		else
@@ -6481,7 +6484,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 						}
 						if(is_ip4) {
 							float prob = 0.95f;
-							if(strncmp((const char *)pToken, "127.0.0.1", stat.Len) == 0)
+							if(memcmp(pToken, "127.0.0.1", stat.Len) == 0)
 								prob = 1.0f;
 							rResultList.Add(SNTOK_IP4, prob);
 						}
@@ -6569,6 +6572,8 @@ public:
     SStrCollection * P_StrList;
 };
 
+#include <string>
+
 SLTEST_FIXTURE(SString, SlTestFixtureSString)
 {
 	// benchmark: benchmark=stack;sstring;revolver
@@ -6588,6 +6593,8 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 		bm = 1;
 	else if(sstreqi_ascii(pBenchmark, "sstring"))
 		bm = 2;
+	else if(sstreqi_ascii(pBenchmark, "std::string"))
+		bm = 5;
 	else if(sstreqi_ascii(pBenchmark, "revolver"))
 		bm = 3;
 	else if(sstreqi_ascii(pBenchmark, "revolver-tla"))
@@ -6962,6 +6969,16 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				SString buffer;
 				buffer = F.P_StrList->at(i);
 				total_len += strlen(buffer.cptr());
+			}
+		}
+	}
+	else if(bm == 5) {
+		uint64 total_len = 0;
+		for(uint phase = 0; phase < max_bm_phase; phase++) {
+			for(uint i = 0; i < F.P_StrList->getCount(); i++) {
+				std::string buffer;
+				buffer = F.P_StrList->at(i);
+				total_len += strlen(buffer.c_str());
 			}
 		}
 	}

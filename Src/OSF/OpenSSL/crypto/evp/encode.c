@@ -13,15 +13,16 @@
 
 static uchar conv_ascii2bin(uchar a);
 #ifndef CHARSET_EBCDIC
-#define conv_bin2ascii(a)       (data_bin2ascii[(a)&0x3f])
+	//#define conv_bin2ascii(a)       (data_bin2ascii[(a)&0x3f])
+	#define conv_bin2ascii(a)       (p_basis[(a)&0x3f])
 #else
-/*
- * We assume that PEM encoded files are EBCDIC files (i.e., printable text
- * files). Convert them here while decoding. When encoding, output is EBCDIC
- * (text) format again. (No need for conversion in the conv_bin2ascii macro,
- * as the underlying textstring data_bin2ascii[] is already EBCDIC)
- */
-#define conv_bin2ascii(a)       (data_bin2ascii[(a)&0x3f])
+	/*
+	 * We assume that PEM encoded files are EBCDIC files (i.e., printable text
+	 * files). Convert them here while decoding. When encoding, output is EBCDIC
+	 * (text) format again. (No need for conversion in the conv_bin2ascii macro,
+	 * as the underlying textstring data_bin2ascii[] is already EBCDIC)
+	 */
+	#define conv_bin2ascii(a)       (data_bin2ascii[(a)&0x3f])
 #endif
 
 /*-
@@ -36,7 +37,7 @@ static uchar conv_ascii2bin(uchar a);
 #define CHUNKS_PER_LINE (64/4)
 #define CHAR_PER_LINE   (64+1)
 
-static const uchar data_bin2ascii[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+//static const uchar data_bin2ascii[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /*-
  * 0xF0 is a EOLN
@@ -76,20 +77,14 @@ static const uchar data_ascii2bin[128] = {
 #ifndef CHARSET_EBCDIC
 static uchar conv_ascii2bin(uchar a)
 {
-	if(a & 0x80)
-		return B64_ERROR;
-	return data_ascii2bin[a];
+	return (a & 0x80) ? B64_ERROR : data_ascii2bin[a];
 }
-
 #else
 static uchar conv_ascii2bin(uchar a)
 {
 	a = os_toascii[a];
-	if(a & 0x80)
-		return B64_ERROR;
-	return data_ascii2bin[a];
+	return (a & 0x80) ? B64_ERROR : data_ascii2bin[a];
 }
-
 #endif
 
 EVP_ENCODE_CTX * EVP_ENCODE_CTX_new(void)
@@ -105,7 +100,6 @@ void EVP_ENCODE_CTX_free(EVP_ENCODE_CTX * ctx)
 int EVP_ENCODE_CTX_copy(EVP_ENCODE_CTX * dctx, EVP_ENCODE_CTX * sctx)
 {
 	memcpy(dctx, sctx, sizeof(EVP_ENCODE_CTX));
-
 	return 1;
 }
 
@@ -121,12 +115,10 @@ void EVP_EncodeInit(EVP_ENCODE_CTX * ctx)
 	ctx->line_num = 0;
 }
 
-int EVP_EncodeUpdate(EVP_ENCODE_CTX * ctx, uchar * out, int * outl,
-    const uchar * in, int inl)
+int EVP_EncodeUpdate(EVP_ENCODE_CTX * ctx, uchar * out, int * outl, const uchar * in, int inl)
 {
 	int i, j;
 	size_t total = 0;
-
 	*outl = 0;
 	if(inl <= 0)
 		return 0;
@@ -166,14 +158,12 @@ int EVP_EncodeUpdate(EVP_ENCODE_CTX * ctx, uchar * out, int * outl,
 		memcpy(&(ctx->enc_data[0]), in, inl);
 	ctx->num = inl;
 	*outl = total;
-
 	return 1;
 }
 
 void EVP_EncodeFinal(EVP_ENCODE_CTX * ctx, uchar * out, int * outl)
 {
 	uint ret = 0;
-
 	if(ctx->num != 0) {
 		ret = EVP_EncodeBlock(out, ctx->enc_data, ctx->num);
 		out[ret++] = '\n';
@@ -187,11 +177,10 @@ int EVP_EncodeBlock(uchar * t, const uchar * f, int dlen)
 {
 	int i, ret = 0;
 	ulong l;
-
+	const char * p_basis = STextConst::Get(STextConst::cBasis64, 0);
 	for(i = dlen; i > 0; i -= 3) {
 		if(i >= 3) {
-			l = (((ulong)f[0]) << 16L) |
-			    (((ulong)f[1]) << 8L) | f[2];
+			l = (((ulong)f[0]) << 16L) | (((ulong)f[1]) << 8L) | f[2];
 			*(t++) = conv_bin2ascii(l >> 18L);
 			*(t++) = conv_bin2ascii(l >> 12L);
 			*(t++) = conv_bin2ascii(l >> 6L);
@@ -201,7 +190,6 @@ int EVP_EncodeBlock(uchar * t, const uchar * f, int dlen)
 			l = ((ulong)f[0]) << 16L;
 			if(i == 2)
 				l |= ((ulong)f[1] << 8L);
-
 			*(t++) = conv_bin2ascii(l >> 18L);
 			*(t++) = conv_bin2ascii(l >> 12L);
 			*(t++) = (i == 1) ? '=' : conv_bin2ascii(l >> 6L);
@@ -210,7 +198,6 @@ int EVP_EncodeBlock(uchar * t, const uchar * f, int dlen)
 		ret += 4;
 		f += 3;
 	}
-
 	*t = '\0';
 	return ret;
 }

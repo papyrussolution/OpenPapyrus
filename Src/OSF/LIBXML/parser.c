@@ -754,13 +754,9 @@ int xmlHasFeature(xmlFeature feature)
 	}
 	return 0;
 }
-
-/************************************************************************
-*									*
-*		SAX2 defaulted attributes handling			*
-*									*
-************************************************************************/
-
+// 
+// SAX2 defaulted attributes handling
+// 
 /**
  * xmlDetectSAX2:
  * @ctxt:  an XML parser context
@@ -791,7 +787,7 @@ struct xmlDefAttrs {
 	const  xmlChar * values[5]; /* array of localname/prefix/values/external */
 };
 
-typedef xmlDefAttrs * xmlDefAttrsPtr;
+//typedef xmlDefAttrs * xmlDefAttrsPtr;
 /**
  * xmlAttrNormalizeSpace:
  * @src: the source string
@@ -897,7 +893,7 @@ static const xmlChar * xmlAttrNormalizeSpace2(xmlParserCtxt * ctxt, xmlChar * sr
  */
 static void xmlAddDefAttrs(xmlParserCtxt * ctxt, const xmlChar * fullname, const xmlChar * fullattr, const xmlChar * value)
 {
-	xmlDefAttrsPtr defaults;
+	xmlDefAttrs * defaults;
 	int len;
 	const xmlChar * name;
 	const xmlChar * prefix;
@@ -929,9 +925,9 @@ static void xmlAddDefAttrs(xmlParserCtxt * ctxt, const xmlChar * fullname, const
 	/*
 	 * make sure there is some storage
 	 */
-	defaults = (xmlDefAttrsPtr)xmlHashLookup2(ctxt->attsDefault, name, prefix);
+	defaults = (xmlDefAttrs *)xmlHashLookup2(ctxt->attsDefault, name, prefix);
 	if(defaults == NULL) {
-		defaults = (xmlDefAttrsPtr)SAlloc::M(sizeof(xmlDefAttrs) + (4 * 5) * sizeof(const xmlChar *));
+		defaults = (xmlDefAttrs *)SAlloc::M(sizeof(xmlDefAttrs) + (4 * 5) * sizeof(const xmlChar *));
 		if(defaults == NULL)
 			goto mem_error;
 		defaults->nbAttrs = 0;
@@ -942,7 +938,7 @@ static void xmlAddDefAttrs(xmlParserCtxt * ctxt, const xmlChar * fullname, const
 		}
 	}
 	else if(defaults->nbAttrs >= defaults->maxAttrs) {
-		xmlDefAttrsPtr temp = (xmlDefAttrsPtr)SAlloc::R(defaults, sizeof(xmlDefAttrs) + (2 * defaults->maxAttrs * 5) * sizeof(const xmlChar *));
+		xmlDefAttrs * temp = (xmlDefAttrs *)SAlloc::R(defaults, sizeof(xmlDefAttrs) + (2 * defaults->maxAttrs * 5) * sizeof(const xmlChar *));
 		if(temp == NULL)
 			goto mem_error;
 		defaults = temp;
@@ -8234,7 +8230,7 @@ skip_default_ns:
 					xmlNsErr(ctxt, XML_NS_ERR_XML_NAMESPACE, "redefinition of the xmlns prefix is forbidden\n", NULL, 0, 0);
 					goto skip_ns;
 				}
-				if((len == 29) && (sstreq(URL, "http://www.w3.org/2000/xmlns/"))) {
+				if((len == 29) && sstreq(URL, "http://www.w3.org/2000/xmlns/")) {
 					xmlNsErr(ctxt, XML_NS_ERR_XML_NAMESPACE, "reuse of the xmlns namespace name is forbidden\n", NULL, 0, 0);
 					goto skip_ns;
 				}
@@ -8332,7 +8328,7 @@ failed:
 	 * The attributes defaulting
 	 */
 	if(ctxt->attsDefault) {
-		xmlDefAttrsPtr defaults = (xmlDefAttrsPtr)xmlHashLookup2(ctxt->attsDefault, localname, prefix);
+		xmlDefAttrs * defaults = (xmlDefAttrs *)xmlHashLookup2(ctxt->attsDefault, localname, prefix);
 		if(defaults) {
 			for(i = 0; i < defaults->nbAttrs; i++) {
 				attname = defaults->values[5 * i];
@@ -8440,19 +8436,19 @@ failed:
 		xmlNsErr(ctxt, XML_NS_ERR_UNDEFINED_NAMESPACE, "Namespace prefix %s on %s is not defined\n", prefix, localname, 0);
 	*pref = prefix;
 	*URI = nsname;
-	/*
-	 * SAX: Start of Element !
-	 */
+	// 
+	// SAX: Start of Element !
+	// 
 	if(ctxt->sax && ctxt->sax->startElementNs && !ctxt->disableSAX) {
 		if(nbNs > 0)
 			ctxt->sax->startElementNs(ctxt->userData, localname, prefix, nsname, nbNs, &ctxt->nsTab[ctxt->nsNr - 2 * nbNs], nbatts / 5, nbdef, atts);
 		else
 			ctxt->sax->startElementNs(ctxt->userData, localname, prefix, nsname, 0, NULL, nbatts / 5, nbdef, atts);
 	}
-	/*
-	 * Free up attribute allocated strings if needed
-	 */
-	if(attval != 0) {
+	// 
+	// Free up attribute allocated strings if needed
+	// 
+	if(attval) {
 		for(i = 3, j = 0; j < nratts; i += 5, j++)
 			if(ctxt->attallocs[j] && atts[i])
 				SAlloc::F((xmlChar*)atts[i]);
@@ -8489,7 +8485,6 @@ base_changed:
  *
  * [NS 9] ETag ::= '</' QName S? '>'
  */
-
 static void xmlParseEndTag2(xmlParserCtxt * ctxt, const xmlChar * prefix, const xmlChar * URI, int line, int nsNr, int tlen)
 {
 	const xmlChar * name;
@@ -13469,8 +13464,7 @@ xmlDoc * xmlReadFd(int fd, const char * URL, const char * encoding, int options)
  *
  * Returns the resulting document tree
  */
-xmlDoc * xmlReadIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose,
-    void * ioctx, const char * URL, const char * encoding, int options)
+xmlDoc * xmlReadIO(xmlInputReadCallback ioread, xmlInputCloseCallback ioclose, void * ioctx, const char * URL, const char * encoding, int options)
 {
 	xmlParserCtxt * ctxt;
 	xmlParserInputBuffer * input;

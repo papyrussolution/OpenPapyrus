@@ -1,5 +1,5 @@
 // STEXT.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 // Преобразование символов и строк, и другие текстовые функции
 //
@@ -16,6 +16,9 @@ static const char * p_asciictrl[] = {
 	"NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL", "BS",  "HT", "LF",  "VT",  "FF", "CR", "SO", "SI",
 	"DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB", "CAN", "EM", "SUB", "ESC", "FS", "GS", "RS", "US"
 };
+static const char * p_base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+// The Base 64 encoding with an URL and filename safe alphabet, RFC 4648 section 5 
+static const char * p_base64url = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
 //static
 const char * FASTCALL STextConst::Get(int c, uint idx)
@@ -25,6 +28,8 @@ const char * FASTCALL STextConst::Get(int c, uint idx)
 		case cDow_En_Sh: return (idx >= 0 && idx < SIZEOFARRAY(p_dow_en_sh)) ? p_dow_en_sh[idx] : "";
 		case cDow_En: return (idx >= 0 && idx < SIZEOFARRAY(p_dow_en)) ? p_dow_en[idx] : "";
 		case cAsciiCtrl: return (idx >= 0 && idx < SIZEOFARRAY(p_asciictrl)) ? p_asciictrl[idx] : "";
+		case cBasis64: return p_base64;
+		case cBasis64Url: return p_base64url;
 		default: return "";
 	}
 }

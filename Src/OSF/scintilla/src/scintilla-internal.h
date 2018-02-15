@@ -1035,7 +1035,7 @@ private:
 	bool   backspaceUnindents;
 	*/
 	std::string insertion;
-	std::vector<WatcherWithUserData> watchers;
+	std::vector <WatcherWithUserData> watchers;
 
 	// ldSize is not real data - it is for dimensions and loops
 	enum lineData { 

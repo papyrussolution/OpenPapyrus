@@ -4147,8 +4147,7 @@ PPBaseFilt * SLAPI PPViewDebtorStat::CreateFilt(void * extraPtr) const
 	DebtorStatFilt * p_filt = new DebtorStatFilt;
 	p_filt->AccSheetID = GetSellAccSheet();
 	p_filt->Order = DebtorStatFilt::ordByArName;
-	p_filt->Flags |= (DebtorStatFilt::fIncludeTotal | DebtorStatFilt::fIncludeRel |
-		DebtorStatFilt::fIncludeAgent | DebtorStatFilt::fIncludeTerm);
+	p_filt->Flags |= (DebtorStatFilt::fIncludeTotal|DebtorStatFilt::fIncludeRel|DebtorStatFilt::fIncludeAgent|DebtorStatFilt::fIncludeTerm);
 	return p_filt;
 }
 
