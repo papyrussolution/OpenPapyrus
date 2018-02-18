@@ -4399,7 +4399,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 			(temp_buf = in_path).SetLastSlash().Cat(p_base_name).Cat("*.xml");
 			for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
 				if(de.IsFile()) {
-					const size_t fnl = strlen(de.FileName);
+					const size_t fnl = sstrlen(de.FileName);
 					if(fnl <= done_plus_xml_suffix.Len() || !sstreqi_ascii(de.FileName+fnl-done_plus_xml_suffix.Len(), done_plus_xml_suffix)) {
 						THROW_SL(fep.Add(in_path, de));
 					}

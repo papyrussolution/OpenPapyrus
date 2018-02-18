@@ -34,7 +34,7 @@ int FASTCALL BExtInsert::insert(const void * b)
 	if(State & stValid) {
 		if(State & stHasNote) {
 			const char * p_note = ((const char *)b) + FixRecSize;
-			size_t note_len = p_note[0] ? (strlen(p_note)+1) : 0;
+			size_t note_len = p_note[0] ? (sstrlen(p_note)+1) : 0;
 			s = FixRecSize + note_len;
 		}
 		else

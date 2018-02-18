@@ -541,9 +541,9 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 		const char * const key = queryList->key;
 		const char * const value = queryList->value;
 		const int worstCase =(normalizeBreaks == TRUE ? 6 : 3);
-		const int keyLen =(key == NULL) ? 0 :(int)strlen(key);
+		const int keyLen = (int)sstrlen(key);
 		const int keyRequiredChars = worstCase*keyLen;
-		const int valueLen =(value == NULL) ? 0 :(int)strlen(value);
+		const int valueLen = (int)sstrlen(value);
 		const int valueRequiredChars = worstCase*valueLen;
 		if(dest == NULL) {
 			if(firstItem == TRUE) {
@@ -780,7 +780,7 @@ static int UriUriStringToFilename(const char * uriString, char * filename, int t
 	size_t charsToCopy;
 	const int absolute =(strncmp(uriString, prefix, prefixLen) == 0);
 	const int charsToSkip =(absolute ? prefixLen : 0);
-	charsToCopy = strlen(uriString+charsToSkip)+1;
+	charsToCopy = sstrlen(uriString+charsToSkip)+1;
 	memcpy(filename, uriString+charsToSkip, charsToCopy*sizeof(char));
 	UriUnescapeInPlaceEx(filename, FALSE, URI_BR_DONT_TOUCH);
 	// Convert forward slashes to backslashes 
@@ -4263,7 +4263,7 @@ int Uri_TESTING_ONLY_ParseIpSix(const char * pText)
 {
 	UriUri uri;
 	UriParserState parser;
-	const char * const p_after_ip_six = pText+strlen(pText);
+	const char * const p_after_ip_six = pText + sstrlen(pText);
 	const char * res;
 	parser.Reset();
 	UriResetUri(&uri);
@@ -4277,7 +4277,7 @@ int Uri_TESTING_ONLY_ParseIpSix(const char * pText)
 int Uri_TESTING_ONLY_ParseIpFour(const char * pText)
 {
 	uchar  octets[4];
-	int    res = UriParseIpFourAddress(octets, pText, pText+strlen(pText));
+	int    res = UriParseIpFourAddress(octets, pText, pText + sstrlen(pText));
 	return (res == SLERR_SUCCESS) ? TRUE : FALSE;
 }
 

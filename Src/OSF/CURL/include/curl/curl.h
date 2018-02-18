@@ -910,7 +910,7 @@ typedef enum {
 #define CURLOPT_XFERINFODATA CURLOPT_PROGRESSDATA
 	CINIT(AUTOREFERER, LONG, 58), // We want the referrer field set automatically when following locations
 	CINIT(PROXYPORT, LONG, 59), // Port of the proxy, can be set in the proxy string as well with: "[host]:[port]"
-	/* size of the POST input data, if strlen() is not good to use */
+	/* size of the POST input data, if sstrlen() is not good to use */
 	CINIT(POSTFIELDSIZE, LONG, 60),
 	/* tunnel non-http operations through a HTTP proxy */
 	CINIT(HTTPPROXYTUNNEL, LONG, 61),

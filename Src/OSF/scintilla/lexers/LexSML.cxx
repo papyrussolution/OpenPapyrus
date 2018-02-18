@@ -11,29 +11,15 @@
 #include <scintilla-internal.h>
 #pragma hdrstop
 
-inline int  issml(int c)
-{
-	return isalnum(c) || c == '_';
-}
-
-inline int issmlf(int c)
-{
-	return isalpha(c) || c == '_';
-}
-
-inline int issmld(int c)
-{
-	return isdec(c) || c == '_';
-}
+inline int issml(int c) { return isalnum(c) || c == '_'; }
+inline int issmlf(int c) { return isalpha(c) || c == '_'; }
+inline int issmld(int c) { return isdec(c) || c == '_'; }
 
 #ifdef SCI_NAMESPACE
-using namespace Scintilla;
+	using namespace Scintilla;
 #endif
 
-static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length,
-    int initStyle,
-    WordList * keywordlists[],
-    Accessor &styler)
+static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList * keywordlists[], Accessor &styler)
 {
 	StyleContext sc(startPos, length, initStyle, styler);
 	int nesting = 0;
@@ -53,7 +39,6 @@ static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length,
 		int state2 = -1;
 		Sci_Position chColor = sc.currentPos - 1;
 		bool advance = true;
-
 		switch(sc.state & 0x0f) {
 			case SCE_SML_DEFAULT:
 			    chToken = sc.currentPos;
@@ -116,12 +101,9 @@ static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length,
 
 			case SCE_SML_OPERATOR: {
 			    const char* o = 0;
-			    if(issml(sc.ch) || isspace(sc.ch)
-				    || (o = strchr(")]};,\'\"`#", sc.ch), o)
-				    || !strchr("!$%&*+-./:<=>?@^|~", sc.ch)) {
+			    if(issml(sc.ch) || isspace(sc.ch) || (o = strchr(")]};,\'\"`#", sc.ch), o) || !strchr("!$%&*+-./:<=>?@^|~", sc.ch)) {
 				    if(o && strchr(")]};,", sc.ch)) {
-					    if((sc.Match(')') && sc.chPrev == '(')
-						    || (sc.Match(']') && sc.chPrev == '['))
+					    if((sc.Match(')') && sc.chPrev == '(') || (sc.Match(']') && sc.chPrev == '['))
 						    sc.ChangeState(SCE_SML_KEYWORD);
 					    chColor++;
 				    }
@@ -135,17 +117,14 @@ static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length,
 			case SCE_SML_NUMBER:
 			    if(issmld(sc.ch) || IsADigit(sc.ch, chBase))
 				    break;
-			    if((sc.Match('l') || sc.Match('L') || sc.Match('n'))
-			    && (issmld(sc.chPrev) || IsADigit(sc.chPrev, chBase)))
+			    if((sc.Match('l') || sc.Match('L') || sc.Match('n')) && (issmld(sc.chPrev) || IsADigit(sc.chPrev, chBase)))
 				    break;
 			    if(chBase == 10) {
 				    if(sc.Match('.') && issmld(sc.chPrev))
 					    break;
-				    if((sc.Match('e') || sc.Match('E'))
-				    && (issmld(sc.chPrev) || sc.chPrev == '.'))
+				    if((sc.Match('e') || sc.Match('E')) && (issmld(sc.chPrev) || sc.chPrev == '.'))
 					    break;
-				    if((sc.Match('+') || sc.Match('-'))
-				    && (sc.chPrev == 'e' || sc.chPrev == 'E'))
+				    if((sc.Match('+') || sc.Match('-')) && (sc.chPrev == 'e' || sc.chPrev == 'E'))
 					    break;
 			    }
 			    state2 = SCE_SML_DEFAULT, advance = false;
@@ -191,8 +170,7 @@ static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length,
 					    state2 = SCE_SML_DEFAULT;
 				    chColor++;
 			    }
-			    else if(useMagic && sc.currentPos - chToken == 4
-			    && sc.Match('c') && sc.chPrev == 'r' && sc.GetRelative(-2) == '@')
+			    else if(useMagic && sc.currentPos - chToken == 4 && sc.Match('c') && sc.chPrev == 'r' && sc.GetRelative(-2) == '@')
 				    sc.state |= 0x10;
 			    break;
 		}
@@ -206,19 +184,11 @@ static void ColouriseSMLDoc(Sci_PositionU startPos, Sci_Position length,
 	sc.Complete();
 }
 
-static void FoldSMLDoc(Sci_PositionU, Sci_Position,
-    int,
-    WordList *[],
-    Accessor &)
+static void FoldSMLDoc(Sci_PositionU, Sci_Position, int, WordList *[], Accessor &)
 {
 }
 
-static const char * const SMLWordListDesc[] = {
-	"Keywords",
-	"Keywords2",
-	"Keywords3",
-	0
-};
+static const char * const SMLWordListDesc[] = { "Keywords", "Keywords2", "Keywords3", 0 };
 
 LexerModule lmSML(SCLEX_SML, ColouriseSMLDoc, "SML", FoldSMLDoc, SMLWordListDesc);
 

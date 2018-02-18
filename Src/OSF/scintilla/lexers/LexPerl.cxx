@@ -642,7 +642,7 @@ public:
 		// 2: here doc text (lines after the delimiter)
 		int Quote;              // the char after '<<'
 		bool Quoted;            // true if Quote in ('\'','"','`')
-		int DelimiterLength;    // strlen(Delimiter)
+		int DelimiterLength;    // sstrlen(Delimiter)
 		char Delimiter[HERE_DELIM_MAX]; // the Delimiter
 		HereDocCls()
 		{

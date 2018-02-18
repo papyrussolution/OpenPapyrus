@@ -184,7 +184,7 @@ int SLAPI PapyrusPrivateBlock::WriteToSrc(const char * pFileName)
 		THROW(tbuf.IsValid());
 		IdeaRandMem(tbuf, tbuf.GetSize());
 		memcpy(tbuf, sbuff.GetBuf(sbuff.GetRdOffs()), src_size);
-		THROW(strlen(H.Signature) < sizeof(H.Signature));
+		THROW(sstrlen(H.Signature) < sizeof(H.Signature));
 		THROW(sstreq(H.Signature, tbuf + sizeof(uint32))); // Буфер Signature сериализуется как сплошной участок памяти - в префиксе размер (uint32).
 		PTR32(tbuf + sizeof(uint32) + sizeof(H.Signature))[0] = tbuf.GetSize();
 		IdeaEncrypt(H.Signature, tbuf + sizeof(uint32) + h_size, tbuf.GetSize() - sizeof(uint32) - h_size);

@@ -44,7 +44,7 @@ const char * ViewStyle::FontNames::Save(const char * name)
 			if(strcmp(*it, name) == 0)
 				return *it;
 		}
-		const size_t lenName = strlen(name) + 1;
+		const size_t lenName = sstrlen(name) + 1;
 		p_name_save = new char[lenName];
 		memcpy(p_name_save, name, lenName);
 		names.push_back(p_name_save);

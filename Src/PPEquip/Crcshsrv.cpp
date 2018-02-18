@@ -413,7 +413,7 @@ XmlWriter::~XmlWriter()
 
 int SLAPI XmlWriter::PutPlugin(const char * pKey, const char * pVal)
 {
-	if(pKey && strlen(pKey) && pVal && strlen(pVal)) {
+	if(pKey && sstrlen(pKey) && pVal && sstrlen(pVal)) {
 		SString key, val;
 		(key = pKey).Transf(CTRANSF_INNER_TO_UTF8);
 		(val = pVal).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ').ReplaceChar(30, ' ');
@@ -462,7 +462,7 @@ int SLAPI XmlWriter::PutPlugin(const char * pKey, LDATE val)
 int SLAPI XmlWriter::StartElement(const char * pName, const char * pAttribName /*=0*/, const char * pAttribValue /*=0*/)
 {
 	int    ok = 0;
-	if(P_Writer && pName && strlen(pName)) {
+	if(P_Writer && pName && sstrlen(pName)) {
 		SString name_buf;
 		(name_buf = pName).Transf(CTRANSF_INNER_TO_UTF8);
 		xmlTextWriterStartElement(P_Writer, (const xmlChar*)(const char*)name_buf);
@@ -506,7 +506,7 @@ int SLAPI XmlWriter::AddAttrib(const char * pAttribName, double attribValue)
 int SLAPI XmlWriter::AddAttrib(const char * pAttribName, const char * pAttribValue)
 {
 	int    ok = 0;
-	if(P_Writer && pAttribName && strlen(pAttribName) && pAttribValue && strlen(pAttribValue)) {
+	if(P_Writer && pAttribName && sstrlen(pAttribName) && pAttribValue && sstrlen(pAttribValue)) {
 		SString attrib_name, attrib_value;
 		(attrib_name = pAttribName).Transf(CTRANSF_INNER_TO_UTF8);
 		(attrib_value = pAttribValue).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ').ReplaceChar(30, ' ');
@@ -817,7 +817,7 @@ int SLAPI ACS_CRCSHSRV::ExportDataV10(int updOnly)
 			p_writer->PutElement("name", prev_gds_info.Name);
 			for(i = 0; i < barcodes.getCount(); i++) {
 				BarcodeTbl::Rec bc = barcodes.at(i);
-				if(strlen(bc.Code)) {
+				if(sstrlen(bc.Code)) {
 					if(!is_weight && !is_spirit && !is_tobacco && !is_gift_card)
 						is_weight = gds_cfg.IsWghtPrefix(bc.Code);
 					AddCheckDigToBarcode(bc.Code);
@@ -1882,7 +1882,7 @@ int SLAPI ACS_CRCSHSRV::ExportData__(int updOnly)
 				}
 			}
 		}
-		if(strlen(gi.BarCode) != 0) {
+		if(sstrlen(gi.BarCode) != 0) {
 			DbfTable * p_tbl = fp.GetTable(fp.tBarcode);
 			THROW(p_tbl);
 			{
@@ -2364,7 +2364,7 @@ int SLAPI ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						}
 					}
 			}
-			if(strlen(gi.BarCode) != 0) {
+			if(sstrlen(gi.BarCode) != 0) {
 				DbfRecord dbfrB(p_out_tbl_barcode);
 				dbfrB.empty();
 				gi.AdjustBarcode(check_dig);
@@ -2520,9 +2520,9 @@ int SLAPI ACS_CRCSHSRV::PrepareImpFileNameV10(int filTyp, const char * pName, co
 
 /* @v9.7.4 static void SLAPI RemoveQuotations(char * pBuf)
 {
-	if(pBuf && pBuf[0] == '"' && pBuf[strlen(pBuf) - 1] == '"') {
+	if(pBuf && pBuf[0] == '"' && pBuf[sstrlen(pBuf) - 1] == '"') {
 		strcpy(pBuf, pBuf + 1);
-		pBuf[strlen(pBuf) - 1] = 0;
+		pBuf[sstrlen(pBuf) - 1] = 0;
 		strip(pBuf);
 	}
 } */

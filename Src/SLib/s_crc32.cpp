@@ -438,7 +438,7 @@ int FASTCALL SCalcBarcodeCheckDigitL(const char * pBarcode, size_t len)
 			char   code[64];
 			memcpy(code, pBarcode, len);
 			code[len] = 0;
-			len = strlen(SUpceToUpca(code, code));
+			len = sstrlen(SUpceToUpca(code, code));
 			cd = SCalcCheckDigit(SCHKDIGALG_BARCODE, code, len);
 			cd = isdec(cd) ? (cd - '0') : 0;
 		}

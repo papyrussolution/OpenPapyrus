@@ -37,7 +37,7 @@ int SLAPI Reference::Helper_DecodeOtherPw(const char * pEncPw, const char * pPw,
 	assert(buf_quant >= pwBufSize);
 	char   temp_pw[buf_quant], temp_str[buf_quant*3+8];
 	STRNSCPY(temp_str, pPw);
-	const size_t sl = strlen(temp_str);
+	const size_t sl = sstrlen(temp_str);
 	if(sl != (pwBufSize*3) && (pwBufSize == 64 && sl == (20*3))) { // @v9.8.12 Специальный случай для обратной совместимости
 		pwBufSize = 20;
 	}
@@ -160,10 +160,10 @@ int SLAPI Reference::VerifySecur(PPSecur2 * pSecur, int set)
 		crc = c.Calc(crc, PTR8(pSecur) + offs, sizeof(PPSecur2) - offs);
 	}
 	if(set || pSecur->Crc != crc) {
-		size_t len = strlen(pSecur->Name);
+		size_t len = sstrlen(pSecur->Name);
 		if(len < sizeof(pSecur->Name))
 			memzero(PTR8(pSecur->Name)+len, sizeof(pSecur->Name)-len);
-		len = strlen(pSecur->Symb);
+		len = sstrlen(pSecur->Symb);
 		if(len < sizeof(pSecur->Symb))
 			memzero(PTR8(pSecur->Symb)+len, sizeof(pSecur->Symb)-len);
 		{
@@ -761,7 +761,7 @@ int SLAPI Reference::PutPropVlrString(PPID obj, PPID id, PPID prop, const char *
 	PropVlrString * pm = 0;
 	uint   s = 0;
 	if(!isempty(b)) {
-		uint sz = strlen(b) + 1;
+		uint sz = sstrlen(b) + 1;
 		s = MAX(sizeof(PropVlrString) + sz, PROPRECFIXSIZE);
 		THROW_MEM(pm = (PropVlrString*)SAlloc::M(s));
 		memzero(pm, s);

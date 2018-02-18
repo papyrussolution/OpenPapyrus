@@ -247,12 +247,12 @@ int StConfig::SetConfig_(const char * pHost, uint port, const char * pSystemId, 
 	THROW_PP(!isempty(pSystemId), PPERR_SMS_SYSTEMIDNEEDED);
 	THROW_PP(!isempty(pPassword), PPERR_SMS_PASSWNEEDED);
 	THROW_PP(port != 0, PPERR_SMS_INVPORT);
-	THROW_PP(strlen(pSystemId) < MAX_SYSTEM_ID_LEN, PPERR_SMS_SYSTEMIDERRLEN);
-	THROW_PP(strlen(pPassword) < MAX_PASSWORD_LEN, PPERR_SMS_PASSWERRLEN);
-	THROW_PP(strlen(pSystemType) < MAX_SYSTEM_TYPE_LEN, PPERR_SMS_SYSTYPEERRLEN);
+	THROW_PP(sstrlen(pSystemId) < MAX_SYSTEM_ID_LEN, PPERR_SMS_SYSTEMIDERRLEN);
+	THROW_PP(sstrlen(pPassword) < MAX_PASSWORD_LEN, PPERR_SMS_PASSWERRLEN);
+	THROW_PP(sstrlen(pSystemType) < MAX_SYSTEM_TYPE_LEN, PPERR_SMS_SYSTYPEERRLEN);
 	// Параметры VALIDITY_PERIOD и SCHEDULE_DELIVERY_TIME могут иметь длину 1 или 17
-	THROW_PP((strlen(VALIDITY_PERIOD) < MAX_DATE_LEN) && !((strlen(VALIDITY_PERIOD) > 0) && (strlen(VALIDITY_PERIOD) < MAX_DATE_LEN - 1)), PPERR_SMS_VALIDPERIODERRLEN);
-	THROW_PP((strlen(SCHEDULE_DELIVERY_TIME) < MAX_DATE_LEN) && !((strlen(SCHEDULE_DELIVERY_TIME) > 0) && (strlen(SCHEDULE_DELIVERY_TIME) < MAX_DATE_LEN - 1)), PPERR_SMS_DELIVTIMEERRLEN);
+	THROW_PP((sstrlen(VALIDITY_PERIOD) < MAX_DATE_LEN) && !((sstrlen(VALIDITY_PERIOD) > 0) && (sstrlen(VALIDITY_PERIOD) < MAX_DATE_LEN - 1)), PPERR_SMS_VALIDPERIODERRLEN);
+	THROW_PP((sstrlen(SCHEDULE_DELIVERY_TIME) < MAX_DATE_LEN) && !((sstrlen(SCHEDULE_DELIVERY_TIME) > 0) && (sstrlen(SCHEDULE_DELIVERY_TIME) < MAX_DATE_LEN - 1)), PPERR_SMS_DELIVTIMEERRLEN);
 	THROW_PP(AddressRange.Len() < MAX_ADDR_RANGE_LEN, PPERR_SMS_ADDRRANGEERRLEN);
 	Host.Z().Cat(pHost);
 	Port = port;
@@ -429,7 +429,7 @@ int SLAPI PPSmsAccPacket::SetPassword(const char * pPassword)
 	const  size_t temp_buf_len = 128;
 	char   temp_pw[128], temp_buf[512];
 	STRNSCPY(temp_pw, pPassword);
-	size_t pw_len = strlen(temp_pw);
+	size_t pw_len = sstrlen(temp_pw);
 	IdeaEncrypt(0, temp_pw, MAX_PASSWORD_LEN);
 	size_t p = 0;
 	for(size_t i = 0; i < MAX_PASSWORD_LEN; i++) {
@@ -1049,11 +1049,11 @@ int GetSmsConfig(PPSmsAccPacket & rPack, StConfig & rConfig)
 		THROW_PP(system_type.Len() < MAX_SYSTEM_TYPE_LEN, PPERR_SMS_SYSTYPEERRLEN);
 		// Параметры VALIDITY_PERIOD и SCHEDULE_DELIVERY_TIME могут иметь длину 1 или 17
 		{
-			const size_t _len = strlen(VALIDITY_PERIOD);
+			const size_t _len = sstrlen(VALIDITY_PERIOD);
 			THROW_PP((_len < MAX_DATE_LEN) && !((_len > 0) && (_len < MAX_DATE_LEN-1)), PPERR_SMS_VALIDPERIODERRLEN);
 		}
 		{
-			const size_t _len = strlen(SCHEDULE_DELIVERY_TIME);
+			const size_t _len = sstrlen(SCHEDULE_DELIVERY_TIME);
 			THROW_PP((_len < MAX_DATE_LEN) && !((_len > 0) && (_len < MAX_DATE_LEN - 1)), PPERR_SMS_DELIVTIMEERRLEN);
 		}
 		THROW_PP(rConfig.AddressRange.Len() < MAX_ADDR_RANGE_LEN, PPERR_SMS_ADDRRANGEERRLEN);
@@ -1134,7 +1134,7 @@ static SString & GetString(const char * pInpString, size_t maxLen, const char * 
 {
     if(isempty(pInpString))
         rBuf = pDefValue;
-    else if(strlen(pInpString) + 1 > maxLen)
+    else if(sstrlen(pInpString) + 1 > maxLen)
 		rBuf.CopyFromN(pInpString, maxLen);
 	else
 		rBuf = pInpString;
@@ -1688,7 +1688,7 @@ void SmsClient::DecodeDeliverSm(int sequenceNumber, void * pPduBody, size_t body
 	// Пропускаем dest_addr_ton и dest_addr_npi
 	pos += 2;
 	// Считываем адрес получател
-	//pos += (strlen(pduBody+pos)+1);
+	//pos += (sstrlen(pduBody+pos)+1);
 	while(PTR8(pPduBody)[pos] != 0)
 		pos++;
 	pos++;
@@ -2526,8 +2526,8 @@ void SendSmsDialog::SubstVar(SString & src, SString & rDest, PPID personeId)
 		s.Excise(0, 1);
 	PPLoadText(PPTXT_SMSFIELDS_VARS, sub_str);
 	for(int i = FIRSTSUBSTVAR; i < FIRSTSUBSTVAR + NUMSUBSTVARS; i++) {
-		if(PPGetSubStr(sub_str, i, temp, sizeof(temp)) && strnicmp(s, temp, strlen(temp)) == 0) {
-			size_t var_len = strlen(temp);
+		if(PPGetSubStr(sub_str, i, temp, sizeof(temp)) && strnicmp(s, temp, sstrlen(temp)) == 0) {
+			size_t var_len = sstrlen(temp);
 			switch(i) {
 				case smsvsName:
 					//temp_str = pack.Rec.Name;

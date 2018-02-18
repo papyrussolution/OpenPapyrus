@@ -184,7 +184,7 @@ int ProcessorPlaceCodeTemplate::HasCode(const char * pCode) const
 			const Seq & r_seq = SeqList.at(i);
 			if(r_seq.Prefix[0]) {
 				THROW(code.CmpPrefix(r_seq.Prefix, 1) == 0);
-				code.ShiftLeft(strlen(r_seq.Prefix));
+				code.ShiftLeft(sstrlen(r_seq.Prefix));
 			}
 			THROW(oneof2(r_seq.Type, 1, 2));
 			THROW(r_seq.Len);

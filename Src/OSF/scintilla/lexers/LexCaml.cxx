@@ -123,7 +123,7 @@ void EXT_LEXER_DECL GetLexerName(uint Index, char * name, int buflength)
 	// return as much of our lexer name as will fit (what's up with Index?)
 	if(buflength > 0) {
 		buflength--;
-		int n = strlen(LexerName);
+		int n = sstrlen(LexerName);
 		if(n > buflength)
 			n = buflength;
 		memcpy(name, LexerName, n), name[n] = '\0';

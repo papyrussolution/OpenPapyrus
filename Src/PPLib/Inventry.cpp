@@ -1487,7 +1487,7 @@ int SLAPI PrcssrInvImport::Run()
 					r2 = 1;
 				}
 				else if(rec.Barcode[0]) {
-					size_t code_len = strlen(rec.Barcode);
+					size_t code_len = sstrlen(rec.Barcode);
 					const int wp = GObj.GetConfig().IsWghtPrefix(rec.Barcode);
 					if(wp && oneof2(code_len, 12, 13)) {
 						is_wght_good = 1;

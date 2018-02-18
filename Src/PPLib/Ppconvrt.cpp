@@ -52,7 +52,7 @@ int SLAPI ConvertCipher(const char * pDbSymb, const char * pMasterPassword, cons
 					for(uint si = 0; si < SIZEOFARRAY(secur_obj_list); si++) {
 						const PPID sec_obj_type = secur_obj_list[si];
 						for(PPID sec_id = 0; p_ref->EnumItems(sec_obj_type, &sec_id, &sec_rec) > 0;) {
-							if(strlen(sec_rec.Password)) {
+							if(sstrlen(sec_rec.Password)) {
 								THROW(Reference::Helper_Decrypt_(Reference::crymRef2, ppb_src.DefPassword, sec_rec.Password, sizeof(sec_rec.Password), temp_buf));
 							}
 							else

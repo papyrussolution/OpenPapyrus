@@ -227,7 +227,7 @@ int SLAPI LocationCore::Helper_GetCodeByTempl(const char * pPrfx, const char * p
 	int    ok = 0;
 	SString buffer;
 	SString bound_buf, val_str;
-	const  size_t code_len = (pPrfx ? strlen(pPrfx) : 0) + (pSfx ? strlen(pSfx) : 0) + len;
+	const  size_t code_len = (pPrfx ? sstrlen(pPrfx) : 0) + (pSfx ? sstrlen(pSfx) : 0) + len;
 	long   prev_val = (low > 0) ? (low-1) : 0;
 	long   using_val = 0;
 	LocationTbl::Key5 k5, k_low, k_upp;
@@ -245,8 +245,8 @@ int SLAPI LocationCore::Helper_GetCodeByTempl(const char * pPrfx, const char * p
 	for(q.initIteration(0, &k5, spGe); !ok && q.nextIteration() > 0;) {
 		char   temp_buf[128];
 		STRNSCPY(temp_buf, data.Code);
-		if(strlen(temp_buf) == (code_len+BIN(addChkDig))) {
-			val_str = temp_buf+strlen(pPrfx);
+		if(sstrlen(temp_buf) == (code_len+BIN(addChkDig))) {
+			val_str = temp_buf+sstrlen(pPrfx);
 			val_str.Trim(len);
 			long   cur_val = val_str.ToLong();
 			if(prev_val && cur_val > (prev_val+1)) {
@@ -286,7 +286,7 @@ int SLAPI LocationCore::GetCodeByTemplate(const char * pTempl, SString & rBuf)
 	int    to_add_chkdig = 0;
 	SString temp_buf;
 	strip(p_dup_templ);
-	size_t templ_len = strlen(p_dup_templ);
+	size_t templ_len = sstrlen(p_dup_templ);
 	if(p_dup_templ[templ_len-1] == '^') {
 		p_dup_templ[--templ_len] = 0;
 		to_add_chkdig = 1;
@@ -299,7 +299,7 @@ int SLAPI LocationCore::GetCodeByTemplate(const char * pTempl, SString & rBuf)
 				*c++ = *p++;
 			else if(*p == '%') {
 				SString sfx, code;
-				x_len = strlen(pfx);
+				x_len = sstrlen(pfx);
 				for(++p, x = t; isdec(*p);)
 					*x++ = *p++;
 				*x = 0;

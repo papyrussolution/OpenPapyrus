@@ -143,10 +143,8 @@ int FASTCALL STab::Row::FromStr(const char * pStr)
 	}
 	THROW(pStr[p] == ' ');
 	p++;
-	Set.setBuf(pStr+p, strlen(pStr+p)+1);
-	CATCH
-		ok = 0;
-	ENDCATCH
+	Set.setBuf(pStr+p, sstrlen(pStr+p)+1);
+	CATCHZOK
 	return ok;
 }
 

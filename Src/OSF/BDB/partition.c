@@ -152,7 +152,7 @@ int __partition_set_dirs(DB * dbp, const char ** dirp)
 	slen = 0;
 	for(dir = dirp; *dir; dir++) {
 		if(F_ISSET(env, ENV_DBLOCAL))
-			slen += (uint32)strlen(*dir)+1;
+			slen += (uint32)sstrlen(*dir)+1;
 		ndirs++;
 	}
 	slen += sizeof(char *)*ndirs;
@@ -165,7 +165,7 @@ int __partition_set_dirs(DB * dbp, const char ** dirp)
 		if(F_ISSET(env, ENV_DBLOCAL)) {
 			strcpy(cp, *dir);
 			*pd = cp;
-			cp += strlen(*dir)+1;
+			cp += sstrlen(*dir)+1;
 			continue;
 		}
 		for(i = 0; i < dbenv->data_next; i++)
@@ -210,8 +210,8 @@ int __partition_open(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * f
 		goto err;
 	}
 	DB_ASSERT(env, fname != NULL);
-	if((ret = __os_malloc(env, strlen(fname)+PART_LEN+1, &name)) != 0) {
-		__db_errx(env, Alloc_err, strlen(fname)+PART_LEN+1);
+	if((ret = __os_malloc(env, sstrlen(fname)+PART_LEN+1, &name)) != 0) {
+		__db_errx(env, Alloc_err, sstrlen(fname)+PART_LEN+1);
 		goto err;
 	}
 	sp = name;
@@ -1104,8 +1104,8 @@ int __part_fileid_reset(ENV * env, DB_THREAD_INFO * ip, const char * fname, uint
 	uint32 part_id;
 	char * name, * sp;
 	const char * np;
-	if((ret = __os_malloc(env, strlen(fname)+PART_LEN+1, &name)) != 0) {
-		__db_errx(env, Alloc_err, strlen(fname)+PART_LEN+1);
+	if((ret = __os_malloc(env, sstrlen(fname)+PART_LEN+1, &name)) != 0) {
+		__db_errx(env, Alloc_err, sstrlen(fname)+PART_LEN+1);
 		return ret;
 	}
 	sp = name;
@@ -1326,8 +1326,8 @@ static int __part_rr(DB * dbp, DB_THREAD_INFO * ip, DB_TXN * txn, const char * n
 	part = (DB_PARTITION *)tmpdbp->p_internal;
 	pdbp = part->handles;
 	COMPQUIET(np, 0);
-	if(newname && (ret = __os_malloc(env, strlen(newname)+PART_LEN+1, &np)) != 0) {
-		__db_errx(env, Alloc_err, strlen(newname)+PART_LEN+1);
+	if(newname && (ret = __os_malloc(env, sstrlen(newname)+PART_LEN+1, &np)) != 0) {
+		__db_errx(env, Alloc_err, sstrlen(newname)+PART_LEN+1);
 		goto err;
 	}
 	for(i = 0; i < part->nparts; i++, pdbp++) {

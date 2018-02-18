@@ -62,13 +62,12 @@ static char * xmlShellReadline(const char * prompt) {
 	char line_read[501];
 	char * ret;
 	int len;
-
-	if(prompt != NULL)
+	if(prompt)
 		fprintf(stdout, "%s", prompt);
 	if(!fgets(line_read, 500, stdin))
 		return 0;
 	line_read[500] = 0;
-	len = strlen(line_read);
+	len = sstrlen(line_read);
 	ret = (char*)malloc(len + 1);
 	if(ret) {
 		memcpy(ret, line_read, len + 1);

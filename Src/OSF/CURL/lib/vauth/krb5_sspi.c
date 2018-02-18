@@ -274,7 +274,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	char * user_name;
 
 	/* Decode the base-64 encoded input message */
-	if(strlen(chlg64) && *chlg64 != '=') {
+	if(sstrlen(chlg64) && *chlg64 != '=') {
 		result = Curl_base64_decode(chlg64, &chlg, &chlglen);
 		if(result)
 			return result;
@@ -373,7 +373,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	}
 
 	/* Allocate our message */
-	messagelen = sizeof(outdata) + strlen(user_name) + 1;
+	messagelen = sizeof(outdata) + sstrlen(user_name) + 1;
 	message = SAlloc::M(messagelen);
 	if(!message) {
 		SAlloc::F(trailer);

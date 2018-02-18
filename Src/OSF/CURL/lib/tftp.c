@@ -264,7 +264,7 @@ static const char * tftp_option_get(const char * buf, size_t len, const char ** 
 	loc++; /* NULL term */
 	if(loc > len)
 		return NULL;
-	*value = &buf[strlen(*option) + 1];
+	*value = &buf[sstrlen(*option) + 1];
 	return &buf[loc];
 }
 
@@ -331,10 +331,10 @@ static CURLcode tftp_parse_option_ack(tftp_state_data_t * state,
 
 static size_t tftp_option_add(tftp_state_data_t * state, size_t csize, char * buf, const char * option)
 {
-	if((strlen(option) + csize + 1) > (size_t)state->blksize)
+	if((sstrlen(option) + csize + 1) > (size_t)state->blksize)
 		return 0;
 	strcpy(buf, option);
-	return strlen(option) + 1;
+	return sstrlen(option) + 1;
 }
 
 static CURLcode tftp_connect_for_tx(tftp_state_data_t * state, tftp_event_t event)
@@ -402,7 +402,7 @@ static CURLcode tftp_send_first(tftp_state_data_t * state, tftp_event_t event)
 		    if(result)
 			    return result;
 		    snprintf((char*)state->spacket.data+2, state->blksize, "%s%c%s%c", filename, '\0',  mode, '\0');
-		    sbytes = 4 + strlen(filename) + strlen(mode);
+		    sbytes = 4 + sstrlen(filename) + sstrlen(mode);
 		    /* optional addition of TFTP options */
 		    if(!data->set.tftp_no_options) {
 			    /* add tsize option */

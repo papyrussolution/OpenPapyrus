@@ -509,7 +509,7 @@ int FASTCALL TView::SSetWindowText(HWND hWnd, const char * pText)
 	int    ok = 1;
 #ifdef UNICODE
 	SStringU temp_buf_u;
-	temp_buf_u.CopyFromMb(cpANSI, pText, strlen(pText));
+	temp_buf_u.CopyFromMb(cpANSI, pText, sstrlen(pText));
 	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, (LPARAM)(const wchar_t *)temp_buf_u));
 #else
 	ok = BIN(::SendMessage(hWnd, WM_SETTEXT, 0, (LPARAM)pText));
@@ -1292,7 +1292,7 @@ int SLAPI KeyDownCommand::SetKeyName(const char * pStr, uint * pLen)
 			StringSet ss(",");
 			for(uint i = 0; !key_code && i < SIZEOFARRAY(KeySymbList); i++) {
 				const _KeySymb & r_ks = KeySymbList[i];
-				ss.setBuf(r_ks.S, strlen(r_ks.S)+1);
+				ss.setBuf(r_ks.S, sstrlen(r_ks.S)+1);
 				for(uint p = 0; !key_code && ss.get(&p, key_buf);) {
 					if(scan.Get(key_buf, temp_buf)) {
 						key_code = r_ks.K;

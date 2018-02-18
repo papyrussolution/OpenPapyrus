@@ -34,7 +34,7 @@ void PPEds::GetEncryptedFileName(const char * pFileName, SString & rEncryptFileN
 	}
 	rEncryptFileName.Z().Cat(pFileName);
 	rEncryptFileName.Sub(rEncryptFileName.Len() - count, count, ext);
-    rEncryptFileName.Z().CopyFromN(pFileName, strlen(pFileName) - count);
+    rEncryptFileName.Z().CopyFromN(pFileName, sstrlen(pFileName) - count);
 	if(sameFile)
 		rEncryptFileName.Cat("_1").Dot().Cat(ext);
 	else
@@ -1457,8 +1457,8 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 			char c[32];
 			memzero(c, 32);
 			itoa(vals[i], c, 2);
-			enc_arr_size += strlen(c) / 8;
-			if((enc_arr_size * 8) < strlen(c))
+			enc_arr_size += sstrlen(c) / 8;
+			if((enc_arr_size * 8) < sstrlen(c))
 				enc_arr_size++;
 		}
 		else
@@ -1482,8 +1482,8 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 			char cc[32];
 			memzero(cc, sizeof(cc));
 			itoa(binval, cc, 2);
-			count = strlen(cc) / 8;
-			if(count * 8 < strlen(cc))
+			count = sstrlen(cc) / 8;
+			if(count * 8 < sstrlen(cc))
 				count++;
 			long mask = 0x7FFFFFFF; // Больше 4-х байт число точно не будет
 			// В младшем байте старший бит должен быть ноль.
@@ -1512,8 +1512,8 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 				size_t sub_count = 0;
 				memzero(cc, 32);
 				itoa(binval, cc, 2);
-				sub_count = strlen(cc) / 8;
-				if(sub_count * 8 < (size_t)strlen(cc))
+				sub_count = sstrlen(cc) / 8;
+				if(sub_count * 8 < (size_t)sstrlen(cc))
 					sub_count++;
 				if(sub_count > count)
 					count = sub_count;
@@ -1914,7 +1914,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	//DWORD size_encoded = 0;
 	//CERT_NAME_VALUE name_val;
 	//name_val.dwValueType = CERT_RDN_VISIBLE_STRING;
-	//name_val.Value.cbData = strlen(HASH_ALG);
+	//name_val.Value.cbData = sstrlen(HASH_ALG);
 	//name_val.Value.pbData = (BYTE*)HASH_ALG;
 	//if(!CryptEncodeObject(MY_ENCODING_TYPE, X509_OID,
 	//	&name_val, NULL, &size_encoded))

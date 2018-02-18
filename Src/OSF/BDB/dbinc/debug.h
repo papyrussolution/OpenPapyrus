@@ -166,7 +166,7 @@ typedef enum {
 		DBT __op;							\
 		/* (replaced by ctr) memzero(&__op, sizeof(__op));*/ \
 		__op.data = O;						\
-		__op.size = (uint32)strlen(O) + 1;			\
+		__op.size = (uint32)sstrlen(O) + 1;			\
 		__db_debug_log((C)->env, T, &__lsn, 0, &__op, (C)->dbp->log_filename->id, K, A, F);	\
 	}								\
 }

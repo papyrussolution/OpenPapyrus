@@ -168,7 +168,7 @@ int SStrScan::IsLegalUtf8() const
 			return (p[1] != 0 && p[2] != 0 && SUnicode::IsLegalUtf8(p, 3)) ? 3 : 0;
 		}
 		else {
-			const size_t tail = strlen((const char *)p);
+			const size_t tail = sstrlen(p);
 			return ((extra+1) <= tail && SUnicode::IsLegalUtf8(p, extra+1)) ? (int)(1+extra) : 0;
 		}
 	}
@@ -587,7 +587,7 @@ int FASTCALL SStrScan::SearchChar(int c)
 int FASTCALL SStrScan::Search(const char * pPattern)
 {
 	if(P_Buf) {
-		size_t len = strlen(pPattern);
+		size_t len = sstrlen(pPattern);
 		const  char * p_buf = P_Buf+Offs;
 		const  char * p = strstr(p_buf, pPattern);
 		if(p) {
@@ -719,7 +719,7 @@ IMPL_INVARIANT_C(SString)
 	S_INVARIANT_PROLOG(pInvP);
 	S_ASSERT_P(Size >= L, pInvP);
 	if(P_Buf) {
-		S_ASSERT_P(Len() == strlen(P_Buf), pInvP);
+		S_ASSERT_P(Len() == sstrlen(P_Buf), pInvP);
 	}
 	else {
 		S_ASSERT_P(Size == 0, pInvP);
@@ -856,7 +856,7 @@ int SLAPI SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) cons
 	const size_t len = Len();
 	if(len) {
 		SETIFZ(pDelimChrSet, " \t\n\r");
-		const size_t delim_len = strlen(pDelimChrSet);
+		const size_t delim_len = sstrlen(pDelimChrSet);
 		if(delim_len == 0)
 			rResult.add(*this);
 		else {
@@ -1080,7 +1080,7 @@ SString & FASTCALL SString::CopyFromN(const char * pS, size_t maxLen)
 
 SString & FASTCALL SString::CopyFrom(const char * pS)
 {
-	const size_t new_len = pS ? (strlen(pS) + 1) : 1;
+	const size_t new_len = pS ? (sstrlen(pS) + 1) : 1;
 	if(Alloc(new_len)) {
 		if(pS) {
 			memcpy(P_Buf, pS, new_len);
@@ -1357,7 +1357,7 @@ SString & FASTCALL SString::RevertSpecSymb(int fileFormat)
 					int   s = 0;
 					if(!first_special_symb || c == first_special_symb) {
 						for(uint j = 0; j < tab_size; j++) {
-							const size_t ent_len = strlen(p_tab[j].str);
+							const size_t ent_len = sstrlen(p_tab[j].str);
 							if(memcmp(p_tab[j].str, P_Buf+i, ent_len) == 0) {
 								temp_buf.CatChar(p_tab[j].chr);
 								i += (ent_len-1);
@@ -1993,7 +1993,7 @@ int FASTCALL SString::CmpSuffix(const char * pS, int ignoreCase) const
 	if(P_Buf == 0 || pS == 0)
 		return -1;
 	else {
-		size_t len = strlen(pS);
+		size_t len = sstrlen(pS);
 		int    delta = ((int)Len())-((int)len);
 		if(len && delta >= 0)
 			return ignoreCase ? strnicmp866(P_Buf+delta, pS, len) : strncmp(P_Buf+delta, pS, len);
@@ -2435,35 +2435,23 @@ SString & FASTCALL SString::CatHex(int64 val)
 
 SString & FASTCALL SString::CatHex(uint8 val)
 {
-	char   temp_buf[512];
-	ltoa(val, temp_buf, 16);
+	//char   temp_buf[512];
+	//ltoa(val, temp_buf, 16);
 	uint   dig = (val >> 4);
-	if(dig < 10)
-		CatChar('0'+dig);
-	else
-		CatChar('a'+dig-10);
+	CatChar(dig + ((dig < 10) ? '0' : ('a'-10)));
 	dig = (val & 0x0f);
-	if(dig < 10)
-		CatChar('0'+dig);
-	else
-		CatChar('a'+dig-10);
+	CatChar(dig + ((dig < 10) ? '0' : ('a'-10)));
 	return *this;
 }
 
 SString & FASTCALL SString::CatHexUpper(uint8 val)
 {
-	char   temp_buf[512];
-	ltoa(val, temp_buf, 16);
+	//char   temp_buf[512];
+	//ltoa(val, temp_buf, 16);
 	uint   dig = (val >> 4);
-	if(dig < 10)
-		CatChar('0'+dig);
-	else
-		CatChar('A'+dig-10);
+	CatChar(dig + ((dig < 10) ? '0' : ('A'-10)));
 	dig = (val & 0x0f);
-	if(dig < 10)
-		CatChar('0'+dig);
-	else
-		CatChar('A'+dig-10);
+	CatChar(dig + ((dig < 10) ? '0' : ('A'-10)));
 	return *this;
 }
 
@@ -2617,7 +2605,7 @@ SString & cdecl SString::Printf(const char * pFormat, ...)
 		va_start(argptr, pFormat);
 		_vsnprintf(P_Buf, Size-1, pFormat, argptr);
 		P_Buf[Size-1] = 0;
-		L = strlen(P_Buf) + 1;
+		L = sstrlen(P_Buf) + 1;
 	}
 	return *this;
 }
@@ -2920,7 +2908,7 @@ SString & SLAPI SString::EncodeMime64(const void * pBuf, size_t dataLen)
 	Alloc(needed_size);
 	if(encode64((const char *)pBuf, dataLen, P_Buf, Size, &real_size)) {
 		L = real_size;
-		assert(Len() == strlen(P_Buf));
+		assert(Len() == sstrlen(P_Buf));
 	}
 	else
 		Z();
@@ -4144,7 +4132,7 @@ void FASTCALL SPathStruc::Split(const char * pPath)
 			Flags |= fUNC;
 			scan.Incr(2);
 			p = strpbrk(scan, "\\/");
-			scan.SetLen(p ? (p-scan) : strlen(scan));
+			scan.SetLen(p ? (p-scan) : sstrlen(scan));
 			scan.Get(Drv);
 			Flags |= fDrv;
 			scan.IncrLen();
@@ -6573,6 +6561,28 @@ public:
 };
 
 #include <string>
+//
+// Аналог strnzcpy но с использованием xeos_memchr вместо memchr
+//
+static char * FASTCALL xeos_strnzcpy(char * dest, const char * src, size_t maxlen)
+{
+	if(dest)
+		if(src)
+			if(maxlen) {
+				const char * p = (const char *)xeos_memchr(src, 0, maxlen);
+				if(p)
+					memcpy(dest, src, (size_t)(p - src)+1);
+				else {
+					memcpy(dest, src, maxlen-1);
+					dest[maxlen-1] = 0;
+				}
+			}
+			else
+				strcpy(dest, src);
+		else
+			dest[0] = 0;
+	return dest;
+}
 
 SLTEST_FIXTURE(SString, SlTestFixtureSString)
 {
@@ -6591,6 +6601,8 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 		bm = 0;
 	else if(sstreqi_ascii(pBenchmark, "stack"))
 		bm = 1;
+	else if(sstreqi_ascii(pBenchmark, "stack-xeos"))
+		bm = 6;
 	else if(sstreqi_ascii(pBenchmark, "sstring"))
 		bm = 2;
 	else if(sstreqi_ascii(pBenchmark, "std::string"))
@@ -6951,21 +6963,67 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				}
 			}
 		}
+		{
+			//
+			// Тест функций xeos_strlen и xeos_memchr
+			//
+			uint64 total_len1 = 0;
+			uint64 total_len2 = 0;
+			char buffer1[2048];
+			char buffer2[2048];
+			for(uint i = 0; i < F.P_StrList->getCount(); i++) {
+				size_t proof_len = strlen(F.P_StrList->at(i));
+				assert(proof_len < sizeof(buffer1));
+				assert(proof_len > 16);
+				strcpy(buffer1, F.P_StrList->at(i));
+				total_len1 += strlen(buffer1);
+				buffer2[0] = 0;
+				strcpy(buffer2, F.P_StrList->at(i));
+				total_len2 += xeos_strlen(buffer2);
+				SLTEST_CHECK_NZ(sstreq(buffer1, buffer2));
+				SLTEST_CHECK_Z(strcmp(buffer1, buffer2));
+				{
+					for(uint offs = 0; offs < 8; offs++) {
+						const char * p_buf1 = buffer1+offs;
+						const char * p_buf2 = buffer2+offs;
+						for(int j = 0; j < 256; j++) {
+							const char * p1 = (const char *)memchr(p_buf1, j, proof_len+1-offs);
+							const char * p2 = (const char *)xeos_memchr(p_buf2, j, proof_len+1-offs);
+							SLTEST_CHECK_NZ((!p1 && !p2) || ((p1 && p2) && (p1-p_buf1) == (p2-p_buf2)));
+						}
+					}
+				}
+			}
+			SLTEST_CHECK_EQ(total_len1, total_len2);
+		}
 	}
 	else if(bm == 1) {
 		uint64 total_len = 0;
+		const uint scc = F.P_StrList->getCount();
 		for(uint phase = 0; phase < max_bm_phase; phase++) {
-			for(uint i = 0; i < F.P_StrList->getCount(); i++) {
+			for(uint i = 0; i < scc; i++) {
 				char buffer[2048];
-				STRNSCPY(buffer, F.P_StrList->at(i));
+				strnzcpy(buffer, F.P_StrList->at(i), sizeof(buffer));
 				total_len += strlen(buffer);
+			}
+		}
+	}
+	else if(bm == 6) {
+		uint64 total_len = 0;
+		const uint scc = F.P_StrList->getCount();
+		for(uint phase = 0; phase < max_bm_phase; phase++) {
+			for(uint i = 0; i < scc; i++) {
+				char buffer[2048];
+				xeos_strnzcpy(buffer, F.P_StrList->at(i), sizeof(buffer));
+				total_len += xeos_strlen(buffer);
 			}
 		}
 	}
 	else if(bm == 2) {
 		uint64 total_len = 0;
+		const uint scc = F.P_StrList->getCount();
 		for(uint phase = 0; phase < max_bm_phase; phase++) {
-			for(uint i = 0; i < F.P_StrList->getCount(); i++) {
+			for(uint i = 0; i < scc; i++) {
 				SString buffer;
 				buffer = F.P_StrList->at(i);
 				total_len += strlen(buffer.cptr());
@@ -6974,8 +7032,9 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	}
 	else if(bm == 5) {
 		uint64 total_len = 0;
+		const uint scc = F.P_StrList->getCount();
 		for(uint phase = 0; phase < max_bm_phase; phase++) {
-			for(uint i = 0; i < F.P_StrList->getCount(); i++) {
+			for(uint i = 0; i < scc; i++) {
 				std::string buffer;
 				buffer = F.P_StrList->at(i);
 				total_len += strlen(buffer.c_str());
@@ -6985,8 +7044,9 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	else if(bm == 3) {
 		SRevolver_SString rvl(1024);
 		uint64 total_len = 0;
+		const uint scc = F.P_StrList->getCount();
 		for(uint phase = 0; phase < max_bm_phase; phase++) {
-			for(uint i = 0; i < F.P_StrList->getCount(); i++) {
+			for(uint i = 0; i < scc; i++) {
 				SString & r_buffer = rvl.Get();
 				r_buffer = F.P_StrList->at(i);
 				total_len += strlen(r_buffer.cptr());
@@ -6995,8 +7055,9 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	}
 	else if(bm == 4) {
 		uint64 total_len = 0;
+		const uint scc = F.P_StrList->getCount();
 		for(uint phase = 0; phase < max_bm_phase; phase++) {
-			for(uint i = 0; i < F.P_StrList->getCount(); i++) {
+			for(uint i = 0; i < scc; i++) {
 				SString & r_buffer = SLS.AcquireRvlStr();
 				r_buffer = F.P_StrList->at(i);
 				total_len += strlen(r_buffer.cptr());

@@ -396,8 +396,7 @@ void SLAPI print(const LMatrix & matrix, FILE * pF, long fmt)
 	}
 }
 
-static int SLAPI read_header(FILE * pF, LMIDX * pRows, LMIDX * pCols,
-	char * pName, size_t bufSize)
+static int SLAPI read_header(FILE * pF, LMIDX * pRows, LMIDX * pCols, char * pName, size_t bufSize)
 {
 	int    ok = 1, c;
 	char   buf[256], sub[64];

@@ -669,7 +669,7 @@ int CtmExpr::Unpack(SStrScan & scan)
 		scan.IncrLen(1);
 	}
 	scan.Skip();
-	const size_t empty_len = strlen(P_EmptyExprStr);
+	const size_t empty_len = sstrlen(P_EmptyExprStr);
 	if(scan.Search(P_EmptyExprStr) && scan.Len == 0) {
 		scan.Offs += empty_len;
 		P_Next = 0;
@@ -1892,7 +1892,7 @@ int SLAPI DlContext::RegisterICls(const DlScope * pCls, int unreg)
 int SLAPI DeleteKey(HKEY hKey, uint32 ver, const char * pKeyBuf)
 {
 	int    ok = -1;
-	if(pKeyBuf && strlen(pKeyBuf)) {
+	if(pKeyBuf && sstrlen(pKeyBuf)) {
 		SString key_buf, entry;
 		WinRegKey reg;
 		key_buf.CopyFrom(pKeyBuf);
@@ -2283,7 +2283,7 @@ int DlContext::AddConst(const char * pTypeSymb, const void * pData, size_t dataS
 }
 
 int SLAPI DlContext::AddConst(const void * pData, size_t dataSize, CtmExprConst * pResult) { return AddConst("raw", pData, dataSize, pResult); }
-int SLAPI DlContext::AddConst(const char * pData, CtmExprConst * pResult) { return AddConst("string", pData, strlen(pData)+1, pResult); }
+int SLAPI DlContext::AddConst(const char * pData, CtmExprConst * pResult) { return AddConst("string", pData, sstrlen(pData)+1, pResult); }
 int SLAPI DlContext::AddConst(const SString & rData, CtmExprConst * pResult) { return AddConst("string", (const char *)rData, rData.Len()+1, pResult); }
 int SLAPI DlContext::AddConst(uint32 data, CtmExprConst * pResult) { return AddConst("uint32", &data, sizeof(data), pResult); }
 int SLAPI DlContext::AddConst(int32 data, CtmExprConst * pResult) { return AddConst("int32", &data, sizeof(data), pResult); }

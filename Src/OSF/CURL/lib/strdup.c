@@ -31,7 +31,7 @@ char * curlx_strdup(const char * str)
 	char * newstr;
 	if(!str)
 		return (char*)NULL;
-	len = strlen(str);
+	len = sstrlen(str);
 	if(len >= ((size_t)-1) / sizeof(char))
 		return (char*)NULL;
 	newstr = SAlloc::M((len+1)*sizeof(char));

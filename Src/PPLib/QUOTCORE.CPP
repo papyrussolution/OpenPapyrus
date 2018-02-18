@@ -292,7 +292,7 @@ int FASTCALL PPQuot::GetValFromStr(const char * pStr)
 	char   temp_buf[256];
 	long   flags = 0;
 	temp_buf[0] = 0;
-	size_t len = strlen(strip(STRNSCPY(temp_buf, pStr)));
+	size_t len = sstrlen(strip(STRNSCPY(temp_buf, pStr)));
 	if(len) {
 		uchar  last_sign = (uchar)ToUpper866(temp_buf[len-1]);
 		if(last_sign == 'C' || last_sign == 145 /* rus 866 'С' */) {

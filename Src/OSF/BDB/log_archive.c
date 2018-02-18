@@ -458,9 +458,9 @@ static int __absname(ENV * env, char * pref, char * name, char ** newnamep)
 {
 	int ret;
 	char * newname;
-	size_t l_name = strlen(name);
+	size_t l_name = sstrlen(name);
 	int isabspath = __os_abspath(name);
-	size_t l_pref = isabspath ? 0 : strlen(pref);
+	size_t l_pref = isabspath ? 0 : sstrlen(pref);
 	/* Malloc space for concatenating the two. */
 	if((ret = __os_malloc(env, l_pref+l_name+2, &newname)) != 0)
 		return ret;
@@ -486,7 +486,7 @@ static int __usermem(ENV * env, char *** listp)
 	char ** array, ** arrayp, ** orig, * strp;
 	/* Find out how much space we need. */
 	for(len = 0, orig = *listp; *orig != NULL; ++orig)
-		len += sizeof(char *)+strlen(*orig)+1;
+		len += sizeof(char *)+sstrlen(*orig)+1;
 	len += sizeof(char *);
 	/* Allocate it and set up the pointers. */
 	if((ret = __os_umalloc(env, len, &array)) != 0)
@@ -494,7 +494,7 @@ static int __usermem(ENV * env, char *** listp)
 	strp = (char *)(array+(orig-*listp)+1);
 	/* Copy the original information into the new memory. */
 	for(orig = *listp, arrayp = array; *orig != NULL; ++orig, ++arrayp) {
-		len = strlen(*orig);
+		len = sstrlen(*orig);
 		memcpy(strp, *orig, len+1);
 		*arrayp = strp;
 		strp += len+1;

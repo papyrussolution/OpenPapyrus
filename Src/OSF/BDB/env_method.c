@@ -576,7 +576,7 @@ int __env_set_encrypt(DB_ENV * dbenv, const char * passwd, uint32 flags)
  #define OK_CRYPTO_FLAGS (DB_ENCRYPT_AES)
 	if(flags != 0 && LF_ISSET(~OK_CRYPTO_FLAGS))
 		return __db_ferr(env, "DB_ENV->set_encrypt", 0);
-	if(passwd == NULL || strlen(passwd) == 0) {
+	if(sstrlen(passwd) == 0) {
 		__db_errx(env, DB_STR("1556", "Empty password specified to set_encrypt"));
 		return EINVAL;
 	}
@@ -596,7 +596,7 @@ int __env_set_encrypt(DB_ENV * dbenv, const char * passwd, uint32 flags)
 	/*
 	 * We're going to need this often enough to keep around
 	 */
-	dbenv->passwd_len = strlen(dbenv->passwd)+1;
+	dbenv->passwd_len = sstrlen(dbenv->passwd)+1;
 	/*
 	 * The MAC key is for checksumming, and is separate from
 	 * the algorithm.  So initialize it here, even if they

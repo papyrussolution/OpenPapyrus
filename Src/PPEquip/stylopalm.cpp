@@ -85,7 +85,7 @@ int PalmArcHdr::Check() const
 		if(Reserve[i] != 0)
 			return 0;
 #if !defined(__palmos__)  && !defined(_WIN32_WCE) // {
-	const size_t len = strlen(Name);
+	const size_t len = sstrlen(Name);
 	for(i = 0; i < len; i++)
 		if(!isalpha(Name[i]) && Name[i] != '.' && Name[i] != '_')
 			return 0;

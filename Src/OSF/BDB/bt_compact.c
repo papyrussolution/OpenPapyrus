@@ -115,7 +115,7 @@ int __bam_compact_int(DBC * dbc, DBT * start, DBT * stop, uint32 factor, int * s
 #ifdef  DEBUG
  #define CTRACE(dbc, location, t, start, f) do {                         \
 		DBT __trace;                                            \
-		DB_SET_DBT(__trace, t, strlen(t));                      \
+		DB_SET_DBT(__trace, t, sstrlen(t));                      \
 		DEBUG_LWRITE(dbc, (dbc)->txn, location, &__trace, start, f)      \
 } while(0)
  #define PTRACE(dbc, location, p, start, f) do {                         \

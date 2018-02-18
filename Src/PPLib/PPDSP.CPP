@@ -46,7 +46,7 @@ int SLAPI PPDeclStrucProcessor::MakeErrMsgString(char * pBuf, size_t bufLen)
 	char * p = p_msg;
 	if(P_FileName) {
 		sprintf(p, "File %s, Line %ld: ", P_FileName, Line);
-		p += strlen(p);
+		p += sstrlen(p);
 	}
 	sprintf(p, "error %d", PPErrCode);
 	strnzcpy(pBuf, p_msg, bufLen);

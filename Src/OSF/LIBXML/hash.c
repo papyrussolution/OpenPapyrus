@@ -90,14 +90,11 @@ static ulong xmlHashComputeKey(xmlHashTable * table, const xmlChar * name, const
 	return (value % table->size);
 }
 
-static ulong xmlHashComputeQKey(xmlHashTable * table,
-    const xmlChar * prefix, const xmlChar * name,
-    const xmlChar * prefix2, const xmlChar * name2,
-    const xmlChar * prefix3, const xmlChar * name3)
+static ulong xmlHashComputeQKey(xmlHashTable * table, const xmlChar * prefix, const xmlChar * name,
+    const xmlChar * prefix2, const xmlChar * name2, const xmlChar * prefix3, const xmlChar * name3)
 {
 	ulong value = 0L;
 	char ch;
-
 #ifdef HASH_RANDOMIZATION
 	value = table->random_seed;
 #endif
@@ -105,7 +102,6 @@ static ulong xmlHashComputeQKey(xmlHashTable * table,
 		value += 30 * (*prefix);
 	else
 		value += 30 * (*name);
-
 	if(prefix != NULL) {
 		while((ch = *prefix++) != 0) {
 			value = value ^ ((value << 5) + (value >> 3) + (ulong)ch);

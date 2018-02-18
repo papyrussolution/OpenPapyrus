@@ -205,7 +205,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 							if(p_prn_line->Param.FontName.NotEmpty())
 								MultiByteToWideChar(1251, 0, p_prn_line->Param.FontName, p_prn_line->Param.FontName.Len(), font_name, SIZEOFARRAY(font_name));
 							else
-								MultiByteToWideChar(1251, 0, p_font_face, strlen(p_font_face), font_name, SIZEOFARRAY(font_name));
+								MultiByteToWideChar(1251, 0, p_font_face, sstrlen(p_font_face), font_name, SIZEOFARRAY(font_name));
 							{
 								PointF start_coord;
 								Font ffont(font_name, font_height);
@@ -216,8 +216,8 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 								start_coord.X = (Gdiplus::REAL)rc.left;
 								start_coord.Y = (Gdiplus::REAL)rc.top;
 								memzero(out_buf, sizeof(out_buf));
-								MultiByteToWideChar(1251, 0, p_prn_line->PrnBuf, strlen(p_prn_line->PrnBuf), out_buf, SIZEOFARRAY(out_buf));
-								graphics.DrawString(out_buf, strlen(p_prn_line->PrnBuf), &ffont, start_coord, &format, &black_brush);
+								MultiByteToWideChar(1251, 0, p_prn_line->PrnBuf, sstrlen(p_prn_line->PrnBuf), out_buf, SIZEOFARRAY(out_buf));
+								graphics.DrawString(out_buf, sstrlen(p_prn_line->PrnBuf), &ffont, start_coord, &format, &black_brush);
 							}
 							height = (long)font_height + 4;
 						}
@@ -286,7 +286,7 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	//				if(p_prn_line->Param.FontName.NotEmpty())
 	//					MultiByteToWideChar(1251, 0, p_prn_line->Param.FontName, p_prn_line->Param.FontName.Len(), font_name, SIZEOFARRAY(font_name));
 	//				else
-	//					MultiByteToWideChar(1251, 0, p_font_face, strlen(p_font_face), font_name, SIZEOFARRAY(font_name));
+	//					MultiByteToWideChar(1251, 0, p_font_face, sstrlen(p_font_face), font_name, SIZEOFARRAY(font_name));
 	//				{
 	//					PointF start_coord;
 	//					Font ffont(font_name, font_height);
@@ -297,8 +297,8 @@ int SLAPI SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	//					start_coord.X = (Gdiplus::REAL)rc.left;
 	//					start_coord.Y = (Gdiplus::REAL)rc.top;
 	//					memzero(out_buf, sizeof(out_buf));
-	//					MultiByteToWideChar(1251, 0, p_prn_line->PrnBuf, strlen(p_prn_line->PrnBuf), out_buf, SIZEOFARRAY(out_buf));
-	//					graphics.DrawString(out_buf, strlen(p_prn_line->PrnBuf), &ffont, start_coord, &format, &black_brush);
+	//					MultiByteToWideChar(1251, 0, p_prn_line->PrnBuf, sstrlen(p_prn_line->PrnBuf), out_buf, SIZEOFARRAY(out_buf));
+	//					graphics.DrawString(out_buf, sstrlen(p_prn_line->PrnBuf), &ffont, start_coord, &format, &black_brush);
 	//				}
 	//				height = (long)font_height + 4;
 	//			}

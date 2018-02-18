@@ -1399,7 +1399,7 @@ int SLAPI ObjTagCore::SearchObjectsByStr(PPID objType, PPID tagID, const char * 
 		int    substr_srch  = (pStr && pStr[0] == '*');
 		int    sp_type      = substr_srch ? spGe : spEq;
 		const  char * p_str = substr_srch ? (pStr + 1) : pStr;
-		int    srch_str_not_empty = (p_str && strlen(p_str) > 0);
+		int    srch_str_not_empty = (p_str && sstrlen(p_str) > 0);
 		// } AHTOXA
 		ObjTagTbl::Key3 k3;
 		MEMSZERO(k3);

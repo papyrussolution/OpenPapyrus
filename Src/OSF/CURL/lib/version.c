@@ -86,7 +86,7 @@ char *curl_version(void)
     return version;
 
   strcpy(ptr, LIBCURL_NAME "/" LIBCURL_VERSION);
-  len = strlen(ptr);
+  len = sstrlen(ptr);
   left -= len;
   ptr += len;
 

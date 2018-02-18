@@ -120,7 +120,7 @@ static int SLAPI RentPeriodToStr(short prd, short numprds, char * buf, size_t bu
 	char * p = temp;
 	if(numprds) {
 		itoa(numprds, p, 10);
-		p += strlen(p);
+		p += sstrlen(p);
 		switch(prd) {
 			case PRD_DAY:    l = 'D'; break;
 			case PRD_WEEK:   l = 'W'; break;

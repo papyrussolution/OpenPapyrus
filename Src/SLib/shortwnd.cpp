@@ -173,7 +173,7 @@ void ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 		for(i = 0; i < count; i++) {
 			tci.mask = TCIF_PARAM;
 			if(TabCtrl_GetItem(hwnd_tab, i, &tci) && tci.lParam == (LPARAM)ptr) {
-				size_t title_len = (pTitle) ? strlen(pTitle) : 0;
+				size_t title_len = sstrlen(pTitle);
 				char   temp_title_buf[SHCTSTAB_MAXTEXTLEN * 2];
 				STRNSCPY(temp_title_buf, pTitle);
 				if(title_len > SHCTSTAB_MAXTEXTLEN) {

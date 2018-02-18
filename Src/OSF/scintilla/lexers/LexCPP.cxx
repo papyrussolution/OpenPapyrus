@@ -819,7 +819,7 @@ void SCI_METHOD LexerCPP::Lex(Sci_PositionU startPos, Sci_Position length, int i
 				    }
 				    const bool literalString = sc.ch == '\"';
 				    if(literalString || sc.ch == '\'') {
-					    size_t lenS = strlen(s);
+					    size_t lenS = sstrlen(s);
 					    const bool raw = literalString && sc.chPrev == 'R' && !setInvalidRawFirst.Contains(sc.chNext);
 					    if(raw)
 						    s[lenS--] = '\0';

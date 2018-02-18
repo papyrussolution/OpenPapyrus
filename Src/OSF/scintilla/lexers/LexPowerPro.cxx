@@ -142,7 +142,7 @@ static void ColourisePowerProDoc(Sci_PositionU startPos, Sci_Position length, in
 
 		if((sc.ch > 0) && setWord.Contains(sc.ch)) {
 			strcpy(s_save, s);
-			int tp = static_cast<int>(strlen(s_save));
+			int tp = static_cast<int>(sstrlen(s_save));
 			if(tp < 99) {
 				s_save[tp] = static_cast<char>(tolower(sc.ch));
 				s_save[tp+1] = '\0';

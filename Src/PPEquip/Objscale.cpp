@@ -107,7 +107,7 @@ int SLAPI PPObjScale::EncodeIP(const char * pIP, char * pEncodedIP, size_t ipSiz
 		size_t str_dig_len = 0;
 		memzero(str_dig, sizeof(str_dig));
 		ss_ip_digit.get(&k, str_dig, sizeof(str_dig));
-		str_dig_len = strlen(str_dig);
+		str_dig_len = sstrlen(str_dig);
 		THROW_PP(str_dig_len < 4 && str_dig_len > 0, PPERR_SCALE_INVIP);
 		THROW_PP((dig = atoi(str_dig)) >= 0 && dig < 256, PPERR_SCALE_INVIP);
 		THROW_PP(dig != 0 || (i != 0 && str_dig[0] == '0'), PPERR_SCALE_INVIP);
@@ -129,7 +129,7 @@ int SLAPI PPObjScale::DecodeIP(const char * pEncodedIP, char * pIP)
 	uint   i = 0;
 	char   ip[16];
 	memzero(ip, sizeof(ip));
-	THROW_PP(strlen(pEncodedIP) > 4, PPERR_SCALE_INVIP);
+	THROW_PP(sstrlen(pEncodedIP) > 4, PPERR_SCALE_INVIP);
 	for(i = 0; i < 4; i++) {
 		char   str_dig[4];
 		ulong  dig = (i != 0 && (uint)(uchar)pEncodedIP[i+3] == 1) ? 0 : (uint)(uchar)pEncodedIP[i];
@@ -246,7 +246,7 @@ int SLAPI PPScaleDevice::GetAddedMsgLines(const ScalePLU * pPlu, uint maxLineLen
 		int    done = 0;
 		SString temp_buf, head, tail, line_buf;
 		StringSet ss(SLBColumnDelim);
-		ss.setBuf(pPlu->AddMsgBuf, strlen(pPlu->AddMsgBuf) + 1);
+		ss.setBuf(pPlu->AddMsgBuf, sstrlen(pPlu->AddMsgBuf) + 1);
 		for(uint p = 0; !done && ss.get(&p, temp_buf);) {
 			temp_buf.Strip();
 			while(!done && temp_buf.Wrap(maxLineLen, head, tail) > 0) {
@@ -652,8 +652,8 @@ int SLAPI CommLP15::SetConnection()
 		memzero(rcv_timeout,  sizeof(rcv_timeout));
 		itoa(Data.Put_Delay, send_timeout, 10);
 		itoa(Data.Get_Delay, rcv_timeout, 10);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, (int)strlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, (int)strlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, (int)sstrlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, (int)sstrlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP((res = connect(SocketHandle, (sockaddr*)&sin, sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		IsConnected = 1;
 		THROW(CheckSync_16());
@@ -806,7 +806,7 @@ void SLAPI CommLP15::PutLong(long s_data)
 static void FillMsgBuf_CAS(const char * pMsg, uint lineLen, uchar * pDataBuf, uint * pIdx)
 {
 	uint p = DEREFPTRORZ(pIdx);
-	const size_t msg_len = strlen(pMsg);
+	const size_t msg_len = sstrlen(pMsg);
 	uint i = 0;
 	while(i < msg_len && i < lineLen) {
 		pDataBuf[p++] = pMsg[i++];
@@ -855,14 +855,14 @@ int SLAPI CommLP15::SendPLU_16(const ScalePLU * pPLU)
 			size_t j = 0;
 			// Этот блок следует удалить после проверки следующего ниже блока (закомментированного) {
 			//alignstr(name_items[i].ptr, name_items[i].len, ALIGN_CENTER);
-			for(j = strlen(name_items[i].ptr); ((int)j) < name_items[i].len; j++)
+			for(j = sstrlen(name_items[i].ptr); ((int)j) < name_items[i].len; j++)
 	   	    	name_items[i].ptr[j] = 0; // ' '
 			// }
 			/* Комментирую до проверки
 			alignstr(name_items[i].ptr, name_items[i].len, ALIGN_CENTER);
 			// @v5.7.8 VADIM {
-			//for(j = strlen(name_items[i].ptr); j < name_items[i].len; j++)
-			for(j = strlen(name_items[i].ptr); j >= 0 && name_items[i].ptr[j] == ' '; j--)
+			//for(j = sstrlen(name_items[i].ptr); j < name_items[i].len; j++)
+			for(j = sstrlen(name_items[i].ptr); j >= 0 && name_items[i].ptr[j] == ' '; j--)
 	   	    	name_items[i].ptr[j] = 0;
 			// } @v5.7.8 VADIM
 			*/
@@ -980,13 +980,13 @@ int SLAPI CommLP15::SendPLU(const ScalePLU * pPLU)
 			for(i = 0; i < name_items_count; i++) {
 				alignstr(name_items[i].ptr, name_items[i].len, ALIGN_CENTER);
 				// Этот блок следует удалить после проверки следующего ниже блока (закомментированного) {
-				for(size_t j = strlen(name_items[i].ptr); ((int)j) < name_items[i].len; j++)
+				for(size_t j = sstrlen(name_items[i].ptr); ((int)j) < name_items[i].len; j++)
 	   	    		name_items[i].ptr[j] = ' ';
 				// }
 				/* Комментирую до проверки
 				// @v5.7.8 VADIM {
-				//for(j = strlen(name_items[i].ptr); j < name_items[i].len; j++)
-				for(j = strlen(name_items[i].ptr); j >= 0 && name_items[i].ptr[j] == ' '; j--)
+				//for(j = sstrlen(name_items[i].ptr); j < name_items[i].len; j++)
+				for(j = sstrlen(name_items[i].ptr); j >= 0 && name_items[i].ptr[j] == ' '; j--)
 	   	    		name_items[i].ptr[j] = 0;
 				// } @v5.7.8 VADIM
 				*/
@@ -1015,7 +1015,7 @@ int SLAPI CommLP15::SendPLU(const ScalePLU * pPLU)
 			ingr_str[50] = 0;
 			for(i = 0; i < 5; i++) {
 				STRNSCPY(ingr_str, p);
-				for(j = strlen(ingr_str); j < 50; j++)
+				for(j = sstrlen(ingr_str); j < 50; j++)
 					ingr_str[j] = ' ';
 				PutStr(ingr_str);
 				p += sizeof(pPLU->GdsAddFld1);
@@ -1284,8 +1284,8 @@ int SLAPI CasCL5000J::SetConnection()
 		memzero(rcv_timeout,  sizeof(rcv_timeout));
 		itoa(Data.Put_Delay, send_timeout, 10);
 		itoa(Data.Get_Delay, rcv_timeout, 10);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, (int)strlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, (int)strlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, (int)sstrlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, (int)sstrlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP((res = connect(SocketHandle, (sockaddr*)&sin, sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		IsConnected   = 1;
 		THROW(CheckSync());
@@ -1594,7 +1594,7 @@ int SLAPI CasCL5000J::SendBarcodeFormat(const char * pFmt)
 		size_t p = 0;
 
 		memzero(data_buf, sizeof(data_buf));
-		strnzcpy(fmt, pFmt, strlen(pFmt) + 1);
+		strnzcpy(fmt, pFmt, sstrlen(pFmt) + 1);
 		data_buf[p++] = 'W';                      // Op Write
 		data_buf[p++] = 'B';                      // Barcode
 		*((uint32*)(data_buf + p)) = 0;           // Address
@@ -1610,7 +1610,7 @@ int SLAPI CasCL5000J::SendBarcodeFormat(const char * pFmt)
 		*(uint8*)(data_buf + p)= 1; // EAN13
 		p += sizeof(uint8);
 		// BARCODE format
-		strnzcpy((data_buf + p), fmt, strlen(fmt) + 1);
+		strnzcpy((data_buf + p), fmt, sstrlen(fmt) + 1);
 		p += sizeof(fmt);
 		THROW(ok = SendData(data_buf, p));
 	}
@@ -1678,7 +1678,7 @@ int SLAPI CommMassaK::MakeNumber(long number, char * pBuf, size_t bufLen)
 
 int SLAPI CommMassaK::MakeString(char * pStr, char * pBuf, size_t bufLen)
 {
-	size_t len = strlen(pStr);
+	size_t len = sstrlen(pStr);
 	for(size_t i = 0; i < bufLen; i++)
 		pBuf[i] = (i < len) ? pStr[i] : ' ';
 	return 1;
@@ -1998,7 +1998,7 @@ int SLAPI COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 		SETIFZ(wght_prefix, 20 + pScalePLU->Barcode / 100000);
 		getcurdate(&cur_dt);
 		expiry_minutes = (expiry > cur_dt) ? diffdate(expiry, cur_dt) : 0; // * 24 * 60;
-		ss.setBuf(pScalePLU->AddMsgBuf, strlen(pScalePLU->AddMsgBuf)+1); // @v9.6.0 @fix (+1)
+		ss.setBuf(pScalePLU->AddMsgBuf, sstrlen(pScalePLU->AddMsgBuf)+1); // @v9.6.0 @fix (+1)
 
 		if(P_DbfTbl) {
 			DbfRecord dbf_rec(P_DbfTbl);
@@ -2321,8 +2321,8 @@ int SLAPI TCPIPMToledo::SetConnection()
 		memzero(rcv_timeout,  sizeof(rcv_timeout));
 		itoa(Data.Put_Delay, send_timeout, 10);
 		itoa(Data.Get_Delay, rcv_timeout, 10);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, (int)strlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, (int)strlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, (int)sstrlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, (int)sstrlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP((res = connect(SocketHandle, (sockaddr*)&sin, sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		IsConnected = 1;
 		PPSetAddedMsgString(CrcDLLPath);
@@ -2606,7 +2606,7 @@ int SLAPI TCPIPMToledo::NewAlgSendPLU(const ScalePLU * pPLU)
 		as_entry.AddStrCode = (ushort)pPLU->GoodsNo;
 		{
 			const char * p_full_buf = add_str.getBuf();
-			const size_t full_buf_len = strlen(p_full_buf);
+			const size_t full_buf_len = sstrlen(p_full_buf);
 			if(use_ext_messages && full_buf_len > max_text) {
 				size_t _text_buf_offs = 0;
 				ushort _plu = (ushort)pPLU->GoodsNo;
@@ -2615,7 +2615,7 @@ int SLAPI TCPIPMToledo::NewAlgSendPLU(const ScalePLU * pPLU)
 				do {
 					MEMSZERO(as_entry);
 					as_entry.AddStrCode = _plu;
-					const size_t part_len = strlen(p_full_buf + _text_buf_offs);
+					const size_t part_len = sstrlen(p_full_buf + _text_buf_offs);
 					if(part_len <= max_text) {
 						STRNSCPY(as_entry.AddStrTxt, p_full_buf + _text_buf_offs);
 						_text_buf_offs += part_len;
@@ -3037,8 +3037,8 @@ int SLAPI DIGI::SetConnection()
 		memzero(rcv_timeout,  sizeof(rcv_timeout));
 		itoa(Data.Put_Delay, send_timeout, 10);
 		itoa(Data.Get_Delay, rcv_timeout, 10);
-		THROW_PP(setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, (int)strlen(send_timeout)) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP(setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout,  (int)strlen(rcv_timeout)) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP(setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, (int)sstrlen(send_timeout)) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP(setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout,  (int)sstrlen(rcv_timeout)) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP(connect(SocketHandle, (sockaddr*)&sin, sizeof(sin)) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		Connected = 1;
 	}
@@ -3111,10 +3111,10 @@ int SLAPI DIGI::ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lin
 	uint   j = 0;
 	char   org_goods_name[1024];
 	strip(STRNSCPY(org_goods_name, pSrcName));
-	size_t name_len = strlen(org_goods_name);
+	size_t name_len = sstrlen(org_goods_name);
 	if(name_len > (lineLen * maxLines)) {
 		org_goods_name[lineLen * maxLines] = 0;
-		name_len = strlen(strip(org_goods_name));
+		name_len = sstrlen(strip(org_goods_name));
 	}
 	if(org_goods_name[name_len-1] == '%')
 		org_goods_name[name_len-1] = '.';
@@ -3132,7 +3132,7 @@ int SLAPI DIGI::ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lin
 		SplitString(org_goods_name, name_items_count, name_items);
 		for(j = 0; j < name_items_count; j++) {
 			rDestName.CatChar(fontSize); // Размер шрифта
-			long    len = (long)strlen(name_items[j].ptr);
+			long    len = (long)sstrlen(name_items[j].ptr);
 			LongToHexBytesStr(len, 1, str_len);
 			rDestName.CatChar(str_len.C(0)); // Длина строки без заголовков и терминаторов
 			rDestName.Cat(name_items[j].ptr).CatChar((j < (name_items_count-1)) ? 13 : 12);
@@ -3140,7 +3140,7 @@ int SLAPI DIGI::ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lin
 	}
 	else {
 		rDestName.CatChar(fontSize); // Размер шрифта
-		long   len = (long)strlen(org_goods_name);
+		long   len = (long)sstrlen(org_goods_name);
 		LongToHexBytesStr(len, 1, str_len);
 		rDestName.CatChar(str_len.C(0)); // Длина строки без заголовков и терминаторов
 		rDestName.Cat(org_goods_name).CatChar(12);
@@ -3486,8 +3486,8 @@ int SLAPI Bizerba::SetConnection()
 		memzero(rcv_timeout,  sizeof(rcv_timeout));
 		itoa(Data.Put_Delay, send_timeout, 10);
 		itoa(Data.Get_Delay, rcv_timeout, 10);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, (int)strlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
-		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, (int)strlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_SNDTIMEO, (const char *)send_timeout, (int)sstrlen(send_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
+		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, (int)sstrlen(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP((res = connect(SocketHandle, (sockaddr*)&sin, sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		IsConnected = 1;
 	}
@@ -3517,7 +3517,7 @@ int SLAPI Bizerba::PrepareGoodsName(const char * pGoodsName, char * pBuf, size_t
 	(temp_buf = pGoodsName).Transf(CTRANSF_INNER_TO_OUTER);
 	STRNSCPY(gds_name, temp_buf);
 	char * p = 0;
-	if(strlen(gds_name) > 28) {
+	if(sstrlen(gds_name) > 28) {
 		char   buf[30], * p = 0;
 		STRNSCPY(buf, gds_name + 28);
 		gds_name[28] = 0;
@@ -3529,7 +3529,7 @@ int SLAPI Bizerba::PrepareGoodsName(const char * pGoodsName, char * pBuf, size_t
 			gds_name[28] = 10;
 			strcpy(p = gds_name + 29, buf);
 		}
-		if(strlen(gds_name) > 57) {
+		if(sstrlen(gds_name) > 57) {
 			gds_name[57] = 0;
 			if((p = strrchr(p, ' ')) != 0)
 				*p = 0;
@@ -4493,7 +4493,7 @@ int ScaleDialog::getDTS(PPScale * pData, SString & rExpPaths)
 		if(Data.Flags & SCALF_TCPIP) {
 			char   enc_ip[8];
 			memzero(enc_ip, sizeof(enc_ip));
-			THROW(PPObjScale::EncodeIP(port, enc_ip, strlen(port) + 1));
+			THROW(PPObjScale::EncodeIP(port, enc_ip, sstrlen(port) + 1));
 			STRNSCPY(Data.Port, enc_ip);
 		}
 		else if(Data.ScaleTypeID != PPSCLT_DIGI) {
@@ -4720,8 +4720,8 @@ int SLAPI PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 			THROW(grv->Init_(&flt));
 			THROW(GetOutputFileName(scale.ID, path));
 			{
-				const  size_t wpl = strlen(wp);
-				const  size_t cpl = strlen(cp);
+				const  size_t wpl = sstrlen(wp);
+				const  size_t cpl = sstrlen(cp);
 				char   barcode[32];
 				PPGoodsPacket  gds_pack;
 				GoodsRestViewItem gr_item;
@@ -4780,7 +4780,7 @@ int SLAPI PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 					if(to_export) {
 						if(scale.Flags & SCALF_STRIPWP && barcode_kind == 0)
 							strcpy(barcode, barcode + wpl);
-						const size_t bclen = strlen(barcode);
+						const size_t bclen = sstrlen(barcode);
 						if(bclen > 6)
 							strcpy(barcode, barcode + bclen - 6);
 						plu.Barcode = (long)atof(barcode);
@@ -5025,7 +5025,7 @@ int SLAPI PPObjScale::TransmitData(PPID id, long flags, PPLogger * pLogger)
 					if(in_stream.ReadLine(line_buf)) {
 						line_buf.Chomp();
 						if(line_buf.CmpPrefix(P_ScalePrepareFormatSignature, 0) == 0) {
-							line_buf.Excise(0, strlen(P_ScalePrepareFormatSignature));
+							line_buf.Excise(0, sstrlen(P_ScalePrepareFormatSignature));
 							line_buf.Strip();
 							SVerT ver;
 							if(!ver.FromStr(line_buf) || ver.Cmp(&__MinPrepFileVer) < 0)

@@ -931,7 +931,7 @@ long TSessionDialog::GetPlannedTiming()
 		for(uint i = 0; i < SIZEOFARRAY(p_days_word); i++) {
 			const char * p = p_days_word[i];
 			if(scan.Is(p)) {
-				scan.Incr(strlen(p));
+				scan.Incr(sstrlen(p));
 				nd = n1;
 			}
 		}

@@ -165,7 +165,7 @@ XMLPUBFUN char * XMLCALL xmlMemStrdupLoc(const char *str, const char *file, int 
  *
  * Returns the pointer to the allocated area or NULL in case of error.
  */
-#define xmlMemStrdup_Removed(str) xmlMemStrdupLoc((str), __FILE__, __LINE__)
+//#define xmlMemStrdup_Removed(str) xmlMemStrdupLoc((str), __FILE__, __LINE__)
 
 #endif /* DEBUG_MEMORY_LOCATION */
 

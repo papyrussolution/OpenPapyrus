@@ -56,7 +56,7 @@ static int SLAPI WritePStrToFile(const char * pStr, FILE * pStream)
 	int    ok = 1;
 	uint16 s;
 	if(pStr) {
-		s = (uint16)(strlen(pStr)+1);
+		s = (uint16)(sstrlen(pStr)+1);
 		THROW_V(fwrite(&s, sizeof(s), 1, pStream) == 1, SLERR_WRITEFAULT);
 		THROW_V(fwrite(pStr, s, 1, pStream) == 1, SLERR_WRITEFAULT);
 	}
@@ -342,23 +342,27 @@ DL2_Entry & FASTCALL DL2_Entry::operator = (const DL2_Entry & s)
 
 void SLAPI DL2_Entry::destroy()
 {
-	Name[0] = 0;
-	ZDELETE(P_Descript);
+	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) { // @v9.9.5
+		Name[0] = 0;
+		ZDELETE(P_Descript);
+	}
 }
 
 int SLAPI DL2_Entry::Write(DL2_Storage * pStrg) const
 {
 	int    ok = 1;
-	uint32 l, t = (uint32)EntryType;
-	FILE * f = pStrg->P_Stream;
-	uint32 offs = (uint32)ftell(f);
-	THROW_SL(fwrite(&t, sizeof(t), 1, f) == 1);
-	THROW_SL(fwrite(Name, sizeof(Name), 1, f) == 1);
-	l = (uint32)sstrlen(P_Descript);
-	THROW_SL(fwrite(&l, sizeof(l), 1, f) == 1);
-	if(l)
-		THROW_SL(fwrite(P_Descript, (size_t)l, 1, f) == 1);
-	THROW(pStrg->AddSymb(this, offs));
+	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) { // @v9.9.5
+		uint32 l, t = (uint32)EntryType;
+		FILE * f = pStrg->P_Stream;
+		uint32 offs = (uint32)ftell(f);
+		THROW_SL(fwrite(&t, sizeof(t), 1, f) == 1);
+		THROW_SL(fwrite(Name, sizeof(Name), 1, f) == 1);
+		l = (uint32)sstrlen(P_Descript);
+		THROW_SL(fwrite(&l, sizeof(l), 1, f) == 1);
+		if(l)
+			THROW_SL(fwrite(P_Descript, (size_t)l, 1, f) == 1);
+		THROW(pStrg->AddSymb(this, offs));
+	}
 	CATCH
 		ok = 0;
 		SLibError = SLERR_WRITEFAULT;
@@ -381,16 +385,18 @@ uint16 SLAPI DL2_Entry::ReadEntryType(FILE * pStream)
 int SLAPI DL2_Entry::Read(FILE * pStream)
 {
 	int    ok = 1;
-	uint32 t, l, dest_type = EntryType;
-	destroy();
-	THROW_PP(fread(&t, sizeof(t), 1, pStream) == 1, PPERR_DL200_READFAULT);
-	THROW_PP(dest_type == t, PPERR_DL200_INVENTRYTYPE);
-	THROW_PP(fread(Name, sizeof(Name), 1, pStream) == 1, PPERR_DL200_READFAULT);
-	THROW_PP(fread(&l, sizeof(l), 1, pStream) == 1, PPERR_DL200_READFAULT);
-	if(l) {
-		THROW_MEM(P_Descript = new char[(size_t)l+1]);
-		THROW_PP(fread(P_Descript, (size_t)l, 1, pStream) == 1, PPERR_DL200_READFAULT);
-		P_Descript[(size_t)l] = 0;
+	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) { // @v9.9.5
+		uint32 t, l, dest_type = EntryType;
+		destroy();
+		THROW_PP(fread(&t, sizeof(t), 1, pStream) == 1, PPERR_DL200_READFAULT);
+		THROW_PP(dest_type == t, PPERR_DL200_INVENTRYTYPE);
+		THROW_PP(fread(Name, sizeof(Name), 1, pStream) == 1, PPERR_DL200_READFAULT);
+		THROW_PP(fread(&l, sizeof(l), 1, pStream) == 1, PPERR_DL200_READFAULT);
+		if(l) {
+			THROW_MEM(P_Descript = new char[(size_t)l+1]);
+			THROW_PP(fread(P_Descript, (size_t)l, 1, pStream) == 1, PPERR_DL200_READFAULT);
+			P_Descript[(size_t)l] = 0;
+		}
 	}
 	CATCH
 		ok = 0;
@@ -401,18 +407,20 @@ int SLAPI DL2_Entry::Read(FILE * pStream)
 
 int SLAPI DL2_Entry::Print(FILE * pStream) const
 {
-	SString temp_buf;
-	switch(EntryType) {
-		case DL2ENT_ROW:   temp_buf = "ROW";   break;
-		case DL2ENT_GROUP: temp_buf = "GROUP"; break;
-		case DL2ENT_DATA:  temp_buf = "DATA";  break;
-		default:
-			(temp_buf = "DL2_ENTRY").CatChar('(').Cat(EntryType).CatChar(')'); break;
+	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) { // @v9.9.5
+		SString temp_buf;
+		switch(EntryType) {
+			case DL2ENT_ROW:   temp_buf = "ROW";   break;
+			case DL2ENT_GROUP: temp_buf = "GROUP"; break;
+			case DL2ENT_DATA:  temp_buf = "DATA";  break;
+			default:
+				(temp_buf = "DL2_ENTRY").CatChar('(').Cat(EntryType).CatChar(')'); break;
+		}
+		temp_buf.Space().Cat(Name);
+		if(P_Descript)
+			temp_buf.Space().CatParStr(P_Descript);
+		fputs(temp_buf, pStream);
 	}
-	temp_buf.Space().Cat(Name);
-	if(P_Descript)
-		temp_buf.Space().CatParStr(P_Descript);
-	fputs(temp_buf, pStream);
 	return 1;
 }
 //
@@ -544,7 +552,7 @@ size_t SLAPI DL2_Group::GetMaxDescriptionSize(uint level) const
 	size_t max_size = 0;
 	if(level == 0) {
 		if(EntryType == DL2ENT_GROUP)
-			max_size = P_Descript ? (strlen(P_Descript)+1) : sizeof(Name);
+			max_size = P_Descript ? (sstrlen(P_Descript)+1) : sizeof(Name);
 	}
 	else
 		for(uint i = 0; i < GetCount(); i++) {
@@ -767,7 +775,7 @@ DL2_CI * SLAPI DL2_CI::Copy(const DL2_CI * s)
 // static
 DL2_CI * SLAPI DL2_CI::MakeStr(const char * pStr)
 {
-	uint16 len = (uint16)(pStr ? strlen(pStr)+1 : 0);
+	uint16 len = (uint16)(pStr ? sstrlen(pStr)+1 : 0);
 	DL2_CI * p_str = new(pStr) DL2_CI;
 	if(p_str) {
 		p_str->CiType = DL2CIT_STRING;
@@ -788,7 +796,7 @@ void DL2_CI::Destroy(DL2_CI * p)
 
 void * SLAPI DL2_CI::operator new(size_t sz, const char * pStr)
 {
-	size_t len = pStr ? strlen(pStr)+1 : 0;
+	size_t len = pStr ? sstrlen(pStr)+1 : 0;
 	DL2_CI * p = (DL2_CI *)::new char[sz + len];
 	if(!p)
 		PPSetErrorNoMem();
@@ -896,19 +904,19 @@ int SLAPI DL2_CI::ToString(char * pBuf, size_t bufLen) const
 			periodfmt(&P, p);
 			break;
 		case DL2CIT_STRING:
-			strnzcpy(p, (const char *)(this+1), sizeof(buf)-strlen(buf));
+			strnzcpy(p, (const char *)(this+1), sizeof(buf)-sstrlen(buf));
 			break;
 		case DL2CIT_SCORE:
 			{
 				SString temp_buf;
 				Score.PutToStr(temp_buf);
-				temp_buf.CopyTo(p, sizeof(buf)-strlen(buf));
+				temp_buf.CopyTo(p, sizeof(buf)-sstrlen(buf));
 			}
 			break;
 		case DL2CIT_ACC:
 			*p++ = '[';
 			A.Acc.ToStr(ACCF_DEFAULT, p);
-			p += strlen(p);
+			p += sstrlen(p);
 			if(A.Flags & DL2_Acc::fRest)
 				*p++ = 'R';
 			if(A.Flags & DL2_Acc::fInRest)
@@ -936,7 +944,7 @@ int SLAPI DL2_CI::ToString(char * pBuf, size_t bufLen) const
 			if(A.GetCorrAco()) {
 				*p++ = ':';
 				A.CorrAcc.ToStr(ACCF_DEFAULT, p);
-				p += strlen(p);
+				p += sstrlen(p);
 				if(A.Flags & DL2_Acc::fCorAco1) {
 					*p++ = 'O';
 					*p++ = '1';

@@ -251,7 +251,7 @@
 #endif
 #ifdef TPF
 	#include <strings.h>    /* for bzero, strcasecmp, and strncasecmp */
-	#include <string.h>     /* for strcpy and strlen */
+	#include <string.h>     /* for strcpy and sstrlen */
 	#include <stdlib.h>     /* for rand and srand */
 	#include <sys/socket.h> /* for select and ioctl*/
 	#include <netdb.h>      /* for in_addr_t definition */

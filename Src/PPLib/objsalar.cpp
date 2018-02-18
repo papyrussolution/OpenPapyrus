@@ -677,8 +677,8 @@ IMPL_INVARIANT_C(PPStaffCal)
 	S_INVARIANT_PROLOG(pInvP);
 	S_ASSERT_P(sizeof(*this) == sizeof(ReferenceTbl::Rec), pInvP);
 	S_ASSERT_P(Tag == PPOBJ_STAFFCAL, pInvP);
-	S_ASSERT_P(strlen(Name) < sizeof(Name), pInvP);
-	S_ASSERT_P(strlen(Symb) < sizeof(Symb), pInvP);
+	S_ASSERT_P(sstrlen(Name) < sizeof(Name), pInvP);
+	S_ASSERT_P(sstrlen(Symb) < sizeof(Symb), pInvP);
 	S_ASSERT_P(LinkObjType  || !LinkObjID, pInvP);
 	S_ASSERT_P(!LinkObjType || LinkCalID, pInvP);
 	S_ASSERT_P(!(Flags & fInherited) || LinkCalID, pInvP);
@@ -2366,7 +2366,7 @@ void SLAPI StaffCalCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 	char   temp_buf[2048];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
 	PPStringSetSCD ss;
-	ss.setBuf(temp_buf, strlen(temp_buf)+1);
+	ss.setBuf(temp_buf, sstrlen(temp_buf)+1);
 	uint   p = 0;
 	ss.get(&p, p_data_rec->Name, sizeof(p_data_rec->Name));
 	ss.get(&p, p_data_rec->Symb, sizeof(p_data_rec->Symb));

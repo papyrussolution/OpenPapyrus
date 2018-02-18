@@ -3309,7 +3309,6 @@ $$$DELETEALLCCARDDISCS;$$$ADDCCARDDISCS"
 327 /!/ "1,PLAIN;2,LOGIN;3,CRAM-MD5;4,POP3"
 329 /!/ "Papyrus Server"
 332 "Циклическая ссылка: товар %s, структура %s, компонент %s, структура компонента %s"
-333 /!/ "Time;DbPath;ObjType;Count;Hits;Misses;HC ratio;Collisions;NumEntries;UnusedEntries;UT ratio;DirtyEntries\n"
 334 "Не удалось загрузить пул задач: %s"
 335 "TCP сервер остановлен"
 336 "1,Кол-во невыполненных задач;2,Выполненные задачи/кол-во задач;3,Процент выписанных накладных;4,Количество задач"
@@ -4576,6 +4575,7 @@ PPTXT_DBINCONTINUOUSMODE          "Одна или более таблиц ба�
 PPTXT_FIASTOSR_UNKNOBJTYPE        "ФИАС->Sartre: не удалось идентифицировать тип объекта '@zstr' (@int)"
 PPTXT_FIASTOSR_AMBIGOBJTYPE       "ФИАС->Sartre: тип объекта '@zstr' (@int) идентифицирован неоднозначно"
 PPTXT_FIASTOSR_OBJSKIPPED_TYPE    "ФИАС->Sartre: объект '@zstr' не акцептирован из-за неопределенного типа '@zstr' (@int)"
+PPTXT_LOGCACHEHEADER          /!/ "Time;DbPath;ObjType;Count;Hits;Misses;HC ratio;Collisions;NumEntries;UnusedEntries;UT ratio;DirtyEntries;SsSize;SsDataLen\n"
 //
 // LastText
 
@@ -7594,6 +7594,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgalcreport_fdetectalcbyclass           "Идентифицировать алкоголь по классу"
 @cfgalcreport_fwhtoreg2bylacks            "Передача склад-шоп только по дефициту"
 @cfgalcreport_fegaisver2fmt               "Использовать 2-ю версию протокола ЕГАИС"
+@cfgalcreport_fegaisver3fmt               "Использовать 3-ю версию протокола ЕГАИС"
 @cfgalcreport_wroffshopway                "Способ списания с регистра 2"
 @cfgalcreport_woswnone                    "Не списывать"
 @cfgalcreport_woswbalancewithlots         "Уровнять с текущими остатками"

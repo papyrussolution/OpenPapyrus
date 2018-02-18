@@ -221,7 +221,7 @@ static void imap_to_imaps(struct connectdata * conn)
 static bool imap_matchresp(const char * line, size_t len, const char * cmd)
 {
 	const char * end = line + len;
-	size_t cmd_len = strlen(cmd);
+	size_t cmd_len = sstrlen(cmd);
 	/* Skip the untagged response marker */
 	line += 2;
 	/* Do we have a number after the marker? */
@@ -254,7 +254,7 @@ static bool imap_endofresp(struct connectdata * conn, char * line, size_t len, i
 	struct IMAP * imap = (struct IMAP *)conn->data->req.protop;
 	struct imap_conn * imapc = &conn->proto.imapc;
 	const char * id = imapc->resptag;
-	size_t id_len = strlen(id);
+	size_t id_len = sstrlen(id);
 	/* Do we have a tagged command response? */
 	if(len >= id_len + 1 && !memcmp(id, line, id_len) && line[id_len] == ' ') {
 		line += id_len + 1;
@@ -342,7 +342,7 @@ static void imap_get_message(char * buffer, char ** outptr)
 	for(message = buffer + 2; *message == ' ' || *message == '\t'; message++)
 		;
 	/* Find the end of the message */
-	for(len = strlen(message); len--; )
+	for(len = sstrlen(message); len--; )
 		if(message[len] != '\r' && message[len] != '\n' && message[len] != ' ' && message[len] != '\t')
 			break;
 	/* Terminate the message */
@@ -850,7 +850,7 @@ static CURLcode imap_state_listsearch_resp(struct connectdata * conn, int imapco
 {
 	CURLcode result = CURLE_OK;
 	char * line = conn->data->state.buffer;
-	size_t len = strlen(line);
+	size_t len = sstrlen(line);
 	(void)instate; /* No use for this yet */
 	if(imapcode == '*') {
 		/* Temporarily add the LF character back and send as body to the client */
@@ -1496,7 +1496,7 @@ static char * imap_atom(const char * str, bool escape_only)
 			newstr = _strdup(str);
 		else {
 			// Calculate the new string length
-			size_t newlen = strlen(str) + backsp_count + quote_count + (others_exists ? 2 : 0);
+			size_t newlen = sstrlen(str) + backsp_count + quote_count + (others_exists ? 2 : 0);
 			// Allocate the new string
 			newstr = (char*)SAlloc::M((newlen + 1) * sizeof(char));
 			if(newstr) {

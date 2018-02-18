@@ -181,7 +181,7 @@ extern DBTCL_GLOBAL __dbtcl_global;
 
 /*
  * Tcl_NewStringObj takes an "int" length argument, when the typical use is to
- * call it with a size_t length (for example, returned by strlen).  Tcl is in
+ * call it with a size_t length (for example, returned by sstrlen).  Tcl is in
  * the wrong, but that doesn't help us much -- cast the argument.
  */
 #define	NewStringObj(a, b)						\
@@ -228,7 +228,7 @@ extern DBTCL_GLOBAL __dbtcl_global;
 	myobjv[1] = Tcl_NewLongObj((long)(lsn)->offset);		\
 	lsnlist = Tcl_NewListObj(myobjc, myobjv);			\
 	myobjc = 2;							\
-	myobjv[0] = Tcl_NewStringObj((s), (int)strlen(s));		\
+	myobjv[0] = Tcl_NewStringObj((s), (int)sstrlen(s));		\
 	myobjv[1] = lsnlist;						\
 	thislist = Tcl_NewListObj(myobjc, myobjv);			\
 	result = Tcl_ListObjAppendElement(interp, res, thislist);	\
@@ -245,8 +245,8 @@ extern DBTCL_GLOBAL __dbtcl_global;
  * returned by DB.
  */
 #define	MAKE_STAT_STRLIST(s,s1) do {					\
-	result = _SetListElem(interp, res, (s), (uint32)strlen(s),	\
-	    (s1), (uint32)strlen(s1));				\
+	result = _SetListElem(interp, res, (s), (uint32)sstrlen(s),	\
+	    (s1), (uint32)sstrlen(s1));				\
 	if(result != TCL_OK)						\
 		goto error;						\
 } while (0)
@@ -260,10 +260,10 @@ extern DBTCL_GLOBAL __dbtcl_global;
 #define	MAKE_SITE_LIST(e, h, p, s, pr) do {				\
 	myobjc = 5;							\
 	myobjv[0] = Tcl_NewIntObj(e);					\
-	myobjv[1] = Tcl_NewStringObj((h), (int)strlen(h));		\
+	myobjv[1] = Tcl_NewStringObj((h), (int)sstrlen(h));		\
 	myobjv[2] = Tcl_NewIntObj((int)p);				\
-	myobjv[3] = Tcl_NewStringObj((s), (int)strlen(s));		\
-	myobjv[4] = Tcl_NewStringObj((pr), (int)strlen(pr));		\
+	myobjv[3] = Tcl_NewStringObj((s), (int)sstrlen(s));		\
+	myobjv[4] = Tcl_NewStringObj((pr), (int)sstrlen(pr));		\
 	thislist = Tcl_NewListObj(myobjc, myobjv);			\
 	result = Tcl_ListObjAppendElement(interp, res, thislist);	\
 	if(result != TCL_OK)						\

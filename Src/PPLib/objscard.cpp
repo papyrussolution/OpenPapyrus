@@ -2684,7 +2684,7 @@ SString & SLAPI PPObjSCard::CalcSCardHash(const char * pNumber, SString & rHash)
 	char    buf[128];
 	if(!isempty(pNumber)) {
 		STRNSCPY(buf, pNumber);
-		crc = crc32.Calc(0, (unsigned char *)buf, strlen(buf));
+		crc = crc32.Calc(0, (unsigned char *)buf, sstrlen(buf));
 		rHash.Cat(crc >> 7).Trim(SCARD_HASH_LEN);
 		if(rHash.Len() < SCARD_HASH_LEN)
 			rHash.PadLeft(SCARD_HASH_LEN - rHash.Len(), '0');
@@ -4206,7 +4206,7 @@ void SLAPI SCardSeriesCache::EntryToData(const ObjCacheEntry * pEntry, void * pD
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
 	// @v9.9.5 PPStringSetSCD ss;
 	StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
-	r_ss.setBuf(temp_buf, strlen(temp_buf)+1);
+	r_ss.setBuf(temp_buf, sstrlen(temp_buf)+1);
 	uint   p = 0;
 	r_ss.get(&p, p_data_rec->Name, sizeof(p_data_rec->Name));
 	r_ss.get(&p, p_data_rec->Symb, sizeof(p_data_rec->Symb));

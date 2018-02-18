@@ -1003,7 +1003,7 @@ int PPObjRegister::PreventDup(RegisterTbl::Rec & rRec, PPID linkObjType, PPID li
 				p = temp_buf;
 				*p++ = '#';
 				ltoa(++c, p, 10);
-				p += strlen(p);
+				p += sstrlen(p);
 				if(serial[0]) {
 					*p++ = ' ';
 					strcpy(p, serial);

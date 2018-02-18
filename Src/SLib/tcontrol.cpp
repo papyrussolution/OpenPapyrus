@@ -1316,7 +1316,7 @@ int TCluster::column(int item) const
 				width = 0;
 			}
 			if(i < (int)Strings.getCount())
-				l = strlen((char *)(Strings.at(i)));
+				l = sstrlen((char *)(Strings.at(i)));
 			if(l > width)
 				width = l;
 		}

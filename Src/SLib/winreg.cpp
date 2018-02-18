@@ -151,7 +151,7 @@ int SLAPI WinRegValue::PutBinary(const void * pBuf, size_t dataSize)
 int SLAPI WinRegValue::PutString(const char * pStr)
 {
 	Type = REG_SZ;
-	size_t len = pStr ? strlen(pStr)+1 : 0;
+	size_t len = pStr ? sstrlen(pStr)+1 : 0;
 	if(Alloc(len)) {
 		memcpy(P_Buf, pStr, len);
 		DataSize = len;
@@ -301,7 +301,7 @@ int SLAPI WinRegKey::PutString(const char * pParam, const char * pBuf)
 {
 	if(Key == 0)
 		return 0;
-	LONG   r = RegSetValueEx(Key, pParam, 0, REG_SZ, (LPBYTE)pBuf, strlen(pBuf) + 1); // @unicodeproblem
+	LONG   r = RegSetValueEx(Key, pParam, 0, REG_SZ, (LPBYTE)pBuf, sstrlen(pBuf) + 1); // @unicodeproblem
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
 }
 

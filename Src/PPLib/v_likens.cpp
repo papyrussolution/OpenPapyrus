@@ -252,7 +252,7 @@ int SLAPI PPViewObjLikeness::CreateLikenessTable()
 		PPWait(1);
 		PROFILE_START
 		for(gi.Init(0); gi.Next(&grec1) > 0;)
-			THROW_SL(list.Add(grec1.ID, strlen(grec1.Name), grec1.Name));
+			THROW_SL(list.Add(grec1.ID, sstrlen(grec1.Name), grec1.Name));
 		PROFILE_END
 		PROFILE_START
 		count = list.getCount();

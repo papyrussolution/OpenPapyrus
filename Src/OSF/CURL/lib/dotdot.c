@@ -48,7 +48,7 @@
  */
 char * Curl_dedotdotify(const char * input)
 {
-	size_t inlen = strlen(input);
+	size_t inlen = sstrlen(input);
 	char * clone;
 	size_t clen = inlen; /* the length of the cloned input */
 	char * out = (char *)SAlloc::M(inlen+1);
@@ -161,7 +161,7 @@ char * Curl_dedotdotify(const char * input)
 		   may now have been altered so we copy from the original input string
 		   from the correct index. */
 		size_t oindex = queryp - orgclone;
-		size_t qlen = strlen(&input[oindex]);
+		size_t qlen = sstrlen(&input[oindex]);
 		memcpy(outptr, &input[oindex], qlen+1); /* include the ending zero byte */
 	}
 	SAlloc::F(orgclone);

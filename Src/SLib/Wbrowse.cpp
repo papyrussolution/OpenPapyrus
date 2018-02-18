@@ -114,30 +114,30 @@ void SLAPI SylkWriter::PutFormat(const char * pBuf, int fontId, int col, int row
 	char   temp_buf[128];
 	size_t p = 0;
 	strnzcpy(temp_buf+p, pBuf, sizeof(temp_buf)-p);
-	p += strlen(temp_buf+p);
+	p += sstrlen(temp_buf+p);
 	if(fontId) {
 		temp_buf[p++] = ';';
 		temp_buf[p++] = 'S';
 		temp_buf[p++] = 'M';
-		p += strlen(itoa(fontId, temp_buf+p, 10));
+		p += sstrlen(itoa(fontId, temp_buf+p, 10));
 	}
 	if(col > 0 && row > 0) {
 		temp_buf[p++] = ';';
 		temp_buf[p++] = 'X';
-		p += strlen(itoa(col, temp_buf+p, 10));
+		p += sstrlen(itoa(col, temp_buf+p, 10));
 		temp_buf[p++] = ';';
 		temp_buf[p++] = 'Y';
-		p += strlen(itoa(row, temp_buf+p, 10));
+		p += sstrlen(itoa(row, temp_buf+p, 10));
 	}
 	else if(col > 0) {
 		temp_buf[p++] = ';';
 		temp_buf[p++] = 'C';
-		p += strlen(itoa(col, temp_buf+p, 10));
+		p += sstrlen(itoa(col, temp_buf+p, 10));
 	}
 	else if(row > 0) {
 		temp_buf[p++] = ';';
 		temp_buf[p++] = 'R';
-		p += strlen(itoa(row, temp_buf+p, 10));
+		p += sstrlen(itoa(row, temp_buf+p, 10));
 	}
 	temp_buf[p] = 0;
 	PutRec('F', temp_buf);
@@ -149,12 +149,12 @@ void SLAPI SylkWriter::PutFont(int symb, const char * pFontName, int size, uint 
 	uint   p = 0;
 	temp_buf[p++] = symb;
 	strnzcpy(temp_buf+p, pFontName, sizeof(temp_buf)-p);
-	p += strlen(temp_buf+p);
+	p += sstrlen(temp_buf+p);
 	if(size) {
 		temp_buf[p++] = ';';
 		temp_buf[p++] = 'M';
 		itoa(size*20, temp_buf+p, 10);
-		p += strlen(temp_buf+p);
+		p += sstrlen(temp_buf+p);
 	}
 	if(fontStyle) {
 		temp_buf[p++] = ';';
@@ -1478,7 +1478,7 @@ int BrowserWindow::DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, in
 		RECT   rect = *pTextRect;
 		StringSet ss('\n', pBuf);
 		for(uint i = 0; ss.get(&i, buf, sizeof(buf)); rect.top += YCell, rect.bottom += YCell)
-			::DrawText(hdc, buf, strlen(buf), &rect, fmt); // @unicodeproblem
+			::DrawText(hdc, buf, sstrlen(buf), &rect, fmt); // @unicodeproblem
 	}
 	return 1;
 }
@@ -1633,7 +1633,7 @@ void BrowserWindow::Paint()
 		if(P_Header && SIntersectRect(ps.rcPaint, r)) {
 			((TStaticText *)P_Header)->getText(temp_buf);
 			temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(buf, sizeof(buf));
-			::DrawText(ps.hdc, buf, strlen(buf), &r, DT_LEFT); // @unicodeproblem
+			::DrawText(ps.hdc, buf, sstrlen(buf), &r, DT_LEFT); // @unicodeproblem
 		}
 		r.top     = r.left = 0;
 		r.bottom  = ChrSz.y * CapOffs - 3;

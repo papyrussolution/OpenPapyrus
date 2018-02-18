@@ -73,7 +73,7 @@ static char * SLAPI CopyDigitWord(const char * pStrings, char * pBuf, int i)
 {
 	*pBuf++ = ' ';
 	PPGetSubStr(pStrings, i, pBuf, 0);
-	return (pBuf + strlen(pBuf));
+	return (pBuf + sstrlen(pBuf));
 }
 
 static void SLAPI BelowThousandToText(int n, int fem, const char * pStrings, char * pBuf)
@@ -122,7 +122,7 @@ char * SLAPI numbertotext(double nmb, long fmt, char * pBuf)
 					BelowThousandToText(n, i == 2 || (fmt & NTTF_FEMIN), digit_words, p);
 					if(p == pBuf)
 						trimleft(p);
-					p += strlen(p);
+					p += sstrlen(p);
 					if(i < 3)
 						p = CopyDigitWord(digit_words, p, 38 + i * 3 + sfx_form(n));
 				}

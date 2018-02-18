@@ -74,7 +74,7 @@ static struct curl_httppost * AddHttpPost(char * name, size_t namelength, char *
 	struct curl_httppost * post = (struct curl_httppost *)SAlloc::C(1, sizeof(struct curl_httppost));
 	if(post) {
 		post->name = name;
-		post->namelength = (long)(name ? (namelength ? namelength : strlen(name)) : 0);
+		post->namelength = (long)(name ? (namelength ? namelength : sstrlen(name)) : 0);
 		post->contents = value;
 		post->contentlen = contentslength;
 		post->buffer = buffer;
@@ -155,7 +155,6 @@ static const char * ContentTypeForFilename(const char * filename, const char * p
 		const char * extension;
 		const char * type;
 	};
-
 	static const struct ContentType ctts[] = {
 		{".gif",  "image/gif"},
 		{".jpg",  "image/jpeg"},
@@ -164,17 +163,14 @@ static const char * ContentTypeForFilename(const char * filename, const char * p
 		{".html", "text/html"},
 		{".xml", "application/xml"}
 	};
-
 	if(prevtype)
-		/* default to the previously set/used! */
-		contenttype = prevtype;
+		contenttype = prevtype; /* default to the previously set/used! */
 	else
 		contenttype = HTTPPOST_CONTENTTYPE_DEFAULT;
-
 	if(filename) { /* in case a NULL was passed in */
 		for(i = 0; i<sizeof(ctts)/sizeof(ctts[0]); i++) {
-			if(strlen(filename) >= strlen(ctts[i].extension)) {
-				if(strcasecompare(filename + strlen(filename) - strlen(ctts[i].extension), ctts[i].extension)) {
+			if(sstrlen(filename) >= sstrlen(ctts[i].extension)) {
+				if(strcasecompare(filename + sstrlen(filename) - sstrlen(ctts[i].extension), ctts[i].extension)) {
 					contenttype = ctts[i].type;
 					break;
 				}
@@ -209,7 +205,7 @@ static const char * ContentTypeForFilename(const char * filename, const char * p
 * name/value pair where only the content pointer is remembered:
 * curl_formadd (&post, &last, CURLFORM_COPYNAME, "name",
 * CURLFORM_PTRCONTENTS, ptr, CURLFORM_CONTENTSLENGTH, 10, CURLFORM_END);
-* (if CURLFORM_CONTENTSLENGTH is missing strlen () is used)
+* (if CURLFORM_CONTENTSLENGTH is missing sstrlen () is used)
 *
 * storing a filename (CONTENTTYPE is optional!):
 * curl_formadd (&post, &last, CURLFORM_COPYNAME, "name",
@@ -597,7 +593,7 @@ static CURLFORMcode FormAdd(struct curl_httppost ** httppost, struct curl_httppo
 				   app passed in a bad combo, so we better check for that first. */
 				if(form->name) {
 					/* copy name (without strdup; possibly contains null characters) */
-					form->name = (char *)Curl_memdup(form->name, form->namelength ? form->namelength : strlen(form->name)+1);
+					form->name = (char *)Curl_memdup(form->name, form->namelength ? form->namelength : sstrlen(form->name)+1);
 				}
 				if(!form->name) {
 					return_value = CURL_FORMADD_MEMORY;
@@ -608,7 +604,7 @@ static CURLFORMcode FormAdd(struct curl_httppost ** httppost, struct curl_httppo
 			if(!(form->flags & (HTTPPOST_FILENAME | HTTPPOST_READFILE | HTTPPOST_PTRCONTENTS | HTTPPOST_PTRBUFFER | HTTPPOST_CALLBACK)) && form->value) {
 				/* copy value (without strdup; possibly contains null characters) */
 				size_t clen  = (size_t)form->contentslength;
-				SETIFZ(clen, strlen(form->value)+1);
+				SETIFZ(clen, sstrlen(form->value)+1);
 				form->value = (char *)Curl_memdup(form->value, clen);
 				if(!form->value) {
 					return_value = CURL_FORMADD_MEMORY;
@@ -764,7 +760,7 @@ static CURLcode AddFormData(struct FormData ** formp, enum formtype type, const 
 	if(type <= FORM_CONTENT) {
 		/* we make it easier for plain strings: */
 		if(!length)
-			length = strlen((char*)line);
+			length = sstrlen((char*)line);
 #if (SIZEOF_SIZE_T < CURL_SIZEOF_CURL_OFF_T)
 		else if(length >= (curl_off_t)(size_t)-1) {
 			result = CURLE_BAD_FUNCTION_ARGUMENT;
@@ -1033,7 +1029,7 @@ static CURLcode formdata_add_filename(const struct curl_httppost * file,
 	if(strchr(filename, '\\') || strchr(filename, '"')) {
 		char * p0, * p1;
 		/* filename need be escaped */
-		filename_escaped = (char *)SAlloc::M(strlen(filename)*2+1);
+		filename_escaped = (char *)SAlloc::M(sstrlen(filename)*2+1);
 		if(!filename_escaped) {
 			SAlloc::F(filebasename);
 			return CURLE_OUT_OF_MEMORY;

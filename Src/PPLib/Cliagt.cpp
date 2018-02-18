@@ -1,5 +1,5 @@
 // CLIAGT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // Соглашения с клиентами об условиях торговли
 //
@@ -68,7 +68,7 @@ int SLAPI PPClientAgreement::IsEmpty() const
 {
 	const long nempty_flags_mask = (AGTF_DONTCALCDEBTINBILL|AGTF_PRICEROUNDING);
 	return ((Flags & nempty_flags_mask) || BegDt || Expiry || MaxCredit || MaxDscnt || Dscnt || DefPayPeriod ||
-		DefAgentID || DefQuotKindID || ExtObjectID || LockPrcBefore || strlen(Code) > 0 || DebtLimList.getCount() ||
+		DefAgentID || DefQuotKindID || ExtObjectID || LockPrcBefore || sstrlen(Code) > 0 || DebtLimList.getCount() ||
 		(RetLimPrd && RetLimPart)) ? 0 : 1;
 }
 
@@ -79,7 +79,7 @@ PPClientAgreement & FASTCALL PPClientAgreement::operator = (const PPClientAgreem
 	return *this;
 }
 
-struct DebtLimit_Before715 {
+struct DebtLimit_Before715 { // @flat
 	PPID   DebtDimID;
 	double Limit;
 	long   Flags;
@@ -89,51 +89,20 @@ int SLAPI PPClientAgreement::Serialize(int dir, SBuffer & rBuf, SSerializeContex
 {
 	int    ok = 1;
 	uint8  ind = 0;
-	// @v7.2.0 SArray temp_list(sizeof(DebtLimit_Before715)); // @v7.1.5
 	if(dir > 0) {
 		if(IsEmpty())
 			ind = 1;
 		rBuf.Write(ind);
 		if(ind == 0) {
 			THROW_SL(pCtx->SerializeBlock(dir, offsetof(PPClientAgreement, DebtLimList), this, rBuf, 0));
-			THROW_SL(pCtx->Serialize(dir, &DebtLimList, rBuf)); // @v7.2.0
-#if 0 // @v7.2.0 {
-			// @v7.1.5 {
-			for(uint i = 0; i < DebtLimList.getCount(); i++) {
-				DebtLimit & r_dd_item = DebtLimList.at(i);
-				DebtLimit_Before715 item;
-				item.DebtDimID = r_dd_item.DebtDimID;
-				item.Limit = r_dd_item.Limit;
-				item.Flags = r_dd_item.Flags;
-				THROW_SL(temp_list.insert(&item));
-			}
-			THROW_SL(pCtx->Serialize(dir, &temp_list, rBuf));
-			// } @v7.1.5
-			// @v7.1.5 THROW_SL(pCtx->Serialize(dir, &DebtLimList, rBuf));
-#endif // } 0 @v7.2.0
+			THROW_SL(pCtx->Serialize(dir, &DebtLimList, rBuf));
 		}
 	}
 	else if(dir < 0) {
 		rBuf.Read(ind);
 		if(ind == 0) {
 			THROW_SL(pCtx->SerializeBlock(dir, offsetof(PPClientAgreement, DebtLimList), this, rBuf, 0));
-			THROW_SL(pCtx->Serialize(dir, &DebtLimList, rBuf)); // @v7.2.0
-#if 0 // @v7.2.0 {
-			// @v7.1.5 THROW_SL(pCtx->Serialize(dir, &DebtLimList, rBuf));
-			// @v7.1.5 {
-			THROW_SL(pCtx->Serialize(dir, &temp_list, rBuf));
-			DebtLimList.clear();
-			for(uint i = 0; i < temp_list.getCount(); i++) {
-				DebtLimit_Before715 & r_item = *(DebtLimit_Before715 *)temp_list.at(i);
-				DebtLimit dd_item;
-				dd_item.DebtDimID = r_item.DebtDimID;
-				dd_item.Limit = r_item.Limit;
-				dd_item.Flags = r_item.Flags;
-				dd_item.LockPrcBefore = ZERODATE;
-				THROW_SL(DebtLimList.insert(&dd_item));
-			}
-			// } @v7.1.5
-#endif // } 0 @v7.2.0
+			THROW_SL(pCtx->Serialize(dir, &DebtLimList, rBuf));
 		}
 		else {
 			Init();
@@ -143,7 +112,7 @@ int SLAPI PPClientAgreement::Serialize(int dir, SBuffer & rBuf, SSerializeContex
 	return ok;
 }
 
-double SLAPI PPClientAgreement::GetCreditLimit(PPID debtDimID) const
+double FASTCALL PPClientAgreement::GetCreditLimit(PPID debtDimID) const
 {
 	double limit = 0.0;
 	int    has_dd_item = 0;
@@ -226,7 +195,7 @@ int SLAPI PPObjArticle::PropToClientAgt(const PropertyTbl::Rec * pPropRec, PPCli
 			p_ref->GetPropArray(PPOBJ_ARTICLE, pAgt->ClientID, ARTPRP_DEBTLIMLIST2, &pAgt->DebtLimList);
 		}
 		else {
-			SArray temp_list(sizeof(DebtLimit_Before715));
+			SVector temp_list(sizeof(DebtLimit_Before715)); // @v9.9.5 SArray-->SVector
 			p_ref->GetPropArray(PPOBJ_ARTICLE, pAgt->ClientID, ARTPRP_DEBTLIMLIST, &temp_list);
 			pAgt->DebtLimList.clear();
 			for(uint i = 0; i < temp_list.getCount(); i++) {
@@ -315,14 +284,12 @@ int SLAPI PPObjArticle::GetClientAgreement(PPID id, PPClientAgreement * pAgt, in
 		pAgt->ClientID = id;
 		if(is_default)
 			pAgt->Flags |= AGTF_DEFAULT;
-		// @v7.1.9 {
 		else if(r2 > 0) {
 			if(pAgt->RetLimPrd == 0 && pAgt->RetLimPart == 0) {
 				pAgt->RetLimPrd = def_agt.RetLimPrd;
 				pAgt->RetLimPart = def_agt.RetLimPart;
 			}
 		}
-		// } @v7.1.9
 	}
 	else {
 		pAgt->Flags |= AGTF_LOADED;
@@ -950,6 +917,7 @@ PPSupplAgreement::ExchangeParam & SLAPI PPSupplAgreement::ExchangeParam::Clear()
 	ExtString.Z();
 	MEMSZERO(Fb);
 	DebtDimList.Set(0); // @v9.1.3
+	WhList.Set(0); // @v9.9.5
 	return *this;
 }
 
@@ -974,12 +942,16 @@ int FASTCALL PPSupplAgreement::ExchangeParam::IsEqual(const ExchangeParam & rS) 
 	CMP_FLD(Fb.BillAckTagID); // @v9.5.7
 	CMP_FLD(Fb.SequenceID); // @v9.4.2
 	CMP_FLD(Fb.StyloPalmID); // @v9.5.5
+	CMP_FLD(Fb.GoodsTagID); // @v9.9.5
+	CMP_FLD(Fb.NativeGIdType); // @v9.9.5
+	CMP_FLD(Fb.ForeignGIdType); // @v9.9.5
 #undef CMP_FLD
 	if(!DebtDimList.IsEqual(rS.DebtDimList)) return 0; // @v9.1.3
+	if(!WhList.IsEqual(rS.WhList)) return 0; // @v9.9.5
 	return 1;
 }
 
-int  SLAPI PPSupplAgreement::ExchangeParam::Serialize_Before_v9103_(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+int SLAPI PPSupplAgreement::ExchangeParam::Helper_SerializeCommon(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW_SL(pSCtx->Serialize(dir, LastDt, rBuf));
@@ -995,6 +967,23 @@ int  SLAPI PPSupplAgreement::ExchangeParam::Serialize_Before_v9103_(int dir, SBu
 	THROW_SL(pSCtx->SerializeBlock(dir, sizeof(Fb), &Fb, rBuf, 0));
 	THROW_SL(ConnAddr.Serialize(dir, rBuf, pSCtx));
 	THROW_SL(pSCtx->Serialize(dir, ExtString, rBuf));
+	CATCHZOK
+	return ok;
+}
+
+int  SLAPI PPSupplAgreement::ExchangeParam::Serialize_Before_v9103_(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW(Helper_SerializeCommon(dir, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPSupplAgreement::ExchangeParam::Serialize_Before_v9905_(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW(Helper_SerializeCommon(dir, rBuf, pSCtx));
+	THROW_SL(DebtDimList.Serialize(dir, rBuf, pSCtx)); // @v9.1.3
 	CATCHZOK
 	return ok;
 }
@@ -1002,27 +991,16 @@ int  SLAPI PPSupplAgreement::ExchangeParam::Serialize_Before_v9103_(int dir, SBu
 int SLAPI PPSupplAgreement::ExchangeParam::Serialize_(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW_SL(pSCtx->Serialize(dir, LastDt, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, GoodsGrpID, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, ExpendOp, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, RcptOp, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, SupplRetOp, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, RetOp, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, MovInOp, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, MovOutOp, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, PriceQuotID, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, ProtVer, rBuf));
-	THROW_SL(pSCtx->SerializeBlock(dir, sizeof(Fb), &Fb, rBuf, 0));
-	THROW_SL(ConnAddr.Serialize(dir, rBuf, pSCtx));
-	THROW_SL(pSCtx->Serialize(dir, ExtString, rBuf));
+	THROW(Helper_SerializeCommon(dir, rBuf, pSCtx));
 	THROW_SL(DebtDimList.Serialize(dir, rBuf, pSCtx)); // @v9.1.3
+	THROW_SL(WhList.Serialize(dir, rBuf, pSCtx)); // @v9.9.5
 	CATCHZOK
 	return ok;
 }
 
 int SLAPI PPSupplAgreement::ExchangeParam::IsEmpty() const
 {
-	if(GoodsGrpID || !ConnAddr.IsEmpty())
+	if(GoodsGrpID || !ConnAddr.IsEmpty() || ExpendOp || RcptOp || SupplRetOp || RetOp || MovInOp || MovOutOp || PriceQuotID)
 		return 0;
 	else {
 		SString temp_buf;
@@ -1031,6 +1009,8 @@ int SLAPI PPSupplAgreement::ExchangeParam::IsEmpty() const
 		else if(GetExtStrData(extssEDIPrvdrSymb, temp_buf) > 0 && temp_buf.NotEmptyS())
 			return 0;
 		else if(DebtDimList.GetCount()) // @v9.1.3
+			return 0;
+		else if(WhList.GetCount()) // @v9.9.5
 			return 0;
 		else
 			return 1;
@@ -1206,6 +1186,9 @@ int SLAPI PPSupplAgreement::Serialize(int dir, SBuffer & rBuf, SSerializeContext
 	THROW_SL(pSCtx->SerializeBlock(dir, sizeof(Fb), &Fb, rBuf, 0));
 	if(dir < 0 && Ver.IsLt(9, 1, 3)) {
 		THROW(Ep.Serialize_Before_v9103_(dir, rBuf, pSCtx));
+	}
+	else if(dir < 0 && Ver.IsLt(9, 9, 5)) {
+		THROW(Ep.Serialize_Before_v9905_(dir, rBuf, pSCtx));
 	}
 	else {
 		THROW(Ep.Serialize_(dir, rBuf, pSCtx));

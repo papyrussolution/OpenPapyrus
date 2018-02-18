@@ -1438,8 +1438,8 @@ static int _TestSymbVar(PPSymbTranslator & rSt, int varId, const char * pVarSymb
 		(temp_buf = pVarSymb).Cat("*abc");
 		long si = rSt.Translate(temp_buf, &pos, 0);
 		assert(si == varId);
-		assert(pos == strlen(pVarSymb));
-		if(si != varId || pos != strlen(pVarSymb))
+		assert(pos == sstrlen(pVarSymb));
+		if(si != varId || pos != sstrlen(pVarSymb))
 			ok = 0;
     }
     {
@@ -1447,8 +1447,8 @@ static int _TestSymbVar(PPSymbTranslator & rSt, int varId, const char * pVarSymb
 		(temp_buf = pVarSymb).ToLower().Cat("0xyz");
 		long si = rSt.Translate(temp_buf, &pos, 0);
 		assert(si == varId);
-		assert(pos == strlen(pVarSymb));
-		if(si != varId || pos != strlen(pVarSymb))
+		assert(pos == sstrlen(pVarSymb));
+		if(si != varId || pos != sstrlen(pVarSymb))
 			ok = 0;
     }
     return ok;
@@ -4106,9 +4106,8 @@ DlContext * SLAPI PPSession::GetInterfaceContext(int ctxType)
 	return p_ctx;
 }
 
-SLAPI PPNotifyEvent::PPNotifyEvent()
+SLAPI PPNotifyEvent::PPNotifyEvent() : PPExtStrContainer(), Action(0), ObjType(0), ObjID(0), ExtInt_(0), ExtDtm(ZERODATETIME)
 {
-	Clear();
 }
 
 void SLAPI PPNotifyEvent::Clear()
@@ -4118,9 +4117,7 @@ void SLAPI PPNotifyEvent::Clear()
 	ObjID = 0;
 	ExtInt_ = 0;
 	ExtDtm.SetZero();
-	//ExtStr.Z();
 	ExtString.Z();
-
 }
 
 PPNotifyEvent & SLAPI PPNotifyEvent::SetFinishTag()
@@ -4147,10 +4144,8 @@ uint PPAdviseList::GetCount()
 {
 	uint   c = 0;
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		c = getCount();
-		//RwL.Unlock();
 	}
 	return c;
 }
@@ -4173,18 +4168,18 @@ int PPAdviseList::CreateList(int kind, ThreadID tId, long dbPathID, PPID objType
 	int    ok = -1;
 	rList.clear();
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		const uint c = getCount();
-		for(uint i = 0; i < c; i++) {
-			const PPAdviseBlock * p_blk = (PPAdviseBlock *)at(i);
-			if(p_blk->Kind == kind && (!objType || p_blk->ObjType == objType) &&
-				(!p_blk->TId || p_blk->TId == tId) && (!p_blk->DbPathID || p_blk->DbPathID == dbPathID)) {
-				rList.insert(p_blk);
-				ok = 1;
+		if(c) { // @speedcritical
+			for(uint i = 0; i < c; i++) {
+				const PPAdviseBlock * p_blk = (PPAdviseBlock *)at(i);
+				if(p_blk->Kind == kind && (!objType || p_blk->ObjType == objType) &&
+					(!p_blk->TId || p_blk->TId == tId) && (!p_blk->DbPathID || p_blk->DbPathID == dbPathID)) {
+					rList.insert(p_blk);
+					ok = 1;
+				}
 			}
 		}
-		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -4193,7 +4188,6 @@ int SLAPI PPAdviseList::Advise(long * pCookie, const PPAdviseBlock * pBlk)
 {
 	int    ok = -1;
 	{
-		//RwL.WriteLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		if(pBlk) {
 			const long cookie = ++LastCookie;
@@ -4210,7 +4204,6 @@ int SLAPI PPAdviseList::Advise(long * pCookie, const PPAdviseBlock * pBlk)
 				ok = 1;
 			}
 		}
-		//RwL.Unlock();
 	}
 	return ok;
 }

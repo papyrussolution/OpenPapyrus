@@ -63,17 +63,7 @@
 
 ; We are in 32 bits mode
 BITS    32
-
-section .data
-
-global __SSE2Status
-
-; SSE2 status flag:
-; 
-;   -1: Unchecked
-;    0: SSE2 not available
-;    1: SSE2 available
-__SSE2Status:   dd  -1
+extern __SSE2Status
 
 section .text
 
@@ -99,41 +89,26 @@ global _xeos_strchr
 ;       None - __cdecl (all except EAX, ECX, EDX must be preserved)
 ;-------------------------------------------------------------------------------
 _xeos_strchr:
-    
-    ; Checks the status of the SSE2 flag
-    cmp DWORD [ ds:__SSE2Status ], 1
-    
-    ; SSE2 are available - Use the optimized version of strchr()
-    je  _strchr32_sse2
-    
-    ; Checks the status of the SSE2 flag
-    cmp DWORD [ ds:__SSE2Status ], 0
-    
-    ; SSE2 are not available - Use the less-optimized version of strchr()
-    je  _strchr32
-    
+    cmp DWORD [ ds:__SSE2Status ], 1 ; Checks the status of the SSE2 flag
+    je  _strchr32_sse2 ; SSE2 are available - Use the optimized version of strchr()
+    cmp DWORD [ ds:__SSE2Status ], 0 ; Checks the status of the SSE2 flag
+    je  _strchr32 ; SSE2 are not available - Use the less-optimized version of strchr()
     ; SSE2 status needs to be checked
     .check:
-        
         ; CPUID - Asks for CPU features (EAX=1)
         mov     eax,    1
         cpuid
-        
         ; Checks the SSE2 bit (bit 26)
         test    edx,    0x4000000      
         jz      .fail
-        
     ; SSE2 available
     .ok:
-        
         ; Sets the SSE2 status flag for the next calls and fills the buffer
         ; with the optimized version of strchr()
         mov DWORD [ ds:__SSE2Status ], 1
         jmp _strchr32_sse2
-    
     ; SSE2 not available
     .fail:
-        
         ; Sets the SSE2 status flag for the next calls and fills the buffer
         ; with the less-optimized version of strchr()
         mov DWORD [ ds:__SSE2Status ], 0
@@ -143,42 +118,25 @@ _xeos_strchr:
 ; 32-bits SSE2 optimized strchr() function
 ; 
 ; char * _strchr32_sse2( const char * s, int c );
-; 
 ; Input registers:
-;       
 ;       None - Arguments on stack
-; 
 ; Return registers:
-;       
-;       - EAX:      A pointer to the first occurence of the character in the
-;                   string, or 0 (NULL)
-; 
+;       - EAX:      A pointer to the first occurence of the character in the string, or 0 (NULL)
 ; Killed registers:
-;       
 ;       None - __cdecl (all except EAX, ECX, EDX must be preserved)
 ;-------------------------------------------------------------------------------
 _strchr32_sse2:
-    
     ret
 
 ;-------------------------------------------------------------------------------
 ; 32-bits optimized strchr() function
-; 
 ; char * _strchr32( const char * s, int c );
-; 
 ; Input registers:
-;       
 ;       None - Arguments on stack
-; 
 ; Return registers:
-;       
-;       - EAX:      A pointer to the first occurence of the character in the
-;                   string, or 0 (NULL)
-; 
+;       - EAX:      A pointer to the first occurence of the character in the string, or 0 (NULL)
 ; Killed registers:
-;       
 ;       None - __cdecl (all except EAX, ECX, EDX must be preserved)
 ;-------------------------------------------------------------------------------
 _strchr32:
-    
     ret

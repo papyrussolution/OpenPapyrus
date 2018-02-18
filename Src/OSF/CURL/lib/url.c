@@ -229,7 +229,7 @@ static CURLcode setstropt_userpwd(char * option, char ** userp, char ** passwdp)
 	char * passwd = NULL;
 	// Parse the login details if specified. It not then we treat NULL as a hint to clear the existing data
 	if(option) {
-		result = parse_login_details(option, strlen(option), (userp ? &user : NULL), (passwdp ? &passwd : NULL), NULL);
+		result = parse_login_details(option, sstrlen(option), (userp ? &user : NULL), (passwdp ? &passwd : NULL), NULL);
 	}
 	if(!result) {
 		// Store the username part of option if required
@@ -834,7 +834,7 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    break;
 		case CURLOPT_POSTFIELDSIZE:
 		    /*
-		     * The size of the POSTFIELD data to prevent libcurl to do strlen() to
+		     * The size of the POSTFIELD data to prevent libcurl to do sstrlen() to
 		     * figure it out. Enables binary posts.
 		     */
 		    bigsize = va_arg(param, long);
@@ -847,7 +847,7 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option, va_list param)
 		    break;
 		case CURLOPT_POSTFIELDSIZE_LARGE:
 		    /*
-		     * The size of the POSTFIELD data to prevent libcurl to do strlen() to
+		     * The size of the POSTFIELD data to prevent libcurl to do sstrlen() to
 		     * figure it out. Enables binary posts.
 		     */
 		    bigsize = va_arg(param, curl_off_t);
@@ -2110,13 +2110,13 @@ CURLcode Curl_setopt(struct Curl_easy * data, CURLoption option, va_list param)
 			    data->set.proxy_ssl.authtype = CURL_TLSAUTH_SRP;  /* default to SRP */
 		    break;
 		case CURLOPT_TLSAUTH_TYPE:
-		    if(strncasecompare((char*)va_arg(param, char *), "SRP", strlen("SRP")))
+		    if(strncasecompare((char*)va_arg(param, char *), "SRP", sstrlen("SRP")))
 			    data->set.ssl.authtype = CURL_TLSAUTH_SRP;
 		    else
 			    data->set.ssl.authtype = CURL_TLSAUTH_NONE;
 		    break;
 		case CURLOPT_PROXY_TLSAUTH_TYPE:
-		    if(strncasecompare((char*)va_arg(param, char *), "SRP", strlen("SRP")))
+		    if(strncasecompare((char*)va_arg(param, char *), "SRP", sstrlen("SRP")))
 			    data->set.proxy_ssl.authtype = CURL_TLSAUTH_SRP;
 		    else
 			    data->set.proxy_ssl.authtype = CURL_TLSAUTH_NONE;
@@ -3115,7 +3115,7 @@ static void FASTCALL fix_hostname(struct connectdata * conn, struct hostname * h
 #endif
 	// set the name we use to display the host name
 	host->dispname = host->name;
-	len = strlen(host->name);
+	len = sstrlen(host->name);
 	if(len && host->name[len-1] == '.')
 		host->name[len-1] = 0; // strip off a single trailing dot if present, primarily for SNI but there's no use for it
 	/* Check name for non-ASCII and convert hostname to ACE form if we can */
@@ -3381,7 +3381,7 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data, struct connectdata 
 
 			/* This cannot be done with strcpy() in a portable manner, since the
 			   memory areas overlap! */
-			memmove(path, path + 2, strlen(path + 2)+1);
+			memmove(path, path + 2, sstrlen(path + 2)+1);
 		}
 
 		/* the path may start with a drive letter. for backwards compatibility
@@ -3421,7 +3421,7 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data, struct connectdata 
 				   used truly as a separator */
 				ptr++;
 			/* This cannot be made with strcpy, as the memory chunks overlap! */
-			memmove(path, ptr, strlen(ptr)+1);
+			memmove(path, ptr, sstrlen(ptr)+1);
 			path_has_drive = (('a' <= path[0] && path[0] <= 'z') || ('A' <= path[0] && path[0] <= 'Z')) && path[1] == ':';
 		}
 #if !defined(MSDOS) && !defined(WIN32) && !defined(__CYGWIN__)
@@ -3490,7 +3490,7 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data, struct connectdata 
 			*prot_missing = TRUE; /* not given in URL */
 		}
 		else {
-			size_t s = strlen(slashbuf);
+			size_t s = sstrlen(slashbuf);
 			protop = protobuf;
 			if(s != 2) {
 				infof(data, "Unwillingly accepted illegal URL using %d slash%s!\n", s, s>1 ? "es" : "");
@@ -3519,8 +3519,8 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data, struct connectdata 
 		   We must move the trailing part from the host name and put it first in
 		   the path. And have it all prefixed with a slash.
 		 */
-		size_t hostlen = strlen(query);
-		size_t pathlen = strlen(path);
+		size_t hostlen = sstrlen(query);
+		size_t pathlen = sstrlen(path);
 		/* move the existing path plus the zero byte forward, to make room for
 		   the host-name part */
 		memmove(path+hostlen+1, path, pathlen+1);
@@ -3543,7 +3543,7 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data, struct connectdata 
 		/* We need this function to deal with overlapping memory areas. We know
 		   that the memory area 'path' points to is 'urllen' bytes big and that
 		   is bigger than the path. Use +1 to move the zero byte too. */
-		memmove(&path[1], path, strlen(path)+1);
+		memmove(&path[1], path, sstrlen(path)+1);
 		path[0] = '/';
 		rebuild_url = TRUE;
 	}
@@ -3570,11 +3570,11 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data, struct connectdata 
 	 */
 	if(rebuild_url) {
 		char * reurl;
-		size_t plen = strlen(path); /* new path, should be 1 byte longer than the original */
-		size_t urllen = strlen(data->change.url); /* original URL length */
-		size_t prefixlen = strlen(conn->host.name);
+		size_t plen = sstrlen(path); /* new path, should be 1 byte longer than the original */
+		size_t urllen = sstrlen(data->change.url); /* original URL length */
+		size_t prefixlen = sstrlen(conn->host.name);
 		if(!*prot_missing)
-			prefixlen += strlen(protop) + strlen("://");
+			prefixlen += sstrlen(protop) + sstrlen("://");
 		reurl = (char *)SAlloc::M(urllen + 2); /* 2 for zerobyte + slash */
 		if(!reurl)
 			return CURLE_OUT_OF_MEMORY;
@@ -3614,7 +3614,7 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data, struct connectdata 
 			scope = strtoul(percent + identifier_offset, &endp, 10);
 			if(*endp == ']') {
 				// The address scope was well formed.  Knock it out of the hostname
-				memmove(percent, endp, strlen(endp)+1);
+				memmove(percent, endp, sstrlen(endp)+1);
 				conn->scope_id = (uint)scope;
 			}
 			else {
@@ -3637,10 +3637,10 @@ static CURLcode parseurlandfillconn(struct Curl_easy * data, struct connectdata 
 					}
 				}
 				if(scopeidx > 0) {
-					char * p = percent + identifier_offset + strlen(ifname);
+					char * p = percent + identifier_offset + sstrlen(ifname);
 
 					/* Remove zone identifier from hostname */
-					memmove(percent, p, strlen(p) + 1);
+					memmove(percent, p, sstrlen(p) + 1);
 					conn->scope_id = scopeidx;
 				}
 				else
@@ -3766,12 +3766,12 @@ static bool check_noproxy(const char * name, const char * no_proxy)
 			return TRUE;
 		}
 		// NO_PROXY was specified and it wasn't just an asterisk
-		no_proxy_len = strlen(no_proxy);
+		no_proxy_len = sstrlen(no_proxy);
 		endptr = strchr(name, ':');
 		if(endptr)
 			namelen = endptr - name;
 		else
-			namelen = strlen(name);
+			namelen = sstrlen(name);
 		for(tok_start = 0; tok_start < no_proxy_len; tok_start = tok_end + 1) {
 			while(tok_start < no_proxy_len && strchr(separator, no_proxy[tok_start]) != NULL) {
 				/* Look for the beginning of the token. */
@@ -4015,7 +4015,7 @@ static CURLcode parse_proxy(struct Curl_easy * data, struct connectdata * conn, 
 				return CURLE_OUT_OF_MEMORY;
 			}
 			ZFREE(proxyinfo->passwd);
-			if(proxypasswd && strlen(proxypasswd) < MAX_CURL_PASSWORD_LENGTH)
+			if(proxypasswd && sstrlen(proxypasswd) < MAX_CURL_PASSWORD_LENGTH)
 				proxyinfo->passwd = curl_easy_unescape(data, proxypasswd, 0, 0);
 			else
 				proxyinfo->passwd = _strdup("");
@@ -4684,7 +4684,7 @@ static CURLcode parse_connect_to_string(struct Curl_easy * data, struct connectd
 		char * hostname_to_match = aprintf("%s%s%s", conn->bits.ipv6_ip ? "[" : "", conn->host.name, conn->bits.ipv6_ip ? "]" : "");
 		if(!hostname_to_match)
 			return CURLE_OUT_OF_MEMORY;
-		hostname_to_match_len = strlen(hostname_to_match);
+		hostname_to_match_len = sstrlen(hostname_to_match);
 		host_match = strncasecompare(ptr, hostname_to_match, hostname_to_match_len);
 		SAlloc::F(hostname_to_match);
 		ptr += hostname_to_match_len;
@@ -4990,7 +4990,7 @@ static CURLcode create_conn(struct Curl_easy * data, struct connectdata ** in_co
 	* other parts of the code will rely on this fact
 	***********************************************************/
 #define LEAST_PATH_ALLOC 256
-	urllen = strlen(data->change.url);
+	urllen = sstrlen(data->change.url);
 	if(urllen < LEAST_PATH_ALLOC)
 		urllen = LEAST_PATH_ALLOC;
 	/*

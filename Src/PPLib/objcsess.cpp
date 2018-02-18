@@ -58,7 +58,7 @@ int PPObjCSession::StringToRights(const char * pBuf, long * pRt, long * pOpRt)
 	const  size_t len = sstrlen(pBuf);
 	for(size_t c = 0; c < len; c++) {
 		for(uint i = 0; i < SIZEOFARRAY(RtToS); i++) {
-			const size_t cl = strlen(RtToS[i].S);
+			const size_t cl = sstrlen(RtToS[i].S);
 			if(strnicmp(RtToS[i].S, pBuf+c, cl) == 0) {
 				if(RtToS[i].IsOpr)
 					ort |= RtToS[i].R;

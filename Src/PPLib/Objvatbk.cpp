@@ -1235,7 +1235,7 @@ int SLAPI PPViewVatBook::LoadClbList(PPID billID)
 						THROW_MEM(SETIFZ(P_ClbList, new SArray(VBV_CLB_ITEM_SIZE)));
 						THROW(P_GObj->GetManufCountry(labs(ti.GoodsID), 0, 0, &country_blk));
 						clb.CopyTo(list_item, sizeof(list_item));
-						li_pos = strlen(list_item);
+						li_pos = sstrlen(list_item);
 						if(li_pos < sizeof(list_item)-1) {
 							list_item[li_pos++] = ';';
 							strnzcpy(list_item+li_pos, country_blk.Name, sizeof(list_item)-li_pos);

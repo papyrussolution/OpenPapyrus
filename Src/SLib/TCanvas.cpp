@@ -904,7 +904,7 @@ TPoint SLAPI TCanvas2::GetTextSize(const char * pStr)
 	int    len;
 	char   zero[16];
 	if(pStr)
-		len = strlen(pStr);
+		len = sstrlen(pStr);
 	else {
 		len = 0;
 		memzero(zero, sizeof(zero));
@@ -937,7 +937,7 @@ int SLAPI TCanvas2::_DrawText(const TRect & rRect, const char * pText, uint opti
 	int    len;
 	char   zero[16];
 	if(pText)
-		len = strlen(pText);
+		len = sstrlen(pText);
 	else {
 		len = 0;
 		memzero(zero, sizeof(zero));
@@ -952,7 +952,7 @@ int SLAPI TCanvas2::TextOut(TPoint p, const char * pText)
 	int    len;
 	char   zero[16];
 	if(pText)
-		len = strlen(pText);
+		len = sstrlen(pText);
 	else {
 		len = 0;
 		memzero(zero, sizeof(zero));
@@ -1609,7 +1609,7 @@ int SLAPI TCanvas::DrawText(const TRect & rRect, const char * pText, uint option
 	int    len;
 	char   zero[16];
 	if(pText)
-		len = strlen(pText);
+		len = sstrlen(pText);
 	else {
 		len = 0;
 		memzero(zero, sizeof(zero));
@@ -1624,7 +1624,7 @@ int SLAPI TCanvas::TextOut(TPoint p, const char * pText)
 	int    len;
 	char   zero[16];
 	if(pText)
-		len = strlen(pText);
+		len = sstrlen(pText);
 	else {
 		len = 0;
 		memzero(zero, sizeof(zero));

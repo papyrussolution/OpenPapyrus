@@ -101,7 +101,7 @@ CURLcode Curl_auth_create_gssapi_user_message(struct Curl_easy * data,
 
 		/* Populate the SPN structure */
 		spn_token.value = spn;
-		spn_token.length = strlen(spn);
+		spn_token.length = sstrlen(spn);
 
 		/* Import the SPN */
 		major_status = gss_import_name(&minor_status, &spn_token,
@@ -220,7 +220,7 @@ CURLcode Curl_auth_create_gssapi_security_message(struct Curl_easy * data,
 	gss_buffer_desc username_token;
 
 	/* Decode the base-64 encoded input message */
-	if(strlen(chlg64) && *chlg64 != '=') {
+	if(sstrlen(chlg64) && *chlg64 != '=') {
 		result = Curl_base64_decode(chlg64, &chlg, &chlglen);
 		if(result)
 			return result;

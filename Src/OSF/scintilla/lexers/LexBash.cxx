@@ -135,7 +135,7 @@ public:
 		int Quote;              // the char after '<<'
 		bool Quoted;            // true if Quote in ('\'','"','`')
 		bool Indent;            // indented delimiter (for <<-)
-		int DelimiterLength;    // strlen(Delimiter)
+		int DelimiterLength;    // sstrlen(Delimiter)
 		char Delimiter[HERE_DELIM_MAX]; // the Delimiter
 		HereDocCls()
 		{
@@ -507,8 +507,8 @@ public:
 						    sc.SetState(SCE_SH_DEFAULT);
 					    break;
 				    }
-				    if(s[strlen(s) - 1] == '\r')
-					    s[strlen(s) - 1] = '\0';
+				    if(s[sstrlen(s) - 1] == '\r')
+					    s[sstrlen(s) - 1] = '\0';
 				    if(sstreq(HereDoc.Delimiter, s)) {
 					    if((prefixws == 0) ||       // indentation rule
 					    (prefixws > 0 && HereDoc.Indent)) {

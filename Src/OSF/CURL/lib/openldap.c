@@ -262,7 +262,7 @@ retry:
     if(conn->bits.user_passwd) {
       binddn = conn->user;
       passwd.bv_val = conn->passwd;
-      passwd.bv_len = strlen(passwd.bv_val);
+      passwd.bv_len = sstrlen(passwd.bv_val);
     }
     else {
       binddn = NULL;

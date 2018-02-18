@@ -1898,7 +1898,7 @@ static int join_group_at_site(ENV * env, repmgr_netaddr_t * addrp)
 	LOCK_MUTEX(db_rep->mutex);
 	myaddr = SITE_FROM_EID(db_rep->self_eid)->net_addr;
 	UNLOCK_MUTEX(db_rep->mutex);
-	len = strlen(myaddr.host)+1;
+	len = sstrlen(myaddr.host)+1;
 	DB_INIT_DBT(site_info.host, myaddr.host, len);
 	site_info.port = myaddr.port;
 	site_info.flags = 0;
@@ -2408,7 +2408,7 @@ static int __repmgr_remove_site(DB_SITE * dbsite)
 	LOCK_MUTEX(db_rep->mutex);
 	addr = SITE_FROM_EID(master)->net_addr;
 	UNLOCK_MUTEX(db_rep->mutex);
-	len = strlen(dbsite->host)+1;
+	len = sstrlen(dbsite->host)+1;
 	DB_INIT_DBT(site_info.host, dbsite->host, len);
 	site_info.port = dbsite->port;
 	site_info.flags = 0;

@@ -1095,101 +1095,84 @@ void xmlSprintfElementContent(char * buf ATTRIBUTE_UNUSED, xmlElementContent * c
  */
 void xmlSnprintfElementContent(char * buf, int size, xmlElementContent * content, int englob) 
 {
-	int len;
-	if(content == NULL) 
-		return;
-	len = strlen(buf);
-	if(size - len < 50) {
-		if((size - len > 4) && (buf[len-1] != '.'))
-			strcat(buf, " ...");
-		return;
-	}
-	if(englob) 
-		strcat(buf, "(");
-	switch(content->type) {
-		case XML_ELEMENT_CONTENT_PCDATA:
-		    strcat(buf, "#PCDATA");
-		    break;
-		case XML_ELEMENT_CONTENT_ELEMENT:
-		    if(content->prefix) {
-			    if((size - len) < (int)(sstrlen(content->prefix) + 10)) {
-				    strcat(buf, " ...");
-				    return;
-			    }
-			    strcat(buf, (char*)content->prefix);
-			    strcat(buf, ":");
-		    }
-		    if((size - len) < (int)(sstrlen(content->name) + 10)) {
-			    strcat(buf, " ...");
-			    return;
-		    }
-		    if(content->name)
-			    strcat(buf, (char*)content->name);
-		    break;
-		case XML_ELEMENT_CONTENT_SEQ:
-		    if((content->c1->type == XML_ELEMENT_CONTENT_OR) ||
-		    (content->c1->type == XML_ELEMENT_CONTENT_SEQ))
-			    xmlSnprintfElementContent(buf, size, content->c1, 1);
-		    else
-			    xmlSnprintfElementContent(buf, size, content->c1, 0);
-		    len = strlen(buf);
-		    if(size - len < 50) {
-			    if((size - len > 4) && (buf[len-1] != '.'))
-				    strcat(buf, " ...");
-			    return;
-		    }
-		    strcat(buf, " , ");
-		    if(((content->c2->type == XML_ELEMENT_CONTENT_OR) ||
-			    (content->c2->ocur != XML_ELEMENT_CONTENT_ONCE)) &&
-		    (content->c2->type != XML_ELEMENT_CONTENT_ELEMENT))
-			    xmlSnprintfElementContent(buf, size, content->c2, 1);
-		    else
-			    xmlSnprintfElementContent(buf, size, content->c2, 0);
-		    break;
-		case XML_ELEMENT_CONTENT_OR:
-		    if((content->c1->type == XML_ELEMENT_CONTENT_OR) ||
-		    (content->c1->type == XML_ELEMENT_CONTENT_SEQ))
-			    xmlSnprintfElementContent(buf, size, content->c1, 1);
-		    else
-			    xmlSnprintfElementContent(buf, size, content->c1, 0);
-		    len = strlen(buf);
-		    if(size - len < 50) {
-			    if((size - len > 4) && (buf[len-1] != '.'))
-				    strcat(buf, " ...");
-			    return;
-		    }
-		    strcat(buf, " | ");
-		    if(((content->c2->type == XML_ELEMENT_CONTENT_SEQ) ||
-			    (content->c2->ocur != XML_ELEMENT_CONTENT_ONCE)) &&
-		    (content->c2->type != XML_ELEMENT_CONTENT_ELEMENT))
-			    xmlSnprintfElementContent(buf, size, content->c2, 1);
-		    else
-			    xmlSnprintfElementContent(buf, size, content->c2, 0);
-		    break;
-	}
-	if(englob)
-		strcat(buf, ")");
-	switch(content->ocur) {
-		case XML_ELEMENT_CONTENT_ONCE:
-		    break;
-		case XML_ELEMENT_CONTENT_OPT:
-		    strcat(buf, "?");
-		    break;
-		case XML_ELEMENT_CONTENT_MULT:
-		    strcat(buf, "*");
-		    break;
-		case XML_ELEMENT_CONTENT_PLUS:
-		    strcat(buf, "+");
-		    break;
+	if(content) {
+		int len = sstrlen(buf);
+		if((size - len) < 50) {
+			if((size - len > 4) && (buf[len-1] != '.'))
+				strcat(buf, " ...");
+		}
+		else {
+			if(englob) 
+				strcat(buf, "(");
+			switch(content->type) {
+				case XML_ELEMENT_CONTENT_PCDATA:
+					strcat(buf, "#PCDATA");
+					break;
+				case XML_ELEMENT_CONTENT_ELEMENT:
+					if(content->prefix) {
+						if((size - len) < (int)(sstrlen(content->prefix) + 10)) {
+							strcat(buf, " ...");
+							return;
+						}
+						strcat(buf, (char*)content->prefix);
+						strcat(buf, ":");
+					}
+					if((size - len) < (int)(sstrlen(content->name) + 10)) {
+						strcat(buf, " ...");
+						return;
+					}
+					if(content->name)
+						strcat(buf, (char*)content->name);
+					break;
+				case XML_ELEMENT_CONTENT_SEQ:
+					if((content->c1->type == XML_ELEMENT_CONTENT_OR) || (content->c1->type == XML_ELEMENT_CONTENT_SEQ))
+						xmlSnprintfElementContent(buf, size, content->c1, 1);
+					else
+						xmlSnprintfElementContent(buf, size, content->c1, 0);
+					len = sstrlen(buf);
+					if(size - len < 50) {
+						if((size - len > 4) && (buf[len-1] != '.'))
+							strcat(buf, " ...");
+						return;
+					}
+					strcat(buf, " , ");
+					if(((content->c2->type == XML_ELEMENT_CONTENT_OR) || (content->c2->ocur != XML_ELEMENT_CONTENT_ONCE)) && (content->c2->type != XML_ELEMENT_CONTENT_ELEMENT))
+						xmlSnprintfElementContent(buf, size, content->c2, 1);
+					else
+						xmlSnprintfElementContent(buf, size, content->c2, 0);
+					break;
+				case XML_ELEMENT_CONTENT_OR:
+					if((content->c1->type == XML_ELEMENT_CONTENT_OR) || (content->c1->type == XML_ELEMENT_CONTENT_SEQ))
+						xmlSnprintfElementContent(buf, size, content->c1, 1);
+					else
+						xmlSnprintfElementContent(buf, size, content->c1, 0);
+					len = sstrlen(buf);
+					if(size - len < 50) {
+						if((size - len > 4) && (buf[len-1] != '.'))
+							strcat(buf, " ...");
+						return;
+					}
+					strcat(buf, " | ");
+					if(((content->c2->type == XML_ELEMENT_CONTENT_SEQ) || (content->c2->ocur != XML_ELEMENT_CONTENT_ONCE)) && content->c2->type != XML_ELEMENT_CONTENT_ELEMENT)
+						xmlSnprintfElementContent(buf, size, content->c2, 1);
+					else
+						xmlSnprintfElementContent(buf, size, content->c2, 0);
+					break;
+			}
+			if(englob)
+				strcat(buf, ")");
+			switch(content->ocur) {
+				case XML_ELEMENT_CONTENT_ONCE: break;
+				case XML_ELEMENT_CONTENT_OPT: strcat(buf, "?"); break;
+				case XML_ELEMENT_CONTENT_MULT: strcat(buf, "*"); break;
+				case XML_ELEMENT_CONTENT_PLUS: strcat(buf, "+"); break;
+			}
+		}
 	}
 }
-
-/****************************************************************
-*								*
-*	Registration of DTD declarations			*
-*								*
-****************************************************************/
-
+// 
+// Registration of DTD declarations
+// 
 /**
  * xmlFreeElement:
  * @elem:  An element
@@ -4518,77 +4501,78 @@ analyze:
  */
 static void xmlSnprintfElements(char * buf, int size, xmlNode * P_Node, int glob) 
 {
-	xmlNode * cur;
-	int len;
-	if(!P_Node) 
-		return;
-	if(glob) 
-		strcat(buf, "(");
-	cur = P_Node;
-	while(cur) {
-		len = strlen(buf);
-		if(size - len < 50) {
-			if((size - len > 4) && (buf[len-1] != '.'))
-				strcat(buf, " ...");
-			return;
+	if(P_Node) {
+		xmlNode * cur;
+		int len;
+		if(glob) 
+			strcat(buf, "(");
+		cur = P_Node;
+		while(cur) {
+			len = sstrlen(buf);
+			if(size - len < 50) {
+				if((size - len > 4) && (buf[len-1] != '.'))
+					strcat(buf, " ...");
+				return;
+			}
+			switch(cur->type) {
+				case XML_ELEMENT_NODE:
+					if(cur->ns && (cur->ns->prefix != NULL)) {
+						if((size - len) < (int)(sstrlen(cur->ns->prefix) + 10)) {
+							if((size - len > 4) && (buf[len-1] != '.'))
+								strcat(buf, " ...");
+							return;
+						}
+						strcat(buf, (char*)cur->ns->prefix);
+						strcat(buf, ":");
+					}
+					if((size - len) < (int)(sstrlen(cur->name) + 10)) {
+						if((size - len > 4) && (buf[len-1] != '.'))
+							strcat(buf, " ...");
+						return;
+					}
+					strcat(buf, (char*)cur->name);
+					if(cur->next)
+						strcat(buf, " ");
+					break;
+				case XML_TEXT_NODE:
+					if(xmlIsBlankNode(cur))
+						break;
+				case XML_CDATA_SECTION_NODE:
+				case XML_ENTITY_REF_NODE:
+					strcat(buf, "CDATA");
+					if(cur->next)
+						strcat(buf, " ");
+					break;
+				case XML_ATTRIBUTE_NODE:
+				case XML_DOCUMENT_NODE:
+	#ifdef LIBXML_DOCB_ENABLED
+				case XML_DOCB_DOCUMENT_NODE:
+	#endif
+				case XML_HTML_DOCUMENT_NODE:
+				case XML_DOCUMENT_TYPE_NODE:
+				case XML_DOCUMENT_FRAG_NODE:
+				case XML_NOTATION_NODE:
+				case XML_NAMESPACE_DECL:
+					strcat(buf, "???");
+					if(cur->next)
+						strcat(buf, " ");
+					break;
+				case XML_ENTITY_NODE:
+				case XML_PI_NODE:
+				case XML_DTD_NODE:
+				case XML_COMMENT_NODE:
+				case XML_ELEMENT_DECL:
+				case XML_ATTRIBUTE_DECL:
+				case XML_ENTITY_DECL:
+				case XML_XINCLUDE_START:
+				case XML_XINCLUDE_END:
+					break;
+			}
+			cur = cur->next;
 		}
-		switch(cur->type) {
-			case XML_ELEMENT_NODE:
-			    if(cur->ns && (cur->ns->prefix != NULL)) {
-				    if((size - len) < (int)(sstrlen(cur->ns->prefix) + 10)) {
-					    if((size - len > 4) && (buf[len-1] != '.'))
-						    strcat(buf, " ...");
-					    return;
-				    }
-				    strcat(buf, (char*)cur->ns->prefix);
-				    strcat(buf, ":");
-			    }
-			    if((size - len) < (int)(sstrlen(cur->name) + 10)) {
-				    if((size - len > 4) && (buf[len-1] != '.'))
-					    strcat(buf, " ...");
-				    return;
-			    }
-			    strcat(buf, (char*)cur->name);
-			    if(cur->next)
-				    strcat(buf, " ");
-			    break;
-			case XML_TEXT_NODE:
-			    if(xmlIsBlankNode(cur))
-				    break;
-			case XML_CDATA_SECTION_NODE:
-			case XML_ENTITY_REF_NODE:
-			    strcat(buf, "CDATA");
-			    if(cur->next)
-				    strcat(buf, " ");
-			    break;
-			case XML_ATTRIBUTE_NODE:
-			case XML_DOCUMENT_NODE:
-#ifdef LIBXML_DOCB_ENABLED
-			case XML_DOCB_DOCUMENT_NODE:
-#endif
-			case XML_HTML_DOCUMENT_NODE:
-			case XML_DOCUMENT_TYPE_NODE:
-			case XML_DOCUMENT_FRAG_NODE:
-			case XML_NOTATION_NODE:
-			case XML_NAMESPACE_DECL:
-			    strcat(buf, "???");
-			    if(cur->next)
-				    strcat(buf, " ");
-			    break;
-			case XML_ENTITY_NODE:
-			case XML_PI_NODE:
-			case XML_DTD_NODE:
-			case XML_COMMENT_NODE:
-			case XML_ELEMENT_DECL:
-			case XML_ATTRIBUTE_DECL:
-			case XML_ENTITY_DECL:
-			case XML_XINCLUDE_START:
-			case XML_XINCLUDE_END:
-			    break;
-		}
-		cur = cur->next;
+		if(glob) 
+			strcat(buf, ")");
 	}
-	if(glob) strcat(buf, ")");
 }
 
 /**

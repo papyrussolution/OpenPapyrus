@@ -98,7 +98,7 @@ CURLcode Curl_auth_create_digest_md5_message(struct Curl_easy * data,
 	TimeStamp expiry; /* For Windows 9x compatibility of SSPI calls */
 
 	/* Decode the base-64 encoded challenge message */
-	if(strlen(chlg64) && *chlg64 != '=') {
+	if(sstrlen(chlg64) && *chlg64 != '=') {
 		result = Curl_base64_decode(chlg64, &input_token, &chlglen);
 		if(result)
 			return result;
@@ -301,7 +301,7 @@ CURLcode Curl_override_sspi_http_realm(const char * chlg,
  */
 CURLcode Curl_auth_decode_digest_http_message(const char * chlg, struct digestdata * digest)
 {
-	size_t chlglen = strlen(chlg);
+	size_t chlglen = sstrlen(chlg);
 	// We had an input token before so if there's another one now that means we
 	// provided bad credentials in the previous request or it's stale. 
 	if(digest->input_token) {
@@ -357,13 +357,8 @@ CURLcode Curl_auth_decode_digest_http_message(const char * chlg, struct digestda
  *
  * Returns CURLE_OK on success.
  */
-CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
-    const char * userp,
-    const char * passwdp,
-    const uchar * request,
-    const uchar * uripath,
-    struct digestdata * digest,
-    char ** outptr, size_t * outlen)
+CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data, const char * userp, const char * passwdp,
+    const uchar * request, const uchar * uripath, struct digestdata * digest, char ** outptr, size_t * outlen) 
 {
 	size_t token_max;
 	char * resp;
@@ -395,10 +390,10 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 		chlg_buf[0].cbBuffer   = 0;
 		chlg_buf[1].BufferType = SECBUFFER_PKG_PARAMS;
 		chlg_buf[1].pvBuffer   = (void*)request;
-		chlg_buf[1].cbBuffer   = curlx_uztoul(strlen((const char*)request));
+		chlg_buf[1].cbBuffer   = curlx_uztoul(sstrlen((const char*)request));
 		chlg_buf[2].BufferType = SECBUFFER_PKG_PARAMS;
 		chlg_buf[2].pvBuffer   = (void*)uripath;
-		chlg_buf[2].cbBuffer   = curlx_uztoul(strlen((const char*)uripath));
+		chlg_buf[2].cbBuffer   = curlx_uztoul(sstrlen((const char*)uripath));
 		chlg_buf[3].BufferType = SECBUFFER_PKG_PARAMS;
 		chlg_buf[3].pvBuffer   = NULL;
 		chlg_buf[3].cbBuffer   = 0;
@@ -456,7 +451,7 @@ CURLcode Curl_auth_create_digest_http_message(struct Curl_easy * data,
 		chlg_buf[0].cbBuffer   = curlx_uztoul(digest->input_token_len);
 		chlg_buf[1].BufferType = SECBUFFER_PKG_PARAMS;
 		chlg_buf[1].pvBuffer   = (void*)request;
-		chlg_buf[1].cbBuffer   = curlx_uztoul(strlen((const char*)request));
+		chlg_buf[1].cbBuffer   = curlx_uztoul(sstrlen((const char*)request));
 		chlg_buf[2].BufferType = SECBUFFER_PKG_PARAMS;
 		chlg_buf[2].pvBuffer   = NULL;
 		chlg_buf[2].cbBuffer   = 0;

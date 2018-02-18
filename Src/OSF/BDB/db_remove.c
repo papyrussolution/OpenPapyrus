@@ -268,7 +268,7 @@ int __db_inmem_remove(DB * dbp, DB_TXN * txn, const char * name)
 	else if(LOGGING_ON(env)) {
 		if(txn && (ret = __txn_remevent(env, txn, name, dbp->fileid, 1)) != 0)
 			return ret;
-		DB_INIT_DBT(name_dbt, name, strlen(name)+1);
+		DB_INIT_DBT(name_dbt, name, sstrlen(name)+1);
 		DB_INIT_DBT(fid_dbt, dbp->fileid, DB_FILE_ID_LEN);
 		ret = __crdel_inmem_remove_log(env, txn, &lsn, 0, &name_dbt, &fid_dbt);
 	}

@@ -303,7 +303,7 @@ int SLAPI SetRealRangeInput(TDialog * dlg, uint ctl, double lo, double up, int p
 	else {
 		long   flags = NMBF_NOZERO|NMBF_TRICOMMA;
 		SETSFMTPRC(flags, prc);
-		b += strlen(realfmt(lo, flags, b));
+		b += sstrlen(realfmt(lo, flags, b));
 		if(up != lo) {
 			*b++ = '.';
 			*b++ = '.';
@@ -763,7 +763,7 @@ int SLAPI PasswordDialog(uint dlgID, char * pBuf, size_t pwSize, size_t minLen, 
 			dlg->getCtrlData(CTL_PASSWORD_SECOND, b2);
 			if(stricmp866(b1, b2) != 0)
 				PPError(PPERR_PASSNOTIDENT, 0);
-			else if(minLen && strlen(b1) < minLen)
+			else if(minLen && sstrlen(b1) < minLen)
 				PPError(PPERR_PASSMINLEN, itoa(minLen, b2, 10));
 			else {
 				valid_data = 1;
@@ -4959,7 +4959,7 @@ int ResolveGoodsDialog::setupList()
 				buf.Cat(word).CatDiv(':', 2).Cat(p_item->GoodsID);
 				id_added = 1;
 			}
-			if(strlen(p_item->GoodsName)) {
+			if(sstrlen(p_item->GoodsName)) {
 				// @v9.0.2 PPGetWord(PPWORD_NAME, 0, word);
 				PPLoadString("name", word); // @v9.0.2
 				if(id_added)
@@ -5029,11 +5029,11 @@ int ResolveGoodsDialog::ResolveGoods(PPID resolveGoodsID, uint firstGoodsPos)
 			for(uint p = 0; Data.lsearch(&goods_id, &p, PTR_CMPFUNC(long), offsetof(ResolveGoodsItem, GoodsID)) > 0; p++)
 				Data.at(p).ResolvedGoodsID = resolveGoodsID;
 		}
-		else if(strlen(barcode) && strcmp(barcode, "0") != 0) {
+		else if(sstrlen(barcode) && strcmp(barcode, "0") != 0) {
 			for(uint p = 0; Data.lsearch(barcode, &p, PTR_CMPFUNC(Pchar), offsetof(ResolveGoodsItem, Barcode)) > 0; p++)
 				Data.at(p).ResolvedGoodsID = resolveGoodsID;
 		}
-		else if(strlen(goods_name)) {
+		else if(sstrlen(goods_name)) {
 			for(uint p = 0; Data.lsearch(goods_name, &p, PTR_CMPFUNC(Pchar), offsetof(ResolveGoodsItem, GoodsName)) > 0; p++)
 				Data.at(p).ResolvedGoodsID = resolveGoodsID;
 		}

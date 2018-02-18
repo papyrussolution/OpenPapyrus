@@ -3312,7 +3312,7 @@ int PPALDD_SupplNameList::InitData(PPFilt & rFilt, long rsrv)
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
 		const char * p_end = "...";
-		size_t end_len = strlen(p_end);
+		size_t end_len = sstrlen(p_end);
 		PPIDArray suppl_list;
 		if(BillObj->trfr->Rcpt.GetSupplList(rFilt.ID, 0, LConfig.OperDate, &suppl_list) > 0) {
 			size_t suppl_names_size = sizeof(H.SupplNames);

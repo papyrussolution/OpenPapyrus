@@ -54,7 +54,7 @@ TYPEID SLAPI DBItem::stype() const
 		bt = ((DBConst *)this)->Tag;
 		if(bt == BTS_STRING) {
 			const char * p = ((DBConst *)this)->sptr;
-			st = MKSTYPE(S_ZSTRING, (p ? strlen(p) : 0) + 1);
+			st = MKSTYPE(S_ZSTRING, (p ? sstrlen(p) : 0) + 1);
 		}
 		else
 			st = bt2st(bt);
@@ -404,7 +404,7 @@ int FASTCALL DBE::call(int option, DBConst * r)
 					if(option == CALC_SIZE) {
 						c.Flags = 0;
 						c.Tag  = DBConst::lv;
-						c.lval = strlen(t->sptr)+1;
+						c.lval = sstrlen(t->sptr)+1;
 					}
 					else {
 						c.Flags = 0;
@@ -434,7 +434,7 @@ int FASTCALL DBE::call(int option, DBConst * r)
 						return 0;
 					if(option == CALC_SIZE)
 						if(c.Tag == DBConst::sp) {
-							int    len = strlen(c.sptr)+1;
+							int    len = sstrlen(c.sptr)+1;
 							c.destroy();
 							c.init((long)len);
 						}

@@ -142,8 +142,8 @@ next:
 				char w[100];
 				char * s = w;
 				sc.GetCurrent(w, sizeof(w));
-				if(w[strlen(w)-1]=='\r')
-					w[strlen(w)-1] = 0;
+				if(w[sstrlen(w)-1]=='\r')
+					w[sstrlen(w)-1] = 0;
 				while(*s == ':')  // ignore leading : like in ::set a 10
 					++s;
 				bool quote = sc.state == SCE_TCL_IN_QUOTE;
@@ -160,7 +160,7 @@ next:
 					else if(keywords4.InList(s)) {
 						sc.ChangeState(quote ? SCE_TCL_WORD_IN_QUOTE : SCE_TCL_WORD4);
 					}
-					else if(sc.GetRelative(-static_cast<int>(strlen(s))-1) == '{' &&
+					else if(sc.GetRelative(-static_cast<int>(sstrlen(s))-1) == '{' &&
 					    keywords5.InList(s) && sc.ch == '}') {        // {keyword} exactly no spaces
 						sc.ChangeState(SCE_TCL_EXPAND);
 					}

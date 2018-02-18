@@ -292,7 +292,7 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 						f_str.Cat(info.Rec.ID).Semicol();   // #2 Card ID
 						f_str.Cat(info.Rec.Code).Semicol(); // #3 Code
 						f_str.Cat(info.Rec.Code).Semicol(); // #4 Текст для чека
-						const long len = (long)strlen(info.Rec.Code);
+						const long len = (long)sstrlen(info.Rec.Code);
 						f_str.Cat(len).Semicol();           // #5 Начало диапазона длин сертификатов
 						f_str.Cat(len).Semicol();           // #6 Конец диапазона длин сертификатов
 						f_str.Cat(info.Rec.Code).Semicol(); // #7 Начало диапазона префиксов
@@ -478,13 +478,13 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 							tail.Semicol();         // #57 Крепость алкогольной продукции
 						}
 					}
-					if((bclen = strlen(gds_info.BarCode)) != 0) {
+					if((bclen = sstrlen(gds_info.BarCode)) != 0) {
 						gds_info.AdjustBarcode(check_dig);
 						int    wp = GetGoodsCfg().IsWghtPrefix(gds_info.BarCode);
 						if(wp == 1)
-							STRNSCPY(gds_info.BarCode, gds_info.BarCode+strlen(GetGoodsCfg().WghtPrefix));
+							STRNSCPY(gds_info.BarCode, gds_info.BarCode+sstrlen(GetGoodsCfg().WghtPrefix));
 						else if(wp == 2)
-							STRNSCPY(gds_info.BarCode, gds_info.BarCode+strlen(GetGoodsCfg().WghtCntPrefix));
+							STRNSCPY(gds_info.BarCode, gds_info.BarCode+sstrlen(GetGoodsCfg().WghtCntPrefix));
 						else
 							AddCheckDigToBarcode(gds_info.BarCode);
 						if(next_barcode)
@@ -685,7 +685,7 @@ int SLAPI ACS_FRONTOL::ImportFiles()
 		if(imp_path.CmpPrefix(p_ftp_flag, 1) == 0) {
 			SString ftp_path, ftp_path_flag, ftp_dir, file_name;
 			SPathStruc sp;
-			imp_path.ShiftLeft(strlen(p_ftp_flag));
+			imp_path.ShiftLeft(sstrlen(p_ftp_flag));
 			if(!ftp_connected) {
 				THROW(ftp.Init());
 				THROW(ftp.Connect(&acct));

@@ -2300,7 +2300,7 @@ BEGIN
     GROUPBOX        "@cfgalbatros_ediparams",IDC_STATIC,330,5,215,190
 END
 
-DLG_ALCREPCFG DIALOGEX 0, 0, 575, 252
+DLG_ALCREPCFG DIALOGEX 0, 0, 571, 252
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "@cfg_alcreport"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -2365,15 +2365,16 @@ BEGIN
     EDITTEXT        CTL_ALCREPCFG_IMPPSNK,230,206,140,13,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "@cfgalcreport_importerpersonkind",4020,230,196,155,8
     PUSHBUTTON      "",CTLSEL_ALCREPCFG_IMPPSNK,370,206,12,13,BS_BITMAP | NOT WS_TABSTOP
-    GROUPBOX        "",CTL_ALCREPCFG_FLAGS,390,120,175,50,WS_GROUP
+    GROUPBOX        "",CTL_ALCREPCFG_FLAGS,390,120,175,60,WS_GROUP
     CONTROL         "@cfgalcreport_fdetectalcbyclass",5335,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,395,130,160,10
     CONTROL         "@cfgalcreport_fwhtoreg2bylacks",9431,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,395,140,160,10
     CONTROL         "@cfgalcreport_fegaisver2fmt",13527,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,395,150,165,10
-    GROUPBOX        "@cfgalcreport_wroffshopway",CTL_ALCREPCFG_WOSW,390,175,175,60,WS_GROUP
-    CONTROL         "@cfgalcreport_woswnone",5336,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,395,186,160,10
-    CONTROL         "@cfgalcreport_woswbalancewithlots",9432,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,395,194,160,10
-    CONTROL         "@cfgalcreport_woswbycchecks",13528,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,395,205,160,10
-    CONTROL         "@cfgalcreport_woswbybills",17624,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,395,215,160,10
+    CONTROL         "@cfgalcreport_fegaisver3fmt",17623,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,395,160,165,10
+    GROUPBOX        "@cfgalcreport_wroffshopway",CTL_ALCREPCFG_WOSW,390,180,175,60,WS_GROUP
+    CONTROL         "@cfgalcreport_woswnone",5336,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,395,191,160,10
+    CONTROL         "@cfgalcreport_woswbalancewithlots",9432,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,395,199,160,10
+    CONTROL         "@cfgalcreport_woswbycchecks",13528,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,395,210,160,10
+    CONTROL         "@cfgalcreport_woswbybills",17624,"Button",BS_AUTORADIOBUTTON | BS_NOTIFY | WS_TABSTOP,395,220,160,10
     PUSHBUTTON      "@{ccheckfilt_s}...",4022,15,230,60,13
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,250,230,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,320,230,50,13
@@ -29092,7 +29093,7 @@ BEGIN
 
     DLG_ALCREPCFG, DIALOG
     BEGIN
-        RIGHTMARGIN, 424
+        RIGHTMARGIN, 420
         BOTTOMMARGIN, 202
     END
 

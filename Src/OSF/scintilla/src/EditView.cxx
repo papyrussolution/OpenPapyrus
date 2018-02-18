@@ -1005,7 +1005,7 @@ void EditView::DrawFoldDisplayText(Surface * surface, const EditModel &model, co
 		return;
 	PRectangle rcSegment = rcLine;
 	const char * foldDisplayText = model.cs.GetFoldDisplayText(line);
-	const int lengthFoldDisplayText = static_cast<int>(strlen(foldDisplayText));
+	const int lengthFoldDisplayText = static_cast<int>(sstrlen(foldDisplayText));
 	FontAlias fontText = vsDraw.styles[STYLE_FOLDDISPLAYTEXT].font;
 	const int widthFoldDisplayText = static_cast<int>(surface->WidthText(fontText, foldDisplayText, lengthFoldDisplayText));
 	int eolInSelection = 0;
@@ -2104,7 +2104,7 @@ long EditView::FormatRange(bool draw, Sci_RangeToFormat * pfr, Surface * surface
 	int lineNumberWidth = 0;
 	if(lineNumberIndex >= 0) {
 		lineNumberWidth = static_cast<int>(surfaceMeasure->WidthText(vsPrint.styles[STYLE_LINENUMBER].font,
-			    "99999" lineNumberPrintSpace, 5 + static_cast<int>(strlen(lineNumberPrintSpace))));
+			    "99999" lineNumberPrintSpace, 5 + static_cast<int>(sstrlen(lineNumberPrintSpace))));
 		vsPrint.ms[lineNumberIndex].width = lineNumberWidth;
 		vsPrint.Refresh(*surfaceMeasure, model.pdoc->tabInChars);       // Recalculate fixedColumnWidth
 	}
@@ -2163,10 +2163,10 @@ long EditView::FormatRange(bool draw, Sci_RangeToFormat * pfr, Surface * surface
 			rcNumber.right = rcNumber.left + lineNumberWidth;
 			// Right justify
 			rcNumber.left = rcNumber.right - surfaceMeasure->WidthText(
-			    vsPrint.styles[STYLE_LINENUMBER].font, number, static_cast<int>(strlen(number)));
+			    vsPrint.styles[STYLE_LINENUMBER].font, number, static_cast<int>(sstrlen(number)));
 			surface->FlushCachedState();
 			surface->DrawTextNoClip(rcNumber, vsPrint.styles[STYLE_LINENUMBER].font,
-			    static_cast<XYPOSITION>(ypos + vsPrint.maxAscent), number, static_cast<int>(strlen(number)),
+			    static_cast<XYPOSITION>(ypos + vsPrint.maxAscent), number, static_cast<int>(sstrlen(number)),
 			    vsPrint.styles[STYLE_LINENUMBER].fore, vsPrint.styles[STYLE_LINENUMBER].back);
 		}
 		// Draw the line

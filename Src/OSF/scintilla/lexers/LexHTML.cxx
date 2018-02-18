@@ -942,8 +942,8 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			scriptLanguage = eScriptPython;
 			styler.ColourTo(i, SCE_H_ASP);
 			if(ch != '%' && ch != '$' && ch != '/') {
-				i += static_cast<int>(strlen(makoBlockType));
-				visibleChars += static_cast<int>(strlen(makoBlockType));
+				i += static_cast<int>(sstrlen(makoBlockType));
+				visibleChars += static_cast<int>(sstrlen(makoBlockType));
 				if(keywords4.InList(makoBlockType))
 					styler.ColourTo(i, SCE_HP_WORD);
 				else
@@ -1928,7 +1928,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 					    bool isSimpleString = false;
 					    i = FindPhpStringDelimiter(phpStringDelimiter, sizeof(phpStringDelimiter),
 							i + 3, lengthDoc, styler, isSimpleString);
-					    if(strlen(phpStringDelimiter)) {
+					    if(sstrlen(phpStringDelimiter)) {
 						    state = (isSimpleString ? SCE_HPHP_SIMPLESTRING : SCE_HPHP_HSTRING);
 						    if(foldHeredoc) 
 								levelCurrent++;
@@ -1990,7 +1990,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 					    state = SCE_HPHP_DEFAULT;
 				    }
 				    else if(isLineEnd(chPrev)) {
-					    const int psdLength = static_cast<int>(strlen(phpStringDelimiter));
+					    const int psdLength = static_cast<int>(sstrlen(phpStringDelimiter));
 					    const char chAfterPsd = styler.SafeGetCharAt(i + psdLength);
 					    const char chAfterPsd2 = styler.SafeGetCharAt(i + psdLength + 1);
 					    if(isLineEnd(chAfterPsd) || (chAfterPsd == ';' && isLineEnd(chAfterPsd2))) {
@@ -2014,7 +2014,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 				    }
 			    }
 			    else if(isLineEnd(chPrev) && styler.Match(i, phpStringDelimiter)) {
-				    const int psdLength = static_cast<int>(strlen(phpStringDelimiter));
+				    const int psdLength = static_cast<int>(sstrlen(phpStringDelimiter));
 				    const char chAfterPsd = styler.SafeGetCharAt(i + psdLength);
 				    const char chAfterPsd2 = styler.SafeGetCharAt(i + psdLength + 1);
 				    if(isLineEnd(chAfterPsd) || (chAfterPsd == ';' && isLineEnd(chAfterPsd2))) {
@@ -2065,7 +2065,7 @@ static void ColouriseHyperTextDoc(Sci_PositionU startPos, Sci_Position length, i
 			    else if(styler.Match(i, "<<<")) {
 				    bool isSimpleString = false;
 				    i = FindPhpStringDelimiter(phpStringDelimiter, sizeof(phpStringDelimiter), i + 3, lengthDoc, styler, isSimpleString);
-				    if(strlen(phpStringDelimiter)) {
+				    if(sstrlen(phpStringDelimiter)) {
 					    state = (isSimpleString ? SCE_HPHP_SIMPLESTRING : SCE_HPHP_HSTRING);
 					    if(foldHeredoc) levelCurrent++;
 				    }

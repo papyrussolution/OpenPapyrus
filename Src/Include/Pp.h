@@ -6171,7 +6171,7 @@ struct ObjCacheEntry { // size=16
 };
 
 struct ObjCacheStat {
-	int    SLAPI Init();
+	void   SLAPI Init();
 
 	long   DbPathID;
 	long   ObjType;
@@ -6184,6 +6184,8 @@ struct ObjCacheStat {
 	long   DirtyEntries;  // Количество "грязных" элементов
 	long   MaxCounter;    // Максимальный счетчик
 	long   MinCounter;    // Минимальный счетчик
+	uint32 SsSize;        // @v9.9.5 Количество байт в this->Ss (this->Ss.Size)
+	uint32 SsDataLen;     // @v9.9.5 Полезное количество байт в this->Ss (this->Ss.DataLen)
 	SString DbPath;
 	SString ObjTypeName;
 };
@@ -8441,7 +8443,7 @@ struct PPClientAgreement { // @persistent
 	//
 	// Descr: Возвращает кредитный лимит контрагента, возможно, привязанный к долговой размерности debtDimID.
 	//
-	double SLAPI GetCreditLimit(PPID debtDimID) const;
+	double FASTCALL GetCreditLimit(PPID debtDimID) const;
 	//
 	// Desecr: Если с (не нулевой) долговой размерностью debtDimID ассоциирован
 	//   признак Stop, то возвращает 1, иначе 0.
@@ -8543,6 +8545,17 @@ public:
 			extssAccsPassw    = 5, // @v9.2.0 Пароль для доступа к обмену данными
 			extssTechSymbol   = 6  // @v9.2.1 Символ технологии обмена
 		};
+		//
+		// Descr: Способы идентификации товаров
+		//
+		enum {
+			wareidentUndef     = 0, // Не определено (по ситуации)
+			wareidentById      = 1, // По внутреннему идентификатору
+			wareidentByCommId  = 2, // По общему идентификатору из таблицы синхронизации между разделами
+			wareidentByArCode  = 3, // По коду товара, ассоциированному со статьей
+			wareidentByTag     = 4, // По тегу (тип тега указан в FlatBlock::GoodsTagID)
+			wareidentByBarcode = 5  // По штрихкоду (есть неоднозначность в выборе штрихкода: пока полагаемся на GetSingleBarcode)
+		};
 		LDATE  LastDt;         // Дата последнего обмена
 		PPID   GoodsGrpID;     // Группа товаров
 		PPID   ExpendOp;       // Вид операции отгрузки
@@ -8567,13 +8580,19 @@ public:
 				// Имеется в виду, как правило, документ продажи покупателю (возврата от покупателя) подукции
 				// этого поставщика. Тип этого тега - строка или GUID. В качестве значения - какой-либо идентификатор,
 				// присвоенный системой поставщика документу.
-			uint8  FbReserve[8];   // @reserve @v9.2.4 [32]-->[28] // @v9.4.4 [24]-->[16]
+			PPID   GoodsTagID;     // @v9.9.5 Тег идентификации товара у контрагента
+			uint8  NativeGIdType;  // @v9.9.5 wareidentXXX Наша идентификации товара 
+			uint8  ForeignGIdType; // @v9.9.5 wareidentXXX Идентификации товара для контрагента
+			uint8  FbReserve[2];   // @reserve @v9.2.4 [32]-->[28] // @v9.4.4 [24]-->[16]
 		} Fb;                      // @anchor
         InetAddr ConnAddr;         // Адрес для соединения с сервером
         ObjIdListFilt DebtDimList; // @v9.1.3 Список долговых размерностей, по которым необходимо отчитываться о долгах контрагентов
+		ObjIdListFilt WhList;      // @v9.9.5 Список складов, по которым строятся отчеты
 	private:
+		int    SLAPI Helper_SerializeCommon(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 		int    SLAPI Serialize_(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 		int    SLAPI Serialize_Before_v9103_(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		int    SLAPI Serialize_Before_v9905_(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 		SString ExtString;
 	};
@@ -10132,8 +10151,13 @@ public:
 		PPClientAgreement CliAgt;
 		PPSupplAgreement  SupplAgt;
 	};
-
+	//
+	// Descr: Устанавливает статью контрагента в пакет документа (Rec.Object). Выполняет все необходимые проверки.
+	//
 	int    SLAPI SetupObject(PPID arID, SetupObjectBlock & rRet);
+	//
+	// Descr: Устанавливает дополнительную статью в пакет документа (Rec.Object2). Выполняет все необходимые проверки.
+	//
 	int    SLAPI SetupObject2(PPID arID);
 	LDATE  SLAPI CalcDefaultPayDate(int paymTerm, long paymDateBase) const;
 	int    SLAPI SetupDefaultPayDate(int paymTerm, long paymDateBase);
@@ -27111,7 +27135,8 @@ public:
 				// Если флаг не установлен или AlcGoodsClsID == 0, то - по принадлежности группе AlcGoodsGrpID
 			fWhToReg2ByLacks  = 0x0002, // Передавать остатки ЕГАИС со склада на регистр 2 по отрицательным значениям в текущих остатках ЕГАИС
 				// на регистре 2.
-			fEgaisVer2Fmt     = 0x0004  // @v9.6.12 Применять 2-ю версию форматов ЕГАИС
+			fEgaisVer2Fmt     = 0x0004, // @v9.6.12 Применять 2-ю версию форматов ЕГАИС
+			fEgaisVer3Fmt     = 0x0008  // @v9.9.5 Применять 3-ю версию форматов ЕГАИС (автоматически отменяет fEgaisVer2Fmt для тех документов, к которым применим 3-й формат).
 		};
 		//
 		// Descr: Варианты списания остатков с регистра 2 ЕГАИС
@@ -43739,22 +43764,23 @@ public:
 	// Descr: Флаги состояния документа в базе данных
 	//
 	enum {
-		bilstfAccepted         = 0x0001, // Документ принят из ЕГАИС-сервера
-		bilstfWritedOff        = 0x0002, // Документ списан
-		bilstfReadyForAck      = 0x0004, // Документ готов к отправке подтверждения
-		bilstfChargeOn         = 0x0008, // Документы постановки на баланс начальных остатков
-		bilstfExpend           = 0x0010, // Документы продажи товара
-		bilstfIntrExpend       = 0x0020, // Документы внутренней передачи
-		bilstfReturnToSuppl    = 0x0040, // Документы возврата поставщику
-		bilstfLosses           = 0x0080, // @v8.9.12 Документы потерь (прочие расходы)
-		bilstfRepeal           = 0x0100, // @v9.2.8 Документы с запросом на отмену проведения
-		bilstfTransferToShop   = 0x0200, // @v9.2.11 Документы передачи в торговый зал (Регистр 2)
-		bilstfChargeOnShop     = 0x0400, // @v9.2.11 Документы постановки на баланс начальных остатков в торговом зале (Регистр 2)
-		bilstfTransferFromShop = 0x0800, // @v9.3.10 Документы возврата из торговый зал (Регистр 2) на склад
-		bilstfWriteOffShop     = 0x1000, // @v9.4.0  Документы списания с баланса торгового зала (Регистр 2)
-		bilstfWbRepealConf     = 0x2000, // @v9.5.12 Документы, для которых получен и ожидает подтверждения запрос на отмету проведения
-		bilstfV1               = 0x4000, // @v9.7.5  Специальный флаг, явно указывающий на 1-ю версию формата ЕГАИС
-		bilstfV2               = 0x8000, // @v9.7.5  Документы 2-й версии ЕГАИС
+		bilstfAccepted         = 0x00000001, // Документ принят из ЕГАИС-сервера
+		bilstfWritedOff        = 0x00000002, // Документ списан
+		bilstfReadyForAck      = 0x00000004, // Документ готов к отправке подтверждения
+		bilstfChargeOn         = 0x00000008, // Документы постановки на баланс начальных остатков
+		bilstfExpend           = 0x00000010, // Документы продажи товара
+		bilstfIntrExpend       = 0x00000020, // Документы внутренней передачи
+		bilstfReturnToSuppl    = 0x00000040, // Документы возврата поставщику
+		bilstfLosses           = 0x00000080, // @v8.9.12 Документы потерь (прочие расходы)
+		bilstfRepeal           = 0x00000100, // @v9.2.8 Документы с запросом на отмену проведения
+		bilstfTransferToShop   = 0x00000200, // @v9.2.11 Документы передачи в торговый зал (Регистр 2)
+		bilstfChargeOnShop     = 0x00000400, // @v9.2.11 Документы постановки на баланс начальных остатков в торговом зале (Регистр 2)
+		bilstfTransferFromShop = 0x00000800, // @v9.3.10 Документы возврата из торговый зал (Регистр 2) на склад
+		bilstfWriteOffShop     = 0x00001000, // @v9.4.0  Документы списания с баланса торгового зала (Регистр 2)
+		bilstfWbRepealConf     = 0x00002000, // @v9.5.12 Документы, для которых получен и ожидает подтверждения запрос на отмету проведения
+		bilstfV1               = 0x00004000, // @v9.7.5  Специальный флаг, явно указывающий на 1-ю версию формата ЕГАИС
+		bilstfV2               = 0x00008000, // @v9.7.5  Документы 2-й версии ЕГАИС
+		bilstfV3               = 0x00010000, // @v9.9.5  Документы 3-й версии ЕГАИС
 	};
 	int    SLAPI GetAcceptedBillList(const PPBillExportFilt & rP, long flags, PPIDArray & rList);
 	int    SLAPI GetBillListForTransmission(const PPBillExportFilt & rP, long flags, PPIDArray & rList, PPIDArray * pRejectList);
@@ -43803,7 +43829,7 @@ private:
 	};
 	int    SLAPI WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
 	int    SLAPI WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlTag, const EgaisPersonCore::Item & rRefcItem, long flags);
-	int    SLAPI WriteInformCode(SXml::WDoc & rXmlDoc, const char * pNs, char informKind, SString & rCode, int v2);
+	int    SLAPI WriteInformCode(SXml::WDoc & rXmlDoc, const char * pNs, char informKind, SString & rCode, int docType);
 	//
 	// Descr: Разбирает xml-ответ от сервера УТМ (<A></A>)
 	//
@@ -44155,7 +44181,7 @@ public:
 	virtual void SLAPI destroy();
 	//
 	// Order of writing to stream:
-	//   {(uint32)EntryType, (uint32)Flags, Name, (uint32)strlen(P_Descript), P_Descript[strlen(P_Descript)]}
+	//   {(uint32)EntryType, (uint32)Flags, Name, (uint32)sstrlen(P_Descript), P_Descript[sstrlen(P_Descript)]}
 	//   if(P_Descript == 0) then { (uint32)EntryType, (uint32)Flags, Name, (uint32)0 }
 	//
 	virtual int  SLAPI Write(DL2_Storage *) const;
@@ -44164,7 +44190,14 @@ public:
 	//
 	virtual int  SLAPI Read(FILE *);
 	virtual int  SLAPI Print(FILE *) const; // @debug
-
+/*private:
+	enum {
+		signEntry = 0x5D07F9A0,
+		signGroup = 0x5D07F9A1,
+		signRow   = 0x5D07F9A2
+	};
+	uint32 Sign; // @v9.9.5 Подпись экземпляра
+public:*/
 	uint16 EntryType;
 	uint16 Flags;
 	char   Name[36];

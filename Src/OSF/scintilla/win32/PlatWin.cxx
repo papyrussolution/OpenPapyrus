@@ -237,7 +237,7 @@ static void SetLogFont(LOGFONTW &lf, const char * faceName, int characterSet, fl
 	lf.lfItalic = static_cast<BYTE>(italic ? 1 : 0);
 	lf.lfCharSet = static_cast<BYTE>(characterSet);
 	lf.lfQuality = Win32MapFontQuality(extraFontFlag);
-	UTF16FromUTF8(faceName, strlen(faceName)+1, lf.lfFaceName, LF_FACESIZE);
+	UTF16FromUTF8(faceName, sstrlen(faceName)+1, lf.lfFaceName, LF_FACESIZE);
 }
 
 /**
@@ -295,7 +295,7 @@ FontCached::FontCached(const FontParameters &fp) : next(0), usage(0), size(1.0),
 		IDWriteTextFormat * pTextFormat;
 		const int faceSize = 200;
 		WCHAR wszFace[faceSize];
-		UTF16FromUTF8(fp.faceName, strlen(fp.faceName)+1, wszFace, faceSize);
+		UTF16FromUTF8(fp.faceName, sstrlen(fp.faceName)+1, wszFace, faceSize);
 		FLOAT fHeight = fp.size;
 		DWRITE_FONT_STYLE style = fp.italic ? DWRITE_FONT_STYLE_ITALIC : DWRITE_FONT_STYLE_NORMAL;
 		HRESULT hr = pIDWriteFactory->CreateTextFormat(wszFace, NULL,
@@ -350,7 +350,7 @@ bool FontCached::SameAs(const FontParameters &fp)
 	    (lf.lfQuality == Win32MapFontQuality(fp.extraFontFlag)) &&
 	    (technology == fp.technology)) {
 		wchar_t wszFace[LF_FACESIZE];
-		UTF16FromUTF8(fp.faceName, strlen(fp.faceName)+1, wszFace, LF_FACESIZE);
+		UTF16FromUTF8(fp.faceName, sstrlen(fp.faceName)+1, wszFace, LF_FACESIZE);
 		return 0 == wcscmp(lf.lfFaceName, wszFace);
 	}
 	return false;
@@ -2086,7 +2086,7 @@ public:
 	}
 	char * SetWords(const char * s)
 	{
-		words = std::vector<char>(s, s+strlen(s)+1);
+		words = std::vector<char>(s, s+sstrlen(s)+1);
 		return &words[0];
 	}
 private:
@@ -2266,7 +2266,7 @@ PRectangle ListBoxX::GetDesiredRect()
 	SIZE textSize = {0, 0};
 	int len = 0;
 	if(widestItem) {
-		len = static_cast<int>(strlen(widestItem));
+		len = static_cast<int>(sstrlen(widestItem));
 		if(unicodeMode) {
 			const TextWide tbuf(widestItem, len, unicodeMode);
 			::GetTextExtentPoint32W(hdc, tbuf.buffer, tbuf.tlen, &textSize);
@@ -2393,7 +2393,7 @@ void ListBoxX::Draw(DRAWITEMSTRUCT * pDrawItem)
 		ListItemData item = lti.Get(pDrawItem->itemID);
 		int pixId = item.pixId;
 		const char * text = item.text;
-		int len = static_cast<int>(strlen(text));
+		int len = static_cast<int>(sstrlen(text));
 
 		RECT rcText = rcBox;
 		::InsetRect(&rcText, static_cast<int>(TextInset.x), static_cast<int>(TextInset.y));
@@ -2478,7 +2478,7 @@ void ListBoxX::AppendListItem(const char * text, const char * numword)
 	}
 
 	lti.AllocItem(text, pixId);
-	uint len = static_cast<uint>(strlen(text));
+	uint len = static_cast<uint>(sstrlen(text));
 	if(maxItemCharacters < len) {
 		maxItemCharacters = len;
 		widestItem = text;
@@ -2491,7 +2491,7 @@ void ListBoxX::SetList(const char * list, char separator, char typesep)
 	// the listbox is not visible.
 	SetRedraw(false);
 	Clear();
-	size_t size = strlen(list);
+	size_t size = sstrlen(list);
 	char * words = lti.SetWords(list);
 	char * startword = words;
 	char * numword = NULL;

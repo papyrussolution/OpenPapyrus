@@ -800,7 +800,7 @@ static int GetDiscount(TDialog * pDlg, uint ctl, PPQuotKind * pRec)
 			absdis = 1;
 			strcpy(p, p + 1);
 		}
-		p = buf + strlen(buf);
+		p = buf + sstrlen(buf);
 		if(pctdis)
 			*p++ = '%';
 		else if(pctdisoncost)

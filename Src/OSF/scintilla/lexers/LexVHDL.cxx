@@ -283,7 +283,7 @@ static void FoldNoBoxVHDLDoc(Sci_PositionU startPos,
 			}
 		}
 	}
-	for(j = j+static_cast<Sci_PositionU>(strlen(prevWord)); j<endPos; j++) {
+	for(j = j+static_cast<Sci_PositionU>(sstrlen(prevWord)); j<endPos; j++) {
 		char ch       = styler.SafeGetCharAt(j);
 		int style     = styler.StyleAt(j);
 		if((!IsCommentStyle(style)) && (style != SCE_VHDL_STRING)) {

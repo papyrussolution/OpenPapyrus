@@ -1092,7 +1092,7 @@ CURLcode Curl_verifyhost(struct connectdata * conn,
 					case 2: /* DNS name. */
 					    len = utf8asn1str(&dnsname, CURL_ASN1_IA5_STRING,
 					    name.beg, name.end);
-					    if(len > 0 && (size_t)len == strlen(dnsname))
+					    if(len > 0 && (size_t)len == sstrlen(dnsname))
 						    matched = Curl_cert_hostcheck(dnsname, hostname);
 					    else
 						    matched = 0;
@@ -1146,7 +1146,7 @@ CURLcode Curl_verifyhost(struct connectdata * conn,
 			SAlloc::F(dnsname);
 			return CURLE_OUT_OF_MEMORY;
 		}
-		if(strlen(dnsname) != (size_t)len) /* Nul byte in string ? */
+		if(sstrlen(dnsname) != (size_t)len) /* Nul byte in string ? */
 			failf(data, "SSL: illegal cert name field");
 		else if(Curl_cert_hostcheck((const char*)dnsname, hostname)) {
 			infof(data, "\t common name: %s (matched)\n", dnsname);

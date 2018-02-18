@@ -193,10 +193,10 @@ int SLAPI PPCustDisp::SetAmt(double price, double qtty)
 	int    ok = 1;
 	char   buf[64], * p = 0;
 	realfmt(R2(price), MKSFMTD(0, 2, ALIGN_LEFT), buf);
-	p = buf + strlen(buf);
+	p = buf + sstrlen(buf);
 	*p++ = '*';
 	realfmt(R3(fabs(qtty)), MKSFMTD(0, 3, ALIGN_LEFT | NMBF_NOTRAILZ), p);
-	p = buf + strlen(buf);
+	p = buf + sstrlen(buf);
 	*p++ = '=';
 	realfmt(R2(fabs(price * qtty)), MKSFMTD(0, 2, ALIGN_LEFT), p);
 	THROW(PutString(buf, ALIGN_LEFT, down));

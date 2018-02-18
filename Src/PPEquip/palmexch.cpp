@@ -115,7 +115,7 @@ char * convert_str(const char * pSrcBuf, int shrink, char * pDestBuf, size_t des
 		}
 		for(p = (uchar *)pDestBuf; *p;)
 			if((p[0] == ' ' && p[1] == ' ') || p[0] == '\n')
-				memmove(p, p+1, strlen((char *)(p+1)));
+				memmove(p, p+1, sstrlen((char *)(p+1)));
 			else
 				p++;
 	}

@@ -192,7 +192,7 @@ bool Curl_pipeline_server_blacklisted(struct Curl_easy * handle, char * server_n
 			struct curl_llist_element * curr = blacklist->head;
 			while(curr) {
 				char * bl_server_name = (char *)curr->ptr;
-				if(strncasecompare(bl_server_name, server_name, strlen(bl_server_name))) {
+				if(strncasecompare(bl_server_name, server_name, sstrlen(bl_server_name))) {
 					infof(handle, "Server %s is blacklisted\n", server_name);
 					return TRUE;
 				}

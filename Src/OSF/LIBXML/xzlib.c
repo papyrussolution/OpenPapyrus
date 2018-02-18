@@ -91,7 +91,7 @@ static void xz_error(xz_statep state, int err, const char * msg)
 		return;
 	}
 	/* construct error message with path */
-	if((state->msg = SAlloc::M(strlen(state->path) + strlen(msg) + 3)) == NULL) {
+	if((state->msg = SAlloc::M(sstrlen(state->path) + sstrlen(msg) + 3)) == NULL) {
 		state->err = LZMA_MEM_ERROR;
 		state->msg = (char*)"out of memory";
 		return;
@@ -128,7 +128,7 @@ static xzFile xz_open(const char * path, int fd, const char * mode ATTRIBUTE_UNU
 	state->msg = NULL;      /* no error message yet */
 	state->init = 0;        /* initialization of zlib data */
 	/* save the path name for error messages */
-	state->path = SAlloc::M(strlen(path) + 1);
+	state->path = SAlloc::M(sstrlen(path) + 1);
 	if(state->path == NULL) {
 		SAlloc::F(state);
 		return NULL;

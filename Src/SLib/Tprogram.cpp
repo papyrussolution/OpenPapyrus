@@ -270,7 +270,7 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 	if(ptr) {
 		char   title_buf[512];
 		STRNSCPY(title_buf, pTitle);
-		const  size_t title_len = strlen(title_buf);
+		const  size_t title_len = sstrlen(title_buf);
 		HMENU  h_menu = GetMenu(H_MainWnd);
 		h_menu = GetSubMenu(h_menu, GetMenuItemCount(h_menu) - 1);
 		if(h_menu) {
@@ -342,7 +342,7 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 	if(ptr) {
 		char   title_buf[512];
 		STRNSCPY(title_buf, pTitle);
-		const  size_t title_len = strlen(title_buf);
+		const  size_t title_len = sstrlen(title_buf);
 		HMENU h_menu = GetMenu(H_MainWnd);
 		h_menu = GetSubMenu(h_menu, GetMenuItemCount(h_menu) - 1);
 		DelItemFromMenu(ptr);
@@ -1122,7 +1122,7 @@ HINSTANCE TProgram::GetInst()
 void TProgram::IdlePaint()
 {
 	MSG msg;
-	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+	while(PeekMessage(&msg, NULL, WM_PAINT, WM_PAINT, PM_REMOVE)) { // @v9.9.5 (WM_PAINT, WM_PAINT)
 		if(msg.message == WM_PAINT) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -2348,7 +2348,7 @@ int DrawStatusBarItem(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			}
 		}
 		Rectangle(pDi->hDC, out_r.left, out_r.top, out_r.right, out_r.bottom);
-		if(strlen(p_item->str)) {
+		if(sstrlen(p_item->str)) {
 			int    delete_font = 0;
 			HFONT  font = (HFONT)SendMessage(pDi->hwndItem, WM_GETFONT, 0, 0);
 			HFONT  old_font = 0;
@@ -2375,7 +2375,7 @@ int DrawStatusBarItem(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			SetTextColor(pDi->hDC, p_item->TextColor);
 			old_font = (HFONT)SelectObject(pDi->hDC, font);
 			InflateRect(&out_r, -1, -1);
-			::DrawText(pDi->hDC, p_item->str, strlen(p_item->str), &out_r, text_out_fmt);
+			::DrawText(pDi->hDC, p_item->str, sstrlen(p_item->str), &out_r, text_out_fmt);
 			if(old_font)
 				::SelectObject(pDi->hDC, old_font);
 			if(delete_font)

@@ -99,7 +99,7 @@ extern int getopt(int, char * const *, const char *);
 
 #ifdef _UNICODE
 #define	TO_TSTRING(dbenv, s, ts, ret) do {				\
-		int __len = (int)strlen(s) + 1;				\
+		int __len = (int)sstrlen(s) + 1;				\
 		ts = NULL;						\
 		if((ret = __os_malloc((dbenv), __len * sizeof(_TCHAR), &(ts))) == 0 && MultiByteToWideChar(CP_UTF8, 0, (s), -1, (ts), __len) == 0) \
 			ret = __os_posix_err(__os_get_syserr());	\

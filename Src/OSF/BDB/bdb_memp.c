@@ -2560,7 +2560,7 @@ int __memp_fopen(DB_MPOOLFILE * dbmfp, MPOOLFILE * mfp, const char * path, const
 		 * a new entry for the current request.
 		 */
 		if(FLD_ISSET(dbmfp->config_flags, DB_MPOOL_NOFILE))
-			bucket = FNBUCKET(path, strlen(path));
+			bucket = FNBUCKET(path, sstrlen(path));
 		else
 			bucket = FNBUCKET(dbmfp->fileid, DB_FILE_ID_LEN);
 		hp += bucket;
@@ -3024,9 +3024,9 @@ static int __memp_mpf_alloc(DB_MPOOL * dbmp, DB_MPOOLFILE * dbmfp, const char * 
 	}
 	// Copy the file path into shared memory.
 	if(path) {
-		if((ret = __memp_alloc(dbmp, dbmp->reginfo, NULL, strlen(path)+1, &mfp->path_off, &p)) != 0)
+		if((ret = __memp_alloc(dbmp, dbmp->reginfo, NULL, sstrlen(path)+1, &mfp->path_off, &p)) != 0)
 			goto err;
-		memcpy(p, path, strlen(path)+1);
+		memcpy(p, path, sstrlen(path)+1);
 	}
 	// Copy the page cookie into shared memory.
 	if(!dbmfp->pgcookie || !dbmfp->pgcookie->size) {
@@ -5231,7 +5231,7 @@ static int __memp_count_files(ENV * env, MPOOLFILE * mfp, void * argp, uint32 * 
 	dbmp = env->mp_handle;
 	len = *(size_t *)argp;
 	(*countp)++;
-	len += sizeof(DB_MPOOL_FSTAT *)+sizeof(DB_MPOOL_FSTAT)+strlen(__memp_fns(dbmp, mfp))+1;
+	len += sizeof(DB_MPOOL_FSTAT *)+sizeof(DB_MPOOL_FSTAT)+sstrlen(__memp_fns(dbmp, mfp))+1;
 	*(size_t *)argp = len;
 	return 0;
 }
@@ -5261,11 +5261,11 @@ static int __memp_get_files(ENV * env, MPOOLFILE * mfp, void * argp, uint32 * co
 		}
 		else {
 			tstruct = *tfsp+1;
-			tname = (*tfsp)->file_name+strlen((*tfsp)->file_name)+1;
+			tname = (*tfsp)->file_name+sstrlen((*tfsp)->file_name)+1;
 			*++tfsp = tstruct;
 		}
 		name = __memp_fns(dbmp, mfp);
-		nlen = strlen(name)+1;
+		nlen = sstrlen(name)+1;
 		memcpy(tname, name, nlen);
 		memcpy(tstruct, &mfp->stat, sizeof(mfp->stat));
 		tstruct->file_name = tname;
@@ -6845,7 +6845,7 @@ int __memp_nameop(ENV * env, uint8 * fileid, const char * newname, const char * 
 	mp = (MPOOL *)dbmp->reginfo[0].primary;
 	hp = (DB_MPOOL_HASH *)R_ADDR(dbmp->reginfo, mp->ftab);
 	if(!op_is_remove) {
-		nlen = strlen(newname);
+		nlen = sstrlen(newname);
 		if((ret = __memp_alloc(dbmp, dbmp->reginfo, NULL,  nlen+1, &newname_off, &p)) != 0)
 			return ret;
 		memcpy(p, newname, nlen+1);
@@ -6864,7 +6864,7 @@ int __memp_nameop(ENV * env, uint8 * fileid, const char * newname, const char * 
 	 */
 	if(inmem) {
 		DB_ASSERT(env, fullold != NULL);
-		hp += FNBUCKET(fullold, strlen(fullold));
+		hp += FNBUCKET(fullold, sstrlen(fullold));
 		if(!op_is_remove) {
 			bucket = FNBUCKET(newname, nlen);
 			nhp = (DB_MPOOL_HASH *)R_ADDR(dbmp->reginfo, mp->ftab);

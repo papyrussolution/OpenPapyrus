@@ -232,7 +232,7 @@ static char * SLAPI fexpand(char * rpath)
 int SLAPI pathValid(const char * pPath, int existOnly)
 {
 	char   exp_path[512];
-	int    len = strlen(fexpand(strcpy(exp_path, pPath)));
+	int    len = sstrlen(fexpand(strcpy(exp_path, pPath)));
 	if(len <= 3)
 		return driveValid(exp_path);
 	return (existOnly ? isDir(rmvLastSlash(exp_path)) : 1);
@@ -254,7 +254,7 @@ SString & SLAPI MakeTempFileName(const char * pDir, const char * pPrefix, const 
 	size_t prefix_len = 0;
 	long   start = pStart ? *pStart : 1;
 	if(pPrefix)
-		prefix_len = strlen(strnzcpy(prefix, pPrefix, 6));
+		prefix_len = sstrlen(strnzcpy(prefix, pPrefix, 6));
 	else
 		prefix[0] = 0;
 	if(pExt)

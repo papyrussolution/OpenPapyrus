@@ -216,7 +216,7 @@ static CURLcode bindlocal(struct connectdata * conn,
 	if(!dev && !port) // no local kind of binding was requested 
 		return CURLE_OK;
 	memzero(&sa, sizeof(struct Curl_sockaddr_storage));
-	if(dev && (strlen(dev)<255) ) {
+	if(dev && (sstrlen(dev)<255) ) {
 		char myhost[256] = "";
 		int done = 0; /* -1 for error, 1 for address found */
 		bool is_interface = FALSE;
@@ -224,12 +224,12 @@ static CURLcode bindlocal(struct connectdata * conn,
 		static const char * if_prefix = "if!";
 		static const char * host_prefix = "host!";
 
-		if(strncmp(if_prefix, dev, strlen(if_prefix)) == 0) {
-			dev += strlen(if_prefix);
+		if(strncmp(if_prefix, dev, sstrlen(if_prefix)) == 0) {
+			dev += sstrlen(if_prefix);
 			is_interface = TRUE;
 		}
-		else if(strncmp(host_prefix, dev, strlen(host_prefix)) == 0) {
-			dev += strlen(host_prefix);
+		else if(strncmp(host_prefix, dev, sstrlen(host_prefix)) == 0) {
+			dev += sstrlen(host_prefix);
 			is_host = TRUE;
 		}
 
@@ -268,7 +268,7 @@ static CURLcode bindlocal(struct connectdata * conn,
 				     * Only bind to the interface when specified as interface, not just
 				     * as a hostname or ip address.
 				     */
-				    if(setsockopt(sockfd, SOL_SOCKET, SO_BINDTODEVICE, dev, (curl_socklen_t)strlen(dev)+1) != 0) {
+				    if(setsockopt(sockfd, SOL_SOCKET, SO_BINDTODEVICE, dev, (curl_socklen_t)sstrlen(dev)+1) != 0) {
 					    error = SOCKERRNO;
 					    infof(data, "SO_BINDTODEVICE %s failed with errno %d: %s; will do regular bind\n", dev, error, Curl_strerror(conn, error));
 					    /* This is typically "errno 1, error: Operation not permitted" if

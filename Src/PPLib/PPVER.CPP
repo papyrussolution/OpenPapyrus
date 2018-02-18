@@ -109,7 +109,7 @@ int SLAPI PPVersionInfo::Decrypt()
 						fseek(p_file, offs, SEEK_SET);
 						SLibError = SLERR_READFAULT;
 						THROW_SL(fread(b, 64, 1, p_file) == 1);
-						struc_size = *(uint16 *)(b+strlen((char*)b)+1);
+						struc_size = *(uint16 *)(b+sstrlen((char*)b)+1);
 						THROW_MEM(p_data_pre9303 = (uchar *)SAlloc::M(struc_size));
 						SLibError = SLERR_READFAULT;
 						fseek(p_file, offs, SEEK_SET);
@@ -119,13 +119,13 @@ int SLAPI PPVersionInfo::Decrypt()
 						p_info_pre9303 = (__VerInfo*)P_Info_Pre9303;
 
 						memcpy(b, p_data_pre9303, struc_size);
-						dl = strlen((char*)b)+1+sizeof(struc_size);
+						dl = sstrlen((char*)b)+1+sizeof(struc_size);
 						IdeaDecrypt((char*)b, (char*)b+dl, struc_size-dl);
 
-						STRNSCPY(p_info_pre9303->ProductName, (char*)b+dl); dl += strlen((char*)b+dl)+1;
-						STRNSCPY(p_info_pre9303->ProductTeam, (char*)b+dl); dl += strlen((char*)b+dl)+1;
-						STRNSCPY(p_info_pre9303->Demo, (char*)b+dl);        dl += strlen((char*)b+dl)+1;
-						STRNSCPY(p_info_pre9303->Secret, (char*)b+dl);      dl += strlen((char*)b+dl)+1;
+						STRNSCPY(p_info_pre9303->ProductName, (char*)b+dl); dl += sstrlen((char*)b+dl)+1;
+						STRNSCPY(p_info_pre9303->ProductTeam, (char*)b+dl); dl += sstrlen((char*)b+dl)+1;
+						STRNSCPY(p_info_pre9303->Demo, (char*)b+dl);        dl += sstrlen((char*)b+dl)+1;
+						STRNSCPY(p_info_pre9303->Secret, (char*)b+dl);      dl += sstrlen((char*)b+dl)+1;
 						p_info_pre9303->StartDevYear = *(uint16*)(b+dl); dl += sizeof(uint16);
 						p_info_pre9303->LastDevYear = *(uint16*)(b+dl);  dl += sizeof(uint16);
 						p_info_pre9303->MajorVer = *(uint16*)(b+dl);     dl += sizeof(uint16);

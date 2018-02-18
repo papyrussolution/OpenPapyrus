@@ -55,7 +55,7 @@ static int FindExeByExt(const char * pExt, char * pExe, size_t buflen, char * pA
 				if((p_chr = strchr(buf, '.')) != NULL)
 					if((p_chr = strchr(p_chr, ' ')) != NULL)
 						*p_chr = 0;
-				if(buflen > strlen(buf)) {
+				if(buflen > sstrlen(buf)) {
 					strcpy(pExe, buf);
 					ok = 1;
 				}
@@ -2132,7 +2132,7 @@ int SLAPI VerifyCrpt(const char * pRptPath, const char * pDataPath)
 {
 	int ok = -1;
 #if 0 // {
-	if(pRptPath && pDataPath && strlen(pRptPath) && strlen(pDataPath)) {
+	if(pRptPath && pDataPath && sstrlen(pRptPath) && sstrlen(pDataPath)) {
 		short  h_job = PEOpenPrintJob(pRptPath);
 		PEReportOptions ro;
 		THROW_PP(h_job, PPERR_CRYSTAL_REPORT);

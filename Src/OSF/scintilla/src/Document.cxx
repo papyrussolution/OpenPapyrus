@@ -255,15 +255,17 @@ void Document::TentativeUndo()
 					const int prevLinesTotal = LinesTotal();
 					const UndoHistory::Action & action = cb.GetUndoStep();
 					if(action.at == UndoHistory::Action::tRemove) {
-						NotifyModified(DocModification(SC_MOD_BEFOREINSERT | SC_PERFORMED_UNDO, action));
+						DocModification dm(SC_MOD_BEFOREINSERT|SC_PERFORMED_UNDO, action);
+						NotifyModified(dm);
 					}
 					else if(action.at == UndoHistory::Action::tContainer) {
-						DocModification dm(SC_MOD_CONTAINER | SC_PERFORMED_UNDO);
+						DocModification dm(SC_MOD_CONTAINER|SC_PERFORMED_UNDO);
 						dm.token = action.position;
 						NotifyModified(dm);
 					}
 					else {
-						NotifyModified(DocModification(SC_MOD_BEFOREDELETE | SC_PERFORMED_UNDO, action));
+						DocModification dm(SC_MOD_BEFOREDELETE|SC_PERFORMED_UNDO, action);
+						NotifyModified(dm);
 					}
 					cb.PerformUndoStep();
 					if(action.at != UndoHistory::Action::tContainer) {
@@ -271,12 +273,10 @@ void Document::TentativeUndo()
 					}
 					int modFlags = SC_PERFORMED_UNDO;
 					// With undo, an insertion action becomes a deletion notification
-					if(action.at == UndoHistory::Action::tRemove) {
+					if(action.at == UndoHistory::Action::tRemove)
 						modFlags |= SC_MOD_INSERTTEXT;
-					}
-					else if(action.at == UndoHistory::Action::tInsert) {
+					else if(action.at == UndoHistory::Action::tInsert)
 						modFlags |= SC_MOD_DELETETEXT;
-					}
 					if(steps > 1)
 						modFlags |= SC_MULTISTEPUNDOREDO;
 					const int linesAdded = LinesTotal() - prevLinesTotal;
@@ -287,9 +287,11 @@ void Document::TentativeUndo()
 						if(multiLine)
 							modFlags |= SC_MULTILINEUNDOREDO;
 					}
-					NotifyModified(DocModification(modFlags, action.position, action.lenData, linesAdded, action.data));
+					{
+						DocModification dm(modFlags, action.position, action.lenData, linesAdded, action.data);
+						NotifyModified(dm);
+					}
 				}
-
 				bool endSavePoint = cb.IsSavePoint();
 				if(startSavePoint != endSavePoint)
 					NotifySavePoint(endSavePoint);
@@ -1090,7 +1092,10 @@ bool Document::DeleteChars(int pos, int len)
 	else {
 		enteredModification++;
 		if(!cb.IsReadOnly()) {
-			NotifyModified(DocModification(SC_MOD_BEFOREDELETE | SC_PERFORMED_USER, pos, len, 0, 0));
+			{
+				DocModification dm(SC_MOD_BEFOREDELETE|SC_PERFORMED_USER, pos, len, 0, 0);
+				NotifyModified(dm);
+			}
 			int prevLinesTotal = LinesTotal();
 			bool startSavePoint = cb.IsSavePoint();
 			bool startSequence = false;
@@ -1101,7 +1106,10 @@ bool Document::DeleteChars(int pos, int len)
 				ModifiedAt(pos);
 			else
 				ModifiedAt(pos-1);
-			NotifyModified(DocModification(SC_MOD_DELETETEXT | SC_PERFORMED_USER | (startSequence ? SC_STARTACTION : 0), pos, len, LinesTotal() - prevLinesTotal, text));
+			{
+				DocModification dm(SC_MOD_DELETETEXT|SC_PERFORMED_USER|(startSequence ? SC_STARTACTION : 0), pos, len, LinesTotal() - prevLinesTotal, text);
+				NotifyModified(dm);
+			}
 		}
 		enteredModification--;
 	}
@@ -1126,12 +1134,18 @@ int Document::InsertString(int position, const char * s, int insertLength)
 	//insertionSet = false;
 	DocFlags &= ~dfInsertionSet;
 	insertion.clear();
-	NotifyModified(DocModification(SC_MOD_INSERTCHECK, position, insertLength, 0, s));
+	{
+		DocModification dm(SC_MOD_INSERTCHECK, position, insertLength, 0, s);
+		NotifyModified(dm);
+	}
 	if(DocFlags & dfInsertionSet) {
 		s = insertion.c_str();
 		insertLength = static_cast<int>(insertion.length());
 	}
-	NotifyModified(DocModification(SC_MOD_BEFOREINSERT | SC_PERFORMED_USER, position, insertLength, 0, s));
+	{
+		DocModification dm(SC_MOD_BEFOREINSERT | SC_PERFORMED_USER, position, insertLength, 0, s);
+		NotifyModified(dm);
+	}
 	int prevLinesTotal = LinesTotal();
 	bool startSavePoint = cb.IsSavePoint();
 	bool startSequence = false;
@@ -1139,7 +1153,10 @@ int Document::InsertString(int position, const char * s, int insertLength)
 	if(startSavePoint && cb.IsCollectingUndo())
 		NotifySavePoint(!startSavePoint);
 	ModifiedAt(position);
-	NotifyModified(DocModification(SC_MOD_INSERTTEXT|SC_PERFORMED_USER | (startSequence ? SC_STARTACTION : 0), position, insertLength, LinesTotal() - prevLinesTotal, text));
+	{
+		DocModification dm(SC_MOD_INSERTTEXT|SC_PERFORMED_USER | (startSequence ? SC_STARTACTION : 0), position, insertLength, LinesTotal() - prevLinesTotal, text);
+		NotifyModified(dm);
+	}
 	if(DocFlags & dfInsertionSet) { // Free memory as could be large
 		std::string().swap(insertion);
 	}
@@ -1190,10 +1207,11 @@ int Document::Undo()
 				const int prevLinesTotal = LinesTotal();
 				const UndoHistory::Action & action = cb.GetUndoStep();
 				if(action.at == UndoHistory::Action::tRemove) {
-					NotifyModified(DocModification(SC_MOD_BEFOREINSERT | SC_PERFORMED_UNDO, action));
+					DocModification dm(SC_MOD_BEFOREINSERT|SC_PERFORMED_UNDO, action);
+					NotifyModified(dm);
 				}
 				else if(action.at == UndoHistory::Action::tContainer) {
-					DocModification dm(SC_MOD_CONTAINER | SC_PERFORMED_UNDO);
+					DocModification dm(SC_MOD_CONTAINER|SC_PERFORMED_UNDO);
 					dm.token = action.position;
 					NotifyModified(dm);
 					if(!action.mayCoalesce) {
@@ -1204,14 +1222,14 @@ int Document::Undo()
 					}
 				}
 				else {
-					NotifyModified(DocModification(SC_MOD_BEFOREDELETE | SC_PERFORMED_UNDO, action));
+					DocModification dm(SC_MOD_BEFOREDELETE|SC_PERFORMED_UNDO, action);
+					NotifyModified(dm);
 				}
 				cb.PerformUndoStep();
 				if(action.at != UndoHistory::Action::tContainer) {
 					ModifiedAt(action.position);
 					newPos = action.position;
 				}
-
 				int modFlags = SC_PERFORMED_UNDO;
 				// With undo, an insertion action becomes a deletion notification
 				if(action.at == UndoHistory::Action::tRemove) {
@@ -1245,9 +1263,11 @@ int Document::Undo()
 					if(multiLine)
 						modFlags |= SC_MULTILINEUNDOREDO;
 				}
-				NotifyModified(DocModification(modFlags, action.position, action.lenData, linesAdded, action.data));
+				{
+					DocModification dm(modFlags, action.position, action.lenData, linesAdded, action.data);
+					NotifyModified(dm);
+				}
 			}
-
 			bool endSavePoint = cb.IsSavePoint();
 			if(startSavePoint != endSavePoint)
 				NotifySavePoint(endSavePoint);
@@ -1271,7 +1291,8 @@ int Document::Redo()
 				const int prevLinesTotal = LinesTotal();
 				const UndoHistory::Action & action = cb.GetRedoStep();
 				if(action.at == UndoHistory::Action::tInsert) {
-					NotifyModified(DocModification(SC_MOD_BEFOREINSERT | SC_PERFORMED_REDO, action));
+					DocModification dm(SC_MOD_BEFOREINSERT | SC_PERFORMED_REDO, action);
+					NotifyModified(dm);
 				}
 				else if(action.at == UndoHistory::Action::tContainer) {
 					DocModification dm(SC_MOD_CONTAINER | SC_PERFORMED_REDO);
@@ -1279,14 +1300,14 @@ int Document::Redo()
 					NotifyModified(dm);
 				}
 				else {
-					NotifyModified(DocModification(SC_MOD_BEFOREDELETE | SC_PERFORMED_REDO, action));
+					DocModification dm(SC_MOD_BEFOREDELETE | SC_PERFORMED_REDO, action);
+					NotifyModified(dm);
 				}
 				cb.PerformRedoStep();
 				if(action.at != UndoHistory::Action::tContainer) {
 					ModifiedAt(action.position);
 					newPos = action.position;
 				}
-
 				int modFlags = SC_PERFORMED_REDO;
 				if(action.at == UndoHistory::Action::tInsert) {
 					newPos += action.lenData;
@@ -1305,7 +1326,10 @@ int Document::Redo()
 					if(multiLine)
 						modFlags |= SC_MULTILINEUNDOREDO;
 				}
-				NotifyModified(DocModification(modFlags, action.position, action.lenData, linesAdded, action.data));
+				{
+					DocModification dm(modFlags, action.position, action.lenData, linesAdded, action.data);
+					NotifyModified(dm);
+				}
 			}
 			bool endSavePoint = cb.IsSavePoint();
 			if(startSavePoint != endSavePoint)
@@ -2250,21 +2274,23 @@ Document::StyledText Document::MarginStyledText(int line) const
 
 void Document::MarginSetText(int line, const char * text)
 {
-	static_cast<LineAnnotation *>(perLineData[ldMargin])->SetText(line, text);
+	static_cast <LineAnnotation *>(perLineData[ldMargin])->SetText(line, text);
 	DocModification mh(SC_MOD_CHANGEMARGIN, LineStart(line), 0, 0, 0, line);
 	NotifyModified(mh);
 }
 
 void Document::MarginSetStyle(int line, int style)
 {
-	static_cast<LineAnnotation *>(perLineData[ldMargin])->SetStyle(line, style);
-	NotifyModified(DocModification(SC_MOD_CHANGEMARGIN, LineStart(line), 0, 0, 0, line));
+	static_cast <LineAnnotation *>(perLineData[ldMargin])->SetStyle(line, style);
+	DocModification dm(SC_MOD_CHANGEMARGIN, LineStart(line), 0, 0, 0, line);
+	NotifyModified(dm);
 }
 
 void Document::MarginSetStyles(int line, const uchar * styles)
 {
-	static_cast<LineAnnotation *>(perLineData[ldMargin])->SetStyles(line, styles);
-	NotifyModified(DocModification(SC_MOD_CHANGEMARGIN, LineStart(line), 0, 0, 0, line));
+	static_cast <LineAnnotation *>(perLineData[ldMargin])->SetStyles(line, styles);
+	DocModification dm(SC_MOD_CHANGEMARGIN, LineStart(line), 0, 0, 0, line);
+	NotifyModified(dm);
 }
 
 void Document::MarginClearAll()
@@ -2375,15 +2401,12 @@ void Document::NotifySavePoint(bool atSavePoint)
 
 void FASTCALL Document::NotifyModified(const DocModification & mh)
 {
-	if(mh.modificationType & SC_MOD_INSERTTEXT) {
+	if(mh.modificationType & SC_MOD_INSERTTEXT)
 		decorations.InsertSpace(mh.position, mh.length);
-	}
-	else if(mh.modificationType & SC_MOD_DELETETEXT) {
+	else if(mh.modificationType & SC_MOD_DELETETEXT)
 		decorations.DeleteRange(mh.position, mh.length);
-	}
-	for(std::vector<WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
+	for(std::vector <WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it)
 		it->watcher->NotifyModified(this, mh, it->userData);
-	}
 }
 
 // Used for word part navigation.
@@ -3003,7 +3026,7 @@ long Cxx11RegexFindText(Document * doc, int minPos, int maxPos, const char * s, 
 
 		bool matched = false;
 		if(SC_CP_UTF8 == doc->dbcsCodePage) {
-			uint lenS = static_cast<uint>(strlen(s));
+			uint lenS = static_cast<uint>(sstrlen(s));
 			std::vector<wchar_t> ws(lenS + 1);
 #if WCHAR_T_IS_16
 			size_t outLen = UTF16FromUTF8(s, lenS, &ws[0], lenS);

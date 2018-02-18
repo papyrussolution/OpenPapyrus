@@ -98,7 +98,7 @@ CURLcode Curl_auth_decode_spnego_message(struct Curl_easy * data,
 			return CURLE_OUT_OF_MEMORY;
 		/* Populate the SPN structure */
 		spn_token.value = spn;
-		spn_token.length = strlen(spn);
+		spn_token.length = sstrlen(spn);
 		/* Import the SPN */
 		major_status = gss_import_name(&minor_status, &spn_token, GSS_C_NT_HOSTBASED_SERVICE, &nego->spn);
 		if(GSS_ERROR(major_status)) {

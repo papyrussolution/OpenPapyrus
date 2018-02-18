@@ -39,7 +39,7 @@ static char ** ArrayFromWordList(char * wordlist, int * len, bool onlyLineEnds =
 	}
 	char ** keywords = new char *[words + 1];
 	int wordsStore = 0;
-	const size_t slen = strlen(wordlist);
+	const size_t slen = sstrlen(wordlist);
 	if(words) {
 		prev = '\0';
 		for(size_t k = 0; k < slen; k++) {
@@ -127,7 +127,7 @@ static void SortWordList(char ** words, uint len)
 void FASTCALL WordList::Set(const char * s)
 {
 	Clear();
-	const size_t lenS = strlen(s) + 1;
+	const size_t lenS = sstrlen(s) + 1;
 	list = new char[lenS];
 	memcpy(list, s, lenS);
 	words = ArrayFromWordList(list, &len, onlyLineEnds);
@@ -259,8 +259,8 @@ bool WordList::InListAbridged(const char * s, const char marker) const
 					a++;
 					if(*a == marker) {
 						a++;
-						const size_t suffixLengthA = strlen(a);
-						const size_t suffixLengthB = strlen(b);
+						const size_t suffixLengthA = sstrlen(a);
+						const size_t suffixLengthB = sstrlen(b);
 						if(suffixLengthA >= suffixLengthB)
 							break;
 						b = b + suffixLengthB - suffixLengthA - 1;
@@ -277,8 +277,8 @@ bool WordList::InListAbridged(const char * s, const char marker) const
 			while(words[j][0] == marker) {
 				const char * a = words[j] + 1;
 				const char * b = s;
-				const size_t suffixLengthA = strlen(a);
-				const size_t suffixLengthB = strlen(b);
+				const size_t suffixLengthA = sstrlen(a);
+				const size_t suffixLengthB = sstrlen(b);
 				if(suffixLengthA > suffixLengthB) {
 					j++;
 					continue;

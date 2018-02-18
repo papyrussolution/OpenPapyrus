@@ -301,7 +301,8 @@ int SLAPI SChar::fromstr(void * d, long, const char * buf) const
 {
 	if(S) {
 		memset(d, ' ', S);
-		memmove((char *)d, buf, MIN(strlen(buf), S));
+		const size_t bl = sstrlen(buf);
+		memmove((char *)d, buf, MIN(bl, S));
 		return 1;
 	}
 	else {
@@ -406,7 +407,7 @@ int SLAPI SZString::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBu
 	int    ok = 1;
 	if(dir > 0) {
 		size_t sz = size();
-		size_t len = strlen((char *)pData);
+		size_t len = sstrlen((char *)pData);
 		if(len == 0) {
 			*pInd = 1;
 		}
@@ -485,7 +486,7 @@ char * SLAPI SLString::tostr(const void * d, long fmt, char * buf) const
 
 int SLAPI SLString::fromstr(void * d, long, const char * buf) const
 {
-	size_t l = strlen(buf);
+	size_t l = sstrlen(buf);
 	(*(char *)d) = (char)l;
 	strncpy(((char *)d)+1, buf, l);
 	return 1;
@@ -1389,7 +1390,7 @@ char * SLAPI SDateTime::tostr(const void * v, long f, char * b) const
 	char   t[256];
 	char * p = t;
 	datefmt(&p_dtm->d, MKSFMT(0, SFMTFLAG(f)), p);
-	p += strlen(p);
+	p += sstrlen(p);
 	*p++ = ' ';
 	timefmt(p_dtm->t, MKSFMT(0, TIMF_HMS), p);
 	_commfmt(f, t);
@@ -1529,7 +1530,7 @@ char * SLAPI SIPoint2::tostr(const void * s, long fmt, char * pBuf) const
 	const TPoint * p_pnt = (const TPoint *)s;
 	char * p = pBuf;
 	itoa(p_pnt->x, p, 10);
-	p += strlen(p);
+	p += sstrlen(p);
 	*p++ = ',';
 	itoa(p_pnt->y, p, 10);
 	return pBuf;
@@ -1629,7 +1630,7 @@ char * SLAPI SFPoint2::tostr(const void * pData, long f, char * pBuf) const
 	const FPoint * p_pnt = (const FPoint *)pData;
 	char * p = pBuf;
 	realfmt(p_pnt->X, MKSFMTD(0, 5, NMBF_NOTRAILZ), p);
-	p += strlen(p);
+	p += sstrlen(p);
 	*p++ = ',';
 	realfmt(p_pnt->Y, MKSFMTD(0, 5, NMBF_NOTRAILZ), p);
 	return pBuf;

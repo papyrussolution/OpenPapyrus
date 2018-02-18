@@ -113,7 +113,7 @@ void __db_derive_mac(uint8 * passwd, size_t plen, uint8 * mac_key)
 	/* Compute the MAC key. mac_key must be 20 bytes. */
 	__db_SHA1Init(&ctx);
 	__db_SHA1Update(&ctx, passwd, plen);
-	__db_SHA1Update(&ctx, (uint8 *)DB_MAC_MAGIC, strlen(DB_MAC_MAGIC));
+	__db_SHA1Update(&ctx, (uint8 *)DB_MAC_MAGIC, sstrlen(DB_MAC_MAGIC));
 	__db_SHA1Update(&ctx, passwd, plen);
 	__db_SHA1Final(mac_key, &ctx);
 	return;

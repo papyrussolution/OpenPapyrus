@@ -1242,7 +1242,7 @@ static int xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visi
 			ctx->pos = XMLC14N_INSIDE_DOCUMENT_ELEMENT;
 		}
 		xmlOutputBufferWriteString(ctx->buf, "<");
-		if(cur->ns && (sstrlen(cur->ns->prefix) > 0)) {
+		if(cur->ns && sstrlen(cur->ns->prefix)) {
 			xmlOutputBufferWriteString(ctx->buf, (const char*)cur->ns->prefix);
 			xmlOutputBufferWriteString(ctx->buf, ":");
 		}
@@ -1279,7 +1279,7 @@ static int xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visi
 	}
 	if(visible) {
 		xmlOutputBufferWriteString(ctx->buf, "</");
-		if(cur->ns && (sstrlen(cur->ns->prefix) > 0)) {
+		if(cur->ns && sstrlen(cur->ns->prefix)) {
 			xmlOutputBufferWriteString(ctx->buf, (const char*)cur->ns->prefix);
 			xmlOutputBufferWriteString(ctx->buf, ":");
 		}

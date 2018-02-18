@@ -240,7 +240,7 @@ void AutoComplete::Move(int delta)
 
 void AutoComplete::Select(const char * word)
 {
-	size_t lenWord = strlen(word);
+	size_t lenWord = sstrlen(word);
 	int location = -1;
 	int start = 0; // lower bound of the api array block to search
 	int end = lb->Length() - 1; // upper bound of the api array block to search

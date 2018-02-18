@@ -1050,7 +1050,7 @@ static int __fop_inmem_create(DB * dbp, const char * name, DB_TXN * txn, uint32 
 	   txn != NULL &&
 #endif
 	   name != NULL) {
-		DB_INIT_DBT(name_dbt, name, strlen(name)+1);
+		DB_INIT_DBT(name_dbt, name, sstrlen(name)+1);
 		memzero(&fid_dbt, sizeof(fid_dbt));
 		fid_dbt.data = dbp->fileid;
 		fid_dbt.size = DB_FILE_ID_LEN;
@@ -1084,13 +1084,10 @@ static int __fop_inmem_read_meta(DB * dbp, DB_TXN * txn, const char * name, uint
 
 static int __fop_ondisk_dummy(DB * dbp, DB_TXN * txn, const char * name, uint8 * mbuf)
 {
-	ENV * env;
 	int ret;
-	char * realname;
-	uint32 dflags;
-	realname = NULL;
-	env = dbp->env;
-	dflags = F_ISSET(dbp, DB_AM_NOT_DURABLE) ? DB_LOG_NOT_DURABLE : 0;
+	char * realname = NULL;
+	ENV * env = dbp->env;
+	uint32 dflags = F_ISSET(dbp, DB_AM_NOT_DURABLE) ? DB_LOG_NOT_DURABLE : 0;
 	if((ret = __db_appname(env, DB_APP_DATA, name, &dbp->dirname, &realname)) != 0)
 		goto err;
 	if((ret = __fop_create(env, txn, NULL, name, &dbp->dirname, DB_APP_DATA, 0, dflags)) != 0)
@@ -1275,7 +1272,7 @@ retry:
 	memzero(&tmpdbt, sizeof(fiddbt));
 	tmpdbt.data = tmpdbp->fileid;
 	tmpdbt.size = DB_FILE_ID_LEN;
-	DB_INIT_DBT(namedbt, old, strlen(old)+1);
+	DB_INIT_DBT(namedbt, old, sstrlen(old)+1);
 	if((t_ret = __fop_file_remove_log(env, parent, &lsn, dflags, &fiddbt, &tmpdbt, &namedbt, (uint32)DB_APP_DATA, child_txnid)) != 0 && ret == 0)
 		ret = t_ret;
 	/* This is a delayed delete of the dummy file. */
@@ -1355,13 +1352,13 @@ retry:
 	   ) {
 		/* Rename old to pNewName. */
 		DB_INIT_DBT(fid_dbt, olddbp->fileid, DB_FILE_ID_LEN);
-		DB_INIT_DBT(n1_dbt, old, strlen(old)+1);
-		DB_INIT_DBT(n2_dbt, pNewName, strlen(pNewName)+1);
+		DB_INIT_DBT(n1_dbt, old, sstrlen(old)+1);
+		DB_INIT_DBT(n2_dbt, pNewName, sstrlen(pNewName)+1);
 		if((ret = __crdel_inmem_rename_log(env, txn, &lsn, 0, &n1_dbt, &n2_dbt, &fid_dbt)) != 0)
 			goto err;
 		/* Rename back to old */
 		fid_dbt.data = backdbp->fileid;
-		DB_SET_DBT(n2_dbt, back, strlen(back)+1);
+		DB_SET_DBT(n2_dbt, back, sstrlen(back)+1);
 		if((ret = __crdel_inmem_rename_log(env, txn, &lsn, 0, &n2_dbt, &n1_dbt, &fid_dbt)) != 0)
 			goto err;
 	}

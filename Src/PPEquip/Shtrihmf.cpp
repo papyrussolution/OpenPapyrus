@@ -153,7 +153,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 				//
 				{
 					temp_buf.Z().CatChar('%');
-					// buf.Z().CatCharN(' ', AC_DEF_CARD_CODE_LEN - strlen(card_rec.Code)).Cat(card_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
+					// buf.Z().CatCharN(' ', AC_DEF_CARD_CODE_LEN - sstrlen(card_rec.Code)).Cat(card_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
 					temp_buf.Cat(card_rec.Code).Semicol();            // #1 Номер карты
 					temp_buf.Cat(psn_name).Semicol();                 // #2 Владелец карты
 					temp_buf.Cat(psn_name).Semicol();                 // #3 Текст для чека
@@ -238,13 +238,13 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 			long level = 0;
 			f_str = 0;
 			f_str.Cat(gds_info.ID).Semicol();                                 // #1 - ИД товара
-			if((bclen = strlen(gds_info.BarCode)) != 0) {                     // #2 - Основной штрихкод
+			if((bclen = sstrlen(gds_info.BarCode)) != 0) {                     // #2 - Основной штрихкод
 				gds_info.AdjustBarcode(check_dig);
 				const int wp = goods_cfg.IsWghtPrefix(gds_info.BarCode);
 				if(wp == 1)
-					STRNSCPY(gds_info.BarCode, gds_info.BarCode+strlen(goods_cfg.WghtPrefix));
+					STRNSCPY(gds_info.BarCode, gds_info.BarCode+sstrlen(goods_cfg.WghtPrefix));
 				else if(wp == 2)
-					STRNSCPY(gds_info.BarCode, gds_info.BarCode+strlen(goods_cfg.WghtCntPrefix));
+					STRNSCPY(gds_info.BarCode, gds_info.BarCode+sstrlen(goods_cfg.WghtCntPrefix));
 				else
 					AddCheckDigToBarcode(gds_info.BarCode);
 				f_str.Cat(gds_info.BarCode);
@@ -282,13 +282,13 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 		}
 		else {
 			f_str.Z().CatChar('#').Cat(gds_info.ID).Semicol();          // #1 - ИД товара
-			if((bclen = strlen(gds_info.BarCode)) != 0) {
+			if((bclen = sstrlen(gds_info.BarCode)) != 0) {
 				gds_info.AdjustBarcode(check_dig);
 				const int wp = GetGoodsCfg().IsWghtPrefix(gds_info.BarCode);
 				if(wp == 1)
-					STRNSCPY(gds_info.BarCode, gds_info.BarCode+strlen(GetGoodsCfg().WghtPrefix));
+					STRNSCPY(gds_info.BarCode, gds_info.BarCode+sstrlen(GetGoodsCfg().WghtPrefix));
 				else if(wp == 2)
-					STRNSCPY(gds_info.BarCode, gds_info.BarCode+strlen(GetGoodsCfg().WghtCntPrefix));
+					STRNSCPY(gds_info.BarCode, gds_info.BarCode+sstrlen(GetGoodsCfg().WghtCntPrefix));
 				else
 					AddCheckDigToBarcode(gds_info.BarCode);
 				f_str.Cat(gds_info.BarCode);                              // #2 - Дополнительный штрихкод
@@ -310,7 +310,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 	// Экспорт формата весовых штрих-кодов
 	//
 	/* @v6.3.x Структура весового штрихкода будет настраиваться на кассе
-	if((goods_cfg.Flags & GCF_ENABLEWP) && strlen(goods_cfg.WghtPrefix)) {
+	if((goods_cfg.Flags & GCF_ENABLEWP) && sstrlen(goods_cfg.WghtPrefix)) {
 		f_str.Z().CatChar('(').Cat(goods_cfg.WghtPrefix).Semicol();       // #1 - Префикс весового штрихкода
 		f_str.Cat(1L).Semicol();                                            // #2 - Сначала код товара затем вес вес товара (1)
 		f_str.Cat(5L).Semicol();                                            // #3 - Число знаков под код (5)
@@ -389,7 +389,7 @@ int SLAPI ACS_SHTRIHMFRK::ExportData(int updOnly)
 					//
 					{
 						temp_buf.Z().CatChar('%');
-						// buf.Z().CatCharN(' ', AC_DEF_CARD_CODE_LEN - strlen(info.Rec.Code)).Cat(info.Rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
+						// buf.Z().CatCharN(' ', AC_DEF_CARD_CODE_LEN - sstrlen(info.Rec.Code)).Cat(info.Rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
 						temp_buf.Cat(info.Rec.Code).Semicol();            // #1 Номер карты
 						temp_buf.Cat(psn_name).Semicol();                 // #2 Владелец карты
 						temp_buf.Cat(psn_name).Semicol();                 // #3 Текст для чека
@@ -560,7 +560,7 @@ int SLAPI ACS_SHTRIHMFRK::ImportFiles()
 		if(imp_path.CmpPrefix(p_ftp_flag, 1) == 0) {
 			SString ftp_path, ftp_path_flag, ftp_dir, file_name;
 			SPathStruc sp;
-			imp_path.ShiftLeft(strlen(p_ftp_flag));
+			imp_path.ShiftLeft(sstrlen(p_ftp_flag));
 			if(!ftp_connected) {
 				THROW(ftp.Init());
 				THROW(ftp.Connect(&acct));

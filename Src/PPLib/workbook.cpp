@@ -543,7 +543,7 @@ int SLAPI PPObjWorkbook::SelectKeywordReverse(SString & rKeyword)
 		BExtQuery q(&r_t, 1);
 		q.select(r_t.ObjType, r_t.ObjID, r_t.TagID, r_t.StrVal, 0).where(r_t.TagID == tag_id);
 		for(q.initIteration(0, &k1, spGe); q.nextIteration() > 0;) {
-			ss.setBuf(r_t.data.StrVal, strlen(r_t.data.StrVal)+1);
+			ss.setBuf(r_t.data.StrVal, sstrlen(r_t.data.StrVal)+1);
 			for(uint sp = 0; ss.get(&sp, temp_buf);) {
 				if(!hash.Search(temp_buf.Strip().ToLower(), 0, 0)) {
 					if(SearchByName(temp_buf, 0, 0) <= 0)

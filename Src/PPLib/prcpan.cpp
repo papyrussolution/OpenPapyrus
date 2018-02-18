@@ -478,7 +478,7 @@ int PrcPaneDialog::processBill(const char * pInp)
 	//
 	int    ok = 1;
 	int    r = -1;
-	uint   pos = 4; // 4 == strlen("BILL")
+	uint   pos = 4; // 4 == sstrlen("BILL")
 	BillTbl::Rec bill_rec;
 	SString prc_code, ar_id_code, bill_id_code;
 	while(pInp[pos] != 0 && pInp[pos] != 'X')

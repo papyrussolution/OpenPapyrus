@@ -41,7 +41,7 @@ struct PathData {          // @persistent @store(PropertyTbl)
 SLAPI PathItem::PathItem(PPID pathID, short flags, const char * str) : ID(pathID), Flags(flags)
 {
 	if(!isempty(str)) {
-		const size_t len = strlen(str) + 1;
+		const size_t len = sstrlen(str) + 1;
 		Size  = (uint16)(sizeof(PathItem) + len);
 		memcpy(this + 1, str, len);
 	}
@@ -51,7 +51,7 @@ SLAPI PathItem::PathItem(PPID pathID, short flags, const char * str) : ID(pathID
 
 void * SLAPI PathItem::operator new(size_t sz, const char * str)
 {
-	const size_t len = (str && str[0]) ? (strlen(str) + 1) : 0;
+	const size_t len = (str && str[0]) ? (sstrlen(str) + 1) : 0;
 	return ::new char[sz + len];
 }
 

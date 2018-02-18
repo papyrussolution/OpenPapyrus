@@ -618,7 +618,7 @@ BarcodeFormatToken SLAPI BarcodeLabel::NextToken(char ** ppLine, char * pBuf, si
 					case bcvsSerXNom:    tok = tokSerXNom; break;
 					default:
 						{
-							size_t len = strlen(word);
+							size_t len = sstrlen(word);
 							tok = tokNumber;
 							for(size_t i = 0; tok != tokIdent && i < len; i++)
 								if(!isdec(word[i]))
@@ -664,8 +664,8 @@ int SLAPI BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 	if(*s == '@')
 		s++;
 	for(int i = FIRSTSUBSTVAR; i < FIRSTSUBSTVAR + NUMSUBSTVARS; i++) {
-		if(PPGetSubStr(VarString, i, temp, sizeof(temp)) && strnicmp(s, temp, strlen(temp)) == 0) {
-			size_t var_len = strlen(temp);
+		if(PPGetSubStr(VarString, i, temp, sizeof(temp)) && strnicmp(s, temp, sstrlen(temp)) == 0) {
+			size_t var_len = sstrlen(temp);
 			LDATE  curdate;
 			LTIME  curtime;
 			double rval = 0.0;
@@ -1801,7 +1801,7 @@ SLAPI BarcodeLabelPrinter::~BarcodeLabelPrinter()
 
 int FASTCALL BarcodeLabelPrinter::PutStr(const char * pStr)
 {
-	return Buf.Write(pStr, strlen(pStr)) ? 1 : PPSetErrorSLib();
+	return Buf.Write(pStr, sstrlen(pStr)) ? 1 : PPSetErrorSLib();
 }
 
 int FASTCALL BarcodeLabelPrinter::PutChr(char c)
@@ -1997,7 +1997,7 @@ int SLAPI DatamaxLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 				char   font_buf[8];
 				memzero(font_buf, sizeof(font_buf));
 				strncpy(font_buf, pEntry->Font, 3);
-				size_t j = strlen(font_buf);
+				size_t j = sstrlen(font_buf);
 				if(j < 3)
 					padright(font_buf, '0', 3-j);
 				memcpy(buf+i, font_buf, 3);
@@ -2024,7 +2024,7 @@ int SLAPI DatamaxLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 		}
 	}
 	strnzcpy(buf+i, pEntry->Text, sizeof(buf)-i);
-	i += strlen(buf+i);
+	i += sstrlen(buf+i);
 	buf[i++] = '\r';
 	buf[i++] = 0;
 	return PutStr(buf);
@@ -2037,7 +2037,7 @@ int SLAPI DatamaxLabelPrinter::StartLabel(const BarcodeLabelParam * pParam, int 
 		size_t p = 0;
 		buf[p++] = 2;
 		buf[p++] = 'X';
-		p += strlen(strcpy(buf+p, pParam->MemModule));
+		p += sstrlen(strcpy(buf+p, pParam->MemModule));
 		buf[p++] = '\r';
 		buf[p] = 0;
 		PutStr(buf);
@@ -2069,7 +2069,7 @@ int SLAPI DatamaxLabelPrinter::EndLabel()
 	if(NumCopies > 1) {
 		char * p = buf;
 		*p++ = 'Q';
-		p += strlen(PutIntToBuf(p, NumCopies, 4));
+		p += sstrlen(PutIntToBuf(p, NumCopies, 4));
 		*p++ = '\r';
 		*p++ = 0;
 		PutStr(buf);

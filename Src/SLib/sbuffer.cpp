@@ -262,7 +262,7 @@ size_t SLAPI SBuffer::ReadTerm(const char * pTerm, void * pBuf, size_t bufLen)
 	if(pBuf) {
 		size_t pos = 0;
 		if(Search(pTerm, &pos)) {
-			const size_t avl_size = pos + strlen(pTerm) - RdOffs;
+			const size_t avl_size = pos + sstrlen(pTerm) - RdOffs;
 			sz = bufLen ? MIN(avl_size, bufLen) : avl_size;
 			if(sz) {
 				memcpy(pBuf, Ptr(RdOffs), sz);
@@ -310,7 +310,7 @@ size_t SLAPI SBuffer::ReadTermStr(const char * pTerm, SString & rBuf)
 	if(pTerm) {
 		size_t pos = 0;
 		if(Search(pTerm, &pos)) {
-			const size_t avl_size = pos + strlen(pTerm) - RdOffs;
+			const size_t avl_size = pos + sstrlen(pTerm) - RdOffs;
 			sz = avl_size;
 			if(sz) {
 				rBuf.CopyFromN((const char *)Ptr(RdOffs), sz);

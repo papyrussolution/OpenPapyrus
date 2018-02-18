@@ -303,7 +303,7 @@ char * curl_pushheader_byname(struct curl_pushheaders * h, const char * header)
 		return NULL;
 	else {
 		struct HTTP * stream = h->data->req.protop;
-		size_t len = strlen(header);
+		size_t len = sstrlen(header);
 		size_t i;
 		for(i = 0; i<stream->push_headers_used; i++) {
 			if(!strncmp(header, stream->push_headers[i], len)) {
@@ -1746,7 +1746,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 	if(!end || end == hdbuf)
 		goto fail;
 	nva[0].name = (uchar*)":method";
-	nva[0].namelen = strlen((char*)nva[0].name);
+	nva[0].namelen = sstrlen((char*)nva[0].name);
 	nva[0].value = (uchar*)hdbuf;
 	nva[0].valuelen = (size_t)(end - hdbuf);
 	nva[0].flags = NGHTTP2_NV_FLAG_NONE;
@@ -1768,7 +1768,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 	if(!end || end == hdbuf)
 		goto fail;
 	nva[1].name = (uchar*)":path";
-	nva[1].namelen = strlen((char*)nva[1].name);
+	nva[1].namelen = sstrlen((char*)nva[1].name);
 	nva[1].value = (uchar*)hdbuf;
 	nva[1].valuelen = (size_t)(end - hdbuf);
 	nva[1].flags = NGHTTP2_NV_FLAG_NONE;
@@ -1781,12 +1781,12 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 
 	end = line_end;
 	nva[2].name = (uchar*)":scheme";
-	nva[2].namelen = strlen((char*)nva[2].name);
+	nva[2].namelen = sstrlen((char*)nva[2].name);
 	if(conn->handler->flags & PROTOPT_SSL)
 		nva[2].value = (uchar*)"https";
 	else
 		nva[2].value = (uchar*)"http";
-	nva[2].valuelen = strlen((char*)nva[2].value);
+	nva[2].valuelen = sstrlen((char*)nva[2].value);
 	nva[2].flags = NGHTTP2_NV_FLAG_NONE;
 	if(HEADER_OVERFLOW(nva[2])) {
 		failf(conn->data, "Failed sending HTTP request: Header overflow");
@@ -1812,7 +1812,7 @@ static ssize_t http2_send(struct connectdata * conn, int sockindex,
 		if(hlen == 4 && strncasecompare("host", hdbuf, 4)) {
 			authority_idx = i;
 			nva[i].name = (uchar*)":authority";
-			nva[i].namelen = strlen((char*)nva[i].name);
+			nva[i].namelen = sstrlen((char*)nva[i].name);
 		}
 		else {
 			nva[i].name = (uchar*)hdbuf;

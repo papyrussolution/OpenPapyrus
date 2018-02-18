@@ -872,7 +872,7 @@ static const xmlChar * xmlAttrNormalizeSpace2(xmlParserCtxt * ctxt, xmlChar * sr
 			return 0;
 		}
 		xmlAttrNormalizeSpace(ret, ret);
-		*len = (int)strlen((const char*)ret);
+		*len = (int)sstrlen(ret);
 		return ret;
 	}
 	else if(remove_head) {
@@ -1987,7 +1987,6 @@ static int xmlParseStringCharRef(xmlParserCtxt * ctxt, const xmlChar ** str)
 	}
 	return 0;
 }
-
 /**
  * xmlNewBlanksWrapperInputStream:
  * @ctxt:  an XML parser context
@@ -1998,7 +1997,6 @@ static int xmlParseStringCharRef(xmlParserCtxt * ctxt, const xmlChar ** str)
  *
  * Returns the new input stream or NULL
  */
-
 static void deallocblankswrapper(xmlChar * str)
 {
 	SAlloc::F(str);
@@ -2132,7 +2130,7 @@ void FASTCALL xmlParserHandlePEReference(xmlParserCtxt * ctxt)
 				entity = ctxt->sax->getParameterEntity(ctxt->userData, name);
 			if(ctxt->instate == XML_PARSER_EOF)
 				return;
-			if(entity == NULL) {
+			if(!entity) {
 				/*
 				 * [WFC: Entity Declared]
 				 * In a document without any DTD, a document with only an
@@ -2141,7 +2139,7 @@ void FASTCALL xmlParserHandlePEReference(xmlParserCtxt * ctxt)
 				 * ... The declaration of a parameter entity must precede
 				 * any reference to it...
 				 */
-				if((ctxt->standalone == 1) || ((ctxt->hasExternalSubset == 0) && (ctxt->hasPErefs == 0))) {
+				if(ctxt->standalone == 1 || (!ctxt->hasExternalSubset && !ctxt->hasPErefs)) {
 					xmlFatalErrMsgStr(ctxt, XML_ERR_UNDECLARED_ENTITY, "PEReference: %%%s; not found\n", name);
 				}
 				else {
@@ -2255,8 +2253,7 @@ void FASTCALL xmlParserHandlePEReference(xmlParserCtxt * ctxt)
  * Returns A newly allocated string with the substitution done. The caller
  *      must deallocate it !
  */
-xmlChar * xmlStringLenDecodeEntities(xmlParserCtxt * ctxt, const xmlChar * str, int len,
-    int what, xmlChar end, xmlChar end2, xmlChar end3)
+xmlChar * xmlStringLenDecodeEntities(xmlParserCtxt * ctxt, const xmlChar * str, int len, int what, xmlChar end, xmlChar end2, xmlChar end3)
 {
 	xmlChar * buffer = NULL;
 	size_t buffer_size = 0;
@@ -2400,7 +2397,6 @@ int_error:
 	SAlloc::F(buffer);
 	return 0;
 }
-
 /**
  * xmlStringDecodeEntities:
  * @ctxt:  the parser context

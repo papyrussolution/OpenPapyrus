@@ -1285,7 +1285,7 @@ int SLAPI PersonCore::Helper_GetELinksFromPropRec(const PropertyTbl::Rec * pRec,
 			entry.KindID = *(PPID *)((PTR8(pRec) + PROPRECFIXSIZE) + i - PROPRECFIXSIZE);
 			i += sizeof(entry.KindID);
 			STRNSCPY(entry.Addr, (char *)((PTR8(pRec) + PROPRECFIXSIZE) + i - PROPRECFIXSIZE));
-			i += (strlen(entry.Addr) + 1);
+			i += (sstrlen(entry.Addr) + 1);
 			THROW_SL(pList->insert(&entry));
 			ok = 1;
 		}
@@ -1335,12 +1335,12 @@ int SLAPI PersonCore::PutELinks(PPID id, PPELinkArray * ary, int use_ta)
 			sz = PROPRECFIXSIZE;
 			for(i = 0; ary->enumItems(&i, (void**)&entry);)
 				if(entry->KindID && *strip(entry->Addr))
-					sz += (sizeof(entry->KindID) + strlen(entry->Addr) + 1);
+					sz += (sizeof(entry->KindID) + sstrlen(entry->Addr) + 1);
 			THROW_MEM(b = (PropertyTbl::Rec*)SAlloc::C(1, sz));
 			b->Val2 = (int32)(sz - PROPRECFIXSIZE);
 			for(p = (char*)(PTR8(b)+PROPRECFIXSIZE), i = 0; ary->enumItems(&i, (void**)&entry);)
 				if(entry->KindID && entry->Addr[0]) {
-					size_t s = (sizeof(entry->KindID) + strlen(entry->Addr) + 1);
+					size_t s = (sizeof(entry->KindID) + sstrlen(entry->Addr) + 1);
 					memmove(p, entry, s);
 					p += s;
 				}

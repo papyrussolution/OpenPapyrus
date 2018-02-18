@@ -1864,7 +1864,7 @@ static int xmlShellSetContent(xmlShellCtxtPtr ctxt ATTRIBUTE_UNUSED, char * valu
 			fprintf(ctxt->output, "NULL\n");
 		else {
 			xmlNode * p_results;
-			xmlParserErrors ret = xmlParseInNodeContext(P_Node, value, strlen(value), 0, &p_results);
+			xmlParserErrors ret = xmlParseInNodeContext(P_Node, value, sstrlen(value), 0, &p_results);
 			if(ret == XML_ERR_OK) {
 				if(P_Node->children) {
 					xmlFreeNodeList(P_Node->children);

@@ -3426,7 +3426,7 @@ int CheckPaneDialog::IsSalCode(const SString & rInput, SString & rCode)
 	int    asterix = 0;
 	SString pfx;
 	const PPEquipConfig & r_cfg = CsObj.GetEqCfg();
-	if(r_cfg.AgentPrefix[0] && strlen(r_cfg.AgentPrefix) < (uint)r_cfg.AgentCodeLen) {
+	if(r_cfg.AgentPrefix[0] && sstrlen(r_cfg.AgentPrefix) < (uint)r_cfg.AgentCodeLen) {
 		pfx = r_cfg.AgentPrefix;
 		do {
 			if(IsCode(rInput, pfx, asterix, rCode))
@@ -8749,7 +8749,7 @@ int CheckPaneDialog::AcceptRowDiscount()
 	int    ok = -1;
 	if(oneof3(GetState(), sEMPTYLIST_BUF, sLIST_BUF, sLISTSEL_BUF) && GetInput()) {
 		char   prefx = Input[0];
-		char   postfx = (strlen(Input) > 0) ? Input[strlen(Input) - 1] : 0;
+		char   postfx = (sstrlen(Input) > 0) ? Input[sstrlen(Input) - 1] : 0;
 		double pct_dis = 0.0;
 		int    is_row_dis = 1;
 		if(oneof3(prefx, '%', '/', '\\'))

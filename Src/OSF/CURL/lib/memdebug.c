@@ -202,7 +202,7 @@ char * curl_dostrdup(const char * str, int line, const char * source)
 	assert(str != NULL);
 	if(countcheck("strdup", line, source))
 		return NULL;
-	len = strlen(str)+1;
+	len = sstrlen(str)+1;
 	mem = curl_domalloc(len, 0, 0); /* NULL prevents logging */
 	if(mem)
 		memcpy(mem, str, len);

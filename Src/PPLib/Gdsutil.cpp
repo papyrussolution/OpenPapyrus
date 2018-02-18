@@ -180,7 +180,7 @@ int SLAPI CreatePrintableBarcode(const char * pBarcode, int codeType, char * pBu
 	int    chkdig;
 	int    calc_check_dig = 0;
 	size_t i;
-	size_t len = strlen(strnzcpy(code, pBarcode, sizeof(code)));
+	size_t len = sstrlen(strnzcpy(code, pBarcode, sizeof(code)));
 	ASSIGN_PTR(pBuf, 0);
 	buf[0] = 0;
 	if(codeType == 39) {
@@ -198,7 +198,7 @@ int SLAPI CreatePrintableBarcode(const char * pBarcode, int codeType, char * pBu
 		size_t j = 0;
 		buf[j++] = '*';
 		strnzcpy(buf+j, code, sizeof(buf)-j-1);
-		j = strlen(buf);
+		j = sstrlen(buf);
 		buf[j++] = '*';
 		buf[j] = 0;
 	}
@@ -235,7 +235,7 @@ int SLAPI CreatePrintableBarcode(const char * pBarcode, int codeType, char * pBu
 				}
 			}
 			else if(len < 7 || !oneof3(len, 8, 12, 13)) {
-				len = strlen(padleft(code, '0', 12-len));
+				len = sstrlen(padleft(code, '0', 12-len));
 				code_type = ean13;
 				calc_check_dig = 1;
 			}
@@ -400,7 +400,7 @@ int SLAPI PPObjGoods::IsScaleBarcode(const char * pCode, PPID * pScaleID, PPID *
 	Goods2Tbl::Rec goods_rec;
 	BarcodeTbl::Rec bcr;
 	STRNSCPY(code, pCode);
-	size_t code_len = strlen(code);
+	size_t code_len = sstrlen(code);
 	if(oneof2(code_len, 12, 13)) {
 		InitConfig();
 		const  int wp = GetConfig().IsWghtPrefix(code);
@@ -433,7 +433,7 @@ int SLAPI PPObjGoods::IsScaleBarcode(const char * pCode, PPID * pScaleID, PPID *
 				for(uint i = 0; i < bcp_list.getCount(); i++) {
 					char   p[32];
 					ltoa(bcp_list.at(i).Val, p, 10);
-					size_t len = strlen(p);
+					size_t len = sstrlen(p);
 					if(len && memcmp(code, p, len) == 0 && len > max_len) {
 						max_len = len;
 						scale_id = bcp_list.at(i).Key;
@@ -535,7 +535,7 @@ int SLAPI PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 			PPID   goods_id = 0;
 			PPID   scale_id = 0;
 			double qtty   = 0.0;
-			size_t code_len = strlen(code);
+			size_t code_len = sstrlen(code);
 			strnzcpy(pBlk->RetCode, code, 16);
 			int    r = IsScaleBarcode(code, &scale_id, &goods_id, &qtty);
 			if(r > 0 && Fetch(goods_id, &goods_rec) > 0) {
@@ -899,9 +899,9 @@ int FASTCALL PPGoodsConfig::IsWghtPrefix(const char * pCode) const
 {
 	int    yes = 0;
 	if(pCode) {
-		if(WghtPrefix[0] && strnicmp(pCode, WghtPrefix, strlen(WghtPrefix)) == 0)
+		if(WghtPrefix[0] && strnicmp(pCode, WghtPrefix, sstrlen(WghtPrefix)) == 0)
 			yes = 1;
-		else if(WghtCntPrefix[0] && strnicmp(pCode, WghtCntPrefix, strlen(WghtCntPrefix)) == 0)
+		else if(WghtCntPrefix[0] && strnicmp(pCode, WghtCntPrefix, sstrlen(WghtCntPrefix)) == 0)
 			yes = 2;
 	}
 	return yes;

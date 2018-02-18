@@ -81,7 +81,7 @@ char * curl_easy_escape(struct Curl_easy * data, const char * string, int inleng
 	CURLcode result;
 	if(inlength < 0)
 		return NULL;
-	alloc = (inlength ? (size_t)inlength : strlen(string))+1;
+	alloc = (inlength ? (size_t)inlength : sstrlen(string))+1;
 	newlen = alloc;
 	ns = (char *)SAlloc::M(alloc);
 	if(!ns)
@@ -121,12 +121,12 @@ char * curl_easy_escape(struct Curl_easy * data, const char * string, int inleng
  * data and rejects such data.
  *
  * Returns a pointer to a malloced string in *ostring with length given in
- * *olen. If length == 0, the length is assumed to be strlen(string).
+ * *olen. If length == 0, the length is assumed to be sstrlen(string).
  *
  */
 CURLcode FASTCALL Curl_urldecode(struct Curl_easy * data, const char * string, size_t length, char ** ostring, size_t * olen, bool reject_ctrl)
 {
-	size_t alloc = (length ? length : strlen(string))+1;
+	size_t alloc = (length ? length : sstrlen(string))+1;
 	char * ns = (char *)SAlloc::M(alloc);
 	uchar in;
 	size_t strindex = 0;
@@ -169,7 +169,7 @@ CURLcode FASTCALL Curl_urldecode(struct Curl_easy * data, const char * string, s
 /*
  * Unescapes the given URL escaped string of given length. Returns a
  * pointer to a malloced string with length given in *olen.
- * If length == 0, the length is assumed to be strlen(string).
+ * If length == 0, the length is assumed to be sstrlen(string).
  * If olen == NULL, no output length is stored.
  */
 char * curl_easy_unescape(struct Curl_easy * data, const char * string, int length, int * olen)

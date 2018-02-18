@@ -634,7 +634,7 @@ int SLAPI TcpSocket::Recv(void * pBuf, size_t size, size_t * pRcvdSize)
 int SLAPI TcpSocket::RecvUntil(SBuffer & rBuf, const char * pTerminator, size_t * pRcvdSize)
 {
 	int    ok = 1;
-	const  size_t term_len = (pTerminator == 0) ? 0 : ((pTerminator[0] == 0) ? 1 : strlen(pTerminator));
+	const  size_t term_len = (pTerminator == 0) ? 0 : ((pTerminator[0] == 0) ? 1 : sstrlen(pTerminator));
 	size_t total_sz = 0;
 	if(term_len) {
 		size_t match_len = 0;
@@ -2434,7 +2434,7 @@ int SLAPI SMailMessage::WriterBlock::Read(size_t maxChunkSize, SBuffer & rBuf)
 		R_Msg.GetField(SMailMessage::fldSubj, temp_buf);
 		if(temp_buf.NotEmptyS()) {
 			const char * p_subj = "Subject";
-			EncodedStringWithWrapping(temp_buf, strlen(p_subj) + 2, line_buf.Z());
+			EncodedStringWithWrapping(temp_buf, sstrlen(p_subj) + 2, line_buf.Z());
 			//result_buf.Encode_EncodedWordRFC2047(temp_buf, cpUTF8, SString::rfc2207encMime64);
 			out_buf.Cat(p_subj).CatDiv(':', 2).Cat(/*result_buf*/line_buf).CRB();
 		}

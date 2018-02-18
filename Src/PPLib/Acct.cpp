@@ -94,18 +94,18 @@ char * SLAPI Acct::ToStr(long format, char * pBuf) const // ACCBIN_NATURE
 	if(ac != 0) {
 		if(ac < 10 && ac > 0 && (format & ACCF_PADACC))
 			*b++ = '0';
-		b += strlen(itoa(ac, b, 10));
+		b += sstrlen(itoa(ac, b, 10));
 		if(sb) {
 			if(dlm)
 				*b++ = dlm;
 			if(sb < 10 && (format & ACCF_PADSUB))
 				*b++ = '0';
-			b += strlen(itoa(sb, b, 10));
+			b += sstrlen(itoa(sb, b, 10));
 		}
 		if(ar && !(format & ACCF_BAL)) {
 			if(dlm)
 				*b++ = dlm;
-			b += strlen(itoa((int)ar, b, 10));
+			b += sstrlen(itoa((int)ar, b, 10));
 		}
 	}
 	else
@@ -158,7 +158,7 @@ static int FASTCALL searchSideText(const char * pStr, int * pSide)
 			*s = 0;
 			if((s = stristr866(pStr, strip(item)+1)) != 0) {
 				*pSide = (item[0] == '0') ? PPDEBIT : PPCREDIT;
-				memset(s, ' ', strlen(item)-1);
+				memset(s, ' ', sstrlen(item)-1);
 				return 1;
 			}
 		} while(*p++);
@@ -214,7 +214,7 @@ int SLAPI IsAccBelongToList(const Acct * pAcct, int side, const char * pList)
 		if((p = strtok(p, separator)) != 0)
 			do {
 				int sd, tok[3];
-				q = p + strlen(p) + 1;
+				q = p + sstrlen(p) + 1;
 				p = STRNSCPY(buf, p);
 				parseAccString(p, tok, &sd);
 				if(pAcct->ac == tok[0])

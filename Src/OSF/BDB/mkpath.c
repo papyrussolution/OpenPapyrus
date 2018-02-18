@@ -20,7 +20,7 @@ int __db_mkpath(ENV * env, const char * name)
 	 * Get a copy so we can modify the string.  It's a path and potentially
 	 * quite long, so don't allocate the space on the stack.
 	 */
-	size_t len = strlen(name)+1;
+	size_t len = sstrlen(name)+1;
 	if((ret = __os_malloc(env, len, &t)) != 0)
 		return ret;
 	memcpy(t, name, len);

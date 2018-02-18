@@ -315,7 +315,7 @@ static int FASTCALL parsedate(const char * date, time_t * output)
 			char buf[32] = "";
 			size_t len;
 			if(sscanf(date, "%31[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz]", buf))
-				len = strlen(buf);
+				len = sstrlen(buf);
 			else
 				len = 0;
 			if(wdaynum == -1) {

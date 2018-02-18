@@ -2855,7 +2855,7 @@ int SLAPI TddoContentGraph::Helper_RecognizeExprToken(long flags, SString & rTex
 		for(uint opi = 0; !t && opi < SIZEOFARRAY(Tddo2_OpInfoList); opi++) {
 			const char * p_s = Tddo2_OpInfoList[opi].P_Sym;
 			if(Scan.Is(p_s)) {
-				Scan.Incr(strlen(p_s));
+				Scan.Incr(sstrlen(p_s));
 				rText = p_s;
 				t = Tddo::tOperator+Tddo2_OpInfoList[opi].Op;
 				assert(t > Tddo::tOperator);

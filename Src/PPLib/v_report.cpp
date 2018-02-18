@@ -369,13 +369,13 @@ public:
 				for(; i < _list.getCount(); i++) {
 					ReportViewItem & r_item = _list.at(i);
 					StdReportList.Add(i + 1, r_item.StdName);
-					if(strlen(r_item.StrucName) && StrucList.SearchByText(r_item.StrucName, 1, 0) <= 0)
+					if(sstrlen(r_item.StrucName) && StrucList.SearchByText(r_item.StrucName, 1, 0) <= 0)
 						StrucList.Add(i + 1, r_item.StrucName);
 				}
 				pView->CreateRptList(&_list);
 				for(; i < _list.getCount(); i++) {
 					ReportViewItem & r_item = _list.at(i);
-					if(strlen(r_item.StrucName) && StrucList.SearchByText(r_item.StrucName, 1, 0) <= 0)
+					if(sstrlen(r_item.StrucName) && StrucList.SearchByText(r_item.StrucName, 1, 0) <= 0)
 						StrucList.Add(i + 1, r_item.StrucName);
 				}
 			}
@@ -635,7 +635,7 @@ int SLAPI PPViewReport::GetAltPath(long type, const char * pPath, const char * p
 {
 	int    ok = 1;
 	rPath.Z();
-	if(type == ReportFilt::rpttLocal && strlen(pPath)) {
+	if(type == ReportFilt::rpttLocal && sstrlen(pPath)) {
 		SString path;
 		SPathStruc sp(pPath);
 		if(!sp.Drv.NotEmptyS()) {
@@ -916,7 +916,7 @@ public:
 				for(uint i = 0; i < _list.getCount(); i++) {
 					ReportViewItem & r_item = _list.at(i);
 					RptList.Add(i + 1, r_item.StdName);
-					if(strlen(r_item.StrucName) && StrucList.SearchByText(r_item.StrucName, 1, 0) <= 0)
+					if(sstrlen(r_item.StrucName) && StrucList.SearchByText(r_item.StrucName, 1, 0) <= 0)
 						StrucList.Add(i + 1, r_item.StrucName);
 				}
 			}
@@ -974,7 +974,7 @@ int ReportDlg::getDTS(ReportViewItem * pData)
 		SString path;
 		SPathStruc sp;
 		getCtrlData(sel = CTL_REPORT_PATH,  Data.Path);
-		THROW_PP(strlen(Data.Path), PPERR_USERINPUT);
+		THROW_PP(sstrlen(Data.Path), PPERR_USERINPUT);
 		sp.Split(Data.Path);
 		if(!sp.Drv.NotEmptyS()) {
 			PPGetPath(PPPATH_BIN, path);

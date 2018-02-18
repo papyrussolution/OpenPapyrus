@@ -1958,7 +1958,7 @@ int SLAPI PPDS_CrrPersonKind::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = -1;
 	}
 	else if(op == idoAccept) {
-		if(strlen(Data.Name)) {
+		if(sstrlen(Data.Name)) {
 			PPID id = 0;
 			Data.Tag = PPOBJ_PRSNKIND;
 			if(*strip(Data.Name) != 0 && Obj.SearchByName(Data.Name, &id, 0) > 0) {
@@ -2054,7 +2054,7 @@ int SLAPI PPDS_CrrCurrency::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = -1;
 	}
 	else if(op == idoAccept) {
-		if(strlen(Data.Symb) || strlen(Data.Name)) {
+		if(sstrlen(Data.Symb) || sstrlen(Data.Name)) {
 			PPID id = 0;
 			Data.Tag = PPOBJ_CURRENCY;
 			if(*strip(Data.Symb) != 0 && Obj.SearchSymb(&id, Data.Symb) > 0) {
@@ -2215,7 +2215,7 @@ int SLAPI PPDS_CrrScale::InitData(Ido op, void * dataPtr, long addedParam)
 		PPID id = 0;
 		Data.Tag = PPOBJ_SCALE;
 		if(Data.Flags & SCALF_TCPIP)
-			PPObjScale::EncodeIP(StrPort, Data.Port, strlen(StrPort) + 1);
+			PPObjScale::EncodeIP(StrPort, Data.Port, sstrlen(StrPort) + 1);
 		else
 			STRNSCPY(Data.Port, StrPort);
 		if(*strip(Data.Name) != 0 && Obj.SearchByName(Data.Name, &id, 0) > 0) {
@@ -2426,7 +2426,7 @@ int SLAPI PPDS_CrrRegisterType::InitData(Ido op, void * dataPtr, long addedParam
 			ok = -1;
 	}
 	else if(op == idoAccept) {
-		if(strlen(Data.Symb) || strlen(Data.Name)) {
+		if(sstrlen(Data.Symb) || sstrlen(Data.Name)) {
 			PPID id = 0;
 			Data.Tag = PPOBJ_REGISTERTYPE;
 			if(*strip(Data.Symb) != 0 && Obj.SearchSymb(&id, Data.Symb) > 0) {
@@ -3569,7 +3569,7 @@ int SLAPI PPDS_CrrLocation::InitData(Ido op, void * dataPtr, long addedParam)
 	else if(op == idoAccept) {
 		strip(Data.Code);
 		strip(Data.Name);
-		if(strlen(Data.Code) || strlen(Data.Name)) {
+		if(sstrlen(Data.Code) || sstrlen(Data.Name)) {
 			PPID   id = 0;
 			SString temp_buf;
 			LocationTbl::Rec rec;
@@ -3801,7 +3801,7 @@ int SLAPI PPDS_CrrArticle::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = -1;
 	}
 	else if(op == idoAccept) {
-		if(strlen(Data.Name) && Data.AccSheetID) {
+		if(sstrlen(Data.Name) && Data.AccSheetID) {
 			PPID id = 0;
 			ArticleTbl::Rec rec;
 			if(*strip(Data.Name) != 0 && Obj.P_Tbl->SearchName(Data.AccSheetID, Data.Name, &rec) > 0) {
@@ -3978,7 +3978,7 @@ int SLAPI PPDS_CrrAccSheet::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = -1;
 	}
 	else if(op == idoAccept) {
-		if(strlen(Data.Name) || strlen(Data.Symb)) {
+		if(sstrlen(Data.Name) || sstrlen(Data.Symb)) {
 			PPID   id = 0;
 			PPAccSheet rec;
 			if((*strip(Data.Symb) != 0 && Obj.SearchBySymb(Data.Symb, &id, &rec) > 0) ||
@@ -4140,7 +4140,7 @@ int SLAPI PPDS_CrrAccount::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = -1;
 	}
 	else if(op == idoAccept) {
-		if(strlen(Data.Rec.Name) && (Data.Rec.A.Ac || Data.Rec.A.Sb)) {
+		if(sstrlen(Data.Rec.Name) && (Data.Rec.A.Ac || Data.Rec.A.Sb)) {
 			PPID id = 0;
 			PPAccount acct_rec;
 			if((Data.Rec.A.Ac && Data.Rec.A.Sb && Obj.SearchNum(Data.Rec.A.Ac, Data.Rec.A.Sb, Data.Rec.CurID, &acct_rec) > 0) ||
@@ -5565,7 +5565,7 @@ int SLAPI PPDS_CrrOprKind::InitData(Ido op, void * dataPtr, long addedParam)
 			ok = -1;
 	}
 	else if(op == idoAccept) {
-		if(strlen(Data.Rec.Symb) || strlen(Data.Rec.Name)) {
+		if(sstrlen(Data.Rec.Symb) || sstrlen(Data.Rec.Name)) {
 			PPID id = 0;
 			PPOprKindPacket pack;
 			if(*strip(Data.Rec.Symb) && Obj.SearchBySymb(Data.Rec.Symb, &id) > 0 ||

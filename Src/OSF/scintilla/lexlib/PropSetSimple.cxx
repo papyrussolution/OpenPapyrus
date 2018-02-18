@@ -36,9 +36,9 @@ void PropSetSimple::Set(const char * key, const char * val, int lenKey, int lenV
 	mapss * props = static_cast<mapss *>(impl);
 	if(*key) { // Empty keys are not supported
 		if(lenKey == -1)
-			lenKey = static_cast<int>(strlen(key));
+			lenKey = static_cast<int>(sstrlen(key));
 		if(lenVal == -1)
-			lenVal = static_cast<int>(strlen(val));
+			lenVal = static_cast<int>(sstrlen(val));
 		(*props)[std::string(key, lenKey)] = std::string(val, lenVal);
 	}
 }

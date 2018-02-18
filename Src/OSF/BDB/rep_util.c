@@ -2034,7 +2034,7 @@ void __rep_msg(const ENV*env, const char * msg)
 		fhp = db_rep->diagfile[i];
 		if(db_rep->diag_off != rep->diag_off)
 			__os_seek((ENV *)env, fhp, 0, 0, rep->diag_off);
-		if(__os_write((ENV *)env, fhp, (void *)msg, strlen(msg), &cnt) == 0) {
+		if(__os_write((ENV *)env, fhp, (void *)msg, sstrlen(msg), &cnt) == 0) {
 			if(__os_write((ENV *)env, fhp, &nl, 1, &nlcnt) == 0) {
 				db_rep->diag_off = rep->diag_off += (cnt+nlcnt);
 				/*

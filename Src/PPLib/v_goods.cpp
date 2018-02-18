@@ -625,11 +625,11 @@ int SLAPI GoodsFilt::WriteToProp(PPID obj, PPID id, PPID prop)
 		p_buf->InitOrder = InitOrder;
 		p = (char*)(p_buf + 1);
 		strnzcpy(p, SrchStr_, 0);
-		p += strlen(p) + 1;
+		p += sstrlen(p) + 1;
 		p = WriteObjIdListFilt(p, GrpIDList);
 		// @v-14 {
 		strnzcpy(p, BarcodeLen, 0);
-		p += strlen(p) + 1;
+		p += sstrlen(p) + 1;
 		// }
 		// @v4.5.5 @v-16, @v-17 {
 		if(Ep.GdsClsID) {
@@ -780,11 +780,11 @@ int SLAPI GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 			else
 				p = (char*)(p_buf+1) - sizeof(p_buf->ManufCountryID) - sizeof(p_buf->LotPeriod) - sizeof(p_buf->LocID);
 			SrchStr_ = p;
-			p += strlen(p) + 1;
+			p += sstrlen(p) + 1;
 			p = ReadObjIdListFilt(p, GrpIDList);
 			if(p_buf->VerTag <= -14) {
 				BarcodeLen = p;
-				p += strlen(p) + 1;
+				p += sstrlen(p) + 1;
 			}
 			if(p_buf->VerTag <= -17) {
 				PPID   gds_cls_id = *(PPID *)p;
@@ -1341,9 +1341,17 @@ DBQuery * SLAPI PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	DbqFuncTab::RegisterDyn(&DynFuncStrucType, BTS_STRING, dbqf_goodsstructype_i, 1, BTS_INT);
 
 	DBQuery * q = 0;
-	DBE    dbe_unit, dbe_phunit, dbe_manuf, dbe_code_ar;
-	DBE    dbe_dim, dbe_brutto, dbe_min, dbe_pack, dbe_structype;
-	DBE    dbe_brand, dbe_group;
+	DBE    dbe_unit;
+	DBE    dbe_phunit;
+	DBE    dbe_manuf;
+	DBE    dbe_code_ar;
+	DBE    dbe_dim;
+	DBE    dbe_brutto;
+	DBE    dbe_min;
+	DBE    dbe_pack;
+	DBE    dbe_structype;
+	DBE    dbe_brand;
+	DBE    dbe_group;
 	DBQ  * dbq = 0;
 	ObjAssocTbl    * oa     = 0;
 	Goods2Tbl      * g      = 0;
@@ -2359,7 +2367,7 @@ int SLAPI PPViewGoods::RemoveAll()
                     }
 				}
 				else {
-					const size_t inl = strlen(item.Name);
+					const size_t inl = sstrlen(item.Name);
                     k2.Kind = PPGDSK_GOODS;
                     STRNSCPY(k2.Name, item.Name);
                     if(GObj.P_Tbl->search(2, &k2, spGe) && GObj.P_Tbl->data.Kind == PPGDSK_GOODS && strncmp(GObj.P_Tbl->data.Name, item.Name, inl) == 0) do {
@@ -2789,7 +2797,7 @@ int SLAPI PPViewGoods::AddBarcodeCheckDigit()
 			BarcodeTbl::Rec * p_bc;
 			THROW(GObj.ReadBarcodes(item.ID, bc_list));
 			for(i = 0; bc_list.enumItems(&i, (void **)&p_bc);) {
-				const size_t bc_len = strlen(p_bc->Code);
+				const size_t bc_len = sstrlen(p_bc->Code);
 				if(oneof3(bc_len, 11, 12, 7)) {
 					::AddBarcodeCheckDigit(p_bc->Code);
 					r = 1;
@@ -5407,11 +5415,11 @@ int PPALDD_GoodsLabel::NextIteration(PPIterID iterId)
 			STRNSCPY(bc, rgi.BarCode);
 			const  size_t check_dig  = BIN(gobj.GetConfig().Flags & GCF_BCCHKDIG);
 			const  int    add_chkdig = BIN(!check_dig);
-			const  size_t bclen = strlen(bc);
+			const  size_t bclen = sstrlen(bc);
 			if(bclen) {
 				if(bclen != 3 && bclen != (7+check_dig) && bclen < (12+check_dig))
 					padleft(bc, '0', (12+check_dig) - bclen);
-				const size_t len = strlen(bc);
+				const size_t len = sstrlen(bc);
 				if(add_chkdig && len > 3 && !gobj.GetConfig().IsWghtPrefix(bc))
 					AddBarcodeCheckDigit(bc);
 			}

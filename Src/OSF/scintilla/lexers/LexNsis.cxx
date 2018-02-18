@@ -232,8 +232,8 @@ static int classifyWordNsis(Sci_PositionU start, Sci_PositionU end, WordList * k
 	if(UserDefined.InList(s) )
 		return SCE_NSIS_USERDEFINED;
 
-	if(strlen(s) > 3) {
-		if(s[1] == '{' && s[strlen(s)-1] == '}')
+	if(sstrlen(s) > 3) {
+		if(s[1] == '{' && s[sstrlen(s)-1] == '}')
 			return SCE_NSIS_VARIABLE;
 	}
 

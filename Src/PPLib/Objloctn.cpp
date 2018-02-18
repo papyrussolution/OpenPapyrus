@@ -1421,7 +1421,7 @@ int LocationExtFieldsDialog::Edit(TaggedString * pData)
 		for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 			if(!p_dlg->getDTS(&data))
 				PPError();
-			else if(strlen(Data.Tail) + strlen(data.Txt) - prev_txt.Len() < sizeof(Data.Tail)){
+			else if(sstrlen(Data.Tail) + sstrlen(data.Txt) - prev_txt.Len() < sizeof(Data.Tail)){
 				LocationCore::SetExField(&Data, data.Id, data.Txt);
 				ASSIGN_PTR(pData, data);
 				ok = valid_data = 1;
@@ -4335,7 +4335,7 @@ int SLAPI PPLocAddrStruc::GetTok(AddrTok & rTok)
 			for(uint j = 0; !ordinal && j < SIZEOFARRAY(p_ordinal_sfx); j++) {
 				if(Scan.Is(p_ordinal_sfx[j])) {
 					ordinal = j+1;
-					i += (uint)strlen(p_ordinal_sfx[j]);
+					i += (uint)sstrlen(p_ordinal_sfx[j]);
 				}
 			}
 			Scan.Offs = preserve_offs;
@@ -4527,7 +4527,7 @@ int SLAPI PPLocAddrStruc::Recognize(const char * pText)
 		SString temp_buf, temp_buf2, temp_buf3;
 		text.Strip();
 		if(text.CmpPrefix(p_enforcefias_prefix, 1) == 0) {
-            text.ShiftLeft(strlen(p_enforcefias_prefix)).Strip();
+            text.ShiftLeft(sstrlen(p_enforcefias_prefix)).Strip();
             do_enforce_fias = 1;
 		}
 		if(text.C(0) == '\"') {

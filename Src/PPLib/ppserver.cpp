@@ -1979,7 +1979,7 @@ SString & SLAPI PPWorkerSession::GetTxtCmdTermMnemonic(SString & rBuf) const
 		rBuf = "none";
 	}
 	else {
-		const size_t len = strlen(P_TxtCmdTerminal);
+		const size_t len = sstrlen(P_TxtCmdTerminal);
 		if(len == 0) {
 			rBuf.CatHex((uint8)0);
 		}
@@ -2638,7 +2638,7 @@ PPWorkerSession::CmdRet SLAPI PPWorkerSession::ProcessCommand(PPServerCmd * pEv,
 		case PPSCMD_GETFILE:
 			pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 			if(name.CmpPrefix(MAGIC_FILETRANSMIT, 0) == 0) {
-				name.ShiftLeft(strlen(MAGIC_FILETRANSMIT));
+				name.ShiftLeft(sstrlen(MAGIC_FILETRANSMIT));
 				ok = TransmitFile(tfvStart, name, rReply);
 			}
 			else {
@@ -3286,7 +3286,7 @@ int PPServerSession::TestingClient(TcpSocket & rSo, StrAssocArray & rStrList)
 		THROW(TestRecvBlock(rSo, &clen, sizeof(clen), &actual_size) > 0);
 		if(clen == 0) {
 			THROW(TestRecv(rSo, p_buf, max_size, &actual_size));
-			if(strncmp(p_buf, P_TestEndOfSeries, strlen(P_TestEndOfSeries)) != 0) {
+			if(strncmp(p_buf, P_TestEndOfSeries, sstrlen(P_TestEndOfSeries)) != 0) {
 				msg_buf.Printf("Expected string '%s'", P_TestEndOfSeries);
 				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP);
 			}
@@ -3601,7 +3601,7 @@ PPServerSession::CmdRet SLAPI PPServerSession::ProcessCommand(PPServerCmd * pEv,
 			case PPSCMD_PUTFILE:
 				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 				if(name.CmpPrefix(MAGIC_FILETRANSMIT, 0) == 0)
-					name.ShiftLeft(strlen(MAGIC_FILETRANSMIT));
+					name.ShiftLeft(sstrlen(MAGIC_FILETRANSMIT));
 				else
 					name = 0;
 				ok = ReceiveFile(tfvStart, name, rReply);
@@ -3690,7 +3690,7 @@ SLAPI PPJobSrvProtocol::PPJobSrvProtocol() : SBuffer(), State(0), P_TokAck("ACK"
 int SLAPI PPJobSrvProtocol::TestSpecToken(const char * pTok)
 {
 	int    yes = 0;
-	size_t spec_sz = strlen(pTok);
+	size_t spec_sz = sstrlen(pTok);
 	if(GetAvailableSize() == (spec_sz+2)) {
 		STempBuffer temp_buf(spec_sz+2+1);
 		THROW_SL(ReadStatic(temp_buf, temp_buf.GetSize()-1));
@@ -3840,7 +3840,7 @@ int SLAPI PPJobSrvCmd::StartWriting(const char * pStr)
 	int    ok = 1;
 	Clear();
 	if(pStr)
-		Write(pStr, strlen(pStr));
+		Write(pStr, sstrlen(pStr));
 	State &= ~stStructured;
 	State &= ~stReading;
 	return ok;
@@ -3909,7 +3909,7 @@ void FASTCALL PPJobSrvReply::SetString(const char * pStr)
 {
 	Clear();
 	if(pStr)
-		Write(pStr, strlen(pStr));
+		Write(pStr, sstrlen(pStr));
 	State &= ~stStructured;
 	State &= ~stReading;
 }
@@ -3928,7 +3928,7 @@ int FASTCALL PPJobSrvReply::SetInformer(const char * pMsg)
 	THROW(StartWriting());
 	if(pMsg) {
 		SetDataType(htGenericText, 0);
-		THROW_SL(Write(pMsg, strlen(pMsg)));
+		THROW_SL(Write(pMsg, sstrlen(pMsg)));
 	}
 	THROW(FinishWriting(hfInformer));
 	State &= ~stReading;
@@ -4948,7 +4948,7 @@ int SLAPI RFIDPrcssr()
 			query_str.Z().CatChar((char)170).CatChar((char)1).CatChar((char)6);
 			STRNSCPY(data, "1234567890123456789012345678901");
 			crc = 1^6;
-			for(uint i = 0; i < strlen(data); i++)
+			for(uint i = 0; i < sstrlen(data); i++)
 				crc = crc ^ data[i];
 			query_str.CatChar((char)crc);
 			memzero(data, sizeof(data));

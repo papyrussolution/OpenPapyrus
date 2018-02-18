@@ -392,7 +392,7 @@ static CURLcode nss_create_object(struct ssl_connect_data * ssl,
 	PK11_SETATTRS(attrs, attr_cnt, CKA_CLASS, &obj_class, sizeof(obj_class));
 	PK11_SETATTRS(attrs, attr_cnt, CKA_TOKEN, &cktrue, sizeof(CK_BBOOL));
 	PK11_SETATTRS(attrs, attr_cnt, CKA_LABEL, (uchar*)filename,
-	    (CK_ULONG)strlen(filename) + 1);
+	    (CK_ULONG)sstrlen(filename) + 1);
 
 	if(CKO_CERTIFICATE == obj_class) {
 		CK_BBOOL * pval = (cacert) ? (&cktrue) : (&ckfalse);

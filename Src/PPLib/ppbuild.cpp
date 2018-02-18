@@ -508,7 +508,7 @@ int	SLAPI PrcssrBuild::Run()
 					{
 						GetExitCodeProcess(pi.hProcess, &exit_code);
 						if(exit_code == 0) {
-                            result_file_list.setBuf(r_sln_entry.P_Result, strlen(r_sln_entry.P_Result)+1);
+                            result_file_list.setBuf(r_sln_entry.P_Result, sstrlen(r_sln_entry.P_Result)+1);
                             int    result_files_are_ok = 1;
 							for(uint ssp = 0; result_file_list.get(&ssp, name_buf);) {
 								if(name_buf.NotEmptyS()) {

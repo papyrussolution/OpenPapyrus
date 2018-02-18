@@ -63,7 +63,7 @@ int FASTCALL TagFilt::GetRestrictionIdList(const SString & rRestrictionBuf, PPID
 	CALLPTRMEMB(pList, clear());
 	if(rRestrictionBuf.CmpPrefix(P_ListTagValRestrict, 1) == 0) {
 		SString restrict = rRestrictionBuf;
-		restrict.ShiftLeft(strlen(P_ListTagValRestrict)).Strip().ShiftLeftChr(':').Strip();
+		restrict.ShiftLeft(sstrlen(P_ListTagValRestrict)).Strip().ShiftLeftChr(':').Strip();
 		StringSet ss(';', restrict);
 		for(uint ssp = 0; ss.get(&ssp, restrict);) {
 			const PPID restrict_val = restrict.ToLong();
@@ -177,7 +177,7 @@ int SLAPI TagFilt::SelectIndicator(PPID objID, SColor & rClr) const
 				select_ok = rr.CheckVal(item.Val.RealVal);
 			}
 			else if(oneof2(item.TagDataType, OTTYP_STRING, OTTYP_GUID)) {
-				size_t len = item.Val.PStr ? strlen(item.Val.PStr) : 0;
+				size_t len = item.Val.PStr ? sstrlen(item.Val.PStr) : 0;
 				if(restrict.Len() && len) {
 					if(restrict.C(0) == '*')
 						select_ok = BIN(stristr866(item.Val.PStr, restrict.ShiftLeft()));
@@ -251,7 +251,7 @@ int SLAPI TagFilt::CheckTagItemForRestrict(const ObjTagItem * pItem, const SStri
 			else if(pItem->TagDataType == OTTYP_ENUM) {
 				if(rRestrict.CmpPrefix(P_ListTagValRestrict, 1) == 0) {
 					SString restrict = rRestrict;
-					restrict.ShiftLeft(strlen(P_ListTagValRestrict)).Strip().ShiftLeftChr(':').Strip();
+					restrict.ShiftLeft(sstrlen(P_ListTagValRestrict)).Strip().ShiftLeftChr(':').Strip();
 					StringSet ss(';', restrict);
 					check_ok = 0;
 					for(uint ssp = 0; !check_ok && ss.get(&ssp, restrict);) {
@@ -270,7 +270,7 @@ int SLAPI TagFilt::CheckTagItemForRestrict(const ObjTagItem * pItem, const SStri
 				check_ok = rr.CheckVal(pItem->Val.RealVal);
 			}
 			else if(oneof2(pItem->TagDataType, OTTYP_STRING, OTTYP_GUID)) {
-				size_t len = pItem->Val.PStr ? strlen(pItem->Val.PStr) : 0;
+				size_t len = pItem->Val.PStr ? sstrlen(pItem->Val.PStr) : 0;
 				if(rRestrict.Len() && len) {
 					if(rRestrict.C(0) == '*') {
 						SString temp_buf = rRestrict;
@@ -3382,7 +3382,7 @@ void SLAPI TagCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) 
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
 	// @v9.9.5 PPStringSetSCD ss;
 	StringSet & r_ss = DS.AcquireRvlSsSCD(); // @v9.9.5
-	r_ss.setBuf(temp_buf, strlen(temp_buf)+1);
+	r_ss.setBuf(temp_buf, sstrlen(temp_buf)+1);
 	uint   p = 0;
 	r_ss.get(&p, p_tag->Name, sizeof(p_tag->Name));
 	r_ss.get(&p, p_tag->Symb, sizeof(p_tag->Symb));

@@ -839,7 +839,7 @@ static OSStatus CopyIdentityWithLabelOldSchool(char * label,
 	/* Set up our lone search criterion: */
 	attr.tag = kSecLabelItemAttr;
 	attr.data = label;
-	attr.length = (UInt32)strlen(label);
+	attr.length = (UInt32)sstrlen(label);
 
 	/* Start searching: */
 	status = SecKeychainSearchCreateFromAttributes(NULL,
@@ -961,7 +961,7 @@ static OSStatus CopyIdentityWithLabel(char * label,
 static OSStatus CopyIdentityFromPKCS12File(const char * cPath, const char * cPassword, SecIdentityRef * out_cert_and_key)
 {
 	OSStatus status = errSecItemNotFound;
-	CFURLRef pkcs_url = CFURLCreateFromFileSystemRepresentation(NULL, (const UInt8*)cPath, strlen(cPath), false);
+	CFURLRef pkcs_url = CFURLCreateFromFileSystemRepresentation(NULL, (const UInt8*)cPath, sstrlen(cPath), false);
 	CFStringRef password = cPassword ? CFStringCreateWithCString(NULL, cPassword, kCFStringEncodingUTF8) : NULL;
 	CFDataRef pkcs_data = NULL;
 	/* We can import P12 files on iOS or OS X 10.7 or later: */
@@ -1329,7 +1329,7 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 		if(is_cert_file) {
 			if(!SSL_SET_OPTION(cert_type))
 				infof(data, "WARNING: SSL: Certificate type not set, assuming PKCS#12 format.\n");
-			else if(strncmp(SSL_SET_OPTION(cert_type), "P12", strlen(SSL_SET_OPTION(cert_type))) != 0)
+			else if(strncmp(SSL_SET_OPTION(cert_type), "P12", sstrlen(SSL_SET_OPTION(cert_type))) != 0)
 				infof(data, "WARNING: SSL: The Security framework only supports loading identities that are in PKCS#12 format.\n");
 			err = CopyIdentityFromPKCS12File(ssl_cert, SSL_SET_OPTION(key_passwd), &cert_and_key);
 		}
@@ -1452,7 +1452,7 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 	* Both hostname check and SNI require SSLSetPeerDomainName().
 	* Also: the verifyhost setting influences SNI usage */
 	if(conn->ssl_config.verifyhost) {
-		err = SSLSetPeerDomainName(connssl->ssl_ctx, hostname, strlen(hostname));
+		err = SSLSetPeerDomainName(connssl->ssl_ctx, hostname, sstrlen(hostname));
 		if(err != noErr) {
 			infof(data, "WARNING: SSL: SSLSetPeerDomainName() failed: OSStatus %d\n", err);
 		}
@@ -1609,7 +1609,7 @@ static CURLcode darwinssl_connect_step1(struct connectdata * conn,
 		else {
 			CURLcode result;
 			ssl_sessionid = aprintf("%s:%d:%d:%s:%hu", ssl_cafile, verifypeer, SSL_CONN_CONFIG(verifyhost), hostname, port);
-			ssl_sessionid_len = strlen(ssl_sessionid);
+			ssl_sessionid_len = sstrlen(ssl_sessionid);
 			err = SSLSetPeerID(connssl->ssl_ctx, ssl_sessionid, ssl_sessionid_len);
 			if(err != noErr) {
 				Curl_ssl_sessionid_unlock(conn);

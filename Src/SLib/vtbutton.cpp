@@ -199,7 +199,7 @@ void InputLineCalc::ShowNumber()
 		stfromstr(NType, &Number[i], NFormat, CharNumber);
 	sttostr(NType, &Number[i], NFormat, CharNumber);
 	if(IsNumber)
-		IsNumber = strlen(CharNumber);
+		IsNumber = sstrlen(CharNumber);
 	stfromstr(P_Il->getType(), InLnNumber, P_Il->getFormat(), CharNumber);
 	P_ParentDlg->setCtrlData(CtlId, InLnNumber);
 }

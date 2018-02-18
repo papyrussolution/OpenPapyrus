@@ -141,7 +141,7 @@ static bool latexNextNotBlankIs(Sci_Position i, Accessor &styler, char needle)
 static bool latexLastWordIs(Sci_Position start, Accessor &styler, const char * needle) 
 {
 	Sci_PositionU i = 0;
-	Sci_PositionU l = static_cast<Sci_PositionU>(strlen(needle));
+	Sci_PositionU l = static_cast<Sci_PositionU>(sstrlen(needle));
 	Sci_Position ini = start-l+1;
 	char s[32];
 	while(i < l && i < 31) {

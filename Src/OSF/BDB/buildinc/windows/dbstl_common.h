@@ -29,7 +29,7 @@
 	#define _tcschr strchr
 	#define _tcscmp strcmp
 	#define _tcscpy strcpy
-	#define _tcslen strlen
+	#define _tcslen sstrlen
 	#define _tgetopt getopt
 	#define _tmain main
 	#define _tprintf printf

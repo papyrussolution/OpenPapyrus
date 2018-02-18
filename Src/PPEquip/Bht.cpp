@@ -1125,7 +1125,7 @@ static int SLAPI PutIntToBuf(long val, size_t fldLen, char * pBuf)
 	char tmp_buf[32];
 	longfmtz(val, (int)fldLen, tmp_buf, sizeof(tmp_buf));
 	strcpy(pBuf, tmp_buf);
-	return (strlen(tmp_buf) > fldLen) ? 0 : 1;
+	return (sstrlen(tmp_buf) > fldLen) ? 0 : 1;
 }
 
 static int SLAPI PutStrToBuf(const char * pStr, size_t fldLen, char * pBuf)
@@ -1346,7 +1346,7 @@ int SLAPI BhtFile::EnumRecords(uint * pRecNo, BhtRecord * pRec)
 		for(uint i = 0; fgets(line_buf, sizeof(line_buf), Stream);)
 			if(i++ != 0)
 				if(i > *pRecNo) {
-					pRec->SetBuf(strlen(line_buf), line_buf);
+					pRec->SetBuf(sstrlen(line_buf), line_buf);
 					(*pRecNo) = i;
 					return 1;
 				}
@@ -1572,7 +1572,7 @@ int SLAPI BhtProtocol::SendPrgmFile(const char * pFileName)
 	THROW(SendPrgmHeadingText(strupr(fname), numrecs) > 0);
 	rewind(stream);
 	while(fgets(line_buf, sizeof(line_buf), stream)) {
-		size_t l = strlen(chomp(line_buf));
+		size_t l = sstrlen(chomp(line_buf));
 		if(l < blk_size)
 			padright(line_buf, '0', blk_size-l);
 		recno++;
@@ -1608,7 +1608,7 @@ int SLAPI BhtProtocol::SendDataFile(const char * pFileName, const BhtRecord * pS
 	while(fgets(line_buf, sizeof(line_buf), stream)) {
 		recno++;
 		chomp(line_buf);
-		p_rec->SetBuf(strlen(line_buf), line_buf);
+		p_rec->SetBuf(sstrlen(line_buf), line_buf);
 		THROW(SendRecord(recno, p_rec) > 0);
 		PPWaitPercent(recno, numrecs);
 	}
@@ -1741,7 +1741,7 @@ int SLAPI CipherProtocol::SendDataFile(const char * pFileName, const BhtRecord *
 	while(fgets(line_buf, sizeof(line_buf), stream)) {
 		recno++;
 		chomp(line_buf);
-		p_rec->SetBuf(strlen(line_buf), line_buf);
+		p_rec->SetBuf(sstrlen(line_buf), line_buf);
 		THROW(SendRecord(recno, p_rec) > 0);
 		PPWaitPercent(recno, numrecs);
 	}

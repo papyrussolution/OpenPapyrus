@@ -236,7 +236,7 @@ done:
 static CURLcode ntlm_wb_response(struct connectdata * conn, const char * input, curlntlm state)
 {
 	char * buf = SAlloc::M(NTLM_BUFSIZE);
-	size_t len_in = strlen(input);
+	size_t len_in = sstrlen(input);
 	size_t len_out = 0;
 	if(!buf)
 		return CURLE_OUT_OF_MEMORY;

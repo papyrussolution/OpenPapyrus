@@ -128,7 +128,7 @@ static char * getWordForm(const char * pattern, long fmt, char * pBuf)
 		if(*p == '[') {
 			const int _case = (fmt & MONF_CASEGEN) ? 2 : 1;
 			p = selectVarPart(++p, _case, t);
-			t += strlen(t);
+			t += sstrlen(t);
 		}
 		while(*p)
 			*t++ = *p++;

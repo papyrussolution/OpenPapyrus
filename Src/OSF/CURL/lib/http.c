@@ -128,7 +128,7 @@ CURLcode Curl_http_setup_conn(struct connectdata * conn)
  */
 char * Curl_checkheaders(const struct connectdata * conn, const char * thisheader)
 {
-	size_t thislen = strlen(thisheader);
+	size_t thislen = sstrlen(thisheader);
 	struct Curl_easy * data = conn->data;
 	for(struct curl_slist * head = data->set.headers; head; head = head->next) {
 		if(strncasecompare(head->data, thisheader, thislen))
@@ -147,7 +147,7 @@ char * Curl_checkheaders(const struct connectdata * conn, const char * thisheade
  */
 char * Curl_checkProxyheaders(const struct connectdata * conn, const char * thisheader)
 {
-	size_t thislen = strlen(thisheader);
+	size_t thislen = sstrlen(thisheader);
 	struct Curl_easy * data = conn->data;
 	for(struct curl_slist * head = (conn->bits.proxy && data->set.sep_headers) ? data->set.proxyheaders : data->set.headers; head; head = head->next) {
 		if(strncasecompare(head->data, thisheader, thislen))
@@ -221,7 +221,7 @@ static CURLcode http_output_basic(struct connectdata * conn, bool proxy)
 		pwd = conn->passwd;
 	}
 	snprintf(data->state.buffer, CURL_BUFSIZE(data->set.buffer_size), "%s:%s", user, pwd);
-	result = Curl_base64_encode(data, data->state.buffer, strlen(data->state.buffer), &authorization, &size);
+	result = Curl_base64_encode(data, data->state.buffer, sstrlen(data->state.buffer), &authorization, &size);
 	if(result)
 		return result;
 	if(!authorization)
@@ -314,7 +314,7 @@ static CURLcode http_perhapsrewind(struct connectdata * conn)
 			    if(data->state.infilesize != -1)
 				    expectsend = data->state.infilesize;
 			    else if(data->set.postfields)
-				    expectsend = (curl_off_t)strlen((const char *)data->set.postfields);
+				    expectsend = (curl_off_t)sstrlen((const char *)data->set.postfields);
 			    break;
 			case HTTPREQ_PUT:
 			    if(data->state.infilesize != -1)
@@ -679,7 +679,7 @@ CURLcode Curl_http_input_auth(struct connectdata * conn, bool proxy, const char 
 							while(*auth && ISSPACE(*auth))
 								auth++;
 							if(checkprefix("NTLM", auth)) {
-								auth += strlen("NTLM");
+								auth += sstrlen("NTLM");
 								while(*auth && ISSPACE(*auth))
 									auth++;
 								if(*auth) {
@@ -1004,7 +1004,7 @@ CURLcode Curl_add_bufferf(Curl_send_buffer * in, const char * fmt, ...)
 	va_end(ap);
 
 	if(s) {
-		CURLcode result = Curl_add_buffer(in, s, strlen(s));
+		CURLcode result = Curl_add_buffer(in, s, sstrlen(s));
 		SAlloc::F(s);
 		return result;
 	}
@@ -1075,7 +1075,7 @@ bool Curl_compareheader(const char * headerline, /* line to check */
 	 * The field value MAY be preceded by any amount of LWS, though a single SP
 	 * is preferred." */
 
-	size_t hlen = strlen(header);
+	size_t hlen = sstrlen(header);
 	size_t clen;
 	size_t len;
 	const char * start;
@@ -1103,7 +1103,7 @@ bool Curl_compareheader(const char * headerline, /* line to check */
 	}
 
 	len = end-start; /* length of the content part of the input line */
-	clen = strlen(content); /* length of the word to find */
+	clen = sstrlen(content); /* length of the word to find */
 
 	/* find the content string in the rest of the line */
 	for(; len>=clen; len--, start++) {
@@ -1697,7 +1697,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 				char * closingbracket;
 				/* since the 'cookiehost' is an allocated memory area that will be
 				   freed later we cannot simply increment the pointer */
-				memmove(cookiehost, cookiehost + 1, strlen(cookiehost) - 1);
+				memmove(cookiehost, cookiehost + 1, sstrlen(cookiehost) - 1);
 				closingbracket = strchr(cookiehost, ']');
 				if(closingbracket)
 					*closingbracket = 0;
@@ -1749,9 +1749,9 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 				   name is rather crude as I believe there's a slight risk that the
 				   user has entered a user name or password that contain the host name
 				   string. */
-				size_t currlen = strlen(conn->host.dispname);
-				size_t newlen = strlen(conn->host.name);
-				size_t urllen = strlen(url);
+				size_t currlen = sstrlen(conn->host.dispname);
+				size_t newlen = sstrlen(conn->host.name);
+				size_t urllen = sstrlen(url);
 				char * newurl = (char *)SAlloc::M(urllen + newlen - currlen + 1);
 				if(newurl) {
 					/* copy the part before the host name */
@@ -1792,7 +1792,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 					char * p = ftp_typecode;
 					/* avoid sending invalid URLs like ftp://example.com;type=i if the
 					 * user specified ftp://example.com without the slash */
-					if(!*data->state.path && ppath[strlen(ppath) - 1] != '/') {
+					if(!*data->state.path && ppath[sstrlen(ppath) - 1] != '/') {
 						*p++ = '/';
 					}
 					snprintf(p, sizeof(ftp_typecode) - 1, ";type=%c", data->set.prefer_ascii ? 'a' : 'i');
@@ -1921,7 +1921,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 	if(paste_ftp_userpwd)
 		result = Curl_add_bufferf(req_buffer, "ftp://%s:%s@%s", conn->user, conn->passwd, ppath + sizeof("ftp://") - 1);
 	else
-		result = Curl_add_buffer(req_buffer, ppath, strlen(ppath));
+		result = Curl_add_buffer(req_buffer, ppath, sstrlen(ppath));
 	if(result)
 		return result;
 	result = Curl_add_bufferf(req_buffer,
@@ -2141,7 +2141,7 @@ CURLcode Curl_http(struct connectdata * conn, bool * done)
 			    postsize = 0;
 		    else {
 			    /* figure out the size of the postfields */
-			    postsize = (data->state.infilesize != -1) ? data->state.infilesize : (data->set.postfields ? (curl_off_t)strlen((const char *)data->set.postfields) : -1);
+			    postsize = (data->state.infilesize != -1) ? data->state.infilesize : (data->set.postfields ? (curl_off_t)sstrlen((const char *)data->set.postfields) : -1);
 		    }
 		    /* We only set Content-Length and allow a custom Content-Length if
 		       we don't upload data chunked, as RFC2616 forbids us to set both
@@ -2329,7 +2329,7 @@ static bool checkhttpprefix(struct Curl_easy * data, const char * s)
 		failf(data, "Failed to allocate memory for conversion!");
 		return FALSE; /* can't return CURLE_OUT_OF_MEMORY so return FALSE */
 	}
-	if(CURLE_OK != Curl_convert_from_network(data, scratch, strlen(s)+1)) {
+	if(CURLE_OK != Curl_convert_from_network(data, scratch, sstrlen(s)+1)) {
 		/* Curl_convert_from_network calls failf if unsuccessful */
 		SAlloc::F(scratch);
 		return FALSE; /* can't return CURLE_foobar so return FALSE */
@@ -2364,7 +2364,7 @@ static bool checkrtspprefix(struct Curl_easy * data, const char * s)
 		failf(data, "Failed to allocate memory for conversion!");
 		return FALSE; /* can't return CURLE_OUT_OF_MEMORY so return FALSE */
 	}
-	if(CURLE_OK != Curl_convert_from_network(data, scratch, strlen(s)+1)) {
+	if(CURLE_OK != Curl_convert_from_network(data, scratch, sstrlen(s)+1)) {
 		/* Curl_convert_from_network calls failf if unsuccessful */
 		SAlloc::F(scratch);
 		return FALSE; /* can't return CURLE_foobar so return FALSE */
@@ -2923,7 +2923,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 			}
 		}
 
-		result = Curl_convert_from_network(data, k->p, strlen(k->p));
+		result = Curl_convert_from_network(data, k->p, sstrlen(k->p));
 		/* Curl_convert_from_network calls failf if unsuccessful */
 		if(result)
 			return result;
@@ -3146,7 +3146,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 #endif
 		else if(checkprefix("Last-Modified:", k->p) && (data->set.timecondition || data->set.get_filetime) ) {
 			time_t secs = time(NULL);
-			k->timeofdoc = curl_getdate(k->p+strlen("Last-Modified:"), &secs);
+			k->timeofdoc = curl_getdate(k->p+sstrlen("Last-Modified:"), &secs);
 			if(data->set.get_filetime)
 				data->info.filetime = (long)k->timeofdoc;
 		}

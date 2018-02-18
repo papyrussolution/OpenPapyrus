@@ -1573,8 +1573,8 @@ int SLAPI PPObjPrjTask::SubstDescr(PrjTaskTbl::Rec * pPack)
 					*b = 0;
 					break;
 			}
-			len += strlen(b);
-			b += strlen(b);
+			len += sstrlen(b);
+			b += sstrlen(b);
 			p += next;
 		}
 		else {

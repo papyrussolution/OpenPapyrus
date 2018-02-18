@@ -34,7 +34,7 @@ typedef struct __part_internal {
 
 #ifdef HAVE_PARTITION
 	#define	PART_NAME	"__dbp.%s.%03d"
-	#define	PART_LEN	(strlen("__dbp..")+3)
+	#define	PART_LEN	(sstrlen("__dbp..")+3)
 	#define	PART_PREFIX	"__dbp."
 
 	#define	DB_IS_PARTITIONED(dbp) (dbp->p_internal != NULL && ((DB_PARTITION *)dbp->p_internal)->handles != NULL)

@@ -513,7 +513,7 @@ int EditWorldDialog::CheckDuplicateName(PPID * pSelID)
 		size_t name_len = 0;
 		char   name[64];
 		getCtrlData(CTL_WORLD_NAME, name);
-		if(Name.CmpNC(name) != 0 && (name_len = strlen(name)) > 0) {
+		if(Name.CmpNC(name) != 0 && (name_len = sstrlen(name)) > 0) {
 			long   i = 0;
 			SString buf, parent_name;
 			WorldTbl * p_tbl = ObjWorld.P_Tbl;
@@ -528,7 +528,7 @@ int EditWorldDialog::CheckDuplicateName(PPID * pSelID)
 			STRNSCPY(k3.Name, name);
 			for(q.initIteration(0, &k3); q.nextIteration() > 0;) {
 				p_tbl->copyBufTo(&w_rec);
-				if(name_len == strlen(w_rec.Name) && stricmp866(name, w_rec.Name) == 0) {
+				if(name_len == sstrlen(w_rec.Name) && stricmp866(name, w_rec.Name) == 0) {
 					PPID   item_id = w_rec.ID;
 					PPID   parent_id = NZOR(w_rec.ParentID, w_rec.CountryID);
 					PPGetSubStr(KindNames, w_rec.Kind - 1, buf);
@@ -625,7 +625,7 @@ int EditWorldDialog::getDTS(PPWorldPacket * pData)
 	int    ok = 1;
 	uint   sel = 0;
 	getCtrlData(sel = CTL_WORLD_NAME, Data.Rec.Name);
-	THROW_PP(strlen(Data.Rec.Name), PPERR_NAMENEEDED);
+	THROW_PP(sstrlen(Data.Rec.Name), PPERR_NAMENEEDED);
 	getCtrlData(CTL_WORLD_ABBR, Data.Rec.Abbr);
 	getCtrlData(CTL_WORLD_CODE, Data.Rec.Code);
 	getCtrlData(CTL_WORLD_ZIP,  Data.Rec.ZIP);
@@ -776,7 +776,7 @@ int SLAPI PPObjWorld::SearchByCode(const char * pCode, WorldTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(pCode) {
-		const size_t len = strlen(pCode);
+		const size_t len = sstrlen(pCode);
 		if(len > 0 && len < sizeof(P_Tbl->data.Code)) {
 			WorldTbl::Key4 k4;
 			MEMSZERO(k4);
@@ -898,7 +898,7 @@ int SLAPI PPObjWorld::GetListByFilt(const SelFilt & rFilt, SArray * pList)
 int SLAPI PPObjWorld::GetListByCode(int kind, const char * pCode, SArray * pList)
 {
 	int    ok = -1;
-	size_t len = strlen(pCode);
+	size_t len = sstrlen(pCode);
 	if(len > 0 && len < sizeof(P_Tbl->data.Code)) {
 		const WorldTbl::Rec & rec = P_Tbl->data;
 		WorldTbl::Key4 k4;
@@ -908,7 +908,7 @@ int SLAPI PPObjWorld::GetListByCode(int kind, const char * pCode, SArray * pList
 			do {
 				if(!kind || kind == rec.Kind)
 					THROW_SL(pList->insert(&P_Tbl->data));
-			} while(P_Tbl->search(4, &k4, spNext) && (!kind || rec.Kind == kind) && len == strlen(k4.Code) && stricmp866(k4.Code, pCode) == 0);
+			} while(P_Tbl->search(4, &k4, spNext) && (!kind || rec.Kind == kind) && len == sstrlen(k4.Code) && stricmp866(k4.Code, pCode) == 0);
 	}
 	ok = (pList->getCount()) ? 1 : -1;
 	CATCHZOK

@@ -475,7 +475,7 @@ void WordSelector::ActivateInput()
 
 int WordSelector::Refresh(const char * pText)
 {
-	if(strlen(pText) >= P_Blk->MinSymbCount) { // @v8.3.11
+	if(sstrlen(pText) >= P_Blk->MinSymbCount) { // @v8.3.11
 		int    r = 0;
 		StrAssocArray * p_data = 0;
 		SString text;

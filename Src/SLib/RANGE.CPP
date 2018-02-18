@@ -16,7 +16,7 @@ int SLAPI strtorrng(const char * pBuf, double * pLow, double * pUpp)
 		// Так как иногда пользователи вместо двойной точки вводять двойную
 		// запятую (,,), то обрабатываем этот случай отдельно.
 		//
-		size_t i = strlen(p_tmp);
+		size_t i = sstrlen(p_tmp);
 		if(i)
 			do {
 				i--;

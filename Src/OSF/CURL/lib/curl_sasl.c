@@ -324,7 +324,7 @@ CURLcode Curl_sasl_start(struct SASL * sasl, struct connectdata * conn,
 		}
 	}
 	if(!result && mech) {
-		if(resp && sasl->params->maxirlen && strlen(mech) + len > sasl->params->maxirlen) {
+		if(resp && sasl->params->maxirlen && sstrlen(mech) + len > sasl->params->maxirlen) {
 			ZFREE(resp);
 		}
 		result = sasl->params->sendauth(conn, mech, resp);

@@ -71,7 +71,7 @@ CURLcode Curl_auth_create_oauth_bearer_message(struct Curl_easy * data,
 		return CURLE_OUT_OF_MEMORY;
 
 	/* Base64 encode the reply */
-	result = Curl_base64_encode(data, oauth, strlen(oauth), outptr, outlen);
+	result = Curl_base64_encode(data, oauth, sstrlen(oauth), outptr, outlen);
 
 	SAlloc::F(oauth);
 

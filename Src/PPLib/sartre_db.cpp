@@ -1755,7 +1755,7 @@ int SrDatabase::GetWordInfo(const char * pWordUtf8, long /*flags*/, TSVector <Sr
 	int    ok = -1;
 	SStringU word_buf, base_buf_u, afx_buf_u, pfx_buf_u;
 	SString temp_buf;
-	word_buf.CopyFromUtf8(pWordUtf8, strlen(pWordUtf8));
+	word_buf.CopyFromUtf8(pWordUtf8, sstrlen(pWordUtf8));
 	int    tc = word_buf.AnalyzeCase();
 	base_buf_u = word_buf.ToLower();
 	const  uint len = word_buf.Len();

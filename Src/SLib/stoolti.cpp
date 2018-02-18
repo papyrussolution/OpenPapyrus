@@ -38,7 +38,7 @@ int STooltip::Add(const char * pText, const RECT * pRect, long id)
 {
 	char   tooltip[256];
 	memzero(tooltip, sizeof(tooltip));
-	strnzcpy(tooltip, pText, strlen(pText) + 1);
+	strnzcpy(tooltip, pText, sstrlen(pText) + 1);
 	TOOLINFO ti;
 	ti.cbSize      = sizeof(TOOLINFO);
 	ti.uFlags      = TTF_SUBCLASS;

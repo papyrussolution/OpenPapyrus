@@ -59,10 +59,10 @@ CURLcode Curl_input_negotiate(struct connectdata * conn, bool proxy, const char 
 	SETIFZ(userp, ""); // Not set means empty 
 	SETIFZ(passwdp, "");
 	// Obtain the input token, if any 
-	header += strlen("Negotiate");
+	header += sstrlen("Negotiate");
 	while(*header && ISSPACE(*header))
 		header++;
-	len = strlen(header);
+	len = sstrlen(header);
 	if(!len) {
 		/* Is this the first call in a new negotiation? */
 		if(neg_ctx->context) {

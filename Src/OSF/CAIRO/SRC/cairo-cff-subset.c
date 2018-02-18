@@ -285,21 +285,16 @@ static char * FASTCALL decode_nibble(int n, char * buf)
 
 static uchar * FASTCALL decode_real(uchar * p, double * real)
 {
-	const char * decimal_point;
-	int decimal_point_len;
 	int n;
 	char buffer[100];
 	char buffer2[200];
 	char * q;
 	char * buf = buffer;
 	char * buf_end = buffer + sizeof(buffer);
-
-	decimal_point = cairo_get_locale_decimal_point();
-	decimal_point_len = strlen(decimal_point);
-
+	const char * decimal_point = cairo_get_locale_decimal_point();
+	int decimal_point_len = sstrlen(decimal_point);
 	assert(decimal_point_len != 0);
 	assert(sizeof(buffer) + decimal_point_len < sizeof(buffer2));
-
 	p++;
 	while(buf + 2 < buf_end) {
 		n = *p >> 4;
@@ -314,7 +309,6 @@ static uchar * FASTCALL decode_real(uchar * p, double * real)
 	}
 	;
 	*buf = 0;
-
 	buf = buffer;
 	if(strchr(buffer, '.')) {
 		q = strchr(buffer, '.');
@@ -1175,26 +1169,19 @@ static cairo_status_t cairo_cff_font_set_ros_strings(cairo_cff_font_t * font)
 	const char * ordering = "Identity";
 
 	sid1 = NUM_STD_STRINGS + _cairo_array_num_elements(&font->strings_subset_index);
-	status = cff_index_append_copy(&font->strings_subset_index,
-	    (uchar*)registry,
-	    strlen(registry));
+	status = cff_index_append_copy(&font->strings_subset_index, (uchar*)registry, sstrlen(registry));
 	if(unlikely(status))
 		return status;
-
 	sid2 = NUM_STD_STRINGS + _cairo_array_num_elements(&font->strings_subset_index);
-	status = cff_index_append_copy(&font->strings_subset_index,
-	    (uchar*)ordering,
-	    strlen(ordering));
+	status = cff_index_append_copy(&font->strings_subset_index, (uchar*)ordering, strlen(ordering));
 	if(unlikely(status))
 		return status;
-
 	p = encode_integer(buf, sid1);
 	p = encode_integer(p, sid2);
 	p = encode_integer(p, 0);
 	status = cff_dict_set_operands(font->top_dict, ROS_OP, buf, p - buf);
 	if(unlikely(status))
 		return status;
-
 	p = encode_integer(buf, font->scaled_font_subset->num_glyphs);
 	status = cff_dict_set_operands(font->top_dict, CIDCOUNT_OP, buf, p - buf);
 	if(unlikely(status))

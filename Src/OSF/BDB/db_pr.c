@@ -1019,7 +1019,7 @@ int __db_prdbt(DBT * dbtp, int checkprint, const char * prefix, void * handle, i
 		snprintf(buf, DBTBUFLEN, "%lu", (ulong)recno);
 		/* If we're printing data as hex, print keys as hex too. */
 		if(!checkprint) {
-			for(len = strlen(buf), p = (uint8 *)buf, hp = (uint8 *)hbuf; len-- > 0; ++p) {
+			for(len = sstrlen(buf), p = (uint8 *)buf, hp = (uint8 *)hbuf; len-- > 0; ++p) {
 				*hp++ = hex[(uint8)(*p&0xf0)>>4];
 				*hp++ = hex[*p&0x0f];
 			}
@@ -1041,7 +1041,7 @@ int __db_prdbt(DBT * dbtp, int checkprint, const char * prefix, void * handle, i
 		snprintf(buf, DBTBUFLEN, "%lu %hu", (ulong)rid.pgno, (u_short)rid.indx);
 		/* If we're printing data as hex, print keys as hex too. */
 		if(!checkprint) {
-			for(len = strlen(buf), p = (uint8 *)buf, hp = (uint8 *)hbuf; len-- > 0; ++p) {
+			for(len = sstrlen(buf), p = (uint8 *)buf, hp = (uint8 *)hbuf; len-- > 0; ++p) {
 				*hp++ = hex[(uint8)(*p&0xf0)>>4];
 				*hp++ = hex[*p&0x0f];
 			}
@@ -1168,7 +1168,7 @@ int __db_prheader(DB * dbp, const char * subname, int pflag, int keyflag, void *
 		snprintf(buf, buflen, "database=");
 		if((ret = callback(handle, buf)) != 0)
 			goto err;
-		DB_INIT_DBT(dbt, subname, strlen(subname));
+		DB_INIT_DBT(dbt, subname, sstrlen(subname));
 		if((ret = __db_prdbt(&dbt, 1, NULL, handle, callback, 0, 0)) != 0)
 			goto err;
 	}
@@ -1427,7 +1427,7 @@ int __db_pr_callback(void * handle, const void * str_arg)
 {
 	char * str = (char *)str_arg;
 	FILE * f = (FILE *)handle;
-	if(fprintf(f, "%s", str) != (int)strlen(str))
+	if(fprintf(f, "%s", str) != (int)sstrlen(str))
 		return EIO;
 	return 0;
 }

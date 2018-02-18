@@ -1359,7 +1359,7 @@ int FASTCALL SColorBase::FromStr(const char * pStr)
 	*(uint32 *)this = 0;
 	Alpha = 0xff;
 	scan.Skip();
-	size_t len = strlen(scan);
+	size_t len = sstrlen(scan);
 	if(scan[0] == '#') {
 		len--;
 		scan.Incr();

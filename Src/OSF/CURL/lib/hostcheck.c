@@ -62,10 +62,10 @@ static int hostmatch(char * hostname, char * pattern)
 	struct sockaddr_in6 si6;
 #endif
 	// normalize pattern and hostname by stripping off trailing dots 
-	size_t len = strlen(hostname);
+	size_t len = sstrlen(hostname);
 	if(hostname[len-1]=='.')
 		hostname[len-1] = 0;
-	len = strlen(pattern);
+	len = sstrlen(pattern);
 	if(pattern[len-1]=='.')
 		pattern[len-1] = 0;
 	pattern_wildcard = strchr(pattern, '*');

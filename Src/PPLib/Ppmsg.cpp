@@ -772,7 +772,7 @@ int FASTCALL PPThreadLocalArea::WaitBlock::SetPercent(ulong p, ulong t, const ch
 		else
 			s = b;
 		ultoa(percent, s, 10);
-		s = b + strlen(b);
+		s = b + sstrlen(b);
 		*s++ = '%';
 		*s = 0;
 		result = SetMessage(b);

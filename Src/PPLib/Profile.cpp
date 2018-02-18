@@ -117,7 +117,7 @@ struct ProfileEntry {
 
 static uint32 FASTCALL PeHashString(const char * pSymb)
 {
-	const size_t len = strlen(pSymb);
+	const size_t len = sstrlen(pSymb);
 	return BobJencHash(pSymb, len);
 }
 
@@ -309,7 +309,7 @@ int SLAPI Profile::Start(uint logFileId, const char * pName, const char * pAdded
 	const char * p_added_info, * p_name;
 	//
 	Lck.Lock();
-	Helper_Start(pName, pAddedInfo ? strlen(pAddedInfo) : 0, pAddedInfo);
+	Helper_Start(pName, pAddedInfo ? sstrlen(pAddedInfo) : 0, pAddedInfo);
 	p_pe = & at(0);
 	p_name = NZOR(p_pe->P_FileName, (const char *)&stub);
 	p_added_info = NZOR(p_pe->P_AddedInfo, (const char *)&stub);
@@ -329,7 +329,7 @@ int SLAPI Profile::Finish(uint logFileId, const char * pName, const char * pAdde
 	const char * p_added_info, * p_name;
 	//
 	Lck.Lock();
-	Helper_Finish(pName, pAddedInfo ? strlen(pAddedInfo) : 0);
+	Helper_Finish(pName, pAddedInfo ? sstrlen(pAddedInfo) : 0);
 	p_pe = & at(0);
 	p_name  = NZOR(p_pe->P_FileName, (const char *)&stub);
 	p_added_info = NZOR(p_pe->P_AddedInfo, (const char *)&stub);

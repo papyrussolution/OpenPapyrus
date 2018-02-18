@@ -147,7 +147,7 @@ CURLcode Curl_fillreadbuffer(struct connectdata * conn, int bytes, int * nreadp)
 		/* copy the prefix to the buffer, leaving out the NUL */
 		memcpy(data->req.upload_fromhere, hexbuffer, hexlen);
 		/* always append ASCII CRLF to the data */
-		memcpy(data->req.upload_fromhere + nread, endofline_network, strlen(endofline_network));
+		memcpy(data->req.upload_fromhere + nread, endofline_network, sstrlen(endofline_network));
 #ifdef CURL_DOES_CONVERSIONS
 		CURLcode result;
 		int length;
@@ -157,7 +157,7 @@ CURLcode Curl_fillreadbuffer(struct connectdata * conn, int bytes, int * nreadp)
 		}
 		else {
 			/* just translate the protocol portion */
-			length = strlen(hexbuffer);
+			length = sstrlen(hexbuffer);
 		}
 		result = Curl_convert_to_network(data, data->req.upload_fromhere, length);
 		/* Curl_convert_to_network calls failf if unsuccessful */
@@ -169,7 +169,7 @@ CURLcode Curl_fillreadbuffer(struct connectdata * conn, int bytes, int * nreadp)
 			/* mark this as done once this chunk is transferred */
 			data->req.upload_done = TRUE;
 
-		nread += (int)strlen(endofline_native); /* for the added end of line */
+		nread += (int)sstrlen(endofline_native); /* for the added end of line */
 	}
 #ifdef CURL_DOES_CONVERSIONS
 	else if((data->set.prefer_ascii) && (!sending_http_headers)) {
@@ -1283,7 +1283,7 @@ static char * concat_url(const char * base, const char * relurl)
 	   on the right side of the '?' letter.
 	 */
 	newlen = strlen_url(useurl);
-	urllen = strlen(url_clone);
+	urllen = sstrlen(url_clone);
 	newest = (char *)SAlloc::M(urllen + 1 + /* possible slash */ newlen + 1 /* zero byte */);
 	if(!newest) {
 		SAlloc::F(url_clone); /* don't leak this */

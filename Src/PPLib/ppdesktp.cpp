@@ -255,7 +255,7 @@ int PPDesktopAssocCmdPool::GetByCode(const char * pCode, uint * pPos, PPDesktopA
 	SString result_text;
 	if(!isempty(pCode)) {
 		SString temp_buf;
-		const size_t code_len = strlen(pCode);
+		const size_t code_len = sstrlen(pCode);
 		for(uint i = 0; !ok && i < L.getCount(); i++) {
 			const Item & r_item = L.at(i);
 			P.getnz(r_item.CodeP, temp_buf);

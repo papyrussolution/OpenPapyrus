@@ -41,16 +41,10 @@ extern "C" {
 // Descr: String implementation
 //
 struct RcString {
-	RcString()
+	RcString() : P_Text(0), length(0), max(0)
 	{
-		P_Text = 0;
-		length = 0;
-		max = 0;
 	}
-	size_t Len() const
-	{
-		return length;
-	}
+	size_t Len() const { return length; }
 	char * P_Text; // char c-string */
 	size_t length;	// put in place to avoid strlen() calls
 	size_t max;	    // usable memory allocated to text minus the space for the nul character
@@ -162,7 +156,7 @@ enum json_error json_stream_parse(FILE * file, json_t ** document);
 // @param text the value's text
 // @return a pointer to the newly created JSON string value
 //
-json_t * json_new_string(const char *text);
+json_t * FASTCALL json_new_string(const char *text);
 //
 // Creates a new JSON number and defines it's text. The user is responsible for the number string's correctness
 // @param text the value's number
@@ -198,7 +192,7 @@ json_t * json_new_number(const char *text);
 // Frees the memory appointed to the value fed as the parameter, as well as all the child nodes
 // @param value the root node of the tree being freed
 //
-void json_free_value(json_t ** value);
+void FASTCALL json_free_value(json_t ** value);
 //
 // Inserts a child node into a parent node, as well as performs some document tree integrity checks.
 // @param parent the parent node
@@ -213,7 +207,7 @@ enum json_error FASTCALL json_insert_child(json_t * parent, json_t * child);
 // @param value the value in the label:value pair
 // @return the error code corresponding to the operation result
 //
-enum json_error json_insert_pair_into_object(json_t * parent, const char *text_label, json_t * value);
+enum json_error FASTCALL json_insert_pair_into_object(json_t * parent, const char * text_label, json_t * value);
 //
 // Produces a JSON markup text document from a document tree
 // @param root The document's root node

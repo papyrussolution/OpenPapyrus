@@ -53,7 +53,7 @@ static char * inet_ntop4(const uchar * src, char * dst, size_t size)
 	tmp[0] = '\0';
 	(void)snprintf(tmp, sizeof(tmp), "%d.%d.%d.%d", ((int)((uchar)src[0])) & 0xff,
 	    ((int)((uchar)src[1])) & 0xff, ((int)((uchar)src[2])) & 0xff, ((int)((uchar)src[3])) & 0xff);
-	len = strlen(tmp);
+	len = sstrlen(tmp);
 	if(len == 0 || len >= size) {
 		SET_ERRNO(ENOSPC);
 		return NULL;
@@ -137,7 +137,7 @@ static char * inet_ntop6(const uchar * src, char * dst, size_t size)
 				SET_ERRNO(ENOSPC);
 				return NULL;
 			}
-			tp += strlen(tp);
+			tp += sstrlen(tp);
 			break;
 		}
 		tp += snprintf(tp, 5, "%lx", words[i]);

@@ -295,7 +295,7 @@ int SLAPI SCardCore::GetCodeRange(const char * pTemplate, SString & rLow, SStrin
 		uchar * p = (uchar *)strip(templ);
 		memzero(pfx, sizeof(pfx));
 		{
-			size_t len = strlen((char *)p);
+			size_t len = sstrlen((char *)p);
 			if(p[len-1] == '^') {
 				p[len-1] = 0;
 				add_check_dig = 1;
@@ -356,7 +356,7 @@ int SLAPI SCardCore::MakeCodeByTemplate(PPID seriesID, const char * pPattern, SS
 	p = strip(templ);
 	memzero(pfx, sizeof(pfx));
 	{
-		size_t len = strlen(p);
+		size_t len = sstrlen(p);
 		if(oneof2(p[len-1], '^', '!')) {
 			p[len-1] = 0;
 			if(p[len-1] == '^')
@@ -405,14 +405,14 @@ int SLAPI SCardCore::MakeCodeByTemplate(PPID seriesID, const char * pPattern, SS
 				if(add_check_dig) {
 					char * p_cb = pttrn;
 					if(check_dig_len > 0) {
-						int    pl = (int)strlen(pttrn);
+						int    pl = (int)sstrlen(pttrn);
 						if(check_dig_len <= pl)
 							p_cb = pttrn+pl-check_dig_len;
 					}
 					if(add_check_dig == 1)
 						AddBarcodeCheckDigit(p_cb);
 					else if(add_check_dig == 2) {
-						size_t cb_len = strlen(p_cb);
+						size_t cb_len = sstrlen(p_cb);
 						int cd = SCalcCheckDigit(SCHKDIGALG_LUHN, p_cb, cb_len);
 						if(isdec(cd)) {
 							p_cb[cb_len++] = cd;
@@ -526,7 +526,7 @@ struct SCardCodeTemplate {
 				AddBarcodeCheckDigit(p_cb);
 			}
 			else if(AddCheckDig == 2) {
-				size_t cb_len = strlen(p_cb);
+				size_t cb_len = sstrlen(p_cb);
 				int cd = SCalcCheckDigit(SCHKDIGALG_LUHN, p_cb, cb_len);
 				if(isdec(cd)) {
 					p_cb[cb_len++] = cd;
@@ -623,7 +623,7 @@ int SLAPI SCardCore::AutoFill(const PPSCardSeries * pSerRec, const char * pPatte
 		p = strip(templ);
 		memzero(pfx, sizeof(pfx));
 		{
-			size_t len = strlen(p);
+			size_t len = sstrlen(p);
 			if(p[len-1] == '^') {
 				p[len-1] = 0;
 				add_check_dig = 1;
@@ -679,7 +679,7 @@ int SLAPI SCardCore::AutoFill(const PPSCardSeries * pSerRec, const char * pPatte
 					if(add_check_dig) {
 						char * p_cb = pttrn;
 						if(check_dig_len > 0) {
-							int    pl = (int)strlen(pttrn);
+							int    pl = (int)sstrlen(pttrn);
 							if(check_dig_len <= pl)
 								p_cb = pttrn+pl-check_dig_len;
 						}

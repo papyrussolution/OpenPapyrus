@@ -651,7 +651,7 @@ int FASTCALL RecognizeLinguaSymb(const char * pSymb, int word)
 				}
 			}
 			else {
-				size_t code_len = strlen(p_code);
+				size_t code_len = sstrlen(p_code);
 				if(temp_buf.CmpPrefix(p_code, 0) == 0 && code_len > max_found_len) {
 					const char nextc = temp_buf.C(code_len);
 					//
@@ -793,7 +793,7 @@ int FASTCALL RecognizeSNScriptSymb(const char * pSymb, size_t * pLength)
 		temp_buf.ToLower();
 		for(i = 0; i < SIZEOFARRAY(P_SNScriptIdentList); i++) {
 			const char * p_code = P_SNScriptIdentList[i].P_Code;
-			const size_t code_len = strlen(p_code);
+			const size_t code_len = sstrlen(p_code);
 			if(temp_buf.CmpPrefix(p_code, 0) == 0 && code_len > max_found_len) {
 				const char nextc = temp_buf.C(code_len);
 				if(!((nextc >= 'a' && nextc <= 'z') || (nextc >= 'A' && nextc <= 'Z'))) {
@@ -1550,7 +1550,7 @@ int FASTCALL ToUpper866(int alpha)
 //char * FASTCALL rus_stristr(const char * s1, const char * s2)
 char * FASTCALL stristr866(const char * s1, const char * s2)
 {
-	for(size_t p = 0, i = strlen(s1), len = strlen(s2); (i-p) >= len; p++)
+	for(size_t p = 0, i = sstrlen(s1), len = sstrlen(s2); (i-p) >= len; p++)
 		if(strnicmp866(s1+p, s2, len) == 0)
 			return (char *)(s1+p);
 	return 0;
@@ -1924,14 +1924,20 @@ char * FASTCALL stpcpy(char *to, const char *from)
 int    FASTCALL isempty(const char * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
 int    FASTCALL isempty(const uchar * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
 int    FASTCALL isempty(const wchar_t * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
-size_t FASTCALL sstrlen(const char * pStr) { return (pStr && pStr[0]) ? strlen(pStr) : 0; }
-size_t FASTCALL sstrlen(const uchar * pStr) { return (pStr && pStr[0]) ? strlen((const char *)pStr) : 0; }
+size_t FASTCALL sstrlen(const char * pStr) 
+{ 
+	return (pStr && pStr[0]) ? xeos_strlen(pStr) : 0; 
+}
+size_t FASTCALL sstrlen(const uchar * pStr) 
+{ 
+	return (pStr && pStr[0]) ? xeos_strlen((const char *)pStr) : 0; 
+}
 size_t FASTCALL sstrlen(const wchar_t * pStr) { return (pStr && pStr[0]) ? wcslen(pStr) : 0; }
 
 char * FASTCALL sstrdup(const char * pStr)
 {
 	if(pStr) {
-		size_t len = strlen(pStr) + 1;
+		size_t len = sstrlen(pStr) + 1;
 		char * p = (char *)SAlloc::M(len);
 		return p ? (char *)memcpy(p, pStr, len) : 0;
 	}
@@ -1942,7 +1948,7 @@ char * FASTCALL sstrdup(const char * pStr)
 uchar * FASTCALL sstrdup(const uchar * pStr)
 {
 	if(pStr) {
-		size_t len = strlen((const char *)pStr) + 1;
+		size_t len = sstrlen((const char *)pStr) + 1;
 		uchar * p = (uchar *)SAlloc::M(len);
 		return p ? (uchar *)memcpy(p, pStr, len) : 0;
 	}
@@ -2053,7 +2059,7 @@ size_t FASTCALL sisascii(const char * pS, size_t len)
 char * FASTCALL newStr(const char * s)
 {
 	if(s) {
-		size_t len = strlen(s) + 1;
+		size_t len = sstrlen(s) + 1;
 		char * p = new char[len];
 		return p ? (char *)memcpy(p, s, len) : 0;
 	}
@@ -2079,7 +2085,7 @@ char * FASTCALL strnzcpy(char * dest, const char * src, size_t maxlen)
 	if(dest)
 		if(src)
 			if(maxlen) {
-				const char * p = (const char *)memchr(src, 0, maxlen);
+				const char * p = (const char *)xeos_memchr(src, 0, maxlen);
 				if(p)
 					memcpy(dest, src, (size_t)(p - src)+1);
 				else {
@@ -2128,14 +2134,14 @@ char * FASTCALL trimleft(char * pStr)
 		do {
 			p++;
 		} while(*p == ' ');
-		memmove(pStr, p, strlen(p)+1);
+		memmove(pStr, p, sstrlen(p)+1);
 	}
 	return pStr;
 }
 
 char * FASTCALL trimright(char * pStr)
 {
-	size_t len = strlen(pStr);
+	size_t len = sstrlen(pStr);
 	if(len) {
 		size_t t = len-1;
 		while(t && pStr[t] == ' ')
@@ -2149,7 +2155,9 @@ char * FASTCALL trimright(char * pStr)
 char * FASTCALL strip(char * pStr)
 {
 	if(pStr && *pStr) {
-		char * p = pStr, * q = pStr, * back = pStr+strlen(pStr)-1;
+		char * p = pStr;
+		char * q = pStr;
+		char * back = pStr+sstrlen(pStr)-1;
 		while(*back == ' ' && back >= p)
 			back--;
 		while(*p == ' ' && p <= back)
@@ -2169,7 +2177,7 @@ char * FASTCALL strip(char * pStr)
 char * FASTCALL chomp(char * s)
 {
 	if(s) {
-		size_t n = strlen(s);
+		size_t n = sstrlen(s);
 		if(s[n-1] == '\n') {
 			if(s[n-2] == '\r')
 				s[n-2] = 0;
@@ -2237,14 +2245,14 @@ const char * SLAPI skipws(const char * pStr, size_t * pPos)
 //
 char * SLAPI padleft(char * pStr, char pad, size_t n)
 {
-	memmove(pStr+n, pStr, strlen(pStr)+1);
+	memmove(pStr+n, pStr, sstrlen(pStr)+1);
 	memset(pStr, pad, n);
 	return pStr;
 }
 
 char * SLAPI padright(char * pStr, char pad, size_t n)
 {
-	size_t len = strlen(pStr);
+	size_t len = sstrlen(pStr);
 	memset(pStr + len, pad, n);
 	pStr[len+n] = 0;
 	return pStr;
@@ -2253,7 +2261,7 @@ char * SLAPI padright(char * pStr, char pad, size_t n)
 char * SLAPI alignstr(char * pStr, size_t wd, int adj)
 {
 	if(pStr) {
-		size_t len = strlen(strip(pStr));
+		size_t len = sstrlen(strip(pStr));
 		if(wd > len) {
 			size_t n = (wd - len);
 			switch(adj) {
@@ -2304,7 +2312,7 @@ int SLAPI searchstr(const char * pStr, const SSrchParam & rParam, size_t * pBeg,
 	if(!isempty(pStr) && !isempty(pat)) {
 		while(1)
 			if((p = (f & SSPF_NOCASE) ? stristr866(s, pat) : strstr(s, pat)) != 0) {
-				size_t len = strlen(pat);
+				size_t len = sstrlen(pat);
 				pos += (uint)(p - s);
 				if(f & SSPF_WORDS)
 					if(iswordchar(p[len], wch)) {
@@ -2331,7 +2339,7 @@ int SLAPI hostrtocstr(const char * pInBuf, char * pOutBuf, size_t outBufSize)
 {
 	int    digit = -1, base = 0;
 	uint   prcsd_symbs = 0;
-	size_t pos = 0, len = 0, in_buf_len = strlen(pInBuf);
+	size_t pos = 0, len = 0, in_buf_len = sstrlen(pInBuf);
 	SSrchParam ss_p;
 	ss_p.P_Pattern = "\\";
 	ss_p.P_WordChars = 0;
@@ -2404,9 +2412,9 @@ int SLAPI replacestr(char * str, const char * rstr, size_t * pPos, size_t * pLen
 	if(str && pPos && pLen) {
 		size_t p = *pPos;
 		size_t len = *pLen;
-		size_t rl = rstr ? strlen(rstr) : 0;
+		size_t rl = sstrlen(rstr);
 		char * s  = str + p;
-		memmove(s + rl, s + len, strlen(s+len) + 1);
+		memmove(s + rl, s + len, sstrlen(s+len) + 1);
 		if(rl)
 			memmove(s, rstr, rl);
 		*pLen = rl;
@@ -2461,7 +2469,7 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 					if(dots_pos >= 0) {
 						ret_buf[dots_pos] = '\0';
 						strcat(ret_buf, p_dots);
-						dest_pos = dots_pos + strlen(p_dots) - 1;
+						dest_pos = dots_pos + sstrlen(p_dots) - 1;
 					}
 				}
 				else
@@ -2789,8 +2797,8 @@ int SLAPI ApproxStrCmp(const char * pStr1, const char * pStr2, int noCase, doubl
 int SLAPI ApproxStrSrch(const char * pPattern, const char * pBuffer, ApproxStrSrchParam * param)
 {
 	int    ok = 1;
-	size_t buflen = pBuffer ? strlen(pBuffer) : 0;
-	size_t patlen = pPattern ? strlen(pPattern) : 0;
+	size_t buflen = sstrlen(pBuffer);
+	size_t patlen = sstrlen(pPattern);
 	if(patlen == 0 && buflen == 0)
 		ok = 1;
 	else if(patlen == 0 || buflen == 0)

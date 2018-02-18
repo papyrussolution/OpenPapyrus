@@ -199,7 +199,7 @@ int __repmgr_site_list(DB_ENV * dbenv, uint * countp, DB_REPMGR_SITE ** listp)
 		if((int)i == db_rep->self_eid || site->membership == 0)
 			continue;
 		/* Make room for the NUL terminating byte. */
-		total_size += strlen(site->net_addr.host)+1;
+		total_size += sstrlen(site->net_addr.host)+1;
 		count++;
 	}
 	if(count == 0)
@@ -221,7 +221,7 @@ int __repmgr_site_list(DB_ENV * dbenv, uint * countp, DB_REPMGR_SITE ** listp)
 		status[i].eid = rep ? eid : DB_EID_INVALID;
 		status[i].host = name;
 		strcpy(name, site->net_addr.host);
-		name += strlen(name)+1;
+		name += sstrlen(name)+1;
 		status[i].port = site->net_addr.port;
 		status[i].flags = 0;
 		if(FLD_ISSET(site->config, DB_REPMGR_PEER))

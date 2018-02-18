@@ -1464,12 +1464,12 @@ int SLAPI PPObjGoods::Helper_SearchMaxLikeByBarcode(const char * pCode, PPID * p
 	InitConfig();
 	BarcodeTbl::Rec bc_rec;
 	int16  min_uniq_bc_len = (P_Cfg->MinUniqBcLen > 0) ? P_Cfg->MinUniqBcLen : 7;
-	size_t len = strlen(pCode);
+	size_t len = sstrlen(pCode);
 	const  int wp = P_Cfg->IsWghtPrefix(pCode);
 	if(wp == 1)
-		len -= strlen(P_Cfg->WghtPrefix);
+		len -= sstrlen(P_Cfg->WghtPrefix);
 	else if(wp == 2)
-		len -= strlen(P_Cfg->WghtCntPrefix);
+		len -= sstrlen(P_Cfg->WghtCntPrefix);
 	if(len >= (size_t)min_uniq_bc_len && SearchByBarcode(pCode, &bc_rec, 0, 0) > 0) {
 		ASSIGN_PTR(pID, bc_rec.GoodsID);
 		ok = 1;
@@ -2705,7 +2705,7 @@ int SLAPI PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFl
 			ReadBarcodes(id, bc_list);
 			if(bc_list.getCount()) {
 				for(uint i = 0; ok < 0 && i < bc_list.getCount(); i++)
-					if(len_list.bsearch(strlen(bc_list.at(i).Code)))
+					if(len_list.bsearch(sstrlen(bc_list.at(i).Code)))
 						ok = 1;
 			}
 			else if(len_list.bsearch(0))
@@ -3037,7 +3037,7 @@ int SLAPI PPObjGoods::CheckBarcodeList(const PPGoodsPacket * pPack)
 			InitConfig();
 			for(uint i = 0; ok && i < pPack->Codes.getCount(); i++) {
 				memzero(k, sizeof(k));
-				len = strlen(strip(STRNSCPY(k, pPack->Codes.at(i).Code)));
+				len = sstrlen(strip(STRNSCPY(k, pPack->Codes.at(i).Code)));
 				if(!(P_Cfg->Flags & GCF_BCNDIG))
 					for(p = k; *p && ok; p++)
 						THROW_PP((is_group_code && p == k && *p == '@') || (*p >= '0' && *p <= '9'), PPERR_INVBARCODE);
@@ -4234,7 +4234,7 @@ int SLAPI PPObjGoods::CheckSpecQuot(PPID supplID, PPID goodsID, PPID locID, PPID
 
 double SLAPI PPObjGoods::CalcLikeness(const Goods2Tbl::Rec * pRec1, const Goods2Tbl::Rec * pRec2, int * pSwap, long extra)
 {
-	int    swap = (strlen(pRec1->Name) > strlen(pRec2->Name)) ? 0 : 1;
+	int    swap = (sstrlen(pRec1->Name) > sstrlen(pRec2->Name)) ? 0 : 1;
 	double rate = 0.0;
 	ApproxStrCmp((swap) ? pRec2->Name : pRec1->Name, (swap) ? pRec1->Name : pRec2->Name, 1, &rate);
 	ASSIGN_PTR(pSwap, swap);

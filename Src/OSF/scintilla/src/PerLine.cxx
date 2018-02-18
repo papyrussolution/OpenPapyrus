@@ -449,10 +449,10 @@ void LineAnnotation::SetText(int line, const char * text)
 		if(annotations[line]) {
 			delete [] annotations[line];
 		}
-		annotations[line] = AllocateAnnotation(static_cast<int>(strlen(text)), style);
+		annotations[line] = AllocateAnnotation(static_cast<int>(sstrlen(text)), style);
 		AnnotationHeader * pah = reinterpret_cast<AnnotationHeader *>(annotations[line]);
 		pah->style = static_cast<short>(style);
-		pah->length = static_cast<int>(strlen(text));
+		pah->length = static_cast<int>(sstrlen(text));
 		pah->lines = static_cast<short>(NumberLines(text));
 		memcpy(annotations[line]+sizeof(AnnotationHeader), text, pah->length);
 	}

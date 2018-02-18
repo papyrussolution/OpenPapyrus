@@ -2194,7 +2194,7 @@ int DebtDimDialog::getDTS(PPDebtDimPacket * pData)
 	getCtrlData(CTL_DEBTDIM_ID, &Data.Rec.ID);
 	getCtrlData(CTL_DEBTDIM_SYMB, Data.Rec.Symb);
 	getCtrlData(CTL_DEBTDIM_NAME, Data.Rec.Name);
-	THROW_PP(strlen(Data.Rec.Name) > 0, PPERR_NAMENEEDED);
+	THROW_PP(sstrlen(Data.Rec.Name) > 0, PPERR_NAMENEEDED);
 	ASSIGN_PTR(pData, Data);
 	CATCHZOK
 	return ok;

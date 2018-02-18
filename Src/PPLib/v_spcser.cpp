@@ -314,7 +314,7 @@ int SpecSerDlg::getDTS(SpecSeries2Tbl::Rec * pData)
 	THROW_SL(checkdate(Data.AllowDate, 1));
 	getCtrlData(sel = CTL_SPCSER_BARCODE, Data.Barcode);
 	getCtrlData(sel = CTL_SPCSER_SERIAL, Data.Serial);
-	THROW_PP(strlen(Data.Serial) > 0, PPERR_SERIALNEEDED);
+	THROW_PP(sstrlen(Data.Serial) > 0, PPERR_SERIALNEEDED);
 	getCtrlString(sel = CTL_SPCSER_GOODSNAME, temp_buf.Z());
 	THROW_PP(temp_buf.NotEmptyS(), PPERR_GOODSNEEDED);
 	SpecSeriesCore::SetExField(&Data, SPCSNEXSTR_GOODSNAME, temp_buf);
@@ -478,9 +478,9 @@ int SLAPI PPViewSpecSeries::ImportUhtt()
 				rec.LabID = p_pack->LabID;
 				STRNSCPY(rec.Serial, p_pack->Serial);
 				STRNSCPY(rec.Barcode, p_pack->Barcode);
-				if(strlen(p_pack->GoodsName))
+				if(sstrlen(p_pack->GoodsName))
 					SpecSeriesCore::SetExField(&rec, SPCSNEXSTR_GOODSNAME, p_pack->GoodsName);
-				if(strlen(p_pack->ManufName))
+				if(sstrlen(p_pack->ManufName))
 					SpecSeriesCore::SetExField(&rec, SPCSNEXSTR_MANUFNAME, p_pack->ManufName);
 				strtodate(p_pack->InfoDate, DATF_YMD, &rec.InfoDate);
 				rec.InfoKind = p_pack->InfoKind;

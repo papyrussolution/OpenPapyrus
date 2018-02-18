@@ -249,7 +249,7 @@ static void ColouriseTCMDLine(char * lineBuffer,
 				// no further Regular Keyword Checking
 				continueProcessing = false;
 				sKeywordFound = true;
-				wbo = (Sci_PositionU)strlen(sKeywordBuffer);
+				wbo = (Sci_PositionU)sstrlen(sKeywordBuffer);
 
 				// Colorize Special Keyword as Regular Keyword
 				styler.ColourTo(startLine + offset - 1 - (wbl - wbo), SCE_TCMD_WORD);

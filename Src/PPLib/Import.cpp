@@ -1136,7 +1136,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 						if(rec.get(fldn_code, temp_buf, 1)) {
 							STRNSCPY(barcode, strupr(temp_buf));
 							if(subcode.Key >= 0 && subcode.Val > 1) {
-								size_t bclen = strlen(barcode);
+								size_t bclen = sstrlen(barcode);
 								if((size_t)subcode.Key < bclen) {
 									bclen = MIN((size_t)subcode.Val, bclen-subcode.Key);
 									memcpy(subc, barcode+subcode.Key, bclen);
@@ -1250,7 +1250,7 @@ int SLAPI PPObjGoods::ImportOld(int use_ta)
 										*p_v = 0;
 										phperu *= atof(val_buf);
 									}
-									size_t len = strlen(STRNSCPY(val_buf, strip(p)));
+									size_t len = sstrlen(STRNSCPY(val_buf, strip(p)));
 									if(val_buf[len] == '.') {
 										val_buf[len] = 0;
 										strip(val_buf);

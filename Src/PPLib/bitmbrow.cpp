@@ -1041,7 +1041,7 @@ SArray * BillItemBrowser::MakeList(PPBillPacket * pPack, int pckgPos)
 				GObj.P_Tbl->ReadBarcodes(labs(p_ti->GoodsID), bc_list);
 				for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
 					const BarcodeTbl::Rec & r_bc_rec = bc_list.at(bcidx);
-					if(strlen(r_bc_rec.Code) == 19)
+					if(sstrlen(r_bc_rec.Code) == 19)
 						has_egais_code = 1;
 				}
 				SETFLAG(item.Flags, BillGoodsBrwItem::fCodeWarn, !has_egais_code);
@@ -2654,7 +2654,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 								GObj.ReadBarcodes(r_ti.GoodsID, bc_list);
 								for(i = 0; i < bc_list.getCount(); i++) {
 									const BarcodeTbl::Rec & r_bc = bc_list.at(i);
-									if(strlen(r_bc.Code) == 19) {
+									if(sstrlen(r_bc.Code) == 19) {
 										ss_egais_codes.add(r_bc.Code);
 									}
 								}

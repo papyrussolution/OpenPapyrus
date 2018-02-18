@@ -243,7 +243,7 @@ static void pop3_get_message(char * buffer, char ** outptr)
 	for(message = buffer + 2; oneof2(*message, ' ', '\t'); message++)
 		;
 	// Find the end of the message
-	for(len = strlen(message); len--; )
+	for(len = sstrlen(message); len--; )
 		if(!oneof4(message[len], '\r', '\n', ' ', '\t'))
 			break;
 	// Terminate the message
@@ -387,8 +387,8 @@ static CURLcode pop3_perform_apop(struct connectdata * conn)
 	ctxt = Curl_MD5_init(Curl_DIGEST_MD5);
 	if(!ctxt)
 		return CURLE_OUT_OF_MEMORY;
-	Curl_MD5_update(ctxt, (const uchar*)pop3c->apoptimestamp, curlx_uztoui(strlen(pop3c->apoptimestamp)));
-	Curl_MD5_update(ctxt, (const uchar*)conn->passwd, curlx_uztoui(strlen(conn->passwd)));
+	Curl_MD5_update(ctxt, (const uchar*)pop3c->apoptimestamp, curlx_uztoui(sstrlen(pop3c->apoptimestamp)));
+	Curl_MD5_update(ctxt, (const uchar*)conn->passwd, curlx_uztoui(sstrlen(conn->passwd)));
 	// Finalise the digest 
 	Curl_MD5_final(ctxt, digest);
 	// Convert the calculated 16 octet digest into a 32 byte hex string 
@@ -528,7 +528,7 @@ static CURLcode pop3_state_servergreet_resp(struct connectdata * conn, int pop3c
 	struct Curl_easy * data = conn->data;
 	struct pop3_conn * pop3c = &conn->proto.pop3c;
 	const char * line = data->state.buffer;
-	size_t len = strlen(line);
+	size_t len = sstrlen(line);
 	size_t i;
 	(void)instate; /* no use for this yet */
 	if(pop3code != '+') {
@@ -570,7 +570,7 @@ static CURLcode pop3_state_capa_resp(struct connectdata * conn, int pop3code, po
 	struct Curl_easy * data = conn->data;
 	struct pop3_conn * pop3c = &conn->proto.pop3c;
 	const char * line = data->state.buffer;
-	size_t len = strlen(line);
+	size_t len = sstrlen(line);
 	size_t wordlen;
 	(void)instate; /* no use for this yet */
 	/* Do we have a untagged continuation response? */

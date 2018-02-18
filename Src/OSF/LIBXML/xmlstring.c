@@ -56,17 +56,17 @@ xmlChar * xmlStrndup(const xmlChar * cur, /*int*/SSIZE_T len)
  *
  * Returns a new xmlChar * or NULL
  */
-xmlChar * xmlStrdup_Removed(const xmlChar * cur) 
+/*xmlChar * xmlStrdup_Removed(const xmlChar * cur) 
 {
 	if(!cur) 
 		return 0;
 	else {
 		const xmlChar * p = cur;
 		while(*p != 0) 
-			p++;  /* non input consuming */
+			p++;  // non input consuming 
 		return xmlStrndup(cur, p - cur);
 	}
-}
+}*/
 /**
  * xmlCharStrndup:
  * @cur:  the input char *
@@ -122,7 +122,7 @@ xmlChar * xmlCharStrdup(const char * cur)
  */
 int xmlStrcmp(const xmlChar * str1, const xmlChar * str2) 
 {
-	register int tmp;
+	int tmp;
 	if(str1 == str2) return 0;
 	if(str1 == NULL) return -1;
 	if(str2 == NULL) return 1;
@@ -170,11 +170,13 @@ int xmlStrQEqual(const xmlChar * pref, const xmlChar * name, const xmlChar * str
 	if(!name) return 0;
 	if(!str) return 0;
 	do {
-		if(*pref++ != *str) return 0;
+		if(*pref++ != *str) 
+			return 0;
 	} while((*str++) && (*pref));
 	if(*str++ != ':') return 0;
 	do {
-		if(*name++ != *str) return 0;
+		if(*name++ != *str) 
+			return 0;
 	} while(*str++);
 	return 1;
 }

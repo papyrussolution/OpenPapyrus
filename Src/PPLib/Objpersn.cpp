@@ -198,7 +198,7 @@ int SLAPI VCard::Open(const char * pFileName, int forExport)
 {
 	int    ok = -1;
 	Close();
-	if(pFileName && strlen(pFileName)) {
+	if(pFileName && sstrlen(pFileName)) {
 		Export = forExport;
 		THROW_MEM(P_Stream = new SFile(pFileName, (Export) ? SFile::mWrite : SFile::mRead));
 		THROW_SL(P_Stream->IsValid());
@@ -556,7 +556,7 @@ int ExtFldCfgDialog::getDTS(TaggedString * pData)
 	getCtrlData(sel = CTL_EXTFLDCFG_ID,  &Data.Id);
 	THROW_PP(Data.Id > LOCEXSTR_EXTFLDSOFFS && Data.Id <= LOCEXSTR_EXTFLDSOFFS + MAX_DLVRADDRFLDS, PPERR_INVEXTFLDIDRANGE);
 	getCtrlData(sel = CTL_EXTFLDCFG_NAME, Data.Txt);
-	THROW_PP(strlen(Data.Txt) > 0, PPERR_USERINPUT);
+	THROW_PP(sstrlen(Data.Txt) > 0, PPERR_USERINPUT);
 	ASSIGN_PTR(pData, Data);
 	CATCH
 		ok = (selectCtrl(sel), 0);

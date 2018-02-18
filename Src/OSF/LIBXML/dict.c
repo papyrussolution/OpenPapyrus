@@ -734,7 +734,7 @@ const xmlChar * FASTCALL xmlDictLookup(xmlDict * dict, const xmlChar * name, int
 	uint l;
 	if(!dict || !name)
 		return 0;
-	l = (len < 0) ? strlen((const char*)name) : len;
+	l = (len < 0) ? sstrlen(name) : len;
 	if(((dict->limit > 0) && (l >= dict->limit)) || (l > INT_MAX / 2))
 		return 0;
 	// 
@@ -844,10 +844,7 @@ const xmlChar * xmlDictExists(xmlDict * dict, const xmlChar * name, int len)
 	uint l;
 	if((dict == NULL) || (name == NULL))
 		return 0;
-	if(len < 0)
-		l = strlen((const char*)name);
-	else
-		l = len;
+	l = (len < 0) ? sstrlen(name) : len;
 	if(((dict->limit > 0) && (l >= dict->limit)) || (l > INT_MAX / 2))
 		return 0;
 	/*
@@ -938,8 +935,8 @@ const xmlChar * xmlDictQLookup(xmlDict * dict, const xmlChar * prefix, const xml
 		return 0;
 	if(!prefix)
 		return xmlDictLookupSL(dict, name);
-	l = len = strlen((const char*)name);
-	plen = strlen((const char*)prefix);
+	l = len = sstrlen(name);
+	plen = sstrlen(prefix);
 	len += 1 + plen;
 	/*
 	 * Check for duplicate and insertion location.

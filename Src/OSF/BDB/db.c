@@ -146,7 +146,7 @@ int __db_master_update(DB * mdbp, DB * sdbp, DB_THREAD_INFO * ip, DB_TXN * txn, 
 	 * !!!
 	 * We don't include the name's nul termination in the database.
 	 */
-	DB_INIT_DBT(key, subdb, strlen(subdb));
+	DB_INIT_DBT(key, subdb, sstrlen(subdb));
 	memzero(&data, sizeof(data));
 	F_SET(&data, DB_DBT_MALLOC);
 	ret = __dbc_get(dbc, &key, &data, DB_SET|((STD_LOCKING(dbc) && modify) ? DB_RMW : 0));
@@ -211,7 +211,7 @@ int __db_master_update(DB * mdbp, DB * sdbp, DB_THREAD_INFO * ip, DB_TXN * txn, 
 		 */
 		if((ret = __db_cursor(mdbp, ip, txn, &ndbc, CDB_LOCKING(env) ? DB_WRITECURSOR : 0)) != 0)
 			goto err;
-		DB_SET_DBT(key, newname, strlen(newname));
+		DB_SET_DBT(key, newname, sstrlen(newname));
 
 		/*
 		 * We don't actually care what the meta page of the potentially-
@@ -1094,7 +1094,7 @@ int __db_backup_name(ENV * env, const char * name, DB_TXN * txn, char ** backup)
 	 * we allocate enough space for it, even in the case where we don't
 	 * use the entire filename for the backup name.
 	 */
-	len = strlen(name)+strlen(BACKUP_PREFIX)+2*MAX_INT_TO_HEX+1;
+	len = sstrlen(name)+sstrlen(BACKUP_PREFIX)+2*MAX_INT_TO_HEX+1;
 	if((ret = __os_malloc(env, len, &retp)) != 0)
 		return ret;
 	/*
@@ -1217,7 +1217,7 @@ int __db_testdocopy(ENV * env, const char * name)
 	 * Allocate space for the file name, including adding an ".afterop" and
 	 * trailing nul byte.
 	 */
-	len = strlen(real_name)+sizeof(".afterop");
+	len = sstrlen(real_name)+sizeof(".afterop");
 	if((ret = __os_malloc(env, len, &copy)) != 0)
 		goto err;
 	snprintf(copy, len, "%s.afterop", real_name);
@@ -1260,7 +1260,7 @@ int __db_testdocopy(ENV * env, const char * name)
 			goto err;
 		__os_free(env, copy);
 		copy = NULL;
-		len = strlen(real_name)+sizeof(".afterop");
+		len = sstrlen(real_name)+sizeof(".afterop");
 		if((ret = __os_malloc(env, len, &copy)) != 0)
 			goto err;
 		snprintf(copy, len, "%s.afterop", real_name);

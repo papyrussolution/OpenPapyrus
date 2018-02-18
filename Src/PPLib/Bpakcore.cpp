@@ -3659,7 +3659,7 @@ int FASTCALL PPBillPacket::InitAmounts(const AmtList * pList)
 		if(r > 0 && amt_formula.NotEmptyS()) {
 			const char * p_ignfix = "ignfix";
 			if(amt_formula.CmpPrefix(p_ignfix, 1) == 0) {
-				amt_formula.ShiftLeft(strlen(p_ignfix));
+				amt_formula.ShiftLeft(sstrlen(p_ignfix));
 				do_calc_amount = 1;
 			}
 			if(do_calc_amount && amt_formula.NotEmptyS()) {

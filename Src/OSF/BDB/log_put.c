@@ -1083,7 +1083,7 @@ static int __log_file(ENV * env, const DB_LSN * lsn, char * namep, size_t len)
 	if(ret != 0)
 		return ret;
 	/* Check to make sure there's enough room and copy the name. */
-	if(len < strlen(name)+1) {
+	if(len < sstrlen(name)+1) {
 		*namep = '\0';
 		__db_errx(env, DB_STR("2519", "DB_ENV->log_file: name buffer is too short"));
 		return EINVAL;

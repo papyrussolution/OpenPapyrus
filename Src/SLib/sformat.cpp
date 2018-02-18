@@ -50,7 +50,7 @@ char * FASTCALL _commfmt(long fmt, char * pBuf)
 {
 	const size_t len = SFMTLEN(fmt);
 	if(len > 0) {
-		const size_t src_len = strlen(pBuf);
+		const size_t src_len = sstrlen(pBuf);
 		if(src_len > len) {
 			if(SFMTFLAG(fmt) & COMF_FILLOVF)
 				memset(pBuf, DEFAULT_OVERFLOW_SYMB, len);
@@ -135,7 +135,7 @@ char * SLAPI strfmt(const char * str, long fmt, char * buf)
 		if(flag & STRF_PASSWORD)
 			strset(buf, DEFAULT_PASSWORD_SYMB);
 		if(flag & COMF_SQL) {
-			const size_t len = strlen(buf);
+			const size_t len = sstrlen(buf);
 			buf[len] = '\'';
 			buf[len+1] = 0;
 		}
@@ -263,17 +263,17 @@ char * FASTCALL _datefmt(int day, int mon, int year, int style, char * pBuf)
 			memswap(sd, sy, sizeof(sd));
 		{
 			size_t p = 0;
-			size_t len = strlen(sd);
+			size_t len = sstrlen(sd);
 			memcpy(pBuf+p, sd, len);
 			p += len;
 			if(!(style & DATF_NODIV))
 				pBuf[p++] = div;
-			len = strlen(sm);
+			len = sstrlen(sm);
 			memcpy(pBuf+p, sm, len);
 			p += len;
 			if(!(style & DATF_NODIV))
 				pBuf[p++] = div;
-			len = strlen(sy);
+			len = sstrlen(sy);
 			memcpy(pBuf+p, sy, len);
 			p += len;
 			pBuf[p++] = 0;
@@ -313,12 +313,12 @@ char * FASTCALL periodfmt(const DateRange * pPeriod, char * pBuf)
 	else
 		beg = end = ZERODATE;
 	if(beg)
-		p += strlen(datefmt(&beg, DATF_DMY|DATF_CENTURY, p));
+		p += sstrlen(datefmt(&beg, DATF_DMY|DATF_CENTURY, p));
 	if(beg != end) {
 		*p++ = '.';
 		*p++ = '.';
 		if(end)
-			p += strlen(datefmt(&end, DATF_DMY|DATF_CENTURY, p));
+			p += sstrlen(datefmt(&end, DATF_DMY|DATF_CENTURY, p));
 	}
 	*p = 0;
 	return pBuf;
@@ -343,13 +343,13 @@ int SLAPI periodfmtex(const DateRange * pPeriod, char * pBuf, size_t bufLen)
 				itoa(y2, p, 10);
 			}
 			else if(y2 == 0) {
-				p += strlen(itoa(y1, p, 10));
+				p += sstrlen(itoa(y1, p, 10));
 				*p++ = '.';
 				*p++ = '.';
 				*p++ = 0;
 			}
 			else {
-				p += strlen(itoa(y1, p, 10));
+				p += sstrlen(itoa(y1, p, 10));
 				*p++ = '.';
 				*p++ = '.';
 				itoa(y2, p, 10);
@@ -423,10 +423,10 @@ char * SLAPI timefmt(LTIME t, long fmt, char * pBuf)
 				break;
 		}
 		if(fmt & TIMF_MSEC)
-			sprintf(pBuf + strlen(pBuf), ".%03d", t.hs()*10);
+			sprintf(pBuf + sstrlen(pBuf), ".%03d", t.hs()*10);
 		if(fmt & TIMF_TIMEZONE) {
 			int    tz = gettimezone();
-			char * p = pBuf + strlen(pBuf);
+			char * p = pBuf + sstrlen(pBuf);
 			*p++ = ' ';
 			*p++ = ((tz < 0) ? '+' : '-');
 			tz = abs(tz);
@@ -450,7 +450,7 @@ char * SLAPI datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, siz
 	else {
 		char * p = temp_buf;
 		datefmt(&dtm.d, dtfmt, p);
-		p += strlen(p);
+		p += sstrlen(p);
 		*p++ = ' ';
 		timefmt(dtm.t, tmfmt, p);
 	}
@@ -563,7 +563,7 @@ char * SLAPI decfmt(BCD_T val, int len, int prec, long fmt, char * pBuf)
 	c = strchr(s, '.');
 	if(c)
 		strcpy(c, c + 1);
-	return fmtnumber(s, strlen(s) - prec, sign, fmt, pBuf);
+	return fmtnumber(s, sstrlen(s) - prec, sign, fmt, pBuf);
 }
 
 char * SLAPI realfmt(double val, long fmt, char * pBuf)
@@ -593,7 +593,7 @@ char * SLAPI realfmt(double val, long fmt, char * pBuf)
 		}
 		SETSFMTPRC(fmt, prc);
 		if(val != 0.0 && SFMTFLAG(fmt) & NMBF_OMITEPS) {
-			const uint _len = strlen(str);
+			const uint _len = sstrlen(str);
 			uint   c_0 = 0; // количество '0'
 			uint   c_9 = 0; // количество '9'
 			uint   last_n09_pos = 0; // Позиция последней цифры, не являющейся '0' или '9'
@@ -644,28 +644,28 @@ char * SLAPI intfmt(long val, long fmt, char * pBuf)
 {
 	char   s[64];
 	ltoa(labs(val), s, 10);
-	return fmtnumber(s, strlen(s), val < 0, fmt, pBuf);
+	return fmtnumber(s, sstrlen(s), val < 0, fmt, pBuf);
 }
 
 char * SLAPI int64fmt(int64 val, long fmt, char * pBuf)
 {
 	char   s[64];
 	_i64toa(_abs64(val), s, 10);
-	return fmtnumber(s, strlen(s), val < 0, fmt, pBuf);
+	return fmtnumber(s, sstrlen(s), val < 0, fmt, pBuf);
 }
 
 char * SLAPI uintfmt(ulong val, long fmt, char * pBuf)
 {
 	char   s[64];
 	ultoa(val, s, 10);
-	return fmtnumber(s, strlen(s), 0, fmt, pBuf);
+	return fmtnumber(s, sstrlen(s), 0, fmt, pBuf);
 }
 
 char * SLAPI uint64fmt(uint64 val, long fmt, char * pBuf)
 {
 	char   s[64];
 	_ui64toa(val, s, 10);
-	return fmtnumber(s, strlen(s), 0, fmt, pBuf);
+	return fmtnumber(s, sstrlen(s), 0, fmt, pBuf);
 }
 
 // @v9.4.3 #pragma warn -pia

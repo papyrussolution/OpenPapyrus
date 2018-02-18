@@ -179,7 +179,7 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data,
 #endif
 
 	/* Decode the base-64 encoded type-2 message */
-	if(strlen(type2msg) && *type2msg != '=') {
+	if(sstrlen(type2msg) && *type2msg != '=') {
 		result = Curl_base64_decode(type2msg, &type2, &type2_len);
 		if(result)
 			return result;

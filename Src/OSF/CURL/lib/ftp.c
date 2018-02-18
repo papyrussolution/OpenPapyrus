@@ -779,11 +779,11 @@ static CURLcode ftp_state_use_port(struct connectdata * conn, /*ftpport*/int fcm
 	 * accepted format :
 	 * (ipv4|ipv6|domain|interface)?(:port(-range)?)?
 	 */
-	if(data->set.str[STRING_FTPPORT] && (strlen(data->set.str[STRING_FTPPORT]) > 1)) {
+	if(data->set.str[STRING_FTPPORT] && (sstrlen(data->set.str[STRING_FTPPORT]) > 1)) {
 #ifdef ENABLE_IPV6
-		size_t addrlen = INET6_ADDRSTRLEN > strlen(string_ftpport) ? INET6_ADDRSTRLEN : strlen(string_ftpport);
+		size_t addrlen = INET6_ADDRSTRLEN > sstrlen(string_ftpport) ? INET6_ADDRSTRLEN : sstrlen(string_ftpport);
 #else
-		size_t addrlen = INET_ADDRSTRLEN > strlen(string_ftpport) ? INET_ADDRSTRLEN : strlen(string_ftpport);
+		size_t addrlen = INET_ADDRSTRLEN > sstrlen(string_ftpport) ? INET_ADDRSTRLEN : sstrlen(string_ftpport);
 #endif
 		char * ip_start = string_ftpport;
 		char * ip_end = NULL;
@@ -1211,7 +1211,7 @@ static CURLcode ftp_state_list(struct connectdata * conn)
 			return CURLE_OUT_OF_MEMORY;
 
 		/* Check if path does not end with /, as then we cut off the file part */
-		if(lstArg[strlen(lstArg) - 1] != '/') {
+		if(lstArg[sstrlen(lstArg) - 1] != '/') {
 			/* chop off the file part if format is dir/dir/file */
 			slashPos = strrchr(lstArg, '/');
 			if(slashPos)
@@ -2687,7 +2687,7 @@ static CURLcode ftp_done(struct connectdata * conn, CURLcode status, bool premat
 	}
 	else {
 		size_t flen = sstrlen(ftpc->file); /* file is "raw" already */
-		size_t dlen = strlen(path)-flen;
+		size_t dlen = sstrlen(path)-flen;
 		if(!ftpc->cwdfail) {
 			if(dlen && (data->set.ftp_filemethod != FTPFILE_NOCWD)) {
 				ftpc->prevpath = path;
@@ -3345,7 +3345,7 @@ CURLcode Curl_ftpsend(struct connectdata * conn, const char * cmd)
 #ifdef HAVE_GSSAPI
 	enum protection_level data_sec = conn->data_prot;
 #endif
-	size_t write_len = strlen(cmd);
+	size_t write_len = sstrlen(cmd);
 	if(write_len > (sizeof(s) -3))
 		return CURLE_BAD_FUNCTION_ARGUMENT;
 	strcpy(&s[write_len], "\r\n"); /* append a trailing CRLF */
@@ -3475,7 +3475,7 @@ static CURLcode ftp_parse_url_path(struct connectdata * conn)
 		       the first condition in the if() right here, is there just in case
 		       someone decides to set path to NULL one day
 		     */
-		    if(path_to_use[0] && (path_to_use[strlen(path_to_use) - 1] != '/') )
+		    if(path_to_use[0] && (path_to_use[sstrlen(path_to_use) - 1] != '/') )
 			    filename = path_to_use;  /* this is a full file path */
 		    /*
 		       else {
@@ -3603,7 +3603,7 @@ static CURLcode ftp_parse_url_path(struct connectdata * conn)
 			return result;
 		}
 		dlen -= sstrlen(ftpc->file);
-		if((dlen == strlen(ftpc->prevpath)) && !strncmp(path, ftpc->prevpath, dlen)) {
+		if((dlen == sstrlen(ftpc->prevpath)) && !strncmp(path, ftpc->prevpath, dlen)) {
 			infof(data, "Request has same path as previous transfer\n");
 			ftpc->cwddone = TRUE;
 		}

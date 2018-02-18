@@ -171,7 +171,7 @@ CURLcode Curl_SOCKS4(const char * proxy_name, const char * hostname, int remote_
 	 */
 	socksreq[8] = 0; /* ensure empty userid is NUL-terminated */
 	if(proxy_name) {
-		size_t plen = strlen(proxy_name);
+		size_t plen = sstrlen(proxy_name);
 		if(plen >= sizeof(socksreq) - 8) {
 			failf(data, "Too long SOCKS proxy name, can't use!\n");
 			return CURLE_COULDNT_CONNECT;
@@ -187,9 +187,7 @@ CURLcode Curl_SOCKS4(const char * proxy_name, const char * hostname, int remote_
 		ssize_t actualread;
 		ssize_t written;
 		ssize_t hostnamelen = 0;
-		int packetsize = 9 +
-		    (int)strlen((char*)socksreq + 8); /* size including NUL */
-
+		int packetsize = 9 + (int)sstrlen((char*)socksreq + 8); /* size including NUL */
 		/* If SOCKS4a, set special invalid IP address 0.0.0.x */
 		if(protocol4a) {
 			socksreq[4] = 0;
@@ -197,42 +195,34 @@ CURLcode Curl_SOCKS4(const char * proxy_name, const char * hostname, int remote_
 			socksreq[6] = 0;
 			socksreq[7] = 1;
 			/* If still enough room in buffer, also append hostname */
-			hostnamelen = (ssize_t)strlen(hostname) + 1; /* length including NUL */
+			hostnamelen = (ssize_t)sstrlen(hostname) + 1; /* length including NUL */
 			if(packetsize + hostnamelen <= SOCKS4REQLEN)
 				strcpy((char*)socksreq + packetsize, hostname);
 			else
 				hostnamelen = 0;  /* Flag: hostname did not fit in buffer */
 		}
-
 		/* Send request */
-		code = Curl_write_plain(conn, sock, (char*)socksreq,
-		    packetsize + hostnamelen,
-		    &written);
+		code = Curl_write_plain(conn, sock, (char*)socksreq, packetsize + hostnamelen, &written);
 		if(code || (written != packetsize + hostnamelen)) {
 			failf(data, "Failed to send SOCKS4 connect request.");
 			return CURLE_COULDNT_CONNECT;
 		}
 		if(protocol4a && hostnamelen == 0) {
 			/* SOCKS4a with very long hostname - send that name separately */
-			hostnamelen = (ssize_t)strlen(hostname) + 1;
-			code = Curl_write_plain(conn, sock, (char*)hostname, hostnamelen,
-			    &written);
+			hostnamelen = (ssize_t)sstrlen(hostname) + 1;
+			code = Curl_write_plain(conn, sock, (char*)hostname, hostnamelen, &written);
 			if(code || (written != hostnamelen)) {
 				failf(data, "Failed to send SOCKS4 connect request.");
 				return CURLE_COULDNT_CONNECT;
 			}
 		}
-
 		packetsize = 8; /* receive data size */
-
 		/* Receive response */
-		result = Curl_blockread_all(conn, sock, (char*)socksreq, packetsize,
-		    &actualread);
+		result = Curl_blockread_all(conn, sock, (char*)socksreq, packetsize, &actualread);
 		if(result || (actualread != packetsize)) {
 			failf(data, "Failed to receive SOCKS4 connect request ack.");
 			return CURLE_COULDNT_CONNECT;
 		}
-
 		/*
 		 * Response format
 		 *
@@ -251,13 +241,11 @@ CURLcode Curl_SOCKS4(const char * proxy_name, const char * hostname, int remote_
 		 * 93: request rejected because the client program and identd
 		 *     report different user-ids
 		 */
-
 		/* wrong version ? */
 		if(socksreq[0] != 0) {
 			failf(data, "SOCKS4 reply has wrong version, version should be 4.");
 			return CURLE_COULDNT_CONNECT;
 		}
-
 		/* Result */
 		switch(socksreq[1]) {
 			case 90:
@@ -320,7 +308,7 @@ CURLcode Curl_SOCKS5(const char * proxy_name, const char * proxy_password, const
 	struct Curl_easy * data = conn->data;
 	time_t timeout;
 	bool socks5_resolve_local = (conn->socks_proxy.proxytype == CURLPROXY_SOCKS5) ? TRUE : FALSE;
-	const size_t hostname_len = strlen(hostname);
+	const size_t hostname_len = sstrlen(hostname);
 	ssize_t len = 0;
 	if(conn->bits.httpproxy)
 		infof(conn->data, "SOCKS5: connecting to HTTP proxy %s port %d\n", hostname, remote_port);
@@ -362,22 +350,15 @@ CURLcode Curl_SOCKS5(const char * proxy_name, const char * proxy_password, const
 	socksreq[2] = 0; /* no authentication */
 	socksreq[3] = 2; /* username/password */
 #endif
-
 	(void)curlx_nonblock(sock, FALSE);
-
 	infof(data, "SOCKS5 communication to %s:%d\n", hostname, remote_port);
-
-	code = Curl_write_plain(conn, sock, (char*)socksreq, (2 + (int)socksreq[1]),
-	    &written);
+	code = Curl_write_plain(conn, sock, (char*)socksreq, (2 + (int)socksreq[1]), &written);
 	if(code || (written != (2 + (int)socksreq[1]))) {
 		failf(data, "Unable to send initial SOCKS5 request.");
 		return CURLE_COULDNT_CONNECT;
 	}
-
 	(void)curlx_nonblock(sock, TRUE);
-
 	result = SOCKET_READABLE(sock, timeout);
-
 	if(-1 == result) {
 		failf(conn->data, "SOCKS5 nothing to read");
 		return CURLE_COULDNT_CONNECT;
@@ -386,20 +367,16 @@ CURLcode Curl_SOCKS5(const char * proxy_name, const char * proxy_password, const
 		failf(conn->data, "SOCKS5 read timeout");
 		return CURLE_OPERATION_TIMEDOUT;
 	}
-
 	if(result & CURL_CSELECT_ERR) {
 		failf(conn->data, "SOCKS5 read error occurred");
 		return CURLE_RECV_ERROR;
 	}
-
 	(void)curlx_nonblock(sock, FALSE);
-
 	result = Curl_blockread_all(conn, sock, (char*)socksreq, 2, &actualread);
 	if(result || (actualread != 2)) {
 		failf(data, "Unable to receive initial SOCKS5 response.");
 		return CURLE_COULDNT_CONNECT;
 	}
-
 	if(socksreq[0] != 5) {
 		failf(data, "Received invalid version in initial SOCKS5 response.");
 		return CURLE_COULDNT_CONNECT;
@@ -421,8 +398,8 @@ CURLcode Curl_SOCKS5(const char * proxy_name, const char * proxy_password, const
 		/* Needs user name and password */
 		size_t proxy_name_len, proxy_password_len;
 		if(proxy_name && proxy_password) {
-			proxy_name_len = strlen(proxy_name);
-			proxy_password_len = strlen(proxy_password);
+			proxy_name_len = sstrlen(proxy_name);
+			proxy_password_len = sstrlen(proxy_password);
 		}
 		else {
 			proxy_name_len = 0;

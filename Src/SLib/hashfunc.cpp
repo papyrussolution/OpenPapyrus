@@ -857,7 +857,7 @@ SLTEST_R(HashFunction)
 		}
 	}
 	const char * p_key = "abcdefghijklmnopqrstuvwxyz1234567890";
-	const size_t key_size = strlen(p_key);
+	const size_t key_size = sstrlen(p_key);
 	uint32 h;
 	//SString msg;
 	SLTEST_CHECK_EQ(h = RSHash(p_key, key_size), 4097835502);
@@ -987,7 +987,7 @@ SLTEST_R(HashFunction)
 			// На одних данных BobJencHash_Little и BobJencHash_Word должны выдавать один результат
 			//
 			const char * p_data = "The procedure mandelbrot determines whether a point [x, y] in the complex domain is part of the famous Mandelbrot set by determining whether it leaves a certain radius after a given number of iterations";
-			size_t len = strlen(p_data);
+			size_t len = sstrlen(p_data);
 			len = (len >> 2) << 2; // Усекаем размер до кратного 4.
 			SLTEST_CHECK_EQ(BobJencHash_Little(p_data, len, 0xdeadbeef), BobJencHash_Word((uint32 *)p_data, len / 4, 0xdeadbeef));
 		}

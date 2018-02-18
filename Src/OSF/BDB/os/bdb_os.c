@@ -138,10 +138,8 @@ void FASTCALL __os_ufree(ENV * env, void * ptr)
 	}
 }
 /*
- * __os_strdup --
  *	The strdup(3) function for DB.
  *
- * PUBLIC: int __os_strdup __P((ENV *, const char *, void *));
  */
 int __os_strdup(ENV * env, const char * str, void * storep)
 {
@@ -149,7 +147,7 @@ int __os_strdup(ENV * env, const char * str, void * storep)
 	int ret;
 	void * p;
 	*(void **)storep = NULL;
-	size = strlen(str)+1;
+	size = sstrlen(str)+1;
 	if((ret = __os_malloc(env, size, &p)) != 0)
 		return ret;
 	memcpy(p, str, size);
@@ -621,7 +619,7 @@ found:                  return __os_strdup(env, tdir, &dbenv->db_tmp_dir);
 			FROM_TSTRING(env, tpath, path, ret);
 			if(ret != 0)
 				return ret;
-			eos = path+strlen(path)-1;
+			eos = path+sstrlen(path)-1;
 			if(*eos == '\\' || *eos == '/')
 				*eos = '\0';
 			if(__os_exists(env, path, &isdir) == 0 && isdir) {

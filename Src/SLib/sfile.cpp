@@ -1616,7 +1616,7 @@ int FASTCALL SFile::WriteLine(const char * pBuf)
 		char   temp_buf[16];
 		size_t size_to_write = 0;
 		if(pBuf) {
-			size_to_write = strlen(pBuf);
+			size_to_write = sstrlen(pBuf);
 		}
 		else {
 			if(Mode & mBinary) {
@@ -1666,7 +1666,7 @@ int FASTCALL SFile::ReadLine(SString & rBuf)
 			char * p = 0;
 			while((p = fgets(LB, LB.GetSize(), F)) != 0) {
 				rBuf.Cat(LB);
-				size_t len = strlen(LB);
+				size_t len = sstrlen(LB);
 				if(LB[len-1] == '\n' || (LB[len-2] == 0x0D && LB[len-1] == 0x0A))
 					break;
 			}

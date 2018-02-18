@@ -531,7 +531,7 @@ cksum:
 			blen = 0;
 			for(i = 0; i < DB_MAC_KEY && blen < 256; i++) {
 				ch = hdr.chksum[i];
-				blen = strlen(chksumbuf);
+				blen = sstrlen(chksumbuf);
 				snprintf(chksumbuf+blen, 255-blen, isprint(ch) || ch == 0x0a ? "%c" : "%#x ", ch);
 			}
 			// Type field is always the first one in the record

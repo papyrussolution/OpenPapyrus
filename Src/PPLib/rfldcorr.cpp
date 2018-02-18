@@ -561,7 +561,7 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 			(rec_prefx = InrRec.Name).ToUpper().CatChar('@');
 			temp_buf = rName;
 			if(temp_buf.CmpPrefix(p_prefix_imp, 1) == 0 || temp_buf.CmpPrefix(p_prefix_exp, 1) == 0)
-				temp_buf.ShiftLeft(strlen(Direction ? p_prefix_imp : p_prefix_exp)+1);
+				temp_buf.ShiftLeft(sstrlen(Direction ? p_prefix_imp : p_prefix_exp)+1);
 			if(temp_buf.CmpPrefix(rec_prefx, 1) == 0)
 				temp_buf.ShiftLeft(rec_prefx.Len());
 			rName = temp_buf;
@@ -572,7 +572,7 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 			temp_buf  = rName;
 			ok = 0;
 			if(temp_buf.CmpPrefix(p_prefix_imp, 1) == 0 || temp_buf.CmpPrefix(p_prefix_exp, 1) == 0) {
-				temp_buf.ShiftLeft(strlen(Direction ? p_prefix_imp : p_prefix_exp)+1);
+				temp_buf.ShiftLeft(sstrlen(Direction ? p_prefix_imp : p_prefix_exp)+1);
 				if(temp_buf.CmpPrefix(rec_prefx, 1) == 0)
 					ok = 1;
 			}
@@ -1343,7 +1343,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 					PPID user_id = 0;
 					if(obj_user_acc.SearchByName(ImpExpParamDll.Login, &user_id, &user_acc)) {
 						if(!ImpExpParamDll.Login.CmpNC(user_acc.Name)) {
-							Reference::Decrypt(Reference::crymRef2, user_acc.Password, strlen(user_acc.Password), pwd);
+							Reference::Decrypt(Reference::crymRef2, user_acc.Password, sstrlen(user_acc.Password), pwd);
 							ImpExpParamDll.Password.CopyFrom(pwd);
 						}
 					}

@@ -45,7 +45,7 @@
 CURLcode Curl_auth_decode_cram_md5_message(const char * chlg64, char ** outptr, size_t * outlen)
 {
 	CURLcode result = CURLE_OK;
-	size_t chlg64len = strlen(chlg64);
+	size_t chlg64len = sstrlen(chlg64);
 	*outptr = NULL;
 	*outlen = 0;
 	// Decode the challenge if necessary 
@@ -76,7 +76,7 @@ CURLcode Curl_auth_create_cram_md5_message(struct Curl_easy * data,
 {
 	CURLcode result = CURLE_OK;
 	// Compute the digest using the password as the key 
-	HMAC_context * ctxt = Curl_HMAC_init(Curl_HMAC_MD5, (const uchar*)passwdp, curlx_uztoui(strlen(passwdp)));
+	HMAC_context * ctxt = Curl_HMAC_init(Curl_HMAC_MD5, (const uchar*)passwdp, curlx_uztoui(sstrlen(passwdp)));
 	if(!ctxt)
 		result = CURLE_OUT_OF_MEMORY;
 	else {

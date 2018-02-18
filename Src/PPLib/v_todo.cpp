@@ -49,7 +49,7 @@ int SLAPI VCalendar::Open(const char * pFileName, int forExport)
 {
 	int    ok = -1;
 	Close();
-	if(pFileName && strlen(pFileName)) {
+	if(pFileName && sstrlen(pFileName)) {
 		Export = forExport;
 		THROW_MEM(P_Stream = new SFile(pFileName, (Export) ? SFile::mWrite : SFile::mRead));
 		if(P_Stream->IsValid()) {
@@ -1878,12 +1878,12 @@ int SLAPI PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 						if(col > 0 && h == col) {
 							PrjTaskTbl::Rec  pt_rec;
 							ok = -1;
-							if(id && TodoObj.Search(id, &pt_rec) > 0 && (strlen(pt_rec.Descr) > 0 || strlen(pt_rec.Memo) > 0)) {
+							if(id && TodoObj.Search(id, &pt_rec) > 0 && (sstrlen(pt_rec.Descr) > 0 || sstrlen(pt_rec.Memo) > 0)) {
 								long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
 									SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;
 								SString buf;
 								(buf = pt_rec.Descr).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
-								if(strlen(pt_rec.Memo) > 0) {
+								if(sstrlen(pt_rec.Memo) > 0) {
 									SString word, memo;
 									PPLoadString("memo", word);
 									word.CatChar(':').CatChar('\n');

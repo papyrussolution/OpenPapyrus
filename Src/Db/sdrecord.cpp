@@ -610,7 +610,7 @@ int SdRecord::SearchName(const char * pName, uint * pPos, uint excludePos) const
 	if(!isempty(pName)) {
 		F * p_item;
 		SString temp_buf;
-		const int is_ascii_ = sisascii(pName, strlen(pName));
+		const int is_ascii_ = sisascii(pName, sstrlen(pName));
 		for(uint i = 0; Items.enumItems(&i, (void **)&p_item);) {
 			if((i-1) != excludePos) {
 				StringPool.get(p_item->NamePos, temp_buf);

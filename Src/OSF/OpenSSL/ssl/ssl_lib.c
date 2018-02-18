@@ -862,65 +862,63 @@ void SSL_certs_clear(SSL * s)
 
 void SSL_free(SSL * s)
 {
-	int i;
-	if(s == NULL)
-		return;
-	CRYPTO_atomic_add(&s->references, -1, &i, s->lock);
-	REF_PRINT_COUNT("SSL", s);
-	if(i > 0)
-		return;
-	REF_ASSERT_ISNT(i < 0);
-	X509_VERIFY_PARAM_free(s->param);
-	dane_final(&s->dane);
-	CRYPTO_free_ex_data(CRYPTO_EX_INDEX_SSL, s, &s->ex_data);
-
-	ssl_free_wbio_buffer(s);
-	BIO_free_all(s->wbio);
-	BIO_free_all(s->rbio);
-	BUF_MEM_free(s->init_buf);
-	/* add extra stuff */
-	sk_SSL_CIPHER_free(s->cipher_list);
-	sk_SSL_CIPHER_free(s->cipher_list_by_id);
-	/* Make the next call work :-) */
-	if(s->session) {
-		ssl_clear_bad_session(s);
-		SSL_SESSION_free(s->session);
-	}
-	clear_ciphers(s);
-	ssl_cert_free(s->cert);
-	/* Free up if allocated */
-	OPENSSL_free(s->tlsext_hostname);
-	SSL_CTX_free(s->session_ctx);
+	if(s) {
+		int i;
+		CRYPTO_atomic_add(&s->references, -1, &i, s->lock);
+		REF_PRINT_COUNT("SSL", s);
+		if(i <= 0) {
+			REF_ASSERT_ISNT(i < 0);
+			X509_VERIFY_PARAM_free(s->param);
+			dane_final(&s->dane);
+			CRYPTO_free_ex_data(CRYPTO_EX_INDEX_SSL, s, &s->ex_data);
+			ssl_free_wbio_buffer(s);
+			BIO_free_all(s->wbio);
+			BIO_free_all(s->rbio);
+			BUF_MEM_free(s->init_buf);
+			/* add extra stuff */
+			sk_SSL_CIPHER_free(s->cipher_list);
+			sk_SSL_CIPHER_free(s->cipher_list_by_id);
+			/* Make the next call work :-) */
+			if(s->session) {
+				ssl_clear_bad_session(s);
+				SSL_SESSION_free(s->session);
+			}
+			clear_ciphers(s);
+			ssl_cert_free(s->cert);
+			/* Free up if allocated */
+			OPENSSL_free(s->tlsext_hostname);
+			SSL_CTX_free(s->session_ctx);
 #ifndef OPENSSL_NO_EC
-	OPENSSL_free(s->tlsext_ecpointformatlist);
-	OPENSSL_free(s->tlsext_ellipticcurvelist);
+			OPENSSL_free(s->tlsext_ecpointformatlist);
+			OPENSSL_free(s->tlsext_ellipticcurvelist);
 #endif                          /* OPENSSL_NO_EC */
-	sk_X509_EXTENSION_pop_free(s->tlsext_ocsp_exts, X509_EXTENSION_free);
+			sk_X509_EXTENSION_pop_free(s->tlsext_ocsp_exts, X509_EXTENSION_free);
 #ifndef OPENSSL_NO_OCSP
-	sk_OCSP_RESPID_pop_free(s->tlsext_ocsp_ids, OCSP_RESPID_free);
+			sk_OCSP_RESPID_pop_free(s->tlsext_ocsp_ids, OCSP_RESPID_free);
 #endif
 #ifndef OPENSSL_NO_CT
-	SCT_LIST_free(s->scts);
-	OPENSSL_free(s->tlsext_scts);
+			SCT_LIST_free(s->scts);
+			OPENSSL_free(s->tlsext_scts);
 #endif
-	OPENSSL_free(s->tlsext_ocsp_resp);
-	OPENSSL_free(s->alpn_client_proto_list);
-	sk_X509_NAME_pop_free(s->client_CA, X509_NAME_free);
-	sk_X509_pop_free(s->verified_chain, X509_free);
-	if(s->method != NULL)
-		s->method->ssl_free(s);
-	RECORD_LAYER_release(&s->rlayer);
-	SSL_CTX_free(s->ctx);
-	ASYNC_WAIT_CTX_free(s->waitctx);
+			OPENSSL_free(s->tlsext_ocsp_resp);
+			OPENSSL_free(s->alpn_client_proto_list);
+			sk_X509_NAME_pop_free(s->client_CA, X509_NAME_free);
+			sk_X509_pop_free(s->verified_chain, X509_free);
+			if(s->method != NULL)
+				s->method->ssl_free(s);
+			RECORD_LAYER_release(&s->rlayer);
+			SSL_CTX_free(s->ctx);
+			ASYNC_WAIT_CTX_free(s->waitctx);
 #if !defined(OPENSSL_NO_NEXTPROTONEG)
-	OPENSSL_free(s->next_proto_negotiated);
+			OPENSSL_free(s->next_proto_negotiated);
 #endif
-
 #ifndef OPENSSL_NO_SRTP
-	sk_SRTP_PROTECTION_PROFILE_free(s->srtp_profiles);
+			sk_SRTP_PROTECTION_PROFILE_free(s->srtp_profiles);
 #endif
-	CRYPTO_THREAD_lock_free(s->lock);
-	OPENSSL_free(s);
+			CRYPTO_THREAD_lock_free(s->lock);
+			OPENSSL_free(s);
+		}
+	}
 }
 
 void SSL_set0_rbio(SSL * s, BIO * rbio)

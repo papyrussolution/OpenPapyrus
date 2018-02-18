@@ -2402,7 +2402,7 @@ public:
 		getCtrlData(CTL_RFIDDEV_ID, &Data.ID);
 		getCtrlData(CTL_RFIDDEV_NUMBER, &Data.DeviceNumber);
 		getCtrlData(ctl_id = CTL_RFIDDEV_NAME, Data.Name);
-		THROW_PP(strlen(Data.Name) > 0, PPERR_NAMENEEDED);
+		THROW_PP(sstrlen(Data.Name) > 0, PPERR_NAMENEEDED);
 		getCtrlData(ctl_id = CTL_RFIDDEV_PORT, port);
 		STRNSCPY(Data.Port, port);
 		THROW(GetPort(Data.Port, 0));

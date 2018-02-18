@@ -318,7 +318,7 @@ int SLAPI ACS_CRUKM::ExportData(int updOnly)
 			THROW_DB(p_out_tbl->insertRecBuf(&rec));
 		}
 		while(p_iter->Next(&info) > 0) {
-			const size_t bclen = strlen(info.BarCode);
+			const size_t bclen = sstrlen(info.BarCode);
 			if(bclen) {
 				if(bclen != 3 && bclen != (7+check_dig) && bclen < (size_t)(12+check_dig))
 					padleft(info.BarCode, '0', (12+check_dig) - bclen);
@@ -707,15 +707,15 @@ int SLAPI ACS_CRUKM::UpdateZReportData(Cr_ZReportTbl * pZReportTbl)
 static char * SLAPI MakeMsgByCheck(const LDATETIME * pDT, long cashCode, long chkNumber, char * pBuf)
 {
 	char * p = pBuf;
-	p += strlen(datefmt(&pDT->d, DATF_DMY, p));
+	p += sstrlen(datefmt(&pDT->d, DATF_DMY, p));
 	p = catdiv(p, ':', 1);
 	if(pDT->t) {
-		p += strlen(timefmt(pDT->t, TIMF_HMS | TIMF_MSEC, p));
+		p += sstrlen(timefmt(pDT->t, TIMF_HMS | TIMF_MSEC, p));
 		p = catdiv(p, ':', 1);
 	}
-	p += strlen(ltoa(cashCode, p, 10));
+	p += sstrlen(ltoa(cashCode, p, 10));
 	p = catdiv(p, ':', 1);
-	p += strlen(ltoa(chkNumber, p, 10));
+	p += sstrlen(ltoa(chkNumber, p, 10));
 	return pBuf;
 }
 */
@@ -763,7 +763,7 @@ int SLAPI ACS_CRUKM::SearchSCard(const char * pSrcCardCode, PPID * pSCardID)
 		// искусственно добавленной контрольной цифрой, то пытаемся убрать
 		// контрольную цифру и найти карту по измененному номеру.
 		//
-		size_t len = strlen(card_code);
+		size_t len = sstrlen(card_code);
 		if(len == 13) {
 			card_code[len-1] = 0;
 			if(SCrdObj.SearchCode(0, card_code, &card_rec) > 0) {

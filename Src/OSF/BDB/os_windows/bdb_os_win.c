@@ -1091,7 +1091,7 @@ int __os_getenv(ENV * env, const char * name, char ** bpp, size_t buflen)
 	 *	set pointer to NULL, return 0
 	 */
 	if((p = getenv(name)) != NULL) {
-		if(strlen(p) < buflen) {
+		if(sstrlen(p) < buflen) {
 			strcpy(*bpp, p);
 			return 0;
 		}
@@ -1134,7 +1134,7 @@ int __os_getenv(ENV * env, const char * name, char ** bpp, size_t buflen)
 	FROM_TSTRING(env, tbuf, p, ret);
 	if(ret != 0)
 		return ret;
-	if(strlen(p) < buflen)
+	if(sstrlen(p) < buflen)
 		strcpy(*bpp, p);
 	else
 		*bpp = NULL;

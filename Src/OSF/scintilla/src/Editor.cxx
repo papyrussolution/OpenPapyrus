@@ -2183,7 +2183,7 @@ void Editor::InsertPasteShape(const char * text, int len, PasteShape shape)
 		// add the newline if necessary
 		if((len > 0) && (text[len-1] != '\n' && text[len-1] != '\r')) {
 			const char * endline = StringFromEOLMode(pdoc->eolMode);
-			int length = static_cast<int>(strlen(endline));
+			int length = static_cast<int>(sstrlen(endline));
 			lengthInserted += pdoc->InsertString(insertPos + lengthInserted, endline, length);
 		}
 		if(sel.MainCaret() == insertPos) {
@@ -2691,7 +2691,7 @@ void Editor::NotifySavePoint(Document *, void *, bool atSavePoint)
 	NotifySavePoint(atSavePoint);
 }
 
-void Editor::CheckModificationForWrap(DocModification mh)
+void FASTCALL Editor::CheckModificationForWrap(const DocModification & mh)
 {
 	if(mh.modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT)) {
 		view.llc.Invalidate(LineLayout::llCheckTextAndStyle);
@@ -2709,10 +2709,7 @@ void Editor::CheckModificationForWrap(DocModification mh)
 // Move a position so it is still after the same character as before the insertion.
 static inline int MovePositionForInsertion(int position, int startInsertion, int length)
 {
-	if(position > startInsertion) {
-		return position + length;
-	}
-	return position;
+	return (position > startInsertion) ? (position + length) : position;
 }
 
 // Move a position so it is still after the same character as before the deletion if that
@@ -2721,85 +2718,69 @@ static inline int MovePositionForDeletion(int position, int startDeletion, int l
 {
 	if(position > startDeletion) {
 		int endDeletion = startDeletion + length;
-		if(position > endDeletion) {
-			return position - length;
-		}
-		else {
-			return startDeletion;
-		}
+		return (position > endDeletion) ? (position - length) : startDeletion;
 	}
-	else {
+	else
 		return position;
-	}
 }
 
-void Editor::NotifyModified(Document *, DocModification mh, void *)
+void Editor::NotifyModified(Document *, const DocModification & rMh, void *)
 {
 	ContainerNeedsUpdate(SC_UPDATE_CONTENT);
 	if(paintState == painting) {
-		CheckForChangeOutsidePaint(Range(mh.position, mh.position + mh.length));
+		CheckForChangeOutsidePaint(Range(rMh.position, rMh.position + rMh.length));
 	}
-	if(mh.modificationType & SC_MOD_CHANGELINESTATE) {
-		if(paintState == painting) {
-			CheckForChangeOutsidePaint(Range(pdoc->LineStart(mh.line), pdoc->LineStart(mh.line + 1)));
-		}
-		else {
-			// Could check that change is before last visible line.
-			Redraw();
-		}
+	if(rMh.modificationType & SC_MOD_CHANGELINESTATE) {
+		if(paintState == painting)
+			CheckForChangeOutsidePaint(Range(pdoc->LineStart(rMh.line), pdoc->LineStart(rMh.line + 1)));
+		else
+			Redraw(); // Could check that change is before last visible line.
 	}
-	if(mh.modificationType & SC_MOD_CHANGETABSTOPS) {
+	if(rMh.modificationType & SC_MOD_CHANGETABSTOPS) {
 		Redraw();
 	}
-	if(mh.modificationType & SC_MOD_LEXERSTATE) {
-		if(paintState == painting) {
-			CheckForChangeOutsidePaint(Range(mh.position, mh.position + mh.length));
-		}
-		else {
+	if(rMh.modificationType & SC_MOD_LEXERSTATE) {
+		if(paintState == painting)
+			CheckForChangeOutsidePaint(Range(rMh.position, rMh.position + rMh.length));
+		else
 			Redraw();
-		}
 	}
-	if(mh.modificationType & (SC_MOD_CHANGESTYLE | SC_MOD_CHANGEINDICATOR)) {
-		if(mh.modificationType & SC_MOD_CHANGESTYLE) {
+	if(rMh.modificationType & (SC_MOD_CHANGESTYLE | SC_MOD_CHANGEINDICATOR)) {
+		if(rMh.modificationType & SC_MOD_CHANGESTYLE)
 			pdoc->IncrementStyleClock();
-		}
 		if(paintState == notPainting) {
-			if(mh.position < pdoc->LineStart(topLine)) {
-				// Styling performed before this view
-				Redraw();
-			}
-			else {
-				InvalidateRange(mh.position, mh.position + mh.length);
-			}
+			if(rMh.position < pdoc->LineStart(topLine))
+				Redraw(); // Styling performed before this view
+			else
+				InvalidateRange(rMh.position, rMh.position + rMh.length);
 		}
-		if(mh.modificationType & SC_MOD_CHANGESTYLE) {
+		if(rMh.modificationType & SC_MOD_CHANGESTYLE)
 			view.llc.Invalidate(LineLayout::llCheckTextAndStyle);
-		}
 	}
 	else {
 		// Move selection and brace highlights
-		if(mh.modificationType & SC_MOD_INSERTTEXT) {
-			sel.MovePositions(true, mh.position, mh.length);
-			braces[0] = MovePositionForInsertion(braces[0], mh.position, mh.length);
-			braces[1] = MovePositionForInsertion(braces[1], mh.position, mh.length);
+		if(rMh.modificationType & SC_MOD_INSERTTEXT) {
+			sel.MovePositions(true, rMh.position, rMh.length);
+			braces[0] = MovePositionForInsertion(braces[0], rMh.position, rMh.length);
+			braces[1] = MovePositionForInsertion(braces[1], rMh.position, rMh.length);
 		}
-		else if(mh.modificationType & SC_MOD_DELETETEXT) {
-			sel.MovePositions(false, mh.position, mh.length);
-			braces[0] = MovePositionForDeletion(braces[0], mh.position, mh.length);
-			braces[1] = MovePositionForDeletion(braces[1], mh.position, mh.length);
+		else if(rMh.modificationType & SC_MOD_DELETETEXT) {
+			sel.MovePositions(false, rMh.position, rMh.length);
+			braces[0] = MovePositionForDeletion(braces[0], rMh.position, rMh.length);
+			braces[1] = MovePositionForDeletion(braces[1], rMh.position, rMh.length);
 		}
-		if((mh.modificationType & (SC_MOD_BEFOREINSERT | SC_MOD_BEFOREDELETE)) && cs.HiddenLines()) {
+		if((rMh.modificationType & (SC_MOD_BEFOREINSERT | SC_MOD_BEFOREDELETE)) && cs.HiddenLines()) {
 			// Some lines are hidden so may need shown.
-			const int lineOfPos = pdoc->LineFromPosition(mh.position);
-			int endNeedShown = mh.position;
-			if(mh.modificationType & SC_MOD_BEFOREINSERT) {
-				if(pdoc->ContainsLineEnd(mh.text, mh.length) && (mh.position != pdoc->LineStart(lineOfPos)))
+			const int lineOfPos = pdoc->LineFromPosition(rMh.position);
+			int endNeedShown = rMh.position;
+			if(rMh.modificationType & SC_MOD_BEFOREINSERT) {
+				if(pdoc->ContainsLineEnd(rMh.text, rMh.length) && (rMh.position != pdoc->LineStart(lineOfPos)))
 					endNeedShown = pdoc->LineStart(lineOfPos+1);
 			}
-			else if(mh.modificationType & SC_MOD_BEFOREDELETE) {
+			else if(rMh.modificationType & SC_MOD_BEFOREDELETE) {
 				// If the deletion includes any EOL then we extend the need shown area.
-				endNeedShown = mh.position + mh.length;
-				int lineLast = pdoc->LineFromPosition(mh.position+mh.length);
+				endNeedShown = rMh.position + rMh.length;
+				int lineLast = pdoc->LineFromPosition(rMh.position+rMh.length);
 				for(int line = lineOfPos + 1; line <= lineLast; line++) {
 					const int lineMaxSubord = pdoc->GetLastChild(line, -1, -1);
 					if(lineLast < lineMaxSubord) {
@@ -2808,91 +2789,89 @@ void Editor::NotifyModified(Document *, DocModification mh, void *)
 					}
 				}
 			}
-			NeedShown(mh.position, endNeedShown - mh.position);
+			NeedShown(rMh.position, endNeedShown - rMh.position);
 		}
-		if(mh.linesAdded != 0) {
+		if(rMh.linesAdded) {
 			// Update contraction state for inserted and removed lines
 			// lineOfPos should be calculated in context of state before modification, shouldn't it
-			int lineOfPos = pdoc->LineFromPosition(mh.position);
-			if(mh.position > pdoc->LineStart(lineOfPos))
+			int lineOfPos = pdoc->LineFromPosition(rMh.position);
+			if(rMh.position > pdoc->LineStart(lineOfPos))
 				lineOfPos++;    // Affecting subsequent lines
-			if(mh.linesAdded > 0) {
-				cs.InsertLines(lineOfPos, mh.linesAdded);
-			}
-			else {
-				cs.DeleteLines(lineOfPos, -mh.linesAdded);
-			}
-			view.LinesAddedOrRemoved(lineOfPos, mh.linesAdded);
+			if(rMh.linesAdded > 0)
+				cs.InsertLines(lineOfPos, rMh.linesAdded);
+			else
+				cs.DeleteLines(lineOfPos, -rMh.linesAdded);
+			view.LinesAddedOrRemoved(lineOfPos, rMh.linesAdded);
 		}
-		if(mh.modificationType & SC_MOD_CHANGEANNOTATION) {
-			int lineDoc = pdoc->LineFromPosition(mh.position);
+		if(rMh.modificationType & SC_MOD_CHANGEANNOTATION) {
+			int lineDoc = pdoc->LineFromPosition(rMh.position);
 			if(vs.annotationVisible) {
-				cs.SetHeight(lineDoc, cs.GetHeight(lineDoc) + mh.annotationLinesAdded);
+				cs.SetHeight(lineDoc, cs.GetHeight(lineDoc) + rMh.annotationLinesAdded);
 				Redraw();
 			}
 		}
-		CheckModificationForWrap(mh);
-		if(mh.linesAdded != 0) {
+		CheckModificationForWrap(rMh);
+		if(rMh.linesAdded != 0) {
 			// Avoid scrolling of display if change before current display
-			if(mh.position < posTopLine && !CanDeferToLastStep(mh)) {
-				int newTop = Platform::Clamp(topLine + mh.linesAdded, 0, MaxScrollPos());
+			if(rMh.position < posTopLine && !CanDeferToLastStep(rMh)) {
+				int newTop = Platform::Clamp(topLine + rMh.linesAdded, 0, MaxScrollPos());
 				if(newTop != topLine) {
 					SetTopLine(newTop);
 					SetVerticalScrollPos();
 				}
 			}
-			if(paintState == notPainting && !CanDeferToLastStep(mh)) {
+			if(paintState == notPainting && !CanDeferToLastStep(rMh)) {
 				QueueIdleWork(WorkNeeded::workStyle, pdoc->Length());
 				Redraw();
 			}
 		}
 		else {
-			if(paintState == notPainting && mh.length && !CanEliminate(mh)) {
-				QueueIdleWork(WorkNeeded::workStyle, mh.position + mh.length);
-				InvalidateRange(mh.position, mh.position + mh.length);
+			if(paintState == notPainting && rMh.length && !CanEliminate(rMh)) {
+				QueueIdleWork(WorkNeeded::workStyle, rMh.position + rMh.length);
+				InvalidateRange(rMh.position, rMh.position + rMh.length);
 			}
 		}
 	}
-	if(mh.linesAdded != 0 && !CanDeferToLastStep(mh)) {
+	if(rMh.linesAdded != 0 && !CanDeferToLastStep(rMh)) {
 		SetScrollBars();
 	}
-	if((mh.modificationType & SC_MOD_CHANGEMARKER) || (mh.modificationType & SC_MOD_CHANGEMARGIN)) {
+	if((rMh.modificationType & SC_MOD_CHANGEMARKER) || (rMh.modificationType & SC_MOD_CHANGEMARGIN)) {
 		if(!(Flags & fWillRedrawAll) && ((paintState == notPainting) || !PaintContainsMargin())) {
-			if(mh.modificationType & SC_MOD_CHANGEFOLD) {
+			if(rMh.modificationType & SC_MOD_CHANGEFOLD) {
 				// Fold changes can affect the drawing of following lines so redraw whole margin
-				RedrawSelMargin(marginView.highlightDelimiter.isEnabled ? -1 : mh.line - 1, true);
+				RedrawSelMargin(marginView.highlightDelimiter.isEnabled ? -1 : rMh.line - 1, true);
 			}
 			else {
-				RedrawSelMargin(mh.line);
+				RedrawSelMargin(rMh.line);
 			}
 		}
 	}
-	if((mh.modificationType & SC_MOD_CHANGEFOLD) && (foldAutomatic & SC_AUTOMATICFOLD_CHANGE)) {
-		FoldChanged(mh.line, mh.foldLevelNow, mh.foldLevelPrev);
+	if((rMh.modificationType & SC_MOD_CHANGEFOLD) && (foldAutomatic & SC_AUTOMATICFOLD_CHANGE)) {
+		FoldChanged(rMh.line, rMh.foldLevelNow, rMh.foldLevelPrev);
 	}
 	// NOW pay the piper WRT "deferred" visual updates
-	if(IsLastStep(mh)) {
+	if(IsLastStep(rMh)) {
 		SetScrollBars();
 		Redraw();
 	}
 	// If client wants to see this modification
-	if(mh.modificationType & modEventMask) {
-		if((mh.modificationType & (SC_MOD_CHANGESTYLE | SC_MOD_CHANGEINDICATOR)) == 0) {
+	if(rMh.modificationType & modEventMask) {
+		if((rMh.modificationType & (SC_MOD_CHANGESTYLE | SC_MOD_CHANGEINDICATOR)) == 0) {
 			// Real modification made to text of document.
 			NotifyChange(); // Send EN_CHANGE
 		}
 		SCNotification scn = {};
 		scn.nmhdr.code = SCN_MODIFIED;
-		scn.position = mh.position;
-		scn.modificationType = mh.modificationType;
-		scn.text = mh.text;
-		scn.length = mh.length;
-		scn.linesAdded = mh.linesAdded;
-		scn.line = mh.line;
-		scn.foldLevelNow = mh.foldLevelNow;
-		scn.foldLevelPrev = mh.foldLevelPrev;
-		scn.token = mh.token;
-		scn.annotationLinesAdded = mh.annotationLinesAdded;
+		scn.position = rMh.position;
+		scn.modificationType = rMh.modificationType;
+		scn.text = rMh.text;
+		scn.length = rMh.length;
+		scn.linesAdded = rMh.linesAdded;
+		scn.line = rMh.line;
+		scn.foldLevelNow = rMh.foldLevelNow;
+		scn.foldLevelPrev = rMh.foldLevelPrev;
+		scn.token = rMh.token;
+		scn.annotationLinesAdded = rMh.annotationLinesAdded;
 		NotifyParent(scn);
 	}
 }
@@ -4371,7 +4350,7 @@ void Editor::DropAt(SelectionPosition position, const char * value, size_t lengt
 
 void Editor::DropAt(SelectionPosition position, const char * value, bool moving, bool rectangular)
 {
-	DropAt(position, value, strlen(value), moving, rectangular);
+	DropAt(position, value, sstrlen(value), moving, rectangular);
 }
 
 /**

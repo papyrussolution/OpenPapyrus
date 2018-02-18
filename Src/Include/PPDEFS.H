@@ -1459,6 +1459,9 @@
 #define PPEDIOP_EGAIS_QUERYRESTS_V2           63 // @v9.7.5 Запрос остатков version 2
 #define PPEDIOP_EGAIS_REPLYRESTS_V2           64 // @v9.7.5 Ответ на запрос остатков version 2
 #define PPEDIOP_EGAIS_ACTINVENTORYINFORMF2REG 65 // @v9.7.12 version 2 of PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG
+#define PPEDIOP_EGAIS_WAYBILL_V3              66 // @v9.9.5
+#define PPEDIOP_EGAIS_WAYBILLACT_V3           67 // @v9.9.5 version 3 of PPEDIOP_EGAIS_WAYBILLACT
+#define PPEDIOP_EGAIS_ACTWRITEOFF_V3          68 // @v9.9.5
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
 //
@@ -11731,7 +11734,6 @@
 #define PPTXT_SMTPAUTHTYPES               327 // Список типов аутентификация для SMTP
 #define PPTXT_SERVICEDESCR                329 // Строка описания Windows-сервиса
 #define PPTXT_CYCLESSTRUCT                332 // Компонент структуры %s, ссылается на структуру %s, чьим компонентом он являетс
-#define PPTXT_LOGCACHEHEADER              333 // Заглавная строка файла статистики использования кэшей объектов
 #define PPTXT_JOBPOOLLOADFAULT            334 // Не удалось загрузить пул задач
 #define PPTXT_PPYSERVERSTOPPED            335 // TCP сервер остановлен
 #define PPTXT_TODOCTPARAMS                336 // Список показателей кросстаба для задач

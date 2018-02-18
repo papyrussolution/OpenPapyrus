@@ -1,5 +1,5 @@
 // ATOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -496,7 +496,7 @@ int SLAPI ACS_ATOL::ExportSCard(FILE *, int)
 						else
 							buf.Z();
 						THROW(ac_intrf.ACPut(2, buf));              // Владелец карты
-						buf.Z().CatCharN(' ', AC_DEF_CARD_CODE_LEN - strlen(card_rec.Code)).Cat(card_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
+						buf.Z().CatCharN(' ', AC_DEF_CARD_CODE_LEN - sstrlen(card_rec.Code)).Cat(card_rec.Code).Transf(CTRANSF_INNER_TO_OUTER);
 						THROW(ac_intrf.ACPut(5, buf));              // Код дисконтной карты
 						buf.Z().Cat(card_rec.Dt, DATF_GERMAN | DATF_CENTURY);
 						THROW(ac_intrf.ACPut(6, buf));              // Дата выпуска карты
@@ -680,13 +680,13 @@ int SLAPI ACS_ATOL::ExportData(int updOnly)
 			tail.CatCharN(';', 4);                                // #19-#22 - Не используем
 			tail.Cat((long)(gds_info.VatRate * 100.0)).Semicol(); // #23 - Налоговая ставка (в 0.01%)
 		}
-		if((bclen = strlen(gds_info.BarCode)) != 0) {
+		if((bclen = sstrlen(gds_info.BarCode)) != 0) {
 			gds_info.AdjustBarcode(check_dig);
 			int    wp = GetGoodsCfg().IsWghtPrefix(gds_info.BarCode);
 			if(wp == 1)
-				STRNSCPY(gds_info.BarCode, gds_info.BarCode+strlen(GetGoodsCfg().WghtPrefix));
+				STRNSCPY(gds_info.BarCode, gds_info.BarCode+sstrlen(GetGoodsCfg().WghtPrefix));
 			else if(wp == 2)
-				STRNSCPY(gds_info.BarCode, gds_info.BarCode+strlen(GetGoodsCfg().WghtCntPrefix));
+				STRNSCPY(gds_info.BarCode, gds_info.BarCode+sstrlen(GetGoodsCfg().WghtCntPrefix));
 			else
 				AddCheckDigToBarcode(gds_info.BarCode);
 			if(next_barcode)
@@ -782,14 +782,12 @@ int SLAPI ACS_ATOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateR
 				THROW(PPGetFileName(PPFILNAM_ATOL_GOODS_FLG, PathGoodsFlag));
 		}
 		THROW_PP(acn.ExpPaths.NotEmptyS() || acn.ImpFiles.NotEmptyS(), PPERR_INVFILESET);
-		ImpPaths.clear();
-		ImpPaths.setDelim(";");
+		ImpPaths.Z().setDelim(";");
 		{
 			SString & r_list = acn.ImpFiles.NotEmpty() ? acn.ImpFiles : acn.ExpPaths;
 			ImpPaths.setBuf(r_list, r_list.Len()+1);
 		}
-		ExpPaths.clear();
-		ExpPaths.setDelim(";");
+		ExpPaths.Z().setDelim(";");
 		{
 			SString & r_list = acn.ExpPaths.NotEmpty() ? acn.ExpPaths : acn.ImpFiles;
 			ExpPaths.setBuf(r_list, r_list.Len()+1);

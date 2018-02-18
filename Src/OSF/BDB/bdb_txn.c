@@ -1005,7 +1005,7 @@ int __txn_set_name(DB_TXN*txn, const char * name)
 	DB_TXNMGR * mgr = txn->mgrp;
 	ENV * env = mgr->env;
 	TXN_DETAIL * td = (TXN_DETAIL *)txn->td;
-	size_t len = strlen(name)+1;
+	size_t len = sstrlen(name)+1;
 	if((ret = __os_realloc(env, len, &txn->name)) != 0)
 		return ret;
 	memcpy(txn->name, name, len);

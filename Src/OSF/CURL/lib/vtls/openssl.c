@@ -187,7 +187,7 @@ static int passwd_callback(char * buf, int num, int encrypting,
 	DEBUGASSERT(0 == encrypting);
 
 	if(!encrypting) {
-		int klen = curlx_uztosi(strlen((char*)global_passwd));
+		int klen = curlx_uztosi(sstrlen((char*)global_passwd));
 		if(num > klen) {
 			memcpy(buf, global_passwd, klen+1);
 			return klen;
@@ -1146,7 +1146,7 @@ static CURLcode verifyhost(struct connectdata * conn, X509 * server_cert)
 					       "I checked the 0.9.6 and 0.9.8 sources before my patch and
 					       it always 0-terminates an IA5String."
 					     */
-					    if((altlen == strlen(altptr)) &&
+					    if((altlen == sstrlen(altptr)) &&
 					    // if this isn't true, there was an embedded zero in the name string and we cannot match it.
 					    Curl_cert_hostcheck(altptr, hostname)) {
 						    dnsmatched = TRUE;
@@ -1209,7 +1209,7 @@ static CURLcode verifyhost(struct connectdata * conn, X509 * server_cert)
 				}
 				else /* not a UTF8 name */
 					j = ASN1_STRING_to_UTF8(&peer_CN, tmp);
-				if(peer_CN && (curlx_uztosi(strlen((char*)peer_CN)) != j)) {
+				if(peer_CN && (curlx_uztosi(sstrlen((char*)peer_CN)) != j)) {
 					// there was a terminating zero before the end of string, this cannot match and we return failure! 
 					failf(data, "SSL: illegal cert name field");
 					result = CURLE_PEER_FAILED_VERIFICATION;
@@ -1221,7 +1221,7 @@ static CURLcode verifyhost(struct connectdata * conn, X509 * server_cert)
 			peer_CN = NULL;
 		else {
 			// convert peer_CN from UTF8 
-			CURLcode rc = Curl_convert_from_utf8(data, peer_CN, strlen(peer_CN));
+			CURLcode rc = Curl_convert_from_utf8(data, peer_CN, sstrlen(peer_CN));
 			// Curl_convert_from_utf8 calls failf if unsuccessful 
 			if(rc) {
 				OPENSSL_free(peer_CN);

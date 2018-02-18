@@ -85,7 +85,7 @@ int HldDialog::setupDate()
 			decodedate(&d, &m, &y, &Dt);
 			char   temp_buf[32];
 			char * p = temp_buf;
-			p += strlen(itoa(d, p, 10));
+			p += sstrlen(itoa(d, p, 10));
 			*p++ = '/';
 			itoa(m, p, 10);
 			TInputLine * p_il = (TInputLine *)getCtrlView(CTL_HOLIDAY_DATE);

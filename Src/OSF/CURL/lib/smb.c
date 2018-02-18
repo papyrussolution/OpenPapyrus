@@ -106,12 +106,12 @@ const struct Curl_handler Curl_handler_smbs = {
 /* Append a string to an SMB message */
 #define MSGCAT(str)				\
 	strcpy(p, (str));			      \
-	p += strlen(str);
+	p += sstrlen(str);
 
 /* Append a null-terminated string to an SMB message */
 #define MSGCATNULL(str)				\
 	strcpy(p, (str));			      \
-	p += strlen(str) + 1;
+	p += sstrlen(str) + 1;
 
 /* SMB is mostly little endian */
 #if (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__) || \
@@ -386,21 +386,16 @@ static CURLcode smb_flush(struct connectdata * conn)
 	return CURLE_OK;
 }
 
-static CURLcode smb_send_message(struct connectdata * conn, uchar cmd,
-    const void * msg, size_t msg_len)
+static CURLcode smb_send_message(struct connectdata * conn, uchar cmd, const void * msg, size_t msg_len)
 {
-	smb_format_message(conn, (struct smb_header*)conn->data->state.uploadbuffer,
-	    cmd, msg_len);
-	memcpy(conn->data->state.uploadbuffer + sizeof(struct smb_header),
-	    msg, msg_len);
-
+	smb_format_message(conn, (struct smb_header*)conn->data->state.uploadbuffer, cmd, msg_len);
+	memcpy(conn->data->state.uploadbuffer + sizeof(struct smb_header), msg, msg_len);
 	return smb_send(conn, sizeof(struct smb_header) + msg_len, 0);
 }
 
 static CURLcode smb_send_negotiate(struct connectdata * conn)
 {
 	const char * msg = "\x00\x0c\x00\x02NT LM 0.12";
-
 	return smb_send_message(conn, SMB_COM_NEGOTIATE, msg, 15);
 }
 
@@ -408,19 +403,16 @@ static CURLcode smb_send_setup(struct connectdata * conn)
 {
 	struct smb_conn * smbc = &conn->proto.smbc;
 	struct smb_setup msg;
-
 	char * p = msg.bytes;
 	uchar lm_hash[21];
 	uchar lm[24];
 	uchar nt_hash[21];
 	uchar nt[24];
-
 	size_t byte_count = sizeof(lm) + sizeof(nt);
-	byte_count += strlen(smbc->user) + strlen(smbc->domain);
-	byte_count += strlen(OS) + strlen(CLIENTNAME) + 4; /* 4 null chars */
+	byte_count += sstrlen(smbc->user) + sstrlen(smbc->domain);
+	byte_count += sstrlen(OS) + sstrlen(CLIENTNAME) + 4; /* 4 null chars */
 	if(byte_count > sizeof(msg.bytes))
 		return CURLE_FILESIZE_EXCEEDED;
-
 	Curl_ntlm_core_mk_lm_hash(conn->data, conn->passwd, lm_hash);
 	Curl_ntlm_core_lm_resp(lm_hash, smbc->challenge, lm);
 #ifdef USE_NTRESPONSES
@@ -459,8 +451,8 @@ static CURLcode smb_send_tree_connect(struct connectdata * conn)
 	struct smb_request * req = (struct smb_request *)conn->data->req.protop;
 	struct smb_tree_connect msg;
 	char * p = msg.bytes;
-	size_t byte_count = strlen(conn->host.name) + strlen(req->share);
-	byte_count += strlen(SERVICENAME) + 5; /* 2 nulls and 3 backslashes */
+	size_t byte_count = sstrlen(conn->host.name) + sstrlen(req->share);
+	byte_count += sstrlen(SERVICENAME) + 5; /* 2 nulls and 3 backslashes */
 	if(byte_count > sizeof(msg.bytes))
 		return CURLE_FILESIZE_EXCEEDED;
 	memzero(&msg, sizeof(msg));
@@ -482,12 +474,12 @@ static CURLcode smb_send_open(struct connectdata * conn)
 	struct smb_request * req = (struct smb_request *)conn->data->req.protop;
 	struct smb_nt_create msg;
 	size_t byte_count;
-	if((strlen(req->path) + 1) > sizeof(msg.bytes))
+	if((sstrlen(req->path) + 1) > sizeof(msg.bytes))
 		return CURLE_FILESIZE_EXCEEDED;
 	memzero(&msg, sizeof(msg));
 	msg.word_count = SMB_WC_NT_CREATE_ANDX;
 	msg.andx.command = SMB_COM_NO_ANDX_COMMAND;
-	byte_count = strlen(req->path);
+	byte_count = sstrlen(req->path);
 	msg.name_length = smb_swap16((ushort)byte_count);
 	msg.share_access = smb_swap32(SMB_FILE_SHARE_ALL);
 	if(conn->data->set.upload) {

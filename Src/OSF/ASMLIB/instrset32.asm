@@ -53,7 +53,6 @@
 global _InstructionSet: function
 global _IInstrSet
 
-
 SECTION .data
 align 16
 _IInstrSet:

@@ -289,7 +289,7 @@ int FASTCALL PPObjBill::GetEdiUserStatus(const BillTbl::Rec & rRec)
 	int    status = 0;
 	int    recadv_status = PPEDI_RECADV_STATUS_UNDEF;
 	int    recadv_conf_status = PPEDI_RECADVCONF_STATUS_UNDEF;
-    if(oneof3(rRec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_DESADV)) {
+    if(oneof4(rRec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_DESADV)) {
         switch(BillCore::GetRecadvStatus(rRec)) {
 			case PPEDI_RECADV_STATUS_ACCEPT: status = BEDIUS_DESADV_IN_RECADV_ACC; break;
 			case PPEDI_RECADV_STATUS_PARTACCEPT: status = BEDIUS_DESADV_IN_RECADV_PACC; break;
@@ -2333,22 +2333,22 @@ int SLAPI PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID, const
 					if(GObj.Fetch(goodsID, &goods_rec) > 0) {
 						if(GObj.GetSingleBarcode(goods_rec.ParentID, code) > 0) {
 							code.ShiftLeftChr('@').Strip();
-							c += strlen(strcpy(c, code));
+							c += sstrlen(strcpy(c, code));
 						}
 						p += 3;
 					}
 				}
 				else if(strnicmp(p, (char*)&sGS, 3) == 0) {
 					if(GObj.GetSingleBarcode(goodsID, code) > 0)
-						c += strlen(strcpy(c, code.Strip()));
+						c += sstrlen(strcpy(c, code.Strip()));
 					p += 3;
 				}
 				else if(strnicmp(p, (char*)&sBN, 3) == 0) {
-					c += strlen(strcpy(c, (code = pBillCode).Strip()));
+					c += sstrlen(strcpy(c, (code = pBillCode).Strip()));
 					p += 3;
 				}
 				else if(*p == '%') {
-					x_len = strlen(pfx);
+					x_len = sstrlen(pfx);
 					for(++p, x = t; isdec(*p);)
 						*x++ = *p++;
 					*x = 0;
@@ -5663,7 +5663,7 @@ int SLAPI PPObjBill::VerifyUniqSerialSfx(const char * pSfx)
 {
 	int    ok = -1;
 	if(!isempty(pSfx)) {
-		size_t len = strlen(pSfx);
+		size_t len = sstrlen(pSfx);
 		if(len < 2 || len > 6)
 			ok = PPSetError(PPERR_INVUNIQSNSFXLEN, pSfx);
 		else if(pSfx[len-1] < '1' || pSfx[len-1] > '9')
@@ -5678,7 +5678,7 @@ int SLAPI PPObjBill::ReleaseSerialFromUniqSuffix(SString & rSerial) const
 {
 	int    ok = -1;
 	if(rSerial.NotEmpty()) {
-		const size_t fmt_len = strlen(Cfg.UniqSerialSfx);
+		const size_t fmt_len = sstrlen(Cfg.UniqSerialSfx);
 		const char nd_c = Cfg.UniqSerialSfx[fmt_len-1];
 		if(fmt_len && nd_c >= '0' && nd_c <= '9') {
 			const size_t nd = (size_t)(nd_c - '0');
@@ -5698,7 +5698,7 @@ int SLAPI PPObjBill::AdjustSerialForUniq(PPID goodsID, PPID lotID, int checkOnly
 	int    ok = -1;
 	SString adjusted_serial;
 	if(rSerial.NotEmpty() && (checkOnly || VerifyUniqSerialSfx(Cfg.UniqSerialSfx) > 0)) {
-		const size_t fmt_len = strlen(Cfg.UniqSerialSfx);
+		const size_t fmt_len = sstrlen(Cfg.UniqSerialSfx);
 		const int    nd = Cfg.UniqSerialSfx[fmt_len-1] - '0';
 		if(checkOnly || (nd >= 1 && nd <= 9)) {
 			long   c = 0;
@@ -8146,7 +8146,7 @@ int SLAPI PPObjBill::ParseText(const char * pText, const char * pTemplate, StrAs
 							field_value.CatN(p_text, fld_len);
                         }
                         else {
-							fld_len = strlen(p_text);
+							fld_len = sstrlen(p_text);
 							field_value = p_text;
                         }
                         p_text += fld_len;

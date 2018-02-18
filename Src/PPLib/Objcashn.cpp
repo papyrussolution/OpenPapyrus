@@ -2684,7 +2684,7 @@ int EquipConfigDialog::EditExtParams()
 				Data.LookBackPricePeriod = getCtrlLong(sel = CTL_EQCFG_LOOKBKPRCPRD);
 				THROW_PP(Data.LookBackPricePeriod >= 0 && Data.LookBackPricePeriod <= 365, PPERR_USERINPUT);
 			}
-			const int prefix_len = strlen(Data.AgentPrefix);
+			const int prefix_len = sstrlen(Data.AgentPrefix);
 			THROW_PP(Data.AgentCodeLen >= 0 && (!prefix_len || prefix_len < Data.AgentCodeLen), PPERR_USERINPUT);
 			ASSIGN_PTR(pData, Data);
 			CATCH
@@ -2817,7 +2817,7 @@ int EquipConfigDialog::getDTS(PPEquipConfig * pData)
 		Data.LookBackPricePeriod = getCtrlLong(sel = CTL_EQCFG_LOOKBKPRCPRD); // @v9.8.4
 		THROW_PP(Data.LookBackPricePeriod >= 0 && Data.LookBackPricePeriod <= 365, PPERR_USERINPUT); // @v9.8.4
 	}
-	const int prefix_len = strlen(Data.AgentPrefix);
+	const int prefix_len = sstrlen(Data.AgentPrefix);
 	THROW_PP(Data.AgentCodeLen >= 0 && (!prefix_len || prefix_len < Data.AgentCodeLen), PPERR_USERINPUT);
 	*/
 	GetClusterData(CTL_EQCFG_FLAGS,  &Data.Flags);

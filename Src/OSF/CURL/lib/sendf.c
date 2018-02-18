@@ -211,7 +211,7 @@ void Curl_infof(struct Curl_easy * data, const char * fmt, ...)
 		va_start(ap, fmt);
 		vsnprintf(print_buffer, sizeof(print_buffer), fmt, ap);
 		va_end(ap);
-		len = strlen(print_buffer);
+		len = sstrlen(print_buffer);
 		Curl_debug(data, CURLINFO_TEXT, print_buffer, len, 0);
 	}
 }
@@ -231,7 +231,7 @@ void Curl_failf(struct Curl_easy * data, const char * fmt, ...)
 		data->state.errorbuf = TRUE; /* wrote error string */
 	}
 	if(data->set.verbose) {
-		len = strlen(data->state.buffer);
+		len = sstrlen(data->state.buffer);
 		if(len < BUFSIZE - 1) {
 			data->state.buffer[len] = '\n';
 			data->state.buffer[++len] = '\0';
@@ -257,7 +257,7 @@ CURLcode Curl_sendf(curl_socket_t sockfd, struct connectdata * conn, const char 
 	if(!s)
 		return CURLE_OUT_OF_MEMORY;  /* failure */
 	bytes_written = 0;
-	write_len = strlen(s);
+	write_len = sstrlen(s);
 	sptr = s;
 	for(;; ) {
 		/* Write the buffer to the socket */
@@ -528,7 +528,7 @@ CURLcode Curl_client_chop_write(struct connectdata * conn, int type, char * ptr,
 CURLcode Curl_client_write(struct connectdata * conn, int type, char * ptr, size_t len)
 {
 	struct Curl_easy * data = conn->data;
-	SETIFZ(len, strlen(ptr));
+	SETIFZ(len, sstrlen(ptr));
 	DEBUGASSERT(type <= 3);
 	/* FTP data may need conversion. */
 	if((type & CLIENTWRITE_BODY) && (conn->handler->protocol & PROTO_FAMILY_FTP) && conn->proto.ftpc.transfertype == 'A') {
@@ -697,7 +697,7 @@ int Curl_debug(struct Curl_easy * data, curl_infotype type, char * ptr, size_t s
 		}
 		if(t) {
 			snprintf(buffer, sizeof(buffer), "[%s %s %s]", w, t, conn->host.dispname);
-			rc = showit(data, CURLINFO_TEXT, buffer, strlen(buffer));
+			rc = showit(data, CURLINFO_TEXT, buffer, sstrlen(buffer));
 			if(rc)
 				return rc;
 		}

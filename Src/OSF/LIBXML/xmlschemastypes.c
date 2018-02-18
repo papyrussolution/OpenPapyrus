@@ -1685,13 +1685,15 @@ xmlChar * xmlSchemaCollapseString(const xmlChar * value) {
 	if(col == 0) {
 		f = end;
 		end--;
-		while((end > start) && (IS_BLANK_CH(*end))) end--;
+		while((end > start) && (IS_BLANK_CH(*end))) 
+			end--;
 		end++;
 		if((start == value) && (f == end)) return 0;
-		return(xmlStrndup(start, end - start));
+		return xmlStrndup(start, end - start);
 	}
 	start = sstrdup(start);
-	if(start == NULL) return 0;
+	if(start == NULL) 
+		return 0;
 	g = (xmlChar*)(start + col);
 	end = g;
 	while(*end != 0) {

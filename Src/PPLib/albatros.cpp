@@ -1,5 +1,5 @@
 // ALBATROS.CPP
-// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
@@ -93,23 +93,18 @@ int AlbatrosConfigDialog::setDTS(const PPAlbatrosConfig * pCfg)
 	Data.GetExtStrData(ALBATROSEXSTR_EGAISSRVURL, temp_buf);
 	setCtrlString(CTL_ALBTRCFG_EGAISURL, temp_buf/*Data.EgaisServerURL*/);
 
-	op_type_list.clear();
-	op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0);
+	op_type_list.Z().addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0);
 	SetupOprKindCombo(this, CTLSEL_ALBTRCFG_EDIORD, Data.Hdr.EdiOrderOpID, OLW_CANINSERT, &op_type_list, 0);
-	op_type_list.clear();
-	op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0);
+	op_type_list.Z().addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0);
 	SetupOprKindCombo(this, CTLSEL_ALBTRCFG_EDIORDSP, Data.Hdr.EdiOrderSpOpID, OLW_CANINSERT, &op_type_list, 0);
-	op_type_list.clear();
-	op_type_list.addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_GOODSRECEIPT, 0);
+	op_type_list.Z().addzlist(PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_GOODSRECEIPT, 0);
 	SetupOprKindCombo(this, CTLSEL_ALBTRCFG_DESADV, Data.Hdr.EdiDesadvOpID, OLW_CANINSERT, &op_type_list, 0);
 	// @v8.8.0 {
-	op_type_list.clear();
-	op_type_list.addzlist(PPOPT_DRAFTRECEIPT, 0);
+	op_type_list.Z().addzlist(PPOPT_DRAFTRECEIPT, 0);
 	SetupOprKindCombo(this, CTLSEL_ALBTRCFG_EGRCPTOP, Data.Hdr.EgaisRcptOpID, OLW_CANINSERT, &op_type_list, 0);
 	// } @v8.8.0
 	// @v8.9.6 {
-	op_type_list.clear();
-	op_type_list.addzlist(PPOPT_DRAFTRECEIPT, 0);
+	op_type_list.Z().addzlist(PPOPT_DRAFTRECEIPT, 0);
 	SetupOprKindCombo(this, CTLSEL_ALBTRCFG_EGRETOP, Data.Hdr.EgaisRetOpID, OLW_CANINSERT, &op_type_list, 0);
 	// } @v8.9.6
 	{
@@ -177,15 +172,8 @@ PPAlbatrosConfig & SLAPI PPAlbatrosConfig::Clear()
 	return *this;
 }
 
-int SLAPI PPAlbatrosConfig::GetExtStrData(int fldID, SString & rBuf) const
-{
-	return PPGetExtStrData(fldID, ExtString, rBuf);
-}
-
-int SLAPI PPAlbatrosConfig::PutExtStrData(int fldID, const char * pStr)
-{
-	return PPPutExtStrData(fldID, ExtString, pStr);
-}
+int SLAPI PPAlbatrosConfig::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int SLAPI PPAlbatrosConfig::PutExtStrData(int fldID, const char * pStr) { return PPPutExtStrData(fldID, ExtString, pStr); }
 
 #define UHTT_PW_SIZE 20 // @attention изменение значения требует конвертации хранимого пароля
 
@@ -757,7 +745,7 @@ int SLAPI AlbatrosTagParser::SaveTagVal(const char * pTag)
 	memzero(buf, sizeof(buf));
 	if(PPSearchSubStr(TagNamesStr, &tag_idx, pTag, ALBATROS_MAXTAGSIZE) > 0) {
 		if(P_TagValBuf && strip(P_TagValBuf)[0] != 0)
-			decode64(P_TagValBuf, strlen(P_TagValBuf), buf, 0);
+			decode64(P_TagValBuf, sstrlen(P_TagValBuf), buf, 0);
 		SCharToOem(buf);
 		switch(tag_idx) {
 			// if get head items

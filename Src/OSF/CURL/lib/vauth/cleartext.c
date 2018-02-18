@@ -54,8 +54,8 @@ CURLcode Curl_auth_create_plain_message(struct Curl_easy * data, const char * us
 
 	*outlen = 0;
 	*outptr = NULL;
-	ulen = strlen(userp);
-	plen = strlen(passwdp);
+	ulen = sstrlen(userp);
+	plen = sstrlen(passwdp);
 
 	/* Compute binary message length, checking for overflows. */
 	plainlen = 2 * ulen;
@@ -101,7 +101,7 @@ CURLcode Curl_auth_create_plain_message(struct Curl_easy * data, const char * us
  */
 CURLcode Curl_auth_create_login_message(struct Curl_easy * data, const char * valuep, char ** outptr, size_t * outlen)
 {
-	size_t vlen = strlen(valuep);
+	size_t vlen = sstrlen(valuep);
 	if(!vlen) {
 		/* Calculate an empty reply */
 		*outptr = _strdup("=");

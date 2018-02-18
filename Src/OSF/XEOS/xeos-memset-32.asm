@@ -63,17 +63,7 @@
 
 ; We are in 32 bits mode
 BITS    32
-
-section .data
-
-global __SSE2Status
-
-; SSE2 status flag:
-; 
-;   -1: Unchecked
-;    0: SSE2 not available
-;    1: SSE2 available
-__SSE2Status:   dd  -1
+extern __SSE2Status
 
 section .text
 

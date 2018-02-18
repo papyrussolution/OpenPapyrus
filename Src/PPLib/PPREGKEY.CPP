@@ -20,7 +20,7 @@ static const uint16 MaskMatrix[MASK_MATRIX_SIZE] = {
 int SLAPI Helper_CalcRegisterKey(size_t mi, const char * pName, char * pBuf)
 {
 	char   buf[64];
-	size_t i = 0, l = strlen(pName);
+	size_t i = 0, l = sstrlen(pName);
 	if(l < MASK_MATRIX_SIZE) {
 		i = MASK_MATRIX_SIZE-l;
 		for(size_t j = 0; j < i; j++)

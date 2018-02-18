@@ -219,6 +219,7 @@ PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), Intr
 			break;
 		case PPEDIOP_EGAIS_WAYBILL:
 		case PPEDIOP_EGAIS_WAYBILL_V2:
+		case PPEDIOP_EGAIS_WAYBILL_V3: // @v9.9.5
 		case PPEDIOP_EGAIS_WAYBILLACT:
 		case PPEDIOP_EGAIS_WAYBILLACT_V2:
 		case PPEDIOP_EGAIS_ACTCHARGEON:
@@ -229,6 +230,7 @@ PPEgaisProcessor::Packet::Packet(int docType) : DocType(docType), Flags(0), Intr
 		case PPEDIOP_EGAIS_REPLYRESTSSHOP:
 		case PPEDIOP_EGAIS_ACTWRITEOFF:
 		case PPEDIOP_EGAIS_ACTWRITEOFF_V2:
+		case PPEDIOP_EGAIS_ACTWRITEOFF_V3: // @v9.9.5
 		case PPEDIOP_EGAIS_ACTWRITEOFFSHOP:
 		case PPEDIOP_EGAIS_TRANSFERTOSHOP:
 		case PPEDIOP_EGAIS_TRANSFERFROMSHOP: P_Data = new PPBillPacket; break;
@@ -256,6 +258,7 @@ PPEgaisProcessor::Packet::~Packet()
 		case PPEDIOP_EGAIS_REPLYFORMA: delete ((EgaisRefATbl::Rec *)P_Data); break;
 		case PPEDIOP_EGAIS_WAYBILL:
 		case PPEDIOP_EGAIS_WAYBILL_V2: // @v9.5.5
+		case PPEDIOP_EGAIS_WAYBILL_V3: // @v9.9.5
 		case PPEDIOP_EGAIS_WAYBILLACT:
 		case PPEDIOP_EGAIS_WAYBILLACT_V2: // @v9.5.8
 		case PPEDIOP_EGAIS_ACTCHARGEON:
@@ -266,6 +269,7 @@ PPEgaisProcessor::Packet::~Packet()
 		case PPEDIOP_EGAIS_REPLYRESTSSHOP:
 		case PPEDIOP_EGAIS_ACTWRITEOFF:
 		case PPEDIOP_EGAIS_ACTWRITEOFF_V2: // @v9.3.12
+		case PPEDIOP_EGAIS_ACTWRITEOFF_V3: // @v9.9.5
 		case PPEDIOP_EGAIS_ACTWRITEOFFSHOP: // @v9.4.0
 		case PPEDIOP_EGAIS_TRANSFERTOSHOP:
 		case PPEDIOP_EGAIS_TRANSFERFROMSHOP: delete ((PPBillPacket *)P_Data); break;
@@ -848,7 +852,7 @@ int SLAPI PPEgaisProcessor::QueryRests(PPID locID, const char *)
 {
 	int    ok = -1;
 	Ack    ack;
-	const  int __v2 = BIN(Cfg.E.Flags & Cfg.fEgaisVer2Fmt);
+	const  int __v2 = BIN(Cfg.E.Flags & (Cfg.fEgaisVer2Fmt|Cfg.fEgaisVer3Fmt)); // @v9.9.5 |Cfg.fEgaisVer3Fmt
     Packet qp(__v2 ? PPEDIOP_EGAIS_QUERYRESTS_V2 : PPEDIOP_EGAIS_QUERYRESTS);
 	THROW(PutQuery(qp, locID, __v2 ? "QueryRests_v2" : "QueryRests", ack));
 	CATCHZOK
@@ -1087,7 +1091,10 @@ static const EgaisDocTypeEntry _EgaisDocTypes[] = {
 	{ PPEDIOP_EGAIS_WAYBILL_V2,       "WayBill_v2" }, // @v9.5.5
 	{ PPEDIOP_EGAIS_TTNINFORMF2REG,   "TTNInformF2Reg" }, // @v9.5.5
 	{ PPEDIOP_EGAIS_WAYBILLACT_V2,    "WayBillAct_v2" }, // @v9.5.8
-	{ PPEDIOP_EGAIS_NOTIFY_WBVER2,    "InfoVersionTTN" } // @v9.7.2
+	{ PPEDIOP_EGAIS_NOTIFY_WBVER2,    "InfoVersionTTN" }, // @v9.7.2
+	{ PPEDIOP_EGAIS_WAYBILL_V3,       "WayBill_v3" }, // @v9.9.5
+	{ PPEDIOP_EGAIS_WAYBILLACT_V3,    "WayBillAct_v3" }, // @v9.9.5
+	{ PPEDIOP_EGAIS_ACTWRITEOFF_V3,   "ActWriteOff_v3" }, // @v9.9.5
 };
 
 const char * FASTCALL PPEgaisProcessor::GetDocTypeTag(int docType)
@@ -1655,34 +1662,52 @@ int SLAPI PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * 
 	return ok;
 }
 
-int SLAPI PPEgaisProcessor::WriteInformCode(SXml::WDoc & rXmlDoc, const char * pNs, char informKind, SString & rCode, int v2)
+int SLAPI PPEgaisProcessor::WriteInformCode(SXml::WDoc & rXmlDoc, const char * pNs, char informKind, SString & rCode, int docType)
 {
 	assert(oneof2(informKind, 'A', 'B'));
     int    ok = 1;
     if(oneof2(informKind, 'A', 'B')) {
+		int    done = 0;
 		SString temp_buf;
-		(temp_buf = pNs).CatChar(':').Cat("Inform");
-		if(v2) {
-			if(informKind == 'A')
-				temp_buf.Cat("F1");
-			else if(informKind == 'B')
-				temp_buf.Cat("F2");
+		if(docType == PPEDIOP_EGAIS_WAYBILL_V3) {
+			if(informKind == 'A') {
+				(temp_buf = pNs).Cat("FARegId");
+				SXml::WNode w_s(rXmlDoc, temp_buf, EncText(rCode));
+				done = 1;
+			}
+			else if(informKind == 'B') {
+				(temp_buf = pNs).CatChar(':').Cat("Inform").Cat("F2");
+			}
 		}
 		else {
-			temp_buf.CatChar(informKind);
-		}
-		SXml::WNode w_s(rXmlDoc, temp_buf);
-		if(informKind == 'A') {
-			w_s.PutInner("pref:RegId", EncText(rCode));
-		}
-		else {
-			if(v2) {
-				SXml::WNode w_i(rXmlDoc, "pref:InformF2Item");
-				w_i.PutInner("pref:F2RegId", EncText(rCode));
+			(temp_buf = pNs).CatChar(':').Cat("Inform");
+			if(docType == PPEDIOP_EGAIS_WAYBILL_V2) {
+				if(informKind == 'A')
+					temp_buf.Cat("F1");
+				else if(informKind == 'B')
+					temp_buf.Cat("F2");
 			}
 			else {
-				SXml::WNode w_i(rXmlDoc, "pref:InformBItem");
-				w_i.PutInner("pref:BRegId", EncText(rCode));
+				temp_buf.CatChar(informKind);
+			}
+		}
+		if(!done) {
+			SXml::WNode w_s(rXmlDoc, temp_buf);
+			if(informKind == 'A') {
+				w_s.PutInner("pref:RegId", EncText(rCode));
+			}
+			else {
+				if(docType == PPEDIOP_EGAIS_WAYBILL_V3) {
+					w_s.PutInner("ce:F2RegId", EncText(rCode));
+				}
+				else if(docType == PPEDIOP_EGAIS_WAYBILL_V2) {
+					SXml::WNode w_i(rXmlDoc, "pref:InformF2Item");
+					w_i.PutInner("pref:F2RegId", EncText(rCode));
+				}
+				else {
+					SXml::WNode w_i(rXmlDoc, "pref:InformBItem");
+					w_i.PutInner("pref:BRegId", EncText(rCode));
+				}
 			}
 		}
     }
@@ -1891,6 +1916,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 	SString temp_buf;
 	SString bill_text;
 	SString lot_text;
+	StringSet ss_ext_codes;
 	PrcssrAlcReport::GoodsItem agi;
 	assert(pX);
 	THROW_INVARG(pX);
@@ -1922,7 +1948,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					{ 13, "awr",  "ActWriteOff"          }, // ambiguity
 					{ 14, "qf",   "QueryFormAB"          },
 					{ 15, "bk",   "QueryBarcode"         },
-					{ 16, "ce",   "CommonEnum"           },
+					{ 16, "ce",   "CommonEnum"           }, // ambiguity
 					{ 17, "pref", "ProductRef_v2"        }, // ambiguity
 					{ 18, "tts",  "TransferToShop"       },
 					{ 19, "ainp", "ActChargeOnShop_v2"   }, // ambiguity
@@ -1935,6 +1961,9 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 					{ 26, "wb",   "TTNSingle_v2"         }, // ambiguity
 					{ 27, "qp",   "InfoVersionTTN"       }, // ambiguity
 					{ 28, "awr",  "ActWriteOff_v2"       }, // ambiguity
+					{ 29, "wa",   "ActTTNSingle_v3"      }, // ambiguity // @v9.9.5
+					{ 30, "ce",   "CommonV3"             }, // ambiguity // @v9.9.5
+					{ 31, "wb",   "TTNSingle_v3"         }, // ambiguity // @v9.9.5
 				};
 				const SString fsrar_url_prefix = "http://fsrar.ru/WEGAIS/";
 				n_docs.PutAttrib("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
@@ -1948,14 +1977,15 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						case  3: skip = BIN(oneof4(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTWRITEOFFSHOP)); break; // "oref" "ClientRef"
 						case  4: skip = BIN(oneof7(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_ACTCHARGEONSHOP,
 							PPEDIOP_EGAIS_TRANSFERFROMSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_ACTWRITEOFF_V2)); break; // "pref" "ProductRef"
-						case  5: skip = BIN(doc_type == PPEDIOP_EGAIS_WAYBILL_V2); break; // "wb"
+						case  5: skip = BIN(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)); break; // "wb"
 						case  7: skip = BIN(doc_type != PPEDIOP_EGAIS_REQUESTREPEALWB); break;
 						case  6: skip = BIN(oneof2(doc_type, PPEDIOP_EGAIS_REQUESTREPEALWB, PPEDIOP_EGAIS_NOTIFY_WBVER2)); break;
-						case  8: skip = BIN(doc_type == PPEDIOP_EGAIS_WAYBILLACT_V2); break; // "wa"
+						case  8: skip = BIN(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)); break; // "wa"
 						case 10: skip = BIN(doc_type == PPEDIOP_EGAIS_ACTCHARGEON_V2); break; // "iab"
 						case 11: skip = BIN(doc_type == PPEDIOP_EGAIS_CONFIRMREPEALWB); break; // "wt"
 						case 12: skip = BIN(doc_type != PPEDIOP_EGAIS_CONFIRMREPEALWB); break; // "wt"
 						case 13: skip = BIN(oneof3(doc_type, PPEDIOP_EGAIS_CONFIRMREPEALWB, PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_ACTWRITEOFF_V2)); break; // "awr"
+						case 16: skip = BIN(doc_type == PPEDIOP_EGAIS_WAYBILLACT_V3); break; // "ce"
 						case 17: skip = BIN(!oneof7(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_TRANSFERTOSHOP,
 							PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2,
 							PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_ACTWRITEOFF_V2)); break; // "pref" "ProductRef_v2"
@@ -1968,6 +1998,9 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						case 26: skip = BIN(doc_type != PPEDIOP_EGAIS_WAYBILL_V2); break; // "wb"
 						case 27: skip = BIN(doc_type != PPEDIOP_EGAIS_NOTIFY_WBVER2); break; // "qp"
 						case 28: skip = BIN(doc_type != PPEDIOP_EGAIS_ACTWRITEOFF_V2); break; // "awr"
+						case 29: skip = BIN(doc_type != PPEDIOP_EGAIS_WAYBILLACT_V3); break; // "wa"
+						case 30: skip = BIN(!oneof2(doc_type, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILLACT_V3)); break; // "ce"
+						case 31: skip = BIN(doc_type != PPEDIOP_EGAIS_WAYBILL_V3); break; // "wb"
 					}
 					if(!skip) {
 						bill_text.Z().Cat("xmlns").CatChar(':').Cat(r_entry.P_Ns); // bill_text as temporary buffer
@@ -1984,7 +2017,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 				{
 					(temp_buf = "ns").CatChar(':').Cat(p_doc_type_tag);
 					SXml::WNode n_dt(_doc, temp_buf);
-					if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2)) {
+					if(oneof3(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) { // @v9.9.5 PPEDIOP_EGAIS_WAYBILL_V3
 						const  PPBillPacket * p_bp = (const PPBillPacket *)rPack.P_Data;
 						int    wb_type = 0;
 						PPOprKind op_rec;
@@ -2097,7 +2130,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									Cat((p_bp->P_Freight && checkdate(p_bp->P_Freight->IssueDate, 0)) ? p_bp->P_Freight->IssueDate : p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY));
 								{
 									long woi_flags = woifStrict|woifDontSendWithoutFSRARID;
-									if(doc_type == PPEDIOP_EGAIS_WAYBILL_V2) {
+									if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) {
 										woi_flags |= woifVersion2;
 									}
 									else {
@@ -2219,7 +2252,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									w_p.PutInner("wb:Identity", EncText(temp_buf.Z().Cat(r_ti.RByBill)));
 									{
 										long wpi_flags = wpifPutManufInfo;
-										if(doc_type == PPEDIOP_EGAIS_WAYBILL_V2)
+										if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3))
 											wpi_flags |= wpifVersion2;
 										THROW(WriteProductInfo(_doc, "wb:Product", r_ti.GoodsID, r_ti.LotID, wpi_flags, 0))
 									}
@@ -2231,8 +2264,29 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 									// @v9.8.11 p_bp->SnL.GetNumber(tidx, &temp_buf);
 									p_bp->LTagL.GetNumber(PPTAG_LOT_SN, tidx, temp_buf); // @v9.8.11
 									w_p.PutInnerSkipEmpty("wb:Party", EncText(temp_buf));
-									WriteInformCode(_doc, "wb", 'A', ref_a, BIN(doc_type == PPEDIOP_EGAIS_WAYBILL_V2));
-									WriteInformCode(_doc, "wb", 'B', ref_b, BIN(doc_type == PPEDIOP_EGAIS_WAYBILL_V2));
+									{
+										WriteInformCode(_doc, "wb", 'A', ref_a, doc_type);
+										if(doc_type == PPEDIOP_EGAIS_WAYBILL_V3) {
+											SXml::WNode w_s(_doc, "wb:InformF2");
+											w_s.PutInner("ce:F2RegId", EncText(ref_b));
+											if(p_bp->XcL.Get(tidx+1, 0, ss_ext_codes) > 0 && ss_ext_codes.getCount()) {
+												SXml::WNode w_m(_doc, "ce:MarkInfo");
+												{
+													SXml::WNode w_box(_doc, "ce:boxpos");
+													(temp_buf = "box").CatChar('-').Cat((long)(tidx+1));
+													w_box.PutInner("ce:boxnumber", EncText(temp_buf));
+													{
+														SXml::WNode w_amclist(_doc, "ce:amclist");
+														for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);)
+															w_amclist.PutInner("ce:amc", EncText(temp_buf));
+													}
+												}
+											}
+										}
+										else {
+											WriteInformCode(_doc, "wb", 'B', ref_b, doc_type);
+										}
+									}
 								}
                         	}
                         }
@@ -2308,7 +2362,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						n_h.PutInner("wt:WBRegId", EncText(temp_buf = p_ticket->RegIdent));
 						n_h.PutInnerSkipEmpty("wt:Note", EncText(temp_buf = p_ticket->Comment));
 					}
-					else if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2)) {
+					else if(oneof3(doc_type, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)) {
 						PPBillPacket * p_bp = (PPBillPacket *)rPack.P_Data;
 						PPBillPacket * p_link_bp = 0;
 						PPBillPacket _link_bp;
@@ -2322,7 +2376,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 						THROW_PP_S(edi_ident.NotEmptyS(), PPERR_EGAIS_BILLHASNEDIIDENTTAG, bill_text);
 						if(P_BObj->CheckStatusFlag(p_bp->Rec.StatusID, BILSTF_READYFOREDIACK))
 							is_status_suited = 1;
-						if(oneof2(p_bp->Rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2)) { // @v9.5.6
+						if(oneof3(p_bp->Rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) { // @v9.5.6
 							int    cmp_result = 0; // 0 - accepted, -1 - rejected,
 								// & 0x01 - есть отличия в меньшую сторону по количеству
 								// & 0x02 - есть отличия в большую сторону по количеству
@@ -2598,7 +2652,6 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 							n_h.PutInner("awr:TypeWriteOff", EncText(temp_buf));
 						}
 						{
-							StringSet ss_ext_codes;
 							SXml::WNode n_c(_doc, "awr:Content");
 							for(uint tidx = 0; tidx < p_bp->GetTCount(); tidx++) {
 								const PPTransferItem & r_ti = p_bp->ConstTI(tidx);
@@ -3839,12 +3892,10 @@ int SLAPI PPEgaisProcessor::Read_IformA(xmlNode * pFirstNode, Packet * pPack, Pr
 			p_data->CountryCode = agi.CountryCode;
 			p_data->Flags |= EgaisRefACore::fVerified;
 		}
-		else if(SXml::GetContentByName(p_n, "BottlingDate", temp_buf)) {
+		else if(SXml::GetContentByName(p_n, "BottlingDate", temp_buf))
 			strtodate(temp_buf, DATF_ISO8601, &p_data->BottlingDate);
-		}
-		else if(SXml::GetContentByName(p_n, "EGAISDate", temp_buf)) {
+		else if(SXml::GetContentByName(p_n, "EGAISDate", temp_buf))
 			strtodate(temp_buf, DATF_ISO8601, &p_data->ActualDate);
-		}
     }
     if(pRefC) {
 		pRefC->SetRefA(*p_data);
@@ -3957,18 +4008,14 @@ int SLAPI PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Pa
 					else if(temp_buf.CmpNC("Rejected") == 0)
 						is_accepted = 0;
 				}
-                else if(SXml::GetContentByName(p_h, "ACTNUMBER", temp_buf)) {
+                else if(SXml::GetContentByName(p_h, "ACTNUMBER", temp_buf))
 					(act_code = temp_buf).Transf(CTRANSF_UTF8_TO_INNER);
-                }
-                else if(SXml::GetContentByName(p_h, "ActDate", temp_buf)) {
+                else if(SXml::GetContentByName(p_h, "ActDate", temp_buf))
                     strtodate(temp_buf, DATF_ISO8601, &act_date);
-                }
-                else if(SXml::GetContentByName(p_h, "WBRegId", temp_buf)) {
+                else if(SXml::GetContentByName(p_h, "WBRegId", temp_buf))
 					(bill_ident = temp_buf).Transf(CTRANSF_UTF8_TO_INNER);
-                }
-                else if(SXml::GetContentByName(p_h, "Note", temp_buf)) {
+                else if(SXml::GetContentByName(p_h, "Note", temp_buf))
 					(memo_note = temp_buf).Utf8ToChar();
-                }
             }
         }
 		else if(SXml::IsName(p_n, "Content")) {
@@ -3976,15 +4023,12 @@ int SLAPI PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Pa
 				WayBillActRecadvItem item;
 				if(SXml::IsName(p_c, "Position")) {
 					for(xmlNode * p_pos = p_c->children; ok > 0 && p_pos; p_pos = p_pos->next) {
-						if(SXml::GetContentByName(p_pos, "Identity", temp_buf)) {
+						if(SXml::GetContentByName(p_pos, "Identity", temp_buf))
 							item.P = temp_buf.ToLong();
-						}
-						else if(SXml::GetContentByName(p_pos, "InformBRegId", temp_buf)) {
+						else if(SXml::GetContentByName(p_pos, "InformBRegId", temp_buf))
 							temp_buf.Transf(CTRANSF_UTF8_TO_INNER).CopyTo(item.InformBIdent, sizeof(item.InformBIdent));
-						}
-						else if(SXml::GetContentByName(p_pos, "RealQuantity", temp_buf)) {
+						else if(SXml::GetContentByName(p_pos, "RealQuantity", temp_buf))
 							item.RealQtty = temp_buf.ToReal();
-						}
 					}
 					THROW_SL(items.insert(&item));
 				}
@@ -4210,7 +4254,7 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
                 else if(SXml::GetContentByName(p_h, "Note", memo_note)) {
                 	memo_note.Transf(CTRANSF_UTF8_TO_INNER);
                 	if(memo_note.CmpPrefix(P_IntrExpndNotePrefix, 1) == 0) {
-						(temp_buf = memo_note).ShiftLeft(strlen(P_IntrExpndNotePrefix)).Strip().ShiftLeftChr('=').Strip();
+						(temp_buf = memo_note).ShiftLeft(sstrlen(P_IntrExpndNotePrefix)).Strip().ShiftLeftChr('=').Strip();
 						intr_expend_bill_id = temp_buf.ToLong();
 						SETIFZ(intr_expend_bill_id, -1);
                 	}
@@ -4343,9 +4387,11 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 			}
 			else {
 				SString serial;
+				StringSet ss_ext_codes;
 				for(xmlNode * p_c = p_n->children; p_c; p_c = p_c->next) {
 					PPTransferItem ti;
-					serial = 0;
+					serial.Z();
+					ss_ext_codes.Z();
 					if(p_bp) {
 						THROW(ti.Init(&p_bp->Rec, 0, 0));
 					}
@@ -4392,6 +4438,9 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 							}
 							else if(SXml::GetContentByName(p_pos, "Party", serial))
 								serial.Strip().Transf(CTRANSF_UTF8_TO_INNER);
+							else if(SXml::GetContentByName(p_pos, "FARegId", temp_buf)) { // @v9.9.5 (egais ver 3)
+								alc_ext.InformA = temp_buf.Strip().Transf(CTRANSF_UTF8_TO_INNER);
+							}
 							else if(SXml::IsName(p_pos, "InformA") || SXml::IsName(p_pos, "InformF1")) {
 								for(xmlNode * p_inf = p_pos->children; p_inf; p_inf = p_inf->next) {
 									if(SXml::GetContentByName(p_inf, "RegId", alc_ext.InformA)) {
@@ -4402,7 +4451,27 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 							}
 							else if(SXml::IsName(p_pos, "InformB") || SXml::IsName(p_pos, "InformF2")) {
 								for(xmlNode * p_inf = p_pos->children; p_inf; p_inf = p_inf->next) {
-									if(SXml::IsName(p_inf, "InformBItem") || SXml::IsName(p_inf, "InformF2Item")) {
+									if(SXml::GetContentByName(p_inf, "F2RegId", temp_buf)) { // @v9.9.5 (egais ver 3)
+										alc_ext.InformB = temp_buf.Strip().Transf(CTRANSF_UTF8_TO_INNER);
+									}
+									else if(SXml::IsName(p_inf, "MarkInfo")) {
+										for(xmlNode * p_boxpos = p_inf->children; p_boxpos; p_boxpos = p_boxpos->next) {
+											if(SXml::IsName(p_boxpos, "boxpos")) {
+												for(xmlNode * p_box = p_boxpos->children; p_box; p_box = p_box->next) {
+													if(SXml::IsName(p_box, "boxnumber")) {
+													}
+													else if(SXml::IsName(p_box, "amclist")) {
+														for(xmlNode * p_amc = p_box->children; p_amc; p_amc = p_amc->next) {
+															if(SXml::GetContentByName(p_amc, "amc", temp_buf) > 0) {
+																ss_ext_codes.add(temp_buf.Strip());
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+									else if(SXml::IsName(p_inf, "InformBItem") || SXml::IsName(p_inf, "InformF2Item")) {
 										for(xmlNode * p_inf_item = p_inf->children; p_inf_item; p_inf_item = p_inf_item->next) {
 											if(SXml::GetContentByName(p_inf_item, "BRegId", alc_ext.InformB) || SXml::GetContentByName(p_inf_item, "F2RegId", alc_ext.InformB))
 												alc_ext.InformB.Strip().Transf(CTRANSF_UTF8_TO_INNER);
@@ -4446,6 +4515,11 @@ int SLAPI PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const
 							}
 							uint   new_pos = p_bp->GetTCount();
 							THROW(p_bp->LoadTItem(&ti, 0, 0/*serial*/));
+							// @v9.9.5 {
+							if(ss_ext_codes.getCount()) {
+								p_bp->XcL.Set(new_pos+1, &ss_ext_codes);
+							}
+							// } @v9.9.5
 							{
 								EgaisWayBillRowTags rt;
 								MEMSZERO(rt);
@@ -4584,7 +4658,7 @@ int SLAPI PPEgaisProcessor::Helper_AcceptBillPacket(Packet * pPack, TSCollection
 			if(pPackList) {
 				for(uint pi = packIdx+1; pi < pPackList->getCount(); pi++) {
                     const Packet * p_pack = pPackList->at(pi);
-                    if(p_pack && p_pack->P_Data && oneof2(p_pack->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2) && !(p_pack->Flags & Packet::fFaultObj)) {
+                    if(p_pack && p_pack->P_Data && oneof3(p_pack->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3) && !(p_pack->Flags & Packet::fFaultObj)) {
 						PPBillPacket * p_other_bp = (PPBillPacket *)p_pack->P_Data;
 						if((!use_dt_in_bill_analog || p_other_bp->Rec.Dt == p_bp->Rec.Dt) && sstreq(p_other_bp->Rec.Code, p_bp->Rec.Code)) {
                             if(p_other_bp->BTagL.GetItemStr(PPTAG_BILL_OUTERCODE, temp_buf) > 0 && temp_buf == bill_ident) {
@@ -5726,7 +5800,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 				for(xmlNode * p_nd = p_n->children; p_nd; p_nd = p_nd->next) {
 					const int doc_type = p_nd ? RecognizeDocTypeTag((const char *)p_nd->name) : 0;
 					int    rs = 0;
-					if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2)) {
+					if(oneof3(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						THROW(rs = Read_WayBill(p_nd->children, locID, pPeriod, p_new_pack, pRefC));
 						if(rs > 0) {
@@ -5734,7 +5808,7 @@ int SLAPI PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, lon
 							ok = 1;
 						}
 					}
-					else if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2)) {
+					else if(oneof3(doc_type, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
 						THROW(rs = Read_WayBillAct(p_nd->children, locID, p_new_pack));
 						if(rs > 0) {
@@ -6093,8 +6167,8 @@ int SLAPI PPEgaisProcessor::Helper_FinishBillProcessingByTicket(int ticketType, 
 						}
 					}
 					// @v8.9.5 {
-					if((!oneof2(rRec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2) && !selfreject_ticket) &&
-						(rRec.EdiOp || oneof2(pT->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2))) {
+					if((!oneof3(rRec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3) && !selfreject_ticket) &&
+						(rRec.EdiOp || oneof3(pT->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3))) {
 						if(pT->RegIdent.NotEmpty()) {
 							SString ex_edi_ident;
 							if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_id, PPTAG_BILL_EDIIDENT, ex_edi_ident) > 0) {
@@ -6212,8 +6286,9 @@ int SLAPI PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor:
 		ObjTagItem tag_item;
 		PPIDArray ediop_list;
 		ediop_list.addzlist(PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_ACTCHARGEON, PPEDIOP_EGAIS_ACTCHARGEON_V2,
-			PPEDIOP_EGAIS_ACTWRITEOFF, PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP,
-			PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILLACT_V2, 0);
+			PPEDIOP_EGAIS_ACTWRITEOFF, PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_ACTWRITEOFF_V3, PPEDIOP_EGAIS_TRANSFERTOSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP,
+			PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3,
+			PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3, 0);
 		if(pT->DocType == PPEDIOP_EGAIS_CONFIRMTICKET) {
 			temp_buf = pT->RegIdent;
 			p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, temp_buf, &bill_id_list);
@@ -6246,7 +6321,7 @@ int SLAPI PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor:
 					selfreject_ticket = 1000;
 			}
 			if(!selfreject_ticket) {
-				if(oneof2(pT->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2)) {
+				if(oneof3(pT->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) {
 					//
 					// @v9.8.6 Для тикетов на документы отгрузки порядок идентификации документа меняем:
 					// сначала ищем по PPTAG_BILL_EDIACK потом по PPTAG_BILL_EDIIDENT. Это связано с тем,
@@ -6377,7 +6452,7 @@ int SLAPI PPEgaisProcessor::Helper_CollectRefs(void * pCtx, TSCollection <PPEgai
 			if(temp_buf.NotEmptyS())
 				doc_type = PPEgaisProcessor::RecognizeDocTypeTag(temp_buf);
 		}
-		if(oneof7(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_REPLYCLIENT,
+		if(oneof8(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_REPLYCLIENT,
 			PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYAP)) {
 			int    adr = 1; // AcceptDoc result
 			if(!(p_reply->Status & Reply::stOffline)) {
@@ -6487,10 +6562,10 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 	const uint reply_count = reply_list.getCount();
 	if(reply_count) {
 		LongArray ediop_list;
-		ediop_list.addzlist(PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TTNINFORMF2REG,
+		ediop_list.addzlist(PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_TTNINFORMBREG, PPEDIOP_EGAIS_TTNINFORMF2REG,
 			PPEDIOP_EGAIS_TICKET, PPEDIOP_EGAIS_REPLYCLIENT, PPEDIOP_EGAIS_REPLYRESTS, PPEDIOP_EGAIS_REPLYRESTS_V2, PPEDIOP_EGAIS_REPLYRESTSSHOP,
 			PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_REPLYAP,
-			PPEDIOP_EGAIS_REPLYFORMA, PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYBARCODE, PPEDIOP_EGAIS_WAYBILLACT_V2,
+			PPEDIOP_EGAIS_REPLYFORMA, PPEDIOP_EGAIS_REPLYRESTSSHOP, PPEDIOP_EGAIS_REPLYBARCODE, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3,
 			PPEDIOP_EGAIS_REQUESTREPEALWB, 0);
 		ediop_list.sortAndUndup();
 		THROW_MEM(SETIFZ(P_RefC, new RefCollection));
@@ -6601,7 +6676,7 @@ int SLAPI PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, lon
 						}
 					}
 				}
-				else if(oneof2(p_pack->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2)) {
+				else if(oneof3(p_pack->DocType, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3)) {
 					if(!Helper_AcceptBillPacket(p_pack, &pack_list, packidx))
 						LogLastError();
 				}
@@ -7022,7 +7097,7 @@ int SLAPI PPEgaisProcessor::GetAcceptedBillList(const PPBillExportFilt & rP, lon
 				for(uint j = 0; j < rP.IdList.getCount(); j++) {
 					const PPID bill_id = rP.IdList.get(j);
                     if(P_BObj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID == op_id) {
-						if(oneof2(bill_rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2) && (!rP.LocID || bill_rec.LocID == rP.LocID)) {
+						if(oneof3(bill_rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3) && (!rP.LocID || bill_rec.LocID == rP.LocID)) {
 							if(!(flags & bilstfWritedOff) || (bill_rec.Flags & BILLF_WRITEDOFF)) {
 								if(CheckBillForMainOrgID(bill_rec, op_rec)) {
 									temp_bill_list.add(bill_rec.ID);
@@ -7034,7 +7109,7 @@ int SLAPI PPEgaisProcessor::GetAcceptedBillList(const PPBillExportFilt & rP, lon
 			}
 			else {
 				for(DateIter di(&rP.Period); P_BObj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
-					if(oneof2(bill_rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2) && (!rP.LocID || bill_rec.LocID == rP.LocID)) {
+					if(oneof3(bill_rec.EdiOp, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3) && (!rP.LocID || bill_rec.LocID == rP.LocID)) {
 						if(!(flags & bilstfWritedOff) || (bill_rec.Flags & BILLF_WRITEDOFF)) {
 							if(CheckBillForMainOrgID(bill_rec, op_rec))
 								temp_bill_list.add(bill_rec.ID);
@@ -7109,7 +7184,11 @@ int SLAPI PPEgaisProcessor::SendBillActs(const PPBillExportFilt & rP)
 		if(P_BObj->ExtractPacket(bill_id, p_bp) > 0) {
             Ack ack;
 			const char * p_suffix = 0;
-			if(p_bp->Rec.EdiOp == PPEDIOP_EGAIS_WAYBILL_V2) {
+			if(p_bp->Rec.EdiOp == PPEDIOP_EGAIS_WAYBILL_V3) {
+				p_suffix = "WayBillAct_v3";
+				pack.DocType = PPEDIOP_EGAIS_WAYBILLACT_V3;
+			}
+			else if(p_bp->Rec.EdiOp == PPEDIOP_EGAIS_WAYBILL_V2) {
 				p_suffix = "WayBillAct_v2";
 				pack.DocType = PPEDIOP_EGAIS_WAYBILLACT_V2;
 			}
@@ -7498,24 +7577,36 @@ int SLAPI PPEgaisProcessor::SendBills(const PPBillExportFilt & rP)
 {
 	int    ok = -1;
 	const  int __v2 = BIN(Cfg.E.Flags & Cfg.fEgaisVer2Fmt);
+	const  int __v3 = BIN(Cfg.E.Flags & Cfg.fEgaisVer3Fmt); // @v9.9.5
 	SString file_name;
 	SString temp_buf;
 	PPIDArray totransm_bill_list, reject_bill_list;
 	{
 		const PPEgaisProcessor::BillTransmissionPattern _BillTransmPatterns[] = {
 			{ bilstfReadyForAck|bilstfChargeOn|bilstfV1, PPEDIOP_EGAIS_ACTCHARGEON,       "ActChargeOn" },
-			{ bilstfReadyForAck|bilstfChargeOn|bilstfV2, PPEDIOP_EGAIS_ACTCHARGEON_V2,    "ActChargeOn_v2" },
+			{ bilstfReadyForAck|bilstfChargeOn|bilstfV2|bilstfV3, PPEDIOP_EGAIS_ACTCHARGEON_V2,    "ActChargeOn_v2" },
 			{ bilstfReadyForAck|bilstfChargeOnShop,      PPEDIOP_EGAIS_ACTCHARGEONSHOP,   "ActChargeOnShop_v2" },
 			{ bilstfReadyForAck|bilstfWriteOffShop,      PPEDIOP_EGAIS_ACTWRITEOFFSHOP,   "ActWriteOffShop_v2" },
 			{ bilstfReadyForAck|bilstfTransferToShop,    PPEDIOP_EGAIS_TRANSFERTOSHOP,    "TransferToShop" },
 			{ bilstfReadyForAck|bilstfTransferFromShop,  PPEDIOP_EGAIS_TRANSFERFROMSHOP,  "TransferFromShop" },
 			{ bilstfReadyForAck|bilstfLosses|bilstfV1,   PPEDIOP_EGAIS_ACTWRITEOFF,       "ActWriteOff" },
 			{ bilstfReadyForAck|bilstfLosses|bilstfV2,   PPEDIOP_EGAIS_ACTWRITEOFF_V2,    "ActWriteOff_v2" }, // @v9.7.7
+			{ bilstfReadyForAck|bilstfLosses|bilstfV3,   PPEDIOP_EGAIS_ACTWRITEOFF_V3,    "ActWriteOff_v3" }, // @v9.9.5
 			{ bilstfReadyForAck|bilstfWbRepealConf,      PPEDIOP_EGAIS_CONFIRMREPEALWB,   "ConfirmRepealWB" } // @v9.5.12
 		};
 		for(uint i = 0; i < SIZEOFARRAY(_BillTransmPatterns); i++) {
 			const PPEgaisProcessor::BillTransmissionPattern & r_pattern = _BillTransmPatterns[i];
-			if(((r_pattern.Flags & bilstfV1) && !__v2) || ((r_pattern.Flags & bilstfV2) && __v2) || !(r_pattern.Flags & (bilstfV1|bilstfV2))) {
+			// @v9.9.5 if(((r_pattern.Flags & bilstfV1) && !__v2) || ((r_pattern.Flags & bilstfV2) && __v2) || !(r_pattern.Flags & (bilstfV1|bilstfV2))) {
+			int __do = 0;
+			if(!(r_pattern.Flags & (bilstfV1|bilstfV2|bilstfV3)))
+				__do = 1;
+			else if((r_pattern.Flags & bilstfV3) && __v3)
+				__do = 1;
+			else if((r_pattern.Flags & bilstfV2) && __v2 && !__v3)
+				__do = 1;
+			else if((r_pattern.Flags & bilstfV1) && !__v2 && !__v3)
+				__do = 1;
+			if(__do) {
 				if(Helper_SendBillsByPattern(rP, r_pattern) > 0)
 					ok = 1;
 			}
@@ -7529,8 +7620,8 @@ int SLAPI PPEgaisProcessor::SendBills(const PPBillExportFilt & rP)
 		reject_bill_list.clear();
 		GetBillListForTransmission(/*locID, period*/rP, bilstfReadyForAck|bilstfExpend|bilstfIntrExpend, totransm_bill_list, &reject_bill_list);
 		{
-			const int edi_op = __v2 ? PPEDIOP_EGAIS_WAYBILL_V2 : PPEDIOP_EGAIS_WAYBILL;
-			const char * p_url_sfx = (Cfg.E.Flags & Cfg.fEgaisVer2Fmt) ? "WayBill_v2" : "WayBill";
+			const int edi_op = __v3 ? PPEDIOP_EGAIS_WAYBILL_V3 : (__v2 ? PPEDIOP_EGAIS_WAYBILL_V2 : PPEDIOP_EGAIS_WAYBILL);
+			const char * p_url_sfx = __v3 ? "WayBill_v3" : (__v2 ? "WayBill_v2" : "WayBill");
 			for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
 				if(Helper_SendBills(totransm_bill_list.get(i), edi_op, rP.LocID, p_url_sfx) > 0)
 					ok = 1;
@@ -7545,7 +7636,11 @@ int SLAPI PPEgaisProcessor::SendBills(const PPBillExportFilt & rP)
 					if(p_bp->Rec.Flags2 & BILLF2_DECLINED && p_bp->BTagL.GetItemStr(PPTAG_BILL_EDIIDENT, temp_buf) > 0) {
 						Ack ack;
 						const char * p_suffix = 0;
-						if(/*p_bp->Rec.EdiOp == PPEDIOP_EGAIS_WAYBILL_V2*/__v2) { // @v9.7.5 (p_bp->Rec.EdiOp == PPEDIOP_EGAIS_WAYBILL_V2)-->__v2
+						if(__v3) {
+							p_suffix = "WayBillAct_v3";
+							pack.DocType = PPEDIOP_EGAIS_WAYBILLACT_V3;
+						}
+						else if(/*p_bp->Rec.EdiOp == PPEDIOP_EGAIS_WAYBILL_V2*/__v2) { // @v9.7.5 (p_bp->Rec.EdiOp == PPEDIOP_EGAIS_WAYBILL_V2)-->__v2
 							p_suffix = "WayBillAct_v2";
 							pack.DocType = PPEDIOP_EGAIS_WAYBILLACT_V2;
 						}
@@ -7572,8 +7667,8 @@ int SLAPI PPEgaisProcessor::SendBills(const PPBillExportFilt & rP)
 		{
 			for(uint i = 0; i < totransm_bill_list.getCount(); i++) {
 				const PPID bill_id = totransm_bill_list.get(i);
-				const int edi_op = __v2 ? PPEDIOP_EGAIS_WAYBILL_V2 : PPEDIOP_EGAIS_WAYBILL;
-				const char * p_url_sfx = __v2 ? "WayBill_v2" : "WayBill";
+				const int edi_op = __v3 ? PPEDIOP_EGAIS_WAYBILL_V3 : (__v2 ? PPEDIOP_EGAIS_WAYBILL_V2 : PPEDIOP_EGAIS_WAYBILL);
+				const char * p_url_sfx = __v3 ? "WayBill_v3" : (__v2 ? "WayBill_v2" : "WayBill");
 				PPEgaisProcessor::Packet pack(edi_op);
 				pack.Flags |= PPEgaisProcessor::Packet::fReturnBill;
 				PPBillPacket * p_bp = (PPBillPacket *)pack.P_Data;
@@ -7590,14 +7685,14 @@ int SLAPI PPEgaisProcessor::SendBills(const PPBillExportFilt & rP)
 		{
 			for(uint i = 0; i < reject_bill_list.getCount(); i++) {
 				const PPID bill_id = reject_bill_list.get(i);
-				const int edi_op = __v2 ? PPEDIOP_EGAIS_WAYBILLACT_V2 : PPEDIOP_EGAIS_WAYBILLACT;
+				const int edi_op = __v3 ? PPEDIOP_EGAIS_WAYBILLACT_V3 : (__v2 ? PPEDIOP_EGAIS_WAYBILLACT_V2 : PPEDIOP_EGAIS_WAYBILLACT);
 				PPEgaisProcessor::Packet pack(edi_op);
 				pack.Flags |= PPEgaisProcessor::Packet::fReturnBill;
 				PPBillPacket * p_bp = (PPBillPacket *)pack.P_Data;
 				if(P_BObj->ExtractPacketWithFlags(bill_id, p_bp, BPLD_FORCESERIALS) > 0) {
 					if(p_bp->Rec.Flags2 & BILLF2_DECLINED && p_bp->BTagL.GetItemStr(PPTAG_BILL_EDIIDENT, temp_buf) > 0) {
 						Ack ack;
-						const char * p_suffix = (edi_op == PPEDIOP_EGAIS_WAYBILLACT_V2) ? "WayBillAct_v2" : "WayBillAct";
+						const char * p_suffix = (edi_op == PPEDIOP_EGAIS_WAYBILLACT_V3) ? "WayBillAct_v3" : ((edi_op == PPEDIOP_EGAIS_WAYBILLACT_V2) ? "WayBillAct_v2" : "WayBillAct");
 						const int r = PutQuery(pack, rP.LocID, p_suffix, ack);
 						if(r > 0)
 							ok = 1;
@@ -7651,13 +7746,8 @@ int SLAPI PPEgaisProcessor::SendBills(const PPBillExportFilt & rP)
 	return ok;
 }
 
-SLAPI PPEgaisProcessor::QueryParam::QueryParam()
+SLAPI PPEgaisProcessor::QueryParam::QueryParam() : DocType(0), DbActualizeFlags(0), Flags(0), MainOrgID(0), LocID(0)
 {
-	DocType = 0;
-	DbActualizeFlags = 0;
-	Flags = 0;
-	MainOrgID = 0;
-	LocID = 0;
 }
 
 int SLAPI PPEgaisProcessor::QueryParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
@@ -7993,14 +8083,14 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 						}
 						if(rParam.DbActualizeFlags & rParam._afQueryPerson) {
 							int    is_importer = 0;
-							if(strlen(item.ImporterRarIdent) >= 8) { // Код контрагента 12 символов, но страхуемся значением 8
+							if(sstrlen(item.ImporterRarIdent) >= 8) { // Код контрагента 12 символов, но страхуемся значением 8
 								is_importer = 1;
 								if(P_RefC->PsC.IsVerifiedCode(item.ImporterRarIdent) <= 0) {
 									codes_for_contragents.add(item.ImporterRarIdent);
 									manuf_codes_for_products.add(item.ImporterRarIdent);
 								}
 							}
-							if(strlen(item.ManufRarIdent) >= 8) {
+							if(sstrlen(item.ManufRarIdent) >= 8) {
 								if(P_RefC->PsC.IsVerifiedCode(item.ManufRarIdent) <= 0) {
 									codes_for_contragents.add(item.ManufRarIdent);
 									if(!is_importer)
@@ -8009,7 +8099,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 							}
 						}
 						if(rParam.DbActualizeFlags & rParam._afQueryGoods) {
-							if(strlen(item.AlcCode) > 8) {
+							if(sstrlen(item.AlcCode) > 8) {
 								if(P_RefC->PrC.IsVerifiedCode(item.AlcCode) <= 0)
 									codes_for_products.add(item.AlcCode);
 							}
@@ -8030,7 +8120,7 @@ int SLAPI PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam
 				EgaisPersonCore::Item item;
 				for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
 					if(P_RefC->PsC.RecToItem(P_RefC->PsC.data, item)) {
-						if(strlen(item.INN) >= 8)
+						if(sstrlen(item.INN) >= 8)
 							inn_for_contragents.add(item.INN);
 					}
 				}

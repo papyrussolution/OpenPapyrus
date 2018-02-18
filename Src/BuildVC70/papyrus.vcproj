@@ -65,11 +65,12 @@
 				SubSystem="2"
 				LargeAddressAware="1"
 				TerminalServerAware="1"
-				SwapRunFromNet="TRUE"
+				SwapRunFromNet="FALSE"
 				OptimizeReferences="1"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
-				TargetMachine="1"/>
+				TargetMachine="1"
+				FixedBaseAddress="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -143,14 +144,17 @@
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="FALSE"
 				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
+				GenerateMapFile="TRUE"
 				SubSystem="2"
 				LargeAddressAware="1"
 				TerminalServerAware="1"
-				SwapRunFromNet="TRUE"
+				SwapRunFromNet="FALSE"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
-				TargetMachine="1"/>
+				SetChecksum="TRUE"
+				TargetMachine="1"
+				FixedBaseAddress="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -225,10 +229,12 @@
 				SubSystem="1"
 				LargeAddressAware="1"
 				TerminalServerAware="1"
+				SwapRunFromNet="FALSE"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
-				TargetMachine="1"/>
+				TargetMachine="1"
+				FixedBaseAddress="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -304,10 +310,12 @@
 				SubSystem="1"
 				LargeAddressAware="1"
 				TerminalServerAware="1"
+				SwapRunFromNet="FALSE"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
-				TargetMachine="1"/>
+				TargetMachine="1"
+				FixedBaseAddress="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -383,10 +391,12 @@
 				SubSystem="1"
 				LargeAddressAware="1"
 				TerminalServerAware="0"
+				SwapRunFromNet="FALSE"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
-				TargetMachine="1"/>
+				TargetMachine="1"
+				FixedBaseAddress="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -465,10 +475,12 @@
 				SubSystem="1"
 				LargeAddressAware="1"
 				TerminalServerAware="0"
+				SwapRunFromNet="FALSE"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
-				TargetMachine="1"/>
+				TargetMachine="1"
+				FixedBaseAddress="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -514,7 +526,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib Ws2_32.lib mpr.lib shlwapi.lib winmm.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib Imm32.lib wldap32.lib ..\lib\winddk\hid.lib ..\lib\winddk\hidparse.lib ..\lib\winddk\Setupapi.lib"
-				LinkIncremental="1"/>
+				LinkIncremental="1"
+				SwapRunFromNet="FALSE"
+				FixedBaseAddress="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -4029,10 +4043,10 @@
 				RelativePath="..\Rsrc\Bitmap\banking.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\Tbbutton\barcode.bmp">
+				RelativePath="..\Rsrc\Bitmap\BARCODE.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\BARCODE.bmp">
+				RelativePath="..\Rsrc\Bitmap\Tbbutton\barcode.bmp">
 			</File>
 			<File
 				RelativePath="..\Rsrc\Bitmap\barcodeprinter.bmp">
@@ -4659,10 +4673,10 @@
 				RelativePath="..\Rsrc\Bitmap\Tbbutton\mark.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\matrix.bmp">
+				RelativePath="..\Rsrc\Bitmap\Tbbutton\matrix.bmp">
 			</File>
 			<File
-				RelativePath="..\Rsrc\Bitmap\Tbbutton\matrix.bmp">
+				RelativePath="..\Rsrc\Bitmap\matrix.bmp">
 			</File>
 			<File
 				RelativePath="..\Rsrc\Bitmap\Tbbutton\membership.bmp">

@@ -296,7 +296,7 @@ static int __rep_walk_dir(ENV*env, const char * dir, FILE_LIST_CTX * context)
 		 */
 		tmpfp.filenum = context->count++;
 
-		DB_SET_DBT(tmpfp.info, names[i], strlen(names[i])+1);
+		DB_SET_DBT(tmpfp.info, names[i], sstrlen(names[i])+1);
 		DB_SET_DBT(tmpfp.uid, uid, DB_FILE_ID_LEN);
 retry:
 		avail = (size_t)(&context->buf[context->size]-context->fillptr);

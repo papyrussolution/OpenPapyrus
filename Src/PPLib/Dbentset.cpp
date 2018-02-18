@@ -13,7 +13,7 @@ static int FASTCALL GetAveragePath(const char * name, SString & rBuf)
 	char   buf[512];
 	fnsplit(SLS.GetExePath(), drv, dir, fil, ext);
 	fil[0] = ext[0] = 0;
-	size_t p = strlen(dir);
+	size_t p = sstrlen(dir);
 	if(p) {
 		p--;
 		if(dir[p] == '\\')
@@ -24,7 +24,7 @@ static int FASTCALL GetAveragePath(const char * name, SString & rBuf)
 	if(dir[p] != '\\')
 		dir[p] = '\\';
 	p++;
-	p += strlen(strcpy(dir + p, name));
+	p += sstrlen(strcpy(dir + p, name));
 	dir[p++] = '\\';
 	dir[p] = 0;
 	fnmerge(buf, drv, dir, fil, ext);

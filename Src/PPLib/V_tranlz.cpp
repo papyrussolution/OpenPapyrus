@@ -2710,7 +2710,7 @@ int SLAPI PPViewTrfrAnlz::ViewGraph()
 			InitIteration(PPViewTrfrAnlz::OrdByDefault);
 			for(uint i = 0; NextIteration(&item) > 0; i++) {
 				p_ary[i] = -item.Price;
-				if(strlen(item.GoodsText) > 0)
+				if(sstrlen(item.GoodsText) > 0)
 					STRNSCPY(buf, item.GoodsText);
 				else
 					STRNSCPY(buf, item.PersonText);
@@ -3976,39 +3976,32 @@ public:
 			SetupOprKindCombo(this, CTLSEL_ALCREPCFG_OP_RCP, Data.RcptOpID, 0, &op_list, 0);
 		}
 		{
-			op_list.clear();
-			op_list.addzlist(PPOPT_GOODSRETURN, PPOPT_GOODSEXPEND, PPOPT_GENERIC, 0);
+			op_list.Z().addzlist(PPOPT_GOODSRETURN, PPOPT_GOODSEXPEND, PPOPT_GENERIC, 0);
 			SetupOprKindCombo(this, CTLSEL_ALCREPCFG_OP_RCR, Data.SupplRetOpID, 0, &op_list, 0);
 		}
 		{
-			op_list.clear();
-			op_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GENERIC, 0);
+			op_list.Z().addzlist(PPOPT_GOODSRECEIPT, PPOPT_GENERIC, 0);
 			SetupOprKindCombo(this, CTLSEL_ALCREPCFG_OP_RCE, Data.RcptEtcOpID, 0, &op_list, 0);
 		}
 		{
-			op_list.clear();
-			op_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_GENERIC, 0);
+			op_list.Z().addzlist(PPOPT_GOODSEXPEND, PPOPT_GENERIC, 0);
 			SetupOprKindCombo(this, CTLSEL_ALCREPCFG_OP_EXP, Data.ExpndOpID, 0, &op_list, 0);
 		}
 		{
-			op_list.clear();
-			op_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_GENERIC, 0);
+			op_list.Z().addzlist(PPOPT_GOODSEXPEND, PPOPT_GENERIC, 0);
 			SetupOprKindCombo(this, CTLSEL_ALCREPCFG_OP_EXE, Data.ExpndEtcOpID, 0, &op_list, 0);
 		}
 		{
-			op_list.clear();
-			op_list.addzlist(PPOPT_GOODSRETURN, PPOPT_GOODSRECEIPT, PPOPT_GENERIC, 0);
+			op_list.Z().addzlist(PPOPT_GOODSRETURN, PPOPT_GOODSRECEIPT, PPOPT_GENERIC, 0);
 			SetupOprKindCombo(this, CTLSEL_ALCREPCFG_OP_EXR, Data.SaleRetOpID, 0, &op_list, 0);
 		}
 		{
-			op_list.clear();
-			op_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_GENERIC, 0);
+			op_list.Z().addzlist(PPOPT_GOODSEXPEND, PPOPT_GENERIC, 0);
 			SetupOprKindCombo(this, CTLSEL_ALCREPCFG_OP_INT, Data.IntrExpndOpID, 0, &op_list, 0);
 		}
 		// @v9.3.12 {
 		{
-			op_list.clear();
-			op_list.addzlist(PPOPT_INVENTORY, 0);
+			op_list.Z().addzlist(PPOPT_INVENTORY, 0);
 			SetupOprKindCombo(this, CTLSEL_ALCREPCFG_OP_INV, Data.E.EgaisInvOpID, 0, &op_list, 0);
 		}
 		// } @v9.3.12
@@ -4047,6 +4040,7 @@ public:
 		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 0, PrcssrAlcReport::Config::fDetectAlcByClass);
 		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 1, PrcssrAlcReport::Config::fWhToReg2ByLacks); // @v9.3.8
 		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 2, PrcssrAlcReport::Config::fEgaisVer2Fmt); // @v9.6.12
+		AddClusterAssoc(CTL_ALCREPCFG_FLAGS, 3, PrcssrAlcReport::Config::fEgaisVer3Fmt); // @v9.9.5
 		SetClusterData(CTL_ALCREPCFG_FLAGS, Data.E.Flags);
 		// } @v9.0.10
 		// @v9.3.10 {
@@ -4081,9 +4075,7 @@ public:
 		getCtrlData(CTLSEL_ALCREPCFG_MITAG, &Data.ManufImpTagID); // @v8.9.0
 		getCtrlData(CTLSEL_ALCREPCFG_IMPPSNK, &Data.E.ImporterPersonKindID); // @v8.9.0
 		if(Data.LotManufTagList.getCount() <= 1) {
-			PPID   tag_id = getCtrlLong(CTLSEL_ALCREPCFG_MNFTAG);
-			Data.LotManufTagList.clear();
-			Data.LotManufTagList.addnz(tag_id);
+			Data.LotManufTagList.Z().addnz(getCtrlLong(CTLSEL_ALCREPCFG_MNFTAG));
 		}
 		getCtrlData(CTLSEL_ALCREPCFG_LICREG, &Data.AlcLicRegTypeID);
 		getCtrlData(CTLSEL_ALCREPCFG_KPPREG, &Data.KppRegTypeID);
@@ -4270,7 +4262,7 @@ int SLAPI PrcssrAlcReport::GetEgaisCodeList(PPID goodsID, BarcodeArray & rList)
 	if(bc_list.getCount()) {
 		for(uint i = 0; i < bc_list.getCount(); i++) {
 			const BarcodeTbl::Rec & r_bc_rec = bc_list.at(i);
-			if(strlen(r_bc_rec.Code) == 19) {
+			if(sstrlen(r_bc_rec.Code) == 19) {
 				rList.insert(&r_bc_rec);
 				ok = 1;
 			}

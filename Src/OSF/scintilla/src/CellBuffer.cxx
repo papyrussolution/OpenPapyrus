@@ -14,33 +14,23 @@
 using namespace Scintilla;
 #endif
 
-LineVector::LineVector() : starts(256), perLine(0)
+Document::CellBuffer::LineVector::LineVector() : starts(256), perLine(0)
 {
 	Init();
 }
 
-LineVector::~LineVector()
+Document::CellBuffer::LineVector::~LineVector()
 {
 	starts.DeleteAll();
 }
 
-void LineVector::Init()
+void Document::CellBuffer::LineVector::Init()
 {
 	starts.DeleteAll();
 	CALLPTRMEMB(perLine, Init());
 }
 
-void LineVector::SetPerLine(PerLine * pl)
-{
-	perLine = pl;
-}
-
-void LineVector::InsertText(int line, int delta)
-{
-	starts.InsertText(line, delta);
-}
-
-void LineVector::InsertLine(int line, int position, bool lineStart)
+void Document::CellBuffer::LineVector::InsertLine(int line, int position, bool lineStart)
 {
 	starts.InsertPartition(line, position);
 	if(perLine) {
@@ -50,26 +40,18 @@ void LineVector::InsertLine(int line, int position, bool lineStart)
 	}
 }
 
-void LineVector::SetLineStart(int line, int position)
-{
-	starts.SetPartitionStartPosition(line, position);
-}
-
-void LineVector::RemoveLine(int line)
+void FASTCALL Document::CellBuffer::LineVector::RemoveLine(int line)
 {
 	starts.RemovePartition(line);
 	CALLPTRMEMB(perLine, RemoveLine(line));
 }
 
-int FASTCALL LineVector::LineFromPosition(int pos) const
-{
-	return starts.PartitionFromPosition(pos);
-}
-
-int FASTCALL LineVector::LineStart(int line) const 
-{
-	return starts.PositionFromPartition(line);
-}
+void FASTCALL Document::CellBuffer::LineVector::SetPerLine(PerLine * pl) { perLine = pl; }
+void Document::CellBuffer::LineVector::InsertText(int line, int delta) { starts.InsertText(line, delta); }
+void Document::CellBuffer::LineVector::SetLineStart(int line, int position) { starts.SetPartitionStartPosition(line, position); }
+int Document::CellBuffer::LineVector::Lines() const { return starts.Partitions(); }
+int FASTCALL Document::CellBuffer::LineVector::LineFromPosition(int pos) const { return starts.PartitionFromPosition(pos); }
+int FASTCALL Document::CellBuffer::LineVector::LineStart(int line) const { return starts.PositionFromPartition(line); }
 
 UndoHistory::Action::Action() : at(tStart), position(0), data(0), lenData(0), mayCoalesce(false)
 {
@@ -376,23 +358,23 @@ void UndoHistory::CompletedRedoStep()
 	currentAction++;
 }
 
-CellBuffer::CellBuffer()
+Document::CellBuffer::CellBuffer()
 {
 	readOnly = false;
 	utf8LineEnds = 0;
 	collectingUndo = true;
 }
 
-CellBuffer::~CellBuffer()
+Document::CellBuffer::~CellBuffer()
 {
 }
 
-char FASTCALL CellBuffer::CharAt(int position) const
+char FASTCALL Document::CellBuffer::CharAt(int position) const
 {
 	return substance.ValueAt(position);
 }
 
-void CellBuffer::GetCharRange(char * buffer, int position, int lengthRetrieve) const
+void Document::CellBuffer::GetCharRange(char * buffer, int position, int lengthRetrieve) const
 {
 	if(lengthRetrieve > 0 && position >= 0) {
 		if((position + lengthRetrieve) > substance.Length())
@@ -402,12 +384,12 @@ void CellBuffer::GetCharRange(char * buffer, int position, int lengthRetrieve) c
 	}
 }
 
-char FASTCALL CellBuffer::StyleAt(int position) const
+char FASTCALL Document::CellBuffer::StyleAt(int position) const
 {
 	return style.ValueAt(position);
 }
 
-void CellBuffer::GetStyleRange(uchar * buffer, int position, int lengthRetrieve) const
+void Document::CellBuffer::GetStyleRange(uchar * buffer, int position, int lengthRetrieve) const
 {
 	if(lengthRetrieve >= 0 && position >= 0) {
 		if((position + lengthRetrieve) > style.Length())
@@ -417,23 +399,23 @@ void CellBuffer::GetStyleRange(uchar * buffer, int position, int lengthRetrieve)
 	}
 }
 
-const char * CellBuffer::BufferPointer()
+const char * Document::CellBuffer::BufferPointer()
 {
 	return substance.BufferPointer();
 }
 
-const char * CellBuffer::RangePointer(int position, int rangeLength)
+const char * Document::CellBuffer::RangePointer(int position, int rangeLength)
 {
 	return substance.RangePointer(position, rangeLength);
 }
 
-int CellBuffer::GapPosition() const
+int Document::CellBuffer::GapPosition() const
 {
 	return substance.GapPosition();
 }
 
 // The char* returned is to an allocation owned by the undo history
-const char * CellBuffer::InsertString(int position, const char * s, int insertLength, bool &startSequence)
+const char * Document::CellBuffer::InsertString(int position, const char * s, int insertLength, bool &startSequence)
 {
 	// InsertString and DeleteChars are the bottleneck though which all changes occur
 	const char * data = s;
@@ -448,7 +430,7 @@ const char * CellBuffer::InsertString(int position, const char * s, int insertLe
 	return data;
 }
 
-bool CellBuffer::SetStyleAt(int position, char styleValue)
+bool Document::CellBuffer::SetStyleAt(int position, char styleValue)
 {
 	char curVal = style.ValueAt(position);
 	if(curVal != styleValue) {
@@ -460,7 +442,7 @@ bool CellBuffer::SetStyleAt(int position, char styleValue)
 	}
 }
 
-bool CellBuffer::SetStyleFor(int position, int lengthStyle, char styleValue)
+bool Document::CellBuffer::SetStyleFor(int position, int lengthStyle, char styleValue)
 {
 	bool changed = false;
 	PLATFORM_ASSERT(lengthStyle == 0 || (lengthStyle > 0 && lengthStyle + position <= style.Length()));
@@ -476,7 +458,7 @@ bool CellBuffer::SetStyleFor(int position, int lengthStyle, char styleValue)
 }
 
 // The char* returned is to an allocation owned by the undo history
-const char * CellBuffer::DeleteChars(int position, int deleteLength, bool &startSequence)
+const char * Document::CellBuffer::DeleteChars(int position, int deleteLength, bool &startSequence)
 {
 	// InsertString and DeleteChars are the bottleneck though which all changes occur
 	PLATFORM_ASSERT(deleteLength > 0);
@@ -493,18 +475,13 @@ const char * CellBuffer::DeleteChars(int position, int deleteLength, bool &start
 	return data;
 }
 
-int CellBuffer::Length() const
-{
-	return substance.Length();
-}
-
-void FASTCALL CellBuffer::Allocate(int newSize)
+void FASTCALL Document::CellBuffer::Allocate(int newSize)
 {
 	substance.ReAllocate(newSize);
 	style.ReAllocate(newSize);
 }
 
-void CellBuffer::SetLineEndTypes(int utf8LineEnds_)
+void Document::CellBuffer::SetLineEndTypes(int utf8LineEnds_)
 {
 	if(utf8LineEnds != utf8LineEnds_) {
 		utf8LineEnds = utf8LineEnds_;
@@ -512,7 +489,7 @@ void CellBuffer::SetLineEndTypes(int utf8LineEnds_)
 	}
 }
 
-bool CellBuffer::ContainsLineEnd(const char * s, int length) const
+bool Document::CellBuffer::ContainsLineEnd(const char * s, int length) const
 {
 	uchar chBeforePrev = 0;
 	uchar chPrev = 0;
@@ -533,17 +510,7 @@ bool CellBuffer::ContainsLineEnd(const char * s, int length) const
 	return false;
 }
 
-void CellBuffer::SetPerLine(PerLine * pl)
-{
-	lv.SetPerLine(pl);
-}
-
-int CellBuffer::Lines() const
-{
-	return lv.Lines();
-}
-
-int CellBuffer::LineStart(int line) const
+int Document::CellBuffer::LineStart(int line) const
 {
 	if(line < 0)
 		return 0;
@@ -553,59 +520,31 @@ int CellBuffer::LineStart(int line) const
 		return lv.LineStart(line);
 }
 
-bool CellBuffer::IsReadOnly() const
-{
-	return readOnly;
-}
-
-void CellBuffer::SetReadOnly(bool set)
-{
-	readOnly = set;
-}
-
-void CellBuffer::SetSavePoint()
-{
-	uh.SetSavePoint();
-}
-
-bool CellBuffer::IsSavePoint() const
-{
-	return uh.IsSavePoint();
-}
-
-void CellBuffer::TentativeStart()
-{
-	uh.TentativeStart();
-}
-
-void CellBuffer::TentativeCommit()
-{
-	uh.TentativeCommit();
-}
-
-int CellBuffer::TentativeSteps()
-{
-	return uh.TentativeSteps();
-}
-
-bool CellBuffer::TentativeActive() const
-{
-	return uh.TentativeActive();
-}
+int    Document::CellBuffer::Length() const { return substance.Length(); }
+void   Document::CellBuffer::SetPerLine(PerLine * pl) { lv.SetPerLine(pl); }
+int    Document::CellBuffer::Lines() const { return lv.Lines(); }
+bool   Document::CellBuffer::IsReadOnly() const { return readOnly; }
+void   Document::CellBuffer::SetReadOnly(bool set) { readOnly = set; }
+void   Document::CellBuffer::SetSavePoint() { uh.SetSavePoint(); }
+bool   Document::CellBuffer::IsSavePoint() const { return uh.IsSavePoint(); }
+void   Document::CellBuffer::TentativeStart() { uh.TentativeStart(); }
+void   Document::CellBuffer::TentativeCommit() { uh.TentativeCommit(); }
+int    Document::CellBuffer::TentativeSteps() { return uh.TentativeSteps(); }
+bool   Document::CellBuffer::TentativeActive() const { return uh.TentativeActive(); }
 
 // Without undo
 
-void CellBuffer::InsertLine(int line, int position, bool lineStart)
+void Document::CellBuffer::InsertLine(int line, int position, bool lineStart)
 {
 	lv.InsertLine(line, position, lineStart);
 }
 
-void CellBuffer::RemoveLine(int line)
+void Document::CellBuffer::RemoveLine(int line)
 {
 	lv.RemoveLine(line);
 }
 
-bool CellBuffer::UTF8LineEndOverlaps(int position) const
+bool Document::CellBuffer::UTF8LineEndOverlaps(int position) const
 {
 	uchar bytes[] = {
 		static_cast<uchar>(substance.ValueAt(position-2)),
@@ -616,7 +555,7 @@ bool CellBuffer::UTF8LineEndOverlaps(int position) const
 	return UTF8IsSeparator(bytes) || UTF8IsSeparator(bytes+1) || UTF8IsNEL(bytes+1);
 }
 
-void CellBuffer::ResetLineEnds()
+void Document::CellBuffer::ResetLineEnds()
 {
 	// Reinitialize line data -- too much work to preserve
 	lv.Init();
@@ -655,7 +594,7 @@ void CellBuffer::ResetLineEnds()
 	}
 }
 
-void CellBuffer::BasicInsertString(int position, const char * s, int insertLength)
+void Document::CellBuffer::BasicInsertString(int position, const char * s, int insertLength)
 {
 	if(insertLength) {
 		PLATFORM_ASSERT(insertLength > 0);
@@ -732,7 +671,7 @@ void CellBuffer::BasicInsertString(int position, const char * s, int insertLengt
 	}
 }
 
-void CellBuffer::BasicDeleteChars(int position, int deleteLength)
+void Document::CellBuffer::BasicDeleteChars(int position, int deleteLength)
 {
 	if(deleteLength) {
 		if((position == 0) && (deleteLength == substance.Length())) {
@@ -800,60 +739,34 @@ void CellBuffer::BasicDeleteChars(int position, int deleteLength)
 	}
 }
 
-bool CellBuffer::SetUndoCollection(bool collectUndo)
+bool Document::CellBuffer::SetUndoCollection(bool collectUndo)
 {
 	collectingUndo = collectUndo;
 	uh.DropUndoSequence();
 	return collectingUndo;
 }
 
-bool CellBuffer::IsCollectingUndo() const
-{
-	return collectingUndo;
-}
+bool Document::CellBuffer::IsCollectingUndo() const { return collectingUndo; }
+void Document::CellBuffer::BeginUndoAction() { uh.BeginUndoAction(); }
+void Document::CellBuffer::EndUndoAction() { uh.EndUndoAction(); }
 
-void CellBuffer::BeginUndoAction()
-{
-	uh.BeginUndoAction();
-}
-
-void CellBuffer::EndUndoAction()
-{
-	uh.EndUndoAction();
-}
-
-void CellBuffer::AddUndoAction(int token, bool mayCoalesce)
+void Document::CellBuffer::AddUndoAction(int token, bool mayCoalesce)
 {
 	bool startSequence;
 	uh.AppendAction(UndoHistory::Action::tContainer, token, 0, 0, startSequence, mayCoalesce);
 }
 
-void CellBuffer::DeleteUndoHistory()
-{
-	uh.DeleteUndoHistory();
-}
+void Document::CellBuffer::DeleteUndoHistory() { uh.DeleteUndoHistory(); }
+bool Document::CellBuffer::CanUndo() const { return uh.CanUndo(); }
+int Document::CellBuffer::StartUndo() { return uh.StartUndo(); }
+const UndoHistory::Action & Document::CellBuffer::GetUndoStep() const { return uh.GetUndoStep(); }
 
-bool CellBuffer::CanUndo() const
-{
-	return uh.CanUndo();
-}
-
-int CellBuffer::StartUndo()
-{
-	return uh.StartUndo();
-}
-
-const UndoHistory::Action & CellBuffer::GetUndoStep() const
-{
-	return uh.GetUndoStep();
-}
-
-void CellBuffer::PerformUndoStep()
+void Document::CellBuffer::PerformUndoStep()
 {
 	const UndoHistory::Action & actionStep = uh.GetUndoStep();
 	if(actionStep.at == UndoHistory::Action::tInsert) {
 		if(substance.Length() < actionStep.lenData) {
-			throw std::runtime_error("CellBuffer::PerformUndoStep: deletion must be less than document length.");
+			throw std::runtime_error("Document::CellBuffer::PerformUndoStep: deletion must be less than document length.");
 		}
 		BasicDeleteChars(actionStep.position, actionStep.lenData);
 	}
@@ -863,22 +776,11 @@ void CellBuffer::PerformUndoStep()
 	uh.CompletedUndoStep();
 }
 
-bool CellBuffer::CanRedo() const
-{
-	return uh.CanRedo();
-}
+bool Document::CellBuffer::CanRedo() const { return uh.CanRedo(); }
+int Document::CellBuffer::StartRedo() { return uh.StartRedo(); }
+const UndoHistory::Action & Document::CellBuffer::GetRedoStep() const { return uh.GetRedoStep(); }
 
-int CellBuffer::StartRedo()
-{
-	return uh.StartRedo();
-}
-
-const UndoHistory::Action &CellBuffer::GetRedoStep() const
-{
-	return uh.GetRedoStep();
-}
-
-void CellBuffer::PerformRedoStep()
+void Document::CellBuffer::PerformRedoStep()
 {
 	const UndoHistory::Action & actionStep = uh.GetRedoStep();
 	if(actionStep.at == UndoHistory::Action::tInsert) {

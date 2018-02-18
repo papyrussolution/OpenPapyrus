@@ -72,7 +72,7 @@ SLAPI StringSet::StringSet(char delim, const char * pBuf)
 	else
 		Init(0, 0);
 	if(pBuf)
-		setBuf(pBuf, strlen(pBuf)+1);
+		setBuf(pBuf, sstrlen(pBuf)+1);
 }
 
 SLAPI StringSet::StringSet(const StringSet & rS)
@@ -109,8 +109,9 @@ int FASTCALL StringSet::copy(const StringSet & rS)
 
 int FASTCALL StringSet::Write(SBuffer & rBuf) const
 {
-	SString temp_buf = Delim;
-	rBuf.Write(temp_buf);
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.5 SLS.AcquireRvlStr()
+	r_temp_buf = Delim;
+	rBuf.Write(r_temp_buf);
 	rBuf.Write(&DataLen, sizeof(DataLen));
 	rBuf.Write(P_Buf, DataLen);
 	return 1;
@@ -119,12 +120,12 @@ int FASTCALL StringSet::Write(SBuffer & rBuf) const
 int FASTCALL StringSet::Read(SBuffer & rBuf)
 {
 	int    ok = 1;
-	SString delim;
+	SString & r_delim = SLS.AcquireRvlStr(); // @v9.9.5 SLS.AcquireRvlStr()
 	uint32 data_len = 0;
-	rBuf.Read(delim);
+	rBuf.Read(r_delim);
 	rBuf.Read(&data_len, sizeof(data_len));
 	clear();
-	if(Init(delim, data_len)) {
+	if(Init(r_delim, data_len)) {
 		rBuf.Read(P_Buf, data_len);
 		DataLen = data_len;
 	}
@@ -313,7 +314,7 @@ void FASTCALL StringSet::setDelim(const char * pDelim)
 {
 	Delim[0] = 0;
 	if(pDelim) {
-		size_t dl = strlen(pDelim);
+		size_t dl = sstrlen(pDelim);
 		assert(dl < sizeof(Delim));
 		memcpy(Delim, pDelim, dl+1);
 		//STRNSCPY(Delim, pDelim);
@@ -322,7 +323,7 @@ void FASTCALL StringSet::setDelim(const char * pDelim)
 
 uint SLAPI StringSet::getDelimLen() const
 {
-	return Delim[0] ? strlen(Delim) : 1;
+	return Delim[0] ? sstrlen(Delim) : 1;
 }
 
 int FASTCALL StringSet::add(const StringSet & rS)
@@ -349,8 +350,8 @@ int FASTCALL StringSet::add(const char * str, uint * pPos)
 		temp_buf[0] = 0;
 		str = temp_buf;
 	}
-	const size_t delim_len = DataLen ? (Delim[0] ? strlen(Delim) : 1) : (Delim[0] ? 1 : 2);
-	const size_t add_len   = strlen(str);
+	const size_t delim_len = DataLen ? (Delim[0] ? sstrlen(Delim) : 1) : (Delim[0] ? 1 : 2);
+	const size_t add_len   = sstrlen(str);
 	const size_t new_len   = DataLen + add_len + delim_len;
 	uint   p;
 	if(new_len <= Size || Alloc(new_len)) { // @v8.2.9 (new_len <= Size ||) ради ускорения //
@@ -398,7 +399,7 @@ int SLAPI StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, u
 	int    ok = 0;
 	uint   p = DEREFPTRORZ(pPos);
 	uint   next_pos = p+1;
-	const  uint fix_delim_len = Delim[0] ? strlen(Delim) : 1;
+	const  uint fix_delim_len = Delim[0] ? sstrlen(Delim) : 1;
 	SString temp_buf;
 	while(!ok && p < DataLen) {
 		uint  delim_len = fix_delim_len;
@@ -410,11 +411,11 @@ int SLAPI StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, u
 				len = (uint)(p_end - c);
 			else { // Конец буфера данных (в конце разделителя нет)
 				delim_len = 1;
-				len = strlen(c);
+				len = sstrlen(c);
 			}
 		}
 		else if(*c)
-			len = strlen(c);
+			len = sstrlen(c);
 		else
 			c = 0;
 		if(c) {
@@ -455,10 +456,10 @@ size_t FASTCALL StringSet::getLen(uint pos) const
 			if(c != 0)
 				len = (uint)(c - (P_Buf + pos));
 			else
-				len = strlen(P_Buf + pos);
+				len = sstrlen(P_Buf + pos);
 		}
 		else
-			len = strlen(P_Buf + pos);
+			len = sstrlen(P_Buf + pos);
 	return len;
 }
 
@@ -470,12 +471,12 @@ int FASTCALL StringSet::get(uint * pos, char * str, size_t maxlen) const
 	if(p < DataLen) {
 		if(Delim[0]) {
 			if((c = strstr(P_Buf + p, Delim)) != 0) {
-				delim_len = strlen(Delim);
+				delim_len = sstrlen(Delim);
 				len = (uint)(c - (P_Buf + p));
 			}
 			else {
 				delim_len = 1;
-				len = strlen(P_Buf + p);
+				len = sstrlen(P_Buf + p);
 			}
 			c = P_Buf + p;
 		}
@@ -483,7 +484,7 @@ int FASTCALL StringSet::get(uint * pos, char * str, size_t maxlen) const
 			delim_len = 1;
 			c = P_Buf + p;
 			if(*c)
-				len = strlen(c);
+				len = sstrlen(c);
 			else {
 				c = 0;
 				ok = 0;
@@ -515,12 +516,12 @@ int FASTCALL StringSet::get(uint * pPos, SString & s) const
 	if(p < DataLen) {
 		if(Delim[0]) {
 			if((c = strstr(P_Buf + p, Delim)) != 0) {
-				delim_len = strlen(Delim);
+				delim_len = sstrlen(Delim);
 				len = (uint)(c - (P_Buf + p));
 			}
 			else {
 				delim_len = 1;
-				len = strlen(P_Buf + p);
+				len = sstrlen(P_Buf + p);
 			}
 			c = P_Buf + p;
 		}
@@ -528,7 +529,7 @@ int FASTCALL StringSet::get(uint * pPos, SString & s) const
 			delim_len = 1;
 			c = P_Buf + p;
 			if(*c)
-				len = strlen(c);
+				len = sstrlen(c);
 			else {
 				c = 0;
 				ok = 0;

@@ -93,13 +93,13 @@ int SLAPI SUnicodeTable::ParseDescription(SString & rDescr, SUnicodeTable::Item3
 			if(rDescr.CmpSuffix(p_first_suffix, 1) == 0) {
 				ok = 2;
 				rDescr.ShiftLeft(1);
-				rDescr.Trim(rDescr.Len()-strlen(p_first_suffix));
+				rDescr.Trim(rDescr.Len()-sstrlen(p_first_suffix));
 				rDescr.Strip();
 			}
 			else if(rDescr.CmpSuffix(p_last_suffix, 1) == 0) {
 				ok = 3;
 				rDescr.ShiftLeft(1);
-				rDescr.Trim(rDescr.Len()-strlen(p_last_suffix));
+				rDescr.Trim(rDescr.Len()-sstrlen(p_last_suffix));
 				rDescr.Strip();
 			}
 		}

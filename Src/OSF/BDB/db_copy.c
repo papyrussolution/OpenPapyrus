@@ -55,7 +55,7 @@ retry:
 		}
 		goto err;
 	}
-	if((ret = __os_malloc(env, strlen(target)+strlen(dbfile)+2, &path)) != 0) {
+	if((ret = __os_malloc(env, sstrlen(target)+sstrlen(dbfile)+2, &path)) != 0) {
 		dbenv->err(dbenv, ret, DB_STR_A("0703", "Cannot allocate space for path: %s", "%s"), target);
 		goto err;
 	}
@@ -132,7 +132,7 @@ static int copy_queue_extents(DB * dbp, const char * target, const char * passwd
 	fp = NULL;
 	if((ret = dbp->cursor(dbp, NULL, &dbc, 0)) != 0)
 		return ret;
-	if((ret = __os_malloc(env, strlen(target)+strlen(dbp->fname)+strlen(QUEUE_EXTENT), &path)) != 0) {
+	if((ret = __os_malloc(env, sstrlen(target)+sstrlen(dbp->fname)+sstrlen(QUEUE_EXTENT), &path)) != 0) {
 		dbenv->err(dbenv, ret, DB_STR_A("0705", "Cannot allocate space for path: %s", "%s"), target);
 		goto err;
 	}

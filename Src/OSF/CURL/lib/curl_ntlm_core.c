@@ -407,8 +407,7 @@ void Curl_ntlm_core_lm_resp(const uchar * keys,
 	setup_des_key(keys + 14, &des);
 	gcry_cipher_encrypt(des, results + 16, 8, plaintext, 8);
 	gcry_cipher_close(des);
-#elif defined(USE_MBEDTLS) || defined(USE_NSS) || defined(USE_DARWINSSL) \
-	|| defined(USE_OS400CRYPTO) || defined(USE_WIN32_CRYPTO)
+#elif defined(USE_MBEDTLS) || defined(USE_NSS) || defined(USE_DARWINSSL) || defined(USE_OS400CRYPTO) || defined(USE_WIN32_CRYPTO)
 	encrypt_des(plaintext, results, keys);
 	encrypt_des(plaintext, results + 8, keys + 7);
 	encrypt_des(plaintext, results + 16, keys + 14);
@@ -425,7 +424,7 @@ CURLcode Curl_ntlm_core_mk_lm_hash(struct Curl_easy * data, const char * passwor
 	static const uchar magic[] = {
 		0x4B, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25 /* i.e. KGS!@#$% */
 	};
-	size_t len = MIN(strlen(password), 14);
+	size_t len = MIN(sstrlen(password), 14);
 	Curl_strntoupper((char*)pw, password, len);
 	memzero(&pw[len], 14 - len);
 	/*
@@ -441,24 +440,18 @@ CURLcode Curl_ntlm_core_mk_lm_hash(struct Curl_easy * data, const char * passwor
 
 #ifdef USE_OPENSSL
 		DES_key_schedule ks;
-
 		setup_des_key(pw, DESKEY(ks));
-		DES_ecb_encrypt((DES_cblock*)magic, (DES_cblock*)lmbuffer,
-		    DESKEY(ks), DES_ENCRYPT);
-
+		DES_ecb_encrypt((DES_cblock*)magic, (DES_cblock*)lmbuffer, DESKEY(ks), DES_ENCRYPT);
 		setup_des_key(pw + 7, DESKEY(ks));
-		DES_ecb_encrypt((DES_cblock*)magic, (DES_cblock*)(lmbuffer + 8),
-		    DESKEY(ks), DES_ENCRYPT);
+		DES_ecb_encrypt((DES_cblock*)magic, (DES_cblock*)(lmbuffer + 8), DESKEY(ks), DES_ENCRYPT);
 #elif defined(USE_GNUTLS_NETTLE)
 		struct des_ctx des;
-
 		setup_des_key(pw, &des);
 		des_encrypt(&des, 8, lmbuffer, magic);
 		setup_des_key(pw + 7, &des);
 		des_encrypt(&des, 8, lmbuffer + 8, magic);
 #elif defined(USE_GNUTLS)
 		gcry_cipher_hd_t des;
-
 		gcry_cipher_open(&des, GCRY_CIPHER_DES, GCRY_CIPHER_MODE_ECB, 0);
 		setup_des_key(pw, &des);
 		gcry_cipher_encrypt(des, lmbuffer, 8, magic, 8);
@@ -468,8 +461,7 @@ CURLcode Curl_ntlm_core_mk_lm_hash(struct Curl_easy * data, const char * passwor
 		setup_des_key(pw + 7, &des);
 		gcry_cipher_encrypt(des, lmbuffer + 8, 8, magic, 8);
 		gcry_cipher_close(des);
-#elif defined(USE_MBEDTLS) || defined(USE_NSS) || defined(USE_DARWINSSL) \
-		|| defined(USE_OS400CRYPTO) || defined(USE_WIN32_CRYPTO)
+#elif defined(USE_MBEDTLS) || defined(USE_NSS) || defined(USE_DARWINSSL) || defined(USE_OS400CRYPTO) || defined(USE_WIN32_CRYPTO)
 		encrypt_des(magic, lmbuffer, pw);
 		encrypt_des(magic, lmbuffer + 8, pw + 7);
 #endif
@@ -479,11 +471,9 @@ CURLcode Curl_ntlm_core_mk_lm_hash(struct Curl_easy * data, const char * passwor
 }
 
 #ifdef USE_NTRESPONSES
-static void ascii_to_unicode_le(uchar * dest, const char * src,
-    size_t srclen)
+static void ascii_to_unicode_le(uchar * dest, const char * src, size_t srclen)
 {
-	size_t i;
-	for(i = 0; i < srclen; i++) {
+	for(size_t i = 0; i < srclen; i++) {
 		dest[2 * i] = (uchar)src[i];
 		dest[2 * i + 1] = '\0';
 	}
@@ -491,11 +481,9 @@ static void ascii_to_unicode_le(uchar * dest, const char * src,
 
 #if defined(USE_NTLM_V2) && !defined(USE_WINDOWS_SSPI)
 
-static void ascii_uppercase_to_unicode_le(uchar * dest,
-    const char * src, size_t srclen)
+static void ascii_uppercase_to_unicode_le(uchar * dest, const char * src, size_t srclen)
 {
-	size_t i;
-	for(i = 0; i < srclen; i++) {
+	for(size_t i = 0; i < srclen; i++) {
 		dest[2 * i] = (uchar)(toupper(src[i]));
 		dest[2 * i + 1] = '\0';
 	}
@@ -509,7 +497,7 @@ static void ascii_uppercase_to_unicode_le(uchar * dest,
  */
 CURLcode Curl_ntlm_core_mk_nt_hash(struct Curl_easy * data, const char * password, uchar * ntbuffer /* 21 bytes */)
 {
-	size_t len = strlen(password);
+	size_t len = sstrlen(password);
 	uchar * pw = (uchar *)SAlloc::M(len * 2);
 	CURLcode result;
 	if(!pw)
@@ -571,21 +559,13 @@ CURLcode Curl_ntlm_core_mk_nt_hash(struct Curl_easy * data, const char * passwor
 #if defined(USE_NTLM_V2) && !defined(USE_WINDOWS_SSPI)
 
 /* This returns the HMAC MD5 digest */
-CURLcode Curl_hmac_md5(const uchar * key, uint keylen,
-    const uchar * data, uint datalen,
-    uchar * output)
+CURLcode Curl_hmac_md5(const uchar * key, uint keylen, const uchar * data, uint datalen, uchar * output)
 {
 	HMAC_context * ctxt = Curl_HMAC_init(Curl_HMAC_MD5, key, keylen);
-
 	if(!ctxt)
 		return CURLE_OUT_OF_MEMORY;
-
-	/* Update the digest with the given challenge */
-	Curl_HMAC_update(ctxt, data, datalen);
-
-	/* Finalise the digest */
-	Curl_HMAC_final(ctxt, output);
-
+	Curl_HMAC_update(ctxt, data, datalen); /* Update the digest with the given challenge */
+	Curl_HMAC_final(ctxt, output); /* Finalise the digest */
 	return CURLE_OK;
 }
 

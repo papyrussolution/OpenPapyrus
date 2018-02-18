@@ -168,7 +168,7 @@ void TreeWindow::SetupCmdList(HMENU hMenu, HTREEITEM hP)
 			}
 			char * chr = strchr(menu_name, '&');
 			if(chr)
-				memmove(chr, chr+1, strlen(chr));
+				memmove(chr, chr+1, sstrlen(chr));
 			is.item.pszText = menu_name;
 			is.item.cchTextMax = mii.cch;
 	  		if(mii.fType != MFT_SEPARATOR) {
@@ -349,7 +349,7 @@ void TreeWindow::MenuToList(HMENU hMenu, long parentId, StrAssocArray * pList)
 		if(menu_name[0] != 0) {
 			char * chr = strchr(menu_name, '&');
 			if(chr)
-				memmove(chr, chr+1, strlen(chr));
+				memmove(chr, chr+1, sstrlen(chr));
 			SCharToOem(menu_name);
 	  		if(mii.fType != MFT_SEPARATOR) {
 				pList->Add(mii.wID, parentId, menu_name);
@@ -365,7 +365,7 @@ void TreeWindow::AddItemCmdList(const char * pTitle, void * ptr)
 	if(ptr) {
 		char   title_buf[512];
 		STRNSCPY(title_buf, pTitle);
-		const  size_t title_len = strlen(title_buf);
+		const  size_t title_len = sstrlen(title_buf);
 
 		TVINSERTSTRUCT is;
 		is.hParent         = TVI_ROOT;
@@ -384,8 +384,7 @@ void TreeWindow::UpdateItemCmdList(const char * pTitle, void * ptr)
 	if(ptr) {
 		char   title_buf[512];
 		STRNSCPY(title_buf, pTitle);
-		const  size_t title_len = strlen(title_buf);
-
+		const  size_t title_len = sstrlen(title_buf);
 		HWND   hw_tree = H_CmdList;
 		for(HTREEITEM h_item = TreeView_GetRoot(hw_tree); h_item; h_item = TreeView_GetNextSibling(hw_tree, h_item)) {
 			TVITEM is;

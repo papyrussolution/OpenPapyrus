@@ -70,9 +70,9 @@ static CURLcode gopher_do(struct connectdata * conn, bool * done)
 	*done = TRUE; /* unconditionally */
 
 	/* Create selector. Degenerate cases: / and /1 => convert to "" */
-	if(strlen(path) <= 2) {
+	if(sstrlen(path) <= 2) {
 		sel = (char*)"";
-		len = (int)strlen(sel);
+		len = (int)sstrlen(sel);
 	}
 	else {
 		char * newp;
@@ -83,7 +83,7 @@ static CURLcode gopher_do(struct connectdata * conn, bool * done)
 		newp += 2;
 
 		/* ... then turn ? into TAB for search servers, Veronica, etc. ... */
-		j = strlen(newp);
+		j = sstrlen(newp);
 		for(i = 0; i<j; i++)
 			if(newp[i] == '?')
 				newp[i] = '\x09';

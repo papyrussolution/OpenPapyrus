@@ -499,7 +499,7 @@ CURLcode Curl_proxyCONNECT(struct connectdata * conn,
 					}
 					else {
 						cl = curlx_strtoofft(line_start +
-						    strlen("Content-Length:"), NULL, 10);
+						    sstrlen("Content-Length:"), NULL, 10);
 					}
 				}
 				else if(Curl_compareheader(line_start, "Connection:", "close"))

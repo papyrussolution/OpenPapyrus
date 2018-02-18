@@ -174,7 +174,7 @@ int CallTip::PaintContents(Surface * surfaceWindow, bool draw)
 	while(moreChunks) {
 		const char * chunkEnd = strchr(chunkVal, '\n');
 		if(chunkEnd == NULL) {
-			chunkEnd = chunkVal + strlen(chunkVal);
+			chunkEnd = chunkVal + sstrlen(chunkVal);
 			moreChunks = false;
 		}
 		int chunkOffset = static_cast<int>(chunkVal - /*val.c_str()*/Text.cptr());

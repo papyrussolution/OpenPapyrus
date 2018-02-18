@@ -353,10 +353,8 @@ get_thunk_edx: ; load caller address into edx for position-independent code
         ret        
 %ENDIF
 
-
 SECTION .data
 align 16
-
 
 ; Pointer to appropriate version.
 ; This initially points to memcmpCPUDispatch. memcmpCPUDispatch will

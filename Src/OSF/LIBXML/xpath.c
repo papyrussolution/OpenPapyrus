@@ -2869,10 +2869,10 @@ static void xmlXPathFormatNumber(double number, char buffer[], int buffersize)
 				    ;
 			    if(*ptr != '.')
 				    ptr++;
-			    while((*ptr++ = *after_fraction++) != 0) ;
-
-			    /* Finally copy result back to caller */
-			    size = strlen(work) + 1;
+			    while((*ptr++ = *after_fraction++) != 0) 
+					;
+			    // Finally copy result back to caller 
+			    size = sstrlen(work) + 1;
 			    if(size > buffersize) {
 				    work[buffersize - 1] = 0;
 				    size = buffersize;

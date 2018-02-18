@@ -291,7 +291,7 @@ static CURLcode set_ciphers(struct connectdata * conn,
 	/* We allocate GSKit buffers of the same size as the input string: since
 	   GSKit tokens are always shorter than their cipher names, allocated buffers
 	   will always be large enough to accommodate the result. */
-	l = strlen(cipherlist) + 1;
+	l = sstrlen(cipherlist) + 1;
 	memzero((char*)ciphers, sizeof ciphers);
 	for(i = 0; i < CURL_GSKPROTO_LAST; i++) {
 		ciphers[i].buf = SAlloc::M(l);
@@ -327,7 +327,7 @@ static CURLcode set_ciphers(struct connectdata * conn,
 			for(i = 0; i < CURL_GSKPROTO_LAST; i++) {
 				if(ctp->versions & (1 << i)) {
 					strcpy(ciphers[i].ptr, ctp->gsktoken);
-					ciphers[i].ptr += strlen(ctp->gsktoken);
+					ciphers[i].ptr += sstrlen(ctp->gsktoken);
 				}
 			}
 		}
@@ -1234,7 +1234,7 @@ int Curl_gskit_shutdown(struct connectdata * conn, int sockindex)
 size_t Curl_gskit_version(char * buffer, size_t size)
 {
 	strncpy(buffer, "GSKit", size);
-	return strlen(buffer);
+	return sstrlen(buffer);
 }
 
 int Curl_gskit_check_cxn(struct connectdata * cxn)

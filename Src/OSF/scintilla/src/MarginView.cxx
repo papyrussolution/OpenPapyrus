@@ -336,11 +336,11 @@ void Editor::MarginView::PaintMargin(Surface * surface, int topLine, PRectangle 
 						}
 						PRectangle rcNumber = rcMarker;
 						// Right justify
-						XYPOSITION width = surface->WidthText(fontLineNumber, number, static_cast<int>(strlen(number)));
+						XYPOSITION width = surface->WidthText(fontLineNumber, number, static_cast<int>(sstrlen(number)));
 						XYPOSITION xpos = rcNumber.right - width - vs.marginNumberPadding;
 						rcNumber.left = xpos;
 						DrawTextNoClipPhase(surface, rcNumber, vs.styles[STYLE_LINENUMBER],
-						    rcNumber.top + vs.maxAscent, number, static_cast<int>(strlen(number)), drawAll);
+						    rcNumber.top + vs.maxAscent, number, static_cast<int>(sstrlen(number)), drawAll);
 					}
 					else if(vs.wrapVisualFlags & SC_WRAPVISUALFLAG_MARGIN) {
 						PRectangle rcWrapMarker = rcMarker;

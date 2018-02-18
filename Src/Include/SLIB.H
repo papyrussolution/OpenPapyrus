@@ -488,6 +488,10 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 //
 //
 #include <asmlib.h>
+
+extern "C" void * cdecl xeos_memchr(const void * s, int c, size_t n);
+extern "C" size_t cdecl xeos_strlen(const char * s);
+
 #if USE_ASMLIB
 	#define memcpy   A_memcpy
 	#define memmove  A_memmove
@@ -498,6 +502,14 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 	//#define strcmp   A_strcmp
 	//#define stricmp  A_stricmp
 	//#define strstr   A_strstr
+	//
+	// Использование xeos_memchr и xeos_strlen вместо штатных memchr и strlen дает около 20% приращения производительности
+	// исполнения этих операций. Однако, тупая замена define'ом приводит к тому, что при запуске сеанса без отладочной
+	// информации что-то происходит в run-time'е и сеанс падает.
+	// Следовательно, для продуктивного применения понадобятся дополнительные исследования.
+	//
+	//#define memchr   xeos_memchr // @v9.9.5
+	//#define strlen   xeos_strlen // @v9.9.5
 #endif
 
 class SAlloc {
@@ -4273,7 +4285,7 @@ int    FASTCALL ishex(char c);
 int    FASTCALL isdec(char c);
 int    FASTCALL isdecw(wchar_t c);
 //
-// Descr: Возвращает значение шестнадцатиричного знака c. Если c не является шестнацдатиричным знком,
+// Descr: Возвращает значение шестнадцатиричного знака c. Если c не является шестнацдатиричным знаком,
 //   то возвращает 0 (для того, чтобы избежать путаницы с hex('0') следует проверять
 //   символ функцией ishex(char)).
 //
@@ -6306,6 +6318,12 @@ public:
 	long   SLAPI getSingle() const;
 	long   SLAPI getLast() const;
 	int    FASTCALL setSingleNZ(long id);
+	//
+	// Descr: Функционально аналогична SVector::clear() и отличается только
+	//   возвратом *this.
+	//   Реализована для семантической идентичности с SString::Z()
+	//
+	LongArray & SLAPI Z();
 	int    SLAPI freeByKey(long, int binarySearch); //
 	int    FASTCALL removeByID(long);                  // @warning dup function (see above)
 	void   SLAPI sort();

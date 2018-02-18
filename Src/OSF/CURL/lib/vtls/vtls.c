@@ -568,7 +568,7 @@ CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy * data, int certnum, const 
 	char * output;
 	struct curl_slist * nl;
 	CURLcode result = CURLE_OK;
-	size_t labellen = strlen(label);
+	size_t labellen = sstrlen(label);
 	size_t outlen = labellen + 1 + valuelen + 1; /* label:value\0 */
 	output = (char *)SAlloc::M(outlen);
 	if(!output)
@@ -594,7 +594,7 @@ CURLcode Curl_ssl_push_certinfo_len(struct Curl_easy * data, int certnum, const 
  */
 CURLcode Curl_ssl_push_certinfo(struct Curl_easy * data, int certnum, const char * label, const char * value)
 {
-	size_t valuelen = strlen(value);
+	size_t valuelen = sstrlen(value);
 	return Curl_ssl_push_certinfo_len(data, certnum, label, value, valuelen);
 }
 
@@ -685,7 +685,7 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data, const char * pinnedpubkey
 			return encode;
 		infof(data, "\t public key hash: sha256//%s\n", encoded);
 		/* it starts with sha256//, copy so we can modify it */
-		pinkeylen = strlen(pinnedpubkey) + 1;
+		pinkeylen = sstrlen(pinnedpubkey) + 1;
 		pinkeycopy = (char *)SAlloc::M(pinkeylen);
 		if(!pinkeycopy) {
 			ZFREE(encoded);
@@ -703,7 +703,7 @@ CURLcode Curl_pin_peer_pubkey(struct Curl_easy * data, const char * pinnedpubkey
 			if(end_pos)
 				end_pos[0] = '\0';
 			/* compare base64 sha256 digests, 8 is the length of "sha256//" */
-			if(encodedlen == strlen(begin_pos + 8) && !memcmp(encoded, begin_pos + 8, encodedlen)) {
+			if(encodedlen == sstrlen(begin_pos + 8) && !memcmp(encoded, begin_pos + 8, encodedlen)) {
 				result = CURLE_OK;
 				break;
 			}

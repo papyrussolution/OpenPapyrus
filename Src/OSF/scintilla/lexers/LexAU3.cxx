@@ -211,7 +211,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos, Sci_Position length, int ini
 		// save the total current word for eof processing
 		if(IsAWordChar(sc.ch) || sc.ch == '}') {
 			strcpy(s_save, s);
-			int tp = static_cast<int>(strlen(s_save));
+			int tp = static_cast<int>(sstrlen(s_save));
 			if(tp < 99) {
 				s_save[tp] = static_cast<char>(tolower(sc.ch));
 				s_save[tp+1] = '\0';
@@ -420,7 +420,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos, Sci_Position length, int ini
 					    sc.ChangeState(SCE_AU3_STRING);
 				    }
 				    // if single char between {?} then its ok as sendkey for a single character
-				    else if(strlen(sk) == 3) {
+				    else if(sstrlen(sk) == 3) {
 					    sc.ChangeState(SCE_AU3_SENT);
 				    }
 				    // if sendkey {111} is in table then ok as sendkey
@@ -567,7 +567,7 @@ static void ColouriseAU3Doc(Sci_PositionU startPos, Sci_Position length, int ini
 			if(GetSendKey(s_save, sk))
 				sc.ChangeState(SCE_AU3_STRING);
 			// if single char between {?} then its ok as sendkey for a single character
-			else if(strlen(sk) == 3)
+			else if(sstrlen(sk) == 3)
 				sc.ChangeState(SCE_AU3_SENT);
 			// if sendkey {111} is in table then ok as sendkey
 			else if(keywords4.InList(sk))

@@ -421,7 +421,7 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 #else
 			char * dn = name = ldap_get_dn(server, entryIterator);
 #endif
-			name_len = strlen(name);
+			name_len = sstrlen(name);
 			result = Curl_client_write(conn, CLIENTWRITE_BODY, (char*)"DN: ", 4);
 			if(result) {
 #if defined(USE_WIN32_LDAP)
@@ -467,7 +467,7 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 #else
 			char * attr = attribute;
 #endif
-			attr_len = strlen(attr);
+			attr_len = sstrlen(attr);
 
 			vals = ldap_get_values_len(server, entryIterator, attribute);
 			if(vals != NULL) {

@@ -209,7 +209,7 @@ repeat:
 					}
 				}
 				if(characters.InList(keyword)) {
-					sc.Forward(static_cast<int>(strlen(keyword)));
+					sc.Forward(static_cast<int>(sstrlen(keyword)));
 				}
 				else {
 					sc.Forward();
@@ -291,7 +291,7 @@ static const char * const magikWordListDesc[] = {
 static inline int IsFoldingContainer(WordList &keywordslist, char * keyword)
 {
 	if(
-	    strlen(keyword) > 3 &&
+	    sstrlen(keyword) > 3 &&
 	    keyword[0] == 'e' && keyword[1] == 'n' && keyword[2] == 'd') {
 		if(keywordslist.InList(keyword + 3)) {
 			return -1;

@@ -279,7 +279,7 @@ static CURLcode cyassl_connect_step1(struct connectdata * conn,
 		struct in6_addr addr6;
 #endif
 		const char * const hostname = SSL_IS_PROXY() ? conn->http_proxy.host.name : conn->host.name;
-		size_t hostname_len = strlen(hostname);
+		size_t hostname_len = sstrlen(hostname);
 		if((hostname_len < USHRT_MAX) &&
 		    (0 == Curl_inet_pton(AF_INET, hostname, &addr4)) &&
 #ifdef ENABLE_IPV6
@@ -338,13 +338,13 @@ static CURLcode cyassl_connect_step1(struct connectdata * conn,
 
 #ifdef USE_NGHTTP2
 		if(data->set.httpversion >= CURL_HTTP_VERSION_2) {
-			strcpy(protocols + strlen(protocols), NGHTTP2_PROTO_VERSION_ID ",");
+			strcpy(protocols + sstrlen(protocols), NGHTTP2_PROTO_VERSION_ID ",");
 			infof(data, "ALPN, offering %s\n", NGHTTP2_PROTO_VERSION_ID);
 		}
 #endif
-		strcpy(protocols + strlen(protocols), ALPN_HTTP_1_1);
+		strcpy(protocols + sstrlen(protocols), ALPN_HTTP_1_1);
 		infof(data, "ALPN, offering %s\n", ALPN_HTTP_1_1);
-		if(wolfSSL_UseALPN(conssl->handle, protocols, (uint)strlen(protocols), WOLFSSL_ALPN_CONTINUE_ON_MISMATCH) != SSL_SUCCESS) {
+		if(wolfSSL_UseALPN(conssl->handle, protocols, (uint)sstrlen(protocols), WOLFSSL_ALPN_CONTINUE_ON_MISMATCH) != SSL_SUCCESS) {
 			failf(data, "SSL: failed setting ALPN protocols");
 			return CURLE_SSL_CONNECT_ERROR;
 		}

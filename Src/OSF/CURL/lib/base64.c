@@ -91,7 +91,7 @@ CURLcode Curl_base64_decode(const char * src, uchar ** outptr, size_t * outlen)
 	uchar * newstr;
 	*outptr = NULL;
 	*outlen = 0;
-	srclen = strlen(src);
+	srclen = sstrlen(src);
 	if(!srclen || srclen % 4) // Check the length of the input string is valid 
 		return CURLE_BAD_CONTENT_ENCODING;
 	// Find the position of any = padding characters 
@@ -141,7 +141,7 @@ static CURLcode base64_encode(const char * table64, struct Curl_easy * data, con
 	const char * indata = inputbuff;
 	*outptr = NULL;
 	*outlen = 0;
-	SETIFZ(insize, strlen(indata));
+	SETIFZ(insize, sstrlen(indata));
 #if SIZEOF_SIZE_T == 4
 	if(insize > UINT_MAX/4)
 		return CURLE_OUT_OF_MEMORY;
@@ -192,7 +192,7 @@ static CURLcode base64_encode(const char * table64, struct Curl_easy * data, con
 	*output = '\0'; // Zero terminate 
 	*outptr = base64data; // Return the pointer to the new data (allocated memory) 
 	SAlloc::F(convbuf);
-	*outlen = strlen(base64data); // Return the length of the new data 
+	*outlen = sstrlen(base64data); // Return the length of the new data 
 	return CURLE_OK;
 }
 /*

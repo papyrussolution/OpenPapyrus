@@ -1086,7 +1086,7 @@ int SLAPI PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBar
 				// Штрихкод с форсированной контрольной цифрой
 				//
 				STRNSCPY(sdr_goods.CodeCD, sdr_goods.Code);
-				size_t len = strlen(sdr_goods.CodeCD);
+				size_t len = sstrlen(sdr_goods.CodeCD);
 				const PPGoodsConfig & gcfg = P_GObj->GetConfig();
 				if(len > 3 && !(gcfg.Flags & GCF_BCCHKDIG) && !gcfg.IsWghtPrefix(sdr_goods.CodeCD)) {
 					int diag = 0;
@@ -1471,7 +1471,7 @@ int SLAPI TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 					}
 					for(i = 0; i < Units.getCount(); i++) {
 						const char * p_abbr_set = Units.at(i).Abbr;
-						uss.setBuf(p_abbr_set, strlen(p_abbr_set)+1);
+						uss.setBuf(p_abbr_set, sstrlen(p_abbr_set)+1);
 						for(uint j = 0, idx = 0; uss.get(&j, unit_abbr); idx++) {
 							if(idx == 0)
 								first_unit_abbr = unit_abbr;
@@ -2449,7 +2449,7 @@ int SLAPI PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 							if(*strip(sdr_rec.Code)) {
 								STRNSCPY(barcode, strupr(sdr_rec.Code));
 								if(subcode.Key >= 0 && subcode.Val > 1) {
-									size_t bclen = strlen(barcode);
+									size_t bclen = sstrlen(barcode);
 									if((size_t)subcode.Key < bclen) {
 										bclen = MIN((size_t)subcode.Val, bclen-subcode.Key);
 										memcpy(subc, barcode+subcode.Key, bclen);

@@ -3224,7 +3224,7 @@ int xmlOutputBufferWriteEscape(xmlOutputBuffer * out, const xmlChar * str, xmlCh
 	int cons;    /* byte from str consumed */
 	if(!out || out->error || !str || !out->buffer || (xmlBufGetAllocationScheme(out->buffer) == XML_BUFFER_ALLOC_IMMUTABLE))
 		return -1;
-	len = strlen((const char*)str);
+	len = sstrlen(str);
 	if(len < 0)
 		return 0;
 	if(out->error)
@@ -3333,7 +3333,7 @@ int FASTCALL xmlOutputBufferWriteString(xmlOutputBuffer * out, const char * str)
 {
 	int    len = -1;
 	if(out && !out->error && str) {
-		len = strlen(str);
+		len = sstrlen(str);
 		if(len > 0)
 			len = xmlOutputBufferWrite(out, len, str);
 	}
@@ -3422,7 +3422,7 @@ char * xmlParserGetDirectory(const char * filename)
 #endif
 	strncpy(dir, filename, 1023);
 	dir[1023] = 0;
-	cur = &dir[strlen(dir)];
+	cur = &dir[sstrlen(dir)];
 	while(cur > dir) {
 		if(IS_XMLPGD_SEP(*cur))
 			break;

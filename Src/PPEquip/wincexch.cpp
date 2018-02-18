@@ -468,7 +468,7 @@ int SLAPI StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SB
 			STRNSCPY(sbii_grec.Serial,  pBarcode);
 		else
 			STRNSCPY(sbii_grec.Barcode, pBarcode);
-		if(strlen(sbii_grec.Barcode) == 0)
+		if(sstrlen(sbii_grec.Barcode) == 0)
 			GObj.GetSingleBarcode(goods_id, sbii_grec.Barcode, sizeof(sbii_grec.Barcode));
 		if(goods_rec.Flags & GF_UNLIM) {
 			QuotIdent qi(loc_id, PPQUOTK_BASE, 0L /* @curID */);
@@ -483,7 +483,7 @@ int SLAPI StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SB
 		sbii_grec.Rest = rest ? rest : lot_rec.Rest;
 		STRNSCPY(sbii_grec.Name, goods_rec.Name);
 		SOemToChar(sbii_grec.Name);
-		if(strlen(sbii_grec.Barcode) < 7) {
+		if(sstrlen(sbii_grec.Barcode) < 7) {
 			SString temp_buf;
 			temp_buf = sbii_grec.Barcode;
 			temp_buf.PadLeft(12-temp_buf.Len(), '0');
@@ -581,7 +581,7 @@ int SLAPI StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
 		}
 		else
 			STRNSCPY(rgi.BarCode, pBarcode);
-		if(strlen(rgi.Serial) > 0) {
+		if(sstrlen(rgi.Serial) > 0) {
 			rgi.LotID = lot_rec.ID;
 			rgi.Qtty = lot_rec.Quantity;
 			rgi.UnitPerPack = lot_rec.UnitPerPack;
@@ -801,7 +801,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 						if(GObj.SearchByCodeExt(&srch_blk) > 0 && GObj.Fetch(srch_blk.Rec.ID, &goods_rec) > 0) {
 							SOemToChar(goods_rec.Name);
 							THROW_SL(ret_buf.Write(goods_rec.ID));
-							THROW_SL(ret_buf.Write(goods_rec.Name, strlen(goods_rec.Name)));
+							THROW_SL(ret_buf.Write(goods_rec.Name, sstrlen(goods_rec.Name)));
 							r = 1;
 						}
 					}
@@ -1032,7 +1032,7 @@ int SLAPI StyloBhtIIExchange(const char * pDbSymb, const char * pName, const cha
 {
 	int    ok = 1;
 	SString buf, msg_buf, pwd;
-	Reference::Decrypt(Reference::crymRef2, pPassword, strlen(pPassword), pwd);
+	Reference::Decrypt(Reference::crymRef2, pPassword, sstrlen(pPassword), pwd);
 	if(DS.Login(pDbSymb, pName, pwd) > 0) {
 		StyloBhtIIExchanger exch(pSo);
 		pwd = 0;

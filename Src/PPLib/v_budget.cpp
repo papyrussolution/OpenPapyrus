@@ -514,7 +514,7 @@ int BudgetDialog::getDTS(PPBudgetPacket * pData)
 	getCtrlData(CTL_BUDGET_CODE, Data.Rec.Code);
 	getCtrlData(sel = CTL_BUDGET_NAME, Data.Rec.Name);
 	getCtrlData(CTL_BUDGET_ID,  &Data.Rec.ID);
-	THROW_PP(strlen(Data.Rec.Name) > 0, PPERR_NAMENEEDED);
+	THROW_PP(sstrlen(Data.Rec.Name) > 0, PPERR_NAMENEEDED);
 	THROW(GetPeriodInput(this, sel = CTL_BUDGET_PERIOD, &period));
 	THROW_PP(!period.IsZero(), PPERR_INVPERIODINPUT);
 	Data.Rec.LowDt = period.low;
@@ -1778,7 +1778,7 @@ int SLAPI PPViewBudget::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 					if(id && Filt.Kind == BudgetFilt::kBudgetItems) {
 						SString buf;
 						BudgetItemTbl::Rec rec;
-						if(ObjBudg.ItemsTbl.Search(id, &rec) > 0 && strlen(rec.Memo))
+						if(ObjBudg.ItemsTbl.Search(id, &rec) > 0 && sstrlen(rec.Memo))
 							PPTooltipMessage(rec.Memo, 0, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
 								SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|
 								SMessageWindow::fChildWindow);

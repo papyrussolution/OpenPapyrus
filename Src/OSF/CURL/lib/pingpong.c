@@ -147,7 +147,7 @@ CURLcode Curl_pp_vsendf(struct pingpong * pp, const char * fmt, va_list args)
 	if(!s)
 		return CURLE_OUT_OF_MEMORY;
 	bytes_written = 0;
-	write_len = strlen(s);
+	write_len = sstrlen(s);
 	Curl_pp_init(pp);
 	result = Curl_convert_to_network(data, s, write_len);
 	// Curl_convert_to_network calls failf if unsuccessful 

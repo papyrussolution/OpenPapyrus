@@ -145,7 +145,7 @@ int SLAPI PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			memzero(spctval, sizeof(spctval));
 			if(Data.PctVal != 0) {
 				realfmt(Data.PctVal, SFMT_MONEY, spctval);
-				spctval_len = strlen(spctval);
+				spctval_len = sstrlen(spctval);
 				if(spctval_len < sizeof(spctval)) {
 					if(Data.IsCostBase())
 						spctval[spctval_len] = 'C';
@@ -189,7 +189,7 @@ int SLAPI PrcssrUnifyPrice::EditParam(PrcssrUnifyPriceFilt * pParam)
 			GetClusterData(CTL_UNIPRICE_FLAGS,     &Data.Flags);
 			GetClusterData(CTL_UNIPRICE_MODE,      &Data.Mode);
 			getCtrlData(sel = CTL_UNIPRICE_PCT, spctval);
-			spctval_len = strlen(spctval);
+			spctval_len = sstrlen(spctval);
 			if(spctval_len) {
 				char symb = spctval[spctval_len-1];
 				if(toupper(symb) == 'C' /*lat*/ || toupper(symb) == 145 /*rus*/) {

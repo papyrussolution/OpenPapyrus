@@ -1570,7 +1570,7 @@ int SLAPI TestSuffixTree()
 						uint32 str_id = 0;
 						uint str_p = st.CreateString(&str_id);
 						const char * p_string = "mississippi";
-						const size_t len = strlen(p_string);
+						const size_t len = sstrlen(p_string);
 						THROW(str_p);
 						THROW(st.AddChunkToString(str_p, p_string, len));
 						THROW(st.InsertString(str_p));
@@ -1579,7 +1579,7 @@ int SLAPI TestSuffixTree()
 						uint32 str_id = 0;
 						uint str_p = st.CreateString(&str_id);
 						const char * p_string = "abc";
-						const size_t len = strlen(p_string);
+						const size_t len = sstrlen(p_string);
 						THROW(str_p);
 						THROW(st.AddChunkToString(str_p, p_string, len));
 						THROW(st.InsertString(str_p));

@@ -61,9 +61,9 @@ int __fop_create(ENV * env, DB_TXN * txn, DB_FH ** fhpp, const char * name, cons
 	   && txn != NULL
 #endif
 	   ) {
-		DB_INIT_DBT(data, name, strlen(name)+1);
+		DB_INIT_DBT(data, name, sstrlen(name)+1);
 		if(dirp != NULL && *dirp != NULL)
-			DB_INIT_DBT(dirdata, *dirp, strlen(*dirp)+1);
+			DB_INIT_DBT(dirdata, *dirp, sstrlen(*dirp)+1);
 		else
 			memzero(&dirdata, sizeof(dirdata));
 		if((ret = __fop_create_log(env, txn, &lsn, flags|DB_FLUSH, &data, &dirdata, (uint32)appname, (uint32)mode)) != 0)
@@ -108,7 +108,7 @@ int __fop_remove(ENV * env, DB_TXN * txn, uint8 * fileid, const char * name, con
 			memzero(&fdbt, sizeof(ndbt));
 			fdbt.data = fileid;
 			fdbt.size = fileid == NULL ? 0 : DB_FILE_ID_LEN;
-			DB_INIT_DBT(ndbt, name, strlen(name)+1);
+			DB_INIT_DBT(ndbt, name, sstrlen(name)+1);
 			if((ret = __fop_remove_log(env, txn, &lsn, flags, &ndbt, &fdbt, (uint32)appname)) != 0)
 				goto err;
 		}
@@ -155,9 +155,9 @@ int __fop_write(ENV * env, DB_TXN * txn, const char * name, const char * dirname
 		memzero(&data, sizeof(data));
 		data.data = buf;
 		data.size = size;
-		DB_INIT_DBT(namedbt, name, strlen(name)+1);
+		DB_INIT_DBT(namedbt, name, sstrlen(name)+1);
 		if(dirname != NULL)
-			DB_INIT_DBT(dirdbt, dirname, strlen(dirname)+1);
+			DB_INIT_DBT(dirdbt, dirname, sstrlen(dirname)+1);
 		else
 			memzero(&dirdbt, sizeof(dirdbt));
 		if((ret = __fop_write_log(env, txn, &lsn, flags, &namedbt, &dirdbt, (uint32)appname, pgsize, pageno, off, &data, istmp)) != 0)
@@ -206,10 +206,10 @@ int __fop_rename(ENV * env, DB_TXN * txn, const char * oldname, const char * new
 	   && txn != NULL
 #endif
 	   ) {
-		DB_INIT_DBT(old, oldname, strlen(oldname)+1);
-		DB_INIT_DBT(new_dbt, newname, strlen(newname)+1);
+		DB_INIT_DBT(old, oldname, sstrlen(oldname)+1);
+		DB_INIT_DBT(new_dbt, newname, sstrlen(newname)+1);
 		if(dirp != NULL && *dirp != NULL)
-			DB_INIT_DBT(dir, *dirp, strlen(*dirp)+1);
+			DB_INIT_DBT(dir, *dirp, sstrlen(*dirp)+1);
 		else
 			memzero(&dir, sizeof(dir));
 		memzero(&fiddbt, sizeof(fiddbt));

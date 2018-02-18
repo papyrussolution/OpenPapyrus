@@ -2986,7 +2986,7 @@ int SLAPI PrcssrTestDb::GenerateString(char * pBuf, size_t maxLen)
 	}
 	else {
 		const char * p_alphabet = "0123456789.-ABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔõÖ×ØÙúÛÜİŞß";
-		const size_t ab_len = strlen(p_alphabet);
+		const size_t ab_len = sstrlen(p_alphabet);
 		for(i = 0; i < num_words; i++) {
 			temp_buf.Z();
 			size_t word_len = labs(G.GetUniformInt(10))+1;

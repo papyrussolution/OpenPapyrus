@@ -111,7 +111,7 @@ int __dbreg_setup(DB*dbp, const char * fname, const char * dname, uint32 create_
 	if(fname == NULL)
 		fnp->fname_off = INVALID_ROFF;
 	else {
-		len = strlen(fname)+1;
+		len = sstrlen(fname)+1;
 		if((ret = __env_alloc(infop, len, &p)) != 0)
 			goto err;
 		fnp->fname_off = R_OFFSET(infop, p);
@@ -120,7 +120,7 @@ int __dbreg_setup(DB*dbp, const char * fname, const char * dname, uint32 create_
 	if(dname == NULL)
 		fnp->dname_off = INVALID_ROFF;
 	else {
-		len = strlen(dname)+1;
+		len = sstrlen(dname)+1;
 		if((ret = __env_alloc(infop, len, &p)) != 0)
 			goto err;
 		fnp->dname_off = R_OFFSET(infop, p);
@@ -644,7 +644,7 @@ int __dbreg_log_close(ENV*env, FNAME * fnp, DB_TXN * txn, uint32 op)
 	else {
 		memzero(&r_name, sizeof(r_name));
 		r_name.data = R_ADDR(&dblp->reginfo, fnp->fname_off);
-		r_name.size = (uint32)strlen((char *)r_name.data)+1;
+		r_name.size = (uint32)sstrlen((char *)r_name.data)+1;
 		dbtp = &r_name;
 	}
 	memzero(&fid_dbt, sizeof(fid_dbt));
@@ -793,7 +793,7 @@ int __dbreg_log_id(DB*dbp, DB_TXN * txn, int32 id, int needlock)
 		MUTEX_LOCK(env, lp->mtx_filelist);
 	if(fnp->fname_off != INVALID_ROFF) {
 		r_name.data = R_ADDR(&dblp->reginfo, fnp->fname_off);
-		r_name.size = (uint32)strlen((char *)r_name.data)+1;
+		r_name.size = (uint32)sstrlen((char *)r_name.data)+1;
 	}
 	fid_dbt.data = dbp->fileid;
 	fid_dbt.size = DB_FILE_ID_LEN;

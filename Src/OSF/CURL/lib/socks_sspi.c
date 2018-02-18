@@ -69,7 +69,7 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex, struct connectdata * conn)
 	ulong qop;
 	uchar socksreq[4]; /* room for GSS-API exchange header only */
 	const char * service = data->set.str[STRING_PROXY_SERVICE_NAME] ? data->set.str[STRING_PROXY_SERVICE_NAME]  : "rcmd";
-	const size_t service_length = strlen(service);
+	const size_t service_length = sstrlen(service);
 	/*   GSS-API request looks like
 	 * +----+------+-----+----------------+
 	 * |VER | MTYP | LEN |     TOKEN      |
@@ -85,10 +85,10 @@ CURLcode Curl_SOCKS5_gssapi_negotiate(int sockindex, struct connectdata * conn)
 			return CURLE_OUT_OF_MEMORY;
 	}
 	else {
-		service_name = SAlloc::M(service_length + strlen(conn->socks_proxy.host.name) + 2);
+		service_name = SAlloc::M(service_length + sstrlen(conn->socks_proxy.host.name) + 2);
 		if(!service_name)
 			return CURLE_OUT_OF_MEMORY;
-		snprintf(service_name, service_length + strlen(conn->socks_proxy.host.name)+2, "%s/%s", service, conn->socks_proxy.host.name);
+		snprintf(service_name, service_length + sstrlen(conn->socks_proxy.host.name)+2, "%s/%s", service, conn->socks_proxy.host.name);
 	}
 	input_desc.cBuffers = 1;
 	input_desc.pBuffers = &sspi_recv_token;

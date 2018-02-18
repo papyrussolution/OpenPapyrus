@@ -23,7 +23,7 @@ static int __db_fullpath(ENV*, const char *, const char *, int, int, char **);
 				slash = 0;                                      \
 			}                                                       \
 			/* Append to the current string. */                     \
-			len = strlen(add);                                      \
+			len = sstrlen(add);                                      \
 			if(slash)                                              \
 				*p++ = PATH_SEPARATOR[0];                       \
 			memcpy(p, add, len);                                    \
@@ -42,7 +42,7 @@ static int __db_fullpath(ENV * env, const char * dir, const char * file, int che
 	int isdir, ret, slash;
 	// All paths are relative to the environment home. 
 	const char * home = env ? env->db_home : 0;
-	size_t len = (!home ? 0 : strlen(home)+1)+(!dir ? 0 : strlen(dir)+1)+(!file ? 0 : strlen(file)+1);
+	size_t len = (!home ? 0 : sstrlen(home)+1)+(!dir ? 0 : sstrlen(dir)+1)+(!file ? 0 : sstrlen(file)+1);
 	if((ret = __os_malloc(env, len, &str)) != 0)
 		return ret;
 	slash = 0;
@@ -175,7 +175,7 @@ int __db_tmp_open(ENV * env, uint32 oflags, DB_FH ** fhpp)
 	ipid = (int)pid;
 	if(ipid < 0)
 		ipid = -ipid;
-	for(trv = path+strlen(path); *--trv == 'X'; ipid /= 10)
+	for(trv = path+sstrlen(path); *--trv == 'X'; ipid /= 10)
 		*trv = '0'+(uchar)(ipid%10);
 	firstx = trv+1;
 	// Loop, trying to open a file

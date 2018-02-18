@@ -423,7 +423,7 @@ int	SLAPI SCS_ATOLDRV::PrintDiscountInfo(CCheckPacket * pPack, uint flags)
 void SLAPI SCS_ATOLDRV::CutLongTail(char * pBuf)
 {
 	char * p = 0;
-	if(pBuf && strlen(pBuf) > (uint)CheckStrLen) {
+	if(pBuf && sstrlen(pBuf) > (uint)CheckStrLen) {
 		pBuf[CheckStrLen + 1] = 0;
 		if((p = strrchr(pBuf, ' ')) != 0)
 			*p = 0;

@@ -56,14 +56,13 @@ SOAP_FMAC3 char * * SOAP_FMAC4 soap_in_string(struct soap *soap, const char *tag
 
 SOAP_FMAC3 int SOAP_FMAC4 soap_putindependent(struct soap *soap)
 {
-	int i;
-	struct soap_plist *pp;
-	if(soap->version == 1 && soap->encodingStyle && !(soap->mode & (SOAP_XML_TREE | SOAP_XML_GRAPH)))
-		for(i = 0; i < SOAP_PTRHASH; i++)
-			for(pp = soap->pht[i]; pp; pp = pp->next)
+	if(soap->version == 1 && soap->encodingStyle && !(soap->mode & (SOAP_XML_TREE | SOAP_XML_GRAPH))) {
+		for(int i = 0; i < SOAP_PTRHASH; i++)
+			for(struct soap_plist * pp = soap->pht[i]; pp; pp = pp->next)
 				if(pp->mark1 == 2 || pp->mark2 == 2)
 					if(soap_putelement(soap, pp->ptr, "id", pp->id, pp->type))
 						return soap->error;
+	}
 	return SOAP_OK;
 }
 
@@ -169,23 +168,23 @@ SOAP_FMAC3 struct SOAP_ENV__Fault * SOAP_FMAC4 soap_in_SOAP_ENV__Fault(struct so
 					continue;
 				}
 			if(soap_flag_detail && soap->error == SOAP_TAG_MISMATCH)
-				if(soap_in_PointerToSOAP_ENV__Detail(soap, "detail", &a->detail, ""))
-				{	soap_flag_detail--;
+				if(soap_in_PointerToSOAP_ENV__Detail(soap, "detail", &a->detail, "")) {
+					soap_flag_detail--;
 					continue;
 				}
 			if(soap_flag_SOAP_ENV__Code && soap->error == SOAP_TAG_MISMATCH)
-				if(soap_in_PointerToSOAP_ENV__Code(soap, "SOAP-ENV:Code", &a->SOAP_ENV__Code, ""))
-				{	soap_flag_SOAP_ENV__Code--;
+				if(soap_in_PointerToSOAP_ENV__Code(soap, "SOAP-ENV:Code", &a->SOAP_ENV__Code, "")) {
+					soap_flag_SOAP_ENV__Code--;
 					continue;
 				}
 			if(soap_flag_SOAP_ENV__Reason && soap->error == SOAP_TAG_MISMATCH)
-				if(soap_in_PointerToSOAP_ENV__Reason(soap, "SOAP-ENV:Reason", &a->SOAP_ENV__Reason, ""))
-				{	soap_flag_SOAP_ENV__Reason--;
+				if(soap_in_PointerToSOAP_ENV__Reason(soap, "SOAP-ENV:Reason", &a->SOAP_ENV__Reason, "")) {
+					soap_flag_SOAP_ENV__Reason--;
 					continue;
 				}
 			if(soap_flag_SOAP_ENV__Node && (soap->error == SOAP_TAG_MISMATCH || soap->error == SOAP_NO_TAG))
-				if(soap_in_string(soap, "SOAP-ENV:Node", &a->SOAP_ENV__Node, "xsd:string"))
-				{	soap_flag_SOAP_ENV__Node--;
+				if(soap_in_string(soap, "SOAP-ENV:Node", &a->SOAP_ENV__Node, "xsd:string")) {
+					soap_flag_SOAP_ENV__Node--;
 					continue;
 				}
 			if(soap_flag_SOAP_ENV__Role && (soap->error == SOAP_TAG_MISMATCH || soap->error == SOAP_NO_TAG))
@@ -324,9 +323,7 @@ SOAP_FMAC3 void SOAP_FMAC4 soap_serializefault(struct soap * soap)
 
 SOAP_FMAC3 int SOAP_FMAC4 soap_putfault(struct soap * soap)
 {
-	if(soap->fault)
-		return soap_put_SOAP_ENV__Fault(soap, soap->fault, "SOAP-ENV:Fault", 0);
-	return SOAP_OK;
+	return soap->fault ? soap_put_SOAP_ENV__Fault(soap, soap->fault, "SOAP-ENV:Fault", 0) : SOAP_OK;
 }
 
 SOAP_FMAC3 int SOAP_FMAC4 soap_getfault(struct soap * soap)
@@ -359,8 +356,7 @@ SOAP_FMAC3 const char * SOAP_FMAC4 soap_check_faultsubcode(struct soap * soap)
 {
 	soap_fault(soap);
 	if(soap->version == 2) {
-		if(soap->fault->SOAP_ENV__Code && soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode &&
-		   soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode)
+		if(soap->fault->SOAP_ENV__Code && soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode && soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode)
 			return soap->fault->SOAP_ENV__Code->SOAP_ENV__Subcode->SOAP_ENV__Value;
 		return NULL;
 	}

@@ -4,10 +4,10 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <process.h>
+//@v9.9.5 #include <process.h>
 //#include <stdio.h>
-#include <shlwapi.h>
-#include <comdisp.h>
+//@v9.9.5 #include <shlwapi.h>
+//@v9.9.5 #include <comdisp.h>
 
 // TInputLine setMaxLen
 
@@ -875,7 +875,7 @@ int BillDialog::getDiscount(double * pDiscount, int * pInPercent, int * pRmvExci
 			pctdis = 1;
 			strcpy(p, p + 1);
 		}
-		p = buf + strlen(buf);
+		p = buf + sstrlen(buf);
 		if(pctdis)
 			*p++ = '%';
 		if(rmve)
@@ -968,7 +968,7 @@ int SLAPI PPLinkFile::Init(const char * pPath)
 	Ext.Z();
 	Path.Z();
 	Description = 0;
-	if(pPath && strlen(pPath)) {
+	if(pPath && sstrlen(pPath)) {
 		pathToUNC(pPath, Path);
 		SPathStruc ps(Path);
 		Ext = ps.Ext;
@@ -1258,7 +1258,7 @@ int SLAPI PPLinkFilesArray::GetFilePath(PPID id, const char * pExt, SString & rF
 	(data_path = StoreDir).SetLastSlash();
 	createDir(data_path);
 	data_path.Cat(fname);
-	if(pExt && strlen(pExt))
+	if(pExt && sstrlen(pExt))
 		data_path.Dot().Cat(pExt);
 	rFilePath = data_path;
 	return 1;
@@ -1434,7 +1434,7 @@ IMPL_HANDLE_EVENT(LinkFilesDialog)
 int LinkFilesDialog::LinkFile(const char * pPath, uint * pPos)
 {
 	int    ok = -1;
-	if(pPath && strlen(pPath)) {
+	if(pPath && sstrlen(pPath)) {
 		SString title, fname;
 		PPLinkFile flink;
 		SPathStruc ps(pPath);
@@ -1454,9 +1454,8 @@ int LinkFilesDialog::setupList()
 	if(LinksAry.getCount()) {
 		StringSet ss(SLBColumnDelim);
 		for(uint i = 0; i < LinksAry.getCount(); i++) {
-			ss.clear();
 			PPLinkFile flink = *LinksAry.at(i);
-			ss.add(flink.Description);
+			ss.Z().add(flink.Description);
 			THROW(addStringToList(i, ss.getBuf()));
 		}
 		ok = 1;
@@ -2254,9 +2253,8 @@ void BillDialog::ReplyCntragntSelection(int force)
 					p_list->freeAll();
 					for(uint i = 0; i < sob.RegInfoList.getCount(); i++) {
 						const LAssoc & r_item = sob.RegInfoList.at(i);
-						ss.clear();
 						GetRegisterTypeName(r_item.Key, add_msg);
-						ss.add(add_msg);
+						ss.Z().add(add_msg);
 						if(r_item.Val && reg_obj.Search(r_item.Val, &reg_rec) > 0) {
 							ss.add(reg_rec.Serial);
 							ss.add(reg_rec.Num);
@@ -3518,8 +3516,7 @@ int PaymPlanDialog::setupList()
 	PayPlanTbl::Rec * p_item;
 	uint    i = 0;
 	while(Data.enumItems(&i, (void **)&p_item)) {
-		ss.clear();
-		ss.add(sub.Z().Cat(p_item->PayDate));
+		ss.Z().add(sub.Z().Cat(p_item->PayDate));
 		ss.add(sub.Z().Cat(p_item->Amount,   fmt));
 		ss.add(sub.Z().Cat(p_item->Interest, fmt));
 		ss.add(sub.Z().Cat(rest, fmt));
@@ -3529,8 +3526,7 @@ int PaymPlanDialog::setupList()
 		rest -= p_item->Amount;
 	}
 	if(Data.getCount()) {
-		ss.clear();
-		ss.add(PPGetWord(PPWORD_TOTAL, 0, sub));
+		ss.Z().add(PPGetWord(PPWORD_TOTAL, 0, sub));
 		ss.add(sub.Z().Cat(total_amount,   fmt));
 		ss.add(sub.Z().Cat(total_interest, fmt));
 		ss.add(sub.Z().Cat(rest, fmt));

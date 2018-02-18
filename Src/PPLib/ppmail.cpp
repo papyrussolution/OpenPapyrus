@@ -723,7 +723,7 @@ const char * SLAPI PPMailFile::ReadLine()
 		char * r;
 		size_t p = 0;
 		while((r = fgets(P_LineBuf+p, LineBufSize-p, Stream)) != 0) {
-			p += strlen(chomp(P_LineBuf+p));
+			p += sstrlen(chomp(P_LineBuf+p));
 			int c = fgetc(Stream);
 			ungetc(c, Stream);
 			if(c == '\t')
@@ -782,7 +782,7 @@ int SLAPI PPMailFile::ProcessMsgHeaderLine(const char * pLine)
 			Msg.Flags |= SMailMessage::fPpyOrder;
 		else if(Msg.CmpField(SMailMessage::fldSubj, SUBJECTCHARRY) == 0)
 			Msg.Flags |= SMailMessage::fPpyCharry;
-		else if(Msg.CmpField(SMailMessage::fldSubj, SUBJECTFRONTOL, strlen(SUBJECTFRONTOL)) == 0)
+		else if(Msg.CmpField(SMailMessage::fldSubj, SUBJECTFRONTOL, sstrlen(SUBJECTFRONTOL)) == 0)
 			Msg.Flags |= SMailMessage::fFrontol;
 	}
 	else if(GetField(pLine, PPMAILFLD_FROM, buf) > 0) {
@@ -792,7 +792,7 @@ int SLAPI PPMailFile::ProcessMsgHeaderLine(const char * pLine)
 		Msg.SetField(SMailMessage::fldTo, buf);
 	}
 	else if(GetField(pLine, PPMAILFLD_CONTENTTYPE, buf) > 0) {
-		if(strnicmp(buf, "multipart", strlen("multipart")) == 0) {
+		if(strnicmp(buf, "multipart", sstrlen("multipart")) == 0) {
 			Msg.Flags |= SMailMessage::fMultipart;
 			const char * p = strchr(buf, ';');
 			if(p) {
@@ -963,7 +963,7 @@ int SLAPI PPMailFile::SaveAttachment(const char * pAttachName, const char * pDes
 					else if(this_attachment && start_file) {
 						if(*strip(P_LineBuf)) {
 							char   mime_buf[1024];
-							THROW_PP_S(decode64(P_LineBuf, strlen(P_LineBuf), mime_buf, &out_buf_len) > 0, PPERR_GETATTACHS, file_name);
+							THROW_PP_S(decode64(P_LineBuf, sstrlen(P_LineBuf), mime_buf, &out_buf_len) > 0, PPERR_GETATTACHS, file_name);
 							SLibError = SLERR_WRITEFAULT;
 							THROW_SL(fwrite(mime_buf, out_buf_len, 1, p_out) == 1);
 						}
@@ -995,13 +995,13 @@ int SLAPI PPMailFile::SaveAttachment(const char * pAttachName, const char * pDes
 			char * p = P_LineBuf;
 			while(*p == ' ' || *p == '\t')
 				p++;
-			if(strnicmp(P_LineBuf, start_str, strlen(start_str)) == 0)
+			if(strnicmp(P_LineBuf, start_str, sstrlen(start_str)) == 0)
 				store = 1;
 			if(store) {
 				fputs(P_LineBuf, p_out);
 				fputc('\n', p_out);
 			}
-			if(strnicmp(P_LineBuf, end_str, strlen(end_str)) == 0) {
+			if(strnicmp(P_LineBuf, end_str, sstrlen(end_str)) == 0) {
 				store = 0;
 				ok = 1;
 			}
@@ -1058,7 +1058,7 @@ static void PreprocessEncodedField(const char * pLine, SString & rResult)
 			temp_buf.Trim(p - p_org - 2);
 			const char * p_utf_prefix = "UTF-8?B?";
 			if(temp_buf.CmpPrefix(p_utf_prefix, 1) == 0) {
-				temp_buf.ShiftLeft(strlen(p_utf_prefix));
+				temp_buf.ShiftLeft(sstrlen(p_utf_prefix));
 				char   mime_buf[1024];
 				size_t mime_len = 0;
 				temp_buf.DecodeMime64(mime_buf, sizeof(mime_buf), &mime_len);
@@ -1205,7 +1205,7 @@ int SLAPI PPMailPop3::ProcessMsgHeaderLine(const char * pLine, SMailMessage * pM
 			pMsg->Flags |= SMailMessage::fPpyOrder;
 		else if(pMsg->CmpField(SMailMessage::fldSubj, SUBJECTCHARRY) == 0)
 			pMsg->Flags |= SMailMessage::fPpyCharry;
-		else if(pMsg->CmpField(SMailMessage::fldSubj, SUBJECTFRONTOL, strlen(SUBJECTFRONTOL)) == 0)
+		else if(pMsg->CmpField(SMailMessage::fldSubj, SUBJECTFRONTOL, sstrlen(SUBJECTFRONTOL)) == 0)
 			pMsg->Flags |= SMailMessage::fFrontol;
 	}
 	else if(GetField(pLine, PPMAILFLD_FROM, buf) > 0) {
@@ -1215,7 +1215,7 @@ int SLAPI PPMailPop3::ProcessMsgHeaderLine(const char * pLine, SMailMessage * pM
 		pMsg->SetField(SMailMessage::fldTo, buf);
 	}
 	else if(GetField(pLine, PPMAILFLD_CONTENTTYPE, buf) > 0) {
-		if(strnicmp(buf, "multipart", strlen("multipart")) == 0) {
+		if(strnicmp(buf, "multipart", sstrlen("multipart")) == 0) {
 			pMsg->Flags |= SMailMessage::fMultipart;
 			const char * p = strchr(buf, ';');
 			if(p && GetField((temp_buf = p+1), PPMAILFLD_BOUNDARY, buf) > 0)
@@ -1880,7 +1880,7 @@ int PPEmailAcctsImporter::ResolveAuthType(const char * pAuthType, uint16 * pOutA
 {
 	int    ok = -1;
 	uint16 auth_type = 0;
-	if(pAuthType && strlen(pAuthType)) {
+	if(pAuthType && sstrlen(pAuthType)) {
 		SString auths, auth, buf;
 		auth.CopyFrom(pAuthType);
 		auth.Strip();

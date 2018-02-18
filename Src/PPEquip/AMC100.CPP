@@ -141,7 +141,7 @@ int SLAPI SCS_AMC100::MakeBody(char * fn, CCheckPacket * pack, uint)
 		double dscnt = cc_item.Dscnt; // @v5.2.7 intmnytodbl(ti->Discount);
 		p    = buf;
 		GetGoodsName(cc_item.GoodsID, goods_name);
-		p   += strlen(strfmt(goods_name, MKSFMT(17, ALIGN_LEFT | STRF_UPPER), p));
+		p   += sstrlen(strfmt(goods_name, MKSFMT(17, ALIGN_LEFT | STRF_UPPER), p));
 		*p++ = ' ';
 		*p++ = '1'; // Отдел
 		*p++ = ' ';
@@ -164,7 +164,7 @@ int SLAPI SCS_AMC100::MakeBody(char * fn, CCheckPacket * pack, uint)
 int SLAPI SCS_AMC100::MakeExecFileName(char * fn, uint)
 {
 	long   exe = 0x455845L; // "EXE"
-	char * p = fn + strlen(fn);
+	char * p = fn + sstrlen(fn);
 	*p++ = Handle + '0';
 	*p++ = '.';
 	strcpy(p, (char*)&exe);
@@ -403,7 +403,7 @@ int SLAPI SCS_AMC200::MakeBody(char * fn, CCheckPacket * pack, uint)
 int SLAPI SCS_AMC200::MakeExecFileName(char * fn, uint)
 {
 	long exe = 0x455845L; // "EXE"
-	char * p = fn + strlen(fn);
+	char * p = fn + sstrlen(fn);
 	//*p++ = handle + '0';
 	*p++ = '.';
 	strcpy(p, (char*)&exe);

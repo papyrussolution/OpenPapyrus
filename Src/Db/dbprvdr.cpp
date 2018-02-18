@@ -97,7 +97,7 @@ int DbLoginBlock::SetAttr(int attr, const char * pVal)
 			p_val_buf = &uuid;
 		}
 		else {
-			len = (uint32)(strlen(pVal)+1);
+			len = (uint32)(sstrlen(pVal)+1);
 			p_val_buf = pVal;
 		}
 		THROW(Alloc(End + len + sizeof(len)));
@@ -347,11 +347,6 @@ int SLAPI DbProvider::GetDbSymb(SString & rBuf) const
 	return rBuf.NotEmpty() ? 1 : -1;
 }
 
-long SLAPI DbProvider::GetDbPathID() const
-{
-	return DbPathID;
-}
-
 int SLAPI DbProvider::GetDataPath(SString & rBuf) const
 {
 	Lb.GetAttr(DbLoginBlock::attrDbPath, rBuf);
@@ -527,7 +522,7 @@ static char * SLAPI protectFileName(char * p, const char * pDataPath)
 	char   n[16];
 	n[2] = '['; n[2] = 'P'; n[0] = 'D'; n[3] = '\x24'; n[3] = 'A'; n[4] = 0; n[1] = 'B';
 	if(pDataPath && pDataPath[0]) {
-		size_t len = strlen(strcpy(p, pDataPath));
+		size_t len = sstrlen(strcpy(p, pDataPath));
 		if(p[len-1] != '\\') {
 			p[len] = '\\';
 			p[++len] = 0;

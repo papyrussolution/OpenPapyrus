@@ -116,7 +116,7 @@ struct xmlGlobalState {
 	xmlSAXHandlerV1 htmlDefaultSAXHandler;
 	xmlFreeFunc xmlFree_; // @sobolev xmlFree-->xmlFree_
 	//xmlMallocFunc xmlMalloc_;
-	xmlStrdupFunc xmlMemStrdup_Removed;
+	//xmlStrdupFunc xmlMemStrdup_Removed;
 	//xmlReallocFunc xmlRealloc_;
 	xmlGenericErrorFunc xmlGenericError;
 	xmlStructuredErrorFunc xmlStructuredError;
@@ -200,16 +200,16 @@ XMLPUBFUN xmlParserInputBufferCreateFilenameFunc XMLCALL xmlThrDefParserInputBuf
 	#endif
 	#ifdef LIBXML_THREAD_ENABLED
 		XMLPUBFUN  xmlStrdupFunc * XMLCALL __xmlMemStrdup();
-		#define xmlMemStrdup_Removed (*(__xmlMemStrdup()))
+		//#define xmlMemStrdup_Removed (*(__xmlMemStrdup()))
 	#else
-		XMLPUBVAR xmlStrdupFunc xmlMemStrdup_Removed;
+		//XMLPUBVAR xmlStrdupFunc xmlMemStrdup_Removed;
 	#endif
 #else /* !LIBXML_THREAD_ALLOC_ENABLED */
 	//XMLPUBVAR xmlMallocFunc xmlMalloc_;
 	//XMLPUBVAR xmlMallocFunc xmlMallocAtomic_;
 	//XMLPUBVAR xmlReallocFunc xmlRealloc_;
 	// @sobolev XMLPUBVAR xmlFreeFunc xmlFree_;
-	XMLPUBVAR xmlStrdupFunc xmlMemStrdup_Removed;
+	//XMLPUBVAR xmlStrdupFunc xmlMemStrdup_Removed;
 #endif /* LIBXML_THREAD_ALLOC_ENABLED */
 #ifdef LIBXML_DOCB_ENABLED
 	XMLPUBFUN  xmlSAXHandlerV1 * XMLCALL __docbDefaultSAXHandler();

@@ -631,7 +631,7 @@ int SLAPI PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArra
 			line_rec.Dscnt    = t->data.Dscnt;
 			//line_rec.Discount = t->data.Discount;
 			THROW_DB(bei.insert(&line_rec));
-			if(use_ext && strlen(t->data.Serial)) {
+			if(use_ext && sstrlen(t->data.Serial)) {
 				STRNSCPY(ext_rec.Serial, t->data.Serial);
 				ext_rec.CheckID  = line_rec.CheckID;
 				ext_rec.RByCheck = line_rec.RByCheck;
@@ -1080,7 +1080,7 @@ void FASTCALL PPAsyncCashSession::AdjustSCardCode(char * pCode)
 
 int FASTCALL PPAsyncCashSession::AddCheckDigToBarcode(char * pCode)
 {
-	size_t len = strlen(pCode);
+	size_t len = sstrlen(pCode);
 	const PPGoodsConfig & gcfg = GetGoodsCfg();
 	if(len > 3 && CheckCnFlag(CASHF_EXPCHECKD) && !(gcfg.Flags & GCF_BCCHKDIG) && !gcfg.IsWghtPrefix(pCode)) {
 		AddBarcodeCheckDigit(pCode);
@@ -1125,7 +1125,7 @@ int SLAPI PPAsyncCashSession::DistributeFile(const char * pFileName, int action,
 			if(path.CmpPrefix(p_ftp_flag, 1) == 0) {
 				SString ftp_path, file_name;
 				SPathStruc sp;
-				path.ShiftLeft(strlen(p_ftp_flag));
+				path.ShiftLeft(sstrlen(p_ftp_flag));
 				path.ShiftLeftChr('\\').ShiftLeftChr('\\').ShiftLeftChr('/').ShiftLeftChr('/');
 				ftp_path.CatCharN('\\', 2).Cat(path);
 				if(!ftp_connected) {
@@ -1955,7 +1955,7 @@ IMPL_INVARIANT_C(AsyncCashGoodsInfo)
 	S_INVARIANT_PROLOG(pInvP);
 	S_ASSERT_P(UnitPerPack > 0.0, pInvP);
 	S_ASSERT_P(fabs(UnitPerPack) > fpow10i(-6), pInvP);
-	size_t bc_len = strlen(BarCode);
+	size_t bc_len = sstrlen(BarCode);
 	S_ASSERT_P(bc_len < sizeof(BarCode), pInvP);
 	for(size_t i = 0; i < bc_len; i++) {
 		S_ASSERT_P(isdec(BarCode[i]), pInvP);
@@ -1965,7 +1965,7 @@ IMPL_INVARIANT_C(AsyncCashGoodsInfo)
 
 int SLAPI AsyncCashGoodsInfo::AdjustBarcode(int chkDig)
 {
-	size_t bclen = strlen(BarCode);
+	size_t bclen = sstrlen(BarCode);
 	if(bclen > 3 && bclen < 7) {
 		padleft(BarCode, '0', 12 - bclen);
 		if(chkDig)
@@ -2063,7 +2063,7 @@ int SLAPI AsyncCashSCardsIterator::Next(AsyncCashSCardInfo * pInfo)
 			Counter.Increment(); // @v8.1.0
 			Rec = SCObj.P_Tbl->data;
 			if(NodeRec.Flags & CASHF_EXPCHECKD) {
-				if(strlen(Rec.Code) == 12)
+				if(sstrlen(Rec.Code) == 12)
 					AddBarcodeCheckDigit(Rec.Code);
 			}
 			SCObj.SetInheritance(&ScsPack, &Rec);

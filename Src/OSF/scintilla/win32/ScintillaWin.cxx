@@ -673,7 +673,7 @@ int ScintillaWin::TargetAsUTF8(char * text)
 // Return the length of the result in bytes.
 int ScintillaWin::EncodedFromUTF8(char * utf8, char * encoded) const
 {
-	int inputLength = (lengthForEncode >= 0) ? lengthForEncode : static_cast<int>(strlen(utf8));
+	int inputLength = (lengthForEncode >= 0) ? lengthForEncode : static_cast<int>(sstrlen(utf8));
 	if(IsUnicodeMode()) {
 		if(encoded) {
 			memcpy(encoded, utf8, inputLength);
@@ -1871,7 +1871,7 @@ public:
 					if(foldedUTF8) {
 						// Maximum length of a case conversion is 6 bytes, 3 characters
 						wchar_t wFolded[20];
-						size_t charsConverted = UTF16FromUTF8(foldedUTF8, strlen(foldedUTF8), wFolded, SIZEOFARRAY(wFolded));
+						size_t charsConverted = UTF16FromUTF8(foldedUTF8, sstrlen(foldedUTF8), wFolded, SIZEOFARRAY(wFolded));
 						for(size_t j = 0; j < charsConverted; j++)
 							utf16Folded[lenFlat++] = wFolded[j];
 					}
@@ -1918,7 +1918,7 @@ CaseFolder * ScintillaWin::CaseFolderForEncoding()
 					const char * caseFolded = CaseConvert(wCharacter[0], CaseConversionFold);
 					if(caseFolded) {
 						wchar_t wLower[20];
-						size_t charsConverted = UTF16FromUTF8(caseFolded, strlen(caseFolded), wLower, SIZEOFARRAY(wLower));
+						size_t charsConverted = UTF16FromUTF8(caseFolded, sstrlen(caseFolded), wLower, SIZEOFARRAY(wLower));
 						if(charsConverted == 1) {
 							char sCharacterLowered[20];
 							uint lengthConverted = ::WideCharToMultiByte(cpDoc, 0, wLower, static_cast<int>(charsConverted),
@@ -2519,7 +2519,7 @@ void ScintillaWin::ImeStartComposition()
 			lf.lfFaceName[0] = L'\0';
 			if(vs.styles[styleHere].fontName) {
 				const char* fontName = vs.styles[styleHere].fontName;
-				UTF16FromUTF8(fontName, strlen(fontName)+1, lf.lfFaceName, LF_FACESIZE);
+				UTF16FromUTF8(fontName, sstrlen(fontName)+1, lf.lfFaceName, LF_FACESIZE);
 			}
 			::ImmSetCompositionFontW(imc.hIMC, &lf);
 		}
@@ -2927,7 +2927,7 @@ STDMETHODIMP ScintillaWin::Drop(LPDATAOBJECT pIDataSource, DWORD grfKeyState, PO
 				GlobalMemory memDrop(medium.hGlobal);
 				const char * cdata = static_cast<char *>(memDrop.ptr);
 				if(cdata)
-					data.assign(cdata, cdata+strlen(cdata)+1);
+					data.assign(cdata, cdata+sstrlen(cdata)+1);
 				memDrop.Unlock();
 			}
 		}

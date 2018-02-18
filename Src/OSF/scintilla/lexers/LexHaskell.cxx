@@ -522,7 +522,7 @@ void SCI_METHOD LexerHaskell::Lex(Sci_PositionU startPos, Sci_Position length, i
 			while(oneof2(sc.ch, ' ', '\t') && sc.More())
 				sc.Forward();
 			if(sc.Match("\\begin{code}")) {
-				sc.Forward(static_cast<int>(strlen("\\begin{code}")));
+				sc.Forward(static_cast<int>(sstrlen("\\begin{code}")));
 				bool correct = true;
 				while(!sc.atLineEnd && sc.More()) {
 					if(sc.ch != ' ' && sc.ch != '\t') {
@@ -538,7 +538,7 @@ void SCI_METHOD LexerHaskell::Lex(Sci_PositionU startPos, Sci_Position length, i
 		}
 		else if(literate && hs.lmode == LITERATE_BLOCK && sc.atLineStart && sc.Match("\\end{code}")) {
 			sc.SetState(SCE_HA_LITERATE_CODEDELIM);
-			sc.Forward(static_cast<int>(strlen("\\end{code}")));
+			sc.Forward(static_cast<int>(sstrlen("\\end{code}")));
 			while(!sc.atLineEnd && sc.More()) {
 				sc.Forward();
 			}

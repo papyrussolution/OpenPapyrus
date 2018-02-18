@@ -49,20 +49,17 @@ static inline unsigned IsOperator(StyleContext & sc, WordList & op)
 {
 	int i;
 	char s[3];
-
 	s[0] = sc.ch;
 	s[1] = sc.chNext;
 	s[2] = 0;
 	for(i = 0; i < op.Length(); i++) {
-		if( ( strlen(op.WordAt(i) ) == 2 ) &&
-		    ( s[0] == op.WordAt(i)[0] && s[1] == op.WordAt(i)[1] ) ) {
+		if( ( sstrlen(op.WordAt(i) ) == 2 ) && ( s[0] == op.WordAt(i)[0] && s[1] == op.WordAt(i)[1] ) ) {
 			return 2;
 		}
 	}
 	s[1] = 0;
 	for(i = 0; i < op.Length(); i++) {
-		if( ( strlen(op.WordAt(i) ) == 1 ) &&
-		    ( s[0] == op.WordAt(i)[0] ) ) {
+		if( ( sstrlen(op.WordAt(i) ) == 1 ) && ( s[0] == op.WordAt(i)[0] ) ) {
 			return 1;
 		}
 	}
@@ -71,16 +68,13 @@ static inline unsigned IsOperator(StyleContext & sc, WordList & op)
 
 static bool FASTCALL IsEOL(Accessor &styler, Sci_PositionU curPos)
 {
-	unsigned ch = styler.SafeGetCharAt(curPos);
-	if(( ch == '\r' && styler.SafeGetCharAt(curPos + 1) == '\n' ) || ( ch == '\n' )) {
-		return true;
-	}
-	return false;
+	uint   ch = styler.SafeGetCharAt(curPos);
+	return ((ch == '\r' && styler.SafeGetCharAt(curPos + 1) == '\n') || (ch == '\n')) ? true : false;
 }
 
 static bool FASTCALL checkStatement(Accessor &styler, Sci_Position &curPos, const char * stt, bool spaceAfter = true)
 {
-	int len = static_cast<int>(strlen(stt));
+	int len = static_cast<int>(sstrlen(stt));
 	int i;
 	for(i = 0; i < len; i++) {
 		if(styler.SafeGetCharAt(curPos + i) != stt[i]) {
@@ -96,11 +90,10 @@ static bool FASTCALL checkStatement(Accessor &styler, Sci_Position &curPos, cons
 	return true;
 }
 
-static bool FASTCALL checkEndSemicolon(Accessor &styler,
-    Sci_Position &curPos, Sci_Position endPos)
+static bool FASTCALL checkEndSemicolon(Accessor &styler, Sci_Position &curPos, Sci_Position endPos)
 {
 	const char * stt = "END";
-	int len = static_cast<int>(strlen(stt));
+	int len = static_cast<int>(sstrlen(stt));
 	int i;
 	for(i = 0; i < len; i++) {
 		if(styler.SafeGetCharAt(curPos + i) != stt[i]) {

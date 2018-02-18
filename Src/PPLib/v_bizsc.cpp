@@ -20,7 +20,7 @@ BizScValByTemplViewItem::~BizScValByTemplViewItem()
 
 BizScValByTemplViewItem & FASTCALL BizScValByTemplViewItem::operator = (const BizScValByTemplViewItem & rSrc)
 {
-	size_t vals_len = strlen(rSrc.P_Vals);
+	size_t vals_len = sstrlen(rSrc.P_Vals);
 	ZDELETE(P_Vals);
 	Id = rSrc.Id;
 	STRNSCPY(Name, rSrc.Name);
@@ -404,7 +404,7 @@ static int SLAPI TestFormula(PPID bizScId, const char * pFormula, PPObjBizScore 
 			if(pObj->GetPacket(bizScId, &test_pack) > 0)
 				ok = pObj->TestPacket(&test_pack, rResult);
 		}
-		else if(pFormula && strlen(pFormula)) {
+		else if(pFormula && sstrlen(pFormula)) {
 			DL2_Resolver resolver;
 			double val = resolver.Resolve(pFormula);
 			rResult.Cat(val, MKSFMTD(0, 6, NMBF_NOTRAILZ));
@@ -492,7 +492,7 @@ public:
 		int    ok = 1;
 		getCtrlData(CTLSEL_BIZSCTC_BIZSC, &Data.BizScId);
 		getCtrlData(CTL_BIZSCTC_FORMULA,   Data.Formula);
-		THROW_PP(Data.BizScId != 0 || strlen(Data.Formula) != 0, PPERR_INPUTBIZSCOREORFORMULA);
+		THROW_PP(Data.BizScId != 0 || sstrlen(Data.Formula) != 0, PPERR_INPUTBIZSCOREORFORMULA);
 		ASSIGN_PTR(pData, Data);
 		CATCHZOK
 		return ok;
@@ -645,7 +645,7 @@ int BizScTemplDialog::SetupCellInfo()
 			 BizScObj.Fetch(r_cell.BizScId, &pack);
 			text.Cat(pack.Rec.Name);
 		}
-		else if(strlen(r_cell.Formula))
+		else if(sstrlen(r_cell.Formula))
 			text.Cat(r_cell.Formula);
 		else {
 			PPGetWord(PPWORD_EMPTY, 0, empty_word);
@@ -917,7 +917,7 @@ int BizScTemplDialog::getDTS(PPBizScTemplPacket * pData)
 {
 	int    ok = 1;
 	getCtrlData(CTL_BIZSCT_NAME, Data.Rec.Name);
-	THROW_PP(strlen(Data.Rec.Name) != 0, PPERR_NAMENEEDED);
+	THROW_PP(sstrlen(Data.Rec.Name) != 0, PPERR_NAMENEEDED);
 	getCtrlData(CTL_BIZSCT_SYMB, Data.Rec.Symb);
 	ASSIGN_PTR(pData, Data);
 	CATCHZOK
@@ -1213,7 +1213,7 @@ int SLAPI PPViewBizScValByTempl::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 				if((pBlk->ColumnN - 2) >= 0) {
 					int    found = 0;
 					StringSet ss(SLBColumnDelim);
-					ss.setBuf(p_item->P_Vals, strlen(p_item->P_Vals) + 1);
+					ss.setBuf(p_item->P_Vals, sstrlen(p_item->P_Vals) + 1);
 					temp_buf.Z();
 					for(uint i = 0, p = 0; ss.get(&p, temp_buf.Z()) > 0; i++) {
 						if(i == pBlk->ColumnN - 2) {
@@ -1309,7 +1309,7 @@ void SLAPI PPViewBizScValByTempl::PreprocessBrowser(PPViewBrowser * pBrw)
 		pBrw->SetDefUserProc(PPViewBizScValByTempl::GetDataForBrowser, this);
 		for(uint i = 0; Pack.Cols.enumItems(&i, (void**)&p_col) > 0;) {
 			if(!(p_col->Flags & PPBizScTemplCol::fInvisible)) {
-				if(strlen(p_col->Name))
+				if(sstrlen(p_col->Name))
 					name = p_col->Name;
 				else
 					name.Z().Cat(i);

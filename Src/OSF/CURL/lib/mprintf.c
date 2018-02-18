@@ -761,7 +761,7 @@ number:
 			    else if(prec != -1)
 				    len = (size_t)prec;
 			    else
-				    len = strlen(str);
+				    len = sstrlen(str);
 			    width -= (len > LONG_MAX) ? LONG_MAX : (long)len;
 			    if(p->flags & FLAGS_ALT)
 				    OUTCHAR('"');
@@ -811,7 +811,7 @@ number:
 		    {
 			    char formatbuf[32] = "%";
 			    char * fptr = &formatbuf[1];
-			    size_t left = sizeof(formatbuf)-strlen(formatbuf);
+			    size_t left = sizeof(formatbuf)-sstrlen(formatbuf);
 			    int len;
 			    width = -1;
 			    if(p->flags & FLAGS_WIDTH)
@@ -869,7 +869,7 @@ number:
 			    // NOTE NOTE NOTE!! Not all sprintf implementations return number of output characters 
 			    (sprintf)(work, formatbuf, p->data.dnum);
 #ifdef CURLDEBUG
-			    assert(strlen(work) <= sizeof(work));
+			    assert(sstrlen(work) <= sizeof(work));
 #endif
 			    for(fptr = work; *fptr; fptr++)
 				    OUTCHAR(*fptr);

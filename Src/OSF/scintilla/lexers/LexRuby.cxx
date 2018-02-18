@@ -149,7 +149,7 @@ static int ClassifyWordRb(Sci_PositionU start, Sci_PositionU end, WordList &keyw
 //XXX Identical to Perl, put in common area
 static bool isMatch(Accessor &styler, Sci_Position lengthDoc, Sci_Position pos, const char * val)
 {
-	if((pos + static_cast<int>(strlen(val))) >= lengthDoc) {
+	if((pos + static_cast<int>(sstrlen(val))) >= lengthDoc) {
 		return false;
 	}
 	while(*val) {
@@ -732,7 +732,7 @@ public:
 		// 2: here doc text (lines after the delimiter)
 		char Quote;     // the char after '<<'
 		bool Quoted;    // true if Quote in ('\'','"','`')
-		int DelimiterLength; // strlen(Delimiter)
+		int DelimiterLength; // sstrlen(Delimiter)
 		char Delimiter[256]; // the Delimiter, limit of 256: from Perl
 		bool CanBeIndented;
 		HereDocCls()

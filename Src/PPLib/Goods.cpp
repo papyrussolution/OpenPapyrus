@@ -86,13 +86,13 @@ int SLAPI BarcodeArrangeConfig::Save()
 
 int SLAPI BarcodeArrangeConfig::IsLowPrior(const char * pBarcode) const
 {
-	size_t lpp_len = strlen(LowPriorPrefix);
+	size_t lpp_len = sstrlen(LowPriorPrefix);
 	if(lpp_len) {
 		if(strnicmp(pBarcode, LowPriorPrefix, lpp_len) == 0)
-			if(!LowPriorLen || strlen(pBarcode) == LowPriorLen)
+			if(!LowPriorLen || sstrlen(pBarcode) == LowPriorLen)
 				return 1;
 	}
-	else if(LowPriorLen && strlen(pBarcode) == LowPriorLen)
+	else if(LowPriorLen && sstrlen(pBarcode) == LowPriorLen)
 		return 1;
 	return 0;
 }
@@ -170,7 +170,7 @@ BarcodeTbl::Rec * FASTCALL BarcodeArray::GetSingleItem(uint * pPos) const
 				for(int get_any = 0; !done && get_any <= 1; get_any++) {
 					for(i = 0; !done && i < c; i++) {
 						const BarcodeTbl::Rec & r_item = at(i);
-						if((r_item.Qtty == 1.0 && strlen(r_item.Code) <= 13) || get_any) {
+						if((r_item.Qtty == 1.0 && sstrlen(r_item.Code) <= 13) || get_any) {
 							p = i;
 							done = 1;
 						}
@@ -302,7 +302,7 @@ int SLAPI TwoDimBarcodeFormatArray::Search(GoodsCore * pGoodsTbl, const char * p
 			SString  code;
 			for(uint i = 0; ok < 0 && i < getCount(); i++) {
 				const TwoDimBarcodeFormatEntry & tbf_entry = at(i);
-				size_t descr_len = strlen(tbf_entry.FmtDescr);
+				size_t descr_len = sstrlen(tbf_entry.FmtDescr);
 				if(len >= (size_t)tbf_entry.MinBarcodeLen && strnicmp(pCodeLine + tbf_entry.FmtDescrOffset, tbf_entry.FmtDescr, descr_len) == 0) {
 					(code = (pCodeLine + tbf_entry.BarcodeOffset)).Trim(tbf_entry.BarcodeLen);
 					//
@@ -741,7 +741,7 @@ int SLAPI GoodsCore::GetListByBarcodeLen(const PPIDArray * pLens, PPIDArray & rL
 		for(q.initIteration(0, &k0, spFirst); q.nextIteration() > 0;) {
 			// С символа '@' начинаются коды товарных групп
 			// @v5.9.9 VADIM - с символа '$' начинаются артикулы товаров (ИД импортированных товаров)
-			if(BCTbl.data.Code[0] != '@' && BCTbl.data.Code[0] != '$' && lens.bsearch(strlen(BCTbl.data.Code)))
+			if(BCTbl.data.Code[0] != '@' && BCTbl.data.Code[0] != '$' && lens.bsearch(sstrlen(BCTbl.data.Code)))
 				THROW(rList.add(BCTbl.data.GoodsID)); // @v8.1.0 addUnique-->add
 			if(has_zero_len)
 				THROW(temp_list.add(BCTbl.data.GoodsID)); // @v8.1.0 addUnique-->add
@@ -1621,7 +1621,7 @@ int SLAPI GoodsCore::Helper_GetBarcodeByTempl(const char * pPrfx, const char * p
 		for(q.initIteration(0, &k0, spGe); !ok && q.nextIteration() > 0;) {
 			char   temp_buf[32];
 			STRNSCPY(temp_buf, BCTbl.data.Code);
-			if(strlen(temp_buf) == (code_len+BIN(addChkDig))) {
+			if(sstrlen(temp_buf) == (code_len+BIN(addChkDig))) {
 				val_str = temp_buf + sstrlen(pPrfx);
 				val_str.Trim(len);
 				int64  cur_val = val_str.ToInt64();
@@ -1666,7 +1666,7 @@ int SLAPI GoodsCore::GetBarcodeByTemplate(PPID grp, /*const char * pWghtPrefix*/
 	int    to_add_chkdig = 0;
 	SString temp_buf;
 	strip(p_dup_templ);
-	size_t templ_len = strlen(p_dup_templ);
+	size_t templ_len = sstrlen(p_dup_templ);
 	if(p_dup_templ[templ_len-1] == '^') {
 		p_dup_templ[--templ_len] = 0;
 		to_add_chkdig = 1;
@@ -1680,25 +1680,25 @@ int SLAPI GoodsCore::GetBarcodeByTemplate(PPID grp, /*const char * pWghtPrefix*/
 			else if(strnicmp(p, (char*)&sGRP, 3) == 0 || strnicmp(p, (char*)&sGR, 3) == 0) {
 				if(GetSingleBarcode(grp, temp_buf) > 0) {
 					temp_buf.ShiftLeftChr('@').Strip();
-					c += strlen(strcpy(c, temp_buf));
+					c += sstrlen(strcpy(c, temp_buf));
 				}
 				p += 3;
 			}
 			else if(strnicmp(p, (char*)&sWP, 3) == 0) {
 				if(rCfg.WghtPrefix[0])
-					c += strlen(strip(strcpy(c, rCfg.WghtPrefix)));
+					c += sstrlen(strip(strcpy(c, rCfg.WghtPrefix)));
 			   	p += 3;
 			}
 			else if(strnicmp(p, (char*)&sCP, 3) == 0) {
 				if(rCfg.WghtCntPrefix[0])
-					c += strlen(strip(strcpy(c, rCfg.WghtCntPrefix)));
+					c += sstrlen(strip(strcpy(c, rCfg.WghtCntPrefix)));
 			   	p += 3;
 			}
 			else if(*p >= 'A' && *p <= 'Z')
 				*c++ = *p++;
 			else if(*p == '%') {
 				SString sfx, barcode;
-				x_len = strlen(pfx);
+				x_len = sstrlen(pfx);
 				for(++p, x = t; isdec(*p);)
 					*x++ = *p++;
 				*x = 0;
@@ -2373,10 +2373,8 @@ private:
 SLAPI GoodsCache::GoodsCache() : ObjCacheHash(PPOBJ_GOODS, sizeof(Data),
 	(DS.CheckExtFlag(ECF_SYSSERVICE) ? (8*1024*1024) : (2*1024U*1024U)), // @v9.0.8 (1024U*1024U)-->(2*1024U*1024U)
 	(DS.CheckExtFlag(ECF_SYSSERVICE) ? 16 : 12)),
-	FullGoodsList(DS.CheckExtFlag(ECF_FULLGOODSCACHE))
+	FullGoodsList(DS.CheckExtFlag(ECF_FULLGOODSCACHE)), P_Bc2dSpec(0), P_ObjTkn(0)
 {
-	P_Bc2dSpec = 0;
-	P_ObjTkn = 0;
 }
 
 SLAPI GoodsCache::~GoodsCache()
@@ -2736,13 +2734,11 @@ int SLAPI GoodsCache::GetAltGrpFilt(PPID grpID, GoodsFilt * pFilt)
 	uint   pos = 0;
 	{
 		SRWLOCKER(AgflLock, SReadWriteLocker::Read);
-		//AgflLock.ReadLock();
 		if(Agfl.lsearch(&grpID, &pos, CMPF_LONG)) {
 			ASSIGN_PTR(pFilt, Agfl.at(pos)->Filt);
 		}
 		else
 			ok = 0;
-		//AgflLock.Unlock();
 	}
 	return ok;
 }
@@ -2753,7 +2749,6 @@ int SLAPI GoodsCache::PutAltGrpFilt(PPID grpID, const GoodsFilt * pFilt)
 	uint   pos = 0;
 	{
 		SRWLOCKER(AgflLock, SReadWriteLocker::Write);
-		//AgflLock.WriteLock();
 		if(Agfl.lsearch(&grpID, &pos, CMPF_LONG)) {
 			if(pFilt) {
 				AltGrpFiltItem * p_item = Agfl.at(pos);
@@ -2771,7 +2766,6 @@ int SLAPI GoodsCache::PutAltGrpFilt(PPID grpID, const GoodsFilt * pFilt)
 		}
 	}
 	CATCHZOK
-	//AgflLock.Unlock();
 	return ok;
 }
 
@@ -2781,15 +2775,12 @@ int SLAPI GoodsCache::GetGtl(PPID grpID, PPIDArray * pList, PPIDArray * pUntermL
 	uint   pos = 0;
 	{
 		SRWLOCKER(GtlLock, SReadWriteLocker::Read);
-		//GtlLock.ReadLock();
 		if(Gtl.lsearch(&grpID, &pos, CMPF_LONG)) {
 			ASSIGN_PTR(pList, Gtl.at(pos)->List);
 			ASSIGN_PTR(pUntermList, Gtl.at(pos)->UntermList);
 		}
 		else {
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
-			//GtlLock.Unlock();
-			//GtlLock.WriteLock();
 			if(Gtl.lsearch(&grpID, &(pos = 0), CMPF_LONG)) {
 				//
 				// Возможно, пока мы ждали блокировку, работу сделал какой-то иной поток
@@ -2819,7 +2810,6 @@ int SLAPI GoodsCache::GetGtl(PPID grpID, PPIDArray * pList, PPIDArray * pUntermL
 				PROFILE_END
 			}
 		}
-		//GtlLock.Unlock();
 	}
 	return ok;
 }
@@ -2966,8 +2956,7 @@ const StrAssocArray * SLAPI GoodsCore::GetFullList()
 void SLAPI GoodsCore::ReleaseFullList(const StrAssocArray * pList)
 {
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS);
-	if(p_cache)
-		p_cache->ReleaseFullList(pList);
+	CALLPTRMEMB(p_cache, ReleaseFullList(pList));
 }
 
 int SLAPI GoodsCore::ResetFullList()
@@ -3587,10 +3576,10 @@ int SLAPI GoodsCore::LoadNameList(const PPIDArray * pIdList, long flags, StrAsso
 	const  uint max_query_items = 32;
 	uint   pos = 0;
 	PPIDArray temp_src_list;
-	SString temp_buf;
 	THROW(temp_src_list.add(pIdList)); // @v8.1.0 addUnique-->add
 	temp_src_list.sortAndUndup(); // @v8.1.0 sort-->sortAndUndup
 	if(temp_src_list.getCount()) {
+		SString temp_buf;
 		PPID   min_id = temp_src_list.at(0);
 		PPID   max_id = temp_src_list.getLast();
 		if(min_id == max_id) {

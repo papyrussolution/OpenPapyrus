@@ -414,7 +414,7 @@ static uint FASTCALL GetTextHeight(char * pBuf, size_t strLen)
 				real_pos += cut_pos;
 				replacestr(pBuf, "\n", &real_pos, &len, 0);
 				real_pos++;
-				if(strlen(p_buf) > cut_pos + 1)
+				if(sstrlen(p_buf) > cut_pos + 1)
 					p_buf += cut_pos + 1;
 				else
 					p_buf = 0;
@@ -424,7 +424,7 @@ static uint FASTCALL GetTextHeight(char * pBuf, size_t strLen)
 				pos++;
 			}
 		}
-		if(p_buf && strlen(p_buf) > strLen && prev_pos) {
+		if(sstrlen(p_buf) > strLen && prev_pos) {
 			text_height++;
 			real_pos += prev_pos;
 			replacestr(pBuf, "\n", &real_pos, &len, 0);
@@ -437,7 +437,7 @@ static uint FASTCALL GetTextHeight(char * pBuf, size_t strLen)
 static void FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen)
 {
 	if(pBuf && bufLen) {
-		size_t s = strlen(pBuf);
+		size_t s = sstrlen(pBuf);
 		if(s >= bufLen) {
 			s = (bufLen-1);
 			pBuf[bufLen-1] = 0;
@@ -446,7 +446,7 @@ static void FASTCALL RemoveCtrlNFromStr(char * pBuf, size_t bufLen)
 			char   c;
 			for(size_t i = 0; (c = pBuf[i]) != 0; i++) {
 				if((c == '\r' && pBuf[i+1] == '\n') || (c == '\n' && pBuf[i+1] == '\r')) {
-					size_t len = strlen(pBuf+i+1)+1;
+					size_t len = sstrlen(pBuf+i+1)+1;
 					memcpy(pBuf+i, pBuf+i+1, len);
 					pBuf[i] = ' ';
 				}
@@ -596,7 +596,7 @@ int SLAPI BrowserDef::search(void * pattern, CompFunc /*cfn*/, int srchMode, int
 			getText(_curItem(), srchCol, str);
 			strip(str);
 			if(p[0] != '*') {
-			   	str[strlen(p)] = 0;
+			   	str[sstrlen(p)] = 0;
 			   	r = stricmp866(str, p) ? 0 : 1;
 			}
 			else

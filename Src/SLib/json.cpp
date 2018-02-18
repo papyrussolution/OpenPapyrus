@@ -88,7 +88,7 @@ static rstring_code FASTCALL rcs_resize(RcString * rcs, size_t length)
 	}
 }
 
-rstring_code rcs_catcs(RcString * pre, const char * pos, const size_t length)
+static rstring_code FASTCALL rcs_catcs(RcString * pre, const char * pos, const size_t length)
 {
 	assert(pre);
 	assert(pos);
@@ -116,7 +116,7 @@ static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 static char * FASTCALL rcs_unwrap(RcString * rcs)
 {
 	assert(rcs);
-	char * out = (rcs->P_Text == NULL) ? 0 : (char *)SAlloc::R(rcs->P_Text, sizeof(char) * (strlen(rcs->P_Text) + 1));
+	char * out = rcs->P_Text ? (char *)SAlloc::R(rcs->P_Text, sizeof(char) * (sstrlen(rcs->P_Text) + 1)) : 0;
 	SAlloc::F(rcs);
 	return out;
 }
@@ -182,7 +182,7 @@ json_t * FASTCALL json_new_value(/*json_value_type*/int type)
 }
 #endif // } 0
 
-json_t * json_new_string(const char * pText)
+json_t * FASTCALL json_new_string(const char * pText)
 {
 	assert(pText);
 	json_t * p_new_object = new json_t(json_t::tSTRING);
@@ -244,7 +244,7 @@ json_t * json_new_number(const char * pText)
 	ZFREE(*ppValue); // the json value
 }*/
 
-void json_free_value(json_t ** ppValue)
+void FASTCALL json_free_value(json_t ** ppValue)
 {
 	if(ppValue && *ppValue) {
 		json_t * p_cursor = *ppValue;
@@ -356,7 +356,7 @@ enum json_error FASTCALL json_insert_child(json_t * pParent, json_t * pChild)
 	return JSON_OK;
 }
 
-enum json_error json_insert_pair_into_object(json_t * pParent, const char * pTextLabel, json_t * pValue)
+enum json_error FASTCALL json_insert_pair_into_object(json_t * pParent, const char * pTextLabel, json_t * pValue)
 {
 	enum     json_error error;
 	// verify if the parameters are valid
@@ -367,7 +367,7 @@ enum json_error json_insert_pair_into_object(json_t * pParent, const char * pTex
 	// enforce type coherence
 	assert(pParent->Type == json_t::tOBJECT);
 	// create label json_value
-	json_t * label = json_new_string (pTextLabel);
+	json_t * label = json_new_string(pTextLabel);
 	if(label == NULL)
 		error = JSON_MEMORY;
 	else {
@@ -633,7 +633,7 @@ void json_strip_white_spaces(char * text)
 	assert(text);
 	size_t in = 0;
 	size_t out = 0;
-	size_t length = strlen(text);
+	size_t length = sstrlen(text);
 	int    state = 0; // possible states: 0 -> document, 1 -> inside a string
 	while(in < length) {
 		switch(text[in]) {
@@ -673,7 +673,7 @@ char * json_format_string(const char * text)
 	uint indentation = 0; // the current indentation level
 	uint i; // loop iterator variable
 	char loop;
-	size_t text_length = strlen(text);
+	size_t text_length = sstrlen(text);
 	RcString * p_output = rcs_create(text_length);
 	while(pos < text_length) {
 		switch(text[pos]) {
@@ -821,7 +821,7 @@ char * json_escape(const char * pText)
 	// check if pre-conditions are met
 	assert(pText);
 	// defining the temporary variables
-	length = strlen(pText);
+	length = sstrlen(pText);
 	output = rcs_create(length);
 	if(!output)
 		return NULL;
@@ -857,7 +857,7 @@ char * json_escape(const char * pText)
 char * json_unescape(char * text)
 {
 	assert(text);
-	char * result = (char *)SAlloc::M(strlen(text) + 1);
+	char * result = (char *)SAlloc::M(sstrlen(text) + 1);
 	size_t r; // read cursor
 	size_t w; // write cursor
 	for(r = w = 0; text[r]; r++) {
@@ -981,7 +981,7 @@ void json_jpi_init(json_parsing_info * jpi)
 	jpi->string_length_limit_reached = 0;
 }
 
-int lexer(const char * pBuffer, char ** p, uint * state, RcString ** text)
+static int FASTCALL lexer(const char * pBuffer, char ** p, uint * state, RcString ** text)
 {
 	assert(pBuffer);
 	assert(p);

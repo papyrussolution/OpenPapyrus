@@ -526,7 +526,7 @@ static void corrupted_env(ENV * env, int rmid)
 	path = NULL;
 	if(dbenv->get_home(dbenv, &path) != 0)
 		goto err;
-	if(path != NULL && (__os_strdup(NULL, path, &home) != 0))
+	if(path && (__os_strdup(NULL, path, &home) != 0))
 		goto err;
 	/*
 	 * Check that no one else came in and cleaned

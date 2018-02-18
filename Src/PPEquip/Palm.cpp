@@ -2839,7 +2839,7 @@ int PutClients(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 		pRec->get(5,  rec.QuotKindID);
 		pRec->get(6,  rec.Debt);
 		pRec->get(7,  flags);
-		if(strlen(strip(rec.Name)) == 0)
+		if(sstrlen(strip(rec.Name)) == 0)
 			ltoa(rec.ID, rec.Name, 10);
 		pWriter->PutElement("_id",        rec.ID);
 		pWriter->PutElement("Name",       rec.Name);
@@ -3012,7 +3012,7 @@ public:
 				SString name_buf;
 				(name_buf = pPack->Rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
 				name_buf.CopyTo(h.Name, sizeof(h.Name));
-				memset(h.Name + strlen(h.Name), ' ', sizeof(h.Name) - strlen(h.Name));
+				memset(h.Name + sstrlen(h.Name), ' ', sizeof(h.Name) - sstrlen(h.Name));
 			}
 			*/
 			h.AgentId = pPack->Rec.AgentID;

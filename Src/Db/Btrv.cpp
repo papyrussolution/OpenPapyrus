@@ -109,7 +109,7 @@ int SLAPI Btrieve::CommitWork()
 int SLAPI Btrieve::AddContinuous(char * pFileName /* "volume:\path[,volume:\path]*" */)
 {
 	int    index = 0;
-	uint16 bl = (uint16)(strlen(pFileName) + 1);
+	uint16 bl = (uint16)(sstrlen(pFileName) + 1);
 	DBS.SetAddedMsgString(pFileName);
 	return BRet(BTRV(B_CONTINUOUSOPR, 0, pFileName, &bl, 0, WBTRVTAIL_Z));
 }
@@ -121,7 +121,7 @@ int SLAPI Btrieve::RemoveContinuous(const char * pFileName /* if fname == 0 then
 	uint16 bl;
 	if(pFileName) {
 		index = 2;
-		bl = (uint16)(strlen(pFileName) + 1);
+		bl = (uint16)(sstrlen(pFileName) + 1);
 	}
 	else {
 		index = 1;
@@ -236,7 +236,7 @@ int SLAPI Btrieve::CreateTable(const char * pFileName, DBFileSpec & rTblDesc, in
 		p_buf = (char *)&rTblDesc;
 	if(p_buf) {
 		int    be = 0;
-		const  size_t fn_len = strlen(pFileName);
+		const  size_t fn_len = sstrlen(pFileName);
 		STempBuffer fn_buf(fn_len+32);
 		if(strchr(pFileName, ' ')) {
 			fn_buf[0] = '\"';
@@ -383,8 +383,8 @@ int SLAPI DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 	tbl_id = IsValid() ? getUniqueKey(&xfile, 0) : 0;
 	THROW(tbl_id);
 	fileBuf.XfId = pTbl->tableID = (BTBLID)tbl_id;
-	memcpy(memset(fileBuf.XfName, ' ', sizeof(fileBuf.XfName)), pTbl->tableName, strlen(pTbl->tableName));
-	memcpy(memset(fileBuf.XfLoc, ' ', sizeof(fileBuf.XfLoc)), pTbl->fileName, strlen(pTbl->fileName));
+	memcpy(memset(fileBuf.XfName, ' ', sizeof(fileBuf.XfName)), pTbl->tableName, sstrlen(pTbl->tableName));
+	memcpy(memset(fileBuf.XfLoc, ' ', sizeof(fileBuf.XfLoc)), pTbl->fileName, sstrlen(pTbl->fileName));
 	fileBuf.XfFlags   = pTbl->flags;
 	fileBuf.XfBTFlags = pTbl->flags;
 	fileBuf.XfOwnrLvl = pTbl->ownrLvl;
@@ -395,7 +395,7 @@ int SLAPI DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 	BTBLID fld_id = (BTBLID)tbl_id;
 	for(i = 0; i < fl.getCount(); i++) {
 		const BNField & f = fl.getField(i);
-		const size_t fname_len = strlen(f.Name);
+		const size_t fname_len = sstrlen(f.Name);
 		fl.setFieldId(i, fld_id);
 		if(GETSTYPE(f.T) == S_DATETIME) {
 			{
@@ -530,7 +530,7 @@ int SLAPI DbDict_Btrieve::GetTableID(const char * pTblName, long * pID, DbTableS
 	int    ok = 0;
 	char   key[MAXKEYLEN];
 	if(IsValid()) {
-		size_t len = strlen(STRNSCPY(key, pTblName));
+		size_t len = sstrlen(STRNSCPY(key, pTblName));
 		memset(key + len, ' ', sizeof(fileBuf.XfName) - len);
 		if(xfile.search(1, key, spEq)) {
 			*pID = fileBuf.XfId;

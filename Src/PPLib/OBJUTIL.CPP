@@ -1223,14 +1223,9 @@ static int SLAPI Helper_SendObjMessage(int msg, PPID destObj, PPID obj, PPID id,
 }
 
 int SLAPI SendObjMessage(int msg, PPID destObj, PPID obj, PPID id, void * msgExtraPtr, ObjCollection * pDestObjColl)
-{
-	return Helper_SendObjMessage(msg, destObj, obj, id, msgExtraPtr, pDestObjColl);
-}
-
+	{ return Helper_SendObjMessage(msg, destObj, obj, id, msgExtraPtr, pDestObjColl); }
 int SLAPI SendObjMessage(int msg, PPID destObj, PPID obj, PPID id)
-{
-	return Helper_SendObjMessage(msg, destObj, obj, id, 0, 0);
-}
+	{ return Helper_SendObjMessage(msg, destObj, obj, id, 0, 0); }
 
 int SLAPI BroadcastObjMessage(int msg, PPID srcObjType, PPID srcObjID, void * msgExtraPtr)
 {

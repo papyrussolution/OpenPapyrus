@@ -2282,7 +2282,7 @@ public:
 	//   признаку соединения с той или иной базой данных.
 	//   Основное высокоуровневое назначение - дифференциация кэшей баз данных.
 	//
-	long   SLAPI GetDbPathID() const;
+	long   SLAPI GetDbPathID() const { return DbPathID; }
 	int    SLAPI GetDataPath(SString & rBuf) const;
 	int    SLAPI GetSysPath(SString & rBuf) const;
 	int    SLAPI GetDbUUID(S_GUID * pUuid) const;
@@ -3737,7 +3737,7 @@ DBE & __stdcall ltrim(DBItem &);
 DBE & __stdcall rtrim(DBItem &);
 DBE & __stdcall left(DBItem &, int);
 DBE & __stdcall right(DBItem &, int);
-DBE & __stdcall strlen(DBItem &);
+DBE & __stdcall sstrlen(DBItem &);
 DBE & __stdcall lower(DBItem &);
 DBE & __stdcall upper(DBItem &);
 DBE & __stdcall contains(DBItem & i, const char * s);
@@ -3810,7 +3810,7 @@ public:
 	// Если sz == 0, то размер записи полагается равным fixRecSize.
 	// Если sz >  0, то размер записи полагается равным sz
 	// Если sz <  0, то размер записи равен
-	//      FixRecSize + strlen(((char*)b) + FixRecSize) + 1
+	//      FixRecSize + sstrlen(((char*)b) + FixRecSize) + 1
 	//
 	int    FASTCALL insert(const void * b);
 	int    SLAPI flash();

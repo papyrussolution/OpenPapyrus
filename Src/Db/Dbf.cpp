@@ -213,7 +213,7 @@ int SLAPI DbfRecord::put(int fld, const char * data)
 			memcpy(P_Buffer + f.offset, &date, 4);
 		}
 		else {
-			int    len = strlen(data);
+			int    len = sstrlen(data);
 			if(len > f.fsize)
 				len = f.fsize;
 			memcpy(P_Buffer + f.offset, data, len);
@@ -242,7 +242,7 @@ int SLAPI DbfRecord::put(int fld, double data)
 		}
 		else {
 			realfmt(data, MKSFMTD(f.fsize, f.fprec, ALIGN_RIGHT), buf);
-			if(strlen(buf) > f.fsize)
+			if(sstrlen(buf) > f.fsize)
 				memset(buf, '*', f.fsize);
 		}
 		memcpy(P_Buffer + f.offset, buf, f.fsize);

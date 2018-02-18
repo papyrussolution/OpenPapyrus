@@ -82,7 +82,7 @@ int __dbreg_log_files(ENV * env, uint32 opcode)
 		else {
 			memzero(&t, sizeof(t));
 			t.data = R_ADDR(&dblp->reginfo, fnp->fname_off);
-			t.size = (uint32)strlen((const char *)t.data)+1;
+			t.size = (uint32)sstrlen((const char *)t.data)+1;
 			dbtp = &t;
 		}
 		memzero(&fid_dbt, sizeof(fid_dbt));

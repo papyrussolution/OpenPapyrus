@@ -122,14 +122,14 @@ struct connectbundle * Curl_conncache_find_bundle(struct connectdata * conn, str
 	if(connc) {
 		char key[128];
 		hashkey(conn, key, sizeof(key));
-		bundle = (struct connectbundle *)Curl_hash_pick(&connc->hash, key, strlen(key));
+		bundle = (struct connectbundle *)Curl_hash_pick(&connc->hash, key, sstrlen(key));
 	}
 	return bundle;
 }
 
 static bool conncache_add_bundle(struct conncache * connc, char * key, struct connectbundle * bundle)
 {
-	void * p = Curl_hash_add(&connc->hash, key, strlen(key), bundle);
+	void * p = Curl_hash_add(&connc->hash, key, sstrlen(key), bundle);
 	return p ? TRUE : FALSE;
 }
 

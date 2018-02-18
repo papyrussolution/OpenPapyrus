@@ -73,7 +73,7 @@ uint32 __ham_func2(DB * dbp, const void * key, uint32 len)
  *	Ozan Yigit's original sdbm hash.
  *
  * Ugly, but fast.  Break the string up into 8 byte units.  On the first time
- * through the loop get the "leftover bytes" (strlen % 8).  On every other
+ * through the loop get the "leftover bytes" (sstrlen % 8).  On every other
  * iteration, perform 8 HASHC's so we handle all 8 bytes.  Essentially, this
  * saves us 7 cmp & branch instructions.
  *

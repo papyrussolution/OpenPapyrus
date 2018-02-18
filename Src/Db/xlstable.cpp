@@ -369,7 +369,7 @@ int ExcelDbFile::GetRecord(const SdRecord & rRec, void * pDataBuf)
 				if(rRec.GetFieldByPos(fld_pos, &fld) > 0) {
 					row = col = 0;
 					if(fld.Name.CmpPrefix(p_celln, 1) == 0) {
-						(temp_buf = fld.Name).ShiftLeft(strlen(p_celln));
+						(temp_buf = fld.Name).ShiftLeft(sstrlen(p_celln));
 						temp_buf.Divide('_', str_row_no, str_col_no);
 						row = str_row_no.ToLong();
 						col = str_col_no.ToLong();

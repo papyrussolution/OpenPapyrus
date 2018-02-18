@@ -428,7 +428,7 @@ private:
 				THROW(WriteScheme(&AddLineRec, AddLineScheme));
 				F.WriteLine("</d>");
 			}
-			//if(strlen(Filt.AddScheme)) {
+			//if(sstrlen(Filt.AddScheme)) {
 			if(AddedRecType && AddedScheme.NotEmpty()) {
 				PPImpExpParam p;
 				InitExportParam(p, /*Filt.AddRecType*/AddedRecType);
@@ -2495,14 +2495,14 @@ int SLAPI PPSupplExchange_Baltika::Import(const char * pPath)
 							gitem.Quantity = buf.ToReal();
 					}
 				}
-				if(strlen(gitem.Barcode) > 0 && strlen(gitem.GoodsName) > 0 && GObj.SearchByBarcode(gitem.Barcode, 0) <= 0 && GObj.P_Tbl->SearchByArCode(P.SupplID, gitem.Barcode, 0) <= 0)
+				if(sstrlen(gitem.Barcode) > 0 && sstrlen(gitem.GoodsName) > 0 && GObj.SearchByBarcode(gitem.Barcode, 0) <= 0 && GObj.P_Tbl->SearchByArCode(P.SupplID, gitem.Barcode, 0) <= 0)
 					THROW_SL(goods_list.insert(&gitem));
 			}
 		}
 		if(goods_list.getCount() && ResolveGoodsDlg(&goods_list, RESOLVEGF_SHOWBARCODE|RESOLVEGF_SHOWQTTY|RESOLVEGF_MAXLIKEGOODS|RESOLVEGF_SHOWEXTDLG) > 0) {
 			for(uint i = 0; i < goods_list.getCount(); i++) {
 				ResolveGoodsItem gitem = goods_list.at(i);
-				if(gitem.ResolvedGoodsID && strlen(gitem.Barcode) > 0) {
+				if(gitem.ResolvedGoodsID && sstrlen(gitem.Barcode) > 0) {
 					int r = 0;
 					Goods2Tbl::Rec grec;
 					MEMSZERO(grec);
@@ -2672,7 +2672,7 @@ int SLAPI iSalesPepsi::ParseResultString(const char * pText, TSCollection <iSale
 	else {
 		StringSet ss("\x0D\x0A");
 		StringSet ss_sub("|");
-		ss.setBuf(pText, strlen(pText)+1);
+		ss.setBuf(pText, sstrlen(pText)+1);
 		SString temp_buf, sub_buf;
 		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 			ss_sub.clear();

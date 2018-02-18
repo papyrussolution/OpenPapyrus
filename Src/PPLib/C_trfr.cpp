@@ -1079,7 +1079,7 @@ int SLAPI Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flag
 						uint bcc = bc_list.getCount();
 						if(bcc) do {
 							const BarcodeTbl::Rec & r_bc_rec = bc_list.at(--bcc);
-							if(strlen(r_bc_rec.Code) != 19)
+							if(sstrlen(r_bc_rec.Code) != 19)
 								bc_list.atFree(bcc);
 						} while(bcc);
 						if(bc_list.getCount() == 1) {
@@ -1415,7 +1415,7 @@ int SLAPI Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long fl
 					uint bcc = bc_list.getCount();
 					if(bcc) do {
 						const BarcodeTbl::Rec & r_bc_rec = bc_list.at(--bcc);
-						if(strlen(r_bc_rec.Code) != 19)
+						if(sstrlen(r_bc_rec.Code) != 19)
 							bc_list.atFree(bcc);
 					} while(bcc);
 					if(bc_list.getCount() == 1) {

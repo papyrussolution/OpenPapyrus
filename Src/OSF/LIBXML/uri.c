@@ -1445,7 +1445,7 @@ char * FASTCALL xmlURIUnescapeString(const char * str, int len, char * target)
 	const char * in;
 	if(str) {
 		if(len <= 0) 
-			len = strlen(str);
+			len = sstrlen(str);
 		if(len < 0) 
 			return 0;
 		if(target == NULL) {

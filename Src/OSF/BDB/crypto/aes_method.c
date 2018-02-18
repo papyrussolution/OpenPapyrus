@@ -214,7 +214,7 @@ static int __aes_derivekeys(ENV*env, DB_CIPHER * db_cipher, uint8 * passwd, size
 	/* Derive the crypto keys */
 	__db_SHA1Init(&ctx);
 	__db_SHA1Update(&ctx, passwd, plen);
-	__db_SHA1Update(&ctx, (uint8 *)DB_ENC_MAGIC, strlen(DB_ENC_MAGIC));
+	__db_SHA1Update(&ctx, (uint8 *)DB_ENC_MAGIC, sstrlen(DB_ENC_MAGIC));
 	__db_SHA1Update(&ctx, passwd, plen);
 	__db_SHA1Final((uint8 *)temp, &ctx);
 #ifdef  HAVE_CRYPTO_IPP

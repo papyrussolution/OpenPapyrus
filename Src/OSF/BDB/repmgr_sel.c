@@ -1179,7 +1179,7 @@ static int send_version_response(ENV * env, REPMGR_CONNECTION * conn)
 		hostname = (char *)conn->input.repmgr_msg.rec.data;
 		if((ret = accept_v1_handshake(env, conn, hostname)) != 0)
 			return ret;
-		if((ret = __repmgr_send_v1_handshake(env, conn, my_addr->host, strlen(my_addr->host)+1)) != 0)
+		if((ret = __repmgr_send_v1_handshake(env, conn, my_addr->host, sstrlen(my_addr->host)+1)) != 0)
 			return ret;
 		conn->state = CONN_READY;
 	}
@@ -1257,7 +1257,7 @@ int __repmgr_send_handshake(ENV*env, REPMGR_CONNECTION * conn, void * opt, size_
 	    default:
 		return __db_unknown_path(env, "__repmgr_send_handshake");
 	}
-	hostname_len = strlen(my_addr->host);
+	hostname_len = sstrlen(my_addr->host);
 	rec_len = hostname_len+1+(opt == NULL ? 0 : optlen);
 	if((ret = __os_malloc(env, cntrl_len+rec_len, &buf)) != 0)
 		return ret;
@@ -1364,7 +1364,7 @@ int __repmgr_find_version_info(ENV*env, REPMGR_CONNECTION * conn, DBT * vi)
 	}
 	hostname = (char *)dbt->data;
 	hostname[dbt->size-1] = '\0';
-	hostname_len = (uint32)strlen(hostname);
+	hostname_len = (uint32)sstrlen(hostname);
 	if(hostname_len+1 == dbt->size) {
 		/*
 		 * The rec DBT held only the host name.  This is a simple legacy

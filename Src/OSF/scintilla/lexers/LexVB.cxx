@@ -89,7 +89,7 @@ static void ColouriseVBDoc(Sci_PositionU startPos, Sci_Position length, int init
 				char s[100];
 				sc.GetCurrentLowered(s, sizeof(s));
 				if(skipType) {
-					s[strlen(s) - 1] = '\0';
+					s[sstrlen(s) - 1] = '\0';
 				}
 				if(strcmp(s, "rem") == 0) {
 					sc.ChangeState(SCE_B_COMMENT);
@@ -248,7 +248,7 @@ static void ColouriseVBDoc(Sci_PositionU startPos, Sci_Position length, int init
 		char s[100];
 		sc.GetCurrentLowered(s, sizeof(s));
 		if(skipType) {
-			s[strlen(s) - 1] = '\0';
+			s[sstrlen(s) - 1] = '\0';
 		}
 		if(strcmp(s, "rem") == 0) {
 			sc.ChangeState(SCE_B_COMMENT);

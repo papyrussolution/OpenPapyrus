@@ -251,7 +251,7 @@ CURLcode Curl_auth_decode_ntlm_type2_message(struct Curl_easy * data, const char
 #endif
 
 	/* Decode the base-64 encoded type-2 message */
-	if(strlen(type2msg) && *type2msg != '=') {
+	if(sstrlen(type2msg) && *type2msg != '=') {
 		result = Curl_base64_decode(type2msg, &type2, &type2_len);
 		if(result)
 			return result;
@@ -487,7 +487,7 @@ CURLcode Curl_auth_create_ntlm_type3_message(struct Curl_easy * data, const char
 		hostlen = 0;
 	}
 	else {
-		hostlen = strlen(host);
+		hostlen = sstrlen(host);
 	}
 #if defined(USE_NTRESPONSES) && defined(USE_NTLM_V2)
 	if(ntlm->target_info_len) {

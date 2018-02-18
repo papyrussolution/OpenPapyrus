@@ -190,10 +190,10 @@ int PPALDD_UhttSpecSeries::Set(long iterId, int commit)
 		if(iterId == 0) {
 			r_blk.Rec.ID = H.ID;
 			r_blk.Rec.GoodsID = H.GoodsID;
-			if(strlen(H.GoodsName))
+			if(sstrlen(H.GoodsName))
 				SpecSeriesCore::SetExField(&r_blk.Rec, SPCSNEXSTR_GOODSNAME, H.GoodsName);
 			r_blk.Rec.ManufID = H.ManufID;
-			if(strlen(H.ManufName))
+			if(sstrlen(H.ManufName))
 				SpecSeriesCore::SetExField(&r_blk.Rec, SPCSNEXSTR_MANUFNAME, H.ManufName);
 			r_blk.Rec.LabID = H.LabID;
 			r_blk.Rec.ManufCountryID = H.ManufCountryID;

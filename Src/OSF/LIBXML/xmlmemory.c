@@ -47,9 +47,9 @@ void xmlMallocBreakpoint();
 	#ifdef xmlRealloc
 		#undef xmlRealloc
 	#endif
-	#ifdef xmlMemStrdup_Removed
-		#undef xmlMemStrdup_Removed
-	#endif
+	//#ifdef xmlMemStrdup_Removed
+		//#undef xmlMemStrdup_Removed
+	//#endif
 #endif
 /*
  * Each of the blocks allocated begin with a header containing informations
@@ -379,7 +379,6 @@ error:
 	xmlMallocBreakpoint();
 	return;
 }
-
 /**
  * xmlMemStrdupLoc:
  * @str:  the initial string pointer
@@ -390,11 +389,10 @@ error:
  *
  * Returns a pointer to the new string or NULL if allocation error occurred.
  */
-
 char * xmlMemStrdupLoc(const char * str, const char * file, int line)
 {
 	char * s;
-	size_t size = strlen(str) + 1;
+	size_t size = sstrlen(str) + 1;
 	MEMHDR * p;
 	if(!xmlMemInitialized) 
 		xmlInitMemory();
@@ -893,7 +891,7 @@ void xmlCleanupMemory()
 	//xmlMalloc_ = mallocFunc;
 	//xmlMallocAtomic_ = mallocFunc;
 	//xmlRealloc_ = reallocFunc;
-	xmlMemStrdup_Removed = strdupFunc;
+	//xmlMemStrdup_Removed = strdupFunc;
 #ifdef DEBUG_MEMORY
 	xmlGenericError(0, "xmlMemSetup() Ok\n");
 #endif
@@ -957,7 +955,7 @@ void xmlCleanupMemory()
 	xmlMalloc_ = mallocFunc;
 	xmlMallocAtomic_ = mallocAtomicFunc;
 	xmlRealloc_ = reallocFunc;
-	xmlMemStrdup_Removed = strdupFunc;
+	//xmlMemStrdup_Removed = strdupFunc;
 #ifdef DEBUG_MEMORY
 	xmlGenericError(0, "xmlGcMemSetup() Ok\n");
 #endif

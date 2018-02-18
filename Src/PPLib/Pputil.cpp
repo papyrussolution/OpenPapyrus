@@ -1007,7 +1007,7 @@ int FASTCALL CheckFiltID(PPID flt, PPID id)
 /* @v6.0.1 @unused
 int SLAPI BarCodeCheckDigit(char * bc)
 {
-	int    p, c = 0, len = strlen(bc);
+	int    p, c = 0, len = sstrlen(bc);
 	for(p = 0; p < len; p += 2)
 		c += bc[p] - '0';
 	c *= 3;
@@ -1043,7 +1043,7 @@ char * FASTCALL QttyToStr(double qtty, double upp, long fmt, char * buf, int noa
 			fract = R6(modf(R6(qtty / upp), &ipart));
 			if(f & QTTYF_SIMPLPACK) {
 				if(fract == 0) {
-					p    += strlen(intfmt((long)ipart, 0, p));
+					p    += sstrlen(intfmt((long)ipart, 0, p));
 					*p++  = '/';
 					realfmt(upp, MKSFMTD(0, 3, NMBF_NOTRAILZ), p);
 				}
@@ -1051,9 +1051,9 @@ char * FASTCALL QttyToStr(double qtty, double upp, long fmt, char * buf, int noa
 					realfmt(qtty, fmt, p);
 			}
 			else if(f & QTTYF_COMPLPACK && ipart != 0) {
-				p    += strlen(intfmt((long)ipart, 0, p));
+				p    += sstrlen(intfmt((long)ipart, 0, p));
 				*p++  = '/';
-				p    += strlen(realfmt(upp, MKSFMTD(0, 3, NMBF_NOTRAILZ), p));
+				p    += sstrlen(realfmt(upp, MKSFMTD(0, 3, NMBF_NOTRAILZ), p));
 				if(fract != 0 && (fract = fmod(qtty, upp)) != 0) {
 					*p++ = '+';
 					realfmt(fract, MKSFMTD(0, 3, NMBF_NOTRAILZ), p);
@@ -1694,7 +1694,7 @@ static int SLAPI ProcessDatabaseChain(PPObjBill * pBObj, Reference * pRef, int m
 			int    r = pBObj->P_Tbl->Search(ref_rec.Val1, &bill_rec);
 			THROW(r);
 			THROW_PP(r > 0, PPERR_DBCHA_BILLABSENCE);
-			const size_t len = strlen(bill_rec.Code);
+			const size_t len = sstrlen(bill_rec.Code);
 			memzero(bill_rec.Code+len, sizeof(bill_rec.Code)-len);
 			THROW_PP(r_ar_tbl.Search(ref_rec.Val2, &ar_rec) > 0, PPERR_DBCHA_ARABSENCE);
 			_F2_(&bill_rec, &ar_rec, &ref_rec2);
@@ -1984,7 +1984,7 @@ void SLAPI FormatSubstDate(SubstGrpDate sgd, LDATE dt, char * pBuf, size_t bufLe
 	long format = (fmt) ? fmt : DATF_DMY|DATF_CENTURY;
 	decodedate(&d, &m, &y, &dt);
 	if(sgd == sgdMonth) {
-		//p = p + strlen(getMonthText(m, MONF_SHORT | MONF_OEM, temp));
+		//p = p + sstrlen(getMonthText(m, MONF_SHORT | MONF_OEM, temp));
 		//*p++ = ' ';
 		//itoa(y, p, 10);
 		SGetMonthText(m, MONF_SHORT|MONF_OEM, temp_buf);
@@ -2600,7 +2600,7 @@ int CheckOKPO(const char * pCode)
 int CheckINN(const char * pCode)
 {
 	int    ok = 0;
-	const size_t len = strlen(pCode);
+	const size_t len = sstrlen(pCode);
 	size_t i;
 	if(len) {
 		int    r = 1;

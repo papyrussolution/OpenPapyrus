@@ -162,7 +162,7 @@ DBE & __stdcall operator - (LDATE   d,  DBItem & i) { DBConst c; c.init(d); retu
 DBE & __stdcall operator - (DBItem & i,  LDATE   d) { DBConst c; c.init(d); return binary_op(i, c, op_minus); }
 DBE & __stdcall operator - (LTIME   t,  DBItem & i) { DBConst c; c.init(t); return binary_op(c, i, op_minus); }
 DBE & __stdcall operator - (DBItem & i,  LTIME   t) { DBConst c; c.init(t); return binary_op(i, c, op_minus); }
-DBE & __stdcall strlen(DBItem & i) { assert(i.baseType() == BTS_STRING); return unary_func(i, dbq_strlen); }
+DBE & __stdcall sstrlen(DBItem & i) { assert(i.baseType() == BTS_STRING); return unary_func(i, dbq_strlen); }
 DBE & __stdcall ltrim(DBItem & i)  { assert(i.baseType() == BTS_STRING); return unary_func(i, dbq_ltrim); }
 DBE & __stdcall rtrim(DBItem & i)  { assert(i.baseType() == BTS_STRING); return unary_func(i, dbq_rtrim); }
 DBE & __stdcall ltoa(DBItem & i)   { assert(i.baseType() == BTS_INT); return unary_func(i, dbq_ltoa); }
@@ -472,8 +472,8 @@ IMPL_DBE_PROC(_enumtoa_iii)
 	if(option == CALC_SIZE) {
 		uint   m = 1;
 		for(i = 0; i < IPAR(1); i++)
-			if((strlen(p[i]+2)+1) > m)
-				m = strlen(p[i]+2) + 1;
+			if((sstrlen(p[i]+2)+1) > m)
+				m = sstrlen(p[i]+2) + 1;
 		RES((long)m);
 	}
 	else {
@@ -493,8 +493,8 @@ IMPL_DBE_PROC(_flagtoa_iii)
 	if(option == CALC_SIZE) {
 		uint   m = 1;
 		for(i = 0; i < 2; i++)
-			if((strlen(p[i]+2)+1) > m)
-				m = strlen(p[i]+2) + 1;
+			if((sstrlen(p[i]+2)+1) > m)
+				m = sstrlen(p[i]+2) + 1;
 		RES((long)m);
 	}
 	else {
@@ -512,7 +512,7 @@ IMPL_DBE_PROC(_add_ss)
 	if(option == CALC_SIZE)
 		RES(IPAR(0)+IPAR(1));
 	else {
-		int len = strlen(SPAR(0))+strlen(SPAR(1));
+		int len = sstrlen(SPAR(0))+sstrlen(SPAR(1));
 		char * s = (char *)SAlloc::M(len+1);
 		strcpy(stpcpy(s, SPAR(0)), SPAR(1));
 		if(len > 254)
@@ -564,7 +564,7 @@ IMPL_DBE_PROC(_rtrim_s)
 
 IMPL_DBE_PROC(_strlen_s)
 {
-	RES((long)strlen(SPAR(0)));
+	RES((long)sstrlen(SPAR(0)));
 }
 
 IMPL_DBE_PROC(_contains_s)

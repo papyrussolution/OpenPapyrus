@@ -397,7 +397,7 @@ static CURLcode rtsp_do(struct connectdata * conn, bool * done)
 			data->set.httpreq = HTTPREQ_PUT;
 		}
 		else {
-			postsize = (data->state.infilesize != -1) ? data->state.infilesize : (data->set.postfields ? (curl_off_t)strlen((const char *)data->set.postfields) : 0);
+			postsize = (data->state.infilesize != -1) ? data->state.infilesize : (data->set.postfields ? (curl_off_t)sstrlen((const char *)data->set.postfields) : 0);
 			data->set.httpreq = HTTPREQ_POST;
 		}
 		if(putsize > 0 || postsize > 0) {
@@ -615,7 +615,7 @@ CURLcode Curl_rtsp_parseheader(struct connectdata * conn, char * header)
 		}
 		else if(data->set.str[STRING_RTSP_SESSION_ID]) {
 			/* If the Session ID is set, then compare */
-			if(strncmp(start, data->set.str[STRING_RTSP_SESSION_ID], strlen(data->set.str[STRING_RTSP_SESSION_ID]))  != 0) {
+			if(strncmp(start, data->set.str[STRING_RTSP_SESSION_ID], sstrlen(data->set.str[STRING_RTSP_SESSION_ID]))  != 0) {
 				failf(data, "Got RTSP Session ID Line [%s], but wanted ID [%s]", start, data->set.str[STRING_RTSP_SESSION_ID]);
 				return CURLE_RTSP_SESSION_ERROR;
 			}

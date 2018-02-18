@@ -499,7 +499,7 @@ int SOraDbProvider::CreateStmt(SSqlStmt * pS, const char * pText, long flags)
 	int    ok = 1;
 	OH h = OhAlloc(OCI_HTYPE_STMT);
 	pS->H = h;
-	THROW(ProcessError(OCIStmtPrepare(h, Err, (const OraText *)pText, strlen(pText), OCI_NTV_SYNTAX, OCI_DEFAULT)));
+	THROW(ProcessError(OCIStmtPrepare(h, Err, (const OraText *)pText, sstrlen(pText), OCI_NTV_SYNTAX, OCI_DEFAULT)));
 	CATCHZOK
 	return ok;
 }
@@ -744,7 +744,7 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 						SOemToChar(p_outer);
 				}
 				/*
-				const size_t len = strlen(p_outer);
+				const size_t len = sstrlen(p_outer);
 				if(len < sz-1) {
 					memset(p_outer + len, ' ', sz - len);
 					p_outer[sz-1] = 0;
@@ -965,7 +965,7 @@ int SOraDbProvider::StartTransaction()
 		tx_id.FormatID = 7100;
 		ulong rid = SLS.GetTLA().Rg.Get();
 		ultoa(rid, temp_buf, 10);
-		tx_id.GtrIdLen = strlen(temp_buf);
+		tx_id.GtrIdLen = sstrlen(temp_buf);
 		long   i = 0;
 		while(i < tx_id.GtrIdLen)
 			tx_id.Data[i++] = temp_buf[i]-'0';
@@ -1505,11 +1505,11 @@ void ConnectBase::MakeTNSString (std::string& str, const char* host, const char*
 	//
 	pBlk->GetAttr(DbLoginBlock::attrUserName, attr);
 	attr.CopyTo(temp_buf, sizeof(temp_buf));
-	THROW(OhAttrSet(Sess, OCI_ATTR_USERNAME, temp_buf, strlen(temp_buf)));
+	THROW(OhAttrSet(Sess, OCI_ATTR_USERNAME, temp_buf, sstrlen(temp_buf)));
 	//
 	pBlk->GetAttr(DbLoginBlock::attrPassword, attr);
 	attr.CopyTo(temp_buf, sizeof(temp_buf));
-	THROW(OhAttrSet(Sess, OCI_ATTR_PASSWORD, temp_buf, strlen(temp_buf)));
+	THROW(OhAttrSet(Sess, OCI_ATTR_PASSWORD, temp_buf, sstrlen(temp_buf)));
 	//
 	THROW(ProcessError(OCISessionBegin(Srvc, Err, Sess, OCI_CRED_RDBMS, OCI_DEFAULT)));
 	THROW(OhAttrSet(Srvc, OCI_ATTR_SESSION, Sess.H, 0));

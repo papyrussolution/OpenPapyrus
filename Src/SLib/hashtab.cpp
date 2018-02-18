@@ -264,7 +264,7 @@ void SymbHashTable::Clear()
 
 size_t FASTCALL SymbHashTable::Hash(const char * pSymb) const
 {
-	const size_t len = strlen(pSymb);
+	const size_t len = sstrlen(pSymb);
 	uint32 __h = BobJencHash(pSymb, len);
 	//uint32 __h = DJBHash(pSymb, len);
 	return (size_t)(__h % Size);
@@ -1445,8 +1445,8 @@ struct UT_hash_handle {
 	} while(0)
 
 /* convenience forms of HASH_FIND/HASH_ADD/HASH_DEL */
-#define HASH_FIND_STR(head, findstr, out) HASH_FIND(hh, head, findstr, strlen(findstr), out)
-#define HASH_ADD_STR(head, strfield, add) HASH_ADD(hh, head, strfield, strlen(add->strfield), add)
+#define HASH_FIND_STR(head, findstr, out) HASH_FIND(hh, head, findstr, sstrlen(findstr), out)
+#define HASH_ADD_STR(head, strfield, add) HASH_ADD(hh, head, strfield, sstrlen(add->strfield), add)
 #define HASH_FIND_INT(head, findint, out) HASH_FIND(hh, head, findint, sizeof(int), out)
 #define HASH_ADD_INT(head, intfield, add) HASH_ADD(hh, head, intfield, sizeof(int), add)
 #define HASH_FIND_PTR(head, findptr, out) HASH_FIND(hh, head, findptr, sizeof(void *), out)

@@ -43,7 +43,7 @@ CURLcode Curl_input_digest(struct connectdata * conn, bool proxy, const char * h
 	struct digestdata * digest = proxy ? &data->state.proxydigest : &data->state.digest;
 	if(!checkprefix("Digest", header))
 		return CURLE_BAD_CONTENT_ENCODING;
-	header += strlen("Digest");
+	header += sstrlen("Digest");
 	while(*header && ISSPACE(*header))
 		header++;
 	return Curl_auth_decode_digest_http_message(header, digest);

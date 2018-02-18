@@ -1341,7 +1341,7 @@ struct UserDefined {
 	bool free_referer; /* set TRUE if 'referer' points to a string we allocated */
 	void * postfields; /* if POST, set the fields' values here */
 	curl_seek_callback seek_func; /* function that seeks the input */
-	curl_off_t postfieldsize; /* if POST, this might have a size to use instead of strlen(), and then the data *may* be binary (contain zero bytes) */
+	curl_off_t postfieldsize; /* if POST, this might have a size to use instead of sstrlen(), and then the data *may* be binary (contain zero bytes) */
 	ushort localport; /* local port number to bind to */
 	int localportrange; /* number of additional port numbers to test in case the 'localport' one can't be bind()ed */
 	curl_write_callback fwrite_func; /* function that stores the output */

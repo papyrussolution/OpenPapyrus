@@ -1333,7 +1333,7 @@ static int __db_vrfy_orderchkonly(DB * dbp, VRFY_DBINFO * vdp, const char * name
 	/* Open the master database and get the meta_pgno for the subdb. */
 	if((ret = __db_master_open(dbp, vdp->thread_info, NULL, name, DB_RDONLY, 0, &mdbp)) != 0)
 		goto err;
-	DB_INIT_DBT(key, subdb, strlen(subdb));
+	DB_INIT_DBT(key, subdb, sstrlen(subdb));
 	memzero(&data, sizeof(data));
 	if((ret = __db_get(mdbp, vdp->thread_info, NULL, &key, &data, 0)) != 0) {
 		if(ret == DB_NOTFOUND)

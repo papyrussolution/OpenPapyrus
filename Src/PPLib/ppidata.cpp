@@ -210,7 +210,7 @@ int SLAPI PpyInetDataPrcssr::ImportCurrencyList(ulong * pAcceptedRows, int use_t
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		PPGetSubStr(PPTXT_XMLFILNAMES, PPXMLFILNAM_CURRLIST, filename, sizeof(filename));
-		sprintf(url, ((IConnCfg.URLDir[strlen(IConnCfg.URLDir) - 1] == '/') ? "%s%s" : "%s/%s"), IConnCfg.URLDir, filename);
+		sprintf(url, ((IConnCfg.URLDir[sstrlen(IConnCfg.URLDir) - 1] == '/') ? "%s%s" : "%s/%s"), IConnCfg.URLDir, filename);
 		PPWait(1);
 		PPWaitMsg(PPSTR_TEXT, PPTXT_DWNLPPYDATA, filename);
 		PPGetFilePath(PPPATH_IN, filename, path);

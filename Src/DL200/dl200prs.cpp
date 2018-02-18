@@ -989,7 +989,7 @@ DBTable * SLAPI PrcssrDL200::CreateHeaderDBTable()
 	p_tbl->AddField("NumCycles", MKSTYPE(S_INT, 2));
 	p_tbl->AddField("CycleTxt",  MKSTYPE(S_ZSTRING, 24));
 	if(D.P_Descript)
-		max_col_name = strlen(D.P_Descript)+1;
+		max_col_name = sstrlen(D.P_Descript)+1;
 	else
 		max_col_name = 36;
 	p_tbl->AddField("Descript", MKSTYPE(S_ZSTRING, max_col_name));
@@ -999,7 +999,7 @@ DBTable * SLAPI PrcssrDL200::CreateHeaderDBTable()
 		sprintf(fld_title, "Col%02u_Name", i+1);
 		size_t col_name_len = 16;
 		if(p_c->P_Title)
-			col_name_len = strlen(p_c->P_Title)+1;
+			col_name_len = sstrlen(p_c->P_Title)+1;
 		p_tbl->AddField(fld_title, MKSTYPE(S_ZSTRING, col_name_len));
 	}
 	bnkey.addSegment(0, XIF_EXT);
@@ -1102,7 +1102,7 @@ int	SLAPI PrcssrDL200::FillHeader()
 	p += sizeof(_DL200_OutpHdr);
 
 	if(D.P_Descript) {
-		max_col_name = strlen(D.P_Descript)+1;
+		max_col_name = sstrlen(D.P_Descript)+1;
 		strnzcpy(p_buf+p, D.P_Descript, max_col_name);
 	}
 	else
@@ -1112,7 +1112,7 @@ int	SLAPI PrcssrDL200::FillHeader()
 		const DL2_Column * p_c = D.GetColumn(i);
 		size_t col_name_len = 16;
 		if(p_c->P_Title) {
-			col_name_len = strlen(p_c->P_Title)+1;
+			col_name_len = sstrlen(p_c->P_Title)+1;
 			strnzcpy(p_buf+p, p_c->P_Title, col_name_len);
 		}
 		else {

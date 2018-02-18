@@ -1764,7 +1764,7 @@ int PPSlipFormat::NextToken(SFile & rFile, SString & rResult)
 				Scan.Incr(2);
 				Scan.Skip();
 				rResult = Scan;
-				Scan.Incr(strlen(Scan));
+				Scan.Incr(sstrlen(Scan));
 			}
 			break;
 		case '.':

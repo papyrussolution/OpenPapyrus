@@ -260,7 +260,7 @@ static struct Curl_dns_entry * fetch_addr(struct connectdata * conn, const char 
 	/* If we can't create the entry id, fail */
 	if(!entry_id)
 		return dns;
-	entry_len = strlen(entry_id);
+	entry_len = sstrlen(entry_id);
 	/* See if its already in our dns cache */
 	dns = (struct Curl_dns_entry *)Curl_hash_pick(data->dns.hostcache, entry_id, entry_len+1);
 	if(dns && (data->set.dns_cache_timeout != -1)) {
@@ -334,7 +334,7 @@ struct Curl_dns_entry * Curl_cache_addr(struct Curl_easy * data, Curl_addrinfo *
 	/* If we can't create the entry id, fail */
 	if(!entry_id)
 		return NULL;
-	entry_len = strlen(entry_id);
+	entry_len = sstrlen(entry_id);
 	/* Create a new cache entry */
 	dns = (struct Curl_dns_entry *)SAlloc::C(1, sizeof(struct Curl_dns_entry));
 	if(!dns) {
@@ -711,7 +711,7 @@ CURLcode Curl_loadhostpairs(struct Curl_easy * data)
 			if(!entry_id) {
 				return CURLE_OUT_OF_MEMORY;
 			}
-			entry_len = strlen(entry_id);
+			entry_len = sstrlen(entry_id);
 			if(data->share)
 				Curl_share_lock(data, CURL_LOCK_DATA_DNS, CURL_LOCK_ACCESS_SINGLE);
 			/* delete entry, ignore if it didn't exist */
@@ -742,7 +742,7 @@ CURLcode Curl_loadhostpairs(struct Curl_easy * data)
 				Curl_freeaddrinfo(addr);
 				return CURLE_OUT_OF_MEMORY;
 			}
-			entry_len = strlen(entry_id);
+			entry_len = sstrlen(entry_id);
 			if(data->share)
 				Curl_share_lock(data, CURL_LOCK_DATA_DNS, CURL_LOCK_ACCESS_SINGLE);
 			// See if its already in our dns cache 

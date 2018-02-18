@@ -104,8 +104,8 @@ static void FASTCALL freecookie(struct Cookie * co)
 
 static bool tailmatch(const char * cooke_domain, const char * hostname)
 {
-	size_t cookie_domain_len = strlen(cooke_domain);
-	size_t hostname_len = strlen(hostname);
+	size_t cookie_domain_len = sstrlen(cooke_domain);
+	size_t hostname_len = sstrlen(hostname);
 	if(hostname_len < cookie_domain_len)
 		return FALSE;
 	if(!strcasecompare(cooke_domain, hostname+hostname_len-cookie_domain_len))
@@ -135,7 +135,7 @@ static bool pathmatch(const char * cookie_path, const char * request_uri)
 	char * pos;
 	bool ret = FALSE;
 	/* cookie_path must not have last '/' separator. ex: /sample */
-	size_t cookie_path_len = strlen(cookie_path);
+	size_t cookie_path_len = sstrlen(cookie_path);
 	if(1 == cookie_path_len) {
 		/* cookie_path must be '/' */
 		return TRUE;
@@ -147,7 +147,7 @@ static bool pathmatch(const char * cookie_path, const char * request_uri)
 	if(pos)
 		*pos = 0x0;
 	/* #-fragments are already cut off! */
-	if(0 == strlen(uri_path) || uri_path[0] != '/') {
+	if(0 == sstrlen(uri_path) || uri_path[0] != '/') {
 		SAlloc::F(uri_path);
 		uri_path = _strdup("/");
 		if(!uri_path)
@@ -161,7 +161,7 @@ static bool pathmatch(const char * cookie_path, const char * request_uri)
 	   Ignore this algorithm because /hoge is uri path for this case
 	   (uri path is not /).
 	 */
-	uri_path_len = strlen(uri_path);
+	uri_path_len = sstrlen(uri_path);
 	if(uri_path_len < cookie_path_len) {
 		ret = FALSE;
 		goto pathmatched;
@@ -195,7 +195,7 @@ static char * sanitize_cookie_path(const char * cookie_path)
 	char * new_path = _strdup(cookie_path);
 	if(new_path) {
 		// some stupid site sends path attribute with '"'. 
-		size_t len = strlen(new_path);
+		size_t len = sstrlen(new_path);
 		if(new_path[0] == '\"') {
 			memmove((void*)new_path, (const void*)(new_path + 1), len);
 			len--;
@@ -368,8 +368,8 @@ struct Cookie * Curl_cookie_add(struct Curl_easy * data,
 				const char * whatptr;
 				bool done = FALSE;
 				bool sep;
-				size_t len = strlen(what);
-				size_t nlen = strlen(name);
+				size_t len = sstrlen(what);
+				size_t nlen = sstrlen(name);
 				const char * endofn = &ptr[ nlen ];
 				/* name ends with a '=' ? */
 				sep = (*endofn == '=') ? TRUE : FALSE;
@@ -816,7 +816,7 @@ static char * get_line(char * buf, int len, FILE * input)
 	while(1) {
 		char * b = fgets(buf, len, input);
 		if(b) {
-			size_t rlen = strlen(b);
+			size_t rlen = sstrlen(b);
 			if(rlen && (b[rlen-1] == '\n')) {
 				if(partial) {
 					partial = FALSE;

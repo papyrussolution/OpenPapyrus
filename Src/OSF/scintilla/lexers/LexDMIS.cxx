@@ -95,7 +95,7 @@ void SCI_METHOD LexerDMIS::InitWordListSets(void)
 {
 	size_t totalLen = 0;
 	for(int i = 0; DMISWordListDesc[i]; i++) {
-		totalLen += strlen(DMISWordListDesc[i]);
+		totalLen += sstrlen(DMISWordListDesc[i]);
 		totalLen++;
 	}
 	totalLen++;

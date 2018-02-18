@@ -21,7 +21,6 @@
 
 global _A_DebugBreak: function
 
-
 SECTION .text
 
 _A_DebugBreak:

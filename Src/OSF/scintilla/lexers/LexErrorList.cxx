@@ -16,7 +16,7 @@ using namespace Scintilla;
 
 static bool strstart(const char * haystack, const char * needle)
 {
-	return strncmp(haystack, needle, strlen(needle)) == 0;
+	return strncmp(haystack, needle, sstrlen(needle)) == 0;
 }
 
 static bool Is0To9(char ch)

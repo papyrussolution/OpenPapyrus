@@ -1379,7 +1379,7 @@ int FASTCALL SrConceptParser::_GetToken(SString & rExtBuf)
 				for(uint i = 0; i < SIZEOFARRAY(_CTypeSymbList); i++) {
 					if(Scan.Is(_CTypeSymbList[i].P_Symb)) {
 						tok = _CTypeSymbList[i].Token;
-						Scan.Incr(strlen(_CTypeSymbList[i].P_Symb));
+						Scan.Incr(sstrlen(_CTypeSymbList[i].P_Symb));
 						break;
 					}
 				}
@@ -3847,7 +3847,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 		}
 	}
 	else if(rScan.Is("oneof")) {
-		rScan.Incr(strlen("oneof"));
+		rScan.Incr(sstrlen("oneof"));
         ScanSkip(rScan);
         THROW_PP(rScan.GetQuotedString(temp_buf), PPERR_SR_S_LITERALONEOFEXPECTED);
 		{

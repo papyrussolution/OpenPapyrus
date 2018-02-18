@@ -599,7 +599,7 @@ void * SLAPI PPMsgLog::GetRow(long r)
 	CurMsg = 0;
 	EnumMessages(GetVisibleMessage(r), TmpText+sizeof(long), LF_BUFFSIZE-sizeof(long), &rr, &hh);
 	*(long *)(TmpText+hh) = r;
-	if((rr = (int16)strlen(TmpText+hh+4)) >= 256)
+	if((rr = (int16)sstrlen(TmpText+hh+4)) >= 256)
 		TmpText[hh+259] = '\0';
 	return (TmpText+hh);
 }

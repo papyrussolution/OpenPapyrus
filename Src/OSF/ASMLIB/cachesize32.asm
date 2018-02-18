@@ -25,19 +25,18 @@ extern _CpuType                 ; near. Determine CPU vendor
 ; of a bug in yasm v. 1.1.0.2352:
 
 struc   data_layout
-ok:     resd    1
-level1: resd    1
-level2: resd    1
-level3: resd    1
-level4: resd    1
-descriptortable: resd 60
+	ok:     resd    1
+	level1: resd    1
+	level2: resd    1
+	level3: resd    1
+	level4: resd    1
+	descriptortable: resd 60
 endstruc
-
 struc   descriptor_record              ; record for table of cache descriptors
-d_key:          resb 1                 ; key from cpuid instruction
-d_level:        resb 1                 ; cache level
-d_sizem:        resb 1                 ; size multiplier
-d_2pow:         resb 1                 ; power of 2. size = d_sizem << d_2pow
+	d_key:          resb 1                 ; key from cpuid instruction
+	d_level:        resb 1                 ; cache level
+	d_sizem:        resb 1                 ; size multiplier
+	d_2pow:         resb 1                 ; power of 2. size = d_sizem << d_2pow
 endstruc
 
 SECTION .data
@@ -114,7 +113,6 @@ db 0EAh, 3, 3, 22                      ; 12 Mb L3 data cache
 db 0EBh, 3, 9, 21                      ; 18 Mb L3 data cache
 db 0ECh, 3, 3, 23                      ; 24 Mb L3 data cache
 descriptortablelength equ ($ - descriptortable_) / descriptor_record_size
-
 
 SECTION .text
 

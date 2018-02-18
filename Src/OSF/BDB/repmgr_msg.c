@@ -1274,7 +1274,7 @@ static int reject_fwd(ENV*env, REPMGR_CONNECTION * conn)
 		UNLOCK_MUTEX(db_rep->mutex);
 		RPRINT(env, (env, DB_VERB_REPMGR_MISC, "Forwarding request to master %s", __repmgr_format_addr_loc(&addr, site_string)));
 		fwd.host.data = addr.host;
-		fwd.host.size = (uint32)strlen((const char *)fwd.host.data)+1;
+		fwd.host.size = (uint32)sstrlen((const char *)fwd.host.data)+1;
 		fwd.port = addr.port;
 		fwd.gen = rep->mgen;
 		ret = __repmgr_gm_fwd_marshal(env, &fwd, buf, sizeof(buf), &len);
@@ -1295,7 +1295,7 @@ static void marshal_site_key(ENV*env, repmgr_netaddr_t * addr, uint8 * buf, DBT 
 	__repmgr_membership_key_args key;
 	size_t len;
 	int ret;
-	DB_INIT_DBT(key.host, addr->host, strlen(addr->host)+1);
+	DB_INIT_DBT(key.host, addr->host, sstrlen(addr->host)+1);
 	logrec->host = key.host;
 	key.port = addr->port;
 	logrec->port = key.port;

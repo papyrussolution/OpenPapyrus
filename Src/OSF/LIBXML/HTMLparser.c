@@ -1707,9 +1707,9 @@ int UTF8ToHtml(uchar* out, int * outlen, const uchar* in, int * inlen)
 			int len;
 			const char * cp;
 			char nbuf[16];
-			/*
-			 * Try to lookup a predefined HTML entity for it
-			 */
+			// 
+			// Try to lookup a predefined HTML entity for it
+			// 
 			const htmlEntityDesc * ent = htmlEntityValueLookup(c);
 			if(ent == NULL) {
 				snprintf(nbuf, sizeof(nbuf), "#%u", c);
@@ -1717,7 +1717,7 @@ int UTF8ToHtml(uchar* out, int * outlen, const uchar* in, int * inlen)
 			}
 			else
 				cp = ent->name;
-			len = strlen(cp);
+			len = sstrlen(cp);
 			if(out + 2 + len >= outend)
 				break;
 			*out++ = '&';
@@ -1821,7 +1821,7 @@ int htmlEncodeEntities(uchar* out, int * outlen, const uchar* in, int * inlen, i
 			}
 			else
 				cp = ent->name;
-			len = strlen(cp);
+			len = sstrlen(cp);
 			if(out + 2 + len > outend)
 				break;
 			*out++ = '&';
@@ -5410,7 +5410,7 @@ htmlParserCtxt * htmlCreateFileParserCtxt(const char * filename, const char * en
 	inputPush(ctxt, inputStream);
 	/* set encoding */
 	if(encoding) {
-		size_t l = strlen(encoding);
+		size_t l = sstrlen(encoding);
 		if(l < 1000) {
 			xmlChar * content = (xmlChar *)SAlloc::M(sstrlen(content_line) + l + 1);
 			if(content) {

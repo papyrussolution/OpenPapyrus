@@ -217,7 +217,7 @@ int SLAPI RestoreGoods2()
 			if(goods_tbl.Search(rec.ParentID, &temp_rec) > 0 && temp_rec.Kind == PPGDSK_GROUP)
 				valid_parent_id = rec.ParentID;
 			if(goods_tbl.Search(rec.ID, &temp_rec) > 0) {
-				if(strncmp(temp_rec.Name, "Goods Stub", strlen("Goods Stub")) == 0) {
+				if(strncmp(temp_rec.Name, "Goods Stub", sstrlen("Goods Stub")) == 0) {
 					STRNSCPY(temp_rec.Name, rec.Name);
 					STRNSCPY(temp_rec.Abbr, rec.Abbr);
 					if(valid_parent_id)
@@ -1143,7 +1143,7 @@ static int SLAPI StoreLastBinPath()
 	WinRegValue reg_val;
 	long   last_path_idx = 0;
 	for(uint i = 0; reg_key.EnumValues(&i, &param, &reg_val) > 0;) {
-		const size_t prfx_len = strlen(WrParam_BinPath);
+		const size_t prfx_len = sstrlen(WrParam_BinPath);
 		if(strnicmp(param, WrParam_BinPath, prfx_len) == 0) {
 			last_path_idx = MAX(atoi(param+prfx_len), last_path_idx);
 			if(path.CmpNC(reg_val.GetString()) == 0)

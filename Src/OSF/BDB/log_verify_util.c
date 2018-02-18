@@ -195,7 +195,7 @@ static int __lv_seccbk_fname(DB * secdb, const DBT * key, const DBT * data, DBT 
 	COMPQUIET(key, 0);
 	if((ret = __lv_unpack_filereg(data, &freg)) != 0)
 		goto out;
-	if(freg->fname == NULL || (slen = strlen(freg->fname)) == 0) {
+	if(freg->fname == NULL || (slen = sstrlen(freg->fname)) == 0) {
 		ret = DB_DONOTINDEX;
 		goto out;
 	}
@@ -1048,7 +1048,7 @@ static int __lv_unpack_filereg(const DBT * data, VRFY_FILEREG_INFO ** freginfopp
 	(*freginfopp)->fileid.data = q;
 	(*freginfopp)->fileid.size = fidsz;
 	p += fidsz;
-	if((ret = __os_malloc(NULL, sizeof(char)*(strlen(p)+1), &q)) != 0)
+	if((ret = __os_malloc(NULL, sizeof(char)*(sstrlen(p)+1), &q)) != 0)
 		goto err;
 	strcpy(q, p);
 	(*freginfopp)->fname = q;
@@ -1423,7 +1423,7 @@ int __set_logvrfy_dbfuid(DB_LOG_VRFY_INFO * lvinfo)
 	// (replaced by ctr) memzero(&data, sizeof(DBT));
 	/* So far we only support verifying a specific db file. */
 	p = lvinfo->lv_config->dbfile;
-	buflen = sizeof(char)*(strlen(p)+1);
+	buflen = sizeof(char)*(sstrlen(p)+1);
 	key.data = (char *)p;
 	key.size = (uint32)buflen;
 	BDBOP2(lvinfo->dbenv, __db_get(lvinfo->fnameuid, lvinfo->ip, NULL, &key, &data, 0), "__set_logvrfy_dbfuid");

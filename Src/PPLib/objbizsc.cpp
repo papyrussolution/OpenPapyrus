@@ -696,7 +696,7 @@ void SLAPI BizScoreCache::EntryToData(const ObjCacheEntry * pEntry, void * pData
 	char   temp_buf[2048];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
 	PPStringSetSCD ss;
-	ss.setBuf(temp_buf, strlen(temp_buf)+1);
+	ss.setBuf(temp_buf, sstrlen(temp_buf)+1);
 	uint   p = 0;
 	ss.get(&p, p_data_pack->Rec.Name, sizeof(p_data_pack->Rec.Name));
 	ss.get(&p, p_data_pack->Rec.Symb, sizeof(p_data_pack->Rec.Symb));
@@ -1265,7 +1265,7 @@ int SLAPI GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSo
 					THROW(pSock->Send(text, text.Len(), 0));
 				}
 				name = (p_bizsc_rec->LocalScoreDescr.Len()) ? p_bizsc_rec->LocalScoreDescr : p_bizsc_rec->LocalScoreName;
-				if(strlen(p_bizsc_rec->StrVal))
+				if(sstrlen(p_bizsc_rec->StrVal))
 					val = p_bizsc_rec->StrVal;
 				else
 					val.Z().Cat(p_bizsc_rec->Val);

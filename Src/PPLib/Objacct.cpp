@@ -1348,7 +1348,7 @@ void SLAPI AccountCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataR
 	char   temp_buf[2048];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
 	PPStringSetSCD ss;
-	ss.setBuf(temp_buf, strlen(temp_buf)+1);
+	ss.setBuf(temp_buf, sstrlen(temp_buf)+1);
 	uint   p = 0;
 	ss.get(&p, p_data_rec->Code, sizeof(p_data_rec->Code));
 	ss.get(&p, p_data_rec->Name, sizeof(p_data_rec->Name));

@@ -774,7 +774,7 @@ int SLAPI PPObjUnit::SearchMaxLike(const PPUnit * pRec, PPID * pID)
 					ASSIGN_PTR(pID, ref->data.ObjID);
 					ok = 1;
 				}
-			} while(ok < 0 && ref->search(1, &k1, spNext) && k1.ObjType == Obj && strlen(pRec->Name) == strlen(k1.ObjName) && stricmp866(pRec->Name, k1.ObjName) == 0);
+			} while(ok < 0 && ref->search(1, &k1, spNext) && k1.ObjType == Obj && sstrlen(pRec->Name) == sstrlen(k1.ObjName) && stricmp866(pRec->Name, k1.ObjName) == 0);
 		}
 	}
 	return ok;
@@ -2269,7 +2269,7 @@ private:
 		if(event.isCmd(cmCfgPassword)) {
 			//
 				//SString pwd;
-				//Reference::Decrypt(Reference::crymRef2, Data.Rec.Password, strlen(Data.Rec.Password), pwd);
+				//Reference::Decrypt(Reference::crymRef2, Data.Rec.Password, sstrlen(Data.Rec.Password), pwd);
 			//
 			PasswordDialog(0, Data.Rec.Password, sizeof(Data.Rec.Password), 3, 0);
 		}
@@ -2344,7 +2344,7 @@ int SLAPI PPObjGlobalUserAcc::CheckPassword(const char * pName, const char * pPa
 	THROW_INVARG(pName && pPassword);
 	if(SearchByName(pName, &gua_id, &gua_rec) > 0) {
 		pwd = 0;
-		Reference::Decrypt(Reference::crymRef2, gua_rec.Password, strlen(gua_rec.Password), pwd);
+		Reference::Decrypt(Reference::crymRef2, gua_rec.Password, sstrlen(gua_rec.Password), pwd);
 		if(pwd.CmpNC(pPassword) == 0) {
 			ASSIGN_PTR(pUserAcc, gua_rec);
 			ok = 1;

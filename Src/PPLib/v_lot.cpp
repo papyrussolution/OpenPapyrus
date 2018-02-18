@@ -329,7 +329,7 @@ int SLAPI ConvertLandQCertToLotTag()
 				 QualityCertTbl::Rec qc_rec;
 
 				 MEMSZERO(qc_rec);
-				 if(qc_obj.Search(item.QCertID, &qc_rec) > 0 && strlen(qc_rec.Code) > 0 && strlen(qc_rec.Manuf) > 0) {
+				 if(qc_obj.Search(item.QCertID, &qc_rec) > 0 && sstrlen(qc_rec.Code) > 0 && sstrlen(qc_rec.Manuf) > 0) {
 					PPIDArray psn_list;
 					if(psn_obj.GetListByRegNumber(PPREGT_TPID, filt.PsnKind, qc_rec.Code, psn_list) > 0 && psn_list.getCount()) // Поиск персоналии по ИНН
 						psn_id = psn_list.at(0);

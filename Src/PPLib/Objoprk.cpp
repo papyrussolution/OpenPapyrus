@@ -144,7 +144,7 @@ int SLAPI PPReckonOpEx::PeriodToStr(SString & rBuf) const
 					*p++ = '.';
 					*p = 0;
 				}
-				p += strlen(p);
+				p += sstrlen(p);
 				*p++ = '@';
 				*p = 0;
 			}
@@ -170,9 +170,9 @@ int SLAPI PPReckonOpEx::StrToPeriod(const char * pBuf)
 		at_beg = 1;
 		STRNSCPY(temp, temp+1);
 	}
-	if(temp[strlen(temp)-1] == '@') {
+	if(temp[sstrlen(temp)-1] == '@') {
 		at_end = 1;
-		temp[strlen(temp)-1] = 0;
+		temp[sstrlen(temp)-1] = 0;
 	}
 	period.SetZero();
 	strtoperiod(temp, &period, 0);
@@ -1834,7 +1834,7 @@ void OprKindDialog::editOptions(uint dlgID, int useMainAmt, const PPIDArray * pS
 				dlg->getCtrlString(CTL_OPKMORE_AMTFORMULA, amt_formula);
 				amt_formula.Strip();
 				if(amt_formula.CmpPrefix("ignfix", 1) == 0)
-					(temp_formula = amt_formula).ShiftLeft(strlen("ignfix")).Strip();
+					(temp_formula = amt_formula).ShiftLeft(sstrlen("ignfix")).Strip();
 				else
 					temp_formula = amt_formula;
 				if(amt_formula.Strip().Empty() || PPCalcExpression(temp_formula, 0, &bill_pack, 0, 0) > 0) {
@@ -1976,7 +1976,7 @@ void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 				dlg->getCtrlString(CTL_OPKMORE_AMTFORMULA, amt_formula);
 				amt_formula.Strip();
 				if(amt_formula.CmpPrefix("ignfix", 1) == 0)
-					(temp_formula = amt_formula).ShiftLeft(strlen("ignfix")).Strip();
+					(temp_formula = amt_formula).ShiftLeft(sstrlen("ignfix")).Strip();
 				else
 					temp_formula = amt_formula;
 				if(amt_formula.Strip().Empty() || PPCalcExpression(temp_formula, 0, &bill_pack, 0, 0) > 0) {

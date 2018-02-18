@@ -158,11 +158,13 @@ int S_GUID::Generate()
 	GUID guid;
 	if(CoCreateGuid(&guid) == S_OK) {
 		Init(guid);
+		/* @v9.9.5 все работает - нет смысла далее тестировать в run-time'е
 		S_GUID test;
 		SString s_buf;
 		ToStr(fmtIDL, s_buf);
 		test.FromStr(s_buf);
 		assert(test == *this);
+		*/
 		return 1;
 	}
 	else

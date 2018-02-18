@@ -46,17 +46,10 @@ public:
 	}
 	~SplitVector()
 	{
-		delete []body;
-		body = 0;
+		ZDELETEARRAY(body);
 	}
-	int GetGrowSize() const
-	{
-		return growSize;
-	}
-	void FASTCALL SetGrowSize(int growSize_)
-	{
-		growSize = growSize_;
-	}
+	int GetGrowSize() const { return growSize; }
+	void FASTCALL SetGrowSize(int growSize_) { growSize = growSize_; }
 	/// Reallocate the storage for the buffer to be newSize and
 	/// copy exisiting contents to the new buffer.
 	/// Must not be used to decrease the size of the buffer.
@@ -77,10 +70,12 @@ public:
 			size = newSize;
 		}
 	}
-	/// Retrieve the character at a particular position.
-	/// Retrieving positions outside the range of the buffer returns 0.
-	/// The assertions here are disabled since calling code can be
-	/// simpler if out of range access works and returns 0.
+	// 
+	// Descr: Retrieve the character at a particular position.
+	//   Retrieving positions outside the range of the buffer returns 0.
+	//   The assertions here are disabled since calling code can be
+	//   simpler if out of range access works and returns 0.
+	// 
 	T FASTCALL ValueAt(int position) const
 	{
 		if(position < part1Length) {
@@ -116,13 +111,14 @@ public:
 		PLATFORM_ASSERT(position >= 0 && position < lengthBody);
 		return (position < part1Length) ? body[position] : body[gapLength + position];
 	}
-	/// Retrieve the length of the buffer.
-	int Length() const
-	{
-		return lengthBody;
-	}
-	/// Insert a single value into the buffer.
-	/// Inserting at positions outside the current range fails.
+	//
+	// Descr: Retrieve the length of the buffer.
+	//
+	int Length() const { return lengthBody; }
+	// 
+	// Descr: Insert a single value into the buffer.
+	//   Inserting at positions outside the current range fails.
+	// 
 	void Insert(int position, T v)
 	{
 		PLATFORM_ASSERT((position >= 0) && (position <= lengthBody));
@@ -200,10 +196,7 @@ public:
 		}
 	}
 	/// Delete all the buffer contents.
-	void DeleteAll()
-	{
-		DeleteRange(0, lengthBody);
-	}
+	void DeleteAll() { DeleteRange(0, lengthBody); }
 	// Retrieve a range of elements into an array
 	void GetRange(T * buffer, int position, int retrieveLength) const
 	{
@@ -242,14 +235,12 @@ public:
 		else
 			return (body + position + gapLength);
 	}
-	int GapPosition() const
-	{
-		return part1Length;
-	}
+	int GapPosition() const { return part1Length; }
 protected:
-	/// Move the gap to a particular position so that insertion and
-	/// deletion at that point will not require much copying and
-	/// hence be fast.
+	// 
+	// Descr: Move the gap to a particular position so that insertion and
+	//   deletion at that point will not require much copying and hence be fast.
+	// 
 	void FASTCALL GapTo(int position)
 	{
 		if(position != part1Length) {
@@ -260,8 +251,10 @@ protected:
 			part1Length = position;
 		}
 	}
-	/// Check that there is room in the buffer for an insertion,
-	/// reallocating if more space needed.
+	// 
+	// Descr: Check that there is room in the buffer for an insertion,
+	//   reallocating if more space needed.
+	// 
 	void FASTCALL RoomFor(int insertionLength)
 	{
 		if(gapLength <= insertionLength) {
@@ -349,29 +342,6 @@ public:
 	virtual void InsertLine(int line)=0;
 	virtual void RemoveLine(int line)=0;
 };
-/**
- * The line vector contains information about each of the lines in a cell buffer.
- */
-class LineVector {
-public:
-	LineVector();
-	~LineVector();
-	void Init();
-	void SetPerLine(PerLine *pl);
-	void InsertText(int line, int delta);
-	void InsertLine(int line, int position, bool lineStart);
-	void SetLineStart(int line, int position);
-	void RemoveLine(int line);
-	int Lines() const 
-	{
-		return starts.Partitions();
-	}
-	int FASTCALL LineFromPosition(int pos) const;
-	int FASTCALL LineStart(int line) const;
-private:
-	Partitioning starts;
-	PerLine * perLine;
-};
 //
 //
 //
@@ -443,82 +413,6 @@ private:
 	int undoSequenceDepth;
 	int savePoint;
 	int tentativePoint;
-};
-/**
- * Holder for an expandable array of characters that supports undo and line markers.
- * Based on article "Data Structures in a Bit-Mapped Text Editor"
- * by Wilfred J. Hansen, Byte January 1987, page 183.
- */
-class CellBuffer {
-public:
-	CellBuffer();
-	~CellBuffer();
-	/// Retrieving positions outside the range of the buffer works and returns 0
-	char   FASTCALL CharAt(int position) const;
-	void   GetCharRange(char *buffer, int position, int lengthRetrieve) const;
-	char   FASTCALL StyleAt(int position) const;
-	void   GetStyleRange(uchar *buffer, int position, int lengthRetrieve) const;
-	const char * BufferPointer();
-	const char * RangePointer(int position, int rangeLength);
-	int    GapPosition() const;
-	int    Length() const;
-	void   FASTCALL Allocate(int newSize);
-	int    GetLineEndTypes() const { return utf8LineEnds; }
-	void   SetLineEndTypes(int utf8LineEnds_);
-	bool   ContainsLineEnd(const char *s, int length) const;
-	void   SetPerLine(PerLine *pl);
-	int    Lines() const;
-	int    LineStart(int line) const;
-	int    LineFromPosition(int pos) const { return lv.LineFromPosition(pos); }
-	void   InsertLine(int line, int position, bool lineStart);
-	void   RemoveLine(int line);
-	const char * InsertString(int position, const char *s, int insertLength, bool &startSequence);
-	/// Setting styles for positions outside the range of the buffer is safe and has no effect.
-	/// @return true if the style of a character is changed.
-	bool   SetStyleAt(int position, char styleValue);
-	bool   SetStyleFor(int position, int length, char styleValue);
-	const char *DeleteChars(int position, int deleteLength, bool &startSequence);
-	bool   IsReadOnly() const;
-	void   SetReadOnly(bool set);
-	/// The save point is a marker in the undo stack where the container has stated that
-	/// the buffer was saved. Undo and redo can move over the save point.
-	void   SetSavePoint();
-	bool   IsSavePoint() const;
-	void   TentativeStart();
-	void   TentativeCommit();
-	bool   TentativeActive() const;
-	int    TentativeSteps();
-	bool   SetUndoCollection(bool collectUndo);
-	bool   IsCollectingUndo() const;
-	void   BeginUndoAction();
-	void   EndUndoAction();
-	void   AddUndoAction(int token, bool mayCoalesce);
-	void   DeleteUndoHistory();
-	/// To perform an undo, StartUndo is called to retrieve the number of steps, then UndoStep is
-	/// called that many times. Similarly for redo.
-	bool   CanUndo() const;
-	int StartUndo();
-	const  UndoHistory::Action &GetUndoStep() const;
-	void   PerformUndoStep();
-	bool   CanRedo() const;
-	int    StartRedo();
-	const  UndoHistory::Action & GetRedoStep() const;
-	void   PerformRedoStep();
-private:
-	SplitVector <char> substance;
-	SplitVector <char> style;
-	bool   readOnly;
-	bool   collectingUndo;
-	uint8  Reserve[2]; // @alignment
-	int    utf8LineEnds;
-	UndoHistory uh;
-	LineVector lv;
-
-	bool UTF8LineEndOverlaps(int position) const;
-	void ResetLineEnds();
-	/// Actions without undo
-	void BasicInsertString(int position, const char *s, int insertLength);
-	void BasicDeleteChars(int position, int deleteLength);
 };
 //
 // PerLine.h
@@ -872,7 +766,6 @@ typedef int Position;
 const Position invalidPosition = -1;
 
 enum EncodingFamily { efEightBit, efUnicode, efDBCS };
-
 /**
  * The range class represents a range of text in a document.
  * The two values are not sorted as one end may be more significant than the other
@@ -890,44 +783,20 @@ public:
 	Range(Position start_, Position end_) : start(start_), end(end_)
 	{
 	}
-	bool FASTCALL operator == (const Range &other) const
-	{
-		return (start == other.start) && (end == other.end);
-	}
-	bool Valid() const
-	{
-		return (start != invalidPosition) && (end != invalidPosition);
-	}
-	Position First() const
-	{
-		return (start <= end) ? start : end;
-	}
-	Position Last() const
-	{
-		return (start > end) ? start : end;
-	}
+	bool FASTCALL operator == (const Range &other) const { return (start == other.start) && (end == other.end); }
+	bool Valid() const { return (start != invalidPosition) && (end != invalidPosition); }
+	Position First() const { return (start <= end) ? start : end; }
+	Position Last() const { return (start > end) ? start : end; }
 	//
 	// Is the position within the range?
 	//
-	bool FASTCALL Contains(Position pos) const
-	{
-		return (start < end) ? (pos >= start && pos <= end) : (pos <= start && pos >= end);
-	}
+	bool FASTCALL Contains(Position pos) const { return (start < end) ? (pos >= start && pos <= end) : (pos <= start && pos >= end); }
 	//
 	// Is the character after pos within the range?
 	//
-	bool FASTCALL ContainsCharacter(Position pos) const
-	{
-		return (start < end) ? (pos >= start && pos < end) : (pos < start && pos >= end);
-	}
-	bool FASTCALL Contains(Range other) const
-	{
-		return Contains(other.start) && Contains(other.end);
-	}
-	bool Overlaps(Range other) const
-	{
-		return Contains(other.start) || Contains(other.end) || other.Contains(start) || other.Contains(end);
-	}
+	bool FASTCALL ContainsCharacter(Position pos) const { return (start < end) ? (pos >= start && pos < end) : (pos < start && pos >= end); }
+	bool FASTCALL Contains(Range other) const { return Contains(other.start) && Contains(other.end); }
+	bool Overlaps(Range other) const { return Contains(other.start) || Contains(other.end) || other.Contains(start) || other.Contains(end); }
 };
 /**
  * Interface class for regular expression searching
@@ -956,12 +825,9 @@ public:
 	virtual ~LexInterface()
 	{
 	}
-	void Colourise(int start, int end);
-	int LineEndTypesSupported();
-	bool UseContainerLexing() const
-	{
-		return instance == 0;
-	}
+	void   Colourise(int start, int end);
+	int    LineEndTypesSupported();
+	bool   UseContainerLexing() const { return instance == 0; }
 protected:
 	Document * pdoc;
 	ILexer * instance;
@@ -1017,6 +883,102 @@ public:
 	bool   IsDocFlag(uint f) const { return (DocFlags & f) ? true : false; }
 	void   SetDocFlag(uint f, int set) { SETFLAG(DocFlags, f, set); }
 private:
+	// 
+	// Descr: Holder for an expandable array of characters that supports undo and line markers.
+	//   Based on article "Data Structures in a Bit-Mapped Text Editor"
+	//   by Wilfred J. Hansen, Byte January 1987, page 183.
+	// 
+	class CellBuffer {
+	public:
+		CellBuffer();
+		~CellBuffer();
+		/// Retrieving positions outside the range of the buffer works and returns 0
+		char   FASTCALL CharAt(int position) const;
+		void   GetCharRange(char *buffer, int position, int lengthRetrieve) const;
+		char   FASTCALL StyleAt(int position) const;
+		void   GetStyleRange(uchar *buffer, int position, int lengthRetrieve) const;
+		const char * BufferPointer();
+		const char * RangePointer(int position, int rangeLength);
+		int    GapPosition() const;
+		int    Length() const;
+		void   FASTCALL Allocate(int newSize);
+		int    GetLineEndTypes() const { return utf8LineEnds; }
+		void   SetLineEndTypes(int utf8LineEnds_);
+		bool   ContainsLineEnd(const char *s, int length) const;
+		void   SetPerLine(PerLine *pl);
+		int    Lines() const;
+		int    LineStart(int line) const;
+		int    LineFromPosition(int pos) const { return lv.LineFromPosition(pos); }
+		void   InsertLine(int line, int position, bool lineStart);
+		void   RemoveLine(int line);
+		const char * InsertString(int position, const char *s, int insertLength, bool &startSequence);
+		/// Setting styles for positions outside the range of the buffer is safe and has no effect.
+		/// @return true if the style of a character is changed.
+		bool   SetStyleAt(int position, char styleValue);
+		bool   SetStyleFor(int position, int length, char styleValue);
+		const char *DeleteChars(int position, int deleteLength, bool &startSequence);
+		bool   IsReadOnly() const;
+		void   SetReadOnly(bool set);
+		/// The save point is a marker in the undo stack where the container has stated that
+		/// the buffer was saved. Undo and redo can move over the save point.
+		void   SetSavePoint();
+		bool   IsSavePoint() const;
+		void   TentativeStart();
+		void   TentativeCommit();
+		bool   TentativeActive() const;
+		int    TentativeSteps();
+		bool   SetUndoCollection(bool collectUndo);
+		bool   IsCollectingUndo() const;
+		void   BeginUndoAction();
+		void   EndUndoAction();
+		void   AddUndoAction(int token, bool mayCoalesce);
+		void   DeleteUndoHistory();
+		/// To perform an undo, StartUndo is called to retrieve the number of steps, then UndoStep is
+		/// called that many times. Similarly for redo.
+		bool   CanUndo() const;
+		int    StartUndo();
+		const  UndoHistory::Action &GetUndoStep() const;
+		void   PerformUndoStep();
+		bool   CanRedo() const;
+		int    StartRedo();
+		const  UndoHistory::Action & GetRedoStep() const;
+		void   PerformRedoStep();
+	private:
+		// 
+		// Descr: The line vector contains information about each of the lines in a cell buffer.
+		// 
+		class LineVector {
+		public:
+			LineVector();
+			~LineVector();
+			void   Init();
+			void   FASTCALL SetPerLine(PerLine * pl);
+			void   InsertText(int line, int delta);
+			void   InsertLine(int line, int position, bool lineStart);
+			void   SetLineStart(int line, int position);
+			void   FASTCALL RemoveLine(int line);
+			int    Lines() const;
+			int    FASTCALL LineFromPosition(int pos) const;
+			int    FASTCALL LineStart(int line) const;
+		private:
+			Partitioning starts;
+			PerLine * perLine;
+		};
+		SplitVector <char> substance;
+		SplitVector <char> style;
+		bool   readOnly;
+		bool   collectingUndo;
+		uint8  Reserve[2]; // @alignment
+		int    utf8LineEnds;
+		UndoHistory uh;
+		LineVector lv;
+
+		bool UTF8LineEndOverlaps(int position) const;
+		void ResetLineEnds();
+		/// Actions without undo
+		void BasicInsertString(int position, const char *s, int insertLength);
+		void BasicDeleteChars(int position, int deleteLength);
+	};
 	int    refCount;
 	CellBuffer cb;
 	CharClassify charClass;
@@ -1210,63 +1172,63 @@ public:
 	int    NextWordStart(int pos, int delta) const;
 	int    NextWordEnd(int pos, int delta) const;
 	Sci_Position SCI_METHOD Length() const { return cb.Length(); }
-	void FASTCALL Allocate(int newSize) { cb.Allocate(newSize); }
+	void   FASTCALL Allocate(int newSize) { cb.Allocate(newSize); }
 	CharacterExtracted ExtractCharacter(int position) const;
-	bool IsWordStartAt(int pos) const;
-	bool IsWordEndAt(int pos) const;
-	bool IsWordAt(int start, int end) const;
-	bool MatchesWordOptions(bool word, bool wordStart, int pos, int length) const;
-	bool HasCaseFolder() const;
-	void SetCaseFolder(CaseFolder * pcf_);
-	long FindText(int minPos, int maxPos, const char * search, int flags, int * length);
-	const char * SubstituteByPosition(const char * text, int * length);
-	int LinesTotal() const;
-	void SetDefaultCharClasses(bool includeWordClass);
-	void SetCharClasses(const uchar * chars, CharClassify::cc newCharClass);
-	int GetCharsOfClass(CharClassify::cc characterClass, uchar * buffer) const;
-	void SCI_METHOD StartStyling(Sci_Position position, char mask);
-	bool SCI_METHOD SetStyleFor(Sci_Position length, char style);
-	bool SCI_METHOD SetStyles(Sci_Position length, const char * styles);
-	int GetEndStyled() const { return endStyled; }
-	void EnsureStyledTo(int pos);
-	void StyleToAdjustingLineDuration(int pos);
-	void LexerChanged();
-	int GetStyleClock() const { return styleClock; }
-	void IncrementStyleClock();
-	void SCI_METHOD DecorationSetCurrentIndicator(int indicator) { decorations.SetCurrentIndicator(indicator); }
-	void SCI_METHOD DecorationFillRange(Sci_Position position, int value, Sci_Position fillLength);
-	int SCI_METHOD SetLineState(Sci_Position line, int state);
-	int SCI_METHOD GetLineState(Sci_Position line) const;
-	int GetMaxLineState();
-	void SCI_METHOD ChangeLexerState(Sci_Position start, Sci_Position end);
+	bool   IsWordStartAt(int pos) const;
+	bool   IsWordEndAt(int pos) const;
+	bool   IsWordAt(int start, int end) const;
+	bool   MatchesWordOptions(bool word, bool wordStart, int pos, int length) const;
+	bool   HasCaseFolder() const;
+	void   SetCaseFolder(CaseFolder * pcf_);
+	long   FindText(int minPos, int maxPos, const char * search, int flags, int * length);
+	const  char * SubstituteByPosition(const char * text, int * length);
+	int    LinesTotal() const;
+	void   SetDefaultCharClasses(bool includeWordClass);
+	void   SetCharClasses(const uchar * chars, CharClassify::cc newCharClass);
+	int    GetCharsOfClass(CharClassify::cc characterClass, uchar * buffer) const;
+	void   SCI_METHOD StartStyling(Sci_Position position, char mask);
+	bool   SCI_METHOD SetStyleFor(Sci_Position length, char style);
+	bool   SCI_METHOD SetStyles(Sci_Position length, const char * styles);
+	int    GetEndStyled() const { return endStyled; }
+	void   EnsureStyledTo(int pos);
+	void   StyleToAdjustingLineDuration(int pos);
+	void   LexerChanged();
+	int    GetStyleClock() const { return styleClock; }
+	void   IncrementStyleClock();
+	void   SCI_METHOD DecorationSetCurrentIndicator(int indicator) { decorations.SetCurrentIndicator(indicator); }
+	void   SCI_METHOD DecorationFillRange(Sci_Position position, int value, Sci_Position fillLength);
+	int    SCI_METHOD SetLineState(Sci_Position line, int state);
+	int    SCI_METHOD GetLineState(Sci_Position line) const;
+	int    GetMaxLineState();
+	void   SCI_METHOD ChangeLexerState(Sci_Position start, Sci_Position end);
 	StyledText MarginStyledText(int line) const;
-	void MarginSetStyle(int line, int style);
-	void MarginSetStyles(int line, const uchar * styles);
-	void MarginSetText(int line, const char * text);
-	void MarginClearAll();
+	void   MarginSetStyle(int line, int style);
+	void   MarginSetStyles(int line, const uchar * styles);
+	void   MarginSetText(int line, const char * text);
+	void   MarginClearAll();
 	StyledText AnnotationStyledText(int line) const;
-	void AnnotationSetText(int line, const char * text);
-	void AnnotationSetStyle(int line, int style);
-	void AnnotationSetStyles(int line, const uchar * styles);
-	int  FASTCALL AnnotationLines(int line) const;
-	void AnnotationClearAll();
-	bool AddWatcher(DocWatcher * watcher, void * userData);
-	bool RemoveWatcher(DocWatcher * watcher, void * userData);
-	bool FASTCALL IsASCIIWordByte(uchar ch) const;
+	void   AnnotationSetText(int line, const char * text);
+	void   AnnotationSetStyle(int line, int style);
+	void   AnnotationSetStyles(int line, const uchar * styles);
+	int    FASTCALL AnnotationLines(int line) const;
+	void   AnnotationClearAll();
+	bool   AddWatcher(DocWatcher * watcher, void * userData);
+	bool   RemoveWatcher(DocWatcher * watcher, void * userData);
+	bool   FASTCALL IsASCIIWordByte(uchar ch) const;
 	CharClassify::cc WordCharacterClass(uint ch) const;
-	bool IsWordPartSeparator(uint ch) const;
-	int  WordPartLeft(int pos) const;
-	int  WordPartRight(int pos) const;
-	int  ExtendStyleRange(int pos, int delta, bool singleLine = false);
-	bool FASTCALL IsWhiteLine(int line) const;
-	int  FASTCALL ParaUp(int pos) const;
-	int  FASTCALL ParaDown(int pos) const;
-	int  IndentSize() const { return actualIndentInChars; }
-	int BraceMatch(int position, int maxReStyle);
+	bool   IsWordPartSeparator(uint ch) const;
+	int    WordPartLeft(int pos) const;
+	int    WordPartRight(int pos) const;
+	int    ExtendStyleRange(int pos, int delta, bool singleLine = false);
+	bool   FASTCALL IsWhiteLine(int line) const;
+	int    FASTCALL ParaUp(int pos) const;
+	int    FASTCALL ParaDown(int pos) const;
+	int    IndentSize() const { return actualIndentInChars; }
+	int    BraceMatch(int position, int maxReStyle);
 private:
-	void NotifyModifyAttempt();
-	void NotifySavePoint(bool atSavePoint);
-	void FASTCALL NotifyModified(const DocModification & mh);
+	void   NotifyModifyAttempt();
+	void   NotifySavePoint(bool atSavePoint);
+	void   FASTCALL NotifyModified(const DocModification & mh);
 };
 
 class UndoGroup {
@@ -1276,7 +1238,8 @@ public:
 	bool Needed() const;
 private:
 	Document * pdoc;
-	bool groupNeeded;
+	bool   groupNeeded;
+	uint8  Reserve[3]; // @alignment
 };
 // 
 // To optimise processing of document modifications by DocWatchers, a hint is passed indicating the
@@ -1288,16 +1251,16 @@ public:
 	DocModification(int modificationType_, int position_ = 0, int length_ = 0, int linesAdded_ = 0, const char * text_ = 0, int line_ = 0);
 	DocModification(int modificationType_, const UndoHistory::Action & act, int linesAdded_ = 0);
 
-	int modificationType;
-	int position;
-	int length;
-	int linesAdded; /**< Negative if lines deleted. */
-	const char * text;       /**< Only valid for changes to text, not for changes to style. */
-	int line;
-	int foldLevelNow;
-	int foldLevelPrev;
-	int annotationLinesAdded;
-	int token;
+	int    modificationType;
+	int    position;
+	int    length;
+	int    linesAdded; /**< Negative if lines deleted. */
+	const  char * text;       /**< Only valid for changes to text, not for changes to style. */
+	int    line;
+	int    foldLevelNow;
+	int    foldLevelPrev;
+	int    annotationLinesAdded;
+	int    token;
 };
 // 
 // A class that wants to receive notifications from a Document must be derived from DocWatcher
@@ -1310,7 +1273,7 @@ public:
 	}
 	virtual void NotifyModifyAttempt(Document * doc, void * userData) = 0;
 	virtual void NotifySavePoint(Document * doc, void * userData, bool atSavePoint) = 0;
-	virtual void NotifyModified(Document * doc, DocModification mh, void * userData) = 0;
+	virtual void NotifyModified(Document * doc, const DocModification & rMh, void * userData) = 0;
 	virtual void NotifyDeleted(Document * doc, void * userData) = 0;
 	virtual void NotifyStyleNeeded(Document * doc, void * userData, int endPos) = 0;
 	virtual void NotifyLexerChanged(Document * doc, void * userData) = 0;
@@ -2843,8 +2806,8 @@ protected: // ScintillaBase subclass needs access to much of Editor
 	void   NotifyZoom();
 	void   NotifyModifyAttempt(Document * document, void * userData);
 	void   NotifySavePoint(Document * document, void * userData, bool atSavePoint);
-	void   CheckModificationForWrap(DocModification mh);
-	void   NotifyModified(Document * document, DocModification mh, void * userData);
+	void   FASTCALL CheckModificationForWrap(const DocModification & rMh);
+	void   NotifyModified(Document * document, const DocModification & rMh, void * userData);
 	void   NotifyDeleted(Document * document, void * userData);
 	void   NotifyStyleNeeded(Document * doc, void * userData, int endPos);
 	void   NotifyLexerChanged(Document * doc, void * userData);
@@ -3219,7 +3182,7 @@ template <> inline void SparseVector<const char *>::SetValueAt(int position, con
 {
 	// Make a copy of the string
 	if(value) {
-		const size_t len = strlen(value);
+		const size_t len = sstrlen(value);
 		char * valueCopy = new char[len + 1]();
 		std::copy(value, value + len, valueCopy);
 		CommonSetValueAt(position, valueCopy);

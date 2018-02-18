@@ -354,7 +354,7 @@ int __repmgr_prepare_my_addr(ENV * env, DBT * dbt)
 	 * order, followed by the null-terminated host name string.
 	 */
 	port_buffer = htons(addr.port);
-	size = sizeof(port_buffer)+(hlen = strlen(addr.host)+1);
+	size = sizeof(port_buffer)+(hlen = sstrlen(addr.host)+1);
 	if((ret = __os_malloc(env, size, &ptr)) != 0)
 		return ret;
 	DB_INIT_DBT(*dbt, ptr, size);
@@ -516,7 +516,7 @@ retry:
 		UNLOCK_MUTEX(db_rep->mutex);
 		if(status == 0)
 			continue;
-		DB_INIT_DBT(key.host, addr.host, strlen(addr.host)+1);
+		DB_INIT_DBT(key.host, addr.host, sstrlen(addr.host)+1);
 		key.port = addr.port;
 		ret = __repmgr_membership_key_marshal(env, &key, key_buf, sizeof(key_buf), &len);
 		DB_ASSERT(env, ret == 0);
@@ -791,7 +791,7 @@ int __repmgr_share_netaddrs(ENV * env, void * rep_, uint start, uint limit)
 			shared_array = (SITEINFO *)R_ADDR(infop, rep->siteinfo_off);
 		DB_ASSERT(env, rep->site_cnt < rep->site_max && rep->siteinfo_off != INVALID_ROFF);
 		host = db_rep->sites[i].net_addr.host;
-		sz = strlen(host)+1;
+		sz = sstrlen(host)+1;
 		if((ret = __env_alloc(infop, sz, &hostbuf)) != 0)
 			goto out;
 		eid = (int)rep->site_cnt++;
@@ -1017,7 +1017,7 @@ int __repmgr_marshal_member_list(ENV * env, uint8 ** bufp, size_t * lenp)
 		if(site->membership == 0)
 			continue;
 		site_info.host.data = site->net_addr.host;
-		site_info.host.size = (uint32)strlen(site->net_addr.host)+1;
+		site_info.host.size = (uint32)sstrlen(site->net_addr.host)+1;
 		site_info.port = site->net_addr.port;
 		site_info.flags = site->membership;
 

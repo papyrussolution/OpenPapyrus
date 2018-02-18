@@ -108,8 +108,8 @@ static int classifyWordCmake(Sci_PositionU start, Sci_PositionU end, WordList * 
 		return SCE_CMAKE_PARAMETERS;
 	if(UserDefined.InList(word) )
 		return SCE_CMAKE_USERDEFINED;
-	if(strlen(word) > 3) {
-		if(word[1] == '{' && word[strlen(word)-1] == '}')
+	if(sstrlen(word) > 3) {
+		if(word[1] == '{' && word[sstrlen(word)-1] == '}')
 			return SCE_CMAKE_VARIABLE;
 	}
 	// To check for numbers

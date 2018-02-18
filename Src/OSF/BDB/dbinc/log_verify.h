@@ -75,7 +75,7 @@ struct __txn_verify_info {
 //
 struct __lv_filereg_info {
 #define FILE_REG_INFO_FIXSIZE (sizeof(uint32))
-#define FILE_REG_INFO_TOTSIZE(s) (FILE_REG_INFO_FIXSIZE + (s).fileid.size + sizeof((s).fileid.size) + sizeof(int32) * (s).regcnt + strlen((s).fname) + 1)
+#define FILE_REG_INFO_TOTSIZE(s) (FILE_REG_INFO_FIXSIZE + (s).fileid.size + sizeof((s).fileid.size) + sizeof(int32) * (s).regcnt + sstrlen((s).fname) + 1)
 	uint32 regcnt;	/* The number of dbregids for this file-uid. */
 	int32 *dbregids;
 	DBT    fileid; // The file unique id. 

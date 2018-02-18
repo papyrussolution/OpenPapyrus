@@ -159,7 +159,7 @@ static int SLAPI IsEmailAddr(const char * pPath)
 static int SLAPI IsFtpAddr(const char * pPath)
 {
 	const char * p_ftp_prefx = "ftp:";
-	return BIN(pPath && strnicmp(pPath, p_ftp_prefx, strlen(p_ftp_prefx)) == 0);
+	return BIN(pPath && strnicmp(pPath, p_ftp_prefx, sstrlen(p_ftp_prefx)) == 0);
 }
 
 static int SLAPI IsRemovableDrive(const char drive)

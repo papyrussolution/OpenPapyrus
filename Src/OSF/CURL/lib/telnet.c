@@ -908,7 +908,7 @@ static void suboption(struct connectdata * conn)
 	printsub(data, '<', (uchar*)tn->subbuffer, CURL_SB_LEN(tn)+2);
 	switch(CURL_SB_GET(tn)) {
 		case CURL_TELOPT_TTYPE:
-		    len = strlen(tn->subopt_ttype) + 4 + 2;
+		    len = sstrlen(tn->subopt_ttype) + 4 + 2;
 		    snprintf((char*)temp, sizeof(temp),
 		    "%c%c%c%c%s%c%c", CURL_IAC, CURL_SB, CURL_TELOPT_TTYPE,
 		    CURL_TELQUAL_IS, tn->subopt_ttype, CURL_IAC, CURL_SE);
@@ -920,7 +920,7 @@ static void suboption(struct connectdata * conn)
 		    printsub(data, '>', &temp[2], len-2);
 		    break;
 		case CURL_TELOPT_XDISPLOC:
-		    len = strlen(tn->subopt_xdisploc) + 4 + 2;
+		    len = sstrlen(tn->subopt_xdisploc) + 4 + 2;
 		    snprintf((char*)temp, sizeof(temp),
 		    "%c%c%c%c%s%c%c", CURL_IAC, CURL_SB, CURL_TELOPT_XDISPLOC,
 		    CURL_TELQUAL_IS, tn->subopt_xdisploc, CURL_IAC, CURL_SE);
@@ -938,7 +938,7 @@ static void suboption(struct connectdata * conn)
 		    len = 4;
 
 		    for(v = tn->telnet_vars; v; v = v->next) {
-			    tmplen = (strlen(v->data) + 1);
+			    tmplen = (sstrlen(v->data) + 1);
 			    /* Add the variable only if it fits */
 			    if(len + tmplen < (int)sizeof(temp)-6) {
 				    if(sscanf(v->data, "%127[^,],%127s", varname, varval)) {

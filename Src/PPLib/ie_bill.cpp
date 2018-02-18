@@ -1765,15 +1765,15 @@ int SLAPI PPBillImporter::ProcessDynField(SdRecord & rDynRec, uint dynFldN, PPIm
 										arg_scan.Skip();
 										if(arg_scan.Is("space")) {
 											dividers.Space();
-											arg_scan.Incr(strlen("space"));
+											arg_scan.Incr(sstrlen("space"));
 										}
 										else if(arg_scan.Is("tab")) {
 											dividers.Tab();
-											arg_scan.Incr(strlen("tab"));
+											arg_scan.Incr(sstrlen("tab"));
 										}
 										else if(arg_scan.Is("\\t")) {
 											dividers.Tab();
-											arg_scan.Incr(strlen("\\t"));
+											arg_scan.Incr(sstrlen("\\t"));
 										}
 										else if(oneof11(arg_scan[0], '_', ',', ';', '.', '-', ':', '%', '^', '$', '@', '#')) {
 											dividers.CatChar(arg_scan[0]);

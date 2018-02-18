@@ -237,13 +237,13 @@ int SLAPI ACS_SMUKM30::ExportData(int updOnly)
 				dbfrG.put(23, dbtm);
 				THROW_PP(p_out_tbl_goods->appendRec(&dbfrG), PPERR_DBFWRFAULT);
 			}
-			bclen = strlen(info.BarCode);
+			bclen = sstrlen(info.BarCode);
 			if(bclen) {
 				DbfRecord dbfrB(p_out_tbl_barcode);
 				dbfrB.empty();
 				if(bclen != 3 && bclen != (7+check_dig) && bclen < (12+check_dig))
 					padleft(info.BarCode, '0', (12+check_dig) - bclen);
-				size_t l = strlen(info.BarCode);
+				size_t l = sstrlen(info.BarCode);
 				if(add_chkdig && l > 3 && !goods_cfg.IsWghtPrefix(info.BarCode))
 					AddBarcodeCheckDigit(info.BarCode);
 				dbfrB.put(1, info.BarCode);

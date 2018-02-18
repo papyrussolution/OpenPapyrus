@@ -1280,7 +1280,7 @@ int SLAPI PPViewSCard::RenameDup(PPIDArray * pIdList)
 					p = code.Len() - 1;
 				}
 				code.CopyTo(k1.Code, sizeof(k1.Code));
-				for(code_postfx = 1; SCObj.P_Tbl->search(1, &k1, spGt) > 0 && strnicmp866(code, k1.Code, strlen(code)) == 0;) {
+				for(code_postfx = 1; SCObj.P_Tbl->search(1, &k1, spGt) > 0 && strnicmp866(code, k1.Code, sstrlen(code)) == 0;) {
 					long   n = 0;
 					temp_buf = SCObj.P_Tbl->data.Code;
 					code_postfx = ((n = temp_buf.ShiftLeft(p + 1).ToLong() + 1) >= code_postfx) ? n : code_postfx;

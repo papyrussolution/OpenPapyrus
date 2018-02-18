@@ -217,7 +217,7 @@ if2ip_result_t Curl_if2ip(int af, uint remote_scope,
 	if(!interf || (af != AF_INET))
 		return IF2IP_NOT_FOUND;
 
-	len = strlen(interf);
+	len = sstrlen(interf);
 	if(len >= sizeof(req.ifr_name))
 		return IF2IP_NOT_FOUND;
 

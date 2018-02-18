@@ -21,7 +21,7 @@ SLAPI ObjCache::MultTextBlock::MultTextBlock(const ObjCache * pCache, const ObjC
 {
 	char   temp_buf[4096];
 	pCache->GetName(pEntry, temp_buf, sizeof(temp_buf));
-	R_Ss.setBuf(temp_buf, strlen(temp_buf)+1);
+	R_Ss.setBuf(temp_buf, sstrlen(temp_buf)+1);
 }
 
 int FASTCALL ObjCache::MultTextBlock::Add(const char * pStr)
@@ -53,11 +53,9 @@ int FASTCALL ObjCache::PutTextBlock(MultTextBlock & rBlk, ObjCacheEntry * pEntry
 void FASTCALL ObjCache::ExtTextBlock::Dirty(PPID id)
 {
 	{
-		//Lock.WriteLock();
 		SRWLOCKER(Lock, SReadWriteLocker::Write);
 		MissingList.Remove(id);
 		List.Remove(id);
-		//Lock.Unlock();
 	}
 }
 
@@ -65,14 +63,11 @@ int SLAPI ObjCache::ExtTextBlock::Fetch(PPID id, SString & rBuf, void * extraPtr
 {
 	int    ok = -1;
 	if(id > 0) {
-		//Lock.ReadLock();
 		SRWLOCKER(Lock, SReadWriteLocker::Read);
 		if(!MissingList.Has(id)) {
 			if(List.GetText(id, rBuf) > 0)
 				ok = 1;
 			else {
-				//Lock.Unlock();
-				//Lock.WriteLock();
 				SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 				if(Implement_Get(id, rBuf, extraPtr) > 0 && rBuf.NotEmpty()) {
 					MissingList.Remove(id);
@@ -83,7 +78,6 @@ int SLAPI ObjCache::ExtTextBlock::Fetch(PPID id, SString & rBuf, void * extraPtr
 					MissingList.Add(id);
 			}
 		}
-		//Lock.Unlock();
 	}
 	return ok;
 }
@@ -251,10 +245,8 @@ int FASTCALL ObjCache::Dirty(PPID id)
 {
 	int    ok = 1;
 	{
-		//RwL.WriteLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		ok = Helper_Dirty(id);
-		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -306,7 +298,6 @@ int SLAPI ObjCache::GetBySrchFunc(const void * pKey, CompFunc f, void * pDataRec
 	int    ok = -1;
 	uint   p = 0;
 	if(pKey && f) {
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		StatData.Count.Incr();
 		if(P_Ary && P_Ary->lsearch(pKey, &p, f)) {
@@ -314,7 +305,6 @@ int SLAPI ObjCache::GetBySrchFunc(const void * pKey, CompFunc f, void * pDataRec
 			if(ok > 0)
 				StatData.Hits.Incr();
 		}
-		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -353,13 +343,10 @@ int SLAPI ObjCache::Get(PPID id, void * pDataRec, long extraData)
 	int    ok = -1;
 	uint   p = 0;
 	if(id) {
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		StatData.Count.Incr();
 		ok = Helper_Get(id, pDataRec);
 		if(ok < 0) {
-			//RwL.Unlock();
-			//RwL.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			//
 			// Пока мы ждали своей очереди на запись
@@ -377,7 +364,6 @@ int SLAPI ObjCache::Get(PPID id, void * pDataRec, long extraData)
 					ok = r;
 			}
 		}
-		//RwL.Unlock();
 	}
 	else
 		ok = (PPSetObjError(PPERR_OBJNFOUND, ObjType, id), -1);
@@ -393,7 +379,6 @@ int SLAPI ObjCache::GetStat(ObjCacheStat * pStat)
 		pStat->Misses = StatData.Misses;
 		pStat->Collisions = StatData.Collisions;
 
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		uint c = GetCount();
 		long max_cntr = 0;
@@ -412,7 +397,8 @@ int SLAPI ObjCache::GetStat(ObjCacheStat * pStat)
 			}
 		}
 		pStat->NumEntries = c;
-		//RwL.Unlock();
+		pStat->SsSize = Ss.getSize(); // @v9.9.5
+		pStat->SsDataLen = Ss.getDataLen(); // @v9.9.5
 	}
 	return 1;
 }
@@ -427,7 +413,6 @@ SLAPI ObjCache::RefSymbArray::RefSymbArray(PPID objType) : StrAssocArray(), ObjT
 void FASTCALL ObjCache::RefSymbArray::Dirty(PPID id) // @sync_w
 {
 	{
-		//SlLock.WriteLock();
 		SRWLOCKER(SlLock, SReadWriteLocker::Write);
 		if(Inited) {
 			//
@@ -436,7 +421,6 @@ void FASTCALL ObjCache::RefSymbArray::Dirty(PPID id) // @sync_w
 			//
 			DirtyTable.add(id);
 		}
-		//SlLock.Unlock();
 	}
 }
 
@@ -445,11 +429,8 @@ int SLAPI ObjCache::RefSymbArray::FetchBySymb(const char * pSymb, PPID * pID)
 	int    ok = -1;
 	PPID   id = 0;
 	{
-		//SlLock.ReadLock();
 		SRWLOCKER(SlLock, SReadWriteLocker::Read);
 		if(!Inited || DirtyTable.getCount()) {
-			//SlLock.Unlock();
-			//SlLock.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(!Inited || DirtyTable.getCount()) {
 				Reference * p_ref = PPRef;
@@ -486,7 +467,6 @@ int SLAPI ObjCache::RefSymbArray::FetchBySymb(const char * pSymb, PPID * pID)
 				ok = 1;
 			}
 		}
-		//SlLock.Unlock();
 	}
 	if(ok < 0) {
 		SString msg_buf;
@@ -536,8 +516,8 @@ int SLAPI ObjCacheHash::Init(size_t cacheSize, uint maxTries)
 uint FASTCALL ObjCacheHash::Hash(PPID id, uint n) const
 {
 	//
-	// Результаты сравнения 'ффективности х'ш-функций до v7.8.3 (закомментировано ниже) и v7.8.3 для товаров
-	// Общее улучшение 'ффективности попаданий ~0.4%
+	// Результаты сравнения эффективности хэш-функций до v7.8.3 (закомментировано ниже) и v7.8.3 для товаров
+	// Общее улучшение эффективности попаданий ~0.4%
 	// before 7.8.3 1009;1206872;1124424;82448;[0.931685];0;16384;3;0.000183;0;
 	// 7.8.3        1009;1206872;1128818;78054;[0.935325];0;16384;0;0;0;
 	// Надо еще сопоставить среднее количество попыток для нахождения цели.
@@ -639,10 +619,8 @@ SLAPI DbLocalCacheMng::DbLocalCacheMng() : TSArray <DbLocalCacheEntry> (aryDataO
 SLAPI DbLocalCacheMng::~DbLocalCacheMng()
 {
 	{
-		//RwL.WriteLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		freeAll();
-		//RwL.Unlock();
 	}
 }
 
@@ -651,11 +629,8 @@ int SLAPI DbLocalCacheMng::CreateDbEntry(long dbPathID)
 	int    ok = -1;
 	uint   pos = 0;
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		if(!DbEntryList.lsearch(&dbPathID, &pos, CMPF_LONG)) {
-			//RwL.Unlock();
-			//RwL.WriteLock();
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(!DbEntryList.lsearch(&dbPathID, &pos, CMPF_LONG)) {
 				CDbEntry entry;
@@ -666,7 +641,6 @@ int SLAPI DbLocalCacheMng::CreateDbEntry(long dbPathID)
 				ok = 1;
 			}
 		}
-		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -675,7 +649,6 @@ int SLAPI DbLocalCacheMng::SetDeferredState(long dbPathID, int set)
 {
 	int    ok = 0;
 	{
-		//RwL.WriteLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		uint   pos = 0;
 		if(DbEntryList.lsearch(&dbPathID, &pos, CMPF_LONG)) {
@@ -683,7 +656,6 @@ int SLAPI DbLocalCacheMng::SetDeferredState(long dbPathID, int set)
 			SETFLAG(p_entry->State, stDeferred, set);
 			ok = 1;
 		}
-		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -692,13 +664,11 @@ int FASTCALL DbLocalCacheMng::IsDeferredState(long dbPathID)
 {
 	int    result = 0;
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		uint   pos = 0;
 		if(DbEntryList.lsearch(&dbPathID, &pos, CMPF_LONG)) {
 			result = BIN(((CDbEntry *)DbEntryList.at(pos))->State & stDeferred);
 		}
-		//RwL.Unlock();
 	}
 	return result;
 }
@@ -707,11 +677,9 @@ int SLAPI DbLocalCacheMng::HasDbEntry(long dbPathID)
 {
 	int    ok = 1;
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		uint   pos = 0;
 		ok = DbEntryList.lsearch(&dbPathID, &pos, CMPF_LONG);
-		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -736,14 +704,12 @@ int SLAPI DbLocalCacheMng::AddCache(long dbPathID, ObjCache * pCache)
 	int    ok = 0;
 	if(dbPathID) {
 		if(!GetCache(dbPathID, pCache->GetObjType())) {
-			//RwL.WriteLock();
 			SRWLOCKER(RwL, SReadWriteLocker::Write);
 			DbLocalCacheEntry entry;
 			entry.DbPathID = dbPathID;
 			entry.ObjType = pCache->GetObjType();
 			entry.P_Cache = pCache;
 			ok = ordInsert(&entry, 0, PTR_CMPFUNC(_2long)) ? 1 : PPSetErrorSLib();
-			//RwL.Unlock();
 		}
 		else {
 			SString msg_buf;
@@ -757,14 +723,12 @@ void * SLAPI DbLocalCacheMng::Helper_GetEntry(long dbPathID, PPID objType, int l
 {
 	void * p_entry = 0;
 	if(dbPathID) {
-		//if(lock) RwL.ReadLock();
 		SRWLOCKER(RwL, lock ? SReadWriteLocker::Read : SReadWriteLocker::None);
 		uint   pos = 0;
 		DbLocalCacheEntry key;
 		key.DbPathID = dbPathID;
 		key.ObjType = objType;
 		p_entry = bsearch(&key, &pos, PTR_CMPFUNC(_2long)) ? at(pos).P_Cache : 0;
-		//if(lock) RwL.Unlock();
 	}
 	return p_entry;
 }
@@ -809,7 +773,7 @@ PPAdviseEventQueue * FASTCALL DbLocalCacheMng::GetAdviseEventQueue(long dbPathID
 	return p_queue;
 }
 
-int SLAPI ObjCacheStat::Init()
+void SLAPI ObjCacheStat::Init()
 {
 	DbPathID = 0;
 	ObjType = 0;
@@ -822,9 +786,10 @@ int SLAPI ObjCacheStat::Init()
 	DirtyEntries = 0;
 	MaxCounter = 0;
 	MinCounter = 0;
+	SsSize = 0;    // @v9.9.5
+	SsDataLen = 0; // @v9.9.5
 	DbPath.Z();
 	ObjTypeName.Z();
-	return 1;
 }
 
 LDATETIME FASTCALL DbLocalCacheMng::GetLastUpdate(long dbPathID)
@@ -832,13 +797,11 @@ LDATETIME FASTCALL DbLocalCacheMng::GetLastUpdate(long dbPathID)
 	uint   pos = 0;
 	LDATETIME dtm;
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		if(DbEntryList.lsearch(&dbPathID, &pos, CMPF_LONG))
 			dtm = ((CDbEntry *)DbEntryList.at(pos))->LastCacheUpdate;
 		else
 			dtm.SetZero();
-		//RwL.Unlock();
 	}
 	return dtm;
 }
@@ -847,7 +810,6 @@ int SLAPI DbLocalCacheMng::SetLastUpdate(long dbPathID, LDATETIME dtm)
 {
 	uint   pos = 0;
 	{
-		//RwL.WriteLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		if(DbEntryList.lsearch(&dbPathID, &pos, CMPF_LONG)) {
 			((CDbEntry *)DbEntryList.at(pos))->LastCacheUpdate = dtm;
@@ -858,7 +820,6 @@ int SLAPI DbLocalCacheMng::SetLastUpdate(long dbPathID, LDATETIME dtm)
 			entry.LastCacheUpdate = dtm;
 			DbEntryList.insert(&entry);
 		}
-		//RwL.Unlock();
 	}
 	return 1;
 }
@@ -867,7 +828,6 @@ int SLAPI DbLocalCacheMng::GetCacheStat(uint pos, ObjCacheStat * pStat)
 {
 	int    ok = 0;
 	{
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		if(pos < getCount()) {
 			pStat->Init();
@@ -886,7 +846,6 @@ int SLAPI DbLocalCacheMng::GetCacheStat(uint pos, ObjCacheStat * pStat)
 				ok = 1;
 			}
 		}
-		//RwL.Unlock();
 	}
 	return 1;
 }
@@ -904,10 +863,10 @@ int SLAPI DbLocalCacheMng::LogCacheStat()
 			if(is_new_file) {
 				f_out.WriteLine(PPLoadTextS(PPTXT_LOGCACHEHEADER, out_buf));
 			}
+			ObjCacheStat stat;
 			LDATETIME dtm = getcurdatetime_();
 			dtm_buf.Cat(dtm);
 			for(uint i = 0; i < getCount(); i++) {
-				ObjCacheStat stat;
 				if(GetCacheStat(i, &stat) > 0) {
 					out_buf.Z();
 					out_buf.Cat(dtm_buf).Semicol();
@@ -922,6 +881,8 @@ int SLAPI DbLocalCacheMng::LogCacheStat()
 					out_buf.Cat(stat.UnusedEntries).Semicol();
 					out_buf.Cat((double)stat.UnusedEntries / (double)stat.NumEntries, MKSFMTD(0, 6, NMBF_NOTRAILZ)).Semicol();
 					out_buf.Cat(stat.DirtyEntries).Semicol();
+					out_buf.Cat(stat.SsSize).Semicol(); // @v9.9.5
+					out_buf.Cat(stat.SsDataLen).Semicol(); // @v9.9.5
 					out_buf.CR();
 					f_out.WriteLine(out_buf);
 				}

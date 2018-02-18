@@ -18,8 +18,8 @@ IMPL_CMPFUNC(_PcharNoCase, i1, i2)
 	if(*c == '*')
 		return stristr866(p, c+1) ? 0 : 1;
 	else {
-		size_t p_len = strlen(p);
-		size_t c_len = strlen(c);
+		size_t p_len = sstrlen(p);
+		size_t c_len = sstrlen(c);
 		int    r = strnicmp866(p, c, MIN(p_len, c_len));
 		return (r == 0 && p_len < c_len) ? -1 : r;
 	}

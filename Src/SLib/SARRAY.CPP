@@ -2586,7 +2586,7 @@ IMPL_CMPFUNC(StrAssoc_ByLength, i1, i2)
 	size_t ss_data_len = p_ss->getDataLen();
 	const char * p_str1 = (pos1 < ss_data_len) ? (p_ss->getBuf() + pos1) : stub;
 	const char * p_str2 = (pos2 < ss_data_len) ? (p_ss->getBuf() + pos2) : stub;
-	return cmp_ulong(strlen(p_str1), strlen(p_str2));
+	return cmp_ulong(sstrlen(p_str1), sstrlen(p_str2));
 }
 
 IMPL_CMPFUNC(StrAssoc_ByLength_Descend, i1, i2)
@@ -2599,7 +2599,7 @@ IMPL_CMPFUNC(StrAssoc_ByLength_Descend, i1, i2)
 	size_t ss_data_len = p_ss->getDataLen();
 	const char * p_str1 = (pos1 < ss_data_len) ? (p_ss->getBuf() + pos1) : stub;
 	const char * p_str2 = (pos2 < ss_data_len) ? (p_ss->getBuf() + pos2) : stub;
-	return cmp_ulong(strlen(p_str2), strlen(p_str1));
+	return cmp_ulong(sstrlen(p_str2), sstrlen(p_str1));
 }
 
 // static
@@ -3137,6 +3137,12 @@ void SLAPI LongArray::intersect(const UintHashTable * p)
 }
 
 #endif // } _WIN32_WCE
+
+LongArray & SLAPI LongArray::Z()
+{
+	clear();
+	return *this;
+}
 
 int SLAPI LongArray::freeByKey(long key, int binarySearch)
 {

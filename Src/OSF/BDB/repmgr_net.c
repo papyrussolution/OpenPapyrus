@@ -168,7 +168,7 @@ static int __repmgr_propose_version(ENV * env, REPMGR_CONNECTION * conn)
 	 *
 	 * To ensure its own sanity, the old repmgr would write a NUL into the
 	 * last byte of a received message, and then use normal C library string
-	 * operations (e.g., strlen, strcpy).
+	 * operations (e.g., sstrlen, strcpy).
 	 *
 	 * Now, a version proposal has a rec part that looks like this:
 	 *
@@ -178,7 +178,7 @@ static int __repmgr_propose_version(ENV * env, REPMGR_CONNECTION * conn)
 	 *
 	 * The "extra info" contains the version parameters, in marshaled form.
 	 */
-	hostname_len = strlen(my_addr->host);
+	hostname_len = sstrlen(my_addr->host);
 	rec_length = hostname_len+1+__REPMGR_VERSION_PROPOSAL_SIZE+1;
 	if((ret = __os_malloc(env, rec_length, &buf)) != 0)
 		goto out;
@@ -1502,7 +1502,7 @@ static uint fake_port(ENV * env, uint port)
 		goto err;
 	snprintf(buf, sizeof(buf), "{config,%u}\r\n", port);
 	iovec.iov_base = buf;
-	iovec.iov_len = (ulong)strlen(buf);
+	iovec.iov_len = (ulong)sstrlen(buf);
 	while((ret = __repmgr_writev(s, &iovec, 1, &count)) == 0) {
 		iovec.iov_base = (uint8 *)iovec.iov_base+count;
 		if((iovec.iov_len -= (ulong)count) == 0)

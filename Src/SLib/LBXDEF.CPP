@@ -430,7 +430,7 @@ void * FASTCALL StrAssocListBoxDef::getRow_(long r)
 	void * p_row = 0;
 	if(P_Data && r < (long)P_Data->getCount()) {
 		StrAssocArray::Item item = P_Data->at_WithoutParent(r); // at-->at_WithoutParent
-		size_t sz = sizeof(item.Id) + (item.Txt ? strlen(item.Txt)+1 : 1);
+		size_t sz = sizeof(item.Id) + sstrlen(item.Txt) + 1;
 		sz = MAX(sz, 512);
 		if(OneItem.Alloc(sz)) {
 			*(long *)OneItem.P_Buf = item.Id;

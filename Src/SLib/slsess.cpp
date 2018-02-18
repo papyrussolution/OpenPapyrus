@@ -139,7 +139,6 @@ int SLAPI SlSession::Construct()
 	// что Id изначально равен 0.
 	//
 	if(Id == 0) {
-		SessUuid.Generate(); // @v8.0.2 Генерируем абсолютно уникальный id сессии.
 		{
 #if (USE_ASMLIB > 0)
 			//
@@ -154,6 +153,9 @@ int SLAPI SlSession::Construct()
 			A_memmove(temp_buf1, temp_buf2, S);
 			A_memcpy(temp_buf2, temp_buf1, S);
 			A_memset(temp_buf2, '1', S/4);
+			temp_buf1[0] = 0;
+			//strcat(temp_buf1, "0");
+			//xeos_memchr(temp_buf1, '0', xeos_strlen(temp_buf1));
 			/* @v9.0.6
 			A_strlen(temp_buf2);
 			A_strcpy(temp_buf1, temp_buf2);
@@ -163,6 +165,7 @@ int SLAPI SlSession::Construct()
 			*/
 #endif
 		}
+		SessUuid.Generate(); // @v8.0.2 Генерируем абсолютно уникальный id сессии.
 		Id = 1;
 		TlsIdx = -1L;
 		// @v9.8.1 LastThread.Assign(0);
@@ -928,15 +931,8 @@ void SLAPI SlSession::LockPop()
 		r_tla.LckStk.Pop();
 }
 
-SString  & SLAPI SlSession::AcquireRvlStr()
-{
-	return GetTLA().RvlSStA.Get();
-}
-
-SStringU & SLAPI SlSession::AcquireRvlStrU()
-{
-	return GetTLA().RvlSStW.Get();
-}
+SString  & SLAPI SlSession::AcquireRvlStr() { return GetTLA().RvlSStA.Get(); }
+SStringU & SLAPI SlSession::AcquireRvlStrU() { return GetTLA().RvlSStW.Get(); }
 
 #if 0 // @v9.1.2 replaced by SetExtraProcBlock() {
 int SLAPI SlSession::SetGlobalSecureConfigFunc(GetGlobalSecureConfigFunc fProc)
@@ -1012,10 +1008,6 @@ SCodepage SLAPI SlSession::GetCodepage() const
 	return r_tla.CurrentCp;
 }
 
-
-#pragma warning(disable:4073)
-#pragma init_seg(lib)
-SlSession SLS; // @global
 //
 //
 //
@@ -1025,3 +1017,7 @@ void __LinkFile_HASHFUNC()
 {
 	RSHash("", 0);
 }
+
+#pragma warning(disable:4073)
+#pragma init_seg(lib)
+SlSession SLS; // @global

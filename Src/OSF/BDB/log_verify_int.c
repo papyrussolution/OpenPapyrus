@@ -963,7 +963,7 @@ static int __lv_dbt_str(const DBT * dbt, char ** str)
 	 * memory access violation.
 	 */
 	for(i = 0; i < dbt->size && buflen < bufsz; i++) {
-		buflen = (uint32)strlen(p);
+		buflen = (uint32)sstrlen(p);
 		snprintf(p+buflen, bufsz-(buflen+1), isprint(q[i]) || q[i] == 0x0a ? "%c" : "%x", q[i]);
 	}
 	*str = p;
@@ -975,25 +975,14 @@ static const char * __lv_dbtype_str(DBTYPE dbtype)
 {
 	char * p;
 	switch(dbtype) {
-	    case DB_BTREE:
-		p = "DB_BTREE";
-		break;
-	    case DB_HASH:
-		p = "DB_HASH";
-		break;
-	    case DB_RECNO:
-		p = "DB_RECNO";
-		break;
-	    case DB_QUEUE:
-		p = "DB_QUEUE";
-		break;
-	    default:
-		p = DB_STR_P("Unknown db type");
-		break;
+	    case DB_BTREE: p = "DB_BTREE"; break;
+	    case DB_HASH: p = "DB_HASH"; break;
+	    case DB_RECNO: p = "DB_RECNO"; break;
+	    case DB_QUEUE: p = "DB_QUEUE"; break;
+	    default: p = DB_STR_P("Unknown db type"); break;
 	}
 	return p;
 }
-
 /*
  * PUBLIC: int __dbreg_register_verify __P((ENV *, DBT *, DB_LSN *,
  * PUBLIC:     db_recops, void *));
@@ -1004,16 +993,13 @@ int __dbreg_register_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notu
 	DB_LOG_VRFY_INFO * lvh;
 	VRFY_FILEREG_INFO * fregp, freg;
 	VRFY_FILELIFE * pflife, flife;
-	int checklife, rmv_dblife, ret, ret2;
-	uint32 opcode;
-	char * puid;
-	const char * dbfname;
-
-	dbfname = NULL;
-	checklife = 1;
-	opcode = 0;
-	ret = ret2 = rmv_dblife = 0;
-	puid = NULL;
+	int rmv_dblife = 0;
+	int ret = 0;
+	int ret2 = 0;
+	const char * dbfname = NULL;
+	int checklife = 1;
+	uint32 opcode = 0;
+	char * puid = NULL;
 	notused2 = DB_TXN_LOG_VERIFY;
 	lvh = (DB_LOG_VRFY_INFO *)lvhp;
 	fregp = NULL;
@@ -1036,8 +1022,7 @@ int __dbreg_register_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notu
 	}
 	if(lvh->aborted_txnid != 0 && (ret = __lv_on_txn_aborted(lvh)) != 0)
 		goto err;
-	if((ret = __get_filereg_info(lvh, &(argp->uid), &fregp)) != 0 &&
-	   ret != DB_NOTFOUND)
+	if((ret = __get_filereg_info(lvh, &(argp->uid), &fregp)) != 0 && ret != DB_NOTFOUND)
 		goto err;
 	/*
 	 * When DBREG_CLOSE, we should remove the fileuid-filename mapping
@@ -1045,8 +1030,7 @@ int __dbreg_register_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notu
 	 * fileuid after closed.
 	 */
 	if(ret == 0 && IS_DBREG_CLOSE(opcode)) {
-		if((ret = __db_del(lvh->fileregs, lvh->ip, NULL,
-			    &(argp->uid), 0)) != 0)
+		if((ret = __db_del(lvh->fileregs, lvh->ip, NULL, &(argp->uid), 0)) != 0)
 			goto err;
 	}
 	/*
@@ -1118,8 +1102,7 @@ int __dbreg_register_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notu
 	 * Add dbregid if it's new, and store the file register info; or
 	 * remove dbregid from fregp if we are closing the file.
 	 */
-	if((ret = __add_dbregid(lvh, fregp, argp->fileid,
-		    opcode, *lsnp, argp->ftype, argp->meta_pgno, &ret2)) != 0)
+	if((ret = __add_dbregid(lvh, fregp, argp->fileid, opcode, *lsnp, argp->ftype, argp->meta_pgno, &ret2)) != 0)
 		goto err;
 	ret = ret2;
 	if(ret != 0 && ret != 1 && ret != 2 && ret != -1)
@@ -1184,14 +1167,13 @@ int __dbreg_register_verify(ENV * env, DBT * dbtp, DB_LSN * lsnp, db_recops notu
 	}
 	pflife->lifetime = opcode;
 	pflife->lsn = *lsnp;
-	if((!rmv_dblife && (ret = __put_filelife(lvh, pflife)) != 0) || ((rmv_dblife || IS_DBREG_CLOSE(opcode)) &&
-	    ((ret = __del_filelife(lvh, argp->fileid)) != 0)))
+	if((!rmv_dblife && (ret = __put_filelife(lvh, pflife)) != 0) || ((rmv_dblife || IS_DBREG_CLOSE(opcode)) && ((ret = __del_filelife(lvh, argp->fileid)) != 0)))
 		goto err;
 out:
 	/* There may be something to do here in future. */
 err:
 	__os_free(env, argp);
-	if(fregp != NULL && (ret2 = __free_filereg_info(fregp)) != 0 && ret == 0)
+	if(fregp && (ret2 = __free_filereg_info(fregp)) != 0 && ret == 0)
 		ret = ret2;
 	__os_free(env, freg.fname);
 	__os_free(env, pflife);

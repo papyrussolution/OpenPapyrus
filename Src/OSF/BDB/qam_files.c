@@ -481,14 +481,14 @@ int __qam_extent_names(ENV * env, char * name, char *** namelistp)
 	for(fp = filelist; fp->mpf != NULL; fp++)
 		cnt++;
 	// QUEUE_EXTENT contains extra chars, but add 6 anyway for the int
-	len = (size_t)cnt*(sizeof(**namelistp)+strlen(QUEUE_EXTENT)+strlen(qp->dir)+strlen(qp->name)+6);
+	len = (size_t)cnt*(sizeof(**namelistp)+sstrlen(QUEUE_EXTENT)+sstrlen(qp->dir)+sstrlen(qp->name)+6);
 	if((ret = __os_malloc(dbp->env, len, namelistp)) != 0)
 		goto done;
 	cp = *namelistp;
 	freep = (char *)(cp+cnt+1);
 	for(fp = filelist; fp->mpf != NULL; fp++) {
 		QAM_EXNAME(qp, fp->id, buf, sizeof(buf));
-		len = strlen(buf);
+		len = sstrlen(buf);
 		*cp++ = freep;
 		strcpy(freep, buf);
 		freep += len+1;
@@ -601,8 +601,8 @@ int __qam_nameop(DB*dbp, DB_TXN * txn, const char * newname, qam_name_op op)
 	}
 	++endname;
 	*endname = '\0';
-	len = strlen(endpath);
-	fulllen = strlen(fullname);
+	len = sstrlen(endpath);
+	fulllen = sstrlen(fullname);
 
 	/* Allocate space for a full extent name.  */
 	exlen = fulllen+20;

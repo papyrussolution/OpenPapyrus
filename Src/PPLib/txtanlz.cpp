@@ -2537,7 +2537,7 @@ int FASTCALL DecodeTokenizerResourceObj(const SString & rBuf, PPObjID & rOi)
 	const char * p_prefix = "#obj.";
 	if(scan.Is(p_prefix)) {
 		SString temp_buf;
-		scan.Incr(strlen(p_prefix));
+		scan.Incr(sstrlen(p_prefix));
 		if(scan.GetDigits(temp_buf)) {
 			rOi.Obj = temp_buf.ToLong();
 			if(scan[0] == '.') {

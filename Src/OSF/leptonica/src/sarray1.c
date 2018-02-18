@@ -1291,20 +1291,15 @@ SARRAY * sarrayRead(const char  * filename)
 {
 	FILE    * fp;
 	SARRAY  * sa;
-
 	PROCNAME("sarrayRead");
-
 	if(!filename)
 		return (SARRAY*)ERROR_PTR("filename not defined", procName, NULL);
-
 	if((fp = fopenReadStream(filename)) == NULL)
 		return (SARRAY*)ERROR_PTR("stream not opened", procName, NULL);
-
 	if((sa = sarrayReadStream(fp)) == NULL) {
 		fclose(fp);
 		return (SARRAY*)ERROR_PTR("sa not read", procName, NULL);
 	}
-
 	fclose(fp);
 	return sa;
 }
@@ -1609,19 +1604,15 @@ SARRAY * getNumberedPathnamesInDirectory(const char  * dirname,
 {
 	int32 nfiles;
 	SARRAY  * sa, * saout;
-
 	PROCNAME("getNumberedPathnamesInDirectory");
-
 	if(!dirname)
 		return (SARRAY*)ERROR_PTR("dirname not defined", procName, NULL);
-
 	if((sa = getSortedPathnamesInDirectory(dirname, substr, 0, 0)) == NULL)
 		return (SARRAY*)ERROR_PTR("sa not made", procName, NULL);
 	if((nfiles = sarrayGetCount(sa)) == 0) {
 		sarrayDestroy(&sa);
 		return sarrayCreate(1);
 	}
-
 	saout = convertSortedToNumberedPathnames(sa, numpre, numpost, maxnum);
 	sarrayDestroy(&sa);
 	return saout;
@@ -1647,20 +1638,14 @@ SARRAY * getNumberedPathnamesInDirectory(const char  * dirname,
  *          If no files are found after filtering, returns an empty sarray.
  * </pre>
  */
-SARRAY * getSortedPathnamesInDirectory(const char  * dirname,
-    const char  * substr,
-    int32 first,
-    int32 nfiles)
+SARRAY * getSortedPathnamesInDirectory(const char  * dirname, const char  * substr, int32 first, int32 nfiles)
 {
 	char    * fname, * fullname;
 	int32 i, n, last;
 	SARRAY  * sa, * safiles, * saout;
-
 	PROCNAME("getSortedPathnamesInDirectory");
-
 	if(!dirname)
 		return (SARRAY*)ERROR_PTR("dirname not defined", procName, NULL);
-
 	if((sa = getFilenamesInDirectory(dirname)) == NULL)
 		return (SARRAY*)ERROR_PTR("sa not made", procName, NULL);
 	safiles = sarraySelectBySubstring(sa, substr);
@@ -1670,21 +1655,17 @@ SARRAY * getSortedPathnamesInDirectory(const char  * dirname,
 		L_WARNING("no files found\n", procName);
 		return safiles;
 	}
-
 	sarraySort(safiles, safiles, L_SORT_INCREASING);
-
 	first = MIN(MAX(first, 0), n - 1);
 	if(nfiles == 0)
 		nfiles = n - first;
 	last = MIN(first + nfiles - 1, n - 1);
-
 	saout = sarrayCreate(last - first + 1);
 	for(i = first; i <= last; i++) {
 		fname = sarrayGetString(safiles, i, L_NOCOPY);
 		fullname = genPathname(dirname, fname);
 		sarrayAddString(saout, fullname, L_INSERT);
 	}
-
 	sarrayDestroy(&safiles);
 	return saout;
 }
@@ -1705,17 +1686,12 @@ SARRAY * getSortedPathnamesInDirectory(const char  * dirname,
  *          just has a number followed by an optional extension.
  * </pre>
  */
-SARRAY * convertSortedToNumberedPathnames(SARRAY   * sa,
-    int32 numpre,
-    int32 numpost,
-    int32 maxnum)
+SARRAY * convertSortedToNumberedPathnames(SARRAY   * sa, int32 numpre, int32 numpost, int32 maxnum)
 {
 	char    * fname, * str;
 	int32 i, nfiles, num, index;
 	SARRAY  * saout;
-
 	PROCNAME("convertSortedToNumberedPathnames");
-
 	if(!sa)
 		return (SARRAY*)ERROR_PTR("sa not defined", procName, NULL);
 	if((nfiles = sarrayGetCount(sa)) == 0)

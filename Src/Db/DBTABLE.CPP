@@ -454,7 +454,7 @@ int DBTable::Btr_Implement_InsertRec(int idx, void * pKeyBuf, const void * pData
 		}
 	}
 	else if(HasNote(&last_fld) > 0) {
-		size_t tail_len = strlen(((char*)P_DBuf) + FixRecSize);
+		size_t tail_len = sstrlen(((char*)P_DBuf) + FixRecSize);
 		if(tail_len > 0)
 			tail_len++;
 		retBufLen = (RECORDSIZE)(FixRecSize + tail_len);
@@ -543,7 +543,7 @@ int DBTable::Btr_Implement_UpdateRec(const void * pDataBuf, int ncc)
 		}
 	}
 	else if(HasNote(&last_fld) > 0) {
-		size_t tail_len = strlen(((char*)P_DBuf) + FixRecSize);
+		size_t tail_len = sstrlen(((char*)P_DBuf) + FixRecSize);
 		if(tail_len > 0)
 			tail_len++;
 		retBufLen = (RECORDSIZE)(FixRecSize + tail_len);
@@ -595,7 +595,7 @@ int SLAPI DBTable::unlock(int isAll)
 
 int SLAPI DBTable::Btr_Encrypt(char * pw, int protectMode)
 {
-	uint16 bl = (uint16)strlen(pw);
+	uint16 bl = (uint16)sstrlen(pw);
 	/*auto*/ int index = protectMode;
 	return Ret(BTRV(B_SETOWNER, FPB, pw, &bl, pw, WBTRVTAIL_Z));
 }

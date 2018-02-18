@@ -131,7 +131,7 @@ int SLAPI PPGoodsPacket::ValidateAddedMsgSign(const char * pSign, size_t signBuf
 	int    par_open = 0;
 	uint   in_par_count = 0;
 	if(!isempty(pSign)) {
-		const size_t len = strlen(pSign);
+		const size_t len = sstrlen(pSign);
 		if(signBufSize && len >= signBufSize)
 			ok = 0;
 		else {
@@ -191,7 +191,7 @@ int SLAPI PPGoodsPacket::PrepareAddedMsgStrings(const char * pSign, long flags, 
 	SString temp_buf, cat_buf;
 	rSet.clear();
 	if(PPGoodsPacket::ValidateAddedMsgSign(pSign, 0) > 0) {
-		const size_t sign_len = strlen(pSign);
+		const size_t sign_len = sstrlen(pSign);
 		for(size_t i = 0; i < sign_len; i++) {
 			int    fld_id = 0;
 			char   c = toupper(pSign[i]);
@@ -307,7 +307,7 @@ int SLAPI PPGdsClsDim::ToStr(int, char * pBuf, size_t bufLen)
 		double val = (double)ValList.at(i);
 		if(Scale != 0)
 			val = val / fpow10i((int)Scale);
-		p += strlen(realfmt(val, MKSFMTD(0, Scale, NMBF_NOTRAILZ), pBuf+p));
+		p += sstrlen(realfmt(val, MKSFMTD(0, Scale, NMBF_NOTRAILZ), pBuf+p));
 		if(bufLen > 0 && p >= (bufLen-8))
 			break;
 	}

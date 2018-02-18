@@ -108,7 +108,7 @@ int __qam_vrfy_meta(DB * dbp, VRFY_DBINFO * vdp, QMETA * meta, db_pgno_t pgno, u
 	__os_free(env, buf);
 	buf = NULL;
 
-	len = strlen(QUEUE_EXTENT_HEAD)+strlen(qp->name)+1;
+	len = sstrlen(QUEUE_EXTENT_HEAD)+sstrlen(qp->name)+1;
 	if((ret = __os_malloc(env, len, &buf)) != 0)
 		goto err;
 	len = (size_t)snprintf(buf, len, QUEUE_EXTENT_HEAD, qp->name);

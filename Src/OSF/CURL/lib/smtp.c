@@ -253,7 +253,7 @@ static void smtp_get_message(char * buffer, char ** outptr)
 	for(message = buffer + 4; *message == ' ' || *message == '\t'; message++)
 		;
 	// Find the end of the message
-	for(len = strlen(message); len--; )
+	for(len = sstrlen(message); len--; )
 		if(message[len] != '\r' && message[len] != '\n' && message[len] != ' ' && message[len] != '\t')
 			break;
 	// Terminate the message
@@ -581,7 +581,7 @@ static CURLcode smtp_state_ehlo_resp(struct connectdata * conn, int smtpcode, sm
 	struct Curl_easy * data = conn->data;
 	struct smtp_conn * smtpc = &conn->proto.smtpc;
 	const char * line = data->state.buffer;
-	size_t len = strlen(line);
+	size_t len = sstrlen(line);
 	size_t wordlen;
 	(void)instate; /* no use for this yet */
 	if(smtpcode/100 != 2 && smtpcode != 1) {
@@ -689,7 +689,7 @@ static CURLcode smtp_state_command_resp(struct connectdata * conn, int smtpcode,
 	struct Curl_easy * data = conn->data;
 	struct SMTP * smtp = (struct SMTP *)data->req.protop;
 	char * line = data->state.buffer;
-	size_t len = strlen(line);
+	size_t len = sstrlen(line);
 	(void)instate; /* no use for this yet */
 	if((smtp->rcpt && smtpcode/100 != 2 && smtpcode != 553 && smtpcode != 1) || (!smtp->rcpt && smtpcode/100 != 2 && smtpcode != 1)) {
 		failf(data, "Command failed: %d", smtpcode);
