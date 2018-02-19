@@ -1926,11 +1926,11 @@ int    FASTCALL isempty(const uchar * pStr) { return BIN(pStr == 0 || pStr[0] ==
 int    FASTCALL isempty(const wchar_t * pStr) { return BIN(pStr == 0 || pStr[0] == 0); }
 size_t FASTCALL sstrlen(const char * pStr) 
 { 
-	return (pStr && pStr[0]) ? xeos_strlen(pStr) : 0; 
+	return (pStr && pStr[0]) ? /*xeos_*/strlen(pStr) : 0; 
 }
 size_t FASTCALL sstrlen(const uchar * pStr) 
 { 
-	return (pStr && pStr[0]) ? xeos_strlen((const char *)pStr) : 0; 
+	return (pStr && pStr[0]) ? /*xeos_*/strlen((const char *)pStr) : 0; 
 }
 size_t FASTCALL sstrlen(const wchar_t * pStr) { return (pStr && pStr[0]) ? wcslen(pStr) : 0; }
 
@@ -2067,13 +2067,13 @@ char * FASTCALL newStr(const char * s)
 		return 0;
 }
 
-char * SLAPI wstrcpy(char * pDest, char * pSrc, size_t maxlen)
+/* @v9.9.5 (unused) char * SLAPI wstrcpy(char * pDest, char * pSrc, size_t maxlen)
 {
 	char * c = (char *)memchr(pSrc, ' ', maxlen);
 	ASSIGN_PTR(c, 0);
 	strncpy(pDest, pSrc, maxlen)[maxlen] = 0;
 	return pDest;
-}
+}*/
 
 char * FASTCALL sstrcpy(char * pDest, const char * pSrc) { return strcpy(pDest, pSrc); }
 uchar * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc) { return (uchar *)strcpy((char *)pDest, (const char *)pSrc); }
@@ -2085,7 +2085,7 @@ char * FASTCALL strnzcpy(char * dest, const char * src, size_t maxlen)
 	if(dest)
 		if(src)
 			if(maxlen) {
-				const char * p = (const char *)xeos_memchr(src, 0, maxlen);
+				const char * p = (const char *)/*xeos_*/memchr(src, 0, maxlen);
 				if(p)
 					memcpy(dest, src, (size_t)(p - src)+1);
 				else {

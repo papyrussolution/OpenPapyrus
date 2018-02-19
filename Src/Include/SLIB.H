@@ -4186,7 +4186,7 @@ char * FASTCALL strnzcpy(char * pDest, const char * pSrc, size_t maxlen);
 char * FASTCALL strnzcpy(char * pDest, const uchar * pSrc, size_t maxlen);
 char * FASTCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
 wchar_t * FASTCALL strnzcpy(wchar_t * pDest, const wchar_t * pSrc, size_t maxlen);
-char * SLAPI    wstrcpy(char * pDest, const char * pSrc, size_t maxlen);
+// @v9.9.5 (unused) char * SLAPI    wstrcpy(char * pDest, const char * pSrc, size_t maxlen);
 char    * FASTCALL sstrcpy(char * pDest, const char * pSrc);
 uchar   * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc);
 wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc);

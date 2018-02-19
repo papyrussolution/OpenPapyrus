@@ -1064,7 +1064,8 @@ int FASTCALL UintHashTable::Has(ulong val) const
 		const UhtBlock * p_blk = (UhtBlock *)List.at(pos);
 		return BIN(p_blk->Busy & (1 << (val % 32)));
 	}
-	return 0;
+	else
+		return 0;
 }
 
 uint UintHashTable::GetCount() const
@@ -1744,11 +1745,11 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 #if (defined(__i386__) || defined(__x86_64__)  || defined(_M_IX86))
 #define MUR_GETBLOCK(p, i) p[i]
 #else /* non intel */
-#define MUR_PLUS0_ALIGNED(p) (((unsigned long)p & 0x3) == 0)
-#define MUR_PLUS1_ALIGNED(p) (((unsigned long)p & 0x3) == 1)
-#define MUR_PLUS2_ALIGNED(p) (((unsigned long)p & 0x3) == 2)
-#define MUR_PLUS3_ALIGNED(p) (((unsigned long)p & 0x3) == 3)
-#define WP(p) ((uint32_t*)((unsigned long)(p) & ~3UL))
+#define MUR_PLUS0_ALIGNED(p) (((ulong)p & 0x3) == 0)
+#define MUR_PLUS1_ALIGNED(p) (((ulong)p & 0x3) == 1)
+#define MUR_PLUS2_ALIGNED(p) (((ulong)p & 0x3) == 2)
+#define MUR_PLUS3_ALIGNED(p) (((ulong)p & 0x3) == 3)
+#define WP(p) ((uint32_t*)((ulong)(p) & ~3UL))
 #if (defined(__BIG_ENDIAN__) || defined(SPARC) || defined(__ppc__) || defined(__ppc64__))
 #define MUR_THREE_ONE(p) ((((*WP(p))&0x00ffffff) << 8) | (((*(WP(p)+1))&0xff000000) >> 24))
 #define MUR_TWO_TWO(p)   ((((*WP(p))&0x0000ffff) <<16) | (((*(WP(p)+1))&0xffff0000) >> 16))

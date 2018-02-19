@@ -1009,6 +1009,10 @@ library PapyrusInterfaceLib version(1.1) {
 		//   Массив идентификаторов найденных объектов
 		//
 		ILongList * SearchObjectsByTagStrExactly(in PpyObjectIdent objType, in long tagID, in string pattern);
+		//
+		// Descr: Возвращает список складов, ассоциированных с конфигурацией обмена данными поставщика
+		//
+		ILongList * GetSupplInterchangeLocList(in long supplID); // @v9.9.5
 	}
 	//
 	// Descr: Зарезервированные теги объектов

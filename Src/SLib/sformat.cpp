@@ -460,14 +460,12 @@ char * SLAPI datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, siz
 int SLAPI strtotime(const char * pBuf, long fmt, void * v)
 {
 	int    i = 0;
-	long   sDIV = 0x003B3A20L; /* " :;" */
 	char   b[64];
-	char * p = strtok(strip(strcpy(b, pBuf)), (char*)&sDIV);
+	char * p = strtok(strip(strcpy(b, pBuf)), " :;");
 	*(long *)v = 0L;
-	if(p)
-		do {
-			((char *)v)[3-i] = atoi(p);
-		} while(++i < 4 && (p = strtok(NULL, (char*)&sDIV)) != 0);
+	if(p) do {
+		((char *)v)[3-i] = atoi(p);
+	} while(++i < 4 && (p = strtok(NULL, " :;")) != 0);
 	return 1;
 }
 //

@@ -91,10 +91,7 @@ SLAPI PPViewGoodsTrnovr::~PPViewGoodsTrnovr()
 	delete P_Items;
 }
 
-const GoodsTrnovrFilt * SLAPI PPViewGoodsTrnovr::GetFilt() const
-{
-	return &Filt;
-}
+const GoodsTrnovrFilt * SLAPI PPViewGoodsTrnovr::GetFilt() const { return &Filt; }
 
 int SLAPI PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 {

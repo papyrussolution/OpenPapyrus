@@ -1666,6 +1666,26 @@ int32 DL6ICLS_PPUtil::GetSupplInterchangeConfig(int32 supplID, PpySupplInterchan
 	return result;
 }
 
+ILongList * DL6ICLS_PPUtil::GetSupplInterchangeLocList(int32 supplID)
+{
+	IUnknown * p = 0;
+	LongArray * p_id_list = 0;
+	THROW(CreateInnerInstance("LongList", "ILongList", (void **)&p));
+	THROW(p_id_list = (LongArray *)SCoClass::GetExtraPtrByInterface(p));
+	{
+		PPSupplAgreement agt;
+		if(PPObjArticle::GetSupplAgreement(supplID, &agt, 0) > 0) {
+			LongArray * p_inner_list = agt.Ep.WhList.GetP();
+			RVALUEPTR(*p_id_list, p_inner_list);
+		}
+	}
+	CATCH
+		ReleaseUnknObj(&p);
+		AppError = 1;
+	ENDCATCH
+	return (ILongList*)p;
+}
+
 int32 DL6ICLS_PPUtil::UniformFileTransm(SString & srcUrl, SString & destUrl, int32 flags, IFileFormat iff, SString & accsName, SString & accsPassw)
 {
 	SUniformFileTransmParam param;
@@ -6767,15 +6787,8 @@ IStrAssocList * DL6ICLS_PPObjPersonRelType::GetSelector(int32 extraParam)
 	return p;
 }
 
-int32 DL6ICLS_PPObjPersonRelType::Create(PPYOBJREC pRec, int32 flags, int32* pID)
-{
-	return FuncNotSupported();
-}
-
-int32 DL6ICLS_PPObjPersonRelType::Update(int32 id, int32 flags, PPYOBJREC rec)
-{
-	return FuncNotSupported();
-}
+int32 DL6ICLS_PPObjPersonRelType::Create(PPYOBJREC pRec, int32 flags, int32* pID) { return FuncNotSupported(); }
+int32 DL6ICLS_PPObjPersonRelType::Update(int32 id, int32 flags, PPYOBJREC rec) { return FuncNotSupported(); }
 
 DL6_IC_CONSTRUCTION_EXTRA(PPPersonRelTypePacket, DL6ICLS_PPPersonRelTypePacket_VTab, PPPersonRelTypePacket);
 //
@@ -6964,10 +6977,7 @@ int32 DL6ICLS_PPObjPrjTask::Search(int32 id, PPYOBJREC pRec)
 	return ok;
 }
 
-int32 DL6ICLS_PPObjPrjTask::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
-{
-	return FuncNotSupported();
-}
+int32 DL6ICLS_PPObjPrjTask::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec) { return FuncNotSupported(); }
 
 SString & DL6ICLS_PPObjPrjTask::GetName(int32 id)
 {
@@ -7208,11 +7218,6 @@ int32 DL6ICLS_PPObjBrand::Search(int32 id, PPYOBJREC pRec)
 	return ok;
 }
 
-int32 DL6ICLS_PPObjBrand::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
-{
-	return FuncNotSupported();
-}
-
 SString & DL6ICLS_PPObjBrand::GetName(int32 id)
 {
 	AppError = 1;
@@ -7226,15 +7231,9 @@ IStrAssocList* DL6ICLS_PPObjBrand::GetSelector(int32 extraParam)
 	return p;
 }
 
-int32 DL6ICLS_PPObjBrand::Create(PPYOBJREC pRec, int32 flags, int32* pID)
-{
-	return FuncNotSupported();
-}
-
-int32 DL6ICLS_PPObjBrand::Update(int32 id, int32 flags, PPYOBJREC pRec)
-{
-	return FuncNotSupported();
-}
+int32 DL6ICLS_PPObjBrand::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec) { return FuncNotSupported(); }
+int32 DL6ICLS_PPObjBrand::Create(PPYOBJREC pRec, int32 flags, int32* pID) { return FuncNotSupported(); }
+int32 DL6ICLS_PPObjBrand::Update(int32 id, int32 flags, PPYOBJREC pRec) { return FuncNotSupported(); }
 // } PPObjBrand
 //
 // PPObjQCert
@@ -7300,11 +7299,6 @@ int32 DL6ICLS_PPObjQCert::Search(int32 id, PPYOBJREC pRec)
 	return ok;
 }
 
-int32 DL6ICLS_PPObjQCert::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec)
-{
-	return FuncNotSupported();
-}
-
 SString & DL6ICLS_PPObjQCert::GetName(int32 id)
 {
 	AppError = 1;
@@ -7318,15 +7312,9 @@ IStrAssocList* DL6ICLS_PPObjQCert::GetSelector(int32 extraParam)
 	return p;
 }
 
-int32 DL6ICLS_PPObjQCert::Create(PPYOBJREC pRec, int32 flags, int32* pID)
-{
-	return FuncNotSupported();
-}
-
-int32 DL6ICLS_PPObjQCert::Update(int32 id, int32 flags, PPYOBJREC pRec)
-{
-	return FuncNotSupported();
-}
+int32 DL6ICLS_PPObjQCert::SearchByName(SString & text, int32 kind, int32 extraParam, PPYOBJREC rec) { return FuncNotSupported(); }
+int32 DL6ICLS_PPObjQCert::Create(PPYOBJREC pRec, int32 flags, int32* pID) { return FuncNotSupported(); }
+int32 DL6ICLS_PPObjQCert::Update(int32 id, int32 flags, PPYOBJREC pRec) { return FuncNotSupported(); }
 // } PPObjQCert
 //
 // PPFiltCCheck {

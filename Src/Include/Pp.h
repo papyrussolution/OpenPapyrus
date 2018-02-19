@@ -6784,7 +6784,7 @@ public:
 	//
 	SEnumImp * EnumRFileInfo();
 
-	int    SLAPI SetLocation(PPID locID);
+	int    SLAPI SetLocation(PPID locID, int notInteractive = 0);
 	void   SLAPI SetOperDate(LDATE);
 	void   SLAPI SetCurCashNodeID(PPID);
 	void   SLAPI SetDefBillCashID(PPID);

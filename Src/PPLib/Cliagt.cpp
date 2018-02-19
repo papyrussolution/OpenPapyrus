@@ -831,6 +831,7 @@ int FASTCALL PPSupplAgreement::ExchangeParam::Copy(const PPSupplAgreement::Excha
 	CPY_FLD(Fb);
 #undef CPY_FLD
 	DebtDimList = rS.DebtDimList; // @v9.1.3
+	WhList = rS.WhList; // @v9.9.5
 	return 1;
 }
 
@@ -1599,9 +1600,13 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 		ObjTagFilt LocTagFlt;
 		ObjTagFilt BillTagFlt;
 	public:
+		enum {
+			ctlgroupLoc = 1
+		};
 		SupplExpOpListDialog() : PPListDialog(DLG_SUPPLEOPS, CTL_SUPPLEOPS_DBTDIM),
 			PsnTagFlt(PPOBJ_PERSON), LocTagFlt(PPOBJ_LOCATION), BillTagFlt(PPOBJ_BILL)
 		{
+			addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_SUPPLEOPS_LOC, 0, 0, cmLocList, 0, 0, 0)); // @v9.9.5 
 		}
 		int    setDTS(const PPSupplAgreement::ExchangeParam * pData)
 		{
@@ -1634,6 +1639,12 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_MOVOUT, Data.MovOutOp, 0, &op_list_movout, OPKLF_OPLIST);
 				SetupOprKindCombo(this, CTLSEL_SUPPLEOPS_MOVIN, Data.MovInOp, 0, &op_list_movin, OPKLF_OPLIST);
 			}
+			// @v9.9.5 {
+			{
+				LocationCtrlGroup::Rec l_rec(&Data.WhList);
+				setGroupData(ctlgroupLoc, &l_rec);
+			}
+			// } @v9.9.5 
 			/* @v9.7.2
 			// Приход товара
 			{
@@ -1691,6 +1702,13 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 			getCtrlData(CTLSEL_SUPPLEOPS_RET,       &Data.RetOp);
 			getCtrlData(CTLSEL_SUPPLEOPS_MOVOUT,    &Data.MovOutOp);
 			getCtrlData(CTLSEL_SUPPLEOPS_MOVIN,     &Data.MovInOp);
+			// @v9.9.5 {
+			{
+				LocationCtrlGroup::Rec l_rec;
+				getGroupData(ctlgroupLoc, &l_rec);
+				Data.WhList = l_rec.LocList;
+			}
+			// } @v9.9.5 
 			getCtrlData(CTLSEL_SUPPLEOPS_UNIT,      &Data.Fb.DefUnitID); // @v9.2.4
 			getCtrlData(CTLSEL_SUPPLEOPS_CLICTAG,   &Data.Fb.CliCodeTagID); // @v9.4.4
 			getCtrlData(CTLSEL_SUPPLEOPS_LOCCTAG,   &Data.Fb.LocCodeTagID); // @v9.4.4

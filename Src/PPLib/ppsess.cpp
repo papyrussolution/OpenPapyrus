@@ -2811,7 +2811,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 			else if(r_cc.MainOrgID)
 				SetMainOrgID(r_cc.MainOrgID, 1);
 			if(r_lc.Location)
-				SetLocation(r_lc.Location);
+				SetLocation(r_lc.Location, 1 /*notInteractive*/);
 			if(r_lc.DBDiv) {
 				r_tla.CurDbDivName.Id = r_lc.DBDiv;
 				GetObjectName(PPOBJ_DBDIV, r_lc.DBDiv, r_tla.CurDbDivName);
@@ -3663,11 +3663,12 @@ SVerT SLAPI PPSession::GetVersion() const
 	return _ver.GetVersion(0);
 }
 
-int SLAPI PPSession::SetLocation(PPID locID)
+int SLAPI PPSession::SetLocation(PPID locID, int notInteractive /*= 0*/)
 {
 	int    ok = 1;
 	LocationTbl::Rec rec;
-	if(SearchObject(PPOBJ_LOCATION, locID, &rec) > 0) {
+	PPObjLocation loc_obj;
+	if(loc_obj.Fetch(locID, &rec) > 0) {
 		GetTLA().Lc.Location = locID;
 		SETFLAG(GetTLA().Lc.State, CFGST_WAREHOUSE, rec.Type == LOCTYP_WAREHOUSE);
 	}
@@ -3675,7 +3676,8 @@ int SLAPI PPSession::SetLocation(PPID locID)
 		GetTLA().Lc.Location = 0;
 		ok = 0;
 	}
-	StatusWinChange(); // @UI
+	if(!notInteractive)
+		StatusWinChange(); // @UI
 	return ok;
 }
 
