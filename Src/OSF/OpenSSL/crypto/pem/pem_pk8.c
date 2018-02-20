@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/pkcs12.h>
+//#include <openssl/pkcs12.h>
 
 static int do_pk8pkey(BIO * bp, EVP_PKEY * x, int isder,
     int nid, const EVP_CIPHER * enc,

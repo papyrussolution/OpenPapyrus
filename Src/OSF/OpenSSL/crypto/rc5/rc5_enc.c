@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/rc5.h>
+//#include <openssl/rc5.h>
 #include "rc5_locl.h"
 
 void RC5_32_cbc_encrypt(const uchar * in, uchar * out, long length, RC5_32_KEY * ks, uchar * iv, int encrypt)

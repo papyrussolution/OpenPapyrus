@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/pkcs12.h>
+//#include <openssl/pkcs12.h>
 
 int pem_check_suffix(const char * pem_str, const char * suffix);
 

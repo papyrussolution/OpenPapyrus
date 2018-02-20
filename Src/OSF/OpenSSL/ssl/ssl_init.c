@@ -141,12 +141,10 @@ static void ssl_library_stop(void)
 	if(stopped)
 		return;
 	stopped = 1;
-
 	if(ssl_base_inited) {
 #ifndef OPENSSL_NO_COMP
 # ifdef OPENSSL_INIT_DEBUG
-		fprintf(stderr, "OPENSSL_INIT: ssl_library_stop: "
-		    "ssl_comp_free_compression_methods_int()\n");
+		fprintf(stderr, "OPENSSL_INIT: ssl_library_stop: ssl_comp_free_compression_methods_int()\n");
 # endif
 		ssl_comp_free_compression_methods_int();
 #endif
@@ -154,8 +152,7 @@ static void ssl_library_stop(void)
 
 	if(ssl_strings_inited) {
 #ifdef OPENSSL_INIT_DEBUG
-		fprintf(stderr, "OPENSSL_INIT: ssl_library_stop: "
-		    "err_free_strings_int()\n");
+		fprintf(stderr, "OPENSSL_INIT: ssl_library_stop: err_free_strings_int()\n");
 #endif
 		/*
 		 * If both crypto and ssl error strings are inited we will end up

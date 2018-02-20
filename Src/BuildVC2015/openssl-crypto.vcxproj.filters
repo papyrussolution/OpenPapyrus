@@ -636,12 +636,6 @@
     <ClInclude Include="..\OSF\OpenSSL\include\openssl\comp.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\OpenSSL\include\internal\comp.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\OpenSSL\include\internal\conf.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\OSF\OpenSSL\include\openssl\conf.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -667,9 +661,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\OpenSSL\include\openssl\dsa.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\OSF\OpenSSL\include\internal\dso.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\OpenSSL\include\openssl\cms.h">
@@ -864,7 +855,187 @@
     <ClInclude Include="..\OSF\OpenSSL\include\internal\cryptlib.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\OpenSSL\include\internal\cryptlib_int.h">
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\aes_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\arm_arch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\asn1_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\async_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\async_null.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\async_posix.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\async_win.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\bf_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\bf_pi.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\bio_lcl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\blake2_impl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\blake2_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\bn_lcl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\bn_prime.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\cast_lcl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\cast_s.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\charmap.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\cmll_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\cms_lcl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\comp_lcl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\conf_def.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\ct_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\des_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\dh_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\dsa_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\dso_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\ec_lcl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\eng_int.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\evp_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\ext_dat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\hmac_lcl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\idea_lcl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\lhash_lcl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\md4_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\md5_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\modes_lcl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\obj_dat.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\obj_lcl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\obj_xref.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\ocsp_lcl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\p12_lcl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\pcy_int.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\ppc_arch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rand_lcl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rc2_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rc4_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rc5_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rmd_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rmdconst.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rpc_des.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rsa_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rsaz_exp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\seed_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\sha_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\sparc_arch.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\spr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\ts_lcl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\ui_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\vms_rms.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\wp_locl.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\x509_lcl.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

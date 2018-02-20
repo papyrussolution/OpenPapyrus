@@ -126,7 +126,7 @@ void SLAPI SlThreadLocalArea::RemoveTempFiles()
 	TempFileList = temp_list;
 }
 
-SLAPI SlSession::SlSession() : SSys(1), GlobSymbList(512, 0) // @v9.8.1 256-->512
+SLAPI SlSession::SlSession() : SSys(1), Id(0), TlsIdx(-1), StopFlag(0), P_StopEvnt(0), DragndropObjIdx(0), GlobSymbList(512, 0) // @v9.8.1 256-->512
 {
 	Construct();
 }
@@ -165,13 +165,12 @@ int SLAPI SlSession::Construct()
 			*/
 #endif
 		}
-		SessUuid.Generate(); // @v8.0.2 Генерируем абсолютно уникальный id сессии.
 		Id = 1;
-		TlsIdx = -1L;
+		// (ctr) TlsIdx = -1L;
 		// @v9.8.1 LastThread.Assign(0);
 		WsaInitCounter = 0;
-		StopFlag = 0;
-		DragndropObjIdx = 0;
+		// (ctr) StopFlag = 0;
+		// (ctr) DragndropObjIdx = 0;
 		ExtraProcBlk.Reset();
 		/* @v9.1.2 replaced by ExtraProcBlk
 		F_LoadString = 0;
@@ -179,9 +178,10 @@ int SLAPI SlSession::Construct()
 		F_CallHelp = 0;
 		F_GetGlobalSecureConfig = 0; // @v7.6.7
 		*/
-		P_StopEvnt = 0;
+		// (ctr) P_StopEvnt = 0;
 		HelpCookie = 0;
 		UiLanguageId = 0; // @v8.9.10
+		SessUuid.Generate(); // @v8.0.2 Генерируем абсолютно уникальный id сессии.
 		TlsIdx = TlsAlloc();
 		InitThread();
 		ok = 1;

@@ -6,13 +6,11 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 /*
  * This structure holds all parameters associated with a verify operation by
  * including an X509_VERIFY_PARAM structure in related structures the
  * parameters used can be customized
  */
-
 struct X509_VERIFY_PARAM_st {
 	char * name;
 	time_t check_time;      /* Time to use */
@@ -47,14 +45,12 @@ struct X509_extension_st {
 	ASN1_BOOLEAN critical;
 	ASN1_OCTET_STRING value;
 };
-
 /*
  * Method to handle CRL access. In general a CRL could be very large (several
  * Mb) and can consume large amounts of resources if stored in memory by
  * multiple processes. This method allows general CRL operations to be
  * redirected to more efficient callbacks: for example a CRL entry database.
  */
-
 #define X509_CRL_METHOD_DYNAMIC         1
 
 struct x509_crl_method_st {
@@ -72,18 +68,11 @@ struct x509_lookup_method_st {
 	void (* free)(X509_LOOKUP * ctx);
 	int (* init)(X509_LOOKUP * ctx);
 	int (* shutdown)(X509_LOOKUP * ctx);
-	int (* ctrl)(X509_LOOKUP * ctx, int cmd, const char * argc, long argl,
-	    char ** ret);
-	int (* get_by_subject)(X509_LOOKUP * ctx, X509_LOOKUP_TYPE type,
-	    X509_NAME * name, X509_OBJECT * ret);
-	int (* get_by_issuer_serial)(X509_LOOKUP * ctx, X509_LOOKUP_TYPE type,
-	    X509_NAME * name, ASN1_INTEGER * serial,
-	    X509_OBJECT * ret);
-	int (* get_by_fingerprint)(X509_LOOKUP * ctx, X509_LOOKUP_TYPE type,
-	    const unsigned char * bytes, int len,
-	    X509_OBJECT * ret);
-	int (* get_by_alias)(X509_LOOKUP * ctx, X509_LOOKUP_TYPE type,
-	    const char * str, int len, X509_OBJECT * ret);
+	int (* ctrl)(X509_LOOKUP * ctx, int cmd, const char * argc, long argl, char ** ret);
+	int (* get_by_subject)(X509_LOOKUP * ctx, X509_LOOKUP_TYPE type, X509_NAME * name, X509_OBJECT * ret);
+	int (* get_by_issuer_serial)(X509_LOOKUP * ctx, X509_LOOKUP_TYPE type, X509_NAME * name, ASN1_INTEGER * serial, X509_OBJECT * ret);
+	int (* get_by_fingerprint)(X509_LOOKUP * ctx, X509_LOOKUP_TYPE type, const unsigned char * bytes, int len, X509_OBJECT * ret);
+	int (* get_by_alias)(X509_LOOKUP * ctx, X509_LOOKUP_TYPE type, const char * str, int len, X509_OBJECT * ret);
 };
 
 /* This is the functions plus an instance of the local variables. */

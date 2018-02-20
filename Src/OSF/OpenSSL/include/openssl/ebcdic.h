@@ -10,7 +10,7 @@
 #ifndef HEADER_EBCDIC_H
 #define HEADER_EBCDIC_H
 
-#include <stdlib.h>
+//#include <stdlib.h>
 
 #ifdef  __cplusplus
 extern "C" {

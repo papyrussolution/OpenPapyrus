@@ -10,18 +10,17 @@
 #pragma hdrstop
 
 #ifdef OPENSSL_SYS_VMS
-# if __CRTL_VER >= 70000000 && \
-	(defined _POSIX_C_SOURCE || !defined _ANSI_C_SOURCE)
+# if __CRTL_VER >= 70000000 && (defined _POSIX_C_SOURCE || !defined _ANSI_C_SOURCE)
 #define VMS_GMTIME_OK
 # endif
-# ifndef VMS_GMTIME_OK
-#  include <libdtdef.h>
-#  include <lib$routines.h>
-#  include <lnmdef.h>
-#  include <starlet.h>
-#  include <descrip.h>
-#  include <stdlib.h>
-# endif                         /* ndef VMS_GMTIME_OK */
+#ifndef VMS_GMTIME_OK
+	#include <libdtdef.h>
+	#include <lib$routines.h>
+	#include <lnmdef.h>
+	#include <starlet.h>
+	#include <descrip.h>
+	//#include <stdlib.h>
+#endif                         /* ndef VMS_GMTIME_OK */
 
 /*
  * Needed to pick up the correct definitions and declarations in some of the
@@ -228,33 +227,24 @@ int OPENSSL_gmtime_adj(struct tm * tm, int off_day, long offset_sec)
 {
 	int time_sec, time_year, time_month, time_day;
 	long time_jd;
-
 	/* Convert time and offset into Julian day and seconds */
 	if(!julian_adj(tm, off_day, offset_sec, &time_jd, &time_sec))
 		return 0;
-
 	/* Convert Julian day back to date */
-
 	julian_to_date(time_jd, &time_year, &time_month, &time_day);
-
 	if(time_year < 1900 || time_year > 9999)
 		return 0;
-
 	/* Update tm structure */
-
 	tm->tm_year = time_year - 1900;
 	tm->tm_mon = time_month - 1;
 	tm->tm_mday = time_day;
-
 	tm->tm_hour = time_sec / 3600;
 	tm->tm_min = (time_sec / 60) % 60;
 	tm->tm_sec = time_sec % 60;
-
 	return 1;
 }
 
-int OPENSSL_gmtime_diff(int * pday, int * psec,
-    const struct tm * from, const struct tm * to)
+int OPENSSL_gmtime_diff(int * pday, int * psec, const struct tm * from, const struct tm * to)
 {
 	int from_sec, to_sec, diff_sec;
 	long from_jd, to_jd, diff_day;
@@ -273,10 +263,8 @@ int OPENSSL_gmtime_diff(int * pday, int * psec,
 		diff_day++;
 		diff_sec -= SECS_PER_DAY;
 	}
-	if(pday)
-		*pday = (int)diff_day;
-	if(psec)
-		*psec = diff_sec;
+	ASSIGN_PTR(pday, (int)diff_day);
+	ASSIGN_PTR(psec, diff_sec);
 	return 1;
 }
 
@@ -302,23 +290,17 @@ static int julian_adj(const struct tm * tm, int off_day, long offset_sec, long *
 		offset_day--;
 		offset_hms += SECS_PER_DAY;
 	}
-
 	/*
 	 * Convert date of time structure into a Julian day number.
 	 */
-
 	time_year = tm->tm_year + 1900;
 	time_month = tm->tm_mon + 1;
 	time_day = tm->tm_mday;
-
 	time_jd = date_to_julian(time_year, time_month, time_day);
-
 	/* Work out Julian day of new date */
 	time_jd += offset_day;
-
 	if(time_jd < 0)
 		return 0;
-
 	*pday = time_jd;
 	*psec = offset_hms;
 	return 1;
@@ -329,9 +311,7 @@ static int julian_adj(const struct tm * tm, int off_day, long offset_sec, long *
  */
 static long date_to_julian(int y, int m, int d)
 {
-	return (1461 * (y + 4800 + (m - 14) / 12)) / 4 +
-	       (367 * (m - 2 - 12 * ((m - 14) / 12))) / 12 -
-	       (3 * ((y + 4900 + (m - 14) / 12) / 100)) / 4 + d - 32075;
+	return (1461 * (y + 4800 + (m - 14) / 12)) / 4 + (367 * (m - 2 - 12 * ((m - 14) / 12))) / 12 - (3 * ((y + 4900 + (m - 14) / 12) / 100)) / 4 + d - 32075;
 }
 
 static void julian_to_date(long jd, int * y, int * m, int * d)
@@ -339,7 +319,6 @@ static void julian_to_date(long jd, int * y, int * m, int * d)
 	long L = jd + 68569;
 	long n = (4 * L) / 146097;
 	long i, j;
-
 	L = L - (146097 * n + 3) / 4;
 	i = (4000 * (L + 1)) / 1461001;
 	L = L - (1461 * i) / 4 + 31;

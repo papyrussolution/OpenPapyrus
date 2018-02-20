@@ -490,7 +490,11 @@ typedef int (FASTCALL * OutpFunc)(const void * pData, long fmt, SString & rBuf);
 #include <asmlib.h>
 
 extern "C" void * cdecl xeos_memchr(const void * s, int c, size_t n);
-extern "C" size_t cdecl xeos_strlen(const char * s);
+extern "C" void * cdecl xeos_memchr32(const void * s, int c, size_t n);
+extern "C" void * cdecl xeos_memchr32_sse2(const void * s, int c, size_t n);
+extern "C" uint   cdecl xeos_strlen(const char * s);
+extern "C" uint   cdecl xeos_strlen32(const char * s);
+extern "C" uint   cdecl xeos_strlen32_sse2(const char * s);
 
 #if USE_ASMLIB
 	#define memcpy   A_memcpy
@@ -503,13 +507,6 @@ extern "C" size_t cdecl xeos_strlen(const char * s);
 	//#define stricmp  A_stricmp
 	//#define strstr   A_strstr
 	//
-	// Использование xeos_memchr и xeos_strlen вместо штатных memchr и strlen дает около 20% приращения производительности
-	// исполнения этих операций. Однако, тупая замена define'ом приводит к тому, что при запуске сеанса без отладочной
-	// информации что-то происходит в run-time'е и сеанс падает.
-	// Следовательно, для продуктивного применения понадобятся дополнительные исследования.
-	//
-	//#define memchr   xeos_memchr // @v9.9.5
-	//#define strlen   xeos_strlen // @v9.9.5
 #endif
 
 class SAlloc {
@@ -7817,7 +7814,9 @@ public:
 		cpucsSSE42     = 10, // or above = SSE4.2 supported
 		cpucsAVX       = 11, // or above = AVX supported by processor and operating system
 		cpucsPCLMUL    = 12, // or above = PCLMUL and AES supported
-		cpucsAVX2      = 13  // or above = AVX2 supported
+		cpucsAVX2      = 13, // or above = AVX2 supported
+		cpucsFMA3_F16C_BMI1_BMI2_LZCNT = 14, // @v9.9.6 or above = FMA3, F16C, BMI1, BMI2, LZCNT
+		cpucsAVVX512F  = 15, // @v9.9.6 or above = AVVX512F
 	};
 	enum {
 		fBigEndian = 0x0001 // Процессор имеет архитектуру BIG ENDIAN (на текущий момент флаг всегда сброшен)
@@ -12052,7 +12051,6 @@ class SlSession {
 public:
 	SLAPI  SlSession();
 	SLAPI ~SlSession();
-	int    SLAPI Construct();
 	//
 	void   SLAPI Init(const char * pAppName, HINSTANCE hInst = NULL);
 	//
@@ -12208,6 +12206,9 @@ public:
 	SString  & SLAPI AcquireRvlStr();
 	SStringU & SLAPI AcquireRvlStrU();
 private:
+	int    SLAPI Construct();
+
+	const  SSystem SSys;    // @firstmember // @v9.9.5 moved from position below
 	long   Id;              // @anchor
 	long   TlsIdx;          // @anchor
 	ACount SeqValue;        // @anchor Последнее значение, возвращенное функций GetSequenceValue().
@@ -12221,7 +12222,7 @@ private:
 	Evnt * P_StopEvnt;
 	S_GUID SessUuid;        // @v8.0.2 Уникальный идентификатор сессии
 	int    UiLanguageId;
-	const SSystem SSys;
+	// @v9.9.5 const SSystem SSys;
 
 	SlExtraProcBlock ExtraProcBlk; // @v9.1.2
 

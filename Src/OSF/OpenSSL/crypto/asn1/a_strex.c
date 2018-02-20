@@ -19,8 +19,7 @@
 #define ESC_FLAGS (ASN1_STRFLGS_ESC_2253|ASN1_STRFLGS_ESC_2254|ASN1_STRFLGS_ESC_QUOTE|ASN1_STRFLGS_ESC_CTRL|ASN1_STRFLGS_ESC_MSB)
 
 /*
- * Three IO functions for sending data to memory, a BIO and and a FILE
- * pointer.
+ * Three IO functions for sending data to memory, a BIO and and a FILE pointer.
  */
 static int send_bio_chars(void * arg, const void * buf, int len)
 {

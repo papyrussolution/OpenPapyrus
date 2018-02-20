@@ -115,19 +115,15 @@ static void prepare_new_block(EState* s)
 }
 
 /*---------------------------------------------------*/
-static
-void init_RL(EState* s)
+static void init_RL(EState* s)
 {
 	s->state_in_ch  = 256;
 	s->state_in_len = 0;
 }
 
-static
-bool isempty_RL(EState* s)
+static bool isempty_RL(EState* s)
 {
-	if(s->state_in_ch < 256 && s->state_in_len > 0)
-		return false; else
-		return true;
+	return (s->state_in_ch < 256 && s->state_in_len > 0) ? false : true;
 }
 
 /*---------------------------------------------------*/

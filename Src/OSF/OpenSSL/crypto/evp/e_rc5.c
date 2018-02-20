@@ -10,7 +10,7 @@
 #pragma hdrstop
 
 #ifndef OPENSSL_NO_RC5
-#include <openssl/rc5.h>
+//#include <openssl/rc5.h>
 #include "evp_locl.h"
 
 static int r_32_12_16_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc);

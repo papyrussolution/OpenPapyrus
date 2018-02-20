@@ -1,10 +1,15 @@
 ; XEOS-MEM-32.ASM
 ;
 ; We are in 32 bits mode
-; @sobolev BITS    32
+BITS    32
 
 global _xeos_memchr ; Makes the entry point visible to the linker
 global _xeos_strlen ; Makes the entry point visible to the linker
+global _xeos_memchr32
+global _xeos_memchr32_sse2
+global _xeos_strlen32
+global _xeos_strlen32_sse2
+
 ;extern _strlen ; External symbols
 
 SECTION .text  align=16
@@ -19,11 +24,10 @@ SECTION .text  align=16
 ;       None - __cdecl (all except EAX, ECX, EDX must be preserved)
 ;
 _xeos_memchr:
-	jmp _memchr32_sse2 ; @debug
     cmp DWORD [__SSE2Status], 1 ; Checks the status of the SSE2 flag
-    je  _memchr32_sse2 ; SSE2 are available - Use the optimized version of memchr()
+    je  _xeos_memchr32_sse2 ; SSE2 are available - Use the optimized version of memchr()
     cmp DWORD [__SSE2Status], 0 ; Checks the status of the SSE2 flag
-    je  _memchr32 ; SSE2 are not available - Use the less-optimized version of memchr()
+    je  _xeos_memchr32 ; SSE2 are not available - Use the less-optimized version of memchr()
     ; SSE2 status needs to be checked
     .check:
         ; CPUID - Asks for CPU features (EAX=1)
@@ -37,14 +41,14 @@ _xeos_memchr:
         ; Sets the SSE2 status flag for the next calls and process the buffer
         ; with the optimized version of memchr()
         mov DWORD [__SSE2Status], 1
-        jmp _memchr32_sse2
+        jmp _xeos_memchr32_sse2
     ; SSE2 not available
     .fail:
         ; Sets the SSE2 status flag for the next calls and process the buffer
         ; with the less-optimized version of memchr()
         mov DWORD [__SSE2Status], 0
-        jmp _memchr32
-;-------------------------------------------------------------------------------
+        jmp _xeos_memchr32
+;
 ; 32-bits SSE2 optimized memchr() function
 ; void * _memchr32_sse2( const void * s, int c, size_t n );
 ; Input registers:
@@ -53,9 +57,9 @@ _xeos_memchr:
 ;       - EAX:      A pointer to the first occurence of the character in the buffer, or 0 (NULL)
 ; Killed registers:
 ;       None - __cdecl (all except EAX, ECX, EDX must be preserved)
-;-------------------------------------------------------------------------------
+;
 align 16
-_memchr32_sse2:
+_xeos_memchr32_sse2:
     ; Creates a stack frame, so we can save registers, making them available
     ; to use. Otherwise, only 3 registers are safe, which is not enough here
     push    ebp
@@ -209,7 +213,7 @@ _memchr32_sse2:
 ;       None - __cdecl (all except EAX, ECX, EDX must be preserved)
 ;
 align 16
-_memchr32:
+_xeos_memchr32:
     ; Creates a stack frame, so we can save registers, making them available
     ; to use. Otherwise, only 3 registers are safe, which is not enough here
     push    ebp
@@ -362,12 +366,11 @@ _memchr32:
 ;       None - __cdecl (all except EAX, ECX, EDX must be preserved)
 ;
 _xeos_strlen:
-	jmp _strlen32_sse2 ; @debug
-    ;cmp DWORD [ds:__SSE2Status], 1 ; Checks the status of the SSE2 flag
+    cmp DWORD [ds:__SSE2Status], 1 ; Checks the status of the SSE2 flag
 	cmp DWORD [__SSE2Status], 1 ; Checks the status of the SSE2 flag
-    je  _strlen32_sse2 ; SSE2 are available - Use the optimized version of strlen()
+    je  _xeos_strlen32_sse2 ; SSE2 are available - Use the optimized version of strlen()
     cmp DWORD [__SSE2Status], 0 ; Checks the status of the SSE2 flag
-    je  _strlen32 ; SSE2 are not available - Use the less-optimized version of strlen()
+    je  _xeos_strlen32 ; SSE2 are not available - Use the less-optimized version of strlen()
     ; SSE2 status needs to be checked
     .check:
         ; CPUID - Asks for CPU features (EAX=1)
@@ -381,13 +384,13 @@ _xeos_strlen:
         ; Sets the SSE2 status flag for the next calls and process the string
         ; with the optimized version of strlen()
         mov DWORD [__SSE2Status], 1
-        jmp _strlen32_sse2
+        jmp _xeos_strlen32_sse2
     ; SSE2 not available
     .fail:
         ; Sets the SSE2 status flag for the next calls and process the string
         ; with the less-optimized version of strlen()
         mov DWORD [__SSE2Status], 0
-        jmp _strlen32
+        jmp _xeos_strlen32
 ;
 ; 32-bits SSE2 optimized strlen() function
 ; size_t _strlen32_sse2( const char * s );
@@ -399,7 +402,7 @@ _xeos_strlen:
 ;       None - __cdecl (all except EAX, ECX, EDX must be preserved)
 ;
 align 16
-_strlen32_sse2:
+_xeos_strlen32_sse2:
     mov         edx,    [ esp + 4 ] ; Gets the string pointer in EDX from the stack
     ; Checks for a NULL string
     test        edx,    edx
@@ -463,7 +466,7 @@ _strlen32_sse2:
 ;       None - __cdecl (all except EAX, ECX, EDX must be preserved)
 ;
 align 16
-_strlen32:
+_xeos_strlen32:
     ; Creates a stack frame, so we can save registers, making them available
     ; to use. Otherwise, only 3 registers are safe, which is not enough here
     push    ebp

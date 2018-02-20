@@ -1,0 +1,1047 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://jeans.heineken.com/DISTR/" xmlns:s1="http://microsoft.com/wsdl/types/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" targetNamespace="http://jeans.heineken.com/DISTR/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://jeans.heineken.com/DISTR/">
+      <s:import namespace="http://microsoft.com/wsdl/types/"/>
+      <s:element name="GetVersion">
+        <s:complexType/>
+      </s:element>
+      <s:element name="GetVersionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetVersionResult" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetOrdersDemo">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetOrdersDemoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_GetOrdersDemoResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetOrders">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetOrdersResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_GetOrdersResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetOrdersByDate">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+            <s:element minOccurs="1" maxOccurs="1" name="_date" type="s:dateTime"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetOrdersByDateResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_GetOrdersByDateResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetSalePoints">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetSalePointsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_GetSalePointsResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetSkuAssortment">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetSkuAssortmentResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_GetSkuAssortmentResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetWarehouses">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetWarehousesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_GetWarehousesResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_SendOrdersStatuses">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_statuses" type="tns:ArrayOfSendStatuses"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfSendStatuses">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="SendStatuses" nillable="true" type="tns:SendStatuses"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SendStatuses">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Number" type="s1:guid"/>
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="tns:Statuses"/>
+          <s:element minOccurs="0" maxOccurs="1" name="Comments" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="Statuses">
+        <s:restriction base="s:string">
+          <s:enumeration value="formed"/>
+          <s:enumeration value="accepted"/>
+          <s:enumeration value="shipped"/>
+          <s:enumeration value="comments"/>
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="DRP_SendOrdersStatusesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_SendOrdersStatusesResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_SendSellOut">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_invoices" type="tns:ArrayOfInvoice"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfInvoice">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Invoice" nillable="true" type="tns:Invoice"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Invoice">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="InvoiceNum" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="InvoiceDate" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="OrderDeliveries" type="tns:ArrayOfOrderDelivery"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DistributorDeliveries" type="tns:ArrayOfDistributorDelivery"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DistributorSalePointDeliveries" type="tns:ArrayOfDistributorSalePointDelivery"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfOrderDelivery">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="OrderDelivery" nillable="true" type="tns:OrderDelivery"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="OrderDelivery">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="DeliveryPositions" type="tns:ArrayOfDeliveryPosition"/>
+          <s:element minOccurs="0" maxOccurs="1" name="OrderID" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfDeliveryPosition">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DeliveryPosition" nillable="true" type="tns:DeliveryPosition"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DeliveryPosition">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="SkuID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="Volume" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="Rubles" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="Count" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="Comments" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfDistributorDelivery">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DistributorDelivery" nillable="true" type="tns:DistributorDelivery"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DistributorDelivery">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="DeliveryPositions" type="tns:ArrayOfDeliveryPosition"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DistributorOrderID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SalePointID" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfDistributorSalePointDelivery">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DistributorSalePointDelivery" nillable="true" type="tns:DistributorSalePointDelivery"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DistributorSalePointDelivery">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="DeliveryPositions" type="tns:ArrayOfDeliveryPosition"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DistributorOrderID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="DistributorSalePointID" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SalePointName" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="SalePointAddress" type="s:string"/>
+          <s:element minOccurs="0" maxOccurs="1" name="WarehouseID" type="s:string"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DRP_SendSellOutResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_SendSellOutResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_SendSellIn">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_invoices" type="tns:ArrayOfInvoice"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_SendSellInResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_SendSellInResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_SendReturn">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_invoices" type="tns:ArrayOfInvoice"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_SendReturnResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_SendReturnResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_DeleteSellOut">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_invoiceDate" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_invoiceNum" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_DeleteSellOutResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_DeleteSellOutResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_DeleteSellIn">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_invoiceDate" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_invoiceNum" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_DeleteSellInResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_DeleteSellInResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_DeleteReturn">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_invoiceDate" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_invoiceNum" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_DeleteReturnResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_DeleteReturnResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_SendAllContragentDebet">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_contragentDebets" type="tns:ArrayOfDistributorDebet"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfDistributorDebet">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DistributorDebet" nillable="true" type="tns:DistributorDebet"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DistributorDebet">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ContragentID" type="s:int"/>
+          <s:element minOccurs="1" maxOccurs="1" name="DebetSum" type="s:double"/>
+          <s:element minOccurs="1" maxOccurs="1" name="DebetLimit" type="s:double"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DRP_SendAllContragentDebetResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_SendAllContragentDebetResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_SendWarehousesBalance">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_warehouseBalanceData" type="tns:ArrayOfBalance"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfBalance">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Balance" nillable="true" type="tns:Balance"/>
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Balance">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="SkuID" type="s:int"/>
+          <s:element minOccurs="1" maxOccurs="1" name="WarehouseID" type="s:int"/>
+          <s:element minOccurs="1" maxOccurs="1" name="Amount" type="s:int"/>
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DRP_SendWarehousesBalanceResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_SendWarehousesBalanceResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetEncashments">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetEncashmentsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_GetEncashmentsResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetEncashmentsByDate">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_login" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="_pass" type="s:string"/>
+            <s:element minOccurs="0" maxOccurs="1" name="date" type="s:string"/>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DRP_GetEncashmentsByDateResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DRP_GetEncashmentsByDateResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any/>
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://microsoft.com/wsdl/types/">
+      <s:simpleType name="guid">
+        <s:restriction base="s:string">
+          <s:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"/>
+        </s:restriction>
+      </s:simpleType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetVersionSoapIn">
+    <wsdl:part name="parameters" element="tns:GetVersion"/>
+  </wsdl:message>
+  <wsdl:message name="GetVersionSoapOut">
+    <wsdl:part name="parameters" element="tns:GetVersionResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetOrdersDemoSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_GetOrdersDemo"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetOrdersDemoSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_GetOrdersDemoResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetOrdersSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_GetOrders"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetOrdersSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_GetOrdersResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetOrdersByDateSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_GetOrdersByDate"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetOrdersByDateSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_GetOrdersByDateResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetSalePointsSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_GetSalePoints"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetSalePointsSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_GetSalePointsResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetSkuAssortmentSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_GetSkuAssortment"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetSkuAssortmentSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_GetSkuAssortmentResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetWarehousesSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_GetWarehouses"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetWarehousesSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_GetWarehousesResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_SendOrdersStatusesSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_SendOrdersStatuses"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_SendOrdersStatusesSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_SendOrdersStatusesResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_SendSellOutSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_SendSellOut"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_SendSellOutSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_SendSellOutResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_SendSellInSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_SendSellIn"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_SendSellInSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_SendSellInResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_SendReturnSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_SendReturn"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_SendReturnSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_SendReturnResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_DeleteSellOutSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_DeleteSellOut"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_DeleteSellOutSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_DeleteSellOutResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_DeleteSellInSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_DeleteSellIn"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_DeleteSellInSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_DeleteSellInResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_DeleteReturnSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_DeleteReturn"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_DeleteReturnSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_DeleteReturnResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_SendAllContragentDebetSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_SendAllContragentDebet"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_SendAllContragentDebetSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_SendAllContragentDebetResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_SendWarehousesBalanceSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_SendWarehousesBalance"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_SendWarehousesBalanceSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_SendWarehousesBalanceResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetEncashmentsSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_GetEncashments"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetEncashmentsSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_GetEncashmentsResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetEncashmentsByDateSoapIn">
+    <wsdl:part name="parameters" element="tns:DRP_GetEncashmentsByDate"/>
+  </wsdl:message>
+  <wsdl:message name="DRP_GetEncashmentsByDateSoapOut">
+    <wsdl:part name="parameters" element="tns:DRP_GetEncashmentsByDateResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="DRPServiceSoap">
+    <wsdl:operation name="GetVersion">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Получение версии вебсервиса</wsdl:documentation>
+      <wsdl:input message="tns:GetVersionSoapIn"/>
+      <wsdl:output message="tns:GetVersionSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetOrdersDemo">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Получение демонстрационных данных по заказам.</wsdl:documentation>
+      <wsdl:input message="tns:DRP_GetOrdersDemoSoapIn"/>
+      <wsdl:output message="tns:DRP_GetOrdersDemoSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetOrders">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Получение заказов текущего авторизованного дистрибьютора.</wsdl:documentation>
+      <wsdl:input message="tns:DRP_GetOrdersSoapIn"/>
+      <wsdl:output message="tns:DRP_GetOrdersSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetOrdersByDate">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Получение заказов текущего авторизованного дистрибьютора за определенную дату.</wsdl:documentation>
+      <wsdl:input message="tns:DRP_GetOrdersByDateSoapIn"/>
+      <wsdl:output message="tns:DRP_GetOrdersByDateSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetSalePoints">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Получение списка торговых точек (ID, наименование, адрес), принадлежащих дистрибьютору.</wsdl:documentation>
+      <wsdl:input message="tns:DRP_GetSalePointsSoapIn"/>
+      <wsdl:output message="tns:DRP_GetSalePointsSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetSkuAssortment">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Получение ассортиментной матрицы SKU (ID, наименование), принадлежащей дистрибьютору.</wsdl:documentation>
+      <wsdl:input message="tns:DRP_GetSkuAssortmentSoapIn"/>
+      <wsdl:output message="tns:DRP_GetSkuAssortmentSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetWarehouses">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Получение списка складов дистрибьютора.</wsdl:documentation>
+      <wsdl:input message="tns:DRP_GetWarehousesSoapIn"/>
+      <wsdl:output message="tns:DRP_GetWarehousesSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendOrdersStatuses">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Передача данных о статусах заказов.</wsdl:documentation>
+      <wsdl:input message="tns:DRP_SendOrdersStatusesSoapIn"/>
+      <wsdl:output message="tns:DRP_SendOrdersStatusesSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendSellOut">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Передача параметров доставки.</wsdl:documentation>
+      <wsdl:input message="tns:DRP_SendSellOutSoapIn"/>
+      <wsdl:output message="tns:DRP_SendSellOutSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendSellIn">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Передача параметров поступлений на склад.</wsdl:documentation>
+      <wsdl:input message="tns:DRP_SendSellInSoapIn"/>
+      <wsdl:output message="tns:DRP_SendSellInSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendReturn">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Передача параметров возврата.</wsdl:documentation>
+      <wsdl:input message="tns:DRP_SendReturnSoapIn"/>
+      <wsdl:output message="tns:DRP_SendReturnSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_DeleteSellOut">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Удаление данных по доставкам.</wsdl:documentation>
+      <wsdl:input message="tns:DRP_DeleteSellOutSoapIn"/>
+      <wsdl:output message="tns:DRP_DeleteSellOutSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_DeleteSellIn">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Удаление данных по поступлениям на склад.</wsdl:documentation>
+      <wsdl:input message="tns:DRP_DeleteSellInSoapIn"/>
+      <wsdl:output message="tns:DRP_DeleteSellInSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_DeleteReturn">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Удаление данных по возвратам.</wsdl:documentation>
+      <wsdl:input message="tns:DRP_DeleteReturnSoapIn"/>
+      <wsdl:output message="tns:DRP_DeleteReturnSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendAllContragentDebet">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Передача данных о дебиторской задолженности контрагента. Передается весь список торговых точек, 
+        принадлежащих дистрибьютору, сумма дебиторский задолженности и лимит дебиторской задолженности по ним.</wsdl:documentation>
+      <wsdl:input message="tns:DRP_SendAllContragentDebetSoapIn"/>
+      <wsdl:output message="tns:DRP_SendAllContragentDebetSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendWarehousesBalance">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Передача данных об остатках на одном складе или сразу на нескольких складах дистрибьютора 
+            (старая матрица остатков в разрезе склада заменяется переданной новой, по остальным складам,
+             если информация не передавалась, данные остаются в системе).</wsdl:documentation>
+      <wsdl:input message="tns:DRP_SendWarehousesBalanceSoapIn"/>
+      <wsdl:output message="tns:DRP_SendWarehousesBalanceSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetEncashments">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Получение списка инкассаций текущего авторизованного дистрибьютора</wsdl:documentation>
+      <wsdl:input message="tns:DRP_GetEncashmentsSoapIn"/>
+      <wsdl:output message="tns:DRP_GetEncashmentsSoapOut"/>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetEncashmentsByDate">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Получение списка инкассаций текущего авторизованного дистрибьютора</wsdl:documentation>
+      <wsdl:input message="tns:DRP_GetEncashmentsByDateSoapIn"/>
+      <wsdl:output message="tns:DRP_GetEncashmentsByDateSoapOut"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="DRPServiceSoap" type="tns:DRPServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="GetVersion">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/GetVersion" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetOrdersDemo">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetOrdersDemo" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetOrders">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetOrders" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetOrdersByDate">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetOrdersByDate" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetSalePoints">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetSalePoints" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetSkuAssortment">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetSkuAssortment" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetWarehouses">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetWarehouses" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendOrdersStatuses">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_SendOrdersStatuses" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendSellOut">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_SendSellOut" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendSellIn">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_SendSellIn" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendReturn">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_SendReturn" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_DeleteSellOut">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_DeleteSellOut" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_DeleteSellIn">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_DeleteSellIn" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_DeleteReturn">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_DeleteReturn" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendAllContragentDebet">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_SendAllContragentDebet" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendWarehousesBalance">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_SendWarehousesBalance" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetEncashments">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetEncashments" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetEncashmentsByDate">
+      <soap:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetEncashmentsByDate" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="DRPServiceSoap12" type="tns:DRPServiceSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="GetVersion">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/GetVersion" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetOrdersDemo">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetOrdersDemo" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetOrders">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetOrders" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetOrdersByDate">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetOrdersByDate" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetSalePoints">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetSalePoints" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetSkuAssortment">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetSkuAssortment" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetWarehouses">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetWarehouses" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendOrdersStatuses">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_SendOrdersStatuses" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendSellOut">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_SendSellOut" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendSellIn">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_SendSellIn" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendReturn">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_SendReturn" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_DeleteSellOut">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_DeleteSellOut" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_DeleteSellIn">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_DeleteSellIn" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_DeleteReturn">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_DeleteReturn" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendAllContragentDebet">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_SendAllContragentDebet" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_SendWarehousesBalance">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_SendWarehousesBalance" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetEncashments">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetEncashments" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DRP_GetEncashmentsByDate">
+      <soap12:operation soapAction="http://jeans.heineken.com/DISTR/DRP_GetEncashmentsByDate" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="DRPService">
+    <wsdl:port name="DRPServiceSoap" binding="tns:DRPServiceSoap">
+      <soap:address location="https://jeans.heineken.com/DISTR4/DRPService.asmx"/>
+    </wsdl:port>
+    <wsdl:port name="DRPServiceSoap12" binding="tns:DRPServiceSoap12">
+      <soap12:address location="https://jeans.heineken.com/DISTR4/DRPService.asmx"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

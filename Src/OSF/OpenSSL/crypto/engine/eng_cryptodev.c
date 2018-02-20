@@ -111,50 +111,30 @@ static int get_cryptodev_digests(const int ** cnids);
 # endif
 static int cryptodev_usable_ciphers(const int ** nids);
 static int cryptodev_usable_digests(const int ** nids);
-static int cryptodev_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
-    const uchar * in, size_t inl);
-static int cryptodev_init_key(EVP_CIPHER_CTX * ctx, const uchar * key,
-    const uchar * iv, int enc);
+static int cryptodev_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl);
+static int cryptodev_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc);
 static int cryptodev_cleanup(EVP_CIPHER_CTX * ctx);
-static int cryptodev_engine_ciphers(ENGINE * e, const EVP_CIPHER ** cipher,
-    const int ** nids, int nid);
-static int cryptodev_engine_digests(ENGINE * e, const EVP_MD ** digest,
-    const int ** nids, int nid);
+static int cryptodev_engine_ciphers(ENGINE * e, const EVP_CIPHER ** cipher, const int ** nids, int nid);
+static int cryptodev_engine_digests(ENGINE * e, const EVP_MD ** digest, const int ** nids, int nid);
 static int bn2crparam(const BIGNUM * a, struct crparam * crp);
 static int crparam2bn(struct crparam * crp, BIGNUM * a);
 static void zapparams(struct crypt_kop * kop);
-static int cryptodev_asym(struct crypt_kop * kop, int rlen, BIGNUM * r,
-    int slen, BIGNUM * s);
-
-static int cryptodev_bn_mod_exp(BIGNUM * r, const BIGNUM * a,
-    const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx,
-    BN_MONT_CTX * m_ctx);
-static int cryptodev_rsa_nocrt_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa,
-    BN_CTX * ctx);
-static int cryptodev_rsa_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa,
-    BN_CTX * ctx);
+static int cryptodev_asym(struct crypt_kop * kop, int rlen, BIGNUM * r, int slen, BIGNUM * s);
+static int cryptodev_bn_mod_exp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx, BN_MONT_CTX * m_ctx);
+static int cryptodev_rsa_nocrt_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa, BN_CTX * ctx);
+static int cryptodev_rsa_mod_exp(BIGNUM * r0, const BIGNUM * I, RSA * rsa, BN_CTX * ctx);
 #ifndef OPENSSL_NO_DSA
-static int cryptodev_dsa_bn_mod_exp(DSA * dsa, BIGNUM * r, const BIGNUM * a,
-    const BIGNUM * p, const BIGNUM * m,
-    BN_CTX * ctx, BN_MONT_CTX * m_ctx);
-static int cryptodev_dsa_dsa_mod_exp(DSA * dsa, BIGNUM * t1, const BIGNUM * g,
-    const BIGNUM * u1, const BIGNUM * pub_key,
-    const BIGNUM * u2, const BIGNUM * p,
-    BN_CTX * ctx, BN_MONT_CTX * mont);
-static DSA_SIG * cryptodev_dsa_do_sign(const uchar * dgst, int dlen,
-    DSA * dsa);
-static int cryptodev_dsa_verify(const uchar * dgst, int dgst_len,
-    DSA_SIG * sig, DSA * dsa);
+static int cryptodev_dsa_bn_mod_exp(DSA * dsa, BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx, BN_MONT_CTX * m_ctx);
+static int cryptodev_dsa_dsa_mod_exp(DSA * dsa, BIGNUM * t1, const BIGNUM * g, const BIGNUM * u1, const BIGNUM * pub_key,
+    const BIGNUM * u2, const BIGNUM * p, BN_CTX * ctx, BN_MONT_CTX * mont);
+static DSA_SIG * cryptodev_dsa_do_sign(const uchar * dgst, int dlen, DSA * dsa);
+static int cryptodev_dsa_verify(const uchar * dgst, int dgst_len, DSA_SIG * sig, DSA * dsa);
 #endif
 #ifndef OPENSSL_NO_DH
-static int cryptodev_mod_exp_dh(const DH * dh, BIGNUM * r, const BIGNUM * a,
-    const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx,
-    BN_MONT_CTX * m_ctx);
-static int cryptodev_dh_compute_key(uchar * key, const BIGNUM * pub_key,
-    DH * dh);
+static int cryptodev_mod_exp_dh(const DH * dh, BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx, BN_MONT_CTX * m_ctx);
+static int cryptodev_dh_compute_key(uchar * key, const BIGNUM * pub_key, DH * dh);
 #endif
-static int cryptodev_ctrl(ENGINE * e, int cmd, long i, void * p,
-    void (* f)(void));
+static int cryptodev_ctrl(ENGINE * e, int cmd, long i, void * p, void (* f)(void));
 void engine_load_cryptodev_int(void);
 
 static const ENGINE_CMD_DEFN cryptodev_defns[] = {

@@ -7,7 +7,7 @@
  * https://www.openssl.org/source/license.html
  */
 
-#include <stdlib.h>
+//#include <stdlib.h>
 
 #undef c2l
 #define c2l(c,l)        (l =((unsigned long)(*((c)++)))    , \

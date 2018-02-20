@@ -223,7 +223,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\bn;..\OSF\OpenSSL\crypto\rsa;..\OSF\OpenSSL\crypto\dh;..\OSF\OpenSSL\crypto\bio;..\OSF\OpenSSL;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -269,7 +269,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\bn;..\OSF\OpenSSL\crypto\rsa;..\OSF\OpenSSL\crypto\dh;..\OSF\OpenSSL\crypto\bio;..\OSF\OpenSSL;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -318,7 +318,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\bn;..\OSF\OpenSSL\crypto\rsa;..\OSF\OpenSSL\crypto\dh;..\OSF\OpenSSL\crypto\bio;..\OSF\OpenSSL;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -367,7 +367,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\bn;..\OSF\OpenSSL\crypto\rsa;..\OSF\OpenSSL\crypto\dh;..\OSF\OpenSSL\crypto\bio;..\OSF\OpenSSL;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -415,7 +415,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\bn;..\OSF\OpenSSL\crypto\rsa;..\OSF\OpenSSL\crypto\dh;..\OSF\OpenSSL\crypto\bio;..\OSF\OpenSSL;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -464,7 +464,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\bn;..\OSF\OpenSSL\crypto\rsa;..\OSF\OpenSSL\crypto\dh;..\OSF\OpenSSL\crypto\bio;..\OSF\OpenSSL;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -513,7 +513,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\bn;..\OSF\OpenSSL\crypto\rsa;..\OSF\OpenSSL\crypto\dh;..\OSF\OpenSSL\crypto\bio;..\OSF\OpenSSL;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>
@@ -561,7 +561,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\bn;..\OSF\OpenSSL\crypto\rsa;..\OSF\OpenSSL\crypto\dh;..\OSF\OpenSSL\crypto\bio;..\OSF\OpenSSL;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -612,7 +612,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\bn;..\OSF\OpenSSL\crypto\rsa;..\OSF\OpenSSL\crypto\dh;..\OSF\OpenSSL\crypto\bio;..\OSF\OpenSSL;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -663,7 +663,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\bn;..\OSF\OpenSSL\crypto\rsa;..\OSF\OpenSSL\crypto\dh;..\OSF\OpenSSL\crypto\bio;..\OSF\OpenSSL;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -712,7 +712,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\bn;..\OSF\OpenSSL\crypto\rsa;..\OSF\OpenSSL\crypto\dh;..\OSF\OpenSSL\crypto\bio;..\OSF\OpenSSL;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -762,7 +762,7 @@
     <ClCompile>
       <Optimization>Custom</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL\crypto\modes;..\OSF\OpenSSL\crypto\bn;..\OSF\OpenSSL\crypto\rsa;..\OSF\OpenSSL\crypto\dh;..\OSF\OpenSSL\crypto\bio;..\OSF\OpenSSL;..\OSF\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\OpenSSL;..\OSF\OpenSSL\include;..\OSF\OpenSSL\include\internal\crypto;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;OPENSSL_NO_ASM;OPENSSL_SYSNAME_WIN32;OPENSSL_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
@@ -1440,13 +1440,70 @@
   <ItemGroup>
     <ClInclude Include="..\Osf\OpenSSL\e_os.h" />
     <ClInclude Include="..\OSF\OpenSSL\include\internal\bio.h" />
-    <ClInclude Include="..\OSF\OpenSSL\include\internal\comp.h" />
-    <ClInclude Include="..\Osf\OpenSSL\include\internal\conf.h" />
     <ClInclude Include="..\OSF\OpenSSL\include\internal\constant_time_locl.h" />
     <ClInclude Include="..\OSF\OpenSSL\include\internal\cryptlib.h" />
-    <ClInclude Include="..\OSF\OpenSSL\include\internal\cryptlib_int.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\aes_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\arm_arch.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\asn1_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\async_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\async_null.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\async_posix.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\async_win.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\bf_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\bf_pi.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\bio_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\blake2_impl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\blake2_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\bn_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\bn_prime.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\cast_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\cast_s.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\charmap.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\cmll_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\cms_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\comp_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\conf_def.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\ct_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\des_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\dh_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\dsa_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\dso_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\ec_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\eng_int.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\evp_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\ext_dat.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\hmac_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\idea_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\lhash_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\md4_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\md5_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\modes_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\obj_dat.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\obj_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\obj_xref.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\ocsp_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\p12_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\pcy_int.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\ppc_arch.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rand_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rc2_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rc4_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rc5_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rmdconst.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rmd_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rpc_des.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rsaz_exp.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\rsa_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\seed_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\sha_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\sparc_arch.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\spr.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\ts_lcl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\ui_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\vms_rms.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\wp_locl.h" />
+    <ClInclude Include="..\OSF\OpenSSL\include\internal\crypto\x509_lcl.h" />
     <ClInclude Include="..\OSF\OpenSSL\include\internal\dane.h" />
-    <ClInclude Include="..\OSF\OpenSSL\include\internal\dso.h" />
     <ClInclude Include="..\OSF\OpenSSL\include\internal\err.h" />
     <ClInclude Include="..\OSF\OpenSSL\include\internal\numbers.h" />
     <ClInclude Include="..\OSF\OpenSSL\include\internal\o_dir.h" />

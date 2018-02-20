@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/ts.h>
+//#include <openssl/ts.h>
 #include "ts_lcl.h"
 
 int TS_REQ_set_version(TS_REQ * a, long version)

@@ -52,50 +52,30 @@ static void hwcrhk_mutex_unlock(HWCryptoHook_Mutex *);
 static void hwcrhk_mutex_destroy(HWCryptoHook_Mutex *);
 
 /* BIGNUM stuff */
-static int hwcrhk_mod_exp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p,
-    const BIGNUM * m, BN_CTX * ctx);
-
-#  ifndef OPENSSL_NO_RSA
-/* RSA stuff */
-static int hwcrhk_rsa_mod_exp(BIGNUM * r, const BIGNUM * I, RSA * rsa,
-    BN_CTX * ctx);
-/* This function is aliased to mod_exp (with the mont stuff dropped). */
-static int hwcrhk_mod_exp_mont(BIGNUM * r, const BIGNUM * a, const BIGNUM * p,
-    const BIGNUM * m, BN_CTX * ctx,
-    BN_MONT_CTX * m_ctx);
-static int hwcrhk_rsa_finish(RSA * rsa);
-#  endif
-
-#  ifndef OPENSSL_NO_DH
-/* DH stuff */
-/* This function is alised to mod_exp (with the DH and mont dropped). */
-static int hwcrhk_mod_exp_dh(const DH * dh, BIGNUM * r,
-    const BIGNUM * a, const BIGNUM * p,
-    const BIGNUM * m, BN_CTX * ctx,
-    BN_MONT_CTX * m_ctx);
-#  endif
-
+static int hwcrhk_mod_exp(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx);
+#ifndef OPENSSL_NO_RSA
+	/* RSA stuff */
+	static int hwcrhk_rsa_mod_exp(BIGNUM * r, const BIGNUM * I, RSA * rsa, BN_CTX * ctx);
+	/* This function is aliased to mod_exp (with the mont stuff dropped). */
+	static int hwcrhk_mod_exp_mont(BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx, BN_MONT_CTX * m_ctx);
+	static int hwcrhk_rsa_finish(RSA * rsa);
+#endif
+#ifndef OPENSSL_NO_DH
+	/* DH stuff */
+	/* This function is alised to mod_exp (with the DH and mont dropped). */
+	static int hwcrhk_mod_exp_dh(const DH * dh, BIGNUM * r, const BIGNUM * a, const BIGNUM * p, const BIGNUM * m, BN_CTX * ctx, BN_MONT_CTX * m_ctx);
+#endif
 /* RAND stuff */
 static int hwcrhk_rand_bytes(uchar * buf, int num);
 static int hwcrhk_rand_status(void);
 
 /* KM stuff */
-static EVP_PKEY * hwcrhk_load_privkey(ENGINE * eng, const char * key_id,
-    UI_METHOD * ui_method,
-    void * callback_data);
-static EVP_PKEY * hwcrhk_load_pubkey(ENGINE * eng, const char * key_id,
-    UI_METHOD * ui_method,
-    void * callback_data);
+static EVP_PKEY * hwcrhk_load_privkey(ENGINE * eng, const char * key_id, UI_METHOD * ui_method, void * callback_data);
+static EVP_PKEY * hwcrhk_load_pubkey(ENGINE * eng, const char * key_id, UI_METHOD * ui_method, void * callback_data);
 
 /* Interaction stuff */
-static int hwcrhk_insert_card(const char * prompt_info,
-    const char * wrong_info,
-    HWCryptoHook_PassphraseContext * ppctx,
-    HWCryptoHook_CallerContext * cactx);
-static int hwcrhk_get_pass(const char * prompt_info,
-    int * len_io, char * buf,
-    HWCryptoHook_PassphraseContext * ppctx,
-    HWCryptoHook_CallerContext * cactx);
+static int hwcrhk_insert_card(const char * prompt_info, const char * wrong_info, HWCryptoHook_PassphraseContext * ppctx, HWCryptoHook_CallerContext * cactx);
+static int hwcrhk_get_pass(const char * prompt_info, int * len_io, char * buf, HWCryptoHook_PassphraseContext * ppctx, HWCryptoHook_CallerContext * cactx);
 static void hwcrhk_log_message(void * logstr, const char * message);
 
 /* The definitions for control commands specific to this engine */
@@ -105,26 +85,11 @@ static void hwcrhk_log_message(void * logstr, const char * message);
 #define HWCRHK_CMD_SET_USER_INTERFACE   (ENGINE_CMD_BASE + 3)
 #define HWCRHK_CMD_SET_CALLBACK_DATA    (ENGINE_CMD_BASE + 4)
 static const ENGINE_CMD_DEFN hwcrhk_cmd_defns[] = {
-	{HWCRHK_CMD_SO_PATH,
-	 "SO_PATH",
-	 "Specifies the path to the 'hwcrhk' shared library",
-	 ENGINE_CMD_FLAG_STRING},
-	{HWCRHK_CMD_FORK_CHECK,
-	 "FORK_CHECK",
-	 "Turns fork() checking on (non-zero) or off (zero)",
-	 ENGINE_CMD_FLAG_NUMERIC},
-	{HWCRHK_CMD_THREAD_LOCKING,
-	 "THREAD_LOCKING",
-	 "Turns thread-safe locking on (zero) or off (non-zero)",
-	 ENGINE_CMD_FLAG_NUMERIC},
-	{HWCRHK_CMD_SET_USER_INTERFACE,
-	 "SET_USER_INTERFACE",
-	 "Set the global user interface (internal)",
-	 ENGINE_CMD_FLAG_INTERNAL},
-	{HWCRHK_CMD_SET_CALLBACK_DATA,
-	 "SET_CALLBACK_DATA",
-	 "Set the global user interface extra data (internal)",
-	 ENGINE_CMD_FLAG_INTERNAL},
+	{HWCRHK_CMD_SO_PATH, "SO_PATH", "Specifies the path to the 'hwcrhk' shared library", ENGINE_CMD_FLAG_STRING},
+	{HWCRHK_CMD_FORK_CHECK, "FORK_CHECK", "Turns fork() checking on (non-zero) or off (zero)", ENGINE_CMD_FLAG_NUMERIC},
+	{HWCRHK_CMD_THREAD_LOCKING, "THREAD_LOCKING", "Turns thread-safe locking on (zero) or off (non-zero)", ENGINE_CMD_FLAG_NUMERIC},
+	{HWCRHK_CMD_SET_USER_INTERFACE, "SET_USER_INTERFACE", "Set the global user interface (internal)", ENGINE_CMD_FLAG_INTERNAL},
+	{HWCRHK_CMD_SET_CALLBACK_DATA, "SET_CALLBACK_DATA", "Set the global user interface extra data (internal)", ENGINE_CMD_FLAG_INTERNAL},
 	{0, NULL, NULL, 0}
 };
 
@@ -206,20 +171,16 @@ struct HWCryptoHook_PassphraseContextValue {
  * HWCryptoHook_CallerContextValue into HWCryptoHook_CallerContext
  */
 struct HWCryptoHook_CallerContextValue {
-	pem_password_cb * password_callback; /* Deprecated! Only present for
-	                                      * backward compatibility! */
+	pem_password_cb * password_callback; /* Deprecated! Only present for backward compatibility! */
 	UI_METHOD * ui_method;
 	void * callback_data;
 };
-
 /*
  * The MPI structure in HWCryptoHook is pretty compatible with OpenSSL
  * BIGNUM's, so lets define a couple of conversion macros
  */
-#define BN2MPI(mp, bn) \
-	{mp.size = bn->top * sizeof(BN_ULONG); mp.buf = (uchar*)bn->d; }
-#define MPI2BN(bn, mp) \
-	{mp.size = bn->dmax * sizeof(BN_ULONG); mp.buf = (uchar*)bn->d; }
+#define BN2MPI(mp, bn) {mp.size = bn->top * sizeof(BN_ULONG); mp.buf = (uchar*)bn->d; }
+#define MPI2BN(bn, mp) {mp.size = bn->dmax * sizeof(BN_ULONG); mp.buf = (uchar*)bn->d; }
 
 static BIO * logstream = NULL;
 static int disable_mutex_callbacks = 0;
@@ -1143,29 +1104,20 @@ static int hwcrhk_get_pass(const char * prompt_info,
 		HWCRHKerr(HWCRHK_F_HWCRHK_GET_PASS, HWCRHK_R_NO_CALLBACK);
 		return -1;
 	}
-
 	if(ui_method) {
 		UI * ui = UI_new_method(ui_method);
 		if(ui) {
 			int ok;
-			char * prompt = UI_construct_prompt(ui,
-			    "pass phrase", prompt_info);
-
-			ok = UI_add_input_string(ui, prompt,
-			    UI_INPUT_FLAG_DEFAULT_PWD,
-			    buf, 0, (*len_io) - 1);
+			char * prompt = UI_construct_prompt(ui, "pass phrase", prompt_info);
+			ok = UI_add_input_string(ui, prompt, UI_INPUT_FLAG_DEFAULT_PWD, buf, 0, (*len_io) - 1);
 			UI_add_user_data(ui, callback_data);
 			UI_ctrl(ui, UI_CTRL_PRINT_ERRORS, 1, 0, 0);
-
 			if(ok >= 0)
 				do {
 					ok = UI_process(ui);
-				}
-				while(ok < 0 && UI_ctrl(ui, UI_CTRL_IS_REDOABLE, 0, 0, 0));
-
+				} while(ok < 0 && UI_ctrl(ui, UI_CTRL_IS_REDOABLE, 0, 0, 0));
 			if(ok >= 0)
 				*len_io = strlen(buf);
-
 			UI_free(ui);
 			OPENSSL_free(prompt);
 		}

@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/objects.h>
-#include <openssl/ts.h>
+//#include <openssl/ts.h>
 #include "ts_lcl.h"
 
 TS_VERIFY_CTX * TS_VERIFY_CTX_new(void)

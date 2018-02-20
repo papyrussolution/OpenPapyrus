@@ -8,11 +8,11 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/pkcs12.h>
+//#include <openssl/pkcs12.h>
 #ifdef OPENSSL_FIPS
 	#include <openssl/fips.h>
 #endif
-#include <openssl/ts.h>
+//#include <openssl/ts.h>
 //#include <openssl/ct.h>
 #include <openssl/kdf.h>
 

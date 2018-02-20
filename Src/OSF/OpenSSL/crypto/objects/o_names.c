@@ -12,7 +12,6 @@
 //#include <openssl/safestack.h>
 //#include <openssl/e_os2.h>
 #include "obj_lcl.h"
-
 /*
  * We define this wrapper for two reasons. Firstly, later versions of
  * DEC C add linkage information to certain functions, which makes it
@@ -322,7 +321,6 @@ void OBJ_NAME_cleanup(int type)
 		free_type = type;
 		down_load = lh_OBJ_NAME_get_down_load(names_lh);
 		lh_OBJ_NAME_set_down_load(names_lh, 0);
-
 		lh_OBJ_NAME_doall(names_lh, names_lh_free_doall);
 		if(type < 0) {
 			lh_OBJ_NAME_free(names_lh);

@@ -27,8 +27,8 @@
 
 #if defined(OPENSSL_SYS_LINUX) || defined(OPENSSL_SYS_UNIX)
 	#define IMPLEMENTED
-	#include <stdlib.h>
-	#include <assert.h>
+	//#include <stdlib.h>
+	//#include <assert.h>
 	#include <unistd.h>
 	#include <sys/types.h>
 	#include <sys/mman.h>

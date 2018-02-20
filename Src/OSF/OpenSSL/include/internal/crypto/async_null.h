@@ -8,7 +8,6 @@
  */
 
 #include <openssl/async.h>
-
 /*
  * If we haven't managed to detect any other async architecture then we default
  * to NULL.

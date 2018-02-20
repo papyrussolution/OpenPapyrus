@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/ts.h>
+//#include <openssl/ts.h>
 #include "ts_lcl.h"
 
 struct status_map_st {

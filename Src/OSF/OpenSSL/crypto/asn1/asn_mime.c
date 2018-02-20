@@ -321,27 +321,20 @@ static int asn1_output_data(BIO * out, BIO * data, ASN1_VALUE * val, int flags,
 	sarg.out = out;
 	sarg.ndef_bio = NULL;
 	sarg.boundary = NULL;
-
 	/* Let ASN1 code prepend any needed BIOs */
-
 	if(aux->asn1_cb(ASN1_OP_DETACHED_PRE, &val, it, &sarg) <= 0)
 		return 0;
-
 	/* Copy data across, passing through filter BIOs for processing */
 	SMIME_crlf_copy(data, sarg.ndef_bio, flags);
-
 	/* Finalize structure */
 	if(aux->asn1_cb(ASN1_OP_DETACHED_POST, &val, it, &sarg) <= 0)
 		rv = 0;
-
 	/* Now remove any digests prepended to the BIO */
-
 	while(sarg.ndef_bio != out) {
 		tmpbio = BIO_pop(sarg.ndef_bio);
 		BIO_free(sarg.ndef_bio);
 		sarg.ndef_bio = tmpbio;
 	}
-
 	return rv;
 }
 

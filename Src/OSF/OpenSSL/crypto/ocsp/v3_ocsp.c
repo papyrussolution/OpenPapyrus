@@ -10,8 +10,7 @@
 #pragma hdrstop
 //#include <openssl/ocsp.h>
 #include "ocsp_lcl.h"
-#include "../x509v3/ext_dat.h"
-
+#include "ext_dat.h"
 /*
  * OCSP extensions and a couple of CRL entry extensions
  */

@@ -10,7 +10,7 @@
 #pragma hdrstop
 //#include <openssl/pem.h>
 //#include <openssl/engine.h>
-#include <openssl/ts.h>
+//#include <openssl/ts.h>
 
 /* Macro definitions for the configuration file. */
 #define BASE_SECTION                    "tsa"

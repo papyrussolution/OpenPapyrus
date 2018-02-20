@@ -7,7 +7,7 @@
  * https://www.openssl.org/source/license.html
  */
 
-#include <stdlib.h>
+//#include <stdlib.h>
 
 #ifndef HEADER_ASYNC_H
 #define HEADER_ASYNC_H

@@ -5795,6 +5795,8 @@ int SLAPI PrcssrSupplInterchange::Run()
 		cli.GetLogFileName(log_file_name);
 		PPWait(0);
 	}
+	else if(temp_buf.CmpNC("SFA-HEINEKEN") == 0) { // @construction
+	}
 	else {
 		; //
 	}

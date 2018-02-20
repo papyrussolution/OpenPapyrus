@@ -9785,48 +9785,31 @@ void DL6ICLS_PPFiltOpGrouping::FreeLocList()
 		p_filt->LocList.FreeAll();
 }
 
-SDateRange DL6ICLS_PPFiltOpGrouping::get_Period()
-	{ return DateRangeToOleDateRange(((OpGroupingFilt *)ExtraPtr)->Period); }
-
-SDateRange DL6ICLS_PPFiltOpGrouping::get_LotsPeriod()
-	{ return DateRangeToOleDateRange(((OpGroupingFilt *)ExtraPtr)->LotsPeriod); }
-
-SDateRange DL6ICLS_PPFiltOpGrouping::get_ShipmentPeriod()
-	{ return DateRangeToOleDateRange(((OpGroupingFilt *)ExtraPtr)->ShipmentPeriod); }
-
+SDateRange DL6ICLS_PPFiltOpGrouping::get_Period() { return DateRangeToOleDateRange(((OpGroupingFilt *)ExtraPtr)->Period); }
+SDateRange DL6ICLS_PPFiltOpGrouping::get_LotsPeriod() { return DateRangeToOleDateRange(((OpGroupingFilt *)ExtraPtr)->LotsPeriod); }
+SDateRange DL6ICLS_PPFiltOpGrouping::get_ShipmentPeriod() { return DateRangeToOleDateRange(((OpGroupingFilt *)ExtraPtr)->ShipmentPeriod); }
 int32 DL6ICLS_PPFiltOpGrouping::get_OpID() {IMPL_PPIFC_GETPROP(OpGroupingFilt, OpID);}
 void  DL6ICLS_PPFiltOpGrouping::put_OpID(int32 value) {IMPL_PPIFC_PUTPROP(OpGroupingFilt, OpID);}
-
 int32 DL6ICLS_PPFiltOpGrouping::get_CurID() {IMPL_PPIFC_GETPROP(OpGroupingFilt, CurID);}
 void  DL6ICLS_PPFiltOpGrouping::put_CurID(int32 value) {IMPL_PPIFC_PUTPROP(OpGroupingFilt, CurID);}
-
 int32 DL6ICLS_PPFiltOpGrouping::get_SupplID() {IMPL_PPIFC_GETPROP(OpGroupingFilt, SupplID);}
 void  DL6ICLS_PPFiltOpGrouping::put_SupplID(int32 value) {IMPL_PPIFC_PUTPROP(OpGroupingFilt, SupplID);}
-
 int32 DL6ICLS_PPFiltOpGrouping::get_ArID() {IMPL_PPIFC_GETPROP(OpGroupingFilt, ArID);}
 void  DL6ICLS_PPFiltOpGrouping::put_ArID(int32 value) {IMPL_PPIFC_PUTPROP(OpGroupingFilt, ArID);}
-
 int32 DL6ICLS_PPFiltOpGrouping::get_GoodsGrpID() {IMPL_PPIFC_GETPROP(OpGroupingFilt, GoodsGrpID);}
 void  DL6ICLS_PPFiltOpGrouping::put_GoodsGrpID(int32 value) {IMPL_PPIFC_PUTPROP(OpGroupingFilt, GoodsGrpID);}
-
 int32 DL6ICLS_PPFiltOpGrouping::get_GoodsID() {IMPL_PPIFC_GETPROP(OpGroupingFilt, GoodsID);}
 void  DL6ICLS_PPFiltOpGrouping::put_GoodsID(int32 value) {IMPL_PPIFC_PUTPROP(OpGroupingFilt, GoodsID);}
-
 int32 DL6ICLS_PPFiltOpGrouping::get_ExtGoodsTypeID() {IMPL_PPIFC_GETPROP(OpGroupingFilt, ExtGoodsTypeID);}
 void  DL6ICLS_PPFiltOpGrouping::put_ExtGoodsTypeID(int32 value) {IMPL_PPIFC_PUTPROP(OpGroupingFilt, ExtGoodsTypeID);}
-
 int32 DL6ICLS_PPFiltOpGrouping::get_SupplAgentID() {IMPL_PPIFC_GETPROP(OpGroupingFilt, SupplAgentID);}
 void  DL6ICLS_PPFiltOpGrouping::put_SupplAgentID(int32 value) {IMPL_PPIFC_PUTPROP(OpGroupingFilt, SupplAgentID);}
-
 PpyVOpGroupingCycleStats DL6ICLS_PPFiltOpGrouping::get_CycleStat() {IMPL_PPIFC_GETPROP_CAST(OpGroupingFilt, CycleStat, PpyVOpGroupingCycleStats);}
 void  DL6ICLS_PPFiltOpGrouping::put_CycleStat(PpyVOpGroupingCycleStats value) {IMPL_PPIFC_PUTPROP(OpGroupingFilt, CycleStat);}
-
 PpyVOpGroupingFlags DL6ICLS_PPFiltOpGrouping::get_Flags() {IMPL_PPIFC_GETPROP_CAST(OpGroupingFilt, Flags, PpyVOpGroupingFlags);}
 void  DL6ICLS_PPFiltOpGrouping::put_Flags(PpyVOpGroupingFlags value) {IMPL_PPIFC_PUTPROP(OpGroupingFilt, Flags);}
-
 int32 DL6ICLS_PPFiltOpGrouping::get_Cycle() {return ((OpGroupingFilt*)ExtraPtr)->Cycl.Cycle;}
 void  DL6ICLS_PPFiltOpGrouping::put_Cycle(int32 value) {((OpGroupingFilt*)ExtraPtr)->Cycl.Cycle = (int16)value;}
-
 int32 DL6ICLS_PPFiltOpGrouping::get_NumCycles() {return ((OpGroupingFilt*)ExtraPtr)->Cycl.NumCycles;}
 void  DL6ICLS_PPFiltOpGrouping::put_NumCycles(int32 value) {((OpGroupingFilt*)ExtraPtr)->Cycl.NumCycles = (int16)value;}
 //
@@ -9911,20 +9894,9 @@ DL6_IC_CONSTRUCTION_EXTRA(PPViewDebtTrnovr, DL6ICLS_PPViewDebtTrnovr_VTab, PPVie
 //
 DL6_IC_CONSTRUCTION_EXTRA(PPFiltDebtTrnovr, DL6ICLS_PPFiltDebtTrnovr_VTab, DebtTrnovrFilt);
 
-void DL6ICLS_PPFiltDebtTrnovr::SetPeriod(LDATE low, LDATE upp)
-{
-	((DebtTrnovrFilt*)ExtraPtr)->Period.Set(low, upp);
-}
-
-void DL6ICLS_PPFiltDebtTrnovr::SetPaymPeriod(LDATE low, LDATE upp)
-{
-	((DebtTrnovrFilt*)ExtraPtr)->PaymPeriod.Set(low, upp);
-}
-
-void DL6ICLS_PPFiltDebtTrnovr::SetExpiryPeriod(LDATE low, LDATE upp)
-{
-	((DebtTrnovrFilt*)ExtraPtr)->ExpiryPeriod.Set(low, upp);
-}
+void DL6ICLS_PPFiltDebtTrnovr::SetPeriod(LDATE low, LDATE upp) { ((DebtTrnovrFilt*)ExtraPtr)->Period.Set(low, upp); }
+void DL6ICLS_PPFiltDebtTrnovr::SetPaymPeriod(LDATE low, LDATE upp) { ((DebtTrnovrFilt*)ExtraPtr)->PaymPeriod.Set(low, upp); }
+void DL6ICLS_PPFiltDebtTrnovr::SetExpiryPeriod(LDATE low, LDATE upp) { ((DebtTrnovrFilt*)ExtraPtr)->ExpiryPeriod.Set(low, upp); }
 
 void DL6ICLS_PPFiltDebtTrnovr::AddLocationID(int32 id)
 {

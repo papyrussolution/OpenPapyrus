@@ -21,12 +21,10 @@
  *
  */
 
-#include <stdlib.h>
-
+//#include <stdlib.h>
 #include <openssl/obj_mac.h>
 #include <openssl/ec.h>
 #include <openssl/bn.h>
-
 #include "e_os.h"
 
 #if defined(__SUNPRO_C)

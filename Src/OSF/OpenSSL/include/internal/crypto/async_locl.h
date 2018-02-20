@@ -17,18 +17,17 @@
 #endif
 
 #if defined(_WIN32)
-# include <windows.h>
+	#include <windows.h>
 #endif
-
-#include <internal/async.h>
+//#include <internal/async.h>
 #include <openssl/crypto.h>
 
 typedef struct async_ctx_st async_ctx;
 typedef struct async_pool_st async_pool;
 
-#include "arch/async_win.h"
-#include "arch/async_posix.h"
-#include "arch/async_null.h"
+#include "async_win.h"
+#include "async_posix.h"
+#include "async_null.h"
 
 struct async_ctx_st {
     async_fibre dispatcher;

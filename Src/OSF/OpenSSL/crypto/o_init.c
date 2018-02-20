@@ -12,12 +12,9 @@
 	#include <openssl/fips.h>
 //#include <openssl/rand.h>
 #endif
-
 /*
- * Perform any essential OpenSSL initialization operations. Currently only
- * sets FIPS callbacks
+ * Perform any essential OpenSSL initialization operations. Currently only sets FIPS callbacks
  */
-
 void OPENSSL_init(void)
 {
 	static int done = 0;

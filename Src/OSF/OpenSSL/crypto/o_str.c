@@ -130,8 +130,7 @@ uchar * OPENSSL_hexstr2buf(const char * str, long * len)
 			continue;
 		cl = *p++;
 		if(!cl) {
-			CRYPTOerr(CRYPTO_F_OPENSSL_HEXSTR2BUF,
-			    CRYPTO_R_ODD_NUMBER_OF_DIGITS);
+			CRYPTOerr(CRYPTO_F_OPENSSL_HEXSTR2BUF, CRYPTO_R_ODD_NUMBER_OF_DIGITS);
 			OPENSSL_free(hexbuf);
 			return NULL;
 		}

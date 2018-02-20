@@ -11,28 +11,22 @@
 #define HEADER_INTERNAL_DANE_H
 
 //#include <openssl/safestack.h>
-
 /*-
- * Certificate usages:
- * https://tools.ietf.org/html/rfc6698#section-2.1.1
+ * Certificate usages: https://tools.ietf.org/html/rfc6698#section-2.1.1
  */
 #define DANETLS_USAGE_PKIX_TA   0
 #define DANETLS_USAGE_PKIX_EE   1
 #define DANETLS_USAGE_DANE_TA   2
 #define DANETLS_USAGE_DANE_EE   3
 #define DANETLS_USAGE_LAST      DANETLS_USAGE_DANE_EE
-
 /*-
- * Selectors:
- * https://tools.ietf.org/html/rfc6698#section-2.1.2
+ * Selectors: https://tools.ietf.org/html/rfc6698#section-2.1.2
  */
 #define DANETLS_SELECTOR_CERT   0
 #define DANETLS_SELECTOR_SPKI   1
 #define DANETLS_SELECTOR_LAST   DANETLS_SELECTOR_SPKI
-
 /*-
- * Matching types:
- * https://tools.ietf.org/html/rfc6698#section-2.1.3
+ * Matching types: https://tools.ietf.org/html/rfc6698#section-2.1.3
  */
 #define DANETLS_MATCHING_FULL   0
 #define DANETLS_MATCHING_2256   1
@@ -49,7 +43,6 @@ typedef struct danetls_record_st {
 } danetls_record;
 
 DEFINE_STACK_OF(danetls_record)
-
 /*
  * Shared DANE context
  */
@@ -59,7 +52,6 @@ struct dane_ctx_st {
 	uint8_t mdmax;          /* highest supported mtype */
 	unsigned long flags;    /* feature bitmask */
 };
-
 /*
  * Per connection DANE state
  */
