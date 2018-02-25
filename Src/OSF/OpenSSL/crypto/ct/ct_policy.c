@@ -11,7 +11,7 @@
 #ifdef OPENSSL_NO_CT
 	#error "CT is disabled"
 #endif
-#include <openssl/ct.h>
+//#include <openssl/ct.h>
 //#include <time.h>
 #include "ct_locl.h"
 

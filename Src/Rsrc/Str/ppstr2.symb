@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147489933
+LastSignatureCode=2147489980
 LastAutoCodeList=1,11143;102,10162;103,10071;110,10000;111,11656;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10078;120,10005;1001,10000;121,10000;122,10000;123,10306;1002,10000;1003,10000;1004,10000;1005,10000;124,10073
 
 [SignatureList]
@@ -798,6 +798,7 @@ scardrule_ccdis=2147484020
 scardrule_bonus=2147484021
 xchg_sendattachment=2147484022
 msg_arhasntagreement=2147487546
+msg_selactandpressokorcancel=2147489978
 unite_goods=2147489331
 unite_goods_src=2147489335
 unite_goods_dest=2147489336
@@ -5551,6 +5552,19 @@ selfbuildparam_nsispath=2147489003
 selfbuildparam_distribpath=2147489004
 selfbuildparam_compilerpath=2147489005
 selfbuildparam_config=2147489006
+billbysampleparam=2147489965
+billbysampleparam_action=2147489966
+billbysampleparam_acnundef=2147489967
+billbysampleparam_acnstd=2147489968
+billbysampleparam_acnshipmbyorder=2147489969
+billbysampleparam_acndraftexpbyorder=2147489970
+billbysampleparam_acndraftrcpbyorder=2147489971
+billbysampleparam_acndraftexprestbyorder=2147489972
+billbysampleparam_acnshipmall=2147489973
+billbysampleparam_op=2147489974
+billbysampleparam_loc=2147489975
+billbysampleparam_flags=2147489976
+billbysampleparam_fcopybillcode=2147489977
 pospaymblock=2147489042
 pospaymblock_amount=2147489043
 pospaymblock_cashamt=2147489044

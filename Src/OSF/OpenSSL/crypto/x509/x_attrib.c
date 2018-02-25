@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "x509_lcl.h"
+//#include "x509_lcl.h"
 /*-
  * X509_ATTRIBUTE: this has the following form:
  *

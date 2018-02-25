@@ -11,7 +11,7 @@
 
 #ifndef OPENSSL_NO_RC5
 //#include <openssl/rc5.h>
-#include "evp_locl.h"
+//#include "evp_locl.h"
 
 static int r_32_12_16_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc);
 static int rc5_ctrl(EVP_CIPHER_CTX * c, int type, int arg, void * ptr);

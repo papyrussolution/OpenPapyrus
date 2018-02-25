@@ -1898,7 +1898,7 @@ xmlNode * xmlNewPI(const xmlChar * name, const xmlChar * content)
  * Returns a pointer to the new node object. Uses sstrdup() to make
  * copy of @name.
  */
-xmlNode * xmlNewNode(xmlNs * ns, const xmlChar * name)
+xmlNode * FASTCALL xmlNewNode(xmlNs * ns, const xmlChar * name)
 {
 	xmlNode * cur = 0;
 	if(!name) {
@@ -1960,7 +1960,6 @@ xmlNode * xmlNewNodeEatName(xmlNs * ns, xmlChar * name)
 		xmlRegisterNodeDefaultValue((xmlNode *)cur);
 	return cur;
 }
-
 /**
  * xmlNewDocNode:
  * @doc:  the document
@@ -1977,7 +1976,7 @@ xmlNode * xmlNewNodeEatName(xmlNs * ns, xmlChar * name)
  *
  * Returns a pointer to the new node object.
  */
-xmlNode * xmlNewDocNode(xmlDoc * doc, xmlNs * ns, const xmlChar * name, const xmlChar * content)
+xmlNode * FASTCALL xmlNewDocNode(xmlDoc * doc, xmlNs * ns, const xmlChar * name, const xmlChar * content)
 {
 	xmlNode * cur = (doc && doc->dict) ? xmlNewNodeEatName(ns, (xmlChar*)xmlDictLookupSL(doc->dict, name)) : xmlNewNode(ns, name);
 	if(cur) {
@@ -3243,7 +3242,7 @@ void FASTCALL xmlFreeNode(xmlNode * pCur)
  * Note that namespace nodes can't be unlinked as they do not have
  * pointer to their parent.
  */
-void xmlUnlinkNode(xmlNode * cur)
+void FASTCALL xmlUnlinkNode(xmlNode * cur)
 {
 	if(!cur) {
 #ifdef DEBUG_TREE

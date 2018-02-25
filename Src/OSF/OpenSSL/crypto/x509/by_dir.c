@@ -11,7 +11,7 @@
 #ifndef OPENSSL_NO_POSIX_IO
 	#include <sys/stat.h>
 #endif
-#include "x509_lcl.h"
+//#include "x509_lcl.h"
 
 struct lookup_dir_hashes_st {
 	ulong hash;

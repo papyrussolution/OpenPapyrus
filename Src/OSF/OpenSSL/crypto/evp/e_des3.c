@@ -10,7 +10,7 @@
 #pragma hdrstop
 
 #ifndef OPENSSL_NO_DES
-#include "evp_locl.h"
+//#include "evp_locl.h"
 
 typedef struct {
 	union {

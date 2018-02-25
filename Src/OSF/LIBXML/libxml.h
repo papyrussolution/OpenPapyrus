@@ -247,9 +247,9 @@ int xmlNop(void);
 	// 
 	// Remove an entry from the hash table.
 	// 
-	XMLPUBFUN int XMLCALL xmlHashRemoveEntry(xmlHashTable * table, const xmlChar *name, xmlHashDeallocator f);
-	XMLPUBFUN int XMLCALL xmlHashRemoveEntry2(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, xmlHashDeallocator f);
-	XMLPUBFUN int  XMLCALL xmlHashRemoveEntry3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3,xmlHashDeallocator f);
+	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlHashRemoveEntry(xmlHashTable * table, const xmlChar *name, xmlHashDeallocator f);
+	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlHashRemoveEntry2(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, xmlHashDeallocator f);
+	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlHashRemoveEntry3(xmlHashTable * table, const xmlChar *name, const xmlChar *name2, const xmlChar *name3,xmlHashDeallocator f);
 	// 
 	// Retrieve the userdata.
 	// 

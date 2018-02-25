@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/opensslv.h>
-#include <openssl/rc2.h>
+//#include <openssl/rc2.h>
 #include "rc2_locl.h"
 /*-
  * RC2 as implemented frm a posting from

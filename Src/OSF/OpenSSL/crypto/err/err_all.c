@@ -14,7 +14,7 @@
 #endif
 //#include <openssl/ts.h>
 //#include <openssl/ct.h>
-#include <openssl/kdf.h>
+//#include <openssl/kdf.h>
 
 int err_load_crypto_strings_int(void)
 {

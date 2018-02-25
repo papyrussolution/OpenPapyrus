@@ -414,11 +414,12 @@ static int xmlC14NNsCompare(xmlNs * ns1, xmlNs * ns2)
 {
 	if(ns1 == ns2)
 		return 0;
-	if(ns1 == NULL)
+	else if(ns1 == NULL)
 		return -1;
-	if(ns2 == NULL)
+	else if(ns2 == NULL)
 		return 1;
-	return (xmlStrcmp(ns1->prefix, ns2->prefix));
+	else
+		return xmlStrcmp(ns1->prefix, ns2->prefix);
 }
 /**
  * xmlC14NPrintNamespaces:
@@ -431,24 +432,25 @@ static int xmlC14NNsCompare(xmlNs * ns1, xmlNs * ns2)
  */
 static int xmlC14NPrintNamespaces(const xmlNs * ns, xmlC14NCtxPtr ctx)
 {
-	if((ns == NULL) || (ctx == NULL)) {
+	if(!ns || !ctx) {
 		xmlC14NErrParam("writing namespaces");
 		return 0;
 	}
-	if(ns->prefix) {
-		xmlOutputBufferWriteString(ctx->buf, " xmlns:");
-		xmlOutputBufferWriteString(ctx->buf, (const char*)ns->prefix);
-		xmlOutputBufferWriteString(ctx->buf, "=");
+	else {
+		if(ns->prefix) {
+			xmlOutputBufferWriteString(ctx->buf, " xmlns:");
+			xmlOutputBufferWriteString(ctx->buf, (const char*)ns->prefix);
+			xmlOutputBufferWriteString(ctx->buf, "=");
+		}
+		else
+			xmlOutputBufferWriteString(ctx->buf, " xmlns=");
+		if(ns->href)
+			xmlBufWriteQuotedString(ctx->buf->buffer, ns->href);
+		else
+			xmlOutputBufferWriteString(ctx->buf, "\"\"");
+		return 1;
 	}
-	else
-		xmlOutputBufferWriteString(ctx->buf, " xmlns=");
-	if(ns->href)
-		xmlBufWriteQuotedString(ctx->buf->buffer, ns->href);
-	else
-		xmlOutputBufferWriteString(ctx->buf, "\"\"");
-	return 1;
 }
-
 /**
  * xmlC14NProcessNamespacesAxis:
  * @ctx:		the C14N context
@@ -756,7 +758,7 @@ static int xmlC14NAttrsCompare(xmlAttr * attr1, xmlAttr * attr2)
 	if(attr2 == NULL)
 		return 1;
 	if(attr1->ns == attr2->ns) {
-		return (xmlStrcmp(attr1->name, attr2->name));
+		return xmlStrcmp(attr1->name, attr2->name);
 	}
 	/*
 	 * Attributes in the default namespace are first
@@ -771,11 +773,9 @@ static int xmlC14NAttrsCompare(xmlAttr * attr1, xmlAttr * attr2)
 		return -1;
 	if(attr2->ns->prefix == NULL)
 		return 1;
-
 	ret = xmlStrcmp(attr1->ns->href, attr2->ns->href);
-	if(ret == 0) {
+	if(ret == 0)
 		ret = xmlStrcmp(attr1->name, attr2->name);
-	}
 	return ret;
 }
 

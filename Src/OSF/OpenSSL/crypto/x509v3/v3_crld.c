@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "ext_dat.h"
+//#include "ext_dat.h"
 
 static void * v2i_crld(const X509V3_EXT_METHOD * method, X509V3_CTX * ctx, STACK_OF(CONF_VALUE) * nval);
 static int i2r_crldp(const X509V3_EXT_METHOD * method, void * pcrldp, BIO * out, int indent);

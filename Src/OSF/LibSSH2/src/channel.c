@@ -636,9 +636,7 @@ static int channel_setenv(LIBSSH2_CHANNEL * channel, const char * varname, uint 
  *
  * Set an environment variable prior to requesting a shell/program/subsystem
  */
-LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL * channel,
-    const char * varname, uint varname_len,
-    const char * value, uint value_len)
+LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL * channel, const char * varname, uint varname_len, const char * value, uint value_len)
 {
 	int rc;
 	if(!channel)
@@ -650,18 +648,13 @@ LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL * channel,
  * channel_request_pty
  * Duh... Request a PTY
  */
-static int channel_request_pty(LIBSSH2_CHANNEL * channel,
-    const char * term, uint term_len,
-    const char * modes, uint modes_len,
-    int width, int height,
-    int width_px, int height_px)
+static int channel_request_pty(LIBSSH2_CHANNEL * channel, const char * term, uint term_len, const char * modes, uint modes_len,
+    int width, int height, int width_px, int height_px)
 {
 	LIBSSH2_SESSION * session = channel->session;
 	uchar * s;
-	static const uchar reply_codes[3] =
-	{ SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
+	static const uchar reply_codes[3] = { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
 	int rc;
-
 	if(channel->reqPTY_state == libssh2_NB_state_idle) {
 		/* 41 = packet_type(1) + channel(4) + pty_req_len(4) + "pty_req"(7) +
 		 * want_reply(1) + term_len(4) + width(4) + height(4) + width_px(4) +
@@ -698,7 +691,6 @@ static int channel_request_pty(LIBSSH2_CHANNEL * channel,
 			return _libssh2_error(session, rc, "Unable to send pty-request packet");
 		}
 		_libssh2_htonu32(channel->reqPTY_local_channel, channel->local.id);
-
 		channel->reqPTY_state = libssh2_NB_state_sent;
 	}
 

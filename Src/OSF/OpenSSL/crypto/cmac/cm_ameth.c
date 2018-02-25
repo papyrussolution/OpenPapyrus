@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/evp.h>
-#include <openssl/cmac.h>
+//#include <openssl/cmac.h>
 //#include "internal/asn1_int.h"
 /*
  * CMAC "ASN1" method. This is just here to indicate the maximum CMAC output
@@ -30,18 +30,13 @@ const EVP_PKEY_ASN1_METHOD cmac_asn1_meth = {
     EVP_PKEY_CMAC,
     EVP_PKEY_CMAC,
     0,
-
     "CMAC",
     "OpenSSL CMAC method",
-
     0, 0, 0, 0,
-
     0, 0, 0,
-
     cmac_size,
     0, 0,
     0, 0, 0, 0, 0, 0, 0,
-
     cmac_key_free,
     0,
     0, 0

@@ -10,7 +10,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/err.h>
-#include <openssl/kdf.h>
+//#include <openssl/kdf.h>
 
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR

@@ -13,8 +13,8 @@
 #include <openssl/opensslconf.h>
 
 #ifndef OPENSSL_NO_SRP
-#include <stdio.h>
-#include <string.h>
+//#include <stdio.h>
+//#include <string.h>
 #include <openssl/safestack.h>
 #include <openssl/bn.h>
 #include <openssl/crypto.h>
@@ -75,12 +75,8 @@ int SRP_VBASE_init(SRP_VBASE *vb, char *verifier_file);
 DEPRECATEDIN_1_1_0(SRP_user_pwd *SRP_VBASE_get_by_user(SRP_VBASE *vb, char *username))
 /* NOTE: unlike in SRP_VBASE_get_by_user, caller owns the returned pointer.*/
 SRP_user_pwd *SRP_VBASE_get1_by_user(SRP_VBASE *vb, char *username);
-
-char *SRP_create_verifier(const char *user, const char *pass, char **salt,
-                          char **verifier, const char *N, const char *g);
-int SRP_create_verifier_BN(const char *user, const char *pass, BIGNUM **salt,
-                           BIGNUM **verifier, const BIGNUM *N,
-                           const BIGNUM *g);
+char *SRP_create_verifier(const char *user, const char *pass, char **salt, char **verifier, const char *N, const char *g);
+int SRP_create_verifier_BN(const char *user, const char *pass, BIGNUM **salt, BIGNUM **verifier, const BIGNUM *N, const BIGNUM *g);
 
 #define SRP_NO_ERROR 0
 #define SRP_ERR_VBASE_INCOMPLETE_FILE 1
@@ -107,18 +103,15 @@ char *SRP_check_known_gN_param(const BIGNUM *g, const BIGNUM *N);
 SRP_gN *SRP_get_default_gN(const char *id);
 
 /* server side .... */
-BIGNUM *SRP_Calc_server_key(const BIGNUM *A, const BIGNUM *v, const BIGNUM *u,
-                            const BIGNUM *b, const BIGNUM *N);
-BIGNUM *SRP_Calc_B(const BIGNUM *b, const BIGNUM *N, const BIGNUM *g,
-                   const BIGNUM *v);
+BIGNUM *SRP_Calc_server_key(const BIGNUM *A, const BIGNUM *v, const BIGNUM *u, const BIGNUM *b, const BIGNUM *N);
+BIGNUM *SRP_Calc_B(const BIGNUM *b, const BIGNUM *N, const BIGNUM *g, const BIGNUM *v);
 int SRP_Verify_A_mod_N(const BIGNUM *A, const BIGNUM *N);
 BIGNUM *SRP_Calc_u(const BIGNUM *A, const BIGNUM *B, const BIGNUM *N);
 
 /* client side .... */
 BIGNUM *SRP_Calc_x(const BIGNUM *s, const char *user, const char *pass);
 BIGNUM *SRP_Calc_A(const BIGNUM *a, const BIGNUM *N, const BIGNUM *g);
-BIGNUM *SRP_Calc_client_key(const BIGNUM *N, const BIGNUM *B, const BIGNUM *g,
-                            const BIGNUM *x, const BIGNUM *a, const BIGNUM *u);
+BIGNUM *SRP_Calc_client_key(const BIGNUM *N, const BIGNUM *B, const BIGNUM *g, const BIGNUM *x, const BIGNUM *a, const BIGNUM *u);
 int SRP_Verify_B_mod_N(const BIGNUM *B, const BIGNUM *N);
 
 #define SRP_MINIMAL_N 1024

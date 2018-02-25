@@ -2335,9 +2335,9 @@ int SLAPI CreateBackupCopy(const char * pActiveUser, int skipCfm)
 	if(ini_file.IsValid()) {
 		int    backup_user_found = 0;
 		SString backup_user_list, backup_user;
-		PPDbEntrySet2 dbes;
-		dbes.ReadFromProfile(&ini_file);
 		if(ini_file.Get((uint)PPINISECT_SYSTEM, (uint)PPINIPARAM_BACKUPUSER, backup_user_list) > 0) {
+			PPDbEntrySet2 dbes;
+			dbes.ReadFromProfile(&ini_file);
 			uint k = 0;
 			StringSet ss_backup_users(',', backup_user_list);
 			for(uint i = 0; i < ss_backup_users.getCount(); i++) {

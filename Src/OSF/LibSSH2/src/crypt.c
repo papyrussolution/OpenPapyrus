@@ -67,11 +67,8 @@ struct crypt_ctx {
 	_libssh2_cipher_ctx h;
 };
 
-static int crypt_init(LIBSSH2_SESSION * session,
-    const LIBSSH2_CRYPT_METHOD * method,
-    uchar * iv, int * free_iv,
-    uchar * secret, int * free_secret,
-    int encrypt, void ** abstract)
+static int crypt_init(LIBSSH2_SESSION * session, const LIBSSH2_CRYPT_METHOD * method, uchar * iv, int * free_iv,
+    uchar * secret, int * free_secret, int encrypt, void ** abstract)
 {
 	struct crypt_ctx * ctx = (struct crypt_ctx *)LIBSSH2_ALLOC(session, sizeof(struct crypt_ctx));
 	if(!ctx)
@@ -92,8 +89,7 @@ static int crypt_encrypt(LIBSSH2_SESSION * session, uchar * block, size_t blocks
 {
 	struct crypt_ctx * cctx = *(struct crypt_ctx**)abstract;
 	(void)session;
-	return _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block,
-	    blocksize);
+	return _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block, blocksize);
 }
 
 static int crypt_dtor(LIBSSH2_SESSION * session, void ** abstract)

@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "asn1_locl.h"
+//#include "asn1_locl.h"
 
 int ASN1_TYPE_get(const ASN1_TYPE * a)
 {

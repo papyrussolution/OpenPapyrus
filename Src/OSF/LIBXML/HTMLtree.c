@@ -251,12 +251,8 @@ create:
  * output as <option selected>, as per XSLT 1.0 16.2 "HTML Output Method"
  *
  */
-static const char* htmlBooleanAttrs[] = {
-	"checked", "compact", "declare", "defer", "disabled", "ismap",
-	"multiple", "nohref", "noresize", "noshade", "nowrap", "readonly",
-	"selected", NULL
-};
-
+static const char* htmlBooleanAttrs[] = 
+	{ "checked", "compact", "declare", "defer", "disabled", "ismap", "multiple", "nohref", "noresize", "noshade", "nowrap", "readonly", "selected", NULL };
 /**
  * htmlIsBooleanAttr:
  * @name:  the name of the attribute to check
@@ -279,11 +275,9 @@ int htmlIsBooleanAttr(const xmlChar * name)
  * private routine exported from xmlIO.c
  */
 xmlOutputBuffer * xmlAllocOutputBufferInternal(xmlCharEncodingHandler * encoder);
-/************************************************************************
-*									*
-*			Output error handlers				*
-*									*
-************************************************************************/
+// 
+// Output error handlers
+// 
 /**
  * htmlSaveErrMemory:
  * @extra:  extra informations
@@ -294,7 +288,6 @@ static void htmlSaveErrMemory(const char * extra)
 {
 	__xmlSimpleError(XML_FROM_OUTPUT, XML_ERR_NO_MEMORY, NULL, NULL, extra);
 }
-
 /**
  * htmlSaveErr:
  * @code:  the error number
@@ -315,13 +308,9 @@ static void FASTCALL htmlSaveErr(int code, xmlNodePtr P_Node, const char * extra
 	}
 	__xmlSimpleError(XML_FROM_OUTPUT, code, P_Node, msg, extra);
 }
-
-/************************************************************************
-*									*
-*		Dumping HTML tree content to a simple buffer		*
-*									*
-************************************************************************/
-
+// 
+// Dumping HTML tree content to a simple buffer
+// 
 /**
  * htmlBufNodeDumpFormat:
  * @buf:  the xmlBufPtr output
@@ -422,7 +411,6 @@ int htmlNodeDumpFileFormat(FILE * out, xmlDoc * doc, xmlNodePtr cur, const char 
 	htmlNodeDumpFormatOutput(buf, doc, cur, encoding, format);
 	return xmlOutputBufferClose(buf);
 }
-
 /**
  * htmlNodeDumpFile:
  * @out:  the FILE pointer
@@ -512,13 +500,9 @@ void htmlDocDumpMemory(xmlDoc * cur, xmlChar** mem, int * size)
 {
 	htmlDocDumpMemoryFormat(cur, mem, size, 1);
 }
-
-/************************************************************************
-*									*
-*		Dumping HTML tree content to an I/O output buffer	*
-*									*
-************************************************************************/
-
+// 
+// Dumping HTML tree content to an I/O output buffer
+// 
 void xmlNsListDumpOutput(xmlOutputBuffer * buf, xmlNs * cur);
 /**
  * htmlDtdDumpOutput:
@@ -689,7 +673,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cu
 			htmlAttrDumpOutput(buf, doc, (xmlAttr *)cur, encoding);
 		else if(cur->type == HTML_TEXT_NODE) {
 			if(cur->content) {
-				if(((cur->name == (const xmlChar*)xmlStringText) || (cur->name != (const xmlChar*)xmlStringTextNoenc)) &&
+				if((cur->name == (const xmlChar*)xmlStringText || cur->name != (const xmlChar*)xmlStringTextNoenc) &&
 					(!cur->parent || (!sstreqi_ascii(cur->parent->name, BAD_CAST "script") && !sstreqi_ascii(cur->parent->name, BAD_CAST "style")))) {
 					xmlChar * buffer = xmlEncodeEntitiesReentrant(doc, cur->content);
 					if(buffer) {
@@ -746,7 +730,7 @@ void htmlNodeDumpFormatOutput(xmlOutputBuffer * buf, xmlDoc * doc, xmlNodePtr cu
 				}
 			}
 			else if(((cur->type == XML_ELEMENT_NODE) || !cur->content) && !cur->children) {
-				if(info && info->saveEndTag && (xmlStrcmp(BAD_CAST info->name, BAD_CAST "html")) && (xmlStrcmp(BAD_CAST info->name, BAD_CAST "body"))) {
+				if(info && info->saveEndTag && !sstreq(info->name, "html") && !sstreq(info->name, "body")) {
 					xmlOutputBufferWriteString(buf, ">");
 				}
 				else {

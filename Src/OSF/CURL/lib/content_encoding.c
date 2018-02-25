@@ -40,14 +40,14 @@
 #define COMMENT      0x10 /* bit 4 set: file comment present */
 #define RESERVED     0xE0 /* bits 5..7: reserved */
 
-static voidpf zalloc_cb(voidpf opaque, uint items, uint size)
+static void * zalloc_cb(void * opaque, uint items, uint size)
 {
 	(void)opaque;
 	/* not a typo, keep it SAlloc::C() */
-	return (voidpf)SAlloc::C(items, size);
+	return (void *)SAlloc::C(items, size);
 }
 
-static void zfree_cb(voidpf opaque, voidpf ptr)
+static void zfree_cb(void * opaque, void * ptr)
 {
 	(void)opaque;
 	SAlloc::F(ptr);

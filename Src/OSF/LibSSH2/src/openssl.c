@@ -161,7 +161,6 @@ int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx, const uchar * sig, const 
 	BN_bin2bn(sig, 20, r);
 	s = BN_new();
 	BN_bin2bn(sig + 20, 20, s);
-
 	dsasig = DSA_SIG_new();
 #ifdef HAVE_OPAQUE_STRUCTS
 	DSA_SIG_set0(dsasig, r, s);
@@ -172,17 +171,13 @@ int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx, const uchar * sig, const 
 	if(!_libssh2_sha1(m, m_len, hash))
 		/* _libssh2_sha1() succeeded */
 		ret = DSA_do_verify(hash, SHA_DIGEST_LENGTH, dsasig, (DSA *)dsactx);
-
 	DSA_SIG_free(dsasig);
-
 	return (ret == 1) ? 0 : -1;
 }
 
 #endif /* LIBSSH_DSA */
 
-int _libssh2_cipher_init(_libssh2_cipher_ctx * h,
-    _libssh2_cipher_type(algo),
-    uchar * iv, uchar * secret, int encrypt)
+int _libssh2_cipher_init(_libssh2_cipher_ctx * h, _libssh2_cipher_type(algo), uchar * iv, uchar * secret, int encrypt)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
 	*h = EVP_CIPHER_CTX_new();
@@ -292,7 +287,6 @@ static int aes_ctr_do_cipher(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in
 			break;
 		i--;
 	}
-
 	return 1;
 }
 
@@ -367,8 +361,7 @@ const EVP_CIPHER * _libssh2_EVP_aes_256_ctr(void)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
 	static EVP_CIPHER * aes_ctr_cipher;
-	return !aes_ctr_cipher ?
-	       make_ctr_evp(32, aes_ctr_cipher, NID_aes_256_ctr) : aes_ctr_cipher;
+	return !aes_ctr_cipher ? make_ctr_evp(32, aes_ctr_cipher, NID_aes_256_ctr) : aes_ctr_cipher;
 #else
 	static EVP_CIPHER aes_ctr_cipher;
 	return !aes_ctr_cipher.key_len ?
@@ -396,7 +389,6 @@ static int passphrase_cb(char * buf, int size, int rwflag, char * passphrase)
 {
 	int passphrase_len = strlen(passphrase);
 	(void)rwflag;
-
 	if(passphrase_len > (size - 1)) {
 		passphrase_len = size - 1;
 	}
@@ -408,11 +400,8 @@ static int passphrase_cb(char * buf, int size, int rwflag, char * passphrase)
 
 typedef void * (*pem_read_bio_func)(BIO *, void **, pem_password_cb *, void * u);
 
-static int read_private_key_from_memory(void ** key_ctx,
-    pem_read_bio_func read_private_key,
-    const char * filedata,
-    size_t filedata_len,
-    const uchar * passphrase)
+static int read_private_key_from_memory(void ** key_ctx, pem_read_bio_func read_private_key,
+    const char * filedata, size_t filedata_len, const uchar * passphrase)
 {
 	BIO * bp;
 	*key_ctx = NULL;
@@ -854,14 +843,8 @@ int _libssh2_pub_priv_keyfile(LIBSSH2_SESSION * session, uchar ** method, size_t
 	return st;
 }
 
-int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION * session,
-    uchar ** method,
-    size_t * method_len,
-    uchar ** pubkeydata,
-    size_t * pubkeydata_len,
-    const char * privatekeydata,
-    size_t privatekeydata_len,
-    const char * passphrase)
+int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION * session, uchar ** method, size_t * method_len,
+    uchar ** pubkeydata, size_t * pubkeydata_len, const char * privatekeydata, size_t privatekeydata_len, const char * passphrase)
 {
 	int st;
 	BIO*      bp;

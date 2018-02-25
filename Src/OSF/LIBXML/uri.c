@@ -97,13 +97,9 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
  * path          = [ abs_path | opaque_part ]
  */
 #define STRNDUP(s, n) (char*)xmlStrndup((const xmlChar*)(s), (n))
-
-/************************************************************************
-*									*
-*                         RFC 3986 parser				*
-*									*
-************************************************************************/
-
+// 
+// RFC 3986 parser
+// 
 #define ISA_DIGIT(p) ((*(p) >= '0') && (*(p) <= '9'))
 #define ISA_ALPHA(p) (((*(p) >= 'a') && (*(p) <= 'z')) || ((*(p) >= 'A') && (*(p) <= 'Z')))
 #define ISA_HEXDIG(p) (ISA_DIGIT(p) || ((*(p) >= 'a') && (*(p) <= 'f')) || ((*(p) >= 'A') && (*(p) <= 'F')))
@@ -129,25 +125,18 @@ static void FASTCALL xmlCleanURI(xmlURI * uri);
  *    reserved      = gen-delims / sub-delims
  */
 #define ISA_RESERVED(p) (ISA_GEN_DELIM(p) || (ISA_SUB_DELIM(p)))
-
 /*
  *    unreserved    = ALPHA / DIGIT / "-" / "." / "_" / "~"
  */
-#define ISA_UNRESERVED(p)						\
-	((ISA_ALPHA(p)) || (ISA_DIGIT(p)) || ((*(p) == '-')) ||		  \
-	    ((*(p) == '.')) || ((*(p) == '_')) || ((*(p) == '~')))
-
+#define ISA_UNRESERVED(p) ((ISA_ALPHA(p)) || (ISA_DIGIT(p)) || ((*(p) == '-')) || ((*(p) == '.')) || ((*(p) == '_')) || ((*(p) == '~')))
 /*
  *    pct-encoded   = "%" HEXDIG HEXDIG
  */
-#define ISA_PCT_ENCODED(p)						\
-	((*(p) == '%') && (ISA_HEXDIG(p + 1)) && (ISA_HEXDIG(p + 2)))
-
+#define ISA_PCT_ENCODED(p) ((*(p) == '%') && (ISA_HEXDIG(p + 1)) && (ISA_HEXDIG(p + 2)))
 /*
  *    pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
  */
 #define ISA_PCHAR(p) (ISA_UNRESERVED(p) || ISA_PCT_ENCODED(p) || ISA_SUB_DELIM(p) || ((*(p) == ':')) || ((*(p) == '@')))
-
 /**
  * xmlParse3986Scheme:
  * @uri:  pointer to an URI structure
@@ -171,8 +160,7 @@ static int xmlParse3986Scheme(xmlURIPtr uri, const char ** str)
 	while(ISA_ALPHA(cur) || ISA_DIGIT(cur) || oneof3(*cur, '+', '-', '.'))
 		cur++;
 	if(uri) {
-		if(uri->scheme != NULL)
-			SAlloc::F(uri->scheme);
+		SAlloc::F(uri->scheme);
 		uri->scheme = STRNDUP(*str, cur - *str);
 	}
 	*str = cur;
@@ -203,8 +191,7 @@ static int xmlParse3986Fragment(xmlURIPtr uri, const char ** str)
 	while((ISA_PCHAR(cur)) || oneof4(*cur, '/', '?', '[', ']') || (uri && (uri->cleanup & 1) && (IS_UNWISE(cur))))
 		NEXT(cur);
 	if(uri) {
-		if(uri->fragment != NULL)
-			SAlloc::F(uri->fragment);
+		SAlloc::F(uri->fragment);
 		if(uri->cleanup & 2)
 			uri->fragment = STRNDUP(*str, cur - *str);
 		else
@@ -234,24 +221,19 @@ static int xmlParse3986Query(xmlURIPtr uri, const char ** str)
 	while((ISA_PCHAR(cur)) || oneof2(*cur, '/', '?') || (uri && (uri->cleanup & 1) && (IS_UNWISE(cur))))
 		NEXT(cur);
 	if(uri) {
-		if(uri->query != NULL)
-			SAlloc::F(uri->query);
+		SAlloc::F(uri->query);
 		if(uri->cleanup & 2)
 			uri->query = STRNDUP(*str, cur - *str);
 		else
 			uri->query = xmlURIUnescapeString(*str, cur - *str, 0);
-
-		/* Save the raw bytes of the query as well.
-		 * See: http://mail.gnome.org/archives/xml/2007-April/thread.html#00114
-		 */
-		if(uri->query_raw != NULL)
-			SAlloc::F(uri->query_raw);
+		// Save the raw bytes of the query as well.
+		// See: http://mail.gnome.org/archives/xml/2007-April/thread.html#00114
+		SAlloc::F(uri->query_raw);
 		uri->query_raw = STRNDUP(*str, cur - *str);
 	}
 	*str = cur;
 	return 0;
 }
-
 /**
  * xmlParse3986Port:
  * @uri:  pointer to an URI structure
@@ -280,7 +262,6 @@ static int xmlParse3986Port(xmlURIPtr uri, const char ** str)
 	}
 	return 1;
 }
-
 /**
  * xmlParse3986Userinfo:
  * @uri:  pointer to an URI structure
@@ -308,7 +289,6 @@ static int xmlParse3986Userinfo(xmlURIPtr uri, const char ** str)
 	}
 	return 1;
 }
-
 /**
  * xmlParse3986DecOctet:
  * @str:  the string to analyze
@@ -343,7 +323,6 @@ static int xmlParse3986DecOctet(const char ** str)
 	*str = cur;
 	return 0;
 }
-
 /**
  * xmlParse3986Host:
  * @uri:  pointer to an URI structure
@@ -405,11 +384,9 @@ not_ipv4:
 		NEXT(cur);
 found:
 	if(uri) {
-		if(uri->authority != NULL)
-			SAlloc::F(uri->authority);
+		SAlloc::F(uri->authority);
 		uri->authority = NULL;
-		if(uri->server != NULL)
-			SAlloc::F(uri->server);
+		SAlloc::F(uri->server);
 		if(cur != host) {
 			if(uri->cleanup & 2)
 				uri->server = STRNDUP(host, cur - host);
@@ -455,7 +432,6 @@ static int xmlParse3986Authority(xmlURIPtr uri, const char ** str)
 	*str = cur;
 	return 0;
 }
-
 /**
  * xmlParse3986Segment:
  * @str:  the string to analyze
@@ -519,7 +495,6 @@ static int FASTCALL xmlParse3986PathAbEmpty(xmlURIPtr uri, const char ** str)
 	*str = cur;
 	return 0;
 }
-
 /**
  * xmlParse3986PathAbsolute:
  * @uri:  pointer to an URI structure
@@ -544,7 +519,8 @@ static int FASTCALL xmlParse3986PathAbsolute(xmlURIPtr uri, const char ** str)
 		while(*cur == '/') {
 			cur++;
 			ret = xmlParse3986Segment(&cur, 0, 1);
-			if(ret != 0) return ret;
+			if(ret) 
+				return ret;
 		}
 	}
 	if(uri) {
@@ -575,46 +551,8 @@ static int FASTCALL xmlParse3986PathRootless(xmlURIPtr uri, const char ** str)
 {
 	const char * cur = *str;
 	int ret = xmlParse3986Segment(&cur, 0, 0);
-	if(ret != 0) return ret;
-	while(*cur == '/') {
-		cur++;
-		ret = xmlParse3986Segment(&cur, 0, 1);
-		if(ret != 0) return ret;
-	}
-	if(uri) {
-		if(uri->path != NULL)
-			SAlloc::F(uri->path);
-		if(cur != *str) {
-			if(uri->cleanup & 2)
-				uri->path = STRNDUP(*str, cur - *str);
-			else
-				uri->path = xmlURIUnescapeString(*str, cur - *str, 0);
-		}
-		else {
-			uri->path = NULL;
-		}
-	}
-	*str = cur;
-	return 0;
-}
-
-/**
- * xmlParse3986PathNoScheme:
- * @uri:  pointer to an URI structure
- * @str:  the string to analyze
- *
- * Parse an path which is not a scheme and fills in the appropriate fields
- * of the @uri structure
- *
- * path-noscheme = segment-nz-nc *( "/" segment )
- *
- * Returns 0 or the error code
- */
-static int xmlParse3986PathNoScheme(xmlURIPtr uri, const char ** str)
-{
-	const char * cur = *str;
-	int ret = xmlParse3986Segment(&cur, ':', 0);
-	if(ret != 0) return ret;
+	if(ret) 
+		return ret;
 	while(*cur == '/') {
 		cur++;
 		ret = xmlParse3986Segment(&cur, 0, 1);
@@ -635,7 +573,45 @@ static int xmlParse3986PathNoScheme(xmlURIPtr uri, const char ** str)
 	*str = cur;
 	return 0;
 }
-
+/**
+ * xmlParse3986PathNoScheme:
+ * @uri:  pointer to an URI structure
+ * @str:  the string to analyze
+ *
+ * Parse an path which is not a scheme and fills in the appropriate fields
+ * of the @uri structure
+ *
+ * path-noscheme = segment-nz-nc *( "/" segment )
+ *
+ * Returns 0 or the error code
+ */
+static int xmlParse3986PathNoScheme(xmlURIPtr uri, const char ** str)
+{
+	const char * cur = *str;
+	int ret = xmlParse3986Segment(&cur, ':', 0);
+	if(ret) 
+		return ret;
+	while(*cur == '/') {
+		cur++;
+		ret = xmlParse3986Segment(&cur, 0, 1);
+		if(ret) 
+			return ret;
+	}
+	if(uri) {
+		SAlloc::F(uri->path);
+		if(cur != *str) {
+			if(uri->cleanup & 2)
+				uri->path = STRNDUP(*str, cur - *str);
+			else
+				uri->path = xmlURIUnescapeString(*str, cur - *str, 0);
+		}
+		else {
+			uri->path = NULL;
+		}
+	}
+	*str = cur;
+	return 0;
+}
 /**
  * xmlParse3986HierPart:
  * @uri:  pointer to an URI structure
@@ -655,7 +631,7 @@ static int xmlParse3986HierPart(xmlURIPtr uri, const char ** str)
 {
 	int ret;
 	const char * cur = *str;
-	if((*cur == '/') && (*(cur + 1) == '/')) {
+	if(*cur == '/' && *(cur + 1) == '/') {
 		cur += 2;
 		ret = xmlParse3986Authority(uri, &cur);
 		if(ret != 0) return ret;
@@ -785,7 +761,6 @@ static int xmlParse3986URI(xmlURIPtr uri, const char * str)
 	}
 	return 0;
 }
-
 /**
  * xmlParse3986URIReference:
  * @uri:  pointer to an URI structure
@@ -844,7 +819,6 @@ xmlURIPtr xmlParseURI(const char * str)
 	}
 	return uri;
 }
-
 /**
  * xmlParseURIReference:
  * @uri:  pointer to an URI structure
@@ -891,13 +865,9 @@ xmlURIPtr xmlParseURIRaw(const char * str, int raw)
 	}
 	return uri;
 }
-
-/************************************************************************
-*									*
-*			Generic URI structure functions			*
-*									*
-************************************************************************/
-
+// 
+// Generic URI structure functions
+// 
 /**
  * xmlCreateURI:
  *
@@ -1253,13 +1223,9 @@ void FASTCALL xmlFreeURI(xmlURI * uri)
 		SAlloc::F(uri);
 	}
 }
-
-/************************************************************************
-*									*
-*			Helper functions				*
-*									*
-************************************************************************/
-
+// 
+// Helper functions
+// 
 /**
  * xmlNormalizeURIPath:
  * @path:  pointer to the path string
@@ -1673,13 +1639,9 @@ xmlChar * FASTCALL xmlURIEscape(const xmlChar * str)
 #undef NULLCHK
 	return ret;
 }
-
-/************************************************************************
-*									*
-*			Public functions				*
-*									*
-************************************************************************/
-
+// 
+// Public functions
+// 
 /**
  * xmlBuildURI:
  * @URI:  the URI instance found in the document
@@ -1692,8 +1654,7 @@ xmlChar * FASTCALL xmlURIEscape(const xmlChar * str)
  *
  * 5.2. Resolving Relative References to Absolute Form
  *
- * Returns a new URI string (to be freed by the caller) or NULL in case
- *         of error.
+ * Returns a new URI string (to be freed by the caller) or NULL in case of error.
  */
 xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 {
@@ -1725,9 +1686,7 @@ xmlChar * xmlBuildURI(const xmlChar * URI, const xmlChar * base)
 	if(ret != 0)
 		goto done;
 	if(ref && ref->scheme) {
-		/*
-		 * The URI is absolute don't modify.
-		 */
+		// The URI is absolute don't modify.
 		val = sstrdup(URI);
 		goto done;
 	}
@@ -1907,7 +1866,6 @@ done:
 	xmlFreeURI(res);
 	return val;
 }
-
 /**
  * xmlBuildRelativeURI:
  * @URI:  the URI reference under consideration
@@ -1988,7 +1946,7 @@ xmlChar * xmlBuildRelativeURI(const xmlChar * URI, const xmlChar * base)
 	/*
 	 * If the scheme / server on the URI differs from the base, just return the URI
 	 */
-	if(ref->scheme && (!bas->scheme || xmlStrcmp((xmlChar*)bas->scheme, (xmlChar*)ref->scheme) || xmlStrcmp((xmlChar*)bas->server, (xmlChar*)ref->server))) {
+	if(ref->scheme && (!bas->scheme || !sstreq(bas->scheme, ref->scheme) || !sstreq(bas->server, ref->server))) {
 		val = sstrdup(URI);
 		goto done;
 	}

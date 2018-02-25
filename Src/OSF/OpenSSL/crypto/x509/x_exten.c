@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "x509_lcl.h"
+//#include "x509_lcl.h"
 
 ASN1_SEQUENCE(X509_EXTENSION) = {
 	ASN1_SIMPLE(X509_EXTENSION, object, ASN1_OBJECT),

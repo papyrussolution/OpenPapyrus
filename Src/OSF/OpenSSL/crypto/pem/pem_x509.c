@@ -8,6 +8,6 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/pkcs7.h>
+//#include <openssl/pkcs7.h>
 
 IMPLEMENT_PEM_rw(X509, X509, PEM_STRING_X509, X509)

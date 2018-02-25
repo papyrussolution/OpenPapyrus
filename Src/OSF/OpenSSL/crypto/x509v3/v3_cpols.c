@@ -8,8 +8,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "pcy_int.h"
-#include "ext_dat.h"
+//#include "pcy_int.h"
+//#include "ext_dat.h"
 
 /* Certificate policies extension support: this one is a bit complex... */
 

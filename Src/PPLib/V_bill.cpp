@@ -2994,36 +2994,35 @@ int SLAPI PPViewBill::AddItem(PPID * pID, PPID opID)
 
 static int SLAPI SelectAddByRcptAction(SelAddBySampleParam * pData)
 {
-	int    ok = -1, what = -1;
+	int    ok = -1; //, what = -1;
 	PPID   op_id = 0;
 	TDialog * dlg = new TDialog(DLG_SELBBSMPL);
 	if(CheckDialogPtrErr(&dlg)) {
 		ushort v = 0;
 		PPIDArray op_type_list;
-		dlg->setCtrlData(CTL_SELBBSMPL_WHAT, &v);
+		dlg->AddClusterAssocDef(CTL_SELBBSMPL_WHAT, 0, SelAddBySampleParam::acnStd);
+		dlg->AddClusterAssoc(CTL_SELBBSMPL_WHAT, 1, SelAddBySampleParam::acnShipmAll);
+		dlg->SetClusterData(CTL_SELBBSMPL_WHAT, pData->Action);
+		//dlg->setCtrlData(CTL_SELBBSMPL_WHAT, &v);
 		//SetupPPObjCombo(dlg, CTLSEL_SELBBSMPL_OP, PPOBJ_OPRKIND, 0, 0, PPOPT_GOODSEXPEND);
 		op_type_list.addzlist(PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, 0L);
-		SetupOprKindCombo(dlg, CTLSEL_SELBBSMPL_OP, 0, 0, &op_type_list, 0);
-		while(what == -1 && ExecView(dlg) == cmOK) {
-			dlg->getCtrlData(CTL_SELBBSMPL_WHAT, &v);
-			if(v == 0)
-				what = 0;
-			else if(v == 1) {
-				dlg->getCtrlData(CTLSEL_SELBBSMPL_OP, &op_id);
-				if(op_id == 0)
+		SetupOprKindCombo(dlg, CTLSEL_SELBBSMPL_OP, pData->OpID, 0, &op_type_list, 0);
+		while(ok < 0 && ExecView(dlg) == cmOK) {
+			//dlg->getCtrlData(CTL_SELBBSMPL_WHAT, &v);
+			dlg->GetClusterData(CTL_SELBBSMPL_WHAT, &pData->Action);
+			ok = 1;
+			if(pData->Action == SelAddBySampleParam::acnShipmAll) {
+				dlg->getCtrlData(CTLSEL_SELBBSMPL_OP, &pData->OpID);
+				if(!pData->OpID) {
 					PPErrorByDialog(dlg, CTLSEL_SELBBSMPL_OP, PPERR_OPRKINDNEEDED);
-				else
-					what = 1;
+					ok = -1;
+				}
 			}
 		}
 		delete dlg;
 	}
 	else
 		ok = 0;
-	if(pData) {
-		pData->Action = what;
-		pData->OpID = op_id;
-	}
 	return ok;
 }
 
@@ -3039,10 +3038,11 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData)
 		int    setDTS(const SelAddBySampleParam * pData)
 		{
 			Data = *pData;
-			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 0, 0);
-			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 1, 1);
-			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 2, 2);
-			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 3, 3);
+			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 0, SelAddBySampleParam::acnStd);
+			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 1, SelAddBySampleParam::acnShipmByOrder);
+			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 2, SelAddBySampleParam::acnDraftExpByOrder);
+			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 3, SelAddBySampleParam::acnDraftExpRestByOrder); // @v9.9.6
+			AddClusterAssoc(CTL_SELBBSMPL_WHAT, 4, SelAddBySampleParam::acnDraftRcpByOrder); // @v9.9.6 (3, 3)-->(4, 3)
 			SetClusterData(CTL_SELBBSMPL_WHAT, Data.Action);
 			AddClusterAssoc(CTL_SELBBSMPL_SAMECODE, 0, SelAddBySampleParam::fCopyBillCode);
 			SetClusterData(CTL_SELBBSMPL_SAMECODE, Data.Flags);
@@ -3058,7 +3058,8 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData)
 			GetClusterData(CTL_SELBBSMPL_SAMECODE, &Data.Flags);
 			getCtrlData(CTLSEL_SELBBSMPL_LOC, &Data.LocID);
 			getCtrlData(CTLSEL_SELBBSMPL_OP, &Data.OpID);
-			if(oneof3(Data.Action, 1, 2, 3)) {
+			if(oneof4(Data.Action, SelAddBySampleParam::acnShipmByOrder, SelAddBySampleParam::acnDraftExpByOrder, 
+				SelAddBySampleParam::acnDraftExpRestByOrder, SelAddBySampleParam::acnDraftRcpByOrder)) {
 				if(Data.OpID == 0)
 					ok = PPErrorByDialog(this, CTLSEL_SELBBSMPL_OP, PPERR_OPRKINDNEEDED);
 				else if(Data.LocID == 0)
@@ -3125,16 +3126,16 @@ static int SLAPI SelectAddByOrderAction(SelAddBySampleParam * pData)
 			GetClusterData(CTL_SELBBSMPL_WHAT, &Data.Action);
 			PPIDArray op_list;
 			PPOprKind op_rec;
-			if(Data.Action == 1) {
+			if(Data.Action == Data.acnShipmByOrder) {
 				for(PPID id = 0; EnumOperations(PPOPT_GOODSEXPEND, &id, &op_rec) > 0;)
 					if(op_rec.Flags & OPKF_ONORDER)
 						op_list.add(id);
 			}
-			else if(Data.Action == 2) {
+			else if(oneof2(Data.Action, Data.acnDraftExpByOrder, Data.acnDraftExpRestByOrder)) {
 				for(PPID id = 0; EnumOperations(PPOPT_DRAFTEXPEND, &id, &op_rec) > 0;)
 					op_list.add(id);
 			}
-			else if(Data.Action == 3) {
+			else if(Data.Action == Data.acnDraftRcpByOrder) {
 				for(PPID id = 0; EnumOperations(PPOPT_DRAFTRECEIPT, &id, &op_rec) > 0;)
 					op_list.add(id);
 			}
@@ -3159,34 +3160,47 @@ int SLAPI PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 			if(P_BObj->Search(sampleBillID, &bill_rec) > 0) {
 				SelAddBySampleParam param;
 				MEMSZERO(param);
-				param.Action = -1;
+				param.Action = param.acnUndef;
 				param.LocID = bill_rec.LocID;
 				const PPID op_type_id = GetOpType(bill_rec.OpID);
-				if(op_type_id == PPOPT_GOODSORDER) {
+				if(op_type_id == PPOPT_GOODSORDER)
 					SelectAddByOrderAction(&param);
-				}
 				else if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF))
 					SelectAddByRcptAction(&param);
 				else
-					param.Action = 0;
-				if(param.Action == 0) {
-					PPObjBill::AddBlock ab;
-					ab.SampleBillID = sampleBillID;
-					ok = P_BObj->AddGoodsBill(&bill_id, &ab);
+					param.Action = SelAddBySampleParam::acnStd;
+				switch(param.Action) {
+					case SelAddBySampleParam::acnStd:
+						{
+							PPObjBill::AddBlock ab;
+							ab.SampleBillID = sampleBillID;
+							ok = P_BObj->AddGoodsBill(&bill_id, &ab);
+						}
+						break;
+					case SelAddBySampleParam::acnShipmByOrder:
+						if(op_type_id == PPOPT_GOODSORDER)
+							ok = P_BObj->AddExpendByOrder(&bill_id, sampleBillID, &param);
+						else
+							ok = -1;
+						break;
+					case SelAddBySampleParam::acnDraftExpByOrder:
+					case SelAddBySampleParam::acnDraftExpRestByOrder:
+					case SelAddBySampleParam::acnDraftRcpByOrder:
+						if(op_type_id == PPOPT_GOODSORDER)
+							ok = P_BObj->AddDraftByOrder(&bill_id, sampleBillID, &param);
+						else
+							ok = -1;
+						break;
+					case SelAddBySampleParam::acnShipmAll:
+						if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF))
+							ok = P_BObj->AddExpendByReceipt(&bill_id, sampleBillID, &param);
+						else
+							ok = -1;
+						break;
+					default:
+						ok = -1;
+						break;
 				}
-				else if(param.Action == 1) {
-					if(op_type_id == PPOPT_GOODSORDER)
-						ok = P_BObj->AddExpendByOrder(&bill_id, sampleBillID, &param);
-					else if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF))
-						ok = P_BObj->AddExpendByReceipt(&bill_id, sampleBillID, &param);
-				}
-				else if(oneof2(param.Action, 2, 3)) {
-					if(op_type_id == PPOPT_GOODSORDER) {
-						ok = P_BObj->AddDraftByOrder(&bill_id, sampleBillID, &param);
-					}
-				}
-				else
-					ok = -1;
 			}
 		}
 		if(ok == cmOK) {

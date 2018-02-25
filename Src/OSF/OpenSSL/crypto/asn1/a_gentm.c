@@ -12,7 +12,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "asn1_locl.h"
+//#include "asn1_locl.h"
 
 int asn1_generalizedtime_to_tm(struct tm * tm, const ASN1_GENERALIZEDTIME * d)
 {

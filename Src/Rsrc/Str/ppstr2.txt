@@ -6099,14 +6099,15 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 //
 //
 //
-@prc_tcbquant           "Квант времени временной диаграммы, сек"
-@scardrule_dis          "Правило пересчета скидок"
-@scardrule_ccdis        "Правило расчета скидки на сумму чека"
-@scardrule_bonus        "Правило расчета бонусов"
+@prc_tcbquant                             "Квант времени временной диаграммы, сек"
+@scardrule_dis                            "Правило пересчета скидок"
+@scardrule_ccdis                          "Правило расчета скидки на сумму чека"
+@scardrule_bonus                          "Правило расчета бонусов"
 // Опция в конфигурациях объектов
-@xchg_sendattachment    "Передавать прикрепленные файлы"
+@xchg_sendattachment                      "Передавать прикрепленные файлы"
 // Следующий текст применяется в нескольких сообщениях потому вынесен как общая строка
-@msg_arhasntagreement   "Аналитическая статья '%s' не имеет соглашения"
+@msg_arhasntagreement                     "Аналитическая статья '%s' не имеет соглашения"
+@msg_selactandpressokorcancel             "Выберите действие и нажмите [OK] для подтверждения или [Отмена] для отказа"
 //
 //
 //
@@ -11095,6 +11096,20 @@ public:
 @selfbuildparam_distribpath               ""
 @selfbuildparam_compilerpath              "Путь к инструменту сборки проектов"
 @selfbuildparam_config                    "Конфигурация сборки"
+
+@billbysampleparam                        "Выберите действие"
+@billbysampleparam_action                 ""
+@billbysampleparam_acnundef               ""
+@billbysampleparam_acnstd                 "Стандартный документ по образцу"
+@billbysampleparam_acnshipmbyorder        "Сформировать отгрузку по заказу"
+@billbysampleparam_acndraftexpbyorder     "Сформировать драфт-расход"
+@billbysampleparam_acndraftrcpbyorder     "Сформировать драфт-приход"
+@billbysampleparam_acndraftexprestbyorder "Сформировать драфт-расход только по неотгруженным позициям"
+@billbysampleparam_acnshipmall            "Отгрузить весь оприходованный товар"
+@billbysampleparam_op                     "@{oprkind}"
+@billbysampleparam_loc                    "@{warehouse}"
+@billbysampleparam_flags                  "@{flags}"
+@billbysampleparam_fcopybillcode          "Копировать номер документа"
 
 @pospaymblock                             "Оплата покупки"
 @pospaymblock_amount                      "К оплате"

@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "ext_dat.h"
+//#include "ext_dat.h"
 
 static void * v2i_NAME_CONSTRAINTS(const X509V3_EXT_METHOD * method, X509V3_CTX * ctx, STACK_OF(CONF_VALUE) * nval);
 static int i2r_NAME_CONSTRAINTS(const X509V3_EXT_METHOD * method, void * a, BIO * bp, int ind);

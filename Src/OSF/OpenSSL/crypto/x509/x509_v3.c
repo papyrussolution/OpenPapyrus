@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "x509_lcl.h"
+//#include "x509_lcl.h"
 
 int X509v3_get_ext_count(const STACK_OF(X509_EXTENSION) * x)
 {

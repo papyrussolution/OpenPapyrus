@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "pcy_int.h"
+//#include "pcy_int.h"
 
 static int node_cmp(const X509_POLICY_NODE * const * a, const X509_POLICY_NODE * const * b)
 {

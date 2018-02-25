@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "x509_lcl.h"
+//#include "x509_lcl.h"
 
 /* X509_VERIFY_PARAM functions */
 
@@ -93,9 +93,8 @@ static void x509_verify_param_zero(X509_VERIFY_PARAM * param)
 X509_VERIFY_PARAM * X509_VERIFY_PARAM_new(void)
 {
 	X509_VERIFY_PARAM * param = (X509_VERIFY_PARAM*)OPENSSL_zalloc(sizeof(*param));
-	if(param == NULL)
-		return NULL;
-	x509_verify_param_zero(param);
+	if(param)
+		x509_verify_param_zero(param);
 	return param;
 }
 
@@ -140,11 +139,9 @@ void X509_VERIFY_PARAM_free(X509_VERIFY_PARAM * param)
  */
 
 /* Macro to test if a field should be copied from src to dest */
-
 #define test_x509_verify_param_copy(field, def)	(to_overwrite || ((src->field != def) && (to_default || (dest->field == def))))
 
 /* Macro to test and copy a field if necessary */
-
 #define x509_verify_param_copy(field, def) if(test_x509_verify_param_copy(field, def)) dest->field = src->field
 
 int X509_VERIFY_PARAM_inherit(X509_VERIFY_PARAM * dest, const X509_VERIFY_PARAM * src)
@@ -170,20 +167,15 @@ int X509_VERIFY_PARAM_inherit(X509_VERIFY_PARAM * dest, const X509_VERIFY_PARAM 
 	x509_verify_param_copy(trust, X509_TRUST_DEFAULT);
 	x509_verify_param_copy(depth, -1);
 	x509_verify_param_copy(auth_level, -1);
-
 	/* If overwrite or check time not set, copy across */
-
 	if(to_overwrite || !(dest->flags & X509_V_FLAG_USE_CHECK_TIME)) {
 		dest->check_time = src->check_time;
 		dest->flags &= ~X509_V_FLAG_USE_CHECK_TIME;
 		/* Don't need to copy flag: that is done below */
 	}
-
 	if(inh_flags & X509_VP_FLAG_RESET_FLAGS)
 		dest->flags = 0;
-
 	dest->flags |= src->flags;
-
 	if(test_x509_verify_param_copy(policies, NULL)) {
 		if(!X509_VERIFY_PARAM_set1_policies(dest, src->policies))
 			return 0;
@@ -225,9 +217,7 @@ static int int_x509_param_set1(char ** pdest, size_t * pdestlen, const char * sr
 {
 	void * tmp;
 	if(src) {
-		if(srclen == 0)
-			srclen = strlen(src);
-
+		SETIFZ(srclen, strlen(src));
 		tmp = OPENSSL_memdup(src, srclen);
 		if(!tmp)
 			return 0;
@@ -238,8 +228,7 @@ static int int_x509_param_set1(char ** pdest, size_t * pdestlen, const char * sr
 	}
 	OPENSSL_free(*pdest);
 	*pdest = (char*)tmp;
-	if(pdestlen != NULL)
-		*pdestlen = srclen;
+	ASSIGN_PTR(pdestlen, srclen);
 	return 1;
 }
 
@@ -247,9 +236,7 @@ int X509_VERIFY_PARAM_set1_name(X509_VERIFY_PARAM * param, const char * name)
 {
 	OPENSSL_free(param->name);
 	param->name = OPENSSL_strdup(name);
-	if(param->name)
-		return 1;
-	return 0;
+	return param->name ? 1 : 0;
 }
 
 int X509_VERIFY_PARAM_set_flags(X509_VERIFY_PARAM * param, ulong flags)
@@ -260,8 +247,7 @@ int X509_VERIFY_PARAM_set_flags(X509_VERIFY_PARAM * param, ulong flags)
 	return 1;
 }
 
-int X509_VERIFY_PARAM_clear_flags(X509_VERIFY_PARAM * param,
-    ulong flags)
+int X509_VERIFY_PARAM_clear_flags(X509_VERIFY_PARAM * param, ulong flags)
 {
 	param->flags &= ~flags;
 	return 1;
@@ -314,8 +300,7 @@ void X509_VERIFY_PARAM_set_time(X509_VERIFY_PARAM * param, time_t t)
 	param->flags |= X509_V_FLAG_USE_CHECK_TIME;
 }
 
-int X509_VERIFY_PARAM_add0_policy(X509_VERIFY_PARAM * param,
-    ASN1_OBJECT * policy)
+int X509_VERIFY_PARAM_add0_policy(X509_VERIFY_PARAM * param, ASN1_OBJECT * policy)
 {
 	if(!param->policies) {
 		param->policies = sk_ASN1_OBJECT_new_null();
@@ -327,21 +312,17 @@ int X509_VERIFY_PARAM_add0_policy(X509_VERIFY_PARAM * param,
 	return 1;
 }
 
-int X509_VERIFY_PARAM_set1_policies(X509_VERIFY_PARAM * param,
-    STACK_OF(ASN1_OBJECT) * policies)
+int X509_VERIFY_PARAM_set1_policies(X509_VERIFY_PARAM * param, STACK_OF(ASN1_OBJECT) * policies)
 {
 	int i;
 	ASN1_OBJECT * oid, * doid;
-
 	if(!param)
 		return 0;
 	sk_ASN1_OBJECT_pop_free(param->policies, ASN1_OBJECT_free);
-
 	if(!policies) {
 		param->policies = NULL;
 		return 1;
 	}
-
 	param->policies = sk_ASN1_OBJECT_new_null();
 	if(!param->policies)
 		return 0;
@@ -360,20 +341,17 @@ int X509_VERIFY_PARAM_set1_policies(X509_VERIFY_PARAM * param,
 	return 1;
 }
 
-int X509_VERIFY_PARAM_set1_host(X509_VERIFY_PARAM * param,
-    const char * name, size_t namelen)
+int X509_VERIFY_PARAM_set1_host(X509_VERIFY_PARAM * param, const char * name, size_t namelen)
 {
 	return int_x509_param_set_hosts(param, SET_HOST, name, namelen);
 }
 
-int X509_VERIFY_PARAM_add1_host(X509_VERIFY_PARAM * param,
-    const char * name, size_t namelen)
+int X509_VERIFY_PARAM_add1_host(X509_VERIFY_PARAM * param, const char * name, size_t namelen)
 {
 	return int_x509_param_set_hosts(param, ADD_HOST, name, namelen);
 }
 
-void X509_VERIFY_PARAM_set_hostflags(X509_VERIFY_PARAM * param,
-    uint flags)
+void X509_VERIFY_PARAM_set_hostflags(X509_VERIFY_PARAM * param, uint flags)
 {
 	param->hostflags = flags;
 }
@@ -524,15 +502,13 @@ static int table_cmp(const X509_VERIFY_PARAM * a, const X509_VERIFY_PARAM * b)
 DECLARE_OBJ_BSEARCH_CMP_FN(X509_VERIFY_PARAM, X509_VERIFY_PARAM, table);
 IMPLEMENT_OBJ_BSEARCH_CMP_FN(X509_VERIFY_PARAM, X509_VERIFY_PARAM, table);
 
-static int param_cmp(const X509_VERIFY_PARAM * const * a,
-    const X509_VERIFY_PARAM * const * b)
+static int param_cmp(const X509_VERIFY_PARAM * const * a, const X509_VERIFY_PARAM * const * b)
 {
 	return strcmp((*a)->name, (*b)->name);
 }
 
 int X509_VERIFY_PARAM_add0_table(X509_VERIFY_PARAM * param)
 {
-	int idx;
 	X509_VERIFY_PARAM * ptmp;
 	if(param_table == NULL) {
 		param_table = sk_X509_VERIFY_PARAM_new(param_cmp);
@@ -540,7 +516,7 @@ int X509_VERIFY_PARAM_add0_table(X509_VERIFY_PARAM * param)
 			return 0;
 	}
 	else {
-		idx = sk_X509_VERIFY_PARAM_find(param_table, param);
+		int idx = sk_X509_VERIFY_PARAM_find(param_table, param);
 		if(idx != -1) {
 			ptmp = sk_X509_VERIFY_PARAM_value(param_table, idx);
 			X509_VERIFY_PARAM_free(ptmp);
@@ -570,11 +546,10 @@ const X509_VERIFY_PARAM * X509_VERIFY_PARAM_get0(int id)
 
 const X509_VERIFY_PARAM * X509_VERIFY_PARAM_lookup(const char * name)
 {
-	int idx;
 	X509_VERIFY_PARAM pm;
 	pm.name = (char*)name;
 	if(param_table) {
-		idx = sk_X509_VERIFY_PARAM_find(param_table, &pm);
+		int idx = sk_X509_VERIFY_PARAM_find(param_table, &pm);
 		if(idx != -1)
 			return sk_X509_VERIFY_PARAM_value(param_table, idx);
 	}

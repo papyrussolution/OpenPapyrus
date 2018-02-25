@@ -39,25 +39,20 @@ struct evp_cipher_ctx_st {
     uchar  Final[EVP_MAX_BLOCK_LENGTH]; // possible final block 
 };
 
-int PKCS5_v2_PBKDF2_keyivgen(EVP_CIPHER_CTX *ctx, const char *pass,
-                             int passlen, ASN1_TYPE *param,
-                             const EVP_CIPHER *c, const EVP_MD *md,
-                             int en_de);
+int PKCS5_v2_PBKDF2_keyivgen(EVP_CIPHER_CTX *ctx, const char *pass, int passlen, ASN1_TYPE *param, const EVP_CIPHER *c, const EVP_MD *md, int en_de);
 
 struct evp_Encode_Ctx_st {
     /* number saved in a partial encode/decode */
-    int num;
+    int    num;
     /*
      * The length is either the output line length (in input bytes) or the
      * shortest input line length that is ok.  Once decoding begins, the
      * length is adjusted up each time a longer line is decoded
      */
-    int length;
-    /* data to encode */
-    unsigned char enc_data[80];
-    /* number read on current line */
-    int line_num;
-    int expect_nl;
+    int    length;
+    uchar  enc_data[80]; /* data to encode */
+    int    line_num; /* number read on current line */
+    int    expect_nl;
 };
 
 typedef struct evp_pbe_st EVP_PBE_CTL;

@@ -11,7 +11,7 @@
 #ifdef OPENSSL_NO_SEED
 	NON_EMPTY_TRANSLATION_UNIT
 #else
-	#include <openssl/seed.h>
+	//#include <openssl/seed.h>
 
 	static int seed_init_key(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc);
 

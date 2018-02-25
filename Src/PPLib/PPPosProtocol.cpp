@@ -430,7 +430,7 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 	THROW(CnObj.GetAsync(nodeID, &cn_data) > 0);
 	wb.LocID = cn_data.LocID; // @v9.6.7
 	PPWait(1);
-	PPMakeTempFileName("pppp", "xml", 0, out_file_name);
+	PPMakeTempFileName("pppp", /*"xml"*/"ppyp", 0, out_file_name);
 	{
 		DeviceLoadingStat dls;
 		PPID   stat_id = 0;
@@ -1691,7 +1691,7 @@ int SLAPI PPPosProtocol::WriteSCardInfo(WriteBlock & rB, const char * pScopeXmlT
 int SLAPI PPPosProtocol::StartWriting(const char * pFileName, PPPosProtocol::WriteBlock & rB)
 {
 	int    ok = 1;
-	THROW_LXML(rB.P_Xw = xmlNewTextWriterFilename(pFileName, 0), 0);
+	THROW_LXML(rB.P_Xw = xmlNewTextWriterFilename(pFileName, 9 /*compression*/), 0);
 	xmlTextWriterSetIndent(rB.P_Xw, 1);
 	xmlTextWriterSetIndentString(rB.P_Xw, (const xmlChar*)"\t");
 	THROW_MEM(rB.P_Xd = new SXml::WDoc(rB.P_Xw, cpUTF8));
@@ -3573,7 +3573,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 								THROW(r);
 							}
 							else {
-								THROW(u_obj.ref->AddItem(PPOBJ_UNIT, &native_id, &unit_rec.ID, 0));
+								THROW(u_obj.ref->AddItem(PPOBJ_UNIT, &native_id, &unit_rec, 0));
 							}
 						}
 						else {
@@ -3583,7 +3583,7 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 								THROW(r);
 							}
 							else {
-								THROW(u_obj.ref->AddItem(PPOBJ_UNIT, &native_id, &unit_rec.ID, 0));
+								THROW(u_obj.ref->AddItem(PPOBJ_UNIT, &native_id, &unit_rec, 0));
 							}
 							if(unit_rec.Abbr[0] && u_obj.SearchBySymb(unit_rec.Abbr, &temp_id, &u_rec) > 0 && temp_id != native_id) {
 								u_rec.Abbr[0] = 0;
@@ -4355,7 +4355,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		TSVector <PosNodeUuidEntry> pos_node_uuid_list; // @v9.8.4 TSArray-->TSVector
 		TSVector <PosNodeISymbEntry> pos_node_isymb_list; // @v9.8.4 TSArray-->TSVector
 		StringSet ss_paths;
-		(done_plus_xml_suffix = p_done_suffix).Dot().Cat("xml");
+		(done_plus_xml_suffix = p_done_suffix).Dot().Cat(/*"xml"*/"ppyp");
 		{
 			PPCashNode cn_rec;
 			if(rPib.PosNodeID) {
@@ -4396,7 +4396,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 			}
 		}
 		for(uint ssp_pos = 0; ss_paths.get(&ssp_pos, in_path);) {
-			(temp_buf = in_path).SetLastSlash().Cat(p_base_name).Cat("*.xml");
+			(temp_buf = in_path).SetLastSlash().Cat(p_base_name).Cat(/*"*.xml"*/"*.ppyp");
 			for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
 				if(de.IsFile()) {
 					const size_t fnl = sstrlen(de.FileName);
@@ -4696,7 +4696,7 @@ int SLAPI PPPosProtocol::SelectOutFileName(PPID srcPosNodeID, const char * pInfi
 					temp_buf.CatChar('-').Cat(pInfix);
 				if(_seq)
 					temp_buf.CatChar('-').Cat(_seq);
-				temp_buf.Dot().Cat("xml");
+				temp_buf.Dot().Cat(/*"xml"*/"ppyp");
 				(temp_result_buf = path).SetLastSlash().Cat(temp_buf);
 				_seq++;
 			} while(::fileExists(temp_result_buf));
@@ -4717,7 +4717,7 @@ int SLAPI PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcP
 	SString out_file_name;
 	SString temp_buf;
 	PPPosProtocol::WriteBlock wb;
-	PPMakeTempFileName("pppp", "xml", 0, out_file_name);
+	PPMakeTempFileName("pppp", /*"xml"*/"ppyp", 0, out_file_name);
 	{
 		THROW(StartWriting(out_file_name, wb));
 		{

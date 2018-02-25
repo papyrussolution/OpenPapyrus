@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include "internal/x509_int.h"
-#include "x509_lcl.h"
+//#include "x509_lcl.h"
 
 X509_LOOKUP * X509_LOOKUP_new(X509_LOOKUP_METHOD * method)
 {

@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "x509_lcl.h"
+//#include "x509_lcl.h"
 /*
  * Maximum length of X509_NAME: much larger than anything we should
  * ever see in practice.

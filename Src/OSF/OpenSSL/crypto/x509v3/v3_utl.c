@@ -11,7 +11,7 @@
 
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "ext_dat.h"
+//#include "ext_dat.h"
 
 static char * strip_spaces(char * name);
 static int sk_strcmp(const char * const * a, const char * const * b);

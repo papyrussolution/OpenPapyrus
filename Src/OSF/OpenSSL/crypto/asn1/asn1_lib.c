@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "asn1_locl.h"
+//#include "asn1_locl.h"
 
 static int asn1_get_length(const uchar ** pp, int * inf, long * rl, long max);
 static void asn1_put_length(uchar ** pp, int length);

@@ -224,6 +224,7 @@ void bio_sock_cleanup_int(void);
 #include <openssl/x509v3.h>
 #include <openssl/x509_vfy.h>
 #include <openssl/ct.h>
+#include <openssl/tls1.h>
 #include <openssl/cms.h>
 #include <openssl/pem.h>
 #include <openssl/ec.h>
@@ -239,7 +240,17 @@ void bio_sock_cleanup_int(void);
 #include <openssl/ocsp.h>
 #include <openssl/pkcs12.h>
 #include <openssl/ts.h>
+#include <openssl/rc2.h>
+#include <openssl/rc4.h>
 #include <openssl/rc5.h>
+#include <openssl/evp.h>
+#include <openssl/cmac.h>
+#include <openssl/hmac.h>
+#include <openssl/kdf.h>
+#include <openssl/pkcs7.h>
+#include <openssl/ripemd.h>
+#include <openssl/srp.h>
+#include <openssl/seed.h>
 //#include <internal/engine.h>
 void engine_load_openssl_int(void);
 void engine_load_cryptodev_int(void);
@@ -425,24 +436,15 @@ struct x509_store_ctx_st {      /* X509_STORE_CTX */
     X509_VERIFY_PARAM *param;
     void * other_ctx; // Other info for use with get_issuer() 
     /* Callbacks for various operations */
-    /* called to verify a certificate */
-    int (*verify) (X509_STORE_CTX *ctx);
-    /* error callback */
-    int (*verify_cb) (int ok, X509_STORE_CTX *ctx);
-    /* get issuers cert from ctx */
-    int (*get_issuer) (X509 **issuer, X509_STORE_CTX *ctx, X509 *x);
-    /* check issued */
-    int (*check_issued) (X509_STORE_CTX *ctx, X509 *x, X509 *issuer);
-    /* Check revocation status of chain */
-    int (*check_revocation) (X509_STORE_CTX *ctx);
-    /* retrieve CRL */
-    int (*get_crl) (X509_STORE_CTX *ctx, X509_CRL **crl, X509 *x);
-    /* Check CRL validity */
-    int (*check_crl) (X509_STORE_CTX *ctx, X509_CRL *crl);
-    /* Check certificate against CRL */
-    int (*cert_crl) (X509_STORE_CTX *ctx, X509_CRL *crl, X509 *x);
-    /* Check policy status of the chain */
-    int (*check_policy) (X509_STORE_CTX *ctx);
+    int (*verify) (X509_STORE_CTX *ctx); /* called to verify a certificate */
+    int (*verify_cb) (int ok, X509_STORE_CTX *ctx); /* error callback */
+	int (*get_issuer) (X509 **issuer, X509_STORE_CTX *ctx, X509 *x); /* get issuers cert from ctx */
+    int (*check_issued) (X509_STORE_CTX *ctx, X509 *x, X509 *issuer); /* check issued */
+    int (*check_revocation) (X509_STORE_CTX *ctx); /* Check revocation status of chain */
+    int (*get_crl) (X509_STORE_CTX *ctx, X509_CRL **crl, X509 *x); /* retrieve CRL */
+    int (*check_crl) (X509_STORE_CTX *ctx, X509_CRL *crl); /* Check CRL validity */
+    int (*cert_crl) (X509_STORE_CTX *ctx, X509_CRL *crl, X509 *x); /* Check certificate against CRL */
+    int (*check_policy) (X509_STORE_CTX *ctx); /* Check policy status of the chain */
     STACK_OF(X509) *(*lookup_certs) (X509_STORE_CTX *ctx, X509_NAME *nm);
     STACK_OF(X509_CRL) *(*lookup_crls) (X509_STORE_CTX *ctx, X509_NAME *nm);
     int (*cleanup) (X509_STORE_CTX *ctx);
@@ -1432,5 +1434,15 @@ DEFINE_LHASH_OF(ENGINE_PILE);
 //
 // } ENG_INT.H
 //
-
+#include "evp_locl.h"
+#include "blake2_locl.h"
+#include "ocsp_lcl.h"
+#include "comp_lcl.h"
+#include "dso_locl.h"
+#include "p12_lcl.h"
+#include "pcy_int.h"
+#include "ts_lcl.h"
+#include "ext_dat.h"
+#include "x509_lcl.h"
+#include "asn1_locl.h"
 #endif

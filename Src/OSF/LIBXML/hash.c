@@ -62,7 +62,7 @@ struct xmlHashTable {
  * xmlHashComputeKey:
  * Calculate the hash key
  */
-static ulong xmlHashComputeKey(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3)
+static ulong FASTCALL xmlHashComputeKey(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3)
 {
 	ulong value = 0L;
 	char ch;
@@ -866,7 +866,7 @@ int FASTCALL xmlHashSize(xmlHashTable * table)
  *
  * Returns 0 if the removal succeeded and -1 in case of error or not found.
  */
-int xmlHashRemoveEntry(xmlHashTable * table, const xmlChar * name, xmlHashDeallocator f)
+int FASTCALL xmlHashRemoveEntry(xmlHashTable * table, const xmlChar * name, xmlHashDeallocator f)
 {
 	return xmlHashRemoveEntry3(table, name, NULL, NULL, f);
 }
@@ -883,11 +883,10 @@ int xmlHashRemoveEntry(xmlHashTable * table, const xmlChar * name, xmlHashDeallo
  *
  * Returns 0 if the removal succeeded and -1 in case of error or not found.
  */
-int xmlHashRemoveEntry2(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, xmlHashDeallocator f)
+int FASTCALL xmlHashRemoveEntry2(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, xmlHashDeallocator f)
 {
-	return(xmlHashRemoveEntry3(table, name, name2, NULL, f));
+	return xmlHashRemoveEntry3(table, name, name2, NULL, f);
 }
-
 /**
  * xmlHashRemoveEntry3:
  * @table: the hash table
@@ -902,7 +901,7 @@ int xmlHashRemoveEntry2(xmlHashTable * table, const xmlChar * name, const xmlCha
  *
  * Returns 0 if the removal succeeded and -1 in case of error or not found.
  */
-int xmlHashRemoveEntry3(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3, xmlHashDeallocator f)
+int FASTCALL xmlHashRemoveEntry3(xmlHashTable * table, const xmlChar * name, const xmlChar * name2, const xmlChar * name3, xmlHashDeallocator f)
 {
 	ulong key;
 	xmlHashEntry * entry;
@@ -914,12 +913,12 @@ int xmlHashRemoveEntry3(xmlHashTable * table, const xmlChar * name, const xmlCha
 		return -1;
 	}
 	else {
-		for(entry = &(table->table[key]); entry != NULL; entry = entry->next) {
+		for(entry = &(table->table[key]); entry; entry = entry->next) {
 			if(sstreq(entry->name, name) && sstreq(entry->name2, name2) && sstreq(entry->name3, name3)) {
 				if(f && entry->payload)
 					f(entry->payload, entry->name);
 				entry->payload = NULL;
-				if(table->dict == NULL) {
+				if(!table->dict) {
 					SAlloc::F(entry->name);
 					SAlloc::F(entry->name2);
 					SAlloc::F(entry->name3);

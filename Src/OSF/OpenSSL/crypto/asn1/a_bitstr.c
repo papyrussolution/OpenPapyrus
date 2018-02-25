@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "asn1_locl.h"
+//#include "asn1_locl.h"
 
 int ASN1_BIT_STRING_set(ASN1_BIT_STRING * x, uchar * d, int len)
 {

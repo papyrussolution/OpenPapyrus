@@ -131,20 +131,9 @@ static int GetZipErrType(int errCode)
 //
 // ZIPERROR
 //
-ZIP_EXTERN int zip_error_code_system(const zip_error_t * error)
-{
-	return error->sys_err;
-}
-
-ZIP_EXTERN int zip_error_code_zip(const zip_error_t * error)
-{
-	return error->zip_err;
-}
-
-ZIP_EXTERN void zip_error_fini(zip_error_t * err)
-{
-	ZFREE(err->str);
-}
+ZIP_EXTERN int zip_error_code_system(const zip_error_t * error) { return error->sys_err; }
+ZIP_EXTERN int zip_error_code_zip(const zip_error_t * error) { return error->zip_err; }
+ZIP_EXTERN void zip_error_fini(zip_error_t * err) { ZFREE(err->str); }
 
 ZIP_EXTERN void zip_error_init(zip_error_t * err)
 {
@@ -319,16 +308,10 @@ ZIP_EXTERN void zip_file_error_clear(zip_file_t * zf)
 //   of the central directory cannot be larger than
 //   ZIP_UINT64_MAX, and each entry is larger than 2 bytes.
 //
-ZIP_EXTERN int64 zip_add(zip_t * za, const char * name, zip_source_t * source)
-{
-	return zip_file_add(za, name, source, 0);
-}
+ZIP_EXTERN int64 zip_add(zip_t * za, const char * name, zip_source_t * source) { return zip_file_add(za, name, source, 0); }
 
 // NOTE: Signed due to -1 on error.  See zip_add.c for more details. 
-ZIP_EXTERN int64 zip_add_dir(zip_t * za, const char * name)
-{
-	return zip_dir_add(za, name, 0);
-}
+ZIP_EXTERN int64 zip_add_dir(zip_t * za, const char * name) { return zip_dir_add(za, name, 0); }
 
 // NOTE: Signed due to -1 on error.  See zip_add.c for more details.
 int64 FASTCALL _zip_add_entry(zip_t * za)
@@ -365,24 +348,16 @@ int64 FASTCALL _zip_add_entry(zip_t * za)
 //
 // ZIPBUFFER
 //
-uint8 * FASTCALL _zip_buffer_data(zip_buffer_t * buffer)
-{
-	return buffer->data;
-}
+uint8 * FASTCALL _zip_buffer_data(zip_buffer_t * buffer) { return buffer->data; }
+bool FASTCALL _zip_buffer_eof(zip_buffer_t * buffer) { return buffer->ok && buffer->offset == buffer->size; }
 
 void FASTCALL _zip_buffer_free(zip_buffer_t * buffer)
 {
 	if(buffer) {
-		if(buffer->free_data) {
+		if(buffer->free_data)
 			SAlloc::F(buffer->data);
-		}
 		SAlloc::F(buffer);
 	}
-}
-
-bool FASTCALL _zip_buffer_eof(zip_buffer_t * buffer)
-{
-	return buffer->ok && buffer->offset == buffer->size;
 }
 
 uint8 * FASTCALL _zip_buffer_get(zip_buffer_t * buffer, uint64 length)
@@ -434,24 +409,22 @@ uint64 FASTCALL _zip_buffer_left(zip_buffer_t * buffer)
 
 zip_buffer_t * FASTCALL _zip_buffer_new(uint8 * data, size_t size)
 {
-	bool free_data = (data == NULL);
-	zip_buffer_t * buffer;
-	if(data == NULL) {
-		if((data = (uint8*)SAlloc::M(size)) == NULL) {
-			return NULL;
+	const bool free_data = (data == NULL);
+	zip_buffer_t * buffer = 0;
+	if(SETIFZ(data, (uint8*)SAlloc::M(size))) {
+		buffer = (zip_buffer_t*)SAlloc::M(sizeof(*buffer));
+		if(!buffer) {
+			if(free_data)
+				SAlloc::F(data);
+		}
+		else {
+			buffer->ok = true;
+			buffer->data = data;
+			buffer->size = size;
+			buffer->offset = 0;
+			buffer->free_data = free_data;
 		}
 	}
-	if((buffer = (zip_buffer_t*)SAlloc::M(sizeof(*buffer))) == NULL) {
-		if(free_data) {
-			SAlloc::F(data);
-		}
-		return NULL;
-	}
-	buffer->ok = true;
-	buffer->data = data;
-	buffer->size = size;
-	buffer->offset = 0;
-	buffer->free_data = free_data;
 	return buffer;
 }
 
@@ -469,24 +442,18 @@ zip_buffer_t * _zip_buffer_new_from_source(zip_source_t * src, size_t size, uint
 	return buffer;
 }
 
-uint64 FASTCALL _zip_buffer_offset(zip_buffer_t * buffer)
-{
-	return buffer->ok ? buffer->offset : 0;
-}
-
-bool FASTCALL _zip_buffer_ok(zip_buffer_t * buffer)
-{
-	return buffer->ok;
-}
+uint64 FASTCALL _zip_buffer_offset(zip_buffer_t * buffer) { return buffer->ok ? buffer->offset : 0; }
+bool FASTCALL _zip_buffer_ok(zip_buffer_t * buffer) { return buffer->ok; }
 
 int FASTCALL _zip_buffer_put(zip_buffer_t * buffer, const void * src, size_t length)
 {
 	uint8 * dst = _zip_buffer_get(buffer, length);
-	if(dst == NULL) {
+	if(!dst)
 		return -1;
+	else {
+		memcpy(dst, src, length);
+		return 0;
 	}
-	memcpy(dst, src, length);
-	return 0;
 }
 
 int FASTCALL _zip_buffer_put_16(zip_buffer_t * buffer, uint16 i)
@@ -518,18 +485,19 @@ int FASTCALL _zip_buffer_put_32(zip_buffer_t * buffer, uint32 i)
 int FASTCALL _zip_buffer_put_64(zip_buffer_t * buffer, uint64 i)
 {
 	uint8 * data = _zip_buffer_get(buffer, 8);
-	if(data == NULL) {
+	if(!data)
 		return -1;
+	else {
+		data[0] = (uint8)(i & 0xff);
+		data[1] = (uint8)((i >> 8) & 0xff);
+		data[2] = (uint8)((i >> 16) & 0xff);
+		data[3] = (uint8)((i >> 24) & 0xff);
+		data[4] = (uint8)((i >> 32) & 0xff);
+		data[5] = (uint8)((i >> 40) & 0xff);
+		data[6] = (uint8)((i >> 48) & 0xff);
+		data[7] = (uint8)((i >> 56) & 0xff);
+		return 0;
 	}
-	data[0] = (uint8)(i & 0xff);
-	data[1] = (uint8)((i >> 8) & 0xff);
-	data[2] = (uint8)((i >> 16) & 0xff);
-	data[3] = (uint8)((i >> 24) & 0xff);
-	data[4] = (uint8)((i >> 32) & 0xff);
-	data[5] = (uint8)((i >> 40) & 0xff);
-	data[6] = (uint8)((i >> 48) & 0xff);
-	data[7] = (uint8)((i >> 56) & 0xff);
-	return 0;
 }
 
 int FASTCALL _zip_buffer_put_8(zip_buffer_t * buffer, uint8 i)
@@ -4222,7 +4190,7 @@ static void FASTCALL _free_list(zip_hash_entry_t * entry)
 		zip_hash_entry_t * next = entry->next;
 		SAlloc::F(entry);
 		entry = next;
-	} while(entry != NULL);
+	} while(entry);
 }
 
 void _zip_hash_free(zip_hash_t * hash)
@@ -4329,7 +4297,7 @@ bool _zip_hash_delete(zip_hash_t * hash, const uint8 * name, zip_error_t * error
 //
 int64 _zip_hash_lookup(zip_hash_t * hash, const uint8 * name, zip_flags_t flags, zip_error_t * error)
 {
-	if(hash == NULL || name == NULL) {
+	if(!hash || !name) {
 		zip_error_set(error, SLERR_ZIP_INVAL, 0);
 	}
 	else {

@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #ifndef OPENSSL_NO_CHACHA
-#include "evp_locl.h"
+//#include "evp_locl.h"
 
 typedef struct {
 	union {

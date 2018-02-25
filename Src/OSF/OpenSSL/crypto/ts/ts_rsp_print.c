@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/ts.h>
-#include "ts_lcl.h"
+//#include "ts_lcl.h"
 
 struct status_map_st {
 	int bit;

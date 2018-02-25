@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/pkcs7.h>
+//#include <openssl/pkcs7.h>
 
 #ifndef OPENSSL_NO_RSA
 	static RSA * pkey_get_rsa(EVP_PKEY * key, RSA ** rsa);

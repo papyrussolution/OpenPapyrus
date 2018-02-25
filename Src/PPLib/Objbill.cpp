@@ -1207,18 +1207,21 @@ int SLAPI PPObjBill::AddDraftByOrder(PPID * pBillID, PPID sampleBillID, const Se
 				ReceiptTbl::Rec lot_rec;
 				PPTransferItem new_ti(&pack.Rec, TISIGN_UNDEF);
 				THROW(new_ti.SetupGoods(labs(p_ti->GoodsID)));
-				if(op_type == PPOPT_DRAFTRECEIPT && p_ti->LotID)
+				// @v9.9.6 (op_type == PPOPT_DRAFTEXPEND && pParam->Action == pParam->acnDraftExpRestByOrder)
+				if(p_ti->LotID && (op_type == PPOPT_DRAFTRECEIPT || (op_type == PPOPT_DRAFTEXPEND && pParam->Action == pParam->acnDraftExpRestByOrder))) 
 					trfr->GetRest(p_ti->LotID, pack.Rec.Dt, &qtty);
 				else
 					qtty = p_ti->Quantity_;
-				new_ti.Quantity_ = qtty;
-				new_ti.Price = p_ti->NetPrice();
-				if(GetCurGoodsPrice(labs(p_ti->GoodsID), pack.Rec.LocID, GPRET_INDEF, &price, &lot_rec) > 0) {
-					if(new_ti.Price == 0.0)
-						new_ti.Price = price;
-					new_ti.Cost = lot_rec.Cost;
+				if(qtty > 0.0) {
+					new_ti.Quantity_ = qtty;
+					new_ti.Price = p_ti->NetPrice();
+					if(GetCurGoodsPrice(labs(p_ti->GoodsID), pack.Rec.LocID, GPRET_INDEF, &price, &lot_rec) > 0) {
+						if(new_ti.Price == 0.0)
+							new_ti.Price = price;
+						new_ti.Cost = lot_rec.Cost;
+					}
+					THROW(pack.InsertRow(&new_ti, 0));
 				}
-				THROW(pack.InsertRow(&new_ti, 0));
 			}
 		}
 		res = Helper_EditGoodsBill(pBillID, &pack);

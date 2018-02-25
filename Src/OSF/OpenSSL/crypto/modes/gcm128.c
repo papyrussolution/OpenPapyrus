@@ -11,11 +11,11 @@
 #include "modes_lcl.h"
 
 #if defined(BSWAP4) && defined(STRICT_ALIGNMENT)
-/* redefine, because alignment is ensured */
-# undef  GETU32
-#define GETU32(p)       BSWAP4(*(const u32*)(p))
-# undef  PUTU32
-#define PUTU32(p, v)     *(u32*)(p) = BSWAP4(v)
+	/* redefine, because alignment is ensured */
+	#undef  GETU32
+	#define GETU32(p)       BSWAP4(*(const u32*)(p))
+	#undef  PUTU32
+	#define PUTU32(p, v)     *(u32*)(p) = BSWAP4(v)
 #endif
 
 #define PACK(s)         ((size_t)(s)<<(sizeof(size_t)*8-16))
@@ -185,7 +185,6 @@ static void gcm_gmult_8bit(u64 Xi[2], const u128 Htable[256])
 		else
 			Z.hi ^= (u64)rem_8bit[rem] << 32;
 	}
-
 	if(is_endian.little) {
 # ifdef BSWAP8
 		Xi[0] = BSWAP8(Z.hi);
@@ -1233,7 +1232,6 @@ int CRYPTO_gcm128_decrypt(GCM128_CONTEXT * ctx,
 #  if defined(GHASH_CHUNK)
 			while(len >= GHASH_CHUNK) {
 				size_t j = GHASH_CHUNK;
-
 				GHASH(ctx, in, GHASH_CHUNK);
 				while(j) {
 					size_t * out_t = (size_t*)out;

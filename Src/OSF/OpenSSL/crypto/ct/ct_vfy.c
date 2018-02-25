@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/ct.h>
+//#include <openssl/ct.h>
 #include "ct_locl.h"
 
 typedef enum sct_signature_type_t {

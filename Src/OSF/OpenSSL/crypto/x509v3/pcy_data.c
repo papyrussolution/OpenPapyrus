@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "pcy_int.h"
+//#include "pcy_int.h"
 
 /* Policy Node routines */
 

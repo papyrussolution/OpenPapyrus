@@ -25,15 +25,15 @@ interface IStrokes;
 typedef enum { HANJA_UNKNOWN = 0, HANJA_K0 = 1, HANJA_K1 = 2, HANJA_OTHER = 3 } HANJA_TYPE;
 
 interface IHanjaDic : IUnknown {
-	STDMETHOD(OpenMainDic) ();
-	STDMETHOD(CloseMainDic) ();
-	STDMETHOD(GetHanjaWords) (BSTR bstrHangul, SAFEARRAY* ppsaHanja, VARIANT_BOOL* pfFound);
-	STDMETHOD(GetHanjaChars) (ushort wchHangul, BSTR* pbstrHanjaChars, VARIANT_BOOL* pfFound);
-	STDMETHOD(HanjaToHangul) (BSTR bstrHanja, BSTR* pbstrHangul);
-	STDMETHOD(GetHanjaType) (ushort wchHanja, HANJA_TYPE* pHanjaType);
-	STDMETHOD(GetHanjaSense) (ushort wchHanja, BSTR* pbstrSense);
-	STDMETHOD(GetRadicalID) (short SeqNumOfRadical, short* pRadicalID, ushort* pwchRadical);
-	STDMETHOD(GetRadical) (short nRadicalID, IRadical**ppIRadical);
+	STDMETHOD(OpenMainDic)();
+	STDMETHOD(CloseMainDic)();
+	STDMETHOD(GetHanjaWords)(BSTR bstrHangul, SAFEARRAY* ppsaHanja, VARIANT_BOOL* pfFound);
+	STDMETHOD(GetHanjaChars)(ushort wchHangul, BSTR* pbstrHanjaChars, VARIANT_BOOL* pfFound);
+	STDMETHOD(HanjaToHangul)(BSTR bstrHanja, BSTR* pbstrHangul);
+	STDMETHOD(GetHanjaType)(ushort wchHanja, HANJA_TYPE* pHanjaType);
+	STDMETHOD(GetHanjaSense)(ushort wchHanja, BSTR* pbstrSense);
+	STDMETHOD(GetRadicalID)(short SeqNumOfRadical, short* pRadicalID, ushort* pwchRadical);
+	STDMETHOD(GetRadical)(short nRadicalID, IRadical**ppIRadical);
 	STDMETHOD(RadicalIDToHanja) (short nRadicalID, ushort* pwchRadical);
 	STDMETHOD(GetHanja) (ushort wchHanja, IHanja**ppIHanja);
 	STDMETHOD(GetStrokes) (short nStrokes, IStrokes**ppIStrokes);

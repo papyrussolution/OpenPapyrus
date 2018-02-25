@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/pkcs7.h>
+//#include <openssl/pkcs7.h>
 
 /* PKCS#7 ASN1 module */
 

@@ -161,7 +161,7 @@ IMPLEMENT_DYNAMIC_BIND_FN(bind_fn)
  *        the "init_key" handler is called.
  *    TEST_ENG_OPENSSL_RC4_P_CIPHER - ditto for the "cipher" handler.
  */
-#include <openssl/rc4.h>
+//#include <openssl/rc4.h>
 #define TEST_RC4_KEY_SIZE               16
 typedef struct {
 	uchar key[TEST_RC4_KEY_SIZE];

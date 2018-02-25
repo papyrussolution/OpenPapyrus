@@ -4297,7 +4297,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
                     url_dest.SetComponent(InetUrl::cUserName, AccsName);
                     url_dest.SetComponent(InetUrl::cPassword, AccsPassword);
                 }
-				THROW(curl.FtpPut(url_dest, 0, local_path_src, 0));
+				THROW(curl.FtpPut(url_dest, ScURL::mfVerbose, local_path_src, 0));
 				{
 					ResultList.insert(&ri);
 				}
@@ -4313,7 +4313,7 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 					ps.Merge(SPathStruc::fNam|SPathStruc::fExt, temp_fname);
 					hf.AddContentFile(local_path_src, temp_buf, temp_fname);
 				}
-				THROW(curl.HttpPost(url_dest, ScURL::mfDontVerifySslPeer, hf, &wr_stream));
+				THROW(curl.HttpPost(url_dest, ScURL::mfVerbose|ScURL::mfDontVerifySslPeer, hf, &wr_stream));
 				{
 					SBuffer * p_ret_buf = (SBuffer *)wr_stream;
 					if(p_ret_buf) {

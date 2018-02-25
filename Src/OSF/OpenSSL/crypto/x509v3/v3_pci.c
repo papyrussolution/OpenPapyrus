@@ -40,7 +40,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "ext_dat.h"
+//#include "ext_dat.h"
 
 static int i2r_pci(X509V3_EXT_METHOD * method, PROXY_CERT_INFO_EXTENSION * ext, BIO * out, int indent);
 static PROXY_CERT_INFO_EXTENSION * r2i_pci(X509V3_EXT_METHOD * method, X509V3_CTX * ctx, char * str);

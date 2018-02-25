@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "ext_dat.h"
+//#include "ext_dat.h"
 
 static int i2r_PKEY_USAGE_PERIOD(X509V3_EXT_METHOD * method, PKEY_USAGE_PERIOD * usage, BIO * out, int indent);
 /*

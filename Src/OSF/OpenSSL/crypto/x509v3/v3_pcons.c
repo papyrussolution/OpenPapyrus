@@ -8,14 +8,10 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "ext_dat.h"
+//#include "ext_dat.h"
 
-static STACK_OF(CONF_VALUE) *i2v_POLICY_CONSTRAINTS(const X509V3_EXT_METHOD
-    *method, void * bcons, STACK_OF(CONF_VALUE)
-    *extlist);
-static void * v2i_POLICY_CONSTRAINTS(const X509V3_EXT_METHOD * method,
-    X509V3_CTX * ctx,
-    STACK_OF(CONF_VALUE) * values);
+static STACK_OF(CONF_VALUE) *i2v_POLICY_CONSTRAINTS(const X509V3_EXT_METHOD *method, void * bcons, STACK_OF(CONF_VALUE) *extlist);
+static void * v2i_POLICY_CONSTRAINTS(const X509V3_EXT_METHOD * method, X509V3_CTX * ctx, STACK_OF(CONF_VALUE) * values);
 
 const X509V3_EXT_METHOD v3_policy_constraints = {
 	NID_policy_constraints, 0,

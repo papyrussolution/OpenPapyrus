@@ -6,21 +6,20 @@
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
  */
-
 #include <openssl/modes.h>
 
 #if (defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32__)
-typedef __int64 i64;
-typedef unsigned __int64 u64;
-# define U64(C) C##UI64
+	typedef __int64 i64;
+	typedef unsigned __int64 u64;
+	#define U64(C) C##UI64
 #elif defined(__arch64__)
-typedef long i64;
-typedef unsigned long u64;
-# define U64(C) C##UL
+	typedef long i64;
+	typedef unsigned long u64;
+	#define U64(C) C##UL
 #else
-typedef long long i64;
-typedef unsigned long long u64;
-# define U64(C) C##ULL
+	typedef long long i64;
+	typedef unsigned long long u64;
+	#define U64(C) C##ULL
 #endif
 
 typedef unsigned int u32;
@@ -85,13 +84,14 @@ _asm mov eax, val _asm bswap eax}
 # endif
 #endif
 #if defined(BSWAP4) && !defined(STRICT_ALIGNMENT)
-# define GETU32(p)       BSWAP4(*(const u32 *)(p))
-# define PUTU32(p,v)     *(u32 *)(p) = BSWAP4(v)
+	#define GETU32(p)       BSWAP4(*(const u32 *)(p))
+	#define PUTU32(p,v)     *(u32 *)(p) = BSWAP4(v)
 #else
-# define GETU32(p)       ((u32)(p)[0]<<24|(u32)(p)[1]<<16|(u32)(p)[2]<<8|(u32)(p)[3])
-# define PUTU32(p,v)     ((p)[0]=(u8)((v)>>24),(p)[1]=(u8)((v)>>16),(p)[2]=(u8)((v)>>8),(p)[3]=(u8)(v))
+	#define GETU32(p)       ((u32)(p)[0]<<24|(u32)(p)[1]<<16|(u32)(p)[2]<<8|(u32)(p)[3])
+	#define PUTU32(p,v)     ((p)[0]=(u8)((v)>>24),(p)[1]=(u8)((v)>>16),(p)[2]=(u8)((v)>>8),(p)[3]=(u8)(v))
 #endif
-/*- GCM definitions */ typedef struct {
+/*- GCM definitions */ 
+typedef struct {
     u64 hi, lo;
 } u128;
 

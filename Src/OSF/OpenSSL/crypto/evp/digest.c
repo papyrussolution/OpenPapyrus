@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "evp_locl.h"
+//#include "evp_locl.h"
 
 /* This call frees resources associated with the context */
 int FASTCALL EVP_MD_CTX_reset(EVP_MD_CTX * ctx)

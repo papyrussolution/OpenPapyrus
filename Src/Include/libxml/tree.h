@@ -584,9 +584,9 @@ XMLPUBFUN xmlDoc * XMLCALL xmlCopyDoc(xmlDoc * doc, int recursive);
 /*
  * Creating new nodes.
  */
-XMLPUBFUN xmlNode * XMLCALL xmlNewDocNode(xmlDoc * doc, xmlNs * ns, const xmlChar * name, const xmlChar * content);
+XMLPUBFUN xmlNode * /*XMLCALL*/FASTCALL xmlNewDocNode(xmlDoc * doc, xmlNs * ns, const xmlChar * name, const xmlChar * content);
 XMLPUBFUN xmlNode * XMLCALL xmlNewDocNodeEatName(xmlDoc * doc, xmlNs * ns, xmlChar * name, const xmlChar * content);
-XMLPUBFUN xmlNode * XMLCALL xmlNewNode(xmlNs * ns, const xmlChar * name);
+XMLPUBFUN xmlNode * /*XMLCALL*/FASTCALL xmlNewNode(xmlNs * ns, const xmlChar * name);
 XMLPUBFUN xmlNode * XMLCALL xmlNewNodeEatName(xmlNs * ns, xmlChar * name);
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
 XMLPUBFUN xmlNode * XMLCALL xmlNewChild(xmlNode * parent, xmlNs * ns, const xmlChar * name, const xmlChar * content);
@@ -641,7 +641,7 @@ XMLPUBFUN xmlNode * XMLCALL xmlAddChildList(xmlNode * parent, xmlNode * cur);
 #endif
 XMLPUBFUN xmlNode * XMLCALL xmlAddSibling(xmlNode * cur, xmlNode * elem);
 XMLPUBFUN xmlNode * XMLCALL xmlAddNextSibling(xmlNode * cur, xmlNode * elem);
-XMLPUBFUN void XMLCALL xmlUnlinkNode(xmlNode * cur);
+XMLPUBFUN void /*XMLCALL*/FASTCALL xmlUnlinkNode(xmlNode * cur);
 XMLPUBFUN xmlNode * XMLCALL xmlTextMerge(xmlNode * first, xmlNode * second);
 XMLPUBFUN int XMLCALL xmlTextConcat(xmlNode * P_Node, const xmlChar * content, int len);
 XMLPUBFUN void /*XMLCALL*/FASTCALL xmlFreeNodeList(xmlNode * cur);

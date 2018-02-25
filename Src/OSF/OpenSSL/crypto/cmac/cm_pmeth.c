@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/cmac.h>
+//#include <openssl/cmac.h>
 
 /* The context structure and "key" is simply a CMAC_CTX */
 
@@ -64,8 +64,7 @@ static int cmac_signctx_init(EVP_PKEY_CTX * ctx, EVP_MD_CTX * mctx)
 	return 1;
 }
 
-static int cmac_signctx(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen,
-    EVP_MD_CTX * mctx)
+static int cmac_signctx(EVP_PKEY_CTX * ctx, uchar * sig, size_t * siglen, EVP_MD_CTX * mctx)
 {
 	return CMAC_Final((CMAC_CTX*)ctx->data, sig, siglen);
 }
@@ -99,8 +98,7 @@ static int pkey_cmac_ctrl(EVP_PKEY_CTX * ctx, int type, int p1, void * p2)
 	return 1;
 }
 
-static int pkey_cmac_ctrl_str(EVP_PKEY_CTX * ctx,
-    const char * type, const char * value)
+static int pkey_cmac_ctrl_str(EVP_PKEY_CTX * ctx, const char * type, const char * value)
 {
 	if(!value) {
 		return 0;
@@ -125,29 +123,18 @@ const EVP_PKEY_METHOD cmac_pkey_meth = {
 	pkey_cmac_init,
 	pkey_cmac_copy,
 	pkey_cmac_cleanup,
-
 	0, 0,
-
 	0,
 	pkey_cmac_keygen,
-
 	0, 0,
-
 	0, 0,
-
 	0, 0,
-
 	cmac_signctx_init,
 	cmac_signctx,
-
 	0, 0,
-
 	0, 0,
-
 	0, 0,
-
 	0, 0,
-
 	pkey_cmac_ctrl,
 	pkey_cmac_ctrl_str
 };

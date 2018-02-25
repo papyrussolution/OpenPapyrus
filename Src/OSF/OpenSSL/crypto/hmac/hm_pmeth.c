@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/hmac.h>
+//#include <openssl/hmac.h>
 
 /* HMAC pkey context structure */
 

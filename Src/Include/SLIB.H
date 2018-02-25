@@ -1558,6 +1558,7 @@ struct LDATE { // @noctr
 	};
 	operator unsigned long() const { return v; }
 	operator OleDate() const;
+	time_t SLAPI GetTimeT() const;
 	LDATE  operator = (OleDate);
 	LDATE  operator = (double); // OleDate
 	int    day()   const { return (int)(v & 0x00ff); }
@@ -1650,7 +1651,7 @@ struct LTIME {
 };
 //
 // @construction {
-// Descr: Представление времени, обеспечивающее хранение времени с точностью до миллисекунд
+// Descr: Представление, обеспечивающее хранение времени с точностью до миллисекунд
 //   и с фактором временного пояса.
 //
 class STIME {
@@ -11926,7 +11927,21 @@ struct SGlobalSecureConfig {
 	SString CaPath;
 };
 
-void * FASTCALL SGetTls(const long idx);
+//void * FASTCALL SGetTls(const long idx);
+FORCEINLINE void * FASTCALL SGetTls(const long idx)
+{
+#ifdef NDEBUG
+	return TlsGetValue(idx);
+#else
+	void * p = TlsGetValue(idx);
+	if(p)
+		return p;
+	else {
+		assert(0);
+		return 0;
+	}
+#endif
+}
 //
 // Descr: Тип функции, загружающей константные строки из внешнего хранилища.
 // ARG(pSignature IN): текстовая сигнатура строки.
@@ -12071,8 +12086,10 @@ public:
 	//
 	const void * SLAPI InitThread();
 	void   SLAPI ReleaseThread();
-	SlThreadLocalArea & SLAPI GetTLA();
-	const  SlThreadLocalArea & SLAPI GetConstTLA() const;
+	//SlThreadLocalArea & SLAPI GetTLA();
+	//const  SlThreadLocalArea & SLAPI GetConstTLA() const;
+	FORCEINLINE SlThreadLocalArea & SLAPI GetTLA() { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
+	FORCEINLINE const SlThreadLocalArea & SLAPI GetConstTLA() const { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
 	const SString & SLAPI GetExePath() const;
 	const SString & SLAPI GetAppName() const;
 	void   SLAPI SetUiLanguageId(int languageId, int currentThreadOnly);
@@ -12206,11 +12223,9 @@ public:
 	SString  & SLAPI AcquireRvlStr();
 	SStringU & SLAPI AcquireRvlStrU();
 private:
-	int    SLAPI Construct();
-
-	const  SSystem SSys;    // @firstmember // @v9.9.5 moved from position below
+	long   TlsIdx;          // @firstmember
+	const  SSystem SSys;    // 
 	long   Id;              // @anchor
-	long   TlsIdx;          // @anchor
 	ACount SeqValue;        // @anchor Последнее значение, возвращенное функций GetSequenceValue().
 		// Положение переменной должно быть выровнено по 64-битной границе.
 	// @v9.8.1 ACount LastThread;      //
@@ -12223,7 +12238,6 @@ private:
 	S_GUID SessUuid;        // @v8.0.2 Уникальный идентификатор сессии
 	int    UiLanguageId;
 	// @v9.9.5 const SSystem SSys;
-
 	SlExtraProcBlock ExtraProcBlk; // @v9.1.2
 
 	SString ExePath;

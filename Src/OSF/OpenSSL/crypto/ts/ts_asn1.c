@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/ts.h>
-#include "ts_lcl.h"
+//#include "ts_lcl.h"
 
 ASN1_SEQUENCE(TS_MSG_IMPRINT) = {
 	ASN1_SIMPLE(TS_MSG_IMPRINT, hash_algo, X509_ALGOR),
@@ -31,8 +31,7 @@ int i2d_TS_MSG_IMPRINT_bio(BIO * bp, TS_MSG_IMPRINT * a)
 #ifndef OPENSSL_NO_STDIO
 TS_MSG_IMPRINT * d2i_TS_MSG_IMPRINT_fp(FILE * fp, TS_MSG_IMPRINT ** a)
 {
-	return ASN1_d2i_fp_of(TS_MSG_IMPRINT, TS_MSG_IMPRINT_new,
-	    d2i_TS_MSG_IMPRINT, fp, a);
+	return ASN1_d2i_fp_of(TS_MSG_IMPRINT, TS_MSG_IMPRINT_new, d2i_TS_MSG_IMPRINT, fp, a);
 }
 
 int i2d_TS_MSG_IMPRINT_fp(FILE * fp, TS_MSG_IMPRINT * a)
@@ -102,8 +101,7 @@ IMPLEMENT_ASN1_FUNCTIONS_const(TS_TST_INFO)
 IMPLEMENT_ASN1_DUP_FUNCTION(TS_TST_INFO)
 TS_TST_INFO *d2i_TS_TST_INFO_bio(BIO *bp, TS_TST_INFO **a)
 {
-	return ASN1_d2i_bio_of(TS_TST_INFO, TS_TST_INFO_new, d2i_TS_TST_INFO, bp,
-	    a);
+	return ASN1_d2i_bio_of(TS_TST_INFO, TS_TST_INFO_new, d2i_TS_TST_INFO, bp, a);
 }
 
 int i2d_TS_TST_INFO_bio(BIO * bp, TS_TST_INFO * a)
@@ -114,8 +112,7 @@ int i2d_TS_TST_INFO_bio(BIO * bp, TS_TST_INFO * a)
 #ifndef OPENSSL_NO_STDIO
 TS_TST_INFO * d2i_TS_TST_INFO_fp(FILE * fp, TS_TST_INFO ** a)
 {
-	return ASN1_d2i_fp_of(TS_TST_INFO, TS_TST_INFO_new, d2i_TS_TST_INFO, fp,
-	    a);
+	return ASN1_d2i_fp_of(TS_TST_INFO, TS_TST_INFO_new, d2i_TS_TST_INFO, fp, a);
 }
 
 int i2d_TS_TST_INFO_fp(FILE * fp, TS_TST_INFO * a)
@@ -136,10 +133,7 @@ IMPLEMENT_ASN1_DUP_FUNCTION(TS_STATUS_INFO)
 
 static int ts_resp_set_tst_info(TS_RESP * a)
 {
-	long status;
-
-	status = ASN1_INTEGER_get(a->status_info->status);
-
+	long status = ASN1_INTEGER_get(a->status_info->status);
 	if(a->token) {
 		if(status != 0 && status != 1) {
 			TSerr(TS_F_TS_RESP_SET_TST_INFO, TS_R_TOKEN_PRESENT);
@@ -157,7 +151,6 @@ static int ts_resp_set_tst_info(TS_RESP * a)
 		TSerr(TS_F_TS_RESP_SET_TST_INFO, TS_R_TOKEN_NOT_PRESENT);
 		return 0;
 	}
-
 	return 1;
 }
 

@@ -62,14 +62,12 @@ extern "C" {
  */
 #define	DB_PAGE_DB_LEN		32
 #define	DB_PAGE_QUEUE_LEN	0
-
-/************************************************************************
- GENERIC METADATA PAGE HEADER
- *
- * !!!
- * The magic and version numbers have to be in the same place in all versions
- * of the metadata page as the application may not have upgraded the database.
- ************************************************************************/
+// 
+// GENERIC METADATA PAGE HEADER
+// !!!
+// The magic and version numbers have to be in the same place in all versions
+// of the metadata page as the application may not have upgraded the database.
+// 
 typedef struct _dbmeta33 {
 	DB_LSN	  Lsn;		/* 00-07: LSN. */
 	db_pgno_t pgno;		/* 08-11: Current page number. */
@@ -92,10 +90,9 @@ typedef struct _dbmeta33 {
 				/* 52-71: Unique file ID. */
 	uint8  uid[DB_FILE_ID_LEN];
 } DBMETA33, DBMETA;
-
-/************************************************************************
- BTREE METADATA PAGE LAYOUT
- ************************************************************************/
+// 
+// BTREE METADATA PAGE LAYOUT
+// 
 typedef struct _btmeta33 {
 #define	BTM_DUP		0x001	/*	  Duplicates. */
 #define	BTM_RECNO	0x002	/*	  Recno tree. */
@@ -107,7 +104,6 @@ typedef struct _btmeta33 {
 #define	BTM_COMPRESS	0x080	/*	  Compressed. */
 #define	BTM_MASK	0x0ff
 	DBMETA	dbmeta;		/* 00-71: Generic meta-data header. */
-
 	uint32 unused1;	/* 72-75: Unused space. */
 	uint32 minkey;	/* 76-79: Btree: Minkey. */
 	uint32 re_len;	/* 80-83: Recno: fixed-length record length. */
@@ -123,10 +119,9 @@ typedef struct _btmeta33 {
 	 * Minimum page size is 512.
 	 */
 } BTMETA33, BTMETA;
-
-/************************************************************************
- HASH METADATA PAGE LAYOUT
- ************************************************************************/
+// 
+// HASH METADATA PAGE LAYOUT
+// 
 typedef struct _hashmeta33 {
 #define	DB_HASH_DUP	0x01	/*	  Duplicates. */
 #define	DB_HASH_SUBDB	0x02	/*	  Subdatabases. */
@@ -139,30 +134,26 @@ typedef struct _hashmeta33 {
 	uint32 ffactor;	/* 84-87: Fill factor */
 	uint32 nelem;	/* 88-91: Number of keys in hash table */
 	uint32 h_charkey;	/* 92-95: Value of hash(CHARKEY) */
-#define	NCACHED	32		/* number of spare points */
-				/* 96-223: Spare pages for overflow */
+#define	NCACHED	32		// number of spare points // 96-223: Spare pages for overflow 
 	uint32 spares[NCACHED];
 	uint32 unused[59];	/* 224-459: Unused space */
 	uint32 crypto_magic;	/* 460-463: Crypto magic number */
 	uint32 trash[3];	/* 464-475: Trash space - Do not use */
 	uint8 iv[DB_IV_BYTES];	/* 476-495: Crypto IV */
 	uint8 chksum[DB_MAC_KEY];	/* 496-511: Page chksum */
-
 	/*
 	 * Minimum page size is 512.
 	 */
 } HMETA33, HMETA;
-
-/************************************************************************
- HEAP METADATA PAGE LAYOUT
-*************************************************************************/
+// 
+// HEAP METADATA PAGE LAYOUT
+// 
 /*
  * Heap Meta data page structure
  *
  */
 typedef struct _heapmeta {
 	DBMETA    dbmeta;		/* 00-71: Generic meta-data header. */
-
 	db_pgno_t curregion;		/* 72-75: Current region pgno. */
 	uint32 nregions;		/* 76-79: Number of regions. */
 	uint32 gbytes;		/* 80-83: GBytes for fixed size heap. */
@@ -179,24 +170,20 @@ typedef struct _heapmeta {
 	 * Minimum page size is 512.
 	 */
 } HEAPMETA;
-		
-/************************************************************************
- QUEUE METADATA PAGE LAYOUT
- ************************************************************************/
+// 
+// QUEUE METADATA PAGE LAYOUT
+// 
 /*
  * QAM Meta data page structure
- *
  */
 typedef struct _qmeta33 {
 	DBMETA    dbmeta;	/* 00-71: Generic meta-data header. */
-
 	uint32 first_recno;	/* 72-75: First not deleted record. */
 	uint32 cur_recno;	/* 76-79: Next recno to be allocated. */
 	uint32 re_len;	/* 80-83: Fixed-length record length. */
 	uint32 re_pad;	/* 84-87: Fixed-length record pad. */
 	uint32 rec_page;	/* 88-91: Records Per Page. */
 	uint32 page_ext;	/* 92-95: Pages per extent */
-
 	uint32 unused[91];	/* 96-459: Unused space */
 	uint32 crypto_magic;	/* 460-463: Crypto magic number */
 	uint32 trash[3];	/* 464-475: Trash space - Do not use */
@@ -206,17 +193,15 @@ typedef struct _qmeta33 {
 	 * Minimum page size is 512.
 	 */
 } QMETA33, QMETA;
-
 /*
  * DBMETASIZE is a constant used by __db_file_setup and DB->verify
  * as a buffer which is guaranteed to be larger than any possible
  * metadata page size and smaller than any disk sector.
  */
 #define	DBMETASIZE	512
-
-/************************************************************************
- BTREE/HASH MAIN PAGE LAYOUT
- ************************************************************************/
+// 
+// BTREE/HASH MAIN PAGE LAYOUT
+// 
 /*
  *	+-----------------------------------+
  *	|    lsn    |   pgno    | prev pgno |
@@ -307,10 +292,9 @@ typedef struct _db_page {
 #define	HOFFSET(p)	(((PAGE *)p)->hf_offset)
 #define	LEVEL(p)	(((PAGE *)p)->level)
 #define	TYPE(p)		(((PAGE *)p)->type)
-
-/************************************************************************
- HEAP PAGE LAYOUT
- ************************************************************************/
+// 
+// HEAP PAGE LAYOUT
+// 
 #define HEAPPG_NORMAL	26
 #define HEAPPG_CHKSUM	48
 #define HEAPPG_SEC	64
@@ -435,10 +419,9 @@ typedef struct __heaphdrsplt {
 #define HEAP_HIGHINDX(p)	  (((HEAPPG *)p)->high_indx)
 /* True if we have a page that deals with heap */
 #define HEAPTYPE(h)           (TYPE(h) == P_HEAPMETA || TYPE(h) == P_HEAP || TYPE(h) == P_IHEAP)
-
-/************************************************************************
- QUEUE MAIN PAGE LAYOUT
- ************************************************************************/
+// 
+// QUEUE MAIN PAGE LAYOUT
+// 
 /*
  * Sizes of page below.  Used to reclaim space if not doing
  * crypto or checksumming.  If you change the QPAGE below you
@@ -507,11 +490,9 @@ typedef struct _qpage {
 #define	P_FREESPACE(dbp, pg)	(HOFFSET(pg) - LOFFSET(dbp, pg))
 /* Get a pointer to the bytes at a specific index. */
 #define	P_ENTRY(dbp, pg, indx)	((uint8 *)pg + P_INP(dbp, pg)[indx])
-
-/************************************************************************
- OVERFLOW PAGE LAYOUT
- ************************************************************************/
-
+// 
+// OVERFLOW PAGE LAYOUT
+// 
 /*
  * Overflow items are referenced by HOFFPAGE and BOVERFLOW structures, which
  * store a page number (the first page of the overflow item) and a length
@@ -529,23 +510,16 @@ typedef struct _qpage {
  */
 #define	OV_LEN(p)	(((PAGE *)p)->hf_offset)
 #define	OV_REF(p)	(((PAGE *)p)->entries)
-
-/* Maximum number of bytes that you can put on an overflow page. */
-#define	P_MAXSPACE(dbp, psize)	((psize) - P_OVERHEAD(dbp))
-
-/* Free space on an overflow page. */
-#define	P_OVFLSPACE(dbp, psize, pg)	(P_MAXSPACE(dbp, psize) - HOFFSET(pg))
-
-/************************************************************************
- HASH PAGE LAYOUT
- ************************************************************************/
-
+#define	P_MAXSPACE(dbp, psize)	((psize) - P_OVERHEAD(dbp)) /* Maximum number of bytes that you can put on an overflow page. */
+#define	P_OVFLSPACE(dbp, psize, pg)	(P_MAXSPACE(dbp, psize) - HOFFSET(pg)) /* Free space on an overflow page. */
+// 
+// HASH PAGE LAYOUT
+// 
 /* Each index references a group of bytes on the page. */
 #define	H_KEYDATA	1	/* Key/data item. */
 #define	H_DUPLICATE	2	/* Duplicate key/data item. */
 #define	H_OFFPAGE	3	/* Overflow key/data item. */
 #define	H_OFFDUP	4	/* Overflow page of duplicates. */
-
 /*
  * !!!
  * Items on hash pages are (potentially) unaligned, so we can never cast the
@@ -645,17 +619,14 @@ typedef struct _hoffdup {
 	db_pgno_t pgno;		/* 04-07: Offpage page number. */
 } HOFFDUP;
 #define	HOFFDUP_PGNO(p)		(((uint8 *)p) + SSZ(HOFFDUP, pgno))
-
 /*
  * Page space required to add a new HOFFDUP item to the page, with and
  * without the index value.
  */
 #define	HOFFDUP_SIZE		(sizeof(HOFFDUP))
-
-/************************************************************************
- BTREE PAGE LAYOUT
- ************************************************************************/
-
+// 
+// BTREE PAGE LAYOUT
+// 
 /* Each index references a group of bytes on the page. */
 #define	B_KEYDATA	1	/* Key/data item. */
 #define	B_DUPLICATE	2	/* Duplicate key/data item. */
@@ -724,7 +695,6 @@ typedef struct _boverflow {
 #define	BOVERFLOW_PSIZE (BOVERFLOW_SIZE + sizeof(db_indx_t))
 #define	BITEM_SIZE(bk)  (B_TYPE((bk)->type) != B_KEYDATA ? BOVERFLOW_SIZE : BKEYDATA_SIZE((bk)->len))
 #define	BITEM_PSIZE(bk) (B_TYPE((bk)->type) != B_KEYDATA ? BOVERFLOW_PSIZE : BKEYDATA_PSIZE((bk)->len))
-
 /*
  * Btree leaf and hash page layouts group indices in sets of two, one for the
  * key and one for the data.  Everything else does it in sets of one to save
@@ -732,11 +702,9 @@ typedef struct _boverflow {
  */
 #define	O_INDX	1
 #define	P_INDX	2
-
-/************************************************************************
- BTREE INTERNAL PAGE LAYOUT
- ************************************************************************/
-
+// 
+// BTREE INTERNAL PAGE LAYOUT
+// 
 /*
  * Btree internal entry.
  */
@@ -757,11 +725,9 @@ typedef struct _binternal {
  */
 #define	BINTERNAL_SIZE(len)  (uint16)DB_ALIGN((len) + SSZA(BINTERNAL, data), sizeof(uint32))
 #define	BINTERNAL_PSIZE(len) (BINTERNAL_SIZE(len) + sizeof(db_indx_t))
-
-/************************************************************************
- RECNO INTERNAL PAGE LAYOUT
- ************************************************************************/
-
+// 
+// RECNO INTERNAL PAGE LAYOUT
+// 
 /*
  * The recno internal entry.
  */

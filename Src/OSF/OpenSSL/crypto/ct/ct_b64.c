@@ -8,9 +8,8 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/ct.h>
+//#include <openssl/ct.h>
 #include "ct_locl.h"
-
 /*
  * Decodes the base64 string |in| into |out|.
  * A new string will be malloc'd and assigned to |out|. This will be owned by

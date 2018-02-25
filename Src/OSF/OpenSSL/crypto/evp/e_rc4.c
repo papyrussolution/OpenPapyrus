@@ -10,7 +10,7 @@
 #pragma hdrstop
 
 #ifndef OPENSSL_NO_RC4
-#include <openssl/rc4.h>
+//#include <openssl/rc4.h>
 
 typedef struct {
 	RC4_KEY ks;             /* working key */

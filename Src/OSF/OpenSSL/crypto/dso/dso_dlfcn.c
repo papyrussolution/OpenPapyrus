@@ -17,8 +17,7 @@
 #ifndef _GNU_SOURCE
 	#define _GNU_SOURCE            /* make sure dladdr is declared */
 #endif
-
-#include "dso_locl.h"
+//#include "dso_locl.h"
 
 #ifdef DSO_DLFCN
 

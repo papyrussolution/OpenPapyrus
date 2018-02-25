@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/ocsp.h>
-#include "ocsp_lcl.h"
+//#include "ocsp_lcl.h"
 
 /* Convert a certificate and its issuer to an OCSP_CERTID */
 

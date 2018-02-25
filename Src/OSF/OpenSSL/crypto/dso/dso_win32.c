@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "dso_locl.h"
+//#include "dso_locl.h"
 
 #if defined(DSO_WIN32)
 

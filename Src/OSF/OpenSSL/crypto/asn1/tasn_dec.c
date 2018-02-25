@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "asn1_locl.h"
+//#include "asn1_locl.h"
 
 static int asn1_item_embed_d2i(ASN1_VALUE ** pval, const uchar ** in, long len, const ASN1_ITEM * it, int tag, int aclass, char opt, ASN1_TLC * ctx);
 static int asn1_check_eoc(const uchar ** in, long len);

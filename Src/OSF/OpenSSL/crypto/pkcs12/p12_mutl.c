@@ -8,10 +8,10 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/hmac.h>
+//#include <openssl/hmac.h>
 //#include <openssl/rand.h>
 //#include <openssl/pkcs12.h>
-#include "p12_lcl.h"
+//#include "p12_lcl.h"
 
 int PKCS12_mac_present(const PKCS12 * p12)
 {

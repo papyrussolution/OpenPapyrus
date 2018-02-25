@@ -263,6 +263,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libssh2", "libssh2.vcproj",
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PPSoapSfaHeineken", "PPSoapSfaHeineken.vcproj", "{93591DEA-2261-49C9-9999-14B4D5D2C352}"
+	ProjectSection(ProjectDependencies) = postProject
+		{813784D9-8B70-4880-91E7-51BB4265D187} = {813784D9-8B70-4880-91E7-51BB4265D187}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -796,6 +801,20 @@ Global
 		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.ServerRelease.Build.0 = Release|Win32
 		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.Universe-HTT.ActiveCfg = Debug|Win32
 		{15BC6DE1-D1C2-4F47-A7A5-43D1A73D9B94}.Universe-HTT.Build.0 = Debug|Win32
+		{93591DEA-2261-49C9-9999-14B4D5D2C352}.Debug.ActiveCfg = Debug|Win32
+		{93591DEA-2261-49C9-9999-14B4D5D2C352}.Debug.Build.0 = Debug|Win32
+		{93591DEA-2261-49C9-9999-14B4D5D2C352}.MtDllDebug.ActiveCfg = Debug|Win32
+		{93591DEA-2261-49C9-9999-14B4D5D2C352}.MtDllDebug.Build.0 = Debug|Win32
+		{93591DEA-2261-49C9-9999-14B4D5D2C352}.MtDllRelease.ActiveCfg = Release|Win32
+		{93591DEA-2261-49C9-9999-14B4D5D2C352}.MtDllRelease.Build.0 = Release|Win32
+		{93591DEA-2261-49C9-9999-14B4D5D2C352}.Release.ActiveCfg = Release|Win32
+		{93591DEA-2261-49C9-9999-14B4D5D2C352}.Release.Build.0 = Release|Win32
+		{93591DEA-2261-49C9-9999-14B4D5D2C352}.ServerDebug.ActiveCfg = Debug|Win32
+		{93591DEA-2261-49C9-9999-14B4D5D2C352}.ServerDebug.Build.0 = Debug|Win32
+		{93591DEA-2261-49C9-9999-14B4D5D2C352}.ServerRelease.ActiveCfg = Release|Win32
+		{93591DEA-2261-49C9-9999-14B4D5D2C352}.ServerRelease.Build.0 = Release|Win32
+		{93591DEA-2261-49C9-9999-14B4D5D2C352}.Universe-HTT.ActiveCfg = Release|Win32
+		{93591DEA-2261-49C9-9999-14B4D5D2C352}.Universe-HTT.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		optimization.txt = optimization.txt

@@ -174,11 +174,9 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION * session, uchar ** dest, siz
 	// If strm is null, then we have not yet been initialized. 
 	if(strm == NULL)
 		return _libssh2_error(session, LIBSSH2_ERROR_COMPRESS, "decompression uninitialized"); ;
-	/* In practice they never come smaller than this */
-	if(out_maxlen < 25)
-		out_maxlen = 25;
-	if(out_maxlen > (int)payload_limit)
-		out_maxlen = payload_limit;
+	// In practice they never come smaller than this 
+	SETMAX(out_maxlen, 25);
+	SETMIN(out_maxlen, (int)payload_limit);
 	strm->next_in = (uchar*)src;
 	strm->avail_in = src_len;
 	strm->next_out = (uchar*)LIBSSH2_ALLOC(session, out_maxlen);
@@ -186,7 +184,7 @@ static int comp_method_zlib_decomp(LIBSSH2_SESSION * session, uchar ** dest, siz
 	strm->avail_out = out_maxlen;
 	if(!strm->next_out)
 		return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate decompression buffer");
-	/* Loop until it's all inflated or hit error */
+	// Loop until it's all inflated or hit error 
 	for(;; ) {
 		size_t out_ofs;
 		char * newout;
@@ -282,8 +280,5 @@ static const LIBSSH2_COMP_METHOD * no_comp_methods[] = {
 
 const LIBSSH2_COMP_METHOD ** _libssh2_comp_methods(LIBSSH2_SESSION * session)
 {
-	if(session->flag.compress)
-		return comp_methods;
-	else
-		return no_comp_methods;
+	return session->flag.compress ? comp_methods : no_comp_methods;
 }

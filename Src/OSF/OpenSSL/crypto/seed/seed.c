@@ -40,7 +40,7 @@
 #ifdef WIN32
 	#include <memory.h>
 #endif
-#include <openssl/seed.h>
+//#include <openssl/seed.h>
 #include "seed_locl.h"
 #ifdef SS                      /* can get defined on Solaris by inclusion of * <stdlib.h> */
 	#undef SS

@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "asn1_locl.h"
+//#include "asn1_locl.h"
 /*
  * General ASN1 structure recursive scanner: iterate through all fields
  * passing details to a callback.

@@ -2267,12 +2267,14 @@ int SLAPI BillTransmDeficit::ProcessDeficit(ObjTransmContext * pCtx, int * pNext
 			if(ok) {
 				if(pCtx->Cfg.Flags & DBDXF_TURNTOTALDEFICITE) {
 					double pct_add = 0.0;
-					if((pCtx->Cfg.Flags & DBDXF_TWOPASSRCV) || TurnDeficitDialog(&pct_add) > 0) {
+					const  PPID receipt_op = (pCtx && pCtx->Cfg.DfctRcptOpID) ? pCtx->Cfg.DfctRcptOpID : GetReceiptOp(); // @v9.9.6
+					int    do_twopass_rcv = BIN(pCtx->Cfg.Flags & DBDXF_TWOPASSRCV && GetOpType(receipt_op) == PPOPT_GOODSRECEIPT); // @v9.9.6
+					if(do_twopass_rcv || TurnDeficitDialog(&pct_add) > 0) {
 						for(uint i = 0; i < LocPeriodList_.getCount(); i++) {
 							// @v8.1.5 LDATE  dt = Period.low;
 							const LDATE dt = LocPeriodList_.at(i).P.low;
 							const PPID loc_id = LocPeriodList_.at(i).LocID;
-							if(pCtx->Cfg.Flags & DBDXF_TWOPASSRCV) {
+							if(do_twopass_rcv) {
 								if((ok = TurnDeficit(loc_id, dt, fdiv100i(pCtx->Cfg.PctAdd), pCtx)) > 0)
 									ASSIGN_PTR(pNextPassNeeded, 1);
 							}

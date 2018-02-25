@@ -10,8 +10,7 @@
 #pragma hdrstop
 
 #ifndef OPENSSL_NO_RMD160
-
-#include <openssl/ripemd.h>
+//#include <openssl/ripemd.h>
 
 static int init(EVP_MD_CTX *ctx)
 {

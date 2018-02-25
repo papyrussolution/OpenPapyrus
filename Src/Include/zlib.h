@@ -550,8 +550,8 @@ extern "C" {
 // The library does not install any signal handler.  The decoder checks
 // the consistency of the compressed data, so the library should never crash even in the case of corrupted input.
 //
-typedef voidpf (*alloc_func)(voidpf opaque, uInt items, uInt size);
-typedef void (*free_func)(voidpf opaque, voidpf address);
+typedef void * (*alloc_func)(void * opaque, uInt items, uInt size);
+typedef void (*free_func)(void * opaque, void * address);
 
 struct internal_state;
 
@@ -566,7 +566,7 @@ typedef struct z_stream_s {
 	struct internal_state * state; // not visible by applications 
 	alloc_func zalloc;       // used to allocate the internal state 
 	free_func  zfree;        // used to free the internal state 
-	voidpf opaque;           // private data object passed to zalloc and zfree 
+	void * opaque;           // private data object passed to zalloc and zfree 
 	int    data_type;        // best guess about the data type: binary or text for deflate, or the decoding state for inflate 
 	uLong  adler;            // Adler-32 or CRC-32 value of the uncompressed data 
 	uLong  reserved;         // reserved for future use 
@@ -1760,7 +1760,7 @@ ZEXTERN int ZEXPORT gzsetparams(gzFile file, int level, int strategy);
    opened for writing, Z_ERRNO if there is an error writing the flushed data,
    or Z_MEM_ERROR if there is a memory allocation error.
  */
-ZEXTERN int ZEXPORT gzread(gzFile file, voidp buf, unsigned len);
+ZEXTERN int ZEXPORT gzread(gzFile file, void * buf, unsigned len);
 /*
      Reads the given number of uncompressed bytes from the compressed file.  If
    the input file is not in gzip format, gzread copies the given number of
@@ -1789,7 +1789,7 @@ ZEXTERN int ZEXPORT gzread(gzFile file, voidp buf, unsigned len);
    then nothing is read, -1 is returned, and the error state is set to
    Z_STREAM_ERROR.
  */
-ZEXTERN size_t ZEXPORT gzfread(voidp buf, size_t size, size_t nitems, gzFile file);
+ZEXTERN size_t ZEXPORT gzfread(void * buf, size_t size, size_t nitems, gzFile file);
 /*
      Read up to nitems items of size size from file to buf, otherwise operating
    as gzread() does.  This duplicates the interface of stdio's fread(), with
@@ -1814,11 +1814,10 @@ ZEXTERN size_t ZEXPORT gzfread(voidp buf, size_t size, size_t nitems, gzFile fil
    file, reseting and retrying on end-of-file, when size is not 1.
  */
 ZEXTERN int ZEXPORT gzwrite(gzFile file, voidpc buf, unsigned len);
-/*
-     Writes the given number of uncompressed bytes into the compressed file.
-   gzwrite returns the number of uncompressed bytes written or 0 in case of
-   error.
- */
+// 
+// Writes the given number of uncompressed bytes into the compressed file.
+// gzwrite returns the number of uncompressed bytes written or 0 in case of error.
+// 
 ZEXTERN size_t ZEXPORT gzfwrite(voidpc buf, size_t size, size_t nitems, gzFile file);
 /*
      gzfwrite() writes nitems items of size size from buf to file, duplicating
@@ -1846,12 +1845,12 @@ ZEXTERN int ZEXPORTVA gzprintf(gzFile file, const char * format, ...);
    This can be determined using zlibCompileFlags().
  */
 ZEXTERN int ZEXPORT gzputs(gzFile file, const char * s);
-/*
-     Writes the given null-terminated string to the compressed file, excluding
-   the terminating null character.
-
-     gzputs returns the number of characters written, or -1 in case of error.
- */
+// 
+// Writes the given null-terminated string to the compressed file, excluding
+// the terminating null character.
+// 
+// gzputs returns the number of characters written, or -1 in case of error.
+// 
 ZEXTERN char * ZEXPORT gzgets(gzFile file, char * buf, int len);
 /*
      Reads bytes from the compressed file until len-1 characters are read, or a
@@ -1865,18 +1864,18 @@ ZEXTERN char * ZEXPORT gzgets(gzFile file, char * buf, int len);
    buf are indeterminate.
  */
 ZEXTERN int ZEXPORT gzputc(gzFile file, int c);
-/*
-     Writes c, converted to an uchar, into the compressed file.  gzputc
-   returns the value that was written, or -1 in case of error.
- */
+// 
+// Writes c, converted to an uchar, into the compressed file.  gzputc
+// returns the value that was written, or -1 in case of error.
+// 
 ZEXTERN int ZEXPORT gzgetc(gzFile file);
-/*
-     Reads one byte from the compressed file.  gzgetc returns this byte or -1
-   in case of end of file or error.  This is implemented as a macro for speed.
-   As such, it does not do all of the checking the other functions do.  I.e.
-   it does not check to see if file is NULL, nor whether the structure file
-   points to has been clobbered or not.
- */
+//
+// Reads one byte from the compressed file.  gzgetc returns this byte or -1
+// in case of end of file or error.  This is implemented as a macro for speed.
+// As such, it does not do all of the checking the other functions do.  I.e.
+// it does not check to see if file is NULL, nor whether the structure file
+// points to has been clobbered or not.
+//
 ZEXTERN int ZEXPORT gzungetc(int c, gzFile file);
 /*
      Push one character back onto the stream to be read as the first character
@@ -2434,11 +2433,11 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 		#define Tracecv(c, x)
 	#endif
 	#ifndef Z_SOLO
-		voidpf ZLIB_INTERNAL zcalloc(voidpf opaque, unsigned items, unsigned size);
-		void ZLIB_INTERNAL zcfree(voidpf opaque, voidpf ptr);
+		void * ZLIB_INTERNAL zcalloc(void * opaque, uint items, uint size);
+		void ZLIB_INTERNAL zcfree(void * opaque, void * ptr);
 	#endif
 	#define ZLIB_ALLOC(strm, items, size) (*((strm)->zalloc))((strm)->opaque, (items), (size))
-	#define ZLIB_FREE(strm, addr)  (*((strm)->zfree))((strm)->opaque, (voidpf)(addr))
+	#define ZLIB_FREE(strm, addr)  (*((strm)->zfree))((strm)->opaque, (void *)(addr))
 	#define TRY_FREE(s, p) { if(p) ZLIB_FREE(s, p); }
 	//
 	// Reverse the bytes in a 32-bit value 

@@ -355,10 +355,11 @@ int WinInetFTP::UnInit()
 int WinInetFTP::Connect(PPInternetAccount * pAccount)
 {
 	int    ok = 1;
-	char   pwd[32];
+	char   pwd[48]; // @v9.9.6 [32]-->[48]
 	int    port = 0;
 	SString url_buf, user;
 	SString host, temp_buf;
+	SString scheme;
 	Disconnect();
 	THROW_INVARG(pAccount);
 	Account = *pAccount;
@@ -367,11 +368,26 @@ int WinInetFTP::Connect(PPInternetAccount * pAccount)
 		port = temp_buf.ToLong();
 	Account.GetExtField(FTPAEXSTR_USER, user);
 	Account.GetPassword(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
+	// @v9.9.6 int SLAPI PPInternetAccount::GetPassword(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */) const
+	// @v9.9.6 {
+	{
+		SString pw_buf;
+		Account.GetExtField(MAEXSTR_RCVPASSWORD, temp_buf);
+		Reference::Helper_DecodeOtherPw(0, temp_buf, 48, pw_buf);
+		STRNSCPY(pwd, pw_buf);
+	}
+	// } @v9.9.6 
 	uint   conn_flags = (Account.Flags & PPInternetAccount::fFtpPassive) ? INTERNET_FLAG_PASSIVE : 0;
 	{
 		InetUrl url(url_buf);
 		url.GetComponent(InetUrl::cHost, 0, host);
 		host.SetIfEmpty(url_buf);
+		url.GetComponent(InetUrl::cScheme, 0, scheme);
+		if(scheme.Empty()) {
+			scheme = "ftp";
+			url.SetComponent(InetUrl::cScheme, scheme);
+		}
+		//url.Composite(InetUrl::stScheme|InetUrl::stHost, host);
 		if(pwd[0] == 0) {
 			if(url.GetComponent(InetUrl::cPassword, 0, temp_buf) > 0)
 				STRNSCPY(pwd, temp_buf);
@@ -381,8 +397,9 @@ int WinInetFTP::Connect(PPInternetAccount * pAccount)
 				user = temp_buf;
 		}
 		if(port == 0) {
-			if(url.GetComponent(InetUrl::cPort, 0, temp_buf) > 0)
-				port = temp_buf.ToLong();
+			if(url.GetComponent(InetUrl::cPort, 0, temp_buf) > 0) {
+				port = url.GetDefProtocolPort(InetUrl::protFtp);
+			}
 		}
 		SETIFZ(port, INTERNET_DEFAULT_FTP_PORT);
 	}

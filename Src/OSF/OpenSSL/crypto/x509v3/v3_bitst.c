@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "ext_dat.h"
+//#include "ext_dat.h"
 
 static BIT_STRING_BITNAME ns_cert_type_table[] = {
 	{0, "SSL Client", "client"},

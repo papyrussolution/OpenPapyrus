@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "ext_dat.h"
+//#include "ext_dat.h"
 
 const X509V3_EXT_METHOD v3_ns_ia5_list[8] = {
 	EXT_IA5STRING(NID_netscape_base_url),

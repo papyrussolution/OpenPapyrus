@@ -11,7 +11,6 @@
 /*
  * BIO_put and BIO_get both add to the digest, BIO_gets returns the digest
  */
-
 static int nbiof_write(BIO * h, const char * buf, int num);
 static int nbiof_read(BIO * h, char * buf, int size);
 static int nbiof_puts(BIO * h, const char * str);

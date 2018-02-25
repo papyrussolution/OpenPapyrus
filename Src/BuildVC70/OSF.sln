@@ -61,10 +61,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LzmaLib", "LzmaLib.vcproj",
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7z", "7z.vcproj", "{A8F087D9-5CBA-4252-AEB9-64A84C259743}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7z-Alone", "7z-alone.vcproj", "{B742E28B-5EB0-4808-B5C6-0E55A030E605}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D507E468-21FC-4209-A5A8-DE1F055866DC} = {D507E468-21FC-4209-A5A8-DE1F055866DC}
@@ -378,26 +374,6 @@ Global
 		{11C0CEBB-5F2C-4135-96BD-36551C93206B}.ServerDebug.Build.0 = Debug|Win32
 		{11C0CEBB-5F2C-4135-96BD-36551C93206B}.ServerRelease.ActiveCfg = Release|Win32
 		{11C0CEBB-5F2C-4135-96BD-36551C93206B}.ServerRelease.Build.0 = Release|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.Debug.ActiveCfg = Debug|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.Debug.Build.0 = Debug|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.DebugU.ActiveCfg = Debug|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.DebugU.Build.0 = Debug|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.MinSizeRel.ActiveCfg = Debug|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.MinSizeRel.Build.0 = Debug|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.MtDllDebug.ActiveCfg = Debug|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.MtDllDebug.Build.0 = Debug|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.MtDllRelease.ActiveCfg = Release|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.MtDllRelease.Build.0 = Release|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.Release.ActiveCfg = Release|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.Release.Build.0 = Release|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.ReleaseU.ActiveCfg = Release|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.ReleaseU.Build.0 = Release|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.RelWithDebInfo.ActiveCfg = Release|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.RelWithDebInfo.Build.0 = Release|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.ServerDebug.ActiveCfg = Debug|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.ServerDebug.Build.0 = Debug|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.ServerRelease.ActiveCfg = Release|Win32
-		{A8F087D9-5CBA-4252-AEB9-64A84C259743}.ServerRelease.Build.0 = Release|Win32
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.Debug.ActiveCfg = Debug|Win32
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.Debug.Build.0 = Debug|Win32
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.DebugU.ActiveCfg = DebugU|Win32

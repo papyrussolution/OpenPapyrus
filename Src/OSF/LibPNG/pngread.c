@@ -795,7 +795,7 @@ void PNGAPI png_set_read_status_fn(png_structrp png_ptr, png_read_status_ptr rea
 
 #ifdef PNG_SEQUENTIAL_READ_SUPPORTED
 #ifdef PNG_INFO_IMAGE_SUPPORTED
-void PNGAPI png_read_png(png_structrp png_ptr, png_inforp info_ptr, int transforms, voidp params)
+void PNGAPI png_read_png(png_structrp png_ptr, png_inforp info_ptr, int transforms, void * params)
 {
 	if(png_ptr == NULL || info_ptr == NULL)
 		return;

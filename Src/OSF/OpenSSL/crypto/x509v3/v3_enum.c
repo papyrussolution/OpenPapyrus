@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "ext_dat.h"
+//#include "ext_dat.h"
 
 static ENUMERATED_NAMES crl_reasons[] = {
 	{CRL_REASON_UNSPECIFIED, "Unspecified", "unspecified"},

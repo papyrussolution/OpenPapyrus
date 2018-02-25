@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "asn1_locl.h"
+//#include "asn1_locl.h"
 
 ASN1_INTEGER * FASTCALL ASN1_INTEGER_dup(const ASN1_INTEGER * x)
 {

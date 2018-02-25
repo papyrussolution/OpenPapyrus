@@ -29400,6 +29400,15 @@ struct SelAddBySampleParam {
 	enum {
 		fCopyBillCode = 0x0001
 	};
+	enum {
+		acnUndef               = -1, // Не определено
+		acnStd                 =  0, // Стандартный документ по образцу
+		acnShipmByOrder        =  1, // Отгрузка по заказу
+		acnDraftExpByOrder     =  2, // Драфт-расход по заказу
+		acnDraftRcpByOrder     =  3, // Драфт-приход по заказу
+		acnDraftExpRestByOrder =  4, // Драфт-расход по заказу (только не отгруженные позиции)
+		acnShipmAll            =  5  // Отгрузить весь оприходованный товар
+	};
 	long   Action;
 	PPID   OpID;
 	PPID   LocID;

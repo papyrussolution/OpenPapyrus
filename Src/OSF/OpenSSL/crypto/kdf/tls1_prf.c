@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/kdf.h>
+//#include <openssl/kdf.h>
 
 static int tls1_prf_alg(const EVP_MD * md, const uchar * sec, size_t slen, const uchar * seed, size_t seed_len, uchar * out, size_t olen);
 

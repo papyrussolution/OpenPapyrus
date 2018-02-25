@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include <openssl/evp.h>
-#include "evp_locl.h"
+//#include "evp_locl.h"
 
 static uchar conv_ascii2bin(uchar a);
 #ifndef CHARSET_EBCDIC

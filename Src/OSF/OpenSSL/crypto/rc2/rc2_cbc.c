@@ -8,14 +8,14 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/rc2.h>
+//#include <openssl/rc2.h>
 #include "rc2_locl.h"
 
 void RC2_cbc_encrypt(const uchar * in, uchar * out, long length, RC2_KEY * ks, uchar * iv, int encrypt)
 {
-	register ulong tin0, tin1;
-	register ulong tout0, tout1, xor0, xor1;
-	register long l = length;
+	ulong tin0, tin1;
+	ulong tout0, tout1, xor0, xor1;
+	long l = length;
 	ulong tin[2];
 	if(encrypt) {
 		c2l(iv, tout0);

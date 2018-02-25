@@ -8,13 +8,12 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/seed.h>
+//#include <openssl/seed.h>
 
-void SEED_ecb_encrypt(const uchar *in, uchar *out,
-                      const SEED_KEY_SCHEDULE *ks, int enc)
+void SEED_ecb_encrypt(const uchar * in, uchar * out, const SEED_KEY_SCHEDULE * ks, int enc)
 {
-    if (enc)
-        SEED_encrypt(in, out, ks);
-    else
-        SEED_decrypt(in, out, ks);
+	if(enc)
+		SEED_encrypt(in, out, ks);
+	else
+		SEED_decrypt(in, out, ks);
 }

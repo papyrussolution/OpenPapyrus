@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "ocsp_lcl.h"
+//#include "ocsp_lcl.h"
 
 /* Standard wrapper functions for extensions */
 

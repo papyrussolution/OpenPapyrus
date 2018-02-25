@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include <openssl/ripemd.h>
+//#include <openssl/ripemd.h>
 
 uchar * RIPEMD160(const uchar * d, size_t n, uchar * md)
 {

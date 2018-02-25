@@ -17,55 +17,47 @@
 #if defined(OPENSSL_SYS_VXWORKS)
 	#include <sys/types.h>
 #endif
-
 #if !defined(_POSIX_C_SOURCE) && defined(OPENSSL_SYS_VMS)
-# ifndef _POSIX_C_SOURCE
-#define _POSIX_C_SOURCE 2
-# endif
+	#ifndef _POSIX_C_SOURCE
+		#define _POSIX_C_SOURCE 2
+	#endif
 #endif
 #include <signal.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-
+//#include <stdio.h>
+//#include <string.h>
+//#include <errno.h>
 #if !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VMS)
-# ifdef OPENSSL_UNISTD
-#  include OPENSSL_UNISTD
-# else
-#  include <unistd.h>
-# endif
-/*
- * If unistd.h defines _POSIX_VERSION, we conclude that we are on a POSIX
- * system and have sigaction and termios.
- */
-# if defined(_POSIX_VERSION)
-
-#define SIGACTION
-#  if !defined(TERMIOS) && !defined(TERMIO) && !defined(SGTTY)
-#   define TERMIOS
-#  endif
-
-# endif
+	#ifdef OPENSSL_UNISTD
+		#include OPENSSL_UNISTD
+	#else
+		#include <unistd.h>
+	#endif
+	/*
+	 * If unistd.h defines _POSIX_VERSION, we conclude that we are on a POSIX
+	 * system and have sigaction and termios.
+	 */
+	#if defined(_POSIX_VERSION)
+		#define SIGACTION
+		#if !defined(TERMIOS) && !defined(TERMIO) && !defined(SGTTY)
+			#define TERMIOS
+		#endif
+	#endif
 #endif
-
 /* 06-Apr-92 Luke Brennan    Support for VMS */
 #include "ui_locl.h"
-#include "internal/cryptlib.h"
-
+//#include "internal/cryptlib.h"
 #ifdef OPENSSL_SYS_VMS          /* prototypes for sys$whatever */
-#include <starlet.h>
-# ifdef __DECC
-#  pragma message disable DOLLARID
-# endif
+	#include <starlet.h>
+	#ifdef __DECC
+		#pragma message disable DOLLARID
+	#endif
 #endif
-
 #ifdef WIN_CONSOLE_BUG
-#include <windows.h>
-# ifndef OPENSSL_SYS_WINCE
-#  include <wincon.h>
-# endif
+	#include <windows.h>
+	#ifndef OPENSSL_SYS_WINCE
+		#include <wincon.h>
+	#endif
 #endif
-
 /*
  * There are 6 types of terminal interface supported, TERMIO, TERMIOS, VMS,
  * MSDOS, WIN32 Console and SGTTY.
@@ -79,97 +71,78 @@
  */
 
 #if !defined(TERMIOS) && !defined(TERMIO) && !defined(SGTTY)
-
-# if defined(_LIBC)
-#  undef  TERMIOS
-#define TERMIO
-#  undef  SGTTY
-/*
- * We know that VMS, MSDOS, VXWORKS, use entirely other mechanisms.
- */
-# elif !defined(OPENSSL_SYS_VMS) \
-	&& !defined(OPENSSL_SYS_MSDOS) \
-	&& !defined(OPENSSL_SYS_VXWORKS)
-#define TERMIOS
-#  undef  TERMIO
-#  undef  SGTTY
-# endif
-
+	#if defined(_LIBC)
+		#undef  TERMIOS
+		#define TERMIO
+		#undef  SGTTY
+		/*
+		 * We know that VMS, MSDOS, VXWORKS, use entirely other mechanisms.
+		 */
+	#elif !defined(OPENSSL_SYS_VMS) && !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VXWORKS)
+		#define TERMIOS
+		#undef  TERMIO
+		#undef  SGTTY
+	#endif
 #endif
-
 #ifdef TERMIOS
-#include <termios.h>
-#define TTY_STRUCT             struct termios
-#define TTY_FLAGS              c_lflag
-#define TTY_get(tty, data)      tcgetattr(tty, data)
-#define TTY_set(tty, data)      tcsetattr(tty, TCSANOW, data)
+	#include <termios.h>
+	#define TTY_STRUCT             struct termios
+	#define TTY_FLAGS              c_lflag
+	#define TTY_get(tty, data)      tcgetattr(tty, data)
+	#define TTY_set(tty, data)      tcsetattr(tty, TCSANOW, data)
 #endif
-
 #ifdef TERMIO
-#include <termio.h>
-#define TTY_STRUCT             struct termio
-#define TTY_FLAGS              c_lflag
-#define TTY_get(tty, data)      ioctl(tty, TCGETA, data)
-#define TTY_set(tty, data)      ioctl(tty, TCSETA, data)
+	#include <termio.h>
+	#define TTY_STRUCT             struct termio
+	#define TTY_FLAGS              c_lflag
+	#define TTY_get(tty, data)      ioctl(tty, TCGETA, data)
+	#define TTY_set(tty, data)      ioctl(tty, TCSETA, data)
 #endif
-
 #ifdef SGTTY
-#include <sgtty.h>
-#define TTY_STRUCT             struct sgttyb
-#define TTY_FLAGS              sg_flags
-#define TTY_get(tty, data)      ioctl(tty, TIOCGETP, data)
-#define TTY_set(tty, data)      ioctl(tty, TIOCSETP, data)
+	#include <sgtty.h>
+	#define TTY_STRUCT             struct sgttyb
+	#define TTY_FLAGS              sg_flags
+	#define TTY_get(tty, data)      ioctl(tty, TIOCGETP, data)
+	#define TTY_set(tty, data)      ioctl(tty, TIOCSETP, data)
 #endif
-
 #if !defined(_LIBC) && !defined(OPENSSL_SYS_MSDOS) && !defined(OPENSSL_SYS_VMS)
-#include <sys/ioctl.h>
+	#include <sys/ioctl.h>
 #endif
-
 #ifdef OPENSSL_SYS_MSDOS
-#include <conio.h>
+	#include <conio.h>
 #endif
-
 #ifdef OPENSSL_SYS_VMS
-#include <ssdef.h>
-#include <iodef.h>
-#include <ttdef.h>
-#include <descrip.h>
-struct IOSB {
-	short iosb$w_value;
-
-	short iosb$w_count;
-	long iosb$l_info;
-};
-
+	#include <ssdef.h>
+	#include <iodef.h>
+	#include <ttdef.h>
+	#include <descrip.h>
+	struct IOSB {
+		short iosb$w_value;
+		short iosb$w_count;
+		long iosb$l_info;
+	};
 #endif
-
 #ifndef NX509_SIG
-#define NX509_SIG 32
+	#define NX509_SIG 32
 #endif
-
 /* Define globals.  They are protected by a lock */
 #ifdef SIGACTION
-static struct sigaction savsig[NX509_SIG];
-
+	static struct sigaction savsig[NX509_SIG];
 #else
-static void(*savsig[NX509_SIG]) (int);
+	static void(*savsig[NX509_SIG]) (int);
 #endif
-
 #ifdef OPENSSL_SYS_VMS
-static struct IOSB iosb;
-
-static $DESCRIPTOR(terminal, "TT");
-static long tty_orig[3], tty_new[3]; /* XXX Is there any guarantee that this
-                                      * will always suffice for the actual
-                                      * structures? */
-static long status;
-static unsigned short channel = 0;
+	static struct IOSB iosb;
+	static $DESCRIPTOR(terminal, "TT");
+	static long tty_orig[3], tty_new[3]; /* XXX Is there any guarantee that this will always suffice for the actual structures? */
+	static long status;
+	static unsigned short channel = 0;
 #elif defined(_WIN32) && !defined(_WIN32_WCE)
-static DWORD tty_orig, tty_new;
+	static DWORD tty_orig, tty_new;
 #else
-# if !defined(OPENSSL_SYS_MSDOS) || defined(__DJGPP__)
-static TTY_STRUCT tty_orig, tty_new;
-# endif
+	#if !defined(OPENSSL_SYS_MSDOS) || defined(__DJGPP__)
+		static TTY_STRUCT tty_orig, tty_new;
+	#endif
 #endif
 static FILE * tty_in, * tty_out;
 static int is_a_tty;

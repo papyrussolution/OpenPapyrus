@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 #include "modes_lcl.h"
-#include "evp_locl.h"
+//#include "evp_locl.h"
 
 typedef struct {
 	union {

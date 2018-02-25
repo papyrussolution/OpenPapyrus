@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "dso_locl.h"
+//#include "dso_locl.h"
 
 #ifdef OPENSSL_SYS_VMS
 

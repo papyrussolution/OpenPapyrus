@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "ocsp_lcl.h"
+//#include "ocsp_lcl.h"
 
 ASN1_SEQUENCE(OCSP_SIGNATURE) = {
         ASN1_EMBED(OCSP_SIGNATURE, signatureAlgorithm, X509_ALGOR),

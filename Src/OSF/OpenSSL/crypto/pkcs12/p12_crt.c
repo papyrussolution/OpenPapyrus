@@ -9,10 +9,9 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/pkcs12.h>
-#include "p12_lcl.h"
+//#include "p12_lcl.h"
 
-static int pkcs12_add_bag(STACK_OF(PKCS12_SAFEBAG) ** pbags,
-    PKCS12_SAFEBAG * bag);
+static int pkcs12_add_bag(STACK_OF(PKCS12_SAFEBAG) ** pbags, PKCS12_SAFEBAG * bag);
 
 static int copy_bag_attr(PKCS12_SAFEBAG * bag, EVP_PKEY * pkey, int nid)
 {

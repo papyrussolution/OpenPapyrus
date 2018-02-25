@@ -12,7 +12,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "ext_dat.h"
+//#include "ext_dat.h"
 
 #ifndef OPENSSL_NO_RFC3779
 

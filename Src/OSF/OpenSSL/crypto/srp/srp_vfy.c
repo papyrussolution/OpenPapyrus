@@ -10,7 +10,7 @@
 #pragma hdrstop
 
 #ifndef OPENSSL_NO_SRP
-#include <openssl/srp.h>
+//#include <openssl/srp.h>
 #include <openssl/txt_db.h>
 
 #define SRP_RANDOM_SALT_LEN 20

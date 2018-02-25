@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "ext_dat.h"
+//#include "ext_dat.h"
 
 const X509V3_EXT_METHOD v3_crl_num = {
 	NID_crl_number, 0, ASN1_ITEM_ref(ASN1_INTEGER),

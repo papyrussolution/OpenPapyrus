@@ -93,15 +93,12 @@ void ChaCha20_ctr32(uchar * out, const uchar * inp, size_t len, const uint key[8
 		todo = sizeof(buf);
 		if(len < todo)
 			todo = len;
-
 		chacha20_core(&buf, input);
-
 		for(i = 0; i < todo; i++)
 			out[i] = inp[i] ^ buf.c[i];
 		out += todo;
 		inp += todo;
 		len -= todo;
-
 		/*
 		 * Advance 32-bit counter. Note that as subroutine is so to
 		 * say nonce-agnostic, this limited counter width doesn't

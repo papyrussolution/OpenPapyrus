@@ -10,7 +10,7 @@
 #pragma hdrstop
 //#include <openssl/pem.h>
 //#include <openssl/pkcs12.h>
-#include "p12_lcl.h"
+//#include "p12_lcl.h"
 
 /* PKCS#12 password change routine */
 

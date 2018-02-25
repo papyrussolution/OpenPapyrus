@@ -8,14 +8,13 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "dso_locl.h"
+//#include "dso_locl.h"
 
 static DSO_METHOD * default_DSO_meth = NULL;
 
 static DSO * DSO_new_method(DSO_METHOD * meth)
 {
 	DSO * ret;
-
 	if(default_DSO_meth == NULL) {
 		/*
 		 * We default to DSO_METH_openssl() which in turn defaults to

@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "x509_lcl.h"
+//#include "x509_lcl.h"
 
 static int by_file_ctrl(X509_LOOKUP * ctx, int cmd, const char * argc, long argl, char ** ret);
 static X509_LOOKUP_METHOD x509_file_lookup = {

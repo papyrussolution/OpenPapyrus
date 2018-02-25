@@ -92,7 +92,14 @@ int SLAPI PPObjectTransmit::EditConfig()
 			AddClusterAssoc(CTL_DBXCHGCFG_RLZORD,  2, RLZORD_LIFO);
 			SetClusterData(CTL_DBXCHGCFG_RLZORD, Data.RealizeOrder);
 			SetupPPObjCombo(this, CTLSEL_DBXCHGCFG_ONELOC, PPOBJ_LOCATION, Data.OneRcvLocID, 0);
-			SetupPPObjCombo(this, CTLSEL_DBXCHGCFG_DROP, PPOBJ_OPRKIND, Data.DfctRcptOpID, OLW_CANINSERT, (void *)PPOPT_GOODSRECEIPT);
+			{
+				// @v9.9.6 SetupPPObjCombo(this, CTLSEL_DBXCHGCFG_DROP, PPOBJ_OPRKIND, Data.DfctRcptOpID, OLW_CANINSERT, (void *)PPOPT_GOODSRECEIPT);
+				// @v9.9.6 {
+				PPIDArray op_type_list;
+				op_type_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT, 0);
+				SetupOprKindCombo(this, CTLSEL_DBXCHGCFG_DROP, Data.DfctRcptOpID, OLW_CANINSERT, &op_type_list, 0);
+				// } @v9.9.6 
+			}
 			setCtrlReal(CTL_DBXCHGCFG_PCTADD, R2(fdiv100i(Data.PctAdd)));
 			SetupCtrls(Data.Flags);
 			return 1;
@@ -127,8 +134,17 @@ int SLAPI PPObjectTransmit::EditConfig()
 			if(event.isCmd(cmClusterClk)) {
 				long flags = GetClusterData(CTL_DBXCHGCFG_FLAGS);
 				SetupCtrls(flags);
-				clearEvent(event);
 			}
+			// @v9.9.6 {
+			else if(event.isCbSelected(CTLSEL_DBXCHGCFG_DROP)) {
+				long flags = GetClusterData(CTL_DBXCHGCFG_FLAGS);
+				getCtrlData(CTLSEL_DBXCHGCFG_DROP, &Data.DfctRcptOpID);
+				SetupCtrls(flags);
+			}
+			// } @v9.9.6 
+			else
+				return;
+			clearEvent(event);
 		}
 		void   SetupCtrls(long flags)
 		{
@@ -139,6 +155,7 @@ int SLAPI PPObjectTransmit::EditConfig()
 				flags &= ~DBDXF_SUBSTDEFICITGOODS;
 				SetClusterData(CTL_DBXCHGCFG_CHARRYF, flags);
 			}
+			DisableClusterItem(CTL_DBXCHGCFG_FLAGS, 5, BIN(Data.DfctRcptOpID && GetOpType(Data.DfctRcptOpID) != PPOPT_GOODSRECEIPT)); // @v9.9.6
 		}
 		PPDBXchgConfig Data;
 	};

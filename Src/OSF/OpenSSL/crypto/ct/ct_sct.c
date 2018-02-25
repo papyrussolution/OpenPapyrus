@@ -11,9 +11,8 @@
 #ifdef OPENSSL_NO_CT
 	#error "CT disabled"
 #endif
-#include <openssl/ct.h>
-#include <openssl/tls1.h>
-
+//#include <openssl/ct.h>
+//#include <openssl/tls1.h>
 #include "ct_locl.h"
 
 SCT * SCT_new(void)

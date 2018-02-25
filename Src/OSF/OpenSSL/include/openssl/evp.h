@@ -21,8 +21,7 @@
 #define EVP_MAX_BLOCK_LENGTH            32
 
 #define PKCS5_SALT_LEN                  8
-/* Default PKCS#5 iteration count */
-#define PKCS5_DEFAULT_ITER              2048
+#define PKCS5_DEFAULT_ITER              2048 // Default PKCS#5 iteration count 
 
 #include <openssl/objects.h>
 
@@ -72,52 +71,42 @@ int EVP_MD_meth_set_result_size(EVP_MD * md, int resultsize);
 int EVP_MD_meth_set_app_datasize(EVP_MD * md, int datasize);
 int EVP_MD_meth_set_flags(EVP_MD * md, unsigned long flags);
 int EVP_MD_meth_set_init(EVP_MD * md, int (* init)(EVP_MD_CTX * ctx));
-int EVP_MD_meth_set_update(EVP_MD * md, int (* update)(EVP_MD_CTX * ctx,
-	    const void * data,
-	    size_t count));
-int EVP_MD_meth_set_final(EVP_MD * md, int (* final)(EVP_MD_CTX * ctx,
-	    uchar * md));
-int EVP_MD_meth_set_copy(EVP_MD * md, int (* copy)(EVP_MD_CTX * to,
-	    const EVP_MD_CTX * from));
+int EVP_MD_meth_set_update(EVP_MD * md, int (* update)(EVP_MD_CTX * ctx, const void * data, size_t count));
+int EVP_MD_meth_set_final(EVP_MD * md, int (* final)(EVP_MD_CTX * ctx, uchar * md));
+int EVP_MD_meth_set_copy(EVP_MD * md, int (* copy)(EVP_MD_CTX * to, const EVP_MD_CTX * from));
 int EVP_MD_meth_set_cleanup(EVP_MD * md, int (* cleanup)(EVP_MD_CTX * ctx));
-int EVP_MD_meth_set_ctrl(EVP_MD * md, int (* ctrl)(EVP_MD_CTX * ctx, int cmd,
-	    int p1, void * p2));
+int EVP_MD_meth_set_ctrl(EVP_MD * md, int (* ctrl)(EVP_MD_CTX * ctx, int cmd, int p1, void * p2));
 
 int EVP_MD_meth_get_input_blocksize(const EVP_MD * md);
 int EVP_MD_meth_get_result_size(const EVP_MD * md);
 int EVP_MD_meth_get_app_datasize(const EVP_MD * md);
 unsigned long EVP_MD_meth_get_flags(const EVP_MD * md);
 int(*EVP_MD_meth_get_init(const EVP_MD *md)) (EVP_MD_CTX *ctx);
-int(*EVP_MD_meth_get_update(const EVP_MD *md)) (EVP_MD_CTX *ctx,
-    const void * data,
-    size_t count);
-int(*EVP_MD_meth_get_final(const EVP_MD *md)) (EVP_MD_CTX *ctx,
-    uchar * md);
-int(*EVP_MD_meth_get_copy(const EVP_MD *md)) (EVP_MD_CTX *to,
-    const EVP_MD_CTX *from);
+int(*EVP_MD_meth_get_update(const EVP_MD *md)) (EVP_MD_CTX *ctx, const void * data, size_t count);
+int(*EVP_MD_meth_get_final(const EVP_MD *md)) (EVP_MD_CTX *ctx, uchar * md);
+int(*EVP_MD_meth_get_copy(const EVP_MD *md)) (EVP_MD_CTX *to, const EVP_MD_CTX *from);
 int(*EVP_MD_meth_get_cleanup(const EVP_MD *md)) (EVP_MD_CTX *ctx);
-int(*EVP_MD_meth_get_ctrl(const EVP_MD *md)) (EVP_MD_CTX *ctx, int cmd,
-    int p1, void * p2);
+int(*EVP_MD_meth_get_ctrl(const EVP_MD *md)) (EVP_MD_CTX *ctx, int cmd, int p1, void * p2);
 
-/* digest can only handle a single block */
-#define EVP_MD_FLAG_ONESHOT     0x0001
-
-/* DigestAlgorithmIdentifier flags... */
-
+#define EVP_MD_FLAG_ONESHOT     0x0001 /* digest can only handle a single block */
+// 
+// DigestAlgorithmIdentifier flags... 
+//
 #define EVP_MD_FLAG_DIGALGID_MASK               0x0018
-
 #define EVP_MD_FLAG_DIGALGID_NULL               0x0000 /* NULL or absent parameter accepted. Use NULL */
 #define EVP_MD_FLAG_DIGALGID_ABSENT             0x0008 /* NULL or absent parameter accepted. Use NULL for PKCS#1 otherwise absent */
 #define EVP_MD_FLAG_DIGALGID_CUSTOM             0x0018 /* Custom handling via ctrl */
 #define EVP_MD_FLAG_FIPS        0x0400 /* Note if suitable for use in FIPS mode */
-/* Digest ctrls */
+// 
+// Digest ctrls 
+// 
 #define EVP_MD_CTRL_DIGALGID                    0x1
 #define EVP_MD_CTRL_MICALG                      0x2
 #define EVP_MD_CTRL_ALG_CTRL                    0x1000 /* Minimum Algorithm specific ctrl value */
-# endif                         /* !EVP_MD */
-
-/* values for EVP_MD_CTX flags */
-
+#endif                         /* !EVP_MD */
+// 
+// values for EVP_MD_CTX flags 
+// 
 #define EVP_MD_CTX_FLAG_ONESHOT         0x0001 /* digest update will be called once only */
 #define EVP_MD_CTX_FLAG_CLEANED         0x0002 /* context has already been cleaned */
 #define EVP_MD_CTX_FLAG_REUSE           0x0004 /* Don't free up ctx->md_data in EVP_MD_CTX_reset */
@@ -125,7 +114,6 @@ int(*EVP_MD_meth_get_ctrl(const EVP_MD *md)) (EVP_MD_CTX *ctx, int cmd,
  * FIPS and pad options are ignored in 1.0.0, definitions are here so we
  * don't accidentally reuse the values for other purposes.
  */
-
 #define EVP_MD_CTX_FLAG_NON_FIPS_ALLOW  0x0008 /* Allow use of non FIPS digest in FIPS mode */
 /*
  * The following PAD options are also currently ignored in 1.0.0, digest
@@ -153,44 +141,19 @@ void EVP_CIPHER_meth_free(EVP_CIPHER * cipher);
 int EVP_CIPHER_meth_set_iv_length(EVP_CIPHER * cipher, int iv_len);
 int EVP_CIPHER_meth_set_flags(EVP_CIPHER * cipher, unsigned long flags);
 int EVP_CIPHER_meth_set_impl_ctx_size(EVP_CIPHER * cipher, int ctx_size);
-int EVP_CIPHER_meth_set_init(EVP_CIPHER * cipher,
-    int (* init)(EVP_CIPHER_CTX * ctx,
-	    const uchar * key,
-	    const uchar * iv,
-	    int enc));
-int EVP_CIPHER_meth_set_do_cipher(EVP_CIPHER * cipher,
-    int (* do_cipher)(EVP_CIPHER_CTX * ctx,
-	    uchar * out,
-	    const uchar * in,
-	    size_t inl));
-int EVP_CIPHER_meth_set_cleanup(EVP_CIPHER * cipher,
-    int (* cleanup)(EVP_CIPHER_CTX *));
-int EVP_CIPHER_meth_set_set_asn1_params(EVP_CIPHER * cipher,
-    int (* set_asn1_parameters)(EVP_CIPHER_CTX *,
-	    ASN1_TYPE *));
-int EVP_CIPHER_meth_set_get_asn1_params(EVP_CIPHER * cipher,
-    int (* get_asn1_parameters)(EVP_CIPHER_CTX *,
-	    ASN1_TYPE *));
-int EVP_CIPHER_meth_set_ctrl(EVP_CIPHER * cipher,
-    int (* ctrl)(EVP_CIPHER_CTX *, int type,
-	    int arg, void * ptr));
+int EVP_CIPHER_meth_set_init(EVP_CIPHER * cipher, int (* init)(EVP_CIPHER_CTX * ctx, const uchar * key, const uchar * iv, int enc));
+int EVP_CIPHER_meth_set_do_cipher(EVP_CIPHER * cipher, int (* do_cipher)(EVP_CIPHER_CTX * ctx, uchar * out, const uchar * in, size_t inl));
+int EVP_CIPHER_meth_set_cleanup(EVP_CIPHER * cipher, int (* cleanup)(EVP_CIPHER_CTX *));
+int EVP_CIPHER_meth_set_set_asn1_params(EVP_CIPHER * cipher, int (* set_asn1_parameters)(EVP_CIPHER_CTX *, ASN1_TYPE *));
+int EVP_CIPHER_meth_set_get_asn1_params(EVP_CIPHER * cipher, int (* get_asn1_parameters)(EVP_CIPHER_CTX *, ASN1_TYPE *));
+int EVP_CIPHER_meth_set_ctrl(EVP_CIPHER * cipher, int (* ctrl)(EVP_CIPHER_CTX *, int type, int arg, void * ptr));
 
-int(*EVP_CIPHER_meth_get_init(const EVP_CIPHER *cipher)) (EVP_CIPHER_CTX *ctx,
-    const uchar * key,
-    const uchar * iv,
-    int enc);
-int(*EVP_CIPHER_meth_get_do_cipher(const EVP_CIPHER *cipher)) (EVP_CIPHER_CTX *ctx,
-    uchar * out,
-    const uchar * in,
-    size_t inl);
+int(*EVP_CIPHER_meth_get_init(const EVP_CIPHER *cipher)) (EVP_CIPHER_CTX *ctx, const uchar * key, const uchar * iv, int enc);
+int(*EVP_CIPHER_meth_get_do_cipher(const EVP_CIPHER *cipher)) (EVP_CIPHER_CTX *ctx, uchar * out, const uchar * in, size_t inl);
 int(*EVP_CIPHER_meth_get_cleanup(const EVP_CIPHER *cipher)) (EVP_CIPHER_CTX *);
-int(*EVP_CIPHER_meth_get_set_asn1_params(const EVP_CIPHER *cipher)) (EVP_CIPHER_CTX *,
-    ASN1_TYPE *);
-int(*EVP_CIPHER_meth_get_get_asn1_params(const EVP_CIPHER *cipher)) (EVP_CIPHER_CTX *,
-    ASN1_TYPE *);
-int(*EVP_CIPHER_meth_get_ctrl(const EVP_CIPHER *cipher)) (EVP_CIPHER_CTX *,
-    int type, int arg,
-    void * ptr);
+int(*EVP_CIPHER_meth_get_set_asn1_params(const EVP_CIPHER *cipher)) (EVP_CIPHER_CTX *, ASN1_TYPE *);
+int(*EVP_CIPHER_meth_get_get_asn1_params(const EVP_CIPHER *cipher)) (EVP_CIPHER_CTX *, ASN1_TYPE *);
+int(*EVP_CIPHER_meth_get_ctrl(const EVP_CIPHER *cipher)) (EVP_CIPHER_CTX *, int type, int arg, void * ptr);
 
 /* Values for cipher flags */
 
@@ -208,39 +171,25 @@ int(*EVP_CIPHER_meth_get_ctrl(const EVP_CIPHER *cipher)) (EVP_CIPHER_CTX *,
 #define         EVP_CIPH_WRAP_MODE              0x10002
 #define         EVP_CIPH_OCB_MODE               0x10003
 #define         EVP_CIPH_MODE                   0xF0007
-/* Set if variable length cipher */
-#define         EVP_CIPH_VARIABLE_LENGTH        0x8
-/* Set if the iv handling should be done by the cipher itself */
-#define         EVP_CIPH_CUSTOM_IV              0x10
-/* Set if the cipher's init() function should be called if key is NULL */
-#define         EVP_CIPH_ALWAYS_CALL_INIT       0x20
-/* Call ctrl() to init cipher parameters */
-#define         EVP_CIPH_CTRL_INIT              0x40
-/* Don't use standard key length function */
-#define         EVP_CIPH_CUSTOM_KEY_LENGTH      0x80
-/* Don't use standard block padding */
-#define         EVP_CIPH_NO_PADDING             0x100
-/* cipher handles random key generation */
-#define         EVP_CIPH_RAND_KEY               0x200
-/* cipher has its own additional copying logic */
-#define         EVP_CIPH_CUSTOM_COPY            0x400
-/* Allow use default ASN1 get/set iv */
-#define         EVP_CIPH_FLAG_DEFAULT_ASN1      0x1000
-/* Buffer length in bits not bytes: CFB1 mode only */
-#define         EVP_CIPH_FLAG_LENGTH_BITS       0x2000
-/* Note if suitable for use in FIPS mode */
-#define         EVP_CIPH_FLAG_FIPS              0x4000
-/* Allow non FIPS cipher in FIPS mode */
-#define         EVP_CIPH_FLAG_NON_FIPS_ALLOW    0x8000
+#define         EVP_CIPH_VARIABLE_LENGTH        0x8 /* Set if variable length cipher */
+#define         EVP_CIPH_CUSTOM_IV              0x10 /* Set if the iv handling should be done by the cipher itself */
+#define         EVP_CIPH_ALWAYS_CALL_INIT       0x20 /* Set if the cipher's init() function should be called if key is NULL */
+#define         EVP_CIPH_CTRL_INIT              0x40 /* Call ctrl() to init cipher parameters */
+#define         EVP_CIPH_CUSTOM_KEY_LENGTH      0x80 /* Don't use standard key length function */
+#define         EVP_CIPH_NO_PADDING             0x100 /* Don't use standard block padding */
+#define         EVP_CIPH_RAND_KEY               0x200 /* cipher handles random key generation */
+#define         EVP_CIPH_CUSTOM_COPY            0x400 /* cipher has its own additional copying logic */
+#define         EVP_CIPH_FLAG_DEFAULT_ASN1      0x1000 /* Allow use default ASN1 get/set iv */
+#define         EVP_CIPH_FLAG_LENGTH_BITS       0x2000 /* Buffer length in bits not bytes: CFB1 mode only */
+#define         EVP_CIPH_FLAG_FIPS              0x4000 /* Note if suitable for use in FIPS mode */
+#define         EVP_CIPH_FLAG_NON_FIPS_ALLOW    0x8000 /* Allow non FIPS cipher in FIPS mode */
 /*
  * Cipher handles any and all padding logic as well as finalisation.
  */
 #define         EVP_CIPH_FLAG_CUSTOM_CIPHER     0x100000
 #define         EVP_CIPH_FLAG_AEAD_CIPHER       0x200000
 #define         EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK 0x400000
-/* Cipher can handle pipeline operations */
-#define         EVP_CIPH_FLAG_PIPELINE          0X800000
-
+#define         EVP_CIPH_FLAG_PIPELINE          0X800000 /* Cipher can handle pipeline operations */
 /*
  * Cipher context flag to indicate we can handle wrap mode: if allowed in
  * older applications it could overflow buffers.

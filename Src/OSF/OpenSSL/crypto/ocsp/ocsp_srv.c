@@ -9,7 +9,7 @@
 #include "internal/cryptlib.h"
 #pragma hdrstop
 //#include <openssl/ocsp.h>
-#include "ocsp_lcl.h"
+//#include "ocsp_lcl.h"
 /*
  * Utility functions related to sending OCSP responses and extracting
  * relevant information from the request.

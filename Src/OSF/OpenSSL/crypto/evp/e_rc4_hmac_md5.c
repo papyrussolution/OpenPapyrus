@@ -11,7 +11,7 @@
 
 #if !defined(OPENSSL_NO_RC4) && !defined(OPENSSL_NO_MD5)
 
-#include <openssl/rc4.h>
+//#include <openssl/rc4.h>
 
 typedef struct {
 	RC4_KEY ks;

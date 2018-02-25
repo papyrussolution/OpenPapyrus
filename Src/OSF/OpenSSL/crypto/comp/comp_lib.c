@@ -10,7 +10,7 @@
 #pragma hdrstop
 //#include <openssl/objects.h>
 //#include <openssl/comp.h>
-#include "comp_lcl.h"
+//#include "comp_lcl.h"
 
 COMP_CTX * COMP_CTX_new(COMP_METHOD * meth)
 {

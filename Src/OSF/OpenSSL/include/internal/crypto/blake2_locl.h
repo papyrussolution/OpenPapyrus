@@ -13,9 +13,8 @@
  * More information about the BLAKE2 hash function and its implementations
  * can be found at https://blake2.net.
  */
-
-#include <stddef.h>
-#include "e_os.h"
+//#include <stddef.h>
+//#include "e_os.h"
 
 #define BLAKE2S_BLOCKBYTES    64
 #define BLAKE2S_OUTBYTES      32

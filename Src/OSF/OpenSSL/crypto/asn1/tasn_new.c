@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "asn1_locl.h"
+//#include "asn1_locl.h"
 
 static int asn1_item_embed_new(ASN1_VALUE ** pval, const ASN1_ITEM * it, int embed);
 static int asn1_primitive_new(ASN1_VALUE ** pval, const ASN1_ITEM * it, int embed);

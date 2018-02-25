@@ -1172,8 +1172,15 @@ int32 DL6ICLS_PPFtp::Connect(SFtpAccount * pAcct)
 		temp_buf.CopyFromOleStr(pAcct->User);
 		acct.SetExtField(FTPAEXSTR_USER, temp_buf);
 		temp_buf.CopyFromOleStr(pAcct->Password);
-		acct.SetPassword(temp_buf);
-		temp_buf.Cat((pAcct->Port) ? pAcct->Port : 21L);
+		// @v9.9.6 acct.SetPassword(temp_buf);
+		// @v9.9.6 {
+		{
+			SString pw_buf;
+			Reference::Helper_EncodeOtherPw(0, temp_buf, 48, pw_buf);
+			acct.SetExtField(MAEXSTR_RCVPASSWORD, pw_buf);
+		}
+		// } @v9.9.6 
+		temp_buf.Z().Cat((pAcct->Port) ? pAcct->Port : 21L);
 		acct.SetExtField(FTPAEXSTR_PORT, temp_buf);
 		acct.Flags = pAcct->Flags;
 		ok = p_ftp->Connect(&acct);

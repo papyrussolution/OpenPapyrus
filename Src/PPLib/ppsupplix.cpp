@@ -2531,17 +2531,14 @@ public:
 	};
 	SLAPI  iSalesPepsi(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
 	SLAPI ~iSalesPepsi();
-
 	int    SLAPI Init(/*PPID arID*/);
 	void   SLAPI GetLogFileName(SString & rFileName) const;
 	int    SLAPI ParseResultString(const char * pText, TSCollection <iSalesPepsi::ResultItem> & rList, long * pErrItemCount) const;
-
 	int    SLAPI ReceiveGoods(int forceSettings, int useStorage);
 	int    SLAPI ReceiveRouts(TSCollection <iSalesRoutePacket> & rResult);
 	int    SLAPI ReceiveReceipts();
 	int    SLAPI ReceiveOrders();
 	int    SLAPI ReceiveUnclosedInvoices(TSCollection <iSalesBillDebt> & rResult);
-
 	int    SLAPI SendPrices();
 	int    SLAPI SendStocks();
 	int    SLAPI SendInvoices();
@@ -4416,12 +4413,9 @@ class SapEfes : public PrcssrSupplInterchange::ExecuteBlock {
 public:
 	SLAPI  SapEfes(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
 	SLAPI ~SapEfes();
-
 	void   SLAPI Init();
 	void   SLAPI GetLogFileName(SString & rFileName) const;
-
 	int    SLAPI ReceiveOrders();
-
 	int    SLAPI SendStocks();
 	int    SLAPI SendInvoices();
 	int    SLAPI SendDebts();
@@ -4558,7 +4552,6 @@ int SLAPI SapEfes::MakeOrderReply(TSCollection <SapEfesBillStatus> & rList, cons
 	CATCHZOK
 	return ok;
 }
-
 
 int SLAPI SapEfes::ReceiveOrders()
 {
@@ -5385,6 +5378,350 @@ int SLAPI SapEfes::SendDebts()
 //
 //
 //
+class SfaHeineken : public PrcssrSupplInterchange::ExecuteBlock {
+public:
+	SLAPI  SfaHeineken(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
+	SLAPI ~SfaHeineken();
+
+	void   SLAPI Init();
+	int    SLAPI ReceiveGoods();
+	int    SLAPI ReceiveOrders();
+	void   SLAPI GetLogFileName(SString & rFileName) const;
+private:
+	struct ReplyInfo {
+		SLAPI  ReplyInfo() : ErrCode(0), ErrInternalCode(0), ErrSeverity(0)
+		{
+		}
+		int    ErrCode;
+		int    ErrInternalCode;
+		int    ErrSeverity;
+		SString ErrMessage;
+		SString ErrSource;
+		SString ProcessingType;
+	};
+	struct GoodsEntry {
+		int    ID;
+		SString Name;
+	};
+	struct OrderEntry {
+		SLAPI  OrderEntry() : Dtm(ZERODATETIME), DlvrDtm(ZERODATETIME), ForeignDlvrAddrID(0), PaidSum(0.0), UserID(0), WarehouseID(0)
+		{
+		}
+		struct Item {
+			SLAPI  Item() : SkuID(0), UnitID(0), Qtty(0)
+			{
+			}
+			int    SkuID;
+			int    UnitID;
+			int    Qtty;
+			SString SkuName;
+		};
+		S_GUID Uuid;
+		LDATETIME Dtm;
+		LDATETIME DlvrDtm;
+		int    ForeignDlvrAddrID;
+		double PaidSum;     // Сумма инкассации
+		int    UserID;      // Идентификатор пользователя, создавшего заказ
+		int    WarehouseID; // Идентификатор склада дистрибьютора
+		SString ForeignDlvrAddrText;
+		SString Memo;
+		SString PaidNumber; // Номер кассового ордера
+		SString UserName;   // Фамилия Имя Отчество торгового представителя
+		TSCollection <Item> ItemList;
+	};
+	int    SLAPI PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
+	void   FASTCALL DestroyResult(void ** ppResult);
+	int    SLAPI ParseReplyInfo(const xmlNode * pNode, ReplyInfo * pInfo)
+	{
+		int    ok = -1;
+		SString temp_buf;
+		if(SXml::IsName(pNode, "Error")) {
+			if(pNode->children) {
+				if(pInfo) {
+					for(xmlNode * p_r = pNode->children; p_r; p_r = p_r->next) {
+						if(SXml::GetContentByName(p_r, "ErrorID", temp_buf))
+							pInfo->ErrCode = temp_buf.ToLong();
+						else if(SXml::GetContentByName(p_r, "InternalErrorID", temp_buf))
+							pInfo->ErrInternalCode = temp_buf.ToLong();
+						else if(SXml::GetContentByName(p_r, "Severity", temp_buf))
+							pInfo->ErrSeverity = temp_buf.ToLong();
+						else if(SXml::GetContentByName(p_r, "ErrorMessage", temp_buf))
+							pInfo->ErrMessage = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						else if(SXml::GetContentByName(p_r, "ErrorSource", temp_buf))
+							pInfo->ErrSource = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					}
+				}
+			}
+			ok = 1;
+		}
+		else if(SXml::GetContentByName(pNode, "ProcessingType", temp_buf)) {
+			if(pInfo) {
+				pInfo->ProcessingType = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			}
+			ok = 1;
+		}
+		return ok;
+	}
+	int    SLAPI ParseOrdersPacket(const SString * pSrc, ReplyInfo * pInfo, TSCollection <OrderEntry> & rList)
+	{
+		int    ok = -1;
+		xmlParserCtxt * p_ctx = 0;
+		xmlDoc * p_doc = 0;
+		if(pSrc && pSrc->NotEmpty()) {
+			const size_t avl_size = pSrc->Len();
+			SString temp_buf;
+			xmlNode * p_root = 0;
+			THROW(p_ctx = xmlNewParserCtxt());
+			THROW_LXML(p_doc = xmlCtxtReadMemory(p_ctx, pSrc->cptr(), avl_size, 0, 0, XML_PARSE_NOENT), p_ctx);
+			THROW(p_root = xmlDocGetRootElement(p_doc));
+			if(SXml::IsName(p_root, "DRP_GetOrders") || SXml::IsName(p_root, "DRP_GetOrdersDemo") || SXml::IsName(p_root, "DRP_GetOrdersByDate")) {
+				for(xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
+					if(ParseReplyInfo(p_c, pInfo) > 0) {
+						;
+					}
+					else if(SXml::IsName(p_c, "ResultObject")) {
+						for(xmlNode * p_r = p_c->children; p_r; p_r = p_r->next) {
+							if(SXml::IsName(p_r, "Order")) {
+								OrderEntry * p_new_entry = rList.CreateNewItem();
+								THROW_SL(p_new_entry);
+								for(xmlNode * p_ord = p_r->children; p_ord; p_ord = p_ord->next) {
+									if(SXml::GetContentByName(p_ord, "OrderID", temp_buf))
+										p_new_entry->Uuid.FromStr(temp_buf);
+									else if(SXml::GetContentByName(p_ord, "DateTime", temp_buf)) 
+										strtodatetime(temp_buf, &p_new_entry->Dtm, DATF_ISO8601, TIMF_HMS);
+									else if(SXml::GetContentByName(p_ord, "DateDelivery", temp_buf)) 
+										strtodatetime(temp_buf, &p_new_entry->DlvrDtm, DATF_ISO8601, TIMF_HMS);
+									else if(SXml::GetContentByName(p_ord, "SalePointID", temp_buf)) 
+										p_new_entry->ForeignDlvrAddrID = temp_buf.ToLong();
+									else if(SXml::GetContentByName(p_ord, "SalePointName", temp_buf))
+										p_new_entry->ForeignDlvrAddrText = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+									else if(SXml::GetContentByName(p_ord, "Comments", temp_buf))
+										p_new_entry->Memo = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+									else if(SXml::GetContentByName(p_ord, "PaidNumber", temp_buf)) 
+										p_new_entry->PaidNumber = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+									else if(SXml::GetContentByName(p_ord, "PaidSum", temp_buf)) 
+										p_new_entry->PaidSum = temp_buf.ToReal();
+									else if(SXml::GetContentByName(p_ord, "UserID", temp_buf))
+										p_new_entry->UserID = temp_buf.ToLong();
+									else if(SXml::GetContentByName(p_ord, "UserName", temp_buf))
+										p_new_entry->UserName = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+									else if(SXml::GetContentByName(p_ord, "WareHouseID", temp_buf))
+										p_new_entry->WarehouseID = temp_buf.ToLong();
+									else if(SXml::IsName(p_ord, "OrderPositions")) {
+										for(xmlNode * p_items = p_ord->children; p_items; p_items = p_items->next) {
+											if(SXml::IsName(p_items, "OrderPosition")) {
+												OrderEntry::Item * p_new_item = p_new_entry->ItemList.CreateNewItem();
+												THROW_SL(p_new_item);
+												for(xmlNode * p_it = p_items->children; p_it; p_it = p_it->next) {
+													if(SXml::GetContentByName(p_it, "SkuID", temp_buf))
+														p_new_item->SkuID = temp_buf.ToLong();
+													else if(SXml::GetContentByName(p_it, "SkuName", temp_buf))
+														p_new_item->SkuName = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+													else if(SXml::GetContentByName(p_it, "UnitID", temp_buf))
+														p_new_item->UnitID = temp_buf.ToLong();
+													else if(SXml::GetContentByName(p_it, "Num", temp_buf))
+														p_new_item->Qtty = temp_buf.ToLong();
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				ok = 1;
+			}
+		}
+		CATCHZOK
+		xmlFreeDoc(p_doc);
+		xmlFreeParserCtxt(p_ctx);
+		return ok;
+	}
+	int    SLAPI ParseGoodsPacket(const SString * pSrc, ReplyInfo * pInfo, TSCollection <GoodsEntry> & rList)
+	{
+		int    ok = -1;
+		xmlParserCtxt * p_ctx = 0;
+		xmlDoc * p_doc = 0;
+		if(pSrc && pSrc->NotEmpty()) {
+			const size_t avl_size = pSrc->Len();
+			SString temp_buf;
+			xmlNode * p_root = 0;
+			THROW(p_ctx = xmlNewParserCtxt());
+			THROW_LXML(p_doc = xmlCtxtReadMemory(p_ctx, pSrc->cptr(), avl_size, 0, 0, XML_PARSE_NOENT), p_ctx);
+			THROW(p_root = xmlDocGetRootElement(p_doc));
+			if(SXml::IsName(p_root, "DRP_GetSkuAssortment")) {
+				for(xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
+					if(ParseReplyInfo(p_c, pInfo) > 0) {
+						;
+					}
+					else if(SXml::IsName(p_c, "ResultObject")) {
+						for(xmlNode * p_r = p_c->children; p_r; p_r = p_r->next) {
+							if(SXml::IsName(p_r, "Sku")) {
+								for(xmlNode * p_sku = p_r->children; p_sku; p_sku = p_sku->next) {
+									GoodsEntry * p_new_entry = rList.CreateNewItem();
+									THROW_SL(p_new_entry);
+									if(SXml::GetContentByName(p_sku, "ID", temp_buf)) {
+										p_new_entry->ID = temp_buf.ToLong();
+									}
+									else if(SXml::GetContentByName(p_sku, "Name", temp_buf)) {
+										p_new_entry->Name = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+									}
+								}
+							}
+						}
+					}
+				}
+				ok = 1;
+			}
+		}
+		CATCHZOK
+		xmlFreeDoc(p_doc);
+		xmlFreeParserCtxt(p_ctx);
+		return ok;
+	}
+
+	enum {
+		stInited             = 0x0001,
+		stEpDefined          = 0x0002
+	};
+
+	long   State;
+	SDynLibrary * P_Lib;
+	void * P_DestroyFunc;
+	PPIDArray GoodsList;
+	SString SvcUrl;
+	SString UserName;
+	SString Password;
+	SString SalesOrg;
+	//
+	SString LastMsg;
+	SString LogFileName;
+	PPLogger & R_Logger;
+};
+
+SLAPI SfaHeineken::SfaHeineken(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger),
+	State(0), P_DestroyFunc(0)
+{
+	PPGetFilePath(PPPATH_LOG, "sfaheineken.log", LogFileName);
+ 	{
+		SString lib_path;
+		PPGetFilePath(PPPATH_BIN, "PPSoapSfaHeineken.dll", lib_path);
+		P_Lib = new SDynLibrary(lib_path);
+		if(P_Lib && !P_Lib->IsValid()) {
+			ZDELETE(P_Lib);
+		}
+		if(P_Lib)
+			P_DestroyFunc = (void *)P_Lib->GetProcAddr("SfaHeinekenDestroyResult");
+	}
+}
+
+SLAPI SfaHeineken::~SfaHeineken()
+{
+	P_DestroyFunc = 0;
+	delete P_Lib;
+}
+
+void SLAPI SfaHeineken::Init()
+{
+	Reference * p_ref = PPRef;
+	State = 0;
+	SvcUrl.Z();
+	UserName.Z();
+	Password.Z();
+	{
+        Ep.GetExtStrData(Ep.extssRemoteAddr, SvcUrl);
+        Ep.GetExtStrData(Ep.extssAccsName, UserName);
+        Ep.GetExtStrData(Ep.extssAccsPassw, Password);
+		Ep.GetExtStrData(Ep.extssClientCode, SalesOrg);
+		State |= stEpDefined;
+	}
+	State |= stInited;
+}
+
+void SLAPI SfaHeineken::GetLogFileName(SString & rFileName) const
+{
+	rFileName = LogFileName;
+}
+
+int SLAPI SfaHeineken::PreprocessResult(const void * pResult, const PPSoapClientSession & rSess)
+{
+	LastMsg = rSess.GetMsg();
+    return BIN(pResult);
+}
+
+void FASTCALL SfaHeineken::DestroyResult(void ** ppResult)
+{
+	if(P_DestroyFunc) {
+		((UHTT_DESTROYRESULT)P_DestroyFunc)(*ppResult);
+		*ppResult = 0;
+	}
+}
+
+int SLAPI SfaHeineken::ReceiveOrders()
+{
+	int    ok = -1;
+	PPSoapClientSession sess;
+	SString lib_path;
+	SString temp_buf, url;
+	SString msg_buf;
+	SString out_file_name;
+	SString * p_result = 0;
+	TSCollection <OrderEntry> result_list;
+	ReplyInfo reply_info;
+	SFAHEINEKENGETORDERS_PROC func = 0;
+	SString tech_buf;
+	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
+	{
+		PPFormatT(PPTXT_LOG_SUPPLIX_IMPGOODS_S, &msg_buf, tech_buf.cptr(), P.SupplID);
+		PPWaitMsg(msg_buf);
+	}
+	THROW(State & stInited);
+	THROW(State & stEpDefined);
+	THROW(P_Lib);
+	THROW_SL(func = (SFAHEINEKENGETORDERS_PROC)P_Lib->GetProcAddr("SfaHeineken_GetOrders"));
+	sess.Setup(SvcUrl, UserName, Password);
+	p_result = func(sess, ZERODATE, 1/*demo*/);
+	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+	ParseOrdersPacket(p_result, &reply_info, result_list);
+	DestroyResult((void **)&p_result);
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SfaHeineken::ReceiveGoods()
+{
+	int    ok = -1;
+	PPSoapClientSession sess;
+	SString lib_path;
+	SString temp_buf, url;
+	SString msg_buf;
+	SString out_file_name;
+	SString * p_result = 0;
+	TSCollection <GoodsEntry> result_list;
+	ReplyInfo reply_info;
+	SFAHEINEKENGETSKUASSORTIMENT_PROC func = 0;
+	SString tech_buf;
+	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
+	{
+		PPFormatT(PPTXT_LOG_SUPPLIX_IMPGOODS_S, &msg_buf, tech_buf.cptr(), P.SupplID);
+		PPWaitMsg(msg_buf);
+	}
+	THROW(State & stInited);
+	THROW(State & stEpDefined);
+	THROW(P_Lib);
+	THROW_SL(func = (SFAHEINEKENGETSKUASSORTIMENT_PROC)P_Lib->GetProcAddr("SfaHeineken_GetSkuAssortiment"));
+	sess.Setup(SvcUrl, UserName, Password);
+	p_result = func(sess);
+	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+	ParseGoodsPacket(p_result, &reply_info, result_list);
+	DestroyResult((void **)&p_result);
+	CATCHZOK
+	return ok;
+}
+//
+//
+//
 IMPLEMENT_PPFILT_FACTORY(SupplInterchange); SLAPI SupplInterchangeFilt::SupplInterchangeFilt() : PPBaseFilt(PPFILT_SUPPLINTERCHANGE, 0, 0)
 {
 	SetFlatChunk(offsetof(SupplInterchangeFilt, ReserveStart),
@@ -5796,6 +6133,19 @@ int SLAPI PrcssrSupplInterchange::Run()
 		PPWait(0);
 	}
 	else if(temp_buf.CmpNC("SFA-HEINEKEN") == 0) { // @construction
+		SfaHeineken cli(*P_Eb, logger);
+		PPWait(1);
+		cli.Init();
+		if(P_Eb->P.Actions & SupplInterchangeFilt::opImportGoods) {
+			if(!cli.ReceiveGoods())
+				logger.LogLastError();
+		}
+		if(P_Eb->P.Actions & SupplInterchangeFilt::opImportOrders) {
+			if(!cli.ReceiveOrders())
+				logger.LogLastError();
+		}
+		cli.GetLogFileName(log_file_name);
+		PPWait(0);
 	}
 	else {
 		; //

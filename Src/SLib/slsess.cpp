@@ -126,67 +126,41 @@ void SLAPI SlThreadLocalArea::RemoveTempFiles()
 	TempFileList = temp_list;
 }
 
-SLAPI SlSession::SlSession() : SSys(1), Id(0), TlsIdx(-1), StopFlag(0), P_StopEvnt(0), DragndropObjIdx(0), GlobSymbList(512, 0) // @v9.8.1 256-->512
+SLAPI SlSession::SlSession() : SSys(1), Id(1), TlsIdx(-1), StopFlag(0), P_StopEvnt(0), DragndropObjIdx(0), GlobSymbList(512, 0), // @v9.8.1 256-->512
+	WsaInitCounter(0), HelpCookie(0), UiLanguageId(0)
 {
-	Construct();
-}
-
-int SLAPI SlSession::Construct()
-{
-	int    ok = -1;
-	//
-	// Так как SlSession инстациируется только как глобальный объект, закладываемся на то,
-	// что Id изначально равен 0.
-	//
-	if(Id == 0) {
-		{
+	assert((void *)&TlsIdx == (void *)this); // TlsIdx - @firstmember
 #if (USE_ASMLIB > 0)
-			//
-			// Перед началом исполнения программы сделаем вызовы функций из библиотеки ASMLIB для того,
-			// чтобы они сразу инициализировали внутренние таблицы, зависящие от процессора.
-			// Таким образом, мы избежим риска конфликтов при многопоточном исполнении.
-			//
-			const  size_t S = 128;
-			char   temp_buf1[S], temp_buf2[S];
-			A_memset(temp_buf1, 0, S);
-			A_memset(temp_buf2, 0, S);
-			A_memmove(temp_buf1, temp_buf2, S);
-			A_memcpy(temp_buf2, temp_buf1, S);
-			A_memset(temp_buf2, '1', S/4);
-			temp_buf1[0] = 0;
-			//strcat(temp_buf1, "0");
-			//xeos_memchr(temp_buf1, '0', xeos_strlen(temp_buf1));
-			/* @v9.0.6
-			A_strlen(temp_buf2);
-			A_strcpy(temp_buf1, temp_buf2);
-			A_strcmp(temp_buf1, temp_buf2);
-			A_stricmp(temp_buf1, temp_buf2);
-			A_strstr(temp_buf1, "11");
-			*/
-#endif
-		}
-		Id = 1;
-		// (ctr) TlsIdx = -1L;
-		// @v9.8.1 LastThread.Assign(0);
-		WsaInitCounter = 0;
-		// (ctr) StopFlag = 0;
-		// (ctr) DragndropObjIdx = 0;
-		ExtraProcBlk.Reset();
-		/* @v9.1.2 replaced by ExtraProcBlk
-		F_LoadString = 0;
-		F_ExpandString = 0; // @v9.0.11
-		F_CallHelp = 0;
-		F_GetGlobalSecureConfig = 0; // @v7.6.7
+	{
+		//
+		// Перед началом исполнения программы сделаем вызовы функций из библиотеки ASMLIB для того,
+		// чтобы они сразу инициализировали внутренние таблицы, зависящие от процессора.
+		// Таким образом, мы избежим риска конфликтов при многопоточном исполнении.
+		//
+		const  size_t S = 128;
+		char   temp_buf1[S], temp_buf2[S];
+		A_memset(temp_buf1, 0, S);
+		A_memset(temp_buf2, 0, S);
+		A_memmove(temp_buf1, temp_buf2, S);
+		A_memcpy(temp_buf2, temp_buf1, S);
+		A_memset(temp_buf2, '1', S/4);
+		temp_buf1[0] = 0;
+		//strcat(temp_buf1, "0");
+		//xeos_memchr(temp_buf1, '0', xeos_strlen(temp_buf1));
+		/* @v9.0.6
+		A_strlen(temp_buf2);
+		A_strcpy(temp_buf1, temp_buf2);
+		A_strcmp(temp_buf1, temp_buf2);
+		A_stricmp(temp_buf1, temp_buf2);
+		A_strstr(temp_buf1, "11");
 		*/
-		// (ctr) P_StopEvnt = 0;
-		HelpCookie = 0;
-		UiLanguageId = 0; // @v8.9.10
-		SessUuid.Generate(); // @v8.0.2 Генерируем абсолютно уникальный id сессии.
-		TlsIdx = TlsAlloc();
-		InitThread();
-		ok = 1;
 	}
-	return ok;
+#endif
+	// @v9.8.1 LastThread.Assign(0);
+	ExtraProcBlk.Reset();
+	SessUuid.Generate(); // @v8.0.2 Генерируем абсолютно уникальный id сессии.
+	TlsIdx = TlsAlloc();
+	InitThread();
 }
 
 SLAPI SlSession::~SlSession()
@@ -482,7 +456,7 @@ void SLAPI SlSession::ReleaseThread()
 	}
 }
 
-void * FASTCALL SGetTls(const long idx)
+/* (inlined) void * FASTCALL SGetTls(const long idx)
 {
 #ifdef NDEBUG
 	return TlsGetValue(idx);
@@ -495,10 +469,10 @@ void * FASTCALL SGetTls(const long idx)
 		return 0;
 	}
 #endif
-}
+}*/
 
-SlThreadLocalArea & SLAPI SlSession::GetTLA() { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
-const SlThreadLocalArea & SLAPI SlSession::GetConstTLA() const { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
+// (inlined) SlThreadLocalArea & SLAPI SlSession::GetTLA() { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
+// (inlined) const SlThreadLocalArea & SLAPI SlSession::GetConstTLA() const { return *(SlThreadLocalArea *)SGetTls(TlsIdx); }
 
 int FASTCALL SlSession::SetError(int errCode, const char * pAddedMsg)
 {

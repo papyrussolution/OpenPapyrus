@@ -1218,6 +1218,22 @@ LDATE LDATE::operator = (double od)
 
 #endif // }
 
+time_t SLAPI LDATE::GetTimeT() const
+{
+	if(!checkdate(*this, 0))
+		return 0;
+	else {
+		struct tm _t;
+		_t.tm_year = year() - 1900;
+		_t.tm_mon = month();
+		_t.tm_mday = day();
+		_t.tm_hour = 0;
+		_t.tm_min = 0;
+		_t.tm_sec = 0;
+		return (sizeof(time_t) == 8) ? _mktime64(&_t) : mktime(&_t);
+	}
+}
+
 int LDATE::dayspermonth() const
 {
 	return ::dayspermonth(month(), year());

@@ -3093,10 +3093,8 @@ static int qr_pack_buf_avail(const qr_pack_buf * _b)
 /*The characters available in QR_MODE_ALNUM.*/
 static const uchar QR_ALNUM_TABLE[45] = {
 	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-	'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-	'U', 'V', 'W', 'X', 'Y', 'Z', ' ', '$', '%', '*',
-	'+', '-', '.', '/', ':'
+	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 
+	' ', '$', '%', '*', '+', '-', '.', '/', ':'
 };
 
 static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar * _data, int _ndata)
@@ -3129,16 +3127,10 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 		}
 		entry = _qrdata->entries+_qrdata->nentries++;
 		entry->mode = (qr_mode)mode;
-		/*Set the buffer to NULL, because if parsing fails, we might try to free it
-		   on clean-up.*/
+		// Set the buffer to NULL, because if parsing fails, we might try to free it on clean-up.
 		entry->payload.data.buf = NULL;
-		// The number of bits used to encode the character count for each version
-		// range and each data mode
-		static const uchar LEN_BITS[3][4] = {
-			{10, 9, 8, 8},
-			{12, 11, 16, 10},
-			{14, 13, 16, 12}
-		};
+		// The number of bits used to encode the character count for each version range and each data mode
+		static const uchar LEN_BITS[3][4] = { {10, 9, 8, 8}, {12, 11, 16, 10}, {14, 13, 16, 12} };
 		switch(mode) {
 			case QR_MODE_NUM: {
 			    uchar * buf;
@@ -3203,8 +3195,7 @@ static int qr_code_data_parse(qr_code_data * _qrdata, int _version, const uchar 
 			    int len = qr_pack_buf_read(&qpb, LEN_BITS[len_bits_idx][1]);
 			    if(len<0) 
 					return -1;
-			    /*Check to see if there are enough bits left now, so we don't have to
-			       in the decode loop.*/
+			    // Check to see if there are enough bits left now, so we don't have to in the decode loop.
 			    count = len>>1;
 			    rem = len&1;
 			    if(qr_pack_buf_avail(&qpb)<11*count+6*rem) 
@@ -3937,4 +3928,3 @@ int _zbar_qr_decode(qr_reader * reader, zbar_image_scanner_t * iscn, zbar_image_
 		return nqrdata;
 	}
 }
-

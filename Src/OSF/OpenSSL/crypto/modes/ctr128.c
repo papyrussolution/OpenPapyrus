@@ -11,7 +11,6 @@
 //#include <openssl/crypto.h>
 #include "modes_lcl.h"
 //#include <string.h>
-
 /*
  * NOTE: the IV/counter CTR mode is big-endian.  The code itself is
  * endian-neutral.
@@ -145,22 +144,16 @@ static void ctr96_inc(uchar * counter)
 	} while(n);
 }
 
-void CRYPTO_ctr128_encrypt_ctr32(const uchar * in, uchar * out,
-    size_t len, const void * key,
-    uchar ivec[16],
-    uchar ecount_buf[16],
-    uint * num, ctr128_f func)
+void CRYPTO_ctr128_encrypt_ctr32(const uchar * in, uchar * out, size_t len, const void * key,
+    uchar ivec[16], uchar ecount_buf[16], uint * num, ctr128_f func)
 {
 	uint n, ctr32;
-
 	n = *num;
-
 	while(n && len) {
 		*(out++) = *(in++) ^ ecount_buf[n];
 		--len;
 		n = (n + 1) % 16;
 	}
-
 	ctr32 = GETU32(ivec + 12);
 	while(len >= 16) {
 		size_t blocks = len / 16;

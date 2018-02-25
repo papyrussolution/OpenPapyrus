@@ -32,13 +32,7 @@
 /* maximum number of characters per byte sequence */
 #define TC_OUTBUFSIZE 16
 
-#define CreateMLangObject(p) \
-	CoCreateInstance( \
-	    &CLSID_CMLangConvertCharset, \
-	    NULL, \
-	    CLSCTX_ALL,	\
-	    &IID_IMLangConvertCharset, \
-	    (VOID**)&p);
+#define CreateMLangObject(p) CoCreateInstance(&CLSID_CMLangConvertCharset, NULL, CLSCTX_ALL, &IID_IMLangConvertCharset, (VOID**)&p);
 
 /* Character Set to Microsoft Windows Codepage Identifier map,     */
 /* from <rotor/sscli/clr/src/classlibnative/nls/encodingdata.cpp>. */

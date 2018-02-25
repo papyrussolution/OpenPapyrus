@@ -8,7 +8,7 @@
  */
 #include "internal/cryptlib.h"
 #pragma hdrstop
-#include "comp_lcl.h"
+//#include "comp_lcl.h"
 #include <zlib.h>
 
 COMP_METHOD * COMP_zlib(void);
