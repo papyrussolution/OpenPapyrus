@@ -818,7 +818,7 @@ static int FASTCALL ScToVkTranslate(int keyIn)
 }
 #endif // } 0 unused
 
-STextBrowser::Document::Document() : Cp(cpANSI), Eolf(eolUndef), State(0), SciDoc(0)
+STextBrowser::Document::Document() : Cp(/*cpANSI*/cpUTF8), Eolf(eolUndef), State(0), SciDoc(0) // @v9.9.9 cpANSI-->cpUTF8
 {
 }
 
@@ -1067,6 +1067,9 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 				if(p_view && p_scn->nmhdr.hwndFrom == p_view->GetSciWnd()) {
 					int    test_value = 0; // @debug
 					switch(p_scn->nmhdr.code) {
+						case SCN_UPDATEUI:
+							StatusWinChange(0, -1);
+							break;
 						case SCN_CHARADDED:
 						case SCN_MODIFIED:
 							if(p_scn->modificationType & (SC_MOD_DELETETEXT|SC_MOD_INSERTTEXT|SC_PERFORMED_UNDO|SC_PERFORMED_REDO))
@@ -1135,6 +1138,20 @@ LRESULT CALLBACK STextBrowser::WndProc(HWND hWnd, UINT message, WPARAM wParam, L
 			break;
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+int STextBrowser::GetStatus(StatusBlock * pSb)
+{
+	int    ok = 1;
+	if(pSb) {
+		pSb->TextSize = CallFunc(SCI_GETTEXTLENGTH, 0, 0);
+		pSb->LineCount = CallFunc(SCI_GETLINECOUNT, 0, 0);
+		const int32 pos = GetCurrentPos();
+		pSb->LineNo = CallFunc(SCI_LINEFROMPOSITION, pos, 0);
+		pSb->ColumnNo = CallFunc(SCI_GETCOLUMN, pos, 0);
+		pSb->Cp = Doc.OrgCp;
+	}
+	return ok;
 }
 
 int STextBrowser::Resize()
@@ -1248,7 +1265,7 @@ LRESULT CALLBACK STextBrowser::ScintillaWindowProc(HWND hwnd, UINT msg, WPARAM w
 					KeyDownCommand k;
 					k.SetWinMsgCode(wParam);
 					if(k.Code == VK_TAB && k.State & k.stateCtrl) {
-						SendMessage(p_this->H(), WM_KEYDOWN, wParam, lParam);
+						::SendMessage(p_this->H(), WM_KEYDOWN, wParam, lParam);
 						p_this->SysState |= p_this->sstLastKeyDownConsumed;
 						processed = 1;
 					}
@@ -1320,7 +1337,7 @@ int STextBrowser::WMHCreate()
 		}
 		KeyAccel.Sort();
 	}
-	FileLoad(Doc.FileName, cpANSI, 0);
+	FileLoad(Doc.FileName, /*cpANSI*/cpUTF8, 0); // @v9.9.9 cpANSI-->cpUTF8
 	return BIN(P_SciFn && P_SciPtr);
 }
 
@@ -1421,9 +1438,8 @@ int TidyProcessText(TidyProcessBlock & rBlk);
 
 #include <..\osf\tidy\include\tidy.h>
 
-TidyProcessBlock::TidyProcessBlock()
+TidyProcessBlock::TidyProcessBlock() : Flags(0)
 {
-	Flags = 0;
 	InputBuffer.Init();
 }
 
@@ -1468,7 +1484,7 @@ int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 			{
 				SString file_name = Doc.FileName;
 				if(PPOpenFile(PPTXT_TEXTBROWSER_FILETYPES, file_name, 0, H()) > 0)
-					ok = FileLoad(file_name, cpANSI, 0);
+					ok = FileLoad(file_name, /*cpANSI*/cpUTF8, 0); // @v9.9.9 cpANSI-->cpUTF8
 			}
 			break;
 		case PPVCMD_SAVE:
@@ -1574,9 +1590,9 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 						SetLexer("cpp");
 					}
 				}
-				if(orgCp != cpANSI) {
+				// @v9.9.9 if(orgCp != cpANSI) {
 					CallFunc(SCI_SETCODEPAGE, SC_CP_UTF8, 0);
-				}
+				// @v9.9.9 }
 				CallFunc(SCI_ALLOCATE, (WPARAM)bufsize_req, 0);
 				THROW(CallFunc(SCI_GETSTATUS, 0, 0) == SC_STATUS_OK);
 				{
@@ -1632,7 +1648,7 @@ int STextBrowser::FileLoad(const char * pFileName, SCodepage orgCp, long flags)
 									Doc.OrgCp.FromStr(p_cp_name);
 								}
 								else 
-									Doc.OrgCp = (orgCp == cpUndef) ? cpANSI : orgCp;
+									Doc.OrgCp = (orgCp == cpUndef) ? /*cpANSI*/cpUTF8 : orgCp; // @v9.9.9 cpANSI-->cpUTF8
 								Doc.Cp = cpUTF8;
 							}
 							Doc.Eolf = tes.GetEolFormat();

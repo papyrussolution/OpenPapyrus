@@ -1066,8 +1066,15 @@ typedef TSCollection <SapEfesLogMsg> * (*EFESSETDEBTDETAILSYNC_PROC)(PPSoapClien
 //
 //
 //
+struct SfaHeinekenWarehouseBalanceEntry {
+	int    ForeignGoodsID;
+	int    ForeignLocID;
+	int    Rest;
+};
+
 typedef SString * (*SFAHEINEKENGETSKUASSORTIMENT_PROC)(PPSoapClientSession & rSess);
 typedef SString * (*SFAHEINEKENGETORDERS_PROC)(PPSoapClientSession & rSess, LDATE dt, int demo);
+typedef SString * (*SFAHEINEKENSENDWAREHOUSEBALANCE_PROC)(PPSoapClientSession & rSess, const TSVector <SfaHeinekenWarehouseBalanceEntry> & rList);
 //extern "C" __declspec(dllexport) SString * SfaHeineken_GetOrders(PPSoapClientSession & rSess, LDATE dt, int demo) // DRP_GetOrders
 //
 //

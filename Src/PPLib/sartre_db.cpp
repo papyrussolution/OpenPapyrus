@@ -4,7 +4,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//#include <db.h>
 #include <sartre.h>
 #include <locale.h>
 #include <BerkeleyDB.h>

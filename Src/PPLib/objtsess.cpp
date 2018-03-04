@@ -409,6 +409,7 @@ public:
 		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 4, PPTSessConfig::fSnapInTimeChunkBrowser);
 		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 5, PPTSessConfig::fUpdLinesByAutocompl); // @v8.8.6
 		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 6, PPTSessConfig::fFreeGoodsSelection); // @v9.3.4
+		AddClusterAssoc(CTL_TSESSCFG_FLAGS, 7, PPTSessConfig::fSetupCcPricesInCPane); // @v9.9.7
 		SetClusterData(CTL_TSESSCFG_FLAGS, Data.Flags);
 		setCtrlData(CTL_TSESSCFG_MINIDLE, &Data.MinIdleCont);
 		SetupPPObjCombo(this, CTLSEL_TSESSCFG_IDLEAS, PPOBJ_ACCSHEET, Data.IdleAccSheetID, OLW_CANINSERT, 0);
@@ -1578,69 +1579,6 @@ int SLAPI PPObjTSession::CalcPlannedTiming(PPID techID, double qtty, int useRoun
 	return ok;
 }
 
-/*
-int SLAPI PPObjTSession::PutTimingLine(const TSessionTbl::Rec * pPack)
-{
-	int    ok = -1;
-	long   hdl_ln_enum = -1;
-	TechTbl::Rec tec_rec;
-	if(GetTech(pPack->TechID, &tec_rec, 1) > 0 && tec_rec.GoodsID) {
-		Goods2Tbl::Rec goods_rec;
-		double unit_ratio = 1.0;
-		if(GObj.Fetch(tec_rec.GoodsID, &goods_rec) > 0) {
-			double qtty = 0.0;
-			//
-			// @v8.1.6 Поменялись местами условия:
-			// Было:
-			// if(tec_rec.Flags & TECF_AUTOMAIN) {
-			// }
-			// else if(IsTimingTech(&tec_rec, &unit_ratio) > 0) {
-			// }
-			//
-			// Стало:
-			// if(IsTimingTech(&tec_rec, &unit_ratio) > 0) {
-			// }
-			// else if(tec_rec.Flags & TECF_AUTOMAIN) {
-			// }
-			//
-			if(IsTimingTech(&tec_rec, &unit_ratio) > 0) {
-				long   timing = 0;
-				STimeChunk chunk, result_chunk;
-				chunk.Start.Set(pPack->StDt, pPack->StTm);
-				chunk.Finish.Set(pPack->FinDt, pPack->FinTm);
-				if(AdjustTiming(*pPack, chunk, result_chunk, &timing) > 0)
-					qtty = Round((double)timing / unit_ratio, tec_rec.Rounding, +1);
-				else
-					qtty = Round((double)GetContinuation(pPack) / unit_ratio, tec_rec.Rounding, +1);
-			}
-			else if(tec_rec.Flags & TECF_AUTOMAIN) {
-				qtty = Round(pPack->PlannedQtty, tec_rec.Rounding, 0);
-			}
-			if(qtty != 0.0) {
-				TSessLineTbl::Rec line_rec, ex_line_rec;
-				long   oprno = 0;
-				THROW(InitLinePacket(&line_rec, pPack->ID) > 0);
-				THROW(SetupLineGoods(&line_rec, tec_rec.GoodsID, 0, 0));
-				line_rec.Sign = -1;
-				line_rec.Flags |= TSESLF_AUTOMAIN;
-				line_rec.Qtty = qtty;
-				{
-					THROW(P_Tbl->InitLineEnum(pPack->ID, &hdl_ln_enum));
-					while(P_Tbl->NextLineEnum(hdl_ln_enum, &ex_line_rec) > 0)
-						if(ex_line_rec.Flags & TSESLF_AUTOMAIN)
-							THROW(PutLine(pPack->ID, &ex_line_rec.OprNo, 0, 0));
-				}
-				THROW(PutLine(pPack->ID, &oprno, &line_rec, 0));
-				ok = 1;
-			}
-		}
-	}
-	CATCHZOK
-	P_Tbl->DestroyIter(hdl_ln_enum);
-	return ok;
-}
-*/
-
 int SLAPI PPObjTSession::CalcPlannedQtty(const TSessionTbl::Rec * pPack, long forceTiming, double * pQtty)
 {
 	int    ok = -1;
@@ -2644,6 +2582,49 @@ int SLAPI PPObjTSession::GetGoodsStrucList(PPID id, int useSubst, TGSArray * pLi
 	return (Search(id, &rec) > 0) ? TecObj.GetGoodsStrucList(rec.TechID, useSubst, pList) : 0;
 }
 
+static const int TSess_UseQuot_As_Price = 1; // @v9.9.7 Временная константа дабы не вводить конфигурационный параметр
+
+int SLAPI PPObjTSession::GetRgi(PPID goodsID, double qtty, const TSessionTbl::Rec & rTSesRec, long extRgiFlags, RetailGoodsInfo & rRgi)
+{
+	int    ok = -1;
+	RetailPriceExtractor::ExtQuotBlock * p_eqb = 0;
+	ProcessorTbl::Rec prc_rec;
+	if(GetPrc(rTSesRec.PrcID, &prc_rec, 1) > 0) {
+		long   rgi_flags = PPObjGoods::rgifUseQuotWTimePeriod;
+		SCardTbl::Rec sc_rec;
+		//
+		if(TSess_UseQuot_As_Price)
+			rgi_flags |= PPObjGoods::rgifUseBaseQuotAsPrice;
+		//
+		PPID   agent_ar_id = 0;
+		PPObjTSession::WrOffAttrib attrib;
+		if(GetWrOffAttrib(&rTSesRec, &attrib) > 0) {
+			agent_ar_id = attrib.AgentID;
+		}
+		int    nodis = 0;
+		LDATETIME actual_dtm; // = P.Eccd.InitDtm;
+		actual_dtm.Set(rTSesRec.StDt, rTSesRec.StTm);
+		if(rTSesRec.SCardID && ScObj.Fetch(rTSesRec.SCardID, &sc_rec) > 0) {
+  			const  int cfg_dsbl_no_dis = 0;//BIN(CsObj.GetEqCfg().Flags & PPEquipConfig::fIgnoreNoDisGoodsTag);
+			nodis = BIN(!cfg_dsbl_no_dis && GObj.CheckFlag(goodsID, GF_NODISCOUNT) > 0);
+			if(!nodis) {
+				PPObjSCardSeries scs_obj;
+				PPSCardSeries scs_rec;
+				PPSCardSerPacket scs_pack;
+				if(scs_obj.GetPacket(sc_rec.SeriesID, &scs_pack) > 0) {
+					RetailPriceExtractor::ExtQuotBlock temp_eqb(scs_pack);
+					if(temp_eqb.QkList.getCount())
+						p_eqb = new RetailPriceExtractor::ExtQuotBlock(scs_pack);
+				}
+			}
+		}
+		ok = GObj.GetRetailGoodsInfo(goodsID, prc_rec.LocID, p_eqb, agent_ar_id, actual_dtm, fabs(qtty), &rRgi, rgi_flags|extRgiFlags);
+		SETFLAG(rRgi.Flags, RetailGoodsInfo::fNoDiscount, nodis);
+	}
+	delete p_eqb;
+	return ok;
+}
+
 int SLAPI PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, const char * pSerial, long)
 {
 	int    ok = -1;
@@ -2670,7 +2651,7 @@ int SLAPI PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, 
 						if(line_rec.GoodsID == goodsID && line_rec.Sign > 0) {
 							last_serial = line_rec.Serial;
 							if(pRec->Serial[0])
-								THROW_PP(strcmp(pRec->Serial, line_rec.Serial) == 0, PPERR_TSESRECOMPLDIFSER);
+								THROW_PP(sstreq(pRec->Serial, line_rec.Serial), PPERR_TSESRECOMPLDIFSER);
 						}
 					}
 					if(pRec->Serial[0] == 0)

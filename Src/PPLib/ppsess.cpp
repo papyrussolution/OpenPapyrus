@@ -285,8 +285,27 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 			PPGetWord(PPWORD_PRIVATEBASKET, 1, temp_buf);
 			p_app->AddStatusBarItem(temp_buf, ICON_BASKET_SMALL, 0, cmPrivateBasket);
 		}
+		// @v9.9.9 {
 		{
+			HWND   h_curr_wnd = ::GetTopWindow(APPL->GetFrameWindow());
+			if(h_curr_wnd) {
+				TView::SGetWindowClassName(h_curr_wnd, temp_buf.Z());
+				if(temp_buf == "STextBrowser") {
+					STextBrowser * p_view = (STextBrowser *)TView::GetWindowUserData(h_curr_wnd);
+					if(p_view && p_view->IsConsistent()) {
+						STextBrowser::StatusBlock sb;
+						if(p_view->GetStatus(&sb)) {
+							temp_buf.Z();
+							sb.Cp.ToStr(SCodepageIdent::fmtXML, temp_buf);
+							temp_buf.Space().Cat("Ln").CatDiv(':', 2).Cat(sb.LineNo).CatChar('/').Cat(sb.LineCount).Space().
+								Cat("Col").CatDiv(':', 2).Cat(sb.ColumnNo);
+							p_app->AddStatusBarItem(temp_buf, 0, 0, 0);
+						}
+					}
+				}
+			}
 		}
+		// } @v9.9.9 
 		//
 		// Уведомление о наличие новых версий Papyrus
 		//

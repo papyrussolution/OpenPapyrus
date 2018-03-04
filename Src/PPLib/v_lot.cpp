@@ -1458,7 +1458,7 @@ int SLAPI PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 					}
 					if(oneof3(selection, PPEDIOP_EGAIS_ACTCHARGEON, PPEDIOP_EGAIS_ACTCHARGEONSHOP, (PPEDIOP_EGAIS_ACTCHARGEONSHOP+1000))) {
 						const LDATE _curdate = getcurdate_();
-						PPEgaisProcessor ep(0, 0);
+						PPEgaisProcessor ep(PPEgaisProcessor::cfUseVerByConfig, 0, 0);
 						SString temp_buf;
 						SString egais_code;
 						SString ref_a;

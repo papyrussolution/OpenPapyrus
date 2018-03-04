@@ -3100,7 +3100,6 @@ int SLAPI iSalesPepsi::ReceiveOrders()
 		PPAlbatrosCfgMngr::Get(&acfg);
 		PPOprKind op_rec;
 		if(acfg.Hdr.OpID && GetOpData(acfg.Hdr.OpID, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
-			//PPObjLocation loc_obj;
 			LocationTbl::Rec loc_rec;
 			for(uint i = 0; i < p_result->getCount(); i++) {
 				const iSalesBillPacket * p_src_pack = p_result->at(i);
@@ -3244,7 +3243,15 @@ int SLAPI iSalesPepsi::ReceiveUnclosedInvoices(TSCollection <iSalesBillDebt> & r
 	TSCollection <iSalesBillDebt> * p_result = 0;
 	ISALESGETUNCLOSEDBILLLIST_PROC func = 0;
 	DateRange period;
-	period.Set(encodedate(1, 1, 2016), encodedate(31, 12, 2030));
+	// @v9.9.7 period.Set(encodedate(1, 1, 2016), encodedate(31, 12, 2030));
+	// @v9.9.7 {
+	if(P.ExpPeriod.low && P.ExpPeriod.upp) {
+		period = P.ExpPeriod;
+	}
+	else {
+		period.Set(encodedate(1, 1, 2016), encodedate(31, 12, 2030));
+	}
+	// } @v9.9.7
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
@@ -5386,6 +5393,7 @@ public:
 	void   SLAPI Init();
 	int    SLAPI ReceiveGoods();
 	int    SLAPI ReceiveOrders();
+	int    SLAPI SendStocks();
 	void   SLAPI GetLogFileName(SString & rFileName) const;
 private:
 	struct ReplyInfo {
@@ -5487,19 +5495,19 @@ private:
 								for(xmlNode * p_ord = p_r->children; p_ord; p_ord = p_ord->next) {
 									if(SXml::GetContentByName(p_ord, "OrderID", temp_buf))
 										p_new_entry->Uuid.FromStr(temp_buf);
-									else if(SXml::GetContentByName(p_ord, "DateTime", temp_buf)) 
+									else if(SXml::GetContentByName(p_ord, "DateTime", temp_buf))
 										strtodatetime(temp_buf, &p_new_entry->Dtm, DATF_ISO8601, TIMF_HMS);
-									else if(SXml::GetContentByName(p_ord, "DateDelivery", temp_buf)) 
+									else if(SXml::GetContentByName(p_ord, "DateDelivery", temp_buf))
 										strtodatetime(temp_buf, &p_new_entry->DlvrDtm, DATF_ISO8601, TIMF_HMS);
-									else if(SXml::GetContentByName(p_ord, "SalePointID", temp_buf)) 
+									else if(SXml::GetContentByName(p_ord, "SalePointID", temp_buf))
 										p_new_entry->ForeignDlvrAddrID = temp_buf.ToLong();
 									else if(SXml::GetContentByName(p_ord, "SalePointName", temp_buf))
 										p_new_entry->ForeignDlvrAddrText = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 									else if(SXml::GetContentByName(p_ord, "Comments", temp_buf))
 										p_new_entry->Memo = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-									else if(SXml::GetContentByName(p_ord, "PaidNumber", temp_buf)) 
+									else if(SXml::GetContentByName(p_ord, "PaidNumber", temp_buf))
 										p_new_entry->PaidNumber = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-									else if(SXml::GetContentByName(p_ord, "PaidSum", temp_buf)) 
+									else if(SXml::GetContentByName(p_ord, "PaidSum", temp_buf))
 										p_new_entry->PaidSum = temp_buf.ToReal();
 									else if(SXml::GetContentByName(p_ord, "UserID", temp_buf))
 										p_new_entry->UserID = temp_buf.ToLong();
@@ -5661,6 +5669,7 @@ void FASTCALL SfaHeineken::DestroyResult(void ** ppResult)
 int SLAPI SfaHeineken::ReceiveOrders()
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	PPSoapClientSession sess;
 	SString lib_path;
 	SString temp_buf, url;
@@ -5676,6 +5685,7 @@ int SLAPI SfaHeineken::ReceiveOrders()
 		PPFormatT(PPTXT_LOG_SUPPLIX_IMPGOODS_S, &msg_buf, tech_buf.cptr(), P.SupplID);
 		PPWaitMsg(msg_buf);
 	}
+	THROW_PP_S(Ep.Fb.LocCodeTagID, PPERR_SUPPLIX_UNDEFLOCCTAG, ArName.cptr());
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
 	THROW(P_Lib);
@@ -5685,6 +5695,144 @@ int SLAPI SfaHeineken::ReceiveOrders()
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	ParseOrdersPacket(p_result, &reply_info, result_list);
 	DestroyResult((void **)&p_result);
+	if(result_list.getCount()) {
+		PPAlbatrosConfig acfg;
+		PPAlbatrosCfgMngr::Get(&acfg);
+		PPOprKind op_rec;
+		if(acfg.Hdr.OpID && GetOpData(acfg.Hdr.OpID, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
+			PPIDArray loc_list;
+			PPIDArray psn_list;
+			SString bill_uuid_text;
+			for(uint srcordidx = 0; srcordidx < result_list.getCount(); srcordidx++) {
+				const OrderEntry * p_src_pack = result_list.at(srcordidx);
+				LocationTbl::Rec loc_rec;
+				PersonTbl::Rec psn_rec;
+				PPID   wh_id = 0;
+				PPID   dlvr_loc_id = 0; // Ид адреса доставки
+				PPID   ar_id = 0; // Ид заказчика (статья)
+				p_src_pack->Uuid.ToStr(S_GUID::fmtIDL, bill_uuid_text);
+				if(p_src_pack->WarehouseID) {
+					temp_buf.Z().Cat(p_src_pack->WarehouseID);
+					if(p_ref->Ot.SearchObjectsByStr(PPOBJ_LOCATION, Ep.Fb.LocCodeTagID, temp_buf, &loc_list) > 0) {
+						for(uint i = 0; !wh_id && i < loc_list.getCount(); i++) {
+							if(LocObj.Fetch(loc_list.get(i), &loc_rec) > 0 && loc_rec.Type == LOCTYP_WAREHOUSE)
+								wh_id = loc_list.get(i);
+						}
+					}
+				}
+				if(!wh_id) {
+					//PPTXT_LOG_SUPPLIX_WAREHOUSENTAG     "Не удалость идентифицировать склад документа '@zstr' по тегу @zstr"
+					temp_buf.Z().Cat(p_src_pack->WarehouseID);
+					R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_WAREHOUSENTAG, &msg_buf, bill_uuid_text.cptr(), temp_buf.cptr()));
+				}
+				if(p_src_pack->ForeignDlvrAddrID) {
+					temp_buf.Z().Cat(p_src_pack->ForeignDlvrAddrID);
+					if(p_ref->Ot.SearchObjectsByStr(PPOBJ_LOCATION, Ep.Fb.LocCodeTagID, temp_buf, &loc_list) > 0) {
+						for(uint i = 0; !dlvr_loc_id && i < loc_list.getCount(); i++) {
+							if(LocObj.Fetch(loc_list.get(i), &loc_rec) > 0 && loc_rec.Type == LOCTYP_ADDRESS) {
+								dlvr_loc_id = loc_list.get(i);
+								if(loc_rec.OwnerID && PsnObj.Fetch(loc_rec.OwnerID, &psn_rec) > 0) {
+									ArObj.P_Tbl->PersonToArticle(psn_rec.ID, op_rec.AccSheetID, &ar_id);
+								}
+								if(!ar_id) {
+									//PPTXT_LOG_SUPPLIX_CLLTDLOCTOARBYTAG "Не удалось сопоставить с покупателем адрес доставки с тегом '@zstr'"
+									temp_buf.Space().CatParStr(p_src_pack->ForeignDlvrAddrText);
+									R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_CLLTDLOCTOARBYTAG, &msg_buf, temp_buf.cptr()));
+								}
+							}
+						}
+					}
+				}
+				if(!dlvr_loc_id) {
+					//PPTXT_LOG_SUPPLIX_DLVRLOCNTAG       "Не удалость идентифицировать адрес доставки документа '@zstr' по тегу @zstr"
+					temp_buf.Z().Cat(p_src_pack->ForeignDlvrAddrID).Space().CatParStr(p_src_pack->ForeignDlvrAddrText);
+					R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNTAG, &msg_buf, bill_uuid_text.cptr(), temp_buf.cptr()));
+				}
+				if(wh_id && dlvr_loc_id && ar_id) {
+					int    skip = 0;
+					PPBillPacket pack;
+					//BillTbl::Rec ex_bill_rec;
+					PPID   ex_bill_id = 0;
+					Goods2Tbl::Rec goods_rec;
+					PPBillPacket::SetupObjectBlock sob;
+					THROW(pack.CreateBlank2(acfg.Hdr.OpID, checkdate(p_src_pack->Dtm.d, 0) ? p_src_pack->Dtm.d : getcurdate_(), wh_id, 1));
+					pack.Rec.DueDate = checkdate(p_src_pack->DlvrDtm.d, 0) ? p_src_pack->DlvrDtm.d : ZERODATE;
+					//
+					sob.Flags |= PPBillPacket::SetupObjectBlock::fEnableStop;
+					if(!pack.SetupObject(ar_id, sob)) {
+						R_Logger.LogLastError();
+					}
+					else {
+						PPIDArray ex_bill_id_list;
+						PPID   agent_id = 0;
+						const  PPID agent_acs_id = GetAgentAccSheet();
+						{
+							PPFreight freight;
+							freight.DlvrAddrID = dlvr_loc_id;
+							pack.SetFreight(&freight);
+						}
+						if(p_src_pack->UserID && Ep.Fb.CliCodeTagID && agent_acs_id) {
+							temp_buf.Z().Cat(p_src_pack->UserID);
+							if(p_ref->Ot.SearchObjectsByStr(PPOBJ_PERSON, Ep.Fb.CliCodeTagID, temp_buf, &psn_list) > 0) {
+								for(uint i = 0; !agent_id && i < psn_list.getCount(); i++) {
+									if(PsnObj.Fetch(psn_list.get(i), &psn_rec) > 0) {
+										ArObj.P_Tbl->PersonToArticle(psn_rec.ID, agent_acs_id, &agent_id);
+									}
+								}
+							}
+							if(agent_id) {
+								pack.Ext.AgentID = agent_id;
+							}
+							else {
+								// PPTXT_LOG_SUPPLIX_CLLTAGNTTOORD     "Не удалось сопоставить с заказом агента '@zstr'"
+                                temp_buf.Space().CatParStr(p_src_pack->UserName);
+								R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_CLLTAGNTTOORD, &msg_buf, temp_buf.cptr()));
+							}
+						}
+						STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
+						//if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, &ex_bill_id, &ex_bill_rec) > 0) {
+						if(p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, bill_uuid_text, &ex_bill_id_list) > 0) {
+							;
+						}
+						else {
+							for(uint j = 0; !skip && j < p_src_pack->ItemList.getCount(); j++) {
+								const OrderEntry::Item * p_src_item = p_src_pack->ItemList.at(j);
+								if(p_src_item) {
+									temp_buf.Z().Cat(p_src_item->SkuID);
+									if(GObj.P_Tbl->SearchByArCode(P.SupplID, temp_buf, 0, &goods_rec) > 0) {
+										PPTransferItem ti;
+										THROW(ti.Init(&pack.Rec));
+										double _qtty = labs(p_src_item->Qtty);
+										ti.GoodsID = goods_rec.ID;
+										ti.Quantity_ = _qtty;
+										if(ti.Quantity_ != 0.0) {
+											ti.Price = 0.0; // @todo
+											THROW(pack.LoadTItem(&ti, 0, 0));
+										}
+
+									}
+									else {
+										temp_buf.Space().CatParStr(p_src_item->SkuName);
+										R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_GOODSNCODE, &msg_buf, bill_uuid_text.cptr(), temp_buf.cptr()));
+										skip = 1;
+									}
+								}
+							}
+							if(!skip) {
+								{
+									pack.Rec.EdiOp = PPEDIOP_SALESORDER;
+									pack.BTagL.PutItemStr(PPTAG_BILL_EDICHANNEL, "SFA-HEINEKEN");
+									pack.BTagL.PutItemStrNE(PPTAG_BILL_EDIIDENT, bill_uuid_text);
+								}
+								pack.InitAmounts();
+								THROW(P_BObj->TurnPacket(&pack, 1));
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	CATCHZOK
 	return ok;
 }
@@ -5716,6 +5864,71 @@ int SLAPI SfaHeineken::ReceiveGoods()
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	ParseGoodsPacket(p_result, &reply_info, result_list);
 	DestroyResult((void **)&p_result);
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI SfaHeineken::SendStocks()
+{
+	int    ok = -1;
+	PPSoapClientSession sess;
+	SString lib_path;
+	SString temp_buf, url;
+	SString msg_buf;
+	SString out_file_name;
+	SString * p_result = 0;
+	TSVector <SfaHeinekenWarehouseBalanceEntry> list;
+	ReplyInfo reply_info;
+	SFAHEINEKENSENDWAREHOUSEBALANCE_PROC func = 0;
+	SString tech_buf;
+	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
+	{
+		PPFormatT(PPTXT_LOG_SUPPLIX_IMPGOODS_S, &msg_buf, tech_buf.cptr(), P.SupplID);
+		PPWaitMsg(msg_buf);
+	}
+	THROW(State & stInited);
+	THROW(State & stEpDefined);
+	THROW(P_Lib);
+	THROW_SL(func = (SFAHEINEKENSENDWAREHOUSEBALANCE_PROC)P_Lib->GetProcAddr("SfaHeineken_SendWarehousesBalance"));
+	sess.Setup(SvcUrl, UserName, Password);
+	if(Ep.Fb.LocCodeTagID) {
+		Reference * p_ref = PPRef;
+		PPViewGoodsRest gr_view;
+		GoodsRestFilt gr_filt;
+		GoodsRestViewItem gr_item;
+		SString ar_code;
+
+		gr_filt.Date = ZERODATE;
+		gr_filt.GoodsGrpID = Ep.GoodsGrpID;
+		gr_filt.LocList = P.LocList;
+		gr_filt.Flags |= GoodsRestFilt::fEachLocation;
+		THROW(gr_view.Init_(&gr_filt));
+		for(gr_view.InitIteration(PPViewGoodsRest::OrdByDefault); gr_view.NextIteration(&gr_item) > 0;) {
+			const PPID loc_id = gr_item.LocID;
+			uint   _pos = 0;
+			int    skip_goods = 0;
+			int32  ar_code_pack = 0;
+			if(gr_item.Rest > 0.0 && GObj.P_Tbl->GetArCode(P.SupplID, gr_item.GoodsID, ar_code, &ar_code_pack) > 0) {
+				SfaHeinekenWarehouseBalanceEntry new_entry;
+				new_entry.ForeignGoodsID = ar_code.ToLong();
+				if(new_entry.ForeignGoodsID > 0) {
+					if(p_ref->Ot.GetTagStr(PPOBJ_LOCATION, gr_item.LocID, Ep.Fb.LocCodeTagID, temp_buf) > 0) {
+						new_entry.ForeignLocID = temp_buf.ToLong();
+						if(new_entry.ForeignLocID > 0) {
+							new_entry.Rest = R0i(gr_item.Rest);
+							THROW_SL(list.insert(&new_entry));
+						}
+					}
+				}
+			}
+		}
+	}
+	if(list.getCount()) {
+		p_result = func(sess, list);
+		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+		DestroyResult((void **)&p_result);
+		ok = 1;
+	}
 	CATCHZOK
 	return ok;
 }
@@ -5784,7 +5997,7 @@ SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock() : P_BObj(BillObj), Se
 }
 
 SLAPI PrcssrSupplInterchange::ExecuteBlock::ExecuteBlock(const ExecuteBlock & rS) :
-	P_BObj(BillObj), Ep(rS.Ep), P(rS.P), SeqID(Ep.Fb.SequenceID), BaseState(rS.BaseState), GoodsList(rS.GoodsList)
+	P_BObj(BillObj), Ep(rS.Ep), P(rS.P), SeqID(Ep.Fb.SequenceID), BaseState(rS.BaseState), GoodsList(rS.GoodsList), ArName(rS.ArName)
 {
 }
 
@@ -6142,6 +6355,10 @@ int SLAPI PrcssrSupplInterchange::Run()
 		}
 		if(P_Eb->P.Actions & SupplInterchangeFilt::opImportOrders) {
 			if(!cli.ReceiveOrders())
+				logger.LogLastError();
+		}
+		if(P_Eb->P.Actions & SupplInterchangeFilt::opExportStocks) {
+			if(!cli.SendStocks())
 				logger.LogLastError();
 		}
 		cli.GetLogFileName(log_file_name);

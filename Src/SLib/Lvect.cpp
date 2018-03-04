@@ -965,27 +965,27 @@ int LMatrix2D::FromStr(const char * pStr, int fmt)
 			opSkewY
 		};
 		int    op = 0;
-		if(temp_buf.CmpNC("matrix") == 0) {
+		if(temp_buf.IsEqiAscii("matrix")) {
 			min_arg = max_arg = 6;
 			op = opMatrix;
 		}
-		else if(temp_buf.CmpNC("translate") == 0) {
+		else if(temp_buf.IsEqiAscii("translate")) {
 			min_arg = 1; max_arg = 2;
 			op = opTranslate;
 		}
-		else if(temp_buf.CmpNC("scale") == 0) {
+		else if(temp_buf.IsEqiAscii("scale")) {
 			min_arg = 1; max_arg = 2;
 			op = opScale;
 		}
-		else if(temp_buf.CmpNC("rotate") == 0) {
+		else if(temp_buf.IsEqiAscii("rotate")) {
 			min_arg = 1; max_arg = 3;
 			op = opRotate;
 		}
-		else if(temp_buf.CmpNC("skewx") == 0) {
+		else if(temp_buf.IsEqiAscii("skewx")) {
 			min_arg = 1; max_arg = 1;
 			op = opSkewX;
 		}
-		else if(temp_buf.CmpNC("skewy") == 0) {
+		else if(temp_buf.IsEqiAscii("skewy")) {
 			min_arg = 1; max_arg = 1;
 			op = opSkewY;
 		}

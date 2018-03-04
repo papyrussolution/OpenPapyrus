@@ -940,7 +940,6 @@
     <ClInclude Include="..\osf\curl\lib\config-win32.h" />
     <ClInclude Include="..\osf\curl\lib\conncache.h" />
     <ClInclude Include="..\osf\curl\lib\connect.h" />
-    <ClInclude Include="..\osf\curl\lib\content_encoding.h" />
     <ClInclude Include="..\osf\curl\lib\cookie.h" />
     <ClInclude Include="..\osf\curl\lib\curlx.h" />
     <ClInclude Include="..\osf\curl\lib\curl_addrinfo.h" />
@@ -967,11 +966,9 @@
     <ClInclude Include="..\osf\curl\lib\dict.h" />
     <ClInclude Include="..\osf\curl\lib\dotdot.h" />
     <ClInclude Include="..\osf\curl\lib\easyif.h" />
-    <ClInclude Include="..\osf\curl\lib\fileinfo.h" />
     <ClInclude Include="..\osf\curl\lib\formdata.h" />
     <ClInclude Include="..\osf\curl\lib\ftp.h" />
     <ClInclude Include="..\osf\curl\lib\ftplistparser.h" />
-    <ClInclude Include="..\osf\curl\lib\getinfo.h" />
     <ClInclude Include="..\osf\curl\lib\gopher.h" />
     <ClInclude Include="..\osf\curl\lib\hash.h" />
     <ClInclude Include="..\osf\curl\lib\hostcheck.h" />
@@ -991,13 +988,11 @@
     <ClInclude Include="..\osf\curl\lib\multihandle.h" />
     <ClInclude Include="..\osf\curl\lib\multiif.h" />
     <ClInclude Include="..\osf\curl\lib\netrc.h" />
-    <ClInclude Include="..\osf\curl\lib\non-ascii.h" />
     <ClInclude Include="..\osf\curl\lib\pingpong.h" />
     <ClInclude Include="..\osf\curl\lib\pipeline.h" />
     <ClInclude Include="..\osf\curl\lib\pop3.h" />
     <ClInclude Include="..\osf\curl\lib\rawstr.h" />
     <ClInclude Include="..\osf\curl\lib\rtsp.h" />
-    <ClInclude Include="..\osf\curl\lib\sendf.h" />
     <ClInclude Include="..\osf\curl\lib\setup-vms.h" />
     <ClInclude Include="..\osf\curl\lib\share.h" />
     <ClInclude Include="..\osf\curl\lib\sigpipe.h" />
@@ -1007,8 +1002,6 @@
     <ClInclude Include="..\osf\curl\lib\splay.h" />
     <ClInclude Include="..\osf\curl\lib\ssh.h" />
     <ClInclude Include="..\osf\curl\lib\strequal.h" />
-    <ClInclude Include="..\osf\curl\lib\strerror.h" />
-    <ClInclude Include="..\osf\curl\lib\strtok.h" />
     <ClInclude Include="..\osf\curl\lib\telnet.h" />
     <ClInclude Include="..\osf\curl\lib\tftp.h" />
     <ClInclude Include="..\osf\curl\lib\timeval.h" />

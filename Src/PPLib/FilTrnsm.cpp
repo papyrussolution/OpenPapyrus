@@ -202,10 +202,10 @@ static void SendMailCallback(const IterCounter & bytesCounter, const IterCounter
 
 static int GetFilesFromMailServerProgressProc(const SDataMoveProgressInfo * pInfo)
 {
-	SString msg_buf;
-	msg_buf.Cat(pInfo->OverallItemsDone).CatChar(':').Cat(pInfo->OverallSizeDone).CatChar('/').
+	SString & r_msg_buf = SLS.AcquireRvlStr();
+	r_msg_buf.Cat(pInfo->OverallItemsDone).CatChar(':').Cat(pInfo->OverallSizeDone).CatChar('/').
 		Cat(pInfo->OverallItemsCount).CatChar(':').Cat(pInfo->OverallSizeTotal);
-	PPWaitMsg(msg_buf);
+	PPWaitPercent(pInfo->OverallItemsDone, pInfo->OverallItemsCount, r_msg_buf);
 	return 0;
 }
 
@@ -271,7 +271,8 @@ int SLAPI GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long f
 		if(deleMsg)
 			uftp.Flags |= uftp.fDeleteAfter;
 		//uftp.Format = SFileFormat::Jpeg;
-		THROW_SL(uftp.Run(GetFilesFromMailServerProgressProc, 0));
+		uftp.Pop3TopMaxLines = 40; // @v9.9.9
+		PROFILE(THROW_SL(uftp.Run(GetFilesFromMailServerProgressProc, 0)));
 		temp_buf = uftp.Reply;
 	}
 	CATCHZOK

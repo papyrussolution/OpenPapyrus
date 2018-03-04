@@ -4240,7 +4240,7 @@ FiasImporter::~FiasImporter()
 		P_SrDb->DestroyStoreFiasAddrBlock(P_SrStoreFiasAddrBlock);
 		delete P_SrDb;
 	}
-	// } @v9.9.0 
+	// } @v9.9.0
 }
 
 int FiasImporter::SaxParseFile(xmlSAXHandler *sax, const char * pFileName)
@@ -6591,6 +6591,67 @@ int SLAPI DoProcessOsm(PrcssrOsmFilt * pFilt)
 				ok = 1;
 			else
 				ok = PPErrorZ();
+	}
+	return ok;
+}
+//
+//
+//
+class PPHistoricalTimeSeries {
+public:
+	/*enum {
+		rsrvid
+	};*/
+	SLAPI  PPHistoricalTimeSeries();
+	int    SLAPI Add(LDATETIME dtm, double value);
+    int    SLAPI GetDateRange(DateRange & rRange) const;
+    int    SLAPI GetLastValue(LDATETIME dtm, double * pValue) const;
+private:
+	struct Entry {
+		LDATETIME Dtm;
+		double Value;
+	};
+	int    ReservedId;
+	SString Source;
+	SString Title;
+	TSVector <Entry> List;
+};
+
+int SLAPI Import_Macrotrends(const char * pPath, TSCollection <PPHistoricalTimeSeries> & rDataList)
+{
+	int    ok = -1;
+	SDirEntry de;
+	SString file_name;
+    SString wildcard;
+    SString path;
+    SString line_buf;
+    SString date_buf, value_buf;
+    (path = pPath).Strip().SetLastSlash();
+    (wildcard = path).Cat("*.csv");
+	for(SDirec dir(wildcard, 0); dir.Next(&de) > 0;) {
+		if(de.IsFile()) {
+			(file_name = path).Cat(de.FileName);
+            SFile f_in(file_name, SFile::mRead);
+			if(f_in.IsValid()) {
+				uint   line_no = 0;
+				int    data_started = 0;
+				while(f_in.ReadLine(line_buf)) {
+					line_no++;
+					line_buf.Chomp();
+					if(line_no == 1) {
+						if(!line_buf.IsEqiAscii("Macrotrends Data Download"))
+							break;
+					}
+					else {
+						if(data_started) {
+							if(line_buf.Divide(',', date_buf, date_buf) > 0) {
+
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	return ok;
 }

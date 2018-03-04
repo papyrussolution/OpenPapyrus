@@ -262,13 +262,9 @@ static void smtp_get_message(char * buffer, char ** outptr)
 	}
 	*outptr = message;
 }
-
-/***********************************************************************
- *
- * state()
- *
- * This is the ONLY way to change SMTP state!
- */
+// 
+// Descr: This is the ONLY way to change SMTP state!
+// 
 static void FASTCALL state(struct connectdata * conn, smtpstate newstate)
 {
 	struct smtp_conn * smtpc = &conn->proto.smtpc;
@@ -282,52 +278,45 @@ static void FASTCALL state(struct connectdata * conn, smtpstate newstate)
 #endif
 	smtpc->state = newstate;
 }
-
-/***********************************************************************
- *
- * smtp_perform_ehlo()
- *
- * Sends the EHLO command to not only initialise communication with the ESMTP
- * server but to also obtain a list of server side supported capabilities.
- */
+// 
+// Descr: Sends the EHLO command to not only initialise communication with the ESMTP
+//   server but to also obtain a list of server side supported capabilities.
+// 
 static CURLcode smtp_perform_ehlo(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
 	struct smtp_conn * smtpc = &conn->proto.smtpc;
-	smtpc->sasl.authmechs = SASL_AUTH_NONE; /* No known auth. mechanism yet */
-	smtpc->sasl.authused = SASL_AUTH_NONE; /* Clear the authentication mechanism used for esmtp connections */
-	smtpc->tls_supported = FALSE;     /* Clear the TLS capability */
-	smtpc->auth_supported = FALSE;    /* Clear the AUTH capability */
-	/* Send the EHLO command */
-	result = Curl_pp_sendf(&smtpc->pp, "EHLO %s", smtpc->domain);
+	smtpc->sasl.authmechs = SASL_AUTH_NONE; // No known auth. mechanism yet 
+	smtpc->sasl.authused = SASL_AUTH_NONE; // Clear the authentication mechanism used for esmtp connections 
+	smtpc->tls_supported = FALSE; // Clear the TLS capability 
+	smtpc->auth_supported = FALSE; // Clear the AUTH capability 
+	SString _domain = smtpc->domain;
+	if(!_domain.NotEmptyS() || !sisascii(_domain, _domain.Len()))
+		_domain = "papyrus-smtp-client";
+	result = Curl_pp_sendf(&smtpc->pp, "EHLO %s", /*smtpc->domain*/_domain.cptr()); // Send the EHLO command 
 	if(!result)
 		state(conn, SMTP_EHLO);
 	return result;
 }
-
-/***********************************************************************
- *
- * smtp_perform_helo()
- *
- * Sends the HELO command to initialise communication with the SMTP server.
- */
+// 
+// Descr: Sends the HELO command to initialise communication with the SMTP server.
+// 
 static CURLcode smtp_perform_helo(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
 	struct smtp_conn * smtpc = &conn->proto.smtpc;
 	smtpc->sasl.authused = SASL_AUTH_NONE; // No authentication mechanism used in smtp connections
-	/* Send the HELO command */
-	result = Curl_pp_sendf(&smtpc->pp, "HELO %s", smtpc->domain);
+	SString _domain = smtpc->domain;
+	if(!_domain.NotEmptyS() || !sisascii(_domain, _domain.Len()))
+		_domain = "papyrus-smtp-client";
+	result = Curl_pp_sendf(&smtpc->pp, "HELO %s", /*smtpc->domain*/_domain.cptr()); // Send the HELO command 
 	if(!result)
 		state(conn, SMTP_HELO);
 	return result;
 }
-/***********************************************************************
- *
- * smtp_perform_starttls()
- *
- * Sends the STLS command to start the upgrade to TLS.
- */
+//
+// Descr: Sends the STLS command to start the upgrade to TLS.
+//
 static CURLcode smtp_perform_starttls(struct connectdata * conn)
 {
 	// Send the STARTTLS command
@@ -1237,16 +1226,12 @@ static CURLcode smtp_parse_url_options(struct connectdata * conn)
 	}
 	return result;
 }
-
-/***********************************************************************
- *
- * smtp_parse_url_path()
- *
- * Parse the URL path into separate path components.
- */
+//
+// Descr: Parse the URL path into separate path components.
+//
 static CURLcode smtp_parse_url_path(struct connectdata * conn)
 {
-	/* The SMTP struct is already initialised in smtp_connect() */
+	// The SMTP struct is already initialised in smtp_connect() 
 	struct Curl_easy * data = conn->data;
 	struct smtp_conn * smtpc = &conn->proto.smtpc;
 	const char * path = data->state.path;
@@ -1258,23 +1243,19 @@ static CURLcode smtp_parse_url_path(struct connectdata * conn)
 		else
 			path = "localhost";
 	}
-	/* URL decode the path and use it as the domain in our EHLO */
+	// URL decode the path and use it as the domain in our EHLO 
 	return Curl_urldecode(conn->data, path, 0, &smtpc->domain, NULL, TRUE);
 }
-
-/***********************************************************************
- *
- * smtp_parse_custom_request()
- *
- * Parse the custom request.
- */
+//
+// Descr: Parse the custom request.
+//
 static CURLcode smtp_parse_custom_request(struct connectdata * conn)
 {
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
 	struct SMTP * smtp = (struct SMTP *)data->req.protop;
 	const char * custom = data->set.str[STRING_CUSTOMREQUEST];
-	/* URL decode the custom request */
+	// URL decode the custom request 
 	if(custom)
 		result = Curl_urldecode(data, custom, 0, &smtp->custom, NULL, TRUE);
 	return result;

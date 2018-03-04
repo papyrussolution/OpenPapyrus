@@ -209,9 +209,9 @@
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
 	#endif
-	#include <windows.h>
+	//#include <windows.h>
 	#ifdef HAVE_WINSOCK2_H
-		#include <winsock2.h>
+		//#include <winsock2.h>
 		#ifdef HAVE_WS2TCPIP_H
 			#include <ws2tcpip.h>
 		#endif
@@ -220,7 +220,7 @@
 			#include <winsock.h>
 		#endif
 	#endif
-	#include <tchar.h>
+	//#include <tchar.h>
 	#ifdef UNICODE
 		 typedef wchar_t *(*curl_wcsdup_callback)(const wchar_t *str);
 	#endif
@@ -653,21 +653,147 @@
 #include "warnless.h"
 #include "llist.h"
 #include "wildcard.h"
-#include "strtok.h"
-#include "strcase.h"
-#include "strerror.h"
+//#include "strtok.h"
+#ifndef HAVE_STRTOK_R
+	char *Curl_strtok_r(char *s, const char *delim, char **last);
+	#define strtok_r Curl_strtok_r
+#else
+	#include <string.h>
+#endif
+//
+//#include "strcase.h"
+// 
+// Only "raw" case insensitive strings. This is meant to be locale independent
+// and only compare strings we know are safe for this.
+// 
+// The function is capable of comparing a-z case insensitively even for non-ascii.
+// 
+#define strcasecompare(a,b) Curl_strcasecompare(a,b)
+#define strncasecompare(a,b,c) Curl_strncasecompare(a,b,c)
+
+int Curl_strcasecompare(const char *first, const char *second);
+int Curl_safe_strcasecompare(const char *first, const char *second);
+int Curl_strncasecompare(const char *first, const char *second, size_t max);
+
+char Curl_raw_toupper(char in);
+//
+// checkprefix() is a shorter version of the above, used when the first
+// argument is zero-byte terminated
+//
+#define checkprefix(a,b)    curl_strnequal(a,b,sstrlen(a))
+
+void Curl_strntoupper(char *dest, const char *src, size_t n);
+char Curl_raw_toupper(char in);
+//
+//#include "strerror.h"
+const char * Curl_strerror(struct connectdata * conn, int err);
+#ifdef USE_LIBIDN2
+	const char * Curl_idn_strerror(struct connectdata * conn, int err);
+#endif
+#ifdef USE_WINDOWS_SSPI
+	const char * Curl_sspi_strerror(struct connectdata * conn, int err);
+#endif
+//
 #include "curl_multibyte.h"
 #include "curl_addrinfo.h"
 #include "curl_gethostname.h"
 #include "smb.h"
-#include "fileinfo.h"
-#include "getinfo.h"
+//#include "fileinfo.h"
+struct curl_fileinfo *Curl_fileinfo_alloc(void);
+void Curl_fileinfo_dtor(void *, void *);
+struct curl_fileinfo *Curl_fileinfo_dup(const struct curl_fileinfo *src);
+//
+//#include "getinfo.h"
+CURLcode Curl_getinfo(struct Curl_easy *data, CURLINFO info, ...);
+CURLcode Curl_initinfo(struct Curl_easy *data);
+//
 #include "transfer.h"
 #include "vtls/vtls.h"
-#include "sendf.h"
-#include "content_encoding.h"
+//#include "sendf.h"
+CURLcode Curl_sendf(curl_socket_t sockfd, struct connectdata *, const char *fmt, ...);
+void Curl_infof(struct Curl_easy *, const char *fmt, ...);
+void Curl_failf(struct Curl_easy *, const char *fmt, ...);
+
+#if defined(CURL_DISABLE_VERBOSE_STRINGS)
+	#if defined(HAVE_VARIADIC_MACROS_C99)
+		#define infof(...)  Curl_nop_stmt
+	#elif defined(HAVE_VARIADIC_MACROS_GCC)
+		#define infof(x...)  Curl_nop_stmt
+	#else
+		#define infof (void)
+	#endif
+#else /* CURL_DISABLE_VERBOSE_STRINGS */
+	#define infof Curl_infof
+#endif /* CURL_DISABLE_VERBOSE_STRINGS */
+
+#define failf Curl_failf
+
+#define CLIENTWRITE_BODY   (1<<0)
+#define CLIENTWRITE_HEADER (1<<1)
+#define CLIENTWRITE_BOTH   (CLIENTWRITE_BODY|CLIENTWRITE_HEADER)
+
+CURLcode Curl_client_chop_write(struct connectdata *conn, int type, char *ptr, size_t len) WARN_UNUSED_RESULT;
+CURLcode Curl_client_write(struct connectdata *conn, int type, char *ptr, size_t len) WARN_UNUSED_RESULT;
+
+bool Curl_recv_has_postponed_data(struct connectdata *conn, int sockindex);
+
+// internal read-function, does plain socket only 
+CURLcode Curl_read_plain(curl_socket_t sockfd, char *buf, size_t bytesfromsocket, ssize_t *n);
+ssize_t Curl_recv_plain(struct connectdata *conn, int num, char *buf, size_t len, CURLcode *code);
+ssize_t Curl_send_plain(struct connectdata *conn, int num, const void *mem, size_t len, CURLcode *code);
+// internal read-function, does plain socket, SSL and krb4 
+CURLcode Curl_read(struct connectdata *conn, curl_socket_t sockfd, char *buf, size_t buffersize, ssize_t *n);
+// internal write-function, does plain socket, SSL, SCP, SFTP and krb4 
+CURLcode Curl_write(struct connectdata *conn, curl_socket_t sockfd, const void *mem, size_t len, ssize_t *written);
+// internal write-function, does plain sockets ONLY 
+CURLcode Curl_write_plain(struct connectdata *conn, curl_socket_t sockfd, const void *mem, size_t len, ssize_t *written);
+// the function used to output verbose information 
+int Curl_debug(struct Curl_easy *handle, curl_infotype type, char *data, size_t size, struct connectdata *conn);
+//
+//#include "content_encoding.h"
+// 
+// Comma-separated list all supported Content-Encodings ('identity' is implied)
+// 
+#ifdef HAVE_LIBZ
+	#define ALL_CONTENT_ENCODINGS "deflate, gzip"
+	// force a cleanup 
+	void Curl_unencode_cleanup(struct connectdata *conn);
+#else
+	#define ALL_CONTENT_ENCODINGS "identity"
+	#define Curl_unencode_cleanup(x) Curl_nop_stmt
+#endif
+
+CURLcode Curl_unencode_deflate_write(struct connectdata *conn, struct SingleRequest *req, ssize_t nread);
+CURLcode Curl_unencode_gzip_write(struct connectdata *conn, struct SingleRequest *k, ssize_t nread);
+//
 #include "if2ip.h"
-#include "non-ascii.h"
+//#include "non-ascii.h"
+#ifdef CURL_DOES_CONVERSIONS
+	//#include "urldata.h"
+	// 
+	// Curl_convert_clone() returns a malloced copy of the source string (if
+	// returning CURLE_OK), with the data converted to network format.
+	// 
+	// If no conversion was needed *outbuf may be NULL.
+	// 
+	CURLcode Curl_convert_clone(struct Curl_easy *data, const char *indata, size_t insize, char **outbuf);
+	void Curl_convert_init(struct Curl_easy *data);
+	void Curl_convert_setup(struct Curl_easy *data);
+	void Curl_convert_close(struct Curl_easy *data);
+	CURLcode Curl_convert_to_network(struct Curl_easy *data, char *buffer, size_t length);
+	CURLcode Curl_convert_from_network(struct Curl_easy *data, char *buffer, size_t length);
+	CURLcode Curl_convert_from_utf8(struct Curl_easy *data, char *buffer, size_t length);
+	CURLcode Curl_convert_form(struct Curl_easy *data, struct FormData *form);
+#else
+	#define Curl_convert_clone(a,b,c,d) ((void)a, CURLE_OK)
+	#define Curl_convert_init(x) Curl_nop_stmt
+	#define Curl_convert_setup(x) Curl_nop_stmt
+	#define Curl_convert_close(x) Curl_nop_stmt
+	#define Curl_convert_to_network(a,b,c) ((void)a, CURLE_OK)
+	#define Curl_convert_from_network(a,b,c) ((void)a, CURLE_OK)
+	#define Curl_convert_from_utf8(a,b,c) ((void)a, CURLE_OK)
+	#define Curl_convert_form(a,b) CURLE_OK
+#endif
 //
 //#include "escape.h"
 //
@@ -776,7 +902,7 @@ int Curl_socket_check(curl_socket_t readfd, curl_socket_t readfd2, curl_socket_t
 #define SOCKET_READABLE(x, z) Curl_socket_check(x, CURL_SOCKET_BAD, CURL_SOCKET_BAD, z)
 #define SOCKET_WRITABLE(x, z) Curl_socket_check(CURL_SOCKET_BAD, CURL_SOCKET_BAD, x, z)
 
-int Curl_poll(struct pollfd ufds[], uint nfds, int timeout_ms);
+int FASTCALL Curl_poll(struct pollfd ufds[], uint nfds, int timeout_ms);
 // 
 // On non-DOS and non-Winsock platforms, when Curl_ack_eintr is set,
 // EINTR condition is honored and function might exit early without
@@ -784,7 +910,7 @@ int Curl_poll(struct pollfd ufds[], uint nfds, int timeout_ms);
 // 
 extern int Curl_ack_eintr;
 
-int Curl_wait_ms(int timeout_ms);
+int FASTCALL Curl_wait_ms(int timeout_ms);
 
 #ifdef TPF
 	int tpf_select_libcurl(int maxfds, fd_set* reads, fd_set* writes, fd_set* excepts, struct timeval* tv);
@@ -860,13 +986,13 @@ typedef enum {
 	TIMER_LAST /* must be last */
 } timerid;
 
-int Curl_pgrsDone(struct connectdata *);
+int  Curl_pgrsDone(struct connectdata *);
 void Curl_pgrsStartNow(struct Curl_easy * data);
 void Curl_pgrsSetDownloadSize(struct Curl_easy * data, curl_off_t size);
 void Curl_pgrsSetUploadSize(struct Curl_easy * data, curl_off_t size);
 void Curl_pgrsSetDownloadCounter(struct Curl_easy * data, curl_off_t size);
 void Curl_pgrsSetUploadCounter(struct Curl_easy * data, curl_off_t size);
-int Curl_pgrsUpdate(struct connectdata *);
+int  Curl_pgrsUpdate(struct connectdata *);
 void Curl_pgrsResetTimesSizes(struct Curl_easy * data);
 void Curl_pgrsTime(struct Curl_easy * data, timerid timer);
 long Curl_pgrsLimitWaitTime(curl_off_t cursize, curl_off_t startsize, curl_off_t limit, struct timeval start, struct timeval now);

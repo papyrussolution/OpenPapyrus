@@ -1765,7 +1765,7 @@ int BillItemBrowser::addItemByOrder(PPBillPacket * pOrderPack, int line)
 				if(rest > 0.0) {
 					const int ord_price_low_prior = BIN(P_BObj->GetConfig().Flags & BCF_ORDPRICELOWPRIORITY);
 					const int is_isales_order = BIN(pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER &&
-						pOrderPack->BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.CmpNC("ISALES-PEPSI") == 0);
+						pOrderPack->BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.IsEqiAscii("ISALES-PEPSI"));
 					const double ord_qtty = fabs(p_ord_item->Quantity_);
 					const double ord_price = fabs(p_ord_item->Price) * ord_qtty;
 					const double ord_dis   = p_ord_item->Discount * ord_qtty;

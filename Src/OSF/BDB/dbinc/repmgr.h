@@ -100,20 +100,19 @@ struct __cond_waiters_table;
 #define	REPMGR_GMDB_FMT_VERSION	1
 
 #ifdef DB_WIN32
-typedef SOCKET socket_t;
-typedef HANDLE thread_id_t;
-typedef HANDLE mgr_mutex_t;
-typedef HANDLE cond_var_t;
-
-typedef COND_WAITERS_TABLE *waiter_t;
-typedef WSABUF db_iovec_t;
+	typedef SOCKET socket_t;
+	typedef HANDLE thread_id_t;
+	typedef HANDLE mgr_mutex_t;
+	typedef HANDLE cond_var_t;
+	typedef COND_WAITERS_TABLE *waiter_t;
+	typedef WSABUF db_iovec_t;
 #else
-typedef int socket_t;
-typedef pthread_t thread_id_t;
-typedef pthread_mutex_t mgr_mutex_t;
-typedef pthread_cond_t cond_var_t;
-typedef pthread_cond_t waiter_t;
-typedef struct iovec db_iovec_t;
+	typedef int socket_t;
+	typedef pthread_t thread_id_t;
+	typedef pthread_mutex_t mgr_mutex_t;
+	typedef pthread_cond_t cond_var_t;
+	typedef pthread_cond_t waiter_t;
+	typedef struct iovec db_iovec_t;
 #endif
 
 /*

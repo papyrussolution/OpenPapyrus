@@ -4679,7 +4679,10 @@ int SLAPI PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, cons
 				THROW(Helper_ExportBnkOrder(b_e.CfgNameBill, logger));
 			}
 			else if(b_e.Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp) {
-				PPEgaisProcessor ep(((b_e.Flags & PPBillImporter::fTestMode) ? PPEgaisProcessor::cfDebugMode : 0), &logger);
+				long   cflags = (b_e.Flags & PPBillImporter::fTestMode) ? PPEgaisProcessor::cfDebugMode : 0;
+				if(b_e.Flags & PPBillImporter::fEgaisVer3)
+					cflags |= PPEgaisProcessor::cfVer3;
+				PPEgaisProcessor ep(cflags, &logger, 0);
 				THROW(ep);
 				THROW(ep.CheckLic());
 				{

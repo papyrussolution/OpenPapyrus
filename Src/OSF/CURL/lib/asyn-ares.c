@@ -239,10 +239,7 @@ static int waitperform(struct connectdata * conn, int timeout_ms)
 		else
 			break;
 	}
-	if(num)
-		nfds = Curl_poll(pfd, num, timeout_ms);
-	else
-		nfds = 0;
+	nfds = num ? Curl_poll(pfd, num, timeout_ms) : 0;
 	if(!nfds)
 		/* Call ares_process() unconditonally here, even if we simply timed out
 		   above, as otherwise the ares name resolve won't timeout! */

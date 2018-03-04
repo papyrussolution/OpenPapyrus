@@ -970,10 +970,10 @@ CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOute
 			if(oneof4(cn_pack.EgaisMode, 0, 1, 2, 3)) { // @v9.8.12 (3)
 				EgaisMode = cn_pack.EgaisMode;
 				if(oneof3(EgaisMode, 1, 2, 3) && !(Flags & fNoEdit)) { // @v9.8.12 oneof2(EgaisMode, 1, 2)-->oneof3(EgaisMode, 1, 2, 3)
-					long   egcf = PPEgaisProcessor::cfDirectFileLogging;
+					long   egcf = PPEgaisProcessor::cfDirectFileLogging|PPEgaisProcessor::cfUseVerByConfig;
 					if(EgaisMode == 2)
 						egcf |= PPEgaisProcessor::cfDebugMode;
-					P_EgPrc = new PPEgaisProcessor(egcf, 0);
+					P_EgPrc = new PPEgaisProcessor(egcf, 0, 0);
 				}
 			}
 			// } @v9.0.9
@@ -3090,7 +3090,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				// @v9.7.10 {
 				if(AltRegisterID) {
 					ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_ALTERNATEREGPASS, temp_buf.Z());
-					if(temp_buf.CmpNC("yes") != 0)
+					if(!temp_buf.IsEqiAscii("yes"))
 						AltRegisterID = 0;
 				}
 				// } @v9.7.10
@@ -3812,9 +3812,9 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 			}
 			else if(SetupSalByCode(Input) >= 0)
 				ClearInput(0);
-			else if(Input.CmpNC("SUS00") == 0)
+			else if(Input.IsEqiAscii("SUS00"))
 				SuspendCheck();
-			else if(Input.CmpNC("SUS01") == 0)
+			else if(Input.IsEqiAscii("SUS01"))
 				SelectSuspendedCheck();
 			else if(CCheckPacket::ParseBarcodeIdent(Input, &bis)) {
 				if(IsState(sEMPTYLIST_EMPTYBUF)) {
@@ -3906,13 +3906,13 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 			}
 			else if(Input.C(0) == '*' || Input.Last() == '*')
 				AcceptQuantity();
-			else if(Input.CmpNC("$GENERATOR$") == 0)
+			else if(Input.IsEqiAscii("$GENERATOR$"))
 				GenerateChecks();
-			else if(Input.CmpNC("BASKET") == 0) {
+			else if(Input.IsEqiAscii("BASKET")) {
 				AddFromBasket();
 				ClearInput(0);
 			}
-			else if(Input.CmpNC("TEST") == 0) {
+			else if(Input.IsEqiAscii("TEST")) {
 				TestCheck(cpmBank);
 				ClearInput(0);
 			}
@@ -5870,7 +5870,7 @@ static int FASTCALL IsPhnChannelAcceptable(const SString & rFilter, const SStrin
 {
 	int    ok = 0;
 	if(rFilter.NotEmpty() && rChannel.NotEmpty()) {
-		if(rFilter.CmpNC("@all") == 0) {
+		if(rFilter.IsEqiAscii("@all")) {
 			ok = 1;
 		}
 		else if(rFilter.HasChr(';') || rFilter.HasChr(',') || rFilter.HasChr(' ')) {
@@ -10038,10 +10038,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 							else
 								serial_price_tag = 1;
 						}
-						if(use_ext_price)
-							price = rgi.ExtPrice;
-						else
-							price = rgi.Price;
+						price = use_ext_price ? rgi.ExtPrice : rgi.Price;
 					}
 					if(price > 0.0 || (price == 0.0 && rgi.QuotKindUsedForPrice) || giftID || r == 2000) {
 						CCheckItem & r_item = P.GetCur();
@@ -11420,10 +11417,12 @@ int CheckPaneDialog::LoadTSession(PPID tsessID)
 		if(attrib.SCardID)
 			AcceptSCard(0, attrib.SCardID);
 		// }
+		const int do_setup_price = BIN(P_TSesObj->GetConfig().Flags & PPTSessConfig::fSetupCcPricesInCPane); // @v9.9.7
 		for(SEnum en = P_TSesObj->P_Tbl->EnumLines(tsessID); en.Next(&ln_rec) > 0;) {
 			if(ln_rec.Sign < 0) {
 				PgsBlock pgsb(fabs(ln_rec.Qtty));
-				pgsb.PriceBySerial = ln_rec.Price;
+				if(!do_setup_price) // @v9.9.7
+					pgsb.PriceBySerial = ln_rec.Price;
 				/*THROW(*/SetupNewRow(ln_rec.GoodsID, /*fabs(ln_rec.Qtty), ln_rec.Price, 0*/pgsb)/*)*/;
 			}
 		}

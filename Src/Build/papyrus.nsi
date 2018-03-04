@@ -1,5 +1,5 @@
 ; PAPYRUS.NSI
-; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017
+; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018
 ; —крипт создани€ инсталл€ции системы Papyrus
 ;
 ;
@@ -302,6 +302,7 @@ Section "‘айлы приложени€" SEC01
 	!ifndef OPENSOURCE
 		File "${SRC_TARGET}\PPSoapPepsi.dll"      ; @v9.2.3
 		File "${SRC_TARGET}\PPSoapEfes.dll"       ; @v9.5.5
+		File "${SRC_TARGET}\PPSoapSfaHeineken.dll" ; @v9.9.9
 	!endif
 	File "${SRC_TARGET}\ppraw.res"
 	; @v8.9.8 File "${SRC_TARGET}\pprpt.res"

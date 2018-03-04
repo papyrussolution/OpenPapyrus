@@ -3808,7 +3808,7 @@ public:
 	virtual int SLAPI EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
-		PPEgaisProcessor prc(0, 0);
+		PPEgaisProcessor prc(PPEgaisProcessor::cfUseVerByConfig, 0, 0);
 		PPEgaisProcessor::QueryParam filt;
 		SSerializeContext sctx;
 		const size_t sav_offs = pParam->GetRdOffs();
@@ -3834,7 +3834,7 @@ public:
 		SSerializeContext sctx;
 		THROW(filt.Serialize(-1, *pParam, &sctx));
 		{
-			PPEgaisProcessor prc(0, 0);
+			PPEgaisProcessor prc(PPEgaisProcessor::cfUseVerByConfig, 0, 0);
             THROW(prc.ImplementQuery(filt));
 		}
 		CATCHZOKPPERR

@@ -248,7 +248,7 @@ int TWindow::IsMDIClientWindow(HWND h)
 {
 	SString cls_name;
 	TView::SGetWindowClassName(h, cls_name);
-	return BIN(cls_name.Cmp("MDICLIENT", 0) == 0);
+	return (cls_name == "MDICLIENT");
 }
 
 SLAPI TWindow::TWindow(const TRect & bounds, const char * pTitle, short aNumber) : TGroup(bounds), P_Lmp(0), HW(0), PrevInStack(0)

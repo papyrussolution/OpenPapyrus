@@ -711,13 +711,13 @@ CURLcode curl_easy_getinfo(struct Curl_easy * data, CURLINFO info, ...)
 struct Curl_easy * curl_easy_duphandle(struct Curl_easy * data)
 {
 	struct Curl_easy * outcurl = (struct Curl_easy *)SAlloc::C(1, sizeof(struct Curl_easy));
-	if(NULL == outcurl)
+	if(!outcurl)
 		goto fail;
-	/*
-	 * We setup a few buffers we need. We should probably make them
-	 * get setup on-demand in the code, as that would probably decrease
-	 * the likeliness of us forgetting to init a buffer here in the future.
-	 */
+	// 
+	// We setup a few buffers we need. We should probably make them
+	// get setup on-demand in the code, as that would probably decrease
+	// the likeliness of us forgetting to init a buffer here in the future.
+	// 
 	outcurl->set.buffer_size = data->set.buffer_size;
 	outcurl->state.buffer = (char *)SAlloc::M(CURL_BUFSIZE(outcurl->set.buffer_size) + 1);
 	if(!outcurl->state.buffer)
@@ -726,22 +726,21 @@ struct Curl_easy * curl_easy_duphandle(struct Curl_easy * data)
 	if(!outcurl->state.headerbuff)
 		goto fail;
 	outcurl->state.headersize = HEADERSIZE;
-	/* copy all userdefined values */
+	// copy all userdefined values 
 	if(Curl_dupset(outcurl, data))
 		goto fail;
-	/* the connection cache is setup on demand */
+	// the connection cache is setup on demand 
 	outcurl->state.conn_cache = NULL;
 	outcurl->state.lastconnect = NULL;
 	outcurl->progress.flags    = data->progress.flags;
 	outcurl->progress.callback = data->progress.callback;
 	if(data->cookies) {
-		/* If cookies are enabled in the parent handle, we enable them
-		   in the clone as well! */
+		// If cookies are enabled in the parent handle, we enable them in the clone as well! 
 		outcurl->cookies = Curl_cookie_init(data, data->cookies->filename, outcurl->cookies, data->set.cookiesession);
 		if(!outcurl->cookies)
 			goto fail;
 	}
-	/* duplicate all values in 'change' */
+	// duplicate all values in 'change' 
 	if(data->change.cookielist) {
 		outcurl->change.cookielist = Curl_slist_duplicate(data->change.cookielist);
 		if(!outcurl->change.cookielist)
@@ -780,31 +779,29 @@ fail:
 	}
 	return NULL;
 }
-
-/*
- * curl_easy_reset() is an external interface that allows an app to re-
- * initialize a session handle to the default values.
- */
+// 
+// curl_easy_reset() is an external interface that allows an app to re-
+// initialize a session handle to the default values.
+// 
 void curl_easy_reset(struct Curl_easy * data)
 {
 	ZFREE(data->state.pathbuffer);
 	data->state.path = NULL;
 	Curl_free_request_state(data);
-	/* zero out UserDefined data: */
+	// zero out UserDefined data: 
 	Curl_freeset(data);
 	memzero(&data->set, sizeof(struct UserDefined));
 	(void)Curl_init_userdefined(&data->set);
-	/* zero out Progress data: */
+	// zero out Progress data: 
 	memzero(&data->progress, sizeof(struct Progress));
-	/* zero out PureInfo data: */
+	// zero out PureInfo data: 
 	Curl_initinfo(data);
 	data->progress.flags |= PGRS_HIDE;
-	data->state.current_speed = -1; /* init to negative == impossible */
-	/* zero out authentication data: */
+	data->state.current_speed = -1; // init to negative == impossible 
+	// zero out authentication data: 
 	memzero(&data->state.authhost, sizeof(struct auth));
 	memzero(&data->state.authproxy, sizeof(struct auth));
 }
-
 /*
  * curl_easy_pause() allows an application to pause or unpause a specific
  * transfer and direction. This function sets the full new state for the
@@ -845,8 +842,8 @@ CURLcode curl_easy_pause(struct Curl_easy * data, int action)
 		if(result)
 			return result;
 	}
-	/* if there's no error and we're not pausing both directions, we want
-	   to have this handle checked soon */
+	// if there's no error and we're not pausing both directions, we want
+	// to have this handle checked soon 
 	if(!result && ((newstate&(KEEP_RECV_PAUSE|KEEP_SEND_PAUSE)) != (KEEP_RECV_PAUSE|KEEP_SEND_PAUSE)))
 		Curl_expire(data, 0);  /* get this handle going again */
 	return result;

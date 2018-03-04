@@ -98,9 +98,7 @@ void Curl_resolver_cancel(struct connectdata *conn);
  * return bitmask indicating what file descriptors (referring to array indexes
  * in the 'sock' array) to wait for, read/write.
  */
-int Curl_resolver_getsock(struct connectdata *conn, curl_socket_t *sock,
-                          int numsocks);
-
+int Curl_resolver_getsock(struct connectdata *conn, curl_socket_t *sock, int numsocks);
 /*
  * Curl_resolver_is_resolved()
  *
@@ -110,9 +108,7 @@ int Curl_resolver_getsock(struct connectdata *conn, curl_socket_t *sock,
  *
  * Returns normal CURLcode errors.
  */
-CURLcode Curl_resolver_is_resolved(struct connectdata *conn,
-                                   struct Curl_dns_entry **dns);
-
+CURLcode Curl_resolver_is_resolved(struct connectdata *conn, struct Curl_dns_entry **dns);
 /*
  * Curl_resolver_wait_resolv()
  *
@@ -125,9 +121,7 @@ CURLcode Curl_resolver_is_resolved(struct connectdata *conn,
  * CURLE_OPERATION_TIMEDOUT if a time-out occurred.
 
  */
-CURLcode Curl_resolver_wait_resolv(struct connectdata *conn,
-                                   struct Curl_dns_entry **dnsentry);
-
+CURLcode Curl_resolver_wait_resolv(struct connectdata *conn, struct Curl_dns_entry **dnsentry);
 /*
  * Curl_resolver_getaddrinfo() - when using this resolver
  *
@@ -139,30 +133,25 @@ CURLcode Curl_resolver_wait_resolv(struct connectdata *conn,
  * Each resolver backend must of course make sure to return data in the
  * correct format to comply with this.
  */
-Curl_addrinfo *Curl_resolver_getaddrinfo(struct connectdata *conn,
-                                         const char *hostname,
-                                         int port,
-                                         int *waitp);
+Curl_addrinfo *Curl_resolver_getaddrinfo(struct connectdata *conn, const char *hostname, int port, int *waitp);
 
 #ifndef CURLRES_ASYNCH
-/* convert these functions if an asynch resolver isn't used */
-#define Curl_resolver_cancel(x) Curl_nop_stmt
-#define Curl_resolver_is_resolved(x,y) CURLE_COULDNT_RESOLVE_HOST
-#define Curl_resolver_wait_resolv(x,y) CURLE_COULDNT_RESOLVE_HOST
-#define Curl_resolver_getsock(x,y,z) 0
-#define Curl_resolver_duphandle(x,y) CURLE_OK
-#define Curl_resolver_init(x) CURLE_OK
-#define Curl_resolver_global_init() CURLE_OK
-#define Curl_resolver_global_cleanup() Curl_nop_stmt
-#define Curl_resolver_cleanup(x) Curl_nop_stmt
+	/* convert these functions if an asynch resolver isn't used */
+	#define Curl_resolver_cancel(x) Curl_nop_stmt
+	#define Curl_resolver_is_resolved(x,y) CURLE_COULDNT_RESOLVE_HOST
+	#define Curl_resolver_wait_resolv(x,y) CURLE_COULDNT_RESOLVE_HOST
+	#define Curl_resolver_getsock(x,y,z) 0
+	#define Curl_resolver_duphandle(x,y) CURLE_OK
+	#define Curl_resolver_init(x) CURLE_OK
+	#define Curl_resolver_global_init() CURLE_OK
+	#define Curl_resolver_global_cleanup() Curl_nop_stmt
+	#define Curl_resolver_cleanup(x) Curl_nop_stmt
 #endif
-
 #ifdef CURLRES_ASYNCH
-#define Curl_resolver_asynch() 1
+	#define Curl_resolver_asynch() 1
 #else
-#define Curl_resolver_asynch() 0
+	#define Curl_resolver_asynch() 0
 #endif
-
 
 /********** end of generic resolver interface functions *****************/
 #endif /* HEADER_CURL_ASYN_H */

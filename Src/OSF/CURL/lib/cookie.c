@@ -850,8 +850,8 @@ struct CookieInfo * Curl_cookie_init(struct Curl_easy * data, const char * file,
 	FILE * fp = NULL;
 	bool fromfile = TRUE;
 	char * line = NULL;
-	if(NULL == inc) {
-		/* we didn't get a struct, create one */
+	if(!inc) {
+		// we didn't get a struct, create one 
 		c = (struct CookieInfo *)SAlloc::C(1, sizeof(struct CookieInfo));
 		if(!c)
 			return NULL;  /* failed to get memory */
@@ -1166,7 +1166,6 @@ static char * get_netscape_format(const struct Cookie * co)
 	    co->name,
 	    co->value ? co->value : "");
 }
-
 /*
  * cookie_output()
  *
@@ -1181,9 +1180,8 @@ static int cookie_output(struct CookieInfo * c, const char * dumphere)
 	FILE * out;
 	bool use_stdout = FALSE;
 	char * format_ptr;
-	if((NULL == c) || (0 == c->numcookies))
-		// If there are no known cookies, we don't write or even create any destination file 
-		return 0;
+	if(!c || !c->numcookies)
+		return 0; // If there are no known cookies, we don't write or even create any destination file 
 	// at first, remove expired cookies 
 	remove_expired(c);
 	if(!strcmp("-", dumphere)) {

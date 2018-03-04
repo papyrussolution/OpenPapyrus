@@ -129,10 +129,10 @@ extern "C" __declspec(dllexport) TSCollection <iSalesBillDebt> * iSalesGetUnclos
 	param.username = GetDynamicParamString(pUser, arg_str_pool);
 	param.password = GetDynamicParamString(pPassw, arg_str_pool);
 	DateRange period;
-	if(!RVALUEPTR(period, pPeriod))
-		period.SetZero();
-	SETIFZ(period.low, encodedate(1, 1, 2016));
-	SETIFZ(period.upp, encodedate(31, 12, 2030));
+	if(!RVALUEPTR(period, pPeriod)) {
+		SETIFZ(period.low, encodedate(1, 1, 2016));
+		SETIFZ(period.upp, encodedate(31, 12, 2030));
+	}
 	param.dtFrom = GetDynamicParamString(period.low, DATF_YMD|DATF_CENTURY|DATF_NODIV, arg_str_pool);
 	param.dtTo = GetDynamicParamString(period.upp, DATF_YMD|DATF_CENTURY|DATF_NODIV, arg_str_pool);
 	THROW(PreprocessCall(proxi, rSess, proxi.UnclosedDocumentsTransfer(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));

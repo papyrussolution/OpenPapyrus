@@ -29,45 +29,36 @@
  * curl-library mailing list subscription and unsubscription web interface:
  *   https://cool.haxx.se/mailman/listinfo/curl-library/
  */
-
 #ifdef CURL_NO_OLDIES
-#define CURL_STRICTER
+	#define CURL_STRICTER
 #endif
-
 #include "curlver.h"         /* libcurl version defines   */
 #include "system.h"          /* determine things run-time */
 #include "curlbuild.h"       /* libcurl build definitions */
 #include "curlrules.h"       /* libcurl rules enforcement */
-
 /*
  * Define WIN32 when build target is Win32 API
  */
-
-#if (defined(_WIN32) || defined(__WIN32__)) && \
-	!defined(WIN32) && !defined(__SYMBIAN32__)
-#define WIN32
+#if (defined(_WIN32) || defined(__WIN32__)) && !defined(WIN32) && !defined(__SYMBIAN32__)
+	#define WIN32
 #endif
-
 #include <stdio.h>
 #include <limits.h>
-
 #if defined(__FreeBSD__) && (__FreeBSD__ >= 2)
-/* Needed for __FreeBSD_version symbol definition */
-#include <osreldate.h>
+	/* Needed for __FreeBSD_version symbol definition */
+	#include <osreldate.h>
 #endif
-
 /* The include stuff here below is mainly for time_t! */
 #include <sys/types.h>
 #include <time.h>
 
 #if defined(WIN32) && !defined(_WIN32_WCE) && !defined(__CYGWIN__)
-#if !(defined(_WINSOCKAPI_) || defined(_WINSOCK_H) || \
-	defined(__LWIP_OPT_H__) || defined(LWIP_HDR_OPT_H))
-/* The check above prevents the winsock2 inclusion if winsock.h already was
-   included, since they can't co-exist without problems */
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#endif
+	#if !(defined(_WINSOCKAPI_) || defined(_WINSOCK_H) || defined(__LWIP_OPT_H__) || defined(LWIP_HDR_OPT_H))
+		/* The check above prevents the winsock2 inclusion if winsock.h already was
+		included, since they can't co-exist without problems */
+		#include <winsock2.h>
+		#include <ws2tcpip.h>
+	#endif
 #endif
 
 /* HP-UX systems version 9, 10 and 11 lack sys/select.h and so does oldish
@@ -1146,23 +1137,18 @@ typedef enum {
 	/* limit-rate: maximum number of bytes per second to send or receive */
 	CINIT(MAX_SEND_SPEED_LARGE, OFF_T, 145),
 	CINIT(MAX_RECV_SPEED_LARGE, OFF_T, 146),
-
-	/* Pointer to command string to send if USER/PASS fails. */
-	CINIT(FTP_ALTERNATIVE_TO_USER, STRINGPOINT, 147),
+	CINIT(FTP_ALTERNATIVE_TO_USER, STRINGPOINT, 147), /* Pointer to command string to send if USER/PASS fails. */
 	/* callback function for setting socket options */
 	CINIT(SOCKOPTFUNCTION, FUNCTIONPOINT, 148),
 	CINIT(SOCKOPTDATA, OBJECTPOINT, 149),
 	// set to 0 to disable session ID re-use for this transfer, default is enabled (== 1)
 	CINIT(SSL_SESSIONID_CACHE, LONG, 150),
-	/* allowed SSH authentication methods */
-	CINIT(SSH_AUTH_TYPES, LONG, 151),
+	CINIT(SSH_AUTH_TYPES, LONG, 151), /* allowed SSH authentication methods */
 	/* Used by scp/sftp to do public/private key authentication */
 	CINIT(SSH_PUBLIC_KEYFILE, STRINGPOINT, 152),
 	CINIT(SSH_PRIVATE_KEYFILE, STRINGPOINT, 153),
-	/* Send CCC (Clear Command Channel) after authentication */
-	CINIT(FTP_SSL_CCC, LONG, 154),
-	/* Same as TIMEOUT and CONNECTTIMEOUT, but with ms resolution */
-	CINIT(TIMEOUT_MS, LONG, 155),
+	CINIT(FTP_SSL_CCC, LONG, 154), /* Send CCC (Clear Command Channel) after authentication */
+	CINIT(TIMEOUT_MS, LONG, 155), /* Same as TIMEOUT and CONNECTTIMEOUT, but with ms resolution */
 	CINIT(CONNECTTIMEOUT_MS, LONG, 156),
 	/* set to zero to disable the libcurl's decoding and thus pass the raw body
 	   data to the application even when it is encoded/compressed */
@@ -1175,35 +1161,28 @@ typedef enum {
 	/* Set the behaviour of POST when redirecting. Values must be set to one
 	   of CURL_REDIR* defines below. This used to be called CURLOPT_POST301 */
 	CINIT(POSTREDIR, LONG, 161),
-	/* used by scp/sftp to verify the host's public key */
-	CINIT(SSH_HOST_PUBLIC_KEY_MD5, STRINGPOINT, 162),
+	CINIT(SSH_HOST_PUBLIC_KEY_MD5, STRINGPOINT, 162), /* used by scp/sftp to verify the host's public key */
 	/* Callback function for opening socket (instead of socket(2)). Optionally,
 	   callback is able change the address or refuse to connect returning
 	   CURL_SOCKET_BAD.  The callback should have type
 	   curl_opensocket_callback */
 	CINIT(OPENSOCKETFUNCTION, FUNCTIONPOINT, 163),
 	CINIT(OPENSOCKETDATA, OBJECTPOINT, 164),
-	/* POST volatile input fields. */
-	CINIT(COPYPOSTFIELDS, OBJECTPOINT, 165),
-	/* set transfer mode (;type=<a|i>) when doing FTP via an HTTP proxy */
-	CINIT(PROXY_TRANSFER_MODE, LONG, 166),
+	CINIT(COPYPOSTFIELDS, OBJECTPOINT, 165), /* POST volatile input fields. */
+	CINIT(PROXY_TRANSFER_MODE, LONG, 166), /* set transfer mode (;type=<a|i>) when doing FTP via an HTTP proxy */
 	/* Callback function for seeking in the input stream */
 	CINIT(SEEKFUNCTION, FUNCTIONPOINT, 167),
 	CINIT(SEEKDATA, OBJECTPOINT, 168),
-	/* CRL file */
-	CINIT(CRLFILE, STRINGPOINT, 169),
-	/* Issuer certificate */
-	CINIT(ISSUERCERT, STRINGPOINT, 170),
-	/* (IPv6) Address scope */
-	CINIT(ADDRESS_SCOPE, LONG, 171),
+	CINIT(CRLFILE, STRINGPOINT, 169), /* CRL file */
+	CINIT(ISSUERCERT, STRINGPOINT, 170), /* Issuer certificate */
+	CINIT(ADDRESS_SCOPE, LONG, 171), /* (IPv6) Address scope */
 	/* Collect certificate chain info and allow it to get retrievable with
 	   CURLINFO_CERTINFO after the transfer is complete. */
 	CINIT(CERTINFO, LONG, 172),
 	/* "name" and "pwd" to use when fetching. */
 	CINIT(USERNAME, STRINGPOINT, 173),
 	CINIT(PASSWORD, STRINGPOINT, 174),
-	/* "name" and "pwd" to use with Proxy when fetching. */
-	CINIT(PROXYUSERNAME, STRINGPOINT, 175),
+	CINIT(PROXYUSERNAME, STRINGPOINT, 175), /* "name" and "pwd" to use with Proxy when fetching. */
 	CINIT(PROXYPASSWORD, STRINGPOINT, 176),
 	/* Comma separated list of hostnames defining no-proxy zones. These should
 	   match both hostnames directly, and hostnames within a domain. For
@@ -1301,8 +1280,7 @@ typedef enum {
 	 * function. This function should be defined as the curl_xferinfo_callback
 	 * prototype defines. (Deprecates CURLOPT_PROGRESSFUNCTION) */
 	CINIT(XFERINFOFUNCTION, FUNCTIONPOINT, 219),
-	/* The XOAUTH2 bearer token */
-	CINIT(XOAUTH2_BEARER, STRINGPOINT, 220),
+	CINIT(XOAUTH2_BEARER, STRINGPOINT, 220), /* The XOAUTH2 bearer token */
 	/* Set the interface string to use as outgoing network
 	 * interface for DNS requests.
 	 * Only supported by the c-ares DNS backend */
@@ -1313,60 +1291,34 @@ typedef enum {
 	/* Set the local IPv4 address to use for outgoing DNS requests.
 	 * Only supported by the c-ares DNS backend */
 	CINIT(DNS_LOCAL_IP6, STRINGPOINT, 223),
-	/* Set authentication options directly */
-	CINIT(LOGIN_OPTIONS, STRINGPOINT, 224),
-	/* Enable/disable TLS NPN extension (http2 over ssl might fail without) */
-	CINIT(SSL_ENABLE_NPN, LONG, 225),
-	/* Enable/disable TLS ALPN extension (http2 over ssl might fail without) */
-	CINIT(SSL_ENABLE_ALPN, LONG, 226),
+	CINIT(LOGIN_OPTIONS, STRINGPOINT, 224), /* Set authentication options directly */
+	CINIT(SSL_ENABLE_NPN, LONG, 225), /* Enable/disable TLS NPN extension (http2 over ssl might fail without) */
+	CINIT(SSL_ENABLE_ALPN, LONG, 226), /* Enable/disable TLS ALPN extension (http2 over ssl might fail without) */
 	/* Time to wait for a response to a HTTP request containing an
 	 * Expect: 100-continue header before sending the data anyway. */
 	CINIT(EXPECT_100_TIMEOUT_MS, LONG, 227),
-	/* This points to a linked list of headers used for proxy requests only,
-	   struct curl_slist kind */
-	CINIT(PROXYHEADER, OBJECTPOINT, 228),
-	/* Pass in a bitmask of "header options" */
-	CINIT(HEADEROPT, LONG, 229),
+	CINIT(PROXYHEADER, OBJECTPOINT, 228), // This points to a linked list of headers used for proxy requests only, struct curl_slist kind 
+	CINIT(HEADEROPT, LONG, 229), /* Pass in a bitmask of "header options" */
 	/* The public key in DER form used to validate the peer public key
 	   this option is used only if SSL_VERIFYPEER is true */
 	CINIT(PINNEDPUBLICKEY, STRINGPOINT, 230),
-	/* Path to Unix domain socket */
-	CINIT(UNIX_SOCKET_PATH, STRINGPOINT, 231),
-	/* Set if we should verify the certificate status. */
-	CINIT(SSL_VERIFYSTATUS, LONG, 232),
-	/* Set if we should enable TLS false start. */
-	CINIT(SSL_FALSESTART, LONG, 233),
-	/* Do not squash dot-dot sequences */
-	CINIT(PATH_AS_IS, LONG, 234),
-	/* Proxy Service Name */
-	CINIT(PROXY_SERVICE_NAME, STRINGPOINT, 235),
-	/* Service Name */
-	CINIT(SERVICE_NAME, STRINGPOINT, 236),
-	/* Wait/don't wait for pipe/mutex to clarify */
-	CINIT(PIPEWAIT, LONG, 237),
-	/* Set the protocol used when curl is given a URL without a protocol */
-	CINIT(DEFAULT_PROTOCOL, STRINGPOINT, 238),
-	/* Set stream weight, 1 - 256 (default is 16) */
-	CINIT(STREAM_WEIGHT, LONG, 239),
-	/* Set stream dependency on another CURL handle */
-	CINIT(STREAM_DEPENDS, OBJECTPOINT, 240),
-	/* Set E-xclusive stream dependency on another CURL handle */
-	CINIT(STREAM_DEPENDS_E, OBJECTPOINT, 241),
-	/* Do not send any tftp option requests to the server */
-	CINIT(TFTP_NO_OPTIONS, LONG, 242),
-	/* Linked-list of host:port:connect-to-host:connect-to-port,
-	   overrides the URL's host:port (only for the network layer) */
-	CINIT(CONNECT_TO, OBJECTPOINT, 243),
+	CINIT(UNIX_SOCKET_PATH, STRINGPOINT, 231), /* Path to Unix domain socket */
+	CINIT(SSL_VERIFYSTATUS, LONG, 232), /* Set if we should verify the certificate status. */
+	CINIT(SSL_FALSESTART, LONG, 233), /* Set if we should enable TLS false start. */
+	CINIT(PATH_AS_IS, LONG, 234), /* Do not squash dot-dot sequences */
+	CINIT(PROXY_SERVICE_NAME, STRINGPOINT, 235), /* Proxy Service Name */
+	CINIT(SERVICE_NAME, STRINGPOINT, 236), /* Service Name */
+	CINIT(PIPEWAIT, LONG, 237), /* Wait/don't wait for pipe/mutex to clarify */
+	CINIT(DEFAULT_PROTOCOL, STRINGPOINT, 238), /* Set the protocol used when curl is given a URL without a protocol */
+	CINIT(STREAM_WEIGHT, LONG, 239), /* Set stream weight, 1 - 256 (default is 16) */
+	CINIT(STREAM_DEPENDS, OBJECTPOINT, 240), /* Set stream dependency on another CURL handle */
+	CINIT(STREAM_DEPENDS_E, OBJECTPOINT, 241), /* Set E-xclusive stream dependency on another CURL handle */
+	CINIT(TFTP_NO_OPTIONS, LONG, 242), /* Do not send any tftp option requests to the server */
+	CINIT(CONNECT_TO, OBJECTPOINT, 243), // Linked-list of host:port:connect-to-host:connect-to-port, overrides the URL's host:port (only for the network layer) 
 	CINIT(TCP_FASTOPEN, LONG, 244), // Set TCP Fast Open
-	/* Continue to send data if the server responds early with an
-	 * HTTP status code >= 300 */
-	CINIT(KEEP_SENDING_ON_ERROR, LONG, 245),
-	/* The CApath or CAfile used to validate the proxy certificate
-	   this option is used only if PROXY_SSL_VERIFYPEER is true */
-	CINIT(PROXY_CAINFO, STRINGPOINT, 246),
-	/* The CApath directory used to validate the proxy certificate
-	   this option is used only if PROXY_SSL_VERIFYPEER is true */
-	CINIT(PROXY_CAPATH, STRINGPOINT, 247),
+	CINIT(KEEP_SENDING_ON_ERROR, LONG, 245), // Continue to send data if the server responds early with an HTTP status code >= 300 
+	CINIT(PROXY_CAINFO, STRINGPOINT, 246), // The CApath or CAfile used to validate the proxy certificate this option is used only if PROXY_SSL_VERIFYPEER is true 
+	CINIT(PROXY_CAPATH, STRINGPOINT, 247), // The CApath directory used to validate the proxy certificate this option is used only if PROXY_SSL_VERIFYPEER is true 
 	CINIT(PROXY_SSL_VERIFYPEER, LONG, 248), // Set if we should verify the proxy in ssl handshake, set 1 to verify.
 	/* Set if we should verify the Common name from the proxy certificate in ssl
 	 * handshake, set 1 to check existence, 2 to ensure that it matches
@@ -1393,29 +1345,20 @@ typedef enum {
 } CURLoption;
 
 #ifndef CURL_NO_OLDIES /* define this to test if your app builds with all the obsolete stuff removed! */
-
-/* Backwards compatibility with older names */
-/* These are scheduled to disappear by 2011 */
-
-/* This was added in version 7.19.1 */
-#define CURLOPT_POST301 CURLOPT_POSTREDIR
-
-/* These are scheduled to disappear by 2009 */
-
-/* The following were added in 7.17.0 */
-#define CURLOPT_SSLKEYPASSWD CURLOPT_KEYPASSWD
-#define CURLOPT_FTPAPPEND CURLOPT_APPEND
-#define CURLOPT_FTPLISTONLY CURLOPT_DIRLISTONLY
-#define CURLOPT_FTP_SSL CURLOPT_USE_SSL
-
-/* The following were added earlier */
-
-#define CURLOPT_SSLCERTPASSWD CURLOPT_KEYPASSWD
-#define CURLOPT_KRB4LEVEL CURLOPT_KRBLEVEL
-
+	/* Backwards compatibility with older names */
+	/* These are scheduled to disappear by 2011 */
+	#define CURLOPT_POST301 CURLOPT_POSTREDIR /* This was added in version 7.19.1 */
+	/* These are scheduled to disappear by 2009 */
+	/* The following were added in 7.17.0 */
+	#define CURLOPT_SSLKEYPASSWD CURLOPT_KEYPASSWD
+	#define CURLOPT_FTPAPPEND CURLOPT_APPEND
+	#define CURLOPT_FTPLISTONLY CURLOPT_DIRLISTONLY
+	#define CURLOPT_FTP_SSL CURLOPT_USE_SSL
+	/* The following were added earlier */
+	#define CURLOPT_SSLCERTPASSWD CURLOPT_KEYPASSWD
+	#define CURLOPT_KRB4LEVEL CURLOPT_KRBLEVEL
 #else
-/* This is set if CURL_NO_OLDIES is defined at compile-time */
-#undef CURLOPT_DNS_USE_GLOBAL_CACHE /* soon obsolete */
+	#undef CURLOPT_DNS_USE_GLOBAL_CACHE /* soon obsolete */ /* This is set if CURL_NO_OLDIES is defined at compile-time */
 #endif
 
 /* Below here follows defines for the CURLOPT_IPRESOLVE option. If a host

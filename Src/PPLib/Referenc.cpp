@@ -41,7 +41,8 @@ int SLAPI Reference::Helper_DecodeOtherPw(const char * pEncPw, const char * pPw,
 	if(sl != (pwBufSize*3) && (pwBufSize == 64 && sl == (20*3))) { // @v9.8.12 Специальный случай для обратной совместимости
 		pwBufSize = 20;
 	}
-	if(sl == (pwBufSize*3)) {
+	// @v9.9.6 if(sl == (pwBufSize*3)) {
+	if((sl % 3) == 0) { // @v9.9.6 
 		for(size_t i = 0, p = 0; i < pwBufSize; i++) {
 			char   nmb[16];
 			nmb[0] = temp_str[p];

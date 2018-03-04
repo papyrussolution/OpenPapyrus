@@ -34,51 +34,47 @@
 /* #define DEBUG_THREADS */
 
 #ifdef HAVE_PTHREAD_H
-
-static int libxml_is_threaded = -1;
-#ifdef __GNUC__
-#ifdef linux
-#if (__GNUC__ == 3 && __GNUC_MINOR__ >= 3) || (__GNUC__ > 3)
-extern int pthread_once(pthread_once_t * __once_control,
-    void (* __init_routine)())
-__attribute((weak));
-extern void * pthread_getspecific(pthread_key_t __key)
-__attribute((weak));
-extern int pthread_setspecific(pthread_key_t __key,
-    __const void * __pointer)
-__attribute((weak));
-extern int pthread_key_create(pthread_key_t * __key,
-    void (* __destr_function)(void *))
-__attribute((weak));
-extern int pthread_key_delete(pthread_key_t __key)
-__attribute((weak));
-extern int pthread_mutex_init()
-__attribute((weak));
-extern int pthread_mutex_destroy()
-__attribute((weak));
-extern int pthread_mutex_lock()
-__attribute((weak));
-extern int pthread_mutex_unlock()
-__attribute((weak));
-extern int pthread_cond_init()
-__attribute((weak));
-extern int pthread_cond_destroy()
-__attribute((weak));
-extern int pthread_cond_wait()
-__attribute((weak));
-extern int pthread_equal()
-__attribute((weak));
-extern pthread_t pthread_self()
-__attribute((weak));
-extern int pthread_key_create()
-__attribute((weak));
-extern int pthread_key_delete()
-__attribute((weak));
-extern int pthread_cond_signal()
-__attribute((weak));
-#endif
-#endif /* linux */
-#endif /* __GNUC__ */
+	static int libxml_is_threaded = -1;
+	#ifdef __GNUC__
+		#ifdef linux
+			#if (__GNUC__ == 3 && __GNUC_MINOR__ >= 3) || (__GNUC__ > 3)
+				extern int pthread_once(pthread_once_t * __once_control, void (* __init_routine)())
+				__attribute((weak));
+				extern void * pthread_getspecific(pthread_key_t __key)
+				__attribute((weak));
+				extern int pthread_setspecific(pthread_key_t __key, __const void * __pointer)
+				__attribute((weak));
+				extern int pthread_key_create(pthread_key_t * __key, void (* __destr_function)(void *))
+				__attribute((weak));
+				extern int pthread_key_delete(pthread_key_t __key)
+				__attribute((weak));
+				extern int pthread_mutex_init()
+				__attribute((weak));
+				extern int pthread_mutex_destroy()
+				__attribute((weak));
+				extern int pthread_mutex_lock()
+				__attribute((weak));
+				extern int pthread_mutex_unlock()
+				__attribute((weak));
+				extern int pthread_cond_init()
+				__attribute((weak));
+				extern int pthread_cond_destroy()
+				__attribute((weak));
+				extern int pthread_cond_wait()
+				__attribute((weak));
+				extern int pthread_equal()
+				__attribute((weak));
+				extern pthread_t pthread_self()
+				__attribute((weak));
+				extern int pthread_key_create()
+				__attribute((weak));
+				extern int pthread_key_delete()
+				__attribute((weak));
+				extern int pthread_cond_signal()
+				__attribute((weak));
+			#endif
+		#endif /* linux */
+	#endif /* __GNUC__ */
 #endif /* HAVE_PTHREAD_H */
 
 /*
@@ -123,11 +119,11 @@ struct xmlRMutex {
 	int empty;
 #endif
 };
-/*
- * This module still has some internal static data.
- *   - xmlLibraryLock a global lock
- *   - globalkey used for per-thread data
- */
+// 
+// This module still has some internal static data.
+//   - xmlLibraryLock a global lock
+//   - globalkey used for per-thread data
+// 
 #ifdef HAVE_PTHREAD_H
 	static pthread_key_t globalkey;
 	static pthread_t mainthread;
@@ -159,7 +155,6 @@ static xmlRMutex * xmlLibraryLock = NULL;
 #ifdef LIBXML_THREAD_ENABLED
 	static void xmlOnceInit();
 #endif
-
 /**
  * xmlNewMutex:
  *
@@ -187,7 +182,6 @@ xmlMutex * xmlNewMutex()
 #endif
 	return (tok);
 }
-
 /**
  * xmlFreeMutex:
  * @tok:  the simple mutex
@@ -472,7 +466,6 @@ void __xmlGlobalInitMutexUnlock()
 	release_sem(global_init_lock);
 #endif
 }
-
 /**
  * xmlGlobalInitMutexDestroy
  *

@@ -545,7 +545,7 @@ int AsteriskAmiClient::GetChannelList(const char * pChannelName, PhnSvcChannelSt
 		do {
 			THROW(ReadReply(reply.Clear()));
 			THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
-			if(reply.GetTag("Event", temp_buf) && temp_buf.CmpNC("CoreShowChannel") == 0) {
+			if(reply.GetTag("Event", temp_buf) && temp_buf.IsEqiAscii("CoreShowChannel")) {
 				cnl_status.Clear();
 				int    do_insert = 0;
 				if(reply.GetTag("State", temp_buf) || reply.GetTag("ChannelState", temp_buf)) {
@@ -602,7 +602,7 @@ int AsteriskAmiClient::GetChannelStatus(const char * pChannelName, PhnSvcChannel
 	do {
 		THROW(ReadReply(reply.Clear()));
 		THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
-		if(reply.GetTag("Event", temp_buf) && temp_buf.CmpNC("Status") == 0) {
+		if(reply.GetTag("Event", temp_buf) && temp_buf.IsEqiAscii("Status")) {
 			cnl_status.Clear();
 			int    do_insert = 0;
 			if(reply.GetTag("State", temp_buf) || reply.GetTag("ChannelState", temp_buf) || reply.GetTag("ChannelStateDesc", temp_buf)) {
@@ -636,7 +636,7 @@ int AsteriskAmiClient::GetChannelStatus(const char * pChannelName, PhnSvcChannel
 			if(do_insert)
 				rList.Add(cnl_status);
 		}
-	} while(!(reply.GetTag("Event", temp_buf) && temp_buf.CmpNC("StatusComplete") == 0));
+	} while(!(reply.GetTag("Event", temp_buf) && temp_buf.IsEqiAscii("StatusComplete")));
 	CATCHZOK
 	return ok;
 }
@@ -717,13 +717,13 @@ int AsteriskAmiClient::Message::GetTag(const char * pTag, SString & rValue) cons
 {
 	int    ok = 0;
 	rValue.Z();
-	SString temp_buf, tag, value;
+	SString temp_buf, tag;
 	for(uint p = 0; !ok && get(&p, temp_buf);) {
-		temp_buf.Divide(':', tag, value);
-		if(tag.Strip().CmpNC(pTag) == 0) {
-			rValue = value;
+		temp_buf.Divide(':', tag, rValue);
+		if(tag.Strip().CmpNC(pTag) == 0)
 			ok = 1;
-		}
+		else
+			rValue.Z();
 	}
 	return ok;
 }
@@ -738,23 +738,23 @@ int AsteriskAmiClient::Message::GetReplyStatus(ReplyStatus & rS) const
 		temp_buf.Divide(':', tag, value);
 		tag.Strip();
 		value.Strip();
-		if(tag.CmpNC("Response") == 0) {
-			if(value.CmpNC("SUCCESS") == 0) {
+		if(tag.IsEqiAscii("Response")) {
+			if(value.IsEqiAscii("SUCCESS")) {
 				rS.Code = 1;
 			}
-			else if(value.CmpNC("ERROR") == 0) {
+			else if(value.IsEqiAscii("ERROR")) {
 				rS.Code = 0;
 			}
 		}
-		else if(tag.CmpNC("Message") == 0) {
+		else if(tag.IsEqiAscii("Message")) {
 			rS.Message = value;
 		}
-		else if(tag.CmpNC("EventList") == 0) {
-			if(value.CmpNC("START") == 0)
+		else if(tag.IsEqiAscii("EventList")) {
+			if(value.IsEqiAscii("START"))
 				rS.EventListFlag = 0;
-			else if(value.CmpNC("END") == 0 || value.CmpNC("COMPLETE") == 0)
+			else if(value.IsEqiAscii("END") || value.IsEqiAscii("COMPLETE"))
 				rS.EventListFlag = 1;
-			else if(value.CmpNC("CANCELLED") == 0)
+			else if(value.IsEqiAscii("CANCELLED"))
 				rS.EventListFlag = 2;
 		}
 	}

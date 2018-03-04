@@ -1303,14 +1303,11 @@ static char * concat_url(const char * base, const char * relurl)
 }
 
 #endif /* CURL_DISABLE_HTTP */
-
 /*
  * Curl_follow() handles the URL redirect magic. Pass in the 'newurl' string
  * as given by the remote server and set up the new URL to request.
  */
-CURLcode Curl_follow(struct Curl_easy * data,
-    char * newurl, /* this 'newurl' is the Location: string, and it must be SAlloc::M()ed before passed here */
-    followtype type) /* see transfer.h */
+CURLcode Curl_follow(struct Curl_easy * data, char * newurl/* this 'newurl' is the Location: string, and it must be SAlloc::M()ed before passed here */, followtype type/* see transfer.h */)
 {
 #ifdef CURL_DISABLE_HTTP
 	(void)data;

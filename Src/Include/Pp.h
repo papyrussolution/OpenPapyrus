@@ -6851,7 +6851,7 @@ public:
 	int    SLAPI Unadvise(long cookie);
 	int    SLAPI GetAdviseList(int kind, PPID objType, PPAdviseList & rList);
 	//
-	// Descr: Получает револьверный экземпляр PPStringSetSCD для использования в кэшах 
+	// Descr: Получает револьверный экземпляр PPStringSetSCD для использования в кэшах
 	//   (для ускорения работы путем обхода необходимости в динамическом выделении памяти).
 	//
 	StringSet & SLAPI AcquireRvlSsSCD();
@@ -8581,7 +8581,7 @@ public:
 				// этого поставщика. Тип этого тега - строка или GUID. В качестве значения - какой-либо идентификатор,
 				// присвоенный системой поставщика документу.
 			PPID   GoodsTagID;     // @v9.9.5 Тег идентификации товара у контрагента
-			uint8  NativeGIdType;  // @v9.9.5 wareidentXXX Наша идентификации товара 
+			uint8  NativeGIdType;  // @v9.9.5 wareidentXXX Наша идентификации товара
 			uint8  ForeignGIdType; // @v9.9.5 wareidentXXX Идентификации товара для контрагента
 			uint8  FbReserve[2];   // @reserve @v9.2.4 [32]-->[28] // @v9.4.4 [24]-->[16]
 		} Fb;                      // @anchor
@@ -18023,7 +18023,7 @@ public:
 //
 class Balance : public BalanceTbl {
 public:
-	SLAPI  Balance(char * fName = 0);
+	explicit SLAPI Balance(const char * pFileName = 0);
 	int    SLAPI Turn(PPID bal, LDATE, AccTurnParam * param, int use_ta);
 	int    SLAPI RollbackTurn(PPID bal, LDATE, AccTurnParam * param, int use_ta);
 	int    SLAPI Search(PPID * bal, LDATE *, int spMode);
@@ -29225,7 +29225,8 @@ public:
 		fEgaisImpExp    = 0x0020,  // @v8.8.0 Обмен данными с ЕГАИС
 		fTestMode       = 0x0040,  // @v8.9.0
 		fDontRemoveTags = 0x0080,  // @v8.9.9 Для EDI и ЕГАИС - не снимать теги при получении отрицательных тикетов
-		fPaymOrdersExp  = 0x0100   // @v9.2.10 Экспорт платежных поручений
+		fPaymOrdersExp  = 0x0100,  // @v9.2.10 Экспорт платежных поручений
+		fEgaisVer3      = 0x0200   // @v9.9.9 Передача документов в ЕГАИС в 3-й версии (возможность переопределить конфигурацию глобального обмена)
 	};
 	long   Flags;
 	long   DisabledOptions; // @v9.2.10 @transient
@@ -32431,7 +32432,9 @@ struct PPTSessConfig {     // @persistent @store(PropertyTbl)
 			// отмерять с округлением до ближайшего кванта
 		fUpdLinesByAutocompl         = 0x0020, // @v8.8.6 При автозаполнении строк сессии по структуре
 			// изменять количество в строках, которые были введены в ручную
-		fFreeGoodsSelection          = 0x0040  // @v9.3.4 Свободный выбор товаров в строках сессии
+		fFreeGoodsSelection          = 0x0040, // @v9.3.4 Свободный выбор товаров в строках сессии
+		fSetupCcPricesInCPane        = 0x0080  // @v9.9.7 При формировании кассового чека по сессии
+			// цены устанавливаются через механизмы кассовой панели (цена строки в техсессии игнорируется)
 	};
 	PPID   Tag;             // Const=PPOBJ_CONFIG
 	PPID   ID;              // Const=PPCFG_MAIN
@@ -32926,6 +32929,7 @@ public:
 	// Descr: Создает рабочую сессию по процессору pPrcRec и привязанную к документу pBillRec.
 	//
 	int    SLAPI CreateOnlineByLinkBill(PPID * pSessID, const ProcessorTbl::Rec * pPrcRec, const BillTbl::Rec * pBillRec);
+	int    SLAPI GetRgi(PPID goodsID, double qtty, const TSessionTbl::Rec & rTSesRec, long extRgiFlags, RetailGoodsInfo & rRgi); // @v9.9.7
 	//
 	// Descr: Разносит скидку discount по строкам сессии с одновременным изменением результирующей
 	//   суммы в записи сессии.
@@ -43731,10 +43735,12 @@ public:
 	//
 	enum {
 		cfDebugMode         = 0x0001, // Работать в тестовом режиме отправки (не передавать данные в УТМ)
-		cfDirectFileLogging = 0x0002  // Сообщения выводить на прямую в файлы журналов (без посредничества PPLogger)
+		cfDirectFileLogging = 0x0002, // Сообщения выводить на прямую в файлы журналов (без посредничества PPLogger)
+		cfVer3              = 0x0004, // @v9.9.9 Применять 3-ю версию протокола при отправке документов
+		cfUseVerByConfig    = 0x0008, // @v9.9.9 Версию протокола применять в соответствии с конфигурацией
 	};
 
-	SLAPI  PPEgaisProcessor(long cflags, PPLogger * pOuterLogger);
+	SLAPI  PPEgaisProcessor(long cflags, PPLogger * pOuterLogger, int __reserve);
 	SLAPI ~PPEgaisProcessor();
 	int    SLAPI operator !() const;
 	void   SLAPI SetTestSendingMode(int set);
@@ -43904,7 +43910,8 @@ private:
 		stTestSendingMode   = 0x0008, // @v8.9.0 Тестовый режим отправки сообщений. Фактически, сообщения в виде
 			// файлов копируются в каталог TEMP/EGAIX-XXX/OUT-TEST/
 		stDontRemoveTags    = 0x0010, // @v8.9.9 Опция, припятствующая удалению тегов с документов при получении отрицательных тикетов
-		stDirectFileLogging = 0x0020  // @v9.0.11 Сообщения выводить непосредственно в файлы журналов (обходя P_Logger)
+		stDirectFileLogging = 0x0020, // @v9.0.11 Сообщения выводить непосредственно в файлы журналов (обходя P_Logger)
+		stUseEgaisVer3      = 0x0040  // @v9.9.9 Документы отправлять в 3-й версии формата
 	};
 	long   State;
 	const  UtmEntry * P_UtmEntry; // @notowned
@@ -48079,7 +48086,7 @@ public:
 	//   и передаваемая в CPosProcessorCPosProcessor::SetupNewRow()
 	//
 	struct PgsBlock {
-		SLAPI  PgsBlock(double qtty);
+		explicit SLAPI PgsBlock(double qtty);
 
 		double Qtty;
 		double PriceBySerial; // Если PriceBySerial != 0 && Serial.Empty() это означает, что выбрана

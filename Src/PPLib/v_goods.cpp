@@ -2663,7 +2663,7 @@ int SLAPI PPViewGoods::Repair(PPID /*id*/)
 	MEMSZERO(param);
 	if(EditGoodsRecoverParam(&param) > 0) {
 		if(param.Flags & param.fCheckAlcoAttribs) {
-			THROW_MEM(p_eg_prc = new PPEgaisProcessor(0, &logger));
+			THROW_MEM(p_eg_prc = new PPEgaisProcessor(PPEgaisProcessor::cfUseVerByConfig, &logger, 0));
 		}
 		PPWait(1);
 		PPID   prev_id = 0;

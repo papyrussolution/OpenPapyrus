@@ -1119,46 +1119,34 @@ struct tempbuf {
 struct UrlState {
 	/* Points to the connection cache */
 	struct conncache * conn_cache;
-
 	/* when curl_easy_perform() is called, the multi handle is "owned" by
 	   the easy handle so curl_easy_cleanup() on such an easy handle will
 	   also close the multi handle! */
 	bool multi_owned_by_easy;
-
 	/* buffers to store authentication data in, as parsed from input options */
 	struct timeval keeps_speed; /* for the progress meter really */
-
 	struct connectdata * lastconnect; /* The last connection, NULL if undefined */
-
 	char * headerbuff; /* allocated buffer to store headers in */
 	size_t headersize; /* size of the allocation */
-
 	char * buffer; /* download buffer */
 	char uploadbuffer[BUFSIZE+1]; /* upload buffer */
-	curl_off_t current_speed; /* the ProgressShow() function sets this,
-	                             bytes / second */
+	curl_off_t current_speed; // the ProgressShow() function sets this, bytes / second 
 	bool this_is_a_follow; /* this is a followed Location: request */
-
-	char * first_host; /* host name of the first (not followed) request.
-	                      if set, this should be the host name that we will
-	                      sent authorization to, no else. Used to make Location:
-	                      following not keep sending user+password... This is
-	                      _strdup() data.
-	                    */
+	char * first_host; // host name of the first (not followed) request. if set, this should be the host name that we will
+		// sent authorization to, no else. Used to make Location: following not keep sending user+password... This is _strdup() data.
 	int first_remote_port; /* remote port of the first (not followed) request */
 	struct curl_ssl_session * session; /* array of 'max_ssl_sessions' size */
 	long sessionage;            /* number of the most recent session */
 	uint tempcount; /* number of entries in use in tempwrite, 0 - 3 */
 	struct tempbuf tempwrite[3]; /* BOTH, HEADER, BODY */
-	char * scratch; /* huge buffer[BUFSIZE*2] when doing upload CRLF replacing */
-	bool errorbuf; /* Set to TRUE if the error buffer is already filled in.
-	                  This must be set to FALSE every time _easy_perform() is called. */
-	int os_errno; /* filled in with errno whenever an error occurs */
+	char * scratch; // huge buffer[BUFSIZE*2] when doing upload CRLF replacing 
+	bool   errorbuf; // Set to TRUE if the error buffer is already filled in. This must be set to FALSE every time _easy_perform() is called. 
+	int    os_errno; // filled in with errno whenever an error occurs 
 #ifdef HAVE_SIGNAL
 	/* storage for the previous bag^H^H^HSIGPIPE signal handler :-) */
 	void (* prev_signal)(int sig);
 #endif
-	bool allow_port; /* Is set.use_port allowed to take effect or not. This is always set TRUE when curl_easy_perform() is called. */
+	bool   allow_port; /* Is set.use_port allowed to take effect or not. This is always set TRUE when curl_easy_perform() is called. */
 	struct digestdata digest; /* state data for host Digest auth */
 	struct digestdata proxydigest; /* state data for proxy Digest auth */
 #ifdef USE_SPNEGO
@@ -1167,7 +1155,7 @@ struct UrlState {
 #endif
 	struct auth authhost; /* auth details for host */
 	struct auth authproxy; /* auth details for proxy */
-	bool authproblem; /* TRUE if there's some problem authenticating */
+	bool   authproblem; /* TRUE if there's some problem authenticating */
 	void * resolver; /* resolver state, if it is used in the URL state - ares_channel f.e. */
 #if defined(USE_OPENSSL) && defined(HAVE_OPENSSL_ENGINE_H)
 	ENGINE * engine;
@@ -1178,10 +1166,10 @@ struct UrlState {
 	/* a place to store the most recently set FTP entrypath */
 	char * most_recent_ftp_entrypath;
 	/* set after initial USER failure, to prevent an authentication loop */
-	bool ftp_trying_alternative;
-	int httpversion; /* the lowest HTTP version*10 reported by any server involved in this request */
-	bool expect100header; /* TRUE if we added Expect: 100-continue */
-	bool pipe_broke; /* TRUE if the connection we were pipelined on broke and we need to restart from the beginning */
+	bool   ftp_trying_alternative;
+	int    httpversion; /* the lowest HTTP version*10 reported by any server involved in this request */
+	bool   expect100header; /* TRUE if we added Expect: 100-continue */
+	bool   pipe_broke; /* TRUE if the connection we were pipelined on broke and we need to restart from the beginning */
 #if !defined(WIN32) && !defined(MSDOS) && !defined(__EMX__) && !defined(__SYMBIAN32__)
 /* do FTP line-end conversions on most platforms */
 #define CURL_DO_LINEEND_CONV
@@ -1192,9 +1180,9 @@ struct UrlState {
 #endif
 	char * pathbuffer; /* allocated buffer to store the URL's path part in */
 	char * path; /* path to use, points to somewhere within the pathbuffer area */
-	bool slash_removed; /* set TRUE if the 'path' points to a path where the initial URL slash separator has been taken off */
-	bool use_range;
-	bool rangestringalloc; /* the range string is SAlloc::M()'ed */
+	bool   slash_removed; /* set TRUE if the 'path' points to a path where the initial URL slash separator has been taken off */
+	bool   use_range;
+	bool   rangestringalloc; /* the range string is SAlloc::M()'ed */
 	char * range; /* range, if used. See README for detailed specification on this syntax. */
 	curl_off_t resume_from; /* continue [ftp] transfer from here */
 	/* This RTSP state information survives requests and connections */
@@ -1217,7 +1205,6 @@ struct UrlState {
  * if the UserDefined struct is cloned or similar. You can probably just
  * copy these, but each one indicate a special action on other data.
  */
-
 struct DynamicStatic {
 	char * url; /* work URL, copied from UserDefined */
 	bool url_alloc; /* URL string is SAlloc::M()'ed */

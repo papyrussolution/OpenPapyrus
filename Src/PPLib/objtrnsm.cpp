@@ -1,5 +1,5 @@
 // OBJTRNSM.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 // Передача объектов между разделами БД
 //
@@ -1386,7 +1386,10 @@ int SLAPI PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * s
 		if(r < 0)
 			ok = -1;
 	}
-	CATCHZOK
+	CATCH
+		Ctx.P_Logger->LogLastError(); // @v9.9.8
+		ok = 0;
+	ENDCATCH
 	SAlloc::F(p_temp_buf);
 	return ok;
 }
@@ -3048,7 +3051,7 @@ int SLAPI PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID com
 	CALLPTRMEMB(pModDtm, SetZero());
 	ASSIGN_PTR(pObjName, 0);
 	int    r = SyncTbl.SearchCommonObj(objType, commID, &primary_id, 0);
-	if(r > 0)
+	if(r > 0) {
 		if(primary_id) {
 			PPObject * ppobj = _GetObjectPtr(objType);
 			if(pModDtm) {
@@ -3065,6 +3068,7 @@ int SLAPI PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID com
 		}
 		else
 			ok = -2;
+	}
 	else if(r < 0)
 		ok = -1;
 	else
@@ -3106,8 +3110,6 @@ int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 		THROW(fep.Scan(file_path.SetLastSlash(), "*" PPSEXT, 0));
 		do {
 			next_pass = 0;
-			//SDirEntry fb;
-			//for(uint p = 0; fary.Enum(&p, &fb, &file_path);) {
 			for(uint p = 0; p < fep.GetCount(); p++) {
 				if(fep.Get(p, &fe, &file_path) && SFile::WaitForWriteSharingRelease(file_path, 20000)) {
 					PPObjectTransmit::Header hdr;
@@ -3115,24 +3117,26 @@ int SLAPI PPObjectTransmit::ReceivePackets(const ObjReceiveParam * pParam)
 						if(hdr.DestDBID == LConfig.DBDiv && param.CheckDbDivID(hdr.DBID)) {
 							int    is_received = 0;
 							int    do_accept_src_uuid = 0;
-							PPWaitMsg(/*fb.FileName*/fe.Name);
+							PPWaitMsg(fe.Name);
 							if(param.Flags & ObjReceiveParam::fSyncCmp) {
 								if(hdr.PacketType == PPOT_SYNCCMP) {
-									THROW(ot.StartReceivingPacket(/*fb.FileName*/fe.Name, &hdr));
-									THROW(ot.RestoreFromStream(file_path, ot.P_InStream, pParam->P_SyncCmpTbl));
-									THROW_MEM(p_fname = newStr(file_path));
-									THROW_SL(flist.insert(p_fname));
-									do_accept_src_uuid = 1;
+									THROW(ot.StartReceivingPacket(fe.Name, &hdr));
+									if(ot.RestoreFromStream(file_path, ot.P_InStream, pParam->P_SyncCmpTbl)) { // @v9.9.8 THROW-->if() (RestoreFromStream outputs error in log)
+										THROW_MEM(p_fname = newStr(file_path));
+										THROW_SL(flist.insert(p_fname));
+										do_accept_src_uuid = 1;
+									}
 								}
 							}
 							else {
 								if(hdr.PacketType == PPOT_OBJ) {
-									THROW(r = ot.StartReceivingPacket(/*fb.FileName*/fe.Name, &hdr));
+									THROW(r = ot.StartReceivingPacket(fe.Name, &hdr));
 									if(r > 0) {
-										THROW(ot.RestoreFromStream(file_path, ot.P_InStream, 0));
+										if(ot.RestoreFromStream(file_path, ot.P_InStream, 0)) { // @v9.9.8 THROW-->if() (RestoreFromStream outputs error in log)
+											is_received = 1;
+											do_accept_src_uuid = 1;
+										}
 										ZDELETE(ot.P_TmpIdxTbl);
-										is_received = 1;
-										do_accept_src_uuid = 1;
 									}
 								}
 								else if(hdr.PacketType == PPOT_ACK) {

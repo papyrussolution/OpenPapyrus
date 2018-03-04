@@ -3349,19 +3349,19 @@ int SLAPI XmlReader::Next(Packet * pPack)
 										amount = val.ToReal();
 									}
 									else if(attr_name == "typeclass") {
-										if(val.CmpNC("BankCardPaymentEntity") == 0 || val.CmpNC("ExternalBankTerminalPaymentEntity") == 0 || val.CmpNC("ODBankCardPaymentEntity") == 0) {
+										if(val.IsEqiAscii("BankCardPaymentEntity") || val.IsEqiAscii("ExternalBankTerminalPaymentEntity") || val.IsEqiAscii("ODBankCardPaymentEntity")) {
 											amount_type = CCAMTTYP_BANK;
 											//banking = 1;
 										}
-										else if(val.CmpNC("GiftCardPaymentEntity") == 0) {
+										else if(val.IsEqiAscii("GiftCardPaymentEntity")) {
 											amount_type = CCAMTTYP_CRDCARD;
 											//banking = 2;
 										}
-										else if(val.CmpNC("CashChangePaymentEntity") == 0) { // сдача
+										else if(val.IsEqiAscii("CashChangePaymentEntity")) { // сдача
 											amount_type = CCAMTTYP_DELIVERY;
 											//banking = 0;
 										}
-										else if(val.CmpNC("CashPaymentEntity") == 0) { // Сумма, полученная наличными (без учета сдачи)
+										else if(val.IsEqiAscii("CashPaymentEntity")) { // Сумма, полученная наличными (без учета сдачи)
 											amount_type = CCAMTTYP_NOTE;
 										}
 									}
@@ -4158,7 +4158,7 @@ int SLAPI ACS_CRCSHSRV::QueryFile(int filTyp, const char * pQueryBuf, LDATE quer
 		SFile::Remove(PathRpt[filTyp]);
 	{
 		SPathStruc ps(PathQue[filTyp]);
-		if(ps.Nam.CmpNC("all") == 0 && ps.Ext.CmpNC("dbf") == 0) {
+		if(ps.Nam.IsEqiAscii("all") && ps.Ext.IsEqiAscii("dbf")) {
 			THROW(p_qtbl = CreateDbfTable(DBFS_CRCS_SIGNAL_ALL_EXPORT, PathQue[filTyp], 1));
 			{
 				DbfRecord dbfr_signal(p_qtbl);

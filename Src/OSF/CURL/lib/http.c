@@ -2323,9 +2323,9 @@ static bool checkhttpprefix(struct Curl_easy * data, const char * s)
 	struct curl_slist * head = data->set.http200aliases;
 	bool rc = FALSE;
 #ifdef CURL_DOES_CONVERSIONS
-	/* convert from the network encoding using a scratch area */
+	// convert from the network encoding using a scratch area 
 	char * scratch = _strdup(s);
-	if(NULL == scratch) {
+	if(!scratch) {
 		failf(data, "Failed to allocate memory for conversion!");
 		return FALSE; /* can't return CURLE_OUT_OF_MEMORY so return FALSE */
 	}
@@ -2344,10 +2344,8 @@ static bool checkhttpprefix(struct Curl_easy * data, const char * s)
 		}
 		head = head->next;
 	}
-
 	if(!rc && (checkprefix("HTTP/", s)))
 		rc = TRUE;
-
 #ifdef CURL_DOES_CONVERSIONS
 	SAlloc::F(scratch);
 #endif /* CURL_DOES_CONVERSIONS */
@@ -2358,14 +2356,14 @@ static bool checkhttpprefix(struct Curl_easy * data, const char * s)
 static bool checkrtspprefix(struct Curl_easy * data, const char * s)
 {
 #ifdef CURL_DOES_CONVERSIONS
-	/* convert from the network encoding using a scratch area */
+	// convert from the network encoding using a scratch area 
 	char * scratch = _strdup(s);
-	if(NULL == scratch) {
+	if(!scratch) {
 		failf(data, "Failed to allocate memory for conversion!");
 		return FALSE; /* can't return CURLE_OUT_OF_MEMORY so return FALSE */
 	}
 	if(CURLE_OK != Curl_convert_from_network(data, scratch, sstrlen(s)+1)) {
-		/* Curl_convert_from_network calls failf if unsuccessful */
+		// Curl_convert_from_network calls failf if unsuccessful 
 		SAlloc::F(scratch);
 		return FALSE; /* can't return CURLE_foobar so return FALSE */
 	}
@@ -3080,8 +3078,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 					break;
 			}
 		}
-		else if(checkprefix("Content-Encoding:", k->p) &&
-		    data->set.str[STRING_ENCODING]) {
+		else if(checkprefix("Content-Encoding:", k->p) && data->set.str[STRING_ENCODING]) {
 			/*
 			 * Process Content-Encoding. Look for the values: identity,
 			 * gzip, deflate, compress, x-gzip and x-compress. x-gzip and
@@ -3089,20 +3086,16 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data,
 			 * 2616). zlib cannot handle compress.  However, errors are
 			 * handled further down when the response body is processed
 			 */
-			char * start;
-
 			/* Find the first non-space letter */
-			start = k->p + 17;
+			char * start = k->p + 17;
 			while(*start && ISSPACE(*start))
 				start++;
-
 			/* Record the content-encoding for later use */
 			if(checkprefix("identity", start))
 				k->auto_decoding = IDENTITY;
 			else if(checkprefix("deflate", start))
 				k->auto_decoding = DEFLATE;
-			else if(checkprefix("gzip", start)
-			    || checkprefix("x-gzip", start))
+			else if(checkprefix("gzip", start) || checkprefix("x-gzip", start))
 				k->auto_decoding = GZIP;
 		}
 		else if(checkprefix("Content-Range:", k->p)) {

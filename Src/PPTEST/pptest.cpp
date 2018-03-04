@@ -1079,10 +1079,10 @@ int TestFann()
 	_layers.addzlist(input_count, 512, 1024, 512, output_count, 0);
 	Fann * p_ann1 = 0;
 	Fann * p_ann2 = 0;
-	ANNTYP result1[output_count];
-	ANNTYP result2[output_count];
-	ANNTYP pre_result1[output_count];
-	ANNTYP pre_result2[output_count];
+	float result1[output_count];
+	float result2[output_count];
+	float pre_result1[output_count];
+	float pre_result2[output_count];
 	THROW(p_ann1 = fann_create_standard_array(/*SIZEOFARRAY(layers), layers*/_layers));
 	p_ann1->SetTrainingAlgorithm(Fann::FANN_TRAIN_INCREMENTAL);
 	p_ann1->SetLearningRate(0.06f);
@@ -1113,25 +1113,25 @@ int TestFann()
 			memzero(result2, sizeof(result2));
 			memzero(pre_result1, sizeof(pre_result1));
 			memzero(pre_result2, sizeof(pre_result2));
-			ANNTYP init1 = -1.0f;
-			ANNTYP init2 = -2.0f;
+			float init1 = -1.0f;
+			float init2 = -2.0f;
 			for(uint iter = 0; iter < iter_count; iter++) {
 				for(i = 0; i < pos_list.getCount(); i++) {
 					const uint ss_pos = pos_list.get(i);
 					ss.get(ss_pos, input_buf);
 					input_buf.Trim(input_count);
-					ANNTYP input[input_count];
+					float input[input_count];
 					memzero(input, sizeof(input));
 					for(uint j = 0; j < input_buf.Len() && j < input_count; j++) {
-						input[j] = (ANNTYP)(uchar)input_buf.C(j);
+						input[j] = (float)(uchar)input_buf.C(j);
 					}
 					{
-						const ANNTYP * p_temp_result = p_ann1->Run(input);
+						const float * p_temp_result = p_ann1->Run(input);
 						THROW(p_temp_result);
 						memcpy(pre_result1, p_temp_result, sizeof(pre_result1));
 					}
 					{
-						const ANNTYP * p_temp_result = p_ann2->Run(input);
+						const float * p_temp_result = p_ann2->Run(input);
 						THROW(p_temp_result);
 						memcpy(pre_result2, p_temp_result, sizeof(pre_result2));
 					}

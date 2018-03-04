@@ -185,19 +185,11 @@ void SLAPI PPWorkbookPacket::destroy()
 }
 
 int SLAPI PPWorkbookPacket::GetExtStrData(int fldID, SString & rBuf) const
-{
-	return PPGetExtStrData(fldID, ExtString, rBuf);
-}
-
+	{ return PPGetExtStrData(fldID, ExtString, rBuf); }
 int SLAPI PPWorkbookPacket::PutExtStrData(int fldID, const char * pBuf)
-{
-	return PPPutExtStrData(fldID, ExtString, pBuf);
-}
-
+	{ return PPPutExtStrData(fldID, ExtString, pBuf); }
 int SLAPI PPWorkbookPacket::SetLongSymb(const char * pSymb)
-{
-	return TagL.PutItemStrNE(PPTAG_WORKBOOK_LONGCODE, pSymb);
-}
+	{ return TagL.PutItemStrNE(PPTAG_WORKBOOK_LONGCODE, pSymb); }
 //
 //
 //
@@ -355,7 +347,6 @@ int SLAPI PPObjWorkbook::SearchBySymb(const char * pSymb, PPID * pID, WorkbookTb
 
 int SLAPI PPObjWorkbook::SearchByLongSymb(const char * pLongSymb, PPID * pID, WorkbookTbl::Rec * pRec)
 {
-    //ObjTagCore
     int    ok = -1;
     PPID   id = 0;
     PPIDArray id_list;
@@ -2029,10 +2020,8 @@ int SLAPI PPObjWorkbook::GetItemPath(PPID itemID, SString & rPath)
 	return ok;
 }
 
-SLAPI PPObjWorkbook::ImpExpParam::ImpExpParam()
+SLAPI PPObjWorkbook::ImpExpParam::ImpExpParam() : RootID(0), Flags(0)
 {
-	RootID = 0;
-	Flags = 0;
 }
 
 int SLAPI PPObjWorkbook::EditImportParam(PPObjWorkbook::ImpExpParam * pParam)

@@ -1,14 +1,12 @@
 // TSESSDLG.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 //
 #include <pp.h>
 #pragma hdrstop
 //
 //
 //
-static const int _TSesStatusTab[] = {
-	TSESST_PLANNED, TSESST_PENDING, TSESST_INPROCESS, TSESST_CLOSED, TSESST_CANCELED
-};
+static const int _TSesStatusTab[] = { TSESST_PLANNED, TSESST_PENDING, TSESST_INPROCESS, TSESST_CLOSED, TSESST_CANCELED };
 
 PrcTechCtrlGroup::PrcTechCtrlGroup(uint ctlSelPrc, uint ctlSelTech, uint ctlStGoods,
 	uint ctlSelAr, uint ctlSelAr2, uint cmdSelTechByGoods, uint cmdCreateGoods) : CtrlGroup()
@@ -38,15 +36,8 @@ void PrcTechCtrlGroup::setIdleStatus(TDialog * pDlg, int s)
 	}
 }
 
-void PrcTechCtrlGroup::enableSelUpLevel(int enbl)
-{
-	SETFLAG(Flags, fEnableSelUpLevel, enbl);
-}
-
-void PrcTechCtrlGroup::enablePrcInsert(int enbl)
-{
-	SETFLAG(Flags, fEnablePrcInsert, enbl);
-}
+void PrcTechCtrlGroup::enableSelUpLevel(int enbl) { SETFLAG(Flags, fEnableSelUpLevel, enbl); }
+void PrcTechCtrlGroup::enablePrcInsert(int enbl) { SETFLAG(Flags, fEnablePrcInsert, enbl); }
 
 void PrcTechCtrlGroup::setupArticle(TDialog * pDlg, const ProcessorTbl::Rec * pPrcRec)
 {

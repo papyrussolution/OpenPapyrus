@@ -126,8 +126,7 @@ struct SpiiCmdBuf { // @persistent
 	}
 	SString & ToStr(SString & rBuf) const
 	{
-		rBuf = 0;
-		return rBuf.Cat((long)Cmd).CatDiv(';', 0).Cat(RetCode).CatDiv(';', 0).
+		return rBuf.Z().Cat((long)Cmd).CatDiv(';', 0).Cat(RetCode).CatDiv(';', 0).
 			Cat(Hdl[0]).CatChar('-').Cat(Hdl[1]).CatDiv(';', 0).Cat(BufSize);
 	}
 #endif

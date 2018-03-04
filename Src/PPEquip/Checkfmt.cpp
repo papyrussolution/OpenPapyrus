@@ -2168,13 +2168,13 @@ int PPSlipFormat::Parse(const char * pFileName, const char * pFormatName)
 						// ¬ цикле забираем все подр€д идущие зоны (ParseZone вернет нам
 						// идентификатор следующей лексемы)
 						//
-						if(tok_result.CmpNC("header") == 0)
+						if(tok_result.IsEqiAscii("header"))
 							zone_kind = PPSlipFormatZone::kHeader;
-						else if(tok_result.CmpNC("footer") == 0)
+						else if(tok_result.IsEqiAscii("footer"))
 							zone_kind = PPSlipFormatZone::kFooter;
-						else if(tok_result.CmpNC("detail") == 0)
+						else if(tok_result.IsEqiAscii("detail"))
 							zone_kind = PPSlipFormatZone::kDetail;
-						else if(tok_result.CmpNC("paymdetail") == 0)
+						else if(tok_result.IsEqiAscii("paymdetail"))
 							zone_kind = PPSlipFormatZone::kPaymDetail; // @v8.4.1
 						else {
 							CALLEXCEPT_PP_S(PPERR_SLIPFMT_INVZONE, tok_result);

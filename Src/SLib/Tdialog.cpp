@@ -350,7 +350,7 @@ int SLAPI TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long fl
 						help_ctx = rez->getUINT();
 						rez->getString(columns_buf, 0);
 						{
-							const int is_tree_list = (columns_buf.CmpNC("TREELISTVIEW") == 0);
+							const int is_tree_list = columns_buf.IsEqiAscii("TREELISTVIEW");
 							SmartListBox * p_lb = new SmartListBox(r, 0, is_tree_list);
 							if(p_lb) {
 								if(!is_tree_list)

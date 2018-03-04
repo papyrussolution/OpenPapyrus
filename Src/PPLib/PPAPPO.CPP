@@ -841,7 +841,7 @@ int PPApp::processCommand(uint cmd)
 			break;
 		case cmQueryEGAIS:
 			{
-				PPEgaisProcessor ep(0, 0);
+				PPEgaisProcessor ep(PPEgaisProcessor::cfUseVerByConfig, 0, 0);
 				ep.InteractiveQuery();
 			}
 			break;

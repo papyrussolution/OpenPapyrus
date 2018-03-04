@@ -1186,28 +1186,25 @@ process_iac:
 	bufferflush();
 	return CURLE_OK;
 }
-
-/* Escape and send a telnet data block */
-/* @todo write large chunks of data instead of one byte at a time */
-static CURLcode send_telnet_data(struct connectdata * conn,
-    char * buffer, ssize_t nread)
+//
+// Escape and send a telnet data block 
+// @todo write large chunks of data instead of one byte at a time 
+//
+static CURLcode send_telnet_data(struct connectdata * conn, char * buffer, ssize_t nread)
 {
 	uchar outbuf[2];
 	ssize_t bytes_written, total_written;
 	int out_count;
 	CURLcode result = CURLE_OK;
-
 	while(!result && nread--) {
 		outbuf[0] = *buffer++;
 		out_count = 1;
 		if(outbuf[0] == CURL_IAC)
 			outbuf[out_count++] = CURL_IAC;
-
 		total_written = 0;
 		do {
 			/* Make sure socket is writable to avoid EWOULDBLOCK condition */
 			struct pollfd pfd[1];
-
 			pfd[0].fd = conn->sock[FIRSTSOCKET];
 			pfd[0].events = POLLOUT;
 			switch(Curl_poll(pfd, 1, -1)) {
@@ -1229,8 +1226,7 @@ static CURLcode send_telnet_data(struct connectdata * conn,
 	return result;
 }
 
-static CURLcode telnet_done(struct connectdata * conn,
-    CURLcode status, bool premature)
+static CURLcode telnet_done(struct connectdata * conn, CURLcode status, bool premature)
 {
 	struct TELNET * tn = (struct TELNET*)conn->data->req.protop;
 	(void)status; /* unused */

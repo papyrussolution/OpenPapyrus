@@ -2079,15 +2079,12 @@ static CURLcode ftp_state_user_resp(struct connectdata * conn, int ftpcode, ftps
 	(void)instate; /* no use for this yet */
 	/* some need password anyway, and others just return 2xx ignored */
 	if((ftpcode == 331) && (ftpc->state == FTP_USER)) {
-		/* 331 Password required for ...
-		   (the server requires to send the user's password too) */
+		// 331 Password required for ... (the server requires to send the user's password too) 
 		PPSENDF(&ftpc->pp, "PASS %s", ftp->passwd ? ftp->passwd : "");
 		state(conn, FTP_PASS);
 	}
 	else if(ftpcode/100 == 2) {
-		/* 230 User ... logged in.
-		   (the user logged in with or without password) */
-		result = ftp_state_loggedin(conn);
+		result = ftp_state_loggedin(conn); // 230 User ... logged in. (the user logged in with or without password) 
 	}
 	else if(ftpcode == 332) {
 		if(data->set.str[STRING_FTP_ACCOUNT]) {
@@ -2123,8 +2120,7 @@ static CURLcode ftp_state_user_resp(struct connectdata * conn, int ftpcode, ftps
 }
 
 /* for ACCT response */
-static CURLcode ftp_state_acct_resp(struct connectdata * conn,
-    int ftpcode)
+static CURLcode ftp_state_acct_resp(struct connectdata * conn, int ftpcode)
 {
 	CURLcode result = CURLE_OK;
 	struct Curl_easy * data = conn->data;
@@ -2134,7 +2130,6 @@ static CURLcode ftp_state_acct_resp(struct connectdata * conn,
 	}
 	else
 		result = ftp_state_loggedin(conn);
-
 	return result;
 }
 
@@ -2148,51 +2143,36 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 	struct pingpong * pp = &ftpc->pp;
 	static const char ftpauth[][4]  = { "SSL", "TLS" };
 	size_t nread = 0;
-
 	if(pp->sendleft)
 		return Curl_pp_flushsend(pp);
-
 	result = ftp_readresp(sock, pp, &ftpcode, &nread);
 	if(result)
 		return result;
-
 	if(ftpcode) {
 		/* we have now received a full FTP server response */
 		switch(ftpc->state) {
 			case FTP_WAIT220:
-			    if(ftpcode == 230)
-				    /* 230 User logged in - already! */
+			    if(ftpcode == 230) // 230 User logged in - already! 
 				    return ftp_state_user_resp(conn, ftpcode, ftpc->state);
 			    else if(ftpcode != 220) {
 				    failf(data, "Got a %03d ftp-server response when 220 was expected", ftpcode);
 				    return CURLE_WEIRD_SERVER_REPLY;
 			    }
-
 			    /* We have received a 220 response fine, now we proceed. */
 #ifdef HAVE_GSSAPI
 			    if(data->set.krb) {
-				    /* If not anonymous login, try a secure login. Note that this
-				       procedure is still BLOCKING. */
-
+				    // If not anonymous login, try a secure login. Note that this procedure is still BLOCKING. 
 				    Curl_sec_request_prot(conn, "private");
-				    /* We set private first as default, in case the line below fails to
-				       set a valid level */
+				    // We set private first as default, in case the line below fails to set a valid level 
 				    Curl_sec_request_prot(conn, data->set.str[STRING_KRB_LEVEL]);
-
 				    if(Curl_sec_login(conn))
 					    infof(data, "Logging in with password in cleartext!\n");
 				    else
 					    infof(data, "Authentication successful\n");
 			    }
 #endif
-
-			    if(data->set.use_ssl &&
-			    (!conn->ssl[FIRSTSOCKET].use ||
-				    (conn->bits.proxy_ssl_connected[FIRSTSOCKET] &&
-					    !conn->proxy_ssl[FIRSTSOCKET].use))) {
-				    /* We don't have a SSL/TLS connection yet, but FTPS is
-				       requested. Try a FTPS connection now */
-
+			    if(data->set.use_ssl && (!conn->ssl[FIRSTSOCKET].use || (conn->bits.proxy_ssl_connected[FIRSTSOCKET] && !conn->proxy_ssl[FIRSTSOCKET].use))) {
+				    // We don't have a SSL/TLS connection yet, but FTPS is requested. Try a FTPS connection now 
 				    ftpc->count3 = 0;
 				    switch(data->set.ftpsslauth) {
 					    case CURLFTPAUTH_DEFAULT:
@@ -2216,9 +2196,7 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 				    if(result)
 					    return result;
 			    }
-
 			    break;
-
 			case FTP_AUTH:
 			    /* we have gotten the response to a previous AUTH command */
 
@@ -2228,7 +2206,6 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 			     * and does not require any security data, it must respond with
 			     * reply code 234/334.
 			     */
-
 			    if((ftpcode == 234) || (ftpcode == 334)) {
 				    /* Curl_ssl_connect is BLOCKING */
 				    result = Curl_ssl_connect(conn, FIRSTSOCKET);
@@ -2245,22 +2222,17 @@ static CURLcode ftp_statemach_act(struct connectdata * conn)
 			    }
 			    else {
 				    if(data->set.use_ssl > CURLUSESSL_TRY)
-					    /* we failed and CURLUSESSL_CONTROL or CURLUSESSL_ALL is set */
-					    result = CURLE_USE_SSL_FAILED;
+					    result = CURLE_USE_SSL_FAILED; // we failed and CURLUSESSL_CONTROL or CURLUSESSL_ALL is set 
 				    else
-					    /* ignore the failure and continue */
-					    result = ftp_state_user(conn);
+					    result = ftp_state_user(conn); // ignore the failure and continue 
 			    }
-
 			    if(result)
 				    return result;
 			    break;
-
 			case FTP_USER:
 			case FTP_PASS:
 			    result = ftp_state_user_resp(conn, ftpcode, ftpc->state);
 			    break;
-
 			case FTP_ACCT:
 			    result = ftp_state_acct_resp(conn, ftpcode);
 			    break;
@@ -3228,17 +3200,16 @@ static CURLcode wc_statemach(struct connectdata * conn)
 		    ftp_tmp->backup.write_function = ZERO_NULL;
 		    ftp_tmp->backup.file_descriptor = NULL;
 		    wildcard->state = CURLWC_DOWNLOADING;
-		    if(Curl_ftp_parselist_geterror(ftp_tmp->parser)) {
-			    /* error found in LIST parsing */
+		    if(Curl_ftp_parselist_geterror(ftp_tmp->parser)) { // error found in LIST parsing 
 			    wildcard->state = CURLWC_CLEAN;
 			    return wc_statemach(conn);
 		    }
-		    if(wildcard->filelist.size == 0) {
-			    /* no corresponding file */
+		    else if(wildcard->filelist.size == 0) { // no corresponding file 
 			    wildcard->state = CURLWC_CLEAN;
 			    return CURLE_REMOTE_FILE_NOT_FOUND;
 		    }
-		    return wc_statemach(conn);
+			else 
+				return wc_statemach(conn);
 	    }
 		case CURLWC_DOWNLOADING: {
 		    /* filelist has at least one file, lets get first one */

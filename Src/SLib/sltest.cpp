@@ -575,7 +575,7 @@ int STestSuite::LoadTestList(const char * pIniFileName)
 	((TSCollection <Entry> *)P_List)->freeAll();
 	LogFileName.Z();
 	for(i = 0; sect_list.get(&i, sect_buf);) {
-		if(sect_buf.CmpNC("common") == 0) {
+		if(sect_buf.IsEqiAscii("common")) {
 			if(ini_file.GetParam(sect_buf, "logfile", param_buf) > 0)
 				LogFileName = param_buf;
 			if(ini_file.GetParam(sect_buf, "input", param_buf) > 0)

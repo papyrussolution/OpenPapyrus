@@ -5076,11 +5076,19 @@ public:
 		spcmNo = 0,     // Обычный режим
 		spcmSartrTest   // Режим тестирования базы данных SARTR
 	};
+	struct StatusBlock {
+		uint   TextSize;  // Длина текста в байтах
+		uint   LineCount; // Количество строк в тексте
+		uint   LineNo;    // Номер текущей строки
+		uint   ColumnNo;  // Номер текущей колонки
+		SCodepageIdent Cp; // Идентификатор кодовой страницы
+	};
 
 	STextBrowser();
 	STextBrowser(const char * pFileName, int toolbarId = -1);
 	~STextBrowser();
 	int    Init(const char * pFileName, int toolbarId = -1);
+	int    GetStatus(StatusBlock * pSb);
 	int    SetSpecialMode(int spcm);
 	int    WMHCreate();
 	HWND   GetSciWnd() const { return HwndSci; }

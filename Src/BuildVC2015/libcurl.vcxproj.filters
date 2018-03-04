@@ -150,9 +150,6 @@
     <ClInclude Include="..\osf\curl\lib\connect.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\content_encoding.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\curl\lib\cookie.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -255,9 +252,6 @@
     <ClInclude Include="..\osf\curl\lib\easyif.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\fileinfo.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\curl\lib\formdata.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -265,9 +259,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\curl\lib\ftplistparser.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\getinfo.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\curl\lib\gopher.h">
@@ -339,9 +330,6 @@
     <ClInclude Include="..\osf\curl\lib\netrc.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\non-ascii.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\curl\lib\vtls\nssg.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -375,9 +363,6 @@
     <ClInclude Include="..\osf\curl\lib\vtls\schannel.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\sendf.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\curl\lib\setup-vms.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -406,12 +391,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\curl\lib\strequal.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\strerror.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\curl\lib\strtok.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\curl\lib\telnet.h">

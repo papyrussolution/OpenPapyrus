@@ -43,30 +43,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef FANN_INCLUDE
 	#include <slib.h>
 	// just to allow for inclusion of fann.h in normal stuations where only floats are needed
-	/* DOUBLEFANN.H
-		typedef double ANNTYP;
-		#undef DOUBLEFANN
-		#define DOUBLEFANN
-		#define FANNPRINTF "%.20e"
-		#define FANNSCANF "%le"
-		#define FANN_INCLUDE
-		#include "fann.h"
-	*/
-	#ifdef FIXEDFANN
-		//#include "fixedfann.h"
-		typedef int ANNTYP;
-		#undef FIXEDFANN
-		#define FIXEDFANN
-		#define FANNPRINTF "%d"
-		#define FANNSCANF "%d"
-	#else
 		//#include "floatfann.h"
-		typedef float ANNTYP;
+		typedef float ANNTYP_Removed;
 		#undef FLOATFANN
 		#define FLOATFANN
 		#define FANNPRINTF "%.20e"
 		#define FANNSCANF "%f"
-	#endif
 	#define FANN_INCLUDE
 	#include "fann.h"
 #else
@@ -277,7 +259,7 @@ FANN_EXTERNAL void FANN_API fann_print_error(FannError *errdat);
 #define fann_linear_func(v1, r1, v2, r2, sum) (((((r2)-(r1)) * ((sum)-(v1)))/((v2)-(v1))) + (r1))
 #define fann_stepwise(v1, v2, v3, v4, v5, v6, r1, r2, r3, r4, r5, r6, min, max, sum) (sum < v5 ? (sum < v3 ? (sum < v2 ? (sum < v1 ? min : fann_linear_func(v1, r1, v2, r2, sum)) : fann_linear_func(v2, r2, v3, r3, sum)) : (sum < v4 ? fann_linear_func(v3, r3, v4, r4, sum) : fann_linear_func(v4, r4, v5, r5, sum))) : (sum < v6 ? fann_linear_func(v5, r5, v6, r6, sum) : max))
 // FANN_LINEAR
-// #define fann_linear(steepness, sum) fann_mult(steepness, sum)
+// #define fann_linear(steepness, sum) ((steepness) * (sum))
 #define fann_linear_derive(steepness, value) (steepness)
 // FANN_SIGMOID
 // #define fann_sigmoid(steepness, sum) (1.0f/(1.0f + exp(-2.0f * steepness * sum)))
@@ -296,13 +278,13 @@ FANN_EXTERNAL void FANN_API fann_print_error(FannError *errdat);
 #define fann_gaussian_symmetric_real(sum) ((exp(-sum * sum)*2.0f)-1.0f)
 #define fann_gaussian_symmetric_derive(steepness, value, sum) (-2.0f * sum * (value+1.0f) * steepness * steepness)
 // FANN_ELLIOT
-// #define fann_elliot(steepness, sum) (((sum * steepness) / 2.0f) / (1.0f + fann_abs(sum * steepness)) + 0.5f)
-#define fann_elliot_real(sum) (((sum) / 2.0f) / (1.0f + fann_abs(sum)) + 0.5f)
-#define fann_elliot_derive(steepness, value, sum) (steepness * 1.0f / (2.0f * (1.0f + fann_abs(sum)) * (1.0f + fann_abs(sum))))
+// #define fann_elliot(steepness, sum) (((sum * steepness) / 2.0f) / (1.0f + fabsf(sum * steepness)) + 0.5f)
+#define fann_elliot_real(sum) (((sum) / 2.0f) / (1.0f + fabsf(sum)) + 0.5f)
+#define fann_elliot_derive(steepness, value, sum) (steepness * 1.0f / (2.0f * (1.0f + fabsf(sum)) * (1.0f + fabsf(sum))))
 // FANN_ELLIOT_SYMMETRIC
-// #define fann_elliot_symmetric(steepness, sum) ((sum * steepness) / (1.0f + fann_abs(sum * steepness)))
-#define fann_elliot_symmetric_real(sum) ((sum) / (1.0f + fann_abs(sum)))
-#define fann_elliot_symmetric_derive(steepness, value, sum) (steepness * 1.0f / ((1.0f + fann_abs(sum)) * (1.0f + fann_abs(sum))))
+// #define fann_elliot_symmetric(steepness, sum) ((sum * steepness) / (1.0f + fabsf(sum * steepness)))
+#define fann_elliot_symmetric_real(sum) ((sum) / (1.0f + fabsf(sum)))
+#define fann_elliot_symmetric_derive(steepness, value, sum) (steepness * 1.0f / ((1.0f + fabsf(sum)) * (1.0f + fabsf(sum))))
 // FANN_SIN_SYMMETRIC
 #define fann_sin_symmetric_real(sum) (sin(sum))
 #define fann_sin_symmetric_derive(steepness, sum) (steepness*cos(steepness*sum))
@@ -325,10 +307,10 @@ FANN_EXTERNAL void FANN_API fann_print_error(FannError *errdat);
    which represents training data.
  */
 
-/* Type: ANNTYP
-   ANNTYP is the type used for the weights, inputs and outputs of the neural network.
+/* Type: float
+   float is the type used for the weights, inputs and outputs of the neural network.
 
-        ANNTYP is defined as a:
+        float is defined as a:
         float - if you include fann.h or floatfann.h
         double - if you include doublefann.h
         int - if you include fixedfann.h (please be aware that fixed point usage is
@@ -377,7 +359,7 @@ void   fann_error(FannError * errdat, const int errno_f, ...);
 struct FannConnection {
 	uint   FromNeuron; // Unique number used to identify source neuron
 	uint   ToNeuron;   // Unique number used to identify destination neuron
-	ANNTYP Weight;  // The numerical value of the weight
+	float  Weight;     // The numerical value of the weight
 };
 //
 // Descr: The fast artificial neural network (fann) structure.
@@ -516,37 +498,28 @@ public:
 	};
 
 	struct Neuron {
-		uint   GetConCount() const
-		{
-			return (LastCon - FirstCon);
-		}
+		uint   GetConCount() const { return (LastCon - FirstCon); }
 		int    FASTCALL IsEqual(const Neuron & rS) const;
-		ANNTYP ActivationDerived(ANNTYP value, ANNTYP sum) const;
+		float  ActivationDerived(float value, float sum) const;
 		//
 		// Index to the first and last connection (actually the last is a past end index)
 		//
 		uint   FirstCon;
 		uint   LastCon;
-		ANNTYP Sum; // The sum of the inputs multiplied with the weights
-		ANNTYP Value; // The value of the activation function applied to the sum
-		ANNTYP ActivationSteepness; // The steepness of the activation function
+		float  Sum; // The sum of the inputs multiplied with the weights
+		float  Value; // The value of the activation function applied to the sum
+		float  ActivationSteepness; // The steepness of the activation function
 		/*ActivationFunc*/int32 ActivationFunction; // Used to choose which activation function to use
 	};
 	//
 	// Descr: A single layer in the neural network.
 	//
 	struct Layer {
-		Layer()
+		Layer() : _Dim(0), P_FirstNeuron(0), P_LastNeuron(0)
 		{
-			_Dim = 0;
-			P_FirstNeuron = 0;
-			P_LastNeuron = 0;
 		}
-		Layer(uint _dimention)
+		Layer(uint _dimention) : _Dim(_dimention), P_FirstNeuron(0), P_LastNeuron(0)
 		{
-			_Dim = _dimention;
-			P_FirstNeuron = 0;
-			P_LastNeuron = 0;
 		}
 		uint   GetCount() const
 		{
@@ -580,11 +553,11 @@ public:
             }
 		}
 
-		static void GetMinMax(const TSCollection <DataVector> & rData, ANNTYP * pMin, ANNTYP * pMax);
-		static void ScaleToRange(TSCollection <DataVector> & rData, ANNTYP oldMin, ANNTYP oldMax, ANNTYP newMin, ANNTYP newMax);
-		static void Scale(TSCollection <DataVector> & rData, ANNTYP newMin, ANNTYP newMax)
+		static void GetMinMax(const TSCollection <DataVector> & rData, float * pMin, float * pMax);
+		static void ScaleToRange(TSCollection <DataVector> & rData, float oldMin, float oldMax, float newMin, float newMax);
+		static void Scale(TSCollection <DataVector> & rData, float newMin, float newMax)
 		{
-			ANNTYP old_min, old_max;
+			float old_min, old_max;
 			//fann_get_min_max_data(data, num_data, num_elem, &old_min, &old_max);
 			GetMinMax(rData, &old_min, &old_max);
 			//fann_scale_data_to_range(data, num_data, num_elem, old_min, old_max, new_min, new_max);
@@ -592,9 +565,9 @@ public:
 		}
 	};
 
-	//static void GetMinMaxData(const TSCollection <DataVector> & rData, ANNTYP * pMin, ANNTYP * pMax);
-	//static void ScaleDataToRange(TSCollection <DataVector> & rData, ANNTYP old_min, ANNTYP old_max, ANNTYP new_min, ANNTYP new_max);
-	//static void ScaleData(TSCollection <DataVector> & rData, ANNTYP newMin, ANNTYP newMax);
+	//static void GetMinMaxData(const TSCollection <DataVector> & rData, float * pMin, float * pMax);
+	//static void ScaleDataToRange(TSCollection <DataVector> & rData, float old_min, float old_max, float new_min, float new_max);
+	//static void ScaleData(TSCollection <DataVector> & rData, float newMin, float newMax);
 	//
 	// Structure used to store data, for use with training.
 	//   The data inside this structure should never be manipulated directly, but should use some
@@ -619,14 +592,14 @@ public:
 		uint   GetInputCount() const;
 		uint   GetOutputCount() const;
 
-		ANNTYP GetMinInput() const;
-		ANNTYP GetMaxInput() const;
-		ANNTYP GetMinOutput() const;
-		ANNTYP GetMaxOutput() const;
+		float GetMinInput() const;
+		float GetMaxInput() const;
+		float GetMinOutput() const;
+		float GetMaxOutput() const;
 
-		void   ScaleInput(ANNTYP newMin, ANNTYP newMax);
-		void   ScaleOutput(ANNTYP newMin, ANNTYP newMax);
-		void   Scale(ANNTYP newMin, ANNTYP newMax);
+		void   ScaleInput(float newMin, float newMax);
+		void   ScaleOutput(float newMin, float newMax);
+		void   Scale(float newMin, float newMax);
 		//
 		// Descr: Shuffles training data, randomizing the order.
 		//   This is recommended for incremental training, while it has no influence during batch training.
@@ -723,23 +696,11 @@ public:
 	static const char * GetAttrText(uint attr, uint value);
 
 	struct DetectOptimalParam {
-		DetectOptimalParam()
+		DetectOptimalParam() : P_TrainData(0), P_TestData(0), Flags(0), ResultFlags(0), NetworkType(Fann::FANN_NETTYPE_LAYER), 
+			TrainAlg(Fann::FANN_TRAIN_RPROP/*Fann::FANN_TRAIN_INCREMENTAL*/), ConnectionRate(1.0f), ConnectionRateStep(0.0f), 
+			HiddenCountStep(0), HiddActF(Fann::FANN_SIGMOID_STEPWISE), OutpActF(Fann::FANN_SIGMOID_STEPWISE),
+			BestHiddActF(-1), BestOutpActF(-1), BestTrainAlg(-1)
 		{
-			P_TrainData = 0;
-			P_TestData = 0;
-			Flags = 0;
-			ResultFlags = 0;
-			NetworkType = Fann::FANN_NETTYPE_LAYER;
-			TrainAlg = Fann::FANN_TRAIN_RPROP; // Fann::FANN_TRAIN_INCREMENTAL;
-			ConnectionRate = 1.0f;
-			ConnectionRateStep = 0.0f;
-			HiddenCountStep = 0;
-			HiddActF = Fann::FANN_SIGMOID_STEPWISE;
-			OutpActF = Fann::FANN_SIGMOID_STEPWISE;
-			
-			BestHiddActF = -1;
-			BestOutpActF = -1;
-			BestTrainAlg = -1;
 		}
 		enum {
 			fDetectNetworkType    = 0x0001,
@@ -802,13 +763,8 @@ public:
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 	struct ExamineTrainParam {
-		ExamineTrainParam()
+		ExamineTrainParam() : TrAlg(Fann::FANN_TRAIN_RPROP/*FANN_TRAIN_INCREMENTAL*/), HiddActF(FANN_SIGMOID_STEPWISE), OutpActF(FANN_SIGMOID_STEPWISE), MaxEpoch(2000), Flags(0)
 		{
-			TrAlg = Fann::FANN_TRAIN_RPROP; // FANN_TRAIN_INCREMENTAL;
-			HiddActF = FANN_SIGMOID_STEPWISE;
-			OutpActF = FANN_SIGMOID_STEPWISE;
-			MaxEpoch = 2000;
-			Flags = 0;
 		}
 		Fann::TrainAlg TrAlg;
 		Fann::ActivationFunc HiddActF;
@@ -817,7 +773,7 @@ public:
 		long   Flags;
 	};
 
-	ANNTYP ExamineTrain(const ExamineTrainParam & rParam, const Fann::TrainData * pTrainData, const Fann::TrainData * pTestData);
+	float ExamineTrain(const ExamineTrainParam & rParam, const Fann::TrainData * pTrainData, const Fann::TrainData * pTestData);
 
 	void   SetActivationFunctionHidden(Fann::ActivationFunc activationFunction);
 	//
@@ -825,12 +781,12 @@ public:
 	//
 	void   SetActivationFunctionOutput(Fann::ActivationFunc activationFunction);
 	void   SetActivationFunctionLayer(Fann::ActivationFunc activationFunction, uint layer);
-	void   SetActivationSteepnessOutput(ANNTYP steepness);
-	void   SetActivationSteepnessHidden(ANNTYP steepness);
-	void   SetActivationSteepness(ANNTYP steepness, uint layer, int neuron);
-	void   SetActivationSteepnessLayer(ANNTYP steepness, uint layer);
+	void   SetActivationSteepnessOutput(float steepness);
+	void   SetActivationSteepnessHidden(float steepness);
+	void   SetActivationSteepness(float steepness, uint layer, int neuron);
+	void   SetActivationSteepnessLayer(float steepness, uint layer);
 
-	ANNTYP GetActivationSteepness(uint layer, int neuron) const;
+	float GetActivationSteepness(uint layer, int neuron) const;
 	//
 	// Descr: Копирует в буфер pWeights веса всех синапсов сети.
 	// ARG(pWeights OUT): Буфер, в который копируются веса. Размер буфера должен быть не менее 
@@ -841,14 +797,14 @@ public:
 	//   Количество байт, скопированных в буфер pWeitghts. Если pWeights == 0, то
 	//   функция возвращает минимально необходимый размер буфера pWeights.
 	//
-	size_t GetWeights(ANNTYP * pWeights, size_t bufferSize) const;
-	int    SetWeights(const ANNTYP * pWeights);
+	size_t GetWeights(float * pWeights, size_t bufferSize) const;
+	int    SetWeights(const float * pWeights);
 	//
 	// Descr: Set a connection in the network.
 	//   Only the weights can be changed. The connection/weight is
 	//   ignored if it does not already exist in the network.
 	//
-	void   SetWeight(uint fromNeuron, uint toNeuron, ANNTYP weight);
+	void   SetWeight(uint fromNeuron, uint toNeuron, float weight);
 	//
 	// Descr: Set connections in the network.
 	//   Only the weights can be changed, connections and weights are ignored
@@ -900,7 +856,6 @@ public:
 	//
 	uint   GetCascadeNumCandidates() const
 	{
-		//return cascade_activation_functions_count * cascade_activation_steepnesses_count * cascade_num_candidate_groups;
 		return CascadeActivationFuncList.getCount() * CascadeActivationSteepnessesList.getCount() * CascadeNumCandidateGroups;
 	}
 	//
@@ -908,7 +863,6 @@ public:
 	//
 	void   ResetMSE()
 	{
-		// printf("resetMSE %d %f\n", ann->num_MSE, ann->MSE_value);
 		num_MSE = 0;
 		MSE_value = 0;
 		NumBitFail = 0;
@@ -936,7 +890,7 @@ public:
 	{
 		return NumBitFail;
 	}
-	ANNTYP * Run(const ANNTYP * pInput);
+	float * Run(const float * pInput);
 	//
 	//	Descr: Initialize the weights using Widrow + Nguyen's algorithm.
 	//
@@ -955,14 +909,14 @@ public:
 	//	  From the beginning the weights are random between -0.1 and 0.1.
 	//	See also: <fann_init_weights>
 	//
-	void   RandomizeWeights(ANNTYP minWeight, ANNTYP maxWeight);
-	int    Train(const ANNTYP * pInput, const ANNTYP * pDesiredOutput);
-	int    TrainWithOutput(const ANNTYP * pInput, const ANNTYP * pDesiredOutput, ANNTYP * pResult);
+	void   RandomizeWeights(float minWeight, float maxWeight);
+	int    Train(const float * pInput, const float * pDesiredOutput);
+	int    TrainWithOutput(const float * pInput, const float * pDesiredOutput, float * pResult);
 	int    TrainOnData(const Fann::TrainData * pData, uint maxEpochs, uint epochsBetweenReports, float desiredError);
 	int    CascadeTrainOnData(const Fann::TrainData * pData, uint maxNeurons, uint neuronsBetweenReports, float desiredError);
 
 	int    TrainCandidates(const Fann::TrainData * pData);
-	ANNTYP TrainCandidatesEpoch(const Fann::TrainData * pData);
+	float TrainCandidatesEpoch(const Fann::TrainData * pData);
 	int    TrainOutputs(const Fann::TrainData * pData, float desiredError);
 	float  TrainOutputsEpoch(const Fann::TrainData * pData);
 	int    ClearTrainArrays();
@@ -975,8 +929,8 @@ public:
 	//   After this train_errors in the output layer will be set to:
 	//   neuron_value_derived * (desired_output - neuron_value)
 	//
-	int    ComputeMSE(const ANNTYP * pDesiredOutput);
-	ANNTYP UpdateMSE(Fann::Neuron * pNeuron, ANNTYP neuronDiff);
+	int    ComputeMSE(const float * pDesiredOutput);
+	float UpdateMSE(Fann::Neuron * pNeuron, float neuronDiff);
 	//
 	// Descr: Propagate the error backwards from the output layer.
 	//   After this the train_errors in the hidden layers will be:
@@ -1000,7 +954,6 @@ public:
 	Fann::Layer * GetLayer(int layer) const
 	{
 		if(layer <= 0 || layer >= (P_LastLayer - P_FirstLayer)) {
-			//fann_error(&Err, SLERR_FANN_INDEX_OUT_OF_BOUND, layer);
 			SLS.SetError(SLERR_FANN_INDEX_OUT_OF_BOUND);
 			return NULL;
 		}
@@ -1010,7 +963,6 @@ public:
 	Fann::Neuron * GetNeuronLayer(const Fann::Layer * pLayer, int neuron) const
 	{
 		if(neuron >= (int)pLayer->GetCount()) {
-			//fann_error(&Err, SLERR_FANN_INDEX_OUT_OF_BOUND, neuron);
 			SLS.SetError(SLERR_FANN_INDEX_OUT_OF_BOUND);
 			return NULL;
 		}
@@ -1055,14 +1007,8 @@ public:
 		// Enum network_types must be set to match the return values
 		return (Fann::NetType)NetworkType;
 	}
-	uint   GetNumInput() const
-	{
-		return NumInput;
-	}
-	uint   GetNumOutput() const
-	{
-		return NumOutput;
-	}
+	uint   GetNumInput() const { return NumInput; }
+	uint   GetNumOutput() const { return NumOutput; }
 	//
 	// Descr: Get the total number of neurons in the entire network. This number does also include the
 	//   bias neurons, so a 2-4-2 network has 2+4+2 +2(bias) = 10 neurons.
@@ -1080,10 +1026,7 @@ public:
 	// Descr: Get the number of bias in each layer in the network.
 	//
 	void   GetBiasArray(LongArray & rList) const;
-	uint   GetTotalConnections() const
-	{
-		return TotalConnections;
-	}
+	uint   GetTotalConnections() const { return TotalConnections; }
 	int    GetConnectionArray(TSVector <FannConnection> & rList) const;
 	void   SetLearningRate(float v)
 	{
@@ -1109,15 +1052,15 @@ public:
 	{
 		return CascadeNumCandidateGroups;
 	}
-	ANNTYP Activation(uint activationFunction, ANNTYP steepness, ANNTYP value) const;
+	float Activation(uint activationFunction, float steepness, float value) const;
 	float * ScaleAllocate(uint c, float defValue);
 	void   ScaleSave(FILE * pF, uint c, const float * pList, const char * pField) const;
 	int    ScaleLoad(FILE * pF, uint c, float * pList, const char * pField);
 	int    ClearScalingParams();
 	int    SetScalingParams(const Fann::TrainData * pData, float newInputMin, float newInputMax, float newOutputMin, float newOutputMax);
 	void   ScaleReset(uint c, float * pArray, float value);
-	void   ScaleSetParam(uint c, uint numData, ANNTYP ** const ppData, float newMin, float newMax, float * pScaleMean, float * pScaleDeviation, float * pScaleNewMin, float * pScaleFactor);
-	//void   ScaleSetParam2(uint c, uint numData, ANNTYP ** const ppData, float newMin, float newMax, Fann::ScaleParam & rParam);
+	void   ScaleSetParam(uint c, uint numData, float ** const ppData, float newMin, float newMax, float * pScaleMean, float * pScaleDeviation, float * pScaleNewMin, float * pScaleFactor);
+	//void   ScaleSetParam2(uint c, uint numData, float ** const ppData, float newMin, float newMax, Fann::ScaleParam & rParam);
 	//void   ScaleSetParam3(uint c, const TSCollection <Fann::DataVector> & rData, float newMin, float newMax, Fann::ScaleParam & rParam);
 	int    SetInputScalingParams(const Fann::TrainData * pData, float new_input_min, float new_input_max);
 	int    SetOutputScalingParams(const Fann::TrainData * pData, float newOutputMin, float newOutputMax);
@@ -1125,7 +1068,7 @@ public:
 	int    DescaleTrain(Fann::TrainData * pData);
 	void   UpdateStepwise();
 
-	//ANNTYP * Test_(const ANNTYP * pInput, const ANNTYP * pDesiredOutput);
+	//float * Test_(const float * pInput, const float * pDesiredOutput);
 	//
 	//
 	//
@@ -1167,7 +1110,7 @@ public:
 	// This difference is multiplied by two when dealing with symmetric activation functions,
 	// so that symmetric and not symmetric activation functions can use the same limit.
 	//
-	ANNTYP BitFailLimit;
+	float BitFailLimit;
 	int32  TrainErrorFunction; // Fann::ErrorFunc The error function used during training. (default FANN_ERRORFUNC_TANH)
 	int32  TrainStopFunction;  // Fann::StopFunc  The stop function used during training. (default FANN_STOPFUNC_MSE)
 	//
@@ -1184,8 +1127,8 @@ public:
 	float  CascadeCandidateChangeFraction;
 	uint   CascadeCandidateStagnationEpochs; // No change in this number of epochs will cause stagnation
 	uint   CascadeBestCandidate;         // The current best candidate, which will be installed.
-	ANNTYP CascadeCandidateLimit;   // The upper limit for a candidate score
-	ANNTYP CascadeWeightMultiplier; // Scale of copied candidate output weights
+	float  CascadeCandidateLimit;   // The upper limit for a candidate score
+	float  CascadeWeightMultiplier; // Scale of copied candidate output weights
 	uint   CascadeMaxOutEpochs;       // Maximum epochs to train the output neurons during cascade training
 	uint   CascadeMaxCandEpochs;      // Maximum epochs to train the candidate neurons during cascade training
 	uint   CascadeMinOutEpochs;       // Minimum epochs to train the output neurons during cascade training
@@ -1236,51 +1179,53 @@ public:
 	// including the input and outputlayers
 	//
 	Fann::Layer * P_LastLayer;
-	ANNTYP * P_Weights;             // [TotalConnectionsAllocated] The weight array
+	float * P_Weights;             // [TotalConnectionsAllocated] The weight array
 	Fann::Neuron ** PP_Connections; // [TotalConnectionsAllocated] The connection array
 	//
 	// Used to contain the errors used during training
 	// Is allocated during first training session, which means that if we do not train, it is never allocated.
 	//
-	ANNTYP * P_TrainErrors;
-	ANNTYP * P_Output; // used to store outputs in
+	float * P_TrainErrors;
+	float * P_Output; // used to store outputs in
 	//
 	// An array consisting of the score of the individual candidates,
 	// which is used to decide which candidate is the best
 	//
-	ANNTYP * P_CascadeCandidateScores;
+	float * P_CascadeCandidateScores;
 	//
 	// Used to contain the slope errors used during batch training
 	// Is allocated during first training session,
 	// which means that if we do not train, it is never allocated.
 	//
-	ANNTYP * P_TrainSlopes; // [TotalConnectionsAllocated]
+	float * P_TrainSlopes; // [TotalConnectionsAllocated]
 	//
 	// The previous step taken by the quickprop/rprop procedures.
 	// Not allocated if not used.
 	//
-	ANNTYP * P_PrevSteps; // [TotalConnectionsAllocated]
+	float * P_PrevSteps; // [TotalConnectionsAllocated]
 	//
 	// The slope values used by the quickprop/rprop procedures.
 	// Not allocated if not used.
 	//
-	ANNTYP * P_PrevTrainSlopes; // [TotalConnectionsAllocated]
+	float * P_PrevTrainSlopes; // [TotalConnectionsAllocated]
 	//
 	// The last delta applied to a connection weight.
 	// This is used for the momentum term in the backpropagation algorithm.
 	// Not allocated if not used.
-	ANNTYP * P_PrevWeightsDeltas; // [TotalConnectionsAllocated]
+	float * P_PrevWeightsDeltas; // [TotalConnectionsAllocated]
 //#ifdef FIXEDFANN
+	/*
 	uint   DecimalPoint; // the decimal_point, used for shifting the fix point in fixed point integer operatons.
 	// the multiplier, used for multiplying the fix point in fixed point integer operatons.
 	// Only used in special cases, since the decimal_point is much faster.
 	uint   Multiplier;
 	// When in choosen (or in fixed point), the sigmoid function is calculated as a stepwise linear function. In the
 	// activation_results array, the result is saved, and in the two values arrays, the values that gives the results are saved.
-	ANNTYP SigmoidResults[6];
-	ANNTYP SigmoidValues[6];
-	ANNTYP SigmoidSymmetricResults[6];
-	ANNTYP SigmoidSymmetricValues[6];
+	float SigmoidResults[6];
+	float SigmoidValues[6];
+	float SigmoidSymmetricResults[6];
+	float SigmoidSymmetricValues[6];
+	*/
 //#else
 	ScaleParam ScaleIn;
 	ScaleParam ScaleOut;
@@ -1306,11 +1251,7 @@ private:
 //#include "fann_data.h"
 #define FANN_FIX_VERSION "FANN_FIX_2.0"
 #define FANN_FLO_VERSION "FANN_FLO_2.1"
-#ifdef FIXEDFANN
-	#define FANN_CONF_VERSION FANN_FIX_VERSION
-#else
-	#define FANN_CONF_VERSION FANN_FLO_VERSION
-#endif
+#define FANN_CONF_VERSION FANN_FLO_VERSION
 
 #define FANN_GET(type, name) FANN_EXTERNAL type FANN_API fann_get_ ## name(Fann *ann) { return ann->name; }
 #define FANN_SET(type, name) FANN_EXTERNAL void FANN_API fann_set_ ## name(Fann *ann, type value) { ann->name = value; }
@@ -1336,8 +1277,8 @@ void   fann_seed_rand();
 //void   fann_update_weights_irpropm(Fann *ann, uint first_weight, uint past_end);
 //void   fann_update_weights_sarprop(Fann *ann, uint epoch, uint first_weight, uint past_end);
 //void   fann_clear_train_arrays(Fann *ann);
-//ANNTYP fann_activation(Fann * ann, uint activation_function, ANNTYP steepness, ANNTYP value);
-//ANNTYP fann_activation_derived(const Fann::Neuron * pN, ANNTYP value, ANNTYP sum);
+//float fann_activation(Fann * ann, uint activation_function, float steepness, float value);
+//float fann_activation_derived(const Fann::Neuron * pN, float value, float sum);
 //int    fann_desired_error_reached(const Fann * ann, float desired_error);
 //
 // Some functions for cascade
@@ -1345,14 +1286,14 @@ void   fann_seed_rand();
 //int    fann_train_outputs(Fann *ann, Fann::TrainData *data, float desired_error);
 //float  fann_train_outputs_epoch(Fann *ann, Fann::TrainData *data);
 //int    fann_train_candidates(Fann *ann, Fann::TrainData *data);
-//ANNTYP fann_train_candidates_epoch(Fann *ann, Fann::TrainData *data);
+//float fann_train_candidates_epoch(Fann *ann, Fann::TrainData *data);
 //void   fann_install_candidate(Fann *ann);
 //int    fann_check_input_output_sizes(Fann *ann, Fann::TrainData *data);
 //int    fann_initialize_candidates(Fann *ann);
 //void   fann_set_shortcut_connections(Fann *ann);
 //int    fann_allocate_scale(Fann *ann);
-FANN_EXTERNAL void FANN_API fann_scale_data_to_range(ANNTYP ** data, uint num_data, uint num_elem,
-	ANNTYP old_min, ANNTYP old_max, ANNTYP new_min, ANNTYP new_max);
+FANN_EXTERNAL void FANN_API fann_scale_data_to_range(float ** data, uint num_data, uint num_elem,
+	float old_min, float old_max, float new_min, float new_max);
 //
 // called MAX, in order to not interferre with predefined versions of max
 // (replaced by MAX) #define fann_max(x, y) (((x) > (y)) ? (x) : (y))
@@ -1362,18 +1303,11 @@ FANN_EXTERNAL void FANN_API fann_scale_data_to_range(ANNTYP ** data, uint num_da
 #define fann_exp2(x) exp(0.69314718055994530942*(x))
 //#define fann_clip(x, lo, hi) (x)
 #define fann_rand(min_value, max_value) (((float)(min_value))+(((float)(max_value)-((float)(min_value)))*rand()/(RAND_MAX+1.0f)))
-#define fann_abs(value) (((value) > 0) ? (value) : -(value))
-#ifdef FIXEDFANN
-	#define fann_mult(x,y) ((x*y) >> decimal_point)
-	#define fann_div(x,y) (((x) << decimal_point)/y)
-	#define fann_random_weight() (ANNTYP)(fann_rand(0,multiplier/10))
-	#define fann_random_bias_weight() (ANNTYP)(fann_rand((0-multiplier)/10,multiplier/10))
-#else
-	#define fann_mult(x,y) (x*y)
-	#define fann_div(x,y) (x/y)
-	#define fann_random_weight() (fann_rand(-0.1f,0.1f))
-	#define fann_random_bias_weight() (fann_rand(-0.1f,0.1f))
-#endif
+//#define fann_abs(value) (((value) > 0) ? (value) : -(value))
+//#define fann_mult(x,y) (x*y)
+//#define fann_div(x,y) (x/y)
+#define fann_random_weight() (fann_rand(-0.1f,0.1f))
+#define fann_random_bias_weight() (fann_rand(-0.1f,0.1f))
 //
 // Section: FANN Training
 // There are many different ways of training neural networks and the FANN library supports
@@ -1409,7 +1343,7 @@ FANN_EXTERNAL void FANN_API fann_scale_data_to_range(ANNTYP ** data, uint num_da
    	See also: <fann_train_on_data>, <fann_train_epoch>
    	This function appears in FANN >= 1.0.0.
  */
-// FANN_EXTERNAL void FANN_API fann_train(Fann *ann, ANNTYP * input, ANNTYP * desired_output);
+// FANN_EXTERNAL void FANN_API fann_train(Fann *ann, float * input, float * desired_output);
 
 #endif	/* NOT FIXEDFANN */
 
@@ -1420,7 +1354,7 @@ FANN_EXTERNAL void FANN_API fann_scale_data_to_range(ANNTYP ** data, uint num_da
    See also: <fann_test_data>, <fann_train>
    This function appears in FANN >= 1.0.0.
 */
-// FANN_EXTERNAL ANNTYP * FANN_API fann_test(Fann * ann, ANNTYP * input, ANNTYP * desired_output);
+// FANN_EXTERNAL float * FANN_API fann_test(Fann * ann, float * input, float * desired_output);
 /* Function: fann_get_MSE
    Reads the mean square error from the network.
    Reads the mean square error from the network. This value is calculated during
@@ -1548,7 +1482,7 @@ FANN_EXTERNAL Fann::TrainData * FANN_API fann_create_train(uint num_data, uint n
 
     This function appears in FANN >= 2.3.0
 */
-// (eliminated) FANN_EXTERNAL Fann::TrainData * FANN_API fann_create_train_pointer_array(uint num_data, uint num_input, ANNTYP **input, uint num_output, ANNTYP **output);
+// (eliminated) FANN_EXTERNAL Fann::TrainData * FANN_API fann_create_train_pointer_array(uint num_data, uint num_input, float **input, uint num_output, float **output);
 /* Function: fann_create_train_array
    Creates an training data struct and fills it with data from provided arrays, where the arrays must have the dimensions:
    input[num_data*num_input]
@@ -1564,7 +1498,7 @@ FANN_EXTERNAL Fann::TrainData * FANN_API fann_create_train(uint num_data, uint n
 
     This function appears in FANN >= 2.3.0
 */
-// (eliminated) FANN_EXTERNAL Fann::TrainData * FANN_API fann_create_train_array(uint num_data, uint num_input, ANNTYP *input, uint num_output, ANNTYP *output);
+// (eliminated) FANN_EXTERNAL Fann::TrainData * FANN_API fann_create_train_array(uint num_data, uint num_input, float *input, uint num_output, float *output);
 /* Function: fann_create_train_from_callback
    Creates the training data struct from a user supplied function.
    As the training data are numerable (data 1, data 2...), the user must write
@@ -1595,7 +1529,7 @@ FANN_EXTERNAL Fann::TrainData * FANN_API fann_create_train(uint num_data, uint n
 
     This function appears in FANN >= 2.1.0
 */
-// (eliminated) FANN_EXTERNAL Fann::TrainData * FANN_API fann_create_train_from_callback(uint num_data, uint num_input, uint num_output, void (FANN_API *user_function)(uint, uint, uint, ANNTYP *, ANNTYP *));
+// (eliminated) FANN_EXTERNAL Fann::TrainData * FANN_API fann_create_train_from_callback(uint num_data, uint num_input, uint num_output, void (FANN_API *user_function)(uint, uint, uint, float *, float *));
 
 /* Function: fann_destroy_train
    Destructs the training data and properly deallocates all of the associated data.
@@ -1609,7 +1543,7 @@ FANN_EXTERNAL void FANN_API fann_destroy_train(Fann::TrainData * train_data);
 // See also: <fann_get_train_output>
 // This function appears in FANN >= 2.3.0
 //
-// (eliminated) FANN_EXTERNAL ANNTYP * FANN_API fann_get_train_input(Fann::TrainData * data, uint position);
+// (eliminated) FANN_EXTERNAL float * FANN_API fann_get_train_input(Fann::TrainData * data, uint position);
 
 /* Function: fann_get_train_output
    Gets the training output data at the given position
@@ -1619,7 +1553,7 @@ FANN_EXTERNAL void FANN_API fann_destroy_train(Fann::TrainData * train_data);
 
    This function appears in FANN >= 2.3.0
  */
-// (eliminated) FANN_EXTERNAL ANNTYP * FANN_API fann_get_train_output(Fann::TrainData * data, uint position);
+// (eliminated) FANN_EXTERNAL float * FANN_API fann_get_train_output(Fann::TrainData * data, uint position);
 /* Function: fann_shuffle_train_data
    Shuffles training data, randomizing the order.
    This is recommended for incremental training, while it has no influence during batch training.
@@ -1632,22 +1566,22 @@ FANN_EXTERNAL void FANN_API fann_destroy_train(Fann::TrainData * train_data);
    Get the minimum value of all in the input data
    This function appears in FANN >= 2.3.0
 */
-FANN_EXTERNAL ANNTYP FANN_API fann_get_min_train_input(Fann::TrainData *train_data);
+FANN_EXTERNAL float FANN_API fann_get_min_train_input(Fann::TrainData *train_data);
 /* Function: fann_get_max_train_input
    Get the maximum value of all in the input data
    This function appears in FANN >= 2.3.0
 */
-FANN_EXTERNAL ANNTYP FANN_API fann_get_max_train_input(Fann::TrainData *train_data);
+FANN_EXTERNAL float FANN_API fann_get_max_train_input(Fann::TrainData *train_data);
 /* Function: fann_get_min_train_output
    Get the minimum value of all in the output data
    This function appears in FANN >= 2.3.0
 */
-FANN_EXTERNAL ANNTYP FANN_API fann_get_min_train_output(Fann::TrainData *train_data);
+FANN_EXTERNAL float FANN_API fann_get_min_train_output(Fann::TrainData *train_data);
 /* Function: fann_get_max_train_output
    Get the maximum value of all in the output data
    This function appears in FANN >= 2.3.0
 */
-FANN_EXTERNAL ANNTYP FANN_API fann_get_max_train_output(Fann::TrainData *train_data);
+FANN_EXTERNAL float FANN_API fann_get_max_train_output(Fann::TrainData *train_data);
 /* Function: fann_scale_train
    Scale input and output data based on previously calculated parameters.
    Parameters:
@@ -1716,7 +1650,7 @@ FANN_EXTERNAL void FANN_API fann_descale_train( Fann *ann, Fann::TrainData *data
    See also: <fann_descale_input>, <fann_scale_output>
     This function appears in FANN >= 2.1.0
 */
-//FANN_EXTERNAL void FANN_API fann_scale_input(Fann * ann, ANNTYP * input_vector );
+//FANN_EXTERNAL void FANN_API fann_scale_input(Fann * ann, float * input_vector );
 /* Function: fann_scale_output
    Scale data in output vector before feeding it to ann based on previously calculated parameters.
    Parameters:
@@ -1725,7 +1659,7 @@ FANN_EXTERNAL void FANN_API fann_descale_train( Fann *ann, Fann::TrainData *data
    See also: <fann_descale_output>, <fann_scale_input>
     This function appears in FANN >= 2.1.0
  */
-//FANN_EXTERNAL void FANN_API fann_scale_output( Fann *ann, ANNTYP *output_vector );
+//FANN_EXTERNAL void FANN_API fann_scale_output( Fann *ann, float *output_vector );
 /* Function: fann_descale_input
    Scale data in input vector after getting it from ann based on previously calculated parameters.
    Parameters:
@@ -1734,7 +1668,7 @@ FANN_EXTERNAL void FANN_API fann_descale_train( Fann *ann, Fann::TrainData *data
    See also: <fann_scale_input>, <fann_descale_output>
     This function appears in FANN >= 2.1.0
  */
-//FANN_EXTERNAL void FANN_API fann_descale_input( Fann *ann, ANNTYP *input_vector );
+//FANN_EXTERNAL void FANN_API fann_descale_input( Fann *ann, float *input_vector );
 /* Function: fann_descale_output
    Scale data in output vector after getting it from ann based on previously calculated parameters.
    Parameters:
@@ -1743,7 +1677,7 @@ FANN_EXTERNAL void FANN_API fann_descale_train( Fann *ann, Fann::TrainData *data
    See also: <fann_scale_output>, <fann_descale_input>
     This function appears in FANN >= 2.1.0
  */
-//FANN_EXTERNAL void FANN_API fann_descale_output( Fann *ann, ANNTYP *output_vector );
+//FANN_EXTERNAL void FANN_API fann_descale_output( Fann *ann, float *output_vector );
 
 #endif
 /* Function: fann_scale_input_train_data
@@ -1756,7 +1690,7 @@ FANN_EXTERNAL void FANN_API fann_descale_train( Fann *ann, Fann::TrainData *data
    See also: <fann_scale_output_train_data>, <fann_scale_train_data>, <fann_scala_input>
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_scale_input_train_data(Fann::TrainData *train_data, ANNTYP new_min, ANNTYP new_max);
+FANN_EXTERNAL void FANN_API fann_scale_input_train_data(Fann::TrainData *train_data, float new_min, float new_max);
 /*
 	Function: fann_scale_output_train_data
    Scales the outputs in the training data to the specified range.
@@ -1768,7 +1702,7 @@ FANN_EXTERNAL void FANN_API fann_scale_input_train_data(Fann::TrainData *train_d
    See also: <fann_scale_input_train_data>, <fann_scale_train_data>
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_scale_output_train_data(Fann::TrainData *train_data, ANNTYP new_min, ANNTYP new_max);
+FANN_EXTERNAL void FANN_API fann_scale_output_train_data(Fann::TrainData *train_data, float new_min, float new_max);
 /*
 	Function: fann_scale_train_data
    Scales the inputs and outputs in the training data to the specified range.
@@ -1780,7 +1714,7 @@ FANN_EXTERNAL void FANN_API fann_scale_output_train_data(Fann::TrainData *train_
    See also: <fann_scale_output_train_data>, <fann_scale_input_train_data>
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_scale_train_data(Fann::TrainData *train_data, ANNTYP new_min, ANNTYP new_max);
+FANN_EXTERNAL void FANN_API fann_scale_train_data(Fann::TrainData *train_data, float new_min, float new_max);
 /*
 	Function: fann_merge_train_data
    Merges the data from *data1* and *data2* into a new <Fann::TrainData>.
@@ -2015,7 +1949,7 @@ FANN_EXTERNAL void FANN_API fann_set_activation_function_layer(Fann *ann, Fann::
 
    This function appears in FANN >= 2.1.0
  */
-FANN_EXTERNAL ANNTYP FANN_API fann_get_activation_steepness(Fann *ann, int layer, int neuron);
+FANN_EXTERNAL float FANN_API fann_get_activation_steepness(Fann *ann, int layer, int neuron);
 /* Function: fann_set_activation_steepness
 
    Set the activation steepness for neuron number *neuron* in layer number *layer*,
@@ -2039,7 +1973,7 @@ FANN_EXTERNAL ANNTYP FANN_API fann_get_activation_steepness(Fann *ann, int layer
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_activation_steepness(Fann *ann, ANNTYP steepness, int layer, int neuron);
+FANN_EXTERNAL void FANN_API fann_set_activation_steepness(Fann *ann, float steepness, int layer, int neuron);
 /* Function: fann_set_activation_steepness_layer
 
    Set the activation steepness for all of the neurons in layer number *layer*,
@@ -2053,7 +1987,7 @@ FANN_EXTERNAL void FANN_API fann_set_activation_steepness(Fann *ann, ANNTYP stee
 
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_activation_steepness_layer(Fann *ann, ANNTYP steepness, int layer);
+FANN_EXTERNAL void FANN_API fann_set_activation_steepness_layer(Fann *ann, float steepness, int layer);
 /* Function: fann_set_activation_steepness_hidden
 
    Set the steepness of the activation steepness in all of the hidden layers.
@@ -2064,7 +1998,7 @@ FANN_EXTERNAL void FANN_API fann_set_activation_steepness_layer(Fann *ann, ANNTY
 
    This function appears in FANN >= 1.2.0.
  */
-//FANN_EXTERNAL void FANN_API fann_set_activation_steepness_hidden(Fann *ann, ANNTYP steepness);
+//FANN_EXTERNAL void FANN_API fann_set_activation_steepness_hidden(Fann *ann, float steepness);
 /* Function: fann_set_activation_steepness_output
 
    Set the steepness of the activation steepness in the output layer.
@@ -2075,7 +2009,7 @@ FANN_EXTERNAL void FANN_API fann_set_activation_steepness_layer(Fann *ann, ANNTY
 
    This function appears in FANN >= 1.2.0.
  */
-//FANN_EXTERNAL void FANN_API fann_set_activation_steepness_output(Fann *ann, ANNTYP steepness);
+//FANN_EXTERNAL void FANN_API fann_set_activation_steepness_output(Fann *ann, float steepness);
 /*
 	Function: fann_get_train_error_function
    Returns the error function used during training.
@@ -2124,13 +2058,13 @@ FANN_EXTERNAL void FANN_API fann_set_train_stop_function(Fann *ann, Fann::StopFu
    See also: <fann_set_bit_fail_limit>
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL ANNTYP FANN_API fann_get_bit_fail_limit(Fann *ann);
+FANN_EXTERNAL float FANN_API fann_get_bit_fail_limit(Fann *ann);
 /* Function: fann_set_bit_fail_limit
    Set the bit fail limit used during training.
    See also: <fann_get_bit_fail_limit>
    This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_bit_fail_limit(Fann *ann, ANNTYP bit_fail_limit);
+FANN_EXTERNAL void FANN_API fann_set_bit_fail_limit(Fann *ann, float bit_fail_limit);
 /* Function: fann_set_callback
    Sets the callback function for use during training.
    See <fann_callback_type> for more information about the callback function.
@@ -2444,7 +2378,7 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_candidate_stagnation_epochs(Fann *a
    See also: <fann_set_cascade_weight_multiplier>
 	This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL ANNTYP FANN_API fann_get_cascade_weight_multiplier(Fann *ann);
+FANN_EXTERNAL float FANN_API fann_get_cascade_weight_multiplier(Fann *ann);
 /* Function: fann_set_cascade_weight_multiplier
 
    Sets the weight multiplier.
@@ -2454,7 +2388,7 @@ FANN_EXTERNAL ANNTYP FANN_API fann_get_cascade_weight_multiplier(Fann *ann);
 
 	This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_cascade_weight_multiplier(Fann *ann, ANNTYP cascade_weight_multiplier);
+FANN_EXTERNAL void FANN_API fann_set_cascade_weight_multiplier(Fann *ann, float cascade_weight_multiplier);
 /* Function: fann_get_cascade_candidate_limit
 
    The candidate limit is a limit for how much the candidate neuron may be trained.
@@ -2464,13 +2398,13 @@ FANN_EXTERNAL void FANN_API fann_set_cascade_weight_multiplier(Fann *ann, ANNTYP
    See also: <fann_set_cascade_candidate_limit>
 	This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL ANNTYP FANN_API fann_get_cascade_candidate_limit(Fann *ann);
+FANN_EXTERNAL float FANN_API fann_get_cascade_candidate_limit(Fann *ann);
 /* Function: fann_set_cascade_candidate_limit
    Sets the candidate limit.
    See also: <fann_get_cascade_candidate_limit>
 	This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL void FANN_API fann_set_cascade_candidate_limit(Fann *ann, ANNTYP cascade_candidate_limit);
+FANN_EXTERNAL void FANN_API fann_set_cascade_candidate_limit(Fann *ann, float cascade_candidate_limit);
 /* Function: fann_get_cascade_max_out_epochs
 
    The maximum out epochs determines the maximum number of epochs the output connections
@@ -2648,7 +2582,7 @@ FANN_EXTERNAL uint FANN_API fann_get_cascade_activation_steepnesses_count(Fann *
    See also: <fann_set_cascade_activation_steepnesses>, <fann_get_cascade_activation_steepnesses_count>
 	This function appears in FANN >= 2.0.0.
  */
-FANN_EXTERNAL ANNTYP * FANN_API fann_get_cascade_activation_steepnesses(Fann *ann);
+FANN_EXTERNAL float * FANN_API fann_get_cascade_activation_steepnesses(Fann *ann);
 /* Function: fann_set_cascade_activation_steepnesses
    Sets the array of cascade candidate activation steepnesses. The array must be just as long
    as defined by the count.
@@ -2657,7 +2591,7 @@ FANN_EXTERNAL ANNTYP * FANN_API fann_get_cascade_activation_steepnesses(Fann *an
    See also: <fann_get_cascade_activation_steepnesses>, <fann_get_cascade_activation_steepnesses_count>
 	This function appears in FANN >= 2.0.0.
  */
-// FANN_EXTERNAL void FANN_API fann_set_cascade_activation_steepnesses(Fann *ann, ANNTYP * cascade_activation_steepnesses, uint cascade_activation_steepnesses_count);
+// FANN_EXTERNAL void FANN_API fann_set_cascade_activation_steepnesses(Fann *ann, float * cascade_activation_steepnesses, uint cascade_activation_steepnesses_count);
 /* Function: fann_get_cascade_num_candidate_groups
    The number of candidate groups is the number of groups of identical candidates which will be used
    during training.
@@ -2857,14 +2791,14 @@ FANN_EXTERNAL Fann * FANN_API fann_copy(const Fann * ann);
 // See also: <fann_test>
 // This function appears in FANN >= 1.0.0.
 //
-// FANN_EXTERNAL ANNTYP * FANN_API fann_run(Fann *ann, const ANNTYP * input);
+// FANN_EXTERNAL float * FANN_API fann_run(Fann *ann, const float * input);
 //
 //	Give each connection a random weight between *min_weight* and *max_weight*
 //	From the beginning the weights are random between -0.1 and 0.1.
 //	See also: <fann_init_weights>
 //	This function appears in FANN >= 1.0.0.
 //
-//FANN_EXTERNAL void FANN_API fann_randomize_weights(Fann *ann, ANNTYP min_weight, ANNTYP max_weight);
+//FANN_EXTERNAL void FANN_API fann_randomize_weights(Fann *ann, float min_weight, float max_weight);
 //
 //	Initialize the weights using Widrow + Nguyen's algorithm.
 //
@@ -2986,29 +2920,29 @@ FANN_EXTERNAL void FANN_API fann_set_weight_array(Fann *ann, FannConnection * pC
 // ignored if it does not already exist in the network.
 // This function appears in FANN >= 2.1.0
 //
-//FANN_EXTERNAL void FANN_API fann_set_weight(Fann *ann, uint from_neuron, uint to_neuron, ANNTYP weight);
+//FANN_EXTERNAL void FANN_API fann_set_weight(Fann *ann, uint from_neuron, uint to_neuron, float weight);
 /* Function: fann_get_weights
     Get all the network weights.
     Parameters:
 		ann - A previously created neural network structure of
             type <Fann> pointer.
-		weights - A ANNTYP pointer to user data. It is the responsibility
+		weights - A float pointer to user data. It is the responsibility
 			of the user to allocate sufficient space to store all the weights.
    This function appears in FANN >= x.y.z
 */
-//FANN_EXTERNAL void FANN_API fann_get_weights(Fann *ann, ANNTYP *weights);
+//FANN_EXTERNAL void FANN_API fann_get_weights(Fann *ann, float *weights);
 /* Function: fann_set_weights
     Set network weights.
     Parameters:
 		ann - A previously created neural network structure of
             type <Fann> pointer.
-		weights - A ANNTYP pointer to user data. It is the responsibility
+		weights - A float pointer to user data. It is the responsibility
 			of the user to make the weights array sufficient long
 			to store all the weights.
 
    This function appears in FANN >= x.y.z
 */
-//FANN_EXTERNAL void FANN_API fann_set_weights(Fann *ann, ANNTYP *weights);
+//FANN_EXTERNAL void FANN_API fann_set_weights(Fann *ann, float *weights);
 /* Function: fann_set_user_data
 
     Store a pointer to user defined data. The pointer can be
@@ -3027,61 +2961,28 @@ FANN_EXTERNAL void FANN_API fann_set_user_data(Fann *ann, void *user_data);
     with <fann_set_user_data>. It is the user's responsibility to
     allocate and deallocate any data that the pointer might point to.
     Parameters:
-		ann - A previously created neural network structure of
-            type <Fann> pointer.
+		ann - A previously created neural network structure of type <Fann> pointer.
     Returns: A void pointer to user defined data.
    This function appears in FANN >= 2.1.0
 */
 FANN_EXTERNAL void * FANN_API fann_get_user_data(Fann *ann);
-
-/* Function: fann_disable_seed_rand
-
-   Disables the automatic random generator seeding that happens in FANN.
-
-   Per default FANN will always seed the random generator when creating a new network,
-   unless FANN_NO_SEED is defined during compilation of the library. This method can
-   disable this at runtime.
-
-   This function appears in FANN >= 2.3.0
-*/
+// 
+// Function: fann_disable_seed_rand
+// Disables the automatic random generator seeding that happens in FANN.
+// 
+// Per default FANN will always seed the random generator when creating a new network,
+// unless FANN_NO_SEED is defined during compilation of the library. This method can disable this at runtime.
+// 
 FANN_EXTERNAL void FANN_API fann_disable_seed_rand();
-
-/* Function: fann_enable_seed_rand
-
-   Enables the automatic random generator seeding that happens in FANN.
-
-   Per default FANN will always seed the random generator when creating a new network,
-   unless FANN_NO_SEED is defined during compilation of the library. This method can
-   disable this at runtime.
-
-   This function appears in FANN >= 2.3.0
-*/
+// 
+// Function: fann_enable_seed_rand
+// Enables the automatic random generator seeding that happens in FANN.
+// 
+// Per default FANN will always seed the random generator when creating a new network,
+// unless FANN_NO_SEED is defined during compilation of the library. This method can disable this at runtime.
+// 
 FANN_EXTERNAL void FANN_API fann_enable_seed_rand();
 
-#ifdef FIXEDFANN
-//
-// Function: fann_get_decimal_point
-//   Returns the position of the decimal point in the ann.
-//   This function is only available when the ANN is in fixed point mode.
-//   The decimal point is described in greater detail in the tutorial <Fixed Point Usage>.
-//   See also:
-//      <Fixed Point Usage>, <fann_get_multiplier>, <fann_save_to_fixed>, <fann_save_train_to_fixed>
-//   This function appears in FANN >= 1.0.0.
-//
-FANN_EXTERNAL uint FANN_API fann_get_decimal_point(Fann *ann);
-/* Function: fann_get_multiplier
-    returns the multiplier that fix point data is multiplied with.
-	This function is only available when the ANN is in fixed point mode.
-	The multiplier is the used to convert between floating point and fixed point notation.
-	A floating point number is multiplied with the multiplier in order to get the fixed point
-	number and visa versa.
-	The multiplier is described in greater detail in the tutorial <Fixed Point Usage>.
-	See also: <Fixed Point Usage>, <fann_get_decimal_point>, <fann_save_to_fixed>, <fann_save_train_to_fixed>
-	This function appears in FANN >= 1.0.0.
-*/
-FANN_EXTERNAL uint FANN_API fann_get_multiplier(Fann *ann);
-
-#endif	/* FIXEDFANN */
 #ifdef __cplusplus
 	#ifndef __cplusplus
 		/* to fool automatic indention engines */
@@ -3098,14 +2999,12 @@ FANN_EXTERNAL uint FANN_API fann_get_multiplier(Fann *ann);
 		} // to fool automatic indention engines
 	#endif
 #endif
-#ifndef FIXEDFANN
-	FANN_EXTERNAL float FANN_API fann_train_epoch_batch_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
-	FANN_EXTERNAL float FANN_API fann_train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
-	FANN_EXTERNAL float FANN_API fann_train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
-	FANN_EXTERNAL float FANN_API fann_train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
-	FANN_EXTERNAL float FANN_API fann_train_epoch_incremental_mod(Fann *ann, Fann::TrainData *data);
-	FANN_EXTERNAL float FANN_API fann_test_data_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
-#endif // FIXEDFANN
+FANN_EXTERNAL float FANN_API fann_train_epoch_batch_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
+FANN_EXTERNAL float FANN_API fann_train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
+FANN_EXTERNAL float FANN_API fann_train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
+FANN_EXTERNAL float FANN_API fann_train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
+FANN_EXTERNAL float FANN_API fann_train_epoch_incremental_mod(Fann *ann, Fann::TrainData *data);
+FANN_EXTERNAL float FANN_API fann_test_data_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
 #ifdef __cplusplus
 	#ifndef __cplusplus
 	// to fool automatic indention engines
@@ -3120,22 +3019,20 @@ FANN_EXTERNAL uint FANN_API fann_get_multiplier(Fann *ann);
 	#include <omp.h>
 	#include <vector>
 
-	#ifndef FIXEDFANN // {
-		namespace parallel_fann {
-			float train_epoch_batch_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
-			float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
-			float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
-			float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
-			float train_epoch_incremental_mod(Fann *ann, Fann::TrainData *data);
-			float train_epoch_batch_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb,std::vector< std::vector<ANNTYP> >& predicted_outputs);
-			float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, std::vector< std::vector<ANNTYP> >& predicted_outputs);
-			float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, std::vector< std::vector<ANNTYP> >& predicted_outputs);
-			float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, std::vector< std::vector<ANNTYP> >& predicted_outputs);
-			float train_epoch_incremental_mod(Fann *ann, Fann::TrainData *data, std::vector< std::vector<ANNTYP> >& predicted_outputs);
-			float test_data_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
-			float test_data_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, std::vector< std::vector<ANNTYP> >& predicted_outputs);
-		}
-	#endif // } FIXEDFANN
+	namespace parallel_fann {
+		float train_epoch_batch_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
+		float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
+		float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
+		float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
+		float train_epoch_incremental_mod(Fann *ann, Fann::TrainData *data);
+		float train_epoch_batch_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb,std::vector< std::vector<float> >& predicted_outputs);
+		float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, std::vector< std::vector<float> >& predicted_outputs);
+		float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, std::vector< std::vector<float> >& predicted_outputs);
+		float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, std::vector< std::vector<float> >& predicted_outputs);
+		float train_epoch_incremental_mod(Fann *ann, Fann::TrainData *data, std::vector< std::vector<float> >& predicted_outputs);
+		float test_data_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb);
+		float test_data_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, std::vector< std::vector<float> >& predicted_outputs);
+	}
 #endif // } DISABLE_PARALLEL_FANN
 
 #endif // __fann_h__

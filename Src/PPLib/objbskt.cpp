@@ -1091,7 +1091,7 @@ int SLAPI GetBasketByDialog(SelBasketParam * pParam, const char * pCallerSymb, u
 //
 // PPViewGoodsBasket
 //
-SLAPI PPViewGoodsBasket::PPViewGoodsBasket(PPBasketPacket * pPacket) : 
+SLAPI PPViewGoodsBasket::PPViewGoodsBasket(PPBasketPacket * pPacket) :
 	IterCount(0), NumIters(0), P_OrdTbl(0), P_IterQuery(0), P_GBPacket(pPacket), Flags(0)
 {
 }
@@ -1262,7 +1262,7 @@ public:
 	//     товара с целью определения текущих параметров.
 	//     Если defLocID == 0, то считается, что он равен LConfig.Location.
 	//
-	GBItemDialog(PPBasketCombine & rCart, PPID defLocID, long flags) : 
+	GBItemDialog(PPBasketCombine & rCart, PPID defLocID, long flags) :
 		TDialog(DLG_GBITEM), R_Cart(rCart), DefLocID(NZOR(defLocID, LConfig.Location)), Flags(flags)
 	{
 		//EnableChangeBasket = enableChgBasket;
@@ -2113,7 +2113,6 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 		param.RulePrice = Basket2BillParam::priceFromBasket;
 		is_expend = 0;
 	}
-	// @v7.4.12 {
 	else if(op_type_id == PPOPT_GOODSMODIF) {
 		TDialog * p_sel_modif_dlg = 0;
 		THROW(CheckDialogPtr(&(p_sel_modif_dlg = new TDialog(DLG_SELMODIF))));
@@ -2136,7 +2135,6 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 		}
 		ZDELETE(p_sel_modif_dlg);
 	}
-	// } @v7.4.12
 	else
 		ok = -1;
 	if(ok > 0 && EditBasket2BillParam(&param) > 0) {
@@ -2191,7 +2189,7 @@ int SLAPI PPObjBill::ConvertBasket(const PPBasketPacket * pBasket, PPBillPacket 
 				ilti.Price = R5(lot_rec.Price);
 			else if(param.RulePrice == Basket2BillParam::priceFromQuot) {
 				double price = 0.0;
-				QuotIdent qi(pPack->Rec.LocID, param.QuotKindID, pPack->Rec.CurID, pPack->Rec.Object);
+				const QuotIdent qi(pPack->Rec.LocID, param.QuotKindID, pPack->Rec.CurID, pPack->Rec.Object);
 				if(GObj.GetQuotExt(p_item->GoodsID, qi, ilti.Cost, last_price, &price, 1) > 0) {
 					cvt_ilti_flags |= CILTIF_QUOT;
 					if(pPack->Rec.CurID)

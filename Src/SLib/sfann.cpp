@@ -372,60 +372,60 @@ FANN_EXTERNAL Fann * FANN_API fann_create_shortcut_array(const LongArray & rLaye
 	return p_result;
 }
 
-#define fann_activation_switch(activation_function, value, result) \
+/*#define fann_activation_switch(activation_function, value, result) \
 switch(activation_function) { \
-	case FANN_LINEAR: result = (ANNTYP)value; break; \
-	case FANN_LINEAR_PIECE: result = (ANNTYP)((value < 0) ? 0 : (value > 1) ? 1 : value); break; \
-	case FANN_LINEAR_PIECE_SYMMETRIC: result = (ANNTYP)((value < -1) ? -1 : (value > 1) ? 1 : value); break; \
-	case FANN_SIGMOID: result = (ANNTYP)fann_sigmoid_real(value); break; \
-	case FANN_SIGMOID_SYMMETRIC: result = (ANNTYP)fann_sigmoid_symmetric_real(value); break; \
+	case FANN_LINEAR: result = (float)value; break; \
+	case FANN_LINEAR_PIECE: result = (float)((value < 0) ? 0 : (value > 1) ? 1 : value); break; \
+	case FANN_LINEAR_PIECE_SYMMETRIC: result = (float)((value < -1) ? -1 : (value > 1) ? 1 : value); break; \
+	case FANN_SIGMOID: result = (float)fann_sigmoid_real(value); break; \
+	case FANN_SIGMOID_SYMMETRIC: result = (float)fann_sigmoid_symmetric_real(value); break; \
 	case FANN_SIGMOID_SYMMETRIC_STEPWISE: \
-		result = (ANNTYP)fann_stepwise(-2.64665293693542480469e+00, -1.47221934795379638672e+00, -5.49306154251098632812e-01, 5.49306154251098632812e-01, 1.47221934795379638672e+00, 2.64665293693542480469e+00, -9.90000009536743164062e-01, -8.99999976158142089844e-01, -5.00000000000000000000e-01, 5.00000000000000000000e-01, 8.99999976158142089844e-01, 9.90000009536743164062e-01, -1, 1, value); \
+		result = (float)fann_stepwise(-2.64665293693542480469e+00, -1.47221934795379638672e+00, -5.49306154251098632812e-01, 5.49306154251098632812e-01, 1.47221934795379638672e+00, 2.64665293693542480469e+00, -9.90000009536743164062e-01, -8.99999976158142089844e-01, -5.00000000000000000000e-01, 5.00000000000000000000e-01, 8.99999976158142089844e-01, 9.90000009536743164062e-01, -1, 1, value); \
         break; \
 	case FANN_SIGMOID_STEPWISE: \
-		result = (ANNTYP)fann_stepwise(-2.64665246009826660156e+00, -1.47221946716308593750e+00, -5.49306154251098632812e-01, 5.49306154251098632812e-01, 1.47221934795379638672e+00, 2.64665293693542480469e+00, 4.99999988824129104614e-03, 5.00000007450580596924e-02, 2.50000000000000000000e-01, 7.50000000000000000000e-01, 9.49999988079071044922e-01, 9.95000004768371582031e-01, 0, 1, value); \
+		result = (float)fann_stepwise(-2.64665246009826660156e+00, -1.47221946716308593750e+00, -5.49306154251098632812e-01, 5.49306154251098632812e-01, 1.47221934795379638672e+00, 2.64665293693542480469e+00, 4.99999988824129104614e-03, 5.00000007450580596924e-02, 2.50000000000000000000e-01, 7.50000000000000000000e-01, 9.49999988079071044922e-01, 9.95000004768371582031e-01, 0, 1, value); \
         break; \
-	case FANN_THRESHOLD: result = (ANNTYP)((value < 0) ? 0 : 1); break; \
-	case FANN_THRESHOLD_SYMMETRIC: result = (ANNTYP)((value < 0) ? -1 : 1); break; \
-	case FANN_GAUSSIAN: result = (ANNTYP)fann_gaussian_real(value); break; \
-	case FANN_GAUSSIAN_SYMMETRIC: result = (ANNTYP)fann_gaussian_symmetric_real(value); break; \
-	case FANN_ELLIOT: result = (ANNTYP)fann_elliot_real(value); break; \
-	case FANN_ELLIOT_SYMMETRIC: result = (ANNTYP)fann_elliot_symmetric_real(value); break; \
-	case FANN_SIN_SYMMETRIC: result = (ANNTYP)fann_sin_symmetric_real(value); break; \
-	case FANN_COS_SYMMETRIC: result = (ANNTYP)fann_cos_symmetric_real(value); break; \
-	case FANN_SIN: result = (ANNTYP)fann_sin_real(value); break; \
-	case FANN_COS: result = (ANNTYP)fann_cos_real(value); break; \
+	case FANN_THRESHOLD: result = (float)((value < 0) ? 0 : 1); break; \
+	case FANN_THRESHOLD_SYMMETRIC: result = (float)((value < 0) ? -1 : 1); break; \
+	case FANN_GAUSSIAN: result = (float)fann_gaussian_real(value); break; \
+	case FANN_GAUSSIAN_SYMMETRIC: result = (float)fann_gaussian_symmetric_real(value); break; \
+	case FANN_ELLIOT: result = (float)fann_elliot_real(value); break; \
+	case FANN_ELLIOT_SYMMETRIC: result = (float)fann_elliot_symmetric_real(value); break; \
+	case FANN_SIN_SYMMETRIC: result = (float)fann_sin_symmetric_real(value); break; \
+	case FANN_COS_SYMMETRIC: result = (float)fann_cos_symmetric_real(value); break; \
+	case FANN_SIN: result = (float)fann_sin_real(value); break; \
+	case FANN_COS: result = (float)fann_cos_real(value); break; \
 	case FANN_GAUSSIAN_STEPWISE: result = 0; break; \
-}
+}*/
 
-ANNTYP FannActivationSwitch(int activationFunction, ANNTYP value)
+static FORCEINLINE float ActivationSwitch(int activationFunc, float value) 
 {
-	switch(activationFunction) {
-		case Fann::FANN_LINEAR: return (ANNTYP)value;
-		case Fann::FANN_LINEAR_PIECE: return (ANNTYP)((value < 0) ? 0 : (value > 1) ? 1 : value);
-		case Fann::FANN_LINEAR_PIECE_SYMMETRIC: return (ANNTYP)((value < -1) ? -1 : (value > 1) ? 1 : value);
-		case Fann::FANN_SIGMOID: return (ANNTYP)fann_sigmoid_real(value);
-		case Fann::FANN_SIGMOID_SYMMETRIC: return (ANNTYP)fann_sigmoid_symmetric_real(value);
-		case Fann::FANN_SIGMOID_SYMMETRIC_STEPWISE:
-			return (ANNTYP)fann_stepwise(-2.64665293693542480469e+00, -1.47221934795379638672e+00, -5.49306154251098632812e-01, 5.49306154251098632812e-01, 1.47221934795379638672e+00, 2.64665293693542480469e+00, -9.90000009536743164062e-01, -8.99999976158142089844e-01, -5.00000000000000000000e-01, 5.00000000000000000000e-01, 8.99999976158142089844e-01, 9.90000009536743164062e-01, -1, 1, value);
-		case Fann::FANN_SIGMOID_STEPWISE:
-			return (ANNTYP)fann_stepwise(-2.64665246009826660156e+00, -1.47221946716308593750e+00, -5.49306154251098632812e-01, 5.49306154251098632812e-01, 1.47221934795379638672e+00, 2.64665293693542480469e+00, 4.99999988824129104614e-03, 5.00000007450580596924e-02, 2.50000000000000000000e-01, 7.50000000000000000000e-01, 9.49999988079071044922e-01, 9.95000004768371582031e-01, 0, 1, value);
-		case Fann::FANN_THRESHOLD: return (ANNTYP)((value < 0) ? 0 : 1);
-		case Fann::FANN_THRESHOLD_SYMMETRIC: return (ANNTYP)((value < 0) ? -1 : 1);
-		case Fann::FANN_GAUSSIAN: return (ANNTYP)fann_gaussian_real(value);
-		case Fann::FANN_GAUSSIAN_SYMMETRIC: return (ANNTYP)fann_gaussian_symmetric_real(value);
-		case Fann::FANN_ELLIOT: return (ANNTYP)fann_elliot_real(value);
-		case Fann::FANN_ELLIOT_SYMMETRIC: return (ANNTYP)fann_elliot_symmetric_real(value);
-		case Fann::FANN_SIN_SYMMETRIC: return (ANNTYP)fann_sin_symmetric_real(value);
-		case Fann::FANN_COS_SYMMETRIC: return (ANNTYP)fann_cos_symmetric_real(value);
-		case Fann::FANN_SIN: return (ANNTYP)fann_sin_real(value);
-		case Fann::FANN_COS: return (ANNTYP)fann_cos_real(value);
-		case Fann::FANN_GAUSSIAN_STEPWISE: return 0;
+	switch(activationFunc) {
+		case Fann::FANN_LINEAR: return (float)value;
+		case Fann::FANN_LINEAR_PIECE: return (float)((value < 0) ? 0 : (value > 1) ? 1 : value);
+		case Fann::FANN_LINEAR_PIECE_SYMMETRIC: return (float)((value < -1) ? -1 : (value > 1) ? 1 : value);
+		case Fann::FANN_SIGMOID: return (float)fann_sigmoid_real(value); 
+		case Fann::FANN_SIGMOID_SYMMETRIC: return (float)fann_sigmoid_symmetric_real(value);
+		case Fann::FANN_SIGMOID_SYMMETRIC_STEPWISE: 
+			return (float)fann_stepwise(-2.64665293693542480469e+00, -1.47221934795379638672e+00, -5.49306154251098632812e-01, 5.49306154251098632812e-01, 1.47221934795379638672e+00, 2.64665293693542480469e+00, -9.90000009536743164062e-01, -8.99999976158142089844e-01, -5.00000000000000000000e-01, 5.00000000000000000000e-01, 8.99999976158142089844e-01, 9.90000009536743164062e-01, -1, 1, value);
+		case Fann::FANN_SIGMOID_STEPWISE: 
+			return (float)fann_stepwise(-2.64665246009826660156e+00, -1.47221946716308593750e+00, -5.49306154251098632812e-01, 5.49306154251098632812e-01, 1.47221934795379638672e+00, 2.64665293693542480469e+00, 4.99999988824129104614e-03, 5.00000007450580596924e-02, 2.50000000000000000000e-01, 7.50000000000000000000e-01, 9.49999988079071044922e-01, 9.95000004768371582031e-01, 0, 1, value); 
+		case Fann::FANN_THRESHOLD: return (float)((value < 0) ? 0 : 1); 
+		case Fann::FANN_THRESHOLD_SYMMETRIC: return (float)((value < 0) ? -1 : 1);
+		case Fann::FANN_GAUSSIAN: return (float)fann_gaussian_real(value);
+		case Fann::FANN_GAUSSIAN_SYMMETRIC: return (float)fann_gaussian_symmetric_real(value);
+		case Fann::FANN_ELLIOT: return (float)fann_elliot_real(value);
+		case Fann::FANN_ELLIOT_SYMMETRIC: return (float)fann_elliot_symmetric_real(value);
+		case Fann::FANN_SIN_SYMMETRIC: return (float)fann_sin_symmetric_real(value);
+		case Fann::FANN_COS_SYMMETRIC: return (float)fann_cos_symmetric_real(value);
+		case Fann::FANN_SIN: return (float)fann_sin_real(value);
+		case Fann::FANN_COS: return (float)fann_cos_real(value);
+		case Fann::FANN_GAUSSIAN_STEPWISE: return 0.0f;
 	}
-	return 0;
+	return 0.0f;
 }
 
-ANNTYP * Fann::Run(const ANNTYP * pInput)
+float * Fann::Run(const float * pInput)
 {
 	Fann::Neuron * p_neuron_it;
 	Fann::Neuron * p_last_neuron;
@@ -433,58 +433,35 @@ ANNTYP * Fann::Run(const ANNTYP * pInput)
 	Fann::Neuron ** pp_neuron_pointers;
 	uint i;
 	uint _num_connections;
-	ANNTYP neuron_sum;
-	ANNTYP * p_weights;
+	float neuron_sum;
+	float * p_weights;
 	Fann::Layer * p_layer_it;
 	const Fann::Layer * p_last_layer;
 	uint activation_function;
-	ANNTYP steepness;
+	float steepness;
 	// store some variabels local for fast access
 	Fann::Neuron * p_first_neuron = P_FirstLayer->P_FirstNeuron;
-#ifdef FIXEDFANN
-	const int  multiplier = Multiplier;
-	const uint decimal_point = DecimalPoint;
-	// values used for the stepwise linear sigmoid function
-	ANNTYP r1 = 0, r2 = 0, r3 = 0, r4 = 0, r5 = 0, r6 = 0;
-	ANNTYP v1 = 0, v2 = 0, v3 = 0, v4 = 0, v5 = 0, v6 = 0;
-	ANNTYP last_steepness = 0;
-	uint   last_activation_function = 0;
-#else
-	ANNTYP max_sum = 0;
-#endif
+	float max_sum = 0;
 	{
 		//
 		// first set the input
 		//
 		const uint ci = NumInput;
 		for(i = 0; i != ci; i++) {
-#ifdef FIXEDFANN
-			if(fann_abs(pInput[i]) > multiplier) {
-				printf("Warning input number %d is out of range -%d - %d with value %d, integer overflow may occur.\n", i, multiplier, multiplier, pInput[i]);
-			}
-#endif
 			p_first_neuron[i].Value = pInput[i];
 		}
 	}
 	//
 	// Set the bias neuron in the input layer
 	//
-#ifdef FIXEDFANN
-	(P_FirstLayer->P_LastNeuron-1)->Value = multiplier;
-#else
 	(P_FirstLayer->P_LastNeuron-1)->Value = 1;
-#endif
 	p_last_layer = P_LastLayer;
 	for(p_layer_it = P_FirstLayer + 1; p_layer_it != p_last_layer; p_layer_it++) {
 		p_last_neuron = p_layer_it->P_LastNeuron;
 		for(p_neuron_it = p_layer_it->P_FirstNeuron; p_neuron_it != p_last_neuron; p_neuron_it++) {
 			if(p_neuron_it->FirstCon == p_neuron_it->LastCon) {
 				// bias p_neurons
-#ifdef FIXEDFANN
-				p_neuron_it->Value = multiplier;
-#else
 				p_neuron_it->Value = 1;
-#endif
 				continue;
 			}
 			activation_function = p_neuron_it->ActivationFunction;
@@ -497,129 +474,48 @@ ANNTYP * Fann::Run(const ANNTYP * pInput)
 				{ // unrolled loop start
 					i = _num_connections & 3; // same as modulo 4
 					switch(i) {
-						case 3: neuron_sum += fann_mult(p_weights[2], p_neurons[2].Value);
-						case 2: neuron_sum += fann_mult(p_weights[1], p_neurons[1].Value);
-						case 1: neuron_sum += fann_mult(p_weights[0], p_neurons[0].Value);
+						case 3: neuron_sum += (p_weights[2] * p_neurons[2].Value);
+						case 2: neuron_sum += (p_weights[1] * p_neurons[1].Value);
+						case 1: neuron_sum += (p_weights[0] * p_neurons[0].Value);
 						case 0: break;
 					}
 					for(; i != _num_connections; i += 4) {
-						neuron_sum += fann_mult(p_weights[i], p_neurons[i].Value) +
-							fann_mult(p_weights[i+1], p_neurons[i+1].Value) +
-							fann_mult(p_weights[i+2], p_neurons[i+2].Value) +
-							fann_mult(p_weights[i+3], p_neurons[i+3].Value);
+						neuron_sum += (p_weights[i] * p_neurons[i].Value) + (p_weights[i+1] * p_neurons[i+1].Value) +
+							(p_weights[i+2] * p_neurons[i+2].Value) + (p_weights[i+3] * p_neurons[i+3].Value);
 					}
 				} // unrolled loop end
 				/*for(i = 0;i != num_connections; i++){
 					printf("%f += %f*%f, ", neuron_sum, weights[i], p_neurons[i].value);
-					neuron_sum += fann_mult(weights[i], p_neurons[i].value);
+					neuron_sum += (weights[i] * p_neurons[i].value);
 				}*/
 			}
 			else {
 				pp_neuron_pointers = PP_Connections + p_neuron_it->FirstCon;
 				i = _num_connections & 3; // same as modulo 4
 				switch(i) {
-					case 3: neuron_sum += fann_mult(p_weights[2], pp_neuron_pointers[2]->Value);
-					case 2: neuron_sum += fann_mult(p_weights[1], pp_neuron_pointers[1]->Value);
-					case 1: neuron_sum += fann_mult(p_weights[0], pp_neuron_pointers[0]->Value);
+					case 3: neuron_sum += (p_weights[2] * pp_neuron_pointers[2]->Value);
+					case 2: neuron_sum += (p_weights[1] * pp_neuron_pointers[1]->Value);
+					case 1: neuron_sum += (p_weights[0] * pp_neuron_pointers[0]->Value);
 					case 0: break;
 				}
 				for(; i != _num_connections; i += 4) {
-					neuron_sum +=
-					    fann_mult(p_weights[i], pp_neuron_pointers[i]->Value) +
-					    fann_mult(p_weights[i + 1], pp_neuron_pointers[i+1]->Value) +
-					    fann_mult(p_weights[i + 2], pp_neuron_pointers[i+2]->Value) +
-					    fann_mult(p_weights[i + 3], pp_neuron_pointers[i+3]->Value);
+					neuron_sum += (p_weights[i] * pp_neuron_pointers[i]->Value) + (p_weights[i+1] * pp_neuron_pointers[i+1]->Value) +
+					    (p_weights[i+2] * pp_neuron_pointers[i+2]->Value) + (p_weights[i+3] * pp_neuron_pointers[i+3]->Value);
 				}
 			}
-#ifdef FIXEDFANN
-			p_neuron_it->Sum = fann_mult(steepness, neuron_sum);
-			if(activation_function != last_activation_function || steepness != last_steepness) {
-				switch(activation_function) {
-					case FANN_SIGMOID:
-					case FANN_SIGMOID_STEPWISE:
-					    r1 = SigmoidResults[0];
-					    r2 = SigmoidResults[1];
-					    r3 = SigmoidResults[2];
-					    r4 = SigmoidResults[3];
-					    r5 = SigmoidResults[4];
-					    r6 = SigmoidResults[5];
-					    v1 = SigmoidValues[0] / steepness;
-					    v2 = SigmoidValues[1] / steepness;
-					    v3 = SigmoidValues[2] / steepness;
-					    v4 = SigmoidValues[3] / steepness;
-					    v5 = SigmoidValues[4] / steepness;
-					    v6 = SigmoidValues[5] / steepness;
-					    break;
-					case FANN_SIGMOID_SYMMETRIC:
-					case FANN_SIGMOID_SYMMETRIC_STEPWISE:
-					    r1 = SigmoidSymmetricResults[0];
-					    r2 = SigmoidSymmetricResults[1];
-					    r3 = SigmoidSymmetricResults[2];
-					    r4 = SigmoidSymmetricResults[3];
-					    r5 = SigmoidSymmetricResults[4];
-					    r6 = SigmoidSymmetricResults[5];
-					    v1 = SigmoidSymmetricValues[0] / steepness;
-					    v2 = SigmoidSymmetricValues[1] / steepness;
-					    v3 = SigmoidSymmetricValues[2] / steepness;
-					    v4 = SigmoidSymmetricValues[3] / steepness;
-					    v5 = SigmoidSymmetricValues[4] / steepness;
-					    v6 = SigmoidSymmetricValues[5] / steepness;
-					    break;
-					case FANN_THRESHOLD:
-					    break;
-				}
-			}
-			switch(activation_function) {
-				case FANN_SIGMOID:
-				case FANN_SIGMOID_STEPWISE:
-				    p_neuron_it->Value = (ANNTYP)fann_stepwise(v1, v2, v3, v4, v5, v6, r1, r2, r3, r4, r5, r6, 0, multiplier, neuron_sum);
-				    break;
-				case FANN_SIGMOID_SYMMETRIC:
-				case FANN_SIGMOID_SYMMETRIC_STEPWISE:
-				    p_neuron_it->Value = (ANNTYP)fann_stepwise(v1, v2, v3, v4, v5, v6, r1, r2, r3, r4, r5, r6, -multiplier, multiplier, neuron_sum);
-				    break;
-				case FANN_THRESHOLD:
-				    p_neuron_it->Value = (ANNTYP)((neuron_sum < 0) ? 0 : multiplier);
-				    break;
-				case FANN_THRESHOLD_SYMMETRIC:
-				    p_neuron_it->Value = (ANNTYP)((neuron_sum < 0) ? -multiplier : multiplier);
-				    break;
-				case FANN_LINEAR:
-				    p_neuron_it->Value = neuron_sum;
-				    break;
-				case FANN_LINEAR_PIECE:
-				    p_neuron_it->Value = (ANNTYP)((neuron_sum < 0) ? 0 : (neuron_sum > multiplier) ? multiplier : neuron_sum);
-				    break;
-				case FANN_LINEAR_PIECE_SYMMETRIC:
-				    p_neuron_it->Value = (ANNTYP)((neuron_sum < -multiplier) ? -multiplier : (neuron_sum > multiplier) ? multiplier : neuron_sum);
-				    break;
-				case FANN_ELLIOT:
-				case FANN_ELLIOT_SYMMETRIC:
-				case FANN_GAUSSIAN:
-				case FANN_GAUSSIAN_SYMMETRIC:
-				case FANN_GAUSSIAN_STEPWISE:
-				case FANN_SIN_SYMMETRIC:
-				case FANN_COS_SYMMETRIC:
-				    fann_error(&Err, SLERR_FANN_CANT_USE_ACTIVATION);
-				    break;
-			}
-			last_steepness = steepness;
-			last_activation_function = activation_function;
-#else
-			neuron_sum = fann_mult(steepness, neuron_sum);
+			neuron_sum = (steepness * neuron_sum);
 			max_sum = 150/steepness;
 			if(neuron_sum > max_sum)
 				neuron_sum = max_sum;
 			else if(neuron_sum < -max_sum)
 				neuron_sum = -max_sum;
 			p_neuron_it->Sum = neuron_sum;
-			fann_activation_switch(activation_function, neuron_sum, p_neuron_it->Value);
-#endif
+			p_neuron_it->Value = ActivationSwitch(activation_function, neuron_sum);
 		}
 	}
 	// set the output
 	{
-		ANNTYP * p_output = P_Output;
+		float * p_output = P_Output;
 		p_neurons = (P_LastLayer-1)->P_FirstNeuron;
 		const uint co = NumOutput;
 		for(i = 0; i != co; i++) {
@@ -629,16 +525,14 @@ ANNTYP * Fann::Run(const ANNTYP * pInput)
 	return P_Output;
 }
 
-void Fann::RandomizeWeights(ANNTYP minWeight, ANNTYP maxWeight)
+void Fann::RandomizeWeights(float minWeight, float maxWeight)
 {
-	const ANNTYP * p_last_weight = P_Weights + TotalConnections;
-	for(ANNTYP * p_weights = P_Weights; p_weights != p_last_weight; p_weights++) {
-		*p_weights = (ANNTYP)(fann_rand(minWeight, maxWeight));
+	const float * p_last_weight = P_Weights + TotalConnections;
+	for(float * p_weights = P_Weights; p_weights != p_last_weight; p_weights++) {
+		*p_weights = (float)(fann_rand(minWeight, maxWeight));
 	}
-#ifndef FIXEDFANN
 	if(P_PrevTrainSlopes)
 		ClearTrainArrays();
-#endif
 }
 
 int Fann::IsEqualScaleVect(uint count, const float * pVect, const float * pOtherVect) const
@@ -678,12 +572,14 @@ int Fann::IsEqual(const Fann & rS, long flags) const
 	CMPF(NumOutput);
 	CMPF(TrainingAlgorithm);
 //#ifdef FIXEDFANN
+	/*
 	CMPF(DecimalPoint);
 	CMPF(Multiplier);
 	THROW(memcmp(SigmoidResults, rS.SigmoidResults, sizeof(SigmoidResults)) == 0);
 	THROW(memcmp(SigmoidValues, rS.SigmoidValues, sizeof(SigmoidValues)) == 0);
 	THROW(memcmp(SigmoidSymmetricResults, rS.SigmoidSymmetricResults, sizeof(SigmoidSymmetricResults)) == 0);
 	THROW(memcmp(SigmoidSymmetricValues, rS.SigmoidSymmetricValues, sizeof(SigmoidSymmetricValues)) == 0);
+	*/
 //#else
 	THROW(ScaleIn.IsEqual(NumInput, rS.ScaleIn));
 	THROW(ScaleOut.IsEqual(NumOutput, rS.ScaleOut));
@@ -800,12 +696,14 @@ int Fann::Copy(const Fann & rS)
 	COPYF(Callback);
 	COPYF(P_UserData); // user_data is not deep copied.  user should use fann_copy_with_user_data() for that
 //#ifdef FIXEDFANN
+	/*
 	COPYF(DecimalPoint);
 	COPYF(Multiplier);
 	memcpy(SigmoidResults,          rS.SigmoidResults, sizeof(SigmoidResults));
 	memcpy(SigmoidValues,           rS.SigmoidValues,  sizeof(SigmoidValues));
 	memcpy(SigmoidSymmetricResults, rS.SigmoidSymmetricResults, sizeof(SigmoidSymmetricResults));
 	memcpy(SigmoidSymmetricValues,  rS.SigmoidSymmetricValues,  sizeof(SigmoidSymmetricValues));
+	*/
 //#else
 	// copy scale parameters, when used
 	ScaleIn.Copy(NumInput, rS.ScaleIn);
@@ -829,9 +727,9 @@ int Fann::Copy(const Fann & rS)
 		P_CascadeCandidateScores = NULL;
 	}
 	else {
-		P_CascadeCandidateScores = (ANNTYP*)SAlloc::M(GetCascadeNumCandidates() * sizeof(ANNTYP));
+		P_CascadeCandidateScores = (float*)SAlloc::M(GetCascadeNumCandidates() * sizeof(float));
 		THROW_S(P_CascadeCandidateScores, SLERR_FANN_CANT_ALLOCATE_MEM);
-		memcpy(P_CascadeCandidateScores, rS.P_CascadeCandidateScores, GetCascadeNumCandidates() * sizeof(ANNTYP));
+		memcpy(P_CascadeCandidateScores, rS.P_CascadeCandidateScores, GetCascadeNumCandidates() * sizeof(float));
 	}
 //#endif // } FIXEDFANN
 	COPYF(QuickpropDecay);
@@ -866,7 +764,7 @@ int Fann::Copy(const Fann & rS)
 		//
 		THROW(AllocateNeurons());
 		const uint _layer_size = (rS.P_LastLayer-1)->GetCount();
-		memcpy(P_Output, rS.P_Output, _layer_size * sizeof(ANNTYP));
+		memcpy(P_Output, rS.P_Output, _layer_size * sizeof(float));
 		p_last_neuron = (rS.P_LastLayer-1)->P_LastNeuron;
 		for(p_orig_neuron_it = rS.P_FirstLayer->P_FirstNeuron, p_copy_neuron_it = P_FirstLayer->P_FirstNeuron;
 			p_orig_neuron_it != p_last_neuron; p_orig_neuron_it++, p_copy_neuron_it++) {
@@ -886,24 +784,24 @@ int Fann::Copy(const Fann & rS)
 		PP_Connections[i] = p_copy_first_neuron + _input_neuron;
 	}
 	if(rS.P_TrainSlopes) {
-		P_TrainSlopes = (ANNTYP *)SAlloc::M(TotalConnectionsAllocated * sizeof(ANNTYP));
+		P_TrainSlopes = (float *)SAlloc::M(TotalConnectionsAllocated * sizeof(float));
 		THROW_S(P_TrainSlopes, SLERR_FANN_CANT_ALLOCATE_MEM);
-		memcpy(P_TrainSlopes, rS.P_TrainSlopes, TotalConnectionsAllocated * sizeof(ANNTYP));
+		memcpy(P_TrainSlopes, rS.P_TrainSlopes, TotalConnectionsAllocated * sizeof(float));
 	}
 	if(rS.P_PrevSteps) {
-		P_PrevSteps = (ANNTYP*)SAlloc::M(TotalConnectionsAllocated * sizeof(ANNTYP));
+		P_PrevSteps = (float*)SAlloc::M(TotalConnectionsAllocated * sizeof(float));
 		THROW_S(P_PrevSteps, SLERR_FANN_CANT_ALLOCATE_MEM);
-		memcpy(P_PrevSteps, rS.P_PrevSteps, TotalConnectionsAllocated * sizeof(ANNTYP));
+		memcpy(P_PrevSteps, rS.P_PrevSteps, TotalConnectionsAllocated * sizeof(float));
 	}
 	if(rS.P_PrevTrainSlopes) {
-		P_PrevTrainSlopes = (ANNTYP *)SAlloc::M(TotalConnectionsAllocated * sizeof(ANNTYP));
+		P_PrevTrainSlopes = (float *)SAlloc::M(TotalConnectionsAllocated * sizeof(float));
 		THROW_S(P_PrevTrainSlopes, SLERR_FANN_CANT_ALLOCATE_MEM);
-		memcpy(P_PrevTrainSlopes, rS.P_PrevTrainSlopes, TotalConnectionsAllocated * sizeof(ANNTYP));
+		memcpy(P_PrevTrainSlopes, rS.P_PrevTrainSlopes, TotalConnectionsAllocated * sizeof(float));
 	}
 	if(rS.P_PrevWeightsDeltas) {
-		P_PrevWeightsDeltas = (ANNTYP *)SAlloc::M(TotalConnectionsAllocated * sizeof(ANNTYP));
+		P_PrevWeightsDeltas = (float *)SAlloc::M(TotalConnectionsAllocated * sizeof(float));
 		THROW_S(P_PrevWeightsDeltas, SLERR_FANN_CANT_ALLOCATE_MEM);
-		memcpy(P_PrevWeightsDeltas, rS.P_PrevWeightsDeltas, TotalConnectionsAllocated * sizeof(ANNTYP));
+		memcpy(P_PrevWeightsDeltas, rS.P_PrevWeightsDeltas, TotalConnectionsAllocated * sizeof(float));
 	}
 	CATCH
 		Destroy();
@@ -951,20 +849,12 @@ FANN_EXTERNAL void FANN_API fann_print_connections(Fann * ann)
 			memset(neurons, (int)'.', num_neurons);
 			for(i = neuron_it->FirstCon; i < neuron_it->LastCon; i++) {
 				if(ann->P_Weights[i] < 0) {
-#ifdef FIXEDFANN
-					value = (int)((ann->P_Weights[i] / (double)ann->Multiplier) - 0.5);
-#else
 					value = (int)((ann->P_Weights[i]) - 0.5);
-#endif
 					SETMAX(value, -25);
 					neurons[ann->PP_Connections[i] - ann->P_FirstLayer->P_FirstNeuron] = (char)('a' - value);
 				}
 				else {
-#ifdef FIXEDFANN
-					value = (int)((ann->P_Weights[i] / (double)ann->Multiplier) + 0.5);
-#else
 					value = (int)((ann->P_Weights[i]) + 0.5);
-#endif
 					SETMIN(value, 25);
 					neurons[ann->PP_Connections[i] - ann->P_FirstLayer->P_FirstNeuron] = (char)('A' + value);
 				}
@@ -977,16 +867,12 @@ FANN_EXTERNAL void FANN_API fann_print_connections(Fann * ann)
 //
 // Initialize the weights using Widrow + Nguyen's algorithm.
 //
-//FANN_EXTERNAL void FANN_API fann_init_weights(Fann * ann, const Fann::TrainData * pData)
 void Fann::InitWeights(const Fann::TrainData * pData)
 {
-#ifdef FIXEDFANN
-	const uint multiplier = Multiplier;
-#endif
-	//ANNTYP _smallest_inp = pData->input[0][0];
-	//ANNTYP _largest_inp  = pData->input[0][0];
-	ANNTYP _smallest_inp;
-	ANNTYP _largest_inp;
+	//float _smallest_inp = pData->input[0][0];
+	//float _largest_inp  = pData->input[0][0];
+	float _smallest_inp;
+	float _largest_inp;
 	Fann::DataVector::GetMinMax(pData->InpL, &_smallest_inp, &_largest_inp);
 	const uint _num_hidden_neurons = (uint)(TotalNeurons - (NumInput + NumOutput + GetNumLayers()));
 	const float _scale_factor = (float)(pow((double)(0.7f * (double)_num_hidden_neurons), (double)(1.0f / (double)NumInput)) / (double)(_largest_inp - _smallest_inp));
@@ -999,34 +885,22 @@ void Fann::InitWeights(const Fann::TrainData * pData)
 		for(Fann::Neuron * p_neuron_it = p_layer_it->P_FirstNeuron; p_neuron_it != p_last_neuron; p_neuron_it++) {
 			for(uint _num_connect = p_neuron_it->FirstCon; _num_connect < p_neuron_it->LastCon; _num_connect++) {
 				if(p_bias_neuron == PP_Connections[_num_connect]) {
-#ifdef FIXEDFANN
-					P_Weights[_num_connect] = (ANNTYP)fann_rand(-_scale_factor, _scale_factor * multiplier);
-#else
-					P_Weights[_num_connect] = (ANNTYP)fann_rand(-_scale_factor, _scale_factor);
-#endif
+					P_Weights[_num_connect] = (float)fann_rand(-_scale_factor, _scale_factor);
 				}
 				else {
-#ifdef FIXEDFANN
-					P_Weights[_num_connect] = (ANNTYP)fann_rand(0, _scale_factor * multiplier);
-#else
-					P_Weights[_num_connect] = (ANNTYP)fann_rand(0, _scale_factor);
-#endif
+					P_Weights[_num_connect] = (float)fann_rand(0, _scale_factor);
 				}
 			}
 		}
 	}
-#ifndef FIXEDFANN
 	if(P_PrevTrainSlopes)
 		ClearTrainArrays();
-#endif
 }
 
 FANN_EXTERNAL void FANN_API fann_print_parameters(Fann * ann)
 {
 	Fann::Layer * layer_it;
-#ifndef FIXEDFANN
 	uint i;
-#endif
 	printf("Input layer                          :%4d neurons, 1 bias\n", ann->NumInput);
 	for(layer_it = ann->P_FirstLayer + 1; layer_it != ann->P_LastLayer-1; layer_it++) {
 		if(ann->NetworkType == Fann::FANN_NETTYPE_SHORTCUT) {
@@ -1041,17 +915,9 @@ FANN_EXTERNAL void FANN_API fann_print_parameters(Fann * ann)
 	printf("Total connections                    :%4d\n", ann->TotalConnections);
 	printf("Connection rate                      :%8.3f\n", ann->ConnectionRate);
 	printf("Network type                         :   %s\n", Fann::GetAttrText(Fann::attrNetType, ann->NetworkType));
-#ifdef FIXEDFANN
-	printf("Decimal point                        :%4d\n", ann->DecimalPoint);
-	printf("Multiplier                           :%4d\n", ann->Multiplier);
-#else
 	printf("Training algorithm                   :   %s\n", Fann::GetAttrText(Fann::attrTrainAlgorithm, ann->TrainingAlgorithm));
 	printf("Training error function              :   %s\n", Fann::GetAttrText(Fann::attrErrorFunc, ann->TrainErrorFunction));
 	printf("Training stop function               :   %s\n", Fann::GetAttrText(Fann::attrStopFunc,  ann->TrainStopFunction));
-#endif
-#ifdef FIXEDFANN
-	printf("Bit fail limit                       :%4d\n", ann->BitFailLimit);
-#else
 	printf("Bit fail limit                       :%8.3f\n", ann->BitFailLimit);
 	printf("Learning rate                        :%8.3f\n", ann->LearningRate);
 	printf("Learning momentum                    :%8.3f\n", ann->LearningMomentum);
@@ -1088,7 +954,6 @@ FANN_EXTERNAL void FANN_API fann_print_parameters(Fann * ann)
 	printf("Cascade candidate groups             :%4d\n", ann->CascadeNumCandidateGroups);
 	printf("Cascade no. of candidates            :%4d\n", ann->GetCascadeNumCandidates());
 	/* @todo dump scale parameters */
-#endif
 }
 
 FANN_EXTERNAL float FANN_API fann_get_connection_rate(Fann * ann)
@@ -1120,7 +985,6 @@ void Fann::GetLayerArray(LongArray & rList) const
 	assert(rList == Layers);
 }
 
-//FANN_EXTERNAL void FANN_API fann_get_bias_array(Fann * ann, uint * pBias)
 void Fann::GetBiasArray(LongArray & rList) const
 {
 	rList.clear();
@@ -1174,8 +1038,8 @@ void Fann::SetWeightArray(const FannConnection * pConnections, uint numConnectio
 	}
 }
 
-//FANN_EXTERNAL void FANN_API fann_set_weight(Fann * ann, uint fromNeuron, uint toNeuron, ANNTYP weight)
-void Fann::SetWeight(uint fromNeuron, uint toNeuron, ANNTYP weight)
+//FANN_EXTERNAL void FANN_API fann_set_weight(Fann * ann, uint fromNeuron, uint toNeuron, float weight)
+void Fann::SetWeight(uint fromNeuron, uint toNeuron, float weight)
 {
 	uint   _source_index = 0;
 	uint   _destination_index = 0;
@@ -1197,11 +1061,10 @@ void Fann::SetWeight(uint fromNeuron, uint toNeuron, ANNTYP weight)
 	}
 }
 
-//FANN_EXTERNAL void FANN_API fann_get_weights(Fann * ann, ANNTYP * weights)
-size_t Fann::GetWeights(ANNTYP * pWeights, size_t bufferSize) const
+size_t Fann::GetWeights(float * pWeights, size_t bufferSize) const
 {
 	size_t moved_size = 0;
-	const size_t _size = sizeof(ANNTYP) * TotalConnections;
+	const size_t _size = sizeof(float) * TotalConnections;
 	if(pWeights == 0)
 		moved_size = _size;
 	else if(bufferSize >= _size) {
@@ -1211,49 +1074,11 @@ size_t Fann::GetWeights(ANNTYP * pWeights, size_t bufferSize) const
 	return moved_size;
 }
 
-//FANN_EXTERNAL void FANN_API fann_set_weights(Fann * ann, ANNTYP * weights)
-int Fann::SetWeights(const ANNTYP * pWeights)
+int Fann::SetWeights(const float * pWeights)
 {
-	memcpy(P_Weights, pWeights, sizeof(ANNTYP) * TotalConnections);
+	memcpy(P_Weights, pWeights, sizeof(float) * TotalConnections);
 	return 1;
 }
-
-//#ifdef FIXEDFANN
-
-//FANN_GET(uint, decimal_point)
-//FANN_GET(uint, multiplier)
-//
-// INTERNAL FUNCTION
-// Adjust the steepwise functions (if used)
-//
-//void fann_update_stepwise(Fann * ann)
-void Fann::UpdateStepwise()
-{
-	//
-	// Calculate the parameters for the stepwise linear
-	// sigmoid function fixed point.
-	// Using a rewritten sigmoid function.
-	// results 0.005, 0.05, 0.25, 0.75, 0.95, 0.995
-	//
-	SigmoidResults[0] = MAX((ANNTYP)(Multiplier / 200.0 + 0.5), 1);
-	SigmoidResults[1] = MAX((ANNTYP)(Multiplier / 20.0 + 0.5), 1);
-	SigmoidResults[2] = MAX((ANNTYP)(Multiplier / 4.0 + 0.5), 1);
-	SigmoidResults[3] = MIN(Multiplier - (ANNTYP)(Multiplier / 4.0 + 0.5), Multiplier - 1);
-	SigmoidResults[4] = MIN(Multiplier - (ANNTYP)(Multiplier / 20.0 + 0.5), Multiplier - 1);
-	SigmoidResults[5] = MIN(Multiplier - (ANNTYP)(Multiplier / 200.0 + 0.5), Multiplier - 1);
-	SigmoidSymmetricResults[0] = MAX((ANNTYP)((Multiplier / 100.0) - Multiplier - 0.5), (ANNTYP)(1 - (ANNTYP)Multiplier));
-	SigmoidSymmetricResults[1] = MAX((ANNTYP)((Multiplier / 10.0) - Multiplier - 0.5), (ANNTYP)(1 - (ANNTYP)Multiplier));
-	SigmoidSymmetricResults[2] = MAX((ANNTYP)((Multiplier / 2.0) - Multiplier - 0.5), (ANNTYP)(1 - (ANNTYP)Multiplier));
-	SigmoidSymmetricResults[3] = MIN(Multiplier - (ANNTYP)(Multiplier / 2.0 + 0.5), Multiplier - 1);
-	SigmoidSymmetricResults[4] = MIN(Multiplier - (ANNTYP)(Multiplier / 10.0 + 0.5), Multiplier - 1);
-	SigmoidSymmetricResults[5] = MIN(Multiplier - (ANNTYP)(Multiplier / 100.0 + 1.0), Multiplier - 1);
-	for(uint i = 0; i < 6; i++) {
-		SigmoidValues[i] = (ANNTYP)(((log(Multiplier / (float)SigmoidResults[i] - 1) * (float)Multiplier) / -2.0) * (float)Multiplier);
-		SigmoidSymmetricValues[i] = (ANNTYP)(((log((Multiplier - (float)SigmoidSymmetricResults[i]) / ((float)SigmoidSymmetricResults[i] + Multiplier)) * (float)Multiplier) / -2.0) * (float)Multiplier);
-	}
-}
-
-//#endif
 
 FannError::FannError()
 {
@@ -1345,7 +1170,7 @@ int Fann::Helper_Construct(int type, float connectionRate, const LongArray & rLa
 	num_MSE = 0;
 	MSE_value = 0;
 	NumBitFail = 0;
-	BitFailLimit = (ANNTYP)0.35;
+	BitFailLimit = (float)0.35;
 	TrainErrorFunction = FANN_ERRORFUNC_TANH;
 	TrainStopFunction = FANN_STOPFUNC_MSE;
 	Callback = NULL;
@@ -1353,23 +1178,16 @@ int Fann::Helper_Construct(int type, float connectionRate, const LongArray & rLa
 	P_Weights = NULL;
 	PP_Connections = NULL;
 	P_Output = NULL;
-//#ifdef FIXEDFANN
-	// these values are only boring defaults, and should really
-	// never be used, since the real values are always loaded from a file.
-	DecimalPoint = 8;
-	Multiplier = 256;
-//#else
 	ScaleIn.Destroy();
 	ScaleOut.Destroy();
-//#endif
 	// variables used for cascade correlation (reasonable defaults)
 	CascadeOutputChangeFraction = 0.01f;
 	CascadeCandidateChangeFraction = 0.01f;
 	CascadeOutputStagnationEpochs = 12;
 	CascadeCandidateStagnationEpochs = 12;
 	CascadeNumCandidateGroups = 2;
-	CascadeWeightMultiplier = (ANNTYP)0.4;
-	CascadeCandidateLimit = (ANNTYP)1000.0;
+	CascadeWeightMultiplier = (float)0.4;
+	CascadeCandidateLimit = (float)1000.0;
 	CascadeMaxOutEpochs = 150;
 	CascadeMaxCandEpochs = 150;
 	CascadeMinOutEpochs = 50;
@@ -1410,11 +1228,8 @@ int Fann::Helper_Construct(int type, float connectionRate, const LongArray & rLa
 	//THROW_S(P_FirstLayer = (Fann::Layer *)SAlloc::C(rLayers.getCount(), sizeof(Fann::Layer)), SLERR_NOMEM);
 	THROW(AllocateLayers());
 	//
-	const int multiplier = Multiplier;
+	//const int multiplier = Multiplier;
 	if(NetworkType == FANN_NETTYPE_LAYER) {
-#ifdef FIXEDFANN
-		UpdateStepwise();
-#endif
 		{
 			// determine how many neurons there should be in each layer
 			for(Fann::Layer * p_layer_it = P_FirstLayer; p_layer_it != P_LastLayer; p_layer_it++) {
@@ -1448,11 +1263,7 @@ int Fann::Helper_Construct(int type, float connectionRate, const LongArray & rLa
 					_allocated_connections += _connections_per_neuron;
 					p_layer_it->P_FirstNeuron[i].LastCon = TotalConnections + _allocated_connections;
 					p_layer_it->P_FirstNeuron[i].ActivationFunction = Fann::FANN_SIGMOID_STEPWISE;
-#ifdef FIXEDFANN
-					p_layer_it->P_FirstNeuron[i].ActivationSteepness = Multiplier / 2;
-#else
 					p_layer_it->P_FirstNeuron[i].ActivationSteepness = 0.5;
-#endif
 					if(_allocated_connections < (_num_connections * (i + 1)) / _num_neurons_out) {
 						p_layer_it->P_FirstNeuron[i].LastCon++;
 						_allocated_connections++;
@@ -1476,13 +1287,13 @@ int Fann::Helper_Construct(int type, float connectionRate, const LongArray & rLa
 				for(Fann::Neuron * neuron_it = p_layer_it->P_FirstNeuron; neuron_it != last_neuron; neuron_it++) {
 					const uint _tmp_con = neuron_it->LastCon - 1;
 					for(uint i = neuron_it->FirstCon; i != _tmp_con; i++) {
-						P_Weights[i] = (ANNTYP)fann_random_weight();
+						P_Weights[i] = (float)fann_random_weight();
 						// these connections are still initialized for fully connected networks, to allow
 						// operations to work, that are not optimized for fully connected networks.
 						PP_Connections[i] = p_prev_layer->P_FirstNeuron + (i - neuron_it->FirstCon);
 					}
 					// bias weight
-					P_Weights[_tmp_con] = (ANNTYP)fann_random_bias_weight();
+					P_Weights[_tmp_con] = (float)fann_random_bias_weight();
 					PP_Connections[_tmp_con] = p_prev_layer->P_FirstNeuron + (_tmp_con - neuron_it->FirstCon);
 				}
 				prev_layer_size = p_layer_it->GetCount(); // @debug
@@ -1510,7 +1321,7 @@ int Fann::Helper_Construct(int type, float connectionRate, const LongArray & rLa
 				{
 					for(Fann::Neuron * neuron_it = p_layer_it->P_FirstNeuron; neuron_it != last_neuron; neuron_it++) {
 						PP_Connections[neuron_it->FirstCon] = p_bias_neuron;
-						P_Weights[neuron_it->FirstCon] = (ANNTYP)fann_random_bias_weight();
+						P_Weights[neuron_it->FirstCon] = (float)fann_random_bias_weight();
 					}
 				}
 				// then connect all neurons in the input layer
@@ -1528,7 +1339,7 @@ int Fann::Helper_Construct(int type, float connectionRate, const LongArray & rLa
 						for(uint i = p_random_neuron->FirstCon; i < p_random_neuron->LastCon; i++) {
 							if(PP_Connections[i] == NULL) {
 								PP_Connections[i] = neuron_it;
-								P_Weights[i] = (ANNTYP)fann_random_weight();
+								P_Weights[i] = (float)fann_random_weight();
 								break;
 							}
 						}
@@ -1557,7 +1368,7 @@ int Fann::Helper_Construct(int type, float connectionRate, const LongArray & rLa
 								} while(_found_connection);
 								// we have found a neuron that is not allready connected to us, connect it
 								PP_Connections[i] = p_random_neuron;
-								P_Weights[i] = (ANNTYP)fann_random_weight();
+								P_Weights[i] = (float)fann_random_weight();
 							}
 						}
 					}
@@ -1569,9 +1380,6 @@ int Fann::Helper_Construct(int type, float connectionRate, const LongArray & rLa
 		}
 	}
 	else if(NetworkType == FANN_NETTYPE_SHORTCUT) {
-#ifdef FIXEDFANN
-		UpdateStepwise();
-#endif
 		{
 			// determine how many neurons there should be in each layer
 			for(Fann::Layer * p_layer_it = P_FirstLayer; p_layer_it != P_LastLayer; p_layer_it++) {
@@ -1596,11 +1404,7 @@ int Fann::Helper_Construct(int type, float connectionRate, const LongArray & rLa
 					TotalConnections += num_neurons_in + 1;
 					p_layer_it->P_FirstNeuron[i].LastCon = TotalConnections;
 					p_layer_it->P_FirstNeuron[i].ActivationFunction = Fann::FANN_SIGMOID_STEPWISE;
-#ifdef FIXEDFANN
-					p_layer_it->P_FirstNeuron[i].ActivationSteepness = Multiplier / 2;
-#else
 					p_layer_it->P_FirstNeuron[i].ActivationSteepness = 0.5;
-#endif
 				}
 				num_neurons_in += num_neurons_out; // used in the next run of the loop
 			}
@@ -1614,7 +1418,7 @@ int Fann::Helper_Construct(int type, float connectionRate, const LongArray & rLa
 					uint i = p_neuron_it->FirstCon;
 					for(Fann::Layer * p_layer_it2 = P_FirstLayer; p_layer_it2 != p_layer_it; p_layer_it2++) {
 						for(Fann::Neuron * p_neuron_it2 = p_layer_it2->P_FirstNeuron; p_neuron_it2 != p_layer_it2->P_LastNeuron; p_neuron_it2++) {
-							P_Weights[i] = (ANNTYP)fann_random_weight();
+							P_Weights[i] = (float)fann_random_weight();
 							PP_Connections[i] = p_neuron_it2;
 							i++;
 						}
@@ -1701,10 +1505,6 @@ void Fann::Destroy()
 	ZFREE(P_PrevSteps);
 	ZFREE(P_PrevWeightsDeltas);
 	ZFREE(P_CascadeCandidateScores);
-	MEMSZERO(SigmoidResults);
-	MEMSZERO(SigmoidValues);
-	MEMSZERO(SigmoidSymmetricResults);
-	MEMSZERO(SigmoidSymmetricValues);
 	Layers.freeAll();
 	ScaleIn.Destroy();
 	ScaleOut.Destroy();
@@ -1722,22 +1522,6 @@ FANN_EXTERNAL void FANN_API fann_destroy(Fann * pAnn)
 {
 	ZDELETE(pAnn);
 }
-//
-// INTERNAL FUNCTION
-// Allocates the main structure and sets some default values.
-//
-/*Fann * fann_allocate_structure(uint num_layers)
-{
-	if(num_layers < 2) {
-		return NULL;
-	}
-	else {
-		Fann * p_ann = new Fann(num_layers);
-		if(p_ann->IsError())
-			ZDELETE(p_ann);
-		return p_ann;
-	}
-}*/
 
 float * Fann::ScaleAllocate(uint c, float defValue)
 {
@@ -1770,7 +1554,6 @@ float * Fann::ScaleAllocate(uint c, float defValue)
 int Fann::AllocateScale()
 {
 	// todo this should only be allocated when needed
-#ifndef FIXEDFANN
 	/*
 	uint i = 0;
 #define SCALE_ALLOCATE(what, where, default_value)				      \
@@ -1798,7 +1581,6 @@ int Fann::AllocateScale()
 		fann_destroy(this); // @bad
 		return 0;
 	ENDCATCH
-#endif
 	return 1;
 }
 
@@ -1818,7 +1600,7 @@ int Fann::AllocateNeurons()
 		p_layer_it->P_LastNeuron = p_layer_it->P_FirstNeuron + _num_neurons;
 		_num_neurons_so_far += _num_neurons;
 	}
-	THROW_V(P_Output = (ANNTYP *)SAlloc::C(_num_neurons, sizeof(ANNTYP)), SLERR_FANN_CANT_ALLOCATE_MEM);
+	THROW_V(P_Output = (float *)SAlloc::C(_num_neurons, sizeof(float)), SLERR_FANN_CANT_ALLOCATE_MEM);
 	CATCH
 		fann_error(&Err, Err.errno_f);
 		ok = 0;
@@ -1829,7 +1611,7 @@ int Fann::AllocateNeurons()
 int Fann::AllocateConnections()
 {
 	int    ok = 1;
-	THROW(P_Weights = (ANNTYP *)SAlloc::C(TotalConnections, sizeof(ANNTYP)));
+	THROW(P_Weights = (float *)SAlloc::C(TotalConnections, sizeof(float)));
 	TotalConnectionsAllocated = TotalConnections;
 	// @todo make special cases for all places where the connections
 	// is used, so that it is not needed for fully connected networks
@@ -1890,8 +1672,6 @@ void fann_seed_rand()
 //
 // FANN_CASCADE
 //
-#ifndef FIXEDFANN
-
 /* #define CASCADE_DEBUG */
 /* #define CASCADE_DEBUG_FULL */
 
@@ -2054,10 +1834,10 @@ int Fann::ReallocateConnections(uint totalConnections)
 	// The connections are allocated, but the pointers inside are
 	// first moved in the end of the cascade training session.
 	THROW(PP_Connections = (Fann::Neuron**)SAlloc::R(PP_Connections, totalConnections * sizeof(Fann::Neuron *)));
-	THROW(P_Weights = (ANNTYP*)SAlloc::R(P_Weights, totalConnections * sizeof(ANNTYP)));
-	THROW(P_TrainSlopes = (ANNTYP*)SAlloc::R(P_TrainSlopes, totalConnections * sizeof(ANNTYP)));
-	THROW(P_PrevSteps = (ANNTYP*)SAlloc::R(P_PrevSteps, totalConnections * sizeof(ANNTYP)));
-	THROW(P_PrevTrainSlopes = (ANNTYP*)SAlloc::R(P_PrevTrainSlopes, totalConnections * sizeof(ANNTYP)));
+	THROW(P_Weights = (float*)SAlloc::R(P_Weights, totalConnections * sizeof(float)));
+	THROW(P_TrainSlopes = (float*)SAlloc::R(P_TrainSlopes, totalConnections * sizeof(float)));
+	THROW(P_PrevSteps = (float*)SAlloc::R(P_PrevSteps, totalConnections * sizeof(float)));
+	THROW(P_PrevTrainSlopes = (float*)SAlloc::R(P_PrevTrainSlopes, totalConnections * sizeof(float)));
 	TotalConnectionsAllocated = totalConnections;
 	CATCHZOK
 	return ok;
@@ -2071,7 +1851,7 @@ int Fann::ReallocateNeurons(uint totalNeurons)
 	TotalNeuronsAllocated = totalNeurons;
 	THROW(p_neurons);
 	// Also allocate room for more train_errors
-	THROW(P_TrainErrors = (ANNTYP*)SAlloc::R(P_TrainErrors, totalNeurons * sizeof(ANNTYP)));
+	THROW(P_TrainErrors = (float*)SAlloc::R(P_TrainErrors, totalNeurons * sizeof(float)));
 	if(p_neurons != P_FirstLayer->P_FirstNeuron) {
 		// Then the memory has moved, also move the pointers
 		// Move pointers from layers to neurons
@@ -2107,7 +1887,7 @@ int FASTCALL Fann::DesiredErrorReached(float desired_error) const
 void Fann::InitializeCandidateWeights(uint firstCon, uint lastCon, float scaleFactor)
 {
 	const uint _bias_weight = (firstCon + P_FirstLayer->GetCount() - 1);
-	ANNTYP _prev_step = (TrainingAlgorithm == FANN_TRAIN_RPROP) ? RpropDeltaZero : 0;
+	float _prev_step = (TrainingAlgorithm == FANN_TRAIN_RPROP) ? RpropDeltaZero : 0;
 	for(uint i = firstCon; i < lastCon; i++) {
 		if(i == _bias_weight)
 			P_Weights[i] = fann_rand(-scaleFactor, scaleFactor);
@@ -2171,7 +1951,7 @@ int Fann::InitializeCandidates()
 			uint candidate_index = _first_candidate_neuron;
 			for(uint i = 0; i < CascadeActivationFuncList.getCount(); i++) {
 				for(uint j = 0; j < CascadeActivationSteepnessesList.getCount(); j++) {
-					const ANNTYP steepness = CascadeActivationSteepnessesList[j];
+					const float steepness = CascadeActivationSteepnessesList[j];
 					for(uint k = 0; k < CascadeNumCandidateGroups; k++) {
 						// @todo candidates should actually be created both in
 						// the last layer before the output layer, and in a new layer.
@@ -2214,14 +1994,14 @@ int Fann::InitializeCandidates()
 //int fann_train_candidates(Fann * ann, Fann::TrainData * pData)
 int Fann::TrainCandidates(const Fann::TrainData * pData)
 {
-	ANNTYP _best_cand_score = 0.0;
-	ANNTYP _target_cand_score = 0.0;
-	ANNTYP _backslide_cand_score = -1.0e20f;
+	float _best_cand_score = 0.0;
+	float _target_cand_score = 0.0;
+	float _backslide_cand_score = -1.0e20f;
 	const uint _max_epochs = CascadeMaxCandEpochs;
 	const uint _min_epochs = CascadeMinCandEpochs;
 	uint _stagnation = _max_epochs;
 	if(P_CascadeCandidateScores == NULL) {
-		P_CascadeCandidateScores = (ANNTYP*)SAlloc::M(GetCascadeNumCandidates() * sizeof(ANNTYP));
+		P_CascadeCandidateScores = (float*)SAlloc::M(GetCascadeNumCandidates() * sizeof(float));
 		if(P_CascadeCandidateScores == NULL) {
 			fann_error(&Err, SLERR_FANN_CANT_ALLOCATE_MEM);
 			return 0;
@@ -2247,20 +2027,19 @@ int Fann::TrainCandidates(const Fann::TrainData * pData)
 	return _max_epochs;
 }
 
-//void fann_update_candidate_slopes(Fann * ann)
 void Fann::UpdateCandidateSlopes()
 {
 	Fann::Neuron * p_neurons = P_FirstLayer->P_FirstNeuron;
 	Fann::Neuron * p_first_cand = p_neurons + TotalNeurons + 1;
 	Fann::Neuron * p_last_cand = p_first_cand + GetCascadeNumCandidates();
 	const uint _num_output = NumOutput;
-	const ANNTYP * p_output_train_errors = P_TrainErrors + (TotalNeurons - NumOutput);
+	const float * p_output_train_errors = P_TrainErrors + (TotalNeurons - NumOutput);
 	for(Fann::Neuron * p_cand_it = p_first_cand; p_cand_it < p_last_cand; p_cand_it++) {
-		ANNTYP cand_score = P_CascadeCandidateScores[p_cand_it - p_first_cand];
+		float cand_score = P_CascadeCandidateScores[p_cand_it - p_first_cand];
 		// code more or less stolen from fann_run to fast forward pass
-		ANNTYP cand_sum = 0.0;
+		float cand_sum = 0.0;
 		const uint num_connections = p_cand_it->GetConCount();
-		const ANNTYP * p_weights = P_Weights + p_cand_it->FirstCon;
+		const float * p_weights = P_Weights + p_cand_it->FirstCon;
 		{
 			// unrolled loop start
 			uint i = num_connections & 3; // same as modulo 4
@@ -2283,24 +2062,24 @@ void Fann::UpdateCandidateSlopes()
 			// unrolled loop end
 		}
 		{
-			const ANNTYP _max_sum = 150.0f/p_cand_it->ActivationSteepness;
+			const float _max_sum = 150.0f/p_cand_it->ActivationSteepness;
 			if(cand_sum > _max_sum)
 				cand_sum = _max_sum;
 			else if(cand_sum < -_max_sum)
 				cand_sum = -_max_sum;
 		}
 		{
-			ANNTYP _error_value = 0.0;
-			const ANNTYP activation = Activation(p_cand_it->ActivationFunction, p_cand_it->ActivationSteepness, cand_sum);
+			float _error_value = 0.0;
+			const float activation = Activation(p_cand_it->ActivationFunction, p_cand_it->ActivationSteepness, cand_sum);
 			// printf("%f = sigmoid(%f);\n", activation, cand_sum);
 			p_cand_it->Sum = cand_sum;
 			p_cand_it->Value = activation;
-			const ANNTYP derived = p_cand_it->ActivationDerived(activation, cand_sum);
+			const float derived = p_cand_it->ActivationDerived(activation, cand_sum);
 			// The output weights is located right after the input weights in the weight array.
-			const ANNTYP * p_cand_out_weights = p_weights + num_connections;
-			ANNTYP * p_cand_out_slopes = P_TrainSlopes + p_cand_it->FirstCon + num_connections;
+			const float * p_cand_out_weights = p_weights + num_connections;
+			float * p_cand_out_slopes = P_TrainSlopes + p_cand_it->FirstCon + num_connections;
 			for(uint j = 0; j < _num_output; j++) {
-				const ANNTYP diff = (activation * p_cand_out_weights[j]) - p_output_train_errors[j];
+				const float diff = (activation * p_cand_out_weights[j]) - p_output_train_errors[j];
 				p_cand_out_slopes[j] -= 2.0f * diff * activation;
 				_error_value += diff * p_cand_out_weights[j];
 				cand_score -= (diff * diff);
@@ -2308,7 +2087,7 @@ void Fann::UpdateCandidateSlopes()
 			P_CascadeCandidateScores[p_cand_it-p_first_cand] = cand_score;
 			_error_value *= derived;
 			{
-				ANNTYP * p_cand_slopes = P_TrainSlopes + p_cand_it->FirstCon;
+				float * p_cand_slopes = P_TrainSlopes + p_cand_it->FirstCon;
 				for(uint cidx = 0; cidx < num_connections; cidx++)
 					p_cand_slopes[cidx] -= _error_value * p_neurons[cidx].Value;
 			}
@@ -2339,13 +2118,13 @@ void Fann::UpdateCandidateWeights(uint numData)
 	}
 }
 
-//ANNTYP fann_train_candidates_epoch(Fann * ann, Fann::TrainData * pData)
-ANNTYP Fann::TrainCandidatesEpoch(const Fann::TrainData * pData)
+//float fann_train_candidates_epoch(Fann * ann, Fann::TrainData * pData)
+float Fann::TrainCandidatesEpoch(const Fann::TrainData * pData)
 {
-	ANNTYP _best_score = 0;
+	float _best_score = 0;
 	uint   i;
 	const  uint _num_cand = GetCascadeNumCandidates();
-	ANNTYP * p_output_train_errors = P_TrainErrors + (TotalNeurons - NumOutput);
+	float * p_output_train_errors = P_TrainErrors + (TotalNeurons - NumOutput);
 	Fann::Neuron * p_output_neurons = (P_LastLayer-1)->P_FirstNeuron;
 	for(i = 0; i < _num_cand; i++) {
 		// The ann->MSE_value is actually the sum squared error
@@ -2416,7 +2195,6 @@ ANNTYP Fann::TrainCandidatesEpoch(const Fann::TrainData * pData)
 //
 // add a layer at the position pointed to by *layer
 //
-//Fann::Layer * fann_add_layer(Fann * ann, Fann::Layer * pLayer)
 Fann::Layer * Fann::AddLayer(Fann::Layer * pLayer)
 {
 	Fann::Layer * p_result = 0;
@@ -2523,8 +2301,6 @@ void Fann::AddCandidateNeuron(Fann::Layer * pLayer)
 	TotalConnections += num_connections_in + num_connections_out;
 }
 
-#endif /* FIXEDFANN */
-
 /*FANN_EXTERNAL uint FANN_API fann_get_cascade_num_candidates(const Fann * pAnn)
 {
 	return pAnn->GetCascadeNumCandidates();
@@ -2570,20 +2346,20 @@ void Fann::SetCascadeActivationFunctions(const Fann::ActivationFunc * pCascadeAc
 }
 
 //FANN_GET(uint, cascade_activation_steepnesses_count)
-//FANN_GET(ANNTYP *, cascade_activation_steepnesses)
+//FANN_GET(float *, cascade_activation_steepnesses)
 
-/*FANN_EXTERNAL void FANN_API fann_set_cascade_activation_steepnesses(Fann * ann, ANNTYP * cascade_activation_steepnesses, uint cascade_activation_steepnesses_count)
+/*FANN_EXTERNAL void FANN_API fann_set_cascade_activation_steepnesses(Fann * ann, float * cascade_activation_steepnesses, uint cascade_activation_steepnesses_count)
 {
 	if(ann->cascade_activation_steepnesses_count != cascade_activation_steepnesses_count) {
 		ann->cascade_activation_steepnesses_count = cascade_activation_steepnesses_count;
 		// reallocate mem
-		ann->CascadeActivationSteepnesses = (ANNTYP*)SAlloc::R(ann->CascadeActivationSteepnesses, ann->cascade_activation_steepnesses_count * sizeof(ANNTYP));
+		ann->CascadeActivationSteepnesses = (float*)SAlloc::R(ann->CascadeActivationSteepnesses, ann->cascade_activation_steepnesses_count * sizeof(float));
 		if(ann->CascadeActivationSteepnesses == NULL) {
 			fann_error(&ann->Err, SLERR_FANN_CANT_ALLOCATE_MEM);
 			return;
 		}
 	}
-	memmove(ann->CascadeActivationSteepnesses, cascade_activation_steepnesses, ann->cascade_activation_steepnesses_count * sizeof(ANNTYP));
+	memmove(ann->CascadeActivationSteepnesses, cascade_activation_steepnesses, ann->cascade_activation_steepnesses_count * sizeof(float));
 }*/
 
 void Fann::SetCascadeActivationSteepnesses(const FloatArray & rList)
@@ -2852,16 +2628,12 @@ Fann::StorageHeader::StorageHeader()
 	Sign[2] = 'N';
 	Sign[3] = 'N';
 	Ver = 1;
-#ifdef FIXEDFANN
-	Type = 3;
-#else
-	if(sizeof(ANNTYP) == 4)
+	if(sizeof(float) == 4)
 		Type = 1;
-	else if(sizeof(ANNTYP) == 8)
+	else if(sizeof(float) == 8)
 		Type = 2;
 	else
 		Type = 0; // error
-#endif
 }
 
 int Fann::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
@@ -2896,14 +2668,14 @@ int Fann::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 	THROW(pSCtx->Serialize(dir, ConnectionRate, rBuf));
 	THROW(pSCtx->Serialize(dir, TotalNeurons, rBuf));
 	THROW(pSCtx->Serialize(dir, TrainingAlgorithm, rBuf));
-
+	/*
 	THROW(pSCtx->Serialize(dir, DecimalPoint, rBuf));
 	THROW(pSCtx->Serialize(dir, Multiplier, rBuf));
 	THROW(pSCtx->SerializeBlock(dir, sizeof(SigmoidResults), SigmoidResults, rBuf, 0));
 	THROW(pSCtx->SerializeBlock(dir, sizeof(SigmoidValues), SigmoidValues, rBuf, 0));
 	THROW(pSCtx->SerializeBlock(dir, sizeof(SigmoidSymmetricResults), SigmoidSymmetricResults, rBuf, 0));
 	THROW(pSCtx->SerializeBlock(dir, sizeof(SigmoidSymmetricValues), SigmoidSymmetricValues, rBuf, 0));
-
+	*/
 	THROW(pSCtx->Serialize(dir, TotalConnections, rBuf));
 	THROW(pSCtx->Serialize(dir, num_MSE, rBuf));
 	THROW(pSCtx->Serialize(dir, MSE_value, rBuf));
@@ -3057,28 +2829,28 @@ int Fann::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 			THROW(pSCtx->Serialize(dir, _pc, rBuf));
 			if(_pc) {
 				ZDELETE(P_TrainSlopes);
-				THROW(P_TrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
+				THROW(P_TrainSlopes = (float *)SAlloc::C(TotalConnectionsAllocated, sizeof(float)));
 				THROW(pSCtx->SerializeBlock(dir, _pc * sizeof(P_TrainSlopes[0]), P_TrainSlopes, rBuf, 0));
 			}
 			//
 			THROW(pSCtx->Serialize(dir, _pc, rBuf));
 			if(_pc) {
 				ZDELETE(P_PrevSteps);
-				THROW(P_PrevSteps = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
+				THROW(P_PrevSteps = (float *)SAlloc::C(TotalConnectionsAllocated, sizeof(float)));
 				THROW(pSCtx->SerializeBlock(dir, _pc * sizeof(P_PrevSteps[0]), P_PrevSteps, rBuf, 0));
 			}
 			//
 			THROW(pSCtx->Serialize(dir, _pc, rBuf));
 			if(_pc) {
 				ZDELETE(P_PrevTrainSlopes);
-				THROW(P_PrevTrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
+				THROW(P_PrevTrainSlopes = (float *)SAlloc::C(TotalConnectionsAllocated, sizeof(float)));
 				THROW(pSCtx->SerializeBlock(dir, _pc * sizeof(P_PrevTrainSlopes[0]), P_PrevTrainSlopes, rBuf, 0));
 			}
 			//
 			THROW(pSCtx->Serialize(dir, _pc, rBuf));
 			if(_pc) {
 				ZDELETE(P_PrevWeightsDeltas);
-				THROW(P_PrevWeightsDeltas = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
+				THROW(P_PrevWeightsDeltas = (float *)SAlloc::C(TotalConnectionsAllocated, sizeof(float)));
 				THROW(pSCtx->SerializeBlock(dir, _pc * sizeof(P_PrevWeightsDeltas[0]), P_PrevWeightsDeltas, rBuf, 0));
 			}
 		}
@@ -3086,7 +2858,6 @@ int Fann::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 	CATCHZOK
 	return ok;
 }
-
 //
 // INTERNAL FUNCTION
 // Used to save the network to a file descriptor.
@@ -3096,27 +2867,20 @@ int fann_save_internal_fd(Fann * ann, FILE * conf, const char * configuration_fi
 	Fann::Layer * layer_it;
 	int calculated_decimal_point = 0;
 	Fann::Neuron * neuron_it, * first_neuron;
-	ANNTYP * weights;
+	float * weights;
 	Fann::Neuron ** connected_neurons;
 	uint i = 0;
-#ifndef FIXEDFANN
 	// variabels for use when saving floats as fixed point variabels
 	uint   decimal_point = 0;
 	uint   fixed_multiplier = 0;
-	ANNTYP max_possible_value = 0;
+	float  max_possible_value = 0;
 	uint   bits_used_for_max = 0;
-	ANNTYP current_max_value = 0;
-#endif
+	float  current_max_value = 0;
 	// save the version information
-#ifndef FIXEDFANN
 	if(save_as_fixed)
 		fprintf(conf, FANN_FIX_VERSION "\n");
 	else
 		fprintf(conf, FANN_FLO_VERSION "\n");
-#else
-	fprintf(conf, FANN_FIX_VERSION "\n");
-#endif
-#ifndef FIXEDFANN
 	if(save_as_fixed) {
 		// calculate the maximal possible shift value
 		for(layer_it = ann->P_FirstLayer + 1; layer_it != ann->P_LastLayer; layer_it++) {
@@ -3124,7 +2888,7 @@ int fann_save_internal_fd(Fann * ann, FILE * conf, const char * configuration_fi
 				// look at all connections to each neurons, and see how high a value we can get
 				current_max_value = 0;
 				for(i = neuron_it->FirstCon; i != neuron_it->LastCon; i++) {
-					current_max_value += fann_abs(ann->P_Weights[i]);
+					current_max_value += fabsf(ann->P_Weights[i]);
 				}
 				if(current_max_value > max_possible_value) {
 					max_possible_value = current_max_value;
@@ -3145,10 +2909,6 @@ int fann_save_internal_fd(Fann * ann, FILE * conf, const char * configuration_fi
 		fixed_multiplier = 1 << decimal_point;
 		fprintf(conf, "decimal_point=%u\n", decimal_point); // save the decimal_point on a seperate line
 	}
-#else
-	// save the decimal_point on a seperate line
-	fprintf(conf, "decimal_point=%u\n", ann->DecimalPoint);
-#endif
 	// Save network parameters
 	fprintf(conf, "num_layers=%d\n", (int)ann->GetNumLayers());
 	fprintf(conf, "learning_rate=%f\n", ann->LearningRate);
@@ -3174,18 +2934,15 @@ int fann_save_internal_fd(Fann * ann, FILE * conf, const char * configuration_fi
 	fprintf(conf, "cascade_max_cand_epochs=%u\n", ann->CascadeMaxCandEpochs);
 	fprintf(conf, "cascade_min_cand_epochs=%u\n", ann->CascadeMinCandEpochs);
 	fprintf(conf, "cascade_num_candidate_groups=%u\n", ann->CascadeNumCandidateGroups);
-#ifndef FIXEDFANN
 	if(save_as_fixed) {
 		fprintf(conf, "bit_fail_limit=%u\n", (int)floor((ann->BitFailLimit * fixed_multiplier) + 0.5));
 		fprintf(conf, "cascade_candidate_limit=%u\n", (int)floor((ann->CascadeCandidateLimit * fixed_multiplier) + 0.5));
 		fprintf(conf, "cascade_weight_multiplier=%u\n", (int)floor((ann->CascadeWeightMultiplier * fixed_multiplier) + 0.5));
 	}
-	else
-#endif
-	{
-		fprintf(conf, "bit_fail_limit=\"FANNPRINTF \"\n", ann->BitFailLimit);
-		fprintf(conf, "cascade_candidate_limit=\"FANNPRINTF \"\n", ann->CascadeCandidateLimit);
-		fprintf(conf, "cascade_weight_multiplier=\"FANNPRINTF \"\n", ann->CascadeWeightMultiplier);
+	else {
+		fprintf(conf, "bit_fail_limit=\"%.20e \"\n", ann->BitFailLimit);
+		fprintf(conf, "cascade_candidate_limit=\"%.20e\"\n", ann->CascadeCandidateLimit);
+		fprintf(conf, "cascade_weight_multiplier=\"%.20e\"\n", ann->CascadeWeightMultiplier);
 	}
 	fprintf(conf, "cascade_activation_functions_count=%u\n", /*ann->cascade_activation_functions_count*/ann->CascadeActivationFuncList.getCount());
 	fprintf(conf, "cascade_activation_functions=");
@@ -3196,13 +2953,11 @@ int fann_save_internal_fd(Fann * ann, FILE * conf, const char * configuration_fi
 	fprintf(conf, "cascade_activation_steepnesses=");
 	for(i = 0; i < ann->CascadeActivationSteepnessesList.getCount(); i++) {
 /*
-#ifndef FIXEDFANN
 		if(save_as_fixed)
 			fprintf(conf, "%u ", (int)floor((ann->CascadeActivationSteepnesses[i] * fixed_multiplier) + 0.5));
 		else
-#endif
 */
-		fprintf(conf, FANNPRINTF " ", ann->CascadeActivationSteepnessesList[i]);
+		fprintf(conf, "%.20e ", ann->CascadeActivationSteepnessesList[i]);
 	}
 	fprintf(conf, "\n");
 	fprintf(conf, "layer_sizes=");
@@ -3211,7 +2966,6 @@ int fann_save_internal_fd(Fann * ann, FILE * conf, const char * configuration_fi
 		fprintf(conf, "%d ", (int)layer_it->GetCount());
 	}
 	fprintf(conf, "\n");
-#ifndef FIXEDFANN
 	/* 2.1 */
 	/*
 	#define SCALE_SAVE(what, where) fprintf(conf, # what "_" # where "="); \
@@ -3237,22 +2991,17 @@ int fann_save_internal_fd(Fann * ann, FILE * conf, const char * configuration_fi
 			fprintf(conf, "scale_included=0\n");
 	}
 //#undef SCALE_SAVE
-#endif
 	/* 2.0 */
 	fprintf(conf, "neurons (num_inputs, activation_function, activation_steepness)=");
 	for(layer_it = ann->P_FirstLayer; layer_it != ann->P_LastLayer; layer_it++) {
 		/* the neurons */
 		for(neuron_it = layer_it->P_FirstNeuron; neuron_it != layer_it->P_LastNeuron; neuron_it++) {
-#ifndef FIXEDFANN
 			if(save_as_fixed) {
 				fprintf(conf, "(%u, %u, %u) ", neuron_it->GetConCount(), neuron_it->ActivationFunction, (int)floor((neuron_it->ActivationSteepness * fixed_multiplier) + 0.5));
 			}
 			else {
-				fprintf(conf, "(%u, %u, " FANNPRINTF ") ", neuron_it->GetConCount(), neuron_it->ActivationFunction, neuron_it->ActivationSteepness);
+				fprintf(conf, "(%u, %u, %.20e) ", neuron_it->GetConCount(), neuron_it->ActivationFunction, neuron_it->ActivationSteepness);
 			}
-#else
-			fprintf(conf, "(%u, %u, " FANNPRINTF ") ", neuron_it->GetConCount(), neuron_it->ActivationFunction, neuron_it->ActivationSteepness);
-#endif
 		}
 	}
 	fprintf(conf, "\n");
@@ -3269,242 +3018,16 @@ int fann_save_internal_fd(Fann * ann, FILE * conf, const char * configuration_fi
 	fprintf(conf, "connections (connected_to_neuron, weight)=");
 	for(i = 0; i < ann->TotalConnections; i++) {
 		// save the connection "(source weight) "
-#ifndef FIXEDFANN
 		if(save_as_fixed) {
 			fprintf(conf, "(%d, %d) ", (int)(connected_neurons[i] - first_neuron), (int)floor((weights[i] * fixed_multiplier) + 0.5));
 		}
 		else {
-			fprintf(conf, "(%d, " FANNPRINTF ") ", (int)(connected_neurons[i] - first_neuron), weights[i]);
+			fprintf(conf, "(%d, %.20e) ", (int)(connected_neurons[i] - first_neuron), weights[i]);
 		}
-#else
-		fprintf(conf, "(%d, " FANNPRINTF ") ", (int)(connected_neurons[i] - first_neuron), weights[i]);
-#endif
 	}
 	fprintf(conf, "\n");
 	return calculated_decimal_point;
 }
-//
-// INTERNAL FUNCTION
-// Create a network from a configuration file descriptor.
-//
-#if 0 // {
-Fann * fann_create_from_fd(FILE * conf, const char * configuration_file)
-{
-	uint num_layers, layer_size, input_neuron, i, num_connections;
-	uint tmpVal;
-#ifdef FIXEDFANN
-	uint decimal_point, multiplier;
-#else
-	uint scale_included;
-#endif
-	Fann::Neuron * p_first_neuron;
-	Fann::Neuron * neuron_it;
-	Fann::Neuron * last_neuron;
-	Fann::Neuron ** connected_neurons;
-	ANNTYP * weights;
-	Fann::Layer * layer_it;
-	Fann * ann = NULL;
-	char * read_version = (char *)SAlloc::C(strlen(FANN_CONF_VERSION "\n"), 1);
-	if(read_version == NULL) {
-		fann_error(NULL, SLERR_FANN_CANT_ALLOCATE_MEM);
-		return NULL;
-	}
-	if(fread(read_version, 1, strlen(FANN_CONF_VERSION "\n"), conf) == 1) {
-		fann_error(NULL, SLERR_FANN_CANT_READ_CONFIG, "FANN_VERSION", configuration_file);
-		return NULL;
-	}
-	// compares the version information
-	if(strncmp(read_version, FANN_CONF_VERSION "\n", strlen(FANN_CONF_VERSION "\n")) != 0) {
-#ifdef FIXEDFANN
-		if(strncmp(read_version, "FANN_FIX_1.1\n", strlen("FANN_FIX_1.1\n")) == 0) {
-#else
-		if(strncmp(read_version, "FANN_FLO_1.1\n", strlen("FANN_FLO_1.1\n")) == 0) {
-#endif
-			SAlloc::F(read_version);
-			return 0/*fann_create_from_fd_1_1(conf, configuration_file)*/;
-		}
-
-#ifndef FIXEDFANN
-		// Maintain compatibility with 2.0 version that doesnt have scale parameters
-		if(strncmp(read_version, "FANN_FLO_2.0\n", strlen("FANN_FLO_2.0\n")) != 0 &&
-		    strncmp(read_version, "FANN_FLO_2.1\n", strlen("FANN_FLO_2.1\n")) != 0)
-#else
-		if(strncmp(read_version, "FANN_FIX_2.0\n", strlen("FANN_FIX_2.0\n")) != 0 &&
-		    strncmp(read_version, "FANN_FIX_2.1\n", strlen("FANN_FIX_2.1\n")) != 0)
-#endif
-		{
-			SAlloc::F(read_version);
-			fann_error(NULL, SLERR_FANN_WRONG_CONFIG_VERSION, configuration_file);
-			return NULL;
-		}
-	}
-	SAlloc::F(read_version);
-#ifdef FIXEDFANN
-	fann_scanf("%u", "decimal_point", &decimal_point);
-	multiplier = 1 << decimal_point;
-#endif
-	fann_scanf("%u", "num_layers", &num_layers);
-	THROW(ann = fann_allocate_structure(num_layers));
-	fann_scanf("%f", "learning_rate", &ann->LearningRate);
-	fann_scanf("%f", "connection_rate", &ann->ConnectionRate);
-	fann_scanf("%u", "network_type", &tmpVal);
-	ann->NetworkType = (Fann::NetType)tmpVal;
-	fann_scanf("%f", "learning_momentum", &ann->LearningMomentum);
-	fann_scanf("%u", "training_algorithm", &tmpVal);
-	ann->TrainingAlgorithm = (Fann::TrainAlg)tmpVal;
-	fann_scanf("%u", "train_error_function", &tmpVal);
-	ann->TrainErrorFunction = (Fann::ErrorFunc)tmpVal;
-	fann_scanf("%u", "train_stop_function", &tmpVal);
-	ann->TrainStopFunction = (Fann::StopFunc)tmpVal;
-	fann_scanf("%f", "cascade_output_change_fraction", &ann->CascadeOutputChangeFraction);
-	fann_scanf("%f", "quickprop_decay", &ann->QuickpropDecay);
-	fann_scanf("%f", "quickprop_mu", &ann->QuickpropMu);
-	fann_scanf("%f", "rprop_increase_factor", &ann->RpropIncreaseFactor);
-	fann_scanf("%f", "rprop_decrease_factor", &ann->RpropDecreaseFactor);
-	fann_scanf("%f", "rprop_delta_min", &ann->RpropDeltaMin);
-	fann_scanf("%f", "rprop_delta_max", &ann->RpropDeltaMax);
-	fann_scanf("%f", "rprop_delta_zero", &ann->RpropDeltaZero);
-	fann_scanf("%u", "cascade_output_stagnation_epochs", &ann->CascadeOutputStagnationEpochs);
-	fann_scanf("%f", "cascade_candidate_change_fraction", &ann->CascadeCandidateChangeFraction);
-	fann_scanf("%u", "cascade_candidate_stagnation_epochs", &ann->CascadeCandidateStagnationEpochs);
-	fann_scanf("%u", "cascade_max_out_epochs", &ann->CascadeMaxOutEpochs);
-	fann_scanf("%u", "cascade_min_out_epochs", &ann->CascadeMinOutEpochs);
-	fann_scanf("%u", "cascade_max_cand_epochs", &ann->CascadeMaxCandEpochs);
-	fann_scanf("%u", "cascade_min_cand_epochs", &ann->CascadeMinCandEpochs);
-	fann_scanf("%u", "cascade_num_candidate_groups", &ann->CascadeNumCandidateGroups);
-	fann_scanf(FANNSCANF, "bit_fail_limit", &ann->BitFailLimit);
-	fann_scanf(FANNSCANF, "cascade_candidate_limit", &ann->CascadeCandidateLimit);
-	fann_scanf(FANNSCANF, "cascade_weight_multiplier", &ann->CascadeWeightMultiplier);
-	{
-		ann->CascadeActivationFuncList.clear();
-		uint   cafc = 0;
-		fann_scanf("%u", "cascade_activation_functions_count", &cafc);
-		fann_skip("cascade_activation_functions=");
-		for(i = 0; i < cafc; i++) {
-			if(fscanf(conf, "%u ", &tmpVal) != 1) {
-				fann_error(NULL, SLERR_FANN_CANT_READ_CONFIG, "cascade_activation_functions", configuration_file);
-				fann_destroy(ann);
-				return NULL;
-			}
-			//ann->P_CascadeActivationFunctions[i] = (fann_activationfunc_enum)tmpVal;
-			ann->CascadeActivationFuncList.add(tmpVal);
-		}
-		/*
-		fann_scanf("%u", "cascade_activation_functions_count", &ann->cascade_activation_functions_count);
-		// reallocate mem
-		ann->P_CascadeActivationFunctions = (fann_activationfunc_enum*)SAlloc::R(ann->P_CascadeActivationFunctions,
-			ann->cascade_activation_functions_count * sizeof(fann_activationfunc_enum));
-		if(ann->P_CascadeActivationFunctions == NULL) {
-			fann_error(&ann->Err, SLERR_FANN_CANT_ALLOCATE_MEM);
-			fann_destroy(ann);
-			return NULL;
-		}
-		fann_skip("cascade_activation_functions=");
-		for(i = 0; i < ann->cascade_activation_functions_count; i++) {
-			if(fscanf(conf, "%u ", &tmpVal) != 1) {
-				fann_error(NULL, SLERR_FANN_CANT_READ_CONFIG, "cascade_activation_functions", configuration_file);
-				fann_destroy(ann);
-				return NULL;
-			}
-			ann->P_CascadeActivationFunctions[i] = (fann_activationfunc_enum)tmpVal;
-		}
-		*/
-	}
-	{
-		ann->CascadeActivationSteepnessesList.clear();
-		uint   casc = 0;
-		fann_scanf("%u", "cascade_activation_steepnesses_count", &casc);
-		fann_skip("cascade_activation_steepnesses=");
-		for(i = 0; i < casc; i++) {
-			float fval;
-			if(fscanf(conf, "%f ", &fval) != 1) {
-				fann_error(NULL, SLERR_FANN_CANT_READ_CONFIG, "cascade_activation_steepnesses", configuration_file);
-				fann_destroy(ann);
-				return NULL;
-			}
-			else {
-				ann->CascadeActivationSteepnessesList.add(fval);
-			}
-		}
-		/*
-		fann_scanf("%u", "cascade_activation_steepnesses_count", &ann->cascade_activation_steepnesses_count);
-		// reallocate mem
-		ann->CascadeActivationSteepnesses = (ANNTYP*)SAlloc::R(ann->CascadeActivationSteepnesses, ann->cascade_activation_steepnesses_count * sizeof(ANNTYP));
-		if(ann->CascadeActivationSteepnesses == NULL) {
-			fann_error(&ann->Err, SLERR_FANN_CANT_ALLOCATE_MEM);
-			fann_destroy(ann);
-			return NULL;
-		}
-		fann_skip("cascade_activation_steepnesses=");
-		for(i = 0; i < ann->cascade_activation_steepnesses_count; i++) {
-			if(fscanf(conf, FANNSCANF " ", &ann->CascadeActivationSteepnesses[i]) != 1) {
-				fann_error(NULL, SLERR_FANN_CANT_READ_CONFIG, "cascade_activation_steepnesses", configuration_file);
-				fann_destroy(ann);
-				return NULL;
-			}
-		}
-		*/
-	}
-#ifdef FIXEDFANN
-	ann->DecimalPoint = decimal_point;
-	ann->Multiplier = multiplier;
-#endif
-#ifdef FIXEDFANN
-	ann->UpdateStepwise();
-#endif
-	fann_skip("layer_sizes=");
-	// determine how many neurons there should be in each layer
-	for(layer_it = ann->P_FirstLayer; layer_it != ann->P_LastLayer; layer_it++) {
-		if(fscanf(conf, "%u ", &layer_size) != 1) {
-			fann_error(&ann->Err, SLERR_FANN_CANT_READ_CONFIG, "layer_sizes", configuration_file);
-			fann_destroy(ann);
-			return NULL;
-		}
-		// we do not allocate room here, but we make sure that last_neuron - first_neuron is the number of neurons
-		layer_it->P_FirstNeuron = NULL;
-		layer_it->P_LastNeuron = layer_it->P_FirstNeuron + layer_size;
-		ann->TotalNeurons += layer_size;
-	}
-	ann->NumInput = (uint)(ann->P_FirstLayer->P_LastNeuron - ann->P_FirstLayer->P_FirstNeuron - 1);
-	ann->NumOutput = (uint)((ann->P_LastLayer-1)->P_LastNeuron - (ann->P_LastLayer-1)->P_FirstNeuron);
-	if(ann->NetworkType == Fann::FANN_NETTYPE_LAYER) {
-		ann->NumOutput--; // one too many (bias) in the output layer
-	}
-#ifndef FIXEDFANN
-	if(fscanf(conf, "scale_included=%u\n", &scale_included) == 1 && scale_included == 1) {
-		ann->AllocateScale();
-		THROW(ann->ScaleIn.Load(conf, ann->NumInput, "in"));
-		THROW(ann->ScaleOut.Load(conf, ann->NumOutput, "out"));
-	}
-#undef SCALE_LOAD
-#endif
-	// allocate room for the actual neurons
-	THROW(ann->AllocateNeurons());
-	last_neuron = (ann->P_LastLayer-1)->P_LastNeuron;
-	fann_skip("neurons (num_inputs, activation_function, activation_steepness)=");
-	for(neuron_it = ann->P_FirstLayer->P_FirstNeuron; neuron_it != last_neuron; neuron_it++) {
-		THROW_S_S(fscanf(conf, "(%u, %u, " FANNSCANF ") ", &num_connections, &tmpVal, &neuron_it->ActivationSteepness) == 3,
-			SLERR_FANN_CANT_READ_NEURON, configuration_file);
-		neuron_it->ActivationFunction = (Fann::ActivationFunc)tmpVal;
-		neuron_it->FirstCon = ann->TotalConnections;
-		ann->TotalConnections += num_connections;
-		neuron_it->LastCon = ann->TotalConnections;
-	}
-	THROW(ann->AllocateConnections());
-	connected_neurons = ann->PP_Connections;
-	weights = ann->P_Weights;
-	p_first_neuron = ann->P_FirstLayer->P_FirstNeuron;
-	fann_skip("connections (connected_to_neuron, weight)=");
-	for(i = 0; i < ann->TotalConnections; i++) {
-		THROW_S_S(fscanf(conf, "(%u, " FANNSCANF ") ", &input_neuron, &weights[i]) == 2, SLERR_FANN_CANT_READ_CONNECTIONS, configuration_file);
-		connected_neurons[i] = p_first_neuron + input_neuron;
-	}
-	CATCH
-		ZDELETE(ann);
-	ENDCATCH
-	return ann;
-}
-#endif // } 0
 //
 // FANN_TRAIN
 //
@@ -3524,88 +3047,65 @@ int FASTCALL Fann::Neuron::IsEqual(const Fann::Neuron & rS) const
 	ENDCATCH
 	return yes;
 }
-
-#ifndef FIXEDFANN
 //
 // Calculates the derived of a value, given an activation function and a steepness
 //
-//ANNTYP fann_activation_derived(const Fann::Neuron * pN, ANNTYP value, ANNTYP sum)
-ANNTYP Fann::Neuron::ActivationDerived(ANNTYP value, ANNTYP sum) const
+float Fann::Neuron::ActivationDerived(float value, float sum) const
 {
 	switch(ActivationFunction) {
 		case Fann::FANN_LINEAR:
 		case Fann::FANN_LINEAR_PIECE:
-		case Fann::FANN_LINEAR_PIECE_SYMMETRIC:
-			return (ANNTYP)fann_linear_derive(ActivationSteepness, value);
+		case Fann::FANN_LINEAR_PIECE_SYMMETRIC: return (float)fann_linear_derive(ActivationSteepness, value);
 		case Fann::FANN_SIGMOID:
 		case Fann::FANN_SIGMOID_STEPWISE:
 		    value = MINMAX(value, 0.01f, 0.99f);
-		    return (ANNTYP)fann_sigmoid_derive(ActivationSteepness, value);
+		    return (float)fann_sigmoid_derive(ActivationSteepness, value);
 		case Fann::FANN_SIGMOID_SYMMETRIC:
 		case Fann::FANN_SIGMOID_SYMMETRIC_STEPWISE:
 		    value = MINMAX(value, -0.98f, 0.98f);
-		    return (ANNTYP)fann_sigmoid_symmetric_derive(ActivationSteepness, value);
+		    return (float)fann_sigmoid_symmetric_derive(ActivationSteepness, value);
 		case Fann::FANN_GAUSSIAN:
 		    // value = MINMAX(value, 0.01f, 0.99f);
-		    return (ANNTYP)fann_gaussian_derive(ActivationSteepness, value, sum);
+		    return (float)fann_gaussian_derive(ActivationSteepness, value, sum);
 		case Fann::FANN_GAUSSIAN_SYMMETRIC:
 		    // value = MINMAX(value, -0.98f, 0.98f);
-		    return (ANNTYP)fann_gaussian_symmetric_derive(ActivationSteepness, value, sum);
+		    return (float)fann_gaussian_symmetric_derive(ActivationSteepness, value, sum);
 		case Fann::FANN_ELLIOT:
 		    value = MINMAX(value, 0.01f, 0.99f);
-		    return (ANNTYP)fann_elliot_derive(ActivationSteepness, value, sum);
+		    return (float)fann_elliot_derive(ActivationSteepness, value, sum);
 		case Fann::FANN_ELLIOT_SYMMETRIC:
 		    value = MINMAX(value, -0.98f, 0.98f);
-		    return (ANNTYP)fann_elliot_symmetric_derive(ActivationSteepness, value, sum);
-		case Fann::FANN_SIN_SYMMETRIC:
-		    return (ANNTYP)fann_sin_symmetric_derive(ActivationSteepness, sum);
-		case Fann::FANN_COS_SYMMETRIC:
-		    return (ANNTYP)fann_cos_symmetric_derive(ActivationSteepness, sum);
-		case Fann::FANN_SIN:
-		    return (ANNTYP)fann_sin_derive(ActivationSteepness, sum);
-		case Fann::FANN_COS:
-		    return (ANNTYP)fann_cos_derive(ActivationSteepness, sum);
-		case Fann::FANN_THRESHOLD:
-		    fann_error(NULL, SLERR_FANN_CANT_TRAIN_ACTIVATION);
+		    return (float)fann_elliot_symmetric_derive(ActivationSteepness, value, sum);
+		case Fann::FANN_SIN_SYMMETRIC: return (float)fann_sin_symmetric_derive(ActivationSteepness, sum);
+		case Fann::FANN_COS_SYMMETRIC: return (float)fann_cos_symmetric_derive(ActivationSteepness, sum);
+		case Fann::FANN_SIN: return (float)fann_sin_derive(ActivationSteepness, sum);
+		case Fann::FANN_COS: return (float)fann_cos_derive(ActivationSteepness, sum);
+		case Fann::FANN_THRESHOLD: fann_error(NULL, SLERR_FANN_CANT_TRAIN_ACTIVATION);
 	}
-	return (ANNTYP)0;
+	return (float)0;
 }
 //
 // INTERNAL FUNCTION
 // Calculates the activation of a value, given an activation function and a steepness
 //
-/*ANNTYP fann_activation(Fann * ann, uint activation_function, ANNTYP steepness, ANNTYP value)
+float Fann::Activation(uint activationFunction, float steepness, float value) const
 {
-	value = fann_mult(steepness, value);
-	fann_activation_switch(activation_function, value, value);
-	return value;
-}*/
-
-ANNTYP Fann::Activation(uint activationFunction, ANNTYP steepness, ANNTYP value) const
-{
-	value = fann_mult(steepness, value);
-	fann_activation_switch(activationFunction, value, value);
-	return value;
+	return ActivationSwitch(activationFunction, steepness * value);
 }
 //
 // Trains the network with the backpropagation algorithm.
 //
-/*FANN_EXTERNAL void FANN_API fann_train(Fann * pAnn, ANNTYP * pInput, ANNTYP * pDesiredOutput)
-{
-	pAnn->Train(pInput, pDesiredOutput);
-}*/
-
-int Fann::Train(const ANNTYP * pInput, const ANNTYP * pDesiredOutput)
+int Fann::Train(const float * pInput, const float * pDesiredOutput)
 {
 	return TrainWithOutput(pInput, pDesiredOutput, 0);
 }
 
-int Fann::TrainWithOutput(const ANNTYP * pInput, const ANNTYP * pDesiredOutput, ANNTYP * pResult)
+int Fann::TrainWithOutput(const float * pInput, const float * pDesiredOutput, float * pResult)
 {
 	int    ok = 1;
-	const ANNTYP * p_result = Run(pInput);
+	const float * p_result = Run(pInput);
 	if(pResult) {
-		memcpy(pResult, p_result, NumOutput * sizeof(ANNTYP));
+		memcpy(pResult, p_result, NumOutput * sizeof(float));
 	}
 	THROW(ComputeMSE(pDesiredOutput));
 	BackpropagateMSE();
@@ -3613,16 +3113,13 @@ int Fann::TrainWithOutput(const ANNTYP * pInput, const ANNTYP * pDesiredOutput, 
 	CATCHZOK
 	return ok;
 }
-
-#endif
 //
 // INTERNAL FUNCTION
 // Helper function to update the MSE value and return a diff which takes symmetric functions into account
 //
-//ANNTYP fann_update_MSE(Fann * ann, Fann::Neuron * pNeuron, ANNTYP neuronDiff)
-ANNTYP Fann::UpdateMSE(Fann::Neuron * pNeuron, ANNTYP neuronDiff)
+//float fann_update_MSE(Fann * ann, Fann::Neuron * pNeuron, float neuronDiff)
+float Fann::UpdateMSE(Fann::Neuron * pNeuron, float neuronDiff)
 {
-	float _neuron_diff2;
 	switch(pNeuron->ActivationFunction) {
 		case FANN_LINEAR_PIECE_SYMMETRIC:
 		case FANN_THRESHOLD_SYMMETRIC:
@@ -3631,9 +3128,7 @@ ANNTYP Fann::UpdateMSE(Fann::Neuron * pNeuron, ANNTYP neuronDiff)
 		case FANN_ELLIOT_SYMMETRIC:
 		case FANN_GAUSSIAN_SYMMETRIC:
 		case FANN_SIN_SYMMETRIC:
-		case FANN_COS_SYMMETRIC:
-		    neuronDiff /= (ANNTYP)2.0;
-		    break;
+		case FANN_COS_SYMMETRIC: neuronDiff /= (float)2.0; break;
 		case FANN_THRESHOLD:
 		case FANN_LINEAR:
 		case FANN_SIGMOID:
@@ -3643,17 +3138,12 @@ ANNTYP Fann::UpdateMSE(Fann::Neuron * pNeuron, ANNTYP neuronDiff)
 		case FANN_ELLIOT:
 		case FANN_LINEAR_PIECE:
 		case FANN_SIN:
-		case FANN_COS:
-		    break;
+		case FANN_COS: break;
 	}
-#ifdef FIXEDFANN
-	_neuron_diff2 = (neuronDiff / (float)Multiplier) * (neuronDiff / (float)Multiplier);
-#else
-	_neuron_diff2 = (float)(neuronDiff * neuronDiff);
-#endif
+	float _neuron_diff2 = (float)(neuronDiff * neuronDiff);
 	MSE_value += _neuron_diff2;
 	// printf("neuron_diff %f = (%f - %f)[/2], neuron_diff2=%f, sum=%f, MSE_value=%f, num_MSE=%d\n", neuron_diff, *desired_output, neuron_value, neuron_diff2, last_layer_begin->sum, ann->MSE_value, ann->num_MSE);
-	if(fann_abs(neuronDiff) >= BitFailLimit) {
+	if(fabsf(neuronDiff) >= BitFailLimit) {
 		NumBitFail++;
 	}
 	return neuronDiff;
@@ -3661,16 +3151,16 @@ ANNTYP Fann::UpdateMSE(Fann::Neuron * pNeuron, ANNTYP neuronDiff)
 //
 // Tests the network.
 //
-//FANN_EXTERNAL ANNTYP * FANN_API fann_test(Fann * ann, ANNTYP * pInput, ANNTYP * pDesiredOutput)
-/*ANNTYP * Fann::Test_(const ANNTYP * pInput, const ANNTYP * pDesiredOutput)
+//FANN_EXTERNAL float * FANN_API fann_test(Fann * ann, float * pInput, float * pDesiredOutput)
+/*float * Fann::Test_(const float * pInput, const float * pDesiredOutput)
 {
-	ANNTYP * p_output_begin = Run(pInput);
-	const ANNTYP * p_output_end = p_output_begin + NumOutput;
+	float * p_output_begin = Run(pInput);
+	const float * p_output_end = p_output_begin + NumOutput;
 	Fann::Neuron * p_output_neuron = (P_LastLayer-1)->P_FirstNeuron;
 	// calculate the error
-	for(ANNTYP * p_output_it = p_output_begin; p_output_it != p_output_end; p_output_it++) {
-		const ANNTYP neuron_value = *p_output_it;
-		ANNTYP neuron_diff = (*pDesiredOutput - neuron_value);
+	for(float * p_output_it = p_output_begin; p_output_it != p_output_end; p_output_it++) {
+		const float neuron_value = *p_output_it;
+		float neuron_diff = (*pDesiredOutput - neuron_value);
 		neuron_diff = UpdateMSE(p_output_neuron, neuron_diff);
 		pDesiredOutput++;
 		p_output_neuron++;
@@ -3679,30 +3169,28 @@ ANNTYP Fann::UpdateMSE(Fann::Neuron * pNeuron, ANNTYP neuronDiff)
 	return p_output_begin;
 }*/
 
-#ifndef FIXEDFANN
-
-int Fann::ComputeMSE(const ANNTYP * pDesiredOutput)
+int Fann::ComputeMSE(const float * pDesiredOutput)
 {
 	int    ok = 1;
-	ANNTYP * p_error_it = 0;
-	ANNTYP * p_error_begin = 0;
+	float * p_error_it = 0;
+	float * p_error_begin = 0;
 	Fann::Neuron * p_last_layer_begin = (P_LastLayer-1)->P_FirstNeuron;
 	const Fann::Neuron * p_last_layer_end = p_last_layer_begin + NumOutput;
 	const Fann::Neuron * p_first_neuron = P_FirstLayer->P_FirstNeuron;
 	// if no room allocated for the error variabels, allocate it now
 	if(P_TrainErrors == NULL) {
-		THROW(P_TrainErrors = (ANNTYP*)SAlloc::C(TotalNeurons, sizeof(ANNTYP)));
+		THROW(P_TrainErrors = (float*)SAlloc::C(TotalNeurons, sizeof(float)));
 	}
 	else {
 		// clear the error variabels
-		memzero(P_TrainErrors, TotalNeurons * sizeof(ANNTYP));
+		memzero(P_TrainErrors, TotalNeurons * sizeof(float));
 	}
 	p_error_begin = P_TrainErrors;
 	// calculate the error and place it in the output layer
 	p_error_it = p_error_begin + (p_last_layer_begin - p_first_neuron);
 	for(; p_last_layer_begin != p_last_layer_end; p_last_layer_begin++) {
-		const ANNTYP neuron_value = p_last_layer_begin->Value;
-		ANNTYP neuron_diff = *pDesiredOutput - neuron_value;
+		const float neuron_value = p_last_layer_begin->Value;
+		float neuron_diff = *pDesiredOutput - neuron_value;
 		// @todo Если neuron_diff == 0, то нет смысла делать следующие действия, достаточно присвоить *p_error_it = 0
 		neuron_diff = UpdateMSE(p_last_layer_begin, neuron_diff);
 		if(TrainErrorFunction) { // @todo make switch when more functions
@@ -3711,7 +3199,7 @@ int Fann::ComputeMSE(const ANNTYP * pDesiredOutput)
 			else if(neuron_diff > 0.9999999)
 				neuron_diff = 17.0;
 			else
-				neuron_diff = (ANNTYP)log((1.0 + neuron_diff) / (1.0 - neuron_diff));
+				neuron_diff = (float)log((1.0 + neuron_diff) / (1.0 - neuron_diff));
 		}
 		*p_error_it = p_last_layer_begin->ActivationDerived(neuron_value, p_last_layer_begin->Sum) * neuron_diff;
 		pDesiredOutput++;
@@ -3724,8 +3212,8 @@ int Fann::ComputeMSE(const ANNTYP * pDesiredOutput)
 
 void Fann::BackpropagateMSE()
 {
-	ANNTYP * p_error_begin = P_TrainErrors;
-	ANNTYP * p_error_prev_layer;
+	float * p_error_begin = P_TrainErrors;
+	float * p_error_prev_layer;
 	const Fann::Neuron * p_first_neuron = P_FirstLayer->P_FirstNeuron;
 	const Fann::Layer  * p_second_layer = P_FirstLayer + 1;
 	// go through all the layers, from last to first.
@@ -3741,8 +3229,8 @@ void Fann::BackpropagateMSE()
 				p_error_prev_layer = p_error_begin;
 			}
 			for(Fann::Neuron * p_neuron_it = p_layer_it->P_FirstNeuron; p_neuron_it != p_last_neuron; p_neuron_it++) {
-				const ANNTYP tmp_error = p_error_begin[p_neuron_it - p_first_neuron];
-				const ANNTYP * p_weights = P_Weights + p_neuron_it->FirstCon;
+				const float tmp_error = p_error_begin[p_neuron_it - p_first_neuron];
+				const float * p_weights = P_Weights + p_neuron_it->FirstCon;
 				for(uint i = p_neuron_it->GetConCount(); i--; ) {
 					p_error_prev_layer[i] += tmp_error * p_weights[i];
 				}
@@ -3750,8 +3238,8 @@ void Fann::BackpropagateMSE()
 		}
 		else {
 			for(Fann::Neuron * p_neuron_it = p_layer_it->P_FirstNeuron; p_neuron_it != p_last_neuron; p_neuron_it++) {
-				const ANNTYP tmp_error = p_error_begin[p_neuron_it - p_first_neuron];
-				const ANNTYP * p_weights = P_Weights + p_neuron_it->FirstCon;
+				const float tmp_error = p_error_begin[p_neuron_it - p_first_neuron];
+				const float * p_weights = P_Weights + p_neuron_it->FirstCon;
 				Fann::Neuron ** pp_connections = PP_Connections + p_neuron_it->FirstCon;
 				for(uint i = p_neuron_it->GetConCount(); i--; ) {
 					p_error_begin[pp_connections[i] - p_first_neuron] += tmp_error * p_weights[i];
@@ -3783,11 +3271,11 @@ int Fann::UpdateWeights()
 	Fann::Neuron * p_first_neuron = P_FirstLayer->P_FirstNeuron;
 	Fann::Layer * p_first_layer = P_FirstLayer;
 	const Fann::Layer * p_last_layer = P_LastLayer;
-	ANNTYP * p_error_begin = P_TrainErrors;
-	ANNTYP * p_deltas_begin;
+	float * p_error_begin = P_TrainErrors;
+	float * p_deltas_begin;
 	// if no room allocated for the deltas, allocate it now
 	if(P_PrevWeightsDeltas == NULL) {
-		THROW(P_PrevWeightsDeltas = (ANNTYP*)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
+		THROW(P_PrevWeightsDeltas = (float*)SAlloc::C(TotalConnectionsAllocated, sizeof(float)));
 	}
 	p_deltas_begin = P_PrevWeightsDeltas;
 	p_prev_neurons = p_first_neuron;
@@ -3798,12 +3286,12 @@ int Fann::UpdateWeights()
 				p_prev_neurons = (p_layer_it - 1)->P_FirstNeuron;
 			}
 			for(p_neuron_it = p_layer_it->P_FirstNeuron; p_neuron_it != p_last_neuron; p_neuron_it++) {
-				const ANNTYP tmp_error = p_error_begin[p_neuron_it - p_first_neuron] * learning_rate;
+				const float tmp_error = p_error_begin[p_neuron_it - p_first_neuron] * learning_rate;
 				const uint num_connections = p_neuron_it->GetConCount();
-				ANNTYP * p_weights = P_Weights + p_neuron_it->FirstCon;
-				ANNTYP * p_weights_deltas = p_deltas_begin + p_neuron_it->FirstCon;
+				float * p_weights = P_Weights + p_neuron_it->FirstCon;
+				float * p_weights_deltas = p_deltas_begin + p_neuron_it->FirstCon;
 				for(uint i = 0; i != num_connections; i++) {
-					const ANNTYP delta_w = tmp_error * p_prev_neurons[i].Value + learning_momentum * p_weights_deltas[i];
+					const float delta_w = tmp_error * p_prev_neurons[i].Value + learning_momentum * p_weights_deltas[i];
 					p_weights[i] += delta_w;
 					p_weights_deltas[i] = delta_w;
 				}
@@ -3811,12 +3299,12 @@ int Fann::UpdateWeights()
 		}
 		else {
 			for(p_neuron_it = p_layer_it->P_FirstNeuron; p_neuron_it != p_last_neuron; p_neuron_it++) {
-				const ANNTYP tmp_error = p_error_begin[p_neuron_it - p_first_neuron] * learning_rate;
+				const float tmp_error = p_error_begin[p_neuron_it - p_first_neuron] * learning_rate;
 				const uint num_connections = p_neuron_it->GetConCount();
-				ANNTYP * p_weights = P_Weights + p_neuron_it->FirstCon;
-				ANNTYP * p_weights_deltas = p_deltas_begin + p_neuron_it->FirstCon;
+				float * p_weights = P_Weights + p_neuron_it->FirstCon;
+				float * p_weights_deltas = p_deltas_begin + p_neuron_it->FirstCon;
 				for(uint i = 0; i != num_connections; i++) {
-					const ANNTYP delta_w = tmp_error * p_prev_neurons[i].Value + learning_momentum * p_weights_deltas[i];
+					const float delta_w = tmp_error * p_prev_neurons[i].Value + learning_momentum * p_weights_deltas[i];
 					p_weights[i] += delta_w;
 					p_weights_deltas[i] = delta_w;
 				}
@@ -3836,14 +3324,14 @@ int Fann::UpdateSlopesBatch(const Fann::Layer * pLayerBegin, const Fann::Layer *
 	int    ok = 1;
 	// store some variabels local for fast access
 	Fann::Neuron * p_first_neuron = P_FirstLayer->P_FirstNeuron;
-	const ANNTYP * p_error_begin = P_TrainErrors;
+	const float * p_error_begin = P_TrainErrors;
 	// if no room allocated for the slope variabels, allocate it now
 	if(P_TrainSlopes == NULL) {
-		THROW(P_TrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
+		THROW(P_TrainSlopes = (float *)SAlloc::C(TotalConnectionsAllocated, sizeof(float)));
 	}
 	SETIFZ(pLayerBegin, (P_FirstLayer + 1));
 	SETIFZ(pLayerEnd, (P_LastLayer - 1));
-	ANNTYP * p_slope_begin = P_TrainSlopes;
+	float * p_slope_begin = P_TrainSlopes;
 	Fann::Neuron * p_prev_neurons = p_first_neuron;
 	for(; pLayerBegin <= pLayerEnd; pLayerBegin++) {
 		const Fann::Neuron * p_last_neuron = pLayerBegin->P_LastNeuron;
@@ -3852,8 +3340,8 @@ int Fann::UpdateSlopesBatch(const Fann::Layer * pLayerBegin, const Fann::Layer *
 				p_prev_neurons = (pLayerBegin - 1)->P_FirstNeuron;
 			}
 			for(Fann::Neuron * p_neuron_it = pLayerBegin->P_FirstNeuron; p_neuron_it != p_last_neuron; p_neuron_it++) {
-				const ANNTYP tmp_error = p_error_begin[p_neuron_it - p_first_neuron];
-				ANNTYP * p_neuron_slope = p_slope_begin + p_neuron_it->FirstCon;
+				const float tmp_error = p_error_begin[p_neuron_it - p_first_neuron];
+				float * p_neuron_slope = p_slope_begin + p_neuron_it->FirstCon;
 				const uint cc = p_neuron_it->GetConCount(); // num_connections
 				for(uint i = 0; i != cc; i++) {
 					p_neuron_slope[i] += tmp_error * p_prev_neurons[i].Value;
@@ -3862,8 +3350,8 @@ int Fann::UpdateSlopesBatch(const Fann::Layer * pLayerBegin, const Fann::Layer *
 		}
 		else {
 			for(Fann::Neuron * p_neuron_it = pLayerBegin->P_FirstNeuron; p_neuron_it != p_last_neuron; p_neuron_it++) {
-				const ANNTYP tmp_error = p_error_begin[p_neuron_it - p_first_neuron];
-				ANNTYP * p_neuron_slope = p_slope_begin + p_neuron_it->FirstCon;
+				const float tmp_error = p_error_begin[p_neuron_it - p_first_neuron];
+				float * p_neuron_slope = p_slope_begin + p_neuron_it->FirstCon;
 				const uint cc = p_neuron_it->GetConCount(); // num_connections
 				Fann::Neuron ** pp_connections = PP_Connections + p_neuron_it->FirstCon;
 				for(uint i = 0; i != cc; i++) {
@@ -3880,33 +3368,32 @@ int Fann::UpdateSlopesBatch(const Fann::Layer * pLayerBegin, const Fann::Layer *
 // Clears arrays used for training before a new training session.
 // Also creates the arrays that do not exist yet.
 //
-//void fann_clear_train_arrays(Fann * ann)
 int Fann::ClearTrainArrays()
 {
 	int    ok = 1;
 	// if no room allocated for the slope variabels, allocate it now (calloc clears mem)
 	if(P_TrainSlopes == NULL) {
-		THROW(P_TrainSlopes = (ANNTYP*)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
+		THROW(P_TrainSlopes = (float*)SAlloc::C(TotalConnectionsAllocated, sizeof(float)));
 	}
 	else
-		memzero(P_TrainSlopes, TotalConnectionsAllocated * sizeof(ANNTYP));
+		memzero(P_TrainSlopes, TotalConnectionsAllocated * sizeof(float));
 	// if no room allocated for the variabels, allocate it now
 	if(P_PrevSteps == NULL) {
-		THROW(P_PrevSteps = (ANNTYP *)SAlloc::M(TotalConnectionsAllocated * sizeof(ANNTYP)));
+		THROW(P_PrevSteps = (float *)SAlloc::M(TotalConnectionsAllocated * sizeof(float)));
 	}
 	if(TrainingAlgorithm == FANN_TRAIN_RPROP) {
-		const ANNTYP _delta_zero = RpropDeltaZero;
+		const float _delta_zero = RpropDeltaZero;
 		for(uint i = 0; i < TotalConnectionsAllocated; i++)
 			P_PrevSteps[i] = _delta_zero;
 	}
 	else
-		memzero(P_PrevSteps, TotalConnectionsAllocated * sizeof(ANNTYP));
+		memzero(P_PrevSteps, TotalConnectionsAllocated * sizeof(float));
 	// if no room allocated for the variabels, allocate it now
 	if(P_PrevTrainSlopes == NULL) {
-		THROW(P_PrevTrainSlopes = (ANNTYP *)SAlloc::C(TotalConnectionsAllocated, sizeof(ANNTYP)));
+		THROW(P_PrevTrainSlopes = (float *)SAlloc::C(TotalConnectionsAllocated, sizeof(float)));
 	}
 	else
-		memzero(P_PrevTrainSlopes, TotalConnectionsAllocated * sizeof(ANNTYP));
+		memzero(P_PrevTrainSlopes, TotalConnectionsAllocated * sizeof(float));
 	CATCHZOK
 	return ok;
 }
@@ -3914,11 +3401,10 @@ int Fann::ClearTrainArrays()
 // INTERNAL FUNCTION
 // Update weights for batch training
 //
-//void fann_update_weights_batch(Fann * ann, uint numData, uint firstWeight, uint pastEnd)
 void Fann::UpdateWeightsBatch(uint numData, uint firstWeight, uint pastEnd)
 {
-	ANNTYP * p_train_slopes = P_TrainSlopes;
-	ANNTYP * p_weights = P_Weights;
+	float * p_train_slopes = P_TrainSlopes;
+	float * p_weights = P_Weights;
 	const float _epsilon = LearningRate / numData;
 	for(uint i = firstWeight; i != pastEnd; i++) {
 		p_weights[i] += p_train_slopes[i] * _epsilon;
@@ -3929,23 +3415,22 @@ void Fann::UpdateWeightsBatch(uint numData, uint firstWeight, uint pastEnd)
 // INTERNAL FUNCTION
 // The quickprop training algorithm
 //
-//void fann_update_weights_quickprop(Fann * ann, uint numData, uint firstWeight, uint pastEnd)
 void Fann::UpdateWeightsQuickprop(uint numData, uint firstWeight, uint pastEnd)
 {
-	ANNTYP * p_train_slopes = P_TrainSlopes;
-	ANNTYP * p_weights = P_Weights;
-	ANNTYP * p_prev_steps = P_PrevSteps;
-	ANNTYP * p_prev_train_slopes = P_PrevTrainSlopes;
+	float * p_train_slopes = P_TrainSlopes;
+	float * p_weights = P_Weights;
+	float * p_prev_steps = P_PrevSteps;
+	float * p_prev_train_slopes = P_PrevTrainSlopes;
 	const float _epsilon = LearningRate / numData;
 	const float _decay = QuickpropDecay; // -0.0001
 	const float _mu = QuickpropMu; // 1.75
 	const float _shrink_factor = (float)(_mu / (1.0 + _mu));
 	for(uint i = firstWeight; i != pastEnd; i++) {
-		ANNTYP w = p_weights[i];
-		const ANNTYP _prev_step = p_prev_steps[i];
-		const ANNTYP _slope = p_train_slopes[i] + _decay * w;
-		const ANNTYP _prev_slope = p_prev_train_slopes[i];
-		ANNTYP _next_step = 0.0;
+		float w = p_weights[i];
+		const float _prev_step = p_prev_steps[i];
+		const float _slope = p_train_slopes[i] + _decay * w;
+		const float _prev_slope = p_prev_train_slopes[i];
+		float _next_step = 0.0;
 		// The step must always be in direction opposite to the slope
 		if(_prev_step > 0.001) {
 			// If last step was positive...
@@ -4001,23 +3486,22 @@ void Fann::UpdateWeightsQuickprop(uint numData, uint firstWeight, uint pastEnd)
 // INTERNAL FUNCTION
 // The iRprop- algorithm
 //
-//void fann_update_weights_irpropm(Fann * ann, uint firstWeight, uint pastEnd)
 void Fann::UpdateWeightsIrpropm(uint firstWeight, uint pastEnd)
 {
-	ANNTYP * p_train_slopes = P_TrainSlopes;
-	ANNTYP * p_weights = P_Weights;
-	ANNTYP * p_prev_steps = P_PrevSteps;
-	ANNTYP * p_prev_train_slopes = P_PrevTrainSlopes;
+	float * p_train_slopes = P_TrainSlopes;
+	float * p_weights = P_Weights;
+	float * p_prev_steps = P_PrevSteps;
+	float * p_prev_train_slopes = P_PrevTrainSlopes;
 	const float _increase_factor = RpropIncreaseFactor;     /*1.2; */
 	const float _decrease_factor = RpropDecreaseFactor;     /*0.5; */
 	const float _delta_min = RpropDeltaMin; /*0.0; */
 	const float _delta_max = RpropDeltaMax; /*50.0; */
 	for(uint i = firstWeight; i != pastEnd; i++) {
-		const ANNTYP _prev_step = MAX(p_prev_steps[i], (ANNTYP)0.0001); // prev_step may not be zero because then the training will stop
-		const ANNTYP _prev_slope = p_prev_train_slopes[i];
-		ANNTYP _slope = p_train_slopes[i];
-		const ANNTYP _same_sign = _prev_slope * _slope;
-		ANNTYP   _next_step;
+		const float _prev_step = MAX(p_prev_steps[i], (float)0.0001); // prev_step may not be zero because then the training will stop
+		const float _prev_slope = p_prev_train_slopes[i];
+		float _slope = p_train_slopes[i];
+		const float _same_sign = _prev_slope * _slope;
+		float   _next_step;
 		if(_same_sign >= 0.0)
 			_next_step = MIN(_prev_step * _increase_factor, _delta_max);
 		else {
@@ -4049,10 +3533,10 @@ void Fann::UpdateWeightsIrpropm(uint firstWeight, uint pastEnd)
 void Fann::UpdateWeightsSarprop(uint epoch, uint firstWeight, uint pastEnd)
 {
 	assert(firstWeight <= pastEnd);
-	ANNTYP * p_train_slopes = P_TrainSlopes;
-	ANNTYP * p_weights = P_Weights;
-	ANNTYP * p_prev_steps = P_PrevSteps;
-	ANNTYP * p_prev_train_slopes = P_PrevTrainSlopes;
+	float * p_train_slopes = P_TrainSlopes;
+	float * p_weights = P_Weights;
+	float * p_prev_steps = P_PrevSteps;
+	float * p_prev_train_slopes = P_PrevTrainSlopes;
 
 	// These should be set from variables
 	const float _increase_factor = RpropIncreaseFactor;     /*1.2; */
@@ -4069,13 +3553,13 @@ void Fann::UpdateWeightsSarprop(uint epoch, uint firstWeight, uint pastEnd)
 	// for all weights; TODO: are biases included?
 	for(uint i = firstWeight; i != pastEnd; i++) {
 		// @todo confirm whether 1x10^-6 == delta_min is really better
-		const ANNTYP _prev_step = MAX(p_prev_steps[i], (ANNTYP)0.000001); // prev_step may not be zero because then the training will stop
+		const float _prev_step = MAX(p_prev_steps[i], (float)0.000001); // prev_step may not be zero because then the training will stop
 		// calculate SARPROP slope; TODO: better as new error function? (see SARPROP paper)
-		ANNTYP _slope = -p_train_slopes[i] - p_weights[i] * (ANNTYP)fann_exp2(-_T * epoch + _weight_decay_shift);
+		float _slope = -p_train_slopes[i] - p_weights[i] * (float)fann_exp2(-_T * epoch + _weight_decay_shift);
 		// @todo is prev_train_slopes[i] 0.0 in the beginning?
-		const ANNTYP _prev_slope = p_prev_train_slopes[i];
-		const ANNTYP _same_sign = _prev_slope * _slope;
-		ANNTYP _next_step = 0;
+		const float _prev_slope = p_prev_train_slopes[i];
+		const float _same_sign = _prev_slope * _slope;
+		float _next_step = 0;
 		if(_same_sign > 0.0) {
 			_next_step = MIN(_prev_step * _increase_factor, _delta_max);
 			// @todo are the signs inverted? see differences between SARPROP paper and iRprop
@@ -4086,7 +3570,7 @@ void Fann::UpdateWeightsSarprop(uint epoch, uint firstWeight, uint pastEnd)
 		}
 		else if(_same_sign < 0.0) {
 			if(_prev_step < _step_error_threshold_factor * _MSE)
-				_next_step = _prev_step * _decrease_factor + (float)rand() / RAND_MAX * _RMSE * (ANNTYP)fann_exp2(-_T * epoch + _step_error_shift);
+				_next_step = _prev_step * _decrease_factor + (float)rand() / RAND_MAX * _RMSE * (float)fann_exp2(-_T * epoch + _step_error_shift);
 			else
 				_next_step = MAX(_prev_step * _decrease_factor, _delta_min);
 			_slope = 0.0;
@@ -4107,9 +3591,6 @@ void Fann::UpdateWeightsSarprop(uint epoch, uint firstWeight, uint pastEnd)
 	}
 }
 
-#endif
-
-//FANN_EXTERNAL void FANN_API fann_set_activation_function_hidden(Fann * ann, fann_activationfunc_enum activation_function)
 void Fann::SetActivationFunctionHidden(Fann::ActivationFunc activationFunction)
 {
 	const Fann::Layer * p_last_layer = P_LastLayer - 1;    /* -1 to not update the output layer */
@@ -4120,27 +3601,12 @@ void Fann::SetActivationFunctionHidden(Fann::ActivationFunc activationFunction)
 	}
 }
 
-/*FANN_EXTERNAL Fann::Layer * FANN_API fann_get_layer(Fann * ann, int layer)
-{
-	return ann->GetLayer(layer);
-}*/
-/*FANN_EXTERNAL Fann::Neuron * FANN_API fann_get_neuron_layer(Fann * ann, Fann::Layer * layer, int neuron)
-{
-	return ann->GetNeuronLayer(layer, neuron);
-}*/
-/*FANN_EXTERNAL Fann::Neuron * FANN_API fann_get_neuron(Fann * ann, uint layer, int neuron)
-{
-	return ann->GetNeuron(layer, neuron);
-}*/
-
-//FANN_EXTERNAL Fann::ActivationFunc FANN_API fann_get_activation_function(Fann * ann, int layer, int neuron)
 Fann::ActivationFunc Fann::GetActivationFunction(uint layer, int neuron) const
 {
 	Fann::Neuron * p_neuron_it = GetNeuron(layer, neuron);
 	return p_neuron_it ? (Fann::ActivationFunc)p_neuron_it->ActivationFunction : (Fann::ActivationFunc)-1;
 }
 
-//FANN_EXTERNAL void FANN_API fann_set_activation_function(Fann * ann, Fann::ActivationFunc activation_function, int layer, int neuron)
 int Fann::SetActivationFunction(Fann::ActivationFunc activationFunction, uint layer, int neuron)
 {
 	int    ok = 1;
@@ -4152,7 +3618,6 @@ int Fann::SetActivationFunction(Fann::ActivationFunc activationFunction, uint la
 	return ok;
 }
 
-//FANN_EXTERNAL void FANN_API fann_set_activation_function_layer(Fann * ann, Fann::ActivationFunc activation_function, int layer)
 void Fann::SetActivationFunctionLayer(Fann::ActivationFunc activationFunction, uint layer)
 {
 	Fann::Layer * p_layer_it = GetLayer(layer);
@@ -4163,7 +3628,6 @@ void Fann::SetActivationFunctionLayer(Fann::ActivationFunc activationFunction, u
 	}
 }
 
-//FANN_EXTERNAL void FANN_API fann_set_activation_function_output(Fann * ann, Fann::ActivationFunc activation_function)
 void Fann::SetActivationFunctionOutput(Fann::ActivationFunc activationFunction)
 {
 	const Fann::Layer  * p_last_layer = P_LastLayer - 1;
@@ -4173,8 +3637,7 @@ void Fann::SetActivationFunctionOutput(Fann::ActivationFunc activationFunction)
 	}
 }
 
-//FANN_EXTERNAL void FANN_API fann_set_activation_steepness_hidden(Fann * ann, ANNTYP steepness)
-void Fann::SetActivationSteepnessHidden(ANNTYP steepness)
+void Fann::SetActivationSteepnessHidden(float steepness)
 {
 	const Fann::Layer * p_last_layer = P_LastLayer - 1; // -1 to not update the output layer
 	for(Fann::Layer * p_layer_it = P_FirstLayer + 1; p_layer_it != p_last_layer; p_layer_it++) {
@@ -4184,23 +3647,21 @@ void Fann::SetActivationSteepnessHidden(ANNTYP steepness)
 	}
 }
 
-//FANN_EXTERNAL ANNTYP FANN_API fann_get_activation_steepness(Fann * ann, int layer, int neuron)
-ANNTYP Fann::GetActivationSteepness(uint layer, int neuron) const
+float Fann::GetActivationSteepness(uint layer, int neuron) const
 {
 	const Fann::Neuron * p_neuron_it = GetNeuron(layer, neuron);
 	return p_neuron_it ? p_neuron_it->ActivationSteepness : -1 /* layer or neuron out of bounds */;
 }
 
-//FANN_EXTERNAL void FANN_API fann_set_activation_steepness(Fann * ann, ANNTYP steepness, int layer, int neuron)
-void Fann::SetActivationSteepness(ANNTYP steepness, uint layer, int neuron)
+void Fann::SetActivationSteepness(float steepness, uint layer, int neuron)
 {
 	Fann::Neuron * p_neur = GetNeuron(layer, neuron);
 	if(p_neur)
 		p_neur->ActivationSteepness = steepness;
 }
 
-//FANN_EXTERNAL void FANN_API fann_set_activation_steepness_layer(Fann * ann, ANNTYP steepness, int layer)
-void Fann::SetActivationSteepnessLayer(ANNTYP steepness, uint layer)
+//FANN_EXTERNAL void FANN_API fann_set_activation_steepness_layer(Fann * ann, float steepness, int layer)
+void Fann::SetActivationSteepnessLayer(float steepness, uint layer)
 {
 	Fann::Layer * p_layer_it = GetLayer(layer);
 	if(p_layer_it) {
@@ -4210,8 +3671,8 @@ void Fann::SetActivationSteepnessLayer(ANNTYP steepness, uint layer)
 	}
 }
 
-//FANN_EXTERNAL void FANN_API fann_set_activation_steepness_output(Fann * ann, ANNTYP steepness)
-void Fann::SetActivationSteepnessOutput(ANNTYP steepness)
+//FANN_EXTERNAL void FANN_API fann_set_activation_steepness_output(Fann * ann, float steepness)
+void Fann::SetActivationSteepnessOutput(float steepness)
 {
 	const Fann::Layer * p_last_layer = P_LastLayer - 1;
 	const Fann::Neuron * p_last_neuron = p_last_layer->P_LastNeuron;
@@ -4226,8 +3687,8 @@ FANN_GET_SET(uint, cascade_output_stagnation_epochs)
 FANN_GET_SET(float, cascade_candidate_change_fraction)
 FANN_GET_SET(uint, cascade_candidate_stagnation_epochs)
 FANN_GET_SET(uint, cascade_num_candidate_groups)
-FANN_GET_SET(ANNTYP, cascade_weight_multiplier)
-FANN_GET_SET(ANNTYP, cascade_candidate_limit)
+FANN_GET_SET(float, cascade_weight_multiplier)
+FANN_GET_SET(float, cascade_candidate_limit)
 FANN_GET_SET(uint, cascade_max_out_epochs)
 FANN_GET_SET(uint, cascade_max_cand_epochs)
 FANN_GET_SET(uint, cascade_min_out_epochs)
@@ -4247,7 +3708,7 @@ FANN_GET_SET(float, sarprop_step_error_threshold_factor)
 FANN_GET_SET(float, sarprop_step_error_shift)
 FANN_GET_SET(float, sarprop_temperature)
 FANN_GET_SET(fann_stopfunc_enum, train_stop_function)
-FANN_GET_SET(ANNTYP, bit_fail_limit)
+FANN_GET_SET(float, bit_fail_limit)
 FANN_GET_SET(float, LearningRate)
 FANN_GET_SET(float, LearningMomentum)
 
@@ -4311,15 +3772,15 @@ float Fann::TestData(const Fann::TrainData * pData)
 			const float * p_input = (const float *)pData->InpL.at(i)->dataPtr();
 			const float * p_output = (const float *)pData->OutL.at(i)->dataPtr();
 			//Test(p_input, p_output);
-			//ANNTYP * Fann::Test_(const ANNTYP * pInput, const ANNTYP * pDesiredOutput)
+			//float * Fann::Test_(const float * pInput, const float * pDesiredOutput)
 			{
-				const ANNTYP * p_output_begin = Run(p_input);
-				const ANNTYP * p_output_end = p_output_begin + NumOutput;
+				const float * p_output_begin = Run(p_input);
+				const float * p_output_end = p_output_begin + NumOutput;
 				Fann::Neuron * p_output_neuron = (P_LastLayer-1)->P_FirstNeuron;
 				// calculate the error
-				for(const ANNTYP * p_output_it = p_output_begin; p_output_it != p_output_end; p_output_it++) {
-					const ANNTYP neuron_value = *p_output_it;
-					ANNTYP neuron_diff = (*p_output - neuron_value);
+				for(const float * p_output_it = p_output_begin; p_output_it != p_output_end; p_output_it++) {
+					const float neuron_value = *p_output_it;
+					float neuron_diff = (*p_output - neuron_value);
 					neuron_diff = UpdateMSE(p_output_neuron, neuron_diff);
 					p_output++;
 					p_output_neuron++;
@@ -4331,8 +3792,6 @@ float Fann::TestData(const Fann::TrainData * pData)
 		return GetMSE();
 	}
 }
-
-#ifndef FIXEDFANN
 
 int Fann::Helper_TrainData(const Fann::TrainData * pData)
 {
@@ -4348,7 +3807,6 @@ int Fann::Helper_TrainData(const Fann::TrainData * pData)
 	return ok;
 }
 
-//FANN_EXTERNAL void FANN_API fann_train_on_data(Fann * ann, Fann::TrainData * pData, uint maxEpochs, uint epochsBetweenReports, float desiredError)
 int Fann::TrainOnData(const Fann::TrainData * pData, uint maxEpochs, uint epochsBetweenReports, float desiredError)
 {
 	int    ok = 1;
@@ -4413,21 +3871,9 @@ int Fann::TrainOnData(const Fann::TrainData * pData, uint maxEpochs, uint epochs
 	CATCHZOK
 	return ok;
 }
-
-/*FANN_EXTERNAL void FANN_API fann_train_on_file(Fann * ann, const char * filename, uint max_epochs, uint epochs_between_reports, float desired_error)
-{
-	Fann::TrainData * p_data = fann_read_train_from_file(filename);
-	if(p_data) {
-		ann->TrainOnData(p_data, max_epochs, epochs_between_reports, desired_error);
-		delete p_data;
-	}
-}*/
-
-#endif
 //
 // shuffles training data, randomizing the order
 //
-//FANN_EXTERNAL void FANN_API fann_shuffle_train_data(Fann::TrainData * train_data)
 void Fann::TrainData::Shuffle()
 {
 	for(uint dat = 0; dat < GetCount(); dat++) {
@@ -4450,12 +3896,12 @@ void Fann::TrainData::Shuffle()
 //
 // INTERNAL FUNCTION calculates min and max of train data
 //
-/*void fann_get_min_max_data(ANNTYP ** data, uint num_data, uint num_elem, ANNTYP * min, ANNTYP * max)
+/*void fann_get_min_max_data(float ** data, uint num_data, uint num_elem, float * min, float * max)
 {
 	*min = *max = data[0][0];
 	for(uint dat = 0; dat < num_data; dat++) {
 		for(uint elem = 0; elem < num_elem; elem++) {
-			const ANNTYP temp = data[dat][elem];
+			const float temp = data[dat][elem];
 			if(temp < *min)
 				*min = temp;
 			else if(temp > *max)
@@ -4465,14 +3911,14 @@ void Fann::TrainData::Shuffle()
 }*/
 
 //static
-void Fann::DataVector::GetMinMax(const TSCollection <DataVector> & rData, ANNTYP * pMin, ANNTYP * pMax)
+void Fann::DataVector::GetMinMax(const TSCollection <DataVector> & rData, float * pMin, float * pMax)
 {
-	ANNTYP _min = rData.at(0)->at(0);
-	ANNTYP _max = _min;
+	float _min = rData.at(0)->at(0);
+	float _max = _min;
 	for(uint dat = 0; dat < rData.getCount(); dat++) {
 		const DataVector * p_vect = rData.at(dat);
 		for(uint elem = 0; elem < p_vect->getCount(); elem++) {
-			const ANNTYP v = p_vect->at(elem);
+			const float v = p_vect->at(elem);
 			SETMIN(_min, v);
 			SETMAX(_max, v);
 		}
@@ -4481,37 +3927,37 @@ void Fann::DataVector::GetMinMax(const TSCollection <DataVector> & rData, ANNTYP
 	ASSIGN_PTR(pMax, _max);
 }
 
-//FANN_EXTERNAL ANNTYP FANN_API fann_get_min_train_input(Fann::TrainData * train_data)
-ANNTYP Fann::TrainData::GetMinInput() const
+//FANN_EXTERNAL float FANN_API fann_get_min_train_input(Fann::TrainData * train_data)
+float Fann::TrainData::GetMinInput() const
 {
-	ANNTYP min, max;
+	float min, max;
 	//fann_get_min_max_data(train_data->input, train_data->num_data, train_data->num_input, &min, &max);
 	Fann::DataVector::GetMinMax(InpL, &min, &max);
 	return min;
 }
 
-//FANN_EXTERNAL ANNTYP FANN_API fann_get_max_train_input(Fann::TrainData * train_data)
-ANNTYP Fann::TrainData::GetMaxInput() const
+//FANN_EXTERNAL float FANN_API fann_get_max_train_input(Fann::TrainData * train_data)
+float Fann::TrainData::GetMaxInput() const
 {
-	ANNTYP min, max;
+	float min, max;
 	//fann_get_min_max_data(train_data->input, train_data->num_data, train_data->num_input, &min, &max);
 	Fann::DataVector::GetMinMax(InpL, &min, &max);
 	return max;
 }
 
-//FANN_EXTERNAL ANNTYP FANN_API fann_get_min_train_output(Fann::TrainData * train_data)
-ANNTYP Fann::TrainData::GetMinOutput() const
+//FANN_EXTERNAL float FANN_API fann_get_min_train_output(Fann::TrainData * train_data)
+float Fann::TrainData::GetMinOutput() const
 {
-	ANNTYP min, max;
+	float min, max;
 	//fann_get_min_max_data(train_data->output, train_data->num_data, train_data->num_output, &min, &max);
 	Fann::DataVector::GetMinMax(OutL, &min, &max);
 	return min;
 }
 
-//FANN_EXTERNAL ANNTYP FANN_API fann_get_max_train_output(Fann::TrainData * train_data)
-ANNTYP Fann::TrainData::GetMaxOutput() const
+//FANN_EXTERNAL float FANN_API fann_get_max_train_output(Fann::TrainData * train_data)
+float Fann::TrainData::GetMaxOutput() const
 {
-	ANNTYP min, max;
+	float min, max;
 	//fann_get_min_max_data(train_data->output, train_data->num_data, train_data->num_output, &min, &max);
 	Fann::DataVector::GetMinMax(OutL, &min, &max);
 	return max;
@@ -4519,28 +3965,28 @@ ANNTYP Fann::TrainData::GetMaxOutput() const
 //
 // INTERNAL FUNCTION Scales data to a specific range
 //
-/*void fann_scale_data(ANNTYP ** data, uint num_data, uint num_elem, ANNTYP new_min, ANNTYP new_max)
+/*void fann_scale_data(float ** data, uint num_data, uint num_elem, float new_min, float new_max)
 {
-	ANNTYP old_min, old_max;
+	float old_min, old_max;
 	fann_get_min_max_data(data, num_data, num_elem, &old_min, &old_max);
 	fann_scale_data_to_range(data, num_data, num_elem, old_min, old_max, new_min, new_max);
 }*/
 
 //static
-//void Fann::ScaleData(TSCollection <DataVector> & rData, ANNTYP newMin, ANNTYP newMax)
+//void Fann::ScaleData(TSCollection <DataVector> & rData, float newMin, float newMax)
 //
 // INTERNAL FUNCTION Scales data to a specific range
 //
-/*FANN_EXTERNAL void FANN_API fann_scale_data_to_range(ANNTYP ** data, uint num_data, uint num_elem,
-    ANNTYP old_min, ANNTYP old_max, ANNTYP new_min, ANNTYP new_max)
+/*FANN_EXTERNAL void FANN_API fann_scale_data_to_range(float ** data, uint num_data, uint num_elem,
+    float old_min, float old_max, float new_min, float new_max)
 {
-	const ANNTYP old_span = old_max - old_min;
-	const ANNTYP new_span = new_max - new_min;
-	const ANNTYP factor = new_span / old_span;
+	const float old_span = old_max - old_min;
+	const float new_span = new_max - new_min;
+	const float factor = new_span / old_span;
 	// printf("max %f, min %f, factor %f\n", old_max, old_min, factor);
 	for(uint dat = 0; dat < num_data; dat++) {
 		for(uint elem = 0; elem < num_elem; elem++) {
-			const ANNTYP temp = (data[dat][elem] - old_min) * factor + new_min;
+			const float temp = (data[dat][elem] - old_min) * factor + new_min;
 			if(temp < new_min) {
 				data[dat][elem] = new_min;
 				// printf("error %f < %f\n", temp, new_min);
@@ -4556,20 +4002,16 @@ ANNTYP Fann::TrainData::GetMaxOutput() const
 	}
 }*/
 
-//void Fann::ScaleDataToRange(ANNTYP ** data, uint num_data, uint num_elem, ANNTYP old_min, ANNTYP old_max, ANNTYP new_min, ANNTYP new_max)
-//static
-//void Fann::ScaleDataToRange(TSCollection <DataVector> & rData, ANNTYP oldMin, ANNTYP oldMax, ANNTYP newMin, ANNTYP newMax)
-//static
-void Fann::DataVector::ScaleToRange(TSCollection <DataVector> & rData, ANNTYP oldMin, ANNTYP oldMax, ANNTYP newMin, ANNTYP newMax)
+void Fann::DataVector::ScaleToRange(TSCollection <DataVector> & rData, float oldMin, float oldMax, float newMin, float newMax)
 {
-	const ANNTYP old_span = oldMax - oldMin;
-	const ANNTYP new_span = newMax - newMin;
-	const ANNTYP factor = new_span / old_span;
+	const float old_span = oldMax - oldMin;
+	const float new_span = newMax - newMin;
+	const float factor = new_span / old_span;
 	// printf("max %f, min %f, factor %f\n", old_max, old_min, factor);
 	for(uint dat = 0; dat < rData.getCount(); dat++) {
 		const DataVector * p_vect = rData.at(dat);
 		for(uint elem = 0; elem < p_vect->getCount(); elem++) {
-			const ANNTYP temp = (p_vect->at(elem) - oldMin) * factor + newMin;
+			const float temp = (p_vect->at(elem) - oldMin) * factor + newMin;
 			if(temp < newMin) {
 				p_vect->at(elem) = newMin;
 				// printf("error %f < %f\n", temp, new_min);
@@ -4587,8 +4029,7 @@ void Fann::DataVector::ScaleToRange(TSCollection <DataVector> & rData, ANNTYP ol
 //
 // Scales the inputs in the training data to the specified range
 //
-//FANN_EXTERNAL void FANN_API fann_scale_input_train_data(Fann::TrainData * train_data, ANNTYP new_min, ANNTYP new_max)
-void Fann::TrainData::ScaleInput(ANNTYP newMin, ANNTYP newMax)
+void Fann::TrainData::ScaleInput(float newMin, float newMax)
 {
 	//fann_scale_data(train_data->input, train_data->num_data, train_data->num_input, new_min, new_max);
 	Fann::DataVector::Scale(InpL, newMin, newMax);
@@ -4596,8 +4037,7 @@ void Fann::TrainData::ScaleInput(ANNTYP newMin, ANNTYP newMax)
 //
 // Scales the inputs in the training data to the specified range
 //
-//FANN_EXTERNAL void FANN_API fann_scale_output_train_data(Fann::TrainData * train_data, ANNTYP new_min, ANNTYP new_max)
-void Fann::TrainData::ScaleOutput(ANNTYP newMin, ANNTYP newMax)
+void Fann::TrainData::ScaleOutput(float newMin, float newMax)
 {
 	//fann_scale_data(train_data->output, train_data->num_data, train_data->num_output, new_min, new_max);
 	Fann::DataVector::Scale(OutL, newMin, newMax);
@@ -4605,8 +4045,7 @@ void Fann::TrainData::ScaleOutput(ANNTYP newMin, ANNTYP newMax)
 //
 // Scales the inputs in the training data to the specified range
 //
-//FANN_EXTERNAL void FANN_API fann_scale_train_data(Fann::TrainData * pData, ANNTYP newMin, ANNTYP newMax)
-void Fann::TrainData::Scale(ANNTYP newMin, ANNTYP newMax)
+void Fann::TrainData::Scale(float newMin, float newMax)
 {
 	//fann_scale_data(train_data->input, train_data->num_data, train_data->num_input, new_min, new_max);
 	//fann_scale_data(train_data->output, train_data->num_data, train_data->num_output, new_min, new_max);
@@ -4642,16 +4081,13 @@ int fann_save_train_internal_fd(Fann::TrainData * data, FILE * file, const char 
 	uint num_output = data->GetOutputCount();
 	uint i, j;
 	int retval = 0;
-#ifndef FIXEDFANN
 	uint multiplier = 1 << decimal_point;
-#endif
 	fprintf(file, "%u %u %u\n", data->GetCount(), data->GetInputCount(), data->GetOutputCount());
 	for(i = 0; i < num_data; i++) {
 		const Fann::DataVector * p_inp_vect = data->InpL.at(i);
 		const Fann::DataVector * p_out_vect = data->OutL.at(i);
 		for(j = 0; j < num_input; j++) {
 			const float iv = p_inp_vect->at(j);
-#ifndef FIXEDFANN
 			if(save_as_fixed) {
 				fprintf(file, "%d ", (int)(iv * multiplier));
 			}
@@ -4663,15 +4099,11 @@ int fann_save_train_internal_fd(Fann::TrainData * data, FILE * file, const char 
 					fprintf(file, "%f ", iv);
 				}
 			}
-#else
-			fprintf(file, FANNPRINTF " ", iv);
-#endif
 		}
 		fprintf(file, "\n");
 
 		for(j = 0; j < num_output; j++) {
 			const float ov = p_out_vect->at(j);
-#ifndef FIXEDFANN
 			if(save_as_fixed) {
 				fprintf(file, "%d ", (int)(ov * multiplier));
 			}
@@ -4683,9 +4115,6 @@ int fann_save_train_internal_fd(Fann::TrainData * data, FILE * file, const char 
 					fprintf(file, "%f ", ov);
 				}
 			}
-#else
-			fprintf(file, FANNPRINTF " ", ov);
-#endif
 		}
 		fprintf(file, "\n");
 	}
@@ -4694,12 +4123,8 @@ int fann_save_train_internal_fd(Fann::TrainData * data, FILE * file, const char 
 //
 //
 //
-Fann::ScaleParam::ScaleParam()
+Fann::ScaleParam::ScaleParam() : P_Mean(0), P_Deviation(0), P_NewMin(0), P_Factor(0)
 {
-	P_Mean = 0;
-	P_Deviation = 0;
-	P_NewMin = 0;
-	P_Factor = 0;
 }
 
 Fann::ScaleParam::~ScaleParam()
@@ -4759,7 +4184,7 @@ int Fann::ScaleParam::ScaleVector(Fann::DataVector * pV) const
 	int    ok = 1;
 	THROW_S(P_Mean && P_Deviation && P_Factor && P_NewMin, SLERR_FANN_SCALE_NOT_PRESENT);
 	for(uint i = 0; i < pV->getCount(); i++) {
-		pV->at(i) = (ANNTYP)(((pV->at(i) - P_Mean[i]) / P_Deviation[i] - (-1.0f) /* This is old_min */) * P_Factor[i] + P_NewMin[i]);
+		pV->at(i) = (float)(((pV->at(i) - P_Mean[i]) / P_Deviation[i] - (-1.0f) /* This is old_min */) * P_Factor[i] + P_NewMin[i]);
 	}
 	CATCHZOK
 	return ok;
@@ -4770,7 +4195,7 @@ int Fann::ScaleParam::DescaleVector(Fann::DataVector * pV) const
 	int    ok = 1;
 	THROW_S(P_Mean && P_Deviation && P_Factor && P_NewMin, SLERR_FANN_SCALE_NOT_PRESENT);
 	for(uint i = 0; i < pV->getCount(); i++) {
-		pV->at(i) = (ANNTYP)((((float)pV->at(i) - P_NewMin[i]) / P_Factor[i] + (-1.0f) /* This is old_min */) * P_Deviation[i] + P_Mean[i]);
+		pV->at(i) = (float)((((float)pV->at(i) - P_NewMin[i]) / P_Factor[i] + (-1.0f) /* This is old_min */) * P_Deviation[i] + P_Mean[i]);
 	}
 	CATCHZOK
 	return ok;
@@ -4980,8 +4405,6 @@ FANN_EXTERNAL Fann::TrainData * FANN_API fann_create_train(uint numData, uint nu
 //
 /*int fann_desired_error_reached(const Fann * ann, float desired_error)
 	{ return ann->DesiredErrorReached(desired_error); }*/
-
-#ifndef FIXEDFANN
 /*
  * Scale input and output data based on previously calculated parameters.
  */
@@ -5008,7 +4431,6 @@ int Fann::ScaleTrain(Fann::TrainData * pData)
 //
 // Scale input and output data based on previously calculated parameters.
 //
-//FANN_EXTERNAL void FANN_API fann_descale_train(Fann * ann, Fann::TrainData * data)
 int Fann::DescaleTrain(Fann::TrainData * pData)
 {
 	int    ok = 1;
@@ -5076,7 +4498,7 @@ void Fann::ScaleReset(uint c, float * pArray, float value)
 		ann->scale_new_min_ ## where[cur_neuron] = new_ ## where ## put_min;
 #endif // } 0
 
-void Fann::ScaleSetParam(uint c, uint numData, ANNTYP ** const ppData, float newMin, float newMax,
+void Fann::ScaleSetParam(uint c, uint numData, float ** const ppData, float newMin, float newMax,
 	float * pScaleMean, float * pScaleDeviation, float * pScaleNewMin, float * pScaleFactor)
 {
 	uint cur_neuron, cur_sample;
@@ -5107,7 +4529,7 @@ void Fann::ScaleSetParam(uint c, uint numData, ANNTYP ** const ppData, float new
 		pScaleNewMin[cur_neuron] = newMin;
 }
 
-/*void Fann::ScaleSetParam2(uint c, uint numData, ANNTYP ** const ppData, float newMin, float newMax, Fann::ScaleParam & rParam)
+/*void Fann::ScaleSetParam2(uint c, uint numData, float ** const ppData, float newMin, float newMax, Fann::ScaleParam & rParam)
 {
 	uint cur_neuron, cur_sample;
 	// Calculate mean: sum(x)/length
@@ -5354,8 +4776,6 @@ int Fann::ClearScalingParams()
 	return ok;
 }
 
-#endif // !FIXEDFANN
-
 //int fann_check_input_output_sizes(Fann * ann, Fann::TrainData * pData)
 int Fann::CheckInputOutputSizes(const Fann::TrainData * pData)
 {
@@ -5394,13 +4814,13 @@ float Fann::ExamineTrain(/*Fann::TrainAlg tal, Fann::ActivationFunc hact, Fann::
 int Fann::DetectOptimal(Fann::DetectOptimalParam & rParam)
 {
 	int    ok = 1;
-	ANNTYP * p_preserve_weights = 0;
+	float * p_preserve_weights = 0;
 	THROW(rParam.P_TrainData);
 	{
 		Fann   test_ann(rParam.NetworkType, rParam.ConnectionRate, rParam.Layers);
 		THROW(test_ann.IsValid());
 		const size_t weights_buffer_size = test_ann.GetWeights(0, 0);
-		THROW(p_preserve_weights = (ANNTYP *)SAlloc::M(weights_buffer_size));
+		THROW(p_preserve_weights = (float *)SAlloc::M(weights_buffer_size));
 		THROW(test_ann.GetWeights(p_preserve_weights, weights_buffer_size));
 		if(rParam.Flags & rParam.fDetectActivationFunc) {
 			uint   best_hi = 0;
@@ -5555,17 +4975,17 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_batch_parallel(Fann * ann, Fann::T
 		const uint num_data = data->num_data;
 		const uint first_weight = 0;
 		const uint past_end = ann->TotalConnections;
-		ANNTYP * weights = ann->P_Weights;
-		const ANNTYP epsilon = ann->LearningRate / num_data;
+		float * weights = ann->P_Weights;
+		const float epsilon = ann->LearningRate / num_data;
 		omp_set_dynamic(0);
 		omp_set_num_threads(threadnumb);
 		#pragma omp parallel
 		{
 			#pragma omp for schedule(static)
 			for(i = first_weight; i < (int)past_end; i++) {
-				ANNTYP temp_slopes = 0.0;
+				float temp_slopes = 0.0;
 				uint k;
-				ANNTYP * train_slopes;
+				float * train_slopes;
 				for(k = 0; k<threadnumb; ++k) {
 					train_slopes = ann_vect[k]->P_TrainSlopes;
 					temp_slopes += train_slopes[i];
@@ -5615,10 +5035,10 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_irpropm_parallel(Fann * ann, Fann:
 		}
 	}
 	{
-		ANNTYP * weights = ann->P_Weights;
-		ANNTYP * prev_steps = ann->P_PrevSteps;
-		ANNTYP * prev_train_slopes = ann->P_PrevTrainSlopes;
-		ANNTYP next_step;
+		float * weights = ann->P_Weights;
+		float * prev_steps = ann->P_PrevSteps;
+		float * prev_train_slopes = ann->P_PrevTrainSlopes;
+		float next_step;
 		const float increase_factor = ann->RpropIncreaseFactor; //1.2;
 		const float decrease_factor = ann->RpropDecreaseFactor; //0.5;
 		const float delta_min = ann->RpropDeltaMin; //0.0;
@@ -5631,12 +5051,12 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_irpropm_parallel(Fann * ann, Fann:
 		{
 			#pragma omp for schedule(static)
 			for(i = first_weight; i < (int)past_end; i++) {
-				ANNTYP prev_slope, same_sign;
-				const ANNTYP prev_step = MAX(prev_steps[i], (ANNTYP)0.0001); // prev_step may not be zero because
+				float prev_slope, same_sign;
+				const float prev_step = MAX(prev_steps[i], (float)0.0001); // prev_step may not be zero because
 					// then the training will stop
-				ANNTYP temp_slopes = 0.0;
+				float temp_slopes = 0.0;
 				uint k;
-				ANNTYP * train_slopes;
+				float * train_slopes;
 				for(k = 0; k<threadnumb; ++k) {
 					train_slopes = ann_vect[k]->P_TrainSlopes;
 					temp_slopes += train_slopes[i];
@@ -5704,13 +5124,13 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_quickprop_parallel(Fann * ann, Fan
 		}
 	}
 	{
-		ANNTYP * weights = ann->P_Weights;
-		ANNTYP * prev_steps = ann->P_PrevSteps;
-		ANNTYP * prev_train_slopes = ann->P_PrevTrainSlopes;
+		float * weights = ann->P_Weights;
+		float * prev_steps = ann->P_PrevSteps;
+		float * prev_train_slopes = ann->P_PrevTrainSlopes;
 		const uint first_weight = 0;
 		const uint past_end = ann->TotalConnections;
 
-		ANNTYP w = 0.0, next_step;
+		float w = 0.0, next_step;
 
 		const float epsilon = ann->LearningRate / data->num_data;
 		const float decay = ann->QuickpropDecay; // -0.0001
@@ -5723,10 +5143,10 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_quickprop_parallel(Fann * ann, Fan
 		{
 			#pragma omp for schedule(static)
 			for(i = first_weight; i < (int)past_end; i++) {
-				ANNTYP temp_slopes = 0.0;
+				float temp_slopes = 0.0;
 				uint k;
-				ANNTYP * train_slopes;
-				ANNTYP prev_step, prev_slope;
+				float * train_slopes;
+				float prev_step, prev_slope;
 				w = weights[i];
 				for(k = 0; k<threadnumb; ++k) {
 					train_slopes = ann_vect[k]->P_TrainSlopes;
@@ -5814,14 +5234,14 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_sarprop_parallel(Fann * ann, Fann:
 		}
 	}
 	{
-		ANNTYP * weights = ann->P_Weights;
-		ANNTYP * prev_steps = ann->P_PrevSteps;
-		ANNTYP * prev_train_slopes = ann->P_PrevTrainSlopes;
+		float * weights = ann->P_Weights;
+		float * prev_steps = ann->P_PrevSteps;
+		float * prev_train_slopes = ann->P_PrevTrainSlopes;
 		const uint first_weight = 0;
 		const uint past_end = ann->TotalConnections;
 		const uint epoch = ann->SarpropEpoch;
 
-		ANNTYP next_step;
+		float next_step;
 
 		/* These should be set from variables */
 		const float increase_factor = ann->RpropIncreaseFactor; /*1.2; */
@@ -5849,18 +5269,18 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_sarprop_parallel(Fann * ann, Fann:
 			#pragma omp for schedule(static)
 			for(i = first_weight; i < (int)past_end; i++) {
 				/* @todo confirm whether 1x10^-6 == delta_min is really better */
-				const ANNTYP prev_step  = MAX(prev_steps[i], (ANNTYP)0.000001); // prev_step may not be zero because then the training will stop
+				const float prev_step  = MAX(prev_steps[i], (float)0.000001); // prev_step may not be zero because then the training will stop
 				// calculate SARPROP slope; TODO: better as new error function? (see SARPROP paper)
-				ANNTYP prev_slope, same_sign;
-				ANNTYP temp_slopes = 0.0;
+				float prev_slope, same_sign;
+				float temp_slopes = 0.0;
 				uint k;
-				ANNTYP * train_slopes;
+				float * train_slopes;
 				for(k = 0; k<threadnumb; ++k) {
 					train_slopes = ann_vect[k]->P_TrainSlopes;
 					temp_slopes += train_slopes[i];
 					train_slopes[i] = 0.0;
 				}
-				temp_slopes = -temp_slopes - weights[i] * (ANNTYP)fann_exp2(-T * epoch + weight_decay_shift);
+				temp_slopes = -temp_slopes - weights[i] * (float)fann_exp2(-T * epoch + weight_decay_shift);
 				next_step = 0.0;
 				// @todo is prev_train_slopes[i] 0.0 in the beginning?
 				prev_slope = prev_train_slopes[i];
@@ -5878,7 +5298,7 @@ FANN_EXTERNAL float FANN_API fann_train_epoch_sarprop_parallel(Fann * ann, Fann:
 	#define RAND_MAX        0x7fffffff
 #endif
 					if(prev_step < step_error_threshold_factor * MSE)
-						next_step = prev_step * decrease_factor + (float)rand() / RAND_MAX * RMSE * (ANNTYP)fann_exp2(-T * epoch + step_error_shift);
+						next_step = prev_step * decrease_factor + (float)rand() / RAND_MAX * RMSE * (float)fann_exp2(-T * epoch + step_error_shift);
 					else
 						next_step = MAX(prev_step * decrease_factor, delta_min);
 					temp_slopes = 0.0;
@@ -5960,17 +5380,17 @@ float train_epoch_batch_parallel(Fann *ann, Fann::TrainData *data, const uint th
 		const uint num_data=data->num_data;
 		const uint first_weight=0;
 		const uint past_end=ann->TotalConnections;
-		ANNTYP *weights = ann->P_Weights;
-		const ANNTYP epsilon = ann->LearningRate / num_data;
+		float *weights = ann->P_Weights;
+		const float epsilon = ann->LearningRate / num_data;
 		omp_set_dynamic(0);
 		omp_set_num_threads(threadnumb);
 		#pragma omp parallel
 		{
 			#pragma omp for schedule(static)
 				for(i=first_weight; i < (int)past_end; i++) {
-					ANNTYP temp_slopes=0.0;
+					float temp_slopes=0.0;
 					uint k;
-					ANNTYP *train_slopes;
+					float *train_slopes;
 					for(k=0; k < threadnumb; ++k) {
 						train_slopes=ann_vect[k]->P_TrainSlopes;
 						temp_slopes+= train_slopes[i];
@@ -6018,10 +5438,10 @@ float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint 
 		}
 	}
 	{
-    	ANNTYP *weights = ann->P_Weights;
-    	ANNTYP *prev_steps = ann->P_PrevSteps;
-    	ANNTYP *prev_train_slopes = ann->P_PrevTrainSlopes;
-    	ANNTYP next_step;
+    	float *weights = ann->P_Weights;
+    	float *prev_steps = ann->P_PrevSteps;
+    	float *prev_train_slopes = ann->P_PrevTrainSlopes;
+    	float next_step;
     	const float increase_factor = ann->RpropIncreaseFactor;	//1.2;
     	const float decrease_factor = ann->RpropDecreaseFactor;	//0.5;
     	const float delta_min = ann->RpropDeltaMin;	//0.0;
@@ -6035,17 +5455,17 @@ float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint 
 		{
 			#pragma omp for schedule(static)
 				for(i=first_weight; i < (int)past_end; i++) {
-		    		const ANNTYP prev_step = MAX(prev_steps[i], (ANNTYP) 0.0001);	// prev_step may not be zero because then the training will stop
-		    		ANNTYP temp_slopes=0.0;
+		    		const float prev_step = MAX(prev_steps[i], (float) 0.0001);	// prev_step may not be zero because then the training will stop
+		    		float temp_slopes=0.0;
 					uint k;
-					ANNTYP *train_slopes;
+					float *train_slopes;
 					for(k=0;k<threadnumb;++k) {
 						train_slopes=ann_vect[k]->P_TrainSlopes;
 						temp_slopes+= train_slopes[i];
 						train_slopes[i]=0.0;
 					}
-		    		const ANNTYP prev_slope = prev_train_slopes[i];
-		    		const ANNTYP same_sign = prev_slope * temp_slopes;
+		    		const float prev_slope = prev_train_slopes[i];
+		    		const float same_sign = prev_slope * temp_slopes;
 		    		if(same_sign >= 0.0)
 		    			next_step = MIN(prev_step * increase_factor, delta_max);
 		    		else {
@@ -6104,12 +5524,12 @@ float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uin
 		}
 	}
     {
-    	ANNTYP *weights = ann->P_Weights;
-    	ANNTYP *prev_steps = ann->P_PrevSteps;
-    	ANNTYP *prev_train_slopes = ann->P_PrevTrainSlopes;
+    	float *weights = ann->P_Weights;
+    	float *prev_steps = ann->P_PrevSteps;
+    	float *prev_train_slopes = ann->P_PrevTrainSlopes;
 		const uint first_weight=0;
 		const uint past_end=ann->TotalConnections;
-    	ANNTYP w=0.0, next_step;
+    	float w=0.0, next_step;
     	const float epsilon = ann->LearningRate / data->num_data;
     	const float decay = ann->QuickpropDecay; // -0.0001
     	const float mu = ann->QuickpropMu; // 1.75
@@ -6121,17 +5541,17 @@ float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uin
 			#pragma omp for schedule(static)
 				for(i=first_weight; i < (int)past_end; i++) {
 					w = weights[i];
-					ANNTYP temp_slopes=0.0;
+					float temp_slopes=0.0;
 					uint k;
-					ANNTYP *train_slopes;
+					float *train_slopes;
 					for(k=0;k<threadnumb;++k) {
 						train_slopes=ann_vect[k]->P_TrainSlopes;
 						temp_slopes+= train_slopes[i];
 						train_slopes[i]=0.0;
 					}
 					temp_slopes+= decay * w;
-					const ANNTYP prev_step = prev_steps[i];
-					const ANNTYP prev_slope = prev_train_slopes[i];
+					const float prev_step = prev_steps[i];
+					const float prev_slope = prev_train_slopes[i];
 					next_step = 0.0;
 					/* The step must always be in direction opposite to the slope. */
 					if(prev_step > 0.001) {
@@ -6207,13 +5627,13 @@ float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint 
 		}
 	}
     {
-    	ANNTYP *weights = ann->P_Weights;
-    	ANNTYP *prev_steps = ann->P_PrevSteps;
-    	ANNTYP *prev_train_slopes = ann->P_PrevTrainSlopes;
+    	float *weights = ann->P_Weights;
+    	float *prev_steps = ann->P_PrevSteps;
+    	float *prev_train_slopes = ann->P_PrevTrainSlopes;
 		const uint first_weight=0;
 		const uint past_end=ann->TotalConnections;
 		const uint epoch=ann->SarpropEpoch;
-    	ANNTYP next_step;
+    	float next_step;
     	/* These should be set from variables */
     	const float increase_factor = ann->RpropIncreaseFactor;	/*1.2; */
     	const float decrease_factor = ann->RpropDecreaseFactor;	/*0.5; */
@@ -6239,21 +5659,21 @@ float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint 
 			#pragma omp for schedule(static)
 				for(i=first_weight; i < (int)past_end; i++) {
 					/* @todo confirm whether 1x10^-6 == delta_min is really better */
-					const ANNTYP prev_step  = MAX(prev_steps[i], (ANNTYP) 0.000001);	/* prev_step may not be zero because then the training will stop */
+					const float prev_step  = MAX(prev_steps[i], (float) 0.000001);	/* prev_step may not be zero because then the training will stop */
 					/* calculate SARPROP slope; TODO: better as new error function? (see SARPROP paper)*/
-					ANNTYP temp_slopes=0.0;
+					float temp_slopes=0.0;
 					uint k;
-					ANNTYP *train_slopes;
+					float *train_slopes;
 					for(k=0;k<threadnumb;++k) {
 						train_slopes=ann_vect[k]->P_TrainSlopes;
 						temp_slopes+= train_slopes[i];
 						train_slopes[i]=0.0;
 					}
-					temp_slopes= -temp_slopes - weights[i] * (ANNTYP)fann_exp2(-T * epoch + weight_decay_shift);
+					temp_slopes= -temp_slopes - weights[i] * (float)fann_exp2(-T * epoch + weight_decay_shift);
 					next_step=0.0;
 					/* @todo is prev_train_slopes[i] 0.0 in the beginning? */
-					const ANNTYP prev_slope = prev_train_slopes[i];
-					const ANNTYP same_sign = prev_slope * temp_slopes;
+					const float prev_slope = prev_train_slopes[i];
+					const float same_sign = prev_slope * temp_slopes;
 					if(same_sign > 0.0) {
 						next_step = MIN(prev_step * increase_factor, delta_max);
 						/* @todo are the signs inverted? see differences between SARPROP paper and iRprop */
@@ -6267,7 +5687,7 @@ float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint 
 	#define	RAND_MAX	0x7fffffff
 #endif
 						if(prev_step < step_error_threshold_factor * MSE)
-							next_step = prev_step * decrease_factor + (float)rand() / RAND_MAX * RMSE * (ANNTYP)fann_exp2(-T * epoch + step_error_shift);
+							next_step = prev_step * decrease_factor + (float)rand() / RAND_MAX * RMSE * (float)fann_exp2(-T * epoch + step_error_shift);
 						else
 							next_step = MAX(prev_step * decrease_factor, delta_min);
 						temp_slopes = 0.0;
@@ -6309,10 +5729,10 @@ float train_epoch_incremental_mod(Fann *ann, Fann::TrainData *data)
 
 //the following versions returns also the outputs via the predicted_outputs parameter
 
-float train_epoch_batch_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb,vector< vector<ANNTYP> >& predicted_outputs)
+float train_epoch_batch_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb,vector< vector<float> >& predicted_outputs)
 {
 	ann->ResetMSE();
-	predicted_outputs.resize(data->num_data,vector<ANNTYP> (data->num_output));
+	predicted_outputs.resize(data->num_data,vector<float> (data->num_output));
 	vector<Fann *> ann_vect(threadnumb);
 	int i=0,j=0;
 	//generate copies of the ann
@@ -6329,7 +5749,7 @@ float train_epoch_batch_parallel(Fann *ann, Fann::TrainData *data, const uint th
         #pragma omp for schedule(static)
 		for(i = 0; i < (int)data->num_data; i++) {
 			j=omp_get_thread_num();
-			ANNTYP* temp_predicted_output=ann_vect[j]->Run(data->input[i]);
+			float* temp_predicted_output=ann_vect[j]->Run(data->input[i]);
 			for(uint k=0;k<data->num_output;++k) {
 				predicted_outputs[i][k]=temp_predicted_output[k];
 			}
@@ -6343,16 +5763,16 @@ float train_epoch_batch_parallel(Fann *ann, Fann::TrainData *data, const uint th
 		const uint num_data=data->num_data;
 		const uint first_weight=0;
 		const uint past_end=ann->TotalConnections;
-		ANNTYP *weights = ann->P_Weights;
-		const ANNTYP epsilon = ann->LearningRate / num_data;
+		float *weights = ann->P_Weights;
+		const float epsilon = ann->LearningRate / num_data;
 		omp_set_dynamic(0);
 		omp_set_num_threads(threadnumb);
 		#pragma omp parallel
 		{
 			#pragma omp for schedule(static)
 				for(i=first_weight; i < (int)past_end; i++) {
-					ANNTYP temp_slopes=0.0;
-					ANNTYP * train_slopes;
+					float temp_slopes=0.0;
+					float * train_slopes;
 					for(uint k = 0; k < threadnumb; ++k) {
 						train_slopes = ann_vect[k]->P_TrainSlopes;
 						temp_slopes+= train_slopes[i];
@@ -6371,13 +5791,13 @@ float train_epoch_batch_parallel(Fann *ann, Fann::TrainData *data, const uint th
 	return ann->GetMSE();
 }
 
-float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, vector< vector<ANNTYP> >& predicted_outputs)
+float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, vector< vector<float> >& predicted_outputs)
 {
 	if(!ann->P_PrevTrainSlopes) {
 		ann->ClearTrainArrays();
 	}
 		ann->ResetMSE();
-		predicted_outputs.resize(data->num_data,vector<ANNTYP> (data->num_output));
+		predicted_outputs.resize(data->num_data,vector<float> (data->num_output));
 		vector<Fann *> ann_vect(threadnumb);
 		int i=0,j=0;
 		//generate copies of the ann
@@ -6394,7 +5814,7 @@ float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint 
 	        #pragma omp for schedule(static)
 			for(i = 0; i < (int)data->num_data; i++) {
 				j=omp_get_thread_num();
-				ANNTYP * temp_predicted_output=ann_vect[j]->Run(data->input[i]);
+				float * temp_predicted_output=ann_vect[j]->Run(data->input[i]);
 				for(uint k=0;k<data->num_output;++k) {
 					predicted_outputs[i][k]=temp_predicted_output[k];
 				}
@@ -6404,10 +5824,10 @@ float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint 
 			}
 	}
 	{
-    	ANNTYP *weights = ann->P_Weights;
-    	ANNTYP *prev_steps = ann->P_PrevSteps;
-    	ANNTYP *prev_train_slopes = ann->P_PrevTrainSlopes;
-    	ANNTYP next_step;
+    	float *weights = ann->P_Weights;
+    	float *prev_steps = ann->P_PrevSteps;
+    	float *prev_train_slopes = ann->P_PrevTrainSlopes;
+    	float next_step;
     	const float increase_factor = ann->RpropIncreaseFactor;	//1.2;
     	const float decrease_factor = ann->RpropDecreaseFactor;	//0.5;
     	const float delta_min = ann->RpropDeltaMin;	//0.0;
@@ -6420,17 +5840,17 @@ float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint 
 		{
 			#pragma omp for schedule(static)
 				for(i=first_weight; i < (int)past_end; i++) {
-		    		const ANNTYP prev_step = MAX(prev_steps[i], (ANNTYP) 0.0001);	// prev_step may not be zero because then the training will stop
-		    		ANNTYP temp_slopes=0.0;
+		    		const float prev_step = MAX(prev_steps[i], (float) 0.0001);	// prev_step may not be zero because then the training will stop
+		    		float temp_slopes=0.0;
 					uint k;
-					ANNTYP *train_slopes;
+					float *train_slopes;
 					for(k=0;k<threadnumb;++k) {
 						train_slopes=ann_vect[k]->P_TrainSlopes;
 						temp_slopes+= train_slopes[i];
 						train_slopes[i]=0.0;
 					}
-		    		const ANNTYP prev_slope = prev_train_slopes[i];
-		    		const ANNTYP same_sign = prev_slope * temp_slopes;
+		    		const float prev_slope = prev_train_slopes[i];
+		    		const float same_sign = prev_slope * temp_slopes;
 		    		if(same_sign >= 0.0)
 		    			next_step = MIN(prev_step * increase_factor, delta_max);
 		    		else {
@@ -6461,13 +5881,13 @@ float train_epoch_irpropm_parallel(Fann *ann, Fann::TrainData *data, const uint 
 	return ann->GetMSE();
 }
 
-float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, vector< vector<ANNTYP> >& predicted_outputs)
+float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, vector< vector<float> >& predicted_outputs)
 {
 	if(!ann->P_PrevTrainSlopes) {
 		ann->ClearTrainArrays();
 	}
 		ann->ResetMSE();
-		predicted_outputs.resize(data->num_data,vector<ANNTYP> (data->num_output));
+		predicted_outputs.resize(data->num_data,vector<float> (data->num_output));
 		vector<Fann *> ann_vect(threadnumb);
 		int i=0,j=0;
 		//generate copies of the ann
@@ -6483,7 +5903,7 @@ float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uin
 	        #pragma omp for schedule(static)
 			for(i = 0; i < (int)data->num_data; i++) {
 				j=omp_get_thread_num();
-				ANNTYP* temp_predicted_output=ann_vect[j]->Run(data->input[i]);
+				float* temp_predicted_output=ann_vect[j]->Run(data->input[i]);
 				for(uint k=0;k<data->num_output;++k) {
 					predicted_outputs[i][k]=temp_predicted_output[k];
 				}
@@ -6493,12 +5913,12 @@ float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uin
 		}
 	}
     {
-    	ANNTYP *weights = ann->P_Weights;
-    	ANNTYP *prev_steps = ann->P_PrevSteps;
-    	ANNTYP *prev_train_slopes = ann->P_PrevTrainSlopes;
+    	float *weights = ann->P_Weights;
+    	float *prev_steps = ann->P_PrevSteps;
+    	float *prev_train_slopes = ann->P_PrevTrainSlopes;
 		const uint first_weight=0;
 		const uint past_end=ann->TotalConnections;
-    	ANNTYP w=0.0, next_step;
+    	float w=0.0, next_step;
     	const float epsilon = ann->LearningRate / data->num_data;
     	const float decay = ann->QuickpropDecay; // -0.0001
     	const float mu = ann->QuickpropMu; // 1.75
@@ -6510,9 +5930,9 @@ float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uin
 			#pragma omp for schedule(static)
 				for(i=first_weight; i < (int)past_end; i++) {
 					w = weights[i];
-					ANNTYP temp_slopes=0.0;
+					float temp_slopes=0.0;
 					uint k;
-					ANNTYP *train_slopes;
+					float *train_slopes;
 					for(k=0;k<threadnumb;++k) {
 						train_slopes=ann_vect[k]->P_TrainSlopes;
 						temp_slopes+= train_slopes[i];
@@ -6520,8 +5940,8 @@ float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uin
 					}
 					temp_slopes+= decay * w;
 
-					const ANNTYP prev_step = prev_steps[i];
-					const ANNTYP prev_slope = prev_train_slopes[i];
+					const float prev_step = prev_steps[i];
+					const float prev_slope = prev_train_slopes[i];
 					next_step = 0.0;
 					/* The step must always be in direction opposite to the slope. */
 					if(prev_step > 0.001) {
@@ -6572,13 +5992,13 @@ float train_epoch_quickprop_parallel(Fann *ann, Fann::TrainData *data, const uin
 	return ann->GetMSE();
 }
 
-float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, vector< vector<ANNTYP> >& predicted_outputs)
+float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, vector< vector<float> >& predicted_outputs)
 {
 	if(!ann->P_PrevTrainSlopes) {
 		ann->ClearTrainArrays();
 	}
 		ann->ResetMSE();
-		predicted_outputs.resize(data->num_data,vector<ANNTYP> (data->num_output));
+		predicted_outputs.resize(data->num_data,vector<float> (data->num_output));
 		vector<Fann *> ann_vect(threadnumb);
 		int i=0,j=0;
 
@@ -6596,7 +6016,7 @@ float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint 
 	        #pragma omp for schedule(static)
 			for(i = 0; i < (int)data->num_data; i++) {
 				j=omp_get_thread_num();
-				ANNTYP* temp_predicted_output=ann_vect[j]->Run(data->input[i]);
+				float* temp_predicted_output=ann_vect[j]->Run(data->input[i]);
 				for(uint k=0;k<data->num_output;++k) {
 					predicted_outputs[i][k]=temp_predicted_output[k];
 				}
@@ -6606,13 +6026,13 @@ float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint 
 		}
 	}
     {
-    	ANNTYP *weights = ann->P_Weights;
-    	ANNTYP *prev_steps = ann->P_PrevSteps;
-    	ANNTYP *prev_train_slopes = ann->P_PrevTrainSlopes;
+    	float *weights = ann->P_Weights;
+    	float *prev_steps = ann->P_PrevSteps;
+    	float *prev_train_slopes = ann->P_PrevTrainSlopes;
 		const uint first_weight=0;
 		const uint past_end=ann->TotalConnections;
 		const uint epoch=ann->SarpropEpoch;
-    	ANNTYP next_step;
+    	float next_step;
     	/* These should be set from variables */
     	const float increase_factor = ann->RpropIncreaseFactor;	/*1.2; */
     	const float decrease_factor = ann->RpropDecreaseFactor;	/*0.5; */
@@ -6638,21 +6058,21 @@ float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint 
 			#pragma omp for schedule(static)
 				for(i=first_weight; i < (int)past_end; i++) {
 					/* @todo confirm whether 1x10^-6 == delta_min is really better */
-					const ANNTYP prev_step  = MAX(prev_steps[i], (ANNTYP) 0.000001);	/* prev_step may not be zero because then the training will stop */
+					const float prev_step  = MAX(prev_steps[i], (float) 0.000001);	/* prev_step may not be zero because then the training will stop */
 					/* calculate SARPROP slope; TODO: better as new error function? (see SARPROP paper)*/
-					ANNTYP temp_slopes=0.0;
+					float temp_slopes=0.0;
 					uint k;
-					ANNTYP *train_slopes;
+					float *train_slopes;
 					for(k=0;k<threadnumb;++k) {
 						train_slopes=ann_vect[k]->P_TrainSlopes;
 						temp_slopes+= train_slopes[i];
 						train_slopes[i]=0.0;
 					}
-					temp_slopes= -temp_slopes - weights[i] * (ANNTYP)fann_exp2(-T * epoch + weight_decay_shift);
+					temp_slopes= -temp_slopes - weights[i] * (float)fann_exp2(-T * epoch + weight_decay_shift);
 					next_step=0.0;
 					/* @todo is prev_train_slopes[i] 0.0 in the beginning? */
-					const ANNTYP prev_slope = prev_train_slopes[i];
-					const ANNTYP same_sign = prev_slope * temp_slopes;
+					const float prev_slope = prev_train_slopes[i];
+					const float same_sign = prev_slope * temp_slopes;
 					if(same_sign > 0.0) {
 						next_step = MIN(prev_step * increase_factor, delta_max);
 						/* @todo are the signs inverted? see differences between SARPROP paper and iRprop */
@@ -6666,7 +6086,7 @@ float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint 
 						#define	RAND_MAX	0x7fffffff
 						#endif
 						if(prev_step < step_error_threshold_factor * MSE)
-							next_step = prev_step * decrease_factor + (float)rand() / RAND_MAX * RMSE * (ANNTYP)fann_exp2(-T * epoch + step_error_shift);
+							next_step = prev_step * decrease_factor + (float)rand() / RAND_MAX * RMSE * (float)fann_exp2(-T * epoch + step_error_shift);
 						else
 							next_step = MAX(prev_step * decrease_factor, delta_min);
 
@@ -6701,12 +6121,12 @@ float train_epoch_sarprop_parallel(Fann *ann, Fann::TrainData *data, const uint 
 	return ann->GetMSE();
 }
 
-float train_epoch_incremental_mod(Fann *ann, Fann::TrainData *data, vector< vector<ANNTYP> >& predicted_outputs)
+float train_epoch_incremental_mod(Fann *ann, Fann::TrainData *data, vector< vector<float> >& predicted_outputs)
 {
-	predicted_outputs.resize(data->num_data,vector<ANNTYP> (data->num_output));
+	predicted_outputs.resize(data->num_data,vector<float> (data->num_output));
 	ann->ResetMSE();
 	for(uint i = 0; i < data->num_data; ++i) {
-		ANNTYP * temp_predicted_output=ann->Run(data->input[i]);
+		float * temp_predicted_output=ann->Run(data->input[i]);
 		for(uint k=0;k<data->num_output;++k) {
 			predicted_outputs[i][k]=temp_predicted_output[k];
 		}
@@ -6750,11 +6170,11 @@ float test_data_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb
 	return ann->GetMSE();
 }
 
-float test_data_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, vector< vector<ANNTYP> >& predicted_outputs)
+float test_data_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb, vector< vector<float> >& predicted_outputs)
 {
 	if(!ann->CheckInputOutputSizes(data))
 		return 0;
-	predicted_outputs.resize(data->num_data,vector<ANNTYP> (data->num_output));
+	predicted_outputs.resize(data->num_data,vector<float> (data->num_output));
 	ann->ResetMSE();
 	vector<Fann *> ann_vect(threadnumb);
 	int i=0,j=0;
@@ -6771,7 +6191,7 @@ float test_data_parallel(Fann *ann, Fann::TrainData *data, const uint threadnumb
 	        #pragma omp for schedule(static)
 			for(i = 0; i < (int)data->num_data; ++i) {
 				j=omp_get_thread_num();
-				ANNTYP* temp_predicted_output = ann_vect[j]->Test(data->input[i],data->output[i]);
+				float* temp_predicted_output = ann_vect[j]->Test(data->input[i],data->output[i]);
 				for(uint k=0;k<data->num_output;++k) {
 					predicted_outputs[i][k]=temp_predicted_output[k];
 				}
@@ -6816,7 +6236,7 @@ protected:
 		uint connections);
     void AssertCreate(neural_net &net, uint numLayers, const uint *layers,
 		uint neurons, uint connections);
-    void AssertWeights(neural_net &net, ANNTYP min, ANNTYP max, ANNTYP avg);
+    void AssertWeights(neural_net &net, float min, float max, float avg);
     virtual void SetUp();
     virtual void TearDown();
 };
@@ -6826,16 +6246,16 @@ protected:
     uint numData;
     uint numInput;
     uint numOutput;
-    ANNTYP inputValue;
-    ANNTYP outputValue;
-    ANNTYP **inputData;
-    ANNTYP **outputData;
+    float inputValue;
+    float outputValue;
+    float **inputData;
+    float **outputData;
     virtual void SetUp();
     virtual void TearDown();
     void AssertTrainData(FANN::training_data &trainingData, uint numData, uint numInput,
-		uint numOutput, ANNTYP inputValue, ANNTYP outputValue);
+		uint numOutput, float inputValue, float outputValue);
     void InitializeTrainDataStructure(uint numData, uint numInput, uint numOutput,
-		ANNTYP inputValue, ANNTYP outputValue, ANNTYP **inputData, ANNTYP **outputData);
+		float inputValue, float outputValue, float **inputData, float **outputData);
 };
 
 using namespace std;
@@ -6878,13 +6298,13 @@ void FannTest::AssertCreateAndCopy(neural_net &net, uint numLayers, const uint *
     AssertCreate(net_copy, numLayers, layers, neurons, connections);
 }
 
-void FannTest::AssertWeights(neural_net &net, ANNTYP min, ANNTYP max, ANNTYP avg)
+void FannTest::AssertWeights(neural_net &net, float min, float max, float avg)
 {
     connection *connections = new connection[net.get_total_connections()];
     net.get_connection_array(connections);
-    ANNTYP minWeight = connections[0].weight;
-    ANNTYP maxWeight = connections[0].weight;
-    ANNTYP totalWeight = 0.0;
+    float minWeight = connections[0].weight;
+    float maxWeight = connections[0].weight;
+    float totalWeight = 0.0;
     for(int i = 1; i < net.get_total_connections(); ++i) {
         if(connections[i].weight < minWeight)
             minWeight = connections[i].weight;
@@ -6894,7 +6314,7 @@ void FannTest::AssertWeights(neural_net &net, ANNTYP min, ANNTYP max, ANNTYP avg
     }
     EXPECT_NEAR(min, minWeight, 0.05);
     EXPECT_NEAR(max, maxWeight, 0.05);
-    EXPECT_NEAR(avg, totalWeight / (ANNTYP) net.get_total_connections(), 0.5);
+    EXPECT_NEAR(avg, totalWeight / (float) net.get_total_connections(), 0.5);
 }
 
 TEST_F(FannTest, CreateStandardThreeLayers)
@@ -7028,8 +6448,8 @@ void FannTestData::SetUp()
     numOutput = 1;
     inputValue = 1.1;
     outputValue = 2.2;
-    inputData = new ANNTYP *[numData];
-    outputData = new ANNTYP *[numData];
+    inputData = new float *[numData];
+    outputData = new float *[numData];
     InitializeTrainDataStructure(numData, numInput, numOutput, inputValue, outputValue, inputData, outputData);
 }
 
@@ -7040,22 +6460,20 @@ void FannTestData::TearDown()
     delete(outputData);
 }
 
-void FannTestData::InitializeTrainDataStructure(uint numData,
-	uint numInput, uint numOutput, ANNTYP inputValue, ANNTYP outputValue,
-	ANNTYP **inputData, ANNTYP **outputData)
+void FannTestData::InitializeTrainDataStructure(uint numData, uint numInput, uint numOutput, float inputValue, float outputValue, float **inputData, float **outputData)
 {
-    for (uint i = 0; i < numData; i++) {
-        inputData[i] = new ANNTYP[numInput];
-        outputData[i] = new ANNTYP[numOutput];
-        for (uint j = 0; j < numInput; j++)
+    for(uint i = 0; i < numData; i++) {
+        inputData[i] = new float[numInput];
+        outputData[i] = new float[numOutput];
+        for(uint j = 0; j < numInput; j++)
             inputData[i][j] = inputValue;
-        for (uint j = 0; j < numOutput; j++)
+        for(uint j = 0; j < numOutput; j++)
             outputData[i][j] = outputValue;
     }
 }
 
 void FannTestData::AssertTrainData(training_data &trainingData, uint numData, uint numInput,
-	uint numOutput, ANNTYP inputValue, ANNTYP outputValue)
+	uint numOutput, float inputValue, float outputValue)
 {
     EXPECT_EQ(numData, trainingData.length_train_data());
     EXPECT_EQ(numInput, trainingData.num_input_train_data());
@@ -7076,8 +6494,8 @@ TEST_F(FannTestData, CreateTrainDataFromPointerArrays)
 
 TEST_F(FannTestData, CreateTrainDataFromArrays)
 {
-    ANNTYP input[] = {inputValue, inputValue, inputValue, inputValue, inputValue, inputValue};
-    ANNTYP output[] = {outputValue, outputValue};
+    float input[] = {inputValue, inputValue, inputValue, inputValue, inputValue, inputValue};
+    float output[] = {outputValue, outputValue};
     data.set_train_data(numData, numInput, input, numOutput, output);
     AssertTrainData(data, numData, numInput, numOutput, inputValue, outputValue);
 }
@@ -7098,12 +6516,12 @@ TEST_F(FannTestData, CreateTrainDataFromFile)
     AssertTrainData(dataCopy, numData, numInput, numOutput, inputValue, outputValue);
 }
 
-void callBack(uint pos, uint numInput, uint numOutput, ANNTYP *input, ANNTYP *output)
+void callBack(uint pos, uint numInput, uint numOutput, float *input, float *output)
 {
     for(uint i = 0; i < numInput; i++)
-        input[i] = (ANNTYP) 1.2;
+        input[i] = (float) 1.2;
     for(uint i = 0; i < numOutput; i++)
-        output[i] = (ANNTYP) 2.3;
+        output[i] = (float) 2.3;
 }
 
 TEST_F(FannTestData, CreateTrainDataFromCallback)
@@ -7141,8 +6559,8 @@ TEST_F(FannTestData, SubsetTrainData)
 
 TEST_F(FannTestData, ScaleOutputData)
 {
-    ANNTYP input[] = {0.0, 1.0, 0.5, 0.0, 1.0, 0.5};
-    ANNTYP output[] = {0.0, 1.0};
+    float input[] = {0.0, 1.0, 0.5, 0.0, 1.0, 0.5};
+    float output[] = {0.0, 1.0};
     data.set_train_data(2, 3, input, 1, output);
     data.scale_output_train_data(-1.0, 2.0);
     EXPECT_DOUBLE_EQ(0.0, data.get_min_input());
@@ -7153,8 +6571,8 @@ TEST_F(FannTestData, ScaleOutputData)
 
 TEST_F(FannTestData, ScaleInputData)
 {
-    ANNTYP input[] = {0.0, 1.0, 0.5, 0.0, 1.0, 0.5};
-    ANNTYP output[] = {0.0, 1.0};
+    float input[] = {0.0, 1.0, 0.5, 0.0, 1.0, 0.5};
+    float output[] = {0.0, 1.0};
     data.set_train_data(2, 3, input, 1, output);
     data.scale_input_train_data(-1.0, 2.0);
     EXPECT_DOUBLE_EQ(-1.0, data.get_min_input());
@@ -7165,12 +6583,12 @@ TEST_F(FannTestData, ScaleInputData)
 
 TEST_F(FannTestData, ScaleData)
 {
-    ANNTYP input[] = {0.0, 1.0, 0.5, 0.0, 1.0, 0.5};
-    ANNTYP output[] = {0.0, 1.0};
+    float input[] = {0.0, 1.0, 0.5, 0.0, 1.0, 0.5};
+    float output[] = {0.0, 1.0};
     data.set_train_data(2, 3, input, 1, output);
     data.scale_train_data(-1.0, 2.0);
     for(uint i = 0; i < 2; i++) {
-        ANNTYP *train_input = data.get_train_input(i);
+        float *train_input = data.get_train_input(i);
         EXPECT_DOUBLE_EQ(-1.0, train_input[0]);
         EXPECT_DOUBLE_EQ(2.0, train_input[1]);
         EXPECT_DOUBLE_EQ(0.5, train_input[2]);
@@ -7183,12 +6601,12 @@ TEST_F(FannTestData, ScaleData)
 //
 class FannTestTrain : public FannTest {
 protected:
-    ANNTYP xorInput[8] = {
+    float xorInput[8] = {
 		0.0, 0.0,
 		0.0, 1.0,
 		1.0, 0.0,
 		1.0, 1.0};
-    ANNTYP xorOutput[4] = {
+    float xorOutput[4] = {
 		0.0,
 		1.0,
 		1.0,
@@ -7220,10 +6638,10 @@ TEST_F(FannTestTrain, TrainSimpleIncrementalXor)
 {
     neural_net net(LAYER, 3, 2, 3, 1);
     for(int i = 0; i < 100000; i++) {
-        net.train((ANNTYP*) (const ANNTYP[]) {0.0, 0.0}, (ANNTYP*) (const ANNTYP[]) {0.0});
-        net.train((ANNTYP*) (const ANNTYP[]) {1.0, 0.0}, (ANNTYP*) (const ANNTYP[]) {1.0});
-        net.train((ANNTYP*) (const ANNTYP[]) {0.0, 1.0}, (ANNTYP*) (const ANNTYP[]) {1.0});
-        net.train((ANNTYP*) (const ANNTYP[]) {1.0, 1.0}, (ANNTYP*) (const ANNTYP[]) {0.0});
+        net.train((float*) (const float[]) {0.0, 0.0}, (float*) (const float[]) {0.0});
+        net.train((float*) (const float[]) {1.0, 0.0}, (float*) (const float[]) {1.0});
+        net.train((float*) (const float[]) {0.0, 1.0}, (float*) (const float[]) {1.0});
+        net.train((float*) (const float[]) {1.0, 1.0}, (float*) (const float[]) {0.0});
     }
     EXPECT_LT(net.get_MSE(), 0.01);
 }
@@ -7238,13 +6656,13 @@ int main(int argc, char **argv)
 
 #if SLTEST_RUNNING // {
 
-static int AssertWeights(STestCase * pTc, const Fann * pNet, ANNTYP min, ANNTYP max, ANNTYP avg)
+static int AssertWeights(STestCase * pTc, const Fann * pNet, float min, float max, float avg)
 {
 	TSVector <FannConnection> connections;
 	pNet->GetConnectionArray(connections);
-    ANNTYP min_weight = connections.at(0).Weight;
-    ANNTYP max_weight = connections.at(0).Weight;
-    ANNTYP total_weight = 0.0;
+    float min_weight = connections.at(0).Weight;
+    float max_weight = connections.at(0).Weight;
+    float total_weight = 0.0;
 	const  uint conn_count = pNet->GetTotalConnections();
     for(uint i = 1; i < conn_count; ++i) {
         if(connections.at(i).Weight < min_weight)
@@ -7255,7 +6673,7 @@ static int AssertWeights(STestCase * pTc, const Fann * pNet, ANNTYP min, ANNTYP 
     }
     pTc->SLTEST_CHECK_EQ_TOL(min, min_weight, 0.05f);
     pTc->SLTEST_CHECK_EQ_TOL(max, max_weight, 0.05f);
-    pTc->SLTEST_CHECK_EQ_TOL(avg, total_weight / (ANNTYP)conn_count, 0.5f);
+    pTc->SLTEST_CHECK_EQ_TOL(avg, total_weight / (float)conn_count, 0.5f);
 	return pTc->GetCurrentStatus();
 }
 
@@ -7349,13 +6767,13 @@ SLTEST_R(FANN)
 	}
 	*/
 	{
-		ANNTYP XorInput[] = {
+		float XorInput[] = {
 			0.0, 0.0,
 			0.0, 1.0,
 			1.0, 0.0,
 			1.0, 1.0
 		};
-		ANNTYP XorOutput[] = {
+		float XorOutput[] = {
 			0.0,
 			1.0,
 			1.0,
@@ -7427,10 +6845,10 @@ SLTEST_R(FANN)
 			/*
 			neural_net net(LAYER, 3, 2, 3, 1);
 			for(int i = 0; i < 100000; i++) {
-				net.train((ANNTYP*) (const ANNTYP[]) {0.0, 0.0}, (ANNTYP*) (const ANNTYP[]) {0.0});
-				net.train((ANNTYP*) (const ANNTYP[]) {1.0, 0.0}, (ANNTYP*) (const ANNTYP[]) {1.0});
-				net.train((ANNTYP*) (const ANNTYP[]) {0.0, 1.0}, (ANNTYP*) (const ANNTYP[]) {1.0});
-				net.train((ANNTYP*) (const ANNTYP[]) {1.0, 1.0}, (ANNTYP*) (const ANNTYP[]) {0.0});
+				net.train((float*) (const float[]) {0.0, 0.0}, (float*) (const float[]) {0.0});
+				net.train((float*) (const float[]) {1.0, 0.0}, (float*) (const float[]) {1.0});
+				net.train((float*) (const float[]) {0.0, 1.0}, (float*) (const float[]) {1.0});
+				net.train((float*) (const float[]) {1.0, 1.0}, (float*) (const float[]) {0.0});
 			}
 			EXPECT_LT(net.get_MSE(), 0.01);
 			*/

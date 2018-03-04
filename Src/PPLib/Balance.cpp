@@ -1,24 +1,17 @@
 // BALANCE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2007, 2008, 2009, 2012, 2014, 2015, 2016
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2007, 2008, 2009, 2012, 2014, 2015, 2016, 2018
 // @codepage windows-1251
 // @Kernel
 //
 #include <pp.h>
 #pragma hdrstop
 
-SLAPI Balance::Balance(char * fName) : BalanceTbl(fName)
+SLAPI Balance::Balance(const char * pName) : BalanceTbl(pName)
 {
 }
 
-double SLAPI Balance::_Rest() const
-{
-	return (MONEYTOLDBL(data.DbtRest) - MONEYTOLDBL(data.CrdRest));
-}
-
-double SLAPI Balance::_Rest(int side) const
-{
-	return ((side == PPDEBIT) ? MONEYTOLDBL(data.DbtRest) : MONEYTOLDBL(data.CrdRest));
-}
+double SLAPI Balance::_Rest() const { return (MONEYTOLDBL(data.DbtRest) - MONEYTOLDBL(data.CrdRest)); }
+double SLAPI Balance::_Rest(int side) const { return ((side == PPDEBIT) ? MONEYTOLDBL(data.DbtRest) : MONEYTOLDBL(data.CrdRest)); }
 
 void SLAPI Balance::_SetRest(int side, double val)
 {
@@ -33,15 +26,8 @@ void SLAPI Balance::_SetRest(int side, double val)
 #define USE_TRANSACTION 0x0001
 #define TURN_ROLLBACK   0x0002
 
-int SLAPI Balance::Turn(PPID bal, LDATE date, AccTurnParam * p, int use_ta)
-{
-	return _Turn(bal, date, p, use_ta ? USE_TRANSACTION : 0);
-}
-
-int SLAPI Balance::RollbackTurn(PPID bal, LDATE date, AccTurnParam * p, int use_ta)
-{
-	return _Turn(bal, date, p, (use_ta ? USE_TRANSACTION : 0) | TURN_ROLLBACK);
-}
+int SLAPI Balance::Turn(PPID bal, LDATE date, AccTurnParam * p, int use_ta) { return _Turn(bal, date, p, use_ta ? USE_TRANSACTION : 0); }
+int SLAPI Balance::RollbackTurn(PPID bal, LDATE date, AccTurnParam * p, int use_ta) { return _Turn(bal, date, p, (use_ta ? USE_TRANSACTION : 0) | TURN_ROLLBACK); }
 
 int SLAPI Balance::Search(PPID * pAccID, LDATE * pDt, int spMode)
 {

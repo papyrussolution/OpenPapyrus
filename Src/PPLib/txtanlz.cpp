@@ -1633,10 +1633,10 @@ void SLAPI PPTextAnalyzer::SetSignalProc(TextAnalyzerSignalProc proc, void * pPr
 int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 {
 	int    ok = 1;
-	ANNTYP * p_result = 0;
-	ANNTYP * p_nn_input = 0;
-	ANNTYP * p_nn_output = 0;
-	ANNTYP * p_nn_test_output = 0;
+	float * p_result = 0;
+	float * p_nn_input = 0;
+	float * p_nn_output = 0;
+	float * p_nn_test_output = 0;
 	Fann * p_ann = 0;
 	uint   max_inp_tokens = 0;
 	LongArray group_list;
@@ -1721,10 +1721,10 @@ int SLAPI PPTextAnalyzer::ProcessGoodsNN()
 		long   iter_no = 0;
 		SString input_log_buf, output_log_buf;
 		PPWaitMsg(fmt_buf);
-		THROW_MEM(p_result = new ANNTYP[output_count]);
-		THROW_MEM(p_nn_input = new ANNTYP[input_count]);
-		THROW_MEM(p_nn_output = new ANNTYP[output_count]);
-		THROW_MEM(p_nn_test_output = new ANNTYP[output_count]);
+		THROW_MEM(p_result = new float[output_count]);
+		THROW_MEM(p_nn_input = new float[input_count]);
+		THROW_MEM(p_nn_output = new float[output_count]);
+		THROW_MEM(p_nn_test_output = new float[output_count]);
 		THROW(p_ann = fann_create_standard_array(/*SIZEOFARRAY(layers), layers*/_layers));
 		p_ann->SetTrainingAlgorithm(Fann::FANN_TRAIN_INCREMENTAL);
 		p_ann->SetLearningRate(learning_rate);

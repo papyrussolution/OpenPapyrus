@@ -944,7 +944,7 @@ public:
 	int    FtpDeleteDir(const InetUrl & rUrl, int mflags);
 	//
 	int    Pop3List(const InetUrl & rUrl, int mflags, LAssocArray & rList); // LIST
-	int    Pop3Top(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & rMsg); // TOP
+	int    Pop3Top(const InetUrl & rUrl, int mflags, uint msgN, uint maxLines, SMailMessage & rMsg); // TOP
 	int    Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & rMsg, SDataMoveProgressInfo * pProgress);  // RETR
 	int    Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN); // DELE
 
@@ -1003,6 +1003,10 @@ public:
 	};
 	long   Flags;
 	int    Format; // SFileFormat::XXX
+	uint   Pop3TopMaxLines; // @v9.9.9 Количество строк, которые следует извлекать командой POP3 TOP для анализа сообщения.
+		// Если Pop3TopMaxLines == 0 или > 1000, то извлекается весь заголовок сообщения.
+		// Экспериментально установлено, что явно заданное количество строк ускоряет время выполнения
+		// функции по сравнению с 0.
 	SString SrcPath;
 	SString DestPath;
 	SString AccsName;

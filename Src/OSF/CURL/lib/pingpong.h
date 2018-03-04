@@ -61,7 +61,6 @@ struct pingpong {
 	CURLcode (* statemach_act)(struct connectdata * conn);
 	bool (* endofresp)(struct connectdata * conn, char * ptr, size_t len, int * code);
 };
-
 /*
  * Curl_pp_statemach()
  *
@@ -69,12 +68,13 @@ struct pingpong {
  * socket if there's no traffic.
  */
 CURLcode Curl_pp_statemach(struct pingpong * pp, bool block);
-
-/* initialize stuff to prepare for reading a fresh new response */
+//
+// initialize stuff to prepare for reading a fresh new response 
+//
 void Curl_pp_init(struct pingpong * pp);
-
-/* Returns timeout in ms. 0 or negative number means the timeout has already
-   triggered */
+//
+// Returns timeout in ms. 0 or negative number means the timeout has already triggered 
+//
 time_t Curl_pp_state_timeout(struct pingpong * pp);
 
 /***********************************************************************
@@ -99,27 +99,17 @@ CURLcode Curl_pp_sendf(struct pingpong * pp, const char * fmt, ...);
  *
  * made to never block
  */
-CURLcode Curl_pp_vsendf(struct pingpong * pp,
-    const char * fmt,
-    va_list args);
-
+CURLcode Curl_pp_vsendf(struct pingpong * pp, const char * fmt, va_list args);
 /*
  * Curl_pp_readresp()
  *
  * Reads a piece of a server response.
  */
-CURLcode Curl_pp_readresp(curl_socket_t sockfd,
-    struct pingpong * pp,
-    int * code,                      /* return the server code if done */
-    size_t * size);                      /* size of the response */
-
+CURLcode Curl_pp_readresp(curl_socket_t sockfd, struct pingpong * pp, int * code/* return the server code if done */, size_t * size/* size of the response */);
 CURLcode Curl_pp_flushsend(struct pingpong * pp);
-
 /* call this when a pingpong connection is disconnected */
 CURLcode Curl_pp_disconnect(struct pingpong * pp);
-
-int Curl_pp_getsock(struct pingpong * pp, curl_socket_t * socks,
-    int numsocks);
+int Curl_pp_getsock(struct pingpong * pp, curl_socket_t * socks, int numsocks);
 
 /***********************************************************************
  *

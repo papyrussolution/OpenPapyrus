@@ -1,5 +1,5 @@
 // TPROGRAM_EXP.CPP
-// Copyright (c) A.Sobolev 2016
+// Copyright (c) A.Sobolev 2016, 2018
 //
 //
 #include <slib.h>
@@ -9,13 +9,14 @@
 TBaseBrowserWindow * TProgram::FindBrowser(uint resID, int kind, const char * pFileName/*=0*/)
 {
 	TBaseBrowserWindow * brw = 0;
-	HWND   hw = GetTopWindow(GetFrameWindow());
+	HWND   hw = ::GetTopWindow(GetFrameWindow());
 	if(hw == H_CloseWnd)
 		hw = GetNextWindow(hw, GW_HWNDNEXT);
 	if(hw == APPL->H_Desktop)
 		hw = GetNextWindow(hw, GW_HWNDNEXT);
 
-	uint   res_id = resID, res_offs = 0;
+	uint   res_id = resID;
+	uint   res_offs = 0;
 	if(kind == 1) // STimeChunkBrowser
 		res_offs = TBaseBrowserWindow::IdBiasTimeChunkBrowser;
 	else if(kind == 3) // STextBrowser

@@ -1053,7 +1053,7 @@ public:
 	int    SLAPI __ResolveExprRule(ResolveRuleBlock & rB, int unrollStackOnly) const;
 	void   FASTCALL SkipComment(SStrScan & rScan);
 	void   FASTCALL ScanSkip(SStrScan & rScan);
-	int    FASTCALL IsOperand(SStrScan & rScan);
+	int    FASTCALL IsOperand(SStrScan & rScan, uint * pLen);
 	int    SLAPI ParseExpression(SStrScan & rScan, ExprStack & rS, int untilChr);
 
 	enum {

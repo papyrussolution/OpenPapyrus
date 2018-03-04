@@ -47,11 +47,8 @@ static void * curl_thread_create_thunk(void * arg)
 	struct curl_actual_call * ac = arg;
 	uint (* func)(void *) = ac->func;
 	void * real_arg = ac->arg;
-
 	SAlloc::F(ac);
-
 	(*func)(real_arg);
-
 	return 0;
 }
 
@@ -61,15 +58,11 @@ curl_thread_t Curl_thread_create(uint (* func)(void *), void * arg)
 	struct curl_actual_call * ac = SAlloc::M(sizeof(struct curl_actual_call));
 	if(!(ac && t))
 		goto err;
-
 	ac->func = func;
 	ac->arg = arg;
-
 	if(pthread_create(t, NULL, curl_thread_create_thunk, ac) != 0)
 		goto err;
-
 	return t;
-
 err:
 	SAlloc::F(t);
 	SAlloc::F(ac);
@@ -87,24 +80,20 @@ void Curl_thread_destroy(curl_thread_t hnd)
 int Curl_thread_join(curl_thread_t * hnd)
 {
 	int ret = (pthread_join(**hnd, NULL) == 0);
-
 	SAlloc::F(*hnd);
 	*hnd = curl_thread_t_null;
-
 	return ret;
 }
 
 #elif defined(USE_THREADS_WIN32)
 
 /* !checksrc! disable SPACEBEFOREPAREN 1 */
-curl_thread_t Curl_thread_create(uint (CURL_STDCALL * func)(void *),
-    void * arg)
+curl_thread_t Curl_thread_create(uint (CURL_STDCALL * func)(void *), void * arg)
 {
 #ifdef _WIN32_WCE
 	return CreateThread(NULL, 0, func, arg, 0, 0);
 #else
-	curl_thread_t t;
-	t = (curl_thread_t)_beginthreadex(NULL, 0, func, arg, 0, 0);
+	curl_thread_t t = (curl_thread_t)_beginthreadex(NULL, 0, func, arg, 0, 0);
 	if((t == 0) || (t == (curl_thread_t)-1L))
 		return curl_thread_t_null;
 	return t;
@@ -118,17 +107,13 @@ void Curl_thread_destroy(curl_thread_t hnd)
 
 int Curl_thread_join(curl_thread_t * hnd)
 {
-#if !defined(_WIN32_WINNT) || !defined(_WIN32_WINNT_VISTA) || \
-	(_WIN32_WINNT < _WIN32_WINNT_VISTA)
+#if !defined(_WIN32_WINNT) || !defined(_WIN32_WINNT_VISTA) || (_WIN32_WINNT < _WIN32_WINNT_VISTA)
 	int ret = (WaitForSingleObject(*hnd, INFINITE) == WAIT_OBJECT_0);
 #else
 	int ret = (WaitForSingleObjectEx(*hnd, INFINITE, FALSE) == WAIT_OBJECT_0);
 #endif
-
 	Curl_thread_destroy(*hnd);
-
 	*hnd = curl_thread_t_null;
-
 	return ret;
 }
 

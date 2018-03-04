@@ -1,5 +1,5 @@
 // DBENTSET.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018 
 // @Kernel
 // @codepage windows-1251
 //
@@ -53,7 +53,7 @@ int SLAPI PPDbEntrySet2::MakeProfileLine(const DbLoginBlock * pBlk, SString & rB
 
 	rBuf.Z();
 	pBlk->GetAttr(DbLoginBlock::attrServerType, temp_buf);
-	if(temp_buf.CmpNC("ORACLE") == 0 || temp_buf.CmpNC("ORA") == 0) {
+	if(temp_buf.IsEqiAscii("ORACLE") || temp_buf.IsEqiAscii("ORA")) {
 		server_type = sqlstORA;
 		rBuf.Cat("ORACLE").CatChar(':');
 	}
@@ -98,14 +98,14 @@ int SLAPI PPDbEntrySet2::ParseProfileLine(const char * pLine, DbLoginBlock * pBl
 		if(temp_buf.Divide(':', left, right) > 0) {
 			left.Strip();
 			right.Strip();
-			if(left.CmpNC("ORACLE") == 0 || left.CmpNC("ORA") == 0) {
+			if(left.IsEqiAscii("ORACLE") || left.IsEqiAscii("ORA")) {
 				pBlk->SetAttr(DbLoginBlock::attrServerType, "ORACLE");
 				server_type = sqlstORA;
 			}
-			else if(left.CmpNC("DEFAULT") == 0 || left.CmpNC("DEF") == 0) {
+			else if(left.IsEqiAscii("DEFAULT") || left.IsEqiAscii("DEF")) {
 				pBlk->SetAttr(DbLoginBlock::attrServerType, "DEFAULT");
 			}
-			else if(left.CmpNC("BTRIEVE") == 0 || left.CmpNC("BTR") == 0) {
+			else if(left.IsEqiAscii("BTRIEVE") || left.IsEqiAscii("BTR")) {
 				pBlk->SetAttr(DbLoginBlock::attrServerType, "BTRIEVE");
 			}
 			else {

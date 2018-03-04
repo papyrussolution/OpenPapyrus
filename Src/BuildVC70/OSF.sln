@@ -66,6 +66,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7z-Alone", "7z-alone.vcproj
 		{D507E468-21FC-4209-A5A8-DE1F055866DC} = {D507E468-21FC-4209-A5A8-DE1F055866DC}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DarkNet", "DarkNet.vcproj", "{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -394,6 +398,26 @@ Global
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.ServerDebug.Build.0 = Debug|Win32
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.ServerRelease.ActiveCfg = Release|Win32
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.ServerRelease.Build.0 = Release|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.Debug.ActiveCfg = Debug|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.Debug.Build.0 = Debug|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.DebugU.ActiveCfg = Debug|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.DebugU.Build.0 = Debug|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.MinSizeRel.ActiveCfg = Release|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.MinSizeRel.Build.0 = Release|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.MtDllDebug.ActiveCfg = Debug|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.MtDllDebug.Build.0 = Debug|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.MtDllRelease.ActiveCfg = Release|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.MtDllRelease.Build.0 = Release|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.Release.ActiveCfg = Release|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.Release.Build.0 = Release|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.ReleaseU.ActiveCfg = Release|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.ReleaseU.Build.0 = Release|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.RelWithDebInfo.ActiveCfg = Release|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.RelWithDebInfo.Build.0 = Release|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.ServerDebug.ActiveCfg = Debug|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.ServerDebug.Build.0 = Debug|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.ServerRelease.ActiveCfg = Release|Win32
+		{D9E25130-B752-4D1E-BEFC-B9F84B4C9199}.ServerRelease.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

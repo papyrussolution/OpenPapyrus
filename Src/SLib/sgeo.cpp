@@ -1,5 +1,5 @@
 // SGEO.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2016, 2017
+// Copyright (c) A.Sobolev 2009, 2010, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -540,15 +540,15 @@ int SLAPI SGeoGridTab::Load(const char * pFileName)
                 THROW(line_buf.StrChr(']', &rb_pos)); // Ошибка в формате файла geogridtag
 				assert(rb_pos > 0);
 				line_buf.Sub(1, rb_pos-1, temp_buf);
-				if(temp_buf.CmpNC("pgcg-header") == 0) {
+				if(temp_buf.IsEqiAscii("pgcg-header")) {
 					THROW(zone == 0);
 					zone = 1;
 				}
-				else if(temp_buf.CmpNC("pgcg-lat") == 0) {
+				else if(temp_buf.IsEqiAscii("pgcg-lat")) {
 					THROW(zone != 2);
 					zone = 2;
 				}
-				else if(temp_buf.CmpNC("pgcg-lon") == 0) {
+				else if(temp_buf.IsEqiAscii("pgcg-lon")) {
 					THROW(zone != 3);
 					zone = 3;
 				}
@@ -562,22 +562,22 @@ int SLAPI SGeoGridTab::Load(const char * pFileName)
 					if(line_buf.Divide('=', left_buf, right_buf) > 0) {
                         left_buf.Strip();
                         right_buf.Strip();
-                        if(left_buf.CmpNC("dim") == 0) {
+                        if(left_buf.IsEqiAscii("dim")) {
 							Dim = (uint)right_buf.ToLong();
                             THROW(Dim >= 4 && Dim <= 32);
                         }
-                        else if(left_buf.CmpNC("srccount-lat") == 0) {
+                        else if(left_buf.IsEqiAscii("srccount-lat")) {
                             SrcCountLat = right_buf.ToInt64();
                             THROW(SrcCountLat > 0 && SrcCountLat < 20000000000LL);
                         }
-                        else if(left_buf.CmpNC("srccount-lon") == 0) {
+                        else if(left_buf.IsEqiAscii("srccount-lon")) {
                             SrcCountLon = right_buf.ToInt64();
                             THROW(SrcCountLon > 0 && SrcCountLon < 20000000000LL);
                         }
-                        else if(left_buf.CmpNC("gridcount-lat") == 0) {
+                        else if(left_buf.IsEqiAscii("gridcount-lat")) {
 							hdr_count_lat = (uint)right_buf.ToLong();
                         }
-                        else if(left_buf.CmpNC("gridcount-lon") == 0) {
+                        else if(left_buf.IsEqiAscii("gridcount-lon")) {
 							hdr_count_lon = (uint)right_buf.ToLong();
                         }
 					}

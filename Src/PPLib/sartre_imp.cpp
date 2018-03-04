@@ -3766,22 +3766,36 @@ void FASTCALL SrSyntaxRuleSet::ScanSkip(SStrScan & rScan)
 	SkipComment(rScan);
 }
 
-int FASTCALL SrSyntaxRuleSet::IsOperand(SStrScan & rScan)
+int FASTCALL SrSyntaxRuleSet::IsOperand(SStrScan & rScan, uint * pLen)
 {
 	int    k = 0;
+	uint   len = 0;
 	ScanSkip(rScan);
-	if(rScan.Is("!::"))
+	if(rScan.Is("!::")) {
 		k = kConceptSubclass;
-	else if(rScan.Is("!:"))
+		len = 3;
+	}
+	else if(rScan.Is("!:")) {
 		k = kConceptInstance;
-	else if(rScan.Is(':')) // concept
+		len = 2;
+	}
+	else if(rScan.Is(':')) { // concept
 		k = kConcept;
-	else if(rScan.Is('[')) // morph
+		len = 1;
+	}
+	else if(rScan.Is('[')) { // morph
 		k = kMorph;
-	else if(rScan.Is('#')) // rule
+		len = 1;
+	}
+	else if(rScan.Is('#')) { // rule
 		k = kRule;
-	else if(rScan.Is('\"')) // literal
+		len = 1;
+	}
+	else if(rScan.Is('\"')) { // literal
 		k = kLiteral;
+		len = 1;
+	}
+	ASSIGN_PTR(pLen, len);
 	return k;
 }
 
@@ -3791,10 +3805,11 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 	uint   seq_count = 0; //  оличество последовательных операндов (их соедин€ем операцией &)
 	SString temp_buf;
 	ExprStack stack_temp;
-	int    k = IsOperand(rScan);
+	uint   operand_len = 0;
+	int    k = IsOperand(rScan, &operand_len);
 	if(oneof3(k, kConcept, kConceptInstance, kConceptSubclass)) { // concept
 		ExprItem item(k);
-		rScan.Incr();
+		rScan.Incr(operand_len);
 		if(rScan[0] == '/') {
 			rScan.Incr();
 			THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_VARSYMBEXPECTED); // @err ѕосле '/' ожидаетс€ идент переменной
@@ -3812,7 +3827,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 		stack_temp.push(item);
 	}
 	else if(k == kMorph) { // morph
-		rScan.Incr();
+		rScan.Incr(operand_len);
 		StringSet ss(" ");
 		ScanSkip(rScan);
 		while(rScan.GetIdent(temp_buf)) {
@@ -3830,7 +3845,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 		}
 	}
 	else if(k == kRule) { // rule
-		rScan.Incr();
+		rScan.Incr(operand_len);
 		THROW_PP(rScan.GetIdent(temp_buf), PPERR_SR_S_RULEIDEXPECTED); // @err ќжидаетс€ идент правила
 		{
 			ExprItem item(kRule);
@@ -3892,7 +3907,7 @@ int SLAPI SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int
 		THROW(r = ParseExpression(rScan, stack_temp, ')')); // @recursion
 	}
 	if(ok < 0) {
-		int   next_k = IsOperand(rScan);
+		int   next_k = IsOperand(rScan, 0);
 		int   op = 0;
 		if(next_k)
 			op = opAnd;
@@ -3995,37 +4010,43 @@ int SLAPI SrSyntaxRuleSet::ResolveSyntaxRules(SrDatabase & rDb)
 		if(p_rule) {
 			for(uint j = 0; j < p_rule->ES.getPointer(); j++) {
 				SrSyntaxRuleSet::ExprItem & r_ei = *(SrSyntaxRuleSet::ExprItem *)p_rule->ES.at(j);
-				if(r_ei.K == SrSyntaxRuleSet::kConcept) {
-					if(!r_ei.RSymb) {
-						if(GetS(r_ei.SymbP, temp_buf)) {
-							CONCEPTID cid = 0;
-							if(rDb.SearchConcept(temp_buf, &cid))
-								r_ei.RSymb = cid;
-						}
-					}
-				}
-				else if(r_ei.K == SrSyntaxRuleSet::kMorph) {
-					if(!r_ei.RSymb) {
-						if(GetS(r_ei.SymbP, temp_buf)) {
-							if(temp_buf.NotEmptyS()) {
-								uint   wf_pos = 0;
-								SrWordForm * p_new_wf = WfList.CreateNewItem(&wf_pos);
-								THROW_SL(p_new_wf);
-								p_new_wf->FromStr(temp_buf);
-								r_ei.RSymb = (wf_pos + 1);
+				switch(r_ei.K) {
+					case SrSyntaxRuleSet::kConceptInstance:
+						break;
+					case SrSyntaxRuleSet::kConceptSubclass:
+						break;
+					case SrSyntaxRuleSet::kConcept:
+						if(!r_ei.RSymb) {
+							if(GetS(r_ei.SymbP, temp_buf)) {
+								CONCEPTID cid = 0;
+								if(rDb.SearchConcept(temp_buf, &cid))
+									r_ei.RSymb = cid;
 							}
 						}
-					}
-				}
-				else if(r_ei.K == SrSyntaxRuleSet::kRule) {
-					if(!r_ei.RSymb) {
-						if(GetS(r_ei.SymbP, temp_buf)) {
-							const SrSyntaxRuleSet::Rule * p_inner_rule = SearchRuleByName(temp_buf);
-							if(p_inner_rule) {
-								r_ei.RSymb = (uint64)p_inner_rule;
+						break;
+					case SrSyntaxRuleSet::kMorph:
+						if(!r_ei.RSymb) {
+							if(GetS(r_ei.SymbP, temp_buf)) {
+								if(temp_buf.NotEmptyS()) {
+									uint   wf_pos = 0;
+									SrWordForm * p_new_wf = WfList.CreateNewItem(&wf_pos);
+									THROW_SL(p_new_wf);
+									p_new_wf->FromStr(temp_buf);
+									r_ei.RSymb = (wf_pos + 1);
+								}
 							}
 						}
-					}
+						break;
+					case SrSyntaxRuleSet::kRule:
+						if(!r_ei.RSymb) {
+							if(GetS(r_ei.SymbP, temp_buf)) {
+								const SrSyntaxRuleSet::Rule * p_inner_rule = SearchRuleByName(temp_buf);
+								if(p_inner_rule) {
+									r_ei.RSymb = (uint64)p_inner_rule;
+								}
+							}
+						}
+						break;
 				}
 			}
 		}
@@ -4382,6 +4403,7 @@ int SLAPI PrcssrSartre::TestSyntax()
 					f_out.WriteLine(line_buf);
 				}
 			}
+			f_out.Flush();
 			{
 				SrDatabase * p_db = DS.GetTLA().GetSrDatabase();
 				if(p_db) {
