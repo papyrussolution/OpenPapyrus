@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147490034
+LastSignatureCode=2147490063
 LastAutoCodeList=1,11143;102,10162;103,10071;110,10000;111,11661;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10078;120,10005;1001,10000;121,10000;122,10000;123,10306;1002,10000;1003,10000;1004,10000;1005,10000;124,10073
 
 [SignatureList]
@@ -5615,6 +5615,18 @@ billautocreateparam_ta_filt=2147489225
 billautocreateparam_ss_filt=2147489226
 billautocreateparam_cc_filt=2147489227
 billautocreateparam_cs_filt=2147489228
+deletetmpfiles=2147490044
+deletetmpfiles_flags=2147490045
+deletetmpfiles_frmvtempdata=2147490046
+deletetmpfiles_frmvtempprns=2147490047
+deletetmpfiles_frmvintransm=2147490048
+deletetmpfiles_frmvouttransm=2147490049
+deletetmpfiles_frmvtempcharry=2147490050
+deletetmpfiles_frmvtempemail=2147490051
+deletetmpfiles_frmvbhtdatafiles=2147490052
+deletetmpfiles_frmvtempqrcodes=2147490053
+deletetmpfiles_indays=2147490054
+deletetmpfiles_outdays=2147490055
 palmpane=2147489312
 palmpane_device=2147489313
 palmpane_op=2147489314

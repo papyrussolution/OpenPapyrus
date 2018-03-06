@@ -52,7 +52,7 @@ static void FASTCALL ProcessError(AccountingTransferSoapProxy & rProxi, PPSoapCl
 	rSess.SetMsg(temp_err_buf);
 }
 
-static int PreprocessCall(AccountingTransferSoapProxy & rProxy, PPSoapClientSession & rSess, int result)
+static int FASTCALL PreprocessCall(AccountingTransferSoapProxy & rProxy, PPSoapClientSession & rSess, int result)
 {
 	if(result == SOAP_OK) {
 		return 1;

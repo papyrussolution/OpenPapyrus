@@ -19244,6 +19244,9 @@ struct PhnSvcChannelStatus {
 		stPreRing          // Channel has detected an incoming call and is waiting for ring
 	};
 	enum {
+		ev
+	};
+	enum {
 		fMute = 0x0001
 	};
 	PhnSvcChannelStatus();
@@ -19327,6 +19330,7 @@ private:
 	};
 	static AsteriskAmiStateStr StateList[];
 	long   State;
+	int64  LastActionId;
 	TcpSocket S;
 };
 //
@@ -48885,7 +48889,8 @@ struct DeleteTmpFilesParam {
 		fRmvOutTransm    = 0x0008,
 		fRmvTempCharry   = 0x0010,
 		fRmvTempEmail    = 0x0020,
-		fRmvBHTDataFiles = 0x0040
+		fRmvBHTDataFiles = 0x0040,
+		fRmvTempQrCodes  = 0x0080  // @v9.9.9
 	};
 	long   Flags;
 	int16  InDays;

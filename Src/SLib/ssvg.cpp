@@ -468,7 +468,7 @@ int SSvg::ProcessStyleItem(int token, const SString & rVal, StyleBlock & rBlk)
 			rBlk.Pen.C.Alpha = (uint8)((float)rVal.ToReal() * rBlk.Opacity * 255.0f);
 			break;
 		case tStrokeWidth:
-			_GetUSize(rVal, DIREC_UNKN, rBlk.Pen.W);
+			_GetUSize(rVal, DIREC_UNKN, rBlk.Pen.W__);
 			break;
 		default:
 			// @v8.9.9 ok = -1;

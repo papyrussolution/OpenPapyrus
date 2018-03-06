@@ -3483,7 +3483,8 @@ int SLAPI iSalesPepsi::SendPrices()
 				for(uint j = 0; j < p_item->VisitList.getCount(); j++) {
 					const iSalesVisit * p_visit = p_item->VisitList.at(j);
 					if(p_visit && p_visit->OuterClientCode.NotEmpty()) {
-						ss_outer_cli_code.add(p_visit->InnerClientCode);
+						(temp_buf = p_visit->InnerClientCode).Transf(CTRANSF_INNER_TO_UTF8); // @v9.9.9 @fix
+						ss_outer_cli_code.add(temp_buf);
 					}
 				}
 			}
@@ -5691,7 +5692,7 @@ int SLAPI SfaHeineken::ReceiveOrders()
 	THROW(P_Lib);
 	THROW_SL(func = (SFAHEINEKENGETORDERS_PROC)P_Lib->GetProcAddr("SfaHeineken_GetOrders"));
 	sess.Setup(SvcUrl, UserName, Password);
-	p_result = func(sess, ZERODATE, 1/*demo*/);
+	p_result = func(sess, ZERODATE, 0/*demo*/);
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	ParseOrdersPacket(p_result, &reply_info, result_list);
 	DestroyResult((void **)&p_result);

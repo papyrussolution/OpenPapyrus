@@ -25,7 +25,7 @@ static int FASTCALL ProcessError(ApplicationManagementServiceBindingProxy & rPro
 	rSess.SetMsg(temp_err_buf);
 	return 0;
 }
-static int PreprocessCall(ApplicationManagementServiceBindingProxy & rProxy, PPSoapClientSession & rSess, int result)
+static int FASTCALL PreprocessCall(ApplicationManagementServiceBindingProxy & rProxy, PPSoapClientSession & rSess, int result)
 	{ return (result == SOAP_OK) ? 1 : ProcessError(rProxy, rSess); }
 
 static int FASTCALL ProcessError(EnterpriseServiceBindingProxy & rProxi, PPSoapClientSession & rSess)
@@ -35,7 +35,7 @@ static int FASTCALL ProcessError(EnterpriseServiceBindingProxy & rProxi, PPSoapC
 	rSess.SetMsg(temp_err_buf);
 	return 0;
 }
-static int PreprocessCall(EnterpriseServiceBindingProxy & rProxy, PPSoapClientSession & rSess, int result)
+static int FASTCALL PreprocessCall(EnterpriseServiceBindingProxy & rProxy, PPSoapClientSession & rSess, int result)
 	{ return (result == SOAP_OK) ? 1 : ProcessError(rProxy, rSess); }
 
 static int FASTCALL ProcessError(ProductServiceBindingProxy & rProxi, PPSoapClientSession & rSess)
@@ -45,7 +45,7 @@ static int FASTCALL ProcessError(ProductServiceBindingProxy & rProxi, PPSoapClie
 	rSess.SetMsg(temp_err_buf);
 	return 0;
 }
-static int PreprocessCall(ProductServiceBindingProxy & rProxy, PPSoapClientSession & rSess, int result)
+static int FASTCALL PreprocessCall(ProductServiceBindingProxy & rProxy, PPSoapClientSession & rSess, int result)
 	{ return (result == SOAP_OK) ? 1 : ProcessError(rProxy, rSess); }
 
 #define VETIS_STRUC_APPLICATION app__Application

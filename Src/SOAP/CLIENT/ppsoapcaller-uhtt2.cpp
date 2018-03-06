@@ -75,7 +75,7 @@ static void FASTCALL ProcessError(WSInterfaceImplServiceSoapBindingProxy & rProx
 	rSess.SetMsg(temp_err_buf);
 }
 
-static int PreprocessCall(WSInterfaceImplServiceSoapBindingProxy & rProxy, PPSoapClientSession & rSess, int result)
+static int FASTCALL PreprocessCall(WSInterfaceImplServiceSoapBindingProxy & rProxy, PPSoapClientSession & rSess, int result)
 {
 	if(result == SOAP_OK) {
 		return 1;

@@ -433,7 +433,7 @@ int SLAPI TCanvas2::Helper_SelectPen(SPaintToolBox * pTb, int penId)
 				}
 				else {
 					double dashed[8];
-					cairo_set_line_width(P_Cr, p_pen->W);
+					cairo_set_line_width(P_Cr, p_pen->W__);
 					if(p_pen->S == SPaintObj::psSolid) {
 						cairo_set_dash(P_Cr, dashed, 0, 0);
 					}
@@ -1658,7 +1658,7 @@ int SPaintObj::Base::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 	return ok;
 }
 
-SPaintObj::Pen::Pen() : Base(), W(1.0), S(SPaintObj::psSolid), LineCap(SPaintObj::lcButt), Join(SPaintObj::ljMiter), Reserve(0),
+SPaintObj::Pen::Pen() : Base(), W__(1.0f), S(SPaintObj::psSolid), LineCap(SPaintObj::lcButt), Join(SPaintObj::ljMiter), Reserve(0),
 	MiterLimit(SPaintObj::DefaultMiterLimit), DashOffs(0.0f), P_DashRule(0)
 {
 }
@@ -1672,7 +1672,7 @@ int FASTCALL SPaintObj::Pen::Copy(const Pen & rS)
 {
 	int    ok = 1;
 	C = rS.C;
-	W = rS.W;
+	W__ = rS.W__;
 	S = rS.S;
 	LineCap = rS.LineCap;
 	Join = rS.Join;
@@ -1692,7 +1692,7 @@ int SPaintObj::Pen::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	int    ok = 1;
 	THROW(Base::Serialize(dir, rBuf, pCtx));
 	THROW(pCtx->SerializeBlock(dir, sizeof(C), &C, rBuf, 1));
-	THROW(pCtx->Serialize(dir, W, rBuf));
+	THROW(pCtx->Serialize(dir, W__, rBuf));
 	THROW(pCtx->Serialize(dir, S, rBuf));
 	THROW(pCtx->Serialize(dir, LineCap, rBuf));
 	THROW(pCtx->Serialize(dir, Join, rBuf));
@@ -1741,8 +1741,7 @@ int SPaintObj::Pen::AddDashItem(float f)
 
 int FASTCALL SPaintObj::Pen::IsEqual(const Pen & rS) const
 {
-	if(!(C == rS.C && W == rS.W && LineCap == rS.LineCap && Join == rS.Join &&
-		MiterLimit == rS.MiterLimit && DashOffs == rS.DashOffs))
+	if(!(C == rS.C && W__ == rS.W__ && LineCap == rS.LineCap && Join == rS.Join && MiterLimit == rS.MiterLimit && DashOffs == rS.DashOffs))
 		return 0;
 	else if(P_DashRule != 0 && rS.P_DashRule != 0)
 		return P_DashRule->IsEqual(rS.P_DashRule);
@@ -1754,15 +1753,15 @@ int FASTCALL SPaintObj::Pen::IsEqual(const Pen & rS) const
 
 int SPaintObj::Pen::IsSimple() const
 {
-	return (W == 1.0 && !IsDashed() && S == SPaintObj::psSolid &&
+	return (W__ == 1.0f && !IsDashed() && S == SPaintObj::psSolid &&
 		oneof2(LineCap, 0, SPaintObj::lcButt) && oneof2(Join, 0, SPaintObj::ljMiter) &&
-		MiterLimit == 0.0f || MiterLimit == SPaintObj::DefaultMiterLimit);
+		(MiterLimit == 0.0f || MiterLimit == SPaintObj::DefaultMiterLimit));
 }
 
 int FASTCALL SPaintObj::Pen::SetSimple(SColor c)
 {
 	C = c;
-	W = 1.0;
+	W__ = 1.0f;
 	S = SPaintObj::psSolid;
 	LineCap = 0;
 	Join = 0;
@@ -3431,7 +3430,7 @@ int SPaintObj::CreatePen(int style, float width, SColor c)
 	if(p_pen) {
 		p_pen->C = c;
 		p_pen->S = style;
-		p_pen->W = width;
+		p_pen->W__ = width;
 		Destroy();
 		T = tPen;
 		H = p_pen;
@@ -3582,7 +3581,7 @@ int FASTCALL SPaintObj::ProcessInnerHandle(SDrawContext * pCtx, int create)
 					if(dsys == dsysWinGdi) {
 						if(create) {
 							SPaintObj::Pen * p_pen = (SPaintObj::Pen *)H;
-							HPEN   handle = ::CreatePen(p_pen->S, (int)round(p_pen->W, 0), (COLORREF)p_pen->C);
+							HPEN   handle = ::CreatePen(p_pen->S, (int)round(p_pen->W__, 0), (COLORREF)p_pen->C);
 							ok = _SetPaintObjInnerHandle(p_pen, dsys, /*(uint32)*/handle);
 						}
 						else {
@@ -4048,7 +4047,7 @@ int SPaintToolBox::CreatePen(int ident, int style, float width, SColor c)
 		SPaintObj::Pen pen;
 		pen.C = c;
 		pen.S = style;
-		pen.W = width;
+		pen.W__ = width;
 		const uint co = getCount();
 		for(uint i = 0; !ident && i < co; i++) {
 			const SPaintObj::Pen * p_pen = at(i).GetPen();

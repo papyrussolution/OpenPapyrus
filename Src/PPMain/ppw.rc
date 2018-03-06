@@ -8897,29 +8897,30 @@ BEGIN
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,185,225,50,13
 END
 
-DLG_DELTMP DIALOGEX 93, 16, 202, 190
+DLG_DELTMP DIALOGEX 93, 16, 231, 212
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Удаление временных файлов"
+CAPTION "@deletetmpfiles"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",CTL_DELTMP_FILES,20,5,160,65,WS_GROUP
-    CONTROL         "Удалить временные файлы данных",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,15,135,10
-    CONTROL         "Удалить каталоги данных для печати",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,25,140,10
-    CONTROL         "Удалить временные файлы Charry",13489,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,35,130,10
-    CONTROL         "Удалить временные файлы E-mail",17585,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,45,130,10
-    CONTROL         "Удалить файлы данных BHT",21681,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,55,110,10
-    GROUPBOX        "",IDC_STATIC,20,70,160,45
-    CONTROL         "Удалить входящую почту",5298,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,80,100,13
-    LTEXT           "Оставить за последние",4001,25,95,85,8
-    EDITTEXT        CTL_DELTMP_INDAYS,115,95,30,13,ES_AUTOHSCROLL
-    LTEXT           "@days",4002,150,95,20,8
-    GROUPBOX        "",IDC_STATIC,20,115,160,45
-    CONTROL         "Удалить исходящую почту",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,125,105,13
-    LTEXT           "Оставить за последние",4003,25,140,85,8
-    EDITTEXT        CTL_DELTMP_OUTDAYS,115,140,30,13,ES_AUTOHSCROLL
-    LTEXT           "@days",4004,150,140,20,8
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,75,170,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,130,170,50,13
+    GROUPBOX        "",CTL_DELTMP_FILES,20,5,190,80,WS_GROUP
+    CONTROL         "@deletetmpfiles_frmvtempdata",5297,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,15,180,10
+    CONTROL         "@deletetmpfiles_frmvtempprns",9393,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,25,180,10
+    CONTROL         "@deletetmpfiles_frmvtempcharry",13489,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,35,180,10
+    CONTROL         "@deletetmpfiles_frmvtempemail",17585,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,45,180,10
+    CONTROL         "@deletetmpfiles_frmvbhtdatafiles",21681,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,55,180,10
+    CONTROL         "@deletetmpfiles_frmvtempqrcodes",25777,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,65,180,10
+    GROUPBOX        "",IDC_STATIC,20,90,190,45
+    CONTROL         "@deletetmpfiles_frmvintransm",5298,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,100,175,13
+    LTEXT           "@deletetmpfiles_indays",4001,25,114,115,8
+    EDITTEXT        CTL_DELTMP_INDAYS,145,115,30,13,ES_AUTOHSCROLL
+    LTEXT           "@days",4002,180,115,20,8
+    GROUPBOX        "",IDC_STATIC,20,135,190,45
+    CONTROL         "@deletetmpfiles_frmvouttransm",5299,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,25,145,175,13
+    LTEXT           "@deletetmpfiles_outdays",4003,25,160,115,8
+    EDITTEXT        CTL_DELTMP_OUTDAYS,145,160,30,13,ES_AUTOHSCROLL
+    LTEXT           "@days",4004,180,160,20,8
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,95,190,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,160,190,50,13
 END
 
 DLG_DESKCMDAI DIALOGEX 10, 16, 357, 135
@@ -29809,6 +29810,12 @@ BEGIN
         BOTTOMMARGIN, 216
     END
 
+    DLG_DELTMP, DIALOG
+    BEGIN
+        RIGHTMARGIN, 202
+        BOTTOMMARGIN, 190
+    END
+
     DLG_DESKCMDAI, DIALOG
     BEGIN
         RIGHTMARGIN, 237
@@ -33436,6 +33443,11 @@ BEGIN
 END
 
 DLG_RMVTSESS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_DELTMP AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

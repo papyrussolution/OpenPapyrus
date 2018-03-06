@@ -84,23 +84,22 @@ int SLAPI PPDeleteTmpFiles(DeleteTmpFilesParam * pDelParam)
 		}
 	}
 	if(pDelParam->Flags & DeleteTmpFilesParam::fRmvTempCharry) {
-		long   sCHY = 0x00594843L; // "CHY"
-		_RemoveTempFiles(PPPATH_IN,  (char *)&sCHY, 0);
-		_RemoveTempFiles(PPPATH_OUT, (char *)&sCHY, 0);
+		_RemoveTempFiles(PPPATH_IN,  "CHY", 0);
+		_RemoveTempFiles(PPPATH_OUT, "CHY", 0);
 	}
 	if(pDelParam->Flags & DeleteTmpFilesParam::fRmvTempEmail) {
-		long   sPML = 0x004c4d50L; // "PML"
-		long   sMSG = 0x0047534dL; // "MSG"
-		_RemoveTempFiles(PPPATH_IN,   (char *)&sPML, 0);
-		_RemoveTempFiles(PPPATH_OUT,  (char *)&sPML, 0);
-		_RemoveTempFiles(PPPATH_TEMP, (char *)&sMSG, 0);
+		_RemoveTempFiles(PPPATH_IN,   "PML", 0);
+		_RemoveTempFiles(PPPATH_OUT,  "PML", 0);
+		_RemoveTempFiles(PPPATH_TEMP, "MSG", 0);
 	}
+	// @v9.9.9 {
+	if(pDelParam->Flags & DeleteTmpFilesParam::fRmvTempQrCodes) {
+		_RemoveTempFiles(PPPATH_TEMP, "png", "fccqr");
+	}
+	// } @v9.9.9 
 	if(pDelParam->Flags & DeleteTmpFilesParam::fRmvBHTDataFiles) {
-		long   sDAT = 0x00746164L; // "DAT"
-		long   sBHT = 0x00746862L; // "BHT"
-		long   sDBF = 0x00666264L; // "DBF"
-		_RemoveTempFiles(PPPATH_IN,  (char *)&sDAT, (char*)&sBHT);
-		_RemoveTempFiles(PPPATH_IN,  (char *)&sDBF, (char*)&sBHT);
+		_RemoveTempFiles(PPPATH_IN,  "DAT", "BHT");
+		_RemoveTempFiles(PPPATH_IN,  "DBF", "BHT");
 	}
 	if(pDelParam->Flags & DeleteTmpFilesParam::fRmvInTransm)
 		RemoveInOutFiles(pDelParam->InDays, PPPATH_IN);
@@ -180,6 +179,7 @@ int SLAPI DeleteTmpFilesDlg(DeleteTmpFilesParam * pParam)
 			AddClusterAssoc(CTL_DELTMP_FILES, 2, DeleteTmpFilesParam::fRmvTempCharry);
 			AddClusterAssoc(CTL_DELTMP_FILES, 3, DeleteTmpFilesParam::fRmvTempEmail);
 			AddClusterAssoc(CTL_DELTMP_FILES, 4, DeleteTmpFilesParam::fRmvBHTDataFiles);
+			AddClusterAssoc(CTL_DELTMP_FILES, 5, DeleteTmpFilesParam::fRmvTempQrCodes); // @v9.9.9
 			SetClusterData(CTL_DELTMP_FILES, Data.Flags);
 
 			v = BIN(Data.Flags & DeleteTmpFilesParam::fRmvInTransm);

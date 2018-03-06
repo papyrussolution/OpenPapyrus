@@ -21,7 +21,7 @@ static void FASTCALL ProcessError(WS_USCOREEFES_USCOREDDEBindingProxy & rProxi, 
 	rSess.SetMsg(temp_err_buf);
 }
 
-static int PreprocessCall(WS_USCOREEFES_USCOREDDEBindingProxy & rProxy, PPSoapClientSession & rSess, int result)
+static int FASTCALL PreprocessCall(WS_USCOREEFES_USCOREDDEBindingProxy & rProxy, PPSoapClientSession & rSess, int result)
 {
 	if(result == SOAP_OK) {
 		return 1;

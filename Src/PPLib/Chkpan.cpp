@@ -6412,8 +6412,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				if(ActiveListID) {
 					if(!Barrier()) {
 						SmartListBox * p_list = (SmartListBox *)getCtrlView((ushort)ActiveListID);
-						if(p_list)
-							p_list->Scroll((TVCMD == cmPrev) ? SB_LINEUP : SB_LINEDOWN, 0);
+						CALLPTRMEMB(p_list, Scroll((TVCMD == cmPrev) ? SB_LINEUP : SB_LINEDOWN, 0));
 						Barrier(1);
 					}
 				}
@@ -10951,7 +10950,8 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 {
 	int    ok = 1;
 	int    is_print_dvc_setted = 0;
-	if(!pLocPrn && Flags & fPrinted && !(Flags & fNoEdit) && !(OperRightsFlags & orfChgPrintedCheck)) {
+	// @v9.9.9 (CnSpeciality != PPCashNode::spDelivery) Доставка требует дополнительных печатных копий предчека 
+	if(!pLocPrn && Flags & fPrinted && !(Flags & fNoEdit) && !(OperRightsFlags & orfChgPrintedCheck) && (CnSpeciality != PPCashNode::spDelivery)) {
 		ok = MessageError(PPERR_NORIGHTS, 0, eomBeep | eomStatusLine);
 	}
 	else {

@@ -539,16 +539,82 @@ int AsteriskAmiClient::GetChannelList(const char * pChannelName, PhnSvcChannelSt
 	rList.Clear();
 	THROW_PP(State & stLoggedOn, PPERR_PHNSVC_NOTAUTH);
 	msg.AddAction("CoreShowChannels");
+	const int64 action_id = ++LastActionId; // @v9.9.9
+	msg.Add("ActionID", temp_buf.Z().Cat(action_id)); // @v9.9.9
 	THROW(ExecCommand(msg, &reply));
 	THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
 	if(rs.EventListFlag == 0) {
 		do {
 			THROW(ReadReply(reply.Clear()));
 			THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
-			if(reply.GetTag("Event", temp_buf) && temp_buf.IsEqiAscii("CoreShowChannel")) {
+			// Event: Newchannel;Privilege: call,all;Channel: SIP/Beeline_IN-0000005c;ChannelState: 0;ChannelStateDesc: Down;
+			// CallerIDNum: +79218004538;CallerIDName: <unknown>;ConnectedLineNum: <unknown>;ConnectedLineName: <unknown>;
+			// Language: en;AccountCode: ;Context: from-trunk;Exten: 9602146143;Priority: 1;Uniqueid: 1520259310.92;Linkedid: 1520259310.92;;
+			if(reply.GetTag("Event", temp_buf)) {
+				if(temp_buf.IsEqiAscii("CoreShowChannel")) {
+					cnl_status.Clear();
+					int    do_insert = 0;
+					if(reply.GetTag("State", temp_buf) || reply.GetTag("ChannelState", temp_buf)) {
+						do_insert = 1;
+						if(!GetStateVal(temp_buf, &cnl_status.State)) {
+							cnl_status.State = temp_buf.ToLong();
+						}
+					}
+					if(reply.GetTag("Priority", temp_buf))
+						cnl_status.Priority = temp_buf.ToLong();
+					if(reply.GetTag("Seconds", temp_buf))
+						cnl_status.Seconds = temp_buf.ToLong();
+					else if(reply.GetTag("Duration", temp_buf)) {
+						LTIME t;
+						strtotime(temp_buf, TIMF_HMS, &t);
+						cnl_status.Seconds = t.totalsec();
+					}
+					if(reply.GetTag("Channel", temp_buf)) {
+						do_insert = 1;
+						cnl_status.Channel = temp_buf;
+					}
+					if(reply.GetTag("CallerIDNum", temp_buf)) {
+						do_insert = 1;
+						cnl_status.CallerId = temp_buf;
+					}
+					if(reply.GetTag("ConnectedLineNum", temp_buf)) {
+						do_insert = 1;
+						cnl_status.ConnectedLineNum = temp_buf;
+					}
+					if(do_insert)
+						rList.Add(cnl_status);
+				}
+			}
+		} while(rs.EventListFlag <= 0);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int AsteriskAmiClient::GetChannelStatus(const char * pChannelName, PhnSvcChannelStatusPool & rList)
+{
+	int    ok = 1;
+	PhnSvcChannelStatus cnl_status;
+	Message msg, reply;
+	Message::ReplyStatus rs;
+	SString temp_buf;
+	rList.Clear();
+	THROW_PP(State & stLoggedOn, PPERR_PHNSVC_NOTAUTH);
+	msg.AddAction("Status");
+	const int64 action_id = ++LastActionId; // @v9.9.9
+	msg.Add("ActionID", temp_buf.Z().Cat(action_id)); // @v9.9.9
+	if(pChannelName)
+		msg.Add("Channel", pChannelName);
+	THROW(ExecCommand(msg, &reply));
+	THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
+	do {
+		THROW(ReadReply(reply.Clear()));
+		THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
+		if(reply.GetTag("Event", temp_buf) && temp_buf.IsEqiAscii("Status")) {
+			if(!reply.GetTag("ActionID", temp_buf) || temp_buf.ToInt64() == action_id) { // @v9.9.9
 				cnl_status.Clear();
 				int    do_insert = 0;
-				if(reply.GetTag("State", temp_buf) || reply.GetTag("ChannelState", temp_buf)) {
+				if(reply.GetTag("State", temp_buf) || reply.GetTag("ChannelState", temp_buf) || reply.GetTag("ChannelStateDesc", temp_buf)) {
 					do_insert = 1;
 					if(!GetStateVal(temp_buf, &cnl_status.State)) {
 						cnl_status.State = temp_buf.ToLong();
@@ -579,62 +645,6 @@ int AsteriskAmiClient::GetChannelList(const char * pChannelName, PhnSvcChannelSt
 				if(do_insert)
 					rList.Add(cnl_status);
 			}
-		} while(rs.EventListFlag <= 0);
-	}
-	CATCHZOK
-	return ok;
-}
-
-int AsteriskAmiClient::GetChannelStatus(const char * pChannelName, PhnSvcChannelStatusPool & rList)
-{
-	int    ok = 1;
-	PhnSvcChannelStatus cnl_status;
-	Message msg, reply;
-	Message::ReplyStatus rs;
-	SString temp_buf;
-	rList.Clear();
-	THROW_PP(State & stLoggedOn, PPERR_PHNSVC_NOTAUTH);
-	msg.AddAction("Status");
-	if(pChannelName)
-		msg.Add("Channel", pChannelName);
-	THROW(ExecCommand(msg, &reply));
-	THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
-	do {
-		THROW(ReadReply(reply.Clear()));
-		THROW_PP_S(reply.GetReplyStatus(rs) != 0, PPERR_PHNSVC_ERROR, rs.Message);
-		if(reply.GetTag("Event", temp_buf) && temp_buf.IsEqiAscii("Status")) {
-			cnl_status.Clear();
-			int    do_insert = 0;
-			if(reply.GetTag("State", temp_buf) || reply.GetTag("ChannelState", temp_buf) || reply.GetTag("ChannelStateDesc", temp_buf)) {
-				do_insert = 1;
-				if(!GetStateVal(temp_buf, &cnl_status.State)) {
-					cnl_status.State = temp_buf.ToLong();
-				}
-			}
-			if(reply.GetTag("Priority", temp_buf)) {
-				cnl_status.Priority = temp_buf.ToLong();
-			}
-			if(reply.GetTag("Seconds", temp_buf))
-				cnl_status.Seconds = temp_buf.ToLong();
-			else if(reply.GetTag("Duration", temp_buf)) {
-				LTIME t;
-				strtotime(temp_buf, TIMF_HMS, &t);
-				cnl_status.Seconds = t.totalsec();
-			}
-			if(reply.GetTag("Channel", temp_buf)) {
-				do_insert = 1;
-				cnl_status.Channel = temp_buf;
-			}
-			if(reply.GetTag("CallerIDNum", temp_buf)) {
-				do_insert = 1;
-				cnl_status.CallerId = temp_buf;
-			}
-			if(reply.GetTag("ConnectedLineNum", temp_buf)) {
-				do_insert = 1;
-				cnl_status.ConnectedLineNum = temp_buf;
-			}
-			if(do_insert)
-				rList.Add(cnl_status);
 		}
 	} while(!(reply.GetTag("Event", temp_buf) && temp_buf.IsEqiAscii("StatusComplete")));
 	CATCHZOK
@@ -658,14 +668,14 @@ AsteriskAmiClient::Message & AsteriskAmiClient::Message::Clear()
 
 int AsteriskAmiClient::Message::Add(const char * pTag, const char * pValue)
 {
-	SString temp_buf;
-	return add((temp_buf = pTag).CatChar(':').Cat(pValue)) ? 1 : PPSetErrorSLib();
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.9
+	return add((r_temp_buf = pTag).CatChar(':').Cat(pValue)) ? 1 : PPSetErrorSLib();
 }
 
 int AsteriskAmiClient::Message::AddAction(const char * pValue)
 {
-	SString temp_buf;
-	return add((temp_buf = "Action").CatChar(':').Cat(pValue)) ? 1 : PPSetErrorSLib();
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.9
+	return add((r_temp_buf = "Action").CatChar(':').Cat(pValue)) ? 1 : PPSetErrorSLib();
 }
 
 int AsteriskAmiClient::Message::Convert(SString & rBuf) const
@@ -690,9 +700,9 @@ int AsteriskAmiClient::Message::Get(uint * pPos, SString & rTag, SString & rValu
 	int    ok = 0;
 	rTag.Z();
 	rValue.Z();
-	SString temp_buf;
-	if(get(pPos, temp_buf)) {
-		temp_buf.Divide(':', rTag, rValue);
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.9
+	if(get(pPos, r_temp_buf)) {
+		r_temp_buf.Divide(':', rTag, rValue);
 		rTag.Strip();
 		rValue.Strip();
 		ok = 1;
@@ -782,7 +792,7 @@ int AsteriskAmiClient::Message::ParseReply(const char * pReply)
 	return ok;
 }
 
-AsteriskAmiClient::AsteriskAmiClient() : S(1000), State(0)
+AsteriskAmiClient::AsteriskAmiClient() : S(1000), State(0), LastActionId(clock())
 {
 }
 

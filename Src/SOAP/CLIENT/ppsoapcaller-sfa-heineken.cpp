@@ -21,7 +21,7 @@ static void FASTCALL ProcessError(DRPServiceSoapProxy & rProxi, PPSoapClientSess
 	rSess.SetMsg(temp_err_buf);
 }
 
-static int PreprocessCall(DRPServiceSoapProxy & rProxy, PPSoapClientSession & rSess, int result)
+static int FASTCALL PreprocessCall(DRPServiceSoapProxy & rProxy, PPSoapClientSession & rSess, int result)
 {
 	if(result == SOAP_OK) {
 		return 1;

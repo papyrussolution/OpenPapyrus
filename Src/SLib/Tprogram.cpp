@@ -1888,6 +1888,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 					case IDB_DIVISION:      dv_id = PPDV_DIVISION01; break;
 					case IDB_CASH01S:       dv_id = PPDV_CASHBOX02; break;
 					case IDB_PRINTDEF:      dv_id = PPDV_CLIENTPRINTER01; break;
+					case IDB_PRINTDEFMARK:  dv_id = PPDV_CLIENTPRINTER01MARK; break;
 					case IDB_PRINTER:       dv_id = PPDV_PRINTER01; break;
 					case IDB_RETURN:        dv_id = PPDV_RETURN01; break;
 					case IDB_ARROW_LEVELUP: dv_id = PPDV_BACK01; break;

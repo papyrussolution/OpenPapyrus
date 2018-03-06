@@ -585,7 +585,7 @@ public:
 		int    AddDashItem(float f);
 
 		SColor C;          // Цвет
-		float  W;          // Ширина
+		float  W__;        // Ширина
 		int32  S;          // Стиль (SPaintObj::psXXX)
 		int8   LineCap;    // SPaintObj::lcXXX
 		int8   Join;       // SPaintObj::ljXXX
