@@ -1,0 +1,14 @@
+// CompressCall.h
+
+#ifndef __COMPRESS_CALL_H
+#define __COMPRESS_CALL_H
+
+UString GetQuotedString(const UString &s);
+HRESULT CompressFiles(const UString &arcPathPrefix, const UString &arcName, const UString &arcType,
+    bool addExtension, const UStringVector &names, bool email, bool showDialog, bool waitFinish);
+void ExtractArchives(const UStringVector &arcPaths, const UString &outFolder, bool showDialog, bool elimDup);
+void TestArchives(const UStringVector &arcPaths);
+void CalcChecksum(const UStringVector &paths, const UString &methodName);
+void Benchmark(bool totalMode);
+
+#endif

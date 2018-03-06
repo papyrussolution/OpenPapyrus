@@ -647,7 +647,10 @@ int AsteriskAmiClient::GetChannelStatus(const char * pChannelName, PhnSvcChannel
 			}
 		}
 	} while(!(reply.GetTag("Event", temp_buf) && temp_buf.IsEqiAscii("StatusComplete")));
-	CATCHZOK
+	CATCH
+		PPLogMessage(PPFILNAM_PHNSVC_LOG, 0, LOGMSGF_TIME|LOGMSGF_LASTERR);
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 

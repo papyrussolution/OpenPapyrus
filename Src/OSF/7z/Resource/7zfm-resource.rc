@@ -1,0 +1,1149 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+/////////////////////////////////////////////////////////////////////////////
+// Russian (Russia) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Russian (Russia) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+1 VERSIONINFO
+ FILEVERSION 17,0,0,0
+ PRODUCTVERSION 17,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Igor Pavlov"
+            VALUE "FileDescription", "7-Zip File Manager"
+            VALUE "FileVersion", "17.00 beta"
+            VALUE "InternalName", "7zFM"
+            VALUE "LegalCopyright", "Copyright (c) 1999-2017 Igor Pavlov"
+            VALUE "OriginalFilename", "7zFM.exe"
+            VALUE "ProductName", "7-Zip"
+            VALUE "ProductVersion", "17.00 beta"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_ACCELERATOR1 ACCELERATORS
+BEGIN
+    VK_F1,          IDM_HELP_CONTENTS,      VIRTKEY, NOINVERT
+    VK_F12,         IDM_FOLDERS_HISTORY,    VIRTKEY, ALT, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_MENU MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open\tEnter",                IDM_OPEN
+        MENUITEM "Open &Inside\tCtrl+PgDn",     IDM_OPEN_INSIDE
+        MENUITEM "Open Inside *",               IDM_OPEN_INSIDE_ONE
+        MENUITEM "Open Inside #",               IDM_OPEN_INSIDE_PARSER
+        MENUITEM "Open O&utside\tShift+Enter",  IDM_OPEN_OUTSIDE
+        MENUITEM "&View\tF3",                   IDM_FILE_VIEW
+        MENUITEM "&Edit\tF4",                   IDM_FILE_EDIT
+        MENUITEM SEPARATOR
+        MENUITEM "Rena&me\tF2",                 IDM_RENAME
+        MENUITEM "&Copy To...\tF5",             IDM_COPY_TO
+        MENUITEM "&Move To...\tF6",             IDM_MOVE_TO
+        MENUITEM "&Delete\tDel",                IDM_DELETE
+        MENUITEM SEPARATOR
+        MENUITEM "&Split file...",              IDM_SPLIT
+        MENUITEM "Com&bine files...",           IDM_COMBINE
+        MENUITEM SEPARATOR
+        MENUITEM "P&roperties\tAlt+Enter",      IDM_PROPERTIES
+        MENUITEM "Comme&nt...\tCtrl+Z",         IDM_COMMENT
+        POPUP "CRC"
+        BEGIN
+            MENUITEM "CRC-32",                      IDM_CRC32
+            MENUITEM "CRC-64",                      IDM_CRC64
+            MENUITEM "SHA-1",                       IDM_SHA1
+            MENUITEM "SHA-256",                     IDM_SHA256
+            MENUITEM "*",                           IDM_HASH_ALL
+        END
+        MENUITEM "Di&ff",                       IDM_DIFF
+        MENUITEM SEPARATOR
+        MENUITEM "Create Folder\tF7",           IDM_CREATE_FOLDER
+        MENUITEM "Create File\tCtrl+N",         IDM_CREATE_FILE
+        MENUITEM SEPARATOR
+        MENUITEM "&Link...",                    IDM_LINK
+        MENUITEM "&Alternate streams",          IDM_ALT_STREAMS
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\tAlt+F4",               IDCLOSE
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "Select &All\tShift+[Grey +]", IDM_SELECT_ALL
+        MENUITEM "Deselect All\tShift+[Grey -]", IDM_DESELECT_ALL
+        MENUITEM "&Invert Selection\tGrey *",   IDM_INVERT_SELECTION
+        MENUITEM "Select...\tGrey +",           IDM_SELECT
+        MENUITEM "Deselect...\tGrey -",         IDM_DESELECT
+        MENUITEM "Select by Type\tAlt+[Grey+]", IDM_SELECT_BY_TYPE
+        MENUITEM "Deselect by Type\tAlt+[Grey -]", IDM_DESELECT_BY_TYPE
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "Lar&ge Icons\tCtrl+1",        IDM_VIEW_LARGE_ICONS
+        MENUITEM "S&mall Icons\tCtrl+2",        IDM_VIEW_SMALL_ICONS
+        MENUITEM "&List\tCtrl+3",               IDM_VIEW_LIST
+        MENUITEM "&Details\tCtrl+4",            IDM_VIEW_DETAILS, CHECKED
+        MENUITEM SEPARATOR
+        MENUITEM "Name\tCtrl+F3",               IDM_VIEW_ARANGE_BY_NAME
+        MENUITEM "Type\tCtrl+F4",               IDM_VIEW_ARANGE_BY_TYPE
+        MENUITEM "Date\tCtrl+F5",               IDM_VIEW_ARANGE_BY_DATE
+        MENUITEM "Size\tCtrl+F6",               IDM_VIEW_ARANGE_BY_SIZE
+        MENUITEM "Unsorted\tCtrl+F7",           IDM_VIEW_ARANGE_NO_SORT
+        MENUITEM SEPARATOR
+        MENUITEM "Flat View",                   IDM_VIEW_FLAT_VIEW
+        MENUITEM "&2 Panels\tF9",               IDM_VIEW_TWO_PANELS
+        POPUP "2017"
+        BEGIN
+            MENUITEM "Time",                        IDM_VIEW_TIME
+        END
+        POPUP "Toolbars"
+        BEGIN
+            MENUITEM "Archive Toolbar",             IDM_VIEW_ARCHIVE_TOOLBAR
+            MENUITEM "Standard Toolbar",            IDM_VIEW_STANDARD_TOOLBAR
+            MENUITEM SEPARATOR
+            MENUITEM "Large Buttons",               IDM_VIEW_TOOLBARS_LARGE_BUTTONS
+            MENUITEM "Show Buttons Text",           IDM_VIEW_TOOLBARS_SHOW_BUTTONS_TEXT
+        END
+        MENUITEM "Open Root Folder\t\\",        IDM_OPEN_ROOT_FOLDER
+        MENUITEM "Up One Level\tBackspace",     IDM_OPEN_PARENT_FOLDER
+        MENUITEM "Folders History...\tAlt+F12", IDM_FOLDERS_HISTORY
+        MENUITEM "&Refresh\tCtrl+R",            IDM_VIEW_REFRESH
+        MENUITEM "Auto Refresh",                IDM_VIEW_AUTO_REFRESH
+    END
+    POPUP "F&avorites"
+    BEGIN
+        POPUP "&Add folder to Favorites as"
+        BEGIN
+            MENUITEM SEPARATOR
+        END
+        MENUITEM SEPARATOR
+    END
+    POPUP "&Tools"
+    BEGIN
+        MENUITEM "&Options...",                 IDM_OPTIONS
+        MENUITEM SEPARATOR
+        MENUITEM "&Benchmark",                  IDM_BENCHMARK
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Contents...\tF1",            IDM_HELP_CONTENTS
+        MENUITEM SEPARATOR
+        MENUITEM "&About 7-Zip...",             IDM_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON                ICON                    "FM.ico"
+
+IDI_LOGO                ICON                    "7zipLogo.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_ADD                 BITMAP                  "Add.bmp"
+
+IDB_EXTRACT             BITMAP                  "Extract.bmp"
+
+IDB_TEST                BITMAP                  "Test.bmp"
+
+IDB_COPY                BITMAP                  "Copy.bmp"
+
+IDB_MOVE                BITMAP                  "Move.bmp"
+
+IDB_DELETE              BITMAP                  "Delete.bmp"
+
+IDB_INFO                BITMAP                  "Info.bmp"
+
+IDB_ADD2                BITMAP                  "Add2.bmp"
+
+IDB_EXTRACT2            BITMAP                  "Extract2.bmp"
+
+IDB_TEST2               BITMAP                  "Test2.bmp"
+
+IDB_COPY2               BITMAP                  "Copy2.bmp"
+
+IDB_MOVE2               BITMAP                  "Move2.bmp"
+
+IDB_DELETE2             BITMAP                  "Delete2.bmp"
+
+IDB_INFO2               BITMAP                  "Info2.bmp"
+
+IDB_MENU_LOGO           BITMAP                  "MenuLogo.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUT DIALOG 0, 0, 160, 160
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About 7-Zip"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,88,136,64,16
+    PUSHBUTTON      "www.7-zip.org",IDB_ABOUT_HOMEPAGE,16,136,64,16
+    ICON            IDI_LOGO,-1,8,8,32,32,SS_REALSIZEIMAGE
+    LTEXT           "",IDT_ABOUT_VERSION,8,54,144,8
+    LTEXT           "",IDT_ABOUT_DATE,8,67,144,8
+    LTEXT           "Copyright (c) 1999-2017 Igor Pavlov",-1,8,80,144,8
+    LTEXT           "7-Zip is free software",IDT_ABOUT_INFO,8,93,144,42
+END
+
+IDD_BROWSE DIALOG 0, 0, 272, 336
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "7-Zip: Browse"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    EDITTEXT        IDE_BROWSE_PATH,8,268,256,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_BROWSE_FILTER,8,290,256,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "OK",IDOK,128,312,64,16
+    PUSHBUTTON      "Cancel",IDCANCEL,200,312,64,16
+    PUSHBUTTON      "<--",IDB_BROWSE_PARENT,8,8,24,16
+    PUSHBUTTON      "+",IDB_BROWSE_CREATE_DIR,40,8,24,16
+    LTEXT           "",IDT_BROWSE_FOLDER,72,11,236,8
+    CONTROL         "List1",IDL_BROWSE,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SHAREIMAGELISTS | WS_BORDER | WS_TABSTOP,8,32,256,228
+END
+
+IDD_COMBO DIALOG 0, 0, 256, 80
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Combo"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "",IDT_COMBO,8,8,240,8
+    COMBOBOX        IDC_COMBO,8,20,240,65,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",1,112,56,64,16
+    PUSHBUTTON      "Cancel",2,184,56,64,16
+END
+
+IDD_COPY DIALOG 0, 0, 336, 160
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Copy"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "",IDT_COPY,8,8,320,8
+    COMBOBOX        IDC_COPY,8,20,292,65,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "...",IDB_COPY_SET_PATH,308,18,20,16,WS_GROUP
+    CONTROL         "",IDT_COPY_INFO,"Static",SS_LEFTNOWORDWRAP | SS_NOPREFIX | WS_GROUP,8,40,320,95
+    DEFPUSHBUTTON   "OK",1,192,136,64,16
+    PUSHBUTTON      "Cancel",2,264,136,64,16
+END
+
+IDD_EDIT DIALOG 0, 0, 256, 96
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Editor"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "&View:",IDT_EDIT_VIEWER,8,8,240,8
+    EDITTEXT        IDE_EDIT_VIEWER,8,20,212,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDB_EDIT_VIEWER,228,19,20,16
+    LTEXT           "&Editor:",IDT_EDIT_EDITOR,8,40,240,8
+    EDITTEXT        IDE_EDIT_EDITOR,8,52,212,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDB_EDIT_EDITOR,228,51,20,16
+    LTEXT           "&Diff:",IDT_EDIT_DIFF,8,72,240,8
+    EDITTEXT        IDE_EDIT_DIFF,8,84,212,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDB_EDIT_DIFF,228,83,20,16
+END
+
+IDD_FOLDERS DIALOG 0, 0, 256, 116
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Folders"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "&Working folder",IDT_FOLDERS_WORKING_FOLDER,8,8,240,8
+    CONTROL         "&System temp folder",IDR_FOLDERS_WORK_SYSTEM,"Button",BS_AUTORADIOBUTTON | WS_GROUP,8,20,240,10
+    CONTROL         "&Current",IDR_FOLDERS_WORK_CURRENT,"Button",BS_AUTORADIOBUTTON,8,34,240,10
+    CONTROL         "Specified:",IDR_FOLDERS_WORK_SPECIFIED,"Button",BS_AUTORADIOBUTTON,8,48,240,10
+    EDITTEXT        IDE_FOLDERS_WORK_PATH,16,62,204,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDB_FOLDERS_WORK_PATH,228,61,20,16
+    CONTROL         "Use for removable drives only",IDX_FOLDERS_WORK_FOR_REMOVABLE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,86,240,10
+END
+
+IDD_LANG DIALOG 0, 0, 176, 116
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Language"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "Language:",IDT_LANG_LANG,8,8,160,8
+    COMBOBOX        IDC_LANG_LANG,8,20,160,80,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_LINK DIALOG 0, 0, 304, 216
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Link"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "Link from:",IDT_LINK_PATH_FROM,8,8,288,8
+    COMBOBOX        IDC_LINK_PATH_FROM,8,20,260,64,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "...",IDB_LINK_PATH_FROM,276,18,20,16,WS_GROUP
+    LTEXT           "Link to:",IDT_LINK_PATH_TO,8,48,288,8
+    COMBOBOX        IDC_LINK_PATH_TO,8,60,260,64,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "...",IDB_LINK_PATH_TO,276,58,20,16,WS_GROUP
+    LTEXT           "",IDT_LINK_PATH_TO_CUR,8,78,288,8
+    GROUPBOX        "Link Type",IDG_LINK_TYPE,8,104,288,76
+    CONTROL         "Hard Link",IDR_LINK_TYPE_HARD,"Button",BS_AUTORADIOBUTTON | WS_GROUP,16,120,278,10
+    CONTROL         "File Symbolic Link",IDR_LINK_TYPE_SYM_FILE,"Button",BS_AUTORADIOBUTTON,16,134,278,10
+    CONTROL         "Directory Symbolic Link",IDR_LINK_TYPE_SYM_DIR,"Button",BS_AUTORADIOBUTTON,16,148,278,10
+    CONTROL         "Directory Junction",IDR_LINK_TYPE_JUNCTION,"Button",BS_AUTORADIOBUTTON,16,162,278,10
+    DEFPUSHBUTTON   "Link",IDB_LINK_LINK,160,192,64,16
+    PUSHBUTTON      "Cancel",IDCANCEL,232,192,64,16
+END
+
+IDD_LISTVIEW DIALOG 0, 0, 336, 256
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "ListView"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    CONTROL         "List1",IDL_LISTVIEW,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_AUTOARRANGE | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,8,8,320,216
+    DEFPUSHBUTTON   "OK",1,192,232,64,16
+    PUSHBUTTON      "Cancel",2,264,232,64,16
+END
+
+IDD_MENU DIALOG 0, 0, 256, 240
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "7-Zip"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    CONTROL         "Integrate 7-Zip to shell context menu",IDX_SYSTEM_INTEGRATE_TO_MENU,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,8,240,10
+    CONTROL         "(32-bit)",IDX_SYSTEM_INTEGRATE_TO_MENU_2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,22,240,10
+    CONTROL         "Cascaded context menu",IDX_SYSTEM_CASCADED_MENU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,36,240,10
+    CONTROL         "Icons in context menu",IDX_SYSTEM_ICON_IN_MENU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,50,240,10
+    CONTROL         "Eliminate duplication of root folder",IDX_EXTRACT_ELIM_DUP,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,64,240,10
+    LTEXT           "Context menu items:",IDT_SYSTEM_CONTEXT_MENU_ITEMS,8,78,240,8
+    CONTROL         "List",IDL_SYSTEM_OPTIONS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,8,90,240,142
+END
+
+IDD_MESSAGES DIALOG 0, 0, 456, 176
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "7-Zip: Diagnostic messages"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "&Close",IDOK,384,152,64,16
+    CONTROL         "List1",IDL_MESSAGE,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,8,8,440,136
+END
+
+IDD_OVERWRITE DIALOG 0, 0, 296, 216
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Confirm File Replace"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "Destination folder already contains processed file.",IDT_OVERWRITE_HEADER,8,7,280,8
+    LTEXT           "Would you like to replace the existing file",IDT_OVERWRITE_QUESTION_BEGIN,8,28,280,8
+    ICON            "",IDI_OVERWRITE_OLD_FILE,8,44,24,24
+    LTEXT           "",IDT_OVERWRITE_OLD_FILE_SIZE_TIME,40,44,248,50,SS_NOPREFIX
+    LTEXT           "with this one?",IDT_OVERWRITE_QUESTION_END,8,98,280,8
+    ICON            "",IDI_OVERWRITE_NEW_FILE,8,114,24,24
+    LTEXT           "",IDT_OVERWRITE_NEW_FILE_SIZE_TIME,40,114,248,50,SS_NOPREFIX
+    PUSHBUTTON      "&Yes",IDYES,40,168,64,16
+    PUSHBUTTON      "Yes to &All",IDB_YES_TO_ALL,112,168,64,16
+    PUSHBUTTON      "A&uto Rename",IDB_AUTO_RENAME,184,168,104,16
+    PUSHBUTTON      "&No",IDNO,40,192,64,16
+    PUSHBUTTON      "No to A&ll",IDB_NO_TO_ALL,112,192,64,16
+    PUSHBUTTON      "&Cancel",IDCANCEL,224,192,64,16
+END
+
+IDD_PASSWORD DIALOG 0, 0, 156, 88
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Enter password"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "&Enter password:",IDT_PASSWORD_ENTER,8,8,140,8
+    EDITTEXT        IDE_PASSWORD_PASSWORD,8,20,140,14,ES_PASSWORD | ES_AUTOHSCROLL
+    CONTROL         "&Show password",IDX_PASSWORD_SHOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,42,140,10
+    DEFPUSHBUTTON   "OK",1,12,64,64,16
+    PUSHBUTTON      "Cancel",2,84,64,64,16
+END
+
+DIALOG_ID DIALOG 0, 0, 376, 204
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Progress"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "&Background",IDB_PROGRESS_BACKGROUND,112,180,80,16
+    PUSHBUTTON      "&Pause",IDB_PAUSE,200,180,80,16
+    PUSHBUTTON      "Cancel",IDCANCEL,288,180,80,16
+    LTEXT           "Elapsed time:",IDT_PROGRESS_ELAPSED,8,8,90,8
+    LTEXT           "Remaining time:",IDT_PROGRESS_REMAINING,8,19,90,8
+    LTEXT           "Files:",IDT_PROGRESS_FILES,8,30,90,8
+    LTEXT           "Compression ratio:",IDT_PROGRESS_RATIO,8,41,90,8
+    LTEXT           "Errors:",IDT_PROGRESS_ERRORS,8,52,90,8
+    LTEXT           "Total size:",IDT_PROGRESS_TOTAL,202,8,90,8
+    LTEXT           "Speed:",IDT_PROGRESS_SPEED,202,19,90,8
+    LTEXT           "Processed:",IDT_PROGRESS_PROCESSED,202,30,90,8
+    LTEXT           "Compressed size:",IDT_PROGRESS_PACKED,202,41,90,8
+    RTEXT           "",IDT_PROGRESS_ELAPSED_VAL,98,8,76,8,SS_NOPREFIX
+    RTEXT           "",IDT_PROGRESS_REMAINING_VAL,98,19,76,8,SS_NOPREFIX
+    RTEXT           "",IDT_PROGRESS_FILES_VAL,98,30,76,8,SS_NOPREFIX
+    RTEXT           "",IDT_PROGRESS_RATIO_VAL,98,41,76,8,SS_NOPREFIX
+    RTEXT           "",IDT_PROGRESS_ERRORS_VAL,98,52,76,8,SS_NOPREFIX
+    RTEXT           "",IDT_PROGRESS_TOTAL_VAL,292,8,76,8,SS_NOPREFIX
+    RTEXT           "",IDT_PROGRESS_SPEED_VAL,292,19,76,8,SS_NOPREFIX
+    RTEXT           "",IDT_PROGRESS_PROCESSED_VAL,292,30,76,8,SS_NOPREFIX
+    RTEXT           "",IDT_PROGRESS_PACKED_VAL,292,41,76,8,SS_NOPREFIX
+    LTEXT           "",IDT_PROGRESS_STATUS,8,64,360,8,SS_NOPREFIX
+    CONTROL         "",IDT_PROGRESS_FILE_NAME,"Static",SS_LEFTNOWORDWRAP | SS_NOPREFIX,8,76,360,24
+    CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",PBS_SMOOTH | WS_BORDER,8,100,360,16
+    CONTROL         "List1",IDL_PROGRESS_MESSAGES,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_NOCOLUMNHEADER | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,8,124,360,48
+END
+
+IDD_SETTINGS DIALOG 0, 0, 256, 136
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Settings"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    CONTROL         "Show "".."" item",IDX_SETTINGS_SHOW_DOTS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,8,240,10
+    CONTROL         "Show real file &icons",IDX_SETTINGS_SHOW_REAL_FILE_ICONS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,22,240,10
+    CONTROL         "&Full row select",IDX_SETTINGS_FULL_ROW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,36,240,10
+    CONTROL         "Show &grid lines",IDX_SETTINGS_SHOW_GRID,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,50,240,10
+    CONTROL         "&Single-click to open an item",IDX_SETTINGS_SINGLE_CLICK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,64,240,10
+    CONTROL         "&Alternative selection mode",IDX_SETTINGS_ALTERNATIVE_SELECTION,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,78,240,10
+    CONTROL         "Show system &menu",IDX_SETTINGS_SHOW_SYSTEM_MENU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,100,240,10
+    CONTROL         "Use &large memory pages",IDX_SETTINGS_LARGE_PAGES,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,122,240,10
+END
+
+IDD_SPLIT DIALOG 0, 0, 304, 112
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Split File"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "&Split to:",IDT_SPLIT_PATH,8,8,288,8
+    COMBOBOX        IDC_SPLIT_PATH,8,20,260,64,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "...",IDB_SPLIT_PATH,276,18,20,16,WS_GROUP
+    LTEXT           "Split to &volumes,  bytes:",IDT_SPLIT_VOLUME,8,44,288,8
+    COMBOBOX        IDC_SPLIT_VOLUME,8,56,96,52,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",1,160,88,64,16
+    PUSHBUTTON      "Cancel",2,232,88,64,16
+END
+
+IDD_SYSTEM DIALOG 0, 0, 256, 268
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "System"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "Associate 7-Zip with:",IDT_SYSTEM_ASSOCIATE,8,8,240,8
+    PUSHBUTTON      "+",IDB_SYSTEM_CURRENT,80,20,40,16
+    PUSHBUTTON      "+",IDB_SYSTEM_ALL,166,20,40,16
+    CONTROL         "List1",IDL_SYSTEM_ASSOCIATE,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SHAREIMAGELISTS | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,8,40,240,220
+END
+
+IDD_EXTRACT DIALOG 0, 0, 352, 184
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Extract"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "E&xtract to:",IDT_EXTRACT_EXTRACT_TO,8,8,336,8
+    COMBOBOX        IDC_EXTRACT_PATH,8,20,304,100,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "...",IDB_EXTRACT_SET_PATH,324,18,20,16,WS_GROUP
+    CONTROL         "",IDX_EXTRACT_NAME_ENABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,42,12,10
+    EDITTEXT        IDE_EXTRACT_NAME,22,40,146,14,ES_AUTOHSCROLL
+    LTEXT           "Path mode:",IDT_EXTRACT_PATH_MODE,8,60,160,8
+    COMBOBOX        IDC_EXTRACT_PATH_MODE,8,72,160,140,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Eliminate duplication of root folder",IDX_EXTRACT_ELIM_DUP,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,8,92,160,10
+    LTEXT           "Overwrite mode:",IDT_EXTRACT_OVERWRITE_MODE,8,112,160,8
+    COMBOBOX        IDC_EXTRACT_OVERWRITE_MODE,8,124,160,140,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Password",IDG_PASSWORD,188,44,156,56
+    EDITTEXT        IDE_EXTRACT_PASSWORD,196,58,140,14,ES_PASSWORD | ES_AUTOHSCROLL
+    CONTROL         "Show Password",IDX_PASSWORD_SHOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,196,80,140,10
+    CONTROL         "Restore file security",IDX_EXTRACT_NT_SECUR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,188,112,156,10
+    DEFPUSHBUTTON   "OK",IDOK,136,160,64,16,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,208,160,64,16
+    PUSHBUTTON      "Help",IDHELP,280,160,64,16
+END
+
+IDD_COMPRESS DIALOG 0, 0, 416, 370
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Add to Archive"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "",IDT_COMPRESS_ARCHIVE_FOLDER,48,8,360,8
+    LTEXT           "&Archive:",IDT_COMPRESS_ARCHIVE,8,12,40,8
+    COMBOBOX        IDC_COMPRESS_ARCHIVE,48,18,328,126,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "...",IDB_COMPRESS_SET_ARCHIVE,388,16,20,16,WS_GROUP
+    LTEXT           "Archive &format:",IDT_COMPRESS_FORMAT,8,41,104,8
+    COMBOBOX        IDC_COMPRESS_FORMAT,112,39,88,80,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Compression &level:",IDT_COMPRESS_LEVEL,8,62,104,8
+    COMBOBOX        IDC_COMPRESS_LEVEL,112,60,88,80,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Compression &method:",IDT_COMPRESS_METHOD,8,83,104,8
+    COMBOBOX        IDC_COMPRESS_METHOD,112,81,88,80,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Dictionary size:",IDT_COMPRESS_DICTIONARY,8,104,104,8
+    COMBOBOX        IDC_COMPRESS_DICTIONARY,112,102,88,167,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Word size:",IDT_COMPRESS_ORDER,8,125,104,8
+    COMBOBOX        IDC_COMPRESS_ORDER,112,123,88,141,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Solid Block size:",IDT_COMPRESS_SOLID,8,146,104,8
+    COMBOBOX        IDC_COMPRESS_SOLID,112,144,88,140,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Number of CPU &threads:",IDT_COMPRESS_THREADS,8,167,104,8
+    COMBOBOX        IDC_COMPRESS_THREADS,112,165,53,140,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "",IDT_COMPRESS_HARDWARE_THREADS,175,167,25,8
+    LTEXT           "Memory usage for Compressing:",IDT_COMPRESS_MEMORY,8,190,152,8
+    RTEXT           "",IDT_COMPRESS_MEMORY_VALUE,160,190,40,8
+    LTEXT           "Memory usage for Decompressing:",IDT_COMPRESS_MEMORY_DE,8,206,152,8
+    RTEXT           "",IDT_COMPRESS_MEMORY_DE_VALUE,160,206,40,8
+    LTEXT           "Split to &volumes, bytes:",IDT_SPLIT_TO_VOLUMES,8,225,192,8
+    COMBOBOX        IDC_COMPRESS_VOLUME,8,237,192,73,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Parameters:",IDT_COMPRESS_PARAMETERS,8,256,192,8
+    EDITTEXT        IDE_COMPRESS_PARAMETERS,8,268,192,14,ES_AUTOHSCROLL
+    GROUPBOX        "NTFS",IDG_COMPRESS_NTFS,8,292,168,68
+    CONTROL         "Store symbolic links",IDX_COMPRESS_NT_SYM_LINKS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,304,152,10
+    CONTROL         "Store hard links",IDX_COMPRESS_NT_HARD_LINKS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,318,152,10
+    CONTROL         "Store alternate data streams",IDX_COMPRESS_NT_ALT_STREAMS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,332,152,10
+    CONTROL         "Store file security",IDX_COMPRESS_NT_SECUR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,346,152,10
+    LTEXT           "&Update mode:",IDT_COMPRESS_UPDATE_MODE,224,41,80,8
+    COMBOBOX        IDC_COMPRESS_UPDATE_MODE,308,39,100,80,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Path mode:",IDT_COMPRESS_PATH_MODE,224,61,80,8
+    COMBOBOX        IDC_COMPRESS_PATH_MODE,308,59,100,80,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Options",IDG_COMPRESS_OPTIONS,224,80,184,64
+    CONTROL         "Create SF&X archive",IDX_COMPRESS_SFX,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,232,94,168,10
+    CONTROL         "Compress shared files",IDX_COMPRESS_SHARED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,232,110,168,10
+    CONTROL         "Delete files after compression",IDX_COMPRESS_DEL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,232,126,168,10
+    GROUPBOX        "Encryption",IDG_COMPRESS_ENCRYPTION,224,152,184,128
+    LTEXT           "Enter &password:",IDT_PASSWORD_ENTER,232,166,168,8
+    EDITTEXT        IDE_COMPRESS_PASSWORD1,232,178,168,14,ES_PASSWORD | ES_AUTOHSCROLL
+    LTEXT           "Reenter password:",IDT_PASSWORD_REENTER,232,198,168,8
+    EDITTEXT        IDE_COMPRESS_PASSWORD2,232,210,168,14,ES_PASSWORD | ES_AUTOHSCROLL
+    CONTROL         "Show Password",IDX_PASSWORD_SHOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,232,231,168,10
+    LTEXT           "&Encryption method:",IDT_COMPRESS_ENCRYPTION_METHOD,232,247,100,8
+    COMBOBOX        IDC_COMPRESS_ENCRYPTION_METHOD,332,245,68,198,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Encrypt file &names",IDX_COMPRESS_ENCRYPT_FILE_NAMES,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,232,263,168,10
+    DEFPUSHBUTTON   "OK",IDOK,200,346,64,16,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,272,346,64,16
+    PUSHBUTTON      "Help",IDHELP,344,346,64,16
+END
+
+IDD_BENCH DIALOG 0, 0, 348, 264
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Benchmark"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    PUSHBUTTON      "&Restart",IDB_RESTART,276,8,64,16
+    PUSHBUTTON      "&Stop",IDB_STOP,276,30,64,16
+    PUSHBUTTON      "&Help",IDHELP,204,240,64,16
+    PUSHBUTTON      "Cancel",IDCANCEL,276,240,64,16
+    LTEXT           "&Dictionary size:",IDT_BENCH_DICTIONARY,8,9,90,8
+    COMBOBOX        IDC_BENCH_DICTIONARY,98,8,48,140,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Memory usage:",IDT_BENCH_MEMORY,154,6,122,8
+    LTEXT           "",IDT_BENCH_MEMORY_VAL,154,16,122,8
+    LTEXT           "&Number of CPU threads:",IDT_BENCH_NUM_THREADS,8,30,90,8
+    COMBOBOX        IDC_BENCH_NUM_THREADS,98,29,48,140,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "",IDT_BENCH_HARDWARE_THREADS,154,32,122,8
+    RTEXT           "CPU Usage",IDT_BENCH_USAGE_LABEL,152,54,60,8
+    RTEXT           "Speed",IDT_BENCH_SPEED,92,54,60,8
+    RTEXT           "Rating / Usage",IDT_BENCH_RPU_LABEL,212,54,60,8
+    RTEXT           "Rating",IDT_BENCH_RATING_LABEL,272,54,60,8
+    GROUPBOX        "Compressing",IDG_BENCH_COMPRESSING,8,64,332,40
+    LTEXT           "Current",IDT_BENCH_CURRENT,16,76,152,8
+    RTEXT           "",IDT_BENCH_COMPRESS_USAGE1,152,76,60,8
+    RTEXT           "",IDT_BENCH_COMPRESS_SPEED1,92,76,60,8
+    RTEXT           "",IDT_BENCH_COMPRESS_RPU1,212,76,60,8
+    RTEXT           "",IDT_BENCH_COMPRESS_RATING1,272,76,60,8
+    LTEXT           "Resulting",IDT_BENCH_RESULTING,16,89,152,8
+    RTEXT           "",IDT_BENCH_COMPRESS_USAGE2,152,89,60,8
+    RTEXT           "",IDT_BENCH_COMPRESS_SPEED2,92,89,60,8
+    RTEXT           "",IDT_BENCH_COMPRESS_RPU2,212,89,60,8
+    RTEXT           "",IDT_BENCH_COMPRESS_RATING2,272,89,60,8
+    GROUPBOX        "Decompressing",IDG_BENCH_DECOMPRESSING,8,111,332,40
+    LTEXT           "Current",IDT_BENCH_CURRENT2,16,123,152,8
+    RTEXT           "",IDT_BENCH_DECOMPR_USAGE1,152,123,60,8
+    RTEXT           "",IDT_BENCH_DECOMPR_SPEED1,92,123,60,8
+    RTEXT           "",IDT_BENCH_DECOMPR_RPU1,212,123,60,8
+    RTEXT           "",IDT_BENCH_DECOMPR_RATING1,272,123,60,8
+    LTEXT           "Resulting",IDT_BENCH_RESULTING2,16,136,152,8
+    RTEXT           "",IDT_BENCH_DECOMPR_USAGE2,152,136,60,8
+    RTEXT           "",IDT_BENCH_DECOMPR_SPEED2,92,136,60,8
+    RTEXT           "",IDT_BENCH_DECOMPR_RPU2,212,136,60,8
+    RTEXT           "",IDT_BENCH_DECOMPR_RATING2,272,136,60,8
+    GROUPBOX        "Total Rating",IDG_BENCH_TOTAL_RATING,144,163,196,32
+    RTEXT           "",IDT_BENCH_TOTAL_USAGE_VAL,152,176,60,8
+    RTEXT           "",IDT_BENCH_TOTAL_RPU_VAL,212,176,60,8
+    RTEXT           "",IDT_BENCH_TOTAL_RATING_VAL,272,176,60,8
+    RTEXT           "",IDT_BENCH_CPU,8,202,332,8
+    RTEXT           "",IDT_BENCH_VER,260,216,80,8
+    LTEXT           "",IDT_BENCH_CPU_FEATURE,8,212,252,26
+    LTEXT           "",IDT_BENCH_SYS1,8,238,192,8
+    LTEXT           "",IDT_BENCH_SYS2,8,248,192,8
+    LTEXT           "Elapsed time:",IDT_BENCH_ELAPSED,8,163,58,8
+    LTEXT           "Size:",IDT_BENCH_SIZE,8,176,58,8
+    LTEXT           "Passes:",IDT_BENCH_PASSES,8,189,58,8
+    RTEXT           "",IDT_BENCH_ELAPSED_VAL,66,163,36,8
+    RTEXT           "",IDT_BENCH_SIZE_VAL,66,176,36,8
+    RTEXT           "",IDT_BENCH_PASSES_VAL,66,189,36,8
+END
+
+IDD_BENCH_TOTAL DIALOG 0, 0, 376, 276
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Benchmark"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    LTEXT           "Elapsed time:",IDT_BENCH_ELAPSED,8,8,58,8
+    RTEXT           "",IDT_BENCH_ELAPSED_VAL,66,8,38,8
+    EDITTEXT        IDE_BENCH2_EDIT,8,22,360,222,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL | WS_HSCROLL
+    PUSHBUTTON      "&Help",IDHELP,232,252,64,16
+    PUSHBUTTON      "Cancel",IDCANCEL,304,252,64,16
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_BOOKMARK            "Bookmark"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_OPTIONS             "Options"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_MEM_ERROR           "The system cannot allocate the required amount of memory"
+    IDS_MESSAGE_NO_ERRORS   "There are no errors"
+    IDS_N_SELECTED_ITEMS    "{0} object(s) selected"
+    IDS_CANNOT_CREATE_FOLDER "Cannot create folder '{0}'"
+    IDS_UPDATE_NOT_SUPPORTED 
+                            "Update operations are not supported for this archive."
+    IDS_CANT_OPEN_ARCHIVE   "Can not open file '{0}' as archive"
+    IDS_CANT_OPEN_ENCRYPTED_ARCHIVE 
+                            "Can not open encrypted archive '{0}'. Wrong password?"
+    IDS_UNSUPPORTED_ARCHIVE_TYPE "Unsupported archive type"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_FILE_EXIST          "File {0} is already exist"
+    IDS_WANT_UPDATE_MODIFIED_FILE 
+                            "File '{0}' was modified.\nDo you want to update it in the archive?"
+    IDS_CANNOT_UPDATE_FILE  "Can not update file\n'{0}'"
+    IDS_CANNOT_START_EDITOR "Cannot start editor."
+    IDS_VIRUS               "The file looks like a virus (the file name contains long spaces in name)."
+    IDS_MESSAGE_UNSUPPORTED_OPERATION_FOR_LONG_PATH_FOLDER 
+                            "The operation cannot be called from a folder that has a long path."
+    IDS_SELECT_ONE_FILE     "You must select one file"
+    IDS_SELECT_FILES        "You must select one or more files"
+    IDS_TOO_MANY_ITEMS      "Too many items"
+    IDS_CANT_OPEN_AS_TYPE   "Can not open the file as {0} archive"
+    IDS_IS_OPEN_AS_TYPE     "The file is open as {0} archive"
+    IDS_IS_OPEN_WITH_OFFSET "The archive is open with offset"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_COPY                "Copy"
+    IDS_MOVE                "Move"
+    IDS_COPY_TO             "Copy to:"
+    IDS_MOVE_TO             "Move to:"
+    IDS_COPYING             "Copying..."
+    IDS_MOVING              "Moving..."
+    IDS_RENAMING            "Renaming..."
+    IDS_OPERATION_IS_NOT_SUPPORTED "Operation is not supported."
+    IDS_ERROR_RENAMING      "Error Renaming File or Folder"
+    IDS_CONFIRM_FILE_COPY   "Confirm File Copy"
+    IDS_WANT_TO_COPY_FILES  "Are you sure you want to copy files to archive"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_CONFIRM_FILE_DELETE "Confirm File Delete"
+    IDS_CONFIRM_FOLDER_DELETE "Confirm Folder Delete"
+    IDS_CONFIRM_ITEMS_DELETE "Confirm Multiple File Delete"
+    IDS_WANT_TO_DELETE_FILE "Are you sure you want to delete '{0}'?"
+    IDS_WANT_TO_DELETE_FOLDER 
+                            "Are you sure you want to delete the folder '{0}' and all its contents?"
+    IDS_WANT_TO_DELETE_ITEMS 
+                            "Are you sure you want to delete these {0} items?"
+    IDS_DELETING            "Deleting..."
+    IDS_ERROR_DELETING      "Error Deleting File or Folder"
+    IDS_ERROR_LONG_PATH_TO_RECYCLE 
+                            "The system cannot move a file with long path to the Recycle Bin"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_CREATE_FOLDER       "Create Folder"
+    IDS_CREATE_FILE         "Create File"
+    IDS_CREATE_FOLDER_NAME  "Folder name:"
+    IDS_CREATE_FILE_NAME    "File Name:"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_CREATE_FOLDER_DEFAULT_NAME "New Folder"
+    IDS_CREATE_FILE_DEFAULT_NAME "New File"
+    IDS_CREATE_FOLDER_ERROR "Error Creating Folder"
+    IDS_CREATE_FILE_ERROR   "Error Creating File"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_COMMENT             "Comment"
+    IDS_COMMENT2            "&Comment:"
+    IDS_SELECT              "Select"
+    IDS_DESELECT            "Deselect"
+    IDS_SELECT_MASK         "Mask:"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PROPERTIES          "Properties"
+    IDS_FOLDERS_HISTORY     "Folders History"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_COMPUTER            "Computer"
+    IDS_NETWORK             "Network"
+    IDS_DOCUMENTS           "Documents"
+    IDS_SYSTEM              "System"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_ADD                 "Add"
+    IDS_EXTRACT             "Extract"
+    IDS_TEST                "Test"
+    IDS_BUTTON_COPY         "Copy"
+    IDS_BUTTON_MOVE         "Move"
+    IDS_BUTTON_DELETE       "Delete"
+    IDS_BUTTON_INFO         "Info"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_SPLITTING           "Splitting..."
+    IDS_SPLIT_CONFIRM_TITLE "Confirm Splitting"
+    IDS_SPLIT_CONFIRM_MESSAGE 
+                            "Are you sure you want to split file into {0} volumes?"
+    IDS_SPLIT_VOL_MUST_BE_SMALLER 
+                            "Volume size must be smaller than size of original file"
+    IDS_INCORRECT_VOLUME_SIZE "Incorrect volume size"
+    IDS_SPLIT_CONFIRM       "Specified volume size: {0} bytes.\nAre you sure you want to split archive into such volumes?"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_COMBINE             "Combine Files"
+    IDS_COMBINE_TO          "&Combine to:"
+    IDS_COMBINING           "Combining..."
+    IDS_COMBINE_SELECT_ONE_FILE "Select only first part of split file"
+    IDS_COMBINE_CANT_DETECT_SPLIT_FILE "Can not detect file as split file"
+    IDS_COMBINE_CANT_FIND_MORE_THAN_ONE_PART 
+                            "Can not find more than one part of split file"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_FOLDERS_SET_WORK_PATH_TITLE 
+                            "Specify a location for temporary archive files."
+END
+
+STRINGTABLE
+BEGIN
+    IDS_LANG_ENGLISH        "English"
+    IDS_LANG_NATIVE         "English"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_FILE_SIZE           "{0} bytes"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PROGRESS_FOREGROUND "&Foreground"
+    IDS_PROGRESS_PAUSED     "Paused"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_CLOSE               "&Close"
+    IDS_CONTINUE            "&Continue"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PROGRESS_ASK_CANCEL "Are you sure you want to cancel?"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PROP_PATH           "Path"
+    IDS_PROP_NAME           "Name"
+    IDS_PROP_EXTENSION      "Extension"
+    IDS_PROP_IS_FOLDER      "Folder"
+    IDS_PROP_SIZE           "Size"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PROP_PACKED_SIZE    "Packed Size"
+    IDS_PROP_ATTRIBUTES     "Attributes"
+    IDS_PROP_CTIME          "Created"
+    IDS_PROP_ATIME          "Accessed"
+    IDS_PROP_MTIME          "Modified"
+    IDS_PROP_SOLID          "Solid"
+    IDS_PROP_C0MMENTED      "Commented"
+    IDS_PROP_ENCRYPTED      "Encrypted"
+    IDS_PROP_SPLIT_BEFORE   "Split Before"
+    IDS_PROP_SPLIT_AFTER    "Split After"
+    IDS_PROP_DICTIONARY_SIZE "Dictionary"
+    IDS_PROP_CRC            "CRC"
+    IDS_PROP_FILE_TYPE      "Type"
+    IDS_PROP_ANTI           "Anti"
+    IDS_PROP_METHOD         "Method"
+    IDS_PROP_HOST_OS        "Host OS"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PROP_FILE_SYSTEM    "File System"
+    IDS_PROP_USER           "User"
+    IDS_PROP_GROUP          "Group"
+    IDS_PROP_BLOCK          "Block"
+    IDS_PROP_COMMENT        "Comment"
+    IDS_PROP_POSITION       "Position"
+    IDS_PROP_PREFIX         "Path Prefix"
+    IDS_PROP_FOLDERS        "Folders"
+    IDS_PROP_FILES          "Files"
+    IDS_PROP_VERSION        "Version"
+    IDS_PROP_VOLUME         "Volume"
+    IDS_PROP_IS_VOLUME      "Multivolume"
+    IDS_PROP_OFFSET         "Offset"
+    IDS_PROP_LINKS          "Links"
+    IDS_PROP_NUM_BLOCKS     "Blocks"
+    IDS_PROP_NUM_VOLUMES    "Volumes"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PROP_BIT64          "64-bit"
+    IDS_PROP_BIG_ENDIAN     "Big-endian"
+    IDS_PROP_CPU            "CPU"
+    IDS_PROP_PHY_SIZE       "Physical Size"
+    IDS_PROP_HEADERS_SIZE   "Headers Size"
+    IDS_PROP_CHECKSUM       "Checksum"
+    IDS_PROP_CHARACTS       "Characteristics"
+    IDS_PROP_VA             "Virtual Address"
+    IDS_PROP_ID             "ID"
+    IDS_PROP_SHORT_NAME     "Short Name"
+    IDS_PROP_CREATOR_APP    "Creator Application"
+    IDS_PROP_SECTOR_SIZE    "Sector Size"
+    IDS_PROP_POSIX_ATTRIB   "Mode"
+    IDS_PROP_SYM_LINK       "Symbolic Link"
+    IDS_PROP_ERROR          "Error"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PROP_TOTAL_SIZE     "Total Size"
+    IDS_PROP_FREE_SPACE     "Free Space"
+    IDS_PROP_CLUSTER_SIZE   "Cluster Size"
+    IDS_PROP_VOLUME_NAME    "Label"
+    IDS_PROP_LOCAL_NAME     "Local Name"
+    IDS_PROP_PROVIDER       "Provider"
+    IDS_PROP_NT_SECURITY    "NT Security"
+    IDS_PROP_ALT_STREAM     "Alternate Stream"
+    IDS_PROP_AUX            "Aux"
+    IDS_PROP_DELETED        "Deleted"
+    IDS_PROP_IS_TREE        "Is Tree"
+    IDS_PROP_SHA1           "SHA-1"
+    IDS_PROP_SHA256         "SHA-256"
+    IDS_PROP_ERROR_TYPE     "Error Type"
+    IDS_PROP_NUM_ERRORS     "Errors"
+    IDS_PROP_ERROR_FLAGS    "Errors"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PROP_WARNING_FLAGS  "Warnings"
+    IDS_PROP_WARNING        "Warning"
+    IDS_PROP_NUM_STREAMS    "Streams"
+    IDS_PROP_NUM_ALT_STREAMS "Alternate Streams"
+    IDS_PROP_ALT_STREAMS_SIZE "Alternate Streams Size"
+    IDS_PROP_VIRTUAL_SIZE   "Virtual Size"
+    IDS_PROP_UNPACK_SIZE    "Unpack Size"
+    IDS_PROP_TOTAL_PHY_SIZE "Total Physical Size"
+    IDS_PROP_VOLUME_INDEX   "Volume Index"
+    IDS_PROP_SUBTYPE        "SubType"
+    IDS_PROP_SHORT_COMMENT  "Short Comment"
+    IDS_PROP_CODE_PAGE      "Code Page"
+    IDS_PROP_IS_NOT_ARC_TYPE "Is not archive type"
+    IDS_PROP_PHY_SIZE_CANT_BE_DETECTED "Physical Size can't be detected"
+    IDS_PROP_ZEROS_TAIL_IS_ALLOWED "Zeros Tail Is Allowed"
+    IDS_PROP_TAIL_SIZE      "Tail Size"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PROP_EMB_STUB_SIZE  "Embedded Stub Size"
+    IDS_PROP_NT_REPARSE     "Link"
+    IDS_PROP_HARD_LINK      "Hard Link"
+    IDS_PROP_INODE          "iNode"
+    IDS_PROP_STREAM_ID      "Stream ID"
+    IDS_PROP_READ_ONLY      "Read-only"
+    IDS_PROP_OUT_NAME       "Out Name"
+    IDS_PROP_COPY_LINK      "Copy Link"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_SYSTEM_ALL_USERS    "All users"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PROGRESS_EXTRACTING "Extracting"
+    IDS_PROGRESS_COMPRESSING "Compressing"
+    IDS_PROGRESS_TESTING    "Testing"
+    IDS_OPENNING            "Opening..."
+    IDS_SCANNING            "Scanning..."
+    IDS_PROGRESS_REMOVE     "Removing"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PROGRESS_ADD        "Adding"
+    IDS_PROGRESS_UPDATE     "Updating"
+    IDS_PROGRESS_ANALYZE    "Analyzing"
+    IDS_PROGRESS_REPLICATE  "Replicating"
+    IDS_PROGRESS_REPACK     "Repacking"
+    IDS_PROGRESS_SKIPPING   "Skipping"
+    IDS_PROGRESS_DELETE     "Deleting"
+    IDS_PROGRESS_HEADER     "Header creating"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_EXTRACT_SET_FOLDER  "Specify a location for extracted files."
+END
+
+STRINGTABLE
+BEGIN
+    IDS_EXTRACT_PATHS_FULL  "Full pathnames"
+    IDS_EXTRACT_PATHS_NO    "No pathnames"
+    IDS_EXTRACT_PATHS_ABS   "Absolute pathnames"
+    IDS_PATH_MODE_RELAT     "Relative pathnames"
+    IDS_EXTRACT_OVERWRITE_ASK "Ask before overwrite"
+    IDS_EXTRACT_OVERWRITE_WITHOUT_PROMPT "Overwrite without prompt"
+    IDS_EXTRACT_OVERWRITE_SKIP_EXISTING "Skip existing files"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_EXTRACT_OVERWRITE_RENAME "Auto rename"
+    IDS_EXTRACT_OVERWRITE_RENAME_EXISTING "Auto rename existing files"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_EXTRACT_MESSAGE_UNSUPPORTED_METHOD 
+                            "Unsupported compression method for '{0}'."
+    IDS_EXTRACT_MESSAGE_DATA_ERROR "Data error in '{0}'. File is broken"
+    IDS_EXTRACT_MESSAGE_CRC_ERROR "CRC failed in '{0}'. File is broken."
+    IDS_EXTRACT_MESSAGE_DATA_ERROR_ENCRYPTED 
+                            "Data error in encrypted file '{0}'. Wrong password?"
+    IDS_EXTRACT_MESSAGE_CRC_ERROR_ENCRYPTED 
+                            "CRC failed in encrypted file '{0}'. Wrong password?"
+    IDS_EXTRACT_MSG_WRONG_PSW_GUESS "Wrong password?"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_EXTRACT_MSG_UNSUPPORTED_METHOD "Unsupported compression method"
+    IDS_EXTRACT_MSG_DATA_ERROR "Data error"
+    IDS_EXTRACT_MSG_CRC_ERROR "CRC failed"
+    IDS_EXTRACT_MSG_UNAVAILABLE_DATA "Unavailable data"
+    IDS_EXTRACT_MSG_UEXPECTED_END "Unexpected end of data"
+    IDS_EXTRACT_MSG_DATA_AFTER_END 
+                            "There are some data after the end of the payload data"
+    IDS_EXTRACT_MSG_IS_NOT_ARC "Is not archive"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_EXTRACT_MSG_HEADERS_ERROR "Headers Error"
+    IDS_EXTRACT_MSG_WRONG_PSW_CLAIM "Wrong password"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_OPEN_MSG_UNAVAILABLE_START "Unavailable start of archive"
+    IDS_OPEN_MSG_UNCONFIRMED_START "Unconfirmed start of archive"
+    IDS_OPEN_MSG_UNSUPPORTED_FEATURE "Unsupported feature"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_CONTEXT_FOLDER      "<Folder>"
+    IDS_CONTEXT_ARCHIVE     "<Archive>"
+    IDS_CONTEXT_OPEN        "Open archive"
+    IDS_CONTEXT_EXTRACT     "Extract files..."
+    IDS_CONTEXT_COMPRESS    "Add to archive..."
+    IDS_CONTEXT_TEST        "Test archive"
+    IDS_CONTEXT_EXTRACT_HERE "Extract Here"
+    IDS_CONTEXT_EXTRACT_TO  "Extract to {0}"
+    IDS_CONTEXT_COMPRESS_TO "Add to {0}"
+    IDS_CONTEXT_COMPRESS_EMAIL "Compress and email..."
+    IDS_CONTEXT_COMPRESS_TO_EMAIL "Compress to {0} and email"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_CHECKSUM_CALCULATING "Checksum calculating..."
+    IDS_CHECKSUM_INFORMATION "Checksum information"
+    IDS_CHECKSUM_CRC_DATA   "CRC checksum for data:"
+    IDS_CHECKSUM_CRC_DATA_NAMES "CRC checksum for data and names:"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_CHECKSUM_CRC_STREAMS_NAMES "CRC checksum for streams and names:"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_PASSWORD_NOT_MATCH  "Passwords do not match"
+    IDS_PASSWORD_USE_ASCII  "Use only English letters, numbers and special characters (!, #, $, ...) for password."
+    IDS_PASSWORD_TOO_LONG   "Password is too long"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_METHOD_STORE        "Store"
+    IDS_METHOD_FASTEST      "Fastest"
+    IDS_METHOD_FAST         "Fast"
+    IDS_METHOD_NORMAL       "Normal"
+    IDS_METHOD_MAXIMUM      "Maximum"
+    IDS_METHOD_ULTRA        "Ultra"
+    IDS_COMPRESS_UPDATE_MODE_ADD "Add and replace files"
+    IDS_COMPRESS_UPDATE_MODE_UPDATE "Update and add files"
+    IDS_COMPRESS_UPDATE_MODE_FRESH "Freshen existing files"
+    IDS_COMPRESS_UPDATE_MODE_SYNC "Synchronize files"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_COMPRESS_SET_ARCHIVE_BROWSE "Browse"
+    IDS_OPEN_TYPE_ALL_FILES "All Files"
+    IDS_COMPRESS_NON_SOLID  "Non-solid"
+    IDS_COMPRESS_SOLID      "Solid"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_ARCHIVES_COLON      "Archives:"
+END
+
+STRINGTABLE
+BEGIN
+    100                     "7z zip rar 001 cab iso xz txz lzma tar cpio bz2 bzip2 tbz2 tbz gz gzip tgz tpz z taz lzh lha rpm deb arj vhd wim swm fat ntfs dmg hfs xar squashfs"
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
