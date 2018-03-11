@@ -961,7 +961,7 @@ namespace NArchive {
 			CMyComPtr<IUnknown> lockedInStream = lockedInStreamSpec;
 			bool needMtLock = false;
 			if(folderInfo.PackStreams.Size() > 1) {
-				// lockedInStream.Pos = (uint64)(Int64)-1;
+				// lockedInStream.Pos = (uint64)(int64)-1;
 				// RINOK(inStream->Seek(0, STREAM_SEEK_CUR, &lockedInStream.Pos));
 				RINOK(inStream->Seek(startPos + packPositions[0], STREAM_SEEK_SET, &lockedInStreamSpec->Pos));
 				lockedInStreamSpec->Stream = inStream;
@@ -1681,12 +1681,10 @@ namespace NArchive {
 		HRESULT CInArchive::FindAndReadSignature(IInStream * stream, const uint64 * searchHeaderSizeLimit)
 		{
 			RINOK(ReadStream_FALSE(stream, _header, kHeaderSize));
-
 			if(TestSignature2(_header))
 				return S_OK;
 			if(searchHeaderSizeLimit && *searchHeaderSizeLimit == 0)
 				return S_FALSE;
-
 			const uint32 kBufSize = 1 << 15;
 			CByteArr buf(kBufSize);
 			memcpy(buf, _header, kHeaderSize);
@@ -2931,7 +2929,7 @@ namespace NArchive {
 			db.ArcInfo.StartPositionAfterHeader = _arhiveBeginStreamPosition + kHeaderSize;
 			db.PhySize = kHeaderSize;
 			db.IsArc = false;
-			if((Int64)nextHeaderOffset < 0 || nextHeaderSize > ((uint64)1 << 62))
+			if((int64)nextHeaderOffset < 0 || nextHeaderSize > ((uint64)1 << 62))
 				return S_FALSE;
 			if(nextHeaderSize == 0) {
 				if(nextHeaderOffset != 0)
@@ -7296,11 +7294,9 @@ namespace NArchive {
 			updateCallback->QueryInterface(IID_ICryptoGetTextPassword, (void**)&getPassword);
 
 			/*
-			   if(secureBlocks.Sorted.Size() > 1)
-			   {
+			   if(secureBlocks.Sorted.Size() > 1) {
 			   secureBlocks.GetReverseMap();
-			   for(int i = 0; i < updateItems.Size(); i++)
-			   {
+			   for(int i = 0; i < updateItems.Size(); i++) {
 				int &secureIndex = updateItems[i].SecureIndex;
 				secureIndex = secureBlocks.BufIndexToSortedIndex[secureIndex];
 			   }
@@ -7354,8 +7350,8 @@ namespace NArchive {
 			return S_OK;
 		}
 
-		void COutHandler::InitSolidFiles() { _numSolidFiles = (uint64)(Int64)(-1); }
-		void COutHandler::InitSolidSize()  { _numSolidBytes = (uint64)(Int64)(-1); }
+		void COutHandler::InitSolidFiles() { _numSolidFiles = (uint64)(int64)(-1); }
+		void COutHandler::InitSolidSize()  { _numSolidBytes = (uint64)(int64)(-1); }
 
 		void COutHandler::InitSolid()
 		{

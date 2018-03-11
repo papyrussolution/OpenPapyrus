@@ -1411,8 +1411,8 @@ int FASTCALL PPLogMessage(const char * pFileName, const char * pStr, long option
 
 int FASTCALL PPLogMessage(uint fileId, const char * pStr, long options)
 {
-	SString file_name;
-	return PPGetFilePath(PPPATH_LOG, fileId, file_name) ? PPLogMessage(file_name, pStr, options) : 0;
+	SString & r_file_name = SLS.AcquireRvlStr(); // @v9.9.10
+	return PPGetFilePath(PPPATH_LOG, fileId, r_file_name) ? PPLogMessage(r_file_name, pStr, options) : 0;
 }
 
 int FASTCALL PPLogMessageList(uint fileId, const SStrCollection & rList, long options)
@@ -1434,9 +1434,9 @@ int FASTCALL PPLogMessageList(uint fileId, const SStrCollection & rList, long op
 
 int FASTCALL PPLogMessage(uint fileId, uint strGroup, uint strId, long options)
 {
-	SString msg_buf;
-	PPLoadString(strGroup, strId, msg_buf);
-	return PPLogMessage(fileId, msg_buf, options);
+	SString & r_msg_buf = SLS.AcquireRvlStr(); // @v9.9.10
+	PPLoadString(strGroup, strId, r_msg_buf);
+	return PPLogMessage(fileId, r_msg_buf, options);
 }
 //
 // Implementation of PPALDD_LogList

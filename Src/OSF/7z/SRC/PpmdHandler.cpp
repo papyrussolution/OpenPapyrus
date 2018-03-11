@@ -41,9 +41,8 @@ namespace NArchive {
 			Order = (info & 0xF) + 1;
 			MemInMB = ((info >> 4) & 0xFF) + 1;
 			Ver = info >> 12;
-
-			if(Ver < 6 || Ver > 11) return S_FALSE;
-
+			if(Ver < 6 || Ver > 11) 
+				return S_FALSE;
 			uint32 nameLen = GetUi16(h + 10);
 			Restor = nameLen >> 14;
 			if(Restor > 2)
@@ -196,36 +195,34 @@ namespace NArchive {
 		};
 
 		extern "C" {
-		#define GET_RangeDecoder CRangeDecoder *p = CONTAINER_FROM_VTBL(pp, CRangeDecoder, vt);
+			#define GET_RangeDecoder CRangeDecoder *p = CONTAINER_FROM_VTBL(pp, CRangeDecoder, vt);
 
-		static uint32 Range_GetThreshold(const IPpmd7_RangeDec * pp, uint32 total)
-		{
-			GET_RangeDecoder
-			return p->Code / (p->Range /= total);
-		}
-
-		static void Range_Decode(const IPpmd7_RangeDec * pp, uint32 start, uint32 size)
-		{
-			GET_RangeDecoder
-				start *= p->Range;
-			p->Low += start;
-			p->Code -= start;
-			p->Range *= size;
-			p->Normalize();
-		}
-
-		static uint32 Range_DecodeBit(const IPpmd7_RangeDec * pp, uint32 size0)
-		{
-			GET_RangeDecoder
-			if(p->Code / (p->Range >>= 14) < size0) {
-				Range_Decode(&p->vt, 0, size0);
-				return 0;
+			static uint32 Range_GetThreshold(const IPpmd7_RangeDec * pp, uint32 total)
+			{
+				GET_RangeDecoder
+				return p->Code / (p->Range /= total);
 			}
-			else {
-				Range_Decode(&p->vt, size0, (1 << 14) - size0);
-				return 1;
+			static void Range_Decode(const IPpmd7_RangeDec * pp, uint32 start, uint32 size)
+			{
+				GET_RangeDecoder
+					start *= p->Range;
+				p->Low += start;
+				p->Code -= start;
+				p->Range *= size;
+				p->Normalize();
 			}
-		}
+			static uint32 Range_DecodeBit(const IPpmd7_RangeDec * pp, uint32 size0)
+			{
+				GET_RangeDecoder
+				if(p->Code / (p->Range >>= 14) < size0) {
+					Range_Decode(&p->vt, 0, size0);
+					return 0;
+				}
+				else {
+					Range_Decode(&p->vt, size0, (1 << 14) - size0);
+					return 1;
+				}
+			}
 		}
 
 		CRangeDecoder::CRangeDecoder()

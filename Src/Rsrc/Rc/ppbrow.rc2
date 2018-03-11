@@ -6163,6 +6163,26 @@ browser JOB north(100), 1, 0, "Серверные задачи", OWNER|GRID, 0
 		CHANGEFILT       :  kbCtrlV,    TBBM_FILTER,          "@{filter}\tCtrl-V"
 	}
 }
+
+browser PHNSVCMONITOR north(100), 1, 0, "@{view_phnsvcmonitor}", OWNER|GRID, 0
+{
+	"Channel",               1,  zstring(64), 0,  20, BCO_USERPROC
+	"State",                 2,  zstring(16), 0,   6, BCO_USERPROC
+	"Priority",              3,  int32,       0,   6, BCO_USERPROC
+	"Seconds",               4,  int32,       0,   8, BCO_USERPROC
+	"TimeToHungUp",          5,  int32,       0,   8, BCO_USERPROC
+	"CallerId",              6,  zstring(24), 0,  10, BCO_USERPROC
+	"CallerName",            7,  zstring(64), 0,  20, BCO_USERPROC
+	"ConnectedLineNum",      8,  zstring(24), 0,  10, BCO_USERPROC
+	"ConnectedLineName",     9,  zstring(64), 0,  20, BCO_USERPROC
+	"EffConnectedLineNum",  10,  zstring(24), 0,  10, BCO_USERPROC
+	"EffConnectedLineName", 11,  zstring(64), 0,  20, BCO_USERPROC
+	"Context",              12,  zstring(20), 0,  10, BCO_USERPROC
+	"Exten",                13,  zstring(20), 0,  10, BCO_USERPROC
+	"DnId",                 14,  zstring(40), 0,   6, BCO_USERPROC
+	"Application",          15,  zstring(64), 0,  20, BCO_USERPROC
+	"Data",                 16,  zstring(64), 0,  20, BCO_USERPROC
+}
 //
 // -------------- Описания команд меню и рабочих столов
 //
@@ -6500,6 +6520,7 @@ cmd ProcessSartre         { "@{cmd_importsartre}"                          none 
 cmd BillAutoCreate        { "@{cmd_billautocreate}"                        none                   none cmBillAutoCreate } // @v9.7.10
 cmd TestTDDO2             { "@{cmd_testtddo2}"                             ICON_TEST              none cmTestTddo2 } // @v9.8.3
 cmd TestVetis             { "@{cmd_testvetis}"                             ICON_TEST              none cmTestVetis } // @v9.8.9
+cmd PhnSvcMonitor         { "@{cmd_phnsvcmonitor}"                         none                   none cmViewPhnSvcMonitor } // @v9.9.10
 //
 // -------------- Описания серверных задач
 //
@@ -6553,96 +6574,96 @@ job QueryEGAIS           { "@{job_queryegais}" } // @v9.3.2
 // -------------- Описания объектов PPView и фильтров.
 // ATTENTION: Новые описания И view И filter добавлять строго в конец списка.
 //
-view   CCheck          { "@{view_ccheck}" }
-view   TrfrAnlz        { "@{view_trfranlz}" }
-view   StaffList       { "@{view_stafflist}" }
-view   StaffPost       { "@{view_staffpost}" }
-view   Salary          { "@{view_salary}" }
-view   Processor       { "@{view_processor}" }
-view   Lot             { "@{view_lot}" }
-view   PersonEvent     { "@{view_personevent}" }
-view   GoodsOpAnalyze  { "@{view_goodsopanalyze}" }
-view   Quot            { "@{view_quot}" }
-view   PrcBusy         { "@{view_prcbusy}" }
-view   StaffCal        { "@{view_staffcal}" }
-view   SysJournal      { "@{view_sysjournal}"  }
-view   Goods           { "@{view_goods}" }
-view   GoodsGroup      { "@{view_goodsgroup}" }
-view   GoodsRest       { "@{view_goodsrest}" }
-view   Bill            { "@{view_bill}" }
-view   PrjTask         { "@{view_prjtask}" }
-view   ObjSync         { "@{view_objsync}" }
-view   ObjSyncCmp      { "@{view_objsynccmp}" }
-view   ObjSyncQueue    { "@{view_objsyncqueue}" }
-view   Person          { "@{view_person}" }
-view   Register        { "@{view_register}" }
-view   Tag             { "@{view_tag}" }
-view   SStat           { "@{view_sstat}" }
-view   SCard           { "@{view_scard}"  }
-view   SCardOp         { "@{view_scardop}" }
-view   Freight         { "@{view_freight}" }
-view   OpGrouping      { "@{view_opgrouping}" }
-view   PersonRel       { "@{view_personrel}" }
-view   CSessExc        { "@{view_csessexc}" }
-view   DebtTrnovr      { "@{view_debttrnovr}" }
-view   Project         { "@{view_project}" }
-view   GoodsStruc      { "@{view_goodsstruc}" }
-view   TSession        { "@{view_tsession}" }
-view   TSessAnlz       { "@{view_tsessanlz}" }
-view   CurRate         { "@{view_currate}" }
-view   ObjLikeness     { "@{view_objlikeness}" }
-view   GoodsToObjAssoc { "@{view_goodstoobjassoc}" }
-view   QCert           { "@{view_qcert}" }
-view   Article         { "@{view_article}" }
-view   AccAnlz         { "@{view_accanlz}" }
-view   PriceList       { "@{view_pricelist}" }
-view   VatBook         { "@{view_vatbook}" }
-view   CSess           { "@{view_csess}" }
-view   PriceAnlz       { "@{view_priceanlz}" }
-view   Scale           { "@{view_scale}" }
-view   CashNode        { "@{view_cashnode}" }
-view   Report          { "@{view_report}" }
-view   LogsMonitor     { "@{view_logsmonitor}" }
-view   BizScore        { "@{view_bizscore}" }
-view   BizScoreVal     { "@{view_bizscoreval}" }
-view   PredictSales    { "@{view_predictsales}" }
-view   GoodsTaxAnalyze { "@{view_goodstaxanalyze}" }
-view   DebtorStat      { "@{view_debtorstat}" }
-view   Accturn         { "@{view_accturn}" }
-view   Account         { "@{view_account}" }
-view   LocTransf       { "@{view_loctransf}" }
-view   Palm            { "@{view_palm}" }
-view   BBoard          { "@{view_bboard}" }
-view   Asset           { "@{view_asset}" }
-view   ShipmAnalyze    { "@{view_shipmanalyze}" }
-view   Transport       { "@{view_transport}" }
-view   PaymPlan        { "@{view_paymplan}" }
-view   GoodsBillCmp    { "@{view_goodsbillcmp}" }
-view   ServerStat      { "@{view_serverstat}" }
-view   AmountType      { "@{view_amounttype}" }
-view   RegisterType    { "@{view_registertype}" }
-view   GoodsMov        { "@{view_goodsmov}" }
-view   LotOp           { "@{view_lotop}" }
-view   Budget          { "@{view_budget}" }
-view   BizScTempl      { "@{view_bizsctempl}" }
-view   BizScValByTempl { "@{view_bizscvalbytempl}" }
-view   CheckOpJrnl     { "@{view_checkopjrnl}" }
-view   GoodsMov2       { "@{view_goodsmov2}" }
-view   Inventory       { "@{view_inventory}" }
-view   StockOpt        { "@{view_stockopt}" }
-view   MrpTab          { "@{view_mrptab}" }
-view   MrpLine         { "@{view_mrpline}" }
-view   LinkedBill      { "@{view_linkedbill}" }
-view   Balance         { "@{view_balance}" }
-view   Dialog          { "@{view_dialog}" }
-view   DvcLoadingStat  { "@{view_dvcloadingstat}" }
-view   SpecSeries      { "@{view_specseries}" }
+view   CCheck                  { "@{view_ccheck}" }
+view   TrfrAnlz                { "@{view_trfranlz}" }
+view   StaffList               { "@{view_stafflist}" }
+view   StaffPost               { "@{view_staffpost}" }
+view   Salary                  { "@{view_salary}" }
+view   Processor               { "@{view_processor}" }
+view   Lot                     { "@{view_lot}" }
+view   PersonEvent             { "@{view_personevent}" }
+view   GoodsOpAnalyze          { "@{view_goodsopanalyze}" }
+view   Quot                    { "@{view_quot}" }
+view   PrcBusy                 { "@{view_prcbusy}" }
+view   StaffCal                { "@{view_staffcal}" }
+view   SysJournal              { "@{view_sysjournal}"  }
+view   Goods                   { "@{view_goods}" }
+view   GoodsGroup              { "@{view_goodsgroup}" }
+view   GoodsRest               { "@{view_goodsrest}" }
+view   Bill                    { "@{view_bill}" }
+view   PrjTask                 { "@{view_prjtask}" }
+view   ObjSync                 { "@{view_objsync}" }
+view   ObjSyncCmp              { "@{view_objsynccmp}" }
+view   ObjSyncQueue            { "@{view_objsyncqueue}" }
+view   Person                  { "@{view_person}" }
+view   Register                { "@{view_register}" }
+view   Tag                     { "@{view_tag}" }
+view   SStat                   { "@{view_sstat}" }
+view   SCard                   { "@{view_scard}"  }
+view   SCardOp                 { "@{view_scardop}" }
+view   Freight                 { "@{view_freight}" }
+view   OpGrouping              { "@{view_opgrouping}" }
+view   PersonRel               { "@{view_personrel}" }
+view   CSessExc                { "@{view_csessexc}" }
+view   DebtTrnovr              { "@{view_debttrnovr}" }
+view   Project                 { "@{view_project}" }
+view   GoodsStruc              { "@{view_goodsstruc}" }
+view   TSession                { "@{view_tsession}" }
+view   TSessAnlz               { "@{view_tsessanlz}" }
+view   CurRate                 { "@{view_currate}" }
+view   ObjLikeness             { "@{view_objlikeness}" }
+view   GoodsToObjAssoc         { "@{view_goodstoobjassoc}" }
+view   QCert                   { "@{view_qcert}" }
+view   Article                 { "@{view_article}" }
+view   AccAnlz                 { "@{view_accanlz}" }
+view   PriceList               { "@{view_pricelist}" }
+view   VatBook                 { "@{view_vatbook}" }
+view   CSess                   { "@{view_csess}" }
+view   PriceAnlz               { "@{view_priceanlz}" }
+view   Scale                   { "@{view_scale}" }
+view   CashNode                { "@{view_cashnode}" }
+view   Report                  { "@{view_report}" }
+view   LogsMonitor             { "@{view_logsmonitor}" }
+view   BizScore                { "@{view_bizscore}" }
+view   BizScoreVal             { "@{view_bizscoreval}" }
+view   PredictSales            { "@{view_predictsales}" }
+view   GoodsTaxAnalyze         { "@{view_goodstaxanalyze}" }
+view   DebtorStat              { "@{view_debtorstat}" }
+view   Accturn                 { "@{view_accturn}" }
+view   Account                 { "@{view_account}" }
+view   LocTransf               { "@{view_loctransf}" }
+view   Palm                    { "@{view_palm}" }
+view   BBoard                  { "@{view_bboard}" }
+view   Asset                   { "@{view_asset}" }
+view   ShipmAnalyze            { "@{view_shipmanalyze}" }
+view   Transport               { "@{view_transport}" }
+view   PaymPlan                { "@{view_paymplan}" }
+view   GoodsBillCmp            { "@{view_goodsbillcmp}" }
+view   ServerStat              { "@{view_serverstat}" }
+view   AmountType              { "@{view_amounttype}" }
+view   RegisterType            { "@{view_registertype}" }
+view   GoodsMov                { "@{view_goodsmov}" }
+view   LotOp                   { "@{view_lotop}" }
+view   Budget                  { "@{view_budget}" }
+view   BizScTempl              { "@{view_bizsctempl}" }
+view   BizScValByTempl         { "@{view_bizscvalbytempl}" }
+view   CheckOpJrnl             { "@{view_checkopjrnl}" }
+view   GoodsMov2               { "@{view_goodsmov2}" }
+view   Inventory               { "@{view_inventory}" }
+view   StockOpt                { "@{view_stockopt}" }
+view   MrpTab                  { "@{view_mrptab}" }
+view   MrpLine                 { "@{view_mrpline}" }
+view   LinkedBill              { "@{view_linkedbill}" }
+view   Balance                 { "@{view_balance}" }
+view   Dialog                  { "@{view_dialog}" }
+view   DvcLoadingStat          { "@{view_dvcloadingstat}" }
+view   SpecSeries              { "@{view_specseries}" }
 // ATTENTION: новые описания view вставлять строго перед строкой lastviewfilter (ниже)
-filter CashNodePane          { "@{filter_cashnodepane}" }
-filter PrcssrWrOffDraftParam { "@{filter_prcssrwroffdraftparam}" }
-filter PrcssrUnifyPriceParam { "@{filter_prcssrunifypriceparam}" }
-filter InfoKioskPane         { "@{filter_infokioskpane}" }
-filter QuotUpd               { "@{filter_quotupd}" }
+filter CashNodePane            { "@{filter_cashnodepane}" }
+filter PrcssrWrOffDraftParam   { "@{filter_prcssrwroffdraftparam}" }
+filter PrcssrUnifyPriceParam   { "@{filter_prcssrunifypriceparam}" }
+filter InfoKioskPane           { "@{filter_infokioskpane}" }
+filter QuotUpd                 { "@{filter_quotupd}" }
 view   GtaJournal              { "@{view_gtajournal}" }
 view   UhttSCardOp             { "@{view_uhttscardop}" }
 view   GlobalUserAcc           { "@{view_globaluseracc}" }
@@ -6650,15 +6671,15 @@ view   Tech                    { "@{view_tech}" }
 view   DBDiv                   { "@{view_dbdiv}" }
 view   Brand                   { "@{view_brand}" }
 view   DBMonitor               { "@{view_dbmonitor}" }
-filter AddPersonEvent        { "@{filter_addpersonevent}" }
+filter AddPersonEvent          { "@{filter_addpersonevent}" }
 view   SuprWare                { "@{view_suprware}" }
-filter PrcssrObjTextParam    { "@{filter_prcssrobjtextparam}" }
+filter PrcssrObjTextParam      { "@{filter_prcssrobjtextparam}" }
 view   UserProfile             { "@{view_userprofile}" }
 view   Job                     { "@{view_job}" }
-filter Location              { "@{filter_location}" } // @v8.1.9
-filter Tex2HtmlParam         { "@{filter_tex2htmlparam}" } // @v8.3.3
-filter Ver2HtmlParam         { "@{filter_ver2htmlparam}" } // @v8.3.12
-filter BillTransmitParam     { "@{filter_billtransmitparam}" } // @v8.6.2
+filter Location                { "@{filter_location}" } // @v8.1.9
+filter Tex2HtmlParam           { "@{filter_tex2htmlparam}" } // @v8.3.3
+filter Ver2HtmlParam           { "@{filter_ver2htmlparam}" } // @v8.3.12
+filter BillTransmitParam       { "@{filter_billtransmitparam}" } // @v8.6.2
 view   GeoTracking             { "@{view_geotracking}" } // @v8.6.11
 view   LotExtCode              { "@{view_lotextcode}"} // @v8.8.2
 filter SupplInterchange        { "@{filter_supplinterchange}" } // @v9.2.1
@@ -6667,6 +6688,7 @@ filter GCT                     { "@{filter_gct}"   } // @v9.3.6
 filter PrcssrOsmParam          { "@{filter_prcssrosm}" } // @v9.5.9
 filter BillAutoCreateParam     { "@{filter_billautocreateparam}" } // @v9.7.8
 filter PrcssrSartreParam       { "@{filter_prcssrsartre}" } // @v9.7.8
+view   PhnSvcMonitor           { "@{view_phnsvcmonitor}" } // @v9.9.10
 //
 // lastviewfilter ATTENTION: New view && filt befor this line!
 //

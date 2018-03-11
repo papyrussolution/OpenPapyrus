@@ -31,7 +31,7 @@ HRESULT SResToHRESULT(SRes res) throw()
 	return E_FAIL;
 }
 
-#define PROGRESS_UNKNOWN_VALUE ((uint64)(Int64)-1)
+#define PROGRESS_UNKNOWN_VALUE ((uint64)(int64)-1)
 
 #define CONVERT_PR_VAL(x) (x == PROGRESS_UNKNOWN_VALUE ? NULL : &x)
 
@@ -102,7 +102,7 @@ static SRes InStreamWrap_Read(const ISeekInStream * pp, void * data, size_t * si
 	return (p->Res == S_OK) ? SZ_OK : SZ_ERROR_READ;
 }
 
-static SRes InStreamWrap_Seek(const ISeekInStream * pp, Int64 * offset, ESzSeek origin) throw()
+static SRes InStreamWrap_Seek(const ISeekInStream * pp, int64 * offset, ESzSeek origin) throw()
 {
 	CSeekInStreamWrap * p = CONTAINER_FROM_VTBL(pp, CSeekInStreamWrap, vt);
 	uint32 moveMethod;
@@ -114,7 +114,7 @@ static SRes InStreamWrap_Seek(const ISeekInStream * pp, Int64 * offset, ESzSeek 
 	}
 	uint64 newPosition;
 	p->Res = p->Stream->Seek(*offset, moveMethod, &newPosition);
-	*offset = (Int64)newPosition;
+	*offset = (int64)newPosition;
 	return (p->Res == S_OK) ? SZ_OK : SZ_ERROR_READ;
 }
 

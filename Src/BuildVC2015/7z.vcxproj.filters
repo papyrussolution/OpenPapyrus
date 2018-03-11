@@ -21,10 +21,8 @@
     <ClCompile Include="..\OSF\7z\SRC\Sha256Reg.cpp" />
     <ClCompile Include="..\osf\7z\SRC\ZHandler.cpp" />
     <ClCompile Include="..\OSF\7z\SRC\CoderMixer2.cpp" />
-    <ClCompile Include="..\OSF\7z\SRC\MultiStream.cpp" />
     <ClCompile Include="..\osf\7z\SRC\CreateCoder.cpp" />
     <ClCompile Include="..\osf\7z\SRC\CWrappers.cpp" />
-    <ClCompile Include="..\osf\7z\SRC\FileStreams.cpp" />
     <ClCompile Include="..\osf\7z\SRC\FilterCoder.cpp" />
     <ClCompile Include="..\osf\7z\SRC\MethodProps.cpp" />
     <ClCompile Include="..\osf\7z\SRC\UniqBlocks.cpp" />
@@ -45,17 +43,11 @@
     <ClCompile Include="..\osf\7z\SRC\UI\Common\OpenArchive.cpp" />
     <ClCompile Include="..\osf\7z\SRC\UI\Common\PropIDUtils.cpp" />
     <ClCompile Include="..\osf\7z\SRC\UI\Common\Update.cpp" />
-    <ClCompile Include="..\osf\7z\SRC\UI\Common\UpdateAction.cpp" />
-    <ClCompile Include="..\osf\7z\SRC\UI\Common\UpdateCallback.cpp" />
-    <ClCompile Include="..\osf\7z\SRC\UI\Common\UpdatePair.cpp" />
-    <ClCompile Include="..\osf\7z\SRC\UI\Common\UpdateProduce.cpp" />
     <ClCompile Include="..\osf\7z\SRC\UI\Console\BenchCon.cpp" />
     <ClCompile Include="..\osf\7z\SRC\UI\Console\ConsoleClose.cpp" />
     <ClCompile Include="..\osf\7z\SRC\UI\Console\ExtractCallbackConsole.cpp" />
     <ClCompile Include="..\osf\7z\SRC\UI\Console\HashCon.cpp" />
     <ClCompile Include="..\osf\7z\SRC\UI\Console\List.cpp" />
-    <ClCompile Include="..\osf\7z\SRC\UI\Console\Main.cpp" />
-    <ClCompile Include="..\osf\7z\SRC\UI\Console\MainAr.cpp" />
     <ClCompile Include="..\osf\7z\SRC\UI\Console\OpenCallbackConsole.cpp" />
     <ClCompile Include="..\osf\7z\SRC\UI\Console\PercentPrinter.cpp" />
     <ClCompile Include="..\osf\7z\SRC\UI\Console\UpdateCallbackConsole.cpp" />
@@ -64,18 +56,14 @@
     <ClCompile Include="..\osf\7z\SRC\CrcReg.cpp" />
     <ClCompile Include="..\osf\7z\SRC\MyString.cpp" />
     <ClCompile Include="..\osf\7z\SRC\NewHandler.cpp" />
-    <ClCompile Include="..\osf\7z\SRC\UTFConvert.cpp" />
     <ClCompile Include="..\osf\7z\SRC\Wildcard.cpp" />
     <ClCompile Include="..\osf\7z\SRC\XzCrc64Reg.cpp" />
     <ClCompile Include="..\OSF\7z\SRC\7z-pch.c" />
-    <ClCompile Include="..\osf\7z\SRC\7zCrc.c" />
-    <ClCompile Include="..\osf\7z\SRC\7zCrcOpt.c" />
     <ClCompile Include="..\osf\7z\SRC\7zStream.c" />
     <ClCompile Include="..\osf\7z\SRC\Aes.c" />
     <ClCompile Include="..\osf\7z\SRC\AesOpt.c" />
     <ClCompile Include="..\osf\7z\SRC\Alloc.c" />
     <ClCompile Include="..\osf\7z\SRC\Bcj2.c" />
-    <ClCompile Include="..\osf\7z\SRC\Bcj2Enc.c" />
     <ClCompile Include="..\OSF\7z\SRC\Blake2s.c" />
     <ClCompile Include="..\osf\7z\SRC\Bra.c" />
     <ClCompile Include="..\osf\7z\SRC\Bra86.c" />
@@ -94,8 +82,6 @@
     <ClCompile Include="..\osf\7z\SRC\Sort.c" />
     <ClCompile Include="..\osf\7z\SRC\Threads.c" />
     <ClCompile Include="..\osf\7z\SRC\Xz.c" />
-    <ClCompile Include="..\osf\7z\SRC\XzCrc64.c" />
-    <ClCompile Include="..\osf\7z\SRC\XzCrc64Opt.c" />
     <ClCompile Include="..\OSF\7z\SRC\Windows\7z-windows.cpp" />
     <ClCompile Include="..\OSF\7z\SRC\7z-zip.cpp" />
     <ClCompile Include="..\OSF\7z\SRC\7z-lzma.cpp" />
@@ -116,15 +102,14 @@
     <ClCompile Include="..\OSF\7z\SRC\7z-compress.cpp" />
     <ClCompile Include="..\OSF\7z\SRC\7z-ppmd.cpp" />
     <ClCompile Include="..\OSF\7z\SRC\PpmdHandler.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-crc.c" />
+    <ClCompile Include="..\OSF\7z\SRC\UI\Console\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Osf\7z\include\7z-internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\7z\include\7z.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\7z\include\7zAes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\7z\include\7zAlloc.h">
@@ -140,15 +125,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\7z\include\ArchiveName.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\7z\include\C_FileIO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\7z\include\ChmHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Osf\7z\include\ChmIn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Osf\7z\include\windows\Clipboard.h">

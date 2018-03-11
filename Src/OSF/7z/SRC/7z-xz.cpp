@@ -675,7 +675,7 @@ namespace NArchive {
 			CXzs p;
 		};
 		CXzsCPP xzs;
-		Int64 startPosition;
+		int64 startPosition;
 		SRes res = Xzs_ReadBackward(&xzs.p, &lookStream.vt, &startPosition, &openWrap.vt, &g_Alloc);
 		if(res == SZ_ERROR_PROGRESS)
 			return (openWrap.Res == S_OK) ? E_FAIL : openWrap.Res;
@@ -740,11 +740,11 @@ namespace NArchive {
 		CMyComPtr<ISequentialInStream> Stream;
 		MY_UNKNOWN_IMP1(IInStream)
 		STDMETHOD(Read) (void * data, uint32 size, uint32 *processedSize);
-		STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+		STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 	};
 
 	STDMETHODIMP CSeekToSeqStream::Read(void * data, uint32 size, uint32 * processedSize) { return Stream->Read(data, size, processedSize); }
-	STDMETHODIMP CSeekToSeqStream::Seek(Int64, uint32, uint64 *) { return E_NOTIMPL; }
+	STDMETHODIMP CSeekToSeqStream::Seek(int64, uint32, uint64 *) { return E_NOTIMPL; }
 
 	STDMETHODIMP CHandler::Extract(const uint32 * indices, uint32 numItems, int32 testMode, IArchiveExtractCallback * extractCallback)
 	{

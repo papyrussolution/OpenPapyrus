@@ -69,7 +69,6 @@ static void Blake2s_Compress(CBlake2s * p)
 	G(r, 5, v[ 1], v[ 6], v[11], v[12]); \
 	G(r, 6, v[ 2], v[ 7], v[ 8], v[13]); \
 	G(r, 7, v[ 3], v[ 4], v[ 9], v[14]); \
-
 	{
 		for(uint r = 0; r < BLAKE2S_NUM_ROUNDS; r++) {
 			const Byte * sigma = k_Blake2s_Sigma[r];
@@ -91,8 +90,8 @@ static void Blake2s_Compress(CBlake2s * p)
 static void Blake2s_Update(CBlake2s * p, const Byte * data, size_t size)
 {
 	while(size != 0) {
-		unsigned pos = (uint)p->bufPos;
-		unsigned rem = BLAKE2S_BLOCK_SIZE - pos;
+		uint   pos = (uint)p->bufPos;
+		uint   rem = BLAKE2S_BLOCK_SIZE - pos;
 		if(size <= rem) {
 			memcpy(p->buf + pos, data, size);
 			p->bufPos += (uint32)size;
@@ -165,10 +164,10 @@ void Blake2sp_Init(CBlake2sp * p)
 
 void Blake2sp_Update(CBlake2sp * p, const Byte * data, size_t size)
 {
-	unsigned pos = p->bufPos;
+	uint   pos = p->bufPos;
 	while(size != 0) {
-		unsigned index = pos / BLAKE2S_BLOCK_SIZE;
-		unsigned rem = BLAKE2S_BLOCK_SIZE - (pos & (BLAKE2S_BLOCK_SIZE - 1));
+		uint   index = pos / BLAKE2S_BLOCK_SIZE;
+		uint   rem = BLAKE2S_BLOCK_SIZE - (pos & (BLAKE2S_BLOCK_SIZE - 1));
 		if(rem > size)
 			rem = (uint)size;
 		Blake2s_Update(&p->S[index], data, rem);

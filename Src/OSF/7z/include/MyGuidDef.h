@@ -3,8 +3,6 @@
 #ifndef GUID_DEFINED
 #define GUID_DEFINED
 
-//#include "MyTypes.h"
-
 typedef struct {
 	uint32 Data1;
 	uint16 Data2;

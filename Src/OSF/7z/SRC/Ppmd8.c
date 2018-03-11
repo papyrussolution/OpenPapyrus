@@ -382,7 +382,7 @@ static void Refresh(CPpmd8 * p, CTX_PTR ctx, unsigned oldNU, unsigned scale)
 	ctx->Flags = (Byte)flags;
 }
 
-static void SwapStates(CPpmd_State * t1, CPpmd_State * t2)
+static void FASTCALL SwapStates(CPpmd_State * t1, CPpmd_State * t2)
 {
 	CPpmd_State tmp = *t1;
 	*t1 = *t2;
@@ -845,9 +845,9 @@ static void UpdateModel(CPpmd8 * p)
 	p->MaxContext = p->MinContext = CTX(fSuccessor);
 }
 
-static void Rescale(CPpmd8 * p)
+static void FASTCALL Rescale(CPpmd8 * p)
 {
-	unsigned i, adder, sumFreq, escFreq;
+	uint   i, adder, sumFreq, escFreq;
 	CPpmd_State * stats = STATS(p->MinContext);
 	CPpmd_State * s = p->FoundState;
 	{
@@ -865,7 +865,6 @@ static void Rescale(CPpmd8 * p)
 	    );
 	s->Freq = (Byte)((s->Freq + adder) >> 1);
 	sumFreq = s->Freq;
-
 	i = p->MinContext->NumStats;
 	do {
 		escFreq -= (++s)->Freq;
@@ -914,17 +913,15 @@ static void Rescale(CPpmd8 * p)
 	p->FoundState = STATS(p->MinContext);
 }
 
-CPpmd_See * Ppmd8_MakeEscFreq(CPpmd8 * p, unsigned numMasked1, uint32 * escFreq)
+static CPpmd_See * FASTCALL Ppmd8_MakeEscFreq(CPpmd8 * p, uint numMasked1, uint32 * escFreq)
 {
 	CPpmd_See * see;
 	if(p->MinContext->NumStats != 0xFF) {
 		see = p->See[(size_t)(uint)p->NS2Indx[(size_t)(uint)p->MinContext->NumStats + 2] - 3] +
 		    (p->MinContext->SummFreq > 11 * ((uint)p->MinContext->NumStats + 1)) +
-		    2 * (uint)(2 * (uint)p->MinContext->NumStats <
-		    ((uint)SUFFIX(p->MinContext)->NumStats + numMasked1)) +
-		    p->MinContext->Flags;
+		    2 * (uint)(2 * (uint)p->MinContext->NumStats < ((uint)SUFFIX(p->MinContext)->NumStats + numMasked1)) + p->MinContext->Flags;
 		{
-			unsigned r = (see->Summ >> see->Shift);
+			uint   r = (see->Summ >> see->Shift);
 			see->Summ = (uint16)(see->Summ - r);
 			*escFreq = r + (r == 0);
 		}
@@ -936,7 +933,7 @@ CPpmd_See * Ppmd8_MakeEscFreq(CPpmd8 * p, unsigned numMasked1, uint32 * escFreq)
 	return see;
 }
 
-static void NextContext(CPpmd8 * p)
+static void FASTCALL NextContext(CPpmd8 * p)
 {
 	CTX_PTR c = CTX(SUCCESSOR(p->FoundState));
 	if(p->OrderFall == 0 && (Byte*)c >= p->UnitsStart)
@@ -947,7 +944,7 @@ static void NextContext(CPpmd8 * p)
 	}
 }
 
-void Ppmd8_Update1(CPpmd8 * p)
+static void FASTCALL Ppmd8_Update1(CPpmd8 * p)
 {
 	CPpmd_State * s = p->FoundState;
 	s->Freq += 4;
@@ -961,7 +958,7 @@ void Ppmd8_Update1(CPpmd8 * p)
 	NextContext(p);
 }
 
-void Ppmd8_Update1_0(CPpmd8 * p)
+static void FASTCALL Ppmd8_Update1_0(CPpmd8 * p)
 {
 	p->PrevSuccess = (2 * p->FoundState->Freq >= p->MinContext->SummFreq);
 	p->RunLength += p->PrevSuccess;
@@ -971,7 +968,7 @@ void Ppmd8_Update1_0(CPpmd8 * p)
 	NextContext(p);
 }
 
-void Ppmd8_UpdateBin(CPpmd8 * p)
+static void FASTCALL Ppmd8_UpdateBin(CPpmd8 * p)
 {
 	p->FoundState->Freq = (Byte)(p->FoundState->Freq + (p->FoundState->Freq < 196));
 	p->PrevSuccess = 1;
@@ -979,7 +976,7 @@ void Ppmd8_UpdateBin(CPpmd8 * p)
 	NextContext(p);
 }
 
-void Ppmd8_Update2(CPpmd8 * p)
+static void FASTCALL Ppmd8_Update2(CPpmd8 * p)
 {
 	p->MinContext->SummFreq += 4;
 	if((p->FoundState->Freq += 4) > MAX_FREQ)
@@ -1137,35 +1134,33 @@ void Ppmd8_EncodeSymbol(CPpmd8 * p, int symbol)
 // 
 Bool Ppmd8_RangeDec_Init(CPpmd8 * p)
 {
-	uint i;
 	p->Low = 0;
 	p->Range = 0xFFFFFFFF;
 	p->Code = 0;
-	for(i = 0; i < 4; i++)
+	for(uint i = 0; i < 4; i++)
 		p->Code = (p->Code << 8) | IByteIn_Read(p->Stream.In);
 	return (p->Code < 0xFFFFFFFF);
 }
 
-static uint32 RangeDec_GetThreshold(CPpmd8 * p, uint32 total)
+static uint32 FASTCALL RangeDec_GetThreshold(CPpmd8 * p, uint32 total)
 {
 	return p->Code / (p->Range /= total);
 }
 
-static void RangeDec_Decode(CPpmd8 * p, uint32 start, uint32 size)
+static void FASTCALL RangeDec_Decode(CPpmd8 * p, uint32 start, uint32 size)
 {
 	start *= p->Range;
 	p->Low += start;
 	p->Code -= start;
 	p->Range *= size;
-	while((p->Low ^ (p->Low + p->Range)) < kTop ||
-	    (p->Range < kBot && ((p->Range = (0 - p->Low) & (kBot - 1)), 1))) {
+	while((p->Low ^ (p->Low + p->Range)) < kTop || (p->Range < kBot && ((p->Range = (0 - p->Low) & (kBot - 1)), 1))) {
 		p->Code = (p->Code << 8) | IByteIn_Read(p->Stream.In);
 		p->Range <<= 8;
 		p->Low <<= 8;
 	}
 }
 
-int Ppmd8_DecodeSymbol(CPpmd8 * p)
+int FASTCALL Ppmd8_DecodeSymbol(CPpmd8 * p)
 {
 	size_t charMask[256 / sizeof(size_t)];
 	if(p->MinContext->NumStats != 0) {

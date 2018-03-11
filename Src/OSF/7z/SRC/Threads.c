@@ -1,6 +1,6 @@
-/* Threads.c -- multithreading library
-   2014-09-21 : Igor Pavlov : Public domain */
-
+// Threads.c -- multithreading library
+// 2014-09-21 : Igor Pavlov : Public domain 
+// 
 #include <7z-internal.h>
 #pragma hdrstop
 #ifndef UNDER_CE

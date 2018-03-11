@@ -6,19 +6,19 @@
 
 // @sobolev EXTERN_C_BEGIN
 
-typedef uint32 (FASTCALL *CRC_FUNC)(uint32 v, const void * data, size_t size, const uint32 * table);
+typedef uint32 (FASTCALL *CRC32_FUNC)(uint32 v, const void * data, size_t size, const uint32 * table);
 
 uint32 FASTCALL CrcUpdateT1(uint32 v, const void * data, size_t size, const uint32 * table);
 
-extern CRC_FUNC g_CrcUpdate;
-extern CRC_FUNC g_CrcUpdateT8;
-extern CRC_FUNC g_CrcUpdateT4;
+extern CRC32_FUNC g_CrcUpdate;
+extern CRC32_FUNC g_CrcUpdateT8;
+extern CRC32_FUNC g_CrcUpdateT4;
 
 // @sobolev EXTERN_C_END
 
 class CCrcHasher : public IHasher, public ICompressSetCoderProperties, public CMyUnknownImp {
 	uint32 _crc;
-	CRC_FUNC _updateFunc;
+	CRC32_FUNC _updateFunc;
 	Byte mtDummy[1 << 7];
 	bool SetFunctions(uint32 tSize);
 public:

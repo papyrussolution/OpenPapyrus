@@ -45,6 +45,7 @@ import "oaidl.idl";
 	interface IPpyFilt_CCheck;
 	interface IPpyFilt_Lot;
 	interface IPpyFilt_Goods;
+	interface IPpyFilt_GoodsStruc;
 	interface IPpyFilt_GoodsRest;
 	interface IPpyFilt_Bill;
 	interface IPpyFilt_GoodsOpAnlz;
@@ -495,7 +496,8 @@ import "oaidl.idl";
 		ppvProject = 10,
 		ppvOpGrouping = 11,
 		ppvDebtTrnovr = 12,
-		ppvLotOp = 13
+		ppvLotOp = 13,
+		ppvGoodsStruc = 14
 	} PpyViewIdent;
 
 	typedef [v1_enum] enum _PpyObjectIdent {
@@ -3236,6 +3238,82 @@ import "oaidl.idl";
 		BSTR StrucType;
 	} SPpyVI_Goods;
 
+	typedef [v1_enum] enum _PpyVGoodsStrucFlags {
+		gsvfShowComplDecompl = 1,
+		gsvfShowPartitial = 2,
+		gsvfShowSubst = 4,
+		gsvfShowGift = 8,
+		gsvfShowComplex = 16
+	} PpyVGoodsStrucFlags;
+
+	[
+		object,
+		uuid(01D89BE0-EF38-4B08-8B76-0E2E3D745AE0)
+	]
+	interface IPpyFilt_GoodsStruc : IUnknown {
+		[propget]
+		HRESULT __stdcall PrmrGoodsGrpID([out,retval] long * pRet);
+		[propput]
+		HRESULT __stdcall PrmrGoodsGrpID(long value);
+		[propget]
+		HRESULT __stdcall PrmrGoodsID([out,retval] long * pRet);
+		[propput]
+		HRESULT __stdcall PrmrGoodsID(long value);
+		[propget]
+		HRESULT __stdcall ScndGoodsGrpID([out,retval] long * pRet);
+		[propput]
+		HRESULT __stdcall ScndGoodsGrpID(long value);
+		[propget]
+		HRESULT __stdcall ScndGoodsID([out,retval] long * pRet);
+		[propput]
+		HRESULT __stdcall ScndGoodsID(long value);
+		[propget]
+		HRESULT __stdcall StrucFlagSet([out,retval] long * pRet);
+		[propput]
+		HRESULT __stdcall StrucFlagSet(long value);
+		[propget]
+		HRESULT __stdcall StrucFlagReset([out,retval] long * pRet);
+		[propput]
+		HRESULT __stdcall StrucFlagReset(long value);
+		[propget]
+		HRESULT __stdcall ItemFlagSet([out,retval] long * pRet);
+		[propput]
+		HRESULT __stdcall ItemFlagSet(long value);
+		[propget]
+		HRESULT __stdcall ItemFlagReset([out,retval] long * pRet);
+		[propput]
+		HRESULT __stdcall ItemFlagReset(long value);
+		[propget]
+		HRESULT __stdcall Flags([out,retval] PpyVGoodsStrucFlags * pRet);
+		[propput]
+		HRESULT __stdcall Flags(PpyVGoodsStrucFlags value);
+		[propget]
+		HRESULT __stdcall InitOrder([out,retval] long * pRet);
+		[propput]
+		HRESULT __stdcall InitOrder(long value);
+	};
+
+	typedef struct SPpyVI_GoodsStruc {
+		long RecTag;
+		long GStrucID;
+		long PrmrGoodsID;
+		long StrucFlags;
+		long ParentStrucID;
+		long GiftQuotKindID;
+		long VariedPropObjType;
+		BSTR StrucName;
+		BSTR StrucSymb;
+		SDateRange Period;
+		double GiftLimit;
+		double GiftAmtRestrict;
+		double CommDenom;
+		long GoodsID;
+		long ItemFlags;
+		double Median;
+		double Denom;
+		double Netto;
+	} SPpyVI_GoodsStruc;
+
 	typedef [v1_enum] enum _PpyVGoodsRestFlags {
 		grvfBarCode = 1,
 		grvfNullRest = 2,
@@ -5021,6 +5099,25 @@ import "oaidl.idl";
 		hidden
 	]
 	coclass PPViewGoods {
+		[default] interface IPapyrusView;
+		interface ISupportErrorInfo;
+	};
+
+	[
+		uuid(8A3B58BC-516C-452C-8075-1F930474F043),
+		version(1.0)
+	]
+	coclass PPFiltGoodsStruc {
+		[default] interface IPpyFilt_GoodsStruc;
+		interface ISupportErrorInfo;
+	};
+
+	[
+		uuid(4E3A45BD-2754-4D18-85CA-DFDF4BF04E2C),
+		version(1.0),
+		hidden
+	]
+	coclass PPViewGoodsStruc {
 		[default] interface IPapyrusView;
 		interface ISupportErrorInfo;
 	};

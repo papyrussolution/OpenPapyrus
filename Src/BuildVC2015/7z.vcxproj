@@ -140,6 +140,7 @@
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;mpr.lib;shlwapi.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
     <Midl>
       <TypeLibraryName>.\Release/Alone.tlb</TypeLibraryName>
@@ -161,6 +162,7 @@
     <ClCompile Include="..\OSF\7z\SRC\7z-cab.cpp" />
     <ClCompile Include="..\OSF\7z\SRC\7z-chm.cpp" />
     <ClCompile Include="..\OSF\7z\SRC\7z-compress.cpp" />
+    <ClCompile Include="..\OSF\7z\SRC\7z-crc.c" />
     <ClCompile Include="..\OSF\7z\SRC\7z-crypto.cpp" />
     <ClCompile Include="..\OSF\7z\SRC\7z-deflate.cpp" />
     <ClCompile Include="..\OSF\7z\SRC\7z-iso.cpp" />
@@ -199,6 +201,7 @@
     <ClCompile Include="..\OSF\7z\SRC\Sha256Reg.cpp">
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
     </ClCompile>
+    <ClCompile Include="..\OSF\7z\SRC\UI\Console\Main.cpp" />
     <ClCompile Include="..\OSF\7z\SRC\Windows\7z-windows.cpp">
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
     </ClCompile>
@@ -209,18 +212,11 @@
     <ClCompile Include="..\OSF\7z\SRC\CoderMixer2.cpp">
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
     </ClCompile>
-    <ClCompile Include="..\OSF\7z\SRC\MultiStream.cpp">
-      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
-    </ClCompile>
     <ClCompile Include="..\osf\7z\SRC\CreateCoder.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
     </ClCompile>
     <ClCompile Include="..\osf\7z\SRC\CWrappers.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
-    </ClCompile>
-    <ClCompile Include="..\osf\7z\SRC\FileStreams.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
     </ClCompile>
@@ -304,22 +300,6 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
     </ClCompile>
-    <ClCompile Include="..\osf\7z\SRC\UI\Common\UpdateAction.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
-    </ClCompile>
-    <ClCompile Include="..\osf\7z\SRC\UI\Common\UpdateCallback.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
-    </ClCompile>
-    <ClCompile Include="..\osf\7z\SRC\UI\Common\UpdatePair.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
-    </ClCompile>
-    <ClCompile Include="..\osf\7z\SRC\UI\Common\UpdateProduce.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
-    </ClCompile>
     <ClCompile Include="..\osf\7z\SRC\UI\Console\BenchCon.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
@@ -337,14 +317,6 @@
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
     </ClCompile>
     <ClCompile Include="..\osf\7z\SRC\UI\Console\List.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
-    </ClCompile>
-    <ClCompile Include="..\osf\7z\SRC\UI\Console\Main.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
-    </ClCompile>
-    <ClCompile Include="..\osf\7z\SRC\UI\Console\MainAr.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
     </ClCompile>
@@ -379,10 +351,6 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
     </ClCompile>
-    <ClCompile Include="..\osf\7z\SRC\UTFConvert.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
-    </ClCompile>
     <ClCompile Include="..\osf\7z\SRC\Wildcard.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
@@ -398,14 +366,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeaderFile>
-      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
-    </ClCompile>
-    <ClCompile Include="..\osf\7z\SRC\7zCrc.c">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
-    </ClCompile>
-    <ClCompile Include="..\osf\7z\SRC\7zCrcOpt.c">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
     </ClCompile>
     <ClCompile Include="..\osf\7z\SRC\7zStream.c">
@@ -425,10 +385,6 @@
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
     </ClCompile>
     <ClCompile Include="..\osf\7z\SRC\Bcj2.c">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
-    </ClCompile>
-    <ClCompile Include="..\osf\7z\SRC\Bcj2Enc.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
     </ClCompile>
@@ -503,29 +459,17 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
     </ClCompile>
-    <ClCompile Include="..\osf\7z\SRC\XzCrc64.c">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
-    </ClCompile>
-    <ClCompile Include="..\osf\7z\SRC\XzCrc64Opt.c">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ControlFlowGuard>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\7z\include\7z-ifcs.h" />
     <ClInclude Include="..\Osf\7z\include\7z-internal.h" />
     <ClInclude Include="..\Osf\7z\include\7z.h" />
-    <ClInclude Include="..\Osf\7z\include\7zAes.h" />
     <ClInclude Include="..\Osf\7z\include\7zAlloc.h" />
     <ClInclude Include="..\Osf\7z\include\7zBuf.h" />
     <ClInclude Include="..\Osf\7z\include\7zFile.h" />
     <ClInclude Include="..\Osf\7z\include\7zVersion.h" />
     <ClInclude Include="..\Osf\7z\include\ArchiveName.h" />
-    <ClInclude Include="..\Osf\7z\include\ChmHandler.h" />
-    <ClInclude Include="..\Osf\7z\include\ChmIn.h" />
     <ClInclude Include="..\Osf\7z\include\CompressCall.h" />
-    <ClInclude Include="..\Osf\7z\include\C_FileIO.h" />
     <ClInclude Include="..\Osf\7z\include\DllSecur.h" />
     <ClInclude Include="..\Osf\7z\include\Lang.h" />
     <ClInclude Include="..\Osf\7z\include\LzhDecoder.h" />

@@ -622,7 +622,8 @@ library PapyrusInterfaceLib version(1.1) {
 		ppvProject     = 10, // PPViewProject
 		ppvOpGrouping  = 11, // PPViewOpGrouping
 		ppvDebtTrnovr  = 12, // PPViewDebtTrnovr
-		ppvLotOp       = 13  // PPViewLotOp
+		ppvLotOp       = 13, // PPViewLotOp
+		ppvGoodsStruc  = 14  // PPViewGoodsStruc @v9.9.10
 	}
 	//
 	// Descr: Перечисление типов объектов PPObject. Каждый элемент перечисления должен иметь
@@ -4365,6 +4366,55 @@ library PapyrusInterfaceLib version(1.1) {
 	}
 	// }
 	//
+	// @ModuleDecl(PPViewGoodsStruc)
+	//
+	//
+	// Descr: Интерфейс фильтра по товарным структурам
+	//
+	enum PpyVGoodsStrucFlags {
+		gsvfShowComplDecompl = 0x0001, // Показывать структуры комплектации/декомплектации
+		gsvfShowPartitial    = 0x0002, // Показывать частичные структуры
+		gsvfShowSubst        = 0x0004, // Показывать подстановочные структуры
+		gsvfShowGift         = 0x0008, // Показывать подарочные структуры
+		gsvfShowComplex      = 0x0010  // Показывать комплексные структуры
+	}
+
+	interface IPpyFilt_GoodsStruc {
+		property {
+			long   PrmrGoodsGrpID;
+			long   PrmrGoodsID;
+			long   ScndGoodsGrpID;
+			long   ScndGoodsID;
+			long   StrucFlagSet;
+			long   StrucFlagReset;
+			long   ItemFlagSet;
+			long   ItemFlagReset;
+			PpyVGoodsStrucFlags Flags; // @flags
+			long   InitOrder;          // Порядок сортировки PPViewGoodsStruc::OrdXXX
+		}
+	}
+
+	struct SPpyVI_GoodsStruc {
+		long   RecTag;        // Метка структуры
+		long   GStrucID;
+		long   PrmrGoodsID;
+		long   StrucFlags;
+		long   ParentStrucID;
+		long   GiftQuotKindID;
+		long   VariedPropObjType;
+		string StrucName;
+		string StrucSymb;
+		SDateRange Period;
+		double GiftLimit;
+		double GiftAmtRestrict;
+		double CommDenom;
+		long   GoodsID;
+		long   ItemFlags;
+		double Median;
+		double Denom;
+		double Netto;
+	}
+	//
 	// @ModuleDecl(PPViewGoodsRest) {
 	//
 	// Descr: Флаги фильтрации остатков
@@ -5731,6 +5781,15 @@ library PapyrusInterfaceLib version(1.1) {
 	//
 	// Descr: КАД "Товары"
 	iclass PPViewGoods    version(1.0) hidden : IPapyrusView (default) {}
+	//
+	//
+	// Descr: Фильтр КАД "Товарные структуры"
+	//
+	iclass PPFiltGoodsStruc version(1.0) : IPpyFilt_GoodsStruc (default) {}
+	//
+	// Descr: КАД "Товарные структуры"
+	//
+	iclass PPViewGoodsStruc version(1.0) hidden : IPapyrusView (default) {}
 	//
 	// Descr: Фильтр КАД "Остатки товаров"
 	//

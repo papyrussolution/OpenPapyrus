@@ -2498,7 +2498,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 											if(cmp_result == -1)
 												temp_buf = "Rejected";
 											else {
-												if(doc_type == PPEDIOP_EGAIS_WAYBILLACT_V2) {
+												if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)) {
 													if(cmp_result & 0x01)
 														temp_buf = "Differences";
 													else
@@ -2512,14 +2512,14 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 										}
 										// @v9.5.10 {
 										else if(cmp_result & 0x01) {
-											if(doc_type == PPEDIOP_EGAIS_WAYBILLACT_V2) {
+											if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)) {
 												temp_buf = "Differences";
 												n_h.PutInner("wa:IsAccept", EncText(temp_buf));
 											}
 										}
 										// @v9.7.9 {
 										else {
-											if(doc_type == PPEDIOP_EGAIS_WAYBILLACT_V2) {
+											if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)) {
 												temp_buf = "Accepted";
 												n_h.PutInner("wa:IsAccept", EncText(temp_buf));
 											}

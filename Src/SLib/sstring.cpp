@@ -6569,7 +6569,7 @@ static char * FASTCALL xeos_strnzcpy(char * dest, const char * src, size_t maxle
 	if(dest)
 		if(src)
 			if(maxlen) {
-				const char * p = (const char *)xeos_memchr(src, 0, maxlen);
+				const char * p = (SLS.GetSSys().CpuCs >= SSystem::cpucsSSE2) ? (const char *)xeos_memchr32_sse2(src, 0, maxlen) : (const char *)xeos_memchr32(src, 0, maxlen);
 				if(p)
 					memcpy(dest, src, (size_t)(p - src)+1);
 				else {

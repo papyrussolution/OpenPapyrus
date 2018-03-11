@@ -2388,7 +2388,7 @@ int SFileFormat::IdentifyContentTransferEnc(const char * pCte)
 	return cte;
 }
 
-//static 
+//static
 int SFileFormat::GetContentTransferEncName(int cte, SString & rBuf)
 {
 	int    ok = 1;
@@ -2595,7 +2595,7 @@ int SFileFormat::Register()
 	Register(Mar,        "mar", "4D41723000");
 	Register(Mar,        "mar", "4D415243");
 	Register(Mar,        "mar", "4D41523100");
-	Register(Tar,        "tar", "257:7573746172"); // начиная с 257 байта
+	Register(Tar,        "tar", "257:7573746172"/*ustar*/); // начиная с 257 байта
 	//Register(Iso,  "iso", "32769:4344303031"); // начиная с 32769 байта (пока не поддерживаем)
 
 	Register(Mkv,        "mkv", "1A45DFA3934282886D6174726F736B61");

@@ -4831,31 +4831,31 @@ SLTEST_R(ScURL_Ftp)
 	}
 	{
 		ScURL curl;
-		THROW(SLTEST_CHECK_NZ(curl.FtpList(url, 0, pool)));
+		THROW(SLTEST_CHECK_NZ(curl.FtpList(url, ScURL::mfVerbose, pool)));
 	}
 	{
 		ScURL curl;
 		url.SetComponent(InetUrl::cPath, "test/");
-		THROW(SLTEST_CHECK_NZ(curl.FtpChangeDir(url, 0)));
+		THROW(SLTEST_CHECK_NZ(curl.FtpChangeDir(url, ScURL::mfVerbose)));
 	}
 	{
 		ScURL curl;
 		url.SetComponent(InetUrl::cPath, "test/abc/");
-		THROW(SLTEST_CHECK_NZ(curl.FtpCreateDir(url, 0)));
+		THROW(SLTEST_CHECK_NZ(curl.FtpCreateDir(url, ScURL::mfVerbose)));
 	}
 	{
 		ScURL curl;
 		url.SetComponent(InetUrl::cPath, "test/abc");
-		THROW(SLTEST_CHECK_NZ(curl.FtpDeleteDir(url, 0)));
+		THROW(SLTEST_CHECK_NZ(curl.FtpDeleteDir(url, ScURL::mfVerbose)));
 	}
 	{
 		ScURL curl;
 		url.SetComponent(InetUrl::cPath, "test/subdir01/subdir02/");
-		THROW(SLTEST_CHECK_NZ(curl.FtpChangeDir(url, 0)));
+		THROW(SLTEST_CHECK_NZ(curl.FtpChangeDir(url, ScURL::mfVerbose)));
 	}
 	{
 		ScURL curl;
-		THROW(SLTEST_CHECK_NZ(curl.FtpPut(url, 0, MakeInputFilePath("binfile"), 0)));
+		THROW(SLTEST_CHECK_NZ(curl.FtpPut(url, ScURL::mfVerbose, MakeInputFilePath("binfile"), 0)));
 	}
 	{
 		ScURL curl;

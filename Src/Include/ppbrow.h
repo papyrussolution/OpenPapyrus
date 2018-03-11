@@ -578,6 +578,8 @@
 	#define HELP_BROWSER_USERPROFILE                  267
 #define BROWSER_JOB                          268 // Серверные задачи
 	#define HELP_BROWSER_JOB                          268
+#define BROWSER_PHNSVCMONITOR                269 // @{view_phnsvcmonitor}
+	#define HELP_BROWSER_PHNSVCMONITOR                269
 
 //
 // PPVIEW COMMAND definitions
@@ -1425,6 +1427,7 @@
 #define PPCMD_BILLAUTOCREATE              1329
 #define PPCMD_TESTTDDO2                   1330
 #define PPCMD_TESTVETIS                   1331
+#define PPCMD_PHNSVCMONITOR               1332
 //
 // PPJOB definitions
 //
@@ -1778,6 +1781,9 @@
 #define PPFILT_PRCSSROSMPARAM              1111
 #define PPFILT_BILLAUTOCREATEPARAM         1121
 #define PPFILT_PRCSSRSARTREPARAM           1131
+#define PPVIEW_PHNSVCMONITOR               1140
+	#define PPFILT_PHNSVCMONITOR               1141
+	#define PPVIEWITEM_PHNSVCMONITOR               1142
 //
 // RECORD definitions
 //

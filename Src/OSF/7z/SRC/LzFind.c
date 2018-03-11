@@ -1,6 +1,6 @@
-/* LzFind.c -- Match finder for LZ algorithms
-   2017-04-03 : Igor Pavlov : Public domain */
-
+// LzFind.c -- Match finder for LZ algorithms
+// 2017-04-03 : Igor Pavlov : Public domain 
+// 
 #include <7z-internal.h>
 #pragma hdrstop
 
@@ -524,7 +524,6 @@ static uint32 Bt4_MatchFinder_GetMatches(CMatchFinder * p, uint32 * distances)
 		distances[1] = d2 - 1;
 		offset = 2;
 	}
-
 	if(d2 != d3 && d3 < p->cyclicBufferSize && *(cur - d3) == *cur) {
 		maxLen = 3;
 		distances[(size_t)offset + 1] = d3 - 1;

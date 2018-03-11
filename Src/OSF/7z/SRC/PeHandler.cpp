@@ -500,14 +500,12 @@ namespace NArchive {
 		{
 			size = (size + 7) / 8;
 			Buf.Alloc(size);
-			memset(Buf, 0, size);
+			memzero(Buf, size);
 		}
-
 		void Free()
 		{
 			Buf.Free();
 		}
-
 		bool SetRange(size_t from, uint size)
 		{
 			for(uint i = 0; i < size; i++) {
@@ -1644,7 +1642,7 @@ namespace NArchive {
 				pos += rem;
 			}
 			if(pos < fileSize)
-				memset(_buf + pos, 0, fileSize - pos);
+				memzero(_buf + pos, fileSize - pos);
 		}
 			_usedRes.Alloc(fileSize);
 			CRecordVector<CTableItem> specItems;
@@ -2369,9 +2367,7 @@ namespace NArchive {
 				if(dd.Size >= ((uint32)1 << 28))
 					return false;
 			}
-			return
-				MY_FIND_VALUE(NPe::g_MachinePairs, Machine) &&
-				MY_FIND_VALUE_2(NPe::g_SubSystems, SubSystem);
+			return MY_FIND_VALUE(NPe::g_MachinePairs, Machine) && MY_FIND_VALUE_2(NPe::g_SubSystems, SubSystem);
 		}
 
 		API_FUNC_static_IsArc IsArc_Te(const Byte * p, size_t size)
@@ -2411,7 +2407,7 @@ namespace NArchive {
 		{
 			return Pa <= ((uint32)1 << 30) && PSize <= ((uint32)1 << 30);
 		}
-		void UpdateTotalSize(uint32 &totalSize)
+		void UpdateTotalSize(uint32 & totalSize)
 		{
 			uint32 t = Pa + PSize;
 			if(t > totalSize)
@@ -2432,7 +2428,8 @@ namespace NArchive {
 		INTERFACE_IInArchive(; )
 		STDMETHOD(GetStream) (uint32 index, ISequentialInStream **stream);
 		STDMETHOD(AllowTail) (int32 allowTail);
-		CHandler() : _allowTail(false) {
+		CHandler() : _allowTail(false) 
+		{
 		}
 	};
 
@@ -2443,12 +2440,8 @@ namespace NArchive {
 		// , kpidImageBase
 	};
 
-	static const CStatProp kArcProps[] =
-	{
-		// { NULL, kpidHeadersSize, VT_UI4 },
-		{ NULL, kpidCpu, VT_BSTR},
-		{ "Subsystem", kpidSubSystem, VT_BSTR },
-		// { "Image Base", kpidImageBase, VT_UI8 }
+	static const CStatProp kArcProps[] = {
+		/*{ NULL, kpidHeadersSize, VT_UI4 },*/ { NULL, kpidCpu, VT_BSTR}, { "Subsystem", kpidSubSystem, VT_BSTR }, /*{ "Image Base", kpidImageBase, VT_UI8 }*/
 	};
 
 	IMP_IInArchive_Props
@@ -2508,12 +2501,10 @@ namespace NArchive {
 			return S_FALSE;
 		if(!_h.Parse(h))
 			return S_FALSE;
-
 		uint32 headerSize = NPe::kSectionSize * (uint32)_h.NumSections;
 		CByteArr buf(headerSize);
 		RINOK(ReadStream_FALSE(stream, buf, headerSize));
 		headerSize += kHeaderSize;
-
 		_totalSize = headerSize;
 		_items.ClearAndReserve(_h.NumSections);
 		for(uint32 i = 0; i < _h.NumSections; i++) {
@@ -2528,14 +2519,12 @@ namespace NArchive {
 			_items.AddInReserved(sect);
 			sect.UpdateTotalSize(_totalSize);
 		}
-
 		if(!_allowTail) {
 			uint64 fileSize;
 			RINOK(stream->Seek(0, STREAM_SEEK_END, &fileSize));
 			if(fileSize > _totalSize)
 				return S_FALSE;
 		}
-
 		return S_OK;
 	}
 
@@ -2548,7 +2537,9 @@ namespace NArchive {
 				return S_FALSE;
 			_stream = inStream;
 		}
-		catch(...) { return S_FALSE; }
+		catch(...) { 
+			return S_FALSE; 
+		}
 		return S_OK;
 		COM_TRY_END
 	}
@@ -2580,20 +2571,15 @@ namespace NArchive {
 		for(i = 0; i < numItems; i++)
 			totalSize += _items[allFilesMode ? i : indices[i]].PSize;
 		extractCallback->SetTotal(totalSize);
-
 		uint64 currentTotalSize = 0;
-
 		NCompress::CCopyCoder * copyCoderSpec = new NCompress::CCopyCoder();
 		CMyComPtr<ICompressCoder> copyCoder = copyCoderSpec;
-
 		CLocalProgress * lps = new CLocalProgress;
 		CMyComPtr<ICompressProgressInfo> progress = lps;
 		lps->Init(extractCallback, false);
-
 		CLimitedSequentialInStream * streamSpec = new CLimitedSequentialInStream;
 		CMyComPtr<ISequentialInStream> inStream(streamSpec);
 		streamSpec->SetStream(_stream);
-
 		for(i = 0; i < numItems; i++) {
 			lps->InSize = lps->OutSize = currentTotalSize;
 			RINOK(lps->SetCur());
@@ -2603,12 +2589,10 @@ namespace NArchive {
 			const CSection &item = _items[index];
 			RINOK(extractCallback->GetStream(index, &realOutStream, askMode));
 			currentTotalSize += item.PSize;
-
 			if(!testMode && !realOutStream)
 				continue;
 			RINOK(extractCallback->PrepareOperation(askMode));
 			int res = NExtractArc::NOperationResult::kDataError;
-
 			RINOK(_stream->Seek(item.Pa, STREAM_SEEK_SET, NULL));
 			streamSpec->Init(item.PSize);
 			RINOK(copyCoder->Code(inStream, realOutStream, NULL, NULL, progress));

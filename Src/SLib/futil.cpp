@@ -275,40 +275,6 @@ SString & SLAPI MakeTempFileName(const char * pDir, const char * pPrefix, const 
 	return rBuf;
 }
 
-#if 0 // @v8.6.5 {
-int SLAPI createDir(const char * pPath)
-{
-	int    ok = 1;
-	char   path[1024];
-	char   temp_path[1024];
-	char * p = temp_path;
-	char * t = path;
-	setLastSlash(strcpy(path, pPath));
-	STRNSCPY(temp_path, path);
-	do {
-		if(*p == '\\') {
-			if(p[1] == '\\')
-				*t++ = *p++;
-			else {
-				*t = 0;
-				int    is_root = 0;
-				if(path[0] == path[1] && path[0] == '\\' && !strchr(path+2, '\\'))
-					is_root = 1;
-				if(!is_root && (path[0] && ::access(path, 0) != 0))
-					if(CreateDirectory(path, NULL) == 0) {
-						SLS.SetAddedMsgString(path);
-						ok = (SLibError = SLERR_MKDIRFAULT, 0);
-					}
-					else
-						ok = 1;
-			}
-		}
-		*t++ = *p;
-	} while(ok && *p++ != 0);
-	return ok;
-}
-#endif // } 0 @v8.6.5
-
 int SLAPI createDir(const char * pPath)
 {
 	int    ok = 1;

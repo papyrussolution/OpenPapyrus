@@ -601,7 +601,7 @@ namespace NWindows {
 				return true;
 			}
 
-			bool CFileBase::Seek(Int64 distanceToMove, DWORD moveMethod, uint64 &newPosition) const throw()
+			bool CFileBase::Seek(int64 distanceToMove, DWORD moveMethod, uint64 &newPosition) const throw()
 			{
 			  #ifdef SUPPORT_DEVICE_FILE
 				if(IsDeviceFile && SizeDefined && moveMethod == FILE_END) {
@@ -3248,7 +3248,7 @@ namespace NWindows {
 			wReserved1 = 0; 
 			uhVal.QuadPart = value;
 		}
-		CPropVariant::CPropVariant(Int64 value) 
+		CPropVariant::CPropVariant(int64 value) 
 		{
 			vt = VT_I8; 
 			wReserved1 = 0; 
@@ -3405,7 +3405,7 @@ namespace NWindows {
 		SET_PROP_FUNC(int32, VT_I4, lVal)
 		SET_PROP_FUNC(uint32, VT_UI4, ulVal)
 		SET_PROP_FUNC(uint64, VT_UI8, uhVal.QuadPart)
-		SET_PROP_FUNC(Int64, VT_I8, hVal.QuadPart)
+		SET_PROP_FUNC(int64, VT_I8, hVal.QuadPart)
 		SET_PROP_FUNC(const FILETIME &, VT_FILETIME, filetime)
 
 		HRESULT PropVariant_Clear(PROPVARIANT * prop) throw()
@@ -3635,7 +3635,7 @@ namespace NWindows {
 		static const uint32 kDosTimeStartYear = 1980;
 		static const uint32 kUnixTimeStartYear = 1970;
 		static const uint64 kUnixTimeOffset = (uint64)60 * 60 * 24 * (89 + 365 * (kUnixTimeStartYear - kFileTimeStartYear));
-		static const uint64 kNumSecondsInFileTime = (uint64)(Int64)-1 / kNumTimeQuantumsInSecond;
+		static const uint64 kNumSecondsInFileTime = (uint64)(int64)-1 / kNumTimeQuantumsInSecond;
 
 		bool DosTimeToFileTime(uint32 dosTime, FILETIME &ft) throw()
 		{
@@ -3746,18 +3746,18 @@ namespace NWindows {
 			ft.dwHighDateTime = (DWORD)(v >> 32);
 		}
 
-		uint64 UnixTime64ToFileTime64(Int64 unixTime) throw()
+		uint64 UnixTime64ToFileTime64(int64 unixTime) throw()
 		{
 			return (uint64)(kUnixTimeOffset + unixTime) * kNumTimeQuantumsInSecond;
 		}
 
-		bool UnixTime64ToFileTime(Int64 unixTime, FILETIME &ft) throw()
+		bool UnixTime64ToFileTime(int64 unixTime, FILETIME &ft) throw()
 		{
-			if(unixTime > (Int64)(kNumSecondsInFileTime - kUnixTimeOffset)) {
+			if(unixTime > (int64)(kNumSecondsInFileTime - kUnixTimeOffset)) {
 				ft.dwLowDateTime = ft.dwHighDateTime = (uint32)(int32)-1;
 				return false;
 			}
-			Int64 v = (Int64)kUnixTimeOffset + unixTime;
+			int64 v = (int64)kUnixTimeOffset + unixTime;
 			if(v < 0) {
 				ft.dwLowDateTime = ft.dwHighDateTime = 0;
 				return false;
@@ -3768,10 +3768,10 @@ namespace NWindows {
 			return true;
 		}
 
-		Int64 FileTimeToUnixTime64(const FILETIME &ft) throw()
+		int64 FileTimeToUnixTime64(const FILETIME &ft) throw()
 		{
 			uint64 winTime = (((uint64)ft.dwHighDateTime) << 32) + ft.dwLowDateTime;
-			return (Int64)(winTime / kNumTimeQuantumsInSecond) - (Int64)kUnixTimeOffset;
+			return (int64)(winTime / kNumTimeQuantumsInSecond) - (int64)kUnixTimeOffset;
 		}
 
 		bool FileTimeToUnixTime(const FILETIME &ft, uint32 &unixTime) throw()

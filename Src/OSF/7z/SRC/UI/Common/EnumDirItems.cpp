@@ -360,7 +360,7 @@ static HRESULT EnumerateForItem(NFind::CFileInfo &fi, const NWildcard::CCensorNo
 static bool CanUseFsDirect(const NWildcard::CCensorNode &curNode)
 {
 	FOR_VECTOR(i, curNode.IncludeItems) {
-		const NWildcard::CItem &item = curNode.IncludeItems[i];
+		const NWildcard::CCensorNode::CItem & item = curNode.IncludeItems[i];
 		if(item.Recursive || item.PathParts.Size() != 1)
 			return false;
 		const UString &name = item.PathParts.Front();
@@ -407,7 +407,7 @@ static HRESULT EnumerateDirItems(const NWildcard::CCensorNode &curNode, int phyP
 			CRecordVector<bool> needEnterVector;
 			uint i;
 			for(i = 0; i < curNode.IncludeItems.Size(); i++) {
-				const NWildcard::CItem &item = curNode.IncludeItems[i];
+				const NWildcard::CCensorNode::CItem & item = curNode.IncludeItems[i];
 				const UString &name = item.PathParts.Front();
 				FString fullPath = phyPrefix + us2fs(name);
 
@@ -561,7 +561,7 @@ static HRESULT EnumerateDirItems(const NWildcard::CCensorNode &curNode, int phyP
 	if(phyPrefix.IsEmpty() && curNode.IncludeItems.Size() > 0) {
 		uint i;
 		for(i = 0; i < curNode.IncludeItems.Size(); i++) {
-			const NWildcard::CItem &item = curNode.IncludeItems[i];
+			const NWildcard::CCensorNode::CItem & item = curNode.IncludeItems[i];
 			if(item.PathParts.Size() < 1)
 				break;
 			const UString &name = item.PathParts.Front();
@@ -612,10 +612,10 @@ static HRESULT EnumerateDirItems(const NWildcard::CCensorNode &curNode, int phyP
 	return S_OK;
 }
 
-HRESULT EnumerateItems(const NWildcard::CCensor &censor, const NWildcard::ECensorPathMode pathMode, const UString &addPathPrefix, CDirItems &dirItems)
+HRESULT EnumerateItems(const NWildcard::CCensor & censor, const NWildcard::ECensorPathMode pathMode, const UString &addPathPrefix, CDirItems &dirItems)
 {
 	FOR_VECTOR(i, censor.Pairs) {
-		const NWildcard::CPair &pair = censor.Pairs[i];
+		const NWildcard::CCensor::CPair & pair = censor.Pairs[i];
 		int phyParent = pair.Prefix.IsEmpty() ? -1 : dirItems.AddPrefix(-1, -1, pair.Prefix);
 		int logParent = -1;
 		if(pathMode == NWildcard::k_AbsPath)

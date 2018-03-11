@@ -410,7 +410,7 @@ namespace NCompress {
 				return E_OUTOFMEMORY;
 			if(!m_InBitStream.Create(1 << 20))
 				return E_OUTOFMEMORY;
-			m_UnpackSize = (Int64)*outSize;
+			m_UnpackSize = (int64)*outSize;
 			m_OutWindowStream.SetStream(outStream);
 			m_OutWindowStream.Init(m_IsSolid);
 			m_InBitStream.SetStream(inStream);
@@ -425,18 +425,15 @@ namespace NCompress {
 				GetFlagsBuf();
 				FlagsCnt = 8;
 			}
-
 			while(m_UnpackSize > 0) {
 				if(StMode) {
 					RINOK(HuffDecode());
 					continue;
 				}
-
 				if(--FlagsCnt < 0) {
 					GetFlagsBuf();
 					FlagsCnt = 7;
 				}
-
 				if(FlagBuf & 0x80) {
 					FlagBuf <<= 1;
 					if(Nlzb > Nhfb) {
@@ -467,13 +464,11 @@ namespace NCompress {
 					}
 				}
 			}
-			if(m_UnpackSize < 0)
-				return S_FALSE;
-			return m_OutWindowStream.Flush();
+			return (m_UnpackSize >= 0) ? m_OutWindowStream.Flush() : S_FALSE;
 		}
 
 		STDMETHODIMP CDecoder::Code(ISequentialInStream * inStream, ISequentialOutStream * outStream,
-					const uint64 * inSize, const uint64 * outSize, ICompressProgressInfo * progress)
+			const uint64 * inSize, const uint64 * outSize, ICompressProgressInfo * progress)
 		{
 			try { return CodeReal(inStream, outStream, inSize, outSize, progress); }
 			catch(const CInBufferException &e) { return e.ErrorCode; }
@@ -1752,7 +1747,7 @@ namespace NCompress {
 				_outStream = outStream;
 
 				// CCoderReleaser coderReleaser(this);
-				_unpackSize = outSize ? *outSize : (uint64)(Int64)-1;
+				_unpackSize = outSize ? *outSize : (uint64)(int64)-1;
 				return CodeReal(progress);
 			}
 			catch(const CInBufferException &e)  { return e.ErrorCode; }
@@ -3643,7 +3638,7 @@ namespace NCompress {
 				_unpackSize_Defined = (outSize != NULL);
 				if(_unpackSize_Defined)
 					_unpackSize = *outSize;
-				if((Int64)_unpackSize >= 0)
+				if((int64)_unpackSize >= 0)
 					_lzEnd += _unpackSize;
 				else
 					_lzEnd = 0;
@@ -4920,7 +4915,7 @@ namespace NArchive {
 				const CRefItem &refItem = _refItems[index];
 				const CItem &item = _items[refItem.ItemIndex];
 				const CItem &lastItem = _items[refItem.ItemIndex + refItem.NumItems - 1];
-				uint64 outSize = (uint64)(Int64)-1;
+				uint64 outSize = (uint64)(int64)-1;
 				currentUnPackSize = 0;
 				if(lastItem.Is_Size_Defined()) {
 					outSize = lastItem.Size;
@@ -5102,7 +5097,7 @@ namespace NArchive {
 				HRESULT result = commonCoder->Code(inStream, outStream, &packSize, &outSize, progress);
 				if(item.IsEncrypted())
 					filterStreamSpec->ReleaseInStream();
-				if(outSize == (uint64)(Int64)-1)
+				if(outSize == (uint64)(int64)-1)
 					currentUnPackSize = outStreamSpec->GetSize();
 				int opRes = (volsInStreamSpec->CrcIsOK && outStreamSpec->GetCRC() == lastItem.FileCRC) ?
 					NExtractArc::NOperationResult::kOK : NExtractArc::NOperationResult::kCRCError;

@@ -432,8 +432,8 @@ int FASTCALL PPGetFilePath(PPID pathID, const char * pFileName, SString & rBuf)
 
 int FASTCALL PPGetFilePath(PPID pathID, uint fileNameID, SString & rBuf)
 {
-	SString temp_buf;
-	return PPGetFilePath(pathID, PPGetFileName(fileNameID, temp_buf), rBuf);
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.10
+	return PPGetFilePath(pathID, PPGetFileName(fileNameID, r_temp_buf), rBuf);
 }
 
 SString & FASTCALL PPGetFileName(uint fnameID, SString & rBuf)

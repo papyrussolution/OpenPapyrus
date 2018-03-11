@@ -1,6 +1,6 @@
-/* LzFindMt.c -- multithreaded Match finder for LZ algorithms
-   2017-04-03 : Igor Pavlov : Public domain */
-
+// LzFindMt.c -- multithreaded Match finder for LZ algorithms
+// 2017-04-03 : Igor Pavlov : Public domain 
+// 
 #include <7z-internal.h>
 #pragma hdrstop
 

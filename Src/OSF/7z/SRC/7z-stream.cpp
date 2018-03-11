@@ -3,6 +3,11 @@
 #include <7z-internal.h>
 #pragma hdrstop
 #include <7z-ifcs.h>
+#ifndef _WIN32
+	#include <fcntl.h>
+	#include <unistd.h>
+	#include <errno.h>
+#endif
 //
 // StreamUtils.cpp
 static const uint32 kBlockSize = ((uint32)1 << 31);
@@ -71,7 +76,7 @@ STDMETHODIMP CBufferInStream::Read(void * data, uint32 size, uint32 * processedS
 	return S_OK;
 }
 
-STDMETHODIMP CBufferInStream::Seek(Int64 offset, uint32 seekOrigin, uint64 * newPosition)
+STDMETHODIMP CBufferInStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
 {
 	switch(seekOrigin) {
 		case STREAM_SEEK_SET: break;
@@ -115,7 +120,7 @@ STDMETHODIMP CBufInStream::Read(void * data, uint32 size, uint32 * processedSize
 	return S_OK;
 }
 
-STDMETHODIMP CBufInStream::Seek(Int64 offset, uint32 seekOrigin, uint64 * newPosition)
+STDMETHODIMP CBufInStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
 {
 	switch(seekOrigin) {
 		case STREAM_SEEK_SET: break;
@@ -170,7 +175,7 @@ STDMETHODIMP CBufPtrSeqOutStream::Write(const void * data, uint32 size, uint32 *
 	return (rem != 0 || size == 0) ? S_OK : E_FAIL;
 }
 
-static const uint64 kEmptyTag = (uint64)(Int64)-1;
+static const uint64 kEmptyTag = (uint64)(int64)-1;
 
 CCachedInStream::CCachedInStream() : _tags(0), _data(0) 
 {
@@ -253,7 +258,7 @@ STDMETHODIMP CCachedInStream::Read(void * data, uint32 size, uint32 * processedS
 	return S_OK;
 }
 
-STDMETHODIMP CCachedInStream::Seek(Int64 offset, uint32 seekOrigin, uint64 * newPosition)
+STDMETHODIMP CCachedInStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
 {
 	switch(seekOrigin) {
 		case STREAM_SEEK_SET: break;
@@ -536,7 +541,7 @@ HRESULT CLimitedInStream::InitAndSeek(uint64 startOffset, uint64 size)
 	return SeekToPhys();
 }
 
-STDMETHODIMP CLimitedInStream::Seek(Int64 offset, uint32 seekOrigin, uint64 * newPosition)
+STDMETHODIMP CLimitedInStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
 {
 	switch(seekOrigin) {
 		case STREAM_SEEK_SET: break;
@@ -614,7 +619,7 @@ STDMETHODIMP CClusterInStream::Read(void * data, uint32 size, uint32 * processed
 	return res;
 }
 
-STDMETHODIMP CClusterInStream::Seek(Int64 offset, uint32 seekOrigin, uint64 * newPosition)
+STDMETHODIMP CClusterInStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
 {
 	switch(seekOrigin) {
 		case STREAM_SEEK_SET: break;
@@ -709,7 +714,7 @@ STDMETHODIMP CLimitedCachedInStream::Read(void * data, uint32 size, uint32 * pro
 	return res;
 }
 
-STDMETHODIMP CLimitedCachedInStream::Seek(Int64 offset, uint32 seekOrigin, uint64 * newPosition)
+STDMETHODIMP CLimitedCachedInStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
 {
 	switch(seekOrigin) {
 		case STREAM_SEEK_SET: break;
@@ -734,7 +739,7 @@ STDMETHODIMP CTailOutStream::Write(const void * data, uint32 size, uint32 * proc
 	return res;
 }
 
-STDMETHODIMP CTailOutStream::Seek(Int64 offset, uint32 seekOrigin, uint64 * newPosition)
+STDMETHODIMP CTailOutStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
 {
 	switch(seekOrigin) {
 		case STREAM_SEEK_SET: break;
@@ -799,7 +804,7 @@ STDMETHODIMP CInStreamWithCRC::Read(void * data, uint32 size, uint32 * processed
 	return result;
 }
 
-STDMETHODIMP CInStreamWithCRC::Seek(Int64 offset, uint32 seekOrigin, uint64 * newPosition)
+STDMETHODIMP CInStreamWithCRC::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
 {
 	if(seekOrigin != STREAM_SEEK_SET || offset != 0)
 		return E_FAIL;
@@ -958,7 +963,7 @@ CStdOutStream & CStdOutStream::operator<<(int32 number) throw()
 	return operator<<(s);
 }
 
-CStdOutStream & CStdOutStream::operator << (Int64 number) throw()
+CStdOutStream & CStdOutStream::operator << (int64 number) throw()
 {
 	char s[32];
 	ConvertInt64ToString(number, s);
@@ -978,4 +983,561 @@ CStdOutStream & CStdOutStream::operator << (uint64 number) throw()
 	ConvertUInt64ToString(number, s);
 	return operator<<(s);
 }
+//
+// FileStreams.cpp
+static inline HRESULT FASTCALL ConvertBoolToHRESULT(bool result)
+{
+  #ifdef _WIN32
+	if(result)
+		return S_OK;
+	DWORD lastError = ::GetLastError();
+	if(lastError == 0)
+		return E_FAIL;
+	return HRESULT_FROM_WIN32(lastError);
+  #else
+	return result ? S_OK : E_FAIL;
+  #endif
+}
+
+static const uint32 kClusterSize = 1 << 18;
+
+CInFileStream::CInFileStream() :
+  #ifdef SUPPORT_DEVICE_FILE
+	VirtPos(0), PhyPos(0), Buf(0), BufSize(0),
+  #endif
+	SupportHardLinks(false), Callback(NULL), CallbackRef(0)
+{
+}
+
+CInFileStream::~CInFileStream()
+{
+#ifdef SUPPORT_DEVICE_FILE
+	MidFree(Buf);
+#endif
+	CALLPTRMEMB(Callback, InFileStream_On_Destroy(CallbackRef));
+}
+
+STDMETHODIMP CInFileStream::Read(void * data, uint32 size, uint32 * processedSize)
+{
+  #ifdef USE_WIN_FILE
+
+  #ifdef SUPPORT_DEVICE_FILE
+	ASSIGN_PTR(processedSize, 0);
+	if(size == 0)
+		return S_OK;
+	if(File.IsDeviceFile) {
+		if(File.SizeDefined) {
+			if(VirtPos >= File.Size)
+				return VirtPos == File.Size ? S_OK : E_FAIL;
+			uint64 rem = File.Size - VirtPos;
+			if(size > rem)
+				size = (uint32)rem;
+		}
+		for(;; ) {
+			const uint32 mask = kClusterSize - 1;
+			const uint64 mask2 = ~(uint64)mask;
+			uint64 alignedPos = VirtPos & mask2;
+			if(BufSize > 0 && BufStartPos == alignedPos) {
+				uint32 pos = (uint32)VirtPos & mask;
+				if(pos >= BufSize)
+					return S_OK;
+				uint32 rem = MyMin(BufSize - pos, size);
+				memcpy(data, Buf + pos, rem);
+				VirtPos += rem;
+				if(processedSize)
+					*processedSize += rem;
+				return S_OK;
+			}
+			bool useBuf = false;
+			if((VirtPos & mask) != 0 || ((ptrdiff_t)data & mask) != 0)
+				useBuf = true;
+			else {
+				uint64 end = VirtPos + size;
+				if((end & mask) != 0) {
+					end &= mask2;
+					if(end <= VirtPos)
+						useBuf = true;
+					else
+						size = (uint32)(end - VirtPos);
+				}
+			}
+			if(!useBuf)
+				break;
+			if(alignedPos != PhyPos) {
+				uint64 realNewPosition;
+				bool result = File.Seek(alignedPos, FILE_BEGIN, realNewPosition);
+				if(!result)
+					return ConvertBoolToHRESULT(result);
+				PhyPos = realNewPosition;
+			}
+			BufStartPos = alignedPos;
+			uint32 readSize = kClusterSize;
+			if(File.SizeDefined)
+				readSize = (uint32)MyMin(File.Size - PhyPos, (uint64)kClusterSize);
+			if(!Buf) {
+				Buf = (Byte*)MidAlloc(kClusterSize);
+				if(!Buf)
+					return E_OUTOFMEMORY;
+			}
+			bool result = File.Read1(Buf, readSize, BufSize);
+			if(!result)
+				return ConvertBoolToHRESULT(result);
+			if(BufSize == 0)
+				return S_OK;
+			PhyPos += BufSize;
+		}
+
+		if(VirtPos != PhyPos) {
+			uint64 realNewPosition;
+			bool result = File.Seek(VirtPos, FILE_BEGIN, realNewPosition);
+			if(!result)
+				return ConvertBoolToHRESULT(result);
+			PhyPos = VirtPos = realNewPosition;
+		}
+	}
+  #endif
+
+	uint32 realProcessedSize;
+	bool result = File.ReadPart(data, size, realProcessedSize);
+	ASSIGN_PTR(processedSize, realProcessedSize);
+  #ifdef SUPPORT_DEVICE_FILE
+	VirtPos += realProcessedSize;
+	PhyPos += realProcessedSize;
+  #endif
+	if(result)
+		return S_OK;
+	{
+		DWORD error = ::GetLastError();
+		if(Callback)
+			return Callback->InFileStream_On_Error(CallbackRef, error);
+		else if(error == 0)
+			return E_FAIL;
+		else
+			return HRESULT_FROM_WIN32(error);
+	}
+  #else
+	ASSIGN_PTR(processedSize, 0);
+	ssize_t res = File.Read(data, (size_t)size);
+	if(res == -1) {
+		return Callback ? Callback->InFileStream_On_Error(CallbackRef, E_FAIL) : E_FAIL;
+	}
+	else {
+		ASSIGN_PTR(processedSize, (uint32)res);
+		return S_OK;
+	}
+  #endif
+}
+
+#ifdef UNDER_CE
+	STDMETHODIMP CStdInFileStream::Read(void * data, uint32 size, uint32 * processedSize)
+	{
+		size_t s2 = fread(data, 1, size, stdin);
+		int error = ferror(stdin);
+		ASSIGN_PTR(processedSize, s2);
+		return (s2 <= size && error == 0) ? S_OK : E_FAIL;
+	}
+	#else
+STDMETHODIMP CStdInFileStream::Read(void * data, uint32 size, uint32 * processedSize)
+{
+  #ifdef _WIN32
+	DWORD realProcessedSize;
+	uint32 sizeTemp = (1 << 20);
+	SETMIN(sizeTemp, size);
+	BOOL res = ::ReadFile(GetStdHandle(STD_INPUT_HANDLE), data, sizeTemp, &realProcessedSize, NULL);
+	ASSIGN_PTR(processedSize, realProcessedSize);
+	return (res == FALSE && GetLastError() == ERROR_BROKEN_PIPE) ? S_OK : ConvertBoolToHRESULT(res != FALSE);
+  #else
+	ASSIGN_PTR(processedSize, 0);
+	ssize_t res;
+	do {
+		res = read(0, data, (size_t)size);
+	} while(res < 0 && (errno == EINTR));
+	if(res == -1)
+		return E_FAIL;
+	ASSIGN_PTR(processedSize, (uint32)res);
+	return S_OK;
+  #endif
+}
+
+#endif
+
+STDMETHODIMP CInFileStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
+{
+	if(seekOrigin >= 3)
+		return STG_E_INVALIDFUNCTION;
+  #ifdef USE_WIN_FILE
+  #ifdef SUPPORT_DEVICE_FILE
+	if(File.IsDeviceFile && (File.SizeDefined || seekOrigin != STREAM_SEEK_END)) {
+		switch(seekOrigin) {
+			case STREAM_SEEK_SET: break;
+			case STREAM_SEEK_CUR: offset += VirtPos; break;
+			case STREAM_SEEK_END: offset += File.Size; break;
+			default: return STG_E_INVALIDFUNCTION;
+		}
+		if(offset < 0)
+			return HRESULT_WIN32_ERROR_NEGATIVE_SEEK;
+		VirtPos = offset;
+		ASSIGN_PTR(newPosition, offset);
+		return S_OK;
+	}
+  #endif
+	uint64 realNewPosition;
+	bool result = File.Seek(offset, seekOrigin, realNewPosition);
+  #ifdef SUPPORT_DEVICE_FILE
+	PhyPos = VirtPos = realNewPosition;
+  #endif
+	ASSIGN_PTR(newPosition, realNewPosition);
+	return ConvertBoolToHRESULT(result);
+  #else
+	off_t res = File.Seek((off_t)offset, seekOrigin);
+	if(res == -1)
+		return E_FAIL;
+	ASSIGN_PTR(newPosition, (uint64)res);
+	return S_OK;
+  #endif
+}
+
+STDMETHODIMP CInFileStream::GetSize(uint64 * size)
+{
+	return ConvertBoolToHRESULT(File.GetLength(*size));
+}
+
+#ifdef USE_WIN_FILE
+	STDMETHODIMP CInFileStream::GetProps(uint64 * size, FILETIME * cTime, FILETIME * aTime, FILETIME * mTime, uint32 * attrib)
+	{
+		BY_HANDLE_FILE_INFORMATION info;
+		if(File.GetFileInformation(&info)) {
+			if(size) *size = (((uint64)info.nFileSizeHigh) << 32) + info.nFileSizeLow;
+			if(cTime) *cTime = info.ftCreationTime;
+			if(aTime) *aTime = info.ftLastAccessTime;
+			if(mTime) *mTime = info.ftLastWriteTime;
+			if(attrib) *attrib = info.dwFileAttributes;
+			return S_OK;
+		}
+		return GetLastError();
+	}
+
+	STDMETHODIMP CInFileStream::GetProps2(CStreamFileProps * props)
+	{
+		BY_HANDLE_FILE_INFORMATION info;
+		if(File.GetFileInformation(&info)) {
+			props->Size = (((uint64)info.nFileSizeHigh) << 32) + info.nFileSizeLow;
+			props->VolID = info.dwVolumeSerialNumber;
+			props->FileID_Low = (((uint64)info.nFileIndexHigh) << 32) + info.nFileIndexLow;
+			props->FileID_High = 0;
+			props->NumLinks = SupportHardLinks ? info.nNumberOfLinks : 1;
+			props->Attrib = info.dwFileAttributes;
+			props->CTime = info.ftCreationTime;
+			props->ATime = info.ftLastAccessTime;
+			props->MTime = info.ftLastWriteTime;
+			return S_OK;
+		}
+		return GetLastError();
+	}
+#endif
+//
+// COutFileStream
+//
+//virtual 
+COutFileStream::~COutFileStream() 
+{
+}
+
+bool COutFileStream::Create(CFSTR fileName, bool createAlways)
+{
+	ProcessedSize = 0;
+	return File.Create(fileName, createAlways);
+}
+
+bool COutFileStream::Open(CFSTR fileName, DWORD creationDisposition)
+{
+	ProcessedSize = 0;
+	return File.Open(fileName, creationDisposition);
+}
+
+HRESULT COutFileStream::Close()
+{
+	return ConvertBoolToHRESULT(File.Close());
+}
+
+STDMETHODIMP COutFileStream::Write(const void * data, uint32 size, uint32 * processedSize)
+{
+#ifdef USE_WIN_FILE
+	uint32 realProcessedSize;
+	bool result = File.Write(data, size, realProcessedSize);
+	ProcessedSize += realProcessedSize;
+	ASSIGN_PTR(processedSize, realProcessedSize);
+	return ConvertBoolToHRESULT(result);
+#else
+	ASSIGN_PTR(processedSize, 0);
+	ssize_t res = File.Write(data, (size_t)size);
+	if(res == -1)
+		return E_FAIL;
+	ASSIGN_PTR(processedSize, (uint32)res);
+	ProcessedSize += res;
+	return S_OK;
+#endif
+}
+
+STDMETHODIMP COutFileStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
+{
+	if(seekOrigin >= 3)
+		return STG_E_INVALIDFUNCTION;
+  #ifdef USE_WIN_FILE
+	uint64 realNewPosition;
+	bool result = File.Seek(offset, seekOrigin, realNewPosition);
+	ASSIGN_PTR(newPosition, realNewPosition);
+	return ConvertBoolToHRESULT(result);
+  #else
+	off_t res = File.Seek((off_t)offset, seekOrigin);
+	if(res == -1)
+		return E_FAIL;
+	ASSIGN_PTR(newPosition, (uint64)res);
+	return S_OK;
+  #endif
+}
+
+STDMETHODIMP COutFileStream::SetSize(uint64 newSize)
+{
+  #ifdef USE_WIN_FILE
+	uint64 currentPos;
+	if(!File.Seek(0, FILE_CURRENT, currentPos))
+		return E_FAIL;
+	bool result = File.SetLength(newSize);
+	uint64 currentPos2;
+	result = result && File.Seek(currentPos, currentPos2);
+	return result ? S_OK : E_FAIL;
+  #else
+	return E_FAIL;
+  #endif
+}
+
+HRESULT COutFileStream::GetSize(uint64 * size)
+{
+	return ConvertBoolToHRESULT(File.GetLength(*size));
+}
+
+#ifdef UNDER_CE
+STDMETHODIMP CStdOutFileStream::Write(const void * data, uint32 size, uint32 * processedSize)
+{
+	size_t s2 = fwrite(data, 1, size, stdout);
+	ASSIGN_PTR(processedSize, s2);
+	return (s2 == size) ? S_OK : E_FAIL;
+}
+#else
+	STDMETHODIMP CStdOutFileStream::Write(const void * data, uint32 size, uint32 * processedSize)
+	{
+		ASSIGN_PTR(processedSize, 0);
+	  #ifdef _WIN32
+		uint32 realProcessedSize;
+		BOOL res = TRUE;
+		if(size > 0) {
+			// Seems that Windows doesn't like big amounts writing to stdout.
+			// So we limit portions by 32KB.
+			uint32 sizeTemp = (1 << 15);
+			SETMIN(sizeTemp, size);
+			res = ::WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), data, sizeTemp, (DWORD*)&realProcessedSize, NULL);
+			_size += realProcessedSize;
+			size -= realProcessedSize;
+			data = (const void*)((const Byte*)data + realProcessedSize);
+			if(processedSize)
+				*processedSize += realProcessedSize;
+		}
+		return ConvertBoolToHRESULT(res != FALSE);
+	  #else
+		ssize_t res;
+		do {
+			res = write(1, data, (size_t)size);
+		} while(res < 0 && (errno == EINTR));
+		if(res == -1)
+			return E_FAIL;
+		_size += (size_t)res;
+		ASSIGN_PTR(processedSize, (uint32)res);
+		return S_OK;
+	  #endif
+	}
+#endif
+//
+// MultiStream.cpp
+CMultiStream::CSubStreamInfo::CSubStreamInfo() : Size(0), GlobalOffset(0), LocalPos(0) 
+{
+}
+
+HRESULT CMultiStream::Init()
+{
+	uint64 total = 0;
+	FOR_VECTOR(i, Streams) {
+		CSubStreamInfo &s = Streams[i];
+		s.GlobalOffset = total;
+		total += Streams[i].Size;
+		RINOK(s.Stream->Seek(0, STREAM_SEEK_CUR, &s.LocalPos));
+	}
+	_totalLength = total;
+	_pos = 0;
+	_streamIndex = 0;
+	return S_OK;
+}
+
+STDMETHODIMP CMultiStream::Read(void * data, uint32 size, uint32 * processedSize)
+{
+	ASSIGN_PTR(processedSize, 0);
+	if(size == 0)
+		return S_OK;
+	if(_pos >= _totalLength)
+		return S_OK;
+	{
+		uint   mid = _streamIndex;
+		for(uint left = 0, right = Streams.Size();; ) {
+			CSubStreamInfo &m = Streams[mid];
+			if(_pos < m.GlobalOffset)
+				right = mid;
+			else if(_pos >= m.GlobalOffset + m.Size)
+				left = mid + 1;
+			else {
+				_streamIndex = mid;
+				break;
+			}
+			mid = (left + right) / 2;
+		}
+		_streamIndex = mid;
+	}
+	CSubStreamInfo &s = Streams[_streamIndex];
+	uint64 localPos = _pos - s.GlobalOffset;
+	if(localPos != s.LocalPos) {
+		RINOK(s.Stream->Seek(localPos, STREAM_SEEK_SET, &s.LocalPos));
+	}
+	uint64 rem = s.Size - localPos;
+	SETMIN(size, (uint32)rem);
+	HRESULT result = s.Stream->Read(data, size, &size);
+	_pos += size;
+	s.LocalPos += size;
+	ASSIGN_PTR(processedSize, size);
+	return result;
+}
+
+STDMETHODIMP CMultiStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
+{
+	switch(seekOrigin) {
+		case STREAM_SEEK_SET: break;
+		case STREAM_SEEK_CUR: offset += _pos; break;
+		case STREAM_SEEK_END: offset += _totalLength; break;
+		default: return STG_E_INVALIDFUNCTION;
+	}
+	if(offset < 0)
+		return HRESULT_WIN32_ERROR_NEGATIVE_SEEK;
+	_pos = offset;
+	ASSIGN_PTR(newPosition, offset);
+	return S_OK;
+}
+/*
+   class COutVolumeStream: public ISequentialOutStream, public CMyUnknownImp {
+   unsigned _volIndex;
+   uint64 _volSize;
+   uint64 _curPos;
+   CMyComPtr<ISequentialOutStream> _volumeStream;
+   COutArchive _archive;
+   CCRC _crc;
+
+   public:
+   MY_UNKNOWN_IMP
+
+   CFileItem _file;
+   CUpdateOptions _options;
+   CMyComPtr<IArchiveUpdateCallback2> VolumeCallback;
+   void Init(IArchiveUpdateCallback2 *volumeCallback, const UString &name)
+   {
+    _file.Name = name;
+    _file.IsStartPosDefined = true;
+    _file.StartPos = 0;
+
+    VolumeCallback = volumeCallback;
+    _volIndex = 0;
+    _volSize = 0;
+   }
+
+   HRESULT Flush();
+   STDMETHOD(Write)(const void *data, uint32 size, uint32 *processedSize);
+   };
+
+   HRESULT COutVolumeStream::Flush()
+   {
+   if(_volumeStream) {
+    _file.UnPackSize = _curPos;
+    _file.FileCRC = _crc.GetDigest();
+    RINOK(WriteVolumeHeader(_archive, _file, _options));
+    _archive.Close();
+    _volumeStream.Release();
+    _file.StartPos += _file.UnPackSize;
+   }
+   return S_OK;
+   }
+ */
+
+/*
+   STDMETHODIMP COutMultiStream::Write(const void *data, uint32 size, uint32 *processedSize)
+   {
+   if(processedSize)
+   *processedSize = 0;
+   while (size > 0) {
+    if(_streamIndex >= Streams.Size()) {
+      CSubStreamInfo subStream;
+      RINOK(VolumeCallback->GetVolumeSize(Streams.Size(), &subStream.Size));
+      RINOK(VolumeCallback->GetVolumeStream(Streams.Size(), &subStream.Stream));
+      subStream.Pos = 0;
+      Streams.Add(subStream);
+      continue;
+    }
+    CSubStreamInfo &subStream = Streams[_streamIndex];
+    if(_offsetPos >= subStream.Size) {
+      _offsetPos -= subStream.Size;
+      _streamIndex++;
+      continue;
+    }
+    if(_offsetPos != subStream.Pos) {
+      CMyComPtr<IOutStream> outStream;
+      RINOK(subStream.Stream.QueryInterface(IID_IOutStream, &outStream));
+      RINOK(outStream->Seek(_offsetPos, STREAM_SEEK_SET, NULL));
+      subStream.Pos = _offsetPos;
+    }
+
+    uint32 curSize = (uint32)MyMin((uint64)size, subStream.Size - subStream.Pos);
+    uint32 realProcessed;
+    RINOK(subStream.Stream->Write(data, curSize, &realProcessed));
+    data = (void *)((Byte *)data + realProcessed);
+    size -= realProcessed;
+    subStream.Pos += realProcessed;
+    _offsetPos += realProcessed;
+    _absPos += realProcessed;
+    if(_absPos > _length)
+      _length = _absPos;
+    if(processedSize)
+   *processedSize += realProcessed;
+    if(subStream.Pos == subStream.Size) {
+      _streamIndex++;
+      _offsetPos = 0;
+    }
+    if(realProcessed != curSize && realProcessed == 0)
+      return E_FAIL;
+   }
+   return S_OK;
+   }
+
+   STDMETHODIMP COutMultiStream::Seek(int64 offset, uint32 seekOrigin, uint64 *newPosition)
+   {
+   switch(seekOrigin) {
+    case STREAM_SEEK_SET: break;
+    case STREAM_SEEK_CUR: offset += _absPos; break;
+    case STREAM_SEEK_END: offset += _length; break;
+    default: return STG_E_INVALIDFUNCTION;
+   }
+   if(offset < 0)
+    return HRESULT_WIN32_ERROR_NEGATIVE_SEEK;
+   _absPos = offset;
+   _offsetPos = _absPos;
+   _streamIndex = 0;
+   if(newPosition)
+   *newPosition = offset;
+   return S_OK;
+   }
+ */
 //

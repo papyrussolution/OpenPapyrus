@@ -1,7 +1,7 @@
-/* Sha1.c -- SHA-1 Hash
-   2017-04-03 : Igor Pavlov : Public domain
-   This code is based on public domain code of Steve Reid from Wei Dai's Crypto++ library. */
-
+// Sha1.c -- SHA-1 Hash
+// 2017-04-03 : Igor Pavlov : Public domain
+// This code is based on public domain code of Steve Reid from Wei Dai's Crypto++ library. 
+//
 #include <7z-internal.h>
 #pragma hdrstop
 
@@ -9,24 +9,19 @@
 // #define _SHA1_UNROLL
 
 #ifdef _SHA1_UNROLL
-  #define kNumW 16
-  #define WW(i) W[(i)&15]
+	#define kNumW 16
+	#define WW(i) W[(i)&15]
 #else
-  #define kNumW 80
-  #define WW(i) W[i]
+	#define kNumW 80
+	#define WW(i) W[i]
 #endif
-
 #define w0(i) (W[i] = data[i])
-
 #define w1(i) (WW(i) = rotlFixed(WW((i)-3) ^ WW((i)-8) ^ WW((i)-14) ^ WW((i)-16), 1))
-
 #define f1(x, y, z)  (z^(x&(y^z)))
 #define f2(x, y, z)  (x^y^z)
 #define f3(x, y, z)  ((x&y)|(z&(x|y)))
 #define f4(x, y, z)  (x^y^z)
-
 #define RK(a, b, c, d, e, fx, w, k)  e += fx(b, c, d) + w + k + rotlFixed(a, 5); b = rotlFixed(b, 30);
-
 #define R0(a, b, c, d, e, i)  RK(a, b, c, d, e, f1, w0(i), 0x5A827999)
 #define R1(a, b, c, d, e, i)  RK(a, b, c, d, e, f1, w1(i), 0x5A827999)
 #define R2(a, b, c, d, e, i)  RK(a, b, c, d, e, f2, w1(i), 0x6ED9EBA1)
@@ -84,32 +79,26 @@ void Sha1_GetBlockDigest(CSha1 * p, const uint32 * data, uint32 * destDigest)
 	destDigest[4] = p->state[4] + e;
 }
 
-void Sha1_UpdateBlock_Rar(CSha1 * p, uint32 * data, int returnRes)
+static void Sha1_UpdateBlock_Rar(CSha1 * p, uint32 * data, int returnRes)
 {
 	uint32 a, b, c, d, e;
 	uint32 W[kNumW];
-
 	a = p->state[0];
 	b = p->state[1];
 	c = p->state[2];
 	d = p->state[3];
 	e = p->state[4];
-
 	RX_15 RX_1_4(R0, R1, 15);
-
 	RX_20(R2, 20);
 	RX_20(R3, 40);
 	RX_20(R4, 60);
-
 	p->state[0] += a;
 	p->state[1] += b;
 	p->state[2] += c;
 	p->state[3] += d;
 	p->state[4] += e;
-
 	if(returnRes) {
-		size_t i;
-		for(i = 0; i < SHA1_NUM_BLOCK_WORDS; i++)
+		for(size_t i = 0; i < SHA1_NUM_BLOCK_WORDS; i++)
 			data[i] = W[kNumW - SHA1_NUM_BLOCK_WORDS + i];
 	}
 }
@@ -118,107 +107,102 @@ void Sha1_UpdateBlock_Rar(CSha1 * p, uint32 * data, int returnRes)
 
 void Sha1_Update(CSha1 * p, const Byte * data, size_t size)
 {
-	unsigned pos, pos2;
-	if(size == 0)
-		return;
-	pos = (uint)p->count & 0x3F;
-	p->count += size;
-	pos2 = pos & 3;
-	pos >>= 2;
-
-	if(pos2 != 0) {
-		uint32 w;
-		pos2 = (3 - pos2) * 8;
-		w = ((uint32)*data++) << pos2;
-		if(--size && pos2) {
-			pos2 -= 8;
-			w |= ((uint32)*data++) << pos2;
+	if(size) {
+		uint   pos2;
+		uint   pos = (uint)p->count & 0x3F;
+		p->count += size;
+		pos2 = pos & 3;
+		pos >>= 2;
+		if(pos2 != 0) {
+			uint32 w;
+			pos2 = (3 - pos2) * 8;
+			w = ((uint32)*data++) << pos2;
 			if(--size && pos2) {
 				pos2 -= 8;
 				w |= ((uint32)*data++) << pos2;
-				size--;
-			}
-		}
-		p->buffer[pos] |= w;
-		if(pos2 == 0)
-			pos++;
-	}
-	for(;; ) {
-		if(pos == SHA1_NUM_BLOCK_WORDS) {
-			for(;; ) {
-				size_t i;
-				Sha1_UpdateBlock(p);
-				if(size < SHA1_BLOCK_SIZE)
-					break;
-				size -= SHA1_BLOCK_SIZE;
-				for(i = 0; i < SHA1_NUM_BLOCK_WORDS; i += 2) {
-					p->buffer[i    ] = GetBe32(data);
-					p->buffer[i + 1] = GetBe32(data + 4);
-					data += 8;
+				if(--size && pos2) {
+					pos2 -= 8;
+					w |= ((uint32)*data++) << pos2;
+					size--;
 				}
 			}
-			pos = 0;
+			p->buffer[pos] |= w;
+			if(pos2 == 0)
+				pos++;
 		}
-		if(size < 4)
-			break;
-
-		p->buffer[pos] = GetBe32(data);
-		data += 4;
-		size -= 4;
-		pos++;
-	}
-
-	if(size != 0) {
-		uint32 w = ((uint32)data[0]) << 24;
-		if(size > 1) {
-			w |= ((uint32)data[1]) << 16;
-			if(size > 2)
-				w |= ((uint32)data[2]) << 8;
+		for(;; ) {
+			if(pos == SHA1_NUM_BLOCK_WORDS) {
+				for(;; ) {
+					size_t i;
+					Sha1_UpdateBlock(p);
+					if(size < SHA1_BLOCK_SIZE)
+						break;
+					size -= SHA1_BLOCK_SIZE;
+					for(i = 0; i < SHA1_NUM_BLOCK_WORDS; i += 2) {
+						p->buffer[i    ] = GetBe32(data);
+						p->buffer[i + 1] = GetBe32(data + 4);
+						data += 8;
+					}
+				}
+				pos = 0;
+			}
+			if(size < 4)
+				break;
+			p->buffer[pos] = GetBe32(data);
+			data += 4;
+			size -= 4;
+			pos++;
 		}
-		p->buffer[pos] = w;
+		if(size != 0) {
+			uint32 w = ((uint32)data[0]) << 24;
+			if(size > 1) {
+				w |= ((uint32)data[1]) << 16;
+				if(size > 2)
+					w |= ((uint32)data[2]) << 8;
+			}
+			p->buffer[pos] = w;
+		}
 	}
 }
 
 void Sha1_Update_Rar(CSha1 * p, Byte * data, size_t size /* , int rar350Mode */)
 {
-	int returnRes = False;
-	unsigned pos = (uint)p->count & 0x3F;
+	int    returnRes = False;
+	uint   pos = (uint)p->count & 0x3F;
 	p->count += size;
 	while(size--) {
-		unsigned pos2 = (pos & 3);
+		uint   pos2 = (pos & 3);
 		uint32 v = ((uint32)*data++) << (8 * (3 - pos2));
 		uint32 * ref = &(p->buffer[pos >> 2]);
 		pos++;
-		if(pos2 == 0) {
+		if(pos2 == 0)
 			*ref = v;
-			continue;
-		}
-		*ref |= v;
-
-		if(pos == SHA1_BLOCK_SIZE) {
-			pos = 0;
-			Sha1_UpdateBlock_Rar(p, p->buffer, returnRes);
-			if(returnRes) {
-				size_t i;
-				for(i = 0; i < SHA1_NUM_BLOCK_WORDS; i++) {
-					uint32 d = p->buffer[i];
-					Byte * prev = data + i * 4 - SHA1_BLOCK_SIZE;
-					SetUi32(prev, d);
+		else {
+			*ref |= v;
+			if(pos == SHA1_BLOCK_SIZE) {
+				pos = 0;
+				Sha1_UpdateBlock_Rar(p, p->buffer, returnRes);
+				if(returnRes) {
+					for(size_t i = 0; i < SHA1_NUM_BLOCK_WORDS; i++) {
+						uint32 d = p->buffer[i];
+						Byte * prev = data + i * 4 - SHA1_BLOCK_SIZE;
+						SetUi32(prev, d);
+					}
 				}
+				// returnRes = rar350Mode;
+				returnRes = True;
 			}
-			// returnRes = rar350Mode;
-			returnRes = True;
 		}
 	}
 }
 
 void Sha1_Final(CSha1 * p, Byte * digest)
 {
-	unsigned pos = (uint)p->count & 0x3F;
-	unsigned pos2 = (pos & 3);
+	uint   pos = (uint)p->count & 0x3F;
+	uint   pos2 = (pos & 3);
 	uint64 numBits;
 	uint32 w;
-	uint i;
+	uint   i;
 	pos >>= 2;
 	w = 0;
 	if(pos2 != 0)
@@ -235,7 +219,6 @@ void Sha1_Final(CSha1 * p, Byte * digest)
 	p->buffer[SHA1_NUM_BLOCK_WORDS - 2] = (uint32)(numBits >> 32);
 	p->buffer[SHA1_NUM_BLOCK_WORDS - 1] = (uint32)(numBits);
 	Sha1_UpdateBlock(p);
-
 	for(i = 0; i < SHA1_NUM_DIGEST_WORDS; i++) {
 		uint32 v = p->state[i];
 		SetBe32(digest, v);
@@ -257,7 +240,7 @@ void Sha1_32_PrepareBlock(const CSha1 * p, uint32 * block, uint size)
 
 void Sha1_32_Update(CSha1 * p, const uint32 * data, size_t size)
 {
-	unsigned pos = (uint)p->count & 0xF;
+	uint   pos = (uint)p->count & 0xF;
 	p->count += size;
 	while(size--) {
 		p->buffer[pos++] = *data++;
@@ -271,7 +254,7 @@ void Sha1_32_Update(CSha1 * p, const uint32 * data, size_t size)
 void Sha1_32_Final(CSha1 * p, uint32 * digest)
 {
 	uint64 numBits;
-	unsigned pos = (uint)p->count & 0xF;
+	uint   pos = (uint)p->count & 0xF;
 	p->buffer[pos++] = 0x80000000;
 	while(pos != (SHA1_NUM_BLOCK_WORDS - 2)) {
 		pos &= 0xF;
@@ -285,4 +268,3 @@ void Sha1_32_Final(CSha1 * p, uint32 * digest)
 	Sha1_GetBlockDigest(p, p->buffer, digest);
 	Sha1_Init(p);
 }
-

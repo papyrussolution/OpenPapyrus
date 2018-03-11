@@ -1,0 +1,779 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v5 rel. 4 U (http://www.xmlspy.com) by Vladimir (UNISCAN) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="ORDRSP">
+		<xs:annotation>
+			<xs:documentation>ОТВЕТ НА ЗАКАЗ</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="UNH"/>
+				<xs:element ref="BGM"/>
+				<xs:element ref="DTM" maxOccurs="35"/>
+				<xs:element ref="SG1" minOccurs="0" maxOccurs="9999"/>
+				<xs:element ref="SG3" minOccurs="0" maxOccurs="99"/>
+				<xs:element ref="SG26" minOccurs="0" maxOccurs="200000"/>
+				<xs:element ref="UNS"/>
+				<xs:element ref="MOA" minOccurs="0" maxOccurs="99"/>
+				<xs:element ref="CNT" minOccurs="0" maxOccurs="10"/>
+				<xs:element ref="UNT"/>
+			</xs:sequence>
+			<xs:attribute name="version" type="xs:string" use="required" fixed="1.01"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UNH">
+		<xs:annotation>
+			<xs:documentation> Заголовок сообщения</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="E0062">
+					<xs:annotation>
+						<xs:documentation>Номер электронного сообщенияr</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="14"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="S009">
+					<xs:annotation>
+						<xs:documentation>ИДЕНТИФИКАТОР СООБЩЕНИЯ</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E0065" type="xs:string" fixed="ORDRSP">
+								<xs:annotation>
+									<xs:documentation>Тип сообщения</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="E0052" type="xs:string" fixed="D">
+								<xs:annotation>
+									<xs:documentation>Номер версии</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="E0054" type="xs:string" fixed="01B">
+								<xs:annotation>
+									<xs:documentation>Номер выпуска</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="E0051" type="xs:string" fixed="UN">
+								<xs:annotation>
+									<xs:documentation>Код ведущей организации</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="E0057" type="xs:string" fixed="EAN007">
+								<xs:annotation>
+									<xs:documentation>Код, присвоенный ведущей организацией</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="BGM">
+		<xs:annotation>
+			<xs:documentation>Начало сообщения</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="C002">
+					<xs:annotation>
+						<xs:documentation>НАИМЕНОВАНИЕ ДОКУМЕНТА/ СООБЩЕНИЯ</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E1001" default="231">
+								<xs:annotation>
+									<xs:documentation>Код наименования   
+231   = Ответ на заказ </xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="231"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="C106">
+					<xs:annotation>
+						<xs:documentation>ИДЕНТИФИКАЦИЯ ДОКУМЕНТА/ СООБЩЕНИЯ</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E1004">
+								<xs:annotation>
+									<xs:documentation>Номер ответа на заказ</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="35"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="E1225">
+					<xs:annotation>
+						<xs:documentation>Код функции сообщения     4 = Изменения
+27= Не принят
+29 = Принят без изменеий</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="3"/>
+							<xs:enumeration value="4"/>
+							<xs:enumeration value="27"/>
+							<xs:enumeration value="29"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DTM">
+		<xs:annotation>
+			<xs:documentation>Дата/время/период</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="C507">
+					<xs:annotation>
+						<xs:documentation>ДАТА/ ВРЕМЯ/ ПЕРИОД</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E2005">
+								<xs:annotation>
+									<xs:documentation>Квалификатор функции даты/времени/периода
+137   = Дата/время документа/сообщения
+171 = Дата ссылки (упоминаемого документа)</xs:documentation>
+									<xs:documentation>Date or time or period function code qualifier         
+2   = Delivery date/time, requested 
+10   = Shipment date/time, requested 
+11   = Despatch date and/or time 
+15   = Promotion start date/time 
+37   = Ship not before date/time 
+38   = Ship not later than date/time 
+61   = Cancel if not delivered by this date 
+63   = Delivery date/time, latest 
+64   = Delivery date/time, earliest 
+69   = Delivery date/time, promised for 
+X14   = Requested for delivery week commencing (EAN Code) 
+137   = Document/message date/time 
+171 = Reference date/time 
+200   = Pick-up/collection date/time of cargo 
+263   = Invoicing period 
+273   = Validity period 
+282   = Confirmation date lead time 
+383   = Cancel if not shipped by this date 
+  Code value 15 should only be used in this position in the message where no promotion reference exists or is not yet available. </xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="137"/>
+										<xs:enumeration value="171"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E2380">
+								<xs:annotation>
+									<xs:documentation>Значение даты/ времени/периода</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="35"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E2379" default="102">
+								<xs:annotation>
+									<xs:documentation>Формат даты/времени /периода
+102   = ГГГГММДД</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="102"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="SG1">
+		<xs:annotation>
+			<xs:documentation> RFF-DTM</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="RFF"/>
+				<xs:element ref="DTM" minOccurs="0" maxOccurs="5"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RFF">
+		<xs:annotation>
+			<xs:documentation>Ссылки</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="C506">
+					<xs:annotation>
+						<xs:documentation>ССЫЛКИ   
+Этот элемент используется для идентификации других документов, упоминаемых в сообщении</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E1153">
+								<xs:annotation>
+									<xs:documentation>Квалификатор вида документа
+ON   = Номер заказа (присвоенный покупателем) </xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="ON"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E1154">
+								<xs:annotation>
+									<xs:documentation>Значение номера</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="70"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="SG3">
+		<xs:annotation>
+			<xs:documentation>NAD</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="NAD"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="NAD">
+		<xs:annotation>
+			<xs:documentation>Наименование и адрес</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="E3035">
+					<xs:annotation>
+						<xs:documentation>Квалификатор стороны
+BY   = Покупатель
+DP   = Адрес доставки
+IV   = Кому выставлен счёт
+SU   = Поставщик </xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="3"/>
+							<xs:enumeration value="BY"/>
+							<xs:enumeration value="DP"/>
+							<xs:enumeration value="IV"/>
+							<xs:enumeration value="SU"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="C082">
+					<xs:annotation>
+						<xs:documentation>ПОДРОБНОСТИ ИДЕНТИФИКАЦИИ СТОРОНЫ</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E3039">
+								<xs:annotation>
+									<xs:documentation>Идентификатор стороны 
+GLN в формате n13</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:decimal">
+										<xs:totalDigits value="13"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E3055" default="9">
+								<xs:annotation>
+									<xs:documentation>Код ведущей организации 
+9   = EAN (Международная ассоциация товарной нумерации) </xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QTY">
+		<xs:annotation>
+			<xs:documentation>Количество</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="C186">
+					<xs:annotation>
+						<xs:documentation>ХАРАКТЕРИСТИКИ КОЛИЧЕСТВА</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E6063">
+								<xs:annotation>
+									<xs:documentation>Квалификатор типа количества 
+21   = Заказываемое количество
+170 = Выделенное количество</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="21"/>
+										<xs:enumeration value="170"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E6060">
+								<xs:annotation>
+									<xs:documentation>Количество</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="35"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="SG26">
+		<xs:annotation>
+			<xs:documentation>LIN-PIA-IMD-QTY- MOA-SG30</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="LIN"/>
+				<xs:element ref="PIA" minOccurs="0" maxOccurs="25"/>
+				<xs:element ref="IMD" minOccurs="0" maxOccurs="99"/>
+				<xs:element ref="QTY" minOccurs="0" maxOccurs="99"/>
+				<xs:element ref="MOA" minOccurs="0" maxOccurs="10"/>
+				<xs:element ref="SG30" minOccurs="0" maxOccurs="25"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LIN">
+		<xs:annotation>
+			<xs:documentation>Товарная позиция</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="E1082">
+					<xs:annotation>
+						<xs:documentation>Порядковый номер</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="6"/>
+							<xs:pattern value="([0-9])+"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="E1229">
+					<xs:annotation>
+						<xs:documentation>Код действия или уведомления
+3 = изменение
+5 = принято без изменений
+7 = не принято</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="3"/>
+							<xs:enumeration value="3"/>
+							<xs:enumeration value="5"/>
+							<xs:enumeration value="7"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="C212" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>ИДЕНТИФИКАТОР ТОВАРНОЙ ПОЗИЦИИ
+Для идентификации используются только коды EAN/UPC.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E7140">
+								<xs:annotation>
+									<xs:documentation>Идентификатор товара
+Формат n..14 
+GTIN - код  заказываемого товара</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="35"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E7143">
+								<xs:annotation>
+									<xs:documentation>Тип кода идентификации
+SRV = Глобальный номер товара GTIN в системе EAN.UCC</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="SRV"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PIA">
+		<xs:annotation>
+			<xs:documentation>Дополнительная идентификация</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="E4347">
+					<xs:annotation>
+						<xs:documentation>Квалификатор вида идентификации 
+1 = Дополнительная идентификация</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="3"/>
+							<xs:enumeration value="1"/>
+							<xs:enumeration value="2"/>
+							<xs:enumeration value="3"/>
+							<xs:enumeration value="4"/>
+							<xs:enumeration value="5"/>
+							<xs:enumeration value="X1"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="C212" maxOccurs="5">
+					<xs:annotation>
+						<xs:documentation>ИДЕНТИФИКАЦИОННЫЙ НОМЕР ТОВАРА</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E7140">
+								<xs:annotation>
+									<xs:documentation>Идентификатор товара</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="35"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E7143">
+								<xs:annotation>
+									<xs:documentation>Тип идентификации
+IN   = Внутренний код, присвоенный покупателем
+SA   =  Внутренний код, присвоенный поставщиком</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="IN"/>
+										<xs:enumeration value="SA"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="IMD">
+		<xs:annotation>
+			<xs:documentation>Описание товара</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="E7077" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Формат описания
+F = в виде текста</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="3"/>
+							<xs:enumeration value="F"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="C273">
+					<xs:annotation>
+						<xs:documentation>ОПИСАНИЕ ТОВАРА</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E7008" minOccurs="0" maxOccurs="2">
+								<xs:annotation>
+									<xs:documentation>Описание товара</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="256"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="MOA">
+		<xs:annotation>
+			<xs:documentation>Сумма</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="C516">
+					<xs:annotation>
+						<xs:documentation>Сумма</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E5025">
+								<xs:annotation>
+									<xs:documentation>Квалификатор вида суммы
+86 = Общая сумма 
+128 = Сумма за товарную позицию
+203 = Сумма за товарную позицию с учетом надбавок и скидок</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="86"/>
+										<xs:enumeration value="128"/>
+										<xs:enumeration value="203"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E5004">
+								<xs:annotation>
+									<xs:documentation>Сумма</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="35"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="SG30">
+		<xs:annotation>
+			<xs:documentation>PRI</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="PRI"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PRI">
+		<xs:annotation>
+			<xs:documentation>Ценовая информация</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="C509">
+					<xs:annotation>
+						<xs:documentation>ЦЕНОВАЯ ИНФОРМАЦИЯ</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E5125">
+								<xs:annotation>
+									<xs:documentation>Квалификатор цены
+AAA = чистая цена без налогов</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="AAA"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E5118">
+								<xs:annotation>
+									<xs:documentation>Значение цены</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="15"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UNS">
+		<xs:annotation>
+			<xs:documentation>Разделитель зон</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="E0081" fixed="S">
+					<xs:annotation>
+						<xs:documentation>Идентификатор зоны
+S   =   Зона итоговой информации (SUMMARY)</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="1"/>
+							<xs:enumeration value="S"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CNT">
+		<xs:annotation>
+			<xs:documentation>Всего</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="C270">
+					<xs:annotation>
+						<xs:documentation> ВСЕГО </xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E6069">
+								<xs:annotation>
+									<xs:documentation>Квалификатор типа итоговой информации
+2 = Количество товарных позиций</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="2"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E6066">
+								<xs:annotation>
+									<xs:documentation>Значение количества</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="18"/>
+										<xs:pattern value="([0-9])+"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UNT">
+		<xs:annotation>
+			<xs:documentation>Окончание сообщения</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="E0074">
+					<xs:annotation>
+						<xs:documentation>Количество элементов (сегментов EANCOM) UNH, BGM, DTM, RFF, NAD, LIN, PIA, IMD, QTY, MOA, PRI, UNS, CNT, UNT в сообщении</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="6"/>
+							<xs:pattern value="([0-9])+"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="E0062">
+					<xs:annotation>
+						<xs:documentation>Номер электронного сообщения
+Должен сопадать с номером, указанным в UNH.</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="14"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

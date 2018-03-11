@@ -19232,8 +19232,9 @@ public:
 //
 struct PhnSvcChannelStatus {
 	enum {
-		stDown     = 0,    // Channel is down and available
-		stReserved = 1,    // Channel is down, but reserved
+		stUndef    = -1,   // Undefined
+		stDown     =  0,   // Channel is down and available
+		stReserved =  1,   // Channel is down, but reserved
 		stOffHook,         // Channel is off hook
 		stDialing,         // Digits (or equivalent) have been dialed
 		stRing,            // Line is ringing
@@ -19241,10 +19242,12 @@ struct PhnSvcChannelStatus {
 		stUp,              // Line is up
 		stBusy,            // Line is busy
 		stDialingOffHook,  // Digits (or equivalent) have been dialed while offhook
-		stPreRing          // Channel has detected an incoming call and is waiting for ring
+		stPreRing,         // Channel has detected an incoming call and is waiting for ring
+		stMuteFlag = 0x00010000 // Do not transmit voice data 
 	};
 	enum {
-		ev
+		typUnkn     = 0,
+		typSip      = 1
 	};
 	enum {
 		fMute = 0x0001
@@ -19255,13 +19258,27 @@ struct PhnSvcChannelStatus {
 	long   State;
 	long   Flags;
 	long   Priority;
+	long   Type;   // PhnSvcChannelStatus::typXXX
+	long   TimeToHungUp;
 	long   Seconds;
+	uint64 CallGroup;
+	uint64 PickUpGroup;
 	SString Channel;
 	SString CallerId;
+	SString CallerIdName;
 	SString ConnectedLineNum;
+	SString ConnectedLineName;
+	SString AccountCode;
+	SString Context;
+	SString Exten;
+	SString DnId;
+	SString EffConnectedLineNum;
+	SString EffConnectedLineName;
+	SString Application;
+	SString Data;
 };
 
-class PhnSvcChannelStatusPool : SVector { // @v9.8.11 SArray-->SVector
+class PhnSvcChannelStatusPool : SVector, SStrGroup { // @v9.8.11 SArray-->SVector
 public:
 	PhnSvcChannelStatusPool();
 	uint   GetCount() const;
@@ -19273,12 +19290,26 @@ private:
 		long   State;
 		long   Flags;
 		long   Priority;
+		long   Type;
+		long   TimeToHungUp;
 		long   Seconds;
+		uint64 CallGroup;
+		uint64 PickUpGroup;
 		uint   ChannelPos;
 		uint   CallerIdPos;
+		uint   CallerIdNameP;
 		uint   ConnectedLineNumPos;
+		uint   ConnectedLineNameP;
+		uint   AccountCodeP;
+		uint   ContextP;
+		uint   ExtenP;
+		uint   DnIdP;
+		uint   EffConnectedLineNumP;
+		uint   EffConnectedLineNameP;
+		uint   ApplicationP;
+		uint   DataP;
 	};
-	StringSet Pool;
+	//StringSet Pool;
 };
 
 class AsteriskAmiClient {
@@ -19311,7 +19342,10 @@ public:
 	static int GetStateText(long state, SString & rBuf);
 	static int GetStateVal(const char * pText, long * pState);
 
-	AsteriskAmiClient();
+	enum {
+		fDoLog = 0x0001 // Записывать в журнал phnsvc.log информацию об обмене данными с сервером
+	};
+	AsteriskAmiClient(long flags);
 	~AsteriskAmiClient();
 	int    Connect(const char * pServerAddr, int serverPort);
 	int    Login(const char * pUserName, const char * pPassword);
@@ -19329,6 +19363,7 @@ private:
 		const char * P_Str;
 	};
 	static AsteriskAmiStateStr StateList[];
+	long   Flags;
 	long   State;
 	int64  LastActionId;
 	TcpSocket S;
@@ -19346,6 +19381,44 @@ private:
 
 	long   AdvCookie_Ringing;
 	long   AdvCookie_Up;
+};
+//
+// @ModuleDecl(PPViewJobPool)
+//
+class PhnSvcMonitorFilt : public PPBaseFilt {
+public:
+	SLAPI  PhnSvcMonitorFilt();
+
+	uint8  ReserveStart[64]; // @anchor
+	PPID   PhnSvcID;
+	long   Flags;
+	long   ReserveEnd;       // @anchor
+};
+
+typedef PhnSvcChannelStatus PhnSvcMonitorViewItem;
+
+class PPViewPhnSvcMonitor : public PPView {
+public:
+	SLAPI  PPViewPhnSvcMonitor();
+	SLAPI ~PPViewPhnSvcMonitor();
+	virtual int SLAPI Init_(const PPBaseFilt *);
+	virtual PPBaseFilt * SLAPI CreateFilt(void * extraPtr) const;
+	virtual int SLAPI EditBaseFilt(PPBaseFilt *);
+	//int    SLAPI InitIteration();
+	//int    FASTCALL NextIteration(PhnSvcMonitorViewItem *);
+private:
+	static int SLAPI GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray  * SLAPI CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void   SLAPI PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int    SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	int    SLAPI Update();
+	int    SLAPI _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    SLAPI CreatePhnSvcClient();
+
+	PhnSvcChannelStatusPool List;
+	PhnSvcMonitorFilt Filt;
+	AsteriskAmiClient * P_Cli;
+	PhnSvcChannelStatus TempStatusEntry; // @fastreuse
 };
 //
 // @ModuleDecl(PPObjInternetAccount)
@@ -48275,18 +48348,9 @@ protected:
 		double GetGoodsQtty(PPID goodsID) const;
 		void   FASTCALL SetupCCheckPacket(CCheckPacket * pPack) const;
 		void   SetupInfo(SString & rBuf);
-		CCheckItem & GetCur()
-		{
-			return Cur;
-		}
-		const CCheckItem & GetCurC() const
-		{
-			return Cur;
-		}
-		double GetRest() const
-		{
-			return Rest;
-		}
+		CCheckItem & GetCur() { return Cur; }
+		const  CCheckItem & GetCurC() const { return Cur; }
+		double GetRest() const { return Rest; }
 		void   SetRest(double rest);
 		int    MoveUp(uint itemIdx);
 		int    MoveDown(uint itemIdx);
@@ -48419,6 +48483,7 @@ protected:
 	PPID   AltRegisterID;    // @v9.6.9 @*CheckPaneDialog::CheckPaneDialog
 	PPID   TouchScreenID;    // @*CheckPaneDialog::CheckPaneDialog
 	PPID   ScaleID;          // @*CheckPaneDialog::CheckPaneDialog
+	PPID   CnPhnSvcID;       // @v9.9.10 PPObjCashNode(CashNodeID).PhSvcID
 	long   CnFlags;          // @*CheckPaneDialog::CheckPaneDialog (PPObjCashNode(CashNodeID).Flags & (CASHF_SELALLGOODS | CASHF_USEQUOT | CASHF_NOASKPAYMTYPE))
 	long   CnExtFlags;       // @*CheckPaneDialog::CheckPaneDialog PPObjCashNode(CashNodeID).ExtFlags
 	long   CnSpeciality;     // PPObjCashNode(CashNodeID).Speciality
@@ -48569,6 +48634,7 @@ private:
 	int    GetDataFromScale(PPID * pGoodsID, double * pWeight);
 	int    SetupRowByScale();
 	int    AcceptRowDiscount();
+	int    PhnSvcConnect();
 	int    ProcessPhnSvc(int mode);
 
 	int    InputComplexDinner(SaComplex & rComplex);

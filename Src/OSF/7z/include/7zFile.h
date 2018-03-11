@@ -39,7 +39,7 @@ WRes File_Close(CSzFile * p);
 WRes File_Read(CSzFile * p, void * data, size_t * size);
 /* writes *size bytes */
 WRes File_Write(CSzFile * p, const void * data, size_t * size);
-WRes File_Seek(CSzFile * p, Int64 * pos, ESzSeek origin);
+WRes File_Seek(CSzFile * p, int64 * pos, ESzSeek origin);
 WRes File_GetLength(CSzFile * p, uint64 * length);
 
 /* ---------- FileInStream ---------- */

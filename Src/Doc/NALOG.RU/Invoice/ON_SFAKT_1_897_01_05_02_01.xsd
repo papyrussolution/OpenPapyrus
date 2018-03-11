@@ -1,0 +1,1031 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<!-- edited with XMLSpy v2006 rel. 3 U (http://www.altova.com) by 1 (GNIVC FNS RF) -->
+<!-- edited with XMLSPY v2004 rel. 4 U (http://www.xmlspy.com) by Home (Home) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xmlns:usch="http://www.unisoftware.ru/schematron-extensions" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="Файл">
+		<xs:annotation>
+			<xs:documentation>Файл обмена</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="СвУчДокОбор">
+					<xs:annotation>
+						<xs:documentation>Сведения об участниках электронного документооборота</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="СвОЭДОтпр">
+								<xs:annotation>
+									<xs:documentation>Сведения об операторе электронного документооборота отправителя</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:attribute name="НаимОрг" use="required">
+										<xs:annotation>
+											<xs:documentation>Наименование</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1"/>
+												<xs:maxLength value="1000"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:attribute>
+									<xs:attribute name="ИННЮЛ" type="ИННЮЛТип" use="required">
+										<xs:annotation>
+											<xs:documentation>ИНН</xs:documentation>
+										</xs:annotation>
+									</xs:attribute>
+									<xs:attribute name="ИдЭДО" use="required">
+										<xs:annotation>
+											<xs:documentation>Идентификатор оператора ЭДО</xs:documentation>
+											<xs:documentation>
+											Идентификатор оператора электронного оборота счетами-фактурами (оператор ЭДО), услугами которого пользуется покупатель (продавец), символьный трехзначный код. В значении идентификатора допускаются символы латинского алфавита a–z, цифры 0–9, знаки «@», «.», «-». Значение идентификатора регистронезависимо. При включении оператора ЭДО в сеть доверенных операторов ЭДО ФНС России, идентификатор присваивается Федеральной налоговой службой</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:length value="3"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:attribute>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="ИдОтпр" use="required">
+							<xs:annotation>
+								<xs:documentation>Идентификатор участника документооборота, отпустившего товар</xs:documentation>
+								<xs:documentation>
+								Значение элемента представляется в виде ИдОЭДОКодПрод(Пок), где:
+ИдОЭДО - идентификатор оператора электронного оборота счетами-фактурами (оператор ЭДО), услугами которого пользуется покупатель (продавец), символьный трехзначный код.  При включении оператора ЭДО в сеть доверенных операторов ЭДО ФНС России, идентификатор присваивается Федеральной налоговой службой;
+КодПрод(Пок) - код продавца (покупателя) - уникальный код участника, присваиваемый оператором электронного документооборота, услугами которого пользуется покупатель (продавец), длина кода продавца (покупателя) не более 43 символов</xs:documentation>
+							</xs:annotation>
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="4"/>
+									<xs:maxLength value="46"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
+						<xs:attribute name="ИдПок" use="required">
+							<xs:annotation>
+								<xs:documentation>Идентификатор участника документооборота, которому отпущен товар </xs:documentation>
+								<xs:documentation>
+								Значение элемента представляется в виде ИдОЭДОКодПрод(Пок), где:
+ИдОЭДО - идентификатор оператора электронного оборота счетами-фактурами (оператор ЭДО), услугами которого пользуется покупатель (продавец), символьный трехзначный код.  При включении оператора ЭДО в сеть доверенных операторов ЭДО ФНС России, идентификатор присваивается Федеральной налоговой службой;
+КодПрод(Пок) - код продавца (покупателя) - уникальный код участника, присваиваемый оператором электронного документооборота, услугами которого пользуется покупатель (продавец), длина кода продавца (покупателя) не более 43 символов </xs:documentation>
+							</xs:annotation>
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="4"/>
+									<xs:maxLength value="46"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Документ">
+					<xs:annotation>
+						<xs:documentation>Счет-фактура, применяемый при расчетах по налогу на добавленную стоимость</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="СвСчФакт">
+								<xs:annotation>
+									<xs:documentation>Сведения о счете-фактуре</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="ИспрСчФ" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Исправление (строка 1а)</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:attribute name="НомИспрСчФ" use="required">
+													<xs:annotation>
+														<xs:documentation>Исправление: № (Строка 1а)</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:integer">
+															<xs:totalDigits value="3"/>
+															<xs:minInclusive value="1"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+												<xs:attribute name="ДатаИспрСчФ" type="ДатаТип" use="required">
+													<xs:annotation>
+														<xs:documentation>Исправление: Дата  (Строка 1а)</xs:documentation>
+														<xs:documentation>
+											Дата в формате ДД.ММ.ГГГГ</xs:documentation>
+													</xs:annotation>
+												</xs:attribute>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="СвПрод" type="СвПродПокТип">
+											<xs:annotation>
+												<xs:documentation>Сведения о продавце (строки 2, 2а, 2б)</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="ГрузОт" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Сведения о грузоотправителе</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:choice>
+													<xs:element name="ГрузОтпр" type="СвГрузОтпрПолТип">
+														<xs:annotation>
+															<xs:documentation>Грузоотправитель и его адрес (строка 3)</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ОнЖе">
+														<xs:annotation>
+															<xs:documentation>Указано "он же" (строка 3)</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:length value="5"/>
+																<xs:enumeration value="он же"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+												</xs:choice>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="ГрузПолуч" type="СвГрузОтпрПолТип" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Грузополучатель и его адрес (строка 4)</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="СвПРД" minOccurs="0" maxOccurs="10">
+											<xs:annotation>
+												<xs:documentation>Сведения о платежно-расчетном документе (строка 5)</xs:documentation>
+												<xs:documentation>
+												Не более 10 реализаций</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:attribute name="НомерПРД" use="required">
+													<xs:annotation>
+														<xs:documentation>Номер платежно-расчетного документа</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:minLength value="1"/>
+															<xs:maxLength value="30"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+												<xs:attribute name="ДатаПРД" type="ДатаТип" use="required">
+													<xs:annotation>
+														<xs:documentation>Дата составления платежно-расчетного документа</xs:documentation>
+														<xs:documentation>
+Дата в формате ДД.ММ.ГГГГ</xs:documentation>
+													</xs:annotation>
+												</xs:attribute>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="СвПокуп" type="СвПродПокТип">
+											<xs:annotation>
+												<xs:documentation>Сведения о покупателе (строки 6, 6а, 6б)</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="ИнфПол" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Информационное поле документа</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="ТекстИнф" minOccurs="0" maxOccurs="20">
+														<xs:annotation>
+															<xs:documentation>Текстовая информация</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:attribute name="Идентиф" use="required">
+																<xs:annotation>
+																	<xs:documentation>Идентификатор</xs:documentation>
+																</xs:annotation>
+																<xs:simpleType>
+																	<xs:restriction base="xs:string">
+																		<xs:minLength value="1"/>
+																		<xs:maxLength value="50"/>
+																	</xs:restriction>
+																</xs:simpleType>
+															</xs:attribute>
+															<xs:attribute name="Значен" use="required">
+																<xs:annotation>
+																	<xs:documentation>Значение</xs:documentation>
+																</xs:annotation>
+																<xs:simpleType>
+																	<xs:restriction base="xs:string">
+																		<xs:minLength value="1"/>
+																		<xs:maxLength value="200"/>
+																	</xs:restriction>
+																</xs:simpleType>
+															</xs:attribute>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attribute name="ИдФайлИнфПол" use="optional">
+													<xs:annotation>
+														<xs:documentation>Идентификатор  файла информационного поля</xs:documentation>
+														<xs:documentation>GUID. 
+														Указывается идентификатор файла, связанного со сведениями данного электронного документа</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:length value="36"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="НомерСчФ" use="required">
+										<xs:annotation>
+											<xs:documentation>Порядковый номер  счета-фактуры (Строка 1)</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1"/>
+												<xs:maxLength value="1000"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:attribute>
+									<xs:attribute name="ДатаСчФ" type="ДатаТип" use="required">
+										<xs:annotation>
+											<xs:documentation>Дата составления  счета-фактуры (Строка 1)</xs:documentation>
+											<xs:documentation>
+Дата в формате ДД.ММ.ГГГГ</xs:documentation>
+										</xs:annotation>
+									</xs:attribute>
+									<xs:attribute name="КодОКВ" type="ОКВТип" use="required">
+										<xs:annotation>
+											<xs:documentation>Валюта: Код (Строка 7) </xs:documentation>
+											<xs:documentation>
+											Код по Общероссийскому классификатору валют</xs:documentation>
+										</xs:annotation>
+									</xs:attribute>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="ТаблСчФакт">
+								<xs:annotation>
+									<xs:documentation>Сведения таблицы счета-фактуры</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="СведТов" maxOccurs="unbounded">
+											<xs:annotation>
+												<xs:documentation>Сведения о товаре (работе, услуге)</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="Акциз" type="СумАкцизТип">
+														<xs:annotation>
+															<xs:documentation>В том числе сумма акциза (Графа 6)</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="СумНал" type="СумНДСТип">
+														<xs:annotation>
+															<xs:documentation>Сумма налога, предъявляемая покупателю (Графа 8)</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="СвТД" minOccurs="0" maxOccurs="unbounded">
+														<xs:annotation>
+															<xs:documentation>Сведения о таможенной декларации</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:attribute name="КодПроисх" type="ОКСМТип" use="required">
+																<xs:annotation>
+																	<xs:documentation>Цифровой код страны происхождения товара (Графа 10)</xs:documentation>
+																	<xs:documentation>Код страны по Общероссийскому класси-фикатору стран мира (ОКСМ) или
+																	980 - Евросоюз,
+																	981 - ЕАЭС</xs:documentation>
+																</xs:annotation>
+															</xs:attribute>
+															<xs:attribute name="НомерТД" use="required">
+																<xs:annotation>
+																	<xs:documentation>Номер таможенной декларации (Графа11)</xs:documentation>
+																</xs:annotation>
+																<xs:simpleType>
+																	<xs:restriction base="xs:string">
+																		<xs:maxLength value="29"/>
+																		<xs:minLength value="1"/>
+																	</xs:restriction>
+																</xs:simpleType>
+															</xs:attribute>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="ИнфПолСтр" minOccurs="0" maxOccurs="20">
+														<xs:annotation>
+															<xs:documentation>Информационное поле строки</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:attribute name="Идентиф" use="required">
+																<xs:annotation>
+																	<xs:documentation>Идентификатор</xs:documentation>
+																</xs:annotation>
+																<xs:simpleType>
+																	<xs:restriction base="xs:string">
+																		<xs:minLength value="1"/>
+																		<xs:maxLength value="50"/>
+																	</xs:restriction>
+																</xs:simpleType>
+															</xs:attribute>
+															<xs:attribute name="Значен" use="required">
+																<xs:annotation>
+																	<xs:documentation>Значение</xs:documentation>
+																</xs:annotation>
+																<xs:simpleType>
+																	<xs:restriction base="xs:string">
+																		<xs:minLength value="1"/>
+																		<xs:maxLength value="200"/>
+																	</xs:restriction>
+																</xs:simpleType>
+															</xs:attribute>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+												<xs:attribute name="НомСтр" use="required">
+													<xs:annotation>
+														<xs:documentation>Номер строки таблицы</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:integer">
+															<xs:totalDigits value="6"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+												<xs:attribute name="НаимТов" use="required">
+													<xs:annotation>
+														<xs:documentation>Наименование товара (описание выполненных работ, оказанных услуг), имущественного права (Графа 1)</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:minLength value="1"/>
+															<xs:maxLength value="1000"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+												<xs:attribute name="ОКЕИ_Тов" type="ОКЕИТип" use="optional">
+													<xs:annotation>
+														<xs:documentation>Код единицы измерения (Графа 2)</xs:documentation>
+														<xs:documentation>
+														Код по Общероссийскому классификатору единиц измерения</xs:documentation>
+													</xs:annotation>
+												</xs:attribute>
+												<xs:attribute name="КолТов" use="optional">
+													<xs:annotation>
+														<xs:documentation>Количество (объем) (Графа 3)</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:decimal">
+															<xs:totalDigits value="26"/>
+															<xs:fractionDigits value="11"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+												<xs:attribute name="ЦенаТов" use="optional">
+													<xs:annotation>
+														<xs:documentation>Цена (тариф) за единицу измерения (Графа 4)</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:decimal">
+															<xs:totalDigits value="26"/>
+															<xs:fractionDigits value="11"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+												<xs:attribute name="СтТовБезНДС" use="optional">
+													<xs:annotation>
+														<xs:documentation>Стоимость товаров (работ, услуг), имущественных прав без налога - всего (Графа 5)</xs:documentation>
+														<xs:documentation>
+														Обязателен, кроме случаев по п.4 Правил заполнения счета-фактуры, применяемого при расчетах по налогу на добавленную стоимость</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:decimal">
+															<xs:totalDigits value="19"/>
+															<xs:fractionDigits value="2"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+												<xs:attribute name="НалСт" use="required">
+													<xs:annotation>
+														<xs:documentation>Налоговая ставка (Графа 7)</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:maxLength value="7"/>
+															<xs:minLength value="1"/>
+															<xs:enumeration value="0%"/>
+															<xs:enumeration value="10%"/>
+															<xs:enumeration value="18%"/>
+															<xs:enumeration value="10/110"/>
+															<xs:enumeration value="18/118"/>
+															<xs:enumeration value="без НДС"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+												<xs:attribute name="СтТовУчНал" use="required">
+													<xs:annotation>
+														<xs:documentation>Стоимость товаров (работ, услуг), имущественных прав с налогом - всего (Графа 9)</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:decimal">
+															<xs:totalDigits value="19"/>
+															<xs:fractionDigits value="2"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="ВсегоОпл">
+											<xs:annotation>
+												<xs:documentation>Реквизиты строки Всего к оплате</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="СумНалВсего" type="СумНДСТип">
+														<xs:annotation>
+															<xs:documentation>Всего к оплате, Сумма налога, предъявляемая покупателю (строка Всего к оплате/Графа 8)</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+												</xs:sequence>
+												<xs:attribute name="СтТовБезНДСВсего" use="optional">
+													<xs:annotation>
+														<xs:documentation>Всего к оплате, Стоимость товаров (работ, услуг), имущественных прав без налога - всего (строка Всего к оплате/Графа 5)</xs:documentation>
+														<xs:documentation>
+														Обязателен, кроме случаев по п.4 Правил заполнения счета-фактуры, применяемого при расчетах по налогу на добавленную стоимость</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:decimal">
+															<xs:totalDigits value="19"/>
+															<xs:fractionDigits value="2"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+												<xs:attribute name="СтТовУчНалВсего" use="required">
+													<xs:annotation>
+														<xs:documentation>Всего к оплате, Стоимость товаров (работ, услуг), имущественных прав с налогом - всего (строка Всего к оплате/Графа 9)</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:decimal">
+															<xs:totalDigits value="19"/>
+															<xs:fractionDigits value="2"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Подписант">
+								<xs:annotation>
+									<xs:documentation>Сведения о лице, подписывающем документ в электронной форме</xs:documentation>
+									<!--     Сведения о представителе присутствуют только если признак подписанта принимает значение 2          -->
+								</xs:annotation>
+								<xs:complexType>
+									<xs:choice>
+										<xs:element name="ИП">
+											<xs:annotation>
+												<xs:documentation>Индивидуальный предприниматель</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="ФИО" type="ФИОТип">
+														<xs:annotation>
+															<xs:documentation>Фамилия, Имя, Отчество</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+												</xs:sequence>
+												<xs:attribute name="ИННФЛ" type="ИННФЛТип" use="required">
+													<xs:annotation>
+														<xs:documentation>ИНН индивидуального предпринимателя</xs:documentation>
+													</xs:annotation>
+												</xs:attribute>
+												<xs:attribute name="СвГосРегИП" use="required">
+													<xs:annotation>
+														<xs:documentation>Реквизиты свидетельства о государственной регистрации ИП</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:maxLength value="100"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="ЮЛ">
+											<xs:annotation>
+												<xs:documentation>Организация</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="ФИО" type="ФИОТип">
+														<xs:annotation>
+															<xs:documentation>Фамилия, Имя, Отчество</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+												</xs:sequence>
+												<xs:attribute name="ИННЮЛ" type="ИННЮЛТип" use="required">
+													<xs:annotation>
+														<xs:documentation>ИНН организации</xs:documentation>
+													</xs:annotation>
+												</xs:attribute>
+												<xs:attribute name="Должн" use="optional">
+													<xs:annotation>
+														<xs:documentation>Должность</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:maxLength value="128"/>
+															<xs:minLength value="0"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:attribute>
+											</xs:complexType>
+										</xs:element>
+									</xs:choice>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="КНД" use="required">
+							<xs:annotation>
+								<xs:documentation>Код формы  по КНД</xs:documentation>
+								<xs:documentation>
+								Код по Классификатору налоговой документации.
+								1115101 - Счет-фактура, применяемый при расчетах по налогу на добавленную стоимость</xs:documentation>
+							</xs:annotation>
+							<xs:simpleType>
+								<xs:restriction base="КНДТип">
+									<xs:enumeration value="1115101"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="ИдФайл" use="required">
+				<xs:annotation>
+					<xs:documentation>Идентификатор файла</xs:documentation>
+					<xs:documentation>Содержит (повторяет) имя сформированного файла (без  расширения)</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="200"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="ВерсПрог" use="optional">
+				<xs:annotation>
+					<xs:documentation>Версия передающей программы</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="40"/>
+						<xs:minLength value="1"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute name="ВерсФорм" use="required">
+				<xs:annotation>
+					<xs:documentation>Версия формата</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="5"/>
+						<xs:enumeration value="5.02"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="АдресТип">
+		<xs:annotation>
+			<xs:documentation>Сведения об адресе</xs:documentation>
+		</xs:annotation>
+		<xs:choice>
+			<xs:element name="АдрРФ" type="АдрРФТип">
+				<xs:annotation>
+					<xs:documentation>Адрес местонахождения в Российской Федерации</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="АдрИно" type="АдрИноТип">
+				<xs:annotation>
+					<xs:documentation>Адрес местонахождения за пределами Российской Федерации</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="АдрИноТип">
+		<xs:annotation>
+			<xs:documentation>Адрес за пределами Российской Федерации</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="КодСтр" type="ОКСМТип" use="required">
+			<xs:annotation>
+				<xs:documentation>Код страны</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="АдрТекст" use="required">
+			<xs:annotation>
+				<xs:documentation>Адрес</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:minLength value="1"/>
+					<xs:maxLength value="255"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="АдрРФТип">
+		<xs:annotation>
+			<xs:documentation>Адрес в Российской Федерации </xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="Индекс" use="optional">
+			<xs:annotation>
+				<xs:documentation>Индекс</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:length value="6"/>
+					<xs:pattern value="[0-9]{6}"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="КодРегион" use="required">
+			<xs:annotation>
+				<xs:documentation>Код региона</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="CCРФТип"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="Район" use="optional">
+			<xs:annotation>
+				<xs:documentation>Район</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:minLength value="1"/>
+					<xs:maxLength value="50"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="Город" use="optional">
+			<xs:annotation>
+				<xs:documentation>Город</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:maxLength value="50"/>
+					<xs:minLength value="1"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="НаселПункт" use="optional">
+			<xs:annotation>
+				<xs:documentation>Населенный пункт</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:minLength value="1"/>
+					<xs:maxLength value="50"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="Улица" use="optional">
+			<xs:annotation>
+				<xs:documentation>Улица</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:minLength value="1"/>
+					<xs:maxLength value="50"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="Дом" use="optional">
+			<xs:annotation>
+				<xs:documentation>Дом</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:minLength value="1"/>
+					<xs:maxLength value="20"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="Корпус" use="optional">
+			<xs:annotation>
+				<xs:documentation>Корпус</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:minLength value="1"/>
+					<xs:maxLength value="20"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="Кварт" use="optional">
+			<xs:annotation>
+				<xs:documentation>Квартира</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:minLength value="1"/>
+					<xs:maxLength value="20"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="СвПродПокТип">
+		<xs:annotation>
+			<xs:documentation>Сведения о продавце (покупателе)</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ИдСв">
+				<xs:annotation>
+					<xs:documentation>Идентификационные сведения</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:choice>
+						<xs:element name="СвЮЛ">
+							<xs:annotation>
+								<xs:documentation>Сведения об организации</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:attribute name="НаимОрг" use="required">
+									<xs:annotation>
+										<xs:documentation>Наименование</xs:documentation>
+									</xs:annotation>
+									<xs:simpleType>
+										<xs:restriction base="xs:string">
+											<xs:minLength value="1"/>
+											<xs:maxLength value="1000"/>
+										</xs:restriction>
+									</xs:simpleType>
+								</xs:attribute>
+								<xs:attribute name="ИННЮЛ" type="ИННЮЛТип" use="optional">
+									<xs:annotation>
+										<xs:documentation>ИНН</xs:documentation>
+										<xs:documentation>Обязателен для лиц, состоящих на учете в налоговых органах</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+								<xs:attribute name="КПП" type="КППТип" use="optional">
+									<xs:annotation>
+										<xs:documentation>КПП</xs:documentation>
+										<xs:documentation>Обязателен для лиц, состоящих на учете в налоговых органах</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="СвФЛ">
+							<xs:annotation>
+								<xs:documentation>Сведения об индивидуальном предпринимателе</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="ФИОИП" type="ФИОТип">
+										<xs:annotation>
+											<xs:documentation>Фамилия, имя, 
+отчество</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+								</xs:sequence>
+								<xs:attribute name="ИННФЛ" type="ИННФЛТип" use="optional">
+									<xs:annotation>
+										<xs:documentation>ИНН</xs:documentation>
+										<xs:documentation>Обязателен для лиц, состоящих на учете в налоговых органах</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+							</xs:complexType>
+						</xs:element>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Адрес" type="АдресТип">
+				<xs:annotation>
+					<xs:documentation>Адрес</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="СвГрузОтпрПолТип">
+		<xs:annotation>
+			<xs:documentation>Сведения о грузоотправителе (грузополучателе)</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="НаимГОП">
+				<xs:annotation>
+					<xs:documentation>Наименование (ФИО)</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:choice>
+						<xs:element name="НаимОрг">
+							<xs:annotation>
+								<xs:documentation>Наименование организации </xs:documentation>
+							</xs:annotation>
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="1"/>
+									<xs:maxLength value="1000"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element name="ФИОИП" type="ФИОТип">
+							<xs:annotation>
+								<xs:documentation>Фамилия, имя, 
+отчество индивидуального предпринимателя</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Адрес" type="АдресТип">
+				<xs:annotation>
+					<xs:documentation>Адрес</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="СумАкцизТип">
+		<xs:annotation>
+			<xs:documentation>Сумма акциза</xs:documentation>
+		</xs:annotation>
+		<xs:choice>
+			<xs:element name="СумАкциз">
+				<xs:annotation>
+					<xs:documentation>Сумма акциза</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:decimal">
+						<xs:totalDigits value="19"/>
+						<xs:fractionDigits value="2"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="БезАкциз">
+				<xs:annotation>
+					<xs:documentation>Без акциза</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:length value="10"/>
+						<xs:enumeration value="без акциза"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="СумНДСТип">
+		<xs:annotation>
+			<xs:documentation>Сумма НДС</xs:documentation>
+		</xs:annotation>
+		<xs:choice>
+			<xs:element name="СумНДС">
+				<xs:annotation>
+					<xs:documentation>Сумма НДС</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:decimal">
+						<xs:totalDigits value="19"/>
+						<xs:fractionDigits value="2"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="БезНДС">
+				<xs:annotation>
+					<xs:documentation>Без НДС</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="7"/>
+						<xs:enumeration value="без НДС"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="ФИОТип">
+		<xs:annotation>
+			<xs:documentation>Фамилия, имя, отчество физического лица</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="Фамилия" use="required">
+			<xs:annotation>
+				<xs:documentation>Фамилия</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:minLength value="1"/>
+					<xs:maxLength value="60"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="Имя" use="required">
+			<xs:annotation>
+				<xs:documentation>Имя</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:minLength value="1"/>
+					<xs:maxLength value="60"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="Отчество" use="optional">
+			<xs:annotation>
+				<xs:documentation>Отчество</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:minLength value="1"/>
+					<xs:maxLength value="60"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="ДатаТип">
+		<xs:annotation>
+			<xs:documentation>Дата в формате ДД.ММ.ГГГГ (01.01.1800 - 31.12.2099)</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:length value="10"/>
+			<xs:pattern value="(((0[1-9]{1}|[1-2]{1}[0-9]{1})\.(0[1-9]{1}|1[0-2]{1}))|((30)\.(01|0[3-9]{1}|1[0-2]{1}))|((31)\.(01|03|05|07|08|10|12)))\.(18[0-9]{2}|19[0-9]{2}|20[0-9]{2})"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ИННФЛТип">
+		<xs:annotation>
+			<xs:documentation>Идентификационный номер налогоплательщика - физического лица</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:length value="12"/>
+			<xs:pattern value="([0-9]{1}[1-9]{1}|[1-9]{1}[0-9]{1})[0-9]{10}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ИННЮЛТип">
+		<xs:annotation>
+			<xs:documentation>Идентификационный номер налогоплательщика - юридического лица</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:length value="10"/>
+			<xs:pattern value="([0-9]{1}[1-9]{1}|[1-9]{1}[0-9]{1})[0-9]{8}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="КНДТип">
+		<xs:annotation>
+			<xs:documentation>Код из Классификатора налоговой документации</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:length value="7"/>
+			<xs:pattern value="[0-9]{7}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="КППТип">
+		<xs:annotation>
+			<xs:documentation>Код причины постановки на учет (КПП) - 5 и 6 знаки от 0-9 и A-Z</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:length value="9"/>
+			<xs:pattern value="([0-9]{1}[1-9]{1}|[1-9]{1}[0-9]{1})([0-9]{2})([0-9A-Z]{2})([0-9]{3})"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CCРФТип">
+		<xs:annotation>
+			<xs:documentation>Код из Справочника субъекта Российской Федерации </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:length value="2"/>
+			<xs:pattern value="[0-9]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ОКСМТип">
+		<xs:annotation>
+			<xs:documentation>Код из Общероссийского классификатора стран мира</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:length value="3"/>
+			<xs:pattern value="[0-9]{3}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ОКВТип">
+		<xs:annotation>
+			<xs:documentation>Код из Общероссийского классификатора валют</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:length value="3"/>
+			<xs:pattern value="[0-9]{3}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ОКЕИТип">
+		<xs:annotation>
+			<xs:documentation>Код из Общероссийского классификатора единиц измерения</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="3"/>
+			<xs:maxLength value="4"/>
+			<xs:pattern value="[0-9]{3}"/>
+			<xs:pattern value="[0-9]{4}"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

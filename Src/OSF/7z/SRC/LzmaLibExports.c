@@ -6,8 +6,8 @@
 
 BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 {
-  UNUSED_VAR(hInstance);
-  UNUSED_VAR(dwReason);
-  UNUSED_VAR(lpReserved);
-  return TRUE;
+	UNUSED_VAR(hInstance);
+	UNUSED_VAR(dwReason);
+	UNUSED_VAR(lpReserved);
+	return TRUE;
 }

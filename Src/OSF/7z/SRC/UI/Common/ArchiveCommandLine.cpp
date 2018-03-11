@@ -299,16 +299,13 @@ static void AddNameToCensor(NWildcard::CCensor &censor, const UString &name, boo
 	censor.AddPreItem(include, name, recursed, wildcardMatching);
 }
 
-static void AddRenamePair(CObjectVector<CRenamePair> * renamePairs,
-    const UString &oldName, const UString &newName, NRecursedType::EEnum type,
-    bool wildcardMatching)
+static void AddRenamePair(CObjectVector<CRenamePair> * renamePairs, const UString & oldName, const UString &newName, NRecursedType::EEnum type, bool wildcardMatching)
 {
 	CRenamePair &pair = renamePairs->AddNew();
 	pair.OldName = oldName;
 	pair.NewName = newName;
 	pair.RecursedType = type;
 	pair.WildcardParsing = wildcardMatching;
-
 	if(!pair.Prepare()) {
 		UString val;
 		val += pair.OldName;
@@ -385,23 +382,22 @@ static void AddToCensorFromNonSwitchesStrings(CObjectVector<CRenamePair> * renam
 
 #ifdef _WIN32
 
-struct CEventSetEnd {
-	UString Name;
-	CEventSetEnd(const wchar_t * name) : Name(name) 
-	{
-	}
-	~CEventSetEnd()
-	{
-		NSynchronization::CManualResetEvent event;
-		if(event.Open(EVENT_MODIFY_STATE, false, GetSystemString(Name)) == 0)
-			event.Set();
-	}
-};
-
 static const char * const k_IncorrectMapCommand = "Incorrect Map command";
 
 static const char * ParseMapWithPaths(NWildcard::CCensor &censor, const UString &s2, bool include, NRecursedType::EEnum commonRecursedType, bool wildcardMatching)
 {
+	struct CEventSetEnd {
+		CEventSetEnd(const wchar_t * name) : Name(name) 
+		{
+		}
+		~CEventSetEnd()
+		{
+			NSynchronization::CManualResetEvent event;
+			if(event.Open(EVENT_MODIFY_STATE, false, GetSystemString(Name)) == 0)
+				event.Set();
+		}
+		UString Name;
+	};
 	UString s(s2);
 	int pos = s.Find(L':');
 	if(pos < 0)
@@ -437,9 +433,7 @@ static const char * ParseMapWithPaths(NWildcard::CCensor &censor, const UString 
 		else
 			name += c;
 	}
-	if(!name.IsEmpty())
-		return "Map data error";
-	return NULL;
+	return name.IsEmpty() ? NULL : "Map data error";
 }
 
 #endif
@@ -495,88 +489,86 @@ static void AddSwitchWildcardsToCensor(NWildcard::CCensor &censor, const UString
 }
 
 #ifdef _WIN32
-
-// This code converts all short file names to long file names.
-
-static void ConvertToLongName(const UString &prefix, UString &name)
-{
-	if(name.IsEmpty() || DoesNameContainWildcard(name))
-		return;
-	NFind::CFileInfo fi;
-	const FString path(us2fs(prefix + name));
-  #ifndef UNDER_CE
-	if(NFile::NName::IsDevicePath(path))
-		return;
-  #endif
-	if(fi.Find(path))
-		name = fs2us(fi.Name);
-}
-
-static void ConvertToLongNames(const UString &prefix, CObjectVector<NWildcard::CItem> &items)
-{
-	FOR_VECTOR(i, items) {
-		NWildcard::CItem &item = items[i];
-		if(item.Recursive || item.PathParts.Size() != 1)
-			continue;
-		if(prefix.IsEmpty() && item.IsDriveItem())
-			continue;
-		ConvertToLongName(prefix, item.PathParts.Front());
-	}
-}
-
-static void ConvertToLongNames(const UString &prefix, NWildcard::CCensorNode &node)
-{
-	ConvertToLongNames(prefix, node.IncludeItems);
-	ConvertToLongNames(prefix, node.ExcludeItems);
-	uint i;
-	for(i = 0; i < node.SubNodes.Size(); i++) {
-		UString &name = node.SubNodes[i].Name;
-		if(prefix.IsEmpty() && NWildcard::IsDriveColonName(name))
-			continue;
-		ConvertToLongName(prefix, name);
-	}
-	// mix folders with same name
-	for(i = 0; i < node.SubNodes.Size(); i++) {
-		NWildcard::CCensorNode &nextNode1 = node.SubNodes[i];
-		for(uint j = i + 1; j < node.SubNodes.Size(); ) {
-			const NWildcard::CCensorNode &nextNode2 = node.SubNodes[j];
-			if(nextNode1.Name.IsEqualTo_NoCase(nextNode2.Name)) {
-				nextNode1.IncludeItems += nextNode2.IncludeItems;
-				nextNode1.ExcludeItems += nextNode2.ExcludeItems;
-				node.SubNodes.Delete(j);
-			}
-			else
-				j++;
+	//
+	// This code converts all short file names to long file names.
+	//
+	static void FASTCALL ConvertToLongName(const UString &prefix, UString &name)
+	{
+		if(!name.IsEmpty() && !DoesNameContainWildcard(name)) {
+			NFind::CFileInfo fi;
+			const FString path(us2fs(prefix + name));
+		  #ifndef UNDER_CE
+			if(NFile::NName::IsDevicePath(path))
+				return;
+		  #endif
+			if(fi.Find(path))
+				name = fs2us(fi.Name);
 		}
 	}
-	for(i = 0; i < node.SubNodes.Size(); i++) {
-		NWildcard::CCensorNode &nextNode = node.SubNodes[i];
-		ConvertToLongNames(prefix + nextNode.Name + WCHAR_PATH_SEPARATOR, nextNode);
-	}
-}
 
-void ConvertToLongNames(NWildcard::CCensor &censor)
-{
-	FOR_VECTOR(i, censor.Pairs) {
-		NWildcard::CPair &pair = censor.Pairs[i];
-		ConvertToLongNames(pair.Prefix, pair.Head);
+	static void FASTCALL ConvertToLongNames(const UString & prefix, CObjectVector <NWildcard::CCensorNode::CItem> &items)
+	{
+		FOR_VECTOR(i, items) {
+			NWildcard::CCensorNode::CItem & item = items[i];
+			if(item.Recursive || item.PathParts.Size() != 1)
+				continue;
+			if(prefix.IsEmpty() && item.IsDriveItem())
+				continue;
+			ConvertToLongName(prefix, item.PathParts.Front());
+		}
 	}
-}
 
+	static void FASTCALL ConvertToLongNames(const UString &prefix, NWildcard::CCensorNode &node)
+	{
+		ConvertToLongNames(prefix, node.IncludeItems);
+		ConvertToLongNames(prefix, node.ExcludeItems);
+		uint i;
+		for(i = 0; i < node.SubNodes.Size(); i++) {
+			UString &name = node.SubNodes[i].Name;
+			if(prefix.IsEmpty() && NWildcard::IsDriveColonName(name))
+				continue;
+			ConvertToLongName(prefix, name);
+		}
+		// mix folders with same name
+		for(i = 0; i < node.SubNodes.Size(); i++) {
+			NWildcard::CCensorNode &nextNode1 = node.SubNodes[i];
+			for(uint j = i + 1; j < node.SubNodes.Size(); ) {
+				const NWildcard::CCensorNode &nextNode2 = node.SubNodes[j];
+				if(nextNode1.Name.IsEqualTo_NoCase(nextNode2.Name)) {
+					nextNode1.IncludeItems += nextNode2.IncludeItems;
+					nextNode1.ExcludeItems += nextNode2.ExcludeItems;
+					node.SubNodes.Delete(j);
+				}
+				else
+					j++;
+			}
+		}
+		for(i = 0; i < node.SubNodes.Size(); i++) {
+			NWildcard::CCensorNode &nextNode = node.SubNodes[i];
+			ConvertToLongNames(prefix + nextNode.Name + WCHAR_PATH_SEPARATOR, nextNode);
+		}
+	}
+
+	void ConvertToLongNames(NWildcard::CCensor & censor)
+	{
+		FOR_VECTOR(i, censor.Pairs) {
+			NWildcard::CCensor::CPair & pair = censor.Pairs[i];
+			ConvertToLongNames(pair.Prefix, pair.Head);
+		}
+	}
 #endif
 
 /*
-   static NUpdateArchive::NPairAction::EEnum GetUpdatePairActionType(int i)
-   {
-   switch (i)
-   {
-    case NUpdateArchive::NPairAction::kIgnore: return NUpdateArchive::NPairAction::kIgnore;
-    case NUpdateArchive::NPairAction::kCopy: return NUpdateArchive::NPairAction::kCopy;
-    case NUpdateArchive::NPairAction::kCompress: return NUpdateArchive::NPairAction::kCompress;
-    case NUpdateArchive::NPairAction::kCompressAsAnti: return NUpdateArchive::NPairAction::kCompressAsAnti;
-   }
-   throw 98111603;
-   }
+static NUpdateArchive::NPairAction::EEnum GetUpdatePairActionType(int i)
+{
+	switch (i) {
+		case NUpdateArchive::NPairAction::kIgnore: return NUpdateArchive::NPairAction::kIgnore;
+		case NUpdateArchive::NPairAction::kCopy: return NUpdateArchive::NPairAction::kCopy;
+		case NUpdateArchive::NPairAction::kCompress: return NUpdateArchive::NPairAction::kCompress;
+		case NUpdateArchive::NPairAction::kCompressAsAnti: return NUpdateArchive::NPairAction::kCompressAsAnti;
+	}
+	throw 98111603;
+}
  */
 
 static const char * const kUpdatePairStateIDSet = "pqrxyzw";
@@ -586,8 +578,7 @@ static const uint kNumUpdatePairActions = 4;
 static const char * const kUpdateIgnoreItselfPostStringID = "-";
 static const wchar_t kUpdateNewArchivePostCharID = '!';
 
-static bool ParseUpdateCommandString2(const UString &command,
-    NUpdateArchive::CActionSet &actionSet, UString &postString)
+static bool ParseUpdateCommandString2(const UString & command, NUpdateArchive::CActionSet & actionSet, UString & postString)
 {
 	for(uint i = 0; i < command.Len(); ) {
 		wchar_t c = MyCharLower_Ascii(command[i]);
@@ -596,24 +587,30 @@ static bool ParseUpdateCommandString2(const UString &command,
 			postString = command.Ptr(i);
 			return true;
 		}
-		i++;
-		if(i >= command.Len())
-			return false;
-		c = command[i];
-		if(c < '0' || c >= '0' + kNumUpdatePairActions)
-			return false;
-		unsigned actionPos = c - '0';
-		actionSet.StateActions[(uint)statePos] = (NUpdateArchive::NPairAction::EEnum)(actionPos);
-		if(kUpdatePairStateNotSupportedActions[(uint)statePos] == (int)actionPos)
-			return false;
-		i++;
+		else {
+			i++;
+			if(i >= command.Len())
+				return false;
+			else {
+				c = command[i];
+				if(c < '0' || c >= '0' + kNumUpdatePairActions)
+					return false;
+				else {
+					uint   actionPos = c - '0';
+					actionSet.StateActions[(uint)statePos] = (NUpdateArchive::NPairAction::EEnum)(actionPos);
+					if(kUpdatePairStateNotSupportedActions[(uint)statePos] == (int)actionPos)
+						return false;
+					else
+						i++;
+				}
+			}
+		}
 	}
 	postString.Empty();
 	return true;
 }
 
-static void ParseUpdateCommandString(CUpdateOptions &options,
-    const UStringVector &updatePostStrings, const NUpdateArchive::CActionSet &defaultActionSet)
+static void ParseUpdateCommandString(CUpdateOptions & options, const UStringVector & updatePostStrings, const NUpdateArchive::CActionSet & defaultActionSet)
 {
 	const char * errorMessage = "incorrect update switch command";
 	uint i;
@@ -627,7 +624,6 @@ static void ParseUpdateCommandString(CUpdateOptions &options,
 		}
 		else {
 			NUpdateArchive::CActionSet actionSet = defaultActionSet;
-
 			UString postString;
 			if(!ParseUpdateCommandString2(updateString, actionSet, postString))
 				break;
@@ -690,7 +686,7 @@ static void SetAddCommandOptions(NCommandType::EEnum commandType, const CParser 
 	}
 }
 
-static void SetMethodOptions(const CParser &parser, CObjectVector<CProperty> &properties)
+static void SetMethodOptions(const CParser & parser, CObjectVector <CProperty> & properties)
 {
 	if(parser[NKey::kProperty].ThereIs) {
 		FOR_VECTOR(i, parser[NKey::kProperty].PostStrings) {

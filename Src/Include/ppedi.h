@@ -71,14 +71,13 @@ public:
         refIV      // "IV"
 	};
 	struct REF {
-		REF()
+		REF() : Type(0)
 		{
-			Clear();
 		}
 		REF & Clear()
 		{
 			Type = 0;
-			Text = 0;
+			Text.Z();
 			return *this;
 		}
         int    Type;
@@ -94,9 +93,8 @@ public:
 		dtmExpiryDays = 36   // Срок годности в днях
 	};
 	struct DTM {
-		DTM()
+		DTM() : Type(0), Dtm(ZERODATETIME), Days(0)
 		{
-			Clear();
 		}
 		DTM & Clear()
 		{
@@ -110,9 +108,9 @@ public:
 		int    Days;
 	};
 	struct MOA {
-		MOA()
+		MOA() : Type(0), Value(0.0)
 		{
-			Clear();
+			CurrencySymb[0] = 0;
 		}
 		MOA & Clear()
 		{

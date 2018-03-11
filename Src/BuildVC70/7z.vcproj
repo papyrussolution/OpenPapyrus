@@ -46,13 +46,8 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib gdiplus.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib Ws2_32.lib mpr.lib shlwapi.lib winmm.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib Imm32.lib wldap32.lib ..\lib\winddk\hid.lib ..\lib\winddk\hidparse.lib ..\lib\winddk\Setupapi.lib"
 				OutputFile="..\..\ppy\bin\7zs.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
-				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/7za.pdb"
-				GenerateMapFile="TRUE"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -121,14 +116,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib mpr.lib shlwapi.lib gdiplus.lib"
+				AdditionalDependencies="comctl32.lib wininet.lib wsock32.lib Ws2_32.lib mpr.lib shlwapi.lib winmm.lib ..\lib\crpe32m.lib wbemuuid.lib gdiplus.lib version.lib Msimg32.lib Crypt32.lib Imm32.lib wldap32.lib ..\lib\winddk\hid.lib ..\lib\winddk\hidparse.lib ..\lib\winddk\Setupapi.lib"
 				OutputFile="..\..\ppy\bin\7zs.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
-				ProgramDatabaseFile=".\Release/7za.pdb"
-				GenerateMapFile="TRUE"
 				SubSystem="1"
-				OptimizeForWindows98="1"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -428,6 +418,9 @@
 			RelativePath="..\Osf\7z\Src\7z-compress.cpp">
 		</File>
 		<File
+			RelativePath="..\Osf\7z\Src\7z-crc.c">
+		</File>
+		<File
 			RelativePath="..\Osf\7z\Src\7z-crypto.cpp">
 		</File>
 		<File
@@ -518,46 +511,6 @@
 		</File>
 		<File
 			RelativePath="..\Osf\7z\Src\7z-zip.cpp">
-		</File>
-		<File
-			RelativePath="..\osf\7z\SRC\7zCrc.c">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\osf\7z\SRC\7zCrcOpt.c">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\7zStream.c">
@@ -701,26 +654,6 @@
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\Bcj2.c">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\osf\7z\SRC\Bcj2Enc.c">
 			<FileConfiguration
 				Name="Debug|Win32">
 				<Tool
@@ -1113,26 +1046,6 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\osf\7z\SRC\FileStreams.cpp">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-		</File>
-		<File
 			RelativePath="..\osf\7z\SRC\FilterCoder.cpp">
 			<FileConfiguration
 				Name="Debug|Win32">
@@ -1356,44 +1269,7 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\osf\7z\SRC\UI\Console\Main.cpp">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\osf\7z\SRC\UI\Console\MainAr.cpp">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
+			RelativePath="..\Osf\7z\Src\Ui\Console\Main.cpp">
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\MethodProps.cpp">
@@ -1417,26 +1293,6 @@
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\MtCoder.c">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\osf\7z\SRC\MultiStream.cpp">
 			<FileConfiguration
 				Name="Debug|Win32">
 				<Tool
@@ -1802,46 +1658,6 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\osf\7z\SRC\UI\Common\UpdateAction.cpp">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\osf\7z\SRC\UI\Common\UpdateCallback.cpp">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-		</File>
-		<File
 			RelativePath="..\osf\7z\SRC\UI\Console\UpdateCallbackConsole.cpp">
 			<FileConfiguration
 				Name="Debug|Win32">
@@ -1862,67 +1678,7 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\osf\7z\SRC\UI\Common\UpdatePair.cpp">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\osf\7z\SRC\UI\Common\UpdateProduce.cpp">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-		</File>
-		<File
 			RelativePath="..\osf\7z\SRC\UI\Console\UserInputUtils.cpp">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\osf\7z\SRC\UTFConvert.cpp">
 			<FileConfiguration
 				Name="Debug|Win32">
 				<Tool
@@ -1983,46 +1739,6 @@
 		</File>
 		<File
 			RelativePath="..\osf\7z\SRC\Xz.c">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\osf\7z\SRC\XzCrc64.c">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""
-					UsePrecompiledHeader="3"/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\osf\7z\SRC\XzCrc64Opt.c">
 			<FileConfiguration
 				Name="Debug|Win32">
 				<Tool

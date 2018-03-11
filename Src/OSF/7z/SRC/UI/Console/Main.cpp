@@ -1,5 +1,5 @@
 // Main.cpp
-
+//
 #include <7z-internal.h>
 #pragma hdrstop
 #include <MyInitGuid.h> // ! Only inclusion per project
@@ -7,7 +7,7 @@
 #ifdef _WIN32
 	#include <Psapi.h>
 #endif
-//#include <ExtractCallbackConsole.h>
+#include <Windows/NtCheck.h>
 
 using namespace NWindows;
 using namespace NFile;
@@ -16,10 +16,11 @@ using namespace NFile;
 #ifdef _WIN32
 	HINSTANCE g_hInstance = 0;
 #endif
-
+CStdOutStream * g_StdStream = NULL;
+CStdOutStream * g_ErrStream = NULL;
 bool g_LargePagesMode = false;
-extern CStdOutStream * g_StdStream;
-extern CStdOutStream * g_ErrStream;
+//extern CStdOutStream * g_StdStream;
+//extern CStdOutStream * g_ErrStream;
 extern uint g_NumCodecs;
 extern const CCodecInfo * g_Codecs[];
 extern uint g_NumHashers;
@@ -406,9 +407,9 @@ static void PrintHexId(CStdOutStream &so, uint64 id)
 }
 
 #ifndef _WIN32
-    int Main2(int numArgs, char * args[])
+    static int Main2(int numArgs, char * args[])
 #else
-	int Main2()
+	static int Main2()
 #endif
 {
   #if defined(_WIN32) && !defined(UNDER_CE)
@@ -458,10 +459,10 @@ static void PrintHexId(CStdOutStream &so, uint64 id)
 	if(options.EnableHeaders)
 		ShowCopyrightAndHelp(g_StdStream, false);
 	parser.Parse2(options);
-	unsigned percentsNameLevel = 1;
+	uint   percentsNameLevel = 1;
 	if(options.LogLevel == 0 || options.Number_for_Percents != options.Number_for_Out)
 		percentsNameLevel = 2;
-	unsigned consoleWidth = 80;
+	uint   consoleWidth = 80;
 	if(percentsStream) {
     #ifdef _WIN32
     #if !defined(UNDER_CE)
@@ -598,19 +599,16 @@ static void PrintHexId(CStdOutStream &so, uint64 id)
 					so << ' ';
 				else
 					so << numStreams;
-
 				so << (char)(codecs->GetCodec_EncoderIsAssigned(j) ? 'E' : ' ');
 				so << (char)(codecs->GetCodec_DecoderIsAssigned(j) ? 'D' : ' ');
-
 				so << ' ';
 				uint64 id;
 				HRESULT res = codecs->GetCodec_Id(j, id);
 				if(res != S_OK)
-					id = (uint64)(Int64)-1;
+					id = (uint64)(int64)-1;
 				PrintHexId(so, id);
 				so << ' ' << codecs->GetCodec_Name(j) << endl;
 			}
-
     #endif
 		so << endl << "Hashers:" << endl; //  << " L Size       ID Name" << endl;
 		for(i = 0; i < g_NumHashers; i++) {
@@ -867,4 +865,127 @@ static void PrintHexId(CStdOutStream &so, uint64 id)
 	ThrowException_if_Error(hresultMain);
 	return retCode;
 }
+//
+// MainAr.cpp
+/*#ifndef _WIN32
+    extern int Main2(int numArgs, char * args[]);
+#else
+	extern int Main2();
+#endif*/
 
+static const char * const kException_CmdLine_Error_Message = "Command Line Error:";
+static const char * const kExceptionErrorMessage = "ERROR:";
+static const char * const kUserBreakMessage  = "Break signaled";
+static const char * const kMemoryExceptionMessage = "ERROR: Can't allocate required memory!";
+static const char * const kUnknownExceptionMessage = "Unknown Error";
+static const char * const kInternalExceptionMessage = "\n\nInternal Error #";
+
+static void FlushStreams()
+{
+	CALLPTRMEMB(g_StdStream, Flush());
+}
+
+static void PrintError(const char * message)
+{
+	FlushStreams();
+	if(g_ErrStream)
+		*g_ErrStream << "\n\n" << message << endl;
+}
+
+#define NT_CHECK_FAIL_ACTION *g_StdStream << "Unsupported Windows version"; return NExitCode::kFatalError;
+
+#ifdef _WIN32
+	int MY_CDECL main()
+#else
+    int MY_CDECL main(int numArgs, char * args[])
+#endif
+{
+	g_ErrStream = &g_StdErr;
+	g_StdStream = &g_StdOut;
+	NT_CHECK
+	NConsoleClose::CCtrlHandlerSetter ctrlHandlerSetter;
+	int res = 0;
+	try {
+		res = Main2(
+    #ifndef _WIN32
+		    numArgs, args
+    #endif
+		    );
+	}
+	catch(const CNewException &) {
+		PrintError(kMemoryExceptionMessage);
+		return (NExitCode::kMemoryError);
+	}
+	catch(const NConsoleClose::CCtrlBreakException &) {
+		PrintError(kUserBreakMessage);
+		return (NExitCode::kUserBreak);
+	}
+	catch(const CArcCmdLineException &e) {
+		PrintError(kException_CmdLine_Error_Message);
+		if(g_ErrStream)
+			*g_ErrStream << e << endl;
+		return (NExitCode::kUserError);
+	}
+	catch(const CSystemException &systemError) {
+		if(systemError.ErrorCode == E_OUTOFMEMORY) {
+			PrintError(kMemoryExceptionMessage);
+			return (NExitCode::kMemoryError);
+		}
+		if(systemError.ErrorCode == E_ABORT) {
+			PrintError(kUserBreakMessage);
+			return (NExitCode::kUserBreak);
+		}
+		if(g_ErrStream) {
+			PrintError("System ERROR:");
+			*g_ErrStream << NError::MyFormatMessage(systemError.ErrorCode) << endl;
+		}
+		return (NExitCode::kFatalError);
+	}
+	catch(NExitCode::EEnum &exitCode) {
+		FlushStreams();
+		if(g_ErrStream)
+			*g_ErrStream << kInternalExceptionMessage << (int32)exitCode << endl;
+		return (exitCode);
+	}
+	catch(const UString &s) {
+		if(g_ErrStream) {
+			PrintError(kExceptionErrorMessage);
+			*g_ErrStream << s << endl;
+		}
+		return (NExitCode::kFatalError);
+	}
+	catch(const AString &s) {
+		if(g_ErrStream) {
+			PrintError(kExceptionErrorMessage);
+			*g_ErrStream << s << endl;
+		}
+		return (NExitCode::kFatalError);
+	}
+	catch(const char * s) {
+		if(g_ErrStream) {
+			PrintError(kExceptionErrorMessage);
+			*g_ErrStream << s << endl;
+		}
+		return (NExitCode::kFatalError);
+	}
+	catch(const wchar_t * s) {
+		if(g_ErrStream) {
+			PrintError(kExceptionErrorMessage);
+			*g_ErrStream << s << endl;
+		}
+		return (NExitCode::kFatalError);
+	}
+	catch(int t) {
+		if(g_ErrStream) {
+			FlushStreams();
+			*g_ErrStream << kInternalExceptionMessage << (int32)t << endl;
+			return (NExitCode::kFatalError);
+		}
+	}
+	catch(...) {
+		PrintError(kUnknownExceptionMessage);
+		return (NExitCode::kFatalError);
+	}
+	return res;
+}
+//

@@ -347,8 +347,7 @@ namespace NArchive {
 		return WriteStream(stream, buf, 8);
 	}
 
-	class CHandler : public IInArchive, public IArchiveOpenSeq, public IOutArchive, public ISetProperties, public CMyUnknownImp
-	{
+	class CHandler : public IInArchive, public IArchiveOpenSeq, public IOutArchive, public ISetProperties, public CMyUnknownImp {
 		CItem _item;
 		bool _isArc;
 		bool _needSeekToStart;
@@ -441,19 +440,15 @@ namespace NArchive {
 				}
 				break;
 			case kpidSize:
-			{
 				if(_unpackSize_Defined)
 					prop = _unpackSize;
 				else if(_stream)
 					prop = (uint64)_item.Size32;
 				break;
-			}
 			case kpidPackSize:
-			{
 				if(_packSize_Defined || _stream)
 					prop = _packSize;
 				break;
-			}
 			case kpidHostOS: TYPE_TO_PROP(kHostOSes, _item.HostOS, prop); break;
 			case kpidCRC: if(_stream) prop = _item.Crc; break;
 		}
@@ -549,9 +544,7 @@ namespace NArchive {
 		RINOK(extractCallback->GetStream(0, &realOutStream, askMode));
 		if(!testMode && !realOutStream)
 			return S_OK;
-
 		extractCallback->PrepareOperation(askMode);
-
 		COutStreamWithCRC * outStreamSpec = new COutStreamWithCRC;
 		CMyComPtr<ISequentialOutStream> outStream(outStreamSpec);
 		outStreamSpec->SetStream(realOutStream);
@@ -711,15 +704,12 @@ namespace NArchive {
 		COM_TRY_BEGIN
 		if(numItems != 1)
 			return E_INVALIDARG;
-
 		int32 newData, newProps;
 		uint32 indexInArchive;
 		if(!updateCallback)
 			return E_FAIL;
 		RINOK(updateCallback->GetUpdateItemInfo(0, &newData, &newProps, &indexInArchive));
-
 		CItem newItem;
-
 		if(!IntToBool(newProps)) {
 			newItem.CopyMetaPropsFrom(_item);
 		}

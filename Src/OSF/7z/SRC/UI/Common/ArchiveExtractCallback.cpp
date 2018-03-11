@@ -1,5 +1,5 @@
 // ArchiveExtractCallback.cpp
-
+//
 #include <7z-internal.h>
 #pragma hdrstop
 #include <7z-ifcs.h>
@@ -78,7 +78,7 @@ static const char * const kCantSetFileLen = "Can not set length for output file"
 	static HRESULT Archive_Get_HardLinkNode(IInArchive * archive, uint32 index, CHardLinkNode &h, bool &defined)
 	{
 		h.INode = 0;
-		h.StreamId = (uint64)(Int64)-1;
+		h.StreamId = (uint64)(int64)-1;
 		defined = false;
 		{
 			NCOM::CPropVariant prop;
@@ -452,10 +452,8 @@ bool CensorNode_CheckPath2(const NWildcard::CCensorNode &node, const CReadArcIte
 		found = true;
 	}
   #ifdef SUPPORT_ALT_STREAMS
-
 	if(!item.IsAltStream)
 		return false;
-
 	UStringVector pathParts2 = item.PathParts;
 	if(pathParts2.IsEmpty())
 		pathParts2.AddNew();
@@ -1413,17 +1411,6 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(uint32 index, ISequentialOutStre
 	{
 		RINOZ(-MyCompare(Len, a.Len));
 		return MyCompare(Index, a.Index);
-	}
-
-	static unsigned GetNumSlashes(const FChar * s)
-	{
-		for(uint numSlashes = 0;; ) {
-			FChar c = *s++;
-			if(c == 0)
-				return numSlashes;
-			if(IS_PATH_SEPAR(c))
-				numSlashes++;
-		}
 	}
 
 	HRESULT CArchiveExtractCallback::SetDirsTimes()

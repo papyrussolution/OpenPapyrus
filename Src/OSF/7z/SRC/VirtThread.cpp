@@ -1,8 +1,7 @@
 // VirtThread.cpp
-
+//
 #include <7z-internal.h>
 #pragma hdrstop
-//#include <VirtThread.h>
 
 static THREAD_FUNC_DECL CoderThread(void * p)
 {
@@ -23,9 +22,7 @@ WRes CVirtThread::Create()
 	StartEvent.Reset();
 	FinishedEvent.Reset();
 	Exit = false;
-	if(Thread.IsCreated())
-		return S_OK;
-	return Thread.Create(CoderThread, this);
+	return Thread.IsCreated() ? S_OK : Thread.Create(CoderThread, this);
 }
 
 void CVirtThread::Start()
@@ -44,4 +41,3 @@ void CVirtThread::WaitThreadFinish()
 		Thread.Close();
 	}
 }
-

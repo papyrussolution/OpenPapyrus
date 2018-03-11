@@ -24,11 +24,13 @@ static THREAD_FUNC_RET_TYPE THREAD_FUNC_CALL_TYPE LoopThreadFunc(void * pp)
 	for(;; ) {
 		if(Event_Wait(&p->startEvent) != 0)
 			return SZ_ERROR_THREAD;
-		if(p->stop)
+		else if(p->stop)
 			return 0;
-		p->res = p->func(p->param);
-		if(Event_Set(&p->finishedEvent) != 0)
-			return SZ_ERROR_THREAD;
+		else {
+			p->res = p->func(p->param);
+			if(Event_Set(&p->finishedEvent) != 0)
+				return SZ_ERROR_THREAD;
+		}
 	}
 }
 
@@ -43,18 +45,11 @@ WRes LoopThread_Create(CLoopThread * p)
 WRes LoopThread_StopAndWait(CLoopThread * p)
 {
 	p->stop = 1;
-	if(Event_Set(&p->startEvent) != 0)
-		return SZ_ERROR_THREAD;
-	return Thread_Wait(&p->thread);
+	return (Event_Set(&p->startEvent) != 0) ? SZ_ERROR_THREAD : Thread_Wait(&p->thread);
 }
 
-WRes LoopThread_StartSubThread(CLoopThread * p) {
-	return Event_Set(&p->startEvent);
-}
-
-WRes LoopThread_WaitSubThread(CLoopThread * p) {
-	return Event_Wait(&p->finishedEvent);
-}
+WRes LoopThread_StartSubThread(CLoopThread * p) { return Event_Set(&p->startEvent); }
+WRes LoopThread_WaitSubThread(CLoopThread * p) { return Event_Wait(&p->finishedEvent); }
 
 static SRes Progress(ICompressProgress * p, uint64 inSize, uint64 outSize)
 {
@@ -77,8 +72,7 @@ static void MtProgress_Reinit(CMtProgress * p, unsigned index)
 	p->outSizes[index] = 0;
 }
 
-#define UPDATE_PROGRESS(size, prev, total) \
-	if(size != (uint64)(Int64)-1) { total += size - prev; prev = size; }
+#define UPDATE_PROGRESS(size, prev, total) if(size != (uint64)(int64)-1) { total += size - prev; prev = size; }
 
 SRes MtProgress_Set(CMtProgress * p, unsigned index, uint64 inSize, uint64 outSize)
 {
@@ -157,12 +151,10 @@ static SRes CMtThread_Prepare(CMtThread * p)
 {
 	MY_BUF_ALLOC(p->inBuf, p->inBufSize, p->mtCoder->blockSize)
 	MY_BUF_ALLOC(p->outBuf, p->outBufSize, p->mtCoder->destBlockSize)
-
 	p->stopReading = False;
 	p->stopWriting = False;
 	RINOK_THREAD(AutoResetEvent_CreateNotSignaled(&p->canRead));
 	RINOK_THREAD(AutoResetEvent_CreateNotSignaled(&p->canWrite));
-
 	return SZ_OK;
 }
 
@@ -191,28 +183,20 @@ static SRes MtThread_Process(CMtThread * p, Bool * stop)
 	*stop = True;
 	if(Event_Wait(&p->canRead) != 0)
 		return SZ_ERROR_THREAD;
-
 	next = GET_NEXT_THREAD(p);
-
 	if(p->stopReading) {
 		next->stopReading = True;
 		return Event_Set(&next->canRead) == 0 ? SZ_OK : SZ_ERROR_THREAD;
 	}
-
 	{
 		size_t size = p->mtCoder->blockSize;
 		size_t destSize = p->outBufSize;
-
 		RINOK(FullRead(p->mtCoder->inStream, p->inBuf, &size));
 		next->stopReading = *stop = (size != p->mtCoder->blockSize);
 		if(Event_Set(&next->canRead) != 0)
 			return SZ_ERROR_THREAD;
-
-		RINOK(IMtCoderCallback_Code(p->mtCoder->mtCallback, p->index,
-			    p->outBuf, &destSize, p->inBuf, size, *stop));
-
+		RINOK(IMtCoderCallback_Code(p->mtCoder->mtCallback, p->index, p->outBuf, &destSize, p->inBuf, size, *stop));
 		MtProgress_Reinit(&p->mtCoder->mtProgress, p->index);
-
 		if(Event_Wait(&p->canWrite) != 0)
 			return SZ_ERROR_THREAD;
 		if(p->stopWriting)
@@ -268,33 +252,27 @@ void MtCoder_Destruct(CMtCoder* p)
 
 SRes MtCoder_Code(CMtCoder * p)
 {
-	unsigned i, numThreads = p->numThreads;
-	SRes res = SZ_OK;
+	uint   i, numThreads = p->numThreads;
+	SRes   res = SZ_OK;
 	p->res = SZ_OK;
-
 	MtProgress_Init(&p->mtProgress, p->progress);
-
 	for(i = 0; i < numThreads; i++) {
 		RINOK(CMtThread_Prepare(&p->threads[i]));
 	}
-
 	for(i = 0; i < numThreads; i++) {
 		CMtThread * t = &p->threads[i];
 		CLoopThread * lt = &t->thread;
-
 		if(!Thread_WasCreated(&lt->thread)) {
 			lt->func = ThreadFunc;
 			lt->param = t;
-
 			if(LoopThread_Create(lt) != SZ_OK) {
 				res = SZ_ERROR_THREAD;
 				break;
 			}
 		}
 	}
-
 	if(res == SZ_OK) {
-		unsigned j;
+		uint   j;
 		for(i = 0; i < numThreads; i++) {
 			CMtThread * t = &p->threads[i];
 			if(LoopThread_StartSubThread(&t->thread) != SZ_OK) {
@@ -303,16 +281,12 @@ SRes MtCoder_Code(CMtCoder * p)
 				break;
 			}
 		}
-
 		Event_Set(&p->threads[0].canWrite);
 		Event_Set(&p->threads[0].canRead);
-
 		for(j = 0; j < i; j++)
 			LoopThread_WaitSubThread(&p->threads[j].thread);
 	}
-
 	for(i = 0; i < numThreads; i++)
 		CMtThread_CloseEvents(&p->threads[i]);
 	return (res == SZ_OK) ? p->res : res;
 }
-

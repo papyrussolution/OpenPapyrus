@@ -277,7 +277,7 @@ HRESULT Extract(CCodecs * codecs, const CObjectVector<COpenType> &types, const C
 					// &arcSizes);
 					// numArcs = arcPaths.Size();
 					if(arcLink.VolumePaths.Size() != 0) {
-						Int64 correctionSize = arcLink.VolumesSize;
+						int64 correctionSize = arcLink.VolumesSize;
 						FOR_VECTOR(v, arcLink.VolumePaths) {
 							int index = Find_FileName_InSortedVector(arcPathsFull, arcLink.VolumePaths[v]);
 							if(index >= 0) {
@@ -288,7 +288,7 @@ HRESULT Extract(CCodecs * codecs, const CObjectVector<COpenType> &types, const C
 							}
 						}
 						if(correctionSize != 0) {
-							Int64 newPackSize = (Int64)totalPackSize + correctionSize;
+							int64 newPackSize = (int64)totalPackSize + correctionSize;
 							SETMAX(newPackSize, 0);
 							totalPackSize = newPackSize;
 							RINOK(extractCallback->SetTotal(totalPackSize));

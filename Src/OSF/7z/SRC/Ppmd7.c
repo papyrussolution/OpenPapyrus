@@ -378,7 +378,7 @@ static CTX_PTR CreateSuccessors(CPpmd7 * p, Bool skip)
 	return c;
 }
 
-static void SwapStates(CPpmd_State * t1, CPpmd_State * t2)
+static void FASTCALL SwapStates(CPpmd_State * t1, CPpmd_State * t2)
 {
 	CPpmd_State tmp = *t1;
 	*t1 = *t2;
@@ -389,8 +389,7 @@ static void UpdateModel(CPpmd7 * p)
 {
 	CPpmd_Void_Ref successor, fSuccessor = SUCCESSOR(p->FoundState);
 	CTX_PTR c;
-	unsigned s0, ns;
-
+	uint   s0, ns;
 	if(p->FoundState->Freq < MAX_FREQ / 4 && p->MinContext->Suffix != 0) {
 		c = SUFFIX(p->MinContext);
 
@@ -402,7 +401,9 @@ static void UpdateModel(CPpmd7 * p)
 		else {
 			CPpmd_State * s = STATS(c);
 			if(s->Symbol != p->FoundState->Symbol) {
-				do { s++; } while(s->Symbol != p->FoundState->Symbol);
+				do { 
+					s++; 
+				} while(s->Symbol != p->FoundState->Symbol);
 				if(s[0].Freq >= s[-1].Freq) {
 					SwapStates(&s[0], &s[-1]);
 					s--;
@@ -414,7 +415,6 @@ static void UpdateModel(CPpmd7 * p)
 			}
 		}
 	}
-
 	if(p->OrderFall == 0) {
 		p->MinContext = p->MaxContext = CreateSuccessors(p, True);
 		if(p->MinContext == 0) {
@@ -424,7 +424,6 @@ static void UpdateModel(CPpmd7 * p)
 		SetSuccessor(p->FoundState, REF(p->MinContext));
 		return;
 	}
-
 	*p->Text++ = p->FoundState->Symbol;
 	successor = REF(p->Text);
 	if(p->Text >= p->UnitsStart) {
@@ -448,17 +447,15 @@ static void UpdateModel(CPpmd7 * p)
 		SetSuccessor(p->FoundState, successor);
 		fSuccessor = REF(p->MinContext);
 	}
-
 	s0 = p->MinContext->SummFreq - (ns = p->MinContext->NumStats) - (p->FoundState->Freq - 1);
-
 	for(c = p->MaxContext; c != p->MinContext; c = SUFFIX(c)) {
-		unsigned ns1;
+		uint   ns1;
 		uint32 cf, sf;
 		if((ns1 = c->NumStats) != 1) {
 			if((ns1 & 1) == 0) {
 				/* Expand for one UNIT */
-				unsigned oldNU = ns1 >> 1;
-				unsigned i = U2I(oldNU);
+				uint   oldNU = ns1 >> 1;
+				uint   i = U2I(oldNU);
 				if(i != U2I((size_t)oldNU + 1)) {
 					void * ptr = AllocUnits(p, i + 1);
 					void * oldPtr;
@@ -509,9 +506,9 @@ static void UpdateModel(CPpmd7 * p)
 	p->MaxContext = p->MinContext = CTX(fSuccessor);
 }
 
-static void Rescale(CPpmd7 * p)
+static void FASTCALL Rescale(CPpmd7 * p)
 {
-	unsigned i, adder, sumFreq, escFreq;
+	uint   i, adder, sumFreq, escFreq;
 	CPpmd_State * stats = STATS(p->MinContext);
 	CPpmd_State * s = p->FoundState;
 	{
@@ -525,7 +522,6 @@ static void Rescale(CPpmd7 * p)
 	adder = (p->OrderFall != 0);
 	s->Freq = (Byte)((s->Freq + adder) >> 1);
 	sumFreq = s->Freq;
-
 	i = p->MinContext->NumStats - 1;
 	do {
 		escFreq -= (++s)->Freq;
@@ -541,9 +537,11 @@ static void Rescale(CPpmd7 * p)
 		}
 	} while(--i);
 	if(s->Freq == 0) {
-		unsigned numStats = p->MinContext->NumStats;
-		unsigned n0, n1;
-		do { i++; } while((--s)->Freq == 0);
+		uint   numStats = p->MinContext->NumStats;
+		uint   n0, n1;
+		do { 
+			i++; 
+		} while((--s)->Freq == 0);
 		escFreq += i;
 		p->MinContext->NumStats = (uint16)(p->MinContext->NumStats - i);
 		if(p->MinContext->NumStats == 1) {
@@ -568,15 +566,12 @@ static void Rescale(CPpmd7 * p)
 CPpmd_See * Ppmd7_MakeEscFreq(CPpmd7 * p, unsigned numMasked, uint32 * escFreq)
 {
 	CPpmd_See * see;
-	unsigned nonMasked = p->MinContext->NumStats - numMasked;
+	uint   nonMasked = p->MinContext->NumStats - numMasked;
 	if(p->MinContext->NumStats != 256) {
-		see = p->See[(uint)p->NS2Indx[(size_t)nonMasked - 1]] +
-		    (nonMasked < (uint)SUFFIX(p->MinContext)->NumStats - p->MinContext->NumStats) +
-		    2 * (uint)(p->MinContext->SummFreq < 11 * p->MinContext->NumStats) +
-		    4 * (uint)(numMasked > nonMasked) +
-		    p->HiBitsFlag;
+		see = p->See[(uint)p->NS2Indx[(size_t)nonMasked - 1]] + (nonMasked < (uint)SUFFIX(p->MinContext)->NumStats - p->MinContext->NumStats) +
+		    2 * (uint)(p->MinContext->SummFreq < 11 * p->MinContext->NumStats) + 4 * (uint)(numMasked > nonMasked) + p->HiBitsFlag;
 		{
-			unsigned r = (see->Summ >> see->Shift);
+			uint   r = (see->Summ >> see->Shift);
 			see->Summ = (uint16)(see->Summ - r);
 			*escFreq = r + (r == 0);
 		}
@@ -588,7 +583,7 @@ CPpmd_See * Ppmd7_MakeEscFreq(CPpmd7 * p, unsigned numMasked, uint32 * escFreq)
 	return see;
 }
 
-static void NextContext(CPpmd7 * p)
+static void FASTCALL NextContext(CPpmd7 * p)
 {
 	CTX_PTR c = CTX(SUCCESSOR(p->FoundState));
 	if(p->OrderFall == 0 && (Byte*)c > p->Text)
@@ -597,7 +592,7 @@ static void NextContext(CPpmd7 * p)
 		UpdateModel(p);
 }
 
-void Ppmd7_Update1(CPpmd7 * p)
+static void FASTCALL Ppmd7_Update1(CPpmd7 * p)
 {
 	CPpmd_State * s = p->FoundState;
 	s->Freq += 4;
@@ -611,7 +606,7 @@ void Ppmd7_Update1(CPpmd7 * p)
 	NextContext(p);
 }
 
-void Ppmd7_Update1_0(CPpmd7 * p)
+static void FASTCALL Ppmd7_Update1_0(CPpmd7 * p)
 {
 	p->PrevSuccess = (2 * p->FoundState->Freq > p->MinContext->SummFreq);
 	p->RunLength += p->PrevSuccess;
@@ -621,7 +616,7 @@ void Ppmd7_Update1_0(CPpmd7 * p)
 	NextContext(p);
 }
 
-void Ppmd7_UpdateBin(CPpmd7 * p)
+static void FASTCALL Ppmd7_UpdateBin(CPpmd7 * p)
 {
 	p->FoundState->Freq = (Byte)(p->FoundState->Freq + (p->FoundState->Freq < 128 ? 1 : 0));
 	p->PrevSuccess = 1;
@@ -629,7 +624,7 @@ void Ppmd7_UpdateBin(CPpmd7 * p)
 	NextContext(p);
 }
 
-void Ppmd7_Update2(CPpmd7 * p)
+static void FASTCALL Ppmd7_Update2(CPpmd7 * p)
 {
 	p->MinContext->SummFreq += 4;
 	if((p->FoundState->Freq += 4) > MAX_FREQ)

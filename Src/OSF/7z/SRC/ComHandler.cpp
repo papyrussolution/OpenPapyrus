@@ -76,25 +76,19 @@ namespace NArchive {
 			CObjectVector<CItem> Items;
 			CRecordVector<CRef> Refs;
 			uint32 LongStreamMinSize;
-			unsigned SectorSizeBits;
-			unsigned MiniSectorSizeBits;
-			int32 MainSubfile;
+			uint   SectorSizeBits;
+			uint   MiniSectorSizeBits;
+			int32  MainSubfile;
 			uint64 PhySize;
-			EType Type;
+			EType  Type;
 
-			bool IsNotArcType() const
-			{
-				return Type != k_Type_Msi && Type != k_Type_Msp;
-			}
-			void UpdatePhySize(uint64 val)
-			{
-				SETMAX(PhySize, val);
-			}
+			bool   IsNotArcType() const { return !oneof2(Type, k_Type_Msi, k_Type_Msp); }
+			void   UpdatePhySize(uint64 val) { SETMAX(PhySize, val); }
 			HRESULT ReadSector(IInStream * inStream, Byte * buf, unsigned sectorSizeBits, uint32 sid);
 			HRESULT ReadIDs(IInStream * inStream, Byte * buf, unsigned sectorSizeBits, uint32 sid, uint32 * dest);
 			HRESULT Update_PhySize_WithItem(unsigned index);
-			void Clear();
-			bool IsLargeStream(uint64 size) const { return size >= LongStreamMinSize; }
+			void   Clear();
+			bool   IsLargeStream(uint64 size) const { return size >= LongStreamMinSize; }
 
 			UString GetItemPath(uint32 index) const;
 			uint64 GetItemPackSize(uint64 size) const
@@ -104,12 +98,14 @@ namespace NArchive {
 			}
 			bool GetMiniCluster(uint32 sid, uint64 &res) const
 			{
-				unsigned subBits = SectorSizeBits - MiniSectorSizeBits;
+				uint   subBits = SectorSizeBits - MiniSectorSizeBits;
 				uint32 fid = sid >> subBits;
 				if(fid >= NumSectorsInMiniStream)
 					return false;
-				res = (((uint64)MiniSids[fid] + 1) << subBits) + (sid & ((1 << subBits) - 1));
-				return true;
+				else {
+					res = (((uint64)MiniSids[fid] + 1) << subBits) + (sid & ((1 << subBits) - 1));
+					return true;
+				}
 			}
 
 			HRESULT Open(IInStream * inStream);
@@ -191,7 +187,7 @@ namespace NArchive {
 		static UString CompoundNameToFileName(const UString &s)
 		{
 			UString res;
-			for(unsigned i = 0; i < s.Len(); i++) {
+			for(uint i = 0; i < s.Len(); i++) {
 				wchar_t c = s[i];
 				if(c < 0x20) {
 					res += '[';
@@ -219,10 +215,9 @@ namespace NArchive {
 			uint32 c = Get16(p);
 			return (c >= k_Msi_StartUnicodeChar && c <= k_Msi_StartUnicodeChar + k_Msi_UnicodeRange);
 		}
-
 		static bool AreEqualNames(const Byte * rawName, const char * asciiName)
 		{
-			for(unsigned i = 0; i < kNameSizeMax / 2; i++) {
+			for(uint i = 0; i < kNameSizeMax / 2; i++) {
 				wchar_t c = Get16(rawName + i * 2);
 				wchar_t c2 = (Byte)asciiName[i];
 				if(c != c2)
@@ -236,7 +231,7 @@ namespace NArchive {
 		static bool CompoundMsiNameToFileName(const UString &name, UString &res)
 		{
 			res.Empty();
-			for(unsigned i = 0; i < name.Len(); i++) {
+			for(uint i = 0; i < name.Len(); i++) {
 				wchar_t c = name[i];
 				if(c < k_Msi_StartUnicodeChar || c > k_Msi_StartUnicodeChar + k_Msi_UnicodeRange)
 					return false;
@@ -245,10 +240,8 @@ namespace NArchive {
 				   res += k_Msi_ID;
 				 */
 				c -= k_Msi_StartUnicodeChar;
-
-				unsigned c0 = (unsigned)c & k_Msi_CharMask;
-				unsigned c1 = (unsigned)c >> k_Msi_NumBits;
-
+				uint   c0 = (uint)c & k_Msi_CharMask;
+				uint   c1 = (uint)c >> k_Msi_NumBits;
 				if(c1 <= k_Msi_NumChars) {
 					res += k_Msi_Chars[c0];
 					if(c1 == k_Msi_NumChars)
@@ -265,7 +258,7 @@ namespace NArchive {
 		{
 			isMsi = false;
 			UString s;
-			for(unsigned i = 0; i < kNameSizeMax; i += 2) {
+			for(uint i = 0; i < kNameSizeMax; i += 2) {
 				wchar_t c = Get16(p + i);
 				if(c == 0)
 					break;
@@ -276,7 +269,8 @@ namespace NArchive {
 				isMsi = true;
 				return msiName;
 			}
-			return CompoundNameToFileName(s);
+			else
+				return CompoundNameToFileName(s);
 		}
 
 		static UString ConvertName(const Byte * p)
@@ -305,9 +299,8 @@ namespace NArchive {
 			bool isLargeStream = (index == 0 || IsLargeStream(item.Size));
 			if(!isLargeStream)
 				return S_OK;
-			unsigned bsLog = isLargeStream ? SectorSizeBits : MiniSectorSizeBits;
+			uint   bsLog = isLargeStream ? SectorSizeBits : MiniSectorSizeBits;
 			// streamSpec->Size = item.Size;
-
 			uint32 clusterSize = (uint32)1 << bsLog;
 			uint64 numClusters64 = (item.Size + clusterSize - 1) >> bsLog;
 			if(numClusters64 >= ((uint32)1 << 31))
@@ -366,7 +359,6 @@ namespace NArchive {
 			if((numFatItems >> ssb2) != numSectorsForFAT)
 				return S_FALSE;
 			FatSize = numFatItems;
-
 			{
 				uint32 numSectorsForBat = Get32(p + 0x48); // master sector allocation table
 				const uint32 kNumHeaderBatItems = 109;
@@ -461,16 +453,19 @@ namespace NArchive {
 					}
 					if(i >= numSectorsInMiniStream)
 						return S_FALSE;
-					MiniSids[i] = sid;
-					if(sid >= numFatItems)
-						return S_FALSE;
-					sid = Fat[sid];
+					else {
+						MiniSids[i] = sid;
+						if(sid >= numFatItems)
+							return S_FALSE;
+						else 
+							sid = Fat[sid];
+					}
 				}
 			}
 			RINOK(AddNode(-1, root.SonDid));
-			unsigned numCabs = 0;
+			uint   numCabs = 0;
 			FOR_VECTOR(i, Refs) {
-				const CItem &item = Items[Refs[i].Did];
+				const CItem & item = Items[Refs[i].Did];
 				if(item.IsDir() || numCabs > 1)
 					continue;
 				bool isMsiName;
@@ -478,16 +473,13 @@ namespace NArchive {
 				if(isMsiName && !msiName.IsEmpty()) {
 					// bool isThereExt = (msiName.Find(L'.') >= 0);
 					bool isMsiSpec = (msiName[0] == k_Msi_SpecChar);
-					if(msiName.Len() >= 4 && StringsAreEqualNoCase_Ascii(msiName.RightPtr(4), ".cab")
-								|| !isMsiSpec && msiName.Len() >= 3 && StringsAreEqualNoCase_Ascii(msiName.RightPtr(3), "exe")
-										// || !isMsiSpec && !isThereExt
-								) {
+					if(msiName.Len() >= 4 && StringsAreEqualNoCase_Ascii(msiName.RightPtr(4), ".cab") || 
+						!isMsiSpec && msiName.Len() >= 3 && StringsAreEqualNoCase_Ascii(msiName.RightPtr(3), "exe") /*|| !isMsiSpec && !isThereExt*/) {
 						numCabs++;
 						MainSubfile = i;
 					}
 				}
 			}
-
 			if(numCabs > 1)
 				MainSubfile = -1;
 			{
@@ -520,7 +512,6 @@ namespace NArchive {
 					}
 				}
 			}
-
 			return S_OK;
 		}
 
@@ -533,18 +524,8 @@ namespace NArchive {
 			STDMETHOD(GetStream) (uint32 index, ISequentialInStream **stream);
 		};
 
-		static const Byte kProps[] = {
-			kpidPath,
-			kpidSize,
-			kpidPackSize,
-			kpidCTime,
-			kpidMTime
-		};
-		static const Byte kArcProps[] = {
-			kpidExtension,
-			kpidClusterSize,
-			kpidSectorSize
-		};
+		static const Byte kProps[] = { kpidPath, kpidSize, kpidPackSize, kpidCTime, kpidMTime };
+		static const Byte kArcProps[] = { kpidExtension, kpidClusterSize, kpidSectorSize };
 
 		IMP_IInArchive_Props
 		IMP_IInArchive_ArcProps

@@ -181,6 +181,7 @@ int FASTCALL PPView::CreateInstance(int viewID, int32 * pSrvInstId, PPView ** pp
 			case PPVIEW_JOB:            p_v = new PPViewJob();          break;
 			case PPVIEW_GEOTRACKING:    p_v = new PPViewGeoTracking();  break;
 			case PPVIEW_OPRKIND:        p_v = new PPViewOprKind();      break; // @v9.3.6
+			case PPVIEW_PHNSVCMONITOR:  p_v = new PPViewPhnSvcMonitor(); break; // @v9.9.10
 			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
 		if(p_v && p_v->Symb.Empty()) {
@@ -1114,7 +1115,7 @@ int SLAPI PPBaseFilt::IsEmpty() const
 //
 #define SIGN_PPVIEW 0x099A099BUL
 
-SLAPI PPView::PPView(PPObject * pObj, PPBaseFilt * pBaseFilt, int viewId) : P_Obj(pObj), Sign(SIGN_PPVIEW), ExecFlags(0), ServerInstId(0), 
+SLAPI PPView::PPView(PPObject * pObj, PPBaseFilt * pBaseFilt, int viewId) : P_Obj(pObj), Sign(SIGN_PPVIEW), ExecFlags(0), ServerInstId(0),
 	ViewId(viewId), BaseState(0), ExtToolbarId(0), P_IterQuery(0), P_Ct(0), P_F(pBaseFilt), ImplementFlags(0), DefReportId(0), P_LastUpdatedObjects(0)
 {
 	if(ViewId) {
@@ -2303,7 +2304,7 @@ PPTimeChunkBrowser::PPTimeChunkBrowser() : STimeChunkBrowser()
 {
 }
 
-//virtual 
+//virtual
 int PPTimeChunkBrowser::ExportToExcel()
 {
 	int    ok = -1;
@@ -2311,7 +2312,7 @@ int PPTimeChunkBrowser::ExportToExcel()
 	ComExcelWorksheet  * p_sheet  = 0;
 	ComExcelWorksheets * p_sheets = 0;
 	ComExcelWorkbook   * p_wkbook = 0;
-	SString name; // Name of the excel workbook 
+	SString name; // Name of the excel workbook
 	SString path; // Path to the created excel workbook
 	if(P.ViewType == P.vHourDay) {
 		long   sheets_count = 0;
@@ -2405,7 +2406,7 @@ int PPTimeChunkBrowser::ExportToExcel()
 											GetChunkText(__last_chunk.Id, temp_buf);
 											ComExcelRange * p_range = 0;
 											THROW(p_sheet->SetValue(last_chunk_row, _col, temp_buf) > 0);
-											if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, _col, /*row-1*/last_chunk_finish_row, _col)) != 0) { 
+											if(row > (last_chunk_row+1) && (p_range = p_sheet->GetRange(last_chunk_row, _col, /*row-1*/last_chunk_finish_row, _col)) != 0) {
 												p_range->DoMerge();
 												p_range->SetBgColor(GetChunkColor(&__last_chunk, &clr) ? clr.C : Ptb.GetColor(colorMain));
 												//p_range->SetValue(temp_buf);

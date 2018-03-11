@@ -402,7 +402,7 @@ void FASTCALL ConvertUInt64ToString(uint64 val, wchar_t * s) throw()
 	CONVERT_INT_TO_STR(wchar_t, 24);
 }
 
-void ConvertInt64ToString(Int64 val, char * s) throw()
+void ConvertInt64ToString(int64 val, char * s) throw()
 {
 	if(val < 0) {
 		*s++ = '-';
@@ -411,7 +411,7 @@ void ConvertInt64ToString(Int64 val, char * s) throw()
 	ConvertUInt64ToString(val, s);
 }
 
-void ConvertInt64ToString(Int64 val, wchar_t * s) throw()
+void ConvertInt64ToString(int64 val, wchar_t * s) throw()
 {
 	if(val < 0) {
 		*s++ = L'-';
@@ -459,7 +459,7 @@ char * RawLeGuidToString_Braced(const Byte * g, char * s) throw()
 // StringToInt.cpp
 static const uint32 k_uint32_max = 0xFFFFFFFF;
 static const uint64 k_uint64_max = UINT64_CONST(0xFFFFFFFFFFFFFFFF);
-// static const uint64 k_UInt64_max = (uint64)(Int64)-1;
+// static const uint64 k_UInt64_max = (uint64)(int64)-1;
 
 #define CONVERT_STRING_TO_UINT_FUNC(uintType, charType, charTypeUnsigned) \
 	uintType ConvertStringTo ## uintType(const charType *s, const charType **end) throw() {	\
@@ -1153,7 +1153,7 @@ void Correct_FsPath(bool absIsAllowed, UStringVector &parts, bool isDir)
 	}
 }
 
-UString MakePathFromParts(const UStringVector &parts)
+UString FASTCALL MakePathFromParts(const UStringVector & parts)
 {
 	UString s;
 	FOR_VECTOR(i, parts) {
@@ -1164,3 +1164,13 @@ UString MakePathFromParts(const UStringVector &parts)
 	return s;
 }
 //
+uint FASTCALL GetNumSlashes(const FChar * s)
+{
+	for(uint numSlashes = 0;; ) {
+		FChar c = *s++;
+		if(c == 0)
+			return numSlashes;
+		if(IS_PATH_SEPAR(c))
+			numSlashes++;
+	}
+}

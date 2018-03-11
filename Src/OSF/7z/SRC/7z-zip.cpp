@@ -103,7 +103,7 @@ public:
 	HRESULT Init(IOutStream * stream, uint64 offset);
 	MY_UNKNOWN_IMP
 	STDMETHOD(Write) (const void * data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 	STDMETHOD(SetSize) (uint64 newSize);
 private:
 	uint64 _offset;
@@ -123,7 +123,7 @@ STDMETHODIMP COffsetOutStream::Write(const void * data, uint32 size, uint32 * pr
 	return _stream->Write(data, size, processedSize);
 }
 
-STDMETHODIMP COffsetOutStream::Seek(Int64 offset, uint32 seekOrigin, uint64 * newPosition)
+STDMETHODIMP COffsetOutStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
 {
 	uint64 absoluteNewPosition;
 	if(seekOrigin == STREAM_SEEK_SET) {
@@ -408,7 +408,7 @@ public:
 	void StopWriting(HRESULT res);
 	MY_UNKNOWN_IMP
 	STDMETHOD(Write) (const void * data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 	STDMETHOD(SetSize) (uint64 newSize);
 private:
 	uint64 GetPos() const { return (uint64)_curBlockIndex * _memManager->GetBlockSize() + _curBlockPos; }
@@ -566,7 +566,7 @@ STDMETHODIMP COutMemStream::Write(const void * data, uint32 size, uint32 * proce
 	return S_OK;
 }
 
-STDMETHODIMP COutMemStream::Seek(Int64 offset, uint32 seekOrigin, uint64 * newPosition)
+STDMETHODIMP COutMemStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
 {
 	if(_realStreamMode) {
 		return OutStream ? OutStream->Seek(offset, seekOrigin, newPosition) : E_FAIL;
@@ -1081,12 +1081,13 @@ namespace NCompress {
 			const uint kMaxHuffTableSize = 1 << 8;
 
 			class CHuffmanDecoder {
+			public:
+				bool   Build(const Byte * lens, unsigned numSymbols) throw();
+				uint32 Decode(CInBit * inStream) const throw();
+			private:
 				uint32 _limits[kNumHuffmanBits + 1];
 				uint32 _poses[kNumHuffmanBits + 1];
-				Byte _symbols[kMaxHuffTableSize];
-			public:
-				bool Build(const Byte * lens, unsigned numSymbols) throw();
-				uint32 Decode(CInBit * inStream) const throw();
+				Byte   _symbols[kMaxHuffTableSize];
 			};
 
 			class CCoder : public ICompressCoder, public ICompressSetDecoderProperties2, public ICompressSetFinishMode,
@@ -1786,12 +1787,12 @@ namespace NArchive {
 				inStream->QueryInterface(IID_IInStream, (void**)&inStream2);
 			inSecCrcStreamSpec->SetStream(inStream);
 			inSecCrcStreamSpec->Init();
-			unsigned numTestMethods = _options.MethodSequence.Size();
+			uint   numTestMethods = _options.MethodSequence.Size();
 			if(seqMode || (numTestMethods > 1 && !inStream2))
 				numTestMethods = 1;
 			uint32 crc = 0;
-			bool crc_IsCalculated = false;
-			Byte method = 0;
+			bool   crc_IsCalculated = false;
+			Byte   method = 0;
 			CFilterCoder::C_OutStream_Releaser outStreamReleaser;
 			opRes.ExtractVersion = NCompressionMethod::kExtractVersion_Default;
 			opRes.FileTimeWasUsed = false;
@@ -2593,7 +2594,6 @@ namespace NArchive {
 		   S_OK : if(GetAvail() < minRequired) after function return, it's end of stream(s) data, or no new volume stream.
 		   Error codes: IInStream::Read() error or IInStream::Seek() error for multivol
 		 */
-
 		HRESULT CInArchive::LookAhead(size_t minRequired)
 		{
 			for(;; ) {
@@ -2730,7 +2730,7 @@ namespace NArchive {
 			else {
 				char * p = s.GetBuf(size);
 				SafeRead((Byte*)p, size);
-				unsigned i = size;
+				uint   i = size;
 				do {
 					if(p[i - 1] != 0)
 						break;
@@ -2984,7 +2984,7 @@ namespace NArchive {
 					Stream = StreamRef;
 
 					offset += ArcInfo.Base;
-					if(ArcInfo.Base < 0 && (Int64)offset < 0) {
+					if(ArcInfo.Base < 0 && (int64)offset < 0) {
 						isAvail = false;
 						return S_FALSE;
 					}
@@ -3135,7 +3135,7 @@ namespace NArchive {
 		}
 
 		bool CInArchive::AreThereErrors() const { return HeadersError || UnexpectedEnd || !Vols.MissingName.IsEmpty(); }
-		bool CInArchive::IsLocalOffsetOK(const CItemEx &item) const { return item.FromLocal ? true : ((Int64)GetOffset() + (Int64)item.LocalHeaderPos >= 0); }
+		bool CInArchive::IsLocalOffsetOK(const CItemEx &item) const { return item.FromLocal ? true : ((int64)GetOffset() + (int64)item.LocalHeaderPos >= 0); }
 
 		uint64 CInArchive::GetEmbeddedStubSize() const
 		{
@@ -3149,7 +3149,7 @@ namespace NArchive {
 
 		bool CInArchive::CanUpdate() const
 		{
-			if(AreThereErrors() || IsMultiVol || ArcInfo.Base < 0 || (Int64)ArcInfo.MarkerPos2 < ArcInfo.Base || ArcInfo.ThereIsTail || GetEmbeddedStubSize() != 0)
+			if(AreThereErrors() || IsMultiVol || ArcInfo.Base < 0 || (int64)ArcInfo.MarkerPos2 < ArcInfo.Base || ArcInfo.ThereIsTail || GetEmbeddedStubSize() != 0)
 				return false;
 			else {
 				// 7-zip probably can update archives with embedded stubs.
@@ -4005,7 +4005,7 @@ namespace NArchive {
 						res = S_FALSE;
 					if(res == S_OK) {
 						// we can't read local items here to keep _inBufMode state
-						if((Int64)ArcInfo.MarkerPos2 < ArcInfo.Base)
+						if((int64)ArcInfo.MarkerPos2 < ArcInfo.Base)
 							res = S_FALSE;
 						else {
 							firstItem.LocalHeaderPos = ArcInfo.MarkerPos2 - ArcInfo.Base;
@@ -4199,9 +4199,9 @@ namespace NArchive {
 
 				if(isZip64) {
 					if(ecd64Disk == Vols.StartVolIndex) {
-						const Int64 newBase = (Int64)ecd64AbsOffset - locator.Ecd64Offset;
-						if(newBase <= (Int64)ecd64AbsOffset) {
-							if(!localsWereRead || newBase <= (Int64)ArcInfo.MarkerPos2) {
+						const int64 newBase = (int64)ecd64AbsOffset - locator.Ecd64Offset;
+						if(newBase <= (int64)ecd64AbsOffset) {
+							if(!localsWereRead || newBase <= (int64)ArcInfo.MarkerPos2) {
 								ArcInfo.Base = newBase;
 								cdRelatOffset = cdAbsOffset - newBase;
 							}
@@ -4212,9 +4212,9 @@ namespace NArchive {
 				}
 				else if(numCdItems != 0) { // we can't use ecd.Offset in empty archive?
 					if((int)cdDisk == Vols.StartVolIndex) {
-						const Int64 newBase = (Int64)cdAbsOffset - cdInfo.Offset;
-						if(newBase <= (Int64)cdAbsOffset) {
-							if(!localsWereRead || newBase <= (Int64)ArcInfo.MarkerPos2) {
+						const int64 newBase = (int64)cdAbsOffset - cdInfo.Offset;
+						if(newBase <= (int64)cdAbsOffset) {
+							if(!localsWereRead || newBase <= (int64)ArcInfo.MarkerPos2) {
 								// cd can be more accurate, when it points before Locals
 								// so we change Base and cdRelatOffset
 								ArcInfo.Base = newBase;
@@ -5643,7 +5643,7 @@ namespace NArchive {
 						if(getInStreamProcessedSize && setFinishMode) {
 							uint64 processed;
 							RINOK(getInStreamProcessedSize->GetInStreamProcessedSize(&processed));
-							if(processed != (uint64)(Int64)-1) {
+							if(processed != (uint64)(int64)-1) {
 								if(pkAesMode) {
 									const uint32 padSize = _pkAesDecoderSpec->GetPadSize((uint32)processed);
 									if(processed + padSize > coderPackSize)
@@ -6293,7 +6293,7 @@ namespace NArchive {
 		}
 
 		#ifndef _7ZIP_ST
-			static THREAD_FUNC_DECL CoderThread(void * threadCoderInfo);
+			//static THREAD_FUNC_DECL CoderThread(void * threadCoderInfo);
 
 			struct CThreadInfo {
 				DECL_EXTERNAL_CODECS_LOC_VARS2;
@@ -6309,10 +6309,11 @@ namespace NArchive {
 				CAddCommon Coder;
 				HRESULT Result;
 				CCompressingResult CompressingResult;
-				bool ExitThread;
-				bool SeqMode;
-				bool IsFree;
-				uint8 Reserve; // @alignment
+				int    ExitThread;
+				//bool   ExitThread;
+				bool   SeqMode;
+				bool   IsFree;
+				uint8  Reserve[2]; // @alignment
 				uint32 UpdateIndex;
 				uint32 FileTime;
 
@@ -6325,8 +6326,26 @@ namespace NArchive {
 					RINOK(CompressEvent.CreateIfNotCreated());
 					return CompressionCompletedEvent.CreateIfNotCreated();
 				}
-				HRes CreateThread() { return Thread.Create(CoderThread, this); }
-				void WaitAndCode();
+				static THREAD_FUNC_DECL CoderThread(void * threadCoderInfo)
+				{
+					((CThreadInfo*)threadCoderInfo)->WaitAndCode();
+					return 0;
+				}
+				HRes CreateThread() { return Thread.Create(CThreadInfo::CoderThread, this); }
+				void WaitAndCode()
+				{
+					for(;; ) {
+						CompressEvent.Lock();
+						if(!ExitThread) {
+							Result = Coder.Compress(EXTERNAL_CODECS_LOC_VARS InStream, OutStream, SeqMode, FileTime, Progress, CompressingResult);
+							if(Result == S_OK && Progress)
+								Result = Progress->SetRatioInfo(&CompressingResult.UnpackSize, &CompressingResult.PackSize);
+							CompressionCompletedEvent.Set();
+						}
+						else
+							break;
+					}
+				}
 				void StopWaitClose()
 				{
 					ExitThread = true;
@@ -6338,47 +6357,13 @@ namespace NArchive {
 				}
 			};
 
-			void CThreadInfo::WaitAndCode()
-			{
-				for(;; ) {
-					CompressEvent.Lock();
-					if(!ExitThread) {
-						Result = Coder.Compress(EXTERNAL_CODECS_LOC_VARS InStream, OutStream, SeqMode, FileTime, Progress, CompressingResult);
-						if(Result == S_OK && Progress)
-							Result = Progress->SetRatioInfo(&CompressingResult.UnpackSize, &CompressingResult.PackSize);
-						CompressionCompletedEvent.Set();
-					}
-				}
-			}
-
-			static THREAD_FUNC_DECL CoderThread(void * threadCoderInfo)
-			{
-				((CThreadInfo*)threadCoderInfo)->WaitAndCode();
-				return 0;
-			}
-
 			struct CMemBlocks2 : public CMemLockBlocks {
 				CMemBlocks2() : Defined(false), Skip(false) 
 				{
 				}
 				CCompressingResult CompressingResult;
-				bool Defined;
+				bool Defined;	
 				bool Skip;
-			};
-
-			class CMemRefs {
-			public:
-				CMemRefs(CMemBlockManagerMt * manager) : Manager(manager) 
-				{
-				}
-				~CMemRefs()
-				{
-					FOR_VECTOR(i, Refs) {
-						Refs[i].FreeOpt(Manager);
-					}
-				}
-				CMemBlockManagerMt * Manager;
-				CObjectVector<CMemBlocks2> Refs;
 			};
 
 			class CMtProgressMixer2 : public ICompressProgressInfo, public CMyUnknownImp {
@@ -6428,27 +6413,6 @@ namespace NArchive {
 			STDMETHODIMP CMtProgressMixer2::SetRatioInfo(const uint64 * inSize, const uint64 * outSize)
 			{
 				return SetRatioInfo(0, inSize, outSize);
-			}
-
-			class CMtProgressMixer : public ICompressProgressInfo, public CMyUnknownImp {
-			public:
-				CMtProgressMixer2 * Mixer2;
-				CMyComPtr<ICompressProgressInfo> RatioProgress;
-				void Create(IProgress * progress, bool inSizeIsMain);
-				MY_UNKNOWN_IMP
-				STDMETHOD(SetRatioInfo) (const uint64 *inSize, const uint64 *outSize);
-			};
-
-			void CMtProgressMixer::Create(IProgress * progress, bool inSizeIsMain)
-			{
-				Mixer2 = new CMtProgressMixer2;
-				RatioProgress = Mixer2;
-				Mixer2->Create(progress, inSizeIsMain);
-			}
-
-			STDMETHODIMP CMtProgressMixer::SetRatioInfo(const uint64 * inSize, const uint64 * outSize)
-			{
-				return Mixer2->SetRatioInfo(1, inSize, outSize);
 			}
 		#endif
 
@@ -6518,8 +6482,8 @@ namespace NArchive {
 			// uint32 attrib;
 			if(getProps->GetProps(&size, &cTime, &aTime, &mTime, NULL) != S_OK)
 				return;
-			if(size != item.Size && size != (uint64)(Int64)-1) {
-				Int64 newComplexity = totalComplexity + ((Int64)size - (Int64)item.Size);
+			if(size != item.Size && size != (uint64)(int64)-1) {
+				int64 newComplexity = totalComplexity + ((int64)size - (int64)item.Size);
 				if(newComplexity > 0) {
 					totalComplexity = newComplexity;
 					updateCallback->SetTotal(totalComplexity);
@@ -6648,7 +6612,7 @@ namespace NArchive {
 			for(i = 0; i < updateItems.Size(); i++) {
 				const CUpdateItem &ui = updateItems[i];
 				if(ui.NewData) {
-					if(ui.Size == (uint64)(Int64)-1)
+					if(ui.Size == (uint64)(int64)-1)
 						unknownComplexity = true;
 					else
 						complexity += ui.Size;
@@ -6699,12 +6663,9 @@ namespace NArchive {
 		  #ifndef _7ZIP_ST
 			uint32 numThreads = options._numThreads;
 			const uint32 kNumMaxThreads = 64;
-			if(numThreads > kNumMaxThreads)
-				numThreads = kNumMaxThreads;
-			if(numThreads > MAXIMUM_WAIT_OBJECTS) // is 64 in Windows (is it 64 in all versions?)
-				numThreads = MAXIMUM_WAIT_OBJECTS;
-			if(numThreads < 1)
-				numThreads = 1;
+			SETMIN(numThreads, kNumMaxThreads);
+			SETMIN(numThreads, MAXIMUM_WAIT_OBJECTS); // is 64 in Windows (is it 64 in all versions?)
+			SETMAX(numThreads, 1);
 			const size_t kMemPerThread = (1 << 25);
 			const size_t kBlockSize = 1 << 16;
 			bool mtMode = (numThreads > 1);
@@ -6763,28 +6724,45 @@ namespace NArchive {
 		  #endif
 			return Update2St(EXTERNAL_CODECS_LOC_VARS archive, inArchive, inputItems, updateItems, &options2, comment, updateCallback, totalComplexity, opCallback);
 		  #ifndef _7ZIP_ST
-			CObjectVector<CItemOut> items;
+			class CMtProgressMixer : public ICompressProgressInfo, public CMyUnknownImp {
+			public:
+				void Create(IProgress * progress, bool inSizeIsMain)
+				{
+					Mixer2 = new CMtProgressMixer2;
+					RatioProgress = Mixer2;
+					Mixer2->Create(progress, inSizeIsMain);
+				}
+				MY_UNKNOWN_IMP
+				STDMETHOD(SetRatioInfo)(const uint64 *inSize, const uint64 *outSize)
+				{
+					return Mixer2->SetRatioInfo(1, inSize, outSize);
+				}
+				CMtProgressMixer2 * Mixer2;
+				CMyComPtr <ICompressProgressInfo> RatioProgress;
+			};
 			CMtProgressMixer * mtProgressMixerSpec = new CMtProgressMixer;
+			CObjectVector <CItemOut> items;
 			CMyComPtr<ICompressProgressInfo> progress = mtProgressMixerSpec;
 			mtProgressMixerSpec->Create(updateCallback, true);
 			CMtCompressProgressMixer mtCompressProgressMixer;
 			mtCompressProgressMixer.Init(numThreads, mtProgressMixerSpec->RatioProgress);
 
 			CMemBlockManagerMt memManager(kBlockSize);
-			CMemRefs refs(&memManager);
+			
+			class CMemRefs {
+			public:
+				CMemRefs(CMemBlockManagerMt * manager) : Manager(manager) {}
+				~CMemRefs() { FOR_VECTOR(i, Refs) { Refs[i].FreeOpt(Manager); } }
+				CMemBlockManagerMt * Manager;
+				CObjectVector <CMemBlocks2> Refs;
+			} refs(&memManager);
 
 			class CThreads {
 			public:
-				~CThreads()
-				{
-					FOR_VECTOR(i, Threads) {
-						Threads[i].StopWaitClose();
-					}
-				}
+				~CThreads() { FOR_VECTOR(i, Threads) { Threads[i].StopWaitClose(); } }
 				CObjectVector <CThreadInfo> Threads;
-			};
-			CThreads threads;
-			CRecordVector<HANDLE> compressingCompletedEvents;
+			} threads;
+			CRecordVector <HANDLE> compressingCompletedEvents;
 			CUIntVector threadIndices; // list threads in order of updateItems
 			{
 				RINOK(memManager.AllocateSpaceAlways((size_t)numThreads * (kMemPerThread / kBlockSize)));
@@ -6793,7 +6771,7 @@ namespace NArchive {
 				for(i = 0; i < numThreads; i++)
 					threads.Threads.Add(CThreadInfo(options2));
 				for(i = 0; i < numThreads; i++) {
-					CThreadInfo &threadInfo = threads.Threads[i];
+					CThreadInfo & threadInfo = threads.Threads[i];
 			  #ifdef EXTERNAL_CODECS
 					threadInfo.__externalCodecs = __externalCodecs;
 			  #endif
@@ -6810,12 +6788,12 @@ namespace NArchive {
 					RINOK(threadInfo.CreateThread());
 				}
 			}
-			unsigned mtItemIndex = 0;
-			unsigned itemIndex = 0;
-			int lastRealStreamItemIndex = -1;
+			uint   mtItemIndex = 0;
+			uint   itemIndex = 0;
+			int    lastRealStreamItemIndex = -1;
 			while(itemIndex < updateItems.Size()) {
 				if(threadIndices.Size() < numThreads && mtItemIndex < updateItems.Size()) {
-					CUpdateItem &ui = updateItems[mtItemIndex++];
+					CUpdateItem & ui = updateItems[mtItemIndex++];
 					if(!ui.NewData)
 						continue;
 					CItemEx itemEx;
@@ -6834,7 +6812,7 @@ namespace NArchive {
 						if(ui.IsDir)
 							continue;
 					}
-					CMyComPtr<ISequentialInStream> fileInStream;
+					CMyComPtr <ISequentialInStream> fileInStream;
 					{
 						NWindows::NSynchronization::CCriticalSectionLock lock(mtProgressMixerSpec->Mixer2->CriticalSection);
 						HRESULT res = updateCallback->GetStream(ui.IndexInClient, &fileInStream);
@@ -6893,7 +6871,7 @@ namespace NArchive {
 						WriteDirHeader(archive, &options, ui, item);
 					}
 					else {
-						CMemBlocks2 &memRef = refs.Refs[itemIndex];
+						CMemBlocks2 & memRef = refs.Refs[itemIndex];
 						if(memRef.Defined) {
 							SETMAX(lastRealStreamItemIndex, (int)itemIndex);
 							SetFileHeader(options, ui, item);
@@ -6937,7 +6915,7 @@ namespace NArchive {
 							unsigned t = (uint)(result - WAIT_OBJECT_0);
 							if(t >= compressingCompletedEvents.Size())
 								return E_FAIL;
-							CThreadInfo &threadInfo = threads.Threads[threadIndices[t]];
+							CThreadInfo & threadInfo = threads.Threads[threadIndices[t]];
 							threadInfo.InStream.Release();
 							threadInfo.IsFree = true;
 							RINOK(threadInfo.Result);
@@ -6951,7 +6929,7 @@ namespace NArchive {
 								archive.WriteLocalHeader_Replace(item);
 							}
 							else {
-								CMemBlocks2 &memRef2 = refs.Refs[threadInfo.UpdateIndex];
+								CMemBlocks2 & memRef2 = refs.Refs[threadInfo.UpdateIndex];
 								threadInfo.OutStreamSpec->DetachData(memRef2);
 								memRef2.CompressingResult = threadInfo.CompressingResult;
 								memRef2.Defined = true;
@@ -6969,7 +6947,6 @@ namespace NArchive {
 				mtProgressMixerSpec->Mixer2->SetProgressOffset(complexity);
 				itemIndex++;
 			}
-
 			RINOK(mtCompressProgressMixer.SetRatioInfo(0, NULL, NULL));
 			archive.WriteCentralDir(items, comment);
 			return S_OK;
@@ -7006,7 +6983,7 @@ namespace NArchive {
 			MY_UNKNOWN_IMP
 
 			STDMETHOD(Write) (const void * data, uint32 size, uint32 *processedSize);
-			STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+			STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 			STDMETHOD(SetSize) (uint64 newSize);
 		};
 
@@ -7127,7 +7104,7 @@ namespace NArchive {
 			return S_OK;
 		}
 
-		STDMETHODIMP CCacheOutStream::Seek(Int64 offset, uint32 seekOrigin, uint64 * newPosition)
+		STDMETHODIMP CCacheOutStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
 		{
 			switch(seekOrigin) {
 				case STREAM_SEEK_SET: break;
@@ -7188,7 +7165,7 @@ namespace NArchive {
 			COutArchive outArchive;
 			RINOK(outArchive.Create(outStream));
 			if(inArchive) {
-				if(!inArchive->IsMultiVol && (Int64)inArchive->ArcInfo.MarkerPos2 > inArchive->ArcInfo.Base) {
+				if(!inArchive->IsMultiVol && (int64)inArchive->ArcInfo.MarkerPos2 > inArchive->ArcInfo.Base) {
 					IInStream * baseStream = inArchive->GetBaseStream();
 					RINOK(baseStream->Seek(inArchive->ArcInfo.Base, STREAM_SEEK_SET, NULL));
 					uint64 embStubSize = inArchive->ArcInfo.MarkerPos2 - inArchive->ArcInfo.Base;

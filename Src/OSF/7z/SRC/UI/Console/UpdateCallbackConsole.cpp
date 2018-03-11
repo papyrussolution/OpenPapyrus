@@ -3,9 +3,6 @@
 #include <7z-internal.h>
 #pragma hdrstop
 #include <7z-ifcs.h>
-//#include "ConsoleClose.h"
-//#include <UserInputUtils.h>
-//#include <UpdateCallbackConsole.h>
 
 using namespace NWindows;
 

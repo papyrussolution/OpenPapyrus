@@ -41,7 +41,7 @@ void FASTCALL LzmaEncProps_Init(CLzmaEncProps * p)
 {
 	p->level = 5;
 	p->dictSize = p->mc = 0;
-	p->reduceSize = (uint64)(Int64)-1;
+	p->reduceSize = (uint64)(int64)-1;
 	p->lc = p->lp = p->pb = p->algo = p->fb = p->btMode = p->numHashBytes = p->numThreads = -1;
 	p->writeEndMark = 0;
 }
@@ -3068,7 +3068,7 @@ void Lzma2EncProps_Normalize(CLzma2EncProps * p)
 		SETMAX(blockSize, dictSize);
 		p->blockSize = (size_t)blockSize;
 	}
-	if(t2 > 1 && p->lzmaProps.reduceSize != (uint64)(Int64)-1) {
+	if(t2 > 1 && p->lzmaProps.reduceSize != (uint64)(int64)-1) {
 		uint64 temp = p->lzmaProps.reduceSize + p->blockSize - 1;
 		if(temp > p->lzmaProps.reduceSize) {
 			uint64 numBlocks = temp / p->blockSize;

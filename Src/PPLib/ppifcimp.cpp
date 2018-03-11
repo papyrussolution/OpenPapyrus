@@ -176,6 +176,8 @@ int Use001()
 #define USE_IMPL_DL6ICLS_PPViewTrfrAnlz
 #define USE_IMPL_DL6ICLS_PPFiltGoods
 #define USE_IMPL_DL6ICLS_PPViewGoods
+#define USE_IMPL_DL6ICLS_PPFiltGoodsStruc
+#define USE_IMPL_DL6ICLS_PPViewGoodsStruc
 #define USE_IMPL_DL6ICLS_PPFiltGoodsRest
 #define USE_IMPL_DL6ICLS_PPViewGoodsRest
 #define USE_IMPL_DL6ICLS_PPFiltBill
@@ -1179,7 +1181,7 @@ int32 DL6ICLS_PPFtp::Connect(SFtpAccount * pAcct)
 			Reference::Helper_EncodeOtherPw(0, temp_buf, 48, pw_buf);
 			acct.SetExtField(MAEXSTR_RCVPASSWORD, pw_buf);
 		}
-		// } @v9.9.6 
+		// } @v9.9.6
 		temp_buf.Z().Cat((pAcct->Port) ? pAcct->Port : 21L);
 		acct.SetExtField(FTPAEXSTR_PORT, temp_buf);
 		acct.Flags = pAcct->Flags;
@@ -1927,6 +1929,7 @@ IPapyrusView * DL6ICLS_PPSession::CreateView(PpyViewIdent viewID)
 		case ppvOpGrouping:  p_cls_name = "PPViewOpGrouping";     break;
 		case ppvDebtTrnovr:  p_cls_name = "PPViewDebtTrnovr";     break;
 		case ppvLotOp:       p_cls_name = "PPViewLotOp";          break;
+		case ppvGoodsStruc:  p_cls_name = "PPViewGoodsStruc";     break; // @v9.9.10
 		default:
 			msg_buf.Z().Cat(viewID);
 			break;
@@ -8270,6 +8273,83 @@ int32 DL6ICLS_PPViewGoods::GetTotal(PPYVIEWTOTAL total) { return FuncNotSupporte
 //
 // } PPViewGoods
 //
+// PPViewGoodsStruc
+//
+DL6_IC_CONSTRUCTION_EXTRA(PPFiltGoodsStruc, DL6ICLS_PPFiltGoodsStruc_VTab, GoodsStrucFilt);
+//
+// Interface IPpyFilt_GoodsStruc implementation
+//
+int32 DL6ICLS_PPFiltGoodsStruc::get_PrmrGoodsGrpID() { IMPL_PPIFC_GETPROP(GoodsStrucFilt, PrmrGoodsGrpID); }
+void DL6ICLS_PPFiltGoodsStruc::put_PrmrGoodsGrpID(int32 value) { IMPL_PPIFC_PUTPROP(GoodsStrucFilt, PrmrGoodsGrpID); }
+int32 DL6ICLS_PPFiltGoodsStruc::get_PrmrGoodsID() { IMPL_PPIFC_GETPROP(GoodsStrucFilt, PrmrGoodsID); }
+void DL6ICLS_PPFiltGoodsStruc::put_PrmrGoodsID(int32 value) { IMPL_PPIFC_PUTPROP(GoodsStrucFilt, PrmrGoodsID); }
+int32 DL6ICLS_PPFiltGoodsStruc::get_ScndGoodsGrpID() { IMPL_PPIFC_GETPROP(GoodsStrucFilt, ScndGoodsGrpID); }
+void DL6ICLS_PPFiltGoodsStruc::put_ScndGoodsGrpID(int32 value) { IMPL_PPIFC_PUTPROP(GoodsStrucFilt, ScndGoodsGrpID); }
+int32 DL6ICLS_PPFiltGoodsStruc::get_ScndGoodsID() { IMPL_PPIFC_GETPROP(GoodsStrucFilt, ScndGoodsID); }
+void DL6ICLS_PPFiltGoodsStruc::put_ScndGoodsID(int32 value) { IMPL_PPIFC_PUTPROP(GoodsStrucFilt, ScndGoodsID); }
+int32 DL6ICLS_PPFiltGoodsStruc::get_StrucFlagSet() { IMPL_PPIFC_GETPROP(GoodsStrucFilt, StrucFlagSet); }
+void DL6ICLS_PPFiltGoodsStruc::put_StrucFlagSet(int32 value) { IMPL_PPIFC_PUTPROP(GoodsStrucFilt, StrucFlagSet); }
+int32 DL6ICLS_PPFiltGoodsStruc::get_StrucFlagReset() { IMPL_PPIFC_GETPROP(GoodsStrucFilt, StrucFlagReset); }
+void DL6ICLS_PPFiltGoodsStruc::put_StrucFlagReset(int32 value) { IMPL_PPIFC_PUTPROP(GoodsStrucFilt, StrucFlagReset); }
+int32 DL6ICLS_PPFiltGoodsStruc::get_ItemFlagSet() { IMPL_PPIFC_GETPROP(GoodsStrucFilt, ItemFlagSet); }
+void DL6ICLS_PPFiltGoodsStruc::put_ItemFlagSet(int32 value) { IMPL_PPIFC_PUTPROP(GoodsStrucFilt, ItemFlagSet); }
+int32 DL6ICLS_PPFiltGoodsStruc::get_ItemFlagReset() { IMPL_PPIFC_GETPROP(GoodsStrucFilt, ItemFlagReset); }
+void DL6ICLS_PPFiltGoodsStruc::put_ItemFlagReset(int32 value) { IMPL_PPIFC_PUTPROP(GoodsStrucFilt, ItemFlagReset); }
+PpyVGoodsStrucFlags DL6ICLS_PPFiltGoodsStruc::get_Flags() { IMPL_PPIFC_GETPROP_CAST(GoodsStrucFilt, Flags, PpyVGoodsStrucFlags); }
+void DL6ICLS_PPFiltGoodsStruc::put_Flags(PpyVGoodsStrucFlags value) { IMPL_PPIFC_PUTPROP(GoodsStrucFilt, Flags); }
+int32 DL6ICLS_PPFiltGoodsStruc::get_InitOrder() { IMPL_PPIFC_GETPROP(GoodsStrucFilt, InitOrder); }
+void DL6ICLS_PPFiltGoodsStruc::put_InitOrder(int32 value) { IMPL_PPIFC_PUTPROP(GoodsStrucFilt, InitOrder); }
+
+DL6_IC_CONSTRUCTION_EXTRA(PPViewGoodsStruc, DL6ICLS_PPViewGoodsStruc_VTab, PPViewGoodsStruc);
+//
+// Interface IPapyrusView implementation
+//
+IUnknown* DL6ICLS_PPViewGoodsStruc::CreateFilt(int32 param)
+{
+	IUnknown * p_filt = 0;
+	return CreateInnerInstance("PPFiltGoodsStruc", 0, (void **)&p_filt) ? p_filt : (IUnknown *)RaiseAppErrorPtr();
+}
+
+int32 DL6ICLS_PPViewGoodsStruc::Init(IUnknown* pFilt) { IMPL_PPIFC_PPVIEWINIT(GoodsStruc); }
+int32 DL6ICLS_PPViewGoodsStruc::InitIteration(int32 order) { return ((PPViewGoodsStruc *)ExtraPtr)->InitIteration(); }
+
+int32 DL6ICLS_PPViewGoodsStruc::NextIteration(PPYVIEWITEM item)
+{
+	int    ok = -1;
+	SPpyVI_GoodsStruc * p_item = (SPpyVI_GoodsStruc *)item;
+	GoodsStrucViewItem inner_item;
+	if(((PPViewGoodsStruc *)ExtraPtr)->NextIteration(&inner_item) > 0) {
+		SString temp_buf;
+		p_item->RecTag = PPVIEWITEM_GOODSSTRUC;
+#define FLD(f) p_item->f = inner_item.f
+		FLD(GStrucID);
+		FLD(PrmrGoodsID);
+		FLD(StrucFlags);
+		FLD(ParentStrucID);
+		FLD(GiftQuotKindID);
+		FLD(VariedPropObjType);
+		FLD(GiftLimit);
+		FLD(GiftAmtRestrict);
+		FLD(CommDenom);
+		FLD(GoodsID);
+		FLD(ItemFlags);
+		FLD(Median);
+		FLD(Denom);
+		FLD(Netto);
+#undef FLD
+		(temp_buf = inner_item.StrucName).CopyToOleStr(&p_item->StrucName);
+		(temp_buf = inner_item.StrucSymb).CopyToOleStr(&p_item->StrucSymb);
+		p_item->Period.Low = inner_item.Period.low;
+		p_item->Period.Upp = inner_item.Period.upp;
+		ok = 1;
+	}
+	return ok;
+}
+
+SIterCounter DL6ICLS_PPViewGoodsStruc::GetIterCounter() { return GetPPViewIterCounter(ExtraPtr, &AppError); }
+int32 DL6ICLS_PPViewGoodsStruc::GetTotal(PPYVIEWTOTAL total) { return FuncNotSupported(); }
+//
+// } PPViewGoodsStruc
 //
 // PPViewGoodsRest {
 //

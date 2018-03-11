@@ -3010,6 +3010,46 @@ CheckPaneDialog::GrpListItem * CheckPaneDialog::GroupArray::Get(PPID id, uint * 
 	}
 }
 
+int CheckPaneDialog::PhnSvcConnect()
+{
+	int    ok = -1;
+	ZDELETE(P_PhnSvcClient);
+	PhnSvcLocalChannelSymb.Z();
+	if(CnPhnSvcID) {
+		PPObjPhoneService ps_obj(0);
+		PPPhoneServicePacket ps_pack;
+		if(ps_obj.GetPacket(CnPhnSvcID, &ps_pack) > 0) {
+			SString addr_buf, user_buf, secret_buf, temp_buf;
+			int    port = 0;
+			ps_pack.GetExField(PHNSVCEXSTR_ADDR, addr_buf);
+			ps_pack.GetExField(PHNSVCEXSTR_PORT, temp_buf);
+			port = temp_buf.ToLong();
+			ps_pack.GetExField(PHNSVCEXSTR_USER, user_buf);
+			ps_pack.GetPassword(secret_buf);
+			long   aacf = (CConfig.Flags & CCFLG_DEBUG) ? AsteriskAmiClient::fDoLog : 0;
+			AsteriskAmiClient * p_client = new AsteriskAmiClient(aacf);
+			if(p_client) {
+				if(p_client->Connect(addr_buf, port)) {
+					if(p_client->Login(user_buf, secret_buf)) {
+						P_PhnSvcClient = p_client;
+						p_client = 0;
+						PhnSvcLocalChannelSymb = ps_pack.LocalChannelSymb;
+						ok = 1;
+					}
+					else {
+						// @error
+					}
+				}
+				else {
+					// @error
+				}
+			}
+			delete p_client; // Если соединение с сервером прошло успешно, то p_client == 0, а P_PhnSvcClient != 0
+		}
+	}
+	return ok;
+}
+
 CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, int isTouchScreen) :
 	TDialog(pOuterPack ? (isTouchScreen ? DLG_CHKPANV_L : DLG_CHKPANV) : (isTouchScreen ? DLG_CHKPAN_TS : DLG_CHKPAN),
 		isTouchScreen ? CheckPaneDialog::SetLbxItemHight : 0, cashNodeID),
@@ -3022,6 +3062,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	BarrierViolationCounter = 0; // @debug
 	TouchScreenID = 0;
 	ScaleID = 0;
+	CnPhnSvcID = 0; // @v9.9.10
 	SetupState(sEMPTYLIST_EMPTYBUF);
 	SETFLAG(DlgFlags, fLarge, isTouchScreen);
 	SelGoodsGrpID = AltGoodsGrpID = 0;
@@ -3077,6 +3118,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 				P_BNKTERM       = GetBnkTerm(scn.BnkTermType, scn.BnkTermLogNum, scn.BnkTermPort, scn.BnkTermPath);
 				TouchScreenID   = NZOR(scn.LocalTouchScrID, scn.TouchScreenID);
 				AltRegisterID   = scn.AlternateRegID; // @v9.7.10
+				CnPhnSvcID      = scn.PhnSvcID; // @v9.9.10
 				if(scn.ExtCashNodeID) {
 					if(scn.ExtFlags & CASHFX_EXTNODEASALT && !AltRegisterID)
 						AltRegisterID = scn.ExtCashNodeID;
@@ -3143,36 +3185,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 					if(ait > 0 && ait <= 100)
 						AutoInputTolerance = ait;
 				}
-				if(scn.PhnSvcID) {
-					PPObjPhoneService ps_obj(0);
-					PPPhoneServicePacket ps_pack;
-					if(ps_obj.GetPacket(scn.PhnSvcID, &ps_pack) > 0) {
-						SString addr_buf, user_buf, secret_buf, temp_buf;
-						int    port = 0;
-						ps_pack.GetExField(PHNSVCEXSTR_ADDR, addr_buf);
-						ps_pack.GetExField(PHNSVCEXSTR_PORT, temp_buf);
-						port = temp_buf.ToLong();
-						ps_pack.GetExField(PHNSVCEXSTR_USER, user_buf);
-						ps_pack.GetPassword(secret_buf);
-						AsteriskAmiClient * p_client = new AsteriskAmiClient;
-						if(p_client) {
-							if(p_client->Connect(addr_buf, port)) {
-								if(p_client->Login(user_buf, secret_buf)) {
-									P_PhnSvcClient = p_client;
-									p_client = 0;
-									PhnSvcLocalChannelSymb = ps_pack.LocalChannelSymb;
-								}
-								else {
-									// @error
-								}
-							}
-							else {
-								// @error
-							}
-						}
-						delete p_client; // Если соединение с сервером прошло успешно, то p_client == 0, а P_PhnSvcClient != 0
-					}
-				}
+				PhnSvcConnect();
 				// @v8.3.2 {
 				if(scn.ExtFlags & CASHFX_UHTTORDIMPORT) {
 					PPAlbatrosConfig acfg;
@@ -5899,7 +5912,14 @@ int CheckPaneDialog::ProcessPhnSvc(int mode)
 			PhnSvcChannelStatusPool status_list;
 			PhnSvcChannelStatus cnl_status;
 			SString ringing_line;
-			if(P_PhnSvcClient->GetChannelStatus(0, status_list)) {
+			int   gcsr = P_PhnSvcClient->GetChannelStatus(0, status_list);
+			if(!gcsr) {
+				if(PhnSvcConnect() > 0)
+					gcsr = P_PhnSvcClient->GetChannelStatus(0, status_list);
+				else
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP);
+			}
+			if(gcsr) {
 				if(status_list.GetCount()) {
 					PPEAddrArray phn_list; // Список телефонов, находящихся в списке. Необходим для устранения дублируемых строк.
 					PPIDArray ea_id_list;

@@ -523,6 +523,7 @@
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_viewlogs",							cmViewLogs
 		MENUITEM "@cmd_viewbboard",							cmViewBBoard
+		MENUITEM "@cmd_phnsvcmonitor",                      cmViewPhnSvcMonitor
 		MENUITEM SEPARATOR
 		POPUP "@cmdpu_other" {
 			MENUITEM "@cmd_calcgoodssaldo",					cmCalcGoodsSaldo

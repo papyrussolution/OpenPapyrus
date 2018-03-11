@@ -1,6 +1,6 @@
-/* 7zStream.c -- 7z Stream functions
-   2017-04-03 : Igor Pavlov : Public domain */
-
+// 7zStream.c -- 7z Stream functions
+// 2017-04-03 : Igor Pavlov : Public domain 
+//
 #include <7z-internal.h>
 #pragma hdrstop
 
@@ -31,7 +31,7 @@ SRes SeqInStream_ReadByte(const ISeqInStream * stream, Byte * buf)
 
 SRes FASTCALL LookInStream_SeekTo(const ILookInStream * stream, uint64 offset)
 {
-	Int64 t = offset;
+	int64 t = offset;
 	return ILookInStream_Seek(stream, &t, SZ_SEEK_SET);
 }
 
@@ -123,7 +123,7 @@ static SRes LookToRead2_Read(const ILookInStream * pp, void * buf, size_t * size
 	}
 }
 
-static SRes LookToRead2_Seek(const ILookInStream * pp, Int64 * pos, ESzSeek origin)
+static SRes LookToRead2_Seek(const ILookInStream * pp, int64 * pos, ESzSeek origin)
 {
 	GET_LookToRead2
 	p->pos = p->size = 0;

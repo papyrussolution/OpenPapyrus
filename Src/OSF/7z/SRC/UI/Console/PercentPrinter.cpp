@@ -15,14 +15,14 @@ CPercentPrinter::~CPercentPrinter()
 	ClosePrint(false);
 }
 
-CPercentPrinterState::CPercentPrinterState() : Completed(0), Total((uint64)(Int64)-1), Files(0)
+CPercentPrinterState::CPercentPrinterState() : Completed(0), Total((uint64)(int64)-1), Files(0)
 {
 }
 
 void CPercentPrinterState::ClearCurState()
 {
 	Completed = 0;
-	Total = ((uint64)(Int64)-1);
+	Total = ((uint64)(int64)-1);
 	Files = 0;
 	Command.Empty();
 	FileName.Empty();
@@ -67,7 +67,7 @@ void CPercentPrinter::GetPercents()
 	{
 		char c = '%';
 		uint64 val = 0;
-		if(Total == (uint64)(Int64)-1) {
+		if(Total == (uint64)(int64)-1) {
 			val = Completed >> 20;
 			c = 'M';
 		}

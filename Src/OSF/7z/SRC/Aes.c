@@ -1,9 +1,8 @@
-/* Aes.c -- AES encryption / decryption
-   2017-01-24 : Igor Pavlov : Public domain */
-
+// Aes.c -- AES encryption / decryption
+// 2017-01-24 : Igor Pavlov : Public domain 
+// 
 #include <7z-internal.h>
 #pragma hdrstop
-//#include <Aes.h>
 
 static uint32 T[256 * 4];
 static const Byte Sbox[256] = {
@@ -136,15 +135,13 @@ void AesGenTables(void)
 
 void FASTCALL Aes_SetKey_Enc(uint32 * w, const Byte * key, unsigned keySize)
 {
-	unsigned i, wSize;
-	wSize = keySize + 28;
+	uint   i;
+	uint   wSize = keySize + 28;
 	keySize /= 4;
 	w[0] = ((uint32)keySize / 2) + 3;
 	w += 4;
-
 	for(i = 0; i < keySize; i++, key += 4)
 		w[i] = GetUi32(key);
-
 	for(; i < wSize; i++) {
 		uint32 t = w[(size_t)i - 1];
 		unsigned rem = i % keySize;
@@ -158,17 +155,13 @@ void FASTCALL Aes_SetKey_Enc(uint32 * w, const Byte * key, unsigned keySize)
 
 void FASTCALL Aes_SetKey_Dec(uint32 * w, const Byte * key, unsigned keySize)
 {
-	unsigned i, num;
+	uint   i, num;
 	Aes_SetKey_Enc(w, key, keySize);
 	num = keySize + 20;
 	w += 8;
 	for(i = 0; i < num; i++) {
 		uint32 r = w[i];
-		w[i] =
-		    DD(0)[Sbox[gb0(r)]] ^
-		    DD(1)[Sbox[gb1(r)]] ^
-		    DD(2)[Sbox[gb2(r)]] ^
-		    DD(3)[Sbox[gb3(r)]];
+		w[i] = DD(0)[Sbox[gb0(r)]] ^ DD(1)[Sbox[gb1(r)]] ^ DD(2)[Sbox[gb2(r)]] ^ DD(3)[Sbox[gb3(r)]];
 	}
 }
 
@@ -220,8 +213,7 @@ static void Aes_Decode(const uint32 * w, uint32 * dest, const uint32 * src)
 
 void AesCbc_Init(uint32 * p, const Byte * iv)
 {
-	uint i;
-	for(i = 0; i < 4; i++)
+	for(uint i = 0; i < 4; i++)
 		p[i] = GetUi32(iv + i * 4);
 }
 
@@ -286,4 +278,3 @@ void FASTCALL AesCtr_Code(uint32 * p, Byte * data, size_t numBlocks)
 		}
 	}
 }
-

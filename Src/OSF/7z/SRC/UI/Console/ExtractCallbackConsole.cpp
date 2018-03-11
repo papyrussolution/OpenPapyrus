@@ -158,8 +158,7 @@ STDMETHODIMP CExtractCallbackConsole::SetCompleted(const uint64 * completeValue)
 {
 	MT_LOCK
 	if(NeedPercents()) {
-		if(completeValue)
-			_percent.Completed = *completeValue;
+		RVALUEPTR(_percent.Completed, completeValue);
 		_percent.Print();
 	}
 	return CheckBreak2();
@@ -578,4 +577,3 @@ HRESULT CExtractCallbackConsole::ExtractResult(HRESULT result)
 	}
 	return CheckBreak2();
 }
-

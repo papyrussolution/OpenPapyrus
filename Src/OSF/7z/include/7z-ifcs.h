@@ -73,8 +73,8 @@ STREAM_INTERFACE(ISequentialOutStream, 0x02)
 // 
 // if Seek() returns error, then the value of *newPosition is undefined.
 // 
-STREAM_INTERFACE_SUB(IInStream, ISequentialInStream, 0x03) { STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition) PURE; };
-STREAM_INTERFACE_SUB(IOutStream, ISequentialOutStream, 0x04) { STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition) PURE; STDMETHOD(SetSize) (uint64 newSize) PURE; };
+STREAM_INTERFACE_SUB(IInStream, ISequentialInStream, 0x03) { STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition) PURE; };
+STREAM_INTERFACE_SUB(IOutStream, ISequentialOutStream, 0x04) { STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition) PURE; STDMETHOD(SetSize) (uint64 newSize) PURE; };
 STREAM_INTERFACE(IStreamGetSize, 0x06) { STDMETHOD(GetSize) (uint64 *size) PURE; };
 STREAM_INTERFACE(IOutStreamFinish, 0x07) { STDMETHOD(OutStreamFinish) () PURE; };
 STREAM_INTERFACE(IStreamGetProps, 0x08) { STDMETHOD(GetProps) (uint64 *size, FILETIME *cTime, FILETIME *aTime, FILETIME *mTime, uint32 *attrib) PURE; };
@@ -183,7 +183,7 @@ public:
 	MY_ADDREF_RELEASE
 
 	STDMETHOD(Read) (void * data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 
 	STDMETHOD(GetSize) (uint64 *size);
   #ifdef USE_WIN_FILE
@@ -220,7 +220,7 @@ public:
   #endif
 	MY_UNKNOWN_IMP1(IOutStream)
 	STDMETHOD(Write) (const void * data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 	STDMETHOD(SetSize) (uint64 newSize);
 	HRESULT GetSize(uint64 * size);
 };
@@ -262,7 +262,7 @@ public:
 	HRESULT InitAndSeek(uint64 startOffset, uint64 size);
 	MY_UNKNOWN_IMP2(ISequentialInStream, IInStream)
 	STDMETHOD(Read) (void * data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 	HRESULT SeekToStart() { return Seek(0, STREAM_SEEK_SET, NULL); }
 private:
 	CMyComPtr<IInStream> _stream;
@@ -290,7 +290,7 @@ public:
 	HRESULT InitAndSeek();
 	MY_UNKNOWN_IMP2(ISequentialInStream, IInStream)
 	STDMETHOD(Read) (void * data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 };
 
 class CLimitedSequentialOutStream : public ISequentialOutStream, public CMyUnknownImp {
@@ -316,7 +316,7 @@ public:
 	HRESULT InitAndSeek(uint64 startOffset, uint64 size);
 	MY_UNKNOWN_IMP2(ISequentialInStream, IInStream)
 	STDMETHOD(Read) (void * data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 	HRESULT SeekToStart() { return Seek(0, STREAM_SEEK_SET, NULL); }
 private:
 	CMyComPtr<IInStream> _stream;
@@ -345,7 +345,7 @@ public:
 		_virtSize = 0;
 	}
 	STDMETHOD(Write) (const void * data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 	STDMETHOD(SetSize) (uint64 newSize);
 private:
 	uint64 _virtPos;
@@ -366,7 +366,7 @@ public:
 	HRESULT Init();
 	MY_UNKNOWN_IMP1(IInStream)
 	STDMETHOD(Read) (void * data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 private:
 	uint64 _pos;
 	uint64 _totalLength;
@@ -395,7 +395,7 @@ public:
 	}
 	MY_UNKNOWN_IMP1(IOutStream)
 	STDMETHOD(Write)(const void *data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek)(Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek)(int64 offset, uint32 seekOrigin, uint64 *newPosition);
 };*/
 //
 //#include <DummyOutStream.h>
@@ -423,7 +423,7 @@ public:
 	}
 	MY_UNKNOWN_IMP2(ISequentialInStream, IInStream)
 	STDMETHOD(Read) (void * data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 private:
 	uint64 _pos;
 };
@@ -439,7 +439,7 @@ public:
 	void FASTCALL Init(CReferenceBuf * ref);
 	MY_UNKNOWN_IMP2(ISequentialInStream, IInStream)
 	STDMETHOD(Read) (void * data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 private:
 	const Byte * _data;
 	uint64 _pos;
@@ -476,7 +476,7 @@ public:
 
 	MY_UNKNOWN_IMP2(ISequentialInStream, IInStream)
 	STDMETHOD(Read) (void * data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 protected:
 	virtual HRESULT ReadBlock(uint64 blockIndex, Byte * dest, size_t blockSize) = 0;
 private:
@@ -1236,12 +1236,12 @@ class CFilterCoder : public ICompressCoder, public ICompressSetOutStreamSize, pu
 	uint32 _bufSize;
 	uint32 _inBufSize;
 	uint32 _outBufSize;
-	bool _encodeMode;
-	bool _outSizeIsDefined;
+	bool   _encodeMode;
+	bool   _outSizeIsDefined;
 	uint64 _outSize;
 	uint64 _nowPos64;
-	CMyComPtr<ISequentialInStream> _inStream;
-	CMyComPtr<ISequentialOutStream> _outStream;
+	CMyComPtr <ISequentialInStream> _inStream;
+	CMyComPtr <ISequentialOutStream> _outStream;
 	uint32 _bufPos;
 	uint32 _convPos; // current pos in buffer for converted data
 	uint32 _convSize; // size of converted data starting from _convPos
@@ -1615,12 +1615,12 @@ struct CSeqOutStreamWrap {
 struct CByteInBufWrap {
 	CByteInBufWrap();
 	~CByteInBufWrap();
-	void Free() throw();
-	bool Alloc(uint32 size) throw();
-	void Init();
+	void   Free() throw();
+	bool   Alloc(uint32 size) throw();
+	void   Init();
 	uint64 GetProcessed() const { return Processed + (Cur - Buf); }
-	Byte ReadByteFromNewBlock() throw();
-	Byte ReadByte() { return (Cur != Lim) ? *Cur++ : ReadByteFromNewBlock(); }
+	Byte   ReadByteFromNewBlock() throw();
+	Byte   ReadByte() { return (Cur != Lim) ? *Cur++ : ReadByteFromNewBlock(); }
 
 	IByteIn vt;
 	const Byte * Cur;
@@ -1771,9 +1771,6 @@ namespace NBitl {
 //
 //#include <BitlEncoder.h>
 class CBitlEncoder {
-	COutBuffer _stream;
-	uint   _bitPos;
-	Byte   _curByte;
 public:
 	bool   FASTCALL Create(uint32 bufSize);
 	void   FASTCALL SetStream(ISequentialOutStream * outStream);
@@ -1784,6 +1781,11 @@ public:
 	void   FlushByte();
 	void   WriteBits(uint32 value, unsigned numBits);
 	void   FASTCALL WriteByte(Byte b);
+private:
+	COutBuffer _stream;
+	uint   _bitPos;
+	Byte   _curByte;
+	uint8  Reserve[3]; // @alignment
 };
 //
 //#include <BitmDecoder.h>
@@ -1839,8 +1841,7 @@ namespace NBitm {
 		   unsigned ReadBit()
 		   {
 		   uint32 res = ((_value >> (8 - _bitPos)) & kMask) >> (kNumValueBits - 1);
-		   if(++_bitPos >= 8)
-		   {
+		   if(++_bitPos >= 8) {
 			_value = (_value << 8) | _stream.ReadByte();
 			_bitPos -= 8;
 		   }
@@ -1906,10 +1907,10 @@ namespace NCompress {
 			CLzmaDec _state;
 			ELzmaStatus _lzmaStatus;
 		public:
-			bool FinishStream; // set it before decoding, if you need to decode full LZMA stream
+			bool   FinishStream; // set it before decoding, if you need to decode full LZMA stream
 		private:
-			bool _propsWereSet;
-			bool _outSizeDefined;
+			bool   _propsWereSet;
+			bool   _outSizeDefined;
 			uint64 _outSize;
 			uint64 _inProcessed;
 			uint64 _outProcessed;
@@ -2044,7 +2045,6 @@ namespace NCompress {
 		struct CXzUnpackerCPP {
 			CXzUnpackerCPP();
 			~CXzUnpackerCPP();
-
 			Byte * InBuf;
 			Byte * OutBuf;
 			CXzUnpacker p;
@@ -2078,8 +2078,7 @@ namespace NCompress {
 			CDecoder();
 			/* Decode() can return ERROR code only if there is progress or stream error.
 			   Decode() returns S_OK in case of xz decoding error, but DecodeRes and CStatInfo contain error information */
-			HRESULT Decode(ISequentialInStream * seqInStream, ISequentialOutStream * outStream,
-				const uint64 * outSizeLimit, bool finishStream, ICompressProgressInfo * compressProgress);
+			HRESULT Decode(ISequentialInStream * seqInStream, ISequentialOutStream * outStream, const uint64 * outSizeLimit, bool finishStream, ICompressProgressInfo * compressProgress);
 			int32 Get_Extract_OperationResult() const;
 		};
 
@@ -2104,8 +2103,7 @@ namespace NCompress {
 			MY_UNKNOWN_IMP2(ICompressCoder, ICompressSetCoderProperties)
 			void InitCoderProps();
 			HRESULT SetCoderProp(PROPID propID, const PROPVARIANT &prop);
-			STDMETHOD(Code) (ISequentialInStream *inStream, ISequentialOutStream *outStream,
-				const uint64 *inSize, const uint64 *outSize, ICompressProgressInfo *progress);
+			STDMETHOD(Code) (ISequentialInStream *inStream, ISequentialOutStream *outStream, const uint64 *inSize, const uint64 *outSize, ICompressProgressInfo *progress);
 			STDMETHOD(SetCoderProperties) (const PROPID *propIDs, const PROPVARIANT *props, uint32 numProps);
 			CEncoder();
 			virtual ~CEncoder();
@@ -2843,10 +2841,10 @@ namespace NCompress {
 
 		struct CEncProps {
 			CEncProps();
-			void Normalize(int level);
+			void   Normalize(int level);
 			uint32 MemSize;
 			uint32 ReduceSize;
-			int Order;
+			int    Order;
 		};
 
 		class CEncoder : public ICompressCoder, public ICompressSetCoderProperties, public ICompressWriteCoderProperties, public CMyUnknownImp {
@@ -2890,7 +2888,7 @@ public:
 	MY_UNKNOWN_IMP1(IInStream)
 
 	STDMETHOD(Read) (void * data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 private:
 	CMyComPtr<IInStream> _stream;
 	uint64 _size;
@@ -3330,34 +3328,8 @@ public:
 	//#include <VirtThread.h>
 //#endif
 #ifdef USE_MIXER_ST
-	class CSequentialInStreamCalcSize : public ISequentialInStream, public CMyUnknownImp {
-	public:
-		MY_UNKNOWN_IMP1(ISequentialInStream)
-		STDMETHOD(Read) (void * data, uint32 size, uint32 *processedSize);
-	private:
-		CMyComPtr<ISequentialInStream> _stream;
-		uint64 _size;
-		bool _wasFinished;
-	public:
-		void Init();
-		void SetStream(ISequentialInStream * stream);
-		void ReleaseStream();
-		uint64 GetSize() const { return _size; }
-		bool WasFinished() const { return _wasFinished; }
-	};
-
-	class COutStreamCalcSize : public ISequentialOutStream, public IOutStreamFinish, public CMyUnknownImp {
-		CMyComPtr<ISequentialOutStream> _stream;
-		uint64 _size;
-	public:
-		MY_UNKNOWN_IMP2(ISequentialOutStream, IOutStreamFinish)
-		STDMETHOD(Write) (const void * data, uint32 size, uint32 *processedSize);
-		STDMETHOD(OutStreamFinish) ();
-		void SetStream(ISequentialOutStream * stream) { _stream = stream; }
-		void ReleaseStream() { _stream.Release(); }
-		void Init() { _size = 0; }
-		uint64 GetSize() const { return _size; }
-	};
+	class CSequentialInStreamCalcSize;
+	class COutStreamCalcSize;
 #endif
 
 namespace NCoderMixer2 {
@@ -3429,9 +3401,9 @@ namespace NCoderMixer2 {
 		CBindInfo _bi;
 		CBoolVector IsFilter_Vector;
 		CBoolVector IsExternal_Vector;
-		bool EncodeMode;
+		bool   EncodeMode;
 	public:
-		unsigned MainCoderIndex;
+		uint   MainCoderIndex;
 		// bool InternalPackSizeError;
 		CMixer(bool encodeMode);
 		/*
@@ -4249,7 +4221,7 @@ public:
 	int SubfileIndex;
 	FILETIME MTime;
 	bool MTimeDefined;
-	Int64 Offset; // it's offset of start of archive inside stream that is open by Archive Handler
+	int64 Offset; // it's offset of start of archive inside stream that is open by Archive Handler
 	uint64 PhySize;
 	// uint64 OkPhySize;
 	bool PhySizeDefined;
@@ -4260,7 +4232,7 @@ public:
 
 	uint64 GetEstmatedPhySize() const { return PhySizeDefined ? PhySize : FileSize; }
 	uint64 ArcStreamOffset; // offset of stream that is open by Archive Handler
-	Int64 GetGlobalOffset() const { return ArcStreamOffset + Offset; } // it's global offset of archive
+	int64 GetGlobalOffset() const { return ArcStreamOffset + Offset; } // it's global offset of archive
 	// AString ErrorFlagsText;
 
 	bool IsParseArc;
@@ -4325,10 +4297,7 @@ bool ParseOpenTypes(CCodecs &codecs, const UString &s, CObjectVector<COpenType> 
 //
 //#include <UpdateCallback.h>
 struct CArcToDoStat {
-	uint64 Get_NumDataItems_Total() const
-	{
-		return NewData.Get_NumDataItems() + OldData.Get_NumDataItems();
-	}
+	uint64 Get_NumDataItems_Total() const { return NewData.Get_NumDataItems() + OldData.Get_NumDataItems(); }
 	CDirItemsStat NewData;
 	CDirItemsStat OldData;
 	CDirItemsStat DeleteData;
@@ -4356,72 +4325,6 @@ struct CArcToDoStat {
 
 struct IUpdateCallbackUI {
 	INTERFACE_IUpdateCallbackUI( = 0)
-};
-
-class CArchiveUpdateCallback : public IArchiveUpdateCallback2, public IArchiveUpdateCallbackFile, public IArchiveExtractCallbackMessage,
-	public IArchiveGetRawProps, public IArchiveGetRootProps, public ICryptoGetTextPassword2, public ICryptoGetTextPassword,
-	public ICompressProgressInfo, public IInFileStream_Callback, public CMyUnknownImp
-{
-	struct CKeyKeyValPair {
-		int Compare(const CKeyKeyValPair & a) const;
-		uint64 Key1;
-		uint64 Key2;
-		unsigned Value;
-	};
-  #if defined(_WIN32) && !defined(UNDER_CE)
-	bool _saclEnabled;
-  #endif
-	CRecordVector <CKeyKeyValPair> _map;
-	uint32 _hardIndex_From;
-	uint32 _hardIndex_To;
-public:
-	MY_QUERYINTERFACE_BEGIN2(IArchiveUpdateCallback2)
-	MY_QUERYINTERFACE_ENTRY(IArchiveUpdateCallbackFile)
-	MY_QUERYINTERFACE_ENTRY(IArchiveExtractCallbackMessage)
-	MY_QUERYINTERFACE_ENTRY(IArchiveGetRawProps)
-	MY_QUERYINTERFACE_ENTRY(IArchiveGetRootProps)
-	MY_QUERYINTERFACE_ENTRY(ICryptoGetTextPassword2)
-	MY_QUERYINTERFACE_ENTRY(ICryptoGetTextPassword)
-	MY_QUERYINTERFACE_ENTRY(ICompressProgressInfo)
-	MY_QUERYINTERFACE_END
-	MY_ADDREF_RELEASE
-	STDMETHOD(SetRatioInfo) (const uint64 *inSize, const uint64 *outSize);
-	INTERFACE_IArchiveUpdateCallback2(; )
-	INTERFACE_IArchiveUpdateCallbackFile(; )
-	INTERFACE_IArchiveExtractCallbackMessage(; )
-	INTERFACE_IArchiveGetRawProps(; )
-	INTERFACE_IArchiveGetRootProps(; )
-	STDMETHOD(CryptoGetTextPassword2) (int32 *passwordIsDefined, BSTR *password);
-	STDMETHOD(CryptoGetTextPassword) (BSTR *password);
-
-	bool AreAllFilesClosed() const { return _openFiles_Indexes.IsEmpty(); }
-	virtual HRESULT InFileStream_On_Error(UINT_PTR val, DWORD error);
-	virtual void InFileStream_On_Destroy(UINT_PTR val);
-	CArchiveUpdateCallback();
-	bool FASTCALL IsDir(const CUpdatePair2 &up) const;
-
-	CRecordVector<uint32> _openFiles_Indexes;
-	FStringVector _openFiles_Paths;
-	CRecordVector<uint64> VolumesSizes;
-	FString VolName;
-	FString VolExt;
-	IUpdateCallbackUI * Callback;
-	const CDirItems * DirItems;
-	const CDirItem * ParentDirItem;
-	const CArc * Arc;
-	CMyComPtr<IInArchive> Archive;
-	const CObjectVector<CArcItem> * ArcItems;
-	const CRecordVector<CUpdatePair2> * UpdatePairs;
-	const UStringVector * NewNames;
-	int CommentIndex;
-	const UString * Comment;
-	bool ShareForWrite;
-	bool StdInMode;
-	bool KeepOriginalItemNames;
-	bool StoreNtSecurity;
-	bool StoreHardLinks;
-	bool StoreSymLinks;
-	Byte * ProcessedItemsStatuses;
 };
 //
 HRESULT Bench(DECL_EXTERNAL_CODECS_LOC_VARS IBenchPrintCallback * printCallback, IBenchCallback * benchCallback,
@@ -5208,7 +5111,7 @@ namespace NArchive {
 			bool MultiThreadMixer;
 
 			CUpdateOptions() : Method(NULL), HeaderMethod(NULL), UseFilters(false), MaxFilter(false), AnalysisLevel(-1),
-				NumSolidFiles((uint64)(Int64) (-1)), NumSolidBytes((uint64)(Int64) (-1)), SolidExtension(false),
+				NumSolidFiles((uint64)(int64) (-1)), NumSolidBytes((uint64)(int64) (-1)), SolidExtension(false),
 				UseTypeSorting(true), RemoveSfxBlock(false), MultiThreadMixer(true)
 			{
 			}
@@ -5380,7 +5283,7 @@ namespace NArchive {
 			struct CInArchiveInfo {
 				CInArchiveInfo();
 				void   Clear();
-				Int64 Base; /* Base offset of start of archive in stream.
+				int64 Base; /* Base offset of start of archive in stream.
 						Offsets in headers must be calculated from that Base.
 						Base is equal to MarkerPos for normal ZIPs.
 						Base can point to PE stub for some ZIP SFXs.
@@ -5397,10 +5300,10 @@ namespace NArchive {
 				uint64 FileEndPos; // Finish pos of stream
 				uint64 FirstItemRelatOffset; // Relative offset of first local (read from cd) (relative to Base).
 					// = 0 in most archives; = size of stub for some SFXs 
-				int MarkerVolIndex;
-				bool CdWasRead;
-				bool IsSpanMode;
-				bool ThereIsTail;
+				int    MarkerVolIndex;
+				bool   CdWasRead;
+				bool   IsSpanMode;
+				bool   ThereIsTail;
 				// uint32 BaseVolIndex;
 				CByteBuffer Comment;
 			};
@@ -5761,7 +5664,7 @@ namespace NArchive {
 			int IndexInArc;
 			int IndexInClient;
 			uint64 Size;
-			Int64 MTime;
+			int64 MTime;
 			uint32 Mode;
 			bool NewData;
 			bool NewProps;
@@ -6276,7 +6179,7 @@ namespace NCompress {
 			uint32 m_RepDistPtr;
 			uint32 LastDist;
 			uint32 LastLength;
-			Int64 m_UnpackSize;
+			int64 m_UnpackSize;
 			bool m_IsSolid;
 
 			uint32 ReadBits(int numBits);
@@ -6783,7 +6686,7 @@ namespace NArchive {
 		STDMETHOD(Extract) (const uint32* indices, uint32 numItems, int32 testMode, IArchiveExtractCallback *extractCallback);
 		STDMETHOD(GetStream) (uint32 index, ISequentialInStream **stream) = 0;
 		STDMETHOD(Read) (void * data, uint32 size, uint32 *processedSize) = 0;
-		STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+		STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 		CHandlerImg();
 		// destructor must be virtual for this class
 		virtual ~CHandlerImg();
@@ -7222,29 +7125,29 @@ struct CArcCmdLineOptions {
 	// bool IsOutAllowed() const { return Number_for_Out != k_OutStream_disabled; }
 	CArcCmdLineOptions();
 
-	bool HelpMode;
-	bool LargePages;
-	bool CaseSensitiveChange;
-	bool CaseSensitive;
-	bool IsInTerminal;
-	bool IsStdOutTerminal;
-	bool IsStdErrTerminal;
-	bool StdInMode;
-	bool StdOutMode;
-	bool EnableHeaders;
-	bool YesToAll;
-	bool ShowDialog;
+	bool   HelpMode;
+	bool   LargePages;
+	bool   CaseSensitiveChange;
+	bool   CaseSensitive;
+	bool   IsInTerminal;
+	bool   IsStdOutTerminal;
+	bool   IsStdErrTerminal;
+	bool   StdInMode;
+	bool   StdOutMode;
+	bool   EnableHeaders;
+	bool   YesToAll;
+	bool   ShowDialog;
 	NWildcard::CCensor Censor;
 	CArcCommand Command;
 	UString ArchiveName;
   #ifndef _NO_CRYPTO
-	bool PasswordEnabled;
+	bool   PasswordEnabled;
 	UString Password;
   #endif
-	bool TechMode;
-	bool ShowTime;
+	bool   TechMode;
+	bool   ShowTime;
 	UStringVector HashMethods;
-	bool AppendName;
+	bool   AppendName;
 	// UStringVector ArchivePathsSorted;
 	// UStringVector ArchivePathsFullSorted;
 	NWildcard::CCensor arcCensor;

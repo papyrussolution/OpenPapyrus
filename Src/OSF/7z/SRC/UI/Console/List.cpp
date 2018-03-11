@@ -639,7 +639,7 @@ static void PrintPropNameAndNumber(CStdOutStream &so, PROPID propID, uint64 val)
 	so << val << endl;
 }
 
-static void PrintPropNameAndNumber_Signed(CStdOutStream &so, PROPID propID, Int64 val)
+static void PrintPropNameAndNumber_Signed(CStdOutStream &so, PROPID propID, int64 val)
 {
 	PrintPropName_and_Eq(so, propID);
 	so << val << endl;
@@ -716,7 +716,7 @@ HRESULT Print_OpenArchive_Props(CStdOutStream &so, const CCodecs * codecs, const
 
 		ErrorInfo_Print(so, er);
 
-		Int64 offset = arc.GetGlobalOffset();
+		int64 offset = arc.GetGlobalOffset();
 		if(offset != 0)
 			PrintPropNameAndNumber_Signed(so, kpidOffset, offset);
 		IInArchive * archive = arc.Archive;

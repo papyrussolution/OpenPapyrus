@@ -1,0 +1,2245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by  () -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.example.org/PRICAT" targetNamespace="http://www.example.org/PRICAT" elementFormDefault="unqualified" attributeFormDefault="unqualified">
+	<xs:element name="PRICAT">
+		<xs:annotation>
+			<xs:documentation>ECR-Rus Price/sales catalogue message ver 1.1</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="UNH">
+					<xs:annotation>
+						<xs:documentation> Message header</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E0062">
+								<xs:annotation>
+									<xs:documentation>Message reference number</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="14"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="S009">
+								<xs:annotation>
+									<xs:documentation>MESSAGE IDENTIFIER</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="E0065" type="xs:string" fixed="PRICAT">
+											<xs:annotation>
+												<xs:documentation>Message type</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="E0052" type="xs:string" fixed="D">
+											<xs:annotation>
+												<xs:documentation>Message version number</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="E0054" type="xs:string" fixed="01B">
+											<xs:annotation>
+												<xs:documentation>Message release number</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="E0051" type="xs:string" fixed="UN">
+											<xs:annotation>
+												<xs:documentation>Controlling agency, coded</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="E0057" type="xs:string" fixed="EAN008">
+											<xs:annotation>
+												<xs:documentation>Association assigned code</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="BGM">
+					<xs:annotation>
+						<xs:documentation>Beginning of message</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="C002">
+								<xs:annotation>
+									<xs:documentation>DOCUMENT/MESSAGE NAME</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="E1001" default="24E">
+											<xs:annotation>
+												<xs:documentation>Document name code 
+24E=Price/sales catalogue not containing pricing information (EAN Code)
+25E=Price/sales catalogue containing pricing information (EAN Code)
+51 = Price/sales catalogue response</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:minLength value="1"/>
+													<xs:maxLength value="3"/>
+													<xs:enumeration value="24E"/>
+													<xs:enumeration value="25E"/>
+													<xs:enumeration value="51"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="C106">
+								<xs:annotation>
+									<xs:documentation>DOCUMENT/MESSAGE IDENTIFICATION</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="E1004">
+											<xs:annotation>
+												<xs:documentation>Document identifier      Price/sales catalogue message number</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:minLength value="1"/>
+													<xs:maxLength value="35"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="E1225" default="2">
+								<xs:annotation>
+									<xs:documentation>Message function code        
+2=Addition 
+Добавление данных о новых товарах
+3=Deletion 
+Удаление данных о товарах
+4=Change 	
+Изменение существующих данных о товарах
+27=Not accepted 
+Сообщение не принято
+29=Accepted without amendment
+Сообщение принято
+</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="DTM" maxOccurs="35">
+					<xs:annotation>
+						<xs:documentation>Date/time/period</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="C507">
+								<xs:annotation>
+									<xs:documentation>DATE/TIME/PERIOD</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="E2005">
+											<xs:annotation>
+												<xs:documentation>Date or time or period function code qualifier 
+
+137 = Document/message date/time -Дата документа
+7 = Effective date/time Данные считать действительными с даты/времени
+418 = Minimum shelf life remaining at time of receipt
+Минимальный срок годности</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:minLength value="1"/>
+													<xs:maxLength value="3"/>
+													<xs:enumeration value="137"/>
+													<xs:enumeration value="7"/>
+													<xs:enumeration value="418"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="E2380">
+											<xs:annotation>
+												<xs:documentation>Date or time or period value</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:minLength value="1"/>
+													<xs:maxLength value="35"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="E2379" default="102">
+											<xs:annotation>
+												<xs:documentation>Date or time or period format code                   
+102   = CCYYMMDD 
+203   = CCYYMMDDHHMM
+804 = Day
+802 = Month 
+803 = Week 
+805 = Hour</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:minLength value="1"/>
+													<xs:maxLength value="3"/>
+													<xs:enumeration value="102"/>
+													<xs:enumeration value="203"/>
+													<xs:enumeration value="802"/>
+													<xs:enumeration value="803"/>
+													<xs:enumeration value="804"/>
+													<xs:enumeration value="805"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="FTX" minOccurs="0" maxOccurs="99">
+					<xs:annotation>
+						<xs:documentation>Free text</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E4451" default="ZZZ">
+								<xs:annotation>
+									<xs:documentation>Text subject code qualifier
+ZZZ = Mutually defined</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E4453" default="1">
+								<xs:annotation>
+									<xs:documentation>Free text function code
+1 = Text for subsequent use</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="C108">
+								<xs:annotation>
+									<xs:documentation>TEXT LITERAL</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="E4440">
+											<xs:annotation>
+												<xs:documentation>Free text value</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:minLength value="1"/>
+													<xs:maxLength value="512"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="E3453" default="RU">
+								<xs:annotation>
+									<xs:documentation>Language name code
+ISO 639 two alpha code</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:length value="2"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="SG2" minOccurs="0" maxOccurs="99">
+					<xs:annotation>
+						<xs:documentation>NAD</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="NAD">
+								<xs:annotation>
+									<xs:documentation>Name and address</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="E3035">
+											<xs:annotation>
+												<xs:documentation>Party function code qualifier
+SU =  Supplier 
+– поставщик
+MF = Manufacturer of goods - производитель
+BY = Buyer 
+- покупатель   
+PE = Payee
+- получатель платежа, отличный от покупателя
+
+Для SG52:
+ MF = Manufacturer of goods – производитель (например для алкогольной продукции)
+   SE = Seller – продавец (например, офис продаж)
+</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:minLength value="1"/>
+													<xs:maxLength value="3"/>
+													<xs:enumeration value="SU"/>
+													<xs:enumeration value="MF"/>
+													<xs:enumeration value="BY"/>
+													<xs:enumeration value="PE"/>
+													<xs:enumeration value="SE"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="C082">
+											<xs:annotation>
+												<xs:documentation>PARTY IDENTIFICATION DETAILS</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="E3039">
+														<xs:annotation>
+															<xs:documentation>Party identifier 
+GLN -Format n13</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:length value="13"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="E3055" default="9">
+														<xs:annotation>
+															<xs:documentation>Code list responsible agency code  
+9   = EAN (International Article Numbering association) </xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:minLength value="1"/>
+																<xs:maxLength value="3"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="C080" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>PARTY NAME</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="E3036" maxOccurs="5">
+														<xs:annotation>
+															<xs:documentation>Party name</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:minLength value="1"/>
+																<xs:maxLength value="35"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="SG6" minOccurs="0" maxOccurs="20">
+					<xs:annotation>
+						<xs:documentation>CUX</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="CUX">
+								<xs:annotation>
+									<xs:documentation>Currencies</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="C504">
+											<xs:annotation>
+												<xs:documentation>CURRENCY DETAILS</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="E6347" default="2">
+														<xs:annotation>
+															<xs:documentation>Currency usage code qualifier                              2   = Reference currency</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:minLength value="1"/>
+																<xs:maxLength value="3"/>
+																<xs:enumeration value="2"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="E6345" default="RUR">
+														<xs:annotation>
+															<xs:documentation>Currency identification code   ISO 4217 three alpha.
+("ВАЛЮТА СЧЕТА")
+
+Examples:
+EUR – Euro,
+RUB – Russia, rubles
+USD – United States of America, Dollars </xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:minLength value="1"/>
+																<xs:maxLength value="3"/>
+																<xs:enumeration value="EUR"/>
+																<xs:enumeration value="RUR"/>
+																<xs:enumeration value="USD"/>
+																<xs:enumeration value=""/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="E6343">
+														<xs:annotation>
+															<xs:documentation>Currency type code qualifier  8   = Price list currency</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:minLength value="1"/>
+																<xs:maxLength value="3"/>
+																<xs:enumeration value="8"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="SG17" minOccurs="0" maxOccurs="1000">
+					<xs:annotation>
+						<xs:documentation>PGI-SG36</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="PGI">
+								<xs:annotation>
+									<xs:documentation>Product group information</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="E5379" default="3">
+											<xs:annotation>
+												<xs:documentation>Product group type code
+3 = Catalogue</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:minLength value="1"/>
+													<xs:maxLength value="3"/>
+													<xs:enumeration value="3"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="SG36" minOccurs="0" maxOccurs="999999">
+								<xs:annotation>
+									<xs:documentation>LIN-PIA-IMD-QTY-SG27-SG29-SG30-SG34</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="LIN">
+											<xs:annotation>
+												<xs:documentation>Line item</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="E1082">
+														<xs:annotation>
+															<xs:documentation>Line item identifier</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:minLength value="1"/>
+																<xs:maxLength value="6"/>
+																<xs:pattern value="([0-9])+"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="E1229" default="1">
+														<xs:annotation>
+															<xs:documentation>Action request/notification
+description code
+1 = Added
+2 = Deleted
+3 = Changed
+4 = No action</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:minLength value="1"/>
+																<xs:maxLength value="3"/>
+																<xs:enumeration value="1"/>
+																<xs:enumeration value="2"/>
+																<xs:enumeration value="3"/>
+																<xs:enumeration value="4"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="C212" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>ITEM NUMBER IDENTIFICATION
+This composite will only be used for the identification of EAN/UPC codes.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="E7140">
+																	<xs:annotation>
+																		<xs:documentation>Item identifier
+Format n..14 
+  GTIN - this is the number of the article being ordered. </xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="14"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="E7143" default="SRV">
+																	<xs:annotation>
+																		<xs:documentation>Item type identification code
+SRV   = EAN.UCC Global Trade Item Number </xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="SRV"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="PIA" minOccurs="0" maxOccurs="99">
+											<xs:annotation>
+												<xs:documentation>Additional product id</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="E4347" default="1">
+														<xs:annotation>
+															<xs:documentation>Product identifier code
+qualifier
+
+1 = Additional identification 
+Дополнительная идентификация
+3 = Substituted by
+Код аналогичного товара (м.б. несколько)
+4 = Substituted for
+Код заменяемого (старого) товара</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:minLength value="1"/>
+																<xs:maxLength value="3"/>
+																<xs:enumeration value="1"/>
+																<xs:enumeration value="3"/>
+																<xs:enumeration value="4"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="C212" maxOccurs="5">
+														<xs:annotation>
+															<xs:documentation>ITEM NUMBER IDENTIFICATION</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="E7140">
+																	<xs:annotation>
+																		<xs:documentation>Item identifier</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="35"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="E7143">
+																	<xs:annotation>
+																		<xs:documentation>Item type identification code
+
+SA = Supplier's article number - Код товара, присвоенный поставщиком
+
+GN = National product group code - Код по национальному классификатору
+
+HS = Harmonised system
+Код в гармонизированной системе
+
+GAT = GPC brick attribute type (GS1 Code) - Код глобальной классификации продукции GPC
+
+XY5 = UNSPSC - United Nations Standards Products and Services Codes (GS1 Code) - Код по международной классификации UNSPSC
+
+SRV = EAN/UCC Global Trade Item Number (GTIN)</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="SA"/>
+																			<xs:enumeration value="GN"/>
+																			<xs:enumeration value="HS"/>
+																			<xs:enumeration value="GAT"/>
+																			<xs:enumeration value="SRV"/>
+																			<xs:enumeration value="XY5"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="IMD" minOccurs="0" maxOccurs="999">
+											<xs:annotation>
+												<xs:documentation>Item description</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="E7077" default="C" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Description format code
+C = Code (from industry code list)
+F   =   Free-form</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:minLength value="1"/>
+																<xs:maxLength value="3"/>
+																<xs:enumeration value="C"/>
+																<xs:enumeration value="F"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="C272" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>ITEM CHARACTERISTIC</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="E7081">
+																	<xs:annotation>
+																		<xs:documentation>Item characteristic code
+
+BRN = Brand name (EAN Code) / Брэнд
+
+SBN = Primary differentiating factor that a brand owner wants to communicate (GS1 Code) / Суббрэнд 
+
+44 = Further identifying characteristic / Вариант
+
+FNM = Functional Name (GS1 Code) / Функциональное имя
+
+DSC = 	Description (EAN Code) / Наименование товара
+
+35 = Colour / Цвет
+
+98 = Size / Размер</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="BRN"/>
+																			<xs:enumeration value="SBN"/>
+																			<xs:enumeration value="44"/>
+																			<xs:enumeration value="FNM"/>
+																			<xs:enumeration value="DSC"/>
+																			<xs:enumeration value="35"/>
+																			<xs:enumeration value="98"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="E3055" default="9" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Code list responsible agency
+code
+9 = EAN (International Article Numbering
+association)
+Must be used if E7081 contains an GS1 Code.</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="9"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="C273">
+														<xs:annotation>
+															<xs:documentation>ITEM DESCRIPTION</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="E7009" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Item description code
+CU = Consumer unit (EAN Code)
+TU = Traded unit (EAN Code)
+DU = Despatch unit (EAN Code)</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="17"/>
+																			<xs:enumeration value="CU"/>
+																			<xs:enumeration value="TU"/>
+																			<xs:enumeration value="DU"/>
+																			<xs:enumeration value="VQ"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="E3055" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Code list responsible agency code
+9   = EAN (International Article Numbering association) </xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="9"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="E7008" minOccurs="0" maxOccurs="2">
+																	<xs:annotation>
+																		<xs:documentation>Item description</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="256"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="E3453" default="RU" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Language name code</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="RU"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="MEA" minOccurs="0" maxOccurs="10">
+											<xs:annotation>
+												<xs:documentation>Measurements</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="E6311">
+														<xs:annotation>
+															<xs:documentation>Measurement purpose code
+qualifier
+
+AAG = Percentage of alcohol 
+PD= Physical dimensions (product ordered)
+SO = Storage limitation
+CT = Counts</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:minLength value="1"/>
+																<xs:maxLength value="3"/>
+																<xs:enumeration value="AAG"/>
+																<xs:enumeration value="PD"/>
+																<xs:enumeration value="SO"/>
+																<xs:enumeration value="CT"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="C502">
+														<xs:annotation>
+															<xs:documentation>MEASUREMENT DETAILS</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="E6313">
+																	<xs:annotation>
+																		<xs:documentation>Measured attribute code
+
+DP = Depth
+WD = Width dimension 
+HT = Height dimension 
+CT = Contents of package 
+AAB = Unit gross weight
+AEI = Drained weight
+TC = Temperature
+SF = Stacking factor excluding bottom item (GS1 Code)
+ULY = Number of units per layer (GS1 Code)</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="DP"/>
+																			<xs:enumeration value="WD"/>
+																			<xs:enumeration value="HT"/>
+																			<xs:enumeration value="CT"/>
+																			<xs:enumeration value="AAB"/>
+																			<xs:enumeration value="AEI"/>
+																			<xs:enumeration value="TC"/>
+																			<xs:enumeration value="SF"/>
+																			<xs:enumeration value="ULY"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="C174">
+														<xs:annotation>
+															<xs:documentation>VALUE/RANGE</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="E6411">
+																	<xs:annotation>
+																		<xs:documentation>Measurement unit code
+
+CEL = degree celsium
+KGM = kilogram
+MGM = milligram
+GRM = gram
+MLT = millilitre
+MMT = millimetre
+PCE = Piece (GS1 Code)
+P1 = percent</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="CEL"/>
+																			<xs:enumeration value="KGM"/>
+																			<xs:enumeration value="MGM"/>
+																			<xs:enumeration value="GRM"/>
+																			<xs:enumeration value="MLT"/>
+																			<xs:enumeration value="MMT"/>
+																			<xs:enumeration value="PCE"/>
+																			<xs:enumeration value="P1"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="E6314" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Measurement value</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="18"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="E6162" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Range minimum value</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="18"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="E6152" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Range maximum value</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="18"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="QTY" minOccurs="0" maxOccurs="10">
+											<xs:annotation>
+												<xs:documentation> Quantity </xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:annotation>
+														<xs:documentation>B SG56 Сегмент QTY  указывает количество нижестоящего (CHILD) товара в описываемой упаковке.</xs:documentation>
+													</xs:annotation>
+													<xs:element name="C186">
+														<xs:annotation>
+															<xs:documentation>QUANTITY DETAILS</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="E6063">
+																	<xs:annotation>
+																		<xs:documentation>Quantity type code qualifier
+
+53 = Minimum order quantity
+59 =  Number of consumer units in the traded unit</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="53"/>
+																			<xs:enumeration value="59"/>
+																			<xs:enumeration value="17E"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="E6060">
+																	<xs:annotation>
+																		<xs:documentation>Quantity</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="35"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="E6411" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Measurement unit code
+("ЕДИНИЦА ИЗМЕРЕНИЯ")
+
+KGM = kilogram
+CMQ = cubic centimetre
+MC = microgram
+This DE is only used if the product being identified is
+of variable quantity.</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="KGM"/>
+																			<xs:enumeration value="CMQ"/>
+																			<xs:enumeration value="MC"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="ALI" minOccurs="0" maxOccurs="5">
+											<xs:annotation>
+												<xs:documentation>Additional information</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="E3229">
+														<xs:annotation>
+															<xs:documentation>Country of origin name code Use ISO 3166 two alpha country code 
+("СТРАНА ПРОИСХОЖДЕНИЯ ТОВАРА")</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:length value="2"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="DTM" minOccurs="0" maxOccurs="10">
+											<xs:annotation>
+												<xs:documentation>Date/time/period</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="C507">
+														<xs:annotation>
+															<xs:documentation>DATE/TIME/PERIOD</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="E2005">
+																	<xs:annotation>
+																		<xs:documentation>Date or time or period function code qualifier 
+
+137 = Document/message date/time -Дата документа
+7 = Effective date/time Данные считать действительными с даты/времени
+418 = Minimum shelf life remaining at time of receipt
+Минимальный срок годности</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="137"/>
+																			<xs:enumeration value="7"/>
+																			<xs:enumeration value="418"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="E2380">
+																	<xs:annotation>
+																		<xs:documentation>Date or time or period value</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="35"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="E2379" default="102">
+																	<xs:annotation>
+																		<xs:documentation>Date or time or period format code                   
+102   = CCYYMMDD 
+203   = CCYYMMDDHHMM
+804 = Day
+802 = Month 
+803 = Week 
+805 = Hour</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="102"/>
+																			<xs:enumeration value="203"/>
+																			<xs:enumeration value="802"/>
+																			<xs:enumeration value="803"/>
+																			<xs:enumeration value="804"/>
+																			<xs:enumeration value="805"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="RFF" minOccurs="0" maxOccurs="99">
+											<xs:annotation>
+												<xs:documentation>Reference</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="C506">
+														<xs:annotation>
+															<xs:documentation>REFERENCE
+This segment is used to identify references, which are related to the  current line item.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="E1153">
+																	<xs:annotation>
+																		<xs:documentation>Reference code qualifier
+AID = Certificate of conformity- сертификат соответствия
+XC2 = Hygienic Certificate number (GS1 code) </xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="AID"/>
+																			<xs:enumeration value="XC2"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="E1154">
+																	<xs:annotation>
+																		<xs:documentation>Reference identifier</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="70"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="SG38" minOccurs="0" maxOccurs="10">
+											<xs:annotation>
+												<xs:documentation>TAX</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="TAX">
+														<xs:annotation>
+															<xs:documentation>Duty/tax/fee details</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="E5283" default="7">
+																	<xs:annotation>
+																		<xs:documentation>Duty or tax or fee function code qualifier
+7   = Tax </xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="7"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="C241" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>DUTY/TAX/FEE TYPE</xs:documentation>
+																	</xs:annotation>
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="E5153" default="VAT" minOccurs="0">
+																				<xs:annotation>
+																					<xs:documentation>Duty or tax or fee type name code 
+VAT   = Value added tax</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:minLength value="1"/>
+																						<xs:maxLength value="3"/>
+																						<xs:enumeration value="VAT"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="C243">
+																	<xs:annotation>
+																		<xs:documentation>DUTY/TAX/FEE DETAIL</xs:documentation>
+																	</xs:annotation>
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="E5278">
+																				<xs:annotation>
+																					<xs:documentation>Duty or tax or fee rate     The actual rate of tax/duty.
+СТАВКА НДС, %</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:minLength value="1"/>
+																						<xs:maxLength value="17"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="SG40" minOccurs="0" maxOccurs="100">
+											<xs:annotation>
+												<xs:documentation>PRI</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="PRI">
+														<xs:annotation>
+															<xs:documentation>Price details</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="C509">
+																	<xs:annotation>
+																		<xs:documentation>PRICE INFORMATION</xs:documentation>
+																	</xs:annotation>
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="E5125">
+																				<xs:annotation>
+																					<xs:documentation>Price code qualifier
+AAA   = Calculation net
+"Цена (тариф за единицу измерения)"</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:minLength value="1"/>
+																						<xs:maxLength value="3"/>
+																						<xs:enumeration value="AAA"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																			<xs:element name="E5118">
+																				<xs:annotation>
+																					<xs:documentation>Price amount
+В РУБЛЯХ</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:minLength value="1"/>
+																						<xs:maxLength value="15"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																			<xs:element name="E5375" minOccurs="0">
+																				<xs:annotation>
+																					<xs:documentation>Price type code
+CA   = Catalogue </xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:minLength value="1"/>
+																						<xs:maxLength value="3"/>
+																						<xs:enumeration value="CA"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																			<xs:element name="E6411" minOccurs="0">
+																				<xs:annotation>
+																					<xs:documentation>Measurement unit code
+KGM = kilogram</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:minLength value="1"/>
+																						<xs:maxLength value="3"/>
+																						<xs:enumeration value="KGM"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="SG41" minOccurs="0" maxOccurs="99">
+											<xs:annotation>
+												<xs:documentation>ALC-SG43</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="ALC">
+														<xs:annotation>
+															<xs:documentation>Allowance or charge</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="E5463" default="A">
+																	<xs:annotation>
+																		<xs:documentation>Allowance or charge code
+qualifier
+A = Allowance</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="A"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="SG43" minOccurs="0" maxOccurs="99">
+														<xs:annotation>
+															<xs:documentation>PCD</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="PCD">
+																	<xs:annotation>
+																		<xs:documentation>Percentage details</xs:documentation>
+																	</xs:annotation>
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="C501">
+																				<xs:annotation>
+																					<xs:documentation>PERCENTAGE DETAILS</xs:documentation>
+																				</xs:annotation>
+																				<xs:complexType>
+																					<xs:sequence>
+																						<xs:element name="E5245" default="12">
+																							<xs:annotation>
+																								<xs:documentation>Percentage type code qualifier
+12 = Discount / Скидка</xs:documentation>
+																							</xs:annotation>
+																							<xs:simpleType>
+																								<xs:restriction base="xs:string">
+																									<xs:minLength value="1"/>
+																									<xs:maxLength value="3"/>
+																									<xs:enumeration value="12"/>
+																								</xs:restriction>
+																							</xs:simpleType>
+																						</xs:element>
+																						<xs:element name="E5482">
+																							<xs:annotation>
+																								<xs:documentation>Percentage</xs:documentation>
+																							</xs:annotation>
+																							<xs:simpleType>
+																								<xs:restriction base="xs:string">
+																									<xs:minLength value="1"/>
+																									<xs:maxLength value="10"/>
+																								</xs:restriction>
+																							</xs:simpleType>
+																						</xs:element>
+																						<xs:element name="E5249" default="1" minOccurs="0">
+																							<xs:annotation>
+																								<xs:documentation>Percentage basis
+identification code
+1 = Per unit / За единицу</xs:documentation>
+																							</xs:annotation>
+																							<xs:simpleType>
+																								<xs:restriction base="xs:string">
+																									<xs:minLength value="1"/>
+																									<xs:maxLength value="3"/>
+																									<xs:enumeration value="1"/>
+																								</xs:restriction>
+																							</xs:simpleType>
+																						</xs:element>
+																					</xs:sequence>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="SG47" minOccurs="0" maxOccurs="999">
+											<xs:annotation>
+												<xs:documentation>PAC</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="PAC">
+														<xs:annotation>
+															<xs:documentation>Package</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="C202" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>PACKAGE TYPE</xs:documentation>
+																	</xs:annotation>
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="E7065">
+																				<xs:annotation>
+																					<xs:documentation>Package type description code (EANCOM DE7065)
+
+08= Oneway pallet (GS1 Code) 
+Pallet need not be returned to the point of expedition. 
+
+09 =  Returnable pallet (GS1 Code) 
+Pallet must be returned to the point of expedition. 
+
+200 =  Pallet ISO 0 - 1/2 EURO Pallet (GS1 Code) 
+Standard pallet with dimensions 80 X 60 cm. 
+
+201 =  Pallet ISO 1 - 1/1 EURO Pallet (GS1 Code) 
+Standard pallet with dimensions 80 X 120 cm. 
+
+202 =  Pallet ISO 2 (GS1 Code) 
+Standard pallet with dimensions 100 X 120 cm. 
+
+203 =  1/4 EURO Pallet (GS1 Code) 
+Standard pallet with dimensions 60 X 40 cm. 
+
+204 =  1/8 EURO Pallet (GS1 Code) 
+Standard pallet with dimensions 40 X 30 cm. 
+
+205 =  Synthetic pallet ISO 1 (GS1 Code) 
+A standard pallet with standard dimensions 80*120cm made of a synthetic material for hygienic reasons. 
+
+206 =  Synthetic pallet ISO 2 (GS1 Code) 
+A standard pallet with standard dimensions 100*120cm made of a synthetic material for hygienic reasons. 
+
+210 =  Wholesaler pallet (GS1 Code) 
+Pallet provided by the wholesaler. 
+
+211 =  Pallet 80 X 100 cm (GS1 Code) 
+Pallet with dimensions 80 X 100 cm. 
+
+212 =  Pallet 60 X 100 cm (GS1 Code) 
+Pallet with dimensions 60 X 100 cm. 
+
+5L =  Bag, textile 
+GS1 Description:
+A bag made of textile. 
+
+5M =  Bag, paper 
+GS1 Description:
+A bag made of paper. 
+
+AE =  Aerosol 
+A spray can dispensing paint, furniture polish, etc, under pressure. 
+
+APE =  Aluminium packed (GS1 Code) 
+Packaging using thin sheets of aluminium. 
+
+AT =  Atomizer 
+A device to shoot out a fine spray, e.g. medicine, perfume, etc. 
+
+BA =  Barrel 
+A wooden or plastic container with slightly bulging sides and flat ends. 
+
+BC =  Bottlecrate, bottlerack 
+A container for the storage or movement of bottles. 
+
+BE =  Bundle 
+A number of items grouped loosely together in a package by means of tying. 
+
+BG =  Bag 
+A non-rigid container made of fabric, paper, plastic, etc, with an opening at the top which can be closed. 
+
+BGE =  Large bag, pallet sized (GS1 Code) 
+A non-rigid container made of fabric, paper, plastic, etc, with an opening at the top which can be closed and which is suitable for use on pallets. 
+
+BJ =  Bucket 
+A container with a handle, used for carrying water, mayonnaise, etc. 
+
+BL =  Bale, compressed 
+A large bundle, as of cotton, hay, straw, etc, which is compressed and bound. 
+
+BM =  Basin 
+GS1 Description:
+A deep open container. 
+
+BME =  Blister pack (GS1 Code) 
+A transparent strip package of pressable plastic which allows the product to be displayed while remaining protected. 
+
+BN =  Bale, non-compressed 
+A large bundle, as of cotton, hay, straw, etc, which is not compressed or bound. 
+
+BO =  Bottle, non-protected, cylindrical 
+A non-protected cylindrical container with a narrow neck made usually of glass or plastic which is especially used for liquids. 
+
+BR =  Bar 
+An oblong package, usually used for soap. 
+
+BRI =  Brick (GS1 Code) 
+A box made of a cardboard, plastic or metal, used for liquids. 
+
+BS =  Bottle, non-protected, bulbous 
+A non-protected cylindrical container with a bulbous base and a narrow neck made usually of glass or plastic which is especially used for liquids. 
+
+BU =  Butt 
+A large barrel or cask which is usually used to store or move liquids. 
+
+BX =  Box 
+A lidded package which can be made of cardboard, wood, plastic, tin, etc. 
+
+CA =  Can, rectangular 
+A rectangular container which is usually made of metal and has a separate cover. 
+
+CBL =  Container bottle like (GS1 Code) 
+A non-protected, non-cylindrical, container with a narrow neck made usually of glass or plastic which is especially used for liquids, e.g. perfume bottle. 
+
+CCE =  Cardboard carrier (GS1 Code) 
+A package made of cardboard. 
+
+CD =  Can, with handle and spout 
+GS1 Description:
+A can with a handle and spout which allows the lifting and pouring of liquids contained within the can. 
+
+CG =  Cage 
+A cage without wheels. 
+
+CMS =  Clamshell (GS1 Code) 
+A package with a base and top that are hinged together. E.g. video cassette case. 
+
+CN =  Container, not otherwise specified as transport equipment 
+GS1 Description:
+A receptacle in which something is kept and/or transported. 
+
+CR =  Crate 
+A packaging case which is usually made of wooden slats. 
+
+CS =  Case 
+A package such as a box. 
+
+CT =  Carton 
+A cardboard box or container. 
+
+CU =  Cup 
+A small bowl shaped container for beverages, often with a handle. 
+
+CW =  Cage, roll 
+GS1 Description:
+A three sided cage mounted on wheels. 
+
+CX =  Can, cylindrical 
+A cylindrical container which is usually made of metal and has a separate cover. 
+
+CY =  Cylinder 
+A cylindrical container, which is usually made of cardboard and may have a separate cover. 
+
+D99 =  Sleeve (GS1 Code) 
+A non-rigid container made of paper, cardboard or plastic that is open-ended and is slid over the contents for protection or presentation. 
+
+DA =  Crate, multiple layer, plastic 
+GS1 Description:
+Plastic crate which contains multiple layers. 
+
+DB =  Crate, multiple layer, wooden 
+GS1 Description:
+Wooden crate which contains multiple layers. 
+
+DC =  Crate, multiple layer, cardboard 
+
+DG =  Cage, Commonwealth Handling Equipment Pool (CHEP) 
+
+DH =  Box, Commonwealth Handling Equipment Pool (CHEP), Eurobox 
+
+DJ =  Demijohn, non-protected 
+A large bulbous container made of glass with a narrow neck, which is especially used with liquids (oil, wine). 
+
+DK =  Crate, bulk, cardboard 
+
+DL =  Crate, bulk, plastic 
+
+DM =  Crate, bulk, wooden 
+
+DN =  Dispenser 
+
+DP =  Demijohn, protected 
+A large bulbous protected container made of glass with a narrow neck, which is especially used with liquids (oil, wine). 
+
+DPE =  Display package (GS1 Code) 
+A package used for the display of goods, usually during a promotion. 
+
+DR =  Drum 
+A cylindrical container usually used for the storage and movement of oil. 
+
+DS =  Tray, one layer no cover, plastic 
+
+DT =  Tray, one layer no cover, wooden 
+
+DU =  Tray, one layer no cover, polystyrene 
+
+DV =  Tray, one layer no cover, cardboard 
+
+DW =  Tray, two layers no cover, plastic tray 
+
+DX =  Tray, two layers no cover, wooden 
+
+DY =  Tray, two layers no cover, cardboard 
+
+EC =  Bag, plastic 
+
+ED =  Case, with pallet base 
+
+EE =  Case, with pallet base, wooden 
+
+EF =  Case, with pallet base, cardboard 
+
+EG =  Case, with pallet base, plastic 
+
+EH =  Case, with pallet base, metal 
+
+EI =  Case, isothermic 
+
+EN =  Envelope 
+A non-rigid container, made of paper or plastic, that can be opened with a tear or a cut. 
+
+FP =  Filmpack 
+Packaging using a clear thin plastic. 
+
+FPE =  Foil packed (GS1 Code) 
+Packaging using a metallic foil. 
+
+FT =  Foodtainer 
+
+GB =  Bottle, gas 
+
+HA =  Basket, with handle, plastic 
+
+HB =  Basket, with handle, wooden 
+
+HC =  Basket, with handle, cardboard 
+
+HR =  Hamper 
+A large basket usually with a cover which is used to store different types of foodstuffs. 
+
+HU =  Standard stack of stones (GS1 Code) 
+Standard stack of stones. 
+
+IA =  Package, display, wooden 
+
+IB =  Package, display, cardboard 
+
+IC =  Package, display, plastic 
+
+ID =  Package, display, metal 
+
+IE =  Package, show 
+
+IF =  Package, flow 
+
+JC =  Jerrican, rectangular 
+A rigid rectangular container with a lid which is usually used for the storage and movement of oil, gasoline, etc. 
+
+JG =  Jug 
+A container used for storing and pouring the goods. 
+
+JR =  Jar 
+GS1 Description:
+A container made of glass, stone, earthenware or plastic with a large opening, which is used to store products, e.g. jams, cosmetics. 
+
+JT =  Jutebag 
+A bag made of strong fibres. 
+
+JY =  Jerrican, cylindrical 
+A rigid cylindrical container with a lid which is usually used for the storage and movement of oil, gasoline, etc. 
+
+LAB =  Labeled package (GS1 Code) 
+The package is labeled. Usually the label identifies the name, brand or description of the product within the package. 
+
+LG =  Log 
+
+MPE =  Multipack (GS1 Code) 
+A container for the merchandising of multiple units of the same product. 
+
+NE =  Unpacked or unpackaged 
+A product merchandised or sold without packaging. 
+
+NU =  Net, tube, plastic 
+
+NV =  Net, tube, textile 
+
+OPE =  Oxygen packed (GS1 Code) 
+A package with oxygen added for storage purposes. 
+
+PA =  Packet 
+Package type used for the smallest trade unit, e.g., a packet of 20 cigarettes, a packet of potato chips. 
+
+PAE =  Paper (GS1 Code) 
+An indication that the item(s) is packed in paper. 
+
+PB =  Pallet, box 
+
+PC =  Parcel 
+A small wrapped package. 
+
+PD =  Pallet, modular, collars 80cms * 100cms 
+
+PE =  Pallet, modular, collars 80cms * 120cms 
+
+PG =  Plate 
+A smooth flat thin piece of metal, e.g. steel plate. 
+
+PK =  Package 
+A wrapped or boxed item. 
+
+PL =  Pail 
+An open-topped container usually made of metal or plastic, generally used to carry liquids. ( EANCOM definition ) 
+
+PLP =  Peel pack (GS1 Code) 
+A package used for sterile products which may be torn open without touching the product inside. 
+
+PO =  Pouch 
+A small bag or sack. 
+
+PPE =  Polypropylene bag (GS1 Code) 
+A bag made from polypropylene. 
+
+PU =  Tray 
+A board with a ring for carrying small articles. 
+
+PUE =  Tray packed in plastic (GS1 Code) 
+A board with a ring packed in plastic carrying for small articles. 
+
+PUN =  Punnet (GS1 Code) 
+A small shallow basket usually made of plastic. 
+
+PX =  Pallet 
+
+RB1 =  A wheeled pallet with raised rim (GS1 Code). 81 x 67 x 135 cm (length x width x height). 
+A wheeled pallet with raised rim for the storing and transporting of loads.Dimensions: 81 x 67 x 135 cm (length x width x height). 
+
+RB2 =  A Wheeled pallet with raised rim (GS1 Code). 81 x 72 x 135 cm (length x width x height). 
+A wheeled pallet with raised rim for the storing and transporting of loads.Dimensions: 81 x 72 x 135 cm (length x width x height). 
+
+RB3 =  Wheeled pallet with raised rim. 81 x 60 x 16 cm (length x width x height). (GS1 Code) 
+A wheeled pallet with raised rim for the storing and transporting of loads. Dimensions: 81 x 60 x 16 cm (length x width x height). 
+
+RCB =  Two sided cage on wheels with fixing strap (GS1 Code) 900 x 770 x 1513 cm (length x width x height) 
+A two sided cage mounted on wheels with fixing strap.Dimensions: 900 x 770 x 1513 cm (length x width x height). 
+
+RG =  Ring 
+A hollow circular band of material wound around itself. 
+
+RJ =  Rack, clothing hanger 
+
+RL =  Reel 
+A spool on which thread, wire, film, etc, is wound. 
+
+RO =  Roll 
+A package of goods wound into a ball or cylinder. 
+
+SA =  Sack 
+A large bag of coarse cloth for storing or moving grain, foodstuffs, etc. 
+
+SH =  Sachet 
+A small sealed envelope. 
+
+SL =  Slipsheet 
+A firm sheet of plastic, cardboard or other material which may be hooked or attached to a forklift or other transportation equipment. The slipsheet is used to pull products stacked on top of it. 
+
+SO =  Spool (GS1 Code) 
+Any cylindrical piece on which something is wound. 
+
+STL =  Stick (GS1 Code) 
+A container for dispensing solid substances, e.g. glue, deodorant. 
+
+SW =  Shrinkwrapped 
+A transport unit load whose contents are secured together through the use of transparent or semi-transparent filmwrap. 
+
+SX =  Set 
+GS1 Description: 
+
+TAE =  Tablet (GS1 Code) 
+A small rectangular package of aluminium foil or paper, e.g. a tablet of chocolate. 
+
+TB =  Tub 
+A round, open, flat bottomed wooden container. 
+
+TEV =  Tamper evident package (GS1 Code) 
+A type of package giving easy or immediate recognition that the package has been tampered with after it has been sealed. 
+
+THE =  Three pack (GS1 Code) 
+A package containing three products. 
+
+TRE =  Trolley (GS1 Code) 
+A low cart for the transportation and storage of groceries, milk, etc. 
+
+TTE =  Tube, standing (GS1 Code) 
+A screw-topped pliable cylinder capable of standing and suitable for holding pastes or semi-liquids, e.g. a tube of toothpaste. 
+
+TU =  Tube 
+A screw-topped pliable cylinder suitable for holding pastes or semi-liquids, e.g. a tube of toothpaste. 
+
+TV =  Tube, with nozzle 
+GS1 Description: 
+
+TWE =  Two pack (GS1 Code) 
+A package containing two products. 
+
+TY =  Tank, cylindrical 
+A cylindrical container suitable for the storage or transportation of liquids or gases. 
+
+UUE =  Tube net (GS1 Code) 
+A plastic or textile tube suitable for carrying loose products, e.g. fruit. 
+
+UVQ =  Wrapped in plastic sheet (GS1 Code) 
+An indication that the items have been wrapped in plastic sheet. 
+
+VI =  Vial 
+Small (usually glass) container. E.g. for a liquid medicine or perfume. 
+
+VP =  Vacuumpacked 
+A package from which all air has been removed in order to keep the contents fresh. 
+
+X10 =  Tub with lid (GS1 Code) 
+A small, usually plastic, container with a lid for food, e.g. ice cream. 
+
+X11 =  Banded package (GS1 Code) 
+A package with bands, usually metal or nylon, round it to hold the products together. 
+
+X12 =  Cardboard package with grip holes for bottles (GS1 Code) 
+Cardboard package with a number of holes. Each hole is to be gripped tightly around the neck of a bottle. 
+
+X14 =  Card (GS1 Code) 
+A flat package usually made of fibreboard from/to which the product is often hung or attached. 
+
+X3 =  Standard stack of stones (GS1 Code) 
+Standard stack of stones. 
+
+X9 =  Pallet 100 X 110 cm (GS1 Code) 
+Pallet with dimensions 100 X 110 cm. 
+
+
+</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:minLength value="1"/>
+																						<xs:maxLength value="17"/>
+																						<xs:enumeration value="08"/>
+																						<xs:enumeration value="09"/>
+																						<xs:enumeration value="200"/>
+																						<xs:enumeration value="201"/>
+																						<xs:enumeration value="202"/>
+																						<xs:enumeration value="203"/>
+																						<xs:enumeration value="204"/>
+																						<xs:enumeration value="205"/>
+																						<xs:enumeration value="206"/>
+																						<xs:enumeration value="210"/>
+																						<xs:enumeration value="211"/>
+																						<xs:enumeration value="212"/>
+																						<xs:enumeration value="5L"/>
+																						<xs:enumeration value="5M"/>
+																						<xs:enumeration value="AE"/>
+																						<xs:enumeration value="APE"/>
+																						<xs:enumeration value="AT"/>
+																						<xs:enumeration value="BA"/>
+																						<xs:enumeration value="BC"/>
+																						<xs:enumeration value="BE"/>
+																						<xs:enumeration value="BG"/>
+																						<xs:enumeration value="BGE"/>
+																						<xs:enumeration value="BJ"/>
+																						<xs:enumeration value="BL"/>
+																						<xs:enumeration value="BM"/>
+																						<xs:enumeration value="BME"/>
+																						<xs:enumeration value="BN"/>
+																						<xs:enumeration value="BO"/>
+																						<xs:enumeration value="BR"/>
+																						<xs:enumeration value="BRI"/>
+																						<xs:enumeration value="BS"/>
+																						<xs:enumeration value="BU"/>
+																						<xs:enumeration value="BX"/>
+																						<xs:enumeration value="CA"/>
+																						<xs:enumeration value="CBL"/>
+																						<xs:enumeration value="CCE"/>
+																						<xs:enumeration value="CD"/>
+																						<xs:enumeration value="CG"/>
+																						<xs:enumeration value="CMS"/>
+																						<xs:enumeration value="CN"/>
+																						<xs:enumeration value="CR"/>
+																						<xs:enumeration value="CS"/>
+																						<xs:enumeration value="CT"/>
+																						<xs:enumeration value="CW"/>
+																						<xs:enumeration value="CX"/>
+																						<xs:enumeration value="XY"/>
+																						<xs:enumeration value="D99"/>
+																						<xs:enumeration value="DA"/>
+																						<xs:enumeration value="DB"/>
+																						<xs:enumeration value="DC"/>
+																						<xs:enumeration value="DG"/>
+																						<xs:enumeration value="DH"/>
+																						<xs:enumeration value="DJ"/>
+																						<xs:enumeration value="DK"/>
+																						<xs:enumeration value="DL"/>
+																						<xs:enumeration value="DM"/>
+																						<xs:enumeration value="DN"/>
+																						<xs:enumeration value="DP"/>
+																						<xs:enumeration value="DPE"/>
+																						<xs:enumeration value="DR"/>
+																						<xs:enumeration value="DS"/>
+																						<xs:enumeration value="DT"/>
+																						<xs:enumeration value="DU"/>
+																						<xs:enumeration value="DV"/>
+																						<xs:enumeration value="DW"/>
+																						<xs:enumeration value="DX"/>
+																						<xs:enumeration value="DY"/>
+																						<xs:enumeration value="EC"/>
+																						<xs:enumeration value="ED"/>
+																						<xs:enumeration value="EE"/>
+																						<xs:enumeration value="EF"/>
+																						<xs:enumeration value="EG"/>
+																						<xs:enumeration value="EH"/>
+																						<xs:enumeration value="EI"/>
+																						<xs:enumeration value="EN"/>
+																						<xs:enumeration value="FP"/>
+																						<xs:enumeration value="FDE"/>
+																						<xs:enumeration value="FT"/>
+																						<xs:enumeration value="GB"/>
+																						<xs:enumeration value="HA"/>
+																						<xs:enumeration value="HB"/>
+																						<xs:enumeration value="HC"/>
+																						<xs:enumeration value="HR"/>
+																						<xs:enumeration value="HU"/>
+																						<xs:enumeration value="IA"/>
+																						<xs:enumeration value="IB"/>
+																						<xs:enumeration value="IC"/>
+																						<xs:enumeration value="ID"/>
+																						<xs:enumeration value="IE"/>
+																						<xs:enumeration value="IF"/>
+																						<xs:enumeration value="JC"/>
+																						<xs:enumeration value="JG"/>
+																						<xs:enumeration value="JR"/>
+																						<xs:enumeration value="JT"/>
+																						<xs:enumeration value="JY"/>
+																						<xs:enumeration value="LAB"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="SG52" minOccurs="0" maxOccurs="99">
+											<xs:annotation>
+												<xs:documentation>NAD</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:annotation>
+														<xs:documentation>для алкогольной продукции
+производитель / продавец</xs:documentation>
+													</xs:annotation>
+													<xs:element name="NAD">
+														<xs:annotation>
+															<xs:documentation>Name and address</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="E3035">
+																	<xs:annotation>
+																		<xs:documentation>Party function code qualifier
+SU =  Supplier 
+– поставщик
+MF = Manufacturer of goods - производитель
+BY = Buyer 
+- покупатель   
+PE = Payee
+- получатель платежа, отличный от покупателя
+
+Для SG52:
+ MF = Manufacturer of goods – производитель (например для алкогольной продукции)
+   SE = Seller – продавец (например, офис продаж)
+</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="SU"/>
+																			<xs:enumeration value="MF"/>
+																			<xs:enumeration value="BY"/>
+																			<xs:enumeration value="PE"/>
+																			<xs:enumeration value="SE"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="C082">
+																	<xs:annotation>
+																		<xs:documentation>PARTY IDENTIFICATION DETAILS</xs:documentation>
+																	</xs:annotation>
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="E3039">
+																				<xs:annotation>
+																					<xs:documentation>Party identifier 
+GLN -Format n13</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:length value="13"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																			<xs:element name="E3055" default="9">
+																				<xs:annotation>
+																					<xs:documentation>Code list responsible agency code  
+9   = EAN (International Article Numbering association) </xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:minLength value="1"/>
+																						<xs:maxLength value="3"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="C080" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>PARTY NAME</xs:documentation>
+																	</xs:annotation>
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="E3036" maxOccurs="5">
+																				<xs:annotation>
+																					<xs:documentation>Party name</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:minLength value="1"/>
+																						<xs:maxLength value="35"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="SG56" minOccurs="0" maxOccurs="999">
+											<xs:annotation>
+												<xs:documentation>HYN-QTY</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="HYN">
+														<xs:annotation>
+															<xs:documentation>Hierarchy information</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:annotation>
+																	<xs:documentation>Сегмент HYN «Иерархическая информация» содержит указание на описание нижестоящего уровня  товара (CHILD) и глобальный номер GTIN нижестоящего товара</xs:documentation>
+																</xs:annotation>
+																<xs:element name="E7173" default="2">
+																	<xs:annotation>
+																		<xs:documentation>Hierarchy object code qualifier
+
+2 = Product</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="2"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="E7171" default="2">
+																	<xs:annotation>
+																		<xs:documentation>Hierarchical structure
+relationship code
+
+2 = Child
+
+This data element is used to indicate whether the
+item number (DE 7140)  specified in this segment is
+a parent or child product of the current line item.</xs:documentation>
+																	</xs:annotation>
+																	<xs:simpleType>
+																		<xs:restriction base="xs:string">
+																			<xs:minLength value="1"/>
+																			<xs:maxLength value="3"/>
+																			<xs:enumeration value="2"/>
+																		</xs:restriction>
+																	</xs:simpleType>
+																</xs:element>
+																<xs:element name="C212">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="E7140">
+																				<xs:annotation>
+																					<xs:documentation>Item identifier
+
+глобальный номер GTIN нижестоящего товара</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:minLength value="8"/>
+																						<xs:maxLength value="14"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																			<xs:element name="E7143" default="SRV">
+																				<xs:annotation>
+																					<xs:documentation>Item type identification code
+
+SRV = EAN.UCC Global Trade Item Number</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:minLength value="1"/>
+																						<xs:maxLength value="3"/>
+																						<xs:enumeration value="SRV"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="QTY" minOccurs="0" maxOccurs="9">
+														<xs:annotation>
+															<xs:documentation> Quantity </xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:annotation>
+																	<xs:documentation>B SG56 Сегмент QTY  указывает количество нижестоящего (CHILD) товара в описываемой упаковке.</xs:documentation>
+																</xs:annotation>
+																<xs:element name="C186">
+																	<xs:annotation>
+																		<xs:documentation>QUANTITY DETAILS</xs:documentation>
+																	</xs:annotation>
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="E6063">
+																				<xs:annotation>
+																					<xs:documentation>Quantity type code qualifier
+
+53 = Minimum order quantity</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:minLength value="1"/>
+																						<xs:maxLength value="3"/>
+																						<xs:enumeration value="53"/>
+																						<xs:enumeration value="17E"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																			<xs:element name="E6060">
+																				<xs:annotation>
+																					<xs:documentation>Quantity</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:minLength value="1"/>
+																						<xs:maxLength value="35"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																			<xs:element name="E6411" minOccurs="0">
+																				<xs:annotation>
+																					<xs:documentation>Measurement unit code
+("ЕДИНИЦА ИЗМЕРЕНИЯ")
+
+KGM = kilogram
+CMQ = cubic centimetre
+MC = microgram
+This DE is only used if the product being identified is
+of variable quantity.</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:minLength value="1"/>
+																						<xs:maxLength value="3"/>
+																						<xs:enumeration value="KGM"/>
+																						<xs:enumeration value="CMQ"/>
+																						<xs:enumeration value="MC"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="UNT">
+					<xs:annotation>
+						<xs:documentation>Message trailer</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E0074">
+								<xs:annotation>
+									<xs:documentation>Number of elements (segments) UNH, BGM, DTM, FTX, NAD, CUX, PGI, LIN, PIA, IMD, MEA, QTY, ALI, DTM, RFF, TAX, PRI, ALC, PCD, PAC, NAD, HYN, QTY, UNT in a message</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="6"/>
+										<xs:pattern value="([0-9])+"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E0062">
+								<xs:annotation>
+									<xs:documentation>Message reference number
+The message reference number detailed here should equal the one specified in the UNH segment.</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="14"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="version" type="xs:string" use="required" fixed="1.1"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

@@ -1462,7 +1462,7 @@
 #define PPEDIOP_EGAIS_WAYBILL_V3              66 // @v9.9.5
 #define PPEDIOP_EGAIS_WAYBILLACT_V3           67 // @v9.9.5 version 3 of PPEDIOP_EGAIS_WAYBILLACT
 #define PPEDIOP_EGAIS_ACTWRITEOFF_V3          68 // @v9.9.5
-#define PPEDIOP_EGAIS_NOTIFY_WBVER3           69 // @v9.9.7 Уведомление сервера ЕГАИС об использовании версии 3 протокола обмена (то же, что и 
+#define PPEDIOP_EGAIS_NOTIFY_WBVER3           69 // @v9.9.7 Уведомление сервера ЕГАИС об использовании версии 3 протокола обмена (то же, что и
 	// PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменениев внутри).
 //
 // Descr: Статусы ответа (RECADV) на уведомление об отгрузке (DESADV)
@@ -1499,6 +1499,19 @@
 #define BEDIUS_DESADV_OUT_RECADV_CONF_REJ_ON_ACC   BEDIUS_DESADV_OUT_RECADV_CONF_REJ + BEDIUS_DESADV_OUT_RECADV_ACC
 #define BEDIUS_DESADV_OUT_RECADV_CONF_REJ_ON_PACC  BEDIUS_DESADV_OUT_RECADV_CONF_REJ + BEDIUS_DESADV_OUT_RECADV_PACC
 #define BEDIUS_DESADV_OUT_RECADV_CONF_REJ_ON_REJ   BEDIUS_DESADV_OUT_RECADV_CONF_REJ + BEDIUS_DESADV_OUT_RECADV_REJ
+//
+// Descr: Квалификаторы субъекта-стороны электронного документооборота
+//
+#define EDIPARTYQ_BUYER                       1
+#define EDIPARTYQ_CORPOFFICE                  2
+#define EDIPARTYQ_DELIVERY                    3
+#define EDIPARTYQ_INVOICEE                    4
+#define EDIPARTYQ_STORENUMBER                 5
+#define EDIPARTYQ_SUPPLAGENT                  6
+#define EDIPARTYQ_SUPPLIER                    7
+#define EDIPARTYQ_WAREHOUSEKEEPER             8
+#define EDIPARTYQ_CONSIGNOR                   9
+#define EDIPARTYQ_CONSIGNER                   EDIPARTYQ_CONSIGNOR // @synonim
 //
 // Menus
 //

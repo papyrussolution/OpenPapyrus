@@ -1438,7 +1438,7 @@ static SRes FASTCALL LookInStream_SeekRead_ForArc(ILookInStream * stream, uint64
 	/* return LookInStream_Read2(stream, buf, size, SZ_ERROR_NO_ARCHIVE); */
 }
 
-static SRes Xz_ReadBackward(CXzStream * p, ILookInStream * stream, Int64 * startOffset, ISzAllocPtr alloc)
+static SRes Xz_ReadBackward(CXzStream * p, ILookInStream * stream, int64 * startOffset, ISzAllocPtr alloc)
 {
 	uint64 indexSize;
 	Byte buf[XZ_STREAM_FOOTER_SIZE];
@@ -1551,9 +1551,9 @@ uint64 Xzs_GetUnpackSize(const CXzs * p)
    return size;
    }
  */
-SRes Xzs_ReadBackward(CXzs * p, ILookInStream * stream, Int64 * startOffset, ICompressProgress * progress, ISzAllocPtr alloc)
+SRes Xzs_ReadBackward(CXzs * p, ILookInStream * stream, int64 * startOffset, ICompressProgress * progress, ISzAllocPtr alloc)
 {
-	Int64 endOffset = 0;
+	int64 endOffset = 0;
 	RINOK(ILookInStream_Seek(stream, &endOffset, SZ_SEEK_END));
 	*startOffset = endOffset;
 	for(;; ) {
@@ -1578,7 +1578,7 @@ SRes Xzs_ReadBackward(CXzs * p, ILookInStream * stream, Int64 * startOffset, ICo
 		if(*startOffset == 0)
 			break;
 		RINOK(LookInStream_SeekTo(stream, *startOffset));
-		if(progress && ICompressProgress_Progress(progress, endOffset - *startOffset, (uint64)(Int64)-1) != SZ_OK)
+		if(progress && ICompressProgress_Progress(progress, endOffset - *startOffset, (uint64)(int64)-1) != SZ_OK)
 			return SZ_ERROR_PROGRESS;
 	}
 	return SZ_OK;

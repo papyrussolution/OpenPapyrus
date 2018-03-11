@@ -251,9 +251,8 @@ IMPLEMENT_PPFILT_FACTORY(Salary); SLAPI SalaryFilt::SalaryFilt() : PPBaseFilt(PP
 //
 //
 //
-SLAPI PPViewSalary::PPViewSalary() : PPView(0, &Filt, PPVIEW_SALARY)
+SLAPI PPViewSalary::PPViewSalary() : PPView(0, &Filt, PPVIEW_SALARY), P_TempTbl(0)
 {
-	P_TempTbl = 0;
 }
 
 SLAPI PPViewSalary::~PPViewSalary()

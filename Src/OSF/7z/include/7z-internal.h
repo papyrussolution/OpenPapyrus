@@ -4,24 +4,6 @@
 #define __7Z_INTERNAL_H
 
 #include <slib.h>
-#ifndef SLIBINCLUDED
-	#include <stdlib.h>
-	#include <stdio.h>
-	#include <string.h>
-	#include <ctype.h>
-	#include <stddef.h>
-	#include <time.h>
-	#include <sys/types.h>
-	#include <tchar.h>
-	//#ifndef _WIN32
-		#include <wctype.h>
-		#include <wchar.h>
-	//#endif
-	inline void * memzero(void * p, size_t s) { return memset(p, 0, s); }
-	//#define _WIN32_WINNT 0x0400
-	#define _WIN32_WINNT 0x0500
-	#define WINVER _WIN32_WINNT
-#endif	
 //#include <Compiler.h>
 #ifdef _MSC_VER
   #ifdef UNDER_CE
@@ -90,7 +72,7 @@
 	#endif
 	// typedef size_t ULONG_PTR;
 	typedef size_t DWORD_PTR;
-	typedef Int64 LONGLONG;
+	typedef int64 LONGLONG;
 	typedef uint64 ULONGLONG;
 	typedef struct _LARGE_INTEGER { LONGLONG QuadPart; } LARGE_INTEGER;
 	typedef struct _ULARGE_INTEGER { ULONGLONG QuadPart; } ULARGE_INTEGER;
@@ -382,15 +364,15 @@ typedef int Bool;
 #ifdef _SZ_NO_INT_64
 	/* define _SZ_NO_INT_64, if your compiler doesn't support 64-bit integers.
 	NOTES: Some code will work incorrectly in that case! */
-	typedef long Int64;
+	typedef long int64;
 	typedef unsigned long UInt64_Removed;
 #else
 	#if defined(_MSC_VER) || defined(__BORLANDC__)
-		typedef __int64 Int64;
+		typedef __int64 Int64_Removed;
 		typedef unsigned __int64 UInt64_Removed;
 		#define UINT64_CONST(n) n
 	#else
-		typedef long long int Int64;
+		typedef long long int Int64_Removed;
 		typedef unsigned long long int UInt64_Removed;
 		#define UINT64_CONST(n) n ## ULL
 	#endif
@@ -454,7 +436,7 @@ typedef enum {
 
 struct ISeekInStream {
 	SRes (* Read)(const ISeekInStream * p, void * buf, size_t * size); /* same as ISeqInStream::Read */
-	SRes (* Seek)(const ISeekInStream * p, Int64 * pos, ESzSeek origin);
+	SRes (* Seek)(const ISeekInStream * p, int64 * pos, ESzSeek origin);
 };
 
 struct ILookInStream {
@@ -466,7 +448,7 @@ struct ILookInStream {
 	/* offset must be <= output(*size) of Look */
 	SRes (* Read)(const ILookInStream * p, void * buf, size_t * size);
 	/* reads directly (without buffer). It's same as ISeqInStream::Read */
-	SRes (* Seek)(const ILookInStream * p, Int64 * pos, ESzSeek origin);
+	SRes (* Seek)(const ILookInStream * p, int64 * pos, ESzSeek origin);
 };
 
 #define IByteIn_Read(p)                    (p)->Read(p)
@@ -517,7 +499,7 @@ void SecToRead_CreateVTable(CSecToRead * p);
 struct ICompressProgress {
 	SRes (* Progress)(const ICompressProgress * p, uint64 inSize, uint64 outSize);
 	/* Returns: result. (result != SZ_OK) means break.
-	   Value (uint64)(Int64)-1 for size means unknown value. */
+	   Value (uint64)(int64)-1 for size means unknown value. */
 };
 
 #define ICompressProgress_Progress(p, inSize, outSize) (p)->Progress(p, inSize, outSize)
@@ -2857,8 +2839,8 @@ void ConvertUInt32ToHex(uint32 value, char *s) throw();
 void ConvertUInt64ToHex(uint64 value, char *s) throw();
 void ConvertUInt32ToHex8Digits(uint32 value, char *s) throw();
 // void ConvertUInt32ToHex8Digits(uint32 value, wchar_t *s) throw();
-void ConvertInt64ToString(Int64 value, char *s) throw();
-void ConvertInt64ToString(Int64 value, wchar_t *s) throw();
+void ConvertInt64ToString(int64 value, char *s) throw();
+void ConvertInt64ToString(int64 value, wchar_t *s) throw();
 // use RawLeGuid only for RAW bytes that contain stored GUID as Little-endian.
 char *RawLeGuidToString(const Byte *guid, char *s) throw();
 char *RawLeGuidToString_Braced(const Byte *guid, char *s) throw();
@@ -2958,61 +2940,55 @@ bool DoesWildcardMatchName(const UString &mask, const UString &name);
 namespace NWildcard {
 	#ifdef _WIN32
 		// returns true, if name is like "a:", "c:", ...
-		bool IsDriveColonName(const wchar_t * s);
-		unsigned GetNumPrefixParts_if_DrivePath(UStringVector &pathParts);
+		bool   IsDriveColonName(const wchar_t * s);
+		uint   GetNumPrefixParts_if_DrivePath(UStringVector &pathParts);
 	#endif
-	struct CItem {
-		UStringVector PathParts;
-		bool Recursive;
-		bool ForFile;
-		bool ForDir;
-		bool WildcardMatching;
-	#ifdef _WIN32
-		bool IsDriveItem() const { return PathParts.Size() == 1 && !ForFile && ForDir && IsDriveColonName(PathParts[0]); }
-	#endif
-		// CItem(): WildcardMatching(true) {}
-		bool AreAllAllowed() const;
-		bool CheckPath(const UStringVector &pathParts, bool isFile) const;
-	};
 
 	class CCensorNode {
-		CCensorNode * Parent;
-		bool CheckPathCurrent(bool include, const UStringVector &pathParts, bool isFile) const;
-		void AddItemSimple(bool include, CItem &item);
 	public:
-		bool CheckPathVect(const UStringVector &pathParts, bool isFile, bool &include) const;
+		struct CItem {
+		#ifdef _WIN32
+			bool   IsDriveItem() const { return PathParts.Size() == 1 && !ForFile && ForDir && IsDriveColonName(PathParts[0]); }
+		#endif
+			// CItem(): WildcardMatching(true) {}
+			bool   AreAllAllowed() const;
+			bool   CheckPath(const UStringVector &pathParts, bool isFile) const;
+
+			UStringVector PathParts;
+			bool   Recursive;
+			bool   ForFile;
+			bool   ForDir;
+			bool   WildcardMatching;
+		};
 		CCensorNode() : Parent(0) 
 		{
 		}
 		CCensorNode(const UString &name, CCensorNode * parent) : Name(name), Parent(parent) 
 		{
 		}
+		bool   CheckPathVect(const UStringVector &pathParts, bool isFile, bool &include) const;
+		bool   AreAllAllowed() const;
+		int    FindSubNode(const UString &path) const;
+		void   AddItem(bool include, CItem &item, int ignoreWildcardIndex = -1);
+		void   AddItem(bool include, const UString &path, bool recursive, bool forFile, bool forDir, bool wildcardMatching);
+		void   AddItem2(bool include, const UString &path, bool recursive, bool wildcardMatching);
+		bool   NeedCheckSubDirs() const;
+		bool   AreThereIncludeItems() const;
+		// bool   CheckPath2(bool isAltStream, const UString &path, bool isFile, bool &include) const;
+		// bool   CheckPath(bool isAltStream, const UString &path, bool isFile) const;
+		bool   CheckPathToRoot(bool include, UStringVector &pathParts, bool isFile) const;
+		// bool   CheckPathToRoot(const UString &path, bool isFile, bool include) const;
+		void   ExtendExclude(const CCensorNode &fromNodes);
+
 		UString Name; // WIN32 doesn't support wildcards in file names
-		CObjectVector<CCensorNode> SubNodes;
-		CObjectVector<CItem> IncludeItems;
-		CObjectVector<CItem> ExcludeItems;
+		CObjectVector <CCensorNode> SubNodes;
+		CObjectVector <CItem> IncludeItems;
+		CObjectVector <CItem> ExcludeItems;
+	private:
+		bool CheckPathCurrent(bool include, const UStringVector &pathParts, bool isFile) const;
+		void AddItemSimple(bool include, CItem &item);
 
-		bool AreAllAllowed() const;
-		int FindSubNode(const UString &path) const;
-		void AddItem(bool include, CItem &item, int ignoreWildcardIndex = -1);
-		void AddItem(bool include, const UString &path, bool recursive, bool forFile, bool forDir, bool wildcardMatching);
-		void AddItem2(bool include, const UString &path, bool recursive, bool wildcardMatching);
-		bool NeedCheckSubDirs() const;
-		bool AreThereIncludeItems() const;
-		// bool CheckPath2(bool isAltStream, const UString &path, bool isFile, bool &include) const;
-		// bool CheckPath(bool isAltStream, const UString &path, bool isFile) const;
-
-		bool CheckPathToRoot(bool include, UStringVector &pathParts, bool isFile) const;
-		// bool CheckPathToRoot(const UString &path, bool isFile, bool include) const;
-		void ExtendExclude(const CCensorNode &fromNodes);
-	};
-
-	struct CPair {
-		CPair(const UString &prefix) : Prefix(prefix) 
-		{
-		}
-		UString Prefix;
-		CCensorNode Head;
+		CCensorNode * Parent;
 	};
 
 	enum ECensorPathMode {
@@ -3021,20 +2997,8 @@ namespace NWildcard {
 		k_AbsPath // full path in Tree
 	};
 
-	struct CCensorPath {
-		CCensorPath() : Include(true), Recursive(false), WildcardMatching(true)
-		{
-		}
-		UString Path;
-		bool Include;
-		bool Recursive;
-		bool WildcardMatching;
-	};
-
 	class CCensor {
 	public:
-		CObjectVector<CPair> Pairs;
-		CObjectVector<NWildcard::CCensorPath> CensorPaths;
 		bool AllAreRelative() const { return (Pairs.Size() == 1 && Pairs.Front().Prefix.IsEmpty()); }
 		void AddItem(ECensorPathMode pathMode, bool include, const UString &path, bool recursive, bool wildcardMatching);
 		// bool CheckPath(bool isAltStream, const UString &path, bool isFile) const;
@@ -3043,6 +3007,26 @@ namespace NWildcard {
 		void AddPreItem(bool include, const UString &path, bool recursive, bool wildcardMatching);
 		void AddPreItem(const UString &path) { AddPreItem(true, path, false, false); }
 		void AddPreItem_Wildcard() { AddPreItem(true, UString("*"), false, true); }
+
+		struct CPair {
+			CPair(const UString & prefix) : Prefix(prefix) 
+			{
+			}
+			UString Prefix;
+			CCensorNode Head;
+		};
+		struct CCensorPath {
+			CCensorPath() : Include(true), Recursive(false), WildcardMatching(true)
+			{
+			}
+			UString Path;
+			bool   Include;
+			bool   Recursive;
+			bool   WildcardMatching;
+			uint8  Reserve[1]; // @alignment
+		};
+		CObjectVector <CPair> Pairs;
+		CObjectVector <CCensorPath> CensorPaths;
 	private:
 		int FindPrefix(const UString &prefix) const;
 	};
@@ -3096,7 +3080,7 @@ public:
 		return *this;
 	}
 	CStdOutStream & operator<<(int32 number) throw();
-	CStdOutStream & operator<<(Int64 number) throw();
+	CStdOutStream & operator<<(int64 number) throw();
 	CStdOutStream & operator<<(uint32 number) throw();
 	CStdOutStream & operator<<(uint64 number) throw();
 	CStdOutStream & operator<<(const wchar_t * s);
@@ -3539,11 +3523,11 @@ namespace NWindows {
 		// uint32 Unix Time : for dates 1970-2106
 		uint64 UnixTimeToFileTime64(uint32 unixTime) throw();
 		void UnixTimeToFileTime(uint32 unixTime, FILETIME &fileTime) throw();
-		// Int64 Unix Time : negative values for dates before 1970
-		uint64 UnixTime64ToFileTime64(Int64 unixTime) throw();
-		bool UnixTime64ToFileTime(Int64 unixTime, FILETIME &fileTime) throw();
+		// int64 Unix Time : negative values for dates before 1970
+		uint64 UnixTime64ToFileTime64(int64 unixTime) throw();
+		bool UnixTime64ToFileTime(int64 unixTime, FILETIME &fileTime) throw();
 		bool FileTimeToUnixTime(const FILETIME &fileTime, uint32 &unixTime) throw();
-		Int64 FileTimeToUnixTime64(const FILETIME &ft) throw();
+		int64 FileTimeToUnixTime64(const FILETIME &ft) throw();
 		bool GetSecondsSince1601(uint year, uint month, uint day, uint hour, uint min, uint sec, uint64 & resSeconds) throw();
 		void GetCurUtcFileTime(FILETIME &ft) throw();
 	}
@@ -3591,7 +3575,7 @@ namespace NWindows {
 		public:
 			CPropVariant(uint32 value);
 			CPropVariant(uint64 value);
-			CPropVariant(Int64 value);
+			CPropVariant(int64 value);
 			CPropVariant(const FILETIME &value);
 			CPropVariant & operator=(const CPropVariant &varSrc);
 			CPropVariant & operator=(const PROPVARIANT &varSrc);
@@ -3609,7 +3593,7 @@ namespace NWindows {
 			CPropVariant & operator=(int32 value) throw();
 			CPropVariant & operator=(uint32 value) throw();
 			CPropVariant & operator=(uint64 value) throw();
-			CPropVariant & operator=(Int64 value) throw();
+			CPropVariant & operator=(int64 value) throw();
 			CPropVariant & operator=(const FILETIME &value) throw();
 			BSTR AllocBstr(unsigned numChars);
 			HRESULT Clear() throw();
@@ -3698,7 +3682,7 @@ namespace NWindows {
 				bool Close() throw();
 				bool GetPosition(uint64 &position) const throw();
 				bool GetLength(uint64 &length) const throw();
-				bool Seek(Int64 distanceToMove, DWORD moveMethod, uint64 &newPosition) const throw();
+				bool Seek(int64 distanceToMove, DWORD moveMethod, uint64 &newPosition) const throw();
 				bool Seek(uint64 position, uint64 &newPosition) const throw();
 				bool SeekToBegin() const throw();
 				bool SeekToEnd(uint64 &newPosition) const throw();
@@ -5863,7 +5847,7 @@ namespace NCompress {
 	   struct CMtf8Decoder {
 	   Byte Buf[256];
 
-	   void StartInit() { memset(Buf, 0, sizeof(Buf)); }
+	   void StartInit() { memzero(Buf, sizeof(Buf)); }
 	   void Add(unsigned pos, Byte val) { Buf[pos] = val;  }
 	   Byte GetHead() const { return Buf[0]; }
 	   Byte GetAndMove(unsigned pos)
@@ -6007,7 +5991,8 @@ bool ReadNamesFromListFile(CFSTR fileName, UStringVector &strings, UINT codePage
 // replaces unsuported characters, and replaces "." , ".." and "" to "[]"
 UString Get_Correct_FsFile_Name(const UString &name);
 void Correct_FsPath(bool absIsAllowed, UStringVector &parts, bool isDir);
-UString MakePathFromParts(const UStringVector &parts);
+UString FASTCALL MakePathFromParts(const UStringVector &parts);
+uint   FASTCALL GetNumSlashes(const FChar * s);
 //
 //#include <SetProperties.h>
 HRESULT SetProperties(IUnknown *unknown, const CObjectVector<CProperty> &properties);
@@ -6669,7 +6654,7 @@ EXTERN_C_BEGIN
 	// (static) void FASTCALL Xz_Construct(CXzStream * p);
 	// (static) void FASTCALL Xz_Free(CXzStream * p, ISzAllocPtr alloc);
 
-	#define XZ_SIZE_OVERFLOW ((uint64)(Int64)-1)
+	#define XZ_SIZE_OVERFLOW ((uint64)(int64)-1)
 
 	// (static) uint64 FASTCALL Xz_GetUnpackSize(const CXzStream * p);
 	// (static) uint64 FASTCALL Xz_GetPackSize(const CXzStream * p);
@@ -6682,7 +6667,7 @@ EXTERN_C_BEGIN
 
 	void Xzs_Construct(CXzs * p);
 	void Xzs_Free(CXzs * p, ISzAllocPtr alloc);
-	SRes Xzs_ReadBackward(CXzs * p, ILookInStream * inStream, Int64 * startOffset, ICompressProgress * progress, ISzAllocPtr alloc);
+	SRes Xzs_ReadBackward(CXzs * p, ILookInStream * inStream, int64 * startOffset, ICompressProgress * progress, ISzAllocPtr alloc);
 
 	uint64 Xzs_GetNumBlocks(const CXzs * p);
 	uint64 Xzs_GetUnpackSize(const CXzs * p);
@@ -6944,19 +6929,32 @@ EXTERN_C_BEGIN
 	#define Ppmd7Context_OneState(p) ((CPpmd_State*)&(p)->SummFreq)
 
 	typedef struct {
-		CPpmd7_Context * MinContext, * MaxContext;
+		CPpmd7_Context * MinContext;
+		CPpmd7_Context * MaxContext;
 		CPpmd_State * FoundState;
-		unsigned OrderFall, InitEsc, PrevSuccess, MaxOrder, HiBitsFlag;
-		int32 RunLength, InitRL; /* must be 32-bit at least */
+		uint   OrderFall;
+		uint   InitEsc;
+		uint   PrevSuccess;
+		uint   MaxOrder;
+		uint   HiBitsFlag;
+		int32  RunLength; // must be 32-bit at least 
+		int32  InitRL;    // must be 32-bit at least 
 		uint32 Size;
 		uint32 GlueCount;
-		Byte * Base, * LoUnit, * HiUnit, * Text, * UnitsStart;
+		Byte * Base;
+		Byte * LoUnit;
+		Byte * HiUnit;
+		Byte * Text;
+		Byte * UnitsStart;
 		uint32 AlignOffset;
-		Byte Indx2Units[PPMD_NUM_INDEXES];
-		Byte Units2Indx[128];
+		Byte   Indx2Units[PPMD_NUM_INDEXES];
+		Byte   Units2Indx[128];
 		CPpmd_Void_Ref FreeList[PPMD_NUM_INDEXES];
-		Byte NS2Indx[256], NS2BSIndx[256], HB2Flag[256];
-		CPpmd_See DummySee, See[25][16];
+		Byte   NS2Indx[256];
+		Byte   NS2BSIndx[256];
+		Byte   HB2Flag[256];
+		CPpmd_See DummySee;
+		CPpmd_See See[25][16];
 		uint16 BinSumm[128][64];
 	} CPpmd7;
 
@@ -6978,10 +6976,10 @@ EXTERN_C_BEGIN
 		#define Ppmd7_GetContext(p, offs) ((CPpmd7_Context*)Ppmd7_GetPtr((p), (offs)))
 		#define Ppmd7_GetStats(p, ctx) ((CPpmd_State*)Ppmd7_GetPtr((p), ((ctx)->Stats)))
 	#endif
-	void Ppmd7_Update1(CPpmd7 * p);
-	void Ppmd7_Update1_0(CPpmd7 * p);
-	void Ppmd7_Update2(CPpmd7 * p);
-	void Ppmd7_UpdateBin(CPpmd7 * p);
+	// (static) void FASTCALL Ppmd7_Update1(CPpmd7 * p);
+	// (static) void FASTCALL Ppmd7_Update1_0(CPpmd7 * p);
+	// (static) void FASTCALL Ppmd7_Update2(CPpmd7 * p);
+	// (static) void FASTCALL Ppmd7_UpdateBin(CPpmd7 * p);
 
 	#define Ppmd7_GetBinSumm(p) &p->BinSumm[(size_t)(uint)Ppmd7Context_OneState(p->MinContext)->Freq - 1][p->PrevSuccess + \
 		p->NS2BSIndx[(size_t)Ppmd7_GetContext(p, p->MinContext->Suffix)->NumStats - 1] + \
@@ -7044,15 +7042,13 @@ EXTERN_C_BEGIN
 	#endif
 
 	#pragma pack(push, 1)
-
 	typedef struct CPpmd8_Context_ {
-		Byte NumStats;
-		Byte Flags;
+		Byte   NumStats;
+		Byte   Flags;
 		uint16 SummFreq;
 		CPpmd_State_Ref Stats;
 		CPpmd8_Context_Ref Suffix;
 	} CPpmd8_Context;
-
 	#pragma pack(pop)
 
 	#define Ppmd8Context_OneState(p) ((CPpmd_State*)&(p)->SummFreq)
@@ -7072,16 +7068,19 @@ EXTERN_C_BEGIN
 	typedef struct {
 		CPpmd8_Context * MinContext, * MaxContext;
 		CPpmd_State * FoundState;
-		unsigned OrderFall, InitEsc, PrevSuccess, MaxOrder;
-		int32 RunLength, InitRL; /* must be 32-bit at least */
-
+		uint   OrderFall;
+		uint   InitEsc;
+		uint   PrevSuccess;
+		uint   MaxOrder;
+		int32  RunLength, InitRL; // must be 32-bit at least 
 		uint32 Size;
 		uint32 GlueCount;
 		Byte * Base, * LoUnit, * HiUnit, * Text, * UnitsStart;
 		uint32 AlignOffset;
-		unsigned RestoreMethod;
-
-		/* Range Coder */
+		uint   RestoreMethod;
+		//
+		// Range Coder 
+		//
 		uint32 Range;
 		uint32 Code;
 		uint32 Low;
@@ -7090,11 +7089,11 @@ EXTERN_C_BEGIN
 			IByteOut * Out;
 		} Stream;
 
-		Byte Indx2Units[PPMD_NUM_INDEXES];
-		Byte Units2Indx[128];
+		Byte   Indx2Units[PPMD_NUM_INDEXES];
+		Byte   Units2Indx[128];
 		CPpmd_Void_Ref FreeList[PPMD_NUM_INDEXES];
 		uint32 Stamps[PPMD_NUM_INDEXES];
-		Byte NS2BSIndx[256], NS2Indx[260];
+		Byte   NS2BSIndx[256], NS2Indx[260];
 		CPpmd_See DummySee, See[24][32];
 		uint16 BinSumm[25][64];
 	} CPpmd8;
@@ -7119,20 +7118,20 @@ EXTERN_C_BEGIN
 		#define Ppmd8_GetStats(p, ctx) ((CPpmd_State*)Ppmd8_GetPtr((p), ((ctx)->Stats)))
 	#endif
 
-	void Ppmd8_Update1(CPpmd8 * p);
-	void Ppmd8_Update1_0(CPpmd8 * p);
-	void Ppmd8_Update2(CPpmd8 * p);
-	void Ppmd8_UpdateBin(CPpmd8 * p);
+	// (static) void FASTCALL Ppmd8_Update1(CPpmd8 * p);
+	// (static) void FASTCALL Ppmd8_Update1_0(CPpmd8 * p);
+	// (static) void FASTCALL Ppmd8_Update2(CPpmd8 * p);
+	// (static) void FASTCALL Ppmd8_UpdateBin(CPpmd8 * p);
 
 	#define Ppmd8_GetBinSumm(p) &p->BinSumm[p->NS2Indx[(size_t)Ppmd8Context_OneState(p->MinContext)->Freq - 1]][ \
 		p->NS2BSIndx[Ppmd8_GetContext(p, p->MinContext->Suffix)->NumStats] + p->PrevSuccess + p->MinContext->Flags + ((p->RunLength >> 26) & 0x20)]
-	CPpmd_See * Ppmd8_MakeEscFreq(CPpmd8 * p, unsigned numMasked, uint32 * scale);
+	// (static) CPpmd_See * FASTCALL Ppmd8_MakeEscFreq(CPpmd8 * p, uint numMasked, uint32 * scale);
 	// 
 	// Decode
 	// 
-	Bool Ppmd8_RangeDec_Init(CPpmd8 * p);
+	Bool   Ppmd8_RangeDec_Init(CPpmd8 * p);
 	#define Ppmd8_RangeDec_IsFinishedOK(p) ((p)->Code == 0)
-	int Ppmd8_DecodeSymbol(CPpmd8 * p); /* returns: -1 as EndMarker, -2 as DataError */
+	int    FASTCALL Ppmd8_DecodeSymbol(CPpmd8 * p); /* returns: -1 as EndMarker, -2 as DataError */
 	// 
 	// Encode
 	// 
@@ -7260,7 +7259,7 @@ namespace NArchive {
 
 			uint64 PackSize;
 			uint64 Size;
-			Int64  MTime;
+			int64  MTime;
 			uint32 Mode;
 			uint32 UID;
 			uint32 GID;
@@ -7767,7 +7766,7 @@ namespace NArchive {
 			UString UnicodeName;
 			Byte Salt[8];
 
-			bool Is_Size_Defined() const { return Size != (uint64)(Int64)-1; }
+			bool Is_Size_Defined() const { return Size != (uint64)(int64)-1; }
 			bool IsEncrypted()   const { return (Flags & NHeader::NFile::kEncrypted) != 0; }
 			bool IsSolid()       const { return (Flags & NHeader::NFile::kSolid) != 0; }
 			bool IsCommented()   const { return (Flags & NHeader::NFile::kComment) != 0; }
@@ -8281,27 +8280,28 @@ struct CDirItemsStat {
 };
 
 struct CDirItem {
+	CDirItem() : PhyParent(-1), LogParent(-1), SecureIndex(-1), IsAltStream(false) 
+	{
+	}
+	bool   IsDir() const { return (Attrib & FILE_ATTRIBUTE_DIRECTORY) != 0; }
+
 	uint64 Size;
 	FILETIME CTime;
 	FILETIME ATime;
 	FILETIME MTime;
 	UString Name;
-
-  #if defined(_WIN32) && !defined(UNDER_CE)
+#if defined(_WIN32) && !defined(UNDER_CE)
 	// UString ShortName;
 	CByteBuffer ReparseData;
 	CByteBuffer ReparseData2; // fixed (reduced) absolute links
-	bool AreReparseData() const { return ReparseData.Size() != 0 || ReparseData2.Size() != 0; }
-  #endif
+	bool   AreReparseData() const { return ReparseData.Size() != 0 || ReparseData2.Size() != 0; }
+#endif
 	uint32 Attrib;
-	int PhyParent;
-	int LogParent;
-	int SecureIndex;
-	bool IsAltStream;
-	CDirItem() : PhyParent(-1), LogParent(-1), SecureIndex(-1), IsAltStream(false) 
-	{
-	}
-	bool IsDir() const { return (Attrib & FILE_ATTRIBUTE_DIRECTORY) != 0; }
+	int    PhyParent;
+	int    LogParent;
+	int    SecureIndex;
+	bool   IsAltStream;
+	uint8  Reserve[3]; // @alignment
 };
 
 class CDirItems {
@@ -8353,12 +8353,13 @@ struct CArcItem {
 	FILETIME MTime;
 	UString Name;
 	uint32 IndexInServer;
-	int TimeType;
-	bool IsDir;
-	bool IsAltStream;
-	bool SizeDefined;
-	bool MTimeDefined;
-	bool Censored;
+	int    TimeType;
+	bool   IsDir;
+	bool   IsAltStream;
+	bool   SizeDefined;
+	bool   MTimeDefined;
+	bool   Censored;
+	uint8  Reserve[3]; // @alignment
 };
 //#include <StreamBinder.h>
 // 
@@ -8442,42 +8443,6 @@ namespace NUpdateArchive {
 	extern const CActionSet k_ActionSet_Sync;
 	extern const CActionSet k_ActionSet_Delete;
 }
-//
-//#include <UpdatePair.h>
-struct CUpdatePair {
-	CUpdatePair() : ArcIndex(-1), DirIndex(-1), HostIndex(-1) 
-	{
-	}
-	NUpdateArchive::NPairState::EEnum State;
-	int ArcIndex;
-	int DirIndex;
-	int HostIndex; // >= 0 for alt streams only, contains index of host pair
-};
-
-void GetUpdatePairInfoList(const CDirItems &dirItems, const CObjectVector <CArcItem> &arcItems, NFileTimeType::EEnum fileTimeType, CRecordVector <CUpdatePair> &updatePairs);
-//
-//#include <UpdateProduce.h>
-struct CUpdatePair2 {
-	CUpdatePair2();
-	void FASTCALL SetAs_NoChangeArcItem(int arcIndex);
-	bool ExistOnDisk() const;
-	bool ExistInArchive() const;
-
-	bool NewData;
-	bool NewProps;
-	bool UseArcProps; // if(UseArcProps && NewProps), we want to change only some properties.
-	bool IsAnti; // if(!IsAnti) we use other ways to detect Anti status
-	int DirIndex;
-	int ArcIndex;
-	int NewNameIndex;
-	bool IsMainRenameItem;
-};
-
-struct IUpdateProduceCallback {
-	virtual HRESULT ShowDeleteFile(unsigned arcIndex) = 0;
-};
-
-void UpdateProduce(const CRecordVector<CUpdatePair> &updatePairs, const NUpdateArchive::CActionSet &actionSet, CRecordVector<CUpdatePair2> &operationChain, IUpdateProduceCallback * callback);
 //
 //#include <Bench.h>
 struct CBenchInfo {
@@ -8582,7 +8547,7 @@ namespace NArchive {
 				uint64 value;
 				bool res = NWindows::NTime::GetSecondsSince1601(Year + 1900, Month, Day, Hour, Minute, Second, value);
 				if(res) {
-					value -= (Int64)((int32)GmtOffset * 15 * 60);
+					value -= (int64)((int32)GmtOffset * 15 * 60);
 					value *= 10000000;
 				}
 				ft.dwLowDateTime = (DWORD)value;

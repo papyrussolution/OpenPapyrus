@@ -72,7 +72,7 @@ namespace NArchive {
 				}
 			}
 		}
-		static void WriteOctal_12_Signed(char * s, Int64 val)
+		static void WriteOctal_12_Signed(char * s, int64 val)
 		{
 			if(val >= 0)
 				WriteOctal_12(s, val);
@@ -117,7 +117,7 @@ namespace NArchive {
 			temp[size] = '\0';
 			result = temp;
 		}
-		static bool ParseInt64(const char * p, Int64 &val)
+		static bool ParseInt64(const char * p, int64 &val)
 		{
 			uint32 h = GetBe32(p);
 			val = GetBe64(p + 4);
@@ -130,7 +130,7 @@ namespace NArchive {
 			val = uv;
 			return res;
 		}
-		static bool ParseInt64_MTime(const char * p, Int64 &val)
+		static bool ParseInt64_MTime(const char * p, int64 &val)
 		{
 			// rare case tar contains spaces instead of MTime
 			for(uint i = 0; i < 12; i++)
@@ -165,7 +165,7 @@ namespace NArchive {
 			// if(!OctalToNumber32(p, 8, item.GID)) item.GID = 0;
 			p += 8;
 			uint64 packSize;
-			Int64 time;
+			int64 time;
 			uint32 checkSum;
 			CHECK(ParseSize(p, packSize)); p += 12;
 			CHECK(ParseInt64_MTime(p, time)); p += 12;
@@ -751,7 +751,7 @@ namespace NArchive {
 					item.SparseBlocks.Clear();
 					item.PackSize = ui.Size;
 					item.Size = ui.Size;
-					if(ui.Size == (uint64)(Int64)-1)
+					if(ui.Size == (uint64)(int64)-1)
 						return E_INVALIDARG;
 					CMyComPtr<ISequentialInStream> fileInStream;
 					bool needWrite = true;
@@ -805,7 +805,7 @@ namespace NArchive {
 								if(!outSeekStream)
 									return E_FAIL;
 								uint64 backOffset = outArchive.Pos - fileHeaderStartPos;
-								RINOK(outSeekStream->Seek(-(Int64)backOffset, STREAM_SEEK_CUR, NULL));
+								RINOK(outSeekStream->Seek(-(int64)backOffset, STREAM_SEEK_CUR, NULL));
 								outArchive.Pos = fileHeaderStartPos;
 								item.PackSize = copyCoderSpec->TotalSize;
 								RINOK(outArchive.WriteHeader(item));
@@ -1266,7 +1266,7 @@ namespace NArchive {
 
 			MY_UNKNOWN_IMP2(ISequentialInStream, IInStream)
 			STDMETHOD(Read) (void * data, uint32 size, uint32 *processedSize);
-			STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+			STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 			void Init()
 			{
 				_virtPos = 0;
@@ -1332,7 +1332,7 @@ namespace NArchive {
 			return res;
 		}
 
-		STDMETHODIMP CSparseStream::Seek(Int64 offset, uint32 seekOrigin, uint64 * newPosition)
+		STDMETHODIMP CSparseStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
 		{
 			switch(seekOrigin) {
 				case STREAM_SEEK_SET: break;

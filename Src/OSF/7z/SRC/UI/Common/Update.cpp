@@ -7,16 +7,985 @@
 	#include <mapi.h>
 #endif
 
-static const char * const kUpdateIsNotSupoorted = "update operations are not supported for this archive";
-static const char * const kUpdateIsNotSupoorted_MultiVol = "Updating for multivolume archives is not implemented";
-
 using namespace NWindows;
 using namespace NCOM;
 using namespace NFile;
 using namespace NDir;
 using namespace NName;
 using namespace NUpdateArchive;
+using namespace NTime;
 
+extern bool g_CaseSensitive;
+//
+// UpdateAction.cpp
+namespace NUpdateArchive {
+	const CActionSet k_ActionSet_Add = {
+		{ NPairAction::kCopy, NPairAction::kCopy, NPairAction::kCompress, NPairAction::kCompress, NPairAction::kCompress, NPairAction::kCompress, NPairAction::kCompress }
+	};
+	const CActionSet k_ActionSet_Update = {
+		{ NPairAction::kCopy, NPairAction::kCopy, NPairAction::kCompress, NPairAction::kCopy, NPairAction::kCompress, NPairAction::kCopy, NPairAction::kCompress }
+	};
+	const CActionSet k_ActionSet_Fresh = {{NPairAction::kCopy, NPairAction::kCopy, NPairAction::kIgnore, NPairAction::kCopy, NPairAction::kCompress, NPairAction::kCopy, NPairAction::kCompress }};
+	const CActionSet k_ActionSet_Sync = {{NPairAction::kCopy, NPairAction::kIgnore, NPairAction::kCompress, NPairAction::kCopy, NPairAction::kCompress, NPairAction::kCopy, NPairAction::kCompress }};
+	const CActionSet k_ActionSet_Delete = {{ NPairAction::kCopy, NPairAction::kIgnore, NPairAction::kIgnore, NPairAction::kIgnore, NPairAction::kIgnore, NPairAction::kIgnore, NPairAction::kIgnore }};
+
+	bool FASTCALL CActionSet::IsEqualTo(const CActionSet &a) const
+	{
+		for(uint i = 0; i < NPairState::kNumValues; i++)
+			if(StateActions[i] != a.StateActions[i])
+				return false;
+		return true;
+	}
+	bool CActionSet::NeedScanning() const
+	{
+		uint i;
+		for(i = 0; i < NPairState::kNumValues; i++)
+			if(StateActions[i] == NPairAction::kCompress)
+				return true;
+		for(i = 1; i < NPairState::kNumValues; i++)
+			if(StateActions[i] != NPairAction::kIgnore)
+				return true;
+		return false;
+	}
+}
+//
+//#include <UpdatePair.h>
+struct CUpdatePair {
+	CUpdatePair() : ArcIndex(-1), DirIndex(-1), HostIndex(-1) 
+	{
+	}
+	NUpdateArchive::NPairState::EEnum State;
+	int ArcIndex;
+	int DirIndex;
+	int HostIndex; // >= 0 for alt streams only, contains index of host pair
+};
+//
+// UpdatePair.cpp
+static int MyCompareTime(NFileTimeType::EEnum fileTimeType, const FILETIME &time1, const FILETIME &time2)
+{
+	switch(fileTimeType) {
+		case NFileTimeType::kWindows:
+		    return ::CompareFileTime(&time1, &time2);
+		case NFileTimeType::kUnix:
+	    {
+		    uint32 unixTime1, unixTime2;
+		    FileTimeToUnixTime(time1, unixTime1);
+		    FileTimeToUnixTime(time2, unixTime2);
+		    return MyCompare(unixTime1, unixTime2);
+	    }
+		case NFileTimeType::kDOS:
+	    {
+		    uint32 dosTime1, dosTime2;
+		    FileTimeToDosTime(time1, dosTime1);
+		    FileTimeToDosTime(time2, dosTime2);
+		    return MyCompare(dosTime1, dosTime2);
+	    }
+	}
+	throw 4191618;
+}
+
+static const char * const k_Duplicate_inArc_Message = "Duplicate filename in archive:";
+static const char * const k_Duplicate_inDir_Message = "Duplicate filename on disk:";
+static const char * const k_NotCensoredCollision_Message = "Internal file name collision (file on disk, file in archive):";
+
+static void ThrowError(const char * message, const UString &s1, const UString &s2)
+{
+	UString m(message);
+	m.Add_LF(); m += s1;
+	m.Add_LF(); m += s2;
+	throw m;
+}
+
+static int FASTCALL CompareArcItemsBase(const CArcItem &ai1, const CArcItem &ai2)
+{
+	int res = CompareFileNames(ai1.Name, ai2.Name);
+	if(res != 0)
+		return res;
+	else if(ai1.IsDir != ai2.IsDir)
+		return ai1.IsDir ? -1 : 1;
+	else
+		return 0;
+}
+
+static int CompareArcItems(const uint * p1, const uint * p2, void * param)
+{
+	uint   i1 = *p1;
+	uint   i2 = *p2;
+	const  CObjectVector<CArcItem> &arcItems = *(const CObjectVector<CArcItem> *)param;
+	int    res = CompareArcItemsBase(arcItems[i1], arcItems[i2]);
+	return res ? res : MyCompare(i1, i2);
+}
+
+void GetUpdatePairInfoList(const CDirItems &dirItems, const CObjectVector<CArcItem> &arcItems, NFileTimeType::EEnum fileTimeType, CRecordVector<CUpdatePair> &updatePairs)
+{
+	CUIntVector dirIndices, arcIndices;
+	uint   numDirItems = dirItems.Items.Size();
+	uint   numArcItems = arcItems.Size();
+	CIntArr duplicatedArcItem(numArcItems);
+	{
+		int * vals = &duplicatedArcItem[0];
+		for(uint i = 0; i < numArcItems; i++)
+			vals[i] = 0;
+	}
+	{
+		arcIndices.ClearAndSetSize(numArcItems);
+		if(numArcItems != 0) {
+			uint   * vals = &arcIndices[0];
+			for(uint i = 0; i < numArcItems; i++)
+				vals[i] = i;
+		}
+		arcIndices.Sort(CompareArcItems, (void*)&arcItems);
+		for(uint i = 0; i + 1 < numArcItems; i++)
+			if(CompareArcItemsBase(arcItems[arcIndices[i]], arcItems[arcIndices[i + 1]]) == 0) {
+				duplicatedArcItem[i] = 1;
+				duplicatedArcItem[i + 1] = -1;
+			}
+	}
+	UStringVector dirNames;
+	{
+		dirNames.ClearAndReserve(numDirItems);
+		uint i;
+		for(i = 0; i < numDirItems; i++)
+			dirNames.AddInReserved(dirItems.GetLogPath(i));
+		SortFileNames(dirNames, dirIndices);
+		for(i = 0; i + 1 < numDirItems; i++) {
+			const UString &s1 = dirNames[dirIndices[i]];
+			const UString &s2 = dirNames[dirIndices[i + 1]];
+			if(CompareFileNames(s1, s2) == 0)
+				ThrowError(k_Duplicate_inDir_Message, s1, s2);
+		}
+	}
+	uint   dirIndex = 0;
+	uint   arcIndex = 0;
+	int    prevHostFile = -1;
+	const  UString * prevHostName = NULL;
+	while(dirIndex < numDirItems || arcIndex < numArcItems) {
+		CUpdatePair pair;
+		int    dirIndex2 = -1;
+		int    arcIndex2 = -1;
+		const  CDirItem * di = NULL;
+		const  CArcItem * ai = NULL;
+		int    compareResult = -1;
+		const  UString * name = NULL;
+		if(dirIndex < numDirItems) {
+			dirIndex2 = dirIndices[dirIndex];
+			di = &dirItems.Items[dirIndex2];
+		}
+		if(arcIndex < numArcItems) {
+			arcIndex2 = arcIndices[arcIndex];
+			ai = &arcItems[arcIndex2];
+			compareResult = 1;
+			if(dirIndex < numDirItems) {
+				compareResult = CompareFileNames(dirNames[dirIndex2], ai->Name);
+				if(compareResult == 0) {
+					if(di->IsDir() != ai->IsDir)
+						compareResult = (ai->IsDir ? 1 : -1);
+				}
+			}
+		}
+		if(compareResult < 0) {
+			name = &dirNames[dirIndex2];
+			pair.State = NUpdateArchive::NPairState::kOnlyOnDisk;
+			pair.DirIndex = dirIndex2;
+			dirIndex++;
+		}
+		else if(compareResult > 0) {
+			name = &ai->Name;
+			pair.State = ai->Censored ? NUpdateArchive::NPairState::kOnlyInArchive : NUpdateArchive::NPairState::kNotMasked;
+			pair.ArcIndex = arcIndex2;
+			arcIndex++;
+		}
+		else {
+			int dupl = duplicatedArcItem[arcIndex];
+			if(dupl != 0)
+				ThrowError(k_Duplicate_inArc_Message, ai->Name, arcItems[arcIndices[arcIndex + dupl]].Name);
+			name = &dirNames[dirIndex2];
+			if(!ai->Censored)
+				ThrowError(k_NotCensoredCollision_Message, *name, ai->Name);
+			pair.DirIndex = dirIndex2;
+			pair.ArcIndex = arcIndex2;
+			switch(ai->MTimeDefined ? MyCompareTime(ai->TimeType != -1 ? (NFileTimeType::EEnum)ai->TimeType : fileTimeType, di->MTime, ai->MTime) : 0) {
+				case -1: pair.State = NUpdateArchive::NPairState::kNewInArchive; break;
+				case  1: pair.State = NUpdateArchive::NPairState::kOldInArchive; break;
+				default: pair.State = (ai->SizeDefined && di->Size == ai->Size) ? NUpdateArchive::NPairState::kSameFiles : NUpdateArchive::NPairState::kUnknowNewerFiles;
+			}
+			dirIndex++;
+			arcIndex++;
+		}
+		if((di && di->IsAltStream) || (ai && ai->IsAltStream)) {
+			if(prevHostName) {
+				uint   hostLen = prevHostName->Len();
+				if(name->Len() > hostLen)
+					if((*name)[hostLen] == ':' && CompareFileNames(*prevHostName, name->Left(hostLen)) == 0)
+						pair.HostIndex = prevHostFile;
+			}
+		}
+		else {
+			prevHostFile = updatePairs.Size();
+			prevHostName = name;
+		}
+		updatePairs.Add(pair);
+	}
+	updatePairs.ReserveDown();
+}
+//
+//#include <UpdateProduce.h>
+struct CUpdatePair2 {
+	CUpdatePair2();
+	void   FASTCALL SetAs_NoChangeArcItem(int arcIndex);
+	bool   ExistOnDisk() const;
+	bool   ExistInArchive() const;
+
+	bool   NewData;
+	bool   NewProps;
+	bool   UseArcProps; // if(UseArcProps && NewProps), we want to change only some properties.
+	bool   IsAnti; // if(!IsAnti) we use other ways to detect Anti status
+	int    DirIndex;
+	int    ArcIndex;
+	int    NewNameIndex;
+	bool   IsMainRenameItem;
+};
+//
+// UpdateProduce.cpp
+static const char * const kUpdateActionSetCollision = "Internal collision in update action set";
+
+CUpdatePair2::CUpdatePair2() : NewData(false), NewProps(false), UseArcProps(false), IsAnti(false), DirIndex(-1), ArcIndex(-1),
+	NewNameIndex(-1), IsMainRenameItem(false)
+{
+}
+
+void FASTCALL CUpdatePair2::SetAs_NoChangeArcItem(int arcIndex)
+{
+	NewData = NewProps = false;
+	UseArcProps = true;
+	IsAnti = false;
+	ArcIndex = arcIndex;
+}
+
+bool CUpdatePair2::ExistOnDisk() const { return DirIndex != -1; }
+bool CUpdatePair2::ExistInArchive() const { return ArcIndex != -1; }
+
+struct IUpdateProduceCallback {
+	virtual HRESULT ShowDeleteFile(unsigned arcIndex) = 0;
+};
+
+void UpdateProduce(const CRecordVector <CUpdatePair> & updatePairs, const CActionSet & actionSet, CRecordVector <CUpdatePair2> & operationChain, IUpdateProduceCallback * callback)
+{
+	FOR_VECTOR(i, updatePairs) {
+		const CUpdatePair &pair = updatePairs[i];
+		CUpdatePair2 up2;
+		up2.DirIndex = pair.DirIndex;
+		up2.ArcIndex = pair.ArcIndex;
+		up2.NewData = up2.NewProps = true;
+		up2.UseArcProps = false;
+		switch(actionSet.StateActions[(uint)pair.State]) {
+			case NPairAction::kIgnore:
+			    if(pair.ArcIndex >= 0 && callback)
+				    callback->ShowDeleteFile(pair.ArcIndex);
+			    continue;
+			case NPairAction::kCopy:
+			    if(pair.State == NPairState::kOnlyOnDisk)
+				    throw kUpdateActionSetCollision;
+			    if(pair.State == NPairState::kOnlyInArchive) {
+				    if(pair.HostIndex >= 0) {
+					    /*
+					       ignore alt stream if
+					        1) no such alt stream in Disk
+					        2) there is Host file in disk
+					     */
+					    if(updatePairs[pair.HostIndex].DirIndex >= 0)
+						    continue;
+				    }
+			    }
+			    up2.NewData = up2.NewProps = false;
+			    up2.UseArcProps = true;
+			    break;
+
+			case NPairAction::kCompress:
+			    if(pair.State == NPairState::kOnlyInArchive || pair.State == NPairState::kNotMasked)
+				    throw kUpdateActionSetCollision;
+			    break;
+			case NPairAction::kCompressAsAnti:
+			    up2.IsAnti = true;
+			    up2.UseArcProps = (pair.ArcIndex >= 0);
+			    break;
+		}
+		operationChain.Add(up2);
+	}
+	operationChain.ReserveDown();
+}
+//
+// UpdateCallback.cpp
+#ifndef _7ZIP_ST
+	static NSynchronization::CCriticalSection g_CriticalSection;
+	#define MT_LOCK NSynchronization::CCriticalSectionLock lock(g_CriticalSection);
+#else
+	#define MT_LOCK
+#endif
+#ifdef _USE_SECURITY_CODE
+	bool InitLocalPrivileges();
+#endif
+
+class CArchiveUpdateCallback : public IArchiveUpdateCallback2, public IArchiveUpdateCallbackFile, public IArchiveExtractCallbackMessage,
+	public IArchiveGetRawProps, public IArchiveGetRootProps, public ICryptoGetTextPassword2, public ICryptoGetTextPassword,
+	public ICompressProgressInfo, public IInFileStream_Callback, public CMyUnknownImp
+{
+	struct CKeyKeyValPair {
+		int    Compare(const CKeyKeyValPair & a) const;
+		uint64 Key1;
+		uint64 Key2;
+		uint   Value;
+	};
+  #if defined(_WIN32) && !defined(UNDER_CE)
+	bool _saclEnabled;
+  #endif
+	CRecordVector <CKeyKeyValPair> _map;
+	uint32 _hardIndex_From;
+	uint32 _hardIndex_To;
+public:
+	MY_QUERYINTERFACE_BEGIN2(IArchiveUpdateCallback2)
+	MY_QUERYINTERFACE_ENTRY(IArchiveUpdateCallbackFile)
+	MY_QUERYINTERFACE_ENTRY(IArchiveExtractCallbackMessage)
+	MY_QUERYINTERFACE_ENTRY(IArchiveGetRawProps)
+	MY_QUERYINTERFACE_ENTRY(IArchiveGetRootProps)
+	MY_QUERYINTERFACE_ENTRY(ICryptoGetTextPassword2)
+	MY_QUERYINTERFACE_ENTRY(ICryptoGetTextPassword)
+	MY_QUERYINTERFACE_ENTRY(ICompressProgressInfo)
+	MY_QUERYINTERFACE_END
+	MY_ADDREF_RELEASE
+	STDMETHOD(SetRatioInfo) (const uint64 *inSize, const uint64 *outSize);
+	INTERFACE_IArchiveUpdateCallback2(; )
+	INTERFACE_IArchiveUpdateCallbackFile(; )
+	INTERFACE_IArchiveExtractCallbackMessage(; )
+	INTERFACE_IArchiveGetRawProps(; )
+	INTERFACE_IArchiveGetRootProps(; )
+	STDMETHOD(CryptoGetTextPassword2) (int32 *passwordIsDefined, BSTR *password);
+	STDMETHOD(CryptoGetTextPassword) (BSTR *password);
+
+	bool AreAllFilesClosed() const { return _openFiles_Indexes.IsEmpty(); }
+	virtual HRESULT InFileStream_On_Error(UINT_PTR val, DWORD error);
+	virtual void InFileStream_On_Destroy(UINT_PTR val);
+	CArchiveUpdateCallback();
+	bool FASTCALL IsDir(const CUpdatePair2 &up) const;
+
+	CRecordVector <uint32> _openFiles_Indexes;
+	FStringVector _openFiles_Paths;
+	CRecordVector<uint64> VolumesSizes;
+	FString VolName;
+	FString VolExt;
+	IUpdateCallbackUI * Callback;
+	const  CDirItems * DirItems;
+	const  CDirItem * ParentDirItem;
+	const  CArc * Arc;
+	CMyComPtr <IInArchive> Archive;
+	const  CObjectVector<CArcItem> * ArcItems;
+	const  CRecordVector<CUpdatePair2> * UpdatePairs;
+	const  UStringVector * NewNames;
+	int    CommentIndex;
+	const  UString * Comment;
+	bool   ShareForWrite;
+	bool   StdInMode;
+	bool   KeepOriginalItemNames;
+	bool   StoreNtSecurity;
+	bool   StoreHardLinks;
+	bool   StoreSymLinks;
+	Byte * ProcessedItemsStatuses;
+};
+
+CArchiveUpdateCallback::CArchiveUpdateCallback() : _hardIndex_From((uint32)(int32)-1),
+	Callback(NULL), DirItems(NULL), ParentDirItem(NULL), Arc(NULL), ArcItems(NULL),
+	UpdatePairs(NULL), NewNames(NULL), CommentIndex(-1), Comment(NULL),
+	ShareForWrite(false), StdInMode(false), KeepOriginalItemNames(false), StoreNtSecurity(false),
+	StoreHardLinks(false), StoreSymLinks(false), ProcessedItemsStatuses(NULL)
+{
+  #ifdef _USE_SECURITY_CODE
+	_saclEnabled = InitLocalPrivileges();
+  #endif
+}
+
+bool FASTCALL CArchiveUpdateCallback::IsDir(const CUpdatePair2 &up) const
+{
+	if(up.DirIndex >= 0)
+		return DirItems->Items[up.DirIndex].IsDir();
+	else if(up.ArcIndex >= 0)
+		return (*ArcItems)[up.ArcIndex].IsDir;
+	else
+		return false;
+}
+
+STDMETHODIMP CArchiveUpdateCallback::SetTotal(uint64 size)
+{
+	COM_TRY_BEGIN
+	return Callback->SetTotal(size);
+	COM_TRY_END
+}
+
+STDMETHODIMP CArchiveUpdateCallback::SetCompleted(const uint64 * completeValue)
+{
+	COM_TRY_BEGIN
+	return Callback->SetCompleted(completeValue);
+	COM_TRY_END
+}
+
+STDMETHODIMP CArchiveUpdateCallback::SetRatioInfo(const uint64 * inSize, const uint64 * outSize)
+{
+	COM_TRY_BEGIN
+	return Callback->SetRatioInfo(inSize, outSize);
+	COM_TRY_END
+}
+/*
+   static const CStatProp kProps[] = {
+	{ NULL, kpidPath, VT_BSTR}, { NULL, kpidIsDir, VT_BOOL}, { NULL, kpidSize, VT_UI8}, { NULL, kpidCTime, VT_FILETIME},
+	{ NULL, kpidATime, VT_FILETIME}, { NULL, kpidMTime, VT_FILETIME}, { NULL, kpidAttrib, VT_UI4}, { NULL, kpidIsAnti, VT_BOOL}
+   };
+   STDMETHODIMP CArchiveUpdateCallback::EnumProperties(IEnumSTATPROPSTG **)
+   {
+	return CStatPropEnumerator::CreateEnumerator(kProps, ARRAY_SIZE(kProps), enumerator);
+   }
+ */
+STDMETHODIMP CArchiveUpdateCallback::GetUpdateItemInfo(uint32 index, int32 * newData, int32 * newProps, uint32 * indexInArchive)
+{
+	COM_TRY_BEGIN
+	RINOK(Callback->CheckBreak());
+	const CUpdatePair2 &up = (*UpdatePairs)[index];
+	if(newData) *newData = BoolToInt(up.NewData);
+	if(newProps) *newProps = BoolToInt(up.NewProps);
+	if(indexInArchive) {
+		*indexInArchive = (uint32)(int32)-1;
+		if(up.ExistInArchive())
+			*indexInArchive = (ArcItems == 0) ? up.ArcIndex : (*ArcItems)[up.ArcIndex].IndexInServer;
+	}
+	return S_OK;
+	COM_TRY_END
+}
+
+STDMETHODIMP CArchiveUpdateCallback::GetRootProp(PROPID propID, PROPVARIANT * value)
+{
+	NCOM::CPropVariant prop;
+	switch(propID) {
+		case kpidIsDir:  prop = true; break;
+		case kpidAttrib: if(ParentDirItem) prop = ParentDirItem->Attrib; break;
+		case kpidCTime:  if(ParentDirItem) prop = ParentDirItem->CTime; break;
+		case kpidATime:  if(ParentDirItem) prop = ParentDirItem->ATime; break;
+		case kpidMTime:  if(ParentDirItem) prop = ParentDirItem->MTime; break;
+	}
+	prop.Detach(value);
+	return S_OK;
+}
+
+STDMETHODIMP CArchiveUpdateCallback::GetParent(uint32 /* index */, uint32 * parent, uint32 * parentType)
+{
+	*parentType = NParentType::kDir;
+	*parent = (uint32)(int32)-1;
+	return S_OK;
+}
+
+STDMETHODIMP CArchiveUpdateCallback::GetNumRawProps(uint32 * numProps)
+{
+	*numProps = StoreNtSecurity ? 1 : 0;
+	return S_OK;
+}
+
+STDMETHODIMP CArchiveUpdateCallback::GetRawPropInfo(uint32 /* index */, BSTR * name, PROPID * propID)
+{
+	*name = NULL;
+	*propID = kpidNtSecure;
+	return S_OK;
+}
+
+STDMETHODIMP CArchiveUpdateCallback::GetRootRawProp(PROPID
+    #ifdef _USE_SECURITY_CODE
+    propID
+    #endif
+    , const void ** data, uint32 * dataSize, uint32 * propType)
+{
+	*data = 0;
+	*dataSize = 0;
+	*propType = 0;
+	if(!StoreNtSecurity)
+		return S_OK;
+  #ifdef _USE_SECURITY_CODE
+	if(propID == kpidNtSecure) {
+		if(StdInMode)
+			return S_OK;
+
+		if(ParentDirItem) {
+			if(ParentDirItem->SecureIndex < 0)
+				return S_OK;
+			const CByteBuffer &buf = DirItems->SecureBlocks.Bufs[ParentDirItem->SecureIndex];
+			*data = buf;
+			*dataSize = (uint32)buf.Size();
+			*propType = NPropDataType::kRaw;
+			return S_OK;
+		}
+		if(Arc && Arc->GetRootProps)
+			return Arc->GetRootProps->GetRootRawProp(propID, data, dataSize, propType);
+	}
+  #endif
+	return S_OK;
+}
+
+//    #ifdef _USE_SECURITY_CODE
+//    #endif
+
+STDMETHODIMP CArchiveUpdateCallback::GetRawProp(uint32 index, PROPID propID, const void ** data, uint32 * dataSize, uint32 * propType)
+{
+	*data = 0;
+	*dataSize = 0;
+	*propType = 0;
+	if(oneof2(propID, kpidNtSecure, kpidNtReparse)) {
+		if(StdInMode)
+			return S_OK;
+		const CUpdatePair2 &up = (*UpdatePairs)[index];
+		if(up.UseArcProps && up.ExistInArchive() && Arc->GetRawProps)
+			return Arc->GetRawProps->GetRawProp(ArcItems ? (*ArcItems)[up.ArcIndex].IndexInServer : up.ArcIndex, propID, data, dataSize, propType);
+		{
+			/*
+			   if(!up.NewData)
+			   return E_FAIL;
+			 */
+			if(up.IsAnti)
+				return S_OK;
+      #ifndef UNDER_CE
+			const CDirItem &di = DirItems->Items[up.DirIndex];
+      #endif
+      #ifdef _USE_SECURITY_CODE
+			if(propID == kpidNtSecure) {
+				if(!StoreNtSecurity)
+					return S_OK;
+				if(di.SecureIndex < 0)
+					return S_OK;
+				const CByteBuffer &buf = DirItems->SecureBlocks.Bufs[di.SecureIndex];
+				*data = buf;
+				*dataSize = (uint32)buf.Size();
+				*propType = NPropDataType::kRaw;
+			}
+			else
+      #endif
+			{
+				// propID == kpidNtReparse
+				if(!StoreSymLinks)
+					return S_OK;
+	#ifndef UNDER_CE
+				const CByteBuffer * buf = &di.ReparseData2;
+				if(buf->Size() == 0)
+					buf = &di.ReparseData;
+				if(buf->Size() != 0) {
+					*data = *buf;
+					*dataSize = (uint32)buf->Size();
+					*propType = NPropDataType::kRaw;
+				}
+	#endif
+			}
+
+			return S_OK;
+		}
+	}
+	return S_OK;
+}
+
+#ifndef UNDER_CE
+	static UString GetRelativePath(const UString &to, const UString &from)
+	{
+		UStringVector partsTo, partsFrom;
+		SplitPathToParts(to, partsTo);
+		SplitPathToParts(from, partsFrom);
+		uint i;
+		for(i = 0;; i++) {
+			if((i + 1) >= partsFrom.Size() || (i + 1) >= partsTo.Size())
+				break;
+			if(CompareFileNames(partsFrom[i], partsTo[i]) != 0)
+				break;
+		}
+		if(i == 0) {
+	#ifdef _WIN32
+			if(NName::IsDrivePath(to) || NName::IsDrivePath(from))
+				return to;
+	#endif
+		}
+		UString s;
+		uint   k;
+		for(k = i + 1; k < partsFrom.Size(); k++)
+			s += ".." STRING_PATH_SEPARATOR;
+		for(k = i; k < partsTo.Size(); k++) {
+			if(k != i)
+				s.Add_PathSepar();
+			s += partsTo[k];
+		}
+		return s;
+	}
+#endif
+
+int CArchiveUpdateCallback::CKeyKeyValPair::Compare(const CKeyKeyValPair & a) const
+{
+	if(Key1 < a.Key1) return -1;
+	if(Key1 > a.Key1) return 1;
+	return MyCompare(Key2, a.Key2);
+}
+
+STDMETHODIMP CArchiveUpdateCallback::GetProperty(uint32 index, PROPID propID, PROPVARIANT * value)
+{
+	COM_TRY_BEGIN
+	const CUpdatePair2 &up = (*UpdatePairs)[index];
+	NCOM::CPropVariant prop;
+
+	if(up.NewData) {
+		/*
+		   if(propID == kpidIsHardLink)
+		   {
+		   prop = _isHardLink;
+		   prop.Detach(value);
+		   return S_OK;
+		   }
+		 */
+		if(propID == kpidSymLink) {
+			if(index == _hardIndex_From) {
+				prop.Detach(value);
+				return S_OK;
+			}
+			if(up.DirIndex >= 0) {
+	#ifndef UNDER_CE
+				const CDirItem &di = DirItems->Items[up.DirIndex];
+				// if(di.IsDir())
+				{
+					CReparseAttr attr;
+					if(attr.Parse(di.ReparseData, di.ReparseData.Size())) {
+						UString simpleName = attr.GetPath();
+						if(attr.IsRelative())
+							prop = simpleName;
+						else {
+							const FString phyPath = DirItems->GetPhyPath(up.DirIndex);
+							FString fullPath;
+							if(NDir::MyGetFullPathName(phyPath, fullPath)) {
+								prop = GetRelativePath(simpleName, fs2us(fullPath));
+							}
+						}
+						prop.Detach(value);
+						return S_OK;
+					}
+				}
+	#endif
+			}
+		}
+		else if(propID == kpidHardLink) {
+			if(index == _hardIndex_From) {
+				const CKeyKeyValPair &pair = _map[_hardIndex_To];
+				const CUpdatePair2 &up2 = (*UpdatePairs)[pair.Value];
+				prop = DirItems->GetLogPath(up2.DirIndex);
+				prop.Detach(value);
+				return S_OK;
+			}
+			if(up.DirIndex >= 0) {
+				prop.Detach(value);
+				return S_OK;
+			}
+		}
+	}
+	if(up.IsAnti && propID != kpidIsDir && propID != kpidPath && propID != kpidIsAltStream) {
+		switch(propID) {
+			case kpidSize:  prop = (uint64)0; break;
+			case kpidIsAnti:  prop = true; break;
+		}
+	}
+	else if(propID == kpidPath && up.NewNameIndex >= 0)
+		prop = (*NewNames)[up.NewNameIndex];
+	else if(propID == kpidComment && CommentIndex >= 0 && (uint)CommentIndex == index && Comment)
+		prop = *Comment;
+	else if(propID == kpidShortName && up.NewNameIndex >= 0 && up.IsMainRenameItem) {
+		// we can generate new ShortName here;
+	}
+	else if((up.UseArcProps || (KeepOriginalItemNames && (propID == kpidPath || propID == kpidIsAltStream)))
+	    && up.ExistInArchive() && Archive)
+		return Archive->GetProperty(ArcItems ? (*ArcItems)[up.ArcIndex].IndexInServer : up.ArcIndex, propID, value);
+	else if(up.ExistOnDisk()) {
+		const CDirItem &di = DirItems->Items[up.DirIndex];
+		switch(propID) {
+			case kpidPath:  prop = DirItems->GetLogPath(up.DirIndex); break;
+			case kpidIsDir:  prop = di.IsDir(); break;
+			case kpidSize:  prop = di.IsDir() ? (uint64)0 : di.Size; break;
+			case kpidAttrib:  prop = di.Attrib; break;
+			case kpidCTime:  prop = di.CTime; break;
+			case kpidATime:  prop = di.ATime; break;
+			case kpidMTime:  prop = di.MTime; break;
+			case kpidIsAltStream:  prop = di.IsAltStream; break;
+      #if defined(_WIN32) && !defined(UNDER_CE)
+			    // case kpidShortName:  prop = di.ShortName; break;
+      #endif
+		}
+	}
+	prop.Detach(value);
+	return S_OK;
+	COM_TRY_END
+}
+
+#ifndef _7ZIP_ST
+	static NSynchronization::CCriticalSection CS;
+#endif
+
+STDMETHODIMP CArchiveUpdateCallback::GetStream2(uint32 index, ISequentialInStream ** inStream, uint32 mode)
+{
+	COM_TRY_BEGIN
+	* inStream = NULL;
+	const CUpdatePair2 &up = (*UpdatePairs)[index];
+	if(!up.NewData)
+		return E_FAIL;
+	RINOK(Callback->CheckBreak());
+	// RINOK(Callback->Finalize());
+	bool isDir = IsDir(up);
+	if(up.IsAnti) {
+		UString name;
+		if(up.ArcIndex >= 0)
+			name = (*ArcItems)[up.ArcIndex].Name;
+		else if(up.DirIndex >= 0)
+			name = DirItems->GetLogPath(up.DirIndex);
+		RINOK(Callback->GetStream(name, isDir, true, mode));
+		// 9.33: fixed. Handlers expect real stream object for files, even for anti-file. so we return empty stream 
+		if(!isDir) {
+			CBufInStream * inStreamSpec = new CBufInStream();
+			CMyComPtr<ISequentialInStream> inStreamLoc = inStreamSpec;
+			inStreamSpec->Init(NULL, 0);
+			*inStream = inStreamLoc.Detach();
+		}
+		return S_OK;
+	}
+	RINOK(Callback->GetStream(DirItems->GetLogPath(up.DirIndex), isDir, false, mode));
+	if(isDir)
+		return S_OK;
+	if(StdInMode) {
+		if(mode != NUpdateNotifyOp::kAdd && mode != NUpdateNotifyOp::kUpdate)
+			return S_OK;
+		CStdInFileStream * inStreamSpec = new CStdInFileStream;
+		CMyComPtr<ISequentialInStream> inStreamLoc(inStreamSpec);
+		*inStream = inStreamLoc.Detach();
+	}
+	else {
+		CInFileStream * inStreamSpec = new CInFileStream;
+		CMyComPtr <ISequentialInStream> inStreamLoc(inStreamSpec);
+		inStreamSpec->SupportHardLinks = StoreHardLinks;
+		inStreamSpec->Callback = this;
+		inStreamSpec->CallbackRef = index;
+		const FString path = DirItems->GetPhyPath(up.DirIndex);
+		_openFiles_Indexes.Add(index);
+		_openFiles_Paths.Add(path);
+    #if defined(_WIN32) && !defined(UNDER_CE)
+		if(DirItems->Items[up.DirIndex].AreReparseData()) {
+			if(!inStreamSpec->File.OpenReparse(path)) {
+				return Callback->OpenFileError(path, ::GetLastError());
+			}
+		}
+		else
+    #endif
+		if(!inStreamSpec->OpenShared(path, ShareForWrite)) {
+			return Callback->OpenFileError(path, ::GetLastError());
+		}
+		if(StoreHardLinks) {
+			CStreamFileProps props;
+			if(inStreamSpec->GetProps2(&props) == S_OK) {
+				if(props.NumLinks > 1) {
+					CKeyKeyValPair pair;
+					pair.Key1 = props.VolID;
+					pair.Key2 = props.FileID_Low;
+					pair.Value = index;
+					uint   numItems = _map.Size();
+					uint   pairIndex = _map.AddToUniqueSorted2(pair);
+					if(numItems == _map.Size()) {
+						// const CKeyKeyValPair &pair2 = _map.Pairs[pairIndex];
+						_hardIndex_From = index;
+						_hardIndex_To = pairIndex;
+						// we could return NULL as stream, but it's better to return real stream
+						// return S_OK;
+					}
+				}
+			}
+		}
+
+		if(ProcessedItemsStatuses) {
+      #ifndef _7ZIP_ST
+			NSynchronization::CCriticalSectionLock lock(CS);
+      #endif
+			ProcessedItemsStatuses[(uint)up.DirIndex] = 1;
+		}
+		*inStream = inStreamLoc.Detach();
+	}
+
+	return S_OK;
+	COM_TRY_END
+}
+
+STDMETHODIMP CArchiveUpdateCallback::SetOperationResult(int32 opRes)
+{
+	COM_TRY_BEGIN
+	return Callback->SetOperationResult(opRes);
+	COM_TRY_END
+}
+
+STDMETHODIMP CArchiveUpdateCallback::GetStream(uint32 index, ISequentialInStream ** inStream)
+{
+	COM_TRY_BEGIN
+	return GetStream2(index, inStream, (*UpdatePairs)[index].ArcIndex < 0 ? NUpdateNotifyOp::kAdd : NUpdateNotifyOp::kUpdate);
+	COM_TRY_END
+}
+
+STDMETHODIMP CArchiveUpdateCallback::ReportOperation(uint32 indexType, uint32 index, uint32 op)
+{
+	COM_TRY_BEGIN
+	bool isDir = false;
+	if(indexType == NArchive::NEventIndexType::kOutArcIndex) {
+		UString name;
+		if(index != (uint32)(int32)-1) {
+			const CUpdatePair2 &up = (*UpdatePairs)[index];
+			if(up.ExistOnDisk()) {
+				name = DirItems->GetLogPath(up.DirIndex);
+				isDir = DirItems->Items[up.DirIndex].IsDir();
+			}
+		}
+		return Callback->ReportUpdateOpeartion(op, name.IsEmpty() ? NULL : name.Ptr(), isDir);
+	}
+	wchar_t temp[16];
+	UString s2;
+	const wchar_t * s = NULL;
+	if(indexType == NArchive::NEventIndexType::kInArcIndex) {
+		if(index != (uint32)(int32)-1) {
+			if(ArcItems) {
+				const CArcItem &ai = (*ArcItems)[index];
+				s = ai.Name;
+				isDir = ai.IsDir;
+			}
+			else if(Arc) {
+				RINOK(Arc->GetItemPath(index, s2));
+				s = s2;
+				RINOK(Archive_IsItem_Dir(Arc->Archive, index, isDir));
+			}
+		}
+	}
+	else if(indexType == NArchive::NEventIndexType::kBlockIndex) {
+		temp[0] = '#';
+		ConvertUInt32ToString(index, temp + 1);
+		s = temp;
+	}
+	SETIFZ(s, L"");
+	return Callback->ReportUpdateOpeartion(op, s, isDir);
+	COM_TRY_END
+}
+
+STDMETHODIMP CArchiveUpdateCallback::ReportExtractResult(uint32 indexType, uint32 index, int32 opRes)
+{
+	COM_TRY_BEGIN
+	bool isEncrypted = false;
+	wchar_t temp[16];
+	UString s2;
+	const wchar_t * s = NULL;
+	if(indexType == NArchive::NEventIndexType::kOutArcIndex) {
+		/*
+		   UString name;
+		   if(index != (uint32)(int32)-1) {
+		   const CUpdatePair2 &up = (*UpdatePairs)[index];
+		   if(up.ExistOnDisk()) {
+		    s2 = DirItems->GetLogPath(up.DirIndex);
+		    s = s2;
+		   }
+		   }
+		 */
+		return E_FAIL;
+	}
+	if(indexType == NArchive::NEventIndexType::kInArcIndex) {
+		if(index != (uint32)(int32)-1) {
+			if(ArcItems)
+				s = (*ArcItems)[index].Name;
+			else if(Arc) {
+				RINOK(Arc->GetItemPath(index, s2));
+				s = s2;
+			}
+			if(Archive) {
+				RINOK(Archive_GetItemBoolProp(Archive, index, kpidEncrypted, isEncrypted));
+			}
+		}
+	}
+	else if(indexType == NArchive::NEventIndexType::kBlockIndex) {
+		temp[0] = '#';
+		ConvertUInt32ToString(index, temp + 1);
+		s = temp;
+	}
+	return Callback->ReportExtractResult(opRes, BoolToInt(isEncrypted), s);
+	COM_TRY_END
+}
+
+STDMETHODIMP CArchiveUpdateCallback::GetVolumeSize(uint32 index, uint64 * size)
+{
+	if(VolumesSizes.Size() == 0)
+		return S_FALSE;
+	if(index >= (uint32)VolumesSizes.Size())
+		index = VolumesSizes.Size() - 1;
+	*size = VolumesSizes[index];
+	return S_OK;
+}
+
+STDMETHODIMP CArchiveUpdateCallback::GetVolumeStream(uint32 index, ISequentialOutStream ** volumeStream)
+{
+	COM_TRY_BEGIN
+	char temp[16];
+	ConvertUInt32ToString(index + 1, temp);
+	FString res(temp);
+	while(res.Len() < 2)
+		res.InsertAtFront(FTEXT('0'));
+	FString fileName = VolName;
+	fileName += '.';
+	fileName += res;
+	fileName += VolExt;
+	COutFileStream * streamSpec = new COutFileStream;
+	CMyComPtr<ISequentialOutStream> streamLoc(streamSpec);
+	if(!streamSpec->Create(fileName, false))
+		return ::GetLastError();
+	*volumeStream = streamLoc.Detach();
+	return S_OK;
+	COM_TRY_END
+}
+
+STDMETHODIMP CArchiveUpdateCallback::CryptoGetTextPassword2(int32 * passwordIsDefined, BSTR * password)
+{
+	COM_TRY_BEGIN
+	return Callback->CryptoGetTextPassword2(passwordIsDefined, password);
+	COM_TRY_END
+}
+
+STDMETHODIMP CArchiveUpdateCallback::CryptoGetTextPassword(BSTR * password)
+{
+	COM_TRY_BEGIN
+	return Callback->CryptoGetTextPassword(password);
+	COM_TRY_END
+}
+
+HRESULT CArchiveUpdateCallback::InFileStream_On_Error(UINT_PTR val, DWORD error)
+{
+	if(error == ERROR_LOCK_VIOLATION) {
+		MT_LOCK
+		uint32 index = (uint32)val;
+		FOR_VECTOR(i, _openFiles_Indexes) {
+			if(_openFiles_Indexes[i] == index) {
+				RINOK(Callback->ReadingFileError(_openFiles_Paths[i], error));
+				break;
+			}
+		}
+	}
+	return HRESULT_FROM_WIN32(error);
+}
+
+void CArchiveUpdateCallback::InFileStream_On_Destroy(UINT_PTR val)
+{
+	MT_LOCK
+	uint32 index = (uint32)val;
+	FOR_VECTOR(i, _openFiles_Indexes) {
+		if(_openFiles_Indexes[i] == index) {
+			_openFiles_Indexes.Delete(i);
+			_openFiles_Paths.Delete(i);
+			return;
+		}
+	}
+	throw 20141125;
+}
+//
+static const char * const kUpdateIsNotSupoorted = "update operations are not supported for this archive";
+static const char * const kUpdateIsNotSupoorted_MultiVol = "Updating for multivolume archives is not implemented";
 static CFSTR const kTempFolderPrefix = FTEXT("7zE");
 
 CUpdateErrorInfo::CUpdateErrorInfo() : SystemError(0) 
@@ -79,7 +1048,7 @@ private:
 };
 //
 class COutMultiVolStream : public IOutStream, public CMyUnknownImp {
-	unsigned _streamIndex; // required stream
+	uint   _streamIndex; // required stream
 	uint64 _offsetPos; // offset from start of _streamIndex index
 	uint64 _absPos;
 	uint64 _length;
@@ -109,7 +1078,7 @@ public:
 	MY_UNKNOWN_IMP1(IOutStream)
 
 	STDMETHOD(Write) (const void * data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 	STDMETHOD(SetSize) (uint64 newSize);
 };
 
@@ -167,7 +1136,7 @@ STDMETHODIMP COutMultiVolStream::Write(const void * data, uint32 size, uint32 * 
 			continue;
 		}
 		CAltStreamInfo &altStream = Streams[_streamIndex];
-		unsigned index = _streamIndex;
+		uint   index = _streamIndex;
 		if(index >= Sizes.Size())
 			index = Sizes.Size() - 1;
 		uint64 volSize = Sizes[index];
@@ -207,7 +1176,7 @@ STDMETHODIMP COutMultiVolStream::Write(const void * data, uint32 size, uint32 * 
 	return S_OK;
 }
 
-STDMETHODIMP COutMultiVolStream::Seek(Int64 offset, uint32 seekOrigin, uint64 * newPosition)
+STDMETHODIMP COutMultiVolStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
 {
 	if(seekOrigin >= 3)
 		return STG_E_INVALIDFUNCTION;
@@ -224,7 +1193,7 @@ STDMETHODIMP COutMultiVolStream::Seek(Int64 offset, uint32 seekOrigin, uint64 * 
 
 STDMETHODIMP COutMultiVolStream::SetSize(uint64 newSize)
 {
-	unsigned i = 0;
+	uint   i = 0;
 	while(i < Streams.Size()) {
 		CAltStreamInfo &altStream = Streams[i++];
 		if((uint64)newSize < altStream.RealSize) {
@@ -314,12 +1283,11 @@ FString CArchivePath::GetTempPath() const
 
 static const char * const kDefaultArcType = "7z";
 static const char * const kDefaultArcExt = "7z";
-static const char * const kSFXExtension =
-  #ifdef _WIN32
-    "exe";
-  #else
-    "";
-  #endif
+#ifdef _WIN32
+    static const char * const kSFXExtension = "exe";
+#else
+    static const char * const kSFXExtension = "";
+#endif
 
 CUpdateOptions::CUpdateOptions() : UpdateArchiveItself(true), SfxMode(false), StdInMode(false),
 	StdOutMode(false), EMailMode(false), EMailRemoveAfter(false), OpenShareForWrite(false),
@@ -386,7 +1354,7 @@ bool CUpdateOptions::SetArcPath(const CCodecs * codecs, const UString &arcPath)
 }
 
 struct CUpdateProduceCallbackImp : public IUpdateProduceCallback {
-	const CObjectVector<CArcItem> * _arcItems;
+	const CObjectVector <CArcItem> * _arcItems;
 	IUpdateCallbackUI * _callback;
 	CDirItemsStat * P_Stat;
 
@@ -430,28 +1398,26 @@ bool CRenamePair::Prepare()
 		return !DoesNameContainWildcard(OldName);
 }
 
-extern bool g_CaseSensitive;
-
-static unsigned CompareTwoNames(const wchar_t * s1, const wchar_t * s2)
+static uint CompareTwoNames(const wchar_t * s1, const wchar_t * s2)
 {
 	for(uint i = 0;; i++) {
 		wchar_t c1 = s1[i];
 		wchar_t c2 = s2[i];
 		if(c1 == 0 || c2 == 0)
 			return i;
-		if(c1 == c2)
-			continue;
-		if(!g_CaseSensitive && (MyCharUpper(c1) == MyCharUpper(c2)))
-			continue;
-		if(IsPathSepar(c1) && IsPathSepar(c2))
-			continue;
-		return i;
+		else if(c1 != c2) {
+			if(!g_CaseSensitive && (MyCharUpper(c1) == MyCharUpper(c2)))
+				continue;
+			if(IsPathSepar(c1) && IsPathSepar(c2))
+				continue;
+			return i;
+		}
 	}
 }
 
 bool CRenamePair::GetNewPath(bool isFolder, const UString &src, UString &dest) const
 {
-	unsigned num = CompareTwoNames(OldName, src);
+	uint   num = CompareTwoNames(OldName, src);
 	if(OldName[num] == 0) {
 		if(src[num] != 0 && !IsPathSepar(src[num]) && num != 0 && !IsPathSepar(src[num - 1]))
 			return false;
@@ -569,7 +1535,7 @@ static HRESULT Compress(const CUpdateOptions &options, bool isUpdatingItself, CC
 		}
 	}
 	else {
-		CRecordVector<CUpdatePair> updatePairs;
+		CRecordVector <CUpdatePair> updatePairs;
 		GetUpdatePairInfoList(dirItems, arcItems, fileTimeType, updatePairs); // must be done only once!!!
 		CUpdateProduceCallbackImp upCallback(&arcItems, &stat2.DeleteData, callback);
 		UpdateProduce(updatePairs, actionSet, updatePairs2, isUpdatingItself ? &upCallback : NULL);
@@ -610,7 +1576,7 @@ static HRESULT Compress(const CUpdateOptions &options, bool isUpdatingItself, CC
 	}
 
 	CArchiveUpdateCallback * updateCallbackSpec = new CArchiveUpdateCallback;
-	CMyComPtr<IArchiveUpdateCallback> updateCallback(updateCallbackSpec);
+	CMyComPtr <IArchiveUpdateCallback> updateCallback(updateCallbackSpec);
 
 	updateCallbackSpec->ShareForWrite = options.OpenShareForWrite;
 	updateCallbackSpec->StdInMode = options.StdInMode;
@@ -620,37 +1586,28 @@ static HRESULT Compress(const CUpdateOptions &options, bool isUpdatingItself, CC
 		// we set Archive to allow to transfer GetProperty requests back to DLL.
 		updateCallbackSpec->Archive = arc->Archive;
 	}
-
 	updateCallbackSpec->DirItems = &dirItems;
 	updateCallbackSpec->ParentDirItem = parentDirItem;
-
 	updateCallbackSpec->StoreNtSecurity = options.NtSecurity.Val;
 	updateCallbackSpec->StoreHardLinks = options.HardLinks.Val;
 	updateCallbackSpec->StoreSymLinks = options.SymLinks.Val;
-
 	updateCallbackSpec->Arc = arc;
 	updateCallbackSpec->ArcItems = &arcItems;
 	updateCallbackSpec->UpdatePairs = &updatePairs2;
-
 	updateCallbackSpec->ProcessedItemsStatuses = processedItemsStatuses;
-
 	if(options.RenamePairs.Size() != 0)
 		updateCallbackSpec->NewNames = &newNames;
-
 	CMyComPtr<IOutStream> outSeekStream;
 	CMyComPtr<ISequentialOutStream> outStream;
-
 	if(!options.StdOutMode) {
 		FString dirPrefix;
 		if(!GetOnlyDirPrefix(us2fs(archivePath.GetFinalPath()), dirPrefix))
 			throw 1417161;
 		CreateComplexDir(dirPrefix);
 	}
-
 	COutFileStream * outStreamSpec = NULL;
 	CStdOutFileStream * stdOutFileStreamSpec = NULL;
 	COutMultiVolStream * volStreamSpec = NULL;
-
 	if(options.VolumesSizes.Size() == 0) {
 		if(options.StdOutMode) {
 			stdOutFileStreamSpec = new CStdOutFileStream;
@@ -662,7 +1619,6 @@ static HRESULT Compress(const CUpdateOptions &options, bool isUpdatingItself, CC
 			outStream = outSeekStream;
 			bool isOK = false;
 			FString realPath;
-
 			for(uint i = 0; i < (1 << 16); i++) {
 				if(archivePath.Temp) {
 					if(i > 0) {
@@ -738,7 +1694,7 @@ static HRESULT Compress(const CUpdateOptions &options, bool isUpdatingItself, CC
 	if(options.SfxMode || !arc || arc->ArcStreamOffset == 0)
 		tailStream = outStream;
 	else {
-		// Int64 globalOffset = arc->GetGlobalOffset();
+		// int64 globalOffset = arc->GetGlobalOffset();
 		RINOK(arc->InStream->Seek(0, STREAM_SEEK_SET, NULL));
 		RINOK(NCompress::CopyStream_ExactSize(arc->InStream, outStream, arc->ArcStreamOffset, NULL));
 		if(options.StdOutMode)
@@ -828,11 +1784,10 @@ static HRESULT EnumerateInArchiveItems(/*bool storeStreamsMode,*/ const NWildcar
 		RINOK(arc.GetItem(i, item));
 		ai.Name = item.Path;
 		ai.IsDir = item.IsDir;
-		ai.IsAltStream =
 	#ifdef SUPPORT_ALT_STREAMS
-		    item.IsAltStream;
+		    ai.IsAltStream = item.IsAltStream;
 	#else
-		    false;
+		    ai.IsAltStream = false;
 	#endif
 		/*
 		   if(!storeStreamsMode && ai.IsAltStream)
@@ -863,8 +1818,8 @@ static HRESULT EnumerateInArchiveItems(/*bool storeStreamsMode,*/ const NWildcar
 }
 
 struct CRefSortPair {
-	unsigned Len;
-	unsigned Index;
+	uint   Len;
+	uint   Index;
 };
 
 #define RINOZ(x) { int __tt = (x); if(__tt != 0) return __tt; }
@@ -873,17 +1828,6 @@ static int CompareRefSortPair(const CRefSortPair * a1, const CRefSortPair * a2, 
 {
 	RINOZ(-MyCompare(a1->Len, a2->Len));
 	return MyCompare(a1->Index, a2->Index);
-}
-
-static unsigned GetNumSlashes(const FChar * s)
-{
-	for(uint numSlashes = 0;; ) {
-		FChar c = *s++;
-		if(c == 0)
-			return numSlashes;
-		if(IS_PATH_SEPAR(c))
-			numSlashes++;
-	}
 }
 
 #ifdef _WIN32
@@ -1044,7 +1988,7 @@ HRESULT UpdateArchive(CCodecs * codecs, const CObjectVector<COpenType> &types, c
 	if(options.StdInMode) {
 		CDirItem di;
 		di.Name = options.StdInFileName;
-		di.Size = (uint64)(Int64)-1;
+		di.Size = (uint64)(int64)-1;
 		di.Attrib = 0;
 		NTime::GetCurUtcFileTime(di.MTime);
 		di.CTime = di.ATime = di.MTime;
@@ -1078,8 +2022,7 @@ HRESULT UpdateArchive(CCodecs * codecs, const CObjectVector<COpenType> &types, c
 				prefix += '.';
 				// UString prefix = censor.Pairs[0].Prefix;
 				/*
-				   if(prefix.Back() == WCHAR_PATH_SEPARATOR)
-				   {
+				   if(prefix.Back() == WCHAR_PATH_SEPARATOR) {
 				   prefix.DeleteBack();
 				   }
 				 */
@@ -1091,14 +2034,12 @@ HRESULT UpdateArchive(CCodecs * codecs, const CObjectVector<COpenType> &types, c
 						parentDirItem.MTime = fi.MTime;
 						parentDirItem.Attrib = fi.Attrib;
 						parentDirItem_Ptr = &parentDirItem;
-
 						int secureIndex = -1;
 	    #if defined(_WIN32) && !defined(UNDER_CE)
 						if(options.NtSecurity.Val)
 							dirItems.AddSecurityItem(prefix, secureIndex);
 	    #endif
 						parentDirItem.SecureIndex = secureIndex;
-
 						parentDirItem_Ptr = &parentDirItem;
 					}
 			}
@@ -1131,7 +2072,7 @@ HRESULT UpdateArchive(CCodecs * codecs, const CObjectVector<COpenType> &types, c
 			NormalizeDirPathPrefix(ap.TempPrefix);
 		}
 	}
-	unsigned ci;
+	uint   ci;
 	for(ci = 0; ci < options.Commands.Size(); ci++) {
 		CArchivePath &ap = options.Commands[ci].ArchivePath;
 		if(usesTempDir) {
@@ -1152,9 +2093,7 @@ HRESULT UpdateArchive(CCodecs * codecs, const CObjectVector<COpenType> &types, c
 	}
 	CObjectVector<CArcItem> arcItems;
 	if(thereIsInArchive) {
-		RINOK(EnumerateInArchiveItems(
-		            // options.StoreAltStreams,
-			    censor, arcLink.Arcs.Back(), arcItems));
+		RINOK(EnumerateInArchiveItems(/*options.StoreAltStreams,*/censor, arcLink.Arcs.Back(), arcItems));
 	}
 	/*
 	   FStringVector processedFilePaths;
@@ -1164,15 +2103,14 @@ HRESULT UpdateArchive(CCodecs * codecs, const CObjectVector<COpenType> &types, c
 	 */
 	CByteBuffer processedItems;
 	if(options.DeleteAfterCompressing) {
-		unsigned num = dirItems.Items.Size();
+		uint   num = dirItems.Items.Size();
 		processedItems.Alloc(num);
 		for(uint i = 0; i < num; i++)
 			processedItems[i] = 0;
 	}
 	/*
 	   #ifndef _NO_CRYPTO
-	   if(arcLink.PasswordWasAsked)
-	   {
+	   if(arcLink.PasswordWasAsked) {
 	   // We set password, if open have requested password
 	   RINOK(callback->SetPassword(arcLink.Password));
 	   }

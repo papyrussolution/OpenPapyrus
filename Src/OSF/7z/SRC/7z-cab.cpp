@@ -181,11 +181,11 @@ namespace NCompress {
 		unsigned CModelDecoder::Decode(CRangeDecoder * rc)
 		{
 			uint32 threshold = rc->GetThreshold(Freqs[0]);
-			uint i;
+			uint   i;
 			for(i = 1; Freqs[i] > threshold; i++) 
 				;
 			rc->Decode(Freqs[i], Freqs[(size_t)i - 1], Freqs[0]);
-			unsigned res = Vals[--i];
+			uint   res = Vals[--i];
 			do {
 				Freqs[i] += kUpdateStep;
 			} while(i--);
@@ -237,8 +237,8 @@ namespace NCompress {
 			uint i;
 			for(i = 0; i < kNumLitSelectors; i++)
 				m_Literals[i].Init(kNumLitSymbols);
-			unsigned numItems = (_numDictBits == 0 ? 1 : (_numDictBits << 1));
-			const uint kNumPosSymbolsMax[kNumMatchSelectors] = { 24, 36, 42 };
+			uint   numItems = (_numDictBits == 0 ? 1 : (_numDictBits << 1));
+			const  uint kNumPosSymbolsMax[kNumMatchSelectors] = { 24, 36, 42 };
 			for(i = 0; i < kNumMatchSelectors; i++)
 				m_PosSlot[i].Init(MyMin(numItems, kNumPosSymbolsMax[i]));
 			m_LenSlot.Init(kNumLenSymbols);
@@ -254,7 +254,7 @@ namespace NCompress {
 			while(outSize != 0) {
 				if(rc.Stream.WasExtraRead())
 					return S_FALSE;
-				unsigned selector = m_Selector.Decode(&rc);
+				uint   selector = m_Selector.Decode(&rc);
 				if(selector < kNumLitSelectors) {
 					Byte b = (Byte)((selector << (8 - kNumLitSelectorBits)) + m_Literals[selector].Decode(&rc));
 					_outWindow.PutByte(b);
@@ -264,7 +264,7 @@ namespace NCompress {
 					selector -= kNumLitSelectors;
 					uint len = selector + kMatchMinLen;
 					if(selector == 2) {
-						unsigned lenSlot = m_LenSlot.Decode(&rc);
+						uint   lenSlot = m_LenSlot.Decode(&rc);
 						if(lenSlot >= kNumSimpleLenSlots) {
 							lenSlot -= 2;
 							unsigned numDirectBits = (uint)(lenSlot >> 2);
@@ -277,10 +277,10 @@ namespace NCompress {
 					}
 					uint32 dist = m_PosSlot[selector].Decode(&rc);
 					if(dist >= kNumSimplePosSlots) {
-						unsigned numDirectBits = (uint)((dist >> 1) - 1);
+						uint   numDirectBits = (uint)((dist >> 1) - 1);
 						dist = ((2 | (dist & 1)) << numDirectBits) + rc.Stream.ReadBits(numDirectBits);
 					}
-					unsigned locLen = len;
+					uint   locLen = len;
 					if(len > outSize)
 						locLen = (uint)outSize;
 					if(!_outWindow.CopyBlock(dist, locLen))
@@ -291,7 +291,6 @@ namespace NCompress {
 						return S_FALSE;
 				}
 			}
-
 			return rc.Finish() ? S_OK : S_FALSE;
 		}
 
@@ -314,10 +313,10 @@ namespace NCompress {
 		{
 			if(numDictBits > 21)
 				return E_INVALIDARG;
-			_numDictBits = numDictBits;
-			if(!_outWindow.Create((uint32)1 << _numDictBits))
-				return E_OUTOFMEMORY;
-			return S_OK;
+			else {
+				_numDictBits = numDictBits;
+				return _outWindow.Create((uint32)1 << _numDictBits) ? S_OK : E_OUTOFMEMORY;
+			}
 		}
 	}
 }
@@ -1180,24 +1179,24 @@ namespace NArchive {
 				startIndex++;
 				uint64 curUnpack = item.GetEndOffset();
 				for(; i < numItems; i++) {
-					unsigned indexNext = allFilesMode ? i : indices[i];
-					const CMvDatabaseEx::CMvItem & mvItem2 = m_Database.Items[indexNext];
-					const CItem & item2 = m_Database.Volumes[mvItem2.VolumeIndex].Items[mvItem2.ItemIndex];
-					if(item2.IsDir())
-						continue;
-					int newFolderIndex = m_Database.GetFolderIndex(&mvItem2);
-					if(newFolderIndex != folderIndex)
-						break;
-					for(; startIndex < indexNext; startIndex++)
-						extractStatuses.Add(false);
-					extractStatuses.Add(true);
-					startIndex++;
-					curUnpack = item2.GetEndOffset();
+					uint   indexNext = allFilesMode ? i : indices[i];
+					const  CMvDatabaseEx::CMvItem & mvItem2 = m_Database.Items[indexNext];
+					const  CItem & item2 = m_Database.Volumes[mvItem2.VolumeIndex].Items[mvItem2.ItemIndex];
+					if(!item2.IsDir()) {
+						int newFolderIndex = m_Database.GetFolderIndex(&mvItem2);
+						if(newFolderIndex != folderIndex)
+							break;
+						for(; startIndex < indexNext; startIndex++)
+							extractStatuses.Add(false);
+						extractStatuses.Add(true);
+						startIndex++;
+						curUnpack = item2.GetEndOffset();
+					}
 				}
 				CFolderOutStream * cabFolderOutStream = new CFolderOutStream;
 				CMyComPtr<ISequentialOutStream> outStream(cabFolderOutStream);
-				unsigned folderIndex2 = item.GetFolderIndex(db.Folders.Size());
-				const CFolder &folder = db.Folders[folderIndex2];
+				uint   folderIndex2 = item.GetFolderIndex(db.Folders.Size());
+				const  CFolder &folder = db.Folders[folderIndex2];
 				cabFolderOutStream->Init(&m_Database, &extractStatuses, startIndex2, curUnpack, extractCallback, testMode);
 				cabBlockInStreamSpec->MsZip = false;
 				HRESULT res = S_OK;
@@ -1236,35 +1235,31 @@ namespace NArchive {
 				}
 				RINOK(res);
 				{
-					unsigned volIndex = mvItem.VolumeIndex;
-					int locFolderIndex = item.GetFolderIndex(db.Folders.Size());
-					bool keepHistory = false;
-					bool keepInputBuffer = false;
-					bool thereWasNotAlignedChunk = false;
-
+					uint   volIndex = mvItem.VolumeIndex;
+					int    locFolderIndex = item.GetFolderIndex(db.Folders.Size());
+					bool   keepHistory = false;
+					bool   keepInputBuffer = false;
+					bool   thereWasNotAlignedChunk = false;
 					for(uint32 bl = 0; cabFolderOutStream->NeedMoreWrite(); ) {
 						if(volIndex >= m_Database.Volumes.Size()) {
 							res = S_FALSE;
 							break;
 						}
-
 						const CDatabaseEx &db2 = m_Database.Volumes[volIndex];
 						const CFolder &folder2 = db2.Folders[locFolderIndex];
-
 						if(bl == 0) {
 							cabBlockInStreamSpec->ReservedSize = db2.ArcInfo.GetDataBlockReserveSize();
 							RINOK(db2.Stream->Seek(db2.StartPosition + folder2.DataStart, STREAM_SEEK_SET, NULL));
 						}
-
 						if(bl == folder2.NumDataBlocks) {
-							/*
-							   CFolder::NumDataBlocks (CFFOLDER::cCFData in CAB specification) is 16-bit.
-							   But there are some big CAB archives from MS that contain more
-							   than (0xFFFF) CFDATA blocks in folder.
-							   Old cab extracting software can show error (or ask next volume)
-							   but cab extracting library in new Windows ignores this error.
-							   15.00 : We also try to ignore such error, if archive is not multi-volume.
-							 */
+							// 
+							// CFolder::NumDataBlocks (CFFOLDER::cCFData in CAB specification) is 16-bit.
+							// But there are some big CAB archives from MS that contain more
+							// than (0xFFFF) CFDATA blocks in folder.
+							// Old cab extracting software can show error (or ask next volume)
+							// but cab extracting library in new Windows ignores this error.
+							// 15.00 : We also try to ignore such error, if archive is not multi-volume.
+							// 
 							if(m_Database.Volumes.Size() > 1) {
 								volIndex++;
 								locFolderIndex = 0;
@@ -1281,76 +1276,70 @@ namespace NArchive {
 							break;
 						RINOK(res);
 						keepInputBuffer = (unpackSize == 0);
-						if(keepInputBuffer)
-							continue;
-
-						uint64 totalUnPacked2 = totalUnPacked + cabFolderOutStream->GetPosInFolder();
-						totalPacked += packSize;
-
-						lps->OutSize = totalUnPacked2;
-						lps->InSize = totalPacked;
-						RINOK(lps->SetCur());
-
-						const uint32 kBlockSizeMax = (1 << 15);
-
-						/* We don't try to reduce last block.
-						   Note that LZX converts data with x86 filter.
-						   and filter needs larger input data than reduced size.
-						   It's simpler to decompress full chunk here.
-						   also we need full block for quantum for more integrity checks */
-
-						if(unpackSize > kBlockSizeMax) {
-							res = S_FALSE;
-							break;
-						}
-						if(unpackSize != kBlockSizeMax) {
-							if(thereWasNotAlignedChunk) {
+						if(!keepInputBuffer) {
+							uint64 totalUnPacked2 = totalUnPacked + cabFolderOutStream->GetPosInFolder();
+							totalPacked += packSize;
+							lps->OutSize = totalUnPacked2;
+							lps->InSize = totalPacked;
+							RINOK(lps->SetCur());
+							const uint32 kBlockSizeMax = (1 << 15);
+							// We don't try to reduce last block.
+							// Note that LZX converts data with x86 filter.
+							// and filter needs larger input data than reduced size.
+							// It's simpler to decompress full chunk here.
+							// also we need full block for quantum for more integrity checks 
+							if(unpackSize > kBlockSizeMax) {
 								res = S_FALSE;
 								break;
 							}
-							thereWasNotAlignedChunk = true;
-						}
-						uint64 unpackSize64 = unpackSize;
-						uint32 packSizeChunk = cabBlockInStreamSpec->GetPackSizeAvail();
-						switch(folder2.GetMethod()) {
-							case NHeader::NMethod::kNone:
-								res = copyCoder->Code(cabBlockInStream, outStream, NULL, &unpackSize64, NULL);
-								break;
-							case NHeader::NMethod::kMSZip:
-								deflateDecoderSpec->Set_KeepHistory(keepHistory);
-								/* v9.31: now we follow MSZIP specification that requires to finish deflate
-								   stream at the end of each block.
-								   But PyCabArc can create CAB archives that doesn't have finish marker at
-									  the end of block.
-								   Cabarc probably ignores such errors in cab archives.
-								   Maybe we also should ignore that error?
-								   Or we should extract full file and show the warning? */
-								deflateDecoderSpec->Set_NeedFinishInput(true);
-								res = deflateDecoder->Code(cabBlockInStream, outStream, NULL, &unpackSize64, NULL);
-								if(res == S_OK) {
-									if(!deflateDecoderSpec->IsFinished())
-										res = S_FALSE;
-									if(!deflateDecoderSpec->IsFinalBlock())
-										res = S_FALSE;
+							if(unpackSize != kBlockSizeMax) {
+								if(thereWasNotAlignedChunk) {
+									res = S_FALSE;
+									break;
 								}
+								thereWasNotAlignedChunk = true;
+							}
+							uint64 unpackSize64 = unpackSize;
+							uint32 packSizeChunk = cabBlockInStreamSpec->GetPackSizeAvail();
+							switch(folder2.GetMethod()) {
+								case NHeader::NMethod::kNone:
+									res = copyCoder->Code(cabBlockInStream, outStream, NULL, &unpackSize64, NULL);
+									break;
+								case NHeader::NMethod::kMSZip:
+									deflateDecoderSpec->Set_KeepHistory(keepHistory);
+									// v9.31: now we follow MSZIP specification that requires to finish deflate
+									// stream at the end of each block.
+									// But PyCabArc can create CAB archives that doesn't have finish marker at the end of block.
+									// Cabarc probably ignores such errors in cab archives.
+									// Maybe we also should ignore that error?
+									// Or we should extract full file and show the warning? 
+									deflateDecoderSpec->Set_NeedFinishInput(true);
+									res = deflateDecoder->Code(cabBlockInStream, outStream, NULL, &unpackSize64, NULL);
+									if(res == S_OK) {
+										if(!deflateDecoderSpec->IsFinished())
+											res = S_FALSE;
+										if(!deflateDecoderSpec->IsFinalBlock())
+											res = S_FALSE;
+									}
+									break;
+								case NHeader::NMethod::kLZX:
+									lzxDecoderSpec->SetKeepHistory(keepHistory);
+									lzxDecoderSpec->KeepHistoryForNext = true;
+									res = lzxDecoderSpec->Code(cabBlockInStreamSpec->GetData(), packSizeChunk, unpackSize);
+									if(res == S_OK)
+										res = WriteStream(outStream, lzxDecoderSpec->GetUnpackData(), lzxDecoderSpec->GetUnpackSize());
+									break;
+								case NHeader::NMethod::kQuantum:
+									res = quantumDecoderSpec->Code(cabBlockInStreamSpec->GetData(), packSizeChunk, outStream, unpackSize, keepHistory);
+									break;
+							}
+							if(res != S_OK) {
+								if(res != S_FALSE)
+									RINOK(res);
 								break;
-							case NHeader::NMethod::kLZX:
-								lzxDecoderSpec->SetKeepHistory(keepHistory);
-								lzxDecoderSpec->KeepHistoryForNext = true;
-								res = lzxDecoderSpec->Code(cabBlockInStreamSpec->GetData(), packSizeChunk, unpackSize);
-								if(res == S_OK)
-									res = WriteStream(outStream, lzxDecoderSpec->GetUnpackData(), lzxDecoderSpec->GetUnpackSize());
-								break;
-							case NHeader::NMethod::kQuantum:
-								res = quantumDecoderSpec->Code(cabBlockInStreamSpec->GetData(), packSizeChunk, outStream, unpackSize, keepHistory);
-								break;
+							}
+							keepHistory = true;
 						}
-						if(res != S_OK) {
-							if(res != S_FALSE)
-								RINOK(res);
-							break;
-						}
-						keepHistory = true;
 					}
 					if(res == S_OK) {
 						RINOK(cabFolderOutStream->WriteEmptyFiles());
@@ -1752,10 +1741,9 @@ namespace NArchive {
 			}
 			if(Items.Size() > 1) {
 				Items.Sort(CompareMvItems, (void*)this);
-				unsigned j = 1;
-				unsigned i = 1;
-				for(; i < Items.Size(); i++)
-					if(!AreItemsEqual(i, i - 1))
+				uint   j = 1;
+				for(uint i = 1; i < Items.Size(); i++)
+					if(!AreItemsEqual(i, i-1))
 						Items[j++] = Items[i];
 				Items.DeleteFrom(j);
 			}

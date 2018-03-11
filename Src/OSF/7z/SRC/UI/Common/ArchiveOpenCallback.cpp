@@ -97,21 +97,15 @@ STDMETHODIMP COpenCallbackImp::GetStream(const wchar_t * name, IInStream ** inSt
 	if(Callback) {
 		RINOK(Callback->Open_CheckBreak());
 	}
-
 	UString name2 = name;
-
   #ifndef _SFX
-
   #ifdef _WIN32
 	name2.Replace(L'/', WCHAR_PATH_SEPARATOR);
   #endif
-
 	// if(!allowAbsVolPaths)
 	if(!IsSafePath(name2))
 		return S_FALSE;
-
   #endif
-
 	FString fullPath;
 	if(!NFile::NName::GetFullPath(_folderPrefix, us2fs(name2), fullPath))
 		return S_FALSE;
@@ -123,11 +117,8 @@ STDMETHODIMP COpenCallbackImp::GetStream(const wchar_t * name, IInStream ** inSt
 	CMyComPtr<IInStream> inStreamTemp = inFile;
 	if(!inFile->Open(fullPath)) {
 		DWORD lastError = ::GetLastError();
-		if(lastError == 0)
-			return E_FAIL;
-		return HRESULT_FROM_WIN32(lastError);
+		return (lastError == 0) ? E_FAIL : HRESULT_FROM_WIN32(lastError);
 	}
-
 	FileSizes.Add(_fileInfo.Size);
 	FileNames.Add(name2);
 	inFile->FileNameIndex = FileNames_WasUsed.Add(true);

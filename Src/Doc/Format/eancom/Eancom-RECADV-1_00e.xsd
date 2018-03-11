@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v5 rel. 4 U (http://www.xmlspy.com) by Vladimir (UNISCAN) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="RECADV">
+		<xs:annotation>
+			<xs:documentation>Despatch advice message</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="UNH"/>
+				<xs:element ref="BGM"/>
+				<xs:element ref="DTM" maxOccurs="10"/>
+				<xs:element ref="SG1" minOccurs="0" maxOccurs="10"/>
+				<xs:element ref="SG4" maxOccurs="99"/>
+				<xs:element ref="SG16" minOccurs="0" maxOccurs="9999"/>
+				<xs:element ref="UNT"/>
+			</xs:sequence>
+			<xs:attribute name="version" type="xs:string" use="required" fixed="1.00"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UNH">
+		<xs:annotation>
+			<xs:documentation> Message header</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="E0062">
+					<xs:annotation>
+						<xs:documentation>Message reference number</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="14"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="S009">
+					<xs:annotation>
+						<xs:documentation>MESSAGE IDENTIFIER</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E0065" type="xs:string" fixed="RECADV">
+								<xs:annotation>
+									<xs:documentation>Message type</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="E0052" type="xs:string" fixed="D">
+								<xs:annotation>
+									<xs:documentation>Message version number</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="E0054" type="xs:string" fixed="01B">
+								<xs:annotation>
+									<xs:documentation>Message release number</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="E0051" type="xs:string" fixed="UN">
+								<xs:annotation>
+									<xs:documentation>Controlling agency, coded</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="E0057" type="xs:string" fixed="EAN005">
+								<xs:annotation>
+									<xs:documentation>Association assigned code</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="BGM">
+		<xs:annotation>
+			<xs:documentation>Beginning of message</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="C002">
+					<xs:annotation>
+						<xs:documentation>DOCUMENT/MESSAGE NAME</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E1001" default="632">
+								<xs:annotation>
+									<xs:documentation>Document name code 
+632 = Goods receipt</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="632"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="C106">
+					<xs:annotation>
+						<xs:documentation>DOCUMENT/MESSAGE IDENTIFICATION</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E1004">
+								<xs:annotation>
+									<xs:documentation>Despatch Advice number assigned by the document sender.</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="35"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="E1225" default="9">
+					<xs:annotation>
+						<xs:documentation>Message function code         
+9   =   Original </xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="3"/>
+							<xs:enumeration value="9"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DTM">
+		<xs:annotation>
+			<xs:documentation>Date/time/period</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="C507">
+					<xs:annotation>
+						<xs:documentation>DATE/TIME/PERIOD</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E2005">
+								<xs:annotation>
+									<xs:documentation>Date or time or period function code qualifier 
+35   = Delivery date/time actual
+50 = Goods receipt date/time
+137 = Document/message date/time 
+171 = Reference date/time </xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="35"/>
+										<xs:enumeration value="50"/>
+										<xs:enumeration value="137"/>
+										<xs:enumeration value="171"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E2380">
+								<xs:annotation>
+									<xs:documentation>Date or time or period value</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="35"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E2379" default="102">
+								<xs:annotation>
+									<xs:documentation>Date or time or period format code                   
+102   = CCYYMMDD 
+203   = CCYYMMDDHHMM</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="102"/>
+										<xs:enumeration value="203"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="SG1">
+		<xs:annotation>
+			<xs:documentation> RFF-DTM</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="RFF"/>
+				<xs:element ref="DTM"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RFF">
+		<xs:annotation>
+			<xs:documentation>Reference</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="C506">
+					<xs:annotation>
+						<xs:documentation>REFERENCE     This segment is used to specify dates relating to the references given in the preceding RFF segment.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E1153" default="AAK">
+								<xs:annotation>
+									<xs:documentation>Reference code qualifier
+AAK = Despatch advice number 
+ON   = Order number (buyer)</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="AAK"/>
+										<xs:enumeration value="ON"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E1154">
+								<xs:annotation>
+									<xs:documentation>Reference identifier</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="70"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="SG4">
+		<xs:annotation>
+			<xs:documentation>NAD</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="NAD"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="NAD">
+		<xs:annotation>
+			<xs:documentation>Name and address</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="E3035">
+					<xs:annotation>
+						<xs:documentation>Party function code qualifier
+BY   = Buyer 
+SU   = Supplier</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="3"/>
+							<xs:enumeration value="BY"/>
+							<xs:enumeration value="SU"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="C082">
+					<xs:annotation>
+						<xs:documentation>PARTY IDENTIFICATION DETAILS</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E3039">
+								<xs:annotation>
+									<xs:documentation>Party identifier 
+GLN -Format n13</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="35"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E3055" default="9">
+								<xs:annotation>
+									<xs:documentation>Code list responsible agency code  
+9   = EAN (International Article Numbering association) </xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:decimal">
+										<xs:totalDigits value="13"/>
+										<xs:enumeration value="9"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="SG16">
+		<xs:annotation>
+			<xs:documentation>CPS-SG22</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="CPS"/>
+				<xs:element ref="SG22" minOccurs="0" maxOccurs="9999"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CPS">
+		<xs:annotation>
+			<xs:documentation>Consignment packing sequence</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="E7164" default="1">
+					<xs:annotation>
+						<xs:documentation>Hierarchical structure level identifier 
+Sequential numbering recommended. When not identifying different shipment hierarchical levels within the Receiving Advice, it is recommended to use a default value of 1.</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="35"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="E7166" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Hierarchical structure parent identifier</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="35"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="SG22">
+		<xs:annotation>
+			<xs:documentation>LIN-QTY-QVR</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="LIN"/>
+				<xs:element ref="QTY" minOccurs="0" maxOccurs="10"/>
+				<xs:element ref="QVR" minOccurs="0" maxOccurs="10"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LIN">
+		<xs:annotation>
+			<xs:documentation>Line item</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="E1082">
+					<xs:annotation>
+						<xs:documentation>Line item identifier</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="6"/>
+							<xs:pattern value="([0-9])+"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="C212" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>ITEM NUMBER IDENTIFICATION
+This composite will only be used for the identification of EAN/UPC codes.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E7140">
+								<xs:annotation>
+									<xs:documentation>Item identifier
+Format n..14 
+  GTIN - this is the number of the article being ordered. </xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="14"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E7143" default="SRV">
+								<xs:annotation>
+									<xs:documentation>Item type identification code
+SRV   = EAN.UCC Global Trade Item Number </xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="SRV"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QTY">
+		<xs:annotation>
+			<xs:documentation> Quantity </xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="C186">
+					<xs:annotation>
+						<xs:documentation>QUANTITY DETAILS</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E6063">
+								<xs:annotation>
+									<xs:documentation>Quantity type code qualifier
+21 = Ordered quantity
+46 = Delivered 
+194 = Received and accepted quantity</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="21"/>
+										<xs:enumeration value="46"/>
+										<xs:enumeration value="194"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E6060">
+								<xs:annotation>
+									<xs:documentation>Quantity</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="35"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QVR">
+		<xs:annotation>
+			<xs:documentation>Quantity variances</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="C279">
+					<xs:annotation>
+						<xs:documentation>QUANTITY DIFFERENCE INFORMATION</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="E6064">
+								<xs:annotation>
+									<xs:documentation>Quantity variance value</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="15"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="E6063">
+								<xs:annotation>
+									<xs:documentation>Quantity type code qualifier
+83 = Backorder quantity
+195 = Received, not accepted, to be returned
+196 = Received, not accepted, to be destroyed</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:minLength value="1"/>
+										<xs:maxLength value="3"/>
+										<xs:enumeration value="83"/>
+										<xs:enumeration value="195"/>
+										<xs:enumeration value="196"/>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="E4221" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Discrepancy nature identification code
+AC = Over-shipped
+AF =  Goods delivered damaged
+BP = Shipment partial - back order to follow</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="3"/>
+							<xs:enumeration value="AC"/>
+							<xs:enumeration value="AF"/>
+							<xs:enumeration value="BP"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UNT">
+		<xs:annotation>
+			<xs:documentation>Message trailer</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="E0074">
+					<xs:annotation>
+						<xs:documentation>Number of elements (segments) UNH, BGM, DTM, RFF, NAD, CPS, LIN, QTY, QVR,  UNT in a message</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="6"/>
+							<xs:pattern value="([0-9])+"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="E0062">
+					<xs:annotation>
+						<xs:documentation>Message reference number
+The message reference number detailed here should equal the one specified in the UNH segment.</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="14"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

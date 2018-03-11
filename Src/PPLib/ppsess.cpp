@@ -3066,6 +3066,36 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 								DBS.ReleaseThread();
 								SlThread::Shutdown();
 							}
+							AsteriskAmiClient * CreatePhnSvcClient(AsteriskAmiClient * pOldCli)
+							{
+								ZDELETE(pOldCli);
+								AsteriskAmiClient * p_phnsvc_cli = 0; 
+								if(StartUp_PhnSvcPack.Rec.ID) {
+									SString temp_buf;
+									SString addr_buf, user_buf, secret_buf;
+									StartUp_PhnSvcPack.GetExField(PHNSVCEXSTR_ADDR, addr_buf);
+									StartUp_PhnSvcPack.GetExField(PHNSVCEXSTR_PORT, temp_buf);
+									int    port = temp_buf.ToLong();
+									StartUp_PhnSvcPack.GetExField(PHNSVCEXSTR_USER, user_buf);
+									StartUp_PhnSvcPack.GetPassword(secret_buf);
+									p_phnsvc_cli = new AsteriskAmiClient(AsteriskAmiClient::fDoLog);
+									if(p_phnsvc_cli && p_phnsvc_cli->Connect(addr_buf, port)) {
+										if(p_phnsvc_cli->Login(user_buf, secret_buf)) {
+											PhnSvcLocalChannelSymb = StartUp_PhnSvcPack.LocalChannelSymb;
+										}
+										else {
+											ZDELETE(p_phnsvc_cli);
+											// @error
+										}
+									}
+									else {
+										ZDELETE(p_phnsvc_cli);
+										// @error
+									}
+									secret_buf.Obfuscate();
+								}
+								return p_phnsvc_cli;
+							}
 							virtual void Run()
 							{
 								const long purge_cycle = 3600;
@@ -3084,29 +3114,7 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 								AsteriskAmiClient * p_phnsvc_cli = 0; // @v9.8.11
 								THROW(DS.OpenDictionary2(&LB, PPSession::odfDontInitSync)); // @v9.4.9 PPSession::odfDontInitSync
 								THROW_MEM(P_Sj = new SysJournal);
-								if(StartUp_PhnSvcPack.Rec.ID) {
-									SString addr_buf, user_buf, secret_buf;
-									StartUp_PhnSvcPack.GetExField(PHNSVCEXSTR_ADDR, addr_buf);
-									StartUp_PhnSvcPack.GetExField(PHNSVCEXSTR_PORT, temp_buf);
-									int    port = temp_buf.ToLong();
-									StartUp_PhnSvcPack.GetExField(PHNSVCEXSTR_USER, user_buf);
-									StartUp_PhnSvcPack.GetPassword(secret_buf);
-									p_phnsvc_cli = new AsteriskAmiClient;
-									if(p_phnsvc_cli && p_phnsvc_cli->Connect(addr_buf, port)) {
-										if(p_phnsvc_cli->Login(user_buf, secret_buf)) {
-											PhnSvcLocalChannelSymb = StartUp_PhnSvcPack.LocalChannelSymb;
-										}
-										else {
-											ZDELETE(p_phnsvc_cli);
-											// @error
-										}
-									}
-									else {
-										ZDELETE(p_phnsvc_cli);
-										// @error
-									}
-									secret_buf.Obfuscate();
-								}
+								p_phnsvc_cli = CreatePhnSvcClient(0);
 								Since = getcurdatetime_();
 								for(int stop = 0; !stop;) {
 									//
@@ -3173,11 +3181,14 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 													PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
 													if(p_queue) {
 														temp_list.Clear();
-														const int gcs_ret = p_phnsvc_cli->GetChannelStatus(0, chnl_status_list);
+														int gcs_ret = p_phnsvc_cli->GetChannelStatus(0, chnl_status_list);
 														if(!gcs_ret) {
 															PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
+															p_phnsvc_cli = CreatePhnSvcClient(p_phnsvc_cli);
+															if(p_phnsvc_cli)
+																gcs_ret = p_phnsvc_cli->GetChannelStatus(0, chnl_status_list);
 														}
-														else if(chnl_status_list.GetCount()) {
+														if(gcs_ret && chnl_status_list.GetCount()) {
 															PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
 															for(uint si = 0; si < chnl_status_list.GetCount(); si++) {
 																chnl_status_list.Get(si, chnl_status);
@@ -3929,14 +3940,14 @@ int SLAPI PPSession::GetPath(PPID pathID, SString & rBuf)
 			break;
 		case PPPATH_SYSROOT:
 			{
-				SString temp_buf;
-				GetPath(PPPATH_BIN, temp_buf); // @recursion
-				rBuf = temp_buf.RmvLastSlash();
+				SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.10
+				GetPath(PPPATH_BIN, r_temp_buf); // @recursion
+				rBuf = r_temp_buf.RmvLastSlash();
 				int    last = rBuf.Last();
 				while(last && last != '\\' && last != '/')
 					last = rBuf.TrimRight().Last();
 				if(!last)
-					rBuf = temp_buf;
+					rBuf = r_temp_buf;
 			}
 			break;
 		case PPPATH_DOC:

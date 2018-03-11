@@ -3,7 +3,6 @@
 #include <7z-internal.h>
 #pragma hdrstop
 #include <7z-ifcs.h>
-//#include "UserInputUtils.h"
 
 static const char kYes = 'y';
 static const char kNo = 'n';
@@ -28,20 +27,23 @@ NUserAnswerMode::EEnum ScanUserYesNoAllQuit(CStdOutStream * outStream)
 		AString scannedString;
 		if(!g_StdIn.ScanAStringUntilNewLine(scannedString))
 			return NUserAnswerMode::kError;
-		if(g_StdIn.Error())
+		else if(g_StdIn.Error())
 			return NUserAnswerMode::kError;
-		scannedString.Trim();
-		if(scannedString.IsEmpty() && g_StdIn.Eof())
-			return NUserAnswerMode::kEof;
-		if(scannedString.Len() == 1)
-			switch(::MyCharLower_Ascii(scannedString[0])) {
-				case kYes:    return NUserAnswerMode::kYes;
-				case kNo:     return NUserAnswerMode::kNo;
-				case kYesAll: return NUserAnswerMode::kYesAll;
-				case kNoAll:  return NUserAnswerMode::kNoAll;
-				case kAutoRenameAll: return NUserAnswerMode::kAutoRenameAll;
-				case kQuit:   return NUserAnswerMode::kQuit;
+		else {
+			scannedString.Trim();
+			if(scannedString.IsEmpty() && g_StdIn.Eof())
+				return NUserAnswerMode::kEof;
+			else if(scannedString.Len() == 1) {
+				switch(::MyCharLower_Ascii(scannedString[0])) {
+					case kYes:    return NUserAnswerMode::kYes;
+					case kNo:     return NUserAnswerMode::kNo;
+					case kYesAll: return NUserAnswerMode::kYesAll;
+					case kNoAll:  return NUserAnswerMode::kNoAll;
+					case kAutoRenameAll: return NUserAnswerMode::kAutoRenameAll;
+					case kQuit:   return NUserAnswerMode::kQuit;
+				}
 			}
+		}
 	}
 }
 
@@ -63,9 +65,9 @@ static bool GetPassword(CStdOutStream * outStream, UString &psw)
 	}
   #ifdef MY_DISABLE_ECHO
 	HANDLE console = GetStdHandle(STD_INPUT_HANDLE);
-	bool wasChanged = false;
-	DWORD mode = 0;
-	if(console != INVALID_HANDLE_VALUE && console != 0)
+	bool   wasChanged = false;
+	DWORD  mode = 0;
+	if(!oneof2(console, INVALID_HANDLE_VALUE, 0))
 		if(GetConsoleMode(console, &mode))
 			wasChanged = (SetConsoleMode(console, mode & ~ENABLE_ECHO_INPUT) != 0);
 	bool res = g_StdIn.ScanUStringUntilNewLine(psw);

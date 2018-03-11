@@ -49,6 +49,12 @@ private:
 PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt) : TDialog(DLG_PHNCPANE), P_PSER(pPSER)
 {
 	RVALUEPTR(S, pSt);
+	SString temp_buf;
+	setCtrlString(CTL_PHNCPANE_PHN, S.CallerID);
+	temp_buf = S.Channel;
+	if(S.ConnectedLine.NotEmpty())
+		temp_buf.CatDiv(';', 2).Cat(S.ConnectedLine);
+	setStaticText(CTL_PHNCPANE_ST_INFO, temp_buf);
 }
 
 int SLAPI ShowPhoneCallPane(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt)
@@ -155,6 +161,220 @@ int PhoneServiceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * p
 			}
 			ok = 1;
 		}
+	}
+	return ok;
+}
+//
+// @ModuleDef(PPViewJobPool)
+//
+//Event: Status;Privilege: Call;Channel: SIP/198-0000027c;ChannelState: 6;ChannelStateDesc: Up;CallerIDNum: 198;CallerIDName: Sobolev (soft sip);
+	// ConnectedLineNum: 110;ConnectedLineName: Соболев Антон;Accountcode: ;Context: from-internal;Exten: ;Priority: 1;Uniqueid: 1520526041.660;Type: SIP;DNID: ;
+	// EffectiveConnectedLineNum: 110;EffectiveConnectedLineName: Соболев Антон;TimeToHangup: 0;BridgeID: 89e33c3e-f276-45a3-b66e-b0a5fda6fa4e;
+	// Linkedid: 1520526041.659;Application: AppDial;Data: (Outgoing Line);Nativeformats: (ulaw);Readformat: ulaw;Readtrans: ;Writeformat: ulaw;
+	// Writetrans: ;Callgroup: 0;Pickupgroup: 0;Seconds: 12;ActionID: 2899;;
+//Event: Status;Privilege: Call;Channel: SIP/110-0000027b;ChannelState: 6;ChannelStateDesc: Up;CallerIDNum: 110;CallerIDName: Соболев Антон;ConnectedLineNum: 198;ConnectedLineName: Sobolev (soft sip);Accountcode: ;Context: macro-dial-one;Exten: s;Priority: 52;Uniqueid: 1520526041.659;Type: SIP;DNID: 198;EffectiveConnectedLineNum: 198;EffectiveConnectedLineName: Sobolev (soft sip);TimeToHangup: 0;BridgeID: 89e33c3e-f276-45a3-b66e-b0a5fda6fa4e;Linkedid: 1520526041.659;Application: Dial;Data: SIP/198,,TtrIb(func-apply-sipheaders^s^1);Nativeformats: (ulaw);Readformat: ulaw;Readtrans: ;Writeformat: ulaw;Writetrans: ;Callgroup: 0;Pickupgroup: 0;Seconds: 12;ActionID: 2899;;
+
+IMPLEMENT_PPFILT_FACTORY(PhnSvcMonitor); SLAPI PhnSvcMonitorFilt::PhnSvcMonitorFilt() : PPBaseFilt(PPFILT_PHNSVCMONITOR, 0, 0)
+{
+	SetFlatChunk(offsetof(PhnSvcMonitorFilt, ReserveStart),
+		offsetof(PhnSvcMonitorFilt, ReserveEnd)-offsetof(PhnSvcMonitorFilt, ReserveStart)+sizeof(ReserveEnd));
+	Init(1, 0);
+}
+
+SLAPI PPViewPhnSvcMonitor::PPViewPhnSvcMonitor() : PPView(0, &Filt, PPVIEW_PHNSVCMONITOR), P_Cli(0)
+{
+	ImplementFlags |= implBrowseArray;
+}
+
+SLAPI PPViewPhnSvcMonitor::~PPViewPhnSvcMonitor()
+{
+}
+
+PPBaseFilt * SLAPI PPViewPhnSvcMonitor::CreateFilt(void * extraPtr) const
+{
+	PhnSvcMonitorFilt * p_filt = new PhnSvcMonitorFilt;
+	{
+		PPEquipConfig eq_cfg;
+		ReadEquipConfig(&eq_cfg);
+		p_filt->PhnSvcID = eq_cfg.PhnSvcID;
+	}
+	return p_filt;
+}
+
+int SLAPI PPViewPhnSvcMonitor::EditBaseFilt(PPBaseFilt * pBaseFilt)
+{
+	return 1;
+}
+
+int SLAPI PPViewPhnSvcMonitor::CreatePhnSvcClient()
+{
+	int    ok = 1;
+	SString temp_buf;
+	ZDELETE(P_Cli);
+	THROW(Filt.PhnSvcID);
+	{
+		PPObjPhoneService ps_obj(0);
+		PPPhoneServicePacket ps_pack;
+		THROW(ps_obj.GetPacket(Filt.PhnSvcID, &ps_pack) > 0);
+		{
+			SString addr_buf, user_buf, secret_buf;
+			AsteriskAmiClient * p_phnsvc_cli = 0;
+			ps_pack.GetExField(PHNSVCEXSTR_ADDR, addr_buf);
+			ps_pack.GetExField(PHNSVCEXSTR_PORT, temp_buf);
+			int    port = temp_buf.ToLong();
+			ps_pack.GetExField(PHNSVCEXSTR_USER, user_buf);
+			ps_pack.GetPassword(secret_buf);
+			THROW_MEM(p_phnsvc_cli = new AsteriskAmiClient(AsteriskAmiClient::fDoLog));
+			THROW(p_phnsvc_cli->Connect(addr_buf, port));
+			THROW(p_phnsvc_cli->Login(user_buf, secret_buf));
+			P_Cli = p_phnsvc_cli;
+			secret_buf.Obfuscate();
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPViewPhnSvcMonitor::Init_(const PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	THROW(Helper_InitBaseFilt(pBaseFilt));
+	ZDELETE(P_Cli);
+	THROW(CreatePhnSvcClient());
+	THROW(Update());
+	CATCHZOK
+	return ok;
+}
+
+int SLAPI PPViewPhnSvcMonitor::Update()
+{
+	int    ok = -1;
+	if(P_Cli) {
+		int r = P_Cli->GetChannelStatus(0, List);
+		if(!r) {
+			r = CreatePhnSvcClient();
+			if(r) {
+				assert(P_Cli);
+				P_Cli->GetChannelStatus(0, List);
+			}
+		}
+	}
+	else
+		List.Clear();
+	return ok;
+}
+
+void SLAPI PPViewPhnSvcMonitor::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	if(pBrw) {
+		pBrw->SetDefUserProc(PPViewPhnSvcMonitor::GetDataForBrowser, this);
+		pBrw->SetRefreshPeriod(1);
+		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+	}
+}
+
+int SLAPI PPViewPhnSvcMonitor::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 0;
+	if(pBlk->P_SrcData && pBlk->P_DestData) {
+		ok = 1;
+		uint   _pos = *(uint *)pBlk->P_SrcData;
+		if(_pos > 0 && _pos <= List.GetCount()) {
+			List.Get(_pos-1, TempStatusEntry);
+			switch(pBlk->ColumnN) {
+				case 0: // @id
+					pBlk->Set((long)_pos);
+					break;
+				case 1: // Channel
+					pBlk->Set(TempStatusEntry.Channel);
+					break;
+				case 2: // State
+					{
+						SString & r_temp_buf = SLS.AcquireRvlStr();
+						AsteriskAmiClient::GetStateText(TempStatusEntry.State, r_temp_buf);
+						pBlk->Set(r_temp_buf);
+					}
+					break;
+				case 3: // Priority
+					pBlk->Set(TempStatusEntry.Priority);
+					break;
+				case 4: // Seconds
+					pBlk->Set(TempStatusEntry.Seconds);
+					break;
+				case 5: // TimeToHungUp
+					pBlk->Set(TempStatusEntry.TimeToHungUp);
+					break;
+				case 6: // CallerId
+					pBlk->Set(TempStatusEntry.CallerId);
+					break;
+				case 7: // CallerName
+					pBlk->Set(TempStatusEntry.CallerIdName.Transf(CTRANSF_UTF8_TO_INNER));
+					break;
+				case 8: // ConnectedLineNum
+					pBlk->Set(TempStatusEntry.ConnectedLineNum);
+					break;
+				case 9: // ConnectedLineName
+					pBlk->Set(TempStatusEntry.ConnectedLineName.Transf(CTRANSF_UTF8_TO_INNER));
+					break;
+				case 10: // EffConnectedLineNum
+					pBlk->Set(TempStatusEntry.EffConnectedLineNum);
+					break;
+				case 11: // EffConnectedLineName
+					pBlk->Set(TempStatusEntry.EffConnectedLineName.Transf(CTRANSF_UTF8_TO_INNER));
+					break;
+				case 12: // Context
+					pBlk->Set(TempStatusEntry.Context.Transf(CTRANSF_UTF8_TO_INNER));
+					break;
+				case 13: // Exten
+					pBlk->Set(TempStatusEntry.Exten);
+					break;
+				case 14: // DnId
+					pBlk->Set(TempStatusEntry.DnId);
+					break;
+				case 15: // Application
+					pBlk->Set(TempStatusEntry.Application.Transf(CTRANSF_UTF8_TO_INNER));
+					break;
+				case 16: // Data
+					pBlk->Set(TempStatusEntry.Data.Transf(CTRANSF_UTF8_TO_INNER));
+					break;
+			}
+		}
+	}
+	return ok;
+}
+
+//static 
+int SLAPI PPViewPhnSvcMonitor::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	PPViewPhnSvcMonitor * p_v = (PPViewPhnSvcMonitor *)pBlk->ExtraPtr;
+	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
+}
+
+SArray * SLAPI PPViewPhnSvcMonitor::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+{
+	uint   brw_id = BROWSER_PHNSVCMONITOR;
+	SArray * p_array = new TSArray <uint>; // Array - not Vector
+	if(p_array) {
+		for(uint i = 0; i < List.GetCount(); i++) {
+			uint   pos = i+1;
+			p_array->insert(&pos);
+		}
+	}
+	ASSIGN_PTR(pBrwId, brw_id);
+	return p_array;
+}
+
+int SLAPI PPViewPhnSvcMonitor::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+{
+	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	if(ok == -2 && oneof2(ppvCmd, PPVCMD_REFRESHBYPERIOD, PPVCMD_REFRESH)) {
+		Update();
+		AryBrowserDef * p_def = (AryBrowserDef *)pBrw->getDef();
+		if(p_def) {
+			SArray * p_array = CreateBrowserArray(0, 0);
+			p_def->setArray(p_array, 0, 0);
+		}
+		ok = 1;
 	}
 	return ok;
 }

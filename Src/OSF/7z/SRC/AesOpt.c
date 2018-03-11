@@ -1,6 +1,6 @@
-/* AesOpt.c -- Intel's AES
-   2013-11-12 : Igor Pavlov : Public domain */
-
+// AesOpt.c -- Intel's AES
+// 2013-11-12 : Igor Pavlov : Public domain 
+// 
 #include <7z-internal.h>
 #pragma hdrstop
 #ifdef MY_CPU_X86_OR_AMD64

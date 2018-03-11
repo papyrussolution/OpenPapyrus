@@ -103,7 +103,7 @@
 #define ELEMENT_CODE_E0054_01B		"01B"		// Версия выпуска
 #define ELEMENT_CODE_E0051_UN		"UN"		// Код ведущей организации
 #define ELEMENT_CODE_E0057_EAN010	"EAN010"	// Код, присвоенный ведущей организацией
-#define ELEMENT_CODE_E1001_220		"220"		// Код документа - заказ
+//#define ELEMENT_CODE_E1001_220		"220"		// Код документа - заказ
 #define ELEMENT_CODE_E2379_102		"102"		// Формат даты/времени - CCYYMMDD
 #define ELEMENT_CODE_E6345_RUB		"RUB"		// Рубли
 
@@ -634,7 +634,7 @@ int ExportCls::OrderHeader()
 				SegNum++;
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"C002"); // Имя документа/сообщения
 					xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"E1001"); // Код документа
-						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)ELEMENT_CODE_E1001_220); // Заказ (есть разновидности заказа)
+						xmlTextWriterWriteString(P_XmlWriter, (const xmlChar*)"220"); // Заказ (есть разновидности заказа)
 					xmlTextWriterEndElement(P_XmlWriter); //E1001
 				xmlTextWriterEndElement(P_XmlWriter); //С002
 				xmlTextWriterStartElement(P_XmlWriter, (const xmlChar*)"C106"); // Идентификация документа/сообщения
@@ -1408,13 +1408,13 @@ struct AperakInfoSt {
 	}
 	void Clear()
 	{
-		OrderNum = 0;
-		Code = 0;
-		Msg = 0;
-		AddedMsg = 0;
-		SupplGLN = 0;
-		BuyerGLN = 0;
-		AddrGLN = 0;
+		OrderNum.Z();
+		Code.Z();
+		Msg.Z();
+		AddedMsg.Z();
+		SupplGLN.Z();
+		BuyerGLN.Z();
+		AddrGLN.Z();
 		OrderDate = ZERODATE;
 	}
 	SString OrderNum;	// Номер документа заказа

@@ -714,7 +714,7 @@ int SLAPI CommLP15::CloseConnection()
 	int    ok = -1;
 	if(!(Data.Flags & SCALF_TCPIP)) {
 		if(Data.LogNum > 0 && Data.LogNum < 16) {
-			if(Data.ProtocolVer == 1 || Data.ProtocolVer == 17) {
+			if(oneof2(Data.ProtocolVer, 1, 17)) {
 				int8 r0 = (int8)0xff;
 				int8 r1 = (int8)0x7f;
 				PutChr(r0, 1, 1);
@@ -3054,19 +3054,6 @@ int SLAPI DIGI::SetConnection()
 	return ok;
 }
 
-/*int HexChar2Byte(char c)
-{
-	int v = 0;
-	if(c >= '0' && c <= '9')
-		v = c - (char)'0';
-	else if(c >= 'A' && c <= 'F')
-		v = c - (char)'A' + 10;
-	else if(c >= 'a' && c <='f')
-		v = c - (char)'a' + 10;
-	else
-		v = 0;
-	return v;
-}*/
 static int FASTCALL LongToHexBytesStr(long val, int prec, SString & rBuf)
 {
 	int    ok = 1;
@@ -3080,8 +3067,8 @@ static int FASTCALL LongToHexBytesStr(long val, int prec, SString & rBuf)
 	const size_t len = temp_buf.Printf(fmt.cptr(), val).Len();
 	const char * p_buf = temp_buf.cptr();
 	for(uint i = 0; i < len; i += 2) {
-		int    v1 = /*HexChar2Byte*/hex(p_buf[i]);
-		int    v2 = /*HexChar2Byte*/hex(p_buf[i+1]);
+		int    v1 = hex(p_buf[i]);
+		int    v2 = hex(p_buf[i+1]);
 		rBuf.CatCharN(v1 * 16 + v2, 1);
 	}
 	return ok;
@@ -3093,8 +3080,8 @@ int FASTCALL LongToBCDStr(long val, const char * pFmt, SString & rBuf)
 	SString temp_buf;
 	const char * p_buf = temp_buf.Printf(pFmt, val).cptr();
 	for(uint i = 0; i < temp_buf.Len(); i += 2) {
-		int v1 = /*HexChar2Byte*/hex(p_buf[i]);
-		int v2 = /*HexChar2Byte*/hex(p_buf[i + 1]);
+		int v1 = hex(p_buf[i]);
+		int v2 = hex(p_buf[i + 1]);
 		rBuf.CatCharN(v1 * 16 + v2, 1);
 	}
 	return 1;
@@ -3102,7 +3089,7 @@ int FASTCALL LongToBCDStr(long val, const char * pFmt, SString & rBuf)
 
 int SLAPI DIGI::ConvertDIGI_Text(const char * pSrcName, uchar fontSize, uint lineLen, uint maxLines, SString & rDestName)
 {
-	const int line_len_limit = (Data.ProtocolVer == 500) ? 48 : 25;
+	const int line_len_limit = oneof2(Data.ProtocolVer, 500, 503) ? 48 : 25;
 	if(lineLen == 0 || lineLen > 100)
 		lineLen = line_len_limit;
 	if(maxLines == 0 || maxLines > 32)
@@ -3180,7 +3167,7 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		}
 	}
 	else if(Connected) {
-		const int line_len_limit = (Data.ProtocolVer == 500) ? 48 : 25;
+		const int line_len_limit = oneof2(Data.ProtocolVer, 500, 503) ? 48 : 25;
 		const int max_added_lines = 8;
 
 		uint   j = 0;
@@ -3198,7 +3185,7 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		SString goods_name;
 		SString ext_text_buf;
 		SString temp_buf;
-		ConvertDIGI_Text(pScalePLU->GoodsName, 5 /* fontSize */, line_len_limit, 4 /* maxLinesCount */, goods_name); // @v8.6.6 fontSize 7-->5
+		ConvertDIGI_Text(pScalePLU->GoodsName, /*5*/3 /* fontSize */, line_len_limit, 4 /* maxLinesCount */, goods_name); // @v8.6.6 fontSize 7-->5
 		{
 			/* @v9.8.9 if(pScalePLU->HasAddedMsg()) {
 			 	ConvertDIGI_Text(pScalePLU->AddMsgBuf, 3, Data.MaxAddedLine, max_added_lines, ext_text_buf);
@@ -3226,7 +3213,14 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		LongToHexBytesStr((long)goods_name.Len(), 1, str_len);
 		LongToBCDStr((long)pScalePLU->Barcode + 2000000L, "%-014ld", barcode);
 		LongToBCDStr((long)Data.LogNum, "%04ld", grp_no);
-		LongToBCDStr((long)pScalePLU->GoodsNo, "%08ld", goods_no);
+		{
+			long   __plu = 0;
+			if(oneof2(Data.ProtocolVer, 3, 503))
+				__plu = (pScalePLU->Barcode + 2000000L) % 100000;
+			else
+				__plu = pScalePLU->GoodsNo;
+			LongToBCDStr(__plu, "%08ld", goods_no);
+		}
 		LongToBCDStr((long)expiry, "%04ld", s_expiry);
 
 		memzero(out_rec, sizeof(out_rec));
@@ -3239,13 +3233,10 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 
 		out_rec[len++] = 0; // Два байта длины записи
 		out_rec[len++] = 0; // Это поле мы заполним позже
-
 		// весовой товар, печатать даты упаковки и продажи, время упаковки
 		out_rec[len++] = 0x54;                           // #9 PLU статус 1
-
 		// время упаковки – из встроенных весов, цена за 1 Кг
 		out_rec[len++] = 0x00;                           // #10 PLU статус 1
-
 		/*
 		Бит  0: Формат 1-й этикетки	(0-По умолчанию (из SPEC); 1-Указан явно)
 		Бит  1: Формат 2-й этикетки (0-Нет; 1-Указан)
@@ -3287,7 +3278,6 @@ int SLAPI DIGI::SendPLU(const ScalePLU * pScalePLU)
 		// Есть поле для срока продажи в днях. Поля срока использования,
 		// срока  продажи в часах и срока упаковки в днях. Нет полей бонуса и номера места хранения.
 		out_rec[len++] = 0x01;                          // #13 PLU статус 2
-
 		for(j = 0; j < 3; j++)
 			out_rec[len++] = ((const char*)rub)[j];      // #15
 		out_rec[len++] = ((const char*)kop)[0];          // #16

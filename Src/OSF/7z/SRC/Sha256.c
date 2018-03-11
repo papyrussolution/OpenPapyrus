@@ -1,7 +1,7 @@
-/* Crypto/Sha256.c -- SHA-256 Hash
-   2017-04-03 : Igor Pavlov : Public domain
-   This code is based on public domain code from Wei Dai's Crypto++ library. */
-
+// Crypto/Sha256.c -- SHA-256 Hash
+// 2017-04-03 : Igor Pavlov : Public domain
+// This code is based on public domain code from Wei Dai's Crypto++ library. 
+//
 #include <7z-internal.h>
 #pragma hdrstop
 
@@ -88,15 +88,13 @@ static const uint32 K[64] = {
 static void Sha256_WriteByteBlock(CSha256 * p)
 {
 	uint32 W[16];
-	unsigned j;
+	uint   j;
 	uint32 * state;
-
   #ifdef _SHA256_UNROLL2
 	uint32 a, b, c, d, e, f, g, h;
   #else
 	uint32 T[8];
   #endif
-
 	for(j = 0; j < 16; j += 4) {
 		const Byte * ccc = p->buffer + j * 4;
 		W[j    ] = GetBe32(ccc);
@@ -104,9 +102,7 @@ static void Sha256_WriteByteBlock(CSha256 * p)
 		W[j + 2] = GetBe32(ccc + 8);
 		W[j + 3] = GetBe32(ccc + 12);
 	}
-
 	state = p->state;
-
   #ifdef _SHA256_UNROLL2
 	a = state[0];
 	b = state[1];
@@ -120,11 +116,9 @@ static void Sha256_WriteByteBlock(CSha256 * p)
 	for(j = 0; j < 8; j++)
 		T[j] = state[j];
   #endif
-
 	for(j = 0; j < 64; j += 16) {
 		RX_16
 	}
-
   #ifdef _SHA256_UNROLL2
 	state[0] += a;
 	state[1] += b;
@@ -138,10 +132,9 @@ static void Sha256_WriteByteBlock(CSha256 * p)
 	for(j = 0; j < 8; j++)
 		state[j] += T[j];
   #endif
-
 	/* Wipe variables */
-	/* memset(W, 0, sizeof(W)); */
-	/* memset(T, 0, sizeof(T)); */
+	/* memzero(W, sizeof(W)); */
+	/* memzero(T, sizeof(T)); */
 }
 
 #undef S0
@@ -151,43 +144,37 @@ static void Sha256_WriteByteBlock(CSha256 * p)
 
 void Sha256_Update(CSha256 * p, const Byte * data, size_t size)
 {
-	if(size == 0)
-		return;
-
-	{
-		unsigned pos = (uint)p->count & 0x3F;
-		unsigned num;
-
-		p->count += size;
-
-		num = 64 - pos;
-		if(num > size) {
-			memcpy(p->buffer + pos, data, size);
-			return;
+	if(size) {
+		{
+			uint   pos = (uint)p->count & 0x3F;
+			uint   num;
+			p->count += size;
+			num = 64 - pos;
+			if(num > size) {
+				memcpy(p->buffer + pos, data, size);
+				return;
+			}
+			size -= num;
+			memcpy(p->buffer + pos, data, num);
+			data += num;
 		}
-
-		size -= num;
-		memcpy(p->buffer + pos, data, num);
-		data += num;
+		for(;; ) {
+			Sha256_WriteByteBlock(p);
+			if(size < 64)
+				break;
+			size -= 64;
+			memcpy(p->buffer, data, 64);
+			data += 64;
+		}
+		if(size)
+			memcpy(p->buffer, data, size);
 	}
-
-	for(;; ) {
-		Sha256_WriteByteBlock(p);
-		if(size < 64)
-			break;
-		size -= 64;
-		memcpy(p->buffer, data, 64);
-		data += 64;
-	}
-
-	if(size != 0)
-		memcpy(p->buffer, data, size);
 }
 
 void Sha256_Final(CSha256 * p, Byte * digest)
 {
-	unsigned pos = (uint)p->count & 0x3F;
-	uint i;
+	uint   pos = (uint)p->count & 0x3F;
+	uint   i;
 	p->buffer[pos++] = 0x80;
 	while(pos != (64 - 8)) {
 		pos &= 0x3F;

@@ -19,7 +19,7 @@ public:
 	CRecordVector <CSeekExtent> Extents;
 	MY_UNKNOWN_IMP2(ISequentialInStream, IInStream)
 	STDMETHOD(Read) (void * data, uint32 size, uint32 *processedSize);
-	STDMETHOD(Seek) (Int64 offset, uint32 seekOrigin, uint64 *newPosition);
+	STDMETHOD(Seek) (int64 offset, uint32 seekOrigin, uint64 *newPosition);
 	void ReleaseStream();
 	void Init();
 private:
@@ -73,7 +73,7 @@ STDMETHODIMP CExtentsStream::Read(void * data, uint32 size, uint32 * processedSi
 	return res;
 }
 
-STDMETHODIMP CExtentsStream::Seek(Int64 offset, uint32 seekOrigin, uint64 * newPosition)
+STDMETHODIMP CExtentsStream::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
 {
 	switch(seekOrigin) {
 		case STREAM_SEEK_SET: break;
@@ -260,13 +260,10 @@ namespace NArchive {
 							item.GetPathU(s);
 						else
 							s = MultiByteToUnicodeString(item.GetPath(_archive.IsSusp, _archive.SuspSkipSize), CP_OEMCP);
-
 						if(s.Len() >= 2 && s[s.Len() - 2] == ';' && s.Back() == '1')
 							s.DeleteFrom(s.Len() - 2);
-
 						if(!s.IsEmpty() && s.Back() == L'.')
 							s.DeleteBack();
-
 						NItemName::ReplaceToOsSlashes_Remove_TailSlash(s);
 						prop = s;
 					}
@@ -763,7 +760,7 @@ namespace NArchive {
 			uint64 value;
 			bool res = NWindows::NTime::GetSecondsSince1601(Year, Month, Day, Hour, Minute, Second, value);
 			if(res) {
-				value -= (Int64)((int32)GmtOffset * 15 * 60);
+				value -= (int64)((int32)GmtOffset * 15 * 60);
 				value *= 10000000;
 			}
 			ft.dwLowDateTime = (DWORD)value;

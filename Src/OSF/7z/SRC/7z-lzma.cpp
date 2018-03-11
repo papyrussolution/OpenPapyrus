@@ -697,7 +697,7 @@ namespace NArchive {
 
 			Byte GetProp() const { return LzmaProps[0]; }
 			uint32 GetDicSize() const { return GetUi32(LzmaProps + 1); }
-			bool HasSize() const { return (Size != (uint64)(Int64)-1); }
+			bool HasSize() const { return (Size != (uint64)(int64)-1); }
 			bool Parse(const Byte * buf, bool isThereFilter);
 		};
 
@@ -929,7 +929,7 @@ namespace NArchive {
 			if(p[0] >= 5 * 5 * 9)
 				return k_IsArc_Res_NO;
 			uint64 unpackSize = GetUi64(p + 1 + 4);
-			if(unpackSize != (uint64)(Int64)-1) {
+			if(unpackSize != (uint64)(int64)-1) {
 				if(size >= ((uint64)1 << 56))
 					return k_IsArc_Res_NO;
 			}
@@ -938,7 +938,7 @@ namespace NArchive {
 					return k_IsArc_Res_NEED_MORE;
 				if(p[kHeaderSize] != 0)
 					return k_IsArc_Res_NO;
-				if(unpackSize != (uint64)(Int64)-1) {
+				if(unpackSize != (uint64)(int64)-1) {
 					if((p[kHeaderSize + 1] & 0x80) != 0)
 						return k_IsArc_Res_NO;
 				}

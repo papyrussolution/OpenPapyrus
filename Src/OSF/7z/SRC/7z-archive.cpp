@@ -73,9 +73,7 @@ namespace NArchive {
 		COM_TRY_BEGIN
 		*stream = NULL;
 		uint64 pos, size;
-		if(GetItem_ExtractInfo(index, pos, size) != NExtractArc::NOperationResult::kOK)
-			return S_FALSE;
-		return CreateLimitedInStream(_stream, pos, size, stream);
+		return (GetItem_ExtractInfo(index, pos, size) != NExtractArc::NOperationResult::kOK) ? S_FALSE : CreateLimitedInStream(_stream, pos, size, stream);
 		COM_TRY_END
 	}
 	CHandlerImg::CHandlerImg() : _imgExt(NULL)
@@ -94,7 +92,7 @@ namespace NArchive {
 		// _stream_PackSize = 0;
 	}
 
-	STDMETHODIMP CHandlerImg::Seek(Int64 offset, uint32 seekOrigin, uint64 * newPosition)
+	STDMETHODIMP CHandlerImg::Seek(int64 offset, uint32 seekOrigin, uint64 * newPosition)
 	{
 		switch(seekOrigin) {
 			case STREAM_SEEK_SET: break;
@@ -117,9 +115,7 @@ namespace NArchive {
 		Byte buf[kHeaderSize];
 		if(ReadStream_FAIL(stream, buf, kHeaderSize) == S_OK) {
 			if(buf[0x1FE] == 0x55 && buf[0x1FF] == 0xAA) {
-				if(memcmp(buf + 512, k_GDP_Signature, sizeof(k_GDP_Signature)) == 0)
-					return "gpt";
-				return "mbr";
+				return (memcmp(buf + 512, k_GDP_Signature, sizeof(k_GDP_Signature)) == 0) ? "gpt" : "mbr";
 			}
 		}
 		return NULL;
@@ -169,7 +165,6 @@ namespace NArchive {
 			return S_OK;
 		if(numItems != (uint32)(int32)-1 && (numItems != 1 || indices[0] != 0))
 			return E_INVALIDARG;
-
 		RINOK(extractCallback->SetTotal(_size));
 		CMyComPtr<ISequentialOutStream> outStream;
 		int32 askMode = testMode ? NExtractArc::NAskMode::kTest : NExtractArc::NAskMode::kExtract;
@@ -177,15 +172,11 @@ namespace NArchive {
 		if(!testMode && !outStream)
 			return S_OK;
 		RINOK(extractCallback->PrepareOperation(askMode));
-
 		CLocalProgress * lps = new CLocalProgress;
 		CMyComPtr<ICompressProgressInfo> progress = lps;
 		lps->Init(extractCallback, false);
-
 		int opRes = NExtractArc::NOperationResult::kDataError;
-
 		ClearStreamVars();
-
 		CMyComPtr<ISequentialInStream> inStream;
 		HRESULT hres = GetStream(0, &inStream);
 		if(hres == S_FALSE)
@@ -297,53 +288,53 @@ namespace NArchive {
 		name.MakeLower_Ascii();
 		if(name.IsEmpty())
 			return E_INVALIDARG;
-
-		if(name[0] == 'x') {
+		else if(name[0] == 'x') {
 			name.Delete(0);
 			_level = 9;
 			return ParsePropToUInt32(name, value, _level);
 		}
-
-		if(name.IsPrefixedBy_Ascii_NoCase("yx")) {
+		else if(name.IsPrefixedBy_Ascii_NoCase("yx")) {
 			name.Delete(0, 2);
 			uint32 v = 9;
 			RINOK(ParsePropToUInt32(name, value, v));
 			_analysisLevel = (int)v;
 			return S_OK;
 		}
-
-		if(name.IsPrefixedBy_Ascii_NoCase("crc")) {
+		else if(name.IsPrefixedBy_Ascii_NoCase("crc")) {
 			name.Delete(0, 3);
 			_crcSize = 4;
 			return ParsePropToUInt32(name, value, _crcSize);
 		}
-
-		uint32 number;
-		unsigned index = ParseStringToUInt32(name, number);
-		UString realName = name.Ptr(index);
-		if(index == 0) {
-			if(name.IsPrefixedBy_Ascii_NoCase("mt")) {
-		  #ifndef _7ZIP_ST
-				RINOK(ParseMtProp(name.Ptr(2), value, _numProcessors, _numThreads));
-		  #endif
-
-				return S_OK;
+		else {
+			uint32 number;
+			uint   index = ParseStringToUInt32(name, number);
+			UString realName = name.Ptr(index);
+			if(index == 0) {
+				if(name.IsPrefixedBy_Ascii_NoCase("mt")) {
+			  #ifndef _7ZIP_ST
+					RINOK(ParseMtProp(name.Ptr(2), value, _numProcessors, _numThreads));
+			  #endif
+					return S_OK;
+				}
+				if(name.IsEqualTo("f")) {
+					HRESULT res = PROPVARIANT_to_bool(value, _autoFilter);
+					if(res == S_OK)
+						return res;
+					else if(value.vt != VT_BSTR)
+						return E_INVALIDARG;
+					else
+						return _filterMethod.ParseMethodFromPROPVARIANT(UString(), value);
+				}
+				number = 0;
 			}
-			if(name.IsEqualTo("f")) {
-				HRESULT res = PROPVARIANT_to_bool(value, _autoFilter);
-				if(res == S_OK)
-					return res;
-				if(value.vt != VT_BSTR)
-					return E_INVALIDARG;
-				return _filterMethod.ParseMethodFromPROPVARIANT(UString(), value);
+			if(number > 64)
+				return E_FAIL;
+			else {
+				for(int j = _methods.Size(); j <= (int)number; j++)
+					_methods.Add(COneMethodInfo());
+				return _methods[number].ParseMethodFromPROPVARIANT(realName, value);
 			}
-			number = 0;
 		}
-		if(number > 64)
-			return E_FAIL;
-		for(int j = _methods.Size(); j <= (int)number; j++)
-			_methods.Add(COneMethodInfo());
-		return _methods[number].ParseMethodFromPROPVARIANT(realName, value);
 	}
 
 	void CSingleMethodProps::Init()
@@ -452,38 +443,6 @@ namespace NArchive {
 			}
 		#endif
 	}
-	namespace N7z {
-		Byte kSignature[kSignatureSize] = {'7', 'z', 0xBC, 0xAF, 0x27, 0x1C};
-		#ifdef _7Z_VOL
-			Byte kFinishSignature[kSignatureSize] = {'7', 'z', 0xBC, 0xAF, 0x27, 0x1C + 1};
-		#endif
-		// We can change signature. So file doesn't contain correct signature.
-		// struct SignatureInitializer { SignatureInitializer() { kSignature[0]--; } };
-		// static SignatureInitializer g_SignatureInitializer;
-	}
-	namespace NCab {
-		namespace NHeader {
-			const Byte kMarker[kMarkerSize] = {'M', 'S', 'C', 'F', 0, 0, 0, 0 };
-			// struct CSignatureInitializer { CSignatureInitializer() { kMarker[0]--; } } g_SignatureInitializer;
-		}
-	}
-	namespace NIso {
-		const char * const kElToritoSpec = "EL TORITO SPECIFICATION\0\0\0\0\0\0\0\0\0";
-	}
-	namespace NTar {
-		namespace NFileHeader {
-			const char * const kLongLink = "././@LongLink";
-			const char * const kLongLink2 = "@LongLink";
-
-			// The magic field is filled with this if uname and gname are valid.
-			namespace NMagic {
-				// const char * const kUsTar  = "ustar";   // 5 chars
-				// const char * const kGNUTar = "GNUtar "; // 7 chars and a null
-				// const char * const kEmpty = "\0\0\0\0\0\0\0\0";
-				const char kUsTar_00[8] = { 'u', 's', 't', 'a', 'r', 0, '0', '0' };
-			}
-		}
-	}
 	//
 	namespace NSplit {
 		static const Byte kProps[] = { kpidPath, kpidSize };
@@ -580,14 +539,14 @@ namespace NArchive {
 					return S_FALSE;
 				name = prop.bstrVal;
 			}
-			int dotPos = name.ReverseFind_Dot();
-			const UString prefix = name.Left(dotPos + 1);
-			const UString ext = name.Ptr(dotPos + 1);
+			int    dotPos = name.ReverseFind_Dot();
+			const  UString prefix = name.Left(dotPos + 1);
+			const  UString ext = name.Ptr(dotPos + 1);
 			UString ext2 = ext;
 			ext2.MakeLower_Ascii();
 			CSeqName seqName;
-			unsigned numLetters = 2;
-			bool splitStyle = false;
+			uint   numLetters = 2;
+			bool   splitStyle = false;
 			if(ext2.Len() >= 2 && StringsAreEqual_Ascii(ext2.RightPtr(2), "aa")) {
 				splitStyle = true;
 				while(numLetters < ext2.Len()) {
@@ -765,20 +724,44 @@ namespace NArchive {
 		REGISTER_ARC_I_NO_SIG("Split", "001", 0, 0xEA, 0, 0, NULL)
 	}
 	namespace N7z {
+		Byte kSignature[kSignatureSize] = {'7', 'z', 0xBC, 0xAF, 0x27, 0x1C};
+		#ifdef _7Z_VOL
+			Byte kFinishSignature[kSignatureSize] = {'7', 'z', 0xBC, 0xAF, 0x27, 0x1C + 1};
+		#endif
+		// We can change signature. So file doesn't contain correct signature.
+		// struct SignatureInitializer { SignatureInitializer() { kSignature[0]--; } };
+		// static SignatureInitializer g_SignatureInitializer;
 		static Byte k_Signature_Dec[kSignatureSize] = {'7' + 1, 'z', 0xBC, 0xAF, 0x27, 0x1C};
 		REGISTER_ARC_IO_DECREMENT_SIG("7z", "7z", NULL, 7, k_Signature_Dec, 0, NArcInfoFlags::kFindSignature, NULL);
 	}
 	namespace NTar {
+		namespace NFileHeader {
+			const char * const kLongLink = "././@LongLink";
+			const char * const kLongLink2 = "@LongLink";
+
+			// The magic field is filled with this if uname and gname are valid.
+			namespace NMagic {
+				// const char * const kUsTar  = "ustar";   // 5 chars
+				// const char * const kGNUTar = "GNUtar "; // 7 chars and a null
+				// const char * const kEmpty = "\0\0\0\0\0\0\0\0";
+				const char kUsTar_00[8] = { 'u', 's', 't', 'a', 'r', 0, '0', '0' };
+			}
+		}
 		static const Byte k_Signature[] = { 'u', 's', 't', 'a', 'r' };
 
 		REGISTER_ARC_IO("tar", "tar ova", 0, 0xEE, k_Signature, NFileHeader::kUstarMagic_Offset, 
 			NArcInfoFlags::kStartOpen|NArcInfoFlags::kSymLinks|NArcInfoFlags::kHardLinks, IsArc_Tar)
 	}
 	namespace NIso {
+		const char * const kElToritoSpec = "EL TORITO SPECIFICATION\0\0\0\0\0\0\0\0\0";
 		static const Byte k_Signature[] = { 'C', 'D', '0', '0', '1' };
 		REGISTER_ARC_I("Iso", "iso img", 0, 0xE7, k_Signature, NArchive::NIso::kStartPos + 1, 0, NULL)
 	}
 	namespace NCab {
+		namespace NHeader {
+			const Byte kMarker[kMarkerSize] = {'M', 'S', 'C', 'F', 0, 0, 0, 0 };
+			// struct CSignatureInitializer { CSignatureInitializer() { kMarker[0]--; } } g_SignatureInitializer;
+		}
 		REGISTER_ARC_I("Cab", "cab", 0, 8, NHeader::kMarker, 0, NArcInfoFlags::kFindSignature, NULL)
 	}
 	namespace NZip {
@@ -793,4 +776,3 @@ namespace NArchive {
 			NArcInfoFlags::kFindSignature|NArcInfoFlags::kMultiSignature|NArcInfoFlags::kUseGlobalOffset, IsArc_Zip)
 	}
 }
-

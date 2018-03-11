@@ -4,7 +4,6 @@
 #define __WINDOWS_NT_CHECK_H
 
 #ifdef _WIN32
-	//#include <MyWindows.h>
 	#if !defined(_WIN64) && !defined(UNDER_CE)
 		static inline bool IsItWindowsNT()
 		{

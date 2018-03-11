@@ -2515,11 +2515,9 @@ namespace NArchive {
 		{
 		  #ifdef NSIS_SCRIPT
 			CDynLimBuf &s = Script;
-
 			CObjArray<uint32> labels;
 			labels.Alloc(bh.Num);
-			memset(labels, 0, bh.Num * sizeof(uint32));
-
+			memzero(labels, bh.Num * sizeof(uint32));
 			{
 				const Byte * p = _data;
 				uint32 i;
@@ -2529,7 +2527,6 @@ namespace NArchive {
 						labels[func] = (labels[func] & ~CMD_REF_OnFunc_Mask) | (CMD_REF_OnFunc | (i << CMD_REF_OnFunc_NumShifts));
 				}
 			}
-
 			/*
 			   {
 			   for(int i = 0; i < OnFuncs.Size(); i++)
@@ -4566,15 +4563,11 @@ namespace NArchive {
 				PrintNumComment("DATA NUM", bhData.Num);
 
 			AddLF();
-
 			AddStringLF("OutFile [NSIS].exe");
 			AddStringLF("!include WinMessages.nsh");
-
 			AddLF();
-
 			strUsed.Alloc(NumStringChars);
-			memset(strUsed, 0, NumStringChars);
-
+			memzero(strUsed, NumStringChars);
 			{
 				uint32 ehFlags = Get32(p);
 				uint32 showDetails = ehFlags & 3; // CH_FLAGS_DETAILS_SHOWDETAILS & CH_FLAGS_DETAILS_NEVERSHOW;
@@ -4891,31 +4884,27 @@ namespace NArchive {
 			}
 			CommentClose();
 		  #endif
-
 			return SortItems();
 		}
 
 		static bool IsLZMA(const Byte * p, uint32 &dictionary)
 		{
 			dictionary = Get32(p + 1);
-			return (p[0] == 0x5D &&
-						p[1] == 0x00 && p[2] == 0x00 &&
-						p[5] == 0x00 && (p[6] & 0x80) == 0x00);
+			return (p[0] == 0x5D && p[1] == 0x00 && p[2] == 0x00 && p[5] == 0x00 && (p[6] & 0x80) == 0x00);
 		}
-
 		static bool IsLZMA(const Byte * p, uint32 &dictionary, bool &thereIsFlag)
 		{
 			if(IsLZMA(p, dictionary)) {
 				thereIsFlag = false;
 				return true;
 			}
-			if(p[0] <= 1 && IsLZMA(p + 1, dictionary)) {
+			else if(p[0] <= 1 && IsLZMA(p + 1, dictionary)) {
 				thereIsFlag = true;
 				return true;
 			}
-			return false;
+			else
+				return false;
 		}
-
 		static bool IsBZip2(const Byte * p)
 		{
 			return (p[0] == 0x31 && p[1] < 14);
@@ -5118,7 +5107,7 @@ namespace NArchive {
 			Byte buf[kStep];
 			uint64 pos = StartOffset;
 			size_t bufSize = 0;
-			uint64 pePos = (uint64)(Int64)-1;
+			uint64 pePos = (uint64)(int64)-1;
 
 			for(;; ) {
 				bufSize = kStep;
@@ -5141,7 +5130,7 @@ namespace NArchive {
 				}
 			}
 
-			if(pePos == (uint64)(Int64)-1) {
+			if(pePos == (uint64)(int64)-1) {
 				uint64 posCur = StartOffset;
 				for(;; ) {
 					if(posCur < kStep)
@@ -5171,7 +5160,7 @@ namespace NArchive {
 			StartOffset = pos;
 			uint32 peSize = 0;
 
-			if(pePos != (uint64)(Int64)-1) {
+			if(pePos != (uint64)(int64)-1) {
 				uint64 peSize64 = (pos - pePos);
 				if(peSize64 < (1 << 20)) {
 					peSize = (uint32)peSize64;
@@ -5239,7 +5228,6 @@ namespace NArchive {
 			IsNsis200 = false;
 			LogCmdIsEnabled = false;
 			BadCmd = -1;
-
 		  #ifdef NSIS_SCRIPT
 			Name.Empty();
 			BrandingText.Empty();
@@ -5251,7 +5239,6 @@ namespace NArchive {
 			LangComment.Empty();
 			noParseStringIndexes.Clear();
 		  #endif
-
 			APrefixes.Clear();
 			UPrefixes.Clear();
 			Items.Clear();
@@ -5272,11 +5259,12 @@ namespace NArchive {
 		{
 			if(_lzmaDecoder)
 				return _lzmaDecoder->GetInputProcessedSize();
-			if(_deflateDecoder)
+			else if(_deflateDecoder)
 				return _deflateDecoder->GetInputProcessedSize();
-			if(_bzDecoder)
+			else if(_bzDecoder)
 				return _bzDecoder->GetInputProcessedSize();
-			return 0;
+			else
+				return 0;
 		}
 
 		HRESULT CDecoder::Init(ISequentialInStream * inStream, bool &useFilter)
@@ -5366,7 +5354,6 @@ namespace NArchive {
 					return S_FALSE;
 				StreamPos += size;
 				offset += size;
-
 				const uint64 inSize = GetInputProcessedSize() - inSizeStart;
 				RINOK(progress->SetRatioInfo(&inSize, &offset));
 			}
@@ -5403,16 +5390,12 @@ namespace NArchive {
 						return S_FALSE;
 				}
 				uint32 size = Get32(temp);
-
 				if((size & kMask_IsCompressed) == 0) {
 					if(unpackSizeDefined && size != unpackSize)
 						return S_FALSE;
 					packSizeRes = size;
-					if(outBuf)
-						outBuf->Alloc(size);
-
+					CALLPTRMEMB(outBuf, Alloc(size));
 					uint64 offset = 0;
-
 					while(size > 0) {
 						uint32 curSize = (uint32)MyMin((size_t)size, Buffer.Size());
 						uint32 processedSize;
@@ -5816,14 +5799,11 @@ namespace NArchive {
 				GetNumberOfItems(&numItems);
 			if(numItems == 0)
 				return S_OK;
-
 			uint64 totalSize = 0;
 			uint64 solidPosMax = 0;
-
 			uint32 i;
 			for(i = 0; i < numItems; i++) {
 				uint32 index = (allFilesMode ? i : indices[i]);
-
 			#ifdef NSIS_SCRIPT
 				if(index >= _archive.Items.Size()) {
 					if(index == _archive.Items.Size())
@@ -5859,24 +5839,19 @@ namespace NArchive {
 				RINOK(_archive.InitDecoder());
 				_archive.Decoder.StreamPos = 0;
 			}
-
-			/* We use tempBuf for solid archives, if there is duplicate item.
-			   We don't know uncompressed size for non-solid archives, so we can't
-			   allocate exact buffer.
-			   We use tempBuf also for first part (EXE stub) of unistall.exe
-			   and tempBuf2 is used for second part (NSIS script). */
-
+			// 
+			// We use tempBuf for solid archives, if there is duplicate item.
+			// We don't know uncompressed size for non-solid archives, so we can't allocate exact buffer.
+			// We use tempBuf also for first part (EXE stub) of unistall.exe and tempBuf2 is used for second part (NSIS script). 
+			// 
 			CByteBuffer tempBuf;
 			CByteBuffer tempBuf2;
-
-			/* tempPos is pos in uncompressed stream of previous item for solid archive, that
-			   was written to tempBuf  */
-			uint64 tempPos = (uint64)(Int64)-1;
-
-			/* prevPos is pos in uncompressed stream of previous item for solid archive.
-			   It's used for test mode (where we don't need to test same file second time */
-			uint64 prevPos =  (uint64)(Int64)-1;
-
+			// tempPos is pos in uncompressed stream of previous item for solid archive, that
+			// was written to tempBuf  
+			uint64 tempPos = (uint64)(int64)-1;
+			// prevPos is pos in uncompressed stream of previous item for solid archive.
+			// It's used for test mode (where we don't need to test same file second time 
+			uint64 prevPos =  (uint64)(int64)-1;
 			// if there is error in solid archive, we show error for all subsequent files
 			bool solidDataError = false;
 
@@ -6025,7 +6000,6 @@ namespace NArchive {
 							else {
 								uint32 curPacked2 = 0;
 								uint32 curUnpacked2 = 0;
-
 								if(!_archive.IsSolid) {
 									RINOK(_archive.SeekTo(_archive.GetPosOfNonSolidItem(index) + 4 + curPacked));
 								}
