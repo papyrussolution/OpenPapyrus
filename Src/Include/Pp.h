@@ -8374,9 +8374,10 @@ struct PPEAddr { // @persistent @flat size=16
 		int    FASTCALL FromStr(const char * pStr);
 		//
 		// Телефон кодируется в упакованном BCD формате. Т.е. каждые две цифры укладываются в один байт.
-		// Символ 't' (тональный сигнал) кодируется как 0x0A, символ '+' кодируется как 0x0B.
+		// Символ 't' (тональный сигнал) кодируется как 0x0A, символ '+' кодируется как 0x0B,
+		// Символ 'x' (добавочный номер) кодируется как 0x0C.
 		// Цифры от '0' до '9' кодируются как 0x00..0x09 соответственно.
-		// Перед упаковкой номер освобождается от пробелов, тире и прочих символов отличных от 12-ти перечисленных.
+		// Перед упаковкой номер освобождается от пробелов, тире и прочих символов отличных от 13-ти перечисленных.
 		//
 		uint8 A[12];
 	};
@@ -8432,6 +8433,7 @@ public:
 #define AGTF_USESDONPURCHOP      0x0200L // @v7.2.1 Применять ограничение контрактных цен на операции закупки
 #define AGTF_DONTUSEMINSHIPMQTTY 0x0400L // @v8.4.2 Не следует применять минимальное отгружаемое количество (GoodsStockExt;:MinShippmQtty)
 
+// @todo @dbd_exchange Увеличить длину номера соглашения
 struct PPClientAgreement { // @persistent
 	SLAPI  PPClientAgreement();
 	SLAPI  PPClientAgreement(const PPClientAgreement &);
@@ -8619,7 +8621,7 @@ public:
 	int    SLAPI SearchOrderParamEntry(const PPSupplAgreement::OrderParamEntry & rKey, int thisPos, uint * pFoundPos) const;
 	int    SLAPI SetOrderParamEntry(int pos, PPSupplAgreement::OrderParamEntry & rEntry, uint * pResultPos);
 
-	SVerT Ver;              // @v8.5.0 Версия системы, создавшей экземпляр
+	SVerT  Ver;             // @v8.5.0 Версия системы, создавшей экземпляр
 	PPID   SupplID;
 	long   Flags;
 	LDATE  BegDt;
@@ -8679,7 +8681,7 @@ private:
 //
 struct AmtEntry { // @persistent
 	SLAPI  AmtEntry();
-	SLAPI  AmtEntry(PPID amtTypeID);
+	explicit SLAPI  AmtEntry(PPID amtTypeID);
 	SLAPI  AmtEntry(PPID amtTypeID, PPID curID);
 	SLAPI  AmtEntry(PPID amtTypeID, PPID curID, double amt);
 	int    FASTCALL IsEqual(const AmtEntry & rS) const;
@@ -8725,7 +8727,7 @@ public:
 //
 struct StaffAmtEntry { // @flat
 	DECL_INVARIANT_C();
-	SLAPI  StaffAmtEntry(PPID amtTypeID = 0, PPID curID = 0, double amt = 0.0);
+	explicit SLAPI  StaffAmtEntry(PPID amtTypeID = 0, PPID curID = 0, double amt = 0.0);
 	int    FASTCALL IsEqual(const StaffAmtEntry & rS) const;
 
 	PPID   AmtTypeID; // ->Ref(PPOBJ_AMOUNTTYPE)
@@ -10643,7 +10645,7 @@ struct ILBillPacket : public PPBill {
 	int    SLAPI ConvertRow(ILTI *, PPBillPacket *);
 	int    SLAPI SearchGoodsID(PPID goodsID, uint * pPos) const;
 	int    SLAPI SearchRByBill(int rbb, uint * pPos) const;
-	int    SLAPI Load(PPID billID, long flags /* ILBPF_XXX */, PPID cvtToOpID = 0);
+	int    SLAPI Load__(PPID billID, long flags /* ILBPF_XXX */, PPID cvtToOpID = 0);
 	int    SLAPI SerializeLots(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 	enum {
@@ -15296,12 +15298,13 @@ private:
 //
 // Типы адресов электронной связи (зарезервированы, не справочник)
 //
-#define ELNKRT_UNKNOWN      0L
-#define ELNKRT_PHONE        1L
-#define ELNKRT_FAX          2L
-#define ELNKRT_PAGER        3L
-#define ELNKRT_EMAIL        4L
-#define ELNKRT_WEBADDR      5L
+#define ELNKRT_UNKNOWN         0L
+#define ELNKRT_PHONE           1L
+#define ELNKRT_FAX             2L
+#define ELNKRT_PAGER           3L
+#define ELNKRT_EMAIL           4L
+#define ELNKRT_WEBADDR         5L
+#define ELNKRT_INTERNALEXTEN   6L // @v9.9.11 Внутренний телефонный номер 
 
 #define ELNKF_PREF     0x0001L // Предпочтительный адрес (Flags)
 
@@ -19217,6 +19220,7 @@ public:
 	PPPhoneService Rec;
 	SString Tail;
 	SString LocalChannelSymb; // Символ локального канала. хранится в реестре Windows
+	SString ScanChannelSymb;  // @v9.9.11 Символ сканируемого канала. хранится в реестре Windows
 };
 
 class PPObjPhoneService : public PPObjReference {
@@ -29303,7 +29307,8 @@ public:
 		fTestMode       = 0x0040,  // @v8.9.0
 		fDontRemoveTags = 0x0080,  // @v8.9.9 Для EDI и ЕГАИС - не снимать теги при получении отрицательных тикетов
 		fPaymOrdersExp  = 0x0100,  // @v9.2.10 Экспорт платежных поручений
-		fEgaisVer3      = 0x0200   // @v9.9.9 Передача документов в ЕГАИС в 3-й версии (возможность переопределить конфигурацию глобального обмена)
+		fEgaisVer3      = 0x0200,  // @v9.9.9 Передача документов в ЕГАИС в 3-й версии (возможность переопределить конфигурацию глобального обмена)
+		fFullEdiProcess = 0x0400   // @v9.9.11 Полный цикл EDI-обмена данными с контрагентами
 	};
 	long   Flags;
 	long   DisabledOptions; // @v9.2.10 @transient
@@ -29414,8 +29419,6 @@ private:
 	int    SLAPI ReadDataDll(const PPEdiProviderPacket * pEp);
 	int    SLAPI Import(int useTa);
 	int    SLAPI RunUhttImport();
-	int    SLAPI RunEDIImport(); // @vmiller
-	int    SLAPI RunEDIImport2();
 	int	   SLAPI GetDocImpStatus(Sdr_Bill * pBill, Sdr_DllImpObjStatus & rStatus); // @vmiller
 	int    SLAPI AssignFnFieldToRecord(const StrAssocArray & rFldList, Sdr_Bill * pRecHdr, Sdr_BRow * pRecRow);
 	int    SLAPI ProcessDynField(SdRecord & rDynRec, uint dynFldN, PPImpExpParam & rIep, ObjTagList & rTagList);
@@ -29434,7 +29437,97 @@ private:
 
 	PPLotTagContainer TagC;
 };
+//
+//
+//
+class PPEdiProcessor {
+public:
+	struct Packet {
+		Packet(int docType);
+		~Packet();
+		void * P_Data;
+		const  int  DocType;
+		long   Flags;
+	};
+	struct DocumentInfo {
+		SLAPI  DocumentInfo();
+		enum {
+			statusUnkn = 0,
+			statusNew  = 1
+		};
+		int    ID;          // Идентификатор сообщения, инициализируемый дравером конкретного провайдера (не зависимо от провайдера)
+		int    EdiOp;       // Тип EDI-операции
+		LDATETIME Time;     // Время создания/модификации сообщения
+		S_GUID Uuid;        // GUID сообщения
+		long   Status;      // DocumentInfo::statusXXX
+		long   Flags;       // Флаги
+		long   PrvFlags;    // Флаги, специфичные для конкретного провайдера
+		SString Code;       // Код сообщения (номер документа)
+		SString SenderCode; // Код отправителя
+		SString RcvrCode;   // Код получателя  
+		SString Box;        // Если хранение сообщений дифференцировано по боксам, то здесь может быть имя бокса для сообщения
+		SString SId;        // Символьный идентификатор (может быть именем файла)
+	};
+	class DocumentInfoList : private SStrGroup {
+	public:
+		SLAPI  DocumentInfoList();
+		uint   SLAPI GetCount() const;
+		int    SLAPI GetByIdx(uint idx, DocumentInfo & rItem) const;
+		int    SLAPI Add(const DocumentInfo & rItem, uint * pIdx);
+	private:
+		struct Entry {
+			int    ID;
+			int    EdiOp;
+			LDATETIME Dtm;
+			S_GUID Uuid;
+			long   Status;
+			long   Flags;
+			long   PrvFlags;
+			uint   CodeP;
+			uint   SenderCodeP;
+			uint   RcvrCodeP;
+			uint   BoxP;
+			uint   SIdP;
+		};
+		TSVector <Entry> L;
+	};
+	class ProviderImplementation {
+	public:
+		SLAPI  ProviderImplementation(const PPEdiProviderPacket & rEpp, PPID mainOrgID);
+		virtual SLAPI ~ProviderImplementation();
+		virtual int    SLAPI  GetDocumentList(DocumentInfoList & rList) { return -1; }
+		virtual int    SLAPI  ReceiveDocument(const DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack) { return -1; }
+		virtual int    SLAPI  SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack) { return -1; }
 
+		int    SLAPI GetTempOutputPath(int docType, SString & rBuf);
+		int    SLAPI GetTempInputPath(int docType, SString & rBuf);
+		int    SLAPI GetArticleGLN(PPID arID, SString & rGLN);
+
+		PPEdiProviderPacket Epp;
+		PPID   MainOrgID;
+		PPObjGoods GObj;
+		PPObjPerson PsnObj;
+	};
+
+	static ProviderImplementation * SLAPI CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID);
+
+	explicit SLAPI PPEdiProcessor(ProviderImplementation * pImp);
+	SLAPI ~PPEdiProcessor();
+	
+	int    SLAPI SendBills(const PPBillExportFilt & rP);
+	int    SLAPI SendOrders(const PPBillExportFilt & rP, const PPIDArray & rArList);
+
+	int    SLAPI SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
+	int    SLAPI ReceiveDocument(const DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
+	int    SLAPI GetDocumentList(DocumentInfoList & rList);
+private:
+	ProviderImplementation * P_Prv;
+	PPObjBill * P_BObj;
+	PPObjPerson PsnObj;
+};
+//
+//
+//
 struct PayableBillListItem {
 	double SLAPI MultExtCoef(double val, int zeroIfDivZero = 0) const;
 	PPID   ID;

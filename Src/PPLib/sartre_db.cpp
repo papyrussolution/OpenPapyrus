@@ -2069,27 +2069,35 @@ int SrDatabase::GetNgConceptList(NGID ngID, long flags, Int64Array & rConceptLis
 	return r;
 }
 
-int SrDatabase::Helper_GetConceptHier(CONCEPTID cID, Int64Array & rConceptHier)
+int SrDatabase::Helper_GetConceptHier(int rcIdent, int firstOnly, CONCEPTID cID, Int64Array & rConceptHier)
 {
 	int    ok = -1;
-	CONCEPTID prop_instance = GetReservedConcept(rcInstance);
-	CONCEPTID prop_subclass = GetReservedConcept(rcSubclass);
-	SrCProp prop(cID, prop_instance);
-	if(P_CpT->Search(prop) > 0) {
-		CONCEPTID cid = 0;
-		THROW(prop.Get(cid));
-		rConceptHier.add(cid);
-		THROW(Helper_GetConceptHier(cid, rConceptHier)); // @recursion
-		ok = 2;
+	CONCEPTID prop_instance = (!rcIdent || rcIdent == rcInstance) ? GetReservedConcept(rcInstance) : 0;
+	CONCEPTID prop_subclass = (!rcIdent || rcIdent == rcSubclass) ? GetReservedConcept(rcSubclass) : 0;
+	SrCProp prop;
+	if(ok < 0 && prop_instance) {
+		prop.CID = cID;
+		prop.PropID = prop_instance;
+		if(P_CpT->Search(prop) > 0) {
+			CONCEPTID cid = 0;
+			THROW(prop.Get(cid));
+			rConceptHier.add(cid);
+			if(!firstOnly) {
+				THROW(Helper_GetConceptHier(rcIdent, 0, cid, rConceptHier)); // @recursion
+			}
+			ok = 2;
+		}
 	}
-	else {
+	if(ok < 0 && prop_subclass) {
 		prop.CID = cID;
 		prop.PropID = prop_subclass;
 		if(P_CpT->Search(prop) > 0) {
 			CONCEPTID cid = 0;
 			THROW(prop.Get(cid));
 			rConceptHier.add(cid);
-			THROW(Helper_GetConceptHier(cid, rConceptHier)); // @recursion
+			if(!firstOnly) {
+				THROW(Helper_GetConceptHier(rcIdent, 0, cid, rConceptHier)); // @recursion
+			}
 			ok = 1;
 		}
 	}
@@ -2100,7 +2108,20 @@ int SrDatabase::Helper_GetConceptHier(CONCEPTID cID, Int64Array & rConceptHier)
 int SrDatabase::GetConceptHier(CONCEPTID cID, Int64Array & rConceptHier)
 {
 	rConceptHier.clear();
-	return Helper_GetConceptHier(cID, rConceptHier);
+	return Helper_GetConceptHier(0, 0, cID, rConceptHier);
+}
+
+int SrDatabase::GetFirstConceptAncestor(int rcIdent, CONCEPTID cID, CONCEPTID & rAncestor)
+{
+	Int64Array hier;
+	int    ok = Helper_GetConceptHier(rcIdent, 1, cID, hier);
+	if(hier.getCount()) {
+		assert(ok > 0);
+		rAncestor = hier.get(0);
+	}
+	else
+		rAncestor = 0;
+	return ok;
 }
 
 int SrDatabase::GetConceptPropList(CONCEPTID cID, SrCPropList & rPl)
@@ -2113,7 +2134,7 @@ int SrDatabase::GetPropDeclList(CONCEPTID cID, SrCPropDeclList & rPdl)
 	int    ok = -1;
 	rPdl.Clear();
 	Int64Array chier;
-	Helper_GetConceptHier(cID, chier);
+	Helper_GetConceptHier(0, 0, cID, chier);
 	uint c = chier.getCount();
 	if(c) do {
 		CONCEPTID cid = chier.get(--c);

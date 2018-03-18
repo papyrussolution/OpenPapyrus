@@ -1325,6 +1325,7 @@ int SLAPI PPObjELinkKind::Edit(PPID * pID, void * extraPtr)
 	else
 		MEMSZERO(rec);
 	dlg->setCtrlData(CTL_ELNKK_NAME, rec.Name);
+	dlg->setCtrlData(CTL_ELNKK_SYMB, rec.Symb); // @v9.9.11
 	dlg->setCtrlData(CTL_ELNKK_ID,   &rec.ID);
 	if(rec.ID || !PPMaster)
 		dlg->disableCtrl(CTL_ELNKK_ID, 1);
@@ -1333,13 +1334,18 @@ int SLAPI PPObjELinkKind::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 2, ELNKRT_PAGER);
 	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 3, ELNKRT_EMAIL);
 	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 4, ELNKRT_WEBADDR);
-	dlg->AddClusterAssocDef(CTL_ELNKK_TYPE, 5, ELNKRT_UNKNOWN);
+	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 5, ELNKRT_INTERNALEXTEN); // @v9.9.11
+	dlg->AddClusterAssocDef(CTL_ELNKK_TYPE, 6, ELNKRT_UNKNOWN); // @v9.9.11 5-->6
 	dlg->SetClusterData(CTL_ELNKK_TYPE, rec.Type);
 	dlg->setCtrlUInt16(CTL_ELNKK_FLAGS, BIN(rec.Flags & ELNKF_PREF));
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		dlg->getCtrlData(CTL_ELNKK_NAME, rec.Name);
-		if(*strip(rec.Name) == 0)
-			PPErrorByDialog(dlg, CTL_ELNKK_NAME, PPERR_NAMENEEDED);
+		dlg->getCtrlData(CTL_ELNKK_SYMB, rec.Symb); // @v9.9.11
+		if(!CheckName(rec.ID, rec.Name, 1))
+			PPErrorByDialog(dlg, CTL_ELNKK_NAME);
+		else if(!ref->CheckUniqueSymb(Obj, rec.ID, rec.Symb, offsetof(ReferenceTbl::Rec, Symb))) {
+			PPErrorByDialog(dlg, CTL_ELNKK_SYMB);
+		}
 		else {
 			valid_data = 1;
 			dlg->GetClusterData(CTL_ELNKK_TYPE, &rec.Type);

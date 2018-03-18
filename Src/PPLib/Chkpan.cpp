@@ -5636,6 +5636,7 @@ int CheckPaneDialog::EditMemo(const char * pDlvrPhone, const char * pChannel)
 			if(Data.Flags & Data.fDelivery && CConfig.Flags2 & CCFLG2_INDEXEADDR) {
 				SString temp_buf, phone_buf;
 				getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf);
+				temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
 				PPEAddr::Phone::NormalizeStr(temp_buf, phone_buf);
 				if(phone_buf.NotEmptyS()) {
 					PPIDArray addr_list, dlvr_addr_list;

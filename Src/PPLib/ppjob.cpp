@@ -1594,7 +1594,7 @@ public:
 				temp_buf.Space().Cat(param.Arg);
 			STempBuffer cmd_line(temp_buf.Len()*2);
 			strnzcpy(cmd_line, temp_buf, cmd_line.GetSize());
-			int    r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, 0, &si, &pi);
+			int    r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, 0, &si, &pi); // @unicodeproblem
 			if(!r) {
 				SLS.SetOsError(0);
 				PPSetErrorSLib();

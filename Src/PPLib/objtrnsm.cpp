@@ -371,25 +371,11 @@ int SLAPI ObjTransmContext::ResetOuterLogger()
 	return ok;
 }
 
-int SLAPI ObjTransmContext::OutReceivingMsg(const char * pMsg)
-{
-	return P_Logger ? P_Logger->Log(pMsg) : 0;
-}
-
-int SLAPI ObjTransmContext::Output(const char * pText)
-{
-	return P_Logger ? P_Logger->Log(pText) : 0;
-}
-
-int SLAPI ObjTransmContext::OutputLastError()
-{
-	return P_Logger ? P_Logger->LogLastError() : 0;
-}
-
-int SLAPI ObjTransmContext::OutputString(uint strId, const char * pAddedInfo)
-{
-	return P_Logger ? P_Logger->LogString(strId, pAddedInfo) : 0;
-}
+int SLAPI ObjTransmContext::OutReceivingMsg(const char * pMsg) { return P_Logger ? P_Logger->Log(pMsg) : 0; }
+int SLAPI ObjTransmContext::Output(const char * pText) { return P_Logger ? P_Logger->Log(pText) : 0; }
+int SLAPI ObjTransmContext::OutputLastError() { return P_Logger ? P_Logger->LogLastError() : 0; }
+int SLAPI ObjTransmContext::OutputString(uint strId, const char * pAddedInfo) { return P_Logger ? P_Logger->LogString(strId, pAddedInfo) : 0; }
+int SLAPI ObjTransmContext::OutputAcceptMsg(PPID objType, PPID objID, int upd) { return P_Logger ? P_Logger->LogAcceptMsg(objType, objID, upd) : 0; }
 
 int SLAPI ObjTransmContext::OutputAcceptErrMsg(uint msgID, PPID objID, const char * pObjName)
 {
@@ -406,11 +392,6 @@ int SLAPI ObjTransmContext::OutputAcceptObjErrMsg(PPID objType, PPID objID, cons
 	PPLoadText(PPTXT_ERRACCEPTOBJECT, fmt_buf);
 	GetObjectTitle(objType, obj_title);
 	return OutReceivingMsg(msg_buf.Printf(fmt_buf, obj_title.cptr(), objID, pObjName, err_msg.cptr()));
-}
-
-int SLAPI ObjTransmContext::OutputAcceptMsg(PPID objType, PPID objID, int upd)
-{
-	return P_Logger ? P_Logger->LogAcceptMsg(objType, objID, upd) : 0;
 }
 
 int SLAPI ObjTransmContext::GetPrevRestoredObj(PPObjID * pOi) const
@@ -441,11 +422,6 @@ int SLAPI ObjTransmContext::ForceRestore(PPObjID oi)
 		}
 	}
 	return ok;
-}
-
-int SLAPI ObjTransmContext::IsForced(PPObjID oi) const
-{
-	return BIN(P_ForceRestoreObj && P_ForceRestoreObj->lsearch(&oi, 0, PTR_CMPFUNC(_2long)));
 }
 
 int SLAPI ObjTransmContext::GetPrimaryObjID(PPID objType, PPID foreignID, PPID * pPrimID)
@@ -483,20 +459,14 @@ int SLAPI ObjTransmContext::GetPrimaryObjID(PPID objType, PPID foreignID, PPID *
 	return ok;
 }
 
+int SLAPI ObjTransmContext::IsForced(PPObjID oi) const
+	{ return BIN(P_ForceRestoreObj && P_ForceRestoreObj->lsearch(&oi, 0, PTR_CMPFUNC(_2long))); }
 int SLAPI ObjTransmContext::RegisterDependedNonObject(PPObjID objid, PPCommSyncID * pCommID, int use_ta)
-{
-	return P_Ot ? P_Ot->RegisterDependedNonObject(objid, pCommID, use_ta) : 0;
-}
-
+	{ return P_Ot ? P_Ot->RegisterDependedNonObject(objid, pCommID, use_ta) : 0; }
 int SLAPI ObjTransmContext::ResolveDependedNonObject(PPID objType, PPID foreignID, PPID * pPrimID)
-{
-	return GetPrimaryObjID(objType, foreignID, pPrimID);
-}
-
+	{ return GetPrimaryObjID(objType, foreignID, pPrimID); }
 int SLAPI ObjTransmContext::AcceptDependedNonObject(PPObjID foreignObjId, PPID primaryID, const LDATETIME * pModDtm, int use_ta)
-{
-	return P_Ot ? P_Ot->AcceptDependedNonObject(foreignObjId, primaryID, pModDtm, use_ta) : 0;
-}
+	{ return P_Ot ? P_Ot->AcceptDependedNonObject(foreignObjId, primaryID, pModDtm, use_ta) : 0; }
 //
 //
 //
@@ -669,14 +639,9 @@ int SLAPI PPObjectTransmit::GetHeader(const char * pFileName, PPObjectTransmit::
 }
 
 int SLAPI PPObjectTransmit::Write(FILE * stream, void * p, size_t s)
-{
-	return (stream && fwrite(p, s, 1, stream) == 1) ? 1 : PPSetError(PPERR_PPOSWRITEFAULT);
-}
-
+	{ return (stream && fwrite(p, s, 1, stream) == 1) ? 1 : PPSetError(PPERR_PPOSWRITEFAULT); }
 int SLAPI PPObjectTransmit::Read(FILE * stream, void * p, size_t s)
-{
-	return (stream && fread(p, s, 1, stream) == 1) ? 1 : PPSetError(PPERR_PPOSREADFAULT);
-}
+	{ return (stream && fread(p, s, 1, stream) == 1) ? 1 : PPSetError(PPERR_PPOSREADFAULT); }
 //
 //
 //
@@ -3433,7 +3398,7 @@ int SLAPI SynchronizeObjects(PPID dest)
 				PPOBJ_CITYSTATUS,
 				PPOBJ_CURRENCY,
 				PPOBJ_DEBTDIM,
-				PPOBJ_DUTYSCHED,       // @v7.7.0
+				PPOBJ_DUTYSCHED,
 				PPOBJ_DYNAMICOBJS,
 				PPOBJ_ELINKKIND,
 				PPOBJ_EVENTTOKEN,      // @v8.4.12
@@ -3441,24 +3406,24 @@ int SLAPI SynchronizeObjects(PPID dest)
 				PPOBJ_GOODSCLASS,
 				PPOBJ_GOODSTAX,
 				PPOBJ_GOODSTYPE,
-				PPOBJ_GOODSVALRESTR,   // @v7.7.0
-				PPOBJ_INTERNETACCOUNT, // @v7.7.0
-				PPOBJ_NAMEDOBJASSOC,   // @v7.7.0
+				PPOBJ_GOODSVALRESTR,
+				PPOBJ_INTERNETACCOUNT,
+				PPOBJ_NAMEDOBJASSOC,
 				PPOBJ_OPCOUNTER,
 				PPOBJ_OPRKIND,
 				PPOBJ_OPRTYPE,
 				PPOBJ_PALLET,
-				PPOBJ_PERSONRELTYPE,   // @v7.7.0
-				PPOBJ_PHONESERVICE,    // @v7.7.0
+				PPOBJ_PERSONRELTYPE,
+				PPOBJ_PHONESERVICE,
 				PPOBJ_PRICETYPE,
-				PPOBJ_PRSNCATEGORY,    // @v7.7.0
+				PPOBJ_PRSNCATEGORY,
 				PPOBJ_PRSNKIND,
 				PPOBJ_PRSNSTATUS,
 				PPOBJ_QUOTKIND,
 				PPOBJ_REGISTERTYPE,
 				PPOBJ_SALCHARGE,
 				PPOBJ_SCARDSERIES,
-				PPOBJ_SMSPRVACCOUNT,   // @v7.7.0
+				PPOBJ_SMSPRVACCOUNT,
 				PPOBJ_STAFFCAL,
 				PPOBJ_STAFFRANK,
 				PPOBJ_TAG,
@@ -3478,17 +3443,15 @@ int SLAPI SynchronizeObjects(PPID dest)
 		THROW(SyncTblObj(&r_sync, scobj.P_Tbl,     PPOBJ_SCARD,      dest));
 		if(!(param.Flags & SelfSyncParam::fDontSyncBills)) {
 			THROW(SyncTblObj(&r_sync, p_bobj->P_Tbl, PPOBJ_BILL, dest));
-			// @v7.7.0 {
 			if(CConfig.Flags2 & CCFLG2_SYNCLOT) {
 				THROW(SyncTblObj(&r_sync, &p_bobj->trfr->Rcpt, PPOBJ_LOT, dest));
 			}
-			// } @v7.7.0
 		}
 		THROW(SyncTblObj(&r_sync, qcobj.P_Tbl,    PPOBJ_QCERT,   dest));
 		THROW(SyncTblObj(&r_sync, prj_obj.P_Tbl,  PPOBJ_PROJECT, dest));
 		THROW(SyncTblObj(&r_sync, todo_obj.P_Tbl, PPOBJ_PRJTASK, dest));
 		THROW(SyncGoodsObjs(&r_sync, gobj.P_Tbl, dest));
-		THROW(SyncTblObj(&r_sync, cses_obj.P_Tbl, PPOBJ_CSESSION, dest)); // @v7.7.0
+		THROW(SyncTblObj(&r_sync, cses_obj.P_Tbl, PPOBJ_CSESSION, dest));
 
 		THROW(SyncTblObj(&r_sync, prc_obj.P_Tbl,  PPOBJ_PROCESSOR, dest)); // @v8.4.12
 		THROW(SyncTblObj(&r_sync, tec_obj.P_Tbl,  PPOBJ_TECH,      dest)); // @v8.4.12
@@ -3500,4 +3463,3 @@ int SLAPI SynchronizeObjects(PPID dest)
 	PPWait(0);
 	return ok;
 }
-

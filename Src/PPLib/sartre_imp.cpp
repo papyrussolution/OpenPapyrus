@@ -3558,7 +3558,7 @@ int FASTCALL SrSyntaxRuleSet::ResolveRuleBlock::PopInnerState(int dontRestoreTex
 	return ok;
 }
 
-SLAPI SrSyntaxRuleSet::ExprItem::ExprItem(uint16 kind) : K(kind), ArgCount(0), Op(0), RSymb(0), VarP(0)
+SLAPI SrSyntaxRuleSet::ExprItem::ExprItem(uint16 kind) : K(kind), ArgCount(0), Op(0), RSymb(0), VarP(0), VarItemRef(-1)
 {
 }
 
@@ -4004,7 +4004,9 @@ int SLAPI SrSyntaxRuleSet::Parse(SString & rS)
 int SLAPI SrSyntaxRuleSet::ResolveSyntaxRules(SrDatabase & rDb)
 {
 	int    ok = 1;
+	CONCEPTID cid = 0;
 	SString temp_buf;
+	SString var_buf;
 	for(uint i = 0; i < RL.getCount(); i++) {
 		SrSyntaxRuleSet::Rule * p_rule = RL.at(i);
 		if(p_rule) {
@@ -4012,15 +4014,34 @@ int SLAPI SrSyntaxRuleSet::ResolveSyntaxRules(SrDatabase & rDb)
 				SrSyntaxRuleSet::ExprItem & r_ei = *(SrSyntaxRuleSet::ExprItem *)p_rule->ES.at(j);
 				switch(r_ei.K) {
 					case SrSyntaxRuleSet::kConceptInstance:
-						break;
 					case SrSyntaxRuleSet::kConceptSubclass:
-						break;
 					case SrSyntaxRuleSet::kConcept:
-						if(!r_ei.RSymb) {
-							if(GetS(r_ei.SymbP, temp_buf)) {
-								CONCEPTID cid = 0;
-								if(rDb.SearchConcept(temp_buf, &cid))
-									r_ei.RSymb = cid;
+						if(r_ei.SymbP) {
+							if(!r_ei.RSymb) {
+								if(GetS(r_ei.SymbP, temp_buf)) {
+									if(rDb.SearchConcept(temp_buf, &cid))
+										r_ei.RSymb = cid;
+								}
+							}
+						}
+						else if(r_ei.VarP && r_ei.VarItemRef < 0) {
+							if(GetS(r_ei.VarP, var_buf) && var_buf.Len()) {
+								for(uint n = 0; n < p_rule->ES.getPointer(); n++) {
+									if(n != j) {
+										SrSyntaxRuleSet::ExprItem & r_ei_inner = *(SrSyntaxRuleSet::ExprItem *)p_rule->ES.at(n);
+										if(r_ei_inner.VarP && r_ei_inner.SymbP) {
+											if(oneof3(r_ei_inner.K, SrSyntaxRuleSet::kConcept, SrSyntaxRuleSet::kConceptInstance, SrSyntaxRuleSet::kConceptSubclass)) {
+												if(GetS(r_ei_inner.VarP, temp_buf) && temp_buf == var_buf) {
+													if(r_ei.VarItemRef < 0)
+														r_ei.VarItemRef = (int)n;
+													else {
+														// Не однозначность!
+													}
+												}
+											}
+										}
+									}
+								}
 							}
 						}
 						break;
@@ -4131,7 +4152,7 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 					rB.SetupRule((SrSyntaxRuleSet::Rule *)p_sti->RSymb);
 					ok = __ResolveExprRule(rB, 0); // @recursion
 					//
-					// Мы не будем (пока) учитывать в списке успешных разборов внутрении вызовы вложенных выражений.
+					// Мы не будем (пока) учитывать в списке успешных разборов внутреннии вызовы вложенных выражений.
 					// То есть, мы при успешном сопоставлении очищаем список rB.MatchList (при неуспешном он будет
 					// секвестирован в конце функции).
 					//
@@ -4189,8 +4210,21 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 			}
 			break;
 		case SrSyntaxRuleSet::kConcept:
+		case SrSyntaxRuleSet::kConceptInstance:
+		case SrSyntaxRuleSet::kConceptSubclass:
 			if(!unrollStackOnly) {
-				if(p_sti->RSymb > 0) {
+				CONCEPTID  target_cid = p_sti->RSymb;
+				if(target_cid == 0 && p_sti->VarItemRef >= 0) { // Ссылка на другой операнд
+					assert(p_sti->VarItemRef < (int)r_st.getCount());
+					for(uint mi = 0; mi < rB.GetMatchList().getCount(); mi++) {
+						const MatchEntry & r_me = rB.GetMatchList().at(mi);
+						if((int)r_me.StackP == p_sti->VarItemRef && r_me.ConceptId) {
+							target_cid = r_me.ConceptId;
+							break;
+						}
+					}
+				}
+				if(target_cid > 0) {
 					SrNGram sng;
 					SrNGram sng_local;
 					uint   tidx = rB.TextIdx;
@@ -4209,12 +4243,13 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 								THROW(rB.R_Db.P_NgT->Search(ng_list.at(i), p_ng) > 0); // Не может такого быть, что этой n-граммы не было (мы только что ее нашли)
 							}
 							sng_list.SortByLength();
+							const  uint local_preserve_tidx = tidx;
 							uint   _c = sng_list.getCount();
 							if(_c) do {
 								SrNGram * p_ng = sng_list.at(--_c);
 								THROW(p_ng->WordIdList.get(0) == word_id);
 								int    is_match = 1;
-								const  uint preserve_tidx = tidx;
+								tidx = local_preserve_tidx; // @v9.9.11
 								for(uint j = 1 /*! 0-й элемент уже проверен*/; is_match && j < p_ng->WordIdList.getCount(); j++) {
 									const LEXID ng_word_id = p_ng->WordIdList.get(j);
 									if(rB.R_T.Get(++tidx, rB.TItemBuf)) {
@@ -4237,7 +4272,7 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 								if(is_match) {
 									rB.R_Db.GetNgConceptList(p_ng->ID, 0, concept_list);
 									uint   cpos = 0;
-									if(concept_list.lsearch(p_sti->RSymb, &cpos)) {
+									if(p_sti->K == SrSyntaxRuleSet::kConcept && concept_list.lsearch(target_cid, &cpos)) {
 										rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, concept_list.get(cpos));
 										rB.TextIdx = tidx+1;
 										ok = 1;
@@ -4245,11 +4280,29 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 									else {
 										for(uint cidx = 0; ok < 0 && cidx < concept_list.getCount(); cidx++) {
 											const CONCEPTID cid = concept_list.get(cidx);
-											rB.R_Db.GetConceptHier(cid, concept_hier_list);
-											if(concept_hier_list.lsearch(p_sti->RSymb)) {
-												rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, cid);
-												rB.TextIdx = tidx+1;
-												ok = 1;
+											if(p_sti->K == SrSyntaxRuleSet::kConcept) {
+												rB.R_Db.GetConceptHier(cid, concept_hier_list);
+												if(concept_hier_list.lsearch(target_cid)) {
+													rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, cid);
+													rB.TextIdx = tidx+1;
+													ok = 1;
+												}
+											}
+											else if(p_sti->K == SrSyntaxRuleSet::kConceptInstance) {
+												CONCEPTID ancestor_id;
+												if(rB.R_Db.GetFirstConceptAncestor(SrDatabase::rcInstance, cid, ancestor_id) > 0 && ancestor_id == target_cid) {
+													rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, cid);
+													rB.TextIdx = tidx+1;
+													ok = 1;
+												}
+											}
+											else if(p_sti->K == SrSyntaxRuleSet::kConceptSubclass) {
+												CONCEPTID ancestor_id;
+												if(rB.R_Db.GetFirstConceptAncestor(SrDatabase::rcSubclass, cid, ancestor_id) > 0 && ancestor_id == target_cid) {
+													rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, cid);
+													rB.TextIdx = tidx+1;
+													ok = 1;
+												}
 											}
 										}
 									}

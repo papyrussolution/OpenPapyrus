@@ -4093,8 +4093,9 @@ int SLAPI PPObjSCard::IndexPhones(int use_ta)
 		THROW(tra);
 		for(SEnum en = r_utrc.Enum(PPOBJ_SCARD, PPTRPROP_SCARDEXT); en.Next(&iter_item) > 0;) {
 			PPGetExtStrData(PPSCardPacket::extssPhone, iter_item.S, temp_buf);
-			if(temp_buf.NotEmptyS()) {
-				temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+			if(temp_buf.NotEmptyS()) { // temp_buf - в кодировке UTF-8
+				// @v9.9.10 temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+				temp_buf.Utf8ToLower(); // @v9.9.11
 				PPEAddr::Phone::NormalizeStr(temp_buf, phone);
 				if(phone.Len() >= 5) {
 					PPID   city_id = 0;

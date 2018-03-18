@@ -5823,15 +5823,21 @@ int SLAPI PPObjPerson::IndexPhones(int use_ta)
 				P_Tbl->GetELinks(objid.Id, &ela);
 				for(uint i = 0; i < ela.getCount(); i++) {
 					const PPELink & r_item = ela.at(i);
-					if(elk_obj.Fetch(r_item.KindID, &elk_rec) > 0 && elk_rec.Type == ELNKRT_PHONE) {
-						PPEAddr::Phone::NormalizeStr(r_item.Addr, phone);
-						if(phone.Len() >= 5) {
-							if(city_prefix.Len()) {
-								size_t sl = phone.Len() + city_prefix.Len();
-								if(oneof2(sl, 10, 11))
-									phone = (temp_buf = city_prefix).Cat(phone);
+					if(elk_obj.Fetch(r_item.KindID, &elk_rec) > 0) {
+						if(elk_rec.Type == ELNKRT_PHONE) {
+							(temp_buf = r_item.Addr).Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
+							PPEAddr::Phone::NormalizeStr(temp_buf, phone);
+							if(phone.Len() >= 5) {
+								if(city_prefix.Len()) {
+									size_t sl = phone.Len() + city_prefix.Len();
+									if(oneof2(sl, 10, 11))
+										phone = (temp_buf = city_prefix).Cat(phone);
+								}
+								THROW(LocObj.P_Tbl->IndexPhone(phone, &objid, 0, 0));
 							}
-							THROW(LocObj.P_Tbl->IndexPhone(phone, &objid, 0, 0));
+						}
+						else if(elk_rec.Type == ELNKRT_INTERNALEXTEN) {
+							; // @todo
 						}
 					}
 				}

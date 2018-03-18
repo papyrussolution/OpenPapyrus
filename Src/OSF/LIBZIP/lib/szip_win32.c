@@ -46,13 +46,7 @@ static HANDLE _win32_create_temp_w(_zip_source_win32_read_file_t * ctx, void ** 
 static int _win32_rename_temp_w(_zip_source_win32_read_file_t * ctx);
 static int _win32_remove_w(const void * fname);
 
-static _zip_source_win32_file_ops_t win32_ops_a = {
-	_win32_strdup_a,
-	_win32_open_a,
-	_win32_create_temp_a,
-	_win32_rename_temp_a,
-	_win32_remove_a
-};
+static _zip_source_win32_file_ops_t win32_ops_a = { _win32_strdup_a, _win32_open_a, _win32_create_temp_a, _win32_rename_temp_a, _win32_remove_a };
 
 ZIP_EXTERN zip_source_t * zip_source_win32a(zip_t * za, const char * fname, uint64 start, int64 len)
 {

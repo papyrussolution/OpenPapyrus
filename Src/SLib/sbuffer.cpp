@@ -633,45 +633,14 @@ int SLAPI SBaseBuffer::Put(size_t offs, const void * pSrc, size_t size)
 	return ok;
 }
 
-int SLAPI SBaseBuffer::Put(size_t offs, uint8 v)
-{
-    return Put(offs, &v, sizeof(v));
-}
-
-int SLAPI SBaseBuffer::Put(size_t offs, uint16 v)
-{
-	return Put(offs, &v, sizeof(v));
-}
-
-int SLAPI SBaseBuffer::Put(size_t offs, uint32 v)
-{
-	return Put(offs, &v, sizeof(v));
-}
-
-int SLAPI SBaseBuffer::Put(size_t offs, uint64 v)
-{
-	return Put(offs, &v, sizeof(v));
-}
-
-int SLAPI SBaseBuffer::Put(size_t offs, int8 v)
-{
-	return Put(offs, &v, sizeof(v));
-}
-
-int SLAPI SBaseBuffer::Put(size_t offs, int16 v)
-{
-	return Put(offs, &v, sizeof(v));
-}
-
-int SLAPI SBaseBuffer::Put(size_t offs, int32 v)
-{
-	return Put(offs, &v, sizeof(v));
-}
-
-int SLAPI SBaseBuffer::Put(size_t offs, int64 v)
-{
-	return Put(offs, &v, sizeof(v));
-}
+int SLAPI SBaseBuffer::Put(size_t offs, uint8 v) { return Put(offs, &v, sizeof(v)); }
+int SLAPI SBaseBuffer::Put(size_t offs, uint16 v) { return Put(offs, &v, sizeof(v)); }
+int SLAPI SBaseBuffer::Put(size_t offs, uint32 v) { return Put(offs, &v, sizeof(v)); }
+int SLAPI SBaseBuffer::Put(size_t offs, uint64 v) { return Put(offs, &v, sizeof(v)); }
+int SLAPI SBaseBuffer::Put(size_t offs, int8 v) { return Put(offs, &v, sizeof(v)); }
+int SLAPI SBaseBuffer::Put(size_t offs, int16 v) { return Put(offs, &v, sizeof(v)); }
+int SLAPI SBaseBuffer::Put(size_t offs, int32 v) { return Put(offs, &v, sizeof(v)); }
+int SLAPI SBaseBuffer::Put(size_t offs, int64 v) { return Put(offs, &v, sizeof(v)); }
 
 int SLAPI SBaseBuffer::Get(size_t offs, void * pDest, size_t size) const
 {
@@ -684,45 +653,14 @@ int SLAPI SBaseBuffer::Get(size_t offs, void * pDest, size_t size) const
 	return ok;
 }
 
-int SLAPI SBaseBuffer::Get(size_t offs, uint8 & rV) const
-{
-	return Get(offs, &rV, sizeof(rV));
-}
-
-int SLAPI SBaseBuffer::Get(size_t offs, uint16 & rV) const
-{
-	return Get(offs, &rV, sizeof(rV));
-}
-
-int SLAPI SBaseBuffer::Get(size_t offs, uint32 & rV) const
-{
-	return Get(offs, &rV, sizeof(rV));
-}
-
-int SLAPI SBaseBuffer::Get(size_t offs, uint64 & rV) const
-{
-	return Get(offs, &rV, sizeof(rV));
-}
-
-int SLAPI SBaseBuffer::Get(size_t offs, int8 & rV) const
-{
-	return Get(offs, &rV, sizeof(rV));
-}
-
-int SLAPI SBaseBuffer::Get(size_t offs, int16 & rV) const
-{
-	return Get(offs, &rV, sizeof(rV));
-}
-
-int SLAPI SBaseBuffer::Get(size_t offs, int32 & rV) const
-{
-	return Get(offs, &rV, sizeof(rV));
-}
-
-int SLAPI SBaseBuffer::Get(size_t offs, int64 & rV) const
-{
-	return Get(offs, &rV, sizeof(rV));
-}
+int SLAPI SBaseBuffer::Get(size_t offs, uint8 & rV) const { return Get(offs, &rV, sizeof(rV)); }
+int SLAPI SBaseBuffer::Get(size_t offs, uint16 & rV) const { return Get(offs, &rV, sizeof(rV)); }
+int SLAPI SBaseBuffer::Get(size_t offs, uint32 & rV) const { return Get(offs, &rV, sizeof(rV)); }
+int SLAPI SBaseBuffer::Get(size_t offs, uint64 & rV) const { return Get(offs, &rV, sizeof(rV)); }
+int SLAPI SBaseBuffer::Get(size_t offs, int8 & rV) const { return Get(offs, &rV, sizeof(rV)); }
+int SLAPI SBaseBuffer::Get(size_t offs, int16 & rV) const { return Get(offs, &rV, sizeof(rV)); }
+int SLAPI SBaseBuffer::Get(size_t offs, int32 & rV) const { return Get(offs, &rV, sizeof(rV)); }
+int SLAPI SBaseBuffer::Get(size_t offs, int64 & rV) const { return Get(offs, &rV, sizeof(rV)); }
 //
 //
 //
@@ -814,11 +752,11 @@ LDATE SLAPI SSerializeContext::GetSupportingDate() const
 int SLAPI SSerializeContext::AddDbtDescr(const char * pName, const BNFieldList * pList, uint32 * pID)
 {
 	int    ok = -1;
-	(TempBuf = pName).ToUpper();
+	(TempStrBuf = pName).ToUpper();
 	uint   dbt_id = 0;
-	if(!SymbTbl.Search(TempBuf, &dbt_id, 0)) {
+	if(!SymbTbl.Search(TempStrBuf, &dbt_id, 0)) {
 		dbt_id = ++LastSymbId;
-		SymbTbl.Add(TempBuf, dbt_id, 0);
+		SymbTbl.Add(TempStrBuf, dbt_id, 0);
 		SscDbtItem * p_new_item = new SscDbtItem;
 		THROW_S(p_new_item, SLERR_NOMEM);
 		p_new_item->DbtID = dbt_id;
@@ -914,8 +852,8 @@ int SLAPI SSerializeContext::SerializeState(int dir, SBuffer & rBuf)
 			for(uint i = 0; i < blk.StructCount; i++) {
 				assert(P_DbtDescrList);
 				SscDbtItem * p_item = (SscDbtItem *)P_DbtDescrList->at(i);
-				SymbTbl.GetByAssoc(p_item->DbtID, TempBuf);
-				rBuf.Write(TempBuf);
+				SymbTbl.GetByAssoc(p_item->DbtID, TempStrBuf);
+				rBuf.Write(TempStrBuf);
 				rBuf.Write(p_item->DbtID);
 				THROW(SerializeFieldList(+1, &p_item->Fields, rBuf));
 			}
@@ -941,11 +879,11 @@ int SLAPI SSerializeContext::SerializeState(int dir, SBuffer & rBuf)
 				for(uint i = 0; i < blk.StructCount; i++) {
 					SscDbtItem * p_new_item = new SscDbtItem;
 					THROW(p_new_item);
-					THROW(rBuf.Read(TempBuf));
+					THROW(rBuf.Read(TempStrBuf));
 					THROW(rBuf.Read(p_new_item->DbtID));
 					THROW(SerializeFieldList(-1, &p_new_item->Fields, rBuf));
 					THROW(P_DbtDescrList->insert(p_new_item));
-					THROW(SymbTbl.Add(TempBuf, p_new_item->DbtID, 0));
+					THROW(SymbTbl.Add(TempStrBuf, p_new_item->DbtID, 0));
 				}
 			}
 			else
@@ -966,12 +904,13 @@ int SLAPI SSerializeContext::Serialize(int dir, TYPEID typ, void * pData, uint8 
 	else {
 		uint8  ind = 0;
 		if(dir > 0) {
-			SBuffer temp_buf;
-			THROW(stype(typ, &_t).Serialize(dir, pData, &ind, temp_buf, this));
+			//SBuffer temp_buf;
+			TempSBuf.Clear();
+			THROW(stype(typ, &_t).Serialize(dir, pData, &ind, TempSBuf, this));
 			THROW(rBuf.Write(&ind, sizeof(ind)));
-			const size_t avsz = temp_buf.GetAvailableSize();
+			const size_t avsz = TempSBuf.GetAvailableSize();
 			if(avsz)
-				THROW(rBuf.Write(temp_buf.GetBuf(temp_buf.GetRdOffs()), avsz));
+				THROW(rBuf.Write(TempSBuf.GetBuf(TempSBuf.GetRdOffs()), avsz));
 		}
 		else if(dir < 0) {
 			THROW(rBuf.ReadV(&ind, sizeof(ind)));

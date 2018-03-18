@@ -1094,7 +1094,6 @@ bad:
 	TIFFErrorExt(tif->tif_clientdata, module, "No space for LZW state block");
 	return 0;
 }
-
 /*
  * Copyright (c) 1985, 1986 The Regents of the University of California.
  * All rights reserved.

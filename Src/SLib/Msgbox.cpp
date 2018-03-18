@@ -133,7 +133,7 @@ ushort messageBox(const char * pMsg, ushort aOptions)
 	if(!(aOptions & mfAll) && ((aOptions & 0xf) == mfInfo)) {
 		msg_flags |= (MB_OK | MB_ICONINFORMATION | MB_TASKMODAL);
 		SLS.LoadString(P_Titles[2], title_buf);
-		::MessageBox(hw_parent, ConvertMsgString(pMsg, temp_buf), title_buf.Transf(CTRANSF_INNER_TO_OUTER), msg_flags);
+		::MessageBox(hw_parent, ConvertMsgString(pMsg, temp_buf), title_buf.Transf(CTRANSF_INNER_TO_OUTER), msg_flags); // @unicodeproblem
 		SetForegroundWindow(hw_parent);
 		ret = cmOK;
 	}
@@ -149,7 +149,7 @@ ushort messageBox(const char * pMsg, ushort aOptions)
 		else
 			msg_flags |= MB_DEFBUTTON2;
 		SLS.LoadString(P_Titles[3], title_buf);
-		int    ok = ::MessageBox(hw_parent, ConvertMsgString(pMsg, temp_buf), title_buf.Transf(CTRANSF_INNER_TO_OUTER), msg_flags);
+		int    ok = ::MessageBox(hw_parent, ConvertMsgString(pMsg, temp_buf), title_buf.Transf(CTRANSF_INNER_TO_OUTER), msg_flags); // @unicodeproblem
 		::SetForegroundWindow(hw_parent);
 		ret = (ok == IDYES) ? cmYes : ((ok == IDCANCEL) ? cmCancel : cmNo);
 	}

@@ -30,7 +30,6 @@ TreeWindow::TreeWindow(HWND parentWnd) : P_CurLw(0), P_Toolbar(0)
 TreeWindow::~TreeWindow()
 {
 	ZDELETE(P_Toolbar);
-	//SetWindowLong(Hwnd, GWLP_USERDATA, 0);
 	TView::SetWindowProp(Hwnd, GWLP_USERDATA, (void *)0);
 	DestroyWindow(Hwnd);
 }
@@ -53,12 +52,12 @@ INT_PTR CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
  			break;
 		case WM_NOTIFY: {
 			NMHDR * nm = (LPNMHDR)lParam;
-			if(wParam == MENU_TREELIST && (nm->code == NM_DBLCLK || nm->code == TVN_KEYDOWN && ((LPNMTVKEYDOWN)nm)->wVKey == 13)) {
+			if(wParam == MENU_TREELIST && (nm->code == NM_DBLCLK || (nm->code == TVN_KEYDOWN && ((LPNMTVKEYDOWN)nm)->wVKey == 13))) {
 				HWND   h_tv = GetDlgItem(hWnd, MENU_TREELIST);
 				HTREEITEM hI = TreeView_GetSelection(h_tv);
 				TVITEM item;
 				item.mask = TVIF_HANDLE|TVIF_TEXT|TVIF_CHILDREN|TVIF_PARAM;
-				item.pszText = menu_name;
+				item.pszText = menu_name; // @unicodeproblem
 				item.hItem = hI;
 				item.cchTextMax = sizeof(menu_name);
 				TreeView_GetItem(h_tv, &item); // @unicodeproblem
@@ -108,7 +107,7 @@ INT_PTR CALLBACK TreeWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 			if(wParam != SC_CLOSE)
 				return 0;
 			else {
-				ShowWindow(hWnd, SW_HIDE);
+				::ShowWindow(hWnd, SW_HIDE);
 				MENUITEMINFO mii;
 				MEMSZERO(mii);
 				mii.cbSize = sizeof(MENUITEMINFO);
@@ -149,7 +148,7 @@ void TreeWindow::SetupCmdList(HMENU hMenu, HTREEITEM hP)
 		MENUITEMINFO mii;
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_DATA|MIIM_SUBMENU|MIIM_TYPE|MIIM_STATE|MIIM_ID;
-		mii.dwTypeData = menu_name;
+		mii.dwTypeData = menu_name; // @unicodeproblem
 		mii.cch = sizeof(menu_name);
 		GetMenuItemInfo(hMenu, i, TRUE, &mii); // @unicodeproblem
 		if(menu_name[0] != 0) {
@@ -169,7 +168,7 @@ void TreeWindow::SetupCmdList(HMENU hMenu, HTREEITEM hP)
 			char * chr = strchr(menu_name, '&');
 			if(chr)
 				memmove(chr, chr+1, sstrlen(chr));
-			is.item.pszText = menu_name;
+			is.item.pszText = menu_name; // @unicodeproblem
 			is.item.cchTextMax = mii.cch;
 	  		if(mii.fType != MFT_SEPARATOR) {
 				hti = TreeView_InsertItem(h_tv, &is); // @unicodeproblem
@@ -343,7 +342,7 @@ void TreeWindow::MenuToList(HMENU hMenu, long parentId, StrAssocArray * pList)
 		MENUITEMINFO mii;
 		mii.cbSize = sizeof(MENUITEMINFO);
 		mii.fMask = MIIM_DATA|MIIM_SUBMENU|MIIM_TYPE|MIIM_STATE|MIIM_ID;
-		mii.dwTypeData = menu_name;
+		mii.dwTypeData = menu_name; // @unicodeproblem
 		mii.cch = sizeof(menu_name);
 		GetMenuItemInfo(hMenu, i, TRUE, &mii); // @unicodeproblem
 		if(menu_name[0] != 0) {
@@ -373,7 +372,7 @@ void TreeWindow::AddItemCmdList(const char * pTitle, void * ptr)
 		is.item.mask       = TVIF_TEXT | TVIF_PARAM;
 		is.item.lParam     = (UINT)ptr;
 		is.item.cChildren  = 0;
-		is.item.pszText    = title_buf;
+		is.item.pszText    = title_buf; // @unicodeproblem
 		is.item.cchTextMax = sizeof(title_buf);
 		TreeView_InsertItem(H_CmdList, &is); // @unicodeproblem
 	}
@@ -395,7 +394,7 @@ void TreeWindow::UpdateItemCmdList(const char * pTitle, void * ptr)
 			if(!is.cChildren && LOWORD(is.lParam) == LOWORD(ptr)) {
 				is.hItem      = h_item;
 				is.mask       = TVIF_TEXT;
-				is.pszText    = title_buf;
+				is.pszText    = title_buf; // @unicodeproblem
 				is.cchTextMax = sizeof(title_buf);
 				TreeView_SetItem(hw_tree, &is); // @unicodeproblem
 				break;

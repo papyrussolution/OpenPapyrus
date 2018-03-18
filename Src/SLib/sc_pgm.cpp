@@ -57,10 +57,10 @@ int SCDBObjProgram::GetHostProgramVer(uint32 * pVer)
 
 	P_Ctx->P_Pte->GetInstallPath(path);
 	path.SetLastSlash().Cat(P_PalmProgramFileName);
-	info_size = GetFileVersionInfoSize(path, &set_to_zero);
+	info_size = GetFileVersionInfoSize(path, &set_to_zero); // @unicodeproblem
 	if(info_size) {
 		char * p_buf = new char[info_size];
-		if(GetFileVersionInfo(path, 0, info_size, p_buf)) {
+		if(GetFileVersionInfo(path, 0, info_size, p_buf)) { // @unicodeproblem
 			uint   value_size = 0;
 			char * p_ver_buf = 0;
 			if(VerQueryValue(p_buf, _T("\\"), (LPVOID *)&p_ver_buf, &value_size)) {

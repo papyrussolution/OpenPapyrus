@@ -612,7 +612,7 @@ static void PrintHexId(CStdOutStream &so, uint64 id)
     #endif
 		so << endl << "Hashers:" << endl; //  << " L Size       ID Name" << endl;
 		for(i = 0; i < g_NumHashers; i++) {
-			const CHasherInfo &codec = *g_Hashers[i];
+			const CHasherInfo & codec = *g_Hashers[i];
 			PrintLibIndex(so, -1);
 			PrintUInt32(so, codec.DigestSize, 4);
 			so << ' ';
@@ -632,7 +632,7 @@ static void PrintHexId(CStdOutStream &so, uint64 id)
     #endif
 	}
 	else if(options.Command.CommandType == NCommandType::kBenchmark) {
-		CStdOutStream &so = (g_StdStream ? *g_StdStream : g_StdOut);
+		CStdOutStream & so = (g_StdStream ? *g_StdStream : g_StdOut);
 		hresultMain = BenchCon(EXTERNAL_CODECS_VARS_L options.Properties, options.NumIterations, (FILE*)so);
 		if(hresultMain == S_FALSE) {
 			if(g_ErrStream)
@@ -677,7 +677,7 @@ static void PrintHexId(CStdOutStream &so, uint64 id)
 		if(hresultMain == S_OK)
 			if(isExtractGroupCommand) {
 				CExtractCallbackConsole * ecs = new CExtractCallbackConsole;
-				CMyComPtr<IFolderArchiveExtractCallback> extractCallback = ecs;
+				CMyComPtr <IFolderArchiveExtractCallback> extractCallback = ecs;
       #ifndef _NO_CRYPTO
 				ecs->PasswordIsDefined = options.PasswordEnabled;
 				ecs->Password = options.Password;
@@ -810,7 +810,7 @@ static void PrintHexId(CStdOutStream &so, uint64 id)
 			}
 	}
 	else if(options.Command.IsFromUpdateGroup()) {
-		CUpdateOptions &uo = options.UpdateOptions;
+		CUpdateOptions & uo = options.UpdateOptions;
 		if(uo.SfxMode && uo.SfxModule.IsEmpty())
 			uo.SfxModule = kDefaultSfxModule;
 		COpenCallbackConsole openCallback;

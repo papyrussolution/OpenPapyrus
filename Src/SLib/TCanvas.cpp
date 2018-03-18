@@ -912,7 +912,7 @@ TPoint SLAPI TCanvas2::GetTextSize(const char * pStr)
 	}
 	TPoint p;
 	SIZE   sz;
-	return ::GetTextExtentPoint32((HDC)S.HCtx, pStr, len, &sz) ? p.Set(sz.cx, sz.cy) : p.Set(0, 0);
+	return ::GetTextExtentPoint32((HDC)S.HCtx, pStr, len, &sz) ? p.Set(sz.cx, sz.cy) : p.Set(0, 0); // @unicodeproblem
 }
 
 int FASTCALL TCanvas2::SetBkColor(COLORREF c)
@@ -944,7 +944,7 @@ int SLAPI TCanvas2::_DrawText(const TRect & rRect, const char * pText, uint opti
 		pText = zero;
 	}
 	RECT   rect = rRect;
-	return ::DrawText((HDC)S.HCtx, pText, len, &rect, options) ? 1 : 0;
+	return ::DrawText((HDC)S.HCtx, pText, len, &rect, options) ? 1 : 0; // @unicodeproblem
 }
 
 int SLAPI TCanvas2::TextOut(TPoint p, const char * pText)
@@ -958,7 +958,7 @@ int SLAPI TCanvas2::TextOut(TPoint p, const char * pText)
 		memzero(zero, sizeof(zero));
 		pText = zero;
 	}
-	return ::TextOut((HDC)S.HCtx, p.x, p.y, pText, len) ? 1 : 0;
+	return ::TextOut((HDC)S.HCtx, p.x, p.y, pText, len) ? 1 : 0; // @unicodeproblem
 }
 
 TCanvas2::DrawingProcFrame::DrawingProcFrame(TCanvas2 * pCanv, const SDrawFigure * pFig)
@@ -1584,7 +1584,7 @@ TPoint FASTCALL TCanvas::GetTextSize(const char * pStr)
 	}
 	TPoint p;
 	SIZE   sz;
-	return ::GetTextExtentPoint32(H_Dc, pStr, len, &sz) ?  p.Set(sz.cx, sz.cy) : p.Set(0, 0);
+	return ::GetTextExtentPoint32(H_Dc, pStr, len, &sz) ?  p.Set(sz.cx, sz.cy) : p.Set(0, 0); // @unicodeproblem
 }
 
 void SLAPI TCanvas::SetBkTranparent()
@@ -1616,7 +1616,7 @@ int SLAPI TCanvas::DrawText(const TRect & rRect, const char * pText, uint option
 		pText = zero;
 	}
 	RECT   rect = rRect;
-	return BIN(::DrawText(H_Dc, pText, -1, &rect, options));
+	return BIN(::DrawText(H_Dc, pText, -1, &rect, options)); // @unicodeproblem
 }
 
 int SLAPI TCanvas::TextOut(TPoint p, const char * pText)
@@ -1630,7 +1630,7 @@ int SLAPI TCanvas::TextOut(TPoint p, const char * pText)
 		memzero(zero, sizeof(zero));
 		pText = zero;
 	}
-	return BIN(::TextOut(H_Dc, p.x, p.y, pText, len));
+	return BIN(::TextOut(H_Dc, p.x, p.y, pText, len)); // @unicodeproblem
 }
 //
 //

@@ -404,7 +404,7 @@ void SLAPI SlSession::Init(const char * pAppName, HINSTANCE hInst)
 	*/
 	H_Inst = NZOR(hInst, GetModuleHandle(0));
 	char   exe_path[MAXPATH];
-	GetModuleFileName(H_Inst, exe_path, sizeof(exe_path));
+	GetModuleFileName(H_Inst, exe_path, sizeof(exe_path)); // @unicodeproblem
 	ExePath = exe_path;
 	AppName = pAppName;
 	if(AppName.NotEmpty()) {

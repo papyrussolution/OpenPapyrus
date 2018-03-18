@@ -5396,6 +5396,7 @@ public:
 	int    SLAPI ReceiveOrders();
 	int    SLAPI SendStocks();
 	void   SLAPI GetLogFileName(SString & rFileName) const;
+	int    SLAPI SendStatus(const TSCollection <SfaHeinekenOrderStatusEntry> & rList);
 private:
 	struct ReplyInfo {
 		SLAPI  ReplyInfo() : ErrCode(0), ErrInternalCode(0), ErrSeverity(0)
@@ -5672,15 +5673,14 @@ int SLAPI SfaHeineken::ReceiveOrders()
 	int    ok = -1;
 	Reference * p_ref = PPRef;
 	PPSoapClientSession sess;
-	SString lib_path;
-	SString temp_buf, url;
+	SString temp_buf;
 	SString msg_buf;
-	SString out_file_name;
 	SString * p_result = 0;
 	TSCollection <OrderEntry> result_list;
 	ReplyInfo reply_info;
 	SFAHEINEKENGETORDERS_PROC func = 0;
 	SString tech_buf;
+	TSCollection <SfaHeinekenOrderStatusEntry> order_status_list;
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
 	{
 		PPFormatT(PPTXT_LOG_SUPPLIX_IMPGOODS_S, &msg_buf, tech_buf.cptr(), P.SupplID);
@@ -5692,7 +5692,7 @@ int SLAPI SfaHeineken::ReceiveOrders()
 	THROW(P_Lib);
 	THROW_SL(func = (SFAHEINEKENGETORDERS_PROC)P_Lib->GetProcAddr("SfaHeineken_GetOrders"));
 	sess.Setup(SvcUrl, UserName, Password);
-	p_result = func(sess, ZERODATE, 0/*demo*/);
+	p_result = func(sess, ZERODATE, 1/*demo*/);
 	THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
 	ParseOrdersPacket(p_result, &reply_info, result_list);
 	DestroyResult((void **)&p_result);
@@ -5827,11 +5827,18 @@ int SLAPI SfaHeineken::ReceiveOrders()
 								}
 								pack.InitAmounts();
 								THROW(P_BObj->TurnPacket(&pack, 1));
+								{
+									SfaHeinekenOrderStatusEntry * p_status_entry = order_status_list.CreateNewItem();
+									THROW_SL(p_status_entry);
+									p_status_entry->OrderUUID = p_src_pack->Uuid;
+									p_status_entry->Status = 1; // accepted
+								}
 							}
 						}
 					}
 				}
 			}
+			THROW(SendStatus(order_status_list));
 		}
 	}
 	CATCHZOK
@@ -5842,10 +5849,8 @@ int SLAPI SfaHeineken::ReceiveGoods()
 {
 	int    ok = -1;
 	PPSoapClientSession sess;
-	SString lib_path;
-	SString temp_buf, url;
+	SString temp_buf;
 	SString msg_buf;
-	SString out_file_name;
 	SString * p_result = 0;
 	TSCollection <GoodsEntry> result_list;
 	ReplyInfo reply_info;
@@ -5869,22 +5874,46 @@ int SLAPI SfaHeineken::ReceiveGoods()
 	return ok;
 }
 
+int SLAPI SfaHeineken::SendStatus(const TSCollection <SfaHeinekenOrderStatusEntry> & rList)
+{
+	int    ok = -1;
+	PPSoapClientSession sess;
+	SString msg_buf;
+	SString * p_result = 0;
+	SFAHEINEKENSENDORDERSSTATUSES_PROC func = 0;
+	SString tech_buf;
+	if(rList.getCount()) {
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
+		{
+			PPFormatT(PPTXT_LOG_SUPPLIX_IMPGOODS_S, &msg_buf, tech_buf.cptr(), P.SupplID);
+			PPWaitMsg(msg_buf);
+		}
+		THROW(State & stInited);
+		THROW(State & stEpDefined);
+		THROW(P_Lib);
+		THROW_SL(func = (SFAHEINEKENSENDORDERSSTATUSES_PROC)P_Lib->GetProcAddr("SfaHeineken_SendOrdersStatuses"));
+		sess.Setup(SvcUrl, UserName, Password);
+		p_result = func(sess, rList);
+		THROW_PP_S(PreprocessResult(p_result, sess), PPERR_UHTTSVCFAULT, LastMsg);
+		DestroyResult((void **)&p_result);
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI SfaHeineken::SendStocks()
 {
 	int    ok = -1;
 	PPSoapClientSession sess;
-	SString lib_path;
-	SString temp_buf, url;
+	SString temp_buf;
 	SString msg_buf;
-	SString out_file_name;
 	SString * p_result = 0;
 	TSVector <SfaHeinekenWarehouseBalanceEntry> list;
-	ReplyInfo reply_info;
 	SFAHEINEKENSENDWAREHOUSEBALANCE_PROC func = 0;
-	SString tech_buf;
-	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
+	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, temp_buf);
 	{
-		PPFormatT(PPTXT_LOG_SUPPLIX_IMPGOODS_S, &msg_buf, tech_buf.cptr(), P.SupplID);
+		PPFormatT(PPTXT_LOG_SUPPLIX_IMPGOODS_S, &msg_buf, temp_buf.cptr(), P.SupplID);
 		PPWaitMsg(msg_buf);
 	}
 	THROW(State & stInited);

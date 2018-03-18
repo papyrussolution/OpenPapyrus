@@ -238,7 +238,7 @@ void TCalendar::SetupCalendar()
 					sstrcpy(s, _T(" "));
 				else
 					s[0] = 0;
-				strcat(s, _itoa(count, t, 10));
+				strcat(s, _itoa(count, t, 10)); // @unicodeproblem
 				sstrcpy(C[i][j], s);
 				if((int)count == D.day()) {
 					c_j = j;
@@ -422,7 +422,7 @@ void TDateCalendar::DrawMonthGrid(HDC hdc)
 				canv.SetTextColor(0);
 				TPoint p, txt_sz;
 				p.Set(Left + j * c_cell_w, Top  + i * c_cell_h);
-				int    tmpd = atoi(C[i][j]);
+				int    tmpd = atoi(C[i][j]); // @unicodeproblem
 				int    is_year = (D1.year() >= 1970 || D2.year() < 2500) ? 1 : 0;
 				LDATE  dd1 = D1; // encodedate(Day1, Month1, Year1);
 				LDATE  dd2 = D2; // encodedate(Day2, Month2, Year2);
@@ -441,10 +441,10 @@ void TDateCalendar::DrawMonthGrid(HDC hdc)
 							canv.SetTextColor(C_TEXT2COL);
 					}
 				}
-				txt_sz = canv.GetTextSize(C[i][j]);
+				txt_sz = canv.GetTextSize(C[i][j]); // @unicodeproblem
 				p.x += (c_cell_w - txt_sz.x) / 2;
 				p.y += (c_cell_h - txt_sz.y) / 2;
-				canv.TextOut(p, C[i][j]);
+				canv.TextOut(p, C[i][j]); // @unicodeproblem
 			}
 }
 
@@ -880,7 +880,7 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 		setDTS(plusdate(temp_date, j-c_maxlast));
 	}
 	else if(((i && i < (c_maxrow-1)) || (!i && j >= c_minfirst) || (i == (c_maxrow-1) && j <= c_maxlast)) &&
-		(!PeriodSelect || (atoi(C[i+1][j]) + hashd(D) != D2.day() + hashd(D2)))) {
+		(!PeriodSelect || (atoi(C[i+1][j]) + hashd(D) != D2.day() + hashd(D2)))) { // @unicodeproblem
 		//
 		// Move the selection
 		//
@@ -908,7 +908,7 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 		::TextOut(hdc, x + (c_cell_w - ts.cx) / 2, y + (c_cell_h - ts.cy) / 2, C[c_i][c_j], 2); // @unicodeproblem
 		c_i = i + 1;
 		c_j = j;
-		D.setday(atoi(C[c_i][c_j]));
+		D.setday(atoi(C[c_i][c_j])); // @unicodeproblem
 		if(PeriodSelect == 1) {
 			if(D1.day()) {
 				if(D2.year() != D.year() || D2.month() != D.month()) {
@@ -925,7 +925,7 @@ int TDateCalendar::SelectDay(HWND hWnd, int x, int y)
 				//
 				for(int ii = 1; ii <= c_maxrow; ii++) {
 					for(int jj = 0; jj <= 6; jj++) {
-						int    cur_entry = atoi(C[ii][jj]);
+						int    cur_entry = atoi(C[ii][jj]); // @unicodeproblem
 						int    eq_ym = BIN(D2.month() == D1.month() && D2.year() == D1.year());
 						long   nd1 = D1.day() + hashd(D1);
 						long   nd2 = D2.day() + hashd(D2);
@@ -1001,7 +1001,7 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 	int    c_cell_h = C_CELLH * y_th / 13;
 	int    j = (x - Left) / c_cell_w;
 	int    i = (y - Top)  / c_cell_h - 1;
-	if(((i && i < (c_maxrow - 1)) || (!i && j >= c_minfirst) || (i == (c_maxrow - 1) && j <= c_maxlast)) && (atoi(C[i+1][j]) + hashd(D) != D2.day() + hashd(D2))) {
+	if(((i && i < (c_maxrow - 1)) || (!i && j >= c_minfirst) || (i == (c_maxrow - 1) && j <= c_maxlast)) && (atoi(C[i+1][j]) + hashd(D) != D2.day() + hashd(D2))) { // @unicodeproblem
 		// Move the selection
 		int draw_months = 0;
 		HDC    hdc = GetDC(hWnd);
@@ -1028,7 +1028,7 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 		::TextOut(hdc, x + (c_cell_w - ts.cx) / 2, y + (c_cell_h - ts.cy) / 2, C[c_i][c_j], 2); // @unicodeproblem
 		c_i = i + 1;
 		c_j = j;
-		D.setday(atoi(C[c_i][c_j]));
+		D.setday(atoi(C[c_i][c_j])); // @unicodeproblem
 		draw_months = (D2.year() != D.year() || D2.month() != D.month()) ? 1 : 0;
 		{
 			LDATE  beg_dt = encodedate(1, 1, 1);
@@ -1073,7 +1073,7 @@ int  TDateCalendar::SelectWeek(HWND hWnd, int x, int y)
 			//
 			for(int ii = 1; ii <= c_maxrow; ii++) {
 				for(int jj = 0; jj <= 6; jj++) {
-					int    cur_entry = atoi(C[ii][jj]);
+					int    cur_entry = atoi(C[ii][jj]); // @unicodeproblem
 					int    is_bound = BIN((ii == c_maxrow && jj > c_maxlast) || (ii == 1 && jj < c_minfirst));
 					const  int xx = Left + jj * c_cell_w;
 					const  int yy = Top + ii * c_cell_h;

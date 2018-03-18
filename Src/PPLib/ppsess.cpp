@@ -2160,7 +2160,7 @@ int SLAPI PPSession::GetMachineID(MACAddr * pMachineID, int forceUpdate)
 			fwrite(&machine_id, sizeof(machine_id), 1, f);
 			SFile::ZClose(&f);
 			{
-				DWORD fattr = GetFileAttributes(fname);
+				DWORD fattr = GetFileAttributes(fname); // @unicodeproblem
 				if(fattr != 0xffffffff)
 					::SetFileAttributes(fname, fattr | FILE_ATTRIBUTE_HIDDEN); // @unicodeproblem
 			}

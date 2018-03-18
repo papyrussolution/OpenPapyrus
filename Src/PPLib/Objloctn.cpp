@@ -805,6 +805,7 @@ StrAssocArray * PPObjLocation::MakeList_(const LocationFilt * pLocFilt, long zer
 	if(p_filt->LocType == LOCTYP_ADDRESS && p_filt->GetExField(LocationFilt::exfPhone, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 		uint i;
 		SString phone_buf;
+		temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
 		PPEAddr::Phone::NormalizeStr(temp_buf, phone_buf);
 		LongArray _pl;
 		P_Tbl->SearchPhoneIndex(phone_buf, 0, _pl);
@@ -5512,6 +5513,7 @@ int SLAPI PPObjLocation::IndexPhones(int use_ta)
 		k2.Type = LOCTYP_ADDRESS;
 		if(P_Tbl->search(2, &k2, spGe) && P_Tbl->data.Type == LOCTYP_ADDRESS) do {
 			LocationCore::GetExField(&P_Tbl->data, LOCEXSTR_PHONE, temp_buf);
+			temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
 			PPEAddr::Phone::NormalizeStr(temp_buf, phone);
 			if(phone.Len() >= 5) {
 				PPID   city_id = P_Tbl->data.CityID;

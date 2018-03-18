@@ -49,7 +49,7 @@ int STooltip::Add(const char * pText, const RECT * pRect, long id)
 	ti.rect.bottom = pRect->bottom;
 	ti.rect.right  = pRect->right;
 	ti.hinst       = TProgram::GetInst();
-	ti.lpszText    = tooltip;
+	ti.lpszText    = tooltip; // @unicodeproblem
 	return BIN(::SendMessage(HwndTT, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti)); // @unicodeproblem
 }
 
@@ -364,7 +364,7 @@ int SMessageWindow::Move()
 					SIZE size;
 					if(buf.Len() == 0)
 						buf.Space();
-					GetTextExtentPoint32(hdc, buf, buf.Len(), &size);
+					GetTextExtentPoint32(hdc, buf, buf.Len(), &size); // @unicodeproblem
 					w = MAX(w, size.cx);
 					if(w > max_w) {
 						SplitBuf(hdc, buf, max_w, 10); // максимум 10 строчек для 1-ой подстроки

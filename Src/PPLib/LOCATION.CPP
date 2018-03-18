@@ -1,5 +1,6 @@
 // LOCATION.CPP
 // Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2018
+// @codepage UTF-8
 // @Kernel
 //
 // Implementation of class LocationCore
@@ -670,9 +671,9 @@ SString & FASTCALL PPEAddr::Phone::ToStr(long fmt, SString & rBuf) const
 
 static uint SLAPI Helper_GeneratePhoneCheckNumber(const char * pOrgPhone, const char * pAddedumCode, uint checkResult)
 {
-	// Íåñêîëüêî âàðèàíòîâ ïðîñòîãî äåëèòåëÿ ñ êîëè÷åñòâîì çíàêîâ, ðàâíûì ðàçðÿäíîñòè òðåáóåìîãî çíà÷åíèÿ (5)
+	// ÐÐµÑÐºÐ¾Ð»ÑŒÐºÐ¾ Ð²Ð°Ñ€Ð¸Ð°Ð½Ñ‚Ð¾Ð² Ð¿Ñ€Ð¾ÑÑ‚Ð¾Ð³Ð¾ Ð´ÐµÐ»Ð¸Ñ‚ÐµÐ»Ñ Ñ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾Ð¼ Ð·Ð½Ð°ÐºÐ¾Ð², Ñ€Ð°Ð²Ð½Ñ‹Ð¼ Ñ€Ð°Ð·Ñ€ÑÐ´Ð½Ð¾ÑÑ‚Ð¸ Ñ‚Ñ€ÐµÐ±ÑƒÐµÐ¼Ð¾Ð³Ð¾ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ (5)
 	static const uint32 prime_div_variants[] = { 98387, 86017, 87359, 79823, 75337 };
-	const  uint addendum = 54167; // Ôèêñèðîâàííîå ñëàãàåìîå äëÿ êîíòðîëüíîé ñóììû, åñëè îíà ìåíüøå 10000
+	const  uint addendum = 54167; // Ð¤Ð¸ÐºÑÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ð¾Ðµ ÑÐ»Ð°Ð³Ð°ÐµÐ¼Ð¾Ðµ Ð´Ð»Ñ ÐºÐ¾Ð½Ñ‚Ñ€Ð¾Ð»ÑŒÐ½Ð¾Ð¹ ÑÑƒÐ¼Ð¼Ñ‹, ÐµÑÐ»Ð¸ Ð¾Ð½Ð° Ð¼ÐµÐ½ÑŒÑˆÐµ 10000
     uint   result = 0;
 	SString line_buf;
 	PPEAddr::Phone::NormalizeStr(pOrgPhone, line_buf);
@@ -722,21 +723,56 @@ int SLAPI PPEAddr::Phone::VerifyCheckNumber(const char * pOrgPhone, const char *
 //static
 SString & FASTCALL PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, SString & rResult)
 {
+	static StringSet ext_prefix_list;
+	SString temp_buf;
+	if(ext_prefix_list.getDataLen() == 0) {
+		ext_prefix_list.add("exten");
+		ext_prefix_list.add("ext");
+		ext_prefix_list.add("x");
+		ext_prefix_list.add("Ð´Ð¾Ð±"); // this source file has UTF-8 codepage (see header of file above)
+	}
 	rResult.Z();
 	for(const uchar * p = (const uchar *)pOrgPhone; *p != 0; p++) {
+		uint  ext_prefix_width = 0; // Ð•ÑÐ»Ð¸ !0 Ñ‚Ð¾ Ð½Ð°Ð´Ð¾ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ð°Ñ‚ÑŒ Ð´Ð¾Ð±Ð°Ð²Ð¾Ñ‡Ð½Ñ‹Ð¹ Ð½Ð¾Ð¼ÐµÑ€ Ð¿Ð¾ÑÐ»Ðµ (ext_prefix_width) ÑÐ¸Ð¼Ð²Ð¾Ð»Ð¾Ð² Ð¿Ñ€ÐµÑ„Ð¸ÐºÑÐ°
 		const uchar c = *p;
 		if(isdec(c))
 			rResult.CatChar(c);
-		else if(c == 't' || c == 'T')
+		else if(oneof2(c, 't', 'T'))
 			rResult.CatChar('t');
 		else if(c == '+' && rResult.Len() == 0)
 			rResult.CatChar('+');
-		else if(!oneof9(c, ' ', '-', '(', ')', 't', 'T', 'w', 'W', '+')) {
-			//
-			// Êàê òîëüêî âñòðå÷àåì ñèìâîë, îòëè÷íûé îò ïåðå÷èñëåííûõ - âûõîäèì: äàëåå ìîæåò ñëåäîâàòü òåêñò
-			// êîììåíòàðèÿ ê òåëåôîíó.
-			//
-			break;
+		else {
+			if(oneof2(c, ',', '#') && (oneof4(p[1], '.', ':', ' ', '\t') || isdec(p[1])))
+				ext_prefix_width = isdec(p[1]) ? 1 : 2;
+			else {
+				for(uint ssp = 0; ext_prefix_list.get(&ssp, temp_buf);) {
+					size_t pl = temp_buf.Len();
+					if(strncmp(temp_buf, (const char *)p, pl) == 0 && (oneof4(p[pl+1], '.', ':', ' ', '\t') || isdec(p[pl+1]))) {
+						ext_prefix_width = isdec(p[pl+1]) ? pl : (pl+1);
+						break;
+					}
+				}
+			}
+			if(!ext_prefix_width && !oneof9(c, ' ', '-', '(', ')', 't', 'T', 'w', 'W', '+')) {
+				//
+				// ÐšÐ°Ðº Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð²ÑÑ‚Ñ€ÐµÑ‡Ð°ÐµÐ¼ ÑÐ¸Ð¼Ð²Ð¾Ð», Ð¾Ñ‚Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹ Ð¾Ñ‚ Ð¿ÐµÑ€ÐµÑ‡Ð¸ÑÐ»ÐµÐ½Ð½Ñ‹Ñ… - Ð²Ñ‹Ñ…Ð¾Ð´Ð¸Ð¼: Ð´Ð°Ð»ÐµÐµ Ð¼Ð¾Ð¶ÐµÑ‚ ÑÐ»ÐµÐ´Ð¾Ð²Ð°Ñ‚ÑŒ Ñ‚ÐµÐºÑÑ‚
+				// ÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð°Ñ€Ð¸Ñ Ðº Ñ‚ÐµÐ»ÐµÑ„Ð¾Ð½Ñƒ.
+				//
+				break;
+			}
+		}
+		//
+		if(ext_prefix_width) {
+			p += ext_prefix_width;
+			while(oneof2(*p, ' ', '\t'))
+				p++;
+			if(isdec(*p)) {
+				rResult.CatChar('x');
+				do {
+					rResult.CatChar(*p++);
+				} while(isdec(*p));
+			}
+			break; // ÐÐµ Ð·Ð°Ð²Ð¸ÑÐ¸Ñ‚Ð¾ Ð¾Ñ‚ Ñ‚Ð¾Ð³Ð¾, Ð±Ñ‹Ð» Ð´Ð¾Ð±Ð°Ð²Ð¾Ñ‡Ð½Ñ‹Ð¹ Ð½Ð¾Ð¼ÐµÑ€ Ð¿Ñ€Ð°Ð²Ð¸Ð»ÑŒÐ½Ñ‹Ð¹ Ð¸Ð»Ð¸ Ð½ÐµÑ‚, Ð²Ñ‹Ñ…Ð¾Ð´Ð¸Ð¼. Ð”Ð¾Ð±Ð°Ð²Ð¾Ñ‡Ð½Ñ‹Ð¹ Ð½Ð¾Ð¼ÐµÑ€ - Ð¼Ð¾Ð¶ÐµÑ‚ Ð±Ñ‹Ñ‚ÑŒ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð² ÐºÐ¾Ð½Ñ†Ðµ.
 		}
 	}
 	return rResult;
@@ -747,8 +783,10 @@ int FASTCALL PPEAddr::Phone::FromStr(const char * pStr)
 	assert(EADDR_PHONE_MAXCHAR % 2 == 0);
 
 	int    ok = 1;
+	SString & r_src_str = SLS.AcquireRvlStr(); // @v9.9.11
+	(r_src_str = pStr).Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
 	SString & r_temp_buf = SLS.AcquireRvlStr();
-	NormalizeStr(pStr, r_temp_buf);
+	NormalizeStr(r_src_str, r_temp_buf);
 	size_t diff = r_temp_buf.Strip().Len();
 	diff = (EADDR_PHONE_MAXCHAR > diff) ? (EADDR_PHONE_MAXCHAR - diff) : 0;
 	if(diff)
@@ -757,8 +795,8 @@ int FASTCALL PPEAddr::Phone::FromStr(const char * pStr)
 	for(size_t i = 0; i < EADDR_PHONE_MAXCHAR; i+=2) {
 		const char c1 = r_temp_buf.C(i);
 		const char c2 = r_temp_buf.C(i+1);
-		const uint8 d1 = isdec(c1) ? (c1 - '0') : ((c1 == '+') ? 0x0A : ((c1 == 't') ? 0x0B : 0x0F));
-		const uint8 d2 = isdec(c2) ? (c2 - '0') : ((c2 == '+') ? 0x0A : ((c2 == 't') ? 0x0B : 0x0F));
+		const uint8 d1 = isdec(c1) ? (c1 - '0') : ((c1 == '+') ? 0x0A : ((c1 == 't') ? 0x0B : ((c1 == 'x') ? 0x0C: 0x0F)));
+		const uint8 d2 = isdec(c2) ? (c2 - '0') : ((c2 == '+') ? 0x0A : ((c2 == 't') ? 0x0B : ((c2 == 'x') ? 0x0C: 0x0F)));
 		assert(d1 != 0x0F && d2 != 0x0F);
 		A[i/2] = (d1 << 4) | d2;
 	}

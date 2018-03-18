@@ -467,4 +467,3 @@ static int _zip_fseek(FILE * f, int64 offset, int whence, zip_error_t * error)
 	}
 	return result;
 }
-

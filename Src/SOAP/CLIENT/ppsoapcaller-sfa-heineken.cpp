@@ -32,22 +32,12 @@ static int FASTCALL PreprocessCall(DRPServiceSoapProxy & rProxy, PPSoapClientSes
 	}
 }
 
-int SfaHeineken_SendOrdersStatuses() // DRP_SendOrdersStatuses
-{
-	return -1;
-}
-
 int SfaHeineken_GetSalePoints() // DRP_GetSalePoints
 {
 	return -1;
 }
 
 int SfaHeineken_GetWarehouses() // DRP_GetWarehouses
-{
-	return -1;
-}
-
-int SfaHeineken_SendSellout() // DRP_SendSellout
 {
 	return -1;
 }
@@ -118,6 +108,194 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_SendWarehousesBalance(PPS
 	}	
 	ZFREE(param._USCOREwarehouseBalanceData->Balance);
 	ZDELETE(param._USCOREwarehouseBalanceData);
+	return p_result;
+}
+
+static ns1__ArrayOfDeliveryPosition * CreateDeliveryPositions(const TSCollection <SfaHeinekenDeliveryPosition> & rSrcList, TSCollection <InParamString> & rArgStrPool)
+{
+	ns1__ArrayOfDeliveryPosition * p_result = 0;
+	SString temp_buf;
+	THROW(p_result = new ns1__ArrayOfDeliveryPosition);
+	THROW(p_result->DeliveryPosition = (ns1__DeliveryPosition **)PPSoapCreateArray(rSrcList.getCount(), p_result->__sizeDeliveryPosition));
+	for(uint i = 0; i < rSrcList.getCount(); i++) {
+		const SfaHeinekenDeliveryPosition * p_src_item = rSrcList.at(i);
+		ns1__DeliveryPosition * p_item = new ns1__DeliveryPosition;
+		THROW(p_item);
+		p_result->DeliveryPosition[i] = p_item;
+		temp_buf.Z().Cat(p_src_item->SkuID);
+		p_item->SkuID = GetDynamicParamString(temp_buf, rArgStrPool);
+		temp_buf.Z().Cat(p_src_item->Count, MKSFMTD(0, 3, NMBF_NOTRAILZ));
+		p_item->Count = GetDynamicParamString(temp_buf, rArgStrPool);
+		temp_buf.Z().Cat(p_src_item->Volume, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+		p_item->Volume = GetDynamicParamString(temp_buf, rArgStrPool);
+		temp_buf.Z().Cat(p_src_item->Amount, MKSFMTD(0, 2, 0));
+		p_item->Rubles = GetDynamicParamString(temp_buf, rArgStrPool);
+		p_item->Comments = GetDynamicParamString(p_src_item->Comments, rArgStrPool);
+	}
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
+}
+
+static void DestroyDeliveryPositions(ns1__ArrayOfDeliveryPosition * pList)
+{
+	if(pList) {
+		for(int i = 0; i < pList->__sizeDeliveryPosition; i++) {
+			ZDELETE(pList->DeliveryPosition);
+		}
+		ZFREE(pList->DeliveryPosition);
+		ZDELETE(pList);
+	}
+}
+
+extern "C" __declspec(dllexport) SString * SfaHeineken_SendSellout(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenInvoice> & rList) // DRP_SendSellout
+{
+	//int DRP_USCORESendSellOut(_ns1__DRP_USCORESendSellOut *ns1__DRP_USCORESendSellOut, _ns1__DRP_USCORESendSellOutResponse *ns1__DRP_USCORESendSellOutResponse) { return DRP_USCORESendSellOut(NULL, NULL, ns1__DRP_USCORESendSellOut, ns1__DRP_USCORESendSellOutResponse); }
+	SString * p_result = 0;
+	SString temp_buf;
+	DRPServiceSoapProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+	TSCollection <InParamString> arg_str_pool;
+	gSoapClientInit(&proxi, 0, 0);
+	_ns1__DRP_USCORESendSellOut param;
+	_ns1__DRP_USCORESendSellOutResponse resp;
+	param._USCORElogin = GetDynamicParamString(rSess.GetUser(), arg_str_pool);
+	param._USCOREpass = GetDynamicParamString(rSess.GetPassword(), arg_str_pool);
+	THROW(param._USCOREinvoices = new ns1__ArrayOfInvoice);
+	THROW(param._USCOREinvoices->Invoice = (ns1__Invoice **)PPSoapCreateArray(rList.getCount(), param._USCOREinvoices->__sizeInvoice));
+	for(uint i = 0; i < rList.getCount(); i++) {
+		const SfaHeinekenInvoice * p_entry = rList.at(i);
+		ns1__Invoice * p_inv = new ns1__Invoice;
+		THROW(p_inv);
+		param._USCOREinvoices->Invoice[i] = p_inv;
+		{
+			p_inv->InvoiceNum = GetDynamicParamString(p_entry->Code, arg_str_pool);
+			temp_buf.Z().Cat(p_entry->Dt, DATF_ISO8601);
+			p_inv->InvoiceDate = GetDynamicParamString(temp_buf, arg_str_pool);
+			if(p_entry->OrderList.getCount()) {
+				THROW(p_inv->OrderDeliveries = new ns1__ArrayOfOrderDelivery);
+				THROW(p_inv->OrderDeliveries->OrderDelivery = (ns1__OrderDelivery **)PPSoapCreateArray(p_entry->OrderList.getCount(), p_inv->OrderDeliveries->__sizeOrderDelivery));
+				for(uint j = 0; j < p_entry->OrderList.getCount(); j++) {
+					const SfaHeinekenOrderDelivery * p_src_item = p_entry->OrderList.at(j);
+					ns1__OrderDelivery * p_item = new ns1__OrderDelivery;
+					THROW(p_item);
+					p_inv->OrderDeliveries->OrderDelivery[j] = p_item;
+					p_src_item->OrderUuid.ToStr(S_GUID::fmtIDL, temp_buf);
+					p_item->OrderID = GetDynamicParamString(temp_buf, arg_str_pool);
+					THROW(p_item->DeliveryPositions = CreateDeliveryPositions(p_src_item->DeliveryList, arg_str_pool));
+				}
+			}
+			if(p_entry->DistributorDeliveryList.getCount()) {
+				THROW(p_inv->DistributorDeliveries = new ns1__ArrayOfDistributorDelivery);
+				THROW(p_inv->DistributorDeliveries->DistributorDelivery = (ns1__DistributorDelivery **)PPSoapCreateArray(p_entry->DistributorDeliveryList.getCount(), p_inv->DistributorDeliveries->__sizeDistributorDelivery));
+				for(uint j = 0; j < p_entry->DistributorDeliveryList.getCount(); j++) {
+					const SfaHeinekenDistributorDelivery * p_src_item = p_entry->DistributorDeliveryList.at(j);
+					ns1__DistributorDelivery * p_item = new ns1__DistributorDelivery;
+					THROW(p_item);
+					p_inv->DistributorDeliveries->DistributorDelivery[j] = p_item;
+					p_item->DistributorOrderID = GetDynamicParamString(p_src_item->InnerOrderCode, arg_str_pool);
+					p_item->SalePointID = GetDynamicParamString(temp_buf.Z().Cat(p_src_item->SalePointID), arg_str_pool);
+					THROW(p_item->DeliveryPositions = CreateDeliveryPositions(p_src_item->DeliveryList, arg_str_pool));
+				}
+			}
+			if(p_entry->DistributorSalePointDeliveryList.getCount()) {
+				THROW(p_inv->DistributorSalePointDeliveries = new ns1__ArrayOfDistributorSalePointDelivery);
+				THROW(p_inv->DistributorSalePointDeliveries->DistributorSalePointDelivery = (ns1__DistributorSalePointDelivery **)PPSoapCreateArray(
+					p_entry->DistributorSalePointDeliveryList.getCount(), p_inv->DistributorSalePointDeliveries->__sizeDistributorSalePointDelivery));
+				for(uint j = 0; j < p_entry->DistributorSalePointDeliveryList.getCount(); j++) {
+					const SfaHeinekenSalePointDelivery * p_src_item = p_entry->DistributorSalePointDeliveryList.at(j);
+					ns1__DistributorSalePointDelivery * p_item = new ns1__DistributorSalePointDelivery;
+					THROW(p_item);
+					p_inv->DistributorSalePointDeliveries->DistributorSalePointDelivery[j] = p_item;
+					p_item->DistributorOrderID = GetDynamicParamString(p_src_item->InnerOrderCode, arg_str_pool);
+					p_item->DistributorSalePointID = GetDynamicParamString(temp_buf.Z().Cat(p_src_item->InnerDlvrLocID), arg_str_pool); 
+					p_item->SalePointName = GetDynamicParamString(p_src_item->DlvrLocName, arg_str_pool); 
+					p_item->SalePointAddress = GetDynamicParamString(p_src_item->DlvrLocAddr, arg_str_pool); 
+					THROW(p_item->DeliveryPositions = CreateDeliveryPositions(p_src_item->DeliveryList, arg_str_pool));
+				}
+			}
+		}
+	}
+	THROW(PreprocessCall(proxi, rSess, proxi.DRP_USCORESendSellOut(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
+	p_result = PreprocessAnyResult(resp.DRP_USCORESendSellOutResult->__any);
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	for(uint i = 0; i < rList.getCount(); i++) {
+		ns1__Invoice * p_inv = param._USCOREinvoices->Invoice[i];
+		//
+		if(p_inv->OrderDeliveries) {
+			for(int j = 0; j < p_inv->OrderDeliveries->__sizeOrderDelivery; j++) {
+				ns1__OrderDelivery * p_item = p_inv->OrderDeliveries->OrderDelivery[j];
+				DestroyDeliveryPositions(p_item->DeliveryPositions);
+				p_item->DeliveryPositions = 0;
+				delete p_item;
+			}
+			ZFREE(p_inv->OrderDeliveries->OrderDelivery);
+			ZDELETE(p_inv->OrderDeliveries);
+		}
+		if(p_inv->DistributorDeliveries) {
+			for(int j = 0; j < p_inv->DistributorDeliveries->__sizeDistributorDelivery; j++) {
+				ns1__DistributorDelivery * p_item = p_inv->DistributorDeliveries->DistributorDelivery[j];
+				DestroyDeliveryPositions(p_item->DeliveryPositions);
+				p_item->DeliveryPositions = 0;
+				delete p_item;
+			}
+			ZFREE(p_inv->DistributorDeliveries->DistributorDelivery);
+			ZDELETE(p_inv->DistributorDeliveries);
+		}
+		if(p_inv->DistributorSalePointDeliveries) {
+			for(int j = 0; j < p_inv->DistributorSalePointDeliveries->__sizeDistributorSalePointDelivery; j++) {
+				ns1__DistributorSalePointDelivery * p_item = p_inv->DistributorSalePointDeliveries->DistributorSalePointDelivery[j];
+				DestroyDeliveryPositions(p_item->DeliveryPositions);
+				p_item->DeliveryPositions = 0;
+				delete p_item;
+			}
+			ZFREE(p_inv->DistributorSalePointDeliveries->DistributorSalePointDelivery);
+			ZDELETE(p_inv->DistributorSalePointDeliveries);
+		}
+		//
+		delete p_inv;
+		param._USCOREinvoices->Invoice[i] = 0;
+	}	
+	ZFREE(param._USCOREinvoices->Invoice);
+	ZDELETE(param._USCOREinvoices);
+	return p_result;
+}
+
+extern "C" __declspec(dllexport) SString * SfaHeineken_SendOrdersStatuses(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenOrderStatusEntry> & rList)
+{
+	//int DRP_USCORESendOrdersStatuses(_ns1__DRP_USCORESendOrdersStatuses *ns1__DRP_USCORESendOrdersStatuses, _ns1__DRP_USCORESendOrdersStatusesResponse *ns1__DRP_USCORESendOrdersStatusesResponse) { return DRP_USCORESendOrdersStatuses(NULL, NULL, ns1__DRP_USCORESendOrdersStatuses, ns1__DRP_USCORESendOrdersStatusesResponse); }
+	SString * p_result = 0;
+	SString temp_buf;
+	DRPServiceSoapProxy proxi(SOAP_XML_INDENT|SOAP_XML_IGNORENS);
+	TSCollection <InParamString> arg_str_pool;
+	gSoapClientInit(&proxi, 0, 0);
+	_ns1__DRP_USCORESendOrdersStatuses param;
+	_ns1__DRP_USCORESendOrdersStatusesResponse resp;
+	param._USCORElogin = GetDynamicParamString(rSess.GetUser(), arg_str_pool);
+	param._USCOREpass = GetDynamicParamString(rSess.GetPassword(), arg_str_pool);
+	THROW(param._USCOREstatuses = new ns1__ArrayOfSendStatuses);
+	param._USCOREstatuses->__sizeSendStatuses = (int)rList.getCount();
+	THROW(param._USCOREstatuses->SendStatuses = (ns1__SendStatuses **)SAlloc::C(rList.getCount(), sizeof(ns1__SendStatuses *)));
+	for(uint i = 0; i < rList.getCount(); i++) {
+		const SfaHeinekenOrderStatusEntry * p_entry = rList.at(i);
+		THROW(param._USCOREstatuses->SendStatuses[i] = new ns1__SendStatuses);
+		p_entry->OrderUUID.ToStr(S_GUID::fmtIDL, temp_buf);
+		param._USCOREstatuses->SendStatuses[i]->Number = GetDynamicParamString(temp_buf, arg_str_pool);
+		param._USCOREstatuses->SendStatuses[i]->Status = (ns1__Statuses)p_entry->Status;
+		param._USCOREstatuses->SendStatuses[i]->Comments = GetDynamicParamString(p_entry->Comments, arg_str_pool);
+	}
+	THROW(PreprocessCall(proxi, rSess, proxi.DRP_USCORESendOrdersStatuses(rSess.GetUrl(), 0 /* soap_action */, &param, &resp)));
+	p_result = PreprocessAnyResult(resp.DRP_USCORESendOrdersStatusesResult->__any);
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	for(uint i = 0; i < rList.getCount(); i++) {
+		delete param._USCOREstatuses->SendStatuses[i];
+	}	
+	ZFREE(param._USCOREstatuses->SendStatuses);
+	ZDELETE(param._USCOREstatuses);
 	return p_result;
 }
 

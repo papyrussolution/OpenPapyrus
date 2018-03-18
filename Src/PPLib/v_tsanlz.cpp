@@ -38,10 +38,7 @@ int SLAPI TSessAnlzFilt::IsDiffFlag() const { return (DiffPrc || DiffMg || DiffD
 //
 //
 struct TSessAnlzEntry { // @flat
-	int    IsTotalRow() const
-	{
-		return (DtVal == MAXLONG && PrcID == MAXLONG && PrmrGoodsID == MAXLONG);
-	}
+	int    IsTotalRow() const { return (DtVal == MAXLONG && PrcID == MAXLONG && PrmrGoodsID == MAXLONG); }
 	long   DtVal;       // ƒата операции
 	PPID   PrcID;
 	PPID   PrmrGoodsID; // ќсновной товар технологии, к которому относитс€ движение товара GoodsID

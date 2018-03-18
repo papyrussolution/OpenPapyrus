@@ -65,32 +65,19 @@ static int LZMADecode(TIFF* tif, uint8* op, tmsize_t occ, uint16 s);
 static const char * LZMAStrerror(lzma_ret ret)
 {
 	switch(ret) {
-		case LZMA_OK:
-		    return "operation completed successfully";
-		case LZMA_STREAM_END:
-		    return "end of stream was reached";
-		case LZMA_NO_CHECK:
-		    return "input stream has no integrity check";
-		case LZMA_UNSUPPORTED_CHECK:
-		    return "cannot calculate the integrity check";
-		case LZMA_GET_CHECK:
-		    return "integrity check type is now available";
-		case LZMA_MEM_ERROR:
-		    return "cannot allocate memory";
-		case LZMA_MEMLIMIT_ERROR:
-		    return "memory usage limit was reached";
-		case LZMA_FORMAT_ERROR:
-		    return "file format not recognized";
-		case LZMA_OPTIONS_ERROR:
-		    return "invalid or unsupported options";
-		case LZMA_DATA_ERROR:
-		    return "data is corrupt";
-		case LZMA_BUF_ERROR:
-		    return "no progress is possible (stream is truncated or corrupt)";
-		case LZMA_PROG_ERROR:
-		    return "programming error";
-		default:
-		    return "unidentified liblzma error";
+		case LZMA_OK: return "operation completed successfully";
+		case LZMA_STREAM_END: return "end of stream was reached";
+		case LZMA_NO_CHECK: return "input stream has no integrity check";
+		case LZMA_UNSUPPORTED_CHECK: return "cannot calculate the integrity check";
+		case LZMA_GET_CHECK: return "integrity check type is now available";
+		case LZMA_MEM_ERROR: return "cannot allocate memory";
+		case LZMA_MEMLIMIT_ERROR: return "memory usage limit was reached";
+		case LZMA_FORMAT_ERROR: return "file format not recognized";
+		case LZMA_OPTIONS_ERROR: return "invalid or unsupported options";
+		case LZMA_DATA_ERROR: return "data is corrupt";
+		case LZMA_BUF_ERROR: return "no progress is possible (stream is truncated or corrupt)";
+		case LZMA_PROG_ERROR: return "programming error";
+		default: return "unidentified liblzma error";
 	}
 }
 
@@ -103,19 +90,15 @@ static int LZMAFixupTags(TIFF* tif)
 static int LZMASetupDecode(TIFF* tif)
 {
 	LZMAState* sp = DecoderState(tif);
-
 	assert(sp != NULL);
-
 	/* if we were last encoding, terminate this mode */
 	if(sp->state & LSTATE_INIT_ENCODE) {
 		lzma_end(&sp->stream);
 		sp->state = 0;
 	}
-
 	sp->state |= LSTATE_INIT_DECODE;
 	return 1;
 }
-
 /*
  * Setup state for decoding a strip.
  */
@@ -124,30 +107,23 @@ static int LZMAPreDecode(TIFF* tif, uint16 s)
 	static const char module[] = "LZMAPreDecode";
 	LZMAState* sp = DecoderState(tif);
 	lzma_ret ret;
-
 	(void)s;
 	assert(sp != NULL);
-
 	if( (sp->state & LSTATE_INIT_DECODE) == 0)
 		tif->tif_setupdecode(tif);
-
 	sp->stream.next_in = tif->tif_rawdata;
 	sp->stream.avail_in = (size_t)tif->tif_rawcc;
 	if((tmsize_t)sp->stream.avail_in != tif->tif_rawcc) {
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Liblzma cannot deal with buffers this size");
+		TIFFErrorExt(tif->tif_clientdata, module, "Liblzma cannot deal with buffers this size");
 		return 0;
 	}
-
 	/*
 	 * Disable memory limit when decoding. UINT64_MAX is a flag to disable
 	 * the limit, we are passing (uint64_t)-1 which should be the same.
 	 */
 	ret = lzma_stream_decoder(&sp->stream, (uint64_t)-1, 0);
 	if(ret != LZMA_OK) {
-		TIFFErrorExt(tif->tif_clientdata, module,
-		    "Error initializing the stream decoder, %s",
-		    LZMAStrerror(ret));
+		TIFFErrorExt(tif->tif_clientdata, module, "Error initializing the stream decoder, %s", LZMAStrerror(ret));
 		return 0;
 	}
 	return 1;
@@ -329,22 +305,17 @@ static int LZMAPostEncode(TIFF* tif)
 
 static void LZMACleanup(TIFF* tif)
 {
-	LZMAState* sp = LState(tif);
-
+	LZMAState * sp = LState(tif);
 	assert(sp != 0);
-
 	(void)TIFFPredictorCleanup(tif);
-
 	tif->tif_tagmethods.vgetfield = sp->vgetparent;
 	tif->tif_tagmethods.vsetfield = sp->vsetparent;
-
 	if(sp->state) {
 		lzma_end(&sp->stream);
 		sp->state = 0;
 	}
 	SAlloc::F(sp);
 	tif->tif_data = NULL;
-
 	_TIFFSetDefaultCompressionState(tif);
 }
 
@@ -352,7 +323,6 @@ static int LZMAVSetField(TIFF* tif, uint32 tag, va_list ap)
 {
 	static const char module[] = "LZMAVSetField";
 	LZMAState* sp = LState(tif);
-
 	switch(tag) {
 		case TIFFTAG_LZMAPRESET:
 		    sp->preset = (int)va_arg(ap, int);
@@ -377,7 +347,6 @@ static int LZMAVSetField(TIFF* tif, uint32 tag, va_list ap)
 static int LZMAVGetField(TIFF* tif, uint32 tag, va_list ap)
 {
 	LZMAState* sp = LState(tif);
-
 	switch(tag) {
 		case TIFFTAG_LZMAPRESET:
 		    *va_arg(ap, int*) = sp->preset;
@@ -472,8 +441,7 @@ int TIFFInitLZMA(TIFF* tif, int scheme)
 	(void)TIFFPredictorInit(tif);
 	return 1;
 bad:
-	TIFFErrorExt(tif->tif_clientdata, module,
-	    "No space for LZMA2 state block");
+	TIFFErrorExt(tif->tif_clientdata, module, "No space for LZMA2 state block");
 	return 0;
 }
 

@@ -3764,118 +3764,34 @@ static uchar const xmltranscodetable_ISO8859_16 [] /* @sobolev 48 + 9 * 64*/  = 
 //
 // auto-generated functions for ISO-8859-2 .. ISO-8859-16
 //
-static int ISO8859_2ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_2);
-}
-static int UTF8ToISO8859_2(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_2);
-}
-static int ISO8859_3ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_3);
-}
-static int UTF8ToISO8859_3(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_3);
-}
-static int ISO8859_4ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_4);
-}
-static int UTF8ToISO8859_4(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_4);
-}
-static int ISO8859_5ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_5);
-}
-static int UTF8ToISO8859_5(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_5);
-}
-static int ISO8859_6ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_6);
-}
-static int UTF8ToISO8859_6(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_6);
-}
-static int ISO8859_7ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_7);
-}
-static int UTF8ToISO8859_7(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_7);
-}
-static int ISO8859_8ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_8);
-}
-static int UTF8ToISO8859_8(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_8);
-}
-static int ISO8859_9ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_9);
-}
-static int UTF8ToISO8859_9(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_9);
-}
-static int ISO8859_10ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_10);
-}
-static int UTF8ToISO8859_10(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_10);
-}
-static int ISO8859_11ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_11);
-}
-static int UTF8ToISO8859_11(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_11);
-}
-static int ISO8859_13ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_13);
-}
-static int UTF8ToISO8859_13(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_13);
-}
-static int ISO8859_14ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_14);
-}
-static int UTF8ToISO8859_14(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_14);
-}
-static int ISO8859_15ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_15);
-}
-static int UTF8ToISO8859_15(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_15);
-}
-static int ISO8859_16ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_16);
-}
-static int UTF8ToISO8859_16(uchar* out, int * outlen, const uchar* in, int * inlen)
-{
-	return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_16);
-}
+static int ISO8859_2ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_2); }
+static int UTF8ToISO8859_2(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_2); }
+static int ISO8859_3ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_3); }
+static int UTF8ToISO8859_3(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_3); }
+static int ISO8859_4ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_4); }
+static int UTF8ToISO8859_4(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_4); }
+static int ISO8859_5ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_5); }
+static int UTF8ToISO8859_5(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_5); }
+static int ISO8859_6ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_6); }
+static int UTF8ToISO8859_6(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_6); }
+static int ISO8859_7ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_7); }
+static int UTF8ToISO8859_7(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_7); }
+static int ISO8859_8ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_8); }
+static int UTF8ToISO8859_8(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_8); }
+static int ISO8859_9ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_9); }
+static int UTF8ToISO8859_9(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_9); }
+static int ISO8859_10ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_10); }
+static int UTF8ToISO8859_10(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_10); }
+static int ISO8859_11ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_11); }
+static int UTF8ToISO8859_11(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_11); }
+static int ISO8859_13ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_13); }
+static int UTF8ToISO8859_13(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_13); }
+static int ISO8859_14ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_14); }
+static int UTF8ToISO8859_14(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_14); }
+static int ISO8859_15ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_15); }
+static int UTF8ToISO8859_15(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_15); }
+static int ISO8859_16ToUTF8(uchar* out, int * outlen, const uchar* in, int * inlen) { return ISO8859xToUTF8(out, outlen, in, inlen, xmlunicodetable_ISO8859_16); }
+static int UTF8ToISO8859_16(uchar* out, int * outlen, const uchar* in, int * inlen) { return UTF8ToISO8859x(out, outlen, in, inlen, xmltranscodetable_ISO8859_16); }
 
 /* @construction class LibXml_CpHandler_1251 {
 public:

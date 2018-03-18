@@ -30,9 +30,6 @@
    OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
    IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#include <stdlib.h>
-#include <string.h>
 #include "zipint.h"
 
 zip_extra_field_t * _zip_ef_clone(const zip_extra_field_t * ef, zip_error_t * error)
@@ -347,4 +344,3 @@ int _zip_read_local_ef(zip_t * za, uint64 idx)
 		}
 	}
 }
-

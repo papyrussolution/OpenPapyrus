@@ -3374,6 +3374,7 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 				if(psn_list.getCount() == 0) {
 					SString phone_buf;
 					LongArray temp_phone_list;
+					pattern.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
 					PPEAddr::Phone::NormalizeStr(pattern, phone_buf);
 					LocationCore * p_locc = PsnObj.LocObj.P_Tbl;
 					if(phone_buf.Len() >= MIN_PHONE_LEN && p_locc->SearchEAddrMaxLikePhone(phone_buf, 0, temp_phone_list) > 0) {
@@ -3479,6 +3480,7 @@ StrAssocArray * PhoneSelExtra::GetList(const char * pText)
 		SString phone_buf;
 		const int srch_substr = BIN(pattern.C(0) == '*');
 		pattern.ShiftLeftChr('*');
+		pattern.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
 		PPEAddr::Phone::NormalizeStr(pattern, phone_buf);
 		pattern = phone_buf;
 		size_t len = pattern.Len();

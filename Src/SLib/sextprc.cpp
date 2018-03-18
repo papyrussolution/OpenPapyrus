@@ -140,7 +140,7 @@ int SLAPI ExecVDos(ExecVDosParam & rParam)
 		{
 			STempBuffer cmd_line(exe_filename.Len()*2);
 			strnzcpy(cmd_line, exe_filename, cmd_line.GetSize());
-			r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, vdos_path.cptr(), &si, &pi);
+			r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, vdos_path.cptr(), &si, &pi); // @unicodeproblem
 		}
 		if(!r) {
 			SLS.SetOsError(0);

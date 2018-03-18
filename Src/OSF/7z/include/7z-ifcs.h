@@ -3303,15 +3303,15 @@ public:
 };
 
 #ifdef EXTERNAL_CODECS
-  #define CREATE_CODECS_OBJECT \
-	CCodecs *codecs = new CCodecs; \
-	CExternalCodecs __externalCodecs; \
-	__externalCodecs.GetCodecs = codecs; \
-	__externalCodecs.GetHashers = codecs; \
-	CCodecs::CReleaser codecsReleaser; \
-	codecsReleaser.Set(codecs);
+	#define CREATE_CODECS_OBJECT \
+		CCodecs *codecs = new CCodecs; \
+		CExternalCodecs __externalCodecs; \
+		__externalCodecs.GetCodecs = codecs; \
+		__externalCodecs.GetHashers = codecs; \
+		CCodecs::CReleaser codecsReleaser; \
+		codecsReleaser.Set(codecs);
 #else
-  #define CREATE_CODECS_OBJECT CCodecs *codecs = new CCodecs; CMyComPtr<IUnknown> __codecsRef = codecs;
+	#define CREATE_CODECS_OBJECT CCodecs *codecs = new CCodecs; CMyComPtr<IUnknown> __codecsRef = codecs;
 #endif
 //
 //#include <CoderMixer2.h>
@@ -4708,8 +4708,8 @@ namespace NArchive {
 		struct CFolders {
 			CFolders();
 			void   Clear();
-			void   ParseFolderInfo(uint folderIndex, CFolder &folder) const;
-			void   ParseFolderEx(uint folderIndex, CFolderEx &folder) const;
+			void   ParseFolderInfo(uint folderIndex, CFolder & folder) const;
+			void   ParseFolderEx(uint folderIndex, CFolderEx & folder) const;
 			uint   FASTCALL GetNumFolderUnpackSizes(uint folderIndex) const;
 			uint64 FASTCALL GetFolderUnpackSize(uint folderIndex) const;
 			uint64 FASTCALL GetStreamPackSize(uint index) const;

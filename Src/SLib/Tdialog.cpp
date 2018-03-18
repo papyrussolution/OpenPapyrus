@@ -977,7 +977,7 @@ int TDialog::SetCtrlToolTip(uint ctrlID, const char * pToolTipText)
 		ti.hwnd   = ctrl_wnd;
 		ti.hinst  = TProgram::GetInst();
 		ti.uId    = (UINT_PTR)ctrl_wnd;
-		ti.lpszText    = (LPSTR)pToolTipText;
+		ti.lpszText    = (LPSTR)pToolTipText; // @unicodeproblem
 		ti.rect.left   = ctrl_rect.left;
 		ti.rect.top    = ctrl_rect.top;
 		ti.rect.right  = ctrl_rect.right;

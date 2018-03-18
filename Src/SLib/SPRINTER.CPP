@@ -60,7 +60,7 @@ int SPrinting::Init(const char * pPort)
 		}
 	}
 	if(port.NotEmpty()) {
-		PrinterDc = CreateDC("WINSPOOL\0", port, 0, 0);
+		PrinterDc = CreateDC(_T("WINSPOOL\0"), port, 0, 0); // @unicodeproblem
 		if(!PrinterDc)
 			ok = SLS.SetError(SLERR_WINDOWS);
 	}
@@ -81,7 +81,7 @@ int SPrinting::StartDocument()
 		SetBkMode(PrinterDc, TRANSPARENT);
 		MEMSZERO(di);
 		di.cbSize = sizeof(DOCINFO);
-		di.lpszDocName  = "Document";
+		di.lpszDocName  = _T("Document");
 		di.lpszOutput   = (LPTSTR)NULL;
 		di.lpszDatatype = (LPTSTR)NULL;
 		di.fwType = 0;
@@ -147,7 +147,7 @@ int SLAPI SPrinting::GetListOfPrinters(TSVector <PrnInfo> * pInfoList) // @v9.8.
 	DWORD  count = 0;
 	if(pInfoList)
 		pInfoList->freeAll();
-	GetDefaultPrinter(def_prn_name, &def_prn_name_size);
+	GetDefaultPrinter(def_prn_name, &def_prn_name_size); // @unicodeproblem
 	BOOL   r = EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, 0, 2, (LPBYTE)(char *)info_buf, info_buf.GetSize(), &wr_bytes, &count);
 	if(!r && wr_bytes > info_buf.GetSize()) {
 		info_buf.Alloc(wr_bytes);
@@ -162,9 +162,9 @@ int SLAPI SPrinting::GetListOfPrinters(TSVector <PrnInfo> * pInfoList) // @v9.8.
 			if(pInfoList) {
 				PrnInfo item;
 				MEMSZERO(item);
-				STRNSCPY(item.ServerName, info[i].pServerName);
-				STRNSCPY(item.PrinterName, info[i].pPrinterName);
-				STRNSCPY(item.ShareName, info[i].pShareName);
+				STRNSCPY(item.ServerName, info[i].pServerName); // @unicodeproblem
+				STRNSCPY(item.PrinterName, info[i].pPrinterName); // @unicodeproblem
+				STRNSCPY(item.ShareName, info[i].pShareName); // @unicodeproblem
 				SETFLAG(item.Flags, PrnInfo::fLocal, info[i].Attributes & PRINTER_ATTRIBUTE_LOCAL);
 				SETFLAG(item.Flags, PrnInfo::fNetwork, info[i].Attributes & PRINTER_ATTRIBUTE_NETWORK);
 				if(stricmp(item.PrinterName, def_prn_name) == 0)

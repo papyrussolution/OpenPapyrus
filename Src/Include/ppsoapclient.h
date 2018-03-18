@@ -1072,9 +1072,58 @@ struct SfaHeinekenWarehouseBalanceEntry {
 	int    Rest;
 };
 
+struct SfaHeinekenOrderStatusEntry {
+	S_GUID OrderUUID;
+	/*enum ns1__Statuses {
+		ns1__Statuses__formed = 0, 
+		ns1__Statuses__accepted = 1, 
+		ns1__Statuses__shipped = 2, 
+		ns1__Statuses__comments = 3
+	};*/
+	int    Status; 
+	SString Comments;
+};
+
+struct SfaHeinekenDeliveryPosition {
+	int    SkuID;
+	double Volume;
+	double Count;
+	double Amount;
+	SString Comments;
+};
+
+struct SfaHeinekenOrderDelivery {
+	S_GUID OrderUuid;
+	TSCollection <SfaHeinekenDeliveryPosition> DeliveryList;
+};
+
+struct SfaHeinekenDistributorDelivery {
+	SString InnerOrderCode;
+	int    SalePointID;
+	TSCollection <SfaHeinekenDeliveryPosition> DeliveryList;
+};
+
+struct SfaHeinekenSalePointDelivery {
+	SString InnerOrderCode;
+	int    InnerDlvrLocID;
+	SString DlvrLocName;
+	SString DlvrLocAddr;
+	TSCollection <SfaHeinekenDeliveryPosition> DeliveryList;
+};
+
+struct SfaHeinekenInvoice {
+	SString Code;
+	LDATE  Dt;
+	TSCollection <SfaHeinekenOrderDelivery> OrderList; // Если доставка по заказу из системы Jeans
+	TSCollection <SfaHeinekenDistributorDelivery> DistributorDeliveryList; // Если доставка вне заказа из системы Jeans, по ТТ из системы Jeans
+	TSCollection <SfaHeinekenSalePointDelivery> DistributorSalePointDeliveryList; // Если доставка вне заказа из системы Jeans, по торговой точке, остсутствующей в системе Jeans
+};
+
 typedef SString * (*SFAHEINEKENGETSKUASSORTIMENT_PROC)(PPSoapClientSession & rSess);
 typedef SString * (*SFAHEINEKENGETORDERS_PROC)(PPSoapClientSession & rSess, LDATE dt, int demo);
+typedef SString * (*SFAHEINEKENSENDORDERSSTATUSES_PROC)(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenOrderStatusEntry> & rList);
 typedef SString * (*SFAHEINEKENSENDWAREHOUSEBALANCE_PROC)(PPSoapClientSession & rSess, const TSVector <SfaHeinekenWarehouseBalanceEntry> & rList);
+typedef SString * (*SFAHEINEKENSENDSELLOUT_PROC)(PPSoapClientSession & rSess, const TSCollection <SfaHeinekenInvoice> & rList);
 //extern "C" __declspec(dllexport) SString * SfaHeineken_GetOrders(PPSoapClientSession & rSess, LDATE dt, int demo) // DRP_GetOrders
 //
 //

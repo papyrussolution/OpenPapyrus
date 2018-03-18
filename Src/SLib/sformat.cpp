@@ -123,9 +123,9 @@ char * SLAPI strfmt(const char * str, long fmt, char * buf)
 			*buf++ = '\'';
 		}
 		if(flag & STRF_OEM)
-			CharToOem(str, buf);
+			CharToOem(str, buf); // @unicodeproblem
 		else if(flag & STRF_ANSI)
-			OemToChar(str, buf);
+			OemToChar(str, buf); // @unicodeproblem
 		else if(buf != str)
 			strcpy(buf, str);
 		if(flag & STRF_UPPER)

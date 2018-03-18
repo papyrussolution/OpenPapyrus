@@ -29,17 +29,17 @@ struct CMenuItem {
 	}
 };
 
-class CMenu
-{
+class CMenu {
 	HMENU _menu;
 public:
-	CMenu() : _menu(NULL) {
-	};
+	CMenu() : _menu(NULL) 
+	{
+	}
 	operator HMENU() const { return _menu; }
-	void Attach(HMENU menu) {
+	void Attach(HMENU menu) 
+	{
 		_menu = menu;
 	}
-
 	HMENU Detach()
 	{
 		HMENU menu = _menu;
@@ -70,10 +70,7 @@ public:
 		return GetMenuItemCount(_menu);
     #endif
 	}
-
-	HMENU GetSubMenu(int pos) {
-		return ::GetSubMenu(_menu, pos);
-	}
+	HMENU GetSubMenu(int pos) { return ::GetSubMenu(_menu, pos); }
 
   #ifndef UNDER_CE
 	/*
@@ -88,31 +85,21 @@ public:
 	   return (len != 0);
 	   }
 	 */
-	UINT GetItemID(int pos) {
-		return ::GetMenuItemID(_menu, pos);
-	}
-
-	UINT GetItemState(UINT id, UINT flags) {
-		return ::GetMenuState(_menu, id, flags);
-	}
-
+	UINT GetItemID(int pos) { return ::GetMenuItemID(_menu, pos); }
+	UINT GetItemState(UINT id, UINT flags) { return ::GetMenuState(_menu, id, flags); }
   #endif
-
 	bool GetItemInfo(UINT itemIndex, bool byPosition, LPMENUITEMINFO itemInfo)
 	{
 		return BOOLToBool(::GetMenuItemInfo(_menu, itemIndex, BoolToBOOL(byPosition), itemInfo));
 	}
-
 	bool SetItemInfo(UINT itemIndex, bool byPosition, LPMENUITEMINFO itemInfo)
 	{
 		return BOOLToBool(::SetMenuItemInfo(_menu, itemIndex, BoolToBOOL(byPosition), itemInfo));
 	}
-
 	bool AppendItem(UINT flags, UINT_PTR newItemID, LPCTSTR newItem)
 	{
 		return BOOLToBool(::AppendMenu(_menu, flags, newItemID, newItem));
 	}
-
 	bool Insert(UINT position, UINT flags, UINT_PTR idNewItem, LPCTSTR newItem)
 	{
 		return BOOLToBool(::InsertMenu(_menu, position, flags, idNewItem, newItem));
@@ -123,37 +110,33 @@ public:
 	{
 		return BOOLToBool(::InsertMenuItem(_menu, itemIndex, BoolToBOOL(byPosition), itemInfo));
 	}
-
   #endif
-
-	bool RemoveItem(UINT item, UINT flags) {
+	bool RemoveItem(UINT item, UINT flags) 
+	{
 		return BOOLToBool(::RemoveMenu(_menu, item, flags));
 	}
-
-	void RemoveAllItemsFrom(UINT index) {
-		while(RemoveItem(index, MF_BYPOSITION)) ;
+	void RemoveAllItemsFrom(UINT index) 
+	{
+		while(RemoveItem(index, MF_BYPOSITION)) 
+			;
 	}
-
-	void RemoveAllItems() {
+	void RemoveAllItems() 
+	{
 		RemoveAllItemsFrom(0);
 	}
-
   #ifndef _UNICODE
 	bool GetItemInfo(UINT itemIndex, bool byPosition, LPMENUITEMINFOW itemInfo)
 	{
 		return BOOLToBool(::GetMenuItemInfoW(_menu, itemIndex, BoolToBOOL(byPosition), itemInfo));
 	}
-
 	bool InsertItem(UINT itemIndex, bool byPosition, LPMENUITEMINFOW itemInfo)
 	{
 		return BOOLToBool(::InsertMenuItemW(_menu, itemIndex, BoolToBOOL(byPosition), itemInfo));
 	}
-
 	bool SetItemInfo(UINT itemIndex, bool byPosition, LPMENUITEMINFOW itemInfo)
 	{
 		return BOOLToBool(::SetMenuItemInfoW(_menu, itemIndex, BoolToBOOL(byPosition), itemInfo));
 	}
-
 	bool AppendItem(UINT flags, UINT_PTR newItemID, LPCWSTR newItem);
   #endif
 
@@ -161,47 +144,33 @@ public:
 	bool SetItem(UINT itemIndex, bool byPosition, const CMenuItem &item);
 	bool InsertItem(UINT itemIndex, bool byPosition, const CMenuItem &item);
 
-	int Track(UINT flags, int x, int y, HWND hWnd) {
-		return ::TrackPopupMenuEx(_menu, flags, x, y, hWnd, NULL);
-	}
-
-	bool CheckRadioItem(UINT idFirst, UINT idLast, UINT idCheck, UINT flags)
-	{
-		return BOOLToBool(::CheckMenuRadioItem(_menu, idFirst, idLast, idCheck, flags));
-	}
-
-	DWORD CheckItem(UINT id, UINT uCheck) {
-		return ::CheckMenuItem(_menu, id, uCheck);
-	}
-
-	DWORD CheckItemByID(UINT id, bool check) {
-		return CheckItem(id, MF_BYCOMMAND | (check ? MF_CHECKED : MF_UNCHECKED));
-	}
-
-	BOOL EnableItem(UINT uIDEnableItem, UINT uEnable) {
-		return EnableMenuItem(_menu, uIDEnableItem, uEnable);
-	}
+	int Track(UINT flags, int x, int y, HWND hWnd) { return ::TrackPopupMenuEx(_menu, flags, x, y, hWnd, NULL); }
+	bool CheckRadioItem(UINT idFirst, UINT idLast, UINT idCheck, UINT flags) { return BOOLToBool(::CheckMenuRadioItem(_menu, idFirst, idLast, idCheck, flags)); }
+	DWORD CheckItem(UINT id, UINT uCheck) { return ::CheckMenuItem(_menu, id, uCheck); }
+	DWORD CheckItemByID(UINT id, bool check) { return CheckItem(id, MF_BYCOMMAND | (check ? MF_CHECKED : MF_UNCHECKED)); }
+	BOOL EnableItem(UINT uIDEnableItem, UINT uEnable) { return EnableMenuItem(_menu, uIDEnableItem, uEnable); }
 };
 
-class CMenuDestroyer
-{
+class CMenuDestroyer {
 	CMenu * _menu;
 public:
-	CMenuDestroyer(CMenu &menu) : _menu(&menu) {
+	CMenuDestroyer(CMenu &menu) : _menu(&menu) 
+	{
 	}
-
-	CMenuDestroyer() : _menu(0) {
+	CMenuDestroyer() : _menu(0) 
+	{
 	}
-
-	~CMenuDestroyer() {
-		if(_menu) _menu->Destroy();
+	~CMenuDestroyer() 
+	{
+		if(_menu) 
+			_menu->Destroy();
 	}
-
-	void Attach(CMenu &menu) {
+	void Attach(CMenu &menu) 
+	{
 		_menu = &menu;
 	}
-
-	void Disable() {
+	void Disable() 
+	{
 		_menu = 0;
 	}
 };

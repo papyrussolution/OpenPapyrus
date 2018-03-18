@@ -76,7 +76,7 @@ int TStatusWin::Update()
 		temp_buf = Items.at(i).str;
 		if(Items.at(i).Icon)
 			n_width += 24; // icon size + borders // @v9.2.1 18-->24
-        else if(temp_buf.NotEmpty() && GetTextExtentPoint32(hdc, temp_buf, temp_buf.Len(), &size))
+        else if(temp_buf.NotEmpty() && GetTextExtentPoint32(hdc, temp_buf, temp_buf.Len(), &size)) // @unicodeproblem
 			n_width += size.cx;
 		// @v9.2.1 n_width += 5;
 		l_parts[i] = n_width;
@@ -294,7 +294,7 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 								temp_title_buf[SHCTSTAB_MAXTEXTLEN - j - 1] = '.';
 						}
 						tci.mask = LVIF_TEXT;
-						tci.pszText = temp_title_buf;
+						tci.pszText = temp_title_buf; // @unicodeproblem
 						tci.cchTextMax = sizeof(temp_title_buf);
 						TabCtrl_SetItem(hwnd_tab, i, &tci); // @unicodeproblem
 						if(hwnd_tt && TabCtrl_GetItemRect(hwnd_tab, i, &rc_item))	{
@@ -305,7 +305,7 @@ int TProgram::UpdateItemInMenu(const char * pTitle, void * ptr)
 							t_i.uId         = (UINT)ptr;
 							t_i.rect        = rc_item;
 							t_i.hinst       = TProgram::GetInst();
-							t_i.lpszText    = title_buf;
+							t_i.lpszText    = title_buf; // @unicodeproblem
 							SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
 							SendMessage(hwnd_tt, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
 						}
@@ -353,7 +353,7 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 			mii.fMask = MIIM_TYPE|MIIM_DATA|MIIM_ID;
 			mii.wID   = (UINT)ptr;
 			mii.dwItemData = (DWORD)ptr;
-			mii.dwTypeData = title_buf;
+			mii.dwTypeData = title_buf; // @unicodeproblem
 			InsertMenuItem(h_menu, (UINT)ptr, FALSE, &mii); // @unicodeproblem
 			CALLPTRMEMB(P_TreeWnd, AddItemCmdList(pTitle, ptr));
 			if(H_ShortcutsWnd) {
@@ -372,7 +372,7 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 				}
 				MEMSZERO(rc_item);
 				tci.mask = TCIF_TEXT|TCIF_PARAM;
-				tci.pszText = temp_title_buf;
+				tci.pszText = temp_title_buf; // @unicodeproblem
 				tci.cchTextMax = sizeof(temp_title_buf);
 				tci.lParam = (UINT)ptr;
 				TabCtrl_InsertItem(hwnd_tab, idx, &tci); // @unicodeproblem
@@ -387,7 +387,7 @@ int TProgram::AddItemToMenu(const char * pTitle, void * ptr)
 					t_i.uId         = (UINT)ptr;
 					t_i.rect        = rc_item;
 					t_i.hinst       = TProgram::GetInst();
-					t_i.lpszText    = title_buf;
+					t_i.lpszText    = title_buf; // @unicodeproblem
 					SendMessage(hwnd_tt, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
 					SendMessage(hwnd_tt, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
 				}
@@ -776,7 +776,7 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 {
 	SString cls_name;
 	TView::SGetWindowClassName(hwnd, cls_name);
-	if(cls_name.Cmp(BrowserWindow::WndClsName, 0) == 0) {
+	if(cls_name.Cmp(BrowserWindow::WndClsName, 0) == 0) { // @unicodeproblem
 		*(long*)lParam = 1;
 		return FALSE;
 	}
@@ -815,8 +815,7 @@ LRESULT CALLBACK TProgram::MainWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 						}
 					}
 				}
-				p_pgm->H_CloseWnd = CreateWindow(_T("BUTTON"), "X", WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS,
-					2, 2, 12, 12, p_pgm->GetFrameWindow(), 0, TProgram::GetInst(), 0);
+				p_pgm->H_CloseWnd = CreateWindow(_T("BUTTON"), "X", WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS, 2, 2, 12, 12, p_pgm->GetFrameWindow(), 0, TProgram::GetInst(), 0); // @unicodeproblem
 				p_pgm->SetWindowViewByKind(p_pgm->H_ShortcutsWnd, TProgram::wndtypNone);
 				p_pgm->SetWindowViewByKind(p_pgm->H_CloseWnd, TProgram::wndtypNone);
 				p_pgm->PrevCloseWndProc = (WNDPROC)TView::SetWindowProp(p_pgm->H_CloseWnd, GWLP_WNDPROC, CloseWndProc);
@@ -1027,7 +1026,7 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 		WNDCLASSEX wc;
 		MEMSZERO(wc);
 		wc.cbSize        = sizeof(wc);
-		wc.lpszClassName = AppSymbol;
+		wc.lpszClassName = AppSymbol; // @unicodeproblem
 		wc.hInstance     = hInstance;
 		wc.lpfnWndProc   = (WNDPROC)MainWndProc;
 		wc.style         = CS_HREDRAW | CS_VREDRAW;
@@ -1037,8 +1036,7 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 		wc.cbWndExtra    = sizeof(long);
 		::RegisterClassEx(&wc); // @unicodeproblem
 	}
-	hWnd = ::CreateWindow(AppSymbol, AppTitle, WS_OVERLAPPEDWINDOW|WS_EX_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, this); // @unicodeproblem
+	hWnd = ::CreateWindow(AppSymbol, AppTitle, WS_OVERLAPPEDWINDOW|WS_EX_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, this); // @unicodeproblem
 	ShowWindow(hWnd, SW_SHOWMAXIMIZED/*SW_SHOWDEFAULT*/);
 	UpdateWindow(hWnd);
 }
@@ -1148,7 +1146,7 @@ BOOL CALLBACK EnumCtrls(HWND hWnd, LPARAM lParam)
 		long style    = TView::GetWindowStyle(hWnd);
 		long ex_style = TView::GetWindowExStyle(hWnd);
 		memzero(cls_name, sizeof(cls_name));
-		RealGetWindowClass(hWnd, cls_name, sizeof(cls_name));
+		RealGetWindowClass(hWnd, cls_name, sizeof(cls_name)); // @unicodeproblem
 		if(p_e->ViewKind == UserInterfaceSettings::wndVKFlat) {
 			ex_style |= WS_EX_STATICEDGE;
 			if(sstreqi_ascii(cls_name, "BUTTON"))
@@ -1250,8 +1248,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 						title_rect.left    = 10;
 						title_rect.right   = r.right - r.left - 50;
 						title_rect.bottom  = 24;
-						title_hwnd = ::CreateWindow(_T("STATIC"), title_buf, WS_CHILD, title_rect.left, title_rect.top,
-							title_rect.right, title_rect.bottom, hWnd, 0, TProgram::hInstance, 0);
+						title_hwnd = ::CreateWindow(_T("STATIC"), title_buf, WS_CHILD, title_rect.left, title_rect.top, title_rect.right, title_rect.bottom, hWnd, 0, TProgram::hInstance, 0); // @unicodeproblem
 						font_face = "MS Sans Serif";
 						TView::setFont(title_hwnd, font_face, 24);
 						TView::SetWindowProp(title_hwnd, GWL_STYLE, TView::GetWindowStyle(title_hwnd) & ~WS_TABSTOP);
@@ -1527,7 +1524,7 @@ int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		old_font = (HFONT)SelectObject(p_di->hDC, (HFONT)SendMessage(p_di->hwndItem, WM_GETFONT, 0, 0));
 		SetBkMode(p_di->hDC, TRANSPARENT);
 		SetTextColor(p_di->hDC, text_color);
-		::DrawText(p_di->hDC, text_buf, text_buf.Len(), &out_r, text_out_fmt);
+		::DrawText(p_di->hDC, text_buf, text_buf.Len(), &out_r, text_out_fmt); // @unicodeproblem
 		if(old_font)
 			SelectObject(p_di->hDC, old_font);
 	}
@@ -1651,11 +1648,11 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			text_rect.left   = out_r.left;
 			text_rect.right  = out_r.right;
 			for(uint i = 0; ss.get(&i, text_buf) > 0; text_rect.top += height, text_rect.bottom += height)
-				::DrawText(pDi->hDC, text_buf, text_buf.Len(), &text_rect, text_out_fmt);
+				::DrawText(pDi->hDC, text_buf, text_buf.Len(), &text_rect, text_out_fmt); // @unicodeproblem
 		}
 		else {
 			text_out_fmt |= DT_SINGLELINE;
-			::DrawText(pDi->hDC, text_buf, text_buf.Len(), &out_r, text_out_fmt);
+			::DrawText(pDi->hDC, text_buf, text_buf.Len(), &out_r, text_out_fmt); // @unicodeproblem
 		}
 		if(old_font)
 			SelectObject(pDi->hDC, old_font);
@@ -2376,7 +2373,7 @@ int DrawStatusBarItem(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			SetTextColor(pDi->hDC, p_item->TextColor);
 			old_font = (HFONT)SelectObject(pDi->hDC, font);
 			InflateRect(&out_r, -1, -1);
-			::DrawText(pDi->hDC, p_item->str, sstrlen(p_item->str), &out_r, text_out_fmt);
+			::DrawText(pDi->hDC, p_item->str, sstrlen(p_item->str), &out_r, text_out_fmt); // @unicodeproblem
 			if(old_font)
 				::SelectObject(pDi->hDC, old_font);
 			if(delete_font)
@@ -2494,7 +2491,7 @@ int TProgram::CloseAllBrowsers()
 void TProgram::GotoSite()
 {
 	SString url = "http://www.petroglif.ru/";
-	ShellExecute(0, _T("open"), url, NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(0, _T("open"), url, NULL, NULL, SW_SHOWNORMAL); // @unicodeproblem
 }
 //
 //

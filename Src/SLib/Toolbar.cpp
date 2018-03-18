@@ -26,13 +26,10 @@ TToolbar::TToolbar(HWND hWnd, DWORD style) : PrevToolProc(0), H_MainWnd(hWnd), H
 		wc.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
 		::RegisterClassEx(&wc); // @unicodeproblem
 	}
-	H_Wnd = ::CreateWindowEx(WS_EX_TOOLWINDOW, "TOOLBAR_FOR_PPY", NULL, WS_CHILD|WS_CLIPSIBLINGS,
-		0, 0, 0, 0, hWnd, (HMENU)0, TProgram::GetInst(), 0); // @unicodeproblem
+	H_Wnd = ::CreateWindowEx(WS_EX_TOOLWINDOW, _T("TOOLBAR_FOR_PPY"), NULL, WS_CHILD|WS_CLIPSIBLINGS, 0, 0, 0, 0, hWnd, (HMENU)0, TProgram::GetInst(), 0); // @unicodeproblem
 	//SetWindowLong(H_Wnd, GWLP_USERDATA, (long)this);
 	TView::SetWindowProp(H_Wnd, GWLP_USERDATA, this);
-	H_Toolbar = CreateWindowEx(WS_EX_TOOLWINDOW, TOOLBARCLASSNAME, (LPSTR)NULL,
-		WS_CHILD | TBSTYLE_TOOLTIPS | TBSTYLE_FLAT | CCS_NORESIZE | WS_CLIPSIBLINGS,
-		0, 0, 0, 0, H_Wnd, (HMENU)0, TProgram::GetInst(), 0);
+	H_Toolbar = CreateWindowEx(WS_EX_TOOLWINDOW, TOOLBARCLASSNAME, _T(""), WS_CHILD|TBSTYLE_TOOLTIPS|TBSTYLE_FLAT|CCS_NORESIZE|WS_CLIPSIBLINGS, 0, 0, 0, 0, H_Wnd, (HMENU)0, TProgram::GetInst(), 0);
 	//SetWindowLong(H_Toolbar, GWLP_USERDATA, (long)this);
 	TView::SetWindowProp(H_Toolbar, GWLP_USERDATA, this);
 	//PrevToolProc = (WNDPROC)SetWindowLong(H_Toolbar, GWLP_WNDPROC, (long)ToolbarProc);
@@ -146,7 +143,7 @@ LRESULT TToolbar::OnNotify(WPARAM wParam, LPARAM lParam)
 	if(phm->code == TTN_NEEDTEXT) {
 		uint idx = 0;
 		if(Items.searchKeyCode(wParam, &idx))
-			STRNSCPY(((TOOLTIPTEXT *)lParam)->szText, Items.getItem(idx).ToolTipText);
+			STRNSCPY(((TOOLTIPTEXT *)lParam)->szText, Items.getItem(idx).ToolTipText); // @unicodeproblem
 	}
 	// @v9.7.11 (experimental) {
 	/*
@@ -403,7 +400,7 @@ HMENU SetLocalMenu(HMENU * pMenu, HWND hToolbar)
 			if(tb.fsStyle & TBSTYLE_SEP)
 				AppendMenu(h_menu, MF_ENABLED|MF_SEPARATOR, 0, 0);
 			else
-				AppendMenu(h_menu, MF_ENABLED|MF_STRING, tb.idCommand, (LPSTR)tb.dwData);
+				AppendMenu(h_menu, MF_ENABLED|MF_STRING, tb.idCommand, (LPSTR)tb.dwData); // @unicodeproblem
 	}
 	ASSIGN_PTR(pMenu, h_menu);
 	return h_menu;
@@ -726,7 +723,7 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb)
 				char * p = strchr(temp_buf, '\t');
 				if(p)
 					*p = 0;
-				lvi.pszText = temp_buf;
+				lvi.pszText = temp_buf; // @unicodeproblem
 			}
 			else {
 				div_text_buf[0] = 0;
@@ -736,7 +733,7 @@ TuneToolsDialog::TuneToolsDialog(HWND hWnd, TToolbar * pTb)
 				str_buf.Quot('-', '-');
 				str_buf.Quot('-', '-');
 				str_buf.CopyTo(div_text_buf, sizeof(div_text_buf));
-				lvi.pszText = div_text_buf;
+				lvi.pszText = div_text_buf; // @unicodeproblem
 			}
 			lvi.lParam = i;
 			lvi.iImage = (tb.fsState & TBSTATE_HIDDEN) ? TBI_UNCHECKED : TBI_CHECKED;
@@ -791,11 +788,11 @@ int TuneToolsDialog::OnUpDownArrow(int up)
 		char   buf[128], buf1[128];
 		lvi.iSubItem = lvi1.iSubItem = 0;
 		lvi.mask = lvi1.mask  = LVIF_TEXT | LVIF_PARAM | LVIF_IMAGE | LVIF_STATE;
-		lvi1.pszText = buf1;
+		lvi1.pszText = buf1; // @unicodeproblem
 		lvi1.cchTextMax = sizeof(buf1);
 		lvi.stateMask = lvi1.stateMask = LVIS_SELECTED | LVIS_FOCUSED;
 		lvi.iSubItem = 0;
-		lvi.pszText = buf;
+		lvi.pszText = buf; // @unicodeproblem
 		lvi.cchTextMax = sizeof(buf);
 		if(up)
 			lvi1.iItem = lvi.iItem-1;

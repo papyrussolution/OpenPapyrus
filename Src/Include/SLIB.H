@@ -3846,6 +3846,10 @@ public:
 	SLAPI ~SStringU();
 	size_t SLAPI Len() const;
 	operator const wchar_t * () const { return P_Buf; }
+	//
+	// Descr: Сокращенная версия operator const wchar_t * ()
+	//
+	const wchar_t * ucptr() const { return P_Buf; }
 	SStringU & FASTCALL operator = (const SStringU &);
 	SStringU & FASTCALL operator = (const wchar_t *);
 	int    FASTCALL IsEqual(const SStringU & rS) const;
@@ -5859,11 +5863,6 @@ public:
 	//
 	void   SLAPI clear();
 	//
-	// Descr: Оптимизированная функция сложения real-поля по всем элементам массива
-	// @construction
-	//
-	// double SLAPI calcSumDouble(size_t offs) const;
-	//
 	// Descr: Удаляет из массива диапазон элементов, начинающийся с позиции lowPos и до uppPos включетельно.
 	//   Если lowPos > uppPos или lowPos >= getCount(), то не делает ничего
 	//   Если lowPos == uppPod, то вызов эквивалентен freeItem(lowPos)
@@ -5959,11 +5958,6 @@ public:
 	//   если (flags & aryEachItem)
 	//
 	virtual	void FASTCALL freeItem(void * p);
-	//
-	// Descr: Оптимизированная функция сложения real-поля по всем элементам массива
-	// @construction
-	//
-	// double SLAPI calcSumDouble(size_t offs) const;
 	//
 	// Descr: Удаляет из массива диапазон элементов, начинающийся с позиции lowPos и до uppPos включетельно.
 	//   Если lowPos > uppPos или lowPos >= getCount(), то не делает ничего
@@ -8175,7 +8169,8 @@ class SArchive {
 public:
 	enum {
 		tUnkn = 0,
-		tZip  = 1
+		tZip  = 1,
+		t7Z // @construction
 	};
 	SLAPI  SArchive();
 	SLAPI ~SArchive();
@@ -10727,7 +10722,8 @@ private:
 	LDATE  SuppDate;   // Опорная дата.
 	SymbHashTable SymbTbl;
 	SCollection * P_DbtDescrList;
-	SString TempBuf;   // @allocreuse
+	SString TempStrBuf;   // @allocreuse
+	SBuffer TempSBuf;     // @allocreuse
 	STempBuffer TempDataBuf;
 };
 
@@ -12224,7 +12220,7 @@ public:
 	SStringU & SLAPI AcquireRvlStrU();
 private:
 	long   TlsIdx;          // @firstmember
-	const  SSystem SSys;    // 
+	const  SSystem SSys;    //
 	long   Id;              // @anchor
 	ACount SeqValue;        // @anchor Последнее значение, возвращенное функций GetSequenceValue().
 		// Положение переменной должно быть выровнено по 64-битной границе.

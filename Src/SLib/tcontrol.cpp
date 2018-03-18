@@ -487,7 +487,7 @@ int TInputLine::OnPaste()
 			if(h_cb) {
 				LPTSTR p_str = (LPTSTR)::GlobalLock(h_cb); // @unicodeproblem
 				if(p_str) {
-					(symb = p_str).Transf(CTRANSF_OUTER_TO_INNER);
+					(symb = p_str).Transf(CTRANSF_OUTER_TO_INNER); // @unicodeproblem
 					::GlobalUnlock(h_cb);
 				}
 			}
@@ -2069,7 +2069,7 @@ int TToolTip::AddTool(ToolItem & rItem)
 		ti.hinst = SLS.GetHInst();
 		ti.uId = _cur_count+1; //++Counter;
 		if(rItem.Text.NotEmpty()) {
-			ti.lpszText = (LPSTR)rItem.Text.cptr(); // @badcast
+			ti.lpszText = (LPSTR)rItem.Text.cptr(); // @badcast // @unicodeproblem
 		}
 		if(rItem.R.IsEmpty() && rItem.H) {
 			GetClientRect(rItem.H, &ti.rect);
@@ -2102,7 +2102,7 @@ int TToolTip::GetTool(uint idx, ToolItem & rItem)
 		STempBuffer text_buf(2048);
 		TOOLINFO ti;
 		MEMSZERO(ti);
-		ti.lpszText = text_buf;
+		ti.lpszText = text_buf; // @unicodeproblem
 		ti.cbSize = sizeof(TOOLINFO);
 		if(::SendMessage(H, TTM_ENUMTOOLS, idx, (LPARAM)&ti)) { // @unicodeproblem
 			rItem.Id = ti.uId;

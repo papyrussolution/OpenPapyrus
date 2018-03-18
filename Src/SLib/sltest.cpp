@@ -800,7 +800,7 @@ int STestSuite::Run(const char * pIniFileName)
 				FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
 				    FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
 					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &msg_buff, 0, 0);
-				MessageBox(NULL, ffn.CatDiv(':', 2).Cat((LPCTSTR)msg_buff), _T("Error"), MB_OK);
+				MessageBox(NULL, ffn.CatDiv(':', 2).Cat((LPCTSTR)msg_buff), _T("Error"), MB_OK); // @unicodeproblem
 				LocalFree(msg_buff);
 			} // } @v5.7 ANDREW
 			ReportTestEntry(0, p_entry);

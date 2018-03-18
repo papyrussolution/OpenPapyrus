@@ -169,7 +169,7 @@ static void __OutLastErr()
 	LPVOID p_msg_buf;
 	::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(),
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &p_msg_buf, 0, 0);
-	::MessageBox(NULL, (LPCTSTR)p_msg_buf, "Error", MB_OK | MB_ICONINFORMATION);
+	::MessageBox(NULL, (LPCTSTR)p_msg_buf, _T("Error"), MB_OK | MB_ICONINFORMATION); 
 	LocalFree(p_msg_buf);
 }
 
@@ -186,7 +186,7 @@ int SLAPI SCommPort::InitPort(int portNo)
 		CloseHandle(H_Port);
 		H_Port = INVALID_HANDLE_VALUE;
 	}
-	H_Port = ::CreateFile(name, GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+	H_Port = ::CreateFile(name, GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
 	SLS.SetAddedMsgString(name);
 	THROW(H_Port != INVALID_HANDLE_VALUE);
 	THROW(GetCommState(H_Port, &dcb));

@@ -166,11 +166,13 @@ static int SLAPI IsRemovableDrive(const char drive)
 {
 	int    ok = 0;
 	uint   drive_type = 0;
-	char   str_drive[16];
-	memzero(str_drive, sizeof(str_drive));
-	sprintf(str_drive, "%c%c", drive, ':');
-	setLastSlash(str_drive);
-	drive_type = GetDriveType(str_drive); // @unicodeproblem
+	SString s_drive;
+	//char   str_drive[16];
+	//memzero(str_drive, sizeof(str_drive));
+	//sprintf(str_drive, "%c%c", drive, ':');
+	//setLastSlash(str_drive);
+	s_drive.CatChar(drive).CatChar(':').SetLastSlash().ToUpper();
+	drive_type = GetDriveType(s_drive); // @unicodeproblem
 	if(oneof3(drive_type, DRIVE_REMOVABLE, DRIVE_CDROM, DRIVE_RAMDISK))
 		ok = 1;
 	else if(drive_type == DRIVE_NO_ROOT_DIR)
@@ -770,41 +772,31 @@ int SLAPI GetTransmitFiles(ObjReceiveParam * pParam)
 	return ok;
 }
 
-static int SLAPI PutFilesToDiskPath(const /*PPFileNameArray*/SFileEntryPool * pFileList, const char * pDestPath, long trnsmFlags)
+static int SLAPI PutFilesToDiskPath(const SFileEntryPool * pFileList, const char * pDestPath, long trnsmFlags)
 {
 	int    ok = 1;
 	int    removable_drive = 0;
-	//char   src_dir[MAXPATH];
-	//char   dest_dir[MAXPATH];
 	SString src_dir;
 	SString dest_dir;
-	char   msg_buf[128], ext[10], drive;
 	SString file_path;
 	uint   i;
-	//SDirEntry fb;
 	SFileEntryPool::Entry fe;
-
-	fnsplit(pDestPath, &drive, 0, 0, ext);
+	SPathStruc ps(pDestPath);
 	PPSetAddedMsgString(pDestPath);
 	THROW_PP_S(driveValid(pDestPath), PPERR_NEXISTPATH, pDestPath);
-	removable_drive = IsRemovableDrive(toupper(drive));
+	removable_drive = (ps.Drv.Len() == 1) ? IsRemovableDrive(ps.Drv.C(0)) : 0;
 	if(removable_drive > 0) {
-		//sprintf(dest_dir, "%c:\\", drive);
-		dest_dir.Z().CatChar(drive).CatChar(':').CatChar('\\');
-		msg_buf[0] = toupper(drive);
-		msg_buf[1] = 0;
-		PPSetAddedMsgString(msg_buf);
+		dest_dir.Z().CatChar(ps.Drv.C(0)).CatChar(':').CatChar('\\');
+		PPSetAddedMsgString(ps.Drv);
 		while(::access(dest_dir, 0))
 			THROW_PP(CONFIRM(PPCFM_INSERTDISK), PPERR_DRIVEUNAVELAIBLE);
 	}
 	//
 	// ѕровер€ем существование заданных каталогов
 	//
-	//rmvLastSlash(STRNSCPY(src_dir, pFileList->GetPath()));
 	pFileList->GetInitPath(src_dir);
 	src_dir.RmvLastSlash();
 	if(removable_drive != 1) {
-		//rmvLastSlash(STRNSCPY(dest_dir, pDestPath));
 		(dest_dir = pDestPath).RmvLastSlash();
 	}
 	PPSetAddedMsgString(src_dir);
@@ -819,12 +811,9 @@ static int SLAPI PutFilesToDiskPath(const /*PPFileNameArray*/SFileEntryPool * pF
 	// copy files to dest
 	//
 	PPWait(1);
-	//for(i = 0; pFileList->Enum(&i, &fb, &file_path);) {
 	for(i = 0; i < pFileList->GetCount(); i++) {
 		if(pFileList->Get(i, &fe, &file_path)) {
 			PPWaitMsg(fe.Name);
-			//STRNSCPY(dest_dir, file_path);
-			//replacePath(dest_dir, pDestPath, 1);
 			SPathStruc::ReplacePath(dest_dir = file_path, pDestPath, 1);
 			THROW_SL(copyFileByName(file_path, dest_dir));
 		}
@@ -845,12 +834,9 @@ int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 	PPGetPath(PPPATH_OUT, src);
 	THROW(obj_dbdiv.Get(dbDivID, &dbdiv_pack) > 0);
 	if((dest = dbdiv_pack.Rec.Addr).NotEmptyS()) {
-		//PPFileNameArray fary;
 		SFileEntryPool fep;
-		//THROW(fary.Scan(src, "*" PPSEXT));
 		THROW(fep.Scan(src, "*" PPSEXT, 0));
 		{
-			//SDirEntry fb;
 			SFileEntryPool::Entry fe;
 			SString file_name;
 			PPObjectTransmit ot(PPObjectTransmit::tmReading, 0, 0);
@@ -878,13 +864,13 @@ int SLAPI PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 		}
 		// } AHTOXA
 		if(IsEmailAddr(dest)) {
-			THROW(PutFilesToEmail(/*&fary*/&fep, 0, dest, SUBJECTDBDIV, trnsmFlags));
+			THROW(PutFilesToEmail(&fep, 0, dest, SUBJECTDBDIV, trnsmFlags));
 		}
 		else if(IsFtpAddr(dest)) {
-			THROW(PutFilesToFtp(/*&fary*/&fep, 0, dest, trnsmFlags));
+			THROW(PutFilesToFtp(&fep, 0, dest, trnsmFlags));
 		}
 		else {
-			THROW(PutFilesToDiskPath(/*&fary*/&fep, dest, trnsmFlags));
+			THROW(PutFilesToDiskPath(&fep, dest, trnsmFlags));
 		}
 	}
 	else
@@ -899,13 +885,11 @@ int CallbackCompress(long, long, const char *, int);
 int SLAPI RemovePPSHeader(const char * pFile, const PPObjectTransmit::Header * pHdr, int remove)
 {
 	int    ok = -1;
-	//char   dest[MAXPATH];
 	SString dest_file_name;
 	FILE * p_in_stream = 0, *p_out_stream = 0;
 	size_t read_bytes = 0, wr_bytes = 0, total_rd_bytes = 0, total_wr_bytes = 0;
 	if(pFile && (pHdr || remove)) {
 		char   buf[4096];
-		//replaceExt(STRNSCPY(dest, pFile), "$$$", 1);
 		dest_file_name = pFile;
 		SPathStruc::ReplaceExt(dest_file_name, "$$$", 1);
 		THROW_PP_S(p_in_stream = fopen(pFile, "rb"), PPERR_PPOSOPENFAULT, pFile);

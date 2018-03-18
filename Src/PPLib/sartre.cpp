@@ -273,19 +273,11 @@ size_t SrWordForm::Set(size_t pos, int val)
 }
 
 int FASTCALL SrWordForm::Tag(size_t pos) const
-{
-	return (int)(PTR8(P_Buf+pos)[0]);
-}
-
+	{ return (int)(PTR8(P_Buf+pos)[0]); }
 int FASTCALL SrWordForm::Get(size_t pos) const
-{
-	return oneof2(Tag(pos), SRWG_LANGUAGE, SRWG_CLASS) ? (int)PTR16(P_Buf+pos+1)[0] : (int)PTR8(P_Buf+pos+1)[0];
-}
-
+	{ return oneof2(Tag(pos), SRWG_LANGUAGE, SRWG_CLASS) ? (int)PTR16(P_Buf+pos+1)[0] : (int)PTR8(P_Buf+pos+1)[0]; }
 size_t FASTCALL SrWordForm::Step(size_t pos) const
-{
-	return pos + sizeof(uint8) + (oneof2(Tag(pos), SRWG_LANGUAGE, SRWG_CLASS) ? sizeof(uint16) : sizeof(uint8));
-}
+	{ return pos + sizeof(uint8) + (oneof2(Tag(pos), SRWG_LANGUAGE, SRWG_CLASS) ? sizeof(uint16) : sizeof(uint8)); }
 
 struct SrWfToken {
 	int16  Tag;

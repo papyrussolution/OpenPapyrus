@@ -3976,6 +3976,7 @@
 	#define CTL_ELNKK_ID                 (2 + WINDOWS_ID_BIAS)
 	#define CTL_ELNKK_TYPE               (3 + WINDOWS_ID_BIAS)
 	#define CTL_ELNKK_FLAGS              (4 + WINDOWS_ID_BIAS)
+	#define CTL_ELNKK_SYMB               (5 + WINDOWS_ID_BIAS)
 #define DLG_ELNKSET               313 // Електронные адреса персоналии
 	#define CTL_ELNKSET_KIND1            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ELNKSET_KIND1         (2 + WINDOWS_ID_BIAS)
@@ -4002,6 +4003,7 @@
 	#define CTL_ELINK_KIND               (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ELINK_KIND            (2 + WINDOWS_ID_BIAS)
 	#define CTL_ELINK_ADDR               (3 + WINDOWS_ID_BIAS)
+	#define CTL_ELINK_INFO               (4 + WINDOWS_ID_BIAS)
 #define DLG_QUOTKIND              317 // Вид котировки товара
 	#define cmDscntOnGroups              101
 	#define cmQuotKindRestr              102
@@ -9423,6 +9425,7 @@
 	#define CTL_PHNSVC_USERNAME        (9 + WINDOWS_ID_BIAS)
 	#define CTL_PHNSVC_PASSWORD        (10 + WINDOWS_ID_BIAS)
 	#define CTL_PHNSVC_LOCALCHNLSYMB   (11 + WINDOWS_ID_BIAS)
+	#define CTL_PHNSVC_SCANCHNL        (12 + WINDOWS_ID_BIAS)
 #define DLG_PHNSVCVIEW            1184
 #define DLG_IMPEXPPHONE           1185
 	#define CTL_IMPEXPPHONE_DEFPFX     (1  + IMPEXP_CTL_BIAS)
@@ -12170,16 +12173,6 @@
 	#define SMS_FIELDS_MAINORGNAME		2	// Название главной организации
 	#define SMS_FIELDS_MAINORGPHONE		3	// Телефон главной организации
 	#define SMS_FIELDS_MAINORGADDR		4	// Адрес главной организации
-/* @v8.5.6 Перенесено в ppstr2.txt
-#define PPTXT_EDIEXPCMD                     651 // Наименования типов документов экспорта через EDI
-	#define PPEDIEXPCMD_ORDER           0   // @unused Заказ
-	#define PPEDIEXPCMD_REСADV          1   // @unused Уведомление о приходе
-#define PPTXT_EDIIMPCMD                     652 // Наименования типов документов импорта через EDI
-	#define PPEDIIMPCMD_APERAK          0   // @unused Получение статуса
-	#define PPEDIIMPCMD_ORDRSP          1   // @unused Подтверждение заказа
-	#define PPEDIIMPCMD_DESADV          2   // @unused Уведомление об отгрузке
-	#define PPEDIIMPCMD_ALCODESADV      3   // @unused Параметры документа для алкогольной отчетности
-*/
 #define PPTXT_FUNCIDS                       653
 	#define PPTXT_FUNCID_BILLTURNPACK   1
 #define PPTXT_UFP_AVG_IDS                   654

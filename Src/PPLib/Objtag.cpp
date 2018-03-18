@@ -3107,7 +3107,6 @@ int ObjTagCache::Fetch(PPID objID, PPID tagID, ObjTagItem * pItem)
 	if(objID && tagID) {
 		uint16 tp = 0;
 		uint   pos = 0;
-		//RwL.ReadLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		StatData.Count.Incr();
 		if(TagTypeList.lsearch(&tagID, &pos, CMPF_LONG)) {
@@ -3120,8 +3119,6 @@ int ObjTagCache::Fetch(PPID objID, PPID tagID, ObjTagItem * pItem)
 		else {
 			ok = Helper_Get(objID, tagID, pItem);
 			if(ok < 0) {
-				//RwL.Unlock();
-				//RwL.WriteLock();
 				SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 				//
 				// ѕока мы ждали своей очереди на запись
@@ -3195,7 +3192,6 @@ int ObjTagCache::Fetch(PPID objID, PPID tagID, ObjTagItem * pItem)
 				}
 			}
 		}
-		//RwL.Unlock();
 	}
 	return ok;
 }
@@ -3204,7 +3200,6 @@ int FASTCALL ObjTagCache::Dirty(PPID objType, PPID objID, PPID tagID)
 {
 	int    ok = 1;
 	{
-		//RwL.WriteLock();
 		SRWLOCKER(RwL, SReadWriteLocker::Write);
 		for(uint i = 0; i < TagTypeList.getCount(); i++) {
 			TagTypeEntry & r_te = TagTypeList.at(i);
@@ -3222,7 +3217,6 @@ int FASTCALL ObjTagCache::Dirty(PPID objType, PPID objID, PPID tagID)
 				}
 			}
 		}
-		//RwL.Unlock();
 	}
 	return ok;
 }

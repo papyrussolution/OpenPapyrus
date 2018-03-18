@@ -9,6 +9,84 @@
 //
 //
 //
+class AWStringBuffer : public SBaseBuffer {
+public:
+	explicit AWStringBuffer(size_t sz)
+	{
+		SBaseBuffer::Init();
+#ifdef _UNICODE
+		Cp = cpUTF16;
+		SBaseBuffer::Alloc(sz * sizeof(wchar_t));
+#else
+		Cp = cpANSI;
+		SBaseBuffer::Alloc(sz * sizeof(char));
+#endif
+	}
+	explicit AWStringBuffer(const char * pSrc)
+	{
+		SBaseBuffer::Init();
+		const size_t len = sstrlen(pSrc);
+		const size_t sz = ALIGNSIZE(len+1, 4);
+#ifdef _UNICODE
+		Cp = cpUTF16;
+		SBaseBuffer::Alloc(sz * sizeof(wchar_t));
+		if(pSrc) {
+			SStringU & r_temp_u = SLS.AcquireRvlStrU();
+			r_temp_u.CopyFromMb(cpANSI, pSrc, len);
+			memcpy(P_Buf, r_temp_u.ucptr(), (r_temp_u.Len() + 1) * sizeof(wchar_t));
+		}
+		else
+			PTR32(P_Buf)[0] = 0;
+#else
+		Cp = cpANSI;
+		SBaseBuffer::Alloc(sz * sizeof(char));
+		if(pSrc)
+			memcpy(P_Buf, pSrc, len+1);
+		else
+			PTR32(P_Buf)[0] = 0;
+#endif
+	}
+	explicit AWStringBuffer(const wchar_t * pSrc)
+	{
+		SBaseBuffer::Init();
+		const size_t len = sstrlen(pSrc);
+		const size_t sz = ALIGNSIZE(len+1, 4);
+#ifdef _UNICODE
+		Cp = cpUTF16;
+		SBaseBuffer::Alloc(sz * sizeof(wchar_t));
+		if(pSrc) {
+			memcpy(P_Buf, pSrc, (len + 1) * sizeof(wchar_t));
+		}
+		else
+			PTR32(P_Buf)[0] = 0;
+#else
+		Cp = cpANSI;
+		SBaseBuffer::Alloc(sz * sizeof(char));
+		if(pSrc) {
+			SStringU & r_temp_u = SLS.AcquireRvlStrU();
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			(r_temp_u = pSrc).CopyToMb(Cp, r_temp_buf);
+			r_temp_buf.CopyTo(P_Buf, SBaseBuffer::Size);
+		}
+		else
+			PTR32(P_Buf)[0] = 0;
+#endif
+	}
+	~AWStringBuffer()
+	{
+		SBaseBuffer::Destroy();
+	}
+	operator char * ()
+	{
+		// unicode
+		// else
+		// endif
+	}
+	SCodepageIdent Cp;
+};
+//
+//
+//
 SRevolver_SString::SRevolver_SString(uint c) : TSRevolver <SString> (c) {}
 SString & SRevolver_SString::Get() { return Implement_Get().Z(); }
 
@@ -1700,14 +1778,14 @@ SString & SLAPI SString::FromUrl()
 SString & SLAPI SString::ToOem()
 {
 	if(Len())
-		CharToOem(P_Buf, P_Buf);
+		CharToOem(P_Buf, P_Buf); // @unicodeproblem
 	return *this;
 }
 
 SString & SLAPI SString::ToChar()
 {
 	if(Len())
-		OemToChar(P_Buf, P_Buf);
+		OemToChar(P_Buf, P_Buf); // @unicodeproblem
 	return *this;
 }
 
@@ -1716,13 +1794,13 @@ SString & FASTCALL SString::Transf(int ctransf)
 	if(Len()) {
 		switch(ctransf) {
 			case CTRANSF_INNER_TO_OUTER:
-				OemToChar(P_Buf, P_Buf);
+				OemToChar(P_Buf, P_Buf); // @unicodeproblem
 				break;
 			case CTRANSF_OUTER_TO_INNER:
-				CharToOem(P_Buf, P_Buf);
+				CharToOem(P_Buf, P_Buf); // @unicodeproblem
 				break;
 			case CTRANSF_INNER_TO_UTF8:
-				OemToChar(P_Buf, P_Buf);
+				OemToChar(P_Buf, P_Buf); // @unicodeproblem
 				return Helper_MbToMb(CP_ACP, CP_UTF8);
 			case CTRANSF_OUTER_TO_UTF8: return Helper_MbToMb(CP_ACP, CP_UTF8);
 			case CTRANSF_UTF8_TO_INNER: return Helper_MbToMb(CP_UTF8, CP_OEMCP);

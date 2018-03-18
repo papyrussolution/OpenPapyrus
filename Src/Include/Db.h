@@ -288,7 +288,7 @@ public:
 	int    GetFieldByID(uint id, uint * pPos, SdbField * pFld) const;
 	int    GetFieldByName(const char * pName, SdbField * pFld) const;
 	//
-	// Descr: То же самое, что и GetFieldByName(), но для извлечения 
+	// Descr: То же самое, что и GetFieldByName(), но для извлечения
 	//   SdbField применяется GetFieldByPos_Fast() что ускоряет вызов.
 	// Note: see comments to GetFieldByPos_Fast.
 	//
@@ -932,6 +932,7 @@ int btrnfound__();
 #define BE_TASK_LIST_FULL                  1013
 #define BE_STOP_WARNING                    1014
 #define BE_ALREADY_INITIALIZED             1016
+#define BE_MKDE_FAILEDTOINIT               1021 // @v9.9.11 The MicroKernel failed to initialize
 //
 //
 //
@@ -3107,7 +3108,7 @@ extern DbSession DBS;
 #define AGGR_NEXT   2 // Для каждой записи
 #define AGGR_END    3 // Больше записей не будет
 #define CALC_SIZE  10 // Вычислить длину результата
-// 
+//
 // params - массив параметров. Разрушается вызывающей функцией.
 // Параметр option используется агрегатными функциями и принимает
 // одно из значений {AGGR_BEGIN | AGGR_NEXT | AGGR_END}. При этом,
@@ -3115,7 +3116,7 @@ extern DbSession DBS;
 // используется по усмотрению функции (промежуточные результаты), при
 // option == AGGR_END в параметр result должно быть занесено
 // окончательное значение.
-// 
+//
 typedef void (SLAPI * DBQProc)(int option, DBConst * result, DBConst * params);
 #define IMPL_DBE_PROC(name) void SLAPI name(int option, DBConst * result, DBConst * params)
 
@@ -3278,7 +3279,7 @@ private:
 struct DBConst : public DBItem {
 	void   FASTCALL init(long l);
 	void   FASTCALL init(double d);
-	void   FASTCALL init(const char * s); 
+	void   FASTCALL init(const char * s);
 	void   FASTCALL init(LDATE d);
 	void   FASTCALL init(LTIME t);
 	void   FASTCALL init(LDATETIME t);

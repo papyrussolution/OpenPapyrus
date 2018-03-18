@@ -54,18 +54,9 @@ int CompareNCaseInsensitive(const char * a, const char * b, size_t len)
 //
 // Functions for classifying characters
 //
-bool FASTCALL IsASpace(int ch)
-{
-	return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
-}
-bool FASTCALL IsASpaceOrTab(int ch)
-{
-	return oneof2(ch, ' ', '\t');
-}
-bool FASTCALL IsADigit(int ch)
-{
-	return (ch >= '0') && (ch <= '9');
-}
+bool FASTCALL IsASpace(int ch) { return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d)); }
+bool FASTCALL IsASpaceOrTab(int ch) { return oneof2(ch, ' ', '\t'); }
+bool FASTCALL IsADigit(int ch) { return (ch >= '0') && (ch <= '9'); }
 bool FASTCALL IsADigit(int ch, int base)
 {
 	if(base <= 10)
@@ -73,18 +64,9 @@ bool FASTCALL IsADigit(int ch, int base)
 	else
 		return ((ch >= '0') && (ch <= '9')) || ((ch >= 'A') && (ch < 'A' + base - 10)) || ((ch >= 'a') && (ch < 'a' + base - 10));
 }
-bool FASTCALL IsASCII(int ch)
-{
-	return (ch >= 0) && (ch < 0x80);
-}
-bool FASTCALL IsLowerCase(int ch)
-{
-	return (ch >= 'a') && (ch <= 'z');
-}
-bool FASTCALL IsUpperCase(int ch)
-{
-	return (ch >= 'A') && (ch <= 'Z');
-}
+bool FASTCALL IsASCII(int ch) { return (ch >= 0) && (ch < 0x80); }
+bool FASTCALL IsLowerCase(int ch) { return (ch >= 'a') && (ch <= 'z'); }
+bool FASTCALL IsUpperCase(int ch) { return (ch >= 'A') && (ch <= 'Z'); }
 bool FASTCALL IsAlphaNumeric(int ch)
 {
 	return ((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z'));
@@ -93,18 +75,9 @@ bool FASTCALL IsAlphaNumeric(int ch)
 // Check if a character is a space.
 // This is ASCII specific but is safe with chars >= 0x80.
 // 
-bool FASTCALL isspacechar(int ch)
-{
-	return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
-}
-bool FASTCALL iswordchar(int ch)
-{
-	return IsAlphaNumeric(ch) || ch == '.' || ch == '_';
-}
-bool FASTCALL iswordstart(int ch)
-{
-	return IsAlphaNumeric(ch) || ch == '_';
-}
+bool FASTCALL isspacechar(int ch) { return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d)); }
+bool FASTCALL iswordchar(int ch) { return IsAlphaNumeric(ch) || ch == '.' || ch == '_'; }
+bool FASTCALL iswordstart(int ch) { return IsAlphaNumeric(ch) || ch == '_'; }
 bool FASTCALL isoperator(int ch)
 {
 	if(IsAlphaNumeric(ch))
@@ -117,14 +90,8 @@ bool FASTCALL isoperator(int ch)
 //
 // Simple case functions for ASCII.
 //
-int FASTCALL MakeUpperCase(int ch)
-{
-	return (ch < 'a' || ch > 'z') ? ch : static_cast<char>(ch - 'a' + 'A');
-}
-int FASTCALL MakeLowerCase(int ch)
-{
-	return (ch < 'A' || ch > 'Z') ? ch : (ch - 'A' + 'a');
-}
+int FASTCALL MakeUpperCase(int ch) { return (ch < 'a' || ch > 'z') ? ch : static_cast<char>(ch - 'a' + 'A'); }
+int FASTCALL MakeLowerCase(int ch) { return (ch < 'A' || ch > 'Z') ? ch : (ch - 'A' + 'a'); }
 //
 //
 //

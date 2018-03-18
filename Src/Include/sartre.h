@@ -830,6 +830,7 @@ public:
 	//
 	int    GetNgConceptList(NGID ngID, long flags, Int64Array & rConceptList);
 	int    GetConceptHier(CONCEPTID cID, Int64Array & rConceptHier);
+	int    GetFirstConceptAncestor(int rcIdent, CONCEPTID cID, CONCEPTID & rAncestor);
 	int    GetConceptSymb(CONCEPTID cID, SString & rSymbUht8);
 	int    GetPropDeclList(CONCEPTID cID, SrCPropDeclList & rPdl);
 	int    GetConceptPropList(CONCEPTID cID, SrCPropList & rPl);
@@ -895,7 +896,7 @@ public:
 	SrGeoWayTbl      * P_GwT;
 	LEXID  ZeroWordID;
 private:
-	int    Helper_GetConceptHier(CONCEPTID cID, Int64Array & rConceptHier);
+	int    Helper_GetConceptHier(int rcIdent, int firstOnly, CONCEPTID cID, Int64Array & rConceptHier);
 	int    Helper_MakeConceptProp(const SrCPropDeclList & rPdl, const char * pPropSymb, SrCProp & rProp, CONCEPTID cID);
 
 	long   Flags; // oXXX
@@ -948,6 +949,8 @@ public:
 		uint64 RSymb;  // Идентификатор разрешенного символа SymbP в базе данных (для oneof3(K, kConcept, kConceptInstance, kConceptSubclass))
 		uint   VarP;   // Если !0 то с конструкцией ассоциирован символ переменной, на который можно ссылаться из других операндов
 			// Если SymbP == 0 && VarP != 0, то вместо символа подставляется переменная.
+		int    VarItemRef; // @*SrSyntaxRuleSet::ResolveSyntaxRules Если (VarP && !SymbP), то в этом поле устанавливается индекс 
+			// ExprItem в ExprStack, на который ссылается VarP. Значение <0 означает, что символ не разрешен.
 	};
 
 	class ExprStack : public TSStack <ExprItem> {

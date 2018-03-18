@@ -1,5 +1,5 @@
 // ILBPACK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -570,22 +570,10 @@ public:
 	RealArray DiscountList; // [R_Rows.getCount]
 	LongArray RowPrecList; // [R_Rows.getCount]
 
-	double GetRunningPriceAmount() const
-	{
-		return RunningPriceAmount;
-	}
-	double GetRunningPriceVat() const
-	{
-		return RunningPriceVat;
-	}
-	double GetDelta() const
-	{
-		return (SrcPriceAmount - RunningPriceAmount);
-	}
-	double GetVatDelta() const
-	{
-		return (SrcPriceVat - RunningPriceVat);
-	}
+	double GetRunningPriceAmount() const { return RunningPriceAmount; }
+	double GetRunningPriceVat() const { return RunningPriceVat; }
+	double GetDelta() const { return (SrcPriceAmount - RunningPriceAmount); }
+	double GetVatDelta() const { return (SrcPriceVat - RunningPriceVat); }
 	int    IsInappropriateResult() const
 	{
 		int    result = 0;
@@ -798,7 +786,6 @@ int SLAPI PPObjBill::ConvertILTI(ILTI * ilti, PPBillPacket * pPack, LongArray * 
 							if(ti.CurID)
 								ti.CurPrice = ilti->CurPrice;
 							THROW(pPack->InsertRow(&ti, &rows));
-
 							qtty += q;
 						}
 					}
@@ -1057,12 +1044,10 @@ struct GRII {
 SLAPI GRI::GRI(PPID destID) : SArray(sizeof(GRII)), DestID(destID)
 {
 }
-PPID FASTCALL GRI::GetSrcID(uint i) const
-	{ return ((GRII *)at(i))->SrcID; }
-double FASTCALL GRI::GetQtty(uint i) const
-	{ return ((GRII *)at(i))->Qtty; }
-double FASTCALL GRI::GetRatio(uint i) const
-	{ return ((GRII *)at(i))->Ratio; }
+
+PPID   FASTCALL GRI::GetSrcID(uint i) const { return ((GRII *)at(i))->SrcID; }
+double FASTCALL GRI::GetQtty(uint i) const { return ((GRII *)at(i))->Qtty; }
+double FASTCALL GRI::GetRatio(uint i) const { return ((GRII *)at(i))->Ratio; }
 
 int SLAPI GRI::GetPosByGoods(PPID goodsID, uint * pPos) const
 {
@@ -1180,7 +1165,7 @@ int SLAPI ILBillPacket::SearchRByBill(int rbb, uint * pPos) const
 	return ok;
 }
 
-int SLAPI ILBillPacket::Load(PPID billID, long flags, PPID cvtToOpID /*=0*/)
+int SLAPI ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 {
 	int    ok = 1, rbybill, r;
 	const  int free_amt = (flags & ILBPF_LOADAMTNOTLOTS) ? 0 : 1;
@@ -2895,7 +2880,7 @@ int SLAPI PPObjBill::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContex
 	ILBillPacket * p_pack = new ILBillPacket;
 	THROW_MEM(p_pack);
 	if(stream == 0) {
-		THROW(p_pack->Load(id, (pCtx->Flags & ObjTransmContext::fNotTrnsmLots) ? ILBPF_LOADAMTNOTLOTS : 0, pCtx->Extra));
+		THROW(p_pack->Load__(id, (pCtx->Flags & ObjTransmContext::fNotTrnsmLots) ? ILBPF_LOADAMTNOTLOTS : 0, pCtx->Extra));
 		{
 			const PPID op_id = p_pack->Rec.OpID;
 			const PPID op_type_id = GetOpType(op_id);
@@ -2935,25 +2920,21 @@ int SLAPI PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 		AmtEntry  * p_ae;
 		ILBillPacket * p_pack = (ILBillPacket*)p->Data;
 		ILTI * ilti;
-		THROW(
-			ProcessObjRefInArray(PPOBJ_OPRKIND,  &p_pack->Rec.OpID,        ary, replace) &&
-			ProcessObjRefInArray(PPOBJ_ARTICLE,  &p_pack->LocObj,          ary, replace) &&
-			ProcessObjRefInArray(PPOBJ_LOCATION, &p_pack->Rec.LocID,       ary, replace) &&
-			ProcessObjRefInArray(PPOBJ_ARTICLE,  &p_pack->Rec.Object,      ary, replace) &&
-			ProcessObjRefInArray(PPOBJ_ARTICLE,  &p_pack->Rec.Object2,     ary, replace) &&
-			ProcessObjRefInArray(PPOBJ_CURRENCY, &p_pack->Rec.CurID,       ary, replace) &&
-			ProcessObjRefInArray(PPOBJ_BILL,     &p_pack->Rec.LinkBillID,  ary, replace) &&
-			ProcessObjRefInArray(PPOBJ_SCARD,    &p_pack->Rec.SCardID,     ary, replace) &&
-			ProcessObjRefInArray(PPOBJ_PERSON,   &p_pack->Rec.MainOrgID,   ary, replace) &&
-			ProcessObjRefInArray(PPOBJ_BILLSTATUS, &p_pack->Rec.StatusID,  ary, replace)
-		);
+		THROW(ProcessObjRefInArray(PPOBJ_OPRKIND,  &p_pack->Rec.OpID,        ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_ARTICLE,  &p_pack->LocObj,          ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_LOCATION, &p_pack->Rec.LocID,       ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_ARTICLE,  &p_pack->Rec.Object,      ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_ARTICLE,  &p_pack->Rec.Object2,     ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_CURRENCY, &p_pack->Rec.CurID,       ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_BILL,     &p_pack->Rec.LinkBillID,  ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_SCARD,    &p_pack->Rec.SCardID,     ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_PERSON,   &p_pack->Rec.MainOrgID,   ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_BILLSTATUS, &p_pack->Rec.StatusID,  ary, replace));
 		for(i = 0; p_pack->Turns.enumItems(&i, (void**)&at);) {
-			THROW(
-				ProcessObjRefInArray(PPOBJ_ACCOUNT2, &at->DbtID.ac, ary, replace) &&
-				ProcessObjRefInArray(PPOBJ_ARTICLE, &at->DbtID.ar, ary, replace) &&
-				ProcessObjRefInArray(PPOBJ_ACCOUNT2, &at->CrdID.ac, ary, replace) &&
-				ProcessObjRefInArray(PPOBJ_ARTICLE, &at->CrdID.ar, ary, replace)
-			);
+			THROW(ProcessObjRefInArray(PPOBJ_ACCOUNT2, &at->DbtID.ac, ary, replace));
+			THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &at->DbtID.ar, ary, replace));
+			THROW(ProcessObjRefInArray(PPOBJ_ACCOUNT2, &at->CrdID.ac, ary, replace));
+			THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &at->CrdID.ar, ary, replace));
 		}
 		for(i = 0; p_pack->Lots.enumItems(&i, (void**)&ilti);) {
 			goods_id = labs(ilti->GoodsID);

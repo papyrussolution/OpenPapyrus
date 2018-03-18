@@ -907,10 +907,9 @@ int SLAPI GenerateGoodsBills()
 						// выбор таблицы статей
 						//
 						GetOpCommonAccSheet(op_id, &acc_sheet_id, &acc_sheet2_id);
-						if(acc_sheet_id != 0){ //если у операции есть таблица статей, то...
-							ar_obj.P_Tbl->GetListBySheet(acc_sheet_id, &contragent_list, &contragent_count); //массив контрагентов
+						if(ar_obj.P_Tbl->GetListBySheet(acc_sheet_id, &contragent_list, &contragent_count) > 0) { // массив контрагентов
 							bpack.Rec.Object = contragent_list.at(RngUniformInt(p_rng, contragent_count)); //запись контрагента
-							contragent_list.freeAll(); //очищает массив конграгентов и освобождает память
+							contragent_list.freeAll(); // очищает массив конграгентов и освобождает память
 						}
 						//
 						// примечание у генерируемого документа

@@ -1065,8 +1065,7 @@ int SLAPI SFile::SetTime(int fh, LDATETIME * pCreation, LDATETIME * pLastAccess,
 int SLAPI SFile::GetTime(const char * pFileName, LDATETIME * pCreation, LDATETIME * pLastAccess, LDATETIME * pLastModif)
 {
 	int    ok = 1;
-	HANDLE handle = ::CreateFile(pFileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
-		0, OPEN_EXISTING, 0, 0);
+	HANDLE handle = ::CreateFile(pFileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
 	if(handle != INVALID_HANDLE_VALUE) {
 		ok = SFile::GetTime((int)handle, pCreation, pLastAccess, pLastModif);
 		::CloseHandle(handle);
@@ -1117,7 +1116,7 @@ int SLAPI SFile::GetTime(int fh, LDATETIME * creation, LDATETIME * lastAccess, L
 int SLAPI SFile::IsOpenedForWrite(const char * pFileName)
 {
 	int    ok = 0;
-	HANDLE handle = ::CreateFile(pFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0);
+	HANDLE handle = ::CreateFile(pFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0); // @unicodeproblem
 	// Если ошибка, то файл открыт
 	if(handle == INVALID_HANDLE_VALUE) {
 		if(GetLastError() == ERROR_SHARING_VIOLATION) {

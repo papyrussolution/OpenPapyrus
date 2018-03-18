@@ -2986,7 +2986,7 @@ int TouchScreenDlg::SelGdsFont()
 	font.lpLogFont   = &log_font;
 	font.lStructSize = sizeof(font);
 	if(::ChooseFont(&font)) { // @unicodeproblem
-		STRNSCPY(Data.Rec.GdsListFontName, font.lpLogFont->lfFaceName);
+		STRNSCPY(Data.Rec.GdsListFontName, font.lpLogFont->lfFaceName); // @unicodeproblem
 		Data.Rec.GdsListFontHight = font.lpLogFont->lfHeight;
 	}
 	else if(CommDlgExtendedError() != 0)

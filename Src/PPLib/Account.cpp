@@ -1,5 +1,5 @@
 // ACCOUNT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018
 // @Kernel
 //
 #include <pp.h>
@@ -470,18 +470,26 @@ int SLAPI ArticleCore::Count(PPID accSheetID, long * pCount)
 
 int SLAPI ArticleCore::GetListBySheet(PPID accSheetID, PPIDArray * pList, long * pCount)
 {
+	int    ok = -1;
 	long   count = 0;
-	ArticleTbl::Key1 k;
-	k.AccSheetID = accSheetID;
-	k.Article = 0;
-	BExtQuery q(this, 1, 128);
-	q.select(this->ID, 0L).where(this->AccSheetID == accSheetID);
-	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
-		count++;
-		CALLPTRMEMB(pList, addUnique(data.ID));
+	CALLPTRMEMB(pList, clear());
+	if(accSheetID) {
+		ArticleTbl::Key1 k;
+		k.AccSheetID = accSheetID;
+		k.Article = 0;
+		BExtQuery q(this, 1, 128);
+		q.select(this->ID, 0L).where(this->AccSheetID == accSheetID);
+		for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;) {
+			count++;
+			CALLPTRMEMB(pList, add(data.ID));
+		}
+		if(count) {
+			CALLPTRMEMB(pList, sortAndUndup());
+			ok = 1;
+		}
 	}
 	ASSIGN_PTR(pCount, count);
-	return 1;
+	return ok;
 }
 
 int SLAPI ArticleCore::GetListByGroup(PPID grpArID, PPIDArray * pList)

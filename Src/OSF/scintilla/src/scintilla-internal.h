@@ -2913,14 +2913,8 @@ public:
 	AutoSurface(Editor * ed, int technology = -1);
 	AutoSurface(SurfaceID sid, Editor * ed, int technology = -1);
 	~AutoSurface();
-	Surface * operator->() const
-	{
-		return surf;
-	}
-	operator Surface *() const 
-	{
-		return surf;
-	}
+	Surface * operator->() const { return surf; }
+	operator Surface *() const { return surf; }
 private:
 	Surface * surf;
 };

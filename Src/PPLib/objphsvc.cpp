@@ -272,6 +272,7 @@ public:
 		Data.GetPassword(temp_buf);
 		setCtrlString(CTL_PHNSVC_PASSWORD, temp_buf);
 		setCtrlString(CTL_PHNSVC_LOCALCHNLSYMB, Data.LocalChannelSymb);
+		setCtrlString(CTL_PHNSVC_SCANCHNL, Data.ScanChannelSymb); // @v9.9.11
 		return ok;
 	}
 	int    getDTS(PPPhoneServicePacket * pData)
@@ -291,6 +292,7 @@ public:
 		getCtrlString(CTL_PHNSVC_PASSWORD, temp_buf);
 		Data.SetPassword(temp_buf);
 		getCtrlString(CTL_PHNSVC_LOCALCHNLSYMB, Data.LocalChannelSymb);
+		getCtrlString(CTL_PHNSVC_SCANCHNL, Data.ScanChannelSymb); // @v9.9.11
 		ASSIGN_PTR(pData, Data);
 		CATCH
 			ok = PPErrorByDialog(this, sel);
@@ -360,7 +362,8 @@ int SLAPI PPObjPhoneService::Browse(void * extraPtr)
 	return ok;
 }
 
-static const char * RpPhnSvcLocalChannelSymbol = "PhnSvcLocalChannelSymbol";
+static const char * RpPhnSvcLocalUpChannelSymbol = "PhnSvcLocalChannelSymbol";
+static const char * RpPhnSvcLocalScanChannelSymbol = "PhnSvcLocalScanChannelSymbol";
 
 int SLAPI PPObjPhoneService::PutPacket(PPID * pID, PPPhoneServicePacket * pPack, int use_ta)
 {
@@ -368,7 +371,8 @@ int SLAPI PPObjPhoneService::PutPacket(PPID * pID, PPPhoneServicePacket * pPack,
 	SString tail;
 	if(pPack) {
 		WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 0);
-		reg_key.PutString(RpPhnSvcLocalChannelSymbol, pPack->LocalChannelSymb);
+		reg_key.PutString(RpPhnSvcLocalUpChannelSymbol, pPack->LocalChannelSymb);
+		reg_key.PutString(RpPhnSvcLocalScanChannelSymbol, pPack->ScanChannelSymb); // @v9.9.11
 	}
 	{
 		PPTransaction tra(use_ta);
@@ -402,7 +406,8 @@ int SLAPI PPObjPhoneService::GetPacket(PPID id, PPPhoneServicePacket * pPack)
 		THROW(ref->GetPropVlrString(Obj, id, PHNSVCPRP_TAIL, pPack->Tail));
 		{
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1); // @v9.2.0 readonly 0-->1
-			reg_key.GetString(RpPhnSvcLocalChannelSymbol, pPack->LocalChannelSymb);
+			reg_key.GetString(RpPhnSvcLocalUpChannelSymbol, pPack->LocalChannelSymb);
+			reg_key.GetString(RpPhnSvcLocalScanChannelSymbol, pPack->ScanChannelSymb); // @v9.9.11
 		}
 	}
 	else

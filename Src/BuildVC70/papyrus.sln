@@ -273,6 +273,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7z", "7z.vcproj", "{B742E28
 		{D507E468-21FC-4209-A5A8-DE1F055866DC} = {D507E468-21FC-4209-A5A8-DE1F055866DC}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7z-app", "7z-app.vcproj", "{9169ADD9-E016-49DF-8E74-E30564D23682}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B742E28B-5EB0-4808-B5C6-0E55A030E605} = {B742E28B-5EB0-4808-B5C6-0E55A030E605}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -830,6 +835,20 @@ Global
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.ServerRelease.Build.0 = Release|Win32
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.Universe-HTT.ActiveCfg = Release|Win32
 		{B742E28B-5EB0-4808-B5C6-0E55A030E605}.Universe-HTT.Build.0 = Release|Win32
+		{9169ADD9-E016-49DF-8E74-E30564D23682}.Debug.ActiveCfg = Debug|Win32
+		{9169ADD9-E016-49DF-8E74-E30564D23682}.Debug.Build.0 = Debug|Win32
+		{9169ADD9-E016-49DF-8E74-E30564D23682}.MtDllDebug.ActiveCfg = Debug|Win32
+		{9169ADD9-E016-49DF-8E74-E30564D23682}.MtDllDebug.Build.0 = Debug|Win32
+		{9169ADD9-E016-49DF-8E74-E30564D23682}.MtDllRelease.ActiveCfg = Release|Win32
+		{9169ADD9-E016-49DF-8E74-E30564D23682}.MtDllRelease.Build.0 = Release|Win32
+		{9169ADD9-E016-49DF-8E74-E30564D23682}.Release.ActiveCfg = Release|Win32
+		{9169ADD9-E016-49DF-8E74-E30564D23682}.Release.Build.0 = Release|Win32
+		{9169ADD9-E016-49DF-8E74-E30564D23682}.ServerDebug.ActiveCfg = Debug|Win32
+		{9169ADD9-E016-49DF-8E74-E30564D23682}.ServerDebug.Build.0 = Debug|Win32
+		{9169ADD9-E016-49DF-8E74-E30564D23682}.ServerRelease.ActiveCfg = Release|Win32
+		{9169ADD9-E016-49DF-8E74-E30564D23682}.ServerRelease.Build.0 = Release|Win32
+		{9169ADD9-E016-49DF-8E74-E30564D23682}.Universe-HTT.ActiveCfg = Release|Win32
+		{9169ADD9-E016-49DF-8E74-E30564D23682}.Universe-HTT.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		optimization.txt = optimization.txt

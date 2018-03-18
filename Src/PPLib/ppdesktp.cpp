@@ -728,7 +728,7 @@ int PPDesktop::AddTooltip(long id, TPoint coord, const char * pText)
 	CalcIconRect(coord, ir);
 	t_i.rect = ir;
 	t_i.hinst       = TProgram::GetInst();
-	t_i.lpszText    = tooltip;
+	t_i.lpszText    = tooltip; // @unicodeproblem
 	SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
 	SendMessage(HwndTT, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
 	return 1;
@@ -1148,8 +1148,7 @@ ushort PPDesktop::Execute()
 	r.bottom = r.bottom - r.top - 2;
 	DWORD style = WS_CHILD | WS_CLIPSIBLINGS | WS_TABSTOP;
 	SString title = P_ActiveDesktop->Name;
-	HW = CreateWindowEx(0, PPDesktop::WndClsName, (const char*)title.Transf(CTRANSF_INNER_TO_OUTER), style, 0, 0,
-		r.right - r.left - 18, r.bottom, h_frame, 0, TProgram::GetInst(), this); // @unicodeproblem
+	HW = CreateWindowEx(0, PPDesktop::WndClsName, (const char*)title.Transf(CTRANSF_INNER_TO_OUTER), style, 0, 0, r.right - r.left - 18, r.bottom, h_frame, 0, TProgram::GetInst(), this); // @unicodeproblem
 	ShowWindow(H(), SW_SHOW);
 	UpdateWindow(H());
 	HwndTT = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,

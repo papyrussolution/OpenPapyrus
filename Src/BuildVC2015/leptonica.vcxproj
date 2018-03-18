@@ -1284,6 +1284,9 @@
     <ClInclude Include="..\Osf\leptonica\src\sudoku.h" />
     <ClInclude Include="..\Osf\leptonica\src\watershed.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="TulipIndicators.vcproj" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

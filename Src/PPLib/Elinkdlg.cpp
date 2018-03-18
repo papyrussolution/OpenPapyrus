@@ -7,29 +7,83 @@
 
 int SLAPI EditELink(PPELink * pLink)
 {
-	int    r = cmCancel;
-	TDialog * dlg = new TDialog(DLG_ELINK);
-	if(CheckDialogPtrErr(&dlg)) {
-		SetupPPObjCombo(dlg, CTLSEL_ELINK_KIND, PPOBJ_ELINKKIND, pLink->KindID, OLW_CANINSERT, 0);
-		dlg->setCtrlData(CTL_ELINK_ADDR, pLink->Addr);
-		for(int valid_data = 0; !valid_data && (r = ExecView(dlg)) == cmOK;) {
-			dlg->getCtrlData(CTLSEL_ELINK_KIND, &pLink->KindID);
-			dlg->getCtrlData(CTL_ELINK_ADDR, pLink->Addr);
-			if(pLink->KindID == 0)
-				PPErrorByDialog(dlg, CTLSEL_ELINK_KIND, PPERR_ELINKKINDNEEDED);
-			else if(*strip(pLink->Addr) == 0)
-				PPErrorByDialog(dlg, CTL_ELINK_ADDR, PPERR_ELINKADDRNEEDED);
+	class ELinkDialog : public TDialog {
+	public:
+		ELinkDialog() : TDialog(DLG_ELINK)
+		{
+		}
+		int    setDTS(const PPELink * pData)
+		{
+			RVALUEPTR(Data, pData);
+			SetupPPObjCombo(this, CTLSEL_ELINK_KIND, PPOBJ_ELINKKIND, Data.KindID, OLW_CANINSERT, 0);
+			setCtrlData(CTL_ELINK_ADDR, Data.Addr);
+			return 1;
+		}
+		int    getDTS(PPELink * pData)
+		{
+			int    ok = 1;
+			getCtrlData(CTLSEL_ELINK_KIND, &Data.KindID);
+			getCtrlData(CTL_ELINK_ADDR, Data.Addr);
+			if(Data.KindID == 0)
+				ok = PPErrorByDialog(this, CTLSEL_ELINK_KIND, PPERR_ELINKKINDNEEDED);
+			else if(*strip(Data.Addr) == 0)
+				ok = PPErrorByDialog(this, CTL_ELINK_ADDR, PPERR_ELINKADDRNEEDED);
 			else {
-				valid_data = 1;
-				if(pLink->KindID == PPELK_EMAIL) {
-					STokenRecognizer tr;
-					SNaturalTokenArray nta;
-					tr.Run((const uchar *)pLink->Addr, -1, nta, 0);
-					if(nta.Has(SNTOK_EMAIL) == 0.0f) {
-						valid_data = PPSetError(PPERR_INVEMAILADDR, pLink->Addr);
-						PPErrorByDialog(dlg, CTL_ELINK_ADDR);
+				PPELinkKind elk_rec;
+				if(ElkObj.Fetch(Data.KindID, &elk_rec) > 0) {
+					if(elk_rec.Type == ELNKRT_EMAIL) {
+						STokenRecognizer tr;
+						SNaturalTokenArray nta;
+						tr.Run((const uchar *)Data.Addr, -1, nta, 0);
+						if(nta.Has(SNTOK_EMAIL) == 0.0f) {
+							PPSetError(PPERR_INVEMAILADDR, Data.Addr);
+							ok = PPErrorByDialog(this, CTL_ELINK_ADDR);
+						}
 					}
 				}
+				else 
+					ok = PPErrorByDialog(this, CTLSEL_ELINK_KIND);
+			}
+			if(ok)
+				ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCbSelected(CTLSEL_ELINK_KIND)) {
+				getCtrlData(CTLSEL_ELINK_KIND, &Data.KindID);
+			}
+			else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_ELINK_ADDR)) {
+				PPELinkKind elk_rec;
+				SString info_buf;
+				if(ElkObj.Fetch(Data.KindID, &elk_rec) > 0) {
+					if(elk_rec.Type == ELNKRT_PHONE) {
+						SString addr;
+						getCtrlString(CTL_ELINK_ADDR, addr);
+						if(addr.Len()) {
+							addr.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
+							PPEAddr::Phone::NormalizeStr(addr, info_buf);
+						}
+					}
+				}
+				setStaticText(CTL_ELINK_INFO, info_buf);
+			}	
+			else
+				return;
+			clearEvent(event);
+		}
+		PPELink Data;
+		PPObjELinkKind ElkObj;
+	};
+	int    r = cmCancel;
+	ELinkDialog * dlg = new ELinkDialog;
+	if(CheckDialogPtrErr(&dlg)) {
+		dlg->setDTS(pLink);
+		for(int valid_data = 0; !valid_data && (r = ExecView(dlg)) == cmOK;) {
+			if(dlg->getDTS(pLink)) {
+				valid_data = 1;
 			}
 		}
 		delete dlg;

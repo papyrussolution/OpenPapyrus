@@ -2131,7 +2131,7 @@ int PPEds::GetSignFilesForDoc(const char * pFileName, StrAssocArray & rFilesLis)
 		rFilesLis.Add(i++, found_file.cFileName); // @unicodeproblem
 	if(ok == 1) {
 		while(FindNextFile(hd, &found_file)) { // @unicodeproblem // Выходим из цикла, когда функция возвратит ERROR_FILE_NOT_FOUND
-			rFilesLis.Add(i++, found_file.cFileName);
+			rFilesLis.Add(i++, found_file.cFileName); // @unicodeproblem
 		}
 		if(r == -1)
 			r = GetLastError();

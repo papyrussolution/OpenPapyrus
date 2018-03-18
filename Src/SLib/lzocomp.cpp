@@ -64,7 +64,7 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 	THROW(inbuf && outbuf);
 // AHTOXA {
 #ifdef __WIN32__
-	srchdl = CreateFile(src, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	srchdl = CreateFile(src, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); // @unicodeproblem
 	THROW_V(srchdl >= 0, SLERR_OPENFAULT);
 	getFileTime((int)srchdl,  &creation_time, &last_access_time, &last_modif_time);
 	if(srchdl > 0)
@@ -144,7 +144,7 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 		fclose(fout);
 		fout = 0;
 #ifdef __WIN32__
-		srchdl = CreateFile(dest, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+		srchdl = CreateFile(dest, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); // @unicodeproblem
 		THROW_V(srchdl >= 0, SLERR_OPENFAULT);
 		setFileTime((int)srchdl, &creation_time, &last_access_time, &last_modif_time);
 		if(srchdl > 0)

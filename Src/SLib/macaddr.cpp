@@ -158,10 +158,10 @@ int GetIPAddrList(int Level, LPNETRESOURCE lpNet, InetAddrArray * pAddrs)
                 WNetCloseEnum(handle);
                 handle = NULL;
                 for(i = 0; i < count; i++) {
-                    if(Level == RES_HOST && *strip(p_res[i].lpRemoteName)) {
+                    if(Level == RES_HOST && *strip(p_res[i].lpRemoteName)) { // @unicodeproblem
                         if(p_res[i].dwDisplayType == RESOURCEDISPLAYTYPE_SERVER)
 							if(pAddrs) {
-								char * p = p_res[i].lpRemoteName;
+								char * p = p_res[i].lpRemoteName; // @unicodeproblem
 								InetAddr * p_addr = new InetAddr;
 								p++;
 								p++;
@@ -198,10 +198,10 @@ static int Helper_GetFirstHostByMacAddr(int Level, LPNETRESOURCE lpNet, const MA
     WNetCloseEnum(handle);
     handle = NULL;
     for(i = 0; ok < 0 && i < count; i++) {
-        if(Level == RES_HOST && *strip(p_res[i].lpRemoteName) && p_res[i].dwDisplayType == RESOURCEDISPLAYTYPE_SERVER) {
+        if(Level == RES_HOST && *strip(p_res[i].lpRemoteName) && p_res[i].dwDisplayType == RESOURCEDISPLAYTYPE_SERVER) { // @unicodeproblem
 			MACAddr ma;
 			InetAddr addr;
-			addr.Set(p_res[i].lpRemoteName+2);
+			addr.Set(p_res[i].lpRemoteName+2); // @unicodeproblem
 			if(GetMacByIP(addr.ToStr(InetAddr::fmtAddr, ip), &ma) > 0 && ma.Cmp(*pMAC) == 0) {
 				ASSIGN_PTR(pAddr, addr);
 				ok = 1;

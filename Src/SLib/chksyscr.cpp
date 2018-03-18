@@ -266,11 +266,11 @@ static BOOL WINAPI SSPLogonUser(LPTSTR szDomain, LPTSTR szUser, LPTSTR szPasswor
 	// Initialize auth identity structure
 	ZeroMemory(&ai, sizeof(ai));
 #if defined(UNICODE) || defined(_UNICODE)
-	ai.Domain = szDomain;
+	ai.Domain = szDomain; // @unicodeproblem
 	ai.DomainLength = lstrlen(szDomain);
-	ai.User = szUser;
+	ai.User = szUser; // @unicodeproblem
 	ai.UserLength = lstrlen(szUser);
-	ai.Password = szPassword;
+	ai.Password = szPassword; // @unicodeproblem
 	ai.PasswordLength = lstrlen(szPassword);
 	ai.Flags = SEC_WINNT_AUTH_IDENTITY_UNICODE;
 #else
@@ -322,7 +322,7 @@ int SLAPI SCheckSystemCredentials(const char * pDomain, const char * pUserName, 
 	STRNSCPY(domain, pDomain);
 	STRNSCPY(user, pUserName);
 	STRNSCPY(pw, pPw);
-	return SSPLogonUser(domain, user, pw) ? 1 : 0;
+	return SSPLogonUser(domain, user, pw) ? 1 : 0; // @unicodeproblem
 }
 //
 //

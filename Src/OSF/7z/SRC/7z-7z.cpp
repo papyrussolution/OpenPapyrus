@@ -6855,9 +6855,7 @@ namespace NArchive {
 			}
 			return S_OK;
 		}
-
 		/*
-
 		   #ifdef _WIN32
 		   static const wchar_t kDirDelimiter1 = L'\\';
 		   #endif
@@ -6887,10 +6885,8 @@ namespace NArchive {
 		   const CIntVector &subFolders = treeFolders[cur].SubFolders;
 		   int left = 0, right = subFolders.Size();
 		   insertPos = -1;
-		   for(;;)
-		   {
-			if(left == right)
-			{
+		   for(;;) {
+			if(left == right) {
 			  insertPos = left;
 			  return -1;
 			}
@@ -6910,8 +6906,7 @@ namespace NArchive {
 		   {
 		   int insertPos;
 		   int folderIndex = FindSubFolder(treeFolders, cur, name, insertPos);
-		   if(folderIndex < 0)
-		   {
+		   if(folderIndex < 0) {
 			folderIndex = treeFolders.Size();
 			CTreeFolder &newFolder = treeFolders.AddNew();
 			newFolder.Parent = cur;
@@ -7023,19 +7018,15 @@ namespace NArchive {
 							ui.AttribDefined = true;
 						}
 					}
-
 					// we need MTime to sort files.
 					if(need_CTime) RINOK(GetTime(updateCallback, i, kpidCTime, ui.CTime, ui.CTimeDefined));
 					if(need_ATime) RINOK(GetTime(updateCallback, i, kpidATime, ui.ATime, ui.ATimeDefined));
 					if(need_MTime) RINOK(GetTime(updateCallback, i, kpidMTime, ui.MTime, ui.MTimeDefined));
-
 					/*
-					   if(getRawProps)
-					   {
+					   if(getRawProps) {
 					   const void *data;
 					   uint32 dataSize;
 					   uint32 propType;
-
 					   getRawProps->GetRawProp(i, kpidNtSecure, &data, &dataSize, &propType);
 					   if(dataSize != 0 && propType != NPropDataType::kRaw)
 						return E_FAIL;
@@ -7141,14 +7132,10 @@ namespace NArchive {
 					  }
 					  UString mainName = s.Left(colonPos);
 					  int newFolderIndex = AddFolder(treeFolders, folderIndex, mainName);
-					  if(treeFolders[newFolderIndex].UpdateItemIndex < 0)
-					  {
-						for(int j = updateItems.Size() - 1; j >= 0; j--)
-						{
+					  if(treeFolders[newFolderIndex].UpdateItemIndex < 0) {
+						for(int j = updateItems.Size() - 1; j >= 0; j--) {
 						  CUpdateItem &ui2 = updateItems[j];
-						  if(ui2.ParentFolderIndex == folderIndex
-							  && ui2.Name == mainName)
-						  {
+						  if(ui2.ParentFolderIndex == folderIndex && ui2.Name == mainName) {
 							ui2.TreeFolderIndex = newFolderIndex;
 							treeFolders[newFolderIndex].UpdateItemIndex = j;
 						  }
@@ -7164,15 +7151,13 @@ namespace NArchive {
 				   ui.IsAltStream = isAltStream;
 				   ui.ParentFolderIndex = folderIndex;
 				   ui.TreeFolderIndex = -1;
-				   if(ui.IsDir && !s.IsEmpty())
-				   {
+				   if(ui.IsDir && !s.IsEmpty()) {
 					ui.TreeFolderIndex = AddFolder(treeFolders, folderIndex, s);
 					treeFolders[ui.TreeFolderIndex].UpdateItemIndex = updateItems.Size();
 				   }
 				   }
 				 */
 				ui.Name = name;
-
 				if(ui.NewData) {
 					ui.Size = 0;
 					if(!ui.IsDir) {
@@ -7185,41 +7170,32 @@ namespace NArchive {
 							return E_INVALIDARG;
 					}
 				}
-
 				updateItems.Add(ui);
 			}
-
 			/*
 			   FillSortIndex(treeFolders, 0, 0);
-			   for(i = 0; i < (uint32)updateItems.Size(); i++)
-			   {
+			   for(i = 0; i < (uint32)updateItems.Size(); i++) {
 			   CUpdateItem &ui = updateItems[i];
 			   ui.ParentSortIndex = treeFolders[ui.ParentFolderIndex].SortIndex;
 			   ui.ParentSortIndexEnd = treeFolders[ui.ParentFolderIndex].SortIndexEnd;
 			   }
 			 */
-
 			CCompressionMethodMode methodMode, headerMethod;
-
 			HRESULT res = SetMainMethod(methodMode
 			#ifndef _7ZIP_ST
 						, _numThreads
 			#endif
 						);
 			RINOK(res);
-
 			RINOK(SetHeaderMethod(headerMethod));
-
 		  #ifndef _7ZIP_ST
 			methodMode.NumThreads = _numThreads;
 			methodMode.MultiThreadMixer = _useMultiThreadMixer;
 			headerMethod.NumThreads = 1;
 			headerMethod.MultiThreadMixer = _useMultiThreadMixer;
 		  #endif
-
 			CMyComPtr<ICryptoGetTextPassword2> getPassword2;
 			updateCallback->QueryInterface(IID_ICryptoGetTextPassword2, (void**)&getPassword2);
-
 			methodMode.PasswordIsDefined = false;
 			methodMode.Password.Empty();
 			if(getPassword2) {
@@ -7230,11 +7206,8 @@ namespace NArchive {
 				if(methodMode.PasswordIsDefined && password)
 					methodMode.Password = password;
 			}
-
 			bool compressMainHeader = _compressHeaders; // check it
-
 			bool encryptHeaders = false;
-
 		  #ifndef _NO_CRYPTO
 			if(!methodMode.PasswordIsDefined && _passwordIsDefined) {
 				// if header is compressed, we use that password for updated archive
@@ -7256,12 +7229,9 @@ namespace NArchive {
 					headerMethod.Password = methodMode.Password;
 				}
 			}
-
 			if(numItems < 2)
 				compressMainHeader = false;
-
 			int level = GetLevel();
-
 			CUpdateOptions options;
 			options.Method = &methodMode;
 			options.HeaderMethod = (_compressHeaders || encryptHeaders) ? &headerMethod : NULL;
@@ -7276,20 +7246,15 @@ namespace NArchive {
 			   options.HeaderOptions.WriteMTime = Write_MTime;
 			   options.HeaderOptions.WriteAttrib = Write_Attrib;
 			 */
-
 			options.NumSolidFiles = _numSolidFiles;
 			options.NumSolidBytes = _numSolidBytes;
 			options.SolidExtension = _solidExtension;
 			options.UseTypeSorting = _useTypeSorting;
-
 			options.RemoveSfxBlock = _removeSfxBlock;
 			// options.VolumeMode = _volumeMode;
-
 			options.MultiThreadMixer = _useMultiThreadMixer;
-
 			COutArchive archive;
 			CArchiveDatabaseOut newDatabase;
-
 			CMyComPtr<ICryptoGetTextPassword> getPassword;
 			updateCallback->QueryInterface(IID_ICryptoGetTextPassword, (void**)&getPassword);
 
@@ -7302,15 +7267,11 @@ namespace NArchive {
 			   }
 			   }
 			 */
-
-			res = Update(
-						EXTERNAL_CODECS_VARS
+			res = Update(EXTERNAL_CODECS_VARS
 			  #ifdef _7Z_VOL
-						volume ? volume->Stream : 0,
-						volume ? db : 0,
+						volume ? volume->Stream : 0, volume ? db : 0,
 			  #else
-						_inStream,
-						db,
+						_inStream, db,
 			  #endif
 						updateItems,
 								// treeFolders,
@@ -7320,14 +7281,9 @@ namespace NArchive {
 						, getPassword
 			  #endif
 						);
-
 			RINOK(res);
-
 			updateItems.ClearAndFree();
-
-			return archive.WriteDatabase(EXTERNAL_CODECS_VARS
-						newDatabase, options.HeaderMethod, options.HeaderOptions);
-
+			return archive.WriteDatabase(EXTERNAL_CODECS_VARS newDatabase, options.HeaderMethod, options.HeaderOptions);
 			COM_TRY_END
 		}
 
@@ -7335,14 +7291,14 @@ namespace NArchive {
 		{
 			stream = 0;
 			{
-				unsigned index = ParseStringToUInt32(srcString, coder);
+				uint index = ParseStringToUInt32(srcString, coder);
 				if(index == 0)
 					return E_INVALIDARG;
 				srcString.DeleteFrontal(index);
 			}
 			if(srcString[0] == 's') {
 				srcString.Delete(0);
-				unsigned index = ParseStringToUInt32(srcString, stream);
+				uint index = ParseStringToUInt32(srcString, stream);
 				if(index == 0)
 					return E_INVALIDARG;
 				srcString.DeleteFrontal(index);

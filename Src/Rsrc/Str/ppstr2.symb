@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1005
-LastSignatureCode=2147490141
+LastSignatureCode=2147490207
 LastAutoCodeList=1,11144;102,10162;103,10071;110,10000;111,11661;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10078;120,10005;1001,10000;121,10000;122,10000;123,10306;1002,10000;1003,10000;1004,10000;1005,10000;124,10073
 
 [SignatureList]
@@ -3050,6 +3050,10 @@ elinkkind_type_fax=2147488551
 elinkkind_type_pager=2147488552
 elinkkind_type_email=2147488553
 elinkkind_type_webaddr=2147488554
+elinkkind_type_internalexten=2147490182
+elink=2147490184
+elink_kind=2147490185
+elink_addr=2147490186
 eventtoken_fhierarchical=2147486445
 eventtoken_flags=2147485486
 eventtoken_fpassive=2147485487
@@ -3979,6 +3983,20 @@ scale_scalf_stripwp=2147486091
 scale_scalf_tcpip=2147486092
 scale_symb=2147486093
 scale_tag=2147486094
+phnsvc=2147490166
+phnsvc_id=2147490167
+phnsvc_name=2147490168
+phnsvc_symb=2147490169
+phnsvc_flags=2147490170
+phnsvc_dvctype=2147490171
+phnsvc_serveraddress=2147490172
+phnsvc_addr=2147490173
+phnsvc_port=2147490174
+phnsvc_auth=2147490175
+phnsvc_user=2147490176
+phnsvc_password=2147490177
+phnsvc_localchannelsymb=2147490178
+phnsvc_scanchannelsymb=2147490179
 scard_autogoods=2147486095
 scard_code=2147486096
 scard_dt=2147486097

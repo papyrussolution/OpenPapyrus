@@ -373,7 +373,7 @@ void SmartListBox::Helper_InsertColumn(uint pos)
 		lv.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
 		lv.cx = 6 * slbc.Width;
 		StrPool.getnz(slbc.TitlePos, title_buf);
-		lv.pszText = (char *)title_buf.cptr(); // @badcast
+		lv.pszText = (char *)title_buf.cptr(); // @badcast // @unicodeproblem
 		if(slbc.Format & ALIGN_LEFT)
 			lv.fmt = LVCFMT_LEFT;
 		else if(slbc.Format & ALIGN_RIGHT)
@@ -420,8 +420,7 @@ void SmartListBox::CreateScrollBar(int create)
 		sc_lu.x = rc_list.right;
 		sc_lu.y = rc_list.top;
 		::MapWindowPoints(NULL, Parent, &sc_lu, 1);
-		h_wnd = ::CreateWindow(_T("SCROLLBAR"), "", WS_CHILD|SBS_LEFTALIGN|SBS_VERT,
-			sc_lu.x, sc_lu.y, sc_width, sc_height, Parent, (HMENU)MAKE_BUTTON_ID(Id, 1), TProgram::GetInst(), 0);
+		h_wnd = ::CreateWindow(_T("SCROLLBAR"), "", WS_CHILD|SBS_LEFTALIGN|SBS_VERT, sc_lu.x, sc_lu.y, sc_width, sc_height, Parent, (HMENU)MAKE_BUTTON_ID(Id, 1), TProgram::GetInst(), 0); // @unicodeproblem
 		::ShowWindow(h_wnd, SW_SHOWNORMAL);
 	}
 }
@@ -852,7 +851,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 								if(!r_temp_buf.NotEmptyS())
 									r_temp_buf.Z().CatChar('#').Cat(lptvdi->item.lParam);
 								// } @debug
-								r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(lptvdi->item.pszText, 0);
+								r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(lptvdi->item.pszText, 0); // @unicodeproblem
 							}
 							if(lptvdi->item.mask & (TVIF_IMAGE|TVIF_SELECTEDIMAGE)) {
 								long idx = 0;
@@ -1217,11 +1216,11 @@ BOOL CALLBACK UiSearchTextBlock::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 					HWND   h_parent = 0;
 					SString cls_name;
 					TView::SGetWindowClassName(p_slb->H_Wnd, cls_name);
-					if(cls_name.Cmp(BrowserWindow::WndClsName, 0) == 0) {
+					if(cls_name.Cmp(BrowserWindow::WndClsName, 0) == 0) { // @unicodeproblem
 						h_parent = p_slb->H_Wnd;
 						is_browser = 1;
 					}
-					else if(cls_name.Cmp(TInputLine::WndClsName, 0) == 0)
+					else if(cls_name.Cmp(TInputLine::WndClsName, 0) == 0) // @unicodeproblem
 						h_parent = p_slb->H_Wnd;
 					else
 						h_parent = (p_slb->LinkToList) ? p_slb->H_Wnd : GetWindow(hwndDlg, GW_OWNER);
@@ -1503,7 +1502,7 @@ void SmartListBox::Implement_Draw()
 					}
 					for(uint k = 0, pos = 0; k < cc; k++) {
 						ss.get(&pos, cell_buf);
-						lvi.pszText  = (char *)cell_buf.Strip().cptr(); // @badcast
+						lvi.pszText  = (char *)cell_buf.Strip().cptr(); // @badcast // @unicodeproblem
 						lvi.iSubItem = k;
 						if(k) {
 							// lvi.mask &= ~LVIF_IMAGE;

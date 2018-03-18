@@ -1876,14 +1876,14 @@ int FASTCALL _koi8_to_866(int c)
 char * FASTCALL SOemToChar(char * pStr)
 {
 	if(pStr)
-		OemToChar(pStr, pStr);
+		OemToChar(pStr, pStr); // @unicodeproblem
 	return pStr;
 }
 
 char * FASTCALL SCharToOem(char * pStr)
 {
 	if(pStr)
-		CharToOem(pStr, pStr);
+		CharToOem(pStr, pStr); // @unicodeproblem
 	return pStr;
 }
 //
@@ -2437,7 +2437,7 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 #ifdef _WIN32_WCE // {
 		GetTextExtentPoint32(hdc, (const ushort*)".", 1, &size);
 #else
-		GetTextExtentPoint32(hdc, ".", 1, &size);
+		GetTextExtentPoint32(hdc, _T("."), 1, &size); 
 #endif // } _WIN32_WCE
 		dots_size = size.cx * 3;
 		for(size_t strs_count = 0; strs_count < maxStrsCount; strs_count++) {
@@ -2454,7 +2454,7 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 #ifdef _WIN32_WCE // {
 				GetTextExtentPoint32(hdc, &aBuf[src_pos], 1, &size);
 #else
-				GetTextExtentPoint32(hdc, &aBuf[src_pos], 1, &size);
+				GetTextExtentPoint32(hdc, &aBuf[src_pos], 1, &size); // @unicodeproblem
 #endif // } _WIN32_WCE
 				word_size += size.cx;
 				if(word_size <= maxStrSize) {

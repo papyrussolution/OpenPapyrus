@@ -149,59 +149,59 @@ static const NExtract::NOverwriteMode::EEnum k_OverwriteModes[] = {
 };
 
 static const CSwitchForm kSwitchForms[] = {
-	{ "?" },
-	{ "h" },
-	{ "-help" },
-	{ "ba" },
-	{ "bd" },
-	{ "bt" },
-	{ "bb", NSwitchType::kString, false, 0 },
-	{ "bso", NSwitchType::kChar, false, 1, k_Stream_PostCharSet },
-	{ "bse", NSwitchType::kChar, false, 1, k_Stream_PostCharSet },
-	{ "bsp", NSwitchType::kChar, false, 1, k_Stream_PostCharSet },
-	{ "y" },
-	{ "ad" },
-	{ "ao", NSwitchType::kChar, false, 1, kOverwritePostCharSet},
-	{ "t",  NSwitchType::kString, false, 1 },
-	{ "stx", NSwitchType::kString, true, 1 },
-	{ "m",  NSwitchType::kString, true, 1 },
-	{ "o",  NSwitchType::kString, false, 1 },
-	{ "w",  NSwitchType::kString },
-	{ "i",  NSwitchType::kString, true, kSomeCludePostStringMinSize},
-	{ "x",  NSwitchType::kString, true, kSomeCludePostStringMinSize},
-	{ "ai", NSwitchType::kString, true, kSomeCludePostStringMinSize},
-	{ "ax", NSwitchType::kString, true, kSomeCludePostStringMinSize},
-	{ "an" },
-	{ "u",  NSwitchType::kString, true, 1},
-	{ "v",  NSwitchType::kString, true, 1},
-	{ "r",  NSwitchType::kChar, false, 0, kRecursedPostCharSet },
-	{ "stm", NSwitchType::kString },
-	{ "sfx", NSwitchType::kString },
-	{ "seml", NSwitchType::kString, false, 0},
-	{ "scrc", NSwitchType::kString, true, 0 },
-	{ "si", NSwitchType::kString },
-	{ "so" },
-	{ "slp", NSwitchType::kMinus },
-	{ "scs", NSwitchType::kString },
-	{ "scc", NSwitchType::kString },
-	{ "slt" },
-	{ "ssw" },
-	{ "ssc", NSwitchType::kMinus },
-	{ "sa",  NSwitchType::kChar, false, 1, k_ArcNameMode_PostCharSet },
-	{ "spd" },
-	{ "spe", NSwitchType::kMinus },
-	{ "spf", NSwitchType::kString, false, 0 },
-	{ "snh", NSwitchType::kMinus },
-	{ "snl", NSwitchType::kMinus },
-	{ "sni" },
-	{ "sns", NSwitchType::kMinus },
-	{ "snr" },
-	{ "snc" },
-	{ "snt", NSwitchType::kMinus },
-	{ "sdel" },
-	{ "stl" }
+	{"?"},
+	{"h"},
+	{"-help"},
+	{"ba"},
+	{"bd"},
+	{"bt"},
+	{"bb", NSwitchType::kString, false, 0 },
+	{"bso", NSwitchType::kChar, false, 1, k_Stream_PostCharSet },
+	{"bse", NSwitchType::kChar, false, 1, k_Stream_PostCharSet },
+	{"bsp", NSwitchType::kChar, false, 1, k_Stream_PostCharSet },
+	{"y"},
+	{"ad"},
+	{"ao", NSwitchType::kChar, false, 1, kOverwritePostCharSet},
+	{"t",  NSwitchType::kString, false, 1 },
+	{"stx", NSwitchType::kString, true, 1 },
+	{"m",  NSwitchType::kString, true, 1 },
+	{"o",  NSwitchType::kString, false, 1 },
+	{"w",  NSwitchType::kString },
+	{"i",  NSwitchType::kString, true, kSomeCludePostStringMinSize},
+	{"x",  NSwitchType::kString, true, kSomeCludePostStringMinSize},
+	{"ai", NSwitchType::kString, true, kSomeCludePostStringMinSize},
+	{"ax", NSwitchType::kString, true, kSomeCludePostStringMinSize},
+	{"an"},
+	{"u",  NSwitchType::kString, true, 1},
+	{"v",  NSwitchType::kString, true, 1},
+	{"r",  NSwitchType::kChar, false, 0, kRecursedPostCharSet },
+	{"stm", NSwitchType::kString },
+	{"sfx", NSwitchType::kString },
+	{"seml", NSwitchType::kString, false, 0},
+	{"scrc", NSwitchType::kString, true, 0 },
+	{"si", NSwitchType::kString },
+	{"so"},
+	{"slp", NSwitchType::kMinus },
+	{"scs", NSwitchType::kString },
+	{"scc", NSwitchType::kString },
+	{"slt"},
+	{"ssw"},
+	{"ssc", NSwitchType::kMinus },
+	{"sa",  NSwitchType::kChar, false, 1, k_ArcNameMode_PostCharSet },
+	{"spd" },
+	{"spe", NSwitchType::kMinus },
+	{"spf", NSwitchType::kString, false, 0 },
+	{"snh", NSwitchType::kMinus },
+	{"snl", NSwitchType::kMinus },
+	{"sni"},
+	{"sns", NSwitchType::kMinus},
+	{"snr"},
+	{"snc"},
+	{"snt", NSwitchType::kMinus},
+	{"sdel"},
+	{"stl"}
   #ifndef _NO_CRYPTO
-	, { "p",  NSwitchType::kString }
+	, {"p",  NSwitchType::kString}
   #endif
 };
 
@@ -225,13 +225,14 @@ CArcCmdLineOptions::CArcCmdLineOptions() : LargePages(false), CaseSensitiveChang
 
 bool CArcCommand::IsFromExtractGroup() const
 {
-	switch(CommandType) {
+	/*switch(CommandType) {
 		case NCommandType::kTest:
 		case NCommandType::kExtract:
 		case NCommandType::kExtractFull:
 		    return true;
 	}
-	return false;
+	return false;*/
+	return oneof3(CommandType, NCommandType::kTest, NCommandType::kExtract, NCommandType::kExtractFull);
 }
 
 NExtract::NPathMode::EEnum CArcCommand::GetPathMode() const
@@ -246,13 +247,14 @@ NExtract::NPathMode::EEnum CArcCommand::GetPathMode() const
 
 bool CArcCommand::IsFromUpdateGroup() const
 {
-	switch(CommandType) {
+	/*switch(CommandType) {
 		case NCommandType::kAdd:
 		case NCommandType::kUpdate:
 		case NCommandType::kDelete:
 		case NCommandType::kRename: return true;
 	}
-	return false;
+	return false;*/
+	return oneof4(CommandType, NCommandType::kAdd, NCommandType::kUpdate, NCommandType::kDelete, NCommandType::kRename);
 }
 
 static NRecursedType::EEnum GetRecursedTypeFromIndex(int index)
@@ -374,7 +376,6 @@ static void AddToCensorFromNonSwitchesStrings(CObjectVector<CRenamePair> * renam
 		else
 			AddNameToCensor(censor, s, true, type, wildcardMatching);
 	}
-
 	if(oldIndex != -1) {
 		throw CArcCmdLineException("There is no second file name for rename pair:", nonSwitchStrings[oldIndex]);
 	}
@@ -422,18 +423,20 @@ static const char * ParseMapWithPaths(NWildcard::CCensor &censor, const UString 
 	const wchar_t * p = (const wchar_t*)data;
 	if(*p != 0) // data format marker
 		return "Unsupported Map data";
-	uint32 numChars = size / sizeof(wchar_t);
-	for(uint32 i = 1; i < numChars; i++) {
-		wchar_t c = p[i];
-		if(c == 0) {
-			// MessageBoxW(0, name, L"7-Zip", 0);
-			AddNameToCensor(censor, name, include, commonRecursedType, wildcardMatching);
-			name.Empty();
+	else {
+		uint32 numChars = size / sizeof(wchar_t);
+		for(uint32 i = 1; i < numChars; i++) {
+			wchar_t c = p[i];
+			if(c == 0) {
+				// MessageBoxW(0, name, L"7-Zip", 0);
+				AddNameToCensor(censor, name, include, commonRecursedType, wildcardMatching);
+				name.Empty();
+			}
+			else
+				name += c;
 		}
-		else
-			name += c;
+		return name.IsEmpty() ? NULL : "Map data error";
 	}
-	return name.IsEmpty() ? NULL : "Map data error";
 }
 
 #endif

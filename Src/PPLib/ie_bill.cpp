@@ -634,27 +634,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				SetupOprKindCombo(this, CTLSEL_IEBILLSEL_OP, init_op_id, 0, &op_types, 0);
 				SetupPPObjCombo(this, CTLSEL_IEBILLSEL_LOC, PPOBJ_LOCATION, P_Data->LocID, 0, 0);
 				// @v9.2.10 SetTech();
-				// @vmiller {
-				if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp) {
-					// Заполняем списком типов документов
-					HdrList.Clear();
-					SString buf;
-					PPLoadText(Import ? PPTXT_EDIIMPCMD : PPTXT_EDIEXPCMD, buf);
-					StringSet ss(';', buf);
-					for(uint i = 0; ss.get(&i, buf);) {
-						uint j = 0;
-						StringSet ss1(',', buf);
-						ss1.get(&j, buf.Z());
-						id = buf.ToLong();
-						ss1.get(&j, buf.Z());
-						ss1.get(&j, buf.Z());
-						HdrList.Add(id, buf);
-					}
-					P_Data->BillParam.ProcessName(2, sect = P_Data->CfgNameBill); // @vmiller (для отображения в фильтре иконки)
-					id = (HdrList.SearchByText(sect, 1, &(p = 0)) > 0) ? (uint)HdrList.Get(p).Id : 0; // @vmiller (для отображения в фильтре иконки)
-					SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BILL, &HdrList, (long)id, 0);
-				}
-				// } @vmiller
+				SetupControlsForEdi();
 				SetPeriodInput(this, CTL_IEBILLSEL_PERIOD, &P_Data->Period);
 				disableCtrls((P_Data->Flags & (PPBillImpExpBaseProcessBlock::fUhttImport|PPBillImpExpBaseProcessBlock::fEgaisImpExp)), CTLSEL_IEBILLSEL_BILL, CTLSEL_IEBILLSEL_BROW, 0);
 				disableCtrls((P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp), CTLSEL_IEBILLSEL_OP, 0L);
@@ -687,16 +667,21 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 		int    getDTS()
 		{
 			int    ok = 1;
-			uint   id = 0;
+			uint   __id = 0;
 			SString sect;
 			THROW_INVARG(P_IniFile);
 			THROW_INVARG(P_Data);
 			GetTech();
+			const  long bill_struc_id = getCtrlLong(CTLSEL_IEBILLSEL_BILL);
+			const  int  is_full_edi_process = BIN(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp && bill_struc_id == 1000);
+			SETFLAG(P_Data->Flags, PPBillImpExpBaseProcessBlock::fFullEdiProcess, is_full_edi_process);
 			if(Import) {
 				P_Data->OpID = getCtrlLong(CTLSEL_IEBILLSEL_OP);
 				P_Data->LocID = getCtrlLong(CTLSEL_IEBILLSEL_LOC);
 				SETIFZ(P_Data->LocID, LConfig.Location);
-				THROW_PP(P_Data->OpID || (P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp), PPERR_INVOPRKIND);
+				if(!(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp) && !is_full_edi_process) {
+					THROW_PP(P_Data->OpID, PPERR_INVOPRKIND);
+				}
 				GetClusterData(CTL_IEBILLSEL_FLAGS, &P_Data->Flags);
 				THROW(GetPeriodInput(this, CTL_IEBILLSEL_PERIOD, &P_Data->Period));
 				GetClusterData(CTL_IEBILLSEL_FLAGS, &P_Data->Flags); // @v8.9.0
@@ -714,31 +699,31 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 			if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fPaymOrdersExp) {
 				PPCliBnkImpExpParam cb_param;
 				LoadSdRecord(PPREC_CLIBNKDATA, &cb_param.InrRec);
-				getCtrlData(CTLSEL_IEBILLSEL_BILL, &(id = 0));
-				THROW_PP(id, PPERR_INVBILLIMPEXPCFG);
-				HdrList.GetText(id, sect);
+				//getCtrlData(CTLSEL_IEBILLSEL_BILL, &(id = 0));
+				THROW_PP(bill_struc_id, PPERR_INVBILLIMPEXPCFG);
+				HdrList.GetText(bill_struc_id, sect);
 				cb_param.ProcessName(1, sect);
 				P_Data->CfgNameBill = sect;
 			}
-			else if(!Import || !(P_Data->Flags & (PPBillImpExpBaseProcessBlock::fUhttImport|PPBillImpExpBaseProcessBlock::fEgaisImpExp))) {
+			else if(!Import || (!is_full_edi_process && !(P_Data->Flags & (PPBillImpExpBaseProcessBlock::fUhttImport|PPBillImpExpBaseProcessBlock::fEgaisImpExp)))) {
 				P_Data->BillParam.Init(Import);
 				P_Data->BRowParam.Init(Import);
 				THROW(LoadSdRecord(PPREC_BILL, &P_Data->BillParam.InrRec));
 				THROW(LoadSdRecord(PPREC_BROW, &P_Data->BRowParam.InrRec));
 				if(!(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp)) {
-					getCtrlData(CTLSEL_IEBILLSEL_BILL, &(id = 0));
-					THROW_PP(id, PPERR_INVBILLIMPEXPCFG);
-					HdrList.GetText(id, sect);
+					//getCtrlData(CTLSEL_IEBILLSEL_BILL, &(id = 0));
+					THROW_PP(bill_struc_id, PPERR_INVBILLIMPEXPCFG);
+					HdrList.GetText(bill_struc_id, sect);
 					if(!(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp)) {
 						if(!sect.CmpPrefix("DLL_", 1))
 							P_Data->BillParam.BaseFlags |= PPImpExpParam::bfDLL;
 						P_Data->BillParam.ProcessName(1, sect);
 						THROW(P_Data->BillParam.ReadIni(P_IniFile, sect, 0));
-						id = getCtrlLong(CTLSEL_IEBILLSEL_BROW);
+						__id = getCtrlLong(CTLSEL_IEBILLSEL_BROW);
 						if(!(P_Data->BillParam.BaseFlags & PPImpExpParam::bfDLL) && !P_Data->BillParam.PredefFormat) { // @v9.7.8 (!P_Data->BillParam.PredefFormat)
-							if(id || GetOpType(P_Data->OpID) != PPOPT_ACCTURN) { // @v8.4.10
-								THROW_PP(id, PPERR_INVBILLIMPEXPCFG);
-								LineList.GetText(id, sect);
+							if(__id || GetOpType(P_Data->OpID) != PPOPT_ACCTURN) { // @v8.4.10
+								THROW_PP(__id, PPERR_INVBILLIMPEXPCFG);
+								LineList.GetText(__id, sect);
 								P_Data->BRowParam.ProcessName(1, sect);
 								THROW(P_Data->BRowParam.ReadIni(P_IniFile, sect, 0));
 							}
@@ -746,7 +731,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 					}
 					else {
 						P_Data->BillParam.BaseFlags |= PPImpExpParam::bfDLL;
-						P_Data->BillParam.EDIDocType = id;
+						P_Data->BillParam.EDIDocType = bill_struc_id;
 						P_Data->BillParam.Name = sect;
 					}
 				}
@@ -755,6 +740,36 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 			return ok;
 		}
 	private:
+		int    SetupControlsForEdi()
+		{
+			int    ok = -1;
+			// @vmiller {
+			if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp) {
+				// Заполняем списком типов документов
+				uint   id = 0;
+				uint   p;
+				HdrList.Clear();
+				SString buf;
+				SString sect;
+				PPLoadText(Import ? PPTXT_EDIIMPCMD : PPTXT_EDIEXPCMD, buf);
+				StringSet ss(';', buf);
+				for(uint i = 0; ss.get(&i, buf);) {
+					uint j = 0;
+					StringSet ss1(',', buf);
+					ss1.get(&j, buf.Z());
+					id = buf.ToLong();
+					ss1.get(&j, buf.Z());
+					ss1.get(&j, buf.Z());
+					HdrList.Add(id, buf);
+				}
+				P_Data->BillParam.ProcessName(2, sect = P_Data->CfgNameBill); // @vmiller (для отображения в фильтре иконки)
+				id = (HdrList.SearchByText(sect, 1, &(p = 0)) > 0) ? (uint)HdrList.Get(p).Id : 0; // @vmiller (для отображения в фильтре иконки)
+				SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BILL, &HdrList, (long)id, 0);
+				ok = 1;
+			}
+			// } @vmiller
+			return ok;
+		}
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
@@ -772,23 +787,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 						disableCtrl(CTLSEL_IEBILLSEL_BROW, 1);
 					disableCtrls((P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp), CTLSEL_IEBILLSEL_OP, 0L);
 					DisableClusterItem(CTL_IEBILLSEL_FLAGS, 2, !(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp)); // @v9.9.9
-					if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp) {
-						// Заполняем списком типов документов
-						HdrList.Clear();
-						PPLoadText((Import ? PPTXT_EDIIMPCMD : PPTXT_EDIEXPCMD), buf);
-						StringSet ss(';', buf);
-						for(uint i = 0; ss.get(&i, buf);) {
-							uint j = 0;
-							StringSet ss1(',', buf);
-							ss1.get(&j, buf.Z());
-							id = buf.ToLong();
-							ss1.get(&j, buf.Z());
-							ss1.get(&j, buf.Z());
-							HdrList.Add(id, buf);
-						}
-						P_Data->BillParam.ProcessName(2, sect = P_Data->CfgNameBill); // @vmiller (для отображения в фильтре иконки)
-						id = (HdrList.SearchByText(sect, 1, &(p = 0)) > 0) ? (uint)HdrList.Get(p).Id : 0; // @vmiller (для отображения в фильтре иконки)
-						SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BILL, &HdrList, (long)id, 0);
+					if(SetupControlsForEdi() > 0) {
 					}
 					else if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp) {
 					}
@@ -1389,96 +1388,6 @@ int SLAPI PPBillImporter::RunUhttImport()
 		}
 	}
 	CATCHZOK
-	return ok;
-}
-
-// @vmiller
-int SLAPI PPBillImporter::RunEDIImport()
-{
-	int    ok = 1, r = 1;
-	//
-	// Если импортируем через EDI, то необходимо импортировать данные для всех провайдеров, указанных
-	// в impexp.ini для выбранного типа документов
-	//
-	PPBillImpExpParam bill_param;
-	SString ini_file_name, temp_buf;
-	StringSet sects;
-	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
-	{
-		PPIniFile ini_file (ini_file_name, 0, 1, 1);
-		bill_param = BillParam; // Запомним начальные настройки конфигурации
-		if(ini_file.GetSections(&sects) > 0) {
-			uint sect_pos = 0;
-			SString str, type_str;
-			// Импортируем документы, пока получаем настройки для импорта данного типа документа (BillParam.Name) (перечисление в PPTXT_EDIIMPCMD)
-			while(sects.get(&sect_pos, str) > 0) {
-				size_t start_pos = 0;
-				uint   end_pos = 0;
-				(type_str = BillParam.Name).Transf(CTRANSF_INNER_TO_OUTER);
-				if(str.Search("IMP@BILL@DLL_", 0, 1, &(start_pos = 0)) > 0 && str.Search(BillParam.Name, 0, 1, &(start_pos = 0)) > 0) {
-					if(!BillParam.ReadIni(&ini_file, str, 0)) {
-						PPSetError(PPERR_IMPEXPCFGRDFAULT, str);
-						Logger.LogLastError();
-					}
-					else {
-						r = ReadData();
-						if(r > 0)
-							Import(1);
-						else if(!r) {
-							Logger.LogLastError();
-						}
-						BillParam = bill_param;
-					}
-				}
-			}
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
-int SLAPI PPBillImporter::RunEDIImport2()
-{
-	int    ok = 1, r = 1;
-	//
-	// Если импортируем через EDI, то необходимо импортировать данные для всех провайдеров, указанных
-	// в impexp.ini для выбранного типа документов
-	//
-	PPBillImpExpParam bill_param;
-	SString temp_buf;
-	{
-        PPObjEdiProvider ep_obj;
-        PPEdiProvider ep_rec;
-        for(SEnum en = ep_obj.Enum(0); en.Next(&ep_rec) > 0;) {
-
-        }
-#if 0 // {
-		uint sect_pos = 0;
-		SString str, type_str;
-		// Импортируем документы, пока получаем настройки для импорта данного типа документа (BillParam.Name) (перечисление в PPTXT_EDIIMPCMD)
-		while(sects.get(&sect_pos, str) > 0) {
-			uint   start_pos = 0;
-			uint   end_pos = 0;
-			(type_str = BillParam.Name).Transf(CTRANSF_INNER_TO_OUTER);
-			if((str.Search("IMP@BILL@DLL_", 0, 1, &(start_pos = 0)) > 0) && (str.Search(BillParam.Name, 0, 1, &(start_pos = 0)) > 0)) {
-				if(!BillParam.ReadIni(&ini_file, str, 0)) {
-					PPSetError(PPERR_IMPEXPCFGRDFAULT, str);
-					Logger.LogLastError();
-				}
-				else {
-					r = ReadData();
-					if(r > 0)
-						Import(1);
-					else if(!r) {
-						Logger.LogLastError();
-					}
-					BillParam = bill_param;
-				}
-			}
-		}
-#endif // } 0
-	}
-	// CATCHZOK
 	return ok;
 }
 
@@ -3355,6 +3264,8 @@ int SLAPI PPBillImporter::BillRowToBillRec(const Sdr_BRow * pRow, PPBillPacket *
 int SLAPI PPBillImporter::Run()
 {
 	int    ok = 1;
+	SString file_name;
+	SString temp_buf;
 	LineIdSeq = 0;
 	PPWait(1);
 	Period.Actualize(ZERODATE);
@@ -3363,7 +3274,78 @@ int SLAPI PPBillImporter::Run()
 		THROW(RunUhttImport());
 	}
 	else if(Flags & PPBillImporter::fEdiImpExp) {
-		THROW(RunEDIImport());
+		if(Flags & PPBillImporter::fFullEdiProcess) {
+			PPID   main_org_id = 0;
+			ObjIdListFilt suppl_list;
+			ObjIdListFilt cli_list;
+			PPIDArray temp_id_list;
+			PPSupplAgreement suppl_agt;
+			PPObjEdiProvider ediprv_obj;
+			PPEdiProvider ediprv_rec;
+			PPEdiProviderPacket ediprv_pack;
+			PPBillExportFilt be_filt;
+			be_filt.LocID = this->LocID;
+			be_filt.Period = this->Period;
+			GetMainOrgID(&main_org_id);
+			for(SEnum en = ediprv_obj.Enum(0); en.Next(&ediprv_rec) > 0;) {
+				PPEdiProcessor::ProviderImplementation * p_prvimp = PPEdiProcessor::CreateProviderImplementation(ediprv_rec.ID, main_org_id);
+				if(p_prvimp && ediprv_rec.Symb[0]) {
+					if(!suppl_list.IsExists()) {
+						ArObj.P_Tbl->GetListBySheet(GetSupplAccSheet(), &temp_id_list, 0);
+						suppl_list.Set(&temp_id_list);
+					}
+					temp_id_list.clear();
+					for(uint i = 0; i < suppl_list.GetCount(); i++) {
+						const PPID ar_id = suppl_list.Get(i);
+						if(ArObj.GetSupplAgreement(ar_id, &suppl_agt, 0) > 0 && 
+							suppl_agt.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssEDIPrvdrSymb, temp_buf) && temp_buf.IsEqiAscii(ediprv_rec.Symb)) {
+							temp_id_list.add(ar_id);
+						}
+					}
+					if(temp_id_list.getCount()) {
+						// temp_id_list содержит идентификаторы поставщиков, которые, согласно соглашению, используют данного провайдера
+						PPEdiProcessor prc(p_prvimp);
+						prc.SendOrders(be_filt, temp_id_list);
+					}
+				}
+				ZDELETE(p_prvimp);
+			}
+		}
+		else {
+			//
+			// Если импортируем через EDI, то необходимо импортировать данные для всех провайдеров, указанных
+			// в impexp.ini для выбранного типа документов
+			//
+			PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, file_name);
+			PPIniFile ini_file(file_name, 0, 1, 1);
+			StringSet sects;
+			const PPBillImpExpParam preserve_bill_param = BillParam; // Запомним начальные настройки конфигурации
+			if(ini_file.GetSections(&sects) > 0) {
+				uint sect_pos = 0;
+				SString type_str;
+				// Импортируем документы, пока получаем настройки для импорта данного типа документа (BillParam.Name) (перечисление в PPTXT_EDIIMPCMD)
+				while(sects.get(&sect_pos, temp_buf) > 0) {
+					size_t start_pos = 0;
+					uint   end_pos = 0;
+					(type_str = BillParam.Name).Transf(CTRANSF_INNER_TO_OUTER);
+					if(temp_buf.Search("IMP@BILL@DLL_", 0, 1, &(start_pos = 0)) > 0 && temp_buf.Search(BillParam.Name, 0, 1, &(start_pos = 0)) > 0) {
+						if(!BillParam.ReadIni(&ini_file, temp_buf, 0)) {
+							PPSetError(PPERR_IMPEXPCFGRDFAULT, temp_buf);
+							Logger.LogLastError();
+						}
+						else {
+							int    r = ReadData();
+							if(r > 0)
+								Import(1);
+							else if(!r) {
+								Logger.LogLastError();
+							}
+							BillParam = preserve_bill_param;
+						}
+					}
+				}
+			}
+		}
 	}
 	else if(Flags & PPBillImporter::fEgaisImpExp) {
 		long   cflags = (Flags & PPBillImporter::fTestMode) ? PPEgaisProcessor::cfDebugMode : 0;
@@ -3395,15 +3377,10 @@ int SLAPI PPBillImporter::Run()
 	else {
 		THROW(ReadData());
 		THROW(Import(1));
-		// @v8.4.7 {
-		{
-			SString file_name;
-            for(uint i = 0; ToRemoveFiles.get(&i, file_name);) {
-				if(fileExists(file_name))
-					SFile::Remove(file_name);
-            }
-		}
-		// } @v8.4.7
+        for(uint i = 0; ToRemoveFiles.get(&i, file_name);) {
+			if(fileExists(file_name))
+				SFile::Remove(file_name);
+        }
 	}
 	CATCHZOK
 	PPWait(0);

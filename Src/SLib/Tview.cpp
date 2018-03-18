@@ -535,7 +535,7 @@ HFONT TView::setFont(HWND hWnd, const char * pFontName, int height)
 	MEMSZERO(log_font);
 	log_font.lfCharSet = DEFAULT_CHARSET;
 	if(pFontName)
-		STRNSCPY(log_font.lfFaceName, pFontName);
+		STRNSCPY(log_font.lfFaceName, pFontName); // @unicodeproblem
 	log_font.lfHeight = height;
 	new_font = ::CreateFontIndirect(&log_font);
 	if(new_font)

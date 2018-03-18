@@ -414,11 +414,8 @@ int SLAPI PrcssrPrediction::EditPredictCfg()
 	PPIDArray op_list;
 	TDialog * dlg = new TDialog(DLG_PREDICTCFG);
 	PPPredictConfig cfg;
-
 	THROW(CheckCfgRights(PPCFGOBJ_PREDICTSALES, PPR_READ, 0));
-	MEMSZERO(cfg);
 	is_new = PrcssrPrediction::GetPredictCfg(&cfg);
-
 	THROW(CheckDialogPtr(&dlg));
 	op_list.add(PPOPT_DRAFTRECEIPT);
 	SetupOprKindCombo(dlg, CTLSEL_PREDICTCFG_OPRPCH, cfg.PurchaseOpID, 0, &op_list, 0);

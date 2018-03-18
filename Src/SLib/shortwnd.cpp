@@ -137,7 +137,7 @@ void ShortcutsWindow::AddItem(const char * pTitle, void * ptr)
 		}
 		MEMSZERO(rc_item);
 		tci.mask = TCIF_TEXT|TCIF_PARAM;
-		tci.pszText = temp_title_buf;
+		tci.pszText = temp_title_buf; // @unicodeproblem
 		tci.cchTextMax = sizeof(temp_title_buf);
 		tci.lParam = (LPARAM)ptr;
 		TabCtrl_InsertItem(hwnd_tab, idx, &tci); // @unicodeproblem
@@ -152,7 +152,7 @@ void ShortcutsWindow::AddItem(const char * pTitle, void * ptr)
 			t_i.uId         = (UINT_PTR)ptr;
 			t_i.rect        = rc_item;
 			t_i.hinst       = TProgram::GetInst();
-			t_i.lpszText    = temp_title_buf;
+			t_i.lpszText    = temp_title_buf; // @unicodeproblem
 			::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
 			::SendMessage(HwndTT, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
 		}
@@ -182,7 +182,7 @@ void ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 						temp_title_buf[SHCTSTAB_MAXTEXTLEN - j - 1] = '.';
 				}
 				tci.mask = LVIF_TEXT;
-				tci.pszText = temp_title_buf;
+				tci.pszText = temp_title_buf; // @unicodeproblem
 				tci.cchTextMax = sizeof(temp_title_buf);
 				TabCtrl_SetItem(hwnd_tab, i, &tci); // @unicodeproblem
 				if(HwndTT && TabCtrl_GetItemRect(hwnd_tab, i, &rc_item))	{
@@ -193,7 +193,7 @@ void ShortcutsWindow::UpdateItem(const char * pTitle, void * ptr)
 					t_i.uId         = (UINT_PTR)ptr;
 					t_i.rect        = rc_item;
 					t_i.hinst       = TProgram::GetInst();
-					t_i.lpszText    = temp_title_buf;
+					t_i.lpszText    = temp_title_buf; // @unicodeproblem
 					::SendMessage(HwndTT, (UINT)TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
 					::SendMessage(HwndTT, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&t_i); // @unicodeproblem
 				}

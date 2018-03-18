@@ -1,6 +1,6 @@
 // LIBZIP.C
 //
-#define _ZIP_COMPILING_DEPRECATED
+//#define _ZIP_COMPILING_DEPRECATED
 #include "zipint.h"
 
 #ifdef HAVE_STRINGS_H

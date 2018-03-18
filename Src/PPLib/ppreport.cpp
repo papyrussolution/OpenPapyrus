@@ -1563,7 +1563,7 @@ static int SLAPI RemoveCompName(SString & rPrintDevice)
 	SString sbuf;
 	DWORD  buf_size = sizeof(buf);
 	memzero(buf, sizeof(buf));
-	GetComputerNameEx(ComputerNameNetBIOS, buf, &buf_size);
+	GetComputerNameEx(ComputerNameNetBIOS, buf, &buf_size); // @unicodeproblem
 	(sbuf = "\\\\").Cat(buf).CatChar('\\');
 	if(rPrintDevice.CmpPrefix(sbuf, 1) == 0)
 		rPrintDevice.ShiftLeft(sbuf.Len());
@@ -1598,7 +1598,7 @@ static int SLAPI SetPrinterParam(short hJob, const char * pPrinter, long options
 		memzero(device_name, sizeof(device_name));
 		memzero(port_name, sizeof(port_name));
 		memzero(drv_name, sizeof(drv_name));
-		THROW_PP(PEGetSelectedPrinter(hJob, &h_drv, &drv_len, &h_prn, &prn_len, &h_port, &port_len, &p_dm), PPERR_CRYSTAL_REPORT);
+		THROW_PP(PEGetSelectedPrinter(hJob, &h_drv, &drv_len, &h_prn, &prn_len, &h_port, &port_len, &p_dm), PPERR_CRYSTAL_REPORT); // @unicodeproblem
 		if(!RVALUEPTR(dm, p_dm))
 			MEMSZERO(dm);
 		PEGetHandleString(h_prn,  device_name, sizeof(device_name));
@@ -1607,14 +1607,14 @@ static int SLAPI SetPrinterParam(short hJob, const char * pPrinter, long options
 		if(print_device.NotEmpty())
 			STRNSCPY(device_name, print_device);
 		if(options & SPRN_USEDUPLEXPRINTING) {
-			DWORD  is_duplex_device = DeviceCapabilities(device_name, port_name, DC_DUPLEX, 0, p_dm);
+			DWORD  is_duplex_device = DeviceCapabilities(device_name, port_name, DC_DUPLEX, 0, p_dm); // @unicodeproblem
 			if(is_duplex_device) {
 				RVALUEPTR(dm, p_dm);
 				dm.dmFields |= DM_DUPLEX;
 				dm.dmDuplex = DMDUP_VERTICAL;
 			}
 		}
-		THROW_PP(PESelectPrinter(hJob, drv_name, device_name, port_name, &dm), PPERR_CRYSTAL_REPORT);
+		THROW_PP(PESelectPrinter(hJob, drv_name, device_name, port_name, &dm), PPERR_CRYSTAL_REPORT); // @unicodeproblem
 	}
 	CATCH
 		CrwError = PEGetErrorCode(hJob);
@@ -2419,7 +2419,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 							MEMSZERO(si);
 							si.cb = sizeof(si);
 							MEMSZERO(pi);
-							int    r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, 0, &si, &pi);
+							int    r = ::CreateProcess(0, cmd_line, 0, 0, FALSE, 0, 0, 0, &si, &pi); // @unicodeproblem
 							if(!r) {
 								SLS.SetOsError(0);
 								PPSetErrorSLib();

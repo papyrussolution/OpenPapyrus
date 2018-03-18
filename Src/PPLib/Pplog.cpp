@@ -157,7 +157,7 @@ LogListWindowSCI::LogListWindowSCI(TVMsgLog * pLog) : TWindow(TRect(0, 0, 100, 2
 	SendMessage(APPL->H_LogWnd, WM_SYSCOMMAND, SC_CLOSE, 0);
 	APPL->H_LogWnd = HW = ::CreateWindowEx(WS_EX_TOOLWINDOW, LogListWindowSCI::WndClsName, temp_buf,
 		WS_CHILD|WS_CLIPSIBLINGS|/*WS_VSCROLL|*/WS_CAPTION|WS_SYSMENU|WS_SIZEBOX|LBS_DISABLENOSCROLL|LBS_NOINTEGRALHEIGHT,
-		r.left, r.top, r.right, r.bottom, APPL->H_MainWnd, 0, TProgram::GetInst(), this);
+		r.left, r.top, r.right, r.bottom, APPL->H_MainWnd, 0, TProgram::GetInst(), this); // @unicodeproblem
 	TView::SetWindowProp(H(), GWLP_USERDATA, this);
 	//PrevLogListProc = (WNDPROC)TView::SetWindowProp(H(), GWLP_WNDPROC, LogListProc);
 	//hf = (HFONT)GetStockObject(DEFAULT_GUI_FONT);

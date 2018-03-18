@@ -1157,10 +1157,10 @@ int TWindowBase::RegWindowClass(int iconId)
 {
 	WNDCLASSEX wc;
 	const HINSTANCE h_inst = TProgram::GetInst();
-	if(!::GetClassInfoEx(h_inst, TWindowBase::P_ClsName, &wc)) {
+	if(!::GetClassInfoEx(h_inst, TWindowBase::P_ClsName, &wc)) { // @unicodeproblem
 		MEMSZERO(wc);
 		wc.cbSize        = sizeof(wc);
-		wc.lpszClassName = TWindowBase::P_ClsName;
+		wc.lpszClassName = TWindowBase::P_ClsName; // @unicodeproblem
 		wc.hInstance     = h_inst;
 		wc.lpfnWndProc   = TWindowBase::WndProc;
 		wc.style         = /*CS_HREDRAW | CS_VREDRAW |*/ /*CS_OWNDC |*/ CS_SAVEBITS | CS_DBLCLKS;
@@ -1242,14 +1242,14 @@ int TWindowBase::Create(long parent, long createOptions)
 	}
 	if(createOptions & coChild) {
 		style = WS_CHILD|WS_TABSTOP;
-		HW = CreateWindowEx(WS_EX_CLIENTEDGE, P_ClsName, title_buf, style, 0, 0, cx, cy, hw_parent, 0, h_inst, this);
+		HW = CreateWindowEx(WS_EX_CLIENTEDGE, P_ClsName, title_buf, style, 0, 0, cx, cy, hw_parent, 0, h_inst, this); // @unicodeproblem
 	}
 	else { // coPopup
 		style = WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_VISIBLE;
 		if(createOptions & coMDI) {
 			MDICREATESTRUCT child;
-			child.szClass = P_ClsName;
-			child.szTitle = title_buf;
+			child.szClass = P_ClsName; // @unicodeproblem
+			child.szTitle = title_buf; // @unicodeproblem
 			child.hOwner = h_inst;
 			child.x  = CW_USEDEFAULT;
 			child.y  = CW_USEDEFAULT;
@@ -1260,7 +1260,7 @@ int TWindowBase::Create(long parent, long createOptions)
 			HW = (HWND)LOWORD(SendMessage(hw_parent, WM_MDICREATE, 0, (LPARAM)&child)); // @unicodeproblem
 		}
 		else {
-			HW = CreateWindowEx(0, P_ClsName, title_buf, style, x, y, cx, cy, hw_parent, 0, h_inst, this);
+			HW = CreateWindowEx(0, P_ClsName, title_buf, style, x, y, cx, cy, hw_parent, 0, h_inst, this); // @unicodeproblem
 		}
 	}
 	return BIN(HW);

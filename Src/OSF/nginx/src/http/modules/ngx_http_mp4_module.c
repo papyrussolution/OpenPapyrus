@@ -282,50 +282,50 @@ ngx_module_t ngx_http_mp4_module = {
 };
 
 static ngx_http_mp4_atom_handler_t ngx_http_mp4_atoms[] = {
-	{ "ftyp", ngx_http_mp4_read_ftyp_atom },
-	{ "moov", ngx_http_mp4_read_moov_atom },
-	{ "mdat", ngx_http_mp4_read_mdat_atom },
-	{ NULL, NULL }
+	{"ftyp", ngx_http_mp4_read_ftyp_atom},
+	{"moov", ngx_http_mp4_read_moov_atom},
+	{"mdat", ngx_http_mp4_read_mdat_atom},
+	{NULL, NULL}
 };
 
 static ngx_http_mp4_atom_handler_t ngx_http_mp4_moov_atoms[] = {
-	{ "mvhd", ngx_http_mp4_read_mvhd_atom },
-	{ "trak", ngx_http_mp4_read_trak_atom },
-	{ "cmov", ngx_http_mp4_read_cmov_atom },
-	{ NULL, NULL }
+	{"mvhd", ngx_http_mp4_read_mvhd_atom},
+	{"trak", ngx_http_mp4_read_trak_atom},
+	{"cmov", ngx_http_mp4_read_cmov_atom},
+	{NULL, NULL }
 };
 
 static ngx_http_mp4_atom_handler_t ngx_http_mp4_trak_atoms[] = {
-	{ "tkhd", ngx_http_mp4_read_tkhd_atom },
-	{ "mdia", ngx_http_mp4_read_mdia_atom },
-	{ NULL, NULL }
+	{"tkhd", ngx_http_mp4_read_tkhd_atom},
+	{"mdia", ngx_http_mp4_read_mdia_atom},
+	{NULL, NULL}
 };
 
 static ngx_http_mp4_atom_handler_t ngx_http_mp4_mdia_atoms[] = {
-	{ "mdhd", ngx_http_mp4_read_mdhd_atom },
-	{ "hdlr", ngx_http_mp4_read_hdlr_atom },
-	{ "minf", ngx_http_mp4_read_minf_atom },
-	{ NULL, NULL }
+	{"mdhd", ngx_http_mp4_read_mdhd_atom},
+	{"hdlr", ngx_http_mp4_read_hdlr_atom},
+	{"minf", ngx_http_mp4_read_minf_atom},
+	{NULL, NULL }
 };
 
 static ngx_http_mp4_atom_handler_t ngx_http_mp4_minf_atoms[] = {
-	{ "vmhd", ngx_http_mp4_read_vmhd_atom },
-	{ "smhd", ngx_http_mp4_read_smhd_atom },
-	{ "dinf", ngx_http_mp4_read_dinf_atom },
-	{ "stbl", ngx_http_mp4_read_stbl_atom },
-	{ NULL, NULL }
+	{"vmhd", ngx_http_mp4_read_vmhd_atom},
+	{"smhd", ngx_http_mp4_read_smhd_atom},
+	{"dinf", ngx_http_mp4_read_dinf_atom},
+	{"stbl", ngx_http_mp4_read_stbl_atom},
+	{NULL, NULL }
 };
 
 static ngx_http_mp4_atom_handler_t ngx_http_mp4_stbl_atoms[] = {
-	{ "stsd", ngx_http_mp4_read_stsd_atom },
-	{ "stts", ngx_http_mp4_read_stts_atom },
-	{ "stss", ngx_http_mp4_read_stss_atom },
-	{ "ctts", ngx_http_mp4_read_ctts_atom },
-	{ "stsc", ngx_http_mp4_read_stsc_atom },
-	{ "stsz", ngx_http_mp4_read_stsz_atom },
-	{ "stco", ngx_http_mp4_read_stco_atom },
-	{ "co64", ngx_http_mp4_read_co64_atom },
-	{ NULL, NULL }
+	{"stsd", ngx_http_mp4_read_stsd_atom},
+	{"stts", ngx_http_mp4_read_stts_atom},
+	{"stss", ngx_http_mp4_read_stss_atom},
+	{"ctts", ngx_http_mp4_read_ctts_atom},
+	{"stsc", ngx_http_mp4_read_stsc_atom},
+	{"stsz", ngx_http_mp4_read_stsz_atom},
+	{"stco", ngx_http_mp4_read_stco_atom},
+	{"co64", ngx_http_mp4_read_co64_atom},
+	{NULL, NULL}
 };
 
 static ngx_int_t ngx_http_mp4_handler(ngx_http_request_t * r)
@@ -396,7 +396,6 @@ static ngx_int_t ngx_http_mp4_handler(ngx_http_request_t * r)
 		}
 		return rc;
 	}
-
 	if(!of.is_file) {
 		if(ngx_close_file(of.fd) == NGX_FILE_ERROR) {
 			ngx_log_error(NGX_LOG_ALERT, log, ngx_errno, ngx_close_file_n " \"%s\" failed", path.data);
@@ -521,28 +520,21 @@ static ngx_int_t ngx_http_mp4_atofp(u_char * line, size_t n, size_t point)
 {
 	ngx_int_t value, cutoff, cutlim;
 	ngx_uint_t dot;
-
 	/* same as ngx_atofp(), but allows additional digits */
-
 	if(n == 0) {
 		return NGX_ERROR;
 	}
-
 	cutoff = NGX_MAX_INT_T_VALUE / 10;
 	cutlim = NGX_MAX_INT_T_VALUE % 10;
-
 	dot = 0;
-
 	for(value = 0; n--; line++) {
 		if(*line == '.') {
 			if(dot) {
 				return NGX_ERROR;
 			}
-
 			dot = 1;
 			continue;
 		}
-
 		if(*line < '0' || *line > '9') {
 			return NGX_ERROR;
 		}
@@ -550,23 +542,18 @@ static ngx_int_t ngx_http_mp4_atofp(u_char * line, size_t n, size_t point)
 		if(point == 0) {
 			continue;
 		}
-
 		if(value >= cutoff && (value > cutoff || *line - '0' > cutlim)) {
 			return NGX_ERROR;
 		}
-
 		value = value * 10 + (*line - '0');
 		point -= dot;
 	}
-
 	while(point--) {
 		if(value > cutoff) {
 			return NGX_ERROR;
 		}
-
 		value = value * 10;
 	}
-
 	return value;
 }
 
@@ -2439,7 +2426,6 @@ static ngx_int_t ngx_http_mp4_read_co64_atom(ngx_http_mp4_file_t * mp4, uint64_t
 	ngx_buf_t  * atom, * data;
 	ngx_mp4_co64_atom_t  * co64_atom;
 	ngx_http_mp4_trak_t  * trak;
-
 	/* chunk offsets atom */
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, mp4->file.log, 0, "mp4 co64 atom");
 	atom_header = ngx_mp4_atom_header(mp4);
@@ -2457,36 +2443,28 @@ static ngx_int_t ngx_http_mp4_read_co64_atom(ngx_http_mp4_file_t * mp4, uint64_t
 	}
 	atom_table = atom_header + sizeof(ngx_mp4_co64_atom_t);
 	atom_end = atom_table + entries * sizeof(uint64_t);
-
 	trak = ngx_mp4_last_trak(mp4);
 	trak->chunks = entries;
-
 	atom = &trak->co64_atom_buf;
 	atom->temporary = 1;
 	atom->pos = atom_header;
 	atom->last = atom_table;
-
 	data = &trak->co64_data_buf;
 	data->temporary = 1;
 	data->pos = atom_table;
 	data->last = atom_end;
-
 	trak->out[NGX_HTTP_MP4_CO64_ATOM].buf = atom;
 	trak->out[NGX_HTTP_MP4_CO64_DATA].buf = data;
-
 	ngx_mp4_atom_next(mp4, atom_data_size);
-
 	return NGX_OK;
 }
 
-static ngx_int_t ngx_http_mp4_update_co64_atom(ngx_http_mp4_file_t * mp4,
-    ngx_http_mp4_trak_t * trak)
+static ngx_int_t ngx_http_mp4_update_co64_atom(ngx_http_mp4_file_t * mp4, ngx_http_mp4_trak_t * trak)
 {
 	size_t atom_size;
 	uint64_t entries;
 	ngx_buf_t  * atom, * data;
 	ngx_mp4_co64_atom_t  * co64_atom;
-
 	/*
 	 * mdia.minf.stbl.co64 updating requires trak->start_chunk
 	 * from mdia.minf.stbl.stsc which depends on value from mdia.mdhd
@@ -2528,7 +2506,6 @@ static ngx_int_t ngx_http_mp4_update_co64_atom(ngx_http_mp4_file_t * mp4,
 		trak->start_offset = mp4->end;
 		trak->end_offset = 0;
 	}
-
 	atom_size = sizeof(ngx_mp4_co64_atom_t) + (data->last - data->pos);
 	trak->size += atom_size;
 	atom = trak->out[NGX_HTTP_MP4_CO64_ATOM].buf;

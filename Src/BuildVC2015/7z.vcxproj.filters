@@ -103,7 +103,6 @@
     <ClCompile Include="..\OSF\7z\SRC\7z-ppmd.cpp" />
     <ClCompile Include="..\OSF\7z\SRC\PpmdHandler.cpp" />
     <ClCompile Include="..\OSF\7z\SRC\7z-crc.c" />
-    <ClCompile Include="..\OSF\7z\SRC\UI\Console\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Osf\7z\include\7z-internal.h">

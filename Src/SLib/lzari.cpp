@@ -764,7 +764,7 @@ int LZAri::SetFileInfo()
 		fclose(P_OutFile);
 		P_OutFile = 0;
 		HANDLE srchdl = 0;
-		srchdl = CreateFile(P_Dest, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+		srchdl = CreateFile(P_Dest, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0); // @unicodeproblem
 		THROW_S(srchdl >= 0, SLERR_OPENFAULT);
 		SFile::SetTime((int)srchdl, &creation_time, &last_access_time, &last_modif_time);
 		if(srchdl > 0)

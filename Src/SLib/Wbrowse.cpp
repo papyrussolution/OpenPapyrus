@@ -180,7 +180,7 @@ BroColumn::BroColumn()
 //
 //
 TBaseBrowserWindow::TBaseBrowserWindow(LPCTSTR pWndClsName) : TWindow(TRect(1, 1, 50, 20), 0, 0),
-	ResourceID(0), ClsName(pWndClsName), ToolbarID(0), BbState(0)
+	ResourceID(0), ClsName(pWndClsName) /*@unicodeproblem*/, ToolbarID(0), BbState(0) 
 {
 	//WoScrollbars = false;
 }
@@ -308,7 +308,7 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 			if(IsMDIClientWindow(APPL->H_MainWnd)) {
 				MDICREATESTRUCT child;
 				child.szClass = BrowserWindow::WndClsName;
-				child.szTitle = buf;
+				child.szTitle = buf; // @unicodeproblem
 				child.hOwner = TProgram::GetInst();
 				child.x  = CW_USEDEFAULT;	// rect->Left;
 				child.y  = CW_USEDEFAULT;	// rect->top;
@@ -319,8 +319,7 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 				HW = (HWND)LOWORD(SendMessage(APPL->H_MainWnd, WM_MDICREATE, 0, (LPARAM)&child)); // @unicodeproblem
 			}
 			else {
-				HW = CreateWindow(ClsName, buf, style, r.left,
-					r.top, r.right, r.bottom, (APPL->H_TopOfStack), NULL, TProgram::GetInst(), this); // @unicodeproblem
+				HW = CreateWindow(ClsName, buf, style, r.left, r.top, r.right, r.bottom, (APPL->H_TopOfStack), NULL, TProgram::GetInst(), this); // @unicodeproblem
 			}
 		}
 		/*
@@ -790,7 +789,7 @@ SLAPI BrowserWindow::BrowserWindow(uint _rezID, SArray * pAry, uint broDefOption
 TBaseBrowserWindow::IdentBlock & BrowserWindow::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
 {
 	rBlk.IdBias = IdBiasBrowser;
-	rBlk.ClsName = BrowserWindow::WndClsName;
+	rBlk.ClsName = BrowserWindow::WndClsName; // @unicodeproblem
 	rBlk.InstanceIdent.Z().Cat(GetResID());
 	return rBlk;
 }
@@ -1478,7 +1477,7 @@ int BrowserWindow::DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, in
 		RECT   rect = *pTextRect;
 		StringSet ss('\n', pBuf);
 		for(uint i = 0; ss.get(&i, buf, sizeof(buf)); rect.top += YCell, rect.bottom += YCell)
-			::DrawText(hdc, buf, sstrlen(buf), &rect, fmt); // @unicodeproblem
+			::DrawText(hdc, buf, sstrlen(buf), &rect, fmt); // @unicodeproblem 
 	}
 	return 1;
 }
@@ -2339,7 +2338,7 @@ static int IsBrowserWindow(HWND hWnd)
 	SString cls_name;
 	TView::SGetWindowClassName(hWnd, cls_name);
 	return BIN(cls_name == BrowserWindow::WndClsName || cls_name == STimeChunkBrowser::WndClsName ||
-		cls_name == /*STextBrowser::WndClsName*/"STextBrowser" || cls_name == CLASSNAME_DESKTOPWINDOW);
+		cls_name == /*STextBrowser::WndClsName*/"STextBrowser" || cls_name == CLASSNAME_DESKTOPWINDOW); // @unicodeproblem
 }
 
 HWND FASTCALL GetNextBrowser(HWND hw, int reverse)

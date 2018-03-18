@@ -254,13 +254,10 @@ static zip_cdir_t * _zip_read_cdir(zip_t * za, zip_buffer_t * buffer, uint64 buf
 		_zip_buffer_set_offset(buffer, eocd_offset);
 		cd = _zip_read_eocd(buffer, buf_offset, za->flags, error);
 	}
-
 	if(cd == NULL)
 		return NULL;
-
 	_zip_buffer_set_offset(buffer, eocd_offset + 20);
 	comment_len = _zip_buffer_get_16(buffer);
-
 	if(cd->offset + cd->size > buf_offset + eocd_offset) {
 		/* cdir spans past EOCD record */
 		zip_error_set(error, SLERR_ZIP_INCONS, 0);
@@ -700,4 +697,3 @@ static zip_cdir_t * _zip_read_eocd64(zip_source_t * src, zip_buffer_t * buffer, 
 	cd->offset = offset;
 	return cd;
 }
-
