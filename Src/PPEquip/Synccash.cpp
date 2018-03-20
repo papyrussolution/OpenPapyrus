@@ -642,7 +642,7 @@ int SLAPI SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		if(Arr_Out.getCount()) {
 			for(uint i = 0; Arr_Out.GetText(i, buf) > 0; i++) {
 				DestrStr(buf, param_name, param_val);
-				if(param_name.CmpNC("CHECKNUM") == 0)
+				if(param_name.IsEqiAscii("CHECKNUM"))
 					pPack->Rec.Code = (int32)param_val.ToInt64();
 			}
 		}
@@ -1025,9 +1025,9 @@ int SLAPI SCS_SYNCCASH::LineFeed(int lineCount, int useReceiptRibbon, int useJou
 	if(Arr_Out.getCount()) {
 		for(uint i = 0; Arr_Out.GetText(i, buf) > 0; i++) {
 			DestrStr(buf, param_name, param_val);
-			if((param_name.CmpNC("RIBBONPARAM") == 0) && param_val.ToLong() == 0)
+			if(param_name.IsEqiAscii("RIBBONPARAM") && param_val.ToLong() == 0)
 				cur_receipt = 1;
-			else if((param_name.CmpNC("RIBBONPARAM") == 0) && param_val.ToLong() == 1)
+			else if(param_name.IsEqiAscii("RIBBONPARAM") && param_val.ToLong() == 1)
 				cur_journal = 1;
 		}
 	}

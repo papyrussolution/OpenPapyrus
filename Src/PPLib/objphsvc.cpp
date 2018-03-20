@@ -246,6 +246,30 @@ int SLAPI PPPhoneServicePacket::SetPassword(const char * pPassword)
 	return ok;
 }
 
+//static 
+int FASTCALL PPObjPhoneService::IsPhnChannelAcceptable(const SString & rFilter, const SString & rChannel)
+{
+	int    ok = 0;
+	if(rFilter.NotEmpty() && rChannel.NotEmpty()) {
+		if(rFilter.IsEqiAscii("@all")) {
+			ok = 1;
+		}
+		else if(rFilter.HasChr(';') || rFilter.HasChr(',') || rFilter.HasChr(' ')) {
+			SString temp_buf;
+            StringSet ss;
+            rFilter.Tokenize(" ;,", ss);
+            for(uint ssp = 0; !ok && ss.get(&ssp, temp_buf);) {
+				if(rChannel.CmpPrefix(temp_buf, 1) == 0)
+					ok = 1;
+            }
+		}
+		else if(rChannel.CmpPrefix(rFilter, 1) == 0) {
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
 SLAPI PPObjPhoneService::PPObjPhoneService(void * extraPtr) : PPObjReference(PPOBJ_PHONESERVICE, extraPtr)
 {
 }

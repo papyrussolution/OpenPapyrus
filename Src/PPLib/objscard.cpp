@@ -4068,14 +4068,14 @@ StrAssocArray * SLAPI PPObjSCard::MakeStrAssocList(void * extraPtr /*cardSerID*/
 	dbq = ppcheckfiltid(dbq, P_Tbl->PersonID, owner_id);
 	q.select(P_Tbl->ID, P_Tbl->Code, 0L).where(*dbq);
 	for(q.initIteration(0, &k, spGe); q.nextIteration() > 0;)
-		THROW_SL(p_list->AddFast(P_Tbl->data.ID, P_Tbl->data.Code)); // @v7.9.12 Add-->AddFast
+		THROW_SL(p_list->AddFast(P_Tbl->data.ID, P_Tbl->data.Code));
 	CATCH
 		ZDELETE(p_list);
 	ENDCATCH
 	return p_list;
 }
 
-int SLAPI PPObjSCard::IndexPhones(int use_ta)
+int SLAPI PPObjSCard::IndexPhones(PPLogger * pLogger, int use_ta)
 {
 	int    ok = 1;
 	SString phone, main_city_prefix, city_prefix, temp_buf;
@@ -4106,7 +4106,12 @@ int SLAPI PPObjSCard::IndexPhones(int use_ta)
 						if(oneof2(sl, 10, 11))
 							phone = (temp_buf = city_prefix).Cat(phone);
 					}
-					THROW(LocObj.P_Tbl->IndexPhone(phone, &objid, 0, 0));
+					if(!LocObj.P_Tbl->IndexPhone(phone, &objid, 0, 0)) {
+						if(pLogger)
+							pLogger->LogLastError();
+						else
+							CALLEXCEPT();
+					}
 				}
 			}
 		}

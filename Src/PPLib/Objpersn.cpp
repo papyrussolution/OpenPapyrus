@@ -5777,7 +5777,7 @@ int SLAPI PPObjPerson::SearchEmail(const char * pEmail, long flags, PPIDArray * 
 	return ok;
 }
 
-int SLAPI PPObjPerson::IndexPhones(int use_ta)
+int SLAPI PPObjPerson::IndexPhones(PPLogger * pLogger, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -5833,11 +5833,25 @@ int SLAPI PPObjPerson::IndexPhones(int use_ta)
 									if(oneof2(sl, 10, 11))
 										phone = (temp_buf = city_prefix).Cat(phone);
 								}
-								THROW(LocObj.P_Tbl->IndexPhone(phone, &objid, 0, 0));
+								if(!LocObj.P_Tbl->IndexPhone(phone, &objid, 0, 0)) {
+									if(pLogger)
+										pLogger->LogLastError();
+									else
+										CALLEXCEPT();
+								}
 							}
 						}
 						else if(elk_rec.Type == ELNKRT_INTERNALEXTEN) {
-							; // @todo
+							(temp_buf = r_item.Addr).Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
+							PPEAddr::Phone::NormalizeStr(temp_buf, phone);
+							if(phone.Len() > 1 && phone.Len() < 5) {
+								if(!LocObj.P_Tbl->IndexPhone(phone, &objid, 0, 0)) {
+									if(pLogger)
+										pLogger->LogLastError();
+									else
+										CALLEXCEPT();
+								}
+							}
 						}
 					}
 				}

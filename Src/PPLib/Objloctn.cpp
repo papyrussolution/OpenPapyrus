@@ -2878,11 +2878,8 @@ const StrAssocArray * SLAPI LocationCache::GetFullEaList()
 	const  StrAssocArray * p_result = 0;
 	if(FullEaList.Use) {
 		{
-			//FealLock.ReadLock();
 			SRWLOCKER(FealLock, SReadWriteLocker::Read);
 			if(!FullEaList.Inited || FullEaList.DirtyTable.GetCount()) {
-				//FealLock.Unlock();
-				//FealLock.WriteLock();
 				SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 				if(!FullEaList.Inited || FullEaList.DirtyTable.GetCount()) {
 					PPObjLocation loc_obj(SConstructorLite);
@@ -2911,8 +2908,6 @@ const StrAssocArray * SLAPI LocationCache::GetFullEaList()
 						FullEaList.Inited = 1;
 					}
 				}
-				//FealLock.Unlock();
-				//FealLock.ReadLock();
 			}
 		}
 		if(!err) {
@@ -5494,7 +5489,7 @@ int SLAPI PPObjLocation::EditAddrStruc(SString & rAddr)
 	return PPDialogProcBody <AddrStrucDialog, SString> (&rAddr);
 }
 
-int SLAPI PPObjLocation::IndexPhones(int use_ta)
+int SLAPI PPObjLocation::IndexPhones(PPLogger * pLogger, int use_ta)
 {
 	int    ok = 1;
 	SString phone, main_city_prefix, city_prefix, temp_buf;
@@ -5528,7 +5523,12 @@ int SLAPI PPObjLocation::IndexPhones(int use_ta)
 					if(oneof2(sl, 10, 11))
 						phone = (temp_buf = city_prefix).Cat(phone);
 				}
-				THROW(P_Tbl->IndexPhone(phone, &objid, 0, 0));
+				if(!P_Tbl->IndexPhone(phone, &objid, 0, 0)) {
+					if(pLogger)
+						pLogger->LogLastError();
+					else
+						CALLEXCEPT();
+				}
 			}
 		} while(P_Tbl->search(2, &k2, spNext) && P_Tbl->data.Type == LOCTYP_ADDRESS);
 		THROW(tra.Commit());

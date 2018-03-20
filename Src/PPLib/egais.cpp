@@ -785,7 +785,7 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 							const long org_flags2 = bill_rec.Flags2;
 							bill_rec.Flags2 |= BILLF2_ACKPENDING;
 							THROW(P_BObj->P_Tbl->SetRecFlag2(p_bp->Rec.ID, BILLF2_ACKPENDING, 1, 0));
-							if(oneof2(rPack.DocType, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2)) {
+							if(oneof3(rPack.DocType, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)) {
 								const int recadv_status = BillCore::GetRecadvStatus(p_bp->Rec);
 								BillCore::SetRecadvStatus(recadv_status, bill_rec);
 							}
@@ -796,7 +796,8 @@ int SLAPI PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locI
 						}
 						{
 							rAck.Id.ToStr(S_GUID::fmtIDL, temp_buf);
-							if(oneof2(rPack.DocType, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2) && !p_bp->Rec.EdiOp && p_bp->Rec.Flags2 & BILLF2_DECLINED) {
+							if(oneof3(rPack.DocType, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3) &&
+								!p_bp->Rec.EdiOp && p_bp->Rec.Flags2 & BILLF2_DECLINED) {
 								//
 								// Для отказа от собственного документа необходимо установить специальный тег квитанции
 								//
@@ -2583,7 +2584,7 @@ int SLAPI PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWrit
 														n_pos.PutInner("wa:Identity", EncText(temp_buf));
 														//
 														p_bp->LTagL.GetTagStr(bi, PPTAG_LOT_FSRARINFB, temp_buf);
-														if(doc_type == PPEDIOP_EGAIS_WAYBILLACT_V2)
+														if(oneof2(doc_type, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)) // @v9.9.12 @fix +_V3
 															n_pos.PutInner("wa:InformF2RegId", EncText(temp_buf));
 														else
 															n_pos.PutInner("wa:InformBRegId", EncText(temp_buf));
@@ -6333,7 +6334,7 @@ int SLAPI PPEgaisProcessor::FinishBillProcessingByTicket(const PPEgaisProcessor:
 			SString guid;
 			if(!pT->TranspUUID.IsZero())
 				pT->TranspUUID.ToStr(S_GUID::fmtIDL, guid);
-			if(oneof2(pT->DocType, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2)) {
+			if(oneof3(pT->DocType, PPEDIOP_EGAIS_WAYBILLACT, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3)) {
 				p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIREJECTACK, guid, &bill_id_list);
 				if(bill_id_list.getCount())
 					selfreject_ticket = 1000;

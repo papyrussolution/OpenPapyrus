@@ -593,6 +593,41 @@ int SLAPI LocationCore::SearchEAddrByLink(PPID objType, PPID objID, PPIDArray & 
 int SLAPI LocationCore::SearchEAddrMaxLikePhone(const char * pPhonePattern, long options, LongArray & rResult)
 	{ return P_Eac ? P_Eac->SearchMaxLikePhone(pPhonePattern, options, rResult) : -1; }
 
+int SLAPI LocationCore::DumpEaList(const char * pFileName)
+{
+	int    ok = -1;
+    if(P_Eac) {
+		SString temp_buf;
+		if(pFileName)
+			temp_buf = pFileName;
+		else {
+			PPGetFilePath(PPPATH_OUT, "ealist.txt", temp_buf);
+		}
+		SFile f_out(temp_buf, SFile::mWrite);
+		THROW_SL(f_out.IsValid());
+		{
+			SString line_buf;
+			EAddrTbl::Key1 k1;
+			BExtQuery q(P_Eac, 1);
+			SString phone_buf;
+			q.select(P_Eac->ID, P_Eac->LinkObjType, P_Eac->LinkObjID, P_Eac->Addr, 0L);
+			MEMSZERO(k1);
+			for(q.initIteration(0, &k1, spFirst); q.nextIteration() > 0;) {
+				PPObjID oid;
+				oid.Set(P_Eac->data.LinkObjType, P_Eac->data.LinkObjID);
+				((PPEAddr *)P_Eac->data.Addr)->GetPhone(phone_buf);
+				;
+				line_buf.Z().Cat(P_Eac->data.ID).Tab().Cat(phone_buf).Tab().Cat(oid.ToStr(temp_buf));
+				GetObjectName(oid.Obj, oid.Id, temp_buf.Z());
+				line_buf.Tab().Cat(temp_buf);
+				f_out.WriteLine(line_buf.CR());
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI LocationCore::GetFullEaList(StrAssocArray & rList)
 {
 	int    ok = 1;
@@ -637,8 +672,8 @@ IMPL_INVARIANT_C(PPEAddr::Phone)
 		uint8 p = A[i];
 		uint8 d1 = (p & 0xf0) >> 4;
 		uint8 d2 = (p & 0x0f);
-		char c1 = (d1 >= 0 && d1 <= 9) ? (d1 + '0') : ((d1 == 0x0A) ? '+' : ((d1 == 0x0B) ? 't' : 0x0F));
-		char c2 = (d2 >= 0 && d2 <= 9) ? (d2 + '0') : ((d2 == 0x0A) ? '+' : ((d2 == 0x0B) ? 't' : 0x0F));
+		char c1 = (d1 >= 0 && d1 <= 9) ? (d1 + '0') : ((d1 == 0x0A) ? '+' : ((d1 == 0x0B) ? 't' : (d1 == 0x0C ? 'x' : 0x0F)));
+		char c2 = (d2 >= 0 && d2 <= 9) ? (d2 + '0') : ((d2 == 0x0A) ? '+' : ((d2 == 0x0B) ? 't' : (d2 == 0x0C ? 'x' : 0x0F)));
 		S_ASSERT_P(c1 != 0x0F && c2 != 0x0F, pInvP);
 	}
 	S_INVARIANT_EPILOG(pInvP);
@@ -654,8 +689,8 @@ SString & FASTCALL PPEAddr::Phone::ToStr(long fmt, SString & rBuf) const
 		uint8 p = A[i/2];
 		uint8 d1 = (p & 0xf0) >> 4;
 		uint8 d2 = (p & 0x0f);
-		char c1 = (d1 >= 0 && d1 <= 9) ? (d1 + '0') : ((d1 == 0x0A) ? '+' : ((d1 == 0x0B) ? 't' : 0x0F));
-		char c2 = (d2 >= 0 && d2 <= 9) ? (d2 + '0') : ((d2 == 0x0A) ? '+' : ((d2 == 0x0B) ? 't' : 0x0F));
+		char c1 = (d1 >= 0 && d1 <= 9) ? (d1 + '0') : ((d1 == 0x0A) ? '+' : ((d1 == 0x0B) ? 't' : (d1 == 0x0C ? 'x' : 0x0F)));
+		char c2 = (d2 >= 0 && d2 <= 9) ? (d2 + '0') : ((d2 == 0x0A) ? '+' : ((d2 == 0x0B) ? 't' : (d2 == 0x0C ? 'x' : 0x0F)));
 		assert(c1 != 0x0F && c2 != 0x0F);
 		if(c1 != '0' || !zero) {
 			rBuf.CatChar(c1);
@@ -739,8 +774,14 @@ SString & FASTCALL PPEAddr::Phone::NormalizeStr(const char * pOrgPhone, SString 
 			rResult.CatChar(c);
 		else if(oneof2(c, 't', 'T'))
 			rResult.CatChar('t');
-		else if(c == '+' && rResult.Len() == 0)
-			rResult.CatChar('+');
+		else if(c == '+' && rResult.Len() == 0) {
+			if(p[1] == '7') { // Специальный случай - заменяем лидирующий +7 на 8 (Россия) поскольку Asterisk принимает коды именно так
+				rResult.CatChar('8');
+				p++;
+			}
+			else
+				rResult.CatChar('+');
+		}
 		else {
 			if(oneof2(c, ',', '#') && (oneof4(p[1], '.', ':', ' ', '\t') || isdec(p[1])))
 				ext_prefix_width = isdec(p[1]) ? 1 : 2;
@@ -791,14 +832,19 @@ int FASTCALL PPEAddr::Phone::FromStr(const char * pStr)
 	diff = (EADDR_PHONE_MAXCHAR > diff) ? (EADDR_PHONE_MAXCHAR - diff) : 0;
 	if(diff)
 		r_temp_buf.PadLeft(diff, '0');
-	assert(r_temp_buf.Len() == EADDR_PHONE_MAXCHAR);
-	for(size_t i = 0; i < EADDR_PHONE_MAXCHAR; i+=2) {
-		const char c1 = r_temp_buf.C(i);
-		const char c2 = r_temp_buf.C(i+1);
-		const uint8 d1 = isdec(c1) ? (c1 - '0') : ((c1 == '+') ? 0x0A : ((c1 == 't') ? 0x0B : ((c1 == 'x') ? 0x0C: 0x0F)));
-		const uint8 d2 = isdec(c2) ? (c2 - '0') : ((c2 == '+') ? 0x0A : ((c2 == 't') ? 0x0B : ((c2 == 'x') ? 0x0C: 0x0F)));
-		assert(d1 != 0x0F && d2 != 0x0F);
-		A[i/2] = (d1 << 4) | d2;
+	if(r_temp_buf.Len() == EADDR_PHONE_MAXCHAR) {
+		//assert(r_temp_buf.Len() == EADDR_PHONE_MAXCHAR);
+		for(size_t i = 0; i < EADDR_PHONE_MAXCHAR; i+=2) {
+			const char c1 = r_temp_buf.C(i);
+			const char c2 = r_temp_buf.C(i+1);
+			const uint8 d1 = isdec(c1) ? (c1 - '0') : ((c1 == '+') ? 0x0A : ((c1 == 't') ? 0x0B : ((c1 == 'x') ? 0x0C: 0x0F)));
+			const uint8 d2 = isdec(c2) ? (c2 - '0') : ((c2 == '+') ? 0x0A : ((c2 == 't') ? 0x0B : ((c2 == 'x') ? 0x0C: 0x0F)));
+			assert(d1 != 0x0F && d2 != 0x0F);
+			A[i/2] = (d1 << 4) | d2;
+		}
+	}
+	else {
+		ok = PPSetError(PPERR_PHNNBMEXCMAXLEN, r_temp_buf);
 	}
 	return ok;
 }

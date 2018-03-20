@@ -52,7 +52,7 @@ public:
 		ZDELETE(P_Pib);
 		THROW_MEM(P_Pib = new PPPosProtocol::ProcessInputBlock(this));
 		P_Pib->PosNodeID = NodeID;
-		P_Pib->Flags |= (P_Pib->fStoreReadBlocks | P_Pib->fBackupProcessed | P_Pib->fRemoveProcessed);
+		P_Pib->Flags |= (P_Pib->fStoreReadBlocks|P_Pib->fBackupProcessed|P_Pib->fRemoveProcessed|P_Pib->fProcessSessions); // @v9.9.12 P_Pib->fProcessSessions
 		int    pir = Pp.ProcessInput(*P_Pib);
 		THROW(pir);
 		if(P_Pib->SessionCount) {
@@ -156,58 +156,59 @@ public:
 													}
 												}
 												THROW(ccr = AddTempCheck(&cc_id, p_cb->Code, cc_flags, local_pos_no, p_ccb->Code, cashier_id, sc_id, &cc_dtm, cc_amount, cc_discount));
-												//
-												for(uint cl_refi = 0; cl_refi < rc; cl_refi++) {
-													const PPPosProtocol::ObjBlockRef & r_cl_ref = p_ib->RefList.at(cl_refi);
-													if(r_cl_ref.Type == PPPosProtocol::obCcLine) {
-														int    cl_type = 0;
-														const PPPosProtocol::CcLineBlock * p_clb = (const PPPosProtocol::CcLineBlock *)p_ib->GetItem(cl_refi, &cl_type);
-														THROW(cl_type == PPPosProtocol::obCcLine);
-														if(p_clb->CCheckBlkP == cc_refi) {
-															short  div_n = (short)p_clb->DivN;
-															double qtty = (cc_flags & CCHKF_RETURN) ? -fabs(p_clb->Qtty) : fabs(p_clb->Qtty);
-															double price = p_clb->Price;
-															double dscnt = (p_clb->SumDiscount != 0.0 && qtty != 0.0) ? (p_clb->SumDiscount / qtty) : p_clb->Discount;
-															PPID   goods_id = 0;
-															if(p_clb->GoodsBlkP) {
-																int    g_type = 0;
-																const PPPosProtocol::GoodsBlock * p_gb = (const PPPosProtocol::GoodsBlock *)p_ib->GetItem(p_clb->GoodsBlkP, &g_type);
-																assert(g_type == PPPosProtocol::obGoods);
-																if(p_gb->NativeID) {
-																	goods_id = p_gb->NativeID;
-																}
-																else {
-																	THROW(Pp.ResolveGoodsBlock(*p_gb, p_clb->GoodsBlkP, 1, rgp, &goods_id));
-																}
-															}
-															SetupTempCcLineRec(0, cc_id, p_cb->Code, cc_dtm.d, div_n, goods_id);
-															SetTempCcLineValues(0, qtty, price, dscnt, 0 /*serial*/);
-															THROW_DB(P_TmpCclTbl->insertRec());
-														}
-													}
-													else if(r_cl_ref.Type == PPPosProtocol::obPayment) {
-														int    cl_type = 0;
-														const PPPosProtocol::CcPaymentBlock * p_cpb = (const PPPosProtocol::CcPaymentBlock *)p_ib->GetItem(cl_refi, &cl_type);
-														THROW(cl_type == PPPosProtocol::obPayment);
-														if(p_cpb->CCheckBlkP == cc_refi) {
-															PPID   paym_sc_id = 0;
-															if(p_cpb->SCardBlkP && p_cpb->PaymType == CCAMTTYP_CRDCARD) {
-																int    sc_type = 0;
-																const PPPosProtocol::SCardBlock * p_scb = (const PPPosProtocol::SCardBlock *)p_ib->GetItem(p_cpb->SCardBlkP, &sc_type);
-																assert(sc_type == PPPosProtocol::obSCard);
-																if(p_scb->NativeID)
-																	paym_sc_id = p_scb->NativeID;
-																else {
-																	p_ib->GetS(p_scb->CodeP, temp_buf);
-																	temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-																	if(ScObj.SearchCode(0, temp_buf, &sc_rec) > 0)
-																		paym_sc_id = sc_rec.ID;
+												if(ccr > 0) { // @v9.9.12
+													for(uint cl_refi = 0; cl_refi < rc; cl_refi++) {
+														const PPPosProtocol::ObjBlockRef & r_cl_ref = p_ib->RefList.at(cl_refi);
+														if(r_cl_ref.Type == PPPosProtocol::obCcLine) {
+															int    cl_type = 0;
+															const PPPosProtocol::CcLineBlock * p_clb = (const PPPosProtocol::CcLineBlock *)p_ib->GetItem(cl_refi, &cl_type);
+															THROW(cl_type == PPPosProtocol::obCcLine);
+															if(p_clb->CCheckBlkP == cc_refi) {
+																short  div_n = (short)p_clb->DivN;
+																double qtty = (cc_flags & CCHKF_RETURN) ? -fabs(p_clb->Qtty) : fabs(p_clb->Qtty);
+																double price = p_clb->Price;
+																double dscnt = (p_clb->SumDiscount != 0.0 && qtty != 0.0) ? (p_clb->SumDiscount / qtty) : p_clb->Discount;
+																PPID   goods_id = 0;
+																if(p_clb->GoodsBlkP) {
+																	int    g_type = 0;
+																	const PPPosProtocol::GoodsBlock * p_gb = (const PPPosProtocol::GoodsBlock *)p_ib->GetItem(p_clb->GoodsBlkP, &g_type);
+																	assert(g_type == PPPosProtocol::obGoods);
+																	if(p_gb->NativeID) {
+																		goods_id = p_gb->NativeID;
+																	}
 																	else {
-																		; // @log
+																		THROW(Pp.ResolveGoodsBlock(*p_gb, p_clb->GoodsBlkP, 1, rgp, &goods_id));
 																	}
 																}
+																SetupTempCcLineRec(0, cc_id, p_cb->Code, cc_dtm.d, div_n, goods_id);
+																SetTempCcLineValues(0, qtty, price, dscnt, 0 /*serial*/);
+																THROW_DB(P_TmpCclTbl->insertRec());
 															}
-															THROW(AddTempCheckPaym(cc_id, p_cpb->PaymType, p_cpb->Amount, paym_sc_id));
+														}
+														else if(r_cl_ref.Type == PPPosProtocol::obPayment) {
+															int    cl_type = 0;
+															const PPPosProtocol::CcPaymentBlock * p_cpb = (const PPPosProtocol::CcPaymentBlock *)p_ib->GetItem(cl_refi, &cl_type);
+															THROW(cl_type == PPPosProtocol::obPayment);
+															if(p_cpb->CCheckBlkP == cc_refi) {
+																PPID   paym_sc_id = 0;
+																if(p_cpb->SCardBlkP && p_cpb->PaymType == CCAMTTYP_CRDCARD) {
+																	int    sc_type = 0;
+																	const PPPosProtocol::SCardBlock * p_scb = (const PPPosProtocol::SCardBlock *)p_ib->GetItem(p_cpb->SCardBlkP, &sc_type);
+																	assert(sc_type == PPPosProtocol::obSCard);
+																	if(p_scb->NativeID)
+																		paym_sc_id = p_scb->NativeID;
+																	else {
+																		p_ib->GetS(p_scb->CodeP, temp_buf);
+																		temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+																		if(ScObj.SearchCode(0, temp_buf, &sc_rec) > 0)
+																			paym_sc_id = sc_rec.ID;
+																		else {
+																			; // @log
+																		}
+																	}
+																}
+																THROW(AddTempCheckPaym(cc_id, p_cpb->PaymType, p_cpb->Amount, paym_sc_id));
+															}
 														}
 													}
 												}
@@ -4522,6 +4523,13 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 									if(rPib.Flags & rPib.fProcessQueries) {
 										do_backup_file = 1;
 									}
+									// @v9.9.12 {
+									if(rPib.Flags & rPib.fProcessSessions) {
+										if(rPib.Flags & rPib.fBackupProcessed) {
+											do_backup_file = 1;
+										}
+									}
+									// } @v9.9.12 
 									if(do_backup_file) {
 										int    backup_ok = 1;
 										if(rPib.Flags & rPib.fBackupProcessed) {
@@ -4965,7 +4973,7 @@ int SLAPI RunInputProcessThread(PPID posNodeID)
         		PPObjCashNode cn_obj;
 				PPSyncCashNode cn_pack;
 				THROW(cn_obj.GetSync(IB.PosNodeID, &cn_pack) > 0);
-				if(cn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) > 0 && isDir(temp_buf)) {
+				if(cn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) > 0 && isDir(temp_buf.RmvLastSlash())) { // @v9.9.12 RmvLastSlash()
 					in_path = temp_buf;
 				}
 				else {

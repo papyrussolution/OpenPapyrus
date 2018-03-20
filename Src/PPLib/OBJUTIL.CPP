@@ -446,15 +446,17 @@ int SLAPI PPObject::IndexPhones()
 	int    ok = 1;
 	THROW_PP(CConfig.Flags2 & CCFLG2_INDEXEADDR, PPERR_CCFG_INDEXEADDRNEEDED);
 	{
+		PPLogger logger;
 		PPObjPerson psn_obj;
 		PPObjSCard sc_obj;
 		PPTransaction tra(1);
 		PPWait(1);
 		THROW(tra);
-		THROW(psn_obj.IndexPhones(0));
-		THROW(psn_obj.LocObj.IndexPhones(0));
-		THROW(sc_obj.IndexPhones(0));
+		THROW(psn_obj.IndexPhones(&logger, 0));
+		THROW(psn_obj.LocObj.IndexPhones(&logger, 0));
+		THROW(sc_obj.IndexPhones(&logger, 0));
 		THROW(tra.Commit());
+		psn_obj.LocObj.P_Tbl->DumpEaList(0); // @v9.9.12
 		PPWait(0);
 	}
 	CATCHZOKPPERR

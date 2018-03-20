@@ -737,7 +737,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 		}
 		else if(cmd.IsEqiAscii("GETCHECKPARAM")) {
 			SetLastItems(0, 0);
-			str = 0;
+			str.Z();
 			for(uint i = 0; pairs.get(&i, s_pair) > 0;){
 				s_pair.Divide('=', s_param, param_val);
 				if(s_param.IsEqiAscii("AMOUNT"))
@@ -1152,7 +1152,8 @@ int PiritEquip::RunCheck(int opertype)
 			CreateStr(Check.CheckType, in_data);
 			CreateStr(Check.Department, in_data);
 			CreateStr(CshrName, in_data);
-			CreateStr("", in_data);
+			// @v9.9.12 CreateStr("", in_data);
+			CreateStr(Check.CheckNum, in_data); // @v9.9.12 
 			{
 				OpLogBlock __oplb(LogFileName, "30", 0);
 				THROWERR(PutData("30", in_data), PIRIT_NOTSENT);
@@ -1357,7 +1358,7 @@ int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
 	for(uint i = 0; params.get(&i, buf) > 0;) {
 		in_data.Z();
 		out_data.Z();
-		if(buf.CmpNC("AMOUNT") == 0) {
+		if(buf.IsEqiAscii("AMOUNT")) {
 			CreateStr(1, in_data);
 			{
 				OpLogBlock __oplb(LogFileName, "03", 0);
@@ -1372,7 +1373,7 @@ int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
 				s_output.Cat("AMOUNT").CatChar('=').Cat(str).Semicol();
 			}
 		}
-		else if(buf.CmpNC("CHECKNUM") == 0) {
+		else if(buf.IsEqiAscii("CHECKNUM")) {
 			CreateStr(2, in_data);
 			{
 				OpLogBlock __oplb(LogFileName, "03", 0);
@@ -1414,7 +1415,7 @@ int PiritEquip::ReturnCheckParam(SString & rInput, char * pOutput, size_t size)
 				s_output.Cat("CHECKNUM").CatChar('=').Cat(/*str*/cc_number).Semicol();
 			}
 		}
-		else if(buf.CmpNC("CASHAMOUNT") == 0) {
+		else if(buf.IsEqiAscii("CASHAMOUNT")) {
 			CreateStr(7, in_data);
 			{
 				OpLogBlock __oplb(LogFileName, "02", 0);

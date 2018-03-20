@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="BDB"
 	ProjectGUID="{151F44BB-2AAA-4E54-91A6-79BA38F41639}"
+	RootNamespace="BDB"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -35,6 +36,8 @@
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough=""
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(IntDir)vc70.pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"
@@ -92,6 +95,8 @@
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough=""
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(IntDir)vc70.pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="0"
@@ -145,6 +150,8 @@
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough=""
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(IntDir)vc70.pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"
@@ -201,6 +208,8 @@
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough=""
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(IntDir)vc70.pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="0"
@@ -254,6 +263,8 @@
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough=""
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(IntDir)vc70.pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"
@@ -310,6 +321,8 @@
 				TreatWChar_tAsBuiltInType="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough=""
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(IntDir)vc70.pdb"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="0"
@@ -347,7 +360,9 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include"/>
+				AdditionalIncludeDirectories="..\OSF\BDB;..\OSF\BDB\dbinc;..\OSF\BDB\buildinc\windows;..\include"
+				ObjectFile="$(IntDir)"
+				ProgramDataBaseFileName="$(IntDir)vc70.pdb"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool

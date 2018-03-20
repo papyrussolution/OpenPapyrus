@@ -10292,13 +10292,15 @@
 	#define CTL_VETISCFG_APIKEY       (3 + WINDOWS_ID_BIAS)
 #define DLG_PHNCPANE              1332
 	#define cmNewContact              101
+	#define cmAttachContact           102
 	#define CTL_PHNCPANE_PHN          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PHNCPANE_NAME         (2 + WINDOWS_ID_BIAS)
-	#define CTL_PHNCPANE_ST_INFO      (3 + WINDOWS_ID_BIAS)
-	#define CTL_PHNCPANE_INFOLIST     (4 + WINDOWS_ID_BIAS)
-	#define CTL_PHNCPANE_INFSEL       (5 + WINDOWS_ID_BIAS)
-	#define CTLSEL_PHNCPANE_INFSEL    (6 + WINDOWS_ID_BIAS)
-	#define CTL_PHNCPANE_LISTMODE     (7 + WINDOWS_ID_BIAS)
+	#define CTLSEL_PHNCPANE_NAME      (3 + WINDOWS_ID_BIAS)
+	#define CTL_PHNCPANE_ST_INFO      (4 + WINDOWS_ID_BIAS)
+	#define CTL_PHNCPANE_INFOLIST     (5 + WINDOWS_ID_BIAS)
+	#define CTL_PHNCPANE_INFSEL       (6 + WINDOWS_ID_BIAS)
+	#define CTLSEL_PHNCPANE_INFSEL    (7 + WINDOWS_ID_BIAS)
+	#define CTL_PHNCPANE_LISTMODE     (8 + WINDOWS_ID_BIAS)
 #define DLG_EQCFGEXT              1333
 	// CTL_EQUIPCFG_XXX
 #define DLG_LOTXCLIST             1334

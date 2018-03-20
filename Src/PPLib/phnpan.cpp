@@ -42,19 +42,104 @@ private:
 	{
 		TDialog::handleEvent(event);
 	}
+	void   OnContactSelection();
 	State  S;
 	PhoneServiceEventResponder * P_PSER;
+	PPObjPerson PsnObj;
+	PPObjSCard ScObj;
+	PPObjIDArray OidList;
 };
+
+void PhonePaneDialog::OnContactSelection()
+{
+	long   item_id = getCtrlLong(CTLSEL_PHNCPANE_NAME);
+	/*AddClusterAssocDef(CTL_PHNCPANE_LISTMODE, 0, State::lmSwitchTo);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 1, State::lmBill);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 2, State::lmTask);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 3, State::lmPersonEvent);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 4, State::lmScOp);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 5, State::lmScCCheck);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 6, State::lmLocCCheck);*/
+	if(item_id && item_id > 0 && item_id <= OidList.getCount()) {
+		const PPObjID & r_oid = OidList.at(item_id-1);
+		if(r_oid.Obj == PPOBJ_PERSON) {
+			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 2, 0);
+			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 3, 0);
+			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 4, 1);
+			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 5, 1);
+			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 6, 1);
+		}
+		else if(r_oid.Obj == PPOBJ_LOCATION) {
+		}
+		else if(r_oid.Obj == PPOBJ_SCARD) {
+		}
+	}
+	else {
+		DisableClusterItem(CTL_PHNCPANE_LISTMODE, 1, 1);
+		DisableClusterItem(CTL_PHNCPANE_LISTMODE, 2, 1);
+		DisableClusterItem(CTL_PHNCPANE_LISTMODE, 3, 1);
+		DisableClusterItem(CTL_PHNCPANE_LISTMODE, 4, 1);
+		DisableClusterItem(CTL_PHNCPANE_LISTMODE, 5, 1);
+		DisableClusterItem(CTL_PHNCPANE_LISTMODE, 6, 1);
+	}
+}
 
 PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt) : TDialog(DLG_PHNCPANE), P_PSER(pPSER)
 {
 	RVALUEPTR(S, pSt);
 	SString temp_buf;
-	setCtrlString(CTL_PHNCPANE_PHN, S.CallerID);
+	setCtrlString(CTL_PHNCPANE_PHN, S.ConnectedLine);
 	temp_buf = S.Channel;
 	if(S.ConnectedLine.NotEmpty())
 		temp_buf.CatDiv(';', 2).Cat(S.ConnectedLine);
 	setStaticText(CTL_PHNCPANE_ST_INFO, temp_buf);
+	AddClusterAssocDef(CTL_PHNCPANE_LISTMODE, 0, State::lmSwitchTo);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 1, State::lmBill);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 2, State::lmTask);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 3, State::lmPersonEvent);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 4, State::lmScOp);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 5, State::lmScCCheck);
+	AddClusterAssoc(CTL_PHNCPANE_LISTMODE, 6, State::lmLocCCheck);
+	{
+		StrAssocArray name_list;
+		PPID   init_id = 0;
+		SString list_item_buf;
+		P_PSER->IdentifyCaller(S.ConnectedLine, OidList);
+		for(uint i = 0; i < OidList.getCount(); i++) {
+			const PPObjID & r_oid = OidList.at(i);
+			list_item_buf.Z();
+			if(r_oid.Obj == PPOBJ_PERSON) {
+				GetPersonName(r_oid.Id, temp_buf);
+				GetObjectTitle(r_oid.Obj, list_item_buf);
+				list_item_buf.CatDiv(':', 2).Cat(temp_buf);
+			}
+			else if(r_oid.Obj == PPOBJ_LOCATION) {
+				LocationTbl::Rec loc_rec;
+				if(PsnObj.LocObj.Search(r_oid.Id, &loc_rec) > 0) {
+					LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, temp_buf);
+					GetObjectTitle(r_oid.Obj, list_item_buf);
+					list_item_buf.CatDiv(':', 2).Cat(temp_buf);
+				}
+			}
+			else if(r_oid.Obj == PPOBJ_SCARD) {
+				SCardTbl::Rec sc_rec;
+				if(ScObj.Search(r_oid.Id, &sc_rec) > 0) {
+					GetObjectTitle(r_oid.Obj, list_item_buf);
+					list_item_buf.CatDiv(':', 2).Cat(sc_rec.Code);
+					PersonTbl::Rec psn_rec;
+					if(sc_rec.PersonID && PsnObj.Search(sc_rec.PersonID, &psn_rec) > 0) {
+						list_item_buf.Space().Cat(psn_rec.Name);
+					}
+				}
+			}
+			if(list_item_buf.NotEmpty()) {
+				name_list.Add(i+1, list_item_buf);
+				if(init_id == 0)
+					init_id = i+1;
+			}
+		}
+		SetupStrAssocCombo(this, CTLSEL_PHNCPANE_NAME, &name_list, init_id, 0, 0, 0);
+	}
 }
 
 int SLAPI ShowPhoneCallPane(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt)
@@ -74,7 +159,7 @@ int SLAPI ShowPhoneCallPane(PhoneServiceEventResponder * pPSER, const PhonePaneD
 	return ok;
 }
 
-SLAPI PhoneServiceEventResponder::PhoneServiceEventResponder() : AdvCookie_Ringing(0), AdvCookie_Up(0)
+SLAPI PhoneServiceEventResponder::PhoneServiceEventResponder() : AdvCookie_Ringing(0), AdvCookie_Up(0), P_PsnObj(0)
 {
 	{
 		PPAdviseBlock adv_blk;
@@ -96,6 +181,7 @@ SLAPI PhoneServiceEventResponder::~PhoneServiceEventResponder()
 {
 	DS.Unadvise(AdvCookie_Ringing);
 	DS.Unadvise(AdvCookie_Up);
+	ZDELETE(P_PsnObj);
 }
 
 int SLAPI PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObjIDArray & rList)
@@ -106,16 +192,80 @@ int SLAPI PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObj
 	PPObjLocation loc_obj;
 	PPIDArray ea_id_list;
 	PPEAddr::Phone::NormalizeStr(pCaller, caller_buf);
-	loc_obj.P_Tbl->SearchPhoneIndex(caller_buf, 0, ea_id_list);
-	for(uint i = 0; i < ea_id_list.getCount(); i++) {
-		EAddrTbl::Rec ea_rec;
-		if(loc_obj.P_Tbl->GetEAddr(ea_id_list.get(i), &ea_rec) > 0) {
-			rList.Add(ea_rec.LinkObjType, ea_rec.LinkObjID);
-			ok = 1;
+	THROW_SL(SETIFZ(P_PsnObj, new PPObjPerson));
+	P_PsnObj->LocObj.P_Tbl->SearchPhoneIndex(caller_buf, 0, ea_id_list);
+	if(ea_id_list.getCount()) {
+		for(uint i = 0; i < ea_id_list.getCount(); i++) {
+			EAddrTbl::Rec ea_rec;
+			if(loc_obj.P_Tbl->GetEAddr(ea_id_list.get(i), &ea_rec) > 0) {
+				rList.Add(ea_rec.LinkObjType, ea_rec.LinkObjID);
+				ok = 1;
+			}
 		}
 	}
+	CATCHZOK
 	return ok;
 }
+
+/*
+int PhoneServiceEventResponder::IdentifyCaller(const PPNotifyEvent * pEv)
+{
+	if(status_list.GetCount()) {
+		PPEAddrArray phn_list; // Список телефонов, находящихся в списке. Необходим для устранения дублируемых строк.
+		PPIDArray ea_id_list;
+		SString contact_buf;
+		for(uint i = 0; !pop_dlvr_pane && i < status_list.GetCount(); i++) {
+			status_list.Get(i, cnl_status);
+			if(cnl_status.State == PhnSvcChannelStatus::stUp) {
+				if(cnl_status.Channel.CmpPrefix("SIP", 1) == 0) {
+					if(cnl_status.ConnectedLineNum.Empty() || cnl_status.ConnectedLineNum.ToLong() != 0) {
+						if(PPObjPhoneService::IsPhnChannelAcceptable(PhnSvcLocalChannelSymb, cnl_status.Channel)) {
+							if(CnSpeciality == PPCashNode::spDelivery && !(P.Eccd.Flags & P.Eccd.fDelivery) && IsState(sEMPTYLIST_EMPTYBUF) && !(Flags & fBarrier)) {
+								pop_dlvr_pane = 1;
+								if(cnl_status.ConnectedLineNum.Len() > cnl_status.CallerId.Len())
+									phone_buf = cnl_status.ConnectedLineNum;
+								else
+									phone_buf = cnl_status.CallerId;
+								channel_buf = cnl_status.Channel;
+							}
+						}
+					}
+				}
+			}
+			else if(cnl_status.State == PhnSvcChannelStatus::stRinging) {
+				if(cnl_status.ConnectedLineNum.Len() > cnl_status.CallerId.Len())
+					caller_buf = cnl_status.ConnectedLineNum;
+				else
+					caller_buf = cnl_status.CallerId;
+				if(caller_buf.Len() && !phn_list.SearchPhone(caller_buf, 0, 0)) {
+					if(ringing_line.NotEmpty())
+						ringing_line.CR();
+					ringing_line.Cat(cnl_status.Channel).CatDiv(':', 2).Cat(caller_buf);
+					phn_list.AddPhone(caller_buf);
+					PsnObj.LocObj.P_Tbl->SearchPhoneIndex(caller_buf, 0, ea_id_list);
+					contact_buf.Z();
+					for(uint j = 0; !contact_buf.NotEmpty() && j < ea_id_list.getCount(); j++) {
+						EAddrTbl::Rec ea_rec;
+						if(PsnObj.LocObj.P_Tbl->GetEAddr(ea_id_list.get(j), &ea_rec) > 0) {
+							if(ea_rec.LinkObjType == PPOBJ_PERSON) {
+								GetPersonName(ea_rec.LinkObjID, contact_buf);
+							}
+							else if(ea_rec.LinkObjType == PPOBJ_LOCATION) {
+								LocationTbl::Rec loc_rec;
+								if(PsnObj.LocObj.Search(ea_rec.LinkObjID, &loc_rec) > 0)
+									LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, contact_buf);
+							}
+						}
+					}
+					if(contact_buf.Empty())
+						contact_buf = "UNKNOWN";
+					ringing_line.CatDiv(';', 2).Cat(contact_buf);
+				}
+			}
+		}
+	}
+}
+*/
 
 //static 
 int PhoneServiceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * pEv, void * procExtPtr)
@@ -137,6 +287,35 @@ int PhoneServiceEventResponder::AdviseCallback(int kind, const PPNotifyEvent * p
 			pEv->GetExtStrData(pEv->extssConnectedLineNum, connected_line);
 			msg_buf.CatEq("connectedline", connected_line);
 			PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME);
+			if(connected_line.NotEmpty()) {
+				SMessageWindow * p_win = new SMessageWindow;
+				if(p_win) {
+					SString contact_buf;
+					PPObjIDArray identified_caller_list;
+					if(p_self->IdentifyCaller(connected_line, identified_caller_list) > 0) {
+						for(uint i = 0; contact_buf.Empty() && i < identified_caller_list.getCount(); i++) {
+							const PPObjID & r_oid = identified_caller_list.at(i);
+							if(r_oid.Obj == PPOBJ_PERSON) {
+								GetPersonName(r_oid.Id, contact_buf);
+							}
+							else if(r_oid.Obj == PPOBJ_LOCATION) {
+								LocationTbl::Rec loc_rec;
+								if(p_self->P_PsnObj->LocObj.Search(r_oid.Id, &loc_rec) > 0)
+									LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, contact_buf);
+							}
+						}
+					}
+					SString fmt_buf;
+					PPLoadText(PPTXT_YOUARETELEPHONED, fmt_buf);
+					temp_buf = connected_line;
+					if(contact_buf.NotEmpty()) {
+						temp_buf.Space().CatParStr(contact_buf);
+					}
+					msg_buf.Printf(fmt_buf, temp_buf.cptr());
+					p_win->Open(msg_buf, 0, /*H()*/0, 0, 5000, GetColorRef(SClrCadetblue),
+						SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus, 0);
+				}
+			}
 			ok = 1;
 		}
 	}

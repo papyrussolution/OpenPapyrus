@@ -470,6 +470,23 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 		IdleCmdPhoneSvc(long refreshPeriod, PPID notifyID) : IdleCommand(refreshPeriod), NotifyID(notifyID)
 		{
 		}
+		void   FASTCALL SetupPhoneEvent(PPNotifyEvent & rN, const PPAdviseEvent & rSrc, SString & rTempBuf)
+		{
+			rN.Clear();
+			rN.Action = rSrc.Action;
+			EvqList.GetS(rSrc.ChannelP, rTempBuf);
+			rN.PutExtStrData(rN.extssChannel, rTempBuf);
+			EvqList.GetS(rSrc.CallerIdP, rTempBuf);
+			rN.PutExtStrData(rN.extssCallerId, rTempBuf);
+			EvqList.GetS(rSrc.ConnectedLineNumP, rTempBuf);
+			rN.PutExtStrData(rN.extssConnectedLineNum, rTempBuf);
+			// @v9.9.12 {
+			EvqList.GetS(rSrc.ContextP, rTempBuf);
+			rN.PutExtStrData(rN.extssContext, rTempBuf);
+			EvqList.GetS(rSrc.ExtenP, rTempBuf);
+			rN.PutExtStrData(rN.extssExten, rTempBuf);
+			// } @v9.9.12 
+		}
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
 		{
 			int    ok = -1;
@@ -496,14 +513,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 						if(r_ev.Action == PPEVNT_PHNS_RINGING) {
 							for(uint j = 0; adv_list_ringing.Enum(&j, &adv_blk);) {
 								if(adv_blk.Proc) {
-									ev.Clear();
-									ev.Action = r_ev.Action;
-									EvqList.GetS(r_ev.ChannelP, temp_buf);
-									ev.PutExtStrData(ev.extssChannel, temp_buf);
-									EvqList.GetS(r_ev.CallerIdP, temp_buf);
-									ev.PutExtStrData(ev.extssCallerId, temp_buf);
-									EvqList.GetS(r_ev.ConnectedLineNumP, temp_buf);
-									ev.PutExtStrData(ev.extssConnectedLineNum, temp_buf);
+									SetupPhoneEvent(ev, r_ev, temp_buf);
 									ev.ExtDtm  = rPrevRunTime;
 									adv_blk.Proc(PPAdviseBlock::evPhoneRinging, &ev, adv_blk.ProcExtPtr);
 									{ // finalize {
@@ -518,14 +528,7 @@ int SLAPI PPThreadLocalArea::RegisterAdviseObjects()
 						else if(r_ev.Action == PPEVNT_PHNC_UP) {
 							for(uint j = 0; adv_list_up.Enum(&j, &adv_blk);) {
 								if(adv_blk.Proc) {
-									ev.Clear();
-									ev.Action = r_ev.Action;
-									EvqList.GetS(r_ev.ChannelP, temp_buf);
-									ev.PutExtStrData(ev.extssChannel, temp_buf);
-									EvqList.GetS(r_ev.CallerIdP, temp_buf);
-									ev.PutExtStrData(ev.extssCallerId, temp_buf);
-									EvqList.GetS(r_ev.ConnectedLineNumP, temp_buf);
-									ev.PutExtStrData(ev.extssConnectedLineNum, temp_buf);
+									SetupPhoneEvent(ev, r_ev, temp_buf);
 									ev.ExtDtm  = rPrevRunTime;
 									adv_blk.Proc(PPAdviseBlock::evPhoneUp, &ev, adv_blk.ProcExtPtr);
 									{ // finalize {
@@ -3081,7 +3084,8 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 									p_phnsvc_cli = new AsteriskAmiClient(AsteriskAmiClient::fDoLog);
 									if(p_phnsvc_cli && p_phnsvc_cli->Connect(addr_buf, port)) {
 										if(p_phnsvc_cli->Login(user_buf, secret_buf)) {
-											PhnSvcLocalChannelSymb = StartUp_PhnSvcPack.LocalChannelSymb;
+											PhnSvcLocalUpChannelSymb = StartUp_PhnSvcPack.LocalChannelSymb;
+											PhnSvcLocalScanChannelSymb = StartUp_PhnSvcPack.ScanChannelSymb;
 										}
 										else {
 											ZDELETE(p_phnsvc_cli);
@@ -3192,26 +3196,27 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 															PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
 															for(uint si = 0; si < chnl_status_list.GetCount(); si++) {
 																chnl_status_list.Get(si, chnl_status);
+																int32   local_action = 0;
 																if(chnl_status.State == PhnSvcChannelStatus::stUp) {
-																	PPAdviseEvent ev;
-																	ev.Action = PPEVNT_PHNC_UP;
-																	ev.Dtm = getcurdatetime_();
-																	ev.Priority = chnl_status.Priority;
-																	ev.Duration = chnl_status.Seconds;
-																	temp_list.AddS(chnl_status.Channel, &ev.ChannelP);
-																	temp_list.AddS(chnl_status.CallerId, &ev.CallerIdP);
-																	temp_list.AddS(chnl_status.ConnectedLineNum, &ev.ConnectedLineNumP);
-																	temp_list.insert(&ev);
+																	if(PPObjPhoneService::IsPhnChannelAcceptable(PhnSvcLocalUpChannelSymb, chnl_status.Channel) > 0)
+																		local_action = PPEVNT_PHNC_UP;
 																}
 																else if(chnl_status.State == PhnSvcChannelStatus::stRinging) {
+																	if(PhnSvcLocalScanChannelSymb.Empty() || 
+																		PPObjPhoneService::IsPhnChannelAcceptable(PhnSvcLocalScanChannelSymb, chnl_status.Channel) > 0)
+																		local_action = PPEVNT_PHNS_RINGING;
+																}
+																if(local_action) {
 																	PPAdviseEvent ev;
-																	ev.Action = PPEVNT_PHNS_RINGING;
+																	ev.Action = local_action;
 																	ev.Dtm = getcurdatetime_();
 																	ev.Priority = chnl_status.Priority;
 																	ev.Duration = chnl_status.Seconds;
 																	temp_list.AddS(chnl_status.Channel, &ev.ChannelP);
 																	temp_list.AddS(chnl_status.CallerId, &ev.CallerIdP);
 																	temp_list.AddS(chnl_status.ConnectedLineNum, &ev.ConnectedLineNumP);
+																	temp_list.AddS(chnl_status.Context, &ev.ContextP); // @v9.9.12
+																	temp_list.AddS(chnl_status.Exten, &ev.ExtenP); // @v9.9.12
 																	temp_list.insert(&ev);
 																}
 															}
@@ -3299,7 +3304,8 @@ int SLAPI PPSession::Login(const char * pDbSymb, const char * pUserName, const c
 							LDATETIME Since;
 							DbLoginBlock LB;
 							SysJournal * P_Sj;
-							SString PhnSvcLocalChannelSymb; // @v9.8.11
+							SString PhnSvcLocalUpChannelSymb; // @v9.8.11 Символ канала (каналов), по которым должны регистрироваться события подъема трубки
+							SString PhnSvcLocalScanChannelSymb; // @v9.9.12 Символ канала (каналов), события по которым должны регистрироваться
 							PPPhoneServicePacket StartUp_PhnSvcPack; // @v9.8.11
 							PhnSvcChannelStatusPool PhnSvcStP; // @v9.8.11
 						};
@@ -4612,11 +4618,13 @@ uint FASTCALL PPAdviseEventVector::MoveItemTo(uint pos, PPAdviseEventVector & rD
 	uint   result = 0;
 	if(pos < getCount()) {
 		PPAdviseEvent item = at(pos);
-		if(item.ChannelP || item.CallerIdP || item.ConnectedLineNumP) {
+		if(item.ChannelP || item.CallerIdP || item.ConnectedLineNumP || item.ContextP || item.ExtenP) {
 			SString temp_buf;
 			GetS(item.ChannelP, temp_buf); rDest.AddS(temp_buf, &item.ChannelP);
 			GetS(item.CallerIdP, temp_buf); rDest.AddS(temp_buf, &item.CallerIdP);
 			GetS(item.ConnectedLineNumP, temp_buf); rDest.AddS(temp_buf, &item.ConnectedLineNumP);
+			GetS(item.ContextP, temp_buf); rDest.AddS(temp_buf, &item.ContextP); // @v9.9.12
+			GetS(item.ExtenP, temp_buf); rDest.AddS(temp_buf, &item.ExtenP); // @v9.9.12
 		}
 		rDest.insert(&item);
 		result = rDest.getCount();
@@ -4636,6 +4644,8 @@ int SLAPI PPAdviseEventVector::Pack()
 			THROW_SL(Pack_Replace(p_pack_handle, r_item.ChannelP));
 			THROW_SL(Pack_Replace(p_pack_handle, r_item.CallerIdP));
 			THROW_SL(Pack_Replace(p_pack_handle, r_item.ConnectedLineNumP));
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.ContextP)); // @v9.9.12
+			THROW_SL(Pack_Replace(p_pack_handle, r_item.ExtenP)); // @v9.9.12
 		}
 		Pack_Finish(p_pack_handle);
 		ok = 1;

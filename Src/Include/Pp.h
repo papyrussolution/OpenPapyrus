@@ -5765,6 +5765,8 @@ struct PPAdviseEvent {
 	uint   ChannelP;  // Символ телефонного канала
 	uint   CallerIdP; // Вызывающий номер
 	uint   ConnectedLineNumP; // Номер линии
+	uint   ContextP; // Контекст события
+	uint   ExtenP;   // @? Добавочный номер 
 
     ExtObject * ExtraObj; // @notowned
 };
@@ -6077,7 +6079,9 @@ struct PPNotifyEvent : public PPExtStrContainer {
 		extssMessage          = 1,
 		extssChannel          = 2,
 		extssCallerId         = 3,
-		extssConnectedLineNum = 4
+		extssConnectedLineNum = 4,
+		extssContext          = 5,
+		extssExten            = 6
 	};
 	SLAPI  PPNotifyEvent();
 	void   SLAPI Clear();
@@ -8320,6 +8324,7 @@ public:
     int    SLAPI SearchEAddrByLink(PPID objType, PPID objID, PPIDArray & rResultList);
     int    SLAPI SearchEAddrMaxLikePhone(const char * pPhonePattern, long options, LongArray & rResult);
     int    SLAPI GetFullEaList(StrAssocArray & rList);
+	int    SLAPI DumpEaList(const char * pFileName);
 private:
 	static int FASTCALL Helper_IsEqExField(const LocationTbl::Rec & rRec1, const LocationTbl::Rec & rRec2, int fldId, SString & rBuf1, SString & rBuf2);
 	int    SLAPI InitEnum(PPID locTyp, PPID parentID, int flags, long * pHandle);
@@ -19225,6 +19230,8 @@ public:
 
 class PPObjPhoneService : public PPObjReference {
 public:
+	static int FASTCALL IsPhnChannelAcceptable(const SString & rFilter, const SString & rChannel);
+
 	SLAPI  PPObjPhoneService(void * extraPtr);
 	virtual int SLAPI Edit(PPID * pID, void * extraPtr);
 	virtual int SLAPI Browse(void * extraPtr);
@@ -19385,6 +19392,7 @@ private:
 
 	long   AdvCookie_Ringing;
 	long   AdvCookie_Up;
+	PPObjPerson * P_PsnObj;
 };
 //
 // @ModuleDecl(PPViewJobPool)
@@ -22174,7 +22182,7 @@ public:
 	//
 	// Descr: Индексирует телефонные номера, находящиеся в записях таблицы Location
 	//
-	int    SLAPI IndexPhones(int use_ta);
+	int    SLAPI IndexPhones(PPLogger * pLogger, int use_ta);
 	int    SLAPI GetEaListBySubstring(const char * pSubstr, StrAssocArray * pList, int fromBegStr);
 	const  StrAssocArray * SLAPI GetFullEaList();
 	void   SLAPI ReleaseFullEaList(const StrAssocArray * pList);
@@ -23011,7 +23019,7 @@ public:
 	//
 	// Descr: Индексирует телефонные номера, связанные с персоналиями
 	//
-	int    SLAPI IndexPhones(int use_ta);
+	int    SLAPI IndexPhones(PPLogger * pLogger, int use_ta);
 private:
 	friend class PersonCache;
 	friend int FASTCALL GetPersonName(PPID id, SString & rBuf);
@@ -31878,7 +31886,7 @@ public:
 	int    SLAPI CheckExpiredBillDebt(PPID scardID);
 	int    SLAPI FinishSCardUpdNotifyList(const TSVector <SCardCore::UpdateRestNotifyEntry> & rList); // @v9.8.4 TSArray-->TSVector
 	//
-	int    SLAPI IndexPhones(int use_ta);
+	int    SLAPI IndexPhones(PPLogger * pLogger, int use_ta);
 protected:
 	virtual const char * SLAPI GetNamePtr();
 	virtual int    SLAPI HandleMsg(int, PPID, PPID, void * extraPtr);
