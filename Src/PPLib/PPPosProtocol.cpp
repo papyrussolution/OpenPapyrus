@@ -230,7 +230,8 @@ public:
 	}
 	virtual int SLAPI FinishImportSession(PPIDArray * pList)
 	{
-		return -1;
+		Pp.DestroyReadBlock();
+		return 1;
 	}
 	virtual int SLAPI InteractiveQuery()
 	{
@@ -669,8 +670,9 @@ int SLAPI PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sin
 //
 //
 //
-SLAPI PPPosProtocol::WriteBlock::WriteBlock() : P_Xw(0), P_Xd(0), P_Root(0), LocID(0), P_Acgi(0)
+SLAPI PPPosProtocol::WriteBlock::WriteBlock() : P_Xw(0), P_Xd(0), P_Root(0), LocID(0), P_Acgi(0), FileDtm(ZERODATETIME)
 {
+	FileUUID.Generate();
 }
 
 SLAPI PPPosProtocol::WriteBlock::~WriteBlock()
@@ -912,6 +914,8 @@ PPPosProtocol::ReadBlock & FASTCALL PPPosProtocol::ReadBlock::Copy(const PPPosPr
 	SStrGroup::CopyS(rS);
 	#define CPY_FLD(f) f = rS.f
 	CPY_FLD(SrcFileName);
+	CPY_FLD(SrcFileUUID); // @v9.9.12
+	CPY_FLD(SrcFileDtm); // @v9.9.12
 	CPY_FLD(SrcBlkList);
 	CPY_FLD(DestBlkList);
 	CPY_FLD(GoodsBlkList);
@@ -1142,6 +1146,10 @@ const PPPosProtocol::PersonBlock * FASTCALL PPPosProtocol::ReadBlock::SearchAnal
 		}
 	}
 	return p_ret;
+}
+
+SLAPI PPPosProtocol::QueryProcessBlock::QueryProcessBlock() : PosNodeID(0)
+{
 }
 
 SLAPI PPPosProtocol::ProcessInputBlock::ProcessInputBlock()
@@ -1692,11 +1700,22 @@ int SLAPI PPPosProtocol::WriteSCardInfo(WriteBlock & rB, const char * pScopeXmlT
 int SLAPI PPPosProtocol::StartWriting(const char * pFileName, PPPosProtocol::WriteBlock & rB)
 {
 	int    ok = 1;
+	SString temp_buf;
 	THROW_LXML(rB.P_Xw = xmlNewTextWriterFilename(pFileName, 9 /*compression*/), 0);
 	xmlTextWriterSetIndent(rB.P_Xw, 1);
 	xmlTextWriterSetIndentString(rB.P_Xw, (const xmlChar*)"\t");
 	THROW_MEM(rB.P_Xd = new SXml::WDoc(rB.P_Xw, cpUTF8));
 	rB.P_Root = new SXml::WNode(rB.P_Xw, "PapyrusAsyncPosInterchange");
+	// @v9.9.12 {
+	{
+		SXml::WNode w_s(rB.P_Xw, "file");
+		rB.FileUUID.ToStr(S_GUID::fmtIDL, temp_buf);
+		w_s.PutInner("uuid", EncText(temp_buf));
+		rB.FileDtm = getcurdatetime_();
+		temp_buf.Z().Cat(rB.FileDtm, DATF_ISO8601|DATF_CENTURY, 0);
+		w_s.PutInner("timestamp", temp_buf);
+	}
+	// } @v9.9.12 
 	CATCHZOK
 	return ok;
 }
@@ -2029,6 +2048,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_VERSION:
 				case PPHS_UUID:
 				case PPHS_TIME:
+				case PPHS_TIMESTAMP: // @v9.9.12
 				case PPHS_ID:
 				case PPHS_NAME:
 				case PPHS_RANK:
@@ -2121,6 +2141,8 @@ int PPPosProtocol::EndElement(const char * pName)
 	int    is_processed = 1;
 	if(RdB.Phase == RdB.phPreprocess) {
 		switch(tok) {
+			case PPHS_FILE:
+				break;
 			case PPHS_PPPP_START:
 				RdB.State &= ~RdB.stHeaderOccured;
 				break;
@@ -2144,13 +2166,33 @@ int PPPosProtocol::EndElement(const char * pName)
 					Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->VersionP);
 				}
 				break;
+			case PPHS_TIMESTAMP:
+				{
+					const int prev_tok = RdB.TokPath.peek();
+					if(prev_tok == PPHS_FILE) {
+						if(RdB.TagValue.NotEmptyS()) {
+							strtodatetime(RdB.TagValue, &RdB.SrcFileDtm, DATF_ISO8601, 0);
+						}
+					}
+				}
+				break;
 			case PPHS_UUID:
-				p_item = PeekRefItem(&ref_pos, &type);
-				if(oneof2(type, obSource, obDestination)) {
-					if(RdB.TagValue.NotEmptyS()) {
-						S_GUID uuid;
-						THROW_SL(uuid.FromStr(RdB.TagValue));
-						((RouteObjectBlock *)p_item)->Uuid = uuid;
+				{
+					const int prev_tok = RdB.TokPath.peek();
+					if(prev_tok == PPHS_FILE) {
+						if(RdB.TagValue.NotEmptyS()) {
+							THROW_SL(RdB.SrcFileUUID.FromStr(RdB.TagValue));
+						}
+					}
+					else {
+						p_item = PeekRefItem(&ref_pos, &type);
+						if(oneof2(type, obSource, obDestination)) {
+							if(RdB.TagValue.NotEmptyS()) {
+								S_GUID uuid;
+								THROW_SL(uuid.FromStr(RdB.TagValue));
+								((RouteObjectBlock *)p_item)->Uuid = uuid;
+							}
+						}
 					}
 				}
 				break;
@@ -2165,6 +2207,36 @@ int PPPosProtocol::EndElement(const char * pName)
 	}
 	else if(RdB.Phase == RdB.phProcess) {
 		switch(tok) {
+			case PPHS_TIMESTAMP:
+				{
+					const int prev_tok = RdB.TokPath.peek();
+					if(prev_tok == PPHS_FILE) {
+						if(RdB.TagValue.NotEmptyS()) {
+							strtodatetime(RdB.TagValue, &RdB.SrcFileDtm, DATF_ISO8601, 0);
+						}
+					}
+				}
+				break;
+			case PPHS_UUID:
+				{
+					const int prev_tok = RdB.TokPath.peek();
+					if(prev_tok == PPHS_FILE) {
+						if(RdB.TagValue.NotEmptyS()) {
+							THROW_SL(RdB.SrcFileUUID.FromStr(RdB.TagValue));
+						}
+					}
+					else {
+						p_item = PeekRefItem(&ref_pos, &type);
+						if(oneof2(type, obSource, obDestination)) {
+							if(RdB.TagValue.NotEmptyS()) {
+								S_GUID uuid;
+								THROW_SL(uuid.FromStr(RdB.TagValue));
+								((RouteObjectBlock *)p_item)->Uuid = uuid;
+							}
+						}
+					}
+				}
+				break;
 			case PPHS_PPPP_START:
 				RdB.State &= ~RdB.stHeaderOccured;
 				break;
@@ -2719,16 +2791,6 @@ int PPPosProtocol::EndElement(const char * pName)
 					Helper_AddStringToPool(&((RouteObjectBlock *)p_item)->VersionP);
 				}
 				break;
-			case PPHS_UUID:
-				p_item = PeekRefItem(&ref_pos, &type);
-				if(oneof2(type, obSource, obDestination)) {
-					if(RdB.TagValue.NotEmptyS()) {
-						S_GUID uuid;
-						THROW_SL(uuid.FromStr(RdB.TagValue));
-						((RouteObjectBlock *)p_item)->Uuid = uuid;
-					}
-				}
-				break;
 			case PPHS_DATE:
 				{
 					LDATE dt = strtodate_(RdB.TagValue, DATF_ISO8601);
@@ -2800,6 +2862,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_QUERYREFS:
 			case PPHS_TIMERANGE:
 			case PPHS_AMOUNTRANGE:
+			case PPHS_FILE: // @v9.9.12
 				break;
 			default:
 				is_processed = 0;
@@ -2836,8 +2899,9 @@ int PPPosProtocol::Characters(const char * pS, size_t len)
 extern "C" xmlParserCtxt * xmlCreateURLParserCtxt(const char * filename, int options);
 void FASTCALL xmlDetectSAX2(xmlParserCtxt * ctxt); // @prototype
 
-SLAPI PPPosProtocol::ReadBlock::ReadBlock() : P_SaxCtx(0), State(0), Phase(phUnkn), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN))
+SLAPI PPPosProtocol::ReadBlock::ReadBlock() : P_SaxCtx(0), State(0), Phase(phUnkn), P_ShT(PPGetStringHash(PPSTR_HASHTOKEN)), SrcFileDtm(ZERODATETIME)
 {
+	SrcFileUUID.SetZero();
 }
 
 SLAPI PPPosProtocol::ReadBlock::~ReadBlock()
@@ -2861,6 +2925,8 @@ void SLAPI PPPosProtocol::ReadBlock::Destroy()
 	TempBuf.Z();
 	TagValue.Z();
 	SrcFileName.Z();
+	SrcFileUUID.SetZero(); // @v9.9.12
+	SrcFileDtm.SetZero(); // @v9.9.12
 	TokPath.freeAll();
 	RefPosStack.clear();
 	SrcBlkList.freeAll();
@@ -3426,10 +3492,6 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 	ResolveGoodsParam rgp;
 	rgp.DefUnitID = GObj.GetConfig().DefUnitID;
 	rgp.DefParentID = GObj.GetConfig().DefGroupID;
-	//PPID   loc_id = 0;
-	//PPID   src_ar_id = 0; // —тать€ аналитического учета, соответствующа€ источнику данных
-	//PPID   def_unit_id = GObj.GetConfig().DefUnitID;
-	//PPID   def_parent_id = GObj.GetConfig().DefGroupID;
 	SString def_unit_name;
 	if(!silent)
 		PPWait(1);
@@ -4203,7 +4265,6 @@ int SLAPI PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 		}
 	}
 	CATCHZOK
-	RdB.Destroy();
 	if(!silent)
 		PPWait(0);
     return ok;
@@ -4214,11 +4275,12 @@ void PPPosProtocol::SaxStop()
 	xmlStopParser(RdB.P_SaxCtx);
 }
 
-int SLAPI PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess)
+int SLAPI PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess, int silent)
 {
     int    ok = 1;
     SString msg_buf;
-    PPWait(1);
+	if(!silent)
+		PPWait(1);
 	xmlSAXHandler saxh;
 	MEMSZERO(saxh);
 	saxh.startDocument = Scb_StartDocument;
@@ -4249,7 +4311,8 @@ int SLAPI PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess)
 		xmlFreeParserCtxt(RdB.P_SaxCtx);
 	}
 	RdB.P_SaxCtx = 0;
-	PPWait(0);
+	if(!silent)
+		PPWait(0);
     return ok;
 }
 
@@ -4332,7 +4395,97 @@ int SLAPI PPPosProtocol::BackupInputFile(const char * pFileName)
 		}
 		THROW_SL(arc.AddEntry(pFileName, to_arc_name, 0));
     }
-    CATCHZOK
+    CATCH
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+struct PosProtocolFileProcessedEntry {
+	SLAPI  PosProtocolFileProcessedEntry()
+	{
+		THISZERO();
+	}
+	S_GUID FileUUID;
+	LDATETIME FileDtm;
+	S_GUID DestRouteUUID;
+};
+
+static int SLAPI MakePosProtocolFileProcessedListName(const char * pPath, SString & rFileName)
+{
+	rFileName.Z();
+	SPathStruc ps(pPath);
+	ps.Nam = "ppfplist";
+	ps.Ext.Z();
+	ps.Merge(rFileName);
+	return 1;
+}
+
+static int SLAPI AppendPosProtocolFileProcessedListEntry(const char * pPath, PosProtocolFileProcessedEntry & rEntry)
+{
+	int    ok = -1;
+	if((!rEntry.FileUUID.IsZero() || checkdate(rEntry.FileDtm.d, 0)) && !rEntry.DestRouteUUID.IsZero()) {
+		SString temp_buf;
+		MakePosProtocolFileProcessedListName(pPath, temp_buf);
+		SFile f_out(temp_buf, SFile::mAppend);
+		THROW_SL(f_out.IsValid());
+		temp_buf.Z().Cat(rEntry.FileUUID, S_GUID::fmtIDL).Tab().
+			Cat(rEntry.FileDtm, DATF_ISO8601|DATF_CENTURY, 0).Tab().Cat(rEntry.DestRouteUUID, S_GUID::fmtIDL).CR();
+		THROW_SL(f_out.WriteLine(temp_buf));
+		ok = 1;
+	}
+	CATCH
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+static int SLAPI ReadPosProtocolFileProcessedList(const char * pPath, TSVector <PosProtocolFileProcessedEntry> & rList)
+{
+	int    ok = -1;
+	SString temp_buf;
+	MakePosProtocolFileProcessedListName(pPath, temp_buf);
+	if(fileExists(temp_buf)) {
+		SFile f_in(temp_buf, SFile::mRead);
+		THROW_SL(f_in.IsValid());
+		{
+			SString line_buf;
+			StringSet ss;
+			while(f_in.ReadLine(line_buf)) {
+				line_buf.Chomp();
+				ss.clear();
+				line_buf.Tokenize("\t", ss);
+				uint   fld_n = 0;
+				PosProtocolFileProcessedEntry new_entry;
+				int   is_rec_ok = 1;
+				for(uint ssp = 0; ss.get(&ssp, temp_buf); fld_n++) {
+					if(fld_n == 0) {
+						if(!new_entry.FileUUID.FromStr(temp_buf.Strip())) 
+							is_rec_ok = 0;
+					}
+					else if(fld_n == 1) {
+						strtodatetime(temp_buf, &new_entry.FileDtm, DATF_ISO8601, 0);
+						if(!checkdate(new_entry.FileDtm.d, 0))
+							is_rec_ok = 0;
+					}
+					else if(fld_n == 2) {
+						if(!new_entry.DestRouteUUID.FromStr(temp_buf.Strip()))
+							is_rec_ok = 0;
+					}
+				}
+				if(is_rec_ok) {
+					THROW_SL(rList.insert(&new_entry));
+					ok = 1;
+				}
+			}
+		}
+	}
+	CATCH
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR);
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 
@@ -4356,6 +4509,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		TSVector <PosNodeUuidEntry> pos_node_uuid_list; // @v9.8.4 TSArray-->TSVector
 		TSVector <PosNodeISymbEntry> pos_node_isymb_list; // @v9.8.4 TSArray-->TSVector
 		StringSet ss_paths;
+		TSVector <PosProtocolFileProcessedEntry> processed_file_list;
 		(done_plus_xml_suffix = p_done_suffix).Dot().Cat(/*"xml"*/"ppyp");
 		{
 			PPCashNode cn_rec;
@@ -4397,6 +4551,7 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 			}
 		}
 		for(uint ssp_pos = 0; ss_paths.get(&ssp_pos, in_path);) {
+			ReadPosProtocolFileProcessedList(in_path, processed_file_list); // @v9.9.12
 			(temp_buf = in_path).SetLastSlash().Cat(p_base_name).Cat(/*"*.xml"*/"*.ppyp");
 			for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
 				if(de.IsFile()) {
@@ -4418,53 +4573,62 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 			}
 			else
 				this_db_uuid.SetZero();
-			//SFileEntryPool::Entry fe;
 			for(uint i = 0; i < fep.GetCount(); i++) {
-				if(fep.Get(i, 0, &in_file_name)) {
-					//(in_file_name = fe.Path).SetLastSlash().Cat(fe.Name);
-					if(fileExists(in_file_name) && SFile::WaitForWriteSharingRelease(in_file_name, 60000)) {
-						DestroyReadBlock();
-						PPID   cn_id = 0;
-						int    pr = SaxParseFile(in_file_name, 1 /* preprocess */);
-						THROW(pr);
-						if(pr > 0) {
-							int    is_my_file = 0;
-							RouteBlock root_blk;
-							for(uint didx = 0; !is_my_file && didx < RdB.DestBlkList.getCount(); didx++) {
-								const RouteObjectBlock & r_dest = RdB.DestBlkList.at(didx);
-								RdB.GetRouteItem(r_dest, root_blk);
-								//
-								// ≈сли отправитель указал не пустой UUID это означает, что мы может прин€ть
-								// данные только в ту базу, котора€ соответствует этому UUID (сопоставление по символу невозможно).
-								//
-								if(!root_blk.Uuid.IsZero()) {
-									if(root_blk.Uuid == this_db_uuid) {
-										is_my_file = 1;
-									}
-									else {
-										for(uint cnuidx = 0; !is_my_file && cnuidx < pos_node_uuid_list.getCount(); cnuidx++) {
-											if(root_blk.Uuid == pos_node_uuid_list.at(cnuidx).Uuid) {
-												cn_id = pos_node_uuid_list.at(cnuidx).PosNodeID;
-												is_my_file = 2;
-											}
-										}
-									}
+				if(fep.Get(i, 0, &in_file_name) && fileExists(in_file_name) && SFile::WaitForWriteSharingRelease(in_file_name, 60000)) {
+					DestroyReadBlock();
+					PPID   my_cn_id = 0;
+					S_GUID  my_pos_node_uuid; 
+					my_pos_node_uuid.SetZero();
+					int    pr = SaxParseFile(in_file_name, 1 /* preprocess */, BIN(rPib.Flags & rPib.fSilent));
+					THROW(pr);
+					if(pr > 0) {
+						int    is_my_file = 0;
+						RouteBlock root_blk;
+						for(uint didx = 0; !is_my_file && didx < RdB.DestBlkList.getCount(); didx++) {
+							const RouteObjectBlock & r_dest = RdB.DestBlkList.at(didx);
+							RdB.GetRouteItem(r_dest, root_blk);
+							//
+							// ≈сли отправитель указал не пустой UUID это означает, что мы может прин€ть
+							// данные только в ту базу, котора€ соответствует этому UUID (сопоставление по символу невозможно).
+							//
+							if(!root_blk.Uuid.IsZero()) {
+								if(root_blk.Uuid == this_db_uuid) {
+									is_my_file = 1;
 								}
-								else if(!is_my_file) {
-									if(root_blk.Code.IsDigit()) {
-										long   isymb = root_blk.Code.ToLong();
-										uint   isymb_pos = 0;
-										if(isymb > 0 && pos_node_isymb_list.lsearch(&isymb, &isymb_pos, CMPF_LONG)) {
-											cn_id = pos_node_isymb_list.at(isymb_pos).PosNodeID;
-											is_my_file = 3;
+								else {
+									for(uint cnuidx = 0; !is_my_file && cnuidx < pos_node_uuid_list.getCount(); cnuidx++) {
+										if(root_blk.Uuid == pos_node_uuid_list.at(cnuidx).Uuid) {
+											my_cn_id = pos_node_uuid_list.at(cnuidx).PosNodeID;
+											my_pos_node_uuid = pos_node_uuid_list.at(cnuidx).Uuid;
+											is_my_file = 2;
 										}
 									}
 								}
 							}
-							if(is_my_file) {
-								SETIFZ(cn_id, rPib.PosNodeID);
+							else if(!is_my_file) {
+								if(root_blk.Code.IsDigit()) {
+									long   isymb = root_blk.Code.ToLong();
+									uint   isymb_pos = 0;
+									if(isymb > 0 && pos_node_isymb_list.lsearch(&isymb, &isymb_pos, CMPF_LONG)) {
+										my_cn_id = pos_node_isymb_list.at(isymb_pos).PosNodeID;
+										is_my_file = 3;
+									}
+								}
+							}
+						}
+						if(is_my_file) {
+							int   i_ve_allready_processed_file = 0;
+							if(!RdB.SrcFileUUID.IsZero() && !my_pos_node_uuid.IsZero() && processed_file_list.getCount()) {
+								for(uint pflidx = 0; !i_ve_allready_processed_file && pflidx < processed_file_list.getCount(); pflidx++) {
+									const PosProtocolFileProcessedEntry & r_pfentry = processed_file_list.at(pflidx);
+									if(r_pfentry.FileUUID == RdB.SrcFileUUID && r_pfentry.DestRouteUUID == my_pos_node_uuid)
+										i_ve_allready_processed_file = 1;
+								}
+							}
+							if(!i_ve_allready_processed_file) {
+								SETIFZ(my_cn_id, rPib.PosNodeID);
 								DestroyReadBlock();
-								pr = SaxParseFile(in_file_name, 0 /* !preprocess */);
+								pr = SaxParseFile(in_file_name, 0 /* !preprocess */, BIN(rPib.Flags & rPib.fSilent));
 								THROW(pr);
 								if(rPib.Flags & rPib.fStoreReadBlocks) {
 									if(!rPib.P_RbList) {
@@ -4484,24 +4648,22 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 								}
 								{
 									uint   qpb_list_idx = 0;
-									{
-										RouteBlock src_;
-										if(RdB.SrcBlkList.getCount() == 1) {
-											RouteObjectBlock & r_blk = RdB.SrcBlkList.at(0);
-											RdB.GetRouteItem(r_blk, src_);
-											for(uint j = 0; !qpb_list_idx && j < rPib.QpBlkList.getCount(); j++) {
-												QueryProcessBlock * p_qpb = rPib.QpBlkList.at(j);
-												if(p_qpb->PosNodeID == cn_id && p_qpb->R.IsEqual(src_))
-													qpb_list_idx = j+1;
-											}
-											if(!qpb_list_idx) {
-												uint _pos = 0;
-												QueryProcessBlock * p_new_qpb = rPib.QpBlkList.CreateNewItem(&_pos);
-												THROW_SL(p_new_qpb);
-												p_new_qpb->PosNodeID = cn_id;
-												p_new_qpb->R = src_;
-												qpb_list_idx = _pos+1;
-											}
+									RouteBlock src_;
+									if(RdB.SrcBlkList.getCount() == 1) {
+										RouteObjectBlock & r_blk = RdB.SrcBlkList.at(0);
+										RdB.GetRouteItem(r_blk, src_);
+										for(uint j = 0; !qpb_list_idx && j < rPib.QpBlkList.getCount(); j++) {
+											QueryProcessBlock * p_qpb = rPib.QpBlkList.at(j);
+											if(p_qpb->PosNodeID == my_cn_id && p_qpb->R.IsEqual(src_))
+												qpb_list_idx = j+1;
+										}
+										if(!qpb_list_idx) {
+											uint _pos = 0;
+											QueryProcessBlock * p_new_qpb = rPib.QpBlkList.CreateNewItem(&_pos);
+											THROW_SL(p_new_qpb);
+											p_new_qpb->PosNodeID = my_cn_id;
+											p_new_qpb->R = src_;
+											qpb_list_idx = _pos+1;
 										}
 									}
 									if(qpb_list_idx) {
@@ -4512,43 +4674,81 @@ int SLAPI PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 										}
 									}
 								}
-								{
-									int    do_backup_file = 0;
-									if(rPib.Flags & rPib.fProcessRefs) {
-										if(AcceptData(cn_id, BIN(rPib.Flags & rPib.fSilent)))
-											do_backup_file = 1;
-										else
-											PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-									}
-									if(rPib.Flags & rPib.fProcessQueries) {
+							}
+							{
+								int    do_backup_file = 0;
+								int    do_remove_file = BIN(rPib.Flags & rPib.fRemoveProcessed);
+								int    all_receipients_processed_file = 1;
+								if(rPib.Flags & rPib.fProcessRefs) {
+									if(AcceptData(my_cn_id, BIN(rPib.Flags & rPib.fSilent)))
+										do_backup_file = 1;
+									else
+										PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+								}
+								if(rPib.Flags & rPib.fProcessQueries) {
+									do_backup_file = 1;
+								}
+								if(rPib.Flags & rPib.fProcessSessions) {
+									if(rPib.Flags & rPib.fBackupProcessed) {
 										do_backup_file = 1;
 									}
-									// @v9.9.12 {
-									if(rPib.Flags & rPib.fProcessSessions) {
-										if(rPib.Flags & rPib.fBackupProcessed) {
-											do_backup_file = 1;
+								}
+								if(RdB.DestBlkList.getCount() > 1) {
+									//
+									// ¬ случае, если получателей файла больше одного (то есть, он нужен еще кому-то)
+									// мы предпринимаем специальные меры дл€ регистрации факта обработки файла нами.
+									// Ёто возможно только в том случае, если мы как получатель указаны в файле по GUID'у!
+									//
+									if(!my_pos_node_uuid.IsZero() && !RdB.SrcFileUUID.IsZero()) {
+										TSVector <PosProtocolFileProcessedEntry> local_processed_file_list;
+										ReadPosProtocolFileProcessedList(in_file_name, local_processed_file_list); 
+										for(uint didx = 0; all_receipients_processed_file && didx < RdB.DestBlkList.getCount(); didx++) {
+											const RouteObjectBlock & r_dest = RdB.DestBlkList.at(didx);
+											RdB.GetRouteItem(r_dest, root_blk);
+											if(!root_blk.Uuid.IsZero() && root_blk.Uuid != my_pos_node_uuid) {
+												int  _uuid_found = 0;
+												for(uint pflidx = 0; !_uuid_found && pflidx < local_processed_file_list.getCount(); pflidx++) {
+													const PosProtocolFileProcessedEntry & r_pfentry = local_processed_file_list.at(pflidx);
+													if(r_pfentry.FileUUID == RdB.SrcFileUUID && r_pfentry.DestRouteUUID == root_blk.Uuid)
+														_uuid_found = 1;
+												}
+												if(!_uuid_found)
+													all_receipients_processed_file = 0;
+											}
 										}
 									}
-									// } @v9.9.12 
+									if(!i_ve_allready_processed_file) { // ћы уже есть в списке тех, кто обработал файл - не надо ничего добавл€ть
+										// ‘айл нельз€ удал€ть - он еще не всеми обработан.
+										// ¬ этом случае мы должны добавить собственную метку, означающую, что нами файл обработан
+										PosProtocolFileProcessedEntry new_pfentry;
+										new_pfentry.DestRouteUUID = my_pos_node_uuid;
+										new_pfentry.FileUUID = RdB.SrcFileUUID;
+										new_pfentry.FileDtm = RdB.SrcFileDtm;
+										AppendPosProtocolFileProcessedListEntry(in_file_name, new_pfentry);
+									}
+								}
+								if(all_receipients_processed_file) {
 									if(do_backup_file) {
 										int    backup_ok = 1;
 										if(rPib.Flags & rPib.fBackupProcessed) {
 											backup_ok = BackupInputFile(in_file_name);
 										}
-										if(rPib.Flags & rPib.fRemoveProcessed && backup_ok)
+										if(do_remove_file && backup_ok)
 											to_remove_file_list.add(in_file_name);
 									}
 								}
+								DestroyReadBlock();
 							}
 						}
 					}
 				}
 			}
 			if(rPib.Flags & rPib.fProcessQueries) {
+				PPIDArray csess_list;
 				for(uint bidx = 0; bidx < rPib.QpBlkList.getCount(); bidx++) {
 					const QueryProcessBlock * p_qpb = rPib.QpBlkList.at(bidx);
 					if(p_qpb) {
-						PPIDArray csess_list;
+						csess_list.clear();
 						const PPID cn_id = p_qpb->PosNodeID;
 						PPID  sync_cn_id = 0;
 						PPID  async_cn_id = 0;

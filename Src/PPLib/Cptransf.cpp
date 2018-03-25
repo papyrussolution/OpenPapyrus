@@ -309,6 +309,11 @@ int SLAPI PPObjBill::InitDraftWrOffPacket(const PPDraftOpEx * pWrOffParam, const
 			pPack->SetFreight(&freight);
 		}
 	}
+	// @v9.9.12 {
+	if(pDraftRec->Flags & BILLF_SHIPPED) {
+		pPack->Rec.Flags |= BILLF_SHIPPED;
+	}
+	// } @v9.9.12
 #if 0 // @v9.0.0 { Функционал этого блока обслуживается вызовом pPack->SetupObject(pPack->Rec.Object, sob) выше
 	//
 	// Устанавливаем значения, согласно клиентским соглашениям
@@ -362,7 +367,7 @@ static int SLAPI InsertComplList(PPBillPacket * pPack, PPComplBlock & rList, int
 				// @v9.4.2 {
 				if(ilti.Cost <= 0.0)
 					ilti.Cost = ilti.Price;
-				// } @v9.4.2 
+				// } @v9.4.2
 			}
 			if(sign > 0) {
 				ilti.SetQtty(r_item.NeedQty, 0, PPTFR_RECEIPT | PPTFR_PLUS);
@@ -551,7 +556,7 @@ int SLAPI PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 			for(uint i = 0; i < rBlk.SrcDraftPack.GetTCount(); i++) {
 				const PPTransferItem & r_src_ti = rBlk.SrcDraftPack.ConstTI(i);
 				// @v9.8.11 rBlk.SrcDraftPack.SnL.GetNumber(i, &serial_buf);
-				rBlk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf); // @v9.8.11 
+				rBlk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf); // @v9.8.11
 				ILTI ilti(&r_src_ti);
 				uint ciltif = CILTIF_USESUBST|CILTIF_USESUBST_STRUCONLY|CILTIF_SUBSTSERIAL|CILTIF_ALLOWZPRICE;
 					// @v8.4.8 CILTIF_SUBSTSERIAL // @v9.2.1 CILTIF_ALLOWZPRICE
@@ -822,12 +827,12 @@ int SLAPI PPObjBill::Helper_WrOffDrft_DrftRcptModif(WrOffDraftBlock & rBlk, PPID
 						if(src_serial.NotEmpty()) {
 							const uint lp = rows.at(0);
 							// @v9.8.11 p_pack->SnL.GetNumber(lp, &serial_buf);
-							p_pack->LTagL.GetNumber(PPTAG_LOT_SN, lp, serial_buf); // @v9.8.11 
+							p_pack->LTagL.GetNumber(PPTAG_LOT_SN, lp, serial_buf); // @v9.8.11
 							if(serial_buf.Empty()) {
 								// @todo Следует формировать новую серию по какому-либо шаблону
 								(serial_buf = src_serial).CatChar('-').Cat("???");
 								// @v9.8.11 p_pack->SnL.AddNumber(lp, serial_buf);
-								p_pack->LTagL.AddNumber(PPTAG_LOT_SN, lp, serial_buf); // @v9.8.11 
+								p_pack->LTagL.AddNumber(PPTAG_LOT_SN, lp, serial_buf); // @v9.8.11
 							}
 						}
 					}
@@ -1062,9 +1067,9 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 									// @v9.8.11 THROW(p_pack->ClbL.AddNumber(dest_pos, clb_buf));
 									// @v9.8.11 THROW(p_pack->SnL.AddNumber(dest_pos, serial_buf));
 									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_CLB, i, clb_buf); // @v9.8.11
-									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, dest_pos, clb_buf)); // @v9.8.11 
+									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, dest_pos, clb_buf)); // @v9.8.11
 									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf); // @v9.8.11
-									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, dest_pos, serial_buf)); // @v9.8.11 
+									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, dest_pos, serial_buf)); // @v9.8.11
 									{
 										const ObjTagList * p_org_lot_tag_list = blk.SrcDraftPack.LTagL.Get(i);
 										THROW(p_pack->LTagL.Set(dest_pos, p_org_lot_tag_list));
@@ -1111,10 +1116,10 @@ int SLAPI PPObjBill::Helper_WriteOffDraft(PPID billID, const PPDraftOpEx * pWrOf
 									// @v9.8.11 blk.SrcDraftPack.SnL.GetNumber(i, &serial_buf);
 									// @v9.8.11 THROW(p_pack->ClbL.AddNumber(dest_pos, clb_buf));
 									// @v9.8.11 THROW(p_pack->SnL.AddNumber(dest_pos, serial_buf));
-									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_CLB, i, clb_buf); // @v9.8.11 
-									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, dest_pos, clb_buf)); // @v9.8.11 
-									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf); // @v9.8.11 
-									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, dest_pos, serial_buf)); // @v9.8.11 
+									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_CLB, i, clb_buf); // @v9.8.11
+									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_CLB, dest_pos, clb_buf)); // @v9.8.11
+									blk.SrcDraftPack.LTagL.GetNumber(PPTAG_LOT_SN, i, serial_buf); // @v9.8.11
+									THROW(p_pack->LTagL.AddNumber(PPTAG_LOT_SN, dest_pos, serial_buf)); // @v9.8.11
 									{
 										const ObjTagList * p_org_lot_tag_list = blk.SrcDraftPack.LTagL.Get(i);
 										THROW(p_pack->LTagL.Set(dest_pos, p_org_lot_tag_list));

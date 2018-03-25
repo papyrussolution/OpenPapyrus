@@ -170,7 +170,7 @@ extern "C" __declspec(dllexport) SString * SfaHeineken_SendSellout(PPSoapClientS
 		param._USCOREinvoices->Invoice[i] = p_inv;
 		{
 			p_inv->InvoiceNum = GetDynamicParamString(p_entry->Code, arg_str_pool);
-			temp_buf.Z().Cat(p_entry->Dt, DATF_ISO8601);
+			temp_buf.Z().Cat(p_entry->Dt, DATF_ISO8601|DATF_CENTURY);
 			p_inv->InvoiceDate = GetDynamicParamString(temp_buf, arg_str_pool);
 			if(p_entry->OrderList.getCount()) {
 				THROW(p_inv->OrderDeliveries = new ns1__ArrayOfOrderDelivery);

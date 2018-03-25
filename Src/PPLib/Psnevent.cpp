@@ -55,19 +55,11 @@ int SLAPI PersonEventCore::SearchPair(const PairIdent * pIdent, int forward, Per
 }
 
 int SLAPI PersonEventCore::Add(PPID * pID, PersonEventTbl::Rec * pRec, int use_ta)
-{
-	return (IncDateKey(this, 1, pRec->Dt, &pRec->OprNo) && AddObjRecByID(this, PPOBJ_PERSONEVENT, pID, pRec, use_ta));
-}
-
+	{ return (IncDateKey(this, 1, pRec->Dt, &pRec->OprNo) && AddObjRecByID(this, PPOBJ_PERSONEVENT, pID, pRec, use_ta)); }
 int SLAPI PersonEventCore::Update(PPID id, PersonEventTbl::Rec * pRec, int use_ta)
-{
-	return UpdateByID(this, PPOBJ_PERSONEVENT, id, pRec, use_ta);
-}
-
+	{ return UpdateByID(this, PPOBJ_PERSONEVENT, id, pRec, use_ta); }
 int SLAPI PersonEventCore::Remove(PPID id, int use_ta)
-{
-	return RemoveByID(this, id, use_ta);
-}
+	{ return RemoveByID(this, id, use_ta); }
 
 int SLAPI PersonEventCore::CalcCountForPeriod(PPID opID, PPID personID, const STimeChunk & rTc, uint * pCount)
 {
@@ -897,9 +889,10 @@ int SLAPI PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKi
 											if(is_quot || pClause->CmdText.NotEmpty()) {
 												double qtty = 1.0;
 												double ratio = 0.0;
-												PPUnit unit_rec;
-												if(goods_obj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0 && unit_rec.BaseUnitID == PPUNT_SECOND && unit_rec.BaseRatio) {
-													ratio = unit_rec.BaseRatio;
+												// @v9.9.12 PPUnit unit_rec;
+												// @v9.9.12 if(goods_obj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0 && unit_rec.BaseUnitID == PPUNT_SECOND && unit_rec.BaseRatio) {
+													// @v9.9.12 ratio = unit_rec.BaseRatio;
+												if(goods_obj.TranslateGoodsUnitToBase(goods_rec, PPUNT_SECOND, &ratio) > 0) { // @v9.9.12 
 													if(ratio > 0.0) {
 														PersonEventCore::PairIdent pi;
 														pi.PersonID = psn_id;
@@ -2519,4 +2512,3 @@ int SLAPI PPObjPersonEvent::ProcessDeviceInput(const AddPersonEventFilt & rFilt)
 	delete dlg;
 	return ok;
 }
-

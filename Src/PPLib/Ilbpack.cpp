@@ -1264,10 +1264,7 @@ int SLAPI ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 		//
 		int    row_idx = -1;
 		if(op_type_id == PPOPT_INVENTORY) {
-			InventoryTbl::Rec rec;
-			for(SEnum en = p_bobj->GetInvT().Enum(billID); en.Next(&rec) > 0;) {
-				THROW_SL(InvList.insert(&rec));
-			}
+			THROW(p_bobj->LoadInventoryArray(billID, InvList));
 		}
 		if(oneof3(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT)) {
 			if(p_bobj->P_CpTrfr) {
@@ -2419,11 +2416,21 @@ int SLAPI PPObjBill::SerializePacket__(int dir, PPBillPacket * pPack, SBuffer & 
 	}
 	THROW(SerializePacket_Base(dir, pPack, rBuf, pSCtx));
 	THROW(pPack->SerializeLots(dir, rBuf, pSCtx));
-	if(dir < 0) {
-		PPOprKind op_rec;
-		if(GetOpData(pPack->Rec.OpID, &op_rec)) {
-			pPack->OpTypeID  = op_rec.OpTypeID;
-			pPack->AccSheetID = op_rec.AccSheetID;
+	if(dir > 0) {
+		THROW_SL(GetInvT().SerializeArrayOfRecords(dir, &pPack->InvList, rBuf, pSCtx));  // @v9.9.12
+	}
+	else if(dir < 0) {
+		// @v9.9.12 {
+		if(!pPack->Ver.IsLt(9, 9, 12)) {
+			THROW_SL(GetInvT().SerializeArrayOfRecords(dir, &pPack->InvList, rBuf, pSCtx)); 
+		}
+		// } @v9.9.12 
+		{
+			PPOprKind op_rec;
+			if(GetOpData(pPack->Rec.OpID, &op_rec)) {
+				pPack->OpTypeID  = op_rec.OpTypeID;
+				pPack->AccSheetID = op_rec.AccSheetID;
+			}
 		}
 	}
 	CATCHZOK

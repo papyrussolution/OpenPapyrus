@@ -3304,7 +3304,7 @@ int SLAPI PPBillImporter::Run()
 					}
 					if(temp_id_list.getCount()) {
 						// temp_id_list содержит идентификаторы поставщиков, которые, согласно соглашению, используют данного провайдера
-						PPEdiProcessor prc(p_prvimp);
+						PPEdiProcessor prc(p_prvimp, &Logger);
 						prc.SendOrders(be_filt, temp_id_list);
 					}
 				}

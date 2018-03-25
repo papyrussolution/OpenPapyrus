@@ -5906,10 +5906,8 @@ EmailCtrlGroup::Rec::Rec(StrAssocArray * pAddrList)
 	RVALUEPTR(AddrList, pAddrList);
 }
 
-EmailCtrlGroup::EmailCtrlGroup(uint ctl, uint cm)
+EmailCtrlGroup::EmailCtrlGroup(uint ctl, uint cm) : Ctl(ctl), Cm(cm)
 {
-	Ctl = ctl;
-	Cm  = cm;
 }
 
 EmailCtrlGroup::~EmailCtrlGroup()

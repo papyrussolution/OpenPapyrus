@@ -1,5 +1,5 @@
 // SXML.CPP
-// Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016, 2017
+// Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016, 2017, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -179,9 +179,10 @@ int SXml::WNode::PutAttrib(const char * pName, const char * pValue)
 int SXml::WNode::PutAttribSkipEmpty(const char * pName, const char * pValue)
 {
 	int    ok = 1;
-	if(State & stStarted && Lx) {
-		SString temp_buf = pValue;
-		if(temp_buf.NotEmptyS()) {
+	if(State & stStarted && Lx && !isempty(pValue)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
+		r_temp_buf = pValue;
+		if(r_temp_buf.NotEmptyS()) {
 			xmlTextWriterStartAttribute(Lx, (const xmlChar*)pName);
 			xmlTextWriterWriteString(Lx, (const xmlChar*)pValue);
 			xmlTextWriterEndAttribute(Lx);
@@ -196,8 +197,8 @@ int SXml::WNode::PutInnerValidDate(const char * pInnerName, LDATE dt, long fmt)
 {
 	int    ok = -1;
 	if(checkdate(dt, 0)) {
-		SString temp_buf;
-		ok = PutInner(pInnerName, temp_buf.Cat(dt, fmt));
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		ok = PutInner(pInnerName, r_temp_buf.Cat(dt, fmt));
 	}
 	return ok;
 }
@@ -216,9 +217,10 @@ int SXml::WNode::PutInner(const char * pInnerName, const char * pInnerValue)
 int SXml::WNode::PutInnerSkipEmpty(const char * pInnerName, const char * pInnerValue)
 {
 	int    ok = 1;
-	if(State & stStarted && Lx) {
-		SString temp_buf = pInnerValue;
-		if(temp_buf.NotEmptyS()) {
+	if(State & stStarted && Lx && !isempty(pInnerValue)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
+		r_temp_buf = pInnerValue;
+		if(r_temp_buf.NotEmptyS()) {
 			WNode inner(Lx, pInnerName, pInnerValue);
 		}
 	}

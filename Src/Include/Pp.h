@@ -9743,6 +9743,7 @@ public:
 #define BPLD_LOCK         0x0002 // Устанавливать логич блокировку на документ
 #define BPLD_FORCESERIALS 0x0004 // Обязательная загрузка серийных номеров по всем товарных строкам
 	// Если этот флаг не установлен, то серийные номера загружаются только для строк, генерирующих лоты
+#define BPLD_LOADINVLINES 0x0008 // @v9.9.12 Загружать строки инвентаризации
 //
 // Опции обработки недостаточного количества составляющих комплектации
 //
@@ -10586,11 +10587,13 @@ public:
 		pfNoLoadTrfr            = 0x00010000, // @v9.4.3 @construction При загрузке и обработке документа не следует загружать товарные строки
 		pfUpdateProhibited      = 0x00020000, // @v9.5.1 Проведение этого пакета функцией PPObjBill::UpdatePacket запрещено
 			// (например, по причене не полной загрузки).
-		pfIgnoreOpRtList        = 0x00040000  // @v9.8.3 При изменении документа игнорировать ограничения списка доступных операций.
+		pfIgnoreOpRtList        = 0x00040000, // @v9.8.3 При изменении документа игнорировать ограничения списка доступных операций.
 			// Флаг устанавливается при рекурсивном вызове PPObjBill::UpdatePacket
+		pfZombie                = 0x00080000  // @v9.9.12 Документ восстановлен из истории версий (прямое изменение запрещено)
 	};
 	long   ProcessFlags;       // @transient
 	PPLinkFilesArray LnkFiles;
+	InventoryArray InvList; // @v9.9.12 Список строк инвентаризации (введен исключительно для сериализации строк удаляемой инвентаризации - дальше будет видно)
 	//
 	// @v8.7.8 Список персональных регистраций, ассоциированных с документом.
 	// Note: Здесь нельзя использовать высокоуровневый класс PPCheckInPersonArray
@@ -16870,6 +16873,7 @@ public:
 	int    FASTCALL IsEqual(const PPEdiProviderPacket & rS) const;
 	int    SLAPI GetExtStrData(int fldID, SString & rBuf) const;
 	int    SLAPI PutExtStrData(int fldID, const char *);
+	int    SLAPI MakeUrl(int reserved, InetUrl & rUrl);
 
 	PPEdiProvider Rec;
 	SString ExtString;
@@ -26214,6 +26218,16 @@ public:
 	// Descr: Извлекает запись единицы измерения unitID из кэша.
 	//
 	int    SLAPI FetchUnit(PPID unitID, PPUnit * pUnitRec); // @>>PPObjUnit::Fetch
+	//
+	// Descr: Находит коэффициент перевода одной торговой единицы товара rGoodsRec в 
+	//   базовую единицу измерения baseUnitID.
+	// Returns:
+	//   >0 - удалось выполнить пересчет. По указателю pRate присвоен коэффициент
+	//     пересчета одной торговой единицы товара rGoodsRec в единицы baseUnitID
+	//   <0 - не удалось выполнить пересчет. По указателю pRate присвоено значение 0.0
+	//   0  - ошибка
+	//
+	int    SLAPI TranslateGoodsUnitToBase(const Goods2Tbl::Rec & rGoodsRec, PPID baseUnitID, double * pRate);
 	int    SLAPI GetStockExt(PPID, GoodsStockExt * pExt, int useCache = 0);
 	//
 	// Descr: If(withOrWithout == 1 /with/): добавляет к цене поступления pCost
@@ -29510,16 +29524,21 @@ public:
 		int    SLAPI GetTempOutputPath(int docType, SString & rBuf);
 		int    SLAPI GetTempInputPath(int docType, SString & rBuf);
 		int    SLAPI GetArticleGLN(PPID arID, SString & rGLN);
+		int    SLAPI GetMainOrgGLN(SString & rGLN);
+		int    SLAPI GetLocGLN(PPID locID, SString & rGLN);
+
+		int    SLAPI ProviderImplementation::ValidateGLN(const SString & rGLN);
 
 		PPEdiProviderPacket Epp;
 		PPID   MainOrgID;
 		PPObjGoods GObj;
 		PPObjPerson PsnObj;
+		STokenRecognizer TR; // Для распознавания допустимых/недопустимых токенов
 	};
 
 	static ProviderImplementation * SLAPI CreateProviderImplementation(PPID ediPrvID, PPID mainOrgID);
 
-	explicit SLAPI PPEdiProcessor(ProviderImplementation * pImp);
+	explicit SLAPI PPEdiProcessor(ProviderImplementation * pImp, PPLogger * pLogger);
 	SLAPI ~PPEdiProcessor();
 	
 	int    SLAPI SendBills(const PPBillExportFilt & rP);
@@ -29529,7 +29548,8 @@ public:
 	int    SLAPI ReceiveDocument(const DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack);
 	int    SLAPI GetDocumentList(DocumentInfoList & rList);
 private:
-	ProviderImplementation * P_Prv;
+	ProviderImplementation * P_Prv; // @notowned
+	PPLogger * P_Logger; // @notowned
 	PPObjBill * P_BObj;
 	PPObjPerson PsnObj;
 };
@@ -30206,6 +30226,7 @@ public:
 
 	int    SLAPI InitInventoryBlock(PPID billID, InvBlock & rBlk);
 	int    SLAPI AcceptInventoryItem(InvBlock & rBlk, InvItem * pItem, int use_ta);
+	int    SLAPI LoadInventoryArray(PPID billID, InventoryArray & rList);
 
 	InventoryCore & SLAPI GetInvT();
 	int    SLAPI TurnInventory(PPBillPacket * pPack, int use_ta);
@@ -35101,6 +35122,9 @@ public:
 	SLAPI ~PPViewInventory();
 	virtual int  SLAPI EditBaseFilt(PPBaseFilt * pFilt);
 	virtual int  SLAPI Init_(const PPBaseFilt * pFilt);
+	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int   SLAPI Print(const void *);
+	int    SLAPI SetOuterPack(PPBillPacket * pPack);
 	int    SLAPI InitIteration();
 	int    FASTCALL NextIteration(InventoryViewItem *);
 	int    SLAPI GetZeroByDefaultStatus() const;
@@ -35113,8 +35137,6 @@ public:
 	//   0  - ошибка
 	//
 	int    SLAPI UpdatePacket(PPID billID);
-	virtual int   SLAPI ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int   SLAPI Print(const void *);
 	//
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 private:
@@ -35179,6 +35201,7 @@ private:
 	StrAssocArray TextPool;
 	GoodsSubstList    Gsl;
 	PPObjBill::SubstParam Bsp; // Параметр подстановки по документам
+	PPBillPacket * P_OuterPack; // @v9.9.12 @notowned Поставляемый из-вне пакет документа, соджержащий строки в поле P_OuterPack->InvList
 };
 //
 // @ModuleDecl(PPViewAccturn)
@@ -43210,9 +43233,7 @@ public:
 		void   FASTCALL Init(int q);
 	};
 	struct QueryProcessBlock {
-		SLAPI  QueryProcessBlock() : PosNodeID(0)
-		{
-		}
+		SLAPI  QueryProcessBlock();
 		PPID   PosNodeID;
 		RouteBlock R;
 		TSVector <QueryBlock> QL;
@@ -43270,6 +43291,8 @@ private:
 		xmlTextWriter * P_Xw;
 		SXml::WDoc * P_Xd;
 		SXml::WNode * P_Root;
+		S_GUID FileUUID;   // @v9.9.12 
+		LDATETIME FileDtm; // @v9.9.12 
 		PPIDArray NeededQkList;
 		PPIDArray UsedQkList;
 		AsyncCashGoodsIterator * P_Acgi; // @notowned
@@ -43547,6 +43570,8 @@ private:
 		SString TempBuf; // @allocreuse
 		SString TagValue;
 		SString SrcFileName;
+		S_GUID  SrcFileUUID; // @v9.9.12 uuid файла, считанный из заголовочной части xml-сообщения (file/uuid)
+		LDATETIME SrcFileDtm; // @v9.9.12 время создания файла, считанное из заголовочной части xml-сообщения (file/timestamp)
 		TSStack <int> TokPath;
 		TSStack <uint> RefPosStack; //
 		TSVector <RouteObjectBlock> SrcBlkList;
@@ -43597,7 +43622,7 @@ private:
 	// Descr: Разбирает входящий документ из файла pFileName и складывает данные в объект RdB.
 	//   После разбора данные в RdB могут быть импортированы.
 	//
-	int    SLAPI SaxParseFile(const char * pFileName, int preprocess);
+	int    SLAPI SaxParseFile(const char * pFileName, int preprocess, int silent);
 	int    SLAPI AcceptData(PPID posNodeID, int silent);
 	int    SLAPI BackupInputFile(const char * pFileName);
     void   SLAPI DestroyReadBlock();
@@ -47740,8 +47765,8 @@ private:
 	int    SetLine(TDialog *);
 	int    Edit(TDialog *);
 
-	uint   Cm;
-	uint   Ctl;
+	const uint Cm;
+	const uint Ctl;
 	Rec    Data;
 };
 

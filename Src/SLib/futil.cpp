@@ -254,9 +254,10 @@ SString & SLAPI MakeTempFileName(const char * pDir, const char * pPrefix, const 
 	size_t prefix_len = 0;
 	long   start = pStart ? *pStart : 1;
 	if(pPrefix)
-		prefix_len = sstrlen(strnzcpy(prefix, pPrefix, 6));
+		prefix_len = sstrlen(strnzcpy(prefix, pPrefix, 20)); // @v9.9.12 6-->20
 	else
 		prefix[0] = 0;
+	const uint nd = (prefix_len <= 6) ? (8-prefix_len) : 4;
 	if(pExt)
 		if(pExt[0] == '.')
 			strnzcpy(ext, pExt+1, sizeof(ext));
@@ -267,7 +268,7 @@ SString & SLAPI MakeTempFileName(const char * pDir, const char * pPrefix, const 
 	for(rBuf.Z(); rBuf.Empty() && start < 9999999L;) {
 		if(pDir)
 			(rBuf = pDir).Strip().SetLastSlash();
-		rBuf.Cat(prefix).CatLongZ(start++, 8-prefix_len).Dot().Cat(ext);
+		rBuf.Cat(prefix).CatLongZ(start++, nd).Dot().Cat(ext); // @v9.9.12 (8-prefix_len)-->nd
 		if(fileExists(rBuf))
 			rBuf.Z();
 	}
@@ -402,8 +403,6 @@ int SLAPI copyFileByName(const char * pSrcFileName, const char * pDestFileName)
 
 int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMoveProgressProc pp, long shareMode, void * pExtra)
 {
-	const size_t KB = 1024;
-
 	EXCEPTVAR(SLibError);
 	int   ok = 1, reply;
 	int   quite = 0, cancel = 0;
@@ -411,7 +410,8 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SData
 	HANDLE desthdl = 0;
 	void  * p_buf  = 0;
 	uint32 flen;
-	uint32 buflen = 4*1024*KB; // @v7.2.2 (32*KB)-->(4*1024*KB)
+	
+	uint32 buflen = SMEGABYTE(4); // @v7.2.2 (32*KB)-->(4*1024*KB)
 	uint32 len, bytes_read_write;
 	SDataMoveProgressInfo scfd;
 	SString added_msg;
@@ -458,10 +458,10 @@ int SLAPI SCopyFile(const char * pSrcFileName, const char * pDestFileName, SData
 	if(!cancel && flen) {
 		SetFilePointer(srchdl, 0L, NULL, FILE_BEGIN);
 		if(flen < buflen)
-			buflen = KB * (1 + (uint)flen / KB);
+			buflen = ALIGNSIZE(flen, 10);
 		do {
 			p_buf = SAlloc::M(buflen);
-		} while(!p_buf && (buflen -= KB) >= KB);
+		} while(!p_buf && (buflen -= SKILOBYTE(1)) >= SKILOBYTE(1));
 		THROW(p_buf);
 		do {
 			THROW_V(ReadFile(srchdl, p_buf, (flen < buflen) ? flen : buflen, &bytes_read_write, NULL), SLERR_READFAULT);

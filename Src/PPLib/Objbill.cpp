@@ -7363,7 +7363,7 @@ int SLAPI PPObjBill::RemovePacket(PPID id, int use_ta)
 				if(p_ovc && p_ovc->InitSerializeContext(0)) {
 					SSerializeContext & r_sctx = p_ovc->GetSCtx();
 					PPBillPacket org_pack;
-					THROW(ExtractPacket(id, &org_pack) > 0);
+					THROW(ExtractPacketWithFlags(id, &org_pack, BPLD_LOADINVLINES) > 0); // @v9.9.12 BPLD_LOADINVLINES
 					THROW(SerializePacket__(+1, &org_pack, hist_buf, &r_sctx));
 				}
 			}
@@ -7607,19 +7607,11 @@ int PPObjBill::GetOrderLotForTransfer(const TransferTbl::Rec & rTrfrRec, PPID * 
 }
 
 int SLAPI PPObjBill::ExtractPacket(PPID id, PPBillPacket * pPack)
-{
-	return Helper_ExtractPacket(id, pPack, 0, 0);
-}
-
+	{ return Helper_ExtractPacket(id, pPack, 0, 0); }
 int SLAPI PPObjBill::ExtractPacketWithFlags(PPID id, PPBillPacket * pPack, uint fl /* BPLD_XXX */)
-{
-	return Helper_ExtractPacket(id, pPack, fl, 0);
-}
-
+	{ return Helper_ExtractPacket(id, pPack, fl, 0); }
 int SLAPI PPObjBill::ExtractPacketWithRestriction(PPID id, PPBillPacket * pPack, uint fl /* BPLD_XXX */, const PPIDArray * pGoodsList)
-{
-	return Helper_ExtractPacket(id, pPack, fl, pGoodsList);
-}
+	{ return Helper_ExtractPacket(id, pPack, fl, pGoodsList); }
 
 int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, const PPIDArray * pGoodsList)
 {
@@ -7762,6 +7754,11 @@ int SLAPI PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl
 			*/
 			// } @v9.5.3
 		}
+		// @v9.9.12 {
+		if(pPack->OpTypeID == PPOPT_INVENTORY && fl & BPLD_LOADINVLINES) {
+			THROW(LoadInventoryArray(id, pPack->InvList));
+		}
+		// } @v9.9.12 
 	}
 	{
 		PPBillPacket::SetupObjectBlock sob;

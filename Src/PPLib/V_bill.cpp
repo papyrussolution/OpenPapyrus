@@ -3318,9 +3318,13 @@ int SLAPI PPViewBill::DeleteItem(PPID billID)
 						ok = 1;
 					}
 				}
-				else if(CONFIRM(PPCFM_DELETE)) {
-					THROW(P_BObj->RemovePacket(billID, 1));
-					ok = 1;
+				else {
+					SString temp_buf;
+					PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName|PPObjBill::mcsAddObjName, temp_buf);
+					if(CONFIRM_S(PPCFM_DELETE_BILL, temp_buf)) {
+						THROW(P_BObj->RemovePacket(billID, 1));
+						ok = 1;
+					}
 				}
 			}
 		}

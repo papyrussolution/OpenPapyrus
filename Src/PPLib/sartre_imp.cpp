@@ -4235,7 +4235,24 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 					rB.GetTextItemWithAdvance(tidx);
 					if(rB.TItemBuf.Token == STokenizer::tokWord && rB.R_Db.FetchWord(rB.TItemBuf.Text, &word_id) > 0) {
 						sng.WordIdList.add(word_id);
-						if(rB.R_Db.P_NgT->SearchByPrefix(sng, ng_list) > 0) {
+						TSVector <SrWordAssoc> wa_list;
+						TSVector <SrWordInfo> wi_list;
+						TSVector <NGID> abbr_ng_list; // Список N-грамм, соответствующих аббревиатуре word_id (если это-таки аббревиатура)
+						rB.R_Db.GetBaseWordInfo(word_id, 0, 0, wa_list, wi_list);
+						for(uint wiidx = 0; wiidx < wi_list.getCount(); wiidx++) {
+							const SrWordInfo & r_wi = wi_list.at(wiidx);
+							if(r_wi.AbbrExpID && rB.R_Db.P_NgT->Search(r_wi.AbbrExpID, 0) > 0) {
+								if(TryNgForConcept(rB, r_wi.AbbrExpID, p_sti, target_cid, tidx) > 0) {
+									ok = 1;
+									// Мы нашли соответствие по аббревиатуре. Пропускаем последующую точку, если она есть.
+									// Здесь неточность: точку надо пропускать только если аббревиатура это предполагает, но пока так.
+									if(rB.R_T.Get(rB.TextIdx, rB.TItemBuf) && rB.TItemBuf.Text == ".") { 
+										rB.TextIdx++;
+									}
+								}
+							}
+						}
+						if(ok < 0 && rB.R_Db.P_NgT->SearchByPrefix(sng, ng_list) > 0) {
 							SrNGramCollection sng_list;
 							for(uint i = 0; i < ng_list.getCount(); i++) {
 								SrNGram * p_ng = sng_list.CreateNewItem();
@@ -4270,42 +4287,7 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 									}
 								}
 								if(is_match) {
-									rB.R_Db.GetNgConceptList(p_ng->ID, 0, concept_list);
-									uint   cpos = 0;
-									if(p_sti->K == SrSyntaxRuleSet::kConcept && concept_list.lsearch(target_cid, &cpos)) {
-										rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, concept_list.get(cpos));
-										rB.TextIdx = tidx+1;
-										ok = 1;
-									}
-									else {
-										for(uint cidx = 0; ok < 0 && cidx < concept_list.getCount(); cidx++) {
-											const CONCEPTID cid = concept_list.get(cidx);
-											if(p_sti->K == SrSyntaxRuleSet::kConcept) {
-												rB.R_Db.GetConceptHier(cid, concept_hier_list);
-												if(concept_hier_list.lsearch(target_cid)) {
-													rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, cid);
-													rB.TextIdx = tidx+1;
-													ok = 1;
-												}
-											}
-											else if(p_sti->K == SrSyntaxRuleSet::kConceptInstance) {
-												CONCEPTID ancestor_id;
-												if(rB.R_Db.GetFirstConceptAncestor(SrDatabase::rcInstance, cid, ancestor_id) > 0 && ancestor_id == target_cid) {
-													rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, cid);
-													rB.TextIdx = tidx+1;
-													ok = 1;
-												}
-											}
-											else if(p_sti->K == SrSyntaxRuleSet::kConceptSubclass) {
-												CONCEPTID ancestor_id;
-												if(rB.R_Db.GetFirstConceptAncestor(SrDatabase::rcSubclass, cid, ancestor_id) > 0 && ancestor_id == target_cid) {
-													rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, cid);
-													rB.TextIdx = tidx+1;
-													ok = 1;
-												}
-											}
-										}
-									}
+									ok = TryNgForConcept(rB, p_ng->ID, p_sti, target_cid, tidx);
 								}
 							} while(ok < 0 && _c);
 						}
@@ -4318,6 +4300,50 @@ int SLAPI SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollSt
 	if(ok <= 0) {
 		rB.TextIdx = preserve_tidx;
 		rB.TrimMatchListOnFailure(preserve_match_p);
+	}
+	return ok;
+}
+
+int SLAPI SrSyntaxRuleSet::TryNgForConcept(ResolveRuleBlock & rB, NGID ngID, const SrSyntaxRuleSet::ExprItem * pSti, CONCEPTID targetCID, uint tidx) const
+{
+	int    ok = -1;
+	Int64Array concept_list; // Список концепций, соответствующих отдельной N-грамме
+	Int64Array concept_hier_list; // Иерархия отдельной концепции
+	rB.R_Db.GetNgConceptList(ngID, 0, concept_list);
+	uint   cpos = 0;
+	if(pSti->K == SrSyntaxRuleSet::kConcept && concept_list.lsearch(targetCID, &cpos)) {
+		rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, concept_list.get(cpos));
+		rB.TextIdx = tidx+1;
+		ok = 1;
+	}
+	else {
+		for(uint cidx = 0; ok < 0 && cidx < concept_list.getCount(); cidx++) {
+			const CONCEPTID cid = concept_list.get(cidx);
+			if(pSti->K == SrSyntaxRuleSet::kConcept) {
+				rB.R_Db.GetConceptHier(cid, concept_hier_list);
+				if(concept_hier_list.lsearch(targetCID)) {
+					rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, cid);
+					rB.TextIdx = tidx+1;
+					ok = 1;
+				}
+			}
+			else if(pSti->K == SrSyntaxRuleSet::kConceptInstance) {
+				CONCEPTID ancestor_id;
+				if(rB.R_Db.GetFirstConceptAncestor(SrDatabase::rcInstance, cid, ancestor_id) > 0 && ancestor_id == targetCID) {
+					rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, cid);
+					rB.TextIdx = tidx+1;
+					ok = 1;
+				}
+			}
+			else if(pSti->K == SrSyntaxRuleSet::kConceptSubclass) {
+				CONCEPTID ancestor_id;
+				if(rB.R_Db.GetFirstConceptAncestor(SrDatabase::rcSubclass, cid, ancestor_id) > 0 && ancestor_id == targetCID) {
+					rB.PutMatchEntryOnSuccess(rB.TextIdx, tidx, cid);
+					rB.TextIdx = tidx+1;
+					ok = 1;
+				}
+			}
+		}
 	}
 	return ok;
 }

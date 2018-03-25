@@ -12,13 +12,74 @@ SLAPI PPEdiProcessor::ProviderImplementation::~ProviderImplementation()
 {
 }
 
+int SLAPI PPEdiProcessor::ProviderImplementation::ValidateGLN(const SString & rGLN)
+{
+	int    ok = 0;
+	if(rGLN.NotEmpty()) {
+		SNaturalTokenArray ntl;
+		SNaturalTokenStat nts;
+		TR.Run(rGLN.ucptr(), rGLN.Len(), ntl, &nts);
+		if(nts.Seq & SNTOKSEQ_DEC)
+			ok = 1;
+	}
+	return ok;
+}
+
 int SLAPI PPEdiProcessor::ProviderImplementation::GetArticleGLN(PPID arID, SString & rGLN)
 {
-	int    ok = -1;
+	int    ok = 0;
 	rGLN.Z();
 	PPID   psn_id = ObjectToPerson(arID, 0);
 	if(psn_id) {
-		ok = PsnObj.GetRegNumber(psn_id, PPREGT_GLN, rGLN);
+		PsnObj.GetRegNumber(psn_id, PPREGT_GLN, rGLN);
+	}
+	if(ValidateGLN(rGLN)) {
+		ok = 1;
+	}
+	else {
+		SString temp_buf;
+		GetObjectName(PPOBJ_ARTICLE, arID, temp_buf);
+		PPSetError(PPERR_EDI_ARHASNTVALUDGLN, temp_buf);
+	}
+	return ok;
+}
+
+int SLAPI PPEdiProcessor::ProviderImplementation::GetMainOrgGLN(SString & rGLN)
+{
+	int    ok = 0;
+	rGLN.Z();
+	PPID   psn_id = MainOrgID;
+	if(psn_id) {
+		PsnObj.GetRegNumber(psn_id, PPREGT_GLN, rGLN);
+	}
+	if(ValidateGLN(rGLN)) {
+		ok = 1;
+	}
+	else {
+		SString temp_buf;
+		GetObjectName(PPOBJ_PERSON, psn_id, temp_buf);
+		PPSetError(PPERR_EDI_MAINORGHASNTVALUDGLN, temp_buf);
+	}
+	return ok;
+}
+
+int SLAPI PPEdiProcessor::ProviderImplementation::GetLocGLN(PPID locID, SString & rGLN)
+{
+	int    ok = 0;
+	rGLN.Z();
+	if(locID) {
+		RegisterTbl::Rec reg_rec;
+		if(PsnObj.LocObj.GetRegister(locID, PPREGT_GLN, ZERODATE, 1, &reg_rec) > 0) {
+			rGLN = reg_rec.Num;
+		}
+	}
+	if(ValidateGLN(rGLN)) {
+		ok = 1;
+	}
+	else {
+		SString temp_buf;
+		GetObjectName(PPOBJ_LOCATION, locID, temp_buf);
+		PPSetError(PPERR_EDI_LOCHASNTVALUDGLN, temp_buf);
 	}
 	return ok;
 }
@@ -157,8 +218,9 @@ public:
 			}
 			{
 				SXml::WNode n_i(rDoc, "C106"); // Идентификация документа/сообщения
-				(temp_buf = pDocIdent).Transf(CTRANSF_INNER_TO_UTF8);
-				THROW(temp_buf.Len() > 0 && temp_buf.Len() <= 17); // @todo errcode
+				temp_buf = pDocIdent;
+				THROW_PP_S(temp_buf.Len() > 0 && temp_buf.Len() <= 17, PPERR_EDI_DOCIDENTLEN, temp_buf);
+				temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 				n_i.PutInner("E1004", temp_buf); // Номер документа (Должно быть максимум 17 символов)
 			}
 			n_bgm.PutInner("E1225", temp_buf.Z().Cat(funcMsgCode)); // Код функции сообщения
@@ -254,7 +316,7 @@ public:
 		int    ok = 1;
 		SString temp_buf;
 		SXml::WNode n_nad(rDoc, "NAD"); // Наименование и адрес
-		THROW(!isempty(pGLN)); // @todo error
+		THROW_PP(!isempty(pGLN), PPERR_EDI_GLNISEMPTY);
 		{
 			switch(partyQ) {
 				case EDIPARTYQ_BUYER: temp_buf = "BY"; break;
@@ -267,7 +329,7 @@ public:
 				case EDIPARTYQ_WAREHOUSEKEEPER: temp_buf = "WH"; break;
 				case EDIPARTYQ_CONSIGNOR: temp_buf = "CZ"; break;
 				default:
-					CALLEXCEPT(); // @todo error
+					CALLEXCEPT_PP_S(PPERR_EDI_INVPARTYQ, (long)partyQ);
 
 			}
 			n_nad.PutInner("E3035", temp_buf);
@@ -291,7 +353,7 @@ public:
 		int    ok = 1;
 		SString temp_buf;
 		SXml::WNode n_cux(rDoc, "CUX"); 
-		THROW(!isempty(pCurrencyCode3)); // @todo error
+		THROW_PP(!isempty(pCurrencyCode3), PPERR_EDI_CURRCODEISEMPTY);
 		{
 			SXml::WNode n_i(rDoc, "C504");
 			n_i.PutInner("E6347", "2");
@@ -405,13 +467,13 @@ public:
 			switch(priceQ) {
 				case priceqAAA: temp_buf = "AAA"; break;
 				case priceqAAE: temp_buf = "AAE"; break;
-				case priceqAAF :temp_buf = "AAF"; break;
-				case priceqAAH :temp_buf = "AAH"; break;
+				case priceqAAF: temp_buf = "AAF"; break;
+				case priceqAAH: temp_buf = "AAH"; break;
 				case priceqAAQ: temp_buf = "AAQ"; break;
 				case priceqABL: temp_buf = "ABL"; break;
 				case priceqABM: temp_buf = "ABM"; break;
 				default:
-					CALLEXCEPT(); // @todo error
+					CALLEXCEPT_PP_S(PPERR_EDI_INVPRICEQ, (long)priceQ);
 			}
 			n_i.PutInner("E5125", temp_buf); // Квалификатор цены
 			n_i.PutInner("E5118", temp_buf.Z().Cat(amount, MKSFMTD(0, 2, 0))); 
@@ -442,7 +504,7 @@ public:
 		int    ok = 1;
 		SString temp_buf;
 		SXml::WNode n_tax(rDoc, "TAX"); 
-		THROW(oneof2(taxQ, taxqCustomDuty, taxqTax)); // @todo error
+		THROW_PP_S(oneof2(taxQ, taxqCustomDuty, taxqTax), PPERR_EDI_INVTAXQ, (long)taxQ);
 		n_tax.PutInner("E5283", temp_buf.Z().Cat(taxQ)); // Квалификатор налога
 		{
 			// Тип налога
@@ -451,7 +513,7 @@ public:
 				case taxtIMP: temp_buf = "IMP"; break;
 				case taxtVAT: temp_buf = "VAT"; break;
 				default:
-					CALLEXCEPT(); // @todo error
+					CALLEXCEPT_PP_S(PPERR_EDI_INVTAXTYPE, (long)taxT);
 			}
 			SXml::WNode n_c241(rDoc, "C241");
 			n_c241.PutInner("E5153", temp_buf); 
@@ -507,7 +569,7 @@ public:
 				goods_code = r_bc_item.Code;
 			}
 		}
-		THROW(goods_code.NotEmpty()); // @todo error
+		THROW_PP_S(goods_code.NotEmpty(), PPERR_EDI_WAREHASNTVALIDCODE, goods_rec.Name);
 		{
 			{
 				SXml::WNode n_lin(rDoc, "LIN");
@@ -618,24 +680,26 @@ public:
 				//SXml::WNode n_sg1(_doc, "SG1"); // RFF-DTM // minOccurs="0" maxOccurs="9999"
 				{ // Поставщик
 					SXml::WNode n_sg2(_doc, "SG2"); // NAD-LOC-FII-SG3-SG4-SG5 // maxOccurs="99"
-					THROW(P_Pi->GetArticleGLN(rPack.Rec.Object, temp_buf) > 0); // @todo error
+					THROW(P_Pi->GetArticleGLN(rPack.Rec.Object, temp_buf));
 					THROW(Write_NAD(_doc, EDIPARTYQ_SUPPLIER, temp_buf));
 					seg_count++;
 				}
 				{ // Грузоотправитель
-					THROW(P_Pi->GetArticleGLN(rPack.Rec.Object, temp_buf) > 0); // @todo error
+					THROW(P_Pi->GetArticleGLN(rPack.Rec.Object, temp_buf));
 					SXml::WNode n_sg2(_doc, "SG2"); // NAD-LOC-FII-SG3-SG4-SG5 // maxOccurs="99"
 					THROW(Write_NAD(_doc, EDIPARTYQ_CONSIGNOR, temp_buf));
 					seg_count++;
 				}
 				{ // Покупатель
+					THROW(P_Pi->GetMainOrgGLN(temp_buf));
 					SXml::WNode n_sg2(_doc, "SG2"); // NAD-LOC-FII-SG3-SG4-SG5 // maxOccurs="99"
-					THROW(Write_NAD(_doc, EDIPARTYQ_BUYER, "gln"));
+					THROW(Write_NAD(_doc, EDIPARTYQ_BUYER, temp_buf));
 					seg_count++;
 				}
 				{ // Адрес доставки
+					THROW(P_Pi->GetLocGLN(rPack.Rec.LocID, temp_buf));
 					SXml::WNode n_sg2(_doc, "SG2"); // NAD-LOC-FII-SG3-SG4-SG5 // maxOccurs="99"
-					THROW(Write_NAD(_doc, EDIPARTYQ_DELIVERY, "gln"));
+					THROW(Write_NAD(_doc, EDIPARTYQ_DELIVERY, temp_buf));
 					seg_count++;
 				}
 				{
@@ -644,10 +708,10 @@ public:
 					seg_count++;
 				}
 				{	
-					SXml::WNode n_sg28(_doc, "SG28"); // maxOccurs="200000" LIN-PIA-IMD-MEA-QTY-ALI-DTM-MOA-GIN-QVR-FTX-SG32-SG33-SG34-SG37-SG38-SG39-SG43-SG49 
-						// A group of segments providing details of the individual ordered items. This Segment group may be repeated to give sub-line details.
 					for(uint i = 0; i < rPack.GetTCount(); i++) {
 						const PPTransferItem & r_ti = rPack.ConstTI(i);
+						SXml::WNode n_sg28(_doc, "SG28"); // maxOccurs="200000" LIN-PIA-IMD-MEA-QTY-ALI-DTM-MOA-GIN-QVR-FTX-SG32-SG33-SG34-SG37-SG38-SG39-SG43-SG49 
+						// A group of segments providing details of the individual ordered items. This Segment group may be repeated to give sub-line details.
 						THROW(Write_BillGoodsItem(_doc, edi_op, r_ti, TIAMT_COST, items_total));
 					}
 					seg_count += items_total.SegCount;
@@ -666,7 +730,7 @@ public:
 					{
 						SXml::WNode n_c270(_doc, "C270");
 						n_c270.PutInner("E6069", "2"); // Квалификатор типа итоговой информации (Количество товарных позиций в документе)
-						n_c270.PutInner("E6066", temp_buf.Z().Cat(/*Itr.GetCount()*/0L)); // Значение
+						n_c270.PutInner("E6066", temp_buf.Z().Cat(items_total.Count)); // Значение
 					}
 					seg_count++;
 				}
@@ -674,7 +738,7 @@ public:
 					seg_count++;
 					SXml::WNode n_unt(_doc, "UNT"); // Окончание сообщения
 					n_unt.PutInner("E0074", temp_buf.Z().Cat(seg_count)); // Общее число сегментов в сообщении
-					n_unt.PutInner("E0062", "bill-ident"); // Номер электронного сообщения (совпадает с указанным в заголовке)
+					n_unt.PutInner("E0062", bill_ident); // Номер электронного сообщения (совпадает с указанным в заголовке)
 				}
 			}
 		}
@@ -727,11 +791,11 @@ PPEdiProcessor::ProviderImplementation * SLAPI PPEdiProcessor::CreateProviderImp
 	PPObjEdiProvider ep_obj;
 	PPEdiProviderPacket ep_pack;
 	THROW(ep_obj.GetPacket(ediPrvID, &ep_pack) > 0);
-	if(sstreqi_ascii(ep_pack.Rec.Symb, "KONTUR")) {
+	if(sstreqi_ascii(ep_pack.Rec.Symb, "KONTUR") || sstreqi_ascii(ep_pack.Rec.Symb, "KONTUR-T")) {
 		p_imp = new EdiProviderImplementation_Kontur(ep_pack, mainOrgID);
 	}
 	else {
-		CALLEXCEPT(); // @todo error
+		CALLEXCEPT_PP_S(PPERR_EDI_THEREISNTPRVIMP, ep_pack.Rec.Symb);
 	}
 	CATCH
 		ZDELETE(p_imp);
@@ -739,13 +803,12 @@ PPEdiProcessor::ProviderImplementation * SLAPI PPEdiProcessor::CreateProviderImp
 	return p_imp;
 }
 
-SLAPI PPEdiProcessor::PPEdiProcessor(ProviderImplementation * pImp) : P_Prv(pImp), P_BObj(BillObj)
+SLAPI PPEdiProcessor::PPEdiProcessor(ProviderImplementation * pImp, PPLogger * pLogger) : P_Prv(pImp), P_Logger(pLogger), P_BObj(BillObj)
 {
 }
 
 SLAPI PPEdiProcessor::~PPEdiProcessor()
 {
-	delete P_Prv;
 }
 
 int SLAPI PPEdiProcessor::SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
@@ -753,7 +816,10 @@ int SLAPI PPEdiProcessor::SendDocument(DocumentInfo * pIdent, PPEdiProcessor::Pa
 	int    ok = 1;
 	THROW_PP(P_Prv, PPERR_EDI_PRVUNDEF);
 	THROW(P_Prv->SendDocument(pIdent, rPack));
-	CATCHZOK
+	CATCH
+		ok = 0;
+		CALLPTRMEMB(P_Logger, LogLastError());
+	ENDCATCH
 	return ok;
 }
 
@@ -872,16 +938,33 @@ int SLAPI EdiProviderImplementation_Kontur::ReceiveDocument(const PPEdiProcessor
 int SLAPI EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::DocumentInfo * pIdent, PPEdiProcessor::Packet & rPack)
 {
 	int    ok = 1;
-	SString file_name;
+	SString temp_buf;
 	SString path;
 	PPEanComDocument s_doc(this);
 	GetTempOutputPath(rPack.DocType, path);
 	THROW_SL(::createDir(path.RmvLastSlash()));
-	MakeTempFileName(path.SetLastSlash(), 0, "xml", 0, file_name);
-    xmlTextWriter * p_x = xmlNewTextWriterFilename(file_name, 0);
+	MakeTempFileName(path.SetLastSlash(), "export_", "xml", 0, temp_buf);
+	path = temp_buf;
+    xmlTextWriter * p_x = xmlNewTextWriterFilename(path, 0);
     THROW(p_x);
 	THROW(s_doc.Write_ORDERS(p_x, *(const PPBillPacket *)rPack.P_Data));
+	{
+		InetUrl url;
+		if(Epp.MakeUrl(0, url)) {
+			int    prot = url.GetProtocol();
+			if(prot == InetUrl::protUnkn) {
+				url.SetProtocol(InetUrl::protFtp);
+			}
+			if(prot == InetUrl::protFtp) {
+				ScURL curl;
+				url.SetComponent(url.cPath, "Outbox");
+				THROW(curl.FtpPut(url, ScURL::mfVerbose, path, 0));
+			}
+		}
+	}
     CATCHZOK
-    xmlFreeTextWriter(p_x);
+	xmlFreeTextWriter(p_x);
+	if(!ok)
+		SFile::Remove(path);
     return ok;
 }

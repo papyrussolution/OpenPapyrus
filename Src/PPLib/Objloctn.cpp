@@ -2224,7 +2224,7 @@ int SLAPI PPObjLocation::GetRegister(PPID locID, PPID regType, LDATE actualDate,
 	RegisterArray reg_list;
 	THROW_MEM(SETIFZ(P_RegObj, new PPObjRegister()));
 	if(P_RegObj->P_Tbl->GetByLocation(locID, &reg_list) > 0) {
-		if(reg_list.GetRegister(regType, actualDate, 0, pRec)) {
+		if(reg_list.GetRegister(regType, actualDate, 0, pRec) > 0) { // @v9.9.12 @fix !0 --> >0
 			ok = 1;
 		}
 	}

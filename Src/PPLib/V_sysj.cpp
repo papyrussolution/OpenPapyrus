@@ -340,6 +340,7 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 										PPBillPacket pack;
 										PPObjBill * p_bobj = (PPObjBill *)ppobj;
 										if(p_bobj->SerializePacket__(-1, &pack, ov_buf, &r_sctx)) {
+											pack.ProcessFlags |= (PPBillPacket::pfZombie | PPBillPacket::pfUpdateProhibited); // @v9.9.12
 											PPObjBill::MakeCodeString(&pack.Rec, PPObjBill::mcsAddObjName|PPObjBill::mcsAddOpName, temp_buf);
 											if(r_rec.Action == PPACN_RMVBILL)
 												ev_entry.Flags |= ev_entry.fAmtDn;
@@ -354,8 +355,10 @@ int SLAPI PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 													MEMSZERO(next_ev_entry);
 													ov_buf.Clear();
 													if(p_ovc->Search(next_rec.Extra, &next_ev_entry, &vv, &ov_buf) > 0 && ev_entry.IsEqual(next_rec.ObjType, next_rec.ObjID)) {
-														if(p_bobj->SerializePacket__(-1, &next_pack, ov_buf, &r_sctx))
+														if(p_bobj->SerializePacket__(-1, &next_pack, ov_buf, &r_sctx)) {
+															next_pack.ProcessFlags |= (PPBillPacket::pfZombie | PPBillPacket::pfUpdateProhibited); // @v9.9.12
 															next_bill_rec = next_pack.Rec;
+														}
 													}
 												}
 												else if(r_rec.Action != PPACN_RMVBILL) {
@@ -1013,7 +1016,13 @@ int SLAPI PPViewSysJournal::ViewBillHistory(PPID histID, LDATETIME evDtm)
 				long   vv = 0;
 				THROW(p_ovc->Search(histID, &oid, &vv, &buf) > 0);
 				THROW(BillObj->SerializePacket__(-1, &pack, buf, &r_sctx));
-				THROW(::EditGoodsBill(&pack, PPObjBill::efNoUpdNotif));
+				pack.ProcessFlags |= (PPBillPacket::pfZombie | PPBillPacket::pfUpdateProhibited); // @v9.9.12
+				if(GetOpType(pack.Rec.OpID) == PPOPT_INVENTORY) {
+					THROW(BillObj->EditInventory(&pack, 0));
+				}
+				else {
+					THROW(::EditGoodsBill(&pack, PPObjBill::efNoUpdNotif));
+				}
 				ok = 1;
 			}
 		}

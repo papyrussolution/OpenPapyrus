@@ -24,22 +24,10 @@ public:
 		freeAll();
 		LastUsedEntryPos = UINT_MAX;
 	}
-	int    SLAPI SearchByPrc(PPID prcID, uint * pPos) const
-	{
-		return lsearch(&prcID, pPos, CMPF_LONG, offsetof(PSE, PrcID));
-	}
-	int    SLAPI SearchByBill(PPID billID, uint * pPos) const
-	{
-		return lsearch(&billID, pPos, CMPF_LONG, offsetof(PSE, BillID));
-	}
-	int    SLAPI SearchBySess(PPID sessID, uint * pPos) const
-	{
-		return lsearch(&sessID, pPos, CMPF_LONG, offsetof(PSE, SessID));
-	}
-	PPID   SLAPI GetLastUsedSessID() const
-	{
-		return (LastUsedEntryPos < getCount()) ? ((PSE *)at(LastUsedEntryPos))->SessID : 0;
-	}
+	int    SLAPI SearchByPrc(PPID prcID, uint * pPos) const { return lsearch(&prcID, pPos, CMPF_LONG, offsetof(PSE, PrcID)); }
+	int    SLAPI SearchByBill(PPID billID, uint * pPos) const { return lsearch(&billID, pPos, CMPF_LONG, offsetof(PSE, BillID)); }
+	int    SLAPI SearchBySess(PPID sessID, uint * pPos) const { return lsearch(&sessID, pPos, CMPF_LONG, offsetof(PSE, SessID)); }
+	PPID   SLAPI GetLastUsedSessID() const { return (LastUsedEntryPos < getCount()) ? ((PSE *)at(LastUsedEntryPos))->SessID : 0; }
 	int    SLAPI Add(const TSessionTbl::Rec * pSessRec, int isProper);
 	int    SLAPI SetLastLine(PPID sessID, long oprNo)
 	{
@@ -2114,13 +2102,19 @@ int SLAPI PPObjTSession::IsTimingTech(const TechTbl::Rec * pTechRec, double * pB
 	double ratio = 0.0;
 	if(pTechRec && pTechRec->GoodsID) {
 		Goods2Tbl::Rec goods_rec;
-		PPUnit unit_rec;
 		THROW(GObj.Fetch(pTechRec->GoodsID, &goods_rec) > 0);
+		// @v9.9.12 {
+		if(GObj.TranslateGoodsUnitToBase(goods_rec, PPUNT_SECOND, &ratio) > 0) {
+			ok = 1;
+		}
+		// } @v9.9.12
+		/* @v9.9.12 
+		PPUnit unit_rec;
 		THROW(GObj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0);
 		if(unit_rec.BaseUnitID == PPUNT_SECOND && unit_rec.BaseRatio) {
 			ratio = unit_rec.BaseRatio;
 			ok = 1;
-		}
+		}*/
 	}
 	CATCHZOK
 	ASSIGN_PTR(pBaseRatio, ratio);

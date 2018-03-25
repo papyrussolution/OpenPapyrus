@@ -1,6 +1,6 @@
 // LZOCOMP.CPP
 // LZO compress decompress function.
-// Copyright Alex Osolotkin, A.Starodub 1999-2003, 2010, 2011, 2016
+// Copyright Alex Osolotkin, A.Starodub 1999-2003, 2010, 2011, 2016, 2018
 //
 #include <slib.h>
 #include <tv.h>
@@ -8,7 +8,7 @@
 #include <sys\stat.h>
 #include "minilzo.h"
 
-#define KB 1024
+//#define KB 1024
 
 #ifdef __WIN32__
 	#define huge
@@ -50,7 +50,7 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 #endif
 	// } AHTOXA
 	struct stat statbuf;
-	uint BUFLEN = 32*KB;
+	uint BUFLEN = SKILOBYTE(32);
 	LDATETIME creation_time, last_access_time, last_modif_time;
 	if(lzo_init() != LZO_E_OK)
 		return r;
@@ -58,9 +58,9 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 	do {
 		ZFREE(inbuf);
 		ZFREE(outbuf);
-		inbuf = (unsigned char huge*)SAlloc::M(BUFLEN);
-		outbuf = (unsigned char huge*)SAlloc::M(BUFLEN);
-	} while((!inbuf || !outbuf) && (BUFLEN -= KB) >= KB);
+		inbuf = (uchar *)SAlloc::M(BUFLEN);
+		outbuf = (uchar *)SAlloc::M(BUFLEN);
+	} while((!inbuf || !outbuf) && (BUFLEN -= SKILOBYTE(1)) >= SKILOBYTE(1));
 	THROW(inbuf && outbuf);
 // AHTOXA {
 #ifdef __WIN32__
@@ -74,7 +74,7 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 	THROW_V(fin  = fopen(src, "rb"), SLERR_OPENFAULT);
 	THROW_V(fout = fopen(dest, "w+b"), SLERR_OPENFAULT);
 	fstat(fileno(fin), &statbuf);
-	statbuf.st_size /= KB;
+	statbuf.st_size >>= 10;
 // AHTOXA {
 #ifndef __WIN32__
 // } AHTOXA
@@ -92,7 +92,7 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 		strcat(header.FileName, f_ext);
 		while((in_len = fread(buf, sizeof(buf), 1, fin)) > 0)
 			header.CRC = _crc32.Calc(header.CRC, (uint8 *)buf, (size_t)in_len);
-		header.FileSize = statbuf.st_size * KB;
+		header.FileSize = SKILOBYTE(statbuf.st_size);
 		fseek(fin, 0L, SEEK_SET);
 		fwrite(&header, 1, sizeof(header), fout);
 		in_len = 0;
@@ -119,8 +119,9 @@ int compress(char *src, char *dest, int isdecomp, PercentFunc pf, ulong *sz)
 			THROW(lzo1x_1_compress(inbuf, in_len, outbuf, &out_len, wrkmem) == LZO_E_OK);
 		}
 		old_size += in_len;
-		if(pf)
-			THROW_V(pf(old_size/KB, statbuf.st_size, src, !isdecomp), SLERR_USERBREAK);
+		if(pf) {
+			THROW_V(pf((old_size >> 10), statbuf.st_size, src, !isdecomp), SLERR_USERBREAK);
+		}
 		if(!isdecomp) {
 			fwrite(&out_len, 1, sizeof(out_len), fout);
 			new_size += sizeof(out_len);

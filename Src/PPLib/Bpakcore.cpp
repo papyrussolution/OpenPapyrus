@@ -1963,6 +1963,7 @@ void SLAPI PPBillPacket::destroy()
 	LoadMoment = ZERODATETIME; // @v8.9.8
 	OpTypeID = 0; // @v9.5.3 @fix
 	AccSheetID = 0; // @v9.5.3 @fix
+	InvList.freeAll(); // @v9.9.12
 }
 
 PPBillPacket & FASTCALL PPBillPacket::operator = (const PPBillPacket & rS)
@@ -2036,6 +2037,7 @@ int FASTCALL PPBillPacket::Copy(const PPBillPacket & rS)
 		*P_MirrorLTagL = *rS.P_MirrorLTagL;
 	}
 	// } @v8.9.2
+	InvList = rS.InvList; // @v9.9.12
 	CATCHZOK
 	return ok;
 }

@@ -262,12 +262,24 @@ int SLAPI PPCashMachine::NewDayDialog(LDATE * pDt)
 	TDialog * dlg = new TDialog(SLS.CheckUiFlag(sluifUseLargeDialogs) ? DLG_NEWDAY_L : DLG_NEWDAY);
 	if(CheckDialogPtr(&dlg)) {
 		if(*pDt == 0)
-			*pDt = LConfig.OperDate;
+			*pDt = getcurdate_(); // @v9.9.12 LConfig.OperDate-->getcurdate_()
 		dlg->SetupCalDate(CTLCAL_NEWDAY_DATE, CTL_NEWDAY_DATE);
 		dlg->setCtrlData(CTL_NEWDAY_DATE, pDt);
-		ok = ExecView(dlg);
-		if(ok == cmOK)
-			dlg->getCtrlData(CTL_NEWDAY_DATE, pDt);
+		while(ok != cmOK && ExecView(dlg) == cmOK) {
+			LDATE   dt = dlg->getCtrlDate(CTL_NEWDAY_DATE);
+			if(checkdate(dt, 0)) {
+				if(dt == getcurdate_() || CONFIRM(PPCFG_POSDATNEQCURRENT)) {
+					ok = cmOK;
+					*pDt = dt;
+				}
+				else 
+					ok = cmCancel;
+			}
+			else {
+				PPError(PPERR_SLIB);
+				ok = 0;
+			}
+		}
 	}
 	delete dlg;
 	return ok;

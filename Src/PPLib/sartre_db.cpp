@@ -37,7 +37,8 @@ SrGrammarTbl::~SrGrammarTbl()
 int SrGrammarTbl::Helper_Add(SrSList * pL, long * pID)
 {
 	int    ok = 1;
-	BDbTable::Buffer key_buf, data_buf;
+	BDbTable::Buffer key_buf;
+	BDbTable::Buffer data_buf;
 	int32  id = 0;
 	int64  __id = 0;
 	THROW_DB(P_Db->GetSequence(SeqID, &__id));
@@ -59,7 +60,8 @@ int SrGrammarTbl::Helper_Add(SrSList * pL, long * pID)
 int SrGrammarTbl::Helper_Search(SrSList * pL, long * pID)
 {
 	int    ok = -1;
-	BDbTable::Buffer key_buf, data_buf;
+	BDbTable::Buffer key_buf;
+	BDbTable::Buffer data_buf;
 	{
 		SBuffer l_buf;
 		SSerializeContext * p_sctx = GetSCtx();
@@ -79,7 +81,8 @@ int SrGrammarTbl::Helper_Search(SrSList * pL, long * pID)
 int SrGrammarTbl::Helper_Search(long id, SrSList * pL)
 {
 	int    ok = -1;
-	BDbTable::Buffer key_buf, data_buf;
+	BDbTable::Buffer key_buf;
+	BDbTable::Buffer data_buf;
 	key_buf = id;
 	data_buf.Alloc(1024);
 	if(BDbTable::Search(key_buf, data_buf)) {
@@ -285,7 +288,8 @@ int SrWordAssocTbl::Add(SrWordAssoc * pWa, int32 * pID)
 {
 	int    ok = 1;
 	LEXID  id = 0;
-	BDbTable::Buffer key_buf, data_buf;
+	BDbTable::Buffer key_buf;
+	BDbTable::Buffer data_buf;
 	SBuffer buf;
 	THROW(SerializeRecBuf(+1, pWa, buf));
 	key_buf = buf;
@@ -1037,7 +1041,8 @@ int SrConceptNgTbl::GetNgList(CONCEPTID cID, Int64Array & rNgList)
 	int    ok = -1;
 	rNgList.clear();
 	BDbCursor curs(*this, 1);
-	BDbTable::Buffer key_buf, data_buf;
+	BDbTable::Buffer key_buf;
+	BDbTable::Buffer data_buf;
 	key_buf.Alloc(32);
 	data_buf.Alloc(32);
 	key_buf = cID;
@@ -1374,7 +1379,7 @@ int SrDatabase::MakeSpecialWord(int spcTag, const char * pWordUtf8, SString & rB
 
 SrDatabase::SrDatabase() : WordCache(SKILOBYTE(1024), 0), PropInstance(0), PropSubclass(0), PropType(0), PropHMember(0),
 	P_Db(0), P_WdT(0), P_GrT(0), P_WaT(0), P_CT(0), P_CpT(0), P_NgT(0), P_CNgT(0),
-	P_GnT(0), P_GwT(0), ZeroWordID(0), Flags(0)
+	P_GnT(0), P_GwT(0), ZeroWordID(0), Flags(0)/*, RvlBuf(128)*/
 {
 }
 

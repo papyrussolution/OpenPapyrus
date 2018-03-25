@@ -58,7 +58,7 @@ int SLAPI PPViewGoodsBillCmp::GetBillCodes(const GoodsBillCmpFilt * pFilt, SStri
 				PPBillPacket pack;
 				PPObjID oid;
 				long   vv = 0;
-				if(p_ovc->Search(lh_bill_id, &oid, &vv, &buf) > 0 && BillObj->SerializePacket__(-1, &pack, buf, &r_sctx)) {
+				if(p_ovc->Search(lh_bill_id, &oid, &vv, &buf) > 0 && P_BObj->SerializePacket__(-1, &pack, buf, &r_sctx)) {
 					bill_rec = pack.Rec;
 					r = 1;
 				}
@@ -89,7 +89,7 @@ int SLAPI PPViewGoodsBillCmp::GetBillCodes(const GoodsBillCmpFilt * pFilt, SStri
 				PPBillPacket pack;
 				PPObjID oid;
 				long   vv = 0;
-				if(p_ovc->Search(rh_bill_id, &oid, &vv, &buf) > 0 && BillObj->SerializePacket__(-1, &pack, buf, &r_sctx)) {
+				if(p_ovc->Search(rh_bill_id, &oid, &vv, &buf) > 0 && P_BObj->SerializePacket__(-1, &pack, buf, &r_sctx)) {
 					bill_rec = pack.Rec;
 					r = 1;
 				}
@@ -183,6 +183,7 @@ int SLAPI PPViewGoodsBillCmp::PutBillToTempTable(PPID billID, int side /* 1 - lh
 				long   vv = 0;
 				THROW(p_ovc->Search(billID, &oid, &vv, &buf) > 0);
 				THROW(BillObj->SerializePacket__(-1, &pack, buf, &r_sctx));
+				pack.ProcessFlags |= (PPBillPacket::pfZombie | PPBillPacket::pfUpdateProhibited); // @v9.9.12
 				r = 1;
 			}
 		}

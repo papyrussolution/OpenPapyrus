@@ -4284,7 +4284,7 @@ int SLAPI CSessGrouping::TurnBill(PPBillPacket * pPack, CSessTotal * pTotal, int
 		// @v9.8.12 {
 		if(EqCfg.Flags & EqCfg.fWrOffPartStrucs)
 			pPack->InsertPartitialStruc();
-		// } @v9.8.12 
+		// } @v9.8.12
 		p_bobj->SubstMemo(pPack); // @v8.5.10
 		if(p_bobj->__TurnPacket(pPack, 0, 1, 0)) {
 			if(pOad) {
@@ -4818,11 +4818,15 @@ int SLAPI CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pM
 				}
 				pack.Rec.Amount = total.Amount;
 				pack.SetPoolMembership(PPBillPacket::bpkCSess, sessID);
+				// @v9.9.12 #1
+
 				//
 				// Что бы при ручном редактировании не снесли рассчитанные суммы зафиксируем их.
 				//
-				pack.Rec.Flags |= BILLF_FIXEDAMOUNTS;
+				pack.Rec.Flags |= BILLF_FIXEDAMOUNTS; // @v9.9.12 @fix перенесено из #1
+
 				THROW(pack.InitAmounts());
+
 				THROW(p_bobj->FillTurnList(&pack));
 				if(is_new_bill) {
 					THROW(p_bobj->TurnPacket(&pack, 0));
@@ -4902,7 +4906,7 @@ int SLAPI CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPI
 								serial_buf.Transf(CTRANSF_UTF8_TO_INNER);
 								if(serial_buf.NotEmptyS()) {
 									// @v9.8.11 pack.SnL.AddNumber(&rows, serial_buf);
-									pack.LTagL.AddNumber(PPTAG_LOT_SN, &rows, serial_buf); // @v9.8.11 
+									pack.LTagL.AddNumber(PPTAG_LOT_SN, &rows, serial_buf); // @v9.8.11
 								}
 							}
 							// } @v9.0.11

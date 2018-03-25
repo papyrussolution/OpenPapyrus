@@ -1372,6 +1372,35 @@ int SLAPI PPObjGoods::FetchUnit(PPID unitID, PPUnit * pUnitRec)
 	return unit_obj.Fetch(unitID, pUnitRec);
 }
 
+int SLAPI PPObjGoods::TranslateGoodsUnitToBase(const Goods2Tbl::Rec & rGoodsRec, PPID baseUnitID, double * pRate)
+{
+	int    ok = -1;
+	double rate = 0.0;
+	if(baseUnitID) {
+		PPUnit u_rec;
+		if(rGoodsRec.UnitID == baseUnitID) {
+			rate = 1.0;
+			ok = 1;
+		}
+		else if(rGoodsRec.PhUnitID && rGoodsRec.PhUPerU > 0.0) {
+			if(rGoodsRec.PhUnitID == baseUnitID) {
+				rate = rGoodsRec.PhUPerU;
+				ok = 1;
+			}
+			else if(FetchUnit(rGoodsRec.PhUnitID, &u_rec) > 0 && u_rec.BaseUnitID == baseUnitID && u_rec.BaseRatio > 0.0) {
+				rate = u_rec.BaseRatio;
+				ok = 1;
+			}
+		}
+		else if(FetchUnit(rGoodsRec.UnitID, &u_rec) > 0 && u_rec.BaseUnitID == baseUnitID && u_rec.BaseRatio > 0.0) {
+			rate = u_rec.BaseRatio;
+			ok = 1;
+		}
+	}
+	ASSIGN_PTR(pRate, rate);
+	return ok;
+}
+
 int SLAPI PPObjGoods::FetchTax(PPID goodsID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx)
 {
 	Goods2Tbl::Rec grec;

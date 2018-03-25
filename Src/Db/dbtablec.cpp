@@ -1112,7 +1112,7 @@ int SLAPI DBTable::Helper_SerializeArrayOfRecords(int dir, SVectorBase * pList, 
 	int32  c = SVectorBase::GetCount(pList); // @persistent
 	STempBuffer temp_buf(0);
 	// @v9.8.11 {
-	if(dir > 0) {
+	if(dir > 0 && c > 0) { // @v9.9.12 (c > 0)
 		uint32 dbt_id = 0;
 		THROW(pCtx->AddDbtDescr(tableName, &fields, &dbt_id));
 	}

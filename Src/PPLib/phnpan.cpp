@@ -41,14 +41,49 @@ private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
+		if(event.isCbSelected(CTLSEL_PHNCPANE_NAME)) {
+			OnContactSelection();
+		}
+		else
+			return;
+		clearEvent(event);
 	}
 	void   OnContactSelection();
+	void   ShowList(int mode);
 	State  S;
 	PhoneServiceEventResponder * P_PSER;
 	PPObjPerson PsnObj;
+	PPObjArticle ArObj;
 	PPObjSCard ScObj;
 	PPObjIDArray OidList;
 };
+
+void PhonePaneDialog::ShowList(int mode)
+{
+	if(mode == State::lmNone) {
+	}
+	else if(mode == State::lmBill) {
+		// columns: id; date; code; warehouse; amount; debt
+	}
+	else if(mode == State::lmTask) {
+		// columns: 
+	}
+	else if(mode == State::lmPersonEvent) {
+		// columns: 
+	}
+	else if(mode == State::lmScOp) {
+		// columns: 
+	}
+	else if(mode == State::lmScCCheck) {
+		// columns: 
+	}
+	else if(mode == State::lmLocCCheck) {
+		// columns: 
+	}
+	else if(mode == State::lmSwitchTo) {
+		// columns: 
+	}
+}
 
 void PhonePaneDialog::OnContactSelection()
 {
@@ -68,6 +103,18 @@ void PhonePaneDialog::OnContactSelection()
 			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 4, 1);
 			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 5, 1);
 			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 6, 1);
+			//
+			PPID   acs_id_suppl = GetSupplAccSheet();
+			PPID   acs_id_sell = GetSellAccSheet();
+			PPID   ar_id_suppl = 0;
+			PPID   ar_id_sell = 0;
+			if(acs_id_suppl) {
+				ArObj.P_Tbl->PersonToArticle(r_oid.Id, acs_id_suppl, &ar_id_suppl);
+			}
+			if(acs_id_sell) {
+				ArObj.P_Tbl->PersonToArticle(r_oid.Id, acs_id_sell, &ar_id_sell);
+			}
+			DisableClusterItem(CTL_PHNCPANE_LISTMODE, 1, !(ar_id_suppl || ar_id_sell));
 		}
 		else if(r_oid.Obj == PPOBJ_LOCATION) {
 		}
@@ -139,6 +186,7 @@ PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const Phone
 			}
 		}
 		SetupStrAssocCombo(this, CTLSEL_PHNCPANE_NAME, &name_list, init_id, 0, 0, 0);
+		OnContactSelection();
 	}
 }
 

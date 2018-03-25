@@ -44,8 +44,8 @@ int SLAPI InventoryFilt::Setup(PPID billID)
 	return 1;
 }
 
-SLAPI PPViewInventory::PPViewInventory() : PPView(0, &Filt, PPVIEW_INVENTORY), P_BObj(BillObj), P_TempTbl(0), P_TempOrd(0), P_TempSubstTbl(0), 
-	P_GgIter(0), P_GIter(0), Flags(0), CommonLocID(0), CommonDate(ZERODATE), LastSurrID(0)
+SLAPI PPViewInventory::PPViewInventory() : PPView(0, &Filt, PPVIEW_INVENTORY), P_BObj(BillObj), P_TempTbl(0), P_TempOrd(0), 
+	P_TempSubstTbl(0), P_GgIter(0), P_GIter(0), Flags(0), CommonLocID(0), CommonDate(ZERODATE), LastSurrID(0), P_OuterPack(0)
 {
 }
 
@@ -56,6 +56,12 @@ SLAPI PPViewInventory::~PPViewInventory()
 	delete P_TempSubstTbl;
 	delete P_GgIter;
 	delete P_GIter;
+}
+
+int SLAPI PPViewInventory::SetOuterPack(PPBillPacket * pPack)
+{
+	P_OuterPack = pPack;
+	return 1;
 }
 
 int SLAPI PPViewInventory::GetZeroByDefaultStatus() const
@@ -361,6 +367,8 @@ int SLAPI PPViewInventory::UpdateTempTable(PPID billID, long oprno)
 	return ok;
 }
 
+//int SLAPI PPViewInventory::
+
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, Inventory);
 PP_CREATE_TEMP_FILE_PROC(CreateTempSubstFile, TempInventorySubst);
 PP_CREATE_TEMP_FILE_PROC(CreateTempOrder2IDFile, TempDoubleID);
@@ -389,7 +397,7 @@ int SLAPI PPViewInventory::MakeTempOrdRec(const InventoryTbl::Rec * pRec, TempDo
 
 int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 {
-	int    ok = 1, do_temp_tbl = 0;
+	int    ok = 1;
 	Goods2Tbl::Rec gg_rec;
 	SString name_buf;
 	THROW(Helper_InitBaseFilt(pFilt) > 0);
@@ -413,7 +421,123 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 		is_subst = 1;
 	}
 	Gsl.Init(1, 0);
-	if(bill_count) {
+	if(P_OuterPack) {
+		const PPID bill_id = P_OuterPack->Rec.ID;
+		const long subst_bill_val = bill_id;
+		const PPID storage_loc_id = P_OuterPack->P_Freight ? P_OuterPack->P_Freight->StorageLocID : 0;
+		THROW(P_TempTbl = CreateTempFile());
+		if(Filt.SortOrder != InventoryFilt::ordByDefault)
+			THROW(P_TempOrd = CreateTempOrder2IDFile());
+		{
+			BExtInsert bei(is_subst ? 0 : P_TempTbl);
+			BExtInsert ord_bei(is_subst ? 0 : P_TempOrd);
+			PPTransaction tra(ppDbDependTransaction, BIN(P_TempTbl || P_TempOrd));
+			THROW(tra);
+			for(uint i = 0; i < P_OuterPack->InvList.getCount(); i++) {
+				InventoryTbl::Rec & r_inv_rec = P_OuterPack->InvList.at(i);
+				const PPID org_goods_id = r_inv_rec.GoodsID;
+				//
+				int    do_skip = 0;
+				if(Filt.GoodsList.IsExists()) {
+					if(!Filt.GoodsList.CheckID(org_goods_id))
+						do_skip = 1;
+				}
+				else {
+					if(Filt.GoodsID && org_goods_id != Filt.GoodsID)
+						do_skip = 1;
+					else if(Filt.GoodsGrpID && !GObj.BelongToGroup(org_goods_id, Filt.GoodsGrpID, 0))
+						do_skip = 1;
+				}
+				if(!do_skip) {
+					ExtraEntry new_entry;
+					MEMSZERO(new_entry);
+					PPID   final_goods_id = 0;
+					if(!!Filt.Sgb)
+						final_goods_id = subst_bill_val;
+					else {
+						PPObjGoods::SubstBlock sgg_blk;
+						sgg_blk.ExclParentID = Filt.GoodsGrpID;
+						sgg_blk.LocID = P_OuterPack->Rec.LocID;
+						sgg_blk.LotID = 0;
+						THROW(GObj.SubstGoods(org_goods_id, &final_goods_id, Filt.Sgg, &sgg_blk, &Gsl));
+					}
+					if(is_subst) {
+						const double diff = (r_inv_rec.Quantity - r_inv_rec.StockRest);
+						uint idx = 0;
+						TempInventorySubstTbl::Key0 k0;
+						MEMSZERO(k0);
+						k0.GoodsID = final_goods_id;
+						if(P_TempSubstTbl->search(0, &k0, spEq)) {
+							const int sr = ExtraList.lsearch(&final_goods_id, &idx, CMPF_LONG, offsetof(ExtraEntry, GoodsID));
+							assert(sr);
+							P_TempSubstTbl->data.Quantity += r_inv_rec.Quantity;
+							P_TempSubstTbl->data.StockRest += r_inv_rec.StockRest;
+							P_TempSubstTbl->data.DiffQtty += diff;
+							P_TempSubstTbl->data.DiffPrice += diff * r_inv_rec.Price;
+							P_TempSubstTbl->data.DiffPctQtty = 100.0 * P_TempSubstTbl->data.DiffQtty / P_TempSubstTbl->data.StockRest;
+							P_TempSubstTbl->data.SumPrice += r_inv_rec.Quantity * r_inv_rec.Price;
+							P_TempSubstTbl->data.SumStockPrice += r_inv_rec.StockRest * r_inv_rec.StockPrice;
+							P_TempSubstTbl->data.SumWrOffPrice += diff * r_inv_rec.WrOffPrice;
+							THROW(P_TempSubstTbl->updateRec());
+						}
+						else {
+							new_entry.SurrID = ++LastSurrID;
+							new_entry.BillID = subst_bill_val;
+							new_entry.OprNo = r_inv_rec.OprNo;
+							new_entry.GoodsID = final_goods_id;
+							new_entry.StorageLocID = storage_loc_id;
+							THROW_SL(ExtraList.insert(&new_entry));
+							{
+								TempInventorySubstTbl::Rec temp_rec;
+								MEMSZERO(temp_rec);
+								temp_rec.GoodsID = final_goods_id;
+								temp_rec.Quantity = r_inv_rec.Quantity;
+								temp_rec.StockRest = r_inv_rec.StockRest;
+								temp_rec.DiffQtty = diff;
+								temp_rec.DiffPrice = diff * r_inv_rec.Price;
+								temp_rec.DiffPctQtty = 100.0 * temp_rec.DiffQtty / temp_rec.StockRest;
+								temp_rec.SumPrice = r_inv_rec.Quantity * r_inv_rec.Price;
+								temp_rec.SumStockPrice = r_inv_rec.StockRest * r_inv_rec.StockPrice;
+								temp_rec.SumWrOffPrice = diff * r_inv_rec.WrOffPrice;
+								if(!!Filt.Sgb) {
+									P_BObj->GetSubstText(final_goods_id, &Bsp, name_buf.Z());
+								}
+								else {
+									GObj.GetSubstText(final_goods_id, Filt.Sgg, &Gsl, name_buf.Z());
+								}
+								name_buf.CopyTo(temp_rec.Name, sizeof(temp_rec.Name));
+								THROW(P_TempSubstTbl->insertRecBuf(&temp_rec));
+							}
+						}
+					}
+					else {
+						new_entry.SurrID = ++LastSurrID;
+						new_entry.BillID = subst_bill_val;
+						new_entry.OprNo = r_inv_rec.OprNo;
+						new_entry.GoodsID = final_goods_id;
+						new_entry.StorageLocID = storage_loc_id;
+						THROW_SL(ExtraList.insert(&new_entry));
+						if(P_TempTbl) {
+							THROW_DB(bei.insert(&r_inv_rec));
+						}
+						if(P_TempOrd) {
+							TempDoubleIDTbl::Rec rec;
+							MakeTempOrdRec(&r_inv_rec, &rec);
+							THROW_DB(ord_bei.insert(&rec));
+						}
+					}
+				}
+			}
+			if(!is_subst) {
+				if(P_TempTbl)
+					THROW_DB(bei.flash());
+				if(P_TempOrd)
+					THROW_DB(ord_bei.flash());
+			}
+			THROW(tra.Commit());
+		}
+	}
+	else if(bill_count) {
 		PPWait(1);
 		if(is_subst) {
 			THROW(P_TempSubstTbl = CreateTempSubstFile());
@@ -422,7 +546,6 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 			THROW(P_TempTbl = CreateTempFile());
 			if(Filt.SortOrder != InventoryFilt::ordByDefault)
 				THROW(P_TempOrd = CreateTempOrder2IDFile());
-			do_temp_tbl = 1;
 		}
 		for(uint i = 0; i < bill_count; i++) {
 			const PPID bill_id = Filt.BillList.Get().get(i);
@@ -461,14 +584,15 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 						{
 							for(SEnum en = InvTbl.Enum(bill_id); en.Next(&inv_rec) > 0;) {
 								int    do_skip = 0;
+								const PPID org_goods_id = inv_rec.GoodsID;
 								if(Filt.GoodsList.IsExists()) {
-									if(!Filt.GoodsList.CheckID(inv_rec.GoodsID))
+									if(!Filt.GoodsList.CheckID(org_goods_id))
 										do_skip = 1;
 								}
 								else {
-									if(Filt.GoodsID && inv_rec.GoodsID != Filt.GoodsID)
+									if(Filt.GoodsID && org_goods_id != Filt.GoodsID)
 										do_skip = 1;
-									else if(Filt.GoodsGrpID && !GObj.BelongToGroup(inv_rec.GoodsID, Filt.GoodsGrpID, 0))
+									else if(Filt.GoodsGrpID && !GObj.BelongToGroup(org_goods_id, Filt.GoodsGrpID, 0))
 										do_skip = 1;
 								}
 								if(!do_skip) {
@@ -483,7 +607,7 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 										sgg_blk.ExclParentID = Filt.GoodsGrpID;
 										sgg_blk.LocID = bill_rec.LocID;
 										sgg_blk.LotID = 0;
-										THROW(GObj.SubstGoods(inv_rec.GoodsID, &final_goods_id, Filt.Sgg, &sgg_blk, &Gsl));
+										THROW(GObj.SubstGoods(org_goods_id, &final_goods_id, Filt.Sgg, &sgg_blk, &Gsl));
 									}
 									if(is_subst) {
 										const double diff = (inv_rec.Quantity - inv_rec.StockRest);
@@ -514,7 +638,6 @@ int SLAPI PPViewInventory::Init_(const PPBaseFilt * pFilt)
 											{
 												TempInventorySubstTbl::Rec temp_rec;
 												MEMSZERO(temp_rec);
-												const double diff = (inv_rec.Quantity - inv_rec.StockRest);
 												temp_rec.GoodsID = final_goods_id;
 												temp_rec.Quantity = inv_rec.Quantity;
 												temp_rec.StockRest = inv_rec.StockRest;
@@ -1378,17 +1501,30 @@ int SLAPI PPViewInventory::ConvertBillToBasket()
 	param.SelPrice = 2;
 	THROW(r = GetBasketByDialog(&param, "Inventory", DLG_GBDATAINV));
 	if(r > 0) {
-		InventoryViewItem  item;
-		PPWait(1);
-		for(InitIteration(); NextIteration(&item) > 0;) {
-			ILTI  ilti;
-			ilti.GoodsID     = labs(item.GoodsID);
-			ilti.UnitPerPack = item.UnitPerPack;
-			ilti.Quantity    = fabs(item.Quantity);
-			ilti.Price       = item.Price;
-			THROW(param.Pack.AddItem(&ilti, 0, param.SelReplace));
+		if(P_OuterPack) {
+			for(uint i = 0; i < P_OuterPack->InvList.getCount(); i++) {
+				InventoryTbl::Rec & r_item = P_OuterPack->InvList.at(i);
+				ILTI  ilti;
+				ilti.GoodsID     = labs(r_item.GoodsID);
+				ilti.UnitPerPack = r_item.UnitPerPack;
+				ilti.Quantity    = fabs(r_item.Quantity);
+				ilti.Price       = r_item.Price;
+				THROW(param.Pack.AddItem(&ilti, 0, param.SelReplace));
+			}
 		}
-		PPWait(0);
+		else {
+			InventoryViewItem  item;
+			PPWait(1);
+			for(InitIteration(); NextIteration(&item) > 0;) {
+				ILTI  ilti;
+				ilti.GoodsID     = labs(item.GoodsID);
+				ilti.UnitPerPack = item.UnitPerPack;
+				ilti.Quantity    = fabs(item.Quantity);
+				ilti.Price       = item.Price;
+				THROW(param.Pack.AddItem(&ilti, 0, param.SelReplace));
+			}
+			PPWait(0);
+		}
 		THROW(GoodsBasketDialog(param, 1));
 		ok = 1;
 	}

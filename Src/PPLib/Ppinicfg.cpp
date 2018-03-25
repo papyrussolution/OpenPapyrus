@@ -9,16 +9,9 @@
 //
 
 //static
-int FASTCALL PPIniFile::GetParamSymb(int idx, SString & rBuf)
-{
-	return PPLoadText(idx, rBuf = 0);
-}
-
+int FASTCALL PPIniFile::GetParamSymb(int idx, SString & rBuf) { return PPLoadText(idx, rBuf.Z()); }
 //static
-int FASTCALL PPIniFile::GetSectSymb(int idx, SString & rBuf)
-{
-	return PPLoadText(idx, rBuf = 0);
-}
+int FASTCALL PPIniFile::GetSectSymb(int idx, SString & rBuf) { return PPLoadText(idx, rBuf.Z()); }
 
 SLAPI PPIniFile::PPIniFile(const char * pFileName, int fcreate, int winCoding, int useIniBuf) :
 	SIniFile(pFileName, fcreate, winCoding, useIniBuf)
@@ -35,11 +28,11 @@ SLAPI PPIniFile::PPIniFile() : SIniFile(0, 0, 0, 0)
 int SLAPI PPIniFile::ParamIdToStrings(uint sectId, uint paramId, SString * pSectName, SString * pParam)
 {
 	if(pSectName) {
-		*pSectName = 0;
+		pSectName->Z();
 		PPIniFile::GetSectSymb(sectId, *pSectName);
 	}
 	if(pParam) {
-		*pParam = 0;
+		pParam->Z();
 		PPIniFile::GetParamSymb(paramId, *pParam);
 	}
 	return 1;
@@ -47,44 +40,44 @@ int SLAPI PPIniFile::ParamIdToStrings(uint sectId, uint paramId, SString * pSect
 
 int SLAPI PPIniFile::Get(uint sectId, uint paramId, SString & rBuf)
 {
-	SString sect_name;
-	SString param_name;
-	ParamIdToStrings(sectId, paramId, &sect_name, &param_name);
-	return GetParam(sect_name, param_name, rBuf);
+	SString & r_sect_name = SLS.AcquireRvlStr(); // @v9.9.12
+	SString & r_param_name = SLS.AcquireRvlStr(); // @v9.9.12
+	ParamIdToStrings(sectId, paramId, &r_sect_name, &r_param_name);
+	return GetParam(r_sect_name, r_param_name, rBuf);
 }
 
 int SLAPI PPIniFile::Get(uint sectId, const char * pParamName, SString & rBuf)
 {
-	SString sect_name;
-	ParamIdToStrings(sectId, 0, &sect_name, 0);
-	return GetParam(sect_name, pParamName, rBuf);
+	SString & r_sect_name = SLS.AcquireRvlStr(); // @v9.9.12
+	ParamIdToStrings(sectId, 0, &r_sect_name, 0);
+	return GetParam(r_sect_name, pParamName, rBuf);
 }
 
 int SLAPI PPIniFile::Get(const char * pSectName, uint paramId, SString & rBuf)
 {
-	SString param_name;
-	ParamIdToStrings(0, paramId, 0, &param_name);
-	return GetParam(pSectName, param_name, rBuf);
+	SString & r_param_name = SLS.AcquireRvlStr(); // @v9.9.12
+	ParamIdToStrings(0, paramId, 0, &r_param_name);
+	return GetParam(pSectName, r_param_name, rBuf);
 }
 
 int SLAPI PPIniFile::GetInt(uint sectId, uint paramId, int * pVal)
 {
-	SString sect_name;
-	SString param_name;
-	ParamIdToStrings(sectId, paramId, &sect_name, &param_name);
-	return GetIntParam(sect_name, param_name, pVal);
+	SString & r_sect_name = SLS.AcquireRvlStr(); // @v9.9.12
+	SString & r_param_name = SLS.AcquireRvlStr(); // @v9.9.12
+	ParamIdToStrings(sectId, paramId, &r_sect_name, &r_param_name);
+	return GetIntParam(r_sect_name, r_param_name, pVal);
 }
 
 int SLAPI PPIniFile::GetInt(const char * pSectName, uint paramId, int * pVal)
 {
-	SString param_name;
-	ParamIdToStrings(0, paramId, 0, &param_name);
-	return GetIntParam(pSectName, param_name, pVal);
+	SString & r_param_name = SLS.AcquireRvlStr(); // @v9.9.12
+	ParamIdToStrings(0, paramId, 0, &r_param_name);
+	return GetIntParam(pSectName, r_param_name, pVal);
 }
 
 int SLAPI PPIniFile::GetEntryList(uint sectId, StringSet * pEntries, int storeAllString)
 {
-	SString sect_name;
+	SString sect_name; // don't use SLS.AcquireRvlStr() (GetEnties uses loop)
 	ParamIdToStrings(sectId, 0, &sect_name, 0);
 	return SIniFile::GetEntries(sect_name, pEntries, storeAllString);
 }
@@ -186,12 +179,8 @@ int SLAPI PPIniFile::UpdateFromFile(const char * pSrcFileName)
 //
 #if 1 // @construction {
 
-PPConfigDatabase::CObjHeader::CObjHeader()
+PPConfigDatabase::CObjHeader::CObjHeader() : ID(0), Ver(0), Type(0), Flags(0)
 {
-	ID = 0;
-	Ver = 0;
-	Type = 0;
-	Flags = 0;
 }
 
 int PPConfigDatabase::CObjHeader::Cmp(const CObjHeader & rS, long flags) const
@@ -217,9 +206,8 @@ int PPConfigDatabase::CObjHeader::Cmp(const CObjHeader & rS, long flags) const
 	return c;
 }
 
-SLAPI PPConfigDatabase::CObjTbl::CObjTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("ppconfig.db->cobj", 0, 0, 0), pDb)
+SLAPI PPConfigDatabase::CObjTbl::CObjTbl(BDbDatabase * pDb) : BDbTable(BDbTable::ConfigHash("ppconfig.db->cobj", 0, 0, 0), pDb), SeqID(0)
 {
-	SeqID = 0;
 	//
 	// Индекс по идент
 	//
@@ -317,11 +305,8 @@ SLAPI PPConfigDatabase::CObjTailTbl::~CObjTailTbl()
 {
 }
 
-SLAPI PPConfigDatabase::PPConfigDatabase(const char * pDbDir)
+SLAPI PPConfigDatabase::PPConfigDatabase(const char * pDbDir) : P_OT(0), P_OtT(0), P_Db(0)
 {
-	P_OT = 0;
-	P_OtT = 0;
-	P_Db = 0;
 	if(pDbDir)
 		Open(pDbDir);
 }

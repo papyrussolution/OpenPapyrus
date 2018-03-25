@@ -442,7 +442,12 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 							// Номер поля - 13; Обязательное - нет; Тип поля - целое;
 							// Признак предмета расчёта: 0 – товар, кроме подакцизного; 1 – подакцизный товар; 2 – работа;
 							// 3 – услуга; 4 – товар, состоящий из нескольких признаков; 5 – иной товар.
-                            tail.CatChar('0');                              // #13 - Признак предмета расчёта
+							// @v9.9.12 {
+							if(cn_data.DrvVerMajor > 5 || (cn_data.DrvVerMajor == 5 && cn_data.DrvVerMinor >= 20)) {
+								tail.CatChar('1');                              // #13 - Признак предмета расчёта
+							}
+							else // } @v9.9.12
+								tail.CatChar('0');                              // #13 - Признак предмета расчёта
 						}
 						else /* } @v9.6.8 */ {
 							if(gds_info.NoDis <= 0)                         // @v6.0.1 VADIM
@@ -477,6 +482,11 @@ int SLAPI ACS_FRONTOL::ExportData(int updOnly)
 							tail.Semicol();         // #56 Признак маркированной алкогольной продукции (пока НЕТ)
 							tail.Semicol();         // #57 Крепость алкогольной продукции
 						}
+						// @v9.9.12 {
+						if(cn_data.DrvVerMajor > 5 || (cn_data.DrvVerMajor == 5 && cn_data.DrvVerMinor >= 20)) {
+							tail.CatChar('2').Semicol();        // #58 Признак способа расчета
+						}
+						// } @v9.9.12
 					}
 					if((bclen = sstrlen(gds_info.BarCode)) != 0) {
 						gds_info.AdjustBarcode(check_dig);

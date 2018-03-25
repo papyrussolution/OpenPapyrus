@@ -2722,6 +2722,55 @@ BIN/StdRpt.ini и BIN/Report.ini. Оба файла имеют текстовый формат, аналогичный i
 		\\Символ = \ppyrsrv{FORMALREASON}
 		\\Тип объекта = \ppyrsrv{BILL}
 		\\Тип тега = \ppyrsrv{ENUM}
+		
+	\item[EDI запрос на отмену проведения документа]
+
+		ИД=60
+		\\Символ = \ppyrsrv{EDIREPEALREQ}
+		\\Тип объекта = \ppyrsrv{BILL}
+		\\Тип тега = \ppyrsrv{STRING}
+	\item[UUID кассового узла]
+
+		ИД=61
+		\\Символ = \ppyrsrv{POSNODEUUID}
+		\\Тип объекта = \ppyrsrv{POSNODE}
+		\\Тип тега = \ppyrsrv{UUID}
+	\item[UUID управляющего кассового узла]
+
+		ИД=62
+		\\Символ = \ppyrsrv{POSNODEHOSTUUID}
+		\\Тип объекта = \ppyrsrv{POSNODE}
+		\\Тип тега = \ppyrsrv{UUID}
+	\item[Ид государственного контракта]
+
+		ИД=63
+		\\Символ = \ppyrsrv{STATECONTRACTID}
+		\\Тип объекта = \ppyrsrv{BILL}
+		\\Тип тега = \ppyrsrv{STRING}
+	\item[Ид участника эл документооборота nalog.ru]
+
+		ИД=64
+		\\Символ = \ppyrsrv{ENALOGID}
+		\\Тип объекта = \ppyrsrv{PERSON}
+		\\Тип тега = \ppyrsrv{STRING}
+	\item[Формальная ссылка на комплементарный документ]
+
+		ИД=65
+		\\Символ = \ppyrsrv{BILLCOMPLEMENTARY}
+		\\Тип объекта = \ppyrsrv{BILL}
+		\\Тип тега = \ppyrsrv{STRING}
+	\item[ВЕТИС идентификатор предприятия]
+
+		ИД=66
+		\\Символ = \ppyrsrv{PERSONVETISUUID}
+		\\Тип объекта = \ppyrsrv{PERSON}
+		\\Тип тега = \ppyrsrv{UUID}
+	\item[Имя для авторизации]
+
+		ИД=67
+		\\Символ = \ppyrsrv{GUALOGIN}
+		\\Тип объекта = \ppyrsrv{GLOBALUSER}
+		\\Тип тега = \ppyrsrv{STRING}
 \end{description}
 
 

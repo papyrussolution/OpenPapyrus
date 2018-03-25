@@ -8045,7 +8045,7 @@ static void FASTCALL CatCharByFlag(long val, long flag, int chr, SString & rBuf,
 // virtual
 int CheckPaneDialog::MessageError(int errCode, const char * pAddedMsg, long outputMode)
 {
-	int    dest = (outputMode & 0xff);
+	const int dest = (outputMode & 0xff);
 	SString err_msg;
 	if(outputMode & eomBeep && !(Flags & fDisableBeep)) {
 		for(int i = 0; i < 2; i++) {

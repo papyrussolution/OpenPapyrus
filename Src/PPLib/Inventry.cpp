@@ -140,13 +140,19 @@ void InventoryDialog::editItems(int filtered)
 	getCtrlData(CTL_BILL_SELEXSGOODS, &v);
 	PPViewInventory * p_v = new PPViewInventory;
 	THROW_MEM(p_v);
-	THROW(P_BObj->TurnInventory(P_Data, 1));
-	p_filt->SetSingleBillID(P_Data->Rec.ID);
+	if(P_Data->ProcessFlags & PPBillPacket::pfZombie) {
+		p_v->SetOuterPack(P_Data);
+		filtered = 0;
+	}
+	else {
+		THROW(P_BObj->TurnInventory(P_Data, 1));
+		p_filt->SetSingleBillID(P_Data->Rec.ID);
+	}
 	if(!filtered || p_v->EditBaseFilt(p_filt) > 0) {
 		SETFLAG(p_filt->Flags, InventoryFilt::fSelExistsGoodsOnly, v);
 		THROW(p_v->Init_(p_filt));
 		THROW(p_v->Browse(0));
-		if(p_v->GetUpdateStatus())
+		if(!(P_Data->ProcessFlags & PPBillPacket::pfZombie) && p_v->GetUpdateStatus())
 			THROW(p_v->UpdatePacket(P_Data->Rec.ID));
 		{
 			BillTbl::Rec bill_rec;
@@ -413,6 +419,20 @@ int SLAPI PPObjBill::AcceptInventoryItem(InvBlock & rBlk, InvItem * pItem, int u
 	return ok;
 }
 
+int SLAPI PPObjBill::LoadInventoryArray(PPID billID, InventoryArray & rList)
+{
+	int    ok = -1;
+	rList.clear();
+	InventoryTbl::Rec rec;
+	for(SEnum en = GetInvT().Enum(billID); en.Next(&rec) > 0;) {
+		THROW_SL(rList.insert(&rec));
+	}
+	if(rList.getCount())
+		ok = 1;
+	CATCHZOK
+	return ok;
+}
+
 int SLAPI PPObjBill::GetInventoryStockRest(InvBlock & rBlk, InvItem * pItem, GoodsRestParam * pRestParam)
 {
 	int    ok = 1;
@@ -488,7 +508,7 @@ int SLAPI PPObjBill::EditInventory(PPBillPacket * pPack, long)
 		PPSetupCtrlMenu(dlg, CTL_BILL_MEMO, CTLMNU_BILL_MEMO, CTRLMENU_BILLMEMO);
 		while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 			valid_data = dlg->getDTS(pPack);
-			if(valid_data) {
+			if(valid_data && !(pPack->ProcessFlags & PPBillPacket::pfZombie)) {
 				if(pPack->Rec.Dt != old_date) {
 					if(pPack->Rec.ID && P_Tbl->EnumLinks(pPack->Rec.ID, 0, BLNK_ALL) > 0)
 						valid_data = (PPError(PPERR_INVTOOWRITEDOFF, 0), 0);

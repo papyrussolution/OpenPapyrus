@@ -940,17 +940,33 @@ int SLAPI SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) cons
 		else {
 			SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.5
 			uint   i = 0;
-			do {
-				r_temp_buf.Z();
-				while(i < len && /*!strchr(pDelimChrSet, P_Buf[i])*/!memchr(pDelimChrSet, P_Buf[i], delim_len))
-					r_temp_buf.CatChar(P_Buf[i++]);
-				if(r_temp_buf.NotEmpty()) {
-					rResult.add(r_temp_buf);
-					ok = 2;
-				}
-				while(i < len && /*strchr(pDelimChrSet, P_Buf[i])*/memchr(pDelimChrSet, P_Buf[i], delim_len))
-					i++;
-			} while(i < len);
+			if(delim_len == 1) { // @speedcritical {
+				const char delim = pDelimChrSet[0];
+				do {
+					r_temp_buf.Z();
+					while(i < len && P_Buf[i] != delim)
+						r_temp_buf.CatChar(P_Buf[i++]);
+					if(r_temp_buf.NotEmpty()) {
+						rResult.add(r_temp_buf);
+						ok = 2;
+					}
+					while(i < len && P_Buf[i] == delim)
+						i++;
+				} while(i < len);
+			}
+			else { // } @speedcritical 
+				do {
+					r_temp_buf.Z();
+					while(i < len && !memchr(pDelimChrSet, P_Buf[i], delim_len))
+						r_temp_buf.CatChar(P_Buf[i++]);
+					if(r_temp_buf.NotEmpty()) {
+						rResult.add(r_temp_buf);
+						ok = 2;
+					}
+					while(i < len && memchr(pDelimChrSet, P_Buf[i], delim_len))
+						i++;
+				} while(i < len);
+			}
 		}
 	}
 	else
@@ -6585,6 +6601,7 @@ int SLAPI STokenRecognizer::Run(const uchar * pToken, int len, SNaturalTokenArra
 		}
     }
 	stat.Seq = h;
+	ASSIGN_PTR(pStat, stat);
 	return ok;
 }
 

@@ -6,6 +6,8 @@
 #pragma hdrstop
 #include <ppsoapclient.h>
 
+static void FASTCALL _StripAndTransfToUtf8(SString & rS) { rS.Strip().Transf(CTRANSF_INNER_TO_UTF8); }
+
 BOOL Implement_SoapModule_DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved, const char * pProductName)
 {
 	switch(dwReason) {
@@ -67,20 +69,10 @@ void PPSoapClientSession::Setup(const char * pUrl, const char * pUser, const cha
 	Password = pPassword;
 }
 
-const char * PPSoapClientSession::GetUrl() const
-{
-	return Url[0] ? Url : 0;
-}
-
-const char * PPSoapClientSession::GetUser() const
-{
-	return User;
-}
-
-const char * PPSoapClientSession::GetPassword() const
-{
-	return Password;
-}
+const char * PPSoapClientSession::GetUrl() const { return Url[0] ? Url : 0; }
+const char * PPSoapClientSession::GetUser() const { return User; }
+const char * PPSoapClientSession::GetPassword() const { return Password; }
+const char * PPSoapClientSession::GetMsg() const { return ErrMsg; }
 
 void FASTCALL PPSoapClientSession::SetMsg(const char * pUtf8Text)
 {
@@ -88,11 +80,6 @@ void FASTCALL PPSoapClientSession::SetMsg(const char * pUtf8Text)
 	(temp_buf = pUtf8Text).Transf(CTRANSF_UTF8_TO_INNER);
 	temp_buf.ReplaceChar('\xA', ' '); // @v8.7.4
 	temp_buf.CopyTo(ErrMsg, sizeof(ErrMsg));
-}
-
-const  char * PPSoapClientSession::GetMsg() const
-{
-	return ErrMsg;
 }
 //
 //
@@ -129,42 +116,38 @@ char * FASTCALL GetDynamicParamString(const char * pSrc, TSCollection <InParamSt
 
 char * FASTCALL GetDynamicParamString(long ival, TSCollection <InParamString> & rPool)
 {
-	SString temp_buf;
-	return GetDynamicParamString(temp_buf.Cat(ival), rPool);
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
+	return GetDynamicParamString(r_temp_buf.Cat(ival), rPool);
 }
 
 char * FASTCALL GetDynamicParamString(int ival, TSCollection <InParamString> & rPool)
 {
-	SString temp_buf;
-	return GetDynamicParamString(temp_buf.Cat((long)ival), rPool);
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
+	return GetDynamicParamString(r_temp_buf.Cat((long)ival), rPool);
 }
 
 char * FASTCALL GetDynamicParamString_(double rval, long fmt, TSCollection <InParamString> & rPool)
 {
-	SString temp_buf;
-	temp_buf.Cat(rval, fmt);
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
+	r_temp_buf.Cat(rval, fmt);
 	//temp_buf.ReplaceChar('.', ',');
-	return GetDynamicParamString(temp_buf, rPool);
+	return GetDynamicParamString(r_temp_buf, rPool);
 }
 
 char * FASTCALL GetDynamicParamString(LDATE dval, long fmt, TSCollection <InParamString> & rPool)
 {
-	SString temp_buf;
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
 	if(checkdate(dval, 0))
-		temp_buf.Cat(dval, fmt);
-	else
-		temp_buf.Z();
-	return GetDynamicParamString(temp_buf, rPool);
+		r_temp_buf.Cat(dval, fmt);
+	return GetDynamicParamString(r_temp_buf, rPool);
 }
 
 char * FASTCALL GetDynamicParamString(LDATETIME dtval, long dfmt, long tfmt, TSCollection <InParamString> & rPool)
 {
-	SString temp_buf;
+	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.12
 	if(checkdate(dtval.d, 0))
-		temp_buf.Cat(dtval, dfmt, tfmt);
-	else
-		temp_buf.Z();
-	return GetDynamicParamString(temp_buf, rPool);
+		r_temp_buf.Cat(dtval, dfmt, tfmt);
+	return GetDynamicParamString(r_temp_buf, rPool);
 }
 //
 //
@@ -337,15 +320,8 @@ UhttTagItem::UhttTagItem(const char * pSymb, const SString & rText)
     SetValue(rText);
 }
 
-void FASTCALL UhttTagItem::SetSymb(const char * pText)
-{
-	(Symb = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttTagItem::SetValue(const char * pText)
-{
-	(Value = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
+void FASTCALL UhttTagItem::SetSymb(const char * pText) { _StripAndTransfToUtf8(Symb = pText); }
+void FASTCALL UhttTagItem::SetValue(const char * pText) { _StripAndTransfToUtf8(Value = pText); }
 //
 //
 //
@@ -360,15 +336,8 @@ UhttStyloDevicePacket::UhttStyloDevicePacket() : ID(0), ParentID(0), Flags(0), D
 {
 }
 
-void FASTCALL UhttStyloDevicePacket::SetName(const char * pText)
-{
-	(Name = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttStyloDevicePacket::SetSymb(const char * pText)
-{
-	(Symb = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
+void FASTCALL UhttStyloDevicePacket::SetName(const char * pText) { _StripAndTransfToUtf8(Name = pText); }
+void FASTCALL UhttStyloDevicePacket::SetSymb(const char * pText) { _StripAndTransfToUtf8(Symb = pText); }
 //
 //
 //
@@ -480,10 +449,7 @@ int UhttDocumentPacket::SetFile(const char * pFileName)
 			}
 			rest_size -= temp_sz;
 		}
-		{
-			SPathStruc ps(pFileName);
-			Name = ps.Nam;
-		}
+		Name = SPathStruc(pFileName).Nam;
 	}
 	CATCHZOK
 	return ok;
@@ -495,35 +461,12 @@ UhttSpecSeriesPacket::UhttSpecSeriesPacket() : ID(0), GoodsID(0), ManufID(0), Ma
 {
 }
 
-void FASTCALL UhttSpecSeriesPacket::SetSerial(const char * pText)
-{
-	(Serial = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttSpecSeriesPacket::SetGoodsName(const char * pText)
-{
-	(GoodsName = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttSpecSeriesPacket::SetManufName(const char * pText)
-{
-	(ManufName = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttSpecSeriesPacket::SetInfoIdent(const char * pText)
-{
-	(InfoIdent = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttSpecSeriesPacket::SetAllowNumber(const char * pText)
-{
-	(AllowNumber = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttSpecSeriesPacket::SetLetterType(const char * pText)
-{
-	(LetterType = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
+void FASTCALL UhttSpecSeriesPacket::SetSerial(const char * pText) { _StripAndTransfToUtf8(Serial = pText); }
+void FASTCALL UhttSpecSeriesPacket::SetGoodsName(const char * pText) { _StripAndTransfToUtf8(GoodsName = pText); }
+void FASTCALL UhttSpecSeriesPacket::SetManufName(const char * pText) { _StripAndTransfToUtf8(ManufName = pText); }
+void FASTCALL UhttSpecSeriesPacket::SetInfoIdent(const char * pText) { _StripAndTransfToUtf8(InfoIdent = pText); }
+void FASTCALL UhttSpecSeriesPacket::SetAllowNumber(const char * pText) { _StripAndTransfToUtf8(AllowNumber = pText); }
+void FASTCALL UhttSpecSeriesPacket::SetLetterType(const char * pText) { _StripAndTransfToUtf8(LetterType = pText); }
 //
 //
 //
@@ -531,40 +474,13 @@ UhttLocationPacket::UhttLocationPacket() : ID(0), ParentID(0), Type(0), CityID(0
 {
 }
 
-void FASTCALL UhttLocationPacket::SetName(const char * pName)
-{
-	(Name = pName).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttLocationPacket::SetCode(const char * pCode)
-{
-	(Code = pCode).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttLocationPacket::SetPostalCode(const char * pPostalCode)
-{
-	(PostalCode = pPostalCode).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttLocationPacket::SetAddress(const char * pAddress)
-{
-	(Address = pAddress).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttLocationPacket::SetPhone(const char * pPhone)
-{
-	(Phone = pPhone).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttLocationPacket::SetEMail(const char * pEMail)
-{
-	(EMail = pEMail).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttLocationPacket::SetContact(const char * pContact)
-{
-	(Contact = pContact).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
+void FASTCALL UhttLocationPacket::SetName(const char * pName) { _StripAndTransfToUtf8(Name = pName); }
+void FASTCALL UhttLocationPacket::SetCode(const char * pCode) { _StripAndTransfToUtf8(Code = pCode); }
+void FASTCALL UhttLocationPacket::SetPostalCode(const char * pPostalCode) { _StripAndTransfToUtf8(PostalCode = pPostalCode); }
+void FASTCALL UhttLocationPacket::SetAddress(const char * pAddress) { _StripAndTransfToUtf8(Address = pAddress); }
+void FASTCALL UhttLocationPacket::SetPhone(const char * pPhone) { _StripAndTransfToUtf8(Phone = pPhone); }
+void FASTCALL UhttLocationPacket::SetEMail(const char * pEMail) { _StripAndTransfToUtf8(EMail = pEMail); }
+void FASTCALL UhttLocationPacket::SetContact(const char * pContact) { _StripAndTransfToUtf8(Contact = pContact); }
 
 SString & FASTCALL UhttLocationPacket::GetCode(SString & rBuf) const
 {
@@ -580,10 +496,7 @@ UhttSCardPacket::UhttSCardPacket() : ID(0), SeriesID(0), OwnerID(0), PDis(0.0), 
 {
 }
 
-void FASTCALL UhttSCardPacket::SetCode(const char * pCode)
-{
-	(Code = pCode).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
+void FASTCALL UhttSCardPacket::SetCode(const char * pCode) { _StripAndTransfToUtf8(Code = pCode); }
 //
 //
 //
@@ -657,10 +570,7 @@ int FASTCALL UhttBillFilter::SetDate(LDATE dt)
 	return 1;
 }
 
-void FASTCALL UhttBillFilter::SetOpSymb(const char * pOpSymb)
-{
-	(OpSymb = pOpSymb).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
+void FASTCALL UhttBillFilter::SetOpSymb(const char * pOpSymb) { _StripAndTransfToUtf8(OpSymb = pOpSymb); }
 //
 //
 //
@@ -707,25 +617,10 @@ UhttWorkbookItemPacket & FASTCALL UhttWorkbookItemPacket::Copy(const UhttWorkboo
 	return *this;
 }
 
-void   FASTCALL UhttWorkbookItemPacket::SetName(const char * pText)
-{
-	(Name = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void   FASTCALL UhttWorkbookItemPacket::SetSymb(const char * pText)
-{
-	(Symb = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void   FASTCALL UhttWorkbookItemPacket::SetVersion(const char * pText)
-{
-	(Version = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void   FASTCALL UhttWorkbookItemPacket::SetDescr(const char * pText)
-{
-	(Descr = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
+void   FASTCALL UhttWorkbookItemPacket::SetName(const char * pText) { _StripAndTransfToUtf8(Name = pText); }
+void   FASTCALL UhttWorkbookItemPacket::SetSymb(const char * pText) { _StripAndTransfToUtf8(Symb = pText); }
+void   FASTCALL UhttWorkbookItemPacket::SetVersion(const char * pText) { _StripAndTransfToUtf8(Version = pText); }
+void   FASTCALL UhttWorkbookItemPacket::SetDescr(const char * pText) { _StripAndTransfToUtf8(Descr = pText); }
 //
 //
 //
@@ -733,15 +628,8 @@ UhttPrcPlaceDescription::UhttPrcPlaceDescription() : GoodsID(0)
 {
 }
 
-void FASTCALL UhttPrcPlaceDescription::SetRange(const char * pText)
-{
-	(Range = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttPrcPlaceDescription::SetDescr(const char * pText)
-{
-	(Descr = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
+void FASTCALL UhttPrcPlaceDescription::SetRange(const char * pText) { _StripAndTransfToUtf8(Range = pText); }
+void FASTCALL UhttPrcPlaceDescription::SetDescr(const char * pText) { _StripAndTransfToUtf8(Descr = pText); }
 //
 //
 //
@@ -769,15 +657,8 @@ UhttProcessorPacket & FASTCALL UhttProcessorPacket::Copy(const UhttProcessorPack
 	return *this;
 }
 
-void FASTCALL UhttProcessorPacket::SetName(const char * pName)
-{
-	(Name = pName).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttProcessorPacket::SetSymb(const char * pSymb)
-{
-	(Symb = pSymb).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
+void FASTCALL UhttProcessorPacket::SetName(const char * pName) { _StripAndTransfToUtf8(Name = pName); }
+void FASTCALL UhttProcessorPacket::SetSymb(const char * pSymb) { _StripAndTransfToUtf8(Symb = pSymb); }
 //
 //
 //
@@ -791,15 +672,8 @@ UhttCipPacket::UhttCipPacket() : ID(0), Kind(0), PrmrID(0), PersonID(0), Num(0),
 {
 }
 
-void FASTCALL UhttCipPacket::SetMemo(const char * pText)
-{
-	(Memo = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttCipPacket::SetPlaceCode(const char * pText)
-{
-	(PlaceCode = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
+void FASTCALL UhttCipPacket::SetMemo(const char * pText) { _StripAndTransfToUtf8(Memo = pText); }
+void FASTCALL UhttCipPacket::SetPlaceCode(const char * pText) { _StripAndTransfToUtf8(PlaceCode = pText); }
 //
 //
 //
@@ -832,15 +706,8 @@ UhttTSessionPacket & FASTCALL UhttTSessionPacket::Copy(const UhttTSessionPacket 
 	return *this;
 }
 
-void FASTCALL UhttTSessionPacket::SetMemo(const char * pText)
-{
-	(Memo = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
-
-void FASTCALL UhttTSessionPacket::SetDetail(const char * pText)
-{
-	(Detail = pText).Strip().Transf(CTRANSF_INNER_TO_UTF8);
-}
+void FASTCALL UhttTSessionPacket::SetMemo(const char * pText) { _StripAndTransfToUtf8(Memo = pText); }
+void FASTCALL UhttTSessionPacket::SetDetail(const char * pText) { _StripAndTransfToUtf8(Detail = pText); }
 //
 //
 //

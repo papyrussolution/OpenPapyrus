@@ -722,6 +722,17 @@ struct SrWordInfo { // @flat
 	double Score;      // Величина сопоставления данной грамматической формы с требуемой (при преобразовании слова)
 };
 
+class SRevolver_BDbTable_Buffer : public TSRevolver <BDbTable::Buffer> {
+public:
+	explicit SRevolver_BDbTable_Buffer(uint c) : TSRevolver <BDbTable::Buffer> (c) {}
+	BDbTable::Buffer & Get() 
+	{ 
+		BDbTable::Buffer & r_buf = Implement_Get(); 
+		r_buf.Reset();
+		return r_buf;
+	}
+};
+
 class SrDatabase {
 public:
 	//
@@ -882,6 +893,8 @@ public:
 	void * CreateStoreFiasAddrBlock();
 	void   DestroyStoreFiasAddrBlock(void * pBlk);
 	int    StoreFiasAddr(void * pStoreFiasAddrBlock, uint passN, const Sdr_FiasRawAddrObj * pEntry);
+
+	//BDbTable::Buffer & SLAPI AcquireRvlBuf() { return RvlBuf.Get(); }
 //private:
 public:
 	BDbDatabase      * P_Db;
@@ -905,6 +918,7 @@ private:
 	CONCEPTID PropType;     // :crp_type
 	CONCEPTID PropHMember;  // :crp_hmember
 	SymbHashTable WordCache;
+	//SRevolver_BDbTable_Buffer RvlBuf;
 };
 //
 // Descr: Специализированный токенайзер для извлечения текста по правилам
@@ -1054,6 +1068,7 @@ public:
 	};
 
 	int    SLAPI __ResolveExprRule(ResolveRuleBlock & rB, int unrollStackOnly) const;
+	int    SLAPI TryNgForConcept(ResolveRuleBlock & rB, NGID ngID, const SrSyntaxRuleSet::ExprItem * pSti, CONCEPTID targetCID, uint tidx) const;
 	void   FASTCALL SkipComment(SStrScan & rScan);
 	void   FASTCALL ScanSkip(SStrScan & rScan);
 	int    FASTCALL IsOperand(SStrScan & rScan, uint * pLen);
